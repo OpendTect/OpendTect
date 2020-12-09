@@ -81,7 +81,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
 	ObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectFaultStickSets( objs );
+	applMgr()->EMServer()->selectFaultStickSets( objs, getUiParent() );
 	TypeSet<EM::ObjectID> emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();

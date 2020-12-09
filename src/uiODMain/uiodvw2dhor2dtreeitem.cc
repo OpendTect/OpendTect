@@ -148,7 +148,7 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
 	ObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectHorizons( objs, true );
+	applMgr()->EMServer()->selectHorizons( objs, true, getUiParent() );
 	TypeSet<EM::ObjectID> emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();

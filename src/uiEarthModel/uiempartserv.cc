@@ -662,31 +662,36 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
 }
 
 
-void uiEMPartServer::selectHorizons( ObjectSet<EM::EMObject>& objs, bool is2d )
+void uiEMPartServer::selectHorizons( ObjectSet<EM::EMObject>& objs, bool is2d,
+				     uiParent* p )
 {
-    selectSurfaces( objs, is2d ? EMHorizon2DTranslatorGroup::sGroupName()
+    selectSurfaces( p, objs, is2d ? EMHorizon2DTranslatorGroup::sGroupName()
 			      : EMHorizon3DTranslatorGroup::sGroupName() );
 }
 
 
-void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d )
+void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d,
+				   uiParent* p )
 {
     if ( !is2d )
-	selectSurfaces( objs, EMFault3DTranslatorGroup::sGroupName() );
+	selectSurfaces( p, objs, EMFault3DTranslatorGroup::sGroupName() );
 }
 
 
-void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs )
-{  selectSurfaces( objs, EMFaultStickSetTranslatorGroup::sGroupName() ); }
+void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
+					   uiParent* p )
+{  selectSurfaces( p, objs, EMFaultStickSetTranslatorGroup::sGroupName() ); }
 
 
-void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
+void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
 {
+    if ( !p ) p = parent();
+
     CtxtIOObj ctio( EMBodyTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = true;
 
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
-    uiIOObjSelDlg dlg( parent(), sdsu, ctio );
+    uiIOObjSelDlg dlg( p, sdsu, ctio );
     if ( !dlg.go() )
 	return;
 
@@ -717,7 +722,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
 	loaders.add( object->loader() );
     }
 
-    uiTaskRunner execdlg( parent() );
+    uiTaskRunner execdlg( p );
     if ( !TaskRunner::execute( &execdlg, loaders ) )
     {
 	deepUnRef( objs );
@@ -726,10 +731,12 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
 }
 
 
-void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
+void uiEMPartServer::selectSurfaces( uiParent* p, ObjectSet<EM::EMObject>& objs,
 				     const char* typ )
 {
-    uiMultiSurfaceReadDlg dlg( parent(), typ );
+    if ( !p ) p = parent();
+
+    uiMultiSurfaceReadDlg dlg( p, typ );
     if ( !dlg.go() ) return;
 
     TypeSet<MultiID> surfaceids;
@@ -771,7 +778,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 
     if ( exec )
     {
-	uiTaskRunner execdlg( parent() );
+	uiTaskRunner execdlg( p );
 	if ( !TaskRunner::execute( &execdlg, *exec ) )
 	    deepUnRef( objs );
     }
