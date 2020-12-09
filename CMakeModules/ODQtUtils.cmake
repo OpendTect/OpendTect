@@ -133,8 +133,8 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
 	OD_INSTALL_PROGRAM( "${QTDIR}/bin/qwebengine_convert_dict" )
     endif()
 
-    list( APPEND  OD_QWEBENGINE_PLUGINS resources translations )
-    set( OD_QWEBENGINE_PLUGINS ${OD_QWEBENGINE_PLUGINS} PARENT_SCOPE )
+    list( APPEND  OD_QTPLUGINS resources translations )
+    set( OD_QTPLUGINS ${OD_QTPLUGINS} PARENT_SCOPE )
 endmacro(QT_SETUP_WEBENGINE_INTERNALS)
 
 macro( QT_SETUP_XCBQPA_EXTERNALS )
