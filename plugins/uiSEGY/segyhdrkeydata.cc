@@ -17,11 +17,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 static const char* sKeyPfx = "SEGY.Usable Range";
-SEGY::HdrEntryConstraints hdrentryconstraints_;
+PtrMan<SEGY::HdrEntryConstraints> hdrentryconstraints_ = nullptr;
 const SEGY::HdrEntryConstraints& SEGY::HdrEntryConstraints::get()
-{ return hdrentryconstraints_; }
+{
+    return get4Edit();
+}
+
+
 SEGY::HdrEntryConstraints& SEGY::HdrEntryConstraints::get4Edit()
-{ return hdrentryconstraints_; }
+{
+    if ( !hdrentryconstraints_ )
+	hdrentryconstraints_ = new HdrEntryConstraints;
+    return *hdrentryconstraints_;
+}
 
 
 

@@ -13,16 +13,16 @@ ________________________________________________________________________
 #include "uisegycommon.h"
 #include "uidialog.h"
 #include "segyfiledef.h"
-#include "uistring.h"
 
-class Timer;
+class SEGYSeisTrcTranslator;
 class SeisTrc;
-class uiTable;
-class uiTextEdit;
 class SeisTrcBuf;
 class SeisTrcReader;
+class Timer;
 class uiSEGYTrcHdrValPlot;
-class SEGYSeisTrcTranslator;
+class uiSpinBox;
+class uiTable;
+class uiTextEdit;
 
 
 /* The dialog for examining SEG-Y files */
@@ -66,6 +66,9 @@ protected:
 
     uiTextEdit*		txtfld_;
     uiTable*		tbl_;
+    uiSpinBox*		trc0fld_;
+    uiSpinBox*		stepfld_;
+    uiSpinBox*		nrtrcsfld_;
     uiSEGYTrcHdrValPlot* hvaldisp_;
 
     void		saveHdr(CallBacker*);
@@ -82,6 +85,13 @@ protected:
     bool		rejectOK(CallBacker*);
 
     void		outInfo(const uiString&);
+
+    int			firsttrace_		= 1;
+    void		firstTrcCB(CallBacker*);
+    void		backCB(CallBacker*);
+    void		forwardCB(CallBacker*);
+    void		nrTrcsCB(CallBacker*);
+    void		updateMaxTrace();
 
 public:
 
