@@ -25,15 +25,14 @@ OpendTect is used worldwide by thousands of open source users, thousands of acad
 - [Contacts and More Information](#contacts-and-more-information)
 
 ## Repository Structure
-The repository contains a number of release branches and 3 development branches. The current stable release branch is [6.4.5](https://github.com/OpendTect/OpendTect/tree/od6.4.5)
+The repository contains a number of release branches and 2 development branches. The current stable release branch is [6.6_rel](https://github.com/OpendTect/OpendTect/tree/od6.6_rel)
 
 The development branches are:
 
 | BRANCH | DESCRIPTION |
 | -------------| ----------------- |
 | [main](https://github.com/OpendTect/OpendTect/tree/main) | This is the bleeding edge where migration of OpendTect to new versions of its major dependencies, Qt and OpenSceneGraph, is tested and major new functionality is added.  |
-| [od6.6](https://github.com/OpendTect/OpendTect/tree/od6.6)  | This is the main development branch for the next stable release series 6.6. No new features are currently being added to this branch as it is being prepared for release. |
-| [od6.4](https://github.com/OpendTect/OpendTect/tree/od6.4)  |  This branch is the main stable branch. Only critical fixes may be applied.  |
+| [od6.6](https://github.com/OpendTect/OpendTect/tree/od6.6)  | This is the main development branch for the next stable release series 6.6. No major new features are currently being added to this branch as it is being prepared for release. |
 
 ## License
 OpendTect is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gpl.html) license.
@@ -53,9 +52,9 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| main | [Qt 5.15.0](http://download.qt.io/archive/qt/5.15/5.15.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od6.6.0, od6.6 | [Qt 5.15.0](http://download.qt.io/archive/qt/5.15/5.15.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od6.4.5, od6.4, od6.5 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz) |
+| main | [Qt 5.15.1](http://download.qt.io/archive/qt/5.15/5.15.1/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od6.6_rel, od6.6 | [Qt 5.15.1](http://download.qt.io/archive/qt/5.15/5.15.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od6.4.5, od6.4 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz) |
 
 #### Qt Install
 For the Qt install the following components must be selected depending on your build platform:
