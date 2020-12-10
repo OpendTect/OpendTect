@@ -10,35 +10,38 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisegyexamine.h"
-#include "uisegytrchdrvalplot.h"
-#include "uitextedit.h"
-#include "uitable.h"
-#include "uisplitter.h"
-#include "uilabel.h"
-#include "uitoolbutton.h"
-#include "uiflatviewer.h"
+
 #include "uifiledlg.h"
+#include "uiflatviewer.h"
+#include "uilabel.h"
 #include "uimsg.h"
+#include "uisegytrchdrvalplot.h"
 #include "uiseistrcbufviewer.h"
+#include "uispinbox.h"
+#include "uisplitter.h"
 #include "uistatsdisplaywin.h"
-#include "filepath.h"
-#include "ioobj.h"
-#include "ptrman.h"
-#include "msgh.h"
-#include "seistrc.h"
-#include "seisread.h"
-#include "seisbufadapters.h"
-#include "segytr.h"
-#include "segyhdr.h"
-#include "iopar.h"
-#include "timer.h"
+#include "uitable.h"
+#include "uitextedit.h"
+#include "uitoolbutton.h"
+
 #include "envvars.h"
-#include "separstr.h"
-#include "oscommand.h"
+#include "filepath.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "msgh.h"
+#include "od_helpids.h"
 #include "od_strstream.h"
 #include "oddirs.h"
-#include "ioman.h"
-#include "od_helpids.h"
+#include "oscommand.h"
+#include "ptrman.h"
+#include "segyhdr.h"
+#include "segytr.h"
+#include "seisbufadapters.h"
+#include "seisread.h"
+#include "seistrc.h"
+#include "separstr.h"
+#include "timer.h"
 
 const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
 
@@ -71,8 +74,8 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     uiGroup* txtgrp = new uiGroup( this, "Txt fld group" );
     uiLabel* lbl = new uiLabel( txtgrp, tr("File header information") );
     uiToolButton* savesettb = new uiToolButton( txtgrp, "save",
-					 tr("Save textual header to a file"),
-				         mCB(this,uiSEGYExamine,saveHdr) );
+					tr("Save textual header to a file"),
+					mCB(this,uiSEGYExamine,saveHdr) );
     savesettb->attach( rightBorder );
     txtfld_ = new uiTextEdit( txtgrp, "", true );
     txtfld_->setPrefHeightInChar( 14 );
@@ -81,32 +84,64 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     uiGroup* logrp = new uiGroup( this, "Low group" );
     uiGroup* tblgrp = new uiGroup( logrp, "Table group" );
+
     lbl = new uiLabel( tblgrp, tr("Trace header information") );
-    uiToolButton* seistb = new uiToolButton( tblgrp, "vd", tr("Display traces"),
-			     mCB(this,uiSEGYExamine,dispSeis) );
 
     uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );
     tblsu.rowdesc("Header field").coldesc("Trace").selmode(uiTable::SingleRow);
     tbl_ = new uiTable( tblgrp, tblsu, "Trace info" );
     tbl_->setPrefHeightInChar( 14 );
-    tbl_->setPrefWidthInChar( 40 );
+    tbl_->setPrefWidthInChar( 50 );
     tbl_->attach( ensureBelow, lbl );
     for ( int icol=0; icol<setup_.nrtrcs_; icol++ )
     {
 	const int tidx = icol + 1;
 	uiString tt( tr("Trace header info from %1 %2 trace").arg(tidx)
-                                                .arg(getRankPostFix(tidx)) );
+						.arg(getRankPostFix(tidx)) );
 	tbl_->setColumnLabel( icol, toUiString(tidx) );
 	tbl_->setColumnToolTip( icol, tt );
 	tbl_->setColumnReadOnly( icol, true );
     }
     tbl_->selectionChanged.notify( mCB(this,uiSEGYExamine,rowClck) );
+
+
+    auto* lsb = new uiLabeledSpinBox( tblgrp, tr("Trace / Step") );
+    lsb->attach( leftAlignedBelow, tbl_ );
+    trc0fld_ = lsb->box();
+    trc0fld_->setToolTip( tr("First trace") );
+    trc0fld_->setInterval(1,10000000,1);
+    trc0fld_->setStretch( 2, 0 );
+    mAttachCB( trc0fld_->valueChanged, uiSEGYExamine::firstTrcCB );
+
+    stepfld_ = new uiSpinBox( tblgrp );
+    stepfld_->setToolTip( tr("Number of traces to scroll back/forward") );
+    stepfld_->setStretch( 2, 0 );
+    stepfld_->setInterval( 1, 1000000, 1 );
+    stepfld_->attach( rightTo, lsb );
+
+    auto* prevbut = new uiToolButton( tblgrp, "leftarrow", tr("Scroll back"),
+				mCB(this,uiSEGYExamine,backCB) );
+    auto* nextbut = new uiToolButton( tblgrp, "rightarrow",tr("Scroll forward"),
+				mCB(this,uiSEGYExamine,forwardCB) );
+    prevbut->attach( rightTo, stepfld_ );
+    nextbut->attach( rightTo, prevbut );
+
     uiToolButton* histtb = new uiToolButton( tblgrp, "histogram",
 			    tr("Show histogram of sample values"),
 			    mCB(this,uiSEGYExamine,dispHist) );
     histtb->attach( rightAlignedAbove, tbl_ );
+
+    uiToolButton* seistb = new uiToolButton( tblgrp, "vd", tr("Display traces"),
+			     mCB(this,uiSEGYExamine,dispSeis) );
     seistb->attach( leftOf, histtb );
 
+    auto* nrtrcssb = new uiLabeledSpinBox( tblgrp, tr("Nr traces") );
+    nrtrcssb->attach( leftOf, seistb );
+    nrtrcsfld_ = nrtrcssb->box();
+    mAttachCB( nrtrcsfld_->valueChanged, uiSEGYExamine::nrTrcsCB );
+    nrtrcsfld_->setToolTip( tr("Number of traces to examine") );
+    nrtrcsfld_->setInterval( 1, 100000, 1 );
+    nrtrcsfld_->setValue( setup_.nrtrcs_ );
     hvaldisp_ = new uiSEGYTrcHdrValPlot( this, true );
 
     uiSplitter* vsplit = new uiSplitter( logrp, "VSplitter", true );
@@ -121,16 +156,15 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     outInfo( tr("Opening input") );
     rdr_ = getReader( setup_, txtinfo_ );
     txtfld_->setText( txtinfo_ );
+    updateMaxTrace();
 
-    uiString str( m3Dots(tr("Reading first %1 traces").arg(su.nrtrcs_)) );
-    outInfo( str );
-
-    afterPopup.notify( mCB(this,uiSEGYExamine,updateInput) );
+    mAttachCB( afterPopup, uiSEGYExamine::updateInput );
 }
 
 
 uiSEGYExamine::~uiSEGYExamine()
 {
+    detachAllNotifiers();
     delete rdr_;
     delete &tbuf_;
 }
@@ -167,6 +201,7 @@ uiString uiSEGYExamine::sGetWinTitle()
 
     return tr("First %1 traces from %2").arg( tbuf_.size() ).arg( fnm );
 }
+
 
 void uiSEGYExamine::dispSeis( CallBacker* )
 {
@@ -290,9 +325,66 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 }
 
 
+void uiSEGYExamine::firstTrcCB( CallBacker* )
+{
+    const int firsttrc = trc0fld_->getIntValue();
+    if ( firsttrc != firsttrace_ )
+	updateInp();
+}
+
+
+void uiSEGYExamine::backCB( CallBacker* )
+{
+    const int firsttrc = trc0fld_->getIntValue();
+    const int step = stepfld_->getIntValue();
+    trc0fld_->setValue( firsttrc-step );
+    updateInp();
+}
+
+
+void uiSEGYExamine::forwardCB( CallBacker* )
+{
+    const int firsttrc = trc0fld_->getIntValue();
+    const int step = stepfld_->getIntValue();
+    trc0fld_->setValue( firsttrc+step );
+    updateInp();
+}
+
+
+void uiSEGYExamine::nrTrcsCB( CallBacker* )
+{
+    const int nrtrcs = nrtrcsfld_->getIntValue();
+    if ( nrtrcs == setup_.nrtrcs_ )
+	return;
+
+    setup_.nrtrcs_ = nrtrcs;
+    updateMaxTrace();
+    updateInp();
+}
+
+
+void uiSEGYExamine::updateMaxTrace()
+{
+    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,rdr_->translator())
+    if ( segytr )
+	trc0fld_->setMaxValue( segytr->estimatedNrTraces()-setup_.nrtrcs_ );
+}
+
+
 void uiSEGYExamine::updateInp()
 {
-    if ( !rdr_ || !tbuf_.isEmpty() ) return;
+    if ( !rdr_ )
+	return;
+
+    MouseCursorChanger mcc( MouseCursor::Wait );
+
+    uiString rdstr( m3Dots(tr("Reading %1 traces").arg(setup_.nrtrcs_)) );
+    outInfo( rdstr );
+
+    tbuf_.erase();
+    const int selrow = tbl_->currentRow();
+    if ( tbl_->nrCols() < setup_.nrtrcs_ )
+	tbl_->setNrCols( setup_.nrtrcs_ );
 
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     const int nrvals = hdef.size();
@@ -301,9 +393,11 @@ void uiSEGYExamine::updateInp()
 
     SeisTrc trc; int nrdone = 0;
     bool stoppedatend = false;
+    firsttrace_ = trc0fld_->getIntValue();
+    trans->goToTrace( firsttrace_-1 );
     for ( int itrc=0; itrc<setup_.nrtrcs_; itrc++ )
     {
-	if ( !rdr_->get(trc) )
+	if ( !trans->read(trc) )
 	    stoppedatend = true;
 	if ( nrdone == 0 )
 	    handleFirstTrace( trc, *trans );
@@ -342,8 +436,12 @@ void uiSEGYExamine::updateInp()
 	str += "  ----";
 	txtinfo_ += str;
     }
-    outInfo( uiString::empty() );
+
+    outInfo( tr("Total traces: %1").arg(trans->estimatedNrTraces()) );
     txtfld_->setText( txtinfo_ );
+    tbl_->selectRow( selrow );
+    if ( selrow==0 )
+	setRow( selrow );
 }
 
 
@@ -366,8 +464,8 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
     for ( int ival=0; ival<nrvals; ival++ )
     {
 	const SEGY::HdrEntry& he( *hdef[ival] );
-	uiString rownm = toUiString("%1 [%2]").arg(((int)he.bytepos_)+1)
-                                                            .arg(he.name());
+	uiString rownm = toUiString("%1 [%2]")
+				.arg(int(he.bytepos_)+1).arg(he.name());
 	tbl_->setRowLabel( ival, rownm );
 	tbl_->setRowToolTip( ival, mToUiStringTodo(he.description()) );
     }
