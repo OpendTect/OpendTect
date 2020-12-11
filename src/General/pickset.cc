@@ -631,7 +631,7 @@ Pick::Set::LocID Pick::Set::find( const TrcKey& tk ) const
 
 Pick::Set::LocID Pick::Set::nearestLocation( const Coord& pos ) const
 {
-    return getNearestLocation( *this, Coord3(pos.x,pos.y,0.f), true );
+    return getNearestLocation( *this, Coord3(pos.x,pos.y,0.), true );
 }
 
 
@@ -644,7 +644,14 @@ Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
 
 void Pick::Set::getBoundingBox( TrcKeyZSampling& tkzs ) const
 {
+    if ( isEmpty() )
+    {
+	tkzs.init( true );
+	return;
+    }
+
     tkzs.setEmpty();
+    tkzs.zsamp_.setUdf();
     for ( int idx=0; idx<size(); idx++ )
 	tkzs.include( get(idx).trcKey().binID(), get(idx).z() );
 }

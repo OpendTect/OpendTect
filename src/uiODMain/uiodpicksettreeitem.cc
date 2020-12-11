@@ -792,6 +792,8 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
     {
 	TrcKeyZSampling tkzs;
 	set_.getBoundingBox( tkzs );
+	if ( tkzs.zsamp_.width() < 2*SI().zStep() )
+	    tkzs.zsamp_ = SI().zRange( false );
 	visserv_->setWorkingArea( tkzs );
     }
 
