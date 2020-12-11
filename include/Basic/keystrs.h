@@ -158,20 +158,21 @@ namespace sKey
     inline FixedString Target()		{ return "Target"; }
     inline FixedString Targets()	{ return "Targets"; }
     inline FixedString TermEm()		{ return "Terminal Emulator"; }
+    inline FixedString Thickness()	{ return "Thickness"; }
+    inline FixedString ThreeD()		{ return "3D"; }
     inline FixedString Time()		{ return "Time"; }
     inline FixedString TimeRange()	{ return "Time Range"; }
     inline FixedString Title()		{ return "Title"; }
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
     inline FixedString TraceNr()	{ return "Trace number"; }
     inline FixedString TraceKey()	{ return "Trace key"; }
-    inline FixedString TVD(int n=1)     { return n<2 ? "TVD" : "TVDs"; }
+    inline FixedString Transparency()	{ return "Transparency"; }
+    inline FixedString TVD(int n=1)	{ return n<2 ? "TVD" : "TVDs"; }
     inline FixedString TVDSS()		{ return "TVDSS"; }
+    inline FixedString TwoD()		{ return "2D"; }
     inline FixedString TWT()		{ return "TWT"; }
     inline FixedString Type()		{ return "Type"; }
     inline FixedString Types()		{ return "Types"; }
-    inline FixedString TwoD()		{ return "2D"; }
-    inline FixedString Thickness()	{ return "Thickness"; }
-    inline FixedString ThreeD()		{ return "3D"; }
     inline FixedString Undef()		{ return "Undefined"; }
     inline FixedString Unit()		{ return "Unit"; }
     inline FixedString Units()		{ return "Units"; }
@@ -248,4 +249,3 @@ namespace sKey
     inline FixedString StrFtPolygon()   { return "FaultPolygons"; }
 
 };
-
