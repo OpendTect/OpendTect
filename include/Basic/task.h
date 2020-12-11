@@ -87,6 +87,8 @@ public:
 
     void		getProgress(const ReportingTask&);
 
+    Notifier<ReportingTask>	progressUpdated;
+
 protected:
 			ReportingTask(const char* nm=nullptr);
 
@@ -103,7 +105,7 @@ protected:
 
 private:
 
-    ProgressMeter*	progressmeter_;
+    ProgressMeter*	progressmeter_ = nullptr;
     int			lastupdate_;
 };
 
@@ -120,12 +122,13 @@ public:
 			//Becomes mine
 
     void		setParallel(bool);
-    void		showCumulativeCount( bool yn ) { cumulativecount_ = yn; }
+    void		showCumulativeCount( bool yn )
+			{ cumulativecount_ = yn; }
     void		setEmpty();
     void		getTasks(TaskGroup&);
 
-    od_int64	nrDone() const;
-    od_int64	totalNr() const;
+    od_int64		nrDone() const;
+    od_int64		totalNr() const;
 
     uiString		uiMessage() const;
     uiString		uiNrDoneText() const;

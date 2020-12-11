@@ -769,6 +769,13 @@ const RegularSeisDataPack* VolProc::ChainExecutor::getOutput() const
     return ErrorOccurred(); \
 }
 
+void VolProc::ChainExecutor::progressChanged( CallBacker* )
+{
+    if ( jobcomm_ )
+	jobcomm_->updateProgress( mNINT32(nrDone()) );
+}
+
+
 int VolProc::ChainExecutor::nextStep()
 {
     if ( !isok_ )
@@ -784,10 +791,12 @@ int VolProc::ChainExecutor::nextStep()
     Task& curtask = curepoch_->getTask();
     mDynamicCastGet(ReportingTask*,curreptask,&curtask);
     curreptask->getProgress( *this );
+    mAttachCB( curreptask->progressUpdated, ChainExecutor::progressChanged );
     curtask.enableWorkControl( true );
     if ( !curtask.execute() )
 	mCleanUpAndRet( false )
 
+    mDetachCB( curreptask->progressUpdated, ChainExecutor::progressChanged );
     const bool finished = epochs_.isEmpty();
     if ( finished )		//we just executed the last one
     {

@@ -94,6 +94,7 @@ private:
     od_uint64			calculateMaximumMemoryUsage(
 					    const TrcKeySampling&,
 					    const StepInterval<float>&);
+    void			progressChanged(CallBacker*);
 
     void			releaseMemory();
     int				computeLatestEpoch(Step::ID) const;

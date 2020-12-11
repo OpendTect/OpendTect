@@ -226,9 +226,11 @@ bool TaskGroup::execute()
 	toexec->setProgressMeter( progressMeter() );
 
 	locker.unlockNow();
-	if ( !toexec->execute() )
-	    return false;
+	const bool res = toexec->execute();
 	locker.reLock();
+	updateProgressMeter( true );
+	if ( !res )
+	    return false;
     }
 
     return true;
@@ -266,8 +268,8 @@ void TaskGroup::setParallel(bool)
 
 ReportingTask::ReportingTask( const char* nm )
     : Task(nm)
-    , progressmeter_(0)
     , lastupdate_(Time::getMilliSeconds())
+    , progressUpdated(this)
 {
 }
 
@@ -317,6 +319,7 @@ void ReportingTask::updateProgressMeter( bool forced, od_int64* totalnrcache )
     progressmeter_->setNrDoneText( uiNrDoneText() );
     progressmeter_->setMessage( uiMessage() );
     lastupdate_ = Time::getMilliSeconds();
+    progressUpdated.trigger( this );
 }
 
 
