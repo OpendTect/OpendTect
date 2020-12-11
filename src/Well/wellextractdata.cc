@@ -1184,7 +1184,7 @@ bool Well::LogSampler::doPrepare( int thread )
     const StepInterval<float> zrgreg( zrg_.start, zrg_.stop, zstep_ );
     TypeSet<float> dahs;
     TypeSet<float> winsz;
-    for ( int idx=0; idx<=zrgreg.nrSteps()+1; idx++ )
+    for ( int idx=0; idx<zrgreg.nrSteps()+1; idx++ )
     {
 	const float zmid = zrgreg.atIndex(idx);
 	const float ztop = zmid - zstep_/2.f;
