@@ -37,6 +37,8 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
     , jobid_(jid)
     , lastsucces_(Time::getMilliSeconds())
     , logstream_(createLogStream())
+    , lock_(true)
+    , sendmsglock_(true)
 {
     min_time_between_msgupdates_ =
 				1000 * GetEnvVarIVal( "DTECT_MM_INTRVAL", 1 );
@@ -67,6 +69,8 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
     , jobid_(jid)
     , lastsucces_(Time::getMilliSeconds())
     , logstream_(createLogStream())
+    , lock_(true)
+    , sendmsglock_(true)
 {
     min_time_between_msgupdates_ =
 				1000 * GetEnvVarIVal( "DTECT_MM_INTRVAL", 1 );
@@ -85,6 +89,7 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
 
 JobCommunic::~JobCommunic()
 {
+    detachAllNotifiers();
     delete socket_;
     delete logstream_;
 }
@@ -187,9 +192,15 @@ BufferString JobCommunic::buildString( char tag , int status, const char* msg )
 }
 
 
-bool JobCommunic::sendMsg( char tag , int status, const char* msg )
+void JobCommunic::sendMsgCB( CallBacker* cber )
 {
-    BufferString buf = buildString( tag , status, msg );
+    Threads::Locker lckr( sendmsglock_ );
+    mDynamicCastGet( CBCapsule<sendData>*, caps, cber )
+    mEnsureExecutedInMainThreadWithCapsule( JobCommunic::sendMsgCB, caps );
+    mCBCapsuleUnpack( sendData, sdata, caps );
+
+    BufferString& msg = sdata.msg_;
+    BufferString buf = buildString( sdata.tag_, sdata.status_, msg );
     if ( DBG::isOn(DBG_MM) )
     {
 	BufferString dbmsg( "JobCommunic::sendMsg -- sending : " );
@@ -223,7 +234,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 
     else if ( primaryhostinfo == mRSP_STOP )
     {
-	buf = buildString( tag , mSTAT_KILLED, msg );
+	buf = buildString( sdata.tag_, mSTAT_KILLED, msg );
 	writestat = socket_->write( buf );
 	logmsg = "Writing to socket "; logmsg += buf;
 	logMsg( writestat, logmsg,
@@ -240,7 +251,16 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 	ret = false;
     }
 
-    return ret;
+    sendret_ = ret;
+}
+
+
+bool JobCommunic::sendMsg( char tag , int status, const char* msg )
+{
+    Threads::Locker lckr( lock_ );
+    CBCapsule<sendData> caps( sendData(tag,status,msg), this );
+    sendMsgCB( &caps );
+    return sendret_;
 }
 
 

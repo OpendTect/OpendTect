@@ -112,9 +112,20 @@ protected:
 
 private:
 
-    bool		updateMsg( char tag, int, const char* msg=0 );
-    bool		sendMsg( char tag, int, const char* msg=0 );
-    BufferString	buildString(char tag, int, const char* msg=0 );
+    struct sendData
+    {
+			sendData(char tag,int stat,const char* msg)
+			    : tag_(tag) , status_(stat), msg_(msg)	{}
+
+	char		tag_;
+	int		status_;
+	BufferString	msg_;
+    };
+
+    bool		updateMsg(char tag,int,const char* msg=nullptr);
+    bool		sendMsg(char tag,int,const char* msg=nullptr);
+    void		sendMsgCB(CallBacker* cb=nullptr);
+    BufferString	buildString(char tag,int,const char* msg=nullptr);
 
 			//! directly to bp.stdout.ostrem or std::cerr.
     void		directMsg( const char* msg );
@@ -135,6 +146,9 @@ private:
     int			lastupdate_;
 
     void		logMsg(bool stat,const char* msg, const char* details);
+    bool		sendret_ = false;
+    Threads::Lock	lock_;
+    Threads::Lock	sendmsglock_;
     od_ostream*		logstream_;
     od_ostream*		createLogStream();
     void		dumpSystemInfo();
