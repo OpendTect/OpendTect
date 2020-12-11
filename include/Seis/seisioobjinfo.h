@@ -84,6 +84,7 @@ private:
     void		refreshCache(const SeisTrcTranslator&);
 
     friend class RawTrcsSequence;
+    friend class RawScaledTrcsSequence;
 
 };
 

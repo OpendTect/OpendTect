@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscommon.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
+#include "seisrawtrcsseq.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
@@ -80,7 +81,8 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 class ArrayFiller : public Task
 {
 public:
-ArrayFiller( const RawTrcsSequence& databuf, const StepInterval<float>& zsamp,
+ArrayFiller( const RawScaledTrcsSequence& databuf,
+	     const StepInterval<float>& zsamp,
 	     bool samedatachar, bool needresampling,
 	     const TypeSet<int>& components,
 	     const ObjectSet<Scaler>& compscalers,
@@ -304,7 +306,7 @@ bool doTrace( int itrc )
 
 protected:
 
-    const RawTrcsSequence&	databuf_;
+    const RawScaledTrcsSequence&	databuf_;
     const StepInterval<float>&	zsamp_;
     const TypeSet<int>&		components_;
     const ObjectSet<Scaler>&	compscalers_;
@@ -446,7 +448,7 @@ uiString Seis::ParallelReader::uiMessage() const
 
 void Seis::ParallelReader::submitUdfWriterTasks()
 {
-    if ( !trcssampling_ || trcssampling_->totalSize() >= tkzs_.hsamp_.totalNr() )
+    if ( !trcssampling_ || trcssampling_->totalSize() >= tkzs_.hsamp_.totalNr())
 	return;
 
     TaskGroup* udfwriters = new TaskGroup;
@@ -535,7 +537,7 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64, int threadid )
 
     const Seis::ObjectSummary seissummary( *ioobj_ );
     const int nrcrl = tks.nrTrcs();
-    RawTrcsSequence* databuf = new RawTrcsSequence( seissummary, nrcrl );
+    auto* databuf = new RawScaledTrcsSequence( seissummary, nrcrl );
     if ( !databuf ) return false;
     ObjectSet<Scaler>* trcscalers = new ObjectSet<Scaler>;
     trcscalers->allowNull( true );
@@ -769,7 +771,7 @@ bool Seis::ParallelReader2D::doWork( od_int64 start,od_int64 stop, int )
 	{ msg_.append( rdr.errMsg(), true ); return false; }
 
     const Seis::ObjectSummary seissummary( *ioobj_, tks.getGeomID() );
-    RawTrcsSequence* databuf = new RawTrcsSequence( seissummary, 1 );
+    auto* databuf = new RawScaledTrcsSequence( seissummary, 1 );
     if ( !databuf ) return false;
 
     TypeSet<TrcKey>* tkss = new TypeSet<TrcKey>;
@@ -1196,7 +1198,8 @@ namespace Seis
 {
 
 static bool fillTrcsBuffer( SeisTrcReader& rdr, TypeSet<TrcKey>& tks,
-			    RawTrcsSequence& databuf, TypeSet<float>& refnrs,
+			    RawScaledTrcsSequence& databuf,
+			    TypeSet<float>& refnrs,
 			    ObjectSet<Scaler>& trcscalers, uiString& errmsg )
 {
     deepErase( trcscalers );
@@ -1265,8 +1268,7 @@ int Seis::SequentialReader::nextStep()
     if ( !getTrcsPosForRead(nrposperchunk,*tks) )
 	{ delete tks; return Finished(); }
 
-    RawTrcsSequence* databuf = new RawTrcsSequence( *seissummary_,
-						    tks->size() );
+    auto* databuf = new RawScaledTrcsSequence( *seissummary_, tks->size() );
     ObjectSet<Scaler>* trcscalers = new ObjectSet<Scaler>;
     trcscalers->allowNull( true );
     if ( databuf ) databuf->setPositions( *tks );
