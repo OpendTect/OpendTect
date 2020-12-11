@@ -610,7 +610,7 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(m3Dots(uiStrings::sProperties()))
     , closepolyitem_(tr("Close Polygon"))
-    , changezmnuitem_(tr("Change Z values"))
+    , changezmnuitem_(m3Dots(tr("Change Z values")))
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPolygonTreeItem,setChg) );
