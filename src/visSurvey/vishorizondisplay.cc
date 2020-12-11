@@ -1741,14 +1741,15 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     {
 	const Attrib::SelSpec* selspec = getSelSpec( idx );
 	if ( selspec->id().isUnselInvalid() )
-	    return;
+	    continue;
 
 	if ( !sections_[sectionidx]->getChannels2RGBA()->isEnabled(idx) ||
 	      sections_[sectionidx]->getTransparency(idx)==255 )
 	    continue;
 
 	const BinIDValueSet* bidvalset = sections_[sectionidx]->getCache( idx );
-	if ( !bidvalset || bidvalset->nrVals()<2 ) continue;
+	if ( !bidvalset || bidvalset->nrVals()<2 )
+	    continue;
 
 	const BinIDValueSet::SPos setpos = bidvalset->find( bid );
 	if ( !setpos.isValid() )
@@ -1756,7 +1757,8 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 	const float* vals = bidvalset->getVals( setpos );
 	int curtexture = selectedTexture(idx);
-	if ( curtexture>bidvalset->nrVals()-2 ) curtexture = 0;
+	if ( curtexture>bidvalset->nrVals()-2 )
+	    curtexture = 0;
 
 	const float fval = vals[curtexture+2];
 	bool islowest = true;
