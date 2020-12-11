@@ -23,6 +23,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 #include "mmcommunicdefs.h"
 
+#include "hiddenparam.h"
+
+class sendData
+{
+public:
+	sendData(char tag,int stat,const char* msg)
+	    : tag_(tag) , status_(stat), msg_(msg)      {}
+
+    char		tag_;
+    int			status_;
+    BufferString	msg_;
+};
+
+static HiddenParam<JobCommunic,char> jobcommsendretmgr_( 0 );
+static HiddenParam<JobCommunic,Threads::Lock*> jobcommlockmgr_( nullptr );
+static HiddenParam<JobCommunic,Threads::Lock*> jobcommsendmsglockmgr_( nullptr);
+
 
 JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
     : masterauth_(System::hostAddress(host),port)
@@ -38,6 +55,10 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
     , lastsucces_(Time::getMilliSeconds())
     , logstream_(createLogStream())
 {
+    jobcommsendretmgr_.setParam( this, 0 );
+    jobcommlockmgr_.setParam( this, new Threads::Lock( true ) );
+    jobcommsendmsglockmgr_.setParam( this, new Threads::Lock( true ) );
+
     min_time_between_msgupdates_ =
 				1000 * GetEnvVarIVal( "DTECT_MM_INTRVAL", 1 );
     lastupdate_ = timestamp_;
@@ -68,6 +89,10 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
     , lastsucces_(Time::getMilliSeconds())
     , logstream_(createLogStream())
 {
+    jobcommsendretmgr_.setParam( this, 0 );
+    jobcommlockmgr_.setParam( this, new Threads::Lock( true ) );
+    jobcommsendmsglockmgr_.setParam( this, new Threads::Lock( true ) );
+
     min_time_between_msgupdates_ =
 				1000 * GetEnvVarIVal( "DTECT_MM_INTRVAL", 1 );
     lastupdate_ = timestamp_;
@@ -85,6 +110,9 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
 
 JobCommunic::~JobCommunic()
 {
+    jobcommsendretmgr_.removeParam( this );
+    jobcommlockmgr_.removeAndDeleteParam( this );
+    jobcommsendmsglockmgr_.removeAndDeleteParam( this );
     delete socket_;
     delete logstream_;
 }
@@ -189,7 +217,26 @@ BufferString JobCommunic::buildString( char tag , int status, const char* msg )
 
 bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 {
-    BufferString buf = buildString( tag , status, msg );
+    Threads::Lock& lock_ = *jobcommlockmgr_.getParam( this );
+    Threads::Locker lckr( lock_ );
+    CBCapsule<sendData> caps( sendData(tag,status,msg), this );
+    sendMsgCB( &caps );
+
+    const bool sendret_ = jobcommsendretmgr_.getParam( this ) == 1;
+    return sendret_;
+}
+
+
+void JobCommunic::sendMsgCB( CallBacker* cber )
+{
+    Threads::Lock& sendmsglock_ = *jobcommsendmsglockmgr_.getParam( this );
+    Threads::Locker lckr( sendmsglock_ );
+    mDynamicCastGet( CBCapsule<sendData>*, caps, cber )
+    mEnsureExecutedInMainThreadWithCapsule( JobCommunic::sendMsgCB, caps );
+    mCBCapsuleUnpack( sendData, sdata, caps );
+
+    BufferString& msg = sdata.msg_;
+    BufferString buf = buildString( sdata.tag_, sdata.status_, msg );
     if ( DBG::isOn(DBG_MM) )
     {
 	BufferString dbmsg( "JobCommunic::sendMsg -- sending : " );
@@ -223,7 +270,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 
     else if ( primaryhostinfo == mRSP_STOP )
     {
-	buf = buildString( tag , mSTAT_KILLED, msg );
+	buf = buildString( sdata.tag_, mSTAT_KILLED, msg );
 	writestat = socket_->write( buf );
 	logmsg = "Writing to socket "; logmsg += buf;
 	logMsg( writestat, logmsg,
@@ -240,7 +287,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 	ret = false;
     }
 
-    return ret;
+    jobcommsendretmgr_.setParam( this, ret ? 1 : 0 );
 }
 
 
