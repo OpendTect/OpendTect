@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
+#include "uitextedit.h"
 #include "uitoolbutton.h"
 #include "uiunitsel.h"
 #include "uiwellsel.h"
@@ -47,6 +48,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "wellman.h"
 #include "welltransl.h"
 #include "wellreader.h"
 #include "wellwriter.h"
@@ -2034,4 +2036,30 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
     }
 
     return true;
+}
+
+
+uiWellMgrInfoDlg::uiWellMgrInfoDlg( uiParent* p )
+: uiDialog(p,uiDialog::Setup(tr("Well::MGR Information"),mNoDlgTitle,mNoHelpKey)
+.applybutton(true).applytext(uiStrings::sReload()).modal(false))
+{
+    setCtrlStyle( uiDialog::CloseOnly );
+    browser_ = new uiTextBrowser( this );
+    mAttachCB( applyPushed, uiWellMgrInfoDlg::refresh );
+    mAttachCB( windowShown, uiWellMgrInfoDlg::refresh );
+}
+
+
+uiWellMgrInfoDlg::~uiWellMgrInfoDlg()
+{
+    detachAllNotifiers();
+}
+
+void uiWellMgrInfoDlg::refresh( CallBacker* )
+{
+    IOPar iopar;
+    Well::MGR().dumpMgrInfo( iopar );
+    BufferString text;
+    iopar.dumpPretty( text );
+    browser_->setText( text );
 }

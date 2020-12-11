@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uivispartserv.h"
 #include "uivolprocchain.h"
+#include "uiwellpartserv.h"
 #include "visemobjdisplay.h"
 
 #include "dirlist.h"
@@ -1008,6 +1009,8 @@ void uiODMenuMgr::fillUtilMenu()
 		     mDumpDataPacksMnuItm);
 	insertAction( toolsmnu_, m3Dots(tr("Display Memory Info")),
 		     mDisplayMemoryMnuItm);
+	insertAction( toolsmnu_, m3Dots(tr("Display Well::MGR Info")),
+		      mDisplayWellMgrMnuItm);
     }
 }
 
@@ -1120,7 +1123,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
     mantb_ ->setButtonMenu( mnuid, popmnu, uiToolButton::InstantPopup ); }
 
 #define mAddPopupMnu( mnu, txt, itm ) \
-    mnu->insertAction( new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)), itm );
+mnu->insertAction( new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)), itm );
 
 void uiODMenuMgr::fillManTB()
 {
@@ -1576,7 +1579,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     dlg.setCancelText( uiString::emptyString() );
 	dlg.go();
     } break;
-
+    case mDisplayWellMgrMnuItm: {
+	applMgr().wellServer()->showWellMgrInfo();
+    } break;
     case mSettGeneral: {
 	uiSettings dlg( &appl_, "Set Personal Settings" );
 	dlg.go();

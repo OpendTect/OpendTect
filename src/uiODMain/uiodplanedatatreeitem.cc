@@ -106,7 +106,7 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 	    return true; \
 	for ( int idx=0; idx<wellids.size(); idx++ ) \
 	{ \
-	    Well::Data* wd = Well::MGR().get( wellids[idx] ); \
+	    ConstRefMan<Well::Data> wd = Well::MGR().get( wellids[idx] ); \
 	    if ( !wd ) continue; \
 	    treeitm* itm = new treeitm( -1, uiODPlaneDataTreeItem::Empty ); \
 	    setMoreObjectsToDoHint( idx<wellids.size()-1 ); \

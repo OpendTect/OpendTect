@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bruno
- Date:          Dec 2009
- RCS:           $Id$
+ Author:	Bruno
+ Date:		Dec 2009
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -57,13 +57,13 @@ public:
 
 	void copyFrom(const Setup& su)
 	{
-	    nobackground_ 	= su.nobackground_;
-	    nologborder_  	= su.nologborder_;
-	    withcontrol_  	= su.withcontrol_;
-	    noxannot_	  	= su.noxannot_;
-	    noyannot_	  	= su.noyannot_;
-	    xaxisinpercents_ 	= su.xaxisinpercents_;
-	    takedisplayfrom3d_ 	= su.takedisplayfrom3d_;
+	    nobackground_	= su.nobackground_;
+	    nologborder_	= su.nologborder_;
+	    withcontrol_	= su.withcontrol_;
+	    noxannot_		= su.noxannot_;
+	    noyannot_		= su.noyannot_;
+	    xaxisinpercents_	= su.xaxisinpercents_;
+	    takedisplayfrom3d_	= su.takedisplayfrom3d_;
 	}
     };
 
@@ -72,16 +72,16 @@ public:
 				~uiWellDisplay();
 
     Interval<float>		zRange() const	{ return zrg_; }
-    void 			setZRange(Interval<float> zrg)
+    void			setZRange(Interval<float> zrg)
 				{ zrg_ = zrg; setDahData(); }
-    void 			setZIsTime( bool yn )
+    void			setZIsTime( bool yn )
 				{ zistime_ = yn; setDahData(); }
-    void 			setZInFeet( bool yn )
+    void			setZInFeet( bool yn )
 				{ dispzinft_ = yn; setDahData(); }
 
     void			setControl(uiWellDisplayControl&);
-    uiWellDisplayControl*	control() 	{ return control_; }
-    const uiWellDisplayControl*	control() const	{ return control_; }
+    uiWellDisplayControl*	control()	{ return control_; }
+    const uiWellDisplayControl* control() const { return control_; }
     const Setup&		setup() const	{ return setup_; }
 
     const uiWellStratDisplay*	stratDisplay() const { return stratdisp_; }
@@ -90,14 +90,14 @@ public:
 
 protected:
 
-    Well::Data& 		wd_;
+    Well::Data&			wd_;
 
     Interval<float>		zrg_;
     bool			dispzinft_;
     bool			zistime_;
     bool			use3ddisp_;
     uiSize			size_;
-    const Setup 		setup_;
+    const Setup			setup_;
 
     ObjectSet<uiWellLogDisplay> logdisps_;
     uiWellDisplayControl*	control_;
@@ -117,14 +117,13 @@ protected:
 mExpClass(uiWell) uiWellDisplayWin : public uiMainWin
 {
 public :
-			    	uiWellDisplayWin(uiParent*,Well::Data&);
+			    uiWellDisplayWin(uiParent*, const MultiID&);
+			    ~uiWellDisplayWin();
 
-protected:                  
+protected:
 
-    Well::Data& 		wd_;
-    uiWellDisplay* 		welldisp_;
+    uiWellDisplay*		welldisp_;
 
     void			dispInfoMsg(CallBacker*);
-    void 			closeWin(CallBacker*);
 };
 

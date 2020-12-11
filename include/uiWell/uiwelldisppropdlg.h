@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uidialog.h"
+#include "ptrman.h"
 
 class uiTabStack;
 class uiWellDispProperties;
@@ -28,6 +29,8 @@ mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {mODTextTranslationClass(uiWellDispPropDlg)
 public:
 				uiWellDispPropDlg(uiParent*,Well::Data*,
+						  bool is2ddisplay=false);
+				uiWellDispPropDlg(uiParent*, const MultiID&,
 						  bool is2ddisplay=false);
 				~uiWellDispPropDlg();
 
@@ -53,13 +56,13 @@ protected:
     virtual void		setWDNotifiers(bool yn);
 
     virtual void		applyAllPush(CallBacker*);
-    virtual void		onClose(CallBacker*);
     virtual void		propChg(CallBacker*);
     void			markersChgd(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
     void			tabSel(CallBacker*);
+    void			init();
 };
 
 
@@ -77,7 +80,7 @@ public:
 
 protected:
 
-    ObjectSet<Well::Data> 	wds_;
+    ObjectSet<Well::Data>	wds_;
     uiLabeledComboBox*		wellselfld_;
 
     void			resetProps(int logidx);

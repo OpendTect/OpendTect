@@ -133,7 +133,7 @@ void WellServerTool::listLogs()
 {
     const DBKey wellid = getDBKey( sListLogsCmd );
     BufferStringSet lognms;
-    MGR().getLogNames( wellid, lognms );
+    MGR().getLogNamesByID( wellid, lognms );
     set( sKey::ID(), wellid );
     set( sKey::Size(), lognms.size() );
     set( sKey::Names(), lognms );
@@ -195,14 +195,7 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
     if ( !wd_ )
 	respondError( "Not able to get well data" );
 
-    if ( !wd_->logs().isPresent( lognm ) )
-    {
-	Data& wdr = const_cast<Data&>(*wd_);
-	Reader rdr( wellid, wdr );
-	rdr.getLog( lognm );
-    }
-
-    const Log* wl = wd_->logs().getLog( lognm );
+    const Log* wl = wd_->getLog( lognm );
     if ( !wl )
 	respondError( "Log not found" );
 
@@ -243,17 +236,15 @@ void WellServerTool::readLogs(const DBKey& wellid,
     if ( !wd_ )
 	respondError( "Not able to get well data" );
 
-    Data& wdr = const_cast<Data&>(*wd_);
-    Reader rdr( wellid, wdr );
     BufferStringSet lognms, sellognms;
-    Well::MGR().getLogNames( wellid, lognms, true );
+    Well::MGR().getLogNamesByID( wellid, lognms );
     for ( auto idx=0; idx<logids.size(); idx++ )
     {
 	const int logid = logids[idx];
 	if ( !lognms.validIdx( logid ) )
 	    respondError( "Invalid log index" );
 	const BufferString lognm = lognms.get( logid );
-	rdr.getLog( lognm );
+	wd_->getLog( lognm );
 	sellognms.add( lognm );
     }
 

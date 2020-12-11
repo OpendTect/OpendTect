@@ -34,6 +34,7 @@ namespace Well
 {
     class Data;
     class DisplayProperties;
+    class LoadReqs;
     class Log;
     class LogDisplayPars;
     class Track;
@@ -128,6 +129,7 @@ public:
     void			showKnownPositions();
     void			restoreDispProp();
     Well::Data*			getWD() const;
+    Well::Data*			getWD(Well::LoadReqs&) const;
     bool			needsConversionToTime() const;
 
     bool			allowsPicks() const	{ return true; }

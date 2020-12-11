@@ -42,8 +42,10 @@ public:
     virtual void	setEmpty()
 			{ dah_.erase(); eraseAux(); }
     inline bool		isEmpty() const			{ return size() == 0; }
+    Interval<float>&	dahRange();
     Interval<float>	dahRange() const;
-			//!< returns (0, 0) for empty dah_
+			//!< returns Udf for empty dah_
+    void		updateDahRange();
 
     float		dahStep(bool min_else_average) const;
 

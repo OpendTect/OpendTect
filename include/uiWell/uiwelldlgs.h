@@ -28,6 +28,7 @@ class uiMultiWellSel;
 class uiPushButton;
 class uiTable;
 class uiTableImpDataSel;
+class uiTextBrowser;
 class uiUnitSel;
 class uiWellSel;
 class BufferStringSet;
@@ -36,6 +37,18 @@ namespace Table { class FormatDesc; }
 namespace Well { class Data; class Track; class D2TModel; class Log;
 		 class LogSet;}
 
+/*! \brief Dialog to show information on Well Manager */
+
+mExpClass(uiWell) uiWellMgrInfoDlg : public uiDialog
+{ mODTextTranslationClass(uiWellMgrInfoDlg);
+public:
+    uiWellMgrInfoDlg(uiParent*);
+    ~uiWellMgrInfoDlg();
+
+    void		refresh(CallBacker*);
+protected:
+    uiTextBrowser*	  browser_;
+};
 
 
 /*! \brief Dialog for Well track editing. */

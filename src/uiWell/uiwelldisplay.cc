@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelldisplay.h"
 
 #include "welldata.h"
+#include "welllog.h"
 #include "welllogset.h"
 #include "wellmarker.h"
 #include "uistatusbar.h"
@@ -21,7 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include  "uimainwin.h"
 
-uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
+uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
+			      const Setup& s )
     : uiGroup(p,w.name())
     , wd_(w)
     , setup_(s)	    
@@ -32,7 +34,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     , control_(0)
     , stratdisp_(0) 
 {
-    Well::DisplayProperties& disp = wd_.displayProperties( !use3ddisp_ );
+    const Well::DisplayProperties& disp = wd_.displayProperties( !use3ddisp_ );
 
     for ( int idx=0; idx<disp.logs_.size(); idx++ )
     {
@@ -42,7 +44,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
 	wlsu.xannotinpercents_ = s.xaxisinpercents_;
 	if ( s.nologborder_ )
 	{
-	    wlsu.border_ = uiBorder(0); 
+	    wlsu.border_ = uiBorder(0);
 	    wlsu.annotinside_ = true;
 	}
 	uiWellLogDisplay* wld = new uiWellLogDisplay( this, wlsu );
@@ -92,6 +94,7 @@ uiWellDisplay::~uiWellDisplay()
 {
     detachAllNotifiers();
     delete control_;
+    deepErase( logdisps_ );
 }
 
 
@@ -133,8 +136,8 @@ void uiWellDisplay::setDisplayProperties()
 	const Well::DisplayProperties::Log& lp1 = dpp.logs_[idx]->left_;
 	const Well::DisplayProperties::Log& lp2 = dpp.logs_[idx]->right_;
 
-	const Well::Log* l1 = wd_.logs().getLog( lp1.name_ );
-	const Well::Log* l2 = wd_.logs().getLog( lp2.name_ );
+	const Well::Log* l1 = wd_.getLog( lp1.name_ );
+	const Well::Log* l2 = wd_.getLog( lp2.name_ );
 
 	ld1.setLog( l1 );			ld2.setLog( l2 );
 	ld1.xrev_ = false;			ld2.xrev_ = false;
@@ -153,31 +156,30 @@ void uiWellDisplay::applyWDChanges( CallBacker* )
 }
 
 
-uiWellDisplayWin::uiWellDisplayWin(uiParent* p, Well::Data& wd )
-    : uiMainWin(p,toUiString(wd.name()))
-    , wd_(wd)  
+uiWellDisplayWin::uiWellDisplayWin(uiParent* p, const MultiID& mid )
+    : uiMainWin(p)
 {
+    auto wd = Well::MGR().get( mid, Well::LoadReqs( Well::LogInfos ) );
+    if ( !wd )
+	return;
+    setCaption( toUiString( wd->name() ) );
     setStretch( 2, 2 );
     uiWellDisplay::Setup su; su.takedisplayfrom3d_ = true;
 
     setPrefWidth( 60 );
     setPrefHeight( 600 );
 
-    welldisp_ = new uiWellDisplay( this, wd, su );
+    welldisp_ = new uiWellDisplay( this, *wd, su );
     welldisp_->setPrefWidth( 60 );
     welldisp_->setPrefHeight( 600 );
     welldisp_->control()->posChanged.notify(
 				    mCB(this,uiWellDisplayWin,dispInfoMsg) );
-    wd_.ref();
 }
 
 
-void uiWellDisplayWin::closeWin( CallBacker* )
+uiWellDisplayWin::~uiWellDisplayWin()
 {
-    delete welldisp_;
-    welldisp_ = 0;
-    wd_.unRef();
-    close(); 
+    detachAllNotifiers();
 }
 
 

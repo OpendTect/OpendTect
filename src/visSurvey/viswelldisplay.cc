@@ -107,26 +107,33 @@ void WellDisplay::welldataDelNotify( CallBacker* )
 
 Well::Data* WellDisplay::getWD() const
 {
+    Well::LoadReqs lreqs(  Well::Inf, Well::D2T, Well::Trck );
+    return getWD( lreqs );
+}
+
+
+Well::Data* WellDisplay::getWD( Well::LoadReqs& reqs ) const
+{
     if ( !wd_ )
     {
 	WellDisplay* self = const_cast<WellDisplay*>( this );
-	RefMan<Well::Data> wd = Well::MGR().get( wellid_ );
-	self->wd_ = wd;
-	if ( wd )
+	self->wd_ = Well::MGR().get( wellid_, reqs );
+	if ( wd_ )
 	{
-	    wd->trackchanged.notify( mCB(self,WellDisplay,fullRedraw) );
-	    wd->markerschanged.notify( mCB(self,WellDisplay,updateMarkers) );
-	    wd->disp3dparschanged.notify( mCB(self,WellDisplay,fullRedraw) );
+	    wd_->trackchanged.notify( mCB(self,WellDisplay,fullRedraw) );
+	    wd_->markerschanged.notify( mCB(self,WellDisplay,updateMarkers) );
+	    wd_->disp3dparschanged.notify( mCB(self,WellDisplay,fullRedraw) );
 	    if ( zistime_ )
-		wd->d2tchanged.notify( mCB(self,WellDisplay,fullRedraw) );
+		wd_->d2tchanged.notify( mCB(self,WellDisplay,fullRedraw) );
 
 	    wd_->ref();
 	}
     }
+    else
+	Well::MGR().get( wellid_, reqs );
 
     return wd_;
 }
-
 
 void WellDisplay::saveDispProp( const Well::Data* wd )
 {
@@ -307,7 +314,10 @@ void WellDisplay::updateMarkers( CallBacker* )
 {
     if ( !well_ ) return;
     well_->removeAllMarkers();
-    mGetWD(return);
+    Well::LoadReqs lreqs( Well::Mrkrs );
+    RefMan<Well::Data> wd = getWD( lreqs );
+    if ( !wd )
+	return;
 
     visBase::Well::MarkerParams mp;
     fillMarkerParams( mp );
@@ -385,19 +395,23 @@ void WellDisplay::setLineStyle( const OD::LineStyle& lst )
 
 void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 {
-    mGetWD(return);
+    Well::LoadReqs lreqs( Well::LogInfos );
+    RefMan<Well::Data> wd = getWD( lreqs );
+    if ( !wd )
+	return;
 
-    Well::Log logdata = wd->logs().getLog( lp.logidx_ );
-    Well::Log* logfill = 0;
+    const BufferString lognm( wd->logs().getLog( lp.logidx_ ).name() );
+    PtrMan<Well::Log> logdata = new Well::Log( *wd->getLog( lognm ) );
+    PtrMan<Well::Log> logfill = 0;
 
     if ( isfilled )
-	logfill = new Well::Log( wd->logs().getLog( lp.filllogidx_ ) );
-
-    if ( !upscaleLogs(*wd,logdata,logfill,lp) )
     {
-	if ( logfill ) delete logfill;
-	return;
+	const BufferString fillnm( wd->logs().getLog( lp.filllogidx_ ).name() );
+	logfill = new Well::Log( *wd->getLog( fillnm ) );
     }
+
+    if ( !upscaleLogs(*wd,*logdata,logfill,lp) )
+	return;
 
     const Well::Track& track = needsConversionToTime() ? *timetrack_
 						       : wd->track();
@@ -407,10 +421,10 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     TypeSet<visBase::Well::Coord3Value> crdvals;
     TypeSet<visBase::Well::Coord3Value> crdvalsF;
 
-    const int logsz = logdata.size();
+    const int logsz = logdata->size();
     for ( int idx=0; idx<logsz; idx++ )
     {
-	const float dah = logdata.dah( idx );
+	const float dah = logdata->dah( idx );
 
 	Coord3 pos = track.getPos( dah );
 	if ( pos.isUdf() )
@@ -419,7 +433,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	if ( mIsUdf(pos.z) )
 	    continue;
 
-	float val = logdata.value(idx);
+	float val = logdata->value(idx);
 	if ( mIsUdf(val) )
 	    continue;
 
@@ -440,8 +454,6 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	    crdvalsF += visBase::Well::Coord3Value( pos, valfill );
 	}
     }
-    if ( logfill )
-	delete logfill;
 
     if ( crdvals.isEmpty() && crdvalsF.isEmpty() )
 	return;
@@ -515,7 +527,10 @@ static bool mustBeFilled( const visBase::Well::LogParams& lp )
 
 void WellDisplay::setLogDisplay( visBase::Well::Side side )
 {
-    mGetWD(return);
+    Well::LoadReqs lreqs( Well::LogInfos );
+    RefMan<Well::Data> wd = getWD( lreqs );
+    if ( !wd )
+	return;
 
     BufferString& logname = mGetLogPar( side, name_ );
     if ( wd->logs().isEmpty() ) return;

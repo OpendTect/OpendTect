@@ -51,10 +51,12 @@ public:
     void		setToAll()		{ *this = All(); }
     void		setEmpty()		{ reqs_.reset(); }
     void		include(const LoadReqs&);
+    void		exclude(const LoadReqs&);
 
     bool		includes( SubObjType typ ) const
 						{ return reqs_[typ]; }
     bool		includes(const LoadReqs&) const;
+    BufferString	toString() const;
 
 protected:
 
@@ -83,15 +85,34 @@ public:
 			//!< Data becomes yours
     bool		isLoaded(const MultiID&) const;
     bool		reload(const MultiID&);
+    bool		validID(const MultiID&) const;
 
     const char*		errMsg() const		{ return msg_; }
     ObjectSet<Data>&	wells()			{ return wells_; }
 
     static bool		getWellKeys(TypeSet<MultiID>&,bool onlyloaded=false);
     static bool		getWellNames(BufferStringSet&,bool onlyloaded=false);
-    static bool		getLogNames(const MultiID&,BufferStringSet&,
-				    bool forceLoad=false);
-    static bool		getMarkerNames(BufferStringSet&);
+    static bool		getAllMarkerNames(BufferStringSet&,
+					  bool onlyloaded=false);
+    static bool		getAllMarkerInfo(BufferStringSet&,
+					 TypeSet<Color>&,
+				  bool onlyloaded=false);
+    static bool		getAllLogNames(BufferStringSet&,
+				       bool onlyloaded=false);
+
+    static bool		getMarkersByID(const MultiID&, BufferStringSet&);
+    static bool		getMarkersByID(const MultiID&, BufferStringSet&,
+				       TypeSet<Color>&);
+    static bool		getMarkersByID(const MultiID&, BufferStringSet&,
+				       TypeSet<Color>&, TypeSet<float>&);
+    static bool		getLogNamesByID(const MultiID&,BufferStringSet&,
+					bool onlyloaded=false);
+    mDeprecated("Use getLogNamesByID instead") static bool getLogNames(
+			const MultiID&,BufferStringSet&, bool forceLoad=false);
+    mDeprecated("Use getAllMarkerNames instead") static bool getMarkerNames(
+							    BufferStringSet&);
+
+    static void		dumpMgrInfo(IOPar&);
 
 protected:
 
@@ -101,7 +122,6 @@ protected:
 
     ObjectSet<Data>	wells_;
     BufferString	msg_;
-    mutable TypeSet<LoadReqs>	loadstates_;
 
     int			gtByKey(const MultiID&) const;
 };

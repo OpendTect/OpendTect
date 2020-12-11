@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "stratlevel.h"
 #include "wellman.h"
+#include "wellreader.h"
 
 // Keys for IOPars
 const char* Well::Info::sKeyDepthUnit() { return sKey::DepthUnit(); }
@@ -90,6 +91,7 @@ Notifier<Well::DahObj>& Well::DahObj::instanceCreated()
 Well::DahObj::DahObj( const char* nm )
 : NamedCallBacker(nm)
 {
+    dahrange_.setUdf();
     instanceCreated().trigger( this );
 }
 
@@ -118,12 +120,15 @@ int Well::DahObj::indexOf( float dh ) const
 }
 
 
-Interval<float>	Well::DahObj::dahRange() const
+Interval<float>& Well::DahObj::dahRange()
 {
-    if ( isEmpty() )
-	return Interval<float>( 0, 0 );
+    return dahrange_;
+}
 
-    return Interval<float>( dah_.first(), dah_.last() );
+
+Interval<float> Well::DahObj::dahRange() const
+{
+    return dahrange_;
 }
 
 
@@ -189,6 +194,8 @@ void Well::DahObj::addToDahFrom( int fromidx, float extradah )
 {
     for ( int idx=fromidx; idx<dah_.size(); idx++ )
 	dah_[idx] += extradah;
+
+    updateDahRange();
 }
 
 
@@ -196,6 +203,15 @@ void Well::DahObj::removeFromDahFrom( int fromidx, float extradah )
 {
     for ( int idx=fromidx; idx<dah_.size(); idx++ )
 	dah_[idx] -= extradah;
+
+    updateDahRange();
+}
+
+
+void Well::DahObj::updateDahRange()
+{
+    if ( !dah_.isEmpty() )
+	dahrange_.set( dah_.first(), dah_.last() );
 }
 
 
@@ -295,6 +311,68 @@ void Well::Data::levelToBeRemoved( CallBacker* cb )
 	if ( mrk )
 	    mrk->setLevelID( -1 );
     }
+}
+
+
+Well::LoadReqs Well::Data::loadState() const
+{
+    Well::LoadReqs lreqs( Well::Inf );
+    lreqs.add( Well::DispProps2D );
+    lreqs.add( Well::DispProps3D );
+    if ( haveMarkers() )
+	lreqs.add( Well::Mrkrs );
+    if ( haveD2TModel() )
+	lreqs.add( Well::D2T );
+    if ( haveCheckShotModel() )
+	lreqs.add( Well::CSMdl );
+    if ( haveLogs() )
+    {
+	int nloaded = 0;
+	for ( int idx=0; idx<logs_.size(); idx++ )
+	{
+	    if ( logs_.getLog( idx ).isLoaded() )
+		nloaded++;
+	}
+	if ( nloaded == logs_.size() )
+	    lreqs.add( Well::Logs );
+	else
+	    lreqs.add( Well::LogInfos );
+
+    }
+    if ( !track_.isEmpty() )
+	lreqs.add( Well::Trck );
+    return lreqs;
+}
+
+
+const Well::Log* Well::Data::getLog( const char* nm ) const
+{
+    if ( !logs().isLoaded( nm ) )
+    {
+	Well::Data& wd = const_cast<Well::Data&>(*this);
+	Well::Reader rdr( mid_, wd );
+	if ( !rdr.getLog( nm ) )
+	{
+	    ErrMsg( rdr.errMsg() );
+	    return nullptr;
+	}
+    }
+    return logs().getLog( nm );
+}
+
+
+Well::Log* Well::Data::getLogForEdit( const char* nm )
+{
+    if ( !logs().isLoaded( nm ) )
+    {
+	Well::Reader rdr( mid_, *this );
+	if ( !rdr.getLog( nm ) )
+	{
+	    ErrMsg( rdr.errMsg() );
+	    return nullptr;
+	}
+    }
+    return logs().getLog( nm );
 }
 
 

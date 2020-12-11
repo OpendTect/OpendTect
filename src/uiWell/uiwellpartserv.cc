@@ -92,7 +92,7 @@ void uiWellPartServer::cleanup()
     deleteAndZeroPtr( impbulkmrkrdlg_ );
     deleteAndZeroPtr( impbulkd2tdlg_ );
     deleteAndZeroPtr( rdmlinedlg_ );
-    deepErase( wellpropdlgs_ );
+    deleteAndZeroPtr( wellmgrinfodlg_ );
 
     Well::MGR().cleanup();
 }
@@ -175,7 +175,8 @@ void uiWellPartServer::importMarkers()
     if ( !wellseldlg.go() ) return;
 
     const MultiID mid = wellseldlg.chosenID();
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
+    RefMan<Well::Data> wd = Well::MGR().get( mid,
+				Well::LoadReqs( Well::Trck, Well::Mrkrs ) );
     if ( !wd ) return;
 
     wd->track().setName( wd->name() );
@@ -193,6 +194,15 @@ void uiWellPartServer::importMarkers()
     }
 
     wd->markerschanged.trigger();
+}
+
+
+void uiWellPartServer::showWellMgrInfo()
+{
+    if ( !wellmgrinfodlg_ )
+	wellmgrinfodlg_ = new uiWellMgrInfoDlg( parent() );
+
+    wellmgrinfodlg_->show();
 }
 
 
@@ -224,90 +234,55 @@ bool uiWellPartServer::selectWells( TypeSet<MultiID>& wellids )
 bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
 {
     allapplied_ = false;
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
+    Well::LoadReqs lreqs( Well::LogInfos,
+			  Well::Mrkrs,
+			  Well::DispProps3D );
+    RefMan<Well::Data> wd = Well::MGR().get( mid, lreqs );
     if ( !wd ) return false;
 
-    const int dlgidx = getPropDlgIndex( mid );
-    if ( dlgidx != -1 )
+    uiWellDispPropDlg uiwellpropdlg( parent(), wd );
+    uiwellpropdlg.applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
+    if ( !uiwellpropdlg.go() )
+	return false;
+    ConstRefMan<Well::Data> wsd = allapplied_ ? nullptr : wd;
+    saveWellDispProps( wsd );
+    if ( uiwellpropdlg.savedefault_==true )
     {
-	uiWellDispPropDlg* dispdlg = wellpropdlgs_[dlgidx];
-	dispdlg->updateLogs();
-	return dispdlg->go();
+	const Well::DisplayProperties& edprops = wd->displayProperties();
+	edprops.defaults() = edprops;
+	edprops.commitDefaults();
     }
-
-    uiWellDispPropDlg* uiwellpropdlg = new uiWellDispPropDlg( parent(), wd );
-    uiwellpropdlg->applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
-    uiwellpropdlg->windowClosed.notify(
-			mCB(this,uiWellPartServer, wellPropDlgClosed) );
-    wellpropdlgs_ += uiwellpropdlg;
-    uiwellpropdlg->go();
+    sendEvent( evCleanPreview() );
+    uiwellpropDlgClosed.trigger();
     return true;
 }
 
 
-int uiWellPartServer::getPropDlgIndex( const MultiID& mid )
+void uiWellPartServer::saveWellDispProps( ConstRefMan<Well::Data>& w )
 {
-    for ( int idx=0; idx<wellpropdlgs_.size(); idx++ )
+    ConstRefMan<Well::Data> wd( w );
+    if ( wd )
+	saveWellDispProps( wd, wd->multiID() );
+    else
     {
-	if ( !wellpropdlgs_[idx]->wellData() )
-	    continue;
-
-	const MultiID dlgid = wellpropdlgs_[idx]->wellData()->multiID();
-	if ( dlgid == mid )
-	    return idx;
-    }
-
-    return -1;
-}
-
-
-void uiWellPartServer::closePropDlg( const MultiID& mid )
-{
-    const int dlgidx = getPropDlgIndex( mid );
-    if ( dlgidx != -1 )
-	delete wellpropdlgs_.removeSingle( dlgidx );
-}
-
-
-void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
-{
-    mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
-    if ( !dlg ) { pErrMsg("Huh"); return; }
-    ConstRefMan<Well::Data> edwd = dlg->wellData();
-    if ( !edwd ) { pErrMsg("well data has been deleted"); return; }
-    const Well::DisplayProperties& edprops = edwd->displayProperties();
-
-    if ( dlg->savedefault_ == true )
-    {
-	edprops.defaults() = edprops;
-	saveWellDispProps( allapplied_ ? 0 : edwd );
-	edprops.commitDefaults();
-    }
-
-    sendEvent( evCleanPreview() );
-    uiwellpropDlgClosed.trigger();
-}
-
-
-void uiWellPartServer::saveWellDispProps( const Well::Data* wd )
-{
-    ObjectSet<Well::Data>& wds = Well::MGR().wells();
-    for ( int iwll=0; iwll<wds.size(); iwll++ )
-    {
-	Well::Data& curwd = *wds[iwll];
-	if ( wd && &curwd != wd )
-	   continue;
-	saveWellDispProps( curwd, curwd.multiID() );
+	auto wds = Well::MGR().wells();
+	for ( int iwll=0; iwll<wds.size(); iwll++ )
+	{
+	    ConstRefMan<Well::Data> curwd = wds[iwll];
+	    if ( curwd )
+		saveWellDispProps( curwd, curwd->multiID() );
+	}
     }
 }
 
 
-void uiWellPartServer::saveWellDispProps(const Well::Data& w,const MultiID& key)
+void uiWellPartServer::saveWellDispProps(ConstRefMan<Well::Data>& wd,
+					 const MultiID& key)
 {
-    Well::Writer wr( key, w );
+    Well::Writer wr( key, *wd );
     if ( !wr.putDispProps() )
 	uiMSG().error(tr("Could not write display properties for \n%1")
-		    .arg(w.name()));
+		    .arg(wd->name()));
 }
 
 
@@ -318,14 +293,16 @@ void uiWellPartServer::applyAll( CallBacker* cb )
     ConstRefMan<Well::Data> edwd = dlg->wellData();
     const Well::DisplayProperties& edprops = edwd->displayProperties();
 
-    ObjectSet<Well::Data>& wds = Well::MGR().wells();
-    for ( int iwll=0; iwll<wds.size(); iwll++ )
+    TypeSet<MultiID> keys;
+    Well::MGR().getWellKeys( keys, true );
+    Well::LoadReqs lreqs = edwd->loadState();
+    for ( int ikey=0; ikey<keys.size(); ikey++ )
     {
-	Well::Data& wd = *wds[iwll];
-	if ( &wd != edwd )
+	RefMan<Well::Data> wd = Well::MGR().get( keys[ikey], lreqs );
+	if ( wd && wd != edwd )
 	{
-	    wd.displayProperties() = edprops;
-	    wd.disp3dparschanged.trigger();
+	    wd->displayProperties() = edprops;
+	    wd->disp3dparschanged.trigger();
 	}
     }
     allapplied_ = true;
@@ -334,17 +311,16 @@ void uiWellPartServer::applyAll( CallBacker* cb )
 
 void uiWellPartServer::displayIn2DViewer( const MultiID& mid )
 {
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
-    if ( !wd ) return;
-
-    uiWellDisplayWin* welldispwin = new uiWellDisplayWin( parent(), *wd );
+    uiWellDisplayWin* welldispwin = new uiWellDisplayWin( parent(), mid );
+    welldispwin->setDeleteOnClose( true );
     welldispwin->show();
 }
 
 
 bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 {
-    ConstRefMan<Well::Data> wd = Well::MGR().get( wellid );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wellid,
+					    Well::LoadReqs( Well::LogInfos ) );
     return wd && wd->logs().size();
 }
 
@@ -352,10 +328,8 @@ bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 void uiWellPartServer::getLogNames( const MultiID& wellid,
 					BufferStringSet& lognms ) const
 {
-    ConstRefMan<Well::Data> wd = Well::MGR().get( wellid );
-    if ( !wd ||  wd->logs().isEmpty() ) return;
-    for ( int idx=0; idx<wd->logs().size(); idx++ )
-	lognms.add( wd->logs().getLog(idx).name() );
+    lognms.erase();
+    Well::MGR().getLogNamesByID( wellid, lognms );
 }
 
 

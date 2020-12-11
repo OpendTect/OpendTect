@@ -17,10 +17,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitabstack.h"
 #include "uiseparator.h"
 
+#include "ioman.h"
 #include "keystrs.h"
 #include "objdisposer.h"
 #include "welldata.h"
 #include "welldisp.h"
+#include "wellman.h"
 #include "wellmarker.h"
 #include "od_helpids.h"
 
@@ -34,15 +36,50 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 				     mODHelpKey(mWellDispPropDlgHelpID) )
 		     .savebutton(true)
 		     .savechecked(false)
-		     .modal(false))
-	, wd_(wd)
+		     .modal(true))
 	, applyAllReq(this)
 	, savedefault_(false)
 	, is2ddisplay_(is2d)
 {
-    setCtrlStyle( CloseOnly );
+    wd_ = Well::MGR().get( wd->multiID(),
+			   Well::LoadReqs( Well::LogInfos,
+					   Well::Mrkrs,
+					   is2d ? Well::DispProps2D :
+						  Well::DispProps3D ) );
+    init();
+}
 
-    Well::DisplayProperties& props = wd->displayProperties( is2ddisplay_ );
+
+uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
+				      bool is2d )
+	: uiDialog(p,uiDialog::Setup(tr("Display properties of: %1")
+	    .arg(toUiString(IOM().nameOf(wid))),
+	    mNoDlgTitle,
+	    mODHelpKey(mWellDispPropDlgHelpID) )
+	    .savebutton(true)
+	    .savechecked(false)
+	    .modal(true))
+	, applyAllReq(this)
+	, savedefault_(false)
+	, is2ddisplay_(is2d)
+{
+    wd_ = Well::MGR().get( wid, Well::LoadReqs( Well::LogInfos,
+						Well::Mrkrs,
+						is2d ? Well::DispProps2D :
+						       Well::DispProps3D ) );
+    init();
+}
+
+
+void uiWellDispPropDlg::init()
+{
+    bool is2d = is2ddisplay_;
+
+    setCtrlStyle( OkAndCancel );
+    setOkText( uiStrings::sSave() );
+    setCancelText( uiStrings::sClose() );
+
+    Well::DisplayProperties& props = wd_->displayProperties( is2ddisplay_ );
 
     ts_ = new uiTabStack( this, "Well display properties tab stack" );
     ObjectSet<uiGroup> tgs;
@@ -104,7 +141,6 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 
     wd_->ref();
     setWDNotifiers( true );
-    mAttachCB( windowClosed, uiWellDispPropDlg::onClose );
 
     tabSel( 0 );
 }
@@ -220,12 +256,7 @@ void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 }
 
 
-void uiWellDispPropDlg::onClose( CallBacker* )
-{
-}
-
-
-bool uiWellDispPropDlg::rejectOK( CallBacker* )
+bool uiWellDispPropDlg::acceptOK( CallBacker* )
 {
     savedefault_ = saveButtonChecked();
     return true;
@@ -253,7 +284,6 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	wellselfld_->attach( hCentered );
 	ts_->attach( ensureBelow, wellselfld_ );
     }
-
     deepRef( wds_ );
 }
 

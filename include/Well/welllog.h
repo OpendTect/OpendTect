@@ -87,6 +87,7 @@ public:
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();
     static const char*	sKeyDahRange();
+    static const char*	sKeyLogRange();
 
     float*		valArr()			{ return vals_.arr(); }
     const float*	valArr() const			{ return vals_.arr(); }

@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "welldata.h"
+#include "welllog.h"
 #include "wellman.h"
 
 #include "viswelldisplay.h"
@@ -212,8 +213,6 @@ uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid )
 
 uiODWellTreeItem::~uiODWellTreeItem()
 {
-    if ( applMgr()->wellServer() )
-	applMgr()->wellServer()->closePropDlg( mid_ );
     deepErase( logmnuitems_ );
 }
 
@@ -331,7 +330,7 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
     deepErase( logmnuitems_ );
     mAddMenuItem( &displaymnuitem_, &amplspectrummnuitem_, true, false );
     BufferStringSet lognms;
-    applMgr()->wellServer()->getLogNames( wd->getMultiID(), lognms );
+    Well::MGR().getLogNamesByID( wd->getMultiID(), lognms );
     for ( int logidx=0; logidx<lognms.size(); logidx++ )
     {
     logmnuitems_ += new MenuItem( mToUiStringTodo(lognms.get( logidx ) ));

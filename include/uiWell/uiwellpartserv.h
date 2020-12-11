@@ -30,6 +30,7 @@ class uiWell2RandomLineDlg;
 class uiWellDispPropDlg;
 class uiWellImportAsc;
 class uiWellMan;
+class uiWellMgrInfoDlg;
 
 /*!
 \ingroup uiWell
@@ -53,6 +54,7 @@ public:
     void			bulkImportMarkers();
     void			bulkImportD2TModel();
     void			bulkImportDirectional();
+    void			showWellMgrInfo();
 
     void			manageWells();
     void			launchRockPhysics();
@@ -70,7 +72,6 @@ public:
     void			selectWellCoordsForRdmLine();
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
-    void			closePropDlg(const MultiID&);
     Notifier<uiWellPartServer>	randLineDlgClosed;
     Notifier<uiWellPartServer>	uiwellpropDlgClosed;
     void			setPreviewIds( const TypeSet<int>& ids )
@@ -96,7 +97,6 @@ protected:
 
     uiWellImportAsc*		uiwellimpdlg_		= nullptr;
     uiWell2RandomLineDlg*	rdmlinedlg_		= nullptr;
-    ObjectSet<uiWellDispPropDlg> wellpropdlgs_;
     uiD2TModelGen*		uid2tmgen_		= nullptr;
     uiD2TMLogSelDlg*		uid2tmlogseldlg_	= nullptr;
     uiSimpleMultiWellCreate*	impsimpledlg_		= nullptr;
@@ -107,6 +107,7 @@ protected:
     uiBulkMarkerImport*		impbulkmrkrdlg_		= nullptr;
     uiBulkD2TModelImport*	impbulkd2tdlg_		= nullptr;
     uiWellMan*			manwelldlg_		= nullptr;
+    uiWellMgrInfoDlg*		wellmgrinfodlg_		= nullptr;
     TypeSet<int>		previewids_;
 
     BufferStringSet		crwellids_; // for uiSimpleMultiWellCreate
@@ -119,15 +120,13 @@ protected:
     void			importReadyCB(CallBacker*);
     void			rdmlnDlgDeleted(CallBacker*);
     void			rdmlnDlgClosed(CallBacker*);
-    void			wellPropDlgClosed(CallBacker*);
-    void			saveWellDispProps(const Well::Data*);
-    void			saveWellDispProps(const Well::Data&,
+    void			saveWellDispProps(ConstRefMan<Well::Data>&);
+    void			saveWellDispProps(ConstRefMan<Well::Data>&,
 						  const MultiID&);
     void			applyAll(CallBacker*);
     void			simpImp(CallBacker*);
     void			simpleImpDlgClosed(CallBacker*);
     void			survChangedCB(CallBacker*);
-    int				getPropDlgIndex(const MultiID&);
 
 };
 
