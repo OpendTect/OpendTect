@@ -526,7 +526,13 @@ void uiGraphicsItem::setFillPattern( const FillPattern& inpfp )
 
 void uiGraphicsItem::setTransparency( float transparency )
 {
-    qgraphicsitem_->setOpacity( 1.0f - transparency );
+    qgraphicsitem_->setOpacity( double(1.0f - transparency) );
+}
+
+
+float uiGraphicsItem::getTransparency() const
+{
+    return float(1.-qgraphicsitem_->opacity());
 }
 
 
