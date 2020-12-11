@@ -365,4 +365,6 @@ void uiSlider::editRetPress( CallBacker* )
 	setValue( editfld_->getFValue() );
 
     valueChanged.trigger();
+    if ( valueChanged.cbs_.size() < 2 )
+	sliderReleased.trigger();
 }
