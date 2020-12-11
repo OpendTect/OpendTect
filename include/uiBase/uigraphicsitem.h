@@ -100,6 +100,7 @@ public:
 			 contains colors with some transparency, resultant
 			 transparency of the color will be an effective value
 			 of both transparencies. */
+    float		getTransparency() const;
 
     void		setCursor(const MouseCursor&);
     void		setToolTip(const uiString&);
