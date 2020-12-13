@@ -300,7 +300,7 @@ DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
     else if ( randfdp )
     {
 	const DataPack::ID dpid =
-	    attrserv->createRdmTrcsOutput( randfdp->getZRange(),
+	    attrserv->createRdmTrcsOutput( randfdp->zRange(),
 					   randfdp->getRandomLineID() );
 	return viewer2D()->createFlatDataPack( dpid, 0 );
     }

@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "valseries.h"
+#include "valseriesimpl.h"
 #include "visobject.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
@@ -46,8 +46,8 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     void			setSurface(Geometry::IndexedShape*,
-	    				   TaskRunner* = 0);
-    				//!<Does not become mine, should remain
+					   TaskRunner* = 0);
+				//!<Does not become mine, should remain
 				//!<in memory
 
     bool			touch(bool forall,bool createnew=true,
@@ -61,25 +61,25 @@ public:
     void			enableColTab(bool);
     bool			isColTabEnabled() const;
     void			setDataMapper(const ColTab::MapperSetup&,
-	    				      TaskRunner*);
+					      TaskRunner*);
     const ColTab::MapperSetup*	getDataMapper() const;
     void			setDataSequence(const ColTab::Sequence&);
     const ColTab::Sequence*	getDataSequence() const;
 
     void			getAttribPositions(DataPointSet&,
 					mVisTrans* extratrans,
-	    				TaskRunner*) const;
+					TaskRunner*) const;
     void			setAttribData(const DataPointSet&,
-	    				TaskRunner*);
+					TaskRunner*);
 
     void			setMaterial(Material*);
     void			updateMaterialFrom(const Material*);
 
     enum			GeomShapeType{ Triangle, PolyLine, PolyLine3D };
     void			setGeometryShapeType(GeomShapeType shapetype,
-				 Geometry::PrimitiveSet::PrimitiveType pstype 
+				 Geometry::PrimitiveSet::PrimitiveType pstype
 				 = Geometry::PrimitiveSet::TriangleStrip);
-				/*!<remove previous geometry shape and create 
+				/*!<remove previous geometry shape and create
 				a new geometry shape based on shape type.*/
 
     void			useOsgNormal(bool);
@@ -119,7 +119,7 @@ protected:
     VertexShape*				vtexshape_;
     bool					colortableenabled_ ;
     int						renderside_;
-       					    /*!< 0 = visisble from both sides.
+					    /*!< 0 = visisble from both sides.
 					       1 = visible from positive side
 					      -1 = visible from negative side.*/
     Material*					singlematerial_;
@@ -132,4 +132,4 @@ protected:
 };
 
 };
-	
+

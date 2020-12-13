@@ -92,7 +92,7 @@ bool SeisDataPackZAxisTransformer::doWork(
     if ( !seisdp || !outputdp_ || outputdp_->isEmpty() )
 	return false;
 
-    const StepInterval<float>& inpzrg = seisdp->getZRange();
+    const StepInterval<float> inpzrg = seisdp->zRange();
     const int nrinpsamp = inpzrg.nrSteps() + 1;
     const int nroutsamp = zrange_.nrSteps() + 1;
     const int nrtrcs = seisdp->nrTrcs() / seisdp->data(0).info().getSize(0);

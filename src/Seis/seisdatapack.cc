@@ -81,12 +81,12 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     if ( !regsdp_.validComp(regidx_) || !ransdp_.validComp(ranidx_) )
 	return false;
 
-    if ( !regsdp_.getZRange().overlaps(ransdp_.getZRange()) )
+    if ( !regsdp_.zRange().overlaps(ransdp_.zRange()) )
 	return false;
 
-    idzoffset_ = regsdp_.getZRange().nearestIndex( ransdp_.getZRange().start );
+    idzoffset_ = regsdp_.zRange().nearestIndex( ransdp_.zRange().start );
 
-    if ( !regsdp_.getZRange().isCompatible(ransdp_.getZRange(),1e-3) )
+    if ( !regsdp_.zRange().isCompatible(ransdp_.zRange(),1e-3) )
     {
 	pErrMsg( "Unexpected incompatibility of datapack Z-ranges" );
 	return false;
@@ -115,7 +115,7 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
 
     srctrcbytes_ = samplebytes_ * regsdp_.sampling().size(TrcKeyZSampling::Z);
     srclnbytes_ = srctrcbytes_ * regsdp_.sampling().size(TrcKeyZSampling::Crl);
-    dsttrcbytes_ = samplebytes_ * (ransdp_.getZRange().nrSteps()+1);
+    dsttrcbytes_ = samplebytes_ * (ransdp_.zRange().nrSteps()+1);
 
     bytestocopy_ = dsttrcbytes_;
 
@@ -127,8 +127,8 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     else
 	srcptr_ += samplebytes_ * idzoffset_;
 
-    const int stopoffset = regsdp_.getZRange().nrSteps() -
-		regsdp_.getZRange().nearestIndex( ransdp_.getZRange().stop );
+    const int stopoffset = regsdp_.zRange().nrSteps() -
+		regsdp_.zRange().nearestIndex( ransdp_.zRange().stop );
 
     if ( stopoffset < 0 )
 	bytestocopy_ += samplebytes_ * stopoffset;
@@ -164,7 +164,7 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 	    continue;
 	}
 
-	for ( int newidz=0; newidz<=ransdp_.getZRange().nrfSteps(); newidz++ )
+	for ( int newidz=0; newidz<=ransdp_.zRange().nrfSteps(); newidz++ )
 	{
 	    const int oldidz = newidz + idzoffset_;
 	    const float val =
@@ -540,7 +540,7 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     if ( regsdp.getScaler() )
 	randsdp->setScaler( *regsdp.getScaler() );
 
-    const StepInterval<float>& regzrg = regsdp.getZRange();
+    const StepInterval<float>& regzrg = regsdp.zRange();
     StepInterval<float> overlapzrg = regzrg;
     overlapzrg.limitTo( zrange ); // DataPack should be created only for
 				  // overlap z-range.
@@ -583,7 +583,7 @@ SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
     : FlatDataPack(source.category())
     , source_(source)
     , comp_(comp)
-    , zsamp_(source.getZRange())
+    , zsamp_(source.zRange())
     , rdlid_(source.getRandomLineID())
 {
     DPM(DataPackMgr::SeisID()).addAndObtain(const_cast<SeisDataPack*>(&source));

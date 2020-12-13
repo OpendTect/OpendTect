@@ -901,9 +901,11 @@ private:
 					      in_.getStorage() &&
 					      out_.getStorage();
 		    OffsetValueSeries<T>* invals = !usearrayptrs ? 0 :
-			    new OffsetValueSeries<T>( *in_.getStorage(), 0 );
+			    new OffsetValueSeries<T>( *in_.getStorage(), 0,
+						      in_.getSize(2) );
 		    OffsetValueSeries<T>* outvals = !usearrayptrs ? 0 :
-			    new OffsetValueSeries<T>( *out_.getStorage(), 0 );
+			    new OffsetValueSeries<T>( *out_.getStorage(), 0,
+						      in_.getSize(2) );
 		    const int nrcrl = tks.nrTrcs();
 		    const od_int64 nrbytes = nrcrl * sizeof(T);
 

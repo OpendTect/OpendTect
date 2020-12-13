@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabmapper.h"
 #include "mousecursor.h"
 #include "settingsaccess.h"
+#include "valseriesimpl.h"
 #include "visosg.h"
 #include "vistexturechannel2rgba.h"
 

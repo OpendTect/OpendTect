@@ -424,8 +424,8 @@ bool doPrepare( int nrthreads )
 	    return true;
 
 	const float start = worktkzs_.zsamp_.start;
-	inptr_[idc] += samplebytes_ * in_.getZRange().nearestIndex( start );
-	outptr_[idc] += samplebytes_ * out_.getZRange().nearestIndex( start );
+	inptr_[idc] += samplebytes_ * in_.zRange().nearestIndex( start );
+	outptr_[idc] += samplebytes_ * out_.zRange().nearestIndex( start );
     }
 
     intracebytes_ = samplebytes_ * in_.sampling().size(TrcKeyZSampling::Z);

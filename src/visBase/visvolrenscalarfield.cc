@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genc.h"
 #include "iopar.h"
 #include "vismaterial.h"
-#include "valseries.h"
+#include "valseriesimpl.h"
 #include "visdataman.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "od_ostream.h"

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 
 #include "arraynd.h"
+#include "valseriesimpl.h"
 
 #ifdef __debug__
 # include "debug.h"

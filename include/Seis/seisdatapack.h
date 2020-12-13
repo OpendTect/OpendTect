@@ -40,7 +40,7 @@ public:
 				{ sampling_ = tkzs; }
     const TrcKeyZSampling&	sampling() const
 				{ return sampling_; }
-    StepInterval<float>		zRange() const	{ return sampling_.zsamp_; }
+    ZSampling			zRange() const	{ return sampling_.zsamp_; }
 
     void			setTrcsSampling(PosInfo::CubeData*);
 				//!<Becomes mine
@@ -57,9 +57,6 @@ public:
     int				getGlobalIdx(const TrcKey&) const;
 
     virtual void		dumpInfo(IOPar&) const;
-
-    const StepInterval<float>&	getZRange() const
-				{ return sampling_.zsamp_; }
 
     static DataPack::ID		createDataPackForZSlice(const BinIDValueSet*,
 						const TrcKeyZSampling&,
@@ -98,7 +95,7 @@ public:
     TrcKey			getTrcKey(int trcidx) const;
     int				getGlobalIdx(const TrcKey&) const;
 
-    const StepInterval<float>&	getZRange() const	{ return zsamp_; }
+    ZSampling			zRange() const	{ return zsamp_; }
     void			setZRange( const StepInterval<float>& zrg )
 				{ zsamp_ = zrg; }
 
@@ -115,7 +112,7 @@ public:
 protected:
 
     TrcKeyPath			path_;
-    StepInterval<float>		zsamp_;
+    ZSampling			zsamp_;
 
 public:
     static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
@@ -159,7 +156,7 @@ public:
 				//!< Will be empty if isVertical() is false
 				//!< Eg: Z-slices. Or if the data corresponds
 				//!< to a single trace.
-    const StepInterval<float>&	getZRange() const	{ return zsamp_; }
+    ZSampling			zRange() const		{ return zsamp_; }
 
     bool			dimValuesInInt(const char* keystr) const;
     void			getAltDim0Keys(BufferStringSet&) const;

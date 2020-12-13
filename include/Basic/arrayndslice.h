@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "arraynd.h"
 #include "varlenarray.h"
+#include "valseriesimpl.h"
 
 /*!
 \brief Base class of Array1DSlice and Array2DSlice. Access-tool to another
@@ -38,10 +39,10 @@ public:
     bool			init();
     void			setDimMap(int localdim, int remotedim );
 protected:
-    				ArrayNDSliceBase( ArrayNDInfo*,
+				ArrayNDSliceBase( ArrayNDInfo*,
 						  const ArrayNDInfo& );
     void			getSourcePos(const int* localpos,
-	    				     int* sourcepos) const;
+					     int* sourcepos) const;
     ArrayNDInfo&		info_;
     const ArrayNDInfo&		sourceinfo_;
 
@@ -221,7 +222,8 @@ const ValueSeries<T>* Array1DSlice<T>::getStorage_() const
     {
 	delete storage_;
 	storage_ =
-	    new OffsetValueSeries<T>( *source_.getStorage(), offset_ );
+	    new OffsetValueSeries<T>( *source_.getStorage(), offset_,
+					ArrayND<T>::totalSize() );
     }
     else
 	storage_->setOffset( offset_ );
@@ -305,7 +307,8 @@ const ValueSeries<T>* Array2DSlice<T>::getStorage_() const
     {
 	delete storage_;
 	storage_ =
-	    new OffsetValueSeries<T>( *source_.getStorage(), offset_ );
+	    new OffsetValueSeries<T>( *source_.getStorage(), offset_,
+					ArrayND<T>::totalSize() );
     }
     else
 	storage_->setOffset( offset_ );
@@ -393,7 +396,8 @@ const ValueSeries<T>* Array3DSlice<T>::getStorage_() const
     if ( !storage_ || &storage_->source() != source_.getStorage() )
     {
 	delete storage_;
-	storage_ = new OffsetValueSeries<T>( *source_.getStorage(), offset_ );
+	storage_ = new OffsetValueSeries<T>( *source_.getStorage(), offset_,
+					     ArrayND<T>::totalSize() );
     }
     else
 	storage_->setOffset( offset_ );

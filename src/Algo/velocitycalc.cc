@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "interpol1d.h"
 #include "math2.h"
 #include "survinfo.h"
-#include "valseries.h"
+#include "valseriesimpl.h"
 #include "varlenarray.h"
 #include "veldesc.h"
 #include "limits.h"

@@ -26,7 +26,7 @@ void uiSeisAmplSpectrum::setDataPackID(
 	mDynamicCastGet(const SeisDataPack*,dp,datapack.ptr());
 	if ( dp )
 	{
-	    setup_.nyqvistspspace_ = dp->getZRange().step;
+	    setup_.nyqvistspspace_ = dp->zRange().step;
 	    setData( dp->data(version) );
 	}
     }

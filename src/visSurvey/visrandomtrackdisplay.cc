@@ -97,7 +97,7 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     namenr_ = highestnamenr+1;
     setUiName( tr( "%1 %2" ).arg( uiStrings::sRandomLine() ).arg( namenr_ ) );
-    
+
     material_->setColor( Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.2 );
@@ -796,7 +796,7 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
     ConstDataPackRef<RandomSeisDataPack> randsdp = dpm.obtain( dpid );
     if ( !randsdp ) return;
 
-    updateTexOriginAndScale( attrib, randsdp->getPath(), randsdp->getZRange() );
+    updateTexOriginAndScale( attrib, randsdp->getPath(), randsdp->zRange() );
 
     const int nrversions = randsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
@@ -1559,7 +1559,7 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
     const TrcKey trckey = Survey::GM().traceKey(
 	    Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
     const int trcidx = randsdp->getNearestGlobalIdx( trckey );
-    const int sampidx = randsdp->getZRange().nearestIndex( pos.z );
+    const int sampidx = randsdp->zRange().nearestIndex( pos.z );
     const Array3DImpl<float>& array = randsdp->data( version );
     if ( !array.info().validPos(0,trcidx,sampidx) )
 	return false;

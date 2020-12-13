@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "prestackevents.h"
 #include "survinfo.h"
-#include "valseries.h"
+#include "valseriesimpl.h"
 #include "velocitycalc.h"
 #include "viscoord.h"
 #include "visdatagroup.h"
@@ -389,7 +389,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	for ( int idx=0; idx<parentattached_.size(); idx++ )
 	    clearDisplay( parentattached_[idx] );
 
-	
+
 	eventmarkerset_->clearMarkers();
 	TypeSet<float> vals;
 	for ( int lidx=0; lidx<locations.totalSize(); lidx++ )
@@ -421,7 +421,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		vals += (markercolor_==Quality ? psevent->quality_
 					       : getMoveoutComp(offsets,picks));
 	    }
-	   
+
 	}
 
 	if (  markercolor_ == Single )
@@ -440,7 +440,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		 eventmarkerset_->getMaterial()->setColor(col,idx) ;
 	    }
 	}
-	
+
 	eventmarkerset_->turnAllMarkersOn( true );
 	eventmarkerset_->forceRedraw( true );
 	return;
@@ -499,7 +499,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     if ( !cs.hsamp_.includes(evntrg) )
 	return;
-  
+
     pao->eventsets_.erase();
     pao->tks_ = cs.hsamp_;
     pao->objectgroup_->addObject( pao->markerset_ );
@@ -749,7 +749,7 @@ bool PSEventDisplay::supportsDisplay() const
 	if ( !pdd )
 	    continue;
 	const TrcKeyZSampling pddrg = pdd->getTrcKeyZSampling();
-	issuported = pddrg.hsamp_.includes(eventrg);  
+	issuported = pddrg.hsamp_.includes(eventrg);
     }
 
     return issuported;

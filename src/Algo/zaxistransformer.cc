@@ -59,7 +59,7 @@ void ZAxisTransformer::setOutputRange( const TrcKeyZSampling& cs )
 }
 
 
-bool ZAxisTransformer::doPrepare(int) 
+bool ZAxisTransformer::doPrepare(int)
 {
     delete output_;
     output_ = new Array3DImpl<float>( outputcs_.hsamp_.nrInl(),
@@ -111,7 +111,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
     if ( !input_ ) return true;
 
     ZAxisTransformSampler outpsampler( transform_, forward_,
-	SamplingData<double>(outputcs_.zsamp_.start, outputcs_.zsamp_.step), 
+	SamplingData<double>(outputcs_.zsamp_.start, outputcs_.zsamp_.step),
 	false );
 
     const int inputzsz = input_->info().getSize(mZ);
@@ -147,7 +147,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	    const float* inputptr = input_->getData() +
 		input_->info().getOffset(inlidx,crlidx,0);
 	    SampledFunctionImpl<float,const float*> inputfunc(
-	       inputptr, inputzsz, inputcs_.zsamp_.atIndex(0), 
+	       inputptr, inputzsz, inputcs_.zsamp_.atIndex(0),
 	       inputcs_.zsamp_.step);
 
 	    inputfunc.setHasUdfs( true );
@@ -158,8 +158,9 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	else if ( input_->getStorage() )
 	{
 	    const OffsetValueSeries<float> vs( *input_->getStorage(),
-		input_->info().getOffset(inlidx,crlidx,0) );
-		
+		input_->info().getOffset(inlidx,crlidx,0),
+		input_->getSize(2) );
+
 	    SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
 	       vs, inputzsz, inputcs_.zsamp_.atIndex(0), inputcs_.zsamp_.step);
 

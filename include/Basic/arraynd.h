@@ -125,6 +125,10 @@ public:
 
     virtual const Array1DInfo&	info() const = 0;
 
+    // Compatibility with other classes:
+
+    inline od_int64		size() const override
+				{ return ArrayND<T>::totalSize(); }
     inline T			operator []( int idx ) const
 				{ return get( idx ); }
 
@@ -275,6 +279,8 @@ public:
 
     const T*		arr() const { return array_.getData(); }
     T*			arr() { return 0; }
+
+    od_int64		size() const override	{ return array_.totalSize(); }
 
 protected:
 

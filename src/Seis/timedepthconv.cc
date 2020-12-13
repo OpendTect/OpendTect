@@ -246,7 +246,7 @@ int TimeDepthDataLoader::nextStep()
 	arr_.info().getOffset(readcs_.hsamp_.inlIdx(curbid.inl()),
 				readcs_.hsamp_.crlIdx(curbid.crl()), 0 );
 
-    OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset );
+    OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset, nrz );
 
     if ( !seisdatapack_ )
     {
@@ -462,8 +462,8 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
     const TrcKeySampling& hrg = voivols_[bestidx].hsamp_;
     const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
 						 hrg.crlIdx(bid.crl()), 0 );
-    const OffsetValueSeries<float> vs( *arr.getStorage(), offset );
     const int zsz = arr.info().getSize(2);
+    const OffsetValueSeries<float> vs( *arr.getStorage(), offset, zsz );
 
     const StepInterval<float> zrg = voivols_[bestidx].zsamp_;
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( vs, zsz,
@@ -531,8 +531,8 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
     const TrcKeySampling& hrg = voivols_[bestidx].hsamp_;
     const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
 						 hrg.crlIdx(bid.crl()), 0 );
-    const OffsetValueSeries<float> vs( *arr.getStorage(), offset );
     const int zsz = arr.info().getSize(2);
+    const OffsetValueSeries<float> vs( *arr.getStorage(), offset, zsz );
 
     const StepInterval<float> zrg = voivols_[bestidx].zsamp_;
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( vs, zsz,

@@ -475,44 +475,110 @@ void SeisDataPack::getPath( TrcKeyPath& path ) const
 }
 
 
-const OffsetValueSeries<float>
-    SeisDataPack::getTrcStorage(int comp, int globaltrcidx) const
+const OffsetValueSeries<float> SeisDataPack::getTrcStorage( int comp,
+						int globaltrcidx ) const
 {
     const Array3D<float>* array = arrays_[comp];
-    return OffsetValueSeries<float>( *array->getStorage(),
-			(od_int64)globaltrcidx * array->info().getSize(2) );
-}
+    const auto* stor = array ? array->getStorage() : nullptr;
+    od_int64 offs = 0; od_int64 zsz;
+    if ( stor )
+    {
+        zsz = array->getSize( 2 );
+        offs = (od_int64)globaltrcidx * zsz;
+    }
+    else
+    {
+        zsz = 1;
+        static Array3DImpl<float> dummy( 1, 1, zsz );
+        stor = dummy.getStorage();
+    }
 
-
-OffsetValueSeries<float> SeisDataPack::getTrcStorage(int comp, int globaltrcidx)
-{
-    Array3D<float>* array = arrays_[comp];
-    return OffsetValueSeries<float>( *array->getStorage(),
-			(od_int64)globaltrcidx * array->info().getSize(2) );
+    return OffsetValueSeries<float>( *stor, offs, zsz );
 }
 
 
 const float* SeisDataPack::getTrcData( int comp, int globaltrcidx ) const
 {
-    const Array3D<float>* array = arrays_[comp];
-    if ( !array->getData() ) return 0;
-    return array->getData() + (od_int64)globaltrcidx * array->info().getSize(2);
+    return mSelf().getTrcData( comp, globaltrcidx );
 }
 
 
 float* SeisDataPack::getTrcData( int comp, int globaltrcidx )
 {
+    if ( !arrays_.validIdx(comp) )
+        return 0;
+
     Array3D<float>* array = arrays_[comp];
-    if ( !array->getData() ) return 0;
-    return array->getData() + (od_int64)globaltrcidx * array->info().getSize(2);
+    if ( !array->getData() )
+        return 0;
+    return array->getData() + (od_int64)globaltrcidx * array->getSize(2);
 }
 
 
 bool SeisDataPack::getCopiedTrcData( int comp, int globaltrcidx,
-				     Array1D<float>& ) const
+				     Array1D<float>& out ) const
 {
-    pErrMsg("Not implemented yet");
-    return false;
+    if ( !arrays_.validIdx(comp) )
+        return false;
+
+    const auto nrz = zRange().nrSteps() + 1;
+    const float* dataptr = getTrcData( comp, globaltrcidx );
+    float* outptr = out.getData();
+    if ( dataptr )
+    {
+        if ( outptr )
+            OD::sysMemCopy( outptr, dataptr, nrz * sizeof(float) );
+        else
+        {
+            for ( auto idz=0; idz<nrz; idz++ )
+                out.set( idz, dataptr[idz] );
+        }
+
+        return true;
+    }
+
+    const Array1DInfoImpl info1d( nrz );
+    if ( out.getSize(0) != nrz && !out.setInfo(info1d) )
+        return false;
+
+    const Array3D<float>& array = *arrays_[comp];
+    if ( array.getStorage() )
+    {
+        const OffsetValueSeries<float> offstor(
+                                       getTrcStorage(comp,globaltrcidx) );
+        if ( outptr )
+        {
+            for ( auto idz=0; idz<nrz; idz++ )
+                outptr[idz] = offstor.value( idz );
+        }
+        else
+        {
+            for ( auto idz=0; idz<nrz; idz++ )
+                out.set( idz, offstor.value( idz ) );
+        }
+
+        return true;
+    }
+
+    const od_int64 offset = ((od_int64)globaltrcidx) * nrz;
+    mAllocLargeVarLenArr( int, pos, array.nrDims() );
+    if ( !array.info().getArrayPos(offset,pos) )
+        return false;
+
+    const auto idx = pos[0];
+    const auto idy = pos[1];
+    if ( outptr )
+    {
+        for ( auto idz=0; idz<nrz; idz++ )
+            outptr[idz] = array.get( idx, idy, idz );
+    }
+    else
+    {
+        for ( auto idz=0; idz<nrz; idz++ )
+            out.set( idz, array.get( idx, idy, idz ) );
+    }
+
+    return true;
 }
 
 

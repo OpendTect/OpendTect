@@ -108,14 +108,15 @@ mExpClass(Seis) WaveletValueSeries : public ValueSeries<float>
 { mODTextTranslationClass(WaveletValueSeries);
 public:
 
-		WaveletValueSeries( const Wavelet& wv )
-		    :wv_(const_cast<Wavelet&>(wv)) {}
+			WaveletValueSeries( const Wavelet& wv )
+			    :wv_(const_cast<Wavelet&>(wv)) {}
 
-    float	value( od_int64 idx ) const;
-    bool	writable() const		{ return true; }
-    void	setValue( od_int64 idx,float v);
-    float*	arr();
-    const float* arr() const;
+    float		value( od_int64 idx ) const;
+    bool		writable() const		{ return true; }
+    void		setValue( od_int64 idx,float v);
+    float*		arr();
+    const float*	arr() const;
+    od_int64		size() const override	{ return wv_.size(); }
 
     inline ValueSeries<float>*	clone() const;
 

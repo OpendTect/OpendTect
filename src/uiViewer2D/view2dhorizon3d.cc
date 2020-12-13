@@ -122,7 +122,7 @@ void Vw2DHorizon3D::draw()
 		for ( int ipath=0; ipath<tkpath.size(); ipath++ )
 		    tkzs.hsamp_.include( tkpath[ipath] );
 
-		tkzs.zsamp_ = randfdp->getZRange();
+		tkzs.zsamp_ = randfdp->zRange();
 		horeds_[ivwr]->setTrcKeyZSampling( tkzs );
 		horeds_[ivwr]->setPath( randfdp->getPath() );
 		horeds_[ivwr]->setFlatPosData( &randfdp->posData() );
@@ -182,7 +182,7 @@ void Vw2DHorizon3D::selected( bool enabled )
 			&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    else
 		horeds_[ivwr]->setMouseEventHandler( 0 );
-   	    if ( setenableseed )
+	    if ( setenableseed )
 		horeds_[ivwr]->enableSeed( trackerenbed && enabled );
 	    else
 		horeds_[ivwr]->enableSeed( horeds_[ivwr]->seedEnable() );

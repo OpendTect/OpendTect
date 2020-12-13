@@ -19,11 +19,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "trckeysampling.h"
 #include "valseries.h"
-
-template <class T> class Array1D;
-template <class T> class Array2D;
-template <class T> class Array3D;
-template <class T> class Array3DImpl;
+#include "arrayndimpl.h"
 
 class FlatPosData;
 class Scaler;
@@ -204,6 +200,7 @@ public:
 
     virtual bool		is2D() const				= 0;
     virtual int			nrTrcs() const				= 0;
+    virtual ZSampling		zRange() const				= 0;
     virtual TrcKey		getTrcKey(int globaltrcidx) const	= 0;
     virtual int			getGlobalIdx(const TrcKey&) const	= 0;
     virtual int			getNearestGlobalIdx(const TrcKey&) const;
@@ -212,11 +209,9 @@ public:
 
     virtual bool		addComponent(const char* nm)		= 0;
 
-    virtual const StepInterval<float>&	getZRange() const		= 0;
 
     const OffsetValueSeries<float> getTrcStorage(
 					int comp,int globaltrcidx) const;
-    OffsetValueSeries<float>	getTrcStorage(int comp,int globaltrcidx);
 
     const float*		getTrcData(int comp,int globaltrcidx) const;
     float*			getTrcData(int comp,int globaltrcidx);
