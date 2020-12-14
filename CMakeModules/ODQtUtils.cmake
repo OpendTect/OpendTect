@@ -92,7 +92,7 @@ macro( QT_SETUP_GUI_INTERNALS )
 	list( APPEND QT_REQ_PLUGINS styles )
     elseif ( NOT APPLE )
 	list( APPEND QT_REQ_PLUGINS
-		egldeviceintegrations;platforminputcontext;xcbglintegrations )
+		egldeviceintegrations;platforminputcontexts;xcbglintegrations )
     endif()
 
     QT_INSTALL_PLUGINS()
