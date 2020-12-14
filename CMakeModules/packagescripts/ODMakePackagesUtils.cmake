@@ -4,9 +4,7 @@
 # Date:		August 2012		
 #RCS:		$Id$
 
-#TODO Change macro names to CAPITAL letters.
-
-macro ( create_package PACKAGE_NAME )
+macro ( CREATE_PACKAGE PACKAGE_NAME )
     if( ${PACKAGE_NAME} STREQUAL "base" )
 	if( APPLE )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -24,14 +22,14 @@ macro ( create_package PACKAGE_NAME )
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/MATLAB )
 	endif()
 
-	copy_thirdpartylibs()
+	COPY_THIRDPARTYLIBS()
 
 	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
     endif()
 
     #TODO Need to check whether we need to use this macro on MAC.
     if ( APPLE AND SYSTEMLIBS ) #TODO Need to check whether we  need to use this macro on MAC.
-	    copy_mac_systemlibs()
+	    COPY_MAC_SYSTEMLIBS()
 	    unset( SYSTEMLIBS )
     endif()
 
@@ -183,31 +181,15 @@ macro ( create_package PACKAGE_NAME )
     endforeach()
     set( EXTERNALLIBS "")
 
-    zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
+    ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
     message( "DONE" )
-endmacro( create_package )
+endmacro( CREATE_PACKAGE )
 
 
-macro( copy_thirdpartylibs )
+macro( COPY_THIRDPARTYLIBS )
     message( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
     list( APPEND SYSLIBS ${SYSTEMLIBS} )
     foreach( LIB ${OD_THIRD_PARTY_LIBS} )
-	if ( OD_ENABLE_BREAKPAD )
-	    if ( WIN32 )
-		#TODO Not including symbols on windows platform
-	    elseif ( APPLE )
-		#TODO
-	    else()
-		execute_process( COMMAND strip ${COPYFROMLIBDIR}/${LIB} )
-		if ( EXISTS ${COPYFROMLIBDIR}/symbols/${LIB} ) #including thirdparty symbols if present
-		    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				     ${COPYFROMLIBDIR}/symbols/${LIB}
-				     ${COPYTOLIBDIR}/symbols/${LIB} )
-		endif()
-	    endif()
-	endif()
-
-
 	string( FIND ${LIB} "Qt" ISQTLIB )
 	if (  APPLE  AND NOT ${ISQTLIB} EQUAL -1 )
 	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
@@ -227,7 +209,7 @@ macro( copy_thirdpartylibs )
 		list( FIND SYSLIBS "${LIB}" ITEMIDX )
 		if ( NOT ${ITEMIDX} EQUAL -1 )
 		    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR}/systemlibs/${LIB} )
+				     ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR}/systemlibs/${LIB} )
 		    continue()
 		endif()
 	    endif()
@@ -237,64 +219,27 @@ macro( copy_thirdpartylibs )
 
     endforeach()
 
-    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		     ${COPYFROMLIBDIR}/../translations
-		     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations )
-    if ( APPLE )
+    foreach( ODPLUGIN ${OD_QTPLUGINS} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/../Plugins
-			 ${DESTINATION_DIR}/Plugins )
-    else()
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/iconengines
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/iconengines )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/imageformats
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/platforms
-		         ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/platforms )
-    endif()
+			 ${COPYFROMLIBDIR}/${ODPLUGIN}
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/${ODPLUGIN} )
 
-    if (APPLE )
-    elseif ( WIN32 )
- 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/styles
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/styles )
-    else()
- 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/xcbglintegrations
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/xcbglintegrations )
-    endif()
-
-    if ( EXISTS ${COPYFROMLIBDIR}/../resources )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/../resources
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
-    endif()
-endmacro( copy_thirdpartylibs )
-
-macro( PREPARE_WIN_THIRDPARTY_DEBUGLIST DEBUGFILELIST)
-    if( WIN32 )
-	foreach( THIRDPARTYDLL ${OD_THIRD_PARTY_LIBS} )
-	    get_filename_component(FILENM ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${THIRDPARTYDLL} NAME_WE)
-	    string( FIND ${FILENM} "5" ISQTFILE )
-	    string( FIND ${FILENM} "osg" ISOSGFILE )
-	    string( FIND ${FILENM} "OpenThreads" OSGOTFILE )
-	if ( NOT "${ISQTFILE}" EQUAL -1 ) #  File is Qt
-	    string(REGEX REPLACE "${FILENM}" "${FILENM}d" QTDEBUGFILENAME ${FILENM} )
-	    list(APPEND ${DEBUGFILELIST} ${QTDEBUGFILENAME}.dll )
-	elseif ( (NOT "${ISOSGFILE}" EQUAL -1) OR (NOT "${OSGOTFILE}" EQUAL -1) ) # File is osg
-	    string(REGEX REPLACE "${FILENM}" "${FILENM}d" OSGDEBUGFILENAME ${FILENM} )
-	    list(APPEND ${DEBUGFILELIST} ${OSGDEBUGFILENAME}.dll )
+	if ( "${ODPLUGIN}" STREQUAL "resources" )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${COPYFROMLIBDIR}/../resources
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
 	endif()
-	endforeach()
-	list(REMOVE_DUPLICATES ${DEBUGFILELIST} )
-    endif()
-endmacro()
+    endforeach()
 
+    foreach( TRANSLATION_FILE ${OD_QT_TRANSLATION_FILES} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${COPYFROMLIBDIR}/../translations/${TRANSLATION_FILE}
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/${TRANSLATION_FILE} ) 
+    endforeach()
 
-macro( copy_mac_systemlibs )
+endmacro( COPY_THIRDPARTYLIBS )
+
+macro( COPY_MAC_SYSTEMLIBS )
     message( "Copying ${OD_PLFSUBDIR} system libraries" )
     if( APPLE )
 	foreach( SYSLIB ${SYSTEMLIBS} )
@@ -302,68 +247,61 @@ macro( copy_mac_systemlibs )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${SYSLIB} ${COPYTOLIBDIR} )
 	endforeach()
     endif()
-endmacro()
+endmacro( COPY_MAC_SYSTEMLIBS )
 
 
-macro( create_basepackages PACKAGE_NAME )
-    if( ${PACKAGE_NAME} STREQUAL "basedata" )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			${COPYFROMDATADIR}/doc/system_requirements.html
-			${COPYTODATADIR}/doc/system_requirements.html )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${COPYFROMDATADIR}/relinfo/RELEASE.txt
-				${COPYTODATADIR}/doc/ReleaseInfo/RELEASE.txt )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${COPYFROMDATADIR}/relinfo/RELEASEINFO.txt
-				${COPYTODATADIR}/doc/ReleaseInfo/RELEASEINFO.txt )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${COPYFROMDATADIR}/doc/Videos.od
-				${COPYTODATADIR}/doc/Videos.od )
-	foreach( LIBS ${LIBLIST} )
-	    file( GLOB DATAFILES ${COPYFROMDATADIR}/data/${LIBS} )
-	    foreach( DATA ${DATAFILES} )
-    #TODO if possible copy files instead of INSTALL
-		  file( INSTALL DESTINATION ${COPYTODATADIR}/data
-				TYPE DIRECTORY FILES ${DATA}
-				REGEX ".svn" EXCLUDE )
-	    endforeach()
-	endforeach()
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${COPYFROMDATADIR}/relinfo/README.txt
-			 ${COPYTODATADIR}/relinfo/README.txt )
-   endif()
-   if( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${COPYFROMDATADIR}/relinfo/RELEASE.dgb.txt
-				${COPYTODATADIR}/doc/ReleaseInfo/RELEASE.dgb.txt )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${COPYFROMDATADIR}/doc/Videos.dgb
-				${COPYTODATADIR}/doc/Videos.dgb )
-       foreach( LIB ${LIBLIST} )
-	  if( IS_DIRECTORY "${COPYFROMDATADIR}/data/${LIB}" )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${COPYFROMDATADIR}/data/${LIB}
-			     ${COPYTODATADIR}/data/${LIB} )
-	  else()
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${COPYFROMDATADIR}/data/${LIB}
-			     ${COPYTODATADIR}/data/${LIB} )
-	  endif()
-       endforeach()
-       file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
+macro( CREATE_BASEPACKAGES PACKAGE_NAME )
+    set( RELFILENAM RELEASE )
+    string( FIND ${PACKAGE_NAME} "dgb" STATUS )
+    if( ${STATUS} EQUAL "0" )
+	set( ODDGBSTR "dgb" )
+	set( RELFILENAM ${RELFILENAM}.${ODDGBSTR}.txt )
+        file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
 	foreach( QMFILE ${QMFILES} )
 	    get_filename_component( QMFILENM ${QMFILE} NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${COPYFROMDATADIR}/data/localizations/${QMFILENM}
 			     ${COPYTODATADIR}/data/localizations/${QMFILENM} )
-	endforeach()
-   endif()
+	 endforeach()
+    else()
+	set( ODDGBSTR "od" )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${COPYFROMDATADIR}/relinfo/README.txt
+			 ${COPYTODATADIR}/relinfo/README.txt )
+	set( RELFILENAM ${RELFILENAM}.txt )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				${COPYFROMDATADIR}/relinfo/RELEASEINFO.txt
+				${COPYTODATADIR}/doc/ReleaseInfo/RELEASEINFO.txt )
+    endif()
 
-    zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
-endmacro( create_basepackages )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			    ${COPYFROMDATADIR}/relinfo/${RELFILENAM}
+			    ${COPYTODATADIR}/doc/ReleaseInfo/${RELFILENAM} )
+    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			    ${COPYFROMDATADIR}/doc/Videos.${ODDGBSTR}
+			    ${COPYTODATADIR}/doc/Videos.${ODDGBSTR} )
+
+    foreach( LIBS ${LIBLIST} )
+	file( GLOB DATAFILES ${COPYFROMDATADIR}/data/${LIBS} )
+	foreach( DATA ${DATAFILES} )
+	    get_filename_component( DATALIBNM ${DATA} NAME )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMDATADIR}/data/${DATALIBNM}
+			     ${COPYTODATADIR}/data/${DATALIBNM})
+	 endforeach()
+    endforeach()
+
+    foreach( DATADIR ${DATADIRLIST} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMDATADIR}/data/${DATADIR}
+			 ${COPYTODATADIR}/data/${DATADIR} )
+    endforeach()
+
+    ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
+endmacro( CREATE_BASEPACKAGES )
 
 
-macro( init_destinationdir  PACKAGE_NAME )
+macro( INIT_DESTINATIONDIR  PACKAGE_NAME )
     set ( PACKAGE_FILENAME ${PACKAGE_NAME} )
     set( PACKAGE_FILENAME "${PACKAGE_FILENAME}_${OD_PLFSUBDIR}.zip" )
     set( VER_FILENAME "${PACKAGE_NAME}_${OD_PLFSUBDIR}" )
@@ -448,10 +386,10 @@ macro( init_destinationdir  PACKAGE_NAME )
     endif()
 
     message( "Preparing package ${VER_FILENAME}.zip ......" )
-endmacro( init_destinationdir )
+endmacro( INIT_DESTINATIONDIR )
 
 
-macro( create_develpackages )
+macro( CREATE_DEVELPACKAGES )
     file( MAKE_DIRECTORY ${COPYFROMDATADIR}/doc
 			 ${COPYTODATADIR}/doc/Programmer)
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -547,18 +485,17 @@ macro( create_develpackages )
 	endforeach()
 
 	#Copying third party debug libraries
-	PREPARE_WIN_THIRDPARTY_DEBUGLIST( DEBUGLIST )
-	foreach( TLIB ${DEBUGLIST} )
+	foreach( THIRDPARTY_DEBUGLIB ${OD_THIRD_PARTY_FILES_DEBUG} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${TLIB}
+				${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${THIRDPARTY_DEBUGLIB}
 				${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
 	endforeach()
     endif()
 
-    zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
-endmacro( create_develpackages )
+    ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
+endmacro( CREATE_DEVELPACKAGES )
 
-macro( create_docpackages PACKAGE_NAME )
+macro( CREATE_DOCPACKAGES PACKAGE_NAME )
     if( WIN32 )
 	if( ${PACKAGE_NAME} STREQUAL "doc" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -584,10 +521,10 @@ macro( create_docpackages PACKAGE_NAME )
 	    endif()
 	endif()
     endif()
-    zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
-endmacro( create_docpackages )
+    ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
+endmacro( CREATE_DOCPACKAGES )
 
-macro( zippackage PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
+macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
     if( WIN32 )
 	message( "Using ${OD_PLFSUBDIR} zip command" )
 	execute_process( COMMAND ${SOURCE_DIR}/bin/win64/zip -r -q
@@ -604,7 +541,7 @@ macro( zippackage PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
     if( NOT ${STATUS} EQUAL "0" )
 	message( FATAL_ERROR "Failed to create zip file ${PACKAGE_FILENAME}" )
    endif()
-endmacro( zippackage )
+endmacro( ZIPPACKAGE )
 
 #Genarate Symbols and then Strip the binaries
 macro ( OD_GENERATE_BREAKPAD_SYMBOLS ALLLIBS EXECS)
@@ -667,5 +604,5 @@ endif()
 	    execute_process( COMMAND strip ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${FILENAME} )
 	endif()
     endforeach()
-endmacro() #OD_GENERATE_BREAKPAD_SYMBOLS
+endmacro( OD_GENERATE_BREAKPAD_SYMBOLS )
 
