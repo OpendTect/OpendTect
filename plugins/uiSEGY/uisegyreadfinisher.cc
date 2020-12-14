@@ -275,7 +275,7 @@ void uiSEGYReadFinisher::wllSel( CallBacker* )
     if ( !lognmfld_ )
 	return;
 
-    BufferStringSet nms; Well::MGR().getLogNames( outwllfld_->key(), nms );
+    BufferStringSet nms; Well::MGR().getLogNamesByID( outwllfld_->key(), nms );
     BufferString curlognm = lognmfld_->text();
     lognmfld_->setEmpty();
     lognmfld_->addItems( nms );
