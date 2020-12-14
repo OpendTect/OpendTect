@@ -353,13 +353,7 @@ void uiWellLogCalc::setUnits4Log( int inpidx )
 
     uiMathExpressionVariable* inpfld = formfld_->inpFld( inpidx );
     inpfld->setPropType( wl->propType() );
-    if ( wl->propType() == PropertyRef::Other )
-    {
-	inpfld->setUnit( wl->unitOfMeasure() );
-	return;
-    }
-
-    inpfld->setUnit( UoMR().getInternalFor(wl->propType()) );
+    inpfld->setUnit( wl->unitOfMeasure() );
 }
 
 
