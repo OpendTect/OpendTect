@@ -18,11 +18,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uiioobjsel.h"
+#include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
 #include "uistrateditlayer.h"
 #include "uistratlaymodtools.h"
+#include "uitextedit.h"
 
 #include "arrayndimpl.h"
 #include "ascstream.h"
@@ -102,8 +104,6 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     vwr_.rgbCanvas().getMouseEventHandler().movement.notify(
 			mCB(this,uiStratLayerModelDisp,mouseMoved) );
     mAttachCB( vwr_.rgbCanvas().reSize, uiStratLayerModelDisp::updateTextPosCB);
-#   define mSetCB(notifnm) tools_.notifnm.notify( \
-	mCB(this,uiStratLayerModelDisp,notifnm##CB)  )
 
     mAttachCB( tools_.selPropChg, uiStratLayerModelDisp::selPropChgCB );
     mAttachCB( tools_.dispLithChg, uiStratLayerModelDisp::dispLithChgCB );
@@ -218,10 +218,12 @@ void uiStratLayerModelDisp::updateTextPosCB( CallBacker* )
 }
 
 
+#define mErrRetVoid(s) { uiMSG().error(s); return; }
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
 static int sUseEach = 1;
+static int sStartAt = 1;
 static bool sDoReplace = true;
 static bool sPresMath = false;
 
@@ -235,13 +237,13 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
 				: tr("Save pseudo-wells"),
 			 mNoDlgTitle,
 			 mODHelpKey(mStratLayerModelDispIOHelpID)) )
-    , inputfld_(nullptr)
-    , doreplacefld_(nullptr)
-    , eachfld_(nullptr)
-    , presmathfld_(nullptr)
     , lm_(lm)
     , doread_(doread)
 {
+    setOkText( doread ? uiStrings::sOpen() : uiStrings::sSave() );
+    IOObjContext ctxt = StratLayerModelsTranslatorGroup::ioContext();
+    ctxt.forread_ = doread;
+
     if ( doread )
     {
 	inputfld_ = new uiGenInput( this, tr("Saved in v6.4 or earlier"),
@@ -250,19 +252,29 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
 
 	filefld_ = new uiFileInput( this, uiStrings::sFileName() );
 	filefld_->attach( alignedBelow, inputfld_ );
-    }
+	mAttachCB( filefld_->valuechanged, uiStratLayerModelDispIO::selCB );
 
-    IOObjContext ctxt = StratLayerModelsTranslatorGroup::ioContext();
-    ctxt.forread_ = doread;
-    laymodfld_ = new uiIOObjSel( this, ctxt );
-    if ( inputfld_ )
+	laymodfld_ = new uiIOObjSel( this, ctxt );
 	laymodfld_->attach( alignedBelow, inputfld_ );
+	mAttachCB( laymodfld_->selectionDone, uiStratLayerModelDispIO::selCB );
 
-    if ( doread )
-    {
+	infofld_ = new uiTextEdit( this, "Info", true );
+	infofld_->setPrefHeightInChar( 5 );
+	infofld_->attach( alignedBelow, laymodfld_ );
+
 	eachfld_ = new uiGenInput( this, tr("Read each"),
 				   IntInpSpec(sUseEach,1,1000) );
-	eachfld_->attach( alignedBelow, laymodfld_ );
+	mAttachCB( eachfld_->valuechanging, uiStratLayerModelDispIO::nrCB );
+	eachfld_->attach( alignedBelow, infofld_ );
+
+	startatfld_ = new uiGenInput( this, tr("Start at"),
+				      IntInpSpec(sStartAt,1,100000) );
+	mAttachCB( startatfld_->valuechanging, uiStratLayerModelDispIO::nrCB );
+	startatfld_->attach( rightTo, eachfld_ );
+
+	nrreadfld_ = new uiGenInput( this, tr("Models to read" ) );
+	nrreadfld_->setReadOnly( true );
+	nrreadfld_->attach( rightTo, startatfld_ );
 
 	doreplacefld_ = new uiGenInput( this, tr("Replace existing model"),
 					BoolInpSpec(sDoReplace) );
@@ -270,13 +282,30 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
     }
     else
     {
+	laymodfld_ = new uiIOObjSel( this, ctxt );
 	presmathfld_ = new uiGenInput( this, tr("Preserve Math Formulas"),
 				       BoolInpSpec(sPresMath) );
 	presmathfld_->attach( alignedBelow, laymodfld_ );
     }
 
-    if ( doread )
-	inputCB(nullptr);
+    mAttachCB( postFinalise(), uiStratLayerModelDispIO::finalizeCB );
+}
+
+
+~uiStratLayerModelDispIO()
+{
+    detachAllNotifiers();
+}
+
+
+void finalizeCB( CallBacker* )
+{
+    if ( !doread_ )
+	return;
+
+    inputCB( nullptr );
+    selCB( nullptr );
+    nrCB( nullptr );
 }
 
 
@@ -288,41 +317,106 @@ void inputCB( CallBacker* )
 }
 
 
+od_istream* getStream() const
+{
+    const bool usefile = inputfld_ ? inputfld_->getBoolValue() : false;
+    BufferString fnm;
+    if ( usefile )
+    {
+	fnm = filefld_->fileName();
+	if ( fnm.isEmpty() )
+	    uiMSG().error( tr("Please select a file") );
+    }
+    else
+    {
+	const IOObj* ioobj = laymodfld_->ioobj();
+	if ( ioobj )
+	    fnm = ioobj->fullUserExpr();
+    }
+
+    if ( fnm.isEmpty() )
+	return nullptr;
+
+    od_istream* strm = new od_istream( fnm );
+    if ( !usefile )
+	ascistream astrm( *strm );
+
+    if ( !strm->isOK() )
+    {
+	uiMSG().error( tr("Cannot open:\n%1\nfor read").arg(fnm) );
+	return nullptr;
+    }
+
+    return strm;
+}
+
+
+void selCB( CallBacker* )
+{
+    nrwells_ = 0;
+    infofld_->setEmpty();
+    nrreadfld_->setValue( 0 );
+
+    PtrMan<od_istream> strm = getStream();
+
+    Strat::LayerModel newlm;
+    PropertyRefSelection propref;
+    int nrseqs = 0;
+    bool mathpreserved = false;
+    if ( !newlm.readHeader(*strm,propref,nrseqs,mathpreserved) )
+	mErrRetVoid( tr("Cannot read header.") );
+
+    nrwells_ = nrseqs;
+
+    BufferString txt;
+    txt.add( "Nr pseudo-wells: " ).add( nrseqs ).addNewLine();
+    txt.add( "Properties: " );
+    for ( int idx=0; idx<propref.size(); idx++ )
+    {
+	if ( idx>0 ) txt.add(",");
+	txt.add( propref[idx]->name() );
+    }
+    txt.addNewLine();
+
+    infofld_->setText( txt );
+    nrCB( nullptr );
+}
+
+
+void nrCB( CallBacker* )
+{
+    int well0 = startatfld_->getIntValue();
+    if ( well0 > nrwells_ )
+	well0 = nrwells_;
+    StepInterval<int> wellrg( well0, nrwells_, eachfld_->getIntValue() );
+    const int wells2read = wellrg.nrSteps()+1;
+    nrreadfld_->setValue( wells2read );
+}
+
+
 bool acceptOK( CallBacker* )
 {
     if ( doread_ )
     {
-	const bool usefile = inputfld_ ? inputfld_->getBoolValue() : false;
-	if ( usefile )
-	    fnm_ = filefld_->fileName();
-	else
-	{
-	    const IOObj* ioobj = laymodfld_->ioobj();
-	    if ( !ioobj )
-		return false;
-
-	    fnm_ = ioobj->fullUserExpr();
-	}
-
-	od_istream strm( fnm_ );
-	if ( !usefile )
-	    ascistream astrm( strm );
-	if ( !strm.isOK() )
-	    mErrRet(tr("Cannot open:\n%1\nfor read").arg(fnm_))
+	PtrMan<od_istream> strm = getStream();
+	if ( !strm )
+	    return false;
 
 	Strat::LayerModel newlm;
-	if ( !newlm.read(strm) )
+	if ( !newlm.read(*strm) )
 	    mErrRet(tr("Cannot read layer model from file.\nDetails may be "
 		       "in the log file ('Utilities-Show log file')"))
 
 	const int each = eachfld_->getIntValue();
 	sUseEach = each;
+	const int firstmdl = startatfld_->getIntValue();
+	sStartAt = firstmdl;
 	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
 	sDoReplace = doreplacefld_->getBoolValue();
 	if ( sDoReplace )
 	    lm.setEmpty();
 
-	for ( int iseq=0; iseq<newlm.size(); iseq+=each )
+	for ( int iseq=firstmdl-1; iseq<newlm.size(); iseq+=each )
 	    lm.addSequence( newlm.sequence(iseq) );
     }
     else
@@ -331,14 +425,14 @@ bool acceptOK( CallBacker* )
 	if ( !ioobj )
 	    return false;
 
-	fnm_ = ioobj->fullUserExpr();
-	od_ostream strm( fnm_ );
+	const BufferString fnm = ioobj->fullUserExpr();
+	od_ostream strm( fnm );
 	if ( !strm.isOK() )
-	    mErrRet( tr("Cannot open:\n%1\nfor write").arg(fnm_) )
+	    mErrRet( tr("Cannot open:\n%1\nfor write").arg(fnm) )
 
 	ascostream astrm( strm );
 	if ( !astrm.putHeader("PseudoWells") )
-	    mErrRet( tr("Cannot write to output file:\n%1").arg(fnm_) )
+	    mErrRet( tr("Cannot write to output file:\n%1").arg(fnm) )
 
 	sPresMath = presmathfld_->getBoolValue();
 	if ( !lm_.write(strm,0,sPresMath) )
@@ -348,16 +442,19 @@ bool acceptOK( CallBacker* )
     return true;
 }
 
-    uiGenInput*			inputfld_;
-    uiFileInput*		filefld_;
+    uiGenInput*			inputfld_		= nullptr;
+    uiFileInput*		filefld_		= nullptr;
     uiIOObjSel*			laymodfld_;
-    uiGenInput*			doreplacefld_;
-    uiGenInput*			eachfld_;
-    uiGenInput*			presmathfld_;
+    uiTextEdit*			infofld_		= nullptr;
+    uiGenInput*			doreplacefld_		= nullptr;
+    uiGenInput*			eachfld_		= nullptr;
+    uiGenInput*			startatfld_		= nullptr;
+    uiGenInput*			nrreadfld_		= nullptr;
+    uiGenInput*			presmathfld_		= nullptr;
 
     const Strat::LayerModel&	lm_;
     bool			doread_;
-    BufferString		fnm_;
+    int				nrwells_		= 0;
 };
 
 
