@@ -4,14 +4,11 @@
 # Date:         September 2012
 #RCS:           $Id$
 
-SET( DATALIBLIST omf Attribs BasicSurvey ColTabs MouseControls BatchPrograms
-	     BatchHosts_example FileFormats UnitsOfMeasure Properties odSettings
-	     EnvVars ShortCuts *.ico *.png *.html icons.Default
-	     RockPhysics ModDeps.od Strat Python
-	     prodlist.txt Vendors
-	     BatchHosts_example_for_nodes_of_a_linux_server.txt
-	     BatchHosts_example_for_nodes_of_a_windows_server.txt Scripts CRS 
-	     Mnemonics )
+SET( LIBLIST omf ColTabs MouseControls BatchPrograms
+	     FileFormats UnitsOfMeasure Properties odSettings
+	     EnvVars ShortCuts *.ico *.png RockPhysics ModDeps.od
+	     prodlist.txt Vendors Mnemonics )
+set( DATADIRLIST Attribs BasicSurvey icons.Default Strat
+		 Python  Scripts CRS )
 SET( EXECLIST  )
 SET( PACK "basedata")
-
