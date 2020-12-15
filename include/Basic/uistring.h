@@ -130,8 +130,13 @@ public:
 						{ return !isEqualTo(oth); }
     uiString&	operator=(const uiString&);	//!< no copy, ref counted
 
+#ifdef mNoTranslation
+		uiString(const char* str)	{ set( str ); }
+    uiString&	operator =(const char* str)	{ set( str ); return *this; }
+#else
 		uiString(const char*)		= delete; // try 'set()'
     uiString&	operator =(const char*)		= delete; // try 'set()'
+#endif
 
     uiString&	set(const char*);
     uiString&	set( const uiString& s )	{ return (*this = s); }
