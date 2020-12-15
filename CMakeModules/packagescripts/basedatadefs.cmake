@@ -4,7 +4,7 @@
 # Date:         September 2012
 #RCS:           $Id$
 
-SET( LIBLIST omf ColTabs MouseControls BatchPrograms
+SET( DATALIBLIST omf ColTabs MouseControls BatchPrograms
 	     FileFormats UnitsOfMeasure Properties odSettings
 	     EnvVars ShortCuts *.ico *.png RockPhysics ModDeps.od
 	     prodlist.txt Vendors Mnemonics )

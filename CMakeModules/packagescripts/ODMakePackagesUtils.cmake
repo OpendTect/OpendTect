@@ -101,6 +101,11 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 					     ${COPYTODATADIR}/bin/. )
 		 endforeach()
 	    endforeach()
+	    foreach( PYDIR ${PYTHONDIR} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E
+				 copy_directory ${COPYFROMDATADIR}/bin/${PYDIR}
+				 ${COPYTODATADIR}/bin/${PYDIR} )
+	    endforeach()
 	endif()
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E
@@ -246,9 +251,16 @@ macro( COPY_THIRDPARTYLIBS )
     endforeach()
 
     foreach( TRANSLATION_FILE ${OD_QT_TRANSLATION_FILES} )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${COPYFROMLIBDIR}/../translations/${TRANSLATION_FILE}
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/${TRANSLATION_FILE} ) 
+	get_filename_component( QTWEB_LOCALS_FILE ${TRANSLATION_FILE} EXT  )
+	if( ${QTWEB_LOCALS_FILE} STREQUAL ".pak" )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMLIBDIR}/../translations/qtwebengine_locales/${TRANSLATION_FILE}
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/qtwebengine_locales/${TRANSLATION_FILE} )
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMLIBDIR}/../translations/${TRANSLATION_FILE}
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/${TRANSLATION_FILE} )
+	endif()
     endforeach()
 
 endmacro( COPY_THIRDPARTYLIBS )
@@ -295,7 +307,7 @@ macro( CREATE_BASEPACKAGES PACKAGE_NAME )
 			    ${COPYFROMDATADIR}/doc/Videos.${ODDGBSTR}
 			    ${COPYTODATADIR}/doc/Videos.${ODDGBSTR} )
 
-    foreach( LIBS ${LIBLIST} )
+    foreach( LIBS ${DATALIBLIST} )
 	file( GLOB DATAFILES ${COPYFROMDATADIR}/data/${LIBS} )
 	foreach( DATA ${DATAFILES} )
 	    get_filename_component( DATALIBNM ${DATA} NAME )
