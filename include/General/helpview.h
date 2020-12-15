@@ -59,6 +59,12 @@ public:
 
     BufferString 	providername_;
     BufferString 	argument_;
+
+    			// Legacy
+                        HelpKey(const char* arg)
+                            : providername_("od")
+                            , argument_( arg )
+                        {}
 };
 
 #define mODHelpKey( arg ) HelpKey( "od", ::toString(arg) )
