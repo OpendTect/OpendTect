@@ -272,9 +272,8 @@ void TargetInfo::usePar( const IOPar& iopar )
 Table::TargetInfo*
 	TargetInfo::mkHorPosition( bool isreq, bool wic, bool wll, bool wcrs )
 {
-    const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
-    Table::TargetInfo* ti =
-	new TargetInfo( "Position", DoubleInpSpec(), reqspec );
+    const ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
+    TargetInfo* ti = new TargetInfo( "", DoubleInpSpec(), reqspec );
     ti->form(0).setName( "X/Y" );
     ti->form(0).add( DoubleInpSpec() );
     if ( wcrs )
@@ -282,18 +281,44 @@ Table::TargetInfo*
 
     if ( wic )
     {
-	Table::TargetInfo::Form* form = new Table::TargetInfo::Form(
-		"Inl/Crl", IntInpSpec() );
+	auto* form = new TargetInfo::Form( "Inl/Crl", IntInpSpec() );
 	form->add( IntInpSpec() );
 	ti->add( form );
     }
 
     if ( wll )
     {
-	Table::TargetInfo::Form* form = new Table::TargetInfo::Form(
-		"Lat/Long", StringInpSpec() );
+	auto* form = new TargetInfo::Form( "Lat/Long", StringInpSpec() );
 	form->add( StringInpSpec() );
 	ti->add( form );
+    }
+
+    if ( ti->nrForms()==1 )
+	ti->setName( "Position X/Y" );
+
+    return ti;
+}
+
+
+Table::TargetInfo* TargetInfo::mk2DHorPosition( bool isreq )
+{
+    const ReqSpec reqspec( isreq ? Required : Optional );
+    TargetInfo* ti = new TargetInfo( "", DoubleInpSpec(), reqspec );
+    ti->form(0).setName( "X/Y" );
+    ti->form(0).add( DoubleInpSpec() );
+    ti->selection_.coordsys_ = SI().getCoordSystem();
+
+    auto* form1 = new TargetInfo::Form( "Trace Nr", IntInpSpec() );
+    ti->add( form1 );
+
+    auto* form2 = new TargetInfo::Form( "SP Nr", FloatInpSpec() );
+    ti->add( form2 );
+
+    if ( ti->selection_.coordsys_ && ti->selection_.coordsys_->isProjection() )
+    {
+	auto* form3 = new TargetInfo::Form( "Lat/Long", StringInpSpec() );
+	form3->add( StringInpSpec() );
+	ti->add( form3 );
     }
 
     return ti;

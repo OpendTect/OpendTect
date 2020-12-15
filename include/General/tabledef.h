@@ -194,6 +194,7 @@ public:
     static TargetInfo*	mkHorPosition(bool isreq,bool wic=true,bool wll=false,
 				      bool wcrs=true);
 			//!< form(0)=(X,Y), form(1)=inl/crl, form(1/2)=long/lat
+    static TargetInfo*	mk2DHorPosition(bool isreq);
     static TargetInfo*	mkZPosition( bool isreq, bool withunits=true )
 				{ return mkZPos(isreq,withunits); }
     static TargetInfo*	mkDepthPosition( bool isreq, bool withunits=true )
