@@ -82,5 +82,6 @@ protected:
 
     void	createMenuCB(CallBacker*);
     void	handleMenuCB(CallBacker*);
+    void	removeDisplayAtIndex(int);
 };
 

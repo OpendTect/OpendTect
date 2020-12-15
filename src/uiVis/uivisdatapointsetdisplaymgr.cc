@@ -400,9 +400,7 @@ int uiVisDataPointSetDisplayMgr::addDisplay( const TypeSet<int>& parents,
     if ( !displayinfo )
 	return -1;
 
-    int id = 0;
-    while ( ids_.isPresent(id) ) id++;
-
+    const int id = ids_.isEmpty() ? 0 : ids_.last() + 1;
     for ( int idx=0; idx<parents.size(); idx++ )
     {
 	RefMan<visBase::DataObject> sceneptr =
@@ -467,9 +465,7 @@ bool uiVisDataPointSetDisplayMgr::addDisplays( const TypeSet<int>& parents,
 	if ( !displayinfo )
 	    return false;
 
-	int id = 0;
-	while ( ids_.isPresent(id) ) id++;
-
+	const int id = ids_.isEmpty() ? 0 : ids_.last() + 1;
 	for ( int idx=0; idx<parents.size(); idx++ )
 	{
 	    RefMan<visBase::DataObject> sceneptr =
@@ -654,20 +650,16 @@ void uiVisDataPointSetDisplayMgr::clearDisplays()
 	visserv_.setMoreObjectsToDoHint( allsceneids_[idx], true );
 
     for ( int idx=ids_.size()-1; idx>=0; idx-- )
-	removeDisplay( ids_[idx] );
+	removeDisplayAtIndex( idx );
 
     for ( int idx=0; idx<allsceneids_.size(); idx++ )
 	visserv_.setMoreObjectsToDoHint( allsceneids_[idx], false );
 }
 
 
-void uiVisDataPointSetDisplayMgr::removeDisplay( DispID id )
+void uiVisDataPointSetDisplayMgr::removeDisplayAtIndex( int dispidx )
 {
-    const int idx = ids_.indexOf( id );
-    if ( idx<0 )
-	return;
-
-    DisplayInfo& displayinfo = *displayinfos_[idx];
+    DisplayInfo& displayinfo = *displayinfos_[dispidx];
     for ( int idy=0; idy<displayinfo.visids_.size(); idy++ )
     {
 	const int sceneid = displayinfo.sceneids_[idy];
@@ -683,8 +675,18 @@ void uiVisDataPointSetDisplayMgr::removeDisplay( DispID id )
 			       displayinfo.sceneids_[idy] );
     }
 
-    ids_.removeSingle( idx );
-    delete displayinfos_.removeSingle( idx );
+    ids_.removeSingle( dispidx );
+    delete displayinfos_.removeSingle( dispidx );
+}
+
+
+void uiVisDataPointSetDisplayMgr::removeDisplay( DispID id )
+{
+    const int idx = ids_.indexOf( id );
+    if ( idx<0 )
+	return;
+
+    removeDisplayAtIndex( idx );
 }
 
 
