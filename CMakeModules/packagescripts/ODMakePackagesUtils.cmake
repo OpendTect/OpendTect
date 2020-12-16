@@ -27,6 +27,11 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
     endif()
 
+
+    if( ${PACKAGE_NAME} STREQUAL "dgbpro" )
+	COPY_THIRDPARTYLIBS()
+    endif()
+
     #TODO Need to check whether we need to use this macro on MAC.
     if ( APPLE AND SYSTEMLIBS ) #TODO Need to check whether we  need to use this macro on MAC.
 	    COPY_MAC_SYSTEMLIBS()
@@ -189,7 +194,7 @@ endmacro( CREATE_PACKAGE )
 macro( COPY_THIRDPARTYLIBS )
     message( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
     list( APPEND SYSLIBS ${SYSTEMLIBS} )
-    foreach( LIB ${OD_THIRD_PARTY_LIBS} )
+    foreach( LIB ${OD_THIRD_PARTY_FILES} )
 	string( FIND ${LIB} "Qt" ISQTLIB )
 	if (  APPLE  AND NOT ${ISQTLIB} EQUAL -1 )
 	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
