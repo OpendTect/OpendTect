@@ -945,7 +945,8 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 }
 
 
-bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
+bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol,
+				       bool showprogress )
 {
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
     if ( targetdesc && targetdesc->isStored() )
@@ -983,11 +984,16 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 
 	    if ( usepldata )
 	    {
-		uiTaskRunner uitr( parent() );
 		const int comp = targetdesc->selectedOutput();
 		DPSFromVolumeFiller filler( posvals, firstcol, *sdp, comp );
 		filler.setSampling( &sdp->sampling() );
-		return TaskRunner::execute( &uitr, filler );
+		if ( showprogress )
+		{
+		    uiTaskRunner uitr( parent() );
+		    return TaskRunner::execute( &uitr, filler );
+		}
+		else
+		    return filler.execute();
 	    }
 	}
     }
@@ -1001,36 +1007,56 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
-    uiTaskRunner taskrunner( parent() );
-    if ( !TaskRunner::execute( &taskrunner, *process ) ) return false;
+    if ( showprogress )
+    {
+	uiTaskRunner taskrunner( parent() );
+	if ( !TaskRunner::execute( &taskrunner, *process ) ) return false;
+    }
+    else if ( !process->execute() )
+	return false;
 
     posvals.setName( targetspecs_[0].userRef() );
     return true;
 }
 
 
+class DPSOutputCreator : public ParallelTask
+{
+public:
+    DPSOutputCreator( ObjectSet<DataPointSet>& dpss, int firstcol,
+		      uiAttribPartServer& aps )
+    : dpss_(dpss)
+    , firstcol_(firstcol)
+    , aps_(aps)
+    , nriter_(dpss.size())
+    , totalnr_(dpss.size())
+    {}
+
+    od_int64 nrIterations() const { return nriter_; }
+    od_int64 totalNr() const	  { return totalnr_; }
+
+    bool doWork( od_int64 start, od_int64 stop, int threadidx )
+    {
+	bool res = true;
+	for ( od_int64 idx=start; idx<=stop; idx++, addToNrDone(1) )
+	    res = res && aps_.createOutput( *dpss_[idx], firstcol_, false );
+	return res;
+    }
+protected:
+    ObjectSet<DataPointSet>&	dpss_;
+    uiAttribPartServer&		aps_;
+    int				firstcol_;
+    od_int64			nriter_;
+    od_int64			totalnr_;
+};
+
+
 bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 				       int firstcol )
 {
-    ExecutorGroup execgrp( "Calculating Attribute", true );
-    uiString errmsg;
-
-    ObjectSet<EngineMan> aems;
-    for ( int idx=0; idx<dpss.size(); idx++ )
-    {
-	EngineMan* aem = createEngMan();
-	if ( !aem ) continue;
-
-	execgrp.add( aem->getTableOutExecutor(*dpss[idx],errmsg,firstcol) );
-	aems += aem;
-    }
-
-    bool res = true;
-    uiTaskRunner taskrunner( parent() );
-    res = TaskRunner::execute( &taskrunner, execgrp );
-
-    deepErase( aems );
-    return res;
+     DPSOutputCreator dpsmaker( dpss, firstcol, *this );
+     uiTaskRunner taskrunner( parent() );
+     return TaskRunner::execute( &taskrunner, dpsmaker );
 }
 
 
