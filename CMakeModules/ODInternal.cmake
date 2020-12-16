@@ -116,15 +116,17 @@ install( DIRECTORY doc/Scripts
 
 #Install data
 if ( APPLE )
-    install ( DIRECTORY "data" DESTINATION ${MISC_INSTALL_PREFIX}/
-	  PATTERN "install_files" EXCLUDE
-	  PATTERN "icons.Classic" EXCLUDE
-	  PATTERN ".svn" EXCLUDE )
+    install ( DIRECTORY "${CMAKE_BINARY_DIR}/data" DESTINATION ${MISC_INSTALL_PREFIX}/
+	    USE_SOURCE_PERMISSIONS
+	    PATTERN "install_files" EXCLUDE
+	    PATTERN "icons.Classic" EXCLUDE
+	    PATTERN ".svn" EXCLUDE )
 else()
-    install ( DIRECTORY "data" DESTINATION .
-	  PATTERN "install_files" EXCLUDE
-	  PATTERN "icons.Classic" EXCLUDE
-	  PATTERN ".svn" EXCLUDE )
+    install ( DIRECTORY "${CMAKE_BINARY_DIR}/data" DESTINATION .
+	    USE_SOURCE_PERMISSIONS
+	    PATTERN "install_files" EXCLUDE
+	    PATTERN "icons.Classic" EXCLUDE
+	    PATTERN ".svn" EXCLUDE )
 endif()
 
 file( GLOB RELINFOFILES ${CMAKE_SOURCE_DIR}/relinfo/*.txt )
