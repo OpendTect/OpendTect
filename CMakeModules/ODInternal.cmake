@@ -122,12 +122,14 @@ install( DIRECTORY doc/Scripts
 
 #Install data
 if ( APPLE )
-    install ( DIRECTORY "data" DESTINATION ${MISC_INSTALL_PREFIX}/
+    install ( DIRECTORY "${CMAKE_BINARY_DIR}/data" DESTINATION ${MISC_INSTALL_PREFIX}/
+	    USE_SOURCE_PERMISSIONS
 	  PATTERN "install_files" EXCLUDE
 	  PATTERN "icons.Classic" EXCLUDE
 	  PATTERN ".svn" EXCLUDE )
 else()
-    install ( DIRECTORY "data" DESTINATION .
+    install ( DIRECTORY "${CMAKE_BINARY_DIR}/data" DESTINATION .
+	    USE_SOURCE_PERMISSIONS
 	  PATTERN "install_files" EXCLUDE
 	  PATTERN "icons.Classic" EXCLUDE
 	  PATTERN ".svn" EXCLUDE )
