@@ -237,6 +237,8 @@ bool BatchProgram::parseArguments()
 	mSetDataRootVar( res );
 	iopar_->set( sKey::DataRoot(), res );
     }
+    else if ( iopar_->get(sKey::DataRoot(),res) && File::isDirectory(res) )
+	mSetDataRootVar( res );
 
     if ( simplebatch && clparser_->getKeyedInfo(sKeySurveyDir(),res) )
 	iopar_->set( sKey::Survey(), res );
