@@ -119,7 +119,8 @@ public:
     DataPack::ID	createOutput(const TrcKeyZSampling&,DataPack::ID);
     const RegularSeisDataPack*	createOutput(const TrcKeyZSampling&,
 					 const RegularSeisDataPack* prevslcs=0);
-    bool		createOutput(DataPointSet&,int firstcol =0);
+    bool		createOutput(DataPointSet&,int firstcol =0,
+				     bool showprogress=true);
     bool		createOutput(ObjectSet<DataPointSet>&,
 				     int firstcol =0);
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
@@ -194,6 +195,7 @@ public:
     void		needSaveNLAps(CallBacker*);
 
     Notifier<uiAttribPartServer>	needSaveNLA;
+    friend class	DPSOutputCreator;
 
 protected:
 
