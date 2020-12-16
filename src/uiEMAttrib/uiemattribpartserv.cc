@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uihorsavefieldgrp.h"
 #include "uiimphorizon2d.h"
 #include "uiseiseventsnapper.h"
+#include "uitaskrunner.h"
 
 #include "attribdescset.h"
 #include "datapointset.h"
@@ -26,9 +27,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "paralleltask.h"
 #include "posvecdataset.h"
 #include "typeset.h"
-
 
 static const DataColDef	siddef_( "Section ID" );
 
@@ -248,6 +249,35 @@ void uiEMAttribPartServer::calcDPS( CallBacker* )
 const char* uiEMAttribPartServer::getAttribBaseNm() const
 { return horshiftdlg_ ? horshiftdlg_->getAttribBaseName() : 0; }
 
+mDefParallelCalc3Pars(HorShiftDPSFiller,
+		     od_static_tr("HorShiftDPSFiller","Make datapointset"),
+		     ObjectSet<DataPointSet>&, dpsset,
+		     const EM::Horizon3DGeometry&, h3dgm,
+		     const StepInterval<float>&, intv)
+mDefParallelCalcBody(
+    DataPointSet::DataRow datarow;
+    datarow.data_.setSize( 1, mUdf(float) );
+,
+    const float shift = intv_.atIndex( idx );
+    for ( int sididx=0; sididx<h3dgm_.nrSections(); sididx++ )
+    {
+	const EM::SectionID sid = h3dgm_.sectionID(sididx);
+	const auto* sectgeom = h3dgm_.sectionGeometry(sid);
+	datarow.data_[0] = sid;
+	const int nrknots = sectgeom->nrKnots();
+	for ( int knidx=0; knidx<nrknots; knidx++ )
+	{
+	    const BinID bid = sectgeom->getKnotRowCol(knidx);
+	    const float realz = (float) ( sectgeom->getKnot( bid, false ).z );
+	    if ( mIsUdf(realz) )
+		continue;
+
+	    datarow.pos_.binid_ = bid;
+	    datarow.pos_.z_ = realz+shift;
+	    dpsset_[idx]->addRow( datarow );
+	}
+    }
+,)
 
 void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
 					    TaskRunner* )
@@ -270,37 +300,12 @@ void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
 	dpsset += dps;
     }
 
-    DataPointSet::DataRow datarow;
-    datarow.data_.setSize( 1, mUdf(float) );
-    for ( int sididx=0; sididx<hor3dgeom.nrSections(); sididx++ )
-    {
-	const EM::SectionID sid = hor3dgeom.sectionID(sididx);
-	datarow.data_[0] = sid;
-	const int nrknots = hor3dgeom.sectionGeometry(sid)->nrKnots();
+    HorShiftDPSFiller dpsFiller( nrshifts, dpsset, hor3dgeom, intv );
+    uiTaskRunner taskrunner( parent() );
+    TaskRunner::execute( &taskrunner, dpsFiller );
 
-	for ( int idx=0; idx<nrknots; idx++ )
-	{
-	    const BinID bid =
-		    hor3dgeom.sectionGeometry(sid)->getKnotRowCol(idx);
-	    const float realz = (float) (
-		hor3dgeom.sectionGeometry(sid)->getKnot( bid, false ).z );
-	    if ( mIsUdf(realz) )
-		continue;
-
-	    datarow.pos_.binid_ = bid;
-
-	    for ( int shiftidx=0; shiftidx<nrshifts; shiftidx++ )
-	    {
-		const float shift = intv.atIndex(shiftidx);
-		datarow.pos_.z_ = realz+shift;
-		dpsset[shiftidx]->addRow( datarow );
-	    }
-
-	}
-    }
-
-    for ( int shiftidx=0; shiftidx<nrshifts; shiftidx++ )
-	dpsset[shiftidx]->dataChanged();
+    for ( int idx=0; idx<nrshifts; idx++ )
+	dpsset[idx]->dataChanged();
 }
 
 
