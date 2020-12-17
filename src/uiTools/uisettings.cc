@@ -1001,10 +1001,12 @@ void setCustomEnvironmentNames()
     if ( !fp.exists() )
 	return;
 
+    ManagedObjectSet<FilePath> fps;
     BufferStringSet envnames;
-    const DirList dl( fp.fullPath(), File::DirsInDir );
-    for ( int idx=0; idx<dl.size(); idx++ )
-	envnames.add( FilePath(dl.fullPath(idx)).baseName() );
+    const FilePath externalroot( envroot );
+    OD::PythonAccess::getSortedVirtualEnvironmentLoc(fps, envnames, nullptr,&externalroot);
+    if (fps.isEmpty())
+        return;
     customenvnmfld_->setEmpty();
     customenvnmfld_->newSpec( StringListInpSpec(envnames), 0 );
     customenvnmfld_->setChecked( !envnames.isEmpty() );
@@ -1094,16 +1096,24 @@ bool getPythonEnvBinPath( BufferString& pybinpath ) const
 	if ( OD::PythonAccess::hasInternalEnvironment(false) )
 	    OD::PythonAccess::GetPythonEnvPath( pypath );
 	else if ( internalloc_ )
-	{
 	    pypath = FilePath( internalloc_->fileName() );
-	}
     }
+
     else if ( source == OD::Custom )
     {
 	pypath = FilePath( customloc_->fileName() );
-	pypath.add( "envs" ).add( customenvnmfld_->text() );
+    pypath.add("envs").add(customenvnmfld_->text());
+    if (!pypath.exists())
+    {
+        ManagedObjectSet<FilePath> fps;
+        const bool condaenvsfromtxt = OD::PythonAccess::getCondaEnvFromTxtPath(fps);
+        for (const auto fp : fps)
+        {
+        if (condaenvsfromtxt && fp->baseName() == customenvnmfld_->text())
+            pypath = *fp;
+        }
     }
-
+    }
     if ( !pypath.isEmpty() )
     {
 	#ifdef __win__
