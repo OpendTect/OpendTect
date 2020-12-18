@@ -263,7 +263,8 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
 	    uiWellLogDisplay* ld = new uiWellLogDisplay( wellgrp, su );
 	    ld->setPrefWidth( cPrefWidth ); ld->setPrefHeight( cPrefHeight );
 	    zdisplayrg_.include( logdata.dahrg_ );
-	    if ( idlog ) ld->attach( rightOf, logdisps_[logdisps_.size()-1] );
+	    if ( idlog )
+		ld->attach( rightOf, logdisps_[logdisps_.size()-1] );
 	    ld->attach( ensureBelow, wellnm );
 	    logdisps_ += ld;
 	}
@@ -291,6 +292,8 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
     cancelbut->attach( ensureBelow, horSepar );
 
     displayLogs();
+    const int maxwidth = 5;
+    sa->setPrefWidth( mMIN(logdisps_.size(),maxwidth)*cPrefWidth );
 }
 
 
@@ -663,13 +666,14 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     table_->rowDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->selectionDeleted.notify( mCB(this,uiWellLogEditor,rowDelCB) );
     table_->rowInserted.notify( mCB(this,uiWellLogEditor,rowInsertCB) );
-    uiString mdlbl = toUiString("MD %1").arg(toUiString(SI().xyUnit()) );
+
+    const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
+    uiString mdlbl = toUiString("MD (%1)").arg( uom ? uom->symbol() : "?" );
     uiString loglbl = toUiString(log_.name());
-    const uiString uomlbl = log_.unitOfMeasure()
-			  ? mToUiStringTodo( log_.unitOfMeasure()->symbol() )
-			  : mToUiStringTodo( log_.unitMeasLabel() );
+    const FixedString uomlbl = log_.unitOfMeasure() ?
+			log_.unitOfMeasure()->symbol() : log_.unitMeasLabel();
     if ( !uomlbl.isEmpty() )
-	loglbl = toUiString("%1 (%2)").arg(loglbl).arg(uomlbl);
+	loglbl = toUiString("%1 (%2)").arg(log_.name()).arg(uomlbl);
 
     uiStringSet colnms; colnms.add(mdlbl).add(loglbl);
     table_->setColumnLabels( colnms );
@@ -691,7 +695,7 @@ void uiWellLogEditor::fillTable()
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float md = uom ? uom->userValue( log_.dah(idx) ) : log_.dah(idx);
-	table_->setValue( RowCol(idx,0), md );
+	table_->setValue( RowCol(idx,0), md, 2 );
 	table_->setValue( RowCol(idx,1), log_.value(idx) );
     }
 }
