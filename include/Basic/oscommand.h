@@ -135,16 +135,6 @@ public:
 				     KeyStyle ks=NewStyle )
 			{ return addKeyedArg(ky,::toString(t),ks);}
 
-    mDeprecatedDef const char*	command() const;
-    mDeprecatedDef void setCommand(const char*);
-    mDeprecatedDef const char*	getSingleStringRep() const;
-    mDeprecatedDef bool setFromSingleStringRep(const char*,
-						bool ignorehostname=false);
-			/*!<\returns !isBad().
-			   Assumes that arguments are space separated,
-			   and command with spaces in them are properly
-			   escaped. */
-
     bool		hostIsWindows() const		{ return hostiswin_; }
     void		setHostIsWindows( bool yn )	{ hostiswin_ = yn; }
     const char*		hostName() const		{ return hname_; }
@@ -199,7 +189,6 @@ private:
 
 public:
 
-    mDeprecatedDef BufferString getSingleStringRep(bool noremote=false) const;
     mDeprecated("Use sKeyPrimaryHost()")
     static const char*	sKeyMasterHost()	{ return "primaryhost"; }
     mDeprecated("Use sKeyPrimaryPort()")
@@ -245,6 +234,8 @@ protected:
 				      bool inconsole=false,
 				      const char* workingdir=nullptr);
     void		startMonitor();
+    static void		manageQProcess(QProcess*);
+			/*!<Add a QProcess and it will be deleted one day. */
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
@@ -264,37 +255,9 @@ protected:
     qstreambuf*		stdoutputbuf_;
     qstreambuf*		stderrorbuf_;
     qstreambuf*		stdinputbuf_;
-
-private:
-    void		setIsolated();
-    void		adaptForV7(const OS::MachineCommand&);
-
-public:
-    mDeprecatedDef static void addShellIfNeeded(BufferString& cmd);
-			/*!<Analyses the cmd and looks for pipes or redirects.
-			    If these are found, the cmd is converted to a
-			    shell command. */
-    mDeprecatedDef static void addQuotesIfNeeded(BufferString& cmd);
-			/*!<Checks for spaces in command, and surrounds command
-			    with quotes them if not already done. */
-    static void		manageQProcess(QProcess*);
-			/*!<Add a QProcess and it will be deleted one day. */
 };
 
-
-/*! convenience function; for specific options use the CommandLauncher */
-mDeprecatedDef mGlobal(Basic) bool ExecCommand(const char* cmd,
-				LaunchType lt=Wait4Finish,
-				BufferString* stdoutput=0,
-				BufferString* stderror=0);
-
-
 } // namespace OS
-
-/*! convenience function executing a program from the OD bindir */
-mDeprecatedDef mGlobal(Basic) bool ExecODProgram(const char* prognm,
-				  const char* args=0,
-				  OS::LaunchType lt=OS::RunInBG);
 
 
 namespace OD

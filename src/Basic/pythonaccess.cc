@@ -141,10 +141,8 @@ void OD::PythonAccess::initClass()
 {
     GetEnvVarDirList( "PYTHONPATH", pystartpath_, true );
     FilePath pythonmodsfp( GetSoftwareDir(true), "bin", "python" );
-    if ( !pythonmodsfp.exists() )
-	pythonmodsfp = FilePath( GetSoftwareDir(true), "v7", "bin", "python" );
-
-    PythA().addBasePath( pythonmodsfp );
+    if ( pythonmodsfp.exists() )
+	PythA().addBasePath( pythonmodsfp );
 
 #ifdef __win__
     ManagedObjectSet<FilePath> fps;
