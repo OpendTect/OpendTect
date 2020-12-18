@@ -58,7 +58,7 @@ bool Well::ReadAccess::addToLogSet( Well::Log* newlog, bool needjustinfo ) const
     if ( !newlog )
 	return false;
 
-    if ( !needjustinfo && newlog->isEmpty() )
+    if ( !needjustinfo && !newlog->isEmpty() )
     {
 	newlog->removeTopBottomUdfs();
 	newlog->updateAfterValueChanges();
