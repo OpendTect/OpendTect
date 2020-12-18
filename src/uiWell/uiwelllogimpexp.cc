@@ -348,7 +348,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     outfld_ = new uiFileInput( this,
 			multiwells ? tr("Output folder") : tr("Output file"),
 			uiFileInput::Setup().forread(false)
-						.directories(multiwells) );
+					.directories(multiwells)
+					.defseldir(GetSurveyExportDir()) );
     outfld_->attach( alignedBelow, zunitgrp_ );
     if ( multiwells )
     {
