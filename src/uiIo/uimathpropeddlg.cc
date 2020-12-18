@@ -79,7 +79,7 @@ void uiMathPropEdDlg::setPType4Inp( int inpidx )
 
     const PropertyRef* pr = prs_.getByName( formfld_->getInput(inpidx) );
     PropertyRef::StdType ptyp = pr ? pr->stdType() : PropertyRef::Other;
-    formfld_->inpFld(inpidx)->setPropType( ptyp );
+    formfld_->inpFld(inpidx)->setSelUnit( UoMR().getInternalFor(ptyp) );
 }
 
 

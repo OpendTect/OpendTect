@@ -56,8 +56,14 @@ public:
 
     void		selectInput(const char*,bool exact=false);
     void		selectSubInput(int);
-    void		setUnit(const UnitOfMeasure*);
-    void		setUnit(const char*);
+    void		setSelUnit(const UnitOfMeasure*);
+			// unit of selected variable
+    void		setSelUnit(const char*);
+			// unit of selected variable
+    void		setFormUnit(const UnitOfMeasure*);
+			// unit required by formula
+    void		setFormUnit(const char*);
+			// unit required by formula
     void		setPropType(PropertyRef::StdType);
 
     Notifier<uiMathExpressionVariable> inpSel;
@@ -87,7 +93,7 @@ protected:
     uiComboBox*		inpfld_;
     uiComboBox*		subinpfld_;
     uiGenInput*		constfld_;
-    uiUnitSel*		unfld_;
+    uiUnitSel*		unfld_;		// unit required by formula
     uiToolButton*	vwbut_;
 
     void		updateDisp();
@@ -95,6 +101,13 @@ protected:
     void		setActive(bool);
     void		setVariable(const char*,bool);
 
+public:
+    mDeprecated("Use setFormUnit")
+    void		setUnit(const UnitOfMeasure* uom)
+			{ setFormUnit(uom); }
+    mDeprecated("Use setFormUnit")
+    void		setUnit(const char* un)
+			{ setFormUnit(un); }
 };
 
 
