@@ -46,7 +46,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	, formUnitSet(this)
 	, notifinpnr_(-1)
 {
-    bool wantio = !setup_.stortype_.isEmpty();
+    const bool wantio = !setup_.stortype_.isEmpty();
     if ( wantio )
 	ctio_.ctxt_.toselect_.require_.set( sKey::Type(), setup_.stortype_ );
     const CallBack formsetcb( mCB(this,uiMathFormula,formSetCB) );
@@ -78,7 +78,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
     {
 	const bool haveproptype = setup_.proptype_ != PropertyRef::Other;
 	uiUnitSel::Setup uussu( PropertyRef::Other,
-		haveproptype ? tr("Formula output unit") : 
+		haveproptype ? tr("Formula output unit") :
 			       tr("Formula result is") );
 	uussu.selproptype( !haveproptype ).withnone( true );
 	unitfld_ = new uiUnitSel( this, uussu );
@@ -109,10 +109,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 
     if ( bgrp )
     {
-	if ( unitfld_ )
-	    bgrp->attach( rightTo, unitfld_ );
-	else
-	    bgrp->attach( rightTo, exprfld_ );
+	bgrp->attach( rightTo, exprfld_ );
 	bgrp->attach( rightBorder );
     }
 
@@ -216,7 +213,11 @@ bool uiMathFormula::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 
     const UnitOfMeasure* formun = isbad ? 0 : form_.outputUnit();
     if ( unitfld_ )
+    {
 	unitfld_->setUnit( formun );
+	unitfld_->setSensitive( !inputtypes );
+    }
+
     for ( int idx=0; idx<inpflds_.size(); idx++ )
     {
 	uiMathExpressionVariable& inpfld = *inpflds_[idx];
@@ -357,7 +358,7 @@ class uiMathFormulaEdRec : public uiDialog
 public:
 
 uiMathFormulaEdRec( uiParent* p, Math::Formula& form, const char* s_if_2 )
-    : uiDialog( this, Setup( 
+    : uiDialog( this, Setup(
 	tr("Recursion start value %1").arg(toUiString(s_if_2)),
 	tr("Recursive formula: Starting value %1").arg(toUiString(s_if_2)),
 	mNoHelpKey) )
@@ -435,7 +436,7 @@ void uiMathFormula::readReq( CallBacker* )
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(Math::Formula::sKeyFileType()) )
-	{ uiMSG().error(tr("Input file is not of 'Math Formula' type")); 
+	{ uiMSG().error(tr("Input file is not of 'Math Formula' type"));
           return; }
     IOPar iop( astrm );
     form_.usePar( iop );

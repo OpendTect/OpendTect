@@ -61,8 +61,10 @@ protected:
 			InpData( const Well::Log* w=0, bool n=false )
 			    : wl_(w), shift_(0), specidx_(-1)
 			    , isconst_(false), constval_(0)	{}
+
 	bool		operator ==( const InpData& id ) const
 			{ return wl_ == id.wl_; }
+
 	const Well::Log* wl_;
 	int		shift_;
 	int		specidx_;
@@ -80,6 +82,7 @@ protected:
     Well::Log*		getInpLog(Well::LogSet&,int,bool);
     bool		calcLog(Well::Log&,const TypeSet<InpData>&,
 				Well::Track&,Well::D2TModel*);
+    void		deleteLog(TypeSet<InpData>&);
 
     void		initWin(CallBacker*);
     void		rockPhysReq(CallBacker*);
@@ -88,9 +91,8 @@ protected:
     void		formUnitSel(CallBacker*);
     void		inpSel(CallBacker*);
     void		vwLog(CallBacker*);
+    void		viewOutputCB(CallBacker*);
 
     bool		acceptOK(CallBacker*);
-
 };
-
 
