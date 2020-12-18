@@ -68,6 +68,27 @@ static const char* sKeyRightColTabFlipped = "Right Log Color Table Flipped";
 static const char* sKeyRightLogStyle = "Right Log Style";
 static const char* sKeyRightLogWidthXY = "Right Log Width XY";
 
+static const char* sKeyCenterColor = "Center Log Color";
+static const char* sKeyCenterSize = "Center Log Size";
+static const char* sKeyCenterLeftFill = "Left Fill Center Log";
+static const char* sKeyCenterRightFill = "Center Fill Right Log";
+static const char* sKeyCenterSingleCol = "Center Single Fill Color";
+static const char* sKeyCenterDataRange = "Center Data Range Bool";
+static const char* sKeyCenterOverlapp = "Center Log Overlapp";
+static const char* sKeyCenterRepeatLog = "Center Log Number";
+static const char* sKeyCenterSeisColor = "Center Log Seismic Style Color";
+static const char* sKeyCenterName = "Center Log Name";
+static const char* sKeyCenterFillName = "Center Filled Log name";
+static const char* sKeyCenterCliprate = "Center Cliprate";
+static const char* sKeyCenterFillRange = "Center Filled Log Range";
+static const char* sKeyCenterRange = "Center Log Range";
+static const char* sKeyCenterRevertRange = "Center Revert Range Bool";
+static const char* sKeyCenterSeqname = "Center Sequence name";
+static const char* sKeyCenterScale = "Center Log scale";
+static const char* sKeyCenterColTabFlipped = "Center Log Color Table Flipped";
+static const char* sKeyCenterLogStyle = "Center Log Style";
+static const char* sKeyCenterLogWidthXY = "Center Log Width XY";
+
 
 
 Well::DisplayProperties::DisplayProperties( const char* subjname )
@@ -133,6 +154,14 @@ void Well::DisplayProperties::BasicProps::useRightPar( const IOPar& iop )
 }
 
 
+void Well::DisplayProperties::BasicProps::useCenterPar( const IOPar& iop )
+{
+    iop.get( IOPar::compKey(subjectName(),sKey::Color()), color_ );
+    iop.get( IOPar::compKey(subjectName(),sKey::Size()), size_ );
+    doUseCenterPar( iop );
+}
+
+
 void Well::DisplayProperties::BasicProps::fillPar( IOPar& iop ) const
 {
     iop.set( IOPar::compKey(subjectName(),sKey::Color()), color_ );
@@ -149,6 +178,12 @@ void Well::DisplayProperties::BasicProps::fillLeftPar( IOPar& iop ) const
 void Well::DisplayProperties::BasicProps::fillRightPar( IOPar& iop ) const
 {
     doFillRightPar( iop );
+}
+
+
+void Well::DisplayProperties::BasicProps::fillCenterPar( IOPar& iop ) const
+{
+    doFillCenterPar( iop );
 }
 
 
@@ -284,6 +319,39 @@ void Well::DisplayProperties::Log::doUseRightPar( const IOPar& iop )
 }
 
 
+void Well::DisplayProperties::Log::doUseCenterPar( const IOPar& iop )
+{
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterColor), color_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterSize), size_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterName), name_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterRange), range_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterFillName), fillname_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterFillRange), fillrange_ );
+    iop.getYN( IOPar::compKey(subjectName(),sKeyCenterLeftFill), isleftfill_ );
+    iop.getYN(IOPar::compKey(subjectName(),sKeyCenterRightFill), isrightfill_ );
+    iop.getYN( IOPar::compKey(subjectName(),sKeyCenterRevertRange),
+	       islogreverted_);
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterCliprate), cliprate_ );
+    iop.getYN(IOPar::compKey(subjectName(),sKeyCenterSingleCol), issinglecol_ );
+    iop.getYN(IOPar::compKey(subjectName(),sKeyCenterDataRange), isdatarange_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterRepeatLog), repeat_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterOverlapp), repeatovlap_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterSeisColor), seiscolor_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterSeqname), seqname_ );
+
+    float logwidth = 250.f;
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterLogWidthXY), logwidth );
+    if ( SI().xyInFeet() )
+	logwidth *= mToFeetFactorF;
+    logwidth_ = mNINT32( logwidth );
+
+    iop.getYN( IOPar::compKey(subjectName(),sKeyCenterScale), islogarithmic_ );
+    iop.getYN( IOPar::compKey(subjectName(),sKeyCenterColTabFlipped),
+	       iscoltabflipped_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyCenterLogStyle),style_);
+}
+
+
 void Well::DisplayProperties::Log::doFillLeftPar( IOPar& iop ) const
 {
     float logwidth = (float)logwidth_;
@@ -346,6 +414,38 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& iop ) const
 }
 
 
+void Well::DisplayProperties::Log::doFillCenterPar( IOPar& iop ) const
+{
+    float logwidth = (float)logwidth_;
+    if ( SI().xyInFeet() )
+	logwidth *= mFromFeetFactorF;
+
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterColor), color_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterSize), size_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterName), name_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterRange), range_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterFillName), fillname_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterFillRange), fillrange_ );
+    iop.setYN( IOPar::compKey(subjectName(),sKeyCenterLeftFill), isleftfill_ );
+    iop.setYN(IOPar::compKey(subjectName(),sKeyCenterRightFill), isrightfill_ );
+    iop.setYN( IOPar::compKey(subjectName(),sKeyCenterRevertRange),
+	       islogreverted_);
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterCliprate), cliprate_ );
+    iop.setYN(IOPar::compKey(subjectName(),sKeyCenterSingleCol), issinglecol_ );
+    iop.setYN(IOPar::compKey(subjectName(),sKeyCenterDataRange), isdatarange_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterRepeatLog), repeat_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterOverlapp), repeatovlap_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterSeisColor), seiscolor_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterSeqname), seqname_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterLogWidthXY), logwidth );
+    iop.setYN( IOPar::compKey(subjectName(),sKeyCenterScale), islogarithmic_ );
+    iop.setYN( IOPar::compKey(subjectName(),sKeyCenterColTabFlipped),
+	       iscoltabflipped_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyCenterLogStyle),style_);
+
+}
+
+
 void Well::DisplayProperties::usePar( const IOPar& iop )
 {
     IOPar* par = iop.subselect( subjectName() );
@@ -354,6 +454,7 @@ void Well::DisplayProperties::usePar( const IOPar& iop )
     markers_.usePar( *par );
     logs_[0]->left_.useLeftPar( *par );
     logs_[0]->right_.useRightPar( *par );
+    logs_[0]->center_.useCenterPar( *par );
     for ( int idx=logs_.size()-1; idx>0; idx-- )
 	delete logs_.removeSingle( idx );
 
@@ -363,6 +464,7 @@ void Well::DisplayProperties::usePar( const IOPar& iop )
 	logs_ += new LogCouple();
 	logs_[widx]->left_.useLeftPar( *welliop );
 	logs_[widx]->right_.useRightPar( *welliop );
+	logs_[widx]->center_.useCenterPar( *welliop );
 	widx++;
 	delete welliop;
 	welliop = par->subselect( toString(widx) );
@@ -382,6 +484,7 @@ void Well::DisplayProperties::fillPar( IOPar& iop ) const
 	IOPar tmpiop;
 	logs_[idx]->left_.fillLeftPar( tmpiop );
 	logs_[idx]->right_.fillRightPar( tmpiop );
+	logs_[idx]->center_.fillCenterPar( tmpiop );
 	par.mergeComp( tmpiop, idx ? toString( idx ) : "" );
 	//keeps compatibility with former versions
     }

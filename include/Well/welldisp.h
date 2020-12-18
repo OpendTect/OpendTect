@@ -56,8 +56,10 @@ public:
 	void		fillPar(IOPar&) const;
 	void		useLeftPar(const IOPar&);
 	void		useRightPar(const IOPar&);
+	void		useCenterPar(const IOPar&);
 	void		fillLeftPar(IOPar&) const;
 	void		fillRightPar(IOPar&) const;
+	void		fillCenterPar(IOPar&) const;
 
 	virtual const char* subjectName() const		= 0;
 
@@ -69,6 +71,8 @@ public:
 	virtual void	doFillRightPar(IOPar&) const	{}
 	virtual void	doUseRightPar(const IOPar&)	{}
 	virtual void	doFillLeftPar(IOPar&) const	{}
+	virtual void	doUseCenterPar(const IOPar&)	{}
+	virtual void	doFillCenterPar(IOPar&) const	{}
 
     };
 
@@ -178,6 +182,8 @@ public:
 	virtual void	doFillRightPar(IOPar&) const;
 	virtual void	doUseRightPar(const IOPar&);
 	virtual void	doFillLeftPar(IOPar&) const;
+	virtual void	doUseCenterPar(const IOPar&);
+	virtual void	doFillCenterPar(IOPar&) const;
     };
 
     Track		track_;
@@ -190,7 +196,7 @@ public:
     static DisplayProperties&	defaults();
     static void		commitDefaults();
 
-    mStruct(Well) LogCouple { Log left_, right_; };
+    mStruct(Well) LogCouple { Log left_, right_, center_; };
     ObjectSet<LogCouple> logs_;
 
     virtual const char* subjectName() const	{ return subjectname_.buf(); }

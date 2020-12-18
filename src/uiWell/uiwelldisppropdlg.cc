@@ -84,6 +84,7 @@ void uiWellDispPropDlg::init()
     ts_ = new uiTabStack( this, "Well display properties tab stack" );
     ObjectSet<uiGroup> tgs;
     tgs += new uiGroup( ts_->tabGroup(),"Left log properties" );
+    tgs += new uiGroup( ts_->tabGroup(),"Center log properties" );
     tgs += new uiGroup( ts_->tabGroup(),"Right log properties" );
     tgs += new uiGroup( ts_->tabGroup(), "Marker properties" );
     if ( !is2d )
@@ -94,10 +95,14 @@ void uiWellDispPropDlg::init()
 	.onlyfor2ddisplay(is2d), props.logs_[0]->left_, &(wd_->logs()) );
     uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[1],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
+	.onlyfor2ddisplay(is2d), props.logs_[0]->center_, &(wd_->logs()) );
+    uiWellLogDispProperties* wlp3 = new uiWellLogDispProperties( tgs[2],
+	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
 	.onlyfor2ddisplay(is2d), props.logs_[0]->right_, &(wd_->logs()) );
 
     propflds_ += wlp1;
     propflds_ += wlp2;
+    propflds_ += wlp3;
 
     BufferStringSet markernms;
     wd_->markers().getNames( markernms );
@@ -108,25 +113,27 @@ void uiWellDispPropDlg::init()
 	uiWellDispProperties::Setup(tr("Marker size"),tr("Marker color"))
 	.onlyfor2ddisplay(is2d);
     uiWellMarkersDispProperties* wellprops = new uiWellMarkersDispProperties(
-	tgs[2], propsu, props.markers_, markernms );
+	tgs[3], propsu, props.markers_, markernms );
     wellprops->setAllMarkerNames( markernms, markercols );
     propflds_ += wellprops;
 
     if ( !is2d )
-	propflds_ += new uiWellTrackDispProperties( tgs[3],
+	propflds_ += new uiWellTrackDispProperties( tgs[4],
 			    uiWellDispProperties::Setup(), props.track_ );
 
-    bool foundlog = false;
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
 	mAttachCB( propflds_[idx]->propChanged, uiWellDispPropDlg::propChg );
 	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
 	{
-	    ts_->addTab( tgs[idx], foundlog ? is2d ? tr("Log 2")
-						   : tr("Right Log")
-					    : is2d ? tr("Log 1")
-						   : tr("Left Log") );
-	    foundlog = true;
+	    if ( idx==0 )
+		ts_->addTab( tgs[idx], is2d ? tr("Log 1")
+					    : tr("Left Log") );
+	    else if ( idx==1 )
+		ts_->addTab( tgs[idx], tr("Center Log") );
+	    else if ( idx==2 )
+		ts_->addTab( tgs[idx], is2d ? tr("Log 2")
+					    : tr("Right Log") );
 	}
 	else
 	    ts_->addTab( tgs[idx], toUiString(

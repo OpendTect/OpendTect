@@ -62,6 +62,7 @@ Well::Well()
     , voiidx_(-1)
     , leftlogdisplay_( new osgGeo::PlaneWellLog )
     , rightlogdisplay_( new osgGeo::PlaneWellLog )
+    , centerlogdisplay_( new osgGeo::PlaneWellLog )
     , pixeldensity_( getDefaultPixelDensity() )
 {
     markerset_ = MarkerSet::create();
@@ -98,7 +99,10 @@ Well::Well()
     rightlogdisplay_->ref();
     addChild( rightlogdisplay_ );
 
-    for ( int idx=0; idx<2; idx++ )
+    centerlogdisplay_->ref();
+    addChild( centerlogdisplay_ );
+
+    for ( int idx=0; idx<3; idx++ )
     {
 	displaytube_[idx]= false;
 	displaylog_[idx] = false;
@@ -124,6 +128,7 @@ Well::~Well()
     removeLogs();
     leftlogdisplay_->unref();
     rightlogdisplay_->unref();
+    centerlogdisplay_->unref();
 }
 
 
@@ -137,45 +142,46 @@ Well::~Well()
 }\
 
 
+osgGeo::WellLog*& Well::getLogDisplay( Side side )
+{
+    return (side==Left) ? leftlogdisplay_ :
+	   (side==Right) ? rightlogdisplay_ : centerlogdisplay_;
+}
+
+
+const osgGeo::WellLog* Well::getLogDisplay( Side side ) const
+{
+    return (side==Left) ? leftlogdisplay_ :
+    (side==Right) ? rightlogdisplay_ : centerlogdisplay_;
+}
+
+
 void Well::setLogTubeDisplay( Side side, bool yn )
 {
     if ( displaytube_[(int)side] == yn ) return;
 
     displaytube_[(int)side] = yn;
 
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
+    osgGeo::WellLog*& log = getLogDisplay( side );
 
-    if ( logdisplay )
+    if ( log )
     {
-	removeChild( logdisplay );
-	logdisplay->unref();
+	removeChild( log );
+	log->unref();
     }
 
     if ( yn )
     {
-	if ( side == Left)
-	    leftlogdisplay_ = new osgGeo::TubeWellLog;
-	else
-	    rightlogdisplay_ = new osgGeo::TubeWellLog;
+	osgGeo::WellLog*& logdisplay = getLogDisplay( side );
+	logdisplay = new osgGeo::TubeWellLog;
     }
     else
     {
-	if ( side == Left )
-	    leftlogdisplay_ = new osgGeo::PlaneWellLog;
-	else
-	    rightlogdisplay_ = new osgGeo::PlaneWellLog;
+	osgGeo::WellLog*& logdisplay = getLogDisplay( side );
+	logdisplay = new osgGeo::PlaneWellLog;
     }
 
-    if ( side == Left )
-    {
-	mRefDisplay( leftlogdisplay_ );
-    }
-    else
-    {
-	mRefDisplay( rightlogdisplay_ );
-    }
-
+    mRefDisplay( getLogDisplay( side ) );
 }
 
 
@@ -530,10 +536,12 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 	(  ( lp.side_ == Left  && lp.isleftfilled_  && !rev )
 	|| ( lp.side_ == Left  && lp.isrightfilled_ &&  rev )
 	|| ( lp.side_ == Right && lp.isrightfilled_ && !rev )
-	|| ( lp.side_ == Right && lp.isleftfilled_  &&  rev ) );
+	|| ( lp.side_ == Right && lp.isleftfilled_  &&	rev )
+	|| ( lp.side_ == Center && lp.isrightfilled_ && !rev )
+	|| ( lp.side_ == Center && lp.isleftfilled_  &&  rev )
+	);
 
-    osgGeo::WellLog* logdisplay =
-	(lp.side_==Left) ? leftlogdisplay_ : rightlogdisplay_;
+    auto logdisplay = getLogDisplay( lp.side_ );
     logdisplay->setRevScale( rev );
     logdisplay->setFillRevScale( fillrev );
     logdisplay->setFullFilled( isfullfilled );
@@ -661,8 +669,7 @@ float Well::getValue( const TypeSet<Coord3Value>& crdvals, int idx,
 
 void Well::clearLog( Side side )
 {
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
+    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
     logdisplay->clearLog();
     displaylog_[(int)side] = false;
 }
@@ -672,31 +679,29 @@ void Well::removeLogs()
 {
     leftlogdisplay_->clearLog();
     rightlogdisplay_->clearLog();
-    for ( int idx=0; idx<2; idx++ )
+    centerlogdisplay_->clearLog();
+    for ( int idx=0; idx<3; idx++ )
 	displaylog_[idx] = false;
 }
 
 
 void Well::setRepeat( int rpt, Side side )
 {
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
+    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
     logdisplay->setRepeatNumber( rpt );
 }
 
 
 unsigned int Well::getRepeat( Side side ) const
 {
-    const osgGeo::WellLog* logdisplay =
-	( side==Left ) ? leftlogdisplay_ : rightlogdisplay_;
+    const osgGeo::WellLog* logdisplay = getLogDisplay( side );
     return logdisplay->getRepeatNumber();
 }
 
 
 float Well::getRepeatStep( Side side ) const
 {
-    const osgGeo::WellLog* logdisplay =
-	( side==Left ) ? leftlogdisplay_ : rightlogdisplay_;
+    const osgGeo::WellLog* logdisplay = getLogDisplay( side );
     return logdisplay->getRepeatStep();
 }
 
@@ -707,18 +712,14 @@ void Well::setOverlapp( float ovlap, Side side )
     if ( ovlap < 0.0 || mIsUdf(ovlap)  ) ovlap = 0.0;
     if ( ovlap > 100.0 ) ovlap = 100.0;
 
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-
+    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
     logdisplay->setRepeatGap( ovlap );
 }
 
 
 void Well::setLogFill( bool fill, Side side )
 {
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-
+    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
     logdisplay->setLogFill( fill );
 }
 
@@ -726,16 +727,14 @@ void Well::setLogFill( bool fill, Side side )
 void Well::setLogStyle( int style, Side side )
 {
     setLogTubeDisplay( side, style == 2 ? true : false );
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
+    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
     logdisplay->setSeisLogStyle( style == 1 ? true : false );
 }
 
 
 void Well::getLogStyle( Side side, int& style ) const
 {
-    const osgGeo::WellLog* logdisplay =
-	( side==Left ) ? leftlogdisplay_ : rightlogdisplay_;
+    const osgGeo::WellLog* logdisplay = getLogDisplay( side );
 
     if ( logdisplay->getSeisLogStyle() )
     {
@@ -754,18 +753,15 @@ void Well::setLogColor( const Color& col, Side side )
 {
 #define col2f(rgb) float(col.rgb())/255
 
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-	osg::Vec4 osgCol = Conv::to<osg::Vec4>(col);
-	logdisplay->setLineColor( osgCol );
-
+    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
+    osg::Vec4 osgCol = Conv::to<osg::Vec4>(col);
+    logdisplay->setLineColor( osgCol );
 }
 
 
 const Color& Well::logColor( Side side ) const
 {
-    const osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
+    const osgGeo::WellLog* logdisplay = getLogDisplay( side );
     static Color color;
     const osg::Vec4d& col = logdisplay->getLineColor();
     const int r = mNINT32(col[0]*255);
@@ -797,22 +793,19 @@ void Well::setLogFillColorTab( const LogParams& lp, Side side  )
 	clrTable->push_back(osg::Vec4(r,g,b,1.0));
     }
 
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-	logdisplay->setFillLogColorTab( clrTable );
-
+    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
+    logdisplay->setFillLogColorTab( clrTable );
 }
 
 
 void Well::setLogLineDisplayed( bool isdisp, Side side )
 {
-    osgGeo::PlaneWellLog::DisplaySide dispside = side==Left
-	? osgGeo::PlaneWellLog::Left
-	: osgGeo::PlaneWellLog::Right;
+    osgGeo::PlaneWellLog::DisplaySide dispside =
+	(side==Left) ? osgGeo::PlaneWellLog::Left :
+	(side==Right) ? osgGeo::PlaneWellLog::Right :
+			osgGeo::PlaneWellLog::Center;
 
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-
+    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
     logdisplay->setDisplaySide( dispside );
 }
 
@@ -820,33 +813,28 @@ void Well::setLogLineDisplayed( bool isdisp, Side side )
 bool Well::logLineDisplayed( Side side ) const
 {
     osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
+			    const_cast<osgGeo::WellLog*>(getLogDisplay( side ));
     return logdisplay->getDisplayStatus();
 }
 
 
 void Well::setLogWidth( float width, Side side )
 {
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-
+    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
     logdisplay ->setLogWidth( width );
 }
 
 
 float Well::getLogWidth( Side side ) const
 {
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-
+    const osgGeo::WellLog* logdisplay = getLogDisplay( side );
     return logdisplay->getLogWidth();
 }
 
 
 void Well::setLogLineWidth( int width, Side side )
 {
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
+    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
     logdisplay->setLineWidth( width );
 }
 
@@ -866,19 +854,20 @@ void Well::showLogs( bool yn )
     {
 	addChild( leftlogdisplay_ );
 	addChild( rightlogdisplay_ );
+	addChild( centerlogdisplay_ );
     }
     else
     {
 	removeChild( leftlogdisplay_ );
 	removeChild( rightlogdisplay_ );
+	removeChild( centerlogdisplay_ );
     }
 }
 
 
 void Well::showLog( bool yn, Side side )
 {
-    osgGeo::WellLog* logdisplay =
-	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
+    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
     logdisplay->setShowLog( yn );
 }
 
@@ -886,7 +875,8 @@ void Well::showLog( bool yn, Side side )
 bool Well::logsShown() const
 {
    return ( childIndex( leftlogdisplay_ )!= -1
-       || childIndex( rightlogdisplay_ ) != -1 ) ?
+       || childIndex( rightlogdisplay_ ) != -1
+       || childIndex( centerlogdisplay_ ) != -1 ) ?
        true : false ;
 }
 
@@ -995,8 +985,7 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
     if ( style==Welllog && displaytube_[(int)side] )
 	return false;
 
-    osgGeo::WellLog* logdisplay =
-	( side==Left ) ? leftlogdisplay_ : rightlogdisplay_;
+    const osgGeo::WellLog* logdisplay = getLogDisplay( side );
 
     if ( !logdisplay ) return false;
 

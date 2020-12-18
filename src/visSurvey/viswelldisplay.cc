@@ -189,8 +189,10 @@ void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
 }
 
 
-#define mGetLogPar(side,par) side==0 ? mGetDispPar(logs_[0]->left_.par)\
-				       : mGetDispPar(logs_[0]->right_.par)
+#define mGetLogPar(side,par)\
+side==visBase::Well::Left ? mGetDispPar(logs_[0]->left_.par) :\
+side==visBase::Well::Right ? mGetDispPar(logs_[0]->right_.par) :\
+			     mGetDispPar(logs_[0]->center_.par)
 
 void WellDisplay::fillLogParams(
 		visBase::Well::LogParams& lp, visBase::Well::Side side )
@@ -247,6 +249,7 @@ void WellDisplay::fullRedraw( CallBacker* )
 
     mDispLog( visBase::Well::Left, Left );
     mDispLog( visBase::Well::Right, Right );
+    mDispLog( visBase::Well::Center, Center );
 }
 
 
@@ -558,6 +561,10 @@ void WellDisplay::displayRightLog()
 
 void WellDisplay::displayLeftLog()
 { setLogDisplay( visBase::Well::Left ); }
+
+
+void WellDisplay::displayCenterLog()
+{ setLogDisplay( visBase::Well::Center ); }
 
 
 void WellDisplay::setOneLogDisplayed(bool yn)

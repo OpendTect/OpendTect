@@ -50,7 +50,7 @@ public:
     static Well*		create()
 				mCreateDataObj(Well);
 
-    enum			Side { Left=0, Right };
+    enum			Side { Left=0, Right, Center };
 
     enum			LogStyle { Welllog, Seismic, Logtube };
 
@@ -225,6 +225,7 @@ protected:
     MarkerSet*			markerset_;
     osgGeo::WellLog*		leftlogdisplay_;
     osgGeo::WellLog*		rightlogdisplay_;
+    osgGeo::WellLog*		centerlogdisplay_;
 
     Text2*			welltoptxt_;
     Text2*			wellbottxt_;
@@ -237,8 +238,8 @@ protected:
     float			pixeldensity_;
     ZAxisTransform*		zaxistransform_;
     int				voiidx_;
-    bool			displaytube_[2];
-    bool			displaylog_[2];
+    bool			displaytube_[3];
+    bool			displaylog_[3];
     BufferStringSet		lognames_;
 
 private:
@@ -256,6 +257,8 @@ private:
     void			updateMakerSize(float sizefactor);
     void			updateMakerNamePosition(Side side,
 							float sizefactor);
+    osgGeo::WellLog*&		getLogDisplay(Side);
+    const osgGeo::WellLog*	getLogDisplay(Side) const;
 
 
 };

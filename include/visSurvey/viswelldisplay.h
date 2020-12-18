@@ -95,6 +95,7 @@ public:
     void			calcClippedRange(float,Interval<float>&,int);
     void			displayRightLog();
     void			displayLeftLog();
+    void			displayCenterLog();
     void			setOneLogDisplayed(bool);
     const Color&		logColor(visBase::Well::Side) const;
     void			setLogColor(const Color&,visBase::Well::Side);
