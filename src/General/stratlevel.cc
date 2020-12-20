@@ -47,6 +47,7 @@ public:
 LevelSetMgr()
 {
     DBM().surveyChanged.notify( mCB(this,LevelSetMgr,doNull) );
+    DBM().applicationClosing.notify( mCB(this,LevelSetMgr,doNull) );
 }
 
 ~LevelSetMgr()

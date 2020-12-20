@@ -172,18 +172,24 @@ void Well::DisplayProperties::commitDefaults()
 //DisplayProperties3D
 Well::DisplayProperties3D::DisplayProperties3D()
     : DisplayProperties( sKey3DDispProp() )
-    , leftlog_(0)
-    , rightlog_(0)
-    , logtube_(0)
 {
     leftlog_ = new LogDispProps;
     rightlog_ = new LogDispProps;
+    logtube_ = new LogDispProps;
 }
 
 Well::DisplayProperties3D::DisplayProperties3D( const DisplayProperties3D& oth )
-    :DisplayProperties(oth)
+    : DisplayProperties(oth)
 {
     copyClassData( oth );
+}
+
+
+Well::DisplayProperties3D::~DisplayProperties3D()
+{
+    delete leftlog_;
+    delete rightlog_;
+    delete logtube_;
 }
 
 
@@ -232,8 +238,11 @@ mImplMonitorableAssignment(Well::DisplayProperties3D, Well::DisplayProperties);
 void Well::DisplayProperties3D::copyClassData(
 					const Well::DisplayProperties3D& oth )
 {
+    delete leftlog_;
     leftlog_ = new LogDispProps( *oth.leftLog() );
+    delete rightlog_;
     rightlog_ = new LogDispProps( *oth.rightLog() );
+    delete logtube_;
     logtube_ = new LogDispProps( *oth.logTube() );
 }
 
@@ -517,7 +526,7 @@ void Well::DisplayProperties2D::copyClassData(
 Monitorable::ChangeType Well::DisplayProperties2D::compareClassData(
 				const Well::DisplayProperties2D& oth ) const
 {
-	return cEntireObjectChange();
+    return cEntireObjectChange();
 }
 
 
