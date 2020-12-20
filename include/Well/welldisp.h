@@ -280,6 +280,7 @@ mExpClass(Well) DisplayProperties3D : public DisplayProperties
 {
 public:
 			DisplayProperties3D();
+			~DisplayProperties3D();
 			mDeclMonitorableAssignment(DisplayProperties3D);
 
     enum Position	{ Left=0, Right, Tube };
@@ -300,9 +301,9 @@ public:
     void		fillPar(IOPar&) const;
 
 protected:
-    LogDispProps*	leftlog_;
-    LogDispProps*	rightlog_;
-    LogDispProps*	logtube_;
+    LogDispProps*	leftlog_ = nullptr;
+    LogDispProps*	rightlog_ = nullptr;
+    LogDispProps*	logtube_ = nullptr;
 
 };
 
