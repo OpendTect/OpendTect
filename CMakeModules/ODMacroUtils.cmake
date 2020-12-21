@@ -104,7 +104,8 @@ if( OD_MODULE_DEPS )
 	#Add dependencies to include-path
 	list(APPEND OD_MODULE_INCLUDEPATH ${OD_${DEP}_INCLUDEPATH} )
 	list(APPEND OD_MODULE_RUNTIMEPATH ${OD_${DEP}_RUNTIMEPATH} )
-	if ( NOT OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
+	if ( NOT OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} AND 
+	     "${OD_DISABLE_EXTERNAL_LIBS_CHECK}" STREQUAL "OFF" )
 	    set( NEEDSSETUP FALSE )
 	    foreach( USENM ${SETUPNMS} )
 		if ( OD_${DEP}_${USENM} )
@@ -170,7 +171,9 @@ if ( OD_ENABLE_BREAKPAD )
 endif()
 
 #Add current module to include-path
-set( CMAKE_BINARY_DIR "${OD_BINARY_BASEDIR}" )
+if( WIN32 )
+    set( CMAKE_BINARY_DIR "${OD_BINARY_BASEDIR}" )
+endif()
 if ( OD_MODULE_HAS_LIBRARY )
     if (OD_IS_PLUGIN)
 
