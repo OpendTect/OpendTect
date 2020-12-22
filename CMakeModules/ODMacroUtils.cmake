@@ -171,7 +171,7 @@ if ( OD_ENABLE_BREAKPAD )
 endif()
 
 #Add current module to include-path
-if( WIN32 )
+if( ${OD_SUBSYSTEM} STREQUAL "dgb"  )
     set( CMAKE_BINARY_DIR "${OD_BINARY_BASEDIR}" )
 endif()
 if ( OD_MODULE_HAS_LIBRARY )
