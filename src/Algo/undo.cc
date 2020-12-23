@@ -222,12 +222,10 @@ bool Undo::unDo( int nrtimes, bool userinteraction )
     }
 
     if ( change )
-    {
 	changenotifier.trigger();
-    }
 
     mTriggerIfUndoRedoChange();
-    return true;
+    return change;
 }
 
 
@@ -261,12 +259,10 @@ bool Undo::reDo( int nrtimes, bool userinteraction )
     }
 
     if ( change )
-    {
 	changenotifier.trigger();
-    }
 
     mTriggerIfUndoRedoChange();
-    return true;
+    return change;
 }
 
 

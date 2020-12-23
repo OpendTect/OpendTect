@@ -22,11 +22,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bufstringset.h"
 #include "color.h"
+#include "hiddenparam.h"
 
 #include "q_uiimpl.h"
 
 #include <QKeyEvent>
 #include <QMouseEvent>
+
+static HiddenParam<uiListBox,char> bulkchg('0');
 
 static const int cIconSz = 16;
 int uiListBox::cDefNrLines()	{ return 7; }
@@ -294,6 +297,8 @@ void uiListBoxBody::mousePressEvent( QMouseEvent* ev )
 {
     if ( ev && ev->button() == Qt::LeftButton && lb_->isMultiChoice() )
     {
+	bulkchg.setParam( lb_, true );
+
 	if ( doslidesel_ )
 	    sliderg_.start = sliderg_.stop = itemIdxAtEvPos( *ev );
 	else
@@ -330,6 +335,9 @@ void uiListBoxBody::mouseMoveEvent( QMouseEvent* ev )
 
 void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
 {
+    bulkchg.setParam( lb_, false );
+    lb_->updateCheckState();
+
     const bool didslide = sliderg_.start>=0 && sliderg_.start != sliderg_.stop;
     sliderg_.start = -1;
     if ( didslide )
@@ -427,6 +435,7 @@ uiListBox::uiListBox( uiParent* p, const char* nm, OD::ChoiceMode cm )
     lb_ = new uiListBoxObj( this, nm, choicemode_ );
     mkCheckGroup();
     setHAlignObj( lb_ );
+    bulkchg.setParam( this, false );
 
     mStdConstrEnd;
 }
@@ -443,6 +452,7 @@ uiListBox::uiListBox( uiParent* p, const Setup& setup, const char* nm )
     mkCheckGroup();
     mkLabel( setup.lbl_, setup.lblpos_ );
     setHAlignObj( lb_ );
+    bulkchg.setParam( this, false );
 
     mStdConstrEnd;
 }
@@ -450,6 +460,7 @@ uiListBox::uiListBox( uiParent* p, const Setup& setup, const char* nm )
 
 uiListBox::~uiListBox()
 {
+    bulkchg.removeParam( this );
     delete &rightclickmnu_;
 }
 
@@ -703,10 +714,12 @@ void uiListBox::menuCB( CallBacker* )
 	usrChooseAll( res==0 );
     else if ( res == 2 )
     {
+	bulkchg.setParam( this, true );
 	const int selidx = currentItem();
 	TypeSet<int> checked; getCheckedItems( checked );
 	for ( int idx=0; idx<sz; idx++ )
 	    setItemChecked( idx, !checked.isPresent(idx) );
+	bulkchg.setParam( this, false );
 	setCurrentItem( selidx );
     }
     else if ( res == 3 )
@@ -742,8 +755,11 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
 	return;
 
     lbitm->ischecked_ = ischecked;
-    const int itmidx = lb_->body().indexOf( lbitm );
+    const bool isbulk = bulkchg.getParam(this);
+    if ( isbulk )
+	return;
 
+    const int itmidx = lb_->body().indexOf( lbitm );
     NotifyStopper nsic( itemChosen );
     mListBoxBlockCmdRec;
     lb_->body().setCurrentRow( itmidx );
