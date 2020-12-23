@@ -883,7 +883,8 @@ public:
 //uiFaultParSel
 
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
-    : uiCompoundParSel(p,toUiString("**********")) //Hack So that textfld_ label is correctly updated
+    : uiCompoundParSel(p,toUiString("***************")) 
+      //Hack So that textfld_ label is correctly updated
     , is2d_(is2d)
     , isfltset_(false)
     , selChange(this)
@@ -915,10 +916,18 @@ void uiFaultParSel::updateOnSelChg( bool isfltset )
 }
 
 
+void uiFaultParSel::setIs2D( bool is2d )
+{
+    is2d_ = is2d;
+    updateOnSelChgCB(0);
+}
+
+
 void uiFaultParSel::updateOnSelChgCB( CallBacker* cb )
 {
     setSelText( isfltset_ ? uiStrings::sFaultSet( mPlural )
-					    : uiStrings::sFault( mPlural ) );
+			: (is2d_ ? uiStrings::sFaultStickSet(mPlural)
+			    	 : uiStrings::sFault(mPlural) ) );
 }
 
 void uiFaultParSel::hideClearButton( bool yn )

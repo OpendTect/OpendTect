@@ -226,6 +226,7 @@ public:
 
     void			hideClearButton(bool yn=true);
     void			updateOnSelChg(bool isfltset=false);
+    void			setIs2D(bool);
 
     Notifier<uiFaultParSel>	selChange;
 
