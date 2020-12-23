@@ -518,7 +518,7 @@ void Horizon3D::setArray( const SectionID& sid, const BinID& start,
 	if ( !hasNodeSourceType(posid) )
 	    setNodeSourceType( posid, EMObject::Gridding );
     }
-    geometry().sectionGeometry(sid)->setArray( start, step, arr, true );
+    geometry().sectionGeometry(sid)->setArray( start, step, arr, takeover );
 }
 
 

@@ -268,10 +268,13 @@ void BinIDSurface::setArray( const BinID& start, const BinID& step,
 	    ismovement = true;
     }
 
-    delete depths_;
-    depths_ = takeover ? na : new Array2DImpl<float>( *na );
     origin_ = RowCol(start);
     step_ = RowCol(step);
+    deleteAndZeroPtr( depths_ );
+    if ( !na )
+	return;
+
+    depths_ = takeover ? na : new Array2DImpl<float>( *na );
 
     TypeSet<GeomPosID>  posids;
     getPosIDs( posids );

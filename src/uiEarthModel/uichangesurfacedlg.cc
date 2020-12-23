@@ -30,15 +30,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
-                                        bool is2d, const uiString& txt )
-    : uiDialog (p, Setup(txt,mNoDlgTitle, 
-                         mODHelpKey(mChangeSurfaceDlgHelpID) ) )
-    , horizon_( hor )
-    , is2d_( is2d )		   
-    , savefldgrp_( 0 )		   
-    , inputfld_( 0 )
-    , parsgrp_( 0 )
+					bool is2d, const uiString& txt )
+    : uiDialog(p,Setup(txt,mNoDlgTitle,
+			mODHelpKey(mChangeSurfaceDlgHelpID)))
     , horReadyForDisplay(this)
+    , inputfld_(nullptr)
+    , parsgrp_(nullptr)
+    , horizon_(hor)
+    , is2d_(is2d)
 {
     setCtrlStyle( RunAndClose );
 
@@ -65,7 +64,7 @@ void uiChangeHorizonDlg::attachPars()
 
     if ( inputfld_ )
 	parsgrp_->attach( alignedBelow, inputfld_ );
-    
+
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, parsgrp_ );
 
@@ -116,54 +115,54 @@ bool uiChangeHorizonDlg::doProcessing3D()
     MouseCursorChanger chgr( MouseCursor::Wait );
     bool change = false;
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
-       savefldgrp_->getNewHorizon() : horizon_;
+	savefldgrp_->getNewHorizon() : horizon_;
     mDynamicCastGet(EM::Horizon3D*,usedhor3d,usedhor)
-    
     mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
-    if ( !hor3d )
+    if ( !usedhor3d || !hor3d )
 	return false;
 
+    uiTaskRunner dlg( this );
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
     {
 	const EM::SectionID sid = hor3d->geometry().sectionID( idx );
-	if ( !idx && needsFullSurveyArray() )
-	    savefldgrp_->setFullSurveyArray( true );
-
 	PtrMan<Array2D<float> > arr = hor3d->createArray2D( sid );
 	if ( !arr )
 	{
-	    uiString msg = tr("Not enough horizon data for section %1")
-                         .arg(sid);
-	    ErrMsg( msg.getFullString() ); continue;
+	    uiString msg =
+		tr("Cannot create 2D array for section %1").arg(sid);
+	    ErrMsg( msg.getFullString() );
+	    continue;
 	}
 
-	PtrMan<Executor> worker = getWorker( *arr,
-			hor3d->geometry().rowRange(sid),
-			hor3d->geometry().colRange(sid,-1) );
-	if ( !worker ) return false;
-
-	uiTaskRunner dlg( this );
-	if ( !TaskRunner::execute( &dlg, *worker ) )
+	const StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
+	const StepInterval<int> colrg = hor3d->geometry().colRange( sid, -1 );
+	PtrMan<Executor> worker = getWorker( *arr, rowrg, colrg );
+	if ( !worker )
 	    return false;
 
-	if ( !usedhor3d )
+	if ( !TaskRunner::execute(&dlg,*worker) )
 	    return false;
+
 	const EM::SectionID usedsid = usedhor3d->geometry().sectionID( idx );
-	if ( !usedhor3d->setArray2D(*arr,usedsid,fillUdfsOnly(),
-				    undoText(),false) )
+	if ( hor3d != usedhor3d )
 	{
-	    uiString msg = tr("Cannot set new data to section %1").arg(usedsid);
-	    ErrMsg( msg.getFullString() ); continue;
-        }
-	else if ( usedhor3d==hor3d )
+	    const BinID start( rowrg.start, colrg.start );
+	    const BinID step( rowrg.step, colrg.step );
+	    usedhor3d->geometry().sectionGeometry(usedsid)->setArray(
+						start, step, arr, false );
+	}
+	else
 	{
-	    change = true;
+	    const char* undodesc = usedhor3d==hor3d ? undoText() : nullptr;
+	    const bool res = usedhor3d->setArray2D( *arr, usedsid,
+					fillUdfsOnly(), undodesc, false );
+	    change = res;
 	}
     }
 
     if ( change )
 	EM::EMM().undo(usedhor3d->id()).setUserInteractionEnd(
-	EM::EMM().undo(usedhor3d->id()).lastEventID() );
+		EM::EMM().undo(usedhor3d->id()).lastEventID() );
 
     return true;
 }
@@ -174,19 +173,18 @@ bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
     if ( inputfld_ && !inputfld_->commitInput() )
     {
 	uiMSG().error( uiStrings::phrSelect(mJoinUiStrs(
-				    sInput().toLower(),sHorizon().toLower())) );
+				sInput().toLower(),sHorizon().toLower())) );
 	return false;
     }
-	 
 
     if ( !horizon_ && !readHorizon() )
     {
-	uiMSG().error(uiStrings::phrCannotRead(
-					    uiStrings::sHorizon().toLower()));
+	uiMSG().error(
+		uiStrings::phrCannotRead(uiStrings::sHorizon().toLower()) );
 	return false;
     }
-   
-    if ( !savefldgrp_->acceptOK( cb ) )
+
+    if ( !savefldgrp_->acceptOK(cb) )
 	return false;
 
     if ( !doProcessing() )
@@ -216,9 +214,11 @@ uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
 
 
 Executor* uiFilterHorizonDlg::getWorker( Array2D<float>& a2d,
-					   const StepInterval<int>& rowrg,
-					   const StepInterval<int>& colrg )
+					 const StepInterval<int>& rowrg,
+					 const StepInterval<int>& colrg )
 {
     Array2DFilterPars pars = ((uiArr2DFilterPars*)parsgrp_)->getInput();
-    return new Array2DFilterer<float>( a2d, pars );
+    auto* exec = new Array2DFilterer<float>( a2d, pars );
+    exec->setName( "Filtering Horizon" );
+    return exec;
 }
