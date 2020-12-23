@@ -42,6 +42,9 @@ static char* getNewDebugStr( char* strvar, const BufferString& newstr )
 {
     delete [] strvar;
     const od_int64 newsz = newstr.size();
+    if ( newsz==0 )
+	return nullptr;
+
     strvar = new char [ newsz + 1 ];
     OD::sysMemCopy( strvar, newstr.str(), newsz );
     strvar[newsz] = '\0';

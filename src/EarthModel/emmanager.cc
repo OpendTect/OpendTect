@@ -34,13 +34,15 @@ EM::EMManager& EM::EMM()
 
 bool EM::canOverwrite( const MultiID& mid )
 {
-    const IOObj* ioobj = IOM().get( mid );
+    const PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
 	return true;
 
-    mDynamicCastGet(const IOStream*,iostream,ioobj)
-    return iostream;
+    mDynamicCastGet(const IOStream*,iostream,ioobj.ptr())
+    const bool res = bool(iostream);
+    return res;
 }
+
 
 namespace EM
 {
@@ -491,7 +493,7 @@ Undo& EMManager::undo( const EM::ObjectID& id )
 
     EMObjUndo* newemobjundo = new EMObjUndo( id );
     undolist_ += newemobjundo;
-    
+
     return newemobjundo->undo_;
 }
 
