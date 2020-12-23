@@ -831,6 +831,7 @@ uiGenInput::~uiGenInput()
     deepErase( flds_ );
     deepErase( inputs_ ); // doesn't hurt
     delete &idxes_;
+    delete textvl_;
 }
 
 
