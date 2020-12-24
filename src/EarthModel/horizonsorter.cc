@@ -227,9 +227,10 @@ int HorizonSorter::nextStep()
 {
     if ( !nrdone_ )
     {
+	PtrMan<Executor> horreader = nullptr;
 	if ( unsortedids_.isEmpty() && !unsortedkeys_.isEmpty() )
 	{
-	    PtrMan<Executor> horreader = EM::EMM().objectLoader( unsortedkeys_ );
+	    horreader = EM::EMM().objectLoader( unsortedkeys_ );
 	    if ( horreader )
 	    {
 		if ( taskrun_ )
