@@ -234,6 +234,7 @@ private:
     CallBack		retrievecb_;
     bool		scrollingblocked_;
     bool		allshown_;
+    bool		bulkcheckchg_;
 
     void		menuCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));

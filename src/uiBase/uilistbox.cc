@@ -294,6 +294,7 @@ void uiListBoxBody::mousePressEvent( QMouseEvent* ev )
 {
     if ( ev && ev->button() == Qt::LeftButton && lb_->isMultiChoice() )
     {
+	lb_->bulkcheckchg_ = true;
 	if ( doslidesel_ )
 	    sliderg_.start = sliderg_.stop = itemIdxAtEvPos( *ev );
 	else
@@ -330,6 +331,9 @@ void uiListBoxBody::mouseMoveEvent( QMouseEvent* ev )
 
 void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
 {
+    lb_->bulkcheckchg_ = false;
+    lb_->updateCheckState();
+
     const bool didslide = sliderg_.start>=0 && sliderg_.start != sliderg_.stop;
     sliderg_.start = -1;
     if ( didslide )
@@ -413,7 +417,8 @@ uiListBoxBody& uiListBoxObj::mkbody( uiParent* p, const char* nm,
     , alignment_(Alignment::Left) \
     , scrollingblocked_(false) \
     , allowduplicates_(true) \
-    , allshown_(true)
+    , allshown_(true) \
+    , bulkcheckchg_(false)
 
 #define mStdConstrEnd \
     lb_->setBackgroundColor( lb_->roBackgroundColor() ); \
@@ -703,10 +708,13 @@ void uiListBox::menuCB( CallBacker* )
 	usrChooseAll( res==0 );
     else if ( res == 2 )
     {
+	bulkcheckchg_ = true;
 	const int selidx = currentItem();
 	TypeSet<int> checked; getCheckedItems( checked );
 	for ( int idx=0; idx<sz; idx++ )
 	    setItemChecked( idx, !checked.isPresent(idx) );
+
+	bulkcheckchg_ = false;
 	setCurrentItem( selidx );
     }
     else if ( res == 3 )
@@ -742,8 +750,10 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
 	return;
 
     lbitm->ischecked_ = ischecked;
-    const int itmidx = lb_->body().indexOf( lbitm );
+    if ( bulkcheckchg_ )
+	return;
 
+    const int itmidx = lb_->body().indexOf( lbitm );
     NotifyStopper nsic( itemChosen );
     mListBoxBlockCmdRec;
     lb_->body().setCurrentRow( itmidx );
