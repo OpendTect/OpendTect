@@ -225,21 +225,28 @@ macro( COPY_THIRDPARTYLIBS )
     endforeach()
 
     foreach( ODPLUGIN ${OD_QTPLUGINS} )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/${ODPLUGIN}
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/${ODPLUGIN} )
-
 	if ( "${ODPLUGIN}" STREQUAL "resources" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${COPYFROMLIBDIR}/../resources
 			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${COPYFROMLIBDIR}/${ODPLUGIN}
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/${ODPLUGIN} )
 	endif()
     endforeach()
 
     foreach( TRANSLATION_FILE ${OD_QT_TRANSLATION_FILES} )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${COPYFROMLIBDIR}/../translations/${TRANSLATION_FILE}
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/${TRANSLATION_FILE} ) 
+	get_filename_component( QTWEB_LOCALS_FILE ${TRANSLATION_FILE} EXT )
+	if( ${QTWEB_LOCALS_FILE} STREQUAL ".pak" )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+                             ${COPYFROMLIBDIR}/../translations/qtwebengine_locales/${TRANSLATION_FILE}
+                             ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/qtwebengine_locales/${TRANSLATION_FILE} )
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			     ${COPYFROMLIBDIR}/../translations/${TRANSLATION_FILE}
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/${TRANSLATION_FILE} )
+	endif()
     endforeach()
 
 endmacro( COPY_THIRDPARTYLIBS )
