@@ -26,12 +26,13 @@ if ( NOT DEFINED OD_BINARY_BASEDIR )
 	set ( OD_BINARY_BASEDIR ${OpendTect_DIR} )
     endif()
 endif()
-
+if ( NOT ONLY_SET_VARS )
 #Include all OpendTect Utility macros
 include( ${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake )
 
 #Set the linker path to OpendTect's libraries
 link_directories( ${OD_BINARY_BASEDIR}/${OD_LIB_OUTPUT_RELPATH} )
+endif()
 
 #As backup, link to release
 set ( RELEASE_RELPATH "bin/${OD_PLFSUBDIR}/Release" )
