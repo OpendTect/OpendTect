@@ -2,12 +2,39 @@ OpendTect V6.6.x : Release info
 
 
 ----
-V6.6.1rc4: October 27, 2020
+V6.6.2: December 29, 2020
+* Improved error messages in the volume builder
+* Fixed crash in "Add column" tool for crossplots
+* Fix for Math attribute in surveys without seismic data
+* Fixed crash while importing LAS file which contains LOC is UNKNOWN
+* Improved LAS file reading 
+    - When unit is not set for X/Y, read 1st value
+    - Also check for LAT and LON keys
+* Fixed Import and Export of horizons with option ‘Skip undefs’ option
+* Few improvements to survey creation log
+* Added option to use a polygon as work area
+* Fixed polygon fill in 3D scene
+* Improvements to cross-plot data import/export
+     - Labels are more consistent
+     - Export skips X/Y offset and selection status
+* Fixed unusable root/base python internal environment for PresentationMaker
+* Improved the resampling of logs with tiny gaps
+* Enabled resize of user message window 
+* Improved SEGY examine window and made more useful
+     - Stand-alone window did not launch. Fixed static variable inits.
+     - Added fields for nrtraces, first trace, scroll step.
+     - Added buttons to scroll forward and back through SEG-Y file
+* Increasing Distributed computing maximum inline chunk size to 1000
+* Fixed several distributed computing erros from Linux to Linux
+* Fix for displaying contour values over horizon in status bar 
+* Fix for Depth units in time surveys with XY in feet
+* Fixed lateral shift applied to horizons when filtering
+* Fixed CTRL-Z in lists to uncheck all items
+
+V6.6.1: November 09, 2020
 * Fixed crossplot data extraction inside 3D bodies with random subselection
 * Support bulk import of directional wells
 * Renamed "Open Cross-plot" menu option to "Open Saved Cross-plot"
-
-V6.6.1rc3: October 16, 2020
 * Fix for crash while picking seeds in Unc tracker
 * Well log display window can be closed again with window closing button 'X'
 * Fix for single wildcard case Multi 2D segy import
@@ -17,11 +44,7 @@ V6.6.1rc3: October 16, 2020
 * Fix for displaying empty Firewall rule window after updating   
   the OpendTect from the installer on windows platform
 * Added Sw, NetPay, Lithology and other mnemonics
-
-V6.6.1rc2: October 09, 2020
 * Fixed issues with services with survey change and application closing
-
-V6.6.1rc1: October 5, 2020
 * Adding the correct firewall exception for start_dtect executable
 * Support UnitOfMeasure, CRS and area subselection when importing from zmap
 * Show Operating System product name in host information dialog
@@ -36,6 +59,8 @@ V6.6.1rc1: October 5, 2020
 * Improve handling of depth domain data in frequency filter attribute
 * Record OpendTect version when creating objects
 * Added Presentation Maker icon to toolbar
+* Fixed issue in editing/running some Volume Processing steps like the
+  Horizon-limited filler
 
 v6.6.0: September 03, 2020
 * System may hang when removing inline after scrolling from position window,
