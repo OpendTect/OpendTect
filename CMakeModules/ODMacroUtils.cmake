@@ -171,7 +171,7 @@ if ( OD_ENABLE_BREAKPAD )
 endif()
 
 #Add current module to include-path
-if( WIN32 )
+if( ${OD_SUBSYSTEM} STREQUAL "dgb" )
     set( CMAKE_BINARY_DIR "${OD_BINARY_BASEDIR}" )
 endif()
 if ( OD_MODULE_HAS_LIBRARY )
@@ -340,6 +340,17 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    ${OD_LIB_DEP_LIBS}
 	    ${OD_MODULE_EXTERNAL_LIBS}
 	    ${OD_MODULE_EXTERNAL_SYSLIBS} )
+    if( "${OD_BUILD_LOCAL}" STREQUAL "ON" AND
+	NOT EXISTS "{OpendTect_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}" )
+	if ( EXISTS "${OpendTect_DIR}/${OD_LIB_RELPATH_DEBUG}" )
+	    target_link_directories( ${OD_MODULE_NAME}
+		    PUBLIC "${OpendTect_DIR}/${OD_LIB_RELPATH_DEBUG}" )
+	elseif ( EXISTS "${OpendTect_DIR}/${OD_LIB_RELPATH_RELEASE}" )
+	    target_link_directories( ${OD_MODULE_NAME}
+		    PUBLIC "${OpendTect_DIR}/${OD_LIB_RELPATH_RELEASE}" )
+	endif()
+    endif()
+
 
     set ( TARGET_PROPERTIES ${OD_MODULE_NAME}
 	    PROPERTIES 
