@@ -18,6 +18,7 @@ endforeach()
 macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_PATH ${PROJECT_BINARY_DIR}/doc/Programmer/Generated )
     set( OD_DOXYGEN_FILE ${PROJECT_BINARY_DIR}/CMakeModules/Doxyfile )
+    set( OD_DOXYGEN_LOGO ${PROJECT_BINARY_DIR}/doc/Programmer/images/logo.png )
 
     foreach ( OD_DOXYGEN_MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
 	set( INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE} )
@@ -37,8 +38,13 @@ macro( OD_BUILD_DOCUMENTATION )
 	endif()
     endforeach()
 
-    set( TEMPLATE ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in )
-    set( FOOTER ${CMAKE_SOURCE_DIR}/CMakeModules/templates/doxygenfooter.html.in )
+    set( PLUGIN_DIR ${CMAKE_SOURCE_DIR}/plugins )
+    if( EXISTS ${PLUGIN_DIR} )
+	set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${PLUGIN_DIR}" )
+    endif()
+
+    set( TEMPLATE ${OpendTect_DIR}/CMakeModules/templates/Doxyfile.in )
+    set( FOOTER ${OpendTect_DIR}/CMakeModules/templates/doxygenfooter.html.in )
 	
     configure_file( ${TEMPLATE}
 		 ${OD_DOXYGEN_FILE} @ONLY IMMEDIATE)
