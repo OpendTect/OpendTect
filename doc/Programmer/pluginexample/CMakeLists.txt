@@ -6,8 +6,11 @@
 #_______________________________________________________________________________
 
 
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8.12)
 project(OpendTect_Tutorial_Plugin)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set ( OD_SUBSYSTEM "tut_plugin" )
 set ( OpendTect_DIR "" CACHE PATH "OpendTect directory" )
