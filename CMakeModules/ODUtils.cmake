@@ -84,6 +84,9 @@ set ( DGB_SEGY_EXECS od_DeepLearning_CC )
 set ( DGB_ML_UIEXECS od_DeepLearning od_DeepLearning_CC od_DeepLearning_EM od_DeepLearning_TM od_DeepLearning_ModelImport )
 set ( DGB_PRO_UIEXECS od_LogPlot )
 
+option ( OD_DISABLE_EXTERNAL_LIBS_CHECK "Disabling automatic retrieval of external dependency for plugins" ON )
+mark_as_advanced( FORCE OD_DISABLE_EXTERNAL_LIBS_CHECK )
+
 macro( OD_ADD_EXTERNALS )
     find_program( NINJA_BIN "ninja" )
     if ( NINJA_BIN )
