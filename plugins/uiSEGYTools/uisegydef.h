@@ -30,7 +30,7 @@ class uiSEGYByteSpec;
 
 /*!\brief base class for specification of SEG-Y file stuff */
 
-mExpClass(uiSEGY) uiSEGYDefGroup : public uiGroup
+mExpClass(uiSEGYTools) uiSEGYDefGroup : public uiGroup
 { mODTextTranslationClass(uiSEGYDefGroup);
 public:
 			uiSEGYDefGroup( uiParent* p, const char* grpnm,
@@ -53,10 +53,10 @@ protected:
 
 /*!\brief UI for Specification of SEG-Y in- or output file(s) */
 
-mExpClass(uiSEGY) uiSEGYFileSpec : public uiSEGYDefGroup
+mExpClass(uiSEGYTools) uiSEGYFileSpec : public uiSEGYDefGroup
 { mODTextTranslationClass(uiSEGYFileSpec);
 public:
-    mExpClass(uiSEGY) Setup
+    mExpClass(uiSEGYTools) Setup
     {
     public:
 			Setup( bool needmulti )
@@ -115,7 +115,7 @@ protected:
 
 /*!\brief UI for Specification of SEG-Y information needed to examine */
 
-mExpClass(uiSEGY) uiSEGYFilePars : public uiSEGYDefGroup
+mExpClass(uiSEGYTools) uiSEGYFilePars : public uiSEGYDefGroup
 { mODTextTranslationClass(uiSEGYFilePars);
 public:
 			uiSEGYFilePars(uiParent*,bool forread,IOPar* iop=0,
@@ -158,11 +158,11 @@ public:
 
  */
 
-mExpClass(uiSEGY) uiSEGYFileOpts : public uiSEGYDefGroup
+mExpClass(uiSEGYTools) uiSEGYFileOpts : public uiSEGYDefGroup
 { mODTextTranslationClass(uiSEGYFileOpts);
 public:
 
-    mExpClass(uiSEGY) Setup
+    mExpClass(uiSEGYTools) Setup
     {
     public:
 				Setup( Seis::GeomType gt,

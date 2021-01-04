@@ -18,7 +18,7 @@ class uiFunctionDisplay;
 namespace SEGY { class HdrEntry; }
 
 
-mExpClass(uiSEGY) uiSEGYTrcHdrValPlot : public uiGroup
+mExpClass(uiSEGYTools) uiSEGYTrcHdrValPlot : public uiGroup
 { mODTextTranslationClass(uiSEGYTrcHdrValPlot);
 public:
 

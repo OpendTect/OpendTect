@@ -19,11 +19,11 @@ class uiSEGYFileOpts;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mExpClass(uiSEGY) uiSEGYReadDlg : public uiVarWizardDlg
+mExpClass(uiSEGYTools) uiSEGYReadDlg : public uiVarWizardDlg
 { mODTextTranslationClass(uiSEGYReadDlg);
 public :
 
-    mExpClass(uiSEGY) Setup : public uiDialog::Setup
+    mExpClass(uiSEGYTools) Setup : public uiDialog::Setup
     {
     public:
 

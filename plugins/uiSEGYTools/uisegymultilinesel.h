@@ -19,7 +19,7 @@ class uiTable;
 
 /*!\brief Interface for selecting line names for multi-file SEGY import */
 
-mExpClass(uiSEGY) uiSEGYMultiLineSel : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYMultiLineSel : public uiDialog
 { mODTextTranslationClass(uiSEGYMultiLineSel);
 public:
 

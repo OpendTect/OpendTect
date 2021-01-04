@@ -108,6 +108,7 @@ set( OD_PLUGINS
 	uiGLCM
 	uiGMT
 	uiGoogleIO
+	uiSEGYTools
 	uiSEGY
 	uiHello
 	uiHorizonAttrib

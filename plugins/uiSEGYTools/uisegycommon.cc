@@ -140,3 +140,15 @@ void uiSEGY::displayReport( uiParent* p, const IOPar& rep, const char* fnm )
     te->setText( strstrm.result() );
     dlg->setDeleteOnClose( true ); dlg->go();
 }
+
+#include "uisegywriteopts.h"
+#include "uisegydirectinserter.h"
+
+void uiSEGY::initClasses()
+{
+    uiSEGYDirectVolOpts::initClass();
+    uiSEGYDirectPS3DOpts::initClass();
+    uiSEGYDirectVolInserter::initClass();
+    uiSEGYDirect2DInserter::initClass();
+    uiSEGYDirectPS3DInserter::initClass();
+}
