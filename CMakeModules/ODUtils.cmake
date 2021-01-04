@@ -83,29 +83,6 @@ set ( DGB_SEGY_EXECS od_DeepLearning_CC )
 set ( DGB_ML_UIEXECS od_DeepLearning od_DeepLearning_CC od_DeepLearning_EM od_DeepLearning_TM od_DeepLearning_ModelImport )
 set ( DGB_PRO_UIEXECS od_LogPlot )
 
-set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT OFF )
-if ( QTDIR )
-    set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT ON )
-endif( QTDIR )
-if ( OSG_DIR )
-    set( OD_INSTALL_DEPENDENT_LIBS_DEFAULT ON )
-endif( OSG_DIR )
-
-
-# This option does two things
-#
-# 1. It installs the QT, OSG and other libraries to the installation structure when
-#    building the "install" target. On systems where these dependencies are provided
-#    through the operating system, this is not needed.
-#
-# 2. It copies dependencies into the build environment (bin/PLF/Debug and bin/PLF/Release)
-#    This is as the build environment should be as similar to the runtime environment as
-#    possible
-#
-# Default is to have it OFF when QTDIR and OSG_DIR are not set
-
-option( OD_INSTALL_DEPENDENT_LIBS "Install dependent libs" ${OD_INSTALL_DEPENDENT_LIBS_DEFAULT} )
-
 macro( OD_ADD_EXTERNALS )
     find_program( NINJA_BIN "ninja" )
     if ( NINJA_BIN )
