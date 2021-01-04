@@ -1559,6 +1559,18 @@ void uiListBox::getCheckedItems( TypeSet<int>& items ) const
 }
 
 
+void uiListBox::setDragEnabled( bool yn )
+{
+    lb_->body().setDragEnabled( yn );
+}
+
+
+bool uiListBox::dragEnabled() const
+{
+    return lb_->body().dragEnabled();
+}
+
+
 // Deprecated. Old uiListBox constructors
 uiListBox::uiListBox( uiParent* p, const BufferStringSet& itms, const char* nm )
     : uiGroup(p,nm)

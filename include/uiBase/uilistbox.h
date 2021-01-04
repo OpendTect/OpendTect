@@ -208,6 +208,9 @@ public:
     void		disableRightClick(bool yn);
     void		blockScrolling(bool yn) { scrollingblocked_ = yn; }
 
+    void		setDragEnabled(bool);
+    bool		dragEnabled() const;
+
     Notifier<uiListBox> selectionChanged;
     CNotifier<uiListBox,int> itemChosen; /*< if itmidx==-1, many items were
 						chosen at once */
