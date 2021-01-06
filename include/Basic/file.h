@@ -108,6 +108,10 @@ mGlobal(Basic) const char*	getHomePath();
 mGlobal(Basic) const char*	getTempPath();
 mGlobal(Basic) const char*	getRootPath(const char* path);
 
+mGlobal(Basic) const char*	asciiFilesFilter();
+mGlobal(Basic) const char*	allFilesFilter();
+mGlobal(Basic) const char*	textFilesFilter();
+
 
 enum ViewStyle { Text, Table, Log, Bin };
 mDeclareNameSpaceEnumUtils(Basic,ViewStyle)

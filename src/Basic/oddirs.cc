@@ -39,6 +39,8 @@ static BufferString cur_survey_name;
 
 #define mPrDebug(fn,val) od_debug_message( BufferString(fn,": ",val) );
 
+static BufferString sExportToDir;
+static BufferString sImportFromDir;
 
 
 const char* SurveyInfo::surveyFileName()
@@ -699,3 +701,32 @@ mExternC(Basic) const char* GetSurveyTempDir()
     return ret;
 }
 
+
+mExternC(Basic) const char* GetImportFromDir()
+{
+    if ( sImportFromDir.isEmpty() )
+	sImportFromDir = GetDataDir();
+
+    return sImportFromDir;
+}
+
+
+mExternC(Basic) void SetImportFromDir( const char* dirnm )
+{
+    sImportFromDir = dirnm;
+}
+
+
+mExternC(Basic) const char* GetExportToDir()
+{
+    if ( sExportToDir.isEmpty() )
+	sExportToDir = GetSurveyExportDir();
+
+    return sExportToDir;
+}
+
+
+mExternC(Basic) void SetExportToDir( const char* dirnm )
+{
+    sExportToDir = dirnm;
+}

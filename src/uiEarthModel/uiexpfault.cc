@@ -16,35 +16,37 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emfault3d.h"
 #include "emfaultset3d.h"
 #include "emfaultstickset.h"
+#include "emioobjinfo.h"
 #include "lmkemfaulttransl.h"
 #include "emmanager.h"
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "ioobj.h"
+#include "oddirs.h"
+#include "od_helpids.h"
+#include "od_ostream.h"
 #include "ptrman.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
+#include "zaxistransform.h"
+
 #include "uibutton.h"
 #include "uichecklist.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
-#include "od_helpids.h"
-#include "ioman.h"
-#include "uiunitsel.h"
-#include "emioobjinfo.h"
-#include "uiioobjselgrp.h"
-#include "unitofmeasure.h"
-#include "od_ostream.h"
 #include "uit2dconvsel.h"
-#include "zaxistransform.h"
+#include "uiunitsel.h"
 
 
 #define mGetObjNr \
-    isbulk_ ? mPlural : 1 \
+    isbulk ? mPlural : 1 \
 
 #define mGet( tp, fss, f3d, fset ) \
     FixedString(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : \
@@ -64,16 +66,17 @@ static const char* rcsID mUsedVar = "$Id$";
 	      uiStrings::phrInput( uiStrings::sFault(mGetObjNr) ), \
 	      uiStrings::phrInput( uiStrings::sFaultSet(mGetObjNr) ) )
 
+
 uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
 				 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
 				 mODHelpKey(mExportFaultHelpID),mTODOHelpKey)))
-    , ctio_(mGetCtio(typ))
-    , linenmfld_(nullptr)
-    , isbulk_(isbulk)
-    , infld_(nullptr)
     , bulkinfld_(nullptr)
-	, typ_(typ)
+    , infld_(nullptr)
+    , linenmfld_(nullptr)
+    , ctio_(mGetCtio(typ))
+    , isbulk_(isbulk)
+    , typ_(typ)
 {
     setModal( false );
     setDeleteOnClose( false );
@@ -134,8 +137,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 	linenmfld_->attach( alignedBelow, stickidsfld_ );
     }
 
-    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
-			       uiFileInput::Setup().forread(false) );
+    outfld_ = new uiASCIIFileInput( this, false );
     if ( linenmfld_ )
 	outfld_->attach( alignedBelow, linenmfld_ );
     else
