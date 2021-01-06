@@ -447,6 +447,7 @@ void uiODMenuMgr::fillExportMenu()
     uiMenu* expmute = new uiMenu( &appl_, tr("Mute Functions") );
     uiMenu* exppdf =
 	new uiMenu( &appl_, tr("Probability Density Functions") );
+    uiMenu* expwell = new uiMenu( &appl_, uiStrings::sWell(mPlural) );
 
     expmnu_->addMenu( expflt );
     expmnu_->addMenu( expfltss );
@@ -459,6 +460,7 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->addMenu( expseis );
     insertAction( expmnu_, m3Dots(tr("Survey Setup")), mExpSurveySetupItm );
     expmnu_->addMenu( expwvlt );
+    expmnu_->addMenu( expwell );
     expmnu_->insertSeparator();
 
     const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
@@ -537,12 +539,13 @@ void uiODMenuMgr::fillExportMenu()
     mAddExpMnu( Hor, exphor );
     mAddExpMnu( Flt, expflt );
     mAddExpMnu( Fltss, expfltss );
-	mAddExpMnu( FltSet, expfltset );
-	mAddExpMnu( Pick, exppick );
+    mAddExpMnu( FltSet, expfltset );
+    mAddExpMnu( Pick, exppick );
     mAddExpMnu( Wvlt, expwvlt );
     mAddExpMnu( MDef, expmute );
     mAddExpMnu( PDF, exppdf );
     mAddExpMnu( Geom, expgeom2d );
+    mAddExpMnu( Wll, expwell );
 }
 
 
@@ -1120,7 +1123,8 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
     mantb_ ->setButtonMenu( mnuid, popmnu, uiToolButton::InstantPopup ); }
 
 #define mAddPopupMnu( mnu, txt, itm ) \
-    mnu->insertAction( new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)), itm );
+    mnu->insertAction( new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)), \
+							itm );
 
 void uiODMenuMgr::fillManTB()
 {
