@@ -364,8 +364,8 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 	if ( uiMSG().askGoOn(execmsg) )
 	{
 	    OS::MachineCommand machcomm( "od_ClusterProc" );
-	    machcomm.addKeyedArg( "dosubmit", parfnm_ );
-		Batch::JobDispatcher::addIDTo( batchid_, machcomm );
+	    machcomm.addFlag( "dosubmit" );
+	    machcomm.addKeyedArg( "parfile", parfnm_ );
 	    OS::CommandLauncher cl( machcomm );
 	    if ( !cl.execute(OS::RunInBG) )
 	    {
