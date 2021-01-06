@@ -63,11 +63,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const char* sZVals = "Z values";
 
-static BufferString sImportFromPath;
-
-
 void uiImportHorizon::initClass()
-{ sImportFromPath = GetDataDir(); }
+{}
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
@@ -94,11 +91,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     setDeleteOnClose( false );
     ctio_.ctxt_.forread_ = !isgeom_;
 
-    BufferString fltr( "Text (*.txt *.dat);;XY/IC (*.*xy* *.*ic* *.*ix*)" );
-    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
-		uiFileInput::Setup(uiFileDialog::Gen)
-		.withexamine(true).forread(true).filter(fltr)
-		.defseldir(sImportFromPath) );
+    inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setSelectMode( uiFileDialog::ExistingFile );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
 
@@ -189,10 +182,9 @@ uiImportHorizon::~uiImportHorizon()
 }
 
 
-void uiImportHorizon::descChg( CallBacker* cb )
+void uiImportHorizon::descChg( CallBacker* )
 {
-    if ( scanner_ ) delete scanner_;
-    scanner_ = 0;
+    deleteAndZeroPtr( scanner_ );
 }
 
 
@@ -243,7 +235,7 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
     }
 
     FilePath fnmfp( fnm );
-    sImportFromPath = fnmfp.pathOnly();
+    SetImportFromDir( fnmfp.pathOnly() );
     if ( isgeom_ )
 	outputfld_->setInputText( fnmfp.baseName() );
 }
@@ -701,10 +693,7 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     enableSaveButton( tr("Display after import") );
 
-    inpfld_ = new uiFileInput( this, tr("ZMap file"),
-		  uiFileInput::Setup(uiFileDialog::Gen)
-		  .withexamine(true).forread(true)
-		  .defseldir(sImportFromPath) );
+    inpfld_ = new uiASCIIFileInput( this, tr("ZMap file"), true );
     mAttachCB( inpfld_->valuechanged, uiImpHorFromZMap::inputChgd );
 
     uiObject* attachobj = inpfld_->attachObj();
@@ -778,7 +767,7 @@ void uiImpHorFromZMap::inputChgd( CallBacker* )
     subselflds.getParam(this)->setInput( tkzs );
 
     const FilePath fnmfp( horfnm );
-    sImportFromPath = fnmfp.pathOnly();
+    SetImportFromDir( fnmfp.pathOnly() );
     outputfld_->setInputText( fnmfp.baseName() );
 }
 

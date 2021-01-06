@@ -130,3 +130,13 @@ public:
 };
 
 
+mExpClass(uiTools) uiASCIIFileInput : public uiFileInput
+{
+public:
+			uiASCIIFileInput(uiParent*,bool forread);
+			uiASCIIFileInput(uiParent*,const uiString& lbl,
+					 bool forread);
+			~uiASCIIFileInput();
+
+protected:
+};

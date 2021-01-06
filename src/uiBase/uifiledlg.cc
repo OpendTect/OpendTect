@@ -160,13 +160,7 @@ int uiFileDialog::go()
     if ( filter_.size() )
     {
 	if ( addallexts_ )
-	{
-	    flt += ";;All files (*";
-#ifdef __win__
-	    flt += " *.*";
-#endif
-	    flt += ")";
-	}
+	    flt.add( ";;" ).add( File::allFilesFilter() );
     }
 
     BufferString addendum;
