@@ -15,6 +15,9 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 			     ${COPYTODATADIR}/. )
 	endif()
 
+	execute_process( COMMAND ${CMAKE_COMMAND} -E
+			 copy_directory ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
 
 	if( NOT MATLAB_DIR STREQUAL "" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
