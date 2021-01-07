@@ -4,6 +4,9 @@
 # 	Jan 2012	K. Tingdahl
 #_______________________________________________________________________________
 
+if ( EXISTS ${CMAKE_SOURCE_DIR}/.git )
+    set ( OD_FROM_GIT 1 )
+endif()
 if ( EXISTS ${CMAKE_SOURCE_DIR}/.svn )
     set ( OD_FROM_SVN 1 )
 endif()
@@ -28,7 +31,7 @@ if ( Subversion_FOUND AND OD_FROM_SVN )
     Subversion_WC_INFO( ${CMAKE_SOURCE_DIR} MY )
     set ( UPDATE_CMD ${Subversion_SVN_EXECUTABLE} update )
     set ( VCS_VERSION ${MY_WC_REVISION} )
-else()
+elseif( OD_FROM_GIT )
     set ( VCS_VERSION 0 )
 
     find_package(Git)
@@ -104,6 +107,8 @@ if ( EXISTS ${PLUGIN_DIR} )
     endif()
 endif()
 
+if ( NOT "${UPDATE_CMD}" STREQUAL "" )
+
 add_custom_target( update
        		  ${UPDATE_CMD}
 		  ${EXTERNALCMD}
@@ -122,4 +127,6 @@ if ( EXISTS ${PLUGIN_DIR} )
 		  COMMENT "Updating dgb externals from repositories" )
 
     add_dependencies( update_all update update_dgb )
+endif()
+
 endif()
