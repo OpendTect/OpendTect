@@ -89,23 +89,17 @@ public:
 			{ return float(zDomain().userFactor()); }
 
     bool		zIsTime() const;
-			//!<Legacy, don't use. Use zDomain().isTime()
     inline bool		zInMeter() const
 			{ return zDomain().isDepth() && !depthsinfeet_;}
-			//!<Legacy, don't use
     inline bool		zInFeet() const
 			{ return zDomain().isDepth() && depthsinfeet_;}
-			//<Legacy, don't use
     const char*		getZUnitString(bool withparens=true) const
-			//!<Legacy, don't use
 			{ return zDomain().unitStr( withparens ); }
     const uiString	getUiZUnitString(bool withparens=true) const
 			{ return zDomain().uiUnitStr( withparens ); }
     enum Unit		{ Second, Meter, Feet };
     Unit		xyUnit() const;
-			//!<Legacy, don't use
     Unit		zUnit() const;
-			//!<Legacy, don't use
 
     Coord		minCoord(bool work) const;
     Coord		maxCoord(bool work) const;
