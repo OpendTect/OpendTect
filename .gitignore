@@ -112,9 +112,6 @@ qtcsettings.cmake
 *~
 .directory
 
-#Link to v7 application
-v7
-
 #Other
 relinfo/ver.*
 
