@@ -20,6 +20,8 @@ V6.6.2: December 29, 2020
 * Fixed unusable root/base python internal environment for PresentationMaker
 * Improved the resampling of logs with tiny gaps
 * Enabled resize of user message window 
+* SEG-Y classic tool is now only accessible by setting the environmnent
+  variable OD_ENABLE_SEGY_CLASSIC to the value 'Yes'
 * Improved SEGY examine window and made more useful
      - Stand-alone window did not launch. Fixed static variable inits.
      - Added fields for nrtraces, first trace, scroll step.
