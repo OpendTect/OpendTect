@@ -202,6 +202,9 @@ public:
 };
 
 
+typedef StepInterval<float> ZSampling;
+
+
 /*!
 \brief Class to store ranges in N dimensions.
 */
