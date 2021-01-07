@@ -355,3 +355,43 @@ void uiFileInput::examineFile( CallBacker* )
 	    uiMSG().error( tr("Cannot launch file browser") );
     }
 }
+
+
+// uiASCIIFileInput
+static uiString getLabel( bool forread )
+{
+    return forread ? uiStrings::sInputASCIIFile()
+		   : uiStrings::sOutputASCIIFile();
+}
+
+
+static uiFileInput::Setup getSetup( bool forread )
+{
+    uiFileInput::Setup fsu;
+    fsu.forread(forread)
+	.defseldir( forread ? GetImportFromDir() : GetExportToDir() );
+    if ( forread )
+	fsu.withexamine(true);
+    else
+	fsu.filter(File::asciiFilesFilter());
+
+    return fsu;
+}
+
+
+uiASCIIFileInput::uiASCIIFileInput( uiParent* p, bool forread )
+    : uiFileInput(p,getLabel(forread),getSetup(forread))
+{
+}
+
+
+uiASCIIFileInput::uiASCIIFileInput( uiParent* p, const uiString& lbl,
+				    bool forread )
+    : uiFileInput(p,lbl,getSetup(forread))
+{
+}
+
+
+uiASCIIFileInput::~uiASCIIFileInput()
+{
+}
