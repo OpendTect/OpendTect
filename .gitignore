@@ -6,6 +6,9 @@ dtect/linguist.csh
 include/Basic/svnversion.h
 include/Basic/odversion.h
 include/Basic/buildinfo.h
+src/*/launch-*-*.*
+plugins/*/launch-*-*.*
+spec/*/launch-*-*.*
 external/*
 external/proj4
 external/osgGeo

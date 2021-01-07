@@ -175,7 +175,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     workdirnm = shortpath;
 #endif
 
-    const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat" : "od_cr_dev_env";
+    const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat" : "od_cr_dev_env.csh";
     FilePath fp( swdir, "bin", scriptfnm );
     OS::MachineCommand mc( fp.fullPath() );
     mc.addArg( swdir );
@@ -194,9 +194,18 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     const BufferString cmakefile =
 			FilePath(workdirnm).add("CMakeLists.txt").fullPath();
-    if ( !File::exists(cmakefile) )
+    const BufferString cmakecache =
+	FilePath( workdirnm ).add( "CMakeCache.txt" ).fullPath();
+    const BufferString pluginsdir =
+	FilePath( workdirnm ).add( "plugins" ).fullPath();
+    BufferStringSet testfiles;
+    testfiles.add( cmakefile ).add( cmakecache ).add( pluginsdir );
+    for ( const auto testfile : testfiles )
+    {
+	if ( !File::exists(testfile->buf()) )
 	mErrRet(tr("Creation seems to have failed:\n%1").arg(msgstr))
-    else
+    }
+
 	uiMSG().message( tr("Creation seems to have succeeded.") );
 }
 
