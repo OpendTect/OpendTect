@@ -34,6 +34,7 @@ protected:
     bool			acceptOK(CallBacker*);
     od_istream*			getStrm() const;
     bool			fillGeom(ObjectSet<Survey::Geometry2D>&);
+    void			fileSelCB(CallBacker*);
     void			singmultCB(CallBacker*);
 
     uiFileInput*		fnmfld_;
@@ -49,19 +50,18 @@ protected:
 mExpClass(uiIo) uiExp2DGeom : public uiDialog
 { mODTextTranslationClass(uiExp2DGeom)
 public:
-			uiExp2DGeom(uiParent*,
-				    const TypeSet<Pos::GeomID>* =0,
-				    bool ismodal=false);
-			~uiExp2DGeom();
+				uiExp2DGeom(uiParent*,
+					const TypeSet<Pos::GeomID>* =0,
+					bool ismodal=false);
+				~uiExp2DGeom();
 
 protected:
 
-    bool		acceptOK(CallBacker*);
-    void		createUI();
-    void		setList( CallBacker* );
+    bool			acceptOK(CallBacker*);
+    void			createUI();
+    void			setList( CallBacker* );
 
-    uiIOObjSelGrp*	geomfld_;
-    uiFileInput*	outfld_;
+    uiIOObjSelGrp*		geomfld_;
+    uiFileInput*		outfld_;
     TypeSet<Pos::GeomID>	geomidset_;
 };
-

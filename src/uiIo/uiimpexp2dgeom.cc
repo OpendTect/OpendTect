@@ -21,13 +21,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitblimpexpdatasel.h"
 #include "uilistbox.h"
 
+#include "filepath.h"
 #include "geom2dascio.h"
+#include "oddirs.h"
 #include "od_iostream.h"
 #include "posinfo2d.h"
 #include "survgeometrytransl.h"
 #include "survgeom2d.h"
 #include "tabledef.h"
-
 
 // uiImp2DGeom
 uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
@@ -50,9 +51,10 @@ uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     geomfd_ = Geom2dAscIO::getDesc( linenm.isEmpty() );
-    fnmfld_ = new uiFileInput( this, tr("Input Geometry File"),
-				   uiFileInput::Setup().withexamine(true) );
+
+    fnmfld_ = new uiASCIIFileInput( this, tr("Input Geometry File"), true );
     uiObject* attachobj = fnmfld_->attachObj();
+
     if ( !lineknown )
     {
 	singlemultifld_ =
@@ -63,6 +65,7 @@ uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
 	mAttachCB( postFinalise(), uiImp2DGeom::singmultCB );
 	attachobj = singlemultifld_->attachObj();
 
+	mAttachCB( fnmfld_->valuechanged, uiImp2DGeom::fileSelCB );
 	linefld_ = new uiGeom2DSel( this, false );
     }
 
@@ -81,6 +84,17 @@ uiImp2DGeom::~uiImp2DGeom()
 }
 
 
+void uiImp2DGeom::fileSelCB( CallBacker* )
+{
+    if ( !linefld_ )
+	return;
+
+    const FixedString fnm = fnmfld_->fileName();
+    FilePath fnmfp( fnm );
+    linefld_->setInputText( fnmfp.baseName() );
+}
+
+
 void uiImp2DGeom::singmultCB( CallBacker* )
 {
     const bool singleline = singlemultifld_->getBoolValue();
@@ -91,11 +105,18 @@ void uiImp2DGeom::singmultCB( CallBacker* )
 
 bool uiImp2DGeom::acceptOK( CallBacker* )
 {
-    if ( File::isEmpty(fnmfld_->fileName()) )
-    { uiMSG().error(uiStrings::sInvInpFile()); return false; }
+    const FixedString inpfnm = fnmfld_->fileName();
+    if ( File::isEmpty(inpfnm) )
+    {
+	uiMSG().error( uiStrings::sInvInpFile() );
+	return false;
+    }
+
+    const FilePath fnmfp( inpfnm );
+    SetImportFromDir( fnmfp.pathOnly() );
 
     if ( !linenm_.isEmpty() )
-	return false;
+	return true;
 
     if ( singlemultifld_->getBoolValue() )
     {
@@ -213,7 +234,7 @@ uiExp2DGeom::uiExp2DGeom( uiParent* p, const TypeSet<Pos::GeomID>* geomidset,
     createUI();
     if ( geomidset )
     {
-	geomidset_=*geomidset;
+	geomidset_ = *geomidset;
 	mAttachCB( postFinalise(),uiExp2DGeom::setList );
     }
 }
@@ -248,8 +269,7 @@ void uiExp2DGeom::createUI()
     geomfld_ = new uiIOObjSelGrp( this, ctxt,
 				  uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 
-    outfld_ = new uiFileInput( this, uiStrings::sOutputFile(),
-			       uiFileInput::Setup().forread(false) );
+    outfld_ = new uiASCIIFileInput( this, false );
     outfld_->attach( alignedBelow, geomfld_ );
 }
 
@@ -262,6 +282,9 @@ bool uiExp2DGeom::acceptOK( CallBacker* )
 	uiMSG().error( tr("Please enter the output file name") );
 	return false;
     }
+
+    const FilePath fnmfp( fnm );
+    SetExportToDir( fnmfp.pathOnly() );
 
     od_ostream strm( fnm );
     if ( !strm.isOK() )
@@ -280,15 +303,19 @@ bool uiExp2DGeom::acceptOK( CallBacker* )
 
 	const PosInfo::Line2DData& data2d = geom2d->data();
 	const TypeSet<PosInfo::Line2DPos>& allpos = data2d.positions();
+	const TypeSet<float>& spnrs = geom2d->spnrs();
 
 	for ( int pidx=0; pidx<allpos.size(); pidx++ )
 	{
 	    const PosInfo::Line2DPos& pos = allpos[pidx];
+	    const BufferString spstr = spnrs.validIdx(pidx) ?
+			toString(spnrs[pidx],2) : "-999";
 	    outstr.setEmpty();
 	    const BufferString xcrdstr = toString(pos.coord_.x,2);
 	    const BufferString ycrdstr = toString(pos.coord_.y,2);
 	    outstr.add( data2d.lineName() ).addTab()
 		  .add( pos.nr_ ).addTab()
+		  .add( spstr ).addTab()
 		  .add( xcrdstr.buf() ).addTab()
 		  .add( ycrdstr.buf() );
 	    strm << outstr.buf() << '\n';
