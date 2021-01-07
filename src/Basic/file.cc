@@ -1208,6 +1208,22 @@ const char* getRootPath( const char* path )
 }
 
 
+const char* asciiFilesFilter()
+{ return "ASCII Files (*.dat)"; }
+
+const char* textFilesFilter()
+{ return "Text Files (*.txt)"; }
+
+const char* allFilesFilter()
+{
+#ifdef __win__
+    return "All Files (*.*)";
+#else
+    return "All Files (*)";
+#endif
+}
+
+
 bool launchViewer( const char* fnm, const ViewPars& vp )
 {
     if ( !exists(fnm) )
