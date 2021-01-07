@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiexphorizon.h"
 
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
@@ -23,9 +24,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "mousecursor.h"
+#include "oddirs.h"
+#include "od_helpids.h"
+#include "od_ostream.h"
 #include "ptrman.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "transl.h"
 #include "unitofmeasure.h"
 #include "zaxistransform.h"
 #include "zdomain.h"
@@ -34,17 +39,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicoordsystem.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
+#include "uiioobjselgrp.h"
 #include "uiiosurface.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uit2dconvsel.h"
 #include "uiunitsel.h"
-#include "od_ostream.h"
-#include "od_helpids.h"
-#include "uiioobjselgrp.h"
-#include "transl.h"
-#include "emioobjinfo.h"
 
 #include <stdio.h> // for sprintf
 
@@ -292,12 +293,13 @@ int Write3DHorASCII::nextStep()
 
 
 // uiExportHorizon
+
 uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     : uiDialog(p,uiDialog::Setup( uiStrings::phrExport(uiStrings::sHorizon()),
 			mNoDlgTitle,mODHelpKey(mExportHorizonHelpID)))
-    , infld_(0)
+    , infld_(nullptr)
+    , bulkinfld_(nullptr)
     , isbulk_(isbulk)
-    , bulkinfld_(0)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     setModal( false );
@@ -355,9 +357,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 			      StringInpSpec(sKey::FloatUdf()) );
     udffld_->attach( alignedBelow, headerfld_ );
 
-    outfld_ = new uiFileInput( this,
-	      uiStrings::sOutputASCIIFile(),
-	      uiFileInput::Setup().forread(false) );
+    outfld_ = new uiASCIIFileInput( this, false );
     outfld_->attach( alignedBelow, udffld_ );
 
     typChg( 0 );
@@ -649,6 +649,9 @@ bool uiExportHorizon::acceptOK( CallBacker* )
     if ( File::exists(outfnm) &&
 	 !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
 	return false;
+
+    const FilePath fnmfp( outfnm );
+    SetExportToDir( fnmfp.pathOnly() );
 
     const bool res = writeAscii();
     if ( !res )

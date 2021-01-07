@@ -44,15 +44,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mGetHelpKey(tp) \
     mGet( tp, (is2d ? mODHelpKey(mImportFaultStick2DHelpID) \
-                    : mODHelpKey(mImportFaultStick3DHelpID) ), \
+		    : mODHelpKey(mImportFaultStick3DHelpID) ), \
     mODHelpKey(mImportFaultHelpID) )
 
 uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
-                              : uiDialog(p,uiDialog::Setup(mGet( type, (is2d
-                              ? tr("Import FaultStickSet 2D")
-                              : tr("Import FaultStickSet")),
-	                        tr("Import Fault") ),mNoDlgTitle,
-				mGetHelpKey(type)).modal(false))
+    : uiDialog(p,uiDialog::Setup(
+			mGet(type,(is2d ? tr("Import FaultStickSet 2D")
+					: tr("Import FaultStickSet")),
+			     tr("Import Fault") ),
+		mNoDlgTitle,mGetHelpKey(type)).modal(false))
     , ctio_(mGetCtio(type))
     , isfss_(mGet(type,true,false))
     , fd_(0)
@@ -80,18 +80,15 @@ const char* uiImportFault::sKeyFileOrder()	{ return "File order"; }
 
 void uiImportFault::createUI()
 {
-    infld_ = new uiFileInput( this,
-		uiStrings::sInputASCIIFile(),
-		uiFileInput::Setup().withexamine(true)
-		.defseldir(GetDataDir()) );
-    infld_->valuechanged.notify( mCB(this,uiImportFault,inputChgd) );
+    infld_ = new uiASCIIFileInput( this, true );
+    mAttachCB( infld_->valuechanged, uiImportFault::inputChgd );
 
     if ( !isfss_ )
     {
 	BufferStringSet types; types.add( "Plain ASCII" );
 	typefld_ = new uiGenInput( this, uiStrings::sType(),
-                                   StringListInpSpec(types) );
-	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
+				   StringListInpSpec(types) );
+	mAttachCB( typefld_->valuechanged, uiImportFault::typeSel );
 	typefld_->attach( alignedBelow, infld_ );
 
 	formatfld_ = new uiFileInput( this, tr("Input Landmark formatfile"),
@@ -105,7 +102,7 @@ void uiImportFault::createUI()
 	stickselfld_ = new uiGenInput( this, tr("Stick selection"),
 				    StringListInpSpec(stickselopt) );
 	stickselfld_->attach( alignedBelow, typefld_ );
-	stickselfld_->valuechanged.notify(mCB(this,uiImportFault,stickSel));
+	mAttachCB( stickselfld_->valuechanged, uiImportFault::stickSel );
 
 	thresholdfld_ = new uiGenInput(this, uiString::emptyString(),
 				DoubleInpSpec(1.0).setName("Threshold") );
@@ -120,9 +117,9 @@ void uiImportFault::createUI()
     }
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_, isfss_ ? (is2d_ ?
-                  mODHelpKey(mTableImpDataSelFaultStickSet2DHelpID) :
-                  mODHelpKey(mTableImpDataSelFaultStickSet3DHelpID) )
-		: mODHelpKey(mTableImpDataSelFaultsHelpID) );
+		mODHelpKey(mTableImpDataSelFaultStickSet2DHelpID) :
+		mODHelpKey(mTableImpDataSelFaultStickSet3DHelpID) )
+			: mODHelpKey(mTableImpDataSelFaultsHelpID) );
     if ( !isfss_  )
 	dataselfld_->attach( alignedBelow, sortsticksfld_ );
     else
@@ -139,6 +136,7 @@ void uiImportFault::createUI()
 
 uiImportFault::~uiImportFault()
 {
+    detachAllNotifiers();
     delete ctio_.ioobj_; delete &ctio_;
 }
 

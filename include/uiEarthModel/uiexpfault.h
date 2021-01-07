@@ -13,20 +13,20 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
-#include "multiid.h"
 #include "uicoordsystem.h"
 #include "emobject.h"
+#include "multiid.h"
 
 class CtxtIOObj;
+class StreamData;
 class uiCheckBox;
 class uiCheckList;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
 class uiIOObjSelGrp;
-class StreamData;
-class uiUnitSel;
 class uiT2DConvSel;
+class uiUnitSel;
 
 
 /*! \brief Dialog for horizon export */
@@ -64,6 +64,6 @@ protected:
     bool		writeAscii();
     bool		isbulk_;
     uiString		dispstr_;
-    FixedString   typ_;
+    FixedString		typ_;
 };
 
