@@ -104,11 +104,10 @@ bool ImplicitBodyPlaneIntersector::compute()
     if ( !tesselator.execute() )
 	return false;
 
-    geo->appendCoordIndices( tesselator.getIndices(),false );
+    geo->appendCoordIndices( tesselator.arrayIndexes(),false );
     geo->ischanged_ = true;
 
     return true;
 }
 
-
-};
+} // namespace Geometry
