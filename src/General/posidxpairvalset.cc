@@ -1519,9 +1519,10 @@ void BinIDValueSet::setStepout( const IdxPair& stepout, const IdxPair& step )
     TrcKey tk;
     while ( it.next(tk) )
     {
-	if ( needed.getData()[it.curIdx()] )
+	const od_int64 curidx = subsel.globalIdx( tk );
+	if ( needed.getData()[curidx] )
 	    addHorPosIfNeeded( tk.binID() );
-    }
+    };
 }
 
 
