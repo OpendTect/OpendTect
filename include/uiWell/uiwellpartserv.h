@@ -64,7 +64,7 @@ public:
     void			getLogNames(const MultiID&,
 					    BufferStringSet&) const;
 
-    bool			editDisplayProperties(const MultiID&);
+    bool			editDisplayProperties(const MultiID&, Color);
     void			displayIn2DViewer(const MultiID&);
 
     bool			dispLineOnCreation(){ return disponcreation_; }
@@ -124,6 +124,8 @@ protected:
     void			saveWellDispProps(ConstRefMan<Well::Data>&,
 						  const MultiID&);
     void			applyAll(CallBacker*);
+    void			applyTabProps(CallBacker*);
+    void			resetAllProps(CallBacker*);
     void			simpImp(CallBacker*);
     void			simpleImpDlgClosed(CallBacker*);
     void			survChangedCB(CallBacker*);

@@ -19,7 +19,7 @@ class uiTabStack;
 class uiWellDispProperties;
 class uiLabeledComboBox;
 
-namespace Well { class Data; };
+namespace Well { class Data; class DisplayProperties; };
 
 /*!
 \brief Well display properties dialog box.
@@ -28,18 +28,26 @@ namespace Well { class Data; };
 mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {mODTextTranslationClass(uiWellDispPropDlg)
 public:
+				uiWellDispPropDlg(uiParent*,Well::Data*,Color,
+						  bool is2ddisplay=false);
+				uiWellDispPropDlg(uiParent*,const MultiID&,
+						  Color,bool is2ddisplay=false);
 				uiWellDispPropDlg(uiParent*,Well::Data*,
 						  bool is2ddisplay=false);
-				uiWellDispPropDlg(uiParent*, const MultiID&,
+				uiWellDispPropDlg(uiParent*,const MultiID&,
 						  bool is2ddisplay=false);
 				~uiWellDispPropDlg();
 
     Notifier<uiWellDispPropDlg>	applyAllReq;
+    Notifier<uiWellDispPropDlg> applyTabReq;
+    Notifier<uiWellDispPropDlg> resetAllReq;
 
+    enum TabType { LeftLog=0, CenterLog=1, RightLog=2, Marker=3, Track=4 };
     Well::Data*			wellData()		{ return wd_; }
     const Well::Data*		wellData() const	{ return wd_; }
 
-
+    TabType			currentTab() const;
+    bool			is2D() const;
     bool 			savedefault_;
     void			updateLogs();
 
@@ -49,6 +57,7 @@ protected:
     uiTabStack*			ts_;
     ObjectSet<uiWellDispProperties> propflds_;
     bool			is2ddisplay_;
+    Color			bkcol_;
 
     virtual void		getFromScreen();
     virtual void		putToScreen();
@@ -56,9 +65,12 @@ protected:
     virtual void		setWDNotifiers(bool yn);
 
     virtual void		applyAllPush(CallBacker*);
+    virtual void		applyTabPush(CallBacker*);
+    virtual void		resetAllPush(CallBacker*);
     virtual void		propChg(CallBacker*);
     void			markersChgd(CallBacker*);
     bool			acceptOK(CallBacker*);
+    virtual void		resetCB(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
     void			tabSel(CallBacker*);
@@ -83,10 +95,12 @@ protected:
     ObjectSet<Well::Data>	wds_;
     uiLabeledComboBox*		wellselfld_;
 
-    void			resetProps(int logidx);
+    void			resetProps(int, int);
     virtual void 		wellSelChg(CallBacker*);
     virtual void		setWDNotifiers(bool yn);
     void			onClose(CallBacker*);
+    virtual void		applyTabPush(CallBacker*);
+    virtual void		resetAllPush(CallBacker*);
 };
 
 

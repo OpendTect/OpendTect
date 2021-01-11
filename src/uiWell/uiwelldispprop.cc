@@ -91,6 +91,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 
     nmsizefld_ = new uiLabeledSpinBox( this, tr("Name size") );
     nmsizefld_->box()->setInterval( 0, 500, 2 );
+    nmsizefld_->box()->setValue( tp.font_.pointSize() );
     nmsizefld_->attach( alignedBelow, dispabovefld_  );
 
     uiStringSet fontstyles;
@@ -184,7 +185,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 
     nmsizefld_ = new uiLabeledSpinBox( this, tr("Name size") );
     nmsizefld_->box()->setInterval( 0, 500, 1 );
-    nmsizefld_->box()->setValue( 2 * mp.size_ );
+    nmsizefld_->box()->setValue( mp.font_.pointSize() );
     nmsizefld_->attach( alignedBelow, shapefld_ );
     nmsizefld_->display( !setup_.onlyfor2ddisplay_ );
 
@@ -379,7 +380,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 
     lblr_ = new uiLabeledSpinBox( this, tr("Repeat") );
     repeatfld_ = lblr_ ->box();
-    repeatfld_->setInterval( 1, 20, 1 );
+    repeatfld_->setInterval( 1, 21, 2 );
     lblr_->attach( alignedBelow, colfld_ );
 
     logsfld_ = new uiLabeledComboBox( this, tr("Select log") );
@@ -505,6 +506,7 @@ void uiWellLogDispProperties::doPutToScreen()
     NotifyStopper nsrev( revertlogfld_->activated );
     NotifyStopper nsslf( logfilltypefld_->box()->selectionChanged );
     NotifyStopper nsstylefld( stylefld_->changed );
+    NotifyStopper nslw( logwidthslider_->valueChanged );
 
     revertlogfld_->setChecked( logprops().islogreverted_ );
     logsfld_->box()->setText( logprops().name_ );
@@ -710,6 +712,7 @@ void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
     logsfld_->box()->addItem(uiStrings::sNone());
     logsfld_->box()->addItems( lognames );
     filllogsfld_->box()->setEmpty();
+    filllogsfld_->box()->addItem(uiStrings::sNone());
     filllogsfld_->box()->addItems( lognames );
     if ( lognames.isPresent(curlognm) )
     {
@@ -736,7 +739,7 @@ void uiWellLogDispProperties::selNone()
     colfld_->setColor( logprops().color_ );
     seiscolorfld_->setColor( logprops().seiscolor_ );
     fillcolorfld_->setColor( logprops().seiscolor_ );
-    stylefld_->setChecked( 0, true );
+    stylefld_->setChecked( logprops().style_, true );
     setFldSensitive( false );
     cliprangefld_->setValue( true );
     clipratefld_->setValue( 0.0 );
@@ -745,6 +748,7 @@ void uiWellLogDispProperties::selNone()
     singlfillcolfld_->setChecked( false );
     coltablistfld_->setCurrent( logprops().seqname_ );
     logwidthslider_->setValue( deflogwidth );
+    filllogsfld_->box()->setText( logprops().fillname_ );
 }
 
 

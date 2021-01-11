@@ -50,6 +50,7 @@ public:
     LoadReqs&		remove( SubObjType typ ) { reqs_[typ]=0; return *this; }
     void		setToAll()		{ *this = All(); }
     void		setEmpty()		{ reqs_.reset(); }
+    bool		isEmpty() const		{ return reqs_.none(); }
     void		include(const LoadReqs&);
     void		exclude(const LoadReqs&);
 
@@ -84,7 +85,8 @@ public:
     mDeprecated("Use removeObject instead") Data* release(const MultiID&);
 			//!< Data becomes yours
     bool		isLoaded(const MultiID&) const;
-    bool		reload(const MultiID&);
+    bool		reload(const MultiID&, LoadReqs lreq=LoadReqs(false));
+    bool		reloadDispPars(const MultiID&, bool for2d=false);
     bool		validID(const MultiID&) const;
 
     const char*		errMsg() const		{ return msg_; }

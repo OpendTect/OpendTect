@@ -317,6 +317,11 @@ void uiComboBox::setCurrentItem( const char* txt )
 {
     mBlockCmdRec;
     NotifyStopper stopper(selectionChanged);
+    if ( !txt )
+    {
+	body_->setCurrentIndex( 0 );
+	return;
+    }
 
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )

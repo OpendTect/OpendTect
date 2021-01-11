@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "welldisp.h"
 #include "welldata.h"
+#include "welllogset.h"
 #include "settings.h"
 #include "keystrs.h"
 
@@ -99,6 +100,9 @@ Well::DisplayProperties::DisplayProperties( const char* subjname )
 
     logs_[0]->left_.isrightfill_ = true;
     logs_[0]->right_.isleftfill_ = true;
+    logs_[0]->center_.isleftfill_ = true;
+
+    logs_[0]->center_.style_ = 2;
 
     const Settings& setts = Settings::fetch( "welldisp" );
     markers_.selmarkernms_.erase();
@@ -272,7 +276,7 @@ void Well::DisplayProperties::Log::doUseLeftPar( const IOPar& iop )
     iop.get( IOPar::compKey(subjectName(),sKeyLeftSeisColor), seiscolor_ );
     iop.get( IOPar::compKey(subjectName(),sKeyLeftSeqname), seqname_ );
 
-    float logwidth = 250.f;
+    float logwidth = logwidth_==0 ? 250.f : logwidth_;
     iop.get( IOPar::compKey(subjectName(),sKeyLeftLogWidthXY), logwidth );
     if ( SI().xyInFeet() )
 	logwidth *= mToFeetFactorF;
@@ -306,7 +310,7 @@ void Well::DisplayProperties::Log::doUseRightPar( const IOPar& iop )
     iop.get( IOPar::compKey(subjectName(),sKeyRightSeisColor), seiscolor_ );
     iop.get( IOPar::compKey(subjectName(),sKeyRightSeqname), seqname_ );
 
-    float logwidth = 250.f;
+    float logwidth = logwidth_==0 ? 250.f : logwidth_;
     iop.get( IOPar::compKey(subjectName(),sKeyRightLogWidthXY), logwidth );
     if ( SI().xyInFeet() )
 	logwidth *= mToFeetFactorF;
@@ -339,7 +343,7 @@ void Well::DisplayProperties::Log::doUseCenterPar( const IOPar& iop )
     iop.get( IOPar::compKey(subjectName(),sKeyCenterSeisColor), seiscolor_ );
     iop.get( IOPar::compKey(subjectName(),sKeyCenterSeqname), seqname_ );
 
-    float logwidth = 250.f;
+    float logwidth = logwidth_==0 ? 250.f : logwidth_;
     iop.get( IOPar::compKey(subjectName(),sKeyCenterLogWidthXY), logwidth );
     if ( SI().xyInFeet() )
 	logwidth *= mToFeetFactorF;
@@ -446,6 +450,14 @@ void Well::DisplayProperties::Log::doFillCenterPar( IOPar& iop ) const
 }
 
 
+void Well::DisplayProperties::Log::setTo( const Well::Data* wd, const Log& oth,
+					  bool forceIfMissing  )
+{
+    if ( forceIfMissing || oth.name_=="None" || wd->logs().getLog( oth.name_ ) )
+	*this = oth;
+}
+
+
 void Well::DisplayProperties::usePar( const IOPar& iop )
 {
     IOPar* par = iop.subselect( subjectName() );
@@ -490,6 +502,22 @@ void Well::DisplayProperties::fillPar( IOPar& iop ) const
     }
     par.setYN(IOPar::compKey(subjectName(),sKey2DDisplayStrat),displaystrat_);
     iop.mergeComp( par, subjectName() );
+}
+
+
+void Well::DisplayProperties::ensureColorContrastWith( Color bkcol )
+{
+    TypeSet<Color> usecols = bkcol.complimentaryColors( 2 );
+    if ( bkcol.contrast(logs_[0]->left_.color_)<4.5 )
+	logs_[0]->left_.color_ = usecols[0];
+    if ( bkcol.contrast(logs_[0]->center_.color_)<4.5 )
+	logs_[0]->center_.color_ = usecols[0];
+    if ( bkcol.contrast(logs_[0]->right_.color_)<4.5 )
+	logs_[0]->right_.color_ = usecols[0];
+    if ( bkcol.contrast(markers_.color_)<4.5 )
+	markers_.color_ = usecols[1];
+    if ( bkcol.contrast(track_.color_)<4.5 )
+	track_.color_ = usecols[1];
 }
 
 

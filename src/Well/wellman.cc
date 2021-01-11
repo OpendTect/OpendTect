@@ -261,17 +261,37 @@ bool Well::Man::isLoaded( const MultiID& key ) const
 }
 
 
-bool Well::Man::reload( const MultiID& key )
+bool Well::Man::reload( const MultiID& key, LoadReqs lreqs )
 {
     const int wdidx = gtByKey( key );
     if ( wdidx<0 ) return false;
 
     Well::Data* wd = wells_[wdidx];
     wd->ref();
-    readReqData( key, wd, wd->loadState() );
+    if ( lreqs.isEmpty() )
+	lreqs = wd->loadState();
+    bool res = readReqData( key, wd, lreqs );
     wd->reloaded.trigger();
     wd->unRef();
-    return true;
+    return res;
+}
+
+
+bool Well::Man::reloadDispPars( const MultiID& key, bool for2d )
+{
+    const int wdidx = gtByKey( key );
+    if ( wdidx<0 ) return false;
+
+    const LoadReqs lreqs(for2d ? Well::DispProps2D : Well::DispProps3D);
+    Well::Data* wd = wells_[wdidx];
+    wd->ref();
+    bool res = readReqData( key, wd, lreqs );
+    if ( res )
+	for2d ? wd->disp2dparschanged.trigger()
+	      : wd->disp3dparschanged.trigger();
+
+    wd->unRef();
+    return res;
 }
 
 

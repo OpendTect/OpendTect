@@ -71,6 +71,29 @@ Color Color::complementaryColor() const
 }
 
 
+TypeSet<Color> Color::complimentaryColors( int numColor ) const
+{
+    if ( numColor<1 )
+	numColor = 1;
+    TypeSet<Color> res( numColor, Color() );
+    unsigned char h, v, s;
+    getHSV( h, s, v );
+    s = 255-s;
+    v = 255-v;
+    int hdelta = mNINT32(60.0/(float)(numColor+1));
+    int hs = h;
+    Color tmp;
+    for ( int idx=0; idx<numColor; idx++ )
+    {
+	hs += (idx+1)*hdelta;
+	h = hs%60;
+	tmp.setHSV( h, s, v );
+	res[idx] = tmp;
+    }
+    return res;
+}
+
+
 Color Color::lighter( float fac ) const
 {
     if ( fac == 0 )
@@ -93,6 +116,23 @@ Color Color::lighter( float fac ) const
     return Color( getUChar(newr), getUChar(newg), getUChar(newb) );
 }
 
+
+float Color::contrast( const Color& c ) const
+{
+    float L1 = getRelLuminance();
+    float L2 = c.getRelLuminance();
+    return L1>L2 ? (L1 + 0.05) / (L2 + 0.05) : (L2 + 0.05) / (L1 + 0.05);
+}
+
+
+float Color::getRelLuminance() const
+{
+    float Rg = r()<=10 ? (float)r()/3294.0 : pow((float)r()/269.0 + 0.0513,2.4);
+    float Gg = g()<=10 ? (float)g()/3294.0 : pow((float)g()/269.0 + 0.0513,2.4);
+    float Bg = b()<=10 ? (float)b()/3294.0 : pow((float)b()/269.0 + 0.0513,2.4);
+
+    return 0.2126 * Rg + 0.7152 * Gg + 0.0722 * Bg;
+}
 
 void Color::setRgb( unsigned int rgb_  )
 { col_ = rgb_; }

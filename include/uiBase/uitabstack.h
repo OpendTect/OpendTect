@@ -45,6 +45,9 @@ public:
     void		setTabEnabled(uiGroup*,bool);
     bool		isTabEnabled(uiGroup*) const;
 
+    void		setTabVisible(uiGroup*,bool);
+    bool		isTabVisible(uiGroup*) const;
+
     void		setCurrentPage(int id);
     void		setCurrentPage(uiGroup*);
     void		setCurrentPage(const char* grpnm);

@@ -5,7 +5,7 @@
 #RCS:           $Id$
 
 SET( LIBLIST omf ColTabs MouseControls BatchPrograms
-	     FileFormats UnitsOfMeasure Properties odSettings
+	     FileFormats UnitsOfMeasure Properties odSettings welldispSettings
 	     EnvVars ShortCuts *.ico *.png RockPhysics ModDeps.od
 	     prodlist.txt Vendors Mnemonics )
 set( DATADIRLIST Attribs BasicSurvey icons.Default Strat

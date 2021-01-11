@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uipixmap.h"
 #include "uitreeview.h"
+#include "ui3dviewer.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
@@ -289,7 +290,9 @@ bool uiODWellTreeItem::doubleClick( uiTreeViewItem* item )
     if ( !wd ) return false;
 
     wd->restoreDispProp();
-    applMgr()->wellServer()->editDisplayProperties( wd->getMultiID() );
+    Color bkCol =
+	ODMainWin()->sceneMgr().get3DViewer( sceneID() )->getBackgroundColor();
+    applMgr()->wellServer()->editDisplayProperties( wd->getMultiID(), bkCol );
     return true;
 }
 
@@ -374,7 +377,11 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	wd->restoreDispProp();
-	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid );
+	Color bkCol =
+	ODMainWin()->sceneMgr().get3DViewer( sceneID() )->getBackgroundColor();
+
+	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid,
+								    bkCol );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( amplspectrummnuitem_.findItem(mnuid) )

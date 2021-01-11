@@ -36,6 +36,9 @@ public:
     void		setTabEnabled(int idx,bool);
     bool		isTabEnabled(int idx) const;
 
+    void		setTabVisible(int, bool);
+    bool		isTabVisible(int) const;
+
     void		setCurrentTab(int idx);
     int			currentTabId() const;
     uiString		textOfTab(int idx) const;

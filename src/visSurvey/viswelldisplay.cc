@@ -107,7 +107,7 @@ void WellDisplay::welldataDelNotify( CallBacker* )
 
 Well::Data* WellDisplay::getWD() const
 {
-    Well::LoadReqs lreqs(  Well::Inf, Well::D2T, Well::Trck );
+    Well::LoadReqs lreqs( Well::D2T, Well::Trck, Well::DispProps3D );
     return getWD( lreqs );
 }
 
@@ -224,7 +224,7 @@ void WellDisplay::fillLogParams(
 #define mDispLog( dsplSide, Side )\
 { \
     BufferString& logname = mGetLogPar( dsplSide, name_ );\
-    if ( wd->logs().indexOf( logname ) >= 0 )\
+    if ( wd->getLog( logname ) )\
 	display##Side##Log();\
 }
 void WellDisplay::fullRedraw( CallBacker* )

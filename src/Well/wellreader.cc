@@ -818,6 +818,9 @@ bool Well::odReader::getDispProps() const
 bool Well::odReader::getDispProps( od_istream& strm ) const
 {
     double version = 0.0;
+    wd_.displayProperties(true) =
+				Well::DisplayProperties(Well::sKey2DDispProp());
+    wd_.displayProperties(false) = Well::DisplayProperties();
     if ( !rdHdr(strm,sKeyDispProps(),version) )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 

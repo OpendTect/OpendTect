@@ -231,7 +231,7 @@ bool uiWellPartServer::selectWells( TypeSet<MultiID>& wellids )
 }
 
 
-bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
+bool uiWellPartServer::editDisplayProperties( const MultiID& mid, Color bkCol )
 {
     allapplied_ = false;
     Well::LoadReqs lreqs( Well::LogInfos,
@@ -240,8 +240,10 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
     RefMan<Well::Data> wd = Well::MGR().get( mid, lreqs );
     if ( !wd ) return false;
 
-    uiWellDispPropDlg uiwellpropdlg( parent(), wd );
-    uiwellpropdlg.applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
+    uiWellDispPropDlg uiwellpropdlg( parent(), wd, bkCol );
+    mAttachCB(uiwellpropdlg.applyAllReq, uiWellPartServer::applyAll);
+    mAttachCB(uiwellpropdlg.applyTabReq, uiWellPartServer::applyTabProps);
+    mAttachCB(uiwellpropdlg.resetAllReq, uiWellPartServer::resetAllProps);
     if ( !uiwellpropdlg.go() )
 	return false;
     ConstRefMan<Well::Data> wsd = allapplied_ ? nullptr : wd;
@@ -292,20 +294,90 @@ void uiWellPartServer::applyAll( CallBacker* cb )
     if ( !dlg ) { pErrMsg("Huh"); return; }
     ConstRefMan<Well::Data> edwd = dlg->wellData();
     const Well::DisplayProperties& edprops = edwd->displayProperties();
+    const bool is2d = dlg->is2D();
 
     TypeSet<MultiID> keys;
     Well::MGR().getWellKeys( keys, true );
-    Well::LoadReqs lreqs = edwd->loadState();
-    for ( int ikey=0; ikey<keys.size(); ikey++ )
+    Well::LoadReqs lreqs(is2d ? Well::DispProps2D : Well::DispProps3D);
+    ObjectSet<Well::Data>& wells = Well::MGR().wells();
+    for ( int ikey=0; ikey<wells.size(); ikey++ )
     {
-	RefMan<Well::Data> wd = Well::MGR().get( keys[ikey], lreqs );
+	RefMan<Well::Data> wd = wells[ikey];
 	if ( wd && wd != edwd )
 	{
-	    wd->displayProperties() = edprops;
+	    Well::DisplayProperties& wdprops = wd->displayProperties(is2d);
+	    wdprops.track_ = edprops.track_;
+	    wdprops.markers_ = edprops.markers_;
+	    wdprops.logs_[0]->left_.setTo(wd, edprops.logs_[0]->left_);
+	    wdprops.logs_[0]->center_.setTo(wd, edprops.logs_[0]->center_);
+	    wdprops.logs_[0]->right_.setTo(wd, edprops.logs_[0]->right_);
 	    wd->disp3dparschanged.trigger();
 	}
     }
     allapplied_ = true;
+}
+
+
+void uiWellPartServer::applyTabProps( CallBacker* cb )
+{
+    mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
+    if ( !dlg ) { pErrMsg("Huh"); return; }
+    uiWellDispPropDlg::TabType pageid = dlg->currentTab();
+    const bool is2d = dlg->is2D();
+
+    ConstRefMan<Well::Data> edwd = dlg->wellData();
+    const Well::DisplayProperties& edprops = edwd->displayProperties();
+
+    ObjectSet<Well::Data>& wells = Well::MGR().wells();
+    Well::LoadReqs lreqs(is2d ? Well::DispProps2D : Well::DispProps3D);
+    for ( int ikey=0; ikey<wells.size(); ikey++ )
+    {
+	RefMan<Well::Data> wd = wells[ikey];
+	if ( wd && wd != edwd )
+	{
+	    Well::MGR().reload( wd->multiID(), lreqs );
+	    Well::DisplayProperties& wdprops = wd->displayProperties(is2d);
+	    switch ( pageid )
+	    {
+		case uiWellDispPropDlg::Track :
+		    wdprops.track_ = edprops.track_;
+		    break;
+		case uiWellDispPropDlg::Marker :
+		    wdprops.markers_ = edprops.markers_;
+		    break;
+		case uiWellDispPropDlg::LeftLog :
+		    wdprops.logs_[0]->left_.setTo(wd, edprops.logs_[0]->left_);
+		    break;
+		case uiWellDispPropDlg::CenterLog :
+		    wdprops.logs_[0]->center_.setTo(wd,
+						    edprops.logs_[0]->center_);
+		    break;
+		case uiWellDispPropDlg::RightLog :
+		    wdprops.logs_[0]->right_.setTo(wd,
+						   edprops.logs_[0]->right_);
+	    }
+	    dlg->is2D() ? wd->disp2dparschanged.trigger()
+			: wd->disp3dparschanged.trigger();
+	}
+    }
+    allapplied_ = true;
+}
+
+
+void uiWellPartServer::resetAllProps( CallBacker* cb )
+{
+    mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
+    if ( !dlg ) { pErrMsg("Huh"); return; }
+    const bool is2d = dlg->is2D();
+
+    ObjectSet<Well::Data>& wells = Well::MGR().wells();
+    for ( int ikey=0; ikey<wells.size(); ikey++ )
+    {
+	RefMan<Well::Data> wd = wells[ikey];
+	if ( wd )
+	    Well::MGR().reloadDispPars( wd->multiID(), is2d );
+    }
+    allapplied_ = false;
 }
 
 

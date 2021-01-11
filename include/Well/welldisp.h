@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 namespace Well
 {
-
+class Data;
 inline const char* sKey2DDispProp()	{ return "2D Display"; }
 inline const char* sKey3DDispProp()	{ return "3D Display"; }
 
@@ -83,7 +83,7 @@ public:
 			    , dispabove_(true)
 			    , dispbelow_(true)
 			    , font_(10)
-			    , nmsizedynamic_(true)
+			    , nmsizedynamic_(false)
 			    {}
 
 	virtual const char* subjectName() const	{ return "Track"; }
@@ -110,7 +110,7 @@ public:
 			    , issinglecol_(false)
 			    , font_(10)
 			    , samenmcol_(true)
-			    , nmsizedynamic_(true)
+			    , nmsizedynamic_(false)
 			    {}
 
 	virtual const char* subjectName() const	{ return "Markers"; }
@@ -134,7 +134,7 @@ public:
     {
 			Log()
 			    : cliprate_(0)
-			    , fillname_("none")
+			    , fillname_("None")
 			    , fillrange_(mUdf(float),mUdf(float))
 			    , isleftfill_(false)
 			    , isrightfill_(false)
@@ -142,7 +142,7 @@ public:
 			    , islogarithmic_(false)
 			    , islogreverted_(false)
 			    , issinglecol_(false)
-			    , name_("none")
+			    , name_("None")
 			    , logwidth_(250 *
 				((int)(SI().xyInFeet() ? mToFeetFactorF:1)))
 			    , range_(mUdf(float),mUdf(float))
@@ -155,6 +155,8 @@ public:
 			    {}
 
 	virtual const char* subjectName() const	{ return "Log"; }
+	void		    setTo(const Well::Data*, const Log&,
+				  bool forceifmissing=false);
 
 	BufferString	name_;
 	BufferString	fillname_;
@@ -192,6 +194,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
+    void		ensureColorContrastWith(Color);
 
     static DisplayProperties&	defaults();
     static void		commitDefaults();
