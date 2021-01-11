@@ -8,11 +8,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "color.h"
 
-#include "separstr.h"
 #include "bufstringset.h"
-#include "typeset.h"
-#include "ptrman.h"
+#include "math2.h"
 #include "perthreadrepos.h"
+#include "ptrman.h"
+#include "separstr.h"
+#include "typeset.h"
 
 
 Color::Color( unsigned char r_, unsigned char g_,
@@ -127,9 +128,12 @@ float Color::contrast( const Color& c ) const
 
 float Color::getRelLuminance() const
 {
-    float Rg = r()<=10 ? (float)r()/3294.0 : pow((float)r()/269.0 + 0.0513,2.4);
-    float Gg = g()<=10 ? (float)g()/3294.0 : pow((float)g()/269.0 + 0.0513,2.4);
-    float Bg = b()<=10 ? (float)b()/3294.0 : pow((float)b()/269.0 + 0.0513,2.4);
+    const float Rg = r()<=10 ? (float)r()/3294.0
+			     : Math::PowerOf((float)r()/269.0 + 0.0513,2.4);
+    const float Gg = g()<=10 ? (float)g()/3294.0
+			     : Math::PowerOf((float)g()/269.0 + 0.0513,2.4);
+    const float Bg = b()<=10 ? (float)b()/3294.0
+			     : Math::PowerOf((float)b()/269.0 + 0.0513,2.4);
 
     return 0.2126 * Rg + 0.7152 * Gg + 0.0722 * Bg;
 }
@@ -182,7 +186,7 @@ Color Color::stdDrawColor( int idx )
 Color Color::interpolate( const Color& col1, const Color& col2, float frac )
 {
     return Color( getUChar((col2.r() - col1.r())*frac + col1.r()),
-	    	  getUChar((col2.g() - col1.g())*frac + col1.g()),
+		  getUChar((col2.g() - col1.g())*frac + col1.g()),
 		  getUChar((col2.b() - col1.b())*frac + col1.b()),
 		  getUChar((col2.t() - col1.t())*frac + col1.t()) );
 }
