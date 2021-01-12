@@ -306,6 +306,8 @@ void uiIOObjSelGrp::mkManipulators()
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
 	if ( !inserter || inserter->isDisabled() )
 	    continue;
+
+	inserter->setSubTypeNotReq( setup_.restrictedsubtyps_ );
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
 	if ( !tbsu )
 	    { delete inserter; continue; }

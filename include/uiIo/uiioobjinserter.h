@@ -62,9 +62,13 @@ public:
     Notifier<uiIOObjInserter>	objectInserted;
 				//!< pass a CBCapsule<MultiID> in trigger(),
 
+    void		setSubTypeNotReq(const BufferStringSet& typnms)
+			{ restrictedtypnms_ = typnms; }
+
 protected:
 
     const Translator&	transl_;
+    BufferStringSet	restrictedtypnms_;
 
 };
 

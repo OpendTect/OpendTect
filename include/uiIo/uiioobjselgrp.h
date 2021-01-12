@@ -68,6 +68,7 @@ public:
 	mDefSetupMemb(bool,confirmoverwrite);
 	mDefSetupMemb(BufferString,withctxtfilter);
 	mDefSetupMemb(BufferStringSet,trsnotallwed);
+	mDefSetupMemb(BufferStringSet,restrictedsubtyps);
 	//!<key can be either a translator group name or omf metadata key
 
 	inline bool	isMultiChoice() const

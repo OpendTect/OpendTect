@@ -152,6 +152,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     sgsu.allowsetdefault( setup_.allowsetsurvdefault_ );
     sgsu.withwriteopts( setup_.withwriteopts_ );
     sgsu.withinserters( setup_.withinserters_ );
+    sgsu.restrictedsubtyps( setup_.restrictedsubtyps_ );
     selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu );
     selgrp_->getListField()->setHSzPol( uiObject::WideVar );
     statusBar()->setTxtAlign( 0, Alignment::Right );

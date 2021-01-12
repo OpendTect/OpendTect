@@ -189,6 +189,13 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     uiString disptyp = poly ? uiStrings::sPolygon(mPlural) :
 						uiStrings::sPointSet(mPlural);
     sdsu.titletext_ = toUiString("%1 %2").arg(titletxt).arg(disptyp);
+    BufferStringSet typnms;
+    if ( poly )
+	typnms.add( "PointSet" );
+    else
+	typnms.add( "PolylineSet" ); //These keys corresponds to PetrelKeys
+    sdsu.restrictedsubtyps( typnms );
+
     uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
     bool isforread = dlg.isForRead();
     uiString caption = !isforread ? tr("Save %1 as") :
