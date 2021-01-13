@@ -66,7 +66,6 @@ static const char* rcsID mUsedVar = "$Id$";
 HiddenParam<uiImportHorizon,uiCheckBox*> tdsel_( nullptr );
 HiddenParam<uiImportHorizon,uiT2DConvSel*> transfld_( nullptr );
 
-static const char* sZVals = "Z values";
 static BufferString sImportFromPath;
 
 
