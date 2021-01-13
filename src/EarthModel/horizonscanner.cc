@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "tabledef.h"
+#include "zaxistransform.h"
 #include "file.h"
 
 
@@ -38,6 +39,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , fileidx_(0)
     , curmsg_(tr("Scanning"))
     , nrdone_(0)
+    , transform_(0)
 {
     filenames_ = fnms;
     init();
@@ -48,6 +50,8 @@ HorizonScanner::~HorizonScanner()
 {
     delete &dtctor_;
     deepErase( sections_ );
+    if ( transform_ )
+	transform_->unRef();
 }
 
 
@@ -102,6 +106,20 @@ od_int64 HorizonScanner::totalNr() const
     return totalnr_;
 }
 
+
+void HorizonScanner::setZAxisTransform( ZAxisTransform* transform )
+{
+    if ( transform_ )
+	transform_->unRef();
+
+    transform_ = transform;
+    if ( transform_ )
+	transform_->ref();
+}
+
+
+const ZAxisTransform* HorizonScanner::getZAxisTransform() const
+{ return transform_; }
 
 void HorizonScanner::report( IOPar& iopar ) const
 {
@@ -199,7 +217,18 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
 }
 
 
-#define mGetZFac SI().zIsTime() ? 0.001f : 1
+void HorizonScanner::transformIfNeeded( float& zval ) const
+{
+    if ( transform_ )
+    {
+	if ( SI().zIsTime() && SI().depthsInFeet() )
+	    zval *= mToFeetFactorF;
+
+	zval = transform_->transformTrcBack( TrcKey::udf(), zval );
+    }
+}
+
+#define mGetZFac SI().zIsTime() && !transform_ ? 0.001f : 1
 
 bool HorizonScanner::analyzeData()
 {
@@ -223,6 +252,7 @@ bool HorizonScanner::analyzeData()
     {
 	if ( data.isEmpty() ) break;
 
+	transformIfNeeded( data[0] );
 	if ( count > maxcount )
 	{
 	    if ( nrscale == nrnoscale ) maxcount *= 2;
@@ -338,6 +368,7 @@ int HorizonScanner::nextStep()
     if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
     bvalset_->allowDuplicateBinIDs(true);
 
+    transformIfNeeded( data[0] );
     float fac = 1;
     if ( doscale_ )
 	fac = mGetZFac;

@@ -31,6 +31,7 @@ class uiPushButton;
 class uiScaler;
 class uiStratLevelSel;
 class uiTableImpDataSel;
+class uiT2DConvSel;
 class uiUnitSel;
 namespace Coords { class uiCoordSystemSel; }
 namespace EM { class Horizon3D; }
@@ -63,6 +64,9 @@ protected:
     uiStratLevelSel*	stratlvlfld_;
     uiIOObjSel*		outputfld_;
 
+    uiCheckBox*		tdsel_;
+    uiT2DConvSel*	transfld_;
+
     virtual bool	acceptOK(CallBacker*);
     void		descChg(CallBacker*);
     void		inputChgd(CallBacker*);
@@ -73,6 +77,7 @@ protected:
     void		fillUdfSel(CallBacker*);
     void		stratLvlChg(CallBacker*);
     void		interpolSettingsCB(CallBacker*);
+    void		zDomSel(CallBacker*);
 
     bool		getFileNames(BufferStringSet&) const;
     bool		checkInpFlds();

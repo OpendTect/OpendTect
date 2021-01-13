@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 class BinIDValueSet;
+class ZAxisTransform;
 namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }
 namespace PosInfo { class Detector; }
@@ -52,11 +53,15 @@ public:
     void		launchBrowser(const char* fnm=0) const;
     void		report(IOPar&) const;
 
+    void			setZAxisTransform(ZAxisTransform*);
+    const ZAxisTransform*	getZAxisTransform() const;
+
     const ObjectSet<BinIDValueSet>& getSections()	{ return sections_; }
 
 protected:
 
     virtual int		nextStep();
+    void		transformIfNeeded(float&) const;
 
     void		init();
 
@@ -78,6 +83,8 @@ protected:
 
     BinIDValueSet*	bvalset_;
     ObjectSet<BinIDValueSet> sections_;
+
+    ZAxisTransform*	transform_;
 
     mutable uiString	curmsg_;
 };
