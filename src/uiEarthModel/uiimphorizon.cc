@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uistratlvlsel.h"
 #include "uistrings.h"
+#include "uit2dconvsel.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "uitoolbutton.h"
@@ -61,7 +62,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
+#include "hiddenparam.h"
+HiddenParam<uiImportHorizon,uiCheckBox*> tdsel_( nullptr );
+HiddenParam<uiImportHorizon,uiT2DConvSel*> transfld_( nullptr );
+
 static const char* sZVals = "Z values";
+static BufferString sImportFromPath;
+
 
 static BufferString sImportFromPath;
 
@@ -84,6 +91,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , scanner_(0)
     , importReady(this)
 {
+    tdsel_.setParam( this, nullptr );
+    transfld_.setParam( this, nullptr );
     setVideoKey( mODVideoKey(mImportHorAttribHelpID) );
     setCaption(isgeom ? uiStrings::phrImport(uiStrings::sHorizon()) :
 			uiStrings::phrImport(mJoinUiStrs(sHorizon(),sData())));
@@ -107,7 +116,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     uiListBox::Setup su( mode, tr("Attribute(s) to import") );
     attrlistfld_ = new uiListBox( this, su );
     attrlistfld_->attach( alignedBelow, inpfld_ );
-    attrlistfld_->setNrLines( 6 );
+    attrlistfld_->setNrLines( 5 );
     attrlistfld_->itemChosen.notify( mCB(this,uiImportHorizon,inputChgd) );
 
     uiButtonGroup* butgrp =
@@ -125,9 +134,28 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 		  mODHelpKey(mTableImpDataSel3DSurfacesHelpID) );
-    dataselfld_->attach( alignedBelow, attrlistfld_ );
-    dataselfld_->attach( ensureBelow, sep );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
+    if ( isgeom && SI().zIsTime() )
+    {
+	auto tdsel = new uiCheckBox( this, tr("Horizon is in Depth domain"),
+	    			mCB(this,uiImportHorizon,zDomSel) );
+	tdsel->attach( alignedBelow, attrlistfld_ );
+	tdsel->attach( ensureBelow, sep );
+	tdsel_.setParam( this, tdsel );
+
+	uiT2DConvSel::Setup t2dsu( 0, false );
+	t2dsu.ist2d( !SI().zIsTime() );
+	auto transfld = new uiT2DConvSel( this, t2dsu );
+	transfld->display( false );
+	transfld->attach( alignedBelow, tdsel );
+	transfld_.setParam( this, transfld );
+	dataselfld_->attach( alignedBelow, transfld );
+    }
+    else
+    {
+	dataselfld_->attach( alignedBelow, attrlistfld_ );
+	dataselfld_->attach( ensureBelow, sep );
+    }
 
     scanbut_ = new uiPushButton( this, tr("Scan Input File"),
 				 mCB(this,uiImportHorizon,scanPush), true );
@@ -186,6 +214,8 @@ uiImportHorizon::~uiImportHorizon()
 {
     delete ctio_.ioobj_; delete &ctio_;
     delete interpol_;
+    tdsel_.removeParam( this );
+    transfld_.removeParam( this );
 }
 
 
@@ -193,6 +223,17 @@ void uiImportHorizon::descChg( CallBacker* cb )
 {
     if ( scanner_ ) delete scanner_;
     scanner_ = 0;
+}
+
+
+void uiImportHorizon::zDomSel( CallBacker* )
+{
+    auto transfld = transfld_.getParam( this );
+    auto tdsel = tdsel_.getParam( this );
+    if ( transfld )
+	transfld->display( tdsel->isChecked() );
+
+    inputChgd( 0 );
 }
 
 
@@ -218,7 +259,16 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
 {
     BufferStringSet attrnms;
     attrlistfld_->getChosen( attrnms );
-    if ( isgeom_ ) attrnms.insertAt( new BufferString(sZVals), 0 );
+    if ( isgeom_ )
+    {
+	BufferString zvalstr( sKey::ZValue() );
+	auto tdsel = tdsel_.getParam( this );
+	if ( tdsel && tdsel->isChecked() )
+	    zvalstr = SI().zIsTime() ? sKey::Depth() : sKey::Time();
+
+	attrnms.insertAt( new BufferString(zvalstr), 0 );
+    }
+
     const int nrattrib = attrnms.size();
     const bool keepdef = cb==inpfld_ && fd_.isGood();
     if ( !keepdef )
@@ -334,6 +384,14 @@ bool uiImportHorizon::doScan()
     if ( !getFileNames(filenms) ) return false;
 
     scanner_ = new HorizonScanner( filenms, fd_, isgeom_ );
+    auto tdsel = tdsel_.getParam( this );
+    auto transfld = transfld_.getParam( this );
+    if ( tdsel && tdsel->isChecked() )
+    {
+	if ( transfld && transfld->acceptOK() )
+	    scanner_->setZAxisTransform( transfld->getSelection() );
+    }
+
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *scanner_ ) )
 	return false;
@@ -416,7 +474,15 @@ bool uiImportHorizon::doImport()
     BufferStringSet attrnms;
     attrlistfld_->getChosen( attrnms );
     if ( isgeom_ )
-	attrnms.insertAt( new BufferString(sZVals), 0 );
+    {
+	BufferString zvalstr( sKey::ZValue() );
+	auto tdsel = tdsel_.getParam( this );
+	if ( tdsel && tdsel->isChecked() )
+	    zvalstr = SI().zIsTime() ? sKey::Depth() : sKey::Time();
+
+	attrnms.insertAt( new BufferString(zvalstr), 0 );
+    }
+
     if ( attrnms.isEmpty() )
 	mErrRet( tr("No Attributes Selected") );
 

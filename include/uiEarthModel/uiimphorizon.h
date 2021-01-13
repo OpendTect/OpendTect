@@ -72,6 +72,7 @@ protected:
     void		fillUdfSel(CallBacker*);
     void		stratLvlChg(CallBacker*);
     void		interpolSettingsCB(CallBacker*);
+    void		zDomSel(CallBacker*);
 
     bool		getFileNames(BufferStringSet&) const;
     bool		checkInpFlds();

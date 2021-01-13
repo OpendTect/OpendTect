@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "preloads.h"
 #include "geometryio.h"
 #include "rangeposprovider.h"
+#include "simpletimedepthmodel.h"
 #include "survgeometrytransl.h"
 #include "batchjobdispatch.h"
 
@@ -59,6 +60,10 @@ mDefModInitFn(General)
     Survey::GeometryReader2D::initClass();
     SurvGeom2DTranslatorGroup::initClass();
     dgbSurvGeom2DTranslator::initClass();
+
+    SimpleTimeDepthModelTranslatorGroup::initClass();
+    odSimpleTimeDepthModelTranslator::initClass();
+    SimpleTimeDepthTransform::initClass();
 
     IOM(); //Trigger creation & reading of geometries
 

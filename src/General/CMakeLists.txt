@@ -80,6 +80,7 @@ list ( APPEND OD_MODULE_SOURCES
 	raytracerrunner.cc
 	rockphysics.cc
 	serverprogtool.cc
+	simpletimedepthmodel.cc
 	stratlevel.cc
 	survgeometrytransl.cc
 	tableascio.cc
