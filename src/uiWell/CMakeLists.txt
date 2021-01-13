@@ -20,6 +20,7 @@ set(OD_MODULE_SOURCES
 		uiwelldisplaymarkeredit.cc
 		uiwelldlgs.cc
 		uiwellimpasc.cc
+		uiwellinserter.cc
 		uiwelllogcalc.cc
 		uiwelllogimpexp.cc
 		uiwelllogdisplay.cc
