@@ -29,8 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mPrintHelpMsg \
-    od_cout() << "Usage: " << argv[0] << " parfile [--dosubmit] [--nodelete]" \
-	      << od_endl;
+    od_cout() << "Usage: " << argv[0] << " --parfile <parfile>" \
+	      << " [--dosubmit] [--nodelete]" << od_endl;
 
 int main( int argc, char ** argv )
 {
@@ -41,16 +41,21 @@ int main( int argc, char ** argv )
 
     const bool withdelete = !parser.hasKey( "nodelete" );
     const bool dosubmit = parser.hasKey( "dosubmit" );
-    BufferStringSet normalargs;
-    parser.getNormalArguments( normalargs );
 
-    if ( normalargs.isEmpty() )
+    BufferString parfilenm;
+    if ( !parser.getVal("parfile",parfilenm) )
     {
-	mPrintHelpMsg;
-	return ExitProgram( 1 );
+	BufferStringSet normalargs;
+	parser.getNormalArguments( normalargs );
+	if ( normalargs.isEmpty() )
+	{
+	    mPrintHelpMsg;
+	    return ExitProgram( 1 );
+	}
+
+	parfilenm = normalargs.get(0);
     }
 
-    const BufferString parfilenm = normalargs.last()->buf();
     od_istream strm( parfilenm );
     if ( !strm.isOK() )
     {
