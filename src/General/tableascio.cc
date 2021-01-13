@@ -323,22 +323,27 @@ Coord TargetInfo::convert( const Coord& crd ) const
 Table::TargetInfo* TargetInfo::mkZPos( bool isreq, bool wu, int zopt )
 {
     const Table::ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
-    Table::TargetInfo* ti = new TargetInfo( "Z", FloatInpSpec(), reqspec );
-    if ( wu )
+    Table::TargetInfo* ti = nullptr;
+    if ( !wu )
+	ti = new TargetInfo( "Z", FloatInpSpec(), reqspec );
+    else
     {
 	if ( zopt == 0 )
 	{
-	    ti->setPropertyType( PropertyRef::surveyZType() );
+	    ti = new TargetInfo( "Z", FloatInpSpec(), reqspec,
+		    		 PropertyRef::surveyZType() );
 	    ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
 	}
 	else if ( zopt < 0 )
 	{
-	    ti->setPropertyType( PropertyRef::Time );
+	    ti = new TargetInfo( sKey::Time(), FloatInpSpec(), reqspec,
+		    		 PropertyRef::Time );
 	    ti->selection_.unit_ = UoMR().get( "Milliseconds" );
 	}
 	else
 	{
-	    ti->setPropertyType( PropertyRef::Dist );
+	    ti = new TargetInfo( sKey::Depth(), FloatInpSpec(), reqspec,
+		    		 PropertyRef::Dist );
 	    ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
 	}
     }

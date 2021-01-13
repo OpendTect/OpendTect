@@ -1695,11 +1695,19 @@ void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
     {
 	const BufferString fldname = attrnms.get( idx );
 	Table::TargetInfo* ti;
-	if ( fldname == "Z values" )
+	if ( fldname == sKey::ZValue() )
 	    ti = Table::TargetInfo::mkZPosition( true );
 	else
+	{
 	    ti = new Table::TargetInfo( fldname.buf(), FloatInpSpec(),
 					Table::Required );
+	    if ( fldname == sKey::Time() )
+		ti->setPropertyType( PropertyRef::Time );
+	    else if ( fldname == sKey::Depth() )
+		ti->setPropertyType( PropertyRef::Dist );
+
+	}
+
 	fd->bodyinfos_ += ti;
     }
 }

@@ -63,6 +63,7 @@ set( OD_MODULE_SOURCES
 	uisetdatadir.cc
 	uiselobjothersurv.cc
 	uiselsurvranges.cc
+	uisimpletimedepthmodel.cc
 	uisrchprocfiles.cc
 	uisurvey.cc
 	uisurveyselect.cc

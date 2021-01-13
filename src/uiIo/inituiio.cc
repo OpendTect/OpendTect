@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
+#include "uisimpletimedepthmodel.h"
 #include "envvars.h"
 #include "mmbatchjobdispatch.h"
 #include "settings.h"
@@ -75,4 +76,5 @@ mDefModInitFn(uiIo)
     Coords::uiUnlocatedXYSystem::initClass();
     Coords::uiAnchorBasedXYSystem::initClass();
 
+    uiSimpleTimeDepthTransform::initClass();
 }

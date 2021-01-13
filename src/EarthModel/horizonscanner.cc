@@ -22,8 +22,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "tabledef.h"
+#include "zaxistransform.h"
 #include "file.h"
 
+#include "hiddenparam.h"
+HiddenParam<HorizonScanner,ZAxisTransform*> transform_( nullptr );
 
 HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 				Table::FormatDesc& fd, bool isgeom )
@@ -40,6 +43,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , nrdone_(0)
 {
     filenames_ = fnms;
+    transform_.setParam( this, nullptr );
     init();
 }
 
@@ -48,6 +52,11 @@ HorizonScanner::~HorizonScanner()
 {
     delete &dtctor_;
     deepErase( sections_ );
+
+    ZAxisTransform* transform = transform_.getParam( this );
+    if ( transform )
+	transform->unRef();
+    transform_.removeParam( this );
 }
 
 
@@ -102,6 +111,21 @@ od_int64 HorizonScanner::totalNr() const
     return totalnr_;
 }
 
+
+void HorizonScanner::setZAxisTransform( ZAxisTransform* transform )
+{
+    ZAxisTransform* oldtransform = transform_.getParam( this );
+    if ( oldtransform )
+	oldtransform->unRef();
+
+    transform_.setParam( this, transform );
+    if ( transform )
+	transform->ref();
+}
+
+
+const ZAxisTransform* HorizonScanner::getZAxisTransform() const
+{ return transform_.getParam( this ); }
 
 void HorizonScanner::report( IOPar& iopar ) const
 {
@@ -199,13 +223,26 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
 }
 
 
-#define mGetZFac SI().zIsTime() ? 0.001f : 1
+void HorizonScanner::transformIfNeeded( float& zval ) const
+{
+    ZAxisTransform* transform = transform_.getParam( this );
+    if ( transform )
+    {
+	if ( SI().zIsTime() && SI().depthsInFeet() )
+	    zval *= mToFeetFactorF;
+
+	zval = transform->transformTrcBack( TrcKey::udf(), zval );
+    }
+}
+
+#define mGetZFac SI().zIsTime() && !transform ? 0.001f : 1
 
 bool HorizonScanner::analyzeData()
 {
     if ( !reInitAscIO( filenames_.get(0).buf() ) ) return false;
 
     const bool zistime = SI().zIsTime();
+    const ZAxisTransform* transform = transform_.getParam( this );
     const float fac = mGetZFac;
     Interval<float> validrg( SI().zRange(false) );
     const float zwidth = validrg.width();
@@ -223,6 +260,7 @@ bool HorizonScanner::analyzeData()
     {
 	if ( data.isEmpty() ) break;
 
+	transformIfNeeded( data[0] );
 	if ( count > maxcount )
 	{
 	    if ( nrscale == nrnoscale ) maxcount *= 2;
@@ -338,6 +376,8 @@ int HorizonScanner::nextStep()
     if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
     bvalset_->allowDuplicateBinIDs(true);
 
+    const ZAxisTransform* transform = transform_.getParam( this );
+    transformIfNeeded( data[0] );
     float fac = 1;
     if ( doscale_ )
 	fac = mGetZFac;
