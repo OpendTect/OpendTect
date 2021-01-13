@@ -66,7 +66,6 @@ static const char* rcsID mUsedVar = "$Id$";
 HiddenParam<uiImportHorizon,uiCheckBox*> tdsel_( nullptr );
 HiddenParam<uiImportHorizon,uiT2DConvSel*> transfld_( nullptr );
 
-static const char* sZVals = "Z values";
 static BufferString sImportFromPath;
 
 
@@ -131,7 +130,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     if ( isgeom && SI().zIsTime() )
     {
 	auto tdsel = new uiCheckBox( this, tr("Horizon is in Depth domain"),
-	    			mCB(this,uiImportHorizon,zDomSel) );
+				mCB(this,uiImportHorizon,zDomSel) );
 	tdsel->attach( alignedBelow, attrlistfld_ );
 	tdsel->attach( ensureBelow, sep );
 	tdsel_.setParam( this, tdsel );
