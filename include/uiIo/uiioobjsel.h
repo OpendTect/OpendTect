@@ -108,6 +108,7 @@ protected:
     void		doObjSel(CallBacker*);
     void		objInserted(CallBacker*);
     void		survChangedCB(CallBacker*);
+    void		optCheckCB(CallBacker*);
     void		initRead();
 
     virtual const char*	userNameFromKey(const char*) const;

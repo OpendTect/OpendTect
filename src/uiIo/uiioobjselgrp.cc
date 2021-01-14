@@ -483,10 +483,26 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	if ( wrtrselfld_ && !wrtrselfld_->isEmpty()
 	    && !wrtrselfld_->hasSelectedTranslator(*ioobj) )
 	{
-	    uiMSG().error(tr("Sorry, can not change the storage type."
-			     "\nIf you are sure, please remove the existing "
-			     "object first"));
-	    return false;
+	    if ( ioobj->implExists(false) )
+	    {
+		uiMSG().error( tr("Sorry, can not change the storage type."
+				"\nIf you are sure, please remove the existing "
+				"object first") );
+		return false;
+	    }
+	    else
+	    {
+		const Translator* trl = wrtrselfld_->selectedTranslator();
+		mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
+		if ( iostrm && trl )
+		{
+		    if ( trl->group() )
+			ioobj->setGroup( trl->group()->groupName() );
+		    ioobj->setTranslator( trl->userName() );
+		    iostrm->setExt( trl->defExtension() );
+		    iostrm->genFileName();
+		}
+	    }
 	}
 
 	if ( ioobj->implExists(true) )
