@@ -203,7 +203,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     for ( const auto testfile : testfiles )
     {
 	if ( !File::exists(testfile->buf()) )
-	    mErrRet( tr( "Creation seems to have failed:\n%1" ).arg( msgstr ) )
+	    mErrRet( tr("Creation seems to have failed:\n%1").arg(msgstr) )
     }
 
     uiMSG().message( tr("Creation seems to have succeeded.") );

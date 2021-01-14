@@ -499,9 +499,13 @@ bool ParallelTask::executeParallel( bool parallel )
 
     if ( Threads::getNrProcessors()==1 || maxnrthreads==1 )
     {
-	if ( !doPrepare( 1 ) ) return false;
-	bool res = doFinish( doWork( 0, nriterations-1, 0 ) );
-	if ( nrdone_ != -1 ) addToNrDone( nriterations - nrdone_ );
+	if ( !doPrepare(1) )
+	    return false;
+
+	const bool res = doFinish( doWork(0,nriterations-1,0) );
+	if ( nrdone_ != -1 )
+	    addToNrDone( nriterations - nrdone_ );
+
 	reportProgressFinished();
 	return res;
     }
@@ -509,7 +513,8 @@ bool ParallelTask::executeParallel( bool parallel )
     //Don't take all threads, as we may want to have spare ones.
     const int nrthreads = mMIN(Threads::getNrProcessors(),maxnrthreads);
     const od_int64 size = nriterations;
-    if ( !size ) return true;
+    if ( size==0 )
+	return true;
 
     mAllocLargeVarLenArr( ParallelTaskRunner, runners, nrthreads );
     mAllocVarLenArr( Threads::Work, tasks, nrthreads );
@@ -533,7 +538,7 @@ bool ParallelTask::executeParallel( bool parallel )
 	start = stop+1;
     }
 
-    if ( !doPrepare( nrtasks ) )
+    if ( !doPrepare(nrtasks) )
 	return false;
 
     bool res;
@@ -548,7 +553,9 @@ bool ParallelTask::executeParallel( bool parallel )
     }
 
     res = doFinish( res );
-    if ( nrdone_ != -1 ) addToNrDone( nriterations - nrdone_ );
+    if ( nrdone_ != -1 )
+	addToNrDone( nriterations - nrdone_ );
+
     reportProgressFinished();
     return res;
 }
@@ -558,7 +565,7 @@ int ParallelTask::maxNrThreads() const
 {
     const od_int64 res = nrIterations();
     if ( res>INT_MAX )
-        return INT_MAX;
+	return INT_MAX;
 
     return (int) res;
 }
@@ -567,7 +574,8 @@ int ParallelTask::maxNrThreads() const
 od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
 				            int idx ) const
 {
-    if ( nrthreads==1 ) return totalnr;
+    if ( nrthreads==1 )
+	return totalnr;
 
     const od_int64 idealnrperthread =
 	mNINT64((float) (totalnr/(od_int64) nrthreads));
@@ -592,10 +600,10 @@ od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
 
 
 
-bool TaskRunner::execute( TaskRunner* tr, Task& task )
+bool TaskRunner::execute( TaskRunner* taskrnr, Task& task )
 {
-    if ( tr )
-	return tr->execute( task );
+    if ( taskrnr )
+	return taskrnr->execute( task );
 
     return task.execute();
 }
