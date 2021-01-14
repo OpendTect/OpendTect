@@ -138,7 +138,10 @@ uiString ZDomain::Def::getLabel() const
 
 
 uiString ZDomain::Def::getRange() const
-{ return uiStrings::phrJoinStrings( userName(), uiStrings::sRange() ); }
+{
+    return uiStrings::phrJoinStrings( userName(),
+				uiStrings::sRange().toLower() );
+}
 
 
 const char* ZDomain::Def::unitStr( bool withparens ) const
