@@ -49,17 +49,21 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     , nrsamplesfld_(nullptr)
     , setup_(su)
 {
+    const CallBack cb( mCB(this,uiRangePosProvGroup,rangeChgCB) );
     uiObject* attobj = nullptr;
     if ( su.is2d_ )
     {
 	nrrgfld_ =
 	    new uiSelNrRange( this, uiSelNrRange::Gen, su.withstep_ );
+	nrrgfld_->rangeChanged.notify( cb );
 	nrrgfld_->setRange( su.tkzs_.hsamp_.crlRange() );
 	attobj = nrrgfld_->attachObj();
     }
     else
     {
 	hrgfld_ = new uiSelHRange( this, su.tkzs_.hsamp_, su.withstep_ );
+	hrgfld_->inlfld_->rangeChanged.notify( cb );
+	hrgfld_->crlfld_->rangeChanged.notify( cb );
 	attobj = hrgfld_->attachObj();
     }
 
@@ -67,6 +71,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     {
 	zrgfld_ = new uiSelZRange( this, su.tkzs_.zsamp_, su.withstep_,
 				   nullptr, su.zdomkey_ );
+	zrgfld_->rangeChanged.notify( cb );
 	if ( attobj )
 	    zrgfld_->attach( alignedBelow, attobj );
 	attobj = zrgfld_->attachObj();
@@ -234,6 +239,12 @@ void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 void uiRangePosProvGroup::initClass()
 {
     uiPosProvGroup::factory().addCreator( create, sKey::Range() );
+}
+
+
+void uiRangePosProvGroup::rangeChgCB( CallBacker* )
+{
+    posProvGroupChg.trigger();
 }
 
 
