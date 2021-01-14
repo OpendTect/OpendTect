@@ -186,6 +186,7 @@ od_int64 TaskGroup::nrDone() const
     od_int64 res = 0;
     for ( int idx=0; idx<tasks_.size(); idx++ )
 	res += tasks_[idx]->nrDone();
+
     return res;
 }
 
@@ -199,6 +200,7 @@ od_int64 TaskGroup::totalNr() const
     od_int64 res = 0;
     for ( int idx=0; idx<tasks_.size(); idx++ )
 	res += tasks_[idx]->totalNr();
+
     return res;
 }
 
@@ -552,7 +554,8 @@ int ParallelTask::maxNrThreads() const
 od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
 					    int idx ) const
 {
-    if ( nrthreads==1 ) return totalnr;
+    if ( nrthreads==1 )
+	return totalnr;
 
     const od_int64 idealnrperthread =
 	mNINT64((float) (totalnr/(od_int64) nrthreads));
@@ -577,10 +580,10 @@ od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
 
 
 
-bool TaskRunner::execute( TaskRunner* tr, Task& task )
+bool TaskRunner::execute( TaskRunner* taskrnr, Task& task )
 {
-    if ( tr )
-	return tr->execute( task );
+    if ( taskrnr )
+	return taskrnr->execute( task );
 
     return task.execute();
 }
