@@ -13,10 +13,11 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "gendefs.h"
+#include "hiddenparam.h"
 #include "odmemory.h"
 
 #ifdef __debug__
-#include "debug.h"
+# include "debug.h"
 #endif
 
 
@@ -71,6 +72,8 @@ public:
     inline		OffsetValueSeries( ValueSeries<T>& src, od_int64 off );
     inline		OffsetValueSeries( const ValueSeries<T>& src,
 					   od_int64 off);
+			~OffsetValueSeries();
+
     inline ValueSeries<T>* clone() const;
 
     inline T		value( od_int64 idx ) const;
@@ -85,6 +88,8 @@ public:
     inline void		setOffset(od_int64 no);
 
     const ValueSeries<T>&	source() const { return src_; }
+
+    inline bool		setSize(od_int64);
 
 protected:
     ValueSeries<T>&	src_;
@@ -108,7 +113,6 @@ template <class RT, class AT>
 mClass(Basic) ArrayValueSeries : public ValueSeries<RT>
 {
 public:
-
 		ArrayValueSeries( AT* ptr, bool memmine, od_int64 sz=-1 );
 		ArrayValueSeries( od_int64 sz );
 		~ArrayValueSeries()		{ if ( mine_ ) delete [] ptr_; }
@@ -268,16 +272,31 @@ ValueSeries<RT>* MultiArrayValueSeries<RT,AT>::clone() const
 { return new MultiArrayValueSeries<RT,AT>( *this ); }
 
 
+// OffsetValueSeries
+template <class T>
+static HiddenParam<OffsetValueSeries<T>,od_int64>	cursizes(0);
+
 template <class T> inline
 OffsetValueSeries<T>::OffsetValueSeries( ValueSeries<T>& src, od_int64 off )
     : src_( src ), off_( off ), writable_(true)
-{}
+{
+    cursizes<T>.setParam( this, 0 );
+}
 
 
 template <class T> inline
 OffsetValueSeries<T>::OffsetValueSeries(const ValueSeries<T>& src,od_int64 off)
     : src_( const_cast<ValueSeries<T>& >(src) ), off_( off ), writable_(false)
-{}
+{
+    cursizes<T>.setParam( this, 0 );
+}
+
+
+template <class T> inline
+OffsetValueSeries<T>::~OffsetValueSeries()
+{
+    cursizes<T>.removeParam( this );
+}
 
 
 template <class T> inline
@@ -303,7 +322,31 @@ template <class T> inline
 void OffsetValueSeries<T>::setAll( T v )
 {
     if ( writable_ )
-	src_.setAll( v );
+    {
+	const od_int64 cursize = cursizes<T>.getParam( this );
+	const od_int64 lastidx = off_ + cursize - 1;
+/*
+Virtual function size() not implemented in 6.6. Hope for the best.
+	if ( lastidx >= src_.size() )
+	    lastidx = size()-1;
+*/
+	const od_int64 nrsamps = lastidx - off_ + 1;
+	T* arrvals = arr();
+	if ( arrvals )
+	{
+	    if ( !arrvals || nrsamps<=0 )
+		return;
+
+	    const T* stopptr = arrvals + nrsamps;
+	    while ( arrvals != stopptr )
+		*arrvals++ = v;
+
+	    return;
+	}
+
+	for ( od_int64 idx=off_; idx<lastidx; idx++ )
+	    src_.setValue( idx, v );
+    }
     else
 	{ pErrMsg("Attempting to write to write-protected array"); }
 }
@@ -340,6 +383,15 @@ bool OffsetValueSeries<T>::writable() const
 { return writable_; }
 
 
+template <class T> inline
+bool OffsetValueSeries<T>::setSize( od_int64 sz )
+{
+    cursizes<T>.setParam( this, sz );
+    return true;
+}
+
+
+// ArrayValueSeries
 template <class RT, class AT>
 ArrayValueSeries<RT,AT>::ArrayValueSeries(AT* ptr, bool memmine,od_int64 cursz )
     : ptr_(ptr), mine_(memmine), cursize_( cursz )
