@@ -66,6 +66,8 @@ bool acceptOK( CallBacker* )
 };
 
 
+#define mDefNrRows 10
+
 class uiSimpleTimeDepthTable : public uiDialog
 { mODTextTranslationClass(uiSimpleTimeDepthTable);
 public:
@@ -73,7 +75,9 @@ uiSimpleTimeDepthTable( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Simple Time-Depth Model"),mNoDlgTitle,
 				mTODOHelpKey))
 {
-    uiTable::Setup tblsu( 10, 2 );
+    uiTable::Setup tblsu( mDefNrRows, 2 );
+    tblsu.rowgrow( true ).insertrowallowed( true ).removerowallowed( true )
+						  .selmode( uiTable::Multi );
     tbl_ = new uiTable( this,tblsu, "Time-Depth Table" );
     tbl_->setColumnLabel( mTimeCol, ZDomain::Time().getLabel() );
     tbl_->setColumnLabel( mDepthCol, ZDomain::Depth().getLabel() );
@@ -103,7 +107,11 @@ void fillTable( const SimpleTimeDepthModel& mdl )
     const float depthfac = SI().depthsInFeet() ? mToFeetFactorF : 1.f;
     const TypeSet<float>& times = mdl.getRawTimes();
     const TypeSet<float>& depths = mdl.getRawDepths();
-    for ( int idx=0; idx<times.size(); idx++ )
+    const int nrpts = times.size();
+    if ( nrpts > mDefNrRows )
+	tbl_->setNrRows( nrpts );
+
+    for ( int idx=0; idx<nrpts; idx++ )
     {
 	tbl_->setValue( RowCol(idx,mTimeCol), timefac*times[idx] );
 	tbl_->setValue( RowCol(idx,mDepthCol), depthfac*depths[idx] );
