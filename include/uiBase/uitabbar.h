@@ -33,11 +33,11 @@ public:
     void		removeTab(uiTab*);
     void		removeTab(uiGroup*);
 
-    void		setTabEnabled(int idx,bool);
+    void		setTabEnabled(int idx,bool yn);
     bool		isTabEnabled(int idx) const;
 
-    void		setTabVisible(int, bool);
-    bool		isTabVisible(int) const;
+    void		setTabVisible(int idx,bool yn);
+    bool		isTabVisible(int idx) const;
 
     void		setCurrentTab(int idx);
     int			currentTabId() const;
