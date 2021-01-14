@@ -74,9 +74,9 @@ static void getColumnLabels( uiStringSet& lbls, uiCheckBox* unfld,
     }
     else
     {
-	lbls.add( uiStrings::sMD().withSurvZUnit() )
-	    .add( uiStrings::sTVD().withSurvZUnit() )
-	    .add( uiStrings::sTVDSS().withSurvZUnit() );
+	lbls.add( uiStrings::sMD().withSurvDepthUnit() )
+	    .add( uiStrings::sTVD().withSurvDepthUnit() )
+	    .add( uiStrings::sTVDSS().withSurvDepthUnit() );
     }
 
     lbls.add( uiStrings::sColor() );
