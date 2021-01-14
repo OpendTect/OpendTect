@@ -42,8 +42,11 @@ public:
 			       const uiString& =uiString::emptyString());
     void		removeTab(uiGroup*);
 
-    void		setTabEnabled(uiGroup*,bool);
+    void		setTabEnabled(uiGroup*,bool yn);
     bool		isTabEnabled(uiGroup*) const;
+
+    void		setTabVisible(uiGroup*,bool yn);
+    bool		isTabVisible(uiGroup*) const;
 
     void		setCurrentPage(int id);
     void		setCurrentPage(uiGroup*);

@@ -144,6 +144,14 @@ bool uiTabBar::isTabEnabled( int idx ) const
 { return body_->isTabEnabled( idx ); }
 
 
+void uiTabBar::setTabVisible( int idx, bool yn )
+{ body_->setTabVisible( idx, yn ); }
+
+
+bool uiTabBar::isTabVisible( int idx ) const
+{ return body_->isTabVisible( idx ); }
+
+
 void uiTabBar::setCurrentTab( int idx )
 {
     mBlockCmdRec;
