@@ -398,6 +398,8 @@ const ValueSeries<T>* Array3DSlice<T>::getStorage_() const
     else
 	storage_->setOffset( offset_ );
 
+    storage_->setSize( ArrayND<T>::totalSize() );
+
     return storage_;
 }
 
