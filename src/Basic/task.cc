@@ -473,17 +473,24 @@ bool ParallelTask::executeParallel( bool parallel )
 
     if ( Threads::getNrProcessors()==1 || maxnrthreads==1 )
     {
-	if ( !doPrepare( 1 ) ) return false;
-	bool res = doFinish( doWork( 0, nriterations-1, 0 ) );
-	if ( nrdone_ != -1 ) addToNrDone( nriterations - nrdone_ );
-	if ( progressmeter_ ) progressmeter_->setFinished();
+	if ( !doPrepare(1) )
+	    return false;
+
+	const bool res = doFinish( doWork(0,nriterations-1,0) );
+	if ( nrdone_ != -1 )
+	    addToNrDone( nriterations - nrdone_ );
+
+	if ( progressmeter_ )
+	    progressmeter_->setFinished();
+
 	return res;
     }
 
     //Don't take all threads, as we may want to have spare ones.
     const int nrthreads = mMIN(Threads::getNrProcessors(),maxnrthreads);
     const od_int64 size = nriterations;
-    if ( !size ) return true;
+    if ( size==0 )
+	return true;
 
     mAllocLargeVarLenArr( ParallelTaskRunner, runners, nrthreads );
     mAllocVarLenArr( Threads::Work, tasks, nrthreads );
@@ -507,7 +514,7 @@ bool ParallelTask::executeParallel( bool parallel )
 	start = stop+1;
     }
 
-    if ( !doPrepare( nrtasks ) )
+    if ( !doPrepare(nrtasks) )
 	return false;
 
     bool res;
@@ -522,8 +529,12 @@ bool ParallelTask::executeParallel( bool parallel )
     }
 
     res = doFinish( res );
-    if ( nrdone_ != -1 ) addToNrDone( nriterations - nrdone_ );
-    if ( progressmeter_ ) progressmeter_->setFinished();
+    if ( nrdone_ != -1 )
+	addToNrDone( nriterations - nrdone_ );
+
+    if ( progressmeter_ )
+	progressmeter_->setFinished();
+
     return res;
 }
 
