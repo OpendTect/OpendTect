@@ -299,7 +299,8 @@ ODMdiSubWindow( uiMdiAreaWindow& mdiareawin,
 		QWidget* par=nullptr, Qt::WindowFlags flgs=Qt::WindowFlags() )
     : QMdiSubWindow( par, flgs )
     , mdiareawin_( mdiareawin )
-{}
+{
+}
 
 protected:
 void closeEvent( QCloseEvent* ev )
@@ -335,6 +336,7 @@ uiMdiAreaWindow::uiMdiAreaWindow( uiMdiArea& mdiarea, const uiString& title )
 {
     qmdisubwindow_ = new ODMdiSubWindow( *this );
     qmdisubwindow_->setWidget( attachObj()->body()->qwidget() );
+    qmdisubwindow_->setAttribute( Qt::WA_DeleteOnClose );
     setTitle( title );
 }
 
