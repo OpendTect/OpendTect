@@ -61,6 +61,7 @@ protected:
 
     void		initGrp(CallBacker*);
     void		samplingCB(CallBacker*);
+    void		rangeChgCB(CallBacker*);
 
 };
 
