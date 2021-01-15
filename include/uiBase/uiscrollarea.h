@@ -26,6 +26,8 @@ public:
     void		setObject(uiObject*);
     uiObject*		getObject();
 
+    void		setObjectResizable(bool);
+
     void		limitHeight( bool yn )		{ limitheight_ = yn; }
     void		limitWidth( bool yn )		{ limitwidth_ = yn; }
 

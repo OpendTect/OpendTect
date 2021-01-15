@@ -106,3 +106,8 @@ uiObject* uiScrollArea::getObject()
     return object_;
 }
 
+
+void uiScrollArea::setObjectResizable( bool yn )
+{
+    body_->setWidgetResizable( yn );
+}
