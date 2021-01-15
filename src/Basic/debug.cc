@@ -57,7 +57,7 @@ ________________________________________________________________________
 static const char* sStdErr = "stderr";
 static BufferString log_file_name_ = sStdErr;
 static bool crash_on_programmer_error_ = false;
-static od_ostream* dbg_log_strm_ = 0;
+static od_ostream* dbg_log_strm_ = nullptr;
 
 
 namespace OD
@@ -218,7 +218,7 @@ static int getMask()
 	    dbg_log_strm_ = new od_ostream( dbglogfnm );
 	    if ( dbg_log_strm_ && !dbg_log_strm_->isOK() )
 	    {
-		dbg_log_strm_ = 0;
+		dbg_log_strm_ = nullptr;
 		msg = "Cannot open debug log file '";
 		msg += dbglogfnm;
 		msg += "': reverting to stdout";
@@ -401,7 +401,7 @@ namespace OD {
 
 Export_Basic od_ostream& logMsgStrm()
 {
-    static od_ostream* logstrm = 0;
+    static od_ostream* logstrm = nullptr;
     if ( logstrm )
 	return *logstrm;
 
@@ -549,13 +549,13 @@ namespace System
 {
 
 CrashDumper::CrashDumper()
-    : handler_(0)
+    : handler_(nullptr)
 {
     init();
 }
 
 
-CrashDumper* CrashDumper::theinst_ = 0;
+CrashDumper* CrashDumper::theinst_ = nullptr;
 
 static uiString* legalText();
 static const char* breakpadname = "Google Breakpad";
@@ -568,7 +568,7 @@ static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
 			void* context, EXCEPTION_POINTERS *exinfo,
 			MDRawAssertionInfo *assertion, bool succeeded )
 {
-    if ( !dumpsent.setIfValueIs(0,1,0) )
+    if ( !dumpsent.setIfValueIs(0,1,nullptr) )
 	return succeeded;
 
     const BufferString dmppath( QString::fromWCharArray(dump_path) );
@@ -600,7 +600,7 @@ void CrashDumper::init()
 static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
 			void* context, bool succeeded )
 {
-    if ( !dumpsent.setIfValueIs(0,1,0) )
+    if ( !dumpsent.setIfValueIs(0,1,nullptr) )
 	return succeeded;
 
     File::Path dmpfp( minidumpdesc.path() );
