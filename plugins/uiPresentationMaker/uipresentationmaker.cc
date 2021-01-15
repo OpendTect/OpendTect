@@ -516,14 +516,18 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
 	}
     }
 
-    specs_.setTitle( title );
-    specs_.setOutputFilename( outputfnm );
+    const int nrslides = specs_.nrSlides();
+    bool docont = true;
+    if ( nrslides == 0 )
+	docont = uiMSG().askContinue( tr("No slides have been added yet. "
+		"The presentation\nwill only contain a title slide."
+		"\nContinue?") );
+
+    if ( !docont )
+	return;
 
     const bool isblankpres = templatefld_->getBoolValue();
     const BufferString templfnm = !isblankpres ? pptxfld_->fileName() : "";
-    // TODO: merge 2 calls below
-    specs_.setTemplateFilename( templfnm.buf() );
-    PresentationSpec::setTemplate( templfnm.buf() );
     if ( !isblankpres && !File::exists(templfnm.buf()) )
     {
 	uiMSG().error( tr("Template pptx does not exist. "
@@ -531,7 +535,11 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
 	return;
     }
 
-    const int nrslides = specs_.nrSlides();
+    specs_.setTitle( title );
+    specs_.setOutputFilename( outputfnm );
+    specs_.setTemplateFilename( templfnm.buf() );
+    PresentationSpec::setTemplate( templfnm.buf() ); // TODO: merge these calls
+
     for ( int idx=0; idx<nrslides; idx++ )
     {
 	const BufferString slidetitle = slidestbl_->text( RowCol(idx,0) );
@@ -570,8 +578,10 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
 	return;
     }
 
+    uiMSG().setMainWin( this );
     const bool res = uiMSG().askGoOn(
 	tr("Successfully created presentation. Open now?") );
+    uiMSG().setMainWin( nullptr );
     if ( !res ) return;
 
     uiDesktopServices::openUrl( outputfnm.buf() );
