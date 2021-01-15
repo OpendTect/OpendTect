@@ -63,7 +63,7 @@ protected:
     uiGenInput*		wellheadxfld_;
     uiGenInput*		wellheadyfld_;
     uiGenInput*		kbelevfld_;
-    uiGenInput*     glfld_;
+    uiGenInput*		glfld_;
 
     Coord3		origpos_;
     float		origgl_;
@@ -210,6 +210,7 @@ public:
 
 protected:
 
+    void		inpSelCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     uiWellSel*		inpwellfld_;
