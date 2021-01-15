@@ -1943,19 +1943,40 @@ uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
     : uiDialog(p,Setup(tr("Set Depth-Time Model"),mNoDlgTitle,mTODOHelpKey))
 {
     inpwellfld_ = new uiWellSel( this, true, tr("Use D2T model from"), false );
+    mAttachCB( inpwellfld_->selectionDone, uiSetD2TFromOtherWell::inpSelCB );
+
+    replvelfld_ = new uiGenInput( this, tr("New replacement velocity"),
+				   FloatInpSpec() );
+    replvelfld_->setWithCheck( true );
+    replvelfld_->attach( alignedBelow, inpwellfld_ );
 
     uiIOObjSelGrp::Setup su( OD::ChooseAtLeastOne );
     su.withinserters(false).withwriteopts(false);
     wellfld_ = new uiMultiWellSel( this, false, &su );
     wellfld_->allowIOObjManip( false );
-    wellfld_->attach( alignedBelow, inpwellfld_ );
+    wellfld_->attach( alignedBelow, replvelfld_ );
     uiLabel* lbl = new uiLabel( this, tr("Apply to") );
     lbl->attach( centeredLeftOf, wellfld_ );
+
+    mAttachCB( postFinalise(), uiSetD2TFromOtherWell::inpSelCB );
 }
 
 
 uiSetD2TFromOtherWell::~uiSetD2TFromOtherWell()
 {
+    detachAllNotifiers();
+}
+
+
+void uiSetD2TFromOtherWell::inpSelCB( CallBacker* )
+{
+    const MultiID key = inpwellfld_->key( true );
+    RefMan<Well::Data> wd =
+ 	key.isUdf() ? nullptr : Well::MGR().get( key, Well::Inf );
+    if ( !wd )
+	return;
+
+    replvelfld_->setValue( wd->info().replvel );
 }
 
 
@@ -1989,11 +2010,15 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
 
     TypeSet<MultiID> selwells;
     wellfld_->getSelected( selwells );
+    selwells -= inpioobj->key();
     if ( selwells.isEmpty() )
     {
 	uiMSG().error( tr("Please select at least one target well") );
 	return false;
     }
+
+    const bool chgreplvel = replvelfld_->isChecked();
+    const float newreplvel = replvelfld_->getFValue();
 
     const int mdlsz = dtmodel.size();
     TypeSet<double> inputdepths( mdlsz, 0. );
@@ -2007,11 +2032,14 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
     uiStringSet errmsgs;
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
+	const MultiID& selkey = selwells[idx];
 	RefMan<Well::Data> wd = new Well::Data;
-	PtrMan<Well::Reader> rdr = new Well::Reader( selwells[idx], *wd );
+	PtrMan<Well::Reader> rdr = new Well::Reader( selkey, *wd );
 	if ( !rdr->getD2T() )
 	    continue;
 
+	if ( chgreplvel )
+	    wd->info().replvel = newreplvel;
 	TypeSet<double> depths( inputdepths );
 	TypeSet<double> times( inputtimes );
 	uiString errmsg;
@@ -2025,7 +2053,9 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	Well::Writer wtr( selwells[idx], *wd );
+	Well::Writer wtr( selkey, *wd );
+	if ( chgreplvel )
+	    wtr.putInfoAndTrack();
 	wtr.putD2T();
     }
 
