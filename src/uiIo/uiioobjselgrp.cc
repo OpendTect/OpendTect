@@ -483,26 +483,10 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	if ( wrtrselfld_ && !wrtrselfld_->isEmpty()
 	    && !wrtrselfld_->hasSelectedTranslator(*ioobj) )
 	{
-	    if ( ioobj->implExists(false) )
-	    {
-		uiMSG().error( tr("Sorry, can not change the storage type."
-				"\nIf you are sure, please remove the existing "
-				"object first") );
-		return false;
-	    }
-	    else
-	    {
-		const Translator* trl = wrtrselfld_->selectedTranslator();
-		mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
-		if ( iostrm && trl )
-		{
-		    if ( trl->group() )
-			ioobj->setGroup( trl->group()->groupName() );
-		    ioobj->setTranslator( trl->userName() );
-		    iostrm->setExt( trl->defExtension() );
-		    iostrm->genFileName();
-		}
-	    }
+	    uiMSG().error( tr("Sorry, can not change the storage type."
+			    "\nIf you are sure, please remove the existing "
+			    "object first") );
+	    return false;
 	}
 
 	if ( ioobj->implExists(true) )
@@ -908,30 +892,6 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
 
 void uiIOObjSelGrp::newOutputNameCB( CallBacker* )
 {
-    const int deftransidx = ctio_.ctxt_.trgroup_->defTranslIdx();
-    const Translator* deftrans = ctio_.ctxt_.trgroup_->templates()[deftransidx];
-    PtrMan<IOObj> curioobj = IOM().get( currentID() );
-    const Translator* selectedtrans =
-				wrtrselfld_ ? wrtrselfld_->selectedTranslator()
-					    : 0;
-    const bool translatorchanged = curioobj && selectedtrans
-			 ? curioobj->translator() != selectedtrans->userName()
-			 : false;
-
-    if ( !translatorchanged && wrtrselfld_ )
-    {
-	if ( curioobj && wrtrselfld_->hasWriteOpts() )
-	{
-	    uiIOObjSelWriteTranslator currentwrtselfld( this, ctio_.ctxt_,
-				    setup_.trsnotallwed_, true );
-	    currentwrtselfld.use( *curioobj );
-	    if ( wrtrselfld_->hasSameWriteOpts(currentwrtselfld) )
-		wrtrselfld_->resetPars();
-	}
-
-	wrtrselfld_->setTranslator( deftrans );
-	updateCtxtIOObj();
-    }
 }
 
 
