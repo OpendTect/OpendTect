@@ -177,7 +177,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     if ( !selgrp_->getContext().forread_ )
 	captn = tr("Save %1 as" );
     else
-	captn = tr( "Load %1" );
+	captn = tr( "Select %1" );
 
    if ( selgrp_->getContext().name().isEmpty() )
 	captn = captn.arg( ctio.ctxt_.trgroup_->typeName(nr) );
@@ -275,6 +275,7 @@ void uiIOObjSel::init()
     }
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
     mAttachCB( IOM().afterSurveyChange, uiIOObjSel::survChangedCB );
+    mAttachCB( optionalChecked, uiIOObjSel::optCheckCB );
 }
 
 
@@ -285,6 +286,13 @@ uiIOObjSel::~uiIOObjSel()
     if ( inctiomine_ )
 	{ delete inctio_.ioobj_; delete &inctio_; }
     delete workctio_.ioobj_; delete &workctio_;
+}
+
+
+void uiIOObjSel::optCheckCB( CallBacker* )
+{
+    if ( wrtrselfld_ )
+	wrtrselfld_->setSensitive( isChecked() );
 }
 
 

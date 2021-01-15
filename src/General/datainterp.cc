@@ -20,15 +20,32 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefineEnumUtils(DataCharacteristics,UserType,"Data storage") {
 	"0 - auto",
 	"1 - 8  bit signed",
-        "2 - 8  bit unsigned",
-        "3 - 16 bit signed",
-        "4 - 16 bit unsigned",
-        "5 - 32 bit signed",
-        "6 - 32 bit unsigned",
-        "7 - 32 bit floating point",
-        "8 - 64 bit floating point",
-        "9 - 64 bit signed",
-	0 };
+	"2 - 8  bit unsigned",
+	"3 - 16 bit signed",
+	"4 - 16 bit unsigned",
+	"5 - 32 bit signed",
+	"6 - 32 bit unsigned",
+	"7 - 32 bit floating point",
+	"8 - 64 bit floating point",
+	"9 - 64 bit signed",
+	0
+};
+
+template <>
+void EnumDefImpl<DataCharacteristics::UserType>::init()
+{
+    uistrings_
+	.add( mEnumTr("Auto") )					// Auto
+	.add( mEnumTr("8 bit  signed [-128,127]") )		// SI8
+	.add( mEnumTr("8 bit  unsigned [0,255]") )		// UI8
+	.add( mEnumTr("16 bit signed [-32768,32767]") )		// SI16
+	.add( mEnumTr("16 bit unsigned [0,65535]") )		// UI16
+	.add( mEnumTr("32 bit signed integer [-,+]") )		// SI32
+	.add( mEnumTr("32 bit unsigned integer [0,+]") )	// UI32
+	.add( mEnumTr("32 bit floating point") )		// F32
+	.add( mEnumTr("64 bit floating point") )		// F64
+	.add( mEnumTr("64 bit signed integer") );		// SI64
+}
 
 
 bool DataCharacteristics::getUserTypeFromPar( const IOPar& iop, UserType& ut )
