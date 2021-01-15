@@ -545,13 +545,13 @@ namespace System
 {
 
 CrashDumper::CrashDumper()
-    : handler_(0)
+    : handler_(nullptr)
 {
     init();
 }
 
 
-CrashDumper* CrashDumper::theinst_ = 0;
+CrashDumper* CrashDumper::theinst_ = nullptr;
 
 static uiString* legalText();
 static const char* breakpadname = "Google Breakpad";
@@ -564,7 +564,7 @@ static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
 			void* context, EXCEPTION_POINTERS *exinfo,
 			MDRawAssertionInfo *assertion, bool succeeded )
 {
-    if ( !dumpsent.setIfValueIs(0,1,0) )
+    if ( !dumpsent.setIfValueIs(0,1,nullptr) )
 	return succeeded;
 
     const BufferString dmppath( QString::fromWCharArray(dump_path) );
@@ -596,7 +596,7 @@ void CrashDumper::init()
 static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
 			void* context, bool succeeded )
 {
-    if ( !dumpsent.setIfValueIs(0,1,0) )
+    if ( !dumpsent.setIfValueIs(0,1,nullptr) )
 	return succeeded;
 
     FilePath dmpfp( minidumpdesc.path() );

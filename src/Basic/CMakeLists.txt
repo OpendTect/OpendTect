@@ -5,6 +5,7 @@
 #_______________________________________________________________________________
 
 set( OD_USEQT Core )
+set( OD_USEBREAKPAD Yes )
 
 if ( UNIX )
     option ( OD_ENABLE_MEMDEBUGGER_CODE
@@ -13,11 +14,6 @@ if ( UNIX )
 	add_definitions("-DmMEM_DEBUGGER")
     endif()
 endif( UNIX )
-
-if ( OD_ENABLE_BREAKPAD )
-    list(APPEND OD_MODULE_INCLUDESYSPATH ${BREAKPAD_DIR}/include/breakpad )
-    list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_BREAKPADLIBS} )
-endif()
 
 set( QT_MOC_HEADERS
 	qtimercomm.h
@@ -48,8 +44,8 @@ set( OD_TEST_PROGS
 	various_basic.cc
 )
 
-if ( NOT WIN32 )
-    set( OD_TEST_PROGS ${OD_TEST_PROGS} gason.cc )
+if ( UNIX )
+    list( APPEND OD_TEST_PROGS gason.cc )
 endif()
 
 set( OD_MODULE_SOURCES
