@@ -387,7 +387,11 @@ void uiSeisSel::updateInput()
 {
     BufferString ioobjkey;
     if ( workctio_.ioobj_ )
+    {
 	ioobjkey = workctio_.ioobj_->key();
+	if ( wrtrselfld_ )
+	    wrtrselfld_->use( *workctio_.ioobj_ );
+    }
 
     if ( !ioobjkey.isEmpty() )
 	uiIOSelect::setInput( ioobjkey );

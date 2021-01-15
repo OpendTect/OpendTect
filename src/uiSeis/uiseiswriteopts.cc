@@ -29,11 +29,9 @@ uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
 {
     stortypfld_ = new uiGenInput( this, tr("Storage"),
 		StringListInpSpec(DataCharacteristics::UserTypeDef()) );
-    stortypfld_->setValue( (int)DataCharacteristics::Auto );
+    stortypfld_->setValue( int(DataCharacteristics::F32) );
 
-    optimdirfld_ =
-		new uiCheckBox(this,
-			       tr("Optimize for Z-slice viewing"));
+    optimdirfld_ = new uiCheckBox( this, tr("Optimize for Z-slice viewing") );
     optimdirfld_->attach( alignedBelow, stortypfld_ );
 
     setHAlignObj( stortypfld_ );
@@ -43,8 +41,9 @@ uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
 void uiCBVSVolOpts::use( const IOPar& iop )
 {
     const char* res = iop.find( sKey::DataStorage() );
-    if ( res && *res )
-	stortypfld_->setValue( (int)(*res - '0') );
+    const int stortyp = res && *res ? int(*res - '0')
+				    : int(DataCharacteristics::F32);
+    stortypfld_->setValue( stortyp );
 
     res = iop.find( CBVSSeisTrcTranslator::sKeyOptDir() );
     if ( res && *res )
@@ -56,7 +55,6 @@ bool uiCBVSVolOpts::fill( IOPar& iop ) const
 {
     const int dctyp = stortypfld_->getIntValue();
     iop.set( sKey::DataStorage(), DataCharacteristics::UserTypeNames()[dctyp] );
-
     iop.update( CBVSSeisTrcTranslator::sKeyOptDir(),
 			optimdirfld_->isChecked() ? "Horizontal" : "" );
     return true;
@@ -74,7 +72,7 @@ uiCBVSPS3DOpts::uiCBVSPS3DOpts( uiParent* p )
 {
     stortypfld_ = new uiGenInput( this, tr("Storage"),
 		 StringListInpSpec(DataCharacteristics::UserTypeDef()) );
-    stortypfld_->setValue( (int)DataCharacteristics::Auto );
+    stortypfld_->setValue( int(DataCharacteristics::F32) );
     setHAlignObj( stortypfld_ );
 }
 
@@ -82,8 +80,9 @@ uiCBVSPS3DOpts::uiCBVSPS3DOpts( uiParent* p )
 void uiCBVSPS3DOpts::use( const IOPar& iop )
 {
     const char* res = iop.find( sKey::DataStorage() );
-    if ( res && *res )
-	stortypfld_->setValue( (int)(*res - '0') );
+    const int stortyp = res && *res ? int(*res - '0')
+				    : int(DataCharacteristics::F32);
+    stortypfld_->setValue( stortyp );
 }
 
 
