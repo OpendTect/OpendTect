@@ -539,13 +539,15 @@ const char* MsgClass::nameOf( MsgClass::Type typ )
 }
 
 
-#ifdef mUseCrashDumper
+
+#ifdef HAS_BREAKPAD
+#define mUseCrashDumper
+#endif
 
 namespace System
 {
 
 CrashDumper::CrashDumper()
-    : handler_(nullptr)
 {
     init();
 }
@@ -559,7 +561,6 @@ static const char* breakpadname = "Google Breakpad";
 static Threads::Atomic<int> dumpsent( 0 );
 
 #ifdef __win__
-
 static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
 			void* context, EXCEPTION_POINTERS *exinfo,
 			MDRawAssertionInfo *assertion, bool succeeded )
@@ -574,51 +575,43 @@ static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
     CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
-
-
-void CrashDumper::init()
-{
-    if ( handler_ )
-	return;
-
-    const QString dmppath = FilePath::getTempDir();
-    const std::wstring wpath = dmppath.toStdWString();
-    handler_ = new google_breakpad::ExceptionHandler(
-		    wpath, NULL, MinidumpCB, NULL,
-		    google_breakpad::ExceptionHandler::HANDLER_ALL );
-    legalInformation().addCreator( legalText, breakpadname );
-}
-
-#endif // __win__
-
-#ifdef __lux__
-
+#elif __lux__
 static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
-			void* context, bool succeeded )
+    void* context, bool succeeded )
 {
-    if ( !dumpsent.setIfValueIs(0,1,nullptr) )
+    if ( !dumpsent.setIfValueIs( 0, 1, nullptr ) )
 	return succeeded;
 
     FilePath dmpfp( minidumpdesc.path() );
     System::CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
-
+#endif
 
 void CrashDumper::init()
 {
     if ( handler_ )
 	return;
 
+#ifdef mUseCrashDumper
+# ifdef __win__
+    const QString dmppath = FilePath::getTempDir();
+    const std::wstring wpath = dmppath.toStdWString();
+    handler_ = new google_breakpad::ExceptionHandler(
+		    wpath, NULL, MinidumpCB, NULL,
+		    google_breakpad::ExceptionHandler::HANDLER_ALL );
+    legalInformation().addCreator( legalText, breakpadname );
+# elif __lux__
     const BufferString dmppathbuf = FilePath::getTempDir();
     const google_breakpad::MinidumpDescriptor minidumpdesc( dmppathbuf.buf() );
     handler_ = new google_breakpad::ExceptionHandler(
-		    minidumpdesc, NULL, MinidumpCB, NULL,
-		    true, -1 );
+	minidumpdesc, NULL, MinidumpCB, NULL,
+	true, -1 );
     legalInformation().addCreator( legalText, breakpadname );
+# endif
+#endif
 }
 
-#endif // __lux__
 
 void CrashDumper::sendDump( const char* filename )
 {
@@ -633,18 +626,17 @@ void CrashDumper::sendDump( const char* filename )
 #endif
 
     const FilePath script( GetScriptDir(), processscript );
+    OS::MachineCommand machcomm( script.fullPath(), filename );
+
+#ifdef __unix__
     const FilePath symboldir( GetExecPlfDir(), "symbols" );
-
-#ifdef __win__
-    const FilePath dumphandler(GetExecPlfDir(), "minidump_stackwalk.exe");
-#else
     const FilePath dumphandler( GetExecPlfDir(), "minidump_stackwalk" );
-#endif
-
     const BufferString prefix =  FilePath( GetArgV()[0] ).baseName();
 
-    OS::MachineCommand machcomm( script.fullPath(), filename,
-		symboldir.fullPath(), dumphandler.fullPath(), prefix );
+    machcomm.addArg( symboldir.fullPath() )
+	    .addArg( dumphandler.fullPath() )
+	    .addArg( prefix );
+#endif
     if ( !sendappl_.isEmpty() )
 	machcomm.addArg( FilePath(GetExecPlfDir(),sendappl_).fullPath() );
 #ifdef __win__
@@ -664,11 +656,13 @@ CrashDumper& CrashDumper::getInstance()
     {
 	theinst_ = new CrashDumper;
 
+#ifdef mUseCrashDumper
 	const char* crashspec = GetEnvVar( "DTECT_FORCE_IMMEDIATE_DUMP" );
 	if ( crashspec && *crashspec )
 	{
 	    DBG::forceCrash( false );
 	}
+#endif
     }
 
     return *theinst_;
@@ -677,7 +671,7 @@ CrashDumper& CrashDumper::getInstance()
 
 //!Obsolete since we don't do non-ui
 FixedString CrashDumper::sSenderAppl()
-{ return FixedString("" ); }
+{ return FixedString(""); }
 
 FixedString CrashDumper::sUiSenderAppl()
 {
@@ -748,7 +742,3 @@ static uiString* legalText()
 }
 
 } // namespace System
-
-
-
-#endif // mUseCrashDumper
