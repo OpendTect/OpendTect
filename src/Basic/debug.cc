@@ -560,7 +560,8 @@ static const char* breakpadname = "Google Breakpad";
 
 static Threads::Atomic<int> dumpsent( 0 );
 
-#ifdef __win__
+#ifdef mUseCrashDumper
+# ifdef __win__
 static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
 			void* context, EXCEPTION_POINTERS *exinfo,
 			MDRawAssertionInfo *assertion, bool succeeded )
@@ -575,7 +576,7 @@ static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
     CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
-#elif __lux__
+# elif __lux__
 static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
     void* context, bool succeeded )
 {
@@ -586,6 +587,7 @@ static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
     System::CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
+# endif
 #endif
 
 void CrashDumper::init()
