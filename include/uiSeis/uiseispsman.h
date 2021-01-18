@@ -21,6 +21,8 @@ public:
 			uiSeisPreStackMan(uiParent*,bool for2d);
 			~uiSeisPreStackMan();
 
+    bool		is2D() const		{ return is2d_; }
+
     mDeclInstanceCreatedNotifierAccess(uiSeisPreStackMan);
 
     mExpClass(uiSeis) BrowserDef
