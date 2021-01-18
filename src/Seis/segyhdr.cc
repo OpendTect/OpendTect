@@ -740,21 +740,30 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     mPIEPAdj(Z,ti.sampling.step,true);
 
     ti.pick = ti.refnr = mUdf(float);
-    ti.nr = (int)entryVal( EntryTracl() );
+    ti.nr = entryVal( EntryTracl() );
 
-#define mGetFloatVal(memb,fac) \
-    if ( !hdef_.memb##_.isUdf() ) \
-    {\
-	float ftemp = (float)hdef_.memb##_.getValue(buf_,needswap_); \
-	ti.memb = ftemp * fac; \
+    if ( !hdef_.pick_.isUdf() )
+    {
+	const float val = hdef_.pick_.getValue( buf_, needswap_ );
+	ti.pick = val * 0.001f;
     }
-    mGetFloatVal(pick,0.001f);
+
     mPIEPAdj(Z,ti.pick,true);
-    float nrfac = 1.f;
-    short scalnr = (short)entryVal( EntrySPscale() );
-    if ( scalnr == -10 || scalnr == -100 || scalnr == -1000 )
-	nrfac = 1.f / ((float)(-scalnr));
-    mGetFloatVal(refnr,nrfac);
+
+    if ( !hdef_.refnr_.isUdf() )
+    {
+	ti.refnr = hdef_.refnr_.getValue( buf_, needswap_ );
+	short bp = hdef_.refnr_.bytepos_;
+	if ( !hdef_.refnr_.isInternal() )
+	    bp--;
+	if ( bp == hdrDef()[EntrySP()]->bytepos_ )
+	{
+	    const short spscale = sCast(short,entryVal(EntrySPscale()) );
+	    const float scalnr =
+		spscale==0 ? 1 : (spscale>0 ? spscale : -1.f/spscale);
+	    ti.refnr *= scalnr;
+	}
+    }
 
     ti.coord.x = ti.coord.y = 0;
     ti.coord.x = hdef_.xcoord_.getValue(buf_,needswap_);

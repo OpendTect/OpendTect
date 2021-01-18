@@ -230,6 +230,10 @@ void uiSEGYExamine::updateInput( CallBacker* )
     display( true );
     updateInp();
     setName( setup_.fs_.dispName() );
+
+    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,rdr_->translator())
+    if ( segytr )
+	nrtrcsfld_->setMaxValue( segytr->estimatedNrTraces() );
 }
 
 
@@ -367,7 +371,7 @@ void uiSEGYExamine::updateMaxTrace()
 {
     mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,rdr_->translator())
     if ( segytr )
-	trc0fld_->setMaxValue( segytr->estimatedNrTraces()-setup_.nrtrcs_ );
+	trc0fld_->setMaxValue( segytr->estimatedNrTraces()-setup_.nrtrcs_+1 );
 }
 
 
@@ -437,7 +441,8 @@ void uiSEGYExamine::updateInp()
 	txtinfo_ += str;
     }
 
-    outInfo( tr("Total traces: %1").arg(trans->estimatedNrTraces()) );
+    const int estnrtrcs = trans->estimatedNrTraces();
+    outInfo( tr("Total traces: %1").arg(estnrtrcs) );
     txtfld_->setText( txtinfo_ );
     tbl_->selectRow( selrow );
     if ( selrow==0 )
