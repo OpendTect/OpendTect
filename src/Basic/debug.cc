@@ -555,12 +555,12 @@ CrashDumper::CrashDumper()
 
 CrashDumper* CrashDumper::theinst_ = nullptr;
 
-static uiString* legalText();
-static const char* breakpadname = "Google Breakpad";
 
 static Threads::Atomic<int> dumpsent( 0 );
 
 #ifdef mUseCrashDumper
+static uiString* legalText();
+static const char* breakpadname = "Google Breakpad";
 # ifdef __win__
 static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
 			void* context, EXCEPTION_POINTERS *exinfo,
@@ -686,6 +686,7 @@ FixedString CrashDumper::sUiSenderAppl()
 
 
 
+#ifdef mUseCrashDumper
 static uiString* legalText()
 {
     uiString* res = new uiString;
@@ -742,5 +743,6 @@ static uiString* legalText()
 "remains attached.");
     return res;
 }
+#endif
 
 } // namespace System
