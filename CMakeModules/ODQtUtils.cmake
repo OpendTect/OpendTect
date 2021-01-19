@@ -204,7 +204,7 @@ macro( OD_ADD_QT )
         endif( NOT Qt5Core_FOUND )
 
 	set( QT_VERSION_MAJOR ${Qt5Core_VERSION_MAJOR} )
-	if ( NOT DEFINED USE_QtWebEngine )
+	if ( NOT DEFINED CACHE{<USE_QtWebEngine>} )
 	    option( USE_QtWebEngine "Build with Qt5 WebEngineWidgets" OFF )
 	    set( Dtect_QtWebEngine True )
 	endif()
