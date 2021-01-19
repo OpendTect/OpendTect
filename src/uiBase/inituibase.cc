@@ -30,8 +30,6 @@ mDefModInitFn(uiBase)
 
     Init_uiLocalFileSelToolProvider_Class();
 
-#ifdef mUseCrashDumper
     System::CrashDumper::getInstance().setSendAppl(
 					System::CrashDumper::sUiSenderAppl() );
-#endif
 }
