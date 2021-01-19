@@ -145,11 +145,19 @@ bool uiTabBar::isTabEnabled( int idx ) const
 
 
 void uiTabBar::setTabVisible( int idx, bool yn )
-{ body_->setTabVisible( idx, yn ); }
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
+    body_->setTabVisible( idx, yn );
+#endif
+}
 
 
 bool uiTabBar::isTabVisible( int idx ) const
-{ return body_->isTabVisible( idx ); }
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
+    return body_->isTabVisible( idx );
+#endif
+}
 
 
 void uiTabBar::setCurrentTab( int idx )
