@@ -134,7 +134,7 @@ public:
     bool		usePar(const IOPar&);	//!< Keys as in keystrs.h
     void		fillPar(IOPar&) const;	//!< Keys as in keystrs.h
     static void		removeInfo(IOPar&);
-    void		fillJSON(OD::JSON::Object&);
+    void		fillJSON(OD::JSON::Object&) const;
     bool		useJSON(const OD::JSON::Object&);
     void		toString(BufferString&) const; //!< Nice text for info
 
