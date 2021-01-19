@@ -543,13 +543,15 @@ const char* MsgClass::nameOf( MsgClass::Type typ )
 }
 
 
-#ifdef mUseCrashDumper
+
+#ifdef HAS_BREAKPAD
+#define mUseCrashDumper
+#endif
 
 namespace System
 {
 
 CrashDumper::CrashDumper()
-    : handler_(nullptr)
 {
     init();
 }
@@ -557,13 +559,13 @@ CrashDumper::CrashDumper()
 
 CrashDumper* CrashDumper::theinst_ = nullptr;
 
-static uiString* legalText();
-static const char* breakpadname = "Google Breakpad";
 
 static Threads::Atomic<int> dumpsent( 0 );
 
+#ifdef mUseCrashDumper
+static uiString* legalText();
+static const char* breakpadname = "Google Breakpad";
 #ifdef __win__
-
 static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
 			void* context, EXCEPTION_POINTERS *exinfo,
 			MDRawAssertionInfo *assertion, bool succeeded )
@@ -578,25 +580,7 @@ static bool MinidumpCB( const wchar_t* dump_path, const wchar_t* id,
     CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
-
-
-void CrashDumper::init()
-{
-    if ( handler_ )
-	return;
-
-    const QString dmppath = File::Path::getTempDir();
-    const std::wstring wpath = dmppath.toStdWString();
-    handler_ = new google_breakpad::ExceptionHandler(
-		    wpath, NULL, MinidumpCB, NULL,
-		    google_breakpad::ExceptionHandler::HANDLER_ALL );
-    legalInformation().addCreator( legalText, breakpadname );
-}
-
-#endif // __win__
-
-#ifdef __lux__
-
+# elif __lux__
 static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
 			void* context, bool succeeded )
 {
@@ -607,22 +591,33 @@ static bool MinidumpCB( const google_breakpad::MinidumpDescriptor& minidumpdesc,
     System::CrashDumper::getInstance().sendDump( dmpfp.fullPath() );
     return succeeded;
 }
-
+# endif
+#endif
 
 void CrashDumper::init()
 {
     if ( handler_ )
 	return;
 
+#ifdef mUseCrashDumper
+# ifdef __win__
+    const QString dmppath = File::Path::getTempDir();
+    const std::wstring wpath = dmppath.toStdWString();
+    handler_ = new google_breakpad::ExceptionHandler(
+		    wpath, NULL, MinidumpCB, NULL,
+		    google_breakpad::ExceptionHandler::HANDLER_ALL );
+    legalInformation().addCreator( legalText, breakpadname );
+# elif __lux__
     const BufferString dmppathbuf = File::Path::getTempDir();
     const google_breakpad::MinidumpDescriptor minidumpdesc( dmppathbuf.buf() );
     handler_ = new google_breakpad::ExceptionHandler(
 		    minidumpdesc, NULL, MinidumpCB, NULL,
 		    true, -1 );
     legalInformation().addCreator( legalText, breakpadname );
+# endif
+#endif
 }
 
-#endif // __lux__
 
 void CrashDumper::sendDump( const char* filename )
 {
@@ -636,19 +631,23 @@ void CrashDumper::sendDump( const char* filename )
 	"process_dumpfile.sh";
 #endif
 
-    const File::Path script( GetShellScript(processscript) );
+    const File::Path script( GetScriptDir(), processscript );
+    OS::MachineCommand machcomm( script.fullPath(), filename );
+
+#ifdef __unix__
     const File::Path symboldir( GetExecPlfDir(), "symbols" );
-
-#ifdef __win__
-    const File::Path dumphandler(GetExecPlfDir(), "minidump_stackwalk.exe");
-#else
     const File::Path dumphandler( GetExecPlfDir(), "minidump_stackwalk" );
-#endif
-
     const BufferString prefix =  File::Path( GetArgV()[0] ).baseName();
-    OS::MachineCommand machcomm( script.fullPath(), filename,
-		symboldir.fullPath(), dumphandler.fullPath(), prefix );
-    machcomm.addArg( File::Path(GetExecPlfDir(),sendappl_).fullPath() );
+
+    machcomm.addArg( symboldir.fullPath() )
+	    .addArg( dumphandler.fullPath() )
+	    .addArg( prefix );
+#endif
+    if ( !sendappl_.isEmpty() )
+	machcomm.addArg( File::Path(GetExecPlfDir(),sendappl_).fullPath() );
+#ifdef __win__
+    machcomm.addFlag( "binary" );
+#endif
 
     const OS::CommandExecPars pars( OS::RunInBG );
     std::cout << machcomm.toString(&pars) << std::endl;
@@ -663,11 +662,13 @@ CrashDumper& CrashDumper::getInstance()
     {
 	theinst_ = new CrashDumper;
 
+#ifdef mUseCrashDumper
 	const char* crashspec = GetEnvVar( "DTECT_FORCE_IMMEDIATE_DUMP" );
 	if ( crashspec && *crashspec )
 	{
 	    DBG::forceCrash( false );
 	}
+#endif
     }
 
     return *theinst_;
@@ -689,6 +690,7 @@ FixedString CrashDumper::sUiSenderAppl()
 
 
 
+#ifdef mUseCrashDumper
 static uiString* legalText()
 {
     uiString* res = new uiString;
@@ -745,9 +747,6 @@ static uiString* legalText()
 "remains attached.");
     return res;
 }
+#endif
 
 } // namespace System
-
-
-
-#endif // mUseCrashDumper
