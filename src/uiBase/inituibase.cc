@@ -31,8 +31,6 @@ mDefModInitFn(uiBase)
     WebsiteHelp::initClass();
     uiRGBImageLoader::initClass();
 
-#ifdef mUseCrashDumper
     System::CrashDumper::getInstance().setSendAppl(
-					System::CrashDumper::sUiSenderAppl() );
-#endif
+	    System::CrashDumper::sUiSenderAppl() );
 }

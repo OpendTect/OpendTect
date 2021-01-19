@@ -69,10 +69,8 @@ mDefModInitFn(Basic)
     Coords::UnlocatedXY::initClass();
     Coords::AnchorBasedXY::initClass();
 
-#ifdef mUseCrashDumper
-    //Force init of handler.
-    System::CrashDumper::getInstance();
-#endif
+    System::CrashDumper::getInstance().setSendAppl(
+	    System::CrashDumper::sSenderAppl() );
 
 #ifndef OD_NO_QT
     legalInformation().addCreator( qtLegalText, "Qt" );

@@ -11,36 +11,37 @@ set nrargs=0
 
 for %%i in (%*) do set /A nrargs+=1
 
-if %nrargs% LSS 4 (
+if %nrargs% LSS 2 (
     echo %0
     echo  Since processing a minidump on Windows doesn't give desired results
     echo  most of the time, we send the minidump file itself on Windows.
-    echo  launch a sender applicaiton with the minidump file as argument.
-    echo Usage : %0 ^<dumpfile^> ^<symbol-dir^> ^<resolve application^> 
-    echo ^<archive-prefix^> [sender] [args to sender]
+    echo  launch a sender application with the minidump file as argument.
+    echo Usage : %0 ^<dumpfile^> [sender] [args to sender]
     exit /b 1
 )
 
 REM Extract the input parameters
 set dumpfile=%1
-set tmpdir=%~dp1
 shift
 
-set symboldir=%1
+set sender=%1
 shift
 
-set dumphandler=%1
-shift
-
-set archivename=%1
-shift
-
-set sender=
-if %nrargs% GTR 3 (
-    set sender=%1
-    shift
+set senderargs=
+:getappargs
+if "%1"=="" goto after_loop
+if "%senderargs%"=="" (
+    set senderargs=%1
+) else (
+    set senderargs=%senderargs% %1
 )
+shift
+goto getappargs
 
+:after_loop
+if "%senderargs%"=="" (
+    set senderargs=--binary
+)
 
 REM Check the input parameters
 if not exist %dumpfile% (
@@ -48,12 +49,5 @@ if not exist %dumpfile% (
     exit /b 1
 )
 
-REM Send the minidump-file
-if exist "%sender%" (
-    %sender% %dumpfile% --binary 
-)
-
-REM Cleanup
-REM del %dumpfile%
-
+%sender% %dumpfile% %senderargs%
 exit /b 0

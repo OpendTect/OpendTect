@@ -70,9 +70,6 @@ extern "C" {
     DBG::message(flag,msg,__func__,__FILE__,__LINE__)
 
 
-#ifdef HAS_BREAKPAD
-#define mUseCrashDumper
-
 namespace System
 {
 
@@ -84,11 +81,13 @@ public:
     static CrashDumper& getInstance();
 			//!Creates and installs at first run.
 
+    bool		isOK() const { return handler_; }
+
     void		sendDump(const char* filename);
 
-    void		setSendAppl(const char* a)    { sendappl_ = a; }
+    void		setSendAppl( const char* a )    { sendappl_ = a; }
 
-    static FixedString	sSenderAppl();		//od_ReportIssue
+    static FixedString	sSenderAppl();		//None
     static FixedString	sUiSenderAppl();	//od_uiReportIssue
 
 private:
@@ -99,12 +98,12 @@ private:
     static CrashDumper*			theinst_;
 
     BufferString			sendappl_;
-    google_breakpad::ExceptionHandler*	handler_;
+    google_breakpad::ExceptionHandler*	handler_ = nullptr;
 };
 
 } // namespace System
 
-#endif	// HAS_BREAKPAD
+
 
 /*
     This is a list of reserved debug masks, in order to avoid conflicts.
