@@ -191,10 +191,9 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     sdsu.titletext_ = toUiString("%1 %2").arg(titletxt).arg(disptyp);
     BufferStringSet typnms;
     if ( poly )
-	typnms.add( "PointSet" );
+	ctio->ctxt_.toselect_.dontallow_.set( sKey::Type(), sKey::PickSet() );
     else
-	typnms.add( "PolylineSet" ); //These keys corresponds to PetrelKeys
-    sdsu.restrictedsubtyps( typnms );
+	ctio->ctxt_.toselect_.dontallow_.set( sKey::Type(), sKey::Polygon() );
 
     uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
     bool isforread = dlg.isForRead();

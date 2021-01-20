@@ -30,11 +30,12 @@ time though, they could make 'import' menus (almost) obsolete.
 mExpClass(uiIo) uiIOObjInserter : public CallBacker
 {
 public:
-
 			uiIOObjInserter( const Translator& trl )
 			    : objectInserted(this)
-			    , transl_(trl)		{}
-    virtual		~uiIOObjInserter()		{}
+			    , transl_(trl)
+			    , ctxt_(*new IOObjContext(nullptr))
+			{}
+    virtual		~uiIOObjInserter()	{}
 
     mDefineFactoryInClasswKW( uiIOObjInserter, factory, factoryName() )
 
@@ -48,7 +49,7 @@ public:
     static bool		isPresent( const Translator& t )
 			{ return factory().hasName(t.getDisplayName()); }
 
-    static void         addInsertersToDlg(uiParent*,CtxtIOObj&,
+    static void		addInsertersToDlg(uiParent*,CtxtIOObj&,
 					  ObjectSet<uiIOObjInserter>&,
 					  ObjectSet<uiButton>&,
 					  const BufferStringSet&);
@@ -59,17 +60,15 @@ public:
     bool		hasTranslator( const Translator& trl ) const
 			{ return &transl_ == &trl; }
 
+    void		setIOObjCtxt(const IOObjContext&);
+
     Notifier<uiIOObjInserter>	objectInserted;
 				//!< pass a CBCapsule<MultiID> in trigger(),
-
-    void		setSubTypeNotReq(const BufferStringSet& typnms)
-			{ restrictedtypnms_ = typnms; }
 
 protected:
 
     const Translator&	transl_;
-    BufferStringSet	restrictedtypnms_;
-
+    IOObjContext&	ctxt_;
 };
 
 

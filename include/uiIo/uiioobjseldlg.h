@@ -50,7 +50,6 @@ public:
 	mDefSetupMemb(bool,allowsetsurvdefault)
 	mDefSetupMemb(bool,withwriteopts)
 	mDefSetupMemb(bool,withinserters)
-	mDefSetupMemb(BufferStringSet,restrictedsubtyps);
     };
 
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,

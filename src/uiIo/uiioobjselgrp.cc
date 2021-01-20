@@ -307,7 +307,7 @@ void uiIOObjSelGrp::mkManipulators()
 	if ( !inserter || inserter->isDisabled() )
 	    continue;
 
-	inserter->setSubTypeNotReq( setup_.restrictedsubtyps_ );
+	inserter->setIOObjCtxt( ctio_.ctxt_ );
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
 	if ( !tbsu )
 	    { delete inserter; continue; }
