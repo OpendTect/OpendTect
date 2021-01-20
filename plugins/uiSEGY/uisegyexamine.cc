@@ -228,12 +228,19 @@ void uiSEGYExamine::dispHist( CallBacker* )
 void uiSEGYExamine::updateInput( CallBacker* )
 {
     display( true );
-    updateInp();
     setName( setup_.fs_.dispName() );
 
     mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,rdr_->translator())
     if ( segytr )
-	nrtrcsfld_->setMaxValue( segytr->estimatedNrTraces() );
+    {
+	const int estnrtrcs = segytr->estimatedNrTraces();
+	if ( estnrtrcs < setup_.nrtrcs_ )
+	    setup_.nrtrcs_ = estnrtrcs;
+
+	nrtrcsfld_->setMaxValue( estnrtrcs );
+    }
+
+    updateInp();
 }
 
 
@@ -370,8 +377,13 @@ void uiSEGYExamine::nrTrcsCB( CallBacker* )
 void uiSEGYExamine::updateMaxTrace()
 {
     mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,rdr_->translator())
-    if ( segytr )
-	trc0fld_->setMaxValue( segytr->estimatedNrTraces()-setup_.nrtrcs_+1 );
+    if ( !segytr )
+	return;
+
+    int maxval = segytr->estimatedNrTraces()-setup_.nrtrcs_+1;
+    if ( maxval < 1 )
+	maxval = 1;
+    trc0fld_->setMaxValue( maxval );
 }
 
 
