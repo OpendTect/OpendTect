@@ -201,7 +201,6 @@ void SEGY::TxtHeader::setUserInfo( const char* infotxt )
 
 void SEGY::TxtHeader::setPosInfo( const SEGY::TrcHeaderDef& thd )
 {
-
     putAt( 7, 6, 75, "Positions according to the SEG-Y Rev. 1 standard." );
     if ( !info2D() ) return;
 
@@ -580,16 +579,23 @@ void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
     const int icx = mNINT32(crd.x*10); const int icy = mNINT32(crd.y*10);
     setEntryVal( EntryXcdp(), icx );
     setEntryVal( EntryYcdp(), icy );
-    BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
-    setEntryVal( EntryInline(), bid.inl() );
-    setEntryVal( EntryCrossline(), bid.crl() );
+
     int tnr = ti.nr; mPIEPAdj(TrcNr,tnr,false);
-    if ( ti.refnr != 0 && !mIsUdf(ti.refnr) )
+    if ( SEGY::TxtHeader::info2D() )
     {
-	tnr = mNINT32(ti.refnr*10);
-	setEntryVal( EntrySPscale(), -10 );
+	if ( !mIsUdf(ti.refnr) )
+	{
+	    tnr = mNINT32(ti.refnr*100);
+	    setEntryVal( EntrySPscale(), -100 );
+	}
+	setEntryVal( EntrySP(), tnr );
     }
-    setEntryVal( EntrySP(), tnr );
+    else
+    {
+	BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
+	setEntryVal( EntryInline(), bid.inl() );
+	setEntryVal( EntryCrossline(), bid.crl() );
+    }
 }
 
 
@@ -614,6 +620,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
 	{ nr2put = ti.nr; mPIEPAdj(TrcNr,nr2put,false); }
     else
 	{ nr2put = ti.binid.crl(); mPIEPAdj(Inl,nr2put,false); }
+
     setEntryVal( EntryCdp(), nr2put );
 
     Coord crd( ti.coord );
@@ -630,13 +637,21 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     hdef_.xcoord_.putValue( buf_, icx );
     hdef_.ycoord_.putValue( buf_, icy );
 
-    BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
-    hdef_.inl_.putValue( buf_, ti.binid.inl() );
-    hdef_.crl_.putValue( buf_, ti.binid.crl() );
-    int intval = ti.nr; mPIEPAdj(TrcNr,intval,false);
-    hdef_.trnr_.putValue( buf_, intval );
+    if ( is2d )
+    {
+	int intval = ti.nr; mPIEPAdj(TrcNr,intval,false);
+	hdef_.trnr_.putValue( buf_, intval );
+	setEntryVal( EntryOldSP(), int(ti.refnr) );
+    }
+    else
+    {
+	BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
+	hdef_.inl_.putValue( buf_, ti.binid.inl() );
+	hdef_.crl_.putValue( buf_, ti.binid.crl() );
+    }
+
     float tioffs = ti.offset; mPIEPAdj(Offset,tioffs,false);
-    intval = mNINT32( tioffs );
+    int intval = mNINT32( tioffs );
     hdef_.offs_.putValue( buf_, intval );
     intval = mNINT32( ti.azimuth * 360 / M_PI );
     hdef_.azim_.putValue( buf_, intval );
@@ -646,7 +661,6 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     if ( !mIsUdf(ti.nm) ) \
 	{ intval = mNINT32(ti.nm*fac); hdef_.nm##_.putValue( buf_, intval ); }
     mSetScaledMemb(pick,zfac)
-    mSetScaledMemb(refnr,10)
 
     // Absolute priority, therefore possibly overwriting previous
     putSampling( ti.sampling, 0 ); // 0=ns must be set elsewhere
