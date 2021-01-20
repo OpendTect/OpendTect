@@ -197,6 +197,7 @@ public:
     static int	EntryTracl()		{ return 0; }
     static int	EntryTracr()		{ return 1; }
     static int	EntryFldr()		{ return 2; }
+    static int	EntryOldSP()		{ return 4; }
     static int	EntryCdp()		{ return 5; }
     static int	EntryTrid()		{ return 7; }
     static int	EntryDUse()		{ return 10; }

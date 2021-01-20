@@ -460,11 +460,11 @@ SEGY::TrcHeaderDef::TrcHeaderDef()
     , crl_("Crossline number","Cross-line",21)
     , xcoord_("X coordinate","X-Coordinate",73)
     , ycoord_("Y coordinate","Y-Coordinate",77)
-    , trnr_("Trace identification number","Trace Number",5)
+    , trnr_("Trace identification number","Trace Number",21)
     , offs_("Distance between source and receiver","Offset",37)
     , azim_("Direction of line between source and receiver","Azimuth")
     , pick_("Picked Z position","Pick")
-    , refnr_("Auxiliary number for trace identification","Ref/SP Number")
+    , refnr_("Auxiliary number for trace identification","Ref/SP Number",17)
 {}
 
 
