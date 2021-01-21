@@ -658,7 +658,12 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
     strm.add( "\"" );
 #endif
     if ( envnm )
-	strm.add( " " ).add( envnm ).add( od_newline );
+    {
+	BufferString venvnm( envnm );
+	if ( venvnm.find(' ') )
+	    venvnm.quote( '\"' );
+	strm.add( " " ).add( venvnm ).add( od_newline );
+    }
 #ifdef __win__
     if ( background )
 	strm.add( "Start \"%proctitle%\" /MIN " );
@@ -730,7 +735,7 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
     else
 	scriptfpret.set( nullptr );
 
-    OS::CommandLauncher* cl = new OS::CommandLauncher( scriptcmd );
+    auto* cl = new OS::CommandLauncher( scriptcmd );
     return cl;
 }
 
@@ -829,35 +834,57 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 
     if ( envnm )
     {
-	if ( !envnm->isEmpty() )
+	if ( envnm->isEmpty() )
 	{
+	    pythonenvfp.add( new FilePath(envsfp) );
+	    envnms.add( *envnm );
+	    return true;
+	}
+	else
+	{		
 	    const DirList dl( FilePath(envsfp,"envs").fullPath().str(),
 			      File::DirsInDir );
-	    if ( !dl.isPresent(envnm->str()) )
-		return false;
+	    if ( dl.isPresent(envnm->str()) )
+	    {
+		pythonenvfp.add( new FilePath(envsfp) );
+		envnms.add( *envnm );
+		return true;
+	    }
+
+	    BufferStringSet txtenvnms;
+	    getCondaEnvsFromTxt( txtenvnms );
+	    if ( txtenvnms.isPresent(envnm->str()) )
+	    {
+		pythonenvfp.add( new FilePath( envsfp ) );
+		envnms.add( *envnm );
+		return true;
+	    }
 	}
 
-	pythonenvfp.add( new FilePath(envsfp) );
-	envnms.add( *envnm );
-	return true;
+	return false;
     }
 
     const DirList dl( FilePath(envsfp,"envs").fullPath().str(),
 		      File::DirsInDir );
     BufferStringSet prioritydirs;
     TypeSet<int> prioritylist;
-    for ( int idx=0; idx<dl.size(); idx++ )
+
+    if ( !externalroot )
     {
-	const BufferString envpath( dl.fullPath(idx) );
-	const DirList priorityfiles( envpath, File::FilesInDir,
-				     sKeyPriorityGlobExpr() );
-	if ( !priorityfiles.isEmpty() )
+	for ( int idx=0; idx<dl.size(); idx++ )
 	{
-	    const FilePath priofp( priorityfiles.fullPath(0) );
-	    prioritydirs.add( envpath );
-	    prioritylist += toInt( priofp.extension() );
+	    const BufferString envpath( dl.fullPath( idx ) );
+	    const DirList priorityfiles( envpath, File::FilesInDir,
+			    		 sKeyPriorityGlobExpr() );
+	    if ( !priorityfiles.isEmpty() )
+	    {
+		const FilePath priofp( priorityfiles.fullPath(0) );
+		prioritydirs.add( envpath );
+		prioritylist += toInt( priofp.extension() );
+	    }
 	}
     }
+
     if ( prioritylist.isEmpty() )
     {
 	for ( int idx=0; idx<dl.size(); idx++ )
@@ -866,7 +893,16 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	    const FilePath virtenvpath( dl.fullPath(idx) );
 	    envnms.add( virtenvpath.baseName() );
 	}
-	pythonenvfp.add( new FilePath(envsfp) );
+
+	BufferStringSet txtenvnms;
+	getCondaEnvsFromTxt( txtenvnms );
+	for ( const auto* txtenvnm : txtenvnms )
+	{
+	    pythonenvfp.add( new FilePath(envsfp) );
+	    envnms.add( txtenvnm->buf() );
+	}
+
+	pythonenvfp.add( new FilePath( envsfp ) );
 	envnms.add( BufferString::empty() ); //Add base environment
     }
     else
@@ -894,6 +930,37 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
     }
 
     return !pythonenvfp.isEmpty();
+}
+
+
+bool OD::PythonAccess::getCondaEnvsFromTxt( BufferStringSet& envnms )
+{
+    ManagedObjectSet<FilePath> fps;
+    getCondaEnvFromTxtPath( fps );
+    for ( const auto fp : fps )
+        envnms.add( fp->fullPath() );
+    
+    return !envnms.isEmpty();
+}
+
+
+bool OD::PythonAccess::getCondaEnvFromTxtPath( ObjectSet<FilePath>& fp )
+{
+    const FilePath envstxtfp( GetPersonalDir(), ".conda", "environments.txt" );
+    if ( envstxtfp.exists() )
+    {
+	od_istream envstrm( envstxtfp.fullPath() );
+	while ( !envstrm.atEOF() )
+	{
+	    BufferString line;
+	    envstrm.getLine( line );
+	    FilePath envfp( line );
+	    if ( envfp.exists() )
+		fp.add( new FilePath(envfp) );
+	}
+    }
+    
+    return !fp.isEmpty();
 }
 
 
@@ -938,21 +1005,28 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     PythonSource source;
-    if (!PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source) )
+    if ( !PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source) )
 	source = System;
 
     if ( source == Custom )
     {
 	BufferString virtenvloc, virtenvnm;
-	pythonsetts.get(sKeyEnviron(),virtenvloc);
-	pythonsetts.get(sKey::Name(),virtenvnm);
+	pythonsetts.get( sKeyEnviron(), virtenvloc );
+	pythonsetts.get( sKey::Name(), virtenvnm );
 #ifdef __win__
 	fp = FilePath( virtenvloc, "envs", virtenvnm );
 #else
 	fp = FilePath( "/", virtenvloc, "envs", virtenvnm );
 #endif
+	if ( !fp.exists() )
+	{
+	    BufferStringSet txtenvnms;
+	    getCondaEnvsFromTxt( txtenvnms );
+	    if ( txtenvnms.isPresent(virtenvnm.str()) )
+		fp.set( virtenvnm );
+	}
     }
-    else if (source == Internal)
+    else if ( source == Internal )
     {
 	ManagedObjectSet<FilePath> fps;
 	BufferStringSet envnms;
@@ -960,7 +1034,7 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
 	if ( fps.size()<1 )
 	    return;
 	fp = *fps[0];
-	fp.add("envs").add(envnms.get(0));
+	fp.add( "envs" ).add( envnms.get(0) );
     }
 }
 
@@ -969,9 +1043,9 @@ void OD::PythonAccess::GetPythonEnvBinPath( FilePath& fp )
 {
     GetPythonEnvPath( fp );
 #ifdef __win__
-    fp.add("Scripts");
+    fp.add( "Scripts" );
 #else
-    fp.add("bin");
+    fp.add( "bin" );
 #endif
 }
 
