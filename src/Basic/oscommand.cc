@@ -504,10 +504,7 @@ void OS::MachineCommand::addShellIfNeeded()
 	if ( arg->find(' ') && arg->firstChar() != '\'' )
 	    arg->quote();
     }
-
-    BufferString cmdstr( args_.cat(" ") );
-    if ( cmdstr.firstChar() != '\'' )
-	cmdstr.quote();
+    const BufferString cmdstr( args_.cat(" ") );
     args_.setEmpty();
     args_.add( "-c" ).add( cmdstr.buf() );
     // The whole command as one arguments. Quotes will be added automatically
