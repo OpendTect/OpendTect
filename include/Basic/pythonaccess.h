@@ -106,6 +106,7 @@ namespace OD
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
 	bool		openTerminal() const;
+	static void	getPathToInternalEnv(File::Path&,bool userdef);
 	static void	GetPythonEnvPath(File::Path&);
 	static void	GetPythonEnvBinPath(File::Path&);
 
@@ -135,6 +136,8 @@ namespace OD
 				      BufferStringSet& envnms,
 				      const BufferString* envnm=nullptr,
 				      const File::Path* extroot=nullptr);
+	static bool	getCondaEnvsFromTxt(BufferStringSet&);
+	static bool	getCondaEnvFromTxtPath(ObjectSet<File::Path>&);
 	bool		isEnvUsable(const File::Path* pythonenvfp,
 				    const char* envnm,
 				    const char* scriptstr,
