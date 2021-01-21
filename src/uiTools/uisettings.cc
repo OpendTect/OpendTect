@@ -1098,7 +1098,7 @@ bool getPythonEnvBinPath( BufferString& pybinpath ) const
     pybinpath.setEmpty();
     const int sourceidx = pythonsrcfld_->getIntValue();
     const OD::PythonSource source =
-    OD::PythonSourceDef().getEnumForIndex(sourceidx);
+	    		OD::PythonSourceDef().getEnumForIndex(sourceidx);
     FilePath pypath;
     if ( source == OD::Internal )
     {
@@ -1107,35 +1107,35 @@ bool getPythonEnvBinPath( BufferString& pybinpath ) const
 	else if ( internalloc_ )
 	    pypath = FilePath( internalloc_->fileName() );
     }
-
     else if ( source == OD::Custom )
     {
 	pypath = FilePath( customloc_->fileName() );
-	pypath.add( "envs" ).add( customenvnmfld_->text() );
+	const BufferString envnm( customenvnmfld_->text() );
+	pypath.add( "envs" ).add( envnm );
 	if ( !pypath.exists() )
 	{
 	    ManagedObjectSet<FilePath> fps;
-	    const bool condaenvsfromtxt =
-		    	OD::PythonAccess::getCondaEnvFromTxtPath( fps );
+	    OD::PythonAccess::getCondaEnvFromTxtPath( fps );
 	    for ( const auto fp : fps )
 	    {
-		if ( condaenvsfromtxt &&
-		     fp->baseName() == customenvnmfld_->text() )
+		if ( fp->fullPath() == envnm )
 		{
 		    pypath = *fp;
+		    break;
 		}
 	    }
 	}
     }
+
     if ( !pypath.isEmpty() )
     {
-	#ifdef __win__
-	pypath.add("Scripts");
-	#else
-	pypath.add("bin");
-	#endif
+#ifdef __win__
+	pypath.add( "Scripts" );
+#else
+	pypath.add( "bin" );
+#endif
 	pybinpath = pypath.fullPath();
-	if ( !File::exists( pybinpath ) || !File::isDirectory( pybinpath ) )
+	if ( !File::exists(pybinpath) || !File::isDirectory(pybinpath) )
 	    return false;
     }
 
