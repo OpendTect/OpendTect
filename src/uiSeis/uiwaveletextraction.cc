@@ -220,6 +220,13 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
     const IOObj* seisioobj = seisselfld_->ioobj();
     if ( !seisioobj ) return false;
 
+    if ( outputwvltfld_->isEmpty() )
+    {
+	uiMSG().message( uiStrings::phrSpecifyOutput()
+			 .append(uiStrings::sWavelet() ));
+	return false;
+    }
+
     const IOObj* wvltioobj = outputwvltfld_->ioobj();
     if ( !wvltioobj ) return false;
 
