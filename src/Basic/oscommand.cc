@@ -481,6 +481,14 @@ void OS::MachineCommand::addShellIfNeeded()
 	}
     }
 
+#ifdef __win__
+    if ( prognm_ == "cmd" )
+	needsshell = false;
+#else
+    if ( prognm_ == "/bin/sh" )
+	needsshell = false;
+#endif
+
     if ( !needsshell )
 	return;
 
