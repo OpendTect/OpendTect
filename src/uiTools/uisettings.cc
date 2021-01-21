@@ -440,16 +440,17 @@ uiPythonSettings(uiParent* p, const char* nm )
     customenvnmfld_ = new uiGenInput( this, tr("Virtual environment"),
 				      StringListInpSpec() );
     customenvnmfld_->setWithCheck();
+    customenvnmfld_->setElemSzPol( uiObject::WideVar );
     customenvnmfld_->attach( alignedBelow, customloc_ );
 
-    uiSeparator* sep1 = new uiSeparator( this );
+    auto* sep1 = new uiSeparator( this );
     sep1->attach( stretchedBelow, customenvnmfld_ );
 
     custompathfld_ = new uiPathSel( this, tr("Custom Module Path") );
     custompathfld_->attach( alignedBelow, customenvnmfld_ );
     custompathfld_->attach( stretchedBelow, sep1 );
 
-    uiSeparator* sep2 = new uiSeparator( this );
+    auto* sep2 = new uiSeparator( this );
     sep2->attach( stretchedBelow, custompathfld_ );
 
     BufferStringSet exenms( IDENames );
@@ -461,12 +462,12 @@ uiPythonSettings(uiParent* p, const char* nm )
     pyidefld_->attach( stretchedBelow, sep2 );
     pyidefld_->setChecked( false );
 
-    uiButton* testbut = new uiPushButton( this, tr("Test"),
+    auto* testbut = new uiPushButton( this, tr("Test"),
 			mCB(this,uiPythonSettings,testCB), true);
     testbut->setIcon( "test" );
     testbut->attach( ensureBelow, pyidefld_ );
 
-    uiButton* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
+    auto* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
 			mCB(this,uiPythonSettings,promptCB), true );
     cmdwinbut->setIcon( "terminal" );
     cmdwinbut->attach( rightOf, testbut );
@@ -655,7 +656,9 @@ void sourceChgCB( CallBacker* )
 	internalloc_->display( source == OD::Internal );
 
     customloc_->display( source == OD::Custom );
-    customenvnmfld_->display( source == OD::Custom );
+    if ( source == OD::System || source == OD::Internal )
+	customenvnmfld_->display( false );
+
     updateIDEfld();
     parChgCB( nullptr );
 }
@@ -666,6 +669,7 @@ void customEnvChgCB( CallBacker* )
     updateIDEfld();
     parChgCB( nullptr );
 }
+
 
 void internalLocChgCB( CallBacker* )
 {
@@ -686,13 +690,21 @@ void setCustomEnvironmentNames()
     if ( !fp.exists() )
 	return;
 
+    ManagedObjectSet<File::Path> fps;
     BufferStringSet envnames;
-    const DirList dl( fp.fullPath(), File::DirsInDir );
-    for ( int idx=0; idx<dl.size(); idx++ )
-	envnames.add( File::Path(dl.fullPath(idx)).baseName() );
+    const File::Path externalroot( envroot );
+    OD::PythonAccess::getSortedVirtualEnvironmentLoc( fps, envnames, nullptr,
+		    				      &externalroot );
+    for ( int idx=envnames.size()-1; idx>=0; idx-- )
+    {
+        if ( envnames.get(idx).isEmpty() )
+	    envnames.removeSingle(idx);
+    }
+
     customenvnmfld_->setEmpty();
     customenvnmfld_->newSpec( StringListInpSpec(envnames), 0 );
     customenvnmfld_->setChecked( !envnames.isEmpty() );
+    customenvnmfld_->display( !envnames.isEmpty() );
 }
 
 void testPythonModules()
@@ -779,25 +791,37 @@ bool getPythonEnvBinPath( BufferString& pybinpath ) const
 	if ( OD::PythonAccess::hasInternalEnvironment(false) )
 	    OD::PythonAccess::GetPythonEnvPath( pypath );
 	else if ( internalloc_ )
-	{
 	    pypath = File::Path( internalloc_->fileName() );
-	}
     }
     else if ( source == OD::Custom )
     {
 	pypath = File::Path( customloc_->fileName() );
-	pypath.add( "envs" ).add( customenvnmfld_->text() );
+	const BufferString envnm( customenvnmfld_->text() ); 
+	pypath.add( "envs" ).add( envnm );
+	if ( !pypath.exists() )
+	{
+	    ManagedObjectSet<File::Path> fps;
+	    OD::PythonAccess::getCondaEnvFromTxtPath( fps );
+	    for ( const auto fp : fps )
+	    {
+		if ( fp->fullPath() == envnm )
+		{
+		    pypath = *fp;
+		    break;
+		}
+	    }
+	}
     }
 
     if ( !pypath.isEmpty() )
     {
-	#ifdef __win__
-	pypath.add("Scripts");
-	#else
-	pypath.add("bin");
-	#endif
+#ifdef __win__
+	pypath.add( "Scripts" );
+#else
+	pypath.add( "bin" );
+#endif
 	pybinpath = pypath.fullPath();
-	if ( !File::exists( pybinpath ) || !File::isDirectory( pybinpath ) )
+	if ( !File::exists(pybinpath) || !File::isDirectory(pybinpath) )
 	    return false;
     }
 
