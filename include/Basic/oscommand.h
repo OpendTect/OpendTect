@@ -124,8 +124,9 @@ public:
     MachineCommand&	addPipe()	{ return addArg("|"); }
     MachineCommand&	addFileRedirect(const char* fnm,int stdcode=0,
 					bool append=false);
-			/*!< stcode=0: '>'; stdcode=1: '1>'; stdcode=2: '2>'
-			   append: '>>'; otherwise: '>'		   */
+			/*!< stdcode=0: '>'; stdcode=1: '1>'; stdcode=2: '2>'
+			     stdcode=3: '> fnm 2>&1';
+			     append: '>>'; otherwise: '>'	*/
 
 			// convenience:
     template <class T>

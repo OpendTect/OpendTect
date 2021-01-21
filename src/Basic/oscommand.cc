@@ -225,15 +225,17 @@ OS::MachineCommand& OS::MachineCommand::addFileRedirect( const char* fnm,
 						int stdcode, bool append )
 {
     BufferString redirect;
-    if ( stdcode == 1 )
-	redirect.add( 1 );
-    else if ( stdcode == 2 )
-	redirect.add( 2 );
+    if ( stdcode==1 || stdcode==2 )
+	redirect.add( stdcode );
+
     redirect.add( ">" );
     if ( append )
 	redirect.add( ">" );
 
-    return addArg( redirect ).addArg( fnm );
+    if ( stdcode == 3 )
+	return addArg( redirect ).addArg( fnm ).addArg( "2>&1" );
+    else
+	return addArg( redirect ).addArg( fnm );
 }
 
 
