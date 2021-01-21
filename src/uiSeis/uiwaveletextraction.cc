@@ -226,8 +226,17 @@ bool uiWaveletExtraction::acceptOK()
     const IOObj* seisioobj = seisselfld_->ioobj();
     if ( !seisioobj )
 	return false;
+
+    if ( outputwvltfld_->isEmpty() )
+    {
+	uiMSG().message( uiStrings::phrSpecifyOutput()
+			 .append(uiStrings::sWavelet() ) );
+	return false;
+    }
+
     if ( !outputwvltfld_->ioobj() )
 	return false;
+
     if ( linesel2dfld_ && !check2DFlds() )
 	return false;
 
