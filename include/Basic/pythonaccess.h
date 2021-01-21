@@ -138,6 +138,8 @@ namespace OD
 				      BufferStringSet& envnms,
 				      const BufferString* envnm=nullptr,
 				      const FilePath* extroot=nullptr);
+	static bool	getCondaEnvsFromTxt( BufferStringSet& );
+	static bool	getCondaEnvFromTxtPath( ObjectSet<FilePath>& );
 	bool		isEnvUsable(const FilePath* pythonenvfp,
 				    const char* envnm,
 				    const char* scriptstr,
