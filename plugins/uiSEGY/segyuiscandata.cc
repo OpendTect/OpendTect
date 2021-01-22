@@ -34,7 +34,7 @@ static const int cQuickScanMaxNrTrcs4LineChg = 10000;
 
 void SEGY::BasicFileInfo::init()
 {
-    revision_ = ns_ = -1;
+    revision_ = ns_ = binns_ = binsr_ -1;
     format_ = 5;
     sampling_.start = 1.0f;
     sampling_.step = mUdf(float);
@@ -132,10 +132,12 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
     if ( !strm.isOK() )
 	mErrRetWithFileName( "is empty" )
 
-    SEGY::TxtHeader txthdr; SEGY::BinHeader binhdr;
+    SEGY::TxtHeader txthdr;
     strm.getBin( txthdr.txt_, SegyTxtHeaderLength );
     if ( !strm.isOK() )
 	mErrRetWithFileName( "has no textual header" )
+
+    SEGY::BinHeader binhdr;
     strm.getBin( binhdr.buf(), SegyBinHeaderLength );
     if ( strm.isBad() )
 	mErrRetWithFileName( "has no binary header" )
@@ -148,9 +150,8 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 	binhdr.skipRev1Stanzas( strm );
     inft = binhdr.isInFeet();
 
-    ns_ = binhdr.nrSamples();
-    if ( ns_ < 1 || ns_ > SEGY::cMaxReasonableNrSamples() )
-	ns_ = -1;
+    binsr_ = binhdr.rawSampleRate();
+    binns_ = binhdr.nrSamples();
     revision_ = binhdr.revision();
     short fmt = binhdr.format();
     if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
@@ -163,11 +164,7 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
     if ( !thdr )
 	mErrRetWithFileName( "No traces found" )
 
-    if ( ns_ < 1 )
-	ns_ = (int)thdr->nrSamples();
-    if ( ns_ > SEGY::cMaxReasonableNrSamples() )
-	mErrRetWithFileName(
-	    "No proper 'number of samples per trace' found" )
+    ns_ = int(thdr->nrSamples());
 
     SeisTrcInfo ti; thdr->fill( ti, 1.0f );
     sampling_ = ti.sampling;
