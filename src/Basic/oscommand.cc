@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "pythonaccess.h"
 #include "separstr.h"
+#include "settingsaccess.h"
 #include "uistrings.h"
 
 #ifndef OD_NO_QT
@@ -43,6 +44,7 @@ static const char* sKeyProgType = "ProgramType";
 static const char* sKeyPriorityLevel = "PriorityLevel";
 static const char* sKeyWorkDir = "WorkingDirectory";
 
+
 //
 class QProcessManager
 {
@@ -58,7 +60,8 @@ public:
     void	deleteProcesses()
 		{
 #ifndef OD_NO_QT
-		    mObjectSetApplyToAll( processes_, processes_[idx]->close());
+		    for ( auto process : processes_ )
+			process->close();
 		    deepErase( processes_ );
 #endif
 		}
@@ -490,9 +493,8 @@ void OS::MachineCommand::addShellIfNeeded()
     prognm_.set( "cmd" );
 #else
     prognm_.set( "/bin/sh" );
-    for ( int idx=0; idx<args_.size(); idx++ )
+    for ( auto arg : args_ )
     {
-	auto* arg = args_[idx];
 	if ( arg->find(' ') && arg->firstChar() != '\'' )
 	    arg->quote();
     }
@@ -874,7 +876,7 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	    stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
 	}
     }
-    BufferString str = mc.toString();
+
     const BufferString& workingdir = pars.workingdir_;
     if ( process_ )
     {
@@ -939,9 +941,8 @@ static bool startDetachedLegacy( const OS::MachineCommand& mc,
     if ( !mc.args().isEmpty() )
     {
 	BufferStringSet args( mc.args() );
-	for ( int idx=0; idx<args_.size(); idx++ )
+	for ( auto arg : args )
 	{
-	    auto* arg = args_[idx];
 	    if ( arg->find(" ") && !arg->startsWith("\"") &&
 		!arg->startsWith("'") )
 		arg->quote('\"');
@@ -1061,7 +1062,7 @@ int OS::CommandLauncher::catchError()
     if ( !process_ )
 	return 0;
 
-    if ( errmsg_.isSet() )
+    if ( !errmsg_.isEmpty() )
 	return 1;
 
 #ifndef OD_NO_QT
@@ -1099,6 +1100,22 @@ int OS::CommandLauncher::catchError()
 
     return 0;
 #endif
+}
+
+
+bool OS::CommandLauncher::openTerminal( const char* workdir )
+{
+    MachineCommand mc( SettingsAccess().getTerminalEmulator() );
+    CommandExecPars pars( RunInBG );
+#ifdef __win__
+    mc.addArg( "/D" ).addArg( "/K" );
+    const BufferString cmdstring(
+	"prompt $COpendTect$F $P$G && title Command Prompt" );
+    mc.addArg( cmdstring );
+    pars.isconsoleuiprog( true );
+#endif
+    pars.workingdir( workdir );
+    return mc.execute( pars );
 }
 
 
