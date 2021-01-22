@@ -1069,16 +1069,17 @@ int OS::CommandLauncher::catchError()
 
 bool OS::CommandLauncher::openTerminal( const char* workdir )
 {
-    const BufferString termem = SettingsAccess().getTerminalEmulator();
+    MachineCommand mc( SettingsAccess().getTerminalEmulator() );
+    CommandExecPars pars( RunInBG );
 #ifdef __win__
-    OS::MachineCommand mc( "start", termem );
-    const LaunchType lt = Wait4Finish;
-#else
-    OS::MachineCommand mc( termem );
-    const LaunchType lt = RunInBG;
+    mc.addArg( "/D" ).addArg( "/K" );
+    const BufferString cmdstring(
+	"prompt $COpendTect$F $P$G && title Command Prompt" );
+    mc.addArg( cmdstring );
+    pars.isconsoleuiprog( true );
 #endif
-
-    return mc.execute( lt, workdir );
+    pars.workingdir( workdir );
+    return mc.execute( pars );
 }
 
 
