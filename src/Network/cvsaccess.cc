@@ -19,8 +19,7 @@ ________________________________________________________________________
 static void addRedirect( OS::MachineCommand& mc )
 {
 #ifndef __debug__
-    mc.addFileRedirect( "/dev/null" )
-      .addFileRedirect( "&1", 2 );
+    mc.addFileRedirect( "/dev/null", 3 );
 #endif
 }
 
@@ -95,7 +94,9 @@ bool CVSAccess::hostOK() const
 
 bool CVSAccess::isInCVS( const char* fnm ) const
 {
-    if ( !fnm || !*fnm || !isOK() ) return false;
+    if ( !fnm || !*fnm || !isOK() )
+	return false;
+
     File::Path fp( fnm );
     BufferString dirnm( fp.pathOnly() );
     BufferStringSet entries; getEntries( dirnm, entries );
@@ -107,7 +108,11 @@ void CVSAccess::getEntries( const char* dir, BufferStringSet& entries ) const
 {
     entries.erase();
 
-    od_istream strm( File::Path(dir,"CVS","Entries") );
+    File::Path fp( dir, "CVS", "Entries" );
+    if ( !fp.isAbsolute() )
+	fp = File::Path( dir_, fp.fullPath() );
+
+    od_istream strm( fp );
     if ( !strm.isOK() )
 	return;
 
@@ -248,9 +253,7 @@ bool CVSAccess::commit( const BufferStringSet& fnms, const char* msg )
     {
 	const char* fnm = fnms.get(idx).buf();
 	if ( fnm && *fnm )
-	{
 	    machcomm.addArg( fnm );
-	}
     }
 
     mExecCmd( const bool res =, machcomm );
