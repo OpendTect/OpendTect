@@ -19,8 +19,7 @@ ________________________________________________________________________
 static void addRedirect( OS::MachineCommand& mc )
 {
 #ifndef __debug__
-    mc.addFileRedirect( "/dev/null" )
-      .addFileRedirect( "&1", 2 );
+    mc.addFileRedirect( "/dev/null", 3 );
 #endif
 }
 
