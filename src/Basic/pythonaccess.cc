@@ -332,6 +332,24 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
 }
 
 
+namespace OD {
+
+BufferString& GetPythonActivatorExe()
+{
+    mDeclStaticString( ret );
+    return ret;
+}
+
+} //namespace OD
+
+
+void OD::PythonAccess::setPythonActivator( const char* fnm )
+{
+    if ( File::exists(fnm) )
+	GetPythonActivatorExe().set( fnm );
+}
+
+
 FilePath* OD::PythonAccess::getActivateScript( const FilePath& rootfp )
 {
     FilePath ret( rootfp.fullPath(), "bin" );
@@ -363,7 +381,9 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
 	if ( !pythonenvfp->exists() )
 	    return false;
 
-	activatefp = getActivateScript( FilePath(pythonenvfp->fullPath()) );
+	activatefp = GetPythonActivatorExe().isEmpty()
+		   ? getActivateScript( FilePath( pythonenvfp->fullPath() ) )
+		   : new FilePath( *pythonenvfp );
 	if ( !activatefp )
 	    return false;
     }
@@ -601,13 +621,6 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 					const FilePath* activatefp,
 					const char* envnm )
 {
-    if ( !activatefp || !envnm )
-    {
-	const OS::MachineCommand cmdret( cmd, true );
-	cmd = cmdret;
-	return nullptr;
-    }
-
     auto* ret = new FilePath( FilePath::getTempFullPath("runpython",nullptr) );
     if ( !ret )
 	return nullptr;
@@ -720,8 +733,32 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 						FilePath& scriptfpret )
 {
     OS::MachineCommand scriptcmd( mc );
-    PtrMan<FilePath> scriptfp = getCommand( scriptcmd, background,
-					    activatefp, envnm );
+    PtrMan<FilePath> scriptfp;
+    if ( activatefp )
+    {
+	if ( GetPythonActivatorExe().isEmpty() )
+	{
+	    scriptfp = getCommand( scriptcmd, background,
+				   activatefp, envnm );
+	}
+	else
+	{
+	    OS::MachineCommand cmdret( GetPythonActivatorExe() );
+	    const FilePath rootfp( *activatefp );
+	    const BufferString rootfnm = rootfp.dirUpTo( rootfp.nrLevels()-1 );
+	    cmdret.addKeyedArg( "envpath", rootfnm );
+	    if ( envnm && *envnm )
+		cmdret.addKeyedArg( "envnm", envnm );
+	    cmdret.addFlag( "" ).addArg( mc.program() ).addArgs( mc.args() );
+	    scriptcmd = OS::MachineCommand( cmdret, true );
+	}
+    }
+    else
+    {
+	const OS::MachineCommand cmdret( scriptcmd, true );
+	scriptcmd = cmdret;
+    }
+
     if ( scriptfp )
 	scriptfpret = *scriptfp;
     else
@@ -1351,14 +1388,24 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
 bool OD::PythonAccess::openTerminal() const
 {
     const BufferString termem = SettingsAccess().getTerminalEmulator();
-    bool immediate = false;
+    OS::CommandExecPars pars( OS::RunInBG );
 #ifdef __win__
-    OS::MachineCommand cmd( "start", termem );
-    immediate = true;
+    OS::MachineCommand cmd;
+    if ( GetPythonActivatorExe().isEmpty() )
+    {
+	cmd.setProgram( "start" ).addArg( termem );
+	pars = OS::CommandExecPars( OS::Wait4Finish );
+    }
+    else
+    {
+	cmd.setProgram( termem );
+	pars.isconsoleuiprog( true );
+    }
 #else
     OS::MachineCommand cmd( termem );
 #endif
-    return execute( cmd, immediate );
+    pars.workingdir( GetPersonalDir() );
+    return execute( cmd, pars );
 }
 
 

@@ -167,9 +167,10 @@ namespace OD
 	friend class ::uiPythonSettings;
 	friend class ::ServiceMgrBase;
 
-	public:
+    public:
 
 	static void	initClass();
+	static void	setPythonActivator(const char*);
 
 	void		addBasePath(const FilePath&);
 			/*<! For plugins to update PYTHONPATH
