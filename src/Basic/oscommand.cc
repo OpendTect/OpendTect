@@ -43,6 +43,7 @@ static const char* sKeyProgType = "ProgramType";
 static const char* sKeyPriorityLevel = "PriorityLevel";
 static const char* sKeyWorkDir = "WorkingDirectory";
 
+
 //
 class QProcessManager
 {
@@ -58,7 +59,8 @@ public:
     void	deleteProcesses()
 		{
 #ifndef OD_NO_QT
-		    mObjectSetApplyToAll( processes_, processes_[idx]->close());
+		    for ( auto process : processes_ )
+			process->close();
 		    deepErase( processes_ );
 #endif
 		}
@@ -469,12 +471,20 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 
 void OS::MachineCommand::addShellIfNeeded()
 {
+#ifdef __win__
+    if ( prognm_ == FixedString("cmd") && args_.size() > 0 &&
+	 *args_.first() == FixedString("/c") )
+#else
+    if ( prognm_ == FixedString("/bin/sh") && args_.size() > 0 &&
+	 *args_.first() == FixedString("-c") )
+#endif
+	return;
+
     bool needsshell = prognm_.startsWith( "echo", CaseInsensitive );
     if ( !needsshell )
     {
-	for ( int idx=0; idx<args_.size(); idx++ )
+	for ( const auto arg : args_ )
 	{
-	    const auto* arg = args_[idx];
 	    if ( arg->find(">") || arg->find("<") || arg->find("|") )
 	    {
 		needsshell = true;
@@ -482,14 +492,6 @@ void OS::MachineCommand::addShellIfNeeded()
 	    }
 	}
     }
-
-#ifdef __win__
-    if ( prognm_ == "cmd" )
-	needsshell = false;
-#else
-    if ( prognm_ == "/bin/sh" )
-	needsshell = false;
-#endif
 
     if ( !needsshell )
 	return;
@@ -500,9 +502,8 @@ void OS::MachineCommand::addShellIfNeeded()
     prognm_.set( "cmd" );
 #else
     prognm_.set( "/bin/sh" );
-    for ( int idx=0; idx<args_.size(); idx++ )
+    for ( auto arg : args_ )
     {
-	auto* arg = args_[idx];
 	if ( arg->find(' ') && arg->firstChar() != '\'' )
 	    arg->quote();
     }
@@ -847,7 +848,7 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	    stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
 	}
     }
-    BufferString str = mc.toString();
+
     const BufferString& workingdir = pars.workingdir_;
     if ( process_ )
     {
@@ -912,9 +913,8 @@ static bool startDetachedLegacy( const OS::MachineCommand& mc,
     if ( !mc.args().isEmpty() )
     {
 	BufferStringSet args( mc.args() );
-	for ( int idx=0; idx<args_.size(); idx++ )
+	for ( auto arg : args )
 	{
-	    auto* arg = args_[idx];
 	    if ( arg->find(" ") && !arg->startsWith("\"") &&
 		!arg->startsWith("'") )
 		arg->quote('\"');
@@ -1034,7 +1034,7 @@ int OS::CommandLauncher::catchError()
     if ( !process_ )
 	return 0;
 
-    if ( errmsg_.isSet() )
+    if ( !errmsg_.isEmpty() )
 	return 1;
 
 #ifndef OD_NO_QT
