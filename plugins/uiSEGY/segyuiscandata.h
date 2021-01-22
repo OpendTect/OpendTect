@@ -48,7 +48,9 @@ public:
     void		init();
 
     int			revision_;
-    int			ns_;
+    int			binns_;		// nr samples binary header
+    int			binsr_;		// sample rate (us or mm)
+    int			ns_;		// nr samples trace header
     short		format_;
     SamplingData<float>	sampling_;
     bool		hdrsswapped_;
