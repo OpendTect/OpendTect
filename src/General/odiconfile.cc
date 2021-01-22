@@ -94,28 +94,26 @@ void OD::IconFile::set( const char* inp )
 
 const char* OD::IconFile::getIdentifier( OD::StdActionType typ )
 {
-#   define mCaseRet(typ,ret) case typ: return #ret;
-
     switch( typ )
     {
-	mCaseRet(Apply,apply)
-	mCaseRet(Cancel,cancel)
-	mCaseRet(Define,define)
-	mCaseRet(Delete,remove)
-	mCaseRet(Edit,edit)
-	mCaseRet(Examine,examine)
-	mCaseRet(Help,help)
-	mCaseRet(Ok,ok)
-	mCaseRet(Options,options)
-	mCaseRet(Properties,options)
-	mCaseRet(Rename,renameobj)
-	mCaseRet(Remove,delete)
-	mCaseRet(Save,save)
-	mCaseRet(SaveAs,saveas)
-	mCaseRet(Select,selectfromlist)
-	mCaseRet(Settings,options)
-	mCaseRet(Unload,unload)
-	mCaseRet(Video,video)
+	case Apply: return "apply";
+	case Cancel: return "cancel";
+	case Define: return "define";
+	case Delete: return "remove";
+	case Edit: return "edit";
+	case Examine: return "examine";
+	case Help: return "help";
+	case Ok: return "ok";
+	case Options: return "options";
+	case Properties: return "options";
+	case Rename: return "renameobj";
+	case Remove: return "delete";
+	case Save: return "save";
+	case SaveAs: return "saveas";
+	case Select: return "selectfromlist";
+	case Settings: return "options";
+	case Unload: return "unload";
+	case Video: return "video";
 	default: break;
     }
 
