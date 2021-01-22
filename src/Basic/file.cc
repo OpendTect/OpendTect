@@ -1262,7 +1262,8 @@ static bool canApplyScript( const char* scriptfnm )
 bool initTempDir()
 {
 #ifdef __win__
-    if ( !hasAppLocker() )
+    if ( !hasAppLocker() ||
+         GetEnvVarYN("OD_DISABLE_APPLOCKER_TEST",false) )
         return true;
 
     FilePath targetfp( getTempPath(),
