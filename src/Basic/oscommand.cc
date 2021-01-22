@@ -472,12 +472,20 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 
 void OS::MachineCommand::addShellIfNeeded()
 {
+#ifdef __win__
+    if ( prognm_ == FixedString("cmd") && args_.size() > 0 &&
+	 *args_.first() == FixedString("/c") )
+#else
+    if ( prognm_ == FixedString("/bin/sh") && args_.size() > 0 &&
+	 *args_.first() == FixedString("-c") )
+#endif
+	return;
+
     bool needsshell = prognm_.startsWith( "echo", CaseInsensitive );
     if ( !needsshell )
     {
-	for ( int idx=0; idx<args_.size(); idx++ )
+	for ( const auto arg : args_ )
 	{
-	    const auto* arg = args_[idx];
 	    if ( arg->find(">") || arg->find("<") || arg->find("|") )
 	    {
 		needsshell = true;
