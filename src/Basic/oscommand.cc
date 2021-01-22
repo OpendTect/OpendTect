@@ -28,6 +28,7 @@
 #include <iostream>
 
 #ifdef __win__
+# include "shellapi.h"
 # include "winutils.h"
 # include <windows.h>
 # include <stdlib.h>
@@ -103,7 +104,7 @@ void OS::CommandExecPars::usePar( const IOPar& iop )
 
     FileMultiString fms;
     subpar->get( sKeyMonitor, fms );
-    auto sz = fms.size();
+    int sz = fms.size();
     if ( sz > 0 )
     {
 	needmonitor_ = toBool( fms[0] );
@@ -788,6 +789,26 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
     if ( mc.isBad() )
 	{ errmsg_ = tr("Command is empty"); return false; }
 
+#ifdef __win__
+    if ( pars.runasadmin_ )
+    {
+        BufferString argsstr;
+        for ( int idx=0; idx<mc.args().size(); idx++ )
+        {
+            BufferString arg( mc.args().get(idx) );
+            if ( arg.find(" ") )
+                arg.quote('\"');
+            if ( !argsstr.isEmpty() )
+                argsstr.addSpace();
+            argsstr.add( arg );
+        }
+        const HINSTANCE res = ShellExecuteA( NULL, "runas", mc.program(),
+            argsstr, pars.workingdir_, SW_SHOW );
+        return static_cast<int>(reinterpret_cast<uintptr_t>(res)) >
+							    HINSTANCE_ERROR;
+    }
+#endif
+
     if ( process_ )
     {
 	errmsg_ = tr("Process is already running ('%1')")
@@ -904,11 +925,11 @@ static bool startDetachedLegacy( const OS::MachineCommand& mc,
     const int wincrflg = inconsole ? CREATE_NEW_CONSOLE : CREATE_NO_WINDOW;
     const bool res = CreateProcess( NULL,
 	comm.getCStr(),
-	NULL,   // Process handle not inheritable.
-	NULL,   // Thread handle not inheritable.
-	FALSE,  // Set handle inheritance.
+	NULL,	// Process handle not inheritable.
+	NULL,	// Thread handle not inheritable.
+	FALSE,	// Set handle inheritance.
 	wincrflg,   // Creation flags.
-	NULL,   // Use parent's environment block.
+	NULL,	// Use parent's environment block.
 	curdir,   // Use parent's starting directory.
 	&si, &pi );
 
