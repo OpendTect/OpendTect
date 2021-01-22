@@ -261,9 +261,29 @@ OS::MachineCommand& OS::MachineCommand::addKeyedArg( const char* ky,
 }
 
 
+namespace OS {
+
+BufferString& GetIsolateScript()
+{
+	mDeclStaticString( ret );
+	return ret;
+}
+
+} //namespace OS
+
+
+void OS::MachineCommand::setIsolationScript( const char* fnm )
+{
+    if ( File::exists(fnm) )
+	GetIsolateScript().set( fnm );
+}
+
+
 void OS::MachineCommand::setIsolated( const char* prognm )
 {
-    BufferString scriptcmd( GetODExternalScript() );
+    const BufferString& isolatescript = GetIsolateScript();
+    BufferString scriptcmd( isolatescript.isEmpty() ? GetODExternalScript()
+			  : isolatescript.str() );
     prognm_.set( scriptcmd );
     if ( prognm && *prognm )
 	args_.insertAt( new BufferString(prognm), 0 );
@@ -799,6 +819,13 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	{ errmsg_ = tr("Command is empty"); return false; }
 
 #ifdef __win__
+    if ( FixedString(mc.program()) == GetIsolateScript() &&
+	 pars.workingdir_.isEmpty() )
+    {
+	CommandExecPars& parsedit = const_cast<CommandExecPars&>( pars );
+	parsedit.workingdir( GetPersonalDir() );
+    }
+
     if ( pars.runasadmin_ )
     {
         BufferString argsstr;

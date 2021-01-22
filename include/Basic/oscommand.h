@@ -195,6 +195,9 @@ public:
     mDeprecated("Use sKeyPrimaryPort()")
     static const char*	sKeyMasterPort()	{ return "primaryport"; }
 
+    //Only for expert usage
+    static void		setIsolationScript(const char*);
+
 };
 
 
