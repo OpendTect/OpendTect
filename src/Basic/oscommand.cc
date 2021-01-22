@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "perthreadrepos.h"
 #include "pythonaccess.h"
 #include "separstr.h"
+#include "settingsaccess.h"
 #include "uistrings.h"
 
 #ifndef OD_NO_QT
@@ -1072,6 +1073,22 @@ int OS::CommandLauncher::catchError()
 
     return 0;
 #endif
+}
+
+
+bool OS::CommandLauncher::openTerminal( const char* workdir )
+{
+    MachineCommand mc( SettingsAccess().getTerminalEmulator() );
+    CommandExecPars pars( RunInBG );
+#ifdef __win__
+    mc.addArg( "/D" ).addArg( "/K" );
+    const BufferString cmdstring(
+	"prompt $COpendTect$F $P$G && title Command Prompt" );
+    mc.addArg( cmdstring );
+    pars.isconsoleuiprog( true );
+#endif
+    pars.workingdir( workdir );
+    return mc.execute( pars );
 }
 
 
