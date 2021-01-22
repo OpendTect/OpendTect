@@ -40,7 +40,9 @@ public:
 ODFileDialog( const QString& dirname, const QString& fltr, QWidget* p,
 	      const char* caption )
     : QFileDialog(p,caption,dirname,fltr)
-{ setModal( true ); }
+{
+    setModal( true );
+}
 
 };
 
@@ -140,8 +142,7 @@ int uiFileDialog::go()
     if ( GetEnvVarYN("OD_FILE_SELECTOR_BROKEN") )
     {
 	uiDialog dlg( parnt_, uiDialog::Setup(tr("Specify file name"),
-			    tr("System file selection unavailable!"),
-                            mNoHelpKey) );
+			tr("System file selection unavailable!"), mNoHelpKey) );
 	uiLineEdit* le = new uiLineEdit( &dlg, "File name" );
 	le->setText( dirname );
 	mUseDefaultTextValidatorOnField(le);
@@ -176,7 +177,10 @@ int uiFileDialog::go()
     const QFileDialog::FileMode qfmode = qmodeForUiMode( mode_ );
     fd->setFileMode( qfmode );
     if ( qfmode == QFileDialog::Directory )
+    {
 	fd->setOption( QFileDialog::ShowDirsOnly );
+	fd->setAcceptMode( QFileDialog::AcceptOpen );
+    }
 
     fd->setWindowTitle( toQString(wintitle) );
     fd->setOption( QFileDialog::DontConfirmOverwrite, !confirmoverwrite_ );
@@ -374,14 +378,14 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 	if ( File::isDirectory(fname) )
 	{
 	    if ( mode_!=Directory && mode_!=DirectoryOnly )
-		mRetErrMsg( fname, "specifies an existing directory" );
+		mRetErrMsg( fname, "specifies an existing folder" );
 	    if ( !forread_ && !File::isWritable(fname) )
-		mRetErrMsg( fname, "specifies a read-only directory" );
+		mRetErrMsg( fname, "specifies a read-only folder" );
 	}
 	else
 	{
 	    if ( mode_==Directory || mode_==DirectoryOnly )
-		mRetErrMsg( fname, "specifies no existing directory" );
+		mRetErrMsg( fname, "specifies no existing folder" );
 
 	    if ( !File::exists(fname) )
 	    {
@@ -390,9 +394,9 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 		if ( fp.nrLevels() > 1 )
 		{
 		    if ( !File::isDirectory(fp.pathOnly()) )
-			mRetErrMsg( fname, "ends in non-existing directory" );
+			mRetErrMsg( fname, "ends in non-existing folder" );
 		    if ( !forread_ && !File::isWritable(fp.pathOnly()) )
-			mRetErrMsg( fname, "ends in a read-only directory" );
+			mRetErrMsg( fname, "ends in a read-only folder" );
 		}
 	    }
 	    else if ( !forread_ && !File::isWritable(fname) )
