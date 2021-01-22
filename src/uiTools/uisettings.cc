@@ -88,7 +88,9 @@ void uiSettingsMgr::keyPressedCB( CallBacker* )
     {
 	terminalRequested.trigger();
 	uiMain::keyboardEventHandler().setHandled( true );
-	OD::PythA().openTerminal();
+	const BufferString workdir( GetPersonalDir() );
+	if ( !OD::PythA().openTerminal() )
+	    OS::CommandLauncher::openTerminal( workdir );
     }
 }
 
