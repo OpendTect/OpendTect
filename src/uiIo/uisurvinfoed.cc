@@ -389,16 +389,14 @@ void uiSurveyInfoEditor::mkCRSGrp()
 }
 
 
-static void setZValFld( uiGenInput* zfld, int nr, float val, float fac )
+static void setZValFld( uiGenInput* zfld, int nr, float val, int nrdec )
 {
     if ( mIsUdf(val) )
 	{ zfld->setText( "", nr ); return; }
 
-    val *= fac; int ival = mNINT32(val); float fival = sCast(float,ival);
-    if ( mIsEqual(val,fival,0.01) )
-	zfld->setValue( ival, nr );
-    else
-	zfld->setValue( val, nr );
+    BufferString valstr;
+    valstr.set( val, nrdec );
+    zfld->setText( valstr, nr );
 }
 
 
@@ -414,9 +412,9 @@ void uiSurveyInfoEditor::setValues()
 
     const StepInterval<float>& zrg = si_.zRange( false );
     const float zfac = sCast( float, si_.zDomain().userFactor() );
-    setZValFld( zfld_, 0, zrg.start, zfac );
-    setZValFld( zfld_, 1, zrg.stop, zfac );
-    setZValFld( zfld_, 2, zrg.step, zfac );
+    setZValFld( zfld_, 0, zrg.start*zfac, si_.nrZDecimals() );
+    setZValFld( zfld_, 1, zrg.stop*zfac, si_.nrZDecimals() );
+    setZValFld( zfld_, 2, zrg.step*zfac, si_.nrZDecimals() );
 
     x0fld_->setValue( si_.b2c_.getTransform(true).a );
     xinlfld_->setValue( si_.b2c_.getTransform(true).b );
