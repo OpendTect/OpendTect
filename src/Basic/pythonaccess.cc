@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "pythonaccess.h"
@@ -16,9 +15,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "dirlist.h"
 #include "envvars.h"
-#include "genc.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "oddirs.h"
 #include "odplatform.h"
 #include "oscommand.h"
@@ -29,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timefun.h"
 #include "timer.h"
 #include "uistrings.h"
-#include "errmsg.h"
 
 const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
 const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
@@ -121,9 +119,9 @@ void OD::PythonAccess::updatePythonPath() const
     {
 	BufferStringSet settpaths, settpathsadd;
 	settpaths.usePar( *pathpar );
-	for ( int idx=0; idx<settpaths.size(); idx++ )
+	for ( auto settpathstr : settpaths )
 	{
-	    FilePath fp( settpaths[idx]->buf() );
+	    FilePath fp( settpathstr->buf() );
 	    if ( !fp.exists() )
 		continue;
 	    fp.makeCanonical();
@@ -1285,9 +1283,8 @@ uiRetVal OD::PythonAccess::hasModule( const char* modname,
     else
 	msg = tr("Package: %1 required").arg( modname );
 
-    for ( int idx=0; idx<moduleinfos_.size(); idx++ )
+    for ( auto module : moduleinfos_ )
     {
-	const ModuleInfo* module = moduleinfos_[idx];
 	if ( module->name() == modname )
 	{
 	    if ( minversion ) {
@@ -1346,13 +1343,12 @@ uiRetVal OD::PythonAccess::updateModuleInfo( const char* defprog,
 			    .arg(laststderr) );
     }
 
-    for ( int idx=0; idx<modstrs.size(); idx++ )
+    for ( auto modstr : modstrs )
     {
-	BufferString& modstr = modstrs.get( idx );
-	if ( modstr.startsWith("#") ||
-	     modstr.startsWith("Package") || modstr.startsWith("----") )
+	if ( modstr->startsWith("#") ||
+	     modstr->startsWith("Package") || modstr->startsWith("----") )
 	    continue;
-	moduleinfos_.add( new ModuleInfo( modstr.trimBlanks().toLower() ) );
+	moduleinfos_.add( new ModuleInfo( modstr->trimBlanks().toLower() ) );
     }
 
     laststdout_.setEmpty();
@@ -1373,9 +1369,8 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
     }
 
     mods.setEmpty();
-    for ( int idx=0; idx<moduleinfos_.size(); idx++ )
+    for ( auto module : moduleinfos_ )
     {
-	const ModuleInfo* module = moduleinfos_[idx];
 	ModuleInfo* minfo = new ModuleInfo( module->name() );
 	minfo->versionstr_ = module->versionstr_;
 	mods.add( minfo );
@@ -1450,17 +1445,16 @@ static bool usesNvidiaCard( BufferString* glversionstr )
 
     BufferStringSet glxinfostrs;
     glxinfostrs.unCat( stdoutstr.str() );
-    for ( int idx=0; idx<glxinfostrs.size(); idx++ )
+    for ( const auto line : glxinfostrs )
     {
-	const BufferString& line = *glxinfostrs[idx];
-	if ( !line.startsWith("OpenGL") )
+	if ( !line->startsWith("OpenGL") )
 	    continue;
 
-	if ( line.contains("vendor string:") )
-	    ret = line.contains( sKeyNvidia() );
-	else if ( line.contains("version string:") && glversionstr )
+	if ( line->contains("vendor string:") )
+	    ret = line->contains( sKeyNvidia() );
+	else if ( line->contains("version string:") && glversionstr )
 	{
-	    glversionstr->set( line.find( ':' )+1 );
+	    glversionstr->set( line->find( ':' )+1 );
 	    glversionstr->trimBlanks();
 	}
     }

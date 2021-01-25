@@ -1036,8 +1036,8 @@ void testPythonModules()
     }
 
     BufferStringSet modstrs;
-    for ( int idx=0; idx<modules.size(); idx++ )
-	modstrs.add( modules[idx]->displayStr() );
+    for ( auto module : modules )
+	modstrs.add( module->displayStr() );
 
     usw.readyNow();
     uiDialog dlg( this, uiDialog::Setup(tr("Python Installation"),mNoDlgTitle,

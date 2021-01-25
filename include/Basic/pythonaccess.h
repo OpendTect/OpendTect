@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A. Huck
  Date:		May 2019
- RCS:		$Id$
 ________________________________________________________________________
 
 */
@@ -14,11 +13,10 @@ ________________________________________________________________________
 #include "basicmod.h"
 
 #include "bufstring.h"
-#include "callback.h"
 #include "enums.h"
+#include "notify.h"
 
 class FilePath;
-class Timer;
 class ServiceMgrBase;
 class uiPythonSettings;
 class uiString;
