@@ -16,15 +16,15 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
+#include "filepath.h"
 #include "genc.h"
 #include "keystrs.h"
-#include "od_istream.h"
 #include "oddirs.h"
-#include "odjson.h"
 #include "odplatform.h"
 #include "oscommand.h"
 #include "separstr.h"
 #include "settingsaccess.h"
+#include "staticstring.h"
 #include "string2.h"
 #include "timefun.h"
 #include "timer.h"
@@ -295,6 +295,24 @@ bool OD::PythonAccess::isUsable_( bool force, const char* scriptstr,
 }
 
 
+namespace OD {
+
+BufferString& GetPythonActivatorExe()
+{
+    mDeclStaticString( ret );
+    return ret;
+}
+
+} //namespace OD
+
+
+void OD::PythonAccess::setPythonActivator( const char* fnm )
+{
+    if ( File::exists(fnm) )
+	GetPythonActivatorExe().set( fnm );
+}
+
+
 File::Path* OD::PythonAccess::getActivateScript( const File::Path& rootfp )
 {
     File::Path ret( rootfp.fullPath(), "bin" );
@@ -302,9 +320,9 @@ File::Path* OD::PythonAccess::getActivateScript( const File::Path& rootfp )
 #ifdef __win__
 	ret.setExtension( "bat" );
 #endif
-	if (!ret.exists())
-	{
-	ret.set(rootfp.fullPath()).add("condabin");
+    if ( !ret.exists() )
+    {
+	ret.set( rootfp.fullPath() ).add( "condabin" );
 	ret.add("activate");
 #ifdef __win__
 	ret.setExtension("bat");
@@ -326,7 +344,9 @@ bool OD::PythonAccess::isEnvUsable( const File::Path* pythonenvfp,
 	if ( !pythonenvfp->exists() )
 	    return false;
 
-	activatefp = getActivateScript( File::Path(pythonenvfp->fullPath()) );
+	activatefp = GetPythonActivatorExe().isEmpty()
+		   ? getActivateScript( File::Path( pythonenvfp->fullPath() ) )
+		   : new File::Path( *pythonenvfp );
 	if ( !activatefp )
 	    return false;
     }
@@ -560,18 +580,12 @@ static BufferString getPIDFilePathStr( const File::Path& scriptfp )
 
 
 File::Path* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
-					  bool background,
-					  const File::Path* activatefp,
-					  const char* envnm )
+					bool background,
+					const File::Path* activatefp,
+					const char* envnm )
 {
-    if ( !activatefp || !envnm )
-    {
-	const OS::MachineCommand cmdret( cmd, true );
-	cmd = cmdret;
-	return nullptr;
-    }
-
-    auto* ret = new File::Path( File::Path::getTempFullPath("runpython",nullptr) );
+    auto* ret = new File::Path(
+		File::Path::getTempFullPath("runpython",nullptr) );
     if ( !ret )
 	return nullptr;
 #ifdef __win__
@@ -683,8 +697,32 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 						File::Path& scriptfpret )
 {
     OS::MachineCommand scriptcmd( mc );
-    PtrMan<File::Path> scriptfp = getCommand( scriptcmd, background,
-					      activatefp, envnm );
+    PtrMan<File::Path> scriptfp;
+    if ( activatefp )
+    {
+	if ( GetPythonActivatorExe().isEmpty() )
+	{
+	    scriptfp = getCommand( scriptcmd, background,
+				   activatefp, envnm );
+	}
+	else
+	{
+	    OS::MachineCommand cmdret( GetPythonActivatorExe() );
+	    const File::Path rootfp( *activatefp );
+	    const BufferString rootfnm = rootfp.dirUpTo( rootfp.nrLevels()-1 );
+	    cmdret.addKeyedArg( "envpath", rootfnm );
+	    if ( envnm && *envnm )
+		cmdret.addKeyedArg( "envnm", envnm );
+	    cmdret.addFlag( "" ).addArg( mc.program() ).addArgs( mc.args() );
+	    scriptcmd = OS::MachineCommand( cmdret, true );
+	}
+    }
+    else
+    {
+	const OS::MachineCommand cmdret( scriptcmd, true );
+	scriptcmd = cmdret;
+    }
+
     if ( scriptfp )
 	scriptfpret = *scriptfp;
     else
@@ -828,7 +866,7 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
     {
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
-	    const BufferString envpath( dl.fullPath(idx) );
+	    const BufferString envpath( dl.fullPath( idx ) );
 	    const DirList priorityfiles( envpath, File::FilesInDir,
 			    		 sKeyPriorityGlobExpr() );
 	    if ( !priorityfiles.isEmpty() )
@@ -960,14 +998,14 @@ void OD::PythonAccess::GetPythonEnvPath( File::Path& fp )
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     PythonSource source;
-    if (!PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(),source) )
+    if ( !PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source) )
 	source = System;
 
     if ( source == Custom )
     {
 	BufferString virtenvloc, virtenvnm;
-	pythonsetts.get(sKeyEnviron(),virtenvloc);
-	pythonsetts.get(sKey::Name(),virtenvnm);
+	pythonsetts.get( sKeyEnviron(), virtenvloc );
+	pythonsetts.get( sKey::Name(), virtenvnm );
 #ifdef __win__
 	fp = File::Path( virtenvloc, "envs", virtenvnm );
 #else
@@ -979,9 +1017,9 @@ void OD::PythonAccess::GetPythonEnvPath( File::Path& fp )
 	    getCondaEnvsFromTxt( txtenvnms );
 	    if ( txtenvnms.isPresent(virtenvnm.str()) )
 		fp.set( virtenvnm );
+	}
     }
-    }
-    else if (source == Internal)
+    else if ( source == Internal )
     {
 	ManagedObjectSet<File::Path> fps;
 	BufferStringSet envnms;
@@ -989,7 +1027,7 @@ void OD::PythonAccess::GetPythonEnvPath( File::Path& fp )
 	if ( fps.size()<1 )
 	    return;
 	fp = *fps[0];
-	fp.add("envs").add(envnms.get(0));
+	fp.add( "envs" ).add( envnms.get(0) );
     }
 }
 
@@ -998,9 +1036,9 @@ void OD::PythonAccess::GetPythonEnvBinPath( File::Path& fp )
 {
     GetPythonEnvPath( fp );
 #ifdef __win__
-    fp.add("Scripts");
+    fp.add( "Scripts" );
 #else
-    fp.add("bin");
+    fp.add( "bin" );
 #endif
 }
 
@@ -1304,14 +1342,24 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
 bool OD::PythonAccess::openTerminal() const
 {
     const BufferString termem = SettingsAccess().getTerminalEmulator();
-    bool immediate = false;
+    OS::CommandExecPars pars( OS::RunInBG );
 #ifdef __win__
-    OS::MachineCommand cmd( "start", termem );
-    immediate = true;
+    OS::MachineCommand cmd;
+    if ( GetPythonActivatorExe().isEmpty() )
+    {
+	cmd.setProgram( "start" ).addArg( termem );
+	pars = OS::CommandExecPars( OS::Wait4Finish );
+    }
+    else
+    {
+	cmd.setProgram( termem );
+	pars.isconsoleuiprog( true );
+    }
 #else
     OS::MachineCommand cmd( termem );
 #endif
-    return execute( cmd, immediate );
+    pars.workingdir( GetPersonalDir() );
+    return execute( cmd, pars );
 }
 
 
