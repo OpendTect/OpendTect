@@ -786,7 +786,7 @@ bool getPythonEnvBinPath( BufferString& pybinpath ) const
     pybinpath.setEmpty();
     const int sourceidx = pythonsrcfld_->getIntValue();
     const OD::PythonSource source =
-			OD::PythonSourceDef().getEnumForIndex(sourceidx);
+	    		OD::PythonSourceDef().getEnumForIndex(sourceidx);
     File::Path pypath;
     if ( source == OD::Internal )
     {
@@ -798,7 +798,7 @@ bool getPythonEnvBinPath( BufferString& pybinpath ) const
     else if ( source == OD::Custom )
     {
 	pypath = File::Path( customloc_->fileName() );
-	const BufferString envnm( customenvnmfld_->text() ); 
+	const BufferString envnm( customenvnmfld_->text() );
 	pypath.add( "envs" ).add( envnm );
 	if ( !pypath.exists() )
 	{

@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A. Huck
  Date:		May 2019
- RCS:		$Id$
 ________________________________________________________________________
 
 */
@@ -14,15 +13,15 @@ ________________________________________________________________________
 #include "basicmod.h"
 
 #include "bufstring.h"
-#include "commontypes.h"
 #include "enums.h"
-#include "filepath.h"
 #include "notify.h"
 
-class Timer;
 class ServiceMgrBase;
 class uiPythonSettings;
 class uiString;
+namespace File {
+    class Path;
+}
 namespace OS {
     class CommandExecPars;
     class CommandLauncher;
@@ -163,9 +162,10 @@ namespace OD
 	friend class ::uiPythonSettings;
 	friend class ::ServiceMgrBase;
 
-	public:
+    public:
 
 	static void	initClass();
+	static void	setPythonActivator(const char*);
 
 	void		addBasePath(const File::Path&);
 			/*<! For plugins to update PYTHONPATH
