@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A. Huck
  Date:		May 2019
- RCS:		$Id$
 ________________________________________________________________________
 
 */
@@ -167,9 +166,10 @@ namespace OD
 	friend class ::uiPythonSettings;
 	friend class ::ServiceMgrBase;
 
-	public:
+    public:
 
 	static void	initClass();
+	static void	setPythonActivator(const char*);
 
 	void		addBasePath(const FilePath&);
 			/*<! For plugins to update PYTHONPATH
