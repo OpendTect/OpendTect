@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "bufstringset.h"
 #include "od_iosfwd.h"
 #include "uistring.h"
@@ -186,6 +187,11 @@ private:
 
     friend class CommandLauncher;
     friend class ::StreamProvider;
+
+public:
+
+    //Only for expert usage
+    static void		setIsolationScript(const char*);
 
 };
 

@@ -18,6 +18,7 @@
 #include "pythonaccess.h"
 #include "separstr.h"
 #include "settingsaccess.h"
+#include "staticstring.h"
 #include "uistrings.h"
 
 #ifndef OD_NO_QT
@@ -254,9 +255,29 @@ OS::MachineCommand& OS::MachineCommand::addKeyedArg( const char* ky,
 }
 
 
+namespace OS {
+
+BufferString& GetIsolateScript()
+{
+	mDeclStaticString( ret );
+	return ret;
+}
+
+} //namespace OS
+
+
+void OS::MachineCommand::setIsolationScript( const char* fnm )
+{
+    if ( File::exists(fnm) )
+	GetIsolateScript().set( fnm );
+}
+
+
 void OS::MachineCommand::setIsolated( const char* prognm )
 {
-    BufferString scriptcmd( GetODExternalScript() );
+    const BufferString& isolatescript = GetIsolateScript();
+    BufferString scriptcmd( isolatescript.isEmpty() ? GetODExternalScript()
+			  : isolatescript.str() );
     prognm_.set( scriptcmd );
     if ( prognm && *prognm )
 	args_.insertAt( new BufferString(prognm), 0 );
@@ -446,7 +467,7 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 	{
 	    ret.addArg( hname_.str() );
 	    if ( prognm.startsWith("od_") )
-		ret.addArg( FilePath(GetShellScript("exec_prog")).fullPath() );
+		ret.addArg( File::Path(GetShellScript("exec_prog")).fullPath() );
 	}
 	ret.addArg( prognm );
     }
@@ -790,6 +811,13 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	{ errmsg_ = tr("Command is empty"); return false; }
 
 #ifdef __win__
+    if ( FixedString(mc.program()) == GetIsolateScript() &&
+	 pars.workingdir_.isEmpty() )
+    {
+	CommandExecPars& parsedit = const_cast<CommandExecPars&>( pars );
+	parsedit.workingdir( GetPersonalDir() );
+    }
+
     if ( pars.runasadmin_ )
     {
         BufferString argsstr;
