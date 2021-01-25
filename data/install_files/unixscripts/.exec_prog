@@ -12,5 +12,9 @@ endif
 unsetenv DTECT_APPL
 source "__INST_DIR__/bin/init_dtect" >&! /dev/null
 
+if ( $status != 0 ) then
+    exit 1
+endif
+
 $CSHCMD "__INST_DIR__/bin/od_exec" $*
 
