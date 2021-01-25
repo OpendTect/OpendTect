@@ -1385,7 +1385,7 @@ void uiSurvey::putToScreen()
 
     StepInterval<float> sizrg( si.zRange(false) );
     sizrg.scale( si.zDomain().userFactor() );
-    const int nrdec = Math::NrSignificantDecimals( sizrg.step );
+    const int nrdec = si.nrZDecimals();
     zinfo.add( sizrg.start, nrdec ).add( " - " )
 	 .add( sizrg.stop, nrdec ).add( " - " )
 	 .add( sizrg.step, nrdec );

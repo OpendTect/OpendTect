@@ -57,7 +57,7 @@ To build the software you need to also download and install/build a few dependen
 | od6.4.5, od6.4 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz) |
 
 #### Qt Install
-For the Qt install the following components must be selected depending on your build platform:
+For the Qt install, [Qt Online Installer](https://www.qt.io/download-qt-installer) is the easiest and recommended way. The following components must be selected depending on your build platform:
 
 -  Desktop msvc2019 64- bit (Windows), SDK 10.14 (macOS) or gcc 64 bit (Linux) 
 -  QtWebEngine
