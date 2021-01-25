@@ -6,19 +6,17 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Nov 2013
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
 
 #include "basicmod.h"
-#include "bufstring.h"
+
 #include "bufstringset.h"
+#include "od_iosfwd.h"
 #include "uistring.h"
 
 mFDQtclass(QProcess);
-class od_istream;
-class od_ostream;
 class qstreambuf;
 class StreamProvider;
 
@@ -205,6 +203,9 @@ public:
     static const char*	sKeyMasterHost()	{ return "primaryhost"; }
     mDeprecated("Use sKeyPrimaryPort()")
     static const char*	sKeyMasterPort()	{ return "primaryport"; }
+
+    //Only for expert usage
+    static void		setIsolationScript(const char*);
 
 };
 
