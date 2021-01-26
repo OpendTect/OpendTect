@@ -13,6 +13,9 @@ endif
 set CHECK_GL=true
 
 source "__INST_DIR__/bin/init_dtect"
+if ( $status != 0 ) then
+    exit 1
+endif
 source "__INST_DIR__/bin/init_dtect_user"
 
 if ( $status == 0 ) then
