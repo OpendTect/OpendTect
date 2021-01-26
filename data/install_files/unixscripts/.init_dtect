@@ -83,6 +83,20 @@ endif
 
 
 #-----------------------------------------------------
+# Compatibility checks
+
+# CentOS/RHEL 8 libcrypto compatibility check
+set syslibcrypto = "/usr/lib64/libcrypto.so.1.1"
+set odlibcrypto = ${bindir}"/libcrypto.so.1.1"
+if ( -e ${syslibcrypto} ) then
+    set symbolfind = `strings ${syslibcrypto} | grep EVP_KDF_ctrl | wc | awk '{ print $1 }'`
+    if ( ${symbolfind} > 0 && -e ${odlibcrypto} ) then
+        echo "Fatal error: This OpendTect installation is not compatible with the operating system library 'libcrypto.so.1.1'. A potentional fix could be to remove the libcrypto.so.1.1 library provided by OpendTect and located at ${bindir}"
+        exit 1
+    endif
+endif
+
+#-----------------------------------------------------
 # Extra initialisations
 
 set nonomatch=yes
