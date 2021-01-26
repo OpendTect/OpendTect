@@ -53,5 +53,3 @@ if ( ! $?WORK && $?HOME ) then
     setenv WORK "$HOME/ODWork"
 endif
 
-exit 0
-
