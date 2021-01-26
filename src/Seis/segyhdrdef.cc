@@ -455,6 +455,7 @@ void SEGY::HdrDef::swapValues( unsigned char* buf ) const
 }
 
 
+// SEGY::TrcHeaderDef
 SEGY::TrcHeaderDef::TrcHeaderDef()
     : inl_("Inline number","In-line",9)
     , crl_("Crossline number","Cross-line",21)
@@ -466,6 +467,11 @@ SEGY::TrcHeaderDef::TrcHeaderDef()
     , pick_("Picked Z position","Pick")
     , refnr_("Auxiliary number for trace identification","Ref/SP Number",17)
 {}
+
+
+SEGY::TrcHeaderDef::~TrcHeaderDef()
+{
+}
 
 
 #define mSgyByteKey(nm) s##nm##Byte()

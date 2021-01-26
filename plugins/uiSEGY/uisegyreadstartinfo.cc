@@ -670,6 +670,12 @@ void uiSEGYReadStartInfo::setCellTxt( int col, int row, const uiString& txt )
 
 void uiSEGYReadStartInfo::revChg( CallBacker* )
 {
+    const int revision = revfld_->currentItem();
+    if ( revision == 1 )
+    {
+// set defaults for rev1
+    }
+
     parChanged( true );
 }
 

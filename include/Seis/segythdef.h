@@ -30,6 +30,7 @@ mExpClass(Seis) TrcHeaderDef
 {
 public:
 			TrcHeaderDef();
+			~TrcHeaderDef();
 
     HdrEntry		inl_;
     HdrEntry		crl_;
@@ -41,9 +42,9 @@ public:
     HdrEntry		pick_;
     HdrEntry		refnr_;
 
-    inline bool         isClashing( unsigned char b ) const
-                        {
-                            return xcoord_.usesByte( b )
+    inline bool		isClashing( unsigned char b ) const
+			{
+			    return xcoord_.usesByte( b )
 				|| ycoord_.usesByte( b )
 				|| inl_.usesByte( b )
 				|| crl_.usesByte( b )
@@ -52,7 +53,7 @@ public:
 				|| azim_.usesByte( b )
 				|| pick_.usesByte( b )
 				|| refnr_.usesByte( b );
-                        }
+			}
 
     void		usePar(const IOPar&);
     void		fromSettings();
@@ -72,6 +73,4 @@ public:
     SeisPacketInfo*	pinfo;
 };
 
-
-} // namespace
-
+} // namespace SEGY
