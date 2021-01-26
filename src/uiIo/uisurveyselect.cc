@@ -83,8 +83,14 @@ void uiSurveySelectDlg::setDataRoot( const char* dataroot )
 const char* uiSurveySelectDlg::getDataRoot() const
 { return datarootfld_->text(); }
 
+
 void uiSurveySelectDlg::setSurveyName( const char* nm )
-{ surveylistfld_->setCurrentItem( nm ); }
+{
+    surveylistfld_->setCurrentItem( nm );
+    if ( surveyfld_ )
+	surveyfld_->setText( nm );
+}
+
 
 const char* uiSurveySelectDlg::getSurveyName() const
 { return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText(); }
@@ -153,6 +159,7 @@ uiSurveySelect::uiSurveySelect( uiParent* p, bool forread,
     , forread_(forread)
     , needvalidrootdir_(needvalidrootdir)
     , surveyname_(0)
+    , isnewsurvey_(false)
 {
     setReadOnly( forread );
 }
@@ -164,7 +171,7 @@ uiSurveySelect::~uiSurveySelect()
 
 void uiSurveySelect::selectCB( CallBacker* )
 {
-    uiSurveySelectDlg dlg( this, GetSurveyName(), dataroot_, forread_,
+    uiSurveySelectDlg dlg( this, surveyname_, dataroot_, forread_,
 			   needvalidrootdir_ );
     if( !dlg.go() ) return;
 
@@ -225,7 +232,8 @@ void uiSurveySelect::setSurveyPath( const char* fullpath )
 		FilePath(fullpath,SurveyInfo::sKeySetupFileName()).fullPath()) )
 	mErrRet(tr("This is not an OpendTect survey."));
 
-    SurveyDiskLocation sdl( fullpath );
+    SurveyDiskLocation sdl;
+    sdl.set( fullpath );
     setSurveyDiskLocation( sdl );
 }
 
