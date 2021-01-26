@@ -63,6 +63,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_ostream.h"
 #include "od_helpids.h"
 #include "settings.h"
+#include "surveydisklocation.h"
 #include "survinfo.h"
 #include "systeminfo.h"
 #include "trckeyzsampling.h"
@@ -141,17 +142,30 @@ uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
 	curfnm = dataroot_;
 
     inpsurveyfld_ = new uiSurveySelect( this, true, false, "Survey to copy" );
+    mAttachCB( inpsurveyfld_->selectionDone, uiNewSurveyByCopy::inpSel );
     inpsurveyfld_->setSurveyPath( curfnm );
+
     newsurveyfld_ = new uiSurveySelect( this, false, false, "New Survey name" );
     newsurveyfld_->attach( alignedBelow,  inpsurveyfld_ );
+    inpSel(nullptr);
 }
+
+
+~uiNewSurveyByCopy()
+{
+    detachAllNotifiers();
+}
+
 
 void inpSel( CallBacker* )
 {
     BufferString fullpath;
     inpsurveyfld_->getFullSurveyPath( fullpath );
-    FilePath fp( fullpath );
-    newsurveyfld_->setInputText( fp.fullPath() );
+    fullpath.add( "_copy" );
+
+    SurveyDiskLocation sdl;
+    sdl.set( fullpath );
+    newsurveyfld_->setSurveyDiskLocation( sdl );
 }
 
 bool copySurv()
