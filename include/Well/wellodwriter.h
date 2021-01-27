@@ -20,6 +20,7 @@ class IOObj;
 class DataBuffer;
 class ascostream;
 
+
 namespace Well
 {
 class Data;
@@ -69,7 +70,7 @@ protected:
 				  const DataBuffer* = nullptr) const;
     bool		wrLogHdr(od_ostream&,const Log&) const;
     bool		wrLogData(od_ostream&,const Log&,
-				  const DataBuffer* databuf=nullptr) const;
+				  const DataBuffer* databuf = nullptr) const;
     DataBuffer*		getLogBuffer(od_istream&) const;
     bool		wrHdr(od_ostream&,const char*) const;
     bool		putTrack(od_ostream&) const;

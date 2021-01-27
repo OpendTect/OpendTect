@@ -193,7 +193,8 @@ void uiWellPartServer::importMarkers()
     if ( !wellseldlg.go() ) return;
 
     const MultiID mid = wellseldlg.chosenID();
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
+    RefMan<Well::Data> wd = Well::MGR().get( mid,
+				Well::LoadReqs( Well::Trck, Well::Mrkrs ) );
     if ( !wd ) return;
 
     wd->track().setName( wd->name() );
@@ -241,24 +242,35 @@ bool uiWellPartServer::selectWells( TypeSet<MultiID>& wellids )
 
 bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
 {
+    return editDisplayProperties( mid, Color::NoColor() );
+}
+
+
+bool uiWellPartServer::editDisplayProperties( const MultiID& mid, Color bkCol )
+{
     allapplied_ = false;
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
+    Well::LoadReqs lreqs( Well::LogInfos,
+			  Well::Mrkrs,
+			  Well::DispProps3D );
+    RefMan<Well::Data> wd = Well::MGR().get( mid, lreqs );
     if ( !wd ) return false;
 
-    const int dlgidx = getPropDlgIndex( mid );
-    if ( dlgidx != -1 )
+    uiWellDispPropDlg uiwellpropdlg( parent(), wd, bkCol );
+    mAttachCB(uiwellpropdlg.applyAllReq, uiWellPartServer::applyAll);
+    mAttachCB(uiwellpropdlg.applyTabReq(), uiWellPartServer::applyTabProps);
+    mAttachCB(uiwellpropdlg.resetAllReq(), uiWellPartServer::resetAllProps);
+    if ( !uiwellpropdlg.go() )
+	return false;
+    ConstRefMan<Well::Data> wsd = allapplied_ ? nullptr : wd;
+    saveWellDispProps( wsd.ptr() );
+    if ( uiwellpropdlg.savedefault_==true )
     {
-	uiWellDispPropDlg* dispdlg = wellpropdlgs_[dlgidx];
-	dispdlg->updateLogs();
-	return dispdlg->go();
+	const Well::DisplayProperties& edprops = wd->displayProperties();
+	edprops.defaults() = edprops;
+	edprops.commitDefaults();
     }
-
-    uiWellDispPropDlg* uiwellpropdlg = new uiWellDispPropDlg( parent(), wd );
-    uiwellpropdlg->applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
-    uiwellpropdlg->windowClosed.notify(
-			mCB(this,uiWellPartServer, wellPropDlgClosed) );
-    wellpropdlgs_ += uiwellpropdlg;
-    uiwellpropdlg->go();
+    sendEvent( evCleanPreview() );
+    uiwellpropDlgClosed.trigger();
     return true;
 }
 
@@ -281,9 +293,11 @@ int uiWellPartServer::getPropDlgIndex( const MultiID& mid )
 
 void uiWellPartServer::closePropDlg( const MultiID& mid )
 {
+mStartAllowDeprecatedSection
     const int dlgidx = getPropDlgIndex( mid );
     if ( dlgidx != -1 )
 	delete wellpropdlgs_.removeSingle( dlgidx );
+mStopAllowDeprecatedSection
 }
 
 
@@ -309,13 +323,18 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
 
 void uiWellPartServer::saveWellDispProps( const Well::Data* wd )
 {
+    if ( wd )
+	saveWellDispProps( *wd, wd->multiID() );
+    else
+    {
     ObjectSet<Well::Data>& wds = Well::MGR().wells();
     for ( int iwll=0; iwll<wds.size(); iwll++ )
     {
 	Well::Data& curwd = *wds[iwll];
 	if ( wd && &curwd != wd )
-	   continue;
-	saveWellDispProps( curwd, curwd.multiID() );
+		continue;
+		saveWellDispProps( curwd, curwd.multiID() );
+	}
     }
 }
 
@@ -335,34 +354,105 @@ void uiWellPartServer::applyAll( CallBacker* cb )
     if ( !dlg ) { pErrMsg("Huh"); return; }
     ConstRefMan<Well::Data> edwd = dlg->wellData();
     const Well::DisplayProperties& edprops = edwd->displayProperties();
+    const bool is2d = dlg->is2D();
 
-    ObjectSet<Well::Data>& wds = Well::MGR().wells();
-    for ( int iwll=0; iwll<wds.size(); iwll++ )
+    TypeSet<MultiID> keys;
+    Well::MGR().getWellKeys( keys, true );
+    Well::LoadReqs lreqs(is2d ? Well::DispProps2D : Well::DispProps3D);
+    ObjectSet<Well::Data>& wells = Well::MGR().wells();
+    for ( int ikey=0; ikey<wells.size(); ikey++ )
     {
-	Well::Data& wd = *wds[iwll];
-	if ( &wd != edwd )
+	RefMan<Well::Data> wd = wells[ikey];
+	if ( wd && wd != edwd )
 	{
-	    wd.displayProperties() = edprops;
-	    wd.disp3dparschanged.trigger();
+	    Well::DisplayProperties& wdprops = wd->displayProperties(is2d);
+	    wdprops.track_ = edprops.track_;
+	    wdprops.markers_ = edprops.markers_;
+	    wdprops.logs_[0]->left_.setTo(wd, edprops.logs_[0]->left_);
+	    wdprops.logs_[0]->center().setTo(wd, edprops.logs_[0]->center());
+	    wdprops.logs_[0]->right_.setTo(wd, edprops.logs_[0]->right_);
+	    wd->disp3dparschanged.trigger();
 	}
     }
     allapplied_ = true;
 }
 
 
+void uiWellPartServer::applyTabProps( CallBacker* cb )
+{
+    mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
+    if ( !dlg ) { pErrMsg("Huh"); return; }
+    uiWellDispPropDlg::TabType pageid = dlg->currentTab();
+    const bool is2d = dlg->is2D();
+
+    ConstRefMan<Well::Data> edwd = dlg->wellData();
+    const Well::DisplayProperties& edprops = edwd->displayProperties();
+
+    ObjectSet<Well::Data>& wells = Well::MGR().wells();
+    Well::LoadReqs lreqs(is2d ? Well::DispProps2D : Well::DispProps3D);
+    for ( int ikey=0; ikey<wells.size(); ikey++ )
+    {
+	RefMan<Well::Data> wd = wells[ikey];
+	if ( wd && wd != edwd )
+	{
+	    Well::MGR().reload( wd->multiID(), lreqs );
+	    Well::DisplayProperties& wdprops = wd->displayProperties(is2d);
+	    switch ( pageid )
+	    {
+		case uiWellDispPropDlg::Track :
+		    wdprops.track_ = edprops.track_;
+		    break;
+		case uiWellDispPropDlg::Marker :
+		    wdprops.markers_ = edprops.markers_;
+		    break;
+		case uiWellDispPropDlg::LeftLog :
+		    wdprops.logs_[0]->left_.setTo(wd, edprops.logs_[0]->left_);
+		    break;
+		case uiWellDispPropDlg::CenterLog :
+		    wdprops.logs_[0]->center().setTo(wd,
+						    edprops.logs_[0]->center());
+		    break;
+		case uiWellDispPropDlg::RightLog :
+		    wdprops.logs_[0]->right_.setTo(wd,
+						   edprops.logs_[0]->right_);
+	    }
+	    dlg->is2D() ? wd->disp2dparschanged.trigger()
+			: wd->disp3dparschanged.trigger();
+	}
+    }
+    allapplied_ = true;
+}
+
+
+void uiWellPartServer::resetAllProps( CallBacker* cb )
+{
+    mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
+    if ( !dlg ) { pErrMsg("Huh"); return; }
+    const bool is2d = dlg->is2D();
+
+    ObjectSet<Well::Data>& wells = Well::MGR().wells();
+    for ( int ikey=0; ikey<wells.size(); ikey++ )
+    {
+	RefMan<Well::Data> wd = wells[ikey];
+	if ( wd )
+	    Well::MGR().reloadDispPars( wd->multiID(), is2d );
+    }
+    allapplied_ = false;
+}
+
+
 void uiWellPartServer::displayIn2DViewer( const MultiID& mid )
 {
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
-    if ( !wd ) return;
-
-    uiWellDisplayWin* welldispwin = new uiWellDisplayWin( parent(), *wd );
+    uiWellDisplayWin* welldispwin = new uiWellDisplayWin( parent(), mid );
+    welldispwin->setDeleteOnClose( true );
     welldispwin->show();
 }
 
 
 bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 {
-    ConstRefMan<Well::Data> wd = Well::MGR().get( wellid );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wellid,
+					    Well::LoadReqs( Well::LogInfos ) );
     return wd && wd->logs().size();
 }
 
@@ -370,10 +460,8 @@ bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 void uiWellPartServer::getLogNames( const MultiID& wellid,
 					BufferStringSet& lognms ) const
 {
-    ConstRefMan<Well::Data> wd = Well::MGR().get( wellid );
-    if ( !wd ||  wd->logs().isEmpty() ) return;
-    for ( int idx=0; idx<wd->logs().size(); idx++ )
-	lognms.add( wd->logs().getLog(idx).name() );
+    lognms.erase();
+    Well::MGR().getLogNamesByID( wellid, lognms );
 }
 
 

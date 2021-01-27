@@ -110,7 +110,8 @@ Well::Data* WellDisplay::getWD() const
     if ( !wd_ )
     {
 	WellDisplay* self = const_cast<WellDisplay*>( this );
-	RefMan<Well::Data> wd = Well::MGR().get( wellid_ );
+	const Well::LoadReqs lreqs( Well::D2T, Well::Trck, Well::DispProps3D );
+	RefMan<Well::Data> wd = Well::MGR().get( wellid_, lreqs );
 	self->wd_ = wd;
 	if ( wd )
 	{
@@ -215,7 +216,7 @@ void WellDisplay::fillLogParams(
 #define mDispLog( dsplSide, Side )\
 { \
     BufferString& logname = mGetLogPar( dsplSide, name_ );\
-    if ( wd->logs().indexOf( logname ) >= 0 )\
+    if ( wd->getLog(logname) )\
 	display##Side##Log();\
 }
 void WellDisplay::fullRedraw( CallBacker* )

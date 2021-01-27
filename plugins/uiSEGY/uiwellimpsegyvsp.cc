@@ -206,7 +206,7 @@ uiWellImportSEGYVSP::~uiWellImportSEGYVSP()
 
 void uiWellImportSEGYVSP::wllSel( CallBacker* )
 {
-    BufferStringSet nms; Well::MGR().getLogNames( wellfld_->key(), nms );
+    BufferStringSet nms; Well::MGR().getLogNamesByID( wellfld_->key(), nms );
     BufferString curlognm = lognmfld_->text();
     lognmfld_->setEmpty();
     lognmfld_->addItems( nms );
@@ -375,7 +375,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     wtr.putLog( *wl );
 
     if ( wasloaded )
-	Well::MGR().reload( key );
+	Well::MGR().reload( key, Well::LoadReqs(false) );
 
     return true;
 }

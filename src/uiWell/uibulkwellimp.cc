@@ -285,7 +285,7 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 	}
 
 	const bool isloaded = MGR().isLoaded( ioobj->key() );
-	if ( isloaded && MGR().reload(ioobj->key()) )
+	if ( isloaded && MGR().reload(ioobj->key(),LoadReqs(false)) )
 	{
 	    Data* loadedwd = MGR().get( ioobj->key() );
 	    if ( loadedwd )

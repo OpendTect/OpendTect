@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uipixmap.h"
 #include "uitreeview.h"
+#include "ui3dviewer.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
@@ -30,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "welldata.h"
+#include "welllog.h"
 #include "wellman.h"
 
 #include "viswelldisplay.h"
@@ -212,8 +214,6 @@ uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid )
 
 uiODWellTreeItem::~uiODWellTreeItem()
 {
-    if ( applMgr()->wellServer() )
-	applMgr()->wellServer()->closePropDlg( mid_ );
     deepErase( logmnuitems_ );
 }
 
@@ -290,7 +290,9 @@ bool uiODWellTreeItem::doubleClick( uiTreeViewItem* item )
     if ( !wd ) return false;
 
     wd->restoreDispProp();
-    applMgr()->wellServer()->editDisplayProperties( wd->getMultiID() );
+    Color bkCol =
+	ODMainWin()->sceneMgr().get3DViewer( sceneID() )->getBackgroundColor();
+    applMgr()->wellServer()->editDisplayProperties( wd->getMultiID(), bkCol );
     return true;
 }
 
@@ -331,7 +333,7 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
     deepErase( logmnuitems_ );
     mAddMenuItem( &displaymnuitem_, &amplspectrummnuitem_, true, false );
     BufferStringSet lognms;
-    applMgr()->wellServer()->getLogNames( wd->getMultiID(), lognms );
+    Well::MGR().getLogNamesByID( wd->getMultiID(), lognms );
     for ( int logidx=0; logidx<lognms.size(); logidx++ )
     {
     logmnuitems_ += new MenuItem( mToUiStringTodo(lognms.get( logidx ) ));
@@ -375,7 +377,11 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	wd->restoreDispProp();
-	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid );
+	Color bkCol =
+	ODMainWin()->sceneMgr().get3DViewer( sceneID() )->getBackgroundColor();
+
+	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid,
+								    bkCol );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( amplspectrummnuitem_.findItem(mnuid) )

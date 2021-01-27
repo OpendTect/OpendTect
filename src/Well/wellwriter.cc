@@ -21,14 +21,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "hiddenparam.h"
 #include "od_ostream.h"
-#include "od_istream.h"
 #include "keystrs.h"
 #include "envvars.h"
 #include "settings.h"
+#include "databuf.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "file.h"
-#include "databuf.h"
 
 static HiddenParam<MultiWellWriter,
 	   const ObjectSet<MultiWellWriter::StoreReqs>*> storereqs_(nullptr);
@@ -249,6 +248,7 @@ DataBuffer* Well::odWriter::getLogBuffer( od_istream& istrm ) const
 	return databuf;
     }
 
+    istrm.close();
     return nullptr;
 }
 
@@ -258,13 +258,13 @@ bool Well::odWriter::putLogs() const
     ManagedObjectSet<DataBuffer> databufset;
     for ( int idx=0; idx<wd_.logs().size(); idx++ )
     {
-	BufferString fnm( getFileName(sExtLog(), idx+1) );
+	const BufferString fnm( getFileName(sExtLog(), idx+1) );
 	od_istream istrm( fnm );
 	if ( !istrm.isOK() )
 	    continue;
 
 	const Well::Log& wl = wd_.logs().getLog(idx);
-	if ( !wl.isLoaded() )
+	if ( wl.isLoaded() )
 	    continue;
 
 	databufset.add( getLogBuffer(istrm) );
@@ -297,10 +297,9 @@ bool Well::odWriter::putLog( const Well::Log& wl ) const
 	return false;
     }
 
-    BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx+1 );
+    const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx+1 );
     od_istream istrm( logfnm );
     const DataBuffer* dbuf = wl.isLoaded() ? nullptr : getLogBuffer(istrm);
-    istrm.close();
     od_ostream strm( logfnm );
     if ( !writeLog(strm,wl,dbuf) )
     {
@@ -314,28 +313,19 @@ bool Well::odWriter::putLog( const Well::Log& wl ) const
 
 
 bool Well::odWriter::writeLog( od_ostream& strm, const Well::Log& wl,
-					   const DataBuffer* databuf ) const
+					    const DataBuffer* databuf ) const
 {
     if ( !wrHdr(strm,sKeyLog()) )
 	mErrRetStrmOper(tr("write header (log)"))
 
     if ( !wrLogHdr(strm, wl) || !wrLogData(strm, wl, databuf) )
-	mErrRetStrmOper(tr("write log data"))	 
+	mErrRetStrmOper(tr("write log data"))
 
     return true;
 }
 
 
-bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
-{
-    if ( !writeLog(strm,wl) )
-	return false;
-
-    return true;
-}
-
-
-bool Well::odWriter::wrLogHdr( od_ostream& strm, const Well::Log& wl ) const
+bool Well::odWriter::wrLogHdr(od_ostream& strm, const Well::Log& wl ) const
 {
     if ( !strm.isOK() )
 	return false;
@@ -357,6 +347,10 @@ bool Well::odWriter::wrLogHdr( od_ostream& strm, const Well::Log& wl ) const
     astrm.put( Well::Log::sKeyStorage(), stortyp );
     astrm.put( Well::Log::sKeyDahRange(), wl.dahRange().start,
 					  wl.dahRange().stop );
+    const Interval<float>& logrange = wl.valueRange();
+    if ( !logrange.isUdf() )
+	astrm.put( Well::Log::sKeyLogRange(), logrange.start, logrange.stop );
+
     astrm.newParagraph();
     if ( havepars )
 	wl.pars().putTo( astrm );
@@ -381,15 +375,14 @@ bool Well::odWriter::wrLogData( od_ostream& strm, const Well::Log& wl,
     float dah, val;
     for ( ; wrintv.start<wl.size(); wrintv.start++ )
     {
-	dah = wl.dah(wrintv.start);
-	val = wl.value(wrintv.start);
+	dah = wl.dah(wrintv.start); val = wl.value(wrintv.start);
 	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }
+
     for ( ; wrintv.stop>=0; wrintv.stop-- )
     {
-	dah = wl.dah(wrintv.stop);
-	val = wl.value(wrintv.stop);
+	dah = wl.dah(wrintv.stop); val = wl.value(wrintv.stop);
 	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }

@@ -13,54 +13,151 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwelldispprop.h"
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uitabstack.h"
 #include "uiseparator.h"
 
+#include "ioman.h"
 #include "keystrs.h"
 #include "objdisposer.h"
 #include "welldata.h"
 #include "welldisp.h"
+#include "wellman.h"
 #include "wellmarker.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+
+HiddenParam<uiWellDispPropDlg,Color*> wlldisppropcolmgr_( nullptr );
+HiddenParam<uiWellDispPropDlg,Notifier<uiWellDispPropDlg>*>
+		    wlldispapplytabreqmgr_( nullptr );
+HiddenParam<uiWellDispPropDlg,Notifier<uiWellDispPropDlg>*>
+		    wlldispresetallreqmgr_( nullptr );
+
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
 
-uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
-	: uiDialog(p,uiDialog::Setup(tr("Display properties of: %1")
-				     .arg(wd ? toUiString(wd->name())
-					     : uiString::emptyString()),
-				     mNoDlgTitle,
-				     mODHelpKey(mWellDispPropDlgHelpID) )
-		     .savebutton(true)
-		     .savechecked(false)
-		     .modal(false))
-	, wd_(wd)
+uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd,
+				      Color bkCol, bool is2d )
+	: uiDialog(p,uiDialog::Setup( tr("Display properties of: %1")
+	    .arg(wd ? toUiString(wd->name()) : uiString::emptyString()),
+	    mNoDlgTitle, mODHelpKey(mWellDispPropDlgHelpID) )
+	    .savebutton(true).savechecked(false).applybutton(true).modal(true)
+	    .applytext(uiStrings::sReset()))
 	, applyAllReq(this)
 	, savedefault_(false)
 	, is2ddisplay_(is2d)
 {
-    setCtrlStyle( CloseOnly );
+    wlldisppropcolmgr_.setParam( this, new Color( bkCol ) );
+    wlldispapplytabreqmgr_.setParam( this,
+		    new Notifier<uiWellDispPropDlg>(this) );
+    wlldispresetallreqmgr_.setParam( this,
+		    new Notifier<uiWellDispPropDlg>(this) );
 
-    Well::DisplayProperties& props = wd->displayProperties( is2ddisplay_ );
+    wd_ = Well::MGR().get( wd->multiID(),
+			   Well::LoadReqs( Well::LogInfos,
+					   Well::Mrkrs,
+					   is2d ? Well::DispProps2D :
+						  Well::DispProps3D ) );
+    wd_->ref();
+    init();
+}
+
+
+uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
+	: uiWellDispPropDlg(p,wd,Color::NoColor(),is2d)
+{ }
+
+
+uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
+				      Color bkCol, bool is2d )
+	: uiDialog(p,uiDialog::Setup(tr("Display properties of: %1")
+	    .arg(toUiString(IOM().nameOf(wid))),
+	    mNoDlgTitle, mODHelpKey(mWellDispPropDlgHelpID) )
+	    .savebutton(true).savechecked(false).applybutton(true).modal(true)
+	    .applytext(uiStrings::sReset()))
+	, applyAllReq(this)
+	, savedefault_(false)
+	, is2ddisplay_(is2d)
+{
+    wlldisppropcolmgr_.setParam( this, new Color( bkCol ) );
+    wlldispapplytabreqmgr_.setParam( this,
+	new Notifier<uiWellDispPropDlg>( this ) );
+    wlldispresetallreqmgr_.setParam( this,
+	new Notifier<uiWellDispPropDlg>( this ) );
+
+    wd_ = Well::MGR().get( wid, Well::LoadReqs( Well::LogInfos,
+						Well::Mrkrs,
+						is2d ? Well::DispProps2D :
+						       Well::DispProps3D ) );
+    wd_->ref();
+    init();
+}
+
+
+uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
+				      bool is2d )
+	: uiWellDispPropDlg(p,wid,Color::NoColor(),is2d )
+{ }
+
+
+Color& uiWellDispPropDlg::backGroundColor()
+{
+    return *wlldisppropcolmgr_.getParam( this );
+}
+
+
+const Color& uiWellDispPropDlg::backGroundColor() const
+{
+    return *wlldisppropcolmgr_.getParam( this );
+}
+
+Notifier<uiWellDispPropDlg>& uiWellDispPropDlg::applyTabReq()
+{
+    return *wlldispapplytabreqmgr_.getParam( this );
+}
+
+Notifier<uiWellDispPropDlg>& uiWellDispPropDlg::resetAllReq()
+{
+    return *wlldispresetallreqmgr_.getParam( this );
+}
+
+
+void uiWellDispPropDlg::init()
+{
+    bool is2d = is2ddisplay_;
+
+    setCtrlStyle( OkAndCancel );
+    setOkText( uiStrings::sSave() );
+    setCancelText( uiStrings::sClose() );
+    setButtonSensitive( APPLY, false );
+
+    Well::DisplayProperties& props = wd_->displayProperties( is2ddisplay_ );
+    if ( backGroundColor() != Color::NoColor() )
+	props.ensureColorContrastWith( backGroundColor() );
 
     ts_ = new uiTabStack( this, "Well display properties tab stack" );
     ObjectSet<uiGroup> tgs;
     tgs += new uiGroup( ts_->tabGroup(),"Left log properties" );
+    tgs += new uiGroup( ts_->tabGroup(),"Center log properties" );
     tgs += new uiGroup( ts_->tabGroup(),"Right log properties" );
     tgs += new uiGroup( ts_->tabGroup(), "Marker properties" );
     if ( !is2d )
 	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
 
-    uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[0],
+    uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[LeftLog],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
 	.onlyfor2ddisplay(is2d), props.logs_[0]->left_, &(wd_->logs()) );
-    uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[1],
+    uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[CenterLog],
+	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
+	.onlyfor2ddisplay(is2d), props.logs_[0]->center(), &(wd_->logs()) );
+    uiWellLogDispProperties* wlp3 = new uiWellLogDispProperties( tgs[RightLog],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
 	.onlyfor2ddisplay(is2d), props.logs_[0]->right_, &(wd_->logs()) );
 
     propflds_ += wlp1;
     propflds_ += wlp2;
+    propflds_ += wlp3;
 
     BufferStringSet markernms;
     wd_->markers().getNames( markernms );
@@ -71,48 +168,60 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 	uiWellDispProperties::Setup(tr("Marker size"),tr("Marker color"))
 	.onlyfor2ddisplay(is2d);
     uiWellMarkersDispProperties* wellprops = new uiWellMarkersDispProperties(
-	tgs[2], propsu, props.markers_, markernms );
+	tgs[Marker], propsu, props.markers_, markernms );
     wellprops->setAllMarkerNames( markernms, markercols );
     propflds_ += wellprops;
 
     if ( !is2d )
-	propflds_ += new uiWellTrackDispProperties( tgs[3],
+	propflds_ += new uiWellTrackDispProperties( tgs[Track],
 			    uiWellDispProperties::Setup(), props.track_ );
 
-    bool foundlog = false;
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
 	mAttachCB( propflds_[idx]->propChanged, uiWellDispPropDlg::propChg );
 	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
 	{
-	    ts_->addTab( tgs[idx], foundlog ? is2d ? tr("Log 2")
-						   : tr("Right Log")
-					    : is2d ? tr("Log 1")
-						   : tr("Left Log") );
-	    foundlog = true;
+	    if ( idx==LeftLog )
+		ts_->addTab( tgs[idx], is2d ? tr("Log 1")
+					    : tr("Left Log") );
+	    else if ( idx==CenterLog )
+		ts_->addTab( tgs[idx], tr("Center Log") );
+	    else if ( idx==RightLog )
+		ts_->addTab( tgs[idx], is2d ? tr("Log 2")
+					    : tr("Right Log") );
 	}
 	else
 	    ts_->addTab( tgs[idx], toUiString(
 				      propflds_[idx]->props().subjectName()) );
     }
 
-    uiPushButton* applbut = new uiPushButton( this, tr("Apply to all wells"),
+    uiButtonGroup* bgrp = new uiButtonGroup( this, "", OD::Horizontal );
+    new uiPushButton( bgrp, tr("Apply Current to all wells"),
+			mCB(this,uiWellDispPropDlg,applyTabPush), true );
+    new uiPushButton( bgrp, tr("Apply All to all wells"),
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
-    applbut->attach( centeredBelow, ts_ );
+    new uiPushButton( bgrp, tr("Reset All"),
+			mCB(this,uiWellDispPropDlg,resetAllPush), true );
+    bgrp->attach( centeredBelow, ts_ );
 
-    ts_->selChange().notify( mCB(this,uiWellDispPropDlg,tabSel) );
+    ts_->setCurrentPage( 1 );
+    mAttachCB(ts_->selChange(), uiWellDispPropDlg::tabSel);
 
     wd_->ref();
     setWDNotifiers( true );
-    mAttachCB( windowClosed, uiWellDispPropDlg::onClose );
+    mAttachCB( applyPushed, uiWellDispPropDlg::resetCB );
 
     tabSel( 0 );
+    mDispNot.trigger();
 }
 
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
 {
     detachAllNotifiers();
+    wlldisppropcolmgr_.removeAndDeleteParam( this );
+    wlldispapplytabreqmgr_.removeAndDeleteParam( this );
+    wlldispresetallreqmgr_.removeAndDeleteParam( this );
     wd_->unRef();
 }
 
@@ -200,6 +309,7 @@ void uiWellDispPropDlg::wdChg( CallBacker* )
 
 void uiWellDispPropDlg::propChg( CallBacker* )
 {
+    setButtonSensitive( APPLY, true );
     getFromScreen();
     mDispNot.trigger();
 }
@@ -209,6 +319,32 @@ void uiWellDispPropDlg::applyAllPush( CallBacker* )
 {
     getFromScreen();
     applyAllReq.trigger();
+}
+
+
+void uiWellDispPropDlg::applyTabPush( CallBacker* cb )
+{
+    mDynamicCastGet( uiMultiWellDispPropDlg*, uimwdlg, this );
+    if ( uimwdlg )
+    {
+	uimwdlg->applyMWTabPush( cb );
+	return;
+    }
+    getFromScreen();
+    applyTabReq().trigger();
+}
+
+
+void uiWellDispPropDlg::resetAllPush( CallBacker* cb )
+{
+    mDynamicCastGet( uiMultiWellDispPropDlg*, uimwdlg, this );
+    if ( uimwdlg )
+    {
+	uimwdlg->resetMWAllPush( cb );
+	return;
+    }
+    resetAllReq().trigger();
+    putToScreen();
 }
 
 
@@ -222,6 +358,7 @@ void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 
 void uiWellDispPropDlg::onClose( CallBacker* )
 {
+    savedefault_ = saveButtonChecked();
 }
 
 
@@ -229,6 +366,27 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 {
     savedefault_ = saveButtonChecked();
     return true;
+}
+
+
+void uiWellDispPropDlg::resetCB( CallBacker* )
+{
+    if ( wd_ )
+    {
+	Well::MGR().reloadDispPars( wd_->multiID(), is2ddisplay_ );
+	putToScreen();
+    }
+}
+
+
+bool uiWellDispPropDlg::is2D() const
+{
+    return is2ddisplay_;
+}
+
+uiWellDispPropDlg::TabType uiWellDispPropDlg::currentTab() const
+{
+    return (uiWellDispPropDlg::TabType) ts_->currentPageId();
 }
 
 
@@ -253,7 +411,6 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	wellselfld_->attach( hCentered );
 	ts_->attach( ensureBelow, wellselfld_ );
     }
-
     deepRef( wds_ );
 }
 
@@ -263,12 +420,17 @@ uiMultiWellDispPropDlg::~uiMultiWellDispPropDlg()
     deepUnRef( wds_ );
 }
 
-
 void uiMultiWellDispPropDlg::resetProps( int logidx )
 {
-    if ( !wd_ ) return;
-    bool first = true;
-    Well::DisplayProperties& prop = wd_->displayProperties( is2ddisplay_ );
+    resetProps( -1, logidx );
+}
+
+
+void uiMultiWellDispPropDlg::resetProps( int wellidx, int logidx )
+{
+    if ( !wds_.validIdx( wellidx ) ) return;
+    RefMan<Well::Data> wd = wds_[wellidx];
+    Well::DisplayProperties& prop = wd->displayProperties( is2ddisplay_ );
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
 	mDynamicCastGet( uiWellTrackDispProperties*,trckfld,propflds_[idx] );
@@ -276,11 +438,15 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 	mDynamicCastGet( uiWellLogDispProperties*,logfld,propflds_[idx] );
 	if ( logfld )
 	{
-	    logfld->setLogSet( &wd_->logs() );
 	    if ( !prop.logs_.isEmpty() )
-		logfld->resetProps( first ? prop.logs_[logidx]->left_
-					  :	prop.logs_[logidx]->right_ );
-	    first = false;
+	    {
+		if ( idx==LeftLog )
+		    logfld->resetProps( prop.logs_[logidx]->left_ );
+		else if ( idx==CenterLog )
+		    logfld->resetProps( prop.logs_[logidx]->center() );
+		else if ( idx==RightLog )
+		    logfld->resetProps( prop.logs_[logidx]->right_ );
+	    }
 	}
 	else if ( trckfld )
 	    trckfld->resetProps( prop.track_ );
@@ -288,8 +454,8 @@ void uiMultiWellDispPropDlg::resetProps( int logidx )
 	{
 	    BufferStringSet markernms;
 	    TypeSet<Color> markercols;
-	    wd_->markers().getNames( markernms );
-	    wd_->markers().getColors( markercols );
+	    wd->markers().getNames( markernms );
+	    wd->markers().getColors( markercols );
 
 	    mrkfld->setAllMarkerNames( markernms, markercols );
 	    mrkfld->resetProps( prop.markers_ );
@@ -311,7 +477,7 @@ void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
 	wd_->ref();
 
     uiWellDispPropDlg::setWDNotifiers( true );
-    resetProps( 0 );
+    resetProps( selidx, 0 );
 }
 
 
@@ -333,4 +499,55 @@ void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
 
 void uiMultiWellDispPropDlg::onClose( CallBacker* )
 {
+}
+
+
+void uiMultiWellDispPropDlg::applyMWTabPush( CallBacker* )
+{
+    getFromScreen();
+    const TabType pageid = currentTab();
+    Well::Data* curwd = wd_;
+    const Well::DisplayProperties& edprops = curwd->displayProperties();
+    for ( int idx=0; idx<wds_.size(); idx++ )
+    {
+	wd_ = wds_[idx];
+	if ( wd_ && wd_!=curwd )
+	{
+	    Well::DisplayProperties& wdprops = wd_->displayProperties(is2D());
+	    switch ( pageid )
+	    {
+		case uiWellDispPropDlg::Track :
+		    wdprops.track_ = edprops.track_;
+		    break;
+		case uiWellDispPropDlg::Marker :
+		    wdprops.markers_ = edprops.markers_;
+		    break;
+		case uiWellDispPropDlg::LeftLog :
+		    wdprops.logs_[0]->left_.setTo(wd_, edprops.logs_[0]->left_);
+		    break;
+		case uiWellDispPropDlg::CenterLog :
+		    wdprops.logs_[0]->center().setTo(wd_,
+						    edprops.logs_[0]->center());
+		    break;
+		case uiWellDispPropDlg::RightLog :
+		    wdprops.logs_[0]->right_.setTo(wd_,
+						   edprops.logs_[0]->right_);
+	    }
+	    mDispNot.trigger();
+	}
+    }
+    wd_ = curwd;
+}
+
+
+void uiMultiWellDispPropDlg::resetMWAllPush( CallBacker* )
+{
+    Well::Data* curwd = wd_;
+    for ( int idx=0; idx<wds_.size(); idx++ )
+    {
+	wd_ = wds_[idx];
+	resetCB( nullptr );
+	putToScreen();
+    }
+    wd_ = curwd;
 }

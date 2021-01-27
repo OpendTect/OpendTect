@@ -537,7 +537,7 @@ void uiTieWin::cleanUp( CallBacker* )
 {
     server_.d2TModelMgr().cancel();
     if ( Well::MGR().isLoaded( server_.wellID() ) )
-	Well::MGR().reload( server_.wellID() );
+	Well::MGR().reload( server_.wellID(), Well::LoadReqs(false) );
     return;
 }
 
@@ -554,7 +554,7 @@ void uiTieWin::okPushCB( CallBacker* )
 	    mErrRet(tr("Cannot write new depth/time model"))
 
 	if ( Well::MGR().isLoaded( server_.wellID() ) )
-	    Well::MGR().reload( server_.wellID() );
+	    Well::MGR().reload( server_.wellID(), Well::LoadReqs(false) );
     }
 }
 
