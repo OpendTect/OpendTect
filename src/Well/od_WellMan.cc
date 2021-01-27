@@ -7,10 +7,12 @@
 
 #include "serverprogtool.h"
 #include "welldata.h"
+#include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
 #include "wellmarker.h"
+#include "wellreader.h"
 #include "welltrack.h"
 
 #include "commandlineparser.h"
@@ -19,6 +21,7 @@
 #include "keystrs.h"
 #include "odjson.h"
 #include "prog.h"
+#include "stringbuilder.h"
 #include "scaler.h"
 #include "unitofmeasure.h"
 
@@ -31,8 +34,11 @@ static const char* sListLogsCmd		= "list-logs";
 static const char* sListMarkersCmd	= "list-markers";
 static const char* sReadTrackCmd	= "read-track";
 static const char* sReadLogCmd		= "read-log";
+static const char* sReadLogsCmd		= "read-logs";
 
-static const char* sNoTVDArg		= "no-tvd";
+static const char* sWithTVDArg		= "with-tvd";
+static const char* sZstep		= "zstep";
+
 
 using namespace Well;
 
@@ -47,7 +53,9 @@ public:
     void		getTrack();
     void		listLogs();
     void		listMarkers();
-    void		readLog(const DBKey&,const char*,bool notvd);
+    void		readLog(const DBKey&,const char*,bool withtvd);
+    void		readLogs(const DBKey&, const TypeSet<int>&,
+				 const float, bool withtvd);
 
 protected:
 
@@ -125,7 +133,7 @@ void WellServerTool::listLogs()
 {
     const DBKey wellid = getDBKey( sListLogsCmd );
     BufferStringSet lognms;
-    MGR().getLogNames( wellid, lognms );
+    MGR().getLogNamesByID( wellid, lognms );
     set( sKey::ID(), wellid );
     set( sKey::Size(), lognms.size() );
     set( sKey::Names(), lognms );
@@ -181,18 +189,18 @@ void WellServerTool::getTrack()
 
 
 void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
-			      bool notvd )
+			      bool withtvd )
 {
-    ConstRefMan<Data> wd = MGR().get( wellid, Logs );
-    const Log* wl = wd ? wd->logs().getLog( lognm ) : nullptr;
+    getWD( wellid, LoadReqs(Inf, Trck) );
+    if ( !wd_ )
+	respondError( "Not able to get well data" );
+
+    const Log* wl = wd_->getLog( lognm );
     if ( !wl )
 	respondError( "Log not found" );
 
-    if ( !notvd )
-	getWD( wellid, LoadReqs(Inf,Trck) );
-
     const auto sz = wl->size();
-    set( sKey::Well(), wd->name() );
+    set( sKey::Well(), wd_->name() );
     set( sKey::Name(), wl->name() );
     set( sKey::Size(), wl->size() );
     const auto* uom = wl->unitOfMeasure();
@@ -200,7 +208,7 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
     set( sKey::Scale(), uom ? uom->scaler().scale(1) : double(1) );
 
     TypeSet<float> mds, vals, tvds;
-    const Track* trck = wd_ ? &wd_->track() : nullptr;
+    const Track* trck = withtvd ? &wd_->track() : nullptr;
     set( sKey::Size(), sz );
     for ( auto idx=0; idx<sz; idx++ )
     {
@@ -220,6 +228,78 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
 }
 
 
+void WellServerTool::readLogs(const DBKey& wellid,
+			      const TypeSet<int>& logids,
+			      const float zstep, bool withtvd)
+{
+    getWD( wellid, LoadReqs(Inf, Trck, LogInfos) );
+    if ( !wd_ )
+	respondError( "Not able to get well data" );
+
+    BufferStringSet lognms, sellognms;
+    Well::MGR().getLogNamesByID( wellid, lognms );
+    for ( auto idx=0; idx<logids.size(); idx++ )
+    {
+	const int logid = logids[idx];
+	if ( !lognms.validIdx( logid ) )
+	    respondError( "Invalid log index" );
+	const BufferString lognm = lognms.get( logid );
+	wd_->getLog( lognm );
+	sellognms.add( lognm );
+    }
+
+    const Track* trck = withtvd ? &wd_->track() : nullptr;
+    Well::ExtractParams extparams;
+    Interval<float> extrange = extparams.calcFrom( *wd_, sellognms, false );
+    extparams.setFixedRange( extrange, false );
+    extparams.zstep_ = zstep;
+    Well::LogSampler sampler( *wd_, extparams, sellognms );
+    sampler.setMaxHoleSize( 1.05 );
+    if ( !sampler.execute() )
+	respondError( sampler.errMsg() );
+
+    BufferStringSet outlognames;
+    for ( auto idx=0; idx<sellognms.size(); idx++ )
+    {
+	StringBuilder lognm( sellognms.get( idx ) );
+	StringBuilder uomlbl( sampler.uomLabel( idx ) );
+	if ( !uomlbl.isEmpty() )
+	    lognm.addSpace().add('(').add(uomlbl.str()).add(')');
+	outlognames.add( lognm.result() );
+    }
+    TypeSet<float> mds( sampler.nrZSamples(), mUdf(float) );
+    TypeSet<float> tvds( sampler.nrZSamples(), mUdf(float) );
+    float* mdarr = mds.arr();
+    float* tvdarr = tvds.arr();
+    for ( auto zidx=0; zidx<sampler.nrZSamples(); zidx++ )
+    {
+	const float md = sampler.getDah(zidx);
+	mdarr[zidx] = md;
+	if ( trck )
+	    tvdarr[zidx] = trck->getPos( md ).z;
+    }
+    set( sKey::Well(), wd_->name() );
+    set( sKey::Size(), sampler.nrZSamples() );
+    set( sKey::Logs(), sellognms.size() );
+    set( sKey::Names(), outlognames );
+    set( sKey::MD(2), mds );
+    for ( auto idx=0; idx<sellognms.size(); idx++ )
+    {
+	TypeSet<float> vals( sampler.nrZSamples(), mUdf(float) );
+	float* valarr = vals.arr();
+	for ( auto zidx=0; zidx<sampler.nrZSamples(); zidx++ )
+	    valarr[zidx] = sampler.getLogVal( idx, zidx );
+
+	BufferString tmp( "Log_", idx );
+	set( tmp, vals );
+    }
+    if ( trck )
+	set( sKey::TVD(2), tvds );
+
+    respondInfo( true );
+}
+
+
 BufferString WellServerTool::getSpecificUsage() const
 {
     BufferString ret;
@@ -228,8 +308,11 @@ BufferString WellServerTool::getSpecificUsage() const
     addToUsageStr( ret, sListLogsCmd, "well_id" );
     addToUsageStr( ret, sListMarkersCmd, "well_id" );
     addToUsageStr( ret, sReadTrackCmd, "well_id" );
-    BufferString argstr( "well_id log_name [--", sNoTVDArg, "]" );
+    BufferString argstr( "well_id log_name [--", sWithTVDArg, "]" );
     addToUsageStr( ret, sReadLogCmd, argstr );
+    argstr = BufferString( "well_id log_idx_list [--zstep step] ");
+    argstr.add("[--").add(sWithTVDArg).add("]");
+    addToUsageStr( ret, sReadLogsCmd, argstr );
     return ret;
 }
 
@@ -256,9 +339,30 @@ int main( int argc, char** argv )
 	DBKey wellid;
 	clp.getVal( sReadLogCmd, wellid );
 	BufferString lognm;
-	clp.getVal( sReadLogCmd, lognm, false, 1 );
-	const bool notvd = clp.hasKey( sNoTVDArg );
-	st.readLog( wellid, lognm, notvd );
+	clp.getVal( sReadLogCmd, lognm, false, 2 );
+	const bool withtvd = clp.hasKey( sWithTVDArg );
+	st.readLog( wellid, lognm, withtvd );
+    }
+    else if ( clp.hasKey( sReadLogsCmd ) )
+    {
+	clp.setKeyHasValue( sReadLogsCmd, 2 );
+	DBKey wellid;
+	clp.getVal( sReadLogsCmd, wellid );
+	BufferString logid_str;
+	clp.getVal( sReadLogsCmd, logid_str, false, 2 );
+	BufferStringSet logids_strs;
+	logids_strs. unCat( logid_str, "," );
+	TypeSet<int> logids;
+	for ( auto idx=0; idx<logids_strs.size(); idx++ )
+	    logids.addIfNew( toInt( logids_strs.get(idx) ) );
+	const bool withtvd = clp.hasKey( sWithTVDArg );
+	float zstep = 0.5;
+	if ( clp.hasKey( sZstep ) )
+	{
+	    clp.setKeyHasValue( sZstep, 1 );
+	    clp.getVal( sZstep, zstep );
+	}
+	st.readLogs( wellid, logids, zstep, withtvd );
     }
 
     pFreeFnErrMsg( "Should not reach" );
