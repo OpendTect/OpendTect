@@ -48,6 +48,7 @@ public:
 			BasicProps( int sz=1 )
 			    : size_(sz)
 			    , color_(Color(0,0,255))	{}
+	virtual		~BasicProps()			{}
 
 	Color		color_;
 	int		size_;
@@ -83,6 +84,7 @@ public:
 			    , font_(10)
 			    , nmsizedynamic_(false)
 			    {}
+			~Track()		{}
 
 	virtual const char* subjectName() const	{ return "Track"; }
 
@@ -110,6 +112,7 @@ public:
 			    , samenmcol_(true)
 			    , nmsizedynamic_(false)
 			    {}
+			~Markers()	{}
 
 	virtual const char* subjectName() const	{ return "Markers"; }
 
@@ -151,6 +154,7 @@ public:
 			    , iscoltabflipped_(false)
 			    , style_( 0 )
 			    {}
+			~Log()			{}
 
 	virtual const char* subjectName() const	{ return "Log"; }
 	void		    setTo(const Well::Data*, const Log&,
