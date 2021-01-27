@@ -123,10 +123,14 @@ bool LatLong::setFromString( const char* str, bool lat )
 	const int len = llstr.size();
 
 	// parse seconds
-	BufferString buf;
+	BufferString buf( 128, false );
 	int parsesz = 4 + trailsz;
 	int offset = parsesz;
+#ifdef __win__
+	strncpy_s(buf.getCStr(),buf.bufSize(),llstr.buf()+(len-offset),parsesz);
+#else
 	strncpy(buf.getCStr(),llstr.buf()+(len-offset),parsesz);
+#endif
 	buf[parsesz] = '\0';
 	float secs = toFloat(buf) / 100.f;
 
@@ -134,14 +138,26 @@ bool LatLong::setFromString( const char* str, bool lat )
 	buf.setEmpty();
 	parsesz = 2;
 	offset += parsesz;
+	if ( parsesz <= 0 )
+	    return false;
+#ifdef __win__
+	strncpy_s(buf.getCStr(),buf.bufSize(),llstr.buf()+(len-offset),parsesz);
+#else
 	strncpy(buf.getCStr(),llstr.buf()+(len-offset),parsesz);
+#endif
 	buf[parsesz] = '\0';
 	int mins = toInt( buf );
 
 	// parse degrees
 	buf.setEmpty();
 	parsesz = len - offset;
+	if ( parsesz <= 0 )
+	    return false;
+#ifdef __win__
+	strncpy_s(buf.getCStr(),buf.bufSize(),llstr.buf(),parsesz);
+#else
 	strncpy(buf.getCStr(),llstr.buf(),parsesz);
+#endif
 	buf[parsesz] = '\0';
 	int degs = toInt( buf );
 	if ( hasSW && degs>0 )

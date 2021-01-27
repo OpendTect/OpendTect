@@ -186,7 +186,6 @@ if(WIN32)
     set ( CMAKE_CXX_FLAGS  "/wd4251 ${CMAKE_CXX_FLAGS}" ) # 'identifier' : dll-interface
     set ( CMAKE_CXX_FLAGS  "/wd4275 ${CMAKE_CXX_FLAGS}" ) # 'identifier' : dll-interface
     set ( CMAKE_CXX_FLAGS  "/wd4273 ${CMAKE_CXX_FLAGS}" ) # inconsistent dll linkage
-    set ( CMAKE_CXX_FLAGS  "/wd4996 ${CMAKE_CXX_FLAGS}" ) # function': was declared deprecated
     set ( CMAKE_CXX_FLAGS  "/wd4101 ${CMAKE_CXX_FLAGS}" ) # The local variable is never used (disable only for Windows)
     set ( CMAKE_CXX_FLAGS  "/wd4267 ${CMAKE_CXX_FLAGS}" ) # conversion from 'size_t' to 'type', possible loss of data
     set ( CMAKE_CXX_FLAGS  "/wd4267 ${CMAKE_CXX_FLAGS}" ) # conversion from 'size_t' to 'type', possible loss of data

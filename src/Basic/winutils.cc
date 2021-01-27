@@ -464,40 +464,81 @@ int WinUtils::getServiceStatus( const char* nm )
 }
 
 
+
+
+
 unsigned int WinUtils::getWinVersion()
 {
-    DWORD dwVersion = 0;
-    DWORD dwMajorVersion = 0;
-    DWORD dwMinorVersion = 0;
-#pragma warning( push )
-#pragma warning( disable:4996 )
-    dwVersion = GetVersion();
-#pragma warning( pop )
-    dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
-    dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
-    return dwMajorVersion;
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+    {
+	DWORD dwFlagsRet = RRF_RT_REG_DWORD;
+	if ( !readKey( HKEY_LOCAL_MACHINE,
+	    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+	    "CurrentMajorVersionNumber", ret, &dwFlagsRet) )
+	    ret.set( "Unknown major version" );
+    }
+
+    return ret.toInt();
 }
 
 
+unsigned int WinUtils::getWinMinorVersion()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+    {
+	DWORD dwFlagsRet = RRF_RT_REG_DWORD;
+	if ( !readKey( HKEY_LOCAL_MACHINE,
+	    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+	    "CurrentMinorVersionNumber", ret, &dwFlagsRet ) )
+	    ret.set( "Unknown minor version" );
+    }
+
+    return ret.toInt();
+}
+
+
+const char* WinUtils::getWinBuildNumber()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+    {
+	if ( !readKey( HKEY_LOCAL_MACHINE,
+	    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+	    "CurrentBuildNumber", ret ) )
+	    ret.set( "Unknown build number" );
+    }
+
+    return ret.buf();
+}
+
 const char* WinUtils::getFullWinVersion()
 {
-    DWORD dwVersion = 0;
-    DWORD dwMajorVersion = 0;
-    DWORD dwMinorVersion = 0;
-#pragma warning( push )
-#pragma warning( disable:4996 )
-    dwVersion = GetVersion();
-#pragma warning( pop )
-    dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
-    dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+    {
+	ret.add( getWinVersion() ).add( "." )
+	   .add( getWinMinorVersion() );
+    }
 
-    const int majorVersion = dwMajorVersion;
-    const int minorVersion = dwMinorVersion;
-    mDeclStaticString( winversion );
-    winversion.add( majorVersion );
-    winversion.add( "." );
-    winversion.add( minorVersion );
-    return winversion.buf();
+    return ret.buf();
+
+}
+
+
+const char* WinUtils::getWinDisplayName()
+{
+    mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+    {
+	if ( !readKey( HKEY_LOCAL_MACHINE,
+	    "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+	    "DisplayVersion", ret ) )
+	    ret.set( "Unknown display name" );
+    }
+
+    return ret.buf();
 }
 
 
@@ -506,10 +547,10 @@ const char* WinUtils::getWinEdition()
     mDeclStaticString(ret);
     if ( ret.isEmpty() )
     {
-        if ( !readKey(HKEY_LOCAL_MACHINE,
-            "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-            "EditionID", ret) )
-            ret.set( "Unknown edition" );
+	if ( !readKey(HKEY_LOCAL_MACHINE,
+		      "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+		      "EditionID", ret) )
+	    ret.set( "Unknown edition" );
     }
 
     return ret;
@@ -521,10 +562,10 @@ const char* WinUtils::getWinProductName()
     mDeclStaticString(ret);
     if ( ret.isEmpty() )
     {
-        if ( !readKey(HKEY_LOCAL_MACHINE,
-            "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-            "ProductName", ret) )
-            ret.set("Unknown product name");
+	if ( !readKey(HKEY_LOCAL_MACHINE,
+		      "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+		      "ProductName", ret) )
+	    ret.set( "Unknown product name" );
     }
 
     return ret;
@@ -677,18 +718,33 @@ bool WinUtils::readKey( const HKEY hkey, const char* path, const char* key,
                         BufferString& ret,
                         LPDWORD dwFlagsRet, LPDWORD dwTypeRet )
 {
-    BYTE Value_data[1024];
-    DWORD Value_size = sizeof(Value_data);
+    const int sz = dwFlagsRet && *dwFlagsRet == RRF_RT_REG_DWORD
+	? sizeof( DWORD )*2: 1024;
+    mDeclareAndTryAlloc( BYTE*, Value_data, BYTE[sz] );
+    DWORD Value_size = (DWORD)sz;
     const DWORD dwFlags = dwFlagsRet ? *dwFlagsRet : RRF_RT_ANY;
     DWORD dwType;
     const LSTATUS retcode = RegGetValueA( hkey, path, key, dwFlags,
-                                &dwType, &Value_data, &Value_size );
-    if ( retcode != ERROR_SUCCESS)
-        return false;
+	    &dwType, Value_data, &Value_size );
+    if ( retcode != ERROR_SUCCESS )
+    {
+	delete [] Value_data;
+	return false;
+    }
 
-    ret.set( (const char*)Value_data );
+    if ( dwFlagsRet && *dwFlagsRet == RRF_RT_REG_DWORD )
+    {
+	const DWORD lowval = LOWORD( *Value_data );
+	const od_uint32 lowvali = (od_uint32)lowval;
+	ret.set( lowvali );
+    }
+    else
+	ret.set( (const char*)Value_data );
+
     if ( dwTypeRet )
-        *dwTypeRet = dwType;
+	*dwTypeRet = dwType;
+
+    delete [] Value_data;
 
     return true;
 }

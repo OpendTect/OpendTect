@@ -174,10 +174,14 @@ static void writeGF( od_ostream& strm, const BinID& bid, float z,
     const float crl = mCast( float, bid.crl() );
     const float gfval = (float) ( mIsUdf(val) ? MAXFLOAT : val );
     const float depth = (float) ( mIsUdf(z) ? MAXFLOAT : z );
-    sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
+#ifdef __win__
+    sprintf_s( buf, mDataGFLineLen + 2,
+#else
+    sprintf( buf,
+#endif
+	    "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	  crd.x_, crd.y_, segid, 14, depth,
-	  crl, crl, bid.crl(), gfval, bid.inl(),
-	     "" );
+	  crl, crl, bid.crl(), gfval, bid.inl(), "" );
     buf[96] = buf[97] = 'X';
     strm << buf;
 }
@@ -361,7 +365,12 @@ static void initGF( od_ostream& strm, const char* hornm,
     gfbuf[mHdr1GFLineLen] = '\0';
     BufferString hnm( hornm );
     hnm.clean();
-    sprintf( gfbuf, "PROFILE %17sTYPE 1  4 %45s3d_ci7m.ifdf     %s ms\n",
+#ifdef __win__
+    sprintf_s( gfbuf, mHdr1GFLineLen + 2,
+#else
+    sprintf( gfbuf,
+#endif
+		"PROFILE %17sTYPE 1  4 %45s3d_ci7m.ifdf     %s ms\n",
 		    "", "", SI().xyInFeet() ? "ft" : "m " );
     int sz = hnm.size(); if ( sz > 17 ) sz = 17;
     OD::memCopy( gfbuf+8, hnm.buf(), sz );

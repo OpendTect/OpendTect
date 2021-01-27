@@ -525,8 +525,12 @@ void uiMainWin::getModalSignatures( BufferStringSet& signatures )
 	const QWidget* qw = toplevelwigs.at( idx );
 	if ( qw->isWindow() && !qw->isHidden() && qw->isModal() )
 	{
-	    BufferString qwptrstr;
+	    BufferString qwptrstr( 256, true );
+#ifdef __win__
+	    sprintf_s( qwptrstr.getCStr(), qwptrstr.bufSize(), "%p", qw );
+#else
 	    sprintf( qwptrstr.getCStr(), "%p", qw );
+#endif
 	    signatures.add( qwptrstr );
 	}
     }

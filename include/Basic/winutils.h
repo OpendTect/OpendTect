@@ -34,7 +34,10 @@ mGlobal(Basic) bool		belongsToTrusterInstaller(const char* fnm);
 mGlobal(Basic) bool		pathContainsTrustedInstaller(const char* fnm);
 
 mGlobal(Basic) unsigned int	getWinVersion();
+mGlobal(Basic) unsigned int     getWinMinorVersion();
 mGlobal(Basic) const char*	getFullWinVersion();
+mGlobal(Basic) const char*      getWinBuildNumber();
+mGlobal(Basic) const char*      getWinDisplayName();
 mGlobal(Basic) const char*	getWinEdition();
 mGlobal(Basic) const char*	getWinProductName();
 

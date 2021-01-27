@@ -158,7 +158,7 @@ void uiGraphicsItem::setAcceptedMouseButtons( OD::ButtonState bs )
 	    qgraphicsitem_->setAcceptedMouseButtons( Qt::RightButton );
 	    break;
 	case OD::MidButton:
-	    qgraphicsitem_->setAcceptedMouseButtons( Qt::MidButton );
+	    qgraphicsitem_->setAcceptedMouseButtons( Qt::MiddleButton );
 	    break;
 	default:
 	    qgraphicsitem_->setAcceptedMouseButtons( Qt::NoButton );
@@ -189,7 +189,7 @@ OD::ButtonState uiGraphicsItem::acceptedMouseButtonsEnabled() const
 	    return OD::LeftButton;
 	case Qt::RightButton:
 	    return OD::RightButton;
-	case Qt::MidButton:
+	case Qt::MiddleButton:
 	    return OD::MidButton;
 	default:
 	    break;
