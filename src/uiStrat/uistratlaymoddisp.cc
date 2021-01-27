@@ -532,8 +532,12 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
 {
     IOPar statusbarmsg;
     const int selseq = getClickedModelNr();
-    BufferString modelnrstr;
+    BufferString modelnrstr( 16, true );
+#ifdef __win__
+    sprintf_s( modelnrstr.getCStr(), modelnrstr.bufSize(), "%5d", selseq );
+#else
     sprintf( modelnrstr.getCStr(), "%5d", selseq );
+#endif
     statusbarmsg.set( "Model Number", modelnrstr );
     const MouseEvent& mev = vwr_.rgbCanvas().getMouseEventHandler().event();
     float depth = vwr_.getWorld2Ui().toWorldY( mev.pos().y );
@@ -545,8 +549,12 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
 	depth = 0;
     }
 
-    BufferString depthstr;
+    BufferString depthstr( 16, true );
+#ifdef __win__
+    sprintf_s( depthstr.getCStr(), depthstr.bufSize(), "%6.0f", depth );
+#else
     sprintf( depthstr.getCStr(), "%6.0f", depth );
+#endif
     depthstr += SI().depthsInFeet() ? "(ft)" : "(m)";
     statusbarmsg.set( "Depth", depthstr );
     if ( SI().depthsInFeet() )

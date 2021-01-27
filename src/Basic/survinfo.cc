@@ -1116,7 +1116,11 @@ void SurveyInfo::putTr( const Pos::IdxPair2Coord::DirTransform& tr,
 			  ascostream& astream, const char* key ) const
 {
     char buf[1024];
+#ifdef __win__
+    sprintf_s( buf, 1024, "%.10lg`%.10lg`%.10lg", tr.a, tr.b, tr.c );
+#else
     sprintf( buf, "%.10lg`%.10lg`%.10lg", tr.a, tr.b, tr.c );
+#endif
     astream.put( key, buf );
 }
 

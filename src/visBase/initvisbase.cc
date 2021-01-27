@@ -31,7 +31,10 @@ mDefModInitFn(visBase)
 {
     mIfNotFirstTime( return );
 
-    if( !getenv("OSG_NOTIFY_LEVEL") && !getenv("OSGNOTIFYLEVEL") )
+    const BufferString osgnotif( GetEnvVar( "OSG_NOTIFY_LEVEL" ) );
+    const BufferString osgnotif2( GetEnvVar( "OSGNOTIFYLEVEL" ) );
+
+    if( osgnotif.isEmpty() && osgnotif2.isEmpty() )
 #ifdef __debug__
 	setNotifyLevel( osg::WARN );
 #else

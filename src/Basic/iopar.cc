@@ -875,7 +875,11 @@ bool IOPar::getYN( const char* keyw, bool& i1, bool& i2, bool& i3,
 bool IOPar::getPtr( const char* keyw, void*& res ) const
 {
     mGetStartNotEmpty(pval);
+#ifdef __win__
+    return sscanf_s( pval, "%p", &res ) > 0;
+#else
     return sscanf( pval, "%p", &res ) > 0;
+#endif
 }
 
 
@@ -905,7 +909,12 @@ void IOPar::set( const char* keyw, int i1, int i2, float f )
 
 void IOPar::setPtr( const char* keyw, void* ptr )
 {
-    char buf[80]; sprintf( buf, "%p", ptr );
+    char buf[80];
+#ifdef __win__
+    sprintf_s( buf, 80, "%p", ptr );
+#else
+    sprintf( buf, "%p", ptr );
+#endif
     set( keyw, buf );
 }
 

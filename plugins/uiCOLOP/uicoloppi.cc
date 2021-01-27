@@ -72,9 +72,9 @@ uiColopLink::~uiColopLink()
 
 void uiColopLink::updateMenu( CallBacker* )
 {
-    uiAction* newitem = new uiAction( m3Dots(tr("COLOP")),
+    auto* newitem = new uiAction( m3Dots(tr("COLOP")),
 				mCB(this,uiColopLink,doColop) );
-    appl_.menuMgr().procMnu()->insertItem( newitem );
+    appl_.menuMgr().procMnu()->insertAction( newitem );
 }
 
 
