@@ -48,6 +48,7 @@ static const char* getStringFromInt( od_int32 val, char* str )
 #else
     sprintf( ret, "%d", val );
 #endif
+    //mTODOBufSize
     return ret;
 }
 
@@ -63,6 +64,7 @@ static const char* getStringFromUInt( od_uint32 val, char* str )
 #else
     sprintf( ret, "%u", val );
 #endif
+    //mTODOBufSize
     return ret;
 }
 
