@@ -44,7 +44,7 @@ BufferString::BufferString( size_type minlen, bool mknull )
 BufferString::BufferString( const BufferString& bs )
     : minlen_(bs.minlen_)
     , len_(0)
-    , buf_(0)
+    , buf_(nullptr)
 {
     if ( !bs.buf_ || !bs.len_ ) return;
 
@@ -53,7 +53,11 @@ BufferString::BufferString( const BufferString& bs )
     if ( buf_ )
     {
 	len_ = bs.len_;
+#ifdef __win__
+	strcpy_s( buf_, len_, bs.buf_ );
+#else
 	strcpy( buf_, bs.buf_ );
+#endif
     }
 }
 
@@ -521,7 +525,11 @@ void BufferString::fill( char* output, size_type maxnrchar ) const
     if ( !buf_ || maxnrchar < 2 )
 	*output = 0;
     else
+#ifdef __win__
+	strncpy_s( output, maxnrchar, buf_, maxnrchar );
+#else
 	strncpy( output, buf_, maxnrchar );
+#endif
 }
 
 

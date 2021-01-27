@@ -32,6 +32,7 @@
 #ifdef __win__
 # include <float.h>
 # include <time.h>
+# include "winutils.h"
 # include <sys/timeb.h>
 # include <shlobj.h>
 # include <Psapi.h>
@@ -229,32 +230,13 @@ const char* GetOSIdentifier()
     BufferString* tmp = new BufferString;
 
 #ifdef __win__
-
-    DWORD dwVersion = 0;
-    DWORD dwMajorVersion = 0;
-    DWORD dwMinorVersion = 0;
-    DWORD dwBuild = 0;
-
-#pragma warning( push )
-#pragma warning( disable:4996 )
-    dwVersion = GetVersion();
-#pragma warning( pop )
-
-    // Get the Windows version.
-    dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
-    dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
-
-    // Get the build number.
-    if (dwVersion < 0x80000000)
-	dwBuild = (DWORD)(HIWORD(dwVersion));
-
     const char* dot = ".";
-    tmp->add( "Windows ").add( (od_int64)dwMajorVersion )
-	.add( dot ).add((od_int64)dwMinorVersion )
-	.add( dot ).add( (od_int64)dwBuild );
-#endif
-
-#ifdef __lux__
+    tmp->add( "Windows " ).add( WinUtils::getFullWinVersion() )
+	.add( dot ).add( WinUtils::getWinBuildNumber() )
+	.add( " (" ).add( WinUtils::getWinEdition() )
+	.add( ": ")
+	.add( WinUtils::getWinDisplayName() ).add( ")" );
+#elif __lux__
     OS::MachineCommand machcomm( "lsb_release", "-d" );
     if ( !machcomm.execute(*tmp) )
 	tmp->set( "Unknown Linux");
@@ -546,8 +528,15 @@ void RestartProgram()
 mExtern(Basic) const char* GetOSEnvVar( const char* env )
 {
     Threads::Locker lock( getEnvVarLock() );
+#ifdef __win__
+    BufferString res( 1024, false );
+    size_t written;
+    if ( getenv_s(&written,res.getCStr(),res.bufSize(),env) != 0 ||
+	 written == 0 )
+	return nullptr;
+#else
     const char* res = getenv( env );
-    if ( !res ) return 0;
+#endif
 
     mDeclStaticString( resbuf );
     resbuf = res;

@@ -236,7 +236,11 @@ File::Path& File::Path::setExtension( const char* ext, bool replace )
     BufferString& fname = *lvls_[lvls_.size()-1];
     char* ptr = lastOcc( fname.getCStr(), '.' );
     if ( ptr && replace )
-	strcpy( *ext ? ptr+1 : ptr, ext );
+    {
+	*ptr = '\0';
+	if ( *ext )
+	    fname.add( "." ).add( ext );
+    }
     else if ( *ext )
 	fname.add( "." ).add( ext );
     return *this;

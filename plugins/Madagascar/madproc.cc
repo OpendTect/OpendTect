@@ -90,8 +90,13 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 		cmd = getNextNonBlanks( cmd, newbuf.getCStr() );
 		if ( !*newbuf.buf() ) break;
 
+#ifdef __win__
+		strcat_s( buf, str.bufSize(), " " );
+		strcat_s( buf, str.bufSize(), newbuf.buf() );
+#else
 		strcat( buf, " " );
 		strcat( buf, newbuf.buf() );
+#endif
 	    }
 
 	    if ( !foundmatch ) break;
