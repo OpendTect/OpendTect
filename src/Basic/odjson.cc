@@ -23,6 +23,7 @@
 # endif
 #endif
 
+
 namespace OD
 {
 
@@ -56,6 +57,7 @@ public:
     const char*		str() const	{ return cont_.str_; }
 
 
+Value() : type_( int(Number) )		{}
 virtual Value* getEmptyClone() const	{ return new Value; }
 
 Value* clone( ValueSet* parent ) const
@@ -69,7 +71,7 @@ Value* clone( ValueSet* parent ) const
     }
     else
     {
-	switch ( (DataType)type_ )
+	switch ( DataType(type_) )
 	{
 	    case Boolean:	newval->setValue( boolVal() );	break;
 	    case Number:	newval->setValue( val() );	break;
@@ -80,7 +82,7 @@ Value* clone( ValueSet* parent ) const
 }
 
 #define mDefSimpleConstr( typ, cast ) \
-    Value( typ v ) { setValue( (cast)v ); }
+    Value( typ v ) { setValue( (cast)(v) ); }
 
 mDefSimpleConstr( bool, bool )
 mDefSimpleConstr( od_int16, NumberType )
@@ -129,6 +131,7 @@ void setValue( const char* cstr )
     if ( !cstr )
 	cstr = "";
     const int len = FixedString(cstr).size();
+    char* contstr = new char[len + 1];
 #ifdef __win__
     strcpy_s( contstr, len+1, cstr );
 #else
@@ -229,6 +232,7 @@ void OD::JSON::ValArr::dumpJSon( BufferString& bs ) const
 
 void OD::JSON::ValArr::dumpJSon( StringBuilder& sb ) const
 {
+    const int sz = size_type(set_->nrItems());
     sb.add( '[' );
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -304,6 +308,7 @@ const OD::JSON::ValueSet* OD::JSON::ValueSet::top() const
 OD::JSON::ValueSet* OD::JSON::ValueSet::gtChildByIdx( idx_type idx ) const
 {
     if ( !values_.validIdx(idx) )
+	return nullptr;
     const Value* val = values_[idx];
     if ( !val->isValSet() )
 	{ pErrMsg("Value at idx is not ValSet"); }
@@ -315,6 +320,7 @@ OD::JSON::Array* OD::JSON::ValueSet::gtArrayByIdx( idx_type idx ) const
 {
     ValueSet* vset = gtChildByIdx( idx );
     if ( !vset || !vset->isArray() )
+	return nullptr;
     return static_cast<Array*>( vset );
 }
 
@@ -323,6 +329,7 @@ OD::JSON::Object* OD::JSON::ValueSet::gtObjectByIdx( idx_type idx ) const
 {
     ValueSet* vset = gtChildByIdx( idx );
     if ( !vset || vset->isArray() )
+	return nullptr;
     return static_cast<Object*>( vset );
 }
 
@@ -338,6 +345,7 @@ bool OD::JSON::ValueSet::getBoolValue( idx_type idx ) const
     if ( val->isValSet() )
     { pErrMsg(gtvalnotplaindatastr); return ret; }
 
+    switch ( DataType(val->type_) )
     {
     case Boolean:	ret = val->boolVal();  break;
     default:		ret = false;
@@ -355,18 +363,47 @@ BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
     if ( val->isValSet() )
 	{ pErrMsg(gtvalnotplaindatastr); return ret; }
 
+    switch ( DataType(val->type_) )
     {
 	case Boolean:	ret.set( val->boolVal() ? "true" : "false" );  break;
 	case Number:	ret.set( val->val() );  break;
 	default:	{ pErrMsg("Huh"); }
+	case String:
+    {
+        ret.set( val->str() );
+#ifdef __debug__
+# ifdef __win__
+        if ( File::exists(ret.buf()) )
+        {
+            pErrMsg( "Should not use getStringValue for a filepath" );
+            DBG::forceCrash( false );
+        }
+# endif
+#endif
+        break;
+    }
     }
     return ret;
 }
 
 File::Path OD::JSON::ValueSet::getFilePath( idx_type idx ) const
 {
+    BufferString ret;
+    if ( !values_.validIdx( idx ) )
+        return File::Path(ret);
+    const Value* val = values_[idx];
+    if ( val->isValSet() )
+    {
+        pErrMsg( gtvalnotplaindatastr ); return File::Path(ret);
+    }
+    if ( DataType(val->type_) == String )
+    {
+        ret.set( val->str() );
 #ifdef __win__
+        ret.replace( "/", "\\" );
 #endif
+    }
+    return File::Path( ret );
 }
 
 
@@ -379,6 +416,7 @@ od_int64 OD::JSON::ValueSet::getIntValue( idx_type idx ) const
     if ( val->isValSet() )
 	{ pErrMsg(gtvalnotplaindatastr); return ret; }
 
+    switch ( DataType(val->type_) )
     {
 	case Boolean:	ret = val->boolVal() ? 0 : 1;  break;
 	case Number:	ret = mNINT64( val->val() );  break;
@@ -398,6 +436,7 @@ double OD::JSON::ValueSet::getDoubleValue( idx_type idx ) const
     if ( val->isValSet() )
 	{ pErrMsg(gtvalnotplaindatastr); return ret; }
 
+    switch ( DataType(val->type_) )
     {
 	case Boolean:	ret = val->boolVal() ? 0 : 1;  break;
 	case Number:	ret = val->val();  break;
@@ -431,7 +470,7 @@ static OD::JSON::ValueSet* getSubVS( OD::JSON::ValueSet* parent,
     if ( tag == Gason::JSON_OBJECT )
 	return new OD::JSON::Object( parent );
     else if ( tag != Gason::JSON_ARRAY )
-	return 0;
+	return nullptr;
 
     const bool nextisarr = nexttag == Gason::JSON_ARRAY;
     const bool nextisobj = nexttag == Gason::JSON_OBJECT;
@@ -636,6 +675,7 @@ void OD::JSON::ValueSet::dumpJSon( StringBuilder& sb ) const
 	}
 	else
 	{
+	    switch ( DataType(val.type_) )
 	    {
 		case Boolean:
 		    sb.add( val.boolVal() ? "true" : "false" );
@@ -674,6 +714,7 @@ OD::JSON::ValueSet* OD::JSON::ValueSet::read( od_istream& strm, uiRetVal& uirv )
 
     uirv.set( uiStrings::phrCannotRead( toUiString(strm.fileName()) ) );
     strm.addErrMsgTo( uirv );
+    return nullptr;
 }
 
 
@@ -982,6 +1023,7 @@ void OD::JSON::Object::getSubObjKeys( BufferStringSet& bss ) const
 OD::JSON::ValueSet* OD::JSON::Object::gtChildByKey( const char* ky ) const
 {
     const idx_type idx = indexOf( ky );
+    return idx < 0 ? nullptr : gtChildByIdx( idx );
 }
 
 
@@ -989,7 +1031,9 @@ OD::JSON::Array* OD::JSON::Object::gtArrayByKey( const char* ky ) const
 {
     ValueSet* vs = gtChildByKey( ky );
     if ( !vs )
+	return nullptr;
     else if ( !vs->isArray() )
+	{ pErrMsg("Request for child Array which is an Object"); return nullptr; }
 
     return static_cast<Array*>( vs );
 }
@@ -999,7 +1043,9 @@ OD::JSON::Object* OD::JSON::Object::gtObjectByKey( const char* ky ) const
 {
     ValueSet* vs = gtChildByKey( ky );
     if ( !vs )
+	return nullptr;
     else if ( vs->isArray() )
+	{ pErrMsg("Request for child Object which is an Array"); return nullptr; }
 
     return static_cast<Object*>( vs );
 }
@@ -1012,9 +1058,11 @@ OD::JSON::ValueSet* OD::JSON::Object::gtChildByKeys(
     for ( int idk=0; idk<kys.size(); idk++ )
     {
 	if ( !vs || vs->isArray() )
+	    return nullptr;
 	const BufferString& key = kys.get( idk );
 	vs = ( vs->asObject() ).gtChildByKey( key );
 	if ( !vs )
+	    return nullptr;
     }
     return vs;
 }
@@ -1024,6 +1072,7 @@ OD::JSON::Array* OD::JSON::Object::gtArrayByKeys(
 {
     ValueSet* vs = gtChildByKeys( kys );
     if ( !vs || !vs->isArray() )
+	return nullptr;
     else
 	return static_cast<Array*>( vs );
 }
@@ -1034,6 +1083,7 @@ OD::JSON::Object* OD::JSON::Object::gtObjectByKeys(
 {
     ValueSet* vs = gtChildByKeys( kys );
     if ( !vs || vs->isArray() )
+	return nullptr;
     else
 	return static_cast<Object*>( vs );
 }
@@ -1059,11 +1109,23 @@ double OD::JSON::Object::getDoubleValue( const char* ky ) const
 
 BufferString OD::JSON::Object::getStringValue( const char* ky ) const
 {
+    const BufferString ret = ValueSet::getStringValue( indexOf(ky) );
+#ifdef __debug__
+# ifdef __win__
+    if ( File::exists(ret.buf()) )
+    {
+        pErrMsg( "Should not use getStringValue for a filepath" );
+        DBG::forceCrash( false );
+    }
+# endif
+#endif
+    return ret;
 }
 
 
 File::Path OD::JSON::Object::getFilePath( const char* ky ) const
 {
+    return ValueSet::getFilePath( indexOf(ky) );
 }
 
 

@@ -404,6 +404,7 @@ bool uiAdvSettings::acceptOK()
 static const char* IDENames[] =
 {
     "jupyter-lab",
+    "jupyter-notebook",
     "spyder",
 #ifdef __win__
     "idle",
@@ -454,14 +455,11 @@ uiPythonSettings(uiParent* p, const char* nm )
     auto* sep2 = new uiSeparator( this );
     sep2->attach( stretchedBelow, custompathfld_ );
 
-    File::Path pybinpath;
-    OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
-    BufferStringSet paths;
-    paths.add( pybinpath.fullPath() );
     BufferStringSet exenms( IDENames );
     pyidefld_ = new uiToolBarCommandEditor( this,
 					    tr("Python IDE Command"),
-					    paths, exenms, true, false );
+					    BufferStringSet(), exenms,
+					    true, false );
     pyidefld_->attach( alignedBelow, custompathfld_ );
     pyidefld_->attach( stretchedBelow, sep2 );
     pyidefld_->setChecked( false );
@@ -494,7 +492,8 @@ void initDlg(CallBacker*)
 
     mAttachCB( pythonsrcfld_->valuechanged, uiPythonSettings::sourceChgCB );
     if ( internalloc_ )
-	mAttachCB( internalloc_->newSelection, uiPythonSettings::parChgCB );
+	mAttachCB( internalloc_->newSelection,
+		   uiPythonSettings::internalLocChgCB );
     mAttachCB( customloc_->newSelection, uiPythonSettings::customEnvChgCB );
     mAttachCB( customenvnmfld_->valuechanged, uiPythonSettings::parChgCB );
     mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
@@ -662,6 +661,7 @@ void sourceChgCB( CallBacker* )
     if ( source == OD::System || source == OD::Internal )
 	customenvnmfld_->display( false );
 
+    updateIDEfld();
     parChgCB( nullptr );
 }
 
