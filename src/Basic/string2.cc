@@ -1190,7 +1190,7 @@ FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
 	ret.setMinBufSize( 16 );
-#ifdef __win
+#ifdef __win__
     sprintf_s( ret.getCStr(), ret.bufSize(), formatstr, fsz );
 #else
     sprintf( ret.getCStr(), formatstr, fsz );

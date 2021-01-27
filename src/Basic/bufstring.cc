@@ -47,7 +47,7 @@ BufferString::BufferString( const BufferString& bs )
     if ( buf_ )
     {
 	len_ = bs.len_;
-#ifdef __win
+#ifdef __win__
 	strcpy_s( buf_, len_, bs.buf_ );
 #else
 	strcpy( buf_, bs.buf_ );
