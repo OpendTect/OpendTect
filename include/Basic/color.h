@@ -52,10 +52,13 @@ public:
 
     float		average() const { return ((float) r()+g()+b())/3.0f; }
     Color		complementaryColor() const;
+    TypeSet<Color>	complimentaryColors(int) const;
     Color		lighter(float fac) const;
     Color		darker( float fac ) const
 					{ return lighter( -fac ); }
+    float		contrast(const Color&) const;
 
+    float		getRelLuminance() const;
     void		setRgb( unsigned int rgb_  );
     void		setTransparency( unsigned char t_ );
     void		setTransparencyF( float tf );

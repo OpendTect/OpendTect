@@ -8,11 +8,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "color.h"
 
-#include "separstr.h"
 #include "bufstringset.h"
-#include "typeset.h"
-#include "ptrman.h"
+#include "math2.h"
 #include "perthreadrepos.h"
+#include "ptrman.h"
+#include "separstr.h"
+#include "typeset.h"
 
 
 Color::Color( unsigned char r_, unsigned char g_,
@@ -71,6 +72,29 @@ Color Color::complementaryColor() const
 }
 
 
+TypeSet<Color> Color::complimentaryColors( int numColor ) const
+{
+    if ( numColor<1 )
+	numColor = 1;
+    TypeSet<Color> res( numColor, Color() );
+    unsigned char h, v, s;
+    getHSV( h, s, v );
+    s = 255-s;
+    v = 255-v;
+    int hdelta = mNINT32(60.0/(float)(numColor+1));
+    int hs = h;
+    Color tmp;
+    for ( int idx=0; idx<numColor; idx++ )
+    {
+	hs += (idx+1)*hdelta;
+	h = hs%60;
+	tmp.setHSV( h, s, v );
+	res[idx] = tmp;
+    }
+    return res;
+}
+
+
 Color Color::lighter( float fac ) const
 {
     if ( fac == 0 )
@@ -93,6 +117,26 @@ Color Color::lighter( float fac ) const
     return Color( getUChar(newr), getUChar(newg), getUChar(newb) );
 }
 
+
+float Color::contrast( const Color& c ) const
+{
+    float L1 = getRelLuminance();
+    float L2 = c.getRelLuminance();
+    return L1>L2 ? (L1 + 0.05) / (L2 + 0.05) : (L2 + 0.05) / (L1 + 0.05);
+}
+
+
+float Color::getRelLuminance() const
+{
+    const float Rg = r()<=10 ? (float)r()/3294.0
+			     : Math::PowerOf((float)r()/269.0 + 0.0513,2.4);
+    const float Gg = g()<=10 ? (float)g()/3294.0
+			     : Math::PowerOf((float)g()/269.0 + 0.0513,2.4);
+    const float Bg = b()<=10 ? (float)b()/3294.0
+			     : Math::PowerOf((float)b()/269.0 + 0.0513,2.4);
+
+    return 0.2126 * Rg + 0.7152 * Gg + 0.0722 * Bg;
+}
 
 void Color::setRgb( unsigned int rgb_  )
 { col_ = rgb_; }
@@ -142,7 +186,7 @@ Color Color::stdDrawColor( int idx )
 Color Color::interpolate( const Color& col1, const Color& col2, float frac )
 {
     return Color( getUChar((col2.r() - col1.r())*frac + col1.r()),
-	    	  getUChar((col2.g() - col1.g())*frac + col1.g()),
+		  getUChar((col2.g() - col1.g())*frac + col1.g()),
 		  getUChar((col2.b() - col1.b())*frac + col1.b()),
 		  getUChar((col2.t() - col1.t())*frac + col1.t()) );
 }
