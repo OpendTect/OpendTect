@@ -260,7 +260,7 @@ bool uiExport2DHorizon::doExport()
 				    linename.buf(), crd.x, crd.y,
 				    spnr, trcnr, undefstr.buf() );
 			else
-#ifdef __win
+#ifdef __win__
 			    sprintf_s( line.getCStr(), line.bufSize(),
 #else
 			    sprintf( line.getCStr(),
@@ -285,7 +285,7 @@ bool uiExport2DHorizon::doExport()
 				crd.x, crd.y,spnr, trcnr, scaledz );
 			else
 			{
-#ifdef __win
+#ifdef __win__
 			    sprintf_s( line.getCStr(), line.bufSize(),
 #else
 			    sprintf( line.getCStr(),
