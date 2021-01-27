@@ -61,7 +61,8 @@ public:
     void			getLogNames(const MultiID&,
 					    BufferStringSet&) const;
 
-    bool			editDisplayProperties(const MultiID&);
+    mDeprecated("Specify color") bool	editDisplayProperties(const MultiID&);
+    bool			editDisplayProperties(const MultiID&,Color);
     void			displayIn2DViewer(const MultiID&);
 
     bool			dispLineOnCreation(){ return disponcreation_; }
@@ -69,6 +70,7 @@ public:
     void			selectWellCoordsForRdmLine();
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
+    mDeprecatedDef
     void			closePropDlg(const MultiID&);
     Notifier<uiWellPartServer>	randLineDlgClosed;
     Notifier<uiWellPartServer>	uiwellpropDlgClosed;
@@ -116,14 +118,18 @@ protected:
     void			importReadyCB(CallBacker*);
     void			rdmlnDlgDeleted(CallBacker*);
     void			rdmlnDlgClosed(CallBacker*);
+    mDeprecatedDef
     void			wellPropDlgClosed(CallBacker*);
     void			saveWellDispProps(const Well::Data*);
     void			saveWellDispProps(const Well::Data&,
 						  const MultiID&);
     void			applyAll(CallBacker*);
+    void			applyTabProps(CallBacker*);
+    void			resetAllProps(CallBacker*);
     void			simpImp(CallBacker*);
     void			simpleImpDlgClosed(CallBacker*);
     void			survChangedCB(CallBacker*);
+    mDeprecatedDef
     int				getPropDlgIndex(const MultiID&);
 
 };

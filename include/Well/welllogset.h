@@ -35,12 +35,15 @@ public:
 			LogSet()		{ init(); }
     virtual		~LogSet()		{ setEmpty(); }
 
+    mDeprecated("Specify onlyloaded")
     void		getNames(BufferStringSet&) const;
+    void		getNames(BufferStringSet&,bool onlyloaded) const;
 
     int			size() const		{ return logs_.size(); }
     Log&		getLog( int idx )	{ return *logs_[idx]; }
     const Log&		getLog( int idx ) const	{ return *logs_[idx]; }
     int			indexOf(const char*) const;
+    bool		isLoaded(const char*) const;
     bool		isPresent(const char*) const;
     const Log*		getLog( const char* nm ) const	{ return gtLog(nm); }
     Log*		getLog( const char* nm )	{ return gtLog(nm); }

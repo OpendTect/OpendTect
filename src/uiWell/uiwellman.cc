@@ -664,7 +664,7 @@ void uiWellMan::wellsChgd()
     for ( int idwell=0; idwell<curwds_.size(); idwell++ )
     {
 	fillLogsFld();
-	Well::MGR().reload( curmultiids_[idwell] );
+	Well::MGR().reload( curmultiids_[idwell], Well::LoadReqs(false) );
 	mDeleteLogs(idwell);
     }
 }

@@ -19,6 +19,7 @@ const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
 const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
 const char* Well::Log::sKeyDahRange()	{ return "Dah range"; }
+const char* Well::Log::sKeyLogRange()	{ return "Log range"; }
 
 // ---- Well::LogSet
 
@@ -26,6 +27,19 @@ void Well::LogSet::getNames( BufferStringSet& nms ) const
 {
     for ( int idx=0; idx<logs_.size(); idx++ )
 	nms.add( logs_[idx]->name() );
+}
+
+
+void Well::LogSet::getNames( BufferStringSet& nms, bool onlyloaded ) const
+{
+    nms.setEmpty();
+    for ( int idx=0; idx<logs_.size(); idx++ )
+    {
+	if ( !onlyloaded )
+	    nms.add( logs_[idx]->name() );
+	else if ( logs_[idx]->isLoaded() )
+	    nms.add( logs_[idx]->name() );
+    }
 }
 
 
@@ -83,6 +97,13 @@ int Well::LogSet::indexOf( const char* nm ) const
 	    return idx;
     }
     return -1;
+}
+
+
+bool Well::LogSet::isLoaded( const char* nm ) const
+{
+    const Well::Log* log = getLog( nm );
+    return log ? log->isLoaded() : false;
 }
 
 
@@ -181,6 +202,7 @@ Well::Log& Well::Log::operator =( const Well::Log& wl )
 	setName( wl.name() );
 	setUnitMeasLabel( wl.unitMeasLabel() );
 	dah_ = wl.dah_; vals_ = wl.vals_; range_ = wl.range_;
+	dahrange_ = wl.dahrange_;
 	iscode_ = wl.iscode_;
     }
     return *this;
@@ -216,6 +238,8 @@ void Well::Log::setValue( int idx, float val )
 	return;
 
     vals_[idx] = val;
+    range_.include( val );
+
     if ( iscode_ && !valIsCode(val,1e-3f) )
 	iscode_ = false;
 }
@@ -288,14 +312,11 @@ float Well::Log::gtVal( float dh, int& idx1 ) const
 
 void Well::Log::addValue( float dh, float val )
 {
-    if ( !mIsUdf(val) )
-    {
-	if ( val < range_.start ) range_.start = val;
-	if ( val > range_.stop ) range_.stop = val;
-    }
-
     dah_ += dh;
+    dahrange_.include( dh );
     vals_ += val;
+    range_.include( val );
+
     if ( isEmpty() )
 	iscode_ = valIsCode( val, 1e-3f );
     else if ( iscode_ && !valIsCode(val,1e-3f) )
@@ -384,20 +405,24 @@ void Well::Log::removeTopBottomUdfs()
     }
 
     if ( defrg.start == 0 )
+    {
+	updateDahRange();
 	return;
+    }
 
     TypeSet<float> newval, newdah;
     for ( int idx=defrg.start; idx<size(); idx++ )
 	{ newdah += dah_[idx]; newval += vals_[idx]; }
     dah_ = newdah; vals_ = newval;
+    updateDahRange();
 }
 
 
 bool Well::Log::insertAtDah( float dh, float val )
 {
     mWellDahObjInsertAtDah( dh, val, vals_, false );
-    if ( val < range_.start ) range_.start = val;
-    if ( val > range_.stop ) range_.stop = val;
+    range_.include( val );
+    dahrange_.include( dh );
     return true;
 }
 

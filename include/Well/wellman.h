@@ -50,11 +50,14 @@ public:
     LoadReqs&		remove( SubObjType typ ) { reqs_[typ]=0; return *this; }
     void		setToAll()		{ *this = All(); }
     void		setEmpty()		{ reqs_.reset(); }
+    bool		isEmpty() const		{ return reqs_.none(); }
     void		include(const LoadReqs&);
+    void		exclude(const LoadReqs&);
 
     bool		includes( SubObjType typ ) const
 						{ return reqs_[typ]; }
     bool		includes(const LoadReqs&) const;
+    BufferString	toString() const;
 
 protected:
 
@@ -82,16 +85,37 @@ public:
     mDeprecated("Use removeObject instead") Data* release(const MultiID&);
 			//!< Data becomes yours
     bool		isLoaded(const MultiID&) const;
-    bool		reload(const MultiID&);
+    mDeprecated("Specify LoadReqs") bool		reload(const MultiID&);
+    bool		reload(const MultiID&,LoadReqs lreq);
+    bool		reloadDispPars(const MultiID&, bool for2d=false);
+    bool		validID(const MultiID&) const;
 
     const char*		errMsg() const		{ return msg_; }
     ObjectSet<Data>&	wells()			{ return wells_; }
 
     static bool		getWellKeys(TypeSet<MultiID>&,bool onlyloaded=false);
     static bool		getWellNames(BufferStringSet&,bool onlyloaded=false);
-    static bool		getLogNames(const MultiID&,BufferStringSet&,
-				    bool forceLoad=false);
-    static bool		getMarkerNames(BufferStringSet&);
+    static bool		getAllMarkerNames(BufferStringSet&,
+					  bool onlyloaded=false);
+    static bool		getAllMarkerInfo(BufferStringSet&,
+					 TypeSet<Color>&,
+				  bool onlyloaded=false);
+    static bool		getAllLogNames(BufferStringSet&,
+				       bool onlyloaded=false);
+
+    static bool		getMarkersByID(const MultiID&, BufferStringSet&);
+    static bool		getMarkersByID(const MultiID&, BufferStringSet&,
+				       TypeSet<Color>&);
+    static bool		getMarkersByID(const MultiID&, BufferStringSet&,
+				       TypeSet<Color>&, TypeSet<float>&);
+    static bool		getLogNamesByID(const MultiID&,BufferStringSet&,
+					bool onlyloaded=false);
+    mDeprecated("Use getLogNamesByID instead") static bool getLogNames(
+			const MultiID&,BufferStringSet&, bool forceLoad=false);
+    mDeprecated("Use getAllMarkerNames instead") static bool getMarkerNames(
+							    BufferStringSet&);
+
+    static void		dumpMgrInfo(IOPar&);
 
 protected:
 

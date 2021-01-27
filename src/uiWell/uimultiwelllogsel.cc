@@ -539,7 +539,7 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 	{
 	    wd = Well::MGR().get( wmid );
 	    if ( !wd ) continue;
-	    wd->logs().getNames( lognms );
+	    wd->logs().getNames( lognms, false );
 	}
 	else
 	{

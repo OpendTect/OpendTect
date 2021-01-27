@@ -151,7 +151,7 @@ int Well::InfoCollector::nextStep()
     {
 	wd = Well::MGR().get( wmid );
 	if ( wd && dologs_ )
-	    wd->logs().getNames( lognms );
+	    wd->logs().getNames( lognms, false );
     }
 
     bool res = true;

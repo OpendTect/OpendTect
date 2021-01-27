@@ -1,0 +1,16 @@
+dTect V6.6
+Well Display default settings
+Tue Dec 29 12:19:19 2020
+!
+welldisp
+Color: 0`0`255
+Size: 1
+Track.Track Name Size: 10
+Markers.Marker Name Size: 10
+Log.Left Log Style: 0
+Log.Left Log Width XY: 1000
+Log.Center Log Style: 2
+Log.Center Log Width XY: 1000
+Log.Right Log Style: 0
+Log.Right Log Width XY: 1000
+! 

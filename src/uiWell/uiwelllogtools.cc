@@ -178,7 +178,7 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 	    lds[idx]->getOutputLogs( wd->logs() );
 	    Well::Writer wrr( lds[idx]->wellid_, *wd );
 	    wrr.putLogs();
-	    Well::MGR().reload( lds[idx]->wellid_ );
+	    Well::MGR().reload( lds[idx]->wellid_, Well::LoadReqs(false) );
 	}
 	welllogselfld_->update();
     }

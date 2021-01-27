@@ -286,7 +286,7 @@ uiWellMarkersDlg::uiWellMarkersDlg( uiParent* p,
 		new uiLabel( mrkrgrp, uiStrings::sMarker(mPlural) );
     markersselgrp_ = new uiListBox( mrkrgrp, "Markers", su.markerschoicemode_ );
     BufferStringSet markernms;
-    Well::MGR().getMarkerNames( markernms );
+    Well::MGR().getAllMarkerNames( markernms );
     markernms.sort();
     markersselgrp_->addItems( markernms );
 
@@ -344,7 +344,7 @@ void uiWellMarkersDlg::fltrMarkerNamesCB( CallBacker* cb )
 
     markersselgrp_->setEmpty();
     BufferStringSet markernms;
-    Well::MGR().getMarkerNames( markernms );
+    Well::MGR().getAllMarkerNames( markernms );
     if ( markernms.isEmpty() )
 	return;
 

@@ -117,7 +117,9 @@ protected:
 mExpClass(uiWell) uiWellDisplayWin : public uiMainWin
 {
 public :
-			    	uiWellDisplayWin(uiParent*,Well::Data&);
+			mDeprecatedDef	uiWellDisplayWin(uiParent*,Well::Data&);
+			    uiWellDisplayWin(uiParent*, const MultiID&);
+			    ~uiWellDisplayWin();
 
 protected:                  
 

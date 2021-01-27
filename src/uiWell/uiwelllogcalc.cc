@@ -211,7 +211,7 @@ void uiWellLogCalc::getAllLogs()
 	{
 	    wd = Well::MGR().get( wmid );
 	    if ( !wd ) continue;
-	    wd->logs().getNames( nms );
+	    wd->logs().getNames( nms, false );
 	}
 	else
 	{
@@ -274,7 +274,7 @@ bool uiWellLogCalc::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
     else
     {
 	BufferStringSet nms;
-	superwls_.getNames( nms );
+	superwls_.getNames( nms, false );
 	formfld_->setNonSpecInputs( nms, -1 );
     }
 

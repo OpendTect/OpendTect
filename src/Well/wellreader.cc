@@ -163,10 +163,19 @@ rettyp Well::Reader::fnnm( typ arg ) const \
 bool Well::Reader::fnnm() const { return ra_ ? ra_->fnnm() : false; }
 
 mImplSimpleWRFn(getInfo)
-mImplSimpleWRFn(getTrack)
 mImplSimpleWRFn(getMarkers)
 mImplSimpleWRFn(getDispProps)
 mImplWRFn(bool,getLogs,bool,needjustinfo,false)
+
+
+bool Well::Reader::getTrack() const
+{
+    bool trackloaded = ra_ && ra_->getTrack();
+    if ( trackloaded )
+	const_cast<Well::Track&>( data()->track() ).updateDahRange();
+
+    return trackloaded;
+}
 
 
 bool Well::Reader::get() const
@@ -614,7 +623,11 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int idx )
 	{
 	    newlog->addValue( astrm.getFValue(0), mUdf(float) );
 	    newlog->addValue( astrm.getFValue(1), mUdf(float) );
+	    newlog->dahRange().set( astrm.getFValue(0), astrm.getFValue(1) );
 	}
+	if ( astrm.hasKeyword(Well::Log::sKeyLogRange()) )
+	    newlog->valueRange().set( astrm.getFValue(0), astrm.getFValue(1) );
+
     }
 
     if ( newlog->name().isEmpty() )
@@ -641,25 +654,18 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
     if ( !newlog )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
-    if ( !needjustinfo )
-    {
-	newlog->removeTopBottomUdfs();
-	newlog->updateAfterValueChanges();
-    }
-
-    if ( newlog->isEmpty() )
-    {
+    if ( newlog->valueRange().isUdf() || newlog->dahRange().isUdf() ||
+	!needjustinfo )
 	readLogData( *newlog, strm, bintype );
 
-	if ( SI().zInFeet() && version<4.195 )
-	{
-	    for ( int idx=0; idx<newlog->size(); idx++ )
-		newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactorF;
-	}
-
-	if ( wd_.track().isEmpty() )
-	    getTrack();
+    if ( SI().zInFeet() && version<4.195 )
+    {
+	for ( int idx=0; idx<newlog->size(); idx++ )
+	    newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactorF;
     }
+
+    if ( wd_.track().isEmpty() )
+	getTrack();
 
     return addToLogSet( newlog, needjustinfo );
 }
@@ -812,6 +818,9 @@ bool Well::odReader::getDispProps() const
 bool Well::odReader::getDispProps( od_istream& strm ) const
 {
     double version = 0.0;
+    wd_.displayProperties(true) =
+				Well::DisplayProperties(Well::sKey2DDispProp());
+    wd_.displayProperties(false) = Well::DisplayProperties();
     if ( !rdHdr(strm,sKeyDispProps(),version) )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 

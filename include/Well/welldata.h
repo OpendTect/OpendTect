@@ -22,12 +22,14 @@ ________________________________________________________________________
 #include "sets.h"
 #include "uistring.h"
 #include "welld2tmodel.h"
+#include "wellman.h"
 
 
 namespace Well
 {
 
 class Track;
+class Log;
 class LogSet;
 class Marker;
 class MarkerSet;
@@ -151,10 +153,14 @@ public:
 
     void			levelToBeRemoved(CallBacker*);
 
+    const Well::Log*		getLog(const char* lognm) const;
+    Well::Log*			getLogForEdit(const char* lognm);
+
     bool			haveLogs() const;
     bool			haveMarkers() const;
     bool			haveD2TModel() const	{ return d2tmodel_; }
     bool			haveCheckShotModel() const { return csmodel_; }
+    Well::LoadReqs		loadState() const;
 
     Notifier<Well::Data>	d2tchanged;
     Notifier<Well::Data>	csmdlchanged;
