@@ -216,7 +216,11 @@ bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 	    else
 	    {
 		OD::memSet( fullline, ' ', linelen ); fullline[linelen] = '\0';
+#ifdef __win__
 		strncpy_s( fullline, lnlen, startptr, lnlen );
+#else
+		strncpy( fullline, startptr, lnlen );
+#endif
 		*sd.oStrm() << fullline;
 	    }
 

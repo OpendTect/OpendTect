@@ -530,7 +530,11 @@ void uiMainWin::getModalSignatures( BufferStringSet& signatures )
 	if ( qw->isWindow() && !qw->isHidden() && qw->isModal() )
 	{
 	    BufferString qwptrstr( 256, true );
-	    sprintf_s( qwptrstr.getCStr(), 256, "%p", qw );
+#ifdef __win__
+	    sprintf_s( qwptrstr.getCStr(), qwptrstr.bufSize(), "%p", qw );
+#else
+	    sprintf( qwptrstr.getCStr(), "%p", qw );
+#endif
 	    signatures.add( qwptrstr );
 	}
     }

@@ -43,7 +43,11 @@ static const char* getStringFromInt( od_int32 val, char* str )
     if ( retstr.isEmpty() && !str )
 	retstr.setMinBufSize( 128 );
     char* ret = str ? str : retstr.getCStr();
+#ifdef __win__
     sprintf_s( ret, retstr.bufSize(), "%d", val );
+#else
+    sprintf( ret, "%d", val );
+#endif
     return ret;
 }
 
@@ -54,7 +58,11 @@ static const char* getStringFromUInt( od_uint32 val, char* str )
     if ( retstr.isEmpty() && !str )
 	retstr.setMinBufSize( 128 );
     char* ret = str ? str : retstr.getCStr();
+#ifdef __win__
     sprintf_s( ret, retstr.bufSize(), "%u", val );
+#else
+    sprintf( ret, "%u", val );
+#endif
     return ret;
 }
 
@@ -781,7 +789,11 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
     if ( !trimright )
     {
 	inp += inplen - nrchars + 3;
+#ifdef __win__
 	strcpy_s( ret,  nrchars+1, dots );
+#else
+	strcpy( ret,  dots );
+#endif
 	ptr = ret + 3;
     }
 
@@ -790,7 +802,11 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
     *ptr = '\0';
 
     if ( trimright )
+#ifdef __win__
 	strcat_s( ret, nrchars+1, dots );
+#else
+	strcat( ret, dots );
+#endif
 
     return ret;
 }
@@ -805,7 +821,11 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
     if ( retstr.isEmpty() && !str )
 	retstr.setMinBufSize( 128 );
     char* ret = str ? str : retstr.getCStr();
+#ifdef __win__
     strcpy_s( ret, retstr.bufSize(), areastr.buf() );
+#else
+    strcpy( ret, areastr.buf() );
+#endif
     return ret;
 }
 
@@ -860,7 +880,11 @@ const char* getAreaString( float m2, bool xyinfeet, int precision,
     if ( retstr.isEmpty() && !str )
 	retstr.setMinBufSize( 128 );
     char* ret = str ? str : retstr.getCStr();
+#ifdef __win__
     strcpy_s( ret, retstr.bufSize(), valstr.buf() );
+#else
+    strcpy( ret, valstr.buf() );
+#endif
 
     return ret;
 }
@@ -956,7 +980,11 @@ static const char* toStringLimImpl( T val, int maxtxtwdth )
 
     // Nope. We have no choice: use the 'g' format
     const BufferString fullfmt( "%", maxtxtwdth-4, "g" );
+#ifdef __win__
     sprintf_s( str, ret.bufSize(), fullfmt.buf(), val );
+#else
+    sprintf( str, fullfmt.buf(), val );
+#endif
 
     const int retsz = ret.size();
     if ( retsz > maxtxtwdth )
@@ -1162,7 +1190,11 @@ FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
 	ret.setMinBufSize( 16 );
+#ifdef __win
     sprintf_s( ret.getCStr(), ret.bufSize(), formatstr, fsz );
+#else
+    sprintf( ret.getCStr(), formatstr, fsz );
+#endif
 
     if ( withunit )
 	ret.add( " " ).add( getUnitString() );

@@ -215,7 +215,12 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	return;
     modelidx = toInt(valstr)-1;
     BufferString modelnrstr( 16, true );
-    sprintf_s( modelnrstr.getCStr(), 16, "Model Number:%5d", modelidx+1 );
+#ifdef __win__
+    sprintf_s( modelnrstr.getCStr(), modelnrstr.bufSize(),
+#else
+    sprintf( modelnrstr.getCStr(),
+#endif
+	     "Model Number:%5d", modelidx+1 );
     mesg.add( modelnrstr );
     valstr = pars.find( "Z" );
     if ( !valstr ) valstr = pars.find( "Z-Coord" );
@@ -224,7 +229,12 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     {
 	BufferString depthstr( 16, true );
 	zval = toFloat( valstr );
-	sprintf_s( depthstr.getCStr(), 16, "Depth : %6.0f", zval );
+#ifdef __win__
+	sprintf_s( depthstr.getCStr(), depthstr.bufSize(),
+#else
+	sprintf( depthstr.getCStr(),
+#endif
+		   "Depth : %6.0f", zval );
 	depthstr.add( SI().getZUnitString() );
 	mesg.addSpace().add( depthstr );
     }

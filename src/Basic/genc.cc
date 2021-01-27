@@ -526,11 +526,15 @@ void RestartProgram()
 mExtern(Basic) const char* GetOSEnvVar( const char* env )
 {
     Threads::Locker lock( getEnvVarLock() );
+#ifdef __win__
     BufferString res( 1024, false );
     size_t written;
     if ( getenv_s(&written,res.getCStr(),res.bufSize(),env) != 0 ||
 	 written == 0 )
 	return nullptr;
+#else
+    const char* res = getenv( env );
+#endif
 
     mDeclStaticString( resbuf );
     resbuf = res;

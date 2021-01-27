@@ -49,7 +49,11 @@ void Scaler::put( char* str ) const
 {
     FileMultiString fs( type() );
     fs += FileMultiString( toString() );
+#ifdef __win__
     strcpy_s( str, fs.size(), fs );
+#else
+    strcpy( str, fs );
+#endif
 }
 
 
