@@ -639,10 +639,10 @@ od_istream& od_istream::getC( char* str, int maxnrch )
 	    if ( isBad() )
 		*str = '\0';
 	    else if ( maxnrch > 0 )
-		strncpy( str, bs.buf(), maxnrch );
+		strncpy_s( str, maxnrch, bs.buf(), maxnrch );
 	    else
-		strcpy( str, bs.buf() ); // still dangerous, but intentional
-	}
+		strcpy_s( str, maxnrch, bs.buf() ); // still dangerous, but intentional
+	} //mTODOBufSize
     }
     return *this;
 }

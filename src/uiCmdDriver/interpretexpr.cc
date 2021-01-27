@@ -503,7 +503,7 @@ void ExprInterpreter::setBreakPrefix( const char* endptr,
     if ( sz > 0 )
     {
 	breakprefix.setBufSize( sz+1 );
-	strncpy( breakprefix.getCStr(), exprstr_, sz );
+	strncpy_s( breakprefix.getCStr(), sz+1, exprstr_, sz );
 	*( breakprefix.getCStr()+sz ) = '\0';
 	removeTrailingBlanks( breakprefix.getCStr() );
     }

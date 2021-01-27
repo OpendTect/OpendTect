@@ -40,8 +40,10 @@ static const char* getStringFromInt( od_int32 val, char* str )
 
 {
     mDeclStaticString( retstr );
+    if ( retstr.isEmpty() && !str )
+	retstr.setMinBufSize( 128 );
     char* ret = str ? str : retstr.getCStr();
-    sprintf( ret, "%d", val );
+    sprintf_s( ret, retstr.bufSize(), "%d", val );
     return ret;
 }
 
@@ -49,8 +51,10 @@ static const char* getStringFromInt( od_int32 val, char* str )
 static const char* getStringFromUInt( od_uint32 val, char* str )
 {
     mDeclStaticString( retstr );
+    if ( retstr.isEmpty() && !str )
+	retstr.setMinBufSize( 128 );
     char* ret = str ? str : retstr.getCStr();
-    sprintf( ret, "%u", val );
+    sprintf_s( ret, retstr.bufSize(), "%u", val );
     return ret;
 }
 
@@ -777,7 +781,7 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
     if ( !trimright )
     {
 	inp += inplen - nrchars + 3;
-	strcpy( ret,  dots );
+	strcpy_s( ret,  nrchars+1, dots );
 	ptr = ret + 3;
     }
 
@@ -786,7 +790,7 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
     *ptr = '\0';
 
     if ( trimright )
-	strcat( ret,  dots );
+	strcat_s( ret, nrchars+1, dots );
 
     return ret;
 }
@@ -798,9 +802,10 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 					      mUdf(int),parensonunit) );
 
     mDeclStaticString( retstr );
+    if ( retstr.isEmpty() && !str )
+	retstr.setMinBufSize( 128 );
     char* ret = str ? str : retstr.getCStr();
-    strcpy( ret, areastr.buf() );
-
+    strcpy_s( ret, retstr.bufSize(), areastr.buf() );
     return ret;
 }
 
@@ -852,8 +857,10 @@ const char* getAreaString( float m2, bool xyinfeet, int precision,
 	valstr.add( ")" );
 
     mDeclStaticString( retstr );
+    if ( retstr.isEmpty() && !str )
+	retstr.setMinBufSize( 128 );
     char* ret = str ? str : retstr.getCStr();
-    strcpy( ret, valstr.buf() );
+    strcpy_s( ret, retstr.bufSize(), valstr.buf() );
 
     return ret;
 }
@@ -923,6 +930,8 @@ static const char* toStringLimImpl( T val, int maxtxtwdth )
 	return sKey::FloatUdf();
 
     mDeclStaticString( ret );
+    if ( ret.isEmpty() )
+	ret.setMinBufSize( 128 );
     char* str = ret.getCStr();
 
     // First try to simply remove digits from mantissa
@@ -947,7 +956,7 @@ static const char* toStringLimImpl( T val, int maxtxtwdth )
 
     // Nope. We have no choice: use the 'g' format
     const BufferString fullfmt( "%", maxtxtwdth-4, "g" );
-    sprintf( str, fullfmt.buf(), val );
+    sprintf_s( str, ret.bufSize(), fullfmt.buf(), val );
 
     const int retsz = ret.size();
     if ( retsz > maxtxtwdth )
@@ -1151,7 +1160,9 @@ FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
     formatstr.add( "f");
 
     mDeclStaticString( ret );
-    sprintf( ret.getCStr(), formatstr, fsz );
+    if ( ret.isEmpty() )
+	ret.setMinBufSize( 16 );
+    sprintf_s( ret.getCStr(), ret.bufSize(), formatstr, fsz );
 
     if ( withunit )
 	ret.add( " " ).add( getUnitString() );

@@ -251,11 +251,11 @@ bool uiExport2DHorizon::doExport()
 		    {
 			controlstr += "%16.2lf%16.2lf%8.2lf%8d%16s";
 			if ( isbulk_ )
-			    sprintf( line.getCStr(), controlstr.buf(),
+			    sprintf_s( line.getCStr(), line.size(), controlstr.buf(),
 				horname.buf(), linename.buf(), crd.x, crd.y,
 				spnr, trcnr, undefstr.buf() );
 			else
-			    sprintf( line.getCStr(), controlstr.buf(),
+			    sprintf_s( line.getCStr(), line.size(), controlstr.buf(),
 				linename.buf(), crd.x, crd.y, spnr, trcnr,
 				undefstr.buf() );
 		    }
@@ -267,12 +267,12 @@ bool uiExport2DHorizon::doExport()
 		    {
 			controlstr += "%16.2lf%16.2lf%8.2lf%8d%16.4lf";
 			if ( isbulk_ )
-			      sprintf( line.getCStr(), controlstr.buf(),
+			      sprintf_s( line.getCStr(), line.size(), controlstr.buf(),
 				horname.buf(), linename.buf(), crd.x, crd.y,spnr,
 				trcnr, scaledz );
 			else
 			{
-			    sprintf( line.getCStr(), controlstr.buf(),
+			    sprintf_s( line.getCStr(), line.size(), controlstr.buf(),
 				linename.buf(), crd.x, crd.y, spnr,
 				trcnr, scaledz );
 			}

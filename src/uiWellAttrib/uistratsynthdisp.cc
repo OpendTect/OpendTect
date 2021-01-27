@@ -214,17 +214,17 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     if ( valstr.isEmpty() )
 	return;
     modelidx = toInt(valstr)-1;
-    BufferString modelnrstr;
-    sprintf( modelnrstr.getCStr(), "Model Number:%5d", modelidx+1 );
+    BufferString modelnrstr( 16, true );
+    sprintf_s( modelnrstr.getCStr(), 16, "Model Number:%5d", modelidx+1 );
     mesg.add( modelnrstr );
     valstr = pars.find( "Z" );
     if ( !valstr ) valstr = pars.find( "Z-Coord" );
     float zval = mUdf(float);
     if ( valstr )
     {
-	BufferString depthstr;
+	BufferString depthstr( 16, true );
 	zval = toFloat( valstr );
-	sprintf( depthstr.getCStr(), "Depth : %6.0f", zval );
+	sprintf_s( depthstr.getCStr(), 16, "Depth : %6.0f", zval );
 	depthstr.add( SI().getZUnitString() );
 	mesg.addSpace().add( depthstr );
     }

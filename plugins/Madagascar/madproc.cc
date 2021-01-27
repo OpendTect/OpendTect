@@ -91,8 +91,8 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 		cmd = getNextWord( cmd, newbuf.getCStr() );
 		if ( !*newbuf.buf() ) break;
 
-		strcat( buf, " " );
-		strcat( buf, newbuf.buf() );
+		strcat_s( buf, str.size(), " " );
+		strcat_s( buf, str.size(), newbuf.buf() );
 	    }
 
 	    if ( !foundmatch ) break;

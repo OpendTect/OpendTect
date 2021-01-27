@@ -130,7 +130,7 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 	    while ( spacepos<len && !iswspace(defstring[spacepos]) )
 		spacepos++;
 	    mAllocVarLenArr( char, storagestr, spacepos-equalpos+1 );
-	    strncpy( storagestr, &defstring[equalpos], spacepos-equalpos);
+	    strncpy_s( storagestr, spacepos-equalpos, &defstring[equalpos], spacepos-equalpos);
 	    storagestr[spacepos-equalpos] = 0;
 	    if ( storageidstr.addIfNew(storagestr) )
 	    {

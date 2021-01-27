@@ -47,7 +47,7 @@ BufferString::BufferString( const BufferString& bs )
     if ( buf_ )
     {
 	len_ = bs.len_;
-	strcpy( buf_, bs.buf_ );
+	strcpy_s( buf_, len_, bs.buf_ );
     }
 }
 
@@ -510,7 +510,7 @@ void BufferString::fill( char* output, int maxnrchar ) const
     if ( !buf_ || maxnrchar < 2 )
 	*output = 0;
     else
-	strncpy( output, buf_, maxnrchar );
+	strncpy_s( output, maxnrchar, buf_, maxnrchar );
 }
 
 

@@ -66,7 +66,10 @@ mDeprecatedMachCmd mGlobal(Basic) bool execProc(const char* comm,bool inconsole,
 					 bool inbg,const char* runin);
 
 mGlobal(Basic) unsigned int	getWinVersion();
+mGlobal(Basic) unsigned int     getWinMinorVersion();
 mGlobal(Basic) const char*	getFullWinVersion();
+mGlobal(Basic) const char*      getWinBuildNumber();
+mGlobal(Basic) const char*      getWinDisplayName();
 mGlobal(Basic) const char*	getWinEdition();
 mGlobal(Basic) const char*	getWinProductName();
 

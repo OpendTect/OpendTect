@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifdef __win__
 # include <float.h>
 # include <time.h>
+# include "winutils.h"
 # include <sys/timeb.h>
 # include <shlobj.h>
 # include <Psapi.h>
@@ -228,28 +229,12 @@ const char* GetOSIdentifier()
     BufferString* tmp = new BufferString;
 
 #ifdef __win__
-    DWORD dwVersion = 0;
-    DWORD dwMajorVersion = 0;
-    DWORD dwMinorVersion = 0;
-    DWORD dwBuild = 0;
-
-    dwVersion = GetVersion();
-
-    // Get the Windows version.
-    dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
-    dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
-
-    // Get the build number.
-    if (dwVersion < 0x80000000)
-	dwBuild = (DWORD)(HIWORD(dwVersion));
-
     const char* dot = ".";
-    tmp->add( "Windows ").add( (od_uint64) dwMajorVersion )
-	.add( dot ).add((od_uint64) dwMinorVersion )
-	.add( dot ).add( (od_uint64) dwBuild );
-#endif
-
-#ifdef __lux__
+    tmp->add( "Windows " ).add( getFullWinVersion() )
+	.add( dot ).add( getWinBuildNumber() )
+	.add( " (" ).add( getWinEdition() ).add( ": ")
+	.add( getWinDisplayName() ).add( ")" );
+#elif __lux__
     OS::MachineCommand machcomm( "lsb_release", "-d" );
     if ( !machcomm.execute(*tmp) )
 	tmp->set( "Unknown Linux");
@@ -541,8 +526,11 @@ void RestartProgram()
 mExtern(Basic) const char* GetOSEnvVar( const char* env )
 {
     Threads::Locker lock( getEnvVarLock() );
-    const char* res = getenv( env );
-    if ( !res ) return 0;
+    BufferString res( 1024, false );
+    size_t written;
+    if ( getenv_s(&written,res.getCStr(),res.bufSize(),env) != 0 ||
+	 written == 0 )
+	return nullptr;
 
     mDeclStaticString( resbuf );
     resbuf = res;

@@ -547,7 +547,7 @@ bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
 	    }
 	    const char* format = "%8d%8d%16.2lf%16.2lf";
 	    BufferString line( 80, false );
-	    sprintf( line.getCStr(), format, bid.inl(), bid.crl(),
+	    sprintf_s( line.getCStr(), 80, format, bid.inl(), bid.crl(),
 		     crd.x, crd.y );
 	    strm << line;
 	}

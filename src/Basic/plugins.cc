@@ -158,7 +158,8 @@ static BufferString mkLibName( const char* modnm )
 void SharedLibAccess::getLibName( const char* modnm, char* out )
 {
     BufferString libnm( mkLibName(modnm) );
-    strncpy( out, libnm.buf(), 256 );
+    strncpy_s( out, libnm.size(), libnm.buf(), libnm.size() );
+    //mTODOBufSize
 }
 
 

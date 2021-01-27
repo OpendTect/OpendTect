@@ -118,7 +118,7 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
     const Qt::MouseButtons qtmbs = qev->buttons();
     if ( qtmbs&Qt::LeftButton && qtmbs&Qt::RightButton )
-	bs = OD::ButtonState( qev->modifiers() | Qt::MidButton );
+	bs = OD::ButtonState( qev->modifiers() | Qt::MiddleButton );
 
     mousepressedbs_ = bs;
     MouseEvent mev( bs, qev->scenePos().x(), qev->scenePos().y() );
@@ -134,7 +134,7 @@ void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
     if ( mousepressedbs_ & OD::MidButton )
-	bs = OD::ButtonState( qev->modifiers() | Qt::MidButton );
+	bs = OD::ButtonState( qev->modifiers() | Qt::MiddleButton );
 
     mousepressedbs_ = OD::NoButton;
     MouseEvent mev( bs, qev->scenePos().x(), qev->scenePos().y() );
