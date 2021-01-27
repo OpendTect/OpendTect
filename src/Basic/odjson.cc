@@ -131,7 +131,11 @@ void setValue( const char* cstr )
 	cstr = "";
     const int len = FixedString(cstr).size();
     char* contstr = new char[len + 1];
+#ifdef __win__
+    strcpy_s( contstr, len+1, cstr );
+#else
     strcpy( contstr, cstr );
+#endif
     cont_.str_ = contstr;
 }
 
