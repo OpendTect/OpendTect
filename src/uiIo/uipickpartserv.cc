@@ -189,7 +189,6 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     uiString disptyp = poly ? uiStrings::sPolygon(mPlural) :
 						uiStrings::sPointSet(mPlural);
     sdsu.titletext_ = toUiString("%1 %2").arg(titletxt).arg(disptyp);
-    BufferStringSet typnms;
     if ( poly )
 	ctio->ctxt_.toselect_.dontallow_.set( sKey::Type(), sKey::PickSet() );
     else
