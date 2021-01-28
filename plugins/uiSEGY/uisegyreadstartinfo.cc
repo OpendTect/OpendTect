@@ -319,7 +319,7 @@ void uiSEGYReadStartInfo::manNonBasicRows()
 
 void uiSEGYReadStartInfo::manCoordDefFlds()
 {
-    if ( isVSP() )
+    if ( isVSP() || !loaddef_.isRev0() )
     {
 	mRemoveFromTable( xcoordbytefld_, mXRow, mUseCol )
 	mRemoveFromTable( ycoordbytefld_, mYRow, mUseCol )
@@ -334,12 +334,6 @@ void uiSEGYReadStartInfo::manCoordDefFlds()
 	ycoordbytefld_->changed.notify( parchgcb );
 	tbl_->setCellGroup( RowCol(mYRow,mUseCol), ycoordbytefld_ );
     }
-
-    const bool isrev0 = loaddef_.isRev0();
-    if ( xcoordbytefld_ )
-	xcoordbytefld_->setSensitive( isrev0 );
-    if ( ycoordbytefld_ )
-	ycoordbytefld_->setSensitive( isrev0 );
 }
 
 
@@ -378,7 +372,9 @@ void uiSEGYReadStartInfo::man2DDefFlds()
     remove3DDefFlds();
     mGetParChgCB( parchgcb );
 
-    if ( !refnrbytefld_ )
+    if ( !loaddef_.isRev0() )
+	mRemoveRefNrByteFld()
+    else if ( !refnrbytefld_ )
     {
 	refnrbytefld_ = new uiSEGYByteNr( nullptr, "Ref/SP number byte" );
 	refnrbytefld_->changed.notify( parchgcb );
@@ -432,11 +428,8 @@ void uiSEGYReadStartInfo::man3DDefFlds()
 {
     mGetGeomType( gt );
 
-    if ( isVSP() || Seis::is2D(gt) )
-    {
-	remove3DDefFlds();
-	return;
-    }
+    if ( isVSP() || Seis::is2D(gt) || !loaddef_.isRev0() )
+	{ remove3DDefFlds(); return; }
 
     remove2DDefFlds();
     mGetParChgCB( parchgcb );
@@ -450,12 +443,6 @@ void uiSEGYReadStartInfo::man3DDefFlds()
 	crlbytefld_->changed.notify( parchgcb );
 	tbl_->setCellGroup( RowCol(mKey2Row,mUseCol), crlbytefld_ );
     }
-
-    const bool isrev0 = loaddef_.isRev0();
-    if ( inlbytefld_ )
-	inlbytefld_->setSensitive( isrev0 );
-    if ( crlbytefld_ )
-	crlbytefld_->setSensitive( isrev0 );
 }
 
 
@@ -670,12 +657,6 @@ void uiSEGYReadStartInfo::setCellTxt( int col, int row, const uiString& txt )
 
 void uiSEGYReadStartInfo::revChg( CallBacker* )
 {
-    const int revision = revfld_->currentItem();
-    if ( revision == 1 )
-    {
-// set defaults for rev1
-    }
-
     parChanged( true );
 }
 
@@ -901,13 +882,9 @@ void uiSEGYReadStartInfo::useLoadDef()
 	if ( xcoordbytefld_ )
 	{
 	    const bool isic = loaddef_.icvsxytype_==SEGY::FileReadOpts::ICOnly;
+	    const bool isxy = loaddef_.icvsxytype_==SEGY::FileReadOpts::XYOnly;
 	    xcoordbytefld_->setSensitive( !isic );
 	    ycoordbytefld_->setSensitive( !isic );
-	}
-
-	if ( inlbytefld_ )
-	{
-	    const bool isxy = loaddef_.icvsxytype_==SEGY::FileReadOpts::XYOnly;
 	    inlbytefld_->setSensitive( !isxy );
 	    crlbytefld_->setSensitive( !isxy );
 	}
