@@ -161,9 +161,9 @@ void SharedLibAccess::getLibName( const char* modnm, char* out )
 {
     BufferString libnm( mkLibName(modnm) );
 #ifdef __win__
-    strncpy_s( out, 256, libnm.buf(), libnm.size() );
+    strncpy_s( out, 256, libnm.buf(), 256 );
 #else
-    strncpy( out, libnm.buf(), libnm.size() );
+    strncpy( out, libnm.buf(), 256 );
 #endif
     //mTODOBufSize
 }
