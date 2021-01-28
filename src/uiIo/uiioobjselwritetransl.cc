@@ -50,6 +50,7 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     for ( int idx=0; idx<alltrs.size(); idx++ )
     {
 	const Translator* trl = alltrs[idx];
+
 	if ( IOObjSelConstraints::isAllowedTranslator(
 		    trl->userName(),ctio.ctxt_.toselect_.allowtransls_)
 	  && trl->isUserSelectable( false ) )

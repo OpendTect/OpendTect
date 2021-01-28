@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjselwritetransl.h"
 
 #include "ctxtioobj.h"
+#include "hiddenparam.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -33,6 +34,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
 
+static HiddenParam<uiIOObjInserter,IOObjContext*> ctxt_(nullptr);
+
+uiIOObjInserter::uiIOObjInserter( const Translator& trl )
+    : objectInserted(this)
+    , transl_(trl)
+{
+    ctxt_.setParam( this, new IOObjContext(trl.group()) );
+}
+
+
 bool uiIOObjInserter::isPresent( const TranslatorGroup& grp )
 {
     const ObjectSet<const Translator>& tpls = grp.templates();
@@ -42,6 +53,19 @@ bool uiIOObjInserter::isPresent( const TranslatorGroup& grp )
 	    return true;
 
     return false;
+}
+
+
+void uiIOObjInserter::setIOObjCtxt( const IOObjContext& ctio )
+{
+    ctxt_.removeParam( this );
+    ctxt_.setParam( this, new IOObjContext(ctio) );
+}
+
+
+IOObjContext* uiIOObjInserter::getIOObjCtxt() const
+{
+    return ctxt_.getParam( this );
 }
 
 
@@ -77,6 +101,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 					 ObjectSet<uiIOObjInserter>& insertset,
 					 ObjectSet<uiButton>& buttonset )
 {
+
     if ( uiIOObjInserter::allDisabled() )
 	return;
 
@@ -85,9 +110,11 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
+	const BufferString trgrpnm = tpls[idx]->typeName();
 	if ( !inserter || inserter->isDisabled() )
 	    continue;
 
+	inserter->setIOObjCtxt( ctio.ctxt_ );
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
 	if ( !tbsu )
 	    { delete inserter; continue; }
@@ -234,7 +261,9 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
     , workctio_(*new CtxtIOObj(c))
     , setup_(su)
     , inctiomine_(true)
-{ init(); }
+{
+    init();
+}
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiString& txt )
@@ -263,7 +292,7 @@ void uiIOObjSel::init()
     if ( workctio_.ctxt_.forread_ && setup_.withinserters_ )
     {
 	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
-					    extselbuts_ );
+							    extselbuts_ );
 	for ( int idx=0; idx<inserters_.size(); idx++ )
 	    inserters_[idx]->objectInserted.notify(
 					mCB(this,uiIOObjSel,objInserted) );

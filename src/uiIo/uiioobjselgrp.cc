@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "od_helpids.h"
 #include "uilabel.h"
+#include "hiddenparam.h"
 
 #define mObjTypeName ctio_.ctxt_.objectTypeName()
 
@@ -302,6 +303,8 @@ void uiIOObjSelGrp::mkManipulators()
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
 	if ( !inserter || inserter->isDisabled() )
 	    continue;
+
+	inserter->setIOObjCtxt( ctio_.ctxt_ );
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
 	if ( !tbsu )
 	    { delete inserter; continue; }
