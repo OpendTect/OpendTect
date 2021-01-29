@@ -7,24 +7,19 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uisegycommon.h"
+#include "uisegymod.h"
 
 #include "segydirecttr.h"
 #include "survinfo.h"
 #include "ioman.h"
 
-#include "uisegydirectinserter.h"
-#include "uisegywriteopts.h"
 #include "uisegysip.h"
 #include "uisegysipclassic.h"
 #include "uisegydefdlg.h"
 #include "uisegyexp.h"
 #include "uisegyread.h"
 #include "uisegyresortdlg.h"
-#include "uiwellimpsegyvsp.h"
 #include "uisegyreadstarter.h"
-#include "uisegyimptype.h"
-#include "uisegyread.h"
 
 #include "uiseisfileman.h"
 #include "uiseispsman.h"
@@ -49,11 +44,11 @@ static bool enableClassic()
 mDefODPluginInfo(uiSEGY)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"SEG-Y support",
+	"SEG-Y base",
 	"OpendTect",
 	"dGB (Bert)",
-	"1.0",
-	"Supports the SEG-Y format") );
+	"=od",
+	"Makes SEG-Y handlers available in odMain") );
     return &retpi;
 }
 
@@ -105,12 +100,6 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
     , impdlg_(0)
     , expdlg_(0)
 {
-    uiSEGYDirectVolOpts::initClass();
-    uiSEGYDirectPS3DOpts::initClass();
-    uiSEGYDirectVolInserter::initClass();
-    uiSEGYDirect2DInserter::initClass();
-    uiSEGYDirectPS3DInserter::initClass();
-
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
 				SEGYDirectSeisTrcTranslator::translKey() );
     bdef->tooltip_ = tr("Change file/folder names in SEG-Y file %1");

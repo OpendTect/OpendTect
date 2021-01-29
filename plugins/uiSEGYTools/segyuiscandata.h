@@ -40,7 +40,7 @@ class OffsetCalculator;
 
 /*!\brief Basic data from a SEG-Y fle */
 
-mExpClass(uiSEGY) BasicFileInfo
+mExpClass(uiSEGYTools) BasicFileInfo
 { mODTextTranslationClass(BasicFileInfo);
 public:
 
@@ -83,7 +83,7 @@ protected:
 
 /*!\brief definition for SEG-Y loading */
 
-mExpClass(uiSEGY) LoadDef : public BasicFileInfo
+mExpClass(uiSEGYTools) LoadDef : public BasicFileInfo
 {
 public:
 
@@ -131,7 +131,7 @@ protected:
 
 /*!\brief range info collected by scanning SEG-Y file */
 
-mExpClass(uiSEGY) ScanRangeInfo
+mExpClass(uiSEGYTools) ScanRangeInfo
 {
 public:
 			ScanRangeInfo()		{ reInit(); }
@@ -153,7 +153,7 @@ public:
 
 /*!\brief info collected by scanning a SEG-Y file */
 
-mExpClass(uiSEGY) ScanInfo
+mExpClass(uiSEGYTools) ScanInfo
 {
 public:
 
@@ -219,7 +219,7 @@ private:
 
 /*!\brief set of SEG-Y Scan Infos */
 
-mExpClass(uiSEGY) ScanInfoSet : public NamedObject
+mExpClass(uiSEGYTools) ScanInfoSet : public NamedObject
 {
 public:
 

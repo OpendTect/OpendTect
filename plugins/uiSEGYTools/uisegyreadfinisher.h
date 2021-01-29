@@ -32,7 +32,7 @@ namespace SEGY { class FileIndexer; }
 
 /*!\brief Finishes reading process of 'any SEG-Y file'. */
 
-mExpClass(uiSEGY) uiSEGYReadFinisher : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYReadFinisher : public uiDialog
 { mODTextTranslationClass(uiSEGYReadFinisher);
 public:
 
