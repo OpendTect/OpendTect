@@ -89,6 +89,20 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	endforeach()
     endforeach()
 
+    foreach( PYDIR ${PYTHONDIR} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E
+			 copy_directory ${COPYFROMDATADIR}/bin/python/${PYDIR}
+			 ${COPYTODATADIR}/bin/python/${PYDIR} )
+    endforeach()
+    foreach( PYFILE ${PYTHONFILES} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			 ${COPYFROMDATADIR}/bin/python/${PYFILE}
+			 ${COPYTODATADIR}/bin/python/${PYFILE} )
+    endforeach()
+    unset( PYTHONDIR )
+    unset( PYTHONFILES )
+
+
     if( ${PACKAGE_NAME} STREQUAL "dgbbase" )
 #Install lm 
 	foreach( SPECFILE ${SPECFILES} )

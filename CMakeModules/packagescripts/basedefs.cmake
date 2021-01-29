@@ -72,4 +72,6 @@ if ( APPLE )
 		    libpng16.16.dylib libproj.14.dylib )
 endif()
 
+set( PYTHONFILES __init__.py )
+set( PYTHONDIR odpy )
 set( PACK "base" )
