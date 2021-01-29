@@ -52,7 +52,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiSEGYExpTxtHeaderDlg : public uiDialog
-{ mODTextTranslationClass(uiSEGYExpTxtHeaderDlg);
+{ mODTextTranslationClass(uiSEGYExpTxtHeaderDlg)
 public:
 
 uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
@@ -66,10 +66,10 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
 				  BoolInpSpec(false) );
     autogenfld_->valuechanged.notify( cb );
     uiToolButton* wtb = new uiToolButton( this, "save", tr("Write to file"),
-			    mCB(this,uiSEGYExpTxtHeaderDlg,writePush));
+			mCB(this,uiSEGYExpTxtHeaderDlg,writePush) );
     wtb->attach( rightBorder );
     uiToolButton* rtb = new uiToolButton( this, "open", tr("Read file"),
-			    mCB(this,uiSEGYExpTxtHeaderDlg,readPush) );
+			mCB(this,uiSEGYExpTxtHeaderDlg,readPush) );
     rtb->attach( leftOf, wtb );
 
     edfld_ = new uiTextEdit( this, "Hdr edit" );
@@ -95,12 +95,15 @@ void readPush( CallBacker* )
 {
     FilePath fp( GetDataDir(), "Seismics" );
     uiFileDialog dlg( this, true, fp.fullPath(), uiSEGYFileSpec::fileFilter(),
-	    tr("Read SEG-Y Textual Header from file") );
+			tr("Read SEG-Y Textual Header from file") );
     if ( !dlg.go() ) return;
 
     od_istream strm( dlg.fileName() );
     if ( !strm.isOK() )
-	{ uiMSG().error(tr("Cannot open file")); return; }
+    {
+	uiMSG().error( tr("Cannot open file") );
+	return;
+    }
 
     SEGY::TxtHeader txthdr;
     strm.getBin( txthdr.txt_, SegyTxtHeaderLength );
@@ -112,7 +115,7 @@ void readPush( CallBacker* )
 void writePush( CallBacker* )
 {
     FilePath fp( GetDataDir(), "Seismics" );
-    uiFileDialog dlg( this,false, fp.fullPath(), 0,
+    uiFileDialog dlg( this,false, fp.fullPath(), nullptr,
 	    tr("Write SEG-Y Textual Header to a file") );
     if ( !dlg.go() ) return;
 
@@ -145,7 +148,7 @@ bool acceptOK( CallBacker* )
 };
 
 class uiSEGYExpTxtHeader : public uiCompoundParSel
-{ mODTextTranslationClass(uiSEGYExpTxtHeader);
+{ mODTextTranslationClass(uiSEGYExpTxtHeader)
 public:
 
 uiSEGYExpTxtHeader( uiSEGYExp* se )
@@ -188,14 +191,13 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     , coordsysselfld_(nullptr)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
-    const CallBack inpselcb( mCB(this,uiSEGYExp,inpSel) );
 
     IOObjContext ctxt( uiSeisSel::ioContext( geom_, true ) );
     uiSeisSel::Setup sssu( geom_ ); sssu.steerpol(uiSeisSel::Setup::InclSteer);
     sssu.selectcomp(true);
     sssu.trsnotallwed_.add( mSEGYDirectTranslNm );
     seissel_ = new uiSeisSel( this, ctxt, sssu );
-    seissel_->selectionDone.notify( inpselcb );
+    mAttachCB( seissel_->selectionDone, uiSEGYExp::inpSel );
 
     uiSeisTransfer::Setup tsu( geom_ );
     tsu.withnullfill(true).fornewentry(false).onlyrange(false);
@@ -217,7 +219,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	attachobj = coordsysselfld_->attachObj();
     }
 
-    fpfld_ = new uiSEGYFilePars( this, false,0, false );
+    fpfld_ = new uiSEGYFilePars( this, false, nullptr, false );
     fpfld_->attach( alignedBelow, attachobj );
 
     txtheadfld_ = new uiSEGYExpTxtHeader( this );
@@ -233,8 +235,8 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     if ( is2dline )
     {
 	morebox_ = new uiCheckBox( this, uiStrings::phrExport(
-				    tr("more lines from the same dataset")),
-				    mCB(this,uiSEGYExp,showSubselCB) );
+				tr("more lines from the same dataset")),
+				mCB(this,uiSEGYExp,showSubselCB) );
 	morebox_->attach( alignedBelow, fsfld_ );
     }
     else
@@ -245,7 +247,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
 	batchfld_ = new uiBatchJobDispatcherSel( this, true,
 						 Batch::JobSpec::SEGY );
-	batchfld_->checked.notify( mCB(this,uiSEGYExp,batchChg) );
+	mAttachCB( batchfld_->checked, uiSEGYExp::batchChg );
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyExport() );
 	js.pars_.setYN( SEGY::IO::sKeyIs2D(), is2d );
@@ -253,14 +255,20 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 		manipbox_ ?  manipbox_ : fsfld_->attachObj() );
     }
 
-    postFinalise().notify( inpselcb );
+    mAttachCB( postFinalise(), uiSEGYExp::inpSel );
+}
+
+
+uiSEGYExp::~uiSEGYExp()
+{
+    detachAllNotifiers();
 }
 
 
 void uiSEGYExp::inpSel( CallBacker* )
 {
     crsCB( nullptr );
-    const IOObj* ioobj = seissel_->ioobj(true);
+    const IOObj* ioobj = seissel_->ioobj( true );
     if ( !ioobj )
 	return;
 
@@ -299,16 +307,16 @@ void uiSEGYExp::batchChg( CallBacker* )
 
 
 class uiSEGYExpMore : public uiDialog
-{ mODTextTranslationClass(uiSEGYExpMore);
+{ mODTextTranslationClass(uiSEGYExpMore)
 public:
 
 uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
 	: uiDialog(p,uiDialog::Setup(tr("2D SEG-Y multi-export"),
 				     tr("Specify file details"),
 				     mODHelpKey(mSEGYExpMoreHelpID) ))
-	, inioobj_(ii)
-	, outioobj_(oi)
-	, segyexp_(p)
+    , segyexp_(p)
+    , inioobj_(ii)
+    , outioobj_(oi)
 {
     const BufferString fnm( outioobj_.fullUserExpr(false) );
     FilePath fp( fnm );
@@ -480,7 +488,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     const bool multilinesel = morebox_ && morebox_->isChecked();
     const char* lnm = is2d && !multilinesel && transffld_->selFld2D()
 			   && transffld_->selFld2D()->isSingLine()
-		    ? transffld_->selFld2D()->selectedLine() : 0;
+		    ? transffld_->selFld2D()->selectedLine() : nullptr;
     bool needmsgallok = false;
     if ( multilinesel )
     {
@@ -515,7 +523,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	return false;
 
     const IOObj* useoutioobj = &outioobj;
-    IOObj* tmpioobj = 0;
+    IOObj* tmpioobj = nullptr;
     const bool inissidom = ZDomain::isSI( inioobj.pars() );
     if ( !inissidom )
     {

@@ -28,8 +28,9 @@ int SEGY::cMaxReasonableNrSamples()
 {
     if ( maxreasnrsamps_ < 0 )
     {
-	maxreasnrsamps_ = 25000;
 	Settings::common().get( sKeyMaxReasNrSamps, maxreasnrsamps_ );
+	if ( maxreasnrsamps_ < 1 )
+	    maxreasnrsamps_ = 100000;
     }
     return maxreasnrsamps_;
 }

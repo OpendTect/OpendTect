@@ -19,9 +19,9 @@ class IOObj;
 class uiBatchJobDispatcherSel;
 class uiCheckBox;
 class uiGenInput;
+class uiSEGYExpTxtHeader;
 class uiSEGYFilePars;
 class uiSEGYFileSpec;
-class uiSEGYExpTxtHeader;
 class uiSeisSel;
 class uiSeisTransfer;
 namespace Coords { class uiCoordSystemSel; }
@@ -29,12 +29,12 @@ namespace Coords { class uiCoordSystemSel; }
 
 /*\brief SEG-Y exporting dialog */
 
-
 mExpClass(uiSEGYTools) uiSEGYExp : public uiDialog
 { mODTextTranslationClass(uiSEGYExp);
 public:
 
 			uiSEGYExp(uiParent*,Seis::GeomType);
+			~uiSEGYExp();
 
 protected:
 
@@ -67,12 +67,9 @@ protected:
     void		showSubselCB(CallBacker*);
 
 public:
-    static uiString     sTxtHeadTxt()
-                        { return tr("Define the SEG-Y text header. Note that:"
-                            "\n- The Cnn line start and Rev.1 indicators will "
-                            "always be retained \n- You can only define "
-                            "40 lines of 80 characters"); }
-
+    static uiString	sTxtHeadTxt()
+			{ return tr("Define the SEG-Y text header. Note that:"
+			    "\n- The Cnn line start and Rev.1 indicators will "
+			    "always be retained \n- You can only define "
+			    "40 lines of 80 characters"); }
 };
-
-

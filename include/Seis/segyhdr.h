@@ -101,6 +101,7 @@ public:
 
     short	format() const		{ return (short) entryVal(EntryFmt()); }
     int		nrSamples() const	{ return entryVal(EntryNs()); }
+    int		rawSampleRate() const	{ return entryVal(EntryDt()); }
     float	sampleRate(bool isdpth) const;
     bool	isInFeet() const	{ return entryVal(EntryMFeet()) == 2; }
     int		revision() const;
@@ -197,6 +198,7 @@ public:
     static int	EntryTracl()		{ return 0; }
     static int	EntryTracr()		{ return 1; }
     static int	EntryFldr()		{ return 2; }
+    static int	EntryOldSP()		{ return 4; }
     static int	EntryCdp()		{ return 5; }
     static int	EntryTrid()		{ return 7; }
     static int	EntryDUse()		{ return 10; }

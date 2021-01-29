@@ -283,7 +283,7 @@ void uiSEGYReadStartInfo::mkBasicInfoFlds()
     }
 
     nsfld_ = new uiSpinBox( nullptr, 0, "Samples" );
-    nsfld_->setInterval( 1, SEGY::cMaxReasonableNrSamples(), 1 );
+    nsfld_->setInterval( 1, INT32_MAX );
     nsfld_->valueChanged.notify( parchgcb );
     mAdd2Tbl( nsfld_, mNrSamplesRow, mUseCol );
 
@@ -775,11 +775,12 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
 	txt = sEmpty;
     else
     {
-	txt.set( "%1 - %2 (s or %3)" );
+	txt.set( "%1 - %2 - %3 (s or %4)" );
 	const float endz = loaddef_.sampling_.start
 			 + (bi.ns_-1) * loaddef_.sampling_.step;
 	txt.arg( loaddef_.sampling_.start ).arg( endz )
-		 .arg( sis.inFeet() ? tr("ft") : tr("m") );
+	   .arg(loaddef_.sampling_.step)
+	   .arg( sis.inFeet() ? tr("ft") : tr("m") );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
 
@@ -926,6 +927,11 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	loaddef_.usezsamplinginfile_ = zsampsrcfld_->currentItem() == 0;
 
     int newns = nsfld_->getIntValue();
+    if ( newns > SEGY::cMaxReasonableNrSamples() )
+    {
+	// TODO: Add message with donot show again
+    }
+
     if ( newns > 0 )
 	loaddef_.ns_ = newns;
 
