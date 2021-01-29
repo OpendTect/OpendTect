@@ -17,7 +17,7 @@ class uiParent;
 class uiSEGYRead;
 
 
-mExpClass(uiSEGY) uiSEGYTool : public CallBacker
+mExpClass(uiSEGYTools) uiSEGYTool : public CallBacker
 { mODTextTranslationClass(uiSEGYTool);
 
 			uiSEGYTool(uiParent*,IOPar* previop=0,int choice=-1);

@@ -29,7 +29,7 @@ namespace Coords { class uiCoordSystemSel; }
 
 /*\brief SEG-Y exporting dialog */
 
-mExpClass(uiSEGY) uiSEGYExp : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYExp : public uiDialog
 { mODTextTranslationClass(uiSEGYExp);
 public:
 

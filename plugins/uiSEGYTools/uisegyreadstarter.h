@@ -40,7 +40,7 @@ namespace SEGY { class ScanInfoCollectors; }
 
 /*!\brief Starts reading process of 'any SEG-Y file'. */
 
-mExpClass(uiSEGY) uiSEGYReadStarter : public uiDialog
+mExpClass(uiSEGYTools) uiSEGYReadStarter : public uiDialog
 { mODTextTranslationClass(uiSEGYReadStarter);
 public:
 

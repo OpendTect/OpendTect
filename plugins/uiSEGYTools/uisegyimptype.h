@@ -21,7 +21,7 @@ class uiComboBox;
 namespace SEGY
 {
 
-mExpClass(uiSEGY) ImpType
+mExpClass(uiSEGYTools) ImpType
 { mODTextTranslationClass(ImpType)
 public:
 
@@ -55,7 +55,7 @@ private:
 } // namespace SEGY
 
 
-mExpClass(uiSEGY) uiSEGYImpType : public uiGroup
+mExpClass(uiSEGYTools) uiSEGYImpType : public uiGroup
 { mODTextTranslationClass(uiSEGYImpType)
 public:
 

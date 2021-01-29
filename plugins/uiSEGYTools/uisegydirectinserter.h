@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiSEGYRead;
 
 
-mExpClass(uiSEGY) uiSEGYDirectVolInserter : public uiIOObjInserter
+mExpClass(uiSEGYTools) uiSEGYDirectVolInserter : public uiIOObjInserter
 { mODTextTranslationClass(uiSEGYDirectVolInserter);
 public:
 
@@ -40,7 +40,7 @@ protected:
 };
 
 
-mExpClass(uiSEGY) uiSEGYDirect2DInserter : public uiIOObjInserter
+mExpClass(uiSEGYTools) uiSEGYDirect2DInserter : public uiIOObjInserter
 { mODTextTranslationClass(uiSEGYDirect2DInserter);
 public:
 
@@ -63,7 +63,7 @@ protected:
 };
 
 
-mExpClass(uiSEGY) uiSEGYDirectPS3DInserter : public uiIOObjInserter
+mExpClass(uiSEGYTools) uiSEGYDirectPS3DInserter : public uiIOObjInserter
 { mODTextTranslationClass(uiSEGYDirectPS3DInserter);
 public:
 
