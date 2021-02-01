@@ -19,9 +19,12 @@ ________________________________________________________________________
 
 class BufferString;
 class BufferStringSet;
+class uiString;
 
 namespace OD
 {
+
+mGlobal(General) const char*	getLmUtilFilePath(uiString* errmsg);
 
 mGlobal(General) bool	getHostIDs( BufferStringSet& hostids,
 				    BufferString& errmsg );
