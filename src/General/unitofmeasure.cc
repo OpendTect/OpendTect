@@ -63,6 +63,7 @@ IOPar& UnitOfMeasure::currentDefaults()
     return *uomdef->iop_;
 }
 
+
 void UnitOfMeasure::saveCurrentDefaults()
 {
     IOPar pars( SI().getDefaultPars() );
@@ -73,19 +74,9 @@ void UnitOfMeasure::saveCurrentDefaults()
 
 UnitOfMeasureRepository& UoMR()
 {
-    mDefineStaticLocalObject( PtrMan<UnitOfMeasureRepository>, umrepo, = 0 );
-    if ( !umrepo )
-    {
-	DBG::message( DBG_IO, "Creating UnitOfMeasureRepository" );
-	umrepo = new UnitOfMeasureRepository;
-	if ( DBG::isOn(DBG_IO) )
-	{
-	    BufferString msg( "Total units of measure: " );
-	    msg += umrepo->all().size();
-	    DBG::message( DBG_IO, msg );
-	}
-    }
-    return *umrepo;
+     mDefineStaticLocalObject(PtrMan<UnitOfMeasureRepository>, umrepo,
+			      = new UnitOfMeasureRepository);
+     return *umrepo;
 }
 
 
@@ -243,9 +234,17 @@ bool UnitOfMeasure::isImperial() const
 
 UnitOfMeasureRepository::UnitOfMeasureRepository()
 {
+    DBG::message( DBG_IO, "Creating UnitOfMeasureRepository" );
     Repos::FileProvider rfp( filenamebase );
     while ( rfp.next() )
 	addUnitsFromFile( rfp.fileName(), rfp.source() );
+
+    if ( DBG::isOn(DBG_IO) )
+    {
+	BufferString msg( "Total units of measure: " );
+	msg += all().size();
+	DBG::message( DBG_IO, msg );
+    }
 }
 
 
