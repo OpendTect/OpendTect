@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "oddirs.h"
 #include "oscommand.h"
+#include "perthreadrepos.h"
 
 
 namespace OD
@@ -28,14 +29,12 @@ const char* getLmUtilFilePath( uiString* errmsg )
     mIfNotFirstTime( return ret.buf() )
 
 #ifdef __mac__
-	FilePath lmutilfp( GetSoftwareDir( false ), "Resources", "bin",
-	    GetPlfSubDir() );
+    FilePath lmutilfp( GetSoftwareDir( false ), "Resources", "bin",
+		       GetPlfSubDir() );
 #else
-	FilePath lmutilfp( GetSoftwareDir( false ), "bin", GetPlfSubDir() );
+    FilePath lmutilfp( GetSoftwareDir( false ), "bin", GetPlfSubDir() );
 #endif
-
     lmutilfp.add( "lm.dgb" ).add( "lmutil" );
-
 #ifdef __win__
     lmutilfp.setExtension( "exe" );
 #endif
