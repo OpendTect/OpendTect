@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "generalinfo.h"
 
 #include "bufstringset.h"
+#include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -21,17 +22,16 @@ ________________________________________________________________________
 namespace OD
 {
 
-bool	getHostIDs( BufferStringSet& hostids,
-		    BufferString& errmsg )
+const char* getLmUtilFilePath( uiString* errmsg )
 {
-    hostids.setEmpty();
-    errmsg.setEmpty();
+    mDeclStaticString( ret );
+    mIfNotFirstTime( return ret.buf() )
 
-#ifndef __mac__
-    FilePath lmutilfp( GetSoftwareDir(false), "bin", GetPlfSubDir() );
+#ifdef __mac__
+	FilePath lmutilfp( GetSoftwareDir( false ), "Resources", "bin",
+	    GetPlfSubDir() );
 #else
-    FilePath lmutilfp( GetSoftwareDir(false), "Resources", "bin",
-	    	       GetPlfSubDir() );
+	FilePath lmutilfp( GetSoftwareDir( false ), "bin", GetPlfSubDir() );
 #endif
 
     lmutilfp.add( "lm.dgb" ).add( "lmutil" );
@@ -41,16 +41,41 @@ bool	getHostIDs( BufferStringSet& hostids,
 #endif
 
     if ( !lmutilfp.exists() )
-    {
 	lmutilfp.setPath( lmutilfp.dirUpTo(lmutilfp.nrLevels()-3) );
-	if ( !lmutilfp.exists() )
+
+    const BufferString lmutils( lmutilfp.fullPath() );
+    if ( File::exists(lmutils.buf()) )
+	ret.set( lmutils );
+    else
+    {
+	if ( errmsg )
 	{
-	    errmsg.add( "Required executable not found." );
-	    return false;
+	    *errmsg = od_static_tr( "getLmUtilFilePath",
+		"FlexNet tool not found at %1. "
+		"Please check your installation"
+		" or contact your system administrator "
+		"for more details" ).arg( lmutils );
 	}
     }
 
-    OS::MachineCommand cmd( lmutilfp.fullPath().buf() );
+    return ret.buf();
+}
+
+bool	getHostIDs( BufferStringSet& hostids,
+		    BufferString& errmsg )
+{
+    hostids.setEmpty();
+    errmsg.setEmpty();
+
+    uiString uierrmsg;
+    const BufferString lmutils( getLmUtilFilePath(&uierrmsg) );
+    if ( lmutils.isEmpty() )
+    {
+	errmsg.add( uierrmsg );
+	return false;
+    }
+
+    OS::MachineCommand cmd( lmutils );
     BufferString stdoutput, stderror;
     cmd.addArg( "lmhostid" ).addFlag( "n", OS::OldStyle );
     const bool res = cmd.execute( stdoutput, &stderror );
