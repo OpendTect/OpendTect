@@ -74,10 +74,10 @@ public:
     od_istream&		get(CompoundKey&);
     od_istream&		get(DBKey&);
 
-    od_istream&		getC(char*,int maxnrchar);
-    od_istream&		get(char*); //!< unsafe - use getC instead -> pErrMsg
-    od_istream&		get(FixedString&); //!< does nothing + pErrMsg
-    od_istream&		get(void*); //!< does nothing + pErrMsg
+    od_istream&		getC(char*,int sz,int maxnrchar);
+    od_istream&		get(char*) = delete;
+    od_istream&		get(FixedString&) = delete;
+    od_istream&		get(void*) = delete;
 
     bool		getWord(BufferString&,bool allowgotonextline=true);
     bool		getLine(BufferString&,bool* newline_found=0);

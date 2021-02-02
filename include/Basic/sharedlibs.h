@@ -43,7 +43,7 @@ public:
 
     Handletype	handle()		{ return handle_; }
 
-    static void	getLibName(const char* modnm,char*);
+    static void	getLibName(const char* modnm,char*,int sz);
 		//!< returns lib name with ".dll" or "lib" and ".so"/".dylib"
 		//!< output can be up to 255 chars long (guaranteed maximum)
 

@@ -517,21 +517,6 @@ void BufferString::init()
 }
 
 
-void BufferString::fill( char* output, size_type maxnrchar ) const
-{
-    if ( !output || maxnrchar < 1 )
-	return;
-
-    if ( !buf_ || maxnrchar < 2 )
-	*output = 0;
-    else
-#ifdef __win__
-	strncpy_s( output, maxnrchar, buf_, maxnrchar );
-#else
-	strncpy( output, buf_, maxnrchar );
-#endif
-}
-
 
 StringPair::StringPair( const char* compstr )
 {

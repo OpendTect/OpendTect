@@ -337,8 +337,8 @@ void Seis::PreLoader::fillPar( IOPar& iop ) const
 	    const Scaler* scaler = regsdp->getScaler();
 	    if ( scaler )
 	    {
-		BufferString info;
-		scaler->put( info.getCStr() );
+		BufferString info( 256, false );
+		scaler->put( info.getCStr(), info.bufSize() );
 		iop.set( sKey::Scale(), info.buf() );
 	    }
 	}

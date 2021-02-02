@@ -148,10 +148,11 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 	if ( loadedidx >= 0 )
 	    continue;
 
-	char libnm[256];
-	SharedLibAccess::getLibName( md->mods_.get(idep), libnm );
+	BufferString libnm( 256, false );
+	SharedLibAccess::getLibName( md->mods_.get(idep),
+			libnm.getCStr(), libnm.bufSize() );
 	const File::Path fp( GetLibPlfDir(), libnm );
-	SharedLibAccess* sla = new SharedLibAccess( fp.fullPath() );
+	auto* sla = new SharedLibAccess( fp.fullPath() );
 	if ( !sla->isOK() )
 	{
 	    const BufferString errmsg( sla->errMsg() );
