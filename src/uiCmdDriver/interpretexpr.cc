@@ -504,7 +504,7 @@ void ExprInterpreter::setBreakPrefix( const char* endptr,
     {
 	breakprefix.setBufSize( sz+1 );
 #ifdef __win__
-	strncpy_s( breakprefix.getCStr(), sz+1,
+	strncpy_s( breakprefix.getCStr(), breakprefix.bufSize(),
 #else
 	strncpy( breakprefix.getCStr(),
 #endif

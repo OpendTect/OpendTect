@@ -74,9 +74,14 @@ public:
     od_istream&		get(SeparString&);
     od_istream&		get(CompoundKey&);
 
+    od_istream&		getC(char*,int sz,int maxnrchar);
+    mDeprecated("Provide the size of the write buffer")
     od_istream&		getC(char*,int maxnrchar);
-    od_istream&		get(char*); //!< unsafe - use getC instead -> pErrMsg
+    mDeprecatedDef
+    od_istream&		get(char*); //!< unsafe - use getC instead -> pErrMsga
+    mDeprecatedDef
     od_istream&		get(FixedString&); //!< does nothing + pErrMsg
+    mDeprecatedDef
     od_istream&		get(void*); //!< does nothing + pErrMsg
 
     bool		getWord(BufferString&,bool allowgotonextline=true);

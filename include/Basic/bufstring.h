@@ -76,6 +76,7 @@ public:
 
     inline char*	getCStr()
     { return const_cast<char*>(const_cast<BufferString*>(this)->gtBuf()); }
+    mDeprecated("Use getCStr")
     void		fill(char*,int maxnrchar) const;
 			//!< fill old C-style char buf
 

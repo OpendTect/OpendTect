@@ -167,8 +167,9 @@ void uiScaler::fillPar( IOPar& iop ) const
 	iop.removeWithKey( sKey::Scale() );
     else
     {
-	char buf[1024]; scl->put( buf );
-	iop.set( sKey::Scale(), buf );
+	BufferString scalerstr( 1024, false );
+	scl->put( scalerstr.getCStr(), scalerstr.bufSize() );
+	iop.set( sKey::Scale(), scalerstr.buf() );
 	delete scl;
     }
 }
