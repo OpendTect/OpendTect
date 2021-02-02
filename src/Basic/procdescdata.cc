@@ -252,7 +252,7 @@ ProcDesc::DataEntry::ActionType ProcDesc::Data::getActionType()
 
     if ( alreadyadded == 0 && reqexentadded.size() > 0 )
 	return ProcDesc::DataEntry::Add;
-    else if ( alreadyadded == ePDD().size() && addedprocnms_.size() > size() )
+    else if ( alreadyadded == ePDD().size() && addedprocnms_.size() >= size() )
 	return ProcDesc::DataEntry::Remove;
     else
 	return ProcDesc::DataEntry::AddNRemove;

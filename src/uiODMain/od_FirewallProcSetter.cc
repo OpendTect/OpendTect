@@ -64,7 +64,7 @@ int main( int argc, char ** argv )
     ePDD().setPath( path );
 
     ProcDesc::DataEntry::ActionType typ = ePDD().getActionType();
-    if ( instlrlaunchedproc && typ == ProcDesc::DataEntry::Remove )
+    if ( instlrlaunchedproc && typ != ProcDesc::DataEntry::Add )
 	return ExitProgram( 0 );
 
     BufferString pythonpath;
@@ -79,9 +79,6 @@ int main( int argc, char ** argv )
 
     ProcDesc::DataEntry::ActionType type =
 	ProcDesc::DataEntry::ActionTypeDef().getEnumForIndex( proctypidx );
-
-    if ( instlrlaunchedproc )
-	type = ProcDesc::DataEntry::Add;
 
     uiFirewallProcSetter* dlg = new uiFirewallProcSetter( 0,
 						type, &path, &pythonpath );
