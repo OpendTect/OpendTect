@@ -358,9 +358,9 @@ static BufferString getUsableWinCmd( const char* fnm, BufferStringSet& args )
 	if ( !strm.isOK() )
 	    return ret;
 
-	char buf[41];
-	strm.getC( buf, 40 );
-	BufferString line( buf );
+	BufferString buf( 41, false );
+	strm.getC( buf.getCStr(), buf.bufSize(), buf.bufSize()-1 );
+	BufferString line( buf.buf() );
 
 	if ( !line.contains("#!") && !line.contains("# !") )
 	    return ret;

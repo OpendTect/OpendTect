@@ -514,9 +514,11 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     Scaler* sc = transffld_->getScaler();
     if ( sc )
     {
-	char buf[1024]; sc->put( buf );
+	BufferString scalerstr( 1024, false );
+	sc->put( scalerstr.getCStr(), scalerstr.bufSize() );
 	delete sc;
-	iop.set( IOPar::compKey(keybase,Attrib::Output::scalekey()), buf );
+	iop.set( IOPar::compKey(keybase,Attrib::Output::scalekey()),
+		 scalerstr.buf() );
     }
 
     iop.set( sKey::Target(), outioobj->name() );

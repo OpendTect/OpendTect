@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 /*!
 \brief Scaling of floating point numbers.
-  
+
   Scaler is an interface for scaling and scaling back numbers. Also, string I/O
   is defined, as well as a factory (Scaler::get).
 */
@@ -34,7 +34,10 @@ mExpClass(Algo) Scaler
 public:
     static Scaler*	get(const char*);
     virtual		~Scaler()		{}
+
+    mDeprecated("Provide the size of the write buffer")
     void		put(char*) const;
+    void		put(char*,int sz) const;
 
     virtual bool	isEmpty() const		{ return false; }
     virtual Scaler*	clone() const		= 0;
@@ -74,7 +77,7 @@ public:
 			    return mIsEqual(constant,b.constant,mDefEps) &&
 				   mIsEqual(factor,b.factor,mDefEps);
 			}
-    
+
     double		constant;
     double		factor;
 };
@@ -104,7 +107,7 @@ public:
     void		fromString(const char*);
     bool		operator==( const LogScaler& b ) const
 			{ return ten_==b.ten_; }
-    
+
     bool		ten_;
 };
 
@@ -129,14 +132,14 @@ public:
 
     bool		operator==( const ExpScaler& b ) const
 			{ return ten_==b.ten_; }
-    
+
     bool		ten_;
 };
 
 
 /*!
 \brief Asymptotic or 'Squeeze' scaling, with a linear (main) part.
-  
+
   This scaler scales between -1 and 1. Between center()-width()
   and center()+width() this will happen linearly. The value at width() will be
   linedge(). Therefore, linedge should be set to a value near 1, like the
