@@ -308,7 +308,6 @@ static od_istream getUiInpStrm( const char* fnm, uiString& errmsg,
 	    errmsg = uiStrings::phrInvalid(uiStrings::sInputFile().toLower());
     }
     return strm;
-
 }
 
 
@@ -493,8 +492,9 @@ bool PosVecDataSet::getFrom( const char* fnm, uiString& errmsg )
 	SeparString ss( buf, '\t' );
 	const int nrcols = ss.size();
 	const BufferString xcolnm( ss[2] ); const BufferString ycolnm( ss[3] );
-	if ( xcolnm=="X-coord" && ycolnm=="Y-corrd" )
+	if ( xcolnm=="X-coord" && ycolnm=="Y-coord" )
 	    valstartcol = 4;
+
 	for ( int idx=valstartcol; idx<nrcols; idx++ )
 	{
 	    BufferString nm;

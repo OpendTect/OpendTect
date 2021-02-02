@@ -617,28 +617,12 @@ mImplPreciseAddFn(float)
 mImplPreciseAddFn(double)
 
 mImplStrmAddFn(const char*,t)
-od_istream& od_istream::get( char* str )
-    { pErrMsg("Dangerous: od_istream::get(char*)"); return getC( str, 0 ); }
 
 od_ostream& od_ostream::add( const OD::String& ods )
     { return ods.str() ? add( ods.str() ) : *this; }
-od_istream& od_istream::get( FixedString& fs )
-    { pErrMsg("od_istream::get(FixedString&) called"); return *this; }
-od_istream& od_istream::get( void* ptr )
-    { pErrMsg("od_istream::get(void*) called"); return *this; }
 
 
-    /*
-od_ostream& od_ostream::add( const uiString& uistr )
-{
-    BufferString toput;
-    uistr.encodeStorageString( toput );
-    return add( toput );
-}
-*/
-
-
-od_istream& od_istream::getC( char* str, int maxnrch )
+od_istream& od_istream::getC( char* str, int sz, int maxnrch )
 {
     if ( str )
     {
@@ -650,18 +634,18 @@ od_istream& od_istream::getC( char* str, int maxnrch )
 		*str = '\0';
 	    else if ( maxnrch > 0 )
 #ifdef __win__
-		strncpy_s( str, maxnrch, bs.buf(), maxnrch );
+		strncpy_s( str, sz, bs.buf(), maxnrch );
 #else
 		strncpy( str, bs.buf(), maxnrch );
 #endif
 	    else
 #ifdef __win__
-		strcpy_s( str, maxnrch, bs.buf() );
+		strcpy_s( str, sz, bs.buf() );
 		// still dangerous, but intentional
 #else
 		strcpy( str, bs.buf() ); // still dangerous, but intentional
 #endif
-	} //mTODOBufSize
+	}
     }
     return *this;
 }

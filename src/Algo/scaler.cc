@@ -52,12 +52,12 @@ Scaler* Scaler::get( const IOPar& iop )
 }
 
 
-void Scaler::put( char* str ) const
+void Scaler::put( char* str, int sz ) const
 {
     FileMultiString fs( type() );
     fs += FileMultiString( toString() );
 #ifdef __win__
-    strcpy_s( str, fs.size(), fs );
+    strcpy_s( str, sz, fs );
 #else
     strcpy( str, fs );
 #endif
@@ -66,9 +66,9 @@ void Scaler::put( char* str ) const
 
 void Scaler::put( IOPar& iop ) const
 {
-    char buf[1024];
-    put( buf );
-    iop.set( sKey::Scale(), buf );
+    BufferString bufstr( 1024, false );
+    put( bufstr.getCStr(), bufstr.bufSize() );
+    iop.set( sKey::Scale(), bufstr.buf() );
 }
 
 

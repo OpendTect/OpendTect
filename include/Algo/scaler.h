@@ -36,7 +36,7 @@ public:
     static Scaler*	get(const char*);
     static Scaler*	get(const IOPar&);
     static void		putToPar(IOPar&,const Scaler*);
-    void		put(char*) const;
+    void		put(char*,int sz) const;
     void		put(IOPar&) const;
 
     virtual bool	isEmpty() const		{ return false; }

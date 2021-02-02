@@ -302,8 +302,8 @@ void VolProc::Chain::fillPar( IOPar& par ) const
 	if ( !outcompscalers_[idx] || outcompscalers_[idx]->isEmpty() )
 	    continue;
 
-	BufferString scalerstr;
-	outcompscalers_[idx]->put( scalerstr.getCStr() );
+	BufferString scalerstr( 256, false );
+	outcompscalers_[idx]->put( scalerstr.getCStr(), scalerstr.bufSize() );
 	par.set( IOPar::compKey(outscalerstr.str(),idx), scalerstr );
     }
 }

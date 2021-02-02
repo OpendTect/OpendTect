@@ -74,8 +74,6 @@ public:
     inline bool		operator!=(const FixedString&) const;
 
     inline char*	getCStr()	{ return mNonConst(mSelf().gtBuf()); }
-    void                fill(char*,size_type maxnrchar) const;
-			//!< fill old C-style char buf
 
     inline char&	operator []( idx_type idx )
 						{ return getCStr()[idx]; }
