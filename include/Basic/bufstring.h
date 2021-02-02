@@ -76,7 +76,6 @@ public:
 
     inline char*	getCStr()
     { return const_cast<char*>(const_cast<BufferString*>(this)->gtBuf()); }
-			//!< fill old C-style char buf
 
     inline char&	operator []( int idx )	{ return getCStr()[idx]; }
     inline char&	first()			{ return getCStr()[0]; }
