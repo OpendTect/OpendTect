@@ -34,7 +34,7 @@ mExpClass(Algo) Scaler
 public:
     static Scaler*	get(const char*);
     virtual		~Scaler()		{}
-    void		put(char*) const;
+    void		put(char*,int sz) const;
 
     virtual bool	isEmpty() const		{ return false; }
     virtual Scaler*	clone() const		= 0;

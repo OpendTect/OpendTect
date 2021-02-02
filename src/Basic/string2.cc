@@ -36,35 +36,30 @@ static const char* rcsID mUsedVar = "$Id$";
 				copied from data/UnitsOfMeasure */
 
 
-static const char* getStringFromInt( od_int32 val, char* str )
-
+static const char* getStringFromInt( od_int32 val )
 {
-    mDeclStaticString( retstr );
-    if ( retstr.isEmpty() && !str )
-	retstr.setMinBufSize( 128 );
-    char* ret = str ? str : retstr.getCStr();
+    mDeclStaticString( ret );
+    if ( ret.bufSize() < 128 )
+	ret.setMinBufSize( 128 );
 #ifdef __win__
-    sprintf_s( ret, retstr.bufSize(), "%d", val );
+    sprintf_s( ret.getCStr(), ret.bufSize(), "%d", val );
 #else
-    sprintf( ret, "%d", val );
+    sprintf( ret.getCStr(), "%d", val );
 #endif
-    //mTODOBufSize
-    return ret;
+    return ret.buf();
 }
 
 
-static const char* getStringFromUInt( od_uint32 val, char* str )
+static const char* getStringFromUInt( od_uint32 val )
 {
-    mDeclStaticString( retstr );
-    if ( retstr.isEmpty() && !str )
-	retstr.setMinBufSize( 128 );
-    char* ret = str ? str : retstr.getCStr();
+    mDeclStaticString( ret );
+    if ( ret.bufSize() < 128 )
+	ret.setMinBufSize( 128 );
 #ifdef __win__
-    sprintf_s( ret, retstr.bufSize(), "%u", val );
+    sprintf_s( ret.getCStr(), ret.bufSize(), "%u", val );
 #else
-    sprintf( ret, "%u", val );
+    sprintf( ret.getCStr(), "%u", val );
 #endif
-    //mTODOBufSize
     return ret;
 }
 
@@ -894,10 +889,10 @@ const char* getAreaString( float m2, bool xyinfeet, int precision,
 
 // toString functions.
 const char* toString( od_int32 i )
-{ return getStringFromInt( i, 0 ); }
+{ return getStringFromInt( i ); }
 
 const char* toString( od_uint32 i )
-{ return getStringFromUInt( i, 0 ); }
+{ return getStringFromUInt( i ); }
 
 const char* toString( od_int64 i )
 { return getStringFromInt64( i, 0 ); }
@@ -924,10 +919,10 @@ const char* toString( double d, char format, int precision )
 { return getStringFromNumber( d, format, precision ); }
 
 const char* toString( short i )
-{ return getStringFromInt((int)i, 0); }
+{ return getStringFromInt((int)i); }
 
 const char* toString( unsigned short i )
-{ return getStringFromUInt( (unsigned int)i, 0 ); }
+{ return getStringFromUInt( (unsigned int)i ); }
 
 const char* toString( unsigned char c )
 { return toString( ((unsigned short)c) ); }

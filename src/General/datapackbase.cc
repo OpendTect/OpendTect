@@ -678,8 +678,8 @@ void SeisDataPack::dumpInfo( IOPar& iop ) const
 
     if ( scaler_ )
     {
-	BufferString info;
-	scaler_->put( info.getCStr() );
+	BufferString info( 256, false );
+	scaler_->put( info.getCStr(), info.bufSize() );
 	iop.set( sKey::Scale(), info.buf() );
     }
 }
@@ -688,7 +688,7 @@ void SeisDataPack::dumpInfo( IOPar& iop ) const
 bool SeisDataPack::addArrayNoInit( int sz0, int sz1, int sz2 )
 {
     float dummy; const BinDataDesc floatdesc( dummy );
-    Array3DImpl<float>* arr = 0;
+    Array3DImpl<float>* arr = nullptr;
     if ( desc_ == floatdesc )
     {
 	arr = new Array3DImpl<float>( sz0, sz1, sz2 );

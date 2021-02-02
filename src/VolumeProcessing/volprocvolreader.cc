@@ -252,8 +252,8 @@ void VolumeReader::fillPar( IOPar& par ) const
 	if ( !compscalers_[idx] || compscalers_[idx]->isEmpty() )
 	    continue;
 
-	BufferString scalerstr;
-	compscalers_[idx]->put( scalerstr.getCStr() );
+	BufferString scalerstr( 256, false );
+	compscalers_[idx]->put( scalerstr.getCStr(), scalerstr.bufSize() );
 	par.set( IOPar::compKey(sKey::Scale(),idx), scalerstr );
     }
 }

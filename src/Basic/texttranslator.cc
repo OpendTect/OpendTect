@@ -325,7 +325,8 @@ bool TextTranslateMgr::loadTranslations()
 {
     BufferString libname;
     libname.setBufSize( 256 );
-    SharedLibAccess::getLibName( "dGBCommon", libname.getCStr() );
+    SharedLibAccess::getLibName( "dGBCommon",
+			libname.getCStr(), libname.bufSize() );
     return PIM().load( FilePath( GetLibPlfDir(), libname ).fullPath() );
 }
 
