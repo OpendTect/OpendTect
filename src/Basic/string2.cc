@@ -809,17 +809,18 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
 }
 
 
-const char* getAreaString( float m2, bool parensonunit, char* str )
+const char* getAreaString( float m2, bool parensonunit, char* str, int sz )
 {
     const BufferString areastr( getAreaString(m2,SI().xyInFeet(),
 					      mUdf(int),parensonunit) );
 
     mDeclStaticString( retstr );
-    if ( retstr.isEmpty() && !str )
+    if ( !str && retstr.bufSize() < 128 )
 	retstr.setMinBufSize( 128 );
     char* ret = str ? str : retstr.getCStr();
 #ifdef __win__
-    strcpy_s( ret, retstr.bufSize(), areastr.buf() );
+    const int bufsz = str ? sz : retstr.bufSize();
+    strcpy_s( ret, bufsz, areastr.buf() );
 #else
     strcpy( ret, areastr.buf() );
 #endif
@@ -828,7 +829,7 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 
 
 const char* getAreaString( float m2, bool xyinfeet, int precision,
-			   bool parensonunit, char* str )
+			   bool parensonunit, char* str, int sz )
 {
     FixedString unit;
     double val = m2;
@@ -874,11 +875,12 @@ const char* getAreaString( float m2, bool xyinfeet, int precision,
 	valstr.add( ")" );
 
     mDeclStaticString( retstr );
-    if ( retstr.isEmpty() && !str )
+    if ( !str && retstr.bufSize() < 128 )
 	retstr.setMinBufSize( 128 );
     char* ret = str ? str : retstr.getCStr();
 #ifdef __win__
-    strcpy_s( ret, retstr.bufSize(), valstr.buf() );
+    const int bufsz = str ? sz : retstr.bufSize();
+    strcpy_s( ret, bufsz, valstr.buf() );
 #else
     strcpy( ret, valstr.buf() );
 #endif
@@ -951,7 +953,7 @@ static const char* toStringLimImpl( T val, int maxtxtwdth )
 	return sKey::FloatUdf();
 
     mDeclStaticString( ret );
-    if ( ret.isEmpty() )
+    if ( ret.bufSize() < 128 )
 	ret.setMinBufSize( 128 );
     char* str = ret.getCStr();
 
