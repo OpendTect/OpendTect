@@ -525,7 +525,7 @@ bool Well::odReader::getTrack() const
 	    welltrack.setPoint( idx, pos, (float) pos.z );
 	}
     }
-
+    wd_.track().updateDahRange();
     return isok;
 }
 
