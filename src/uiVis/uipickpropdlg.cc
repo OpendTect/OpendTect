@@ -64,6 +64,14 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     mAttachCB( thresholdfld_->valuechanged, uiPickPropDlg::thresholdChangeCB );
     thresholdfld_->setSensitive( usethreshold );
     thresholdfld_->setValue( Pick::Set::getSizeThreshold() );
+
+    if ( set.isPolygon() )
+	setCaption( tr("Polygon Display Properties") );
+    else
+    {
+	lsfld_->display( false );
+	fillcolfld_->display( false );
+    }
 }
 
 
