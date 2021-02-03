@@ -374,15 +374,12 @@ void uiWellMan::edMarkers( CallBacker* )
 	return;
 
     const MultiID curmid( curioobj_->key() );
-    RefMan<Well::Data> wd = new Well::Data;
-    if ( Well::MGR().isLoaded(curmid) )
-	wd = Well::MGR().get( curmid );
-    else
+    RefMan<Well::Data> wd = Well::MGR().get( curmid,
+					     Well::LoadReqs( Well::Mrkrs ) );
+    if ( !wd )
     {
-	PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
-	if ( !wrdr->getMarkers() &&
-	     !uiMSG().askGoOn(tr("No markers found. Continue editing?")) )
-	    return;
+	ErrMsg( Well::MGR().errMsg() );
+	return;
     }
 
     if ( !iswritable_ )
