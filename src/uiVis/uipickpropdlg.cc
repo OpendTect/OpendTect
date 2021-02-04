@@ -18,11 +18,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uimarkerstyle.h"
 #include "uisellinest.h"
 #include "uiseparator.h"
 #include "uislider.h"
 #include "vispicksetdisplay.h"
+#include "visseedpainter.h"
 #include "vistristripset.h"
 
 
@@ -168,4 +170,55 @@ void uiPickPropDlg::thresholdChangeCB( CallBacker* )
 bool uiPickPropDlg::acceptOK( CallBacker* )
 {
     return set_.writeDisplayPars();
+}
+
+
+uiSeedPainterDlg::uiSeedPainterDlg( uiParent* p,
+				    visSurvey::LocationDisplay* psd )
+    : uiDialog(p,uiDialog::Setup(tr("PointSet Painter"),mNoDlgTitle,mNoHelpKey)
+	    	.modal(false))
+    , seedpainter_(psd->getPainter())
+{
+    setCtrlStyle( CloseOnly );
+    setDeleteOnClose( true );
+    seedpainter_->ref();
+    seedpainter_->activate();
+
+    int maxbrushsize = SI().zRange().nrSteps() / 5;
+    if ( maxbrushsize > 1000 ) maxbrushsize = 1000;
+    else if ( maxbrushsize > 500 ) maxbrushsize = 500;
+    else if ( maxbrushsize > 100 ) maxbrushsize = 100;
+    else maxbrushsize = 50;
+
+    auto lbl = new uiLabel( this,
+	    tr("Drag to paint seeds\nCtrl-drag to erase") );
+
+    szfld_ = new uiSlider( this, uiSlider::Setup(tr("Brush size"))
+	    			 .withedit(true) );
+    szfld_->setInterval( StepInterval<int>(1,maxbrushsize,1) );
+    szfld_->setValue( seedpainter_->radius() );
+    szfld_->sliderMoved.notify( mCB(this,uiSeedPainterDlg,sizeCB) );
+    lbl->attach( centeredAbove, szfld_ );
+
+    densfld_ = new uiSlider( this, uiSlider::Setup(tr("Density %"))
+	    			   .withedit(true) );
+    densfld_->setInterval( StepInterval<int>(1,maxbrushsize,1) );
+    densfld_->setValue( seedpainter_->density() );
+    densfld_->sliderMoved.notify( mCB(this,uiSeedPainterDlg,densCB) );
+    densfld_->attach( alignedBelow, szfld_ );
+}
+
+
+uiSeedPainterDlg::~uiSeedPainterDlg()
+{ seedpainter_->deActivate(); seedpainter_->unRef(); }
+
+void uiSeedPainterDlg::sizeCB( CallBacker* )
+{
+    seedpainter_->setRadius( szfld_->getIntValue() );
+}
+
+
+void uiSeedPainterDlg::densCB( CallBacker* )
+{
+    seedpainter_->setDensity( densfld_->getIntValue() );
 }

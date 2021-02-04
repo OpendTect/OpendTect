@@ -915,6 +915,7 @@ void Scene::mouseCursorCB( CallBacker* cb )
     }
 
     mDefineStaticLocalObject( MouseCursor, pickcursor, = MouseCursor::Cross );
+    mDefineStaticLocalObject( MouseCursor, paintcursor, ("spraycan") );
 
     if ( !mousecursor_ || mousecursor_->shape_==MouseCursor::NotSet )
     {
@@ -928,7 +929,13 @@ void Scene::mouseCursorCB( CallBacker* cb )
 
 	    needmousecursorcall = true;
 
-	    if ( so->isPicking() )
+	    if ( so->isPainting() )
+	    {
+		mousecursor_ = &paintcursor;
+		needmousecursorcall = false;
+		break;
+	    }
+	    else if ( so->isPicking() )
 	    {
 		mousecursor_ = &pickcursor;
 		needmousecursorcall = false;
