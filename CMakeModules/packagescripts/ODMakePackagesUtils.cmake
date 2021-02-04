@@ -212,6 +212,16 @@ macro( COPY_THIRDPARTYLIBS )
     message( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
     list( APPEND SYSLIBS ${SYSTEMLIBS} )
     foreach( LIB ${OD_THIRD_PARTY_FILES} )
+	string(FIND ${LIB} "osg" OSGVALUE )
+	if( ${OSGVALUE} GREATER -1 )
+	    continue()
+	endif()
+
+	string(FIND ${LIB} "OpenThreads" OSGOPENTHREADSVALUE )
+	if( ${OSGOPENTHREADSVALUE} GREATER -1 )
+	    continue()
+	endif()
+
 	string( FIND ${LIB} "Qt" ISQTLIB )
 	if (  APPLE  AND NOT ${ISQTLIB} EQUAL -1 )
 	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
