@@ -28,9 +28,9 @@ endmacro(ADD_TO_LIST_IF_NEW)
 
 macro( QT_INSTALL_PLUGINS )
     if ( APPLE )
-	set ( DESTDIR ${CMAKE_INSTALL_PREFIX}/Contents/Plugins )
+	set ( DESTDIR Contents/Plugins )
     else()
-	set ( DESTDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+	set ( DESTDIR bin/${OD_PLFSUBDIR}/plugins )
     endif()
 
     OD_FIND_QTDIR()
@@ -58,10 +58,10 @@ macro( QT_INSTALL_PLUGINS )
 	     PATTERN "*.dylib" )
     endforeach()
 
-    list( APPEND OD_QTPLUGINS ${QT_REQ_PLUGINS}  )
+    list( APPEND OD_QTPLUGINS ${QT_REQ_PLUGINS} )
     list( REMOVE_DUPLICATES OD_QTPLUGINS )
 
-    set( OD_QTPLUGINS ${OD_QTPLUGINS}  PARENT_SCOPE )
+    set( OD_QTPLUGINS ${OD_QTPLUGINS} PARENT_SCOPE )
 endmacro(QT_INSTALL_PLUGINS)
 
 macro( QT_SETUP_CORE_INTERNALS )
@@ -69,7 +69,7 @@ macro( QT_SETUP_CORE_INTERNALS )
     OD_INSTALL_RESSOURCE( "${QTDIR}/bin/qt.conf" ${CMAKE_BUILD_TYPE} )
 
     install( DIRECTORY "${QTDIR}/translations"
-		 DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
+		 DESTINATION bin/${OD_PLFSUBDIR}
 		 CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 		 USE_SOURCE_PERMISSIONS
 		 FILES_MATCHING
@@ -81,13 +81,21 @@ macro( QT_SETUP_CORE_INTERNALS )
 	get_filename_component( FILENM ${TRANSLATIONFILE} NAME )
 	list( APPEND OD_QT_TRANSLATION_FILES ${FILENM} )
     endforeach()
+    if ( UNIX AND NOT APPLE )
+	if ( NOT EXISTS "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/lib" )
+	    execute_process(
+		COMMAND ${CMAKE_COMMAND} -E create_symlink
+			${CMAKE_BUILD_TYPE} lib
+		WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}" )
+	endif()
+    endif()
 
 endmacro(QT_SETUP_CORE_INTERNALS)
 
 macro( QT_SETUP_GUI_INTERNALS )
 
     list( APPEND QT_REQ_PLUGINS
-	    iconengines;imageformats;platforms;platformthemes;printsupport )
+	    iconengines;imageformats;platforms;printsupport )
     if ( WIN32 )
 	list( APPEND QT_REQ_PLUGINS styles )
     elseif ( NOT APPLE )
@@ -102,12 +110,15 @@ endmacro(QT_SETUP_GUI_INTERNALS )
 macro( QT_SETUP_WEBENGINE_INTERNALS )
 
     OD_FIND_QTDIR()
+    list( APPEND QT_REQ_PLUGINS bearer;position )
+    QT_INSTALL_PLUGINS()
+
     install( DIRECTORY ${QTDIR}/resources
-	    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
+	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 	    USE_SOURCE_PERMISSIONS )
     install( DIRECTORY ${QTDIR}/translations
-	    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}
+	    DESTINATION bin/${OD_PLFSUBDIR}
 	    CONFIGURATIONS ${CMAKE_BUILD_TYPE}
 	    USE_SOURCE_PERMISSIONS
 	    FILES_MATCHING
@@ -127,13 +138,13 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
 	    set( QTPOSTFIX "d" )
 	endif()
 	OD_INSTALL_PROGRAM( "${QTDIR}/bin/QtWebEngineProcess${QTPOSTFIX}.exe" )
-	OD_INSTALL_PROGRAM( "${QTDIR}/bin/qwebengine_convert_dict.exe" )
     else()
-	OD_INSTALL_PROGRAM( "${QTDIR}/libexec/QtWebEngineProcess" )
-	OD_INSTALL_PROGRAM( "${QTDIR}/bin/qwebengine_convert_dict" )
+	install( PROGRAMS "${QTDIR}/libexec/QtWebEngineProcess"
+		 DESTINATION bin/${OD_PLFSUBDIR}/libexec )
+	OD_PREPARE_EXTERNALS_FILELIST( "${QTDIR}/libexec/QtWebEngineProcess" )
     endif()
 
-    list( APPEND  OD_QTPLUGINS resources translations )
+    list( APPEND OD_QTPLUGINS resources translations )
     set( OD_QTPLUGINS ${OD_QTPLUGINS} PARENT_SCOPE )
 endmacro(QT_SETUP_WEBENGINE_INTERNALS)
 
@@ -181,6 +192,7 @@ macro( QT_SETUP_GUI_EXTERNALS )
 	list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS
 		${Qt5Gui_EGL_LIBRARIES}
 		${Qt5Gui_OPENGL_LIBRARIES}
+		"${QTDIR}/bin/d3dcompiler_47.dll"
 		"${QTDIR}/bin/opengl32sw.dll" )
     elseif ( NOT APPLE )
 	QT_SETUP_XCBQPA_EXTERNALS()
