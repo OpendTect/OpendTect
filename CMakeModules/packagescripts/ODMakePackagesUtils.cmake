@@ -269,14 +269,8 @@ macro( COPY_THIRDPARTYLIBS )
 
     foreach( ODPLUGIN ${OD_QTPLUGINS} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/${ODPLUGIN}
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/${ODPLUGIN} )
-
-	if ( "${ODPLUGIN}" STREQUAL "resources" )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${COPYFROMLIBDIR}/../resources
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
-	endif()
+		         ${COPYFROMLIBDIR}/../${ODPLUGIN}
+		         ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/${ODPLUGIN} )
     endforeach()
 
     foreach( TRANSLATION_FILE ${OD_QT_TRANSLATION_FILES} )
