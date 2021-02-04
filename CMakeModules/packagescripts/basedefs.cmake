@@ -20,7 +20,7 @@ set( EXECLIST od_cbvs_browse od_osgfileviewer
 	      od_FileBrowser od_SEGYExaminer od_SeisMMBatch od_ClusterProc
 	      od_process_2dgrid od_remexec od_remoteservice od_stratamp od_isopach
 	      od_uiReportIssue od_gmtexec od_madexec
-	      od_process_2dto3d od_BatchHosts od_copy_seis od_PreStackMMBatch)
+	      od_process_2dto3d od_BatchHosts od_copy_seis od_PreStackMMBatch od_WellMan )
 if ( NOT APPLE )
     set( EXECLIST ${EXECLIST} od_glxinfo )
 endif()
@@ -65,6 +65,7 @@ endif()
 
 if( ${OD_PLFSUBDIR} STREQUAL "lux64" )
     set( SYSTEMLIBS libstdc++.so.6 libgcc_s.so.1 )
+    set( OPENSSLLIBS libcrypto.so.1.1 libssl.so.1.1 )
 endif()
 
 if ( APPLE )
