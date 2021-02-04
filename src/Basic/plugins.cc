@@ -58,7 +58,7 @@ extern "C" {
 
 
 SharedLibAccess::SharedLibAccess( const char* lnm )
-	: handle_(0)
+	: handle_(nullptr)
 {
     if ( !lnm || !*lnm  )
 	return;
@@ -110,6 +110,9 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
     {
 	BufferString msg( "Attempt to get open handle for sh lib " );
 	msg += lnm; msg += handle_ ? " succeeded" : " failed";
+	if ( !handle_ && !errmsg_.isEmpty() )
+	    msg.add( ": " ).add( errmsg_ );
+
 	DBG::message( msg );
     }
 }
@@ -123,14 +126,14 @@ void SharedLibAccess::close()
 #else
     dlclose( handle_ );
 #endif
-    handle_ = 0;
+    handle_ = nullptr;
 }
 
 
 void* SharedLibAccess::getFunction( const char* fnnm ) const
 {
     if ( !handle_ )
-	return 0;
+	return nullptr;
 
 #ifdef __win__
     return (void*)GetProcAddress( handle_, fnnm );
@@ -169,15 +172,16 @@ void SharedLibAccess::getLibName( const char* modnm, char* out, int sz )
 
 
 
-RuntimeLibLoader::RuntimeLibLoader( const char* filenm )
+RuntimeLibLoader::RuntimeLibLoader( const char* filenm, const char* subdir )
 {
     const File::Path libfp( filenm );
-    const File::Path relfp( GetExecPlfDir(), libfp.fileName() );
+    const File::Path relfp( GetExecPlfDir(), subdir, libfp.fileName() );
     if ( relfp.exists() )
 	sha_ = new SharedLibAccess( relfp.fullPath() );
     else if ( libfp.exists() )
 	sha_ = new SharedLibAccess( libfp.fullPath() );
 }
+
 
 RuntimeLibLoader::~RuntimeLibLoader()
 {
