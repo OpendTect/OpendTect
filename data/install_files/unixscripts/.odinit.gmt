@@ -24,7 +24,11 @@ if ( ! -d ${GMTROOT} ) then
 endif
 
 setenv PATH ${PATH}:${GMTROOT}/bin
-setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${GMTROOT}/lib
+if ( $?LD_LIBRARY_PATH ) then
+    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${GMTROOT}/lib
+else
+    setenv LD_LIBRARY_PATH ${GMTROOT}/lib
+endif
 setenv GMT_SHAREDIR ${GMTROOT}/share
 
 echo "GMT setup done"

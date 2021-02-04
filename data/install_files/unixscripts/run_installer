@@ -5,38 +5,23 @@
 # Date:         May 2013
 # RCS:          $Id$
 
+PLFNAME=`uname`
+if [ "${PLFNAME}" = "Darwin" ]; then
+    echo "Unsupported platform"
+    exit 1
+fi
+
 if [ ! -f /bin/csh ]; then
     echo "You do not have csh installed which is required by OpendTect"
     echo "Please install csh or contact your system administrator."
     exit 1
 fi
 
-#get rid of the OD environment.
-if [ $?DTECT_APPL ]; then
-    export DTECT_APPL=""
-fi
-
-PLFNAME=`uname`
 curdir=`dirname "$0"`
-
-if [ "${PLFNAME}" = "Darwin" ]; then
-    if [ ! $?DYLD_LIBRARY_PATH ]; then
-	export DYLD_LIBRARY_PATH="${curdir}"
-    else
-	export DYLD_LIBRARY_PATH="${curdir}":${DYLD_LIBRARY_PATH}
-    fi
-else
-    if [ ! $?LD_LIBRARY_PATH ]; then
-	export LD_LIBRARY_PATH="${curdir}"
-    else
-	export LD_LIBRARY_PATH="${curdir}":${LD_LIBRARY_PATH}
-    fi
-fi
-
-qtfile=${curdir}/platforms/libqxcb.so
+qtfile=${curdir}/../plugins/platforms/libqxcb.so
 if [ ! -f "$qtfile" ]; then
     echo "Qt platform plugin file $qtfile not found."
-    echo "Can not display the installer window  without this file."
+    echo "Can not display the installer window without this file."
     exit 1
 fi
 
@@ -45,6 +30,11 @@ if [ "$infomsg" != "" ]; then
     echo  "System libraries listed below are missing, please install them and rerun the installer"
     echo "$infomsg"
     exit 1
+fi
+
+#get rid of the OD environment.
+if [ $?DTECT_APPL ]; then
+    export DTECT_APPL=""
 fi
 
 "${curdir}/od_instmgr" "$@"
