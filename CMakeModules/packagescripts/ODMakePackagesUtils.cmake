@@ -261,7 +261,6 @@ macro( COPY_THIRDPARTYLIBS )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${COPYFROMLIBDIR}/../${ODPLUGIN}
 			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/${ODPLUGIN} )
-	endif()
     endforeach()
 
     foreach( TRANSLATION_FILE ${OD_QT_TRANSLATION_FILES} )
