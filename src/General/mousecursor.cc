@@ -26,6 +26,16 @@ MouseCursor::MouseCursor( Shape s )
     , hoty_( 0 )
 {}
 
+
+MouseCursor::MouseCursor( const char* fnm )
+    : shape_(Bitmap)
+    , filename_(fnm)
+    , image_( 0 )
+    , hotx_( 0 )
+    , hoty_( 0 )
+{}
+
+
 MouseCursor::~MouseCursor()
 { delete image_; }
 

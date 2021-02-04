@@ -63,7 +63,8 @@ public:
 			};
 
     			MouseCursor();
-			MouseCursor( Shape s );
+			MouseCursor(Shape s);
+    			MouseCursor(const char* fnm);
 
     bool		operator==(const MouseCursor&) const;
     bool		operator!=(const MouseCursor&) const;

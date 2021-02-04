@@ -97,6 +97,11 @@ public:
     void		moveWithUndo(LocID,const Pick::Location&,
 					const Pick::Location&);
 
+    void		bulkAppendWithUndo(const TypeSet<Pick::Location>&,
+	    				   const TypeSet<int>& indexes);
+    void		bulkRemoveWithUndo(const TypeSet<Pick::Location>&,
+	    				   const TypeSet<int>& indexes);
+
     Location&		get(LocID);
     const Location&	get(LocID) const;
 
@@ -120,6 +125,8 @@ private:
 
     enum EventType	{ Insert, PolygonClose, Remove, Move };
     void		addUndoEvent(EventType,LocID,const Pick::Location&);
+    void		addBulkUndoEvent(EventType,const TypeSet<int>&,
+	    				 const TypeSet<Pick::Location>&);
 
     TypeSet<int>	startidxs_;
     bool		readonly_;

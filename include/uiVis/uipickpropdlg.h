@@ -17,9 +17,11 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiGenInput;
+class uiSlider;
 
 namespace Pick { class Set; };
-namespace visSurvey { class PickSetDisplay; };
+namespace visSurvey
+{ class PickSetDisplay; class LocationDisplay; class SeedPainter; };
 
 
 mExpClass(uiVis) uiPickPropDlg : public uiMarkerStyleDlg
@@ -52,3 +54,22 @@ protected:
     visSurvey::PickSetDisplay*	psd_;
 };
 
+
+mExpClass(uiVis) uiSeedPainterDlg : public uiDialog
+{ mODTextTranslationClass(uiSeedPainterDlg);
+public:
+				uiSeedPainterDlg(uiParent* p,
+						 visSurvey::LocationDisplay*);
+				~uiSeedPainterDlg();
+
+protected:
+
+    void			sizeCB(CallBacker*);
+    void			densCB(CallBacker*);
+
+    visSurvey::SeedPainter*	seedpainter_;
+
+    uiSlider*			szfld_;
+    uiSlider*			densfld_;
+
+};

@@ -32,6 +32,7 @@ set(OD_MODULE_SOURCES
 		visrandomposbodydisplay.cc
 		visrandomtrackdisplay.cc
 		visscalebardisplay.cc
+		visseedpainter.cc
 		visseis2ddisplay.cc
 		vissower.cc
 		vissurvobj.cc
