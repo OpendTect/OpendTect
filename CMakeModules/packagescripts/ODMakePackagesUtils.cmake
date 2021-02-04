@@ -258,14 +258,9 @@ macro( COPY_THIRDPARTYLIBS )
     endforeach()
 
     foreach( ODPLUGIN ${OD_QTPLUGINS} )
-	if ( "${ODPLUGIN}" STREQUAL "resources" )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${COPYFROMLIBDIR}/../resources
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
-	else()
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${COPYFROMLIBDIR}/${ODPLUGIN}
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Release/${ODPLUGIN} )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${COPYFROMLIBDIR}/../${ODPLUGIN}
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/${ODPLUGIN} )
 	endif()
     endforeach()
 
