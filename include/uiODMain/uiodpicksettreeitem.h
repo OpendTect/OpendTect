@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uioddisplaytreeitem.h"
 
 namespace Pick		{ class Set; }
-
+class uiSeedPainterDlg;
 
 
 mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODParentTreeItem
@@ -74,8 +74,12 @@ protected:
     MenuItem		onlyatsectmnuitem_;
     MenuItem		convertbodymnuitem_;
     MenuItem		propertymnuitem_;
+    MenuItem		paintingmnuitem_;
+
+    uiSeedPainterDlg*	paintdlg_;
 
     void		selChangedCB(CallBacker*);
+    void		paintDlgClosedCB(CallBacker*);
 };
 
 

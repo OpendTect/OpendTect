@@ -25,6 +25,7 @@ namespace visSurvey
 {
 
 class Sower;
+class SeedPainter;
 
 /*!\brief Used for displaying picksets of varying types.
   The class is not intended for standalone usage, but is a common ground for
@@ -81,6 +82,8 @@ public:
     int				getPickIdx(visBase::DataObject*) const;
 
     const SurveyObject*		getPickedSurveyObject() const;
+    SeedPainter*		getPainter()		{ return painter_; }
+    bool			isPainting() const;
 
     bool			canRemoveSelection() const	{ return true; }
     void			removeSelection(const Selector<Coord3>&,
@@ -133,6 +136,7 @@ protected:
     virtual void		locChg(CallBacker* cb);
     virtual void		setChg(CallBacker* cb);
     virtual void		dispChg(CallBacker* cb);
+    void			bulkLocChg(CallBacker* cb);
 
     Pick::Set*			set_;
     Pick::SetMgr*		picksetmgr_;
@@ -162,6 +166,7 @@ protected:
     static const char*		sKeyMarkerSize();
 
     Sower*			sower_;
+    SeedPainter*		painter_;
     Coord3			undoloccoord_;
     bool			undomove_;
     bool			selectionmodel_;

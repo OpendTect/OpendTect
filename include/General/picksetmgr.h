@@ -79,6 +79,25 @@ public:
     Notifier<SetMgr>	setAdded;	//!< passes Set*
     Notifier<SetMgr>	setChanged;	//!< passes Set*
     Notifier<SetMgr>	setDispChanged;	//!< passes Set*
+
+    struct BulkChangeData : public CallBacker
+    {
+	enum Ev		{ Added, ToBeRemoved };
+
+			BulkChangeData( Ev e, const Set* s,
+					const TypeSet<int>& l )
+			    : ev_(e), set_(s), locs_(l)		{}
+
+	Ev		ev_;
+	const Set*	set_;
+	TypeSet<int>	locs_;
+			//<refers to the indexes in set_ (sorted)
+    };
+
+    void		reportBulkChange(CallBacker* sender,
+	    				 const BulkChangeData&);
+    Notifier<SetMgr>	bulkLocationChanged;//!< Passes BulkChangeData*
+
     void		removeCBs(CallBacker*);
 
     bool		isChanged( int idx ) const

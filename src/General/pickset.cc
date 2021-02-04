@@ -68,6 +68,7 @@ SetMgr::SetMgr( const char* nm )
     , locationChanged(this), setToBeRemoved(this)
     , setAdded(this), setChanged(this)
     , setDispChanged(this)
+    , bulkLocationChanged(this)
     , undo_( *new Undo() )
 {
     mAttachCB( IOM().entryRemoved, SetMgr::objRm );
@@ -223,9 +224,25 @@ void SetMgr::reportDispChange( CallBacker* sender, const Set& s )
 }
 
 
+void SetMgr::reportBulkChange( CallBacker* sender, const BulkChangeData& cd )
+{
+    const int setidx = pss_.indexOf( cd.set_ );
+    if ( setidx >= 0 )
+    {
+	changed_[setidx] = true;
+	mDynamicCastGet(Pick::SetMgr*,picksetmgr,sender);
+	Notifier<Pick::SetMgr> notif( picksetmgr ?
+				picksetmgr->bulkLocationChanged : nullptr );
+	NotifyStopper ns( notif, this );
+	bulkLocationChanged.trigger( const_cast<BulkChangeData*>(&cd) );
+    }
+}
+
+
 void SetMgr::removeCBs( CallBacker* cb )
 {
     locationChanged.removeWith( cb );
+    bulkLocationChanged.removeWith( cb );
     setToBeRemoved.removeWith( cb );
     setAdded.removeWith( cb );
     setChanged.removeWith( cb );
@@ -248,6 +265,7 @@ void SetMgr::survChg( CallBacker* )
 {
     removeAll();
     locationChanged.cbs_.erase();
+    bulkLocationChanged.cbs_.erase();
     setToBeRemoved.cbs_.erase();
     setAdded.cbs_.erase();
     setChanged.cbs_.erase();
@@ -447,6 +465,108 @@ protected:
     MultiID	    mid_;
     int		    index_;
     UnDoType	    type_;
+};
+
+
+class PickSetBulkUndoEvent: public UndoEvent
+{
+public:
+    enum  UnDoType	    { Insert, Remove };
+    PickSetBulkUndoEvent( UnDoType type, const MultiID& mid,
+	    		  const TypeSet<int>& idxs,
+			  const TypeSet<Pick::Location>& pos )
+    { init( type, mid, idxs, pos ); }
+
+    void init( UnDoType type, const MultiID& mid, const TypeSet<int>& idxs,
+		const TypeSet<Pick::Location>& pos )
+    {
+	type_ = type;
+	pos_ = pos;
+	indexes_ = idxs;
+	mid_ = mid;
+    }
+
+
+    const char* getStandardDesc() const
+    {
+	if ( type_ == Insert )
+	    return "Insert Bulk";
+	else
+	    return "Remove Bulk";
+    }
+
+
+    bool unDo()
+    {
+	Pick::SetMgr& mgr = Pick::Mgr();
+	const int mididx = mgr.indexOf( mid_ );
+	const bool haspickset = mididx >=0;
+	Pick::Set* set = haspickset ? &mgr.get(mididx) : nullptr;
+	if ( !set ) return false;
+
+	Pick::SetMgr::BulkChangeData::Ev ev = type_ == Remove
+	    			? Pick::SetMgr::BulkChangeData::Added
+	    			: Pick::SetMgr::BulkChangeData::ToBeRemoved;
+
+	Pick::SetMgr::BulkChangeData cd( ev, set, indexes_ );
+
+	if ( type_ == Remove )
+	{
+	    for ( int idx=0; idx<indexes_.size(); idx++ )
+	    {
+		if ( pos_.validIdx(idx) && pos_[idx].pos_.isDefined() )
+		    set->insert( indexes_[idx], pos_[idx] );
+	    }
+	}
+	else
+	{
+	    for ( int idx=indexes_.size()-1; idx>=0; idx-- )
+		set->removeSingle( indexes_[idx] );
+	}
+
+	mgr.reportBulkChange( 0, cd );
+	return true;
+    }
+
+
+    bool reDo()
+    {
+	Pick::SetMgr& mgr = Pick::Mgr();
+	const int mididx = mgr.indexOf( mid_ );
+	const bool haspickset = mididx >=0;
+	Pick::Set* set = haspickset ? &mgr.get(mididx) : nullptr;
+	if ( !set ) return false;
+
+	Pick::SetMgr::BulkChangeData::Ev ev = type_ == Remove
+	    			? Pick::SetMgr::BulkChangeData::ToBeRemoved
+	    			: Pick::SetMgr::BulkChangeData::Added;
+
+	Pick::SetMgr::BulkChangeData cd( ev, set, indexes_ );
+
+	if ( type_ == Remove )
+	{
+	    for ( int idx=indexes_.size()-1; idx>=0; idx-- )
+		set->removeSingle( indexes_[idx] );
+	}
+	else
+	{
+	    for ( int idx=0; idx<indexes_.size(); idx++ )
+	    {
+		if ( pos_.validIdx(idx) && pos_[idx].pos_.isDefined() )
+		    set->insert( indexes_[idx], pos_[idx] );
+	    }
+	}
+
+	mgr.reportBulkChange( 0, cd );
+	return true;
+    }
+
+protected:
+
+    TypeSet<Pick::Location>	pos_;
+    MultiID	    		mid_;
+    TypeSet<int>	    	indexes_;
+    UnDoType	    		type_;
 };
 
 
@@ -811,6 +931,45 @@ void Set::moveWithUndo( LocID idx, const Pick::Location& undoloc,
     (*this)[idx] = undoloc;
     addUndoEvent( Move, idx, loc );
     (*this)[idx] = loc;
+}
+
+
+void Set::addBulkUndoEvent( EventType type, const TypeSet<int>& indexes,
+			    const TypeSet<Pick::Location>& locs )
+{
+    Pick::SetMgr& mgr = Pick::Mgr();
+    if ( mgr.indexOf(*this) == -1 )
+	return;
+
+    const MultiID mid = mgr.get(*this);
+    if ( !mid.isEmpty() )
+    {
+	PickSetBulkUndoEvent::UnDoType undotype =
+	    type == Insert ? PickSetBulkUndoEvent::Insert
+	    		   : PickSetBulkUndoEvent::Remove;
+
+	PickSetBulkUndoEvent* undo =
+	    	new PickSetBulkUndoEvent( undotype, mid, indexes, locs );
+	Pick::Mgr().undo().addEvent( undo, 0 );
+    }
+}
+
+
+void Set::bulkAppendWithUndo( const TypeSet<Pick::Location>& locs,
+			      const TypeSet<int>& indexes )
+{
+    this->append( locs );
+    addBulkUndoEvent( Insert, indexes, locs );
+}
+
+
+void Set::bulkRemoveWithUndo( const TypeSet<Pick::Location>& locs,
+			      const TypeSet<int>& indexes )
+{
+    for ( int idx=indexes.size()-1; idx>=0; idx-- )
+	this->removeSingle( indexes[idx], true );
+
+    addBulkUndoEvent( Remove, indexes, locs );
 }
 
 

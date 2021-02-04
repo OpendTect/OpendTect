@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visevent.h"
 #include "vismaterial.h"
+#include "visseedpainter.h"
 #include "vissower.h"
 #include "vistransform.h"
 #include "visplanedatadisplay.h"
@@ -70,10 +71,13 @@ LocationDisplay::LocationDisplay()
     , selectionmodel_(false)
     , ctrldown_(false)
 {
-    setSetMgr( &Pick::Mgr() );
-
     sower_ = new Sower( this );
+    sower_->ref();
     addChild( sower_->osgNode() );
+    painter_ = new SeedPainter;
+    painter_->ref();
+    addChild( painter_->osgNode() );
+    setSetMgr( &Pick::Mgr() );
 }
 
 
@@ -94,8 +98,9 @@ LocationDisplay::~LocationDisplay()
     }
 
     removeChild( sower_->osgNode() );
-    delete sower_;
-    sower_ = 0;
+    unRefAndZeroPtr( sower_ );
+    removeChild( painter_->osgNode() );
+    unRefAndZeroPtr( painter_ );
 }
 
 
@@ -114,8 +119,8 @@ void LocationDisplay::setSet( Pick::Set* ps )
     }
 
     set_ = ps;
+    painter_->setSet( ps );
     setName( set_->name() );
-
     if ( picksetmgr_ )
     {
 	const int setidx = picksetmgr_->indexOf( *set_ );
@@ -137,10 +142,13 @@ void LocationDisplay::setSetMgr( Pick::SetMgr* mgr )
 	picksetmgr_->removeCBs( this );
 
     picksetmgr_ = mgr;
+    painter_->setSetMgr( mgr );
 
     if ( picksetmgr_ )
     {
 	mAttachCB( picksetmgr_->locationChanged , LocationDisplay::locChg );
+	mAttachCB( picksetmgr_->bulkLocationChanged,
+		   LocationDisplay::bulkLocChg );
 	mAttachCB( picksetmgr_->setChanged, LocationDisplay::setChg );
 	mAttachCB( picksetmgr_->setDispChanged, LocationDisplay::dispChg );
     }
@@ -235,6 +243,9 @@ bool LocationDisplay::displayedOnlyAtSections() const
 
 void LocationDisplay::pickCB( CallBacker* cb )
 {
+    if ( painter_ && painter_->isActive() )
+	return;
+
     if ( !set_ || set_->isReadOnly() )
 	return;
 
@@ -628,6 +639,51 @@ void LocationDisplay::locChg( CallBacker* cb )
 }
 
 
+void LocationDisplay::bulkLocChg( CallBacker* cb )
+{
+    if ( !set_ || set_->isReadOnly() )
+	return;
+
+    mDynamicCastGet(Pick::SetMgr::BulkChangeData*,cd,cb)
+    if ( !cd )
+    {
+	pErrMsg("Wrong pointer passed");
+	return;
+    }
+    else if ( cd->set_ != set_ )
+	return;
+
+    if ( cd->ev_==Pick::SetMgr::BulkChangeData::Added )
+    {
+	const TypeSet<int>& pickidxs = cd->locs_;
+	for ( int pidx=0; pidx<pickidxs.size(); pidx++ )
+	{
+	    const int pickidx = pickidxs[pidx];
+	    if ( !set_->validIdx(pickidx) )
+		return;
+
+	    Pick::Location loc = (*set_)[pickidx];
+	    if ( !transformPos(loc) )
+	    {
+		invalidpicks_ += pickidx;
+	    }
+
+	    setPosition( pickidx, loc, true );
+	}
+    }
+    else if ( cd->ev_==Pick::SetMgr::BulkChangeData::ToBeRemoved )
+    {
+	const TypeSet<int>& pickidxs = cd->locs_;
+	for ( int pidx=pickidxs.size()-1; pidx>=0; pidx-- )
+	{
+	    const int pickidx = pickidxs[pidx];
+	    removePosition( pickidx );
+	    invalidpicks_ -= pickidx;
+	}
+    }
+}
+
+
 void LocationDisplay::setChg( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb)
@@ -673,6 +729,11 @@ bool LocationDisplay::isPicking() const
     return isSelected() && !isLocked() && !isreadonly;
 }
 
+
+bool LocationDisplay::isPainting() const
+{
+    return isPicking() && painter_ && painter_->isActive();
+}
 
 bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 			       bool notif )
@@ -841,6 +902,7 @@ void LocationDisplay::setDisplayTransformation( const mVisTrans* newtr )
 	transformation_->ref();
 
     sower_->setDisplayTransformation( newtr );
+    painter_->setDisplayTransformation( newtr );
 }
 
 
@@ -866,6 +928,7 @@ void LocationDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 
     eventcatcher_ = nevc;
     sower_->setEventCatcher( nevc );
+    painter_->setEventCatcher( nevc );
 
     if ( eventcatcher_ )
     {
