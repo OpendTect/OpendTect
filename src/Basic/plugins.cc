@@ -57,7 +57,7 @@ extern "C" {
 
 
 SharedLibAccess::SharedLibAccess( const char* lnm )
-	: handle_(0)
+	: handle_(nullptr)
 {
     if ( !lnm || !*lnm  )
 	return;
@@ -121,14 +121,14 @@ void SharedLibAccess::close()
 #else
     dlclose( handle_ );
 #endif
-    handle_ = 0;
+    handle_ = nullptr;
 }
 
 
 void* SharedLibAccess::getFunction( const char* fnnm ) const
 {
     if ( !handle_ )
-	return 0;
+	return nullptr;
 
 #ifdef __win__
     return (void*)GetProcAddress( handle_, fnnm );
@@ -174,14 +174,21 @@ void SharedLibAccess::getLibName( const char* modnm, char* out, int sz )
 
 
 RuntimeLibLoader::RuntimeLibLoader( const char* filenm )
+  : RuntimeLibLoader(filenm,nullptr)
+{
+}
+
+
+RuntimeLibLoader::RuntimeLibLoader( const char* filenm, const char* subdir )
 {
     const FilePath libfp( filenm );
-    const FilePath relfp( GetExecPlfDir(), libfp.fileName() );
+    const FilePath relfp( GetExecPlfDir(), subdir, libfp.fileName() );
     if ( relfp.exists() )
 	sha_ = new SharedLibAccess( relfp.fullPath() );
     else if ( libfp.exists() )
 	sha_ = new SharedLibAccess( libfp.fullPath() );
 }
+
 
 RuntimeLibLoader::~RuntimeLibLoader()
 {
@@ -194,6 +201,8 @@ bool RuntimeLibLoader::isOK() const
 {
     return sha_ && sha_->isOK();
 }
+
+
 
 
 

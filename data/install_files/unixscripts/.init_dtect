@@ -51,29 +51,56 @@ if ( $HDIR == mac ) then
 
     if ( $?DYLD_LIBRARY_PATH ) then
 	setenv OD_SYSTEM_LIBRARY_PATH "${DYLD_LIBRARY_PATH}"
-	setenv DYLD_LIBRARY_PATH "${bindir}:${DYLD_LIBRARY_PATH}"
-    else
-	setenv DYLD_LIBRARY_PATH "${bindir}:/lib:/usr/lib"
     endif
 
 else
 
     if ( $?LD_LIBRARY_PATH ) then
 	setenv OD_SYSTEM_LIBRARY_PATH "${LD_LIBRARY_PATH}"
-        setenv LD_LIBRARY_PATH "${bindir}:${OD_SYSTEM_LIBRARY_PATH}"
-    else
-	setenv LD_LIBRARY_PATH "${bindir}"
     endif
 
     set ldconfig = "/sbin/ldconfig"
+
+    # gcc library compatibility check
+    set odsystemlibsdir = "${bindir}/systemlibs"
     if ( -e ${ldconfig} ) then
-        set libstdc = `/sbin/ldconfig -p | grep libstdc++.so.6 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
-        set gccmajorver = `strings "${libstdc}" | grep GLIBC_2.17`
+        set libstdc = `${ldconfig} -p | grep libstdc++.so.6 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+        set gccmajorver = `strings "${libstdc}" | grep -m 1 GLIBC_2.17`
         if ( ${gccmajorver} == "" ) then
-            setenv LD_LIBRARY_PATH "${bindir}"/systemlibs:${LD_LIBRARY_PATH}
+	    if ( $?LD_LIBRARY_PATH ) then
+		setenv LD_LIBRARY_PATH "${odsystemlibsdir}":${LD_LIBRARY_PATH}
+	    else
+		setenv LD_LIBRARY_PATH "${odsystemlibsdir}"
+	    endif
         endif
     else
-        setenv LD_LIBRARY_PATH "${bindir}"/systemlibs:${LD_LIBRARY_PATH}
+	if ( $?LD_LIBRARY_PATH ) then
+	    setenv LD_LIBRARY_PATH "${odsystemlibsdir}":${LD_LIBRARY_PATH}
+	else
+	    setenv LD_LIBRARY_PATH "${odsystemlibsdir}"
+	endif
+    endif
+
+    if ( -e "${bindir}"/libdGBPDF3D.so ) then
+	# OpenSSL presence check
+	if ( -e ${ldconfig} ) then
+	    set syslibssl = `${ldconfig} -p | grep libssl.so.1.1 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+	    set syslibcrypto = `${ldconfig} -p | grep libcrypto.so.1.1 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
+	else
+	    set syslibssl = "/usr/lib64/libssl.so.1.1"
+	    set syslibcrypto = "/usr/lib64/libcrypto.so.1.1"
+	endif
+
+	if ( ! -e "${syslibssl}" || ! -e "${syslibcrypto}" ) then
+	    set odopenssllibdir = "${bindir}"/OpenSSL
+	    if ( -d "${odopenssllibdir}" ) then
+		if ( $?LD_LIBRARY_PATH ) then
+		    setenv LD_LIBRARY_PATH "${odopenssllibdir}":${LD_LIBRARY_PATH}
+		else
+		    setenv LD_LIBRARY_PATH "${odopenssllibdir}"
+		endif
+	    endif
+	endif
     endif
 
     # kludge for Fedora 8
@@ -81,20 +108,6 @@ else
 
 endif
 
-
-#-----------------------------------------------------
-# Compatibility checks
-
-# CentOS/RHEL 8 libcrypto compatibility check
-set syslibcrypto = "/usr/lib64/libcrypto.so.1.1"
-set odlibcrypto = ${bindir}"/libcrypto.so.1.1"
-if ( -e ${syslibcrypto} ) then
-    set symbolfind = `strings ${syslibcrypto} | grep EVP_KDF_ctrl | wc | awk '{ print $1 }'`
-    if ( ${symbolfind} > 0 && -e ${odlibcrypto} ) then
-        echo "Fatal error: This OpendTect installation is not compatible with the operating system library 'libcrypto.so.1.1'. A potentional fix could be to remove the libcrypto.so.1.1 library provided by OpendTect and located at ${bindir}"
-        exit 1
-    endif
-endif
 
 #-----------------------------------------------------
 # Extra initialisations
@@ -109,9 +122,4 @@ end
 
 if ( $?CHECK_GL ) then
     source "${DTECT_APPL}/bin/init_dtect_GL"
-endif
-
-# Put back the user environment
-if ( $?OD_SYSTEM_LIBRARY_PATH ) then
-    setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${OD_SYSTEM_LIBRARY_PATH}"
 endif

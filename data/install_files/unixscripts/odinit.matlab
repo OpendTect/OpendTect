@@ -49,8 +49,8 @@ endif
 
 
 setenv MATLAB_LD_LIBRARY_PATH "${MATLAB_DIR}"/bin/glnxa64:"${MATLAB_DIR}"/runtime/glnxa64
-if ( ! $?LD_LIBRARY_PATH ) then
-    setenv LD_LIBRARY_PATH "${MATLAB_LD_LIBRARY_PATH}"
-else
+if ( $?LD_LIBRARY_PATH ) then
     setenv LD_LIBRARY_PATH "${MATLAB_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}"
+else
+    setenv LD_LIBRARY_PATH "${MATLAB_LD_LIBRARY_PATH}"
 endif
