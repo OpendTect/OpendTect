@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "iopar.h"
 #include "odnetworkreply.h"
+#include "oscommand.h"
 #include "od_ostream.h"
 #include "od_istream.h"
 #include "perthreadrepos.h"
@@ -31,19 +32,100 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <QNetworkProxy>
 
 
+namespace System
+{
+
+static bool findLibraryPath( const char* libnm, FilePath& ret )
+{
+#ifdef __lux64__
+    OS::MachineCommand mc( "/sbin/ldconfig" );
+    mc.addFlag( "p", OS::OldStyle ).addPipe()
+      .addArg( "grep" ).addArg( libnm );
+
+    if ( !File::exists(mc.program()) )
+	return false;
+
+    BufferString ldoutstr;
+    if ( !mc.execute(ldoutstr) )
+	return false;
+
+    BufferStringSet cmdoutlines, cmdoutlines_x64;
+    cmdoutlines.unCat( ldoutstr.buf() );
+    for ( const auto cmdoutline : cmdoutlines )
+    {
+      const SeparString cmdoutsep( cmdoutline->buf(), ' ' );
+      if ( cmdoutsep.size() < 4 || !cmdoutsep[1].contains("x86-64") )
+	  continue;
+
+      const char* syslibnm = cmdoutsep[0].buf();
+      if ( *syslibnm == '\t' )
+	  syslibnm++;
+
+      if ( FixedString(syslibnm) != libnm )
+	  continue;
+
+      cmdoutlines_x64.add( cmdoutsep[3] );
+    }
+
+    if ( cmdoutlines_x64.isEmpty() )
+	return false;
+
+    ret.set( cmdoutlines_x64.first()->buf() );
+    return ret.exists();
+#else
+    return false;
+#endif
+}
+
+} // namespace System
+
+
+namespace Network
+{
+
+static bool canUseSystemOpenSSL()
+{
+#ifdef __lux64__
+    const FilePath libfp( __OpenSSL_Crypto_LIBRARY__ );
+    const char* libnm = libfp.fileName().buf();
+    FilePath ret;
+    if ( !System::findLibraryPath(libnm,ret) )
+	return false;
+
+    OS::MachineCommand mc( "strings" );
+    mc.addArg( ret.fullPath() ).addPipe()
+      .addArg( "grep" )
+      .addKeyedArg( "m", 1, OS::OldStyle )
+      .addArg( "EVP_PKEY_param_check" );
+
+    BufferString cmdoutstr;
+    return mc.execute( cmdoutstr ) && !cmdoutstr.isEmpty();
+#else
+    return false;
+#endif
+}
+
+
 static void loadOpenSSL()
 {
-    //Load first crypto, then ssl
+    mIfNotFirstTime(return);
 #ifdef __OpenSSL_Crypto_LIBRARY__
+    if ( canUseSystemOpenSSL() )
+	return;
+
+    //Load first crypto, then ssl
     mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,cryptosha,
-	    = new RuntimeLibLoader(__OpenSSL_Crypto_LIBRARY__) );
+	    = new RuntimeLibLoader(__OpenSSL_Crypto_LIBRARY__,"OpenSSL") );
 # ifdef __OpenSSL_SSL_LIBRARY__
     mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,sslsha,
 	    = cryptosha && cryptosha->isOK()
-	    ? new RuntimeLibLoader(__OpenSSL_SSL_LIBRARY__) : nullptr );
+	    ? new RuntimeLibLoader(__OpenSSL_SSL_LIBRARY__,"OpenSSL")
+	    : nullptr );
 # endif
 #endif
 }
+
+} // namespace Network
 
 
 
@@ -163,7 +245,7 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
     , urls_( urls )
 {
     totalnr_ = getDownloadSize();
-    loadOpenSSL();
+    Network::loadOpenSSL();
 }
 
 
@@ -180,7 +262,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer* db )
 {
     urls_.add(url);
     totalnr_ = getDownloadSize();
-    loadOpenSSL();
+    Network::loadOpenSSL();
 }
 
 
@@ -197,7 +279,7 @@ FileDownloader::FileDownloader( const char* url )
     , databuffer_(0)
 {
     urls_.add(url);
-    loadOpenSSL();
+    Network::loadOpenSSL();
 }
 
 
@@ -444,7 +526,7 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
     , header_(header)
     , init_(true)
 {
-    loadOpenSSL();
+    Network::loadOpenSSL();
 }
 
 
