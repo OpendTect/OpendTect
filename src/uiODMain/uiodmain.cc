@@ -108,13 +108,11 @@ static void checkScreenRes()
     for ( int idx=0; idx<nrscreens; idx++ )
     {
 	const uiSize sz( uimain.getScreenSize(idx,true) );
-	const uiSize realsz( uimain.getScreenSize(idx,false) );
 	const double devpixrat = uimain.getDevicePixelRatio(idx);
 	if ( sz.height() < cScreenLowRes )
 	{
 	    anysubstd = true;
-	    if ( !mIsUdf(devpixrat) && devpixrat > 1.1 &&
-		 devpixrat*realsz.height() > cScreenLowRes )
+	    if ( !mIsUdf(devpixrat) && devpixrat > 1.1 )
 		needscale = true;
 	    continue;
 	}
@@ -122,8 +120,7 @@ static void checkScreenRes()
 	anyacceptable = true;
 	if ( sz.height() < cScreenSubRes )
 	{
-	    if ( !mIsUdf(devpixrat) && devpixrat > 1.1 &&
-		 devpixrat*realsz.height() > cScreenSubRes )
+	    if ( !mIsUdf(devpixrat) && devpixrat > 1.1 )
 		needscale = true;
 	    anysubstd = true;
 	}
