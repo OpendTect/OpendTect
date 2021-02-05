@@ -50,7 +50,7 @@ public:
 
     TabType			currentTab() const;
     bool			is2D() const;
-    bool 			savedefault_;
+    bool			savedefault_;
     void			updateLogs();
 
 protected:
@@ -60,8 +60,8 @@ protected:
     ObjectSet<uiWellDispProperties> propflds_;
     bool			is2ddisplay_;
 
-    Color&	    backGroundColor();
-    const Color&	backGroundColor() const;
+    Color&			  backGroundColor();
+    const Color&		backGroundColor() const;
 
     virtual void		getFromScreen();
     virtual void		putToScreen();
@@ -69,12 +69,12 @@ protected:
     virtual void		setWDNotifiers(bool yn);
 
     virtual void		applyAllPush(CallBacker*);
-    void		applyTabPush(CallBacker*);
-    void		resetAllPush(CallBacker*);
+    void			applyTabPush(CallBacker*);
+    void			resetAllPush(CallBacker*);
     virtual void		onClose(CallBacker*);
     virtual void		propChg(CallBacker*);
     void			markersChgd(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK(CallBacker*);
     void			resetCB(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
@@ -98,16 +98,16 @@ public:
 
 protected:
 
-    ObjectSet<Well::Data> 	wds_;
+    ObjectSet<Well::Data>	wds_;
     uiLabeledComboBox*		wellselfld_;
 
-    mDeprecatedDef void			resetProps(int logidx);
+    mDeprecatedDef void		resetProps(int logidx);
     void			resetProps(int wellidx,int logidx);
-    virtual void 		wellSelChg(CallBacker*);
+    virtual void		wellSelChg(CallBacker*);
     virtual void		setWDNotifiers(bool yn);
     void			onClose(CallBacker*);
-    void		applyMWTabPush(CallBacker*);
-    void		resetMWAllPush(CallBacker*);
+    void			applyMWTabPush(CallBacker*);
+    void			resetMWAllPush(CallBacker*);
 
     friend class uiWellDispPropDlg;
 };

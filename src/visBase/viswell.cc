@@ -147,16 +147,6 @@ Well::~Well()
 }
 
 
-#define mRefDisplay( obj )\
-{\
-    if ( obj )\
-    {\
-	obj->ref();\
-	addChild( obj );\
-    }\
-}\
-
-
 osgGeo::WellLog*& Well::getLogDisplay( Side side )
 {
     osgGeo::WellLog* centerlogdisplay = hp_centerlogdisplay.getParam(this);
@@ -176,8 +166,11 @@ const osgGeo::WellLog* Well::getLogDisplay( Side side ) const
 void Well::setLogTubeDisplay( Side side, bool yn )
 {
     const bool displaytube_3 = hp_displaytube_3.getParam( this );
-    if ( side==Center && displaytube_3==yn  )
-	return;
+    if ( side==Center )
+    {
+	if ( displaytube_3==yn )
+	    return;
+    }
     else if ( displaytube_[(int)side] == yn )
 	return;
 
@@ -186,32 +179,43 @@ void Well::setLogTubeDisplay( Side side, bool yn )
     else
 	displaytube_[(int)side] = yn;
 
-    osgGeo::WellLog*& log = getLogDisplay( side );
+    osgGeo::WellLog* log = getLogDisplay( side );
 
     if ( log )
     {
 	removeChild( log );
 	log->unref();
+	if ( side==Center )
+	    hp_centerlogdisplay.removeParam( this );
     }
 
     if ( yn )
     {
-	osgGeo::WellLog*& logdisplay = getLogDisplay( side );
 	if ( side==Center )
 	    hp_centerlogdisplay.setParam( this, new osgGeo::TubeWellLog );
 	else
+	{
+	    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
 	    logdisplay = new osgGeo::TubeWellLog;
+	}
     }
     else
     {
-	osgGeo::WellLog*& logdisplay = getLogDisplay( side );
 	if ( side==Center )
 	    hp_centerlogdisplay.setParam( this, new osgGeo::PlaneWellLog );
 	else
+	{
+	    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
 	    logdisplay = new osgGeo::PlaneWellLog;
+	}
     }
 
-    mRefDisplay( getLogDisplay( side ) );
+    log = getLogDisplay( side );
+    if ( log )
+    {
+	log->ref();
+	addChild( log );
+    }
 }
 
 
