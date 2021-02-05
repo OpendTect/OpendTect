@@ -613,6 +613,21 @@ uiSize uiMain::desktopSize() const
 }
 
 
+double uiMain::getDevicePixelRatio( int screennr ) const
+{
+    const QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.isEmpty() || screennr<0 || screennr>=screens.size() )
+	return mUdf(double);
+
+    const QScreen* qscreen = screens.at( screennr );
+    if ( !qscreen )
+	return mUdf(double);
+
+    return mCast(double,qscreen->logicalDotsPerInchX()) /
+	   mCast(double,qscreen->physicalDotsPerInchX());
+}
+
+
 uiMain& uiMain::theMain()
 {
     if ( themain_ )
@@ -751,20 +766,19 @@ bool uiMain::directRendering()
 	return directrendering == 1;
 
     OS::MachineCommand cmd( "od_glxinfo" );
-    const BufferString stdoutstr = cmd.runAndCollectOutput();
-    if ( stdoutstr.isEmpty() )
+    BufferString stdoutstr;
+    if ( !cmd.execute(stdoutstr) || stdoutstr.isEmpty() )
 	return false;
 
     BufferStringSet glxinfostrs;
     glxinfostrs.unCat( stdoutstr.str() );
     BufferString dorender;
-    for ( int idx=0; idx<glxinfostrs.size(); idx++ )
+    for ( const auto line : glxinfostrs )
     {
-	const BufferString& line = glxinfostrs.get( idx );
-	if ( !line.startsWith("direct rendering:") )
+	if ( !line->startsWith("direct rendering:") )
 	    continue;
 
-	dorender.set( line.find( ':' )+1 );
+	dorender.set( line->find( ':' )+1 );
 	dorender.trimBlanks();
 	if ( !dorender.isEmpty() )
 	{
