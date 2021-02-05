@@ -204,9 +204,6 @@ Scene::~Scene()
 }
 
 
-#define mZFactor(stretch) (zscale_*stretch / 2)
-
-
 void Scene::updateTransforms( const TrcKeyZSampling& cs )
 {
     if ( !tempzstretchtrans_ )
