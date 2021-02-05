@@ -15,7 +15,8 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 			     ${COPYTODATADIR}/. )
 	elseif( WIN32 )
 	else()
-	    execute_process( COMMAND ln -s Release lib
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+			     ${CMAKE_BUILD_TYPE} lib
 			     WORKING_DIRECTORY ${COPYTOLIBDIR}/..)
 	endif()
 
