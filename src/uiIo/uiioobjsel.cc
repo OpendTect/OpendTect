@@ -44,6 +44,12 @@ uiIOObjInserter::uiIOObjInserter( const Translator& trl )
 }
 
 
+uiIOObjInserter::~uiIOObjInserter()
+{
+    ctxt_.removeAndDeleteParam( this );
+}
+
+
 bool uiIOObjInserter::isPresent( const TranslatorGroup& grp )
 {
     const ObjectSet<const Translator>& tpls = grp.templates();
@@ -58,7 +64,7 @@ bool uiIOObjInserter::isPresent( const TranslatorGroup& grp )
 
 void uiIOObjInserter::setIOObjCtxt( const IOObjContext& ctio )
 {
-    ctxt_.removeParam( this );
+    ctxt_.removeAndDeleteParam( this );
     ctxt_.setParam( this, new IOObjContext(ctio) );
 }
 
@@ -101,7 +107,6 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 					 ObjectSet<uiIOObjInserter>& insertset,
 					 ObjectSet<uiButton>& buttonset )
 {
-
     if ( uiIOObjInserter::allDisabled() )
 	return;
 
@@ -110,7 +115,6 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
-	const BufferString trgrpnm = tpls[idx]->typeName();
 	if ( !inserter || inserter->isDisabled() )
 	    continue;
 
