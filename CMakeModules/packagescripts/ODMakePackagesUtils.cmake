@@ -269,8 +269,8 @@ macro( COPY_THIRDPARTYLIBS )
 
     foreach( ODPLUGIN ${OD_QTPLUGINS} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		         ${COPYFROMLIBDIR}/../${ODPLUGIN}
-		         ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/${ODPLUGIN} )
+			 ${COPYFROMLIBDIR}/../plugins/${ODPLUGIN}
+			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/plugins/${ODPLUGIN} )
     endforeach()
 
     foreach( TRANSLATION_FILE ${OD_QT_TRANSLATION_FILES} )
