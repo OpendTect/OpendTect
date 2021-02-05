@@ -203,9 +203,6 @@ Scene::~Scene()
 }
 
 
-#define mZFactor(stretch) (zscale_*stretch / 2)
-
-
 void Scene::updateTransforms( const TrcKeyZSampling& cs )
 {
     if ( !tempzstretchtrans_ )
@@ -217,7 +214,9 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
     RefMan<mVisTrans> newinlcrlrotation = mVisTrans::create();
     RefMan<mVisTrans> newinlcrlscale = mVisTrans::create();
 
-    const float zfactor = -1 * mZFactor(curzstretch_);
+    float zfactor = -1 * zscale_ * curzstretch_;
+    if ( zdomaininfo_->def_.isTime() )
+	zfactor /= 2;
     // -1 to compensate for that we want z to increase with depth
 
     SceneTransformManager::computeICRotationTransform(*SI().get3DGeometry(true),
@@ -486,14 +485,14 @@ float Scene::getZScale() const
 { return zscale_; }
 
 
-float Scene::getApparentVelocity(float zstretch) const
+float Scene::getApparentVelocity( float zstretch ) const
 {
     if ( !zDomainInfo().def_.isTime() )
         return zstretch;
 
     //The depth when t=1 s
     //in xy units
-    float depthat1sec = mZFactor(zstretch);
+    float depthat1sec = zscale_ * zstretch / 2;
 
     //In meters
     if ( SI().xyInFeet() )
