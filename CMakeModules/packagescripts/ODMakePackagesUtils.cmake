@@ -119,6 +119,10 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 			     ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/libexec
 			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/libexec )
 
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
+				     ${CMAKE_BUILD_TYPE} lib
+				     WORKING_DIRECTORY ${COPYTOLIBDIR}/.. )
+
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${COPYFROMDATADIR}/mk_flexlm_links.csh
 			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
