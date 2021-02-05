@@ -358,11 +358,10 @@ void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 
 void uiWellDispPropDlg::onClose( CallBacker* )
 {
-    savedefault_ = saveButtonChecked();
 }
 
 
-bool uiWellDispPropDlg::rejectOK( CallBacker* )
+bool uiWellDispPropDlg::acceptOK( CallBacker* )
 {
     savedefault_ = saveButtonChecked();
     return true;
