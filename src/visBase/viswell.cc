@@ -149,17 +149,18 @@ Well::~Well()
 
 osgGeo::WellLog*& Well::getLogDisplay( Side side )
 {
-    osgGeo::WellLog* centerlogdisplay = hp_centerlogdisplay.getParam(this);
-    return (side==Left) ? leftlogdisplay_ :
-	   (side==Right) ? rightlogdisplay_ : centerlogdisplay;
+    if ( side==Right )
+	{ pErrMsg("Wrong function for center log display"); }
+
+    return (side==Left) ? leftlogdisplay_ : rightlogdisplay_;
 }
 
 
 const osgGeo::WellLog* Well::getLogDisplay( Side side ) const
 {
     osgGeo::WellLog* centerlogdisplay = hp_centerlogdisplay.getParam(this);
-    return (side==Left) ? leftlogdisplay_ :
-    (side==Right) ? rightlogdisplay_ : centerlogdisplay;
+    return (side==Left) ? leftlogdisplay_
+			: (side==Right) ? rightlogdisplay_ : centerlogdisplay;
 }
 
 
@@ -575,7 +576,7 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 	|| ( lp.side_ == Center && lp.isleftfilled_  &&  rev )
 	);
 
-    auto logdisplay = getLogDisplay( lp.side_ );
+    osgGeo::WellLog* logdisplay = getLogDisplay( lp.side_ );
     logdisplay->setRevScale( rev );
     logdisplay->setFillRevScale( fillrev );
     logdisplay->setFullFilled( isfullfilled );
