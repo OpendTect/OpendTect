@@ -352,7 +352,7 @@ static void qtMessageOutput( QtMsgType type, const QMessageLogContext&,
 	"kfilemodule",
 	"QXcbConnection: XCB error:",
 	"QOpenGLContext::swapBuffers()",
-	0
+	nullptr
     };
 
     switch ( type )
@@ -418,7 +418,7 @@ void uiMain::preInit()
 {
     QApplication::setDesktopSettingsAware( true );
     QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
-#if QT_VERSION >= 0x050400
+#if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
     // Attributes added with Qt5.3 and Qt5.4
     QApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
     if ( QApplication::testAttribute(Qt::AA_UseDesktopOpenGL) ||
@@ -447,7 +447,7 @@ void uiMain::preInitForOpenGL()
       Needs to set it explicitely. Sufficient for machine with Nvidia Quadro,
       but not with GeForce cards.
       */
-# if QT_VERSION >= 0x050300
+# if QT_VERSION >= QT_VERSION_CHECK(5,3,0)
     QApplication::setAttribute( Qt::AA_UseDesktopOpenGL );
 # endif
 #endif
