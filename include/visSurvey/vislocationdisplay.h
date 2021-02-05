@@ -82,7 +82,7 @@ public:
     int				getPickIdx(visBase::DataObject*) const;
 
     const SurveyObject*		getPickedSurveyObject() const;
-    SeedPainter*		getPainter()		{ return painter_; }
+    SeedPainter*		getPainter();
     bool			isPainting() const;
 
     bool			canRemoveSelection() const	{ return true; }
@@ -166,7 +166,6 @@ protected:
     static const char*		sKeyMarkerSize();
 
     Sower*			sower_;
-    SeedPainter*		painter_;
     Coord3			undoloccoord_;
     bool			undomove_;
     bool			selectionmodel_;
