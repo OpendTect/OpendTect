@@ -33,6 +33,24 @@ mUseQtnamespace
 
 const char* uiFileDialog::filesep_ = ";";
 
+static bool sUseNativeDialog()
+{
+    mDefineStaticLocalObject( int, native, = -1 );
+    if ( native != -1 )
+	return bool(native);
+
+    native = 1;
+#ifdef __lux__
+    const BufferString xdgsessiondesktop = GetEnvVar( "XDG_SESSION_DESKTOP" );
+    const BufferString xdgcurrentdesktop = GetEnvVar( "XDG_CURRENT_DESKTOP" );
+    if ( xdgsessiondesktop.isEqual("gnome",CaseInsensitive) ||
+	 xdgcurrentdesktop.isEqual("gnome",CaseInsensitive) )
+	native = 0;
+#endif
+    return bool(native);
+}
+
+
 class ODFileDialog : public QFileDialog
 {
 public:
@@ -42,6 +60,7 @@ ODFileDialog( const QString& dirname, const QString& fltr, QWidget* p,
     : QFileDialog(p,caption,dirname,fltr)
 {
     setModal( true );
+    setOption( QFileDialog::DontUseNativeDialog, !sUseNativeDialog() );
 }
 
 };
@@ -198,10 +217,9 @@ int uiFileDialog::go()
     QList<QPushButton*> qpblst = fd->findChildren<QPushButton*>("");
     foreach(QPushButton* qpb,qpblst)
     {
-	if ( qpb->text() == toQString(uiStrings::sSave()) ||
-	     qpb->text() == toQString(uiStrings::sOpen()) ||
-	     qpb->text() == "Choose" )
-	     qpb->setText( "OK" );
+	const QString btxt = qpb->text();
+	if ( btxt=="&Save" || btxt=="&Open" || btxt=="&Choose" )
+	    qpb->setText( "OK" );
     }
 
     if ( fd->exec() != QDialog::Accepted )
