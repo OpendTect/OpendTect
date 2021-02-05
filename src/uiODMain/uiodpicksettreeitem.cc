@@ -223,15 +223,15 @@ uiTreeItem*
 }
 
 
+static HiddenParam<uiODPickSetTreeItem,MenuItem*> paintmnuitem_(nullptr);
+
 uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
-    , paintdlg_(nullptr)
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
     , dirmnuitem_(m3Dots(tr("Set Directions")))
     , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(m3Dots(uiStrings::sProperties() ) )
-    , paintingmnuitem_(m3Dots(tr("Start Painting")))
     , convertbodymnuitem_( tr("Convert to Body") )
 {
     displayid_ = did;
@@ -241,16 +241,18 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     mAttachCB( visBase::DM().selMan().selnotifier,
 	       uiODPickSetTreeItem::selChangedCB );
     propertymnuitem_.iconfnm = "disppars";
-    paintingmnuitem_.iconfnm = "spraycan";
     storemnuitem_.iconfnm = "save";
     storeasmnuitem_.iconfnm = "saveas";
+
+    auto paintmnuitem = new MenuItem( m3Dots(tr("Start Painting")) );
+    paintmnuitem->iconfnm = "spraycan";
+    paintmnuitem_.setParam( this, paintmnuitem );
 }
 
 
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
 {
     detachAllNotifiers();
-    delete paintdlg_;
     Pick::Mgr().removeCBs( this );
 }
 
@@ -332,16 +334,17 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     const int setidx = Pick::Mgr().indexOf( set_ );
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
     const bool isreadonly = set_.isReadOnly();
+    auto paintmnuitem = paintmnuitem_.setParam( this );
     if ( istb )
     {
 	mAddMenuItem( menu, &propertymnuitem_, true, false );
-	mAddMenuItem( menu, &paintingmnuitem_, true,
+	mAddMenuItem( menu, paintmnuitem, true,
 		      psd->getPainter()->isActive() )
 	mAddMenuItemCond( menu, &storemnuitem_, changed, false, !isreadonly );
 	return;
     }
 
-    mAddMenuItem( menu, &paintingmnuitem_, true, psd->getPainter()->isActive() )
+    mAddMenuItem( menu, paintmnuitem, true, psd->getPainter()->isActive() )
     mAddMenuItem( menu, &convertbodymnuitem_, true, false )
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
@@ -369,6 +372,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
+    auto paintmnuitem = paintmnuitem_.setParam( this );
     if ( mnuid==storemnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -396,17 +400,14 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	uiPickPropDlg dlg( getUiParent(), set_ , psd );
 	dlg.go();
     }
-    else if ( mnuid==paintingmnuitem_.id )
+    else if ( mnuid==paintmnuitem->id )
     {
-	if ( !paintdlg_ )
-	{
-	    paintdlg_ = new uiSeedPainterDlg( getUiParent(), psd );
-	    paintdlg_->windowClosed.notify(
-		    	mCB(this,uiODPickSetTreeItem,paintDlgClosedCB) );
-	}
+	auto paintdlg = new uiSeedPainterDlg( getUiParent(), psd );
+	paintdlg->windowClosed.notify(
+		    mCB(this,uiODPickSetTreeItem,paintDlgClosedCB) );
 
-	paintdlg_->show();
-	paintdlg_->raise();
+	paintdlg->show();
+	paintdlg->raise();
     }
     else if ( mnuid==convertbodymnuitem_.id )
     {
@@ -436,12 +437,6 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
-}
-
-
-void uiODPickSetTreeItem::paintDlgClosedCB( CallBacker* )
-{
-    deleteAndZeroPtr( paintdlg_ );
 }
 
 

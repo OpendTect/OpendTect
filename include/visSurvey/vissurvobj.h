@@ -94,8 +94,6 @@ public:
     virtual void		getPickingMessage( BufferString& msg ) const
 				{ msg = "Picking"; }
 
-    virtual bool		isPainting() const	{ return false; }
-
     virtual void		snapToTracePos(Coord3&)	const {}
 				//<\Snaps coordinate to a trace position
 

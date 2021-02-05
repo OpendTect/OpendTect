@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdataman.h"
 #include "visevent.h"
 #include "visfaultdisplay.h"
+#include "vislocationdisplay.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vispolygonselection.h"
@@ -929,7 +930,8 @@ void Scene::mouseCursorCB( CallBacker* cb )
 
 	    needmousecursorcall = true;
 
-	    if ( so->isPainting() )
+	    mDynamicCastGet( const visSurvey::LocationDisplay*, ld, so );
+	    if ( ld && ld->isPainting() )
 	    {
 		mousecursor_ = &paintcursor;
 		needmousecursorcall = false;

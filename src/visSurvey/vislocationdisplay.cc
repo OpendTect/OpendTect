@@ -27,6 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace visSurvey {
 
+static HiddenParam<LocationDisplay,SeedPainter*> painter_( nullptr);
+
 const char* LocationDisplay::sKeyID()		{ return "Location.ID"; }
 const char* LocationDisplay::sKeyMgrName()	{ return "Location.Manager"; }
 const char* LocationDisplay::sKeyShowAll()	{ return "Show all"; }
@@ -74,9 +76,10 @@ LocationDisplay::LocationDisplay()
     sower_ = new Sower( this );
     sower_->ref();
     addChild( sower_->osgNode() );
-    painter_ = new SeedPainter;
-    painter_->ref();
-    addChild( painter_->osgNode() );
+    auto painter = new SeedPainter;
+    painter->ref();
+    addChild( painter->osgNode() );
+    painter_.setParam( this, painter );
     setSetMgr( &Pick::Mgr() );
 }
 
@@ -99,8 +102,9 @@ LocationDisplay::~LocationDisplay()
 
     removeChild( sower_->osgNode() );
     unRefAndZeroPtr( sower_ );
-    removeChild( painter_->osgNode() );
-    unRefAndZeroPtr( painter_ );
+    auto painter = painter_.getParam( this );
+    removeChild( painter->osgNode() );
+    painter_.removeParam( this );
 }
 
 
@@ -119,7 +123,8 @@ void LocationDisplay::setSet( Pick::Set* ps )
     }
 
     set_ = ps;
-    painter_->setSet( ps );
+    auto painter = painter_.getParam( this );
+    painter->setSet( ps );
     setName( set_->name() );
     if ( picksetmgr_ )
     {
@@ -142,7 +147,8 @@ void LocationDisplay::setSetMgr( Pick::SetMgr* mgr )
 	picksetmgr_->removeCBs( this );
 
     picksetmgr_ = mgr;
-    painter_->setSetMgr( mgr );
+    auto painter = painter_.getParam( this );
+    painter->setSetMgr( mgr );
 
     if ( picksetmgr_ )
     {
@@ -243,7 +249,8 @@ bool LocationDisplay::displayedOnlyAtSections() const
 
 void LocationDisplay::pickCB( CallBacker* cb )
 {
-    if ( painter_ && painter_->isActive() )
+    auto painter = painter_.getParam( this );
+    if ( painter && painter->isActive() )
 	return;
 
     if ( !set_ || set_->isReadOnly() )
@@ -732,7 +739,8 @@ bool LocationDisplay::isPicking() const
 
 bool LocationDisplay::isPainting() const
 {
-    return isPicking() && painter_ && painter_->isActive();
+    auto painter = painter_.getParam( this );
+    return isPicking() && painter && painter->isActive();
 }
 
 bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
@@ -902,21 +910,19 @@ void LocationDisplay::setDisplayTransformation( const mVisTrans* newtr )
 	transformation_->ref();
 
     sower_->setDisplayTransformation( newtr );
-    painter_->setDisplayTransformation( newtr );
+    auto painter = painter_.getParam( this );
+    painter->setDisplayTransformation( newtr );
 }
 
+
+SeedPainter* LocationDisplay::getPainter()
+{ return painter_.getParam( this ); }
 
 const mVisTrans* LocationDisplay::getDisplayTransformation() const
-{
-    return transformation_;
-}
-
+{ return transformation_; }
 
 void LocationDisplay::setRightHandSystem( bool yn )
-{
-    visBase::VisualObjectImpl::setRightHandSystem( yn );
-}
-
+{ visBase::VisualObjectImpl::setRightHandSystem( yn ); }
 
 void LocationDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 {
@@ -928,7 +934,8 @@ void LocationDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 
     eventcatcher_ = nevc;
     sower_->setEventCatcher( nevc );
-    painter_->setEventCatcher( nevc );
+    auto painter = painter_.getParam( this );
+    painter->setEventCatcher( nevc );
 
     if ( eventcatcher_ )
     {
