@@ -35,7 +35,7 @@ static const char* sKeyLineStyle = "Measure LineStyle";
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Measure Distance"),mNoDlgTitle,
-                        mODHelpKey(mMeasureDlgHelpID) ).modal(false))
+		       mODHelpKey(mMeasureDlgHelpID)).modal(false))
     , ls_(*new OD::LineStyle(OD::LineStyle::Solid,3))
     , appvelfld_(0)
     , zdist2fld_(0)
@@ -59,14 +59,12 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 			uiStrings::phrJoinStrings(uiStrings::sDistance(),
 			SI().getUiXYUnitString()) );
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
-	hdistfld_->setNrDecimals(2);
     hdistfld_->setReadOnly( true );
 
     uiString zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVertical(),
 			uiStrings::phrJoinStrings(uiStrings::sDistance(),
 			SI().getUiZUnitString()) );
     zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
-	zdistfld_->setNrDecimals( 2 );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
 
@@ -76,20 +74,18 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     if ( SI().zIsTime() )
     {
 	zdist2fld_ = new uiGenInput( topgrp, zintimelbl, FloatInpSpec(0) );
-	zdist2fld_->setNrDecimals( 2 );
 	zdist2fld_->attach( alignedBelow, zdistfld_ );
 
 	zdistlbl = uiStrings::phrJoinStrings(uiStrings::sVelocity(),
 		   UnitOfMeasure::surveyDefVelUnitAnnot(true,true));
 	appvelfld_ = new uiGenInput(topgrp, zdistlbl, FloatInpSpec(velocity_));
-	appvelfld_->valuechanged.notify( mCB(this,uiMeasureDlg,velocityChgd) );
+	mAttachCB( appvelfld_->valuechanged, uiMeasureDlg::velocityChgd );
 	appvelfld_->attach( alignedBelow, zdist2fld_ );
     }
 
     uiString distlbl = uiStrings::phrJoinStrings(uiStrings::sDistance(),
 		       SI().getUiXYUnitString());
     distfld_ = new uiGenInput( topgrp, distlbl, FloatInpSpec(0) );
-	distfld_->setNrDecimals( 2 );
     distfld_->setReadOnly( true );
     distfld_->attach( alignedBelow, appvelfld_ ? appvelfld_ : zdistfld_ );
 
@@ -98,7 +94,6 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	uiString lbl = uiStrings::phrJoinStrings( uiStrings::sDistance(),
 		uiStrings::sDistUnitString(!SI().xyInFeet(),true,true) );
 	dist2fld_ = new uiGenInput( topgrp, lbl, FloatInpSpec(0) );
-	dist2fld_->setNrDecimals( 2 );
 	dist2fld_->setReadOnly( true );
 	dist2fld_->attach( alignedBelow, distfld_ );
     }
@@ -111,14 +106,13 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     inlcrldistfld_->attach( alignedBelow, dist2fld_ ? dist2fld_ : distfld_ );
 
     dipfld_ = new uiGenInput( topgrp, uiStrings::sDip(), FloatInpSpec(0) );
-    dipfld_->setNrDecimals( 2 );
     dipfld_->setReadOnly( true );
     dipfld_->attach( alignedBelow, inlcrldistfld_ );
 
     BufferStringSet unitstrs;
     unitstrs.add( "degrees" ).add( SI().zIsTime() ? "us/m" : "mm/m" );
     dipunitfld_ = new uiComboBox( topgrp, unitstrs, "Dip Units" );
-    dipunitfld_->selectionChanged.notify( mCB(this,uiMeasureDlg,dipUnitSel) );
+    mAttachCB( dipunitfld_->selectionChanged, uiMeasureDlg::dipUnitSel );
     dipunitfld_->attach( rightOf, dipfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Button group" );
@@ -134,12 +128,28 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     clearchkbut_->setSensitive( true );
 
     botgrp->attach( centeredBelow, topgrp );
+
+    mAttachCB( postFinalise(), uiMeasureDlg::finalizeCB );
 }
 
 
 uiMeasureDlg::~uiMeasureDlg()
 {
+    detachAllNotifiers();
     delete &ls_;
+}
+
+
+void uiMeasureDlg::finalizeCB( CallBacker* )
+{
+    hdistfld_->setNrDecimals( 2 );
+    zdistfld_->setNrDecimals( 2 );
+    if ( zdist2fld_ )
+	zdist2fld_->setNrDecimals( 2 );
+    distfld_->setNrDecimals( 2 );
+    if ( dist2fld_ )
+	dist2fld_->setNrDecimals( 2 );
+    dipfld_->setNrDecimals( 2 );
 }
 
 
@@ -172,11 +182,12 @@ void uiMeasureDlg::stylebutCB( CallBacker* )
     uiDialog dlg( this, uiDialog::Setup(tr("Line Style"),mNoDlgTitle,
 					mNoHelpKey) );
     dlg.setCtrlStyle( uiDialog::CloseOnly );
-    uiSelLineStyle* linestylefld = new uiSelLineStyle( &dlg, ls_,
-				   uiSelLineStyle::Setup().drawstyle(false) );
-    linestylefld->changed.notify( mCB(this,uiMeasureDlg,lsChangeCB) );
+    auto* linestylefld = new uiSelLineStyle( &dlg, ls_,
+				uiSelLineStyle::Setup().drawstyle(false) );
+    mAttachCB( linestylefld->changed, uiMeasureDlg::lsChangeCB );
     dlg.go();
 
+    mDetachCB( linestylefld->changed, uiMeasureDlg::lsChangeCB );
     BufferString str;
     ls_.toString( str );
     mSettUse(set,"dTect",sKeyLineStyle,str);
@@ -214,7 +225,7 @@ void uiMeasureDlg::reset()
 
 void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 {
-    const float velocity = appvelfld_ ? appvelfld_->getFValue() : 0 ;
+    const double velocity = appvelfld_ ? appvelfld_->getDValue() : 0 ;
     const int size = points.size();
     if ( size<2 )
     {
