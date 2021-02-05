@@ -34,6 +34,7 @@ namespace Well
 {
     class Data;
     class DisplayProperties;
+    class LoadReqs;
     class Log;
     class LogDisplayPars;
     class Track;
@@ -94,6 +95,7 @@ public:
     void			calcClippedRange(float,Interval<float>&,int);
     void			displayRightLog();
     void			displayLeftLog();
+    void			displayCenterLog();
     void			setOneLogDisplayed(bool);
     const Color&		logColor(visBase::Well::Side) const;
     void			setLogColor(const Color&,visBase::Well::Side);
@@ -128,6 +130,7 @@ public:
     void			showKnownPositions();
     void			restoreDispProp();
     Well::Data*			getWD() const;
+    Well::Data*			getWD(const Well::LoadReqs&) const;
     bool			needsConversionToTime() const;
 
     bool			allowsPicks() const	{ return true; }
