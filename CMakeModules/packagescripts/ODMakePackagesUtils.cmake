@@ -115,6 +115,10 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 			 copy_directory ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
 			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
 	if( UNIX )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/libexec
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/libexec )
+
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${COPYFROMDATADIR}/mk_flexlm_links.csh
 			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
@@ -268,9 +272,15 @@ macro( COPY_THIRDPARTYLIBS )
     endforeach()
 
     foreach( ODPLUGIN ${OD_QTPLUGINS} )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${COPYFROMLIBDIR}/../plugins/${ODPLUGIN}
-			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/plugins/${ODPLUGIN} )
+	if ( "${ODPLUGIN}" STREQUAL "resources" )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${COPYFROMLIBDIR}/../resources
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${COPYFROMLIBDIR}/../plugins/${ODPLUGIN}
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/plugins/${ODPLUGIN} )
+	endif()
     endforeach()
 
     foreach( TRANSLATION_FILE ${OD_QT_TRANSLATION_FILES} )
