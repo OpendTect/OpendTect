@@ -52,6 +52,7 @@ protected:
     uiComboBox*			dipunitfld_;
     uiCheckBox*			clearchkbut_;
 
+    void			finalizeCB(CallBacker*);
     void			lsChangeCB(CallBacker*);
     void			clearCB(CallBacker*);
     void			stylebutCB(CallBacker*);
