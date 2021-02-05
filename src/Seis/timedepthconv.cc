@@ -599,7 +599,6 @@ Interval<float>& getZRange( Interval<float>& zrg, float step, int userfac )
 {
     const int stopidx = zrg.indexOnOrAfter( zrg.stop, step );
     zrg.stop = zrg.atIndex( stopidx, step );
-    zrg.stop = mCast(float,mNINT32(zrg.stop*userfac))/userfac;
     return zrg;
 }
 
@@ -607,9 +606,7 @@ Interval<float>& getZRange( Interval<float>& zrg, float step, int userfac )
 float getZStep( const Interval<float>& zrg, int userfac )
 {
     const int nrsteps = SI().zRange( true ).nrSteps();
-    float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
-    zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
-    zstep /= userfac;
+    const float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
     return zstep;
 }
 
