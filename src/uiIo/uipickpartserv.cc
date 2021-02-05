@@ -189,10 +189,6 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     uiString disptyp = poly ? uiStrings::sPolygon(mPlural) :
 						uiStrings::sPointSet(mPlural);
     sdsu.titletext_ = toUiString("%1 %2").arg(titletxt).arg(disptyp);
-    if ( poly )
-	ctio->ctxt_.toselect_.dontallow_.set( sKey::Type(), sKey::PickSet() );
-    else
-	ctio->ctxt_.toselect_.dontallow_.set( sKey::Type(), sKey::Polygon() );
 
     uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
     bool isforread = dlg.isForRead();

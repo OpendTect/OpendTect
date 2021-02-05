@@ -34,14 +34,23 @@ uiPickSetMgr::uiPickSetMgr( uiParent* p, Pick::SetMgr& m )
     : setmgr_(m)
     , parent_(p)
 {
+    PickSetTranslator::tagLegacyPickSets();
+
     mAttachCB(uiMain::keyboardEventHandler().keyPressed,
 	uiPickSetMgr::keyPressedCB);
+    mAttachCB( IOM().surveyChanged, uiPickSetMgr::surveyChangeCB );
 }
 
 
 uiPickSetMgr::~uiPickSetMgr()
 {
     detachAllNotifiers();
+}
+
+
+void uiPickSetMgr::surveyChangeCB( CallBacker* )
+{
+    PickSetTranslator::tagLegacyPickSets();
 }
 
 

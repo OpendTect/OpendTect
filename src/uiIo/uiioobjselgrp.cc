@@ -37,7 +37,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "od_helpids.h"
 #include "uilabel.h"
-#include "hiddenparam.h"
 
 #define mObjTypeName ctio_.ctxt_.objectTypeName()
 
