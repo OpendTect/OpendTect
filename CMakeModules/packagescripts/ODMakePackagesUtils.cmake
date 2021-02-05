@@ -13,7 +13,12 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${COPYFROMDATADIR}/od.icns
 			     ${COPYTODATADIR}/. )
+	elseif( WIN32 )
+	else()
+	    execute_process( COMMAND ln -s Release lib
+			     WORKING_DIRECTORY ${COPYTOLIBDIR}/..)
 	endif()
+
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E
 			 copy_directory ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
