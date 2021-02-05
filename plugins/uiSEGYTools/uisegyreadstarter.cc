@@ -771,18 +771,18 @@ uiSEGYHdrEntrySettings( uiParent* p )
 			mNoDlgTitle,mTODOHelpKey).savebutton(true))
 {
     const SEGY::HdrEntryConstraints& hec = SEGY::HdrEntryConstraints::get();
-    inlrgfld_ = new uiGenInput( this, tr("Usable Inline Number range"),
+    inlrgfld_ = new uiGenInput( this, tr("Usable In-line number range"),
 				IntInpIntervalSpec(hec.inlrg_) );
 
-    crlrgfld_ = new uiGenInput( this, tr("Usable Crossline Number range"),
+    crlrgfld_ = new uiGenInput( this, tr("Usable Cross-line number range"),
 				IntInpIntervalSpec(hec.crlrg_) );
     crlrgfld_->attach( alignedBelow, inlrgfld_ );
 
-    trcnrrgfld_ = new uiGenInput( this, tr("Usable 2D Trace Number range"),
+    trcnrrgfld_ = new uiGenInput( this, tr("Usable 2D Trace number range"),
 				IntInpIntervalSpec(hec.trcnrrg_) );
     trcnrrgfld_->attach( alignedBelow, crlrgfld_ );
 
-    spnrrgfld_ = new uiGenInput( this, tr("Usable 2D SP Number range"),
+    spnrrgfld_ = new uiGenInput( this, tr("Usable 2D SP number range"),
 				IntInpIntervalSpec(hec.refnrrg_) );
     spnrrgfld_->attach( alignedBelow, trcnrrgfld_ );
 
@@ -855,13 +855,13 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
     if ( !ampldisp_ )
 	return;
 
-    int nrvals = (int)clipsampler_.nrVals();
+    od_int64 nrvals = clipsampler_.nrVals();
     if ( nrvals < 1 )
 	{ ampldisp_->setEmpty(); return; }
 
     const float* csvals = clipsampler_.vals();
-    float clipratio = ratioClip();
-    const bool useclip = clipratio > 0.0005;
+    const float clipratio = ratioClip();
+    const bool useclip = clipratio > 0.0005f;
     const bool rm0 = !incZeros();
     if ( !useclip && !rm0 )
 	{ ampldisp_->setData( csvals, nrvals ); return; }
