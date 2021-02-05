@@ -268,6 +268,17 @@ static const PlaneDataDisplay* getSectionDisplay( const visBase::EventInfo& ev )
 }
 
 
+static float getTrcNrStretchPerZSample( const Scene& scene, bool isinl )
+{
+    float zstretch = scene.getFixedZStretch() * scene.getTempZStretch();
+    if ( SI().zIsTime() )
+	zstretch /= 2.f; // Account for TWT
+
+    return (scene.getApparentVelocity(zstretch) * SI().zStep())/
+		(isinl ? SI().crlDistance() : SI().inlDistance());
+}
+
+
 void SeedPainter::paintSeeds( const visBase::EventInfo& curev,
 			      const visBase::EventInfo& prevev )
 {
@@ -277,14 +288,11 @@ void SeedPainter::paintSeeds( const visBase::EventInfo& curev,
     if ( !scene || !cursec || cursec != prevsec || !cursec->isInlCrl() )
 	return;
 
-    const TrcKeyZSampling tkzs = cursec->getTrcKeyZSampling();
     const bool isinl = cursec->getOrientation()==OD::InlineSlice;
+    const float fac = getTrcNrStretchPerZSample( *scene, isinl );
+    const TrcKeyZSampling tkzs = cursec->getTrcKeyZSampling();
     const StepInterval<int> nrrg = isinl ? tkzs.hsamp_.trcRange()
 					 : tkzs.hsamp_.lineRange();
-
-    const float zstretch = scene->getFixedZStretch() * scene->getTempZStretch();
-    const float fac = (scene->getApparentVelocity(zstretch) * tkzs.zsamp_.step)/
-		(2 * (isinl ? SI().crlDistance() : SI().inlDistance()) );
     const Coord3 curpos = curev.worldpickedpos;
     const Coord3 prevpos = prevev.worldpickedpos;
     const bool fillprev = prevev.type == visBase::MouseClick;
@@ -370,9 +378,7 @@ void SeedPainter::eraseSeeds( const visBase::EventInfo& curev,
     const StepInterval<int> nrrg = isinl ? tkzs.hsamp_.trcRange()
 					 : tkzs.hsamp_.lineRange();
 
-    const float zstretch = scene->getFixedZStretch() * scene->getTempZStretch();
-    const float fac = (scene->getApparentVelocity(zstretch) * tkzs.zsamp_.step)/
-		(2 * (isinl ? SI().crlDistance() : SI().inlDistance()) );
+    const float fac = getTrcNrStretchPerZSample( *scene, isinl );
     const Coord3 curpos = curev.worldpickedpos;
 //    const Coord3 prevpos = prevev.worldpickedpos;
 //    const bool doprev = prevev.type == visBase::MouseClick;
@@ -427,9 +433,7 @@ void SeedPainter::drawLine( const visBase::EventInfo& eventinfo )
     if ( circlecoords_.isEmpty() )
 	mkCircle();
 
-    const float zstretch = scene->getFixedZStretch() * scene->getTempZStretch();
-    const float fac = (scene->getApparentVelocity(zstretch) * tkzs.zsamp_.step)/
-		(2 * (isinl ? SI().crlDistance() : SI().inlDistance()) );
+    const float fac = getTrcNrStretchPerZSample( *scene, isinl );
     for ( int idx=0; idx<circlecoords_.size(); idx++ )
     {
 	Coord pt = SI().transform( BinID(pickedbid.inl(),
