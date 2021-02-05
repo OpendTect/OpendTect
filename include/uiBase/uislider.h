@@ -108,6 +108,7 @@ public:
     bool		hasInvertedControls() const;
 
     bool		isLogScale()			{ return logscale_; }
+    void		setNrDecimalsEditFld(int);
 
     Notifier<uiSlider>	valueChanged;
     Notifier<uiSlider>	sliderMoved;
