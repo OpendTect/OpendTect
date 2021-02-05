@@ -50,7 +50,7 @@ public:
     static Well*		create()
 				mCreateDataObj(Well);
 
-    enum			Side { Left=0, Right };
+    enum			Side { Left=0, Right, Center };
 
     enum			LogStyle { Welllog, Seismic, Logtube };
 
@@ -202,6 +202,7 @@ public:
     /// for pdf3d
     const visBase::MarkerSet*	getMarkerSet() const { return markerset_; }
     bool			hasLog(Side side) const;
+    bool			hasTube(Side side) const;
     BufferString		getLogName(Side side) const;
     bool			getLogOsgData(LogStyle style,Side side,
 					      TypeSet<Coord3>&coords,
@@ -256,7 +257,8 @@ private:
     void			updateMakerSize(float sizefactor);
     void			updateMakerNamePosition(Side side,
 							float sizefactor);
-
+    osgGeo::WellLog*&		getLogDisplay(Side);
+    const osgGeo::WellLog*	getLogDisplay(Side) const;
 
 };
 
