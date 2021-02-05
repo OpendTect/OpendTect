@@ -254,6 +254,7 @@ uiODPickSetTreeItem::~uiODPickSetTreeItem()
 {
     detachAllNotifiers();
     Pick::Mgr().removeCBs( this );
+    paintmnuitem_.removeParam( this );
 }
 
 
