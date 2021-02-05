@@ -244,8 +244,8 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
     , saveaspaths_( outputpaths )
     , urls_( urls )
 {
+    Network::loadOpenSSL(); //Keep at the first line
     totalnr_ = getDownloadSize();
-    Network::loadOpenSSL();
 }
 
 
@@ -260,9 +260,9 @@ FileDownloader::FileDownloader( const char* url, DataBuffer* db )
     , osd_(0)
     , databuffer_(db)
 {
+    Network::loadOpenSSL(); //Keep at the first line
     urls_.add(url);
     totalnr_ = getDownloadSize();
-    Network::loadOpenSSL();
 }
 
 
@@ -278,8 +278,8 @@ FileDownloader::FileDownloader( const char* url )
     , osd_(new od_ostream())
     , databuffer_(0)
 {
+    Network::loadOpenSSL(); //Keep at the first line
     urls_.add(url);
-    Network::loadOpenSSL();
 }
 
 
@@ -526,7 +526,7 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
     , header_(header)
     , init_(true)
 {
-    Network::loadOpenSSL();
+    Network::loadOpenSSL(); //Keep at the first line
 }
 
 
