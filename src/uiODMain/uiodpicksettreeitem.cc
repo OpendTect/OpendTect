@@ -334,7 +334,7 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     const int setidx = Pick::Mgr().indexOf( set_ );
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
     const bool isreadonly = set_.isReadOnly();
-    auto paintmnuitem = paintmnuitem_.setParam( this );
+    auto paintmnuitem = paintmnuitem_.getParam( this );
     if ( istb )
     {
 	mAddMenuItem( menu, &propertymnuitem_, true, false );
@@ -372,7 +372,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
-    auto paintmnuitem = paintmnuitem_.setParam( this );
+    auto paintmnuitem = paintmnuitem_.getParam( this );
     if ( mnuid==storemnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -403,11 +403,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==paintmnuitem->id )
     {
 	auto paintdlg = new uiSeedPainterDlg( getUiParent(), psd );
-	paintdlg->windowClosed.notify(
-		    mCB(this,uiODPickSetTreeItem,paintDlgClosedCB) );
-
 	paintdlg->show();
-	paintdlg->raise();
     }
     else if ( mnuid==convertbodymnuitem_.id )
     {
