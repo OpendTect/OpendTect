@@ -265,10 +265,6 @@ static void initQApplication()
 #ifdef __mac__
     ApplicationData::swapCommandAndCTRL( true );
 #endif
-
-#ifndef __win__
-    QCoreApplication::addLibraryPath( GetExecPlfDir() ); // Qt plugin libraries
-#endif
 }
 
 
@@ -304,7 +300,7 @@ static const char* getStyleFromSettings()
 }
 
 
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 static void qtMessageOutput( QtMsgType type, const QMessageLogContext&,
 			     const QString& msg )
 #else
@@ -315,13 +311,29 @@ static void qtMessageOutput( QtMsgType type, const char* msg )
     if ( str.isEmpty() )
 	return;
 
+    static const char* suppress[] =
+    {
+	"KGlobal",
+	"kfilemodule",
+	"QXcbConnection: XCB error:",
+	"QOpenGLContext::swapBuffers()",
+	nullptr
+    };
+
     switch ( type )
     {
 	case QtDebugMsg:
 	case QtWarningMsg:
-	    if ( !str.startsWith("KGlobal") && !str.startsWith("kfilemodule") )
-		ErrMsg( str, true );
-	    break;
+	{
+	    const char** supprptr = suppress;
+	    while ( *supprptr )
+	    {
+		if ( str.startsWith(*supprptr) )
+		    return;
+		supprptr++;
+	    }
+	    ErrMsg( str, true );
+	} break;
 	case QtFatalMsg:
 	case QtCriticalMsg:
 	    ErrMsg( str );
@@ -377,7 +389,7 @@ void uiMain::preInit()
 {
     QApplication::setDesktopSettingsAware( true );
     QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
-#if QT_VERSION >= 0x050400
+#if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
     // Attributes added with Qt5.3 and Qt5.4
     QApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
     if ( QApplication::testAttribute(Qt::AA_UseDesktopOpenGL) ||
@@ -406,7 +418,7 @@ void uiMain::preInitForOpenGL()
       Needs to set it explicitely. Sufficient for machine with Nvidia Quadro,
       but not with GeForce cards.
       */
-# if QT_VERSION >= 0x050300
+# if QT_VERSION >= QT_VERSION_CHECK(5,3,0)
     QApplication::setAttribute( Qt::AA_UseDesktopOpenGL );
 # endif
 #endif
@@ -436,7 +448,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "... done." );
 
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
     qInstallMessageHandler( qtMessageOutput );
 #else
     qInstallMsgHandler( qtMessageOutput );
@@ -624,17 +636,6 @@ KeyboardEventHandler& uiMain::keyboardEventHandler()
 
     return *keyhandler_;
 }
-
-
-mStartAllowDeprecatedSection
-
-void uiMain::flushX()
-{
-    if ( app_ )
-	app_->flush();
-}
-
-mStopAllowDeprecatedSection
 
 
 void uiMain::repaint()

@@ -172,7 +172,6 @@ void uiMainWin::setCaption( const uiString& txt )
 {
     caption_ = txt;
     updateCaption();
-
 }
 
 
@@ -645,7 +644,7 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 bool uiMainWin::grabScreen( const char* filenm, const char* format, int quality,
 			    int screenidx )
 {
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
     const QList<QScreen*> screens = QGuiApplication::screens();
     if ( screens.isEmpty() ) return false;
 
