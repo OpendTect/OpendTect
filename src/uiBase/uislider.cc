@@ -368,3 +368,14 @@ void uiSlider::editRetPress( CallBacker* )
     if ( valueChanged.cbs_.size() < 2 )
 	sliderReleased.trigger();
 }
+
+
+void uiSlider::setNrDecimalsEditFld( int nrdec )
+{
+    if ( !editfld_ )
+	return;
+
+    uiFloatValidator fv;
+    fv.nrdecimals_ = nrdec;
+    editfld_->setValidator( fv );
+}
