@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/Version>
 
 #include "envvars.h"
+#include "filepath.h"
 #include "iopar.h"
 #include "keybindings.h"
 #include "keyboardevent.h"
