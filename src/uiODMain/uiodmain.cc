@@ -95,16 +95,27 @@ static void checkScreenRes()
     uiMain& uimain = uiMain::theMain();
     const int nrscreens = uimain.nrScreens();
 
-    bool anyacceptable = false, anysubstd = false, anyok = false;
+    bool anyacceptable = false, anysubstd = false, anyok = false,
+	 needscale = false;
     for ( int idx=0; idx<nrscreens; idx++ )
     {
 	const uiSize sz( uimain.getScreenSize(idx,true) );
+	const double devpixrat = uimain.getDevicePixelRatio(idx);
 	if ( sz.height() < cScreenLowRes )
-	    { anysubstd = true; continue; }
+	{
+	    anysubstd = true;
+	    if ( !mIsUdf(devpixrat) && devpixrat > 1.1 )
+		needscale = true;
+	    continue;
+	}
 
 	anyacceptable = true;
 	if ( sz.height() < cScreenSubRes )
+	{
+	    if ( !mIsUdf(devpixrat) && devpixrat > 1.1 )
+		needscale = true;
 	    anysubstd = true;
+	}
 	else
 	    anyok = true;
     }
@@ -115,7 +126,14 @@ static void checkScreenRes()
     if ( !anyacceptable )
     {
 	if ( !setts.isFalse(sKeyShowLowRes) )
-	    dontshowagain = uiMSG().error( od_static_tr("checkScreenRes",
+	    dontshowagain = needscale
+		? uiMSG().error( od_static_tr( "checkScreenRes",
+		    "Your display scale factor is set too high."
+		    "\nYou can probably not use OpendTect properly."
+		    "\nYou can set the display scale lower in the"
+		    "\nOperating System display settings." ),
+		    es, es, true )
+		: uiMSG().error( od_static_tr( "checkScreenRes",
 		"Your vertical screen resolution is lower than %1 pixels."
 		"\nYou can probably not use OpendTect properly.")
 		    .arg( cScreenLowRes ), es, es, true );
@@ -123,7 +141,16 @@ static void checkScreenRes()
     else if ( !anyok )
     {
 	if ( !setts.isFalse(sKeyShowSubRes) )
-	    dontshowagain = uiMSG().warning( od_static_tr("checkScreenRes",
+	    dontshowagain = needscale
+	    ? uiMSG().warning( od_static_tr( "checkScreenRes",
+		"Your display scale factor is set too high."
+		"\nOpendTect may be unusable without using small screen fonts."
+		"\n\nYou can set font sizes in the 'General Settings' window,"
+		"\nor menu Utilities-Settings-Look&Feel,"
+		"\nor alternatively you can set the display scale lower"
+		"\nin the Operating System display settings." ),
+		es, es, true )
+	    : uiMSG().warning( od_static_tr( "checkScreenRes",
 	    "Your vertical screen resolution is lower than %1 pixels."
 	    "\nOpendTect may be unusable without using small screen fonts."
 	    "\n\nYou can set font sizes in the 'General Settings' window,"
@@ -133,7 +160,18 @@ static void checkScreenRes()
     else if ( anysubstd )
     {
 	if ( !setts.isFalse(sKeyShowSubRes) )
-	    dontshowagain = uiMSG().warning( od_static_tr("checkScreenRes",
+	    dontshowagain = needscale
+	    ? uiMSG().warning( od_static_tr( "checkScreenRes",
+		"Your display scale factor is set too high on one of "
+		"your screens."
+		"\nOpendTect may only be usable by making the screen "
+		"display smaller."
+		"\n\nYou can set font sizes in the 'General Settings' window,"
+		"\nor menu Utilities-Settings-Look&Feel,"
+		"or alternatively you can set the display scale lower"
+		"in the Operating System display settings." ),
+		es, es, true )
+	    : uiMSG().warning( od_static_tr( "checkScreenRes",
 	    "One of your screens has a vertical screen resolution < %1 "
 	    "pixels.\nOpendTect may only be usable by making the screen "
 	    "fonts smaller."
