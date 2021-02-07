@@ -99,15 +99,18 @@ bool SimpleTimeDepthModel::writeToFile( const char* fnm ) const
 }
 
 
-SimpleTimeDepthTransform::SimpleTimeDepthTransform()
-    : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
+SimpleTimeDepthTransform::SimpleTimeDepthTransform( const ZDomain::Def& from,
+						    const ZDomain::Def& to )
+    : ZAxisTransform(from,to)
     , tdmodel_(0)
 {
 }
 
 
-SimpleTimeDepthTransform::SimpleTimeDepthTransform( const MultiID& id )
-    : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
+SimpleTimeDepthTransform::SimpleTimeDepthTransform( const ZDomain::Def& from,
+						    const ZDomain::Def& to,
+						    const MultiID& id )
+    : ZAxisTransform(from,to)
     , tdmodel_(0)
 {
     setID( id );
@@ -127,7 +130,7 @@ bool SimpleTimeDepthTransform::isOK() const
 
 
 void SimpleTimeDepthTransform::doTransform( const SamplingData<float>& sd,
-				    int ressz, float* res, bool back ) const
+				    int ressz, float* res, bool t2d ) const
 {
     const bool survistime = SI().zIsTime();
     const bool depthsinfeet = SI().depthsInFeet();
@@ -135,84 +138,17 @@ void SimpleTimeDepthTransform::doTransform( const SamplingData<float>& sd,
     for ( int idx=0; idx<ressz; idx++ )
     {
 	float inp = sd.atIndex( idx );
-	if ( back )
-	{
-	    if ( survistime && depthsinfeet ) inp *= mFromFeetFactorF;
-	    res[idx] = tdmodel_->getTime( inp );
-	}
-	else
+	if ( t2d )
 	{
 	    res[idx] = tdmodel_->getDepth( inp );
 	    if ( survistime && depthsinfeet ) res[idx] *= mToFeetFactorF;
 	}
+	else
+	{
+	    if ( survistime && depthsinfeet ) inp *= mFromFeetFactorF;
+	    res[idx] = tdmodel_->getTime( inp );
+	}
     }
-}
-
-
-void SimpleTimeDepthTransform::transformTrc( const TrcKey&,
-				     const SamplingData<float>& sd,
-				     int ressz, float* res ) const
-{
-    doTransform( sd, ressz, res, false );
-}
-
-
-
-void SimpleTimeDepthTransform::transformTrcBack( const TrcKey&,
-					 const SamplingData<float>& sd,
-					 int ressz, float* res ) const
-{
-    doTransform( sd, ressz, res, true );
-}
-
-
-float SimpleTimeDepthTransform::getGoodZStep() const
-{
-    if ( !SI().zIsTime() )
-	return SI().zRange(true).step;
-
-    const Interval<float> zrg = getZRange( false );
-    const int userfac = toZDomainInfo().userFactor();
-    const int nrsteps = SI().zRange( false ).nrSteps();
-    float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
-    zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
-    zstep /= userfac;
-    return zstep;
-}
-
-
-Interval<float> SimpleTimeDepthTransform::getZInterval( bool time ) const
-{
-    Interval<float> zrg = getZRange( time );
-    const float step = getGoodZStep();
-    const int userfac = toZDomainInfo().userFactor();
-    const int stopidx = zrg.indexOnOrAfter( zrg.stop, step );
-    zrg.stop = zrg.atIndex( stopidx, step );
-    zrg.stop = mCast(float,mNINT32(zrg.stop*userfac))/userfac;
-    return zrg;
-}
-
-
-Interval<float> SimpleTimeDepthTransform::getZRange( bool time ) const
-{
-    Interval<float> zrg = SI().zRange( true );
-    const bool survistime = SI().zIsTime();
-    if ( time && survistime ) return zrg;
-
-    const BinIDValue startbidval( 0, 0, zrg.start );
-    const BinIDValue stopbidval( 0, 0, zrg.stop );
-    if ( survistime && !time )
-    {
-	zrg.start = ZAxisTransform::transform( startbidval );
-	zrg.stop = ZAxisTransform::transform( stopbidval );
-    }
-    else if ( !survistime && time )
-    {
-	zrg.start = ZAxisTransform::transformBack( startbidval );
-	zrg.stop = ZAxisTransform::transformBack( stopbidval );
-    }
-
-    return zrg;
 }
 
 
@@ -246,6 +182,170 @@ bool SimpleTimeDepthTransform::usePar( const IOPar& par )
 	return false;
 
     return true;
+}
+
+
+
+SimpleT2DTransform::SimpleT2DTransform()
+    : SimpleTimeDepthTransform(ZDomain::Time(),ZDomain::Depth())
+{
+}
+
+
+SimpleT2DTransform::SimpleT2DTransform( const MultiID& id )
+    : SimpleTimeDepthTransform(ZDomain::Time(),ZDomain::Depth(),id)
+{
+}
+
+
+void SimpleT2DTransform::transformTrc( const TrcKey&,
+				     const SamplingData<float>& sd,
+				     int ressz, float* res ) const
+{
+    doTransform( sd, ressz, res, true );
+}
+
+
+
+void SimpleT2DTransform::transformTrcBack( const TrcKey&,
+					 const SamplingData<float>& sd,
+					 int ressz, float* res ) const
+{
+    doTransform( sd, ressz, res, false );
+}
+
+
+float SimpleT2DTransform::getGoodZStep() const
+{
+    if ( !SI().zIsTime() )
+	return SI().zRange(true).step;
+
+    Interval<float> zrg = SI().zRange( true );
+    zrg.start = transform( BinIDValue(0,0,zrg.start) );
+    zrg.stop = transform( BinIDValue(0,0,zrg.stop) );
+    const int userfac = toZDomainInfo().userFactor();
+    const int nrsteps = SI().zRange( true ).nrSteps();
+    float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
+    zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
+    zstep /= userfac;
+    return zstep;
+}
+
+
+Interval<float> SimpleT2DTransform::getZInterval( bool time ) const
+{
+    Interval<float> zrg = getZRange( time );
+    const float step = getGoodZStep();
+    const int userfac = toZDomainInfo().userFactor();
+    const int stopidx = zrg.indexOnOrAfter( zrg.stop, step );
+    zrg.stop = zrg.atIndex( stopidx, step );
+    zrg.stop = mCast(float,mNINT32(zrg.stop*userfac))/userfac;
+    return zrg;
+}
+
+
+Interval<float> SimpleT2DTransform::getZRange( bool time ) const
+{
+    Interval<float> zrg = SI().zRange( true );
+    const bool survistime = SI().zIsTime();
+    if ( time && survistime ) return zrg;
+
+    const BinIDValue startbidval( 0, 0, zrg.start );
+    const BinIDValue stopbidval( 0, 0, zrg.stop );
+    if ( survistime && !time )
+    {
+	zrg.start = ZAxisTransform::transform( startbidval );
+	zrg.stop = ZAxisTransform::transform( stopbidval );
+    }
+    else if ( !survistime && time )
+    {
+	zrg.start = ZAxisTransform::transformBack( startbidval );
+	zrg.stop = ZAxisTransform::transformBack( stopbidval );
+    }
+
+    return zrg;
+}
+
+
+
+SimpleD2TTransform::SimpleD2TTransform()
+    : SimpleTimeDepthTransform(ZDomain::Depth(),ZDomain::Time())
+{
+}
+
+
+SimpleD2TTransform::SimpleD2TTransform( const MultiID& id )
+    : SimpleTimeDepthTransform(ZDomain::Depth(),ZDomain::Time(),id)
+{
+}
+
+
+void SimpleD2TTransform::transformTrc( const TrcKey&,
+				     const SamplingData<float>& sd,
+				     int ressz, float* res ) const
+{
+    doTransform( sd, ressz, res, false );
+}
+
+
+
+void SimpleD2TTransform::transformTrcBack( const TrcKey&,
+					 const SamplingData<float>& sd,
+					 int ressz, float* res ) const
+{
+    doTransform( sd, ressz, res, true );
+}
+
+
+float SimpleD2TTransform::getGoodZStep() const
+{
+    if ( SI().zIsTime() )
+	return SI().zRange(true).step;
+
+    Interval<float> zrg = SI().zRange( true );
+    zrg.start = transform( BinIDValue(0,0,zrg.start) );
+    zrg.stop = transform( BinIDValue(0,0,zrg.stop) );
+    const int userfac = toZDomainInfo().userFactor();
+    const int nrsteps = SI().zRange( true ).nrSteps();
+    float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
+    zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
+    zstep /= userfac;
+    return zstep;
+}
+
+
+Interval<float> SimpleD2TTransform::getZInterval( bool depth ) const
+{
+    Interval<float> zrg = getZRange( depth );
+    const float step = getGoodZStep();
+    const int userfac = toZDomainInfo().userFactor();
+    const int stopidx = zrg.indexOnOrAfter( zrg.stop, step );
+    zrg.stop = zrg.atIndex( stopidx, step );
+    zrg.stop = mCast(float,mNINT32(zrg.stop*userfac))/userfac;
+    return zrg;
+}
+
+
+Interval<float> SimpleD2TTransform::getZRange( bool depth ) const
+{
+    Interval<float> zrg = SI().zRange( true );
+    const bool survistime = SI().zIsTime();
+    if ( depth && !survistime ) return zrg;
+
+    const BinIDValue startbidval( 0, 0, zrg.start );
+    const BinIDValue stopbidval( 0, 0, zrg.stop );
+    if ( survistime && depth )
+    {
+	zrg.start = ZAxisTransform::transformBack( startbidval );
+	zrg.stop = ZAxisTransform::transformBack( stopbidval );
+    }
+    else if ( !survistime && !depth )
+    {
+	zrg.start = ZAxisTransform::transform( startbidval );
+	zrg.stop = ZAxisTransform::transform( stopbidval );
+    }
+
+    return zrg;
 }
 
 

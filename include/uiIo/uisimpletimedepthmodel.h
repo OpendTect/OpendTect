@@ -22,7 +22,7 @@ class uiIOObjSel;
 mExpClass(uiIo) uiSimpleTimeDepthTransform : public uiTime2DepthZTransformBase
 { mODTextTranslationClass(uiSimpleTimeDepthTransform);
 public:
-			uiSimpleTimeDepthTransform(uiParent*);
+			uiSimpleTimeDepthTransform(uiParent*,bool t2d);
 			~uiSimpleTimeDepthTransform();
 
     ZAxisTransform*	getSelection();

@@ -63,7 +63,8 @@ mDefModInitFn(General)
 
     SimpleTimeDepthModelTranslatorGroup::initClass();
     odSimpleTimeDepthModelTranslator::initClass();
-    SimpleTimeDepthTransform::initClass();
+    SimpleT2DTransform::initClass();
+    SimpleD2TTransform::initClass();
 
     IOM(); //Trigger creation & reading of geometries
 
