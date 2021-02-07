@@ -39,11 +39,32 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , fileidx_(0)
     , curmsg_(tr("Scanning"))
     , nrdone_(0)
-    , transform_(0)
 {
     filenames_ = fnms;
     init();
 }
+
+
+HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
+				Table::FormatDesc& fd, bool isgeom,
+				ZAxisTransform* trans )
+    : Executor("Scan horizon file(s)")
+    , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
+    , fd_(fd)
+    , isgeom_(isgeom)
+    , ascio_(0)
+    , isxy_(false)
+    , selxy_(false)
+    , bvalset_(0)
+    , fileidx_(0)
+    , curmsg_(tr("Scanning"))
+    , nrdone_(0)
+{
+    filenames_ = fnms;
+    setZAxisTransform( trans );
+    init();
+}
+
 
 
 HorizonScanner::~HorizonScanner()
@@ -217,18 +238,18 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
 }
 
 
-void HorizonScanner::transformIfNeeded( float& zval ) const
+void HorizonScanner::transformZIfNeeded( const BinID& bid, float& zval ) const
 {
     if ( transform_ )
     {
 	if ( SI().zIsTime() && SI().depthsInFeet() )
 	    zval *= mToFeetFactorF;
 
-	zval = transform_->transformTrcBack( TrcKey::udf(), zval );
+	zval = transform_->transformTrc( bid, zval );
     }
 }
 
-#define mGetZFac SI().zIsTime() && !transform_ ? 0.001f : 1
+#define mGetZFac SI().zIsTime() ? 0.001f : 1
 
 bool HorizonScanner::analyzeData()
 {
@@ -248,11 +269,11 @@ bool HorizonScanner::analyzeData()
     Coord crd;
     float val;
     TypeSet<float> data;
+    selxy_ = ascio_->isXY();
     while ( ascio_->getNextLine(crd,data) > 0 )
     {
 	if ( data.isEmpty() ) break;
 
-	transformIfNeeded( data[0] );
 	if ( count > maxcount )
 	{
 	    if ( nrscale == nrnoscale ) maxcount *= 2;
@@ -271,12 +292,14 @@ bool HorizonScanner::analyzeData()
 	    continue;
 	}
 
+	const BinID selbid = selxy_ ? SI().transform( crd ) : bid;
 	val = data[0];
+	transformZIfNeeded( selbid, val );
 	bool validvert = false;
 	if ( !mIsUdf(val) )
 	{
 	    if ( validrg.includes(val,false) ) { nrnoscale++; validvert=true; }
-	    if ( zistime && validrg.includes(val*fac,false) )
+	    else if ( zistime && validrg.includes(val*fac,false) )
 	    { nrscale++; validvert=true; }
 	}
 
@@ -285,7 +308,6 @@ bool HorizonScanner::analyzeData()
     }
 
     isxy_ = nrxy > nrbid;
-    selxy_ = ascio_->isXY();
     doscale_ = nrscale > nrnoscale;
     delete ascio_;
     ascio_ = 0;
@@ -368,7 +390,6 @@ int HorizonScanner::nextStep()
     if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
     bvalset_->allowDuplicateBinIDs(true);
 
-    transformIfNeeded( data[0] );
     float fac = 1;
     if ( doscale_ )
 	fac = mGetZFac;
@@ -385,6 +406,7 @@ int HorizonScanner::nextStep()
     if ( !SI().isReasonable(bid) )
 	return Executor::MoreToDo();
 
+    transformZIfNeeded( bid, data[0] );
     bool validpos = true;
     int validx = 0;
     while ( validx < data.size() )

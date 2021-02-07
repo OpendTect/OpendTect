@@ -170,9 +170,9 @@ bool acceptOK( CallBacker* )
 
 };
 
-uiSimpleTimeDepthTransform::uiSimpleTimeDepthTransform( uiParent* p )
-    : uiTime2DepthZTransformBase(p, true )
-    , transform_( 0 )
+uiSimpleTimeDepthTransform::uiSimpleTimeDepthTransform( uiParent* p, bool t2d )
+    : uiTime2DepthZTransformBase(p,t2d)
+    , transform_(nullptr)
 {
     selfld_ = new uiIOObjSel( this, mIOObjContext(SimpleTimeDepthModel), 
 			   uiString::emptyString() );
@@ -201,7 +201,11 @@ ZAxisTransform* uiSimpleTimeDepthTransform::getSelection()
     const IOObj* ioobj = selfld_->ioobj( true );
     if ( !ioobj ) return 0;
 
-    transform_ = new SimpleTimeDepthTransform( ioobj->key() );
+    if ( t2d_ )
+	transform_ = new SimpleT2DTransform( ioobj->key() );
+    else
+	transform_ = new SimpleD2TTransform( ioobj->key() );
+
     refPtr( transform_ );
     if ( !transform_ || !transform_->isOK() )
     {
@@ -265,7 +269,7 @@ bool uiSimpleTimeDepthTransform::acceptOK()
 void uiSimpleTimeDepthTransform::initClass()
 {
     uiZAxisTransform::factory().addCreator( createInstance,
-				    SimpleTimeDepthTransform::sFactoryKeyword(),
+				    SimpleT2DTransform::sFactoryKeyword(),
 				    tr("Simple Time-Depth model"));
 }
 
@@ -273,5 +277,13 @@ void uiSimpleTimeDepthTransform::initClass()
 uiZAxisTransform* uiSimpleTimeDepthTransform::createInstance(uiParent* p,
 				const char* fromdomain, const char* todomain )
 {
-    return new uiSimpleTimeDepthTransform( p );
+    if ( !fromdomain || !todomain )
+	return nullptr;
+
+    if ( fromdomain==ZDomain::sKeyTime() && todomain==ZDomain::sKeyDepth() )
+	return new uiSimpleTimeDepthTransform( p, true );
+    else if ( fromdomain==ZDomain::sKeyDepth() && todomain==ZDomain::sKeyTime())
+	return new uiSimpleTimeDepthTransform( p, false );
+
+    return nullptr;
 }

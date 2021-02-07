@@ -57,6 +57,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "zaxistransform.h"
 #include "od_helpids.h"
 
 #include <math.h>
@@ -362,16 +363,30 @@ bool uiImportHorizon::doScan()
     BufferStringSet filenms;
     if ( !getFileNames(filenms) ) return false;
 
-    scanner_ = new HorizonScanner( filenms, fd_, isgeom_ );
-    if ( tdsel_ && tdsel_->isChecked() )
+    uiTaskRunner taskrunner( this );
+    ZAxisTransform* zatf = nullptr;
+    int zatfvoi = -1;
+    if ( tdsel_ && tdsel_->isChecked() && transfld_ && transfld_->acceptOK() )
     {
-	if ( transfld_ && transfld_->acceptOK() )
-	    scanner_->setZAxisTransform( transfld_->getSelection() );
+	zatf = transfld_->getSelection();
+	if ( zatf->needsVolumeOfInterest() )
+	{
+	    //TODO: Use a smarter TrcKeyZSampling for VOI
+	    zatfvoi = zatf->addVolumeOfInterest( SI().sampling(true), false );
+	    if ( !zatf->loadDataIfMissing( zatfvoi, &taskrunner ) )
+	    {
+		uiMSG().error( tr("Cannot load data for depth-time transform"));
+		return false;
+	    }
+	}
     }
 
-    uiTaskRunner taskrunner( this );
+    scanner_ = new HorizonScanner( filenms, fd_, isgeom_, zatf );
     if ( !TaskRunner::execute( &taskrunner, *scanner_ ) )
 	return false;
+
+    if ( zatf && zatfvoi >= 0 )
+	zatf->removeVolumeOfInterest( zatfvoi );
 
     const StepInterval<int> nilnrg = scanner_->inlRg();
     const StepInterval<int> nclnrg = scanner_->crlRg();

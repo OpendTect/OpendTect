@@ -31,6 +31,9 @@ mExpClass(EarthModel) HorizonScanner : public Executor
 public:
 
 			HorizonScanner(const BufferStringSet& fnms,
+					Table::FormatDesc& fd, bool isgeom,
+					ZAxisTransform*);
+    mDeprecatedDef	HorizonScanner(const BufferStringSet& fnms,
 					Table::FormatDesc& fd, bool isgeom);
 			~HorizonScanner();
 
@@ -61,7 +64,7 @@ public:
 protected:
 
     virtual int		nextStep();
-    void		transformIfNeeded(float&) const;
+    void		transformZIfNeeded(const BinID&,float&) const;
 
     void		init();
 
@@ -84,7 +87,7 @@ protected:
     BinIDValueSet*	bvalset_;
     ObjectSet<BinIDValueSet> sections_;
 
-    ZAxisTransform*	transform_;
+    ZAxisTransform*	transform_	= nullptr;
 
     mutable uiString	curmsg_;
 };
