@@ -114,7 +114,12 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E
 			 copy_directory ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
 			 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
-	if( UNIX )
+	if ( WIN32 )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/odExternal
+			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/odExternal )
+	elseif( APPLE )
+	else()
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/libexec
 			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/libexec )
