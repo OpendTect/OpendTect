@@ -62,25 +62,17 @@ mExpClass(General) SimpleTimeDepthTransform : public ZAxisTransform
 { mODTextTranslationClass(SimpleTimeDepthTransform)
 public:
 
-    mDefaultFactoryInstantiation( ZAxisTransform, SimpleTimeDepthTransform,
-				  "SimpleT2D", toUiString(sFactoryKeyword()));
-
-				SimpleTimeDepthTransform();
-				SimpleTimeDepthTransform(const MultiID&);
+				SimpleTimeDepthTransform(const ZDomain::Def&,
+							 const ZDomain::Def&);
+				SimpleTimeDepthTransform(const ZDomain::Def&,
+							 const ZDomain::Def&,
+							 const MultiID&);
 
     bool			isOK() const;
     bool			setID(const MultiID&);
-    void			transformTrc(const TrcKey&,
-	    				  const SamplingData<float>&,
-					  int sz,float* res) const;
-    void			transformTrcBack(const TrcKey&,
-	    				      const SamplingData<float>&,
-					      int sz,float* res) const;
     bool			canTransformSurv(Pos::SurvID) const
 				{ return true; }
 
-    float			getGoodZStep() const;
-    Interval<float>		getZInterval(bool time) const;
     bool			needsVolumeOfInterest() const { return false; }
 
     void			fillPar(IOPar&) const;
@@ -92,10 +84,60 @@ protected:
 
     SimpleTimeDepthModel*	tdmodel_;
 
-    Interval<float>		getZRange(bool time) const;
-
     void			doTransform(const SamplingData<float>&,
 					    int sz,float*,bool) const;
+};
+
+
+mExpClass(General) SimpleT2DTransform : public SimpleTimeDepthTransform
+{ mODTextTranslationClass(SimpleT2DTransform)
+public:
+
+    mDefaultFactoryInstantiation( ZAxisTransform, SimpleT2DTransform,
+				  "SimpleT2D", toUiString(sFactoryKeyword()));
+
+				SimpleT2DTransform();
+				SimpleT2DTransform(const MultiID&);
+
+    void			transformTrc(const TrcKey&,
+	    				  const SamplingData<float>&,
+					  int sz,float* res) const;
+    void			transformTrcBack(const TrcKey&,
+	    				      const SamplingData<float>&,
+					      int sz,float* res) const;
+
+    float			getGoodZStep() const;
+    Interval<float>		getZInterval(bool time) const;
+
+protected:
+
+    Interval<float>		getZRange(bool time) const;
+};
+
+
+mExpClass(General) SimpleD2TTransform : public SimpleTimeDepthTransform
+{ mODTextTranslationClass(SimpleD2TTransform)
+public:
+
+    mDefaultFactoryInstantiation( ZAxisTransform, SimpleD2TTransform,
+				  "SimpleD2T", toUiString(sFactoryKeyword()));
+
+				SimpleD2TTransform();
+				SimpleD2TTransform(const MultiID&);
+
+    void			transformTrc(const TrcKey&,
+	    				  const SamplingData<float>&,
+					  int sz,float* res) const;
+    void			transformTrcBack(const TrcKey&,
+	    				      const SamplingData<float>&,
+					      int sz,float* res) const;
+
+    float			getGoodZStep() const;
+    Interval<float>		getZInterval(bool time) const;
+
+protected:
+
+    Interval<float>		getZRange(bool time) const;
 };
 
 
