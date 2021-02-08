@@ -257,8 +257,7 @@ private:
     void			updateMakerSize(float sizefactor);
     void			updateMakerNamePosition(Side side,
 							float sizefactor);
-    osgGeo::WellLog*&		getLogDisplay(Side);
-    const osgGeo::WellLog*	getLogDisplay(Side) const;
+    osgGeo::WellLog*		getLogDisplay(Side) const;
 
 };
 
