@@ -100,9 +100,32 @@ Well::DisplayProperties::LogCouple::LogCouple()
     welldisppropcenterlogmgr_.setParam( this, new DisplayProperties::Log() );
 }
 
+Well::DisplayProperties::LogCouple::LogCouple(
+			    const Well::DisplayProperties::LogCouple& other )
+    : left_(other.left_)
+    , right_(other.right_)
+{
+    welldisppropcenterlogmgr_.setParam( this,
+				new DisplayProperties::Log( other.center() ) );
+}
+
+
 Well::DisplayProperties::LogCouple::~LogCouple()
 {
     welldisppropcenterlogmgr_.removeAndDeleteParam( this );
+}
+
+
+Well::DisplayProperties::LogCouple&
+    Well::DisplayProperties::LogCouple::operator=(
+			    const Well::DisplayProperties::LogCouple& other )
+{
+    left_ = other.left_;
+    right_ = other.right_;
+    welldisppropcenterlogmgr_.setParam( this,
+				new DisplayProperties::Log( other.center() ) );
+
+    return *this;
 }
 
 

@@ -205,7 +205,9 @@ public:
 
     mStruct(Well) LogCouple {
 		    LogCouple();
+		    LogCouple(const LogCouple&);
 		    ~LogCouple();
+	LogCouple& operator=(const LogCouple&);
 
 	Log left_, right_;
 	Log& center();

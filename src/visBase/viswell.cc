@@ -147,16 +147,7 @@ Well::~Well()
 }
 
 
-osgGeo::WellLog*& Well::getLogDisplay( Side side )
-{
-    if ( side==Right )
-	{ pErrMsg("Wrong function for center log display"); }
-
-    return (side==Left) ? leftlogdisplay_ : rightlogdisplay_;
-}
-
-
-const osgGeo::WellLog* Well::getLogDisplay( Side side ) const
+osgGeo::WellLog* Well::getLogDisplay( Side side ) const
 {
     osgGeo::WellLog* centerlogdisplay = hp_centerlogdisplay.getParam(this);
     return (side==Left) ? leftlogdisplay_
@@ -194,21 +185,19 @@ void Well::setLogTubeDisplay( Side side, bool yn )
     {
 	if ( side==Center )
 	    hp_centerlogdisplay.setParam( this, new osgGeo::TubeWellLog );
-	else
-	{
-	    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
-	    logdisplay = new osgGeo::TubeWellLog;
-	}
+	else if ( side== Left )
+	    leftlogdisplay_ = new osgGeo::TubeWellLog;
+	else if ( side==Right )
+	    rightlogdisplay_ = new osgGeo::TubeWellLog;
     }
     else
     {
 	if ( side==Center )
 	    hp_centerlogdisplay.setParam( this, new osgGeo::PlaneWellLog );
-	else
-	{
-	    osgGeo::WellLog*& logdisplay = getLogDisplay( side );
-	    logdisplay = new osgGeo::PlaneWellLog;
-	}
+	else if ( side== Left )
+	    leftlogdisplay_ = new osgGeo::PlaneWellLog;
+	else if ( side==Right )
+	    rightlogdisplay_ = new osgGeo::PlaneWellLog;
     }
 
     log = getLogDisplay( side );
