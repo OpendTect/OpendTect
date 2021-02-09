@@ -204,61 +204,6 @@ bool acceptOK( CallBacker* )
 };
 
 
-//--- uiStartNewSurveySetup
-
-
-class uiStartNewSurveySetup : public uiDialog
-{ mODTextTranslationClass(uiStartNewSurveySetup);
-
-public:
-			uiStartNewSurveySetup(uiParent*,const char*,
-					      SurveyInfo&);
-
-    bool		isOK();
-    bool		acceptOK(CallBacker*);
-
-    ObjectSet<uiSurvInfoProvider> sips_;
-    int			sipidx_;
-
-protected:
-
-    const BufferString	dataroot_;
-    SurveyInfo&		survinfo_;
-    uiGenInput*		survnmfld_;
-    uiGenInput*		zistimefld_;
-    uiGenInput*		zinfeetfld_;
-    uiCheckList*	pol2dfld_;
-    uiListBox*		sipfld_;
-
-    BufferString	sipName() const;
-    BufferString	survName() const { return survnmfld_->text(); }
-    bool		has3D() const	 { return pol2dfld_->isChecked(0); }
-    bool		has2D() const	 { return pol2dfld_->isChecked(1); }
-    bool		isTime() const	 { return zistimefld_->getBoolValue();}
-    bool		isInFeet() const { return !zinfeetfld_->getBoolValue();}
-
-    void		fillSipsFld(bool have2d,bool have3d);
-
-SurveyInfo::Pol2D pol2D() const
-{
-    return has3D() ? ( has2D() ? SurveyInfo::Both2DAnd3D
-			       : SurveyInfo::No2D )
-			       : SurveyInfo::Only2D;
-}
-
-void pol2dChg( CallBacker* )
-{
-    fillSipsFld( has2D(), has3D() );
-}
-
-void zdomainChg( CallBacker* )
-{
-    zinfeetfld_->display( !isTime() );
-}
-
-};
-
-
 uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 					      SurveyInfo& survinfo )
 	: uiDialog(p,Setup(tr("Create New Survey"),
@@ -308,6 +253,12 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     fillSipsFld( has2D(), has3D() );
 }
 
+
+void uiStartNewSurveySetup::setSurveyNameFld( BufferString name, bool canedit )
+{
+    survnmfld_->setText( name );
+    survnmfld_->setSensitive( canedit );
+}
 
 bool uiStartNewSurveySetup::isOK()
 {
@@ -398,6 +349,56 @@ void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d )
 	if ( len > maxlen ) maxlen = len;
     }
     sipfld_->setPrefWidthInChar( maxlen + 5 );
+}
+
+
+BufferString uiStartNewSurveySetup::survName() const
+{
+    return survnmfld_->text();
+}
+
+
+bool uiStartNewSurveySetup::has3D() const
+{
+    return pol2dfld_->isChecked(0);
+}
+
+
+bool uiStartNewSurveySetup::has2D() const
+{
+    return pol2dfld_->isChecked(1);
+}
+
+
+bool uiStartNewSurveySetup::isTime() const
+{
+    return zistimefld_->getBoolValue();
+}
+
+
+bool uiStartNewSurveySetup::isInFeet() const
+{
+    return !zinfeetfld_->getBoolValue();
+}
+
+
+SurveyInfo::Pol2D uiStartNewSurveySetup::pol2D() const
+{
+    return has3D() ? ( has2D() ? SurveyInfo::Both2DAnd3D
+			       : SurveyInfo::No2D )
+			       : SurveyInfo::Only2D;
+}
+
+
+void uiStartNewSurveySetup::pol2dChg( CallBacker* )
+{
+    fillSipsFld( has2D(), has3D() );
+}
+
+
+void uiStartNewSurveySetup::zdomainChg( CallBacker* )
+{
+    zinfeetfld_->display( !isTime() );
 }
 
 

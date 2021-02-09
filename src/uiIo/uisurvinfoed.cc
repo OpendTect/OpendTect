@@ -1024,6 +1024,12 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* )
 }
 
 
+void uiSurveyInfoEditor::setNameandPathSensitive(bool ynName, bool ynPath)
+{
+    survnmfld_->setSensitive( ynName );
+    pathfld_->setSensitive( ynPath );
+}
+
 // uiSurvInfoProvider
 void uiSurvInfoProvider::fillLogPars( IOPar& par ) const
 {

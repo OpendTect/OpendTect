@@ -60,6 +60,7 @@ public:
     void	newParagraph();
 
     inline od_ostream&	stream()		{ return strm_; }
+    static bool copyFile(const char*, const char*);
 
 protected:
 

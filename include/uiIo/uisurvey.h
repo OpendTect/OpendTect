@@ -14,10 +14,13 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 #include "bufstring.h"
+#include "survinfo.h"
 
 class BufferStringSet;
 class SurveyInfo;
 class uiButton;
+class uiCheckList;
+class uiGenInput;
 class uiLabel;
 class uiLineEdit;
 class uiListBox;
@@ -128,3 +131,43 @@ private:
     void		fillRightGroup(uiGroup*);
 };
 
+
+//--- uiStartNewSurveySetup
+
+
+mExpClass(uiIo) uiStartNewSurveySetup : public uiDialog
+{ mODTextTranslationClass(uiStartNewSurveySetup);
+
+public:
+			uiStartNewSurveySetup(uiParent*,const char*,
+					      SurveyInfo&);
+
+    void		setSurveyNameFld(BufferString,bool);
+    bool		isOK();
+    bool		acceptOK(CallBacker*);
+
+    ObjectSet<uiSurvInfoProvider> sips_;
+    int			sipidx_;
+
+private:
+
+    const BufferString	dataroot_;
+    SurveyInfo&		survinfo_;
+    uiGenInput*		survnmfld_;
+    uiGenInput*		zistimefld_;
+    uiGenInput*		zinfeetfld_;
+    uiCheckList*	pol2dfld_;
+    uiListBox*		sipfld_;
+
+    BufferString	sipName() const;
+    BufferString	survName() const;
+    bool		has3D() const;
+    bool		has2D() const;
+    bool		isTime() const;
+    bool		isInFeet() const;
+    void		fillSipsFld(bool have2d,bool have3d);
+    SurveyInfo::Pol2D	pol2D() const;
+    void		pol2dChg(CallBacker*);
+    void		zdomainChg(CallBacker*);
+
+};

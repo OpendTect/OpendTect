@@ -7,6 +7,8 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "ascstream.h"
+#include "file.h"
+#include "filepath.h"
 #include "genc.h"
 #include "string2.h"
 #include "timefun.h"
@@ -225,6 +227,39 @@ mDeclPut4Fn(put,float)
 mDeclPut4Fn(put,double)
 mDeclPut4Fn(putYN,bool)
 
+
+bool ascostream::copyFile( const char* src, const char* dest )
+{
+    if ( !File::isReadable( src ) || File::exists( dest ) )
+	return false;
+
+    FilePath srcfp( src ), destfp( dest );
+    od_istream srcstrm( srcfp );
+    od_ostream deststrm( dest );
+    if ( !srcstrm.isOK() || !deststrm.isOK() )
+	return false;
+    ascistream in( srcstrm );
+    ascostream out( deststrm );
+    out.putHeader( in.fileType() );
+    in.next();
+
+    while ( in.type()!=ascistream::EndOfFile )
+    {
+	switch( in.type() )
+	{
+	    case ascistream::ParagraphMark: out.newParagraph();
+		break;
+	    case ascistream::KeyVal: out.put( in.keyWord(), in.value() );
+		break;
+	    case ascistream::Keyword: out.put( in.keyWord() );
+		break;
+	    default:
+		break;
+	}
+	in.next();
+    }
+    return true;
+}
 
 //--- ascistream
 

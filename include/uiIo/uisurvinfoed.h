@@ -45,6 +45,7 @@ public:
 
     bool		dirnmChanged() const	{ return dirnamechanged; }
     const char*		dirName() const;
+    void		setNameandPathSensitive(bool, bool);
 
     static ObjectSet<uiSurvInfoProvider>& survInfoProvs();
     static int		addInfoProvider(uiSurvInfoProvider*);

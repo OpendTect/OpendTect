@@ -122,6 +122,8 @@ public:
 
     static bool		isValidDataRoot(const char* dirnm);
     static bool		isValidSurveyDir(const char* dirnm);
+    static BufferString getNewTempDataRootDir();
+
 
 private:
 

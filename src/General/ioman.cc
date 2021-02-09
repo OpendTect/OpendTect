@@ -1180,3 +1180,22 @@ IODir* IOMan::getDir( const MultiID& mid ) const
 
     return nullptr;
 }
+
+
+BufferString IOMan::getNewTempDataRootDir()
+{
+    const BufferString tmpdataroot = FilePath::getTempFullPath( nullptr,
+								nullptr );
+    if ( !File::createDir( tmpdataroot ) )
+	return BufferString::empty();
+
+    const FilePath infp( mGetSWDirDataDir(), "omf" );
+    const FilePath outfp( tmpdataroot, ".omf" );
+    const bool res = ascostream::copyFile( infp.fullPath() , outfp.fullPath() );
+    if ( !res )
+    {
+	File::removeDir( tmpdataroot );
+	return BufferString::empty();
+    }
+    return tmpdataroot;
+}
