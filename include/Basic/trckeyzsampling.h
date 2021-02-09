@@ -94,7 +94,7 @@ public:
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
     static void		removeInfo(IOPar&);
-    void		fillJSON(OD::JSON::Object&);
+    void		fillJSON(OD::JSON::Object&) const;
     bool		useJSON(const OD::JSON::Object&);
 
 //Legacy, don't use
