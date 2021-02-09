@@ -910,11 +910,7 @@ void IOPar::set( const char* keyw, int i1, int i2, float f )
 void IOPar::setPtr( const char* keyw, void* ptr )
 {
     char buf[80];
-#ifdef __win__
-    sprintf_s( buf, 80, "%p", ptr );
-#else
-    sprintf( buf, "%p", ptr );
-#endif
+    od_sprintf( buf, 80, "%p", ptr );
     set( keyw, buf );
 }
 
