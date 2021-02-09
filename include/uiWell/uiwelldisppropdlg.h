@@ -19,6 +19,7 @@ class uiTabStack;
 class uiWellDispProperties;
 class uiLabeledComboBox;
 class uiMultiWellDispPropDlg;
+class uiPushButton;
 
 namespace Well { class Data; class DisplayProperties; };
 
@@ -52,6 +53,11 @@ public:
     bool			is2D() const;
     bool			savedefault_;
     void			updateLogs();
+    void			resetCB(CallBacker*);
+    void			applyTabPush(CallBacker*);
+    void			resetAllPush(CallBacker*);
+    uiPushButton*		applyTabButton() const;
+    uiPushButton*		resetAllButton() const;
 
 protected:
 
@@ -69,13 +75,10 @@ protected:
     virtual void		setWDNotifiers(bool yn);
 
     virtual void		applyAllPush(CallBacker*);
-    void			applyTabPush(CallBacker*);
-    void			resetAllPush(CallBacker*);
     virtual void		onClose(CallBacker*);
     virtual void		propChg(CallBacker*);
     void			markersChgd(CallBacker*);
     bool			acceptOK(CallBacker*);
-    void			resetCB(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
     void			tabSel(CallBacker*);

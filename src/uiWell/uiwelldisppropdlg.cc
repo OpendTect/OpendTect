@@ -34,6 +34,8 @@ HiddenParam<uiWellDispPropDlg,Notifier<uiWellDispPropDlg>*>
 		    wlldispapplytabreqmgr_( nullptr );
 HiddenParam<uiWellDispPropDlg,Notifier<uiWellDispPropDlg>*>
 		    wlldispresetallreqmgr_( nullptr );
+HiddenParam<uiWellDispPropDlg,uiPushButton*> hp_applycurrenttoall_( nullptr );
+HiddenParam<uiWellDispPropDlg,uiPushButton*> hp_resetall_( nullptr );
 
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
 
@@ -196,12 +198,14 @@ void uiWellDispPropDlg::init()
     }
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "", OD::Horizontal );
-    new uiPushButton( bgrp, tr("Apply Current to all wells"),
-			mCB(this,uiWellDispPropDlg,applyTabPush), true );
+    hp_applycurrenttoall_.setParam( this, new uiPushButton( bgrp,
+				    tr("Apply Current to all wells"), true ) );
+    mAttachCB( applyTabButton()->activated, uiWellDispPropDlg::applyTabPush );
     new uiPushButton( bgrp, tr("Apply All to all wells"),
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
-    new uiPushButton( bgrp, tr("Reset All"),
-			mCB(this,uiWellDispPropDlg,resetAllPush), true );
+    hp_resetall_.setParam( this, new uiPushButton( bgrp,
+						   tr("Reset all"), true ) );
+    mAttachCB( resetAllButton()->activated, uiWellDispPropDlg::resetAllPush );
     bgrp->attach( centeredBelow, ts_ );
 
     ts_->setCurrentPage( 1 );
@@ -222,7 +226,21 @@ uiWellDispPropDlg::~uiWellDispPropDlg()
     wlldisppropcolmgr_.removeAndDeleteParam( this );
     wlldispapplytabreqmgr_.removeAndDeleteParam( this );
     wlldispresetallreqmgr_.removeAndDeleteParam( this );
+    hp_applycurrenttoall_.removeParam( this );
+    hp_resetall_.removeParam( this );
     wd_->unRef();
+}
+
+
+uiPushButton* uiWellDispPropDlg::applyTabButton() const
+{
+    return hp_applycurrenttoall_.getParam( this );
+}
+
+
+uiPushButton* uiWellDispPropDlg::resetAllButton() const
+{
+    return hp_resetall_.getParam( this );
 }
 
 
