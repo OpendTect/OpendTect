@@ -670,7 +670,7 @@ void TrcKeySampling::removeInfo( IOPar& par )
 }
 
 
-void TrcKeySampling::fillJSON( OD::JSON::Object& obj )
+void TrcKeySampling::fillJSON( OD::JSON::Object& obj ) const
 {
     if ( is2D() )
     {
@@ -1413,7 +1413,7 @@ void TrcKeyZSampling::removeInfo( IOPar& par )
 }
 
 
-void TrcKeyZSampling::fillJSON( OD::JSON::Object& obj )
+void TrcKeyZSampling::fillJSON( OD::JSON::Object& obj ) const
 {
     hsamp_.fillJSON( obj );
     const BufferString zrgintrvl( sKey::ZRange(), "Interval" );
