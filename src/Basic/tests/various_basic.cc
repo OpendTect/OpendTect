@@ -188,7 +188,7 @@ bool testRemoveFile(const char* fnm)
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -200,12 +200,12 @@ int main( int argc, char** argv )
         || !testPointerAlignment()
 	|| !testFuncName()
 	|| !test64BitDetection() )
-	return ExitProgram( 1 );
+	return 1;
 
     const BufferString fnm = getTestFileName();
     const bool success = testFilePermissions( fnm );
     if ( !testRemoveFile(fnm) )
-	return ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( success ? 0 : 1);
+    return success ? 0 : 1;
 }

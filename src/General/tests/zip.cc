@@ -21,7 +21,7 @@ if ( !command ) \
     errStream() << testname << " failed!\n" << err.getFullString(); \
     File::remove( zipfilename.fullPath() ); \
     File::removeDir( outputdir.fullPath() ); \
-    ExitProgram(1); \
+    return 1; \
 } \
 else \
     logStream() << testname << " Succeeded!\n"; \
@@ -44,14 +44,14 @@ else \
 			       << dest.fullPath(); \
 	File::remove( zipfilename.fullPath() ); \
 	File::removeDir( outputdir.fullPath() ); \
-	ExitProgram(1); \
+	return 1; \
     } \
     else \
 	logStream() << "Data integrety check succeeded!\n"; \
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -77,5 +77,5 @@ int main( int argc, char** argv )
     File::remove( zipfilename.fullPath() );
     File::removeDir( outputdir.fullPath() );
 
-    return ExitProgram(0);
+    return 0;
 }

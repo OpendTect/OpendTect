@@ -311,7 +311,7 @@ Threads::WorkManager::~WorkManager()
     {
 	pErrMsg("Default queue is not empty. "
 		"Please call twm().shutdown() before exiting main program,"
-		"or exit with ExitProgram()");
+		"or exit with ApplicationData::exit()");
     }
 
     shutdown();

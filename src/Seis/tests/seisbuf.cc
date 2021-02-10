@@ -39,12 +39,9 @@ static bool testSorting()
     return true;
 }
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testSorting() )
-	return ExitProgram( 1 );
-
-    return ExitProgram( 0 );
+    return testSorting() ? 0 : 1;
 }

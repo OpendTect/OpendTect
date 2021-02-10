@@ -18,10 +18,11 @@ ________________________________________________________________________
 #include "odruncontext.h"
 #include "od_iosfwd.h"
 class CommandLineParser;
+class Timer;
 class uiRetVal;
 namespace OD { namespace JSON { class Array; class Object; } }
 
-mExpClass(General) ServerProgTool
+mExpClass(General) ServerProgTool : public CallBacker
 {
 public:
 
@@ -93,6 +94,8 @@ protected:
     JSONObject&		jsonroot_;
     IOPar		iop_;
     int			protocolnr_		    = 0;
+    Timer&		timer_;
+    int			retval_ =		    -1;
 
     virtual BufferString getSpecificUsage() const   = 0;
 
@@ -103,6 +106,8 @@ protected:
     static void		addToUsageStr(BufferString&,const char* flg,
 				   const char* args,bool isextra=false);
     void		setStatus(bool) const;
+    void		timerTickCB(CallBacker*);
+    void		exitProgram(bool success);
 
     template <class T>
     void		setSingle(const char*,T,JSONObject*);

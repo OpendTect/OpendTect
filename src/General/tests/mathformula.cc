@@ -129,15 +129,15 @@ static bool testRepeatingVar()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
     if ( !testSimpleFormula() )
-	ExitProgram( 1 );
+	return 1;
 
     if ( !testRepeatingVar() )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

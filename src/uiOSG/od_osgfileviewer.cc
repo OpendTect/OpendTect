@@ -7,13 +7,10 @@
 static const char* rcsID mUnusedVar = "$Id$";
 
 #include "prog.h"
-#include "file.h"
-
-# ifdef __msvc__
-#  include "winmain.h"
-# endif
-
 #include "uimain.h"
+
+#include "file.h"
+#include "odgraphicswindow.h"
 
 #include <QApplication>
 #include <QFileDialog>
@@ -25,10 +22,10 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include <osg/MatrixTransform>
 #include <osgManipulator/TabBoxDragger>
 #include <osgDB/ReadFile>
-#include "odgraphicswindow.h"
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
     uiMain::preInitForOpenGL();
 
@@ -51,15 +48,15 @@ int main( int argc, char** argv )
 
     osg::Node* root = osgDB::readNodeFile( file.buf() );
     if ( !root )
-	return ExitProgram( 1 );
+	return 1;
 
     osg::ref_ptr<osgViewer::Viewer> viewer = new osgViewer::Viewer;
     viewer->setSceneData( root );
     viewer->setCameraManipulator( new osgGA::TrackballManipulator );
     setViewer( viewer.get() );
 
-    ODGLWidget* glw = new ODGLWidget;
-    ODGraphicsWindow* graphicswin = new ODGraphicsWindow( glw );
+    PtrMan<ODGLWidget> glw = new ODGLWidget;
+    PtrMan<ODGraphicsWindow> graphicswin = new ODGraphicsWindow( glw );
 
     viewer->getCamera()->setViewport(
 		    new osg::Viewport(0, 0, glw->width(), glw->height() ) );
@@ -67,5 +64,5 @@ int main( int argc, char** argv )
 
     glw->show();
 
-    return ExitProgram( app.exec() );
+    return app.exec();
 }

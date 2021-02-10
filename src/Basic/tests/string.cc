@@ -338,7 +338,7 @@ bool testGetFromString()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -352,7 +352,7 @@ int main( int argc, char** argv )
       || !testLimFToStringFns()
       || !testEmptyStringComparison()
       || !testGetFromString() )
-	return ExitProgram( 1 );
+	return 1;
 
     BufferStringSet strs;
     strs.add( "Str pos 0" );
@@ -375,5 +375,5 @@ int main( int argc, char** argv )
 	*/
     }
 
-    return ExitProgram( 0 );
+    return 0;
 }

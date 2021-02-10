@@ -91,14 +91,14 @@ static bool testCholesky()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
     if ( !testMultiply() )
-	ExitProgram( 1 );
+	return 1;
     if ( !testCholesky() )
-	ExitProgram( 1 );
+	return 1;
 
-    ExitProgram( 0 );
+    return 0;
 }

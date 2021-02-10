@@ -62,12 +62,9 @@ static bool testParallelQuickSort()
     return true;
 }
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testParallelQuickSort() )
-	ExitProgram( 1 );
-
-    return ExitProgram( 0 );
+    return testParallelQuickSort() ? 0 : 1;
 }

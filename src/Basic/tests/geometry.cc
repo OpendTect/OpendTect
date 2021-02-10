@@ -44,12 +44,9 @@ static bool testRectangle()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testRectangle() )
-	ExitProgram( 1 );
-
-    return ExitProgram( 0 );
+    return testRectangle() ? 0 : 1;
 }

@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "testprog.h"
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -22,8 +22,8 @@ int main( int argc, char** argv )
 	logStream() << "Invalid vcs revision. "
 		"Cmake could probably not find svn command-client. "
 		"Take a look in CMakeModules/ODSubversion.cmake.\n";
-	ExitProgram( 1 );
+	return 1;
     }
 
-    return ExitProgram( 0 );
+    return 0;
 }

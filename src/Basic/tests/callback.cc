@@ -5,9 +5,8 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
-#include "callback.h"
+#include "notify.h"
 
 #include "applicationdata.h"
 #include "testprog.h"
@@ -32,24 +31,50 @@ public:
 class NotifiedClass : public CallBacker
 {
 public:
-			NotifiedClass(NotifierAccess* a = 0 ) : nrhits_( 0 )
-			{
-			    if ( a ) mAttachCB( *a, NotifiedClass::callbackA);
-			}
-			~NotifiedClass() { detachAllNotifiers(); }
-    void		callbackA(CallBacker*)
-			{
-			    nrhits_++;
-			}
-    void		callbackB(CallBacker*)
-			{
-			    nrhits_--;
-			}
-    void		timerHit( CallBacker* )
-			    { logStream() << "[OK] Timer hit!" << od_endl;
-			      ExitProgram( 0 ); }
+    NotifiedClass( NotifierAccess* a=nullptr )
+	: timer_("starter")
+    {
+	if ( a ) mAttachCB( *a, NotifiedClass::callbackA );
+    }
 
-    Threads::Atomic<int>	nrhits_;
+    ~NotifiedClass()
+    {
+	detachAllNotifiers();
+	CallBack::removeFromThreadCalls( this );
+    }
+
+    void setTimer()
+    {
+	retval_ = 1;
+	mAttachCB( timer_.tick, NotifiedClass::timerHit );
+	timer_.start( 0, true );
+    }
+
+    void callbackA( CallBacker* )
+    {
+	nrhits_++;
+    }
+
+    void callbackB( CallBacker* )
+    {
+	nrhits_--;
+    }
+
+    void timerHit( CallBacker* )
+    {
+	logStream() << "[OK] Timer hit!" << od_endl;
+	retval_ = 0;
+	CallBack::addToMainThread( mCB(this,NotifiedClass,closeTesterCB) );
+    }
+
+    void closeTesterCB( CallBacker* )
+    {
+	ApplicationData::exit( retval_ );
+    }
+
+    Threads::Atomic<int>	nrhits_ = 0;
+    Timer	timer_;
+    int		retval_ = 0;
 };
 
 
@@ -481,17 +506,8 @@ bool testMulthThreadChaos()
 }
 
 
-static bool testTimer()
-{
-    auto* tmr = new Timer( "Test timer" );
-    auto* rcvr = new NotifiedClass;
-    tmr->tick.notify( mCB(rcvr,NotifiedClass,timerHit) );
-    tmr->start( 0, true );
-    return true;
-}
 
-
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -502,10 +518,10 @@ int main( int argc, char** argv )
       || !testDetachBeforeRemoval()
       || !testMulthThreadChaos()
       || !InMainThreadTester::test() )
-	ExitProgram( 1 );
+	return 1;
 
     ApplicationData ad;
-    testTimer();
-    ad.exec();
-    return ExitProgram( 0 );
+    NotifiedClass rcvr;
+    rcvr.setTimer();
+    return ad.exec();
 }

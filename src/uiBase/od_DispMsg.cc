@@ -20,20 +20,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "texttranslator.h"
 
-#ifdef __msvc__
-#include "winmain.h"
-#endif
 
-
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
     CommandLineParser parser;
 
     TextTranslateMgr::loadTranslations();
 
     if ( parser.nrArgs()<1 )
-	return ExitProgram( 1 );
+	return 1;
 
     int typ = 0; //Default is info
     if ( parser.hasKey( "warn" ) )
@@ -46,7 +43,7 @@ int main( int argc, char** argv )
     BufferStringSet normalargs;
     parser.getNormalArguments( normalargs );
 
-    uiString msg = uiString::emptyString();
+    uiString msg;
     for ( int idx=0; idx<normalargs.size(); idx++ )
     {
 	BufferString nextarg( normalargs[idx]->buf() );
@@ -74,5 +71,5 @@ int main( int argc, char** argv )
 	od_cout() << msg << od_endl;
     }
 
-    return ExitProgram( 0 );
+    return 0;
 }

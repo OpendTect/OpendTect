@@ -109,11 +109,10 @@ protected:
     void		afterSurveyChgCB(CallBacker*);
     void		handleStartupSession();
     void		restoreSession(const IOObj*);
-    void		closeApplication();
 
 private:
 
-    mGlobal(uiODMain) friend int		ODMain(int,char**);
+    mGlobal(uiODMain) friend int ODMain(uiMain&);
 
     bool		ensureGoodDataDir();
     bool		ensureGoodSurveySetup();

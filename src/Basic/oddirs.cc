@@ -7,6 +7,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "applicationdata.h"
 #include "genc.h"
 #include "oddirs.h"
 #include "envvars.h"
@@ -270,7 +271,7 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 		return 0;
 
 	    std::cerr << "Cannot determine OpendTect location ..." << std::endl;
-	    ExitProgram( 1 );
+	    ApplicationData::exit( 1 );
 	}
 
 	if ( od_debug_isOn(DBG_SETTINGS) )
@@ -647,7 +648,7 @@ mExternC(Basic) const char* GetSettingsDir()
 	    {
 		std::cerr << "Fatal: Cannot create '.od' folder in home "
 		    "folder:\n" << dirnm.buf() << std::endl;
-		ExitProgram( 1 );
+		ApplicationData::exit( 1 );
 	    }
 	    if ( od_debug_isOn(DBG_SETTINGS) )
 		mPrDebug( "Had to create SettingsDir", dirnm );

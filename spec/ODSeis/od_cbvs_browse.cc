@@ -47,16 +47,16 @@ static void getInt( int& i )
 }
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::BatchProgCtxt )
     SetProgramArgs( argc, argv );
 
     if ( argc < 2 )
     {
 	od_cerr() << "Usage: " << argv[0] << " cbvs_file" << od_endl;
-	ExitProgram( 1 );
+	return 1;
     }
-
 
     FilePath fp( argv[1] );
     if ( !fp.isAbsolute() )
@@ -65,14 +65,14 @@ int main( int argc, char** argv )
     if ( !File::exists(fname) )
     {
 	od_cerr() << fname << " does not exist" << od_endl;
-        ExitProgram( 1 );
+        return 1;
     }
 
     od_cout() << "Browsing '" << fname << "'\n" << od_endl;
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-	{ od_cout() << tri->errMsg() << od_endl;  ExitProgram( 1 ); }
+	{ od_cout() << tri->errMsg() << od_endl;  return 1; }
 
     od_cout() << "\n";
     const CBVSReadMgr& mgr = *tri->readMgr();
@@ -195,5 +195,5 @@ int main( int argc, char** argv )
 	}
     }
 
-    ExitProgram( 0 ); return 0;
+    return 0;
 }

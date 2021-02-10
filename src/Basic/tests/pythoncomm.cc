@@ -81,7 +81,7 @@ bool testRemoveDir( const char* path, bool expectedres )
     return ret;
 }
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 

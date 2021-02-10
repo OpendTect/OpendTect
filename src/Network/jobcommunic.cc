@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "jobcommunic.h"
 
+#include "applicationdata.h"
 #include "debug.h"
 #include "envvars.h"
 #include "hostdata.h"
@@ -24,16 +25,34 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mmcommunicdefs.h"
 
 
+#define mReturn( ret ) { \
+    if ( ret ) { nrattempts_ = 0; return true; } \
+    if ( nrattempts_++ < maxtries_ ) return true; \
+    stillok_ = false; \
+    directMsg("Lost connection with primary host[1]. Exiting."); \
+    ApplicationData::exit( -1 ); return false; \
+}
+
+#define mTryMaxtries( fn ) { \
+    for ( int i=0; i<maxtries_; i++ ) \
+    { \
+	bool ret = fn; \
+	if ( ret ) return true; \
+	sleepSeconds(1); \
+    } \
+    stillok_ = false; \
+    directMsg("Lost connection with primary host[2]. Exiting."); \
+    ApplicationData::exit( -1 ); return false; \
+}
+
+
 JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
     : masterauth_(System::hostAddress(host),port)
     , timestamp_(Time::getMilliSeconds())
-    , stillok_(true)
-    , nrattempts_(0)
     , maxtries_ (GetEnvVarIVal("DTECT_MM_MSTR_RETRY",10))
     , socktimeout_(GetEnvVarIVal("DTECT_MM_CL_SOCK_TO",2000))
     , min_time_between_update_(1000 * GetEnvVarIVal("DTECT_MM_INTRVAL",10))
     , failtimeout_(1000 * GetEnvVarIVal("DTECT_MM_CL_FAIL_TO",30))
-    , pausereq_(false)
     , jobid_(jid)
     , lastsucces_(Time::getMilliSeconds())
     , logstream_(createLogStream())
@@ -59,13 +78,10 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
 			  StreamData& )
     : masterauth_(System::hostAddress(host),port)
     , timestamp_(Time::getMilliSeconds())
-    , stillok_(true)
-    , nrattempts_(0)
     , maxtries_ (GetEnvVarIVal("DTECT_MM_MSTR_RETRY",10))
     , socktimeout_(GetEnvVarIVal("DTECT_MM_CL_SOCK_TO",2000))
     , min_time_between_update_(1000 * GetEnvVarIVal("DTECT_MM_INTRVAL",10))
     , failtimeout_(1000 * GetEnvVarIVal("DTECT_MM_CL_FAIL_TO",30))
-    , pausereq_(false)
     , jobid_(jid)
     , lastsucces_(Time::getMilliSeconds())
     , logstream_(createLogStream())
@@ -103,7 +119,7 @@ bool JobCommunic::sendErrMsg_( const char* msg )
 }
 
 
-bool JobCommunic::sendPID_( int pid )
+bool JobCommunic::sendPID_( PID_Type pid )
 {
     const bool ret = sendMsg( mPID_TAG, pid );
     logMsg( ret, "Send PID", BufferString( "", pid ) );
@@ -145,9 +161,47 @@ bool JobCommunic::sendState_( State st, bool isexit, bool immediate )
 }
 
 
+bool JobCommunic::updateState()
+{
+    bool ret = sendState_( stat_, false, false );
+    mReturn( ret )
+}
+
+
+bool JobCommunic::updateProgress( int p )
+{
+    bool ret = sendProgress_( p, false );
+    mReturn( ret )
+}
+
+
 void JobCommunic::setTimeBetweenMsgUpdates( int ms )
 {
     min_time_between_msgupdates_ = ms;
+}
+
+
+bool JobCommunic::sendState( bool isexit )
+{
+    mTryMaxtries( sendState_( stat_, isexit, true ) )
+}
+
+
+bool JobCommunic::sendProgress( int p )
+{
+    mTryMaxtries( sendProgress_( p, true ) )
+}
+
+//! hostrelated error messages are more serious.
+bool JobCommunic::sendErrMsg( const char* msg )
+{
+    mTryMaxtries( sendErrMsg_( msg ) )
+}
+
+
+bool JobCommunic::sendPID( PID_Type pid )
+{
+    mTryMaxtries( sendPID_( pid ) )
 }
 
 
@@ -240,7 +294,7 @@ void JobCommunic::sendMsgCB( CallBacker* cber )
 	logMsg( writestat, logmsg,
 	    !writestat ? socket_->errMsg().getFullString().str() : "" );
 	directMsg( "Exiting on request of Primary Host." );
-	ExitProgram( -1 );
+	ApplicationData::exit( -1 );
     }
     else
     {
@@ -264,12 +318,6 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 }
 
 
-void JobCommunic::checkMasterTimeout()
-{
-    checkPrimaryHostTimeout();
-}
-
-
 Network::Authority& JobCommunic::primaryAuthority()
 {
     return masterauth_;
@@ -285,7 +333,7 @@ void JobCommunic::checkPrimaryHostTimeout()
 	BufferString msg( "Time-out contacting Primary Host. Last contact " );
 	msg.add( elapsed/1000 ).add( " sec ago. Exiting." );
 	directMsg( msg );
-	ExitProgram( -1 );
+	ApplicationData::exit( -1 );
     }
 }
 
@@ -356,3 +404,6 @@ void JobCommunic::dumpSystemInfo()
     *logstream_ << "\n-----------------------------------------------"
 		<< od_endl;
 }
+
+#undef mReturn
+#undef mTryMaxtries

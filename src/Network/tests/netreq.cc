@@ -4,7 +4,6 @@
  * DATE     : Nov 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "applicationdata.h"
 #include "oscommand.h"
@@ -37,6 +36,10 @@ static BufferString packetString( const char* prefix,
 class Tester : public CallBacker
 {
 public:
+
+    Tester( const Network::Authority& auth )
+	: authority_(auth)
+    {}
 
     ~Tester()
     {
@@ -267,14 +270,13 @@ static void terminateServer( const PID_Type pid )
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
     ApplicationData app;
 
-    PtrMan<Tester> runner = new Tester;
-    Network::Authority& auth = runner->authority_;
+    Network::Authority auth;
     auth.setFrom( clParser(), "test_netreq",
 		  Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
     if ( !auth.isUsable() )
@@ -313,20 +315,18 @@ int main( int argc, char** argv )
 			BufferString("Server started with PID: ", serverpid) );
     }
 
-    runner->prefix_ = "[singlethreaded] ";
-    if ( !runner->runTest(false,false) )
+    Tester runner( auth );
+    runner.prefix_ = "[singlethreaded] ";
+    if ( !runner.runTest(false,false) )
     {
-	runner = nullptr;
 	terminateServer( serverpid );
-	ExitProgram( 1 );
+	return 1;
     }
 
     //Now with a running event loop
 
-    CallBack::addToMainThread( mCB(runner,Tester,runEventLoopTest) );
+    CallBack::addToMainThread( mCB(&runner,Tester,runEventLoopTest) );
     const int retval = app.exec();
-
-    runner = nullptr;
 
     if ( serverpid > 0 )
     {
@@ -336,5 +336,5 @@ int main( int argc, char** argv )
 	terminateServer( serverpid );
     }
 
-    ExitProgram( retval );
+    return retval;
 }

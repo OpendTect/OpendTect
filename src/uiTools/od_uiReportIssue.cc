@@ -16,8 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
     uiMain app( argc, argv );
 
@@ -32,14 +33,12 @@ int main( int argc, char ** argv )
     if ( !reporter.parseCommandLine() )
     {
 	uiMSG().error( reporter.errMsg() );
-	return ExitProgram( 1 );
+	return 1;
     }
 
-    uiIssueReporterDlg* dlg = new uiIssueReporterDlg( 0, reporter );
+    PtrMan<uiDialog> dlg = new uiIssueReporterDlg( nullptr, reporter );
     app.setTopLevel( dlg );
     dlg->show();
 
-    const int ret = app.exec();
-    delete dlg;
-    return ExitProgram( ret );
+    return app.exec();
 }

@@ -102,9 +102,6 @@ mGlobal(Basic) const char* GetVCSVersion(void);
 
 mGlobal(Basic) const char* GetLastSystemErrorMessage(void);
 
-mGlobal(Basic) mDeprecated("Use OS::LaunchType = OS::RunInBG")
-    void ForkProcess(void);
-
 
 mGlobal(Basic) int InSysAdmMode(void);
 mGlobal(Basic) void SetInSysAdmMode(void);

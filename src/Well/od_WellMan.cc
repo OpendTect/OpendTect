@@ -6,6 +6,7 @@
 
 
 #include "serverprogtool.h"
+
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllog.h"
@@ -15,6 +16,7 @@
 #include "wellreader.h"
 #include "welltrack.h"
 
+#include "applicationdata.h"
 #include "commandlineparser.h"
 #include "dbkey.h"
 #include "ioman.h"
@@ -317,13 +319,17 @@ BufferString WellServerTool::getSpecificUsage() const
 }
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    ApplicationData app;
     WellServerTool st( argc, argv );
-    auto& clp = st.clp();
+    CommandLineParser& clp = st.clp();
 
     if ( clp.hasKey(sListWellsCmd) )
+    {
 	st.listWells();
+	return app.exec();
+    }
 
     if ( clp.hasKey(sInfoCmd) )
 	st.getWellInfo();
@@ -365,6 +371,5 @@ int main( int argc, char** argv )
 	st.readLogs( wellid, logids, zstep, withtvd );
     }
 
-    pFreeFnErrMsg( "Should not reach" );
-    return ExitProgram( 0 );
+    return app.exec();
 }

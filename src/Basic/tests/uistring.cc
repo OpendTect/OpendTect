@@ -266,7 +266,7 @@ bool fromBufferStringSetToUiStringSet()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -274,7 +274,7 @@ int main( int argc, char** argv )
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
 	 !testSetEmpty() || !testNumberStrings() || !testLargeNumberStrings()
 	 || !testToLower() || !fromBufferStringSetToUiStringSet() )
-	ExitProgram( 1 );
+	return 1;
 
-    ExitProgram( 0 );
+    return 0;
 }

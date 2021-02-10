@@ -181,7 +181,7 @@ bool testJSON()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -198,7 +198,7 @@ int main( int argc, char** argv )
 	|| !testIsCompatible()
 	|| !testIterator()
 	|| !testJSON() )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

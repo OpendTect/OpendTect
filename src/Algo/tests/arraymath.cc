@@ -190,7 +190,7 @@ static bool testBigVector()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -198,7 +198,7 @@ int main( int argc, char** argv )
     Array1DImpl<float> prices( sz ), milage( sz );
 
     if ( !testSmallFloatArray(prices,milage) || !testBigVector() )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

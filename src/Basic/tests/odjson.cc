@@ -236,7 +236,7 @@ bool testInterval()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -246,7 +246,7 @@ int main( int argc, char** argv )
       || !testUseJSON(true)
       || !testDumpJSON()
       || !testInterval() )
-	return ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }
