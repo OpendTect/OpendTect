@@ -15,10 +15,17 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(ODHDF5)
 mDefODPluginInfo(ODHDF5)
 {
+    BufferString version;
+    version.add( H5_VERS_MAJOR ).add(".")
+	   .add( H5_VERS_MINOR ).add(".")
+	   .add( H5_VERS_RELEASE );
+    mDeclStaticString( infostr );
+    infostr.set( "HDF5 plugin" ).addNewLine(2)
+	   .add( "Using HDF5 version: " ).add( version );
     mDefineStaticLocalObject( PluginInfo, retpi,
 	( "HDF5 Support (Base)", "OpendTect",
 	"dGB", "=od",
-	"HDF5 plugin" ) );
+	infostr.buf() ) );
     return &retpi;
 }
 
