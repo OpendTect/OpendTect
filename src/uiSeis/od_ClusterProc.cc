@@ -30,23 +30,24 @@ ________________________________________________________________________
     od_cout() << "Usage: " << argv[0] << " parfile [--dosubmit] [--nodelete]" \
 	      << od_endl;
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
     SetProgramArgs( argc, argv );
-    OD::ModDeps().ensureLoaded( "uiSeis" );
+    OD::ModDeps().ensureLoaded( "General" );
 
     CommandLineParser parser;
 
     const bool withdelete = !parser.hasKey( "nodelete" );
     const bool dosubmit = parser.hasKey( "dosubmit" );
+    mInitProg( dosubmit ? OD::UiProgCtxt : OD::BatchProgCtxt )
+
     BufferStringSet normalargs;
     parser.getNormalArguments( normalargs );
 
     if ( normalargs.isEmpty() )
     {
 	mPrintHelpMsg;
-	return ExitProgram( 1 );
+	return 1;
     }
 
     const BufferString parfilenm = normalargs.last()->buf();
@@ -54,14 +55,14 @@ int main( int argc, char ** argv )
     if ( !strm.isOK() )
     {
 	od_cout() << argv[0] << ": Cannot open parameter file" << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
 
     IOPar iop; iop.read( strm, sKey::Pars() );
     if ( iop.size() == 0 )
     {
 	od_cout() << argv[0] << ": Invalid parameter file" << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
 
     DBM().setDataSource( iop );
@@ -70,15 +71,16 @@ int main( int argc, char ** argv )
     if ( dosubmit )
     {
 	uiMain app;
-	uiClusterProc* cp = new uiClusterProc( 0, iop );
+	OD::ModDeps().ensureLoaded( "uiSeis" );
+	PtrMan<uiDialog> cp = new uiClusterProc( 0, iop );
 
 	app.setTopLevel( cp );
 	cp->show();
 
-	const int ret = app.exec();
-	delete cp;
-	return ExitProgram( ret );
+	return app.exec();
     }
+
+    OD::ModDeps().ensureLoaded( "uiSeis" );
 
     od_cout() << "Merging output ..." << od_endl;
     LoggedTaskRunner taskrunner( od_cout() );
@@ -87,6 +89,5 @@ int main( int argc, char ** argv )
 	uiClusterProc::mergeOutput( iop, &taskrunner, msg, withdelete );
     od_cout() << toString(msg) << od_endl;
 
-    return ExitProgram( result ? 0 : 1 );
+    return result ? 0 : 1;
 }
-

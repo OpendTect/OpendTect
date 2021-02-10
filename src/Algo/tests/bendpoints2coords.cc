@@ -78,7 +78,7 @@ int mTestMainFnName( int argc, char** argv )
 	if ( !fp.exists() )
 	{
 	    errStream() << "Input file not found\n";
-	    ExitProgram( 1 );
+	    return 1;
 	}
     }
 

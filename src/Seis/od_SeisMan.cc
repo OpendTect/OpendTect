@@ -6,6 +6,8 @@
 
 
 #include "serverprogtool.h"
+
+#include "applicationdata.h"
 #include "ascbinstream.h"
 #include "commandlineparser.h"
 #include "ctxtioobj.h"
@@ -897,10 +899,11 @@ BufferString SeisServerTool::getSpecificUsage() const
 }
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    ApplicationData app;
     SeisServerTool st( argc, argv );
-    auto& clp = st.clp();
+    CommandLineParser& clp = st.clp();
 
     if ( clp.hasKey(sListCubesCmd) )
 	st.listCubes();
@@ -936,6 +939,5 @@ int main( int argc, char** argv )
     else if ( clp.hasKey(sWriteSEGYDefCmd) )
 	st.writeSEGYDef( sWriteSEGYDefCmd );
 
-    pFreeFnErrMsg( "Should not reach" );
-    return ExitProgram( 0 );
+    return app.exec();
 }

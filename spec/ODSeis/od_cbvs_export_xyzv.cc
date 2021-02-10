@@ -18,7 +18,7 @@
 #include "seisfact.h"
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     OD::SetRunContext( OD::BatchProgCtxt );
     if ( argc < 3 )
@@ -27,7 +27,7 @@ int main( int argc, char** argv )
 	     << " inpfile outpfile\n";
 	std::cerr << "Format input: CBVS ; Format ouput: x y z v [v ...]"
 		  << std::endl;
-	ExitProgram( 1 );
+	return 1;
     }
 
     File::Path fp( argv[1] );
@@ -35,7 +35,7 @@ int main( int argc, char** argv )
     if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;
-        ExitProgram( 1 );
+        return 1;
     }
 
     if ( !fp.isAbsolute() )
@@ -48,7 +48,7 @@ int main( int argc, char** argv )
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-	{ std::cerr << tri->errMsg() << std::endl; ExitProgram( 1 ); }
+	{ std::cerr << tri->errMsg() << std::endl; return 1; }
 
     fp.set( argv[2] );
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
@@ -56,7 +56,7 @@ int main( int argc, char** argv )
 
     od_ostream outstrm( fname );
     if ( !outstrm.isOK() )
-        { std::cerr << "Cannot open output file" << std::endl; ExitProgram(1); }
+        { std::cerr << "Cannot open output file" << std::endl; return 1; }
 
     SeisTrc trc;
     int nrwr = 0;
@@ -81,5 +81,5 @@ int main( int argc, char** argv )
 
     std::cerr << nrwr << " traces written to " << nrlwr << " lines."
 		<< std::endl;
-    ExitProgram( nrwr ? 0 : 1 ); return 0;
+    return nrwr ? 0 : 1;
 }

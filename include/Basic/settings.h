@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "iopar.h"
 
+class SettingsManager;
 
 /*!
 \brief Settings class holds the user settings. It is an IOPar.
@@ -65,8 +66,9 @@ protected:
 
 private:
 
-    static void			deleteAll();
-    friend class DBMan;
+    static void			manageSettings(Settings*);
+
+    friend class SettingsManager;
 };
 
 

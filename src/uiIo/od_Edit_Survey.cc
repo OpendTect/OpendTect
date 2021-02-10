@@ -23,18 +23,16 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include <string.h>
 
-#define mErrRet( s ) exitWithErrMsg( s )
-
-static void exitWithErrMsg( const char* msg )
-{
-    OD::DisplayErrorMessage( msg );
-    ExitProgram( 1 );
+#define mErrRet( msg ) \
+{ \
+    OD::DisplayErrorMessage( msg ); \
+    return 1; \
 }
 
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char ** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
     uiMain app;
 
@@ -62,7 +60,7 @@ int main( int argc, char ** argv )
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllUI() );
     PIM().loadSurveyRelatedTools();
 
-    uiDialog* toplevel = 0;
+    PtrMan<uiDialog> toplevel = nullptr;
     if ( createmode )
 	toplevel = new uiUserCreateSurvey( 0, dataroot );
     else
@@ -78,5 +76,6 @@ int main( int argc, char ** argv )
 
     app.setTopLevel( toplevel );
     toplevel->show();
-    return ExitProgram( app.exec() );
+
+    return app.exec();
 }

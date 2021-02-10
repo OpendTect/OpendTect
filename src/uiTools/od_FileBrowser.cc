@@ -39,15 +39,15 @@ static void printBatchUsage()
 #define mErrRet() \
 { \
     printBatchUsage(); \
-    return ExitProgram( 1 ); \
+    return 1; \
 }
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
-    uiMain app;
 
+    uiMain app;
     auto& clp = app.commandLineParser();
     const int nrargs = clp.nrArgs();
     if ( nrargs < 1 )
@@ -69,17 +69,17 @@ int main( int argc, char** argv )
     if ( !File::exists(fnm.str()) )
     {
 	strm << "File " << fnm << " does not exists." << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
     else if ( !File::isReadable(fnm.str()) )
     {
 	strm << "File " << fnm << " is not readable." << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
     else if ( !File::isFile(fnm.str()) )
     {
 	strm << "File " << fnm << " is not a file." << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
 
     File::ViewPars vp;
@@ -95,12 +95,10 @@ int main( int argc, char** argv )
 
     uiTextFileDlg::Setup fdsetup( toUiString(fnm) );
     fdsetup.allowopen( vp.editable_ ).allowsave( true );
-    uiTextFileDlg* dlg = new uiTextFileDlg( 0, vp, fdsetup, fnm );
+    PtrMan<uiDialog> dlg = new uiTextFileDlg( 0, vp, fdsetup, fnm );
     dlg->showAlwaysOnTop();
     app.setTopLevel( dlg );
     dlg->show();
 
-    const int ret = app.exec();
-    delete dlg;
-    return ExitProgram( ret );
+    return app.exec();
 }

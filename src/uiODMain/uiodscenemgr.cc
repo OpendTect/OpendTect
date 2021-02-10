@@ -1477,12 +1477,12 @@ uiODScene::uiODScene( uiMdiArea* mdiarea )
 	: lv_(0)
 	, dw_(0)
 	, mdiwin_(0)
-        , vwr3d_(0)
+	, vwr3d_(0)
 	, itemmanager_(0)
 {
     if ( !mdiarea ) return;
 
-    mdiwin_ = new uiMdiAreaWindow( *mdiarea );
+    mdiwin_ = new uiMdiAreaWindow( *mdiarea, toUiString("MDI Area Window") );
     mdiwin_->setIcon( scene_xpm_data );
     vwr3d_ = new ui3DViewer( mdiwin_, true );
     vwr3d_->setPrefWidth( 400 );
@@ -1495,6 +1495,7 @@ uiODScene::uiODScene( uiMdiArea* mdiarea )
 uiODScene::~uiODScene()
 {
     delete vwr3d_;
+    delete mdiwin_;
     delete itemmanager_;
     delete dw_;
 }

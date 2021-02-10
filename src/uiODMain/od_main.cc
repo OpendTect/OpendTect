@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "odver.h"
 #include "commandlineparser.h"
 #include "uimain.h"
-#include <iostream>
 
 #ifdef __mac__
 #include "envvars.h"
@@ -28,21 +27,24 @@ ________________________________________________________________________
 extern int ODMain(uiMain&);
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::NormalCtxt );
     SetProgramArgs( argc, argv, false );
+    const FixedString argv1( argv[1] );
+    const bool showversiononly = argv1 == "-v" || argv1 == "--version";
+    if ( showversiononly )
+    {
+	mInitProg( OD::BatchProgCtxt )
+	errStream() << GetFullODVersion() << od_endl;
+	return 0;
+    }
+
+    mInitProg( OD::NormalCtxt )
     uiMain::preInitForOpenGL();
     uiMain app;
 
-    auto& clp = app.commandLineParser();
-    const int nrargs = clp.nrArgs();
-    if ( nrargs == 1 && (clp.getArg(0)=="-v" || clp.getArg(0)=="--version") )
-	{ std::cerr << GetFullODVersion() << std::endl; ExitProgram( 0 ); }
+    DBM().setDataSource( app.commandLineParser() );
 
-    DBM().setDataSource( clp );
-
-    int ret = 0;
     if ( !GetEnvVarYN("OD_I_AM_AN_OPENDTECT_DEVELOPER") )
     {
 	const char* msg =
@@ -50,8 +52,7 @@ int main( int argc, char** argv )
 	    " (GPL, Commercial, Academic).\n"
 	    "Please consult http://opendtect.org/OpendTect_license.txt.";
 
-	std::cerr << msg << std::endl;
-	OD::SetGlobalLogFile( 0 );
+	OD::SetGlobalLogFile( nullptr );
 	UsrMsg( msg );
     }
 
@@ -61,13 +62,11 @@ int main( int argc, char** argv )
     if ( File::exists(datfile.buf()) )
     {
 	BufferString valstr = GetEnvVar( "LM_LICENSE_FILE" );
-	if ( !valstr.isEmpty() )
-	    valstr += ":";
+	if ( !valstr.isEmpty() ) valstr += ":";
 	valstr += datfile;
 	SetEnvVar( "LM_LICENSE_FILE", valstr.buf() );
     }
 #endif
 
-    ret = ODMain( app );
-    return ExitProgram( ret );
+     return ODMain( app );
 }

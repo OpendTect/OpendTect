@@ -18,7 +18,7 @@
 #include "seisfact.h"
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 4 )
     {
@@ -97,12 +97,5 @@ static int doWork( int argc, char** argv )
 
     std::cerr << nrwr << " traces written.";
     return nrwr ? 0 : 1;
-}
-
-
-int main( int argc, char** argv )
-{
-    OD::SetRunContext( OD::BatchProgCtxt );
-    return ExitProgram( doWork(argc,argv) );
 }
 

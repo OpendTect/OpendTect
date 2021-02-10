@@ -58,10 +58,9 @@ static EM::Horizon3D* loadHorizon( const char* id, BufferString& err )
 }
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    if ( argc < 4 )
-	return prUsage();
+    if ( argc < 4 ) return prUsage();
 
     BufferString errmsg;
     EM::Horizon3D* horizon1 = loadHorizon( argv[1], errmsg );
@@ -103,12 +102,4 @@ static int doWork( int argc, char** argv )
     saver->execute();
     return 0;
 }
-
-
-int main( int argc, char** argv )
-{
-    OD::SetRunContext( OD::BatchProgCtxt );
-    return ExitProgram( doWork(argc,argv) );
-}
-
 

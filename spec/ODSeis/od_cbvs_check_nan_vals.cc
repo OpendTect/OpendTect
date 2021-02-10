@@ -21,7 +21,7 @@
 #include "seisfact.h"
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     OD::SetRunContext( OD::BatchProgCtxt );
     if ( argc < 1 )
@@ -30,7 +30,7 @@ int main( int argc, char** argv )
 	          << " inpfile\n";
 	od_cout() << "Format input: CBVS ; Format ouput: inl crl v [v ...]"
 		  << od_endl;
-	ExitProgram( 1 );
+	return 1;
     }
 
     File::Path fp( argv[1] );
@@ -38,18 +38,20 @@ int main( int argc, char** argv )
     if ( !File::exists(fp.fullPath()) )
     {
         od_cout() << fp.fullPath() << " does not exist" << od_endl;
-        ExitProgram( 1 );
+        return 1;
     }
 
     if ( !fp.isAbsolute() )
+    {
         fp.insert( File::getCurrentPath() );
+    }
 
     BufferString fname=fp.fullPath();
 
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-	{ od_cout() << tri->errMsg() << od_endl; ExitProgram( 1 ); }
+	{ od_cout() << tri->errMsg() << od_endl; return 1; }
 
     fp.set( argv[2] );
     if ( !fp.isAbsolute() )
@@ -58,7 +60,7 @@ int main( int argc, char** argv )
 
     od_ostream outstrm( fname );
     if ( !outstrm.isOK() )
-        { od_cout() << "Cannot open output file" << od_endl; ExitProgram(1); }
+        { od_cout() << "Cannot open output file" << od_endl; return 1; }
 
     SeisTrc trc;
     int nrwr = 0;
@@ -90,5 +92,5 @@ int main( int argc, char** argv )
 	nrwr++;
     }
 
-    return ExitProgram( nrwr ? 0 : 1 );
+    return nrwr ? 0 : 1;
 }

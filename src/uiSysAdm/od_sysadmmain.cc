@@ -14,11 +14,10 @@ ________________________________________________________________________
 
 extern int ODSysAdmMain(int,char**);
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::SysAdmCtxt );
+    mInitProg( OD::SysAdmCtxt )
     SetProgramArgs( argc, argv );
 
-    int ret = ODSysAdmMain( argc, argv );
-    return ExitProgram( ret );
+    return ODSysAdmMain( argc, argv );
 }

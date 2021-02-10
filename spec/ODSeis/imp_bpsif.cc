@@ -9,7 +9,7 @@
 #include "dbkey.h"
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 3 )
     {
@@ -25,12 +25,5 @@ static int doWork( int argc, char** argv )
     imp.setMaxInlOffset( argc < 4 ? -1 : toInt(argv[3]) );
 
     return imp.execute( &od_cout().stdStream() ) ? 0 : 1;
-}
-
-
-int main( int argc, char** argv )
-{
-    OD::SetRunContext( OD::BatchProgCtxt );
-    return ExitProgram( doWork(argc,argv) );
 }
 

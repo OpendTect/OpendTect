@@ -17,23 +17,22 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
-    uiMain app;
-
-    OD::ModDeps().ensureLoaded( "uiPreStackProcessing" );
+    OD::ModDeps().ensureLoaded( "General" );
 
     IOPar jobpars;
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
-	return ExitProgram( 1 );
+	return 1;
 
-    uiPreStackMMProc* pmmp = new uiPreStackMMProc( 0, jobpars );
+    uiMain app;
+    OD::ModDeps().ensureLoaded( "uiPreStackProcessing" );
+
+    PtrMan<uiDialog> pmmp = new uiPreStackMMProc( 0, jobpars );
     app.setTopLevel( pmmp );
     pmmp->show();
 
-    const int ret = app.exec();
-    delete pmmp;
-    return ExitProgram( ret );
+    return app.exec();
 }

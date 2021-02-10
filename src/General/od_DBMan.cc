@@ -6,6 +6,8 @@
 
 
 #include "serverprogtool.h"
+
+#include "applicationdata.h"
 #include "commandlineparser.h"
 #include "dbdir.h"
 #include "dbman.h"
@@ -258,18 +260,22 @@ BufferString DBManServerTool::getSpecificUsage() const
 }
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    ApplicationData app;
     DBManServerTool st( argc, argv );
-    auto& clp = st.clp();
+    CommandLineParser& clp = st.clp();
 
-    if ( clp.hasKey( sListSurvCmd ) )
+    if ( clp.hasKey(sListSurvCmd) )
+    {
 	st.listSurveys();
+	return app.exec();
+    }
 
     st.setDBMDataSource();
 
     const bool isbad = DBM().isBad();
-    if ( isbad || clp.hasKey( sStatusCmd ) )
+    if ( isbad || clp.hasKey(sStatusCmd) )
     {
 	if ( isbad )
 	    st.respondError( "Data Store cannot be initialised" );
@@ -280,6 +286,7 @@ int main( int argc, char** argv )
 	    st.set( sKey::DataRoot(), fp.pathOnly() );
 	}
 	st.respondInfo( !isbad );
+	return app.exec();
     }
 
     if ( clp.hasKey(sListCmd) )
@@ -290,13 +297,10 @@ int main( int argc, char** argv )
 	st.provideInfo();
     else if ( clp.hasKey(sRemoveCmd) )
 	st.removeObj();
-
-    const int cridx = clp.indexOf( sCreateCmd );
-    if ( cridx < 0 )
+    else if ( clp.isPresent(sCreateCmd) )
+	st.createObj();
+    else
 	st.exitWithUsage();
 
-    st.createObj();
-
-    pFreeFnErrMsg( "Should not reach" );
-    return ExitProgram( 0 );
+    return app.exec();
 }

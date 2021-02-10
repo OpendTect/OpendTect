@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
     uiMain app;
 
@@ -32,14 +32,12 @@ int main( int argc, char ** argv )
     if ( !reporter.parseCommandLine() )
     {
 	gUiMsg().error( reporter.errMsg() );
-	return ExitProgram( 1 );
+	return 1;
     }
 
-    uiIssueReporterDlg* dlg = new uiIssueReporterDlg( 0, reporter );
+    PtrMan<uiDialog> dlg = new uiIssueReporterDlg( nullptr, reporter );
     app.setTopLevel( dlg );
     dlg->show();
 
-    const int ret = app.exec();
-    delete dlg;
-    return ExitProgram( ret );
+    return app.exec();
 }

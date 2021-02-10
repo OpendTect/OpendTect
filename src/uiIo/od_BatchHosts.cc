@@ -14,19 +14,17 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "prog.h"
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
     uiMain app;
     OD::ModDeps().ensureLoaded( "uiIo" );
 
-    auto* dlg = new uiBatchHostsDlg( nullptr );
+    PtrMan<uiDialog> dlg = new uiBatchHostsDlg( nullptr );
     dlg->showAlwaysOnTop();
     app.setTopLevel( dlg );
     dlg->show();
 
-    const int ret = app.exec();
-    delete dlg;
-    return ExitProgram( ret );
+    return app.exec();
 }

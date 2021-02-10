@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 
+#include "applicationdata.h"
 #include "sighndl.h"
 #include "envvars.h"
 #include "oscommand.h"
@@ -264,7 +265,7 @@ void SignalHandling::doKill( int signalnr )
 	ErrMsg( msg );
     }
     killcbs_.doCall( this );
-    ExitProgram( 1 );
+    ApplicationData::exit( 1 );
 }
 
 

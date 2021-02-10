@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uiconvpos.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
+#include "uimain.h"
 #include "uimpepartserv.h"
 #include "uisurvinfoed.h"
 #include "uimsg.h"
@@ -217,7 +218,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 			     uiStrings::phrExitOD() ) )
 	    return false;
 
-	ExitProgram( 0 );
+	uiMain::theMain().exit();
     }
 
     if ( status == 1 )
@@ -234,7 +235,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 					  tr("Select another survey"),
 					  uiStrings::phrExitOD() );
 	if ( res < 0 )
-	    ExitProgram( 0 );
+	    uiMain::theMain().exit();
 
 	if ( !res )
 	{
@@ -287,7 +288,7 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 					   tr("Do it later"),
 					   uiStrings::phrExitOD() );
     if ( res < 0 )
-	ExitProgram( 0 );
+	uiMain::theMain().exit();
 
     if ( !res )
     {
@@ -347,7 +348,7 @@ void uiODApplMgr::handleSurveySelect()
 	while ( !Convert_OD4_Data_To_OD5() )
 	{
 	    if ( !manSurv(0) )
-		ExitProgram( 0 );
+		uiMain::theMain().exit();
 	}
 	Convert_OD4_Body_To_OD5();
     }

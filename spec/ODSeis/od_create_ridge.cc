@@ -18,7 +18,7 @@
 #include "prog.h"
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 3 )
     {
@@ -110,11 +110,3 @@ static int doWork( int argc, char** argv )
     std::cerr << nrwr << " traces written." << std::endl;
     return nrwr ? 0 : 1;
 }
-
-
-int main( int argc, char** argv )
-{
-    OD::SetRunContext( OD::BatchProgCtxt );
-    return ExitProgram( doWork(argc,argv) );
-}
-

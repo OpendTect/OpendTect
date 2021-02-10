@@ -13,9 +13,9 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "odinst.h"
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
+    mInitProg( OD::InstallerCtxt )
     SetProgramArgs( argc, argv );
     CommandLineParser clp( argc, argv );
     const int nrargs = clp.nrArgs();
@@ -27,6 +27,6 @@ int main( int argc, char** argv )
     }
     else
 	ODInst::startInstManagement();
-
-    return ExitProgram( 0 );
+ 
+    return 0;
 }

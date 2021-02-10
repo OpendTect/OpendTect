@@ -15,7 +15,7 @@
 
 ApplicationData::ApplicationData()
 {
-    if ( !QCoreApplication::instance() )
+    if ( !hasInstance() )
     {
 	int argc = GetArgC();
 	application_ = new mQtclass(QCoreApplication)(argc, GetArgV() );
@@ -25,6 +25,13 @@ ApplicationData::ApplicationData()
 
 ApplicationData::~ApplicationData()
 {
+    delete application_;
+}
+
+
+bool ApplicationData::hasInstance()
+{
+    return QCoreApplication::instance();
 }
 
 
@@ -36,6 +43,9 @@ int ApplicationData::exec()
 
 void ApplicationData::exit( int retcode )
 {
+    if ( !hasInstance() )
+	DBG::forceCrash(false);
+
     QCoreApplication::exit( retcode );
 }
 

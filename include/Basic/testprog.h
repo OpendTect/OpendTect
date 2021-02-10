@@ -15,7 +15,7 @@ ________________________________________________________________________
  2) A file-scope variable 'bool quiet_': whether progress info is required
  3) A command line parser 'CommandLineParser clParser()'
 
- When the file is inclueded in a lib source, #define __test_lib_source__. To use
+ When the file is included in a lib source, #define __test_lib_source__. To use
  the macros and inline functions, you'll have to make a variable 'quiet_'
  (e.g. as class member).
 
@@ -46,7 +46,7 @@ int testMain(int,char**);
 int main(int argc, char** argv)
 {
     OD::SetRunContext( OD::TestProgCtxt );
-    ExitProgram( testMain( argc, argv ) );
+    ExitProgram( testMain(argc,argv) );
 }
 # endif
 

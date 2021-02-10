@@ -7,6 +7,7 @@
 
 #include "genc.h"
 
+#include "applicationdata.h"
 #include "debug.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -376,22 +377,6 @@ mExternC(Basic) const char* GetLastSystemErrorMessage()
 }
 
 
-mExternC(Basic) void ForkProcess(void)
-{
-#ifndef __win__
-    switch ( fork() )
-    {
-    case 0:
-	break;
-    case -1:
-	std::cerr << "Cannot fork: " << GetLastSystemErrorMessage() <<std::endl;
-    default:
-	ExitProgram( 0 );
-    }
-#endif
-}
-
-
 bool isProcessAlive( int pid )
 {
 #ifdef __win__
@@ -501,7 +486,7 @@ bool StartProgramCopy()
 static void basicProgramRestarter()
 {
     if ( StartProgramCopy() )
-	ExitProgram( 0 );
+	ApplicationData::exit( 0 );
 }
 
 

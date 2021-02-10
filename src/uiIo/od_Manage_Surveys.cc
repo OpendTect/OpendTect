@@ -17,9 +17,9 @@ ________________________________________________________________________
 #include <string.h>
 
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char ** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv, false );
     uiMain app;
 
@@ -28,10 +28,10 @@ int main( int argc, char ** argv )
     OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllUI() );
     PIM().loadSurveyRelatedTools();
 
-    uiSurveyManagerDlg* dlg = new uiSurveyManagerDlg( 0, true );
+    PtrMan<uiDialog> dlg = new uiSurveyManagerDlg( nullptr, true );
     dlg->setHelpKey( mODHelpKey(mSurveyHelpID) );
     app.setTopLevel( dlg );
     dlg->show();
 
-    return ExitProgram( app.exec() );
+    return app.exec();
 }

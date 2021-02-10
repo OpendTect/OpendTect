@@ -159,7 +159,7 @@ static bool testZSubSel()
 
 
 #undef mErrRet
-#define mErrRet(s) { od_cout() << "Err: " << s << od_endl; ExitProgram(0); }
+#define mErrRet(s) { od_cout() << "Err: " << s << od_endl; return 0; }
 
 int mTestMainFnName( int argc, char** argv )
 {

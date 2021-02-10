@@ -22,17 +22,57 @@ static const char* sKeyCommon = "Common";
 #define mGetKey(key) (key && *key ? key : sKeyCommon)
 #define mIsCommon(key) (!key || !*key || FixedString(key)==sKeyCommon)
 
-static PtrMan<ObjectSet<Settings> > theinst_ = 0;
+class SettingsManager
+{
+public:
+
+	    ~SettingsManager()
+	    {
+		deleteSettings();
+	    }
+
+    ObjectSet<Settings>& getSetts() { return setts_; }
+
+    Settings&    add( Settings& setts )
+	    {
+		setts_.add( &setts );
+		return setts;
+	    }
+
+    void    deleteSettings()
+	    {
+		for ( int idx=setts_.size()-1; idx>=0; idx-- )
+		    delete setts_.removeSingle( idx );
+		setts_.setEmpty();
+	    }
+
+    static Threads::Lock	lock_;
+
+private:
+    ObjectSet<Settings> setts_;
+};
+
+static PtrMan<SettingsManager> settingsmanager = nullptr;
+Threads::Lock SettingsManager::lock_( true );
+
+void DeleteSettings()
+{
+    Threads::Locker locker( SettingsManager::lock_ );
+    if ( settingsmanager )
+	settingsmanager->deleteSettings();
+}
 
 ObjectSet<Settings>& getSetts()
 {
-    if ( !theinst_ )
+    Threads::Locker locker( SettingsManager::lock_ );
+
+    if ( !settingsmanager )
     {
-	ObjectSet<Settings>* ptr = new ObjectSet<Settings>;
-	theinst_.setIfNull(ptr,true);
+	settingsmanager = new SettingsManager;
+	NotifyExitProgram( DeleteSettings );
     }
 
-    return *theinst_;
+    return settingsmanager->getSetts();
 }
 
 
@@ -46,15 +86,6 @@ static BufferString getFileName( const char* key, const char* dtectusr,
     if ( dtectusr && *dtectusr )
 	{ fname += "."; fname += dtectusr; }
     return fname;
-}
-
-
-
-void Settings::deleteAll()
-{
-    auto& setts = getSetts();
-    for ( int idx=setts.size()-1; idx>=0; idx-- )
-	delete setts.removeSingle(idx);
 }
 
 
@@ -77,8 +108,7 @@ Settings& Settings::fetch( const char* key )
 
     newsett->setName( settkey );
     newsett->fname_ = getFileName( key, GetSoftwareUser(), GetSettingsDir() );
-    settlist += newsett;
-    return *newsett;
+    return settingsmanager->add( *newsett );
 }
 
 

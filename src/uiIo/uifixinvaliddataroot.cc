@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uidesktopservices.h"
 #include "uifileselector.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "file.h"
 #include "filepath.h"
@@ -63,7 +64,7 @@ bool uiFixInvalidDataRoot::rejectOK()
     uiString msg = tr("OpendTect cannot start without a valid data root "
 		      "directory.\n\nExit OpendTect?");
     if ( uiMSG().askGoOn(msg) )
-	ExitProgram( 0 );
+	uiMain::theMain().exit();
 
     return false;
 }

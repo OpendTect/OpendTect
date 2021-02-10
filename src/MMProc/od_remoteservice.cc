@@ -14,17 +14,13 @@ ________________________________________________________________________
 #include "prog.h"
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::BatchProgCtxt );
+    mInitProg( OD::BatchProgCtxt )
     SetProgramArgs( argc, argv );
     ApplicationData app;
 
-    auto* handler = new RemCommHandler(mCast(PortNr_Type,5050) );
+    PtrMan<RemCommHandler> handler = new RemCommHandler( mCast(PortNr_Type,5050) );
     handler->listen();
-    const bool res = app.exec();
-
-    delete handler;
-    return ExitProgram( res );
+    return app.exec();
 }
-

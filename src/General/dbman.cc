@@ -110,7 +110,6 @@ void DBMan::setSurveyChangeAbortReason( uiRetVal reason )
 
 void DBMan::applClosing()
 {
-    Settings::deleteAll();
     applicationClosing.trigger();
 }
 

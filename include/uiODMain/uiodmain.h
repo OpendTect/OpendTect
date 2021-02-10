@@ -99,7 +99,6 @@ protected:
 
     virtual bool	closeOK();
     bool		prepareRestart();
-    void		closeApplication();
     void		afterStartupCB(CallBacker*);
     void		afterSurveyChgCB(CallBacker*);
     void		handleStartupSession();
