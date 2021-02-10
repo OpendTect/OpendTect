@@ -74,7 +74,7 @@ public:
 
     Threads::Atomic<int>	nrhits_ = 0;
     Timer	timer_;
-    int		retval_ = 0;
+    int		retval_ = -1;
 };
 
 

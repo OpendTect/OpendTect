@@ -46,7 +46,8 @@ public:
         if ( clParser().hasKey("testpipes") )
         {
             testServer();
-            CallBack::addToMainThread( mCB( this, TestClass, closeTesterCB ) );
+            CallBack::addToMainThread( mCB(this,TestClass,closeTesterCB) );
+            return;
         }
 
         retval_ = testCmds() && testAllPipes() && runCommandWithSpace() &&
@@ -194,7 +195,7 @@ static void testServer()
 }
 
 Timer   timer_;
-int     retval_ = 0;
+int     retval_ = -1;
 
 };
 
@@ -209,5 +210,5 @@ int mTestMainFnName( int argc, char** argv )
     ApplicationData app;
 
     TestClass tester;
-    return app.exec();;
+    return app.exec();
 }
