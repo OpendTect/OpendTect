@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisparallelreader.h"
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
     if ( argc < 2 )
@@ -33,7 +33,7 @@ int main( int argc, char** argv )
 	     << " objectid method\n";
 	std::cerr << "method: 0-parallel 1-sequential"
 		  << std::endl;
-	ExitProgram( 1 );
+	return 1;
     }
 
     OD::ModDeps().ensureLoaded( "Seis" );
@@ -43,7 +43,7 @@ int main( int argc, char** argv )
     {
 	std::cerr << "Cannot read seismic data with ID " << seismid.buf()
 		  << std::endl;
-	ExitProgram( 1 );
+	return 1;
     }
 
     std::cerr << "Preloading " << ioobj->name() << std::endl;
@@ -68,5 +68,5 @@ int main( int argc, char** argv )
 
     std::cerr << "Total time: " << counter.elapsed() << std::endl;
 
-    ExitProgram( 0 ); return 0;
+    return 0;
 }

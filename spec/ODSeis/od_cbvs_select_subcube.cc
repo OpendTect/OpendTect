@@ -26,7 +26,7 @@ static const char* rcsID = "$Id$";
 #include "seisfact.h"
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 4 )
     {
@@ -38,13 +38,13 @@ static int doWork( int argc, char** argv )
     }
 
     FilePath fp( argv[2] );
-    
+
     if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;
         return 1;
     }
-    
+
     if ( !fp.isAbsolute() )
     {
         fp.insert( File::getCurrentPath() );
@@ -56,7 +56,7 @@ static int doWork( int argc, char** argv )
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
         { std::cerr << tri->errMsg() << std::endl; return 1; }
 
-    fp.set( argv[3] ); 
+    fp.set( argv[3] );
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
@@ -110,8 +110,3 @@ static int doWork( int argc, char** argv )
     return rsmplr.nrPassed() ? 0 : 1;
 }
 
-
-int main( int argc, char** argv )
-{
-    return ExitProgram( doWork(argc,argv) );
-}

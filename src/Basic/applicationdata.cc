@@ -43,10 +43,7 @@ int ApplicationData::exec()
 void ApplicationData::exit( int retcode )
 {
     if ( !hasInstance() )
-    {
-	pFreeFnErrMsg( "No Qt application with event loop." );
-	ExitProgram( retcode );
-    }
+	DBG::forceCrash(false);
 
     QCoreApplication::exit( retcode );
 }

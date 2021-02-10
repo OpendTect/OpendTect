@@ -10,7 +10,7 @@ static const char* rcsID = "$Id$";
 #include "multiid.h"
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 3 )
     {
@@ -28,8 +28,3 @@ static int doWork( int argc, char** argv )
     return imp.execute( &od_cout().stdStream() ) ? 0 : 1;
 }
 
-
-int main( int argc, char** argv )
-{
-    return ExitProgram( doWork(argc,argv) );
-}
