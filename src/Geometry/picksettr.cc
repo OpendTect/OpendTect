@@ -17,6 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "datapointset.h"
 #include "filepath.h"
+#include "iodir.h"
+#include "iodirentry.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -281,11 +283,25 @@ void PickSetTranslator::fillConstraints( IOObjContext& ctxt, bool ispoly )
     if ( ispoly )
 	ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
     else
+	ctxt.toselect_.require_.set( sKey::Type(), sKey::PickSet() );
+}
+
+
+void PickSetTranslator::tagLegacyPickSets()
+{
+    const IOObjContext ctxt = mIOObjContext( PickSet );
+    const IODir iodir( ctxt.getSelKey() );
+    const ObjectSet<IOObj>& objs = iodir.getObjs();
+    for ( auto ioobj : objs )
     {
-	BufferString types = sKey::PickSet();
-	types += "`"; // Allow Type to be empty or missing
-	ctxt.toselect_.require_.set( sKey::Type(), types.buf() );
+	if ( !ioobj || !ctxt.validIOObj(*ioobj) ||
+					ioobj->pars().hasKey(sKey::Type()) )
+	    continue;
+
+	ioobj->pars().set( sKey::Type(), sKey::PickSet() );
     }
+
+    iodir.doWrite();
 }
 
 

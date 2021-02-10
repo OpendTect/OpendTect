@@ -61,6 +61,7 @@ public:
 			//!< Returns null on failure
 
     static void		fillConstraints(IOObjContext&,bool ispoly);
+    static void		tagLegacyPickSets();
 
     bool		implRemove(const IOObj*) const;
     bool		implRename(const IOObj*,const char*,
