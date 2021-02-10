@@ -147,7 +147,5 @@ int mTestMainFnName(int argc, char** argv)
     logStream() << "Listening to " << auth.toString()
 		<< " with a " << tester.timeout_ << " second timeout\n";
 
-    const int retval = app.exec();
-
-    return retval;
+    return app.exec();
 }

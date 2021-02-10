@@ -97,7 +97,6 @@ mGlobal(Basic) const char* GetVCSVersion(void);
 
 mGlobal(Basic) const char* GetLastSystemErrorMessage(void);
 
-mGlobal(Basic) mDeprecated void ForkProcess(void);
 
 inline void EmptyFunction()			{}
 /* Used in some macros and ifdefs */

@@ -88,12 +88,13 @@ int mTestMainFnName( int argc, char** argv )
     mInitTestProg();
     uiMain app;
 
-    uiDialog* dlg = new uiDialog( 0, uiDialog::Setup(uiStrings::sInformation(),
+    PtrMan<uiDialog> dlg =
+	    new uiDialog( 0, uiDialog::Setup(uiStrings::sInformation(),
 			mNoDlgTitle,mNoHelpKey) );
-    uiCanvasDrawTester* tstr = new uiCanvasDrawTester( dlg );
+    PtrMan<uiCanvasDrawTester> tstr = new uiCanvasDrawTester( dlg );
     tstr->setViewSize( 600, 400 );
     app.setTopLevel( dlg );
     dlg->go();
 
-    return ExitProgram( app.exec() );
+    return app.exec();
 }

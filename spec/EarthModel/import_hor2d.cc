@@ -267,7 +267,7 @@ void makeHorizons( ObjectSet<HorLine2D>& data, const DBKey& lsetkey,
 }
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 4 ) return prUsage();
     BufferString errmsg;
@@ -312,11 +312,3 @@ static int doWork( int argc, char** argv )
 
     return 0;
 }
-
-
-int main( int argc, char** argv )
-{
-    OD::SetRunContext( OD::BatchProgCtxt );
-    return ExitProgram( doWork(argc,argv) );
-}
-

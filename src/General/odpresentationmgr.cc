@@ -12,21 +12,18 @@
 
 const char* Presentation::sKeyObj()	{ return "Presentation Obj"; }
 
-static Presentation::Manager* prman_ = 0;
-static Presentation::ObjInfoFactory* dispinfofac_ = 0;
-
 Presentation::Manager& OD::PrMan()
 {
-    if ( !prman_ )
-	prman_ = new Presentation::Manager;
+    mDefineStaticLocalObject( PtrMan<Presentation::Manager>, prman_,
+	    = new Presentation::Manager);
     return *prman_;
 }
 
 
 Presentation::ObjInfoFactory& OD::PrIFac()
 {
-    if ( !dispinfofac_ )
-	dispinfofac_ = new Presentation::ObjInfoFactory;
+    mDefineStaticLocalObject( PtrMan<Presentation::ObjInfoFactory>, dispinfofac_,
+	= new Presentation::ObjInfoFactory );
     return *dispinfofac_;
 }
 

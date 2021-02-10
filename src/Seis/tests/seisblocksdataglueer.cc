@@ -107,9 +107,9 @@ int mTestMainFnName( int argc, char** argv )
     PIM().loadAuto( false );
 
     if ( !testCreate() )
-	ExitProgram( 1 );
+	return 1;
     if ( !testReadBack() )
-	ExitProgram( 1 );
+	return 1;
 
     return 0;
 }

@@ -19,29 +19,9 @@ class BatchProgram;
 class StreamData;
 namespace Network { class Socket; }
 
-#define mReturn( ret ) { \
-    if ( ret ) { nrattempts_ = 0; return true; } \
-    if ( nrattempts_++ < maxtries_ ) return true; \
-    stillok_ = false; \
-    directMsg("Lost connection with master[1]. Exiting."); \
-    ExitProgram( -1 ); return false; \
-}
-
-#define mTryMaxtries( fn ) { \
-    for ( int i=0; i<maxtries_; i++ ) \
-    { \
-	bool ret = fn; \
-	if ( ret ) return true; \
-	sleepSeconds(1); \
-    } \
-    stillok_ = false; \
-    directMsg("Lost connection with master[2]. Exiting."); \
-    ExitProgram( -1 ); return false; \
-}
-
 
 /*! \brief Multi-machine socket communicator
- *  Handles the communication between a client and the master, from
+ *  Handles the communication between a client and the primary host, from
  *  the client's point of view.
  */
 mExpClass(Network) JobCommunic : public CallBacker
@@ -62,28 +42,19 @@ public:
 
     void		setStream( od_ostream& strm ) { strm_ = &strm; }
 
-    bool		updateState()
-			{
-			    bool ret = sendState_(stat_,false,false);
-			    mReturn(ret)
-			}
-    bool		updateProgress( int p )
-			{ bool ret = sendProgress_(p,false); mReturn(ret) }
+    bool		updateState();
+    bool		updateProgress(int);
 
     void		setTimeBetweenMsgUpdates(int);
 
-    bool		sendState(  bool isexit=false )
-			    { mTryMaxtries( sendState_(stat_,isexit,true) ) }
-    bool		sendProgress( int p )
-			    { mTryMaxtries( sendProgress_(p,true) ) }
+    bool		sendState(bool isexit = false);
+    bool		sendProgress(int);
 
 			//! hostrelated error messages are more serious.
-    bool		sendErrMsg( const char* msg )
-			    { mTryMaxtries( sendErrMsg_(msg) ) }
-    bool		sendPID( int pid )
-			    { mTryMaxtries( sendPID_(pid) ) }
+    bool		sendErrMsg(const char*);
+    bool		sendPID(PID_Type);
 
-    bool                pauseRequested() const
+    bool		pauseRequested() const
 			    { return pausereq_; }
     void		disConnect();
 
@@ -93,22 +64,22 @@ public:
 protected:
 
     Network::Authority	masterauth_;
-    bool		stillok_;
+    bool		stillok_ = true;
     State		stat_;
     uiString		errmsg_;
     int			jobid_;
-    bool		pausereq_;
+    bool		pausereq_ = false;
     od_ostream*		strm_ = nullptr;
     BufferString	progressdetail_;
 
     Network::Socket*	socket_;
 
-    bool		sendState_( State, bool isexit, bool immediate );
-    bool		sendProgress_( int, bool immediate );
-    bool		sendPID_( int );
-    bool		sendErrMsg_( const char* msg );
+    bool		sendState_(State,bool isexit,bool immediate);
+    bool		sendProgress_(int,bool immediate);
+    bool		sendPID_(PID_Type);
+    bool		sendErrMsg_(const char* msg);
 
-    void		alarmHndl( CallBacker* ); //!< time-out
+    void		alarmHndl(CallBacker*); //!< time-out
 
 private:
 
@@ -123,7 +94,7 @@ private:
     void		checkMasterTimeout();
 
     int			timestamp_;
-    int			nrattempts_;
+    int			nrattempts_ = 0;
     int			maxtries_;
     int			socktimeout_;
     int			failtimeout_;
@@ -138,6 +109,3 @@ private:
     void		dumpSystemInfo();
 
 };
-
-#undef mReturn
-#undef mTryMaxtries

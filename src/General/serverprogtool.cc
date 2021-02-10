@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "serverprogtool.h"
+
+#include "applicationdata.h"
 #include "ascstream.h"
 #include "dbman.h"
 #include "dbkey.h"
@@ -18,6 +20,7 @@ ________________________________________________________________________
 #include "odjson.h"
 #include "odver.h"
 #include "od_ostream.h"
+#include "timer.h"
 #include <iostream>
 
 static const char* sVersionCmd = "version";
@@ -28,11 +31,23 @@ static const char* sErrKey = "ERR";
 ServerProgTool::ServerProgTool( int argc, char** argv, const char* moddep )
     : jsonroot_(*new JSONObject)
     , jsonmode_(true)
+    , timer_(*new Timer("Server tool"))
 {
+    if ( !ApplicationData::hasInstance() )
+	DBG::forceCrash( false ); // There should be a QApplication instance
+
     OD::SetRunContext( OD::BatchProgCtxt );
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( moddep );
     clp_ = new CommandLineParser;
+    mAttachCB( timer_.tick, ServerProgTool::timerTickCB );
+}
+
+
+ServerProgTool::~ServerProgTool()
+{
+    detachAllNotifiers();
+    delete& timer_;
 }
 
 
@@ -42,7 +57,7 @@ void ServerProgTool::initParsing( int protnr, bool setdatasrc )
 
     if ( clp().nrArgs() < 1 )
 	exitWithUsage();
-    else if ( clp().hasKey( sVersionCmd ) )
+    else if ( clp().hasKey(sVersionCmd) )
     {
 	od_cout() << GetFullODVersion() << " (" << protocolnr_ << ")"
 		  << od_endl;
@@ -64,12 +79,6 @@ void ServerProgTool::setDBMDataSource()
     uiRetVal uirv = DBM().setDataSource( clp() );
     if ( !uirv.isOK() )
 	respondError( toString(uirv) );
-}
-
-
-ServerProgTool::~ServerProgTool()
-{
-    exitProgram( true );
 }
 
 
@@ -313,5 +322,18 @@ void ServerProgTool::exitWithUsage() const
 
 void ServerProgTool::exitProgram( bool success ) const
 {
-    ExitProgram( success ? 0 : 1 );
+    const_cast<ServerProgTool&>(*this).exitProgram( success );
+}
+
+
+void ServerProgTool::exitProgram( bool success )
+{
+    retval_ = success ? 0 : 1;
+    timer_.start( 0, true );
+}
+
+
+void ServerProgTool::timerTickCB( CallBacker* )
+{
+    ApplicationData::exit( retval_ );
 }

@@ -17,23 +17,22 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
-    uiMain app;
-
-    OD::ModDeps().ensureLoaded( "uiSeis" );
+    OD::ModDeps().ensureLoaded( "General" );
 
     IOPar jobpars;
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
-	return ExitProgram( 1 );
+	return 1;
 
-    uiSeisMMProc* smmp = new uiSeisMMProc( 0, jobpars );
+    uiMain app;
+    OD::ModDeps().ensureLoaded( "uiSeis" );
+
+    PtrMan<uiDialog> smmp = new uiSeisMMProc( nullptr, jobpars );
     app.setTopLevel( smmp );
     smmp->show();
 
-    const int ret = app.exec();
-    delete smmp;
-    return ExitProgram( ret );
+    return app.exec();
 }

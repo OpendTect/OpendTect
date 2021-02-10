@@ -67,5 +67,5 @@ int mTestMainFnName( int argc, char** argv )
     ApplicationData app;
     TestClass tester;
 
-    return app.exec();;
+    return app.exec();
 }

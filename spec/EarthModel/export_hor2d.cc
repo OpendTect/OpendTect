@@ -56,7 +56,7 @@ static bool isLineUsed( const ObjectSet<const EM::Horizon2D>& horizons,
 }
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 3 )
     {
@@ -64,6 +64,8 @@ static int doWork( int argc, char** argv )
 		  << std::endl;
 	return 1;
     }
+
+    EarthModel::initStdClasses();
 
     PtrMan<IOObj> ioobj = DBKey(argv[1]).getIOObj();
     if ( !ioobj )
@@ -151,12 +153,3 @@ static int doWork( int argc, char** argv )
 
     return 0;
 }
-
-
-int main( int argc, char** argv )
-{
-    OD::SetRunContext( OD::BatchProgCtxt );
-    EarthModel::initStdClasses();
-    return ExitProgram( doWork(argc,argv) );
-}
-

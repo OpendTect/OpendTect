@@ -16,22 +16,22 @@ ________________________________________________________________________
 #include "prog.h"
 
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char ** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
-    uiMain app;
-
-    OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
+    OD::ModDeps().ensureLoaded( "General" );
 
     IOPar jobpars;
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
-	return ExitProgram( 1 );
+	return 1;
 
-    uiMMPTestProc* testmmp = new uiMMPTestProc( 0, jobpars );
+    OD::ModDeps().ensureLoaded( OD::ModDepMgr::sAllNonUI() );
+
+    uiMain app;
+    PtrMan<uiDialog> testmmp = new uiMMPTestProc( nullptr, jobpars );
     app.setTopLevel( testmmp );
     testmmp->show();
-    const int ret = app.exec();
-    delete testmmp;
-    return ExitProgram( ret );
+
+    return app.exec();
 }

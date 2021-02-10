@@ -394,12 +394,12 @@ static void printBatchUsage( const char* prognm )
 #define mErrRet(act) \
 { \
     act; \
-    return ExitProgram( 1 ); \
+    return 1; \
 }
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
     uiMain app;
     OD::ModDeps().ensureLoaded( "uiBase" );
@@ -434,11 +434,9 @@ int main( int argc, char** argv )
 	}
     }
 
-    uiProgressViewer* pv = new uiProgressViewer( 0, inpfile, pid, delay );
+    PtrMan<uiMainWin> pv = new uiProgressViewer( 0, inpfile, pid, delay );
     app.setTopLevel( pv );
     pv->show();
 
-    const int ret = app.exec();
-    delete pv;
-    return ExitProgram( ret );
+    return app.exec();
 }

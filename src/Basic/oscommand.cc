@@ -634,7 +634,7 @@ void OS::CommandLauncher::reset()
     if ( process_ && process_->state()!=QProcess::NotRunning )
     {
 	manageQProcess( process_ );
-	process_ = 0;
+	process_ = nullptr;
     }
     deleteAndZeroPtr( process_ );
 #endif

@@ -23,7 +23,7 @@
 #include "seisprovider.h"
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     OD::SetRunContext( OD::BatchProgCtxt );
     SetProgramArgs( argc, argv );
@@ -33,7 +33,7 @@ int main( int argc, char** argv )
 	     << " objectid method\n";
 	std::cerr << "method: 0-parallel 1-sequential 2-trcbuf"
 		  << std::endl;
-	ExitProgram( 1 );
+	return 1;
     }
 
     OD::ModDeps().ensureLoaded( "Seis" );
@@ -43,7 +43,7 @@ int main( int argc, char** argv )
     {
 	std::cerr << "Cannot read seismic data with ID " << seismid.toString()
 		  << std::endl;
-	ExitProgram( 1 );
+	return 1;
     }
 
     std::cerr << "Preloading " << ioobj->name() << std::endl;
@@ -73,7 +73,7 @@ int main( int argc, char** argv )
 	if ( !prov )
 	{
 	    std::cerr << uirv.getText().buf() << std::endl;
-	    ExitProgram( 1 );
+	    return 1;
 	}
 
 	prov->setSelData( new Seis::RangeSelData(tkzs) );
@@ -83,6 +83,5 @@ int main( int argc, char** argv )
 
     std::cerr << "Total time: " << counter.elapsed() << std::endl;
 
-    ExitProgram( 0 ); return 0;
+    return 0;
 }
-

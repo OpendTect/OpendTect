@@ -36,6 +36,8 @@ public:
 			    are instantiated.) */
 			~ApplicationData();
 
+    static bool		hasInstance();
+
     static int		exec();
 			//!<Starts the event loop
 
@@ -52,6 +54,6 @@ public:
 
 protected:
 
-    mQtclass(QCoreApplication)* application_;
+    mQtclass(QCoreApplication)* application_ = nullptr;
 
 };

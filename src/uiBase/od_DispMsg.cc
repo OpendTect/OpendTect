@@ -16,20 +16,15 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "moddepmgr.h"
 
-#ifdef __msvc__
-#include "winmain.h"
-#endif
 
-
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    OD::SetRunContext( OD::UiProgCtxt );
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
-    uiMain app;
 
-    auto& clp = app.commandLineParser();
+    CommandLineParser clp;
     if ( clp.nrArgs()<1 )
-	return ExitProgram( 1 );
+	return 1;
 
     int typ = 0; //Default is info
     if ( clp.hasKey( "warn" ) )
@@ -42,7 +37,7 @@ int main( int argc, char** argv )
     BufferStringSet normalargs;
     clp.getNormalArguments( normalargs );
 
-    uiString msg = uiString::empty();
+    uiString msg;
     for ( int idx=0; idx<normalargs.size(); idx++ )
     {
 	BufferString nextarg( normalargs[idx]->buf() );
@@ -56,13 +51,14 @@ int main( int argc, char** argv )
 	if ( typ != 3 )
 	{
 	    od_cout() << clp.getExecutableName() << ": No message";
-	    ExitProgram( 0 );
+	    return 0;
 	}
 	msg = od_static_tr("main","Your answer").addMoreInfo(uiString::empty());
     }
 
-    uiMsg& uimsg = gUiMsg();
+    uiMain app;
     OD::ModDeps().ensureLoaded( "uiBase" );
+    uiMsg& uimsg = gUiMsg();
     if ( typ == 0 )
 	uimsg.message( msg );
     else if ( typ == 1 )
@@ -72,5 +68,5 @@ int main( int argc, char** argv )
     else if ( typ == 3 )
 	od_cout() << getYesNoString( uimsg.askGoOn(msg) ) << od_endl;
 
-    return ExitProgram( 0 );
+    return 0;
 }

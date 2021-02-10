@@ -400,6 +400,7 @@ uiMain::uiMain( QApplication* qapp )
 uiMain::~uiMain()
 {
     detachAllNotifiers();
+    DBM().applClosing();
     delete keyhandler_;
     delete keyfilter_;
     delete tabletfilter_;
@@ -443,7 +444,7 @@ void uiMain::preInit()
 void uiMain::preInitForOpenGL()
 {
 #ifdef __win__
-    /*Dynamic dll loading makes OSG crash with Remote Desktop Protocal.
+    /*Dynamic dll loading makes OSG crash with Remote Desktop Protocol.
       Needs to set it explicitely. Sufficient for machine with Nvidia Quadro,
       but not with GeForce cards.
       */
@@ -551,8 +552,38 @@ int uiMain::exec()
 {
     if ( !app_ )
 	{ pErrMsg("Huh?") ; return -1; }
-    return app_->exec();
+
+    const int ret = app_->exec();
+    return ret;
 }
+
+void uiMain::restart()
+{
+    RestartProgram();
+}
+
+
+void uiMain::exit( int retcode )
+{
+    if ( app_ )
+	app_->exit( retcode );
+    else
+	{ pErrMsg( "Huh?" ); return; }
+}
+
+
+/*!<\brief Tells the application to exit with a return code.
+
+    After this function has been called, the application leaves the main
+    event loop and returns from the call to exec(). The exec() function
+    returns retcode.
+
+    By convention, retcode 0 means success, any non-zero value indicates
+    an error.
+
+    Note that unlike the C library exit function, this function does
+    return to the caller - it is event processing that stops
+*/
 
 
 void* uiMain::thread()
@@ -593,38 +624,6 @@ void uiMain::setFont( const uiFont& fnt, bool PassToChildren )
 	{ pErrMsg("Huh?"); return; }
     app_->setFont( font_->qFont() );
 }
-
-
-void uiMain::restart()
-{
-    RestartProgram();
-}
-
-
-void uiMain::exit( int retcode )
-{
-    DBM().applClosing();
-    if ( app_ )
-	app_->exit( retcode );
-    else
-	{ pErrMsg("Huh? No app_?"); }
-
-    ExitProgram( retcode ); // This should only be reached if !app_
-}
-
-
-/*!<\brief Tells the application to exit with a return code.
-
-    After this function has been called, the application leaves the main
-    event loop and returns from the call to exec(). The exec() function
-    returns retcode.
-
-    By convention, retcode 0 means success, any non-zero value indicates
-    an error.
-
-    Note that unlike the C library exit function, this function does
-    return to the caller - it is event processing that stops
-*/
 
 
 const uiFont* uiMain::font()

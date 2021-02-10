@@ -5,7 +5,6 @@
  * FUNCTION :
 -*/
 
-
 #include "applicationdata.h"
 #include "envvars.h"
 #include "filepath.h"
@@ -30,7 +29,7 @@ class TestClass : public CallBacker
 {
 public:
     TestClass()
-        : timer_("starter")
+        : timer_( "starter" )
     {
         mAttachCB( timer_.tick, TestClass::timerTick );
         timer_.start( 0, true );
@@ -47,7 +46,7 @@ public:
         if ( clParser().hasKey("testpipes") )
         {
             testServer();
-            CallBack::addToMainThread( mCB( this,TestClass,closeTesterCB ) );
+            CallBack::addToMainThread( mCB(this,TestClass,closeTesterCB) );
             return;
         }
 
@@ -198,10 +197,9 @@ public:
     }
 
     Timer   timer_;
-    int     retval_ = 0;
+    int     retval_ = -1;
 
 };
-
 
 
 int mTestMainFnName( int argc, char** argv )
@@ -214,8 +212,5 @@ int mTestMainFnName( int argc, char** argv )
     ApplicationData app;
 
     TestClass tester;
-
-    const int retval = app.exec();
-
-    return retval;
+    return app.exec();
 }
