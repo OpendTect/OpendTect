@@ -9,6 +9,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "prog.h"
 #include "uimain.h"
 
+#include "commandlineparser.h"
 #include "file.h"
 #include "odgraphicswindow.h"
 
@@ -18,6 +19,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include <osgViewer/Viewer>
 #include <osgGA/TrackballManipulator>
 
+#include <osg/Version>
 #include <osg/ShapeDrawable>
 #include <osg/MatrixTransform>
 #include <osgManipulator/TabBoxDragger>
@@ -28,12 +30,14 @@ int mProgMainFnName( int argc, char** argv )
     mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
     uiMain::preInitForOpenGL();
+    uiMain app( argc, argv );
 
+    CommandLineParser clp;
+    BufferStringSet files;
+    clp.getNormalArguments( files );
     BufferString file;
-    if ( argc>1 )
-	file = argv[1];
-
-    QApplication app(argc, argv);
+    if ( !files.isEmpty() )
+	file = files.first();
 
 #if OSG_VERSION_LESS_THAN( 3, 5, 0 )
     initQtWindowingSystem();
