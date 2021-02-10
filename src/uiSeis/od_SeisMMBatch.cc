@@ -22,6 +22,7 @@ int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
+    OD::ModDeps().ensureLoaded( "General" );
 
     IOPar jobpars;
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )

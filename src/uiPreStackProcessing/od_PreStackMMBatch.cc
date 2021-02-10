@@ -22,12 +22,13 @@ int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
-    uiMain app( argc, argv );
+    OD::ModDeps().ensureLoaded( "General" );
 
     IOPar jobpars;
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
 	return 1;
 
+    uiMain app( argc, argv );
     OD::ModDeps().ensureLoaded( "uiPreStackProcessing" );
 
     PtrMan<uiDialog> pmmp = new uiPreStackMMProc( 0, jobpars );
