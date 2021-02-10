@@ -41,11 +41,7 @@ static const char* getStringFromInt( od_int32 val )
     mDeclStaticString( ret );
     if ( ret.bufSize() < 128 )
 	ret.setMinBufSize( 128 );
-#ifdef __win__
-    sprintf_s( ret.getCStr(), ret.bufSize(), "%d", val );
-#else
-    sprintf( ret.getCStr(), "%d", val );
-#endif
+    od_sprintf( ret.getCStr(), ret.bufSize(), "%d", val );
     return ret.buf();
 }
 
@@ -55,11 +51,7 @@ static const char* getStringFromUInt( od_uint32 val )
     mDeclStaticString( ret );
     if ( ret.bufSize() < 128 )
 	ret.setMinBufSize( 128 );
-#ifdef __win__
-    sprintf_s( ret.getCStr(), ret.bufSize(), "%u", val );
-#else
-    sprintf( ret.getCStr(), "%u", val );
-#endif
+    od_sprintf( ret.getCStr(), ret.bufSize(), "%u", val );
     return ret;
 }
 
@@ -979,11 +971,7 @@ static const char* toStringLimImpl( T val, int maxtxtwdth )
 
     // Nope. We have no choice: use the 'g' format
     const BufferString fullfmt( "%", maxtxtwdth-4, "g" );
-#ifdef __win__
-    sprintf_s( str, ret.bufSize(), fullfmt.buf(), val );
-#else
-    sprintf( str, fullfmt.buf(), val );
-#endif
+    od_sprintf( str, ret.bufSize(), fullfmt.buf(), val );
 
     const int retsz = ret.size();
     if ( retsz > maxtxtwdth )
@@ -1189,11 +1177,7 @@ FixedString NrBytesToStringCreator::getString( od_uint64 sz, int nrdecimals,
     mDeclStaticString( ret );
     if ( ret.isEmpty() )
 	ret.setMinBufSize( 16 );
-#ifdef __win__
-    sprintf_s( ret.getCStr(), ret.bufSize(), formatstr, fsz );
-#else
-    sprintf( ret.getCStr(), formatstr, fsz );
-#endif
+    od_sprintf( ret.getCStr(), ret.bufSize(), formatstr, fsz );
 
     if ( withunit )
 	ret.add( " " ).add( getUnitString() );
@@ -1209,10 +1193,10 @@ FixedString NrBytesToStringCreator::getUnitString() const
 }
 
 
-FixedString NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit)
+FixedString NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit )
 {
     const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", 0 };
-    return units[(int) unit];
+    return units[ int(unit) ];
 }
 
 

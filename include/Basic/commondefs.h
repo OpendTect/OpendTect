@@ -316,3 +316,9 @@ namespace Threads
 #endif
 
 
+// C library functions
+#ifdef __msvc__
+# define od_sprintf	sprintf_s
+#else
+# define od_sprintf	snprintf
+#endif
