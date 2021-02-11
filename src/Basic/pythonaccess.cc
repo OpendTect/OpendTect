@@ -38,8 +38,9 @@ BufferStringSet OD::PythonAccess::pystartpath_{0}; //From user environment
 
 OD::PythonAccess& OD::PythA()
 {
-    mDefineStaticLocalObject( PtrMan<PythonAccess>, theinst, = nullptr );
-    return *theinst.createIfNull();
+    mDefineStaticLocalObject( PtrMan<PythonAccess>, theinst,
+							  = new PythonAccess );
+    return *theinst;
 }
 
 
@@ -88,8 +89,9 @@ OD::PythonAccess::~PythonAccess()
 
 const BufferStringSet& OD::PythonAccess::getBasePythonPath() const
 {
-    mDefineStaticLocalObject( PtrMan<BufferStringSet>, theinst, = nullptr );
-    return *theinst.createIfNull();
+    mDefineStaticLocalObject( PtrMan<BufferStringSet>, theinst,
+						      = new BufferStringSet );
+    return *theinst;
 }
 
 
@@ -834,7 +836,7 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	    return true;
 	}
 	else
-	{		
+	{
 	    const DirList dl( File::Path(envsfp,"envs").fullPath().str(),
 			      File::DirsInDir );
 	    if ( dl.isPresent(envnm->str()) )
@@ -932,14 +934,15 @@ bool OD::PythonAccess::getCondaEnvsFromTxt( BufferStringSet& envnms )
     getCondaEnvFromTxtPath( fps );
     for ( const auto fp : fps )
         envnms.add( fp->fullPath() );
-    
+
     return !envnms.isEmpty();
 }
 
 
 bool OD::PythonAccess::getCondaEnvFromTxtPath( ObjectSet<File::Path>& fp )
 {
-    const File::Path envstxtfp( GetPersonalDir(), ".conda", "environments.txt" );
+    const File::Path envstxtfp( GetPersonalDir(), ".conda",
+							"environments.txt" );
     if ( envstxtfp.exists() )
     {
 	od_istream envstrm( envstxtfp.fullPath() );
@@ -952,7 +955,7 @@ bool OD::PythonAccess::getCondaEnvFromTxtPath( ObjectSet<File::Path>& fp )
 		fp.add( new File::Path(envfp) );
 	}
     }
-    
+
     return !fp.isEmpty();
 }
 
