@@ -163,3 +163,5 @@ mGlobal(Basic) mDeprecated("Use equal") void deepCopy(BufferStringSet&,
 mGlobal(Basic) mDeprecated("Use sort") void sort(BufferStringSet&);
 mGlobal(Basic) mDeprecated("Use getStringSet()") const BufferString*
 				    find(const BufferStringSet&,const char*);
+mGlobal(Basic) mDeprecated("Use member function") BufferStringSet::idx_type
+				    indexOf(const BufferStringSet&,const char*);

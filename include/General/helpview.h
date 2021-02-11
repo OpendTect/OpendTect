@@ -32,10 +32,10 @@ mExpClass(General) HelpProvider
 {
 public:
 			mDefineFactoryInClass(HelpProvider,factory);
-    virtual		~HelpProvider() 			{}
+    virtual		~HelpProvider()			{}
 
-    static void 	provideHelp(const HelpKey&);
-    static bool 	hasHelp(const HelpKey&);
+    static void provideHelp(const HelpKey&);
+    static bool hasHelp(const HelpKey&);
     static uiString	description(const HelpKey&);
 
 private:
@@ -57,14 +57,17 @@ public:
     static HelpKey	emptyHelpKey();
     bool		isEmpty() const;
 
-    BufferString 	providername_;
-    BufferString 	argument_;
+    BufferString	providername_;
+    BufferString	argument_;
 
-    			// Legacy
+			// Legacy
                         HelpKey(const char* arg)
                             : providername_("od")
                             , argument_( arg )
                         {}
+
+			mDeprecated("Use the constructor")
+    static HelpKey	makeFromString(const char*);
 };
 
 #define mODHelpKey( arg ) HelpKey( "od", ::toString(arg) )

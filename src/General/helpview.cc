@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "helpview.h"
 #include "keystrs.h"
+#include "separstr.h"
 
 
 mImplFactory( HelpProvider, HelpProvider::factory );
@@ -63,4 +64,22 @@ bool HelpKey::isEmpty() const
 
 
 HelpKey HelpKey::emptyHelpKey()
-{ return HelpKey( 0 , sKey::EmptyString() ); }
+{ return HelpKey( nullptr , sKey::EmptyString() ); }
+
+
+HelpKey HelpKey::makeFromString( const char* str )
+{
+    HelpKey ret = emptyHelpKey();
+    const FixedString inpstr( str );
+    if ( inpstr.isEmpty() || !inpstr.contains(':') )
+	return ret;
+
+    SeparStringSB sepstr( str, ':' );
+    if ( sepstr.size() != 2 )
+	return ret;
+
+    ret.providername_ = sepstr[0];
+    ret.argument_ = sepstr[1];
+
+    return ret;
+}

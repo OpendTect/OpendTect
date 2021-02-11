@@ -1098,6 +1098,12 @@ const BufferString* find( const BufferStringSet& bss, const char* nm )
 }
 
 
+BufferStringSet::idx_type indexOf( const BufferStringSet& bss, const char* nm )
+{
+    return bss.indexOf( nm );
+}
+
+
 
 // StringPair
 StringPair::StringPair( const char* compstr )
