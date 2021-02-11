@@ -6,11 +6,10 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "synthseis.h"
+#include "batchprog.h"
 #include "testprog.h"
 
 #include "ailayer.h"
-#include "batchprog.h"
 #include "factory.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -21,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "raytracerrunner.h"
 #include "seistrc.h"
 #include "survinfo.h"
+#include "synthseis.h"
 #include "wavelet.h"
 
 static const char* sKeyWaveletID()	{ return "Wavelet"; }

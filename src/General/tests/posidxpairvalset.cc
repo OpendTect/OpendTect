@@ -95,16 +95,16 @@ static bool testAdd( Pos::IdxPairValueSet& ds, float startval )
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
     Pos::IdxPairValueSet ds_nodup( 5, false );
     if ( !testAdd(ds_nodup,1.0f) )
-	ExitProgram( 1 );
+	return 1;
     Pos::IdxPairValueSet ds_dup( 5, true );
     if ( !testAdd(ds_dup,2.0f) )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

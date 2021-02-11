@@ -81,7 +81,7 @@ static uiODMain* manODMainWin( uiODMain* i )
 
 uiODMain* ODMainWin()
 {
-    return manODMainWin(0);
+    return manODMainWin( nullptr );
 }
 
 
@@ -198,13 +198,17 @@ void ODMainProgramRestarter()
 }
 
 
-int ODMain( int argc, char** argv )
+int ODMain( int , char** )
+{ /* Not used, only for compatibility */ return -1; }
+
+
+int ODMain( uiMain& app )
 {
     OD::ModDeps().ensureLoaded( "AllNonUi" );
     OD::ModDeps().ensureLoaded( "uiBase" );
     uiDialog::setTitlePos( uiDialog::LeftSide );
 
-    PtrMan<uiODMain> odmain = new uiODMain( *new uiMain(argc,argv) );
+    PtrMan<uiODMain> odmain = new uiODMain( app );
     manODMainWin( odmain );
 
     checkScreenRes();
@@ -229,8 +233,7 @@ int ODMain( int argc, char** argv )
 	return 1;
 
     odmain->initScene();
-    odmain->go();
-    return 0;
+    return odmain->go() ? 0 : 1;
 }
 
 
@@ -719,7 +722,7 @@ bool uiODMain::go()
     tm.tick.notify( mCB(this,uiODMain,afterSurveyChgCB) );
     tm.start( 200, true );
 
-    int rv = uiapp_.exec();
+    const int rv = uiapp_.exec();
     return rv ? false : true;
 }
 
@@ -836,20 +839,12 @@ bool uiODMain::closeOK()
 	    return false;
     }
 
-    closeApplication();
     return true;
 }
 
 
 void uiODMain::closeApplication()
 {
-    IOM().applClosing();
-
-    sesstimer_.tick.remove( mCB(this,uiODMain,sessTimerCB) );
-    delete menumgr_; menumgr_ = 0;
-    delete scenemgr_; scenemgr_ = 0;
-    delete viewer2dmgr_; viewer2dmgr_ = 0;
-    delete applmgr_; applmgr_ = 0;
 }
 
 
@@ -895,7 +890,6 @@ void uiODMain::exit()
 
 void uiODMain::forceExit()
 {
-    closeApplication();
     uiapp_.exit(0);
 }
 

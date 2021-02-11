@@ -46,11 +46,12 @@ static void printBatchUsage()
 #define mErrRet() \
 { \
     printBatchUsage(); \
-    return ExitProgram( 1 ); \
+    return 1; \
 }
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::BatchProgCtxt )
     SetProgramArgs( argc, argv );
     CommandLineParser clp;
     if ( clp.nrArgs() < 5 )
@@ -84,7 +85,7 @@ int main( int argc, char** argv )
     par.set( "Proc Name", remotecmd.str() );
 
     BufferString primaryhost;
-    int primaryport, jobid;
+    int primaryport = -1, jobid = 0;
     const bool hasprimaryhost =
 	       clp.getVal( OS::MachineCommand::sKeyPrimaryHost(), primaryhost );
     const bool hasprimaryport =
@@ -114,10 +115,7 @@ int main( int argc, char** argv )
     par.set( "Par File", normalarguments.get(0) );
 
     const Network::Authority auth( remhostaddress, mCast(PortNr_Type,5050) );
-    RemoteJobExec* rje = new RemoteJobExec( auth );
+    PtrMan<RemoteJobExec> rje = new RemoteJobExec( auth );
     rje->addPar( par );
-    if ( !rje->launchProc() )
-	return ExitProgram( 1 );
-
-    return ExitProgram( 0 );
+    return rje->launchProc() ? 0 : 1;
 }

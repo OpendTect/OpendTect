@@ -113,7 +113,8 @@ protected:
 
 private:
 
-    mGlobal(uiODMain) friend int		ODMain(int,char**);
+    mGlobal(uiODMain) friend int ODMain(int,char**); //Will be removed
+    mGlobal(uiODMain) friend int ODMain(uiMain&);
 
     bool		ensureGoodDataDir();
     bool		ensureGoodSurveySetup();

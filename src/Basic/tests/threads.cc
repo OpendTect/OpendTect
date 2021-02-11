@@ -396,10 +396,10 @@ bool testConditionVarTimeout()
 
 #define mRunTestWithType(thetype) \
     if ( !testAtomic<thetype>( " " #thetype " " ) ) \
-	ExitProgram( 1 );
+	return 1;
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -424,7 +424,7 @@ int main( int argc, char** argv )
       || !testConditionVarTimeout()
       || !testLock<Threads::Mutex>( false, "Mutex" )
       || !testLock<Threads::SpinLock>( true, "SpinLock" ) )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

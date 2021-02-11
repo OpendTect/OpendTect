@@ -28,8 +28,9 @@ Arguments :
 		2 : Bool, Is process launched from installer
 */
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
     uiMain app( argc, argv );
     PIM().loadAuto( false );
@@ -42,7 +43,7 @@ int main( int argc, char ** argv )
     parser.getNormalArguments( proctyp );
 
     if ( proctyp.isEmpty() )
-	return ExitProgram( 0 );
+	return 0;
 
     const int proctypidx =
 	    ProcDesc::DataEntry::ActionTypeDef().indexOf( proctyp[0]->buf() );
@@ -65,7 +66,7 @@ int main( int argc, char ** argv )
 
     ProcDesc::DataEntry::ActionType typ = ePDD().getActionType();
     if ( instlrlaunchedproc && typ != ProcDesc::DataEntry::Add )
-	return ExitProgram( 0 );
+	return 0;
 
     BufferString pythonpath;
     if ( proctyp.size() > 4 )
@@ -80,13 +81,10 @@ int main( int argc, char ** argv )
     ProcDesc::DataEntry::ActionType type =
 	ProcDesc::DataEntry::ActionTypeDef().getEnumForIndex( proctypidx );
 
-    uiFirewallProcSetter* dlg = new uiFirewallProcSetter( 0,
+    PtrMan<uiDialog> dlg = new uiFirewallProcSetter( nullptr,
 						type, &path, &pythonpath );
-
     app.setTopLevel( dlg );
     dlg->show();
 
-    const int ret = app.exec();
-    delete dlg;
-    return ExitProgram( ret );
+    return app.exec();
 }

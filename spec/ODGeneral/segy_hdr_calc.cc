@@ -12,7 +12,7 @@ static const char* rcsID = "$Id";
 
 #define mErrRet(s) { std::cerr << argv[0] << ": " << s << std::endl; return 1; }
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 3 )
 	mErrRet("Two arguments required: input_segy_file output_segy_file")

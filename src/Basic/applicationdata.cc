@@ -13,8 +13,9 @@
 #include <QCoreApplication>
 
 ApplicationData::ApplicationData()
+  : application_(nullptr)
 {
-    if ( !QCoreApplication::instance() )
+    if ( !hasInstance() )
     {
 	int argc = GetArgC();
 	application_ = new mQtclass(QCoreApplication)(argc, GetArgV() );
@@ -24,6 +25,13 @@ ApplicationData::ApplicationData()
 
 ApplicationData::~ApplicationData()
 {
+    delete application_;
+}
+
+
+bool ApplicationData::hasInstance()
+{
+    return QCoreApplication::instance();
 }
 
 
@@ -35,6 +43,9 @@ int ApplicationData::exec()
 
 void ApplicationData::exit( int retcode )
 {
+    if ( !hasInstance() )
+	DBG::forceCrash(false);
+
     QCoreApplication::exit( retcode );
 }
 
@@ -64,6 +75,6 @@ void ApplicationData::setApplicationName( const char* nm )
 
 BufferString ApplicationData::applicationName()
 {
-    QString qstr = QCoreApplication::applicationName();
+    const QString qstr = QCoreApplication::applicationName();
     return qstr;
 }

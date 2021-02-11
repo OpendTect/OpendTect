@@ -29,12 +29,11 @@ static void shutdownTWM()
 
 Threads::WorkManager& WorkManager::twm()
 {
-    mDefineStaticLocalObject( PtrMan<Threads::WorkManager>, twm_, = 0 );
+    mDefineStaticLocalObject( PtrMan<Threads::WorkManager>, twm_, = nullptr );
     if ( !twm_ )
     {
-	Threads::WorkManager* newtwm =
-	    new Threads::WorkManager( Threads::getNrProcessors()*2 );
-	if ( twm_.setIfNull( newtwm,true ) )
+	auto* newtwm = new WorkManager( getNrProcessors()*2 );
+	if ( twm_.setIfNull(newtwm,true) )
 	{
 	    thetwm = newtwm;
 	    NotifyExitProgram( &shutdownTWM );
@@ -311,7 +310,7 @@ Threads::WorkManager::~WorkManager()
     {
 	pErrMsg("Default queue is not empty. "
 		"Please call twm().shutdown() before exiting main program,"
-		"or exit with ExitProgram()");
+		"or exit with ApplicationData::exit()");
     }
 
     shutdown();

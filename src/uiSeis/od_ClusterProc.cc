@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "moddepmgr.h"
 #include "keystrs.h"
-#include "plugins.h"
 #include "survinfo.h"
 #include "od_iostream.h"
 
@@ -32,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
     od_cout() << "Usage: " << argv[0] << " --parfile <parfile>" \
 	      << " [--dosubmit] [--nodelete]" << od_endl;
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "General" );
@@ -41,6 +40,7 @@ int main( int argc, char ** argv )
 
     const bool withdelete = !parser.hasKey( "nodelete" );
     const bool dosubmit = parser.hasKey( "dosubmit" );
+    mInitProg( dosubmit ? OD::UiProgCtxt : OD::BatchProgCtxt )
 
     BufferString parfilenm;
     if ( !parser.getVal("parfile",parfilenm) )
@@ -50,7 +50,7 @@ int main( int argc, char ** argv )
 	if ( normalargs.isEmpty() )
 	{
 	    mPrintHelpMsg;
-	    return ExitProgram( 1 );
+	    return 1;
 	}
 
 	parfilenm = normalargs.get(0);
@@ -60,14 +60,14 @@ int main( int argc, char ** argv )
     if ( !strm.isOK() )
     {
 	od_cout() << argv[0] << ": Cannot open parameter file" << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
 
     IOPar iop; iop.read( strm, sKey::Pars() );
     if ( iop.size() == 0 )
     {
 	od_cout() << argv[0] << ": Invalid parameter file" << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
 
     const char* res = iop.find( sKey::Survey() );
@@ -80,14 +80,12 @@ int main( int argc, char ** argv )
     {
 	uiMain app( argc, argv );
 	OD::ModDeps().ensureLoaded( "uiSeis" );
-	uiClusterProc* cp = new uiClusterProc( 0, iop );
+	PtrMan<uiDialog> cp = new uiClusterProc( 0, iop );
 
 	app.setTopLevel( cp );
 	cp->show();
 
-	const int ret = app.exec();
-	delete cp;
-	return ExitProgram( ret );
+	return app.exec();
     }
 
     OD::ModDeps().ensureLoaded( "uiSeis" );
@@ -99,5 +97,5 @@ int main( int argc, char ** argv )
 	uiClusterProc::mergeOutput( iop, &taskrunner, msg, withdelete );
     od_cout() << msg << od_endl;
 
-    return ExitProgram( result ? 0 : 1 );
+    return result ? 0 : 1;
 }

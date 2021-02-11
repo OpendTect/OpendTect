@@ -220,7 +220,7 @@ public:
 };
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -228,6 +228,6 @@ int main( int argc, char** argv )
     const bool res = tester.runCallBackTests()
 		  && tester.testWorkResults();
 
-    Threads::WorkManager::twm().shutdown();
-    return ExitProgram( res ? 0 : 1 );
+   // Threads::WorkManager::twm().shutdown();
+    return res ? 0 : 1;
 }

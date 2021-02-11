@@ -178,7 +178,7 @@ void loopCB(CallBacker*)
 }
 
 
-int main(int argc, char** argv)
+int mTestMainFnName(int argc, char** argv)
 {
     mInitTestProg();
     ApplicationData app;

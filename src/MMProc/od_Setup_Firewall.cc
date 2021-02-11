@@ -15,6 +15,8 @@
 #include "settings.h"
 #include "winutils.h"
 
+#include "prog.h"
+
 static const int cProtocolNr = 1;
 
 static const char* sAddStr	= "add";
@@ -114,8 +116,9 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
 }
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::BatchProgCtxt )
     SetProgramArgs( argc, argv );
     CommandLineParser parser;
     SetUpFirewallServerTool progtool;
@@ -125,7 +128,8 @@ int main( int argc, char** argv )
     progtool.ispyproc_ = ispyproc;
     const bool toadd = parser.hasKey( sAddStr );
     if ( !toadd && !parser.hasKey(sRemoveStr) )
-	return NULL;
+	return 1;
+
     for ( int procidx=0; procidx<procnms.size(); procidx++ )
     {
 	if ( procidx==0 ) // index 0 stores path
@@ -137,5 +141,5 @@ int main( int argc, char** argv )
 	progtool.handleProcess( procnms.get(procidx), toadd );
     }
 
-    return true;
+    return 0;
 }

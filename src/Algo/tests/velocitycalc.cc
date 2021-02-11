@@ -60,7 +60,7 @@ bool testLinearD2T( double v0, double dv, double v0depth, float depth,
 
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -72,7 +72,7 @@ int main( int argc, char** argv )
 	    !testLinearT2D( 2000, 0.1, 0, 6, 6997.176) ||
 	    !testLinearT2D( 2000, 0.1, -200, 0, -200) ||
 	    !testLinearT2D( 2000, 0.1, -200, 6, 6727.204) )
-	ExitProgram( 1 );
+	return 1;
 
     if ( !testLinearD2T( 2000, 0, 0, 0, 0) ||
 	    !testLinearD2T( 2000, 0, 0, 6000, 6) ||
@@ -82,8 +82,7 @@ int main( int argc, char** argv )
 	    !testLinearD2T( 2000, 0.1, 0, 6997.176, 6) ||
 	    !testLinearD2T( 2000, 0.1, -200, -200, 0) ||
 	    !testLinearD2T( 2000, 0.1, -200, 6727.204, 6) )
-	ExitProgram( 1 );
+	return 1;
 
-
-    return ExitProgram( 0 );
+    return 0;
 }

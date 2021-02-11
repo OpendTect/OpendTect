@@ -14,7 +14,7 @@ static const char* rcsID = "$Id$";
 
 using namespace std;
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 2 )
     {

@@ -81,7 +81,7 @@ bool testRemoveDir( const char* path, bool expectedres )
     return ret;
 }
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -90,17 +90,17 @@ int main( int argc, char** argv )
     {
 	logStream() << "Python link is not usable" << od_newline;
 	logStream() << toString(uirv) << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
 
     const BufferString path = createTestDir();
     File::makeReadOnly( path, true );
     if ( testRemoveDir(path,false) )
-	return ExitProgram( 1 );
+	return 1;
 
     File::makeWritable( path, true, true );
     if ( !testRemoveDir(path,true) )
-	return ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

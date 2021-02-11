@@ -36,6 +36,8 @@ public:
 			    are instantiated.) */
 			~ApplicationData();
 
+    static bool		hasInstance();
+
     static int		exec();
 			//!<Starts the event loop
 

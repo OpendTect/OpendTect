@@ -30,7 +30,7 @@ static const char* rcsID = "$Id$";
 
 #define mErrRet(err) { std::cerr << err << std::endl; return 1; }
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 3 )
     {
@@ -113,8 +113,3 @@ static int doWork( int argc, char** argv )
     return 0;
 }
 
-
-int main( int argc, char** argv )
-{
-    return ExitProgram( doWork(argc,argv) );
-}

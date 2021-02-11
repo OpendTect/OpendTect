@@ -14,20 +14,20 @@ static const char* rcsID = "$Id$";
 #include <iostream>
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc != 3 )
     {
 	std::cerr << "Usage: " << argv[0] << " input_locs output_locs"
 		  << std::endl;
-	ExitProgram( 1 );
+	return 1;
     }
     StreamProvider spin( argv[1] );
     StreamData sdin = spin.makeIStream();
     if ( !sdin.istrm )
     {
 	std::cerr << argv[0] << ": Cannot open input stream" << std::endl;
-	ExitProgram( 1 );
+	return 1;
     }
     else if ( sdin.istrm == &std::cin )
 	std::cout << "Using standard input." << std::endl;
@@ -37,14 +37,14 @@ int main( int argc, char** argv )
     if ( !instrm )
     {
 	std::cerr << "Bad locations file" << std::endl;
-	ExitProgram( 1 );
+	return 1;
     }
     StreamProvider spout( argv[2] );
     StreamData sdout = spout.makeOStream();
     if ( !sdout.ostrm )
     {
 	std::cerr << argv[0] << ": Cannot open output stream" << std::endl;
-	ExitProgram( 1 );
+	return 1;
     }
     std::ostream& outstrm = *sdout.ostrm;
 
@@ -72,6 +72,5 @@ int main( int argc, char** argv )
 		<< timeval + (Stats::RandGen::get()-.5)*20 <<'\n';
     }
 
-    sdin.close(); sdout.close();
-    ExitProgram( 0 ); return 0;
+    return 0;
 }

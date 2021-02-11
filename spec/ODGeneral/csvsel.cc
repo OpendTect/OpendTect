@@ -5,10 +5,10 @@ static const char* rcsID = "$Id$";
 #include "strmprov.h"
 #include "prog.h"
 
-#define mRet(rv) { ExitProgram( 0 ); return 0; }
+#define mRet(rv) { return 0; }
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 3 )
     {

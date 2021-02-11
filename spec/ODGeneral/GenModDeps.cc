@@ -26,7 +26,7 @@ public:
 };
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     int arg1 = 1; bool html = false;
     if ( argc >= 3 && !strcmp(argv[1],"--html") )
@@ -35,21 +35,21 @@ int main( int argc, char** argv )
     {
 	od_cout() << "Usage: " << argv[0]
 	     << " [--html] input_ModDeps_file output_file" << od_endl;
-	ExitProgram( 1 );
+	return 1;
     }
 
     od_istream instrm( argv[arg1] );
     if ( !instrm.isOK() )
     {
 	od_cout() << argv[0] << ": Cannot open input stream" << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
 
     od_istream outstrm( argv[arg1] );
     if ( !outstrm.isOK() )
     {
 	od_cout() << argv[0] << ": Cannot open output stream" << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
 
     BufferString line;
@@ -82,7 +82,7 @@ int main( int argc, char** argv )
 
 	    if ( wordbuf[1] != '.' || (wordbuf[0] != 'S' && wordbuf[0] != 'D') )
 		{ od_cout() << "Cannot handle dep=" << wordbuf << od_endl;
-		    ExitProgram(1); }
+		   return 1; }
 
 	    filedeps.add( wordbuf );
 	}
@@ -102,7 +102,7 @@ int main( int argc, char** argv )
 	    Dep* depdep = find( deps, modnm );
 	    if ( !depdep )
 		{ od_cout() << "Cannot find dep=" << modnm << od_endl;
-		    		ExitProgram(1); }
+		    		return 1; }
 
 	    for ( int idep=depdep->mods.size()-1; idep>=0; idep-- )
 	    {
@@ -152,7 +152,6 @@ int main( int argc, char** argv )
 
 	outstrm << "\n</TABLE>\n\n<body>\n<html>" << od_endl;
     }
-
     else
     {
 	for ( int idx=0; idx<deps.size(); idx++ )
@@ -171,7 +170,5 @@ int main( int argc, char** argv )
 	}
     }
 
-
-    sdout.close();
-    return ExitProgram( 0 );
+    return 0;
 }

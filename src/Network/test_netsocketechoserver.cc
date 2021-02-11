@@ -4,7 +4,6 @@
  * DATE     : Nov 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "applicationdata.h"
 #include "netserver.h"
@@ -122,19 +121,19 @@ public:
 } //Namespace
 
 
-int main(int argc, char** argv)
+int mTestMainFnName(int argc, char** argv)
 {
     mInitTestProg();
 
     ApplicationData app;
 
-    PtrMan<Network::Authority> auth = new Network::Authority;
-    auth->setFrom( clParser(), "test_netsocket",
-		   Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
-    if ( !auth->isUsable() )
+    Network::Authority auth;
+    auth.setFrom( clParser(), "test_netsocket",
+		  Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
+    if ( !auth.isUsable() )
     {
 	od_ostream& strm = errStream();
-	strm << "Incorrect authority '" << auth->toString() << "'";
+	strm << "Incorrect authority '" << auth.toString() << "'";
 	strm << "for starting the server" << od_endl;
 	return 1;
     }
@@ -143,16 +142,10 @@ int main(int argc, char** argv)
     clParser().setKeyHasValue( Network::Server::sKeyTimeout() );
     clParser().getVal( Network::Server::sKeyTimeout(), timeout );
 
-    PtrMan<Network::EchoServer> tester
-		= new Network::EchoServer( *auth.ptr(),
-					   mCast(unsigned short,timeout) );
-    logStream() << "Listening to " << auth->toString()
-	        << " with a " << tester->timeout_ << " second timeout\n";
+    Network::EchoServer tester( auth, mCast(unsigned short,timeout) );
 
-    auth = nullptr;
-    const int retval = app.exec();
+    logStream() << "Listening to " << auth.toString()
+		<< " with a " << tester.timeout_ << " second timeout\n";
 
-    tester = nullptr;
-
-    ExitProgram( retval );
+    return app.exec();
 }

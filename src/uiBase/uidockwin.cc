@@ -68,7 +68,7 @@ void uiDockWinBody::construct()
 
 uiDockWinBody::~uiDockWinBody( )
 {
-    delete centralwidget_; centralwidget_ = 0;
+    delete centralwidget_;
 }
 
 

@@ -21,12 +21,9 @@ bool testChecksum()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testChecksum() )
-	ExitProgram( 1 );
-
-    return ExitProgram( 0 );
+    return testChecksum() ? 0 : 1;
 }

@@ -178,7 +178,7 @@ bool testFilePathParsing()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -190,16 +190,16 @@ int main( int argc, char** argv )
 	if ( !fp.exists() )
 	{
 	    errStream() << "Input file not found\n";
-	    ExitProgram( 1 );
+	    return 1;
 	}
     }
 
     const BufferString parfile( fp.fullPath() );
     if ( !testReadContent() || !testIStream( parfile.buf() ) )
-	ExitProgram( 1 );
+	return 1;
 
     if ( !testFilePathParsing() )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram(0);
+    return 0;
 }

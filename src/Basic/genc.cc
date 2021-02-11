@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
 
+#include "applicationdata.h"
 #include "envvars.h"
 #include "debug.h"
 #include "oddirs.h"
@@ -499,7 +500,7 @@ bool StartProgramCopy()
 static void basicProgramRestarter()
 {
     if ( StartProgramCopy() )
-	ExitProgram( 0 );
+	ApplicationData::exit( 0 );
 }
 
 

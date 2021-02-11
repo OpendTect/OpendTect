@@ -4,7 +4,6 @@
  * DATE     : Nov 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "netsocket.h"
 
@@ -33,6 +32,10 @@ ArrPtrMan<double> doublewritearr, doublereadarr;
 class TestRunner : public CallBacker
 {
 public:
+
+    TestRunner( const Network::Authority& auth )
+        : authority_(auth)
+    {}
 
     ~TestRunner()
     {
@@ -153,14 +156,13 @@ static void terminateServer( const PID_Type pid )
 // can be specified by --serverapp "application". If no serverapp is given,
 // echoserver is started
 
-int main(int argc, char** argv)
+int mTestMainFnName(int argc, char** argv)
 {
     mInitTestProg();
 
     ApplicationData app;
 
-    PtrMan<TestRunner> runner = new TestRunner;
-    Network::Authority& auth = runner->authority_;
+    Network::Authority auth;
     auth.setFrom( clParser(), "test_netsocket",
 		  Network::Socket::sKeyLocalHost(), PortNr_Type(1025) );
     if ( !auth.isUsable() )
@@ -187,6 +189,8 @@ int main(int argc, char** argv)
     memsetter.setValueFunc( &randVal );
     memsetter.execute();
 
+    TestRunner runner( auth );
+
     PID_Type serverpid = -1;
     if ( !clParser().hasKey("noechoapp") )
     {
@@ -196,7 +200,7 @@ int main(int argc, char** argv)
 
         OS::MachineCommand mc( serverapp );
         auth.addTo( mc );
-        mc.addKeyedArg( "timeout", runner->timeout_ );
+        mc.addKeyedArg( "timeout", runner.timeout_ );
         //if ( quiet_ )
 	    mc.addFlag( sKey::Quiet() );
 
@@ -216,25 +220,22 @@ int main(int argc, char** argv)
 		    BufferString( "Server started with PID: ", serverpid ) );
     }
 
-    runner->prefix_ = "[ No event loop ]\t";
-    runner->exitonfinish_ = false;
-    runner->noeventloop_ = true;
-    if ( !runner->testNetSocket(false) )
+    runner.prefix_ = "[ No event loop ]\t";
+    runner.exitonfinish_ = false;
+    runner.noeventloop_ = true;
+    if ( !runner.testNetSocket(false) )
     {
-	runner = nullptr;
 	terminateServer( serverpid );
-	ExitProgram( 1 );
+	return 1;
     }
 
     //Now with a running event loop
 
-    runner->prefix_ = "[ With event loop ]\t";
-    runner->exitonfinish_ = true;
-    runner->noeventloop_ = false;
-    CallBack::addToMainThread( mCB(runner,TestRunner,testCallBack) );
+    runner.prefix_ = "[ With event loop ]\t";
+    runner.exitonfinish_ = true;
+    runner.noeventloop_ = false;
+    CallBack::addToMainThread( mCB(&runner,TestRunner,testCallBack) );
     const int retval = app.exec();
-
-    runner = nullptr;
 
     if ( serverpid > 0 )
     {
@@ -244,5 +245,5 @@ int main(int argc, char** argv)
         terminateServer( serverpid );
     }
 
-    ExitProgram( retval );
+    return retval;
 }

@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uifiledlg.h"
+#include "uimain.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uinlapartserv.h"
@@ -213,7 +214,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 			     uiStrings::sExitOD() ) )
 	    return false;
 
-	ExitProgram( 0 );
+	uiMain::theMain().exit();
     }
 
     if ( status == 1 )
@@ -229,14 +230,13 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 					  tr("Select another survey"),
 					  uiStrings::sExitOD() );
 	if ( res < 0 )
-	    ExitProgram( 0 );
+	    uiMain::theMain().exit();
 
 	if ( !res )
 	{
 	    uiMSG().message( tr("Please note that you can copy the survey "
 				"using 'Copy Survey' tool in the "
 				"'Survey Setup and Selection' window.") );
-
 	    return false;
 	}
     }
@@ -279,7 +279,7 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 					   tr("Do it later"),
 					   uiStrings::sExitOD() );
     if ( res < 0 )
-	ExitProgram( 0 );
+	uiMain::theMain().exit();
 
     if ( !res )
     {

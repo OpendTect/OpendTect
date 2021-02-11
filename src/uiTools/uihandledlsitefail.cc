@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uilabel.h"
 #include "uicombobox.h"
+#include "uimain.h"
 #include "uiproxydlg.h"
 #include "uislider.h"
 #include "oddlsite.h"
@@ -107,7 +108,7 @@ void uiHandleDLSiteFail::proxyButCB( CallBacker* )
 bool uiHandleDLSiteFail::rejectOK( CallBacker* )
 {
     if ( isfatal_ )
-	ExitProgram( 1 );
+	uiMain::theMain().exit( 1 );
     return true;
 }
 

@@ -5,7 +5,7 @@ static const char* rcsID = "$Id$";
 
 #define maxlnlen 100000
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 4 )
     {

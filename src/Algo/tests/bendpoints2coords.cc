@@ -67,7 +67,7 @@ static bool testReadBendPointFile( const char* file )
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -79,18 +79,18 @@ int main( int argc, char** argv )
 	if ( !fp.exists() )
 	{
 	    errStream() << "Input file not found\n";
-	    ExitProgram( 1 );
+	    return 1;
 	}
     }
 
     if ( !testCoordList2D() )
-	ExitProgram( 1 );
+	return 1;
     if ( !testCoordList3D() )
-	ExitProgram( 1 );
+	return 1;
 
     const BufferString parfile( fp.fullPath() );
     if ( !testReadBendPointFile(parfile) )
-	ExitProgram( 1 );
+	return 1;
 
-    ExitProgram( 0 );
+    return 0;
 }

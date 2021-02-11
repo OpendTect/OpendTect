@@ -58,7 +58,9 @@ public:
 };
 
 
-int testMain( int argc, char** argv )
+
+
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -66,12 +68,4 @@ int testMain( int argc, char** argv )
     TestClass tester;
 
     return app.exec();
-}
-
-
-
-int main( int argc, char** argv )
-{
-    OD::SetRunContext( OD::TestProgCtxt );
-    return ExitProgram( testMain(argc,argv) );
 }

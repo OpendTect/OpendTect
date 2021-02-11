@@ -23,8 +23,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "texttranslator.h"
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
 
     TextTranslateMgr::loadTranslations();
@@ -38,7 +39,7 @@ int main( int argc, char** argv )
 	od_cout() << "Usage: " << argv[0]
 		<< " filename [title]\nNote: filename has to be with FULL path."
 		<< od_endl;
-	return ExitProgram( 0 );
+	return 1;
     }
 
     BufferString& fnm = args.get( 0 );
@@ -49,23 +50,21 @@ int main( int argc, char** argv )
     if ( !File::exists(fnm.buf()) )
     {
 	od_cerr() << "File name does not exist." << od_endl;
-	return ExitProgram( 0 );
+	return 1;
     }
 
     const BufferString title = args.size() > 1 ? args.get(1).buf() : fnm.buf();
 
     uiMain app( argc, argv );
     OD::ModDeps().ensureLoaded( "uiTools" );
-    uiMainWin* mw = new uiMainWin( 0, toUiString(title.buf()) );
+    PtrMan<uiMainWin> mw = new uiMainWin( nullptr, toUiString(title.buf()) );
     uiPixmap pm( fnm );
-    uiGraphicsView* view = new uiGraphicsView( mw, "Graphics Viewer" );
+    PtrMan<uiGraphicsView> view = new uiGraphicsView( mw, "Graphics Viewer" );
     view->setPrefWidth( pm.width() );
     view->setPrefHeight( pm.height() );
     view->scene().addItem( new uiPixmapItem(pm) );
     app.setTopLevel( mw );
     mw->show();
 
-    const int ret = app.exec();
-    delete mw;
-    return ExitProgram( ret );
+    return app.exec();
 }

@@ -43,10 +43,10 @@ public:
 
     void timerTick( CallBacker* )
     {
-        if ( clParser().hasKey( "testpipes" ) )
+        if ( clParser().hasKey("testpipes") )
         {
             testServer();
-            CallBack::addToMainThread( mCB( this, TestClass, closeTesterCB ) );
+            CallBack::addToMainThread( mCB(this,TestClass,closeTesterCB) );
             return;
         }
 
@@ -195,12 +195,12 @@ static void testServer()
 }
 
 Timer   timer_;
-int     retval_ = 0;
+int     retval_ = -1;
 
 };
 
 
-int testMain( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -210,15 +210,5 @@ int testMain( int argc, char** argv )
     ApplicationData app;
 
     TestClass tester;
-
-    const int retval = app.exec();
-
-    return retval;
-}
-
-
-int main( int argc, char** argv )
-{
-    OD::SetRunContext( OD::TestProgCtxt );
-    ExitProgram( testMain( argc, argv ) );
+    return app.exec();
 }

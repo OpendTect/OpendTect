@@ -63,7 +63,7 @@ static EM::Horizon3D* loadHorizon( const char* id, BufferString& err )
 }
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 4 ) return prUsage();
 
@@ -106,11 +106,5 @@ static int doWork( int argc, char** argv )
     PtrMan<Executor> saver = addtohor.auxdata.auxDataSaver();
     saver->execute();
     return 0;
-}
-
-
-int main( int argc, char** argv )
-{
-    return ExitProgram( doWork(argc,argv) );
 }
 

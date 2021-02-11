@@ -66,7 +66,7 @@ static void printGasonValue( od_ostream& strm, const Gason::JsonValue& gsonval )
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -80,11 +80,11 @@ int main( int argc, char** argv )
 	od_ostream& strm = tstStream( true );
 	strm << "Status: " << Gason::jsonStrError(status) << od_endl;
 	strm << "at: " << endptr << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
 
     if ( !quiet_ )
 	printGasonValue( tstStream(false), root );
 
-    return ExitProgram( 0 );
+    return 0;
 }

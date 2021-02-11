@@ -5,16 +5,13 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id: refcount.cc 30402 2013-06-21 07:20:27Z kristofer.tingdahl@dgbes.com $";
-
-#include "genc.h"
-#include "testprog.h"
+#include "prog.h"
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
-    mInitTestProg();
+    mInitProg( OD::TestProgCtxt );
 
     logStream() << "Exiting with return code 1" << od_endl;
-    return ExitProgram( 1 );
+    return 1;
 }
