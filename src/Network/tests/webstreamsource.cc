@@ -6,7 +6,10 @@
 
 
 #include "testprog.h"
+
 #include "applicationdata.h"
+#include "file.h"
+#include "filepath.h"
 #include "od_iostream.h"
 #include "moddepmgr.h"
 
@@ -45,7 +48,11 @@ static bool testReadBigFile()
     od_istream strm( bigfname );
     mRunStandardTest( strm.isOK(), BufferString(bigfname," stream is OK"));
 
-    od_ostream out( "/tmp/out.zip" );
+    const BufferString fnm = File::Path::getTempFullPath( "webstream", "zip" );
+    od_ostream out( fnm );
+    if ( !out.isOK() )
+	return false;
+
     char buf[100000];
     od_stream::Count totsz = 0;
     while ( true )
@@ -71,6 +78,9 @@ static bool testReadBigFile()
     strm.setReadPosition( 1234560 );
     c = strm.peek(); // 'Z'
     mRunStandardTest( c=='Z', "Value at pre-defined position 2" );
+
+    out.close();
+    File::remove( fnm );
 
     return true;
 }
