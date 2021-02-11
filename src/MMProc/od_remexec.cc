@@ -83,7 +83,7 @@ int mProgMainFnName( int argc, char** argv )
     par.set( "Proc Name", remotecmd.str() );
 
     BufferString masterhost;
-    int masterport, jobid;
+    int masterport = -1, jobid = 0;
     const bool hasmasterhost =
 	clp.getKeyedInfo( OS::MachineCommand::sKeyMasterHost(), masterhost );
     const bool hasmasterport =
