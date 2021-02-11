@@ -85,7 +85,7 @@ int mProgMainFnName( int argc, char** argv )
     par.set( "Proc Name", remotecmd.str() );
 
     BufferString primaryhost;
-    int primaryport, jobid;
+    int primaryport = -1, jobid = 0;
     const bool hasprimaryhost =
 	       clp.getVal( OS::MachineCommand::sKeyPrimaryHost(), primaryhost );
     const bool hasprimaryport =
