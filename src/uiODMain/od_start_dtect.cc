@@ -15,17 +15,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
-static bool ExecODMain( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::BatchProgCtxt )
+    SetProgramArgs( argc, argv );
     OS::MachineCommand machcomm( "od_main" );
     for ( int iarg=1; iarg<argc; iarg++ )
 	machcomm.addArg( iarg );
-    return machcomm.execute( OS::RunInBG );
-}
-
-
-int main( int argc, char** argv )
-{
-    SetProgramArgs( argc, argv );
-    return ExecODMain( argc, argv ) ? 0 : 1;
+    return machcomm.execute( OS::RunInBG ) ? 0 : 1;
 }

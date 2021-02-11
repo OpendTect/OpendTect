@@ -121,7 +121,7 @@ bool FFTChecker::execute()
 
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -145,7 +145,7 @@ int main( int argc, char** argv )
     }
 
     if ( !Threads::WorkManager::twm().addWork( workload ) )
-        ExitProgram( 1 );
+        return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

@@ -21,8 +21,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #endif
 
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
     OD::ModDeps().ensureLoaded( "uiSeis" );
 
@@ -60,7 +61,7 @@ int main( int argc, char ** argv )
 		     "\n\t[--swapbytes 0_1_or_2]"
 		     "\n\tfilename\n"
 		  << "Note: filename must be with FULL path." << od_endl;
-	return ExitProgram( 1 );
+	return 1;
     }
 
 #ifdef __debug__
@@ -81,11 +82,9 @@ int main( int argc, char ** argv )
 	su.fs_.setFileName( File::linkTarget( su.fs_.fileName(0) ) );
 #endif
 
-    uiSEGYExamine* sgyex = new uiSEGYExamine( 0, su );
+    PtrMan<uiDialog> sgyex = new uiSEGYExamine( nullptr, su );
     app.setTopLevel( sgyex );
     sgyex->show();
 
-    const int ret = app.exec();
-    delete sgyex;
-    return ExitProgram( ret );
+    return app.exec();
 }

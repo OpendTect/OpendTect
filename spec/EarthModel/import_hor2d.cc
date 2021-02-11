@@ -33,8 +33,8 @@ static const char* rcsID = "$Id$";
 
     Then the command line should read something like this:
     ./import_hor2d [Input File] [LineSet] [Hor1] [Hor2] ..............
-    
-    Struct HorLine2D contains data for all Horizons for a line. It basically 
+
+    Struct HorLine2D contains data for all Horizons for a line. It basically
     represents a 2D Line from the input file.
 */
 
@@ -104,7 +104,7 @@ bool getPos( const PosInfo::Line2DData& line, int trcnr, Coord& xypos )
 
 
 bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
-  		   const char* linesetnm, const int nrhors )
+		   const char* linesetnm, const int nrhors )
 {
     StreamProvider sp( filename );
     StreamData sd = sp.makeIStream();
@@ -116,7 +116,7 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     PtrMan<IOObj> lsetobj = IOM().getLocal( linesetnm );
-    BufferString msg( "Cannot find LineSet: " ); msg += linesetnm; 
+    BufferString msg( "Cannot find LineSet: " ); msg += linesetnm;
     if ( !lsetobj ) return prError( msg );
     BufferString fnm = lsetobj->fullUserExpr(true);
     Seis2DLineSet lineset( fnm );
@@ -132,20 +132,20 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 	if ( !linedata )
 	{
 	    linedata = newLine( valbuf );
-	    
+
 	    removeTrailingBlanks( valbuf );
 	    int lineidx = lineset.indexOf( valbuf );
 	    if ( !linedata || !lineset.getGeometry(lineidx,line2d) ) break;
 	}
 
 	if ( linedata && strcmp(valbuf,linedata->linename_) )
-	{ 
+	{
 	    data += linedata;
 	    linedata = newLine( valbuf );
 	    int lineidx = lineset.indexOf( valbuf );
 	    if ( !linedata || !lineset.getGeometry(lineidx,line2d) ) break;
 	}
-	
+
 	ptr = getNextWord( ptr, valbuf );
 	const int trcnr = toInt( valbuf );
 	Coord xypos;
@@ -241,17 +241,17 @@ void makeHorizons( ObjectSet<HorLine2D>& data, const MultiID& lsetkey,
 	    {
 		tdx1 = tdx2++;
 		const float val1 = data[ldx]->zvals_[tdx1][hdx];
-		while ( tdx2<data[ldx]->traces_.size() && 
+		while ( tdx2<data[ldx]->traces_.size() &&
 			data[ldx]->zvals_[tdx2][hdx] >= NaN )
 		    tdx2++;
 		if ( tdx2>=data[ldx]->traces_.size() )
 		    break;
 		const float val2 = data[ldx]->zvals_[tdx2][hdx];
-		
+
 		const int trc1 = data[ldx]->traces_[tdx1];
 		const int trc2 = data[ldx]->traces_[tdx2];
 		const int trcintv = trc2 - trc1;
-		
+
 		const float valdifpertrc = (val2 - val1) / trcintv;
 		for ( int idx=trc1+1; idx<=trc2; idx++ )
 		{
@@ -269,7 +269,7 @@ void makeHorizons( ObjectSet<HorLine2D>& data, const MultiID& lsetkey,
 }
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 4 ) return prUsage();
     BufferString errmsg;
@@ -308,17 +308,11 @@ static int doWork( int argc, char** argv )
     for ( int hdx=0; hdx<horizons.size(); hdx++ )
     {
 	PtrMan<Executor> saver = horizons[hdx]->saver();
-    	saver->execute();
+	saver->execute();
 	horizons[hdx]->unRef();
     }
-    
+
     deepErase( data );
 
     return 0;
-}
-
-
-int main( int argc, char** argv )
-{
-    return ExitProgram( doWork(argc,argv) );
 }

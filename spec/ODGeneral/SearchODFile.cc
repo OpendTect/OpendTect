@@ -45,7 +45,7 @@ static const char* SearchODFile( const char* fname )
 }
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 2 )
     {

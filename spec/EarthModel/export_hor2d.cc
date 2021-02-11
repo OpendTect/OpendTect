@@ -59,7 +59,7 @@ static bool isLineUsed( const ObjectSet<const EM::Horizon2D>& horizons,
 }
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 3 )
     {
@@ -67,6 +67,8 @@ static int doWork( int argc, char** argv )
 		  << std::endl;
 	return 1;
     }
+
+    EarthModel::initStdClasses();
 
     PtrMan<IOObj> ioobj = IOM().get( argv[1] );
     if ( !ioobj ) return prError( "No lineset found" );
@@ -152,11 +154,4 @@ static int doWork( int argc, char** argv )
     }
 
     return 0;
-}
-
-
-int main( int argc, char** argv )
-{
-    EarthModel::initStdClasses();
-    return ExitProgram( doWork(argc,argv) );
 }

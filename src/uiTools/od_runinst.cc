@@ -14,8 +14,9 @@ static const char* rcsID = "$Id: od_runinst.cc 8761 2013-12-06 12:06:24Z bert.br
 #include "commandlineparser.h"
 #include "odinst.h"
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::InstallerCtxt )
     SetProgramArgs( argc, argv );
     CommandLineParser cl( argc, argv );
     const int nrargs = cl.nrArgs();
@@ -28,5 +29,5 @@ int main( int argc, char** argv )
     else
 	ODInst::startInstManagement();
  
-    return ExitProgram( 0 );
+    return 0;
 }

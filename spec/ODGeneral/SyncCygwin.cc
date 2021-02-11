@@ -48,7 +48,7 @@ const char* getCygDir()
 }
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     const char* cygdir = getCygDir();
     if ( !cygdir || !*cygdir ) return 1;

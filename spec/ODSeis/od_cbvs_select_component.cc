@@ -22,7 +22,7 @@ static const char* rcsID = "$Id$";
 #include "seisfact.h"
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 4 )
     {
@@ -103,8 +103,3 @@ static int doWork( int argc, char** argv )
     return nrwr ? 0 : 1;
 }
 
-
-int main( int argc, char** argv )
-{
-    return ExitProgram( doWork(argc,argv) );
-}

@@ -290,7 +290,7 @@ bool testSanityCheck()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
@@ -299,7 +299,7 @@ int main( int argc, char** argv )
 	 !testWeakPtr() ||
 	 !testRefObjectSet() ||
 	 !testSanityCheck() )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

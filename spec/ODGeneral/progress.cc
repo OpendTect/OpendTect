@@ -5,7 +5,7 @@ static const char* rcsID = "$Id$";
 #include "prog.h"
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     int delayms = 0;
     int curarg = 1;
@@ -39,5 +39,5 @@ int main( int argc, char** argv )
 	    sleepSeconds( delayms*0.001 );
     }
 
-    return ExitProgram( 0 );
+    return 0;
 }

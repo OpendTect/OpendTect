@@ -20,7 +20,7 @@ static const char* rcsID = "$Id$";
 #include "prog.h"
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 3 )
     {
@@ -33,7 +33,7 @@ static int doWork( int argc, char** argv )
 
     bool is2d = false;
 
-    FilePath fp( argv[2] ); 
+    FilePath fp( argv[2] );
     if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;
@@ -49,7 +49,7 @@ static int doWork( int argc, char** argv )
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
         { std::cerr << tri->errMsg() << std::endl; return 1; }
 
-    fp.set( argv[3] ); 
+    fp.set( argv[3] );
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
@@ -60,9 +60,9 @@ static int doWork( int argc, char** argv )
     VSEvent::Type evtype;
     VSEvent::Type revtype;
     bool isboth = false;
-    if ( !strcmp( argv[1], "Max" ) ) evtype = VSEvent::Max; 
+    if ( !strcmp( argv[1], "Max" ) ) evtype = VSEvent::Max;
     else if ( !strcmp( argv[1], "Min" ) ) evtype = VSEvent::Min;
-    else if ( !strcmp( argv[1], "Both" ) ) 
+    else if ( !strcmp( argv[1], "Both" ) )
     {
 	evtype = VSEvent::Max;
 	revtype = VSEvent::Min;
@@ -92,11 +92,11 @@ static int doWork( int argc, char** argv )
 	if ( isboth )
 	{
 	    evf.findEvents( evset, trcrg, revtype );
-    	    for ( int idx=0; idx<evset.size(); idx++ )
-    	    {
-    		const int sampnr = mNINT32( evset[idx] );
-    		outptrc.set( sampnr, -1, 0 );
-    	    }
+	    for ( int idx=0; idx<evset.size(); idx++ )
+	    {
+		const int sampnr = mNINT32( evset[idx] );
+		outptrc.set( sampnr, -1, 0 );
+	    }
 	}
 
 	if ( nrwr == 0
@@ -111,10 +111,4 @@ static int doWork( int argc, char** argv )
 
     std::cerr << nrwr << " traces written." << std::endl;
     return nrwr ? 0 : 1;
-}
-
-
-int main( int argc, char** argv )
-{
-    return ExitProgram( doWork(argc,argv) );
 }

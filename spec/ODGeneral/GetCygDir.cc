@@ -11,12 +11,12 @@ static const char* rcsID = "$Id$";
 #include "winutils.h"
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     const char* cygdir = getCygDir();
     if ( !cygdir || !*cygdir ) return 1;
 
     od_cout() << cygdir << od_endl;
 
-    return ExitProgram( 0 );
+    return 0;
 }

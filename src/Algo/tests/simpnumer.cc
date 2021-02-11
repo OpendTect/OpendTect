@@ -62,18 +62,17 @@ bool testGCD()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-
     if ( !testGCD<int>() )
-	ExitProgram( 1 );
+	return 1;
 
     if ( !testComputeCommonStepInterval<short>("short" )
       || !testComputeCommonStepInterval<int>( "int" )
       || !testComputeCommonStepInterval<od_int64>( "od_int64" ) )
-	ExitProgram( 1 );
+	return 1;
 
-    return ExitProgram( 0 );
+    return 0;
 }

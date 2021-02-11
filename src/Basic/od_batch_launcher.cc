@@ -7,6 +7,8 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "prog.h"
+
 #include "commandlineparser.h"
 #include "filepath.h"
 #include "oddirs.h"
@@ -22,9 +24,9 @@ const char* sKeyNeedsMonitor = "needmonitor";
 const char* sKeyMonitorFileNm = "monitorfnm";
 
 #define mErrExit(s) { std::cerr << argv[1] << ": " << s \
-			<< std::endl; ExitProgram(1); }
+			<< std::endl; return 1; }
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
     CommandLineParser clp( argc, argv );
@@ -78,12 +80,12 @@ int main( int argc, char** argv )
     else if ( needmonitor )	// Parent process
     {
 	BufferString progviewercmd( "\"",
-		FilePath(GetExecPlfDir(),sODProgressViewerProgName).fullPath() );
+		FilePath(GetExecPlfDir(),sODProgressViewerProgName).fullPath());
 	progviewercmd.add( "\" --inpfile \"" ).add( monitorfnm )
 		     .add( "\" --pid " ).add( pid ).add( " &" );
 	if ( system(progviewercmd.buf()) )
 	    mErrExit( "Failed to launch progress viewer" )
     }
 
-    return ExitProgram( 0 );
+    return 0;
 }

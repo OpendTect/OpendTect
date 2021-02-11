@@ -19,7 +19,19 @@ ________________________________________________________________________
 #include "applicationdata.h"
 #include "batchjobdispatch.h"
 #include "enums.h"
-#include "prog.h"
+
+#include "plugins.h"
+#include "debug.h"
+#include "od_ostream.h"
+#include "odruncontext.h"
+#include "genc.h"
+
+
+#ifdef __msvc__
+# ifndef _CONSOLE
+#  include "winmain.h"
+# endif
+#endif
 
 class BatchServiceServerMgr;
 class CommandLineParser;
@@ -215,7 +227,7 @@ if ( comm_ ) \
 #  include "_execbatch.h"
 # endif
 #define mMainIsDefined
-    int main( int argc, char** argv )
+    int doMain( int argc, char** argv )
     {
 	OD::SetRunContext( OD::BatchProgCtxt );
 	SetProgramArgs( argc, argv );
@@ -224,9 +236,12 @@ if ( comm_ ) \
 	BP().eventLoopStarted.notify(mSCB(loadModulesCB));
 	BP().startDoWork.notify(mSCB(launchDoWorkCB));
 
-	const int ret = ApplicationData::exec();
+	return ApplicationData::exec();
+    }
 
-	return ExitProgram( ret );
+    int main( int argc, char** argv )
+    {
+	ExitProgram( doMain(argc,argv) );
     }
 
 #endif // __prog__

@@ -33,7 +33,7 @@ static int prUsage( const char* msg = 0 )
     return 1;
 }
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 4 ) return prUsage();
     bool incudf = argc > 4 && strcmp(argv[4],"--incudf");
@@ -85,10 +85,4 @@ static int doWork( int argc, char** argv )
     }
 
     return 0;
-}
-
-
-int main( int argc, char** argv )
-{
-    return ExitProgram( doWork(argc,argv) );
 }

@@ -608,7 +608,7 @@ static bool testSmallCube()
 }
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
     PIM().loadAuto( false );
@@ -618,20 +618,20 @@ int main( int argc, char** argv )
     if ( !HDF5::isAvailable() )
     {
 	tstStream( true ) << "HDF5 not available" << od_endl;
-	return ExitProgram(1);
+	return 1;
     }
 
     filename_.set( FilePath(File::getTempPath(),"test.h5").fullPath() );
     if ( File::exists(filename_) && !File::remove(filename_) )
-	return ExitProgram(1);
+	return 1;
 
     if ( !testSmallCube() )
-	return ExitProgram(1);
+	return 1;
 
     if ( !testWrite()
       || !testEdit()
       || !testRead() )
-	return ExitProgram(1);
+	return 1;
 
-    return ExitProgram(0);
+    return 0;
 }

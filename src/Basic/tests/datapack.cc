@@ -115,12 +115,9 @@ bool testDataPack()
 
 
 
-int main( int argc, char** argv )
+int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testDataPack() )
-	ExitProgram( 1 );
-
-    return ExitProgram( 0 );
+    return testDataPack() ? 0 : 1;
 }

@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "networkcommon.h"
 
+#include "applicationdata.h"
 #include "genc.h"
 #include "od_ostream.h"
 
@@ -25,7 +26,7 @@ namespace Network { class Socket; }
     if ( nrattempts_++ < maxtries_ ) return true; \
     stillok_ = false; \
     directMsg("Lost connection with primary host[1]. Exiting."); \
-    ExitProgram( -1 ); return false; \
+    ApplicationData::exit( -1 ); return false; \
 }
 
 #define mTryMaxtries( fn ) { \
@@ -37,7 +38,7 @@ namespace Network { class Socket; }
     } \
     stillok_ = false; \
     directMsg("Lost connection with primary host[2]. Exiting."); \
-    ExitProgram( -1 ); return false; \
+    ApplicationData::exit( -1 ); return false; \
 }
 
 

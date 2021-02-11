@@ -18,22 +18,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 
 
-int main( int argc, char ** argv )
+int mProgMainFnName( int argc, char** argv )
 {
+    mInitProg( OD::UiProgCtxt )
     SetProgramArgs( argc, argv );
-    uiMain app( argc, argv );
+    OD::ModDeps().ensureLoaded( "General" );
 
     IOPar jobpars;
     if ( !uiMMBatchJobDispatcher::initMMProgram(argc,argv,jobpars) )
-	return ExitProgram( 1 );
+	return 1;
 
+    uiMain app( argc, argv );
     OD::ModDeps().ensureLoaded( "uiPreStackProcessing" );
 
-    uiPreStackMMProc* pmmp = new uiPreStackMMProc( 0, jobpars );
+    PtrMan<uiDialog> pmmp = new uiPreStackMMProc( 0, jobpars );
     app.setTopLevel( pmmp );
     pmmp->show();
 
-    const int ret = app.exec();
-    delete pmmp;
-    return ExitProgram( ret );
+    return app.exec();
 }

@@ -25,7 +25,7 @@ static const char* rcsID = "$Id$";
 #include "seisfact.h"
 
 
-int main( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 1 )
     {
@@ -33,17 +33,17 @@ int main( int argc, char** argv )
 	          << " inpfile\n";
 	od_cout() << "Format input: CBVS ; Format ouput: inl crl v [v ...]"
 		  << od_endl;
-	ExitProgram( 1 );
+	return 1;
     }
 
     FilePath fp( argv[1] );
-    
+
     if ( !File::exists(fp.fullPath()) )
     {
         od_cout() << fp.fullPath() << " does not exist" << od_endl;
-        ExitProgram( 1 );
+        return 1;
     }
-    
+
     if ( !fp.isAbsolute() )
     {
         fp.insert( File::getCurrentPath() );
@@ -54,15 +54,15 @@ int main( int argc, char** argv )
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-	{ od_cout() << tri->errMsg() << od_endl; ExitProgram( 1 ); }
+	{ od_cout() << tri->errMsg() << od_endl; return 1; }
 
-    fp.set( argv[2] ); 
+    fp.set( argv[2] );
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
     StreamData outsd = StreamProvider( fname ).makeOStream();
     if ( !outsd.usable() )
-        { od_cout() << "Cannot open output file" << od_endl; ExitProgram(1); }
+        { od_cout() << "Cannot open output file" << od_endl; return 1; }
 
     SeisTrc trc;
     int nrwr = 0;
@@ -78,13 +78,13 @@ int main( int argc, char** argv )
 	    {
 		if ( trc.get(isamp,icomp) > 10000 )
 		{
-		    od_cout() trc.info().binid.inl << ' ' 
+		    od_cout() trc.info().binid.inl << ' '
 			     << trc.info().binid.crl << ' '
 			     << trc.get(isamp,icomp) << ' '<<'\n'<< od_endl;
 		}
 		else if (trc.get(isamp,icomp) < -10000 )
 		{
-		    od_cout() << trc.info().binid.inl << ' ' 
+		    od_cout() << trc.info().binid.inl << ' '
 			     << trc.info().binid.crl << ' '
 			     << trc.get(isamp,icomp) << ' '<<'\n'<< od_endl;
 		}
@@ -94,5 +94,5 @@ int main( int argc, char** argv )
 	nrwr++;
     }
 
-    return ExitProgram( nrwr ? 0 : 1 );
+    return nrwr ? 0 : 1;
 }

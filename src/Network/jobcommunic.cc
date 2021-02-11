@@ -110,10 +110,7 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
 
 JobCommunic::~JobCommunic()
 {
-    CallBack::removeFromThreadCalls( this );
-    jobcommsendretmgr_.removeParam( this );
-    jobcommlockmgr_.removeAndDeleteParam( this );
-    jobcommsendmsglockmgr_.removeAndDeleteParam( this );
+    detachAllNotifiers();
     delete socket_;
     delete logstream_;
 }
@@ -277,7 +274,7 @@ void JobCommunic::sendMsgCB( CallBacker* cber )
 	logMsg( writestat, logmsg,
 	    !writestat ? socket_->errMsg().getFullString().str() : "" );
 	directMsg( "Exiting on request of Primary Host." );
-	ExitProgram( -1 );
+	ApplicationData::exit( -1 );
     }
     else
     {
@@ -313,7 +310,7 @@ void JobCommunic::checkPrimaryHostTimeout()
 	BufferString msg( "Time-out contacting Primary Host. Last contact " );
 	msg.add( elapsed/1000 ).add( " sec ago. Exiting." );
 	directMsg( msg );
-	ExitProgram( -1 );
+	ApplicationData::exit( -1 );
     }
 }
 

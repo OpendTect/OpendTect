@@ -25,7 +25,7 @@ static const char* rcsID = "$Id$";
 #include "seisfact.h"
 
 
-static int doWork( int argc, char** argv )
+int mProgMainFnName( int argc, char** argv )
 {
     if ( argc < 3 )
     {
@@ -35,13 +35,13 @@ static int doWork( int argc, char** argv )
     }
 
     FilePath fp( argv[1] );
-    
+
     if ( !File::exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;
         return 1;
     }
-    
+
     if ( !fp.isAbsolute() )
     {
         fp.insert( File::getCurrentPath() );
@@ -56,7 +56,7 @@ static int doWork( int argc, char** argv )
     const CBVSReadMgr& rdmgr = *tri->readMgr();
     const CBVSInfo::SurvGeom& geom = rdmgr.info().geom;
 
-    fp.set( argv[2] ); 
+    fp.set( argv[2] );
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
@@ -66,10 +66,10 @@ static int doWork( int argc, char** argv )
     TextStreamProgressMeter pm( std::cerr );
 
     for ( int linenr = geom.start.crl; linenr <= geom.stop.crl;
-	    linenr += geom.step.crl ) 
+	    linenr += geom.step.crl )
     {
 	for ( int trcnr = geom.start.inl; trcnr <= geom.stop.inl;
-		trcnr += geom.step.inl ) 
+		trcnr += geom.step.inl )
 	{
 	    pm.setNrDone( nrwr );
 	    if ( !tri->goTo(BinID(trcnr,linenr)) )
@@ -96,8 +96,3 @@ static int doWork( int argc, char** argv )
     return nrwr ? 0 : 1;
 }
 
-
-int main( int argc, char** argv )
-{
-    return ExitProgram( doWork(argc,argv) );
-}
