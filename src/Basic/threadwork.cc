@@ -28,12 +28,11 @@ static void shutdownTWM()
 
 Threads::WorkManager& WorkManager::twm()
 {
-    mDefineStaticLocalObject( PtrMan<Threads::WorkManager>, twm_, = 0 );
+    mDefineStaticLocalObject( PtrMan<Threads::WorkManager>, twm_, = nullptr );
     if ( !twm_ )
     {
-	Threads::WorkManager* newtwm =
-	    new Threads::WorkManager( Threads::getNrProcessors()*2 );
-	if ( twm_.setIfNull( newtwm,true ) )
+	auto* newtwm = new WorkManager( getNrProcessors()*2 );
+	if ( twm_.setIfNull(newtwm,true) )
 	{
 	    thetwm = newtwm;
 	    NotifyExitProgram( &shutdownTWM );
