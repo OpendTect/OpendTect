@@ -332,23 +332,22 @@ void BatchProgram::eventLoopStartedCB( CallBacker* )
 {
     mDetachCB( timer_->tick, BatchProgram::eventLoopStartedCB );
 
-    if ( strm_ )
-    {
-	od_ostream& logstrm = *strm_;
-	logstrm << "Starting program: " << clparser_->getExecutable()
-	    << " " << name() << od_newline
+    od_ostream& logstrm = strm_ ? *strm_ : od_cerr();
+    logstrm << "Starting program: " << clparser_->getExecutable();
+    if ( clparser_->nrArgs() > 1 )
+	logstrm << " '" << name() << "'";
+    logstrm << od_newline
 	    << "Processing on: " << GetLocalHostName() << od_newline
 	    << "Process ID: " << GetPID() << od_endl;
 #ifdef __debug__
-	if ( clparser_->nrArgs() > 1 )
-	{
-	    logstrm << "Full command: " << clparser_->getExecutable();
-	    for ( int idx=0; idx<clparser_->nrArgs(); idx++ )
-		logstrm << " " << clparser_->getArg(idx);
-	    logstrm << od_endl;
-	}
-#endif
+    if ( clparser_->nrArgs() > 1 )
+    {
+	logstrm << "Full command: " << clparser_->getExecutable();
+	for ( int idx=0; idx<clparser_->nrArgs(); idx++ )
+	    logstrm << " " << clparser_->getArg(idx);
+	logstrm << od_endl;
     }
+#endif
 
     if ( !isOK() )
     {
@@ -545,9 +544,10 @@ void BatchProgram::setResumed()
 
 bool BatchProgram::errorMsg( const uiString& msg, bool cc_stderr )
 {
-    if ( strm_ && strm_->isOK() )
+    const bool hasstrm = strm_ && strm_->isOK();
+    if ( hasstrm )
 	*strm_ << '\n' << ::toString(msg) << '\n' << od_endl;
-    if ( cc_stderr )
+    if ( cc_stderr || !hasstrm )
 	od_cerr() << '\n' << ::toString(msg) << '\n' << od_endl;
 
     if ( comm_ && comm_->ok() )

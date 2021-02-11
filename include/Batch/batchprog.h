@@ -241,8 +241,7 @@ if ( comm_ ) \
 
     int main( int argc, char** argv )
     {
-	const int res = doMain( argc, argv );
-	return res;
+	ExitProgram( doMain(argc,argv) );
     }
 
 #endif // __prog__
