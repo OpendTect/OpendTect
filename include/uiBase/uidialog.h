@@ -99,6 +99,9 @@ public:
 			//!< Use mTODOHelpKey or mNoHelpKey instead
 
 	public:
+	mDeprecated	("Use uiString and HelpKey object")
+			Setup(const char* window_title,const char* dialog_title,
+			      const char* help_key_str);
 	mDeprecated	("Use uiString")
 			Setup( const char* window_title,
 			       const char* dialog_title,

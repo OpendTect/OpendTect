@@ -12,6 +12,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidialog.h"
 #include "odwindow.h"
 
+uiDialog::Setup::Setup( const char* window_title, const char* dialog_title,
+			const char* help_key_str )
+    : Setup( toUiString(window_title), toUiString(dialog_title),mNoHelpKey )
+{
+mStartAllowDeprecatedSection
+    helpkey_ = HelpKey::makeFromString( help_key_str );
+mStopAllowDeprecatedSection
+}
+
 #define mBody static_cast<uiDialogBody*>(body_)
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )

@@ -150,6 +150,12 @@ default).
     CtxtIOObj&		ctxtIOObj( bool work=false )
 					{ return work ? workctio_ : inctio_; }
 
+			mDeprecated("Use uiString")
+			uiIOObjSel( uiParent* p, CtxtIOObj& ctxt,
+				    const char* seltxt )
+			    : uiIOObjSel(p,ctxt,toUiString(seltxt))
+			{}
+
 };
 
 
