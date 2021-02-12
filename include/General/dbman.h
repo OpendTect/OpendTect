@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "ioobjctxt.h"
 class CommandLineParser;
 class DBDir;
+class DBMManager;
 class IOObjSelConstraints;
 
 
@@ -139,6 +140,13 @@ private:
     void		initFirst();
     uiRetVal		doReRead();
 
+    void		applClosing() {	applicationClosing.trigger(); }
+
+    friend class	DBMManager;
+    friend class	BatchProgram;
+    friend class	ServiceMgrBase;
+    friend class	uiMain;
+
 public:
 
     bool		isBad() const;
@@ -153,7 +161,6 @@ public:
     Notifier<DBMan>	surveyChangeOK;
     void		setSurveyChangeUserAbort();
     void		setSurveyChangeAbortReason(uiRetVal);
-    void		applClosing();
 
     mDeprecated bool	permRemove( const DBKey& ky )
 			{ return removeEntry(ky); }

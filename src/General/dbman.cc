@@ -5,6 +5,7 @@
 -*/
 
 
+#include "applicationdata.h"
 #include "commandlineparser.h"
 #include "dbman.h"
 #include "dbdir.h"
@@ -35,15 +36,68 @@ mGlobal(General) bool DBMan_implExist(const DBKey&);
 mGlobal(General) IOObj* DBMan_getIOObj(const DBKey&);
 
 
-static DBMan* global_dbm_ = 0;
-static Threads::Lock global_dbm_lock_;
+class DBMManager : public CallBacker
+{
+public:
+
+    DBMManager()
+	: dbm_(*new DBMan())
+    {
+	mAttachCB( dbm_.applicationClosing, DBMManager::closedCB );
+    }
+
+    ~DBMManager()
+    {
+	detachAllNotifiers();
+	delete &dbm_;
+    }
+
+    DBMan& DBM()	    { return dbm_; }
+
+    void applicationClosing()
+    {
+	if ( !closed_ )
+	{
+	    mDetachCB( dbm_.applicationClosing, DBMManager::closedCB );
+	    dbm_.applClosing();
+	}
+    }
+
+    static Threads::Lock	lock_;
+
+private:
+
+    void    closedCB( CallBacker* )
+    {
+	closed_ = true;
+    }
+
+    DBMan& dbm_;
+    bool    closed_ = false;
+
+};
+
+static PtrMan<DBMManager> theinstmgr = nullptr;
+Threads::Lock DBMManager::lock_( true );
+
+void applicationClosing()
+{
+    Threads::Locker locker( DBMManager::lock_ );
+    if ( theinstmgr )
+	theinstmgr->applicationClosing();
+}
+
 
 DBMan& DBM()
 {
-    Threads::Locker locker( global_dbm_lock_ );
-    if ( !global_dbm_ )
-	global_dbm_ = new DBMan;
-    return *global_dbm_;
+    Threads::Locker locker( DBMManager::lock_ );
+    if ( !theinstmgr )
+    {
+	theinstmgr = new DBMManager;
+	NotifyExitProgram( applicationClosing );
+    }
+
+    return theinstmgr->DBM();
 }
 
 
@@ -106,11 +160,6 @@ void DBMan::setSurveyChangeAbortReason( uiRetVal reason )
 {
     mLock4Write();
     surveychangeabortreason_ = reason;
-}
-
-void DBMan::applClosing()
-{
-    applicationClosing.trigger();
 }
 
 
