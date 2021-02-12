@@ -884,11 +884,7 @@ bool IOPar::getYN( const char* keyw, bool& i1, bool& i2, bool& i3,
 bool IOPar::getPtr( const char* keyw, void*& res ) const
 {
     mGetStartNotEmpty(pval);
-#ifdef __win__
-    return sscanf_s( pval, "%p", &res ) > 0;
-#else
-    return sscanf( pval, "%p", &res ) > 0;
-#endif
+    return od_sscanf( pval, "%p", &res ) > 0;
 }
 
 
