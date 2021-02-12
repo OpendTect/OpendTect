@@ -25,11 +25,8 @@ if ( NOT APPLE )
     set( EXECLIST ${EXECLIST} od_glxinfo )
 endif()
 
-if ( UNIX )
-    set( EXECLIST ${EXECLIST} od_batch_launcher )
-endif()
 if ( WIN32 )
-    set( EXECLIST ${EXECLIST} od_FirewallProcSetter od_Setup_Firewall )
+    list( APPEND EXECLIST od_FirewallProcSetter od_Setup_Firewall )
 endif()
 
 set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackViewer
