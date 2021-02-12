@@ -22,6 +22,7 @@ class CtxtIOObj;
 class IODir;
 class IOObj;
 class IOObjContext;
+class IOMManager;
 class IOSubDir;
 class SurveyInfo;
 class SurveyDataTreePreparer;
@@ -149,6 +150,7 @@ private:
     bool		to(const IOSubDir*,bool);
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
 
+    friend class	IOMManager;
     friend class	SurveyDataTreePreparer;
     friend mGlobal(General)	IOMan&	IOM();
 

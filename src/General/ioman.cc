@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ioman.h"
 
+#include "applicationdata.h"
 #include "ascstream.h"
 #include "commandlineparser.h"
 #include "ctxtioobj.h"
@@ -30,17 +31,77 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genc.h"
 #include "transl.h"
 
+class IOMManager : public CallBacker
+{
+public:
 
-IOMan* IOMan::theinst_	= 0;
+    IOMManager()
+	: iom_(*new IOMan())
+    {
+	mAttachCB( iom_.applicationClosing, IOMManager::closedCB );
+    }
+
+    ~IOMManager()
+    {
+	detachAllNotifiers();
+	delete& iom_;
+    }
+
+    void init()	    { iom_.init(); }
+
+    IOMan& IOM()	    { return iom_; }
+
+    void applicationClosing()
+    {
+	if ( !closed_ )
+	{
+	    mDetachCB( iom_.applicationClosing, IOMManager::closedCB );
+	    iom_.applClosing();
+	}
+    }
+
+    static Threads::Lock	lock_;
+
+private:
+
+    void    closedCB( CallBacker* )
+    {
+	closed_ = true;
+    }
+
+    IOMan& iom_;
+    bool    closed_ = false;
+
+};
+
+static PtrMan<IOMManager> theinstmgr = nullptr;
+Threads::Lock IOMManager::lock_( true );
+
+void applicationClosing()
+{
+    Threads::Locker locker( IOMManager::lock_ );
+    if ( theinstmgr )
+	theinstmgr->applicationClosing();
+}
+
+
 static const MultiID emptykey( "" );
 
 
 IOMan& IOM()
 {
-    if ( !IOMan::theinst_ )
-	{ IOMan::theinst_ = new IOMan; IOMan::theinst_->init(); }
-    return *IOMan::theinst_;
+    Threads::Locker locker( IOMManager::lock_ );
+    if ( !theinstmgr )
+    {
+	theinstmgr = new IOMManager;
+	theinstmgr->init();
+	NotifyExitProgram( applicationClosing );
+    }
+
+    return theinstmgr->IOM();
 }
+
+
 
 IOMan::IOMan( const char* rd )
     : NamedCallBacker("IO Manager")
