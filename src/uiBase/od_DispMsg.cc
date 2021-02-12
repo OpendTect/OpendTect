@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     CommandLineParser parser;
 
     TextTranslateMgr::loadTranslations();

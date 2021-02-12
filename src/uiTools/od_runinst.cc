@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: od_runinst.cc 8761 2013-12-06 12:06:24Z bert.br
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::InstallerCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     CommandLineParser cl( argc, argv );
     const int nrargs = cl.nrArgs();
     const bool useargs = nrargs >= 1;

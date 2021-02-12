@@ -31,7 +31,7 @@ Arguments :
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     uiMain app( argc, argv );
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiODMain" );
