@@ -159,6 +159,7 @@ namespace OD
 	static FilePath*	getActivateScript(const FilePath& root);
 	bool			retrievePythonVersionStr();
 	void			envChangeCB(CallBacker*);
+	void			pluginsLoaded(CallBacker*);
 
 	void		    createFireWallExeList(ManagedObjectSet<FilePath>&);
 
@@ -169,6 +170,7 @@ namespace OD
 
 	static void	initClass();
 	static void	setPythonActivator(const char*);
+	static bool	needCheckRunScript();
 
 	void		addBasePath(const FilePath&);
 			/*<! For plugins to update PYTHONPATH

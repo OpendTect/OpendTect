@@ -195,6 +195,7 @@ bool RuntimeLibLoader::isOK() const
 
 
 PluginManager::PluginManager()
+    : loaded(this)
 {
     if ( !AreProgramArgsSet() )
     {
@@ -211,7 +212,7 @@ static BufferString getProgNm( const char* argv0 )
 {
     FilePath fp( argv0 );
 #ifdef __win__
-    fp.setExtension( 0 );
+    fp.setExtension( nullptr );
 #endif
     return fp.fileName();
 }
@@ -574,13 +575,13 @@ void PluginManager::loadAuto( bool late )
     BufferStringSet dontloadlist;
     getNotLoadedByUser( dontloadlist );
 
+    const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
     for ( int idx=0; idx<data_.size(); idx++ )
     {
 	Data& data = *data_[idx];
 	if ( !data.sla_ || !data.sla_->isOK() || data.autosource_==Data::None )
 	    continue;
 
-	const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
 	if ( data.autotype_ != pitype )
 	    continue;
 
@@ -610,6 +611,8 @@ void PluginManager::loadAuto( bool late )
 	    UsrMsg( msg );
 	}
     }
+
+    loaded.trigger( pitype );
 }
 
 

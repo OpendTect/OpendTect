@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "perthreadrepos.h"
 #include "ptrman.h"
+#include "pythonaccess.h"
 #include "od_iostream.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -1263,6 +1264,7 @@ bool initTempDir()
 {
 #ifdef __win__
     if ( !hasAppLocker() ||
+	 !OD::PythonAccess::needCheckRunScript() ||
          GetEnvVarYN("OD_DISABLE_APPLOCKER_TEST",false) )
         return true;
 

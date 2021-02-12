@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "odplatform.h"
 #include "oscommand.h"
 #include "separstr.h"
+#include "plugins.h"
 #include "procdescdata.h"
 #include "settingsaccess.h"
 #include "string2.h"
@@ -75,6 +76,7 @@ void EnumDefImpl<OD::PythonSource>::init()
 OD::PythonAccess::PythonAccess()
     : envChange(this)
 {
+    mAttachCB( PIM().loaded, PythonAccess::pluginsLoaded );
 }
 
 
@@ -347,6 +349,16 @@ void OD::PythonAccess::setPythonActivator( const char* fnm )
 {
     if ( File::exists(fnm) )
 	GetPythonActivatorExe().set( fnm );
+}
+
+
+bool OD::PythonAccess::needCheckRunScript()
+{
+    if ( !GetPythonActivatorExe().isEmpty() )
+	return false;
+
+    const FilePath pythonfp( GetSoftwareDir(true), "bin", "python" );
+    return pythonfp.exists();
 }
 
 
@@ -1171,6 +1183,19 @@ void OD::PythonAccess::envChangeCB( CallBacker* )
 	msg_.append( uirv );
 
     envChange.trigger();
+}
+
+
+void OD::PythonAccess::pluginsLoaded( CallBacker* cb )
+{
+    if ( !cb )
+	return;
+
+    mCBCapsuleUnpack( int, loadedid, cb );
+    if ( loadedid < PI_AUTO_INIT_LATE )
+	return;
+
+    File::initTempDir();
 }
 
 
