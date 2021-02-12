@@ -1328,7 +1328,7 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 }
 
 
-visBase::Material* HorizonDisplay::getMaterial()
+visBase::Material* HorizonDisplay::getMaterial() const
 {
     return material_;
 }

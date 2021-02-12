@@ -57,7 +57,7 @@ public:
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
 
-    visBase::Material*		getMaterial();
+    visBase::Material*		getMaterial() const;
     void			setIntersectLineMaterial(visBase::Material*);
 
     bool			setEMObject(const EM::ObjectID&,TaskRunner*);
@@ -183,7 +183,7 @@ public:
 
     const ObjectSet<visBase::VertexShape>& getIntersectionLines() const;
 					/*!<This function will be deleted*/
-    int				getIntersectionDataSize()
+    int				getIntersectionDataSize() const
 				{ return intersectiondata_.size(); }
     const visBase::VertexShape* getLine(int) const;
     void			displayIntersectionLines(bool);

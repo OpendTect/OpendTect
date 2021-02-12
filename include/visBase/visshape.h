@@ -86,7 +86,7 @@ mExpClass(visBase) VertexShape : public Shape
 
 public:
     
-    static VertexShape*	create()
+    static VertexShape* create()
 			mCreateDataObj(VertexShape);
 
     void		setPrimitiveType(Geometry::PrimitiveSet::PrimitiveType);
@@ -97,7 +97,7 @@ public:
 
     virtual  void	  setCoordinates(Coordinates* coords);
     virtual  Coordinates* getCoordinates() { return coords_; }
-    virtual  const Coordinates*	  getCoordinates() const { return coords_; }
+    virtual  const Coordinates*   getCoordinates() const { return coords_; }
     virtual  void	  setLineStyle(const OD::LineStyle&){};
 
     void		removeSwitch();
@@ -107,11 +107,11 @@ public:
 			 effect. */
 
     virtual void	setDisplayTransformation( const mVisTrans* );
-    			/*!<\note The transformation is forwarded to the
+			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates, 
-			     you will have to setTransformation again.  */
+			     you will have to setTransformation again.	*/
     const mVisTrans*	getDisplayTransformation() const;
-    			/*!<\note Direcly relayed to the coordinates */
+			/*!<\note Direcly relayed to the coordinates */
     
     void		dirtyCoordinates();
 
@@ -121,6 +121,7 @@ public:
     int			nrPrimitiveSets() const;
     virtual void	touchPrimitiveSet(int)			{}
     Geometry::PrimitiveSet*	getPrimitiveSet(int);
+    const Geometry::PrimitiveSet* getPrimitiveSet(int) const;
     void		setMaterial( Material* mt );
     void		materialChangeCB( CallBacker*  );
     void		coordinatesChangedCB( CallBacker* );
@@ -148,9 +149,9 @@ public:
     void		setAttribAndMode(osg::StateAttribute*);
 
 protected:
-    			VertexShape( Geometry::PrimitiveSet::PrimitiveType,
+			VertexShape( Geometry::PrimitiveSet::PrimitiveType,
 				     bool creategeode );
-    			~VertexShape();
+			~VertexShape();
     
     void		setupOsgNode();
 
@@ -185,7 +186,7 @@ protected:
 
     Geometry::PrimitiveSet::PrimitiveType	primitivetype_;
 
-    Threads::Lock 				lock_;
+    Threads::Lock				lock_;
 						/*!<lock protects primitiveset
 						and osg color array*/
     ObjectSet<Geometry::PrimitiveSet>		primitivesets_;

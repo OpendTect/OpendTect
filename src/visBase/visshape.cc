@@ -729,6 +729,13 @@ Geometry::PrimitiveSet* VertexShape::getPrimitiveSet( int idx )
     return primitivesets_[idx];
 }
 
+
+const Geometry::PrimitiveSet* VertexShape::getPrimitiveSet( int idx ) const
+{
+    return primitivesets_[idx];
+}
+
+
 void VertexShape::removePrimitiveSetFromScene( const osg::PrimitiveSet* ps )
 {
     const int idx = osggeom_->getPrimitiveSetIndex( ps );
