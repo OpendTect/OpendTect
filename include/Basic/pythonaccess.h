@@ -158,6 +158,7 @@ namespace OD
 	static File::Path*	getActivateScript(const File::Path& root);
 	bool			retrievePythonVersionStr();
 	void			envChangeCB(CallBacker*);
+	void			pluginsLoaded(CallBacker*);
 
 	friend class ::uiPythonSettings;
 	friend class ::ServiceMgrBase;
@@ -166,6 +167,7 @@ namespace OD
 
 	static void	initClass();
 	static void	setPythonActivator(const char*);
+	static bool	needCheckRunScript();
 
 	void		addBasePath(const File::Path&);
 			/*<! For plugins to update PYTHONPATH

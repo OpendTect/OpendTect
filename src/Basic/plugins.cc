@@ -211,6 +211,7 @@ BufferString PluginManager::Data::version() const
 
 
 PluginManager::PluginManager()
+    : allPluginsLoaded(this)
 {
     if ( !AreProgramArgsSet() )
     {
@@ -610,13 +611,13 @@ void PluginManager::loadAuto( bool late )
     BufferStringSet dontloadlist;
     getNotLoadedByUser( dontloadlist );
 
+    const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
     for ( auto dataptr : data_ )
     {
 	Data& data = *dataptr;
 	if ( !data.sla_ || !data.sla_->isOK() || data.autosource_==Data::None )
 	    continue;
 
-	const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
 	if ( data.autotype_ != pitype )
 	    continue;
 
@@ -647,6 +648,8 @@ void PluginManager::loadAuto( bool late )
 	    UsrMsg( msg );
 	}
     }
+
+    allPluginsLoaded.trigger( pitype );
 }
 
 
