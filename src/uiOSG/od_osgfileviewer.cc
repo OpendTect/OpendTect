@@ -28,7 +28,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     uiMain::preInitForOpenGL();
     uiMain app( argc, argv );
 
