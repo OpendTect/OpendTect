@@ -842,7 +842,7 @@ mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
     SetEnvVar( "DTECT_APPL", GetSoftwareDir(true) );
 #endif
 
-    setQtPaths();
+    // setQtPaths();
 }
 
 
