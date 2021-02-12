@@ -24,7 +24,7 @@ ________________________________________________________________________
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
 
     uiMain app;
     auto& clp = app.commandLineParser();
