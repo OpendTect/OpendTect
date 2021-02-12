@@ -7,10 +7,13 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "tableconvimpl.h"
-#include "string2.h"
+
 #include "od_iostream.h"
-#include <string.h>
+#include "string2.h"
+#include "survinfo.h"
 #include "uistrings.h"
+
+#include <string.h>
 
 const GlobExpr Table::RecordMatcher::emptyge_;
 
@@ -493,3 +496,56 @@ bool Table::StartStopManipulator::accept( BufferStringSet& cols ) const
 
     return true;
 }
+
+namespace Table
+{
+
+// FormatProvider
+FormatProvider::FormatProvider()
+{
+    readSettings();
+}
+
+
+FormatProvider::~FormatProvider()
+{}
+
+
+void FormatProvider::readSettings()
+{
+// TODO
+}
+
+
+const char* FormatProvider::xy() const
+{
+    const od_uint16 width = 12;
+    const od_uint16 precision = 2;
+    return cformat( 'f', width, precision );
+}
+
+
+const char* FormatProvider::z( od_uint16 extradecimals ) const
+{
+
+    const od_uint16 width = 12;
+    const od_uint16 precision = SI().nrZDecimals() + extradecimals + 2;
+    return cformat( 'f', width, precision );
+}
+
+
+const char* FormatProvider::trcnr() const
+{
+    const od_uint16 width = 10;
+    return cformat( 'd', width );
+}
+
+
+const char* FormatProvider::spnr() const
+{
+    const od_uint16 width = 10;
+    const od_uint16 precision = 2;
+    return cformat( 'f', width, precision );
+}
+
+} // namespace Table
