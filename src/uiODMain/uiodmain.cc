@@ -46,6 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "envvars.h"
 #include "genc.h"
+#include "file.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "moddepmgr.h"
@@ -231,6 +232,8 @@ int ODMain( uiMain& app )
     PIM().loadAuto( true );
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
+
+    File::initTempDir();
 
     odmain->initScene();
     return odmain->go() ? 0 : 1;

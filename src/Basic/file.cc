@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "perthreadrepos.h"
 #include "ptrman.h"
+#include "pythonaccess.h"
 #include "od_iostream.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -1262,7 +1263,9 @@ static bool canApplyScript( const char* scriptfnm )
 bool initTempDir()
 {
 #ifdef __win__
-    if ( !hasAppLocker() )
+    if ( !hasAppLocker() ||
+	 !OD::PythonAccess::needCheckRunScript() ||
+         GetEnvVarYN("OD_DISABLE_APPLOCKER_TEST",false) )
         return true;
 
     FilePath targetfp( getTempPath(),

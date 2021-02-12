@@ -63,8 +63,6 @@ mDefModInitFn(Basic)
 #endif
 #endif
 
-    File::initTempDir();
-
     PosInfo::Survey2D::initClass();
     Coords::UnlocatedXY::initClass();
     Coords::AnchorBasedXY::initClass();
