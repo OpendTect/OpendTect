@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "filesystemaccess.h"
 #include "fileview.h"
+#include "pythonaccess.h"
 #include "od_iostream.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -1169,7 +1170,9 @@ namespace File {
 bool File::initTempDir()
 {
 #ifdef __win__
-    if ( !WinUtils::hasAppLocker() )
+    if ( !WinUtils::hasAppLocker() ||
+	 !OD::PythonAccess::needCheckRunScript() ||
+         GetEnvVarYN("OD_DISABLE_APPLOCKER_TEST",false) )
         return true;
 
     Path targetfp( getTempPath(),

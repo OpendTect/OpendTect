@@ -51,7 +51,6 @@ mDefModInitFn(Basic)
     //forking from a process that had affinity set.
     Threads::setCurrentThreadProcessorAffinity(-1);
 
-    File::initTempDir();
 
     PosInfo::Survey2D::initClass();
     Coords::UnlocatedXY::initClass();

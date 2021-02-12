@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "sharedlibs.h"
 #include "bufstringset.h"
+#include "notify.h"
 
 
 extern "C" {
@@ -84,7 +85,7 @@ int LoadPlugin(const char* libnm);
   loadSurveyRelatedTools().
 */
 
-mExpClass(Basic) PluginManager
+mExpClass(Basic) PluginManager : public CallBacker
 {
 public:
 
@@ -98,6 +99,8 @@ public:
 				//!< see class comments
     bool			load(const char* libnm);
 					//!< Explicit load of a plugin
+
+    CNotifier<PluginManager,int>    allPluginsLoaded;
 
     mExpClass(Basic) Data
     {
