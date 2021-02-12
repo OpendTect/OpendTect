@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class CommandLineParser;
 class CtxtIOObj;
+class IOMManager;
 class IODir;
 class IOObj;
 class IOObjContext;
@@ -151,7 +152,13 @@ private:
     bool		to(const IOSubDir*,bool);
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
 
+    void		applClosing() {	applicationClosing.trigger(); }
+
     friend class	SurveyDataTreePreparer;
+    friend class	BatchProgram;
+    friend class	ServiceMgrBase;
+    friend class	uiMain;
+    friend class	IOMManager;
     friend mGlobal(General)	IOMan&	IOM();
 
 public:
@@ -166,7 +173,6 @@ public:
 					{ survchgblocked_ = yn; }
     bool		changeSurveyBlocked() const
 					{ return survchgblocked_; }
-    void		applClosing()	{ applicationClosing.trigger(); }
     static bool		newSurvey(SurveyInfo* newsi=0);
 			/*!< set new SurveyInfo; force re-read the data tree. */
     static bool		setSurvey(const char*);
