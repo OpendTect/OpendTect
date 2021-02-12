@@ -25,11 +25,8 @@ if ( NOT APPLE )
     set( EXECLIST ${EXECLIST} od_glxinfo )
 endif()
 
-if ( UNIX )
-    set( EXECLIST ${EXECLIST} od_batch_launcher )
-endif()
 if ( WIN32 )
-    set( EXECLIST ${EXECLIST} od_FirewallProcSetter od_Setup_Firewall )
+    list( APPEND EXECLIST od_FirewallProcSetter od_Setup_Firewall )
 endif()
 
 set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackViewer
@@ -47,7 +44,7 @@ if( INCLUDE_ODHDF5 STREQUAL "YES" )
 endif()
 
 #Only for windows base package
-set( WINEXECLIST od_start_dtect od_main_console od_runinst )
+set( WINEXECLIST od_main_console od_runinst )
 
 #No need to include shell scripts in windows base package.
 set( TXTFILES GNU_GENERAL_PUBLIC_LICENSE.txt INSTALL.txt LICENSE.txt )
