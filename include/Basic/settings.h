@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		4-11-1995
- RCS:		$Id$
 ________________________________________________________________________
 
 
@@ -15,6 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "iopar.h"
 
+class SettingsManager;
 
 /*!
 \brief Settings class holds the user settings. It is an IOPar.
@@ -64,8 +64,15 @@ protected:
 					bool);
     bool			doRead(bool);
 public:
+    mDeprecatedDef
     void			remove() { delete this; }
     				//!<Only specialist use i.e. on program closing
+
+private:
+
+    static void			manageSettings(Settings*);
+
+    friend class SettingsManager;
 };
 
 
@@ -81,4 +88,3 @@ mExternC( Basic ) const char* GetSettingsDataDir(void);
 //!> macro for easy write of Settings::common()
 #define mSettWrite() \
 	Settings::common().write();
-
