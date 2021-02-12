@@ -76,7 +76,7 @@ void EnumDefImpl<OD::PythonSource>::init()
 OD::PythonAccess::PythonAccess()
     : envChange(this)
 {
-    mAttachCB( PIM().loaded, PythonAccess::pluginsLoaded );
+    mAttachCB( PIM().allPluginsLoaded, PythonAccess::pluginsLoaded );
 }
 
 

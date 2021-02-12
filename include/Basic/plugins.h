@@ -95,7 +95,7 @@ public:
     bool			load(const char* libnm);
     					//!< Explicit load of a plugin
 
-    CNotifier<PluginManager,int>    loaded;
+    CNotifier<PluginManager,int>    allPluginsLoaded;
 
     struct Data
     {
