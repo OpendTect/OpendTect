@@ -37,7 +37,7 @@ if( INCLUDE_ODHDF5 STREQUAL "YES" )
 endif()
 
 #Only for windows base package
-set( WINEXECLIST od_start_dtect od_main_console od_runinst )
+set( WINEXECLIST od_main_console od_runinst )
 
 #No need to include shell scripts in windows base package.
 set( TXTFILES GNU_GENERAL_PUBLIC_LICENSE.txt INSTALL.txt LICENSE.txt )
