@@ -47,7 +47,7 @@ static void printBatchUsage()
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     CommandLineParser clp;
     const int nrargs = clp.nrArgs();
     if ( nrargs < 1 )

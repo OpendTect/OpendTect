@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::UiProgCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     OD::ModDeps().ensureLoaded( "uiSeis" );
 
     TextTranslateMgr::loadTranslations();
