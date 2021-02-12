@@ -494,9 +494,7 @@ uiReadMarkerFile( uiParent* p )
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
-    fnmfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
-			       uiFileInput::Setup().withexamine(true)
-			       .forread(true) );
+    fnmfld_ = new uiASCIIFileInput( this, true );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 		      mODHelpKey(mTableImpDataSelmarkersHelpID) );

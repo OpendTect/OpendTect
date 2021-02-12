@@ -142,6 +142,7 @@ public:
     RefMan<Survey::Geometry3D> get3DGeometry(bool work) const;
     RefMan<Coords::CoordSystem>	getCoordSystem();
     ConstRefMan<Coords::CoordSystem> getCoordSystem() const;
+    bool		hasProjection() const;
 
     const SurveyDiskLocation&	diskLocation() const;
 

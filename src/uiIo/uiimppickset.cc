@@ -73,18 +73,13 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 		     uiStrings::sClose() );
     if ( import_ ) enableSaveButton( tr("Display after import") );
 
-    uiString label = import_ ? uiStrings::sInputASCIIFile()
-			     : uiStrings::sOutputASCIIFile();
-
-    filefld_ = new uiFileInput( this, label, uiFileInput::Setup()
-					    .withexamine(import_)
-					    .forread(import_) );
+    filefld_ = new uiASCIIFileInput( this, import_ );
     if ( import_ )
 	filefld_->valuechanged.notify( mCB(this,uiImpExpPickSet,inputChgd) );
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
     ctxt.forread_ = !import_;
-    label = import_
+    uiString label = import_
 	? uiStrings::phrOutput( sPicksetPolygon() )
 	: uiStrings::phrInput( sPicksetPolygon() );
 
@@ -143,9 +138,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     else
     {
 	filefld_->attach( alignedBelow, objfld_ );
-	const bool needscrssel = SI().getCoordSystem() &&
-				 SI().getCoordSystem()->isProjection();
-	if ( needscrssel )
+	if ( SI().hasProjection() )
 	{
 	    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
 	    coordsysselfld_->attach(alignedBelow, filefld_);

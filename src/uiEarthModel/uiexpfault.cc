@@ -74,6 +74,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     , bulkinfld_(nullptr)
     , infld_(nullptr)
     , linenmfld_(nullptr)
+    , coordsysselfld_(nullptr)
     , ctio_(mGetCtio(typ))
     , isbulk_(isbulk)
     , typ_(typ)
@@ -98,9 +99,13 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 	coordfld_->attach( alignedBelow, bulkinfld_ );
     }
 
-    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-    coordsysselfld_->attach( alignedBelow, coordfld_);
-    coordsysselfld_->display(false);
+    uiObject* attachobj = coordfld_->attachObj();
+    if ( SI().hasProjection() )
+    {
+	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+	coordsysselfld_->attach( alignedBelow, attachobj );
+	attachobj = coordsysselfld_->attachObj();
+    }
 
     uiStringSet zmodes;
     zmodes.add(uiStrings::sYes());
@@ -110,7 +115,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),
 			    StringListInpSpec(zmodes) );
     zfld_->valuechanged.notify( mCB(this,uiExportFault,addZChg ) );
-    zfld_->attach( alignedBelow, coordsysselfld_ );
+    zfld_->attach( alignedBelow, attachobj );
 
     uiT2DConvSel::Setup stup( nullptr, false );
     stup.ist2d( SI().zIsTime() );
@@ -242,8 +247,8 @@ bool uiExportFault::writeAscii()
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickidsfld_->isChecked( 0 );
     const bool inclknotidx = stickidsfld_->isChecked( 1 );
-    const bool iscoordflddisp = coordsysselfld_->isDisplayed();
-    const Coords::CoordSystem* outcrs = coordsysselfld_->getCoordSystem();
+    const Coords::CoordSystem* outcrs =
+	coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
     const Coords::CoordSystem* syscrs = SI().getCoordSystem();
 
     for ( int idx=0; idx<midset.size(); idx++ )
@@ -336,7 +341,7 @@ bool uiExportFault::writeAscii()
 		    const BinID& bid = tk.position();
 
 		    if ( zatf )
-			crd.z =  zatf->transformTrc( bid, (float)crd.z );
+			crd.z = double(zatf->transformTrc( bid, float(crd.z) ));
 
 		    if ( !doxy )
 		    {
@@ -346,12 +351,13 @@ bool uiExportFault::writeAscii()
 		    {
 			// ostreams print doubles awfully
 			str.setEmpty();
-			if ( iscoordflddisp && !(*outcrs == *syscrs) )
+			if ( outcrs && !(*outcrs == *syscrs) )
 			{
-			    const Coord crd2d = outcrs->convertFrom(
-							crd.coord(), *syscrs );
+			    const Coord crd2d =
+				outcrs->convertFrom( crd.coord(), *syscrs );
 			    crd.setXY( crd2d.x, crd2d.y);
 			}
+
 			str += crd.x; str += "\t"; str += crd.y;
 			ostrm << str;
 		    }
@@ -424,10 +430,8 @@ void uiExportFault::addZChg( CallBacker* )
 
 void uiExportFault::exportCoordSysChgCB( CallBacker* )
 {
-    const bool shoulddisplay = SI().getCoordSystem() &&
-			       SI().getCoordSystem()->isProjection() &&
-			       coordfld_->getBoolValue();
-    coordsysselfld_->display(shoulddisplay);
+    if ( coordsysselfld_ )
+	coordsysselfld_->display( coordfld_->getBoolValue() );
 }
 
 

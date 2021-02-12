@@ -204,9 +204,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
     uiObject* attachobj = transffld_->attachObj();
 
-    const bool hasproj = SI().getCoordSystem() &&
-			 SI().getCoordSystem()->isProjection();
-    if ( hasproj )
+    if ( SI().hasProjection() )
     {
 	othercrsfld_ = new uiGenInput( this, tr("Export to other CRS"),
 				       BoolInpSpec(false) );

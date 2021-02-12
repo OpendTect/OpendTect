@@ -38,9 +38,7 @@ uiEventImport::uiEventImport( uiParent* p )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    filefld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
-				uiFileInput::Setup(0).forread(true)
-						     .withexamine(true) );
+    filefld_ = new uiASCIIFileInput( this, true );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 				      mODHelpKey(mTableImpDataSelpicksHelpID));
