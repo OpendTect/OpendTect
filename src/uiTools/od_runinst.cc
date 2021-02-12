@@ -16,7 +16,7 @@ ________________________________________________________________________
 int mProgMainFnName( int argc, char** argv )
 {
     mInitProg( OD::InstallerCtxt )
-    SetProgramArgs( argc, argv );
+    SetProgramArgs( argc, argv, false );
     CommandLineParser clp( argc, argv );
     const int nrargs = clp.nrArgs();
     const bool useargs = nrargs >= 1;
