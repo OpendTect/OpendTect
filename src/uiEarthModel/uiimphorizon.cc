@@ -777,7 +777,7 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     mAttachCB( inpfld_->valuechanged, uiImpHorFromZMap::inputChgd );
 
     uiObject* attachobj = inpfld_->attachObj();
-    if ( SI().getCoordSystem() && SI().getCoordSystem()->isProjection() )
+    if ( SI().hasProjection() )
     {
 	crsfld_ = new Coords::uiCoordSystemSel(this, false);
 	mAttachCB( crsfld_->changed, uiImpHorFromZMap::inputChgd );

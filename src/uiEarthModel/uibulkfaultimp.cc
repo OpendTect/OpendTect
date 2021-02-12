@@ -84,7 +84,7 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
     if ( ret <= 0 ) return false;
 
     fltnm = getText( 0 );
-    
+
     if ( !isXY() )
     {
 	const Coord xycrd = SI().transform( getBinID(1,2,udfval_) );
@@ -159,10 +159,8 @@ void uiBulkFaultImport::init()
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    inpfld_ = new uiFileInput( this,
-		      uiStrings::sInputASCIIFile(),
-		      uiFileInput::Setup().withexamine(true)
-		      .examstyle(File::Table) );
+    inpfld_ = new uiASCIIFileInput( this, true );
+    inpfld_->setExamStyle( File::Table );
 
     BufferStringSet sticksortopt;
     sticksortopt.add( sKeyGeometric() )
@@ -414,12 +412,13 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
     if ( TaskRunner::execute( &taskr, saver ) )
     {
 	uiString msg = tr("%1 succesfully imported.\n\n"
-			"Do you want to import more %1?").arg(isfss_ ?
-	    uiStrings::sFaultStickSet(mPlural) :
-				isfltset_ ? uiStrings::sFaultSet() : uiStrings::sFault(mPlural));
+			"Do you want to import more %1?").arg(
+	    isfss_ ? uiStrings::sFaultStickSet(mPlural)
+		   : (isfltset_ ? uiStrings::sFaultSet()
+				: uiStrings::sFault(mPlural)) );
 
-	bool ret= uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+	const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+					  tr("No, close window") );
 	return !ret;
     }
     else

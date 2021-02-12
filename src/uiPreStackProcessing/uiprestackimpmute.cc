@@ -42,12 +42,7 @@ uiImportMute::uiImportMute( uiParent* p )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    inpfld_ = new uiFileInput( this, toUiString("%1 %2 %3")
-				.arg(uiStrings::sInput())
-				.arg(uiStrings::sASCII())
-				.arg(uiStrings::sFile()),
-			       uiFileInput::Setup().withexamine(true)
-			       .defseldir(GetDataDir()) );
+    inpfld_ = new uiASCIIFileInput( this, true );
 
     inpfilehaveposfld_ = new uiGenInput( this, tr("File contains position"),
 					 BoolInpSpec(true) );

@@ -114,33 +114,29 @@ public:
 	  mDefSetupMemb(BufferString,udfstr)
       };
 
-			      Write3DHorASCII(od_ostream&,const int sectionidx,
-					const int sidx,
-				      const EM::Horizon3D*,
-				      const ZAxisTransform* zatf,
-				      const UnitOfMeasure*,
-				    const Coords::CoordSystem*,
-				    const Setup&);
-    int			    nextStep();
-    const char*		    message() const	   { return msg_; }
-    const char*		    nrDoneText() const;
-    od_int64		    nrDone() const;
-    od_int64		    totalNr() const;
+Write3DHorASCII( od_ostream&, int sectionidx, int sidx,
+		 const EM::Horizon3D*,const ZAxisTransform*,
+		 const UnitOfMeasure*,const Coords::CoordSystem*,
+		 const Setup&);
+
+    int				nextStep();
+    const char*			message() const		{ return msg_; }
+    const char*			nrDoneText() const;
+    od_int64			nrDone() const;
+    od_int64			totalNr() const;
 
 protected:
-    od_ostream&		    stream_;
-    const int		    sidx_;
-    int			    maxsize_;
-    const EM::Horizon3D*    hor_;
-    EM::EMObjectIterator*   it_;
-    const ZAxisTransform*   zatf_;
-    const UnitOfMeasure*    unit_;
-    BufferString	    msg_;
-    int			    counter_;
+    od_ostream&			stream_;
+    const int			sidx_;
+    int				maxsize_;
+    const EM::Horizon3D*	hor_;
+    EM::EMObjectIterator*	it_;
+    const ZAxisTransform*	zatf_;
+    const UnitOfMeasure*	unit_;
+    BufferString		msg_;
+    int				counter_;
     ConstRefMan<Coords::CoordSystem>  coordsys_;
     const Setup			setup_;
-
-
 };
 
 
@@ -149,13 +145,13 @@ Write3DHorASCII::Write3DHorASCII( od_ostream& stream, const int sectionidx,
     const UnitOfMeasure* unit, const Coords::CoordSystem* crs, const Setup& su )
     : Executor(hor->name())
     , stream_(stream)
-    , setup_(su)
+    , sidx_(sidx)
     , hor_(hor)
     , zatf_(zatf)
     , unit_(unit)
     , counter_(0)
     , coordsys_(crs)
-    , sidx_(sidx)
+    , setup_(su)
 {
     const EM::SectionID sectionid = hor->sectionID( sectionidx );
     it_ = hor->createIterator( sectionid );
@@ -185,9 +181,9 @@ static void writeGF( od_ostream& strm, const BinID& bid, float z,
 	      float val, const Coord& crd, int segid )
 {
     char buf[mDataGFLineLen+2];
-    const float crl = mCast( float, bid.crl() );
-    const float gfval = (float) ( mIsUdf(val) ? MAXFLOAT : val );
-    const float depth = (float) ( mIsUdf(z) ? MAXFLOAT : z );
+    const double crl = double( bid.crl() );
+    const double gfval = double( mIsUdf(val) ? MAXFLOAT : val );
+    const double depth = double( mIsUdf(z) ? MAXFLOAT : z );
     od_sprintf( buf, mDataGFLineLen+2,
 	  "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	  crd.x, crd.y, segid, 14, depth,
@@ -225,10 +221,10 @@ int Write3DHorASCII::nextStep()
     if ( !mIsUdf(crd.z) && unit_ )
 	crd.z = unit_->userValue( crd.z );
 
-    if ( !(*coordsys_ == *SI().getCoordSystem()) )
+    if ( coordsys_ && !(*coordsys_ == *SI().getCoordSystem()) )
     {
-	const Coord crdxy = coordsys_->convertFrom( crd.coord(),
-					    *SI().getCoordSystem() );
+	const Coord crdxy =
+		coordsys_->convertFrom( crd.coord(), *SI().getCoordSystem() );
 	crd.setXY( crdxy.x, crdxy.y );
     }
 
@@ -300,6 +296,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 			mNoDlgTitle,mODHelpKey(mExportHorizonHelpID)))
     , infld_(nullptr)
     , bulkinfld_(nullptr)
+    , coordsysselfld_(nullptr)
     , isbulk_(isbulk)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
@@ -337,15 +334,19 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     zfld_->valuechanged.notify( mCB(this,uiExportHorizon,addZChg ) );
     zfld_->attach( alignedBelow, typfld_ );
 
-    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-    coordsysselfld_->attach( alignedBelow, zfld_ );
-    coordsysselfld_->display( false );
+    uiObject* attachobj = zfld_->attachObj();
+    if ( SI().hasProjection() )
+    {
+	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+	coordsysselfld_->attach( alignedBelow, attachobj );
+	attachobj = coordsysselfld_->attachObj();
+    }
 
     uiT2DConvSel::Setup su( 0, false );
     su.ist2d( SI().zIsTime() );
     transfld_ = new uiT2DConvSel( this, su );
     transfld_->display( false );
-    transfld_->attach( alignedBelow, coordsysselfld_ );
+    transfld_->attach( alignedBelow, attachobj );
 
     unitsel_ = new uiUnitSel( this, "Z Unit" );
     unitsel_->attach( alignedBelow, transfld_ );
@@ -617,12 +618,8 @@ bool uiExportHorizon::writeAscii()
 	    su.addzpos( addzpos ).doxy( doxy ).doic(doic).dogf( dogf )
 	      .issingle( !isbulk_ ).nrattrib( nrattribs ).udfstr( udfstr );
 
-	    const Coords::CoordSystem* crs(0);
-	    if ( !coordsysselfld_->isDisplayed() )
-		crs = SI().getCoordSystem().ptr();
-	    else
-		crs = coordsysselfld_->getCoordSystem();
-
+	    const Coords::CoordSystem* crs =
+		coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
 	    Write3DHorASCII* executor = new Write3DHorASCII(stream, sectionidx,
 			    sidx, hor, zatf.ptr(), unit, crs, su);
 	    exphorgrp.add(executor);
@@ -690,9 +687,8 @@ bool uiExportHorizon::getInputMIDs( TypeSet<MultiID>& midset )
 
 void uiExportHorizon::typChg( CallBacker* cb )
 {
-    const bool shoulddisplay = SI().getCoordSystem() &&
-       SI().getCoordSystem()->isProjection() && (typfld_->getIntValue() == 0);
-    coordsysselfld_->display( shoulddisplay );
+    if ( coordsysselfld_ )
+	coordsysselfld_->display( typfld_->getIntValue()==0 );
 
     attrSel( cb );
     addZChg( cb );

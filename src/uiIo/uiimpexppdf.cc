@@ -39,7 +39,6 @@ static const char* sKeyXNoBins = "X No of Bins";
 static const char* sKeyYNoBins = "Y No of Bins";
 static const char* sKeyFirstXBin = "X Bin 0";
 static const char* sKeyFirstYBin = "Y Bin 0";
-static const char* filefilter = "Text (*.txt *.dat)";
 
 
 uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
@@ -49,10 +48,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    inpfld_ = new uiFileInput( this,
-	    uiStrings::sInputASCIIFile(),
-	    uiFileInput::Setup(uiFileDialog::Gen)
-	    .withexamine(true).forread(true).filter(filefilter) );
+    inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImpRokDocPDF,selChg) );
 
@@ -479,9 +475,7 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     inpfld_ = new uiIOObjSel( this, ioobjctxt );
     inpfld_->setLabelText( uiStrings::phrInput(tr("PDF")) );
 
-    outfld_ = new uiFileInput( this, uiStrings::sOutputFile(),
-	    uiFileInput::Setup(uiFileDialog::Gen)
-	    .withexamine(false).forread(false).filter(filefilter) );
+    outfld_ = new uiASCIIFileInput( this, false );
     outfld_->setSelectMode( uiFileDialog::AnyFile );
     outfld_->attach( alignedBelow, inpfld_ );
 }

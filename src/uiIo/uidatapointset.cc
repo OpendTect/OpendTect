@@ -1411,10 +1411,10 @@ uiDataPointSetSave( uiParent* p, const char* typ )
 		BoolInpSpec(false,tr("Text file"),
 			    tr("OpendTect Cross-plot Data")) );
     tabfld_->valuechanged.notify( tccb );
-    uiFileInput::Setup su;
-    su.defseldir(GetSurveyExportDir()).forread(false).filter("*.dat");
-    txtfld_ = new uiFileInput( this, uiStrings::sOutputFile(), su );
+
+    txtfld_ = new uiASCIIFileInput( this, false );
     txtfld_->attach( alignedBelow, tabfld_ );
+
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, tabfld_ );
 

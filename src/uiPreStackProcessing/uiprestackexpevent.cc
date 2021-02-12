@@ -43,8 +43,7 @@ uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
     subsel_ = uiSeisSubSel::get(this, Seis::SelSetup(Seis::Vol).withoutz(true));
     subsel_->attach( alignedBelow, eventsel_ );
 
-    outputfile_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
-				   uiFileInput::Setup(0).forread(false) );
+    outputfile_ = new uiASCIIFileInput( this, false );
     outputfile_->attach( alignedBelow, subsel_ );
 }
 

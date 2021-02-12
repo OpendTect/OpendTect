@@ -203,10 +203,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     setCtrlStyle( RunAndClose );
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
-				     uiFileInput::Setup()
-				     .withexamine(true)
-				     .forread(true) );
+    inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon2D,formatSel) );
 

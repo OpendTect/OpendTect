@@ -250,10 +250,8 @@ uiBulk2DHorizonImport::uiBulk2DHorizonImport( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this,
-		      uiStrings::sInputASCIIFile(),
-		      uiFileInput::Setup().withexamine(true)
-		      .examstyle(File::Table) );
+    inpfld_ = new uiASCIIFileInput( this, true );
+    inpfld_->setExamStyle( File::Table );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 				    mODHelpKey(mTableImpDataSelwellsHelpID) );
@@ -311,7 +309,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
     {
 	if ( prevhornm.isEmpty() )
 	    prevhornm = hornm;
-	
+
 	if ( !crd.isDefined() || hornm.isEmpty() )
 	    continue;
 	else
