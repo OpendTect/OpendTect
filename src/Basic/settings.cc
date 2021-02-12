@@ -22,25 +22,57 @@ static const char* sKeyCommon = "Common";
 #define mGetKey(key) (key && *key ? key : sKeyCommon)
 #define mIsCommon(key) (!key || !*key || FixedString(key)==sKeyCommon)
 
-static PtrMan<ObjectSet<Settings> > theinst_ = 0;
-
-static void RemoveAllSettings(void)
+class SettingsManager
 {
-    mObjectSetApplyToAll( (*theinst_), theinst_->removeSingle(idx)->remove() );
+public:
+
+	    ~SettingsManager()
+	    {
+		deleteSettings();
+	    }
+
+    ObjectSet<Settings>& getSetts() { return setts_; }
+
+    Settings& add( Settings& setts )
+	    {
+		setts_.add( &setts );
+		return setts;
+	    }
+
+    void    deleteSettings()
+	    {
+		for ( int idx=setts_.size()-1; idx>=0; idx-- )
+		    delete setts_.removeSingle( idx );
+		setts_.setEmpty();
+	    }
+
+    static Threads::Lock	lock_;
+
+private:
+    ObjectSet<Settings> setts_;
+};
+
+static PtrMan<SettingsManager> settingsmanager = nullptr;
+Threads::Lock SettingsManager::lock_( true );
+
+void DeleteSettings()
+{
+    Threads::Locker locker( SettingsManager::lock_ );
+    if ( settingsmanager )
+	settingsmanager->deleteSettings();
 }
 
-static ObjectSet<Settings>& getSetts()
+ObjectSet<Settings>& getSetts()
 {
-    if ( !theinst_ )
+    Threads::Locker locker( SettingsManager::lock_ );
+
+    if ( !settingsmanager )
     {
-	ObjectSet<Settings>* ptr = new ObjectSet<Settings>;
-	if ( theinst_.setIfNull(ptr,true) )
-	{
-	    NotifyExitProgram( RemoveAllSettings );
-	}
+	settingsmanager = new SettingsManager;
+	NotifyExitProgram( DeleteSettings );
     }
 
-    return *theinst_;
+    return settingsmanager->getSetts();
 }
 
 
@@ -76,8 +108,7 @@ Settings& Settings::fetch( const char* key )
 
     newsett->setName( settkey );
     newsett->fname_ = getFileName( key, GetSoftwareUser(), GetSettingsDir() );
-    settlist += newsett;
-    return *newsett;
+    return settingsmanager->add( *newsett );
 }
 
 
@@ -93,10 +124,10 @@ Settings* Settings::doFetch( const char* key, const char* dtectusr,
 {
     BufferString fname( getFileName(key,dtectusr,dirnm) );
 
-    Settings* ret = new Settings( fname );
+    auto* ret = new Settings( fname );
     ret->setName( mGetKey(key) );
     if ( !ret->doRead(ext) )
-	{ delete ret; return 0; }
+	{ delete ret; ret = nullptr; }
 
     return ret;
 }
@@ -127,7 +158,8 @@ bool Settings::doRead( bool ext )
     SafeFileIO sfio( fname_, false );
     if ( empty_initially || !sfio.open(true) )
     {
-	if ( ext ) return false;
+	if ( ext )
+	    return false;
 
 	BufferString tmplfname( iscommon ? "od" : name().buf() );
 	tmplfname += "Settings";
