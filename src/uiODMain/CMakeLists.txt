@@ -72,11 +72,9 @@ set(OD_MODULE_SOURCES
 )
 
 set( OD_MODULE_GUI_PROGS od_main.cc  )
-if(WIN32)
-    set(OD_MODULE_GUI_PROGS ${OD_MODULE_GUI_PROGS} od_start_dtect.cc  )
-    set(OD_MODULE_PROGS od_main_console.cc )
-    set(OD_od_main_RESOURCE  resources/od_main.rc )
-    set(OD_od_start_dtect_RESOURCE resources/od_main.rc )
+if ( WIN32 )
+    set( OD_MODULE_PROGS od_main_console.cc )
+    set( OD_od_main_RESOURCE  resources/od_main.rc )
 endif()
 
 OD_ADD_SOURCE_FILES( resources/od_main.rc resources/resource.h resources/icon1.ico scene.xpm )
