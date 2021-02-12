@@ -170,6 +170,7 @@ namespace OD
 
 	static void	initClass();
 	static void	setPythonActivator(const char*);
+	static bool	needCheckRunScript();
 
 	void		addBasePath(const FilePath&);
 			/*<! For plugins to update PYTHONPATH

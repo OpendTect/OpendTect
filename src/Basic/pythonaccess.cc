@@ -358,6 +358,16 @@ void OD::PythonAccess::setPythonActivator( const char* fnm )
 }
 
 
+bool OD::PythonAccess::needCheckRunScript()
+{
+    if ( !GetPythonActivatorExe().isEmpty() )
+	return false;
+
+    const FilePath pythonfp( GetSoftwareDir(true), "bin", "python" );
+    return pythonfp.exists();
+}
+
+
 FilePath* OD::PythonAccess::getActivateScript( const FilePath& rootfp )
 {
     FilePath ret( rootfp.fullPath(), "bin" );
