@@ -240,5 +240,20 @@ protected:
 
 };
 
-}; // namespace Table
 
+mExpClass(General) FormatProvider
+{
+public:
+			FormatProvider();
+			~FormatProvider();
+
+    const char*		xy() const;
+    const char*		z(od_uint16 extradecimals=0) const;
+    const char*		trcnr() const;
+    const char*		spnr() const;
+
+protected:
+    void		readSettings();
+};
+
+} // namespace Table
