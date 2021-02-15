@@ -208,18 +208,10 @@ MatlabLibMgr::~MatlabLibMgr()
 }
 
 
-static int indexOf( const BufferStringSet& libnms, const char* libfnm )
-{
-    const FilePath fp( libfnm );
-    const BufferString libnm = fp.fileName();
-    return libnms.indexOf( libnm );
-}
-
-
 MatlabLibAccess*
     MatlabLibMgr::getMatlabLibAccess( const char* libfnm, bool doload )
 {
-    const int idx = indexOf( libnms_, libfnm );
+    const int idx = libnms_.indexOf( libfnm );
     if ( mlas_.validIdx(idx) )
 	return mlas_[idx];
 
@@ -244,14 +236,14 @@ bool MatlabLibMgr::load( const char* libfnm )
 
 bool MatlabLibMgr::isLoaded( const char* libfnm ) const
 {
-    const int idx = indexOf( libnms_, libfnm );
+    const int idx = libnms_.indexOf( libfnm );
     return mlas_.validIdx(idx);
 }
 
 
 bool MatlabLibMgr::close( const char* libfnm )
 {
-    const int idx = indexOf( libnms_, libfnm );
+    const int idx = libnms_.indexOf( libfnm );
     if ( !mlas_.validIdx(idx) )
 	return false;
 
