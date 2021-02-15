@@ -1370,21 +1370,13 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
 bool OD::PythonAccess::openTerminal() const
 {
     const BufferString termem = SettingsAccess().getTerminalEmulator();
-    OS::CommandExecPars pars( OS::RunInBG );
 #ifdef __win__
-    OS::MachineCommand cmd;
-    if ( GetPythonActivatorExe().isEmpty() )
-    {
-	cmd.setProgram( "start" ).addArg( termem );
-	pars = OS::CommandExecPars( OS::Wait4Finish );
-    }
-    else
-    {
-	cmd.setProgram( termem );
-	pars.isconsoleuiprog( true );
-    }
+    OS::MachineCommand cmd( "start" );
+    cmd.addArg( termem );
+    OS::CommandExecPars pars( OS::Wait4Finish );
 #else
     OS::MachineCommand cmd( termem );
+    OS::CommandExecPars pars( OS::RunInBG );
 #endif
     pars.workingdir( GetPersonalDir() );
     return execute( cmd, pars );
