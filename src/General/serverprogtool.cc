@@ -14,12 +14,14 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "dbman.h"
 #include "dbkey.h"
+#include "envvars.h"
 #include "genc.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
 #include "odjson.h"
 #include "odver.h"
 #include "od_ostream.h"
+#include "plugins.h"
 #include "timer.h"
 #include <iostream>
 
@@ -38,7 +40,10 @@ ServerProgTool::ServerProgTool( int argc, char** argv, const char* moddep )
 
     OD::SetRunContext( OD::BatchProgCtxt );
     SetProgramArgs( argc, argv );
+    SetEnvVar( "OD_DISABLE_APPLOCKER_TEST", "Yes" );
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( moddep );
+    PIM().loadAuto( true );
     clp_ = new CommandLineParser;
     mAttachCB( timer_.tick, ServerProgTool::timerTickCB );
 }
@@ -47,7 +52,9 @@ ServerProgTool::ServerProgTool( int argc, char** argv, const char* moddep )
 ServerProgTool::~ServerProgTool()
 {
     detachAllNotifiers();
-    delete& timer_;
+    delete &timer_;
+    delete &jsonroot_;
+    delete clp_;
 }
 
 
