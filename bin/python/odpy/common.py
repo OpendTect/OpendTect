@@ -336,7 +336,7 @@ def getBinSubDir():
   execnm = 'od_FileBrowser'
   if isWin():
     execnm = execnm+'.exe'
-  reltypes = ('Debug','Release','RelWithDebInfo')
+  reltypes = ('Release','RelWithDebInfo','Debug')
   for reltype in reltypes:
     if os.path.isfile( os.path.join(plfsubdirfp,reltype,execnm) ):
       return reltype
