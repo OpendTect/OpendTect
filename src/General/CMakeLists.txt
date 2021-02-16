@@ -110,7 +110,10 @@ if ( CMAKE_COMPILER_IS_GNUCC )
     endif()
 endif ( CMAKE_COMPILER_IS_GNUCC )
 
-set ( OD_MODULE_PROGS od_DBMan.cc )
+set ( OD_MODULE_PROGS
+	od_DBMan.cc
+	test_exit_program.cc
+)
 if ( WIN32 )
 	set ( OD_ELEVATED_PERMISSIONS_GUI_PROGS od_Setup_Firewall.cc )
 endif()
