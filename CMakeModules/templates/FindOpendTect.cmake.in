@@ -10,7 +10,7 @@ set( OpendTect_VERSION_PATCH @OpendTect_VERSION_PATCH@ )
 set( OpendTect_FULL_VERSION "@OpendTect_FULL_VERSION@" )
 
 if ( NOT DEFINED CMAKE_BUILD_TYPE )
-  set( CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@" )
+    set( CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@" )
 endif()
 
 set( Qt5_DIR @Qt5_DIR@ )
@@ -27,11 +27,11 @@ if ( NOT DEFINED OD_BINARY_BASEDIR )
     endif()
 endif()
 if ( NOT ONLY_SET_VARS )
-#Include all OpendTect Utility macros
-include( ${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake )
+    #Include all OpendTect Utility macros
+    include( ${OpendTect_DIR}/CMakeModules/OD_SetupOD.cmake )
 
-#Set the linker path to OpendTect's libraries
-link_directories( ${OD_BINARY_BASEDIR}/${OD_LIB_OUTPUT_RELPATH} )
+    #Set the linker path to OpendTect's libraries
+    link_directories( ${OD_BINARY_BASEDIR}/${OD_LIB_OUTPUT_RELPATH} )
 endif()
 
 #As backup, link to release
