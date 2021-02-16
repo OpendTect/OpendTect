@@ -133,8 +133,6 @@ set( OD_MODULE_SOURCES
 	zdomain.cc
 )
 
-set ( OD_MODULE_PROGS test_exit_program.cc )
-
 if ( ITTNOTIFY_FOUND )
     set ( OD_MODULE_DEPS ${ITTNOTIFY_LIBRARY} )
     list ( APPEND OD_MODULE_INCLUDESYSPATH ${ITTNOTIFY_INCLUDE_DIR} )
