@@ -34,7 +34,6 @@ __pycache__
 src/*/moc_*
 lib*.dylib
 Testing/
-src/Basic/qpaths.cc
 install_manifest.txt
 inst
 Null

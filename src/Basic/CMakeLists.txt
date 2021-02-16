@@ -20,8 +20,6 @@ set( QT_MOC_HEADERS
 	i_qfilesystemwatcher.h
 )
 
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/qpaths.cc.in ${CMAKE_CURRENT_BINARY_DIR}/qpaths.cc @ONLY )
-
 set( OD_TEST_PROGS
 	file.cc
 	memcopying.cc
@@ -99,7 +97,6 @@ set( OD_MODULE_SOURCES
 	progressmeter.cc
 	pythonaccess.cc
 	qstreambuf.cc
-	${CMAKE_CURRENT_BINARY_DIR}/qpaths.cc
 	refcount.cc
 	repos.cc
 	rowcol.cc

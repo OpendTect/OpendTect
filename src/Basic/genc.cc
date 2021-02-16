@@ -68,8 +68,6 @@ namespace OD
 }
 
 
-//Implemented in src/Basic/qpaths.cc
-void setQtPaths();
 //Implemented in src/Basic/oddirs.cc
 mGlobal(Basic) void SetBaseDataDir(const char*);
 
@@ -841,8 +839,6 @@ mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
 #else
     SetEnvVar( "DTECT_APPL", GetSoftwareDir(true) );
 #endif
-
-    // setQtPaths();
 }
 
 
