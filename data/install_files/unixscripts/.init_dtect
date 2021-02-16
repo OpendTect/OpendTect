@@ -59,6 +59,14 @@ else
 	setenv OD_SYSTEM_LIBRARY_PATH "${LD_LIBRARY_PATH}"
     endif
 
+    if ( ! -e "${bindir}/../lib" ) then
+	if ( $?LD_LIBRARY_PATH ) then
+	    setenv LD_LIBRARY_PATH ${bindir}:${LD_LIBRARY_PATH}
+	else
+	    setenv LD_LIBRARY_PATH ${bindir}
+	endif
+    endif
+
     set ldconfig = "/sbin/ldconfig"
 
     # gcc library compatibility check
