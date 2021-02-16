@@ -228,7 +228,7 @@ void uiProgressViewer::handleProcessStatus()
 
 	    BufferString lines;
 	    strm_->getAll( lines );
-	    if ( lines.find(BatchProgram::sKeyFinishMsg()) )
+	    if ( lines.find(Batch::JobDispatcher::sKeyFinishMsg()) )
 		procstatus_ = Finished;
 	    else
 		procstatus_ = AbnormalEnd;

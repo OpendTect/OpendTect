@@ -84,6 +84,12 @@ BatchProgram& BP()
 }
 
 
+const char* BatchProgram::sKeyFinishMsg()
+{
+    return Batch::JobDispatcher::sKeyFinishMsg();
+}
+
+
 void BatchProgram::deleteInstance( int retcode )
 {
     delete BatchProgram::inst_;
