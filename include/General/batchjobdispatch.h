@@ -120,6 +120,11 @@ protected:
 
     bool		writeParFile() const;
 
+public:
+
+    static const char*	sKeyFinishMsg() { return "Finished batch processing.";}
+
 };
+
 
 } // namespace Batch

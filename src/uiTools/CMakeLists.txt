@@ -109,7 +109,7 @@ set( OD_MODULE_SOURCES
 	uicrssystem.cc
 )
 if ( WIN32 )
-	set( OD_MODULE_SOURCES ${OD_MODULE_SOURCES} uifirewallprocsetterdlg.cc )
+	list( APPEND OD_MODULE_SOURCES uifirewallprocsetterdlg.cc )
 endif()
 
 set( OD_MODULE_GUI_PROGS
@@ -125,7 +125,8 @@ if( WIN32 )
 endif( WIN32 )
 
 if ( OD_ENABLE_BREAKPAD )
-    list ( APPEND OD_MODULE_PROGS test_breakpad.cc )
+    list ( APPEND OD_MODULE_TESTPROGS test_breakpad.cc )
 endif()
+
 
 OD_INIT_MODULE()
