@@ -7,7 +7,6 @@
 
 set(OD_MODULE_DEPS General )
 set(OD_USEQT PrintSupport)
-set(OD_TEST_PROGS )
 set(QT_MOC_HEADERS
 	i_qaction.h
 	i_qbutton.h
