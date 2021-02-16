@@ -20,6 +20,12 @@ source "__INST_DIR__/bin/init_dtect_user"
 
 if ( $status == 0 ) then
 
+    if ( $HDIR != mac && ! -e "${bindir}/../lib" ) then
+	echo "${bindir}/../lib does not exist"
+	echo "Please check your installation."
+	echo "The application can however continue normally."
+    endif
+
     if ( $?DTECT_DATA ) then
 	if ( ! -d "$DTECT_DATA" ) then
 	    echo "Warning: the pre-set DTECT_DATA is not valid"
