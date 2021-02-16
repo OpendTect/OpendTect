@@ -82,12 +82,12 @@ macro( QT_SETUP_CORE_INTERNALS )
 	list( APPEND OD_QT_TRANSLATION_FILES ${FILENM} )
     endforeach()
     if ( UNIX AND NOT APPLE )
-	if ( NOT EXISTS "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/lib" )
+	install( CODE "
 	    execute_process(
 		COMMAND ${CMAKE_COMMAND} -E create_symlink
 			${CMAKE_BUILD_TYPE} lib
-		WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}" )
-	endif()
+		WORKING_DIRECTORY
+			\"${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}\" ) " )
     endif()
 
 endmacro(QT_SETUP_CORE_INTERNALS)
