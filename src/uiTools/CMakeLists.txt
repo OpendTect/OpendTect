@@ -120,7 +120,7 @@ if( WIN32 )
 endif( WIN32 )
 
 if ( OD_ENABLE_BREAKPAD )
-    list ( APPEND OD_MODULE_PROGS test_breakpad.cc )
+    list ( APPEND OD_MODULE_TESTPROGS test_breakpad.cc )
 endif()
 
 
