@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uitoolbar.h"
 
-#include "batchprog.h"
+#include "batchjobdispatch.h"
 #include "commandlineparser.h"
 #include "file.h"
 #include "filepath.h"
