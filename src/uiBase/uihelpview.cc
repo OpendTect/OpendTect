@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidesktopservices.h"
 #include "odinst.h"
 #include "odversion.h"
-#include "odnetworkaccess.h"
 #include "keystrs.h"
 #include "uimsg.h"
 

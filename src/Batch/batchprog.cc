@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "batchprog.h"
 
 #include "ascstream.h"
+#include "batchjobdispatch.h"
 #include "batchserviceservermgr.h"
 #include "commandlineparser.h"
 #include "debug.h"
@@ -65,6 +66,12 @@ BatchProgram& BP()
 	BatchProgram::inst_ = new BatchProgram;
     }
     return *BatchProgram::inst_;
+}
+
+
+const char* BatchProgram::sKeyFinishMsg()
+{
+    return Batch::JobDispatcher::sKeyFinishMsg();
 }
 
 

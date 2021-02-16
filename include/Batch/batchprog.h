@@ -97,7 +97,7 @@ public:
     static const char*	sKeyDataDir()	{ return "datadir"; }
     static const char*	sKeySurveyDir() { return "surveydir"; }
     static const char*	sKeySimpleBatch()	{ return "noparfile"; }
-    static const char*	sKeyFinishMsg() { return "Finished batch processing.";}
+    static const char*	sKeyFinishMsg();
 
     Notifier<BatchProgram>  eventLoopStarted;
     Notifier<BatchProgram>  startDoWork;

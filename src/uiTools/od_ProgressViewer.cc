@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitextedit.h"
 #include "uitoolbar.h"
 
-#include "batchprog.h"
+#include "batchjobdispatch.h"
 #include "commandlineparser.h"
 #include "file.h"
 #include "filepath.h"
@@ -226,7 +226,7 @@ void uiProgressViewer::handleProcessStatus()
 
 	    BufferString lines;
 	    strm_->getAll( lines );
-	    if ( lines.find(BatchProgram::sKeyFinishMsg()) )
+	    if ( lines.find(Batch::JobDispatcher::sKeyFinishMsg()) )
 		procstatus_ = Finished;
 	    else
 		procstatus_ = AbnormalEnd;
