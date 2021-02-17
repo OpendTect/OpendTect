@@ -24,6 +24,7 @@ class BinIDValueSet;
 class TrcKeySampling;
 
 template <class T> class Array2D;
+namespace Pos { class Filter; }
 
 namespace EM
 {
@@ -41,6 +42,7 @@ mExpClass(EarthModel) SurfaceAuxData
 public:
 			SurfaceAuxData(Horizon3D&);
     virtual		~SurfaceAuxData();
+
     Executor*		auxDataLoader(int selidx=-1);
     Executor*		auxDataLoader(const char* nm);
     Executor*		auxDataSaver(int dataidx=0,bool overwrite=false);
@@ -110,6 +112,8 @@ public:
     enum		AuxDataType { NoType=0, AutoShow, Tracking };
     void		setAuxDataType(int dataidx,AuxDataType);
     AuxDataType		getAuxDataType(int dataidx) const;
+
+    void		apply(const Pos::Filter&,int dataidx=-1);
 
 protected:
     Horizon3D&		horizon_;
