@@ -17,7 +17,8 @@ if [ ! -f /bin/csh ]; then
     exit 1
 fi
 
-curdir=`dirname "$0"`
+scriptdir=`realpath $0`
+curdir=`dirname $scriptdir`
 qtfile=${curdir}/../plugins/platforms/libqxcb.so
 if [ ! -f "$qtfile" ]; then
     echo "Qt platform plugin file $qtfile not found."
@@ -25,15 +26,40 @@ if [ ! -f "$qtfile" ]; then
     exit 1
 fi
 
-infomsg=`ldd $qtfile | grep "not found"`
-if [ "$infomsg" != "" ]; then
-    echo  "System libraries listed below are missing, please install them and rerun the installer"
-    echo "$infomsg"
+#check lib->Release link
+if [[ ! -L ${curdir}/../lib ]]; then
+    echo "${curdir}/../lib does not exist"
+    echo "Please check your installation."
+    echo "The installer can however continue normally."
+
+    if [[ -n ${LD_LIBRARY_PATH} ]]; then
+	export LD_LIBRARY_PATH=${curdir}:${LD_LIBRARY_PATH}
+    else
+	export LD_LIBRARY_PATH=${curdir}
+    fi
+fi
+
+#check the presence of libpng in curdir
+pngfilenm=`ls ${curdir} | grep "libpng*"`
+if [[ -z $pngfilenm ]]; then
+    echo -e "\npng library is missing"
+    echo  "Cannot launch the installer without it."
     exit 1
 fi
 
+
+infomsg=`ldd $qtfile | grep "not found"`
+if [ "$infomsg" != "" ]; then
+    infomsg=`ldd $qtfile | grep "not found" | grep -v $pngfilenm`
+    if [ "$infomsg" != "" ]; then
+	echo  "System libraries listed below are missing, please install them and rerun the installer"
+	echo "$infomsg"
+        exit 1
+    fi
+fi
+
 #get rid of the OD environment.
-if [ $?DTECT_APPL ]; then
+if [[ -n $DTECT_APPL ]]; then
     export DTECT_APPL=""
 fi
 
