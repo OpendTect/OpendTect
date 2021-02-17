@@ -363,10 +363,11 @@ bool PickSetTranslator::implRename( const IOObj* ioobj, const char* newnm,
 
 void PickSetTranslator::tagLegacyPickSets()
 {
-    const IOObjContext ctxt = mIOObjContext( PickSet );
+    IOObjContext ctxt = mIOObjContext( PickSet );
+    ctxt.fixTranslator( dgbPickSetTranslator::translKey() );
     const IODir iodir( ctxt.getSelKey() );
     const ObjectSet<IOObj>& objs = iodir.getObjs();
-
+    bool haschanges = false;
     for ( auto ioobj : objs )
     {
 	if ( !ioobj || !ctxt.validIOObj(*ioobj) ||
@@ -374,9 +375,11 @@ void PickSetTranslator::tagLegacyPickSets()
 	    continue;
 
 	ioobj->pars().set( sKey::Type(), sKey::PickSet() );
+	haschanges = true;
     }
 
-    iodir.doWrite();
+    if ( haschanges )
+	iodir.doWrite();
 }
 
 
