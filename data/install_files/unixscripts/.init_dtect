@@ -60,6 +60,7 @@ else
     endif
 
     if ( ! -e "${bindir}/../lib" ) then
+	alias initwarn 'echo "${bindir}/../lib does not exist" ; echo "Please check your installation" ; echo "The application can however continue normally."'
 	if ( $?LD_LIBRARY_PATH ) then
 	    setenv LD_LIBRARY_PATH ${bindir}:${LD_LIBRARY_PATH}
 	else
