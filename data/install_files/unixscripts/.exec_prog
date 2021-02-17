@@ -15,11 +15,9 @@ source "__INST_DIR__/bin/init_dtect" >&! /dev/null
 if ( $status != 0 ) then
     exit 1
 endif
-
-if ( $HDIR != mac && ! -e "${bindir}/../lib" ) then
-    echo "${bindir}/../lib does not exist"
-    echo "Please check your installation."
-    echo "The application can however continue normally."
+if ( `which initwarn | grep aliased | wc -l` == 1 ) then
+    initwarn
+    unalias initwarn
 endif
 
 $CSHCMD "__INST_DIR__/bin/od_exec" $*
