@@ -333,8 +333,11 @@ Well::LoadReqs Well::Data::loadState() const
 	    if ( logs_.getLog( idx ).isLoaded() )
 		nloaded++;
 	}
-	if ( nloaded == logs_.size() )
-	    lreqs.add( Well::Logs );
+	if (nloaded == logs_.size())
+	{
+	    lreqs.add(Well::Logs);
+	    lreqs.add(Well::LogInfos);
+	}
 	else
 	    lreqs.add( Well::LogInfos );
 
@@ -347,7 +350,7 @@ Well::LoadReqs Well::Data::loadState() const
 
 const Well::Log* Well::Data::getLog( const char* nm ) const
 {
-    if ( !logs().isLoaded( nm ) )
+    if ( logs().isPresent( nm ) && !logs().isLoaded( nm ) )
     {
 	Well::Data& wd = const_cast<Well::Data&>(*this);
 	Well::Reader rdr( mid_, wd );
