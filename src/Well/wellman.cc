@@ -54,7 +54,7 @@ Well::LoadReqs& Well::LoadReqs::add( SubObjType typ )
     if ( typ == Trck )
         reqs_[Inf] = 1;
     if ( typ == Logs )
-	reqs_[LogInfos] = 0;
+	reqs_[LogInfos] = 1;
     return *this;
 }
 
@@ -66,7 +66,6 @@ Well::LoadReqs Well::LoadReqs::All()
     if ( !SI().zIsTime() )
         ret.reqs_[D2T] = 0;
 
-    ret.reqs_[LogInfos] = 0;
     return ret;
 }
 
@@ -75,12 +74,12 @@ void Well::LoadReqs::include( const LoadReqs& oth )
 {
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
     {
-        if ( oth.reqs_[idx] )
+	if ( oth.reqs_[idx]==1 )
             reqs_[ idx ] = 1;
     }
 
-    if ( reqs_[Logs] )
-	reqs_[LogInfos] = 0;
+    if ( reqs_[Logs]==1 )
+	reqs_[LogInfos] = 1;
 }
 
 
@@ -88,19 +87,19 @@ void Well::LoadReqs::exclude( const LoadReqs& oth )
 {
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
     {
-	if ( oth.reqs_[idx] )
+	if ( oth.reqs_[idx]==1 )
 	    reqs_[ idx ] = 0;
     }
 
-    if ( reqs_[Logs] )
-	reqs_[LogInfos] = 0;
+    if ( reqs_[Logs]==1 )
+	reqs_[LogInfos] = 1;
 }
 
 
 bool Well::LoadReqs::includes( const LoadReqs& oth ) const
 {
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
-        if ( oth.reqs_[idx] && !reqs_[idx] )
+	if ( oth.reqs_[idx]==1 && reqs_[idx]==0 )
             return false;
     return true;
 }
@@ -115,7 +114,7 @@ BufferString Well::LoadReqs::toString() const
     nms.unCat( tmp, " " );
     for ( int ib=0; ib<reqs_.size(); ib++ )
     {
-	if ( reqs_[ib] )
+	if ( reqs_[ib]==1 )
 	    res.add( nms.get(ib) ).addSpace();
     }
     return res;
@@ -200,7 +199,7 @@ Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
     if ( wd && wd->loadState().includes(reqs) )
         return wd;
 
-    if ( wdidx >=0 )
+    if ( wd && wdidx >=0 )
     {
 	reqs.exclude( wd->loadState() );
 	if ( !readReqData(key,wd,reqs) )
@@ -242,7 +241,7 @@ bool Well::Man::readReqData( const MultiID& key, Well::Data* wd, LoadReqs reqs )
 	rdr.getMarkers();
     if ( reqs.includes(Logs) )
 	rdr.getLogs();
-    if ( reqs.includes(LogInfos) )
+    else if ( reqs.includes(LogInfos) )
 	rdr.getLogs( true );
     if ( reqs.includes(CSMdl) )
 	rdr.getCSMdl();

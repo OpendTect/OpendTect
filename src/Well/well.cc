@@ -334,7 +334,10 @@ Well::LoadReqs Well::Data::loadState() const
 		nloaded++;
 	}
 	if ( nloaded == logs_.size() )
+	 {
 	    lreqs.add( Well::Logs );
+	    lreqs.add( Well::LogInfos );
+	 }
 	else
 	    lreqs.add( Well::LogInfos );
 
