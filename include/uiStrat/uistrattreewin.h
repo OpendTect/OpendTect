@@ -41,7 +41,6 @@ public:
 			~uiStratTreeWin();
 
     void		popUp() const;
-    virtual bool	closeOK();
 
     static void		addTool(uiToolButtonSetup*); //!< becomes mine
     static void		makeEditable(bool allow);
@@ -104,6 +103,7 @@ protected:
     void			setIsLocked(bool yn);
     bool			isLocked() const;
     void			setEditable(bool yn);
+    bool			closeOK() override;
 
     void			updateButtonSensitivity();
 
@@ -116,7 +116,6 @@ protected:
     void			unitSelCB(CallBacker*);
     void			unitRenamedCB(CallBacker*);
     void			survChgCB(CallBacker*);
-    void			appCloseCB(CallBacker*);
 
 private:
 

@@ -48,7 +48,7 @@ using namespace Strat;
 
 ManagedObjectSet<uiToolButtonSetup> uiStratTreeWin::tbsetups_;
 
-static uiStratTreeWin* stratwin = 0;
+static uiStratTreeWin* stratwin = nullptr;
 const uiStratTreeWin& StratTWin()
 {
     if ( !stratwin )
@@ -68,11 +68,8 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , istreedisp_(false)
     , treekey_(MultiID::udf())
     , repos_(*new Strat::RepositoryAccess())
-    , uitree_(0)
+    , uitree_(nullptr)
 {
-    IOM().surveyChanged.notify( mCB(this,uiStratTreeWin,survChgCB) );
-    IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,appCloseCB) );
-
     createGroups();
     initMenuItems();
     createMenu();
@@ -80,7 +77,15 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     setIsLocked( false );
     updateButtonSensitivity();
 
-    postFinalise().notify( mCB(this,uiStratTreeWin,finalizeCB) );
+    mAttachCB( IOM().surveyChanged, uiStratTreeWin::survChgCB );
+    mAttachCB( postFinalise(), uiStratTreeWin::finalizeCB );
+}
+
+
+uiStratTreeWin::~uiStratTreeWin()
+{
+    detachAllNotifiers();
+    delete& repos_;
 }
 
 
@@ -125,12 +130,6 @@ void uiStratTreeWin::initMenuItems()
     initItem( contentsitem_, uiStrings::phrManage(tr("Content Types")),
 	      "contents" );
     initItem( helpitem_, tr("Help on this window"), "contexthelp" );
-}
-
-
-uiStratTreeWin::~uiStratTreeWin()
-{
-    delete &repos_;
 }
 
 
@@ -575,18 +574,6 @@ bool uiStratTreeWin::closeOK()
 }
 
 
-void uiStratTreeWin::appCloseCB( CallBacker* )
-{
-    IOM().applicationClosing.remove( mCB(this,uiStratTreeWin,appCloseCB ) );
-    if ( stratwin )
-    {
-	stratwin->close();
-	delete stratwin;
-	stratwin = 0;
-    }
-}
-
-
 void uiStratTreeWin::survChgCB( CallBacker* )
 {
     IOM().surveyChanged.remove( mCB(this,uiStratTreeWin,survChgCB ) );
@@ -597,7 +584,7 @@ void uiStratTreeWin::survChgCB( CallBacker* )
 
     delete lvllist_;
     delete uitree_;
-    stratwin = 0;
+    stratwin = nullptr;
 }
 
 
