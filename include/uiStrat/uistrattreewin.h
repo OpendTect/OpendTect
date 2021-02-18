@@ -39,7 +39,6 @@ public:
 			~uiStratTreeWin();
 
     void		popUp() const;
-    virtual bool	closeOK();
 
     static void		addTool(uiToolButtonSetup*); //!< becomes mine
     static void		makeEditable(bool allow); 
@@ -74,6 +73,7 @@ protected:
     void			setNewRT();
     void			setIsLocked(bool yn);
     void			setEditable(bool yn);
+    bool			closeOK() override;
 
     void			newCB(CallBacker*);
     void			editCB(CallBacker*);
@@ -88,7 +88,6 @@ protected:
     void			unitRenamedCB(CallBacker*);
     void			moveUnitCB(CallBacker*);
     void			survChgCB(CallBacker*);
-    void			appCloseCB(CallBacker*);
     void			helpCB(CallBacker*);
     void			manLiths(CallBacker*);
     void			manConts(CallBacker*);

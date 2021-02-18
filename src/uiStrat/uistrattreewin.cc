@@ -41,7 +41,7 @@ using namespace Strat;
 
 ManagedObjectSet<uiToolButtonSetup> uiStratTreeWin::tbsetups_;
 
-static uiStratTreeWin* stratwin = 0;
+static uiStratTreeWin* stratwin = nullptr;
 const uiStratTreeWin& StratTWin()
 {
     if ( !stratwin )
@@ -62,8 +62,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , repos_(*new Strat::RepositoryAccess())
     , tb_(0)
 {
-    DBM().surveyChanged.notify( mCB(this,uiStratTreeWin,survChgCB ) );
-    DBM().applicationClosing.notify( mCB(this,uiStratTreeWin,appCloseCB ) );
+
 
     createMenu();
     createToolBar();
@@ -74,11 +73,14 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
 
     if ( RT().isEmpty() )
 	setNewRT();
+
+    mAttachCB( DBM().surveyChanged, uiStratTreeWin::survChgCB );
 }
 
 
 uiStratTreeWin::~uiStratTreeWin()
 {
+    detachAllNotifiers();
     delete &repos_;
 }
 
@@ -445,18 +447,6 @@ bool uiStratTreeWin::closeOK()
 }
 
 
-void uiStratTreeWin::appCloseCB( CallBacker* )
-{
-    DBM().applicationClosing.remove( mCB(this,uiStratTreeWin,appCloseCB ) );
-    if ( stratwin )
-    {
-	stratwin->close();
-	delete stratwin;
-	stratwin = 0;
-    }
-}
-
-
 void uiStratTreeWin::survChgCB( CallBacker* )
 {
     DBM().surveyChanged.remove( mCB(this,uiStratTreeWin,survChgCB ) );
@@ -467,7 +457,7 @@ void uiStratTreeWin::survChgCB( CallBacker* )
 
     delete lvllist_;
     delete uitree_;
-    stratwin = 0;
+    stratwin = nullptr;
 }
 
 
