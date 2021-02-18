@@ -18,9 +18,10 @@ set( EXECLIST od_cbvs_browse od_osgfileviewer
 	      od_process_velocityconv od_process_volume
 	      od_ProgressViewer od_DispMsg od_ImageViewer
 	      od_FileBrowser od_SEGYExaminer od_SeisMMBatch od_ClusterProc
-	      od_process_2dgrid od_remexec od_remoteservice od_stratamp od_isopach
-	      od_uiReportIssue od_gmtexec od_madexec
-	      od_process_2dto3d od_BatchHosts od_copy_seis od_PreStackMMBatch od_WellMan )
+	      od_process_2dgrid od_remexec od_remoteservice
+	      od_stratamp od_isopach od_uiReportIssue od_gmtexec od_madexec
+	      od_process_2dto3d od_BatchHosts od_copy_seis
+	      od_PreStackMMBatch od_WellMan od_DBMan )
 if ( NOT APPLE )
     set( EXECLIST ${EXECLIST} od_glxinfo )
 endif()
