@@ -54,7 +54,7 @@ Well::LoadReqs& Well::LoadReqs::add( SubObjType typ )
     if ( typ == Trck )
         reqs_[Inf] = 1;
     if ( typ == Logs )
-	reqs_[LogInfos] = 0;
+	reqs_[LogInfos] = 1;
     return *this;
 }
 
@@ -66,7 +66,6 @@ Well::LoadReqs Well::LoadReqs::All()
     if ( !SI().zIsTime() )
         ret.reqs_[D2T] = 0;
 
-//    ret.reqs_[LogInfos] = 0;
     return ret;
 }
 
