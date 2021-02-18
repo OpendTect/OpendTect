@@ -183,6 +183,7 @@ MnemonicSetMgr()
 
 ~MnemonicSetMgr()
 {
+    detachAllNotifiers();
     delete mns_;
 }
 
