@@ -451,8 +451,8 @@ void Well::addMarker( const MarkerParams& mp )
 
 void Well::updateMakerSize(float sizefactor)
 {
-    const float size = markerset_->getScreenSize();
-    markerset_->setScreenSize( size + (markersize_/sizefactor)*markersize_ );
+    markerset_->setScreenSize( markersize_ +
+					 (markersize_/sizefactor)*markersize_ );
 }
 
 

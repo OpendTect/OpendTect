@@ -108,6 +108,7 @@ void WellDisplay::welldataDelNotify( CallBacker* )
 Well::Data* WellDisplay::getWD() const
 {
     Well::LoadReqs lreqs( Well::D2T, Well::Trck, Well::DispProps3D );
+    lreqs.add( Well::LogInfos );
     return getWD( lreqs );
 }
 
