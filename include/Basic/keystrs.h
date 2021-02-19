@@ -48,7 +48,6 @@ namespace sKey
     inline FixedString Components()	{ return "Components"; }
     inline FixedString Content()	{ return "Content"; }
     inline FixedString Crossline()	{ return "Cross-line"; }
-    static FixedString CrosslineDip()	{ return "Crossline Dip"; }
     inline FixedString Cube()		{ return "Cube"; }
     inline FixedString Data()		{ return "Data"; }
     inline FixedString DataRoot()	{ return "Data Root"; }
@@ -81,15 +80,12 @@ namespace sKey
     inline FixedString IDs()		{ return "IDs"; }
     inline FixedString Input()		{ return "Input"; }
     inline FixedString Inline()		{ return "In-line"; }
-    inline FixedString InlineDip()	{ return "Inline Dip"; }
     inline FixedString IOSelection()	{ return "I/O Selection"; }
     inline FixedString Is2D()		{ return "Is2D"; }
     inline FixedString Keys()		{ return "Keys"; }
     inline FixedString Level()		{ return "Level"; }
     inline FixedString Line()		{ return "Line"; }
     inline FixedString Lines()		{ return "Lines"; }
-    static FixedString LineDip(bool for2d) { return for2d ? "Line Dip"
-							: CrosslineDip(); }
     inline FixedString LineStyle()	{ return "Line Style"; }
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }

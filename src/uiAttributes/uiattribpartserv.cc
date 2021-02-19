@@ -1968,8 +1968,8 @@ bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
     if ( !is2d && issteering && complist.isPresent("Component 1") )
     {
 	complist.erase();
-	complist.add( sKey::InlineDip() );
-	complist.add( sKey::CrosslineDip() );
+	complist.add( Desc::sKeyInlDipComp() );
+	complist.add( Desc::sKeyCrlDipComp() );
     }
 
     uiMultCompDlg compdlg( parent(), complist );
@@ -1988,8 +1988,8 @@ bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
 	    {
 		Desc* desc = ads->getDesc(attribid);
 		if ( !desc ) return false;
-		mFakeCompName( "Component 1", sKey::InlineDip() );
-		mFakeCompName( "Component 2", sKey::CrosslineDip() );
+		mFakeCompName( "Component 1", Desc::sKeyInlDipComp() );
+		mFakeCompName( "Component 2", Desc::sKeyCrlDipComp() );
 	    }
 
 	    return true;
@@ -2022,8 +2022,8 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	//Trick for old steering cubes: fake good component names
 	if ( !is2d && issteering )
 	{
-	    mFakeCompName( "Component 1", sKey::InlineDip() );
-	    mFakeCompName( "Component 2", sKey::CrosslineDip() );
+	    mFakeCompName( "Component 1", Desc::sKeyInlDipComp() );
+	    mFakeCompName( "Component 2", Desc::sKeyCrlDipComp() );
 	}
 
 	//Trick for PreStack offsets displayed on the fly
