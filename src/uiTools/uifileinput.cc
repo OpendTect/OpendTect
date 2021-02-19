@@ -387,6 +387,7 @@ static uiFileInput::Setup getSetup( bool forread )
 uiASCIIFileInput::uiASCIIFileInput( uiParent* p, bool forread )
     : uiFileInput(p,getLabel(forread),getSetup(forread))
 {
+    mAttachCB( valuechanged, uiASCIIFileInput::fileSelCB );
 }
 
 
@@ -394,9 +395,29 @@ uiASCIIFileInput::uiASCIIFileInput( uiParent* p, const uiString& lbl,
 				    bool forread )
     : uiFileInput(p,lbl,getSetup(forread))
 {
+    mAttachCB( valuechanged, uiASCIIFileInput::fileSelCB );
 }
 
 
 uiASCIIFileInput::~uiASCIIFileInput()
 {
+    detachAllNotifiers();
+}
+
+
+void uiASCIIFileInput::fileSelCB( CallBacker* )
+{
+    const BufferString fnm = fileName();
+    if ( fnm.isEmpty() )
+	return;
+
+    if ( forread_ )
+    {
+	if ( !File::exists(fnm) )
+	    return;
+
+	SetImportFromDir( pathOnly() );
+    }
+    else
+	SetExportToDir( pathOnly() );
 }
