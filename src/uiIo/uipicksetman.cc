@@ -36,10 +36,11 @@ static IOObjContext getIOObjContext( const char* fixedtrkey )
 	ctxt.fixTranslator( fixedtrkey );
 
     BufferString types = sKey::PickSet();
-    types.add( "`" ).add( sKey::Polygon() ).add( "`" );
+    types.add( "`" ).add( sKey::Polygon() );
     ctxt.toselect_.require_.set( sKey::Type(), types.buf() );
     return ctxt;
 }
+
 
 uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
     : uiObjFileMan(p,uiDialog::Setup(
@@ -49,7 +50,7 @@ uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
 	    mNoDlgTitle,
 	    mODHelpKey(mPickSetManHelpID) )
 	    .nrstatusflds(1).modal(false),
-	    getIOObjContext(fixedtrkey), PickSetTranslatorGroup::sGroupName())
+	    getIOObjContext(fixedtrkey))
 {
     createDefaultUI();
     mergebut_ = selgrp_->getManipGroup()->addButton( "mergepicksets",
