@@ -1209,3 +1209,18 @@ char* truncateString( char* str, int maxlen )
 
     return str;
 }
+
+
+const char* cformat( char specifier, od_uint16 width, od_uint16 precision,
+		     const char* length, const char* flags )
+{
+// %[flags][width][.precision][length]specifier
+    mDeclStaticString( ret );
+    ret.set( '%' );
+    if ( flags )	ret.add( flags );
+    if ( width>0 )	ret.add( width );
+    if ( precision>0 )	ret.add( "." ).add( precision );
+    if ( length )	ret.add( length );
+    ret.add( specifier );
+    return ret;
+}
