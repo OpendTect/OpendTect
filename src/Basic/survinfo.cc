@@ -1361,6 +1361,12 @@ ConstRefMan<Coords::CoordSystem> SurveyInfo::getCoordSystem() const
 }
 
 
+bool SurveyInfo::hasProjection() const
+{
+    return coordsystem_ && coordsystem_->isProjection();
+}
+
+
 bool SurveyInfo::xyInFeet() const
 {
     return mXYInFeet();
