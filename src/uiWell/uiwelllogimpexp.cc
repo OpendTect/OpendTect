@@ -305,6 +305,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     , wds_(wds)
     , logsel_(logsel)
     , multiwellsnamefld_(nullptr)
+    , coordsysselfld_(nullptr)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sCancel() );
 
@@ -319,11 +320,16 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld_->attach( alignedBelow, zrangefld_ );
 
-    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-    coordsysselfld_->attach( alignedBelow, typefld_ );
+    uiObject* attachobj = typefld_->attachObj();
+    if ( SI().hasProjection() )
+    {
+	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+	coordsysselfld_->attach( alignedBelow, attachobj );
+	attachobj = coordsysselfld_->attachObj();
+    }
 
     zunitgrp_ = new uiButtonGroup( this, "Z-unit buttons", OD::Horizontal );
-    zunitgrp_->attach( alignedBelow, coordsysselfld_ );
+    zunitgrp_->attach( alignedBelow, attachobj );
     uiLabel* zlbl = new uiLabel( this,
 				 uiStrings::phrOutput( uiStrings::sZUnit() ));
     zlbl->attach( leftOf, zunitgrp_ );
@@ -348,7 +354,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     outfld_ = new uiFileInput( this,
 			multiwells ? tr("Output folder") : tr("Output file"),
 			uiFileInput::Setup().forread(false)
-						.directories(multiwells) );
+					.directories(multiwells)
+					.defseldir(GetSurveyExportDir()) );
     outfld_->attach( alignedBelow, zunitgrp_ );
     if ( multiwells )
     {
@@ -401,7 +408,8 @@ void uiExportLogs::typeSel( CallBacker* )
 {
     zunitgrp_->setSensitive( 2, typefld_->getIntValue() );
     zunitgrp_->setSensitive( 3, typefld_->getIntValue() );
-    coordsysselfld_->display( typefld_->getIntValue() == 1 );
+    if ( coordsysselfld_ )
+	coordsysselfld_->display( typefld_->getIntValue() == 1 );
 }
 
 
@@ -503,9 +511,10 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
     const UnitOfMeasure* outunit =
 	outinft ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
 
-    const Coords::CoordSystem* outcrs = coordsysselfld_->getCoordSystem();
+    const Coords::CoordSystem* outcrs =
+	coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
     const Coords::CoordSystem* syscrs = SI().getCoordSystem();
-    const bool needsconversion = !(*outcrs == *syscrs);
+    const bool needsconversion = outcrs && !(*outcrs == *syscrs);
 
     for ( int idx=0; idx<nrsteps; idx++ )
     {
@@ -535,7 +544,7 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 		strm << convcoord.y;
 	    }
 
-	    float z = (float) pos.z;
+	    float z = float(pos.z);
 	    if ( outindepth )
 		z = getConvertedValue( z, storunit, outunit );
 	    else if ( outintime )

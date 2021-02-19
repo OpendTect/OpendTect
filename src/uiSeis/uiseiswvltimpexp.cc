@@ -43,9 +43,8 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
-			uiFileInput::Setup()
-			.withexamine(true).examstyle(File::Table) );
+    inpfld_ = new uiASCIIFileInput( this, true );
+    inpfld_->setExamStyle( File::Table );
     mAttachCB( inpfld_->valuechanged, uiSeisWvltImp::inputChgd );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
@@ -167,9 +166,7 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 				     BoolInpSpec(true) );
     addzfld_->attach( alignedBelow, wvltfld_ );
 
-    outpfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
-				uiFileInput::Setup().forread(false)
-				.defseldir(GetSurveyExportDir()));
+    outpfld_ = new uiASCIIFileInput( this, false );
     outpfld_->attach( alignedBelow, addzfld_ );
 }
 

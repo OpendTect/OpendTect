@@ -43,9 +43,7 @@ uiSeisExpCubePositionsDlg::uiSeisExpCubePositionsDlg( uiParent* p )
 						 uiStrings::sBinary()) );
     isascfld_->attach( alignedBelow, inpfld_ );
 
-    uiFileInput::Setup fssu; fssu.forread_ = false;
-    outfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::sFile()
-				     .toLower()), fssu );
+    outfld_ = new uiASCIIFileInput( this, false );
     outfld_->attach( alignedBelow, isascfld_ );
 }
 

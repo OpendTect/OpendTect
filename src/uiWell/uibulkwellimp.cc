@@ -62,10 +62,8 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     origtracks_.allowNull();
 
-    inpfld_ = new uiFileInput( this,
-		      uiStrings::sInputFile(),
-		      uiFileInput::Setup()
-		      .withexamine(true).examstyle(File::Table) );
+    inpfld_ = new uiASCIIFileInput( this, true );
+    inpfld_->setExamStyle( File::Table );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 				       mODHelpKey(mTableImpDataSelwellsHelpID));
@@ -918,9 +916,8 @@ uiBulkDirectionalImport::uiBulkDirectionalImport( uiParent* p )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()),
-			uiFileInput::Setup().withexamine(true)
-					    .examstyle(File::Table) );
+    inpfld_ = new uiASCIIFileInput( this, true );
+    inpfld_->setExamStyle( File::Table );
     mAttachCB( inpfld_->valuechanged, uiBulkDirectionalImport::fileCB );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,

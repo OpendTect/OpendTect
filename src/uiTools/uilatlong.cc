@@ -240,18 +240,13 @@ uiLatLong2CoordFileTransDlg( uiParent* p,
 		       mODHelpKey(mLatLong2CoordFileTransDlgHelpID)))
     , coordsys_(coordsys)
 {
-    uiFileInput::Setup fisu( uiFileDialog::Txt );
-    fisu.forread( true ).exameditable( true );
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()),
-									fisu );
+    inpfld_ = new uiASCIIFileInput( this, true );
 
     tollfld_ = new uiGenInput( this, tr("Transform"), BoolInpSpec( true,
-			    tr("X Y to Lat Long"), tr("Lat Long to X Y") ) );
+			tr("X Y to Lat Long"), tr("Lat Long to X Y") ) );
     tollfld_->attach( alignedBelow, inpfld_ );
 
-    fisu.forread( false ).withexamine( false );
-    outfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::sFile()),
-									fisu );
+    outfld_ = new uiASCIIFileInput( this, false );
     outfld_->attach( alignedBelow, tollfld_ );
 }
 

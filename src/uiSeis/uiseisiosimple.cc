@@ -93,19 +93,15 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     const bool isps = isPS();
 
     coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-    const bool shoulddisplay = SI().getCoordSystem() &&
-			       SI().getCoordSystem()->isProjection();
-    coordsysselfld_->display( shoulddisplay );
+    coordsysselfld_->display( SI().hasProjection() );
 
     uiSeisSel::Setup ssu( geom_ );
     uiSeparator* sep = 0;
     if ( isimp_ )
     {
 	mkIsAscFld();
-	fnmfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::sFile()
-			.toLower()), uiFileInput::Setup("")
-			.forread( true )
-			.withexamine( true ) );
+	fnmfld_ = new uiASCIIFileInput( this,
+		uiStrings::phrInput(uiStrings::sFile().toLower()), true );
 	fnmfld_->attach( alignedBelow, isascfld_ );
     }
     else
@@ -285,10 +281,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     {
 	mkIsAscFld();
 	isascfld_->attach( alignedBelow, havesdfld_ );
-	fnmfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::sFile()
-			.toLower()), uiFileInput::Setup("")
-			.forread( false )
-			.withexamine( false ) );
+	fnmfld_ = new uiASCIIFileInput( this,
+		uiStrings::phrOutput(uiStrings::sFile().toLower()), false );
 	fnmfld_->attach( alignedBelow, isascfld_ );
     }
 
@@ -406,8 +400,8 @@ void uiSeisIOSimple::haveposSel( CallBacker* cb )
     if ( isxyfld_ )
     {
 	isxyfld_->display( !havenopos );
-	coordsysselfld_->display( isxyfld_->getBoolValue() &&
-						    isxyfld_->isDisplayed() );
+	coordsysselfld_->display(
+		isxyfld_->getBoolValue() && isxyfld_->isDisplayed() );
     }
 
 

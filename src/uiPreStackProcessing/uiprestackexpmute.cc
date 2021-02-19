@@ -45,12 +45,16 @@ uiExportMute::uiExportMute( uiParent* p )
     coordfld_->attach( alignedBelow, infld_ );
     coordfld_->valuechanged.notify( mCB(this,uiExportMute,coordTypChngCB) );
 
-    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-    coordsysselfld_->attach( alignedBelow, coordfld_ );
+    uiObject* attachobj = coordfld_->attachObj();
+    if ( SI().hasProjection() )
+    {
+	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+	coordsysselfld_->attach( alignedBelow, attachobj );
+	attachobj = coordsysselfld_->attachObj();
+    }
 
-    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
-			       uiFileInput::Setup().forread(false) );
-    outfld_->attach( alignedBelow, coordsysselfld_ );
+    outfld_ = new uiASCIIFileInput( this, false );
+    outfld_->attach( alignedBelow, attachobj );
 
     coordTypChngCB(0);
 }
@@ -64,9 +68,8 @@ uiExportMute::~uiExportMute()
 
 void uiExportMute::coordTypChngCB( CallBacker* )
 {
-    const bool shoulddisplay = SI().getCoordSystem() &&
-       SI().getCoordSystem()->isProjection() && (coordfld_->getBoolValue() );
-    coordsysselfld_->display( shoulddisplay );
+    if ( coordsysselfld_ )
+	coordsysselfld_->display( coordfld_->getBoolValue() );
 }
 
 
@@ -94,11 +97,12 @@ bool uiExportMute::writeAscii()
     const bool isxy = coordfld_->getBoolValue();
 
     BufferString str;
-    const Coords::CoordSystem* outcrs = coordsysselfld_->getCoordSystem();
+    const Coords::CoordSystem* outcrs =
+	coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
     const Coords::CoordSystem* syscrs = SI().getCoordSystem();
     Coord convcoord;
     Coord coord;
-    const bool needsconversion = !(*outcrs == *syscrs);
+    const bool needsconversion = outcrs && !(*outcrs == *syscrs);
     for ( int pos=0; pos<mutedef.size(); pos++ )
     {
 	const BinID binid = mutedef.getPos( pos );
@@ -111,8 +115,7 @@ bool uiExportMute::writeAscii()
 	    {
 		coord = SI().transform( binid );
 		if ( needsconversion )
-		    convcoord = coordsysselfld_->getCoordSystem()->
-				    convertFrom( coord,*SI().getCoordSystem() );
+		    convcoord = outcrs->convertFrom( coord, *syscrs );
 		// ostreams print doubles awfully
 		str.setEmpty();
 		str += convcoord.x; str += "\t"; str += convcoord.y;

@@ -47,9 +47,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     setVideoKey( mODVideoKey(mImportVelFuncHelpID) );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::sInputASCIIFile(),
-			       uiFileInput::Setup().withexamine(true)
-			       .defseldir(GetDataDir()) );
+    inpfld_ = new uiASCIIFileInput( this, true );
 
     uiVelocityDesc::Setup su;
     su.desc_.type_ = VelocityDesc::Interval;

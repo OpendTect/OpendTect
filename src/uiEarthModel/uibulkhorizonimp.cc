@@ -93,10 +93,8 @@ uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    inpfld_ = new uiFileInput( this,
-		      uiStrings::sInputASCIIFile(),
-		      uiFileInput::Setup().withexamine(true)
-		      .examstyle(File::Table) );
+    inpfld_ = new uiASCIIFileInput( this, true );
+    inpfld_->setExamStyle( File::Table );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 				mODHelpKey(mTableImpDataSelwellsHelpID) );
