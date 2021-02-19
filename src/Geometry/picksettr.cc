@@ -287,24 +287,6 @@ void PickSetTranslator::fillConstraints( IOObjContext& ctxt, bool ispoly )
 }
 
 
-void PickSetTranslator::tagLegacyPickSets()
-{
-    const IOObjContext ctxt = mIOObjContext( PickSet );
-    const IODir iodir( ctxt.getSelKey() );
-    const ObjectSet<IOObj>& objs = iodir.getObjs();
-    for ( auto ioobj : objs )
-    {
-	if ( !ioobj || !ctxt.validIOObj(*ioobj) ||
-					ioobj->pars().hasKey(sKey::Type()) )
-	    continue;
-
-	ioobj->pars().set( sKey::Type(), sKey::PickSet() );
-    }
-
-    iodir.doWrite();
-}
-
-
 ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
 						 BufferString& emsg )
 {
@@ -376,6 +358,28 @@ bool PickSetTranslator::implRename( const IOObj* ioobj, const char* newnm,
     }
 
     return res;
+}
+
+
+void PickSetTranslator::tagLegacyPickSets()
+{
+    IOObjContext ctxt = mIOObjContext( PickSet );
+    ctxt.fixTranslator( dgbPickSetTranslator::translKey() );
+    const IODir iodir( ctxt.getSelKey() );
+    const ObjectSet<IOObj>& objs = iodir.getObjs();
+    bool haschanges = false;
+    for ( auto ioobj : objs )
+    {
+	if ( !ioobj || !ctxt.validIOObj(*ioobj) ||
+					ioobj->pars().hasKey(sKey::Type()) )
+	    continue;
+
+	ioobj->pars().set( sKey::Type(), sKey::PickSet() );
+	haschanges = true;
+    }
+
+    if ( haschanges )
+	iodir.doWrite();
 }
 
 
