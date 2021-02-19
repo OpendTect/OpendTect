@@ -14,7 +14,9 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 #include "uisip.h"
+
 #include "bufstringset.h"
+#include "coordsystem.h"
 #include "ranges.h"
 
 class SurveyInfo;
@@ -26,7 +28,7 @@ class uiLabel;
 class uiPushButton;
 class uiSurvInfoProvider;
 class uiTabStack;
-namespace Coords { class CoordSystem; class uiCoordSystemSelGrp; }
+namespace Coords { class uiCoordSystemSelGrp; }
 
 /*!
 \brief The survey info editor.
