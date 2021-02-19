@@ -422,15 +422,21 @@ int HorizonScanner::nextStep()
 	if ( firsttime_ )
 	    valranges_ += Interval<float>(mUdf(float),-mUdf(float));
 
-	const float val = data[validx];
-	if ( isgeom_ && validx==0 && !isInsideSurvey(bid,fac*val) )
+	float& val = data[validx];
+	if ( isgeom_ && validx==0 )
 	{
-	    validpos = false;
-	    break;
+	    if ( doscale_ )
+		val *= fac;
+
+	    if ( !isInsideSurvey(bid,val) )
+	    {
+		validpos = false;
+		break;
+	    }
 	}
 
 	if ( !mIsUdf(val) )
-	    valranges_[validx].include( fac*val, false );
+	    valranges_[validx].include( val, false );
 	validx++;
     }
 
