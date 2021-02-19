@@ -1328,12 +1328,6 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 }
 
 
-visBase::Material* HorizonDisplay::getMaterial() const
-{
-    return material_;
-}
-
-
 void HorizonDisplay::setIntersectLineMaterial( visBase::Material* nm )
 {
     unRefAndZeroPtr( intersectionlinematerial_ );

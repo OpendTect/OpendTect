@@ -57,7 +57,6 @@ public:
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
 
-    visBase::Material*		getMaterial() const;
     void			setIntersectLineMaterial(visBase::Material*);
 
     bool			setEMObject(const EM::ObjectID&,TaskRunner*);
@@ -258,7 +257,7 @@ private:
 
 	void			setPixelDensity(float);
 	void			setDisplayTransformation(const mVisTrans*);
-	void 			updateDataTransform(const TrcKeyZSampling&,
+	void			updateDataTransform(const TrcKeyZSampling&,
 						   ZAxisTransform*);
 	void			setSceneEventCatcher(visBase::EventCatcher*);
 	void			setMaterial(visBase::Material*);

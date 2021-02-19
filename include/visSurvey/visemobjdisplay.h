@@ -49,7 +49,7 @@ struct EMChangeData
     {
 	if ( idx<emcallbackdata_.size() )
 	    return emcallbackdata_[idx];
-	return 0;    
+	return nullptr;
     }
 
     void    clearData()
@@ -65,7 +65,7 @@ class MPEEditor;
 class EdgeLineSetDisplay;
 
 
-mExpClass(visSurvey) EMObjectDisplay : public  visBase::VisualObjectImpl
+mExpClass(visSurvey) EMObjectDisplay : public visBase::VisualObjectImpl
 				     , public visSurvey::SurveyObject
 {
 public:
@@ -147,7 +147,7 @@ public:
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj )	=0;
     virtual void		setPixelDensity(float dpi);
-    const visBase::MarkerSet*	getSeedMarkerSet() const; 
+    const visBase::MarkerSet*	getSeedMarkerSet() const;
 
 
 protected:
