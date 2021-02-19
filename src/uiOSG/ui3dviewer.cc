@@ -29,11 +29,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/Version>
 
 #include "envvars.h"
+#include "filepath.h"
 #include "iopar.h"
 #include "keybindings.h"
 #include "keyboardevent.h"
 #include "keystrs.h"
 #include "math2.h"
+#include "oddirs.h"
 #include "ptrman.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
@@ -1154,17 +1156,6 @@ void ui3DViewerBody::toggleCameraType()
 }
 
 
-void ui3DViewerBody::setHomePos(const IOPar& homepos)
-{
-    homepos_ = homepos;
-}
-
-
-void ui3DViewerBody::resetToHomePosition()
-{
-}
-
-
 void ui3DViewerBody::uiRotate( float angle, bool horizontal )
 {
     mDynamicCastGet( osgGA::StandardManipulator*, manip,
@@ -1317,6 +1308,95 @@ bool ui3DViewerBody::useCameraPos( const IOPar& par )
     requestRedraw();
     return true;
 
+}
+
+
+class HomePosManager
+{
+public:
+			~HomePosManager()	{ deepErase(homepos_); }
+    bool		read();
+    bool		write();
+
+    int			size() const		{ return homepos_.size(); }
+    void		getNames(BufferStringSet&) const;
+    int			indexOf(const char*) const;
+    const IOPar&	get(int) const;
+
+    void		add(const IOPar&);
+    void		remove(int);
+
+protected:
+    ObjectSet<IOPar>	homepos_;
+};
+
+
+bool HomePosManager::read()
+{
+    return true;
+}
+
+
+bool HomePosManager::write()
+{
+    IOPar outpar;
+    for ( int idx=0; idx<homepos_.size(); idx++ )
+    {
+	outpar.mergeComp( *homepos_[idx], toString(idx) );
+    }
+
+    FilePath fp( GetDataDir(), "homepos.par" );
+    const BufferString fnm = fp.fullPath();
+    outpar.write( fnm, "Home Positions" );
+    return true;
+}
+
+
+void HomePosManager::getNames( BufferStringSet& nms ) const
+{
+    nms.erase();
+    for ( int idx=0; idx<homepos_.size(); idx++ )
+    {
+	FixedString parnm = homepos_[idx]->find( sKey::Name() );
+	nms.add( parnm );
+    }
+}
+
+
+int HomePosManager::indexOf( const char* nm ) const
+{
+    BufferStringSet nms;
+    getNames( nms );
+    return nms.indexOf( nm );
+}
+
+
+const IOPar& HomePosManager::get( int idx ) const
+{
+    return *homepos_[idx];
+}
+
+
+void HomePosManager::add( const IOPar& par )
+{
+    homepos_ += new IOPar( par );
+}
+
+
+void HomePosManager::remove( int idx )
+{
+    delete homepos_.removeSingle( idx );
+}
+
+
+void ui3DViewerBody::setHomePos( const IOPar& homepos )
+{
+    homepos_ = homepos;
+}
+
+
+void ui3DViewerBody::resetToHomePosition()
+{
 }
 
 
