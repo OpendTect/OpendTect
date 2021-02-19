@@ -96,6 +96,9 @@ public:
 
     void		selectFile( CallBacker* cb )	{ doSelect(cb); }
 
+    void		setExamStyle( File::ViewStyle vs ) { examstyle_ = vs; }
+    File::ViewStyle	examStyle() const		{ return examstyle_; }
+
 protected:
 
     bool		forread_;
