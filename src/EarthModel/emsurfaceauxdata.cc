@@ -24,9 +24,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "iostrm.h"
 #include "parametricsurface.h"
+#include "posfilter.h"
 #include "ptrman.h"
 #include "settings.h"
 #include "strmprov.h"
+#include "survinfo.h"
 #include "uistrings.h"
 #include "varlenarray.h"
 
@@ -513,5 +515,33 @@ bool SurfaceAuxData::usePar( const IOPar& )
 
 void SurfaceAuxData::fillPar( IOPar& ) const
 {}
+
+
+void SurfaceAuxData::applyPosFilter( const Pos::Filter& pf, int dataidx )
+{
+    for ( int sidx=0; sidx<auxdata_.size(); sidx++ )
+    {
+	BinIDValueSet* bvs = auxdata_[sidx];
+	if ( !bvs || bvs->nrVals()==0 )
+	    continue;
+
+	BinIDValueSet::SPos spos;
+	BinID bid; float zval;
+	while ( bvs->next(spos) )
+	{
+	    bid = bvs->getBinID( spos );
+	    zval = horizon_.getZ( bid );
+	    if ( pf.includes(SI().transform(bid),zval) )
+		continue;
+
+	    float* vals = bvs->getVals( spos );
+	    for ( int vidx=0; vidx<bvs->nrVals(); vidx++ )
+	    {
+		if ( dataidx==-1 || vidx==dataidx )
+		    vals[vidx] = mUdf(float);
+	    }
+	}
+    }
+}
 
 } // namespace EM

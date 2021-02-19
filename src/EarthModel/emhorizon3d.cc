@@ -1343,6 +1343,13 @@ bool Horizon3D::setPos( const SectionID& sid, const SubID& subid,
 }
 
 
+void Horizon3D::apply( const Pos::Filter& pf )
+{
+    Surface::apply( pf );
+    auxdata.applyPosFilter( pf, -1 );
+}
+
+
 // Horizon3DGeometry
 Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
     : HorizonGeometry( surf )

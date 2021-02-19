@@ -202,6 +202,8 @@ public:
 				       bool addtohistory);
     virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
 				       const Coord3&,bool addtohistory);
+    virtual void		apply(const Pos::Filter&);
+
 protected:
     enum			ArrayType{Parents,Children,LockNode,NodeSource};
 
