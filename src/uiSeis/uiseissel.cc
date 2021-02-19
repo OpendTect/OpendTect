@@ -61,7 +61,7 @@ static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
 {
     IOObjContext ctxt( ct );
     if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
-	ctxt.toselect_.dontallow_.set( sKey::Type(), sKey::Steering() );
+	ctxt.toselect_.dontallow_.addVal( sKey::Type(), sKey::Steering() );
     else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
     {
 	ctxt.toselect_.require_.set( sKey::Type(), sKey::Steering() );

@@ -206,6 +206,9 @@ public:
 			/*!< unsafe: does not check for duplicate keys */
     void		add( const char* ky, const OD::String& val )
 			{ add( ky, val.str() ); }
+    void		addVal(const char* ky,const char* valtoadd);
+    			/*!< Append valtoadd to existing vals:
+			     ky: <existing vals>`valtoadd */
     void		update(const char* ky,const char* val);
 			/*!< removes if val is empty or null */
 

@@ -387,6 +387,15 @@ void IOPar::add( const char* keyw, const char* val )
 }
 
 
+void IOPar::addVal( const char* keyw, const char* valtoadd )
+{
+    BufferStringSet vals;
+    get( keyw, vals );
+    vals.addIfNew( valtoadd );
+    set( keyw, vals );
+}
+
+
 void IOPar::update( const char* keyw, const char* val )
 {
     if ( !keyw ) return;
