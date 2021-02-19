@@ -358,6 +358,8 @@ void selCB( CallBacker* )
     nrreadfld_->setValue( 0 );
 
     PtrMan<od_istream> strm = getStream();
+    if ( !strm )
+	return;
 
     Strat::LayerModel newlm;
     PropertyRefSelection propref;
