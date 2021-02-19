@@ -66,6 +66,7 @@ set( OD_MODULE_SOURCES
 	uisimpletimedepthmodel.cc
 	uisrchprocfiles.cc
 	uisurvey.cc
+	uisurveyfile.cc
 	uisurveyselect.cc
 	uisurveyzip.cc
 	uisurvinfoed.cc

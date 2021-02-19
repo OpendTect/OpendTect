@@ -82,6 +82,7 @@ list ( APPEND OD_MODULE_SOURCES
 	serverprogtool.cc
 	simpletimedepthmodel.cc
 	stratlevel.cc
+	surveyfile.cc
 	survgeometrytransl.cc
 	tableascio.cc
 	tableconv.cc
