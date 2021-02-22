@@ -45,13 +45,16 @@ public:
 protected:
 
     uiToolBar*		toolbar_;
-    uiToolButton*	horbut_;
-    uiToolButton*	hormrkdispbut_;
-    uiIOObjSelDlg*	selhordlg_;
+    int			horbut_ = -1;
+    int			hormrkdispbut_ = -1;
+    uiIOObjSelDlg*	selhordlg_ = nullptr;
     uiWorldRect		curview_;
 
-    uiMrkDispDlg*	mrkrdlg_;
+    uiMrkDispDlg*	mrkrdlg_ = nullptr;
     Server&		server_;
+
+    uiToolBar* toolBar() override { return toolbar_; }
+    uiToolBar* editToolBar() override { return toolbar_; }
 
     bool		checkIfInside(double,double);
     bool		handleUserClick(int vwridx);

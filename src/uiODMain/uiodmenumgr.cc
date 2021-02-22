@@ -832,7 +832,7 @@ void uiODMenuMgr::updateSceneMenu()
     for ( int idx=0; idx<=scenenms.size(); idx++ )
     {
 	const int id = mSceneSelMnuItm + idx;
-	uiAction* itm = scenemnu_->findAction( id );
+	const uiAction* itm = scenemnu_->findAction( id );
 
 	if ( idx >= scenenms.size() )
 	{
@@ -843,14 +843,16 @@ void uiODMenuMgr::updateSceneMenu()
 
 	if ( !itm )
 	{
-	    itm = new uiAction( uiString::emptyString(),
+	    auto* newitm = new uiAction( uiString::emptyString(),
 				mCB(this,uiODMenuMgr,handleClick) );
-	    scenemnu_->insertAction( itm, id );
-	    itm->setCheckable( true );
+	    scenemnu_->insertAction( newitm, id );
+	    newitm->setCheckable( true );
+	    itm = newitm;
 	}
 
-	itm->setText( scenenms[idx]);
-	    itm->setChecked( idx==activescene );
+	uiAction* edititm = const_cast<uiAction*>( itm );
+	edititm->setText( scenenms[idx]);
+	edititm->setChecked( idx==activescene );
     }
 }
 

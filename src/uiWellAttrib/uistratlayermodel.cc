@@ -402,8 +402,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     {
 	synthdisp_->addViewerToControl( *vwr );
 	vwr->viewChanged.notify( mCB(this,uiStratLayerModel,lmViewChangedCB) );
-	uiToolButton* parsbut = synthdisp_->control()->parsButton( vwr );
-	parsbut->setToolTip( tr("Layermodel display properties") );
+	synthdisp_->control()->setParsButToolTip( *vwr,
+		    tr("Layermodel display properties") );
     }
 
     modtools_->attach( ensureBelow, moddisp_ );

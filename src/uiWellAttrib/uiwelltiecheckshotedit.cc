@@ -84,9 +84,6 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     , d2tlineitm_(0)
     , d2t_(wd_.d2TModel())
     , tkzs_(wd_.checkShotModel())
-    , orgcs_(0)
-    , isedit_(false)
-    , movingpointidx_(-1)
 {
     if ( !tkzs_ )
 	mErrRet( tr("No checkshot provided"), return );
@@ -118,38 +115,32 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     driftdisplay_->setPrefHeight( mInitHeight );
     d2tdisplay_->setPrefHeight( mInitHeight );
 
-#define mAddButton(pm,func,tip) \
-	toolbar_->addButton( pm, tip, mCB(this,uiCheckShotEdit,func) )
+#define mAddButton(pm,func,tip,istoggle) \
+	toolbar_->addButton( pm, tip, mCB(this,uiCheckShotEdit,func), istoggle )
     toolbar_ = new uiToolBar( this, tr("Well Tie Control"), uiToolBar::Right );
-    mAddButton( "z2t", editCSPushed, tr("View/Edit Model") );
-    toolbar_->addSeparator();
-    editbut_ = new uiToolButton( toolbar_, "seedpickmode",tr("Edit mode"),
-				mCB(this,uiCheckShotEdit,editCB) );
-    toolbar_->addButton( editbut_ );
-    editbut_->setToggleButton( true );
 
-    undobut_ = new uiToolButton( toolbar_, "undo", uiStrings::sUndo(),
-				mCB(this,uiCheckShotEdit,undoCB) );
-    toolbar_->addButton( undobut_ );
-    undobut_->setSensitive( false );
-    redobut_ = new uiToolButton( toolbar_, "redo", uiStrings::sRedo(),
-				mCB(this,uiCheckShotEdit,redoCB) );
-    toolbar_->addButton( redobut_ );
-    redobut_->setSensitive( false );
+    mAddButton( "z2t", editCSPushed, tr("View/Edit Model"), false );
+    toolbar_->addSeparator();
+
+    editbut_ = mAddButton( "seedpickmode", editCB, tr( "Edit mode" ), true );
+    undobut_ = mAddButton( "undo", undoCB, uiStrings::sUndo(), false );
+    toolbar_->setSensitive( undobut_, false );
+    redobut_ = mAddButton( "redo", redoCB, uiStrings::sRedo(), false );
+    toolbar_->setSensitive( redobut_, false );
 
     control_ = new uiWellDisplayControl( *d2tdisplay_ );
     control_->addDahDisplay( *driftdisplay_ );
-    control_->posChanged.notify( mCB(this,uiCheckShotEdit,setInfoMsg) );
-    control_->posChanged.notify( mCB(this,uiCheckShotEdit,mouseMovedCB) );
-    control_->mousePressed.notify( mCB(this,uiCheckShotEdit,mousePressedCB));
-    control_->mouseReleased.notify( mCB(this,uiCheckShotEdit,mouseReleasedCB));
+    mAttachCB( control_->posChanged, uiCheckShotEdit::setInfoMsg );
+    mAttachCB( control_->posChanged, uiCheckShotEdit::mouseMovedCB );
+    mAttachCB( control_->mousePressed, uiCheckShotEdit::mousePressedCB );
+    mAttachCB( control_->mouseReleased, uiCheckShotEdit::mouseReleasedCB );
 
     viewcorrd2t_ = new uiCheckBox( this, tr("View corrected Depth/Time model"));
     viewcorrd2t_->attach( alignedBelow, d2tdisplay_ );
     viewcorrd2t_->attach( ensureBelow, driftdisplay_ );
     viewcorrd2t_->setChecked( true );
 
-    uiLabeledComboBox* lbl = new uiLabeledComboBox( this,
+    auto* lbl = new uiLabeledComboBox( this,
 				    tr("Compute Depth/Time model from: ") );
     driftchoicefld_ = lbl->box();
     lbl->attach( ensureBelow, viewcorrd2t_ );
@@ -159,7 +150,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     CallBack applycb( mCB(this,uiCheckShotEdit,applyCB) );
     driftchoicefld_->selectionChanged.notify( applycb );
     viewcorrd2t_->activated.notify( applycb );
-    d2tdisplay_->reSize.notify( mCB(this,uiCheckShotEdit,reSizeCB) );
+    mAttachCB( d2tdisplay_->reSize, uiCheckShotEdit::reSizeCB );
 
     drawDrift();
     applyCB(0);
@@ -168,6 +159,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
 
 uiCheckShotEdit::~uiCheckShotEdit()
 {
+    detachAllNotifiers();
     delete control_;
     delete orgd2t_;
     delete orgcs_;
@@ -258,8 +250,8 @@ void uiCheckShotEdit::doInsertRemovePt()
 	}
 	undo_.addEvent( new DahObjUndoEvent(dah,val,newdriftcurve_,isadd) );
     }
-    undobut_->setSensitive( undo_.canUnDo() );
-    redobut_->setSensitive( undo_.canReDo() );
+    toolbar_->setSensitive( undobut_, undo_.canUnDo() );
+    toolbar_->setSensitive( redobut_, undo_.canReDo() );
     driftdisplay_->setToolTip(uiString::emptyString());
 
     applyCB(0);
@@ -279,15 +271,15 @@ void uiCheckShotEdit::editCSPushed( CallBacker* )
 
 void uiCheckShotEdit::editCB( CallBacker* )
 {
-    isedit_ = editbut_->isOn();
+    isedit_ = toolbar_->isOn( editbut_ );
 }
 
 
 void uiCheckShotEdit::undoCB( CallBacker* )
 {
     undo_.unDo(1,false);
-    undobut_->setSensitive( undo_.canUnDo() );
-    redobut_->setSensitive( undo_.canReDo() );
+    toolbar_->setSensitive( undobut_, undo_.canUnDo() );
+    toolbar_->setSensitive( redobut_, undo_.canReDo() );
     draw();
 }
 
@@ -295,8 +287,8 @@ void uiCheckShotEdit::undoCB( CallBacker* )
 void uiCheckShotEdit::redoCB( CallBacker* )
 {
     undo_.reDo(1,false);
-    undobut_->setSensitive( undo_.canUnDo() );
-    redobut_->setSensitive( undo_.canReDo() );
+    toolbar_->setSensitive( undobut_, undo_.canUnDo() );
+    toolbar_->setSensitive( redobut_, undo_.canReDo() );
     draw();
 }
 
@@ -403,7 +395,7 @@ void uiCheckShotEdit::drawPoints()
 void uiCheckShotEdit::applyCB( CallBacker* )
 {
     const bool isorgdrift = driftchoicefld_->currentItem() == 0;
-    editbut_->setSensitive( !isorgdrift );
+    toolbar_->setSensitive( editbut_, !isorgdrift );
     const DriftCurve& driftcurve = isorgdrift ? driftcurve_ : newdriftcurve_;
     Well::D2TModel tmpcs;
     *d2t_ = *orgd2t_;

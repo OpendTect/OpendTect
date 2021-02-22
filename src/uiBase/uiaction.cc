@@ -30,12 +30,9 @@ mUseQtnamespace
 
 static ObjectSet<uiAction> uiactionlist_;
 
-#define mInit toggled(this), \
-    triggered(this), \
-    msgr_(0),  \
-    parentcontainer_( 0 ),  \
-    cmdrecrefnr_( 0 ), \
-    menu_( 0 )
+#define mInit \
+    toggled(this), \
+    triggered(this)
 
 uiAction::uiAction( QAction* qact )
     : mInit
@@ -116,7 +113,7 @@ uiAction::~uiAction()
 	{
 	    pErrMsg("Wrong action");
 	}
-	menu_->setAction( 0 );
+	menu_->setAction( nullptr );
 	delete menu_;
     }
 
@@ -129,7 +126,7 @@ void uiAction::init( const uiString& txt )
 {
     mAttachCB( TrMgr().languageChange, uiAction::translateCB );
     text_ = txt;
-    qaction_ = new QAction( toQString(text_), 0 );
+    qaction_ = new QAction( toQString(text_), nullptr );
     msgr_ = new i_ActionMessenger( qaction_, this );
     uiactionlist_ += this;
 
@@ -390,7 +387,7 @@ bool uiActionContainer::isEmpty() const
 { return actions_.isEmpty(); }
 
 
-uiAction* uiActionContainer::findAction( int mnuid )
+const uiAction* uiActionContainer::findAction( int mnuid ) const
 {
     for ( int idx=0; idx<nrActions(); idx++ )
     {
@@ -399,19 +396,20 @@ uiAction* uiActionContainer::findAction( int mnuid )
 
 	if ( actions_[idx]->getMenu() )
 	{
-	    uiAction* mnuitm = actions_[idx]->getMenu()->findAction( mnuid );
+	    const uiAction* mnuitm =
+		   actions_[idx]->getMenu()->findAction( mnuid );
 	    if ( mnuitm ) return mnuitm;
 	}
     }
 
-    return 0;
+    return nullptr;
 }
 
 
-uiAction* uiActionContainer::findAction( const uiMenu* menu )
+const uiAction* uiActionContainer::findAction( const uiMenu* menu ) const
 {
     if ( !menu )
-	return 0;
+	return nullptr;
 
     for ( int idx=0; idx<nrActions(); idx++ )
     {
@@ -420,48 +418,50 @@ uiAction* uiActionContainer::findAction( const uiMenu* menu )
 
 	if ( actions_[idx]->getMenu() )
 	{
-	    uiAction* mnuitm = actions_[idx]->getMenu()->findAction( menu );
+	    const uiAction* mnuitm =
+		actions_[idx]->getMenu()->findAction( menu );
 	    if ( mnuitm ) return mnuitm;
 	}
     }
 
-    return 0;
+    return nullptr;
 }
 
 
-uiAction* uiActionContainer::findAction( const uiActionSeparString& str )
+const uiAction* uiActionContainer::findAction(
+			const uiActionSeparString& str ) const
 {
-    uiActionContainer* curcontainer = this;
+    const uiActionContainer* curcontainer = this;
     for ( int idx=0; idx<str.size(); idx++ )
     {
-	if ( !curcontainer ) return 0;
+	if ( !curcontainer ) return nullptr;
 
-	uiAction* itm = curcontainer->findAction( str[idx] );
-	if ( !itm ) return 0;
+	const uiAction* itm = curcontainer->findAction( str[idx] );
+	if ( !itm ) return nullptr;
 	if ( idx == str.size()-1 )
 	    return itm;
 
 	curcontainer = itm->getMenu();
     }
 
-    return 0;
+    return nullptr;
 }
 
 
-uiAction* uiActionContainer::findAction( const char* itmtxt )
+const uiAction* uiActionContainer::findAction( const char* itmtxt ) const
 {
     for ( int idx=0; idx<actions_.size(); idx++ )
     {
-	uiAction* itm = actions_[idx];
+	const uiAction* itm = actions_[idx];
 	if ( itm->text().getString().startsWith(itmtxt,CaseInsensitive) )
 	    return itm;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
-uiAction* uiActionContainer::findAction( const uiString& itmtxt )
+const uiAction* uiActionContainer::findAction( const uiString& itmtxt ) const
 {
     return findAction( itmtxt.getString() );
 }
@@ -538,7 +538,7 @@ int uiActionContainer::insertAction( uiAction* action, int id,
 
     if ( action->getMenu() )
     { //Sanity check
-	uiAction* prevaction = findAction( action->getMenu() );
+	const uiAction* prevaction = findAction( action->getMenu() );
 
 	if ( prevaction )
 	{
@@ -550,7 +550,7 @@ int uiActionContainer::insertAction( uiAction* action, int id,
     const int idx = before ? actions_.indexOf( before ) : -1;
     QAction* beforeaction = actions_.validIdx(idx)
 	? actions_[idx]->qaction()
-	: 0;
+	: nullptr;
 
     if ( action->getMenu() )
 	doInsertMenu( action->getMenu()->getQMenu(), beforeaction );
@@ -586,8 +586,8 @@ int uiActionContainer::insertAction( uiAction* action, int id,
 
 int uiActionContainer::insertItem( uiMenu* mnu )
 {
-    addMenu( mnu, 0 );
-    uiAction* menuaction = findAction( mnu );
+    addMenu( mnu, nullptr );
+    const uiAction* menuaction = findAction( mnu );
     return menuaction->getID();
 }
 
@@ -597,7 +597,7 @@ uiMenu* uiActionContainer::addMenu( uiMenu* mnu, const uiMenu* before )
     uiAction* submenuitem = new uiAction( mnu->text() );
     submenuitem->setMenu( mnu );
 
-    uiAction* beforeaction = 0;
+    uiAction* beforeaction = nullptr;
     if ( before )
     {
 	for ( int idx=0; idx<actions_.size(); idx++ )
@@ -617,7 +617,7 @@ uiMenu* uiActionContainer::addMenu( uiMenu* mnu, const uiMenu* before )
 
 uiAction* uiActionContainer::insertSeparator()
 {
-    uiAction* action = new uiAction( uiString() );
+    auto* action = new uiAction( uiString() );
     action->setSeparator( true );
     insertAction( action );
     return action;

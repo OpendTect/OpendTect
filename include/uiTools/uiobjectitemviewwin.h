@@ -147,6 +147,7 @@ mExpClass(uiTools) uiObjectItemViewControl : public uiGroup
 { mODTextTranslationClass(uiObjectItemViewControl);
 public :
 			uiObjectItemViewControl(uiObjectItemView&);
+    virtual		~uiObjectItemViewControl();
 
     virtual uiToolBar*	toolBar() { return toolbar_;}
 
@@ -157,7 +158,7 @@ protected:
 
     uiObjectItemView&	mainviewer_;
     uiToolBar*          toolbar_;
-    uiToolButton*	manipdrawbut_;
+    int			manipdrawbutid_;
     MouseCursor		cursor_;
 
     void		setToolButtons();

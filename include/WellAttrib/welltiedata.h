@@ -84,7 +84,7 @@ public:
     Color		color_;
     float		zpos_;
     BufferString	name_;
-    int			id_;
+    int			id_ = -1;
     int			size_;
 
     bool		operator == ( const Marker& m ) const
@@ -146,7 +146,7 @@ public :
 	TypeSet<float>		vals_;
 	int			lag_;
 	double			coeff_;
-	float			scaler_;
+	float			scaler_ = 1.f;
     };
     CorrelData			correl_;
 

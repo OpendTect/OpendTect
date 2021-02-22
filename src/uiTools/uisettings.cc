@@ -107,17 +107,17 @@ void uiSettingsMgr::loadToolBarCmds( uiMainWin& applwin )
     if ( !usercmdmnu_ )
     {
 	uiMenuBar* mb = applwin.menuBar();
-	uiMenu* utilmnu =
+	const uiMenu* utilmnu =
 	    mb ? mb->findAction( uiStrings::sUtilities())->getMenu() : nullptr;
-	uiAction* usercmdact =
+	const uiAction* usercmdact =
 	    utilmnu ? utilmnu->findAction( tr("User Commands") ) : nullptr;
 	if ( usercmdact )
-	    usercmdmnu_ = usercmdact->getMenu();
+	    usercmdmnu_ = const_cast<uiMenu*>( usercmdact->getMenu() );
 	if ( utilmnu && !usercmdmnu_ )
 	{
 	    usercmdmnu_ = new uiMenu( &applwin, tr("User Commands") );
-	    utilmnu->addMenu( usercmdmnu_, utilmnu->findAction(
-					    tr("Installation"))->getMenu() );
+	    const_cast<uiMenu*>( utilmnu )->addMenu( usercmdmnu_,
+		    utilmnu->findAction( tr("Installation"))->getMenu() );
 	}
     }
     updateUserCmdToolBar();

@@ -111,7 +111,7 @@ protected:
     ObjectSet<CallBack> activatecbs_;
     int			nractivated_;
 
-    int			eventrefnr_;
+    int			eventrefnr_ = -1;
 
     uiStatusBar*	statusbar_;
     uiMenuBar*		menubar_;

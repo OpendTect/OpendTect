@@ -116,16 +116,16 @@ protected:
 
 private:
 
-    uiMenu*			menu_;
+    uiMenu*			menu_ = nullptr;
 
     BufferString		iconfile_;
-    const uiActionContainer*	parentcontainer_;
-    i_ActionMessenger*		msgr_;
+    const uiActionContainer*	parentcontainer_ = nullptr;
+    i_ActionMessenger*		msgr_ = nullptr;
     mQtclass(QAction*)		qaction_;
 
     bool			checked_;
 
-    int				cmdrecrefnr_;
+    int				cmdrecrefnr_ = 0;
 
     void			init(const uiString&);
 
@@ -158,13 +158,13 @@ public:
     const ObjectSet<uiAction>&	actions() const;
     bool			isEmpty() const;
 
-    uiAction*			findAction(const uiActionSeparString&);
-    uiAction*			findAction(const char* itmtxt);
-    uiAction*			findAction(const uiString& itmtxt);
+    const uiAction*		findAction(const uiActionSeparString&) const;
+    const uiAction*		findAction(const char* itmtxt) const;
+    const uiAction*		findAction(const uiString& itmtxt) const;
 				//!<The full string of the text will be used
-    uiAction*			findAction(int id);
-    uiAction*			findAction(const uiMenu*);
-    uiAction*			findAction( const FixedString& fs )
+    const uiAction*		findAction(int id) const;
+    const uiAction*		findAction(const uiMenu*) const;
+    const uiAction*		findAction( const FixedString& fs ) const
 					{ return findAction(fs.str()); }
     int				getID(const uiAction*) const;
     int				getID(const mQtclass(QAction)*) const;

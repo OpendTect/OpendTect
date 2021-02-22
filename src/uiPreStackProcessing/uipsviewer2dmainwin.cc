@@ -1437,10 +1437,8 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 
 
 
-#define mDefBut(but,fnm,cbnm,tt) \
-uiToolButton* but = \
-new uiToolButton( tb_, fnm, tt, mCB(this,uiViewer2DControl,cbnm) ); \
-    tb_->addButton( but );
+#define mDefBut(fnm,cbnm,tt) \
+    tb_->addButton( fnm, tt, mCB(this,uiViewer2DControl,cbnm) );
 
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
 				      bool isstored )
@@ -1462,10 +1460,10 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
     objectitemctrl_ = new uiObjectItemViewControl( mw );
     tb_ = objectitemctrl_->toolBar();
 
-    mDefBut(posbut,"orientation64",gatherPosCB,tr("Set positions"));
-    mDefBut(databut,"gatherdisplaysettings64",gatherDataCB,
+    mDefBut("orientation64",gatherPosCB,tr("Set positions"));
+    mDefBut("gatherdisplaysettings64",gatherDataCB,
 	    tr("Set gather data"));
-    mDefBut(parsbut,"2ddisppars",propertiesDlgCB,
+    mDefBut("2ddisppars",propertiesDlgCB,
 	    tr("Set seismic display properties"));
     ctabsel_ = new uiColorTableSel( tb_, "Select Color Table" );
     ctabsel_->selectionChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
@@ -1473,6 +1471,13 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
     ctabsel_->setCurrent( dispPars().vd_.ctab_ );
     tb_->addObject( ctabsel_ );
     tb_->addSeparator();
+}
+
+
+uiViewer2DControl::~uiViewer2DControl()
+{
+    detachAllNotifiers();
+    delete pspropdlg_;
 }
 
 
@@ -1621,12 +1626,5 @@ void uiViewer2DControl::setGatherInfos( const TypeSet<GatherInfo>& gis )
 	tooltipstr = uiString::emptyString();
     ctabsel_->setToolTip( tooltipstr );
 }
-
-
-uiViewer2DControl::~uiViewer2DControl()
-{
-    delete pspropdlg_;
-}
-
 
 }; //namespace

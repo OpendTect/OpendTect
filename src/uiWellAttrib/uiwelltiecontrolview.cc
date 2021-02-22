@@ -39,21 +39,21 @@ namespace WellTie
 
 #define mErrRet(msg,act) \
 { uiMSG().error(msg); act; }
-#define mDefBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton( toolbar_, fnm, tt, mCB(this,uiControlView,cbnm) ); \
-    toolbar_->addButton( but );
+
+#define cb(fnm) mCB(this,uiControlView,fnm)
+
+#define mDefBut(fnm,cbnm,tt,istoggle) \
+    toolbar_->addButton( fnm, tt, cb(cbnm), istoggle );
 
 uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 				uiFlatViewer* vwr, Server& server )
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
 			         .withcoltabed(false).withsnapshot(false))
     , toolbar_(tb)
-    , selhordlg_(0)
     , curview_(uiWorldRect(0,0,0,0))
     , server_(server)
     , redrawNeeded(this)
     , redrawAnnotNeeded(this)
-    , mrkrdlg_(0)
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     if ( mw )
@@ -61,20 +61,20 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
     else
 	tb_->display(false);
     toolbar_->addSeparator();
-    mDefBut(parsbut_,"2ddisppars",parsCB,tr("Set display parameters"));
-    mDefBut(rubbandzoombut_,"rubbandzoom",dragModeCB,tr("Rubberband zoom"));
-    mDefBut(vertzoominbut_,"vertzoomin",zoomCB,tr("Vertical zoom in"));
-    mDefBut(vertzoomoutbut_,"vertzoomout",zoomCB,tr("Vertical zoom out"));
-    mDefBut(cancelzoombut_,"cancelzoom",cancelZoomCB,tr("Cancel zoom"));
-    mDefBut(editbut_,"seedpickmode",dragModeCB,tr("Pick mode (P)"));
 
-    toolbar_->addSeparator();
-    mDefBut(horbut_,"loadhoronseis",loadHorizons,tr("Load Horizon(s)"));
-    mDefBut(hormrkdispbut_,"drawhoronseis",dispHorMrks,
-	    tr("Marker display properties"));
-    rubbandzoombut_->setToggleButton( true );
-    editbut_->setToggleButton( true );
-    toolbar_->addSeparator();
+    parsbut_ = mDefBut("2ddisppars",parsCB,tr("Set display parameters"),false);
+    rubbandzoombut_ = mDefBut("rubbandzoom",dragModeCB,tr("Rubberband zoom"), true );
+    vertzoominbut_ = mDefBut("vertzoomin",zoomCB,tr("Vertical zoom in"), false );
+    vertzoomoutbut_ = mDefBut("vertzoomout",zoomCB,tr("Vertical zoom out"), false );
+    cancelzoombut_ = mDefBut("cancelzoom",cancelZoomCB,tr("Cancel zoom"), false );
+    editbut_ = mDefBut("seedpickmode",dragModeCB,tr("Pick mode (P)"), true );
+
+    tb->addSeparator();
+    horbut_ = mDefBut("loadhoronseis",loadHorizons,tr("Load Horizon(s)"), false );
+    hormrkdispbut_ = mDefBut("drawhoronseis",dispHorMrks,
+		    tr("Marker display properties"), false );
+    tb->addSeparator();
+
     mAttachCB( vwr_.viewChanged, uiControlView::viewChangedCB );
 }
 
@@ -83,8 +83,9 @@ bool uiControlView::handleUserClick( int vwridx )
 {
     const MouseEvent& ev = mouseEventHandler(vwridx,true).event();
     const uiWorldPoint wp = vwr_.getWorld2Ui().transform( ev.pos() );
-    if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus()
-	&& !ev.altStatus() && editbut_->isOn() && checkIfInside(wp.x,wp.y) )
+    if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
+	!ev.altStatus() && editToolBar()->isOn( editbut_ ) &&
+	checkIfInside(wp.x,wp.y) )
     {
 	vwr_.getAuxInfo( wp, infopars_ );
 	const uiWorldRect& bbox = vwr_.boundingBox();
@@ -131,7 +132,9 @@ void uiControlView::wheelMoveCB( CallBacker* )
     if ( mIsZero(ev.angle(),0.01) )
 	return;
 
-    zoomCB( ev.angle() < 0 ? vertzoominbut_ : vertzoomoutbut_ );
+    const int actid = ev.angle() < 0 ? vertzoominbut_ : vertzoomoutbut_;
+
+    zoomCB( const_cast<uiAction*>(toolBar()->findAction(actid)) );
 }
 
 
@@ -140,7 +143,7 @@ void uiControlView::keyPressCB( CallBacker* )
     const KeyboardEvent& ev =
 	vwr_.rgbCanvas().getKeyboardEventHandler().event();
     if ( ev.key_ == OD::KB_P )
-	setEditMode( !editbut_->isOn() );
+	setEditMode( !editToolBar()->isOn(editbut_) );
 }
 
 

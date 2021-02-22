@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiMenuHandler;
-class uiToolButton;
 class uiFlatViewColTabEd;
 class uiGenInput;
 class uiToolBar;
@@ -100,9 +99,10 @@ public:
     };
 
 			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
-			~uiFlatViewStdControl();
+    virtual		~uiFlatViewStdControl();
+
     virtual uiToolBar*	toolBar()		{ return tb_; }
-    uiToolBar*		editToolBar()		{ return edittb_; }
+    virtual uiToolBar*	editToolBar()		{ return edittb_; }
     virtual uiFlatViewColTabEd* colTabEd()	{ return ctabed_; }
     void		setEditMode(bool yn);
     float		getCurrentPosPerCM(bool forx1) const;
@@ -124,23 +124,23 @@ protected:
     float		defx2pospercm_;
 
     uiToolBar*		tb_;
-    uiToolBar*		edittb_;
-    uiToolButton*	rubbandzoombut_;
-    uiToolButton*	zoominbut_;
-    uiToolButton*	zoomoutbut_;
-    uiToolButton*	vertzoominbut_;
-    uiToolButton*	vertzoomoutbut_;
-    uiToolButton*	cancelzoombut_;
-    uiToolButton*	sethomezoombut_;
-    uiToolButton*	gotohomezoombut_;
-    uiToolButton*	scalebarbut_;
-    uiToolButton*	coltabbut_;
-    uiToolButton*	fittoscrnbut_;
-    uiToolButton*	parsbut_;
-    uiToolButton*	editbut_;
+    uiToolBar*		edittb_ = nullptr;
+    int			rubbandzoombut_ = -1;
+    int			zoominbut_ = -1;
+    int			zoomoutbut_ = -1;
+    int			vertzoominbut_ = -1;
+    int			vertzoomoutbut_ = -1;
+    int			cancelzoombut_ = -1;
+    int			sethomezoombut_ = -1;
+    int			gotohomezoombut_ = -1;
+    int			scalebarbut_ = -1;
+    int			coltabbut_ = -1;
+    int			fittoscrnbut_ = -1;
+    int			parsbut_ = -1;
+    int			editbut_ = -1;
 
     uiFlatViewer&	vwr_;
-    uiFlatViewColTabEd* ctabed_;
+    uiFlatViewColTabEd* ctabed_ = nullptr;
 
     const Setup		setup_;
 

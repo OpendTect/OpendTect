@@ -144,33 +144,37 @@ uiString uiToolBar::getDispNm() const
     return label_;
 }
 
-
-#define mGetAction( conststatement, erraction ) \
-    conststatement uiAction* action = \
-			const_cast<uiToolBar*>(this)->findAction( id ); \
+#define mHandleErr(erraction) \
     if ( !action ) \
     { \
-	pErrMsg("Action not found"); \
+    	pErrMsg("Action not found"); \
 	erraction; \
     }
 
+#define mGetConstAction( erraction ) \
+    const uiAction* action = findAction( id );\
+    mHandleErr(erraction)
+
+#define mGetAction( erraction ) \
+    uiAction* action = const_cast<uiAction*>( findAction(id) ); \
+    mHandleErr(erraction)
 
 void uiToolBar::turnOn( int id, bool yn )
 {
-    mGetAction( ,return );
+    mGetAction( return );
     action->setChecked( yn );
 }
 
 bool uiToolBar::isOn( int id ) const
 {
-    mGetAction( const, return false );
+    mGetConstAction( return false );
     return action->isChecked();
 }
 
 
 void uiToolBar::setSensitive( int id, bool yn )
 {
-    mGetAction( , return );
+    mGetAction( return );
 
     action->setEnabled( yn );
 }
@@ -187,34 +191,34 @@ bool uiToolBar::isSensitive() const
 
 void uiToolBar::setToolTip( int id, const uiString& tip )
 {
-    mGetAction( , return );
+    mGetAction( return );
     action->setToolTip( tip );
 }
 
 void uiToolBar::setShortcut( int id, const char* sc )
 {
-    mGetAction( , return );
+    mGetAction( return );
     action->setShortcut( sc );
 }
 
 
 void uiToolBar::setToggle( int id, bool yn )
 {
-    mGetAction( , return );
+    mGetAction( return );
     action->setCheckable( yn );
 }
 
 
 void uiToolBar::setIcon( int id, const char* fnm )
 {
-    mGetAction( , return );
+    mGetAction( return );
     action->setIcon( fnm );
 }
 
 
 void uiToolBar::setIcon( int id, const uiIcon& icon )
 {
-    mGetAction( , return );
+    mGetAction( return );
     action->setIcon( icon );
 }
 
@@ -222,7 +226,7 @@ void uiToolBar::setIcon( int id, const uiIcon& icon )
 void uiToolBar::setButtonMenu( int id, uiMenu* mnu,
 			       uiToolButton::PopupMode mode )
 {
-    mGetAction( , return );
+    mGetAction( return );
     action->setMenu( mnu );
     QWidget* qw = qtoolbar_->widgetForAction( action->qaction() );
     mDynamicCastGet(QToolButton*,qtb,qw)

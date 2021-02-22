@@ -115,7 +115,7 @@ protected:
 
     QMouseEvent*	lostreleasefixevent_;
     bool		islostreleasefixed_;
-    Qt::MouseButton	mousebutton_;
+    Qt::MouseButton	mousebutton_ = Qt::NoButton;
 
     Geom::Point2D<int>		lastdragpos_;
 };

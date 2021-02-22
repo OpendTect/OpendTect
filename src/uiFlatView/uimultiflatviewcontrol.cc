@@ -194,18 +194,17 @@ void uiMultiFlatViewControl::setNewView( Geom::Point2D<double> mousepos,
 
 void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 {
-    const int ivwr = vwrs_.size()-1;
-    uiFlatViewer& vwr = *vwrs_[ivwr];
+    uiFlatViewer& vwr = *vwrs_.last();
     MouseEventHandler& mevh = vwr.rgbCanvas().getNavigationMouseEventHandler();
     mAttachCB( mevh.wheelMove, uiMultiFlatViewControl::wheelMoveCB );
 
-    toolbars_ += new uiToolBar(mainwin(),tr("Flat Viewer Tools"),
+    
+    auto* toolbar = new uiToolBar(mainwin(),tr("Flat Viewer Tools"),
 			       tb_->prefArea());
-
-    parsbuts_ += new uiToolButton( toolbars_[ivwr],"2ddisppars",
-				   tr("Set display parameters"),
-				   mCB(this,uiMultiFlatViewControl,parsCB) );
-    toolbars_[ivwr]->addButton( parsbuts_[ivwr] );
+    toolbars_ += toolbar;
+    parsbuts_ += toolbar->addButton( "2ddisppars",
+			tr( "Set display parameters" ),
+			mCB(this,uiMultiFlatViewControl,parsCB) );
 
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
@@ -257,17 +256,25 @@ void uiMultiFlatViewControl::wheelMoveCB( CallBacker* cb )
 }
 
 
-void uiMultiFlatViewControl::zoomCB( CallBacker* but )
+void uiMultiFlatViewControl::zoomCB( CallBacker* cb )
 {
+    mDynamicCastGet(uiAction*,uiact,cb);
+    if ( !uiact ) return;
+
     const MouseEventHandler& meh =
 	activevwr_->rgbCanvas().getNavigationMouseEventHandler();
-    const bool zoomin = but==zoominbut_ || but==vertzoominbut_;
-    const int vwridx = vwrs_.indexOf(activevwr_);
+    const int actid = uiact->getID();
+    const bool zoomin = actid == zoominbut_ || actid == vertzoominbut_;
+    const int vwridx = vwrs_.indexOf( activevwr_ );
     if ( !zoomin && !meh.hasEvent() && zoommgr_.atStart(vwridx) )
-	for ( int idx=0; idx<vwrs_.size(); idx++ )
-	    if ( !zoommgr_.atStart(idx) ) { activevwr_ = vwrs_[idx]; break; }
+	for ( int idx = 0; idx < vwrs_.size(); idx++ )
+	    if ( !zoommgr_.atStart( idx ) )
+	    {
+		activevwr_ = vwrs_[idx];
+		break;
+	    }
 
-    const bool onlyvertzoom = but==vertzoominbut_ || but==vertzoomoutbut_;
+    const bool onlyvertzoom = actid == vertzoominbut_ || actid == vertzoomoutbut_;
     doZoom( zoomin, onlyvertzoom, *activevwr_ );
 }
 
@@ -340,10 +347,20 @@ bool uiMultiFlatViewControl::handleUserClick( int vwridx )
 
 void uiMultiFlatViewControl::parsCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiToolButton*,but,cb);
-    const int idx = parsbuts_.indexOf( but );
-    if ( idx >= 0 )
+    mDynamicCastGet(uiAction*,uiact,cb);
+    if ( !uiact ) return;
+
+    for ( int idx=0; idx<toolbars_.size(); idx++ )
+    {
+	const uiToolBar* toolbar = toolbars_[idx];
+	if ( !toolbar->actions().isPresent(uiact) ||
+	     !parsbuts_.validIdx(idx) )
+	    continue;
+
+	const int actid = toolbar->getID( uiact );
 	doPropertiesDialog( idx );
+	return;
+    }
 }
 
 
@@ -385,8 +402,15 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 }
 
 
-uiToolButton* uiMultiFlatViewControl::parsButton( const uiFlatViewer* vwr )
+void uiMultiFlatViewControl::setParsButToolTip( const uiFlatViewer& vwr,
+			const uiString& tt )
 {
-    const int vwridx = vwrs_.indexOf( vwr );
-    return vwridx >=0 && parsbuts_.validIdx(vwridx) ? parsbuts_[ vwridx ] : 0;
+    if ( !vwrs_.isPresent(&vwr) )
+	return;
+
+    const int vwridx = vwrs_.indexOf( &vwr );
+    if ( !toolbars_.validIdx(vwridx) || !parsbuts_.validIdx(vwridx) )
+	return;
+
+    toolbars_.get( vwridx )->setToolTip( parsbuts_[vwridx], tt );
 }

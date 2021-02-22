@@ -24,7 +24,6 @@ class uiCheckBox;
 class uiComboBox;
 class uiPolyLineItem;
 class uiToolBar;
-class uiToolButton;
 class uiWellDisplayControl;
 
 namespace WellTie
@@ -82,19 +81,19 @@ protected:
     Well::D2TModel*		d2t_;
     Well::D2TModel*		orgd2t_;
     Well::D2TModel*		tkzs_;
-    Well::D2TModel*		orgcs_;
+    Well::D2TModel*		orgcs_ = nullptr;
     DriftCurve			driftcurve_;
     DriftCurve			newdriftcurve_;
 
     uiToolBar*			toolbar_;
-    uiToolButton*		editbut_;
-    uiToolButton*		undobut_;
-    uiToolButton*		redobut_;
+    int				editbut_;
+    int				undobut_;
+    int				redobut_;
     uiCheckBox*			viewcorrd2t_;
 
     uiComboBox*			driftchoicefld_;
 
-    bool			isedit_;
+    bool			isedit_ = false;
 
     uiWellDahDisplay*		d2tdisplay_;
     uiWellDahDisplay*		driftdisplay_;
@@ -102,7 +101,7 @@ protected:
     uiPolyLineItem*		d2tlineitm_;
 
     Undo			undo_;
-    int				movingpointidx_;
+    int				movingpointidx_ = -1;
 
     void			draw();
     void			drawDahObj(const Well::DahObj* d,bool,bool);

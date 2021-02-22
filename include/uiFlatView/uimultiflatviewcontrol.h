@@ -65,12 +65,12 @@ public:
     void		setFlattened( bool flattened )
 			{ viewmgr_.setFlattened( flattened ); }
 
-    uiToolButton*	parsButton(const uiFlatViewer*);
+    void		setParsButToolTip(const uiFlatViewer&,const uiString&);
 
 protected:
 
     ObjectSet<uiToolBar> toolbars_;
-    ObjectSet<uiToolButton> parsbuts_;
+    TypeSet<int> parsbuts_;
     ObjectSet<FlatView::AuxData> zoomboxes_;
     MFVCViewManager	viewmgr_;
 
@@ -87,8 +87,7 @@ protected:
     void		setZoomAreasCB(CallBacker*);
     void		setZoomBoxesCB(CallBacker*);
     void		vwrAdded(CallBacker*);
-    void		zoomCB(CallBacker*);
+    void		zoomCB(CallBacker*) override;
     void		wheelMoveCB(CallBacker*);
     void		pinchZoomCB(CallBacker*);
 };
-

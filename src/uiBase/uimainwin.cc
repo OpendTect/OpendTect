@@ -766,10 +766,10 @@ void shootImageCB( CallBacker* )
     timer_.stop();
 }
 
-    int		width_;
-    int		height_;
-    int		res_;
-    bool	copytoclipboard_;
+    int		width_ = 0;
+    int		height_ = 0;
+    int		res_ = -1;
+    bool	copytoclipboard_ = false;
     QString	fname_;
     WId		qwinid_;
     Timer	timer_;

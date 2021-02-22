@@ -440,17 +440,9 @@ void uiObjectItemViewInfoBar::reSizeItems()
 
 
 
-
-#define mDefBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton(toolbar_,fnm,tt, \
-    mCB(this,uiObjectItemViewControl,cbnm) ); \
-    toolbar_->addButton( but );
-
 uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
     : uiGroup(mw.parent(),"ObjectItemView control")
     , mainviewer_(mw)
-    , manipdrawbut_(0)
-    , toolbar_(0)
 {
     uiToolBar::ToolBarArea tba( uiToolBar::Top );
     toolbar_ = new uiToolBar( mw.parent(), uiStrings::phrJoinStrings(
@@ -466,17 +458,24 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
 }
 
 
+uiObjectItemViewControl::~uiObjectItemViewControl()
+{
+    detachAllNotifiers();
+}
+
+
 void uiObjectItemViewControl::setToolButtons()
 {
-    mDefBut(manipdrawbut_,"rubbandzoom",stateCB,tr("Switch view mode (Esc)"));
-    manipdrawbut_->setToggleButton( true );
+    const CallBack cb( mCB( this, uiObjectItemViewControl, stateCB ) );
+    toolbar_->addButton( "rubbandzoom",
+		tr( "Switch view mode (Esc)" ), cb, true );
 }
 
 
 void uiObjectItemViewControl::keyPressedCB( CallBacker* )
 {
     if ( mainviewer_.getKeyboardEventHandler().event().key_ == OD::KB_Escape )
-	setRubberBandingOn( !manipdrawbut_->isOn() );
+	setRubberBandingOn( !toolbar_->isOn(manipdrawbutid_) );
 }
 
 
@@ -488,14 +487,14 @@ void uiObjectItemViewControl::stateCB( CallBacker* )
 
 void uiObjectItemViewControl::setRubberBandingOn( bool yn )
 {
-    manipdrawbut_->setOn( yn );
+    toolbar_->turnOn( manipdrawbutid_, yn );
     changeStatus();
 }
 
 
 void uiObjectItemViewControl::changeStatus()
 {
-    const bool isrubband = manipdrawbut_->isOn();
+    const bool isrubband = toolbar_->isOn( manipdrawbutid_ );
     uiGraphicsViewBase::ODDragMode mode = isrubband ?
 	uiGraphicsViewBase::RubberBandDrag : uiGraphicsViewBase::NoDrag;
     mainviewer_.setDragMode( mode );

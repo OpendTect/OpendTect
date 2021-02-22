@@ -32,15 +32,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "texttranslator.h"
 
-#define mDefBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
-    tb_->addButton( but );
-
-#define mEditDefBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton(edittb_,fnm,tt,\
-			   mCB(this,uiFlatViewStdControl,cbnm) ); \
-    edittb_->addButton( but );
-
 #define sLocalHZIdx	0
 #define sGlobalHZIdx	1
 #define sManHZIdx	2
@@ -119,28 +110,22 @@ bool uiFlatViewZoomLevelDlg::acceptOK( CallBacker* )
 }
 
 
+#define cb(fnm) mCB(this,uiFlatViewStdControl,fnm)
+
+#define mDefBut(fnm,cb,tt,istoggle) \
+    tb->addButton(fnm,tt,cb,istoggle);
+
 // uiFlatViewStdControl
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
     : uiFlatViewControl(vwr,setup.parent_,setup.withrubber_)
     , vwr_(vwr)
     , setup_(setup)
-    , ctabed_(0)
-    , edittb_(0)
     , mousepressed_(false)
     , menu_(*new uiMenuHandler(0,-1))
     , propertiesmnuitem_(m3Dots(tr("Properties")),100)
     , defx1pospercm_(mUdf(float))
     , defx2pospercm_(mUdf(float))
-    , editbut_(0)
-    , rubbandzoombut_(0)
-    , zoominbut_(0)
-    , zoomoutbut_(0)
-    , vertzoominbut_(0)
-    , vertzoomoutbut_(0)
-    , cancelzoombut_(0)
-    , sethomezoombut_(0)
-    , gotohomezoombut_(0)
 {
     if ( setup_.withfixedaspectratio_ )
 	getGlobalZoomLevel( defx1pospercm_, defx2pospercm_, setup.isvertical_ );
@@ -151,57 +136,62 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	tba = (uiToolBar::ToolBarArea)setup.tba_;
     tb_ = new uiToolBar( mainwin(), tr("Flat Viewer Tools"), tba );
 
+    uiToolBar* tb = tb_;
     if ( setup.withzoombut_ || setup.isvertical_ )
     {
-	mDefBut(rubbandzoombut_,"rubbandzoom",dragModeCB,tr("Rubberband zoom"))
-	rubbandzoombut_->setToggleButton( true );
+	rubbandzoombut_ = mDefBut("rubbandzoom",cb(dragModeCB),
+				    tr( "Rubberband zoom" ), true )
     }
 
     if ( setup.withzoombut_ )
     {
-	mDefBut(zoominbut_,"zoomforward",zoomCB,tr("Zoom in"))
-	mDefBut(zoomoutbut_,"zoombackward",zoomCB,tr("Zoom out"))
+	zoominbut_ = mDefBut("zoomforward",cb(zoomCB),
+			tr("Zoom in"),false)
+	zoomoutbut_ = mDefBut("zoombackward",cb(zoomCB),
+			tr("Zoom out"),false)
     }
 
     if ( setup.isvertical_ )
     {
-	mDefBut(vertzoominbut_,"vertzoomin",zoomCB,tr("Vertical zoom in"))
-	mDefBut(vertzoomoutbut_,"vertzoomout",zoomCB,tr("Vertical zoom out"))
+	vertzoominbut_ = mDefBut("vertzoomin",cb(zoomCB),
+			tr("Vertical zoom in"),false)
+	vertzoomoutbut_ = mDefBut("vertzoomout",cb(zoomCB),
+			tr("Vertical zoom out"),false)
     }
 
     if ( setup.withzoombut_ || setup.isvertical_ )
     {
-	mDefBut(cancelzoombut_,"cancelzoom",cancelZoomCB,tr("Cancel zoom"))
+	cancelzoombut_ = mDefBut("cancelzoom",cb(cancelZoomCB),
+			    tr("Cancel zoom"),false)
 	if ( setup.withfixedaspectratio_ )
 	{
-	    mDefBut(fittoscrnbut_,"exttofullsurv",fitToScreenCB,
-		    tr("Fit to screen"))
+	    fittoscrnbut_ = mDefBut("exttofullsurv",cb(fitToScreenCB),
+				tr("Fit to screen"),false)
 	}
     }
 
     if ( setup.withhomebutton_ )
     {
-	mDefBut(sethomezoombut_,"set_homezoom",homeZoomOptSelCB,
-		tr("Set home zoom"))
-	const CallBack optcb = mCB(this,uiFlatViewStdControl,homeZoomOptSelCB);
-	uiMenu* mnu = new uiMenu( tb_, tr("Zoom level options") );
+	sethomezoombut_ = mDefBut("set_homezoom",cb(homeZoomOptSelCB),
+					tr("Set home zoom"),false)
+	const CallBack optcb = cb(homeZoomOptSelCB);
+	auto* mnu = new uiMenu( tb_, tr("Zoom level options") );
 	mnu->insertAction( new uiAction(tr("Set local home zoom"),
 					   optcb,"set_homezoom"), sLocalHZIdx );
 	mnu->insertAction( new uiAction(tr("Set global home zoom"),
 					optcb,"set_ghomezoom"), sGlobalHZIdx );
 	mnu->insertAction( new uiAction(tr("Manually set home zoom"),
 					optcb,"man_homezoom"), sManHZIdx );
-	sethomezoombut_->setMenu( mnu, uiToolButton::InstantPopup );
-	mDefBut(gotohomezoombut_,"homezoom",gotoHomeZoomCB,
-		tr("Go to home zoom"))
-	gotohomezoombut_->setSensitive( !mIsUdf(defx1pospercm_) &&
-					!mIsUdf(defx2pospercm_) );
+	tb_->setButtonMenu( sethomezoombut_, mnu, uiToolButton::InstantPopup );
+	gotohomezoombut_ = mDefBut("homezoom",cb(gotoHomeZoomCB),
+		tr("Go to home zoom"), false )
+	tb_->setSensitive( gotohomezoombut_, !mIsUdf(defx1pospercm_) &&
+					     !mIsUdf(defx2pospercm_) );
     }
 
     if ( setup.withflip_ )
     {
-	uiToolButton* mDefBut(fliplrbut,"flip_lr",flipCB,
-			      uiStrings::sFlipLeftRight())
+	mDefBut("flip_lr",cb(flipCB),uiStrings::sFlipLeftRight(),false)
     }
 
     if ( setup.withsnapshot_ )
@@ -213,20 +203,21 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withscalebarbut_ )
     {
-	mDefBut(scalebarbut_,"scale",displayScaleBarCB,tr("Display Scale Bar"))
-	scalebarbut_->setToggleButton();
+	scalebarbut_ = mDefBut("scale",cb(displayScaleBarCB),
+			tr("Display Scale Bar"),true)
     }
 
 #ifdef __debug__
     if ( setup.withcoltabinview_ )
     {
-	mDefBut(coltabbut_,"colorbar",displayColTabCB,tr("Display Color Bar"))
-	coltabbut_->setToggleButton();
+	coltabbut_ = mDefBut("colorbar",cb(displayColTabCB),
+			tr("Display Color Bar"),true)
     }
 #endif
 
     tb_->addSeparator();
-    mDefBut(parsbut_,"2ddisppars",parsCB,tr("Set Display Parameters"));
+    parsbut_ = mDefBut("2ddisppars",cb(parsCB),
+			tr("Set Display Parameters"),false);
 
     if ( setup.withcoltabed_ )
     {
@@ -242,16 +233,17 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( !setup.helpkey_.isEmpty() )
     {
-	uiToolButton* mDefBut(helpbut,"contexthelp",helpCB,uiStrings::sHelp());
+	mDefBut("contexthelp",cb(helpCB),uiStrings::sHelp(),false);
 	helpkey_ = setup.helpkey_;
     }
 
     if ( setup.withedit_ )
     {
 	edittb_ = new uiToolBar( mainwin(), tr("Edit Tools") );
-	mEditDefBut(editbut_,"seedpickmode",editModeCB,tr("Edit mode"));
-	editbut_->setToggleButton( true );
-	editbut_->setShortcut( "space" );
+	tb = edittb_;
+	editbut_ = mDefBut("seedpickmode",cb(editModeCB),
+			    tr("Edit mode"), true );
+	tb_->setShortcut( editbut_, "space" );
     }
 
     menu_.ref();
@@ -265,7 +257,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 uiFlatViewStdControl::~uiFlatViewStdControl()
 {
     detachAllNotifiers();
-    deleteAndZeroPtr( ctabed_ );
+    delete ctabed_;
     menu_.unRef();
     MouseCursorManager::restoreOverride();
 }
@@ -308,19 +300,25 @@ void uiFlatViewStdControl::finalPrepare()
 void uiFlatViewStdControl::clearToolBar()
 {
     delete mainwin()->removeToolBar( tb_ );
-    tb_ = 0;
-    zoominbut_ = zoomoutbut_ = rubbandzoombut_ = parsbut_ = editbut_ = 0;
-    vertzoominbut_ = vertzoomoutbut_ = cancelzoombut_ = 0;
+    zoominbut_ = zoomoutbut_ = rubbandzoombut_ = parsbut_ = editbut_ = -1;
+    vertzoominbut_ = vertzoomoutbut_ = cancelzoombut_ = -1;
+    tb_ = nullptr;
 }
 
 
 void uiFlatViewStdControl::updatePosButtonStates()
 {
-    if ( setup_.withfixedaspectratio_ ) return;
+    uiToolBar* tb = toolBar();
+    if ( !tb || setup_.withfixedaspectratio_ )
+	return;
+
     const bool yn = !zoommgr_.atStart();
-    if ( zoomoutbut_ ) zoomoutbut_->setSensitive( yn );
-    if ( vertzoomoutbut_ ) vertzoomoutbut_->setSensitive( yn );
-    if ( cancelzoombut_ ) cancelzoombut_->setSensitive( yn );
+    if ( tb->findAction( zoomoutbut_ ) )
+	tb->setSensitive( zoomoutbut_, yn );
+    if ( tb->findAction(vertzoomoutbut_) )
+	tb->setSensitive( vertzoomoutbut_, yn );
+    if ( tb->findAction(cancelzoombut_) )
+	tb->setSensitive( cancelzoombut_, yn );
 }
 
 
@@ -338,10 +336,12 @@ void uiFlatViewStdControl::zoomChgCB( CallBacker* )
 
 void uiFlatViewStdControl::rubBandUsedCB( CallBacker* )
 {
-    if ( rubbandzoombut_ && rubbandzoombut_->isOn() )
+    uiToolBar* tb = toolBar();
+    const uiAction* rubbandzoomact = tb->findAction( rubbandzoombut_ );
+    if (tb && rubbandzoomact && tb->isOn(rubbandzoombut_) )
     {
-	rubbandzoombut_->setOn( false );
-	dragModeCB( rubbandzoombut_ );
+	tb->turnOn( rubbandzoombut_, false );
+	dragModeCB( const_cast<uiAction*>(rubbandzoomact) );
     }
 }
 
@@ -375,11 +375,14 @@ void uiFlatViewStdControl::wheelMoveCB( CallBacker* cb )
     if ( mIsZero(ev.angle(),0.01) )
 	return;
 
-    uiToolButton* but = ev.angle()>0 ?
+    const int butid = ev.angle()>0 ?
 	(ev.shiftStatus() ? vertzoominbut_ : zoominbut_) :
 	(ev.shiftStatus() ? vertzoomoutbut_ : zoomoutbut_);
 
-    zoomCB( but );
+    uiToolBar* tb = toolBar();
+    uiAction* action = tb ? const_cast<uiAction*>(tb->findAction( butid ) )
+			  : nullptr;
+    zoomCB( action );
 }
 
 
@@ -409,11 +412,14 @@ void uiFlatViewStdControl::pinchZoomCB( CallBacker* cb )
 }
 
 
-void uiFlatViewStdControl::zoomCB( CallBacker* but )
+void uiFlatViewStdControl::zoomCB( CallBacker* cb )
 {
-    if ( !but ) return;
-    const bool zoomin = but==zoominbut_ || but==vertzoominbut_;
-    const bool onlyvertzoom = but==vertzoominbut_ || but==vertzoomoutbut_;
+    mDynamicCastGet(uiAction*,uiact,cb);
+    if ( !uiact ) return;
+
+    const int butid = uiact->getID();
+    const bool zoomin = butid == zoominbut_ || butid == vertzoominbut_;
+    const bool onlyvertzoom = butid == vertzoominbut_ || butid == vertzoomoutbut_;
     doZoom( zoomin, onlyvertzoom, *vwrs_[0] );
 }
 
@@ -475,11 +481,12 @@ void uiFlatViewStdControl::homeZoomOptSelCB( CallBacker* cb )
 
     mDynamicCastGet(uiAction*,itm,cb)
     const int itmid = itm ? itm->getID() : sLocalHZIdx;
+    uiToolBar* tb = toolBar();
     if ( itmid == sLocalHZIdx )
     {
 	defx1pospercm_ = x1pospercm;
 	defx2pospercm_ = x2pospercm;
-	gotohomezoombut_->setSensitive( true );
+	tb->setSensitive( gotohomezoombut_, true );
     }
     else if ( itmid == sGlobalHZIdx )
 	setGlobalZoomLevel( x1pospercm, x2pospercm, setup_.isvertical_ );
@@ -492,7 +499,7 @@ void uiFlatViewStdControl::homeZoomOptSelCB( CallBacker* cb )
 	    defx1pospercm_ = x1pospercm;
 	    defx2pospercm_ = x2pospercm;
 	    setViewToCustomZoomLevel( *vwrs_[0] );
-	    gotohomezoombut_->setSensitive( true );
+	    tb->setSensitive( gotohomezoombut_, true );
 	}
     }
 }
@@ -675,7 +682,7 @@ void uiFlatViewStdControl::flipCB( CallBacker* )
 
 void uiFlatViewStdControl::displayScaleBarCB( CallBacker* )
 {
-    const bool doshowscalebar = scalebarbut_->isOn();
+    const bool doshowscalebar = toolBar()->isOn( scalebarbut_ );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	uiFlatViewer& vwr = *vwrs_[idx];
@@ -695,7 +702,7 @@ void uiFlatViewStdControl::displayScaleBarCB( CallBacker* )
 
 void uiFlatViewStdControl::displayColTabCB( CallBacker* )
 {
-    vwr_.appearance().annot_.showcolorbar_ = coltabbut_->isOn();
+    vwr_.appearance().annot_.showcolorbar_ = toolBar()->isOn( coltabbut_ );
     vwr_.handleChange( FlatView::Viewer::Annot );
 }
 
@@ -708,28 +715,36 @@ void uiFlatViewStdControl::parsCB( CallBacker* )
 
 void uiFlatViewStdControl::setEditMode( bool yn )
 {
-    if ( editbut_ )
-	editbut_->setOn( yn );
-    editModeCB( editbut_ );
+    uiToolBar* edittb = editToolBar();
+    if ( edittb )
+	edittb->turnOn( editbut_, yn );
+    editModeCB( const_cast<uiAction*>(edittb->findAction( editbut_ )) );
 }
 
 
 bool uiFlatViewStdControl::isEditModeOn() const
 {
-    return editbut_ && editbut_->isOn();
+    const uiToolBar* edittb =
+	const_cast<uiFlatViewStdControl*>(this)->editToolBar();
+    return edittb && edittb->isOn( editbut_ );
 }
 
 
 bool uiFlatViewStdControl::isRubberBandOn() const
 {
-    return rubbandzoombut_ && rubbandzoombut_->isOn();
+    const uiToolBar* tb = const_cast<uiFlatViewStdControl*>(this)->toolBar();
+    return tb && tb->findAction( rubbandzoombut_ ) &&
+	   tb->isOn( rubbandzoombut_ );
 }
 
 
 void uiFlatViewStdControl::dragModeCB( CallBacker* )
 {
-    const bool iseditmode = editbut_ && editbut_->isOn();
-    const bool iszoommode = rubbandzoombut_ && rubbandzoombut_->isOn();
+    uiToolBar* tb = toolBar();
+    uiToolBar* edittb = editToolBar();
+    const bool iseditmode = edittb && edittb->isOn( editbut_ );
+    const bool iszoommode = tb && tb->findAction( rubbandzoombut_ ) && 
+			    tb->isOn( rubbandzoombut_ );
 
     bool editable = false;
     uiGraphicsViewBase::ODDragMode mode( uiGraphicsViewBase::NoDrag );
@@ -754,10 +769,13 @@ void uiFlatViewStdControl::dragModeCB( CallBacker* )
 
 void uiFlatViewStdControl::editModeCB( CallBacker* )
 {
-    const bool iseditmode = editbut_ && editbut_->isOn();
-    const bool iszoommode = rubbandzoombut_ && rubbandzoombut_->isOn();
+    uiToolBar* tb = toolBar();
+    uiToolBar* edittb = editToolBar();
+    const bool iseditmode = edittb && edittb->isOn( editbut_ );
+    const bool iszoommode = tb && tb->findAction( rubbandzoombut_ ) &&
+			    tb->isOn( rubbandzoombut_ );
     if ( iszoommode )
-	rubbandzoombut_->setOn( false );
+	tb->turnOn( rubbandzoombut_, false );
 
     MouseCursor cursor( iseditmode ? MouseCursor::Cross : MouseCursor::Arrow );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
@@ -825,13 +843,23 @@ void uiFlatViewStdControl::keyPressCB( CallBacker* cb )
     mDynamicCastGet( const KeyboardEventHandler*, keh, cb );
     if ( !keh || !keh->hasEvent() ) return;
 
-    if ( keh->event().key_==OD::KB_Escape && rubbandzoombut_ )
+    uiToolBar* tb = toolBar();
+    uiAction* rubbandzoombut =
+	const_cast<uiAction*>( tb->findAction(rubbandzoombut_) );
+    if ( tb && keh->event().key_==OD::KB_Escape && rubbandzoombut )
     {
-	rubbandzoombut_->setOn( !rubbandzoombut_->isOn() );
-	dragModeCB( rubbandzoombut_ );
+	tb->turnOn( rubbandzoombut_, !tb->isOn(rubbandzoombut_) );
+	dragModeCB( rubbandzoombut );
     }
 }
 
 
 NotifierAccess* uiFlatViewStdControl::editPushed()
-{ return editbut_ ? &editbut_->activated : 0; }
+{
+    uiToolBar* edittb = editToolBar();
+    uiAction* editact = edittb
+		      ? const_cast<uiAction*>( edittb->findAction(editbut_) )
+		      : nullptr;
+    return editact ? &editact->toggled : nullptr;
+}
+

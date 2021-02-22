@@ -205,8 +205,8 @@ protected:
 
 	const Well::Marker&	mrk_;
 	OD::LineStyle		ls_;
-	uiTextItem*		txtitm_;
-	uiLineItem*		lineitm_;
+	uiTextItem*		txtitm_ = nullptr;
+	uiLineItem*		lineitm_ = nullptr;
     };
 
     ObjectSet<MarkerDraw>	markerdraws_;

@@ -90,11 +90,7 @@ public:
 	    //! nrstatusflds == -1: Make a statusbar, but don't add msg fields.
 
 	private:
-			Setup( const char* window_title,
-			       const char* dialog_title,
-			       int help_id )
-			    : helpkey_(mNoHelpKey)
-			{}
+		    Setup(const char*,const char*,int)	    = delete;
 			//!< Makes sure you cannot use '0' for help ID.
 			//!< Use mTODOHelpKey or mNoHelpKey instead
 
