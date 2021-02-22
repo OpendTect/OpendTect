@@ -798,6 +798,12 @@ void SurveyInfo::setRange( const TrcKeyZSampling& cs, bool work )
 }
 
 
+bool SurveyInfo::isWorkRangeSet() const
+{
+    return wcs_.isDefined() && wcs_ != tkzs_;
+}
+
+
 void SurveyInfo::setWorkRange( const TrcKeyZSampling& cs )
 {
     setRange( cs, true);

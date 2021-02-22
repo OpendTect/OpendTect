@@ -27,6 +27,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     : uiBaseMapObject(bmo)
     , ls_(OD::LineStyle::Solid,3,Color::Red())
     , showlabels_(true)
+    , asworkarea_(false)
 {
     for ( int idx=0; idx<4; idx++ )
     {
@@ -52,6 +53,23 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     }
 
     graphitem_.setZValue( -1 );
+}
+
+
+uiSurveyBoxObject::~uiSurveyBoxObject()
+{
+}
+
+
+void uiSurveyBoxObject::setAsWorkArea( bool yn )
+{
+    asworkarea_ = yn;
+}
+
+
+bool uiSurveyBoxObject::asWorkArea() const
+{
+    return asworkarea_;
 }
 
 
@@ -93,7 +111,7 @@ void uiSurveyBoxObject::update()
 	{ setVisibility( false ); return; }
 
     const SurveyInfo& si = *survinfo_;
-    const TrcKeyZSampling& cs = si.sampling( false );
+    const TrcKeyZSampling& cs = si.sampling( asWorkArea() );
     TypeSet<uiWorldPoint> mapcnr; mapcnr.setSize( 4 );
     mapcnr[0] = si.transform( cs.hsamp_.start_ );
     mapcnr[1] = si.transform(

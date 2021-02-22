@@ -29,13 +29,18 @@ mExpClass(uiIo) uiSurveyBoxObject : public uiBaseMapObject
 {
 public:
 			uiSurveyBoxObject(BaseMapObject*);
+			~uiSurveyBoxObject();
 
     const char*		getType() const			{ return "SurveyBox"; }
 
     void		update();
     void		setSurveyInfo(const SurveyInfo*);
+
     void		showLabels(bool yn);
     bool		labelsShown() const;
+
+    void		setAsWorkArea(bool yn);
+    bool		asWorkArea() const;
 
     const OD::LineStyle& getLineStyle() const	{ return ls_; }
     void		setLineStyle(const OD::LineStyle&);
@@ -50,6 +55,7 @@ protected:
     const SurveyInfo*		survinfo_;
     OD::LineStyle		ls_;
     bool			showlabels_;
+    bool			asworkarea_;
 };
 
 
