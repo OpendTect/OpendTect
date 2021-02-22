@@ -350,7 +350,7 @@ Well::LoadReqs Well::Data::loadState() const
 
 const Well::Log* Well::Data::getLog( const char* nm ) const
 {
-    if ( logs().isPresent( nm ) && !logs().isLoaded( nm ) )
+    if ( !logs().isLoaded( nm ) )
     {
 	Well::Data& wd = const_cast<Well::Data&>(*this);
 	Well::Reader rdr( mid_, wd );
