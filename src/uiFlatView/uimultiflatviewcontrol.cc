@@ -205,7 +205,7 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     parsbuts_ += new uiToolButton( toolbars_[ivwr],"2ddisppars",
 				   tr("Set display parameters"),
 				   mCB(this,uiMultiFlatViewControl,parsCB) );
-    toolbars_[ivwr]->addButton( parsbuts_[ivwr] );
+    toolbars_[ivwr]->addObject( parsbuts_[ivwr] );
 
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );

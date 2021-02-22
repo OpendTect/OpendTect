@@ -1440,7 +1440,7 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 #define mDefBut(but,fnm,cbnm,tt) \
 uiToolButton* but = \
 new uiToolButton( tb_, fnm, tt, mCB(this,uiViewer2DControl,cbnm) ); \
-    tb_->addButton( but );
+    tb_->addObject( but );
 
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
 				      bool isstored )

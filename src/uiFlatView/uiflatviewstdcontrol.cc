@@ -34,12 +34,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
-    tb_->addButton( but );
+    tb_->addObject( but );
 
 #define mEditDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(edittb_,fnm,tt,\
 			   mCB(this,uiFlatViewStdControl,cbnm) ); \
-    edittb_->addButton( but );
+    edittb_->addObject( but );
 
 #define sLocalHZIdx	0
 #define sGlobalHZIdx	1

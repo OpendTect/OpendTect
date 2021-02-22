@@ -139,8 +139,8 @@ public:
 			//!CmdDriver functionality, not for casual use
     void		getEntityList(ObjectSet<const CallBacker>&) const;
 
+    mDeprecated("Use addObject instead")
     void		addButton(uiButton*);
-			//!<Legacy, use addObject instead
 
     mDeprecated		("Use uiString")
     int			addButton( const char* fnm,const char* tooltip,
