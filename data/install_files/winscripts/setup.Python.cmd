@@ -38,7 +38,7 @@ if not exist %odinstdir%\data (
 
 REM Create Python_envs.txt file
 set fil=%odinstdir%\data\Python_envs.txt
-echo dTect V6.6 > %fil%
+echo dTect V6.8 > %fil%
 echo Python >> %fil%
 echo %DATE% %TIME% >> %fil%
 echo ! >> %fil%
@@ -49,5 +49,5 @@ if exist %odinstdir%\v7\data (
     copy %fil% %odinstdir%\v7\data
 )
 
-exit /b 0
 :eof
+exit /b 0
