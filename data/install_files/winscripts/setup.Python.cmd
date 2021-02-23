@@ -49,5 +49,5 @@ if exist %odinstdir%\v7\data (
     copy %fil% %odinstdir%\v7\data
 )
 
-exit /b 0
 :eof
+exit /b 0
