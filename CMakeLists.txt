@@ -133,7 +133,7 @@ if ( NOT OD_NO_OSG )
     list( APPEND OD_PLUGINS uiPreStackViewer )
 endif()
 
-set( OD_SPECPROGS ODSeis visSpecBase )
+set( OD_SPECPROGS ODSeis ODvisBase )
 OD_CREATE_DEVEL_PACKAGE_DEFINITION()
 
 OD_ADD_EXTERNALS() # Once, in main scope
