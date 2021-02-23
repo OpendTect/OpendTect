@@ -49,7 +49,7 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
     const bool usesi = !SI().xyInFeet();
     unitflds_ = new uiGenInput( this, uiStrings::sUnit(),
 			BoolInpSpec(usesi,tr("cm"),tr("inches")) );
-    unitflds_->valuechanged.notify( mCB(this,uiFlatViewZoomLevelDlg,unitChgCB) );
+    mAttachCB( unitflds_->valuechanged, uiFlatViewZoomLevelDlg::unitChgCB );
 
     x1fld_ = new uiGenInput( this, uiStrings::sEmptyString(), FloatInpSpec() );
     x1fld_->attach( alignedBelow, unitflds_ );
@@ -64,13 +64,14 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
     saveglobalfld_ = new uiCheckBox( this, tr("Save globally") );
     saveglobalfld_->attach( alignedBelow, isvertical ? x2fld_ : x1fld_ );
 
-    unitChgCB(0);
-    postFinalise().notify( mCB(this,uiFlatViewZoomLevelDlg,finalizeDoneCB) );
+    unitChgCB(nullptr);
+    mAttachCB( postFinalise(), uiFlatViewZoomLevelDlg::finalizeDoneCB );
 }
 
 
 uiFlatViewZoomLevelDlg::~uiFlatViewZoomLevelDlg()
 {
+    detachAllNotifiers();
 }
 
 
@@ -419,7 +420,8 @@ void uiFlatViewStdControl::zoomCB( CallBacker* cb )
 
     const int butid = uiact->getID();
     const bool zoomin = butid == zoominbut_ || butid == vertzoominbut_;
-    const bool onlyvertzoom = butid == vertzoominbut_ || butid == vertzoomoutbut_;
+    const bool onlyvertzoom = butid == vertzoominbut_ ||
+			      butid == vertzoomoutbut_;
     doZoom( zoomin, onlyvertzoom, *vwrs_[0] );
 }
 
@@ -743,7 +745,7 @@ void uiFlatViewStdControl::dragModeCB( CallBacker* )
     uiToolBar* tb = toolBar();
     uiToolBar* edittb = editToolBar();
     const bool iseditmode = edittb && edittb->isOn( editbut_ );
-    const bool iszoommode = tb && tb->findAction( rubbandzoombut_ ) && 
+    const bool iszoommode = tb && tb->findAction( rubbandzoombut_ ) &&
 			    tb->isOn( rubbandzoombut_ );
 
     bool editable = false;

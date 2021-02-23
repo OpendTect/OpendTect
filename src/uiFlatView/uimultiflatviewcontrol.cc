@@ -44,6 +44,7 @@ void MFVCViewManager::setViewerType( const uiFlatViewer* vwr, bool isintime )
 	zintimeflags_ += BoolTypeSetType( isintime );
 	return;
     }
+
     zintimeflags_[vwridx] = isintime;
 }
 
@@ -57,6 +58,7 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
     if ( !vwrs_.validIdx(curvwridx) || !vwrs_.validIdx(activevwridx) ||
 	 activevwridx<0 )
 	return false;
+
     const uiWorldRect& wr = activevwr->curView();
     float srdval = SI().seismicReferenceDatum();
     if ( SI().depthsInFeet() )
@@ -78,6 +80,7 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	if ( !zintimeflags_.validIdx(curvwridx) ||
 	     !zintimeflags_.validIdx(activevwridx) )
 	    return false;
+
 	const bool isactiveintime = zintimeflags_[activevwridx];
 	const bool iscurintime = zintimeflags_[curvwridx];
 	if ( isactiveintime == iscurintime )
@@ -85,13 +88,14 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	    viewwr = wr;
 	    return true;
 	}
+
 	viewwr.setLeft( wr.left() );
 	viewwr.setRight( wr.right() );
 
 	if ( isactiveintime )
 	{
 	    Interval<float> timerg( mCast(float,wr.top()),
-		    		    mCast(float,wr.bottom()) );
+				    mCast(float,wr.bottom()) );
 	    Interval<double> depthrg( d2tmodels_[0]->getDepth(timerg.start),
 				      d2tmodels_[0]->getDepth(timerg.stop) );
 	    if ( !depthrg.isUdf() && SI().depthsInFeet() )
@@ -117,7 +121,7 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	else
 	{
 	    Interval<float> depthrg( mCast(float,wr.top()),
-		    		     mCast(float,wr.bottom()) );
+				     mCast(float,wr.bottom()) );
 	    if ( isFlattened() )
 		depthrg.shift( -srdval );
 
@@ -188,17 +192,13 @@ void uiMultiFlatViewControl::setNewView( Geom::Point2D<double> mousepos,
 }
 
 
-#define mAddBut(but,fnm,cbnm,tt) \
-    but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
-    tb_->addButton( but );
-
 void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 {
     uiFlatViewer& vwr = *vwrs_.last();
     MouseEventHandler& mevh = vwr.rgbCanvas().getNavigationMouseEventHandler();
     mAttachCB( mevh.wheelMove, uiMultiFlatViewControl::wheelMoveCB );
 
-    
+
     auto* toolbar = new uiToolBar(mainwin(),tr("Flat Viewer Tools"),
 			       tb_->prefArea());
     toolbars_ += toolbar;
@@ -268,13 +268,14 @@ void uiMultiFlatViewControl::zoomCB( CallBacker* cb )
     const int vwridx = vwrs_.indexOf( activevwr_ );
     if ( !zoomin && !meh.hasEvent() && zoommgr_.atStart(vwridx) )
 	for ( int idx = 0; idx < vwrs_.size(); idx++ )
-	    if ( !zoommgr_.atStart( idx ) )
+	    if ( !zoommgr_.atStart(idx) )
 	    {
 		activevwr_ = vwrs_[idx];
 		break;
 	    }
 
-    const bool onlyvertzoom = actid == vertzoominbut_ || actid == vertzoomoutbut_;
+    const bool onlyvertzoom = actid == vertzoominbut_ ||
+			      actid == vertzoomoutbut_;
     doZoom( zoomin, onlyvertzoom, *activevwr_ );
 }
 
@@ -310,7 +311,7 @@ void uiMultiFlatViewControl::pinchZoomCB( CallBacker* cb )
 	activevwr_->getWorld2Ui().transform( gevent->pos() );
 
     const uiWorldRect wr = getZoomOrPanRect( pos, newsz, activevwr_->curView(),
-	    				     activevwr_->boundingBox());
+					     activevwr_->boundingBox());
     vwrs_[vwridx]->setView( wr );
 
     if ( gevent->getState() == GestureEvent::Finished )
@@ -357,7 +358,6 @@ void uiMultiFlatViewControl::parsCB( CallBacker* cb )
 	     !parsbuts_.validIdx(idx) )
 	    continue;
 
-	const int actid = toolbar->getID( uiact );
 	doPropertiesDialog( idx );
 	return;
     }
@@ -378,6 +378,7 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
     const uiWorldRect& wr = activeVwr()->curView();
     if ( wr == mainbbox )
 	return;
+
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	FlatView::AuxData* ad = vwrs_[idx]->createAuxData( "Zoom box" );
@@ -390,8 +391,9 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	    continue;
 
 	uiWorldRect newwr;
-       	if ( !viewmgr_.getViewRect(activeVwr(),vwrs_[idx],newwr) )
+	if ( !viewmgr_.getViewRect(activeVwr(),vwrs_[idx],newwr) )
 	    continue;
+
 	ad->poly_ += newwr.topLeft();
 	ad->poly_ += newwr.topRight();
 	ad->poly_ += newwr.bottomRight();
