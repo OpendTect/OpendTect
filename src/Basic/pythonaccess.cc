@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "plugins.h"
 #include "settingsaccess.h"
-#include "staticstring.h"
 #include "string2.h"
 #include "timefun.h"
 #include "timer.h"
@@ -303,8 +302,8 @@ namespace OD {
 
 BufferString& GetPythonActivatorExe()
 {
-    mDeclStaticString( ret );
-    return ret;
+    mDefineStaticLocalObject( PtrMan<BufferString>, ret, = new BufferString );
+    return *ret.ptr();
 }
 
 } //namespace OD
@@ -1227,6 +1226,11 @@ BufferString OD::PythonAccess::getPacmanExecNm() const
     if ( activatefp_ )
     {
 	File::Path packmanexe( *activatefp_ );
+#ifdef __win__
+	if ( !GetPythonActivatorExe().isEmpty() )
+	    packmanexe.add( "condabin" )
+		      .add( "activate" );
+#endif
 	packmanexe.setFileName( "conda" );
 #ifdef __win__
 	packmanexe.setExtension( "bat" );

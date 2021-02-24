@@ -18,7 +18,6 @@
 #include "pythonaccess.h"
 #include "separstr.h"
 #include "settingsaccess.h"
-#include "staticstring.h"
 #include "uistrings.h"
 
 #ifndef OD_NO_QT
@@ -259,8 +258,8 @@ namespace OS {
 
 BufferString& GetIsolateScript()
 {
-	mDeclStaticString( ret );
-	return ret;
+    mDefineStaticLocalObject( PtrMan<BufferString>, ret, = new BufferString );
+    return *ret.ptr();
 }
 
 } //namespace OS
