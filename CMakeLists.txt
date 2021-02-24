@@ -104,7 +104,6 @@ set( OD_PLUGINS
 	MadagascarAttribs
 	MATLABLink
 	Tut
-	VoxelConnectivityFilter
 	uiCEEMDAttrib
 	uiDPSDemo
 	uiExpAttribs
@@ -123,7 +122,6 @@ set( OD_PLUGINS
 	uiQtApp
 	uiTut
 	uiTutMadagascar
-	uiVoxelConnectivityFilter
 	CmdDriver
 	uiCOLOP
 	uiCrashMe

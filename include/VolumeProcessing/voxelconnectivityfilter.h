@@ -11,14 +11,15 @@ ________________________________________________________________________
 
 -*/
 
-#include "voxelconnectivityfiltermod.h"
+#include "volumeprocessingmod.h"
+
 #include "volprocchain.h"
 #include "enums.h"
 
 namespace VolProc
 {
 
-mExpClass(VoxelConnectivityFilter) VoxelConnectivityFilter : public Step
+mExpClass(VolumeProcessing) VoxelConnectivityFilter : public Step
 { mODTextTranslationClass(VoxelConnectivityFilter);
 public:
 
@@ -95,5 +96,4 @@ protected:
     Connectivity	connectivity_;
 };
 
-}; //namespace
-
+} // namespace VolProc

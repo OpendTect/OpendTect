@@ -11,7 +11,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivoxelconnectivityfiltermod.h"
+#include "uivolumeprocessingmod.h"
+
 #include "uivolprocstepdlg.h"
 #include "voxelconnectivityfilter.h"
 #include "enums.h"
@@ -20,19 +21,15 @@ ________________________________________________________________________
 namespace VolProc
 {
 
-mExpClass(uiVoxelConnectivityFilter) uiVoxelConnectivityFilter :
-public uiStepDialog
-{ mODTextTranslationClass(uiVoxelConnectivityFilter);
+mExpClass(uiVolumeProcessing) uiVoxelConnectivityFilter : public uiStepDialog
+{ mODTextTranslationClass(uiVoxelConnectivityFilter)
 public:
     mDefaultFactoryInstanciationBase(
 	    VolProc::VoxelConnectivityFilter::sFactoryKeyword(),
 	    VolProc::VoxelConnectivityFilter::sFactoryDisplayName())
 	    mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
 
-
-
 protected:
-
 				uiVoxelConnectivityFilter(uiParent*,
 					    VoxelConnectivityFilter*,bool is2d);
     static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
@@ -52,5 +49,5 @@ protected:
     uiGenInput*		rejectoutputvalfld_;
 };
 
-}; //namespace
+} // namespace VolProc
 

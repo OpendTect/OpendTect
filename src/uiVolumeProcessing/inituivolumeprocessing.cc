@@ -10,7 +10,6 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 
-#include "coord.h"
 #include "moddepmgr.h"
 
 #include "uivelocitygridder.h"
@@ -21,23 +20,25 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivolprocsmoother.h"
 #include "uivolprocsurfacelimitedfiller.h"
 #include "uivolprocvolreader.h"
+#include "uivoxelconnectivityfilter.h"
 #include "uiwellloginterpolator.h"
 #include "uivolprocbatchsetup.h"
 
-
+using namespace VolProc;
 
 mDefModInitFn(uiVolumeProcessing)
 {
     mIfNotFirstTime( return );
 
-    VolProc::uiBodyFiller::initClass();
-    VolProc::uiLateralSmoother::initClass();
-    VolProc::uiSmoother::initClass();
-    VolProc::uiHorInterFiller::initClass();
-    VolProc::uiSurfaceLimitedFiller::initClass();
-    VolProc::uiVelocityGridder::initClass();
-    VolProc::uiVolumeReader::initClass();
-    VolProc::uiWellLogInterpolator::initClass();
+    uiBodyFiller::initClass();
+    uiLateralSmoother::initClass();
+    uiSmoother::initClass();
+    uiHorInterFiller::initClass();
+    uiSurfaceLimitedFiller::initClass();
+    uiVelocityGridder::initClass();
+    uiVolumeReader::initClass();
+    uiVoxelConnectivityFilter::initClass();
+    uiWellLogInterpolator::initClass();
 
 #ifdef __debug__
     uiVolProcAttrib::initClass();

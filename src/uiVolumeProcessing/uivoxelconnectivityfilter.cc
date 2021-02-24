@@ -134,7 +134,7 @@ void uiVoxelConnectivityFilter::updateFieldsCB( CallBacker* )
 
     VoxelConnectivityFilter::AcceptOutput output;
     VoxelConnectivityFilter::parseEnumAcceptOutput( acceptoutputfld_->text(),
-	     					    output );
+						    output );
     acceptvaluefld_->display( output==VoxelConnectivityFilter::Value );
     rejectoutputvalfld_->display( !rejectoutputudffld_->getBoolValue() );
 }
@@ -195,7 +195,7 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 
     VoxelConnectivityFilter::AcceptOutput output;
     VoxelConnectivityFilter::parseEnumAcceptOutput( acceptoutputfld_->text(),
-	     					    output );
+						    output );
 
     if ( output==VoxelConnectivityFilter::Value &&
 	 mIsUdf(acceptvaluefld_->getFValue() ) )
@@ -228,4 +228,4 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 }
 
 
-}; //Namespace
+} // namespace VolProc

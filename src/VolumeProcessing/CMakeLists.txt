@@ -24,6 +24,7 @@ set( OD_MODULE_SOURCES
 	volproctrans.cc
 	volprocstep.cc
 	volprocvolreader.cc
+	voxelconnectivityfilter.cc
 	wellloginterpolator.cc
 )
 set( OD_MODULE_BATCHPROGS od_process_volume.cc )

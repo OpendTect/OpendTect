@@ -21,8 +21,10 @@ static const char* rcsID mUsedVar = "$Id: initvolumeprocessing.cc 37082 2014-10-
 #include "volprocsurfacelimitedfiller.h"
 #include "volproctrans.h"
 #include "volprocvolreader.h"
+#include "voxelconnectivityfilter.h"
 #include "wellloginterpolator.h"
 
+using namespace VolProc;
 
 mDefModInitFn(VolumeProcessing)
 {
@@ -33,16 +35,17 @@ mDefModInitFn(VolumeProcessing)
     dgbVolProcessingTranslator::initClass();
     dgbVolProcessing2DTranslator::initClass();
 
-    VolProc::VolumeReader::initClass();
-    VolProc::BodyFiller::initClass();
-    VolProc::HorInterFiller::initClass();
-    VolProc::SurfaceLimitedFiller::initClass();
-    VolProc::LateralSmoother::initClass();
-    VolProc::Smoother::initClass();
-    VolProc::StatsCalculator::initClass();
-    VolProc::ExternalAttribCalculator::initClass();
-    VolProc::VelocityGridder::initClass();
-    VolProc::WellLogInterpolator::initClass();
+    VolumeReader::initClass();
+    BodyFiller::initClass();
+    HorInterFiller::initClass();
+    SurfaceLimitedFiller::initClass();
+    LateralSmoother::initClass();
+    Smoother::initClass();
+    StatsCalculator::initClass();
+    ExternalAttribCalculator::initClass();
+    VelocityGridder::initClass();
+    VoxelConnectivityFilter::initClass();
+    WellLogInterpolator::initClass();
 
 #ifdef __debug__
     VolProcAttrib::initClass();
