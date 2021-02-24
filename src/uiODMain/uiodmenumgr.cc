@@ -106,6 +106,7 @@ uiODMenuMgr::~uiODMenuMgr()
 	delete appl_.removeToolBar( customtbs_[idx] );
 
     delete helpmgr_;
+    delete langmnumgr_;
     delete faulttoolman_;
     delete measuretoolman_;
 }
