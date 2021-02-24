@@ -338,8 +338,8 @@ namespace OD {
 
 BufferString& GetPythonActivatorExe()
 {
-    mDeclStaticString( ret );
-    return ret;
+    mDefineStaticLocalObject( PtrMan<BufferString>, ret, = new BufferString );
+    return *ret.ptr();
 }
 
 } //namespace OD
@@ -365,9 +365,9 @@ bool OD::PythonAccess::needCheckRunScript()
 FilePath* OD::PythonAccess::getActivateScript( const FilePath& rootfp )
 {
     FilePath ret( rootfp.fullPath(), "bin" );
-	ret.add("activate");
+	ret.add( "activate" );
 #ifdef __win__
-	ret.setExtension("bat");
+	ret.setExtension( "bat" );
 #endif
     if ( !ret.exists() )
     {
@@ -1266,6 +1266,11 @@ BufferString OD::PythonAccess::getPacmanExecNm() const
     if ( activatefp_ )
     {
 	FilePath packmanexe( *activatefp_ );
+#ifdef __win__
+	if ( !GetPythonActivatorExe().isEmpty() )
+	    packmanexe.add( "condabin" )
+		      .add( "activate" );
+#endif
 	packmanexe.setFileName( "conda" );
 #ifdef __win__
 	packmanexe.setExtension( "bat" );
