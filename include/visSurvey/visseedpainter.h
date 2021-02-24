@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "visobject.h"
 
 
-class TrcKeySampling;
+class TrcKeyZSampling;
 
 namespace Pick { class Set; class Location; class SetMgr; }
 namespace visBase { class PolyLine; };
@@ -63,6 +63,12 @@ protected:
     void		drawLine(const visBase::EventInfo&);
     void		paintSeeds(const visBase::EventInfo& curev,
 	    			   const visBase::EventInfo& prevev);
+    void		paintSeedsOnInlCrl(const visBase::EventInfo& curev,
+				      const visBase::EventInfo& prevev,
+				      const TrcKeyZSampling& tkzs,bool isinl);
+    void		paintSeedsOnZSlice(const visBase::EventInfo& curev,
+				      const visBase::EventInfo& prevev,
+				      const TrcKeyZSampling& tkzs);
     void		eraseSeeds(const visBase::EventInfo& curev,
 	    			   const visBase::EventInfo& prevev);
 

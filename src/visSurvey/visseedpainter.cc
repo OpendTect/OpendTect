@@ -269,23 +269,47 @@ static const PlaneDataDisplay* getSectionDisplay( const visBase::EventInfo& ev )
 }
 
 
+static float getTrcNrStretchPerZSample( const Scene& scene, bool isinl )
+{
+    float zstretch = scene.getFixedZStretch() * scene.getTempZStretch();
+    if ( SI().zIsTime() )
+	zstretch /= 2.f; // Account for TWT
+
+    return (scene.getApparentVelocity(zstretch) * SI().zStep())/
+		(isinl ? SI().crlDistance() : SI().inlDistance());
+}
+
+
 void SeedPainter::paintSeeds( const visBase::EventInfo& curev,
 			      const visBase::EventInfo& prevev )
 {
-    Scene* scene = STM().currentScene();
     const PlaneDataDisplay* cursec = getSectionDisplay( curev );
     const PlaneDataDisplay* prevsec = getSectionDisplay( prevev );
-    if ( !scene || !cursec || cursec != prevsec || !cursec->isInlCrl() )
+    if ( !cursec || cursec != prevsec )
 	return;
 
-    const TrcKeyZSampling tkzs = cursec->getTrcKeyZSampling();
+    const bool iszslice = cursec->getOrientation()==OD::ZSlice;
     const bool isinl = cursec->getOrientation()==OD::InlineSlice;
+    const TrcKeyZSampling tkzs = cursec->getTrcKeyZSampling();
+
+    if ( iszslice )
+	paintSeedsOnZSlice( curev, prevev, tkzs );
+    else
+	paintSeedsOnInlCrl( curev, prevev, tkzs, isinl );
+}
+
+
+void SeedPainter::paintSeedsOnInlCrl( const visBase::EventInfo& curev,
+				      const visBase::EventInfo& prevev,
+				      const TrcKeyZSampling& tkzs, bool isinl )
+{
+    Scene* scene = STM().currentScene();
+    if ( !scene )
+	return;
+
+    const float fac = getTrcNrStretchPerZSample( *scene, isinl );
     const StepInterval<int> nrrg = isinl ? tkzs.hsamp_.trcRange()
 					 : tkzs.hsamp_.lineRange();
-
-    const float zstretch = scene->getFixedZStretch() * scene->getTempZStretch();
-    const float fac = (scene->getApparentVelocity(zstretch) * tkzs.zsamp_.step)/
-		(2 * (isinl ? SI().crlDistance() : SI().inlDistance()) );
     const Coord3 curpos = curev.worldpickedpos;
     const Coord3 prevpos = prevev.worldpickedpos;
     const bool fillprev = prevev.type == visBase::MouseClick;
@@ -306,7 +330,7 @@ void SeedPainter::paintSeeds( const visBase::EventInfo& curev,
     TypeSet<int> indexes;
     int locidx = set_->size();
 
-#define mAddPos(mynr,sampidx) \
+#define mAddPosOnInlCrl(mynr,sampidx) \
     { \
 	const BinID bid( isinl ? curbid.inl() : mynr, \
 			   isinl ? mynr : curbid.crl() ); \
@@ -337,7 +361,7 @@ void SeedPainter::paintSeeds( const visBase::EventInfo& curev,
 	const int sampidx1 = ptidy1 + prevsampidx;
 	const int sampidx2 = ptidy2 + cursampidx;
 	if ( fillprev && pt1incircle )
-	    mAddPos( nr1, sampidx1 )
+	    mAddPosOnInlCrl( nr1, sampidx1 )
 
 	if ( !pt2incircle )
 	    continue;
@@ -347,7 +371,85 @@ void SeedPainter::paintSeeds( const visBase::EventInfo& curev,
 	const bool pt2incircle1 =
 	    (radius_*radius_) >= (xdiff*xdiff + ydiff*ydiff);
 	if ( !pt2incircle1 )
-	    mAddPos( nr2, sampidx2 );
+	    mAddPosOnInlCrl( nr2, sampidx2 );
+    }
+
+    set_->bulkAppendWithUndo( mylocs, indexes );
+    Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
+	    			     set_, indexes );
+    picksetmgr_->reportBulkChange( 0, cd );
+}
+
+
+void SeedPainter::paintSeedsOnZSlice( const visBase::EventInfo& curev,
+				      const visBase::EventInfo& prevev,
+				      const TrcKeyZSampling& tkzs )
+{
+    Scene* scene = STM().currentScene();
+    if ( !scene )
+	return;
+
+    const float inlfac = getTrcNrStretchPerZSample( *scene, false );
+    const float crlfac = getTrcNrStretchPerZSample( *scene, true );
+    const StepInterval<int> inlrg = tkzs.hsamp_.lineRange();
+    const StepInterval<int> crlrg = tkzs.hsamp_.trcRange();
+    const Coord3 curpos = curev.worldpickedpos;
+    const Coord3 prevpos = prevev.worldpickedpos;
+    const bool fillprev = prevev.type == visBase::MouseClick;
+    const BinID curbid = SI().transform( curpos );
+    const BinID prevbid = SI().transform( prevpos );
+    int inldiff = curbid.inl() - prevbid.inl();
+    int crldiff = curbid.crl() - prevbid.crl();
+    inldiff = mNINT32(inldiff/inlfac);
+    crldiff = mNINT32(crldiff/crlfac);
+
+    const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
+    const int dia = radius_ * 2 + 1;
+    const Stats::RandGen rgx = Stats::randGen();
+    const Stats::RandGen rgy = Stats::randGen();
+    TypeSet<Pick::Location> mylocs;
+    TypeSet<int> indexes;
+    int locidx = set_->size();
+
+#define mAddPosOnZSlice(inl,crl) \
+    { \
+	const BinID bid( inl, crl ); \
+	const float z = tkzs.zsamp_.start; \
+	if ( tkzs.hsamp_.includes(bid,true) ) \
+	{ \
+	    const Coord mypos = SI().transform( bid ); \
+	    Pick::Location myloc( mypos, z ); \
+	    mylocs.add( myloc ); \
+	    indexes += locidx++; \
+	} \
+    }
+
+    for ( int ridx=0; ridx<nrpts; ridx++ )
+    {
+	const int ptidx1 = rgx.getIndex( dia ) - radius_;
+	const int ptidx2 = rgx.getIndex( dia ) - radius_;
+	const int ptidy1 = rgy.getIndex( dia ) - radius_;
+	const int ptidy2 = rgy.getIndex( dia ) - radius_;
+	const bool pt1incircle =
+	    (radius_*radius_) >= (ptidx1*ptidx1 + ptidy1*ptidy1);
+	const bool pt2incircle =
+	    (radius_*radius_) >= (ptidx2*ptidx2 + ptidy2*ptidy2);
+	const int inl1 = mNINT32(inlfac*ptidx1) + prevbid.inl();
+	const int inl2 = mNINT32(inlfac*ptidx2) + curbid.inl();
+	const int crl1 = mNINT32(crlfac*ptidy1) + prevbid.crl();
+	const int crl2 = mNINT32(crlfac*ptidy2) + curbid.crl();
+	if ( fillprev && pt1incircle )
+	    mAddPosOnZSlice( inl1, crl1 )
+
+	if ( !pt2incircle )
+	    continue;
+
+	const int xdiff = ptidx2 + inldiff;
+	const int ydiff = ptidy2 + crldiff;
+	const bool pt2incircle1 =
+	    (radius_*radius_) >= (xdiff*xdiff + ydiff*ydiff);
+	if ( !pt2incircle1 )
+	    mAddPosOnZSlice( inl2, crl2 );
     }
 
     set_->bulkAppendWithUndo( mylocs, indexes );
@@ -368,17 +470,12 @@ void SeedPainter::eraseSeeds( const visBase::EventInfo& curev,
 
     const TrcKeyZSampling tkzs = cursec->getTrcKeyZSampling();
     const bool isinl = cursec->getOrientation()==OD::InlineSlice;
-    const StepInterval<int> nrrg = isinl ? tkzs.hsamp_.trcRange()
-					 : tkzs.hsamp_.lineRange();
+    const bool isz = cursec->getOrientation()==OD::ZSlice;
 
-    const float zstretch = scene->getFixedZStretch() * scene->getTempZStretch();
-    const float fac = (scene->getApparentVelocity(zstretch) * tkzs.zsamp_.step)/
-		(2 * (isinl ? SI().crlDistance() : SI().inlDistance()) );
+    const float inlfac = getTrcNrStretchPerZSample( *scene, false );
+    const float crlfac = getTrcNrStretchPerZSample( *scene, true );
     const Coord3 curpos = curev.worldpickedpos;
-//    const Coord3 prevpos = prevev.worldpickedpos;
-//    const bool doprev = prevev.type == visBase::MouseClick;
     const BinID curbid = SI().transform( curpos );
-//    const BinID prevbid = SI().transform( prevpos );
 
     TypeSet<Pick::Location> mylocs;
     TypeSet<int> indexes;
@@ -391,10 +488,12 @@ void SeedPainter::eraseSeeds( const visBase::EventInfo& curev,
 		!tkzs.zsamp_.includes(loc.pos().z,false) )
 	    continue;
 
-	int nrdiff = Math::Abs( isinl ? (curbid.crl() - bid.crl())
-				      : (curbid.inl() - bid.inl()) ) / fac;
-	int sampdiff = Math::Abs( loc.pos().z - curpos.z ) / SI().zStep();
-	float distsq = nrdiff*nrdiff + sampdiff*sampdiff;
+	const int xdiff = Math::Abs( isinl ? (curbid.crl() - bid.crl()) / crlfac
+				      : (curbid.inl() - bid.inl()) / inlfac );
+	const int ydiff =
+	    isz ? Math::Abs( curbid.crl() - bid.crl() ) / crlfac
+		: Math::Abs( loc.pos().z - curpos.z ) / SI().zStep();
+	float distsq = xdiff*xdiff + ydiff*ydiff;
 	if ( distsq > radius_*radius_ )
 	    continue;
 
@@ -424,19 +523,22 @@ void SeedPainter::drawLine( const visBase::EventInfo& eventinfo )
     BinID pickedbid = SI().transform( pickedpos );
     const TrcKeyZSampling tkzs = pdd->getTrcKeyZSampling();
     const bool isinl = pdd->getOrientation()==OD::InlineSlice;
+    const bool isz = pdd->getOrientation()==OD::ZSlice;
 
     if ( circlecoords_.isEmpty() )
 	mkCircle();
 
-    const float zstretch = scene->getFixedZStretch() * scene->getTempZStretch();
-    const float fac = (scene->getApparentVelocity(zstretch) * tkzs.zsamp_.step)/
-		(2 * (isinl ? SI().crlDistance() : SI().inlDistance()) );
+    const float inlfac = isinl ? 0 : getTrcNrStretchPerZSample( *scene, false );
+    const float crlfac = (isinl || isz) ?
+			getTrcNrStretchPerZSample( *scene, true ) : 0;
     for ( int idx=0; idx<circlecoords_.size(); idx++ )
     {
-	Coord pt = SI().transform( BinID(pickedbid.inl(),
-		    	pickedbid.crl()+mNINT32(fac*circlecoords_[idx].x)) );
-	circle_->addPoint(
-		Coord3(pt,pickedpos.z+circlecoords_[idx].y*SI().zStep()) );
+	const BinID bid( pickedbid.inl() + mNINT32(inlfac*circlecoords_[idx].x),
+			 pickedbid.crl() + mNINT32(crlfac*
+			 (isz? circlecoords_[idx].y : circlecoords_[idx].x)) );
+	const Coord pt = SI().transform( bid );
+	circle_->addPoint( Coord3(pt,isz ? pickedpos.z
+		    	: (pickedpos.z+circlecoords_[idx].y*SI().zStep())) );
     }
 
     circle_->dirtyCoordinates();
