@@ -411,14 +411,23 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 
     if ( TaskRunner::execute( &taskr, saver ) )
     {
-	uiString msg = tr("%1 succesfully imported.\n\n"
-			"Do you want to import more %1?").arg(
-	    isfss_ ? uiStrings::sFaultStickSet(mPlural)
-		   : (isfltset_ ? uiStrings::sFaultSet()
-				: uiStrings::sFault(mPlural)) );
+	uiString msg = tr("%1 successfully imported.");
+	if ( isfltset_ )
+	{
+	    msg.arg( uiStrings::sFaultSet() );
+	    msg.addNewLine();
+	    msg.append( tr("Do you want to continue importing FaultSet"),
+									true );
+	}
+	else
+	{
+	    msg.append( tr("Do you want to import more %1?").arg(
+		isfss_ ? uiStrings::sFaultStickSet(mPlural)
+					: uiStrings::sFault(mPlural)), true );
+	}
 
 	const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-					  tr("No, close window") );
+				    tr("No, close window") );
 	return !ret;
     }
     else

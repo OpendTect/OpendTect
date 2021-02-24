@@ -470,14 +470,23 @@ bool uiExportFault::acceptOK( CallBacker* )
 						    tr("selected faults")));
 	return false;
     }
-    uiString msg = tr( "%1 successfully exported.\n\n"
-		    "Do you want to export more %2?" ).arg(dispstr_)
-		    .arg(typ_ ==
-				EMFaultStickSetTranslatorGroup::sGroupName()
-	? uiStrings::sFaultStickSet(mPlural)
-	: (typ_ == EMFaultSet3DTranslatorGroup::sGroupName()
-	    ? uiStrings::sFaultSet(mPlural) : uiStrings::sFaultSet(mPlural)) );
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+
+    uiString msg = tr("%1 successfully exported.").arg( dispstr_ );
+    msg.addNewLine();
+    if ( typ_ == EMFaultSet3DTranslatorGroup::sGroupName() )
+    {
+	msg.append( tr("Do you want to continue exporting FaultSet"), true );
+    }
+    else
+    {
+	msg.append( tr("Do you want to export more %2?").arg(
+	    typ_ == EMFaultStickSetTranslatorGroup::sGroupName() ?
+	    uiStrings::sFaultStickSet(mPlural) : uiStrings::sFault(mPlural)),
+	    true );
+    }
+
+    const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				    tr("No, close window") );
+
     return !ret;
 }
