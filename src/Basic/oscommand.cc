@@ -15,6 +15,7 @@
 #include "genc.h"
 #include "od_iostream.h"
 #include "oddirs.h"
+#include "perthreadrepos.h"
 #include "pythonaccess.h"
 #include "separstr.h"
 #include "settingsaccess.h"
