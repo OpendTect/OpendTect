@@ -65,6 +65,7 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
 
 uiToolBar::~uiToolBar()
 {
+    detachAllNotifiers();
     removeAllActions();
     deepErase( addedobjects_ );
 
