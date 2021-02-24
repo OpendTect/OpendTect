@@ -15,7 +15,6 @@
 #include "genc.h"
 #include "od_iostream.h"
 #include "oddirs.h"
-#include "perthreadrepos.h"
 #include "pythonaccess.h"
 #include "separstr.h"
 #include "settingsaccess.h"
@@ -264,8 +263,8 @@ namespace OS {
 
 BufferString& GetIsolateScript()
 {
-	mDeclStaticString( ret );
-	return ret;
+    mDefineStaticLocalObject( PtrMan<BufferString>, ret, = new BufferString );
+    return *ret.ptr();
 }
 
 } //namespace OS
@@ -640,7 +639,7 @@ void OS::CommandLauncher::reset()
     if ( process_ && process_->state()!=QProcess::NotRunning )
     {
 	manageQProcess( process_ );
-	process_ = 0;
+	process_ = nullptr;
     }
     deleteAndZeroPtr( process_ );
 #endif
