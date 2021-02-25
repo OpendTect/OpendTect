@@ -119,6 +119,7 @@ Well::Data* WellDisplay::getWD( Well::LoadReqs& reqs ) const
     {
 	WellDisplay* self = const_cast<WellDisplay*>( this );
 	self->wd_ = Well::MGR().get( wellid_, reqs );
+	Well::MGR().reloadDispPars( wd_->multiID(), false );
 	if ( wd_ )
 	{
 	    wd_->trackchanged.notify( mCB(self,WellDisplay,fullRedraw) );
@@ -131,7 +132,9 @@ Well::Data* WellDisplay::getWD( Well::LoadReqs& reqs ) const
 	}
     }
     else
+    {
 	Well::MGR().get( wellid_, reqs );
+    }
 
     return wd_;
 }

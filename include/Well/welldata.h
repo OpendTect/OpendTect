@@ -183,6 +183,7 @@ protected:
     MarkerSet&		markers_;
     DisplayProperties&	disp2d_;
     DisplayProperties&	disp3d_;
+    mutable BufferStringSet	lognms_;
 };
 
 } // namespace Well

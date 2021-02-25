@@ -267,7 +267,7 @@ bool Well::Data::haveMarkers() const
 
 bool Well::Data::haveLogs() const
 {
-    return !logs_.isEmpty();
+    return !lognms_.isEmpty();
 }
 
 
@@ -327,30 +327,37 @@ Well::LoadReqs Well::Data::loadState() const
 	lreqs.add( Well::CSMdl );
     if ( haveLogs() )
     {
+	if ( lognms_.isEmpty() )
+	    Well::MGR().getLogNamesByID( mid_, lognms_ );
+
 	int nloaded = 0;
 	for ( int idx=0; idx<logs_.size(); idx++ )
 	{
 	    if ( logs_.getLog( idx ).isLoaded() )
 		nloaded++;
 	}
-	if ( nloaded == logs_.size() )
+	if ( nloaded == lognms_.size() )
 	 {
 	    lreqs.add( Well::Logs );
 	    lreqs.add( Well::LogInfos );
 	 }
-	else
+	else if ( logs_.size() == lognms_.size() )
 	    lreqs.add( Well::LogInfos );
 
     }
     if ( !track_.isEmpty() )
 	lreqs.add( Well::Trck );
+
     return lreqs;
 }
 
 
 const Well::Log* Well::Data::getLog( const char* nm ) const
 {
-    if ( !logs().isLoaded( nm ) )
+    if ( lognms_.isEmpty() )
+	Well::MGR().getLogNamesByID( mid_, lognms_ );
+
+    if ( lognms_.isPresent( nm ) && !logs().isLoaded( nm ) )
     {
 	Well::Data& wd = const_cast<Well::Data&>(*this);
 	Well::Reader rdr( mid_, wd );
@@ -366,7 +373,10 @@ const Well::Log* Well::Data::getLog( const char* nm ) const
 
 Well::Log* Well::Data::getLogForEdit( const char* nm )
 {
-    if ( !logs().isLoaded( nm ) )
+    if ( lognms_.isEmpty() )
+	Well::MGR().getLogNamesByID( mid_, lognms_ );
+
+    if ( lognms_.isPresent( nm ) && !logs().isLoaded( nm ) )
     {
 	Well::Reader rdr( mid_, *this );
 	if ( !rdr.getLog( nm ) )

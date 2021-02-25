@@ -193,12 +193,10 @@ Well::Data* Well::Man::get( const MultiID& key )
 Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
 {
     msg_.setEmpty();
-
     const int wdidx = gtByKey( key );
     Well::Data* wd = wdidx < 0 ? nullptr : wells_[wdidx];
     if ( wd && wd->loadState().includes(reqs) )
         return wd;
-
     if ( wd && wdidx >=0 )
     {
 	reqs.exclude( wd->loadState() );
@@ -468,15 +466,20 @@ bool Well::Man::getLogNamesByID( const MultiID& ky, BufferStringSet& nms,
     if ( !Well::MGR().validID( ky ) )
 	return false;
 
-    const bool isloaded = Well::MGR().isLoaded( ky );
-    if ( onlyloaded && !isloaded )
-	return false;
+    const int idx = Well::MGR().gtByKey( ky );
+    const bool isloaded = idx>=0;
+    if ( !onlyloaded )
+    {
+	RefMan<Well::Data> wd = new Well::Data;
+	if ( wd )
+	{
+	    Reader rdr( ky, *wd );
+	    rdr.getLogInfo( nms );
+	}
+    }
+    else if ( isloaded )
+	Well::MGR().wells()[idx]->logs().getNames( nms );
 
-    RefMan<Well::Data> wd = Well::MGR().get( ky,
-					     Well::LoadReqs(Well::LogInfos) );
-    if ( !wd )
-	return false;
-    wd->logs().getNames( nms, onlyloaded );
     return !nms.isEmpty();
 }
 
