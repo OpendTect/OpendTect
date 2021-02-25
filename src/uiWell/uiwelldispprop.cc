@@ -267,7 +267,7 @@ void uiWellMarkersDispProperties::setAllMarkerNames(
 
 
 void uiWellMarkersDispProperties::setAllMarkerNames( const BufferStringSet& nms,
-						     const TypeSet<Color>& cols)
+						const TypeSet<OD::Color>& cols)
 {
     displaymarkersfld_->setEmpty();
     displaymarkersfld_->addItems( nms );

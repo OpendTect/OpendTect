@@ -205,11 +205,11 @@ protected:
     Timer			flashtimer_;
 
     BufferString		flashname_;
-    Color			flashcolor_;
+    OD::Color			flashcolor_;
 
-    Color			colorbutcolor_;
-    Color			randomcolor_;
-    Color			usercolor_;
+    OD::Color			colorbutcolor_;
+    OD::Color			randomcolor_;
+    OD::Color			usercolor_;
     BufferString		usercolorlink_;
 
     BufferStringSet		singlefaultitems_;

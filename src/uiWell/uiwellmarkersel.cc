@@ -130,18 +130,21 @@ void uiWellMarkerSel::setMarkers( const BufferStringSet& inpnms )
 }
 
 
-void uiWellMarkerSel::setMarkerColors( const TypeSet<Color>& cols )
+void uiWellMarkerSel::setMarkerColors( const TypeSet<OD::Color>& cols )
 {
-    TypeSet<Color> colors;
+    TypeSet<OD::Color> colors;
     if ( setup_.withudf_ )
-	colors += Color::NoColor();
+	colors += OD::Color::NoColor();
 
     colors.append( cols );
 
     for ( int idx=0; idx<colors.size(); idx++ )
     {
-	if ( topfld_ ) topfld_->setColorIcon( idx, colors[idx] );
-	if ( botfld_ ) botfld_->setColorIcon( idx, colors[idx] );
+	if ( topfld_ )
+	    topfld_->setColorIcon( idx, colors[idx] );
+
+	if ( botfld_ )
+	    botfld_->setColorIcon( idx, colors[idx] );
     }
 }
 

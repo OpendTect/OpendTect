@@ -25,13 +25,15 @@ namespace CmdDrive
 {
 
 
-SetColorActivator::SetColorActivator(const Color& col)
+SetColorActivator::SetColorActivator(const OD::Color& col)
     : color_(col)
 {}
 
 
 void SetColorActivator::actCB( CallBacker* )
-{ setExternalColor( color_ ); }
+{
+    setExternalColor( color_ );
+}
 
 
 #define mParChannel( channelnm, parstr, parnext, val, optional ) \
@@ -85,7 +87,7 @@ bool ColorOkCmd::act( const char* parstr )
     mParChannel( "Green", parnext, parnexxt, green, parnext==parstr );
     mParChannel( "Blue", parnexxt, parnexxxt, blue, parnext==parstr );
 
-    Color col( red, green, blue );
+    OD::Color col( red, green, blue );
 
     BufferString colorword;
     if ( parnext == parstr )

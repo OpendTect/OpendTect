@@ -59,8 +59,8 @@ public:
     bool			isInlCrl() const	{ return false; }
 
     bool			hasColor() const		{ return true; }
-    Color			getColor() const;
-    void			setColor(Color);
+    OD::Color			getColor() const;
+    void			setColor(OD::Color);
     bool			allowMaterialEdit() const	{ return true; }
     NotifierAccess*		materialChange();
     const OD::LineStyle*	lineStyle() const;

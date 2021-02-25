@@ -63,13 +63,13 @@ public:
     mStruct(uiTools) DrawFunction
     {
 		DrawFunction( const FloatMathFunction* f )
-		    : color_(Color::DgbColor())
+		    : color_(OD::Color::DgbColor())
 		    , mathfunc_(f)
 		    {}
 
-	const FloatMathFunction* mathfunc_;
-	TypeSet<uiPoint> pointlist_;
-	Color		 color_;
+	const FloatMathFunction*    mathfunc_;
+	TypeSet<uiPoint>	    pointlist_;
+	OD::Color		    color_;
     };
 
 			uiFunctionDrawer(uiParent*,const Setup&);
@@ -132,7 +132,7 @@ protected:
 
     uiFunctionDrawer*	view_;
     uiListBox*		funclistfld_;
-    TypeSet<Color>	colors_;
+    TypeSet<OD::Color>	colors_;
     ObjectSet<FloatMathFunction> mathfunc_;
 };
 

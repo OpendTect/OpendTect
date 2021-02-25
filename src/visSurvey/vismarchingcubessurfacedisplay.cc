@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismarchingcubessurfacedisplay.h"
 
 #include "arrayndimpl.h"
+#include "color.h"
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "emmanager.h"
@@ -18,18 +19,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "impbodyplaneintersect.h"
 #include "keystrs.h"
 #include "marchingcubes.h"
+#include "positionlist.h"
 #include "posvecdataset.h"
 #include "randcolor.h"
 #include "selector.h"
 #include "settings.h"
 #include "survinfo.h"
+
 #include "visgeomindexedshape.h"
 #include "vismarchingcubessurface.h"
 #include "visplanedatadisplay.h"
 #include "vismaterial.h"
 #include "vistransform.h"
 #include "vispolygonoffset.h"
-#include "positionlist.h"
 
 
 namespace visSurvey
@@ -49,7 +51,7 @@ MarchingCubesDisplay::MarchingCubesDisplay()
 	, selspecs_(1, Attrib::SelSpec())
 {
     cache_.allowNull( true );
-    setColor( getRandomColor( false ) );
+    setColor( getRandomColor(false) );
     getMaterial()->setAmbience( 0.4 );
     getMaterial()->change.notify(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
@@ -583,9 +585,11 @@ MultiID MarchingCubesDisplay::getMultiID() const
 }
 
 
-void MarchingCubesDisplay::setColor( Color nc )
+void MarchingCubesDisplay::setColor( OD::Color nc )
 {
-    if ( emsurface_ ) emsurface_->setPreferredColor(nc);
+    if ( emsurface_ )
+	emsurface_->setPreferredColor(nc);
+
     getMaterial()->setColor( nc );
 }
 
@@ -594,8 +598,10 @@ NotifierAccess* MarchingCubesDisplay::materialChange()
 { return &getMaterial()->change; }
 
 
-Color MarchingCubesDisplay::getColor() const
-{ return getMaterial()->getColor(); }
+OD::Color MarchingCubesDisplay::getColor() const
+{
+    return getMaterial()->getColor();
+}
 
 
 void MarchingCubesDisplay::fillPar( IOPar& par ) const

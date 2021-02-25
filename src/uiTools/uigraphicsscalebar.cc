@@ -54,12 +54,12 @@ void uiScaleBarItem::initDefaultScale()
     addChild( stopnr_ );
 
     // filling with color
-    upperleft_->setFillColor( Color::Black(), true );
-    uppermid_->setFillColor( Color::White(), true );
-    upperright_->setFillColor( Color::Black(), true );
-    lowerleft_->setFillColor( Color::White(), true );
-    lowermid_->setFillColor( Color::Black(), true );
-    lowerright_->setFillColor( Color::White(), true );
+    upperleft_->setFillColor( OD::Color::Black(), true );
+    uppermid_->setFillColor( OD::Color::White(), true );
+    upperright_->setFillColor( OD::Color::Black(), true );
+    lowerleft_->setFillColor( OD::Color::White(), true );
+    lowermid_->setFillColor( OD::Color::Black(), true );
+    lowerright_->setFillColor( OD::Color::White(), true );
 
     update();
 }

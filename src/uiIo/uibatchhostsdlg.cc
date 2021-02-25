@@ -228,7 +228,7 @@ static void setIPAddress( uiTable& tbl, int row, const HostData& hd )
 {
     const RowCol rc( row, sIPCol );
     tbl.setText( rc, hd.getIPAddress() );
-    tbl.setColor( rc, Color::White() );
+    tbl.setColor( rc, OD::Color::White() );
 }
 
 
@@ -236,7 +236,7 @@ static void setHostName( uiTable& tbl, int row, const HostData& hd )
 {
     const RowCol rc( row, sHostNameCol );
     tbl.setText( rc, hd.getHostName() );
-    tbl.setColor( rc, Color::White() );
+    tbl.setColor( rc, OD::Color::White() );
 }
 
 
@@ -382,10 +382,11 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 }
 
 
-static Color getColor( bool sel )
+static OD::Color getColor( bool sel )
 {
-    mDefineStaticLocalObject( Color, bgcol, = uiMain::theMain().windowColor() );
-    mDefineStaticLocalObject( Color, selcol, = bgcol.darker(0.3f) );
+    mDefineStaticLocalObject(
+			OD::Color, bgcol, = uiMain::theMain().windowColor() );
+    mDefineStaticLocalObject( OD::Color, selcol, = bgcol.darker(0.3f) );
     return sel ? selcol : bgcol;
 }
 
@@ -424,10 +425,10 @@ void uiBatchHostsDlg::changedCB( CallBacker* )
 }
 
 
-static Color getCellColor( bool isok )
+static OD::Color getCellColor( bool isok )
 {
-    mDefineStaticLocalObject( Color, okcol, = Color::White() );
-    mDefineStaticLocalObject( Color, errorcol, = Color::Red() );
+    mDefineStaticLocalObject( OD::Color, okcol, = OD::Color::White() );
+    mDefineStaticLocalObject( OD::Color, errorcol, = OD::Color::Red() );
     return isok ? okcol : errorcol;
 }
 

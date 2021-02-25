@@ -405,7 +405,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     selectedtraceaux_->poly_ += pt1;
     selectedtraceaux_->poly_ += pt2;
     selectedtraceaux_->linestyle_ =
-	OD::LineStyle( OD::LineStyle::Dot, 2, Color::DgbColor() );
+	OD::LineStyle( OD::LineStyle::Dot, 2, OD::Color::DgbColor() );
 
     vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
@@ -430,7 +430,7 @@ void uiStratSynthDisp::setFlattened( bool flattened, bool trigger )
 
 
 void uiStratSynthDisp::setDispMrkrs( const char* lnm,
-				     const TypeSet<float>& zvals, Color col )
+				    const TypeSet<float>& zvals, OD::Color col )
 {
     StratSynthLevel* lvl = new StratSynthLevel( lnm, col, &zvals );
     curSS().setLevel( lvl );
@@ -556,7 +556,7 @@ void uiStratSynthDisp::displayFRText( bool yn, bool isbrine )
     frtxtitm_ = scene.addItem(
 				new uiTextItem(pos,uiString::emptyString(),
 					       mAlignment(HCenter,VCenter)) );
-    frtxtitm_->setPenColor( Color::Black() );
+    frtxtitm_->setPenColor( OD::Color::Black() );
     frtxtitm_->setZValue( 999999 );
     frtxtitm_->setMovable( true );
     }

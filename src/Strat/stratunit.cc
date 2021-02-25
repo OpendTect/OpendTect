@@ -160,7 +160,7 @@ const Strat::RefTree& Strat::UnitRef::refTree() const
 }
 
 
-void Strat::UnitRef::setColor( Color c )
+void Strat::UnitRef::setColor( OD::Color c )
 {
     if ( c != color_ )
 	{ color_ = c; notifChange(); }
@@ -460,10 +460,11 @@ void Strat::LeafUnitRef::getPropsFrom( const IOPar& iop )
 }
 
 
-Color Strat::LeafUnitRef::dispColor( bool lith ) const
+OD::Color Strat::LeafUnitRef::dispColor( bool lith ) const
 {
     if ( isUndef() )
 	return color();
+
     return lith ? getLithology().color() : upNode()->color();
 }
 

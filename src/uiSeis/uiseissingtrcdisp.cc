@@ -31,7 +31,7 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.overlap_ = 0;
     app.ddpars_.wva_.mappersetup_.cliprate_ = Interval<float>(0,0);
-    app.ddpars_.wva_.refline_ = Color::Black();
+    app.ddpars_.wva_.refline_ = OD::Color::Black();
     app.ddpars_.wva_.mappersetup_.symmidval_ = mUdf(float);
     app.setDarkBG( false );
 
@@ -125,7 +125,7 @@ void uiSeisSingleTraceDisplay::addRefZ( float zref )
 				BufferString("Ref Z ",curnraux) );
     ad->poly_ += FlatView::Point( 0, zref );
     ad->markerstyles_ += MarkerStyle2D( MarkerStyle2D::HLine, 20,
-				Color::stdDrawColor(curnraux) );
+				OD::Color::stdDrawColor(curnraux) );
     ad->zvalue_ = 100;
     addAuxData( ad );
 

@@ -29,7 +29,7 @@ uiGVFreehandAreaSelectionTool::uiGVFreehandAreaSelectionTool(uiGraphicsView& gv)
     , stopped(this)
 {
     polygonselitem_ = gv_.scene().addItem( new uiPolygonItem() );
-    polygonselitem_->setPenColor( Color(255,0,0) );
+    polygonselitem_->setPenColor( OD::Color(255,0,0) );
 
     mAttachCB( gv_.getMouseEventHandler().movement,
 		uiGVFreehandAreaSelectionTool::mouseMoveCB );

@@ -305,8 +305,8 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
 {
     uiWellDahDisplay* disp = left ? d2tdisplay_ : driftdisplay_;
     uiWellDahDisplay::DahObjData& dahdata = disp->dahObjData( first );
-    dahdata.col_ = d == &newdriftcurve_ ? Color::DgbColor()
-					: Color::stdDrawColor(first ? 0 : 1);
+    dahdata.col_ = d == &newdriftcurve_ ? OD::Color::DgbColor()
+				    : OD::Color::stdDrawColor(first ? 0 : 1);
     float zfac = 1.f;
     if ( SI().depthsInFeet() ) zfac = mToFeetFactorF;
     float startpos = -SI().seismicReferenceDatum();
@@ -347,7 +347,7 @@ void uiCheckShotEdit::drawDrift()
 	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
 	const float csval = tkzs_->value( idx );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
-	uiWellDahDisplay::PickData pd( dah, Color::stdDrawColor( 0 ) );
+	uiWellDahDisplay::PickData pd( dah, OD::Color::stdDrawColor( 0 ) );
 	pd.val_ = drift;
 	driftcurve_.insertAtDah( dah, drift );
 	driftdisplay_->zPicks() += pd;
@@ -386,7 +386,7 @@ void uiCheckShotEdit::drawPoints()
 	if ( pts.isEmpty() ) return;
 
 	d2tlineitm_ = scene.addItem( new uiPolyLineItem(pts) );
-	OD::LineStyle ls( OD::LineStyle::Solid, 2, Color::DgbColor() );
+	OD::LineStyle ls( OD::LineStyle::Solid, 2, OD::Color::DgbColor() );
 	d2tlineitm_->setPenStyle( ls );
     }
 }

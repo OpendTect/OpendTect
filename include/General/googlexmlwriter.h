@@ -7,6 +7,7 @@
 -*/
 
 #include "generalmod.h"
+#include "color.h"
 #include "uistring.h"
 
 class LatLong;
@@ -59,7 +60,8 @@ public:
     void		writeLine(const char* iconnm,const TypeSet<Coord>&,
 	    			  const char* nm);
 
-    void		writePolyStyle(const char* stlnm,const Color&,int wdth);
+    void		writePolyStyle(
+				const char* stlnm,const OD::Color&,int wdth);
     void		writePoly(const char* stlnm,const char* polynm,
 				  const TypeSet<Coord>&,float hght,
 				  const SurveyInfo* si=0);

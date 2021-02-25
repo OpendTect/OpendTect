@@ -47,10 +47,10 @@ public:
     {
 			BasicProps( int sz=1 )
 			    : size_(sz)
-			    , color_(Color(0,0,255))	{}
+			    , color_(OD::Color(0,0,255)){}
 	virtual		~BasicProps()			{}
 
-	Color		color_;
+	OD::Color	color_;
 	int		size_;
 
 	void		usePar(const IOPar&);
@@ -122,7 +122,7 @@ public:
 	int		cylinderheight_;
 	bool		issinglecol_;
 	FontData	font_;
-	Color		nmcol_;
+	OD::Color	nmcol_;
 	bool		samenmcol_;
 	BufferStringSet	selmarkernms_;
 	bool		nmsizedynamic_;
@@ -151,7 +151,7 @@ public:
 			    , range_(mUdf(float),mUdf(float))
 			    , repeat_(5)
 			    , repeatovlap_(50)
-			    , seiscolor_(Color::White())
+			    , seiscolor_(OD::Color::White())
 			    , seqname_("Rainbow")
 			    , iscoltabflipped_(false)
 			    , style_( 0 )
@@ -169,15 +169,15 @@ public:
 	Interval<float> fillrange_;
 	bool		isleftfill_;
 	bool		isrightfill_;
-	bool            islogarithmic_;
+	bool		islogarithmic_;
 	bool		islogreverted_;
-	bool            issinglecol_;
-	bool            isdatarange_;
+	bool		issinglecol_;
+	bool		isdatarange_;
 	bool		iscoltabflipped_;
-	int             repeat_;
-	float           repeatovlap_;
-	Color           linecolor_;
-	Color		seiscolor_;
+	int		repeat_;
+	float		repeatovlap_;
+	OD::Color	linecolor_;
+	OD::Color	seiscolor_;
 	BufferString    seqname_;
 	int		logwidth_;
 	int		style_;
@@ -198,7 +198,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
-    void		ensureColorContrastWith(Color);
+    void		ensureColorContrastWith(OD::Color);
 
     static DisplayProperties&	defaults();
     static void		commitDefaults();

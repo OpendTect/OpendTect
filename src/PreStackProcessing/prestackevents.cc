@@ -206,19 +206,19 @@ int EventSet::indexOf( int horid ) const
 
 
 EventManager::EventManager()
-    : storageid_( -1 )
-    , events_( 2, 1 )
-    , changebid_( -1, -1 )
+    : storageid_(-1)
+    , events_(2,1)
+    , changebid_(-1,-1)
     , forceReload( this )
-    , change( this )
-    , resetChangeStatus( this )
-    , reloadbids_( new BinIDValueSet( 0, false ) )
-    , notificationqueue_( new BinIDValueSet( 0, false ) )
-    , nexthorid_( 0 )
-    , auxdatachanged_( false )
-    , primarydipreader_( 0 )
-    , secondarydipreader_( 0 )
-    , color_( getRandomColor() )
+    , change(this)
+    , resetChangeStatus(this)
+    , reloadbids_(new BinIDValueSet(0,false))
+    , notificationqueue_(new BinIDValueSet(0,false))
+    , nexthorid_(0)
+    , auxdatachanged_(false)
+    , primarydipreader_(nullptr)
+    , secondarydipreader_(nullptr)
+    , color_(getRandomColor())
 {
     events_.allowDuplicates( true );
     emhorizons_.allowNull( true );
@@ -316,7 +316,7 @@ void EventManager::setNextHorizonID( int ni )
 }
 
 
-void EventManager::setColor( const Color& col )
+void EventManager::setColor( const OD::Color& col )
 {
     if ( color_==col )
 	return;

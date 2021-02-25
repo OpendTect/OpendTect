@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiCrossHairItem::uiCrossHairItem( uiGraphicsViewBase& vw )
     : view_(vw)
-    , ls_(*new OD::LineStyle(OD::LineStyle::Dot,1,Color::LightGrey()))
+    , ls_(*new OD::LineStyle(OD::LineStyle::Dot,1,OD::Color::LightGrey()))
 {
     itemgrp_ = view_.scene().addItemGrp( new uiGraphicsItemGroup );
     horline_ = new uiLineItem; itemgrp_->add( horline_ );

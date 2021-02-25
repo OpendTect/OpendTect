@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "emhorizonpainter2d.h"
 
+#include "color.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emobject.h"
@@ -23,8 +24,8 @@ HorizonPainter2D::HorizonPainter2D( FlatView::Viewer& fv,
 				    const EM::ObjectID& oid )
     : viewer_(fv)
     , id_(oid)
-    , markerlinestyle_(OD::LineStyle::Solid,2,Color(0,255,0))
-    , markerstyle_(MarkerStyle2D::Square, 4, Color::White())
+    , markerlinestyle_(OD::LineStyle::Solid,2,OD::Color(0,255,0))
+    , markerstyle_(MarkerStyle2D::Square,4,OD::Color::White())
     , linenabled_(true)
     , seedenabled_(true)
     , markerseeds_(0)
@@ -162,7 +163,7 @@ bool HorizonPainter2D::addPolyLine()
 						: MouseCursor::Arrow;
 		auxdata->poly_.erase();
 		auxdata->linestyle_ = markerlinestyle_;
-		Color prefcol = hor2d->preferredColor();
+		OD::Color prefcol = hor2d->preferredColor();
 		prefcol.setTransparency( 0 );
 		auxdata->linestyle_.color_ = prefcol;
 		auxdata->fillcolor_ = prefcol;
@@ -284,7 +285,7 @@ void HorizonPainter2D::updateIntersectionMarkers( int sid )
 		    Marker2D* intsecmarker =
 			create2DMarker( EM::SectionID(sid), x, z );
 		    intsecmarker->marker_->markerstyles_.first().color_ =
-			emobj->preferredColor();
+						    emobj->preferredColor();
 		    intsectmarks_ += intsecmarker;
 		}
 	    }
@@ -355,7 +356,7 @@ void HorizonPainter2D::changePolyLineColor()
     {
 	SectionMarker2DLine* secmarkerlines = markerline_[idx];
 
-	Color prefcol = emobj->preferredColor();
+	OD::Color prefcol = emobj->preferredColor();
 	prefcol.setTransparency( 0 );
 	const int width = emobj->preferredLineStyle().width_;
 

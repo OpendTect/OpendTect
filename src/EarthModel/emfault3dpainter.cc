@@ -29,7 +29,7 @@ namespace EM
 Fault3DPainter::Fault3DPainter( FlatView::Viewer& fv, const EM::ObjectID& oid )
     : viewer_(fv)
     , emid_(oid)
-    , markerstyle_(MarkerStyle2D::Square, 4, Color(255,255,0) )
+    , markerstyle_(MarkerStyle2D::Square,4,OD::Color(255,255,0))
     , activestickid_( mUdf(int) )
     , path_(0)
     , flatposdata_(0)

@@ -193,7 +193,7 @@ void uiStratLayerModelDisp::displayFRText( bool yn, bool isbrine )
 			   mNINT32( scene().height()-10 ) );
 	frtxtitm_ = scene().addItem( new uiTextItem(pos,uiString::emptyString(),
 						mAlignment(HCenter,VCenter)) );
-	frtxtitm_->setPenColor( Color::Black() );
+	frtxtitm_->setPenColor( OD::Color::Black() );
 	frtxtitm_->setZValue( 999999 );
 	frtxtitm_->setMovable( true );
     }
@@ -870,7 +870,7 @@ void uiStratSimpleLayerModelDisp::reDrawAll()
 				new uiTextItem( tr("<---empty--->"),
 				mAlignment(HCenter,VCenter) ) );
 
-	emptyitm_->setPenColor( Color::Black() );
+	emptyitm_->setPenColor( OD::Color::Black() );
 	emptyitm_->setPos( uiPoint( vwr_.rgbCanvas().viewWidth()/2,
 				    vwr_.rgbCanvas().viewHeight() / 2 ) );
 	return;
@@ -935,7 +935,7 @@ void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
 	selseqad_ = vwr_.createAuxData( 0 );
 	selseqad_->enabled_ = true;
 	selseqad_->linestyle_ =
-		OD::LineStyle( OD::LineStyle::Dot, 2, Color::Black() );
+		OD::LineStyle( OD::LineStyle::Dot, 2, OD::Color::Black() );
 	selseqad_->zvalue_ = uiFlatViewer::auxDataZVal() + 2;
 	vwr_.addAuxData( selseqad_ );
     }
@@ -1008,17 +1008,17 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 
 	if ( !isDisplayedModel(iseq) )
 	    continue;
-	const Color laycol = lay.dispColor( uselithcols_ );
+	const OD::Color laycol = lay.dispColor( uselithcols_ );
 	bool mustannotcont = false;
 	if ( !lay.content().isUnspecified() )
 	    mustannotcont = allcontents_
 		|| (selectedcontent_ && lay.content() == *selectedcontent_);
-	const Color pencol = mustannotcont ? lay.content().color_ : laycol;
+	const OD::Color pencol = mustannotcont ? lay.content().color_ : laycol;
 	bool canjoinlayers = ilay > 0;
 	if ( canjoinlayers )
 	{
 	    const Strat::Layer& prevlay = *seq.layers()[ilay-1];
-	    const Color prevlaycol = prevlay.dispColor( uselithcols_ );
+	    const OD::Color prevlaycol = prevlay.dispColor( uselithcols_ );
 	    canjoinlayers =
 		prevlay.content()==lay.content() && prevlaycol==laycol;
 	}

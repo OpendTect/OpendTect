@@ -90,8 +90,8 @@ public:
     void			setSize(const float);
     float			getSize() const;
 
-    void			setArrowColor(const Color&);
-    const Color&		getArrowColor() const;
+    void			setArrowColor(const OD::Color&);
+    const OD::Color&		getArrowColor() const;
 
     void			setRotation(const Coord3&, const float);
     void			setDefaultRotation();
@@ -130,7 +130,7 @@ protected:
 
     Coord3			rotation_;
     float			rotangle_;
-    Color			arrowcolor_;
+    OD::Color			arrowcolor_;
 
 public:
     bool			isMoving() const;

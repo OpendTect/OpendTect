@@ -130,7 +130,8 @@ void uiStratRefTree::addNode( uiTreeViewItem* parlvit,
 	{
 	    uiTreeViewItem* item;
 	    mDynamicCastGet(const LeafUnitRef*,lur,&ref);
-	    if ( !lur ) continue;
+	    if ( !lur )
+		continue;
 
 	    uiTreeViewItem::Setup setup = uiTreeViewItem::Setup()
 				.label( toUiString(lur->code()) )
@@ -479,11 +480,11 @@ void uiStratRefTree::updateUnitProperties( uiTreeViewItem* lvit )
 }
 
 
-uiPixmap* uiStratRefTree::createUnitPixmap( const Color& col ) const
+uiPixmap* uiStratRefTree::createUnitPixmap( const OD::Color& col ) const
 {
     uiRGBArray rgbarr( false );
     rgbarr.setSize( PMWIDTH, PMHEIGHT );
-    rgbarr.clear( Color::White() );
+    rgbarr.clear( OD::Color::White() );
 
     for ( int idw=0; idw<PMWIDTH; idw++ )
     {
@@ -546,17 +547,26 @@ void uiStratRefTree::updateUnitsPixmaps()
 {
     UnitRefIter it( *tree_ );
     const UnitRef* firstun = it.unit();
-    if ( !firstun ) return;
+    if ( !firstun )
+	return;
+
     uiTreeViewItem* lvit = lv_->findItem( firstun->code().buf(), 0, false);
     if ( lvit )
-	{ mCreateAndSetUnitPixmap( (*firstun), lvit ) }
+    {
+	mCreateAndSetUnitPixmap( (*firstun), lvit )
+    }
+
     while ( it.next() )
     {
 	const UnitRef* un = it.unit();
-	if ( !un ) continue;
+	if ( !un )
+	    continue;
+
 	lvit = lv_->findItem( un->code().buf(), 0, false );
 	if ( lvit )
-	    { mCreateAndSetUnitPixmap( (*un), lvit ) }
+	{
+	    mCreateAndSetUnitPixmap( (*un), lvit )
+	}
     }
 }
 

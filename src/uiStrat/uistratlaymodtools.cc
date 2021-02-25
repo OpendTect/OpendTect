@@ -293,10 +293,10 @@ const Strat::Level* uiStratLayModEditTools::selStratLevel() const
 }
 
 
-Color uiStratLayModEditTools::selLevelColor() const
+OD::Color uiStratLayModEditTools::selLevelColor() const
 {
     const Strat::Level* lvl = selStratLevel();
-    return lvl ? lvl->color() : Color::NoColor();
+    return lvl ? lvl->color() : OD::Color::NoColor();
 }
 
 

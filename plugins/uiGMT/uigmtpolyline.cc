@@ -56,7 +56,8 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     lsfld_ = new uiSelLineStyle(this, OD::LineStyle(), uiStrings::sLineStyle());
     lsfld_->attach( alignedBelow, namefld_ );
 
-    fillcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
+    fillcolfld_ = new uiColorInput( this,
+					uiColorInput::Setup(OD::Color::White())
 					.lbltxt(tr("Fill Color"))
                                         .withcheck(true) );
     fillcolfld_->attach( alignedBelow, lsfld_ );
@@ -68,7 +69,7 @@ void uiGMTPolylineGrp::reset()
     inpfld_->clear();
     namefld_->clear();
     lsfld_->setStyle( OD::LineStyle() );
-    fillcolfld_->setColor( Color::White() );
+    fillcolfld_->setColor( OD::Color::White() );
     fillcolfld_->setDoDraw( false );
 }
 
@@ -120,7 +121,8 @@ bool uiGMTPolylineGrp::usePar( const IOPar& par )
     fillcolfld_->setDoDraw( dofill );
     if ( dofill )
     {
-	Color fillcol; par.get( ODGMT::sKeyFillColor(), fillcol );
+	OD::Color fillcol;
+	par.get( ODGMT::sKeyFillColor(), fillcol );
 	fillcolfld_->setColor( fillcol );
     }
 

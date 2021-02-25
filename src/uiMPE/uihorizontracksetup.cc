@@ -83,14 +83,14 @@ uiBaseHorizonSetupGroup::uiBaseHorizonSetupGroup( uiParent* p,
 //uiHorizonSetupGroup
 uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     : uiSetupGroup(p,"")
-    , trackmgr_(0)
-    , sectiontracker_(0)
-    , horadj_(0)
+    , trackmgr_(nullptr)
+    , sectiontracker_(nullptr)
+    , horadj_(nullptr)
     , is2d_(FixedString(typestr)==EM::Horizon2D::typeStr())
     , modeChanged_(this)
     , varianceChanged_(this)
     , propertyChanged_(this)
-    , mps_(0)
+    , mps_(nullptr)
     , mode_(EMSeedPicker::TrackFromSeeds)
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
@@ -386,7 +386,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Properties" );
     colorfld_ = new uiColorInput( grp,
-				uiColorInput::Setup(Color::Green())
+				uiColorInput::Setup(OD::Color::Green())
 				.withdesc(false).lbltxt(tr("Horizon Color")) );
     colorfld_->colorChanged.notify(
 			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
@@ -409,7 +409,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     seedtypefld_->attach( alignedBelow, linewidthfld_ );
 
     seedcolselfld_ = new uiColorInput( grp,
-				uiColorInput::Setup(Color::DgbColor())
+				uiColorInput::Setup(OD::Color::DgbColor())
 				.withdesc(false) );
     seedcolselfld_->attach( rightTo, seedtypefld_ );
     seedcolselfld_->colorChanged.notify(
@@ -424,7 +424,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     seedsliderfld_->attach( alignedBelow, seedtypefld_ );
 
     parentcolfld_ = new uiColorInput( grp,
-				uiColorInput::Setup(Color::Yellow())
+				uiColorInput::Setup(OD::Color::Yellow())
 				.withdesc(false).lbltxt(tr("Parents")) );
     parentcolfld_->colorChanged.notify(
 			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
@@ -554,7 +554,7 @@ void uiHorizonSetupGroup::seedSliderMove( CallBacker* )
 
 void uiHorizonSetupGroup::seedColSel( CallBacker* )
 {
-    const Color newcolor = seedcolselfld_->color();
+    const OD::Color newcolor = seedcolselfld_->color();
     if ( markerstyle_.color_ == newcolor )
 	return;
 
@@ -665,11 +665,15 @@ void uiHorizonSetupGroup::setSeedPos( const TrcKeyValue& tkv )
 }
 
 
-void uiHorizonSetupGroup::setColor( const Color& col )
-{ colorfld_->setColor( col ); }
+void uiHorizonSetupGroup::setColor( const OD::Color& col )
+{
+    colorfld_->setColor( col );
+}
 
-const Color& uiHorizonSetupGroup::getColor()
-{ return colorfld_->color(); }
+const OD::Color& uiHorizonSetupGroup::getColor()
+{
+    return colorfld_->color();
+}
 
 void uiHorizonSetupGroup::setLineWidth( int w )
 { linewidthfld_->setValue( w ); }

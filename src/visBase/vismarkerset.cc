@@ -33,13 +33,13 @@ namespace visBase
 
 MarkerSet::MarkerSet()
     : VisualObjectImpl(true)
-    , markerset_( new osgGeo::MarkerSet )
-    , displaytrans_( 0 )
-    , coords_( Coordinates::create() )
-    , pixeldensity_( getDefaultPixelDensity() )
-    , rotationvec_( 1.0, 0.0, 0.0 )
-    , rotationangle_( mUdf(float) )
-    , offset_( 0 )
+    , markerset_(new osgGeo::MarkerSet)
+    , displaytrans_(nullptr)
+    , coords_(Coordinates::create())
+    , pixeldensity_(getDefaultPixelDensity())
+    , rotationvec_(1.0,0.0,0.0)
+    , rotationangle_(mUdf(float))
+    , offset_(nullptr)
     , onoffarr_( new osg::ByteArray() )
 {
     markerset_->ref();
@@ -107,7 +107,7 @@ void MarkerSet::materialChangeCB( CallBacker* cb)
 {
      if ( material_ )
      {
-	 const TypeSet<Color> colors = material_->getColors();
+	 const TypeSet<OD::Color> colors = material_->getColors();
 	 osg::ref_ptr<osg::Vec4Array> osgcolorarr =
 	     new osg::Vec4Array( colors.size() );
 
@@ -158,7 +158,7 @@ void MarkerSet::setMarkerStyle( const MarkerStyle3D& ms )
 }
 
 
-void MarkerSet::setMarkersSingleColor( const Color& singlecolor )
+void MarkerSet::setMarkersSingleColor( const OD::Color& singlecolor )
 {
     osg::Vec4f color = Conv::to<osg::Vec4>( singlecolor );
     markerset_->setSingleColor( color );
@@ -166,9 +166,9 @@ void MarkerSet::setMarkersSingleColor( const Color& singlecolor )
 }
 
 
-Color MarkerSet::getMarkersSingleColor() const
+OD::Color MarkerSet::getMarkersSingleColor() const
 {
-    return Conv::to<Color>(markerset_->getSingleColor() );
+    return Conv::to<OD::Color>(markerset_->getSingleColor() );
 }
 
 
@@ -178,13 +178,13 @@ bool MarkerSet::usesSingleColor() const
 }
 
 
-void MarkerSet::getColorArray( TypeSet<Color>& colors ) const
+void MarkerSet::getColorArray( TypeSet<OD::Color>& colors ) const
 {
     const osg::Vec4Array* clrarr = markerset_->getColorArray();
     if ( !clrarr )
 	return;
     for ( int idx=0; idx<clrarr->size(); idx++ )
-	colors += Conv::to<Color>((*clrarr)[idx]);
+	colors += Conv::to<OD::Color>((*clrarr)[idx]);
 }
 
 

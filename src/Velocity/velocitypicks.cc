@@ -157,7 +157,7 @@ void Picks::setPickType( Picks::PickType t, bool resetcolor )
 }
 
 
-bool Picks::setColor( const Color& col, bool dosave )
+bool Picks::setColor( const OD::Color& col, bool dosave )
 {
     if ( col!=color_ )
     {
@@ -189,7 +189,7 @@ void Picks::getColorKey( BufferString& key ) const
 }
 
 
-bool Picks::getDefaultColor( Color& col ) const
+bool Picks::getDefaultColor( OD::Color& col ) const
 {
     BufferString key;
     getColorKey( key );

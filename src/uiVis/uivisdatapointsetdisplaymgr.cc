@@ -150,12 +150,12 @@ uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 						       tr("Selection Group"));
 	selfld_ = cbx->box();
 	BufferStringSet selgrpnms = dispprop.selGrpNames();
-	TypeSet<Color> selgrpcols = dispprop.selGrpColors();
+	TypeSet<OD::Color> selgrpcols = dispprop.selGrpColors();
 	for ( int idx=0; idx<selgrpnms.size(); idx++ )
 	{
 	    selfld_->addItem( mToUiStringTodo(selgrpnms[idx]->buf()) );
 	    uiPixmap pixmap( 20, 20 );
-	    Color col = selgrpcols[ idx ];
+	    OD::Color col = selgrpcols[ idx ];
 	    pixmap.fill( col );
 	    selfld_->setPixmap( idx, pixmap );
 	}
@@ -197,12 +197,12 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 						       tr("Selection Group"));
 	selfld_ = cbx->box();
 	BufferStringSet selgrpnms = dispprop.selGrpNames();
-	TypeSet<Color> selgrpcols = dispprop.selGrpColors();
+	TypeSet<OD::Color> selgrpcols = dispprop.selGrpColors();
 	for ( int idx=0; idx<selgrpnms.size(); idx++ )
 	{
 	    selfld_->addItem( mToUiStringTodo(selgrpnms[idx]->buf()) );
 	    uiPixmap pixmap( 20, 20 );
-	    Color col = selgrpcols[ idx ];
+	    OD::Color col = selgrpcols[ idx ];
 	    pixmap.fill( col );
 	    selfld_->setPixmap( idx, pixmap );
 	}

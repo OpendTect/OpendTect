@@ -154,13 +154,13 @@ public:
 
     virtual bool		hasColor() const	{ return false;}
     virtual bool		usesColor() const	{ return hasColor(); }
-    virtual void		setColor(Color)		{}
-    virtual Color		getColor() const
-				{ return Color::DgbColor(); }
+    virtual void		setColor(OD::Color)		{}
+    virtual OD::Color		getColor() const
+				{ return OD::Color::DgbColor(); }
 
-    virtual void		setAnnotColor(Color)			{}
-    virtual Color		getAnnotColor() const
-				{ return Color::DgbColor(); }
+    virtual void		setAnnotColor(OD::Color)		{}
+    virtual OD::Color		getAnnotColor() const
+				{ return OD::Color::DgbColor(); }
 
     virtual int			nrResolutions() const		{ return 1; }
     virtual BufferString	getResolutionName(int) const;

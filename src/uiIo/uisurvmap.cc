@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     : uiBaseMapObject(bmo)
-    , ls_(OD::LineStyle::Solid,3,Color::Red())
+    , ls_(OD::LineStyle::Solid,3,OD::Color::Red())
     , showlabels_(true)
     , asworkarea_(false)
 {
@@ -45,7 +45,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     for ( int idx=0; idx<4; idx++ )
     {
 	uiTextItem* textitem = new uiTextItem();
-	textitem->setTextColor( Color::Black() );
+	textitem->setTextColor( OD::Color::Black() );
 	textitem->setAlignment( postxtalign );
 	textitem->setFont( FontList().get(FontData::Graphics2DSmall) );
 	graphitem_.addChild( textitem );
@@ -156,7 +156,7 @@ uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
 
     angleline_ = new uiLineItem;
     angleline_->setPenStyle(
-		OD::LineStyle(OD::LineStyle::Dot,2,Color(255,0,0)) );
+		OD::LineStyle(OD::LineStyle::Dot,2,OD::Color(255,0,0)) );
     graphitem_.addChild( angleline_ );
 
     mDeclAlignment( txtalign, Right, Bottom );
@@ -262,7 +262,7 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
 	title_ = view_.scene().addItem(
 		new uiTextItem(uiPoint(10,10),mJoinUiStrs(sSurvey(),sName()),
 								    txtalign) );
-	title_->setPenColor( Color::Black() );
+	title_->setPenColor( OD::Color::Black() );
 	title_->setFont( FontList().get(FontData::Graphics2DLarge) );
     }
 

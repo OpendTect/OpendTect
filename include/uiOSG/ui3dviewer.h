@@ -79,8 +79,8 @@ public:
     void		toHomePos();
     void		saveHomePos();
     void		showRotAxis(bool);
-    void		setAnnotationColor(const Color&);
-    Color		getAnnotationColor() const;
+    void		setAnnotationColor(const OD::Color&);
+    OD::Color		getAnnotationColor() const;
     void		setAnnotationFont(const FontData&);
     bool		rotAxisShown() const;
     void		toggleCameraType();
@@ -91,8 +91,8 @@ public:
     void		setWheelDisplayMode(WheelMode);
     WheelMode		getWheelDisplayMode() const;
 
-    void		setBackgroundColor(const Color&);
-    Color		getBackgroundColor() const;
+    void		setBackgroundColor(const OD::Color&);
+    OD::Color		getBackgroundColor() const;
 
     Geom::Size2D<int>	getViewportSizePixels() const;
 

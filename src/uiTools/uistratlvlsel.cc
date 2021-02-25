@@ -72,10 +72,10 @@ BufferString uiStratLevelSel::getLevelName() const
 }
 
 
-Color uiStratLevelSel::getColor() const
+OD::Color uiStratLevelSel::getColor() const
 {
     const Strat::Level* lvl = selected();
-    return lvl && lvl->id() >= 0 ? lvl->color() : Color::NoColor();
+    return lvl && lvl->id() >= 0 ? lvl->color() : OD::Color::NoColor();
 }
 
 

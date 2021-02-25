@@ -64,7 +64,7 @@ public:
     void			getLogNames(const MultiID&,
 					    BufferStringSet&) const;
 
-    bool			editDisplayProperties(const MultiID&, Color);
+    bool			editDisplayProperties(const MultiID&,OD::Color);
     void			displayIn2DViewer(const MultiID&);
 
     bool			dispLineOnCreation(){ return disponcreation_; }
@@ -85,7 +85,7 @@ public:
 
     void			createWellFromPicks();
     const char*			askWellName();
-    bool			setupNewWell(BufferString&,Color&);
+    bool			setupNewWell(BufferString&,OD::Color&);
     bool			storeWell(const TypeSet<Coord3>&,const char* nm,
 					  MultiID&,bool addwellhead=false);
 

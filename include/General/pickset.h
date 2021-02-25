@@ -44,8 +44,8 @@ public:
     struct Disp
     {
 			Disp()
-			    : color_(Color::NoColor())
-			    , fillcolor_(Color::NoColor())
+			    : color_(OD::Color::NoColor())
+			    , fillcolor_(OD::Color::NoColor())
 			    , pixsize_(3)
 			    , markertype_(3) // Sphere
 			    , dofill_(false)
@@ -53,8 +53,8 @@ public:
 			{}
 	enum Connection { None, Open, Close };
 			mDeclareEnumUtils(Connection)
-	Color		color_;		//!< marker color
-	Color		fillcolor_;	//!< surface color
+	OD::Color	color_;		//!< marker color
+	OD::Color	fillcolor_;	//!< surface color
 	int		pixsize_;	//!< size in pixels
 	int		markertype_;	//!< MarkerStyle3D
 	bool		dofill_;	//!< Fill?

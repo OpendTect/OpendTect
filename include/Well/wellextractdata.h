@@ -166,7 +166,7 @@ public:
     const Interval<float>	getTracksTVDRange() const {return trackstvdrg_;}
 
     void			getAllMarkerInfos(BufferStringSet& nms,
-						TypeSet<Color>& colors) const;
+					    TypeSet<OD::Color>& colors) const;
     void			getAllLogNames(BufferStringSet&) const;
     void			setSurvey(const SurveyDiskLocation&);
     SurveyDiskLocation&		survey() const;

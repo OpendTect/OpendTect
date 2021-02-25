@@ -1051,7 +1051,7 @@ void uiTable::setPixmap( const RowCol& rc, const uiPixmap& pm )
 }
 
 
-void uiTable::setColor( const RowCol& rc, const Color& col )
+void uiTable::setColor( const RowCol& rc, const OD::Color& col )
 {
     mBlockCmdRec;
     QColor qcol( col.r(), col.g(), col.b(), 255-col.t() );
@@ -1061,17 +1061,18 @@ void uiTable::setColor( const RowCol& rc, const Color& col )
 }
 
 
-Color uiTable::getColor( const RowCol& rc ) const
+OD::Color uiTable::getColor( const RowCol& rc ) const
 {
     QTableWidgetItem* itm = body_->getItem( rc, false );
-    if ( !itm ) return Color(255,255,255);
+    if ( !itm )
+	return OD::Color(255,255,255);
 
     const QColor qcol = itm->background().color();
-    return Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
+    return OD::Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
 }
 
 
-void uiTable::setHeaderBackground( int idx, const Color& col, bool isrow )
+void uiTable::setHeaderBackground( int idx, const OD::Color& col, bool isrow )
 {
     QTableWidgetItem* itm = isrow ? body_->verticalHeaderItem( idx )
 					    : body_->horizontalHeaderItem( idx);
@@ -1083,14 +1084,15 @@ void uiTable::setHeaderBackground( int idx, const Color& col, bool isrow )
 }
 
 
-Color uiTable::getHeaderBackground( int idx, bool isrow ) const
+OD::Color uiTable::getHeaderBackground( int idx, bool isrow ) const
 {
     QTableWidgetItem* itm = isrow ? body_->verticalHeaderItem( idx )
 					    : body_->horizontalHeaderItem( idx);
-    if ( !itm ) return Color(255,255,255);
+    if ( !itm )
+	return OD::Color(255,255,255);
 
     const QColor qcol = itm->background().color();
-    return Color( qcol.red(), qcol.green(), qcol.blue() );
+    return OD::Color( qcol.red(), qcol.green(), qcol.blue() );
 }
 
 
@@ -1147,7 +1149,7 @@ void uiTable::setRowToolTip( int row, const uiString& tt )
 }
 
 
-void uiTable::setLabelBGColor( int rc, Color c, bool isrow )
+void uiTable::setLabelBGColor( int rc, OD::Color c, bool isrow )
 {
     QTableWidgetItem& qw = body_->getRCItem( rc, isrow );
     qw.setBackground( QBrush(QColor(c.r(),c.g(),c.b(),255)) );

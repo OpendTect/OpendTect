@@ -44,8 +44,9 @@ void uiFlatViewWin::setDarkBG( bool yn )
 	vwrs_[idx]->appearance().setDarkBG( yn );
     }
 
-    dockParent()->setBackgroundColor( yn ? Color::Black() : Color::White() );
-    viewerParent()->setBackgroundColor( yn ? Color::Black() : Color::White() );
+    const OD::Color clr = yn ? OD::Color::Black() : OD::Color::White();
+    dockParent()->setBackgroundColor( clr );
+    viewerParent()->setBackgroundColor( clr );
 }
 
 

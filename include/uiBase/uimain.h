@@ -54,7 +54,7 @@ public:
     uiMainWin*		topLevel()			{ return mainobj_; }
     void		setFont(const uiFont&,bool passtochildren);
     const uiFont*	font();
-    Color		windowColor() const;
+    OD::Color		windowColor() const;
     static void		setIcon(const char* icid);
 
     int			nrScreens() const;

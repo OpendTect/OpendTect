@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visscalebardisplay.h"
 
+#include "color.h"
 #include "pickset.h"
 #include "survinfo.h"
 #include "viscoord.h"
@@ -110,7 +111,9 @@ void ScaleBarDisplay::setOrientation( int ortn )
 
 
 int ScaleBarDisplay::getOrientation() const
-{ return orientation_; }
+{
+    return orientation_;
+}
 
 
 void ScaleBarDisplay::setOnInlCrl( bool yn )
@@ -120,18 +123,22 @@ void ScaleBarDisplay::setOnInlCrl( bool yn )
 }
 
 
-void ScaleBarDisplay::setColors( Color color )
+void ScaleBarDisplay::setColors( OD::Color color )
 {
     mToGroup( setColor, color );
 }
 
 
 bool ScaleBarDisplay::isOnInlCrl() const
-{ return oninlcrl_; }
+{
+    return oninlcrl_;
+}
 
 
 void ScaleBarDisplay::zScaleCB( CallBacker* )
-{ fullRedraw(); }
+{
+    fullRedraw();
+}
 
 
 void ScaleBarDisplay::dispChg( CallBacker* cb )

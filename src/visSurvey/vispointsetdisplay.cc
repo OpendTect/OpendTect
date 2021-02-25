@@ -6,16 +6,17 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "color.h"
+#include "datapointset.h"
+#include "executor.h"
 #include "randcolor.h"
 #include "selector.h"
+
 #include "viscoord.h"
 #include "visevent.h"
-#include "vispointsetdisplay.h"
-
-#include "datapointset.h"
-#include "vispointset.h"
 #include "vismaterial.h"
-#include "executor.h"
+#include "vispointsetdisplay.h"
+#include "vispointset.h"
 
 
 namespace visSurvey {
@@ -132,7 +133,7 @@ int nextStep()
     if ( showselected_ && !data_.isSelected(rowid) )
 	return MoreToDo();
 
-    Color col;
+    OD::Color col;
     if ( showselected_ )
     {
 	int selgrp = data_.selGroup( rowid );
@@ -201,7 +202,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
 	const float val = data_.value( dpsdispprop_.dpsColID(), idx );
-	const Color col = dpsdispprop_.getColor( val );
+	const OD::Color col = dpsdispprop_.getColor( val );
 	pointset_.getMaterial()->setColor( col, idx );
     }
 

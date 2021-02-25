@@ -67,7 +67,7 @@ void PickSetMgr::addPick( float zpos, bool issynth, const SeisTrc* trc )
 		curpickset.pop();
 
 	Marker marker( trc ? findEvent( *trc, zpos ) : zpos );
-	marker.color_ = Color::DgbColor();
+	marker.color_ = OD::Color::DgbColor();
 	curpickset += marker;
 	lastpicksynth_ = issynth;
     }

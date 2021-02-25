@@ -119,7 +119,7 @@ void uiHistogramSel::init()
     maxvaltext_->setZValue( zval+2 );
 
     MouseCursor cursor( MouseCursor::SizeHor );
-    OD::LineStyle ls( OD::LineStyle::Solid, 2, Color(0,255,0) );
+    OD::LineStyle ls( OD::LineStyle::Solid, 2, OD::Color(0,255,0) );
     minhandle_ = scene.addItem( new uiLineItem() );
     minhandle_->setPenStyle( ls );
     minhandle_->setCursor( cursor );

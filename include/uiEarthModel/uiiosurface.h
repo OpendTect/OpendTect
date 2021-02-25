@@ -124,8 +124,8 @@ public:
 
     virtual bool	processInput();
     int			getStratLevelID() const;
-    void		setColor(const Color&);
-    Color		getColor() const;
+    void		setColor(const OD::Color&);
+    OD::Color		getColor() const;
     bool		replaceInTree()	const;
 
     uiCheckBox*		getDisplayFld()		{ return displayfld_; }

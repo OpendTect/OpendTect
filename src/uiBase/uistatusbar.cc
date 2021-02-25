@@ -59,7 +59,7 @@ void message( const uiString& msg, int idx, int msecs )
 }
 
 
-void setBGColor( int idx, const Color& col )
+void setBGColor( int idx, const OD::Color& col )
 {
     QWidget* widget = 0;
     if ( msgs_.validIdx(idx) && msgs_[idx] )
@@ -74,7 +74,7 @@ void setBGColor( int idx, const Color& col )
 }
 
 
-Color getBGColor( int idx )
+OD::Color getBGColor( int idx )
 {
     const QWidget* widget = 0;
     if ( msgs_.validIdx(idx) && msgs_[idx] )
@@ -84,7 +84,7 @@ Color getBGColor( int idx )
 
     const QBrush& qbr = widget->palette().brush( widget->backgroundRole() );
     const QColor& qc = qbr.color();
-    return Color( qc.red(), qc.green(), qc.blue() );
+    return OD::Color( qc.red(), qc.green(), qc.blue() );
 }
 
 
@@ -195,13 +195,13 @@ void uiStatusBar::message( const uiStringSet& msgs, int msecs )
 }
 
 
-void uiStatusBar::setBGColor( int fldidx, const Color& col )
+void uiStatusBar::setBGColor( int fldidx, const OD::Color& col )
 {
     body_->setBGColor( fldidx, col );
 }
 
 
-Color uiStatusBar::getBGColor( int fldidx ) const
+OD::Color uiStatusBar::getBGColor( int fldidx ) const
 {
     return body_->getBGColor( fldidx );
 }

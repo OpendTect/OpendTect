@@ -73,12 +73,12 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     uiGroup* rightgrp = new uiGroup( this, "Right" );
 
-    OD::LineStyle ls( OD::LineStyle::Solid, 1, Color::LightGrey() );
+    OD::LineStyle ls( OD::LineStyle::Solid, 1, OD::Color::LightGrey() );
     uiFunctionDisplay::Setup su;
     su.border(uiBorder(2,5,3,5)).xrg(Interval<float>(0,1)).editable(true)
       .yrg(Interval<float>(0,255)).canvaswidth(mTransWidth).closepolygon(true)
-      .canvasheight(mTransHeight).drawscattery1(true) .ycol(Color(255,0,0))
-      .y2col(Color(190,190,190)).drawliney2(false).fillbelowy2(true)
+      .canvasheight(mTransHeight).drawscattery1(true) .ycol(OD::Color(255,0,0))
+      .y2col(OD::Color(190,190,190)).drawliney2(false).fillbelowy2(true)
       .pointsz(3).ptsnaptol(0.08).noxaxis(true).noxgridline(true).noyaxis(true)
       .noygridline(true).noy2axis(true).noy2gridline(true).drawborder(true)
       .borderstyle(ls);
@@ -517,7 +517,7 @@ void uiColorTableMan::rightClick( CallBacker* )
     }
 
     if ( selidx_<0 ) return;
-    Color col = ctab_.color( (float) wpt.x );
+    OD::Color col = ctab_.color( (float) wpt.x );
     if ( selectColor(col,this,tr("Color selection"),false) )
     {
 	ctab_.changeColor( selidx_-1, col.r(), col.g(), col.b() );

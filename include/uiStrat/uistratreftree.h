@@ -84,7 +84,7 @@ protected:
 					 const Strat::UnitRef&) const;
 
     void		addNode(uiTreeViewItem*,const Strat::NodeUnitRef&,bool);
-    uiPixmap*		createUnitPixmap(const Color&) const;
+    uiPixmap*		createUnitPixmap(const OD::Color&) const;
 			//becomes yours!
     Strat::NodeUnitRef* replaceUnit(Strat::NodeUnitRef&,bool byleaved);
     void		addLithologies(Strat::LeavedUnitRef&,

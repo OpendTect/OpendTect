@@ -754,7 +754,7 @@ uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
     llb->attach( alignedBelow, sizefld_ );
     shapefld_->setCurrentItem( (int)(mstyle.type_-1) );
 
-    Color yaxiscol = plotter_.axisHandler(1)->setup().style_.color_;
+    OD::Color yaxiscol = plotter_.axisHandler(1)->setup().style_.color_;
     ycolinpfld_ = new uiColorInput( this, uiColorInput::Setup(yaxiscol)
 		      .lbltxt(uiStrings::phrJoinStrings(uiStrings::sY(),
 		      mJoinUiStrs(sAxis(), sColor()))));
@@ -762,7 +762,7 @@ uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
 
     if ( hasy2_ )
     {
-	Color y2axiscol = plotter_.axisHandler(2)->setup().style_.color_;
+	OD::Color y2axiscol = plotter_.axisHandler(2)->setup().style_.color_;
 	y2colinpfld_ = new uiColorInput( this, uiColorInput::Setup(y2axiscol)
 		       .lbltxt(uiStrings::phrJoinStrings(uiStrings::sY2(),
 		       mJoinUiStrs(sAxis(), sColor()))));
@@ -783,7 +783,7 @@ bool acceptOK()
     mstyle.type_ = (MarkerStyle2D::Type)(shapefld_->currentItem()+1);
     plotter_.axisHandler(1)->setup().style_.color_ = ycolinpfld_->color();
     plotter_.axisHandler(1)->setup().gridlinestyle_.color_ =
-	ycolinpfld_->color();
+							ycolinpfld_->color();
     if ( hasy2_ )
     {
 	plotter_.axisHandler(2)->setup().style_.color_ = y2colinpfld_->color();

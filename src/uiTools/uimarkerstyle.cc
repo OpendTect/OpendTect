@@ -58,7 +58,7 @@ uiMarkerStyle2D::uiMarkerStyle2D( uiParent* p, const Setup& su )
 
     if ( su.color_ )
     {
-	uiColorInput::Setup csu( Color::White(), su.transparency_ ?
+	uiColorInput::Setup csu( OD::Color::White(), su.transparency_ ?
 		uiColorInput::Setup::InSelector : uiColorInput::Setup::None );
 	csu.lbltxt( typefld_ ? uiStrings::sColor() : tr("Marker color") )
 	    .withdesc(false);
@@ -132,16 +132,16 @@ MarkerStyle2D::Type uiMarkerStyle2D::getMarkerType() const
 }
 
 
-void uiMarkerStyle2D::setMarkerColor( const Color& col )
+void uiMarkerStyle2D::setMarkerColor( const OD::Color& col )
 {
     if ( colorfld_ )
 	colorfld_->setColor( col );
 }
 
 
-Color uiMarkerStyle2D::getMarkerColor() const
+OD::Color uiMarkerStyle2D::getMarkerColor() const
 {
-    return colorfld_ ? colorfld_->color() : Color::Black();
+    return colorfld_ ? colorfld_->color() : OD::Color::Black();
 }
 
 
@@ -201,7 +201,7 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
     if ( withcolor )
     {
 	colselfld_ = new uiColorInput( this,
-				uiColorInput::Setup(Color::White())
+				uiColorInput::Setup(OD::Color::White())
 				.lbltxt(uiStrings::sColor()).withdesc(false) );
 	if ( typefld_ )
 	    colselfld_->attach( rightTo, typefld_ );
@@ -247,8 +247,10 @@ MarkerStyle3D::Type uiMarkerStyle3D::getType() const
 { return types_[typefld_->getIntValue()]; }
 
 
-Color uiMarkerStyle3D::getColor() const
-{ return colselfld_ ? colselfld_->color() : Color::Black(); }
+OD::Color uiMarkerStyle3D::getColor() const
+{
+    return colselfld_ ? colselfld_->color() : OD::Color::Black();
+}
 
 
 int uiMarkerStyle3D::getSize() const

@@ -35,11 +35,11 @@ public:
 
 				uiFunctionSel(uiParent*,
 				    const ObjectSet<FunctionSource>&,
-				    const TypeSet<Color>*);
+				    const TypeSet<OD::Color>*);
 				~uiFunctionSel();
 
     ObjectSet<FunctionSource>&	getVelSources();
-    const TypeSet<Color>&	getColor() const { return colors_; }
+    const TypeSet<OD::Color>&	getColor() const { return colors_; }
 
     Notifier<uiFunctionSel>	listChange;
 
@@ -58,7 +58,7 @@ protected:
     uiColorInput*			colorfld_;
 
     ObjectSet<FunctionSource>		velsources_;
-    TypeSet<Color>			colors_;
+    TypeSet<OD::Color>			colors_;
 };
 
 

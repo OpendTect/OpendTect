@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-
+#include "color.h"
 #include "visdata.h"
 
 class FontData;
@@ -33,7 +33,7 @@ public:
     float			getLength() const;
     void			setPosition(float,float);
     void			setSize(float rad, float len);
-    void			setAnnotationColor(const Color&);
+    void			setAnnotationColor(const OD::Color&);
     void			setAnnotationTextSize(int);
     void			setAnnotationFont(const FontData&);
     void			setPrimaryCamera(visBase::Camera*);

@@ -149,8 +149,8 @@ public:
 
 			uiStratLevelDlg(uiParent*);
 
-    void		setLvlInfo(const char*,const Color& col);
-    void		getLvlInfo(BufferString&,Color& col) const;
+    void		setLvlInfo(const char*,const OD::Color& col);
+    void		getLvlInfo(BufferString&,OD::Color& col) const;
 
 protected:
 

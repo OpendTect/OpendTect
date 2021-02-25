@@ -331,9 +331,9 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 	return;
     }
 
-    const Color prefcol = emobj->preferredColor();
-    const Color sowcolor =
-	prefcol !=Color::Red() ? Color::Red() : Color::Green();
+    const OD::Color prefcol = emobj->preferredColor();
+    const OD::Color sowcolor =
+	prefcol !=OD::Color::Red() ? OD::Color::Red() : OD::Color::Green();
 
     if ( editor_ )
     {
@@ -760,10 +760,10 @@ void HorizonFlatViewEditor2D::setupPatchDisplay()
     RefMan<EM::EMObject> emobj = EM::EMM().getObject(emid_);
     if ( !emobj || !editor_ ) return;
 
-    Color patchcolor = Color::Red();
-    const Color mkclr = emobj->preferredColor();
+    OD::Color patchcolor = OD::Color::Red();
+    const OD::Color mkclr = emobj->preferredColor();
     if ( Math::Abs(patchcolor.g()-mkclr.g())<30 )
-	    patchcolor = Color::Green();
+	    patchcolor = OD::Color::Green();
 
     if ( !patchdata_ )
     {

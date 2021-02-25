@@ -468,7 +468,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     setDragMode( uiGraphicsViewBase::NoDrag );
     getMouseEventHandler().buttonReleased.notify(
 	    mCB(this,uiGraphicsViewBase,rubberBandCB) );
-    setBackgroundColor( Color::White() );
+    setBackgroundColor( OD::Color::White() );
 
     allviewers += this;
 }
@@ -704,23 +704,23 @@ void uiGraphicsViewBase::show()
 { body_->show(); }
 
 
-void uiGraphicsViewBase::setBackgroundColor( const Color& color )
+void uiGraphicsViewBase::setBackgroundColor( const OD::Color& color )
 {
     QBrush brush( QColor(color.r(),color.g(),color.b(),255-color.t()) );
     body_->setBackgroundBrush( brush );
 }
 
 
-Color uiGraphicsViewBase::backgroundColor() const
+OD::Color uiGraphicsViewBase::backgroundColor() const
 {
     QColor qcol( body_->backgroundBrush().color() );
-    return Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
+    return OD::Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
 }
 
 
 void uiGraphicsViewBase::setNoBackGround()
 {
-    Color col = backgroundColor();
+    OD::Color col = backgroundColor();
     col.setTransparency( 255 );
     setBackgroundColor( col );
     scene_->setBackGroundColor( col );
@@ -835,7 +835,7 @@ uiGraphicsViewMask::uiGraphicsViewMask( uiGraphicsViewBase& vw )
     leftmask_->setPenStyle( lst );
     rightmask_ = new uiRectItem(); addChild( rightmask_ );
     rightmask_->setPenStyle( lst );
-    setMaskColor( Color::White() );
+    setMaskColor( OD::Color::White() );
 }
 
 
@@ -849,7 +849,7 @@ void uiGraphicsViewMask::setBorder( int b )
 }
 
 
-void uiGraphicsViewMask::setMaskColor( const Color& col )
+void uiGraphicsViewMask::setMaskColor( const OD::Color& col )
 {
     maskcolor_ = col;
     topmask_->setFillColor( col );

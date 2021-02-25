@@ -308,11 +308,11 @@ bool EM::PosIDChangeEvent::reDo()
 
 
 EM::SetPrefColorEvent::SetPrefColorEvent( const EM::ObjectID& objid,
-					  const Color& oldcol,
-					  const Color& newcol )
-    : objectid_( objid )
-    , oldcolor_( oldcol )
-    , newcolor_( newcol )
+					  const OD::Color& oldcol,
+					  const OD::Color& newcol )
+    : objectid_(objid)
+    , oldcolor_(oldcol)
+    , newcolor_(newcol)
 {}
 
 

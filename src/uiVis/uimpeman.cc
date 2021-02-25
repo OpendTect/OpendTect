@@ -617,11 +617,11 @@ void uiMPEMan::seedClick( CallBacker* )
     TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd) : node,
 			 (float)seedcrd.z );
 
-    Color clr = Color::Green();
-    if ( Math::Abs(emobj->preferredColor().g()-Color::Green().g())<30 )
-	    clr = Color::Red();
+    OD::Color clr = OD::Color::Green();
+    if ( Math::Abs(emobj->preferredColor().g()-OD::Color::Green().g())<30 )
+	    clr = OD::Color::Red();
 
-    const Color sowclr=
+    const OD::Color sowclr=
 	seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||
 	seedpicker->getTrackMode()==seedpicker->DrawAndSnap ?
 	clr : emobj->preferredColor();

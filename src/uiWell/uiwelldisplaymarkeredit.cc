@@ -354,7 +354,7 @@ void uiDispEditMarkerDlg::fillMarkerList( CallBacker* )
     const BufferString selnm = mrklist_->nrChosen() ? mrklist_->getText()
 						    : sKey::EmptyString().buf();
     if ( mrklist_->size() ) mrklist_->setEmpty();
-    BufferStringSet mrknms; TypeSet<Color> mrkcols; TypeSet<float> dahs;
+    BufferStringSet mrknms; TypeSet<OD::Color> mrkcols; TypeSet<float> dahs;
 
 #define mAddMrkToList(mrk)\
 if ( mrknms.addIfNew( mrk.name() ) )\

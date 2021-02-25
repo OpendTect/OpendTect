@@ -150,7 +150,7 @@ void uiWavelet::initWaveletViewer()
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.overlap_ = 0;
     app.ddpars_.wva_.mappersetup_.cliprate_.set(0,0);
-    app.ddpars_.wva_.refline_ = Color::Black();
+    app.ddpars_.wva_.refline_ = OD::Color::Black();
     app.ddpars_.wva_.mappersetup_.symmidval_ = 0;
     app.setDarkBG( false );
     app.annot_.x1_.hasannot_ = false;

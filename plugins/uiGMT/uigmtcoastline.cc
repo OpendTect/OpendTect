@@ -66,11 +66,11 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     lsfld_ = new uiSelLineStyle( this, OD::LineStyle(),uiStrings::sLineStyle());
     lsfld_->attach( alignedBelow, lcb );
 
-    wetcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
+    wetcolfld_ = new uiColorInput( this, uiColorInput::Setup(OD::Color::White())
 					.lbltxt(tr("Fill wet regions"))
 					.withcheck(true) );
     wetcolfld_->attach( alignedBelow, lsfld_ );
-    drycolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
+    drycolfld_ = new uiColorInput( this, uiColorInput::Setup(OD::Color::White())
 					.lbltxt(tr("Fill dry regions"))
 					.withcheck(true) );
     drycolfld_->attach( alignedBelow, wetcolfld_ );
@@ -88,8 +88,8 @@ void uiGMTCoastlineGrp::reset()
     lsfld_->setStyle( OD::LineStyle() );
     wetcolfld_->setDoDraw( false );
     drycolfld_->setDoDraw( false );
-    wetcolfld_->setColor( Color(170,255,255) );
-    drycolfld_->setColor( Color(170,170,127) );
+    wetcolfld_->setColor( OD::Color(170,255,255) );
+    drycolfld_->setColor( OD::Color(170,170,127) );
 }
 
 
@@ -166,12 +166,12 @@ bool uiGMTCoastlineGrp::usePar( const IOPar& par )
     drycolfld_->setDoDraw( dryfill );
     if ( wetfill )
     {
-	Color col; par.get( ODGMT::sKeyWetFillColor(), col );
+	OD::Color col; par.get( ODGMT::sKeyWetFillColor(), col );
 	wetcolfld_->setColor( col );
     }
     if ( dryfill )
     {
-	Color col; par.get( ODGMT::sKeyDryFillColor(), col );
+	OD::Color col; par.get( ODGMT::sKeyDryFillColor(), col );
 	drycolfld_->setColor( col );
     }
 

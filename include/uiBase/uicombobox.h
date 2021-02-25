@@ -83,7 +83,7 @@ public:
 
     void		setItemText(int,const uiString&);
     void		setPixmap(int index,const uiPixmap&);
-    void		setColorIcon(int index,const Color&);
+    void		setColorIcon(int index,const OD::Color&);
     void		setIcon(int index,const char* icon_identifier);
 
     void		setItemID(int index,int id);

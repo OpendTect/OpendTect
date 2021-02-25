@@ -55,8 +55,8 @@ public:
     void			setTrackingMethod(EventTracker::CompareMethod);
     EventTracker::CompareMethod	getTrackingMethod() const;
     void			setSeedPos(const TrcKeyValue&);
-    void			setColor(const Color&);
-    const Color&		getColor();
+    void			setColor(const OD::Color&);
+    const OD::Color&		getColor() override;
     int				getLineWidth() const;
     void			setLineWidth(int);
     void			setMarkerStyle(const MarkerStyle3D&);

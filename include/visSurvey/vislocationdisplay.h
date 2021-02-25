@@ -54,7 +54,8 @@ public:
     bool			allShown() const	{ return showall_; }
     virtual void		setOnlyAtSectionsDisplay(bool);
     virtual bool		displayedOnlyAtSections() const;
-    void			allowDoubleClick( bool yn ) { allowdoubleclicks_ = yn; }
+    void			allowDoubleClick( bool yn )
+						    { allowdoubleclicks_ = yn; }
 
     virtual BufferString	getManipulationString() const;
     void			getObjectInfo(BufferString&) const;
@@ -65,8 +66,8 @@ public:
 						Coord3&,BufferString&,
 						BufferString&) const;
     virtual bool		hasColor() const	{ return true; }
-    virtual Color		getColor() const;
-    virtual void		setColor(Color);
+    virtual OD::Color		getColor() const;
+    virtual void		setColor(OD::Color);
 
     virtual bool		allowsPicks() const	{ return true; }
     virtual bool		isPicking() const;

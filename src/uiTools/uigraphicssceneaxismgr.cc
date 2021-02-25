@@ -75,7 +75,7 @@ void uiGraphicsSceneAxis::enableMask( bool yn )
     {
 	mask_ = new uiRectItem;
 	itmgrp_->add( mask_ );
-	mask_->setFillColor( Color::White() );
+	mask_->setFillColor( OD::Color::White() );
 	OD::LineStyle lst; lst.type_ = OD::LineStyle::None;
 
 	mask_->setPenStyle( lst );
@@ -302,7 +302,7 @@ uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
     leftmask_->setPenStyle( lst );
     rightmask_ = view_.scene().addItem( new uiRectItem() );
     rightmask_->setPenStyle( lst );
-    setMaskColor( Color::White() );
+    setMaskColor( OD::Color::White() );
 
     mAttachCB( uifont_.changed, uiGraphicsSceneAxisMgr::updateFontSizeCB );
 }
@@ -552,7 +552,7 @@ void uiGraphicsSceneAxisMgr::showAuxPositions( bool forx, bool yn )
 }
 
 
-void uiGraphicsSceneAxisMgr::setMaskColor( const Color& col )
+void uiGraphicsSceneAxisMgr::setMaskColor( const OD::Color& col )
 {
     maskcolor_ = col;
     topmask_->setFillColor( col );
@@ -562,7 +562,7 @@ void uiGraphicsSceneAxisMgr::setMaskColor( const Color& col )
 }
 
 
-Color uiGraphicsSceneAxisMgr::getMaskColor() const
+OD::Color uiGraphicsSceneAxisMgr::getMaskColor() const
 {
     return maskcolor_;
 }

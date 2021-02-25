@@ -8,18 +8,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vismpeeditor.h"
 
+#include "color.h"
 #include "emeditor.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "math2.h"
+
 #include "visdatagroup.h"
 #include "visdragger.h"
 #include "visevent.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
+#include "vispolyline.h"
 #include "vissower.h"
 #include "vistransform.h"
-#include "vispolyline.h"
 
 mCreateFactoryEntry( visSurvey::MPEEditor )
 
@@ -27,29 +29,29 @@ namespace visSurvey
 {
 
 MPEEditor::MPEEditor()
-    : visBase::VisualObjectImpl( false )
-    , nodeRightClick( this )
-    , emeditor_( 0 )
-    , eventcatcher_( 0 )
-    , transformation_( 0 )
-    , markersize_( 3 )
-    , activedragger_( EM::PosID::udf() )
-    , activenodematerial_( 0 )
-    , nodematerial_( 0 )
-    , isdragging_( false )
-    , draggerinmotion_( false )
-    , draggingStarted( this )
-    , patchmarkers_( 0 )
-    , patchline_( 0 )
-    , patch_( 0 )
+    : visBase::VisualObjectImpl(false)
+    , nodeRightClick(this)
+    , emeditor_(nullptr)
+    , eventcatcher_(nullptr)
+    , transformation_(nullptr)
+    , markersize_(3)
+    , activedragger_(EM::PosID::udf())
+    , activenodematerial_(nullptr)
+    , nodematerial_(nullptr)
+    , isdragging_(false)
+    , draggerinmotion_(false)
+    , draggingStarted(this)
+    , patchmarkers_(nullptr)
+    , patchline_(nullptr)
+    , patch_(nullptr)
 {
     nodematerial_ = new visBase::Material;
     nodematerial_->ref();
-    nodematerial_->setColor( Color(255,255,0) );
+    nodematerial_->setColor( OD::Color(255,255,0) );
 
     activenodematerial_ = new visBase::Material;
     activenodematerial_->ref();
-    activenodematerial_->setColor( Color(255,0,0) );
+    activenodematerial_->setColor( OD::Color(255,0,0) );
 
     sower_ = new Sower( this );
     addChild( sower_->osgNode() );
@@ -80,14 +82,14 @@ MPEEditor::~MPEEditor()
 
 void MPEEditor::setupPatchDisplay()
 {
-    Color lineclr = Color::Green() ;
-    Color mkclr = Color::White();
+    OD::Color lineclr = OD::Color::Green() ;
+    OD::Color mkclr = OD::Color::White();
     if ( emeditor_ )
     {
 	const EM::EMObject& emobj = emeditor_->emObject();
 	mkclr = emobj.preferredColor();
-	if ( Math::Abs(mkclr.g()-Color::Green().g())<30 )
-	    lineclr = Color::Red();
+	if ( Math::Abs(mkclr.g()-OD::Color::Green().g())<30 )
+	    lineclr = OD::Color::Red();
     }
     if ( !patchmarkers_ )
     {

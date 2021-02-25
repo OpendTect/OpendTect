@@ -71,7 +71,7 @@ public:
 
     void		setFlattened(bool flattened,bool trigger=true);
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
-				     Color);
+				     OD::Color);
     void		setSelectedTrace(int);
     void		setDispEach(int);
     void		setZDataRange(const Interval<double>&,bool indpt);

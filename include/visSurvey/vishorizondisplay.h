@@ -100,7 +100,7 @@ public:
     void			enableAttrib(int attrib,bool yn);
     bool			isAttribEnabled(int attrib) const;
     bool			hasSingleColorFallback() const	{ return true; }
-    Color			singleColor() const;
+    OD::Color			singleColor() const;
 
     void			allowShading(bool);
     const Attrib::SelSpec*	getSelSpec(int channel,int version=0) const;

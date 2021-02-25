@@ -572,11 +572,11 @@ const uiFont* uiMain::font()
 }
 
 
-Color uiMain::windowColor() const
+OD::Color uiMain::windowColor() const
 {
     const QColor& qcol =
 	 QApplication::palette().color( QPalette::Window );
-    return Color( qcol.red(), qcol.green(), qcol.blue() );
+    return OD::Color( qcol.red(), qcol.green(), qcol.blue() );
 }
 
 
@@ -697,25 +697,25 @@ void uiMain::processEvents( int msec )
 
 
 static bool usenametooltip_ = false;
-static Color normaltooltipbackgroundcolor_;
-static Color normaltooltipforegroundcolor_;
+static OD::Color normaltooltipbackgroundcolor_;
+static OD::Color normaltooltipforegroundcolor_;
 
 void uiMain::useNameToolTip( bool yn )
 {
     if ( usenametooltip_ == yn )
 	return;
 
-    Color bg( normaltooltipbackgroundcolor_ );
-    Color fg( normaltooltipforegroundcolor_ );
+    OD::Color bg( normaltooltipbackgroundcolor_ );
+    OD::Color fg( normaltooltipforegroundcolor_ );
     if ( yn )
     {
-	bg = Color( 220, 255, 255 ); // Pale cyan (to differ from pale yellow)
-	fg = Color::Black();
+	bg = OD::Color( 220, 255, 255 );//Pale cyan (to differ from pale yellow)
+	fg = OD::Color::Black();
 
 	normaltooltipbackgroundcolor_ =
-	    Color( QToolTip::palette().color(QPalette::ToolTipBase).rgb() );
+	    OD::Color( QToolTip::palette().color(QPalette::ToolTipBase).rgb() );
 	normaltooltipforegroundcolor_ =
-	    Color( QToolTip::palette().color(QPalette::ToolTipText).rgb() );
+	    OD::Color( QToolTip::palette().color(QPalette::ToolTipText).rgb() );
     }
 
     QPalette palette;

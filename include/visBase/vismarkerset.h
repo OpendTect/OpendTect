@@ -13,9 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visobject.h"
-#include "trigonometry.h"
+
+#include "color.h"
 #include "draw.h"
+#include "trigonometry.h"
+
+#include "visobject.h"
 #include "viscoord.h"
 #include "visnormals.h"
 
@@ -54,12 +57,12 @@ public:
     void		setMaterial(visBase::Material*);
 			//!<If material is null, markers will be single color
 
-    void		setMarkersSingleColor(const Color& singlecolor);
+    void		setMarkersSingleColor(const OD::Color& singlecolor);
 			//!<all markers will use the same color, the color can
 			//!< also be set by markerstyle
-    Color		getMarkersSingleColor() const;
+    OD::Color		getMarkersSingleColor() const;
     bool		usesSingleColor() const;
-    void		getColorArray(TypeSet<Color>& colors) const;
+    void		getColorArray(TypeSet<OD::Color>& colors) const;
 
     void		setMarkerStyle(const MarkerStyle3D&);
 			/*!<Sets predefined shape and size.

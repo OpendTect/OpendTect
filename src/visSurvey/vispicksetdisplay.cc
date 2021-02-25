@@ -8,9 +8,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vispicksetdisplay.h"
 
+#include "callback.h"
+#include "color.h"
+#include "commondefs.h"
 #include "draw.h"
 #include "mousecursor.h"
 #include "pickset.h"
+#include "zaxistransform.h"
+
 #include "visemobjdisplay.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
@@ -22,9 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visplanedatadisplay.h"
 #include "visseis2ddisplay.h"
 #include "vispolygonselection.h"
-#include "zaxistransform.h"
-#include "callback.h"
-#include "commondefs.h"
 
 static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
@@ -46,7 +48,7 @@ PickSetDisplay::PickSetDisplay()
     , dragger_(nullptr)
     , draggeridx_(-1)
     , showdragger_(false)
-    , color_(Color::White())
+    , color_(OD::Color::White())
     , polylines_(nullptr)
 {
     markerset_->ref();
@@ -571,7 +573,7 @@ visBase::MarkerSet* PickSetDisplay::createOneMarker() const
     markerstyle.type_ = sCast(MarkerStyle3D::Type,set_->disp_.markertype_);
     marker->setMaterial(nullptr);
     marker->setMarkerStyle(markerstyle);
-    marker->setMarkersSingleColor( Color::NoColor() );
+    marker->setMarkersSingleColor( OD::Color::NoColor() );
     marker->addPos( Coord3(0,0,0) );
     return marker;
 }
@@ -724,7 +726,7 @@ void PickSetDisplay::getPickingMessage( BufferString& str ) const
 }
 
 
-void PickSetDisplay::setColor( Color nc )
+void PickSetDisplay::setColor( OD::Color nc )
 {
     if ( set_ )
 	set_->disp_.fillcolor_ = nc;
@@ -862,7 +864,7 @@ void PickSetDisplay::unSelectAll()
 
 void PickSetDisplay::setPickSelect( int idx, bool yn )
 {
-    Color clr = yn ? color_.complementaryColor() : color_;
+    OD::Color clr = yn ? color_.complementaryColor() : color_;
     markerset_->getMaterial()->setColor( clr, idx );
     pickselstatus_[idx] = yn;
 }

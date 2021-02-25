@@ -27,7 +27,7 @@ FaultStickPainter::FaultStickPainter( FlatView::Viewer& fv,
 				      const EM::ObjectID& oid )
     : viewer_(fv)
     , emid_(oid)
-    , markerstyle_( MarkerStyle2D::Square, 4, Color(255,255,0) )
+    , markerstyle_(MarkerStyle2D::Square,4,OD::Color(255,255,0))
     , activestickid_( -1 )
     , is2d_( false )
     , path_(0)

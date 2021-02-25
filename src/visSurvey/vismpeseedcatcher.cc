@@ -557,7 +557,7 @@ void MPEClickCatcher::setEditor( MPEEditor* mpeeditor )
 }
 
 
-bool MPEClickCatcher::activateSower( const Color& color,
+bool MPEClickCatcher::activateSower( const OD::Color& color,
 				     const TrcKeySampling* workrange )
 {
     if ( editor_ && cureventinfo_ )

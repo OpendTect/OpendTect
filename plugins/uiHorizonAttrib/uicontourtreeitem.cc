@@ -808,7 +808,7 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     , linewidth_(1)
     , contoursteprange_(mUdf(float),-mUdf(float))
     , zshift_(mUdf(float))
-    , color_(0,0,0)
+    , color_(OD::Color(0,0,0))
     , showlabels_(true)
     , labels_( 0 )
     , propdlg_(0)
@@ -1104,8 +1104,8 @@ void uiContourTreeItem::showPropertyDlg()
 	}
     }
 
-    propdlg_->propertyChanged.notify( mCB(this,uiContourTreeItem,propChangeCB) );
-    propdlg_->intervalChanged.notify( mCB(this,uiContourTreeItem,intvChangeCB) );
+    mAttachCB(propdlg_->propertyChanged,uiContourTreeItem::propChangeCB);
+    mAttachCB(propdlg_->intervalChanged,uiContourTreeItem::intvChangeCB);
     propdlg_->go();
 }
 
@@ -1146,8 +1146,8 @@ void uiContourTreeItem::propChangeCB( CallBacker* cb )
 
     OD::LineStyle ls( dlg->getLineStyle() );
     drawstyle_->setLineStyle( ls );
-    material_->setColor( ls.color_ );
     color_ = ls.color_;
+    material_->setColor( color_ );
     linewidth_ = ls.width_;
 
     if ( labels_ && lines_ )

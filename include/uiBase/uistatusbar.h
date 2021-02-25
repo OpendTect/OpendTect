@@ -48,8 +48,8 @@ public:
     void		message(const uiString&,int fldidx=0, int msecs=-1);
     void		message(const uiStringSet&,int msecs=-1);
     void		setEmpty(int startat=0);
-    void		setBGColor(int fldidx,const Color&);
-    Color		getBGColor(int fldidx) const;
+    void		setBGColor(int fldidx,const OD::Color&);
+    OD::Color		getBGColor(int fldidx) const;
     void		getMessages( uiStringSet& msgs ) const
 			{ msgs = messages_; }
 

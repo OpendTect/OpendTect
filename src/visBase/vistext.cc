@@ -210,15 +210,15 @@ void Text::setAxisAlignment( AxisAlignment axis )
 
 
 
-void Text::setColor( const Color& col )
+void Text::setColor( const OD::Color& col )
 {
     osgtext_->setColor( Conv::to<osg::Vec4>(col) );
 }
 
 
-Color Text::getColor() const
+OD::Color Text::getColor() const
 {
-    return Conv::to<Color>( osgtext_->getColor() );
+    return Conv::to<::OD::Color>( osgtext_->getColor() );
 }
 
 

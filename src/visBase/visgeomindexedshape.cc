@@ -49,7 +49,7 @@ GeomIndexedShape::GeomIndexedShape()
     , singlematerial_( new Material )
     , coltabmaterial_( new Material )
     , geomshapetype_( Triangle )
-    , linestyle_( OD::LineStyle::Solid,2,Color(0,255,0) )
+    , linestyle_( OD::LineStyle::Solid,2,OD::Color(0,255,0) )
     , useosgnormal_( false )
 {
     singlematerial_->ref();
@@ -223,11 +223,11 @@ void GeomIndexedShape::setDataSequence( const ColTab::Sequence& seq )
     if ( seq!=colorhandler_->sequence_ )
     {
 	colorhandler_->sequence_ = seq;
-	TypeSet<Color> colors;
+	TypeSet<OD::Color> colors;
 	for ( int idx=0; idx<mNrMaterialSteps; idx++ )
 	{
 	    const float val = ( (float) idx )/( mNrMaterialSteps-1 );
-	    const Color col = seq.color( val );
+	    const OD::Color col = seq.color( val );
 	    colors += col;
 	}
 
@@ -442,7 +442,7 @@ void GeomIndexedShape::mapAttributeToColorTableMaterial()
     if ( !colorhandler_ || colorhandler_->attributecache_.size()<=0 )
 	return;
 
-    TypeSet<Color> colors;
+    TypeSet<OD::Color> colors;
 
     for ( int idx=0; idx<vtexshape_->getCoordinates()->size(); idx++ )
     {

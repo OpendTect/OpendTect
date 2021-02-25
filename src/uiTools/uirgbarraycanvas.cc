@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
     	: uiGraphicsView(p,"RGB Array view")
 	, rgbarr_(a) 
-	, bgcolor_(Color::NoColor()) 
+	, bgcolor_(OD::Color::NoColor())
 	, dodraw_(true)
 	, pixmapitm_(0)
 	, pixmap_(0)
@@ -43,7 +43,7 @@ void uiRGBArrayCanvas::setBorder( const uiBorder& newborder )
 }
 
 
-void uiRGBArrayCanvas::setBGColor( const Color& c )
+void uiRGBArrayCanvas::setBGColor( const OD::Color& c )
 {
     if ( bgcolor_ != c )
     {

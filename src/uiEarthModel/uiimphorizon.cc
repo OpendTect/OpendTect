@@ -444,8 +444,8 @@ MultiID uiImportHorizon::getSelID() const
 void uiImportHorizon::stratLvlChg( CallBacker* )
 {
     if ( !stratlvlfld_ ) return;
-    const Color col( stratlvlfld_->getColor() );
-    if ( col != Color::NoColor() )
+    const OD::Color col( stratlvlfld_->getColor() );
+    if ( col != OD::Color::NoColor() )
 	colbut_->setColor( col );
 }
 

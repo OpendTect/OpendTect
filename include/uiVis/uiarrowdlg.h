@@ -24,8 +24,8 @@ mExpClass(uiVis) uiArrowDialog : public uiDialog
 public:
 			uiArrowDialog(uiParent* p);
 
-    void		setColor(const Color&);
-    const Color&	getColor() const;
+    void		setColor(const OD::Color&);
+    const OD::Color&	getColor() const;
 
     void		setLineWidth(int);
     int			getLineWidth() const;

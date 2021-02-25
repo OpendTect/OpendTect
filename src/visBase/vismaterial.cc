@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "color.h"
 #include "vismaterial.h"
 #include "visosg.h"
 #include "iopar.h"
@@ -94,7 +95,7 @@ void Material::setPropertiesFrom( const Material& mat,bool trigger )
 }
 
 
-void Material::setColors( const TypeSet<Color>& colors, bool trigger )
+void Material::setColors( const TypeSet<OD::Color>& colors, bool trigger )
 {
     //Loop backwards to allocate the memory at first call
     for ( int idx=colors.size()-1; idx>=0; idx-- )
@@ -102,7 +103,7 @@ void Material::setColors( const TypeSet<Color>& colors, bool trigger )
 }
 
 
-void Material::setColor( const Color& n, int idx, bool trigger )
+void Material::setColor( const OD::Color& n, int idx, bool trigger )
 {
     mGetWriteLock( lckr );
 
@@ -144,7 +145,7 @@ void Material::setColorArray( osg::Array* ptr )
 }
 
 
-Color Material::getColor( int idx ) const
+OD::Color Material::getColor( int idx ) const
 {
     mGetReadLock( lckr );
 
@@ -154,9 +155,9 @@ Color Material::getColor( int idx ) const
     const osg::Vec4Array* colarr = mGetOsgVec4Arr(osgcolorarray_);
 
     if ( !colarr || idx >= colarr->size() )
-	return Color( 0, 0, 0 );
+	return OD::Color( 0, 0, 0 );
 
-    return Color( Conv::to<Color>( (*colarr)[idx] )  );
+    return OD::Color( Conv::to<OD::Color>( (*colarr)[idx] )  );
 }
 
 
@@ -244,20 +245,20 @@ float Material::getTransparency( int idx ) const
 }
 
 
-const TypeSet<Color> Material::getColors()
+const TypeSet<OD::Color> Material::getColors()
 {
     mGetReadLock( lckr );
 
-    TypeSet<Color> colors;
+    TypeSet<OD::Color> colors;
     if ( osgcolorarray_ )
     {
 	mDefParallelCalc2Pars( ColorUpdator, tr("Updating colors"),
 			       osg::Vec4Array&, osgclrs,
-			       TypeSet<Color>&, colors )
+			       TypeSet<OD::Color>&, colors )
 	mDefParallelCalcBody
 	(
 	    ,
-		colors_[idx] = Conv::to<Color>( osgclrs_[idx] );
+		colors_[idx] = Conv::to<OD::Color>( osgclrs_[idx] );
 	    ,
 	)
 
@@ -396,7 +397,7 @@ int Material::usePar( const IOPar& iopar )
     int r,g,b;
 
     if ( iopar.get( sKeyColor(), r, g, b ) )
-	setColor( Color( r,g,b ));
+	setColor( OD::Color( r,g,b ));
 
     float val;
     if ( iopar.get( sKeyAmbience(), val ))
@@ -423,7 +424,7 @@ int Material::usePar( const IOPar& iopar )
 
 void Material::fillPar( IOPar& iopar ) const
 {
-    Color tmpcolor = getColor();
+    OD::Color tmpcolor = getColor();
     iopar.set( sKeyColor(), tmpcolor.r(), tmpcolor.g(), tmpcolor.b() ) ;
     iopar.set( sKeyAmbience(), getAmbience() );
     iopar.set( sKeyDiffIntensity(), getDiffIntensity() );

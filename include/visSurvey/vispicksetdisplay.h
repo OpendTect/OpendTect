@@ -44,7 +44,7 @@ public:
     bool			isPolygon() const;
 
     bool			hasColor() const	{ return true; }
-    void			setColor(Color);
+    void			setColor(OD::Color);
 
     void			displayBody(bool);
     bool			isBodyDisplayed() const;
@@ -134,7 +134,7 @@ private:
     void			setPickSelect(int,bool);
     void			unSelectAll();
     void			updateLineStyle();
-    Color			color_;
+    OD::Color			color_;
     BoolTypeSet			pickselstatus_;
     visBase::PolyLine*		polylines_;
 };

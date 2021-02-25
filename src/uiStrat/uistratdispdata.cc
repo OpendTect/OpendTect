@@ -177,10 +177,12 @@ void uiStratTreeToDisp::addLithologies( const Strat::LeavedUnitRef& ur )
 
 void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
 {
-    BufferString lvlnm; Color lvlcol;
+    BufferString lvlnm;
+    OD::Color lvlcol;
     const int id = ur.levelID();
     const Strat::LevelSet& lvls = Strat::LVLS();
-    lvlcol = lvls.isPresent( id ) ? lvls.get( id )->color() : Color::Black();
+    lvlcol =
+	    lvls.isPresent( id ) ? lvls.get( id )->color() : OD::Color::Black();
     lvlnm = lvls.isPresent( id ) ? lvls.get( id )->name().buf() : "";
 
     StratDispData::Level* lvl = new StratDispData::Level( lvlnm.buf(),

@@ -62,8 +62,8 @@ public:
     void		setStyle(const OD::LineStyle&);
     const OD::LineStyle& getStyle() const;
 
-    void		setColor(const Color&);
-    const Color&	getColor() const;
+    void		setColor(const OD::Color&);
+    const OD::Color&	getColor() const;
     void		setWidth(int);
     int			getWidth() const;
     void		setLineWidthBounds( int min, int max );

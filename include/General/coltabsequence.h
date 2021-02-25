@@ -53,7 +53,7 @@ public:
     Type		type() const		{ return type_; }
     void		setType( Type tp )	{ type_ = tp; }
 
-    Color		color(float pos) const; //!< 0 <= pos <= 1
+    OD::Color		color(float pos) const; //!< 0 <= pos <= 1
 
     inline bool		isEmpty() const		{ return x_.isEmpty(); }
     inline int		size() const		{ return x_.size(); }
@@ -98,13 +98,13 @@ public:
     Notifier<Sequence>	transparencyChanged;
     Notifier<Sequence>	toBeRemoved;
 
-    const Color&	undefColor() const
+    const OD::Color&	undefColor() const
 			{ return undefcolor_; }
-    void		setUndefColor( Color c )
+    void		setUndefColor( OD::Color c )
 			{ undefcolor_ = c; triggerAll(); }
-    const Color&	markColor() const
+    const OD::Color&	markColor() const
 			{ return markcolor_; }
-    void		setMarkColor( Color c )
+    void		setMarkColor( OD::Color c )
 			{ markcolor_ = c; triggerAll(); }
 
     static const char*	sKeyValCol();
@@ -123,8 +123,8 @@ protected:
     TypeSet<unsigned char>	b_;
     TypeSet< Geom::Point2D<float> > tr_;
 
-    Color		undefcolor_;
-    Color		markcolor_;
+    OD::Color		undefcolor_;
+    OD::Color		markcolor_;
     Type		type_;
     int			nrsegments_;
 

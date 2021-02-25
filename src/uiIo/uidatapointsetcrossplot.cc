@@ -130,7 +130,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 
     yrowidxs_ = new Array1DImpl<char>( dps_.size() );
     y2rowidxs_ = new Array1DImpl<char>( dps_.size() );
-    selgrpset_ += new SelectionGrp( "No 1", Color::DgbColor() );
+    selgrpset_ += new SelectionGrp( "No 1", OD::Color::DgbColor() );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 }
@@ -352,9 +352,9 @@ bool uiDataPointSetCrossPlotter::isSelAreaValid( int selareaid ) const
 }
 
 
-TypeSet<Color> uiDataPointSetCrossPlotter::selGrpCols() const
+TypeSet<OD::Color> uiDataPointSetCrossPlotter::selGrpCols() const
 {
-    TypeSet<Color> selcols;
+    TypeSet<OD::Color> selcols;
     for ( int idx=0; idx<selgrpset_.size(); idx++ )
 	selcols += selgrpset_[idx]->col_;
     return selcols;
@@ -858,7 +858,7 @@ void uiDataPointSetCrossPlotter::reDrawSelArea()
 	    const uiAxisHandler& yah =
 		(selarea.axistype_ == SelectionArea::Y2) ? *y2_.axis_
 							 : *y_.axis_;
-	    const Color& col = selgrp->col_;
+	    const OD::Color& col = selgrp->col_;
 	    if ( selarea.isrectangle_ )
 	    {
 		const uiWorldRect& worldselarea = selarea.worldrect_;
@@ -1290,7 +1290,7 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 	{
 	    PtrMan<uiPixmap> pixmap =
 		new uiPixmap( arrarea_.width(),arrarea_.height());
-	    pixmap->fill( Color::White() );
+	    pixmap->fill( OD::Color::White() );
 	    setPixmap( *pixmap );
 	    updatePixmap();
 	    return;
@@ -1398,8 +1398,8 @@ bool uiDataPointSetCrossPlotter::isSelectionValid( uiDataPointSet::DRowID rid )
 }
 
 
-Color uiDataPointSetCrossPlotter::getOverlayColor( uiDataPointSet::DRowID rid,
-						   bool isy1 )
+OD::Color uiDataPointSetCrossPlotter::getOverlayColor(
+					uiDataPointSet::DRowID rid, bool isy1 )
 {
     const float yval = uidps_.getVal( isy1 ? y3colid_ : y4colid_ ,
 				      rid, true );
@@ -1511,11 +1511,11 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 
     if ( item )
     {
-	const Color& multicol = isy2 ? !y2grpcols_.validIdx(grpid)
-				     ? Color::White() : y2grpcols_[grpid]
+	const OD::Color& multicol = isy2 ? !y2grpcols_.validIdx(grpid)
+				     ? OD::Color::White() : y2grpcols_[grpid]
 				     : !y1grpcols_.validIdx(grpid)
-				     ? Color::White() : y1grpcols_[grpid];
-	Color overlaycol = yad.axis_->setup().style_.color_;
+				     ? OD::Color::White() : y1grpcols_[grpid];
+	OD::Color overlaycol = yad.axis_->setup().style_.color_;
 	if ( showy3_ && !isy2 )
 	    overlaycol = getOverlayColor(rid,true);
 	else if ( showy4_ && isy2 && isY2Shown() )
@@ -1713,7 +1713,7 @@ void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
 			? indexsz : ctmapper_.range().stop );
     coltabRgChanged.trigger( mapperrg );
 
-    rgbarr_.clear( Color::White() );
+    rgbarr_.clear( OD::Color::White() );
 
     for( int idx=0; idx<data->info().getSize(true); idx++ )
     {
@@ -1724,7 +1724,8 @@ void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
 
 	    const float val = data->get( idy, idx );
 	    const float mappedval = ctmapper_.position( (float)val );
-	    Color col = ( val == 0 ) ? Color::White() : ctab_.color( mappedval);
+	    OD::Color col =
+		    ( val == 0 ) ? OD::Color::White() : ctab_.color( mappedval);
 	    if ( col.isVisible() )
 		rgbarr_.set( idy, idx, col );
 	}
@@ -1783,7 +1784,7 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
     isdensityplot_ = false;
     drawTypeChanged.trigger( false );
     PtrMan<uiPixmap> pixmap = new uiPixmap( arrarea_.width(),arrarea_.height());
-    pixmap->fill( Color::White() );
+    pixmap->fill( OD::Color::White() );
     setPixmap( *pixmap );
     updatePixmap();
 

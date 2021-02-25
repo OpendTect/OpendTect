@@ -42,11 +42,11 @@ mStartDeclComposerClass( uiCmdDriver, QColorDlg,CmdComposer,uiMainWin )
 mExpClass(uiCmdDriver) SetColorActivator: public Activator
 {
 public:
-		SetColorActivator(const Color&);
+		SetColorActivator(const OD::Color&);
     void	actCB(CallBacker*);
 
 protected:
-    Color	color_;
+    OD::Color	color_;
 };
 
 mStartDeclComposerClass( uiCmdDriver, QFileDlg,CmdComposer,uiMainWin )

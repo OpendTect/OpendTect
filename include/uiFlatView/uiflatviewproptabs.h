@@ -230,7 +230,7 @@ protected:
     BoolTypeSet						enabled_;
     TypeSet<OD::LineStyle>				linestyles_;
     TypeSet<int>					indices_;
-    TypeSet<Color>					fillcolors_;
+    TypeSet<OD::Color>					fillcolors_;
     TypeSet<MarkerStyle2D>				markerstyles_;
     TypeSet<Interval<double> >				x1rgs_;
     TypeSet<Interval<double> >				x2rgs_;

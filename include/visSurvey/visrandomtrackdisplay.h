@@ -168,7 +168,7 @@ public:
     const char*			errMsg() const { return errmsg_.str(); }
     void			setPolyLineMode(bool yn);
     bool			createFromPolyLine();
-    void			setColor(Color);
+    void			setColor(OD::Color);
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;

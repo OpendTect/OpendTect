@@ -107,7 +107,7 @@ void update()
     }
 
     ls.width_ += 2;
-    ls.color_ = Color::Green();
+    ls.color_ = OD::Color::Green();
     graphicszval = 4;
     if ( baseline_ )
 	mDrawLine( baseline_ );

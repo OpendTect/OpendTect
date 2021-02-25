@@ -269,7 +269,7 @@ void uiHistogramDisplay::drawData()
 
 	baritem = scene().addRect( origxpix, basepix, barwidth, barheight );
 	baritem->setZValue( 30 );
-	baritem->setFillColor( Color(200,160,140) );
+	baritem->setFillColor( OD::Color(200,160,140) );
 	baritems_ += baritem;
     }
 
@@ -365,6 +365,6 @@ void uiHistogramDisplay::putN()
     delete nitm_; nitm_ = 0;
     nitm_ = scene().addItem( new uiTextItem(uiPoint(viewWidth()/10,0),
 						tr("N=%1").arg(nrinpvals_)) );
-    nitm_->setPenColor( Color::Black() );
+    nitm_->setPenColor( OD::Color::Black() );
     nitm_->setZValue( 99999 );
 }

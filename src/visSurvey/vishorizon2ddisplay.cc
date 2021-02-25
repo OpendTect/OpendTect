@@ -944,12 +944,12 @@ void Horizon2DDisplay::clearSelectionsHor2D()
 }
 
 
-const Color Horizon2DDisplay::getLineColor() const
+const OD::Color Horizon2DDisplay::getLineColor() const
 {
     if ( emobject_ )
 	return emobject_->preferredColor();
 
-    return Color::Blue();
+    return OD::Color::Blue();
 }
 
 

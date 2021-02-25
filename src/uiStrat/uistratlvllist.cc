@@ -154,7 +154,7 @@ void uiStratLvlList::fill( CallBacker* )
 {
     setEmpty();
     BufferStringSet lvlnms;
-    TypeSet<Color> lvlcolors;
+    TypeSet<OD::Color> lvlcolors;
 
     const Strat::LevelSet& lvls = Strat::LVLS();
     for ( int idx=0; idx<lvls.size(); idx++ )
@@ -181,7 +181,8 @@ void uiStratLvlList::editLevel( bool create )
     if ( lvl ) newlvldlg.setLvlInfo( oldnm, lvl->color() );
     if ( newlvldlg.go() )
     {
-	BufferString nm; Color col;
+	BufferString nm;
+	OD::Color col;
 	newlvldlg.getLvlInfo( nm, col );
 	if ( !nm.isEmpty() && oldnm!=nm && lvls.isPresent( nm ) )
 	    { uiMSG().error(tr("Level name is empty or already exists"));

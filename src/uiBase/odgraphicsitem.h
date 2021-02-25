@@ -49,7 +49,7 @@ public:
     void			drawPoint(QPainter*);
     void			setHighLight( bool hl )
 				{ highlight_ = hl ; }
-    void			setColor( const Color& col )
+    void			setColor( const OD::Color& col )
 				{ pencolor_ = col ; }
 
     virtual int			type() const	{ return ODGraphicsType+1; }
@@ -58,7 +58,7 @@ protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
     bool			highlight_;
     int				penwidth_;
-    Color			pencolor_;
+    OD::Color			pencolor_;
 };
 
 
@@ -77,7 +77,7 @@ public:
 
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill( bool fill )	  { fill_ = fill; }
-    void			setFillColor( const Color& col )
+    void			setFillColor( const OD::Color& col )
 				{ fillcolor_ = col; }
     void			setSideLength( int side ) { side_ = side; }
 
@@ -88,7 +88,7 @@ protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
     QRectF			boundingrect_;
     MarkerStyle2D*		mstyle_;
-    Color			fillcolor_;
+    OD::Color			fillcolor_;
     bool			fill_;
     int				side_;
 };

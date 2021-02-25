@@ -555,7 +555,7 @@ void uiODSceneMgr::updateStatusBar()
     appl_.statusBar()->message( mToUiStringTodo(bsmsg), mStatusField );
 
     appl_.statusBar()->setBGColor( mStatusField, visServ().isPicking() ?
-	    Color(255,0,0) : appl_.statusBar()->getBGColor(mPosField) );
+	    OD::Color(255,0,0) : appl_.statusBar()->getBGColor(mPosField) );
 }
 
 
@@ -651,7 +651,7 @@ void uiODSceneMgr::showRotAxis( CallBacker* cb )
     mDoAllScenes(vwr3d_,showRotAxis,act?act->isChecked():false);
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
-	const Color& col = applMgr().visServer()->getSceneAnnotCol( idx );
+	const OD::Color& col = applMgr().visServer()->getSceneAnnotCol( idx );
 	scenes_[idx]->vwr3d_->setAnnotationColor( col );
     }
 }

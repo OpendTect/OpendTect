@@ -74,8 +74,8 @@ public:
     bool			allowsPicks() const		{ return true; }
     bool			allowMaterialEdit() const	{ return true; }
     bool			hasColor() const		{ return true; }
-    Color			getColor() const;
-    void			setColor(Color);
+    OD::Color			getColor() const;
+    void			setColor(OD::Color);
     const OD::LineStyle*	lineStyle() const;
     void			setLineStyle(const OD::LineStyle&);
 
@@ -140,8 +140,8 @@ public:
 
     void			clearTexture(int);
 
-    virtual void		setAnnotColor(Color);
-    virtual Color		getAnnotColor() const;
+    virtual void		setAnnotColor(OD::Color);
+    virtual OD::Color		getAnnotColor() const;
 
     NotifierAccess*		getMovementNotifier()
 				{ return &geomchanged_; }

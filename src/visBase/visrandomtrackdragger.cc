@@ -1282,12 +1282,12 @@ void RandomTrackDragger::updateKnotColor( int knotidx, bool horoverlap )
 
     for ( int idx=4*knotidx+3; idx>=4*knotidx; idx-- )
     {
-	Color markercol( 0, 153, 0 );
+	OD::Color markercol( 0, 153, 0 );
 	if ( idx%2==0 )
-	    markercol = horoverlap ? Color(255,0,0) : Color(0,204,0);
+	    markercol = horoverlap ? OD::Color(255,0,0) : OD::Color(0,204,0);
 
 	draggermarkers_[idx]->setMarkersSingleColor( markercol );
-	draggers_[idx]->setArrowColor( Color(0,255,0) );
+	draggers_[idx]->setArrowColor( OD::Color(0,255,0) );
     }
 }
 

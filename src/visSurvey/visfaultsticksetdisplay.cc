@@ -86,8 +86,8 @@ FaultStickSetDisplay::FaultStickSetDisplay()
 	visBase::MarkerSet* markerset = visBase::MarkerSet::create();
 	markerset->ref();
 	addChild( markerset->osgNode() );
-	markerset->setMarkersSingleColor( idx ? Color(0,255,0) :
-						Color(255,0,255) );
+	markerset->setMarkersSingleColor( idx ? OD::Color(0,255,0) :
+						OD::Color(255,0,255) );
 	knotmarkersets_ += markerset;
     }
 
@@ -249,7 +249,7 @@ MultiID FaultStickSetDisplay::getMultiID() const
 }
 
 
-void FaultStickSetDisplay::setColor( Color nc )
+void FaultStickSetDisplay::setColor( OD::Color nc )
 {
     if ( fault_ )
 	fault_->setPreferredColor( nc );
@@ -264,8 +264,10 @@ NotifierAccess* FaultStickSetDisplay::materialChange()
 { return &getMaterial()->change; }
 
 
-Color FaultStickSetDisplay::getColor() const
-{ return getMaterial()->getColor(); }
+OD::Color FaultStickSetDisplay::getColor() const
+{
+    return getMaterial()->getColor();
+}
 
 
 const OD::LineStyle* FaultStickSetDisplay::lineStyle() const
@@ -1235,7 +1237,7 @@ bool FaultStickSetDisplay::usePar( const IOPar& par )
     }
 
     par.getYN(  sKeyDisplayOnlyAtSections(), displayonlyatsections_ );
-    Color col;
+    OD::Color col;
     par.get( sKey::Color(), (int&) col.rgb() );
     setColor( col );
 
@@ -1289,7 +1291,7 @@ void FaultStickSetDisplay::setPreferedMarkerStyle(
     // So to guarantee this here we set a fixed color.
 
     MarkerStyle3D sstmkstyle = mkstyle;
-    sstmkstyle.color_ = Color::Yellow();
+    sstmkstyle.color_ = OD::Color::Yellow();
 
     viseditor_->setMarkerStyle( sstmkstyle );
     setStickMarkerStyle( sstmkstyle );

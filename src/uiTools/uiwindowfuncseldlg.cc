@@ -244,8 +244,8 @@ void uiFuncSelDraw::addFunction( const char* fcname, FloatMathFunction* mfunc,
     mathfunc_ += mfunc;
 
     const int curidx = funclistfld_->size();
-    const Color& col = withcolor ? Color::stdDrawColor( curidx )
-				 : Color::Black();
+    const OD::Color& col = withcolor ? OD::Color::stdDrawColor( curidx )
+				 : OD::Color::Black();
     colors_ += col;
     funclistfld_->addItem( mToUiStringTodo(fcname), col );
 

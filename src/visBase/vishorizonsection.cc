@@ -395,7 +395,7 @@ HorizonSectionTile* HorizonSection::getTitle(int idx)
 }
 
 
-void HorizonSection::setWireframeColor( Color col )
+void HorizonSection::setWireframeColor( OD::Color col )
 {
     HorizonSectionTile** tileptrs = tiles_.getData();
     spinlock_.lock();

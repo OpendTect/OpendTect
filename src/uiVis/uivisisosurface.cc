@@ -269,7 +269,7 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
     const int valybottom = yaxis->getPix( yaxis->range().stop );
     if ( !mIsUdf(initialvalue_) )
     {
-	ls.color_ = Color(0,150,0);
+	ls.color_ = OD::Color(0,150,0);
 	const int valx = xAxis().getPix(initialvalue_);
 	if ( valx < xAxis().getPix(xAxis().range().start) ||
 	     valx > xAxis().getPix(xAxis().range().stop) )
@@ -287,7 +287,7 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 
     if ( !mIsUdf(thresholdfld_->getFValue()) )
     {
-	ls.color_ = Color(0,255,0,0);
+	ls.color_ = OD::Color(0,255,0,0);
 	const int valx = xAxis().getPix(thresholdfld_->getFValue());
 	if ( valx < xAxis().getPix(xAxis().range().start) ||
 	     valx > xAxis().getPix(xAxis().range().stop) )
@@ -305,7 +305,7 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 
     if ( !mIsUdf(vd_->isoValue(isosurfacedisplay_) ) )
     {
-	ls.color_ = Color(255,0,0,0);
+	ls.color_ = OD::Color(255,0,0,0);
 	const int valx = xAxis().getPix( vd_->isoValue( isosurfacedisplay_) );
 	if ( valx < xAxis().getPix(xAxis().range().start) ||
 	     valx > xAxis().getPix(xAxis().range().stop) )

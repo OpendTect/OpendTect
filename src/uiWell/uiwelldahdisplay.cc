@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id: uiwelldahdisplay.cc";
 
 uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
 				    const uiWellDahDisplay::Setup& s )
-    : dahobj_(0)
+    : dahobj_(nullptr)
     , zoverlayval_(2)
     , xax_(&scn,uiAxisHandler::Setup( isfirst? uiRect::Top : uiRect::Bottom )
 				.border(s.border_)
@@ -42,7 +42,7 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
     , zrg_(mUdf(float),mUdf(float))
     , cliprate_(0)
     , valrg_(mUdf(float),mUdf(float))
-    , col_(Color::Black())
+    , col_(OD::Color::Black())
     , pointsz_(5)
     , curvesz_(1)
     , drawascurve_(true)
@@ -130,9 +130,9 @@ void uiWellDahDisplay::gatherInfo()
     ld1_->xax_.setup().maxnrchars_ = 8;
     ld2_->xax_.setup().maxnrchars_ = 8;
     ld1_->xax_.setup().nmcolor_ = ld1_->dahobj_ ? ld1_->col_
-				: ld2_->dahobj_ ? ld2_->col_ : Color::Black();
+			    : ld2_->dahobj_ ? ld2_->col_ : OD::Color::Black();
     ld2_->xax_.setup().nmcolor_ = ld2_->dahobj_ ? ld2_->col_
-				: ld1_->dahobj_ ? ld1_->col_ : Color::Black();
+			    : ld1_->dahobj_ ? ld1_->col_ : OD::Color::Black();
 
     BufferString axis1nm = ld1_->dahobj_ ? ld1_->dahobj_->name().buf()
 			 : ld2_->dahobj_ ? ld2_->dahobj_->name().buf() : 0;
@@ -357,10 +357,11 @@ void uiWellDahDisplay::drawMarkers()
 	if ( !mrkdisp_.selmarkernms_.isPresent( mrkr.name() ) )
 	    continue;
 
-	const Color& col= mrkdisp_.issinglecol_? mrkdisp_.color_ : mrkr.color();
-	const Color& nmcol = mrkdisp_.samenmcol_ ? col :  mrkdisp_.nmcol_;
+	const OD::Color& col =
+			mrkdisp_.issinglecol_? mrkdisp_.color_ : mrkr.color();
+	const OD::Color& nmcol = mrkdisp_.samenmcol_ ? col :  mrkdisp_.nmcol_;
 
-	if ( col == Color::NoColor() || col == Color::White() )
+	if ( col == OD::Color::NoColor() || col == OD::Color::White() )
 	    continue;
 
 	mDefZPosInLoop( mrkr.dah() );
@@ -429,8 +430,8 @@ void uiWellDahDisplay::drawZPicks()
 	    li = scene().addItem( new uiCircleItem( uiPoint(xpos,pos), 1 ) );
 	}
 
-	Color lcol( setup_.pickls_.color_ );
-	if ( pd.color_ != Color::NoColor() )
+	OD::Color lcol( setup_.pickls_.color_ );
+	if ( pd.color_ != OD::Color::NoColor() )
 	    lcol = pd.color_;
 	li->setPenStyle(
 	    OD::LineStyle(setup_.pickls_.type_,setup_.pickls_.width_,lcol) );

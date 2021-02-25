@@ -288,7 +288,7 @@ void uiAHPlotAnnotSet::addAnnotationAt( int pix, const uiAHPlotAnnot& pah )
 	txtitm->setFontData( fd );
     }
 
-    txtitm->setTextColor( Color(75,75,75) );
+    txtitm->setTextColor( OD::Color(75,75,75) );
     txtitm->setZValue( zvalue );
     texts_->add( txtitm );
 }
@@ -710,7 +710,7 @@ void uiAxisHandler::updateName()
     nameitm_->setPos( pt );
     nameitm_->setAlignment( al );
     nameitm_->setZValue( mAxisZValue );
-    const Color col = setup_.nmcolor_ == Color::NoColor()
+    const OD::Color col = setup_.nmcolor_ == OD::Color::NoColor()
 		    ? setup_.style_.color_ : setup_.nmcolor_;
     nameitm_->setTextColor( col );
     nameitm_->setFontData( setup_.fontdata_ );

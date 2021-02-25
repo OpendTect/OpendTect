@@ -124,7 +124,7 @@ public:
 
     void		setAllMarkerNames(const BufferStringSet&);
     void		setAllMarkerNames(const BufferStringSet&,
-					  const TypeSet<Color>&);
+					  const TypeSet<OD::Color>&);
     void		resetProps(Well::DisplayProperties::Markers&);
 
 protected:

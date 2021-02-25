@@ -485,7 +485,7 @@ void ui3DViewerBody::setupView()
 
     // Camera projection must be initialized before computing home position
     reSizeEvent( 0 );
-    this->setBackgroundColor(Color::Anthracite());
+    this->setBackgroundColor( OD::Color::Anthracite() );
 }
 
 
@@ -767,7 +767,7 @@ ui3DViewerBody::WheelMode ui3DViewerBody::getWheelDisplayMode() const
 }
 
 
-void ui3DViewerBody::setAnnotColor( const Color& col )
+void ui3DViewerBody::setAnnotColor( const OD::Color& col )
 {
     axes_->setAnnotationColor( col );
 
@@ -1019,17 +1019,17 @@ void ui3DViewerBody::requestRedraw()
 }
 
 
-void ui3DViewerBody::setBackgroundColor( const Color& col )
+void ui3DViewerBody::setBackgroundColor( const OD::Color& col )
 {
     osg::Vec4 osgcol(col2f(r),col2f(g),col2f(b), 1.0);
     getOsgCamera()->setClearColor( osgcol );
 }
 
 
-Color ui3DViewerBody::getBackgroundColor() const
+OD::Color ui3DViewerBody::getBackgroundColor() const
 {
     const osg::Vec4 col = getOsgCamera()->getClearColor();
-    return Color( mNINT32(col.r()*255), mNINT32(col.g()*255),
+    return OD::Color( mNINT32(col.r()*255), mNINT32(col.g()*255),
 		  mNINT32(col.b()*255) );
 }
 
@@ -1492,10 +1492,10 @@ void ui3DViewerBody::setMapView( bool yn )
     }
 
     viewPlaneYZ();
-    setBackgroundColor( Color::White() );
-    setAnnotColor( Color::Black() );
+    setBackgroundColor( OD::Color::White() );
+    setAnnotColor( OD::Color::Black() );
     mDynamicCastGet(visSurvey::Scene*,survscene,scene_.ptr())
-    if ( survscene ) survscene->setAnnotColor( Color::Black() );
+    if ( survscene ) survscene->setAnnotColor( OD::Color::Black() );
     requestRedraw();
 }
 
@@ -1534,7 +1534,7 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
     if ( res ) func( var );
 
     bool res = false;
-    mGetProp( get, sKeyBGColor(), Color, bgcol, setBackgroundColor );
+    mGetProp( get, sKeyBGColor(), OD::Color, bgcol, setBackgroundColor );
     mGetProp( getYN, sKeyAnimate(), bool, yn, enableAnimation );
 
     BufferString modestr;
@@ -1619,21 +1619,27 @@ bool ui3DViewer::isAnimationEnabled() const
 { return osgbody_ ? osgbody_->isAnimationEnabled() : false; }
 
 
-void ui3DViewer::setBackgroundColor( const Color& col )
-{ osgbody_->setBackgroundColor( col ); }
+void ui3DViewer::setBackgroundColor( const OD::Color& col )
+{
+    osgbody_->setBackgroundColor( col );
+}
 
-Color ui3DViewer::getBackgroundColor() const
-{ return osgbody_->getBackgroundColor(); }
+OD::Color ui3DViewer::getBackgroundColor() const
+{
+    return osgbody_->getBackgroundColor();
+}
 
 
-void ui3DViewer::setAnnotationColor( const Color& col )
-{ osgbody_->setAnnotColor( col ); }
+void ui3DViewer::setAnnotationColor( const OD::Color& col )
+{
+    osgbody_->setAnnotColor( col );
+}
 
 
-Color ui3DViewer::getAnnotationColor() const
+OD::Color ui3DViewer::getAnnotationColor() const
 {
     mDynamicCastGet(const visSurvey::Scene*,survscene,getScene());
-    return survscene ? survscene->getAnnotColor() : Color::White();
+    return survscene ? survscene->getAnnotColor() : OD::Color::White();
 }
 
 
@@ -1835,7 +1841,8 @@ bool ui3DViewer::usePar( const IOPar& par )
     int col;
     if ( par.get(sKeyBGColor(),col) )
     {
-	Color newcol; newcol.setRgb( col );
+	OD::Color newcol;
+	newcol.setRgb( col );
 	setBackgroundColor( newcol );
     }
 

@@ -43,9 +43,12 @@ static const char* rcsID mUsedVar = "$Id:$";
 #define mUseTxtCol 2
 #define mUseCol 3
 
-static const Color qscellcolor = Color( 255, 255, 225 ); // palish yellow
-static const Color optqscellcolor = Color( 255, 255, 245 ); // even paler yellow
-static const Color optcellcolor = Color( 245, 245, 245 ); // very light grey
+// palish yellow
+static const OD::Color qscellcolor = OD::Color( 255, 255, 225 );
+// even paler yellow
+static const OD::Color optqscellcolor = OD::Color( 255, 255, 245 );
+// very light grey
+static const OD::Color optcellcolor = OD::Color( 245, 245, 245 );
 
 #define mGetGeomType(varnm) const Seis::GeomType varnm = imptype_.geomType()
 #define mGetParChgCB(varnm) \
@@ -651,7 +654,7 @@ void uiSEGYReadStartInfo::setCellTxt( int col, int row, const uiString& txt )
     if ( col == mItemCol || col == mUseTxtCol )
 	tbl_->resizeColumnToContents( col );
     tbl_->setColor( rc, col != mQSResCol || txt.isEmpty()
-			? Color::White() : qscellcolor );
+			? OD::Color::White() : qscellcolor );
 }
 
 

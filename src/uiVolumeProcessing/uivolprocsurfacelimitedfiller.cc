@@ -243,7 +243,7 @@ void uiSurfaceLimitedFiller::addSurfaceTableEntry( const IOObj& ioobj,
     table_->setCellReadOnly( RowCol(row,cNameCol), true );
     surfacelist_ += ioobj.key();
 
-    Color col = Color::White();
+    OD::Color col = OD::Color::White();
     const EM::EMObject* emobj = EM::EMM().getObject(
 	    EM::EMM().getObjectID(ioobj.key()) );
     if ( emobj )

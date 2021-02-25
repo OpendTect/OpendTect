@@ -264,7 +264,7 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
 	}
 	else
 	{
-	    Color pencol;
+	    OD::Color pencol;
 	    par->get( sKey::Color(), pencol );
 	    BufferString colstr;
 	    mGetColorString( pencol, colstr );
@@ -293,7 +293,7 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
 	if ( !usewellsymbol && dofill )
 	{
 	    BufferString fillcolstr;
-	    Color fillcol;
+	    OD::Color fillcol;
 	    par->get( ODGMT::sKeyFillColor(), fillcol );
 	    mGetColorString( fillcol, fillcolstr );
 	    legendstring += fillcolstr;

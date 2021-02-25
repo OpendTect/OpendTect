@@ -35,7 +35,7 @@ public:
 
     const ObjectSet<uiBaseObject>* childList() const;
 
-    virtual uiMainWin*	mainwin()		{ return 0; }
+    virtual uiMainWin*	mainwin()		{ return nullptr; }
 
     uiObject*		mainObject()		{ return mainobject(); }
     const uiObject*	mainObject() const
@@ -101,9 +101,9 @@ public:
 
     void		setStretch( int h, int v ){ mIfMO()->setStretch(h,v); }
 
-    Color		backgroundColor() const;
-    Color		roBackgroundColor() const;
-    void		setBackgroundColor( const Color& c )
+    OD::Color		backgroundColor() const;
+    OD::Color		roBackgroundColor() const;
+    void		setBackgroundColor( const OD::Color& c )
 			    { mIfMO()->setBackgroundColor(c); }
 
     void		translateText();

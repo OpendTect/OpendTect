@@ -94,7 +94,7 @@ Annotation::Annotation()
 
     scalefactor_[0] = scalefactor_[1] = scalefactor_[2] = 1;
 
-    annotcolor_ = Color::White();
+    annotcolor_ = OD::Color::White();
 
     setPickable( false, false );
 
@@ -492,7 +492,7 @@ void Annotation::updateTextPos()
 {
     // Color and Font are not set to extra added text. Hence this hack.
     // Both are set again at the end of this function.
-    const Color col = getMaterial()->getColor();
+    const OD::Color col = getMaterial()->getColor();
     const FontData& fd = getFont();
     int curscale = 0;
     for ( int dim=0; dim<3; dim++ )

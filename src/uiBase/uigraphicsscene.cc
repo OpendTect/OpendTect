@@ -355,17 +355,17 @@ uiPolyLineItem* uiGraphicsScene::addPolyLine( const TypeSet<uiPoint>& ptlist )
 }
 
 
-void uiGraphicsScene::setBackGroundColor( const Color& color )
+void uiGraphicsScene::setBackGroundColor( const OD::Color& color )
 {
     QBrush brush( QColor(color.r(),color.g(),color.b(),255-color.t()) );
     odgraphicsscene_->setBackgroundBrush( brush );
 }
 
 
-const Color uiGraphicsScene::backGroundColor() const
+const OD::Color uiGraphicsScene::backGroundColor() const
 {
     QColor color( odgraphicsscene_->backgroundBrush().color() );
-    return Color( color.red() , color.green(),
+    return OD::Color( color.red() , color.green(),
 		  color.blue(), 255-color.alpha() );
 }
 

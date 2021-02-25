@@ -44,7 +44,7 @@ public:
 
 				DataPointSetDisplayProp(
 					const BufferStringSet& nms,
-				        const TypeSet<Color>& cols)
+					const TypeSet<OD::Color>& cols)
 				    : selgrpnms_(nms), selgrpcols_(cols)
 				    , showsel_(true), dpscolid_(-1)	{}
     virtual			~DataPointSetDisplayProp()  {}
@@ -61,17 +61,17 @@ public:
     int				dpsColID() const	{ return dpscolid_; }
     bool			showSelected() const	{ return showsel_; }
     const BufferStringSet&	selGrpNames() const	{ return selgrpnms_; }
-    const TypeSet<Color>&	selGrpColors() const	{ return selgrpcols_; }
+    const TypeSet<OD::Color>&	selGrpColors() const	{ return selgrpcols_; }
     const ColTab::Sequence&	colSequence() const	{ return coltab_; }
     const ColTab::MapperSetup&	colMapperSetUp() const
 				{ return coltabmappersu_; }
 
-virtual Color getColor( float val ) const
+virtual OD::Color getColor( float val ) const
 {
     if ( showsel_ )
     {
 	return selgrpcols_.validIdx(mNINT32(val)) ? selgrpcols_[mNINT32(val)]
-						: Color::NoColor();
+						: OD::Color::NoColor();
     }
 
     if ( mIsUdf(val) )
@@ -80,7 +80,7 @@ virtual Color getColor( float val ) const
     ColTab::Mapper mapper;
     mapper.setup_ = coltabmappersu_;
     const float pos = mapper.position( val );
-    Color col = coltab_.color( pos );
+    OD::Color col = coltab_.color( pos );
     col.setTransparency( (unsigned char) mNINT32(coltab_.transparencyAt(pos)) );
     return col;
 }
@@ -88,7 +88,7 @@ virtual Color getColor( float val ) const
 protected:
 
    BufferStringSet		selgrpnms_;
-   TypeSet<Color>		selgrpcols_;
+   TypeSet<OD::Color>		selgrpcols_;
    ColTab::Sequence		coltab_;
    ColTab::MapperSetup		coltabmappersu_;
    int				dpscolid_;

@@ -196,8 +196,8 @@ public:
     int				nrYSels() const		{ return selyitems_; }
     int				nrY2Sels() const	{ return sely2items_; }
 
-    TypeSet<Color>&		y1grpColors()		{ return y1grpcols_; }
-    TypeSet<Color>&		y2grpColors()		{ return y2grpcols_; }
+    TypeSet<OD::Color>&		y1grpColors()		{ return y1grpcols_; }
+    TypeSet<OD::Color>&		y2grpColors()		{ return y2grpcols_; }
 
     void			setColTab( const ColTab::Sequence& ctseq )
 				{ ctab_ = ctseq; }
@@ -230,7 +230,7 @@ public:
     int				selAreaSize() const;
     int				curGroup() const	{ return curgrp_; }
     void			reDrawSelections();
-    TypeSet<Color>		selGrpCols() const;
+    TypeSet<OD::Color>		selGrpCols() const;
     void			setCurSelGrp(int grp)	{ curselgrp_ = grp; }
     int				curSelGrp() const	{ return curselgrp_; }
 
@@ -259,7 +259,7 @@ public:
     void			drawUserDefPolyLine(bool);
 
     void			updateOverlayMapper(bool isy1);
-    Color			getOverlayColor(uiDataPointSet::DRowID,bool);
+    OD::Color			getOverlayColor(uiDataPointSet::DRowID,bool);
 
     int				y3Colid() const		{ return y3colid_; }
     int				y4Colid() const		{ return y4colid_; }
@@ -324,8 +324,8 @@ protected:
     DataPointSet::RowID		selrow_;
     Interval<int>		usedxpixrg_;
     TypeSet<RowCol>		selrowcols_;
-    TypeSet<Color>		y1grpcols_;
-    TypeSet<Color>		y2grpcols_;
+    TypeSet<OD::Color>		y1grpcols_;
+    TypeSet<OD::Color>		y2grpcols_;
     TypeSet<uiWorldPoint>	y1userdefpts_;
     TypeSet<uiWorldPoint>	y2userdefpts_;
     Array1D<char>*		yrowidxs_;

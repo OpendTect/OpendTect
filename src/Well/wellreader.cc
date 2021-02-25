@@ -746,7 +746,7 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 	key = IOPar::compKey( basekey, sKey::Color() );
 	if ( iopar.get(key,bs) )
 	{
-	    Color col( wm->color() );
+	    OD::Color col( wm->color() );
 	    col.use( bs.buf() );
 	    wm->setColor( col );
 	}

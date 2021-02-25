@@ -423,7 +423,7 @@ void uiFVWVAPropTab::putToScreen()
 
 #define mSetCol(fld,memb) \
     havecol = pars_.memb.isVisible(); \
-    fld->setColor( havecol ? pars_.memb : Color::Black() ); \
+    fld->setColor( havecol ? pars_.memb : OD::Color::Black() ); \
     fld->setDoDraw( havecol )
 
     bool mSetCol(leftcolsel_,lowfill_);
@@ -448,7 +448,7 @@ bool uiFVWVAPropTab::acceptOK()
     pars_.reflinevalue_ = reflinefld_->getBoolValue() ? refvalfld_->getFValue()
 						      : mUdf(float);
 #define mSetCol(fld,memb) \
-    pars_.memb = fld->doDraw() ? fld->color(): Color::NoColor()
+    pars_.memb = fld->doDraw() ? fld->color(): OD::Color::NoColor()
     mSetCol(leftcolsel_,lowfill_);
     mSetCol(rightcolsel_,highfill_);
     mSetCol(wigcolsel_,wigg_);

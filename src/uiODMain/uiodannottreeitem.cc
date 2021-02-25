@@ -529,18 +529,18 @@ void uiODAnnotSubItem::setScale( float ns )
 }
 
 
-void uiODAnnotSubItem::setColor( Color nc )
+void uiODAnnotSubItem::setColor( OD::Color nc )
 {
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
 		    visserv_->getObject(displayid_));
-    if ( !ld ) return;
+    if ( !ld )
+	return;
 
     Pick::Set* set = ld->getSet();
     if ( set->disp_.color_==nc )
 	return;
 
     set->disp_.color_ = nc;
-
     Pick::SetMgr::getMgr( managerName() ).reportDispChange( this, *set );
 }
 

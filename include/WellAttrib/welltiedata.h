@@ -81,7 +81,7 @@ public:
 			    , size_(2)
 			{}
 
-    Color		color_;
+    OD::Color		color_;
     float		zpos_;
     BufferString	name_;
     int			id_ = -1;

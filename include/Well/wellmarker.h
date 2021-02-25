@@ -35,14 +35,15 @@ mExpClass(Well) Marker : public ::NamedObject
 {
 public:
 
-			Marker( const char* nm=0, float dh=0, Color c=Color() )
+			Marker( const char* nm=0, float dh=0,
+						    OD::Color c=OD::Color() )
 			: ::NamedObject(nm)
 			, dah_(dh)
 			, color_(c)
 			, levelid_(-1)		{}
 			Marker( int lvlid, float dh )
 			    : dah_(dh)
-			    , color_(Color::Black())
+			    , color_(OD::Color::Black())
 			    , levelid_(lvlid)	{}
     Marker&		operator =(const Marker&);
     inline bool		operator ==( const Marker& m )
@@ -54,17 +55,17 @@ public:
     inline void		setDah( float v )	{ dah_ = v; }
     inline int		levelID() const		{ return levelid_; }
     inline void		setLevelID( int id )	{ levelid_ = id; }
-    Color		color() const;
+    OD::Color		color() const;
 
     static const char*	sKeyDah();
 
     // setName() and setColor() only used as fallback, if not attached to level
-    void		setColor( Color col )	{ color_ = col; }
+    void		setColor( OD::Color col )	{ color_ = col; }
 
 protected:
 
     float		dah_;
-    Color		color_;
+    OD::Color		color_;
     int			levelid_;
 
 };
@@ -102,8 +103,8 @@ public:
 			{ return ObjectSet<Marker>::isPresent(m); }
 
     void		getNames(BufferStringSet&) const;
-    void		getColors(TypeSet<Color>&) const;
-    void		getNamesColorsMDs(BufferStringSet&,TypeSet<Color>&,
+    void		getColors(TypeSet<OD::Color>&) const;
+    void		getNamesColorsMDs(BufferStringSet&,TypeSet<OD::Color>&,
 					  TypeSet<float>& mds) const;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);

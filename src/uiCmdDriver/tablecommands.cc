@@ -758,7 +758,7 @@ bool CurTableRowCmd::act( const char* parstr )
     const BufferString text = uitable->isLeftHeaderHidden() || rc.row()<0 ? "" :
 			      mHdrText( uitable, rowLabel, rc.row() );
 
-    const Color color = uitable->getHeaderBackground( rc.col(), true );
+    const OD::Color color = uitable->getHeaderBackground( rc.col(), true );
     mGetColorString( color, rc.col()>=0, colorstr );
     mParForm( answer, form, text, countRows(uitable,rc.row()) );
     mParExtraForm( answer, form, Colour, colorstr );
@@ -784,7 +784,7 @@ bool CurTableColCmd::act( const char* parstr )
     const BufferString text = uitable->isTopHeaderHidden() || rc.col()<0 ? "" :
 			      mHdrText( uitable, columnLabel, rc.col() );
 
-    const Color color = uitable->getHeaderBackground( rc.col(), false );
+    const OD::Color color = uitable->getHeaderBackground( rc.col(), false );
     mGetColorString( color, rc.col()>=0, colorstr );
     mParForm( answer, form, text, countCols(uitable,rc.col()) );
     mParExtraForm( answer, form, Colour, colorstr );

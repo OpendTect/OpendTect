@@ -74,7 +74,7 @@ SceneColTab::~SceneColTab()
 }
 
 
-void SceneColTab::setLegendColor( const Color& col )
+void SceneColTab::setLegendColor( const OD::Color& col )
 {
 #define col2f(rgb) float(col.rgb())/255
 
@@ -207,7 +207,7 @@ void SceneColTab::updateSequence()
     mDefParallelCalcBody
     (
 	,
-	Color col = table_.colorForIndex( flipseq_ ? nrcols_-idx-1 : idx );
+	OD::Color col = table_.colorForIndex( flipseq_ ? nrcols_-idx-1 : idx );
 	colors_[idx] = osg::Vec4( col2f(r), col2f(g), col2f(b), 1-col2f(t) )
 	,
     )

@@ -198,10 +198,13 @@ void ODGoogle::XMLWriter::writeLine( const char* iconnm,
 #define mDeclPolyStNm \
     const BufferString stnm( "s_od_poly_", stylnm )
 
-void ODGoogle::XMLWriter::writePolyStyle( const char* stylnm, const Color& col,
-					  int wdth )
+void ODGoogle::XMLWriter::writePolyStyle( const char* stylnm,
+					    const OD::Color& col, int wdth )
 {
-    if ( !isOK() ) return; mDeclPolyStNm;
+    if ( !isOK() )
+	return;
+
+    mDeclPolyStNm;
 
     strm() <<	"\t<Style id=\"" << stnm << "\">\n"
 		"\t\t<LineStyle>\n"

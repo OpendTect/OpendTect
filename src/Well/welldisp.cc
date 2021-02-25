@@ -505,9 +505,9 @@ void Well::DisplayProperties::fillPar( IOPar& iop ) const
 }
 
 
-void Well::DisplayProperties::ensureColorContrastWith( Color bkcol )
+void Well::DisplayProperties::ensureColorContrastWith( OD::Color bkcol )
 {
-    TypeSet<Color> usecols = bkcol.complimentaryColors( 2 );
+    TypeSet<OD::Color> usecols = bkcol.complimentaryColors( 2 );
     if ( bkcol.contrast(logs_[0]->left_.color_)<4.5 )
 	logs_[0]->left_.color_ = usecols[0];
     if ( bkcol.contrast(logs_[0]->center_.color_)<4.5 )

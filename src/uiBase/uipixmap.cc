@@ -108,7 +108,7 @@ bool uiPixmap::isEmpty() const
 { return !qpixmap_ || qpixmap_->isNull(); }
 
 
-void uiPixmap::fill( const Color& col )
+void uiPixmap::fill( const OD::Color& col )
 {
     qpixmap_->fill( QColor(col.r(),col.g(),col.b()) );
     QPainter painter( qpixmap_ );
@@ -134,7 +134,7 @@ void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
 	ColTab::IndexedLookUpTable table( seq, width() );
 	for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )
 	{
-	    const Color color = table.colorForIndex( idx1 );
+	    const OD::Color color = table.colorForIndex( idx1 );
 	    for ( int idx2=0; idx2<rgbarr.getSize(false); idx2++ )
 		rgbarr.set( idx1, idx2, color );
 	}
@@ -144,7 +144,7 @@ void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
 	ColTab::IndexedLookUpTable table( seq, height() );
 	for ( int idx1=0; idx1<rgbarr.getSize(false); idx1++ )
 	{
-	    const Color color = table.colorForIndex( idx1 );
+	    const OD::Color color = table.colorForIndex( idx1 );
 	    for ( int idx2=0; idx2<rgbarr.getSize(true); idx2++ )
 		rgbarr.set( idx2, idx1, color );
 	}
@@ -158,7 +158,8 @@ void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
 }
 
 
-void uiPixmap::fillGradient( const Color& col1, const Color& col2, bool hor )
+void uiPixmap::fillGradient( const OD::Color& col1, const OD::Color& col2,
+								bool hor )
 {
     srcname_ = "[Gradient]";
 
@@ -176,7 +177,7 @@ void uiPixmap::fillGradient( const Color& col1, const Color& col2, bool hor )
 	for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )
 	{
 	    const float frac = idx1 / (float) width();
-	    const Color color = Color::interpolate( col1, col2, frac );
+	    const OD::Color color = OD::Color::interpolate( col1, col2, frac );
 	    for ( int idx2=0; idx2<rgbarr.getSize(false); idx2++ )
 		rgbarr.set( idx1, idx2, color );
 	}
@@ -186,7 +187,7 @@ void uiPixmap::fillGradient( const Color& col1, const Color& col2, bool hor )
 	for ( int idx1=0; idx1<rgbarr.getSize(false); idx1++ )
 	{
 	    const float frac = idx1 / (float) height();
-	    const Color color = Color::interpolate( col1, col2, frac );
+	    const OD::Color color = OD::Color::interpolate( col1, col2, frac );
 	    for ( int idx2=0; idx2<rgbarr.getSize(true); idx2++ )
 		rgbarr.set( idx2, idx1, color );
 	}

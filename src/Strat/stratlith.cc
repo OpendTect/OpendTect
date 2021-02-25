@@ -59,7 +59,7 @@ const Strat::Lithology& Strat::Lithology::undef()
     if ( !udf )
     {
 	Strat::Lithology* newudf = new Strat::Lithology( -1, "-", true );
-	newudf->color() = Color::LightGrey();
+	newudf->color() = OD::Color::LightGrey();
 
 	udf.setIfNull(newudf,true);
     }
@@ -74,7 +74,7 @@ Strat::Lithology::Lithology( Strat::Lithology::ID li, const char* nm, bool por )
     , porous_(por)
 {
     if ( id_ >= 0 )
-	color_ = Color::stdDrawColor( id_ );
+	color_ = OD::Color::stdDrawColor( id_ );
 }
 
 

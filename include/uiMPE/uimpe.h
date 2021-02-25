@@ -62,8 +62,8 @@ public:
     virtual void	setTrackingMethod(EventTracker::CompareMethod)	{}
     virtual EventTracker::CompareMethod	getTrackingMethod() const	= 0;
     virtual void	setSeedPos(const TrcKeyValue&)		{}
-    virtual void	setColor(const Color&)			{}
-    virtual const Color& getColor()				= 0;
+    virtual void	setColor(const OD::Color&)		{}
+    virtual const OD::Color& getColor()				= 0;
     virtual void	setLineWidth(int)			{}
     virtual int		getLineWidth() const			= 0;
     virtual void	setMarkerStyle(const MarkerStyle3D&)	{}

@@ -43,13 +43,13 @@ uiGMTSymbolPars::uiGMTSymbolPars( uiParent* p, bool usewellsymbols )
     sizefld_->setElemSzPol( uiObject::Small );
     sizefld_->attach( rightTo, lcb );
 
-    outcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::Black())
+    outcolfld_ = new uiColorInput( this, uiColorInput::Setup(OD::Color::Black())
 					 .lbltxt(tr("Outline color")) );
     outcolfld_->attach( alignedBelow, lcb );
     if ( !usewellsymbols_ )
     {
 	fillcolfld_ = new uiColorInput( this, uiColorInput::Setup(
-		    Color::White()).lbltxt(tr("Fill Color")).withcheck(true) );
+		OD::Color::White()).lbltxt(tr("Fill Color")).withcheck(true) );
 	fillcolfld_->attach( alignedBelow, outcolfld_ );
     }
 }
@@ -59,12 +59,12 @@ void uiGMTSymbolPars::reset()
 {
     shapefld_->setCurrentItem( 0 );
     sizefld_->setValue( 0.5 );
-    outcolfld_->setColor( Color::Black() );
+    outcolfld_->setColor( OD::Color::Black() );
     if ( !usewellsymbols_ )
     {
 	sizefld_->setValue( 0.2 );
 	fillcolfld_->setDoDraw( false );
-	fillcolfld_->setColor( Color::White() );
+	fillcolfld_->setColor( OD::Color::White() );
     }
 }
 
@@ -135,7 +135,7 @@ bool uiGMTSymbolPars::usePar( const IOPar& par )
 	if ( ODGMT::parseEnumShape( par.find( ODGMT::sKeyShape() ), shp ) )
 	    shapefld_->setCurrentItem( shp );
 
-	Color col;
+	OD::Color col;
 	bool dofill = false; par.getYN( ODGMT::sKeyFill(), dofill );
 	fillcolfld_->setDoDraw( dofill );
 	if ( dofill && par.get(ODGMT::sKeyFillColor(),col) )
@@ -146,7 +146,7 @@ bool uiGMTSymbolPars::usePar( const IOPar& par )
     if ( par.get(sKey::Size(),size) )
 	sizefld_->setValue( size );
 
-    Color col;
+    OD::Color col;
     if ( par.get(sKey::Color(),col) )
 	outcolfld_->setColor( col );
 

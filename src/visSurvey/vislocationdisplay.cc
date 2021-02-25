@@ -8,11 +8,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vislocationdisplay.h"
 
+#include "color.h"
 #include "ioman.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "selector.h"
 #include "survgeom2d.h"
+#include "zaxistransform.h"
 
 #include "visevent.h"
 #include "vismaterial.h"
@@ -22,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visplanedatadisplay.h"
 #include "vishorizondisplay.h"
 #include "visrandomtrackdisplay.h"
-#include "zaxistransform.h"
 
 
 namespace visSurvey {
@@ -405,7 +406,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    }
 	    else
 	    {
-		const Color& color = set_->disp_.color_;
+		const OD::Color& color = set_->disp_.color_;
 		if ( sowerenabled && sower_->activate(color, eventinfo) )
 		    return;
 	    }
@@ -707,19 +708,19 @@ void LocationDisplay::dispChg( CallBacker* )
 }
 
 
-void LocationDisplay::setColor( Color nc )
+void LocationDisplay::setColor( OD::Color nc )
 {
     if ( set_ )
 	set_->disp_.color_ = nc;
 }
 
 
-Color LocationDisplay::getColor() const
+OD::Color LocationDisplay::getColor() const
 {
     if ( set_ )
 	return set_->disp_.color_;
 
-    return Color::DgbColor();
+    return OD::Color::DgbColor();
 }
 
 

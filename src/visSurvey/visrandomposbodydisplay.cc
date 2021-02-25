@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visrandomposbodydisplay.h"
 
+#include "color.h"
 #include "emmanager.h"
 #include "emrandomposbody.h"
 #include "executor.h"
@@ -28,7 +29,7 @@ RandomPosBodyDisplay::RandomPosBodyDisplay()
     , transform_( 0 )
 {
     getMaterial()->setAmbience( 0.5 );
-    setColor( getRandomColor( false ) );
+    setColor( getRandomColor(false) );
 }
 
 
@@ -153,19 +154,25 @@ MultiID RandomPosBodyDisplay::getMultiID() const
 }
 
 
-void RandomPosBodyDisplay::setColor( Color nc )
+void RandomPosBodyDisplay::setColor( OD::Color nc )
 {
-    if ( embody_ ) embody_->setPreferredColor(nc);
+    if ( embody_ )
+	embody_->setPreferredColor(nc);
+
     getMaterial()->setColor( nc );
 }
 
 
-Color RandomPosBodyDisplay::getColor() const
-{ return getMaterial()->getColor(); }
+OD::Color RandomPosBodyDisplay::getColor() const
+{
+    return getMaterial()->getColor();
+}
 
 
 NotifierAccess* RandomPosBodyDisplay::materialChange()
-{ return &getMaterial()->change; }
+{
+    return &getMaterial()->change;
+}
 
 
 void RandomPosBodyDisplay::fillPar( IOPar& par ) const

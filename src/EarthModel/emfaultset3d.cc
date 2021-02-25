@@ -26,7 +26,7 @@ FaultSet3D::FaultSet3D( EMManager& man )
 {
     setPreferredColor( getRandomColor() );
     setPreferredMarkerStyle3D(
-	MarkerStyle3D(MarkerStyle3D::Cube,3,Color::Yellow()) );
+	MarkerStyle3D(MarkerStyle3D::Cube,3,OD::Color::Yellow()) );
 }
 
 

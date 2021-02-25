@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Satyaki Maitra
- Date:          June 2011
- RCS:           $Id$
+ Author:	Satyaki Maitra
+ Date:		June 2011
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ mStruct(uiIo) SelectionArea
     BufferString		xaxisnm_;
     BufferString		yaxisnm_;
     BufferString		altyaxisnm_;
-    int 			id_;
+    int				id_;
     uiRect			rect_;
     ODPolygon<int>		poly_;
     SelAxisType			axistype_;
@@ -50,14 +50,14 @@ mStruct(uiIo) SelectionArea
     uiPoint			center_;
     bool			operator==(const SelectionArea&) const;
     void			geomChanged()	{ maxdistest_ = mUdf(double); }
-    				// has to be called after pts changed only if
-    				// you want maxdistest_
+				// has to be called after pts changed only if
+				// you want maxdistest_
 
 protected:
 
     mutable double		maxdistest_;
     double			minDisToBorder(uiPoint) const;
-    				// only for inside pts 
+				// only for inside pts
     double			maxDisToBorder() const;
 };
 
@@ -65,13 +65,14 @@ protected:
 mExpClass(uiIo) SelectionGrp : public NamedObject
 {
 public:
-				SelectionGrp(const char* nm, const Color& col)
+				SelectionGrp(
+					const char* nm,const OD::Color& col)
 				    : NamedObject(nm), col_(col)	{}
 				SelectionGrp()
 				    : NamedObject()			{}
 				~SelectionGrp()				{}
 
-	Color			col_;
+	OD::Color		col_;
 	int			size() const;
 	bool			hasAltAxis() const;
 	bool			isValidIdx(int idx) const;

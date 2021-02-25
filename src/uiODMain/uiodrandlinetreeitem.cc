@@ -81,7 +81,9 @@ uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
 
 
 void colorChangeCB( CallBacker* )
-{ rtd_->setColor( colsel_->color() ); }
+{
+    rtd_->setColor( colsel_->color() );
+}
 
 
 bool acceptOK( CallBacker* )

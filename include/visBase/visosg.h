@@ -82,22 +82,22 @@ namespace Conv
 #define mOsgColValD(val) ( val<=0 ? 0.0  : val>=255 ? 1.0  : double(val)/255  )
 
     template <>
-    inline void set( Color& _to, const osg::Vec4f& col )
+    inline void set( OD::Color& _to, const osg::Vec4f& col )
     { _to.set( mODColVal(col[0]), mODColVal(col[1]),
 	       mODColVal(col[2]), 255-mODColVal(col[3]) ); }
 
     template <>
-    inline void set( osg::Vec4f& _to, const Color& col )
+    inline void set( osg::Vec4f& _to, const OD::Color& col )
     { _to.set( mOsgColValF(col.r()), mOsgColValF(col.g()),
 	       mOsgColValF(col.b()), 1.0f-mOsgColValF(col.t()) ); }
 
     template <>
-    inline void set( Color& _to, const osg::Vec4d& col )
+    inline void set( OD::Color& _to, const osg::Vec4d& col )
     { _to.set( mODColVal(col[0]), mODColVal(col[1]),
 	       mODColVal(col[2]), 255-mODColVal(col[3]) ); }
 
     template <>
-    inline void set( osg::Vec4d& _to, const Color& col )
+    inline void set( osg::Vec4d& _to, const OD::Color& col )
     { _to.set( mOsgColValD(col.r()), mOsgColValD(col.g()),
 	       mOsgColValD(col.b()), 1.0-mOsgColValD(col.t()) ); }
 

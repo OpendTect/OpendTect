@@ -1820,7 +1820,7 @@ bool uiNewWellDlg::acceptOK( CallBacker* )
 }
 
 
-const Color& uiNewWellDlg::getWellColor()
+const OD::Color& uiNewWellDlg::getWellColor()
 {
     return colsel_->color();
 }

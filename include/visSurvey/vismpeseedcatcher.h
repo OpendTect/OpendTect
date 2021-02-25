@@ -150,7 +150,7 @@ public:
 
     void			setEditor(MPEEditor*);
     const MPEEditor*		getEditor() const	{ return editor_; }
-    bool			activateSower(const Color&,
+    bool			activateSower(const OD::Color&,
 					      const TrcKeySampling* =0);
     bool			sequentSowing() const;
     bool			moreToSow() const;

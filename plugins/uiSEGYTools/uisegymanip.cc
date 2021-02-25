@@ -81,7 +81,9 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
     tbl_->resizeColumnToContents( 2 );
 
 #define mSetUsedRow(nm) \
-    tbl_->setLabelBGColor( SEGY::BinHeader::Entry##nm(), Color::Peach(), true )
+    tbl_->setLabelBGColor( SEGY::BinHeader::Entry##nm(), \
+						OD::Color::Peach(), true )
+
     mSetUsedRow(Dt);
     mSetUsedRow(Ns);
     mSetUsedRow(Fmt);

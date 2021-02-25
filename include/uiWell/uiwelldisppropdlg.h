@@ -28,10 +28,10 @@ namespace Well { class Data; class DisplayProperties; };
 mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {mODTextTranslationClass(uiWellDispPropDlg)
 public:
-				uiWellDispPropDlg(uiParent*,Well::Data*,Color,
-						  bool is2ddisplay=false);
+				uiWellDispPropDlg(uiParent*,Well::Data*,
+					    OD::Color,bool is2ddisplay=false);
 				uiWellDispPropDlg(uiParent*,const MultiID&,
-						  Color,bool is2ddisplay=false);
+					    OD::Color,bool is2ddisplay=false);
 				uiWellDispPropDlg(uiParent*,Well::Data*,
 						  bool is2ddisplay=false);
 				uiWellDispPropDlg(uiParent*,const MultiID&,
@@ -57,7 +57,7 @@ protected:
     uiTabStack*			ts_;
     ObjectSet<uiWellDispProperties> propflds_;
     bool			is2ddisplay_;
-    Color			bkcol_;
+    OD::Color			bkcol_;
 
     virtual void		getFromScreen();
     virtual void		putToScreen();

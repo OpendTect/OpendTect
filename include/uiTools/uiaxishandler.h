@@ -69,10 +69,10 @@ public:
 	    , maxnrchars_(0)
 	    , specialvalue_(0.0f)
 	    , zval_(0)
-	    , nmcolor_(Color::NoColor())
+	    , nmcolor_(OD::Color::NoColor())
 	    , fontdata_(FontData(10))
 	{
-	    gridlinestyle_.color_ = Color(200,200,200);
+	    gridlinestyle_.color_ = OD::Color(200,200,200);
 	    auxlinestyle_.type_ = OD::LineStyle::Dot;
 	}
 
@@ -97,7 +97,7 @@ public:
 	mDefSetupMemb(int,maxnrchars)
 	mDefSetupMemb(float,specialvalue) //!< Will be gridlined and annotated.
 	mDefSetupMemb(int,zval)
-	mDefSetupMemb(Color,nmcolor)
+	mDefSetupMemb(OD::Color,nmcolor)
 	mDefSetupMemb(FontData,fontdata)
 
 	Setup&		noannot( bool yn )

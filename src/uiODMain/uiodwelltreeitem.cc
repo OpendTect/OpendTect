@@ -142,7 +142,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	visSurvey::WellDisplay* wd = new visSurvey::WellDisplay;
 	wd->setupPicking(true);
 	BufferString wellname;
-	Color color;
+	OD::Color color;
 	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
 	    return false;
 
@@ -290,7 +290,7 @@ bool uiODWellTreeItem::doubleClick( uiTreeViewItem* item )
     if ( !wd ) return false;
 
     wd->restoreDispProp();
-    Color bkCol =
+    OD::Color bkCol =
 	ODMainWin()->sceneMgr().get3DViewer( sceneID() )->getBackgroundColor();
     applMgr()->wellServer()->editDisplayProperties( wd->getMultiID(), bkCol );
     return true;
@@ -377,7 +377,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	wd->restoreDispProp();
-	Color bkCol =
+	OD::Color bkCol =
 	ODMainWin()->sceneMgr().get3DViewer( sceneID() )->getBackgroundColor();
 
 	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid,

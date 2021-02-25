@@ -207,13 +207,13 @@ const ObjectSet<uiBaseObject>* uiParent::childList() const
 }
 
 
-Color uiObject::roBackgroundColor() const
+OD::Color uiObject::roBackgroundColor() const
 {
     return backgroundColor().lighter( 2.5f );
 }
 
 
-Color uiParent::backgroundColor() const
+OD::Color uiParent::backgroundColor() const
 {
     return mainObject() ? mainObject()->backgroundColor()
 			: uiMain::theMain().windowColor();
@@ -490,11 +490,11 @@ void uiObject::setStyleSheet( const char* qss )
 }
 
 
-Color uiObject::backgroundColor() const
+OD::Color uiObject::backgroundColor() const
     { return mConstBody()->uibackgroundColor(); }
 
 
-void uiObject::setBackgroundColor(const Color& col)
+void uiObject::setBackgroundColor(const OD::Color& col)
     { mBody()->uisetBackgroundColor(col); }
 
 
@@ -502,7 +502,7 @@ void uiObject::setBackgroundPixmap( const uiPixmap& pm )
     { mBody()->uisetBackgroundPixmap( pm ); }
 
 
-void uiObject::setTextColor(const Color& col)
+void uiObject::setTextColor(const OD::Color& col)
     { mBody()->uisetTextColor(col); }
 
 

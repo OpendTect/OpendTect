@@ -76,7 +76,7 @@ public:
     void		setXPos(float); // only affects Math lay vals
 
     ID			id() const;	//!< unitRef().fullCode()
-    Color		dispColor(bool lith_else_upnode) const;
+    OD::Color		dispColor(bool lith_else_upnode) const;
 
     static const PropertyRef& thicknessRef();
 

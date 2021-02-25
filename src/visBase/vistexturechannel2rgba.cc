@@ -252,7 +252,8 @@ void ColTabTextureChannel2RGBA::update()
 
 		    proc->setColorSequence( osgcolsequences_[procidx] );
 
-		    const Color& udfcol = getSequence(channel)->undefColor();
+		    const OD::Color& udfcol =
+					    getSequence(channel)->undefColor();
 		    proc->setNewUndefColor( Conv::to<osg::Vec4f>(udfcol) );
 		}
 		else
@@ -357,7 +358,7 @@ void ColTabTextureChannel2RGBA::setSequence( int ch,
 
 	if ( laytex_->getProcess(ch) )
 	{
-	    const Color& udfcol = getSequence(ch)->undefColor();
+	    const OD::Color& udfcol = getSequence(ch)->undefColor();
 	    laytex_->getProcess(ch)->setNewUndefColor(
 		    				Conv::to<osg::Vec4f>(udfcol) );
 	}
@@ -430,7 +431,7 @@ void ColTabTextureChannel2RGBA::getColors( int channelidx,
     for ( int idx=0; idx<mNrColors; idx++ )
     {
 	const float val = ((float) idx)/(mNrColors-1);
-	const Color col = seq.color( val );
+	const OD::Color col = seq.color( val );
 
 	(*arr++) = col.r();
 	(*arr++) = col.g();
@@ -438,7 +439,7 @@ void ColTabTextureChannel2RGBA::getColors( int channelidx,
 	(*arr++) = 255-col.t();
     }
 
-    const Color col = seq.undefColor();
+    const OD::Color col = seq.undefColor();
     (*arr++) = col.r();
     (*arr++) = col.g();
     (*arr++) = col.b();

@@ -35,7 +35,7 @@ uiGatherDisplay::uiGatherDisplay( uiParent* p  )
     viewer_ = new uiFlatViewer( this );
     viewer_->appearance().setGeoDefaults( true );
     viewer_->appearance().setDarkBG( false );
-    viewer_->appearance().annot_.color_ = Color::Black();
+    viewer_->appearance().annot_.color_ = OD::Color::Black();
     viewer_->appearance().annot_.x1_.showannot_ = true;
     viewer_->appearance().annot_.x1_.name_ = "Offset";
     viewer_->appearance().annot_.x2_.showannot_ = false;

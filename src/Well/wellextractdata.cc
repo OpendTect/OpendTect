@@ -95,7 +95,7 @@ Well::InfoCollector::~InfoCollector()
 
 
 void Well::InfoCollector::getAllMarkerInfos( BufferStringSet& nms,
-					     TypeSet<Color>& colors ) const
+					     TypeSet<OD::Color>& colors ) const
 {
     nms.setEmpty();
     if ( markers_.isEmpty() )

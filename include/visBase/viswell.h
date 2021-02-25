@@ -58,7 +58,7 @@ public:
     {
 				BasicParams(){}
 	BufferString		name_;
-	Color			col_;
+	OD::Color		col_;
 	int			size_;
     };
 
@@ -91,8 +91,8 @@ public:
 	int			shapeint_;
 	int			cylinderheight_;
 	FontData		font_;
-	Color			namecol_;
-	Coord3*		pos_;
+	OD::Color		namecol_;
+	Coord3*			pos_;
 	bool			nmsizedynamic_;
     };
 
@@ -138,7 +138,7 @@ public:
 
 	int			repeat_;
 	float			ovlap_;
-	Color			seiscolor_;
+	OD::Color		seiscolor_;
 	LogStyle		style_;
     };
 
@@ -149,9 +149,9 @@ public:
     float			getValue(const TypeSet<Coord3Value>&,int,bool,
 					 const LinScaler&) const;
     Coord3			getPos(const TypeSet<Coord3Value>&,int) const;
-    void			setLogColor(const Color&,Side);
-    const Color&		logColor(Side) const;
-    const Color&		logFillColor(int) const;
+    void			setLogColor(const OD::Color&,Side);
+    const OD::Color&		logColor(Side) const;
+    const OD::Color&		logFillColor(int) const;
     void			clearLog(Side);
 
     void			setLogLineDisplayed(bool,Side);
@@ -171,7 +171,7 @@ public:
     void			setOverlapp(float,Side);
     void			setRepeat( int,Side );
     void			removeLogs();
-    void			setTrackProperties(Color&,int);
+    void			setTrackProperties(OD::Color&,int);
     void			setLogFillColorTab(const LogParams&,Side);
 
     void			setDisplayTransformation(const mVisTrans*);
@@ -205,7 +205,7 @@ public:
     BufferString		getLogName(Side side) const;
     bool			getLogOsgData(LogStyle style,Side side,
 					      TypeSet<Coord3>&coords,
-					      TypeSet<Color>& colors,
+					      TypeSet<OD::Color>& colors,
 					      TypeSet<TypeSet<int> >& pss,
 					      TypeSet<Coord3>& normals,
 					      bool path) const;

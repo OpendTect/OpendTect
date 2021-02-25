@@ -48,7 +48,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
     su.fillbelow(true).canvaswidth(600).canvasheight(400).drawborder(true)
       .drawliney2(true).editable(true).fillbelow(false).fillbelowy2(true)
       .curvzvaly(5).curvzvaly2(0).drawscattery1(true).yrg(scalerg)
-      .xrg(zrg).ycol(Color(255,0,0));
+      .xrg(zrg).ycol(OD::Color(255,0,0));
 
     funcdisp_ = new uiFunctionDisplay( this, su );
     funcdisp_->xAxis()->setCaption( tr("Z") );

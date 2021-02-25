@@ -65,10 +65,10 @@ public:
     void		setPickType( PickType, bool resetcolor );
     const char*		zDomain() const;
 
-    bool		setColor(const Color&,bool savedefault);
+    bool		setColor(const OD::Color&,bool savedefault);
     			//!<\returns false if savedefault failed.
-    const Color&	getColor() const { return color_; }
-    bool		getDefaultColor(Color&) const;
+    const OD::Color&	getColor() const { return color_; }
+    bool		getDefaultColor(OD::Color&) const;
 
 
     Undo&		undo();
@@ -192,7 +192,7 @@ protected:
     ObjectSet<EM::Horizon3D>	horizons_;
 
     PickType			picktype_;
-    Color			color_;
+    OD::Color			color_;
 
     bool			changed_;
     bool			zit_;

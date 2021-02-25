@@ -422,7 +422,7 @@ bool EMManager::readParsFromGeometryInfoFile( const MultiID& mid,
     if( !par )
 	return false;
 
-    Color col;
+    OD::Color col;
     if( par->get(sKey::Color(),col) )
 	outpar.set( sKey::Color(), col );
 

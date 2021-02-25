@@ -7,13 +7,15 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "wellmarker.h"
-#include "welltrack.h"
-#include "wellextractdata.h"
-#include "iopar.h"
-#include "stratlevel.h"
+
 #include "bufstringset.h"
+#include "color.h"
 #include "idxable.h"
+#include "iopar.h"
 #include "keystrs.h"
+#include "stratlevel.h"
+#include "wellextractdata.h"
+#include "welltrack.h"
 
 const char* Well::Marker::sKeyDah()	{ return "Depth along hole"; }
 
@@ -32,7 +34,7 @@ Well::Marker& Well::Marker::operator =( const Well::Marker& mrk )
 }
 
 
-Color Well::Marker::color() const
+OD::Color Well::Marker::color() const
 {
     if ( levelid_ >= 0 )
     {
@@ -401,7 +403,7 @@ void Well::MarkerSet::getNames( BufferStringSet& nms ) const
 }
 
 
-void Well::MarkerSet::getColors( TypeSet<Color>& cols ) const
+void Well::MarkerSet::getColors( TypeSet<OD::Color>& cols ) const
 {
     for ( int idx=0; idx<size(); idx++ )
 	cols += (*this)[idx]->color();
@@ -409,7 +411,7 @@ void Well::MarkerSet::getColors( TypeSet<Color>& cols ) const
 
 
 void Well::MarkerSet::getNamesColorsMDs( BufferStringSet& nms,
-			TypeSet<Color>& cols, TypeSet<float>& mds) const
+			TypeSet<OD::Color>& cols, TypeSet<float>& mds) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -450,11 +452,12 @@ void Well::MarkerSet::usePar( const IOPar& iop )
 	    continue;
 
 	float dpt = 0; mpar->get( sKey::Depth(), dpt );
-	Color col(0,0,0); mpar->get( sKey::Color(), col );
+	OD::Color col(0,0,0); mpar->get( sKey::Color(), col );
 	int lvlid = -1; mpar->get( sKey::Level(), lvlid );
 
 	Marker* mrk = new Marker( nm, dpt );
-	mrk->setColor( col ); mrk->setLevelID( lvlid );
+	mrk->setColor( col );
+	mrk->setLevelID( lvlid );
 	insertNew( mrk );
     }
 }

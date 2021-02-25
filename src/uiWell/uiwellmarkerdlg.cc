@@ -273,7 +273,7 @@ void uiMarkerDlg::markerAddedCB( CallBacker* )
 						    uiStrings::sEmptyString() );
     levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
     const int currentrow = table_->currentRow();
-    const Color defgreycol( 128, 128, 128 );
+    const OD::Color defgreycol( 128, 128, 128 );
     table_->setCellGroup( RowCol(currentrow,cLevelCol), levelsel );
     table_->setColor( RowCol(currentrow,cColorCol), defgreycol );
     table_->setCellReadOnly( RowCol(currentrow,cColorCol), true );
@@ -366,7 +366,7 @@ void uiMarkerDlg::mouseClick( CallBacker* )
 	return;
     }
 
-    Color newcol = table_->getColor( rc );
+    OD::Color newcol = table_->getColor( rc );
     if ( selectColor(newcol, this, tr("Marker color")) )
 	table_->setColor( rc, newcol );
 

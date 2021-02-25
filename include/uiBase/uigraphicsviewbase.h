@@ -78,8 +78,8 @@ public:
 					    double w,double h);
     uiRect			getViewArea() const;
 
-    void			setBackgroundColor(const Color&);
-    Color			backgroundColor() const;
+    void			setBackgroundColor(const OD::Color&);
+    OD::Color			backgroundColor() const;
     void			setNoBackGround();
     void			rePaint();
     void			enableScrollZoom(bool yn=true);
@@ -144,7 +144,7 @@ public:
 				~uiGraphicsViewMask();
 
     void			setBorder(int);
-    void			setMaskColor(const Color&);
+    void			setMaskColor(const OD::Color&);
     void			update();
 
 protected:
@@ -154,7 +154,7 @@ protected:
     uiRectItem*			leftmask_;
     uiRectItem*			rightmask_;
 
-    Color			maskcolor_;
+    OD::Color			maskcolor_;
     int				border_;
 };
 

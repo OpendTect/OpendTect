@@ -65,7 +65,7 @@ public:
 				mDeclareEnumUtils(Type)
 
 				MarkerStyle2D( Type tp=Square, int sz=1,
-					       Color col=Color::Black(),
+					       OD::Color col=OD::Color::Black(),
 					       float rot=0);
 
     bool			operator==(const MarkerStyle2D& a) const;
@@ -73,7 +73,7 @@ public:
 
     Type			type_;
     int				size_;
-    Color			color_;
+    OD::Color			color_;
     float			rotation_; //clockwise rotion angle in degrees.
 
     bool			isVisible() const;
@@ -94,11 +94,11 @@ public:
 			mDeclareEnumUtils(Type)
 
 			MarkerStyle3D( Type tp=Cube, int sz=3,
-				       Color col=Color::White() );
+				       OD::Color col=OD::Color::White() );
 
     Type		type_;
     int			size_;
-    Color		color_;
+    OD::Color		color_;
 
     bool		isVisible() const;
 
@@ -123,14 +123,15 @@ public:
 			// directly to a UI enum.
 			mDeclareEnumUtils(Type)
 
-			LineStyle(Type t=Solid,int w=1,Color c=Color::Black());
+			LineStyle(Type t=Solid,int w=1,
+						OD::Color c=OD::Color::Black());
 
     bool		operator ==( const LineStyle& ls ) const;
     bool		operator !=( const LineStyle& ls ) const;
 
     Type		type_;
     int			width_;
-    Color		color_;
+    OD::Color		color_;
 
     bool		isVisible() const;
 

@@ -45,37 +45,38 @@ static const char* sSelectionColor()		{ return "Selection Color"; }
 mDefineInstanceCreatedNotifierAccess(EMObject);
 
 EMObject::EMObject( EMManager& emm )
-    : manager_( emm )
-    , change( this )
-    , id_( -1 )
+    : manager_(emm)
+    , change(this)
+    , id_(-1)
     , storageid_(MultiID::udf())
-    , preferredcolor_(*new Color(Color::Green()))
-    , lockcolor_(Color::Blue())
-    , selectioncolor_(Color::Orange())
-    , changed_( false )
-    , fullyloaded_( false )
-    , locked_( false )
-    , burstalertcount_( 0 )
-    , selremoving_( false )
-    , preferredlinestyle_( *new OD::LineStyle(OD::LineStyle::Solid,3) )
+    , preferredcolor_(*new OD::Color(OD::Color::Green()))
+    , lockcolor_(OD::Color::Blue())
+    , selectioncolor_(OD::Color::Orange())
+    , changed_(false)
+    , fullyloaded_(false)
+    , locked_(false)
+    , burstalertcount_(0)
+    , selremoving_(false)
+    , preferredlinestyle_(*new OD::LineStyle(OD::LineStyle::Solid,3))
     , preferredmarkerstyle_(
-	*new MarkerStyle3D(MarkerStyle3D::Cube,2,Color::White()))
+	*new MarkerStyle3D(MarkerStyle3D::Cube,2,OD::Color::White()))
     , posattribmarkerstyle_(*new MarkerStyle3D(MarkerStyle3D::Cube,2,
 			    preferredcolor_.complementaryColor()))
-    , haslockednodes_( false )
+    , haslockednodes_(false)
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_ = oid++;
 
     removebypolyposbox_.setEmpty();
 
-    change.notify( mCB(this,EMObject,posIDChangeCB) );
+    mAttachCB(change,EMObject::posIDChangeCB);
     mTriggerInstanceCreatedNotifier();
 }
 
 
 EMObject::~EMObject()
 {
+    detachAllNotifiers();
     //TODO: replace:
     prepareForDelete();
     //And replace by :
@@ -86,7 +87,6 @@ EMObject::~EMObject()
     delete &preferredmarkerstyle_;
     delete &posattribmarkerstyle_;
 
-    change.remove( mCB(this,EMObject,posIDChangeCB) );
     id_ = -2;	//To check easier if it has been deleted
 }
 
@@ -258,11 +258,13 @@ void EMObject::setPreferredLineStyle( const OD::LineStyle& lnst )
 }
 
 
-const Color& EMObject::preferredColor() const
-{ return preferredcolor_; }
+const OD::Color& EMObject::preferredColor() const
+{
+    return preferredcolor_;
+}
 
 
-void EMObject::setPreferredColor( const Color& col, bool addtoundo )
+void EMObject::setPreferredColor( const OD::Color& col, bool addtoundo )
 {
     if ( col==preferredcolor_ )
 	return;
@@ -282,7 +284,7 @@ void EMObject::setPreferredColor( const Color& col, bool addtoundo )
 }
 
 
-void EMObject::setSelectionColor( const Color& clr )
+void EMObject::setSelectionColor( const OD::Color& clr )
 {
     selectioncolor_ = clr;
     EMObjectCallbackData cbdata;
@@ -291,11 +293,13 @@ void EMObject::setSelectionColor( const Color& clr )
 }
 
 
-const Color& EMObject::getSelectionColor() const
-{ return selectioncolor_; }
+const OD::Color& EMObject::getSelectionColor() const
+{
+    return selectioncolor_;
+}
 
 
-void EMObject::setLockColor( const Color& col )
+void EMObject::setLockColor( const OD::Color& col )
 {
     lockcolor_ = col;
     EMObjectCallbackData cbdata;
@@ -304,8 +308,10 @@ void EMObject::setLockColor( const Color& col )
 }
 
 
-const Color& EMObject::getLockColor() const
-{ return lockcolor_; }
+const OD::Color& EMObject::getLockColor() const
+{
+    return lockcolor_;
+}
 
 
 void EMObject::setBurstAlert( bool yn )
@@ -764,7 +770,7 @@ void EMObject::fillPar( IOPar& par ) const
 
 bool EMObject::useDisplayPar( const IOPar& par )
 {
-    Color col;
+    OD::Color col;
     if ( par.get(sKey::Color(),col) )
     {
 	col.setTransparency( 0 );

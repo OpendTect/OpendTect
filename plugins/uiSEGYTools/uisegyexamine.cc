@@ -429,7 +429,7 @@ void uiSEGYExamine::updateInp()
 
 	if ( !trhead.isusable )
 	    tbl_->setColor( RowCol(SEGY::TrcHeader::EntryTrid(),itrc),
-			    Color::Red() );
+			    OD::Color::Red() );
 
 	nrdone++;
 	trc.info().nr = nrdone;

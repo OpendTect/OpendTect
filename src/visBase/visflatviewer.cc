@@ -39,12 +39,12 @@ FlatViewer::FlatViewer()
     : VisualObjectImpl(false)
     , dataChanged(this)
     , dispParsChanged(this)
-    , channels_( TextureChannels::create() )
-    , channel2rgba_( ColTabTextureChannel2RGBA::create() )
-    , rectangle_( TextureRectangle::create() )
-    , x1gridlines_( PolyLine::create() )
-    , x2gridlines_( PolyLine::create() )
-    , gridlinematerial_( new Material )
+    , channels_(TextureChannels::create())
+    , channel2rgba_(ColTabTextureChannel2RGBA::create())
+    , rectangle_(TextureRectangle::create())
+    , x1gridlines_(PolyLine::create())
+    , x2gridlines_(PolyLine::create())
+    , gridlinematerial_(new Material)
 {
     resolution_ = SettingsAccess().getDefaultTexResFactor( nrResolutions() );
 
@@ -64,7 +64,7 @@ FlatViewer::FlatViewer()
     rectangle_->setTextureChannels( channels_ );
     addChild( rectangle_->osgNode() );
 
-    gridlinematerial_->setColor( Color( 0, 0, 0 ) );
+    gridlinematerial_->setColor( OD::Color(0,0,0) );
 
     x1gridlines_->ref();
     x1gridlines_->setMaterial( gridlinematerial_ );
@@ -225,7 +225,7 @@ void FlatViewer::updateGridLines( bool x1 )
 {
     if ( channel2rgba_->getSequence(0) )
     {
-    	const Color markcolor = channel2rgba_->getSequence(0)->markColor();
+	const OD::Color markcolor = channel2rgba_->getSequence(0)->markColor();
     	x1gridlines_->getMaterial()->setColor( markcolor );
     	x2gridlines_->getMaterial()->setColor( markcolor );
     }

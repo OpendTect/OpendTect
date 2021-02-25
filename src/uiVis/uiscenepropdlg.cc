@@ -42,15 +42,15 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     , hadannot_(true)
     , hadannotscale_(true)
     , hadannotgrid_(true)
-    , oldbgcolor_(Color::Anthracite())
-    , annotcolor_(Color::White())
+    , oldbgcolor_(OD::Color::Anthracite())
+    , annotcolor_(OD::Color::White())
     , oldmarkersize_(5)
-    , oldmarkercolor_(Color::White())
+    , oldmarkercolor_(OD::Color::White())
     , hadanimation_(true)
     , viewers_(viewers)
     , curvwridx_(curvwridx)
-    , scene_(0)
-    , separationdlg_(0)
+    , scene_(nullptr)
+    , separationdlg_(nullptr)
 {
     enableSaveButton( tr("Apply to all") );
     setSaveButtonChecked( savestatus_ );

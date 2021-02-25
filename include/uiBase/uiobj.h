@@ -80,11 +80,11 @@ public:
     bool		isCursorInside() const;
 
     virtual void	setStyleSheet(const char*);
-    virtual Color	backgroundColor() const;
-    Color		roBackgroundColor() const;
-    virtual void	setBackgroundColor(const Color&);
+    virtual OD::Color	backgroundColor() const;
+    OD::Color		roBackgroundColor() const;
+    virtual void	setBackgroundColor(const OD::Color&);
     virtual void	setBackgroundPixmap(const uiPixmap&);
-    virtual void	setTextColor(const Color&);
+    virtual void	setTextColor(const OD::Color&);
     void		setSensitive(bool yn=true);
     bool		isSensitive() const	{ return sensitive(); }
     bool		sensitive() const;

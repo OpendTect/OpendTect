@@ -81,7 +81,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 						     .color(false) );
     linestfld_->attach( alignedBelow, horfld_ );
 
-    colorfld_ = new uiColorInput( this, uiColorInput::Setup(Color::Black())
+    colorfld_ = new uiColorInput( this, uiColorInput::Setup(OD::Color::Black())
 				.lbltxt(uiStrings::sColor()) );
     colorfld_->attach( alignedBelow, linestfld_ );
 
@@ -206,7 +206,7 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 
     if ( !usecoloryn )
     {
-	Color clr;
+	OD::Color clr;
 	iop.get( ODGMT::sKeyFaultColor(), clr );
 	colorfld_->setColor( clr );
     }

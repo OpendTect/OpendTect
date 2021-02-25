@@ -49,7 +49,7 @@ protected:
     uiGraphicsViewBase*		viewbase_;
     uiLineEdit*			textline_;
 
-    void			addLed(float x,float y,const Color&);
+    void			addLed(float x,float y,const OD::Color&);
     void			updateLeds();
     uiGraphicsItemSet*		leds_;
 

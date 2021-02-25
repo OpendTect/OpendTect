@@ -169,7 +169,7 @@ void MeasureToolMan::addScene( int sceneid )
 
     Pick::Set* ps = new Pick::Set( "Measure picks" );
     ps->disp_.connect_ = Pick::Set::Disp::Open;
-    ps->disp_.color_ = Color( 255, 0, 0 );
+    ps->disp_.color_ = OD::Color( 255, 0, 0 );
     psd->setSet( ps );
     psd->setSetMgr( &picksetmgr_ );
     picksetmgr_.set( getMultiID(sceneid), ps );

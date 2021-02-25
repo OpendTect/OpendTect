@@ -182,14 +182,14 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 				   : uiStrings::sEmptyString());
 
 	grpfld_->addItem( txt );
-	TypeSet<Color> ctseqs;
+	TypeSet<OD::Color> ctseqs;
 	for ( int idx=0; idx<uidps_.groupNames().size(); idx++ )
 	{
 	    grpfld_->addItem( toUiString(uidps_.groupNames().get(idx)) );
-	    Color coly1, coly2;
+	    OD::Color coly1, coly2;
 	    for ( int idy=0; idy<2; idy++ )
 	    {
-		Color& col = idy==0 ? coly1 : coly2;
+		OD::Color& col = idy==0 ? coly1 : coly2;
 		do
 		{ col = getRandomColor(); }
 		while ( !ctseqs.addIfNew(col) );
@@ -343,7 +343,7 @@ class uiSelColorDlg : public uiDialog
 public:
 
 uiSelColorDlg( uiParent* p, const BufferStringSet& names,
-	       TypeSet<Color>& y1cols, TypeSet<Color>& y2cols, bool isy2shwn )
+	TypeSet<OD::Color>& y1cols, TypeSet<OD::Color>& y2cols, bool isy2shwn )
     : uiDialog( p, uiDialog::Setup(uiStrings::phrSelect(tr("Color for Y1 & Y2"))
 				   ,uiStrings::sEmptyString(),
                                    mODHelpKey(mSelColorDlgHelpID) ) )
@@ -372,9 +372,8 @@ void changeColCB( CallBacker* )
 {
     RowCol rc = tbl_->notifiedCell();
 
-    Color newcol = tbl_->getColor( rc );
-    if ( selectColor(newcol,this,tr("%1 %2").arg(uiStrings::sMarker())
-						  .arg(uiStrings::sColor())) )
+    OD::Color newcol = tbl_->getColor( rc );
+    if ( selectColor(newcol,this,tr("Marker Color")) )
     {
 	rc.col() == 0 ? y1cols_[rc.row()] = newcol : y2cols_[rc.row()] = newcol;
 	tbl_->setColor( rc, newcol );
@@ -393,8 +392,8 @@ bool acceptOk( CallBacker* )
 }
     uiTable*			tbl_;
 
-    TypeSet<Color>&		y1cols_;
-    TypeSet<Color>&		y2cols_;
+    TypeSet<OD::Color>&		y1cols_;
+    TypeSet<OD::Color>&		y2cols_;
     BufferStringSet		names_;
     bool			isy2shown_;
 };
@@ -639,10 +638,10 @@ void uiDataPointSetCrossPlotWin::setGrpColors()
 
     for ( int idx=0; idx<uidps_.groupNames().size(); idx++ )
     {
-	Color coly1 = plotter_.isMultiColMode()
+	OD::Color coly1 = plotter_.isMultiColMode()
 	    ? plotter_.y1grpColors()[idx]
 	    : plotter_.axisData(1).axis_->setup().style_.color_;
-	Color coly2 = !plotter_.isY2Shown()
+	OD::Color coly2 = !plotter_.isY2Shown()
 	    ? coly1 : plotter_.isMultiColMode()
 	    ? plotter_.y2grpColors()[idx]
 	    : plotter_.axisData(2).axis_->setup().style_.color_;

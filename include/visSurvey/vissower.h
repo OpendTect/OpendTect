@@ -36,7 +36,7 @@ public:
 			~Sower();
 
     void		setDisplayTransformation( const mVisTrans* );
-    void		setEventCatcher( visBase::EventCatcher* );
+    void		setEventCatcher(visBase::EventCatcher*);
 
     enum		SowingMode { Lasering=-2, Erasing=-1, Idle=0,
 				     Furrowing, FirstSowing, SequentSowing };
@@ -65,8 +65,8 @@ public:
 
     bool		accept(const visBase::EventInfo&);
 
-    bool		activate(const Color&,const visBase::EventInfo&,
-	    			 int underlyingobjid=-1,
+    bool		activate(const OD::Color&,const visBase::EventInfo&,
+				 int underlyingobjid=-1,
 				 const TrcKeySampling* workrange=0);
     Notifier<Sower>	sowingend;
     Notifier<Sower>	sowing;

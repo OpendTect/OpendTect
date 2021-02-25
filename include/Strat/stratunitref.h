@@ -57,8 +57,8 @@ public:
     virtual void	setCode(const char*)	{}
     const OD::String&	description() const	{ return desc_; }
     virtual void	setDescription( const char* d )	{ desc_ = d; }
-    Color		color() const		{ return color_; }
-    void		setColor(Color);
+    OD::Color		color() const		{ return color_; }
+    void		setColor(OD::Color);
     IOPar&		pars()			{ return pars_; }
     const IOPar&	pars() const		{ return pars_; }
 
@@ -84,7 +84,7 @@ protected:
     NodeUnitRef*	upnode_;
 
     BufferString	desc_;
-    Color		color_;
+    OD::Color		color_;
     IOPar		pars_;
 
     void		doFill(BufferString&,int) const;
@@ -246,7 +246,7 @@ public:
     void		setLithology(int);
 
     const Lithology&	getLithology() const;
-    Color		dispColor(bool lith_else_upnode) const;
+    OD::Color		dispColor(bool lith_else_upnode) const;
     virtual int		level() const { return upnode_?upnode_->level()+1:0; }
     virtual const LeafUnitRef*	firstLeaf() const { return this; }
 

@@ -843,9 +843,10 @@ void uiListBox::addItem( const uiString& text, const uiPixmap& pm, int id )
 }
 
 
-void uiListBox::addItem( const uiString& text, const Color& col, int id )
+void uiListBox::addItem( const uiString& text, const OD::Color& col, int id )
 {
-    uiPixmap pm( 64, 64); pm.fill( col );
+    uiPixmap pm( 64, 64);
+    pm.fill( col );
     addItem( text, pm, id );
 }
 
@@ -925,10 +926,11 @@ void uiListBox::insertItem( const uiString& text, const uiPixmap& pm,
 }
 
 
-void uiListBox::insertItem( const uiString& text, const Color& col,
+void uiListBox::insertItem( const uiString& text, const OD::Color& col,
 			    int index, int id )
 {
-    uiPixmap pm( 64, 64 ); pm.fill( col );
+    uiPixmap pm( 64, 64 );
+    pm.fill( col );
     insertItem( text, pm, index, id );
 }
 
@@ -962,13 +964,14 @@ void uiListBox::setItemSelectable( int index, bool yn )
 }
 
 
-void uiListBox::setPixmap( int index, const Color& col )
+void uiListBox::setPixmap( int index, const OD::Color& col )
 {
     if ( index<0 || index>=size() || !lb_->body().item(index) )
 	return;
 
     QSize sz = lb_->body().iconSize();
-    uiPixmap pm( sz.width(), sz.height() ); pm.fill( col );
+    uiPixmap pm( sz.width(), sz.height() );
+    pm.fill( col );
     setPixmap( index, pm );
 }
 
@@ -993,7 +996,7 @@ void uiListBox::setIcon( int index, const char* iconnm )
 
 
 
-void uiListBox::setColor( int index, const Color& col )
+void uiListBox::setColor( int index, const OD::Color& col )
 {
     QColor qcol( col.r(), col.g(), col.b() );
     QListWidgetItem* itm = lb_->body().item( index );
@@ -1002,13 +1005,14 @@ void uiListBox::setColor( int index, const Color& col )
 }
 
 
-Color uiListBox::getColor( int index ) const
+OD::Color uiListBox::getColor( int index ) const
 {
     QListWidgetItem* itm = lb_->body().item( index );
-    if ( !itm ) return Color(255,255,255);
+    if ( !itm )
+	return OD::Color(255,255,255);
 
     const QColor qcol = itm->background().color();
-    return Color( qcol.red(), qcol.green(), qcol.blue() );
+    return OD::Color( qcol.red(), qcol.green(), qcol.blue() );
 }
 
 

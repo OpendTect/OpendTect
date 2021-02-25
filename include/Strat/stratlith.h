@@ -52,8 +52,8 @@ public:
     ID			id() const		{ return id_; }
     bool&		porous()		{ return porous_; }
     bool		porous() const		{ return porous_; }
-    Color&		color()			{ return color_; }
-    const Color&	color() const		{ return color_; }
+    OD::Color&		color()			{ return color_; }
+    const OD::Color&	color() const		{ return color_; }
 
     static const Lithology& undef();
 
@@ -61,7 +61,7 @@ protected:
 
     const ID		id_;
     bool		porous_;
-    Color		color_;
+    OD::Color		color_;
 
     friend class	LithologySet;
 

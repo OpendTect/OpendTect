@@ -80,17 +80,18 @@ bool uiRGBArray::reSize( int d0, int d1 )
 }
 
 
-Color uiRGBArray::get( int i0, int i1 ) const
+OD::Color uiRGBArray::get( int i0, int i1 ) const
 {
     if ( qimg_->width()<=i0 || qimg_->height()<=i1 )
-	return Color::NoColor();
+	return OD::Color::NoColor();
 
-    Color c; c.rgb() = qimg_->pixel( i0, i1 );
+    OD::Color c;
+    c.rgb() = qimg_->pixel( i0, i1 );
     return c;
 }
 
 
-bool uiRGBArray::set( int i0, int i1, const Color& c )
+bool uiRGBArray::set( int i0, int i1, const OD::Color& c )
 {
     if ( qimg_->width()<=i0 || qimg_->height()<=i1 )
 	return false;
@@ -105,7 +106,7 @@ bool uiRGBArray::set( int i0, int i1, const Color& c )
 }
 
 
-void uiRGBArray::clear( const Color& c )
+void uiRGBArray::clear( const OD::Color& c )
 {
     const QColor qcol( c.r(), c.g(), c.b(), 255-c.t() );
     if ( withalpha_ )

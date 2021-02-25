@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "array3dfloodfill.h"
 #include "arrayndimpl.h"
 #include "attribsel.h"
+#include "color.h"
 #include "ioman.h"
 #include "marchingcubes.h"
 #include "paralleltask.h"
@@ -132,7 +133,7 @@ VolumeDisplay::VolumeDisplay()
 
     addChild( scalarfield_->osgNode() );
 
-    getMaterial()->setColor( Color::White() );
+    getMaterial()->setColor( OD::Color::White() );
     getMaterial()->setAmbience( 0.3 );
     getMaterial()->setDiffIntensity( 0.8 );
     mAttachCB( getMaterial()->change, VolumeDisplay::materialChange );
@@ -215,7 +216,7 @@ void VolumeDisplay::updateIsoSurfColor()
 	    continue;
 
 	const float val = isosurfsettings_[idx].isovalue_;
-	Color col;
+	OD::Color col;
 	if ( mIsUdf(val) )
 	    col = getColTabSequence( 0 )->undefColor();
 	else

@@ -1547,7 +1547,7 @@ void uiDataPointSet::showPtsInWorkSpace( CallBacker* )
     {
 	ObjectSet<SelectionGrp> selgrps = plotter.selectionGrps();
 	BufferStringSet selgrpnms;
-	TypeSet<Color> selgrpcols;
+	TypeSet<OD::Color> selgrpcols;
 
 	for ( int idx=0; idx<selgrps.size(); idx++ )
 	{

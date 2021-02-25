@@ -104,10 +104,12 @@ void uiTrimStatics::fillTable()
 }
 
 
-static Color getColor( bool sel )
+static OD::Color getColor( bool sel )
 {
-    mDefineStaticLocalObject( Color, bgcol, = uiMain::theMain().windowColor() );
-    mDefineStaticLocalObject( Color, selcol, = bgcol.darker(0.3f) );
+    mDefineStaticLocalObject(
+		    OD::Color, bgcol, = uiMain::theMain().windowColor() );
+    mDefineStaticLocalObject(
+		    OD::Color, selcol, = bgcol.darker(0.3f) );
     return sel ? selcol : bgcol;
 }
 

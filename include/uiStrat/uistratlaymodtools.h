@@ -102,7 +102,7 @@ public:
     int		selPropIdx() const;		//!< May return -1
     int		selLevelIdx() const;		//!< May return -1
     const Strat::Level*	selStratLevel() const;	//!< May return null
-    Color	selLevelColor() const;		//!< May return NoColor
+    OD::Color	selLevelColor() const;		//!< May return NoColor
 
     uiToolButton* lithButton()		{ return lithtb_; }
     uiToolButton* zoomButton()		{ return zoomtb_; }

@@ -44,7 +44,7 @@ public:
 				    : xrg_(mUdf(float),mUdf(float))
 				    , yrg_(mUdf(float),mUdf(float))
 				    , y2rg_(mUdf(float),mUdf(float))
-				    , bgcol_(Color::White())
+				    , bgcol_(OD::Color::White())
 				    , ycol_(200,160,140)
 				    , y2col_(140,160,200)
 				    , ywidth_(2)
@@ -89,9 +89,9 @@ public:
 	mDefSetupMemb(Interval<float>,xrg)	//!< if fixed start or end
 	mDefSetupMemb(Interval<float>,yrg)	//!< if fixed start or end
 	mDefSetupMemb(Interval<float>,y2rg)	//!< if fixed start or end
-	mDefSetupMemb(Color,bgcol)		//!< Canvas background
-	mDefSetupMemb(Color,ycol)
-	mDefSetupMemb(Color,y2col)
+	mDefSetupMemb(OD::Color,bgcol)		//!< Canvas background
+	mDefSetupMemb(OD::Color,ycol)
+	mDefSetupMemb(OD::Color,y2col)
 	mDefSetupMemb(int,ywidth)
 	mDefSetupMemb(int,y2width)
 	mDefSetupMemb(int,canvaswidth)
@@ -230,7 +230,7 @@ protected:
     void			drawY2Curve(const TypeSet<uiPoint>&,bool havy2);
     void			drawMarker(const TypeSet<uiPoint>&,
 					   bool y2=false);
-    void			drawMarkLine(uiAxisHandler*,float,Color,
+    void			drawMarkLine(uiAxisHandler*,float,OD::Color,
 					     uiLineItem*&);
     void			drawBorder();
     void			drawMarkLines();

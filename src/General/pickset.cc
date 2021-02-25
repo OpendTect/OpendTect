@@ -811,13 +811,13 @@ bool Set::usePar( const IOPar& par )
 void Set::fillDisplayPars( IOPar& par ) const
 {
     BufferString colstr, fillcolstr;
-    if ( disp_.color_ != Color::NoColor() )
+    if ( disp_.color_ != OD::Color::NoColor() )
     {
 	disp_.color_.fill( colstr );
 	par.set( sKey::Color(), colstr );
     }
 
-    if ( disp_.fillcolor_ != Color::NoColor() )
+    if ( disp_.fillcolor_ != OD::Color::NoColor() )
     {
 	disp_.fillcolor_.fill( fillcolstr );
 	par.set( sKeyFillColor(), fillcolstr );
@@ -838,13 +838,13 @@ bool Set::useDisplayPars( const IOPar& par )
     if ( par.get(sKey::Color(),colstr) )
 	disp_.color_.use( colstr.buf() );
     else
-	disp_.color_ = Color::Red(); // change default color from none to red
+	disp_.color_ = OD::Color::Red(); //change default color from none to red
 
     BufferString fillcolstr;
     if ( par.get(sKeyFillColor(),fillcolstr) )
 	disp_.fillcolor_.use( fillcolstr.buf() );
     else
-	disp_.fillcolor_ = Color::Red();
+	disp_.fillcolor_ = OD::Color::Red();
 
     disp_.pixsize_ = 3;
     par.get( sKey::Size(), disp_.pixsize_ );
@@ -854,8 +854,8 @@ bool Set::useDisplayPars( const IOPar& par )
     if ( par.get(sKey::LineStyle(),lsstr) )
 	disp_.linestyle_.fromString( lsstr );
     else
-	disp_.linestyle_ = OD::LineStyle(OD::LineStyle::Solid,
-					 disp_.pixsize_,disp_.color_);
+	disp_.linestyle_ = OD::LineStyle( OD::LineStyle::Solid,
+					 disp_.pixsize_,disp_.color_ );
 
     par.getYN( sKeyFill(), disp_.dofill_ );
 

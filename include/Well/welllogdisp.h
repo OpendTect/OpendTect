@@ -29,19 +29,19 @@ mExpClass(Well) LogDisplayPars
 public:
 			LogDisplayPars( const char* nm=0 )
 			    : name_(nm)
- 			    , cliprate_(mUdf(float))
+			    , cliprate_(mUdf(float))
 			    , range_(mUdf(float),mUdf(float))
 			    , nocliprate_(false)	
 			    , logarithmic_(false)
 			    , repeat_(1)	
 			    , repeatovlap_(mUdf(float))
 			    , seisstyle_(false)	
-			    , linecolor_(Color::White())	
+			    , linecolor_(OD::Color::White())
 			    , logfill_(false)
-	    		    , logfillcolor_(Color::White())
+			    , logfillcolor_(OD::Color::White())
 			    , seqname_("")
-       			    , singlfillcol_(false)				
-						        {}
+			    , singlfillcol_(false)
+							{}
 			~LogDisplayPars()		{}
 
     BufferString	name_;
@@ -51,12 +51,12 @@ public:
     bool		seisstyle_;
     bool		nocliprate_;
     bool		logfill_;
-    int 		repeat_;
+    int			repeat_;
     float		repeatovlap_;
-    Color		linecolor_;
-    Color		logfillcolor_;
+    OD::Color		linecolor_;
+    OD::Color		logfillcolor_;
     const char*		seqname_;
-    bool 		singlfillcol_;
+    bool		singlfillcol_;
 };
 
 

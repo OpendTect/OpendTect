@@ -276,7 +276,7 @@ uiRect uiLineItem::lineRect() const
 }
 
 
-void uiLineItem::setPenColor( const Color& col, bool )
+void uiLineItem::setPenColor( const OD::Color& col, bool )
 {
     QPen qpen = qlineitem_->pen();
     qpen.setColor( QColor(col.rgb()) );
@@ -566,7 +566,7 @@ mImplSetPolyline( const TypeSet<uiWorldPoint>& );
 
 
 void uiMultiColorPolyLineItem::setColors(
-		const TypeSet<Color>& colors, bool usetransparency )
+			const TypeSet<OD::Color>& colors, bool usetransparency )
 {
     QVector<QPen> qpens( colors.size() );
     for ( int idx=0; idx<colors.size(); idx++ )
@@ -768,7 +768,7 @@ void uiTextItem::stPos( float x, float y )
 }
 
 
-void uiTextItem::setTextColor( const Color& col )
+void uiTextItem::setTextColor( const OD::Color& col )
 {
     qtextitem_->setPen( QPen(QColor(col.r(),col.g(), col.b())) );
 }
@@ -807,10 +807,10 @@ Alignment uiAdvancedTextItem::getAlignment() const
 }
 
 
-Color uiAdvancedTextItem::getDefaultTextColor() const
+OD::Color uiAdvancedTextItem::getDefaultTextColor() const
 {
     QColor qcol = qtextitem_->defaultTextColor();
-    return Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
+    return OD::Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
 }
 
 
@@ -841,7 +841,7 @@ void uiAdvancedTextItem::setAlignment( const Alignment& al )
 }
 
 
-void uiAdvancedTextItem::setDefaultTextColor( const Color& col )
+void uiAdvancedTextItem::setDefaultTextColor( const OD::Color& col )
 {
     QColor qcol( col.r(), col.g(), col.b(), 255-col.t() );
     qtextitem_->setDefaultTextColor( qcol );
@@ -987,7 +987,7 @@ void uiMarkerItem::setFill( bool fill )
 
 
 
-void uiMarkerItem::setFillColor( const Color& col, bool )
+void uiMarkerItem::setFillColor( const OD::Color& col, bool )
 {
     qmarkeritem_->setFill( true );
     qmarkeritem_->setFillColor( col );

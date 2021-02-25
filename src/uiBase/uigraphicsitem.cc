@@ -405,7 +405,7 @@ bool uiGraphicsItem::isItemIgnoresTransformationsEnabled() const
 }
 
 
-void uiGraphicsItem::setPenColor( const Color& col, bool usetransparency )
+void uiGraphicsItem::setPenColor( const OD::Color& col, bool usetransparency )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
@@ -443,7 +443,8 @@ void uiGraphicsItem::setPenStyle( const OD::LineStyle& ls, bool usetransparency)
     if ( !agsitm ) return;
 
     QColor color = QColor( QRgb(ls.color_.rgb()) );
-    if ( usetransparency ) color.setAlpha( 255-ls.color_.t() );
+    if ( usetransparency )
+	color.setAlpha( 255-ls.color_.t() );
 
     QBrush qbrush( color );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
@@ -454,13 +455,13 @@ void uiGraphicsItem::setPenStyle( const OD::LineStyle& ls, bool usetransparency)
 }
 
 
-void uiGraphicsItem::setFillColor( const Color& col, bool usetransparency )
+void uiGraphicsItem::setFillColor( const OD::Color& col, bool usetransparency )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
     QColor color = Qt::transparent;
-    if ( col != Color::NoColor() )
+    if ( col != OD::Color::NoColor() )
     {
 	color = QColor( QRgb(col.rgb()) );
 	if ( usetransparency ) color.setAlpha( 255-col.t() );
@@ -477,7 +478,7 @@ void uiGraphicsItem::setFillColor( const Color& col, bool usetransparency )
 void uiGraphicsItem::setGradientFill( int xstart, int ystart,
 				  int xstop, int ystop,
 				  const TypeSet<float>& stops,
-				  const TypeSet<Color>& colors )
+				  const TypeSet<OD::Color>& colors )
 {
     if ( colors.size() != stops.size() )
 	return;

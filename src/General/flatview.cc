@@ -216,7 +216,7 @@ int FlatView::Annotation::AxisData::auxPosIdx( float atpos, float eps ) const
 
 FlatView::Annotation::Annotation( bool drkbg )
     : dynamictitle_(true)
-    , color_(drkbg ? Color::White() : Color::Black())
+    , color_(drkbg ? OD::Color::White() :OD:: Color::Black())
     , showaux_(true)
     , showscalebar_(false)
     , showcolorbar_(false)
@@ -266,30 +266,30 @@ void FlatView::Annotation::usePar( const IOPar& iop )
 
 
 FlatView::AuxData::EditPermissions::EditPermissions()
-    : onoff_( true )
-    , namepos_( true )
-    , linestyle_( true )
-    , linecolor_( true )
-    , fillcolor_( true )
-    , markerstyle_( true )
-    , markercolor_( true )
-    , x1rg_( true )
-    , x2rg_( true )
+    : onoff_(true)
+    , namepos_(true)
+    , linestyle_(true)
+    , linecolor_(true)
+    , fillcolor_(true)
+    , markerstyle_(true)
+    , markercolor_(true)
+    , x1rg_(true)
+    , x2rg_(true)
 {}
 
 
 FlatView::AuxData::AuxData( const char* nm )
-    : name_( nm )
-    , namepos_( mUdf(int) )
+    : name_(nm)
+    , namepos_(mUdf(int))
     , namealignment_(mAlignment(Center,Center))
-    , linestyle_( OD::LineStyle::None, 1, Color::NoColor() )
-    , fillcolor_( Color::NoColor() )
-    , zvalue_( 1 )
-    , close_( false )
-    , x1rg_( 0 )
-    , x2rg_( 0 )
-    , enabled_( true )
-    , editpermissions_( 0 )
+    , linestyle_(OD::LineStyle::None,1,OD::Color::NoColor() )
+    , fillcolor_(OD::Color::NoColor())
+    , zvalue_(1)
+    , close_(false)
+    , x1rg_(nullptr)
+    , x2rg_(nullptr)
+    , enabled_(true)
+    , editpermissions_(nullptr)
     , turnon_(true)
     , needsupdatelines_(true)
     , fitnameinview_(true)
@@ -298,20 +298,20 @@ FlatView::AuxData::AuxData( const char* nm )
 
 
 FlatView::AuxData::AuxData( const FlatView::AuxData& aux )
-    : name_( aux.name_ )
-    , namepos_( aux.namepos_ )
-    , namealignment_( aux.namealignment_ )
-    , linestyle_( aux.linestyle_ )
-    , fillcolor_( aux.fillcolor_ )
-    , zvalue_( aux.zvalue_ )
-    , markerstyles_( aux.markerstyles_ )
-    , close_( aux.close_ )
-    , x1rg_( aux.x1rg_ ? new Interval<double>( *aux.x1rg_ ) : 0 )
-    , x2rg_( aux.x2rg_ ? new Interval<double>( *aux.x2rg_ ) : 0 )
-    , enabled_( aux.enabled_ )
-    , editpermissions_( aux.editpermissions_
-	    ? new EditPermissions(*aux.editpermissions_) : 0 )
-    , poly_( aux.poly_ )
+    : name_(aux.name_)
+    , namepos_(aux.namepos_)
+    , namealignment_(aux.namealignment_)
+    , linestyle_(aux.linestyle_)
+    , fillcolor_(aux.fillcolor_)
+    , zvalue_(aux.zvalue_)
+    , markerstyles_(aux.markerstyles_)
+    , close_(aux.close_)
+    , x1rg_(aux.x1rg_ ? new Interval<double>(*aux.x1rg_) : nullptr)
+    , x2rg_(aux.x2rg_ ? new Interval<double>( *aux.x2rg_ ) : nullptr)
+    , enabled_(aux.enabled_)
+    , editpermissions_(aux.editpermissions_
+			? new EditPermissions(*aux.editpermissions_) : nullptr)
+    , poly_(aux.poly_)
     , turnon_(true)
     , needsupdatelines_(aux.needsupdatelines_)
     , fitnameinview_(aux.fitnameinview_)
@@ -335,21 +335,26 @@ void FlatView::AuxData::empty()
 { poly_.erase(); }
 
 void FlatView::AuxData::FillGradient::set( const Point& fr, const Point& to,
-		const TypeSet<float>& stops, const TypeSet<Color>& colors )
+		const TypeSet<float>& stops, const TypeSet<OD::Color>& colors )
 {
-    from_ = fr; to_ = to;
-    stops_ = stops; colors_ = colors;
+    from_ = fr;
+    to_ = to;
+    stops_ = stops;
+    colors_ = colors;
 }
 
 
-void FlatView::AuxData::FillGradient::set( const Color& col1,
-					   const Color& col2, bool hor )
+void FlatView::AuxData::FillGradient::set( const OD::Color& col1,
+					   const OD::Color& col2, bool hor )
 {
     from_ = Point( 0., 0. );
     to_ = Point( hor ? 1. : 0., hor ? 0. : 1. );
-    stops_.erase(); colors_.erase();
-    stops_ += 0.f; stops_ += 1.f;
-    colors_ += col1; colors_ += col2;
+    stops_.erase();
+    colors_.erase();
+    stops_ += 0.f;
+    stops_ += 1.f;
+    colors_ += col1;
+    colors_ += col2;
 }
 
 
@@ -448,7 +453,7 @@ void FlatView::Appearance::usePar( const IOPar& iop )
 void FlatView::Appearance::setDarkBG( bool yn )
 {
     darkbg_ = yn;
-    annot_.color_ = yn ? Color::White() : Color::Black();
+    annot_.color_ = yn ? OD::Color::White() : OD::Color::Black();
     ddpars_.wva_.wigg_ = annot_.color_;
 }
 

@@ -39,7 +39,7 @@ public:
 			~uiRGBArrayCanvas();
 
     void		setBorder(const uiBorder&);
-    void		setBGColor(const Color&); //!< everything
+    void		setBGColor(const OD::Color&); //!< everything
     void		setDrawArr(bool);	//!< Draw the arr or not?
     void		setPixmap(const uiPixmap&);
     void		removePixmap();
@@ -52,8 +52,8 @@ public:
     			//!< In this area the 'rest' needs to be drawn
     			//!< in your own reDrawHandler or at postDraw
 
-    inline const uiBorder& border() const	{ return border_; }
-    inline const Color&	bgColor() const		{ return bgcolor_; }
+    inline const uiBorder&  border() const	{ return border_; }
+    inline const OD::Color& bgColor() const	{ return bgcolor_; }
     inline bool		arrDrawn() const	{ return dodraw_; }
 
     void		beforeDraw();
@@ -66,7 +66,7 @@ protected:
     uiPixmapItem*	pixmapitm_;
     uiRGBArray&		rgbarr_;
     uiBorder		border_;
-    Color		bgcolor_;
+    OD::Color		bgcolor_;
     bool		dodraw_;
 
     uiRect		arrarea_;

@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "viswelldisplay.h"
 
-
+#include "color.h"
 #include "dataclipper.h"
 #include "draw.h"
 #include "iopar.h"
@@ -614,16 +614,22 @@ void WellDisplay::calcClippedRange( float rate, Interval<float>& rg, int lidx )
 }
 
 
-const Color& WellDisplay::logColor( visBase::Well::Side side ) const
-{ return well_->logColor( side ); }
+const OD::Color& WellDisplay::logColor( visBase::Well::Side side ) const
+{
+    return well_->logColor( side );
+}
 
 
-void WellDisplay::setLogColor( const Color& col, visBase::Well::Side side )
-{ well_->setLogColor( col, side ); }
+void WellDisplay::setLogColor( const OD::Color& col, visBase::Well::Side side )
+{
+    well_->setLogColor( col, side );
+}
 
 
 float WellDisplay::getLogWidth( visBase::Well::Side side ) const
-{ return well_->getLogWidth( side ); }
+{
+    return well_->getLogWidth( side );
+}
 
 
 void WellDisplay::setLogWidth( float width, visBase::Well::Side side )
@@ -648,7 +654,7 @@ void WellDisplay::showLogs( bool yn )
 }
 
 
-Color WellDisplay::getColor() const
+OD::Color WellDisplay::getColor() const
 {
     return well_->lineStyle().color_;
 }

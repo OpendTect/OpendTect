@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "sets.h"
 #include "bufstring.h"
+#include "color.h"
 #include <bitset>
 
 class IOObj;
@@ -97,16 +98,16 @@ public:
     static bool		getAllMarkerNames(BufferStringSet&,
 					  bool onlyloaded=false);
     static bool		getAllMarkerInfo(BufferStringSet&,
-					 TypeSet<Color>&,
+					 TypeSet<OD::Color>&,
 				  bool onlyloaded=false);
     static bool		getAllLogNames(BufferStringSet&,
 				       bool onlyloaded=false);
 
     static bool		getMarkersByID(const MultiID&, BufferStringSet&);
     static bool		getMarkersByID(const MultiID&, BufferStringSet&,
-				       TypeSet<Color>&);
+				       TypeSet<OD::Color>&);
     static bool		getMarkersByID(const MultiID&, BufferStringSet&,
-				       TypeSet<Color>&, TypeSet<float>&);
+				       TypeSet<OD::Color>&, TypeSet<float>&);
     static bool		getLogNamesByID(const MultiID&,BufferStringSet&,
 					bool onlyloaded=false);
     mDeprecated("Use getLogNamesByID instead") static bool getLogNames(

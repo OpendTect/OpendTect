@@ -85,18 +85,22 @@ bool ImageResizer::doWork( od_int64 start, od_int64 stop,int)
     od_int64 idx0 = start/outputsize_[1];
     od_int64 idx1 = start%outputsize_[1];
     od_int64 idx = start;
-    Color colres;
+    OD::Color colres;
     for ( ; idx<=stop; idx0++ )
     {
 	const double center0 = (idx0+0.5) / factor0_; //position in source
-	const size_t start0 = (size_t)std::max(center0-support0_+0.5, (double)0);
-	const size_t stop0  = (size_t)std::min(center0+support0_+0.5, (double)inputsize_[0] );
+	const size_t start0 =
+			    (size_t)std::max(center0-support0_+0.5, (double)0);
+	const size_t stop0  =
+		(size_t)std::min(center0+support0_+0.5, (double)inputsize_[0] );
 	const size_t nmax0 = stop0-start0;
 	for ( ; idx<=stop && idx1<outputsize_[1]; idx1++ )
 	{
 	    const double center1 = (idx1+0.5) / factor1_; //position in source
-	    const size_t start1 = (size_t)std::max(center1-support1_+0.5, (double)0);
-	    const size_t stop1  = (size_t)std::min(center1+support1_+0.5, (double)inputsize_[1] );
+	    const size_t start1 =
+			    (size_t)std::max(center1-support1_+0.5, (double)0);
+	    const size_t stop1 =
+		(size_t)std::min(center1+support1_+0.5, (double)inputsize_[1] );
 	    const size_t nmax1 = stop1-start1;
 
 	    double s0 = (start0 - center0+0.5)*scale0_;
@@ -109,8 +113,10 @@ bool ImageResizer::doWork( od_int64 start, od_int64 stop,int)
 	    {
 		for ( unsigned int k1=0; k0<nmax1; s1+=scale1_, k1++ )
 		{
-		    const double weight = LanczosKernel( lanczossize_, Math::Sqrt(s0*s0+s1*s1) );
-		    const int inputoffset = ((start0+k0)*inputsize_[1] + start1+k1)*nrcomponents_;
+		    const double weight =
+			LanczosKernel( lanczossize_, Math::Sqrt(s0*s0+s1*s1) );
+		    const int inputoffset =
+			((start0+k0)*inputsize_[1] + start1+k1)*nrcomponents_;
 		    const unsigned char* col = inputimage_+inputoffset;
 		    for ( char idc=nrcomponents_-1; idc>=0; idc-- )
 			sums[idc] += col[idc]*weight;

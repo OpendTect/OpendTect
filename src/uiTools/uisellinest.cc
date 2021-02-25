@@ -140,14 +140,14 @@ void uiSelLineStyle::setLineWidthBounds( int min, int max )
 }
 
 
-void uiSelLineStyle::setColor( const Color& col )
+void uiSelLineStyle::setColor( const OD::Color& col )
 {
     linestyle_.color_ = col;
     if ( colinp_ ) colinp_->setColor( col );
 }
 
 
-const Color& uiSelLineStyle::getColor() const
+const OD::Color& uiSelLineStyle::getColor() const
 {
     return linestyle_.color_;
 }

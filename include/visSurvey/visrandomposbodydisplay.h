@@ -28,7 +28,7 @@ class Scene;
 /*!\brief used for displaying a set of random picks in xyz coordinate.*/
 
 mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
-       			      public visSurvey::SurveyObject
+			      public visSurvey::SurveyObject
 { mODTextTranslationClass(RandomPosBodyDisplay);
 public:
 				RandomPosBodyDisplay();
@@ -41,8 +41,8 @@ public:
     bool			isInlCrl() const	{ return false; }
 
     bool			hasColor() const	{ return true; }
-    Color			getColor() const;
-    void			setColor(Color);
+    OD::Color			getColor() const;
+    void			setColor(OD::Color);
     bool			allowMaterialEdit() const { return true; }
     NotifierAccess*		materialChange();
 
@@ -50,7 +50,7 @@ public:
     const mVisTrans*		getDisplayTransformation() const;
 
     bool			setVisBody(visBase::RandomPos2Body*);
-    				//!<Creates an EMObject for it.
+				//!<Creates an EMObject for it.
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
     EM::RandomPosBody*		getEMBody() const	{ return embody_; }

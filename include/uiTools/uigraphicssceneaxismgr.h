@@ -151,8 +151,8 @@ public:
     void		setAuxAnnotPositions(const TypeSet<PlotAnnotation>&,
 						bool forx);
 
-    void		setMaskColor(const Color&);
-    Color		getMaskColor() const;
+    void		setMaskColor(const OD::Color&);
+    OD::Color		getMaskColor() const;
 
     virtual void	updateScene();
     NotifierAccess&	layoutChanged();
@@ -171,7 +171,7 @@ protected:
     uiRectItem*			leftmask_;
     uiRectItem*			rightmask_;
 
-    Color			maskcolor_;
+    OD::Color			maskcolor_;
 
     void			updateFontSizeCB(CallBacker*);
 };

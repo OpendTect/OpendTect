@@ -278,7 +278,7 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 }
 
 
-void Well::setTrackProperties( Color& col, int width)
+void Well::setTrackProperties( OD::Color& col, int width)
 {
     OD::LineStyle lst;
     lst.color_ = col;
@@ -749,7 +749,7 @@ void Well::getLogStyle( Side side, int& style ) const
 }
 
 
-void Well::setLogColor( const Color& col, Side side )
+void Well::setLogColor( const OD::Color& col, Side side )
 {
 #define col2f(rgb) float(col.rgb())/255
 
@@ -759,10 +759,10 @@ void Well::setLogColor( const Color& col, Side side )
 }
 
 
-const Color& Well::logColor( Side side ) const
+const OD::Color& Well::logColor( Side side ) const
 {
     const osgGeo::WellLog* logdisplay = getLogDisplay( side );
-    static Color color;
+    static OD::Color color;
     const osg::Vec4d& col = logdisplay->getLineColor();
     const int r = mNINT32(col[0]*255);
     const int g = mNINT32(col[1]*255);
@@ -786,7 +786,7 @@ void Well::setLogFillColorTab( const LogParams& lp, Side side  )
 	const bool issinglecol = ( lp.style_ == Seismic ||
 			(lp.style_ != Seismic && lp.issinglcol_ ) );
 	float colstep = lp.iscoltabflipped_ ? 1-(float)idx/255 : (float)idx/255;
-	Color col = seq->color( colstep );
+	OD::Color col = seq->color( colstep );
 	float r = issinglecol ? scolors2f(r) : colors2f(r);
 	float g = issinglecol ? scolors2f(g) : colors2f(g);
 	float b = issinglecol ? scolors2f(b) : colors2f(b);
@@ -976,7 +976,7 @@ bool Well::usePar( const IOPar& par )
 
 
 bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
-	TypeSet<Color>& colors, TypeSet<TypeSet<int> >& pss,
+	TypeSet<OD::Color>& colors, TypeSet<TypeSet<int> >& pss,
 	TypeSet<Coord3>& normals, bool path ) const
 {
     if ( style==Logtube && !displaytube_[(int)side] )
@@ -987,7 +987,8 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
 
     const osgGeo::WellLog* logdisplay = getLogDisplay( side );
 
-    if ( !logdisplay ) return false;
+    if ( !logdisplay )
+	return false;
 
     osg::ref_ptr<osg::Geometry>  geom = 0;
 
@@ -1043,7 +1044,7 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
 	normals += Conv::to<Coord3>( (*osgnormals)[idx] );
 
     for ( int idx=0; idx<clrarr->size(); idx++ )
-	colors += Conv::to<Color>( (*clrarr)[idx] );
+	colors += Conv::to<::OD::Color>( (*clrarr)[idx] );
 
     return true;
 }

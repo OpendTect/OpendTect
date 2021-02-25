@@ -96,7 +96,7 @@ bool GMTCoastline::doExecute( od_ostream& strm, const char* fnm )
     }
     if ( wetfill )
     {
-	Color wetcol;
+	OD::Color wetcol;
 	get( ODGMT::sKeyWetFillColor(), wetcol );
 	BufferString wetcolstr;
 	mGetColorString( wetcol, wetcolstr );
@@ -104,7 +104,7 @@ bool GMTCoastline::doExecute( od_ostream& strm, const char* fnm )
     }
     if ( dryfill )
     {
-	Color drycol;
+	OD::Color drycol;
 	get( ODGMT::sKeyDryFillColor(), drycol );
 	BufferString drycolstr;
 	mGetColorString( drycol, drycolstr );

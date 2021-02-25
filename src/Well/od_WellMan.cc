@@ -148,11 +148,11 @@ void WellServerTool::listMarkers()
     getWD( sListMarkersCmd, LoadReqs(Mrkrs) );
 
     BufferStringSet nms;
-    TypeSet<Color> colors;
+    TypeSet<OD::Color> colors;
     TypeSet<float> mds;
     wd_->markers().getNamesColorsMDs( nms, colors, mds );
     BufferStringSet colstrs;
-    Color::convertToStr( colors, colstrs );
+    OD::Color::convertToStr( colors, colstrs );
     set( sKey::ID(), DBKey(wd_->multiID()) );
     set( sKey::Size(), nms.size() );
     set( sKey::Names(), nms );

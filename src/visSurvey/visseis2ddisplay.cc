@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "bendpointfinder.h"
+#include "color.h"
 #include "mousecursor.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
@@ -67,8 +68,8 @@ Seis2DDisplay::Seis2DDisplay()
 
     polylineds_ = polyline_->addNodeState( new visBase::DrawStyle );
     polylineds_->setLineStyle(
-	OD::LineStyle(OD::LineStyle::Solid,3,Color::White()) );
-    setColor( Color::White() );
+		    OD::LineStyle(OD::LineStyle::Solid,3,OD::Color::White()) );
+    setColor( OD::Color::White() );
     polylineds_->ref();
 
     panelstrip_->ref();
@@ -81,11 +82,11 @@ Seis2DDisplay::Seis2DDisplay()
     addChild( linename_->osgNode() );
     linename_->addText();
 
-    getMaterial()->setColor( Color::White() );
+    getMaterial()->setColor( OD::Color::White() );
     getMaterial()->setAmbience( 0.8 );
     getMaterial()->setDiffIntensity( 0.2 );
 
-    setColor( Color(0,150,75) );
+    setColor( OD::Color(0,150,75) );
 
     init();
     showPanel( false );
@@ -117,12 +118,16 @@ Seis2DDisplay::~Seis2DDisplay()
 }
 
 
-void Seis2DDisplay::setColor( Color nc )
-{ polyline_->getMaterial()->setColor( nc ); }
+void Seis2DDisplay::setColor( OD::Color nc )
+{
+    polyline_->getMaterial()->setColor( nc );
+}
 
 
-Color Seis2DDisplay::getColor() const
-{ return polyline_->getMaterial()->getColor(); }
+OD::Color Seis2DDisplay::getColor() const
+{
+    return polyline_->getMaterial()->getColor();
+}
 
 
 const OD::LineStyle* Seis2DDisplay::lineStyle() const
@@ -1152,14 +1157,14 @@ void Seis2DDisplay::clearTexture( int attribnr )
 }
 
 
-void Seis2DDisplay::setAnnotColor( Color col )
+void Seis2DDisplay::setAnnotColor( OD::Color col )
 {
     linename_->getMaterial()->setColor( col ); // not sure if this has to be set
     linename_->text()->setColor( col );
 }
 
 
-Color Seis2DDisplay::getAnnotColor() const
+OD::Color Seis2DDisplay::getAnnotColor() const
 {
     return linename_->getMaterial()->getColor();
 }

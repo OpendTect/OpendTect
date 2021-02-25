@@ -52,7 +52,7 @@ void BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
 {
     if ( clear )
     {
-	Color col( Color::White() );
+	OD::Color col( OD::Color::White() );
 	col.setTransparency( 255 );
 	array_.clear( col );
     }
@@ -102,7 +102,7 @@ void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 
 	    const int idx = (int)bmpval-minfill;
 	    const int colidx = pars.mappersetup_.flipseq_ ? maxcolidx-idx : idx;
-	    const Color col = ctindex.colorForIndex( colidx );
+	    const OD::Color col = ctindex.colorForIndex( colidx );
 	    if ( col.isVisible() )
 		array_.set( ix, iy, col );
 	}
@@ -126,7 +126,7 @@ void BitMap2RGB::drawWVA( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
 		continue;
 
-	    Color col( pars.wigg_ );
+	    OD::Color col( pars.wigg_ );
 	    if ( bmpval == WVAA2DBitMapGenPars::cLowFill() )
 		col = pars.lowfill_;
 	    else if ( bmpval == WVAA2DBitMapGenPars::cHighFill() )

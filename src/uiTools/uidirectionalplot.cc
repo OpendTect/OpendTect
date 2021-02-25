@@ -462,7 +462,7 @@ void uiDirectionalPlot::drawRose()
 
 
 uiCurvedItem* uiDirectionalPlot::drawSectorPart( int isect, Interval<float> rrg,
-						 Color col )
+						 OD::Color col )
 {
     const float dang = data_.angle(0,1) - data_.angle(0,-1);
     const float dangrad = dang * Angle::cPI<float>() / 180;
@@ -528,9 +528,10 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 		}
 	    }
 
-	    Color col;
+	    OD::Color col;
 	    if ( !isvals )
-		col = Color::stdDrawColor( ipart%Color::nrStdDrawColors() );
+		col = OD::Color::stdDrawColor(
+					ipart%OD::Color::nrStdDrawColors() );
 	    else
 	    {
 		float relpos = (spd.val_-valrg_.start)
@@ -556,7 +557,7 @@ void uiDirectionalPlot::drawSelection()
     if ( selsector_ < 0 ) return;
 
     selsectoritem_ = drawSectorPart( selsector_, Interval<float>(1.01,1.05),
-				     Color::Black() );
+				     OD::Color::Black() );
 }
 
 

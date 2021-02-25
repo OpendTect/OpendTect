@@ -1872,10 +1872,11 @@ bool uiVisPartServer::hasColor( int id ) const
 }
 
 
-void uiVisPartServer::setColor( int id, const Color& col )
+void uiVisPartServer::setColor( int id, const OD::Color& col )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    if ( so ) so->setColor( col );
+    if ( so )
+	so->setColor( col );
 }
 
 
@@ -2343,7 +2344,7 @@ bool uiVisPartServer::isLocked( int id ) const
 }
 
 
-Color uiVisPartServer::getSceneAnnotCol( int sceneidx )
+OD::Color uiVisPartServer::getSceneAnnotCol( int sceneidx )
 {
     return scenes_[ sceneidx ]->getAnnotColor();
 }

@@ -148,7 +148,7 @@ void AnnotBufferFiller::dummytest()
 {
     LineInfo* linfo = new LineInfo();
     
-    OD::LineStyle lstyle( OD::LineStyle::Solid, 1, Color::DgbColor() );
+    OD::LineStyle lstyle( OD::LineStyle::Solid, 1, OD::Color::DgbColor() );
     linfo->linestyle_ = lstyle;
     linfo->pts_ += dPoint( 125, 0.5 );
     linfo->pts_ += dPoint( 200, 1.8 );

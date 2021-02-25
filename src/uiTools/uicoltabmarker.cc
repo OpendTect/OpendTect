@@ -77,7 +77,7 @@ void uiColTabMarkerDlg::fillTable()
 		table_->setValue( rc, position );
 	    if ( rc.col() == 1 )
 	    {
-		Color color( ctab_.color(position) );
+		OD::Color color( ctab_.color(position) );
 		table_->setColor( rc, color );
 	    }
 	}
@@ -89,9 +89,10 @@ void uiColTabMarkerDlg::mouseClick( CallBacker* )
 {
     NotifyStopper notifstop( table_->valueChanged );
     RowCol rc = table_->notifiedCell();
-    if ( rc.col() != cColorCol ) return;
+    if ( rc.col() != cColorCol )
+	return;
 
-    Color newcol = table_->getColor( rc );
+    OD::Color newcol = table_->getColor( rc );
     if ( selectColor(newcol,this,tr("Marker color")) )
     {
 	ColTab::Sequence orgctab = ctab_;
@@ -120,7 +121,7 @@ void uiColTabMarkerDlg::markerInserted( CallBacker* )
     const float newpos = ctab_.position(rcvalue.row()-1) +
 			 ( ctab_.position(rcvalue.row()) -
 			   ctab_.position(rcvalue.row()-1) ) / 2;
-    Color col( ctab_.color(newpos) );
+    OD::Color col( ctab_.color(newpos) );
     table_->setColor( rccolor, col );
     table_->setCurrentCell( RowCol(rcvalue.row(),0) );
     ctab_.setColor( newpos, col.r(), col.g(), col.b() );
@@ -173,7 +174,7 @@ void uiColTabMarkerDlg::rebuildColTab()
 	RowCol newtable( idx, 0 );
 	RowCol coltable( idx, 1 );
 	const float newpos = table_->getFValue( newtable );
-	Color col( orgctab.color(newpos) );
+	OD::Color col( orgctab.color(newpos) );
 	table_->setColor( coltable, col );
 	ctab_.setColor( newpos, col.r(), col.g(), col.b() );
     }
@@ -184,7 +185,7 @@ bool uiColTabMarkerDlg::acceptOK( CallBacker* )
 {
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
-	Color col( table_->getColor( RowCol(idx,1) ) );
+	OD::Color col( table_->getColor( RowCol(idx,1) ) );
 	ctab_.changeColor( idx, col.r(), col.g(), col.b() );
     }
 
@@ -318,7 +319,7 @@ void uiColTabMarkerCanvas::markerChgd( CallBacker* )
 void uiColTabMarkerCanvas::addMarker( float pos, bool withcolsel )
 {
     ColTab::Sequence coltab = ctab_;
-    const Color col = ctab_.color( pos );
+    const OD::Color col = ctab_.color( pos );
     const int markeridx = ctab_.setColor( pos, col.r(), col.g(), col.b() );
 
     if ( withcolsel )
@@ -341,7 +342,7 @@ void uiColTabMarkerCanvas::removeMarker( int markeridx )
 
 bool uiColTabMarkerCanvas::changeColor( int markeridx )
 {
-    Color col = ctab_.color( ctab_.position(markeridx) );
+    OD::Color col = ctab_.color( ctab_.position(markeridx) );
     if ( !selectColor(col,parent_,tr("Color selection"),false) )
 	return false;
 

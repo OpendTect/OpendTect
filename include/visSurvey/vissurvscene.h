@@ -182,13 +182,13 @@ public:
     int				zDomainUserFactor() const;
     const char*			zDomainID() const;
 
-    void			setAnnotColor(const Color&);
-    const Color			getAnnotColor() const;
+    void			setAnnotColor(const OD::Color&);
+    const OD::Color		getAnnotColor() const;
     void			setMarkerPos(const TrcKeyValue&,int sceneid);
     void			setMarkerSize(float );
     float			getMarkerSize() const;
-    const Color&		getMarkerColor() const;
-    void			setMarkerColor(const Color&);
+    const OD::Color&		getMarkerColor() const;
+    void			setMarkerColor(const OD::Color&);
 
     void			createTopBotImage(bool istop);
     visBase::TopBotImage*	getTopBotImage(bool istop);
@@ -208,7 +208,7 @@ protected:
     void			keyPressCB(CallBacker*);
     visBase::MarkerSet*		createMarkerSet() const;
     void			mouseCursorCB(CallBacker*);
-    static const Color&		cDefaultMarkerColor();
+    static const OD::Color&	cDefaultMarkerColor();
 
     void			togglePosModeManipObjSel();
     void			selChangeCB(CallBacker*);

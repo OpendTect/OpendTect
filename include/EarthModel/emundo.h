@@ -146,8 +146,8 @@ mExpClass(EarthModel) SetPrefColorEvent : public EMUndoEvent
 {
 public:
     			SetPrefColorEvent(const EM::ObjectID&,
-					  const Color& oldcol,
-					  const Color& newcol);
+					  const OD::Color& oldcol,
+					  const OD::Color& newcol);
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
@@ -155,8 +155,8 @@ public:
 
 protected:
     const EM::ObjectID	objectid_;
-    const Color		oldcolor_;
-    const Color		newcolor_;
+    const OD::Color	oldcolor_;
+    const OD::Color	newcolor_;
 };
 
 } // namespace EM

@@ -26,8 +26,8 @@ public:
 			uiRGBArray(const char* filename);
     virtual		~uiRGBArray();
 
-    virtual Color	get(int,int) const;
-    virtual bool	set(int,int,const Color&);
+    virtual OD::Color	get(int,int) const;
+    virtual bool	set(int,int,const OD::Color&);
 
     virtual unsigned char*		getData();
     virtual const unsigned char*	getData() const;
@@ -37,7 +37,7 @@ public:
     virtual bool	setSize(int,int);	//!< destroys whatever is there
 
     bool		reSize(int,int);	//!< inter/extrapolates
-    void		clear(const Color&);
+    void		clear(const OD::Color&);
     void		enableAlpha( bool yn )	{ withalpha_ = yn; }
 
     bool		save(const char* fnm,const char* fmt=0,

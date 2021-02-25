@@ -70,19 +70,19 @@ static void setAnnotationPars( FlatView::Annotation& annot )
     annot.x2_.annotinint_ = false;
     annot.x1_.showgridlines_ = true;
     annot.x2_.showgridlines_ = true;
-    annot.color_ = Color::Black();
+    annot.color_ = OD::Color::Black();
     annot.allowuserchangereversedaxis_ = false;
 }
 
 
 uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     : uiObjectItemViewWin(p,uiObjectItemViewWin::Setup(title).startwidth(800))
-    , posdlg_(0)
-    , control_(0)
+    , posdlg_(nullptr)
+    , control_(nullptr)
     , seldatacalled_(this)
-    , axispainter_(0)
+    , axispainter_(nullptr)
     , tkzs_(false)
-    , preprocmgr_(0)
+    , preprocmgr_(nullptr)
 {
     setDeleteOnClose( true );
 }

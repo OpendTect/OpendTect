@@ -29,7 +29,7 @@ class VisColorTab;
 mExpClass(visBase) SceneColTab : public VisualObjectImpl
 { mODTextTranslationClass(SceneColTab);
 public:
-    static SceneColTab*	create()
+    static SceneColTab* create()
 			mCreateDataObj(SceneColTab);
 
     enum Pos		{ Left, Right, Top, Bottom };
@@ -45,7 +45,7 @@ public:
        
     void		setColTabSequence(const ColTab::Sequence&);
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
-    void		setLegendColor(const Color&);
+    void		setLegendColor(const OD::Color&);
 
     bool		turnOn(bool);
     void		setSize(int w,int h);
@@ -56,7 +56,7 @@ public:
     const ColTab::Sequence& getColTabSequence() const { return sequence_; }
     bool		isSeqFlipped() const { return flipseq_; }
     const Interval<float>& getRange() const { return rg_; }
-        
+
 protected:
 			~SceneColTab();
     void		updateSequence();

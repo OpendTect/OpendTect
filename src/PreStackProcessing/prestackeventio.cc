@@ -485,7 +485,7 @@ bool EventReader::readAuxData(const char* fnm)
 	    eventmanager_->setHorizonEMReference( id, emref );
     }
 
-    Color col = Color(255,0,0); //Todo: Make mandatory to have color
+    OD::Color col = OD::Color(255,0,0); //Todo: Make mandatory to have color
     par.get( sKey::Color(), col );
     eventmanager_->setColor( col );
 

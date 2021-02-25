@@ -231,7 +231,8 @@ bool uiWellPartServer::selectWells( TypeSet<MultiID>& wellids )
 }
 
 
-bool uiWellPartServer::editDisplayProperties( const MultiID& mid, Color bkCol )
+bool uiWellPartServer::editDisplayProperties( const MultiID& mid,
+							    OD::Color bkCol )
 {
     allapplied_ = false;
     Well::LoadReqs lreqs( Well::LogInfos,
@@ -541,7 +542,8 @@ void uiWellPartServer::getRdmLineCoordinates( TypeSet<Coord>& coords )
 }
 
 
-bool uiWellPartServer::setupNewWell( BufferString& wellname, Color& wellcolor )
+bool uiWellPartServer::setupNewWell( BufferString& wellname,
+							OD::Color& wellcolor )
 {
     uiNewWellDlg dlg( parent() );
     dlg.go();

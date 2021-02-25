@@ -29,17 +29,15 @@ mImplFactory2Param(uiFunctionSettings, uiParent*,
 		   FunctionSource*, uiFunctionSettings::factory );
 
 uiFunctionSel::uiFunctionSel( uiParent* p,
-	const ObjectSet<FunctionSource>& srcs,
-	const TypeSet<Color>* colors )
-    : uiGroup( p, "Velocity Functions" )
-    , velsources_( srcs )
-    , colorfld_( 0 )
-    , listChange( this )
+    const ObjectSet<FunctionSource>& srcs, const TypeSet<OD::Color>* colors )
+    : uiGroup(p,"Velocity Functions")
+    , velsources_(srcs)
+    , colorfld_(nullptr)
+    , listChange(this)
 {
     deepRef( velsources_ );
     list_ = new uiListBox( this );
-    list_->selectionChanged.notify(
-	    mCB(this,uiFunctionSel,selChangedCB) );
+    list_->selectionChanged.notify( mCB(this,uiFunctionSel,selChangedCB) );
 
     addbutton_ = new uiPushButton( this, uiStrings::sAdd(),
 	    mCB( this, uiFunctionSel, addPushedCB ), false );
@@ -57,7 +55,7 @@ uiFunctionSel::uiFunctionSel( uiParent* p,
     if ( colors )
     {
 	colors_ = *colors;
-	colorfld_ = new uiColorInput( this, Color::Black(), "Color" );
+	colorfld_ = new uiColorInput( this, OD::Color::Black(), "Color" );
 	colorfld_->attach( alignedBelow, list_ );
 	colorfld_->colorChanged.notify(
 		mCB( this, uiFunctionSel, colorChanged ));

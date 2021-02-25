@@ -1128,7 +1128,7 @@ void IOPar::set( const char* keyw, const MultiID& mid )
 }
 
 
-bool IOPar::get( const char* keyw, Color& c ) const
+bool IOPar::get( const char* keyw, OD::Color& c ) const
 {
     mGetStartNotEmpty(pval);
     const FileMultiString fms( pval );
@@ -1142,7 +1142,7 @@ bool IOPar::get( const char* keyw, Color& c ) const
     return c.use( pval );
 }
 
-void IOPar::set( const char* keyw, const Color& c )
+void IOPar::set( const char* keyw, const OD::Color& c )
 {
     BufferString bs; c.fill( bs );
     set( keyw, bs );

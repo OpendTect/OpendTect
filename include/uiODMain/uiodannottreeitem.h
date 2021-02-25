@@ -104,7 +104,7 @@ protected:
 
     virtual bool	hasScale() const		{ return false; }
     virtual void	setScale(float);
-    void		setColor(Color);
+    void		setColor(OD::Color);
     void		scaleChg(CallBacker*);
 
     void		store() const;

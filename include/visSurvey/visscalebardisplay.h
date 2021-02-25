@@ -40,7 +40,7 @@ public:
     void			setLength(double);
     double			getLength() const;
 
-    void			setColors(Color);
+    void			setColors(OD::Color);
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;

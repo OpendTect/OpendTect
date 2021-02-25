@@ -73,8 +73,8 @@ public:
 
     bool			serializeScene(const char*) const;
 
-    void			setBackgroundColor(const Color&);
-    Color			getBackgroundColor() const;
+    void			setBackgroundColor(const OD::Color&);
+    OD::Color			getBackgroundColor() const;
     Geom::Size2D<int>		getViewportSizePixels() const;
 
     float			getMouseWheelZoomFactor() const;
@@ -124,7 +124,7 @@ public:
     bool			isAnimationEnabled() const;
     void			showRotAxis(bool);
     bool			isAxisShown() const;
-    void			setAnnotColor(const Color&);
+    void			setAnnotColor(const OD::Color&);
     void			setAnnotationFont(const FontData&);
     visBase::PolygonSelection*	getPolygonSelector();
     visBase::SceneColTab*	getSceneColTab();

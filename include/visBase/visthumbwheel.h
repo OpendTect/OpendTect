@@ -34,7 +34,7 @@ public:
                                     float center_x, float center_y, float len,
                                     float width,float zval = 0);
 
-    void			setAnnotationColor(const Color&);
+    void			setAnnotationColor(const OD::Color&);
 
     void			enableFadeInOut(bool);
     bool			isFadeInOutEnabled() const;

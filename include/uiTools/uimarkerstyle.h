@@ -46,8 +46,8 @@ public:
 
     void		setMarkerType(MarkerStyle2D::Type);
     MarkerStyle2D::Type getMarkerType() const;
-    void		setMarkerColor(const Color&);
-    Color		getMarkerColor() const;
+    void		setMarkerColor(const OD::Color&);
+    OD::Color		getMarkerColor() const;
     void		setMarkerSize(int);
     int			getMarkerSize() const;
 
@@ -81,7 +81,7 @@ public:
     NotifierAccess*	colSel();
 
     MarkerStyle3D::Type	getType() const;
-    Color		getColor() const;
+    OD::Color		getColor() const;
     int			getSize() const;
 
     void		setMarkerStyle(const MarkerStyle3D& style);

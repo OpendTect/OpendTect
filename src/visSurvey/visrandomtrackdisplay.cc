@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "array2dresample.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
+#include "color.h"
 #include "convmemvalseries.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
@@ -98,7 +99,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     namenr_ = highestnamenr+1;
     setUiName( tr( "%1 %2" ).arg( uiStrings::sRandomLine() ).arg( namenr_ ) );
 
-    material_->setColor( Color::White() );
+    material_->setColor( OD::Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.2 );
 
@@ -1757,7 +1758,7 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 	{
 	    setPolyLineMode( true );
 	    pickstartnodeidx_ = nodeidx;
-	    setColor( Color(255,0,255) );
+	    setColor( OD::Color(255,0,255) );
 	    polyline_->addPoint( inlcrlnodepos );
 	}
 	else
@@ -1969,7 +1970,7 @@ void RandomTrackDisplay::removePickPos( int polyidx )
 }
 
 
-void RandomTrackDisplay::setColor( Color color )
+void RandomTrackDisplay::setColor( OD::Color color )
 {
     polyline_->getMaterial()->setColor( color );
     markerset_->setMarkersSingleColor( color );

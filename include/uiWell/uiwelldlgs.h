@@ -172,7 +172,7 @@ public:
 			uiNewWellDlg(uiParent*);
 			~uiNewWellDlg();
 
-    const Color&	getWellColor();
+    const OD::Color&	getWellColor();
     const char*		getWellName() const	{ return wellname_; }
 
 protected:

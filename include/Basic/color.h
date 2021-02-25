@@ -21,7 +21,8 @@ class BufferStringSet;
 \brief Color is an RGB color object, with a transparancy. The storage is in
 a 4-byte integer, similar to Qt.
 */
-
+namespace OD
+{
 mExpClass(Basic) Color
 {
 public:
@@ -109,6 +110,8 @@ protected:
     unsigned int	col_;
 };
 
+}
+
 
 namespace Values {
 
@@ -117,13 +120,13 @@ namespace Values {
 */
 
 template<>
-mClass(Basic) Undef<Color>
+mClass(Basic) Undef<OD::Color>
 {
 public:
-    static Color	val()			{ return Color::NoColor(); }
+    static OD::Color	val()			{ return OD::Color::NoColor(); }
     static bool		hasUdf()		{ return false; }
-    static bool		isUfd(Color&)		{ return false; }
-    static void		setUdf(Color&)		{}
+    static bool		isUfd(OD::Color&)	{ return false; }
+    static void		setUdf(OD::Color&)	{}
 };
 
 }

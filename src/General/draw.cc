@@ -120,7 +120,7 @@ mFromStringImpl( MarkerStyle2D, size_ )
 mFromStringImpl( MarkerStyle3D, size_ )
 mFromStringImpl( OD::LineStyle, width_ )
 
-MarkerStyle2D::MarkerStyle2D(Type tp, int sz, Color col, float rot )
+MarkerStyle2D::MarkerStyle2D(Type tp, int sz, OD::Color col, float rot )
     : type_(tp), size_(sz), color_(col), rotation_(rot)
 {}
 
@@ -143,7 +143,7 @@ bool MarkerStyle2D::isVisible() const
 { return type_!=None && size_>0 && color_.isVisible(); }
 
 
-MarkerStyle3D::MarkerStyle3D(Type tp, int sz, Color col )
+MarkerStyle3D::MarkerStyle3D(Type tp, int sz, OD::Color col )
     : type_(tp), size_(sz), color_(col)
 {}
 

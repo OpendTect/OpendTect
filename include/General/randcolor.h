@@ -14,9 +14,10 @@ ________________________________________________________________________
 #include "color.h"
 #include "statrand.h"
 
-inline Color getRandomColor( bool withtransp=false )
+
+inline OD::Color getRandomColor( bool withtransp=false )
 {
-    return Color( (unsigned char) Stats::randGen().getIndex(255),
+    return OD::Color( (unsigned char) Stats::randGen().getIndex(255),
 	          (unsigned char) Stats::randGen().getIndex(255),
 		  (unsigned char) Stats::randGen().getIndex(255),
 		  (unsigned char)
@@ -24,18 +25,18 @@ inline Color getRandomColor( bool withtransp=false )
 }
 
 
-inline Color getRandStdDrawColor()
+inline OD::Color getRandStdDrawColor()
 {
     mDefineStaticLocalObject( int, curidx, = -1 );
     if ( curidx == -1 )
-	curidx = Stats::randGen().getIndex( Color::nrStdDrawColors() );
+	curidx = Stats::randGen().getIndex( OD::Color::nrStdDrawColors() );
     else
     {
 	curidx++;
-	if ( curidx == Color::nrStdDrawColors() )
+	if ( curidx == OD::Color::nrStdDrawColors() )
 	    curidx = 0;
     }
 
-    return Color::stdDrawColor( curidx );
+    return OD::Color::stdDrawColor( curidx );
 }
 

@@ -34,7 +34,7 @@ const Level& Level::undef()
     {
 	Level* newlvl = new Level( "Undefined", nullptr );
 	newlvl->id_ = -1;
-	newlvl->color_ = Color::Black();
+	newlvl->color_ = OD::Color::Black();
 
 	lvl.setIfNull(newlvl,true);
     }
@@ -187,7 +187,7 @@ void Level::setName( const char* nm )
 }
 
 
-void Level::setColor( Color c )
+void Level::setColor( OD::Color c )
 {
     if ( color_ != c )
 	{ color_ = c; changed.trigger(); }
@@ -357,7 +357,7 @@ void LevelSet::remove( Level::ID id )
 
 
 void LevelSet::add( const BufferStringSet& lvlnms,
-				const TypeSet<Color>& cols )
+				const TypeSet<OD::Color>& cols )
 {
     for ( int idx=0; idx<lvlnms.size(); idx++ )
 	add( lvlnms.get(idx), cols[idx] );
@@ -374,7 +374,7 @@ void LevelSet::addLvl( Level* lvl )
 }
 
 
-Level* LevelSet::set( const char* nm, const Color& col, int idx )
+Level* LevelSet::set( const char* nm, const OD::Color& col, int idx )
 {
     int curidx = indexOf( nm );
     Level* lvl = nullptr;

@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissower.h"
 
 #include "bendpointfinder.h"
+#include "color.h"
 #include "trckeyzsampling.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
@@ -119,8 +120,9 @@ void Sower::setEventCatcher( visBase::EventCatcher* eventcatcher )
 }
 
 
-bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
-		      int underlyingobjid, const TrcKeySampling* workrg )
+bool Sower::activate( const OD::Color& color,
+		    const visBase::EventInfo& eventinfo, int underlyingobjid,
+		    const TrcKeySampling* workrg )
 {
     if ( mode_ != Idle )
 	mReturnHandled( false );

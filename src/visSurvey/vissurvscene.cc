@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvscene.h"
 
 #include "binidvalue.h"
+#include "color.h"
 #include "trckeyzsampling.h"
 #include "envvars.h"
 #include "fontdata.h"
@@ -172,9 +173,9 @@ void Scene::setup()
     mGetProp( bool, showsc, true, getYN, sKeyShowScale(), showAnnotScale );
     mGetProp( bool, showgr, true, getYN, sKeyShowGrid(), showAnnotGrid );
 
-    mGetProp( Color, mcol, getMarkerColor(), get,
+    mGetProp( OD::Color, mcol, getMarkerColor(), get,
 	      sKeyMarkerColor(), setMarkerColor );
-    mGetProp( Color, acol, getAnnotColor(), get,
+    mGetProp( OD::Color, acol, getAnnotColor(), get,
 	      sKeyAnnotColor(), setAnnotColor );
 }
 
@@ -574,7 +575,7 @@ void Scene::setAnnotFont( const FontData& nf )
 }
 
 
-void Scene::setAnnotColor( const Color& col )
+void Scene::setAnnotColor( const OD::Color& col )
 {
     annot_->getMaterial()->setColor( col );
 
@@ -590,7 +591,7 @@ void Scene::setAnnotColor( const Color& col )
 }
 
 
-const Color Scene::getAnnotColor() const
+const OD::Color Scene::getAnnotColor() const
 {
     return annot_->getMaterial()->getColor();
 }
@@ -1080,7 +1081,7 @@ float Scene::getMarkerSize() const
 }
 
 
-void Scene::setMarkerColor( const Color& nc )
+void Scene::setMarkerColor( const OD::Color& nc )
 {
     if ( !markerset_ )
     {
@@ -1093,20 +1094,20 @@ void Scene::setMarkerColor( const Color& nc )
 }
 
 
-const Color& Scene::getMarkerColor() const
+const OD::Color& Scene::getMarkerColor() const
 {
     if ( !markerset_ )
 	return cDefaultMarkerColor();
 
-    mDefineStaticLocalObject( Color, singlecolor, );
+    mDefineStaticLocalObject( OD::Color, singlecolor, );
     singlecolor = markerset_->getMarkersSingleColor();
     return singlecolor;
 }
 
 
-const Color& Scene::cDefaultMarkerColor()
+const OD::Color& Scene::cDefaultMarkerColor()
 {
-    mDefineStaticLocalObject( Color, res, (255,255,255) );
+    mDefineStaticLocalObject( OD::Color, res, (255,255,255) );
     return res;
 }
 
@@ -1308,7 +1309,7 @@ bool Scene::usePar( const IOPar& par )
 
     par.getYN( sKeyShowColTab(), ctshownusepar_ );
 
-    Color markercol = getMarkerColor();
+    OD::Color markercol = getMarkerColor();
     par.get( sKeyMarkerColor(), markercol );
     setMarkerColor( markercol );
 
@@ -1316,7 +1317,7 @@ bool Scene::usePar( const IOPar& par )
     par.getYN( sKeyShowAnnot(), txtshown );
     showAnnotText( txtshown );
 
-    Color annotcolor;
+    OD::Color annotcolor;
     if ( par.get(sKeyAnnotColor(),annotcolor) )
 	setAnnotColor( annotcolor );
 

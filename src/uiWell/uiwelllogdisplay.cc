@@ -22,7 +22,7 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
     : uiWellDahDisplay::DahObjData( scn, isfirst, s )
     , logSet(this)
 {
-    disp_.color_ = Color::stdDrawColor( isfirst ? 0 : 1 );
+    disp_.color_ = OD::Color::stdDrawColor( isfirst ? 0 : 1 );
 }
 
 
@@ -188,7 +188,7 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
     {
 	uiPolygonItem* pli = scene().addPolygon( *pts[idx], true );
 	ld.curvepolyitms_ += pli;
-	Color color = ld.disp_.seiscolor_;
+	OD::Color color = ld.disp_.seiscolor_;
 	pli->setFillColor( color );
 	pli->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1,color) );
 	pli->setZValue( 1 );
@@ -301,7 +301,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     {
 	uiPolygonItem* pli = scene().addPolygon( *pts[idx], true );
 	ld.curvepolyitms_ += pli;
-	Color color = ld.disp_.issinglecol_ ? ld.disp_.seiscolor_
+	OD::Color color = ld.disp_.issinglecol_ ? ld.disp_.seiscolor_
 					    : seq->color(colorposset[idx]);
 	pli->setFillColor( color );
 	pli->setPenStyle( OD::LineStyle(OD::LineStyle::None) );

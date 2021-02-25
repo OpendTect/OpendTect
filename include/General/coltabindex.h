@@ -36,12 +36,12 @@ public:
 					   const Mapper* m=0);
 
     void		update();
-    			//!< Call when sequence, mapper, or nr cols changed
+			//!< Call when sequence, mapper, or nr cols changed
 
-    inline Color	color( float v ) const
+    inline OD::Color	color( float v ) const
 			{ return colorForIndex( indexForValue(v) ); }
     int			indexForValue(float) const;
-    Color		colorForIndex(int) const;
+    OD::Color		colorForIndex(int) const;
 
     void		setMapper( const Mapper* m )	{ mapper_ = m; }
     void		setNrCols( int n )		{ nrcols_ = n; }
@@ -52,7 +52,7 @@ protected:
     const Sequence&	seq_;
     const Mapper*	mapper_;
     int			nrcols_;
-    TypeSet<Color>	cols_;
+    TypeSet<OD::Color>	cols_;
 
     friend class	Indexer;
 

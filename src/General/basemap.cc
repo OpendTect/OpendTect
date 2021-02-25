@@ -57,23 +57,29 @@ Alignment BaseMapObject::getAlignment( int ) const
 Coord BaseMapObject::getTextPos(int shapeidx) const
 { return Coord::udf(); }
 
-Color BaseMapObject::getColor() const
+OD::Color BaseMapObject::getColor() const
 {
-    if ( getFillColor(0) != Color::NoColor() )
+    if ( getFillColor(0) != OD::Color::NoColor() )
 	return getFillColor( 0 );
     else if ( getLineStyle(0) )
 	return getLineStyle(0)->color_;
     else if ( getMarkerStyle(0) )
 	return getMarkerStyle(0)->color_;
-    return Color::NoColor();
+    return OD::Color::NoColor();
 }
 
 
 const OD::RGBImage* BaseMapObject::createImage( Coord& origin,Coord& p11 ) const
-{ return 0; }
+{
+    return nullptr;
+}
+
 
 const OD::RGBImage* BaseMapObject::createPreview( int approxdiagonal ) const
-{ return 0; }
+{
+    return nullptr;
+}
+
 
 bool BaseMapObject::fillPar( IOPar& par ) const
 {

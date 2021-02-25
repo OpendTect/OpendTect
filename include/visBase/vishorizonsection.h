@@ -117,7 +117,7 @@ public:
     char			currentResolution() const;
     void			setResolution(char,TaskRunner*);
 
-    void			setWireframeColor(Color col);
+    void			setWireframeColor(OD::Color col);
     osgGeo::LayeredTexture*	getOsgTexture() const;
     void			updatePrimitiveSets();
     void			turnOsgOn( bool );

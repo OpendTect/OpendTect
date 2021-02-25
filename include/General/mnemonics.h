@@ -50,7 +50,7 @@ public:
 			: range_(mUdf(float),mUdf(float))
 			, typicalrange_(mUdf(float),mUdf(float))	{}
 
-	Color		color_;
+	OD::Color	color_;
 	Interval<float> range_;
 	Interval<float> typicalrange_;
 	BufferString	unit_;

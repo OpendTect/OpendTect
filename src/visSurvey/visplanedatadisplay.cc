@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "array2dresample.h"
+#include "color.h"
 #include "datapointset.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
@@ -101,7 +102,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     if ( (int) orientation_ )
 	dragger_->setDim( (int) orientation_ );
 
-    material_->setColor( Color::White() );
+    material_->setColor( OD::Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.2 );
 

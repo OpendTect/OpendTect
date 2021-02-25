@@ -299,7 +299,7 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
     {
 	const float val = rg.start + rg.step * idx;
 	const float frac = (float)idx / (float)nrsteps;
-	const Color col = seq.color( doflip ? 1 - frac : frac );
+	const OD::Color col = seq.color( doflip ? 1 - frac : frac );
 	if ( idx )
 	{
 	    procstrm << val << "\t";
@@ -313,8 +313,8 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
 	}
     }
 
-    const Color bgcol = seq.color( mCast(float,doflip ? 1 : 0) );
-    const Color fgcol = seq.color( mCast(float,doflip ? 0 : 1) );
+    const OD::Color bgcol = seq.color( mCast(float,doflip ? 1 : 0) );
+    const OD::Color fgcol = seq.color( mCast(float,doflip ? 0 : 1) );
     procstrm << "B" << "\t";  mPrintCol( bgcol, "\n" );
     procstrm << "F" << "\t";  mPrintCol( fgcol, "\n" );
     return true;

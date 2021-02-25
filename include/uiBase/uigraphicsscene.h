@@ -63,8 +63,8 @@ public:
     uiPolyLineItem*		addPolyLine(const TypeSet<uiPoint>&);
 
     void			useBackgroundPattern(bool);
-    void			setBackGroundColor(const Color&);
-    const Color			backGroundColor() const;
+    void			setBackGroundColor(const OD::Color&);
+    const OD::Color		backGroundColor() const;
 
     int				getSelItemSize() const;
     uiRect			getSelectedArea() const;

@@ -118,7 +118,7 @@ public:
 
     QGraphicsLineItem*	qLineItem()	{ return qlineitem_; }
     void		setPenStyle(const OD::LineStyle&,bool withalpha=false);
-    void		setPenColor(const Color&,bool withalpha=false);
+    void		setPenColor(const OD::Color&,bool withalpha=false);
     void		setLine(const uiPoint& start,const uiPoint& end);
     void		setLine(const uiWorldPoint&,const uiWorldPoint&);
     void		setLine(int x1,int y1,int x2,int y2);
@@ -238,7 +238,8 @@ public:
 
     void		setPolyLine(const TypeSet<uiPoint>&);
     void		setPolyLine(const TypeSet<uiWorldPoint>&);
-    void		setColors(const TypeSet<Color>&,bool usetransp=false);
+    void		setColors(const TypeSet<OD::Color>&,
+							bool usetransp=false);
 
     void		setPenWidth(int);
     int			getPenWidth() const;
@@ -288,7 +289,7 @@ public:
     uiSize		getTextSize() const;
     void 		setAlignment(const Alignment&);
     void		setText(const uiString&);
-    void		setTextColor(const Color&);
+    void		setTextColor(const OD::Color&);
 
 protected:
 			uiTextItem(QGraphicsItem*);
@@ -313,13 +314,13 @@ public:
 			~uiAdvancedTextItem();
 
     Alignment		getAlignment() const;
-    Color		getDefaultTextColor() const;
+    OD::Color		getDefaultTextColor() const;
     uiFont&		getFont() const;
     uiString		getPlainText() const;
     float		getTextWidth() const;
 
     void		setAlignment(const Alignment&);
-    void		setDefaultTextColor(const Color&);
+    void		setDefaultTextColor(const OD::Color&);
     void		setFont(const FontData&);
     void		setPlainText(const uiString&);
     void		setTextWidth(float);
@@ -350,7 +351,8 @@ public:
     ODGraphicsMarkerItem*	qMarkerItem()	{ return qmarkeritem_; }
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill(bool);
-    void			setFillColor(const Color&,bool withalpha=false);
+    void			setFillColor(const OD::Color&,
+							bool withalpha=false);
     const MarkerStyle2D*	getMarkerStyle();
 
 protected:

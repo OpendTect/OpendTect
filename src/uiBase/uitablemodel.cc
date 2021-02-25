@@ -174,8 +174,8 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
 
     if ( role == Qt::BackgroundRole )
     {
-	Color odcol = model_.cellColor( qmodidx.row(), qmodidx.column() );
-	if ( odcol==Color::NoColor() )
+	OD::Color odcol = model_.cellColor( qmodidx.row(), qmodidx.column() );
+	if ( odcol == OD::Color::NoColor() )
 	    return QVariant();
 
 	return QColor( odcol.rgb() );
@@ -192,7 +192,7 @@ QVariant ODAbstractTableModel::data( const QModelIndex& qmodidx,
 
     if ( role == Qt::ForegroundRole )
     {
-	Color odcol = model_.textColor( qmodidx.row(), qmodidx.column() );
+	OD::Color odcol = model_.textColor( qmodidx.row(), qmodidx.column() );
 	return QColor( odcol.rgb() );
     }
 

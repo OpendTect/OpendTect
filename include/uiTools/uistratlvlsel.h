@@ -31,7 +31,7 @@ public:
 
     const Strat::Level*	selected() const;
     BufferString	getLevelName() const;
-    Color		getColor() const;
+    OD::Color		getColor() const;
     int			getID() const;
 
     void		setSelected(const Strat::Level*);

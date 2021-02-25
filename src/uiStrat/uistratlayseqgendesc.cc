@@ -253,7 +253,7 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
     if ( !outeritm_ )
     {
 	outeritm_ = scene().addItem( new uiRectItem );
-	outeritm_->setPenColor( Color::Black() );
+	outeritm_->setPenColor( OD::Color::Black() );
 	outeritm_->setZValue( mUdf(int) );
     }
     outeritm_->setRect( workrect_.left(), workrect_.top(),
@@ -266,7 +266,7 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 	{
 	    emptyitm_ = scene().addItem( new uiTextItem( tr("<Click to add>"),
 					mAlignment(HCenter,VCenter) ) );
-	    emptyitm_->setPenColor( Color::Black() );
+	    emptyitm_->setPenColor( OD::Color::Black() );
 	    emptyitm_->setPos( workrect_.centre() );
 	}
     }
@@ -395,9 +395,9 @@ uiBasicLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
 
     nm_ = scene_.addItem( new uiTextItem( toUiString(gen_->name()),
 			  mAlignment(HCenter,VCenter) ) );
-    nm_->setPenColor( Color::Black() );
+    nm_->setPenColor( OD::Color::Black() );
     lithcol_ = scene_.addItem( new uiCircleItem );
-    const Color lithcolor( gen_->unit().dispColor( true ) );
+    const OD::Color lithcolor( gen_->unit().dispColor( true ) );
     lithcol_->setPenColor( lithcolor );
     lithcol_->setFillColor( lithcolor );
     top_ = scene_.addItem( new uiLineItem );

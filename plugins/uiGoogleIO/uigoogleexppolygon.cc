@@ -28,7 +28,8 @@ uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
                                  mODHelpKey(mGoogleExportPolygonHelpID) ) )
     , ps_(ps)
 {
-    Color defcol( ps_.disp_.color_ ); defcol.setTransparency( 150 );
+    OD::Color defcol( ps_.disp_.color_ );
+    defcol.setTransparency( 150 );
     const OD::LineStyle ls( OD::LineStyle::Solid, 20, defcol );
     uiSelLineStyle::Setup lssu; lssu.drawstyle( false ).transparency( true );
     lsfld_ = new uiSelLineStyle( this, ls, lssu );

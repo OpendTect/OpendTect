@@ -219,12 +219,12 @@ void uiComboBox::setPixmap( int index, const uiPixmap& pixmap )
 }
 
 
-void uiComboBox::setColorIcon( int index, const Color& col )
+void uiComboBox::setColorIcon( int index, const OD::Color& col )
 {
     if ( index<0 || index>=body_->count() )
 	return;
 
-    if ( col == Color::NoColor() )
+    if ( col == OD::Color::NoColor() )
 	body_->setItemIcon( index, QIcon() );
     else
     {

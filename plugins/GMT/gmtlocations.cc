@@ -182,7 +182,7 @@ bool GMTLocations::doExecute( od_ostream& strm, const char* fnm )
     if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
 	mErrStrmRet( errmsg )
 
-    Color outcol; get( sKey::Color(), outcol );
+    OD::Color outcol; get( sKey::Color(), outcol );
     BufferString outcolstr;
     mGetColorString( outcol, outcolstr );
     bool dofill;
@@ -204,7 +204,7 @@ bool GMTLocations::doExecute( od_ostream& strm, const char* fnm )
 
     if ( dofill )
     {
-	Color fillcol;
+	OD::Color fillcol;
 	get( ODGMT::sKeyFillColor(), fillcol );
 	BufferString fillcolstr;
 	mGetColorString( fillcol, fillcolstr );
@@ -308,7 +308,7 @@ bool GMTPolyline::doExecute( od_ostream& strm, const char* fnm )
 
     if ( dofill )
     {
-	Color fillcol;
+	OD::Color fillcol;
 	get( ODGMT::sKeyFillColor(), fillcol );
 	BufferString fillcolstr;
 	mGetColorString( fillcol, fillcolstr );
@@ -397,7 +397,7 @@ bool GMTWells::doExecute( od_ostream& strm, const char* fnm )
     if ( !get(ODGMT::sKeyWellNames(),wellnms) || !wellnms.size() )
 	mErrStrmRet("No wells to post")
 
-    Color outcol; get( sKey::Color(), outcol );
+    OD::Color outcol; get( sKey::Color(), outcol );
     BufferString outcolstr;
     mGetColorString( outcol, outcolstr );
 
@@ -436,7 +436,7 @@ bool GMTWells::doExecute( od_ostream& strm, const char* fnm )
     getYN( ODGMT::sKeyFill(), dofill );
     if ( !usewellsymbols && dofill )
     {
-	Color fillcol;
+	OD::Color fillcol;
 	get( ODGMT::sKeyFillColor(), fillcol );
 	BufferString fillcolstr;
 	mGetColorString( fillcol, fillcolstr );

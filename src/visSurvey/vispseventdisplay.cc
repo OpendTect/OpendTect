@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispseventdisplay.h"
 
 #include "binidvalset.h"
+#include "color.h"
 #include "prestackevents.h"
 #include "survinfo.h"
 #include "valseriesimpl.h"
@@ -35,16 +36,16 @@ mDefineEnumUtils( PSEventDisplay, DisplayMode, "Display Mode" )
   "Sticks to gathers", 0 };
 
 PSEventDisplay::PSEventDisplay()
-    : VisualObjectImpl( false )
-    , displaymode_( ZeroOffsetOnSections )
-    , eventman_( 0 )
-    , qualityrange_( 0, 1 )
-    , displaytransform_( 0 )
-    , linestyle_( new visBase::DrawStyle )
-    , horid_( -1 )
-    , offsetscale_( 1 )
-    , markercolor_( Single )
-    , eventmarkerset_( visBase::MarkerSet::create() )
+    : VisualObjectImpl(false)
+    , displaymode_(ZeroOffsetOnSections)
+    , eventman_(nullptr)
+    , qualityrange_(0,1)
+    , displaytransform_(nullptr)
+    , linestyle_(new visBase::DrawStyle)
+    , horid_(-1)
+    , offsetscale_(1)
+    , markercolor_(Single)
+    , eventmarkerset_(visBase::MarkerSet::create())
 {
     setLockable();
     linestyle_->ref();
@@ -84,7 +85,7 @@ void PSEventDisplay::clearAll()
 }
 
 
-Color PSEventDisplay::getColor() const
+OD::Color PSEventDisplay::getColor() const
 {
     return getMaterial()->getColor();
 }
@@ -435,7 +436,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    ctabmapper_.setData( &vs, vals.size() );
 	    for (int idx=0;idx<eventmarkerset_->getCoordinates()->size();idx++)
 	    {
-		const Color col = ctabsequence_.color(
+		const OD::Color col = ctabsequence_.color(
 		    ctabmapper_.position( vals[idx]) );
 		 eventmarkerset_->getMaterial()->setColor(col,idx) ;
 	    }
@@ -621,9 +622,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    ctabmapper_.setData( &vs, values.size() );
 	}
 
-	for ( int idx =0; idx<lastmarker; idx++ )
+	for ( int idx=0; idx<lastmarker; idx++ )
 	{
-	    Color color = ctabsequence_.color(
+	    OD::Color color = ctabsequence_.color(
 		ctabmapper_.position(values[idx]) );
 	    pao->markerset_->getMaterial()->setColor(color, idx );
 	}

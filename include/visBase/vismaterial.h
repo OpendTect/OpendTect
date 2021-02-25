@@ -36,7 +36,7 @@ namespace visBase
 mExpClass(visBase) Material : public NodeState
 { mODTextTranslationClass(Material);
 public:
-    			Material();
+			Material();
 
     Notifier<Material>	change;
 
@@ -44,7 +44,7 @@ public:
 
     void		setPropertiesFrom(const Material&, bool trigger= false);
 			/*!< set materials by input material's properties */
-    void		setColors(const TypeSet<Color>&,
+    void		setColors(const TypeSet<OD::Color>&,
 				  bool trigger = true);
 			/*!< set material's od colors by input colors. */
 
@@ -55,11 +55,11 @@ public:
     void		setColorMode( ColorMode );
     ColorMode		getColorMode() const;
 
-    void		setColor(const Color&,int=-1,bool trigger=true);
+    void		setColor(const OD::Color&,int=-1,bool trigger=true);
 			/*!< set material's od colors by input colors.
 			using setColors() to instead of this calling
 			if having to setColor many times. */
-    Color		getColor(int matnr=0) const;
+    OD::Color		getColor(int matnr=0) const;
 
     void		removeColor(int idx);
 
@@ -106,12 +106,12 @@ public:
 
     void		setColorBindType(unsigned int);
     
-    const TypeSet<Color> getColors();
+    const TypeSet<OD::Color> getColors();
 
 private:
 			~Material();
 			//!Used when no array is present
-   void		    	updateOsgMaterial();
+   void			updateOsgMaterial();
 
     void		createOsgColorArray(int);
     void		setColorArray(osg::Array*);
@@ -131,7 +131,7 @@ private:
 
     osg::Material*	material_;
 
-    Color		color_;
+    OD::Color		color_;
     float		ambience_;
     float		specularintensity_;
     float		emmissiveintensity_;

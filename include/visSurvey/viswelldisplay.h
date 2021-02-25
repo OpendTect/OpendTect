@@ -89,7 +89,7 @@ public:
     const OD::LineStyle*	lineStyle() const;
     void			setLineStyle(const OD::LineStyle&);
     bool			hasColor() const	{ return true; }
-    Color			getColor() const;
+    OD::Color			getColor() const;
     void			setLogData(visBase::Well::LogParams&,bool);
     void			setLogDisplay(visBase::Well::Side);
     void			calcClippedRange(float,Interval<float>&,int);
@@ -97,8 +97,9 @@ public:
     void			displayLeftLog();
     void			displayCenterLog();
     void			setOneLogDisplayed(bool);
-    const Color&		logColor(visBase::Well::Side) const;
-    void			setLogColor(const Color&,visBase::Well::Side);
+    const OD::Color&		logColor(visBase::Well::Side) const;
+    void			setLogColor(const OD::Color&,
+							visBase::Well::Side);
     float			getLogWidth(visBase::Well::Side) const;
     void			setLogWidth(float,visBase::Well::Side);
     int				getLogLineWidth() const;

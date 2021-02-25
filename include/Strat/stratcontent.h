@@ -51,7 +51,7 @@ public:
 
     static const Content& unspecified();
 
-    Color		color_;
+    OD::Color		color_;
     FillPattern		pattern_;
 
     bool		getApearanceFrom(const char*);

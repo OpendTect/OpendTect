@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribsel.h"
 #include "bidvsetarrayadapter.h"
 #include "binidvalue.h"
+#include "color.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "datapointset.h"
@@ -1007,7 +1008,7 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
 void HorizonDisplay::updateSingleColor()
 {
     const bool usesinglecol = !showsTexture() && !displayedOnlyAtSections();
-    const Color col = usesinglecol ? nontexturecol_ : Color::White();
+    const OD::Color col = usesinglecol ? nontexturecol_ : OD::Color::White();
     material_->setColor( col );
     if ( intersectionlinematerial_ )
 	intersectionlinematerial_->setColor( nontexturecol_ );
@@ -1452,7 +1453,7 @@ void HorizonDisplay::updateLockedPointsColor()
     }
 }
 
-Color HorizonDisplay::singleColor() const
+OD::Color HorizonDisplay::singleColor() const
 {
     return nontexturecol_;
 }
@@ -1770,7 +1771,8 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	if ( !islowest )
 	{
 	    const ColTab::Sequence* coltabseq = getColTabSequence( idx );
-	    const Color col = coltabseq ? coltabseq->color(fval) : Color();
+	    const OD::Color col =
+			    coltabseq ? coltabseq->color(fval) : OD::Color();
 	    if ( (!coltabseq || col!=coltabseq->undefColor()) && col.t()==255 )
 		continue;
 	}

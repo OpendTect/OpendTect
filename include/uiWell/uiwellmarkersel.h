@@ -50,7 +50,7 @@ public:
 
     void		setMarkers(const Well::MarkerSet&);
     void		setMarkers(const BufferStringSet&);
-    void		setMarkerColors(const TypeSet<Color>&);
+    void		setMarkerColors(const TypeSet<OD::Color>&);
 
     void		setInput(const Well::Marker&,bool top=true);
     void		setInput(const char*,bool top=true);

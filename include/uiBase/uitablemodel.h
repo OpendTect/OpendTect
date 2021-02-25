@@ -56,8 +56,8 @@ public:
     virtual void		setCellData(int row,int col,const CellData&) =0;
     virtual CellData		getCellData(int row,int col) const =0;
 
-    virtual Color		textColor(int row,int col) const = 0;
-    virtual Color		cellColor(int row,int col) const	= 0;
+    virtual OD::Color		textColor(int row,int col) const = 0;
+    virtual OD::Color		cellColor(int row,int col) const	= 0;
     virtual uiPixmap		pixmap(int row,int col) const	= 0;
     virtual void		setChecked(int row,int col,int val)	{}
     virtual int			isChecked(int row,int col) const  { return -1; }

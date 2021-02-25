@@ -25,23 +25,23 @@ namespace FlatView
 {
 
 AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
-    : viewer_( v )
-    , mousehandler_( meh )
-    , feedback_( 0 )
-    , mousedown_( false )
-    , hasmoved_( false )
-    , addauxdataid_( 0 )
-    , removeSelected( this )
-    , movementStarted( this )
-    , movementFinished( this )
-    , addAuxDataChange( this )
-    , seldatasetidx_( -1 )
-    , polygonsellst_( OD::LineStyle::Solid, 1, Color( 255, 0, 0 ) )
-    , polygonselrect_( true )
-    , isselactive_( true )
-    , movementlimit_( 0 )
-    , menuhandler_( 0 )
-    , sower_( new Sower(*this,meh) )
+    : viewer_(v)
+    , mousehandler_(meh)
+    , feedback_(nullptr)
+    , mousedown_(false)
+    , hasmoved_(false)
+    , addauxdataid_(0)
+    , removeSelected(this)
+    , movementStarted(this)
+    , movementFinished(this)
+    , addAuxDataChange(this)
+    , seldatasetidx_(-1)
+    , polygonsellst_(OD::LineStyle::Solid,1,OD::Color(255,0,0))
+    , polygonselrect_(true)
+    , isselactive_(true)
+    , movementlimit_(nullptr)
+    , menuhandler_(nullptr)
+    , sower_(new Sower(*this,meh))
     , releaseSelection(this)
 {
     meh.buttonPressed.notify( mCB(this,AuxDataEditor,mousePressCB) );
@@ -791,7 +791,7 @@ void Sower::setView( const Rect& curview,const Geom::Rectangle<int>& mousearea )
 
 
 bool Sower::activate(const OD::LineStyle& linestyle,
-    const MouseEvent& mouseevent)
+						const MouseEvent& mouseevent)
 {
     const bool retval = activate( linestyle.color_, mouseevent );
     sowingline_->linestyle_.width_ = linestyle.width_;
@@ -806,7 +806,7 @@ bool Sower::activate(const OD::LineStyle& linestyle,
 }
 
 
-bool Sower::activate( const Color& color, const MouseEvent& mouseevent )
+bool Sower::activate( const OD::Color& color, const MouseEvent& mouseevent )
 {
     if ( mode_ != Idle )
 	mReturnHandled( false );

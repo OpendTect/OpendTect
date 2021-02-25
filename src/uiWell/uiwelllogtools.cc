@@ -629,14 +629,14 @@ void uiWellLogToolWin::displayLogs()
 	    uiWellLogDisplay* ld = logdisps_[nrdisp];
 	    uiWellLogDisplay::LogData* wld = &ld->logData( true );
 	    wld->setLog( inplogs[idlog] );
-	    wld->disp_.color_ = Color::stdDrawColor( 1 );
+	    wld->disp_.color_ = OD::Color::stdDrawColor( 1 );
 	    wld->zoverlayval_ = 1;
 
 	    wld = &ld->logData( false );
 	    wld->setLog( outplogs.validIdx( idlog ) ? outplogs[idlog] : 0 );
 	    wld->xrev_ = false;
 	    wld->zoverlayval_ = 2;
-	    wld->disp_.color_ = Color::stdDrawColor( 0 );
+	    wld->disp_.color_ = OD::Color::stdDrawColor( 0 );
 
 	    ld->setZRange( zdisplayrg_ );
 	    ld->reDraw();

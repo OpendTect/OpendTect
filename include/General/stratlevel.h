@@ -48,11 +48,11 @@ public:
     bool		isDifferentFrom(const Level&) const;
 
     ID			id() const		{ return id_; }
-    Color		color() const		{ return color_; }
+    OD::Color		color() const		{ return color_; }
     const IOPar&	pars() const		{ return pars_; }
 
     void		setName(const char*);
-    void		setColor(Color);
+    void		setColor(OD::Color);
     void		setPars(const IOPar&);
 
     Notifier<Level>	changed;
@@ -66,7 +66,7 @@ protected:
 			Level(const Level&);
 
     ID			id_;
-    Color		color_;
+    OD::Color		color_;
     IOPar&		pars_;
     const LevelSet*	lvlset_;
 
@@ -124,16 +124,17 @@ public:
     Level*		get( Level::ID id )		{ return gtLvl(0,id); }
     const Level*	get( Level::ID id ) const	{ return gtLvl(0,id); }
 
-    Level*		add( const char* lvlnm, const Color& c )
+    Level*		add( const char* lvlnm, const OD::Color& c )
 						{ return set(lvlnm,c,-1); }
-    Level*		insert( const char* lvlnm, const Color& c ,int idx=-1 )
+    Level*		insert(
+			    const char* lvlnm, const OD::Color& c , int idx=-1 )
 						{ return set(lvlnm,c,idx); }
-    Level*		set( const char* lvlnm, const Color& c )
+    Level*		set( const char* lvlnm, const OD::Color& c )
 						{ return set(lvlnm,c,-1); }
     void		remove(Level::ID);
 
     Level*		add(const Level&); //!< copy stuff, but new ID/name
-    void		add(const BufferStringSet&,const TypeSet<Color>&);
+    void		add(const BufferStringSet&,const TypeSet<OD::Color>&);
 
     Notifier<LevelSet>	levelAdded;
     Notifier<LevelSet>	levelChanged;
@@ -154,7 +155,7 @@ public:
 			{ return idx<size() ? *lvls_[idx] : Level::undef(); }
     int			levelID( int idx ) const
 			{ return getLevel(idx).id(); }
-    Color		color( int idx ) const
+    OD::Color		color( int idx ) const
 			{ return getLevel(idx).color(); }
     void		getNames(BufferStringSet&) const;
 
@@ -167,7 +168,7 @@ protected:
     bool		ischanged_;
 
     Level*		getNew(const Level* lvl=0) const;
-    Level*		set(const char*,const Color&,int);
+    Level*		set(const char*,const OD::Color&,int);
     int			gtIdxOf(const char*,Level::ID) const;
     Level*		gtLvl(const char*,Level::ID) const;
     void		addLvl(Level*);
@@ -201,7 +202,8 @@ mGlobal(General) const LevelSet& unpushedLVLS();
 
 mGlobal(General) void setLVLS(LevelSet*);
 
-mGlobal(General) BufferString getStdFileName(const char* inpnm,const char* basenm);
+mGlobal(General) BufferString getStdFileName(
+					const char* inpnm,const char* basenm);
 //!< example: getStdFileName("North Sea","Levels")
 
 } // namespace Strat

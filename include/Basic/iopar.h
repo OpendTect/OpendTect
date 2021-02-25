@@ -29,6 +29,8 @@ namespace OD
     {
 	class Object;
     };
+
+    class Color;
 };
 
 /*!
@@ -168,7 +170,7 @@ public:
     bool		get(const char*,Coord&) const;
     bool		get(const char*,Coord3&) const;
     bool		get(const char*,MultiID&) const;
-    bool		get(const char*,Color&) const;
+    bool		get(const char*,OD::Color&) const;
     bool		get(const char*,SeparString&) const;
     bool		get(const char*,uiString&) const;
     bool		get(const char*,BufferString&) const;
@@ -251,7 +253,7 @@ public:
     void		set(const char*,const Coord&);
     void		set(const char*,const Coord3&);
     void		set(const char*,const MultiID&);
-    void		set(const char*,const Color&);
+    void		set(const char*,const OD::Color&);
     void		set(const char*,const SeparString&);
     void		set(const char*,const uiString&);
     void		set(const char*,const OD::String&);
@@ -283,7 +285,7 @@ public:
     void		setStdCreationEntries();
 
 
-// I/O  functions
+// I/O	functions
 
     // to/from string: 'serialisation'
     void		getFrom(const char*);
@@ -315,8 +317,8 @@ public:
     void		dumpPretty(BufferString&) const;
     void		dumpPretty(od_ostream&) const;
 
-    static const char*	sKeyDumpPretty()         { return "_pretty"; }
-    static const char*	sKeyHdr()		 { return "->";	     }
+    static const char*	sKeyDumpPretty()	 { return "_pretty"; }
+    static const char*	sKeyHdr()		 { return "->";      }
     static const char*	sKeySubHdr()		 { return "-->";     }
 
 protected:

@@ -23,8 +23,8 @@ HorizonPainter3D::HorizonPainter3D( FlatView::Viewer& fv,
 				    const EM::ObjectID& oid )
     : viewer_(fv)
     , id_(oid)
-    , markerlinestyle_(OD::LineStyle::Solid,2,Color(0,255,0))
-    , markerstyle_(MarkerStyle2D::Square, 4, Color::White())
+    , markerlinestyle_(OD::LineStyle::Solid,2,OD::Color(0,255,0))
+    , markerstyle_(MarkerStyle2D::Square,4,OD::Color::White())
     , linenabled_(true)
     , seedenabled_(true)
     , markerseeds_(0)
@@ -102,7 +102,7 @@ void HorizonPainter3D::paintCB( CallBacker* )
     {
 	for ( int idx=0;idx<markerseeds_->marker_->markerstyles_.size(); idx++ )
 	    markerseeds_->marker_->markerstyles_[idx].color_=
-	    emobj->preferredColor();
+							emobj->preferredColor();
     }
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
@@ -283,7 +283,7 @@ void HorizonPainter3D::generateNewMarker( const EM::Horizon3D& hor3d,
     auxdata->poly_.erase();
     auxdata->cursor_ = seedenabled_ ? MouseCursor::Cross : MouseCursor::Arrow;
     auxdata->linestyle_ = markerlinestyle_;
-    Color prefcol = hor3d.preferredColor();
+    OD::Color prefcol = hor3d.preferredColor();
     prefcol.setTransparency( 0 );
     auxdata->linestyle_.color_ = prefcol;
     auxdata->fillcolor_ = prefcol;
@@ -373,7 +373,7 @@ void HorizonPainter3D::changePolyLineColor()
     for ( int idx=0; idx<markerline_.size(); idx++ )
     {
 	SectionMarker3DLine* secmarkerlines = markerline_[idx];
-	Color prefcol = emobj->preferredColor();
+	OD::Color prefcol = emobj->preferredColor();
 	prefcol.setTransparency( 0 );
 	const int width = emobj->preferredLineStyle().width_;
 

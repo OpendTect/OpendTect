@@ -143,7 +143,7 @@ public:
     void		setAllowDuplicates(bool yn);
     void		addItem(const uiString&,bool marked=false,int id=-1);
     void		addItem(const uiString&,const uiPixmap&,int id=-1);
-    void		addItem(const uiString&,const Color&,int id=-1);
+    void		addItem(const uiString&,const OD::Color&,int id=-1);
     void		addItem( const char* str, bool marked=false, int id=-1 )
 				{ addItem( toUiString(str), marked, id ); }
     void		addItems(const char**);
@@ -153,13 +153,13 @@ public:
 				   bool marked=false,int id=-1);
     void		insertItem(const uiString&,const uiPixmap&,
 				   int idx=-1,int id=-1);
-    void		insertItem(const uiString&,const Color&,
+    void		insertItem(const uiString&,const OD::Color&,
 				   int idx=-1,int id=-1);
-    void		setPixmap(int,const Color&);
+    void		setPixmap(int,const OD::Color&);
     void		setPixmap(int,const uiPixmap&);
     void		setIcon(int,const char* icon_identifier);
-    void		setColor(int,const Color&);
-    Color		getColor(int) const;
+    void		setColor(int,const OD::Color&);
+    OD::Color		getColor(int) const;
 
     void		sortItems(bool asc=true);
 

@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visseedpainter.h"
 
-#include "trckeyzsampling.h"
+#include "color.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "pickset.h"
@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 #include "survinfo.h"
 #include "timefun.h"
+#include "trckeyzsampling.h"
 #include "visevent.h"
 #include "vislocationdisplay.h"
 #include "vismaterial.h"

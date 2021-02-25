@@ -76,7 +76,7 @@ void uiColorTableCanvas::setRGB()
     for ( int idx=0; idx<sz0; idx++ )
     {
 	const int colidx = flipseq_ ? sz0-idx-1 : idx;
-	const Color color = indextable.colorForIndex( colidx );
+	const OD::Color color = indextable.colorForIndex( colidx );
 	for ( int idy=0; idy<sz1; idy++ )
 	{
 	    if ( isvertical )

@@ -1054,7 +1054,7 @@ void uiStratLayerModel::handleNewModel()
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
     synthdisp_->setFlattened( modtools_->showFlattened(), false );
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-		    modtools_->selLevelColor() );
+					modtools_->selLevelColor() );
     const bool canshowflattened = canShowFlattened();
     synthdisp_->setSnapLevelSensitive( canshowflattened );
     modtools_->setFlatTBSensitive( canshowflattened );

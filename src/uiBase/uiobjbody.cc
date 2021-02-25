@@ -217,15 +217,15 @@ void uiObjectBody::setVSzPol( uiObject::SzPolicy pol )
 }
 
 
-Color uiObjectBody::uibackgroundColor() const
+OD::Color uiObjectBody::uibackgroundColor() const
 {
     const QBrush& qbr = qwidget()->palette().brush(
 	    qwidget()->backgroundRole() );
-    return Color( qbr.color().rgb() );
+    return OD::Color( qbr.color().rgb() );
 }
 
 
-void uiObjectBody::uisetBackgroundColor( const Color& col )
+void uiObjectBody::uisetBackgroundColor( const OD::Color& col )
 {
     QPalette qpal( qwidget()->palette() );
     qpal.setColor( QPalette::Base,
@@ -242,7 +242,7 @@ void uiObjectBody::uisetBackgroundPixmap( const uiPixmap& pm )
 }
 
 
-void uiObjectBody::uisetTextColor( const Color& col )
+void uiObjectBody::uisetTextColor( const OD::Color& col )
 {
     QPalette qpal( qwidget()->palette() );
     qpal.setColor( QPalette::WindowText,

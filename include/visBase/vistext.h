@@ -56,8 +56,8 @@ public:
     void			setText(const uiString&);
     const uiString&		getText() const 	{ return text_; }
 
-    void			setColor(const Color&);
-    Color			getColor() const;
+    void			setColor(const OD::Color&);
+    OD::Color			getColor() const;
 
     void			setJustification(Justification);
     int				getJustification() const;

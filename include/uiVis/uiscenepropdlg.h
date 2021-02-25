@@ -53,10 +53,10 @@ protected:
     bool			hadannotgrid_;
     bool			hadanimation_;
     ui3DViewer::WheelMode	wheeldisplaymode_;
-    Color			oldbgcolor_;
+    OD::Color			oldbgcolor_;
     float			oldmarkersize_;
-    Color			oldmarkercolor_;
-    Color			annotcolor_;
+    OD::Color			oldmarkercolor_;
+    OD::Color			annotcolor_;
     float			oldfactor_;
     float			oldunits_;
     FontData			oldfont_;

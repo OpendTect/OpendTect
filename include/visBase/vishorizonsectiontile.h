@@ -63,7 +63,7 @@ public:
     void			applyTesselation(char res);
 				//!<Should be called from rendering thread
     void			ensureGlueTesselated();
-    void			setWireframeColor(Color& color);
+    void			setWireframeColor(OD::Color& color);
     void			setTexture( const Coord& origin,
 					    const Coord& opposite );
 				//!<Sets origin and opposite in global texture

@@ -182,7 +182,7 @@ void uiDPSSelGrpDlg::changeColCB( CallBacker* )
     RowCol rc = tbl_->notifiedCell();
     if ( !rc.col() ) return;
 
-    Color newcol = tbl_->getColor( rc );
+    OD::Color newcol = tbl_->getColor( rc );
     if ( selectColor(newcol,this,tr("Marker color")) )
     {
 	selgrps_[rc.row()]->col_ = newcol;

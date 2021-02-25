@@ -40,7 +40,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     uiLabel* lbl = new uiLabel( this, infotxt );
 
     uiLabel* pmlvl =  new uiLabel( this, uiStrings::sEmptyString() );
-    uiPixmap pm( 20, 20 ); pm.fill( Color(200,0,0) );
+    uiPixmap pm( 20, 20 ); pm.fill( OD::Color(200,0,0) );
     pmlvl->setPixmap( pm );
     pmlvl->attach( rightTo, lbl );
 
@@ -226,7 +226,7 @@ void uiPositionTable::getZRange( Interval<float>& zrg ) const
 
 void uiPositionTable::setRowColor( int rid, bool includes )
 {
-    Color col = !includes ? Color(200,0,0) : Color::White();
+    OD::Color col = !includes ? OD::Color(200,0,0) : OD::Color::White();
     for ( int colid=0; colid<table_->nrCols(); colid++ )
 	table_->setColor( RowCol(rid,colid), col );
 }

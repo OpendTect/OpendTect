@@ -161,8 +161,8 @@ public:
 
 
     Pos::GeomID			getSurveyGeomID() const { return survgeomid_; }
-    				//!A 3D Horizon is locked to one survey
-    				//!Geometry
+				//!A 3D Horizon is locked to one survey
+				//!Geometry
     void			setSurveyGeomID(Pos::GeomID);
 
     uiString			getUserTypeStr() const { return userTypeStr(); }
@@ -195,8 +195,8 @@ public:
     void			unlockAll();
     const Array2D<char>*	getLockedNodes() const;
 
-    void			setParentColor(const Color&);
-    const Color&		getParentColor() const;
+    void			setParentColor(const OD::Color&);
+    const OD::Color&		getParentColor() const;
 
     virtual bool		setPos(const EM::PosID&,const Coord3&,
 				       bool addtohistory);
@@ -235,7 +235,7 @@ protected:
     Array2D<char>*		children_;
     Array2D<od_int64>*		parents_;
 
-    Color			parentcolor_;
+    OD::Color			parentcolor_;
 
     Pos::GeomID			survgeomid_;
     Array2D<char>*		nodesource_;
@@ -250,11 +250,11 @@ public:
     /*mDeprecated*/ bool	setZ(const BinID&,float z,bool addtohist);
 				//!< Fast: writes to the first section
     Array2D<char>*		getChildren(const TrcKey&) const
-    				{ return getChildren(); }
+				{ return getChildren(); }
     TrcKey::SurvID		getSurveyID() const { return getSurveyGeomID();}
 
-    static Color		sDefaultSelectionColor();
-    static Color		sDefaultLockColor();
+    static OD::Color		sDefaultSelectionColor();
+    static OD::Color		sDefaultLockColor();
 };
 
 

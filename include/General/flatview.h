@@ -80,7 +80,7 @@ public:
 				*/
 
     OD::LineStyle		linestyle_;
-    Color			fillcolor_;
+    OD::Color			fillcolor_;
     FillPattern			fillpattern_;
 
     mExpClass(General) FillGradient
@@ -91,14 +91,14 @@ public:
 
 	void		set(const Point& fr,const Point& to,
 			    const TypeSet<float>& stops,
-			    const TypeSet<Color>& colors);
-	void		set(const Color& col1,const Color& col2,bool hor);
+			    const TypeSet<OD::Color>& colors);
+	void		set(const OD::Color&,const OD::Color&,bool hor);
 	bool		hasGradient()	{ return !stops_.isEmpty(); }
 
-	Point		from_;
-	Point		to_;
-	TypeSet<float>	stops_;
-	TypeSet<Color>	colors_;
+	Point			from_;
+	Point			to_;
+	TypeSet<float>		stops_;
+	TypeSet<OD::Color>	colors_;
     };
 
     FillGradient		fillgradient_;
@@ -161,7 +161,7 @@ public:
     BufferString		title_; //!< color not settable
     bool			dynamictitle_;
 				//!< allows for setting title dynamically
-    Color			color_; //!< For axes
+    OD::Color			color_; //!< For axes
     AxisData			x1_;
     AxisData			x2_;
 
@@ -242,17 +242,17 @@ public:
     public:
 
 		    WVA()
-			: wigg_(Color::Black())
-			, refline_(Color::NoColor())
-			, lowfill_(Color::NoColor())
-			, highfill_(Color::Black())
+			: wigg_(OD::Color::Black())
+			, refline_(OD::Color::NoColor())
+			, lowfill_(OD::Color::NoColor())
+			, highfill_(OD::Color::Black())
 			, overlap_(1)
 			, reflinevalue_(mUdf(float))	{}
 
-	Color		wigg_;
-	Color		refline_;
-	Color		lowfill_;
-	Color		highfill_;
+	OD::Color	wigg_;
+	OD::Color	refline_;
+	OD::Color	lowfill_;
+	OD::Color	highfill_;
 	float		overlap_;
 	float		reflinevalue_;
     };

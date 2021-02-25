@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
-#include "visemsticksetdisplay.h"
 
 #include "emposid.h"
 #include "explfaultsticksurface.h"
@@ -25,14 +24,14 @@ class ZAxisTransform;
 
 namespace visBase
 {
+    class EventCatcher;
     class GeomIndexedShape;
     class Transformation;
     class PolyLine3D;
     class DrawStyle;
 }
 
-namespace EM { class Fault3D; }
-namespace MPE { class FaultEditor; }
+namespace EM { class FaultSet3D; }
 namespace Geometry
 {
     class ExplPlaneIntersection;
@@ -43,23 +42,14 @@ template <class T > class Array2D;
 
 namespace visSurvey
 {
-class MPEEditor;
-class HorizonDisplay;
-
-/*!\brief
-
-
-*/
-
-mExpClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject
-				  , public StickSetDisplay
-{ mODTextTranslationClass(FaultDisplay);
+mExpClass(visSurvey) FaultSetDisplay : public MultiTextureSurveyObject
+{ mODTextTranslationClass(FaultSetDisplay);
 public:
-				FaultDisplay();
+				FaultSetDisplay();
 
 				mDefaultFactoryInstantiation(
-				visSurvey::SurveyObject,FaultDisplay,
-				"FaultDisplay",
+				visSurvey::SurveyObject,FaultSetDisplay,
+				"FaultSetDisplay",
 				toUiString(sFactoryKeyword()));
 
 
@@ -92,9 +82,6 @@ public:
     void			enableAttrib(int attrib,bool yn);
     bool			hasSingleColorFallback() const	{ return true; }
 
-    void			showManipulator(bool);
-    bool			isManipulatorShown() const;
-
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
@@ -103,8 +90,7 @@ public:
     void			triangulateAlg(mFltTriProj);
     mFltTriProj			triangulateAlg() const;
 
-    void			display(bool sticks,bool panels);
-    bool			areSticksDisplayed() const;
+    void			displayPanels(bool);
     bool			arePanelsDisplayed() const;
     bool			arePanelsDisplayedInFull() const;
 
@@ -113,8 +99,7 @@ public:
 
     void			setScene(Scene*);
 
-    bool			removeSelections(TaskRunner*);
-    bool			canRemoveSelection() const	{ return true; }
+    bool			canRemoveSelection() const	{return false;}
 
     void			setOnlyAtSectionsDisplay(bool);
     bool			displayedOnlyAtSections() const;
@@ -127,14 +112,8 @@ public:
     bool			areHorizonIntersectionsDisplayed() const;
     bool			canDisplayHorizonIntersections() const;
 
-    Notifier<FaultDisplay>	colorchange;
-    Notifier<FaultDisplay>	displaymodechange;
-
-    void			updateKnotMarkers();
-
-    void			setStickSelectMode(bool yn);
-    void			turnOnSelectionMode(bool);
-    bool			isInStickSelectMode() const;
+    Notifier<FaultSetDisplay>	colorchange;
+    Notifier<FaultSetDisplay>	displaymodechange;
 
     const OD::LineStyle*	lineStyle() const;
     void			setLineStyle(const OD::LineStyle&);
@@ -146,7 +125,7 @@ public:
 					Coord3& xyzpos,BufferString& val,
 					BufferString& info) const;
 
-    bool			allowsPicks() const		{ return true; }
+    bool			allowsPicks() const		{return false;}
     bool			isVerticalPlane() const		{return false;}
     bool			canBDispOn2DViewer() const	{return false;}
     int				addDataPack(const DataPointSet&) const ;
@@ -154,19 +133,32 @@ public:
 					      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
     DataPackMgr::ID		getDataPackMgrID() const
-				{ return DataPackMgr::SurfID(); }
+				{ return DataPackMgr::PointID(); }
 
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>& objs,
 				    int whichobj)
 				{ otherObjectsMoved( objs, whichobj ); }
 
-    EM::Fault3D*		emFault();
-    void			showSelectedSurfaceData();
-    const BufferStringSet*	selectedSurfaceDataNames();
-    const Array2D<float>*	getTextureData(int attrib);
+    EM::FaultSet3D*		emFaultSet();
     void			matChangeCB(CallBacker*);
     virtual void		setPixelDensity(float dpi);
+    virtual void		setAttribTransparency(int,unsigned char);
+
+    virtual bool		addAttrib();
+    virtual bool		removeAttrib(int attrib);
+    virtual bool		swapAttribs(int a0,int a1);
+
+    const TypeSet<float>*	getHistogram(int) const;
+
+    const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
+						     int version) const;
+    void			setColTabMapperSetup(int,
+					const ColTab::MapperSetup&,TaskRunner*);
+
+    bool			canSetColTabSequence() const;
+    void			setColTabSequence(int,const ColTab::Sequence&,
+						  TaskRunner*);
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;
@@ -174,31 +166,25 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    const visBase::GeomIndexedShape* getFaultDisplayedPlane() const;
-    const visBase::GeomIndexedShape* getFaultDisplayedStickLines() const;
-    const ObjectSet<visBase::MarkerSet>& getFaultDisplayedSticks() const;
-
-    const MarkerStyle3D*	getPreferedMarkerStyle() const;
-    void			setPreferedMarkerStyle(const MarkerStyle3D&);
+    const visBase::GeomIndexedShape* getFaultDisplayedPlane(int) const;
 
 protected:
 
-    virtual			~FaultDisplay();
+    virtual			~FaultSetDisplay();
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj);
+    int				getFaultID(const visBase::EventInfo&) const;
     void			setRandomPosDataInternal(int attrib,
 							 const DataPointSet*,
 							 int column,
 							 TaskRunner*);
     void			updatePanelDisplay();
-    void			updateStickDisplay();
     void			updateIntersectionDisplay();
     void			updateHorizonIntersectionDisplay();
     void			updateDisplay();
 
     void			updateSingleColor();
-    void			updateManipulator();
 
     virtual bool		getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const;
@@ -208,61 +194,36 @@ protected:
     virtual void		emptyCache(int);
     virtual bool		hasCache(int) const;
 
-    bool			isPicking() const;
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
-    void			stickSelectCB(CallBacker*);
     void			dataTransformCB(CallBacker*);
-    void			polygonFinishedCB(CallBacker*);
-    bool			isSelectableMarkerInPolySel(
-					const Coord3& markerworldpos ) const;
 
-    void			setActiveStick(const EM::PosID&);
-    void			updateActiveStickMarker();
     void			updateHorizonIntersections( int whichobj,
 					const ObjectSet<const SurveyObject>&);
-    void			updateEditorMarkers();
 
     Coord3			disp2world(const Coord3& displaypos) const;
 
-    bool			coincidesWith2DLine(
-					const Geometry::FaultStickSurface&,
-					int sticknr) const;
-    bool			coincidesWithPlane(
-					const Geometry::FaultStickSurface&,
-					int sticknr,
-					TypeSet<Coord3>& intersectpoints) const;
-    void			updateStickHiding();
     void			setLineRadius(visBase::GeomIndexedShape*);
-    void			sowingFinishedCB(CallBacker*);
-    bool			onSection(int sticknr);
-    void			showActiveStickMarker();
 
     ZAxisTransform*			zaxistransform_;
     int					voiid_;
 
-    visBase::GeomIndexedShape*		paneldisplay_;
-    Geometry::ExplFaultStickSurface*	explicitpanels_;
+    ObjectSet<visBase::GeomIndexedShape>	paneldisplays_;
+    ObjectSet<Geometry::ExplFaultStickSurface>	explicitpanels_;
 
-    visBase::GeomIndexedShape*		stickdisplay_;
-    Geometry::ExplFaultStickSurface*	explicitsticks_;
-
-    visBase::GeomIndexedShape*		intersectiondisplay_;
-    Geometry::ExplPlaneIntersection*	explicitintersections_;
+    ObjectSet<visBase::GeomIndexedShape>	intersectiondisplays_;
+    ObjectSet<Geometry::ExplPlaneIntersection>	explicitintersections_;
     ObjectSet<const SurveyObject>	intersectionobjs_;
     TypeSet<int>			planeids_;
 
     ObjectSet<visBase::GeomIndexedShape> horintersections_;
     ObjectSet<Geometry::ExplFaultStickSurface>	horshapes_;
+
+    ObjectSet<visBase::TextureChannels> channelset_;
+
     TypeSet<int>			horintersectids_;
     bool				displayintersections_;
     bool				displayhorintersections_;
-
-    visBase::PolyLine3D*		activestickmarker_;
-    int					activestick_;
-
-    MPE::FaultEditor*			faulteditor_;
-    visSurvey::MPEEditor*		viseditor_;
 
     Coord3				mousepos_;
 
@@ -274,26 +235,24 @@ protected:
 
     bool				displaypanels_;
 
-    ObjectSet<Array2D<float> >		texuredatas_;
+    EM::FaultSet3D*			faultset_;
+
+    ObjectSet<ObjectSet<Array2D<float> > >  texturedataset_;
 
     visBase::DrawStyle*			drawstyle_;
     bool				otherobjects_;
-    bool				endstick_;
-    EM::PosID				activestickid_;
+
+    const mVisTrans*			displaytransform_;
+    visBase::EventCatcher*		eventcatcher_;
 
     static const char*			sKeyTriProjection();
     static const char*			sKeyEarthModelID();
     static const char*			sKeyDisplayPanels();
-    static const char*			sKeyDisplaySticks();
     static const char*			sKeyDisplayIntersections();
     static const char*			sKeyDisplayHorIntersections();
-    static const char*			sKeyUseTexture();
     static const char*			sKeyLineStyle();
+    static const char*			sKeyUseTexture();
     static const char*			sKeyZValues();
-
-    bool				isDisplayingSticksUseful() const;
 };
 
 };
-
-

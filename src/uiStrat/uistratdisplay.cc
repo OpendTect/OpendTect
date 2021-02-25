@@ -543,11 +543,12 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
     rectpts += uiPoint( x1, y2  );
     rectpts += uiPoint( x1, y1  );
     uiPolyLineItem* pli = scene_.addItem( new uiPolyLineItem(rectpts) );
-    pli->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,1,Color::Black()) );
+    pli->setPenStyle(
+		    OD::LineStyle(OD::LineStyle::Solid,1,OD::Color::Black()) );
     colitm.borderitm_ = pli;
 
     uiTextItem* ti = scene_.addItem( new uiTextItem(toUiString(colitm.name_)) );
-    ti->setTextColor( Color::Black() );
+    ti->setTextColor( OD::Color::Black() );
     ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y1-18) );
     ti->setAlignment( Alignment::HCenter );
     ti->setZValue( 2 );
@@ -604,7 +605,7 @@ void uiStratDrawer::drawEmptyText()
     const int y2 = yax_->getPix( yax_->range().start );
 
     uiTextItem* ti = scene_.addItem( new uiTextItem( tr("<Click to add>") ) );
-    ti->setTextColor( Color::Black() );
+    ti->setTextColor( OD::Color::Black() );
     ti->setPos( mCast(float,x), mCast(float,y2 - abs((y2-y1)/2) -10) );
     ti->setZValue( 2 );
     emptyitm_ = ti;
@@ -644,8 +645,8 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 	rectpts += uiPoint( x1, y2 );
 	rectpts += uiPoint( x1, y1 );
 	uiPolygonItem* pli = scene_.addPolygon( rectpts, true );
-	pli->setPenColor( Color::Black() );
-	if ( unit.color_ != Color::White() )
+	pli->setPenColor( OD::Color::Black() );
+	if ( unit.color_ != OD::Color::White() )
 	    pli->setFillColor( unit.color_, true );
 
 	BufferString unm( unit.name() );
@@ -657,7 +658,7 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 	}
 
 	uiTextItem* ti = scene_.addItem( new uiTextItem( toUiString(unm )) );
-	ti->setTextColor( Color::Black() );
+	ti->setTextColor( OD::Color::Black() );
 	ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y2-abs((y2-y1)/2)-10) );
 	ti->setAlignment( Alignment::HCenter );
 	ti->setZValue( 2 );

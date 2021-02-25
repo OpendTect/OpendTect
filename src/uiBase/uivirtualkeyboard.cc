@@ -96,13 +96,13 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     viewbase_->setPrefWidth( mNINT32(keyboardwidth) );
     viewbase_->setPrefHeight( mNINT32(keyboardheight) );
 
-    addLed(  46,  86, Color(255,0,0) );
-    addLed(  62, 118, Color(255,0,0) );
-    addLed(  38, 150, Color(255,0,0) );
-    addLed( 118, 150, Color(255,0,0) );
-    addLed( 470, 118, Color(0,255,0) );
-    addLed( 358, 150, Color(0,255,0) );
-    addLed( 470, 150, Color(0,255,0) );
+    addLed(  46,  86, OD::Color(255,0,0) );
+    addLed(  62, 118, OD::Color(255,0,0) );
+    addLed(  38, 150, OD::Color(255,0,0) );
+    addLed( 118, 150, OD::Color(255,0,0) );
+    addLed( 470, 118, OD::Color(0,255,0) );
+    addLed( 358, 150, OD::Color(0,255,0) );
+    addLed( 470, 150, OD::Color(0,255,0) );
     updateLeds();
 
     windowClosed.notify( mCB(this,uiVirtualKeyboard,exitCB) );
@@ -124,7 +124,7 @@ bool uiVirtualKeyboard::enterPressed() const
 { return enterpressed_; }
 
 
-void uiVirtualKeyboard::addLed( float x, float y, const Color& color )
+void uiVirtualKeyboard::addLed( float x, float y, const OD::Color& color )
 {
     const MarkerStyle2D ms( MarkerStyle2D::Circle, mNINT32(4*keyboardscale_) );
     uiPoint point( mNINT32(x*keyboardscale_), mNINT32(y*keyboardscale_) );

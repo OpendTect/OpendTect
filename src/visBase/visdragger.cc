@@ -102,14 +102,14 @@ void DraggerCallbackHandler::constrain()
 
 
 DraggerBase::DraggerBase()
-    : started( this )
-    , motion( this )
-    , finished( this )
-    , changed( this )
-    , displaytrans_( 0 )
-    , cbhandler_( 0 )
-    , osgdragger_( 0 )
-    , osgroot_( new osg::Group )
+    : started(this)
+    , motion(this)
+    , finished(this)
+    , changed(this)
+    , displaytrans_(nullptr)
+    , cbhandler_(nullptr)
+    , osgdragger_(nullptr)
+    , osgroot_(new osg::Group)
 {
     setOsgNode( osgroot_ );
     setPickable( true );
@@ -207,14 +207,14 @@ bool DraggerBase::isHandlingEvents() const
 
 Dragger::Dragger()
     : rightclicknotifier_(this)
-    , rightclickeventinfo_( 0 )
-    , inactiveshape_( 0 )
-    , ismarkershape_( true )
-    , draggersizescale_( 100 )
-    , defaultdraggergeomsize_( 0.025 )
-    , rotation_( 0, 0, 0 )
-    , rotangle_( 0.0 )
-    , arrowcolor_( Color(255,255,0) )
+    , rightclickeventinfo_(nullptr)
+    , inactiveshape_(nullptr)
+    , ismarkershape_(true)
+    , draggersizescale_(100)
+    , defaultdraggergeomsize_(0.025)
+    , rotation_(0,0,0)
+    , rotangle_(0.0)
+    , arrowcolor_(OD::Color(255,255,0))
 {
     setDefaultRotation();
     turnOn( true );
@@ -521,11 +521,13 @@ void Dragger::setDisplayTransformation( const mVisTrans* nt )
 }
 
 
-void Dragger::setArrowColor( const Color& color )
-{ arrowcolor_ = color; }
+void Dragger::setArrowColor( const OD::Color& color )
+{
+    arrowcolor_ = color;
+}
 
 
-const Color& Dragger::getArrowColor() const
+const OD::Color& Dragger::getArrowColor() const
 { return arrowcolor_; }
 
 

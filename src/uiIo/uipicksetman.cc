@@ -132,7 +132,8 @@ void uiPickSetMan::mkFileInfo()
 		txt += ">";
 	}
 
-	Color col( ps.disp_.color_ ); col.setTransparency( 0 );
+	OD::Color col( ps.disp_.color_ );
+	col.setTransparency( 0 );
 	txt.add( "\nColor: " ).add( col.largeUserInfoString() );
 	txt.add( "\nMarker size (pixels): " ).add( ps.disp_.pixsize_ );
 	txt.add( "\nMarker type: " ) .add( MarkerStyle3D::getTypeString(

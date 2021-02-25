@@ -60,7 +60,7 @@ public:
     {
 			    Setup()
 			    : nrmarkerchars_(2)
-			    , pickls_(OD::LineStyle::Solid,1,Color(0,200,0))
+			    , pickls_(OD::LineStyle::Solid,1,OD::Color(0,200,0))
 			    , border_(5)
 			    , noxannot_(false)
 			    , noyannot_(false)
@@ -97,7 +97,7 @@ public:
 	bool			xrev_;
 	int			zoverlayval_;
 	float			cliprate_;
-	Color			col_;
+	OD::Color		col_;
 	bool			drawascurve_;
 	int			curvesz_;
 	bool			drawaspoints_;
@@ -161,14 +161,15 @@ public:
 
     mStruct(uiWell) PickData
     {
-				PickData( float dah, Color c=Color::NoColor() )
+				PickData( float dah,
+					    OD::Color c=OD::Color::NoColor() )
 				    : dah_(dah), color_(c), val_(mUdf(float)) {}
 
 	bool			operator ==( const PickData& pd ) const
 				{ return mIsEqual(pd.dah_,dah_,1e-4); }
 
 	float			dah_;
-	Color			color_; //!< default will use the global
+	OD::Color		color_; //!< default will use the global
 					//setup color
 	float			val_; //this will be a point if defined,
 				      //a line otherwise

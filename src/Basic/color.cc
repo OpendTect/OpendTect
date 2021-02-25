@@ -16,6 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "typeset.h"
 
 
+namespace OD
+{
+
 Color::Color( unsigned char r_, unsigned char g_,
 	      unsigned char b_, unsigned char t_ )
 { set( r_, g_, b_, t_ ); }
@@ -692,4 +695,6 @@ const char* Color::largeUserInfoString() const
     }
 
     return ret.buf();
+}
+
 }

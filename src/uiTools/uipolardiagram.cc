@@ -78,7 +78,7 @@ void uiPolarDiagram::drawCircles()
     }
     else
     {
-	Color maroon = Color( 128, 0, 0 );
+	OD::Color maroon = OD::Color( 128, 0, 0 );
 
 #define mAddDipLabel(text)	\
 	{	\
@@ -154,11 +154,11 @@ void uiPolarDiagram::drawSegments()
 	// create E and N text items
 #ifdef mShowEast
         uiTextItem* tiE = scene().addItem( new uiTextItem( tr("E") ) );
-	tiE->setTextColor( Color( 0, 0, 255 ) );
+	tiE->setTextColor( OD::Color( 0, 0, 255 ) );
         azimuthtextitms_ += tiE;
 #endif
         uiTextItem* tiN = scene().addItem( new uiTextItem( tr("N") ) );
-	tiN->setTextColor( Color( 0, 0, 255 ) );
+	tiN->setTextColor( OD::Color( 0, 0, 255 ) );
         azimuthtextitms_ += tiN;
     }
 
@@ -176,7 +176,7 @@ void uiPolarDiagram::drawPointer()
     if ( !pointeritm_ )
     {
 	pointeritm_ = scene().addItem( new uiMarkerItem );
-	OD::LineStyle ls( OD::LineStyle::Solid, 3, Color( 255, 0, 0 ) );
+	OD::LineStyle ls( OD::LineStyle::Solid, 3, OD::Color( 255, 0, 0 ) );
 	pointeritm_->setPenStyle( ls );
     }
 

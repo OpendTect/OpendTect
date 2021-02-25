@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd,
-				      Color bkCol, bool is2d )
+				      OD::Color bkCol, bool is2d )
 	: uiDialog(p,uiDialog::Setup( tr("Display properties of: %1")
 	    .arg(wd ? toUiString(wd->name()) : uiString::emptyString()),
 	    mNoDlgTitle, mODHelpKey(mWellDispPropDlgHelpID) )
@@ -54,12 +54,12 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd,
 
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
-	: uiWellDispPropDlg(p,wd,Color::NoColor(),is2d)
+	: uiWellDispPropDlg(p,wd,OD::Color::NoColor(),is2d)
 { }
 
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
-				      Color bkCol, bool is2d )
+				      OD::Color bkCol, bool is2d )
 	: uiDialog(p,uiDialog::Setup(tr("Display properties of: %1")
 	    .arg(toUiString(IOM().nameOf(wid))),
 	    mNoDlgTitle, mODHelpKey(mWellDispPropDlgHelpID) )
@@ -83,7 +83,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
 				      bool is2d )
-	: uiWellDispPropDlg(p,wid,Color::NoColor(),is2d )
+	: uiWellDispPropDlg(p,wid,OD::Color::NoColor(),is2d )
 { }
 
 
@@ -97,7 +97,7 @@ void uiWellDispPropDlg::init()
     setButtonSensitive( APPLY, false );
 
     Well::DisplayProperties& props = wd_->displayProperties( is2ddisplay_ );
-    if ( bkcol_!=Color::NoColor() )
+    if ( bkcol_!=OD::Color::NoColor() )
 	props.ensureColorContrastWith( bkcol_ );
 
     ts_ = new uiTabStack( this, "Well display properties tab stack" );
@@ -125,7 +125,7 @@ void uiWellDispPropDlg::init()
 
     BufferStringSet markernms;
     wd_->markers().getNames( markernms );
-    TypeSet<Color> markercols;
+    TypeSet<OD::Color> markercols;
     wd_->markers().getColors( markercols );
 
     uiWellDispProperties::Setup propsu =
@@ -246,7 +246,7 @@ void uiWellDispPropDlg::markersChgd( CallBacker* )
 {
     BufferStringSet markernms;
     wd_->markers().getNames( markernms );
-    TypeSet<Color> markercols;
+    TypeSet<OD::Color> markercols;
     wd_->markers().getColors( markercols );
 
     for ( int idx=0; idx<propflds_.size(); idx++ )
@@ -391,7 +391,7 @@ void uiMultiWellDispPropDlg::resetProps( int wellidx, int logidx )
 	else if ( mrkfld )
 	{
 	    BufferStringSet markernms;
-	    TypeSet<Color> markercols;
+	    TypeSet<OD::Color> markercols;
 	    wd->markers().getNames( markernms );
 	    wd->markers().getColors( markercols );
 

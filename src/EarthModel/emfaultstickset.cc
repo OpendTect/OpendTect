@@ -31,7 +31,7 @@ FaultStickSet::FaultStickSet( EMManager& em )
 {
     geometry_.addSection( "", false );
     setPosAttrMarkerStyle( 0, 
-	MarkerStyle3D(MarkerStyle3D::Cube,3,Color::Yellow()) );
+	MarkerStyle3D(MarkerStyle3D::Cube,3,OD::Color::Yellow()) );
 }
 
 

@@ -302,7 +302,8 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
 	return;
 
     EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
-    if ( !emobj ) return;
+    if ( !emobj )
+	return;
 
     if ( setupgrp_ )
     {

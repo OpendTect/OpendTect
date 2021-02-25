@@ -897,7 +897,7 @@ void uiTreeViewItem::setText( const uiString& txt, int column )
 }
 
 
-void uiTreeViewItem::setBGColor( int column, const Color& color )
+void uiTreeViewItem::setBGColor( int column, const OD::Color& color )
 {
     qtreeitem_->setBackground( column,
 			QBrush( QColor( color.r(), color.g(), color.b() ) ) );
@@ -944,7 +944,7 @@ void uiTreeViewItem::setPixmap( int column, const uiPixmap& pm )
 }
 
 
-void uiTreeViewItem::setPixmap( int column, const Color& col,
+void uiTreeViewItem::setPixmap( int column, const OD::Color& col,
 				int width, int height )
 {
     uiPixmap pm( width, height );

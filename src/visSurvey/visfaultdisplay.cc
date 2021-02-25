@@ -110,7 +110,7 @@ FaultDisplay::FaultDisplay()
 	addChild( markerset->osgNode() );
 	knotmarkersets_ += markerset;
 	markerset->setMarkersSingleColor(
-	    idx ? Color(0,255,0) : Color(255,0,255) );
+	    idx ? OD::Color(0,255,0) : OD::Color(255,0,255) );
     }
 
     drawstyle_->ref();
@@ -388,7 +388,7 @@ MultiID FaultDisplay::getMultiID() const
 }
 
 
-void FaultDisplay::setColor( Color nc )
+void FaultDisplay::setColor( OD::Color nc )
 {
     if ( fault_ )
 	fault_->setPreferredColor( nc );
@@ -408,9 +408,9 @@ void FaultDisplay::updateSingleColor()
 
     channels_->turnOn( !usesinglecolor );
 
-    const Color prevcol = getMaterial()->getColor();
-    const Color newcol = usesinglecolor ? nontexturecol_.darker(0.3)
-					: Color::White();
+    const OD::Color prevcol = getMaterial()->getColor();
+    const OD::Color newcol = usesinglecolor ? nontexturecol_.darker(0.3)
+					: OD::Color::White();
     if ( newcol != prevcol )
     {
 	getMaterial()->setColor( newcol );
@@ -528,8 +528,10 @@ NotifierAccess* FaultDisplay::materialChange()
 { return &getMaterial()->change; }
 
 
-Color FaultDisplay::getColor() const
-{ return nontexturecol_; }
+OD::Color FaultDisplay::getColor() const
+{
+    return nontexturecol_;
+}
 
 
 void FaultDisplay::updatePanelDisplay()
@@ -2047,7 +2049,7 @@ void FaultDisplay::setPreferedMarkerStyle( const MarkerStyle3D& mkstyle )
     // polygon, and selection. So to guarantee this we set a fixed color here.
 
     MarkerStyle3D ftmkstyle = mkstyle;
-    ftmkstyle.color_ = Color::Yellow();
+    ftmkstyle.color_ = OD::Color::Yellow();
 
     setStickMarkerStyle( ftmkstyle );
     if ( viseditor_ )

@@ -191,7 +191,7 @@ public:
     bool		hasMaterial(int id) const;
     void		setMaterial(int id);
     bool		hasColor(int id) const;
-    void		setColor(int id,const Color&);
+    void		setColor(int id,const OD::Color&);
 
     bool		blockMouseSelection(bool yn);
 			/*!<\returns Previous status. */
@@ -310,7 +310,7 @@ public:
     void			manageSceneColorbar(int);
     bool			sceneColorbarDisplayed();
 
-    Color			getSceneAnnotCol(int);
+    OD::Color			getSceneAnnotCol(int);
 
 				//General stuff
     bool			deleteAllObjects();

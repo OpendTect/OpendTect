@@ -64,7 +64,7 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
     linelog1_ = logsdisp_[0]->scene().addItem( new uiLineItem );
     linelog2_ = logsdisp_[1]->scene().addItem( new uiLineItem );
     lineseis_ = vwr_->rgbCanvas().scene().addItem( new uiLineItem );
-    OD::LineStyle ls( OD::LineStyle::Dot, 1, Color::Black() );
+    OD::LineStyle ls( OD::LineStyle::Dot, 1, OD::Color::Black() );
     linelog1_->setPenStyle( ls );
     linelog2_->setPenStyle( ls );
     lineseis_->setPenStyle( ls );
@@ -212,7 +212,7 @@ void uiTieView::drawLog( const char* nm, bool first, int dispnr, bool reversed )
 {
     uiWellLogDisplay::LogData& wldld = logsdisp_[dispnr]->logData( first );
     wldld.setLog( data_.logset_.getLog( nm ) );
-    wldld.col_ = Color::stdDrawColor( first ? 0 : 1 );
+    wldld.col_ = OD::Color::stdDrawColor( first ? 0 : 1 );
     wldld.disp_.isleftfill_ = wldld.disp_.isrightfill_ = false;
     wldld.xrev_ = reversed;
 }
@@ -355,10 +355,10 @@ void uiTieView::drawViewerWellMarkers()
 	if ( !zrange_.includes( zpos, true ) )
 	    continue;
 
-	const Color& col = mrkdisp.issinglecol_ ? mrkdisp.color_
+	const OD::Color& col = mrkdisp.issinglecol_ ? mrkdisp.color_
 						: marker->color();
 
-	if ( col == Color::NoColor() || col == Color::White() )
+	if ( col == OD::Color::NoColor() || col == OD::Color::White() )
 	    continue;
 
 	FlatView::AuxData* auxdata = vwr_->createAuxData( marker->name() );

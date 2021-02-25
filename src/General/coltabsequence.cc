@@ -37,7 +37,7 @@ static const char* sKeyCtabSettsKey = "coltabs";
 
 
 ColTab::Sequence::Sequence()
-    : mInitStdMembs(Color::LightGrey(),Color::DgbColor())
+    : mInitStdMembs(OD::Color::LightGrey(),OD::Color::DgbColor())
     , nrsegments_( 0 )
     , colorChanged(this)
     , transparencyChanged(this)
@@ -49,7 +49,7 @@ ColTab::Sequence::Sequence()
 
 ColTab::Sequence::Sequence( const char* nm )
     : NamedCallBacker(nm)
-    , mInitStdMembs(Color::LightGrey(),Color::DgbColor())
+    , mInitStdMembs(OD::Color::LightGrey(),OD::Color::DgbColor())
     , nrsegments_( 0 )
     , colorChanged(this)
     , transparencyChanged(this)
@@ -137,7 +137,7 @@ bool ColTab::Sequence::operator!=( const ColTab::Sequence& ctab ) const
 { return !(*this==ctab); }
 
 
-Color ColTab::Sequence::color( float x ) const
+OD::Color ColTab::Sequence::color( float x ) const
 {
     const int sz = size();
     if ( sz == 0 || x <= -mDefEps || x >= 1+mDefEps )
@@ -147,14 +147,14 @@ Color ColTab::Sequence::color( float x ) const
     if ( nrsegments_>0 )
 	x = snapToSegmentCenter( x );
 
-    const unsigned char t = Color::getUChar( transparencyAt(x) );
+    const unsigned char t = OD::Color::getUChar( transparencyAt(x) );
 
     float x0 = x_[0];
     if ( sz == 1 || x < x0 + mDefEps )
-	return Color( r_[0], g_[0], b_[0], t );
+	return OD::Color( r_[0], g_[0], b_[0], t );
     float x1 = x_[ sz-1 ];
     if ( x > x1 - mDefEps )
-	return Color( r_[sz-1], g_[sz-1], b_[sz-1], t );
+	return OD::Color( r_[sz-1], g_[sz-1], b_[sz-1], t );
 
     for ( int idx=1; idx<sz; idx++ )
     {
@@ -162,14 +162,17 @@ Color ColTab::Sequence::color( float x ) const
 	if ( x < x1 + mDefEps )
 	{
 	    if ( mIsEqual(x,x1,mDefEps) )
-		return Color( r_[idx], g_[idx], b_[idx], t );
+		return OD::Color( r_[idx], g_[idx], b_[idx], t );
 	    if ( snaptomarkerbelow )
-		return Color( r_[idx-1], g_[idx-1], b_[idx-1], t );
+		return OD::Color( r_[idx-1], g_[idx-1], b_[idx-1], t );
 
 	    x0 = x_[idx-1];
 	    const float frac = (x-x0) / (x1-x0);
-#	    define mColVal(c) Color::getUChar( frac*c[idx] + (1-frac)*c[idx-1] )
-	    return Color( mColVal(r_), mColVal(g_), mColVal(b_), t );
+
+	    #define mColVal(c)\
+		OD::Color::getUChar( frac*c[idx] + (1-frac)*c[idx-1] )
+
+	    return OD::Color( mColVal(r_), mColVal(g_), mColVal(b_), t );
 	}
     }
 
@@ -377,7 +380,7 @@ void ColTab::Sequence::flipTransparency()
 }
 
 
-static float getfromPar( const IOPar& iopar, Color& col, const char* key,
+static float getfromPar( const IOPar& iopar, OD::Color& col, const char* key,
 			 float* px=0 )
 {
     const char* res = iopar.find( key );
@@ -455,7 +458,7 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
     {
 	BufferString key( sKeyValCol() );
 	key += "."; key += idx;
-	Color col;
+	OD::Color col;
 	float px;
 	getfromPar( iopar, col, key, &px );
 	if ( mIsUdf(px) )
@@ -610,8 +613,8 @@ const ColTab::Sequence* ColTab::SeqMgr::getAny( const char* nm ) const
 	cs->setColor( 1, 255, 255, 255 );
 	cs->setName( "Grey scales" );
 	cs->setType( ColTab::Sequence::User );
-	cs->setMarkColor( Color::DgbColor() );
-	cs->setUndefColor( Color(255,255,0) );
+	cs->setMarkColor( OD::Color::DgbColor() );
+	cs->setUndefColor( OD::Color(255,255,0) );
 	((ColTab::SeqMgr*)this)->seqs_ += cs;
 	return cs;
     }

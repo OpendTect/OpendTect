@@ -90,7 +90,7 @@ bool ThumbWheel::isFadeInOutEnabled() const
 { return thumbwheel_->isFadeInOutEnabled(); }
 
 
-void ThumbWheel::setAnnotationColor( const Color& col )
+void ThumbWheel::setAnnotationColor( const OD::Color& col )
 {
     osg::Vec4 osgcol( col2f(r),col2f(g),col2f(b), 0.2 );
     thumbwheel_->setBorderColor( osgcol );

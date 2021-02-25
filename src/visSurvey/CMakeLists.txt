@@ -12,6 +12,7 @@ set(OD_MODULE_SOURCES
 		visemobjdisplay.cc
 		visemsticksetdisplay.cc
 		visfaultdisplay.cc
+		visfaultsetdisplay.cc
 		visfaultsticksetdisplay.cc
 		vishorizondisplay.cc
 		vishorizon2ddisplay.cc

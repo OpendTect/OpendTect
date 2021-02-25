@@ -44,7 +44,7 @@ static int beginCmdRecEvent( const char* windowtitle )
     return carrier->beginCmdRecEvent( mGlobalQColorDlgCmdRecId, msg );
 }
 
-static void endCmdRecEvent( int refnr, bool ok, const Color& col,
+static void endCmdRecEvent( int refnr, bool ok, const OD::Color& col,
 			    bool withtransp )
 {
     BufferString msg( "QColorDlg " );
@@ -67,13 +67,15 @@ uiString uiColorInput::sSelColor()
 { return uiStrings::phrSelect( uiStrings::sColor() ); }
 
 
-bool selectColor( Color& col, uiParent* parnt,
+bool selectColor( OD::Color& col, uiParent* parnt,
                 uiString txt, bool withtransp )
-{ return uiColorInput::selectColor( col, parnt, txt, withtransp ); }
+{
+    return uiColorInput::selectColor( col, parnt, txt, withtransp );
+}
 
 
 
-bool uiColorInput::selectColor( Color& col, uiParent* parnt,
+bool uiColorInput::selectColor( OD::Color& col, uiParent* parnt,
                                 uiString txt, bool withtransp )
 {
     QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
@@ -117,7 +119,7 @@ bool uiColorInput::selectColor( Color& col, uiParent* parnt,
 }
 
 
-void setExternalColor( const Color& col )
+void setExternalColor( const OD::Color& col )
 {
      QWidget* amw = qApp->activeModalWidget();
      QColorDialog* qcd = dynamic_cast<QColorDialog*>( amw );
@@ -169,10 +171,10 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
     }
     if ( s.withdesc_ )
     {
-	descfld_ = new uiComboBox( this, Color::descriptions(),
+	descfld_ = new uiComboBox( this, OD::Color::descriptions(),
 				    "Color description" );
 	descfld_->setHSzPol( uiObject::Medium );
-	TypeSet<Color> colors = Color::descriptionCenters();
+	TypeSet<OD::Color> colors = OD::Color::descriptionCenters();
 	for ( int idx=0; idx<colors.size(); idx++ )
 	{
 	    uiPixmap pm( 15, 10 );
@@ -237,8 +239,8 @@ void uiColorInput::dodrawSel( CallBacker* )
 
 void uiColorInput::selCol( CallBacker* )
 {
-    Color newcol = color_;
-    const Color oldcol = color_;
+    OD::Color newcol = color_;
+    const OD::Color oldcol = color_;
     selectColor( newcol, this, dlgtxt_, selwithtransp_ );
     mSetTranspFromFld(newcol);
 
@@ -255,7 +257,7 @@ void uiColorInput::descSel( CallBacker* )
     const int selidx = descfld_ ? descfld_->currentItem() : -1;
     if ( selidx < 0 ) return;
 
-    Color newcol( Color::descriptionCenters()[selidx] );
+    OD::Color newcol( OD::Color::descriptionCenters()[selidx] );
     mSetTranspFromFld(newcol);
     setColor( newcol );
     colorChanged.trigger();
@@ -272,7 +274,7 @@ void uiColorInput::transpChg( CallBacker* )
 }
 
 
-void uiColorInput::setColor( const Color& col )
+void uiColorInput::setColor( const OD::Color& col )
 {
     color_ = col;
 

@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vispolygonbodydisplay.h"
 
+#include "color.h"
 #include "empolygonbody.h"
 #include "emmanager.h"
 #include "executor.h"
@@ -371,7 +372,7 @@ MultiID PolygonBodyDisplay::getMultiID() const
 }
 
 
-void PolygonBodyDisplay::setColor( Color nc )
+void PolygonBodyDisplay::setColor( OD::Color nc )
 {
     if ( empolygonsurf_ )
 	empolygonsurf_->setPreferredColor(nc);
@@ -385,8 +386,8 @@ void PolygonBodyDisplay::setColor( Color nc )
 
 void PolygonBodyDisplay::updateSingleColor()
 {
-    const Color prevcol = getMaterial()->getColor();
-    const Color newcol = nontexturecol_.darker( 0.3 );
+    const OD::Color prevcol = getMaterial()->getColor();
+    const OD::Color newcol = nontexturecol_.darker( 0.3 );
     if ( newcol==prevcol )
 	return;
 
@@ -410,8 +411,10 @@ void PolygonBodyDisplay::matChangeCB(CallBacker*)
 }
 
 
-Color PolygonBodyDisplay::getColor() const
-{ return nontexturecol_; }
+OD::Color PolygonBodyDisplay::getColor() const
+{
+    return nontexturecol_;
+}
 
 
 void PolygonBodyDisplay::updatePolygonDisplay()
@@ -636,7 +639,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     if ( mouseplanecs.isEmpty() )
 	return;
 
-    const Color& prefcol = empolygonsurf_->preferredColor();
+    const OD::Color& prefcol = empolygonsurf_->preferredColor();
     if ( viseditor_->sower().activate(prefcol, eventinfo) )
 	return;
 

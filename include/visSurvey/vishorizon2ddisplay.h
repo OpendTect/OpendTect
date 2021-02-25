@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          May 2004
- RCS:           $Id$
+ Author:	Kristofer Tingdahl
+ Date:		May 2004
+ RCS:		$Id$
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ public:
 				Horizon2DDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,Horizon2DDisplay,
-				    "Horizon2DDisplay", 
+				    "Horizon2DDisplay",
 				    toUiString(sFactoryKeyword()));
 
     void			setDisplayTransformation(const mVisTrans*);
@@ -54,7 +54,7 @@ public:
     TypeSet<EM::SectionID>	getSectionIDs() const{ return sids_; }
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
-    const Color			getLineColor() const;
+    const OD::Color		getLineColor() const;
 
     const visBase::PointSet*	getPointSet(const EM::SectionID&) const;
     const visBase::PolyLine3D*	getLine(const EM::SectionID&) const;

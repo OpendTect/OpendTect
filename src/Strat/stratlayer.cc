@@ -234,7 +234,7 @@ const Strat::LayerValue* Strat::Layer::getLayerValue( int ival ) const
 }
 
 
-Color Strat::Layer::dispColor( bool lith ) const
+OD::Color Strat::Layer::dispColor( bool lith ) const
 {
     return unitRef().dispColor( lith );
 }

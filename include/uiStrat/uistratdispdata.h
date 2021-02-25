@@ -41,7 +41,7 @@ public:
     mStruct(uiStrat) Unit
     {
 			Unit(const char* nm, const char* fullcode=0,
-				    const Color& col = Color::White() )
+				    const OD::Color& col = OD::Color::White() )
 				: name_( nm )
 				, fullcode_(fullcode)
 				, color_(col)
@@ -51,7 +51,7 @@ public:
 	const char* 	name() const 	{ return name_.buf(); }
 	const char* 	fullCode() const { return fullcode_.buf(); }
 
-	Color		color_;
+	OD::Color	color_;
 	Interval<float>	zrg_;
 	bool		isdisplayed_;
 
@@ -66,15 +66,15 @@ public:
 
     mStruct(uiStrat) Level
     {
-			Level(const char* nm,const char* unitcode)
-				: unitcode_(unitcode)
-				, name_( nm )
-				{}
+			    Level(const char* nm,const char* unitcode)
+				    : unitcode_(unitcode)
+				    , name_( nm )
+				    {}
 
-	const BufferString name_;
-	const BufferString unitcode_;
-	Color		color_;
-	float		zpos_;
+	const BufferString  name_;
+	const BufferString  unitcode_;
+	OD::Color	    color_;
+	float		    zpos_;
     };
 
 

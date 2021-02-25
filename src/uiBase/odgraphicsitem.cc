@@ -56,7 +56,7 @@ ODGraphicsPointItem::ODGraphicsPointItem()
     : QAbstractGraphicsShapeItem()
     , highlight_(false)
     , penwidth_(2)
-    , pencolor_(Color::Black())
+    , pencolor_(OD::Color::Black())
 {}
 
 
@@ -116,7 +116,7 @@ void ODGraphicsPointItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 // ODGraphicsMarkerItem
 ODGraphicsMarkerItem::ODGraphicsMarkerItem()
     : QAbstractGraphicsShapeItem()
-    , mstyle_( new MarkerStyle2D() )
+    , mstyle_(new MarkerStyle2D())
     , fill_(false)
 {
     setFlag( QGraphicsItem::ItemIgnoresTransformations, true );

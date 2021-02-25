@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+#include "color.h"
 #include "namedobj.h"
 
 mFDQtclass(QBitmap)
@@ -49,10 +50,10 @@ public:
     mQtclass(QPixmap*)	qpixmap()		{ return qpixmap_; }
     const mQtclass(QPixmap*) qpixmap() const	{ return qpixmap_; }
 
-    void		fill(const Color&);
+    void		fill(const OD::Color&);
     void		fill(const ColTab::Sequence&,bool hor);
-    void		fillGradient(const Color& col1,const Color& col2,
-	    			     bool hor);
+    void		fillGradient(const OD::Color& col1,
+						const OD::Color& col2,bool hor);
 
     int			width() const;
     int			height() const;

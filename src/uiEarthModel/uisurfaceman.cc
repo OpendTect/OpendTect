@@ -753,7 +753,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
 	    continue;
 	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(*ids[idx]) );
 
-	Color col( Color::White() );
+	OD::Color col( OD::Color::White() );
 	par.get( sKey::Color(), col );
 	tbl_->setColor( RowCol(idx,1), col );
 
@@ -788,9 +788,8 @@ void doCol( CallBacker* )
 	return;
     }
 
-    Color newcol = tbl_->getColor( cell );
-    if ( selectColor(newcol,this,uiStrings::phrJoinStrings(
-	 uiStrings::sHorizon(),uiStrings::sColor())) )
+    OD::Color newcol = tbl_->getColor( cell );
+    if ( selectColor(newcol,this,tr("Horizon Color")) )
 	tbl_->setColor( cell, newcol );
 
     tbl_->setSelected( cell, false );
@@ -801,8 +800,8 @@ void lvlChg( CallBacker* cb )
     mDynamicCastGet(uiStratLevelSel*,levelsel,cb)
     if ( !levelsel ) return;
 
-    const Color col = levelsel->getColor();
-    if ( col == Color::NoColor() ) return;
+    const OD::Color col = levelsel->getColor();
+    if ( col == OD::Color::NoColor() ) return;
 
     const RowCol rc = tbl_->getCell( levelsel );
     tbl_->setColor( RowCol(rc.row(),1), col );
@@ -813,7 +812,7 @@ bool acceptOK( CallBacker* )
     for ( int idx=0; idx<objids_.size(); idx++ )
     {
 	IOPar par;
-	Color col = tbl_->getColor( RowCol(idx,1) );
+	OD::Color col = tbl_->getColor( RowCol(idx,1) );
 	par.set( sKey::Color(), col );
 
 	mDynamicCastGet(uiStratLevelSel*,levelsel,

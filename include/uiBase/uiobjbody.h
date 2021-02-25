@@ -50,10 +50,10 @@ public:
     bool		uiCloseOK()	{ return uiObjHandle().closeOK(); }
     bool		isDisplayed() const { return display_; }
 
-    Color		uibackgroundColor() const;
-    void		uisetBackgroundColor(const Color&);
+    OD::Color		uibackgroundColor() const;
+    void		uisetBackgroundColor(const OD::Color&);
     void		uisetBackgroundPixmap(const uiPixmap&);
-    void		uisetTextColor(const Color&);
+    void		uisetTextColor(const OD::Color&);
     void		uisetSensitive(bool yn=true);
     bool		uisensitive() const;
     bool		uivisible() const;

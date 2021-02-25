@@ -54,8 +54,8 @@ public:
     MultiID			getMultiID() const;
     bool			isInlCrl() const	{ return false; }
 
-    Color			getColor() const;
-    void			setColor(Color);
+    OD::Color			getColor() const;
+    void			setColor(OD::Color);
     bool			hasColor() const	  { return true; }
     bool			allowMaterialEdit() const { return true; }
     NotifierAccess*		materialChange();
@@ -148,7 +148,7 @@ protected:
 
     bool				showmanipulator_;
 
-    Color				nontexturecol_;
+    OD::Color				nontexturecol_;
 
     bool				displaypolygons_;
     visBase::DrawStyle*			drawstyle_;

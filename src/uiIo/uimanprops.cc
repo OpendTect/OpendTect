@@ -175,7 +175,8 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 
     if ( !mn_ )
     {
-	colfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
+	colfld_ = new uiColorInput( this,
+			    uiColorInput::Setup(OD::Color::White())
 			    .lbltxt(tr("Default display color")) );
 	colfld_->attach( alignedBelow, aliasfld_ );
     }
@@ -556,13 +557,13 @@ uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
 	uiParent* p, PropertyRefSelection& prs, IOPar& pars, int pos,
 	const char* lbl )
     : uiVarWizardDlg(p,uiDialog::Setup(toUiString("%1 %2 - %3")
-		.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
-		.arg(uiStrings::sSelection()),
-		tr("You will be modeling layer properties, we have pre-selected"
-		    " essential ones.\nAdd properties only if you are interested in"
-		    " modeling those."),
-		mODHelpKey(mSelectPropRefsHelpID)),
-		pars, (uiVarWizardDlg::Position)pos )
+	    .arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
+	    .arg(uiStrings::sSelection()),
+	    tr("You will be modeling layer properties, we have pre-selected"
+		" essential ones.\nAdd properties only if you are interested in"
+		" modeling those."),
+	    mODHelpKey(mSelectPropRefsHelpID)),
+	    pars, (uiVarWizardDlg::Position)pos )
 {
     proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
 }

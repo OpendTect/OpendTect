@@ -22,13 +22,13 @@ mClass(WellAttrib) StratSynthLevel : public NamedObject
 {
 public:
 
-			StratSynthLevel( const char* nm, Color c,
-					 const TypeSet<float>* dpts=0 )
+			StratSynthLevel( const char* nm, OD::Color c,
+					 const TypeSet<float>* dpts=nullptr )
 			    : NamedObject(nm), col_(c), snapev_(VSEvent::None)
 			{ if ( dpts ) zvals_ = *dpts; }
 
     TypeSet<float> 	zvals_;
-    Color          	col_;
+    OD::Color		col_;
     VSEvent::Type  	snapev_;
 
 };

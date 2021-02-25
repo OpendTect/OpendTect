@@ -56,7 +56,7 @@ public:
 
     bool		tesselateResolution(bool onlyifabsness);
     void		updatePrimitiveSets();
-    void		setWireframeColor(Color& color);
+    void		setWireframeColor(OD::Color& color);
     void		dirtyGeometry();
     const osg::PrimitiveSet*	getPrimitiveSet(GeometryType) const;
     void		setLineWidth(int);

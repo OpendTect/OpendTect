@@ -51,7 +51,7 @@ public:
 				    , equils_(OD::LineStyle::Dot)
 				    , markstyle_(MarkerStyle2D::Circle)
 				    , hlmarkstyle_(MarkerStyle2D::Square,4,
-						   Color::Green())
+						   OD::Color::Green())
 				    , docount_(false)
 				    , curissel_(true)
 				    , valcolor_(true)
@@ -151,7 +151,7 @@ protected:
     void			drawVals();
     void			drawRose();
     void			drawSelection();
-    uiCurvedItem*		drawSectorPart(int,Interval<float>,Color);
+    uiCurvedItem*		drawSectorPart(int,Interval<float>,OD::Color);
     void			drawSectorParts(bool);
 
     void			drawAnnot();

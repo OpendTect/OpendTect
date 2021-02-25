@@ -439,7 +439,7 @@ void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
 	else
 	    y2polygonitem_->setPolygon( ptlist );
 	y2polygonitem_->setFillColor(
-		setup_.fillbelowy2_ ? setup_.y2col_ : Color::NoColor());
+		setup_.fillbelowy2_ ? setup_.y2col_ : OD::Color::NoColor());
 	y2polyitem_ = y2polygonitem_;
 	polydrawn = true;
     }
@@ -599,7 +599,7 @@ void uiFunctionDisplay::drawMarkLines()
 #define mDrawMarkLine(xy,nr,colnr) \
     if ( !mIsUdf(xy##markline##nr##val_) ) \
 	drawMarkLine( xy##ax_, xy##markline##nr##val_, \
-		      Color::stdDrawColor(colnr), xy##markline##nr##item_)
+		     OD::Color::stdDrawColor(colnr), xy##markline##nr##item_)
     mDrawMarkLine(x,,0);
     mDrawMarkLine(y,,0);
     mDrawMarkLine(x,2,1);
@@ -607,8 +607,8 @@ void uiFunctionDisplay::drawMarkLines()
 }
 
 
-void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val, Color col,
-				      uiLineItem*& itm )
+void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val,
+					    OD:: Color col, uiLineItem*& itm )
 {
     delete itm;
     itm = ah->getGridLine( ah->getPix(val) );

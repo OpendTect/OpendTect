@@ -77,7 +77,7 @@ void Axes::setSize( float rad, float len )
 }
 
 
-void Axes::setAnnotationColor( const Color& annotcolor )
+void Axes::setAnnotationColor( const OD::Color& annotcolor )
 {
 #define mColTof(c) float( c/255.0f )
 

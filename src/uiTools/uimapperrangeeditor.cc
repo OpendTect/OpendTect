@@ -87,7 +87,7 @@ static uiLineItem* createLineItem( uiGraphicsScene& scene, int zval )
 {
     uiLineItem* line = scene.addItem( new uiLineItem() );
     line->setPenStyle(
-	OD::LineStyle(OD::LineStyle::Solid,2,Color(0,255,0)) );
+	OD::LineStyle(OD::LineStyle::Solid,2,OD::Color(0,255,0)) );
     line->setZValue( zval+2 );
     return line;
 }

@@ -252,14 +252,14 @@ uiString uiODFaultToolMan::sKeyReplaceExisting()
 
 
 uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
-    : appl_( appl )
-    , tracktbwashidden_( false )
-    , selectmode_( false )
-    , settingsdlg_( 0 )
-    , colorbutcolor_( Color(0,0,0) )
-    , usercolor_( Color(0,0,255) )
-    , randomcolor_( getRandStdDrawColor() )
-    , flashcolor_( Color(0,0,0) )
+    : appl_(appl)
+    , tracktbwashidden_(false)
+    , selectmode_(false)
+    , settingsdlg_(nullptr)
+    , colorbutcolor_(OD::Color(0,0,0))
+    , usercolor_(OD::Color(0,0,255))
+    , randomcolor_(getRandStdDrawColor())
+    , flashcolor_(OD::Color(0,0,0))
     , curemid_(-1)
 {
     toolbar_ = new uiToolBar( &appl_,
@@ -530,7 +530,7 @@ void uiODFaultToolMan::clearCurDisplayObj()
 
 #define mOutputNameComboSetTextColorSensitivityHack( color ) \
     outputnamecombo_->setTextColor( toolbar_->isSensitive() && \
-	    outputnamecombo_->sensitive() ? color : Color(128,128,128) );
+	    outputnamecombo_->sensitive() ? color : OD::Color(128,128,128) );
 
 void uiODFaultToolMan::enableToolbar( bool yn )
 {
@@ -872,7 +872,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 		const EM::EMObject* emobj = EM::EMM().getObject( emid );
 
 		IOPar iopar;
-		Color curcolor;
+		OD::Color curcolor;
 		if ( emobj )
 		    curcolor = emobj->preferredColor();
 		else
@@ -1015,7 +1015,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	return;
     }
 
-    if ( flashcolor_==Color(255,0,0) &&
+    if ( flashcolor_==OD::Color(255,0,0) &&
 	 !uiMSG().question(tr("Ignore output name warning?")) ) return;
 
     mDynamicCastGet( EM::Fault3D*, destf3d, destfault );
@@ -1358,7 +1358,7 @@ void uiODFaultToolMan::flashOutputName( bool error, const char* newname )
     //toolbar_->setSensitive( gobutidx_, !error );
 
     const BufferString name = newname ? newname : outputnamecombo_->text();
-    const Color color = error ? Color(255,0,0) : Color(0,0,0);
+    const OD::Color color = error ? OD::Color(255,0,0) : OD::Color(0,0,0);
 
     const bool doflash = toolbar_->isSensitive() &&
 			 outputnamecombo_->sensitive() &&
@@ -1370,7 +1370,7 @@ void uiODFaultToolMan::flashOutputName( bool error, const char* newname )
     {
 	flashtimer_.start( 500, true );
 	outputnamecombo_->setBackgroundColor( flashcolor_ );
-	mOutputNameComboSetTextColorSensitivityHack( Color(255,255,255) );
+	mOutputNameComboSetTextColorSensitivityHack( OD::Color(255,255,255) );
     }
     else
 	flashOutputTimerCB( 0 );
@@ -1380,7 +1380,7 @@ void uiODFaultToolMan::flashOutputName( bool error, const char* newname )
 void uiODFaultToolMan::flashOutputTimerCB( CallBacker* )
 {
     mOutputNameComboSetTextColorSensitivityHack( flashcolor_ );
-    outputnamecombo_->setBackgroundColor( Color(255,255,255) );
+    outputnamecombo_->setBackgroundColor( OD::Color(255,255,255) );
     setOutputName( flashname_ );
     updateColorMode();
     if ( !inheritColor() )
@@ -1391,7 +1391,7 @@ void uiODFaultToolMan::flashOutputTimerCB( CallBacker* )
 void uiODFaultToolMan::flashReset()
 {
     flashname_.setEmpty();
-    flashcolor_ = Color(0,0,0);
+    flashcolor_ = OD::Color(0,0,0);
     mOutputNameComboSetTextColorSensitivityHack( flashcolor_ );
     outputnamecombo_->setToolTip(
 	    uiStrings::phrOutput( uiStrings::sName().toLower() ) );

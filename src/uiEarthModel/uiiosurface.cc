@@ -419,8 +419,8 @@ bool uiSurfaceWrite::replaceInTree() const
 void uiSurfaceWrite::stratLvlChg( CallBacker* )
 {
     if ( !stratlvlfld_ ) return;
-    const Color col( stratlvlfld_->getColor() );
-    if ( col != Color::NoColor() )
+    const OD::Color col( stratlvlfld_->getColor() );
+    if ( col != OD::Color::NoColor() )
 	colbut_->setColor( col );
 }
 
@@ -431,11 +431,14 @@ int uiSurfaceWrite::getStratLevelID() const
 }
 
 
-void uiSurfaceWrite::setColor( const Color& col )
-{ if ( colbut_ ) colbut_->setColor( col ); }
+void uiSurfaceWrite::setColor( const OD::Color& col )
+{
+    if ( colbut_ )
+	colbut_->setColor( col );
+}
 
 
-Color uiSurfaceWrite::getColor() const
+OD::Color uiSurfaceWrite::getColor() const
 {
     return colbut_ ? colbut_->color() : getRandStdDrawColor();
 }

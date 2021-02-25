@@ -57,7 +57,7 @@ public:
     virtual Coord		getTextPos(int shapeidx) const;
     virtual Alignment		getAlignment(int shapeidx) const;
     virtual float		getTextRotation() const { return 0; }
-    virtual Color		getColor() const;
+    virtual OD::Color		getColor() const;
 
     virtual void		setMarkerStyle(int idx,const MarkerStyle2D&) {}
     virtual const MarkerStyle2D* getMarkerStyle(int shapeidx) const { return 0;}
@@ -69,9 +69,9 @@ public:
     virtual void		setLineStyle(int idx,const OD::LineStyle&)    {}
     virtual const OD::LineStyle* getLineStyle(int shapeidx) const { return 0; }
 
-    virtual void		setFillColor(int idx,const Color&)	    {}
-    virtual const Color		getFillColor(int idx) const
-						    { return Color::NoColor();}
+    virtual void		setFillColor(int idx,const OD::Color&)	    {}
+    virtual const OD::Color	getFillColor(int idx) const
+						{ return OD::Color::NoColor();}
 
     virtual bool		fill(int shapeidx) const	{ return false;}
     virtual bool		close(int shapeidx) const	{ return false;}

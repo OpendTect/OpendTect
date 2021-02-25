@@ -226,7 +226,7 @@ void HorizonSectionTile::enableGeometryTypeDisplay( GeometryType type, bool yn )
 }
 
 
-void HorizonSectionTile::setWireframeColor( Color& color )
+void HorizonSectionTile::setWireframeColor( OD::Color& color )
 {
     for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
     {

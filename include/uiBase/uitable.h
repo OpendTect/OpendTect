@@ -261,7 +261,7 @@ public:
     void		setDefaultRowLabels();
     void		setDefaultColLabels();
     void		setLabelAlignment(Alignment::HPos,bool cols);
-    void		setLabelBGColor(int,Color,bool isrow);
+    void		setLabelBGColor(int,OD::Color,bool isrow);
 
 
     Setup&		setup()		{ return setup_; }
@@ -290,10 +290,10 @@ public:
     CNotifier<uiTable,int> columnClicked;
 
     void		setPixmap(const RowCol&,const uiPixmap&);
-    void		setColor(const RowCol&,const Color&);
-    Color		getColor(const RowCol&) const;
-    void		setHeaderBackground(int,const Color&,bool isrow);
-    Color		getHeaderBackground(int,bool isrow) const;
+    void		setColor(const RowCol&,const OD::Color&);
+    OD::Color		getColor(const RowCol&) const;
+    void		setHeaderBackground(int,const OD::Color&,bool isrow);
+    OD::Color		getHeaderBackground(int,bool isrow) const;
     void		showOuterFrame(bool);
 
     int			getIntValue(const RowCol&) const;

@@ -240,7 +240,7 @@ public:
 
     int			nrChildren() const;
 
-    void		setBGColor(int column,const Color&);
+    void		setBGColor(int column,const OD::Color&);
 
     void		edit(int col);
 
@@ -279,7 +279,7 @@ public:
     void		setIcon(int column,const char* iconname);
     void		removeIcon(int column);
     void		setPixmap(int column,const uiPixmap&);
-    void		setPixmap(int column,const Color&,
+    void		setPixmap(int column,const OD::Color&,
 				  int width=16,int height=10);
     void		setPixmap(int column,const ColTab::Sequence&,
 				  int width=16,int height=10);

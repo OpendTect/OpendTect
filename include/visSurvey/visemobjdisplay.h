@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          May 2004
- RCS:           $Id$
+ Author:	Kristofer Tingdahl
+ Date:		May 2004
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ struct EMChangeData
 	deepErase( emcallbackdata_ );
     }
 
-    int	    size() const { return emcallbackdata_.size(); }
+    int     size() const { return emcallbackdata_.size(); }
 };
 
 class MPEEditor;
@@ -103,8 +103,8 @@ public:
     void			setLineStyle(const OD::LineStyle&);
 
     bool			hasColor() const;
-    void			setColor(Color);
-    Color			getColor() const;
+    void			setColor(OD::Color);
+    OD::Color			getColor() const;
 
     bool			allowsPicks() const	{ return true; }
 
@@ -192,7 +192,7 @@ protected:
 
     TypeSet<EM::SectionID>		addsectionids_;
 
-    mutable Color			nontexturecol_;
+    mutable OD::Color			nontexturecol_;
     mutable bool			nontexturecolisset_;
     visBase::DrawStyle*			drawstyle_;
     bool				displayonlyatsections_;

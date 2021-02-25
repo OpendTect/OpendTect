@@ -29,11 +29,11 @@ void ColTab::IndexedLookUpTable::update()
     cols_.setSize( nrcols_, seq_.undefColor() );
 
     mDefParallelCalc2Pars( ColTabIndexAppl, tr("Update of color lookup table"),
-			   TypeSet<Color>&,cols, const Sequence&,seq )
+			   TypeSet<OD::Color>&,cols, const Sequence&,seq )
     mDefParallelCalcBody(
 	const float dx = 1.f/(sz_-1)
 ,
-	cols_[(TypeSet<Color>::size_type)idx] = seq_.color( idx*dx )
+	cols_[(TypeSet<OD::Color>::size_type)idx] = seq_.color( idx*dx )
 ,
 	)
 
@@ -42,10 +42,11 @@ void ColTab::IndexedLookUpTable::update()
 }
 
 
-Color ColTab::IndexedLookUpTable::colorForIndex( int idx ) const
+OD::Color ColTab::IndexedLookUpTable::colorForIndex( int idx ) const
 {
     if ( idx < 0 || idx >= nrcols_ )
 	return seq_.undefColor();
+
     return cols_[idx];
 }
 

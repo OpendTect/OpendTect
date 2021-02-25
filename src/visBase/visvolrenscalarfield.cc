@@ -658,7 +658,7 @@ void VolumeRenderScalarField::makeColorTables( int attr )
     for ( int idx=0; idx<mNrColors-1; idx++ )
     {
 	const float idxfrac = mCast(float,idx) / (mNrColors-2);
-	const Color col = sequence->color( idxfrac );
+	const OD::Color col = sequence->color( idxfrac );
 	colmap[ mCast(float,idx)/(mNrColors-1) ] = Conv::to<osg::Vec4>( col );
     }
 
@@ -808,7 +808,7 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
 	unsigned char coltab[1024];
 	for ( int idx=0; idx<=255; idx++ )
 	{
-	    const Color col = Conv::to<Color>(
+	    const OD::Color col = Conv::to<::OD::Color>(
 			    osgtransfunc_->getColor( mCast(float,idx)/255 ) );
 	    coltab[4*idx+0] = col.r();
 	    coltab[4*idx+1] = col.g();

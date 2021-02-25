@@ -45,8 +45,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace EM {
 
-Color Horizon3D::sDefaultSelectionColor()	{ return Color::Orange(); }
-Color Horizon3D::sDefaultLockColor()		{ return Color::Blue(); }
+OD::Color Horizon3D::sDefaultSelectionColor()	{ return OD::Color::Orange(); }
+OD::Color Horizon3D::sDefaultLockColor()	{ return OD::Color::Blue(); }
 
 
 class AuxDataImporter : public Executor
@@ -298,13 +298,13 @@ Horizon3D::Horizon3D( EMManager& man )
     : Horizon(man)
     , geometry_(*this)
     , auxdata(*new SurfaceAuxData(*this))
-    , lockednodes_(0)
-    , parents_(0)
-    , children_(0)
-    , parentcolor_(Color::Yellow())
-    , survgeomid_( Survey::GM().default3DSurvID() )
-    , nodesource_( 0 )
-    , arrayinited_( false )
+    , lockednodes_(nullptr)
+    , parents_(nullptr)
+    , children_(nullptr)
+    , parentcolor_(OD::Color::Yellow())
+    , survgeomid_(Survey::GM().default3DSurvID())
+    , nodesource_(nullptr)
+    , arrayinited_(false)
 
 {
     geometry_.addSection( "", false );
@@ -351,7 +351,7 @@ void Horizon3D::fillDisplayPar( IOPar& par ) const
 
 bool Horizon3D::useDisplayPar( const IOPar& par )
 {
-    Color col;
+    OD::Color col;
     if ( par.get(sParentColor(),col) )
 	setParentColor( col );
 
@@ -1301,7 +1301,7 @@ const Array2D<char>* Horizon3D::getLockedNodes() const
 { return lockednodes_; }
 
 
-void Horizon3D::setParentColor( const Color& col )
+void Horizon3D::setParentColor( const OD::Color& col )
 {
     parentcolor_ = col;
     EMObjectCallbackData cbdata;
@@ -1310,8 +1310,10 @@ void Horizon3D::setParentColor( const Color& col )
 }
 
 
-const Color& Horizon3D::getParentColor() const
-{ return parentcolor_; }
+const OD::Color& Horizon3D::getParentColor() const
+{
+    return parentcolor_;
+}
 
 
 bool Horizon3D::setPos( const PosID& pid,const Coord3& crd,bool addtoundo )

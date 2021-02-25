@@ -323,7 +323,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     isporbox_->activated.notify( propchgcb );
     isporbox_->attach( alignedBelow, nmfld_ );
 
-    uiColorInput::Setup csu( Color::White() );
+    uiColorInput::Setup csu( OD::Color::White() );
     csu.dlgtitle( tr("Default color for this lithology") );
     colfld_ = new uiColorInput( rightgrp, csu );
     colfld_->attach( alignedBelow, isporbox_ );
@@ -366,7 +366,7 @@ void uiStratLithoDlg::propChg( CallBacker* )
 
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
     const bool newpor = isporbox_->isChecked();
-    const Color newcol = colfld_->color();
+    const OD::Color newcol = colfld_->color();
     if ( (newpor != prevlith_->porous() || newcol != prevlith_->color()) )
     {
 	prevlith_->porous() = newpor;
@@ -618,14 +618,14 @@ uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
 }
 
 
-void uiStratLevelDlg::setLvlInfo( const char* lvlnm, const Color& col  )
+void uiStratLevelDlg::setLvlInfo( const char* lvlnm, const OD::Color& col  )
 {
     lvlnmfld_->setText( lvlnm );
     lvlcolfld_->setColor( col );
 }
 
 
-void uiStratLevelDlg::getLvlInfo( BufferString& lvlnm, Color& col ) const
+void uiStratLevelDlg::getLvlInfo( BufferString& lvlnm, OD::Color& col ) const
 {
     lvlnm = lvlnmfld_->text();
     col = lvlcolfld_->color();
@@ -686,9 +686,9 @@ void uiStratUnitDivideDlg::mouseClick( CallBacker* )
     RowCol rc = table_->notifiedCell();
     if ( rc.col() != cColorCol || table_->isCellReadOnly(rc) ) return;
 
-    Color newcol = table_->getColor( rc );
+    OD::Color newcol = table_->getColor( rc );
     if ( selectColor(newcol,this,tr("Unit color")) )
-    table_->setColor( rc, newcol );
+	table_->setColor( rc, newcol );
 }
 
 
@@ -845,7 +845,7 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
     setCaption( msg );
     BufferStringSet lvlnms;
     lvlnms.add( sNoLevelTxt );
-    TypeSet<Color> colors;
+    TypeSet<OD::Color> colors;
     lvlid_ = ur.levelID();
 
     const Strat::LevelSet& lvls = Strat::LVLS();

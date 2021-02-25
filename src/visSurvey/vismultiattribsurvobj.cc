@@ -10,19 +10,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribsel.h"
 #include "bindatadesc.h"
-#include "visdataman.h"
-#include "vismaterial.h"
-#include "coltabsequence.h"
+#include "color.h"
 #include "coltabmapper.h"
-#include "vistexturechannel2rgba.h"
-#include "visrgbatexturechannel2rgba.h"
-#include "vistexturechannels.h"
+#include "coltabsequence.h"
+#include "envvars.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "math2.h"
-#include "zaxistransform.h"
-#include "envvars.h"
 #include "settingsaccess.h"
+#include "zaxistransform.h"
+
+#include "visdataman.h"
+#include "vismaterial.h"
+#include "vistexturechannel2rgba.h"
+#include "visrgbatexturechannel2rgba.h"
+#include "vistexturechannels.h"
 
 
 namespace visSurvey {
@@ -45,7 +47,7 @@ MultiTextureSurveyObject::MultiTextureSurveyObject()
 
     channels_->enableTextureInterpolation( enabletextureinterp_ );
 
-    getMaterial()->setColor( Color::White() );
+    getMaterial()->setColor( OD::Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.8 );
 }
@@ -549,7 +551,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	    const ColTab::Sequence* seq = ctab->getSequence( idx );
 	    const ColTab::Mapper& map = channels_->getColTabMapper(idx,version);
 
-	    const Color col = mIsUdf(fval) ? seq->undefColor()
+	    const OD::Color col = mIsUdf(fval) ? seq->undefColor()
 					   : seq->color( map.position(fval) );
 	    if ( col.t()==255 )
 		continue;

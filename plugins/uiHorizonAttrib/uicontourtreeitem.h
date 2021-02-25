@@ -95,7 +95,7 @@ private:
 
 				// Specified from outside
     BufferString		attrnm_;
-    Color			color_;
+    OD::Color			color_;
     float			zshift_;
     bool			showlabels_;
     int				linewidth_;

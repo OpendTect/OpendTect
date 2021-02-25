@@ -46,19 +46,19 @@ public:
     void			setEventManager(PreStack::EventManager*);
     void			setHorizonID(int);
 
-    enum MarkerColor 		{ Single, Quality, Velocity, VelocityFit };
-    				mDeclareEnumUtils(MarkerColor);
+    enum MarkerColor		{ Single, Quality, Velocity, VelocityFit };
+				mDeclareEnumUtils(MarkerColor);
 
     void			setMarkerColor(MarkerColor,bool update=true);
     MarkerColor			getMarkerColor() const;
     void			setColTabMapper(const ColTab::MapperSetup&,
-	    					bool update=true);
+						bool update=true);
     const ColTab::MapperSetup&	getColTabMapper() const;
     void			setColTabSequence(const ColTab::Sequence&,
-	    					  bool update=true);
+						  bool update=true);
     virtual const ColTab::Sequence* getColTabSequence(int ch=0) const;
     virtual void		setColTabSequence(int,const ColTab::Sequence&,
-	    					  TaskRunner*);
+						  TaskRunner*);
     virtual bool		canSetColTabSequence() const { return true; }
     virtual int			nrAttribs() const { return 1; }
     virtual const ColTab::MapperSetup* getColTabMapperSetup(int,int) const;
@@ -66,7 +66,7 @@ public:
     
     enum DisplayMode		{ ZeroOffset, FullOnSections, 
 				  ZeroOffsetOnSections, FullOnGathers };
-    				mDeclareEnumUtils(DisplayMode);
+				mDeclareEnumUtils(DisplayMode);
     void			setDisplayMode(DisplayMode);
     DisplayMode			getDisplayMode() const;
 
@@ -75,7 +75,7 @@ public:
 
     void			setMarkerStyle(const MarkerStyle3D&,bool updat);
     virtual bool		hasColor() const { return true; }
-    virtual Color		getColor() const;
+    virtual OD::Color		getColor() const;
     const char**		markerColorNames()const;
     const char**		displayModeNames()const;
     bool			hasParents() const;
@@ -84,15 +84,15 @@ public:
 
 protected:
     void			clearAll();
-    				~PSEventDisplay();
+				~PSEventDisplay();
     void			otherObjectsMoved( const ObjectSet<
-	    				const SurveyObject>&, int whichobj );
+					const SurveyObject>&, int whichobj );
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
     //bool			filterBinID(const BinID&) const;
-    				/*!<\returns true if the binid should not be
+				/*!<\returns true if the binid should not be
 				     viewed. */
 
 

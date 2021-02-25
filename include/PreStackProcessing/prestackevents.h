@@ -48,9 +48,9 @@ class VelocityPicks;
 mExpClass(PreStackProcessing) Event
 {
 public:
-    			Event(int sz,bool quality);
-    			Event(const Event& b);
-    			~Event();
+			Event(int sz,bool quality);
+			Event(const Event& b);
+			~Event();
     Event&		operator=(const Event&);
     void		setSize(int sz,bool quality);
     void		removePick(int);
@@ -66,7 +66,7 @@ public:
     static unsigned char cManPickQuality()	{ return 255; }
     static unsigned char cDefaultQuality()	{ return 0; }
     unsigned char*	pickquality_;
-    			//255	= manually picked
+			//255	= manually picked
 			//0-254 = tracked
 
     unsigned char	quality_;
@@ -82,8 +82,8 @@ public:
 mExpClass(PreStackProcessing) EventSet
 { mRefCountImpl(EventSet);
 public:
-    			EventSet();
-    			EventSet(const EventSet&);
+			EventSet();
+			EventSet(const EventSet&);
     EventSet&		operator=(const EventSet&);
 
     int			indexOf(int horid) const;
@@ -119,24 +119,24 @@ public:
 
     const TypeSet<int>&		getHorizonIDs() const { return horids_; }
     int				addHorizon(int id=-1);
-    				//!<\returns horid
+				//!<\returns horid
 				//!<\note id argument is only for internal use
 				//!<	  i.e. the reader
     bool			removeHorizon(int id);
     const MultiID&		horizonEMReference(int id) const;
-    void 			setHorizonEMReference(int id,const MultiID&);
+    void			setHorizonEMReference(int id,const MultiID&);
     int				nextHorizonID(bool usethis);
     void			setNextHorizonID(int);
 
-    const Color&		getColor() const	{ return color_; }
-    void			setColor(const Color&);
+    const OD::Color&		getColor() const	{ return color_; }
+    void			setColor(const OD::Color&);
 
     void			setDipSource(const DipSource&,bool primary);
     const DipSource&		getDipSource(bool primary) const;
 
     Executor*			setStorageID(const MultiID& mid,
-	    				     bool reload );
-    				/*!<Sets the storage id. 
+					     bool reload );
+				/*!<Sets the storage id.
 				    \param reload if true,
 					all data will be removed, forceReload
 					will trigger, and data at the reload
@@ -160,7 +160,7 @@ public:
     bool			isChanged() const;
     void			resetChangedFlag(bool onlyhorflag);
     Notifier<EventManager>	resetChangeStatus;
-    				//!<Triggers when the chang flags are reseted
+				//!<Triggers when the chang flags are reseted
 
     EventSet*			getEvents(const BinID&,bool load,bool create);
     const EventSet*		getEvents(const BinID&,
@@ -168,28 +168,28 @@ public:
 
     void			cleanUp(bool keepchanged);
 
-    MultiDimStorage<EventSet*>&	getStorage() { return events_; }
+    MultiDimStorage<EventSet*>& getStorage() { return events_; }
 
     Notifier<EventManager>		change;
-    					/*!<\note Dont enable/disable,
-					    	  use blockChange if needed. */
+					/*!<\note Dont enable/disable,
+						  use blockChange if needed. */
     const BinID&			changeBid() const  { return changebid_;}
 					/*!<Can be -1 if general
 					   (name/color/horid) change. */
     void				blockChange(bool yn,bool sendall);
-     					/*!<Turns off notification, but 
+					/*!<Turns off notification, but
 					    class will record changes. If
- 					    sendall is on when turning off the
+					    sendall is on when turning off the
 					    block, all recorded changes will
- 					    be triggered. */
+					    be triggered. */
 
-    Notifier<EventManager> 		forceReload;
-    					/*!<When triggered, all
+    Notifier<EventManager>		forceReload;
+					/*!<When triggered, all
 					    EventSets must be
 					    unreffed. Eventual load requirements
 					    should be added. */
     void				addReloadPositions(
-	    						const BinIDValueSet&);
+							const BinIDValueSet&);
     void				addReloadPosition(const BinID&);
 
     void				reportChange(const BinID&);
@@ -199,13 +199,13 @@ public:
 
 
     bool				getDip(const BinIDValue&,int horid,
-	    				       float& inldip, float& crldip );
+					       float& inldip, float& crldip );
 
 protected:
 
     static const char*			sKeyStorageID() { return "PS Picks"; }
     bool				getDip(const BinIDValue&,int horid,
-	    					bool primary,
+						bool primary,
 						float& inldip, float& crldip );
 
     MultiDimStorage<EventSet*>	events_;
@@ -213,7 +213,7 @@ protected:
     MultiID			storageid_;
     VelocityPicks*		velpicks_;
 
-    Color			color_;
+    OD::Color			color_;
 
     TypeSet<int>		horids_;
     TypeSet<MultiID>		horrefs_;
@@ -244,10 +244,10 @@ protected:
 mExpClass(PreStackProcessing) SetPickUndo : public BinIDUndoEvent
 {
 public:
-    			SetPickUndo(EventManager&,const BinID&,int horidx,
+			SetPickUndo(EventManager&,const BinID&,int horidx,
 				    const OffsetAzimuth&,float depth,
 				    unsigned char pickquality);
-    const char*		getStandardDesc() const	{ return "prestack pick"; }
+    const char*		getStandardDesc() const { return "prestack pick"; }
     const BinID&	getBinID() const	{ return bid_; }
 
     bool		unDo();
@@ -260,9 +260,9 @@ protected:
     EventManager&	manager_;
     const BinID		bid_;
     const int		horidx_;
-    const OffsetAzimuth	oa_;
+    const OffsetAzimuth oa_;
     const float		olddepth_;
-    const unsigned char	oldquality_;
+    const unsigned char oldquality_;
     float		newdepth_;
     unsigned char	newquality_;
 };
@@ -275,11 +275,11 @@ protected:
 mExpClass(PreStackProcessing) SetEventUndo : public UndoEvent
 {
 public:
-    			SetEventUndo(EventManager&,const BinID&,int horidx,
+			SetEventUndo(EventManager&,const BinID&,int horidx,
 				    short horid,VSEvent::Type,
 				    unsigned char pickquality);
-    			SetEventUndo(EventManager&,const BinID&,int horidx);
-    const char*		getStandardDesc() const	{ return "prestack pick"; }
+			SetEventUndo(EventManager&,const BinID&,int horidx);
+    const char*		getStandardDesc() const { return "prestack pick"; }
     const BinID&	getBinID() const	{ return bid_; }
 
     bool		unDo();

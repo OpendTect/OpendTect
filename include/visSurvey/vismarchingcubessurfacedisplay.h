@@ -42,8 +42,8 @@ public:
 
     bool			hasColor() const	{ return true; }
     bool			usesColor() const;
-    Color			getColor() const;
-    void			setColor(Color);
+    OD::Color			getColor() const;
+    void			setColor(OD::Color);
     bool			allowMaterialEdit() const { return true; }
     NotifierAccess*		materialChange();
 

@@ -184,8 +184,8 @@ public:
     const Geometry::Element*	sectionGeometry(const SectionID&) const;
     Geometry::Element*		sectionGeometry(const SectionID&);
 
-    const Color&		preferredColor() const;
-    void			setPreferredColor(const Color&,
+    const OD::Color&		preferredColor() const;
+    void			setPreferredColor(const OD::Color&,
 						  bool addtohistory=false);
     const OD::LineStyle&		preferredLineStyle() const;
     void			setPreferredLineStyle(const OD::LineStyle&);
@@ -221,14 +221,14 @@ public:
     virtual void		unlockAll(){};
     virtual const Array2D<char>*
 				getLockedNodes() const { return 0; }
-    virtual void		setLockColor(const Color&);
-    virtual const Color&	getLockColor() const;
+    virtual void		setLockColor(const OD::Color&);
+    virtual const OD::Color&	getLockColor() const;
     virtual bool		hasLockedNodes() const {return haslockednodes_;}
     virtual bool		hasNodeSourceType( const PosID& ) const
 						   { return false; }
 
-    void			setSelectionColor(const Color&);
-    const Color&		getSelectionColor() const;
+    void			setSelectionColor(const OD::Color&);
+    const OD::Color&		getSelectionColor() const;
 
     virtual bool		enableGeometryChecks(bool);
     virtual bool		isGeometryChecksEnabled() const;
@@ -342,7 +342,7 @@ protected:
     class EMManager&		manager_;
     uiString			errmsg_;
 
-    Color&			preferredcolor_;
+    OD::Color&			preferredcolor_;
     OD::LineStyle&		preferredlinestyle_;
     MarkerStyle3D&		preferredmarkerstyle_;
     ObjectSet<PosAttrib>	posattribs_;
@@ -357,8 +357,8 @@ protected:
     int				burstalertcount_;
     Threads::Lock		setposlock_;
     bool			haslockednodes_;
-    Color			lockcolor_;
-    Color			selectioncolor_;
+    OD::Color			lockcolor_;
+    OD::Color			selectioncolor_;
 
     bool			insideselremoval_;
     bool			selremoving_;

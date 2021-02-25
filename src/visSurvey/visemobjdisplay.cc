@@ -371,7 +371,7 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 	    posattribs_ += attr;
 	    visBase::MarkerSet* markerset = visBase::MarkerSet::create();
 	    markerset->ref();
-	    markerset->setMarkersSingleColor( Color::White() );
+	    markerset->setMarkersSingleColor( OD::Color::White() );
 	    addChild( markerset->osgNode() );
 	    posattribmarkers_ += markerset;
 	    markerset->setMaterial( 0 );
@@ -437,7 +437,7 @@ bool EMObjectDisplay::displayedOnlyAtSections() const
 { return displayonlyatsections_; }
 
 
-void EMObjectDisplay::setColor( Color col )
+void EMObjectDisplay::setColor( OD::Color col )
 {
     if ( emobject_ )
     {
@@ -453,7 +453,7 @@ void EMObjectDisplay::setColor( Color col )
 }
 
 
-Color EMObjectDisplay::getColor() const
+OD::Color EMObjectDisplay::getColor() const
 {
     if ( emobject_ )
 	return emobject_->preferredColor();
@@ -753,7 +753,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 	if ( !pos.isDefined() )
 	    continue;
 	const int mkpos = markerset->addPos( pos, false );
-	Color clr = emobject_->getPosAttrMarkerStyle(attrib).color_;
+	OD::Color clr = emobject_->getPosAttrMarkerStyle(attrib).color_;
 
 	if ( hor3d )
 	{
@@ -903,7 +903,7 @@ void EMObjectDisplay::updateSelections()
     mDynamicCastGet( EM::Horizon2D*, hor2d, emobject_ );
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
 
-    Color selectioncolor =  Color::Orange();
+    OD::Color selectioncolor =	OD::Color::Orange();
     if ( hor2d || hor3d )
     {
 	selectioncolor = hor3d ? hor3d->getSelectionColor() :
@@ -918,7 +918,7 @@ void EMObjectDisplay::updateSelections()
 	    if ( !markerset )
 		continue;
 
-	    markerset->getMaterial()->setColor( Color::White(),idy );
+	    markerset->getMaterial()->setColor( OD::Color::White(), idy );
 	    const visBase::Coordinates* coords = markerset->getCoordinates();
 	    if ( !coords )
 		continue;
@@ -959,7 +959,7 @@ void EMObjectDisplay::clearSelections()
 void EMObjectDisplay::unSelectAll()
 {
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
-	posattribmarkers_[idx]->setMarkersSingleColor( Color::White() );
+	posattribmarkers_[idx]->setMarkersSingleColor( OD::Color::White() );
 
     clearSelections();
     // if there are locked seeds, we need recover their color.
@@ -975,7 +975,8 @@ void EMObjectDisplay::updateLockedSeedsColor()
     visBase::MarkerSet* markerset = posattribmarkers_[attribindex];
     if ( !markerset ) return;
 
-    const Color seedclr = emobject_->getPosAttrMarkerStyle(attribindex).color_;
+    const OD::Color seedclr =
+			emobject_->getPosAttrMarkerStyle(attribindex).color_;
 
     const visBase::Coordinates* coords = markerset->getCoordinates();
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );

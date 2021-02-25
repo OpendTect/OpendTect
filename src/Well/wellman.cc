@@ -366,8 +366,8 @@ bool Well::Man::getAllMarkerNames( BufferStringSet& nms, bool onlyloaded )
 }
 
 
-bool Well::Man::getAllMarkerInfo( BufferStringSet& nms, TypeSet<Color>& cols,
-				  bool onlyloaded )
+bool Well::Man::getAllMarkerInfo( BufferStringSet& nms,
+				    TypeSet<OD::Color>& cols, bool onlyloaded )
 {
     nms.setEmpty();
     cols.setEmpty();
@@ -378,7 +378,7 @@ bool Well::Man::getAllMarkerInfo( BufferStringSet& nms, TypeSet<Color>& cols,
 	ConstRefMan<Well::Data> wd = Well::MGR().get( ids[idx],
 						Well::LoadReqs(Well::Mrkrs) );
 	BufferStringSet markernms;
-	TypeSet<Color> colors;
+	TypeSet<OD::Color> colors;
 	wd->markers().getNames( markernms );
 	wd->markers().getColors( colors );
 	for ( int im=0; im<markernms.size(); im++ )
@@ -424,7 +424,7 @@ bool Well::Man::getMarkersByID( const MultiID& mid, BufferStringSet& nms )
 
 
 bool Well::Man::getMarkersByID( const MultiID& mid, BufferStringSet& nms,
-				TypeSet<Color>& cols )
+				TypeSet<OD::Color>& cols )
 {
     nms.setEmpty();
     cols.setEmpty();
@@ -443,7 +443,7 @@ bool Well::Man::getMarkersByID( const MultiID& mid, BufferStringSet& nms,
 
 
 bool Well::Man::getMarkersByID( const MultiID& mid, BufferStringSet& nms,
-				TypeSet<Color>& cols, TypeSet<float>& zs )
+				TypeSet<OD::Color>& cols, TypeSet<float>& zs )
 {
     nms.setEmpty();
     cols.setEmpty();
