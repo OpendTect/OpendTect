@@ -19,9 +19,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "angles.h"
 #include "draw.h"
+#include "hiddenparam.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 
+
+static HiddenParam<uiSurveyBoxObject,char> asworkarea('0');
 
 uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     : uiBaseMapObject(bmo)
@@ -52,6 +55,26 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     }
 
     graphitem_.setZValue( -1 );
+
+    asworkarea.setParam( this, false );
+}
+
+
+uiSurveyBoxObject::~uiSurveyBoxObject()
+{
+    asworkarea.removeParam( this );
+}
+
+
+void uiSurveyBoxObject::setAsWorkArea( bool yn )
+{
+    asworkarea.setParam( this, yn );
+}
+
+
+bool uiSurveyBoxObject::asWorkArea() const
+{
+    return asworkarea.getParam( this );
 }
 
 
@@ -93,7 +116,7 @@ void uiSurveyBoxObject::update()
 	{ setVisibility( false ); return; }
 
     const SurveyInfo& si = *survinfo_;
-    const TrcKeyZSampling& cs = si.sampling( false );
+    const TrcKeyZSampling& cs = si.sampling( asWorkArea() );
     TypeSet<uiWorldPoint> mapcnr; mapcnr.setSize( 4 );
     mapcnr[0] = si.transform( cs.hsamp_.start_ );
     mapcnr[1] = si.transform(

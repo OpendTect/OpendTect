@@ -25,7 +25,6 @@ class SurveyDiskLocation;
 namespace Coords { class CoordSystem; }
 
 
-
 /*!
 \brief Holds survey general information.
 
@@ -211,6 +210,7 @@ public:
 	// These fns are rarely used by non-specialist classes.
 			mDeclInstanceCreatedNotifierAccess(SurveyInfo);
 
+    bool		isWorkRangeSet() const;
     void		setWorkRange(const TrcKeyZSampling&);
     Notifier<SurveyInfo> workRangeChg;
 
