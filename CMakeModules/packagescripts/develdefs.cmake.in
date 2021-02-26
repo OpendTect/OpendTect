@@ -5,25 +5,14 @@
 #RCS:           $Id$
 
 #OpenDtect modules and plugins
-set( ODLIBLIST @OD_MODULES@ qt.conf )
+set( ODLIBLIST @OD_CORE_MODULE_NAMES_od@ )
 
 set( ODPLUGINS @OD_PLUGINS@ )
 
 set( SPECSOURCES @OD_SPECPROGS@ )
 
+set( EXECLIST @OD_BASE_EXECUTABLE@ )
+
 set( SPECFILES "" )
-
-set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer
-	      od_main od_sysadmmain od_process_attrib od_process_attrib_em
-	      od_process_prestack od_process_segyio od_process_time2depth
-	      od_process_velocityconv od_process_volume
-	      od_ProgressViewer od_DispMsg od_ImageViewer
-	      od_FileBrowser od_SEGYExaminer od_SeisMMBatch od_ClusterProc
-	      od_process_2dgrid od_remexec od_remoteservice
-	      od_stratamp od_isopach od_uiReportIssue od_main_console
-	      od_gmtexec od_madexec od_process_2dto3d od_BatchHosts
-	      od_copy_seis od_PreStackMMBatch od_WellMan od_DBMan
-	      od_FirewallProcSetter od_Setup_Firewall)
-
 
 set( PACK "devel" )
