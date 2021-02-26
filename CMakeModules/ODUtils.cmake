@@ -447,6 +447,13 @@ OPTION ( OD_CREATE_COMPILE_DATABASE "Create compile_commands.json database for a
 if ( OD_CREATE_COMPILE_DATABASE )
     set( CMAKE_EXPORT_COMPILE_COMMANDS "ON" )
 endif()
+
+macro( GET_OD_BASE_EXECUTABLES )
+    foreach(  MODULE ${OD_CORE_MODULE_NAMES_od} ${OD_SPECPROGS} ${OD_PLUGINS} )
+	list( APPEND OD_BASE_EXECUTABLE ${OD_${MODULE}_PROGS} )
+    endforeach()
+endmacro()
+
 # Used compile_commands.json for include-what-you-use
 # python3 /usr/local/bin/iwyu_tool.py -p . > iwyu_results.txt
 # Note that this tool is of limited use as it wants to dictate all includes

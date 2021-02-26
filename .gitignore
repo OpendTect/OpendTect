@@ -85,6 +85,7 @@ CMakeDoxy*
 .ninja_log
 .ninja_deps
 develdefs.cmake
+basedefs.cmake
 cmake_install.cmake
 CTestTestfile.cmake
 DartConfiguration.tcl

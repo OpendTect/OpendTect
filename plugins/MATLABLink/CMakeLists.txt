@@ -84,5 +84,9 @@ if ( NOT MATLAB_DIR STREQUAL "" )
 	install( DIRECTORY ${OUTDIR} DESTINATION
 		 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
     endif()
+else()
+    get_filename_component( OD_MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
+    list( REMOVE_ITEM OD_PLUGINS ${OD_MODULE_NAME} )
+    set( OD_PLUGINS ${OD_PLUGINS} PARENT_SCOPE )
 endif()
 
