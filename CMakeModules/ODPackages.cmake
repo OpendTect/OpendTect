@@ -4,7 +4,7 @@
 # Date:		August 2012		
 
 
-macro( OD_CREATE_DEVEL_PACKAGE_DEFINITION )
+macro( OD_CREATE_PACKAGE_DEFINITION )
     configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/develdefs.cmake.in
 		    ${CMAKE_BINARY_DIR}/CMakeModules/packagescripts/develdefs.cmake
 		    @ONLY )
