@@ -20,6 +20,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellman.h"
 #include "wellreader.h"
 
+#include "hiddenparam.h"
+
+HiddenParam<Well::Data,BufferStringSet*> hp_lognms_(nullptr);
+
 // Keys for IOPars
 const char* Well::Info::sKeyDepthUnit() { return sKey::DepthUnit(); }
 const char* Well::Info::sKeyUwid()	{ return "Unique Well ID"; }
@@ -235,6 +239,8 @@ Well::Data::Data( const char* nm )
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
     lvlset.levelToBeRemoved.notify( mCB(this, Well::Data, levelToBeRemoved ) );
+
+    hp_lognms_.setParam( this, new BufferStringSet );
 }
 
 
@@ -250,6 +256,8 @@ Well::Data::~Data()
 
     Strat::eLVLS().levelToBeRemoved.remove(
 				mCB(this, Well::Data, levelToBeRemoved ) );
+
+    hp_lognms_.removeAndDeleteParam( this );
 }
 
 
@@ -267,7 +275,8 @@ bool Well::Data::haveMarkers() const
 
 bool Well::Data::haveLogs() const
 {
-    return !logs_.isEmpty();
+    const BufferStringSet& lognms = storedLogNames();
+    return !lognms.isEmpty();
 }
 
 
@@ -327,18 +336,19 @@ Well::LoadReqs Well::Data::loadState() const
 	lreqs.add( Well::CSMdl );
     if ( haveLogs() )
     {
+	const BufferStringSet& lognms = storedLogNames();
 	int nloaded = 0;
 	for ( int idx=0; idx<logs_.size(); idx++ )
 	{
 	    if ( logs_.getLog( idx ).isLoaded() )
 		nloaded++;
 	}
-	if (nloaded == logs_.size())
+	if (nloaded == lognms.size())
 	{
 	    lreqs.add(Well::Logs);
 	    lreqs.add(Well::LogInfos);
 	}
-	else
+	else if ( logs_.size() == lognms.size() )
 	    lreqs.add( Well::LogInfos );
 
     }
@@ -350,7 +360,9 @@ Well::LoadReqs Well::Data::loadState() const
 
 const Well::Log* Well::Data::getLog( const char* nm ) const
 {
-    if ( !logs().isLoaded( nm ) )
+    const BufferStringSet& lognms = storedLogNames();
+
+    if ( lognms.isPresent( nm ) && !logs().isLoaded( nm ) )
     {
 	Well::Data& wd = const_cast<Well::Data&>(*this);
 	Well::Reader rdr( mid_, wd );
@@ -366,7 +378,9 @@ const Well::Log* Well::Data::getLog( const char* nm ) const
 
 Well::Log* Well::Data::getLogForEdit( const char* nm )
 {
-    if ( !logs().isLoaded( nm ) )
+    const BufferStringSet& lognms = storedLogNames();
+
+    if ( lognms.isPresent( nm ) && !logs().isLoaded( nm ) )
     {
 	Well::Reader rdr( mid_, *this );
 	if ( !rdr.getLog( nm ) )
@@ -376,6 +390,15 @@ Well::Log* Well::Data::getLogForEdit( const char* nm )
 	}
     }
     return logs().getLog( nm );
+}
+
+
+const BufferStringSet& Well::Data::storedLogNames() const
+{
+    BufferStringSet* lognms = hp_lognms_.getParam( this );
+    if ( lognms->isEmpty() )
+	Well::MGR().getLogNamesByID( mid_, *lognms );
+    return *lognms;
 }
 
 

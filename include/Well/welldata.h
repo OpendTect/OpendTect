@@ -155,6 +155,7 @@ public:
 
     const Well::Log*		getLog(const char* lognm) const;
     Well::Log*			getLogForEdit(const char* lognm);
+    const BufferStringSet&	storedLogNames() const;
 
     bool			haveLogs() const;
     bool			haveMarkers() const;
