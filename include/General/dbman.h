@@ -146,6 +146,7 @@ private:
     friend class	BatchProgram;
     friend class	ServiceMgrBase;
     friend class	uiMain;
+    friend class	uiMainWin;
 
 public:
 
