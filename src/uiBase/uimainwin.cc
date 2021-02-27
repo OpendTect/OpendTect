@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 
 #include "file.h"
+#include "ioman.h"
 #include "msgh.h"
 #include "q_uiimpl.h"
 #include "texttranslator.h"
@@ -127,6 +128,13 @@ uiMainWin::~uiMainWin()
 
     if ( !body_->deletefrombody_ )
     {
+	if ( body_->exitapponclose_ )
+	{
+	    /* Sending the signal too soon, but avoids
+	    * crashes with legacy code when the top level
+	    * application is closed.    */
+	    IOM().applClosing();
+	}
 	body_->deletefromod_ = true;
 	delete body_;
     }
