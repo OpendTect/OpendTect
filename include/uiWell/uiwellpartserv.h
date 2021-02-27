@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 namespace Well { class Data; class LogDisplayParSet; }
+namespace OD { class Color; }
 
 class uiBulkDirectionalImport;
 class uiBulkD2TModelImport;
