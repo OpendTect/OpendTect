@@ -48,20 +48,21 @@ mDefODPluginInfo(uiDPSDemo)
 }
 
 
-class uiDPSDemoMgr :  public CallBacker
+class uiDPSDemoMgr :  public uiPluginInitMgr
 { mODTextTranslationClass(uiDPSDemoMgr)
 public:
 
-			uiDPSDemoMgr(uiODMain&);
-			~uiDPSDemoMgr();
-
-    uiODMain&		appl_;
-
-    void		insertMenuItem(CallBacker* cb=0);
-    void		insertIcon(CallBacker* cb=0);
-    void		doIt(CallBacker*);
+			uiDPSDemoMgr();
 
 private:
+
+    uiDialog*		dlg_ = nullptr;
+
+    void		dTectMenuChanged() override;
+    void		dTectToolbarChanged() override;
+    void		cleanup() override;
+
+    void		showDlgCB(CallBacker*);
 
     const uiString	sDPSDemo();
 };
@@ -69,21 +70,10 @@ private:
 static const char* pixmapfilename = "dpsdemo";
 
 
-uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )
-	: appl_(a)
+uiDPSDemoMgr::uiDPSDemoMgr()
+    : uiPluginInitMgr()
 {
-    uiODMenuMgr& mnumgr = appl_.menuMgr();
-    mAttachCB( mnumgr.dTectMnuChanged, uiDPSDemoMgr::insertMenuItem );
-    mAttachCB( mnumgr.dTectTBChanged, uiDPSDemoMgr::insertIcon );
-
-    insertMenuItem();
-    insertIcon();
-}
-
-
-uiDPSDemoMgr::~uiDPSDemoMgr()
-{
-    detachAllNotifiers();
+    init();
 }
 
 
@@ -92,39 +82,54 @@ const uiString uiDPSDemoMgr::sDPSDemo()
     return tr("DataPointSet Demo");
 }
 
-void uiDPSDemoMgr::insertMenuItem( CallBacker* )
+
+void uiDPSDemoMgr::dTectMenuChanged()
 {
     if ( SI().has3D() )
-	appl_.menuMgr().analMnu()->insertAction(
-	      new uiAction(
-	      uiStrings::phrThreeDots(sDPSDemo()),
-	      mCB(this,uiDPSDemoMgr,doIt),pixmapfilename) );
+    {
+	auto* action = new uiAction( uiStrings::phrThreeDots( sDPSDemo() ),
+	    mCB( this, uiDPSDemoMgr, showDlgCB ),
+	    pixmapfilename );
+	appl().menuMgr().analMnu()->insertAction( action );
+    }
 }
 
 
-void uiDPSDemoMgr::insertIcon( CallBacker* )
+void uiDPSDemoMgr::dTectToolbarChanged()
 {
     if ( SI().has3D() )
-	appl_.menuMgr().dtectTB()->addButton( pixmapfilename,
-			sDPSDemo(), mCB(this,uiDPSDemoMgr,doIt) );
+    {
+	appl().menuMgr().dtectTB()->addButton( pixmapfilename, sDPSDemo(),
+			    mCB(this,uiDPSDemoMgr,showDlgCB) );
+    }
 }
 
 
-void uiDPSDemoMgr::doIt( CallBacker* )
+void uiDPSDemoMgr::cleanup()
 {
-    uiDPSDemo dpsdemo( &appl_, appl_.applMgr().visDPSDispMgr() );
-    dpsdemo.go();
+    closeAndZeroPtr( dlg_ );
+    uiPluginInitMgr::cleanup();
+}
+
+
+void uiDPSDemoMgr::showDlgCB( CallBacker* )
+{
+    if ( !dlg_ )
+    {
+	dlg_ = new uiDPSDemo( &appl(), appl_.applMgr().visDPSDispMgr() );
+	dlg_->setModal( false );
+    }
+
+    dlg_->show();
 }
 
 
 mDefODInitPlugin(uiDPSDemo)
 {
-    mDefineStaticLocalObject( PtrMan<uiDPSDemoMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiDPSDemoMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiDPSDemoMgr>, theinst_,
+			    = new uiDPSDemoMgr() );
     if ( !theinst_ )
 	return "Cannot instantiate DPS Demo plugin";
 
-    return 0;
+    return nullptr;
 }

@@ -167,6 +167,13 @@ bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
 void uiMainWin::setForceFinalise( bool yn )	{ body_->force_finalise_ = yn; }
 
+void uiMainWin::forceClose()
+{
+    if ( !isModal() )
+	setDeleteOnClose( true );
+    close();
+}
+
 
 void uiMainWin::setCaption( const uiString& txt )
 {

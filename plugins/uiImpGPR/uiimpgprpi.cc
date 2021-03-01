@@ -47,36 +47,29 @@ mDefODPluginInfo(uiImpGPR)
 }
 
 
-class uiImpGPRMgr :  public CallBacker
+class uiImpGPRMgr :  public uiPluginInitMgr
 {
 public:
 
-			uiImpGPRMgr(uiODMain&);
-			~uiImpGPRMgr();
+			uiImpGPRMgr();
 
-    uiODMain&		appl_;
-    void		updMnu(CallBacker*);
+private:
+
+    void		dTectMenuChanged() override;
     void		doWork(CallBacker*);
 };
 
 
-uiImpGPRMgr::uiImpGPRMgr( uiODMain& a )
-	: appl_(a)
+uiImpGPRMgr::uiImpGPRMgr()
+    : uiPluginInitMgr()
 {
-    mAttachCB( appl_.menuMgr().dTectMnuChanged, uiImpGPRMgr::updMnu );
-    updMnu(0);
+    init();
 }
 
 
-uiImpGPRMgr::~uiImpGPRMgr()
+void uiImpGPRMgr::dTectMenuChanged()
 {
-    detachAllNotifiers();
-}
-
-
-void uiImpGPRMgr::updMnu( CallBacker* )
-{
-    appl_.menuMgr().getMnu( true, uiODApplMgr::Seis )->insertAction(
+    appl().menuMgr().getMnu( true, uiODApplMgr::Seis )->insertAction(
 	new uiAction(toUiString(menunm),mCB(this,uiImpGPRMgr,doWork),"gpr") );
 }
 
@@ -187,19 +180,18 @@ void uiImpGPRMgr::doWork( CallBacker* )
 {
     if ( !uiSurvey::survTypeOKForUser(true) ) return;
 
-    uiDZTImporter dlg( &appl_ );
+    uiDZTImporter dlg( &appl() );
     dlg.go();
 }
 
 
 mDefODInitPlugin(uiImpGPR)
 {
-    mDefineStaticLocalObject( PtrMan<uiImpGPRMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiImpGPRMgr>, theinst_,
+	= new uiImpGPRMgr() );
 
-    theinst_ = new uiImpGPRMgr( *ODMainWin() );
     if ( !theinst_ )
 	return "Cannot instantiate ImpGPR plugin";
 
-    return 0; // All OK - no error messages
+    return nullptr; // All OK - no error messages
 }

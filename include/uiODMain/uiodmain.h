@@ -154,19 +154,18 @@ protected:
 			uiPluginInitMgr();
     virtual void	init();
 
-    virtual void	beforeSurveyChange()		{}
+    virtual void	beforeSurveyChange() { cleanup(); }
     virtual void	afterSurveyChange()		{}
-    virtual void	applicationClosing()		{}
     virtual void	dTectMenuChanged()		{}
     virtual void	dTectToolbarChanged()		{}
     virtual void	treeAdded(int sceneid)		{}
+    virtual void	cleanup()			{}
 
     uiODMain&		appl_;
 
 private:
     void		beforeSurvChgCB(CallBacker*);
     void		afterSurvChgCB(CallBacker*);
-    void		applCloseCB(CallBacker*);
     void		menuChgCB(CallBacker*);
     void		tbChgCB(CallBacker*);
     void		treeAddCB(CallBacker*);

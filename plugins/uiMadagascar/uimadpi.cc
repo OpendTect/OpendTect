@@ -51,66 +51,47 @@ static bool checkEnvVars( uiString& msg )
 }
 
 
-class uiMadagascarLink	: public CallBacker
+class uiMadagascarLink	: public uiPluginInitMgr
 { mODTextTranslationClass(uiMadagascarLink);
 public:
-			uiMadagascarLink(uiODMain&);
-			~uiMadagascarLink();
+			uiMadagascarLink();
 
-    uiODMain&		appl_;
-    uiODMenuMgr&	mnumgr;
-    uiMadagascarMain*	madwin_;
-    bool		ishidden_;
+private:
 
-    void		doMain(CallBacker*);
-    void		updateToolBar(CallBacker*);
-    void		updateMenu(CallBacker*);
-    void		survChg(CallBacker*);
+    uiMadagascarMain*	madwin_ = nullptr;
+    bool		ishidden_ = false;
+
+    void		dTectMenuChanged() override;
+    void		cleanup() override;
+
+    void		doMain( CallBacker* );
     void		winHide(CallBacker*);
 
 };
 
 
-uiMadagascarLink::uiMadagascarLink( uiODMain& a )
-    : mnumgr(a.menuMgr())
-    , madwin_(0)
-    , ishidden_(false)
-    , appl_(a)
+uiMadagascarLink::uiMadagascarLink()
+    : uiPluginInitMgr()
 {
-    mAttachCB( mnumgr.dTectTBChanged, uiMadagascarLink::updateToolBar );
-    mAttachCB( mnumgr.dTectMnuChanged, uiMadagascarLink::updateMenu );
-    mAttachCB( IOM().surveyToBeChanged, uiMadagascarLink::survChg );
-    updateToolBar(0);
-    updateMenu(0);
+    init();
 }
 
 
-uiMadagascarLink::~uiMadagascarLink()
+void uiMadagascarLink::dTectMenuChanged()
 {
-    detachAllNotifiers();
+    auto* action = new uiAction( m3Dots(tr("Madagascar")),
+				 mCB(this,uiMadagascarLink,doMain),
+				 "madagascar" );
+    appl().menuMgr().procMnu()->insertAction( action );
 }
 
 
-void uiMadagascarLink::updateToolBar( CallBacker* )
+void uiMadagascarLink::cleanup()
 {
-}
-
-
-void uiMadagascarLink::updateMenu( CallBacker* )
-{
-    delete madwin_; madwin_ = 0; ishidden_ = false;
-    uiAction* newitem = new uiAction( m3Dots(tr("Madagascar")),
-					  mCB(this,uiMadagascarLink,doMain),
-					  "madagascar" );
-    mnumgr.procMnu()->insertAction( newitem );
-}
-
-
-void uiMadagascarLink::survChg( CallBacker* )
-{
-    if ( !madwin_ ) return;
-
-    madwin_->askSave(false);
+    if ( madwin_ )
+	madwin_->askSave( false );
+    closeAndZeroPtr( madwin_ );
+    uiPluginInitMgr::cleanup();
 }
 
 
@@ -131,8 +112,8 @@ void uiMadagascarLink::doMain( CallBacker* )
 
     if ( !madwin_ )
     {
-	madwin_ = new uiMadagascarMain( &appl_ );
-	madwin_->windowHide.notify( mCB(this,uiMadagascarLink,winHide) );
+	madwin_ = new uiMadagascarMain( &appl() );
+	mAttachCB( madwin_->windowHide, uiMadagascarLink::winHide );
     }
 
     ishidden_ = false;
@@ -143,10 +124,9 @@ void uiMadagascarLink::doMain( CallBacker* )
 
 mDefODInitPlugin(uiMadagascar)
 {
-    mDefineStaticLocalObject( PtrMan<uiMadagascarLink>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiMadagascarLink>, theinst_,
+		= new uiMadagascarLink() );
 
-    theinst_ = new uiMadagascarLink( *ODMainWin() );
     if ( !theinst_ )
 	return ODMad::PI().errMsg().getFullString().str();
 
@@ -161,5 +141,5 @@ mDefODInitPlugin(uiMadagascar)
 	uiMSG().error( ODMad::PI().errMsg() );
 #endif
 
-    return 0;
+    return nullptr;
 }

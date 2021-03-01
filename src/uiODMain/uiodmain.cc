@@ -715,7 +715,7 @@ bool uiODMain::go()
     show();
 
     Timer tm( "Handle startup session" );
-    tm.tick.notify( mCB(this,uiODMain,afterSurveyChgCB) );
+    mAttachCB( tm.tick, uiODMain::afterSurveyChgCB );
     tm.start( 200, true );
 
     const int rv = uiapp_.exec();
@@ -896,7 +896,6 @@ uiPluginInitMgr::uiPluginInitMgr()
 {
     mAttachCB( IOM().surveyToBeChanged, uiPluginInitMgr::beforeSurvChgCB );
     mAttachCB( IOM().surveyChanged, uiPluginInitMgr::afterSurvChgCB );
-    mAttachCB( IOM().applicationClosing, uiPluginInitMgr::applCloseCB );
     mAttachCB( appl_.menuMgr().dTectMnuChanged, uiPluginInitMgr::menuChgCB );
     mAttachCB( appl_.menuMgr().dTectTBChanged, uiPluginInitMgr::tbChgCB );
     mAttachCB( appl_.sceneMgr().treeAdded, uiPluginInitMgr::treeAddCB );
@@ -921,9 +920,6 @@ void uiPluginInitMgr::beforeSurvChgCB( CallBacker* )
 
 void uiPluginInitMgr::afterSurvChgCB( CallBacker* )
 { afterSurveyChange(); }
-
-void uiPluginInitMgr::applCloseCB( CallBacker* )
-{ applicationClosing(); }
 
 void uiPluginInitMgr::menuChgCB( CallBacker* )
 { dTectMenuChanged(); }

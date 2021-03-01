@@ -98,6 +98,7 @@ public:
     virtual void	show();
     void		close();
     void		raise();
+    void		forceClose();
 
     void		showMaximized();
     void		showMinimized();
@@ -245,3 +246,11 @@ public:
 
 };
 
+
+template <class T>
+void closeAndZeroPtr( T*& ptr )
+{
+    auto* uimw = dCast( uiMainWin*, ptr );
+    if ( uimw ) uimw->forceClose();
+    ptr = nullptr;
+}

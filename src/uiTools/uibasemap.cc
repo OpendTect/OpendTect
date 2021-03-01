@@ -128,8 +128,8 @@ void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
 void uiBaseMapObject::addToGraphItem( uiGraphicsItem& itm )
 {
     graphitem_.addChild( &itm );
-    itm.leftClicked.notify( mCB(this,uiBaseMapObject,leftClickCB) );
-    itm.rightClicked.notify( mCB(this,uiBaseMapObject,rightClickCB) );
+    mAttachCB( itm.leftClicked, uiBaseMapObject::leftClickCB );
+    mAttachCB( itm.rightClicked, uiBaseMapObject::rightClickCB );
 }
 
 
@@ -181,8 +181,7 @@ void uiBaseMapObject::update()
 
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
-		    uiPolyLineItem* itm = new uiPolyLineItem();
-		    addToGraphItem( *itm );
+		    addToGraphItem( *new uiPolyLineItem() );
 		}
 
 		mDynamicCastGet(uiPolyLineItem*,itm,graphitem_.getChild(itemnr))
@@ -207,8 +206,7 @@ void uiBaseMapObject::update()
 
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
-		    uiPolygonItem* itm = new uiPolygonItem();
-		    addToGraphItem( *itm );
+		    addToGraphItem( *new uiPolygonItem() );
 		}
 
 		mDynamicCastGet(uiPolygonItem*,itm,graphitem_.getChild(itemnr))
@@ -240,7 +238,7 @@ void uiBaseMapObject::update()
 
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
-		    uiPixmapItem* itm =	new uiPixmapItem( uiPixmap(imgfnm) );
+		    auto* itm =	new uiPixmapItem( uiPixmap(imgfnm) );
 		    itm->setPaintInCenter( true );
 		    graphitem_.addChild( itm );
 		}
@@ -274,8 +272,7 @@ void uiBaseMapObject::update()
 
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
-		    uiMarkerItem* itm = new uiMarkerItem();
-		    addToGraphItem( *itm );
+		    addToGraphItem( *new uiMarkerItem() );
 		}
 
 		mDynamicCastGet(uiMarkerItem*,itm,graphitem_.getChild(itemnr));
@@ -293,8 +290,7 @@ void uiBaseMapObject::update()
 	{
 	    if ( labelitem_.nrChildren()<=labelitemnr )
 	    {
-		uiTextItem* itm = new uiTextItem();
-		addLabel( *itm );
+		addLabel( *new uiTextItem() );
 	    }
 
 	    mDynamicCastGet(uiTextItem*,itm,labelitem_.getChild(labelitemnr));
@@ -394,12 +390,13 @@ uiBaseMap::uiBaseMap( uiParent* p )
     , centerworlditem_(false)
 {
     view_.scene().addItem( &worlditem_ );
-    view_.reSize.notify( mCB(this,uiBaseMap,reSizeCB) );
+    mAttachCB( view_.reSize, uiBaseMap::reSizeCB );
 }
 
 
 uiBaseMap::~uiBaseMap()
 {
+    detachAllNotifiers();
     deepErase( objects_ );
     view_.scene().removeItem( &worlditem_ );
     delete &view_;

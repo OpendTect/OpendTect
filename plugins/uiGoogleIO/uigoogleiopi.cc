@@ -53,15 +53,16 @@ mDefODPluginInfo(uiGoogleIO)
 }
 
 
-class uiGoogleIOMgr : public CallBacker
+class uiGoogleIOMgr : public uiPluginInitMgr
 { mODTextTranslationClass(uiGoogleIOMgr);
 public:
 
-			uiGoogleIOMgr(uiODMain&);
+			uiGoogleIOMgr();
 			~uiGoogleIOMgr();
 
-    uiODMain&		appl_;
-    uiSeis2DFileMan*	cur2dfm_;
+private:
+
+    uiSeis2DFileMan*	cur2dfm_ = nullptr;
     uiVisMenuItemHandler psmnuitmhandler_;
     uiVisMenuItemHandler rlmnuitmhandler_;
 
@@ -73,7 +74,6 @@ public:
     void		mkExportWellsIcon(CallBacker*);
     void		mkExportLinesIcon(CallBacker*);
 
-private:
     static uiString	sToolTipTxt()
 			{ return tr("Export to Google KML"); }
     static uiString	sMenuTxt()
@@ -81,15 +81,16 @@ private:
 };
 
 
-uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
-    : appl_(a)
+uiGoogleIOMgr::uiGoogleIOMgr()
+    : uiPluginInitMgr()
     , psmnuitmhandler_( visSurvey::PickSetDisplay::sFactoryKeyword(),
-			*a.applMgr().visServer(), sMenuTxt(),
+			*appl().applMgr().visServer(), sMenuTxt(),
 			mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
     , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::sFactoryKeyword(),
-			*a.applMgr().visServer(),sMenuTxt(),
+			*appl().applMgr().visServer(),sMenuTxt(),
 			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
 {
+    init();
     psmnuitmhandler_.setIcon( "google" );
     rlmnuitmhandler_.setIcon( "google" );
     uiSurvey::add( uiSurvey::Util( "google",
@@ -223,12 +224,10 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
 
 mDefODInitPlugin(uiGoogleIO)
 {
-    mDefineStaticLocalObject( PtrMan<uiGoogleIOMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiGoogleIOMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiGoogleIOMgr>, theinst_,
+		= new uiGoogleIOMgr() );
     if ( !theinst_ )
 	return "Cannot instantiate GoogleIO plugin";
 
-    return 0;
+    return nullptr;
 }
