@@ -15,12 +15,11 @@ ________________________________________________________________________
 
 #include "visobject.h"
 
-class Color;
 namespace Pick { class Location; }
 
 namespace visBase
-{ 
-    class DrawStyle; 
+{
+    class DrawStyle;
     class Lines;
     class MarkerSet;
     class DataObjectGroup;
@@ -37,7 +36,7 @@ public:
 				mCreateDataObj(ScaleBar);
 
     void			setPick(const Pick::Location&);
-    
+
     void			setLineWidth(int);
     void			setLength(double);
 

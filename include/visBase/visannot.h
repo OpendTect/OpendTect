@@ -22,7 +22,6 @@ ________________________________________________________________________
 
 class AxisInfo;
 class FontData;
-class Color;
 class uiString;
 
 namespace osg

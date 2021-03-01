@@ -193,7 +193,7 @@ protected:
 
     // methods for volume-based display
     TrcKeyZSampling	getTrcKeyZSampling(bool manippos,bool display,
-			    		int attrib) const;
+					int attrib) const;
 
     void		triggerSel();
     void		triggerDeSel();
@@ -258,10 +258,10 @@ protected:
     static const char*		sKeyInDepthBoxResize()
 						{ return "InDepthBoxResize"; }
 
-    static const Color		reTrackColor;
-    static const Color		eraseColor;
-    static const Color		movingColor;
-    static const Color		extendColor;
+    static const OD::Color	reTrackColor;
+    static const OD::Color	eraseColor;
+    static const OD::Color	movingColor;
+    static const OD::Color	extendColor;
 
     // volume-related keys
     static const char*		sKeyNrSlices()	{ return "Nr of slices"; }

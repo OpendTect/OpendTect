@@ -16,7 +16,6 @@ ________________________________________________________________________
 #endif
 
 class IOPar;
-class Color;
 class BinID;
 class Coord;
 class Coord3;

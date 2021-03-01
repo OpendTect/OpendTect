@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "posinfo2dsurv.h"
 
 class ZAxisTransform;
-class Color;
 
 namespace visBase
 {
