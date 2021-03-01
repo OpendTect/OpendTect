@@ -86,8 +86,8 @@ void uiPresMakerPIMgr::showDlgCB( CallBacker* )
 
 mDefODInitPlugin(uiPresentationMaker)
 {
-    mDefineStaticLocalObject( uiPresMakerPIMgr*, mgr,
-		    = new uiPresMakerPIMgr() );
+    mDefineStaticLocalObject( PtrMan<uiPresMakerPIMgr>, mgr,
+		    mUnusedVar = new uiPresMakerPIMgr() );
 
     return nullptr;
 }
