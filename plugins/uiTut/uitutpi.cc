@@ -5,7 +5,6 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
@@ -100,14 +99,20 @@ void uiTutMgr::dTectMenuChanged()
 
 
 void uiTutMgr::do3DSeis( CallBacker* )
-{ launchDialog( Seis::Vol ); }
+{
+    launchDialog( Seis::Vol );
+}
 
 
 void uiTutMgr::do2DSeis( CallBacker* )
-{ launchDialog( Seis::Line ); }
+{
+    launchDialog( Seis::Line );
+}
 
 void uiTutMgr::doSeis( CallBacker* )
-{ launchDialog( SI().has2D() ? Seis::Line : Seis::Vol ); }
+{
+    launchDialog( SI().has2D() ? Seis::Line : Seis::Vol );
+}
 
 
 void uiTutMgr::launchDialog( Seis::GeomType tp )
@@ -171,7 +176,7 @@ static HelpProvider* createInstance()
 };
 
 
-const char* InituiTutPlugin( int argc, char** argv )
+mDefODInitPlugin(uiTut)
 {
     mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_,
 		= new uiTutMgr() );
