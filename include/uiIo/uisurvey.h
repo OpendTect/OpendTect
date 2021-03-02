@@ -163,9 +163,10 @@ private:
     BufferString	survName() const;
     bool		has3D() const;
     bool		has2D() const;
+    bool		hasWells() const;
     bool		isTime() const;
     bool		isInFeet() const;
-    void		fillSipsFld(bool have2d,bool have3d);
+    void		fillSipsFld(bool have2d,bool have3d,bool havewells);
     SurveyInfo::Pol2D	pol2D() const;
     void		pol2dChg(CallBacker*);
     void		zdomainChg(CallBacker*);

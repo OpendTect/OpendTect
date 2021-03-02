@@ -55,6 +55,15 @@ uiCheckList& uiCheckList::addItems( const BufferStringSet& itms )
 }
 
 
+uiCheckList& uiCheckList::displayIdx( int idx, bool yn )
+{
+    if ( boxs_.validIdx( idx ) )
+	boxs_[idx]->display( yn );
+
+    return *this;
+}
+
+
 void uiCheckList::setLabel( const uiString& txt )
 {
     if ( lbl_ )

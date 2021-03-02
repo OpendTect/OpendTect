@@ -385,6 +385,15 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
 }
 
 
+uiBulkLogImport::uiBulkLogImport( uiParent* p, const BufferStringSet& filenms )
+    : uiBulkLogImport(p)
+{
+    BufferString fnm;
+    uiFileDialog::list2String( filenms, fnm );
+    inpfld_->setFileName( fnm );
+    lasSel( nullptr );
+}
+
 uiBulkLogImport::~uiBulkLogImport()
 {
     detachAllNotifiers();

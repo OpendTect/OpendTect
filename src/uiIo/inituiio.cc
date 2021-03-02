@@ -18,6 +18,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiposprovgroupstd.h"
 #include "uiposfiltgroupstd.h"
 #include "uisimpletimedepthmodel.h"
+#include "uisurvinfoed.h"
+#include "uisurvey.h"
+#include "ui2dsip.h"
 #include "envvars.h"
 #include "mmbatchjobdispatch.h"
 #include "settings.h"
@@ -77,4 +80,9 @@ mDefModInitFn(uiIo)
     Coords::uiAnchorBasedXYSystem::initClass();
 
     uiSimpleTimeDepthTransform::initClass();
+
+    uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
+    uiSurveyInfoEditor::addInfoProvider(new uiNavSurvInfoProvider);
+    uiSurveyInfoEditor::addInfoProvider( new uiCopySurveySIP );
+    uiSurveyInfoEditor::addInfoProvider( new uiSurveyFileSIP );
 }

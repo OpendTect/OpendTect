@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "coord.h"
 #include "ranges.h"
 
 class LatLong;
@@ -75,6 +76,8 @@ public:
 				{ return "Proceed to import?"; }
 
     virtual IOPar*		getCoordSystemPars() const	{ return 0; }
+
+    static bool		getRanges(TrcKeyZSampling&,Coord[3],Coord,Coord,double);
 
 };
 

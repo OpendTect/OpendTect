@@ -95,6 +95,7 @@ uiRetVal SurveyFile::activate()
     }
     SetCurBaseDataDirOverrule( tmpbasedir_ );
     IOM().setDataSource( tmpbasedir_, surveydirnm_, true );
+    IOM().setSurvey( surveydirnm_ );
     return lasterrs_;
 }
 
@@ -174,13 +175,8 @@ uiRetVal SurveyFile::unmount( bool saveIt, TaskRunner* trun )
 {
     lasterrs_.setEmpty();
     const FilePath surfp( tmpbasedir_, surveydirnm_ );
-    if ( !mounted_ || !File::exists(surfp.fullPath()) )
-    {
-	lasterrs_.set( tr("%1 is not mounted").arg(surveyfile_) );
-	return lasterrs_;
-    }
-
-    if ( saveIt && !save(trun).isOK() )
+    if ( mounted_ && File::exists(surfp.fullPath()) && saveIt
+							&& !save(trun).isOK() )
 	return lasterrs_;
 
     File::removeDir( tmpbasedir_ );

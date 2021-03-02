@@ -4,7 +4,7 @@
 #	Jan 2021	Wayne Mogg
 #_______________________________________________________________________________
 
-set(OD_MODULE_DEPS uiSeis uiWellAttrib)
+set(OD_MODULE_DEPS uiIo uiSeis uiWellAttrib)
 set(OD_IS_PLUGIN yes)
 set(OD_MODULE_SOURCES
     uisegytoolspi.cc

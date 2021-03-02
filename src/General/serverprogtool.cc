@@ -79,10 +79,14 @@ void ServerProgTool::initParsing( int protnr, bool setdatasrc )
 	setDBMDataSource();
 }
 
-
+extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 
 void ServerProgTool::setDBMDataSource()
 {
+    FilePath fp ( clp().getFullSurveyPath() );
+    BufferString dataroot = fp.pathOnly();
+    if ( !dataroot.isEmpty() )
+	SetCurBaseDataDirOverrule( dataroot );
     uiRetVal uirv = IOM().setDataSource( clp() );
     if ( !uirv.isOK() )
 	respondError( toString(uirv) );

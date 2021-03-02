@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "ziputils.h"
 
+extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 
 uiSurveyFile::uiSurveyFile( uiParent* p )
     : parent_(p)
@@ -86,6 +87,18 @@ bool uiSurveyFile::newFile()
 
     const_cast<SurveyDiskLocation&>(
 			newsurvinfo->diskLocation()).setBasePath( dataroot );
+    const_cast<SurveyDiskLocation&>(
+			newsurvinfo->diskLocation()).setDirName( orgdirname );
+    const BufferString storagedir = FilePath( dataroot ).add( orgdirname )
+								.fullPath();
+
+    File::setSystemFileAttrib( storagedir, true );
+    if ( !File::makeWritable( storagedir, true, true ) )
+    {
+	uiMSG().error( tr("Cannot set the permissions for the new survey") );
+	return false;
+    }
+    SetCurBaseDataDirOverrule( dataroot );
     uiSurveyInfoEditor info_dlg( parent_, *(newsurvinfo.release()), true );
     info_dlg.setNameandPathSensitive( false, false );
     if ( !info_dlg.isOK() || !info_dlg.go() )
@@ -104,6 +117,24 @@ bool uiSurveyFile::newFile()
     }
 
     survfile_ = newsurvey.release();
+    IOPar* impiop = info_dlg.getImportPars();
+    uiSurvInfoProvider* impsip = info_dlg.getSIP();
+    if ( impiop && impsip )
+    {
+	const char* askq = impsip->importAskQuestion();
+	if ( askq && *askq && uiMSG().askGoOn(mToUiStringTodo(askq)) )
+	{
+	    MultiID mid;
+	    if ( impiop->get( sKey::ID(), mid ) )
+	    {
+		IOM().to( mid );
+	    }
+	    else
+		IOM().to( "100010" );
+	    impsip->startImport( parent_, *impiop );
+	}
+    }
+
     return true;
 }
 

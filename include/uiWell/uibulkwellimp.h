@@ -50,6 +50,7 @@ mExpClass(uiWell) uiBulkLogImport : public uiDialog
 { mODTextTranslationClass(uiBulkLogImport);
 public:
 			uiBulkLogImport(uiParent*);
+			uiBulkLogImport(uiParent*,const BufferStringSet&);
 			~uiBulkLogImport();
 
 private:

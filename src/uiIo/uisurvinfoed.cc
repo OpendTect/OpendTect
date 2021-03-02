@@ -1030,6 +1030,19 @@ void uiSurveyInfoEditor::setNameandPathSensitive(bool ynName, bool ynPath)
     pathfld_->setSensitive( ynPath );
 }
 
+
+IOPar* uiSurveyInfoEditor::getImportPars()
+{
+    return impiop_;
+}
+
+
+uiSurvInfoProvider* uiSurveyInfoEditor::getSIP()
+{
+    return lastsip_;
+}
+
+
 // uiSurvInfoProvider
 void uiSurvInfoProvider::fillLogPars( IOPar& par ) const
 {

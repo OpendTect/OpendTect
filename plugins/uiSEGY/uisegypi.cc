@@ -13,8 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "ioman.h"
 
-#include "uisegysip.h"
-#include "uisegysipclassic.h"
+
 #include "uisegydefdlg.h"
 #include "uisegyexp.h"
 #include "uisegyread.h"
@@ -104,11 +103,6 @@ uiSEGYMgr::uiSEGYMgr()
     bdef->tooltip_ = tr("Change file/folder names in SEG-Y file %1");
     bdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisFileMan::addBrowser( bdef );
-
-    uiSurveyInfoEditor::addInfoProvider( new uiSEGYSurvInfoProvider() );
-    if ( enableClassic() )
-	uiSurveyInfoEditor::addInfoProvider(
-			    new uiSEGYClassicSurvInfoProvider() );
 
     auto* psbdef = new uiSeisPreStackMan::BrowserDef(
 				SEGYDirectSeisPS3DTranslator::translKey() );

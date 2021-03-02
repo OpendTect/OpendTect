@@ -105,6 +105,7 @@ public:
     inline int		nrInl() const		{ return nrLines(); }
     inline int		nrCrl() const		{ return nrTrcs(); }
 
+
     mDeprecated("Use hsamp_ instead")	TrcKeySampling&		hrg;
     mDeprecated("Use zsamp_ instead")	StepInterval<float>&	zrg;
 

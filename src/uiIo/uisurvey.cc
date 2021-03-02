@@ -223,7 +223,8 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 
     pol2dfld_ = new uiCheckList( this, uiCheckList::OneMinimum, OD::Horizontal);
     pol2dfld_->setLabel( tr("Available data") );
-    pol2dfld_->addItem( uiStrings::s3D() ).addItem( uiStrings::s2D() );
+    pol2dfld_->addItem( uiStrings::s3D() ).addItem( uiStrings::s2D() ).
+			addItem( uiStrings::sWells() ).displayIdx( 2, false );
     pol2dfld_->setChecked( 0, true ).setChecked( 1, true );
     pol2dfld_->changed.notify( mCB(this,uiStartNewSurveySetup,pol2dChg) );
     pol2dfld_->attach( alignedBelow, survnmfld_ );
@@ -250,7 +251,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     zinfeetfld_->attach( alignedBelow, zistimefld_ );
     zinfeetfld_->display( !isTime() );
 
-    fillSipsFld( has2D(), has3D() );
+    fillSipsFld( has2D(), has3D(), hasWells() );
 }
 
 
@@ -307,7 +308,8 @@ BufferString uiStartNewSurveySetup::sipName() const
 }
 
 
-void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d )
+void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d,
+								 bool havewell )
 {
     int preferredsel = sipfld_->isEmpty() ? -1 : sipfld_->currentItem();
     sipfld_->setEmpty();
@@ -317,16 +319,19 @@ void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d )
     {
 	uiSurvInfoProvider& sip = *sips_[idx];
 	mDynamicCastGet(const ui2DSurvInfoProvider*,sip2d,&sip);
+	const bool iswellsip = BufferString( sip.usrText() ).find( "Well" );
+	const bool issegysip = BufferString( sip.usrText() ).find( "SEG-Y" );
+	if ( iswellsip )
+	    pol2dfld_->displayIdx( 2, true );
 
 	if ( preferredsel < 0 )
 	{
 	    if ( FixedString(sip.usrText()).contains("etrel") )
 		preferredsel = idx;
-	    else
-	    {
-		if ( sip2d && !have3d )
-		    preferredsel = idx;
-	    }
+	    else if ( iswellsip && havewell && !have3d && !have2d )
+		preferredsel = idx;
+	    else if ( sip2d && have2d && !have3d )
+		preferredsel = idx;
 	}
 
 	sipfld_->addItem( toUiString(sip.usrText()) );
@@ -335,7 +340,11 @@ void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d )
 	    icnm = "empty";
 	sipfld_->setIcon( idx, icnm );
 	if ( !have2d && sip2d )
-	    sipfld_->setItemSelectable( sipfld_->size()-1, false );
+	    sipfld_->setItemSelectable( idx, false );
+	if ( !havewell && iswellsip )
+	    sipfld_->setItemSelectable( idx, false );
+	if ( !have2d && !have3d && issegysip )
+	    sipfld_->setItemSelectable( idx, false );
     }
 
     sipfld_->addItem( tr("Enter by hand") ); // always last
@@ -370,6 +379,12 @@ bool uiStartNewSurveySetup::has2D() const
 }
 
 
+bool uiStartNewSurveySetup::hasWells() const
+{
+    return pol2dfld_->isChecked(2);
+}
+
+
 bool uiStartNewSurveySetup::isTime() const
 {
     return zistimefld_->getBoolValue();
@@ -392,7 +407,12 @@ SurveyInfo::Pol2D uiStartNewSurveySetup::pol2D() const
 
 void uiStartNewSurveySetup::pol2dChg( CallBacker* )
 {
-    fillSipsFld( has2D(), has3D() );
+    fillSipsFld( has2D(), has3D(), hasWells() );
+    if ( hasWells() && !has2D() && !has3D() )
+	zistimefld_->setValue( false );
+    else
+	zistimefld_->setValue( true );
+    zdomainChg( nullptr );
 }
 
 
@@ -432,15 +452,6 @@ uiSurvey::uiSurvey( uiParent* p )
     }
 
     setCurrentSurvInfo( new SurveyInfo(SI()) );
-
-    mDefineStaticLocalObject( int, sipidx2d, mUnusedVar =
-	    uiSurveyInfoEditor::addInfoProvider(new ui2DSurvInfoProvider) )
-    mDefineStaticLocalObject( int, sipidxnav, mUnusedVar =
-	    uiSurveyInfoEditor::addInfoProvider(new uiNavSurvInfoProvider) )
-    mDefineStaticLocalObject( int, sipidxcp, mUnusedVar =
-	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) )
-    mDefineStaticLocalObject( int, sipidxfile, mUnusedVar =
-	    uiSurveyInfoEditor::addInfoProvider(new uiSurveyFileSIP) )
 
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
     uiPushButton* datarootbut =

@@ -10,6 +10,7 @@ set(OD_MODULE_SOURCES
 		inituiwell.cc
 		uibulkwellimp.cc
 		uid2tmodelgrp.cc
+		uilassip.cc
 		uimultiwelllogsel.cc
 		uisimplemultiwell.cc
 		uiwelldahdisplay.cc

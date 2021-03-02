@@ -44,6 +44,7 @@ public:
     uiCheckList&	addItem(const uiString& txt,const char* iconfnm=0);
     uiCheckList&	addItems(const BufferStringSet&);
     uiCheckList&	addItems(const uiStringSet&);
+    uiCheckList&	displayIdx(int,bool);
 
     Pol			pol() const		{ return pol_; }
     OD::Orientation	orientation() const	{ return orientation_; }

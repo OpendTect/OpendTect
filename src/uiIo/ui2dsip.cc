@@ -129,14 +129,14 @@ uiDialog* ui2DSurvInfoProvider::dialog( uiParent* p )
 }
 
 
-static bool getRanges( TrcKeyZSampling& cs, Coord crd[3],
-		       Coord c0, Coord c1, double grdsp )
+bool uiSurvInfoProvider::getRanges( TrcKeyZSampling& cs, Coord crd[3],
+					   Coord c0, Coord c1, double grdsp )
 {
     const Coord d( c1.x - c0.x, c1.y - c0.y );
     const int nrinl = (int)(d.x / grdsp + 1.5);
     const int nrcrl = (int)(d.y / grdsp + 1.5);
     if ( nrinl < 2 && nrcrl < 2 )
-	mErrRet(od_static_tr("ui2dsip_getRanges",
+	mErrRet(od_static_tr("getRanges",
 			"Coordinate ranges are less than one trace distance"))
 
     cs.hsamp_.start_.inl() = cs.hsamp_.start_.crl() = 10000;
@@ -152,7 +152,6 @@ static bool getRanges( TrcKeyZSampling& cs, Coord crd[3],
     crd[2] = Coord( c0.x, cmax.y );
     return true;
 }
-
 
 #define cDefaultZMaxS 6.0f
 #define cDefaultZMaxM 6000.0f
@@ -180,7 +179,7 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     if ( c0.x > c1.x ) Swap( c0.x, c1.x );
     if ( c0.y > c1.y ) Swap( c0.y, c1.y );
     const double grdsp = dlg->grdspfld_->getDValue();
-    if ( !getRanges(cs,crd,c0,c1,grdsp) )
+    if ( !uiSurvInfoProvider::getRanges(cs,crd,c0,c1,grdsp) )
 	return false;
 
     const StepInterval<float> zrg = dlg->zfld_->getFStepInterval();
@@ -331,7 +330,7 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
     Coord c0( xrg.start, yrg.start );
     Coord c1( xrg.stop, yrg.stop );
     const double grdsp = 25.;
-    return getRanges(tkzs,crd,c0,c1,grdsp);
+    return uiSurvInfoProvider::getRanges(tkzs,crd,c0,c1,grdsp);
 }
 
 

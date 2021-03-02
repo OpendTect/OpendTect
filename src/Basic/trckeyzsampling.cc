@@ -1460,7 +1460,6 @@ void TrcKeyZSampling::normalize()
 }
 
 
-
 void TrcKeySamplingIterator::setSampling( const TrcKeySampling& tks )
 {
 #ifdef __debug__

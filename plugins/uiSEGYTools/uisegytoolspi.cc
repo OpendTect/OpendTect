@@ -7,6 +7,10 @@
 
 #include "uisegytoolsmod.h"
 #include "uisegycommon.h"
+#include "uisegysip.h"
+#include "uisegysipclassic.h"
+#include "uisurvinfoed.h"
+#include "envvars.h"
 #include "odplugin.h"
 
 
@@ -24,6 +28,8 @@ mDefODPluginInfo(uiSEGYTools)
 
 mDefODInitPlugin(uiSEGYTools)
 {
-    uiSEGY::initClasses();
+    uiSurveyInfoEditor::addInfoProvider(new uiSEGYSurvInfoProvider);
+    if ( GetEnvVarYN( "OD_ENABLE_SEGY_CLASSIC" ) )
+	uiSurveyInfoEditor::addInfoProvider(new uiSEGYClassicSurvInfoProvider);
     return nullptr;
 }
