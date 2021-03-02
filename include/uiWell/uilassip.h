@@ -20,7 +20,7 @@ ________________________________________________________________________
 
  */
 
-mExpClass(uiIo) uiLASSurvInfoProvider : public uiSurvInfoProvider
+mExpClass(uiWell) uiLASSurvInfoProvider : public uiSurvInfoProvider
 { mODTextTranslationClass(uiLASSurvInfoProvider);
 public:
 				uiLASSurvInfoProvider();
