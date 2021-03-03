@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 
 #include "file.h"
-#include "ioman.h"
 #include "msgh.h"
 #include "q_uiimpl.h"
 #include "texttranslator.h"
@@ -128,13 +127,6 @@ uiMainWin::~uiMainWin()
 
     if ( !body_->deletefrombody_ )
     {
-	if ( body_->exitapponclose_ )
-	{
-	    /* Sending the signal too soon, but avoids
-	    * crashes with legacy code when the top level
-	    * application is closed.    */
-	    IOM().applClosing();
-	}
 	body_->deletefromod_ = true;
 	delete body_;
     }
@@ -174,6 +166,13 @@ bool uiMainWin::isMinimized() const		{ return body_->isMinimized(); }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
 void uiMainWin::setForceFinalise( bool yn )	{ body_->force_finalise_ = yn; }
+
+void uiMainWin::forceClose()
+{
+    if ( !isModal() )
+	setDeleteOnClose( true );
+    close();
+}
 
 
 void uiMainWin::setCaption( const uiString& txt )
@@ -774,10 +773,10 @@ void shootImageCB( CallBacker* )
     timer_.stop();
 }
 
-    int		width_;
-    int		height_;
-    int		res_;
-    bool	copytoclipboard_;
+    int		width_ = 0;
+    int		height_ = 0;
+    int		res_ = -1;
+    bool	copytoclipboard_ = false;
     QString	fname_;
     WId		qwinid_;
     Timer	timer_;

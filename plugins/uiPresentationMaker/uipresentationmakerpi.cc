@@ -34,47 +34,48 @@ class uiPresMakerPIMgr	: public uiPluginInitMgr
 public:
 				uiPresMakerPIMgr();
 
-    uiPresentationMakerDlg*	dlg_;
+private:
 
-    void			dTectMenuChanged() override;
+    uiDialog*			dlg_ = nullptr;
+
     void			beforeSurveyChange() override { cleanup(); }
-    void			applicationClosing() override { cleanup(); }
-
+    void			dTectMenuChanged() override;
+    void			dTectToolbarChanged() override;
     void			cleanup();
-    void			mnuCB(CallBacker*);
+
+    void			showDlgCB(CallBacker*);
 };
 
 
 uiPresMakerPIMgr::uiPresMakerPIMgr()
     : uiPluginInitMgr()
-    , dlg_(nullptr)
 {
-    uiAction* action = new uiAction( m3Dots(tr("Presentation Maker")),
-			mCB(this,uiPresMakerPIMgr,mnuCB), "ppt" );
-    appl().menuMgr().toolsMnu()->insertAction( action );
-
     init();
 }
 
 
 void uiPresMakerPIMgr::dTectMenuChanged()
 {
+    appl().menuMgr().toolsMnu()->insertAction(
+	new uiAction( m3Dots( tr("Presentation Maker") ),
+		      mCB(this,uiPresMakerPIMgr,showDlgCB), "ppt" ) );
+}
+
+
+void uiPresMakerPIMgr::dTectToolbarChanged()
+{
     appl().menuMgr().dtectTB()->addButton( "ppt", tr("Presentation Maker"),
-					   mCB(this,uiPresMakerPIMgr,mnuCB) );
+				mCB(this,uiPresMakerPIMgr,showDlgCB) );
 }
 
 
 void uiPresMakerPIMgr::cleanup()
 {
-    if ( dlg_ )
-    {
-	dlg_->close();
-	deleteAndZeroPtr( dlg_ );
-    }
+    closeAndZeroPtr( dlg_ );
 }
 
 
-void uiPresMakerPIMgr::mnuCB( CallBacker* )
+void uiPresMakerPIMgr::showDlgCB( CallBacker* )
 {
     if ( !dlg_ )
 	dlg_ = new uiPresentationMakerDlg( &appl() );
@@ -85,8 +86,8 @@ void uiPresMakerPIMgr::mnuCB( CallBacker* )
 
 mDefODInitPlugin(uiPresentationMaker)
 {
-    mDefineStaticLocalObject( uiPresMakerPIMgr*, mgr, = nullptr );
-    if ( mgr ) return nullptr;
-    mgr = new uiPresMakerPIMgr();
+    mDefineStaticLocalObject( PtrMan<uiPresMakerPIMgr>, mgr,
+		    mUnusedVar = new uiPresMakerPIMgr() );
+
     return nullptr;
 }

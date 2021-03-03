@@ -15,8 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uicmddrivermgr.h"
-#include "odplugin.h"
 #include "uistrings.h"
+#include "odplugin.h"
 
 
 namespace CmdDrive
@@ -36,12 +36,11 @@ mDefODPluginInfo(CmdDriver)
 
 static void initExtraCommands()
 {
- //   WheelCmd::initClass();
-    //GetWheelCmd::initClass();
 }
 
 static void initExtraFunctions()
-{}
+{
+}
 
 static void initExtraComposers()
 {
@@ -50,16 +49,10 @@ static void initExtraComposers()
 
 mDefODInitPlugin(CmdDriver)
 {
-    mDefineStaticLocalObject( uiCmdDriverMgr*, mgr, = 0 );
-    if ( mgr ) return 0;
-    mgr = new uiCmdDriverMgr( true );
-
-    mDefineStaticLocalObject( uiAction*, cmdmnuitm, = 0 );
-    if ( cmdmnuitm ) return 0;
-    cmdmnuitm = new uiAction( m3Dots(uiCmdDriverMgr::usrDispNm()) );
-
+    uiCmdDriverMgr& mgr = uiCmdDriverMgr::getMgr( true );
+    auto* cmdmnuitm = new uiAction( m3Dots( uiCmdDriverMgr::usrDispNm() ),
+				    mCB(&mgr,uiCmdDriverMgr,showDlgCB) );
     ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdmnuitm );
-    cmdmnuitm->triggered.notify( mCB(mgr,uiCmdDriverMgr,showDlgCB) );
 
     initExtraCommands();
     initExtraFunctions();

@@ -6,58 +6,57 @@
 
 #include "uihellomod.h"
 
-#include "odplugin.h"
-
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
-#include "uistrings.h"
 
-mExternC(uiHello) int GetuiHelloPluginType();
-mExternC(uiHello) PluginInfo* GetuiHelloPluginInfo();
-mExternC(uiHello) const char* InituiHelloPlugin(int,char**);
+#include "odplugin.h"
 
-int GetuiHelloPluginType()
+
+mDefODPluginInfo(uiHello)
 {
-    return PI_AUTO_INIT_LATE;
-}
-
-
-PluginInfo* GetuiHelloPluginInfo()
-{
-    mDefineStaticLocalObject( PluginInfo, info, )
-    info.dispname_ = "Hello World plugin (GUI)";
-    info.productname_ = "Hello World";
-    info.creator_ = "Nanne";
-    info.version_ = "1.1.1";
-    info.text_ = "This is the GUI variant of the uiHello example.\n"
-		 "See the plugin manual for details.";
-    return &info;
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"Hello World plugin (GUI)",
+	"Hello World",
+	"dGB",
+	"1.1.1",
+	"This is the GUI variant of the uiHello example.\n"
+	"See the plugin manual for details.") );
+    return &retpi;
 }
 
 
 // OK: we need an object to receive the CallBacks. In serious software,
 // that may be a 'normal' object inheriting from CallBacker.
 
-class uiHelloMgr :  public CallBacker
+class uiHelloMgr :  public uiPluginInitMgr
 { mODTextTranslationClass(uiHelloMgr);
 public:
-			uiHelloMgr(uiODMain&);
+			uiHelloMgr();
 
-    uiODMain&		appl_;
+private:
+
+    void		dTectMenuChanged() override;
+
     void		dispMsg(CallBacker*);
 };
 
 
-uiHelloMgr::uiHelloMgr( uiODMain& a )
-	: appl_(a)
+uiHelloMgr::uiHelloMgr()
+    : uiPluginInitMgr()
 {
-    uiAction* newitem = new uiAction( m3Dots(tr("Display Hello Message")),
-					  mCB(this,uiHelloMgr,dispMsg) );
-    appl_.menuMgr().utilMnu()->insertAction( newitem );
+    init();
+}
+
+
+void uiHelloMgr::dTectMenuChanged()
+{
+    auto* action = new uiAction( m3Dots( tr( "Display Hello Message" ) ),
+				 mCB(this,uiHelloMgr,dispMsg) );
+    appl().menuMgr().utilMnu()->insertAction( action );
 }
 
 
@@ -106,17 +105,15 @@ bool acceptOK( CallBacker* )
 
 void uiHelloMgr::dispMsg( CallBacker* )
 {
-    uiHelloMsgBringer dlg( &appl_ );
+    uiHelloMsgBringer dlg( &appl() );
     dlg.go();
 }
 
 
 const char* InituiHelloPlugin( int argc, char** argv )
 {
-    mDefineStaticLocalObject( PtrMan<uiHelloMgr>, theinst_, = nullptr );
-    if ( theinst_ ) return nullptr;
-
-    theinst_ = new uiHelloMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiHelloMgr>, theinst_,
+		= new uiHelloMgr() );
     if ( !theinst_ )
 	return "Cannot instantiate Hello plugin";
 

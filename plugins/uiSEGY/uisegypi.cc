@@ -53,21 +53,23 @@ mDefODPluginInfo(uiSEGY)
 }
 
 
-class uiSEGYMgr	: public CallBacker
+class uiSEGYMgr	: public uiPluginInitMgr
 { mODTextTranslationClass(uiSEGYMgr);
 public:
 
-			uiSEGYMgr(uiODMain*);
+			uiSEGYMgr();
 			~uiSEGYMgr();
 
-    uiODMain*		appl_;
-    uiODMenuMgr&	mnumgr_;
+private:
 
-    uiSEGYReadStarter*	impdlg_;
-    uiSEGYExp*		expdlg_;
+    uiSEGYReadStarter*	impdlg_ = nullptr;
+    uiSEGYExp*		expdlg_ = nullptr;
 
-    void		updateMenu(CallBacker*);
-    void		survChg(CallBacker*);
+    void		beforeSurveyChange() override { cleanup(); }
+    void		dTectMenuChanged() override;
+    void		dTectToolbarChanged() override;
+    void		cleanup();
+
     void		edFiles(CallBacker*);
     void		imp2DCB(CallBacker*);
     void		imp2DPSCB(CallBacker*);
@@ -94,13 +96,11 @@ public:
 #define muiSEGYMgrCB(fn) mCB(this,uiSEGYMgr,fn)
 
 
-uiSEGYMgr::uiSEGYMgr( uiODMain* a )
-    : mnumgr_(a->menuMgr())
-    , appl_(a)
-    , impdlg_(0)
-    , expdlg_(0)
+uiSEGYMgr::uiSEGYMgr()
+    : uiPluginInitMgr()
 {
-    uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
+    init();
+    auto* bdef = new uiSeisFileMan::BrowserDef(
 				SEGYDirectSeisTrcTranslator::translKey() );
     bdef->tooltip_ = tr("Change file/folder names in SEG-Y file %1");
     bdef->cb_ = muiSEGYMgrCB(edFiles);
@@ -110,15 +110,12 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
     if ( enableClassic() )
 	uiSurveyInfoEditor::addInfoProvider(
 			    new uiSEGYClassicSurvInfoProvider() );
-    mAttachCB( IOM().surveyChanged, uiSEGYMgr::updateMenu );
 
-    uiSeisPreStackMan::BrowserDef* psbdef = new uiSeisPreStackMan::BrowserDef(
+    auto* psbdef = new uiSeisPreStackMan::BrowserDef(
 				SEGYDirectSeisPS3DTranslator::translKey() );
     psbdef->tooltip_ = tr("Change file/folder names in SEG-Y file %1");
     psbdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisPreStackMan::addBrowser( psbdef );
-
-    updateMenu(0);
 }
 
 
@@ -130,16 +127,17 @@ uiSEGYMgr::~uiSEGYMgr()
 
 #define muiSEGYMgrCB(fn) mCB(this,uiSEGYMgr,fn)
 
-void uiSEGYMgr::updateMenu( CallBacker* )
+void uiSEGYMgr::dTectMenuChanged()
 {
+    uiODMenuMgr& mnumgr = appl().menuMgr();
     const bool have2d = IOM().isBad() || SI().has2D();
     const bool only2d = !IOM().isBad() && !SI().has3D();
-    uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
-    uiMenu* impsgymnu = new uiMenu( appl_, sSEGYString(true), segyiconid_ );
+    uiMenu* impseismnu = mnumgr.getMnu( true, uiODApplMgr::Seis );
+    auto* impsgymnu = new uiMenu( &appl(), sSEGYString(true), segyiconid_ );
     impseismnu->addMenu( impsgymnu );
-    uiMenu* expseismnu = mnumgr_.getMnu( false, uiODApplMgr::Seis );
+    uiMenu* expseismnu = mnumgr.getMnu( false, uiODApplMgr::Seis );
     uiMenu* expsgymnu = expseismnu->addMenu(
-			new uiMenu( appl_, sSEGYString(true), segyiconid_ ),
+			new uiMenu( &appl(), sSEGYString(true), segyiconid_ ),
 			expseismnu->actions()[0]->getMenu() );
 
     if ( have2d )
@@ -181,29 +179,38 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 					volpsicid) );
     }
 
-    mnumgr_.getMnu( true, uiODApplMgr::Wll )->insertAction(
+    mnumgr.getMnu( true, uiODApplMgr::Wll )->insertAction(
 	new uiAction( m3Dots(tr("VSP (SEG-Y)")), muiSEGYMgrCB(impVSPCB),
 			"vsp0" ) );
-    mnumgr_.createSeisOutputMenu()->insertAction(
+    mnumgr.createSeisOutputMenu()->insertAction(
 	new uiAction(m3Dots(tr("Re-sort Scanned SEG-Y")),
 			muiSEGYMgrCB(reSortCB)) );
 
     if ( enableClassic() )
     {
 	uiString classicmnutitle = tr("SEG-Y [Classic]");
-	uiMenu* impclassmnu = new uiMenu( appl_, classicmnutitle, "launch" );
+	auto* impclassmnu = new uiMenu( &appl(), classicmnutitle, "launch" );
 	impseismnu->addMenu( impclassmnu );
 	impclassmnu->insertAction( new uiAction( uiStrings::sImport(),
 		       muiSEGYMgrCB(impClassicCB), "import") );
 	impclassmnu->insertAction( new uiAction( tr("Link"),
 		       muiSEGYMgrCB(linkClassicCB), "link") );
     }
+}
 
-    mnumgr_.dtectTB()->addButton( segyiconid_, tr("SEG-Y import"),
-				  mCB(this,uiSEGYMgr,readStarterCB) );
 
-    deleteAndZeroPtr( impdlg_ );
-    deleteAndZeroPtr( expdlg_ );
+void uiSEGYMgr::dTectToolbarChanged()
+{
+    appl().menuMgr().dtectTB()->addButton( segyiconid_,
+			tr( "SEG-Y import" ),
+			mCB(this,uiSEGYMgr,readStarterCB) );
+}
+
+
+void uiSEGYMgr::cleanup()
+{
+    closeAndZeroPtr( impdlg_ );
+    closeAndZeroPtr( expdlg_ );
 }
 
 
@@ -212,7 +219,7 @@ void uiSEGYMgr::imp##typ##CB( CallBacker* ) \
 { \
     const SEGY::ImpType imptyp( arg ); \
     delete impdlg_; \
-    impdlg_ = new uiSEGYReadStarter( appl_, false, &imptyp ); \
+    impdlg_ = new uiSEGYReadStarter( &appl(), false, &imptyp ); \
     impdlg_->go(); \
 }
 
@@ -227,7 +234,7 @@ mImplImpCB( VSP, true )
 void uiSEGYMgr::exp##typ##CB( CallBacker* ) \
 { \
     delete expdlg_; \
-    expdlg_ = new uiSEGYExp( appl_, arg ); \
+    expdlg_ = new uiSEGYExp( &appl(), arg ); \
     expdlg_->go(); \
 }
 
@@ -240,13 +247,13 @@ mImplExpCB( 3DPS, Seis::VolPS )
 void uiSEGYMgr::impClassic( bool islink )
 {
     uiSEGYRead::Setup su( islink ? uiSEGYRead::DirectDef : uiSEGYRead::Import );
-    new uiSEGYRead( appl_, su );
+    new uiSEGYRead( &appl(), su );
 }
 
 
 void uiSEGYMgr::reSortCB( CallBacker* )
 {
-    uiResortSEGYDlg dlg( appl_ );
+    uiResortSEGYDlg dlg( &appl() );
     dlg.go();
 }
 
@@ -265,19 +272,17 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 void uiSEGYMgr::readStarterCB( CallBacker* )
 {
     delete impdlg_;
-    impdlg_ = new uiSEGYReadStarter( appl_, false );
+    impdlg_ = new uiSEGYReadStarter( &appl(), false );
     impdlg_->go();
 }
 
 
 mDefODInitPlugin(uiSEGY)
 {
-    mDefineStaticLocalObject( PtrMan<uiSEGYMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiSEGYMgr>, theinst_, = new uiSEGYMgr() );
 
-    theinst_ = new uiSEGYMgr( ODMainWin() );
     if ( !theinst_ )
 	return "Cannot instantiate SEG-Y plugin";
 
-    return 0;
+    return nullptr;
 }

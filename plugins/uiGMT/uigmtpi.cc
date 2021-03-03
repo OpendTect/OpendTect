@@ -66,10 +66,10 @@ uiGMTIntro( uiParent* p )
 			"to the GMT installation 'share' directory\n"
 		       "and your PATH variable includes the GMT bin directory");
 
-    uiLabel* lbl = new uiLabel( this, msg );
+    auto* lbl = new uiLabel( this, msg );
     lbl->setAlignment( Alignment::HCenter );
 
-    uiPushButton* gmtbut = new uiPushButton( this, tr("Download GMT"),
+    auto* gmtbut = new uiPushButton( this, tr("Download GMT"),
 					     mCB(this,uiGMTIntro,gmtPush),
 					     true );
     gmtbut->setToolTip( tr("Click to go to the Download center") );
@@ -93,53 +93,45 @@ bool acceptOK( CallBacker* )
 };
 
 
-class uiGMTMgr :  public CallBacker
+class uiGMTMgr :  public uiPluginInitMgr
 { mODTextTranslationClass(uiGMTMgr);
 public:
-			uiGMTMgr(uiODMain*);
-			~uiGMTMgr();
+			uiGMTMgr();
 
-    uiODMain*		appl_;
-    uiGMTMainWin*	dlg_;
+private:
 
-    void		updateToolBar(CallBacker*);
-    void		updateMenu(CallBacker*);
-    void		createMap(CallBacker*);
+    uiDialog*		dlg_ = nullptr;
+
+    void		beforeSurveyChange() override { cleanup(); }
+    void		dTectMenuChanged() override;
+    void		cleanup();
+
+    void		showDlgCB( CallBacker* );
 };
 
 
-uiGMTMgr::uiGMTMgr( uiODMain* a )
-    : appl_(a)
-    , dlg_(0)
+uiGMTMgr::uiGMTMgr()
+    : uiPluginInitMgr()
 {
-    mAttachCB( appl_->menuMgr().dTectTBChanged, uiGMTMgr::updateToolBar );
-    mAttachCB( appl_->menuMgr().dTectMnuChanged, uiGMTMgr::updateMenu );
-    updateToolBar(0);
-    updateMenu(0);
+    init();
 }
 
 
-uiGMTMgr::~uiGMTMgr()
+void uiGMTMgr::dTectMenuChanged()
 {
-    detachAllNotifiers();
+    auto* action = new uiAction( m3Dots(tr("GMT Mapping Tool")),
+			         mCB(this,uiGMTMgr,showDlgCB), "gmt_logo" );
+    appl().menuMgr().procMnu()->insertAction( action );
 }
 
 
-void uiGMTMgr::updateToolBar( CallBacker* )
+void uiGMTMgr::cleanup()
 {
+    closeAndZeroPtr( dlg_ );
 }
 
 
-void uiGMTMgr::updateMenu( CallBacker* )
-{
-    deleteAndZeroPtr( dlg_ );
-    auto* act = new uiAction( m3Dots(tr("GMT Mapping Tool")),
-			      mCB(this,uiGMTMgr,createMap), "gmt_logo" );
-    appl_->menuMgr().procMnu()->insertAction( act );
-}
-
-
-void uiGMTMgr::createMap( CallBacker* )
+void uiGMTMgr::showDlgCB( CallBacker* )
 {
     if ( !dlg_ )
     {
@@ -149,25 +141,21 @@ void uiGMTMgr::createMap( CallBacker* )
 
 	if ( !GMT::hasGMT() || !gmtsharedir )
 	{
-	    uiGMTIntro introdlg( appl_ );
+	    uiGMTIntro introdlg( &appl() );
 	    if ( !introdlg.go() )
 		return;
 	}
 
-	dlg_ = new uiGMTMainWin( appl_ );
+	dlg_ = new uiGMTMainWin( &appl() );
     }
 
     dlg_->show();
-    dlg_->raise();
 }
 
 
 mDefODInitPlugin(uiGMT)
 {
-    mDefineStaticLocalObject( PtrMan<uiGMTMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiGMTMgr( ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiGMTMgr>, theinst_, = new uiGMTMgr() );
     if ( !theinst_ )
 	return "Cannot instantiate GMT plugin";
 
@@ -190,5 +178,5 @@ mDefODInitPlugin(uiGMT)
     uiGMTSurfaceGrid::initClass();
     uiGMTNearNeighborGrid::initClass();
 
-    return 0;
+    return nullptr;
 }
