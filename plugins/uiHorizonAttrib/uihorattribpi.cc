@@ -56,15 +56,18 @@ mDefODPluginInfo(uiHorizonAttrib)
 }
 
 
-class uiHorAttribPIMgr :  public CallBacker
+class uiHorAttribPIMgr :  public uiPluginInitMgr
 { mODTextTranslationClass(uiHorAttribPIMgr)
 public:
-			uiHorAttribPIMgr(uiODMain*);
+			uiHorAttribPIMgr();
 			~uiHorAttribPIMgr();
 
-    void		cleanUp();
-    void		updateMenuCB(CallBacker*);
-    void		shutDownCB(CallBacker*);
+private:
+
+    void		beforeSurveyChange() override { cleanup(); }
+    void		dTectMenuChanged() override;
+    void		cleanup();
+
     void		makeStratAmp(CallBacker*);
     void		doFlattened(CallBacker*);
     void		doIsochron(CallBacker*);
@@ -82,20 +85,17 @@ public:
     uiVisMenuItemHandler pickdatamnuitemhndlr_;
     uiPickSetPolygonMenuItemHandler polyvolmnuitemhndlr_;
 
-    uiODMain*			appl_;
-    uiEMDataPointSetPickDlg*	dpspickdlg_;
-    uiStratAmpCalc*		stratampdlg_;
+    uiEMDataPointSetPickDlg*	dpspickdlg_ = nullptr;
+    uiStratAmpCalc*		stratampdlg_ = nullptr;
 };
 
 
 #define mMkPars(txt,fun) \
     visSurvey::HorizonDisplay::sFactoryKeyword(), \
-    *a->applMgr().visServer(),txt,mCB(this,uiHorAttribPIMgr,fun)
+    *appl().applMgr().visServer(),txt,mCB(this,uiHorAttribPIMgr,fun)
 
-uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
-	: appl_(a)
-	, dpspickdlg_(0)
-	, stratampdlg_(0)
+uiHorAttribPIMgr::uiHorAttribPIMgr()
+	: uiPluginInitMgr()
 	, flattenmnuitemhndlr_(
 		mMkPars(tr("Write Flattened cube ..."),doFlattened),"Workflows")
 	, isochronmnuitemhndlr_(
@@ -107,14 +107,10 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	, pickdatamnuitemhndlr_(
 		mMkPars(tr("Pick Horizon Data ..."),pickData),"Workflows")
 	, polyvolmnuitemhndlr_(
-		*a->applMgr().visServer(),tr("Calculate Volume ..."),
+		*appl().applMgr().visServer(),tr("Calculate Volume ..."),
 		mCB(this,uiHorAttribPIMgr,calcPolyVol),0,996)
 {
-    uiODMenuMgr& mnumgr = appl_->menuMgr();
-    mAttachCB( mnumgr.dTectMnuChanged, uiHorAttribPIMgr::updateMenuCB );
-    mAttachCB( IOM().applicationClosing, uiHorAttribPIMgr::shutDownCB );
-    updateMenuCB(0);
-
+    init();
     polyvolmnuitemhndlr_.addWhenPickSet( false );
 }
 
@@ -122,35 +118,30 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 uiHorAttribPIMgr::~uiHorAttribPIMgr()
 {
     detachAllNotifiers();
-    delete stratampdlg_;
-    delete dpspickdlg_;
 }
 
 
-void uiHorAttribPIMgr::updateMenuCB( CallBacker* )
+void uiHorAttribPIMgr::dTectMenuChanged()
 {
-    cleanUp();
-    uiODMenuMgr& mnumgr = appl_->menuMgr();
+    uiODMenuMgr& mnumgr = appl().menuMgr();
     uiActionSeparString gridprocstr( "Create Horizon Output" );
-    uiAction* itm = mnumgr.procMnu()->findAction( gridprocstr );
+    const uiAction* itm = mnumgr.procMnu()->findAction( gridprocstr );
     if ( !itm || !itm->getMenu() ) return;
 
+    uiMenu* mnu = const_cast<uiMenu*>( itm->getMenu() );
     if ( SI().has3D() )
-	itm->getMenu()->insertAction( new uiAction(tr("Stratal Amplitude ..."),
-				     mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
+	mnu->insertAction( new uiAction(tr("Stratal Amplitude ..."),
+			   mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
 
-    itm->getMenu()->insertAction( new uiAction(tr("Isochron ..."),
-			    mCB(this,uiHorAttribPIMgr,doIsochronThruMenu)) );
+    mnu->insertAction( new uiAction(tr("Isochron ..."),
+		       mCB(this,uiHorAttribPIMgr,doIsochronThruMenu)) );
 }
 
 
-void uiHorAttribPIMgr::shutDownCB( CallBacker* )
-{ cleanUp(); }
-
-void uiHorAttribPIMgr::cleanUp()
+void uiHorAttribPIMgr::cleanup()
 {
-    deleteAndZeroPtr( stratampdlg_ );
-    deleteAndZeroPtr( dpspickdlg_ );
+    closeAndZeroPtr( stratampdlg_ );
+    closeAndZeroPtr( dpspickdlg_ );
 }
 
 
@@ -158,7 +149,7 @@ void uiHorAttribPIMgr::makeStratAmp( CallBacker* )
 {
     if ( !stratampdlg_ )
     {
-	stratampdlg_ = new uiStratAmpCalc( appl_ );
+	stratampdlg_ = new uiStratAmpCalc( &appl() );
 	stratampdlg_->setModal( false );
     }
     else
@@ -171,11 +162,11 @@ void uiHorAttribPIMgr::makeStratAmp( CallBacker* )
 void uiHorAttribPIMgr::doFlattened( CallBacker* )
 {
     const int displayid = flattenmnuitemhndlr_.getDisplayID();
-    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    uiVisPartServer* visserv = appl().applMgr().visServer();
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
     if ( !hd ) return;
 
-    uiWriteFlattenedCube dlg( appl_, hd->getObjectID() );
+    uiWriteFlattenedCube dlg( &appl(), hd->getObjectID() );
     dlg.go();
 }
 
@@ -183,7 +174,7 @@ void uiHorAttribPIMgr::doFlattened( CallBacker* )
 void uiHorAttribPIMgr::doIsochron( CallBacker* )
 {
     const int displayid = isochronmnuitemhndlr_.getDisplayID();
-    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    uiVisPartServer* visserv = appl().applMgr().visServer();
     if ( !visserv->canAddAttrib(displayid) )
     {
 	uiMSG().error(tr("Cannot add extra attribute layers"));
@@ -192,10 +183,10 @@ void uiHorAttribPIMgr::doIsochron( CallBacker* )
 
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
     if ( !hd ) return;
-    uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
+    uiTreeItem* parent = appl().sceneMgr().findItem( displayid );
     if ( !parent ) return;
 
-    uiIsochronMakerDlg dlg( appl_, hd->getObjectID() );
+    uiIsochronMakerDlg dlg( &appl(), hd->getObjectID() );
     if ( !dlg.go() )
 	return;
 
@@ -214,7 +205,7 @@ void uiHorAttribPIMgr::doIsochron( CallBacker* )
 
 void uiHorAttribPIMgr::doIsochronThruMenu( CallBacker* )
 {
-    uiIsochronMakerBatch dlg( appl_ );
+    uiIsochronMakerBatch dlg( &appl() );
     if ( !dlg.go() )
 	return;
 }
@@ -253,7 +244,7 @@ uiListBox*	attrlb_;
 void uiHorAttribPIMgr::doContours( CallBacker* cb )
 {
     const int displayid = contourmnuitemhndlr_.getDisplayID();
-    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    uiVisPartServer* visserv = appl().applMgr().visServer();
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
     if ( !hd ) return;
 
@@ -261,11 +252,11 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor ) { uiMSG().error(tr("Internal: cannot find horizon")); return; }
 
-    uiSelContourAttribDlg dlg( appl_, emobj->id() );
+    uiSelContourAttribDlg dlg( &appl(), emobj->id() );
     if ( dlg.nrAttribs()>1 && !dlg.go() )
 	return;
 
-    uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
+    uiTreeItem* parent = appl().sceneMgr().findItem( displayid );
     if ( !parent )
 	return;
 
@@ -301,13 +292,13 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
 void uiHorAttribPIMgr::calcPolyVol( CallBacker* )
 {
     const int displayid = polyvolmnuitemhndlr_.getDisplayID();
-    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    uiVisPartServer* visserv = appl().applMgr().visServer();
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv->getObject(displayid))
     if ( !psd || !psd->getSet() )
 	{ pErrMsg("Can't get PickSetDisplay"); return; }
 
-    uiCalcPolyHorVol dlg( appl_, *psd->getSet() );
+    uiCalcPolyHorVol dlg( &appl(), *psd->getSet() );
     dlg.go();
 }
 
@@ -315,14 +306,14 @@ void uiHorAttribPIMgr::calcPolyVol( CallBacker* )
 void uiHorAttribPIMgr::calcHorVol( CallBacker* )
 {
     const int displayid = horvolmnuitemhndlr_.getDisplayID();
-    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    uiVisPartServer* visserv = appl().applMgr().visServer();
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
     if ( !hd ) return;
 
     EM::EMObject* emobj = EM::EMM().getObject( hd->getObjectID() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor ) { uiMSG().error(tr("Internal: cannot find horizon")); return; }
-    uiCalcHorPolyVol dlg( appl_, *hor );
+    uiCalcHorPolyVol dlg( &appl(), *hor );
     dlg.go();
 }
 
@@ -330,15 +321,14 @@ void uiHorAttribPIMgr::calcHorVol( CallBacker* )
 void uiHorAttribPIMgr::pickData( CallBacker* )
 {
     const int displayid = pickdatamnuitemhndlr_.getDisplayID();
-    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    uiVisPartServer* visserv = appl().applMgr().visServer();
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
     if ( !hd ) return;
 
     delete dpspickdlg_;
-    dpspickdlg_ = new uiEMDataPointSetPickDlg( appl_, hd->getScene()->id(),
+    dpspickdlg_ = new uiEMDataPointSetPickDlg( &appl(), hd->getScene()->id(),
 					       hd->getObjectID() );
-    dpspickdlg_->readyForDisplay.notify(
-				mCB(this,uiHorAttribPIMgr,dataReadyCB) );
+    mAttachCB( dpspickdlg_->readyForDisplay, uiHorAttribPIMgr::dataReadyCB );
     dpspickdlg_->show();
 }
 
@@ -346,7 +336,7 @@ void uiHorAttribPIMgr::pickData( CallBacker* )
 void uiHorAttribPIMgr::dataReadyCB( CallBacker* )
 {
     const int displayid = pickdatamnuitemhndlr_.getDisplayID();
-    uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
+    uiTreeItem* parent = appl().sceneMgr().findItem( displayid );
     mDynamicCastGet(uiODHorizonTreeItem*,horitm,parent)
     if ( !horitm )
 	return;
@@ -361,15 +351,13 @@ void uiHorAttribPIMgr::dataReadyCB( CallBacker* )
 
 mDefODInitPlugin(uiHorizonAttrib)
 {
-    mDefineStaticLocalObject( PtrMan<uiHorAttribPIMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiHorAttribPIMgr( ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiHorAttribPIMgr>, theinst_,
+			    = new uiHorAttribPIMgr() );
     if ( !theinst_ )
 	return "Cannot instantiate HorizonAttrib plugin";
 
     uiHorizonAttrib::initClass();
     uiContourTreeItem::initClass();
 
-    return 0;
+    return nullptr;
 }

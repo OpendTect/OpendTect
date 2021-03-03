@@ -48,12 +48,12 @@ protected:
     void			updateTransformCB(CallBacker*);
     void			updateCB(CallBacker*);
 
-    uiGraphicsItemGroup*	display_;
-    uiPolygonItem*		polygonitem_;
-    uiPolyLineItem*		polylineitem_;
+    uiGraphicsItemGroup*	display_ = nullptr;
+    uiPolygonItem*		polygonitem_ = nullptr;
+    uiPolyLineItem*		polylineitem_ = nullptr;
     ObjectSet<uiMarkerItem>	markeritems_;
-    uiTextItem*			nameitem_;
-    uiFlatViewer*		viewer_;
+    uiTextItem*			nameitem_ = nullptr;
+    uiFlatViewer*		viewer_ = nullptr;
 };
 
 } // namespace FlatView

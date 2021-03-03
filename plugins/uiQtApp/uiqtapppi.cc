@@ -27,44 +27,58 @@ mDefODPluginInfo(uiQtApp)
 }
 
 
-class uiQtAppMgr :  public CallBacker
+class uiQtAppMgr : public uiPluginInitMgr
 {
 public:
-			uiQtAppMgr(uiODMain*);
+			uiQtAppMgr();
 
-    uiODMain*		appl_;
-    QtClss*		qtclss_;
+private:
+
+    QtClss*		qtclss_ = nullptr;
+
+    void		beforeSurveyChange() override { cleanup(); }
+    void		dTectMenuChanged() override;
+    void		cleanup();
 
     void		doStuff(CallBacker*);
 };
 
 
-uiQtAppMgr::uiQtAppMgr( uiODMain* a )
-    : appl_(a)
-    , qtclss_(0)
+uiQtAppMgr::uiQtAppMgr()
+    : uiPluginInitMgr()
 {
-    uiODMenuMgr& mnumgr = appl_->menuMgr();
-    mnumgr.utilMnu()->insertAction(
+    init();
+}
+
+
+void uiQtAppMgr::dTectMenuChanged()
+{
+    appl().menuMgr().utilMnu()->insertAction(
 	new uiAction( toUiString("Qt Thing"), mCB(this,uiQtAppMgr,doStuff) ) );
 }
 
 
 void uiQtAppMgr::doStuff( CallBacker* )
 {
-    if ( qtclss_ ) delete qtclss_;
-    qtclss_ = new QtClss( appl_->qWidget() );
+    delete qtclss_;
+    qtclss_ = new QtClss( appl().qWidget() );
     qtclss_->go();
+}
+
+
+void uiQtAppMgr::cleanup()
+{
+    qtclss_ = nullptr;
 }
 
 
 mDefODInitPlugin(uiQtApp)
 {
-    mDefineStaticLocalObject( PtrMan<uiQtAppMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiQtAppMgr>, theinst_,
+		    = new uiQtAppMgr() );
 
-    theinst_ = new uiQtAppMgr( ODMainWin() );
     if ( !theinst_ )
 	return "Cannot instantiate QtApp plugin";
 
-    return 0;
+    return nullptr;
 }

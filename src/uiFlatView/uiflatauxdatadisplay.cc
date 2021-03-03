@@ -22,30 +22,22 @@ AuxData* uiAuxDataDisplay::clone() const
 { return new uiAuxDataDisplay( *this ); }
 
 
-uiAuxDataDisplay::~uiAuxDataDisplay()
-{
-    if ( viewer_ ) viewer_->viewChanged.remove(
-	    mCB(this,uiAuxDataDisplay,updateTransformCB) );
-}
-
-
-#define mImplConstructor( arg ) \
-    : AuxData( arg ) \
-    , display_( nullptr ) \
-    , polygonitem_( nullptr ) \
-    , polylineitem_( nullptr ) \
-    , nameitem_( nullptr ) \
-    , viewer_( nullptr )
-
-
 uiAuxDataDisplay::uiAuxDataDisplay( const char* nm )
-    mImplConstructor( nm )
+    : AuxData(nm)
 {}
 
 
 uiAuxDataDisplay::uiAuxDataDisplay( const uiAuxDataDisplay& a )
-    mImplConstructor( a )
+    : AuxData(a)
 {}
+
+
+uiAuxDataDisplay::~uiAuxDataDisplay()
+{
+    if ( viewer_ )
+	mDetachCB( viewer_->viewChanged,
+		   uiAuxDataDisplay::updateTransformCB );
+}
 
 
 uiGraphicsItemGroup* uiAuxDataDisplay::getDisplay()
