@@ -55,16 +55,16 @@ uiPresMakerPIMgr::uiPresMakerPIMgr()
 
 void uiPresMakerPIMgr::dTectMenuChanged()
 {
-    appl().menuMgr().dtectTB()->addButton( "ppt", tr( "Presentation Maker" ),
-				mCB(this,uiPresMakerPIMgr,showDlgCB) );
+    appl().menuMgr().toolsMnu()->insertAction(
+	new uiAction( m3Dots( tr("Presentation Maker") ),
+		      mCB(this,uiPresMakerPIMgr,showDlgCB), "ppt" ) );
 }
 
 
 void uiPresMakerPIMgr::dTectToolbarChanged()
 {
-    auto* action = new uiAction( m3Dots( tr( "Presentation Maker" ) ),
-				 mCB(this,uiPresMakerPIMgr,showDlgCB), "ppt" );
-    appl().menuMgr().toolsMnu()->insertAction( action );
+    appl().menuMgr().dtectTB()->addButton( "ppt", tr("Presentation Maker"),
+				mCB(this,uiPresMakerPIMgr,showDlgCB) );
 }
 
 

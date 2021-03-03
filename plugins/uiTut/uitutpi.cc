@@ -71,7 +71,7 @@ uiTutMgr::uiTutMgr()
     : uiPluginInitMgr()
     , wellmnuitmhandler_(visSurvey::WellDisplay::sFactoryKeyword(),
 			 *appl().applMgr().visServer(),m3Dots(tr("Tut Well Tools")),
-			 mCB(this,uiTutMgr,doWells),0,cTutIdx)
+			 mCB(this,uiTutMgr,doWells),nullptr,cTutIdx)
 {
     init();
 }
