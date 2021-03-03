@@ -194,14 +194,14 @@ uiSeedPainterDlg::uiSeedPainterDlg( uiParent* p,
 	    			 .withedit(true) );
     szfld_->setInterval( StepInterval<int>(1,maxbrushsize,1) );
     szfld_->setValue( seedpainter_->radius() );
-    szfld_->sliderMoved.notify( mCB(this,uiSeedPainterDlg,sizeCB) );
+    szfld_->valueChanged.notify( mCB(this,uiSeedPainterDlg,sizeCB) );
     lbl->attach( centeredAbove, szfld_ );
 
     densfld_ = new uiSlider( this, uiSlider::Setup(tr("Density %"))
 	    			   .withedit(true) );
     densfld_->setInterval( StepInterval<int>(1,maxbrushsize,1) );
     densfld_->setValue( seedpainter_->density() );
-    densfld_->sliderMoved.notify( mCB(this,uiSeedPainterDlg,densCB) );
+    densfld_->valueChanged.notify( mCB(this,uiSeedPainterDlg,densCB) );
     densfld_->attach( alignedBelow, szfld_ );
 }
 

@@ -27,6 +27,8 @@ namespace visBase { class PolyLine; };
 namespace visSurvey
 {
 
+class RandomTrackDisplay;
+
 #define mCtrlLeftButton ( (OD::ButtonState) (OD::LeftButton+OD::ControlButton) )
 
 mExpClass(visSurvey) SeedPainter : public visBase::VisualObjectImpl
@@ -55,12 +57,16 @@ public:
 protected:
 
     void		eventCB(CallBacker*);
+    void		reset();
+
     bool		accept(const visBase::EventInfo&);
     bool		acceptMouse(const visBase::EventInfo&);
     bool		acceptTablet(const visBase::EventInfo&);
 
-    void		reset();
     void		drawLine(const visBase::EventInfo&);
+    void		drawLineOnRandLine(const RandomTrackDisplay*,
+	    				   const visBase::EventInfo&);
+
     void		paintSeeds(const visBase::EventInfo& curev,
 	    			   const visBase::EventInfo& prevev);
     void		paintSeedsOnInlCrl(const visBase::EventInfo& curev,
@@ -69,8 +75,13 @@ protected:
     void		paintSeedsOnZSlice(const visBase::EventInfo& curev,
 				      const visBase::EventInfo& prevev,
 				      const TrcKeyZSampling& tkzs);
-    void		eraseSeeds(const visBase::EventInfo& curev,
-	    			   const visBase::EventInfo& prevev);
+    void		paintSeedsOnRandLine(const RandomTrackDisplay*,
+	    				const visBase::EventInfo& curev,
+					const visBase::EventInfo& prevev);
+
+    void		eraseSeeds(const visBase::EventInfo& curev);
+    void		eraseSeedsOnRandLine(const RandomTrackDisplay*,
+	    				     const visBase::EventInfo& curev);
 
     visBase::EventCatcher*		eventcatcher_;
     const mVisTrans*			transformation_;
