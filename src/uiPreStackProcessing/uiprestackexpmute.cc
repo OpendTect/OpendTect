@@ -141,7 +141,7 @@ bool uiExportMute::acceptOK( CallBacker* )
 
     if ( File::exists(outfnm)
 	&& !uiMSG().askContinue(
-		uiStrings::phrExistsConinue( uiStrings::sOutputFile(), false )))
+		uiStrings::phrExistsContinue( uiStrings::sOutputFile(), false )))
 	return false;
 
     if ( writeAscii() )

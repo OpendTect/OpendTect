@@ -113,7 +113,7 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
 	return false;
     else if ( outioobj->implExists(false)
 	     && !uiMSG().askGoOn(
-		    uiStrings::phrExistsConinue( outputtype, true) ) )
+		    uiStrings::phrExistsContinue( outputtype, true) ) )
 	return false;
 
     tst_.clear();

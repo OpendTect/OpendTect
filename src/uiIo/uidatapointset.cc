@@ -1784,7 +1784,7 @@ void uiDataPointSet::removeColumn( CallBacker* )
 	if (tcolid == y2col_) options += uiStrings::sY2();
 
 	uiString msg = tr("This column is selected as data for %1 "
-			  "axis for the crossplot. Removing the column "
+			  "axis for the cross-plot. Removing the column "
 			  "will unselect it. Do you really "
 			  "want to remove this column?")
 		     .arg(options.createOptionString(true));
