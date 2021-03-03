@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "cmddrivermod.h"
+
 #include "uimenu.h"
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
@@ -48,19 +49,9 @@ static void initExtraComposers()
 mDefODInitPlugin(CmdDriver)
 {
     uiCmdDriverMgr& mgr = uiCmdDriverMgr::getMgr( true );
-
-    mIfNotFirstTime( return nullptr );
-
-    mDefineStaticLocalObject( uiAction*, cmdaction, = 0 );
-    if ( cmdaction )
-	return 0;
-
-    cmdaction = new uiAction( m3Dots(uiCmdDriverMgr::usrDispNm()),
-				"commanddriver" );
-    cmdaction->setShortcut( "Ctrl+R" );
-
-    ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdaction );
-    cmdaction->triggered.notify( mCB(&mgr,uiCmdDriverMgr,showDlgCB) );
+    auto* cmdmnuitm = new uiAction( m3Dots( uiCmdDriverMgr::usrDispNm() ),
+				    mCB(&mgr,uiCmdDriverMgr,showDlgCB), "commanddriver" );
+    ODMainWin()->menuMgr().toolsMnu()->insertAction( cmdmnuitm );
 
     initExtraCommands();
     initExtraFunctions();

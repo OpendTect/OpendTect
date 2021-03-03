@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "uitoolbar.h"
 
-#include "dbman.h"
 #include "file.h"
 #include "msgh.h"
 #include "q_uiimpl.h"
@@ -120,13 +119,6 @@ uiMainWin::~uiMainWin()
 
     if ( !body_->deletefrombody_ )
     {
-	if ( body_->exitapponclose_ )
-	{
-	    /* Sending the signal too soon, but avoids
-	    * crashes with legacy code when the top level
-	    * application is closed.    */
-	    DBM().applClosing();
-	}
 	body_->deletefromod_ = true;
 	delete body_;
     }
@@ -176,6 +168,13 @@ bool uiMainWin::isMinimized() const		{ return body_->isMinimized(); }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
 void uiMainWin::setForceFinalise( bool yn )	{ body_->force_finalise_ = yn; }
+
+void uiMainWin::forceClose()
+{
+    if ( !isModal() )
+	setDeleteOnClose( true );
+    close();
+}
 
 
 void uiMainWin::setCaption( const uiString& txt )

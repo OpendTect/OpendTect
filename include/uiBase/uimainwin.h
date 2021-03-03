@@ -18,9 +18,9 @@ mFDQtclass(QWidget)
 class uiDockWin;
 class uiGroup;
 class uiMainWinBody;
+class uiMenu;
 class uiMenuBar;
 class uiObject;
-class uiMenu;
 class uiStatusBar;
 class uiToolBar;
 class Timer;
@@ -98,6 +98,7 @@ public:
     virtual void	show();
     void		close();
     void		raise();
+    void		forceClose();
 
     void		showMaximized();
     void		showMinimized();
@@ -250,3 +251,12 @@ public:
     static uiMainWin*	programmedActiveWindow();
 
 };
+
+
+template <class T>
+void closeAndZeroPtr( T*& ptr )
+{
+    auto* uimw = dCast( uiMainWin*, ptr );
+    if ( uimw ) uimw->forceClose();
+    ptr = nullptr;
+}

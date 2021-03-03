@@ -10,7 +10,6 @@
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
-#include "uiodmain.h"
 #include "uitoolbar.h"
 
 #include "envvars.h"
@@ -37,7 +36,6 @@ mDefODPluginInfo(uiMadagascar)
 }
 
 
-
 static bool checkEnvVars( uiString& msg )
 {
     BufferString rsfdir = GetEnvVar( "RSFROOT" );
@@ -57,15 +55,15 @@ class uiMadagascarLinkMgr : public uiPluginInitMgr
 public:
 
 			uiMadagascarLinkMgr();
-			~uiMadagascarLinkMgr();
 
 private:
 
     uiMadagascarMain*	madwin_ = nullptr;
     bool		ishidden_ = false;
 
-    void		beforeSurveyChange() override;
+    void		beforeSurveyChange() override { cleanup(); }
     void		dTectMenuChanged() override;
+    void		cleanup();
 
     void		doMain(CallBacker*);
     void		winHide(CallBacker*);
@@ -80,27 +78,21 @@ uiMadagascarLinkMgr::uiMadagascarLinkMgr()
 }
 
 
-uiMadagascarLinkMgr::~uiMadagascarLinkMgr()
-{
-    detachAllNotifiers();
-}
-
-
 void uiMadagascarLinkMgr::dTectMenuChanged()
 {
-    deleteAndZeroPtr( madwin_ ); ishidden_ = false;
-    uiAction* newitem = new uiAction( m3Dots(toUiString("Madagascar")),
+    auto* action = new uiAction( m3Dots(toUiString("Madagascar")),
 				      mCB(this,uiMadagascarLinkMgr,doMain),
 				      "madagascar" );
-    appl_.menuMgr().procMnu()->insertAction( newitem );
+    appl().menuMgr().procMnu()->insertAction( action );
 }
 
 
-void uiMadagascarLinkMgr::beforeSurveyChange()
+void uiMadagascarLinkMgr::cleanup()
 {
-    if ( !madwin_ ) return;
-
-    madwin_->askSave(false);
+    if ( madwin_ )
+	madwin_->askSave( false );
+    closeAndZeroPtr( madwin_ );
+    uiPluginInitMgr::cleanup();
 }
 
 
@@ -121,16 +113,14 @@ void uiMadagascarLinkMgr::doMain( CallBacker* )
 
     if ( !madwin_ )
     {
-	madwin_ = new uiMadagascarMain( &appl_ );
-	madwin_->windowHide.notify( mCB(this,uiMadagascarLinkMgr,winHide) );
+	madwin_ = new uiMadagascarMain( &appl() );
+	mAttachCB( madwin_->windowHide, uiMadagascarLinkMgr::winHide );
     }
 
     ishidden_ = false;
     madwin_->show();
     madwin_->raise();
 }
-
-
 
 
 mDefODInitPlugin(uiMadagascar)

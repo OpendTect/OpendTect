@@ -45,19 +45,17 @@ mDefODPluginInfo(uiImpGPR)
 }
 
 
-class uiImpGPRMgr : public uiPluginInitMgr
+class uiImpGPRMgr :  public uiPluginInitMgr
 {
 public:
 
 			uiImpGPRMgr();
-			~uiImpGPRMgr();
 
 private:
 
-    void		dTectMenuChanged();
+    void		dTectMenuChanged() override;
     void		doWork(CallBacker*);
 };
-
 
 
 uiImpGPRMgr::uiImpGPRMgr()
@@ -67,15 +65,10 @@ uiImpGPRMgr::uiImpGPRMgr()
 }
 
 
-uiImpGPRMgr::~uiImpGPRMgr()
-{
-}
-
-
 void uiImpGPRMgr::dTectMenuChanged()
 {
-    appl_.menuMgr().getMnu( true, uiODApplMgr::Seis )->insertAction(
-	new uiAction(toUiString(menunm),mCB(this,uiImpGPRMgr,doWork),"gpr"));
+    appl().menuMgr().getMnu( true, uiODApplMgr::Seis )->insertAction(
+	new uiAction(toUiString(menunm),mCB(this,uiImpGPRMgr,doWork),"gpr") );
 }
 
 
@@ -85,7 +78,7 @@ public:
 
 uiDZTImporter( uiParent* p )
     : uiDialog(p,Setup(uiStrings::phrImport(tr("GPR-DZT Seismics")),mNoDlgTitle,
-			mODHelpKey(mDZTImporterHelpID) ))
+                        mODHelpKey(mDZTImporterHelpID) ))
     , inpfld_(0)
 {
     setOkText( uiStrings::sImport() );
@@ -184,7 +177,7 @@ void uiImpGPRMgr::doWork( CallBacker* )
 {
     if ( !uiSurvey::userIsOKWithPossibleTypeChange(true) ) return;
 
-    uiDZTImporter dlg( &appl_ );
+    uiDZTImporter dlg( &appl() );
     dlg.go();
 }
 
@@ -192,7 +185,10 @@ void uiImpGPRMgr::doWork( CallBacker* )
 mDefODInitPlugin(uiImpGPR)
 {
     mDefineStaticLocalObject( PtrMan<uiImpGPRMgr>, theinst_,
-				= new uiImpGPRMgr() );
+	= new uiImpGPRMgr() );
 
-    return nullptr;
+    if ( !theinst_ )
+	return "Cannot instantiate ImpGPR plugin";
+
+    return nullptr; // All OK - no error messages
 }

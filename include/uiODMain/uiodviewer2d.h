@@ -232,6 +232,7 @@ protected:
     void			updateTransformData();
 
     void			winCloseCB(CallBacker*);
+    void			applClosed(CallBacker*);
     void			probeChangedCB(CallBacker*);
     void			posChg(CallBacker*);
     void			itmSelectionChangedCB(CallBacker*);

@@ -7,7 +7,6 @@
 
 
 #include "uimenu.h"
-#include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uimsg.h"
 #include "uipresentationmaker.h"
@@ -29,21 +28,20 @@ mDefODPluginInfo(uiPresentationMaker)
 }
 
 
-class uiPresMakerPIMgr: public uiPluginInitMgr
+class uiPresMakerPIMgr	: public uiPluginInitMgr
 { mODTextTranslationClass(uiPresMakerPIMgr)
 public:
-
 				uiPresMakerPIMgr();
 
 private:
 
-    uiPresentationMakerDlg*	dlg_ = nullptr;
+    uiDialog*			dlg_ = nullptr;
 
-    void			beforeSurveyChange() override;
-    void			applicationClosing() override;
-    void			doCleanup();
-    void			mnuCB(CallBacker*);
+    void			dTectMenuChanged() override;
+    void			dTectToolbarChanged() override;
+    void			cleanup() override;
 
+    void			showDlgCB(CallBacker*);
 };
 
 
@@ -51,45 +49,44 @@ uiPresMakerPIMgr::uiPresMakerPIMgr()
     : uiPluginInitMgr()
 {
     init();
-    uiAction* action = new uiAction( m3Dots(tr("Presentation Maker")),
-			mCB(this,uiPresMakerPIMgr,mnuCB), "ppt" );
-    appl_.menuMgr().toolsMnu()->insertAction( action );
 }
 
 
-void uiPresMakerPIMgr::beforeSurveyChange()
+void uiPresMakerPIMgr::dTectMenuChanged()
 {
-    doCleanup();
+    appl().menuMgr().toolsMnu()->insertAction(
+	new uiAction( m3Dots( tr("Presentation Maker") ),
+		      mCB(this,uiPresMakerPIMgr,showDlgCB), "ppt" ) );
 }
 
 
-void uiPresMakerPIMgr::applicationClosing()
+void uiPresMakerPIMgr::dTectToolbarChanged()
 {
-    doCleanup();
+    appl().menuMgr().dtectTB()->addButton( "ppt", tr("Presentation Maker"),
+				mCB(this,uiPresMakerPIMgr,showDlgCB) );
 }
 
 
-void uiPresMakerPIMgr::doCleanup()
+void uiPresMakerPIMgr::cleanup()
 {
-    if ( dlg_ )
-	{ dlg_->close(); deleteAndZeroPtr( dlg_ ); }
+    closeAndZeroPtr( dlg_ );
+    uiPluginInitMgr::cleanup();
 }
 
 
-void uiPresMakerPIMgr::mnuCB( CallBacker* )
+void uiPresMakerPIMgr::showDlgCB( CallBacker* )
 {
     if ( !dlg_ )
-	dlg_ = new uiPresentationMakerDlg( &appl_ );
+	dlg_ = new uiPresentationMakerDlg( &appl() );
 
     dlg_->show();
 }
 
 
-
 mDefODInitPlugin(uiPresentationMaker)
 {
-    mDefineStaticLocalObject( PtrMan<uiPresMakerPIMgr>, presmgr,
-				= new uiPresMakerPIMgr() );
+    mDefineStaticLocalObject( PtrMan<uiPresMakerPIMgr>, mgr,
+		    mUnusedVar = new uiPresMakerPIMgr() );
 
     return nullptr;
 }

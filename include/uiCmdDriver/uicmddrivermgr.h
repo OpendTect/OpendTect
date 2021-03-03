@@ -58,16 +58,15 @@ protected:
     void			stopRecordingCB(CallBacker*);
     void			runScriptCB(CallBacker*);
 
-    void	closeDlg(CallBacker*);
     void			keyPressedCB(CallBacker*);
     uiCmdDriverDlg*		getCmdDlg();
 
-    uiMainWin&	applwin_;
+    uiMainWin&			applwin_;
     CmdDriver*			drv_;
     CmdRecorder*		rec_;
-    CmdRecorder*		historec_;
+    CmdRecorder*		historec_ = nullptr;
     Timer*			tim_;
-    uiCmdDriverDlg*		cmddlg_;
+    uiCmdDriverDlg*		cmddlg_ = nullptr;
 
     bool			cmdlineparsing_;
     BufferString		defaultscriptsdir_;

@@ -78,9 +78,9 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, Probe& probe,
     : appl_(appl)
     , vdselspec_(*new Attrib::SelSpec)
     , wvaselspec_(*new Attrib::SelSpec)
-    , viewwin_(0)
-    , slicepos_(0)
-    , viewstdcontrol_(0)
+    , viewwin_(nullptr)
+    , slicepos_(nullptr)
+    , viewstdcontrol_(nullptr)
     , datamgr_(new Vw2DDataManager)
     , tifs_(0)
     , treetp_(0)
@@ -369,13 +369,13 @@ void uiODViewer2D::createViewWin()
 {
     bool wantdock = false;
     Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
-    uiParent* controlparent = 0;
+    uiParent* controlparent = nullptr;
     if ( !wantdock )
     {
-	uiFlatViewMainWin* fvmw = new uiFlatViewMainWin( 0,
-		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true) );
+	auto* fvmw = new uiFlatViewMainWin( nullptr,
+					uiFlatViewMainWin::Setup(basetxt_) );
 	mAttachCB( fvmw->windowClosed, uiODViewer2D::winCloseCB );
-
+	mAttachCB( appl_.windowClosed, uiODViewer2D::applClosed );
 	if ( probe_.is3DSlice() )
 	{
 	    slicepos_ = new uiSlicePos2DView( fvmw, ZDomain::Info(zDomain()) );
@@ -388,7 +388,7 @@ void uiODViewer2D::createViewWin()
     }
     else
     {
-	uiFlatViewDockWin* dwin = new uiFlatViewDockWin( &appl_,
+	auto* dwin = new uiFlatViewDockWin( &appl_,
 				   uiFlatViewDockWin::Setup(basetxt_) );
 	appl_.addDockWindow( *dwin, uiMainWin::Top );
 	dwin->setFloating( true );
@@ -528,14 +528,22 @@ void uiODViewer2D::createViewWinEditors()
 
 void uiODViewer2D::winCloseCB( CallBacker* cb )
 {
-    delete treetp_; treetp_ = 0;
+    deleteAndZeroPtr( treetp_ );
     datamgr_->removeAll();
 
     deepErase( auxdataeditors_ );
     removeAvailablePacks();
 
-    viewwin_ = 0;
+    viewwin_ = nullptr;
     viewWinClosed.trigger();
+}
+
+
+void uiODViewer2D::applClosed( CallBacker* )
+{
+    mDynamicCastGet(uiFlatViewMainWin*,uimainviewwin,viewwin_);
+    if ( uimainviewwin )
+	uimainviewwin->close();
 }
 
 

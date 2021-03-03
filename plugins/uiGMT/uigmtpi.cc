@@ -66,13 +66,13 @@ uiGMTIntro( uiParent* p )
 			"to the GMT installation 'share' directory\n"
 		       "and your PATH variable includes the GMT bin directory");
 
-    uiLabel* lbl = new uiLabel( this, msg );
+    auto* lbl = new uiLabel( this, msg );
     lbl->setAlignment( OD::Alignment::HCenter );
 
-    uiPushButton* gmtbut = new uiPushButton( this, tr("Download GMT"),
+    auto* gmtbut = new uiPushButton( this, tr("Download GMT"),
 					     mCB(this,uiGMTIntro,gmtPush),
 					     true );
-    gmtbut->setToolTip( tr("Click to go to the Download centre") );
+    gmtbut->setToolTip( tr("Click to go to the Download center") );
     gmtbut->attach( centeredBelow, lbl );
 }
 
@@ -81,7 +81,7 @@ protected:
 void gmtPush( CallBacker* )
 {
     uiDesktopServices::openUrl( __islinux__
-	? "http://www.opendtect.org/index.php/download.html"
+	? "https://dgbes.com/index.php/download"
 	: "http://gmt.soest.hawaii.edu/projects/gmt/wiki/Download" );
 }
 
@@ -97,15 +97,15 @@ class uiGMTMgr :  public uiPluginInitMgr
 { mODTextTranslationClass(uiGMTMgr)
 public:
 			uiGMTMgr();
-			~uiGMTMgr();
 
 private:
 
-    uiGMTMainWin*	dlg_ = nullptr;
+    uiDialog*		dlg_ = nullptr;
 
     void		dTectMenuChanged() override;
-    void		createMap(CallBacker*);
+    void		cleanup() override;
 
+    void		showDlgCB( CallBacker* );
 };
 
 
@@ -116,21 +116,22 @@ uiGMTMgr::uiGMTMgr()
 }
 
 
-uiGMTMgr::~uiGMTMgr()
-{
-}
-
-
 void uiGMTMgr::dTectMenuChanged()
 {
-    deleteAndZeroPtr( dlg_ );
-    uiAction* act = new uiAction( m3Dots(tr("GMT Mapping Tool")),
-				  mCB(this,uiGMTMgr,createMap), "gmt_logo" );
-    appl_.menuMgr().procMnu()->insertAction( act );
+    auto* action = new uiAction( m3Dots(tr("GMT Mapping Tool")),
+			         mCB(this,uiGMTMgr,showDlgCB), "gmt_logo" );
+    appl().menuMgr().procMnu()->insertAction( action );
 }
 
 
-void uiGMTMgr::createMap( CallBacker* )
+void uiGMTMgr::cleanup()
+{
+    closeAndZeroPtr( dlg_ );
+    uiPluginInitMgr::cleanup();
+}
+
+
+void uiGMTMgr::showDlgCB( CallBacker* )
 {
     if ( !dlg_ )
     {
@@ -140,22 +141,24 @@ void uiGMTMgr::createMap( CallBacker* )
 
 	if ( !GMT::hasGMT() || !gmtsharedir )
 	{
-	    uiGMTIntro introdlg( &appl_ );
+	    uiGMTIntro introdlg( &appl() );
 	    if ( !introdlg.go() )
 		return;
 	}
 
-	dlg_ = new uiGMTMainWin( &appl_ );
+	dlg_ = new uiGMTMainWin( &appl() );
     }
 
     dlg_->show();
-    dlg_->raise();
 }
 
 
 mDefODInitPlugin(uiGMT)
 {
-    mDefineStaticLocalObject( PtrMan<uiGMTMgr>, gmtmgr_, = new uiGMTMgr() );
+    mDefineStaticLocalObject( PtrMan<uiGMTMgr>, theinst_, = new uiGMTMgr() );
+    if ( !theinst_ )
+	return "Cannot instantiate GMT plugin";
+
     DBMan::CustomDirData cdd( ODGMT::cGMTSelDirIDNr(), ODGMT::sKeyGMT(),
 			      "GMT data" );
     uiRetVal uirv = DBMan::addCustomDataDir( cdd );

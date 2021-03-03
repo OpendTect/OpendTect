@@ -25,12 +25,11 @@ mDefODPluginInfo(uiPreStackViewer)
 
 mDefODInitPlugin(uiPreStackViewer)
 {
-    mDefineStaticLocalObject( PtrMan<PreStackView::uiViewer3DMgr>, theinst_,=0);
-    if ( theinst_ ) return 0;
+    mDefineStaticLocalObject( PtrMan<PreStackView::uiViewer3DMgr>, theinst_,
+		    = new PreStackView::uiViewer3DMgr() );
 
-    theinst_ = new PreStackView::uiViewer3DMgr();
     if ( !theinst_ )
 	return "Cannot instantiate PreStackViewer plugin";
 
-    return 0;
+    return nullptr;
 }

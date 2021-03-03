@@ -27,41 +27,49 @@ mDefODPluginInfo(uiTutMadagascar)
 // We need an object to receive the CallBacks, we will thus create a manager
 // inheriting from CallBacker.
 
-class uiMadTutMgr :  public CallBacker
+class uiMadTutMgr :  public uiPluginInitMgr
 { mODTextTranslationClass(uiMadTutMgr);
-    public:
+public:
 
-			uiMadTutMgr(uiODMain&);
+			uiMadTutMgr();
 
-    uiODMain&           mainappl;
+private:
+
+    void		dTectMenuChanged() override;
+
     void                dispDlg(CallBacker*);
 };
 
 
-uiMadTutMgr::uiMadTutMgr( uiODMain& a )
-    : mainappl( a )
+uiMadTutMgr::uiMadTutMgr()
+    : uiPluginInitMgr()
 {
-    uiAction* newitem = new uiAction( m3Dots(tr("Display Madagascar data")),
-					  mCB(this,uiMadTutMgr,dispDlg) );
-    mainappl.menuMgr().utilMnu()->insertAction( newitem );
+    init();
+}
+
+
+void uiMadTutMgr::dTectMenuChanged()
+{
+    auto* newitem = new uiAction( m3Dots( tr( "Display Madagascar data" ) ),
+				  mCB(this,uiMadTutMgr,dispDlg) );
+    appl().menuMgr().utilMnu()->insertAction( newitem );
 }
 
 
 void uiMadTutMgr::dispDlg( CallBacker* )
 {
-    uiTutODMad maddispdlg( &mainappl );
+    uiTutODMad maddispdlg( &appl() );
     maddispdlg.go();
 }
 
 
 mDefODInitPlugin(uiTutMadagascar)
 {
-    mDefineStaticLocalObject( PtrMan<uiMadTutMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
+    mDefineStaticLocalObject( PtrMan<uiMadTutMgr>, theinst_,
+		    = new uiMadTutMgr() );
 
-    theinst_ = new uiMadTutMgr( *ODMainWin() );
     if ( !theinst_ )
 	return "Cannot instantiate Madagascar tutorial plugin";
 
-    return 0; // All OK - no error messages
+    return nullptr; // All OK - no error messages
 }
