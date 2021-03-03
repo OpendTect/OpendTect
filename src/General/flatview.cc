@@ -145,12 +145,27 @@ float* FlatPosData::getPositions( bool isx1 ) const
 
 
 FlatView::DataDispPars::Common::Common()
-    : show_(true)
-    , blocky_(false)
-    , allowuserchange_(true)
-    , allowuserchangedata_(true)
 {}
 
+
+FlatView::DataDispPars::Common::~Common()
+{}
+
+
+FlatView::DataDispPars::VD::VD()
+{}
+
+
+FlatView::DataDispPars::VD::~VD()
+{}
+
+
+FlatView::DataDispPars::WVA::WVA()
+{}
+
+
+FlatView::DataDispPars::WVA::~WVA()
+{}
 
 /*void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
 {
@@ -182,18 +197,12 @@ FlatView::DataDispPars::Common::Common()
 
 FlatView::Annotation::AxisData::AxisData()
     : sampling_(mUdf(float),mUdf(float))
-    , hasannot_(true)
-    , showannot_(false)
-    , showgridlines_(false)
-    , reversed_(false)
-    , annotinint_(false)
-    , factor_(1)
-    , showauxannot_(true)
-    , auxlinestyle_( OD::LineStyle(OD::LineStyle(OD::LineStyle::Dot)) )
-    , auxhllinestyle_( OD::LineStyle(OD::LineStyle(OD::LineStyle::Dot,2,
-					   getRandStdDrawColor())) )
+    , auxhllinestyle_( OD::LineStyle::Dot,2,getRandStdDrawColor() )
 {}
 
+
+FlatView::Annotation::AxisData::~AxisData()
+{}
 
 void FlatView::Annotation::AxisData::showAll( bool yn )
 {
@@ -215,14 +224,7 @@ int FlatView::Annotation::AxisData::auxPosIdx( float atpos, float eps ) const
 
 
 FlatView::Annotation::Annotation( bool drkbg )
-    : dynamictitle_(true)
-    , color_(drkbg ? OD::Color::White() :OD:: Color::Black())
-    , showaux_(true)
-    , showscalebar_(false)
-    , showcolorbar_(false)
-    , editable_(false)
-    , allowuserchange_(true)
-    , allowuserchangereversedaxis_(true)
+    : color_(drkbg ? OD::Color::White() :OD:: Color::Black())
 {
     x1_.name_ = "X1";
     x2_.name_ = "X2";
@@ -265,34 +267,9 @@ void FlatView::Annotation::usePar( const IOPar& iop )
 }
 
 
-FlatView::AuxData::EditPermissions::EditPermissions()
-    : onoff_(true)
-    , namepos_(true)
-    , linestyle_(true)
-    , linecolor_(true)
-    , fillcolor_(true)
-    , markerstyle_(true)
-    , markercolor_(true)
-    , x1rg_(true)
-    , x2rg_(true)
-{}
-
-
 FlatView::AuxData::AuxData( const char* nm )
     : name_(nm)
-    , namepos_(mUdf(int))
-    , namealignment_(mAlignment(Center,Center))
-    , linestyle_(OD::LineStyle::None,1,OD::Color::NoColor() )
-    , fillcolor_(OD::Color::NoColor())
-    , zvalue_(1)
-    , close_(false)
-    , x1rg_(nullptr)
-    , x2rg_(nullptr)
-    , enabled_(true)
-    , editpermissions_(nullptr)
-    , turnon_(true)
-    , needsupdatelines_(true)
-    , fitnameinview_(true)
+    , linestyle_(OD::LineStyle::None,1,OD::Color::NoColor())
 {
 }
 
@@ -333,6 +310,15 @@ bool FlatView::AuxData::isEmpty() const
 
 void FlatView::AuxData::empty()
 { poly_.erase(); }
+
+
+FlatView::AuxData::FillGradient::FillGradient()
+{}
+
+
+FlatView::AuxData::FillGradient::~FillGradient()
+{}
+
 
 void FlatView::AuxData::FillGradient::set( const Point& fr, const Point& to,
 		const TypeSet<float>& stops, const TypeSet<OD::Color>& colors )
@@ -479,11 +465,6 @@ FlatView::Viewer& vwr_;
 FlatView::Viewer::Viewer()
     : cbrcvr_(new FlatView_CB_Rcvr(*this))
     , dpm_(DPM(DataPackMgr::FlatID()))
-    , defapp_(0)
-    , datatransform_(0)
-    , wvapack_(0)
-    , vdpack_(0)
-    , needstatusbarupd_(true)
     , zdinfo_(new ZDomain::Info(ZDomain::SI()))
 {
     dpm_.packToBeRemoved.notifyIfNotNotified(

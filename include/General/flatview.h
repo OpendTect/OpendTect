@@ -40,17 +40,17 @@ public:
     mExpClass(General) EditPermissions
     {
     public:
-			EditPermissions();
+			EditPermissions() {}
 
-	bool		onoff_;
-	bool		namepos_;
-	bool		linestyle_;
-	bool		linecolor_;
-	bool		fillcolor_;
-	bool		markerstyle_;
-	bool		markercolor_;
-	bool		x1rg_;
-	bool		x2rg_;
+	bool		onoff_ = true;
+	bool		namepos_ = true;
+	bool		linestyle_ = true;
+	bool		linecolor_ = true;
+	bool		fillcolor_ = true;
+	bool		markerstyle_ = true;
+	bool		markercolor_ = true;
+	bool		x1rg_ = true;
+	bool		x2rg_ = true;
     };
 
 
@@ -58,16 +58,18 @@ public:
     virtual AuxData*		clone() const { return new AuxData(*this); }
     virtual void		touch()					{}
 
-    EditPermissions*		editpermissions_;//!<If null no editing allowed
+    EditPermissions*		editpermissions_ = nullptr;
+				//!<If null no editing allowed
 
-    bool			enabled_;	//!<Turns on/off everything
+    bool			enabled_ = true;	//!<Turns on/off everything
     BufferString		name_;
-    Alignment			namealignment_;
-    int				namepos_;	//!<nodraw=udf, before first=-1,
+    Alignment			namealignment_ = mAlignment(Center,Center);
+    int				namepos_ = mUdf(int);	//!<nodraw=udf, before first=-1,
 					    //!< center=0, after last=1
-    bool			fitnameinview_;
-    Interval<double>*		x1rg_;		//!<if 0, use viewer's rg & zoom
-    Interval<double>*		x2rg_;		//!<if 0, use viewer's rg & zoom
+    bool			fitnameinview_ = true;
+    Interval<double>*		x1rg_ = nullptr;
+    Interval<double>*		x2rg_ = nullptr;
+				//!<if null, use viewer's rg & zoom
 
     TypeSet<Point>		poly_;
     TypeSet<MarkerStyle2D>	markerstyles_;
@@ -80,14 +82,14 @@ public:
 				*/
 
     OD::LineStyle		linestyle_;
-    OD::Color			fillcolor_;
+    OD::Color			fillcolor_ = OD::Color::NoColor();
     FillPattern			fillpattern_;
 
     mExpClass(General) FillGradient
     {
     public:
-			FillGradient()
-			    : from_(Point::udf()),to_(Point::udf())	{}
+			FillGradient();
+			~FillGradient();
 
 	void		set(const Point& fr,const Point& to,
 			    const TypeSet<float>& stops,
@@ -95,29 +97,29 @@ public:
 	void		set(const OD::Color&,const OD::Color&,bool hor);
 	bool		hasGradient()	{ return !stops_.isEmpty(); }
 
-	Point			from_;
-	Point			to_;
+	Point			from_ = Point::udf();
+	Point			to_ = Point::udf();
 	TypeSet<float>		stops_;
 	TypeSet<OD::Color>	colors_;
     };
 
     FillGradient		fillgradient_;
 
-    int				zvalue_; //!<overlay zvalue ( max=on top )
+    int				zvalue_ = 1; //!<overlay zvalue ( max=on top )
     MouseCursor			cursor_;
 
-    bool			close_;
+    bool			close_ = false;
 
     void			setFillPattern( const FillPattern& fp )
 						{ fillpattern_ = fp; }
     bool			isEmpty() const;
     void			empty();
-    bool			turnon_;
-    bool			needsupdatelines_;
+    bool			turnon_ = true;
+    bool			needsupdatelines_ = true;
 
-    // should be protected, don't use.
-				AuxData( const char* nm );
-				AuxData( const AuxData& );
+protected:
+				AuxData(const char* nm);
+				AuxData(const AuxData&);
 				friend class Viewer;
 };
 
@@ -136,18 +138,19 @@ public:
     mStruct(General) AxisData
     {
 				AxisData();
+				~AxisData();
 
 	BufferString		name_;
 	SamplingData<float>	sampling_;
-	bool			hasannot_;
-	bool			showannot_;
-	bool			showgridlines_;
-	bool			reversed_;
-	bool			annotinint_;
-	int			factor_;
-	bool			showauxannot_;
+	bool			hasannot_ = true;
+	bool			showannot_ = false;
+	bool			showgridlines_ = false;
+	bool			reversed_ = false;
+	bool			annotinint_ = false;
+	int			factor_ = 1;
+	bool			showauxannot_ = true;
 	uiString		auxlabel_;
-	OD::LineStyle		auxlinestyle_;
+	OD::LineStyle		auxlinestyle_ = OD::LineStyle::Dot;
 	OD::LineStyle		auxhllinestyle_;
 	TypeSet<PlotAnnotation> auxannot_;
 	int			auxPosIdx(float pos,float eps) const;
@@ -159,18 +162,18 @@ public:
 				~Annotation();
 
     BufferString		title_; //!< color not settable
-    bool			dynamictitle_;
+    bool			dynamictitle_ = true;
 				//!< allows for setting title dynamically
     OD::Color			color_; //!< For axes
     AxisData			x1_;
     AxisData			x2_;
 
-    bool			showaux_;
-    bool			showscalebar_;
-    bool			showcolorbar_;
-    bool			editable_;
-    bool			allowuserchange_;
-    bool			allowuserchangereversedaxis_;
+    bool			showaux_ = true;
+    bool			showscalebar_ = false;
+    bool			showcolorbar_ = false;
+    bool			editable_ = false;
+    bool			allowuserchange_ = true;
+    bool			allowuserchangereversedaxis_ = true;
 
     inline void		setAxesAnnot( bool yn ) //!< Convenience all or nothing
 			{ x1_.showAll(yn); x2_.showAll(yn); }
@@ -216,12 +219,13 @@ public:
     mExpClass(General) Common
     {
     public:
-			Common();
+				Common();
+				~Common();
 
-	bool			show_;	   // default=true
-	bool			blocky_;   // default=false
-	bool			allowuserchange_;
-	bool			allowuserchangedata_;
+	bool			show_ = true;
+	bool			blocky_ = false;
+	bool			allowuserchange_ = true;
+	bool			allowuserchangedata_ = true;
 	ColTab::MapperSetup	mappersetup_;
     };
 
@@ -230,31 +234,26 @@ public:
     {
     public:
 
-			VD()
-			: lininterp_(false) {}
+			VD();
+			~VD();
 
 	BufferString	ctab_;
-	bool		lininterp_; // Use bi-linear interpol, not poly
+	bool		lininterp_ = false; // Use bi-linear interpol, not poly
     };
     //!\brief Wiggle/Variable Area parameters
     mExpClass(General) WVA : public Common
     {
     public:
 
-		    WVA()
-			: wigg_(OD::Color::Black())
-			, refline_(OD::Color::NoColor())
-			, lowfill_(OD::Color::NoColor())
-			, highfill_(OD::Color::Black())
-			, overlap_(1)
-			, reflinevalue_(mUdf(float))	{}
+			WVA();
+			~WVA();
 
-	OD::Color	wigg_;
-	OD::Color	refline_;
-	OD::Color	lowfill_;
-	OD::Color	highfill_;
-	float		overlap_;
-	float		reflinevalue_;
+	OD::Color	wigg_ = OD::Color::Black();
+	OD::Color	refline_ = OD::Color::NoColor();
+	OD::Color	lowfill_ = OD::Color::NoColor();
+	OD::Color	highfill_ = OD::Color::Black();
+	float		overlap_ = 1.f;
+	float		reflinevalue_ = mUdf(float);
     };
 
 			DataDispPars()		{}
@@ -297,20 +296,19 @@ public:
 			Appearance( bool drkbg=true )
 			    : darkbg_(drkbg)
 			    , annot_(drkbg)
-			    , secondsetaxes_(drkbg)
-			    , anglewithset1_(0)		{}
+			    , secondsetaxes_(drkbg) {}
 
     virtual		~Appearance()			{}
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
-    Annotation		annot_;
+    Annotation		annot_ = true;
     DataDispPars	ddpars_;
 
     //Second set of axes, especially handy in case flat viewer is horizontal
-    Annotation		secondsetaxes_;
-    float		anglewithset1_;
+    Annotation		secondsetaxes_ = Annotation(true);
+    float		anglewithset1_ = 0.f;
 
     void		setDarkBG(bool yn);
     bool		darkBG() const		{ return darkbg_; }
@@ -319,7 +317,7 @@ public:
 
 protected:
 
-    bool		darkbg_;	//!< Two styles: dark (=black)
+    bool		darkbg_ = true;	//!< Two styles: dark (=black)
 					//!< and lite (=white) background
 					//!< Impacts a lot of display choices
 };
@@ -457,23 +455,22 @@ public:
 protected:
 
     TypeSet< ::DataPack::ID>	ids_;
-    Appearance*			defapp_;
+    Appearance*			defapp_ = nullptr;
     DataPackMgr&		dpm_;
-    ZAxisTransform*		datatransform_;
+    ZAxisTransform*		datatransform_ = nullptr;
     FlatView_CB_Rcvr*		cbrcvr_;
     mutable Threads::Lock	lock_;
-    bool			needstatusbarupd_;
+    bool			needstatusbarupd_ = true;
     ZDomain::Info*		zdinfo_;
 
     void			addAuxInfo(bool,const Point&,IOPar&) const;
 
 private:
 
-    const FlatDataPack*		wvapack_;
-    const FlatDataPack*		vdpack_;
+    const FlatDataPack*		wvapack_ = nullptr;
+    const FlatDataPack*		vdpack_ = nullptr;
     TypeSet<Pos::GeomID>	geom2dids_;
 
-public:
 };
 
 } // namespace FlatView

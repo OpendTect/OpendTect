@@ -34,9 +34,7 @@ uiAuxDataDisplay::uiAuxDataDisplay( const uiAuxDataDisplay& a )
 
 uiAuxDataDisplay::~uiAuxDataDisplay()
 {
-    if ( viewer_ )
-	mDetachCB( viewer_->viewChanged,
-		   uiAuxDataDisplay::updateTransformCB );
+    detachAllNotifiers();
 }
 
 
