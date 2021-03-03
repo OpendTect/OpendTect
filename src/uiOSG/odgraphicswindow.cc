@@ -12,6 +12,8 @@
 */
 
 #include "odgraphicswindow.h"
+#include "uimain.h"
+#include "uimainwin.h"
 
 #include <osg/DeleteHandler>
 #include <osgViewer/ViewerBase>
@@ -116,7 +118,8 @@ static QtKeyboardMap s_QtKeyboardMap;
 
 
 /// The object responsible for the scene re-rendering.
-class HeartBeat : public QObject {
+class HeartBeat : public QObject, public CallBacker
+{
 public:
     int _timerId;
     osg::Timer _lastFrameStartTime;
@@ -130,7 +133,10 @@ public:
 
     static HeartBeat* instance();
 private:
+
     HeartBeat();
+
+    void stopTimerCB(CallBacker*);
 
     static QPointer<HeartBeat> heartBeat;
 };
@@ -1083,14 +1089,19 @@ void setViewer( osgViewer::ViewerBase *viewer )
 
 
 /// Constructor. Must be called from main thread.
-HeartBeat::HeartBeat() : _timerId( 0 )
+HeartBeat::HeartBeat()
+    : _timerId( 0 )
 {
+    uiMainWin* uimw = uiMain::theMain().topLevel();
+    if ( uimw )
+	mAttachCB( uimw->windowClosed, HeartBeat::stopTimerCB );
 }
 
 
 /// Destructor. Must be called from main thread.
 HeartBeat::~HeartBeat()
 {
+    detachAllNotifiers();
     stopTimer();
 }
 
@@ -1101,6 +1112,12 @@ HeartBeat* HeartBeat::instance()
 	heartBeat = new HeartBeat();
     }
     return heartBeat;
+}
+
+
+void HeartBeat::stopTimerCB( CallBacker* )
+{
+    stopTimer();
 }
 
 

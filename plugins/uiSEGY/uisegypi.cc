@@ -71,6 +71,8 @@ private:
     uiSEGYExp*		expdlg_ = nullptr;
 
     void		dTectMenuChanged() override;
+    void		dTectToolbarChanged() override;
+    void		cleanup() override;
 
     void		edFiles(CallBacker*);
     void		handleImpExpMnu(CallBacker*);
@@ -103,20 +105,20 @@ mDefODPluginSurvRelToolsLoadFn(uiSEGY)
 uiSEGYMgr::uiSEGYMgr()
     : uiPluginInitMgr()
 {
-    uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
+    init();
+    auto* bdef = new uiSeisFileMan::BrowserDef(
 				SEGYDirectSeisTrcTranslator::translKey() );
     bdef->tooltip_ = tr("Change file/directory names in SEG-Y file %1");
     bdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisFileMan::addBrowser( bdef );
 
-    uiSeisPreStackMan::BrowserDef* psbdef = new uiSeisPreStackMan::BrowserDef(
+    auto* psbdef = new uiSeisPreStackMan::BrowserDef(
 				SEGYDirectSeisPS3DTranslator::translKey() );
     psbdef->tooltip_ = tr("Change file/directory names in SEG-Y file %1");
     psbdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisPreStackMan::addBrowser( psbdef );
 
     mCallODPluginSurvRelToolsLoadFn( uiSEGY );
-    init();
 }
 
 
@@ -134,7 +136,7 @@ uiSEGYMgr::~uiSEGYMgr()
 
 void uiSEGYMgr::dTectMenuChanged()
 {
-    auto& mnumgr = appl_.menuMgr();
+    auto& mnumgr = appl().menuMgr();
     uiMenu* impseismnu = mnumgr.getMnu( true, uiODApplMgr::Seis );
     uiMenu* impsgymnu = mnumgr.addFullSeisSubMenu( impseismnu,
 		sSEGYString(true), segyiconid_, mHandleCB, mImpStartID );
@@ -170,6 +172,14 @@ void uiSEGYMgr::dTectMenuChanged()
 
     deleteAndZeroPtr( impdlg_ );
     deleteAndZeroPtr( expdlg_ );
+}
+
+
+void uiSEGYMgr::cleanup()
+{
+    closeAndZeroPtr( impdlg_ );
+    closeAndZeroPtr( expdlg_ );
+    uiPluginInitMgr::cleanup();
 }
 
 
@@ -262,6 +272,9 @@ void uiSEGYMgr::bulkImport( CallBacker* )
 mDefODInitPlugin(uiSEGY)
 {
     mDefineStaticLocalObject( PtrMan<uiSEGYMgr>, theinst_, = new uiSEGYMgr() );
+
+    if ( !theinst_ )
+	return "Cannot instantiate SEG-Y plugin";
 
     return nullptr;
 }

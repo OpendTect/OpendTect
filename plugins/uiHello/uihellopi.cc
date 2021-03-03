@@ -1,66 +1,62 @@
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : Bert
+ * AUTHOR   : A.H. Bril
  * DATE     : Oct 2003
 -*/
 
-
-#include "odplugin.h"
-#include "uimsg.h"
 #include "uihellomod.h"
 
-#ifdef PLAN_A
-
-mDefODInitPlugin(uiHello)
-{
-    uiMSG().message( toUiString("Hello world") );
-    return 0; // All OK - no error messages
-}
-
-
-#else /* PLAN_A is not defined */
-
-
-#include "odplugin.h"
-#include "uiodmain.h"
-#include "uiodmenumgr.h"
-#include "uimenu.h"
 #include "uidialog.h"
 #include "uigeninput.h"
-#include "uistrings.h"
+#include "uimenu.h"
+#include "uimsg.h"
+#include "uiodmain.h"
+#include "uiodmenumgr.h"
+
+#include "odplugin.h"
+
 
 mDefODPluginInfo(uiHello)
 {
-    mDefineStaticLocalObject( PluginInfo, retpi,(
-	"uiHello plugin - plan B",
-	mODPluginTutorialsPackage,
-	mODPluginCreator, mODPluginVersion,
-	"This is the more extensive variant of the uiHello example.\n"
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"Hello World plugin (GUI)",
+	"Hello World",
+	"dGB",
+	"1.1.1",
+	"This is the GUI variant of the uiHello example.\n"
 	"See the plugin manual for details.") );
     return &retpi;
 }
 
 
-// OK: we need an object to receive the CallBacks. In real situations,
+// OK: we need an object to receive the CallBacks. In serious software,
 // that may be a 'normal' object inheriting from CallBacker.
 
-class uiHelloMgr :  public CallBacker
+class uiHelloMgr :  public uiPluginInitMgr
 { mODTextTranslationClass(uiHelloMgr);
 public:
+			uiHelloMgr();
 
-			uiHelloMgr(uiODMain&);
+private:
 
-    uiODMain&		appl;
+    void		dTectMenuChanged() override;
+
     void		dispMsg(CallBacker*);
 };
 
 
-uiHelloMgr::uiHelloMgr( uiODMain& a )
-	: appl(a)
+uiHelloMgr::uiHelloMgr()
+    : uiPluginInitMgr()
 {
-    uiAction* newitem = new uiAction( m3Dots(tr("Display Hello Message")),
-					  mCB(this,uiHelloMgr,dispMsg) );
-    appl.menuMgr().utilMnu()->insertAction( newitem );
+    init();
+}
+
+
+void uiHelloMgr::dTectMenuChanged()
+{
+    auto* action = new uiAction( m3Dots( tr( "Display Hello Message" ) ),
+				 mCB(this,uiHelloMgr,dispMsg) );
+    appl().menuMgr().utilMnu()->insertAction( action );
 }
 
 
@@ -72,52 +68,54 @@ uiHelloMsgBringer( uiParent* p )
     : uiDialog(p,Setup(tr("Hello Message Window"),tr("Specify hello message"),
 			mNoHelpKey))
 {
-    txtfld = new uiGenInput( this, tr("Hello message"),
+    txtfld_ = new uiGenInput( this, tr("Hello message"),
 				StringInpSpec("Hello world") );
-    typfld = new uiGenInput( this, tr("Message type"),
-				BoolInpSpec(true,uiStrings::sInfo(),
-					    uiStrings::sWarning()) );
-    typfld->attach( alignedBelow, txtfld );
+
+    typfld_ = new uiGenInput( this, tr("Message type"),
+		BoolInpSpec(true,uiStrings::sInfo(),uiStrings::sWarning()) );
+    typfld_->attach( alignedBelow, txtfld_ );
+
+    closefld_ = new uiGenInput( this, tr("Close window"), BoolInpSpec(false) );
+    closefld_->attach( alignedBelow, typfld_ );
 }
 
-bool acceptOK()
+bool acceptOK( CallBacker* )
 {
-    const char* typedtxt = txtfld->text();
+    const char* typedtxt = txtfld_->text();
     if ( ! *typedtxt )
     {
 	uiMSG().error( tr("Please type a message text") );
 	return false;
     }
-    if ( typfld->getBoolValue() )
+    if ( typfld_->getBoolValue() )
 	uiMSG().message( toUiString(typedtxt) );
     else
 	uiMSG().warning( toUiString(typedtxt) );
-    return true;
+
+    const bool doclose = closefld_->getBoolValue();
+    return doclose;
 }
 
-    uiGenInput*	txtfld;
-    uiGenInput*	typfld;
+    uiGenInput*	txtfld_;
+    uiGenInput*	typfld_;
+    uiGenInput*	closefld_;
 
 };
 
 
 void uiHelloMgr::dispMsg( CallBacker* )
 {
-    uiHelloMsgBringer dlg( &appl );
+    uiHelloMsgBringer dlg( &appl() );
     dlg.go();
 }
 
 
-mDefODInitPlugin(uiHello)
+const char* InituiHelloPlugin( int argc, char** argv )
 {
-    mDefineStaticLocalObject( PtrMan<uiHelloMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiHelloMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiHelloMgr>, theinst_,
+		= new uiHelloMgr() );
     if ( !theinst_ )
 	return "Cannot instantiate Hello plugin";
 
-    return 0; // All OK - no error messages
+    return nullptr; // All OK - no error messages
 }
-
-#endif /* ifdef PLAN_A */

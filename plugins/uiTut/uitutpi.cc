@@ -15,7 +15,6 @@
 #include "uihelpview.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uivismenuitemhandler.h"
@@ -52,14 +51,14 @@ mDefODPluginInfo(uiTut)
 }
 
 
+
 class uiTutMgr :  public uiPluginInitMgr
 { mODTextTranslationClass(uiTutMgr);
 public:
 			uiTutMgr();
-			~uiTutMgr();
 
-    uiMenu*		mnuhor_;
-    uiMenu*		mnuseis_;
+private:
+
     uiVisMenuItemHandler wellmnuitmhandler_;
 
     void		dTectMenuChanged() override;
@@ -74,21 +73,16 @@ public:
 uiTutMgr::uiTutMgr()
     : uiPluginInitMgr()
     , wellmnuitmhandler_(visSurvey::WellDisplay::sFactoryKeyword(),
-		 *appl_.applMgr().visServer(),m3Dots(tr("Tut Well Tools")),
-		 mCB(this,uiTutMgr,doWells),0,cTutIdx)
+		 *appl().applMgr().visServer(),m3Dots(tr("Tut Well Tools")),
+		 mCB(this,uiTutMgr,doWells),nullptr,cTutIdx)
 {
     init();
 }
 
 
-uiTutMgr::~uiTutMgr()
-{
-}
-
-
 void uiTutMgr::dTectMenuChanged()
 {
-    uiODMenuMgr& mnumgr = appl_.menuMgr();
+    uiODMenuMgr& mnumgr = appl().menuMgr();
     uiMenu* mnu = mnumgr.addSubMenu( mnumgr.procMnu(), tr("Tutorial Tools"),
 					"tutorial" );
     mnumgr.add2D3DActions( mnu, tr("Seismic (Direct)"), "seis",
@@ -113,14 +107,14 @@ void uiTutMgr::do2DSeis( CallBacker* )
 
 void uiTutMgr::launchDialog( Seis::GeomType tp )
 {
-    uiTutSeisTools dlg( &appl_, tp );
+    uiTutSeisTools dlg( &appl(), tp );
     dlg.go();
 }
 
 
 void uiTutMgr::doHor( CallBacker* )
 {
-    uiTutHorTools dlg( &appl_ );
+    uiTutHorTools dlg( &appl() );
     dlg.go();
 }
 
@@ -129,7 +123,7 @@ void uiTutMgr::doWells( CallBacker* )
 {
     const int displayid = wellmnuitmhandler_.getDisplayID();
     mDynamicCastGet(visSurvey::WellDisplay*,wd,
-			appl_.applMgr().visServer()->getObject(displayid))
+			appl().applMgr().visServer()->getObject(displayid))
     if ( !wd )
 	return;
 
@@ -137,12 +131,12 @@ void uiTutMgr::doWells( CallBacker* )
     PtrMan<IOObj> ioobj = wellid.getIOObj();
     if ( !ioobj )
     {
-	gUiMsg(&appl_).error( tr("Cannot find well in database.\n"
+	gUiMsg(&appl()).error( tr("Cannot find well in database.\n"
 		          "Perhaps it's not stored yet?") );
 	return;
     }
 
-    uiTutWellTools dlg( &appl_, wellid );
+    uiTutWellTools dlg( &appl(), wellid );
     dlg.go();
 }
 
@@ -152,15 +146,12 @@ class TutHelpProvider : public SimpleHelpProvider
 public:
 TutHelpProvider( const char* baseurl, const char* linkfnm )
     : SimpleHelpProvider(baseurl,linkfnm)
-{
-}
-
+{}
 
 static void initClass()
 {
     HelpProvider::factory().addCreator( TutHelpProvider::createInstance, "tut");
 }
-
 
 static HelpProvider* createInstance()
 {
@@ -177,13 +168,17 @@ static HelpProvider* createInstance()
 
 mDefODInitPlugin(uiTut)
 {
-    mDefineStaticLocalObject( PtrMan<uiTutMgr>, tutmgr_, = new uiTutMgr() );
+    mDefineStaticLocalObject( PtrMan<uiTutMgr>, theinst_,
+		= new uiTutMgr() );
+
+    if ( !theinst_ )
+	return "Cannot instantiate Tutorial plugin";
 
     uiTutorialAttrib::initClass();
     TutHelpProvider::initClass();
     VolProc::uiTutOpCalculator::initClass();
 
-    tutmgr_->appl().sceneMgr().treeItemFactorySet()->addFactory(
+    theinst_->appl().sceneMgr().treeItemFactorySet()->addFactory(
 	new uiODTutorialParentTreeItemfactory, 9750, OD::Both2DAnd3D );
 
     return nullptr;

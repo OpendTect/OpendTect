@@ -114,8 +114,8 @@ void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
 void uiBaseMapObject::add( uiGraphicsItem& itm )
 {
     graphitem_.addChild( &itm );
-    itm.leftClicked.notify( mCB(this,uiBaseMapObject,leftClickCB) );
-    itm.rightClicked.notify( mCB(this,uiBaseMapObject,rightClickCB) );
+    mAttachCB( itm.leftClicked, uiBaseMapObject::leftClickCB );
+    mAttachCB( itm.rightClicked, uiBaseMapObject::rightClickCB );
 }
 
 
@@ -167,8 +167,7 @@ void uiBaseMapObject::update()
 
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
-		    uiPolyLineItem* itm = new uiPolyLineItem();
-		    add( *itm );
+		    add( *new uiPolyLineItem() );
 		}
 
 		mDynamicCastGet(uiPolyLineItem*,itm,graphitem_.getChild(itemnr))
@@ -193,8 +192,7 @@ void uiBaseMapObject::update()
 
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
-		    uiPolygonItem* itm = new uiPolygonItem();
-		    add( *itm );
+		    add( *new uiPolygonItem() );
 		}
 
 		mDynamicCastGet(uiPolygonItem*,itm,graphitem_.getChild(itemnr))
@@ -226,7 +224,7 @@ void uiBaseMapObject::update()
 
 		if ( graphitem_.nrChildren()<=itemnr )
 		{
-		    uiPixmapItem* itm =	new uiPixmapItem( uiPixmap(imgfnm) );
+		    auto* itm =	new uiPixmapItem( uiPixmap(imgfnm) );
 		    itm->setPaintInCenter( true );
 		    graphitem_.addChild( itm );
 		}
@@ -280,8 +278,7 @@ void uiBaseMapObject::update()
 	{
 	    if ( labelitem_.nrChildren()<=labelitemnr )
 	    {
-		uiTextItem* itm = new uiTextItem();
-		addLabel( *itm );
+		addLabel( *new uiTextItem() );
 	    }
 
 	    mDynamicCastGet(uiTextItem*,itm,labelitem_.getChild(labelitemnr));
@@ -370,12 +367,13 @@ uiBaseMap::uiBaseMap( uiParent* p )
     bmgroup_ = new uiGroup( p, "Basemap" );
     view_ = new uiGraphicsView( bmgroup_,"Basemap" );
     view_->scene().addItem( &worlditem_ );
-    view_->reSize.notify( mCB(this,uiBaseMap,reSizeCB) );
+    mAttachCB( view_->reSize, uiBaseMap::reSizeCB );
 }
 
 
 uiBaseMap::~uiBaseMap()
 {
+    detachAllNotifiers();
     deepErase( objects_ );
     view_->scene().removeItem( &worlditem_ );
     delete view_;
@@ -469,7 +467,7 @@ void uiBaseMap::addObject( BaseMapObject* obj )
 
 BaseMapObject* uiBaseMap::bmObject( int id )
 {
-    if ( id<0 ) return 0;
+    if ( id<0 ) return nullptr;
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
@@ -478,13 +476,13 @@ BaseMapObject* uiBaseMap::bmObject( int id )
 	    return bmo;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
 uiBaseMapObject* uiBaseMap::getUiObject( int id )
 {
-    if ( id<0 ) return 0;
+    if ( id<0 ) return nullptr;
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
@@ -493,7 +491,7 @@ uiBaseMapObject* uiBaseMap::getUiObject( int id )
 	    return objects_[idx];
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -587,10 +585,10 @@ const uiBaseMapObject*
 	uiBaseMap::uiObjectAt( const Geom::Point2D<float>& pt ) const
 {
     const uiGraphicsItem* itm = view_->scene().itemAt( pt );
-    if ( !itm ) return 0;
+    if ( !itm ) return nullptr;
 
     mDynamicCastGet(const uiTextItem*,txtitm,itm)
-    if ( txtitm ) return 0;
+    if ( txtitm ) return nullptr;
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
@@ -601,14 +599,14 @@ const uiBaseMapObject*
 	return objects_[idx];
     }
 
-    return 0;
+    return nullptr;
 }
 
 
 const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
 {
     const uiBaseMapObject* uibmobj = uiObjectAt( pt );
-    return uibmobj ? uibmobj->name() : 0;
+    return uibmobj ? uibmobj->name() : nullptr;
 }
 
 

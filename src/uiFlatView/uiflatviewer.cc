@@ -44,7 +44,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , updateauxdata_( false )
 
 {
-    view_->preDraw.notify( mCB(this,uiFlatViewer,updateCB ) );
+    mAttachCB( view_->preDraw, uiFlatViewer::updateCB );
     view_->disableScrollZoom();
     view_->setMidMouseButtonForDrag( false );
     view_->scene().addItem( worldgroup_ );
@@ -52,12 +52,12 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     view_->setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAlwaysOff );
     view_->setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
     view_->setSceneBorder( 2 );
-    view_->reSize.notify( mCB(this,uiFlatViewer,reSizeCB) );
+    mAttachCB( view_->reSize, uiFlatViewer::reSizeCB );
     setStretch( 2, 2 ); view_->setStretch( 2, 2 );
 
     bitmapdisp_ = new uiBitMapDisplay( appearance(), false );
+    mAttachCB( bitmapdisp_->rangeUpdated, uiFlatViewer::rangeUpdatedCB );
     bitmapdisp_->getDisplay()->setZValue( bitMapZVal() );
-    bitmapdisp_->rangeUpdated.notify( mCB(this,uiFlatViewer,rangeUpdatedCB) );
     worldgroup_->add( bitmapdisp_->getDisplay() );
 
     axesdrawer_.setZValue( annotZVal() );
@@ -73,7 +73,6 @@ uiFlatViewer::~uiFlatViewer()
 
     bitmapdisp_->removeDisplay();
     delete bitmapdisp_;
-
     delete view_->scene().removeItem( worldgroup_ );
 
     deepErase( auxdata_ );

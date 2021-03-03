@@ -44,8 +44,8 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	: uiCentralWidgetBody(nm)
 	, QMainWindow(mParent)
 	, handle_(uimw)
-	, statusbar_(0)
-	, menubar_(0)
+	, statusbar_(nullptr)
+	, menubar_(nullptr)
 	, toolbarsmnu_(0)
 	, modal_(p && modal)
 	, poptimer_("Popup timer")
@@ -75,7 +75,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 
     setDockOptions( VerticalTabs | AnimatedDocks );
 
-    poptimer_.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
+    mAttachCB( poptimer_.tick, uiMainWinBody::popTimTick );
 }
 
 

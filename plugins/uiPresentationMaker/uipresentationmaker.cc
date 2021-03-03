@@ -172,12 +172,11 @@ uiPresMakerSettings( uiParent* p, PresentationSpec& spec )
 };
 
 
-uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
-    : uiDialog(0, Setup(tr("Presentation Maker"), mNoDlgTitle,
-		mODHelpKey(mPresentationMakerDlgHelpID)))
-    , checktimer_(0)
+uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
+    : uiDialog(p,Setup(tr("Presentation Maker"),mNoDlgTitle,
+		mODHelpKey(mPresentationMakerDlgHelpID)).modal(false))
+    , checktimer_(nullptr)
 {
-    setModal( false );
     setCtrlStyle( CloseOnly );
 
     titlefld_ = new uiGenInput( this, tr("Presentation Title") );
@@ -269,6 +268,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* )
 
 uiPresentationMakerDlg::~uiPresentationMakerDlg()
 {
+    detachAllNotifiers();
     delete checktimer_;
 }
 

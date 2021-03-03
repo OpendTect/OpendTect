@@ -79,7 +79,7 @@ public:
 
 private:
 
-    uiSeis2DFileMan*	cur2dfm_;
+    uiSeis2DFileMan*	cur2dfm_ = nullptr;
     uiVisMenuItemHandler psmnuitmhandler_;
     uiVisMenuItemHandler rlmnuitmhandler_;
 
@@ -97,19 +97,19 @@ private:
 uiGoogleIOMgr::uiGoogleIOMgr()
     : uiPluginInitMgr()
     , psmnuitmhandler_(visSurvey::PickSetDisplay::sFactoryKeyword(),
-		    *appl_.applMgr().visServer(),
+		    *appl().applMgr().visServer(),
 		   sMenuTxt(),
 		    mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
     , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::sFactoryKeyword(),
-			*appl_.applMgr().visServer(),sMenuTxt(),
+			*appl().applMgr().visServer(),sMenuTxt(),
 			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
 {
+    init();
     psmnuitmhandler_.setIcon( "google" );
     rlmnuitmhandler_.setIcon( "google" );
     mAttachCB( uiWellMan::instanceCreated(), uiGoogleIOMgr::mkExportWellsIcon );
     mAttachCB( uiSeis2DFileMan::instanceCreated(),
 	       uiGoogleIOMgr::mkExportLinesIcon );
-    init();
 }
 
 

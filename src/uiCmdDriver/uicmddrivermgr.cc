@@ -10,31 +10,27 @@ ________________________________________________________________________
 
 #include "uicmddrivermgr.h"
 
+
+#include "cmddriver.h"
 #include "cmdrecorder.h"
+#include "commandlineparser.h"
 #include "envvars.h"
+#include "file.h"
 #include "filepath.h"
 #include "dbman.h"
 #include "keyboardevent.h"
 #include "keyenum.h"
 #include "oddirs.h"
 #include "settings.h"
+#include "sighndl.h"
+#include "timer.h"
 
+#include "uicmddriverdlg.h"
 #include "uimain.h"
 #include "uimenu.h"
 #include "uimsg.h"
 
-#include "cmddriver.h"
-#include "cmdrecorder.h"
-#include "uicmddriverdlg.h"
 
-#include "commandlineparser.h"
-#include "envvars.h"
-#include "file.h"
-#include "filepath.h"
-#include "dbman.h"
-#include "oddirs.h"
-#include "timer.h"
-#include "sighndl.h"
 
 namespace CmdDrive
 {
@@ -45,11 +41,9 @@ static const char* autoexecfnm = "autoexec.odcmd";
 
 uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
 	: applwin_(*uiMain::theMain().topLevel())
-	, cmddlg_(0)
 	, settingsautoexec_(fullodmode)
 	, surveyautoexec_(fullodmode)
 	, scriptidx_(-3)
-        , historec_(0)
 	, cmdlineparsing_(fullodmode)
 	, defaultscriptsdir_(fullodmode ? "" : GetPersonalDir())
 	, defaultlogdir_(fullodmode ? "" : GetPersonalDir())
@@ -62,7 +56,7 @@ uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
 
     mAttachCB( DBM().surveyToBeChanged, uiCmdDriverMgr::beforeSurveyChg );
     mAttachCB( DBM().afterSurveyChange, uiCmdDriverMgr::afterSurveyChg );
-    mAttachCB( applwin_.windowClosed, uiCmdDriverMgr::closeDlg );
+    mAttachCB( DBM().applicationClosing, uiCmdDriverMgr::stopRecordingCB );
     mAttachCB( applwin_.runScriptRequest, uiCmdDriverMgr::runScriptCB );
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 	       uiCmdDriverMgr::keyPressedCB );
@@ -79,7 +73,6 @@ uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
 uiCmdDriverMgr::~uiCmdDriverMgr()
 {
     detachAllNotifiers();
-    closeDlg(0);
 
     delete tim_;
     delete rec_;
@@ -97,7 +90,7 @@ uiCmdDriverMgr::~uiCmdDriverMgr()
 uiCmdDriverMgr& uiCmdDriverMgr::getMgr( bool fullodmode )
 {
     mDefineStaticLocalObject( PtrMan<CmdDrive::uiCmdDriverMgr>, cmdmmgr,
-			      = new CmdDrive::uiCmdDriverMgr(fullodmode) )
+				= new CmdDrive::uiCmdDriverMgr(fullodmode) )
     return *(cmdmmgr.ptr());
 }
 
@@ -113,18 +106,6 @@ uiCmdDriverDlg* uiCmdDriverMgr::getCmdDlg()
     }
 
     return cmddlg_;
-}
-
-
-void uiCmdDriverMgr::closeDlg( CallBacker* )
-{
-    if ( cmddlg_ )
-    {
-	delete cmddlg_;
-	cmddlg_ = 0;
-    }
-
-    stopRecordingCB(0);
 }
 
 
