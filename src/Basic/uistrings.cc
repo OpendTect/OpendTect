@@ -641,8 +641,10 @@ uiString uiStrings::sXcoordinate()
 { return tr("X-coordinate"); }
 
 uiString uiStrings::sYcoordinate()
-{ return tr("Y-coordinate"); }uiString uiStrings::sZRange()
-{ return tr("Z Range"); }
+{ return tr("Y-coordinate"); }
+
+uiString uiStrings::sZRange()
+{ return tr("Z range"); }
 
 
 //--- phrases without 'real' args
