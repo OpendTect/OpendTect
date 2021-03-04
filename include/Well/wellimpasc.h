@@ -88,6 +88,8 @@ public:
     void		setConvertToSI( bool yn )	{ useconvs_ = yn; }
 			//!< Note that depth is always converted
 
+    static const char*	fileFilter();
+
 protected:
 
     Data*		wd_;
