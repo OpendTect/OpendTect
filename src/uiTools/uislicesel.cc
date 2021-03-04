@@ -102,8 +102,7 @@ void uiSliceSel::setApplyCB( const CallBack& acb )
 
 void uiSliceSel::createInlFld()
 {
-    uiString label = ( isinl_ ? uiStrings::phrInline(tr("nr")) :
-				uiStrings::phrInline(uiStrings::sRange()));
+    uiString label = isinl_ ? uiStrings::sInline() : uiStrings::sInlineRange();
     inl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			BufferString(isinl_ ? "Inl nr" : "Inl Start") );
     inl1fld_ = new uiSpinBox( this, 0, "Inl Stop" );
@@ -114,10 +113,9 @@ void uiSliceSel::createInlFld()
 
 void uiSliceSel::createCrlFld()
 {
-    uiString label = is2d_ ? uiStrings::phrJoinStrings(uiStrings::sTrace(),
-		     uiStrings::sRange()) :
-		     (iscrl_ ? uiStrings::phrCrossline(tr("nr")) :
-			       uiStrings::phrCrossline(uiStrings::sRange()) );
+    uiString label = is2d_ ? uiStrings::sTraceRange()
+			   : (iscrl_ ? uiStrings::sCrossline()
+				     : uiStrings::sCrosslineRange());
     crl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			 BufferString( iscrl_ ? "Crl nr" : "Crl Start ") );
     crl1fld_ = new uiSpinBox( this, 0, "Crl Stop" );
@@ -129,8 +127,9 @@ void uiSliceSel::createCrlFld()
 
 void uiSliceSel::createZFld()
 {
-    uiString label = tr("%1 %2").arg(istsl_ ? tr("Z ") : uiStrings::sZRange()).
-		     arg(zdominfo_.uiUnitStr(true));
+    uiString label = tr("%1 %2")
+		.arg(istsl_ ? uiStrings::sZ() : uiStrings::sZRange())
+		.arg(zdominfo_.uiUnitStr(true));
     z0fld_ = new uiLabeledSpinBox( this, label, 0, istsl_ ? "Z" : "Z Start" );
     z1fld_ = new uiSpinBox( this, 0, "Z Stop" );
     z1fld_->attach( rightTo, z0fld_ );
@@ -160,7 +159,7 @@ uiSliceScroll( uiSliceSel* ss )
 	, slcsel_(ss)
 	, inauto_(false)
 	, paused_(false)
-	, zfact_(mCast(float,ss->zdominfo_.userFactor()))
+	, zfact_(ss->zdominfo_.userFactor())
 {
     setCtrlStyle( CloseOnly );
     timer = new Timer( "uiSliceScroll timer" );
@@ -424,7 +423,7 @@ void uiSliceSel::readInput()
     if ( !iscrl_ && crlrg.start == crlrg.stop )
 	crlrg.stop += hs.step_.crl();
 
-    const float zfac = mCast( float, zdominfo_.userFactor() );
+    const float zfac( zdominfo_.userFactor() );
     Interval<float> zrg;
     zrg.start = z0fld_->box()->getFValue() / zfac;
     zrg.start = maxcs_.zsamp_.snap( zrg.start );
@@ -470,7 +469,7 @@ void uiSliceSel::updateUI()
     setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start );
     setBoxValues( crl1fld_, maxcrlrg, crlrg.stop );
 
-    const float zfac = mCast( float, zdominfo_.userFactor() );
+    const float zfac( zdominfo_.userFactor() );
     const int nrdec = Math::NrSignificantDecimals( tkzs_.zsamp_.step*zfac );
 
     if ( nrdec==0 )
@@ -555,10 +554,9 @@ void uiSliceSel::fillPar( IOPar& iop )
     cs.hsamp_.stop_.crl() = iscrl_ ? crl0fld_->box()->getIntValue()
 				   : crl1fld_->getIntValue();
 
-    cs.zsamp_.start = mCast( float, z0fld_->box()->getIntValue() );
-    cs.zsamp_.stop = mCast( float, istsl_ ? z0fld_->box()->getIntValue()
-					  : z1fld_->getIntValue() );
-
+    cs.zsamp_.start = float( z0fld_->box()->getIntValue() );
+    cs.zsamp_.stop = float( istsl_ ? z0fld_->box()->getIntValue()
+				   : z1fld_->getIntValue() );
     cs.fillPar( iop );
 }
 
@@ -571,18 +569,21 @@ void uiSliceSel::usePar( const IOPar& par )
 	inl0fld_->box()->setValue( inlnr );
 
 	int inl1; par.get( sKey::LastInl(), inl1 );
-	if ( inl1fld_->isDisplayed() ) inl1fld_->setValue( inl1 );
+	if ( inl1fld_->isDisplayed() )
+	    inl1fld_->setValue( inl1 );
     }
 
     int crl0; par.get( sKey::FirstCrl(), crl0 );
     crl0fld_->box()->setValue( crl0 );
     int crl1; par.get( sKey::LastCrl(), crl1 );
-    if ( crl1fld_->isDisplayed() ) crl1fld_->setValue( crl1 );
+    if ( crl1fld_->isDisplayed() )
+	crl1fld_->setValue( crl1 );
 
     StepInterval<float> zrg;
     par.get( sKey::ZRange(), zrg );
     z0fld_->box()->setValue( zrg.start );
-    if ( z1fld_->isDisplayed() ) z1fld_->setValue( zrg.stop );
+    if ( z1fld_->isDisplayed() )
+	z1fld_->setValue( zrg.stop );
 }
 
 

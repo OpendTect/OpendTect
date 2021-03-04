@@ -229,7 +229,7 @@ public:
     static uiString sAdd();
     static uiString sAddColBlend()	{ return tr("Add Color Blended"); }
     static uiString sAdvanced()		{ return tr("Advanced"); }
-    static uiString sAlignment()	{ return tr("OD::Alignment"); }
+    static uiString sAlignment()	{ return tr("Alignment"); }
     static uiString sAll()		{ return tr("All"); }
     static uiString sAlpha()		{ return tr("Alpha"); }
     static uiString sAmplitude(int num=1){ return tr("Amplitude",0,num); }
@@ -299,7 +299,7 @@ public:
     static uiString sCollapse()		{ return tr("Collapse"); }
     static uiString sCollectingData()	{ return tr("Collecting Data"); }
     static uiString sColorTable(int num=1);
-    static uiString sColor(int num=1)	{ return tr("Color",0, num); }
+    static uiString sColor(int num=1)	{ return tr("Color",0,num); }
     static uiString sColumn(int num=1)	{ return tr("Column",0,num); }
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sConnection()	{ return tr("Connection"); }
@@ -354,7 +354,7 @@ public:
     static uiString sEnabled()		{ return tr("Enabled"); }
     static uiString sEnter();
     static uiString sEnterValidName();
-    static uiString sErrors(int num=1)	{ return tr("Error", 0, num); }
+    static uiString sErrors(int num=1)	{ return tr("Error",0,num); }
     static uiString sExamine()		{ return tr("Examine"); }
     static uiString sExitOD()		{ return tr("Exit OpendTect"); }
     static uiString sExit()		{ return tr("Exit"); }
@@ -606,6 +606,7 @@ public:
     static uiString sTopHor()		{ return tr("Top Horizon"); }
     static uiString sTrace(int num=1)	{ return tr("Trace",0,num); }
     static uiString sTraceNumber()	{ return tr("Trace number"); }
+    static uiString sTraceRange()	{ return tr("Trace range"); }
     static uiString sTrack();
     static uiString sTracking()		{ return tr("Tracking"); }
     static uiString sTransform()	{ return tr("Transform"); }
