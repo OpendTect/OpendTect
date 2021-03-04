@@ -45,9 +45,8 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    uiFileInput::Setup su( uiFileDialog::Txt );
-    su.withexamine(true).examstyle(File::Table).forread(true);
-    inpfld_ = new uiFileInput( this, uiStrings::sInputFile(), su );
+    inpfld_ = new uiASCIIFileInput( this, true );
+    inpfld_->setExamStyle( File::Table );
     mAttachCB( inpfld_->valuechanged, uiImpPVDS::inputChgd );
 
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( false );

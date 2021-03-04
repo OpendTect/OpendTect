@@ -66,9 +66,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 				StringListInpSpec(options) );
     tracksrcfld_->valuechanged.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
 
-    trckinpfld_ = new uiFileInput( this, uiStrings::phrJoinStrings(
-		   uiStrings::sWell(), uiStrings::sTrack(), uiStrings::sFile()),
-		   uiFileInput::Setup().withexamine(true) );
+    trckinpfld_ = new uiASCIIFileInput( this, tr("Well Track file"), true );
     trckinpfld_->valuechanged.notify( mCB(this,uiWellImportAsc,inputChgd) );
     trckinpfld_->attach( alignedBelow, tracksrcfld_ );
 
