@@ -32,6 +32,7 @@ plugins/lux64
 __pycache__
 
 src/*/moc_*
+src/*/resources/*.aps
 lib*.dylib
 Testing/
 install_manifest.txt
@@ -42,6 +43,7 @@ plugins/*/*.alo
 src/*/instantiate*export.cc
 bin/*/Debug/*
 bin/*/Release/*
+bin/*/odExternal
 *.cbp
 *.cd
 *.user*
@@ -107,6 +109,8 @@ qtcsettings.cmake
 
 #Platform dependent files
 # Windows
+*.dir
+x64
 
 # Linux
 
