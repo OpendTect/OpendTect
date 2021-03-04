@@ -96,8 +96,9 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 
     if ( x1rg_ || x2rg_ || fitnameinview_ )
     {
-	viewer_->viewChanged.notifyIfNotNotified(
-	    mCB(this,uiAuxDataDisplay,updateTransformCB) );
+	if ( viewer_ )
+	    mAttachCBIfNotAttached( viewer_->viewChanged,
+				    uiAuxDataDisplay::updateTransformCB );
 
 	updateTransformCB(nullptr);
     }
@@ -251,7 +252,7 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
     double xpos = 0, ypos = 0, xscale = 1, yscale = 1;
     const uiWorldRect& curview = viewer_->curView();
 
-    if ( fitnameinview_ && nameitem_ )
+    if ( fitnameinview_ && nameitem_ && !poly_.isEmpty() )
     {
 	int listpos = namepos_;
 	if ( listpos < 0 ) listpos=0;
