@@ -251,6 +251,7 @@ public:
     const char*		z(od_uint16 extradecimals=0) const;
     const char*		trcnr() const;
     const char*		spnr() const;
+    const char*		string(od_uint16 length=10) const;
 
 protected:
     void		readSettings();
