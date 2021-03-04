@@ -1317,13 +1317,6 @@ void uiTable::popupMenu( CallBacker* )
     if ( uiVirtualKeyboard::isVirtualKeyboardActive() )
 	return;
 
-    if ( (!isTableReadOnly() && !setup_.rowgrow_ && !setup_.colgrow_ &&
-	  !setup_.enablecopytext_) || setup_.rightclickdisabled_ )
-    {
-	popupVirtualKeyboard( xcursorpos, ycursorpos );
-	return;
-    }
-
     uiMenu* mnu = new uiMenu( parent(), uiStrings::sAction() );
     uiString itmtxt;
     const RowCol cur = notifiedCell();
@@ -1422,13 +1415,18 @@ void uiTable::popupMenu( CallBacker* )
     int virkeyboardid = mUdf(int);
     if ( needOfVirtualKeyboard() )
     {
-	mnu->insertSeparator();
+	if ( mnu->nrActions() > 0 )
+	    mnu->insertSeparator();
 	itmtxt = tr("Virtual Keyboard");
 	virkeyboardid = mnu->insertAction( new uiAction(itmtxt), 100 );
     }
 
-    int ret = mnu->exec();
-    if ( ret<0 ) return;
+    if ( mnu->nrActions()==0 )
+	return;
+
+    const int ret = mnu->exec();
+    if ( ret<0 )
+	return;
 
     if ( ret == inscolbef || ret == inscolaft )
     {
