@@ -31,34 +31,41 @@ static const char* rcsID mUsedVar = "$Id$";
 uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 			      visSurvey::PickSetDisplay* psd )
     : uiMarkerStyleDlg( p, tr("PointSet Display Properties"), true )
-    , set_( set )
-    , psd_( psd )
+    , set_(set)
+    , psd_(psd)
 {
-    uiSelLineStyle::Setup stu;
-    lsfld_ = new uiSelLineStyle( this, set_.disp_.linestyle_, stu );
-    mAttachCB( lsfld_->changed, uiPickPropDlg::linePropertyChanged );
+    uiObject* attachobj = stylefld_->attachObj();
+    const bool ispolygon = set.isPolygon();
+    if ( ispolygon )
+    {
+	setCaption( tr("Polygon Display Properties") );
 
-    stylefld_->attach( alignedBelow, lsfld_ );
+	uiSelLineStyle::Setup stu;
+	lsfld_ = new uiSelLineStyle( this, set_.disp_.linestyle_, stu );
+	mAttachCB( lsfld_->changed, uiPickPropDlg::linePropertyChanged );
+	stylefld_->attach( alignedBelow, lsfld_ );
 
-    uiColorInput::Setup colstu( set_.disp_.fillcolor_ );
-    colstu.lbltxt( tr("Fill with") ).withcheck( true )
-	  .transp(uiColorInput::Setup::Separate);
-    fillcolfld_ = new uiColorInput( this, colstu );
-    fillcolfld_->setDoDraw( set_.disp_.dofill_ );
-    fillcolfld_->attach( alignedBelow, stylefld_ );
-    mAttachCB( fillcolfld_->colorChanged, uiPickPropDlg::fillColorChangeCB );
-    mAttachCB( fillcolfld_->doDrawChanged, uiPickPropDlg::fillColorChangeCB );
+	uiColorInput::Setup colstu( set_.disp_.fillcolor_ );
+	colstu.lbltxt( tr("Fill with") ).withcheck( true )
+	      .transp(uiColorInput::Setup::Separate);
+	fillcolfld_ = new uiColorInput( this, colstu );
+	fillcolfld_->setDoDraw( set_.disp_.dofill_ );
+	fillcolfld_->attach( alignedBelow, stylefld_ );
+	mAttachCB(fillcolfld_->colorChanged,uiPickPropDlg::fillColorChangeCB);
+	mAttachCB(fillcolfld_->doDrawChanged,uiPickPropDlg::fillColorChangeCB);
+	attachobj = fillcolfld_->attachObj();
+    }
 
     uiSeparator* sep = new uiSeparator( this );
-    sep->attach( stretchedBelow, fillcolfld_ );
+    sep->attach( stretchedBelow, attachobj );
 
     bool usethreshold = true;
     Settings::common().getYN( Pick::Set::sKeyUseThreshold(), usethreshold );
-    usethresholdfld_ =
-     new uiCheckBox( this, tr("Switch to Point mode for all large PointSets") );
+    usethresholdfld_ = new uiCheckBox( this,
+		tr("Switch to Point mode for all large PointSets") );
     usethresholdfld_->setChecked( usethreshold );
     mAttachCB( usethresholdfld_->activated, uiPickPropDlg::useThresholdCB );
-    usethresholdfld_->attach( alignedBelow, fillcolfld_ );
+    usethresholdfld_->attach( alignedBelow, attachobj );
     usethresholdfld_->attach( ensureBelow, sep );
 
     thresholdfld_ =  new uiGenInput( this, tr("Threshold size for Point mode"));
@@ -77,7 +84,7 @@ uiPickPropDlg::~uiPickPropDlg()
 
 void uiPickPropDlg::linePropertyChanged( CallBacker* )
 {
-    if ( !finalised() )
+    if ( !finalised() || !lsfld_ )
 	return;
 
     set_.disp_.linestyle_ = lsfld_->getStyle();
@@ -87,21 +94,11 @@ void uiPickPropDlg::linePropertyChanged( CallBacker* )
 
 void uiPickPropDlg::fillColorChangeCB( CallBacker* )
 {
-    bool fillcol = fillcolfld_->doDraw();
-    set_.disp_.fillcolor_ = fillcolfld_->color() ;
-    set_.disp_.dofill_ = fillcolfld_->doDraw() ;
+    if ( !fillcolfld_ )
+	return;
 
-    if ( psd_ )
-    {
-	if ( !fillcol )
-	    psd_->displayBody( false );
-	else
-	{
-	    psd_->displayBody( true );
-	    if ( !psd_->getDisplayBody() )
-		psd_->setBodyDisplay();
-	}
-    }
+    set_.disp_.fillcolor_ = fillcolfld_->color() ;
+    set_.disp_.dofill_ = fillcolfld_->doDraw();
 
     Pick::Mgr().reportDispChange( this, set_ );
 }

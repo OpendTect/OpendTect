@@ -47,8 +47,8 @@ protected:
     
     uiCheckBox*			usethresholdfld_;
     uiGenInput*			thresholdfld_;
-    uiSelLineStyle*		lsfld_;
-    uiColorInput*		fillcolfld_;
+    uiSelLineStyle*		lsfld_		= nullptr;
+    uiColorInput*		fillcolfld_	= nullptr;
 
     Pick::Set&			set_;
     visSurvey::PickSetDisplay*	psd_;
