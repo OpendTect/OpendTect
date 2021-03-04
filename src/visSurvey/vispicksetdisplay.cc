@@ -8,9 +8,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vispicksetdisplay.h"
 
+#include "callback.h"
+#include "color.h"
+#include "commondefs.h"
 #include "draw.h"
 #include "mousecursor.h"
 #include "pickset.h"
+#include "zaxistransform.h"
+
 #include "visemobjdisplay.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
@@ -22,9 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visplanedatadisplay.h"
 #include "visseis2ddisplay.h"
 #include "vispolygonselection.h"
-#include "zaxistransform.h"
-#include "callback.h"
-#include "commondefs.h"
 
 static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
@@ -113,6 +115,8 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     dragger_->setOwnShape( createOneMarker(), false );
     addChild( dragger_->osgNode() );
     dragger_->turnOn( false );
+
+    displayBody( set_->disp_.dofill_ );
 }
 
 
@@ -184,7 +188,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 	    fullRedraw(nullptr);
     }
 
-    if( bodydisplay_ &&
+    if ( bodydisplay_ &&
 	    bodydisplay_->getMaterial()->getColor() != set_->disp_.fillcolor_ )
     {
 	bodydisplay_->getMaterial()->setColor( set_->disp_.fillcolor_ );
@@ -194,6 +198,8 @@ void PickSetDisplay::dispChg( CallBacker* cb )
     markerset_->setMarkersSingleColor( set_->disp_.color_  );
     markerset_->forceRedraw( true );
     showLine( needLine() );
+
+    displayBody( set_->disp_.dofill_ );
 }
 
 
@@ -524,6 +530,9 @@ bool PickSetDisplay::isBodyDisplayed() const
 void PickSetDisplay::displayBody( bool yn )
 {
     shoulddisplaybody_ = yn;
+    if ( yn && !bodydisplay_ )
+	setBodyDisplay();
+
     if ( bodydisplay_ )
 	bodydisplay_->turnOn( yn );
 }
@@ -557,7 +566,7 @@ bool PickSetDisplay::setBodyDisplay()
 	    picks[idx].z = datatransform_->transformBack( picks[idx] );
     }
 
-    setColor(set_->disp_.fillcolor_);
+    setColor( set_->disp_.fillcolor_ );
 
     return bodydisplay_->setPoints( picks, set_->isPolygon() );
 }
