@@ -25,6 +25,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
+const char* Well::LASImporter::fileFilter()
+{
+#ifdef __win__
+    return "LAS files (*.las *.dat)";
+#else
+    return "LAS files (*.las *.LAS *.dat *.DAT)";
+#endif
+}
+
+
 static bool convToDah( const Well::Track& trck, float& val,
 			float prevdah=mUdf(float) )
 {
