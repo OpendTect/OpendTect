@@ -48,8 +48,8 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     , setup_(su)
     , fd_( *Well::D2TModelAscIO::getDesc(setup_.withunitfld_) )
 {
-    filefld_ = new uiFileInput( this, mToUiStringTodo(setup_.filefldlbl_),
-				uiFileInput::Setup().withexamine(true) );
+    filefld_ = new uiASCIIFileInput( this, toUiString(setup_.filefldlbl_),
+				     true );
     if ( setup_.fileoptional_ )
     {
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
@@ -61,9 +61,9 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     }
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-                                        mODHelpKey(mD2TModelGroupHelpID) );
-    dataselfld_->attach( alignedBelow, setup_.fileoptional_ ? velfld_
-							    : filefld_ );
+					 mODHelpKey(mD2TModelGroupHelpID) );
+    dataselfld_->attach( alignedBelow,
+			 setup_.fileoptional_ ? velfld_ : filefld_ );
 
     if ( setup_.asksetcsmdl_ )
     {
@@ -75,7 +75,6 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     setHAlignObj( filefld_ );
     postFinalise().notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 }
-
 
 
 void uiD2TModelGroup::fileFldChecked( CallBacker* )

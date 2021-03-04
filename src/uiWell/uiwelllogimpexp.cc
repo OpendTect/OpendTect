@@ -41,12 +41,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 static const float defundefval = -999.25;
-#ifdef __win__
-    static const char* lasfileflt = "Las files (*.las *.dat)";
-#else
-    static const char* lasfileflt = "Las files (*.las *.LAS *.dat *.DAT)";
-#endif
-
 
 uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
     : uiDialog(p,uiDialog::Setup(tr("Import Well Logs"),mNoDlgTitle,
@@ -57,10 +51,9 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
 {
     setOkText( uiStrings::sImport() );
 
-    lasfld_ = new uiFileInput( this, uiStrings::phrInput(
-			       tr("(pseudo-)LAS logs file")),
-			       uiFileInput::Setup(uiFileDialog::Gen)
-			       .filter(lasfileflt).withexamine(true) );
+    lasfld_ = new uiASCIIFileInput( this, tr("Input (pseudo-)LAS logs file"),
+				    true );
+    lasfld_->setFilter( Well::LASImporter::fileFilter() );
     lasfld_->valuechanged.notify( mCB(this,uiImportLogsDlg,lasSel) );
 
     intvfld_ = new uiGenInput( this, tr("Depth interval to load (empty=all)"),
@@ -76,10 +69,10 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
     istvdfld_->attach( alignedBelow, intvfld_ );
 
     udffld_ = new uiGenInput( this, tr("Undefined value in logs"),
-		    FloatInpSpec(defundefval));
+				FloatInpSpec(defundefval) );
     udffld_->attach( alignedBelow, istvdfld_ );
 
-    uiObject* attachobj = 0;
+    uiObject* attachobj = nullptr;
     if ( wtable )
     {
 	uiStringSet colnms;
