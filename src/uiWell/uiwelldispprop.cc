@@ -253,7 +253,10 @@ void uiWellMarkersDispProperties::getSelNames()
 void uiWellMarkersDispProperties::setSelNames()
 {
     NotifyStopper ns( displaymarkersfld_->itemChosen );
-    displaymarkersfld_->setChosen( mrkprops().selmarkernms_ );
+    const BufferStringSet& nms = mrkprops().selmarkernms_;
+    displaymarkersfld_->setChosen( nms );
+    if ( !nms.isEmpty() )
+	displaymarkersfld_->setCurrentItem( nms.get(0).buf() );
 }
 
 
