@@ -519,33 +519,48 @@ void FormatProvider::readSettings()
 
 const char* FormatProvider::xy() const
 {
+    mDeclStaticString( ret );
     const od_uint16 width = 12;
     const od_uint16 precision = 2;
-    return cformat( 'f', width, precision );
+    ret.set( cformat( 'f', width, precision ) )
+       .add( cformat( 'f', width, precision ) );
+    return ret.buf();
 }
 
 
 const char* FormatProvider::z( od_uint16 extradecimals ) const
 {
-
+    mDeclStaticString( ret );
     const od_uint16 width = 12;
     const od_uint16 precision = SI().nrZDecimals() + extradecimals + 2;
-    return cformat( 'f', width, precision );
+    ret.set( cformat( 'f', width, precision ) );
+    return ret.buf();
 }
 
 
 const char* FormatProvider::trcnr() const
 {
+    mDeclStaticString( ret );
     const od_uint16 width = 10;
-    return cformat( 'd', width );
+    ret.set( cformat( 'd', width ) );
+    return ret.buf();
 }
 
 
 const char* FormatProvider::spnr() const
 {
+    mDeclStaticString( ret );
     const od_uint16 width = 10;
     const od_uint16 precision = 2;
-    return cformat( 'f', width, precision );
+    ret.set( cformat( 'f', width, precision ) );
+    return ret.buf();
+}
+
+const char* FormatProvider::string( od_uint16 length ) const
+{
+    mDeclStaticString( ret );
+    ret.set( cformat( 's', length ) );
+    return ret.buf();
 }
 
 } // namespace Table

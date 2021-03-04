@@ -54,15 +54,21 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     , isbulk_(isbulk)
 {
     setOkText( uiStrings::sExport() );
-    if ( !isbulk_ )
+    if ( isbulk_ )
     {
-	uiLabeledComboBox* lcbox = new uiLabeledComboBox( this,
+	IOObjContext ctxt = mIOObjContext( EMHorizon2D );
+	uiIOObjSelGrp::Setup stup; stup.choicemode_ = OD::ChooseAtLeastOne;
+	bulkinfld_ = new uiIOObjSelGrp( this, ctxt,
+	    uiStrings::sHorizon( mPlural ), stup );
+    }
+    else
+    {
+	auto* lcbox = new uiLabeledComboBox( this,
 			     uiStrings::phrSelect( uiStrings::sHorizon() ),
 			     "Select 2D Horizon" );
 	horselfld_ = lcbox->box();
 	horselfld_->setHSzPol( uiObject::MedVar );
-	horselfld_->selectionChanged.notify(
-					mCB(this,uiExport2DHorizon,horChg) );
+	mAttachCB( horselfld_->selectionChanged, uiExport2DHorizon::horChg );
 	for ( int idx=0; idx<hinfos_.size(); idx++ )
 	    horselfld_->addItem( mToUiStringTodo(hinfos_[idx]->name) );
 
@@ -70,20 +76,13 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 	linenmfld_ = new uiListBox( this, su );
 	linenmfld_->attach( alignedBelow, lcbox );
     }
-    else
-    {
-	IOObjContext ctxt = mIOObjContext( EMHorizon2D );
-	uiIOObjSelGrp::Setup stup; stup.choicemode_ = OD::ChooseAtLeastOne;
-	bulkinfld_ = new uiIOObjSelGrp( this, ctxt,
-					uiStrings::sHorizon(mPlural), stup );
-    }
 
     headerfld_ = new uiGenInput( this, tr("Header"),
 				 StringListInpSpec(hdrtyps) );
-    if ( !isbulk_ )
-	headerfld_->attach( alignedBelow, linenmfld_ );
-    else
+    if ( isbulk_ )
 	headerfld_->attach( alignedBelow, bulkinfld_ );
+    else
+	headerfld_->attach( alignedBelow, linenmfld_ );
 
     udffld_ = new uiGenInput( this, tr("Write undefined parts? Undef value"),
 			      StringInpSpec(sKey::FloatUdf()) );
@@ -117,6 +116,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 
 uiExport2DHorizon::~uiExport2DHorizon()
 {
+    detachAllNotifiers();
     deepErase( hinfos_ );
 }
 
@@ -129,8 +129,10 @@ bool uiExport2DHorizon::doExport()
     if ( !getInputMultiIDs(midset) )
 	mErrRet(tr("Cannot find object in database"))
 
-
     od_ostream strm( outfld_->fileName() );
+    if ( !strm.isOK() )
+	mErrRet( strm.errMsg() );
+
     const bool wrudfs = udffld_->isChecked();
     BufferString undefstr;
     if ( wrudfs )
@@ -145,6 +147,8 @@ bool uiExport2DHorizon::doExport()
     const bool wrlinenms = optsfld_->isChecked( 0 );
 
     writeHeader( strm );
+    if ( !strm.isOK() )
+	mErrRet( strm.errMsg() );
 
     struct HorInfo
     {
@@ -187,17 +191,7 @@ bool uiExport2DHorizon::doExport()
     od_uint32 maxhornm = 15;
     od_uint32 maxlinenm = 15;
 
-    if ( !isbulk_ )
-    {
-	auto* hi = new HorInfo( midset.first() );
-	linenmfld_->getChosen( hi->linenames_ );
-	if ( hi->linenames_.isEmpty() )
-	    mErrRet( tr("Select at least one line to proceed") )
-
-	hi->updateMax( maxhornm, maxlinenm );
-	horinfos += hi;
-    }
-    else
+    if ( isbulk_ )
     {
 	for ( int idx=0; idx<midset.size(); idx++ )
 	{
@@ -207,17 +201,27 @@ bool uiExport2DHorizon::doExport()
 	    horinfos += hi;
 	}
     }
+    else
+    {
+	auto* hi = new HorInfo( midset.first() );
+	linenmfld_->getChosen( hi->linenames_ );
+	if ( hi->linenames_.isEmpty() )
+	    mErrRet( tr("Select at least one line to proceed") )
+
+	hi->updateMax( maxhornm, maxlinenm );
+	horinfos += hi;
+    }
 
     const bool wrhornms = isbulk_;
     BufferString controlstr;
-    if ( wrhornms )
-	controlstr.add( cformat('s',maxhornm+2) );
-    if ( wrlinenms )
-	controlstr.add( cformat('s',maxlinenm+3) );
-
     Table::FormatProvider prov;
-    controlstr.add( prov.xy() ).add( prov.xy() )
-	      .add( prov.trcnr() ).add( prov.spnr() ).add( cformat('s',10) );
+    if ( wrhornms )
+	controlstr.add( prov.string(maxhornm+2) );
+    if ( wrlinenms )
+	controlstr.add( prov.string(maxlinenm+3) );
+
+    controlstr.add( prov.xy() )
+	      .add( prov.trcnr() ).add( prov.spnr() ).add( prov.string() );
 
     int nrzdec = SI().nrZDecimals();
     nrzdec += 2; // extra precision
@@ -255,7 +259,7 @@ bool uiExport2DHorizon::doExport()
 	BufferString line( 180, false );
 
 	if ( !strm.isOK() )
-	    mErrRet(uiStrings::sCantOpenOutpFile())
+	    mErrRet( uiStrings::sCannotWrite() );
 
 	for ( int lidx=0; lidx<hi->linenames_.size(); lidx++ )
 	{
@@ -297,7 +301,6 @@ bool uiExport2DHorizon::doExport()
 				horname.buf(), linename.buf(),
 				crd.x, crd.y,
 				trcnr, double(spnr), zstr.buf() );
-
 		}
 		else if ( wrhornms )
 		{
@@ -306,7 +309,6 @@ bool uiExport2DHorizon::doExport()
 				horname.buf(),
 				crd.x, crd.y,
 				trcnr, double(spnr), zstr.buf() );
-
 		}
 		else if ( wrlinenms )
 		{
@@ -315,7 +317,6 @@ bool uiExport2DHorizon::doExport()
 				linename.buf(),
 				crd.x, crd.y,
 				trcnr, double(spnr), zstr.buf() );
-
 		}
 		else
 		{
@@ -323,7 +324,6 @@ bool uiExport2DHorizon::doExport()
 				controlstr.buf(),
 				crd.x, crd.y,
 				trcnr, double(spnr), zstr.buf() );
-
 		}
 
 		strm << line << od_newline;
@@ -381,10 +381,10 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	if ( !isbulk_ )
 	    headerstr.addNewLine().add( "# Horizon: " )
 		     .add( horselfld_->text() );
+	headerstr.addNewLine().add( "#-------------------" );
     }
 
-    strm << headerstr << od_newline;
-    strm << "#-------------------" << od_endl;
+    strm << headerstr << od_endl;
 }
 
 
