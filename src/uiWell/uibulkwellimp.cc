@@ -352,8 +352,8 @@ uiBulkLogImport::uiBulkLogImport( uiParent* p )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    inpfld_ = new uiFileInput( this, uiStrings::phrInput(tr("LAS files")),
-		  uiFileInput::Setup() );
+    inpfld_ = new uiASCIIFileInput( this, tr("Input LAS files"), true );
+    inpfld_->setFilter( Well::LASImporter::fileFilter() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     mAttachCB( inpfld_->valuechanged, uiBulkLogImport::lasSel );
 
