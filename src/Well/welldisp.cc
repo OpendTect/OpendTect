@@ -260,6 +260,8 @@ void Well::DisplayProperties::Track::doUsePar( const IOPar& par )
 	par.get( IOPar::compKey(subjectName(),sKeyTrackNmSize), sz );
 	font_.setPointSize( sz );
     }
+    if ( font_.pointSize()==0 )
+	font_.setPointSize( FontData::defaultPointSize() );
 }
 
 
@@ -293,6 +295,8 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
 	par.get( IOPar::compKey(subjectName(),sKeyMarkerNmSize), sz );
 	font_.setPointSize( sz );
     }
+    if ( font_.pointSize()==0 )
+	font_.setPointSize( FontData::defaultPointSize() );
 }
 
 
