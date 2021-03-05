@@ -85,23 +85,23 @@ const uiString uiDPSDemoMgr::sDPSDemo()
 
 void uiDPSDemoMgr::dTectMenuChanged()
 {
-    if ( SI().has3D() )
-    {
-	auto* action = new uiAction( uiStrings::phrThreeDots( sDPSDemo() ),
-	    mCB( this, uiDPSDemoMgr, showDlgCB ),
-	    pixmapfilename );
-	appl().menuMgr().analMnu()->insertAction( action );
-    }
+    if ( !SI().has3D() )
+	return;
+
+    appl().menuMgr().analMnu()->insertAction(
+			    new uiAction( m3Dots(sDPSDemo()),
+				mCB(this,uiDPSDemoMgr,showDlgCB),
+				pixmapfilename ) );
 }
 
 
 void uiDPSDemoMgr::dTectToolbarChanged()
 {
-    if ( SI().has3D() )
-    {
-	appl().menuMgr().dtectTB()->addButton( pixmapfilename, sDPSDemo(),
-			    mCB(this,uiDPSDemoMgr,showDlgCB) );
-    }
+    if ( !SI().has3D() )
+	return;
+
+    appl().menuMgr().dtectTB()->addButton( pixmapfilename, sDPSDemo(),
+					   mCB(this,uiDPSDemoMgr,showDlgCB) );
 }
 
 

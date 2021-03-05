@@ -40,27 +40,24 @@ mDefODPluginInfo(uiCOLOP)
 class uiColopLink : public CallBacker
 { mODTextTranslationClass(uiColopLink);
 public:
-			uiColopLink(uiODMain&);
+			uiColopLink();
 			~uiColopLink();
 
-    uiODMain&		appl_;
-    uiODMenuMgr&	mnumgr;
+private:
+
+    void		dTectMenuChanged() override;
 
     void		doColop(CallBacker*);
-    void		updateMenu(CallBacker*);
     void		updateWaveletMan(CallBacker*);
 };
 
 
-uiColopLink::uiColopLink( uiODMain& a )
-    : mnumgr(a.menuMgr())
-    , appl_(a)
+uiColopLink::uiColopLink()
+    : uiPluginInitMgr()
 {
-    mAttachCB( mnumgr.dTectMnuChanged, uiColopLink::updateMenu );
-    mAttachCB( uiSeisWvltMan::instanceCreated(),
-				 uiColopLink::updateWaveletMan );
-    updateMenu(0);
-    updateWaveletMan(0);
+    init();
+    mAttachCB( uiSeisWvltMan::instanceCreated(), uiColopLink::updateWaveletMan);
+    updateWaveletMan(nullptr);
 }
 
 
@@ -70,11 +67,11 @@ uiColopLink::~uiColopLink()
 }
 
 
-void uiColopLink::updateMenu( CallBacker* )
+void uiColopLink::dTectMenuChanged()
 {
-    auto* newitem = new uiAction( m3Dots(tr("COLOP")),
-				mCB(this,uiColopLink,doColop) );
-    appl_.menuMgr().procMnu()->insertAction( newitem );
+    appl().menuMgr().procMnu()->insertAction(
+			    new uiAction( m3Dots(tr("COLOP")),
+					  mCB(this,uiColopLink,doColop) ) );
 }
 
 
@@ -114,6 +111,9 @@ void uiColopLink::doColop( CallBacker* )
 mDefODInitPlugin(uiCOLOP)
 {
     mDefineStaticLocalObject( PtrMan<uiColopLink>, theinst_,
-			      = new uiColopLink(*ODMainWin()) );
+			      = new uiColopLink() );
+    if ( !theinst_ )
+	return "Cannot instantiate uiColop plugin";
+
     return nullptr;
 }
