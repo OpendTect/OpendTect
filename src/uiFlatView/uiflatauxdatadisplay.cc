@@ -33,9 +33,7 @@ uiAuxDataDisplay::uiAuxDataDisplay( const uiAuxDataDisplay& a )
 
 uiAuxDataDisplay::~uiAuxDataDisplay()
 {
-    if ( viewer_ )
-	mDetachCB( viewer_->viewChanged,
-		   uiAuxDataDisplay::updateTransformCB );
+    detachAllNotifiers();
 }
 
 
@@ -95,8 +93,9 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 
     if ( x1rg_ || x2rg_ || fitnameinview_ )
     {
-	viewer_->viewChanged.notifyIfNotNotified(
-	    mCB(this,uiAuxDataDisplay,updateTransformCB) );
+	if ( viewer_ )
+	    mAttachCBIfNotAttached( viewer_->viewChanged,
+				    uiAuxDataDisplay::updateTransformCB );
 
 	updateTransformCB(nullptr);
     }
@@ -240,7 +239,7 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
     double xpos = 0, ypos = 0, xscale = 1, yscale = 1;
     const uiWorldRect& curview = viewer_->curView();
 
-    if ( fitnameinview_ && nameitem_ )
+    if ( fitnameinview_ && nameitem_ && !poly_.isEmpty() )
     {
 	/*xscale = curview.width()/x1rg_->width();
 	xpos = curview.left()-xscale*x1rg_->start;*/
@@ -269,5 +268,4 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
     }
 }
 
-
-} //namespace
+} // namespace FlatView
