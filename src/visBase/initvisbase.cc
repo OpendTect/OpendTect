@@ -46,6 +46,7 @@ mDefModInitFn(visBase)
     osgGeo::LayeredTexture::overrideGraphicsContextMaxTextureSize( maxsize );
 
 #if OSG_MIN_VERSION_REQUIRED(3,6,3)
+// "GREYSCALE", "SDF", "ALL_FEATURES", "NO_TEXT_SHADER"
     const char* textshader = GetEnvVar( "OD_TEXT_SHADER" );
     if ( textshader )
 	osg::DisplaySettings::instance()->setTextShaderTechnique( textshader );
