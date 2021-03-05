@@ -32,7 +32,7 @@ mDefODPluginInfo(uiHello)
 // OK: we need an object to receive the CallBacks. In serious software,
 // that may be a 'normal' object inheriting from CallBacker.
 
-class uiHelloMgr :  public uiPluginInitMgr
+class uiHelloMgr : public uiPluginInitMgr
 { mODTextTranslationClass(uiHelloMgr);
 public:
 			uiHelloMgr();
@@ -54,9 +54,9 @@ uiHelloMgr::uiHelloMgr()
 
 void uiHelloMgr::dTectMenuChanged()
 {
-    auto* action = new uiAction( m3Dots( tr( "Display Hello Message" ) ),
-				 mCB(this,uiHelloMgr,dispMsg) );
-    appl().menuMgr().utilMnu()->insertAction( action );
+    appl().menuMgr().utilMnu()->insertAction(
+			new uiAction( m3Dots(tr("Display Hello Message")),
+					mCB(this,uiHelloMgr,dispMsg) ) );
 }
 
 
@@ -110,10 +110,10 @@ void uiHelloMgr::dispMsg( CallBacker* )
 }
 
 
-const char* InituiHelloPlugin( int argc, char** argv )
+mDefODInitPlugin(uiHello)
 {
     mDefineStaticLocalObject( PtrMan<uiHelloMgr>, theinst_,
-		= new uiHelloMgr() );
+				= new uiHelloMgr() );
     if ( !theinst_ )
 	return "Cannot instantiate Hello plugin";
 
