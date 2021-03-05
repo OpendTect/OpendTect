@@ -28,12 +28,14 @@ namespace Well { class Data; class DisplayProperties; };
 mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {mODTextTranslationClass(uiWellDispPropDlg)
 public:
-				uiWellDispPropDlg(uiParent*,Well::Data*,
-					    OD::Color,bool is2ddisplay=false);
+				uiWellDispPropDlg(uiParent*,
+					const Well::Data&,
+					OD::Color,bool is2ddisplay=false);
 				uiWellDispPropDlg(uiParent*,const MultiID&,
-					    OD::Color,bool is2ddisplay=false);
-				uiWellDispPropDlg(uiParent*,Well::Data*,
-						  bool is2ddisplay=false);
+					OD::Color,bool is2ddisplay=false);
+				uiWellDispPropDlg(uiParent*,
+					const Well::Data&,
+					bool is2ddisplay=false);
 				uiWellDispPropDlg(uiParent*,const MultiID&,
 						  bool is2ddisplay=false);
 				~uiWellDispPropDlg();
@@ -48,12 +50,11 @@ public:
 
     TabType			currentTab() const;
     bool			is2D() const;
-    bool 			savedefault_;
     void			updateLogs();
 
 protected:
 
-    Well::Data*			wd_;
+    RefMan<Well::Data>		wd_;
     uiTabStack*			ts_;
     ObjectSet<uiWellDispProperties> propflds_;
     bool			is2ddisplay_;
@@ -86,21 +87,20 @@ mExpClass(uiWell) uiMultiWellDispPropDlg : public uiWellDispPropDlg
 {mODTextTranslationClass(uiMultiWellDispPropDlg)
 public:
 				uiMultiWellDispPropDlg(uiParent*,
-						ObjectSet<Well::Data>&,
+						const ObjectSet<Well::Data>&,
 						bool is2ddisplay);
 				~uiMultiWellDispPropDlg();
 
 protected:
 
     ObjectSet<Well::Data>	wds_;
-    uiLabeledComboBox*		wellselfld_;
+    uiLabeledComboBox*		wellselfld_ = nullptr;
 
-    void			resetProps(int, int);
+    void			resetProps(int,int);
     virtual void 		wellSelChg(CallBacker*);
     virtual void		setWDNotifiers(bool yn);
     void			onClose(CallBacker*);
     virtual void		applyTabPush(CallBacker*);
     virtual void		resetAllPush(CallBacker*);
 };
-
 

@@ -85,8 +85,8 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     dispabovefld_->attach( alignedBelow, colfld_ );
     dispbelowfld_ = new uiCheckBox( this, uiStrings::sBelow() );
     dispbelowfld_->attach( rightOf, dispabovefld_ );
-    uiLabel* lbl = new uiLabel( this, tr("Display well name") , dispabovefld_ );
-    lbl = new uiLabel( this, uiStrings::sTrack() );
+    new uiLabel( this, tr("Display well name") , dispabovefld_ );
+    auto* lbl = new uiLabel( this, uiStrings::sTrack() );
     lbl->attach( rightOf, dispbelowfld_ );
 
     nmsizefld_ = new uiLabeledSpinBox( this, tr("Name size") );
@@ -288,7 +288,7 @@ void uiWellMarkersDispProperties::resetProps(
 }
 
 
-void uiWellMarkersDispProperties::markerFldsChged( CallBacker* cb )
+void uiWellMarkersDispProperties::markerFldsChged( CallBacker* )
 {
     colfld_->setSensitive( singlecolfld_->isChecked() );
     nmcolfld_->setSensitive( !samecolasmarkerfld_->isChecked() );

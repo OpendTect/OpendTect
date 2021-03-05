@@ -239,22 +239,25 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid,
 			  Well::Mrkrs,
 			  Well::DispProps3D );
     RefMan<Well::Data> wd = Well::MGR().get( mid, lreqs );
-    if ( !wd ) return false;
+    if ( !wd )
+	return false;
 
-    uiWellDispPropDlg uiwellpropdlg( parent(), wd, bkCol );
+    uiWellDispPropDlg uiwellpropdlg( parent(), *wd, bkCol );
     mAttachCB(uiwellpropdlg.applyAllReq, uiWellPartServer::applyAll);
     mAttachCB(uiwellpropdlg.applyTabReq, uiWellPartServer::applyTabProps);
     mAttachCB(uiwellpropdlg.resetAllReq, uiWellPartServer::resetAllProps);
     if ( !uiwellpropdlg.go() )
 	return false;
+
     ConstRefMan<Well::Data> wsd = allapplied_ ? nullptr : wd;
     saveWellDispProps( wsd );
-    if ( uiwellpropdlg.savedefault_==true )
+    if ( uiwellpropdlg.saveButtonChecked() )
     {
 	const Well::DisplayProperties& edprops = wd->displayProperties();
 	edprops.defaults() = edprops;
 	edprops.commitDefaults();
     }
+
     sendEvent( evCleanPreview() );
     uiwellpropDlgClosed.trigger();
     return true;
