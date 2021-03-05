@@ -11,6 +11,8 @@
 #include "uimenu.h"
 #include "uidialog.h"
 #include "uimsg.h"
+#include "uistrings.h"
+
 #include "ioobjctxt.h"
 #include "transl.h"
 #include "odplugin.h"
@@ -28,13 +30,16 @@ mDefODPluginInfo(uiCustomIODir)
 }
 
 
-class uiCustomIODirMgr :  public CallBacker
-{
+class uiCustomIODirMgr : public uiPluginInitMgr
+{ mODTextTranslationClass(uiCustomIODirMgr);
 public:
 
-			uiCustomIODirMgr(uiODMain&);
+			uiCustomIODirMgr();
 
-    uiODMain&		appl;
+private:
+
+    void		dTectMenuChanged() override;
+
     void		doDlg(CallBacker*);
 
 };
@@ -51,12 +56,18 @@ mDefSimpleTranslatorsWithSelKey(MyObj,"My Object",MyFmt,None,cSelDirNr)
 
 
 
-uiCustomIODirMgr::uiCustomIODirMgr( uiODMain& a )
-	: appl(a)
+uiCustomIODirMgr::uiCustomIODirMgr()
+    : uiPluginInitMgr()
 {
-    uiAction* newitem = new uiAction( "&Test 'Custom data directory' ...",
-					  mCB(this,uiCustomIODirMgr,doDlg) );
-    appl.menuMgr().utilMnu()->insertItem( newitem );
+    init();
+}
+
+
+void uiCustomIODirMgr::dTectMenuChanged()
+{
+    appl().menuMgr().utilMnu()->insertItem(
+			new uiAction( m3Dots(tr("Test Custom data directory")),
+				      mCB(this,uiCustomIODirMgr,doDlg) ) );
 }
 
 
@@ -99,17 +110,15 @@ bool acceptOK( CallBacker* )
 
 void uiCustomIODirMgr::doDlg( CallBacker* )
 {
-    uiCustomIODirTester dlg( &appl );
+    uiCustomIODirTester dlg( &appl() );
     dlg.go();
 }
 
 
 mDefODInitPlugin(uiCustomIODir)
 {
-    mDefineStaticLocalObject( PtrMan<uiCustomIODirMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiCustomIODirMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiCustomIODirMgr>, theinst_,
+				= new uiCustomIODirMgr() );
     if ( !theinst_ )
 	return "Cannot instantiate CustomDir plugin";
 
@@ -135,5 +144,4 @@ mDefODInitPlugin(uiCustomIODir)
     // will show you where the parameters for the mDef...Translators... macros
     // go.
 
-    return 0;
-}
+    return nullptr;

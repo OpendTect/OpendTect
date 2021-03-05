@@ -13,7 +13,6 @@
 #include "uiioobjselgrp.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uiseiswvltman.h"
 #include "uitoolbar.h"
@@ -47,12 +46,9 @@ public:
 private:
 
     void		dTectMenuChanged() override;
+
     void		doColop(CallBacker*);
     void		updateWaveletMan(CallBacker*);
-
-    static uiString	sMenuTxt()
-			{ return tr("COLOP"); }
-
 };
 
 
@@ -60,8 +56,7 @@ uiColopLink::uiColopLink()
     : uiPluginInitMgr()
 {
     init();
-    mAttachCB( uiSeisWvltMan::instanceCreated(),
-				 uiColopLink::updateWaveletMan );
+    mAttachCB( uiSeisWvltMan::instanceCreated(), uiColopLink::updateWaveletMan);
     updateWaveletMan(nullptr);
 }
 
@@ -74,9 +69,9 @@ uiColopLink::~uiColopLink()
 
 void uiColopLink::dTectMenuChanged()
 {
-    uiAction* newitem = new uiAction( m3Dots(tr("COLOP")),
-				mCB(this,uiColopLink,doColop) );
-    appl_.menuMgr().procMnu()->insertAction( newitem );
+    appl().menuMgr().procMnu()->insertAction(
+			    new uiAction( m3Dots(tr("COLOP")),
+					  mCB(this,uiColopLink,doColop) ) );
 }
 
 
@@ -85,9 +80,9 @@ void uiColopLink::updateWaveletMan( CallBacker* cb )
     mDynamicCastGet(uiSeisWvltMan*,swm,cb)
     if ( !swm ) return;
 
-    new uiToolButton( swm->selGroup()->getManipGroup(), "COLOP",
-				sMenuTxt(),
-				mCB(this,uiColopLink,doColop) );
+    new uiToolButton( swm->selGroup()->getManipGroup(),
+		       "COLOP", toUiString("COLOP"),
+		       mCB(this,uiColopLink,doColop) );
 }
 
 
@@ -106,7 +101,7 @@ void uiColopLink::doColop( CallBacker* )
 	return;
     }
 
-    OS::MachineCommand machcomm( scriptfnm );
+    OS::MachineCommand machcomm( scriptfnm, true );
     OS::CommandLauncher cl( machcomm );
     if ( !cl.startServer(333) )
     {
@@ -118,7 +113,10 @@ void uiColopLink::doColop( CallBacker* )
 
 mDefODInitPlugin(uiCOLOP)
 {
-    mDefineStaticLocalObject( PtrMan<uiColopLink>, theinst_, = new uiColopLink() );
+    mDefineStaticLocalObject( PtrMan<uiColopLink>, theinst_,
+			      = new uiColopLink() );
+    if ( !theinst_ )
+	return "Cannot instantiate uiColop plugin";
 
     return nullptr;
 }
