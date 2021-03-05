@@ -73,8 +73,6 @@ public:
 
     Notifier<uiSteeringSel>	steertypeSelected_;
 
-    static IOPar&		inpselhist;
-
 protected:
 
     const Attrib::DescSet*	descset_;

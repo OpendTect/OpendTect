@@ -35,8 +35,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-IOPar& uiSteeringSel::inpselhist = *new IOPar( "Steering selection history" );
-
 uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
 			      bool is2d, bool withconstdir, bool doinit )
     : uiGroup(p,"Steering selection")
@@ -74,18 +72,17 @@ void uiSteeringSel::createFields()
     BufferStringSet steertyps;
     steertyps.add( "None" ).add( "Central" ).add( "Full" );
     if ( withconstdir_ ) steertyps.add ( "Constant direction" );
-    typfld_ = new uiGenInput( this, uiStrings::sSteering(), 
-                              StringListInpSpec(steertyps) );
+    typfld_ = new uiGenInput( this, uiStrings::sSteering(),
+			      StringListInpSpec(steertyps) );
     typfld_->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
 
     inpfld_ = new uiSteerAttrSel( this, descset_, is2d_ );
-    inpfld_->getHistory( inpselhist );
     inpfld_->attach( alignedBelow, typfld_ );
 
     dirfld_ = new uiGenInput( this, tr("Azimuth (Inline-based)"), FloatInpSpec() );
     dirfld_->attach( alignedBelow, typfld_ );
-    uiString dipstr = tr("Apparent dip %1").arg(SI().zIsTime() ? tr("(us/m)") 
-						            : tr("(degrees)"));
+    uiString dipstr = tr("Apparent dip %1").arg(SI().zIsTime()
+				? tr("(us/m)") : tr("(degrees)"));
     dipfld_ = new uiGenInput( this, dipstr, FloatInpSpec() );
     dipfld_->attach( alignedBelow, dirfld_ );
 
@@ -145,13 +142,11 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
     {
 	type = 1;
 	inpfld_->setDesc( ad->getInput(0) );
-	inpfld_->updateHistory( inpselhist );
     }
     else if ( attribname == "FullSteering" )
     {
 	type = 2;
 	inpfld_->setDesc( ad->getInput(0) );
-	inpfld_->updateHistory( inpselhist );
     }
 
     if ( !notypechange_ )
