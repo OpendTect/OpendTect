@@ -37,7 +37,7 @@ mDefODPluginInfo(uiCOLOP)
 }
 
 
-class uiColopLink : public CallBacker
+class uiColopLink : public uiPluginInitMgr
 { mODTextTranslationClass(uiColopLink);
 public:
 			uiColopLink();
