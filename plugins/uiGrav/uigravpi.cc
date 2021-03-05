@@ -73,3 +73,4 @@ mDefODInitPlugin(uiGrav)
 	return "Cannot instantiate Gravity plugin";
 
     return nullptr;
+}
