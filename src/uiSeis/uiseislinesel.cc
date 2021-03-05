@@ -137,6 +137,7 @@ void uiSeis2DLineChoose::init( OD::ChoiceMode cm )
 uiSeis2DLineChoose::~uiSeis2DLineChoose()
 {
     delete lbchoiceio_;
+    deepErase( inserters_ );
 }
 
 
