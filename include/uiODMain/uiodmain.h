@@ -95,14 +95,14 @@ protected:
     uiVisColTabEd*	ctabed_;
     uiToolBar*		ctabtb_;
     uiMain&		uiapp_;
-    ODSession*		cursession_;
+    ODSession*		cursession_	= nullptr;
     ODSession&		lastsession_;
-    bool		restoringsess_;
-    bool		restarting_;
+    bool		restoringsess_	= false;
+    bool		restarting_	= false;
     BufferString	programname_;
 
     MultiID		cursessid_;
-    bool		failed_;
+    bool		failed_		= true;
 
     virtual bool	closeOK();
     void		afterStartupCB(CallBacker*);
@@ -126,7 +126,7 @@ private:
     Timer&		sesstimer_;
     Timer&		memtimer_;
     Timer&		newsurvinittimer_;
-    bool		neednewsurvinit_;
+    bool		neednewsurvinit_	= false;
     void		sessTimerCB(CallBacker*);
     void		memTimerCB(CallBacker*);
     void		newSurvInitTimerCB(CallBacker*);

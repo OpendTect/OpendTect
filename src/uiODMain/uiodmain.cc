@@ -237,27 +237,17 @@ int ODMain( uiMain& app )
 static uiString cputxt_;
 
 uiODMain::uiODMain( uiMain& a )
-    : uiMainWin(0,toUiString("OpendTect Main Window"),5,true)
-    , uiapp_(a)
-    , failed_(true)
-    , applmgr_(0)
-    , menumgr_(0)
-    , scenemgr_(0)
-    , ctabed_(0)
-    , ctabtb_(0)
-    , sesstimer_(*new Timer("Session restore timer"))
-    , memtimer_(*new Timer("Memory display timer"))
-    , newsurvinittimer_(*new Timer("New survey init timer"))
-    , neednewsurvinit_(false)
-    , lastsession_(*new ODSession)
-    , cursession_(0)
-    , restoringsess_(false)
-    , restarting_(false)
+    : uiMainWin(nullptr,toUiString("OpendTect Main Window"),5,true)
     , sessionSave(this)
     , sessionRestoreEarly(this)
     , sessionRestore(this)
     , justBeforeGo(this)
+    , uiapp_(a)
+    , lastsession_(*new ODSession)
     , programname_( "OpendTect" )
+    , sesstimer_(*new Timer("Session restore timer"))
+    , memtimer_(*new Timer("Memory display timer"))
+    , newsurvinittimer_(*new Timer("New survey init timer"))
 {
     setIconText( getProgramString() );
     uiapp_.setTopLevel( this );
@@ -301,8 +291,8 @@ uiODMain::~uiODMain()
     delete &newsurvinittimer_;
 
     delete menumgr_;
-    delete viewer2dmgr_;
     delete scenemgr_;
+    delete viewer2dmgr_;
     delete applmgr_;
 }
 
@@ -373,7 +363,7 @@ bool uiODMain::buildUI()
     menumgr_ = new uiODMenuMgr( this );
     menumgr_->initSceneMgrDepObjs( applmgr_, scenemgr_ );
 
-    uiColorTableToolBar* tb = new uiColorTableToolBar( this );
+    auto* tb = new uiColorTableToolBar( this );
     ctabtb_ = tb;
     ctabed_ = new uiVisColTabEd( *tb );
     ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
