@@ -29,47 +29,48 @@ mDefODPluginInfo(uiGrav)
 }
 
 
-class uiGravMgr :  public CallBacker
-{
+class uiGravMgr : public uiPluginInitMgr
+{ mODTextTranslationClass(uiGravMgr);
 public:
 
-			uiGravMgr(uiODMain&);
+			uiGravMgr();
 
-    uiODMain&		appl_;
+private:
+
     void		doDlg(CallBacker*);
 
     uiVisMenuItemHandler mnuitemhndlr_;
 };
 
 
-uiGravMgr::uiGravMgr( uiODMain& a )
-	: appl_(a)
-	, mnuitemhndlr_(visSurvey::HorizonDisplay::sFactoryKeyword(),
-		*a.applMgr().visServer(),"Calculate Gravity",
-		mCB(this,uiGravMgr,doDlg))
+uiGravMgr::uiGravMgr()
+    : uiPluginInitMgr()
+    , mnuitemhndlr_(visSurvey::HorizonDisplay::sFactoryKeyword(),
+		    appl().applMgr().visServer(),"Calculate Gravity",
+		    mCB(this,uiGravMgr,doDlg))
 {
+    init();
 }
 
 void uiGravMgr::doDlg( CallBacker* )
 {
     const int displayid = mnuitemhndlr_.getDisplayID();
-    uiVisPartServer* visserv = appl_.applMgr().visServer();
+    uiVisPartServer* visserv = appl().applMgr().visServer();
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
 		    visserv->getObject(displayid));
     if ( !hd ) return;
 
-    uiGravHorCalc dlg( &appl_, hd->getObjectID() );
+    uiGravHorCalc dlg( &appl(), hd->getObjectID() );
     dlg.go();
 }
 
 
 mDefODInitPlugin(uiGrav)
 {
-    mDefineStaticLocalObject( PtrMan<uiGravMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiGravMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiGravMgr>, theinst_,
+				= new uiGravMgr() );
     if ( !theinst_ )
 	return "Cannot instantiate Gravity plugin";
 
-    return 0; // All OK - no error messages
+    return nullptr;
+}

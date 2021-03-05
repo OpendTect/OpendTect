@@ -5,12 +5,13 @@
 -*/
 
 #include "odplugin.h"
-#include "uimsg.h"
-#include "uicrashmemod.h"
 
+#include "uicrashmemod.h"
+#include "uimsg.h"
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
+#include "uistrings.h"
 
 mDefODPluginInfo(uiCrashMe)
 {
@@ -25,24 +26,33 @@ mDefODPluginInfo(uiCrashMe)
 }
 
 
-class uiCrashMgr :  public CallBacker
+class uiCrashMgr :  public uiPluginInitMgr
 { mODTextTranslationClass(uiCrashMgr);
 public:
 
-			uiCrashMgr(uiODMain&);
+			uiCrashMgr();
 
-    uiODMain&		appl;
+private:
+
+    void		dTectMenuChanged() override;
+
     void		crashCB(CallBacker*);
     void		doCrash();
 };
 
 
-uiCrashMgr::uiCrashMgr( uiODMain& a )
-	: appl(a)
+uiCrashMgr::uiCrashMgr()
+    : uiPluginInitMgr()
 {
-    uiAction* newitem = new uiAction( toUiString("Force Crash!"),
-					  mCB(this,uiCrashMgr,crashCB) );
-    appl.menuMgr().utilMnu()->insertAction( newitem );
+    init();
+}
+
+
+void uiCrashMgr::dTectMenuChanged()
+{
+    appl().menuMgr().utilMnu()->insertAction(
+			new uiAction( m3Dots(tr("Force Crash!")),
+				      mCB(this,uiCrashMgr,crashCB) ) );
 }
 
 
@@ -61,13 +71,10 @@ void uiCrashMgr::doCrash()
 
 mDefODInitPlugin(uiCrashMe)
 {
-    mDefineStaticLocalObject( PtrMan<uiCrashMgr>, theinst_, = 0 );
-    if ( theinst_ ) return 0;
-
-    theinst_ = new uiCrashMgr( *ODMainWin() );
+    mDefineStaticLocalObject( PtrMan<uiCrashMgr>, theinst_, = new uiCrashMgr());
     if ( !theinst_ )
 	return "Cannot instantiate The Crash plugin";
 
-    return 0; // All OK - no error messages
+    return nullptr;
 }
 

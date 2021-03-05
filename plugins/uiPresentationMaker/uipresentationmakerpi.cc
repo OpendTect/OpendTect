@@ -86,8 +86,10 @@ void uiPresMakerPIMgr::showDlgCB( CallBacker* )
 
 mDefODInitPlugin(uiPresentationMaker)
 {
-    mDefineStaticLocalObject( PtrMan<uiPresMakerPIMgr>, mgr,
-		    mUnusedVar = new uiPresMakerPIMgr() );
+    mDefineStaticLocalObject( PtrMan<uiPresMakerPIMgr>, theinst_,
+				= new uiPresMakerPIMgr() );
+    if ( !theinst_ )
+	return "Cannot instantiate uiPresentationMaker plugin";
 
     return nullptr;
 }
