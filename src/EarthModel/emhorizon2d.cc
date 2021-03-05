@@ -772,10 +772,11 @@ void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
     fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
     Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( false, false );
     fd->bodyinfos_ += ti;
-    Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Optional );
+    Table::TargetInfo* trcspti = new Table::TargetInfo( "", IntInpSpec(),
+	    						Table::Optional );
     trcspti->form(0).setName( "Trace Nr" );
     Table::TargetInfo::Form* spform =
-			new Table::TargetInfo::Form( "SP Nr", IntInpSpec() );
+			new Table::TargetInfo::Form( "SP Nr", FloatInpSpec() );
     trcspti->add( spform );
     fd->bodyinfos_ += trcspti;
 
@@ -801,7 +802,7 @@ void Horizon2DAscIO::updateDesc( Table::FormatDesc& fd,
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
 int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& nr,
-				 TypeSet<float>& data )
+				 float& spnr, TypeSet<float>& data )
 {
     data.erase();
     if ( !finishedreadingheader_ )
@@ -818,7 +819,11 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& nr,
 
     lnm = getText( 0 );
     crd = getPos( 1, 2 );
-    nr = getIntValue( 3 );
+    if ( isTraceNr() )
+	nr = getIntValue( 3 );
+    else
+	spnr = getFValue( 3 );
+
     const int nrhors = vals_.size() - 4;
     for ( int idx=0; idx<nrhors; idx++ )
 	data += getFValue( idx+4, udfval_ );
@@ -829,7 +834,7 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& nr,
 
 bool Horizon2DAscIO::isTraceNr() const
 {
-    return formOf( false, 2 ) == 0;
+    return formOf(false,2) == 0;
 }
 
 } // namespace EM

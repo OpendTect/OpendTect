@@ -79,7 +79,8 @@ public:
     static bool			isFormatOK(const Table::FormatDesc&,
 					   BufferString&);
     int				getNextLine(BufferString& lnm,Coord& crd,
-					    int& trcnr,TypeSet<float>& data);
+					    int& trcnr,float& spnm,
+					    TypeSet<float>& data);
     bool			isTraceNr() const;
     bool			isOK() const { return strm_.isOK(); }
 

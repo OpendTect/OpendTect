@@ -35,10 +35,15 @@ Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
     , fileidx_(0)
     , curlinegeom_(nullptr)
     , istracenr_(false)
+    , msg_(uiStrings::sScanning())
 {
     filenames_ = fnms;
     init();
 }
+
+
+Horizon2DScanner::~Horizon2DScanner()
+{}
 
 
 void Horizon2DScanner::init()
@@ -50,7 +55,7 @@ void Horizon2DScanner::init()
 
 uiString Horizon2DScanner::uiMessage() const
 {
-    return uiStrings::sScanning();
+    return msg_;
 }
 
 
@@ -151,8 +156,9 @@ bool Horizon2DScanner::reInitAscIO( const char* fnm )
 {
     deleteAndZeroPtr( ascio_ );
     ascio_ = new EM::Horizon2DAscIO( fd_, fnm );
-    if ( !ascio_ || !ascio_->isOK() )
+    if ( !ascio_->isOK() )
     {
+	msg_ = uiStrings::phrCannotOpenForRead( fnm );
 	deleteAndZeroPtr( ascio_ );
 	return false;
     }
@@ -170,10 +176,16 @@ int Horizon2DScanner::nextStep()
 
     BufferString linenm;
     Coord crd;
-    int nr;
+    int nr = mUdf(int);
+    float spnr = mUdf(float);
     TypeSet<float> data;
-    const int ret = ascio_->getNextLine( linenm, crd, nr, data );
-    if ( ret < 0 ) return Executor::ErrorOccurred();
+    const int ret = ascio_->getNextLine( linenm, crd, nr, spnr, data );
+    if ( ret < 0 )
+    {
+	msg_ = tr( "Error while reading file %1: %2" )
+	    	.arg( filenames_.get(fileidx_) ).arg( ascio_->errMsg() );
+	return Executor::ErrorOccurred();
+    }
     if ( ret == 0 )
     {
 	if ( !istracenr_ )
@@ -189,10 +201,10 @@ int Horizon2DScanner::nextStep()
 	if ( invalidnms_.isPresent(linenm) )
 	    return Executor::MoreToDo();
 
-	mDynamicCast(const Survey::Geometry2D*,curlinegeom_,
-		     Survey::GM().getGeometry(linenm))
+	mDynamicCastGet(const Survey::Geometry2D*,linegeom,
+			Survey::GM().getGeometry(linenm))
 
-	if ( !curlinegeom_ )
+	if ( !linegeom )
 	{
 	    invalidnms_.addIfNew( linenm );
 	    return Executor::MoreToDo();
@@ -200,31 +212,19 @@ int Horizon2DScanner::nextStep()
 
 	validnms_.addIfNew( linenm );
 	curline_ = linenm;
+	curlinegeom_ = linegeom;
     }
 
-    if ( !curlinegeom_ )
-	return Executor::ErrorOccurred();
-
-    const bool isspnr = !ascio_->isTraceNr();
-    float spnr=0;
-
-    if ( !mIsUdf(nr) && !isspnr )
-    {
-	const bool res = curlinegeom_->getPosByTrcNr( nr, crd, spnr );
-	if ( !res )
-	    return Executor::MoreToDo();
-    }
+    bool isvalidpos = false;
+    if ( !mIsUdf(nr) )
+	isvalidpos = curlinegeom_->getPosByTrcNr( nr, crd, spnr );
+    else if ( !mIsUdf(spnr) )
+	isvalidpos = curlinegeom_->getPosBySPNr( spnr, crd, nr );
     else if ( crd.isDefined() )
-    {
-	PosInfo::Line2DPos pos;
-	if ( !curlinegeom_->data().getPos(crd,pos,SI().inlDistance()) )
-	    return Executor::MoreToDo();
+	isvalidpos = curlinegeom_->getPosByCoord( crd, nr, spnr );
 
-	nr = pos.nr_;
-    }
-    else
-	// no valid x/y nor trace number
-	return Executor::ErrorOccurred();
+    if ( !isvalidpos )
+	return Executor::MoreToDo();
 
     if ( !bvalset_ )
 	bvalset_ = new BinIDValueSet( data.size(), false );
