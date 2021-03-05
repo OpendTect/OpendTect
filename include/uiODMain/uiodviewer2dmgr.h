@@ -120,7 +120,7 @@ public:
     static const char*		sKeyAttrID()		{ return "Attrib ID"; }
     static const char*		sKeyWVA()		{ return "WVA"; }
 
-    const Line2DInterSectionSet* getLine2DInterSectionSet() 
+    const Line2DInterSectionSet* getLine2DInterSectionSet()
 						{ return l2dintersections_; }
 
     CNotifier<uiODViewer2DMgr,int>  vw2dObjAdded;
@@ -142,8 +142,8 @@ protected:
 
     uiODMain&			appl_;
 
-    inline uiODApplMgr&         applMgr()     { return appl_.applMgr(); }
-    inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
+    inline uiODApplMgr&		applMgr()     { return appl_.applMgr(); }
+    inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
     void			viewObjAdded(CallBacker*);
     void			viewObjToBeRemoved(CallBacker*);
@@ -181,7 +181,7 @@ protected:
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
 
-    friend class                uiODMain;
+    friend class		uiODMain;
 
 public:
     bool			isItemPresent(const uiTreeItem*) const;
