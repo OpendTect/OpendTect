@@ -78,11 +78,15 @@ public:
 
     static bool			isFormatOK(const Table::FormatDesc&,
 					   BufferString&);
-    int				getNextLine(BufferString& lnm,Coord& crd,
-					    int& trcnr,TypeSet<float>& data);
+    int				getNextLineWithSP(BufferString& lnm,Coord& crd,
+						  int& trcnr,float& spnr,
+						  TypeSet<float>& data);
     bool			isTraceNr() const;
     bool			isOK() const { return strm_.isOK(); }
 
+    mDeprecated			("Use getNextLineWithSP instead")
+    int				getNextLine(BufferString& lnm,Coord& crd,
+					    int& trcnr,TypeSet<float>& data);
 protected:
 
     od_istream			strm_;

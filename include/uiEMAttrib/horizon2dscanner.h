@@ -29,6 +29,7 @@ public:
 
 			Horizon2DScanner(const BufferStringSet& fnms,
 					 Table::FormatDesc& fd);
+			~Horizon2DScanner();
 
     virtual uiString	uiMessage() const;
     virtual od_int64	totalNr() const;
