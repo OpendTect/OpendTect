@@ -224,7 +224,6 @@ uiTreeItem*
 
 uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
-    , paintdlg_(nullptr)
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
     , dirmnuitem_(m3Dots(tr("Set Directions")))
@@ -260,6 +259,7 @@ bool uiODPickSetTreeItem::actModeWhenSelected() const
 
 void uiODPickSetTreeItem::selChangedCB( CallBacker* )
 {
+    enablePainting( isSelected() && paintingenabled_ );
     if ( !isSelected() )
 	return;
 
@@ -334,13 +334,12 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( istb )
     {
 	mAddMenuItem( menu, &propertymnuitem_, true, false );
-	mAddMenuItem( menu, &paintingmnuitem_, true,
-		      psd->getPainter()->isActive() )
+	mAddMenuItem( menu, &paintingmnuitem_, true, paintingenabled_ )
 	mAddMenuItemCond( menu, &storemnuitem_, changed, false, !isreadonly );
 	return;
     }
 
-    mAddMenuItem( menu, &paintingmnuitem_, true, psd->getPainter()->isActive() )
+    mAddMenuItem( menu, &paintingmnuitem_, true, paintingenabled_ )
     mAddMenuItem( menu, &convertbodymnuitem_, true, false )
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
@@ -397,15 +396,8 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==paintingmnuitem_.id )
     {
-	if ( !paintdlg_ )
-	{
-	    paintdlg_ = new uiSeedPainterDlg( getUiParent(), psd );
-	    paintdlg_->windowClosed.notify(
-		    	mCB(this,uiODPickSetTreeItem,paintDlgClosedCB) );
-	}
-
-	paintdlg_->show();
-	paintdlg_->raise();
+	paintingenabled_ = !paintingenabled_;
+	enablePainting( paintingenabled_ );
     }
     else if ( mnuid==convertbodymnuitem_.id )
     {
@@ -440,7 +432,32 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 
 void uiODPickSetTreeItem::paintDlgClosedCB( CallBacker* )
 {
-    deleteAndZeroPtr( paintdlg_ );
+}
+
+
+void uiODPickSetTreeItem::enablePainting( bool yn )
+{
+    if ( !yn )
+    {
+	if ( paintdlg_ )
+	    paintdlg_->close();
+
+	return;
+    }
+
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+	    	    visserv_->getObject(displayid_));
+    if ( psd )
+	psd->getPainter()->activate();
+
+    if ( !paintdlg_ )
+    {
+	paintdlg_ = new uiSeedPainterDlg( getUiParent(), psd );
+	paintdlg_->windowClosed.notify(
+		    mCB(this,uiODPickSetTreeItem,paintDlgClosedCB) );
+    }
+
+    paintdlg_->show();
 }
 
 

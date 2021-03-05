@@ -76,10 +76,12 @@ protected:
     MenuItem		propertymnuitem_;
     MenuItem		paintingmnuitem_;
 
-    uiSeedPainterDlg*	paintdlg_;
+    uiSeedPainterDlg*	paintdlg_ = nullptr;
+    bool		paintingenabled_ = false;
 
     void		selChangedCB(CallBacker*);
     void		paintDlgClosedCB(CallBacker*);
+    void		enablePainting(bool);
 };
 
 

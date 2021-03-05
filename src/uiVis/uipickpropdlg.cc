@@ -177,9 +177,7 @@ uiSeedPainterDlg::uiSeedPainterDlg( uiParent* p,
     , seedpainter_(psd->getPainter())
 {
     setCtrlStyle( CloseOnly );
-    setDeleteOnClose( true );
     seedpainter_->ref();
-    seedpainter_->activate();
 
     int maxbrushsize = SI().zRange().nrSteps() / 5;
     if ( maxbrushsize > 1000 ) maxbrushsize = 1000;
@@ -207,7 +205,7 @@ uiSeedPainterDlg::uiSeedPainterDlg( uiParent* p,
 
 
 uiSeedPainterDlg::~uiSeedPainterDlg()
-{ seedpainter_->deActivate(); seedpainter_->unRef(); }
+{ seedpainter_->unRef(); }
 
 void uiSeedPainterDlg::sizeCB( CallBacker* )
 {
