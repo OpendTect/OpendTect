@@ -126,7 +126,10 @@ void DBManServerTool::checkExists()
 {
     const BufferString objnm = getKeyedArgStr( sExistsCmd );
     if ( objnm.isEmpty() )
+    {
 	respondError( "Incorrect usage: no object name provided" );
+	return;
+    }
 
     const BufferString trlgrpnm = getKeyedArgStr( sTrlGrpArg, false );
     if ( trlgrpnm.isEmpty() )
@@ -153,7 +156,10 @@ void DBManServerTool::checkExists()
     {
 	auto dbdir = DBM().findDir( trlgrpnm );
 	if ( !dbdir )
+	{
 	    respondError( "No database directory for object found" );
+	    return;
+	}
 
 	DBDirIter it( *dbdir );
 	while ( it.next() )
@@ -176,7 +182,10 @@ void DBManServerTool::provideInfo()
     const DBKey dbky = getDBKey( sInfoCmd );
     PtrMan<IOObj> ioobj = getIOObj( dbky );
     if ( !ioobj.ptr() )
+    {
 	respondError( "Input object key not found" );
+	return;
+    }
 
     provideInfo( *ioobj.ptr(), clp().hasKey(sAllCmd) );
 
@@ -212,12 +221,18 @@ void DBManServerTool::createObj()
     clp().getNormalArguments( args );
 
     if ( args.size() < 5 )
+    {
 	respondError( "Specify at least name, dirid, trgrp, trl, ext. "
 		      "Optional, type and/or --filename your_file_name." );
+	return;
+    }
 
     auto dbdir = DBM().fetchDir( DBKey::DirID(toInt(args.get(1))) );
     if ( !dbdir )
+    {
 	respondError( "Invalid DBDir ID specified" );
+	return;
+    }
 
     IOStream iostrm( args.get(0) );
     iostrm.setKey( dbdir->newKey() );
@@ -236,7 +251,10 @@ void DBManServerTool::createObj()
     iostrm.updateCreationPars();
     DBDir* dbdirptr = mNonConst( dbdir.ptr() );
     if ( !dbdirptr->commitChanges(iostrm) )
+    {
 	respondError( "Cannot commit new entry to data store" );
+	return;
+    }
 
     set( sKey::ID(), iostrm.key() );
     set( sKey::FileName(), iostrm.mainFileName() );

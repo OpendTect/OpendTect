@@ -102,6 +102,7 @@ void WellServerTool::getWD( const char* cmd, const LoadReqs& lreqs )
 void WellServerTool::getWellInfo()
 {
     getWD( sInfoCmd, LoadReqs(Inf) );
+    if ( !wd_ )	return;
 
     set( sKey::ID(), wd_->dbKey() );
     set( sKey::Name(), wd_->name() );
@@ -136,6 +137,9 @@ void WellServerTool::listLogs()
 void WellServerTool::listMarkers()
 {
     const DBKey wellid = getDBKey( sListMarkersCmd );
+    if ( wellid.isInvalid() )
+	return;
+
     BufferStringSet nms;
     TypeSet<Color> colors;
     TypeSet<Marker::ZType> mds;
@@ -154,6 +158,7 @@ void WellServerTool::listMarkers()
 void WellServerTool::getTrack()
 {
     getWD( sReadTrackCmd, LoadReqs(Trck) );
+    if ( !wd_ )	return;
 
     const auto& track = wd_->track();
     TypeSet<float> mds, tvds;
@@ -183,10 +188,14 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
 {
     auto wl = MGR().getLog( wellid, lognm );
     if ( !wl )
+    {
 	respondError( "Log not found" );
+	return;
+    }
 
     if ( !notvd )
 	getWD( wellid, LoadReqs(Inf,Trck) );
+    if ( !wd_ )	return;
 
     const auto sz = wl->size();
     set( sKey::Well(), wellid.name() );
@@ -244,7 +253,7 @@ int mProgMainFnName( int argc, char** argv )
 
     if ( clp.hasKey(sInfoCmd) )
 	st.getWellInfo();
-    if ( clp.hasKey(sReadTrackCmd) )
+    else if ( clp.hasKey(sReadTrackCmd) )
 	st.getTrack();
     else if ( clp.hasKey(sListLogsCmd) )
 	st.listLogs();
@@ -260,6 +269,8 @@ int mProgMainFnName( int argc, char** argv )
 	const bool notvd = clp.hasKey( sNoTVDArg );
 	st.readLog( wellid, lognm, notvd );
     }
+    else
+	st.exitWithUsage();
 
     return app.exec();
 }
