@@ -384,7 +384,28 @@ def getODSoftwareDir(args=None):
   while not os.path.isdir(os.path.join(curdir,relinfodir)) and maxrecur > 0:
     curdir = os.path.dirname( curdir )
     maxrecur = maxrecur-1
+  devfile = os.path.join( curdir, 'CTestConfig.cmake' )
+  if os.path.exists(devfile):
+      return getODBinaryDir(curdir)
   return curdir
+
+def getODBinaryDir( srcpath ):
+    """Get the binary directory from the source directory
+       Only useful for development environments
+
+    Parameters
+    ----------
+    srcpath : Full path to a directory
+        Path to the OpendTect source directory, configured with cmake
+
+    Returns
+    -------
+    Full path to OpendTect binary directory
+
+    """
+    if 'DTECT_APPL' in os.environ:
+        return os.environ['DTECT_APPL']
+    return srcpath
 
 def getExecPlfDir(args=None):
   """OpendTect executables directory

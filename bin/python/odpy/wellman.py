@@ -18,8 +18,20 @@ def getNames( reload=False, args=None ):
   return getWellDBList(reload,args)['Names']
 
 def getInfo( wllnm, reload=False, args=None ):
+  ret = oddbman.getInfoByName( wllnm, wlltrlgrp,exenm=oddbman.dbmanexe, args=args )
   dbkey = getDBKey( wllnm, reload=reload, args=args )
-  return oddbman.getInfoByName( dbkey, wlltrlgrp,exenm=wellmanexe, args=args )
+  if dbkey != None:
+      cmd = getODCommand(wellmanexe,args)
+      cmd.append( '--info' )
+      cmd.append( dbkey )
+      try:
+        wllinfo = oddbman.getDBDict( cmd )
+        if isinstance(wllinfo,dict):
+          for keynm in wllinfo:
+            ret.update( {keynm: wllinfo[keynm]} )
+      except:
+        pass
+  return ret
 
 def getName( dbkey, reload=False, args=None ):
   cmd = getODCommand(wellmanexe,args)
@@ -37,6 +49,23 @@ def getLogNames( wllnm, reload=False, args=None ):
   return ret['Names']
 
 def getLog( wllnm, lognm, reload=False, args=None ):
+  """Get a well log from the OpendTect database
+    Read a single log from the OpendTect database, with
+    any depth resampling or unit conversion.
+    
+    Args:
+      wllnm (string): Well database name
+      lognm (string): Log name as reported by getLogNames(wllnm)
+      reload (boolean, optional): Force re-reading of the database files
+          (no caching allowed). Default to False
+      args (dictionary, optional): Dictionary of optional parameters (see common).
+          Default to None.
+          
+    Returns:
+      tuple: Two arrays with depths (MD) and log values
+
+    
+  """
   dbkey = getDBKey( wllnm, reload=reload, args=args )
   cmd = getODCommand(wellmanexe,args)
   cmd.append( '--read-log' )
