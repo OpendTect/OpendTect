@@ -370,7 +370,6 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     {
 	dpm.release( dpid );
 	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, taskr );
-	channels_->turnOn( false );
 	return false;
     }
 
