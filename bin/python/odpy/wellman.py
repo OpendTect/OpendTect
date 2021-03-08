@@ -18,8 +18,20 @@ def getNames( reload=False, args=None ):
   return getWellDBList(reload,args)['Names']
 
 def getInfo( wllnm, reload=False, args=None ):
+  ret = oddbman.getInfoByName( wllnm, wlltrlgrp,exenm=oddbman.dbmanexe, args=args )
   dbkey = getDBKey( wllnm, reload=reload, args=args )
-  return oddbman.getInfoByName( dbkey, wlltrlgrp,exenm=wellmanexe, args=args )
+  if dbkey != None:
+      cmd = getODCommand(wellmanexe,args)
+      cmd.append( '--info' )
+      cmd.append( dbkey )
+      try:
+        wllinfo = oddbman.getDBDict( cmd )
+        if isinstance(wllinfo,dict):
+          for keynm in wllinfo:
+            ret.update( {keynm: wllinfo[keynm]} )
+      except:
+        pass
+  return ret
 
 def getName( dbkey, reload=False, args=None ):
   cmd = getODCommand(wellmanexe,args)
@@ -37,6 +49,23 @@ def getLogNames( wllnm, reload=False, args=None ):
   return ret['Names']
 
 def getLog( wllnm, lognm, reload=False, args=None ):
+  """Get a well log from the OpendTect database
+    Read a single log from the OpendTect database, with
+    any depth resampling or unit conversion.
+    
+    Args:
+      wllnm (string): Well database name
+      lognm (string): Log name as reported by getLogNames(wllnm)
+      reload (boolean, optional): Force re-reading of the database files
+          (no caching allowed). Default to False
+      args (dictionary, optional): Dictionary of optional parameters (see common).
+          Default to None.
+          
+    Returns:
+      tuple: Two arrays with depths (MD) and log values
+
+    
+  """
   dbkey = getDBKey( wllnm, reload=reload, args=args )
   cmd = getODCommand(wellmanexe,args)
   cmd.append( '--read-log' )
@@ -46,6 +75,29 @@ def getLog( wllnm, lognm, reload=False, args=None ):
   return (ret['MDs'], ret['Values'])
 
 def getLogs( wllnm, logidxlst, zstep=0.5, reload=False, args=None ):
+  """Get re-sampled logs from OpendTect
+
+  Args:
+      wllnm (string): Well database name
+      logidxlst (string): List of log indices to be resampled
+      zstep (double, optional): Resampling step in meters. Default to 0.5
+      reload (boolean, optional): Force re-reading of the database files
+          (no caching allowed). Default to False
+      args (dictionary, optional): Dictionary of optional parameters (see common).
+          Default to None.
+
+  Returns:
+    dict: Dictionary with log names as keys, logs as numpy arrays.
+        A depth array is also always output.
+
+  Example:
+     Get the logs from the well F03-4 with database indices 0, 1, 4, 6:
+     >>> logs = odpy.wellman.getLogs( 'F03-4', '0`1`4`6' )
+     
+     Undefined log samples will get the value 1e30 (not NaN)
+
+
+  """
   dbkey = getDBKey( wllnm, reload=reload, args=args )
   cmd = getODCommand(wellmanexe,args)
   cmd.append( '--read-logs' )
