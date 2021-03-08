@@ -211,7 +211,6 @@ void uiWellDispPropDlg::init()
     ts_->setCurrentPage( 1 );
     mAttachCB(ts_->selChange(), uiWellDispPropDlg::tabSel);
 
-    wd_->ref();
     setWDNotifiers( true );
     mAttachCB( applyPushed, uiWellDispPropDlg::resetCB );
 
