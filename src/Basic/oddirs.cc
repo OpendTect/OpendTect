@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "thread.h"
 #include "od_istream.h"
 #include <iostream>
 
@@ -110,6 +111,8 @@ static BufferString basedatadiroverrule;
 extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 mExternC(Basic) void SetCurBaseDataDirOverrule( const char* dirnm )
 {
+    mDefineStaticLocalObject(Threads::Mutex, mutex, );
+    Threads::MutexLocker lock(mutex);
     basedatadiroverrule = dirnm;
 }
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
@@ -203,7 +206,7 @@ mExternC(Basic) const char* GetShellScript( const char* nm )
 {
     mDeclStaticString( res );
     if ( !nm || !*nm )
-        return GetScriptDir();
+	return GetScriptDir();
 
     res = FilePath(GetScriptDir(),nm).fullPath();
     return res.buf();
@@ -215,7 +218,7 @@ mExternC(Basic) const char* GetPythonScript( const char* nm )
     BufferStringSet pythondirs;
     const BufferString fnm( nm );
     if ( fnm.isEmpty() || !GetEnvVarDirList("PYTHONPATH",pythondirs,true) )
-        return 0;
+	return 0;
 
     mDeclStaticString( res );
     res.setEmpty();
@@ -224,17 +227,17 @@ mExternC(Basic) const char* GetPythonScript( const char* nm )
     for ( int idx=0; idx<modulenms.size(); idx++ )
     {
 	for ( int idy=0; idy<pythondirs.size(); idy++ )
-        {
-            const FilePath pythonfp( pythondirs.get(idy).str(),
+	{
+	    const FilePath pythonfp( pythondirs.get(idy).str(),
 				     modulenms.get(idx).str(), fnm );
-            const BufferString scriptfnm( pythonfp.fullPath() );
-            if ( File::exists(scriptfnm) && File::isReadable(scriptfnm) &&
-                 File::isFile(scriptfnm) )
-            {
-                res = scriptfnm;
-                return res.buf();
-            }
-        }
+	    const BufferString scriptfnm( pythonfp.fullPath() );
+	    if ( File::exists(scriptfnm) && File::isReadable(scriptfnm) &&
+		 File::isFile(scriptfnm) )
+	    {
+		res = scriptfnm;
+		return res.buf();
+	    }
+	}
     }
 
     return res.buf();
@@ -243,7 +246,7 @@ mExternC(Basic) const char* GetPythonScript( const char* nm )
 
 mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 {
-    mDeclStaticString( res );
+     mDeclStaticString( res );
 
     if ( res.isEmpty() )
     {
