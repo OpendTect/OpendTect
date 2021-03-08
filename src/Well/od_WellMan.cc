@@ -112,6 +112,7 @@ void WellServerTool::getWD( const char* cmd, const LoadReqs& lreqs )
 void WellServerTool::getWellInfo()
 {
     getWD( sInfoCmd, LoadReqs(Inf) );
+    if ( !wd_ )	return;
 
     set( sKey::ID(), wd_->multiID().buf() );
     set( sKey::Name(), wd_->name() );
@@ -146,6 +147,7 @@ void WellServerTool::listLogs()
 void WellServerTool::listMarkers()
 {
     getWD( sListMarkersCmd, LoadReqs(Mrkrs) );
+    if ( !wd_ )	return;
 
     BufferStringSet nms;
     TypeSet<Color> colors;
@@ -165,6 +167,7 @@ void WellServerTool::listMarkers()
 void WellServerTool::getTrack()
 {
     getWD( sReadTrackCmd, LoadReqs(Trck) );
+    if ( !wd_ )	return;
 
     const Track& track = wd_->track();
     TypeSet<float> mds, tvds;
@@ -194,12 +197,14 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
 			      bool withtvd )
 {
     getWD( wellid, LoadReqs(Inf, Trck) );
-    if ( !wd_ )
-	respondError( "Not able to get well data" );
+    if ( !wd_ )	return;
 
     const Log* wl = wd_->getLog( lognm );
     if ( !wl )
+    {
 	respondError( "Log not found" );
+	return;
+    }
 
     const auto sz = wl->size();
     set( sKey::Well(), wd_->name() );
@@ -230,21 +235,24 @@ void WellServerTool::readLog( const DBKey& wellid, const char* lognm,
 }
 
 
-void WellServerTool::readLogs(const DBKey& wellid,
-			      const TypeSet<int>& logids,
-			      const float zstep, bool withtvd)
+void WellServerTool::readLogs( const DBKey& wellid,
+    const TypeSet<int>& logids,
+    const float zstep, bool withtvd )
 {
-    getWD( wellid, LoadReqs(Inf, Trck, LogInfos) );
-    if ( !wd_ )
-	respondError( "Not able to get well data" );
+    getWD( wellid, LoadReqs( Inf, Trck, LogInfos ) );
+    if ( !wd_ )	return;
 
     BufferStringSet lognms, sellognms;
     Well::MGR().getLogNamesByID( wellid, lognms );
-    for ( auto idx=0; idx<logids.size(); idx++ )
+    for ( auto idx = 0; idx < logids.size(); idx++ )
     {
 	const int logid = logids[idx];
 	if ( !lognms.validIdx( logid ) )
+	{
 	    respondError( "Invalid log index" );
+	    return;
+	}
+
 	const BufferString lognm = lognms.get( logid );
 	wd_->getLog( lognm );
 	sellognms.add( lognm );
@@ -258,7 +266,10 @@ void WellServerTool::readLogs(const DBKey& wellid,
     Well::LogSampler sampler( *wd_, extparams, sellognms );
     sampler.setMaxHoleSize( 1.05 );
     if ( !sampler.execute() )
+    {
 	respondError( sampler.errMsg() );
+	return;
+    }
 
     BufferStringSet outlognames;
     for ( auto idx=0; idx<sellognms.size(); idx++ )
@@ -333,7 +344,7 @@ int mProgMainFnName( int argc, char** argv )
 
     if ( clp.hasKey(sInfoCmd) )
 	st.getWellInfo();
-    if ( clp.hasKey(sReadTrackCmd) )
+    else if ( clp.hasKey(sReadTrackCmd) )
 	st.getTrack();
     else if ( clp.hasKey(sListLogsCmd) )
 	st.listLogs();
@@ -349,7 +360,7 @@ int mProgMainFnName( int argc, char** argv )
 	const bool withtvd = clp.hasKey( sWithTVDArg );
 	st.readLog( wellid, lognm, withtvd );
     }
-    else if ( clp.hasKey( sReadLogsCmd ) )
+    else if ( clp.hasKey(sReadLogsCmd) )
     {
 	clp.setKeyHasValue( sReadLogsCmd, 2 );
 	DBKey wellid;
@@ -357,19 +368,21 @@ int mProgMainFnName( int argc, char** argv )
 	BufferString logid_str;
 	clp.getVal( sReadLogsCmd, logid_str, false, 2 );
 	BufferStringSet logids_strs;
-	logids_strs. unCat( logid_str, "," );
+	logids_strs.unCat( logid_str, "," );
 	TypeSet<int> logids;
-	for ( auto idx=0; idx<logids_strs.size(); idx++ )
-	    logids.addIfNew( toInt( logids_strs.get(idx) ) );
+	for ( auto idx = 0; idx < logids_strs.size(); idx++ )
+	    logids.addIfNew( toInt( logids_strs.get( idx ) ) );
 	const bool withtvd = clp.hasKey( sWithTVDArg );
 	float zstep = 0.5;
-	if ( clp.hasKey( sZstep ) )
+	if ( clp.hasKey(sZstep) )
 	{
 	    clp.setKeyHasValue( sZstep, 1 );
 	    clp.getVal( sZstep, zstep );
 	}
 	st.readLogs( wellid, logids, zstep, withtvd );
     }
+    else
+	st.exitWithUsage();
 
     return app.exec();
 }
