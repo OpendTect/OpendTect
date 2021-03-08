@@ -218,6 +218,7 @@ public:
     Notifier<uiListBox> rightButtonClicked;
     Notifier<uiListBox> leftButtonClicked;
     Notifier<uiListBox> deleteButtonPressed;
+    Notifier<uiListBox> checkAllClicked;
 
     void		offerReadWriteSelection( const CallBack& rcb,
 						 const CallBack& wcb )
@@ -240,6 +241,7 @@ private:
     bool		bulkcheckchg_;
 
     void		menuCB(CallBacker*);
+    void		checkAllClickedCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));
     void		usrChooseAll(bool yn=true);
 

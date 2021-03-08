@@ -413,6 +413,7 @@ uiListBoxBody& uiListBoxObj::mkbody( uiParent* p, const char* nm,
     , leftButtonClicked(this) \
     , deleteButtonPressed(this) \
     , itemChosen(this) \
+    , checkAllClicked(this) \
     , rightclickmnu_(*new uiMenu(p)) \
     , alignment_(Alignment::Left) \
     , scrollingblocked_(false) \
@@ -495,6 +496,7 @@ void uiListBox::mkCheckGroup()
 						mCB(this,uiListBox,checkCB) );
     cb_->setName( "Check-all box" );
     cb_->setMaximumWidth( 20 );
+    mAttachCB(cb_->activated,uiListBox::checkAllClickedCB);
     checkgrp_->display( isMultiChoice(), true );
 }
 
@@ -503,6 +505,12 @@ void uiListBox::checkCB( CallBacker* )
 {
     const bool checkall = cb_->getCheckState()==OD::Checked;
     setAllItemsChecked( checkall );
+}
+
+
+void uiListBox::checkAllClickedCB( CallBacker* )
+{
+    checkAllClicked.trigger();
 }
 
 
