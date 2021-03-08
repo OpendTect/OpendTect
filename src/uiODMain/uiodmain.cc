@@ -308,8 +308,8 @@ uiODMain::~uiODMain()
     delete &newsurvinittimer_;
 
     delete menumgr_;
-    delete viewer2dmgr_;
     delete scenemgr_;
+    delete viewer2dmgr_;
     delete applmgr_;
 }
 
