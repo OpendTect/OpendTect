@@ -74,6 +74,8 @@ protected:
     MenuItem		propertymnuitem_;
 
     void		selChangedCB(CallBacker*);
+    void		paintDlgClosedCB(CallBacker*);
+    void		enablePainting(bool);
 };
 
 
