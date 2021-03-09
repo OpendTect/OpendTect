@@ -421,6 +421,7 @@ int MarkerSet::addPos( const Coord3& crd, bool draw )
     if ( coords_ )
 	index = coords_->addPos( crd );
 
+    onoffarr_->resizeArray( coords_->size() );
     markerset_->turnMarkerOn( index, draw );
 
     if ( draw && markerset_ )
@@ -447,6 +448,7 @@ void MarkerSet::insertPos( int idx, const Coord3& crd, bool draw )
     if ( coords_ )
 	coords_->insertPos( idx, crd );
 
+    onoffarr_->resizeArray( coords_->size() );
     markerset_->turnMarkerOn( idx, draw );
     if ( draw && markerset_ )
 	markerset_->forceRedraw( true );
