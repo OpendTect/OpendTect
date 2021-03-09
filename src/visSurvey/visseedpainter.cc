@@ -207,7 +207,10 @@ bool SeedPainter::acceptMouse( const visBase::EventInfo& eventinfo )
     if ( eventinfo.type == visBase::Keyboard )
 	mReturnHandled( true );
 
-    drawLine( eventinfo );
+    Scene* scene = STM().currentScene();
+    if ( scene && scene->isPickable() )
+	drawLine( eventinfo );
+
     if ( eventinfo.type==visBase::MouseClick )
     {
 	if ( eventinfo.pressed )

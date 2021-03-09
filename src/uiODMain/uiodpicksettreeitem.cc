@@ -246,8 +246,9 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     storemnuitem_.iconfnm = "save";
     storeasmnuitem_.iconfnm = "saveas";
 
-    auto paintmnuitem = new MenuItem( m3Dots(tr("Start Painting")) );
+    auto paintmnuitem = new MenuItem( m3Dots(tr("Enable Painting")) );
     paintmnuitem->iconfnm = "spraycan";
+    paintmnuitem->checkable = true;
     paintmnuitem_.setParam( this, paintmnuitem );
 
     paintingenabled_.setParam( this, 0 );
