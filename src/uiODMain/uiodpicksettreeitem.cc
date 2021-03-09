@@ -224,6 +224,8 @@ uiTreeItem*
 
 
 static HiddenParam<uiODPickSetTreeItem,MenuItem*> paintmnuitem_(nullptr);
+static HiddenParam<uiODPickSetTreeItem,char> paintingenabled_(0);
+static HiddenParam<uiODPickSetTreeItem,uiSeedPainterDlg*> paintdlg_(nullptr);
 
 uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
@@ -247,6 +249,9 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     auto paintmnuitem = new MenuItem( m3Dots(tr("Start Painting")) );
     paintmnuitem->iconfnm = "spraycan";
     paintmnuitem_.setParam( this, paintmnuitem );
+
+    paintingenabled_.setParam( this, 0 );
+    paintdlg_.setParam( this, nullptr );
 }
 
 
@@ -255,6 +260,8 @@ uiODPickSetTreeItem::~uiODPickSetTreeItem()
     detachAllNotifiers();
     Pick::Mgr().removeCBs( this );
     paintmnuitem_.removeAndDeleteParam( this );
+    paintingenabled_.removeParam( this );
+    paintdlg_.removeAndDeleteParam( this );
 }
 
 
@@ -264,6 +271,8 @@ bool uiODPickSetTreeItem::actModeWhenSelected() const
 
 void uiODPickSetTreeItem::selChangedCB( CallBacker* )
 {
+    const char paintingenabled = paintingenabled_.getParam( this );
+    enablePainting( isSelected() && paintingenabled );
     if ( !isSelected() )
 	return;
 
@@ -336,16 +345,16 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
     const bool isreadonly = set_.isReadOnly();
     auto paintmnuitem = paintmnuitem_.getParam( this );
+    const char paintingenabled = paintingenabled_.getParam( this );
     if ( istb )
     {
 	mAddMenuItem( menu, &propertymnuitem_, true, false );
-	mAddMenuItem( menu, paintmnuitem, true,
-		      psd->getPainter()->isActive() )
+	mAddMenuItem( menu, paintmnuitem, true, paintingenabled )
 	mAddMenuItemCond( menu, &storemnuitem_, changed, false, !isreadonly );
 	return;
     }
 
-    mAddMenuItem( menu, paintmnuitem, true, psd->getPainter()->isActive() )
+    mAddMenuItem( menu, paintmnuitem, true, paintingenabled )
     mAddMenuItem( menu, &convertbodymnuitem_, true, false )
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
@@ -374,6 +383,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     auto paintmnuitem = paintmnuitem_.getParam( this );
+    char paintingenabled = paintingenabled_.getParam( this );
     if ( mnuid==storemnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -403,8 +413,9 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==paintmnuitem->id )
     {
-	auto paintdlg = new uiSeedPainterDlg( getUiParent(), psd );
-	paintdlg->show();
+	paintingenabled = paintingenabled ? 0 : 1;
+	paintingenabled_.setParam( this, paintingenabled );
+	enablePainting( paintingenabled );
     }
     else if ( mnuid==convertbodymnuitem_.id )
     {
@@ -434,6 +445,42 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
+}
+
+
+void uiODPickSetTreeItem::paintDlgClosedCB( CallBacker* )
+{
+}
+
+
+void uiODPickSetTreeItem::enablePainting( bool yn )
+{
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+	    	    visserv_->getObject(displayid_));
+    uiSeedPainterDlg* paintdlg = paintdlg_.getParam( this );
+    if ( !yn )
+    {
+	if ( paintdlg )
+	    paintdlg->close();
+
+	if ( psd )
+	    psd->getPainter()->deActivate();
+
+	return;
+    }
+
+    if ( psd )
+	psd->getPainter()->activate();
+
+    if ( !paintdlg )
+    {
+	paintdlg = new uiSeedPainterDlg( getUiParent(), psd );
+	paintdlg_.setParam( this, paintdlg );
+	paintdlg->windowClosed.notify(
+		    mCB(this,uiODPickSetTreeItem,paintDlgClosedCB) );
+    }
+
+    paintdlg->show();
 }
 
 

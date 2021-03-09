@@ -282,6 +282,8 @@ public:
     bool			getSelMousePosInfo(const visBase::EventInfo&,
 						   Coord3&, BufferString&,
 						   BufferString&) const;
+    const TypeSet<BinID>*	getPath() const		{ return &trcspath_; }
+
 protected:
     int				getClosestPanelIdx(const Coord&,
 						   double* fracptr) const;

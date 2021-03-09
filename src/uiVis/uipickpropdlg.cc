@@ -174,14 +174,12 @@ bool uiPickPropDlg::acceptOK( CallBacker* )
 
 uiSeedPainterDlg::uiSeedPainterDlg( uiParent* p,
 				    visSurvey::LocationDisplay* psd )
-    : uiDialog(p,uiDialog::Setup(tr("PointSet Painter"),mNoDlgTitle,mNoHelpKey)
-	    	.modal(false))
+    : uiDialog(p,uiDialog::Setup(tr("Painting %1").arg(psd->name()),
+				 mNoDlgTitle,mNoHelpKey).modal(false))
     , seedpainter_(psd->getPainter())
 {
     setCtrlStyle( CloseOnly );
-    setDeleteOnClose( true );
     seedpainter_->ref();
-    seedpainter_->activate();
 
     int maxbrushsize = SI().zRange().nrSteps() / 5;
     if ( maxbrushsize > 1000 ) maxbrushsize = 1000;
@@ -196,20 +194,20 @@ uiSeedPainterDlg::uiSeedPainterDlg( uiParent* p,
 	    			 .withedit(true) );
     szfld_->setInterval( StepInterval<int>(1,maxbrushsize,1) );
     szfld_->setValue( seedpainter_->radius() );
-    szfld_->sliderMoved.notify( mCB(this,uiSeedPainterDlg,sizeCB) );
+    szfld_->valueChanged.notify( mCB(this,uiSeedPainterDlg,sizeCB) );
     lbl->attach( centeredAbove, szfld_ );
 
     densfld_ = new uiSlider( this, uiSlider::Setup(tr("Density %"))
 	    			   .withedit(true) );
     densfld_->setInterval( StepInterval<int>(1,maxbrushsize,1) );
     densfld_->setValue( seedpainter_->density() );
-    densfld_->sliderMoved.notify( mCB(this,uiSeedPainterDlg,densCB) );
+    densfld_->valueChanged.notify( mCB(this,uiSeedPainterDlg,densCB) );
     densfld_->attach( alignedBelow, szfld_ );
 }
 
 
 uiSeedPainterDlg::~uiSeedPainterDlg()
-{ seedpainter_->deActivate(); seedpainter_->unRef(); }
+{ seedpainter_->unRef(); }
 
 void uiSeedPainterDlg::sizeCB( CallBacker* )
 {
