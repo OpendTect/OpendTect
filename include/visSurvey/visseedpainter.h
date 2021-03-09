@@ -89,6 +89,7 @@ protected:
     visBase::EventInfo*			prevev_;
 
     bool				active_ = false;
+    bool				isleftbutpressed_ = false;
     Pick::Set*				set_;
     Pick::SetMgr*			picksetmgr_;
 

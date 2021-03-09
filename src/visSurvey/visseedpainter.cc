@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "vistransmgr.h"
 
+
 namespace visSurvey
 {
 
@@ -207,18 +208,17 @@ bool SeedPainter::acceptMouse( const visBase::EventInfo& eventinfo )
 	mReturnHandled( true );
 
     drawLine( eventinfo );
-    if ( eventinfo.type==visBase::MouseMovement && !eventinfo.dragging )
-	mReturnHandled( false );
-
     if ( eventinfo.type==visBase::MouseClick )
     {
 	if ( eventinfo.pressed )
 	{
 	    prevev_ = new visBase::EventInfo( eventinfo );
+	    isleftbutpressed_ = eventinfo.buttonstate_ & OD::LeftButton;
 	    mReturnHandled( true );
 	}
 
-	if ( !prevev_ )
+	isleftbutpressed_ = false;
+	if ( !prevev_ || !(eventinfo.buttonstate_ & OD::LeftButton) )
 	    mReturnHandled( false );
 
 	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
@@ -228,12 +228,16 @@ bool SeedPainter::acceptMouse( const visBase::EventInfo& eventinfo )
 
 	picksetmgr_->undo().setUserInteractionEnd(
 				picksetmgr_->undo().currentEventID() );
+
 	deleteAndZeroPtr( prevev_ );
 	mReturnHandled( true );
     }
 
     if ( eventinfo.type==visBase::MouseMovement )
     {
+	if ( !eventinfo.dragging || !isleftbutpressed_ )
+	    mReturnHandled( false );
+
 	if ( !prevev_ )
 	{
 	    prevev_ = new visBase::EventInfo( eventinfo );
@@ -381,6 +385,9 @@ void SeedPainter::paintSeedsOnInlCrl( const visBase::EventInfo& curev,
 	    mAddPosOnInlCrl( nr2, sampidx2 );
     }
 
+    if ( mylocs.isEmpty() )
+	return;
+
     set_->bulkAppendWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
 	    			     set_, indexes );
@@ -458,6 +465,9 @@ void SeedPainter::paintSeedsOnZSlice( const visBase::EventInfo& curev,
 	if ( !pt2incircle1 )
 	    mAddPosOnZSlice( inl2, crl2 );
     }
+
+    if ( mylocs.isEmpty() )
+	return;
 
     set_->bulkAppendWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
@@ -550,6 +560,9 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
 	    mAddPosOnRandLine( bididx2, sampidx2 );
     }
 
+    if ( mylocs.isEmpty() )
+	return;
+
     set_->bulkAppendWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
 	    			     set_, indexes );
@@ -606,6 +619,9 @@ void SeedPainter::eraseSeeds( const visBase::EventInfo& curev )
 	indexes.add( idx );
     }
 
+    if ( mylocs.isEmpty() )
+	return;
+
     set_->bulkRemoveWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::ToBeRemoved,
 	    			     set_, indexes );
@@ -652,6 +668,9 @@ void SeedPainter::eraseSeedsOnRandLine( const RandomTrackDisplay* rtd,
 	mylocs.add( loc );
 	indexes.add( idx );
     }
+
+    if ( mylocs.isEmpty() )
+	return;
 
     set_->bulkRemoveWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::ToBeRemoved,

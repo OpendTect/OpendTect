@@ -437,16 +437,19 @@ void uiODPickSetTreeItem::paintDlgClosedCB( CallBacker* )
 
 void uiODPickSetTreeItem::enablePainting( bool yn )
 {
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+	    	    visserv_->getObject(displayid_));
     if ( !yn )
     {
 	if ( paintdlg_ )
 	    paintdlg_->close();
 
+	if ( psd )
+	    psd->getPainter()->deActivate();
+
 	return;
     }
 
-    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-	    	    visserv_->getObject(displayid_));
     if ( psd )
 	psd->getPainter()->activate();
 
