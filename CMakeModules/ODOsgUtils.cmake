@@ -67,7 +67,7 @@ macro( OD_ADD_OSG )
     else()
 	OD_FIND_OSGDIR()
 
-	set( OSGGEO_DIR "${CMAKE_BINARY_DIR}/external/osgGeo" )
+	set( OSGGEO_DIR "${OD_BINARY_BASEDIR}/external/osgGeo" )
 	if ( NOT EXISTS "${OSGGEO_DIR}/CMakeCache.txt" )
 	    OD_CONF_OSGGEO()
 	    OD_BUILD_OSGGEO()
