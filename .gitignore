@@ -7,6 +7,9 @@ dtect/linguist.csh
 include/Basic/svnversion.h
 include/Basic/odversion.h
 include/Basic/buildinfo.h
+src/*/launch-*.cmd
+plugins/*/launch-*.cmd
+spec/*/launch-*.cmd
 external/*
 .arcconfig
 CMakeModules/FindOpendTect.cmake

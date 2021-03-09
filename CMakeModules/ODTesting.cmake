@@ -59,14 +59,14 @@ macro ( ADD_TEST_PROGRAM TEST_NAME )
     endif()
     set ( TEST_ARGS --command ${TEST_NAME} )
 
-    list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
+    list ( APPEND TEST_ARGS --wdir "${PROJECT_OUTPUT_DIR}"
 		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
 		    --quiet )
     if ( WIN32 )
 	ADD_RUNTIME_PATHS()
     else()
 	list ( APPEND TEST_ARGS
-		    --oddir ${OD_BINARY_BASEDIR} )
+		    --oddir "${OD_BINARY_BASEDIR}" )
 	if ( NOT APPLE )
 	    ADD_CXX_LD_LIBRARY_PATH()
 	endif()
@@ -82,11 +82,11 @@ macro ( ADD_TEST_PROGRAM TEST_NAME )
 	endif()
     endif()
 
-    add_test( NAME ${TEST_NAME} WORKING_DIRECTORY ${OD_EXEC_OUTPUT_PATH}
+    add_test( NAME ${TEST_NAME} WORKING_DIRECTORY "${PROJECT_OUTPUT_DIR}"
 	      COMMAND ${TEST_COMMAND} ${TEST_ARGS} )
 
     if ( UNIX AND VALGRIND_PROGRAM )
-	add_test( NAME ${TEST_NAME}_memcheck WORKING_DIRECTORY ${OD_EXEC_OUTPUT_PATH}
+	add_test( NAME ${TEST_NAME}_memcheck WORKING_DIRECTORY "${PROJECT_OUTPUT_DIR}"
 	      COMMAND ${TEST_COMMAND} ${TEST_ARGS} --valgrind ${VALGRIND_PROGRAM} )
     endif()
 
@@ -170,7 +170,7 @@ macro ( OD_ADD_EXIT_PROGRAM_TEST )
     endif()
     set ( TEST_ARGS --command test_exit_program )
 
-    list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
+    list ( APPEND TEST_ARGS --wdir "${OD_BINARY_BASEDIR}"
 		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
 		    --expected-result 1
 		    --quiet )
@@ -192,6 +192,6 @@ macro ( OD_ADD_LINT_TEST )
     find_program( PHP_PROGRAM "php" )
     if ( PHP_PROGRAM )
 	add_test( NAME "PHP_linter" COMMAND ${PHP_PROGRAM} ./testscripts/test_tab_lint.php --quiet
-         	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+         	  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}" )
     endif()
 endmacro()
