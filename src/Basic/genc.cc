@@ -815,9 +815,20 @@ mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool )
 #endif
 }
 
+static BufferString executablepathoverrule;
+extern "C" { mGlobal(Basic) void SetExecutablePathOverrule(const char*); }
+mExternC(Basic) void SetExecutablePathOverrule(const char* dirnm)
+{
+    mDefineStaticLocalObject(Threads::Mutex, mutex, );
+    Threads::MutexLocker lock(mutex);
+    executablepathoverrule = dirnm;
+}
+
 
 static const char* getShortPathName( const char* path )
 {
+    if (!executablepathoverrule.isEmpty())
+	return executablepathoverrule;
 #ifndef __win__
     return path;
 #else

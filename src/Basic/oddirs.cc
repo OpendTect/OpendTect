@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "thread.h"
 #include "od_istream.h"
 #include <iostream>
 
@@ -110,6 +111,8 @@ static BufferString basedatadiroverrule;
 extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 mExternC(Basic) void SetCurBaseDataDirOverrule( const char* dirnm )
 {
+    mDefineStaticLocalObject(Threads::Mutex, mutex, );
+    Threads::MutexLocker lock(mutex);
     basedatadiroverrule = dirnm;
 }
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
