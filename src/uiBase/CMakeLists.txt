@@ -21,6 +21,7 @@ set(QT_MOC_HEADERS
 	i_qsystemtrayicon.h
 	i_qtabbar.h
 	i_qtable.h
+	i_qtableview.h
 	i_qtextedit.h
 	i_qtoolbar.h
 	i_qtreeview.h
