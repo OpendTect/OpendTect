@@ -200,13 +200,19 @@ void uiSlider::setText( const char* txt )
 { setValue( toFloat(txt) ); }
 
 void uiSlider::setValue( int ival )
-{ slider_->body().setValue( ival ); }
+{
+    slider_->body().setValue( ival );
+    if ( editfld_ )
+	editfld_->setValue( ival);
+}
 
 void uiSlider::setValue( float fval )
 {
     mSliderBlockCmdRec;
     int val = sliderValue( fval );
     slider_->body().setValue( val );
+    if ( editfld_ )
+	editfld_->setValue( fval );
 }
 
 
