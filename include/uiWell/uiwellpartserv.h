@@ -124,7 +124,6 @@ protected:
     void			saveWellDispProps(ConstRefMan<Well::Data>&);
     void			saveWellDispProps(ConstRefMan<Well::Data>&,
 						  const MultiID&);
-    void			applyAll(CallBacker*);
     void			applyTabProps(CallBacker*);
     void			resetAllProps(CallBacker*);
     void			simpImp(CallBacker*);

@@ -88,6 +88,7 @@ public:
     bool		isLoaded(const MultiID&) const;
     bool		reload(const MultiID&, LoadReqs lreq=LoadReqs(false));
     bool		reloadDispPars(const MultiID&, bool for2d=false);
+    bool		reloadLogs(const MultiID&);
     bool		validID(const MultiID&) const;
 
     const char*		errMsg() const		{ return msg_; }
@@ -127,6 +128,7 @@ protected:
     BufferString	msg_;
 
     int			gtByKey(const MultiID&) const;
+    Well::Data*		addNew(const MultiID&, LoadReqs lreq=LoadReqs(false));
 };
 
 mGlobal(Well) Man& MGR();

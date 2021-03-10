@@ -243,7 +243,6 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid,
 	return false;
 
     uiWellDispPropDlg uiwellpropdlg( parent(), *wd, bkCol );
-    mAttachCB(uiwellpropdlg.applyAllReq, uiWellPartServer::applyAll);
     mAttachCB(uiwellpropdlg.applyTabReq, uiWellPartServer::applyTabProps);
     mAttachCB(uiwellpropdlg.resetAllReq, uiWellPartServer::resetAllProps);
     if ( !uiwellpropdlg.go() )
@@ -289,36 +288,6 @@ void uiWellPartServer::saveWellDispProps(ConstRefMan<Well::Data>& wd,
     if ( !wr.putDispProps() )
 	uiMSG().error(tr("Could not write display properties for \n%1")
 		    .arg(wd->name()));
-}
-
-
-void uiWellPartServer::applyAll( CallBacker* cb )
-{
-    mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
-    if ( !dlg ) { pErrMsg("Huh"); return; }
-    ConstRefMan<Well::Data> edwd = dlg->wellData();
-    const Well::DisplayProperties& edprops = edwd->displayProperties();
-    const bool is2d = dlg->is2D();
-
-    TypeSet<MultiID> keys;
-    Well::MGR().getWellKeys( keys, true );
-    Well::LoadReqs lreqs(is2d ? Well::DispProps2D : Well::DispProps3D);
-    ObjectSet<Well::Data>& wells = Well::MGR().wells();
-    for ( int ikey=0; ikey<wells.size(); ikey++ )
-    {
-	RefMan<Well::Data> wd = wells[ikey];
-	if ( wd && wd != edwd )
-	{
-	    Well::DisplayProperties& wdprops = wd->displayProperties(is2d);
-	    wdprops.track_ = edprops.track_;
-	    wdprops.markers_ = edprops.markers_;
-	    wdprops.logs_[0]->left_.setTo(wd, edprops.logs_[0]->left_);
-	    wdprops.logs_[0]->center_.setTo(wd, edprops.logs_[0]->center_);
-	    wdprops.logs_[0]->right_.setTo(wd, edprops.logs_[0]->right_);
-	    wd->disp3dparschanged.trigger();
-	}
-    }
-    allapplied_ = true;
 }
 
 

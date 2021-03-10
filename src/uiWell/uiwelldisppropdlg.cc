@@ -37,7 +37,6 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const Well::Data& wd,
 			    .savebutton(true).savechecked(false)
 			    .applybutton(true).modal(true)
 			    .applytext(uiStrings::sReset()))
-    , applyAllReq(this)
     , applyTabReq(this)
     , resetAllReq(this)
     , is2ddisplay_(is2d)
@@ -66,7 +65,6 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
 			    .savebutton(true).savechecked(false)
 			    .applybutton(true).modal(true)
 			    .applytext(uiStrings::sReset()))
-    , applyAllReq(this)
     , applyTabReq(this)
     , resetAllReq(this)
     , is2ddisplay_(is2d)
@@ -159,10 +157,8 @@ void uiWellDispPropDlg::init()
     }
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "", OD::Horizontal );
-    new uiPushButton( bgrp, tr("Apply Current to all wells"),
+    new uiPushButton( bgrp, tr("Apply Tab to All"),
 			mCB(this,uiWellDispPropDlg,applyTabPush), true );
-    new uiPushButton( bgrp, tr("Apply All to all wells"),
-			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     new uiPushButton( bgrp, tr("Reset All"),
 			mCB(this,uiWellDispPropDlg,resetAllPush), true );
     bgrp->attach( centeredBelow, ts_ );
@@ -270,13 +266,6 @@ void uiWellDispPropDlg::propChg( CallBacker* )
     setButtonSensitive( APPLY, true );
     getFromScreen();
     mDispNot.trigger();
-}
-
-
-void uiWellDispPropDlg::applyAllPush( CallBacker* )
-{
-    getFromScreen();
-    applyAllReq.trigger();
 }
 
 

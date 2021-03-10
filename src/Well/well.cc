@@ -267,6 +267,8 @@ bool Well::Data::haveMarkers() const
 
 bool Well::Data::haveLogs() const
 {
+    if ( lognms_.isEmpty() )
+	reloadLogNames();
     return !lognms_.isEmpty();
 }
 
@@ -317,8 +319,11 @@ void Well::Data::levelToBeRemoved( CallBacker* cb )
 Well::LoadReqs Well::Data::loadState() const
 {
     Well::LoadReqs lreqs( Well::Inf );
-    lreqs.add( Well::DispProps2D );
-    lreqs.add( Well::DispProps3D );
+    if ( dispParsLoaded() )
+    {
+	lreqs.add( Well::DispProps2D );
+	lreqs.add( Well::DispProps3D );
+    }
     if ( haveMarkers() )
 	lreqs.add( Well::Mrkrs );
     if ( haveD2TModel() )
@@ -327,9 +332,6 @@ Well::LoadReqs Well::Data::loadState() const
 	lreqs.add( Well::CSMdl );
     if ( haveLogs() )
     {
-	if ( lognms_.isEmpty() )
-	    Well::MGR().getLogNamesByID( mid_, lognms_ );
-
 	int nloaded = 0;
 	for ( int idx=0; idx<logs_.size(); idx++ )
 	{
@@ -355,7 +357,7 @@ Well::LoadReqs Well::Data::loadState() const
 const Well::Log* Well::Data::getLog( const char* nm ) const
 {
     if ( lognms_.isEmpty() )
-	Well::MGR().getLogNamesByID( mid_, lognms_ );
+	reloadLogNames();
 
     if ( lognms_.isPresent( nm ) && !logs().isLoaded( nm ) )
     {
@@ -374,7 +376,7 @@ const Well::Log* Well::Data::getLog( const char* nm ) const
 Well::Log* Well::Data::getLogForEdit( const char* nm )
 {
     if ( lognms_.isEmpty() )
-	Well::MGR().getLogNamesByID( mid_, lognms_ );
+	reloadLogNames();
 
     if ( lognms_.isPresent( nm ) && !logs().isLoaded( nm ) )
     {
@@ -386,6 +388,12 @@ Well::Log* Well::Data::getLogForEdit( const char* nm )
 	}
     }
     return logs().getLog( nm );
+}
+
+
+void Well::Data::reloadLogNames() const
+{
+    MGR().getLogNamesByID(mid_, lognms_, false);
 }
 
 

@@ -40,7 +40,6 @@ public:
 						  bool is2ddisplay=false);
 				~uiWellDispPropDlg();
 
-    Notifier<uiWellDispPropDlg>	applyAllReq;
     Notifier<uiWellDispPropDlg> applyTabReq;
     Notifier<uiWellDispPropDlg> resetAllReq;
 
@@ -65,7 +64,6 @@ protected:
 
     virtual void		setWDNotifiers(bool yn);
 
-    virtual void		applyAllPush(CallBacker*);
     virtual void		applyTabPush(CallBacker*);
     virtual void		resetAllPush(CallBacker*);
     virtual void		propChg(CallBacker*);
