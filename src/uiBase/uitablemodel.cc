@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 
 #include "uitablemodel.h"
+#include "i_qtableview.h"
 
 #include "uiclipboard.h"
 #include "uiobjbodyimpl.h"
@@ -35,7 +36,6 @@ ________________________________________________________________________
 
 
 static HiddenParam<uiTableView,QVariant*> initstate_(nullptr);
-
 
 class ODStyledItemDelegate : public QStyledItemDelegate
 {
@@ -342,11 +342,87 @@ public:
 ODTableView( uiTableView& hndl, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiTableView,QTableView>(hndl,p,nm)
 {
+    frozenview_ = new QTableView( this );
+    helper_ = new FrozenColumnsHelper( this, frozenview_ );
+}
+
+
+~ODTableView()
+{
+    delete helper_;
+    delete frozenview_;
+}
+
+
+void setModel( QAbstractItemModel* tblmodel ) override
+{
+    QTableView::setModel( tblmodel );
+    frozenview_->setModel( model() );
+    frozenview_->setSelectionModel( selectionModel() );
+}
+
+void init()
+{
     setStyleSheet( "selection-background-color: rgba(50, 50, 50, 50);"
 		   "selection-color: black;" );
     if ( horizontalHeader() )
 	horizontalHeader()->setDefaultAlignment(
-		Qt::AlignCenter | (Qt::Alignment)Qt::TextWordWrap );
+		Qt::AlignCenter | Qt::Alignment(Qt::TextWordWrap) );
+
+    setHorizontalScrollMode( ScrollPerPixel );
+
+    initFrozenView();
+}
+
+
+void initFrozenView()
+{
+    viewport()->stackUnder( frozenview_ );
+
+    frozenview_->setStyleSheet( styleSheet() );
+    frozenview_->setFrameStyle( QFrame::NoFrame );
+    frozenview_->setFocusPolicy( Qt::NoFocus );
+
+    frozenview_->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+    frozenview_->setHorizontalScrollMode( horizontalScrollMode() );
+    frozenview_->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+    frozenview_->setVerticalScrollMode( verticalScrollMode() );
+
+    frozenview_->verticalHeader()->hide();
+    frozenview_->horizontalHeader()->setSectionResizeMode( QHeaderView::Fixed );
+
+    updateColumns();
+}
+
+
+void updateColumns()
+{
+    for ( int col=0; col<nrfrozencols_; col++ )
+	frozenview_->setColumnWidth( col, columnWidth(col) );
+
+    for ( int col=0; col<model()->columnCount(); col++ )
+	frozenview_->setColumnHidden( col, col>=nrfrozencols_ );
+
+    helper_->updateGeom();
+}
+
+
+void setNrFrozenColumns( int nrcols )
+{
+    nrfrozencols_ = nrcols;
+    helper_->setNrColumns( nrcols );
+    updateColumns();
+    if ( nrcols>0 )
+	frozenview_->show();
+    else
+	frozenview_->hide();
+}
+
+
+void setSortEnabled( bool yn )
+{
+    setSortingEnabled( yn );
+    frozenview_->setSortingEnabled( yn );
 }
 
 protected:
@@ -381,6 +457,43 @@ void keyPressEvent( QKeyEvent* ev ) override
     else
 	QTableView::keyPressEvent( ev );
 }
+
+
+void resizeEvent( QResizeEvent* event ) override
+{
+    QTableView::resizeEvent( event );
+    helper_->updateGeom();
+}
+
+
+void scrollTo( const QModelIndex& index, ScrollHint hint ) override
+{
+    if ( index.column() > nrfrozencols_-1 )
+	QTableView::scrollTo( index, hint );
+}
+
+
+QModelIndex moveCursor( CursorAction act, Qt::KeyboardModifiers modif ) override
+{
+    QModelIndex current = QTableView::moveCursor( act, modif );
+    const int mainviewx0 = visualRect(current).topLeft().x();
+    int frozenwidth = 0;
+    for ( int col=0; col<nrfrozencols_; col++ )
+	frozenwidth += frozenview_->columnWidth( col );
+
+    if ( act==MoveLeft && current.column()>0 && mainviewx0<frozenwidth )
+    {
+	const int newvalue =
+		horizontalScrollBar()->value() + mainviewx0 - frozenwidth;
+	horizontalScrollBar()->setValue( newvalue );
+    }
+
+    return current;
+}
+
+    QTableView*		frozenview_;
+    int			nrfrozencols_	= 1;
+    FrozenColumnsHelper*	helper_;
 };
 
 
@@ -415,22 +528,37 @@ void uiTableView::setModel( uiTableModel* mdl )
     delete qproxymodel_;
     initstate_.deleteAndZeroPtrParam( this );
     qproxymodel_ = new QSortFilterProxyModel();
-    qproxymodel_->setSourceModel(  tablemodel_->getAbstractModel() );
+    qproxymodel_->setSourceModel( tablemodel_->getAbstractModel() );
     odtableview_->setModel( qproxymodel_ );
+    odtableview_->init();
 }
 
-void uiTableView::saveState()
+
+void uiTableView::setNrFrozenColumns( int nrcols )
+{
+    odtableview_->setNrFrozenColumns( nrcols );
+}
+
+
+void uiTableView::saveHorizontalHeaderState()
 {
     initstate_.deleteAndZeroPtrParam( this );
-    QVariant* initialstate = new QVariant(
-				odtableview_->horizontalHeader()->saveState());
+    if ( !odtableview_->horizontalHeader() )
+	return;
+
+    QVariant* initialstate =
+		new QVariant( odtableview_->horizontalHeader()->saveState() );
     initstate_.setParam( this, initialstate );
 }
 
-void uiTableView::resetHorHeader()
+
+void uiTableView::resetHorizontalHeader()
 {
+    if ( !odtableview_->horizontalHeader() )
+	return;
+
     odtableview_->horizontalHeader()->restoreState(
-				    initstate_.getParam(this)->toByteArray());
+				initstate_.getParam(this)->toByteArray() );
     odtableview_->clearSelection();
     odtableview_->clearFocus();
 }
@@ -444,7 +572,7 @@ void uiTableView::setSectionsMovable( bool yn )
 
 void uiTableView::setSortingEnabled( bool yn )
 {
-    odtableview_->setSortingEnabled( yn );
+    odtableview_->setSortEnabled( yn );
 }
 
 
