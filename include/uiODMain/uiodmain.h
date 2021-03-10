@@ -89,14 +89,14 @@ protected:
     uiVisColTabEd*	ctabed_;
     uiToolBar*		ctabtb_;
     uiMain&		uiapp_;
-    ODSession*		cursession_;
+    ODSession*		cursession_ = nullptr;
     ODSession&		lastsession_;
-    bool		restoringsess_;
-    bool		restarting_;
+    bool		restoringsess_ = false;
+    bool		restarting_ = false;
     BufferString	programname_;
 
     DBKey		cursessid_;
-    bool		failed_;
+    bool		failed_ = true;
 
     virtual bool	closeOK();
     bool		prepareRestart();
