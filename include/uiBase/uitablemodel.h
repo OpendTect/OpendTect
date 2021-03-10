@@ -85,8 +85,12 @@ public:
 				~uiTableView();
 
     void			setModel(uiTableModel*);
-    void			resetHorHeader();
-    void			saveState();
+    mDeprecated("Use resetHorizontalHeader")
+    void			resetHorHeader()	{ resetHorizontalHeader(); }
+    mDeprecated("Use saveHorizontalHeaderState")
+    void			saveState()		{ saveHorizontalHeaderState(); }
+    void			saveHorizontalHeaderState();
+    void			resetHorizontalHeader();
 
     void			setSectionsMovable(bool);
     void			setSortingEnabled(bool);
@@ -96,6 +100,7 @@ public:
     bool			isRowHidden(int row) const;
     void			setColumnHidden(int col,bool);
     bool			isColumnHidden(int col) const;
+    void			setNrFrozenColumns(int nrcols);
 
     RowCol			mapFromSource(const RowCol&) const;
 				// source model to filter model
