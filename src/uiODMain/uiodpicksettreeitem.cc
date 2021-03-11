@@ -473,7 +473,9 @@ void uiODPickSetTreeItem::enablePainting( bool yn )
     if ( psd )
 	psd->getPainter()->activate();
 
-    if ( !paintdlg )
+    if ( paintdlg )
+	paintdlg->refresh();
+    else
     {
 	paintdlg = new uiSeedPainterDlg( getUiParent(), psd );
 	paintdlg_.setParam( this, paintdlg );

@@ -219,3 +219,10 @@ void uiSeedPainterDlg::densCB( CallBacker* )
 {
     seedpainter_->setDensity( densfld_->getIntValue() );
 }
+
+
+void uiSeedPainterDlg::refresh()
+{
+    szfld_->setValue( seedpainter_->radius() );
+    densfld_->setValue( seedpainter_->density() );
+}
