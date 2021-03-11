@@ -828,6 +828,7 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
     IOPar iop; iop.getFrom( astrm );
     wd_.displayProperties(true).usePar( iop );
     wd_.displayProperties(false).usePar( iop );
+    wd_.setDispParsLoaded( true );
     return true;
 }
 

@@ -162,6 +162,9 @@ public:
     bool			haveD2TModel() const	{ return d2tmodel_; }
     bool			haveCheckShotModel() const { return csmodel_; }
     Well::LoadReqs		loadState() const;
+    void			reloadLogNames() const;
+    void			setDispParsLoaded(bool);
+    bool			dispParsLoaded() const;
 
     Notifier<Well::Data>	d2tchanged;
     Notifier<Well::Data>	csmdlchanged;

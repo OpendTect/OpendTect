@@ -26,19 +26,19 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
 			      const Setup& s )
     : uiGroup(p,w.name())
     , wd_(w)
-    , setup_(s)	    
+    , setup_(s)
     , zrg_(mUdf(float),0)
     , dispzinft_(SI().depthsInFeet())
     , zistime_(w.haveD2TModel() && SI().zIsTime())
-    , use3ddisp_(s.takedisplayfrom3d_)				
+    , use3ddisp_(s.takedisplayfrom3d_)
     , control_(0)
-    , stratdisp_(0) 
+    , stratdisp_(0)
 {
     const Well::DisplayProperties& disp = wd_.displayProperties( !use3ddisp_ );
 
     for ( int idx=0; idx<disp.logs_.size(); idx++ )
     {
-	uiWellLogDisplay::Setup wlsu; 
+	uiWellLogDisplay::Setup wlsu;
 	wlsu.noyannot_ = s.noyannot_;
 	wlsu.noxannot_ = s.noxannot_;
 	wlsu.xannotinpercents_ = s.xaxisinpercents_;
@@ -123,7 +123,7 @@ void uiWellDisplay::setDahData()
 }
 
 
-void uiWellDisplay::setDisplayProperties() 
+void uiWellDisplay::setDisplayProperties()
 {
     const Well::DisplayProperties& dpp = wd_.displayProperties( !use3ddisp_ );
 
@@ -133,8 +133,11 @@ void uiWellDisplay::setDisplayProperties()
 	uiWellLogDisplay::LogData& ld2 = logdisps_[idx]->logData(false);
 
 	if ( !dpp.logs_.validIdx( idx ) ) continue;
-	const Well::DisplayProperties::Log& lp1 = dpp.logs_[idx]->left_;
-	const Well::DisplayProperties::Log& lp2 = dpp.logs_[idx]->right_;
+	const Well::DisplayProperties::LogCouple* lc = dpp.logs_[idx];
+	const Well::DisplayProperties::Log& lp1 = lc->left_.name_!="None" ?
+								lc->left_ :
+								lc->center();
+	const Well::DisplayProperties::Log& lp2 = lc->right_;
 
 	const Well::Log* l1 = wd_.getLog( lp1.name_ );
 	const Well::Log* l2 = wd_.getLog( lp2.name_ );
@@ -158,7 +161,7 @@ void uiWellDisplay::applyWDChanges( CallBacker* )
 
 uiWellDisplayWin::uiWellDisplayWin(uiParent* p, Well::Data& wd )
     : uiMainWin(p,toUiString(wd.name()))
-    , wd_(wd)  
+    , wd_(wd)
 {
     setStretch( 2, 2 );
     uiWellDisplay::Setup su; su.takedisplayfrom3d_ = true;
@@ -179,7 +182,8 @@ uiWellDisplayWin::uiWellDisplayWin(uiParent* p, const MultiID& mid )
     : uiMainWin(p)
     , wd_(*new Well::Data()) //NOT used!!
 {
-    auto wd = Well::MGR().get( mid, Well::LoadReqs( Well::LogInfos ) );
+    auto wd = Well::MGR().get( mid, Well::LoadReqs( Well::DispProps2D,
+						    Well::LogInfos ) );
     if ( !wd )
 	return;
     setCaption( toUiString( wd->name() ) );
@@ -209,7 +213,7 @@ void uiWellDisplayWin::closeWin( CallBacker* )
     delete welldisp_;
     welldisp_ = 0;
     wd_.unRef();
-    close(); 
+    close();
 }
 
 
