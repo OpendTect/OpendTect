@@ -271,11 +271,12 @@ bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
 bool uiWellAttribPartServer::showAmplSpectrum( const MultiID& mid,
 					       const char* lognm )
 {
-    const RefMan<Well::Data> wd = Well::MGR().get( mid );
+    const RefMan<Well::Data> wd = Well::MGR().get( mid,
+					       Well::LoadReqs(Well::LogInfos) );
     if ( !wd || wd->logs().isEmpty()  )
 	return false;
 
-    const Well::Log* log = wd->logs().getLog( lognm );
+    const Well::Log* log = wd->getLog( lognm );
     if ( !log )
 	mErrRet( tr("Cannot find log in well data."
 		    "  Probably it has been deleted") )

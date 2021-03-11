@@ -88,6 +88,7 @@ public:
     mDeprecated("Specify LoadReqs") bool		reload(const MultiID&);
     bool		reload(const MultiID&,LoadReqs lreq);
     bool		reloadDispPars(const MultiID&, bool for2d=false);
+    bool		reloadLogs(const MultiID&);
     bool		validID(const MultiID&) const;
 
     const char*		errMsg() const		{ return msg_; }
@@ -128,6 +129,7 @@ protected:
     mutable TypeSet<LoadReqs>	loadstates_;
 
     int			gtByKey(const MultiID&) const;
+    Well::Data*		addNew(const MultiID&, LoadReqs lreq=LoadReqs(false));
 };
 
 mGlobal(Well) Man& MGR();

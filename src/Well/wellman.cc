@@ -178,7 +178,7 @@ Well::Data* Well::Man::release( const MultiID& key )
     const int idx = gtByKey( key );
     if ( idx < 0 ) return 0;
 
-    Well::Data* ret = wells_.removeSingle( idx );
+    Data* ret = wells_.removeSingle( idx );
     ret->unRef();
     return ret;
 }
@@ -186,16 +186,16 @@ Well::Data* Well::Man::release( const MultiID& key )
 
 Well::Data* Well::Man::get( const MultiID& key )
 {
-    return get( key, Well::LoadReqs() );
+    return get( key, LoadReqs() );
 }
 
 
-Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
+Well::Data* Well::Man::get( const MultiID& key, LoadReqs reqs )
 {
     msg_.setEmpty();
 
     const int wdidx = gtByKey( key );
-    Well::Data* wd = wdidx < 0 ? nullptr : wells_[wdidx];
+    Data* wd = wdidx < 0 ? nullptr : wells_[wdidx];
     if ( wd && wd->loadState().includes(reqs) )
         return wd;
 
@@ -208,9 +208,15 @@ Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
 	return wd;
     }
 
-    wd = new Well::Data;
+    return addNew( key, reqs );
+}
+
+
+Well::Data* Well::Man::addNew( const MultiID& key, LoadReqs reqs )
+{
+    Data* wd = new Data;
     wd->ref();
-    if ( !readReqData(key,wd,reqs) )
+    if ( !readReqData(key, wd, reqs) )
     {
 	wd->unRef();
 	return nullptr;
@@ -222,7 +228,7 @@ Well::Data* Well::Man::get( const MultiID& key, Well::LoadReqs reqs )
 }
 
 
-bool Well::Man::readReqData( const MultiID& key, Well::Data* wd, LoadReqs reqs )
+bool Well::Man::readReqData( const MultiID& key, Data* wd, LoadReqs reqs )
 {
     if ( !wd )
 	return false;
@@ -271,14 +277,15 @@ bool Well::Man::reload( const MultiID& key, LoadReqs lreqs )
     const int wdidx = gtByKey( key );
     if ( wdidx<0 ) return false;
 
-    Well::Data* wd = wells_[wdidx];
-    wd->ref();
+    RefMan<Data> wd = wells_[wdidx];
     if ( lreqs.isEmpty() )
 	lreqs = wd->loadState();
-    bool res = readReqData( key, wd, lreqs );
+    lreqs.exclude( LoadReqs( Logs, LogInfos ) );
+    if ( !readReqData( key, wd, lreqs ) )
+	return false;
+    reloadLogs( key );
     wd->reloaded.trigger();
-    wd->unRef();
-    return res;
+    return true;
 }
 
 
@@ -287,15 +294,32 @@ bool Well::Man::reloadDispPars( const MultiID& key, bool for2d )
     const int wdidx = gtByKey( key );
     if ( wdidx<0 ) return false;
 
-    const LoadReqs lreqs(for2d ? Well::DispProps2D : Well::DispProps3D);
-    Well::Data* wd = wells_[wdidx];
-    wd->ref();
-    bool res = readReqData( key, wd, lreqs );
-    if ( res )
-	for2d ? wd->disp2dparschanged.trigger()
-	      : wd->disp3dparschanged.trigger();
+    const LoadReqs lreqs(for2d ? DispProps2D : DispProps3D);
+    RefMan<Data> wd = wells_[wdidx];
+    if ( !readReqData( key, wd, lreqs ) )
+	return false;
 
-    wd->unRef();
+    for2d ? wd->disp2dparschanged.trigger() : wd->disp3dparschanged.trigger();
+    return true;
+}
+
+
+bool Well::Man::reloadLogs( const MultiID& key )
+{
+    const int wdidx = gtByKey( key );
+    if ( wdidx<0 )
+	return false;
+    BufferStringSet loadedlogs;
+    RefMan<Data> wd = wells_[wdidx];
+    wd->logs().getNames( loadedlogs, true );
+    if ( !readReqData( key, wd, LoadReqs(LogInfos) ) )
+	return false;
+    bool res = true;
+    for ( auto* loadedlog : loadedlogs )
+	if ( !wd->getLog( *loadedlog ) )
+	    res = false;
+
+    wd->logschanged.trigger( -1 );
     return res;
 }
 
@@ -361,11 +385,10 @@ bool Well::Man::getAllMarkerNames( BufferStringSet& nms, bool onlyloaded )
 {
     nms.setEmpty();
     TypeSet<MultiID> ids;
-    Well::MGR().getWellKeys( ids, onlyloaded );
+    MGR().getWellKeys( ids, onlyloaded );
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	ConstRefMan<Well::Data> wd = Well::MGR().get( ids[idx],
-						Well::LoadReqs(Well::Mrkrs) );
+	ConstRefMan<Data> wd = MGR().get( ids[idx], LoadReqs(Mrkrs) );
 	BufferStringSet markernms;
 	wd->markers().getNames( markernms );
 	nms.add( markernms, false );
@@ -380,11 +403,10 @@ bool Well::Man::getAllMarkerInfo( BufferStringSet& nms, TypeSet<Color>& cols,
     nms.setEmpty();
     cols.setEmpty();
     TypeSet<MultiID> ids;
-    Well::MGR().getWellKeys( ids, onlyloaded );
+    MGR().getWellKeys( ids, onlyloaded );
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	ConstRefMan<Well::Data> wd = Well::MGR().get( ids[idx],
-						Well::LoadReqs(Well::Mrkrs) );
+	ConstRefMan<Data> wd = MGR().get( ids[idx], LoadReqs(Mrkrs) );
 	BufferStringSet markernms;
 	TypeSet<Color> colors;
 	wd->markers().getNames( markernms );
@@ -410,7 +432,7 @@ bool Well::Man::getAllLogNames( BufferStringSet& lognms, bool onlyloaded )
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	BufferStringSet logs;
-	Well::MGR().getLogNamesByID( ids[idx], logs, onlyloaded );
+	MGR().getLogNamesByID( ids[idx], logs, onlyloaded );
 	lognms.add( logs, false );
     }
     return !lognms.isEmpty();
@@ -420,10 +442,9 @@ bool Well::Man::getAllLogNames( BufferStringSet& lognms, bool onlyloaded )
 bool Well::Man::getMarkersByID( const MultiID& mid, BufferStringSet& nms )
 {
     nms.setEmpty();
-    if ( Well::MGR().validID( mid ) )
+    if ( MGR().validID( mid ) )
     {
-	ConstRefMan<Well::Data> wd =
-			Well::MGR().get( mid, Well::LoadReqs( Well::Mrkrs ) );
+	ConstRefMan<Data> wd = MGR().get( mid, LoadReqs(Mrkrs) );
 	if ( wd )
 	    wd->markers().getNames( nms );
     }
@@ -436,10 +457,9 @@ bool Well::Man::getMarkersByID( const MultiID& mid, BufferStringSet& nms,
 {
     nms.setEmpty();
     cols.setEmpty();
-    if ( Well::MGR().validID( mid ) )
+    if ( MGR().validID( mid ) )
     {
-	ConstRefMan<Well::Data> wd =
-			Well::MGR().get( mid, Well::LoadReqs( Well::Mrkrs ) );
+	ConstRefMan<Data> wd = MGR().get( mid, LoadReqs(Mrkrs) );
 	if ( wd )
 	{
 	    wd->markers().getNames( nms );
@@ -456,10 +476,9 @@ bool Well::Man::getMarkersByID( const MultiID& mid, BufferStringSet& nms,
     nms.setEmpty();
     cols.setEmpty();
     zs.setEmpty();
-    if ( Well::MGR().validID( mid ) )
+    if ( MGR().validID( mid ) )
     {
-	ConstRefMan<Well::Data> wd =
-			Well::MGR().get( mid, Well::LoadReqs( Well::Mrkrs ) );
+	ConstRefMan<Data> wd = MGR().get( mid, LoadReqs(Mrkrs) );
 	if ( wd )
 	    wd->markers().getNamesColorsMDs( nms, cols, zs );
     }
@@ -471,14 +490,19 @@ bool Well::Man::getLogNamesByID( const MultiID& ky, BufferStringSet& nms,
 				 bool onlyloaded )
 {
     nms.setEmpty();
-    if ( !Well::MGR().validID( ky ) )
+    if ( !MGR().validID( ky ) )
 	return false;
 
-    const int idx = Well::MGR().gtByKey( ky );
+    const int idx = MGR().gtByKey( ky );
     const bool isloaded = idx>=0;
     if ( !onlyloaded )
     {
-	RefMan<Well::Data> wd = new Well::Data;
+	RefMan<Data> wd;
+	if ( isloaded )
+	    wd = MGR().wells()[idx];
+	else
+	    wd = MGR().addNew( ky, LoadReqs(Inf) );
+
 	if ( wd )
 	{
 	    Reader rdr( ky, *wd );
@@ -486,7 +510,7 @@ bool Well::Man::getLogNamesByID( const MultiID& ky, BufferStringSet& nms,
 	}
     }
     else if ( isloaded )
-	Well::MGR().wells()[idx]->logs().getNames( nms, onlyloaded );
+	MGR().wells()[idx]->logs().getNames( nms );
 
     return !nms.isEmpty();
 }
@@ -498,21 +522,21 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
     nms.setEmpty();
     if ( MGR().isLoaded(ky) && forceLoad )
     {
-	RefMan<Well::Data> wd = MGR().get( ky, Well::LoadReqs(Well::LogInfos) );
+	RefMan<Data> wd = MGR().get( ky, LoadReqs(LogInfos) );
 	if ( !wd )
 	    return false;
-	wd->logs().getNames( nms, false );
+	wd->logs().getNames( nms );
     }
     else if ( MGR().isLoaded(ky) )
     {
-	RefMan<Well::Data> wd = MGR().get( ky );
+	RefMan<Data> wd = MGR().get( ky );
 	if ( !wd )
 	    return false;
-	wd->logs().getNames( nms, false );
+	wd->logs().getNames( nms );
     }
     else
     {
-	RefMan<Well::Data> wd = new Well::Data;
+	RefMan<Data> wd = new Well::Data;
 	Well::Reader wr( ky, *wd );
 	wr.getLogInfo( nms );
 	if ( nms.isEmpty() )
@@ -525,25 +549,7 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
 bool Well::Man::getMarkerNames( BufferStringSet& nms )
 {
     nms.setEmpty();
-    const MultiID mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
-    const IODir iodir( mid );
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
-    const IODirEntryList del( iodir, ctio->ctxt_ );
-    RefMan<Well::Data> data = new Well::Data;
-    for ( int idx=0; idx<del.size(); idx++ )
-    {
-	const IOObj* ioobj = del[idx]->ioobj_;
-	if ( !ioobj ) continue;
-
-	Well::Reader wr( *ioobj, *data );
-	if ( !wr.getTrack() || !wr.getMarkers() ) continue;
-
-	BufferStringSet wllmarkernms;
-	data->markers().getNames( wllmarkernms );
-	nms.add( wllmarkernms, false );
-    }
-
-    return true;
+    return MGR().getAllMarkerNames( nms );
 }
 
 

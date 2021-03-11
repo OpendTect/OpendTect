@@ -256,7 +256,6 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid, Color bkCol )
     if ( !wd ) return false;
 
     uiWellDispPropDlg uiwellpropdlg( parent(), wd, bkCol );
-    mAttachCB(uiwellpropdlg.applyAllReq, uiWellPartServer::applyAll);
     mAttachCB(uiwellpropdlg.applyTabReq(), uiWellPartServer::applyTabProps);
     mAttachCB(uiwellpropdlg.resetAllReq(), uiWellPartServer::resetAllProps);
     if ( !uiwellpropdlg.go() )

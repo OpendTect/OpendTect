@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "hiddenparam.h"
 
 HiddenParam<Well::Data,BufferStringSet*> hp_lognms_(nullptr);
+HiddenParam<Well::Data,char> hp_disploaded_(0);
 
 // Keys for IOPars
 const char* Well::Info::sKeyDepthUnit() { return sKey::DepthUnit(); }
@@ -241,6 +242,7 @@ Well::Data::Data( const char* nm )
     lvlset.levelToBeRemoved.notify( mCB(this, Well::Data, levelToBeRemoved ) );
 
     hp_lognms_.setParam( this, new BufferStringSet );
+    hp_disploaded_.setParam( this, false );
 }
 
 
@@ -258,6 +260,7 @@ Well::Data::~Data()
 				mCB(this, Well::Data, levelToBeRemoved ) );
 
     hp_lognms_.removeAndDeleteParam( this );
+    hp_disploaded_.removeParam( this );
 }
 
 
@@ -276,6 +279,8 @@ bool Well::Data::haveMarkers() const
 bool Well::Data::haveLogs() const
 {
     const BufferStringSet& lognms = storedLogNames();
+    if ( lognms.isEmpty() )
+	reloadLogNames();
     return !lognms.isEmpty();
 }
 
@@ -326,8 +331,11 @@ void Well::Data::levelToBeRemoved( CallBacker* cb )
 Well::LoadReqs Well::Data::loadState() const
 {
     Well::LoadReqs lreqs( Well::Inf );
-    lreqs.add( Well::DispProps2D );
-    lreqs.add( Well::DispProps3D );
+    if ( dispParsLoaded() )
+    {
+	lreqs.add( Well::DispProps2D );
+	lreqs.add( Well::DispProps3D );
+    }
     if ( haveMarkers() )
 	lreqs.add( Well::Mrkrs );
     if ( haveD2TModel() )
@@ -360,8 +368,10 @@ Well::LoadReqs Well::Data::loadState() const
 
 const Well::Log* Well::Data::getLog( const char* nm ) const
 {
-    const BufferStringSet& lognms = storedLogNames();
+    if ( !haveLogs() )
+	return nullptr;
 
+    const BufferStringSet& lognms = storedLogNames();
     if ( lognms.isPresent( nm ) && !logs().isLoaded( nm ) )
     {
 	Well::Data& wd = const_cast<Well::Data&>(*this);
@@ -378,8 +388,10 @@ const Well::Log* Well::Data::getLog( const char* nm ) const
 
 Well::Log* Well::Data::getLogForEdit( const char* nm )
 {
-    const BufferStringSet& lognms = storedLogNames();
+    if ( !haveLogs() )
+	return nullptr;
 
+    const BufferStringSet& lognms = storedLogNames();
     if ( lognms.isPresent( nm ) && !logs().isLoaded( nm ) )
     {
 	Well::Reader rdr( mid_, *this );
@@ -396,9 +408,26 @@ Well::Log* Well::Data::getLogForEdit( const char* nm )
 const BufferStringSet& Well::Data::storedLogNames() const
 {
     BufferStringSet* lognms = hp_lognms_.getParam( this );
-    if ( lognms->isEmpty() )
-	Well::MGR().getLogNamesByID( mid_, *lognms );
     return *lognms;
+}
+
+
+void Well::Data::reloadLogNames() const
+{
+    BufferStringSet* lognms = hp_lognms_.getParam( this );
+    MGR().getLogNamesByID(mid_, *lognms, false);
+}
+
+
+void Well::Data::setDispParsLoaded( bool yn )
+{
+    hp_disploaded_.setParam( this, yn );
+}
+
+
+bool Well::Data::dispParsLoaded() const
+{
+    return hp_disploaded_.getParam( this );
 }
 
 

@@ -201,8 +201,6 @@ void uiWellDispPropDlg::init()
     hp_applycurrenttoall_.setParam( this, new uiPushButton( bgrp,
 				    tr("Apply Current to all wells"), true ) );
     mAttachCB( applyTabButton()->activated, uiWellDispPropDlg::applyTabPush );
-    new uiPushButton( bgrp, tr("Apply All to all wells"),
-			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     hp_resetall_.setParam( this, new uiPushButton( bgrp,
 						   tr("Reset all"), true ) );
     mAttachCB( resetAllButton()->activated, uiWellDispPropDlg::resetAllPush );
