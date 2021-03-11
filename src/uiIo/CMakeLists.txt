@@ -77,7 +77,7 @@ set( OD_MODULE_SOURCES
 
 
 if( WIN32 )
-    set( OD_od_BatchHosts_RESOURCE resources/od_BatchHosts.rc )
+    set( OD_od_BatchHosts_RESOURCE resources/network.ico )
 endif()
 
 set( OD_DATAROOT_UI_PROGRAMS od_Edit_Survey.cc od_Manage_Surveys.cc )
