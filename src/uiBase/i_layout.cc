@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "i_layout.h"
 #include "i_layoutitem.h"
@@ -54,13 +53,15 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm,
     if ( vspacing_<1 || vspacing_>10 )
 	vspacing_ = 2;
 
-    poptimer_.tick.notify( mCB(this,i_LayoutMngr,popTimTick) );
+    mAttachCB( poptimer_.tick, i_LayoutMngr::popTimTick );
 }
 
 
 i_LayoutMngr::~i_LayoutMngr()
 {
     detachAllNotifiers();
+    for ( auto* children : childrenlist_ )
+	children->mngr_ = nullptr;
     delete &poptimer_;
 }
 
@@ -147,7 +148,7 @@ QSize i_LayoutMngr::minimumSize() const
 	return QSize( hsz, vsz );
     }
 
-    mPos = curpos(minimum);
+    mPos = curpos( minimum );
     return QSize( mPos.hNrPics(), mPos.vNrPics() );
 }
 
@@ -199,7 +200,7 @@ QSize i_LayoutMngr::sizeHint() const
 const uiRect& i_LayoutMngr::curpos(LayoutMode lom) const
 {
     i_LayoutItem* managedItem =
-	    const_cast<i_LayoutItem*>(managedbody_.layoutItem());
+	    const_cast<i_LayoutItem*>( managedbody_.layoutItem() );
 
     return managedItem ? managedItem->curpos(lom) : layoutpos_[lom];
 }
