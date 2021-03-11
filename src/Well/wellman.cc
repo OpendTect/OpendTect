@@ -510,7 +510,7 @@ bool Well::Man::getLogNamesByID( const MultiID& ky, BufferStringSet& nms,
 	}
     }
     else if ( isloaded )
-	MGR().wells()[idx]->logs().getNames( nms );
+	MGR().wells()[idx]->logs().getNames( nms, false );
 
     return !nms.isEmpty();
 }
@@ -525,14 +525,14 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
 	RefMan<Data> wd = MGR().get( ky, LoadReqs(LogInfos) );
 	if ( !wd )
 	    return false;
-	wd->logs().getNames( nms );
+	wd->logs().getNames( nms, false );
     }
     else if ( MGR().isLoaded(ky) )
     {
 	RefMan<Data> wd = MGR().get( ky );
 	if ( !wd )
 	    return false;
-	wd->logs().getNames( nms );
+	wd->logs().getNames( nms, false );
     }
     else
     {
