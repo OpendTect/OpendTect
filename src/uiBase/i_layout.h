@@ -114,7 +114,7 @@ public:
     void		setVSpacing( int s )	{ vspacing_ = s; }
     void		setBorderSpace( int s )	{ borderspc_ = s; }
 
-    void		setIsMain( bool yn )	    { ismain_ = yn; }
+    void		setIsMain( bool yn )	{ ismain_ = yn; }
     void		layoutChildren(LayoutMode,bool finalLoop=false);
 
 private:
@@ -156,5 +156,7 @@ private:
     Timer&		poptimer_;
     bool		poppedup_;
     bool		timerrunning_;
+
+    friend class i_LayoutItem;
 
 };

@@ -33,7 +33,7 @@ public:
 					     mQtclass(QLayoutItem&));
     virtual			~i_LayoutItem();
 
-    inline const i_LayoutMngr&	mngr() const		{ return mngr_; }
+    inline const i_LayoutMngr&	mngr() const		{ return *mngr_; }
 
     virtual int			horAlign(LayoutMode) const;
     virtual int			centre(LayoutMode,bool hor=true) const;
@@ -53,7 +53,7 @@ public:
 
 protected:
 
-    inline i_LayoutMngr&	mngr()			{ return mngr_; }
+    inline i_LayoutMngr&	mngr()			{ return *mngr_; }
 
     int				stretch(bool hor) const;
     virtual void		commitGeometrySet(bool);
@@ -66,9 +66,9 @@ protected:
 					bool reciprocal=true);
     bool			isAligned() const;
 
-    virtual uiObject*		objLayouted()		{ return 0; }
+    virtual uiObject*		objLayouted()		{ return nullptr; }
     const uiObject*		objLayouted() const;
-    virtual uiObjectBody*	bodyLayouted()		{ return 0; }
+    virtual uiObjectBody*	bodyLayouted()		{ return nullptr; }
     const uiObjectBody*		bodyLayouted() const;
 
     mQtclass(QLayoutItem&)	qlayoutItm();
@@ -84,7 +84,9 @@ protected:
 private:
 
     mQtclass(QLayoutItem*)	qlayoutitm_;
-    i_LayoutMngr&		mngr_;
+    i_LayoutMngr*		mngr_;
+
+    void			managerDeletedCB(CallBacker*);
 
     uiRect			layoutpos_[nLayoutMode];
     constraintList		constrlist_;
@@ -117,4 +119,5 @@ public:
 protected:
 
     uiObjectBody&	uiobjbody_;
+
 };

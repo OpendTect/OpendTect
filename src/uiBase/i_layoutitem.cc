@@ -30,21 +30,29 @@ mUseQtnamespace
 //------------------------------------------------------------------------------
 
 i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
-    : mngr_(m), qlayoutitm_(&itm)
-    , preferred_pos_inited_(false), minimum_pos_inited_(false)
-    , prefszdone_(false), hsameas_(false), vsameas_(false)
+    : mngr_( &m ), qlayoutitm_( &itm )
+    , preferred_pos_inited_( false ), minimum_pos_inited_( false )
+    , prefszdone_( false ), hsameas_( false ), vsameas_( false )
 {
 #ifdef __debug__
     mDefineStaticLocalObject( bool, lyoutdbg_loc,
 			      = GetEnvVarYN("DTECT_DEBUG_LAYOUT") );
     lyoutdbg = lyoutdbg_loc;
 #endif
+    mAttachCB( m.objectToBeDeleted(), i_LayoutItem::managerDeletedCB );
 }
+
 
 i_LayoutItem::~i_LayoutItem()
 {
-    sendDelNotif();
+    detachAllNotifiers();
     delete qlayoutitm_;
+}
+
+
+void i_LayoutItem::managerDeletedCB( CallBacker* )
+{
+    mngr_ = nullptr;
 }
 
 
@@ -178,7 +186,7 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 	BufferString blnm = bodyLayouted() ?  bodyLayouted()->name().buf()
 					   : "";
 
-	od_cout() << "Init layout on:" << blnm;
+	od_cout() << "Init layout on: " << blnm;
 	od_cout() << ": prf hsz: " << pref_h_nr_pics;
 	od_cout() <<",  prf vsz: " << pref_v_nr_pics;
 	od_cout() <<", mngr top: " << mngrTop;
@@ -315,12 +323,12 @@ int i_LayoutItem::isPosOk( uiConstraint* constraint, int iter, bool chknriters )
 #endif
 
 
-#define mHorSpacing (constr->margin_>=0 ? constr->margin_ : mngr_.horSpacing())
-#define mVerSpacing (constr->margin_>=0 ? constr->margin_ : mngr_.verSpacing())
+#define mHorSpacing (constr->margin_>=0 ? constr->margin_ : mngr_->horSpacing())
+#define mVerSpacing (constr->margin_>=0 ? constr->margin_ : mngr_->verSpacing())
 
 #define mFullStretch() (constr->margin_ < -1)
-#define mInsideBorder  (constr->margin_ > mngr_.borderSpace() \
-			 ? constr->margin_ - mngr_.borderSpace() : 0)
+#define mInsideBorder  (constr->margin_ > mngr_->borderSpace() \
+			 ? constr->margin_ - mngr_->borderSpace() : 0)
 
 bool i_LayoutItem::layout( LayoutMode lom, int iternr, bool finalloop )
 {
@@ -720,7 +728,7 @@ void i_LayoutItem::attach ( ConstraintType type, i_LayoutItem* other,
     if ( type != ensureLeftOf)
 	constrlist_ += uiConstraint( type, other, margn );
 
-    if( reciprocal && other )
+    if ( reciprocal && other )
     {
 	switch ( type )
 	{
@@ -840,12 +848,13 @@ const uiObject* i_LayoutItem::objLayouted() const
 
 const uiObjectBody* i_LayoutItem::bodyLayouted() const
 {
-    return const_cast<i_LayoutItem*> (this)->bodyLayouted();
+    return const_cast<i_LayoutItem*>(this)->bodyLayouted();
 }
 
 
 QLayoutItem& i_LayoutItem::qlayoutItm()
 { return *qlayoutitm_; }
+
 
 const QLayoutItem& i_LayoutItem::qlayoutItm() const
 { return *qlayoutitm_; }
@@ -854,7 +863,7 @@ const QLayoutItem& i_LayoutItem::qlayoutItm() const
 QLayoutItem* i_LayoutItem::takeQlayoutItm()
 {
     QLayoutItem* ret = qlayoutitm_;
-    qlayoutitm_ = 0;
+    qlayoutitm_ = nullptr;
     return ret;
 }
 

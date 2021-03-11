@@ -53,24 +53,25 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm,
     if ( vspacing_<1 || vspacing_>10 )
 	vspacing_ = 2;
 
-    poptimer_.tick.notify( mCB(this,i_LayoutMngr,popTimTick) );
+    mAttachCB( poptimer_.tick, i_LayoutMngr::popTimTick );
 }
 
 
 i_LayoutMngr::~i_LayoutMngr()
 {
     detachAllNotifiers();
+    for ( auto* children : childrenlist_ )
+	children->mngr_ = nullptr;
     delete &poptimer_;
 }
 
 
 void i_LayoutMngr::addItem( i_LayoutItem* itm )
 {
-    if ( itm )
-    {
-	mAttachCB( itm->objectToBeDeleted(), i_LayoutMngr::itemDel );
-	childrenlist_ += itm;
-    }
+    if ( !itm ) return;
+
+    mAttachCB( itm->objectToBeDeleted(), i_LayoutMngr::itemDel );
+    childrenlist_ += itm;
 }
 
 
@@ -108,7 +109,7 @@ QSize i_LayoutMngr::minimumSize() const
     if ( !minimumdone_ )
     {
 	doLayout( minimum, QRect() );
-	const_cast<i_LayoutMngr*>(this)->minimumdone_=true;
+	const_cast<i_LayoutMngr*>(this)->minimumdone_ = true;
     }
 
     uiRect mPos;
@@ -160,7 +161,7 @@ QSize i_LayoutMngr::sizeHint() const
     if ( !preferreddone_ )
     {
 	doLayout( preferred, QRect() );
-	const_cast<i_LayoutMngr*>(this)->preferreddone_=true;
+	const_cast<i_LayoutMngr*>(this)->preferreddone_ = true;
     }
     uiRect mPos = curpos(preferred);
 
@@ -601,7 +602,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     }
 
     childrenCommitGeometrySet( store2prefpos );
-    if( store2prefpos )
+    if ( store2prefpos )
     {
 	prefGeometry = extRect;
 	prefposstored_ = true;
