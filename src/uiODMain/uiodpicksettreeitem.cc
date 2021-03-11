@@ -453,7 +453,9 @@ void uiODPickSetTreeItem::enablePainting( bool yn )
     if ( psd )
 	psd->getPainter()->activate();
 
-    if ( !paintdlg_ )
+    if ( paintdlg_ )
+	paintdlg_->refresh();
+    else
     {
 	paintdlg_ = new uiSeedPainterDlg( getUiParent(), psd );
 	paintdlg_->windowClosed.notify(

@@ -62,6 +62,8 @@ public:
 						 visSurvey::LocationDisplay*);
 				~uiSeedPainterDlg();
 
+    void			refresh();
+
 protected:
 
     void			sizeCB(CallBacker*);
