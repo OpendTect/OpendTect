@@ -1,5 +1,4 @@
-#ifndef i_layoutitem_h
-#define i_layoutitem_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -7,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -48,7 +46,7 @@ public:
     uiSize			actualSize(bool include_border = true) const;
 				//!< live objs: use uiObject::width() etc
 
-    inline const i_LayoutMngr&	mngr() const 		{ return mngr_; }
+    inline const i_LayoutMngr&	mngr() const 		{ return *mngr_; }
 
     inline const uiRect&	curpos(LayoutMode m) const
 				{ return layoutpos_[m];}
@@ -64,7 +62,7 @@ protected:
 
     uiRect			layoutpos_[nLayoutMode];
 
-    int			stretch(bool hor) const;
+    int				stretch(bool hor) const;
     virtual void		commitGeometrySet(bool);
 
     void			initLayout(LayoutMode,int mngrtop,int mngrleft);
@@ -85,19 +83,21 @@ protected:
     virtual const mQtclass(QWidget*)	qwidget_() const;
     virtual const mQtclass(QWidget*)	managewidg_() const;
 
-    inline i_LayoutMngr&	mngr()			{ return mngr_; }
+    inline i_LayoutMngr&	mngr()			{ return *mngr_; }
 
     bool			isAligned() const;
 
 private:
 
     mQtclass(QLayoutItem*)	qlayoutitm_;
-    i_LayoutMngr&		mngr_;
+    i_LayoutMngr*		mngr_;
+
+    void			managerDeletedCB(CallBacker*);
 
     TypeSet<uiConstraint>	constraintlist_;
 
 #ifdef __debug__
-    int			isPosOk(uiConstraint*,int,bool);
+    int				isPosOk(uiConstraint*,int,bool);
 #endif
     bool			prefszdone_;
     uiSize			prefsz_;
@@ -130,5 +130,3 @@ protected:
 
 
 };
-
-#endif
