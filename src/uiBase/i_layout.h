@@ -1,5 +1,4 @@
-#ifndef i_layout_h
-#define i_layout_h
+#pragma once
 
 /*+
 ________________________________________________________________________
@@ -7,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -25,6 +23,7 @@ class resizeItem;
 class Timer;
 
 //! internal enum used to determine in which direction a widget
+
 //! can be stretched and to check which outer limit must be checked
 enum stretchLimitTp { left=1, right=2, above=4, below=8,
 		      rightLimit=16, bottomLimit=32 };
@@ -32,8 +31,8 @@ enum stretchLimitTp { left=1, right=2, above=4, below=8,
 
 class i_LayoutItem;
 
+// all is used for setting cached positions dirty
 enum LayoutMode { minimum=0, preferred=1, setGeom=2, all=3 };
-       // all is used for setting cached positions dirty
 const int nLayoutMode = 3;
 
 //! dGB's layout manager
@@ -75,6 +74,7 @@ class i_LayoutMngr : public mQtclass(QLayout), public NamedCallBacker
 public:
 			i_LayoutMngr(mQtclass(QWidget*) prnt,
 				     const char* name,uiObjectBody& mngbdy);
+
     virtual		~i_LayoutMngr();
 
     virtual void	addItem(mQtclass(QLayoutItem*));
@@ -109,9 +109,9 @@ public:
     int			horSpacing() const;
     int			verSpacing() const	{ return vspacing_; }
 
-    void		setHSpacing(int s)	{ hspacing_ = s; }
-    void		setVSpacing(int s)	{ vspacing_ = s; }
-    void		setBorderSpace(int s)	{ borderspc_ = s; }
+    void		setHSpacing( int s )	{ hspacing_ = s; }
+    void		setVSpacing( int s )	{ vspacing_ = s; }
+    void		setBorderSpace( int s )	{ borderspc_ = s; }
 
     void		setIsMain( bool yn )	{ ismain_ = yn; }
     void		layoutChildren(LayoutMode,bool finalLoop=false);
@@ -157,6 +157,6 @@ private:
     bool		poppedup_;
     bool		timerrunning_;
 
-};
+    friend class i_LayoutItem;
 
-#endif
+};

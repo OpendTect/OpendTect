@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "i_layoutitem.h"
 #include "i_layout.h"
@@ -31,7 +30,7 @@ mUseQtnamespace
 //------------------------------------------------------------------------------
 
 i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
-    : mngr_( m ), qlayoutitm_( &itm )
+    : mngr_( &m ), qlayoutitm_( &itm )
     , preferred_pos_inited_( false ), minimum_pos_inited_( false )
     , prefszdone_( false ), hsameas_( false ), vsameas_( false )
 {
@@ -40,12 +39,20 @@ i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
 			      = GetEnvVarYN("DTECT_DEBUG_LAYOUT") );
     lyoutdbg = lyoutdbg_loc;
 #endif
+    mAttachCB( m.objectToBeDeleted(), i_LayoutItem::managerDeletedCB );
 }
 
 
 i_LayoutItem::~i_LayoutItem()
 {
+    detachAllNotifiers();
     delete qlayoutitm_;
+}
+
+
+void i_LayoutItem::managerDeletedCB( CallBacker* )
+{
+    mngr_ = nullptr;
 }
 
 
@@ -60,7 +67,7 @@ int i_LayoutItem::center( LayoutMode m, bool hor ) const
 
 uiSize i_LayoutItem::minimumSize() const
 {
-    mQtclass(QSize) s =qwidget()->minimumSize();
+    mQtclass(QSize) s = qwidget()->minimumSize();
 
     return uiSize( s.width(), s.height());
 }
@@ -182,7 +189,7 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
     switch ( lom )
     {
 	case minimum:
-            if ( !minimum_pos_inited_)
+	    if ( !minimum_pos_inited_)
 	    {
 		mPos.zero();
 		uiSize ms = minimumSize();
@@ -309,12 +316,12 @@ int i_LayoutItem::isPosOk( uiConstraint* constraint, int iter, bool chknriters )
 #endif
 
 
-#define mHorSpacing (constr->margin_>=0 ? constr->margin_ : mngr_.horSpacing())
-#define mVerSpacing (constr->margin_>=0 ? constr->margin_ : mngr_.verSpacing())
+#define mHorSpacing (constr->margin_>=0 ? constr->margin_ : mngr_->horSpacing())
+#define mVerSpacing (constr->margin_>=0 ? constr->margin_ : mngr_->verSpacing())
 
 #define mFullStretch() (constr->margin_ < -1)
-#define mInsideBorder  (constr->margin_ > mngr_.borderSpace() \
-			 ? constr->margin_ - mngr_.borderSpace() : 0)
+#define mInsideBorder  (constr->margin_ > mngr_->borderSpace() \
+			 ? constr->margin_ - mngr_->borderSpace() : 0)
 
 bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 {
