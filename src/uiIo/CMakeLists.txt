@@ -75,7 +75,7 @@ set( OD_MODULE_SOURCES
 )
 
 if( WIN32 )
-    set( OD_od_BatchHosts_RESOURCE  resources/od_BatchHosts.rc )
+    set( OD_od_BatchHosts_RESOURCE resources/network.ico )
 endif()
 
 set( OD_MODULE_GUI_PROGS od_BatchHosts.cc )
