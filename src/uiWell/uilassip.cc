@@ -71,7 +71,7 @@ void lasSel( CallBacker* )
 	{
 	    if ( !info.loc_.isUdf() )
 		coords_ += info.loc_;
-	    zrg_.include( info.zrg );
+	    zrg_.include( info.zrg_ );
 	}
 	else
 	{

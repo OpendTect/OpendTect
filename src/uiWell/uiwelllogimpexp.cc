@@ -122,9 +122,9 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 	for ( int idx=0; idx<lfi.size(); idx++ )
 	{
 	    logstable_->setCellChecked( RowCol(idx,0), true );
-	    logstable_->setText( RowCol(idx,0), lfi.logcurves.get(idx) );
-	    logstable_->setText( RowCol(idx,1), lfi.logunits.get(idx) );
-	    logstable_->setText( RowCol(idx,2), lfi.lognms.get(idx) );
+	    logstable_->setText( RowCol(idx,0), lfi.logcurves_.get(idx) );
+	    logstable_->setText( RowCol(idx,1), lfi.logunits_.get(idx) );
+	    logstable_->setText( RowCol(idx,2), lfi.lognms_.get(idx) );
 	}
 
 	logstable_->setColumnResizeMode( uiTable::ResizeToContents );
@@ -133,18 +133,18 @@ void uiImportLogsDlg::lasSel( CallBacker* )
     else if ( logsfld_ )
     {
 	logsfld_->setEmpty();
-	logsfld_->addItems( lfi.lognms );
+	logsfld_->addItems( lfi.lognms_ );
 	logsfld_->chooseAll( true );
     }
 
-    const uiString lbl = toUiString("(%1)").arg( lfi.zunitstr.buf() );
+    const uiString lbl = toUiString("(%1)").arg( lfi.zunitstr_.buf() );
     unitlbl_->setText( lbl );
     unitlbl_->display( true );
 
-    udffld_->setValue( lfi.undefval );
+    udffld_->setValue( lfi.undefval_ );
 
-    const UnitOfMeasure* uom = UoMR().get( lfi.zunitstr );
-    Interval<float> usrzrg = lfi.zrg;
+    const UnitOfMeasure* uom = UoMR().get( lfi.zunitstr_ );
+    Interval<float> usrzrg = lfi.zrg_;
     if ( uom )
     {
 	usrzrg.start = uom->userValue( usrzrg.start );
@@ -182,18 +182,18 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     Well::LASImporter wdai( *wd );
     Well::LASImporter::FileInfo lfi;
     wdai.getLogInfo( lasfnm, lfi );
-    lfi.logcurves.setEmpty();
-    lfi.logunits.setEmpty();
-    lfi.lognms.setEmpty();
+    lfi.logcurves_.setEmpty();
+    lfi.logunits_.setEmpty();
+    lfi.lognms_.setEmpty();
 
-    lfi.undefval = udffld_->getFValue();
+    lfi.undefval_ = udffld_->getFValue();
 
-    const UnitOfMeasure* uom = UoMR().get( lfi.zunitstr );
+    const UnitOfMeasure* uom = UoMR().get( lfi.zunitstr_ );
     const Interval<float> usrzrg = intvfld_->getFInterval();
     if ( uom )
     {
-	lfi.zrg.start = uom->internalValue( usrzrg.start );
-	lfi.zrg.stop = uom->internalValue( usrzrg.stop );
+	lfi.zrg_.start = uom->internalValue( usrzrg.start );
+	lfi.zrg_.stop = uom->internalValue( usrzrg.stop );
     }
 
     const bool usecurvenms = lognmfld_ ? lognmfld_->getBoolValue() : false;
@@ -234,7 +234,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
 	uiMSG().warning( msg );
     }
 
-    lfi.lognms = lognms;
+    lfi.lognms_ = lognms;
     const char* res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue(),
 				    usecurvenms );
     if ( res )

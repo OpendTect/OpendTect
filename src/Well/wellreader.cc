@@ -240,7 +240,7 @@ bool Well::Reader::getMapLocation( Coord& coord ) const
 	return false;
 
     const Well::Data& wd = *data();
-    coord = wd.info().surfacecoord;
+    coord = wd.info().surfacecoord_;
     return true;
 }
 
@@ -412,31 +412,37 @@ bool Well::odReader::getInfo( od_istream& strm ) const
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(Well::Info::sKeyUwid()) )
-	    wd_.info().uwid = astrm.value();
+	    wd_.info().uwid_ = astrm.value();
 	else if ( astrm.hasKeyword(Well::Info::sKeyOper()) )
-	    wd_.info().oper = astrm.value();
-	else if ( astrm.hasKeyword(Well::Info::sKeyState()) )
-	    wd_.info().state = astrm.value();
+	    wd_.info().oper_ = astrm.value();
+	else if ( astrm.hasKeyword(Well::Info::sKeyField()) )
+	    wd_.info().field_ = astrm.value();
 	else if ( astrm.hasKeyword(Well::Info::sKeyCounty()) )
-	    wd_.info().county = astrm.value();
+	    wd_.info().county_ = astrm.value();
+	else if ( astrm.hasKeyword(Well::Info::sKeyState()) )
+	    wd_.info().state_ = astrm.value();
+	else if ( astrm.hasKeyword(Well::Info::sKeyProvince()) )
+	    wd_.info().province_ = astrm.value();
+	else if ( astrm.hasKeyword(Well::Info::sKeyCountry()) )
+	    wd_.info().country_ = astrm.value();
 	else if ( astrm.hasKeyword(Well::Info::sKeyCoord()) )
-	    wd_.info().surfacecoord.fromString( astrm.value() );
+	    wd_.info().surfacecoord_.fromString( astrm.value() );
 	else if ( astrm.hasKeyword(sKeyOldreplvel()) ||
 		  astrm.hasKeyword(Well::Info::sKeyReplVel()) )
-	    wd_.info().replvel = astrm.getFValue();
+	    wd_.info().replvel_ = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyOldgroundelev()) ||
 		  astrm.hasKeyword(Well::Info::sKeyGroundElev()) )
-	    wd_.info().groundelev = astrm.getFValue();
+	    wd_.info().groundelev_ = astrm.getFValue();
     }
 
-    Coord surfcoord = wd_.info().surfacecoord;
+    Coord surfcoord = wd_.info().surfacecoord_;
     if ( (mIsZero(surfcoord.x,0.001) && mIsZero(surfcoord.x,0.001))
 	    || (mIsUdf(surfcoord.x) && mIsUdf(surfcoord.x)) )
     {
 	if ( wd_.track().isEmpty() && !getTrack(strm) )
 	    return false;
 
-	wd_.info().surfacecoord = wd_.track().pos( 0 );
+	wd_.info().surfacecoord_ = wd_.track().pos( 0 );
     }
 
     return true;
@@ -465,7 +471,7 @@ bool Well::odReader::getOldTimeWell( od_istream& strm ) const
     if ( wd_.track().isEmpty() )
 	mErrRetStrmOper( tr("No valid well track data found") )
 
-    wd_.info().surfacecoord = wd_.track().pos(0);
+    wd_.info().surfacecoord_ = wd_.track().pos(0);
     wd_.info().source_.set( FilePath(basenm_).fileName() );
 
     // create T2D

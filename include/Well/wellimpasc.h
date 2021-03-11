@@ -49,24 +49,27 @@ public:
     public:
 			~FileInfo()		{}
 
-	int		size() const		{ return lognms.size(); }
+	int		size() const		{ return lognms_.size(); }
 
-	BufferStringSet	logcurves;
-	BufferStringSet	logunits;
-	BufferStringSet	lognms;
-	Interval<float>	zrg = Interval<float>::udf();
-	bool		revz = false;
-	int		depthcolnr = -1;
-	float		undefval = -999.25f;
-	BufferString	zunitstr;
+	BufferStringSet	logcurves_;
+	BufferStringSet	logunits_;
+	BufferStringSet	lognms_;
+	Interval<float>	zrg_ = Interval<float>::udf();
+	bool		revz_ = false;
+	int		depthcolnr_ = -1;
+	float		undefval_ = -999.25f;
+	BufferString	zunitstr_;
 
 			//!< only info; not used by getLogs
 	BufferString	comp_;
-	BufferString	wellnm;
-	BufferString	state_;
+	BufferString	wellnm_;
+	BufferString	field_;
 	BufferString	county_;
+	BufferString	state_;
+	BufferString	province_;
+	BufferString	country_;
 	BufferString	srvc_;
-	BufferString	uwi;
+	BufferString	uwi_;
 	Coord		loc_ = Coord::udf();
 	double		kbelev_ = mUdf(double);
 	double		glelev_ = mUdf(double);

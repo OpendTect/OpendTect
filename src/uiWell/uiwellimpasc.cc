@@ -105,9 +105,9 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     sep->attach( stretchedBelow, tdfld_ );
 
     wd_.ref();
-    float dispval = wd_.info().replvel;
+    float dispval = wd_.info().replvel_;
     if ( !mIsUdf(dispval) )
-	wd_.info().replvel = dispval;
+	wd_.info().replvel_ = dispval;
 
     const bool zistime = SI().zIsTime();
     if ( zistime )
@@ -217,8 +217,8 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     const Well::Info& info = uwia_->wd_.info();
 
     PositionInpSpec::Setup possu( true );
-    if ( !mIsZero(info.surfacecoord.x,0.1) )
-	possu.coord_ = info.surfacecoord;
+    if ( !mIsZero(info.surfacecoord_.x,0.1) )
+	possu.coord_ = info.surfacecoord_;
     coordfld = new uiGenInput( this,
 	tr("Surface Coordinate (if different from first "
 	   "coordinate in track file)"),
@@ -226,9 +226,9 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 
     const bool zinfeet = SI().depthsInFeet();
 
-    float dispval = info.replvel;
+    float dispval = info.replvel_;
     if ( zinfeet && zun_ )
-	dispval = zun_->userValue( info.replvel );
+	dispval = zun_->userValue( info.replvel_ );
 
     uiString lbl = toUiString("%1 %2")
 		.arg( Well::Info::sReplVel() )
@@ -236,9 +236,9 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     replvelfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, coordfld );
 
-    dispval = info.groundelev;
+    dispval = info.groundelev_;
     if ( zinfeet && zun_ )
-	dispval = zun_->userValue( info.groundelev );
+	dispval = zun_->userValue( info.groundelev_ );
     lbl = toUiString("%1 %2")
 		.arg( Well::Info::sGroundElev() )
 		.arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
@@ -249,20 +249,20 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     horsep->attach( stretchedBelow, gdelevfld );
 
     idfld = new uiGenInput( this, toUiString(Well::Info::sKeyUwid()),
-			    StringInpSpec(info.uwid) );
+			    StringInpSpec(info.uwid_) );
     idfld->attach( alignedBelow, gdelevfld );
     idfld->attach( ensureBelow, horsep );
 
     operfld = new uiGenInput( this, toUiString(Well::Info::sKeyOper()),
-			      StringInpSpec(info.oper) );
+			      StringInpSpec(info.oper_) );
     operfld->attach( rightTo, idfld );
 
     statefld = new uiGenInput( this, toUiString(Well::Info::sKeyState()),
-			       StringInpSpec(info.state) );
+			       StringInpSpec(info.state_) );
     statefld->attach( alignedBelow, idfld );
 
     countyfld = new uiGenInput( this, toUiString(Well::Info::sKeyCounty()),
-				StringInpSpec(info.county) );
+				StringInpSpec(info.county_) );
     countyfld->attach( rightTo, statefld );
 }
 
@@ -272,26 +272,26 @@ bool acceptOK( CallBacker* )
     Well::Info& info = uwia_->wd_.info();
 
     if ( *coordfld->text() )
-	info.surfacecoord = coordfld->getCoord();
+	info.surfacecoord_ = coordfld->getCoord();
 
     if ( *replvelfld->text() )
     {
 	const float replvel = replvelfld->getFValue();
 	if ( !mIsUdf(replvel) && zun_ )
-	    info.replvel = zun_->internalValue( replvel );
+	    info.replvel_ = zun_->internalValue( replvel );
     }
 
     if ( *gdelevfld->text() )
     {
 	const float gdevel = gdelevfld->getFValue();
 	if ( !mIsUdf(gdevel)  && zun_ )
-	    info.groundelev = zun_->internalValue( gdevel );
+	    info.groundelev_ = zun_->internalValue( gdevel );
     }
 
-    info.uwid = idfld->text();
-    info.oper = operfld->text();
-    info.state = statefld->text();
-    info.county = countyfld->text();
+    info.uwid_ = idfld->text();
+    info.oper_ = operfld->text();
+    info.state_ = statefld->text();
+    info.county_ = countyfld->text();
 
     return true;
 }
@@ -323,8 +323,8 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 	return false;
 
     doWork();
-    wd_.info().surfacecoord.x = wd_.info().surfacecoord.y = 0;
-    wd_.info().groundelev = mUdf(float);
+    wd_.info().surfacecoord_.x = wd_.info().surfacecoord_.y = 0;
+    wd_.info().groundelev_ = mUdf(float);
     uiString msg = tr("Well Track successfully imported."
 		      "\n\nDo you want to import more Well Tracks?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
@@ -394,7 +394,7 @@ bool uiWellImportAsc::doWork()
 	else if ( isdir )
 	{
 	    Well::DirectionalAscIO dirascio( dirfd_, strm );
-	    wd_.info().surfacecoord = coordfld_->getCoord();
+	    wd_.info().surfacecoord_ = coordfld_->getCoord();
 	    if ( !dirascio.getData(wd_,kbelev) )
 	    {
 		uiString msg = tr( "The track file cannot be loaded:\n%1" )

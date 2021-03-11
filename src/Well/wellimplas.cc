@@ -68,7 +68,7 @@ const char* Well::LASImporter::getLogInfo( const char* fnm,
 }
 
 #define mIsKey(s) caseInsensitiveEqual(keyw,s,0)
-#define mErrRet(s) { lfi.depthcolnr = -1; return s; }
+#define mErrRet(s) { lfi.depthcolnr_ = -1; return s; }
 
 const char* Well::LASImporter::getLogInfo( od_istream& strm,
 					   FileInfo& lfi ) const
@@ -79,7 +79,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
     BufferString linebuf; char wordbuf[64];
     const char* ptr;
     char section = '-';
-    lfi.depthcolnr = -1;
+    lfi.depthcolnr_ = -1;
     int colnr = 0;
     LatLong ll;
 
@@ -110,9 +110,9 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    char* closeparptr = firstOcc( unstr, ')' );
 		    if ( closeparptr ) *closeparptr = '\0';
 		}
-		if ( lfi.depthcolnr<0 &&
+		if ( lfi.depthcolnr_<0 &&
 			FixedString(wordbuf).startsWith("dept",CaseInsensitive))
-		    lfi.depthcolnr = colnr;
+		    lfi.depthcolnr_ = colnr;
 		else
 		{
 		    if ( colnr == 1 && ( FixedString(wordbuf)=="in:"
@@ -120,9 +120,9 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 				    || wordbuf[1] == '-' || wordbuf[2] == '.' ))
 			mErrRet( "Invalid LAS-like file" )
 
-		    lfi.lognms += new BufferString( wordbuf );
-		    lfi.logcurves.add( wordbuf );
-		    lfi.logunits.add( unstr );
+		    lfi.lognms_ += new BufferString( wordbuf );
+		    lfi.logcurves_.add( wordbuf );
+		    lfi.logunits_.add( unstr );
 		}
 		convs_ += UnitOfMeasure::getGuessed( unstr );
 		unitmeasstrs_.add( unstr );
@@ -139,9 +139,9 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	{
 	case 'C':
 
-	    if ( lfi.depthcolnr < 0 &&
+	    if ( lfi.depthcolnr_ < 0 &&
 		 (mIsKey("dept") || mIsKey("depth") || mIsKey("md")) )
-		lfi.depthcolnr = colnr;
+		lfi.depthcolnr_ = colnr;
 	    else
 	    {
 		BufferString curve( keyw );
@@ -173,9 +173,9 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		     lognm.startsWith("Run",CaseInsensitive) )
 		    lognm = keyw;
 
-		lfi.logcurves.add( curve );
-		lfi.lognms.add( lognm );
-		lfi.logunits.add( val1 );
+		lfi.logcurves_.add( curve );
+		lfi.lognms_.add( lognm );
+		lfi.logunits_.add( val1 );
 	    }
 
 	    colnr++;
@@ -186,54 +186,67 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	case 'W':	// ~Well Information Block
 	case 'P':	// ~Parameter Information Block
 	    if ( mIsKey("STRT") )
-		lfi.zrg.start = toFloat(val2);
+		lfi.zrg_.start = toFloat(val2);
 	    if ( mIsKey("STOP") )
-		lfi.zrg.stop = toFloat(val2);
+		lfi.zrg_.stop = toFloat(val2);
 	    if ( mIsKey("NULL") )
-		lfi.undefval = toFloat(val1);
+		lfi.undefval_ = toFloat(val1);
 	    if ( mIsKey("COMP") )
 	    {
 		lfi.comp_ = val1;
-		if ( val2 && *val2 ) { lfi.comp_ += " "; lfi.comp_ += val2; }
+		if ( val2 && *val2 )
+		    lfi.comp_.addSpace().add( val2 );
 	    }
 	    if ( mIsKey("WELL") )
 	    {
-		lfi.wellnm = val1;
-		if ( val2 && *val2 ) { lfi.wellnm += " "; lfi.wellnm += val2; }
+		lfi.wellnm_ = val1;
+		if ( val2 && *val2 )
+		    lfi.wellnm_.addSpace().add( val2 );
 	    }
 	    if ( (mIsKey("EKB") || mIsKey("EDF")) && mIsUdf(lfi.kbelev_))
 		lfi.kbelev_ = toDouble(val2);
 	    if ( mIsKey("EGL") )
 		lfi.glelev_ = toDouble(val2);
 	    // TODO: Country and State are two different things. Need to split
-	    if ( (mIsKey("CTRY") || mIsKey("STAT")) && lfi.state_.isEmpty() &&
-		 (val1 && *val1) )
+	    if ( mIsKey("CTRY") && lfi.country_.isEmpty() && (val1 && *val1) )
+	    {
+		lfi.country_ = val1;
+		if ( val2 && *val2 )
+		    lfi.country_.addSpace().add( val2 );
+	    }
+	    if ( mIsKey("STAT") && lfi.state_.isEmpty() && (val1 && *val1) )
 	    {
 		lfi.state_ = val1;
-		if ( val2 && *val2 ) { lfi.state_ += " "; lfi.state_ += val2; }
+		if ( val2 && *val2 )
+		    lfi.state_.addSpace().add( val2 );
 	    }
-	    if ( (mIsKey("CNTY") || mIsKey("PROV")) && lfi.county_.isEmpty() &&
-		 (val1 && *val1) )
+	    if ( mIsKey("PROV") && lfi.province_.isEmpty() && (val1 && *val1) )
+	    {
+		lfi.province_ = val1;
+		if ( val2 && *val2 )
+		    lfi.province_.addSpace().add( val2 );
+	    }
+	    if ( mIsKey("CNTY") && lfi.county_.isEmpty() && (val1 && *val1) )
 	    {
 		lfi.county_ = val1;
 		if ( val2 && *val2 )
-		{
-		    lfi.county_ += " "; lfi.county_ += val2;
-		}
+		    lfi.county_.addSpace().add( val2 );
 	    }
 	    if ( mIsKey("LOC") )
 		parseLocation( val1, val2, lfi.loc_ );
 	    if ( mIsKey("UWI") )
 	    {
-		lfi.uwi = val1;
-		if ( val2 && *val2 ) { lfi.uwi += " "; lfi.uwi += val2; }
+		lfi.uwi_ = val1;
+		if ( val2 && *val2 )
+		    lfi.uwi_.addSpace().add( val2 );
 	    }
-	    if ( mIsKey("API") && lfi.uwi.isEmpty() )
-		lfi.uwi = val1;
+	    if ( mIsKey("API") && lfi.uwi_.isEmpty() )
+		lfi.uwi_ = val1;
 	    if ( mIsKey("SRVC") )
 	    {
 		lfi.srvc_ = val1;
-		if ( val2 && *val2 ) { lfi.srvc_ += " "; lfi.srvc_ += val2; }
+		if ( val2 && *val2 )
+		    lfi.srvc_.addSpace().add( val2 );
 	    }
 	    if ( mIsKey("XCOORD") || mIsKey("XWELL") || mIsKey("X") )
 	    {
@@ -272,19 +285,19 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 
     if ( convs_.isEmpty() )
 	mErrRet( "Could not find any valid log in file" )
-    if ( lfi.depthcolnr < 0 )
+    if ( lfi.depthcolnr_ < 0 )
 	mErrRet( "Could not find a depth column ('DEPT' or 'DEPTH')")
 
-    lfi.revz = lfi.zrg.start > lfi.zrg.stop;
-    lfi.zrg.sort();
-    const UnitOfMeasure* unmeas = convs_[lfi.depthcolnr];
+    lfi.revz_ = lfi.zrg_.start > lfi.zrg_.stop;
+    lfi.zrg_.sort();
+    const UnitOfMeasure* unmeas = convs_[lfi.depthcolnr_];
     if ( unmeas )
     {
-	lfi.zunitstr = unmeas->symbol();
-	if ( !mIsUdf(lfi.zrg.start) )
-	    lfi.zrg.start = unmeas->internalValue(lfi.zrg.start);
-	if ( !mIsUdf(lfi.zrg.stop) )
-	    lfi.zrg.stop = unmeas->internalValue(lfi.zrg.stop);
+	lfi.zunitstr_ = unmeas->symbol();
+	if ( !mIsUdf(lfi.zrg_.start) )
+	    lfi.zrg_.start = unmeas->internalValue(lfi.zrg_.start);
+	if ( !mIsUdf(lfi.zrg_.stop) )
+	    lfi.zrg_.stop = unmeas->internalValue(lfi.zrg_.stop);
 	if ( !mIsUdf(lfi.kbelev_) )
 	    lfi.kbelev_ = unmeas->internalValue(lfi.kbelev_);
 	if ( !mIsUdf(lfi.glelev_) )
@@ -294,7 +307,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 
     if ( !strm.isOK() )
 	mErrRet( "Only header found; No data" )
-    else if ( lfi.lognms.size() < 1 )
+    else if ( lfi.lognms_.size() < 1 )
 	mErrRet( "No logs present" )
 
     return 0;
@@ -417,25 +430,25 @@ void Well::LASImporter::copyInfo( const FileInfo& inf, bool& changed )
 	return;
 
     Well::Info& winf = wd_->info();
-    if ( !inf.state_.isEmpty() && winf.state.isEmpty() )
+    if ( !inf.state_.isEmpty() && winf.state_.isEmpty() )
     {
-	winf.state = inf.state_;
+	winf.state_ = inf.state_;
 	changed = true;
     }
-    if ( !inf.county_.isEmpty() && winf.county.isEmpty() )
+    if ( !inf.county_.isEmpty() && winf.county_.isEmpty() )
     {
-	winf.county = inf.county_;
+	winf.county_ = inf.county_;
 	changed = true;
     }
-    if ( !inf.srvc_.isEmpty() && winf.oper.isEmpty() )
+    if ( !inf.srvc_.isEmpty() && winf.oper_.isEmpty() )
     {
-	winf.oper = inf.srvc_;
+	winf.oper_ = inf.srvc_;
 	changed = true;
     }
     if ( !mIsUdf(inf.glelev_) && !mIsZero(inf.glelev_,1e-2f) &&
-	  mIsUdf(winf.groundelev) )
+	  mIsUdf(winf.groundelev_) )
     {
-	winf.groundelev = inf.glelev_;
+	winf.groundelev_ = inf.glelev_;
 	changed = true;
     }
 }
@@ -497,23 +510,23 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
     const char* res = getLogInfo( strm, inplfi );
     if ( res )
 	return res;
-    if ( lfi.lognms.size() == 0 )
+    if ( lfi.lognms_.size() == 0 )
 	return "No logs selected";
-    if ( inplfi.depthcolnr < 0 )
+    if ( inplfi.depthcolnr_ < 0 )
 	return "Input file is invalid";
 
-    if ( lfi.depthcolnr < 0 )
-	const_cast<FileInfo&>(lfi).depthcolnr = inplfi.depthcolnr;
+    if ( lfi.depthcolnr_ < 0 )
+	const_cast<FileInfo&>(lfi).depthcolnr_ = inplfi.depthcolnr_;
     const int addstartidx = wd_->logs().size();
     BoolTypeSet issel( inplfi.size(), false );
 
     const BufferStringSet& lognms =
-		usecurvenms ? inplfi.logcurves : inplfi.lognms;
+		usecurvenms ? inplfi.logcurves_ : inplfi.lognms_;
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const int colnr = idx + (idx >= lfi.depthcolnr ? 1 : 0);
+	const int colnr = idx + (idx >= lfi.depthcolnr_ ? 1 : 0);
 	const BufferString& lognm = lognms.get(idx);
-	const bool ispresent = lfi.lognms.isPresent( lognm );
+	const bool ispresent = lfi.lognms_.isPresent( lognm );
 	if ( !ispresent )
 	    continue;
 	if ( wd_->logs().getLog(lognm) )
@@ -546,7 +559,7 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
 	const BoolTypeSet& issel, const FileInfo& lfi,
 	bool istvd, int addstartidx, int totalcols )
 {
-    Interval<float> reqzrg( Interval<float>().setFrom( lfi.zrg ) );
+    Interval<float> reqzrg( Interval<float>().setFrom( lfi.zrg_ ) );
     const bool havestart = !mIsUdf(reqzrg.start);
     const bool havestop = !mIsUdf(reqzrg.stop);
     if ( havestart && havestop )
@@ -564,7 +577,7 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
 	    strm >> val;
 	    if ( strm.isBad() || (icol<totalcols-1 && !strm.isOK()) )
 		{ atend = true; break; }
-	    if ( mIsEqual(val,lfi.undefval,mDefEps) )
+	    if ( mIsEqual(val,lfi.undefval_,mDefEps) )
 		val = mUdf(float);
 	    else if ( useconvs_ && convs_[icol] )
 		val = convs_[icol]->internalValue( val );
@@ -573,16 +586,16 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
 	if ( atend )
 	    break;
 
-	float dpth = vals[ lfi.depthcolnr ];
+	float dpth = vals[ lfi.depthcolnr_ ];
 	if ( mIsUdf(dpth) )
 	    continue;
 
-	if ( convs_[lfi.depthcolnr] )
-	    dpth = convs_[lfi.depthcolnr]->internalValue( dpth );
+	if ( convs_[lfi.depthcolnr_] )
+	    dpth = convs_[lfi.depthcolnr_]->internalValue( dpth );
 
 	const bool afterstop = havestop && dpth > reqzrg.stop + mDefEps;
 	const bool beforestart = havestart && dpth < reqzrg.start - mDefEps;
-	if ( (lfi.revz && beforestart) || (!lfi.revz && afterstop) )
+	if ( (lfi.revz_ && beforestart) || (!lfi.revz_ && afterstop) )
 	    break;
 	if ( beforestart || afterstop || mIsEqual(prevdpth,dpth,mDefEps) )
 	    continue;
@@ -591,11 +604,11 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
 	TypeSet<float> selvals;
 	for ( int icol=0; icol<totalcols; icol++ )
 	{
-	    if ( icol == lfi.depthcolnr )
+	    if ( icol == lfi.depthcolnr_ )
 		continue;
 
-	    const int valnr = icol - (icol > lfi.depthcolnr ? 1 : 0);
-	    if ( icol != lfi.depthcolnr && issel[valnr] )
+	    const int valnr = icol - (icol > lfi.depthcolnr_ ? 1 : 0);
+	    if ( icol != lfi.depthcolnr_ && issel[valnr] )
 		selvals += vals[icol];
 	}
 	if ( selvals.isEmpty() ) continue;

@@ -483,7 +483,7 @@ void Well::Track::toTime( const Data& wd )
     const float dummythickness = 1000.f;
     TypeSet<float> replveldepths, replveltimes;
     replveldepths += mCast(float,srddepth) - dummythickness;
-    replveltimes += -2.f * dummythickness / wd.info().replvel;
+    replveltimes += -2.f * dummythickness / wd.info().replvel_;
     replveldepths += mCast(float,srddepth);
     replveltimes += 0.f;
     replvelmodel.setModel( replveldepths.arr(), replveltimes.arr(),

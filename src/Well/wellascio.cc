@@ -272,7 +272,7 @@ bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
     adjustKBIfNecessary( pos, kbelevinfile, mCast(double,kbelev) );
     addOriginIfNecessary( pos, mdvals );
     adjustToTDIfNecessary( pos, mdvals, mCast(double,td) );
-    if ( !adjustSurfaceLocation(pos,wd.info().surfacecoord) )
+    if ( !adjustSurfaceLocation(pos,wd.info().surfacecoord_) )
 	return false;
 
     if ( pos.size() < 2 || mdvals.size() < 2 )
@@ -432,7 +432,7 @@ bool D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
 	if ( dpthopt == 3 )
 	    zval -= wll.track().getKbElev();
 	if ( dpthopt == 4 )
-	    zval -= wll.info().groundelev;
+	    zval -= wll.info().groundelev_;
 	if ( tmopt == 1 )
 	    tval *= 2;
 
@@ -620,7 +620,7 @@ bool BulkD2TModelAscIO::get( BufferString& wellnm, float& zval, float& twt )
     if ( dpthopt == 3 )
 	zval -= wellsdata_[wellidx]->track().getKbElev();
     if ( dpthopt == 4 )
-	zval -= wellsdata_[wellidx]->info().groundelev;
+	zval -= wellsdata_[wellidx]->info().groundelev_;
     if ( tmopt == 1 )
 	twt *= 2;
 
@@ -702,7 +702,7 @@ bool DirectionalAscIO::getData( Data& wd, float kb ) const
 	kb = 0;
 
     TypeSet<Coord3> track;
-    Well::DirectionalSurvey dirsurvey( wd.info().surfacecoord, kb );
+    Well::DirectionalSurvey dirsurvey( wd.info().surfacecoord_, kb );
     dirsurvey.calcTrack( mdvals, incls, azis, track );
 
     wd.track().setEmpty();

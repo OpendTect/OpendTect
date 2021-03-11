@@ -112,7 +112,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	, orgtrack_(new Well::Track(d.track()))
 	, fd_( *Well::TrackAscIO::getDesc() )
 	, origpos_(mUdf(Coord3))
-	, origgl_(d.info().groundelev)
+	, origgl_(d.info().groundelev_)
 {
     tbl_ = new uiTable( this, uiTable::Setup()
 					.rowdesc(uiStrings::sPoint())
@@ -136,7 +136,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     tbl_->setSelectionBehavior( uiTable::SelectRows );
 
     uwifld_ = new uiGenInput( this, tr("UWI"), StringInpSpec() );
-    uwifld_->setText( wd_.info().uwid );
+    uwifld_->setText( wd_.info().uwid_ );
     uwifld_->attach( leftAlignedBelow, tbl_ );
     if ( !writable_ ) uwifld_->setReadOnly( true );
 
@@ -287,16 +287,16 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
 		tr("%1 %2 ").arg( Well::Info::sGroundElev() ).arg(depthunit) );
 
     if ( track_.size() > 1 )
-	wd_.info().surfacecoord = track_.pos(0);
+	wd_.info().surfacecoord_ = track_.pos(0);
 
-    Coord wellhead = wd_.info().surfacecoord;
+    Coord wellhead = wd_.info().surfacecoord_;
     if ( mIsZero(wellhead.x,0.001) )
 	{ wellhead.x = wellhead.y = mUdf(float); }
     wellheadxfld_->setValue( wellhead.x );
     wellheadyfld_->setValue( wellhead.y );
 
     kbelevfld_->setValue( mConvertVal(track_.getKbElev(),true) );
-    glfld_->setValue( mConvertVal(wd_.info().groundelev,true) );
+    glfld_->setValue( mConvertVal(wd_.info().groundelev_,true) );
 }
 
 
@@ -568,8 +568,8 @@ void uiWellTrackDlg::updNow( CallBacker* )
 
 bool uiWellTrackDlg::updNow()
 {
-    wd_.info().uwid = uwifld_->text();
-    wd_.info().groundelev =
+    wd_.info().uwid_ = uwifld_->text();
+    wd_.info().groundelev_ =
 	mConvertVal(glfld_->getFValue(),false);
 
     track_.setEmpty();
@@ -647,7 +647,7 @@ void uiWellTrackDlg::updateYpos( CallBacker* )
 void uiWellTrackDlg::updatePos( bool isx )
 {
     uiGenInput* posfld = isx ? wellheadxfld_ : wellheadyfld_;
-    const Coord surfacecoord = wd_.info().surfacecoord;
+    const Coord surfacecoord = wd_.info().surfacecoord_;
     double surfacepos = isx ? surfacecoord.x : surfacecoord.y;
     if ( mIsUdf(surfacepos) && !track_.isEmpty() )
 	surfacepos = isx ? track_.pos(0).x : track_.pos(0).y;
@@ -744,8 +744,8 @@ bool uiWellTrackDlg::rowIsNotSet( int row ) const
 bool uiWellTrackDlg::rejectOK( CallBacker* )
 {
     track_ = *orgtrack_;
-    wd_.info().surfacecoord = origpos_;
-    wd_.info().groundelev = origgl_;
+    wd_.info().surfacecoord_ = origpos_;
+    wd_.info().groundelev_ = origgl_;
     wd_.trackchanged.trigger();
     return true;
 }
@@ -849,7 +849,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	, wd_(wd)
 	, cksh_(cksh)
 	, orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : 0)
-	, origreplvel_(wd.info().replvel)
+	, origreplvel_(wd.info().replvel_)
 	, replvelfld_(0)
 {
     tbl_ = new uiTable( this, uiTable::Setup()
@@ -902,13 +902,13 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	    replvelfld_-> setReadOnly( true );
 	else
 	{
-	    uiButton* updbut = new uiPushButton( this, tr("Update display"),
-				       mCB(this,uiD2TModelDlg,updNow), true );
+	    auto* updbut = new uiPushButton( this, tr("Update display"),
+			mCB(this,uiD2TModelDlg,updNow), true );
 	    updbut->attach( ensureBelow, tbl_ );
 	    replvelfld_->updateRequested.notify(
 					mCB(this,uiD2TModelDlg,updReplVelNow) );
-	    uiPushButton* setbut = new uiPushButton( this, tr("Set"),
-			      mCB(this,uiD2TModelDlg,updReplVelNow), true );
+	    auto* setbut = new uiPushButton( this, tr("Set"),
+			mCB(this,uiD2TModelDlg,updReplVelNow), true );
 	    setbut->attach( rightOf, replvelfld_ );
 	}
 	replvelfld_->attach( ensureBelow, zinftfld_ );
@@ -980,7 +980,7 @@ void uiD2TModelDlg::getColLabels( BufferStringSet& lbls ) const
 
 int uiD2TModelDlg::getTVDGLCol() const
 {
-    return mIsUdf( wd_.info().groundelev ) ? mUdf( int ) : cTVDCol + 1;
+    return mIsUdf( wd_.info().groundelev_ ) ? mUdf( int ) : cTVDCol + 1;
 }
 
 
@@ -1045,8 +1045,8 @@ float uiD2TModelDlg::getTimeValue( int irow ) const
     Interval<float> replvellayer( wd_.track().getKbElev(), srd ); \
     replvellayer.widen( 1e-2f, true ); \
     vint = replvellayer.includes( -1.f * wd_.track().getPos(dah).z, true ) && \
-	   !mIsUdf(wd_.info().replvel) \
-	 ? wd_.info().replvel \
+	   !mIsUdf(wd_.info().replvel_) \
+	 ? wd_.info().replvel_ \
 	 : mCast(float,d2t->getVelocityForDah( dah, wd_.track() )); \
 }
 
@@ -1074,7 +1074,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     tbl_->setColumnLabels( header.getUiStringSet() );
 
     const float kbelev = wd_.track().getKbElev();
-    const float groundevel = wd_.info().groundelev;
+    const float groundevel = wd_.info().groundelev_;
     const float srd = mCast(float,SI().seismicReferenceDatum());
     const bool hastvdgl = !mIsUdf( groundevel );
     const bool hastvdsd = !mIsZero( srd, 1e-3f );
@@ -1108,7 +1108,7 @@ void uiD2TModelDlg::fillReplVel( CallBacker* )
 				VelocityDesc::getVelUnit(true));
     if ( zinftfld_->isChecked() ) lbl = toUiString("%1 ").arg(lbl);
     replvelfld_->setTitleText( lbl );
-    replvelfld_->setValue( mConvertVal(wd_.info().replvel,true) );
+    replvelfld_->setValue( mConvertVal(wd_.info().replvel_,true) );
 }
 
 
@@ -1182,7 +1182,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     }
 
     const float kbelev = wd_.track().getKbElev();
-    const float groundevel = wd_.info().groundelev;
+    const float groundevel = wd_.info().groundelev_;
     const bool hastvdgl = !mIsUdf( groundevel );
     const bool inistvdgl = hastvdgl && incol == getTVDGLCol();
 
@@ -1284,9 +1284,9 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
 	setDepthValue( row, getTVDSDCol(), tvdss + srd );
 
     Interval<float> replvelint( track.getKbElev(), srd );
-    if ( replvelint.includes(-1.f*tvdss,true) && !mIsUdf(wd_.info().replvel) )
+    if ( replvelint.includes(-1.f*tvdss,true) && !mIsUdf(wd_.info().replvel_) )
     {
-	const float twt = (tvdss + srd ) / wd_.info().replvel;
+	const float twt = (tvdss + srd ) / wd_.info().replvel_;
 	setTimeValue( row, twt );
     }
 
@@ -1526,7 +1526,7 @@ void uiD2TModelDlg::expData( CallBacker* )
     }
 
     const float kbelev = mConvertVal( wd_.track().getKbElev(), true );
-    const float groundevel = mConvertVal( wd_.info().groundelev, true );
+    const float groundevel = mConvertVal( wd_.info().groundelev_, true );
     const float srd = mConvertVal( mCast(float,SI().seismicReferenceDatum()),
 				   true );
     const bool hastvdgl = !mIsUdf( groundevel );
@@ -1605,7 +1605,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     {
 	uiMSG().error( tr("Please enter a valid %1")
 		       .arg(Well::Info::sReplVel()) );
-	replvelfld_->setValue( mConvertVal(wd_.info().replvel,true) );
+	replvelfld_->setValue( mConvertVal(wd_.info().replvel_,true) );
 	return;
     }
 
@@ -1614,7 +1614,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     if ( track.zRange().stop < SI().seismicReferenceDatum() &&
 	 ( !d2t || d2t->size() < 2 ) )
     { //Whole well track is above SRD: The entire model is controlled by replvel
-	wd_.info().replvel = replvel;
+	wd_.info().replvel_ = replvel;
 	updNow(0);
 	return;
     }
@@ -1640,7 +1640,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     const float replveldz = zwllhead + srdelev;
     const float timeshift = kbabovesrd ? firsttwt
 				       : 2.f * replveldz / replvel - firsttwt;
-    wd_.info().replvel = replvel;
+    wd_.info().replvel_ = replvel;
     if ( mIsZero(timeshift,1e-2f) )
     {
 	const float dah = getDepthValue( 0, cMDCol );
@@ -1701,7 +1701,7 @@ bool uiD2TModelDlg::rejectOK( CallBacker* )
 
     wd_.d2tchanged.trigger();
     wd_.trackchanged.trigger();
-    wd_.info().replvel = origreplvel_;
+    wd_.info().replvel_ = origreplvel_;
 
     return true;
 }
@@ -1976,7 +1976,7 @@ void uiSetD2TFromOtherWell::inpSelCB( CallBacker* )
     if ( !wd )
 	return;
 
-    replvelfld_->setValue( wd->info().replvel );
+    replvelfld_->setValue( wd->info().replvel_ );
 }
 
 
@@ -2039,7 +2039,7 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
 	    continue;
 
 	if ( chgreplvel )
-	    wd->info().replvel = newreplvel;
+	    wd->info().replvel_ = newreplvel;
 	TypeSet<double> depths( inputdepths );
 	TypeSet<double> times( inputtimes );
 	uiString errmsg;

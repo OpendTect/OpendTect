@@ -47,8 +47,8 @@ public:
 
 			Info( const char* nm )
 			    : NamedCallBacker(nm)
-			    , replvel(Well::getDefaultVelocity())
-			    , groundelev(mUdf(float))
+			    , replvel_(Well::getDefaultVelocity())
+			    , groundelev_(mUdf(float))
 			    , welltype_(None)
 			{}
 
@@ -66,22 +66,28 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    BufferString	uwid;
-    BufferString	oper;
-    BufferString	state;
-    BufferString	county;
+    BufferString	uwid_;
+    BufferString	oper_;
+    BufferString	field_;
+    BufferString	county_;
+    BufferString	state_;
+    BufferString	province_;
+    BufferString	country_;
     BufferString	source_; //!< filename for OD storage
     WellType		welltype_;
 
-    Coord		surfacecoord;
-    float		replvel;
-    float		groundelev;
+    Coord		surfacecoord_;
+    float		replvel_;
+    float		groundelev_;
 
     static const char*	sKeyDepthUnit();
     static const char*	sKeyUwid();
     static const char*	sKeyOper();
-    static const char*	sKeyState();
+    static const char*	sKeyField();
     static const char*	sKeyCounty();
+    static const char*	sKeyState();
+    static const char*	sKeyProvince();
+    static const char*	sKeyCountry();
     static const char*	sKeyCoord();
     static const char*	sKeyKBElev();
     static const char*	sKeyTD();
@@ -91,11 +97,13 @@ public:
     static const char*	sKeyWellType();
     static int		legacyLogWidthFactor();
 
-
     static uiString	sUwid();
     static uiString	sOper();
-    static uiString	sState();
+    static uiString	sField();
     static uiString	sCounty();
+    static uiString	sState();
+    static uiString	sProvince();
+    static uiString	sCountry();
     static uiString	sCoord();
     static uiString	sKBElev();
     static uiString	sTD();

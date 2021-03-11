@@ -567,7 +567,7 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
 	    if ( !ioobj ) continue;
 
 	    Well::Reader wr( *ioobj, *data );
-	    if ( wr.getInfo() && data->info().uwid == uwi )
+	    if ( wr.getInfo() && data->info().uwid_ == uwi )
 		return ioobj->clone();
 	}
     }

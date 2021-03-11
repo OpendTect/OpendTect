@@ -116,7 +116,7 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	if ( SI().zIsTime() && SI().depthsInFeet() && zun )
 	    vel = zun->internalValue( vel );
 
-	d2t->makeFromTrack( wd.track(), vel, wd.info().replvel );
+	d2t->makeFromTrack( wd.track(), vel, wd.info().replvel_ );
     }
     else
     {

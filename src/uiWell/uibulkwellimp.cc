@@ -166,7 +166,7 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 		kb = 0.f;
 		wd->ref();
 		if ( !uwi.isEmpty() )
-		    wd->info().uwid = uwi;
+		    wd->info().uwid_ = uwi;
 		origtracks_ += nullptr;
 		mdrgs_ += Interval<float>::udf();
 	    }
@@ -256,7 +256,7 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 		  (double)uiD2TModelGroup::getDefaultTemporaryVelocity(),1) ))
 	    {
 		auto* d2t = new Well::D2TModel;
-		d2t->makeFromTrack(  wd->track(), vel, wd->info().replvel );
+		d2t->makeFromTrack(  wd->track(), vel, wd->info().replvel_ );
 		wd->setD2TModel( d2t );
 		writed2t = true;
 	    }
@@ -418,7 +418,7 @@ static void getWellNames( BufferStringSet& wellnms, bool withuwi )
 	RefMan<Well::Data> wd = Well::MGR().get( ioobj->key(), Well::Inf );
 	if ( wd )
 	{
-	    const StringPair sp( wd->name(), wd->info().uwid );
+	    const StringPair sp( wd->name(), wd->info().uwid_ );
 	    wellnms.add( sp.getCompString(true) );
 	}
     }
@@ -440,23 +440,23 @@ void uiBulkLogImport::lasSel( CallBacker* )
 	const BufferString& fnm = filenms.get( idx );
 	Well::LASImporter lasimp;
 	Well::LASImporter::FileInfo info;
-	info.undefval = udffld_->getFValue();
+	info.undefval_ = udffld_->getFValue();
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 
-	wellstable_->setText( RowCol(idx,0), info.wellnm );
-	wellstable_->setText( RowCol(idx,1), info.uwi );
+	wellstable_->setText( RowCol(idx,0), info.wellnm_ );
+	wellstable_->setText( RowCol(idx,1), info.uwi_ );
 
 	BufferStringSet listwellnms( wellnms );
-	if ( !info.wellnm.isEmpty() )
-	    listwellnms.addIfNew( info.wellnm );
-	if ( !info.uwi.isEmpty() )
-	    listwellnms.addIfNew( info.uwi );
+	if ( !info.wellnm_.isEmpty() )
+	    listwellnms.addIfNew( info.wellnm_ );
+	if ( !info.uwi_.isEmpty() )
+	    listwellnms.addIfNew( info.uwi_ );
 	uiComboBox* wellsbox = new uiComboBox( 0, "Select Well" );
 	wellsbox->addItems( listwellnms );
 	wellstable_->setCellObject( RowCol(idx,2), wellsbox );
 
-	const BufferString& welllasnm = useuwiasnm ? info.uwi : info.wellnm;
-	const BufferString& othwellnm = useuwiasnm ? info.wellnm : info.uwi;
+	const BufferString& welllasnm = useuwiasnm ? info.uwi_ : info.wellnm_;
+	const BufferString& othwellnm = useuwiasnm ? info.wellnm_ : info.uwi_;
 	const BufferString wellnm = welllasnm.isEmpty() ? othwellnm : welllasnm;
 	const int selidx = listwellnms.nearestMatch( wellnm );
 	wellsbox->setCurrentItem( selidx<0 ? 0 : selidx );
@@ -498,11 +498,11 @@ static bool createNewWell( const Well::LASImporter::FileInfo& info,
     if ( !mIsUdf(info.kbelev_) )
 	wellhead.z = -1. * info.kbelev_;
     Coord3 welltd( wellhead );
-    welltd.z = double(info.zrg.stop) - welltd.z;
+    welltd.z = double(info.zrg_.stop) - welltd.z;
 
     track.addPoint( wellhead, 0.f );
-    track.addPoint( welltd, info.zrg.stop );
-    wd->info().uwid = info.uwi;
+    track.addPoint( welltd, info.zrg_.stop );
+    wd->info().uwid_ = info.uwi_;
 
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
     PtrMan<IOObj> ioobj = mkEntry( *ctio, wd->name() );
@@ -527,7 +527,7 @@ static bool createNewWell( const Well::LASImporter::FileInfo& info,
 	auto* d2tmodel = new Well::D2TModel;
 	d2tmodel->makeFromTrack( track,
 				 uiD2TModelGroup::getDefaultTemporaryVelocity(),
-				 wd->info().replvel );
+				 wd->info().replvel_ );
 	wd->setD2TModel( d2tmodel );
 	if ( !ww.putD2T() )
 	{
@@ -561,7 +561,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	const BufferString& fnm = filenms.get( idx );
 	Well::LASImporter lasimp;
 	Well::LASImporter::FileInfo info;
-	info.undefval = udffld_->getFValue();
+	info.undefval_ = udffld_->getFValue();
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 	if ( !errmsg.isEmpty() )
 	{
@@ -576,13 +576,13 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	    continue;
 
 	const BufferString wellnm = cb ? cb->text()
-				       : (useuwiasnm ? info.uwi.buf()
-						     : info.wellnm.buf() );
-	PtrMan<IOObj> ioobj = findIOObj( wellnm, info.uwi );
+				       : (useuwiasnm ? info.uwi_.buf()
+						     : info.wellnm_.buf() );
+	PtrMan<IOObj> ioobj = findIOObj( wellnm, info.uwi_ );
 	if ( !ioobj )
 	{
 	    if ( createNewWell(info,wellnm,errors) )
-		ioobj = findIOObj( wellnm, info.uwi );
+		ioobj = findIOObj( wellnm, info.uwi_ );
 
 	    if ( !ioobj )
 	    {
@@ -602,9 +602,9 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	lasimp.setData( wd );
 	bool newwellinfo = false, adjustedwelltrack = false;
 	lasimp.copyInfo( info, newwellinfo );
-	lasimp.adjustTrack( info.zrg, zistvdss, adjustedwelltrack );
+	lasimp.adjustTrack( info.zrg_, zistvdss, adjustedwelltrack );
 	if ( usecurvenms )
-	    info.lognms = info.logcurves; // Hack
+	    info.lognms_ = info.logcurves_; // Hack
 	errmsg = lasimp.getLogs( fnm, info, zistvdss, usecurvenms );
 	if ( !errmsg.isEmpty() )
 	    errors.add( toUiString("%1: %2").arg(toUiString(fnm))
@@ -1029,7 +1029,7 @@ bool uiBulkDirectionalImport::acceptOK( CallBacker* )
 
 	TypeSet<Coord3> track;
 	const float kb = wd->track().getKbElev();
-	Well::DirectionalSurvey dirsurvey( wd->info().surfacecoord, kb );
+	Well::DirectionalSurvey dirsurvey( wd->info().surfacecoord_, kb );
 	dirsurvey.calcTrack( dd->mds_, dd->incls_, dd->azis_, track );
 
 	wd->track().setEmpty();

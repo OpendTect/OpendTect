@@ -427,8 +427,8 @@ void uiWellMan::edWellTrack( CallBacker* )
     }
 
     const Well::Track origtrck = wd->track();
-    const Coord origpos = wd->info().surfacecoord;
-    const float origgl = wd->info().groundelev;
+    const Coord origpos = wd->info().surfacecoord_;
+    const float origgl = wd->info().groundelev_;
 
     uiWellTrackDlg dlg( this, *wd );
     if ( !dlg.go() || !iswritable_ )
@@ -439,8 +439,8 @@ void uiWellMan::edWellTrack( CallBacker* )
     {
 	uiMSG().error( tr("Cannot write new track to disk") );
 	wd->track() = origtrck;
-	wd->info().surfacecoord = origpos;
-	wd->info().groundelev = origgl;
+	wd->info().surfacecoord_ = origpos;
+	wd->info().groundelev_ = origgl;
     }
 
     wd->trackchanged.trigger();
@@ -482,7 +482,7 @@ void uiWellMan::defD2T( bool chkshot )
     if ( chkshot && !wd->checkShotModel() )
 	wd->setCheckShotModel( new Well::D2TModel );
 
-    const float oldreplvel = wd->info().replvel;
+    const float oldreplvel = wd->info().replvel_;
     Well::D2TModel* inpmdl = chkshot ? wd->checkShotModel() : wd->d2TModel();
     PtrMan<Well::D2TModel> origd2t = 0;
     if ( inpmdl )
@@ -503,16 +503,16 @@ void uiWellMan::defD2T( bool chkshot )
 	else
 	{
 	    wd->setD2TModel( toput );
-	    wd->info().replvel = oldreplvel;
+	    wd->info().replvel_ = oldreplvel;
 	}
     }
-    else if ( !mIsEqual(oldreplvel,wd->info().replvel,1e-2f) &&
+    else if ( !mIsEqual(oldreplvel,wd->info().replvel_,1e-2f) &&
 	      !wtr.putInfoAndTrack() )
     {
 	if ( !errmsg.isEmpty() )
 	errmsg.append( tr("Cannot write new %1 to disk")
 		       .arg(Well::Info::sReplVel()),true );
-	wd->info().replvel = oldreplvel;
+	wd->info().replvel_ = oldreplvel;
     }
 
     if ( !errmsg.isEmpty() )
@@ -816,8 +816,8 @@ void uiWellMan::mkFileInfo()
 
 	FixedString colonstr( ": " );
 	const BufferString posstr(
-		info.surfacecoord.toPrettyString(SI().nrXYDecimals()), " - ",
-		SI().transform(info.surfacecoord).toString() );
+		info.surfacecoord_.toPrettyString(SI().nrXYDecimals()), " - ",
+		SI().transform(info.surfacecoord_).toString() );
 	mAddWellInfo(Well::Info::sCoord(),posstr)
 
 	if ( !track.isEmpty() )
@@ -850,7 +850,7 @@ void uiWellMan::mkFileInfo()
 		txt.addNewLine();
 	    }
 
-	    const float replvel = info.replvel;
+	    const float replvel = info.replvel_;
 	    if ( !mIsUdf(replvel) )
 	    {
 		 txt.add(Well::Info::sKeyReplVel()).add(colonstr);
@@ -860,7 +860,7 @@ void uiWellMan::mkFileInfo()
 		 txt.addNewLine();
 	    }
 
-	    const float groundelev = info.groundelev;
+	    const float groundelev = info.groundelev_;
 	    if ( !mIsUdf(groundelev) )
 	    {
 		txt.add(Well::Info::sKeyGroundElev()).add(colonstr);
@@ -870,10 +870,11 @@ void uiWellMan::mkFileInfo()
 	    }
 	}
 
-	mAddWellInfo(Well::Info::sUwid(),info.uwid)
-	mAddWellInfo(Well::Info::sOper(),info.oper)
-	mAddWellInfo(Well::Info::sState(),info.state)
-	mAddWellInfo(Well::Info::sCounty(),info.county)
+	mAddWellInfo(Well::Info::sUwid(),info.uwid_)
+	mAddWellInfo(Well::Info::sOper(),info.oper_)
+	mAddWellInfo(Well::Info::sCounty(),info.county_)
+	mAddWellInfo(Well::Info::sState(),info.state_)
+	mAddWellInfo(Well::Info::sCountry(),info.country_)
 
 	if ( txt.isEmpty() )
 	    txt.set( "<No specific info available>\n" );

@@ -212,7 +212,7 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
 		    visserv_->getObject(displayid_));
     if ( !pdd ) return;
 
-    const Coord surfacecoord = wd.info().surfacecoord;
+    const Coord surfacecoord = wd.info().surfacecoord_;
     const BinID bid = SI().transform( surfacecoord );
     TrcKeyZSampling cs = pdd->getTrcKeyZSampling( true, true );
     if ( orient_ == OD::InlineSlice )

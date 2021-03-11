@@ -118,15 +118,15 @@ void WellServerTool::getWellInfo()
     set( sKey::Name(), wd_->name() );
 
     const Info& inf = wd_->info();
-    const BufferString uwi = inf.uwid;
+    const BufferString uwi = inf.uwid_;
     if ( !uwi.isEmpty() )
 	set( Info::sKeyUwid(), uwi );
     const Info::WellType wt = inf.welltype_;
     if ( wt != Info::None )
 	set( sKey::Type(), Info::toString(wt) );
 
-    set( sKey::X(), inf.surfacecoord.x );
-    set( sKey::Y(), inf.surfacecoord.y );
+    set( sKey::X(), inf.surfacecoord_.x );
+    set( sKey::Y(), inf.surfacecoord_.y );
 
     respondInfo( true );
 }

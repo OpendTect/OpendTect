@@ -148,7 +148,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     const float srddah = track.getDahForTVD( srddepth );
     const float replveldz = -1.f * srddepth - track.getKbElev();
     const float startdah = replveldz < 0 ? srddah : track.dah(0);
-    const float replvel = wd.info().replvel;
+    const float replvel = wd.info().replvel_;
     const float bulkshift = replveldz > 0 ? 2.f * replveldz / replvel : 0.f;
 
     TypeSet<float> dpts, vals;

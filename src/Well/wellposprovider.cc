@@ -82,7 +82,7 @@ void WellProvider3D::setHS()
     if ( onlysurfacecoords_ )
     {
 	const Well::Info& info = welldata_[curwellidx_]->info();
-	const BinID bid = SI().transform( info.surfacecoord );
+	const BinID bid = SI().transform( info.surfacecoord_ );
 	hs_.include( bid );
     }
 

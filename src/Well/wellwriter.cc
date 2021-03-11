@@ -192,14 +192,17 @@ bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
     ascostream astrm( strm );
     astrm.put( Well::Info::sKeyDepthUnit(),
 	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
-    astrm.put( Well::Info::sKeyUwid(), wd_.info().uwid );
-    astrm.put( Well::Info::sKeyOper(), wd_.info().oper );
-    astrm.put( Well::Info::sKeyState(), wd_.info().state );
-    astrm.put( Well::Info::sKeyCounty(), wd_.info().county );
-    if ( wd_.info().surfacecoord != Coord(0,0) )
-	astrm.put( Well::Info::sKeyCoord(), wd_.info().surfacecoord.toString());
-    astrm.put( Well::Info::sKeyReplVel(), wd_.info().replvel );
-    astrm.put( Well::Info::sKeyGroundElev(), wd_.info().groundelev );
+    astrm.put( Well::Info::sKeyUwid(), wd_.info().uwid_ );
+    astrm.put( Well::Info::sKeyOper(), wd_.info().oper_ );
+    astrm.put( Well::Info::sKeyField(), wd_.info().field_ );
+    astrm.put( Well::Info::sKeyCounty(), wd_.info().county_ );
+    astrm.put( Well::Info::sKeyState(), wd_.info().state_ );
+    astrm.put( Well::Info::sKeyProvince(), wd_.info().province_ );
+    astrm.put( Well::Info::sKeyCountry(), wd_.info().country_ );
+    if ( wd_.info().surfacecoord_ != Coord(0,0) )
+	astrm.put( Well::Info::sKeyCoord(), wd_.info().surfacecoord_.toString());
+    astrm.put( Well::Info::sKeyReplVel(), wd_.info().replvel_ );
+    astrm.put( Well::Info::sKeyGroundElev(), wd_.info().groundelev_ );
     astrm.newParagraph();
 
     return putTrack( strm );

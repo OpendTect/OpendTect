@@ -619,11 +619,11 @@ void Well::D2TModel::checkReplacementVelocity( Well::Info& info,
 	return;
 
     uiString replvelbl = Well::Info::sReplVel();
-    if ( !mIsEqual((float)vreplinfile,info.replvel,mDefEpsV) )
+    if ( !mIsEqual((float)vreplinfile,info.replvel_,mDefEpsV) )
     {
-	if ( mIsEqual(info.replvel,Well::getDefaultVelocity(),mDefEpsV) )
+	if ( mIsEqual(info.replvel_,Well::getDefaultVelocity(),mDefEpsV) )
 	{
-	    info.replvel = mCast(float,vreplinfile);
+	    info.replvel_ = mCast(float,vreplinfile);
 	}
 	else
 	{
@@ -637,7 +637,7 @@ void Well::D2TModel::checkReplacementVelocity( Well::Info& info,
 		  "but the %1 was set to: %3%4\n"
 		  "Velocity information from file was overruled.");
 	    msg.arg( replvelbl ).arg( fileval )
-	       .arg( toString(mScaledValue(info.replvel,uomvel), 2) )
+	       .arg( toString(mScaledValue(info.replvel_,uomvel), 2) )
 	       .arg( veluomlbl );
 	}
     }
@@ -736,7 +736,7 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
 	mErrRet( tr("Input file has not enough data points above TD.") )
 
     removeDuplicatedVelocities( zvals, tvals );
-    const double replveld = mCast( double, wllinfo.replvel );
+    const double replveld( wllinfo.replvel_ );
     shiftTimesIfNecessary( tvals, zwllhead, mCast(double,replveld),
 			   origintwtinfile, warnmsg );
 

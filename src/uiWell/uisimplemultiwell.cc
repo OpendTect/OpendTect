@@ -247,9 +247,9 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 					  const IOObj& ioobj )
 {
     RefMan<Well::Data> wd = new Well::Data( wcd.nm_ );
-    wd->info().surfacecoord = wcd.coord_;
-    wd->info().uwid = wcd.uwi_;
-    wd->info().groundelev = wcd.gl_;
+    wd->info().surfacecoord_ = wcd.coord_;
+    wd->info().uwid_ = wcd.uwi_;
+    wd->info().groundelev_ = wcd.gl_;
 
     Interval<float> drg( -wcd.elev_, wcd.td_-wcd.elev_ );
     wd->track().addPoint( wcd.coord_, drg.start, 0 );
@@ -257,7 +257,7 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     if ( velfld_ )
     {
 	Well::D2TModel* d2t = new Well::D2TModel("Simple");
-	d2t->makeFromTrack(  wd->track(), vel_, wd->info().replvel );
+	d2t->makeFromTrack(  wd->track(), vel_, wd->info().replvel_ );
 	wd->setD2TModel( d2t );
     }
 
