@@ -162,7 +162,8 @@ public:
     bool			haveCheckShotModel() const { return csmodel_; }
     Well::LoadReqs		loadState() const;
     void			reloadLogNames() const;
-    void			setDispParsLoaded(bool) { disploaded_ = yn; }
+    void			setDispParsLoaded( bool yn )
+				{ disploaded_ = yn; }
     bool			dispParsLoaded() const { return disploaded_; }
 
     Notifier<Well::Data>	d2tchanged;
