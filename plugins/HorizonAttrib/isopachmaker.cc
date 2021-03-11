@@ -85,6 +85,8 @@ int IsochronMaker::nextStep()
 	startsourceidx = nrfixedcols + (sidcolidx_ ? 0 : 1);
     }
 
+    const Geometry::BinIDSurface* hor2geom =
+			hor2_.geometry().sectionGeometry( sectid2_ );
     for ( int idx=0; idx<sBlockSize; idx++ )
     {
 	const EM::PosID posid = iter_->next();
@@ -97,13 +99,26 @@ int IsochronMaker::nextStep()
 
 	const EM::SubID subid = posid.subID();
 	const Coord3 pos1( hor1_.getPos( sectid1_, subid ) );
-	const float z1 = (float) pos1.z;
-	const float z2 = (float) hor2_.getPos( sectid2_, subid ).z;
-	if ( mIsUdf(z1) || mIsUdf(z2) )
+	const float z1 = float( pos1.z );
+	if ( mIsUdf(z1) )
 	{
 	    if ( dataidx_ != -1 )
 		hor1_.auxdata.setAuxDataVal( dataidx_, posid, mUdf(float) );
 	    continue;
+	}
+
+	float z2 = float( hor2_.getPos(sectid2_,subid).z );
+	if ( mIsUdf(z2) )
+	{
+	    const BinID bid = BinID::fromInt64( subid );
+	    z2 = float( hor2geom->computePosition(
+					Coord(bid.inl(),bid.crl()) ).z );
+	    if ( mIsUdf(z2) )
+	    {
+		if ( dataidx_ != -1 )
+		    hor1_.auxdata.setAuxDataVal( dataidx_, posid, mUdf(float) );
+		continue;
+	    }
 	}
 
 	float th = z1 > z2 ? z1 - z2 : z2 - z1;
