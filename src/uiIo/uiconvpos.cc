@@ -653,5 +653,5 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 
     delete inpstream;
 
-    uiMSG().message( tr("File written successfuly") );
+    uiMSG().message( tr("File written successfully") );
 }
