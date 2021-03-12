@@ -162,6 +162,14 @@ bool uiConvPosAscIO::getData( Coord& crd )
 	crd.x = bid.inl();
 	crd.y = bid.crl();
     }
+    else if ( isLL() )
+    {
+	LatLong ll;
+	ll.setFromString( getText(0), true );
+	ll.setFromString( getText(1), false );
+	crd.x = ll.lat_;
+	crd.y = ll.lng_;
+    }
 
     return true;
 }
@@ -555,6 +563,12 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
     LatLong outll;
     BinID outbid;
     od_istream* inpstream = new od_istream(inpfnm);
+    for ( int lidx=0; lidx<aio.desc().nrHdrLines(); lidx++ )
+    {
+	BufferString linestr;
+	inpstream->getLine( linestr );
+	ostream_->add( linestr ).addNewLine();
+    }
 
     const bool towgs = towgs84fld_->isChecked();
     while ( aio.getData(crd) )
