@@ -308,11 +308,12 @@ void closeEvent( QCloseEvent* ev )
     const int closedsubwinidx =
 	mdiArea()->subWindowList(QMdiArea::CreationOrder).indexOf( this );
 
+    uiMdiArea& mdiarea = mdiareawin_.getMdiArea();
     BufferString cmdrecmsg( "Close " ); cmdrecmsg += closedsubwinidx;
-    const int refnr = mdiareawin_.getMdiArea().beginCmdRecEvent( cmdrecmsg );
+    const int refnr = mdiarea.beginCmdRecEvent( cmdrecmsg );
     BufferString bfstr = windowTitle();
-    uiString msg( od_static_tr("closeEvent","Do you want to close %1 ?").
-		  arg(mToUiStringTodo(bfstr)) );
+    uiString msg =
+	od_static_tr("closeEvent","Do you want to close %1 ?").arg(bfstr);
     if ( sNoCloseMessage || uiMSG().askGoOn(msg) )
     {
 	ev->accept();
@@ -321,7 +322,7 @@ void closeEvent( QCloseEvent* ev )
     else
 	ev->ignore();
 
-    mdiareawin_.getMdiArea().endCmdRecEvent( refnr, cmdrecmsg );
+    mdiarea.endCmdRecEvent( refnr, cmdrecmsg );
 }
 
     uiMdiAreaWindow&	mdiareawin_;
