@@ -157,7 +157,7 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	}
     }
 
-    return ps.size() ? 0 : "No valid picks found";
+    return nullptr;
 }
 
 
