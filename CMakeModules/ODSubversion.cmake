@@ -109,24 +109,26 @@ endif()
 
 if ( NOT "${UPDATE_CMD}" STREQUAL "" )
 
-add_custom_target( update
-       		  ${UPDATE_CMD}
-		  ${EXTERNALCMD}
+    add_custom_target( update
+       		  ${UPDATE_CMD} ${EXTERNALCMD}
 		  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
 		  COMMENT "Updating from repositories" )
 
-if ( EXISTS ${PLUGIN_DIR} )
-    add_custom_target( update_dgb
+    if ( EXISTS ${PLUGIN_DIR} )
+        add_custom_target( update_dgb
        		  ${UPDATE_CMD}
 		  WORKING_DIRECTORY ${PLUGIN_DIR}/../	
 		  COMMENT "Updating dgb from repositories" )
 
-    add_custom_target( update_all
+	if ( UNIX )
+	    # cmake bug: settings dependencies make its 
+	    # added to ALL build target, thus disabled on Windows
+            add_custom_target( update_all
 		  ${EXTERNALPLUGINSCMD}
+		  DEPENDS update update_dgb
 		  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
 		  COMMENT "Updating dgb externals from repositories" )
-
-    add_dependencies( update_all update update_dgb )
-endif()
+	endif()
+    endif()
 
 endif()
