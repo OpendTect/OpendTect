@@ -147,6 +147,8 @@ public:
     bool		getPars(IOPar&) const;
     bool		haveStats() const;
     bool		getStats(IOPar&) const;
+    bool		isAvailableIn(const TrcKeySampling&) const;
+
     RefMan<FloatDistrib> getDataDistribution() const;
 			//this may take some time, use uiUserShowWait or alike
 

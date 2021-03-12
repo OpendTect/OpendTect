@@ -513,6 +513,14 @@ bool SeisIOObjInfo::getPars( IOPar& iop ) const
 bool SeisIOObjInfo::getStats( IOPar& iop ) const
 { return getAux( sStatsFileExtension(), sKey::Stats(), iop ); }
 
+bool SeisIOObjInfo::isAvailableIn( const TrcKeySampling& tks ) const
+{
+    PosInfo::CubeData cd;
+    SeisTrcReader rdr( ioobj_ );
+    return rdr.prepareWork(Seis::Prod) && rdr.seisTranslator() &&
+	 rdr.get3DGeometryInfo(cd) && cd.totalSizeInside(tks) > 0;
+}
+
 
 RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
 {
