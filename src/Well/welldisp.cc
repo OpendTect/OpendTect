@@ -15,10 +15,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const char* sKeyTrackNmIsAbove = "Track Name Above";
 static const char* sKeyTrackNmIsBelow = "Track Name Below";
+static const char* sKeyTrackDynamicNmSize = "Track Dynamic Name Size";
 static const char* sKeyTrackNmSize = "Track Name Size";
 static const char* sKeyTrackNmFont = "Track Font";
 static const char* sKeyMarkerShape = "Marker Shape";
 static const char* sKeyMarkerCylinderHeight = "Cylinder Height";
+static const char* sKeyMarkerDynamicNmSize = "Marker Dynamic Name Size";
 static const char* sKeyMarkerNmSize = "Marker Name Size";
 static const char* sKeyMarkerNmFont = "Marker Name Font";
 static const char* sKeyMarkerNmColor = "Marker Name Color";
@@ -195,6 +197,8 @@ void Well::DisplayProperties::Track::doUsePar( const IOPar& par )
 {
     par.getYN( IOPar::compKey(subjectName(),sKeyTrackNmIsAbove), dispabove_ );
     par.getYN( IOPar::compKey(subjectName(),sKeyTrackNmIsBelow), dispbelow_ );
+    par.getYN( IOPar::compKey(subjectName(),sKeyTrackDynamicNmSize),
+	       nmsizedynamic_ );
 
     const FixedString fontdata =
 	par.find( IOPar::compKey(subjectName(),sKeyTrackNmFont ) );
@@ -215,6 +219,8 @@ void Well::DisplayProperties::Track::doFillPar( IOPar& par ) const
 {
     par.setYN( IOPar::compKey(subjectName(),sKeyTrackNmIsAbove), dispabove_ );
     par.setYN( IOPar::compKey(subjectName(),sKeyTrackNmIsBelow), dispbelow_ );
+    par.setYN( IOPar::compKey(subjectName(),sKeyTrackDynamicNmSize),
+	       nmsizedynamic_ );
     BufferString fontdata;
     font_.putTo( fontdata );
     par.set( IOPar::compKey(subjectName(),sKeyTrackNmFont), fontdata );
@@ -230,6 +236,8 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
     par.getYN( IOPar::compKey(subjectName(),sKeyMarkerNmSameColor), samenmcol_);
     par.get( IOPar::compKey(subjectName(),sKeyMarkerNmColor), nmcol_ );
     par.get( IOPar::compKey(subjectName(),sKeyMarkerSelected), selmarkernms_ );
+    par.getYN( IOPar::compKey(subjectName(),sKeyMarkerDynamicNmSize),
+	       nmsizedynamic_ );
 
     const FixedString fontdata =
 	par.find( IOPar::compKey(subjectName(),sKeyMarkerNmFont ) );
@@ -252,6 +260,8 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& par ) const
     par.set( IOPar::compKey(subjectName(),sKeyMarkerShape), shapeint_ );
     par.set( IOPar::compKey(subjectName(),sKeyMarkerCylinderHeight),
 	     cylinderheight_ );
+    par.setYN( IOPar::compKey(subjectName(),sKeyMarkerDynamicNmSize),
+	       nmsizedynamic_ );
     BufferString fontdata;
     font_.putTo( fontdata );
     par.set( IOPar::compKey(subjectName(),sKeyMarkerNmFont), fontdata );
