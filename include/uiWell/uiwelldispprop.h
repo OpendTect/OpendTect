@@ -158,6 +158,10 @@ public:
 			uiWellLogDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Log&,
 					const Well::LogSet* wl);
+			uiWellLogDispProperties(uiParent*,const Setup&,
+					Well::DisplayProperties::Log&,
+					const Well::Data*);
+			~uiWellLogDispProperties();
 
     Well::DisplayProperties::Log&	logprops()
 	{ return static_cast<Well::DisplayProperties::Log&>(*props_); }
@@ -211,7 +215,7 @@ protected:
 
     Interval<float>     valuerange_;
     Interval<float>     fillvaluerange_;
-    const Well::LogSet*  wl_;
+    const Well::LogSet*  wl_ = nullptr;
 
 };
 

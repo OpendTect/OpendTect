@@ -654,8 +654,7 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
     if ( !newlog )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
-    if ( newlog->valueRange().isUdf() || newlog->dahRange().isUdf() ||
-	!needjustinfo )
+    if ( !needjustinfo )
 	readLogData( *newlog, strm, bintype );
 
     if ( SI().zInFeet() && version<4.195 )

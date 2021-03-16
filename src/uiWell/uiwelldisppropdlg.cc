@@ -149,13 +149,13 @@ void uiWellDispPropDlg::init()
 
     uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[LeftLog],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2d), props.logs_[0]->left_, &(wd_->logs()) );
+	.onlyfor2ddisplay(is2d), props.logs_[0]->left_, wd_ );
     uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[CenterLog],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2d), props.logs_[0]->center(), &(wd_->logs()) );
+	.onlyfor2ddisplay(is2d), props.logs_[0]->center(), wd_ );
     uiWellLogDispProperties* wlp3 = new uiWellLogDispProperties( tgs[RightLog],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2d), props.logs_[0]->right_, &(wd_->logs()) );
+	.onlyfor2ddisplay(is2d), props.logs_[0]->right_, wd_ );
 
     propflds_ += wlp1;
     propflds_ += wlp2;
