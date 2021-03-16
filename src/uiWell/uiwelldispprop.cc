@@ -22,8 +22,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "uistrings.h"
 
+#include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
+
+#include "hiddenparam.h"
+
+HiddenParam<uiWellLogDispProperties,const Well::Data*>hp_wd_( nullptr );
 
 static int deflogwidth = 250;
 
@@ -342,9 +347,20 @@ void uiWellMarkersDispProperties::doGetFromScreen()
 uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
 				Well::DisplayProperties::Log& lp,
+				const Well::Data* wd)
+    : uiWellLogDispProperties(p,su,lp, wd ? &wd->logs() : nullptr)
+{
+    hp_wd_.setParam( this, wd );
+    refPtr( wd );
+}
+
+uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
+				const uiWellDispProperties::Setup& su,
+				Well::DisplayProperties::Log& lp,
 				const Well::LogSet* wl)
     : uiWellDispProperties(p,su,lp)
 {
+    hp_wd_.setParam( this, nullptr );
 
     stylefld_ = new uiCheckList( this, uiCheckList::OneOnly, OD::Horizontal );
     stylefld_->addItem( tr("Well log") )
@@ -487,6 +503,14 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 
     stylefld_->changed.notify(
 	mCB(this,uiWellLogDispProperties,isStyleChanged) );
+}
+
+
+uiWellLogDispProperties::~uiWellLogDispProperties()
+{
+    const Well::Data* wd = hp_wd_.getParam( this );
+    unRefPtr( wd );
+    hp_wd_.removeParam( this );
 }
 
 
@@ -803,6 +827,11 @@ void uiWellLogDispProperties::updateRange( CallBacker* )
 {
     const char* lognm = logsfld_->box()->textOfItem(
 			logsfld_->box()->currentItem() );
+
+    const Well::Data* wd = hp_wd_.getParam( this );
+    if ( wd )
+	wd->getLog( lognm );
+
     const int logno = wl_->indexOf( lognm );
     if ( logno<0 ) return;
 
@@ -815,6 +844,11 @@ void uiWellLogDispProperties::updateFillRange( CallBacker* )
 {
     const char* lognm = filllogsfld_->box()->textOfItem(
 			filllogsfld_->box()->currentItem() );
+
+    const Well::Data* wd = hp_wd_.getParam( this );
+    if ( wd )
+	wd->getLog( lognm );
+
     const int logno = wl_->indexOf( lognm );
     if ( logno<0 ) return;
 
