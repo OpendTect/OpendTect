@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "uistrings.h"
 
+#include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
 
@@ -342,6 +343,16 @@ void uiWellMarkersDispProperties::doGetFromScreen()
 uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
 				Well::DisplayProperties::Log& lp,
+				const Well::Data* wd)
+    : uiWellLogDispProperties(p,su,lp,wd ? &wd->logs() : nullptr)
+{
+    wd_ = wd;
+    refPtr( wd_ );
+}
+
+uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
+				const uiWellDispProperties::Setup& su,
+				Well::DisplayProperties::Log& lp,
 				const Well::LogSet* wl)
     : uiWellDispProperties(p,su,lp)
 {
@@ -600,6 +611,11 @@ void uiWellLogDispProperties::doGetFromScreen()
 }
 
 
+uiWellLogDispProperties::~uiWellLogDispProperties()
+{
+    unRefPtr( wd_ );
+}
+
 void uiWellLogDispProperties::isFilledSel( CallBacker* )
 {
     const bool iswelllogortube = !stylefld_->isChecked( 1 );
@@ -803,6 +819,9 @@ void uiWellLogDispProperties::updateRange( CallBacker* )
 {
     const char* lognm = logsfld_->box()->textOfItem(
 			logsfld_->box()->currentItem() );
+    if ( wd_ )
+	wd_->getLog( lognm );
+
     const int logno = wl_->indexOf( lognm );
     if ( logno<0 ) return;
 
@@ -815,6 +834,9 @@ void uiWellLogDispProperties::updateFillRange( CallBacker* )
 {
     const char* lognm = filllogsfld_->box()->textOfItem(
 			filllogsfld_->box()->currentItem() );
+    if ( wd_ )
+	wd_->getLog( lognm );
+
     const int logno = wl_->indexOf( lognm );
     if ( logno<0 ) return;
 
