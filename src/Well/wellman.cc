@@ -335,7 +335,7 @@ int Well::Man::gtByKey( const MultiID& key ) const
 {
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
-	if ( wells_[idx]->multiID() == key )
+	if ( wells_[idx] && wells_[idx]->multiID() == key )
 	    return idx;
     }
     return -1;
