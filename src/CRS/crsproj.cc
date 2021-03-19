@@ -381,7 +381,8 @@ Coord Coords::Proj4Projection::transformTo( const Coords::Projection& target,
 	return Coord::udf();
 
     Coord ret( ll.lng_ * mDeg2RadD, ll.lat_ * mDeg2RadD );
-    if ( pj_transform(srcproj4,targetproj4->proj_,1,1,&ret.x,&ret.y,NULL) ||
+    double dummyz = 0;
+    if ( pj_transform(srcproj4,targetproj4->proj_,1,1,&ret.x,&ret.y,&dummyz) ||
       ret.x == HUGE_VAL || ret.y == HUGE_VAL )
 	return Coord::udf();
 
@@ -400,7 +401,8 @@ LatLong Coords::Proj4Projection::transformTo( const Coords::Projection& target,
     if ( !targetproj4ll )
 	return LatLong::udf();
 
-    if ( pj_transform(proj_,targetproj4ll,1,1,&pos.x,&pos.y,NULL) ||
+    double dummyz = 0;
+    if ( pj_transform(proj_,targetproj4ll,1,1,&pos.x,&pos.y,&dummyz) ||
 			      pos.x == HUGE_VAL || pos.y == HUGE_VAL )
 	return LatLong::udf();
 
@@ -409,7 +411,7 @@ LatLong Coords::Proj4Projection::transformTo( const Coords::Projection& target,
 
 
 bool Coords::Proj4Projection::isOrthogonal() const
-{ return !isLatLong() && !defstr_.contains("geocent"); }
+{ return !isLatLong();	}
 
 
 
