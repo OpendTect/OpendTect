@@ -115,13 +115,6 @@ bool ODInst::canInstall( const char* dirnm )
 
 namespace ODInst {
 
-static OS::MachineCommand makeMachComm( const char* prog, const char* reldir )
-{
-    OS::MachineCommand mc( prog );
-    mc.addKeyedArg( "instdir", reldir );
-    return mc;
-}
-
 static OS::MachineCommand getFullMachComm( const char* reldir )
 {
     OS::MachineCommand mc;
@@ -144,7 +137,10 @@ static OS::MachineCommand getFullMachComm( const char* reldir )
 	}
     }
 
-    return makeMachComm( installerfp.fullPath(), reldir );
+    mc.setProgram( installerfp.fullPath() )
+      .addKeyedArg( "instdir", reldir );
+
+    return OS::MachineCommand( mc, true );
 }
 
 
@@ -160,7 +156,7 @@ static bool submitCommand( OS::MachineCommand& mc, const char* reldir )
 };
 
 #define mGetFullMachComm(reldir,errretstmt) \
-    OS::MachineCommand machcomm = getFullMachComm( reldir ); \
+    OS::MachineCommand machcomm( getFullMachComm( reldir ) ); \
     if ( machcomm.isBad() || !File::isExecutable(machcomm.program()) ) \
         errretstmt
 
