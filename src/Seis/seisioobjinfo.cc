@@ -539,6 +539,15 @@ bool SeisIOObjInfo::getPars( IOPar& iop ) const
 bool SeisIOObjInfo::getStats( IOPar& iop ) const
 { return getAux( sStatsFileExtension(), sKey::Stats(), iop ); }
 
+bool SeisIOObjInfo::isAvailableIn( const TrcKeySampling& tks ) const
+{
+    PtrMan<Seis::Provider> prov = Seis::Provider::create( *ioobj_ );
+    if ( !prov || prov->is2D() )
+	return false;
+
+    return prov->as3D()->possibleCubeData().totalSizeInside(tks) > 0;
+}
+
 
 RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
 {
