@@ -62,6 +62,7 @@ ________________________________________________________________________
 #define		mSetDataDirHelpID				0x00800001
 // Object-Management Selection 01
 #define		mIOObjSelDlgHelpID				0x00801001
+#define		mIOObjOutputSelDlgHelpID			0x00801002
 //Visualization 50
 // Visualization 3D 00
 #define		mSnapshotDlgHelpID				0x05000001
