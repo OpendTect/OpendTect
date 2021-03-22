@@ -135,10 +135,17 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 
 
 #define mConstructorInitListStart(c) \
-	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(c.forread_), \
-		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
+    uiIOObjRetDlg(p,uiDialog::Setup(selTxt(c.forread_), \
+		    mNoDlgTitle,getHelpKey(c.forread_)) \
 	    .nrstatusflds(1)) \
-    , selgrp_( 0 )
+    , selgrp_(nullptr)
+
+
+static HelpKey getHelpKey( bool forread )
+{
+    return forread ? mODHelpKey(mIOObjSelDlgHelpID)
+		   : mODHelpKey(mIOObjOutputSelDlgHelpID);
+}
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
