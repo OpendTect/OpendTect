@@ -25,7 +25,7 @@ ld_cleanup () {
 	inppaths="${addedpath}"
     fi
 
-    if [[ -z "${inppaths}" ]] || [[ -z "${DTECT_APPL}" ]]; then
+    if [[ -z "${inppaths}" ]]; then
 	return
     fi
 
@@ -33,7 +33,9 @@ ld_cleanup () {
     IFS=':' read -r -a ldpaths <<< "${inppaths}"
     for index in "${!ldpaths[@]}"
     do
-	if [[ "${ldpaths[index]}" != "${DTECT_APPL}"* ]]; then
+	if [[ "${ldpaths[index]}" != "${DTECT_APPL}"* ]] &&
+	   [[ ! -e "${ldpaths[index]}/libBasic.so" ]] &&
+	   ! compgen -G "${ldpaths[index]}/libQt*Core.so*" > /dev/null; then
 	    if [[ -n "${func_result}" ]]; then
 		export func_result="${func_result}":"${ldpaths[index]}"
 	    else
