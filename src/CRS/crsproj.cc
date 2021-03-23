@@ -10,15 +10,15 @@
 
 #include "crsproj.h"
 #include "od_iostream.h"
-#include "oddirs.h"
-#include "filepath.h"
 #include "bufstringset.h"
+#include "filepath.h"
+#include "oddirs.h"
 #include "separstr.h"
 #include "typeset.h"
 
 static FixedString sKeyUnitsArg()	{ return FixedString("+units="); }
-static FixedString sKeyEPSG()		{ return FixedString("EPSG"); }
 static FixedString sKeyToMeter()	{ return FixedString("+to_meter="); }
+static FixedString sKeyEPSG()		{ return FixedString("EPSG"); }
 
 static Coords::AuthorityCode cWGS84AuthCode()
 { return Coords::AuthorityCode(sKeyEPSG(),4326); }
@@ -41,6 +41,15 @@ BufferString Coords::AuthorityCode::toString() const
     FileMultiString ret( authority_ );
     ret.add( id_ );
     return BufferString( ret.buf() );
+}
+
+
+BufferString Coords::AuthorityCode::toURNString()
+{
+    BufferString urnstr = "urn:ogc:def:crs:";
+    urnstr.add( authority_ ); urnstr.add( "::" );
+    urnstr.add( id_ );
+    return urnstr;
 }
 
 

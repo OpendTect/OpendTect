@@ -115,7 +115,7 @@ public:
 			const MultiID&,BufferStringSet&, bool forceLoad=false);
     mDeprecated("Use getAllMarkerNames instead") static bool getMarkerNames(
 							    BufferStringSet&);
-
+    Coord		getMapLocation(const MultiID&) const;
     static void		dumpMgrInfo(IOPar&);
 
 protected:

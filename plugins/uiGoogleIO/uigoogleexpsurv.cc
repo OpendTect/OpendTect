@@ -10,7 +10,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "googlexmlwriter.h"
 #include "uisurvey.h"
 #include "uisellinest.h"
+#include "uigeninput.h"
 #include "uifileinput.h"
+#include "uifiledlg.h"
 #include "uimsg.h"
 #include "oddirs.h"
 #include "strmprov.h"
@@ -19,15 +21,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 #include "od_helpids.h"
 
+#include "geojsonwriter.h"
+
+#include "uiseparator.h"
+#include "uigoogleexpdlg.h"
+
+#include "uiparent.h"
+
 #include <iostream>
 
 
-uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
-    : uiDialog(uisurv,
-       uiDialog::Setup(uiStrings::phrExport( tr("Survey boundaries to KML")),
+uiGISExportSurvey::uiGISExportSurvey( uiParent* p, SurveyInfo* si )
+    : uiDialog(p,
+       uiDialog::Setup(uiStrings::phrExport( tr("Survey boundaries to GIS")),
 		      tr("Specify output parameters"),
 		      mODHelpKey(mGoogleExportSurveyHelpID) ) )
-    , si_(uisurv->curSurvInfo())
+    , si_(si)
 {
     const OD::LineStyle ls( OD::LineStyle::Solid, 20,
 						    OD::Color(255,170,80,100) );
@@ -36,38 +45,53 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
 
     hghtfld_ = new uiGenInput( this, tr("Border height"), FloatInpSpec(500) );
     hghtfld_->attach( alignedBelow, lsfld_ );
-
-    FilePath deffp( GetBaseDataDir(), si_->getDirName() );
-    deffp.add( "survbounds" ).setExtension( "kml" );
-    uiFileInput::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() );
-    fiinpsu.forread( false ).filter( "*.kml" );
-    fnmfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::sFile()),
-				fiinpsu );
-    fnmfld_->attach( alignedBelow, hghtfld_ );
+    auto* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, hghtfld_ );
+    BufferString flnm = "SurveyBoudaryFor_";
+    flnm.add( SI().diskLocation().dirName() );
+	expfld_ = new uiGISExpStdFld( this, flnm );
+    expfld_->attach( stretchedBelow, sep );
+    expfld_->attach( leftAlignedBelow, hghtfld_ );
 }
 
 
-uiGoogleExportSurvey::~uiGoogleExportSurvey()
+uiGISExportSurvey::~uiGISExportSurvey()
 {
 }
 
 
-bool uiGoogleExportSurvey::acceptOK( CallBacker* )
+bool uiGISExportSurvey::acceptOK( CallBacker* )
 {
-    mCreateWriter( "Survey area", si_->name() );
+    if ( !si_ )
+	return false;
 
-    const StepInterval<int> inlrg = si_->inlRange( false );
-    const StepInterval<int> crlrg = si_->crlRange( false );
-    TypeSet<Coord> coords;
-    coords += si_->transform(BinID(inlrg.start,crlrg.start));
-    coords += si_->transform(BinID(inlrg.start,crlrg.stop));
-    coords += si_->transform(BinID(inlrg.stop,crlrg.stop));
-    coords += si_->transform(BinID(inlrg.stop,crlrg.start));
-    coords += si_->transform(BinID(inlrg.start,crlrg.start));
+    const auto inlrg = si_->inlRange();
+    const auto crlrg = si_->crlRange();
+    TypeSet<Coord3> coords;
+    coords += Coord3( si_->transform(BinID(inlrg.start,crlrg.start)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.start,crlrg.stop)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.stop,crlrg.stop)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.stop,crlrg.start)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.start,crlrg.start)), 4 );
 
-    const float reqwdth = lsfld_->getWidth() * 0.1f;
-    wrr.writePolyStyle( "survey", lsfld_->getColor(), mNINT32(reqwdth) );
-    wrr.writePoly( "survey", si_->name(), coords, hghtfld_->getFValue(), si_ );
+    PtrMan<GISWriter> wrr = expfld_->createWriter();
+    if ( !wrr )
+	return false;
 
-    return true;
+    GISWriter::Property props;
+    props.color_ = lsfld_->getColor();
+    props.width_ = mNINT32( lsfld_->getWidth() * 0.1f );
+    props.stlnm_ = "survey";
+    props.nmkeystr_ = "SURVEY_ID";
+    //wrr->setProperties( props );
+    if ( !wrr->writePolygon(coords,si_->name()) )
+    {
+	uiMSG().error( wrr->errMsg() );
+	return false;
+    }
+
+    wrr->close();
+    const bool ret = uiMSG().askGoOn( wrr->successMsg() );
+
+    return !ret;
 }

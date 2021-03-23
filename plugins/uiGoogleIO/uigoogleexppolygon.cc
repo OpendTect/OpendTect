@@ -4,57 +4,93 @@
  * DATE     : Nov 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigoogleexppolygon.h"
+
 #include "googlexmlwriter.h"
-#include "uisellinest.h"
-#include "uifileinput.h"
-#include "uimsg.h"
+#include "ioman.h"
+#include "latlong.h"
 #include "oddirs.h"
+#include "od_helpids.h"
+#include "pickset.h"
+#include "picksettr.h"
 #include "strmprov.h"
 #include "survinfo.h"
-#include "latlong.h"
-#include "pickset.h"
-#include "draw.h"
-#include "od_helpids.h"
+
+#include "uisellinest.h"
+#include "uigeninput.h"
+#include "uifileinput.h"
+#include "uiioobjselgrp.h"
+#include "uimsg.h"
+#include "uiseparator.h"
 
 #include <iostream>
 
 
-uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Polygon to KML")),
+uiGISExportPolygon::uiGISExportPolygon( uiParent* p, const MultiID& mid )
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Polygon to GIS")),
 				 tr("Specify output parameters"),
                                  mODHelpKey(mGoogleExportPolygonHelpID) ) )
-    , ps_(ps)
 {
-    OD::Color defcol( ps_.disp_.color_ );
-    defcol.setTransparency( 150 );
-    const OD::LineStyle ls( OD::LineStyle::Solid, 20, defcol );
-    uiSelLineStyle::Setup lssu; lssu.drawstyle( false ).transparency( true );
-    lsfld_ = new uiSelLineStyle( this, ls, lssu );
+    uiIOObjSelGrp::Setup su;
+    su.choicemode_ = OD::ChooseZeroOrMore;
+    selfld_ = new uiIOObjSelGrp( this, mIOObjContext(PickSet),
+						uiStrings::sSelect(), su );
 
-    hghtfld_ = new uiGenInput( this, tr("Height"), FloatInpSpec(100) );
-    hghtfld_->attach( alignedBelow, lsfld_ );
-
-    mImplFileNameFld(ps.name());
-    fnmfld_->attach( alignedBelow, hghtfld_ );
+    auto* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, selfld_ );
+    expfld_ = new uiGISExpStdFld( this, "pickpoly" );
+    expfld_->attach( stretchedBelow, sep );
+    expfld_->attach( leftAlignedBelow, selfld_ );
 }
 
-
-
-bool uiGoogleExportPolygon::acceptOK( CallBacker* )
+bool uiGISExportPolygon::acceptOK( CallBacker* )
 {
-    mCreateWriter( "Polygon", SI().name() );
+    TypeSet<MultiID> objids;
+    selfld_->getChosen( objids );
+    if ( objids.isEmpty() )
+    {
+	uiMSG().error(
+		    uiStrings::phrPlsSelectAtLeastOne(uiStrings::sObject()) );
+	return false;
+    }
 
-    TypeSet<Coord> coords;
-    for ( int idx=0; idx<ps_.size(); idx++ )
-	coords += ps_[idx].pos_;
-    coords += ps_[0].pos_;
+    Pick::Set pickset;
+    BufferString errmsg;
+    PtrMan<GISWriter> wrr = expfld_->createWriter();
+    if ( !wrr )
+	return false; // Put some error message here
 
-    const float reqwdth = lsfld_->getWidth() * 0.1f;
-    wrr.writePolyStyle( "polygon", lsfld_->getColor(), mNINT32(reqwdth) );
-    wrr.writePoly( "polygon", ps_.name(), coords, hghtfld_->getFValue() );
+    ObjectSet<const Pick::Set> picks;
+    for ( auto objid : objids )
+    {
+	pickset.setEmpty();
+	if ( !PickSetTranslator::retrieve(
+					pickset,IOM().get(objid),true,errmsg) )
+	    continue;
 
-    return true;
+	if ( pickset.isPolygon() )
+	{
+	    TypeSet<Coord3> coords;
+	    ObjectSet<const Pick::Location> locs;
+	    pickset.getLocations( locs );
+	    if ( locs.isEmpty() )
+		continue;
+
+	    for ( auto loc : locs )
+		coords += loc->pos();
+
+	    coords += pickset.first().pos();
+	    wrr->writePolygon( coords, pickset.getName() );
+	}
+	else
+	    picks.add( new Pick::Set(pickset) );
+    }
+
+    if ( !pickset.isPolygon() )
+	wrr->writePoint( picks );
+
+    wrr->close();
+    const bool ret = uiMSG().askGoOn( wrr->successMsg() );
+    return !ret;
 }

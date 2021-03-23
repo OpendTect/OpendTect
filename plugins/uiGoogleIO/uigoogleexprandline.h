@@ -17,20 +17,19 @@ mClass(uiGoogleIO) uiGoogleExportRandomLine : public uiDialog
 public:
 
 			uiGoogleExportRandomLine(uiParent*,
-					const TypeSet<Coord>&,const char*);
+			    const TypeSet<Coord>* crd=nullptr,
+			    const char*nm=nullptr);
+			~uiGoogleExportRandomLine();
 
 protected:
 
-    const TypeSet<Coord>& crds_;
+    const TypeSet<Coord>* crds_;
 
     uiGenInput*		putlnmfld_;
     uiGenInput*		lnmfld_;
     uiSelLineStyle*	lsfld_;
-
-			mDecluiGoogleExpStd;
+    uiGISExpStdFld*	expfld_;
 
     void		putSel(CallBacker*);
-
+    bool		acceptOK(CallBacker*);
 };
-
-

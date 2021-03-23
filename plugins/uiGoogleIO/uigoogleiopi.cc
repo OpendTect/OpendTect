@@ -8,7 +8,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uigoogleiomod.h"
-#include "uigoogleexppointset.h"
 #include "uigoogleexppolygon.h"
 #include "uigoogleexprandline.h"
 #include "uigoogleexpsurv.h"
@@ -21,6 +20,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
+#include "uipicksetman.h"
+#include "uirandomlineman.h"
 #include "uiseis2dfileman.h"
 #include "uisurvey.h"
 #include "uitoolbutton.h"
@@ -29,6 +30,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwellman.h"
 #include "vispicksetdisplay.h"
 #include "visrandomtrackdisplay.h"
+#include "viswelldisplay.h"
+#include "wellman.h"
 
 #include "coordsystem.h"
 #include "odplugin.h"
@@ -37,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static const int cPSMnuIdx = -995;
 static const int cRLMnuIdx = -995;
+static const int cWLMnuIdx = -995;
 
 
 mDefODPluginInfo(uiGoogleIO)
@@ -65,19 +69,26 @@ private:
     uiSeis2DFileMan*	cur2dfm_ = nullptr;
     uiVisMenuItemHandler psmnuitmhandler_;
     uiVisMenuItemHandler rlmnuitmhandler_;
+    uiVisMenuItemHandler wlmnuitmhandler_;
 
     void		exportSurv(CallBacker*);
     void		exportWells(CallBacker*);
     void		exportLines(CallBacker*);
-    void		exportPolygon(CallBacker*);
+    void		exportPointPolygon(CallBacker*);
+    void		expManPointPoly(CallBacker*);
     void		exportRandLine(CallBacker*);
+    void		expManRandomLine(CallBacker*);
+    void		exportWell(CallBacker*);
     void		mkExportWellsIcon(CallBacker*);
+    void		mkExportPointPolyIcon(CallBacker*);
+    void		mkExportRandomLine(CallBacker*);
     void		mkExportLinesIcon(CallBacker*);
 
     static uiString	sToolTipTxt()
 			{ return tr("Export to Google KML"); }
     static uiString	sMenuTxt()
 			{ return m3Dots(sToolTipTxt()); }
+    static BufferString strIcon()   { return BufferString( "google" ); }
 };
 
 
@@ -85,20 +96,28 @@ uiGoogleIOMgr::uiGoogleIOMgr()
     : uiPluginInitMgr()
     , psmnuitmhandler_( visSurvey::PickSetDisplay::sFactoryKeyword(),
 			*appl().applMgr().visServer(), sMenuTxt(),
-			mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
+			mCB(this,uiGoogleIOMgr,exportPointPolygon),0,cPSMnuIdx)
     , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::sFactoryKeyword(),
 			*appl().applMgr().visServer(),sMenuTxt(),
 			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
+    , wlmnuitmhandler_(visSurvey::WellDisplay::sFactoryKeyword(),
+			*appl().applMgr().visServer(),sMenuTxt(),
+			mCB(this,uiGoogleIOMgr,exportWell),0,cWLMnuIdx)
 {
     init();
-    psmnuitmhandler_.setIcon( "google" );
-    rlmnuitmhandler_.setIcon( "google" );
-    uiSurvey::add( uiSurvey::Util( "google",
-				   tr("Export to Google Earth/Maps"),
+    psmnuitmhandler_.setIcon( strIcon() );
+    rlmnuitmhandler_.setIcon( strIcon() );
+    wlmnuitmhandler_.setIcon( strIcon() );
+    uiSurvey::add( uiSurvey::Util( strIcon(),
+				   tr("Export to GIS Format"),
 				   mCB(this,uiGoogleIOMgr,exportSurv) ) );
-    mAttachCB( uiWellMan::instanceCreated(), uiGoogleIOMgr::mkExportWellsIcon );
-    mAttachCB( uiSeis2DFileMan::instanceCreated(),
-	       uiGoogleIOMgr::mkExportLinesIcon );
+    mAttachCB(uiWellMan::instanceCreated(),uiGoogleIOMgr::mkExportWellsIcon);
+    mAttachCB(uiPickSetMan::instanceCreated(),
+					uiGoogleIOMgr::mkExportPointPolyIcon);
+    mAttachCB(uiSeis2DFileMan::instanceCreated(),
+					    uiGoogleIOMgr::mkExportLinesIcon);
+    mAttachCB(uiRandomLineMan::instanceCreated(),
+					    uiGoogleIOMgr::mkExportRandomLine);
 }
 
 
@@ -120,7 +139,7 @@ void uiGoogleIOMgr::exportSurv( CallBacker* cb )
     if ( !si || !mEnsureTransformOK(uisurv,si) )
 	return;
 
-    uiGoogleExportSurvey dlg( uisurv );
+    uiGISExportSurvey dlg( &appl_, uisurv->curSurvInfo() );
     dlg.go();
 }
 
@@ -128,21 +147,43 @@ void uiGoogleIOMgr::exportSurv( CallBacker* cb )
 void uiGoogleIOMgr::mkExportWellsIcon( CallBacker* cb )
 {
     mDynamicCastGet(uiWellMan*,wm,cb)
-    if ( !wm ) return;
+    if ( !wm )
+	return;
 
-    new uiToolButton( wm->extraButtonGroup(), "google",
+    new uiToolButton( wm->extraButtonGroup(), strIcon(),
 		      sToolTipTxt(),
 		      mCB(this,uiGoogleIOMgr,exportWells) );
+}
+
+
+void uiGoogleIOMgr::mkExportPointPolyIcon( CallBacker* cb )
+{
+    mDynamicCastGet(uiPickSetMan*,picksetman,cb)
+    if ( !picksetman )
+	return;
+
+    new uiToolButton( picksetman->extraButtonGroup(), strIcon(), sToolTipTxt(),
+	mCB(this,uiGoogleIOMgr,expManPointPoly) );
+}
+
+void uiGoogleIOMgr::mkExportRandomLine( CallBacker* cb )
+{
+    mDynamicCastGet(uiRandomLineMan*,rlman,cb)
+    if ( !rlman )
+	return;
+
+    new uiToolButton( rlman->extraButtonGroup(), strIcon(), sToolTipTxt(),
+			mCB(this,uiGoogleIOMgr,expManRandomLine) );
 }
 
 
 void uiGoogleIOMgr::exportWells( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,tb,cb)
-    if ( !tb || !mEnsureTransformOK(tb->mainwin(),0) )
+    if ( !tb || !mEnsureTransformOK(tb->mainwin(),nullptr) )
 	return;
 
-    uiGoogleExportWells dlg( tb->mainwin() );
+    uiGISExportWells dlg( tb->mainwin() );
     dlg.go();
 }
 
@@ -151,9 +192,10 @@ void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
 {
     mDynamicCastGet(uiSeis2DFileMan*,fm,cb)
     cur2dfm_ = fm;
-    if ( !cur2dfm_ ) return;
+    if ( !cur2dfm_ )
+	return;
 
-    fm->getButGroup(false)->addButton( "google",
+    fm->getButGroup(false)->addButton( strIcon(),
 			tr("Export selected lines to Google KML"),
 			mCB(this,uiGoogleIOMgr,exportLines) );
 }
@@ -161,40 +203,54 @@ void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
 
 void uiGoogleIOMgr::exportLines( CallBacker* cb )
 {
-    if ( !cur2dfm_ || !mEnsureTransformOK(cur2dfm_,0) )
+    if ( !cur2dfm_ || !mEnsureTransformOK(cur2dfm_,nullptr) )
 	return;
 
-    uiGoogleExport2DSeis dlg( cur2dfm_ );
+    uiGISExport2DSeis dlg( cur2dfm_ );
     dlg.go();
 }
 
 
-void uiGoogleIOMgr::exportPolygon( CallBacker* cb )
+void uiGoogleIOMgr::expManPointPoly( CallBacker* cb )
+{
+    mDynamicCastGet(uiToolButton*,tb,cb)
+    if ( !tb || !mEnsureTransformOK(tb->mainwin(),nullptr) )
+	return;
+
+    uiGISExportPolygon dlg( tb->mainwin() );
+    dlg.go();
+}
+
+
+void uiGoogleIOMgr::expManRandomLine( CallBacker* cb )
+{
+    mDynamicCastGet(uiToolButton*,tb,cb)
+    if ( !tb || !mEnsureTransformOK(tb->mainwin(),nullptr) )
+	return;
+
+    uiGoogleExportRandomLine dlg( tb->mainwin() );
+    dlg.go();
+}
+
+
+void uiGoogleIOMgr::exportPointPolygon( CallBacker* cb )
 {
     const int displayid = psmnuitmhandler_.getDisplayID();
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    appl_.applMgr().visServer()->getObject(displayid))
-    if ( !psd || !psd->getSet() ) return;
+    if ( !psd || !psd->getSet() )
+	return;
+
     const Pick::Set& ps = *psd->getSet();
-    if ( ps.disp_.connect_ == Pick::Set::Disp::None )
-    {
-	if ( !mEnsureTransformOK(&appl_,0) )
-	    return;
 
-	uiGoogleExportPointSet dlg( &appl_, ps );
-	dlg.go();
-    }
-    else
-    {
-	if ( ps.size() < 3 )
-	    { uiMSG().error(tr("Polygon needs at least 3 points")); return; }
+    if ( ps.size() < 3 )
+	{ uiMSG().error(tr("Polygon needs at least 3 points")); return; }
 
-	if ( !mEnsureTransformOK(&appl_,0) )
-	    return;
+    if ( !mEnsureTransformOK(&appl_,0) )
+	return;
 
-	uiGoogleExportPolygon dlg( &appl_, ps );
-	dlg.go();
-    }
+    uiGISExportPolygon dlg( &appl_ );
+    dlg.go();
 }
 
 
@@ -203,9 +259,14 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
     const int displayid = rlmnuitmhandler_.getDisplayID();
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    appl_.applMgr().visServer()->getObject(displayid))
-    if ( !rtd ) return;
+    if ( !rtd )
+	return;
+
     if ( rtd->nrNodes() < 2 )
-	{ uiMSG().error(tr("Need at least 2 points")); return; }
+    {
+	uiMSG().error( tr("Need at least 2 points") );
+	return;
+    }
 
     TypeSet<BinID> knots;
     rtd->getAllNodePos( knots );
@@ -217,7 +278,21 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
     for ( int idx=0; idx<knots.size(); idx++ )
 	crds += SI().transform( knots[idx] );
 
-    uiGoogleExportRandomLine dlg( &appl_, crds, rtd->name() );
+    uiGoogleExportRandomLine dlg( &appl_, &crds, rtd->name() );
+    dlg.go();
+}
+
+
+void uiGoogleIOMgr::exportWell( CallBacker* cb )
+{
+    const int displayid = wlmnuitmhandler_.getDisplayID();
+    mDynamicCastGet(visSurvey::WellDisplay*,wld,
+		    appl_.applMgr().visServer()->getObject(displayid))
+    if ( !wld )
+	return;
+
+
+   uiGISExportWells dlg( &appl_, wld->getMultiID() );
     dlg.go();
 }
 

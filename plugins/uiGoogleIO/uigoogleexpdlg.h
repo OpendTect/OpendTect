@@ -7,31 +7,31 @@
 -*/
 
 #include "uidialog.h"
-#include "filepath.h"
-class uiFileInput;
+#include "uifileinput.h"
+#include "uigeninput.h"
+#include "giswriter.h"
+#include "geojsonwriter.h"
+#include "uigroup.h"
+#include "uicoordsystem.h"
 
-#define mDecluiGoogleExpStd \
-    uiFileInput*	fnmfld_; \
-    bool		acceptOK(CallBacker*)
+class SurveyInfo;
+class uiSurveyManager;
 
-#define mImplFileNameFld(nm) \
-    BufferString deffnm( nm ); \
-    deffnm.clean( BufferString::AllowDots ); \
-    FilePath deffp( GetDataDir() ); deffp.add( deffnm ).setExtension( "kml" ); \
-    uiFileInput::Setup fiinpsu( uiFileDialog::Gen, deffp.fullPath() ); \
-    fiinpsu.forread( false ).filter( "*.kml" ); \
-    fnmfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::sFile()),\
-				 fiinpsu )
+mClass(uiGoogleIO) uiGISExpStdFld : public uiGroup
+{ mODTextTranslationClass(uiGISExpStdFld)
+public:
+			    uiGISExpStdFld(uiParent*,BufferString typnm);
+			    ~uiGISExpStdFld();
 
+    GISWriter*			createWriter() const;
 
-#define mCreateWriter(typ,survnm) \
-    const BufferString fnm( fnmfld_->fileName() ); \
-    if ( fnm.isEmpty() ) \
-	{ uiMSG().error(tr("please enter the output file name")); \
-	    return false; } \
- \
-    ODGoogle::XMLWriter wrr( typ, fnm, survnm ); \
-    if ( !wrr.isOK() ) \
-	{ uiMSG().error(wrr.errMsg()); return false; }
+protected:
+
+    void			expTypChng(CallBacker*);
+
+    uiFileInput*		fnmfld_;
+    uiGenInput*			exptyp_;
+    Coords::uiCoordSystemSel*	coordsysselfld_;
 
 
+};

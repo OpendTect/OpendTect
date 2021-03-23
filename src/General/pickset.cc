@@ -789,6 +789,7 @@ bool Set::usePar( const IOPar& par )
     useDisplayPars( par );
     TypeSet<int> startidx;
     par.get( sKeyStartIdx(), startidx );
+    startidxs_.setEmpty();
     if ( startidx.isEmpty() )
 	startidxs_ += 0;
     else

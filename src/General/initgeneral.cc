@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include "simpletimedepthmodel.h"
 #include "survgeometrytransl.h"
 #include "batchjobdispatch.h"
+#include "googlexmlwriter.h"
+#include "geojsonwriter.h"
 
 
 mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc)
@@ -68,6 +70,9 @@ mDefModInitFn(General)
     odSimpleTimeDepthModelTranslator::initClass();
     SimpleT2DTransform::initClass();
     SimpleD2TTransform::initClass();
+
+    GeoJSONWriter::initClass();
+    ODGoogle::KMLWriter::initClass();
 
     IOM(); //Trigger creation & reading of geometries
 }

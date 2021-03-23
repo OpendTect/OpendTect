@@ -59,6 +59,8 @@ public:
 
     virtual bool		geographicTransformOK() const		= 0;
 
+    virtual BufferString	getURNString() const = 0;
+
     static Coord		convert(const Coord&,const CoordSystem& from,
 					const CoordSystem& to);
     Coord			convertFrom(const Coord&,
@@ -106,26 +108,27 @@ public:
 
 			UnlocatedXY();
 
-    virtual CoordSystem*	clone() const;
-    virtual uiString	description() const { return
-			   tr("Coordinate system in an undefined projection.");}
-    virtual BufferString summary() const
-				{ return sFactoryKeyword(); }
+    CoordSystem*	clone() const override;
+    uiString	description() const override
+		{ return tr("Coordinate system in an undefined projection.");}
+    BufferString summary() const override { return sFactoryKeyword(); }
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
     bool		geographicTransformOK() const	{ return false; }
 
-    virtual bool	isOK() const		{ return true; }
-    virtual bool	isOrthogonal() const	{ return true; }
-    virtual bool	isFeet() const		{ return isfeet_; }
-    virtual bool	isMeter() const		{ return !isfeet_; }
+    bool		isOK() const override		{ return true; }
+    bool		isOrthogonal() const override	{ return true; }
+    bool		isFeet() const override		{ return isfeet_; }
+    bool		isMeter() const override	{ return !isfeet_; }
+    BufferString	getURNString() const override
+					    { return BufferString::empty(); }
 
 private:
 
-    virtual LatLong	toGeographic(const Coord&,bool wgs84) const;
-    virtual Coord	fromGeographic(const LatLong&,bool wgs84) const;
-    virtual bool	doUsePar(const IOPar&);
-    virtual void	doFillPar(IOPar&) const;
+    LatLong	toGeographic(const Coord&,bool wgs84) const override;
+    Coord	fromGeographic(const LatLong&,bool wgs84) const override;
+    bool	doUsePar(const IOPar&) override;
+    void	doFillPar(IOPar&) const override;
 
     bool		isfeet_;
 };
@@ -139,35 +142,38 @@ public:
 
 			AnchorBasedXY();
 			AnchorBasedXY(const LatLong&,const Coord&);
-    virtual CoordSystem* clone() const;
-    virtual uiString	description() const { return
-				tr("Coordinate system has an anchor point "
+    CoordSystem* clone() const override;
+    uiString	description() const override
+		    { return tr("Coordinate system has an anchor point "
 				    "for which Latitude/Longitude is known");}
-    virtual BufferString summary() const;
+    BufferString	summary() const override;
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
     bool		geographicTransformOK() const;
     void		setLatLongEstimate(const LatLong&,const Coord&);
 
-    virtual bool	isOK() const		{ return true; }
-    virtual bool	isOrthogonal() const	{ return true; }
-    virtual bool	isFeet() const		{ return isfeet_; }
-    virtual bool	isMeter() const		{ return !isfeet_; }
+    bool		isOK() const override		{ return true; }
+    bool		isOrthogonal() const override	{ return true; }
+    bool		isFeet() const override		{ return isfeet_; }
+    bool		isMeter() const override	{ return !isfeet_; }
 
     const Coord&	refCoord() const { return refcoord_; }
     const LatLong&	refLatLong() const { return reflatlng_; }
+    BufferString	getURNString() const override
+					    { return BufferString::empty(); }
 
 private:
 
-    virtual LatLong	toGeographic(const Coord&,bool wgs84) const;
+    LatLong		toGeographic(const Coord&,bool wgs84) const override;
 			//!<Very approximate! Be Aware!
-    virtual Coord	fromGeographic(const LatLong&,bool wgs84) const;
+    Coord		fromGeographic(
+				    const LatLong&,bool wgs84) const override;
 
-    bool		isfeet_;
-    Coord		refcoord_;
-    LatLong		reflatlng_;
+    bool		isfeet_		= false;
+    Coord		refcoord_	= Coord::udf();
+    LatLong		reflatlng_	= LatLong::udf();
 
-    double		lngdist_;
+    double		lngdist_	= mUdf(double);
 
     virtual bool	doUsePar(const IOPar&);
     virtual void	doFillPar(IOPar&) const;

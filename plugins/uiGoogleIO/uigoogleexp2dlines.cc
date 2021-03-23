@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigoogleexp2dlines.h"
 #include "googlexmlwriter.h"
+#include "uigeninput.h"
 #include "uifileinput.h"
 #include "uilistbox.h"
 #include "uisellinest.h"
@@ -27,12 +28,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bendpointfinder.h"
 #include "latlong.h"
 #include "od_helpids.h"
+#include "uiseparator.h"
 
 #include <iostream>
 
-uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
+uiGISExport2DSeis::uiGISExport2DSeis( uiSeis2DFileMan* p )
     : uiDialog(p,uiDialog::Setup(
-		uiStrings::phrExport( tr("selected 2D seismics to KML") ),
+		uiStrings::phrExport( tr("selected 2D seismics to GIS") ),
 		tr("Specify how to export"),
 		mODHelpKey (mGoogleExport2DSeisHelpID) ) )
     , s2dfm_(p)
@@ -60,17 +62,21 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, putlnmfld_ );
 
-    mImplFileNameFld(s2dfm_->name());
-    fnmfld_->attach( alignedBelow, lsfld_ );
+    auto* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, lsfld_ );
+    BufferString flnm = "2DLines";
+    expfld_ = new uiGISExpStdFld( this, flnm );
+    expfld_->attach( stretchedBelow, sep );
+    expfld_->attach( leftAlignedBelow, lsfld_ );
 }
 
 
-uiGoogleExport2DSeis::~uiGoogleExport2DSeis()
+uiGISExport2DSeis::~uiGISExport2DSeis()
 {
 }
 
 
-void uiGoogleExport2DSeis::getFinalSelectedLineNames()
+void uiGISExport2DSeis::getFinalSelectedLineNames()
 {
     if ( !allsel_ )
 	allsel_ = putallfld_ ? putallfld_->getBoolValue() : false;
@@ -84,7 +90,7 @@ void uiGoogleExport2DSeis::getFinalSelectedLineNames()
 }
 
 
-void uiGoogleExport2DSeis::getInitialSelectedLineNames()
+void uiGISExport2DSeis::getInitialSelectedLineNames()
 {
     const uiListBox& lb( *s2dfm_->getListBox(false) );
     sellnms_.erase();
@@ -99,44 +105,51 @@ void uiGoogleExport2DSeis::getInitialSelectedLineNames()
 }
 
 
-bool uiGoogleExport2DSeis::acceptOK( CallBacker* )
+bool uiGISExport2DSeis::acceptOK( CallBacker* )
 {
-    mCreateWriter( s2dfm_->name(), SI().name() );
-
-    BufferString ins( "\t\t<LineStyle>\n\t\t\t<color>" );
-    ins += lsfld_->getColor().getStdStr(false,-1);
-    ins += "</color>\n\t\t\t<width>";
-    ins += lsfld_->getWidth() * .1;
-    ins += "</width>\n\t\t</LineStyle>";
-    wrr.writeIconStyles( 0, 0, ins );
-
     getFinalSelectedLineNames();
-    for ( int idx=0; idx<sellnms_.size(); idx++ )
-	addLine( wrr, sellnms_.get(idx) );
+    PtrMan<GISWriter> wrr = expfld_->createWriter();
+    if (!wrr)
+	return false;
 
-    wrr.close();
-    return true;
+    GISWriter::Property props;
+    props.color_ = lsfld_->getColor();
+    props.width_ = lsfld_->getWidth() * .1;
+    props.nmkeystr_ = "Line_No";
+    //wrr->setProperties( props );
+    ObjectSet<const Pick::Set> picks;
+    TypeSet<Coord> coords;
+    for ( int idx=0; idx<sellnms_.size(); idx++ )
+	getCoordsForLine( picks, sellnms_.get(idx) );
+
+    if ( !wrr->writeLine(picks) )
+    {
+	uiMSG().error( wrr->errMsg() );
+	return false;
+    }
+
+    wrr->close();
+    const bool ret = uiMSG().askGoOn( wrr->successMsg() );
+    return !ret;
 }
 
 
-void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm )
+void uiGISExport2DSeis::getCoordsForLine( pickset& picks, const char* lnm )
 {
     const Seis2DDataSet& dset( *s2dfm_->dataset_ );
     const int iln = dset.indexOf( lnm );
-    const Survey::Geometry* geom = Survey::GM().getGeometry( lnm );
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
-    if ( iln < 0 || !geom2d )
+    if ( iln < 0 )
 	return;
+
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+						Survey::GM().getGeometry(lnm));
+    if ( !geom2d || geom2d->isEmpty() )
+	return;
+
     PosInfo::Line2DData l2dd = geom2d->data();
     const int nrposns = l2dd.positions().size();
     if ( nrposns < 2 )
 	return;
-
-    const int lnmchoice = putlnmfld_->getIntValue();
-    if ( lnmchoice != 0 && lnmchoice < 3 )
-	wrr.writePlaceMark( 0, l2dd.positions()[0].coord_, lnm );
-    if ( lnmchoice == 1 || lnmchoice == 3 )
-	wrr.writePlaceMark( 0, l2dd.positions()[nrposns-1].coord_, lnm );
 
     TypeSet<Coord> crds;
     for ( int idx=0; idx<nrposns; idx++ )
@@ -145,9 +158,14 @@ void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm )
     BendPointFinder2D bpf( crds, 1 );
     bpf.execute();
 
-    TypeSet<Coord> plotcrds;
-    for ( int idx=0; idx<bpf.bendPoints().size(); idx++ )
-	plotcrds += crds[ bpf.bendPoints()[idx] ];
+    auto* pick = new Pick::Set( lnm );
 
-    wrr.writeLine( 0, plotcrds, lnm );
+    for ( int idx=0; idx<bpf.bendPoints().size(); idx++ )
+    {
+	const Coord coord = crds[bpf.bendPoints()[idx]];
+	Pick::Location loc( coord );
+	pick->add( loc );
+    }
+
+    picks.add( pick );
 }

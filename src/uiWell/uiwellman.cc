@@ -64,7 +64,7 @@ uiWellMan::uiWellMan( uiParent* p )
     , csbut_(0)
     , iswritable_(true)
 {
-    createDefaultUI( false, true, true );
+    createDefaultUI();
     setPrefWidth( 50 );
 
     if ( SI().zIsTime() )

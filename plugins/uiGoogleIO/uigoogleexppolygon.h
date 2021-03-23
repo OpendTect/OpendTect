@@ -7,26 +7,24 @@
 -*/
 
 #include "uigoogleexpdlg.h"
+
 class uiGenInput;
 class uiSelLineStyle;
+class uiIOObjSelGrp;
 namespace Pick { class Set; }
 
 
-mClass(uiGoogleIO) uiGoogleExportPolygon : public uiDialog
-{ mODTextTranslationClass(uiGoogleExportPolygon);
+mClass(uiGoogleIO) uiGISExportPolygon : public uiDialog
+{ mODTextTranslationClass(uiGISExportPolygon);
 public:
 
-			uiGoogleExportPolygon(uiParent*,const Pick::Set&);
+			uiGISExportPolygon(uiParent*,
+					    const MultiID& mid=MultiID::udf());
 
 protected:
 
-    const Pick::Set&	ps_;
+    uiGISExpStdFld*	expfld_;
+    uiIOObjSelGrp*	selfld_;
 
-    uiSelLineStyle*	lsfld_;
-    uiGenInput*		hghtfld_;
-
-			mDecluiGoogleExpStd;
-
+    bool		acceptOK(CallBacker*);
 };
-
-

@@ -15,12 +15,12 @@ class BufferStringSet;
 namespace ODGoogle { class XMLWriter; }
 
 
-mClass(uiGoogleIO) uiGoogleExport2DSeis : public uiDialog
-{ mODTextTranslationClass(uiGoogleExport2DSeis);
+mClass(uiGoogleIO) uiGISExport2DSeis : public uiDialog
+{ mODTextTranslationClass(uiGISExport2DSeis);
 public:
 
-			uiGoogleExport2DSeis(uiSeis2DFileMan*);
-			~uiGoogleExport2DSeis();
+			uiGISExport2DSeis(uiSeis2DFileMan*);
+			~uiGISExport2DSeis();
 
 protected:
 
@@ -31,13 +31,13 @@ protected:
     uiGenInput*		putlnmfld_;
     uiGenInput*		putallfld_;
     uiSelLineStyle*	lsfld_;
+    uiGISExpStdFld*	expfld_;
 
-			mDecluiGoogleExpStd;
-
-    void		addLine(ODGoogle::XMLWriter&,const char*);
+    void		getCoordsForLine(pickset&,const char*);
     void		getInitialSelectedLineNames();
     void		getFinalSelectedLineNames();
 
+    bool		acceptOK(CallBacker*);
+
+
 };
-
-

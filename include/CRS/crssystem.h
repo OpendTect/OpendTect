@@ -28,36 +28,36 @@ public:
 				ProjectionBasedSystem();
 				ProjectionBasedSystem(AuthorityCode);
 
-    virtual CoordSystem*	clone() const;
+    CoordSystem*	clone() const override;
 
-    virtual uiString		description() const
+    uiString		description() const override
 				{ return tr("Geographical Coordinate System"); }
-    virtual BufferString	summary() const;
+    BufferString	summary() const override;
 
-    virtual bool		isOK() const;
+    bool		isOK() const override;
 
-    virtual bool		geographicTransformOK() const;
+    bool		geographicTransformOK() const override;
 
-    virtual bool		isOrthogonal() const;
-    virtual bool		isProjection() const		{ return true; }
-    virtual bool		isFeet() const;
-    virtual bool		isMeter() const;
+    bool		isOrthogonal() const override;
+    bool		isProjection() const override		{ return true; }
+    bool		isFeet() const override;
+    bool		isMeter() const override;
+    BufferString	getURNString() const override;
 
     bool			setProjection(AuthorityCode);
     const Projection*		getProjection() const;
 
 protected:
 
-    const Projection*		proj_;
+    const Projection*		proj_	= nullptr;
 
 private:
 
-    virtual LatLong		toGeographic(const Coord&,
-					     bool wgs84) const;
-    virtual Coord		fromGeographic(const LatLong&,
-					       bool wgs84) const;
-    virtual bool		doUsePar(const IOPar&);
-    virtual void		doFillPar(IOPar&) const;
+    LatLong		toGeographic(const Coord&,bool wgs84) const override;
+    Coord		fromGeographic(const LatLong&,
+						    bool wgs84) const override;
+    bool		doUsePar(const IOPar&) override;
+    void		doFillPar(IOPar&) const override;
 
 };
 

@@ -4,10 +4,10 @@
  * DATE     : Nov 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigoogleexprandline.h"
 #include "googlexmlwriter.h"
+#include "uigeninput.h"
 #include "uifileinput.h"
 #include "uisellinest.h"
 #include "uimsg.h"
@@ -19,24 +19,27 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "latlong.h"
 #include "od_helpids.h"
+#include "uiseparator.h"
 
 #include <iostream>
 
 
 uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
-		const TypeSet<Coord>& crds, const char* nm )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport(tr("Random Line to KML")),
+		const TypeSet<Coord>* crds, const char* nm )
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport(tr("Random Line to GIS")),
 				 tr("Specify how to export"),
                                  mODHelpKey(mGoogleExportRandomLineHelpID) ) )
     , crds_(crds)
 {
-    const char* choices[]
-		= { "No", "At Start/End", "At Start only", "At End only", 0 };
+    uiStringSet choices;
+    choices.add( uiStrings::sNo() );
+    choices.add( tr("At Start/End") );
+    choices.add( tr("At Start only") );
+    choices.add( tr("At End only") );
     putlnmfld_ = new uiGenInput( this, tr("Annotate line"),
 				 StringListInpSpec(choices) );
     putlnmfld_->setValue( 2 );
-    putlnmfld_->valuechanged.notify(
-				mCB(this,uiGoogleExportRandomLine,putSel) );
+    mAttachCB(putlnmfld_->valuechanged,uiGoogleExportRandomLine::putSel);
 
     lnmfld_ = new uiGenInput( this, tr("Line annotation"),
 			      StringInpSpec(nm) );
@@ -47,10 +50,22 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
     lsfld_->attach( alignedBelow, lnmfld_ );
 
-    mImplFileNameFld(nm);
-    fnmfld_->attach( alignedBelow, lsfld_ );
+    uiSeparator* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, lsfld_ );
+    BufferString flnm = "RandomLine";
+    flnm.add( lnmfld_->text() );
+    expfld_ = new uiGISExpStdFld( this, flnm );
+    expfld_->attach( stretchedBelow, sep );
+    expfld_->attach( leftAlignedBelow, lsfld_ );
 }
 
+
+uiGoogleExportRandomLine::~uiGoogleExportRandomLine()
+{
+    detachAllNotifiers();
+    if ( crds_ )
+	crds_->empty();
+}
 
 void uiGoogleExportRandomLine::putSel( CallBacker* )
 {
@@ -60,27 +75,35 @@ void uiGoogleExportRandomLine::putSel( CallBacker* )
 
 bool uiGoogleExportRandomLine::acceptOK( CallBacker* )
 {
-    if ( crds_.size() < 1 ) return true;
+    if ( crds_->size() < 1 )
+	return true;
 
     const int lnmchoice = putlnmfld_->getIntValue();
     const char* lnm = lnmfld_->text();
-    if ( !lnmchoice || !*lnm ) lnm = "Random line";
-    mCreateWriter( lnm, SI().name() );
+    if ( !lnmchoice || !*lnm )
+	lnm = sKey::RandomLine();
 
-    BufferString ins( "\t\t<LineStyle>\n\t\t\t<color>" );
-    ins += lsfld_->getColor().getStdStr(false,-1);
-    ins += "</color>\n\t\t\t<width>";
-    ins += lsfld_->getWidth() * .1;
-    ins += "</width>\n\t\t</LineStyle>";
-    wrr.writeIconStyles( 0, 0, ins );
+    PtrMan<GISWriter> wrr = expfld_->createWriter();
+    if ( !wrr )
+	return false;
 
+    GISWriter::Property prop;
+    prop.color_ = lsfld_->getColor();
+    prop.width_ = lsfld_->getWidth() * .1;
+    //wrr->setProperties( prop );
+    /*if ( lnmchoice != 0 && lnmchoice < 3 )
+	wrr->writePoint( crds_[0], lnm );
 
-    if ( lnmchoice != 0 && lnmchoice < 3 )
-	wrr.writePlaceMark( 0, crds_[0], lnm );
     if ( lnmchoice == 1 || lnmchoice == 3 )
-	wrr.writePlaceMark( 0, crds_[crds_.size()-1], lnm );
-    wrr.writeLine( 0, crds_, lnm );
+	wrr->writePoint( crds_[crds_.size()-1], lnm );*/
 
-    wrr.close();
-    return true;
+    if ( !wrr->writeLine(*crds_,lnm) )
+    {
+	uiMSG().error( wrr->errMsg() );
+	return false;
+    }
+
+    wrr->close();
+    bool ret = uiMSG().askGoOn(wrr->successMsg() );
+    return !ret;
 }

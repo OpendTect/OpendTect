@@ -7,28 +7,26 @@
 -*/
 
 #include "uigoogleexpdlg.h"
+
 class SurveyInfo;
 class uiSurvey;
 class uiGenInput;
 class uiSelLineStyle;
 
 
-mClass(uiGoogleIO) uiGoogleExportSurvey : public uiDialog
-{ mODTextTranslationClass(uiGoogleExportSurvey);
+mClass(uiGoogleIO) uiGISExportSurvey : public uiDialog
+{ mODTextTranslationClass(uiGISExportSurvey);
 public:
 
-			uiGoogleExportSurvey(uiSurvey*);
-			~uiGoogleExportSurvey();
+			uiGISExportSurvey(uiParent*,SurveyInfo*);
+			~uiGISExportSurvey();
 
 protected:
 
-    SurveyInfo*		si_;
+    const SurveyInfo*	si_;
 
     uiSelLineStyle*	lsfld_;
     uiGenInput*		hghtfld_;
-
-			mDecluiGoogleExpStd;
-
+    uiGISExpStdFld*	expfld_;
+    bool		acceptOK(CallBacker*);
 };
-
-

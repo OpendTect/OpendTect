@@ -41,9 +41,12 @@ list ( APPEND OD_MODULE_SOURCES
 	flatview.cc
 	fontdata.cc
 	generalinfo.cc
+	giswriter.cc
+	geojson.cc
+	geojsonwriter.cc
+	googlexmlwriter.cc
 	geom2dascio.cc
 	geometryio.cc
-	googlexmlwriter.cc
 	grid2d.cc
 	hdf5access.cc
 	helpview.cc

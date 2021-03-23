@@ -37,6 +37,7 @@ public:
 
     static AuthorityCode	fromString(const char*);
     BufferString	toString() const;
+    BufferString	toURNString();
 
 protected:
 

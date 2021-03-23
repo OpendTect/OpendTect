@@ -12,13 +12,11 @@ static const char* sKeyProjectionID = "Projection.ID";
 static const char* sKeyProjectionName = "Projection.Name";
 
 Coords::ProjectionBasedSystem::ProjectionBasedSystem()
-    : proj_(0)
 {}
 
 
 Coords::ProjectionBasedSystem::ProjectionBasedSystem(
 					    Coords::AuthorityCode code )
-    : proj_(0)
 {
     setProjection( code );
 }
@@ -44,10 +42,14 @@ BufferString Coords::ProjectionBasedSystem::summary() const
 
 
 bool Coords::ProjectionBasedSystem::isOK() const
-{ return proj_; }
+{
+    return proj_;
+}
 
 bool Coords::ProjectionBasedSystem::geographicTransformOK() const
-{ return isOK(); }
+{
+    return isOK();
+}
 
 LatLong Coords::ProjectionBasedSystem::toGeographic(
 					const Coord& crd, bool wgs84 ) const
@@ -111,4 +113,13 @@ bool Coords::ProjectionBasedSystem::setProjection( Coords::AuthorityCode code )
 
 
 const Coords::Projection* Coords::ProjectionBasedSystem::getProjection() const
-{ return proj_; }
+{
+    return proj_;
+}
+
+
+BufferString Coords::ProjectionBasedSystem::getURNString() const
+{
+    Coords::AuthorityCode code = proj_->authcode_;
+    return code.toURNString();
+}

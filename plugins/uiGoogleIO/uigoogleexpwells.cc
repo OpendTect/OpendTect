@@ -8,84 +8,145 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigoogleexpwells.h"
 #include "googlexmlwriter.h"
-#include "uifileinput.h"
-#include "uilistbox.h"
+#include "uiwellsel.h"
 #include "uimsg.h"
 #include "oddirs.h"
-#include "iodir.h"
-#include "ioobj.h"
-#include "strmprov.h"
 #include "survinfo.h"
-#include "welltransl.h"
-#include "welldata.h"
-#include "welltrack.h"
-#include "wellreader.h"
-#include "iodirentry.h"
-#include "ioman.h"
+#include "wellman.h"
 #include "latlong.h"
 #include "od_ostream.h"
 #include "od_helpids.h"
+#include "uicolor.h"
+#include "uigeninput.h"
+#include "uifileinput.h"
+#include "uiseparator.h"
+#include "welldata.h"
 
-
-uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Wells to KML")),
-				 tr("Specify wells to output"),
+uiGISExportWells::uiGISExportWells( uiParent* p, const MultiID& mid )
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Wells to GIS")),
+		mid.isUdf() ? tr("Specify wells to output") : uiString::empty(),
 				 mODHelpKey(mGoogleExportWellsHelpID)))
+    , multiid_(mid)
 {
-    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Well(s)") );
-    selfld_ = new uiListBox( this, su );
-
-    mImplFileNameFld("wells");
-    fnmfld_->attach( alignedBelow, selfld_ );
-
-    preFinalise().notify( mCB(this,uiGoogleExportWells,initWin) );
-}
-
-
-uiGoogleExportWells::~uiGoogleExportWells()
-{
-}
-
-
-void uiGoogleExportWells::initWin( CallBacker* )
-{
-    const IODir iodir( WellTranslatorGroup::ioContext().getSelKey() );
-    const IODirEntryList del( iodir, WellTranslatorGroup::ioContext() );
-    for ( int idx=0; idx<del.size(); idx++ )
+    ismultisel_ = mid.isUdf();
+    uiSeparator* sep1 = nullptr;
+    if ( ismultisel_ )
     {
-	const IODirEntry* de = del[idx];
-	if ( de && de->ioobj_ )
-	{
-	    selfld_->addItem( de->name() );
-	    wellids_ += new MultiID( de->ioobj_->key() );
-	}
-    }
-    selfld_->chooseAll( true );
-}
-
-
-bool uiGoogleExportWells::acceptOK( CallBacker* )
-{
-    mCreateWriter( "Wells", SI().name() );
-
-    wrr.writeIconStyles( "wellpin", 20 );
-
-    for ( int idx=0; idx<selfld_->size(); idx++ )
-    {
-	if ( !selfld_->isChosen(idx) )
-	    continue;
-
-	RefMan<Well::Data> wd = new Well::Data;
-	Well::Reader wllrdr( *wellids_[idx], *wd );
-	Coord coord;
-	if ( !wllrdr.getMapLocation(coord) )
-	    continue;
-
-	wrr.writePlaceMark( "wellpin", coord, selfld_->textOfItem(idx) );
-	if ( !wrr.isOK() )
-	    { uiMSG().error(wrr.errMsg()); return false; }
+	selfld_ = new uiMultiWellSel( this, false );
+	sep1 = new uiSeparator( this );
+	sep1->attach( stretchedBelow, selfld_ );
     }
 
-    wrr.close();
-    return true;
+    uiColorInput::Setup su( OD::Color::Blue() );
+    su.lbltxt_ = uiStrings::sColor();
+    colinput_ = new uiColorInput( this, su );
+    if ( sep1 )
+	colinput_->attach( alignedBelow, sep1 );
+
+    uiStringSet choices;
+    choices.add( uiStrings::sNo() );
+    choices.add( uiStrings::sLeft() );
+    choices.add( uiStrings::sRight() );
+    choices.add( uiStrings::sTop() );
+    choices.add( uiStrings::sBottom() );
+    putnmfld_ = new uiGenInput( this, tr("Annotate position"),
+				 StringListInpSpec(choices) );
+    putnmfld_->setValue( 2 );
+    mAttachCB(putnmfld_->valuechanged,uiGISExportWells::putSel);
+    putnmfld_->attach( alignedBelow, colinput_ );
+
+    const uiString label = ismultisel_ ?
+				tr("Base Annotation") : tr("Well Annotation");
+    lnmfld_ = new uiGenInput( this, label );
+    lnmfld_->setWithCheck();
+    lnmfld_->attach( alignedBelow, putnmfld_ );
+    if ( ismultisel_ )
+	lnmfld_->setToolTip(
+			    tr("Base name will be prefixed to the well name") );
+    else
+    {
+	lnmfld_->setText( Well::MGR().get(mid)->name() );
+	lnmfld_->setToolTip( tr("If the field is left empty, "
+				"well name will be used as annotation text") );
+    }
+
+    auto* sep2 = new uiSeparator( this );
+    sep2->attach( alignedBelow, lnmfld_ );
+    BufferString flnm = "Wells";
+    expfld_ = new uiGISExpStdFld( this, flnm );
+    expfld_->attach( stretchedBelow, sep2 );
+    expfld_->attach( leftAlignedBelow, lnmfld_ );
+}
+
+
+uiGISExportWells::~uiGISExportWells()
+{
+    detachAllNotifiers();
+}
+
+
+void uiGISExportWells::putSel( CallBacker* )
+{
+    lnmfld_->display( putnmfld_->getIntValue() != 0 );
+}
+
+
+bool uiGISExportWells::acceptOK( CallBacker* )
+{
+    TypeSet<MultiID> wellids;
+    if ( ismultisel_ )
+	selfld_->getSelected( wellids );
+    else
+	wellids.add( multiid_ );
+
+    if ( wellids.isEmpty() )
+    {
+	uiMSG().error( uiStrings::phrPlsSelectAtLeastOne(uiStrings::sWell()) );
+	return false;
+    }
+
+    PtrMan<GISWriter> wrr = expfld_->createWriter();
+    if ( !wrr )
+	return false;
+
+    GISWriter::Property prop;
+    prop.xpixoffs_ = 20;
+    prop.color_ = colinput_->color();
+    prop.iconnm_ = "wellpin";
+    ObjectSet<const Pick::Set> picks;
+
+    const BufferString prefix = lnmfld_->text();
+    for ( auto wellid : wellids )
+    {
+	const Coord coord = Well::MGR().getMapLocation( wellid );
+	if ( coord.isUdf() )
+	    continue;
+
+	const Well::Data* data = Well::MGR().get( wellid );
+	if ( !data )
+	    continue;
+
+	const BufferString nm = data->name();
+	if ( prefix.isEmpty() )
+	    prop.nmkeystr_ = nm;
+	else if ( ismultisel_ )
+	    prop.nmkeystr_ = BufferString( prefix, "_", nm );
+
+	auto* pick = new Pick::Set( nm );
+	Pick::Location loc( coord );
+	pick->add( loc );
+	picks.add( pick );
+    }
+    //wrr->setProperties( prop );
+    if ( !wrr->writePoint(picks) )
+    {
+	uiMSG().error( wrr->errMsg() );
+	return false;
+    }
+
+    wrr->close();
+
+    const bool ret = uiMSG().askGoOn( wrr->successMsg() );
+
+    return !ret;
 }

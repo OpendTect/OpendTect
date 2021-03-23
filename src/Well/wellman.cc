@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
+#include "monitor.h"
 #include "ptrman.h"
 #include "survinfo.h"
 #include "welldata.h"
@@ -197,6 +198,7 @@ Well::Data* Well::Man::get( const MultiID& key, LoadReqs reqs )
     Data* wd = wdidx < 0 ? nullptr : wells_[wdidx];
     if ( wd && wd->loadState().includes(reqs) )
         return wd;
+
     if ( wd && wdidx >=0 )
     {
 	reqs.exclude( wd->loadState() );
@@ -223,6 +225,18 @@ Well::Data* Well::Man::addNew( const MultiID& key, LoadReqs reqs )
     wd->setMultiID( key );
     wells_ += wd;
     return wd;
+}
+
+Coord Well::Man::getMapLocation( const MultiID& id ) const
+{
+    PtrMan<IOObj> ioobj = IOM().get( id );
+    if ( !ioobj )
+	return Coord::udf();
+
+    RefMan<Well::Data> data = new Well::Data;
+    Coord maploc;
+    Well::Reader rdr( *ioobj, *data );
+    return rdr.getMapLocation(maploc) ? maploc : Coord::udf();
 }
 
 
@@ -517,6 +531,7 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
 	RefMan<Data> wd = MGR().get( ky, LoadReqs(LogInfos) );
 	if ( !wd )
 	    return false;
+
 	wd->logs().getNames( nms );
     }
     else if ( MGR().isLoaded(ky) )
@@ -524,6 +539,7 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
 	RefMan<Data> wd = MGR().get( ky );
 	if ( !wd )
 	    return false;
+
 	wd->logs().getNames( nms );
     }
     else
@@ -534,6 +550,7 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
 	if ( nms.isEmpty() )
 	    return wr.getInfo(); // returning whether the well exists
     }
+
     return true;
 }
 

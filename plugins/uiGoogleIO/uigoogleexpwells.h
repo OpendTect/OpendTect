@@ -7,27 +7,29 @@
 -*/
 
 #include "uigoogleexpdlg.h"
-#include "multiid.h"
-class uiListBox;
+class uiMultiWellSel;
+class uiColorInput;
 
-
-mClass(uiGoogleIO) uiGoogleExportWells : public uiDialog
-{ mODTextTranslationClass(uiGoogleExportWells);
+mClass(uiGoogleIO) uiGISExportWells : public uiDialog
+{ mODTextTranslationClass(uiGISExportWells);
 public:
 
-			uiGoogleExportWells(uiParent*);
-			~uiGoogleExportWells();
+			uiGISExportWells(uiParent*,
+					    const MultiID& mid=MultiID::udf());
+			~uiGISExportWells();
 
 protected:
 
-    ObjectSet<MultiID>	wellids_;
+    uiMultiWellSel*	selfld_		= nullptr;
+    uiColorInput*	colinput_	= nullptr;
+    uiGenInput*		putnmfld_	= nullptr;
+    uiGenInput*		lnmfld_		= nullptr;
 
-    uiListBox*		selfld_;
+    // might require icon name or color
+    uiGISExpStdFld*	expfld_;
+    bool		acceptOK(CallBacker*);
+    void		putSel(CallBacker*);
 
-    void		initWin(CallBacker*);
-
-
-			mDecluiGoogleExpStd;
+    MultiID		multiid_;
+    bool		ismultisel_;
 };
-
-
