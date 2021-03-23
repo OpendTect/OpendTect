@@ -54,7 +54,8 @@ public:
     bool			allShown() const	{ return showall_; }
     virtual void		setOnlyAtSectionsDisplay(bool);
     virtual bool		displayedOnlyAtSections() const;
-    void			allowDoubleClick( bool yn ) { allowdoubleclicks_ = yn; }
+    void			allowDoubleClick( bool yn )
+					    { allowdoubleclicks_ = yn; }
 
     virtual BufferString	getManipulationString() const;
     void			getObjectInfo(BufferString&) const;
@@ -96,6 +97,9 @@ public:
     virtual bool		usePar(const IOPar&);
 
     Coord3			convertCoords(const Coord3&,bool disptoworld);
+
+    TypeSet<int>		getInvalidLocations() const
+						    { return invalidpicks_; }
 
 protected:
 				LocationDisplay();
