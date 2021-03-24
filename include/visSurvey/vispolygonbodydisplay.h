@@ -31,6 +31,7 @@ namespace visBase
 namespace EM { class PolygonBody; }
 namespace MPE { class PolygonBodyEditor; }
 namespace Geometry { class ExplPolygonSurface; class ExplPlaneIntersection; }
+class MarkerStyle3D;
 
 
 namespace visSurvey
@@ -87,6 +88,9 @@ public:
 
     const char*			errMsg() const { return errmsg_.str(); }
     virtual void		setPixelDensity(float);
+
+    void			setMarkerStyle(const MarkerStyle3D&);
+    const MarkerStyle3D*	markerStyle() const;
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);

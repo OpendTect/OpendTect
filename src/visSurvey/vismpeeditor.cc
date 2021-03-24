@@ -191,6 +191,12 @@ void MPEEditor::setMarkerStyle( const MarkerStyle3D& mkstyle )
 }
 
 
+const MarkerStyle3D* MPEEditor::markerStyle() const
+{
+    return &markerstyle_;
+}
+
+
 void MPEEditor::setMarkerSize(float nsz)
 {
     markersize_ = nsz;
