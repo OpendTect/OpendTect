@@ -37,8 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 // uiPropertiesDlg
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     : uiTabStackDlg(p,uiDialog::Setup(tr("Display properties"),
-				      mNoDlgTitle,
-                                      mODHelpKey(mPropertiesDlgHelpID) ))
+				mNoDlgTitle,mODHelpKey(mPropertiesDlgHelpID)))
     , survobj_(so)
     , visobj_(dynamic_cast<visBase::VisualObject*>(so))
 {
@@ -57,14 +56,14 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
 
     mDynamicCastGet( visSurvey::FaultDisplay*, ftdspl, so );
     mDynamicCastGet( visSurvey::FaultStickSetDisplay*,ftssdspl,so );
-    if ( ftdspl || ftssdspl )
+    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,so);
+    if ( ftdspl || ftssdspl || plg )
 	addGroup( new uiMarkerStyleGrp( tabstack_->tabGroup(), survobj_ ) );
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
     if ( pdd )
 	addGroup( new uiVisPlaneDataDisplayDragProp(tabstack_->tabGroup(),pdd));
 
-    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,so);
     if ( plg )
 	addGroup( new uiVisPolygonSurfBezierDlg(tabstack_->tabGroup(),plg) );
 
@@ -119,23 +118,27 @@ uiMarkerStyleGrp::uiMarkerStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
     , survobj_( so )
 
 {
-    visSurvey::StickSetDisplay* ssdsply = getDisplay();
-
-    if ( ssdsply )
+    visSurvey::StickSetDisplay* ssd = getDisplay();
+    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,pbd,so)
+    if ( ssd || pbd )
     {
 	MarkerStyle3D::Type excludetype = MarkerStyle3D::None;
-	stylefld_ = new uiMarkerStyle3D( this, true, 
-	    Interval<int>(1,cDefMaxMarkerSize), 1,
-	       &excludetype );
-	
-	const MarkerStyle3D* mkstyle = ssdsply->markerStyle();
-	if ( mkstyle )
-	    stylefld_->setMarkerStyle( *mkstyle );
-	
+	stylefld_ = new uiMarkerStyle3D( this, true,
+			Interval<int>(1,cDefMaxMarkerSize), 1, &excludetype );
+
+	const MarkerStyle3D* ms = nullptr;
+	if ( ssd )
+	    ms = ssd->markerStyle();
+	if ( pbd )
+	    ms = pbd->markerStyle();
+
+	if ( ms )
+	    stylefld_->setMarkerStyle( *ms );
+
 	stylefld_->typeSel()->notify( mCB(this,uiMarkerStyleGrp,typeSel) );
 	stylefld_->sliderMove()->notify( mCB(this,uiMarkerStyleGrp,sizeChg) );
 	stylefld_->colSel()->notify( mCB(this,uiMarkerStyleGrp,colSel) );
-	stylefld_->enableColorSelection( false );
+	stylefld_->enableColorSelection( pbd );
     }
 
 }
@@ -143,33 +146,41 @@ uiMarkerStyleGrp::uiMarkerStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
 
 void uiMarkerStyleGrp::sizeChg( CallBacker* cb )
 {
-    typeSel(cb);
+    typeSel( cb );
 }
 
 
 void uiMarkerStyleGrp::typeSel( CallBacker* )
 {
-    MarkerStyle3D mkstyle;
-    stylefld_->getMarkerStyle( mkstyle );
-    visSurvey::StickSetDisplay* ssdsply = getDisplay();
-    if ( ssdsply )
-	ssdsply->setMarkerStyle( mkstyle );
+    MarkerStyle3D ms;
+    stylefld_->getMarkerStyle( ms );
+    visSurvey::StickSetDisplay* ssd = getDisplay();
+    if ( ssd )
+	return ssd->setMarkerStyle( ms );
+
+    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,pbd,survobj_)
+    if ( pbd )
+	pbd->setMarkerStyle( ms );
 }
 
 
 void uiMarkerStyleGrp::colSel( CallBacker* cb )
 {
-    typeSel(cb);
+    typeSel( cb );
 }
 
 
 visSurvey::StickSetDisplay* uiMarkerStyleGrp::getDisplay()
 {
-    mDynamicCastGet( visSurvey::FaultDisplay*,ftdspl, survobj_ );
-    mDynamicCastGet( visSurvey::FaultStickSetDisplay*, ftssdspl, survobj_ );
+    mDynamicCastGet(visSurvey::FaultDisplay*,fd,survobj_)
+    if ( fd )
+	return dCast(visSurvey::StickSetDisplay*,fd);
 
-    return ftdspl ? dynamic_cast<visSurvey::StickSetDisplay*>(ftdspl) :
-	dynamic_cast<visSurvey::StickSetDisplay*>(ftssdspl);
+    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fssd,survobj_)
+    if ( fssd )
+	return dCast(visSurvey::StickSetDisplay*,fssd);
+
+    return nullptr;
 }
 
 
@@ -213,14 +224,14 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
     : uiDlgGroup(p,tr("Material"))
     , material_(dynamic_cast<visBase::VisualObject*>(so)->getMaterial())
     , survobj_(so)
-    , ambslider_(0)
-    , diffslider_(0)
-    , specslider_(0)
-    , emisslider_(0)
-    , shineslider_(0)
-    , transslider_(0)
-    , colinp_(0)
-    , prevobj_(0)
+    , ambslider_(nullptr)
+    , diffslider_(nullptr)
+    , specslider_(nullptr)
+    , emisslider_(nullptr)
+    , shineslider_(nullptr)
+    , transslider_(nullptr)
+    , colinp_(nullptr)
+    , prevobj_(nullptr)
 {
     if ( so->hasColor() )
     {

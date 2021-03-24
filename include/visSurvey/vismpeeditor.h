@@ -92,6 +92,7 @@ public:
     void			cleanPatch();
     const ObjectSet<visBase::MarkerSet>& getDraggerMarkers() const;
     void			setMarkerStyle(const MarkerStyle3D&);
+    const MarkerStyle3D*	markerStyle() const;
 
 protected:
     				~MPEEditor();

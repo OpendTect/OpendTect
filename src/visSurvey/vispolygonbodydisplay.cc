@@ -446,11 +446,28 @@ void PolygonBodyDisplay::display( bool polygons, bool body )
 
 
 bool PolygonBodyDisplay::arePolygonsDisplayed() const
-{ return displaypolygons_; }
+{
+    return displaypolygons_;
+}
 
 
 bool PolygonBodyDisplay::isBodyDisplayed() const
-{ return bodydisplay_ ? bodydisplay_->isOn() : false; }
+{
+    return bodydisplay_ ? bodydisplay_->isOn() : false;
+}
+
+
+void PolygonBodyDisplay::setMarkerStyle( const MarkerStyle3D& ms )
+{
+    if ( viseditor_ )
+	viseditor_->setMarkerStyle( ms );
+}
+
+
+const MarkerStyle3D* PolygonBodyDisplay::markerStyle() const
+{
+    return viseditor_ ? viseditor_->markerStyle() : nullptr;
+}
 
 
 void PolygonBodyDisplay::fillPar( IOPar& par ) const
