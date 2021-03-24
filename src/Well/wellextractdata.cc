@@ -861,18 +861,17 @@ void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
 
 
 float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
-				   float winsz, Stats::UpscaleType samppol )
-{ return calcValWH( wl, dah, winsz, samppol ); }
+				   float winsz, Stats::UpscaleType samppol,
+				   bool logisvel )
+{ return calcValWH( wl, dah, winsz, samppol, logisvel ); }
 
 
 float Well::LogDataExtracter::calcValWH( const Well::Log& wl, float dah,
 				   float winsz, Stats::UpscaleType samppol,
-				   float maxholesz )
+				   float maxholesz, bool logisvel )
 {
     if ( samppol == Stats::TakeNearest )
 	return wl.getValue( dah, true );
-
-    const bool logisvel = wl.propType() == PropertyRef::Vel;
 
     Interval<float> rg( dah-winsz, dah+winsz ); rg.sort();
     TypeSet<float> vals;
