@@ -195,12 +195,14 @@ namespace Threads
     mGlobal(Basic) void unlockSimpleSpinLock(volatile int& lock);
 }
 
-#define mLockStaticInitLock( nm ) \
-static volatile int nm = 0; \
-Threads::lockSimpleSpinWaitLock( nm );
+#define mLockStaticInitLock( nm )
+//#define mLockStaticInitLock( nm ) \
+//static volatile int nm = 0; \
+//Threads::lockSimpleSpinWaitLock( nm );
 
-#define mUnlockStaticInitLock( nm ) \
-Threads::unlockSimpleSpinLock( nm );
+#define mUnlockStaticInitLock( nm )
+//#define mUnlockStaticInitLock( nm ) \
+//Threads::unlockSimpleSpinLock( nm );
 
 #else
 
@@ -210,9 +212,7 @@ Threads::unlockSimpleSpinLock( nm );
 #endif
 
 #define mDefineStaticLocalObject( type, var, init ) \
-mLockStaticInitLock( static##var##lck__ ); \
-static type var init; \
-mUnlockStaticInitLock( static##var##lck__ )
+static type var init;
 
 
 //--- Single-shot initialization support
