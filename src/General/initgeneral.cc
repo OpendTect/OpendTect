@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 
 #include "mathproperty.h"
 #include "ioman.h"
+#include "genc.h"
 #include "elasticpropseltransl.h"
 #include "mathformulatransl.h"
 #include "ioobjselectiontransl.h"
@@ -54,6 +54,9 @@ mDefModInitFn(General)
     RangeProperty::initClass();
     MathProperty::initClass();
 
+    if ( !NeedDataBase() )
+	return;
+
     Survey::GeometryWriter2D::initClass();
     Survey::GeometryWriter3D::initClass();
     Survey::GeometryReader3D::initClass();
@@ -67,5 +70,4 @@ mDefModInitFn(General)
     SimpleD2TTransform::initClass();
 
     IOM(); //Trigger creation & reading of geometries
-
 }
