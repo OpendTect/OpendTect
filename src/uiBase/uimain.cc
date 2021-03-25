@@ -372,7 +372,8 @@ uiMain::uiMain( QApplication* qapp )
 uiMain::~uiMain()
 {
     detachAllNotifiers();
-    IOM().applClosing();
+    if ( NeedDataBase() )
+	IOM().applClosing();
     delete keyhandler_;
     delete keyfilter_;
     delete tabletfilter_;

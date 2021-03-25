@@ -6,8 +6,10 @@
 
 
 #include "moddepmgr.h"
+
 #include "crssystem.h"
 #include "filepath.h"
+#include "genc.h"
 #include "legal.h"
 #include "oddirs.h"
 #include "survinfo.h"
@@ -55,9 +57,13 @@ static uiString* legalText()
 
 mDefModInitFn(CRS)
 {
+    mIfNotFirstTime(return);
+
+    legalInformation().addCreator(legalText, "PROJ.4");
+    if ( !NeedDataBase() )
+	return;
+
     Coords::ProjectionBasedSystem::initClass();
     Coords::ProjectionRepos::initStdRepos();
     SI().readSavedCoordSystem();
-
-    legalInformation().addCreator( legalText, "PROJ.4" );
 }

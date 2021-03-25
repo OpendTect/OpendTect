@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "coordsystem.h"
 #include "debug.h"
 #include "file.h"
+#include "genc.h"
 #include "legal.h"
 #include "moddepmgr.h"
 #include "oscommand.h"
@@ -63,10 +63,6 @@ mDefModInitFn(Basic)
 #endif
 #endif
 
-    PosInfo::Survey2D::initClass();
-    Coords::UnlocatedXY::initClass();
-    Coords::AnchorBasedXY::initClass();
-
     System::CrashDumper::getInstance().setSendAppl(
 	    System::CrashDumper::sSenderAppl() );
 
@@ -76,4 +72,11 @@ mDefModInitFn(Basic)
 
     OD::loadLocalization();
     OD::PythA().initClass();
+
+    if ( !NeedDataBase() )
+	return;
+
+    PosInfo::Survey2D::initClass();
+    Coords::UnlocatedXY::initClass();
+    Coords::AnchorBasedXY::initClass();
 }
