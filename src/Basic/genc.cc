@@ -4,7 +4,6 @@
  * DATE     : March 1994
  * FUNCTION : general utilities
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
 
@@ -61,9 +60,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static BufferString		initialdir_;
 static int			argc_ = -1;
-static char**			argv_ = 0;
+static char**			argv_ = nullptr;
+static bool			datarootrequired_ = true;
 int& GetArgC()			{ return argc_; }
 char** GetArgV()		{ return argv_; }
+bool NeedDataBase()		{ return datarootrequired_; }
 bool AreProgramArgsSet()	{ return argc_ != -1; }
 mGlobal(Basic) void SetArgcAndArgv( int argc, char** argv )
 				{ argc_ = argc; argv_ = argv; }
@@ -797,7 +798,7 @@ static void insertInPath( const char* envkey, const char* dir, const char* sep )
 #endif
 
 
-mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool )
+mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool ddrequired )
 {
     char* getcwdres = getcwd( initialdir_.getCStr(), initialdir_.minBufSize() );
     if ( !getcwdres )
@@ -809,6 +810,8 @@ mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool )
 	argv_[idx] = argv[idx];
 
     od_putProgInfo( argc_, argv_ );
+
+    datarootrequired_ = ddrequired;
 
 #ifndef __win__
     FilePath fp( GetFullExecutablePath() );
