@@ -138,6 +138,10 @@ public:
 
     const OD::LineStyle*	lineStyle() const;
     void			setLineStyle(const OD::LineStyle&);
+    const MarkerStyle3D*	markerStyle() const;
+    void			setMarkerStyle(const MarkerStyle3D&);
+    bool			hasSpecificMarkerColor() const	{ return true; }
+
     virtual void		getMousePosInfo(const visBase::EventInfo& ei,
 						IOPar& iop ) const
 				{ return MultiTextureSurveyObject

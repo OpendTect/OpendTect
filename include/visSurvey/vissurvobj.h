@@ -35,6 +35,7 @@ class TaskRunner;
 
 namespace ColTab  { class MapperSetup; class Sequence; }
 namespace OD { class LineStyle; }
+class MarkerStyle3D;
 
 namespace visBase
 {
@@ -141,10 +142,14 @@ public:
 					 with setMaterial on
 					 visBase::VisualObject */
 
-    virtual const OD::LineStyle* lineStyle() const { return 0; }
+    virtual const MarkerStyle3D* markerStyle() const	{ return nullptr; }
+    virtual void		setMarkerStyle(const MarkerStyle3D&)	{}
+    virtual bool		hasSpecificMarkerColor() const { return false; }
+
+    virtual const OD::LineStyle* lineStyle() const	{ return nullptr; }
 				/*!<If the linestyle can be set, a non-zero
 				    pointer should be return. */
-    virtual void		setLineStyle(const OD::LineStyle&) {}
+    virtual void		setLineStyle(const OD::LineStyle&)	{}
     virtual void		getLineWidthBounds(int& min,int& max);
     virtual bool		hasSpecificLineColor() const { return false; }
 				/*!<Specifies wether setLineStyle takes

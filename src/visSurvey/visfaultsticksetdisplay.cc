@@ -286,6 +286,18 @@ void FaultStickSetDisplay::setLineStyle( const OD::LineStyle& ls )
 }
 
 
+void FaultStickSetDisplay::setMarkerStyle( const MarkerStyle3D& ms )
+{
+    StickSetDisplay::setMarkerStyle( ms );
+}
+
+
+const MarkerStyle3D* FaultStickSetDisplay::markerStyle() const
+{
+    return StickSetDisplay::markerStyle();
+}
+
+
 void FaultStickSetDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( viseditor_ ) viseditor_->setDisplayTransformation( nt );

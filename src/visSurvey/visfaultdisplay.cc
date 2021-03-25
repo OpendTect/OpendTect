@@ -1690,7 +1690,7 @@ void FaultDisplay::updateEditorMarkers()
 	EM::Fault3D* fault3d = emFault();
 	if ( fault3d )
 	{
-	    if ( markerStyle() && viseditor_ )
+	    if ( StickSetDisplay::markerStyle() && viseditor_ )
 		viseditor_->setMarkerStyle( fault_->getPosAttrMarkerStyle(0) );
 	    Geometry::FaultStickSet* fs =
 		fault3d->geometry().sectionGeometry(sid);
@@ -1918,6 +1918,18 @@ void FaultDisplay::setLineStyle( const OD::LineStyle& lst )
 	drawstyle_->setLineStyle( lst );
 
     updateDisplay();
+}
+
+
+void FaultDisplay::setMarkerStyle( const MarkerStyle3D& ms )
+{
+    StickSetDisplay::setMarkerStyle( ms );
+}
+
+
+const MarkerStyle3D* FaultDisplay::markerStyle() const
+{
+    return StickSetDisplay::markerStyle();
 }
 
 

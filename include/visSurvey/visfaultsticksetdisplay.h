@@ -63,8 +63,12 @@ public:
     void			setColor(OD::Color);
     bool			allowMaterialEdit() const	{ return true; }
     NotifierAccess*		materialChange();
+
     const OD::LineStyle*	lineStyle() const;
     void			setLineStyle(const OD::LineStyle&);
+    const MarkerStyle3D*	markerStyle() const;
+    void			setMarkerStyle(const MarkerStyle3D&);
+    bool			hasSpecificMarkerColor() const	{ return true; }
 
     void			hideAllKnots(bool yn);
     bool			areAllKnotsHidden() const;

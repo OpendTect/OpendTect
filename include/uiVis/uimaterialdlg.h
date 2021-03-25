@@ -23,8 +23,8 @@ class uiSelLineStyle;
 class uiTabStack;
 class uiMarkerStyle3D;
 
-namespace visBase { class Material; class VisualObject; };
-namespace visSurvey { class SurveyObject; class StickSetDisplay; };
+namespace visBase { class Material; }
+namespace visSurvey { class SurveyObject; }
 
 
 mExpClass(uiVis) uiMaterialGrp : public uiDlgGroup
@@ -39,6 +39,7 @@ public:
 					      bool shininess=true,
 					      bool transparency=true,
 					      bool color=false);
+				~uiMaterialGrp();
 
 protected:
     void			createSlider(bool,uiSlider*&,const uiString&);
@@ -46,14 +47,14 @@ protected:
     visBase::Material*		material_;
     visSurvey::SurveyObject*	survobj_;
 
-    uiColorInput*		colinp_;
-    uiSlider*			ambslider_;
-    uiSlider*			diffslider_;
-    uiSlider*			specslider_;
-    uiSlider*			emisslider_;
-    uiSlider*			shineslider_;
-    uiSlider*			transslider_;
-    uiGroup*			prevobj_;
+    uiColorInput*		colinp_		= nullptr;
+    uiSlider*			ambslider_	= nullptr;
+    uiSlider*			diffslider_	= nullptr;
+    uiSlider*			specslider_	= nullptr;
+    uiSlider*			emisslider_	= nullptr;
+    uiSlider*			shineslider_	= nullptr;
+    uiSlider*			transslider_	= nullptr;
+    uiGroup*			prevobj_	= nullptr;
 
     void			sliderMove(CallBacker*);
     void			colorChangeCB(CallBacker*);
@@ -84,9 +85,9 @@ mExpClass(uiVis) uiTextureInterpolateGrp : public uiDlgGroup
 public:
 				uiTextureInterpolateGrp(uiParent*,
 					visSurvey::SurveyObject*);
-protected:				
+protected:
     void			chgIntpCB(CallBacker*);
-    
+
     uiGenInput*			textclasssify_;
     visSurvey::SurveyObject*	survobj_;
 };
@@ -96,14 +97,16 @@ mExpClass(uiVis) uiMarkerStyleGrp : public uiDlgGroup
 {mODTextTranslationClass(uiMarkerStyleGrp);
 public:
 				uiMarkerStyleGrp(uiParent*,
-					    visSurvey::SurveyObject*);
+					visSurvey::SurveyObject*);
+				~uiMarkerStyleGrp();
+
 protected:
-    uiMarkerStyle3D*	    	stylefld_;
+    uiMarkerStyle3D*		stylefld_	= nullptr;
     visSurvey::SurveyObject*	survobj_;
+
     void			sizeChg(CallBacker*);
     void			typeSel(CallBacker*);
     void			colSel(CallBacker*);
-    visSurvey::StickSetDisplay* getDisplay();
 };
 
 
@@ -115,6 +118,4 @@ public:
 protected:
 
     visSurvey::SurveyObject*	survobj_;
-    visBase::VisualObject*	visobj_;
 };
-

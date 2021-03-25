@@ -12,24 +12,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimaterialdlg.h"
 
 #include "uicolor.h"
+#include "uifltdispoptgrp.h"
 #include "uigeninput.h"
+#include "uimarkerstyle.h"
 #include "uisellinest.h"
 #include "uislider.h"
 #include "uitabstack.h"
 #include "uivisplanedatadisplaydragprop.h"
 #include "uivispolygonsurfbezierdlg.h"
-#include "uifltdispoptgrp.h"
-#include "uimarkerstyle.h"
+
+#include "visfaultdisplay.h"
 #include "vismaterial.h"
 #include "visobject.h"
-#include "vissurvobj.h"
-#include "visfaultdisplay.h"
-#include "visfaultsticksetdisplay.h"
-#include "visemsticksetdisplay.h"
-#include "vishorizondisplay.h"
 #include "visplanedatadisplay.h"
 #include "vispolygonbodydisplay.h"
-#include "visemobjdisplay.h"
+#include "vissurvobj.h"
+
 #include "envvars.h"
 #include "od_helpids.h"
 
@@ -37,42 +35,42 @@ static const char* rcsID mUsedVar = "$Id$";
 // uiPropertiesDlg
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     : uiTabStackDlg(p,uiDialog::Setup(tr("Display properties"),
-				      mNoDlgTitle,
-                                      mODHelpKey(mPropertiesDlgHelpID) ))
+				mNoDlgTitle,mODHelpKey(mPropertiesDlgHelpID)))
     , survobj_(so)
-    , visobj_(dynamic_cast<visBase::VisualObject*>(so))
 {
-    if ( survobj_->allowMaterialEdit() && visobj_->getMaterial() )
+    if ( !survobj_ )
+	return;
+
+    mDynamicCastGet(visBase::VisualObject*,vo,survobj_)
+    if ( survobj_->allowMaterialEdit() && vo && vo->getMaterial() )
     {
-	addGroup(  new uiMaterialGrp( tabstack_->tabGroup(),
-			survobj_, true, true, false, false, false, true,
-			survobj_->usesColor() )) ;
+	addGroup(  new uiMaterialGrp(tabstack_->tabGroup(),
+			survobj_,true,true,false,false,false,true,
+			survobj_->usesColor()) );
     }
 
-    if ( so && so->canEnableTextureInterpolation() )
+    if ( survobj_->canEnableTextureInterpolation() )
 	addGroup( new uiTextureInterpolateGrp(tabstack_->tabGroup(),survobj_) );
 
     if ( survobj_->lineStyle() )
-	addGroup( new uiLineStyleGrp( tabstack_->tabGroup(), survobj_ )  );
+	addGroup( new uiLineStyleGrp(tabstack_->tabGroup(),survobj_)  );
 
-    mDynamicCastGet( visSurvey::FaultDisplay*, ftdspl, so );
-    mDynamicCastGet( visSurvey::FaultStickSetDisplay*,ftssdspl,so );
-    if ( ftdspl || ftssdspl )
-	addGroup( new uiMarkerStyleGrp( tabstack_->tabGroup(), survobj_ ) );
+    if ( survobj_->markerStyle() )
+	addGroup( new uiMarkerStyleGrp(tabstack_->tabGroup(),survobj_) );
 
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,survobj_)
     if ( pdd )
 	addGroup( new uiVisPlaneDataDisplayDragProp(tabstack_->tabGroup(),pdd));
 
-    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,so);
-    if ( plg )
-	addGroup( new uiVisPolygonSurfBezierDlg(tabstack_->tabGroup(),plg) );
+    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,pbd,survobj_)
+    if ( pbd )
+	addGroup( new uiVisPolygonSurfBezierDlg(tabstack_->tabGroup(),pbd) );
 
     if ( GetEnvVarYN("USE_FAULT_RETRIANGULATION") )
     {
-	mDynamicCastGet(visSurvey::FaultDisplay*,flt,so);
-	if ( flt )
-	    addGroup( new uiFaultDisplayOptGrp(tabstack_->tabGroup(),flt) );
+	mDynamicCastGet(visSurvey::FaultDisplay*,fd,survobj_)
+	if ( fd )
+	    addGroup( new uiFaultDisplayOptGrp(tabstack_->tabGroup(),fd) );
     }
 
     setCancelText( uiString::emptyString() );
@@ -116,60 +114,50 @@ bool uiLineStyleGrp::rejectOK( CallBacker* )
 //uiMarkerStyleGrp
 uiMarkerStyleGrp::uiMarkerStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
     : uiDlgGroup(p,tr("Marker style"))
-    , survobj_( so )
-
+    , survobj_(so)
 {
-    visSurvey::StickSetDisplay* ssdsply = getDisplay();
-
-    if ( ssdsply )
+    const MarkerStyle3D* ms = so ? so->markerStyle() : nullptr;
+    if ( ms )
     {
 	MarkerStyle3D::Type excludetype = MarkerStyle3D::None;
-	stylefld_ = new uiMarkerStyle3D( this, true, 
-	    Interval<int>(1,cDefMaxMarkerSize), 1,
-	       &excludetype );
-	
-	const MarkerStyle3D* mkstyle = ssdsply->markerStyle();
-	if ( mkstyle )
-	    stylefld_->setMarkerStyle( *mkstyle );
-	
-	stylefld_->typeSel()->notify( mCB(this,uiMarkerStyleGrp,typeSel) );
-	stylefld_->sliderMove()->notify( mCB(this,uiMarkerStyleGrp,sizeChg) );
-	stylefld_->colSel()->notify( mCB(this,uiMarkerStyleGrp,colSel) );
-	stylefld_->enableColorSelection( false );
-    }
+	stylefld_ = new uiMarkerStyle3D( this, true,
+		Interval<int>(1,cDefMaxMarkerSize), 1, &excludetype );
 
+	stylefld_->setMarkerStyle( *ms );
+	stylefld_->enableColorSelection( !so->hasSpecificMarkerColor() );
+	mAttachCB( *stylefld_->typeSel(), uiMarkerStyleGrp::typeSel );
+	mAttachCB( *stylefld_->sliderMove(), uiMarkerStyleGrp::sizeChg );
+	mAttachCB( *stylefld_->colSel(), uiMarkerStyleGrp::colSel );
+    }
+}
+
+
+uiMarkerStyleGrp::~uiMarkerStyleGrp()
+{
+    detachAllNotifiers();
 }
 
 
 void uiMarkerStyleGrp::sizeChg( CallBacker* cb )
 {
-    typeSel(cb);
-}
-
-
-void uiMarkerStyleGrp::typeSel( CallBacker* )
-{
-    MarkerStyle3D mkstyle;
-    stylefld_->getMarkerStyle( mkstyle );
-    visSurvey::StickSetDisplay* ssdsply = getDisplay();
-    if ( ssdsply )
-	ssdsply->setMarkerStyle( mkstyle );
+    typeSel( cb );
 }
 
 
 void uiMarkerStyleGrp::colSel( CallBacker* cb )
 {
-    typeSel(cb);
+    typeSel( cb );
 }
 
 
-visSurvey::StickSetDisplay* uiMarkerStyleGrp::getDisplay()
+void uiMarkerStyleGrp::typeSel( CallBacker* )
 {
-    mDynamicCastGet( visSurvey::FaultDisplay*,ftdspl, survobj_ );
-    mDynamicCastGet( visSurvey::FaultStickSetDisplay*, ftssdspl, survobj_ );
+    if ( !stylefld_ || !survobj_ )
+	return;
 
-    return ftdspl ? dynamic_cast<visSurvey::StickSetDisplay*>(ftdspl) :
-	dynamic_cast<visSurvey::StickSetDisplay*>(ftssdspl);
+    MarkerStyle3D mkstyle;
+    stylefld_->getMarkerStyle( mkstyle );
+    survobj_->setMarkerStyle( mkstyle );
 }
 
 
@@ -199,13 +187,15 @@ void uiTextureInterpolateGrp::chgIntpCB( CallBacker* cb )
 
 
 // uiMaterialGrp
+static void initSlider( uiSlider* sldr, float val )
+{
+    if ( !sldr )
+	return;
 
-#define mFinalise( sldr, fn ) \
-if ( sldr ) \
-{ \
-    sldr->setInterval( StepInterval<float>( 0, 100, 10 ) ); \
-    sldr->setValue( material_->fn()*100 ); \
+    sldr->setInterval( 0, 100, 10 );
+    sldr->setValue( val*100.f );
 }
+
 
 uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
        bool ambience, bool diffusecolor, bool specularcolor,
@@ -213,14 +203,6 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
     : uiDlgGroup(p,tr("Material"))
     , material_(dynamic_cast<visBase::VisualObject*>(so)->getMaterial())
     , survobj_(so)
-    , ambslider_(0)
-    , diffslider_(0)
-    , specslider_(0)
-    , emisslider_(0)
-    , shineslider_(0)
-    , transslider_(0)
-    , colinp_(0)
-    , prevobj_(0)
 {
     if ( so->hasColor() )
     {
@@ -238,34 +220,43 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
     createSlider( shininess, shineslider_, tr("Shininess") );
     createSlider( transparency, transslider_, uiStrings::sTransparency() );
 
-    mFinalise( ambslider_, getAmbience );
-    mFinalise( diffslider_, getDiffIntensity );
-    mFinalise( specslider_, getSpecIntensity );
-    mFinalise( emisslider_, getEmmIntensity );
-    mFinalise( shineslider_, getShininess );
-    mFinalise( transslider_, getTransparency );
+    initSlider( ambslider_, material_->getAmbience() );
+    initSlider( diffslider_, material_->getDiffIntensity() );
+    initSlider( specslider_, material_->getSpecIntensity() );
+    initSlider( emisslider_, material_->getEmmIntensity() );
+    initSlider( shineslider_, material_->getShininess() );
+    initSlider( transslider_, material_->getTransparency() );
+}
+
+
+uiMaterialGrp::~uiMaterialGrp()
+{
+    detachAllNotifiers();
 }
 
 
 void uiMaterialGrp::createSlider( bool domk, uiSlider*& slider,
 				  const uiString& lbltxt )
 {
-    if ( !domk ) return;
+    if ( !domk )
+	return;
 
     uiSlider::Setup ss( lbltxt ); ss.withedit(true);
     slider = new uiSlider( this, ss,
 	    BufferString( lbltxt.getFullString(), "slider").buf() );
-    slider->valueChanged.notify( mCB(this,uiMaterialGrp,sliderMove) );
-    if ( prevobj_ ) slider->attach( alignedBelow, prevobj_ );
+    mAttachCB( slider->valueChanged, uiMaterialGrp::sliderMove );
+    if ( prevobj_ )
+	slider->attach( alignedBelow, prevobj_ );
+
     prevobj_ = slider;
 }
-
 
 
 void uiMaterialGrp::sliderMove( CallBacker* cb )
 {
     mDynamicCastGet(uiSlider*,sldr,cb)
-    if ( !sldr ) return;
+    if ( !sldr )
+	return;
 
     if ( sldr == ambslider_ )
 	material_->setAmbience( ambslider_->getFValue()/100 );
@@ -281,7 +272,8 @@ void uiMaterialGrp::sliderMove( CallBacker* cb )
 	material_->setTransparency( transslider_->getFValue()/100 );
 }
 
-void uiMaterialGrp::colorChangeCB(CallBacker*)
+
+void uiMaterialGrp::colorChangeCB( CallBacker* )
 {
     if ( colinp_ )
 	survobj_->setColor( colinp_->color() );

@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 
-namespace visBase 
-{ 
+namespace visBase
+{
     class PolyLine3D;
     class DrawStyle;
     class DataObjectGroup;
@@ -36,7 +36,7 @@ mExpClass(visSurvey) PSEventDisplay : public visBase::VisualObjectImpl,
 {
 public:
 				PSEventDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PSEventDisplay,
 				    "PSEventDisplay",
 				     ::toUiString(sFactoryKeyword()) );
@@ -63,8 +63,8 @@ public:
     virtual int			nrAttribs() const { return 1; }
     virtual const ColTab::MapperSetup* getColTabMapperSetup(int,int) const;
     virtual void		setPixelDensity(float);
-    
-    enum DisplayMode		{ ZeroOffset, FullOnSections, 
+
+    enum DisplayMode		{ ZeroOffset, FullOnSections,
 				  ZeroOffsetOnSections, FullOnGathers };
 				mDeclareEnumUtils(DisplayMode);
     void			setDisplayMode(DisplayMode);
@@ -73,14 +73,14 @@ public:
     void			setLineStyle(const OD::LineStyle&);
     OD::LineStyle		getLineStyle() const;
 
-    void			setMarkerStyle(const MarkerStyle3D&,bool updat);
+    void			setMarkerStyle(const MarkerStyle3D&);
+    const MarkerStyle3D*	markerStyle() const;
     virtual bool		hasColor() const { return true; }
     virtual OD::Color		getColor() const;
     const char**		markerColorNames()const;
     const char**		displayModeNames()const;
     bool			hasParents() const;
     bool			supportsDisplay() const;
-
 
 protected:
     void			clearAll();
@@ -126,7 +126,7 @@ protected:
     visBase::DrawStyle*			linestyle_;
     const mVisTrans*			displaytransform_;
     ObjectSet<ParentAttachedObject>	parentattached_;
-    
+
     DisplayMode				displaymode_;
 
     PreStack::EventManager*		eventman_;

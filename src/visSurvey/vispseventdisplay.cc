@@ -226,21 +226,24 @@ OD::LineStyle PSEventDisplay::getLineStyle() const
 }
 
 
-void PSEventDisplay::setMarkerStyle( const MarkerStyle3D& st, bool update )
+void PSEventDisplay::setMarkerStyle( const MarkerStyle3D& st )
 {
     if ( markerstyle_==st )
 	return;
 
     markerstyle_ = st;
 
-    if ( update )
+    for ( int idx=0; idx<parentattached_.size(); idx++ )
     {
-	for ( int idx=0; idx<parentattached_.size(); idx++ )
-	{
-	    ParentAttachedObject* pao = parentattached_[idx];
-		pao->markerset_->setMarkerStyle( st );
-	}
+	ParentAttachedObject* pao = parentattached_[idx];
+	    pao->markerset_->setMarkerStyle( st );
     }
+}
+
+
+const MarkerStyle3D* PSEventDisplay::markerStyle() const
+{
+    return &markerstyle_;
 }
 
 
