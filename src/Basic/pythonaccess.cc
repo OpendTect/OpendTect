@@ -1010,16 +1010,27 @@ bool OD::PythonAccess::validInternalEnvironment( const FilePath& fp )
     if ( !fp.exists() )
 	return false;
 
+    const BufferString fpstr( fp.fullPath() );
+    FilePath pythfp( fp );
+    const bool islink = File::isLink( fpstr );
+    if ( islink )
+    {
+	pythfp.set( File::linkEnd( fpstr ) );
+	if ( !pythfp.exists() || !File::isDirectory(pythfp.fullPath()) )
+	    return false;
+    }
+
     const BufferString relinfostr( "relinfo" );
-    const FilePath relinfofp( fp, relinfostr );
+    const FilePath relinfofp( pythfp, relinfostr );
     if ( !relinfofp.exists() )
 	return false;
 
-    PtrMan<FilePath> activatefp = getActivateScript( fp );
+    PtrMan<FilePath> activatefp = getActivateScript( pythfp );
     if ( !activatefp )
 	return false;
 
-    const DirList dl( FilePath(fp,"envs").fullPath().str(), File::DirsInDir );
+    const DirList dl( FilePath(pythfp,"envs").fullPath().str(),
+		      File::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++)
     {
 	FilePath envfp( dl.fullPath(idx) );
@@ -1028,10 +1039,14 @@ bool OD::PythonAccess::validInternalEnvironment( const FilePath& fp )
 #endif
 	envfp.add( sPythonExecNm() );
 	if ( envfp.exists() )
+	{
+	    if ( islink )
+		const_cast<FilePath&>( fp ) = pythfp;
 	    return true;
+	}
     }
 
-    FilePath baseenvfp( fp );
+    FilePath baseenvfp( pythfp );
 #ifdef __unix__
     baseenvfp.add( "bin" );
 #endif
@@ -1131,6 +1146,21 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( FilePath& fp,
 	    if ( validInternalEnvironment(fp) )
 		return true;
 	}
+    }
+
+    fp.set( GetSoftwareDir(false) );
+    DirList dl( fp.pathOnly(), File::DirsInDir );
+    const BufferStringSet::idx_type defidx = dl.nearestMatch( "Python" );
+    if ( dl.validIdx(defidx) )
+	dl.swap( 0, defidx );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const FilePath pythfp( dl.fullPath(idx) );
+	if ( !validInternalEnvironment(pythfp) )
+	    continue;
+
+	fp = pythfp;
+	return true;
     }
 
     if ( !userdef )
