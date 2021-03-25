@@ -237,7 +237,7 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 	    filelist.addIfNew( files.fullPath(idx) );
     }
 
-    DirList dirs( dir, File::DirsInDir );
+    DirList dirs( dir, DirsInDir );
     for ( int idx=0; idx<dirs.size(); idx++ )
     {
 	BufferString curdir( dirs.fullPath(idx) );
@@ -1117,6 +1117,15 @@ const char* linkTarget( const char* linknm )
     pFreeFnErrMsg(not_implemented_str);
     ret = linknm;
 #endif
+    return ret.buf();
+}
+
+
+const char* linkEnd( const char* linknm )
+{
+    mDeclStaticString( ret );
+    const QFileInfo qfi( linknm );
+    ret.set( qfi.canonicalFilePath() );
     return ret.buf();
 }
 
