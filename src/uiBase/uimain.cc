@@ -400,7 +400,8 @@ uiMain::uiMain( QApplication* qapp )
 uiMain::~uiMain()
 {
     detachAllNotifiers();
-    DBM().applClosing();
+    if ( NeedDataBase() )
+	 DBM().applClosing();
     delete keyhandler_;
     delete keyfilter_;
     delete tabletfilter_;

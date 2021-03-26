@@ -53,9 +53,12 @@
 
 static BufferString		initialdir_;
 static int			argc_ = -1;
-static char**			argv_ = 0;
+static char**			argv_ = nullptr;
+static bool			datarootrequired_ = true;
 int& GetArgC()			{ return argc_; }
 char** GetArgV()		{ return argv_; }
+bool NeedDataBase()		{ return datarootrequired_; }
+
 bool AreProgramArgsSet()	{ return argc_ != -1; }
 mGlobal(Basic) void SetArgcAndArgv( int argc, char** argv )
 				{ argc_ = argc; argv_ = argv; }
@@ -818,6 +821,7 @@ mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
 	argv_[idx] = argv[idx];
 
     od_putProgInfo( argc_, argv_ );
+    datarootrequired_ = drrequired;
     getDataRoot( drrequired );
 
 #ifndef __win__

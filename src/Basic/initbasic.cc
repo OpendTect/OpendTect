@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "coordsystem.h"
 #include "debug.h"
 #include "file.h"
+#include "genc.h"
 #include "legal.h"
 #include "moddepmgr.h"
 #include "posinfo2dsurv.h"
@@ -51,17 +52,16 @@ mDefModInitFn(Basic)
     //forking from a process that had affinity set.
     Threads::setCurrentThreadProcessorAffinity(-1);
 
+    System::CrashDumper::getInstance().setSendAppl(
+		System::CrashDumper::sSenderAppl() );
+
+    legalInformation().addCreator( qtLegalText, "Qt" );
+    OD::PythonAccess::initClass();
+
+    if ( !NeedDataBase() )
+	return;
 
     PosInfo::Survey2D::initClass();
     Coords::UnlocatedXY::initClass();
     Coords::AnchorBasedXY::initClass();
-
-    System::CrashDumper::getInstance().setSendAppl(
-	    System::CrashDumper::sSenderAppl() );
-
-#ifndef OD_NO_QT
-    legalInformation().addCreator( qtLegalText, "Qt" );
-#endif
-
-    OD::PythonAccess::initClass();
 }
