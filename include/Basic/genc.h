@@ -118,3 +118,4 @@ mGlobal(Basic) void SetProgramArgs(int argc,char** argv,
 mGlobal(Basic) bool AreProgramArgsSet(void);
 mGlobal(Basic) char** GetArgV(void);
 mGlobal(Basic) int& GetArgC(void);
+mGlobal(Basic) bool NeedDataBase();

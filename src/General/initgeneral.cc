@@ -12,7 +12,9 @@ ________________________________________________________________________
 
 #include "dbman.h"
 #include "elasticpropseltransl.h"
-#include "survgeometryio.h"
+#include "genc.h"
+#include "googlexmlwriter.h"
+#include "geojsonwriter.h"
 #include "ioobjselectiontransl.h"
 #include "mathformulatransl.h"
 #include "mathproperty.h"
@@ -21,9 +23,8 @@ ________________________________________________________________________
 #include "probeimpl.h"
 #include "probetr.h"
 #include "rangeposprovider.h"
+#include "survgeometryio.h"
 #include "survgeometrytransl.h"
-#include "googlexmlwriter.h"
-#include "geojsonwriter.h"
 
 
 typedef BufferString (*strFromDBKeyFn)(const DBKey&);
@@ -86,11 +87,12 @@ GeneralModuleIniter::GeneralModuleIniter()
     ValueProperty::initClass();
     RangeProperty::initClass();
     MathProperty::initClass();
-
-    Survey::GeometryIO_init2DGeometry();
-
     GeoJSONWriter::initClass();
     ODGoogle::KMLWriter::initClass();
 
+    if ( !NeedDataBase() )
+	return;
+
+    Survey::GeometryIO_init2DGeometry();
     DBM().initFirst(); //Trigger creation & reading of geometries
 }
