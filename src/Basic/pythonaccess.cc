@@ -1303,7 +1303,7 @@ BufferString OD::PythonAccess::getPacmanExecNm() const
 #endif
 	packmanexe.setFileName( "conda" );
 #ifdef __win__
-	packmanexe.setExtension( "bat" );
+	packmanexe.setExtension( "exe" );
 #endif
 	if ( packmanexe.exists() )
 	    return packmanexe.baseName();
