@@ -293,7 +293,7 @@ void File::makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
     if ( !isSane(dir) )
 	return;
 
-    DirList files( dir, File::FilesInDir );
+    DirList files( dir, FilesInDir );
     for ( int idx=0; idx<files.size(); idx++ )
     {
 	if ( !followlinks )
@@ -1022,20 +1022,9 @@ const char* File::linkTarget( const char* linknm )
 
 const char* File::linkEnd( const char* linknm )
 {
-    BufferString prvfnm = linknm;
-    for ( int ifollow=0; ; ifollow++ )
-    {
-	if ( ifollow == 100 )
-	    { prvfnm = linknm; break; }
-
-	BufferString curfnm = linkTarget( prvfnm );
-	if ( curfnm == prvfnm )
-	    break;
-	prvfnm = curfnm;
-    }
-
     mDeclStaticString( ret );
-    ret = prvfnm;
+    const QFileInfo qfi( linknm );
+    ret.set( qfi.canonicalFilePath() );
     return ret.buf();
 }
 
