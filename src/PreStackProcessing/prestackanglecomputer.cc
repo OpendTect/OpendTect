@@ -73,6 +73,19 @@ void AngleComputer::setRayTracer( const IOPar& raypar )
 }
 
 
+RayTracer1D* AngleComputer::curRayTracer()
+{
+    mDynamicCastGet(ModelBasedAngleComputer*,modcomputer,this);
+    if ( modcomputer )
+	return modcomputer->curRayTracer();
+
+    const AngleComputer* thiscomputer =
+		const_cast<const AngleComputer*>( this );
+    const RayTracer1D* rt = thiscomputer->curRayTracer();
+	return const_cast<RayTracer1D*>( rt );
+}
+
+
 void AngleComputer::setSmoothingPars( const IOPar& smpar )
 {
     int smoothtype = 0;
@@ -376,12 +389,13 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 
 Gather* AngleComputer::computeAngleData()
 {
-    Gather* gather = new Gather( outputsampling_ );
+    PtrMan<Gather> gather = new Gather( outputsampling_ );
     Array2D<float>& angledata = gather->data();
 
     if ( needsraytracing_ )
     {
-	if ( !raytracer_ )
+	RayTracer1D* raytracer = curRayTracer();
+	if ( !raytracer )
 	{
 	    IOPar iopar;
 	    const int lastitem = RayTracer1D::factory().size()-1;
@@ -390,23 +404,24 @@ Gather* AngleComputer::computeAngleData()
 		    : VrmsRayTracer1D::sFactoryKeyword() );
 	    uiString errormsg;
 	    raytracer_ = RayTracer1D::createInstance( iopar, errormsg );
+	    raytracer = raytracer_;
 	    if ( !errormsg.isEmpty() )
-		return 0;
+		return nullptr;
 	}
 
-	raytracer_->setup().doreflectivity( false );
+	raytracer->setup().doreflectivity( false );
 	TypeSet<float> offsets;
 	outputsampling_.getPositions( true, offsets );
-	raytracer_->setOffsets( offsets );
-	if ( !raytracer_->setModel(curElasticModel()) )
-	    return 0;
+	raytracer->setOffsets( offsets );
+	if ( !raytracer->setModel(curElasticModel()) )
+	    return nullptr;
 
-	if ( !raytracer_->execute() )
-	    return 0;
+	if ( !raytracer->execute() )
+	    return nullptr;
     }
 
     if ( !fillandInterpArray(angledata) )
-	return 0;
+	return nullptr;
 
     int smtype;
     iopar_.get( sKeySmoothType(), smtype );
@@ -416,7 +431,7 @@ Gather* AngleComputer::computeAngleData()
     else if ( smtype == FFTFilter )
 	fftSmooth( angledata );
 
-    return gather;
+    return gather.release();
 }
 
 
@@ -489,6 +504,41 @@ Gather* VelocityBasedAngleComputer::computeAngles()
 
 
 // ModelBasedAngleComputer
+ModelBasedAngleComputer::ModelTool::ModelTool( const ElasticModel& em,
+				const TrcKey& tk )
+    : em_(new ElasticModel(em))
+    , trckey_(tk)
+    , ownrt_(true)
+{
+    IOPar iopar;
+    const int lastitem = RayTracer1D::factory().size()-1;
+    iopar.set( sKey::Type(), lastitem >= 0
+	    ? RayTracer1D::factory().getNames().get( lastitem ).str()
+	    : VrmsRayTracer1D::sFactoryKeyword() );
+    uiString errormsg;
+    //Creating a raytrace1D instance, to ensure the base class won't do it
+    rt_ = RayTracer1D::createInstance( iopar, errormsg );
+    rt_->setModel( *em_ );
+}
+
+
+ModelBasedAngleComputer::ModelTool::ModelTool( const RayTracer1D* rt,
+				const TrcKey& tk )
+    : rt_(const_cast<RayTracer1D*>(rt))
+    , trckey_(tk)
+    , ownrt_(false)
+{
+}
+
+
+ModelBasedAngleComputer::ModelTool::~ModelTool()
+{
+    delete em_;
+    if ( ownrt_ )
+	delete rt_;
+}
+
+
 const ElasticModel&
 	ModelBasedAngleComputer::ModelTool::elasticModel() const
 { return rt_ ? rt_->getModel() : *em_; }
@@ -500,9 +550,15 @@ ModelBasedAngleComputer::ModelBasedAngleComputer()
 }
 
 
+ModelBasedAngleComputer::~ModelBasedAngleComputer()
+{
+    deepErase( tools_ );
+}
+
+
 void ModelBasedAngleComputer::setElasticModel( const TrcKey& tk,
 					       bool block, bool pvelonly,
-					       ElasticModel& em	)
+					       ElasticModel& em )
 {
     if ( block )
     {
@@ -510,7 +566,7 @@ void ModelBasedAngleComputer::setElasticModel( const TrcKey& tk,
 	em.setMaxThickness( maxthickness_ );
     }
 
-    ModelTool* tool = new ModelTool( em, tk );
+    auto* tool = new ModelTool( em, tk );
     const int toolidx = tools_.indexOf( tool );
     if ( toolidx<0 )
 	tools_ += tool;
@@ -524,7 +580,7 @@ void ModelBasedAngleComputer::setElasticModel( const TrcKey& tk,
 void ModelBasedAngleComputer::setRayTracer( const RayTracer1D* rt,
 					    const TrcKey& tk )
 {
-    ModelTool* tool = new ModelTool( rt, tk );
+    auto* tool = new ModelTool( rt, tk );
     const int toolidx = tools_.indexOf( tool );
     if ( toolidx<0 )
 	tools_ += tool;
@@ -570,7 +626,7 @@ const ModelBasedAngleComputer::ModelTool*
     for ( int idx=0; idx<tools_.size(); idx++ )
 	if ( tools_[idx]->trcKey() == trckey_ )
 	    return tools_[idx];
-    return 0;
+    return nullptr;
 }
 
 
@@ -580,10 +636,19 @@ const ElasticModel& ModelBasedAngleComputer::curElasticModel() const
 }
 
 
+RayTracer1D* ModelBasedAngleComputer::curRayTracer()
+{
+    const ModelBasedAngleComputer* thisinstance =
+		const_cast<const ModelBasedAngleComputer*>( this );
+    const RayTracer1D* rt = thisinstance->curRayTracer();
+    return const_cast<RayTracer1D*>( rt );
+}
+
+
 const RayTracer1D* ModelBasedAngleComputer::curRayTracer() const
 {
     if ( raytracer_ ) return raytracer_;
-    return curModelTool() ? curModelTool()->rayTracer() : 0;
+    return curModelTool() ? curModelTool()->rayTracer() : nullptr;
 }
 
 

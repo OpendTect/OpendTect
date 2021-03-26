@@ -46,7 +46,7 @@ public:
     enum smoothingType { None, MovingAverage, FFTFilter };
     mDeclareEnumUtils(smoothingType)
 
-        virtual Gather* computeAngles() = 0;
+    virtual Gather* computeAngles() = 0;
     virtual bool		isOK() const = 0;
     void			setTrcKey(const TrcKey & tk)
     {
@@ -55,7 +55,8 @@ public:
 
     void			setOutputSampling(const FlatPosData&);
     void			setRayTracer(const IOPar & raypar);
-    void			setGatherIsNMOCorrected( bool yn ) { gatheriscorrected_ = yn; }
+    void			setGatherIsNMOCorrected( bool yn )
+				{ gatheriscorrected_ = yn; }
     void			setNoSmoother();
 			    /*!<\param length Filter length in survey Z unit*/
     void			setMovingAverageSmoother(float length,
@@ -84,6 +85,7 @@ protected:
 
     virtual const ElasticModel&	curElasticModel() const = 0;
     virtual const RayTracer1D*	curRayTracer() const = 0;
+    RayTracer1D*		curRayTracer();
 
     IOPar			iopar_;
     FlatPosData			outputsampling_;
@@ -133,28 +135,29 @@ public:
     class ModelTool
     {
     public:
-				ModelTool(const ElasticModel& em,
-						 const TrcKey& tk )
-				    : rt_(0), em_(new ElasticModel(em))
-				    , trckey_(tk) {}
-				ModelTool(const RayTracer1D* rt,
-						 const TrcKey& tk )
-				    : rt_(rt), em_(0), trckey_(tk) {}
-				~ModelTool()	{ delete em_; }
+				ModelTool(const ElasticModel&,const TrcKey&);
+				ModelTool(const RayTracer1D*,const TrcKey&);
+				~ModelTool();
 
 	const RayTracer1D*	rayTracer() const { return rt_; }
 	const ElasticModel&	elasticModel() const;
 	const TrcKey&		trcKey() const	{ return trckey_; }
-	bool			operator ==( const ModelTool& a ) const
-				{ return a.trcKey() == trckey_; }
+	bool			operator ==( const ModelTool& oth ) const
+				{ return oth.trcKey() == trckey_; }
 
     protected:
-	ElasticModel*		em_;
-	const RayTracer1D*	rt_;
+	ElasticModel*		em_ = nullptr;
+	RayTracer1D*		rt_ = nullptr;
+	bool ownrt_;
 	TrcKey			trckey_;
+
+    private:
+				ModelTool(const ModelTool&) = delete;
+	ModelTool&			operator=(const ModelTool&) = delete;
     };
 
 				ModelBasedAngleComputer();
+				~ModelBasedAngleComputer();
 
     void			setElasticModel(const TrcKey&,bool doblock,
 						bool pvelonly,ElasticModel&);
@@ -165,6 +168,7 @@ public:
 				{ return curElasticModel().size(); }
 
     Gather*			computeAngles();
+    RayTracer1D*		curRayTracer();
 
 protected:
 
