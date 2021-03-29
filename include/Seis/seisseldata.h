@@ -75,6 +75,9 @@ public:
     static SelData*	get(const IOPar&,const SurveyInfo* si=nullptr);
     static SelData*	get(const DBKey&);
 
+    bool		operator ==(const SelData&) const;
+    bool		operator !=(const SelData&) const;
+
     virtual Type	type() const			= 0;
     virtual bool	is2D() const			{ return false; }
     virtual bool	isAll() const			{ return false; }

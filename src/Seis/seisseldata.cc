@@ -33,6 +33,29 @@ typedef StepInterval<pos_type> pos_steprg_type;
 typedef StepInterval<z_type> z_steprg_type;
 
 
+bool Seis::SelData::operator ==( const Seis::SelData& oth ) const
+{
+    if ( &oth == this )
+	return true;
+
+    if ( type() != oth.type() || is2D() != oth.is2D() ||
+	 isAll() != oth.isAll() )
+	return false;
+
+    IOPar thisiop, othiop;
+    fillPar( thisiop );
+    oth.fillPar( othiop );
+
+    return thisiop == othiop;
+}
+
+
+bool Seis::SelData::operator !=( const Seis::SelData& oth ) const
+{
+    return !(*this == oth);
+}
+
+
 const char* Seis::SelData::sNrLinesKey()
 {
     return Survey::FullHorSubSel::sNrLinesKey();

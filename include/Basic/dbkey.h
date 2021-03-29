@@ -133,6 +133,7 @@ public:
     inline DBKeySet&	operator =( const DBKeySet& oth )
 			{ deepCopy( dbkys_, oth.dbkys_ ); return *this; }
     bool		operator ==(const DBKeySet&) const;
+    bool		operator !=(const DBKeySet&) const;
 
     inline size_type	size() const		{ return dbkys_.size(); }
     inline bool		isEmpty() const		{ return dbkys_.isEmpty(); }
