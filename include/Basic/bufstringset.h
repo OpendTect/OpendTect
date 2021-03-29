@@ -38,6 +38,7 @@ public:
 			{ return new BufferStringSet(*this); }
     virtual		~BufferStringSet()	{}
     bool		operator ==(const BufferStringSet&) const;
+    bool		operator !=(const BufferStringSet&) const;
 
     inline size_type	size() const		{ return strs_.size(); }
     inline bool		isEmpty() const		{ return strs_.isEmpty(); }

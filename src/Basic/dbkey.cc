@@ -156,6 +156,9 @@ DBKey& DBKey::operator =( const DBKey& oth )
 
 bool DBKey::operator ==( const DBKey& oth ) const
 {
+    if ( &oth == this )
+	return true;
+
     if ( !IDWithGroup<int,int>::operator ==(oth) )
 	return false;
 
@@ -324,6 +327,9 @@ uiString DBKey::toUiString() const
 
 bool DBKeySet::operator ==( const DBKeySet& oth ) const
 {
+    if ( &oth == this )
+	return true;
+
     const size_type sz = size();
     if ( sz != oth.size() )
 	return false;
@@ -334,6 +340,12 @@ bool DBKeySet::operator ==( const DBKeySet& oth ) const
 	    return false;
     }
     return true;
+}
+
+
+bool DBKeySet::operator !=( const DBKeySet& oth ) const
+{
+    return !(*this == oth);
 }
 
 

@@ -571,17 +571,26 @@ BufferStringSet::BufferStringSet( const char* s1, const char* s2,
 }
 
 
-bool BufferStringSet::operator ==( const BufferStringSet& bss ) const
+bool BufferStringSet::operator ==( const BufferStringSet& oth ) const
 {
-    if ( size() != bss.size() )
-	return false;
+    if ( &oth == this )
+	return true;
 
     const size_type sz = size();
+    if ( sz != oth.size() )
+	return false;
+
     for ( idx_type idx=0; idx<sz; idx++ )
-	if ( get(idx) != bss.get(idx) )
+	if ( get(idx) != oth.get(idx) )
 	    return false;
 
     return true;
+}
+
+
+bool BufferStringSet::operator !=( const BufferStringSet& oth ) const
+{
+    return !(*this == oth);
 }
 
 
