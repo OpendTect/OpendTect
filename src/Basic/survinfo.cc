@@ -560,11 +560,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
 	    if ( fms.size() > 3 )
 	    {
 		if ( *fms[3] == 'T' )
-		{
 		    si->zdef_ = ZDomain::Time();
-		    si->depthsinfeet_ = false;
-		    si->getPars().getYN( sKeyDpthInFt(), si->depthsinfeet_ );
-		}
 		else
 		{
 		    si->zdef_ = ZDomain::Depth();
@@ -600,7 +596,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
 	si->coordsystem_ =
 		Coords::CoordSystem::createSystem( *coordsyssubpar );
 
-    if ( !si->coordsystem_ )
+    if ( si->coordsystem_ )
+	si->xyinfeet_ = si->coordsystem_->isFeet();
+    else
     {
 	if ( si->ll2c_.isOK() )
 	{
@@ -615,6 +613,17 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
 	    RefMan<Coords::UnlocatedXY> undefsystem = new Coords::UnlocatedXY;
 	    undefsystem->setIsFeet( si->xyinfeet_ );
 	    si->coordsystem_ = undefsystem;
+	}
+    }
+
+    if ( si->zdef_ == ZDomain::Time() )
+    {
+	if ( si->xyinfeet_ )
+	    si->depthsinfeet_ = true;
+	else
+	{
+	    si->depthsinfeet_ = false;
+	    si->getPars().getYN( sKeyDpthInFt(), si->depthsinfeet_ );
 	}
     }
 
