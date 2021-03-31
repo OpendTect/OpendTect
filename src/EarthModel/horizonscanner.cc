@@ -282,8 +282,16 @@ bool HorizonScanner::analyzeData()
 	BinID bid( mNINT32(crd.x), mNINT32(crd.y) );
 
 	bool validplacement = false;
-	if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
-	if ( SI().isReasonable(bid) ) { nrbid++; validplacement=true; }
+	if ( selxy_ )
+	{
+	    if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
+	    else if ( SI().isReasonable(bid) ) { nrbid++; validplacement=true; }
+	}
+	else
+	{
+	    if ( SI().isReasonable(bid) ) { nrbid++; validplacement=true; }
+	    else if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
+	}
 
 	if ( !isgeom_ )
 	{
