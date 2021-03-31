@@ -278,8 +278,9 @@ public:
     const BufferStringSet&	ioObjIds() const	{ return ids_; }
 
     static float	calcVal(const Log&,float dah,float winsz,
-					Stats::UpscaleType samppol,
-					float maxholesz=mUdf(float));
+				Stats::UpscaleType samppol,
+				float maxholesz=mUdf(float),
+				bool logisvel=false);
 
 protected:
 

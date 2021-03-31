@@ -131,7 +131,7 @@ public:
     void			showKnownPositions();
     void			restoreDispProp();
     Well::Data*			getWD() const;
-    Well::Data*			getWD(Well::LoadReqs&) const;
+    Well::Data*			getWD(const Well::LoadReqs&) const;
     bool			needsConversionToTime() const;
 
     bool			allowsPicks() const	{ return true; }
@@ -159,10 +159,6 @@ protected:
     void			saveDispProp( const Well::Data* wd );
     void			setLogInfo(BufferString&,BufferString&,
 					   float,bool) const;
-    bool			upscaleLogs(const Well::Data& wd,
-					    Well::Log& logdata,
-					    Well::Log* logfill,
-					    visBase::Well::LogParams&) const;
     void			removePick(const visBase::EventInfo&);
     void			addPick(const visBase::EventInfo&,int);
 

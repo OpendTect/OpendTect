@@ -6,12 +6,15 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "bufstringset.h"
 #include "iopar.h"
 #include "idxable.h"
 #include "mnemonics.h"
+#include "paralleltask.h"
+#include "stattype.h"
 #include "unitofmeasure.h"
 
 const char* Well::Log::sKeyMnemLbl()	{ return "Mnemonic"; }
@@ -419,3 +422,42 @@ bool Well::Log::insertAtDah( float dh, float val )
     return true;
 }
 
+
+mDefParallelCalc5Pars(LogUpScaler, od_static_tr("LogUpScaler", "Upscale a log"),
+    const Well::Log&, login, Well::Log&, logout,
+    const StepInterval<float>&, dahrg, const Stats::UpscaleType, uptype,
+    const bool, logisvel)
+mDefParallelCalcBody( ,
+const float dah = dahrg_.atIndex(idx);
+const float val = Well::LogDataExtracter::calcVal(login_, dah, dahrg_.step,
+						    uptype_, logisvel_);
+logout_.setValue(idx, val);
+,
+)
+
+
+Well::Log* Well::Log::upScaleLog( const StepInterval<float>& dahrg ) const
+{
+    Well::Log* outlog = Well::Log::createSampledLog( dahrg, 1.0 );
+    const Stats::UpscaleType uptype = isCode() ? Stats::UseMostFreq :
+						    Stats::UseAvg;
+    const bool logisvel = propType() == PropertyRef::Vel;
+    LogUpScaler upscaler( outlog->size(), *this, *outlog, dahrg, uptype,
+			    logisvel );
+    upscaler.execute();
+    return outlog;
+}
+
+
+Well::Log* Well::Log::createSampledLog(const StepInterval<float>& dahrg,
+				 const float val)
+{
+    Well::Log* wl = new Well::Log;
+    const int nr = dahrg.nrSteps();
+    for (int idx = 0; idx < nr + 1; idx++)
+    {
+	const float dah = dahrg.atIndex(idx);
+	wl->addValue(dah, val);
+    }
+    return wl;
+}

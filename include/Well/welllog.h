@@ -81,6 +81,10 @@ public:
     PropertyRef::StdType propType() const;
     bool		isCode() const			{ return iscode_; }
 			//!< log values are all integers stored as floats
+			//!
+    Log*		upScaleLog(const StepInterval<float>&) const;
+    static Log*		createSampledLog(const StepInterval<float>&,
+					 const float val = mUdf(float));
 
     static const char*	sKeyMnemLbl();
     static const char*	sKeyUnitLbl();

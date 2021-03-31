@@ -113,12 +113,14 @@ Well::Data* WellDisplay::getWD() const
 }
 
 
-Well::Data* WellDisplay::getWD( Well::LoadReqs& reqs ) const
+Well::Data* WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 {
+    Well::LoadReqs lreqs(reqs);
+    lreqs.includes(Well::DispProps3D);
     if ( !wd_ )
     {
 	WellDisplay* self = const_cast<WellDisplay*>( this );
-	self->wd_ = Well::MGR().get( wellid_, reqs );
+	self->wd_ = Well::MGR().get( wellid_, lreqs );
 	Well::MGR().reloadDispPars( wd_->multiID(), false );
 	if ( wd_ )
 	{
@@ -133,7 +135,7 @@ Well::Data* WellDisplay::getWD( Well::LoadReqs& reqs ) const
     }
     else
     {
-	Well::MGR().get( wellid_, reqs );
+	Well::MGR().get( wellid_, lreqs );
     }
 
     return wd_;
@@ -260,19 +262,17 @@ void WellDisplay::fullRedraw( CallBacker* )
 #define mErrRet(s) { errmsg_ = s; return false; }
 bool WellDisplay::setMultiID( const MultiID& multiid )
 {
-    if ( wd_ )
-	wd_->unRef();
-
-    wellid_ = multiid; wd_ = 0;
-    mGetWD(return false);
+    unRefAndZeroPtr(wd_);
+    wellid_ = multiid;
+    RefMan<Well::Data> wd = getWD();
+    if (!wd)
+	return false;
     const Well::D2TModel* d2t = wd->d2TModel();
     const bool trackabovesrd = wd->track().zRange().stop <
 			      -1.f * mCast(float,SI().seismicReferenceDatum());
     if ( zistime_ && !d2t && !trackabovesrd )
 	mErrRet( "No depth to time model defined" )
 
-    wellid_ = multiid;
-    fullRedraw(0);
     changed_.trigger();
     return true;
 }
@@ -321,7 +321,7 @@ void WellDisplay::updateMarkers( CallBacker* )
 {
     if ( !well_ ) return;
     well_->removeAllMarkers();
-    Well::LoadReqs lreqs( Well::Mrkrs );
+    const Well::LoadReqs lreqs( Well::Mrkrs );
     RefMan<Well::Data> wd = getWD( lreqs );
     if ( !wd )
 	return;
@@ -399,26 +399,36 @@ void WellDisplay::setLineStyle( const OD::LineStyle& lst )
 
 #define getminVal(minval,val)  val < minval ? val : minval
 #define getmaxVal(maxval,val)  val > maxval ? val : maxval
+#define cMaxLogSamp 2000
 
 void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 {
-    Well::LoadReqs lreqs( Well::LogInfos );
+    const Well::LoadReqs lreqs(Well::Trck,  Well::LogInfos );
     RefMan<Well::Data> wd = getWD( lreqs );
     if ( !wd )
 	return;
 
-    const BufferString lognm( wd->logs().getLog( lp.logidx_ ).name() );
-    PtrMan<Well::Log> logdata = new Well::Log( *wd->getLog( lognm ) );
-    PtrMan<Well::Log> logfill = 0;
-
-    if ( isfilled )
-    {
-	const BufferString fillnm( wd->logs().getLog( lp.filllogidx_ ).name() );
-	logfill = new Well::Log( *wd->getLog( fillnm ) );
-    }
-
-    if ( !upscaleLogs(*wd,*logdata,logfill,lp) )
+    if (wd->track().size() < 2)
 	return;
+
+    const BufferString lognm( wd->logs().getLog( lp.logidx_ ).name() );
+    StepInterval<float> dahrg = wd->logs().getLog( lp.logidx_ ).dahRange();
+    dahrg.step = dahrg.width() / mCast(float, cMaxLogSamp - 1);
+    PtrMan<Well::Log> logdata = wd->getLog(lognm)->upScaleLog(dahrg);
+    logdata->setName( lognm );
+
+    PtrMan<Well::Log> logfill;
+    if (isfilled)
+    {
+	const BufferString fillnm(wd->logs().getLog(lp.filllogidx_).name());
+	if (lognm == fillnm)
+	    logfill = new Well::Log(*logdata);
+	else
+	{
+	    logfill = wd->getLog(fillnm)->upScaleLog(dahrg);
+	    logfill->setName(fillnm);
+	}
+    }
 
     const Well::Track& track = needsConversionToTime() ? *timetrack_
 						       : wd->track();
@@ -471,60 +481,6 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 
 }
 
-#define cMaxLogSamp 2000
-
-bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
-			       Well::Log* logfill,
-			       visBase::Well::LogParams& ld ) const
-{
-    const Well::Track& track = wd.track();
-    if ( track.size() < 2 )
-	return false;
-
-    const Well::Log* logdatain = wd.logs().getLog( logdata.name() );
-    const Well::Log* logfillin = !logfill ? 0
-					  : wd.logs().getLog( logfill->name() );
-    if ( !logdatain || (logfill && !logfillin) || logdata.isEmpty() )
-	return false;
-
-    float start = logdata.dah( 0 );
-    if ( start < track.dahRange().start )
-	start = track.dahRange().start;
-
-    float stop = logdata.dah( logdata.size()-1 );
-    if ( stop > track.dahRange().stop )
-	stop = track.dahRange().stop;
-
-    StepInterval<float> dahrange( start, stop, mUdf(float) );
-    dahrange.step = dahrange.width() / mCast(float, cMaxLogSamp-1 );
-
-    logdata.setEmpty();
-    if ( logfill )
-	logfill->setEmpty();
-
-    const bool filldata = logdatain == logfillin;
-    const Stats::UpscaleType logdatastats =
-	logdatain->isCode() ? Stats::UseMostFreq : Stats::UseAvg;
-    const Stats::UpscaleType logfillstats =
-	logfillin && logfillin->isCode() ? Stats::UseMostFreq : Stats::UseAvg;
-    for ( int idah=0; idah<dahrange.nrSteps()+1; idah++ )
-    {
-	const float dah = dahrange.atIndex( idah );
-	float val = Well::LogDataExtracter::calcVal( *logdatain,
-				dah, dahrange.step, logdatastats );
-	logdata.addValue( dah, val );
-	if ( logfill )
-	{
-	    if ( !filldata )
-		val = Well::LogDataExtracter::calcVal( *logfillin,
-					dah, dahrange.step, logfillstats );
-	    logfill->addValue( dah, val );
-	}
-    }
-
-    return true;
-}
-
 
 static bool mustBeFilled( const visBase::Well::LogParams& lp )
 {
@@ -534,7 +490,7 @@ static bool mustBeFilled( const visBase::Well::LogParams& lp )
 
 void WellDisplay::setLogDisplay( visBase::Well::Side side )
 {
-    Well::LoadReqs lreqs( Well::LogInfos );
+    const Well::LoadReqs lreqs( Well::LogInfos );
     RefMan<Well::Data> wd = getWD( lreqs );
     if ( !wd )
 	return;
