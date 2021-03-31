@@ -1200,6 +1200,20 @@ const char* getTempPath()
 }
 
 
+const char* getUserAppDataPath()
+{
+    mDeclStaticString( ret );
+
+#ifndef OD_NO_QT
+    if ( ret.isEmpty() )
+	ret = QStandardPaths::locate( QStandardPaths::AppDataLocation, "",
+				      QStandardPaths::LocateDirectory );
+
+#endif
+    return ret.buf();
+}
+
+
 const char* getRootPath( const char* path )
 {
     mDeclStaticString( ret );

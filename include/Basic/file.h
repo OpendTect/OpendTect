@@ -111,6 +111,7 @@ mGlobal(Basic) od_int64		getTimeInMilliSeconds( const char* fnm,
 mGlobal(Basic) const char*	getCurrentPath();
 mGlobal(Basic) const char*	getHomePath();
 mGlobal(Basic) const char*	getTempPath();
+mGlobal(Basic) const char*	getUserAppDataPath();
 mGlobal(Basic) const char*	getRootPath(const char* path);
 
 mGlobal(Basic) const char*	asciiFilesFilter();
