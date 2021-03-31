@@ -456,7 +456,7 @@ void Survey::FullZSubSel::fillPar( IOPar& iop ) const
     if ( sz == 1 )
     {
 	if ( is2D() )
-	    iop.set( sKey::GeomID(), GeomID() );
+	    iop.set( sKey::GeomID(), geomID() );
 	else
 	    iop.removeWithKey( sKey::GeomID() );
 	iop.set( sKey::ZRange(), zRange() );
@@ -477,10 +477,21 @@ void Survey::FullZSubSel::fillPar( IOPar& iop ) const
 
 void Survey::FullZSubSel::fillJSON( OD::JSON::Object& obj ) const
 {
+    const int sz = size();
+    if ( sz == 1 )
+    {
+	if ( is2D() )
+	    obj.set( sKey::GeomID(), geomID() );
+	else
+	    obj.remove( sKey::GeomID() );
+	obj.set( sKey::ZRange(), zRange() );
+	return;
+    }
+
     auto* zssobj = obj.set( sKeyZSS, new OD::JSON::Object );
     zssobj->set( sKey::Is2D(), is2D() );
     auto* zsssarr = zssobj->set( sKey::Subsel(), new OD::JSON::Array(true) );
-    for ( int idx=0; idx<size(); idx++ )
+    for ( int idx=0; idx<sz; idx++ )
     {
 	auto* zsssobj = zsssarr->add( new OD::JSON::Object );
 	zsssobj->set( sKey::GeomID(), geomids_.get( idx ) );
@@ -567,8 +578,11 @@ void Survey::FullZSubSel::useJSON( const OD::JSON::Object& inpobj,
     if ( !obj )
     {
 	//Seis::SelData format
-	const bool iopis2d = !inpobj.isPresent( sKey::SurveyID() );
-	if ( iopis2d )
+	bool is2d; SubSel::GeomID gid;
+	if ( !SubSel::getInfo(inpobj,is2d,gid) )
+	    return;
+
+	if ( is2d )
 	{
 	    int idx = 0;
 	    const auto* lineobj = inpobj.getArray( sKey::Line() );
@@ -587,8 +601,7 @@ void Survey::FullZSubSel::useJSON( const OD::JSON::Object& inpobj,
 		else
 		    break;
 
-		bool is2d = true; GeomID gid;
-		Survey::SubSel::getInfo( *obj, is2d, gid );
+		SubSel::getInfo( *obj, is2d, gid );
 		if ( is2d && gid.isValid() )
 		{
 		    z_steprg_type zrg;
