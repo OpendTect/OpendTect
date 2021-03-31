@@ -47,6 +47,29 @@ void Seis::SelData::copyFrom( const Seis::SelData& sd )
 }
 
 
+bool Seis::SelData::operator ==( const Seis::SelData& oth ) const
+{
+    if ( &oth == this )
+	return true;
+
+    if ( type() != oth.type() || geomid_ != oth.geomid_ ||
+	 isall_ != oth.isall_ )
+	return false;
+
+    IOPar thisiop, othiop;
+    fillPar( thisiop );
+    oth.fillPar( othiop );
+
+    return thisiop == othiop;
+}
+
+
+bool Seis::SelData::operator !=( const Seis::SelData& oth ) const
+{
+    return !(*this == oth);
+}
+
+
 void Seis::SelData::removeFromPar( IOPar& iop )
 {
     iop.removeWithKey( sKeyBinIDSel );
