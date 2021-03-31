@@ -17,7 +17,49 @@ ________________________________________________________________________
 
 
 DBKey::~DBKey()
-{}
+{
+    delete survloc_;
+}
+
+
+DBKey& DBKey::operator =( const DBKey& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    MultiID::operator =( oth );
+    delete survloc_;
+    survloc_ = oth.survloc_ ? new SurveyDiskLocation(*oth.survloc_) : nullptr;
+
+    return *this;
+}
+
+
+bool DBKey::operator ==( const DBKey& oth ) const
+{
+    if ( &oth == this )
+	return true;
+
+    if ( MultiID::operator!=(oth) )
+	return false;
+
+    const bool iscursuv = isInCurrentSurvey();
+    const bool othiscursurv = oth.isInCurrentSurvey();
+    if ( iscursuv && othiscursurv )
+	return true;
+    else if ( iscursuv || othiscursurv )
+	return false;
+    else if ( *survloc_ != *oth.survloc_ )
+	return false;
+
+    return true;
+}
+
+
+bool DBKey::operator !=( const DBKey& oth ) const
+{
+    return !(*this == oth);
+}
 
 
 void DBKey::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
@@ -85,8 +127,11 @@ DBKeySet& DBKeySet::operator=( const TypeSet<MultiID>& mids )
 }
 
 
-bool DBKeySet::operator==( const DBKeySet& oth ) const
+bool DBKeySet::operator ==( const DBKeySet& oth ) const
 {
+    if ( &oth == this )
+	return true;
+
     const size_type sz = size();
     if ( sz != oth.size() )
 	return false;
@@ -97,6 +142,12 @@ bool DBKeySet::operator==( const DBKeySet& oth ) const
 	    return false;
     }
     return true;
+}
+
+
+bool DBKeySet::operator !=( const DBKeySet& oth ) const
+{
+    return !(*this == oth);
 }
 
 

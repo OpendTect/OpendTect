@@ -30,6 +30,10 @@ public:
 			{}
 			~DBKey();
 
+    DBKey&		operator =(const DBKey&);
+    bool		operator ==(const DBKey&) const;
+    bool		operator !=(const DBKey&) const;
+
     bool		isValid() const		{ return !isUdf(); }
 
     void		setSurveyDiskLocation(const SurveyDiskLocation&);
@@ -61,10 +65,11 @@ public:
 			~DBKeySet()		{ deepErase(dbkys_); }
     DBKeySet*		clone() const override	{ return new DBKeySet(*this); }
 
-    inline DBKeySet&	operator=( const DBKeySet& oth )
+    inline DBKeySet&	operator =( const DBKeySet& oth )
 			{ deepCopy( dbkys_, oth.dbkys_ ); return *this; }
-    DBKeySet&		operator=( const TypeSet<MultiID>& oth );
-    bool		operator==(const DBKeySet&) const;
+    DBKeySet&		operator =( const TypeSet<MultiID>& oth );
+    bool		operator ==(const DBKeySet&) const;
+    bool		operator !=(const DBKeySet&) const;
 
     inline size_type	size() const		{ return dbkys_.size(); }
     inline bool		isEmpty() const		{ return dbkys_.isEmpty(); }
@@ -75,8 +80,8 @@ public:
 						{ return indexOf(dbky) >= 0;}
     DBKey&		get( idx_type idx )	{ return *dbkys_.get(idx); }
     const DBKey&	get( idx_type idx ) const { return *dbkys_.get(idx); }
-    DBKey&		operator[](idx_type idx) { return *dbkys_[idx]; }
-    const DBKey&	operator[](idx_type idx) const { return *dbkys_[idx]; }
+    DBKey&		operator [](idx_type idx) { return *dbkys_[idx]; }
+    const DBKey&	operator [](idx_type idx) const { return *dbkys_[idx]; }
     DBKey&		first()			{ return *dbkys_.first(); }
     const DBKey&	first() const		{ return *dbkys_.first(); }
     DBKey&		last()			{ return *dbkys_.last(); }
@@ -99,9 +104,9 @@ public:
     void		swap( idx_type i1, idx_type i2 )
 						{ dbkys_.swap( i1, i2 ); }
 
-    inline DBKeySet&	operator+=( DBKey* k )		{ return add(k); }
-    inline DBKeySet&	operator+=( const DBKey& k )	{ return add(k); }
-    inline DBKeySet&	operator-=( const DBKey& k )	{ return remove(k); }
+    inline DBKeySet&	operator +=( DBKey* k )		{ return add(k); }
+    inline DBKeySet&	operator +=( const DBKey& k )	{ return add(k); }
+    inline DBKeySet&	operator -=( const DBKey& k )	{ return remove(k); }
 
     void		addTo(BufferStringSet&) const;
 
