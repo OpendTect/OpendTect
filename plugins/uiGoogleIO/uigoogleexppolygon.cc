@@ -55,40 +55,40 @@ bool uiGISExportPolygon::acceptOK( CallBacker* )
 	return false;
     }
 
-    Pick::Set pickset;
+    Pick::Set picks;
     BufferString errmsg;
     PtrMan<GISWriter> wrr = expfld_->createWriter();
     if ( !wrr )
 	return false; // Put some error message here
 
-    ObjectSet<const Pick::Set> picks;
+    ObjectSet<const Pick::Set> pickssets;
     for ( auto objid : objids )
     {
-	pickset.setEmpty();
+	picks.setEmpty();
 	if ( !PickSetTranslator::retrieve(
-					pickset,IOM().get(objid),true,errmsg) )
+					picks,IOM().get(objid),true,errmsg) )
 	    continue;
 
-	if ( pickset.isPolygon() )
+	if ( picks.isPolygon() )
 	{
 	    TypeSet<Coord3> coords;
 	    ObjectSet<const Pick::Location> locs;
-	    pickset.getLocations( locs );
+	    picks.getLocations( locs );
 	    if ( locs.isEmpty() )
 		continue;
 
 	    for ( auto loc : locs )
 		coords += loc->pos();
 
-	    coords += pickset.first().pos();
-	    wrr->writePolygon( coords, pickset.getName() );
+	    coords += picks.first().pos();
+	    wrr->writePolygon( coords, picks.getName() );
 	}
 	else
-	    picks.add( new Pick::Set(pickset) );
+	    pickssets.add( new Pick::Set(picks) );
     }
 
-    if ( !pickset.isPolygon() )
-	wrr->writePoint( picks );
+    if ( !picks.isPolygon() )
+	wrr->writePoint( pickssets );
 
     wrr->close();
     const bool ret = uiMSG().askGoOn( wrr->successMsg() );
