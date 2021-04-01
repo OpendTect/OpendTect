@@ -104,6 +104,8 @@ bool ODGoogle::KMLWriter::writePolygon( const pickset& picks )
 
 	putPoly( coords, pick->name() );
     }
+
+    return true;
 }
 
 
