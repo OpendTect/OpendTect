@@ -29,6 +29,13 @@ const char* HDF5::Access::sNoDataPassed()
 { return "HDF5: Null data passed"; }
 
 
+HDF5::DataSetKey::DataSetKey( const char* grpnm, const char* dsnm )
+    : dsnm_(dsnm)
+{
+    setGroupName( grpnm );
+}
+
+
 BufferString HDF5::DataSetKey::fullDataSetName() const
 {
     File::Path fp;
@@ -72,6 +79,60 @@ HDF5::DataSetKey HDF5::DataSetKey::groupKey( const char* fullparentnm,
     BufferString grpkynm = grpfp.fullPath( File::Path::Unix );
     grpkynm.insertAt( 0, "/" );
     return DataSetKey( grpkynm );
+}
+
+
+void HDF5::DataSetKey::setChunkSize( int idim, int sz )
+{
+    setChunkSize( &sz, 1, idim );
+}
+
+
+void HDF5::DataSetKey::setChunkSize( const int* szs, int nrdims,
+				     int from, int to )
+{
+    if ( !szs )
+    {
+	chunkszs_.setEmpty();
+	return;
+    }
+
+    if ( to < 0 )
+	to = from + nrdims;
+
+    for ( int idx=chunkszs_.size(); idx<to; idx++ )
+	chunkszs_ += mUdf(int);
+    for ( int i=from, idx=0; i<to; i++, idx++ )
+	chunkszs_[i] = szs[idx] > 0 ? szs[idx] : mUdf(int);
+}
+
+
+void HDF5::DataSetKey::setCanResizeDim( int idim, int maxsz )
+{
+    if ( idim < 0 )
+    {
+	maxsizedim_.setEmpty();
+	return;
+    }
+    else if ( maxsz < 1 )
+	return;
+
+    editable_ = true;
+    for ( int idx=maxsizedim_.size(); idx<=idim; idx++ )
+	maxsizedim_ += mUdf(int);
+    maxsizedim_[idim] = maxsz;
+}
+
+
+int HDF5::DataSetKey::chunkSz( int idim ) const
+{
+    return chunkszs_.validIdx(idim) ? chunkszs_[idim] : mUdf(int);
+}
+
+
+int HDF5::DataSetKey::maxDimSz(int idim ) const
+{
+    return maxsizedim_.validIdx(idim) ? maxsizedim_[idim] : mUdf(int);
 }
 
 
@@ -449,7 +510,8 @@ uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
 
 
 uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
-				      const ArrayNDInfo& inf, ODDataType dt )
+				      const ArrayNDInfo& inf,
+				      ODDataType dt )
 {
     uiRetVal uirv;
     if ( !file_ )
@@ -535,7 +597,7 @@ uiRetVal HDF5::Writer::put( const DataSetKey& dsky, const BufferStringSet& bss )
 	mRetNoScopeInUiRv()
 
     if ( !bss.isEmpty() )
-	ptStrings( bss, *grpscope, setDSScope(dsky), dsky.dataSetName(), uirv );
+	ptStrings( bss, *grpscope, setDSScope(dsky), dsky.dataSetName(), uirv);
 
     return uirv;
 }

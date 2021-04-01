@@ -33,14 +33,16 @@ typedef OD::DataRepType	ODDataType;
   are valid for an entire group, then leave the dataset name empty.
   Leave the group name empty (null) for a top level DataSet
 
+  One can set edition and chunk sizes properties, which will be
+  used when creating the dataset and writing to it.
+
  */
 
 mExpClass(General) DataSetKey
 {
 public:
-			DataSetKey( const char* grpnm=nullptr,
-				    const char* dsnm=nullptr )
-			    : dsnm_(dsnm)	{ setGroupName(grpnm); }
+			DataSetKey(const char* grpnm=nullptr,
+				   const char* dsnm=nullptr);
 
     inline const char*	groupName() const	{ return grpnm_; }
     inline DataSetKey&	setGroupName( const char* nm )
@@ -54,15 +56,33 @@ public:
     inline bool		hasDataSet( const char* nm ) const
 						{ return dsnm_ == nm; }
 
+    inline bool		isEditable() const	{ return editable_; }
+    inline void		setEditable( bool yn )	{ editable_ = yn; }
+
     BufferString	fullDataSetName() const;
 
-    static DataSetKey	groupKey(const DataSetKey& parentgrp,const char* subgrpnm);
+    static DataSetKey	groupKey(const DataSetKey& parentgrp,
+				 const char* subgrpnm);
     static DataSetKey	groupKey(const char* parentfulldsnm,const char* grpnm);
+
+    void		setChunkSize(int idim,int sz);
+    void		setChunkSize(const int* szs,int nrdims=1,
+				     int from=0,int to=-1);
+			//<! Pass nullptr to disable
+    void		setCanResizeDim(int idim,int maxsz=256);
+			//!< Always switches on the editability
+
+    int			chunkSz(int idim) const;
+    int			maxDimSz(int idim) const;
 
 protected:
 
     BufferString	grpnm_;
     BufferString	dsnm_;
+
+    bool		editable_ = false;
+    TypeSet<int>	chunkszs_;
+    TypeSet<int>	maxsizedim_;
 
 };
 

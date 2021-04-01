@@ -95,22 +95,19 @@ public:
     virtual bool	isReader() const	{ return false; }
     virtual Reader*	createCoupledReader() const			= 0;
 
-    virtual void	setChunkSize(int)				= 0;
-    virtual void	setEditableCreation(bool yn)			= 0;
-			//!< default is false: no dataset grow/shrink
-
 private:
 
     virtual H5::DataSet*	crDS(const DataSetKey&,const ArrayNDInfo&,
-				ODDataType,uiRetVal&)			= 0;
+				     ODDataType,uiRetVal&)		= 0;
     virtual H5::DataSet*	crTxtDS(const DataSetKey&,uiRetVal&)	= 0;
     virtual void	reSzDS(const ArrayNDInfo&,H5::DataSet&,
 				uiRetVal&)				= 0;
     virtual void	ptSlab(const SlabSpec&,const void*,
 			       H5::DataSet&,uiRetVal&)	= 0;
     virtual void	ptAll(const void*,H5::DataSet&,uiRetVal&)	= 0;
-    virtual void	ptStrings(const BufferStringSet&,H5::Group&,
-				  H5::DataSet*,const char* dsnm,uiRetVal&) = 0;
+    virtual void	ptStrings(const BufferStringSet&,
+				  H5::Group&,H5::DataSet*,
+				  const char* dsnm,uiRetVal&) = 0;
     virtual void	rmAttrib(const char*,H5::H5Object&)		= 0;
     virtual void	rmAllAttribs(H5::H5Object&)			= 0;
 
