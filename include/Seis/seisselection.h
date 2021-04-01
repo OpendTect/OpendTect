@@ -92,6 +92,9 @@ public:
     virtual SelData*	clone() const		= 0;
     virtual void	copyFrom(const SelData&) = 0;
 
+    bool		operator ==(const SelData&) const;
+    bool		operator !=(const SelData&) const;
+
     bool		isAll() const		{ return isall_; }
     void		setIsAll( bool yn=true ) { isall_ = yn; }
     inline bool		isOK( const BinID& b ) const	{ return !selRes(b); }

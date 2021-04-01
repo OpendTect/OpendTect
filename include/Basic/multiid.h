@@ -46,10 +46,14 @@ public:
     inline MultiID&	operator =( const char* s )
 			{ impl_ = s; return *this; }
 
-    inline bool		operator==( const MultiID& m ) const
+    inline bool		operator ==( const MultiID& m ) const
 			{ return impl_ == m.impl_; }
-    inline bool		operator==( const char* s ) const
+    inline bool		operator ==( const char* s ) const
 			{ return impl_ == s; }
+    inline bool		operator !=( const MultiID& m ) const
+			{ return impl_ != m.impl_; }
+    inline bool		operator !=( const char* s ) const
+			{ return impl_ != s; }
 
     inline int		ID( int idx ) const
 			{ return key(idx).toInt(); }
