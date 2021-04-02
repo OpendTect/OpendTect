@@ -22,12 +22,6 @@
 #include "filepath.h"
 
 
-namespace Well
-{
-    static const int nrrowsperblock = 20;
-};
-
-
 
 Well::HDF5Writer::HDF5Writer( const char* fnm, const Data& wd,
 			      uiString& e )
@@ -42,7 +36,7 @@ Well::HDF5Writer::HDF5Writer( const IOObj& ioobj, const Data& wd,
 			      uiString& e )
     : WriteAccess(wd)
     , errmsg_(e)
-    , wrr_(nullptr)
+    , wrr_(0)
 {
     if ( !useHDF5(ioobj,errmsg_) || !errmsg_.isEmpty() )
 	return;
@@ -85,7 +79,7 @@ bool Well::HDF5Writer::useHDF5( const IOObj& ioobj, uiString& emsg )
 
 HDF5::Reader* Well::HDF5Writer::createCoupledHDFReader() const
 {
-    return wrr_ ? wrr_->createCoupledReader() : nullptr;
+    return wrr_ ? wrr_->createCoupledReader() : 0;
 }
 
 
@@ -103,6 +97,7 @@ void Well::HDF5Writer::init( const char* inpfnm, bool* fnmchgd )
     wrr_ = HDF5::mkWriter();
     if ( !wrr_ )
 	{ pErrMsg("Available but no writer?"); return; }
+    wrr_->setEditableCreation( true );
 
     filename_.set( orgfnm );
     if ( fnmchgd )
@@ -137,7 +132,7 @@ bool Well::HDF5Writer::ensureFileOpen() const
 
     if ( !uirv.isOK() )
     {
-	delete wrr_; const_cast<HDF5Writer*>(this)->wrr_ = nullptr;
+	delete wrr_; const_cast<HDF5Writer*>(this)->wrr_ = 0;
 	errmsg_.set( uirv );
 	return false;
     }
@@ -211,8 +206,7 @@ bool Well::HDF5Writer::putInfoAndTrack() const
 	arr.set( 3, idx, c.z_ );
     }
 
-    DataSetKey trackdsky( "", sTrackDSName() );
-    trackdsky.setCanResizeDim( 0, nrrowsperblock );
+    const DataSetKey trackdsky( "", sTrackDSName() );
     ensureCorrectDSSize( trackdsky, 4, iter.size(), uirv );
     mErrRetIfUiRvNotOK( trackdsky );
     HDF5::ArrayNDTool<double> arrtool( arr );
@@ -228,8 +222,7 @@ bool Well::HDF5Writer::doPutD2T( bool csmdl ) const
     mEnsureFileOpen();
 
     const D2TModel& d2t = csmdl ? wd_.checkShotModel(): wd_.d2TModel();
-    DataSetKey dsky( "", csmdl ? sCSMdlDSName() : sD2TDSName() );
-    dsky.setCanResizeDim( 0, nrrowsperblock );
+    const DataSetKey dsky( "", csmdl ? sCSMdlDSName() : sD2TDSName() );
 
     D2TModelIter iter( d2t ); // this locks
     const size_type sz = iter.size();
@@ -276,7 +269,6 @@ bool Well::HDF5Writer::putLogs() const
     mGetCoupledReader();
 
     DataSetKey dsky( sLogsGrpName() );
-    dsky.setCanResizeDim( 0, nrrowsperblock );
     const LogSet& logs = wd_.logs();
     LogSetIter iter( logs );
     const int nrlogs = iter.size();
@@ -300,7 +292,7 @@ bool Well::HDF5Writer::putLogs() const
     {
 	dsky.setDataSetName( toString(idx) );
 	if ( rdr->hasDataSet(dsky) )
-	    setLogAttribs( dsky, nullptr );
+	    setLogAttribs( dsky, 0 );
 	else
 	    break;
     }
@@ -344,8 +336,7 @@ bool Well::HDF5Writer::putLog( int logidx, const Log& wl, uiRetVal& uirv ) const
     }
     iter.retire();
 
-    DataSetKey dsky( sLogsGrpName(), toString(logidx) );
-    dsky.setCanResizeDim( 0, nrrowsperblock );
+    const DataSetKey dsky( sLogsGrpName(), toString(logidx) );
     HDF5::ArrayNDTool<ZType> arrtool( arr );
     uirv = arrtool.put( *wrr_, dsky );
     mErrRetIfUiRvNotOK( dsky );
@@ -360,7 +351,6 @@ bool Well::HDF5Writer::putMarkers() const
 
     const MarkerSet& ms = wd_.markers();
     DataSetKey dsky( sMarkersGrpName(), "" );
-    dsky.setCanResizeDim( 0, nrrowsperblock );
     typedef MarkerSet::LevelID::IDType LvlIDType;
 
     BufferStringSet nms, colors;
