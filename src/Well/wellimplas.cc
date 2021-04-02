@@ -67,6 +67,7 @@ const char* Well::LASImporter::getLogInfo( const char* fnm,
     return res;
 }
 
+
 #define mIsKey(s) caseInsensitiveEqual(keyw,s,0)
 #define mErrRet(s) { lfi.depthcolnr = -1; return s; }
 
@@ -249,14 +250,18 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	    }
 	    if ( mIsKey("LATI") || mIsKey("LAT") )
 	    {
-		// TODO: use UOM
 		BufferString lat = val2 && *val2 ? val2 : val1;
+		if ( LatLong::isDMSString(lat) )
+		    lat = BufferString( val1, " ", val2 );
+
 		ll.setFromString( lat, true );
 	    }
 	    if ( mIsKey("LONG") || mIsKey("LON") )
 	    {
-		// TODO: use UOM
 		BufferString lon = val2 && *val2 ? val2 : val1;
+		if ( LatLong::isDMSString(lon) )
+		    lon = BufferString( val1, " ", val2 );
+
 		ll.setFromString( lon, false );
 	    }
 	break;
@@ -266,9 +271,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
     }
 
     if ( lfi.loc_.isUdf() && ll.isDefined() )
-    {
 	lfi.loc_ = LatLong::transform( ll );
-    }
 
     if ( convs_.isEmpty() )
 	mErrRet( "Could not find any valid log in file" )
@@ -352,6 +355,9 @@ void Well::LASImporter::parseLocation( const char* startptr1,
     BufferString word( 64, true );
     char* wordbuf = word.getCStr();
     startptr = (char*)getNextWord( startptr, wordbuf );
+    if ( !startptr )
+	return;
+
     Coord pos;
     LatLong ll;
     bool islatlong = locstr.contains('N') || locstr.contains('S') ||

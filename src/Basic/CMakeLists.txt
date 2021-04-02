@@ -27,6 +27,7 @@ set( OD_TEST_PROGS
 	file.cc
 	geometry.cc
 	globexpr.cc
+	latlong.cc
 	math2.cc
 	memcopying.cc
 	od_iostream.cc
