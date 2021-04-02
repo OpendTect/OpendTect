@@ -40,7 +40,7 @@ Notes:
 */
 
 mExpClass(General) Writer : public Access
-{
+{ mODTextTranslationClass(Writer)
 public:
 
     uiRetVal		open4Edit(const char*);
@@ -56,6 +56,16 @@ public:
     uiRetVal		createDataSet(const DataSetKey&,const ArrayNDInfo&,
 				      ODDataType);
     uiRetVal		createDataSet(const DataSetKey&,int,ODDataType);
+    uiRetVal		createDataSetIfMissing(const DataSetKey&,ODDataType,
+				const ArrayNDInfo& addedsz,
+				const ArrayNDInfo& changedir,
+				PtrMan<ArrayNDInfo>* existsinfo =nullptr);
+			//!<param changedir: Array reshaping behaviour
+			//! for each dimension: -1 = shrink, 0 = no change
+			//! 1 = grow
+    uiRetVal		createDataSetIfMissing(const DataSetKey&,ODDataType,
+				int addedsz,int changedir=1,
+				int* existsnrsamples =nullptr);
     uiRetVal		createTextDataSet(const DataSetKey&);
     uiRetVal		resizeDataSet(const DataSetKey&,const ArrayNDInfo&);
 			//!< You cannot change the 'rank', just the dim sizes

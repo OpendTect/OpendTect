@@ -524,6 +524,83 @@ uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
 }
 
 
+uiRetVal HDF5::Writer::createDataSetIfMissing( const DataSetKey& dsky,
+					ODDataType dt,
+					int addedsz, int changedir,
+					int* existsnrsamples )
+{
+    PtrMan<ArrayNDInfo> existsinfo;
+    uiRetVal uirv = createDataSetIfMissing( dsky, dt, Array1DInfoImpl(addedsz),
+					    Array1DInfoImpl(changedir),
+					    &existsinfo );
+    if ( uirv.isOK() && existsnrsamples &&
+	 existsinfo.ptr() && existsinfo->nrDims() > 0 )
+	*existsnrsamples = existsinfo->getSize(0);
+
+    return uirv;
+}
+
+
+uiRetVal HDF5::Writer::createDataSetIfMissing( const DataSetKey& dsky,
+					ODDataType dt,
+					const ArrayNDInfo& addedinf,
+					const ArrayNDInfo& changedirs,
+					PtrMan<ArrayNDInfo>* existsinfo )
+{
+    uiRetVal uirv;
+    if ( !hasDataSet(dsky) )
+    {
+	uirv = createDataSet( dsky, addedinf, dt );
+	if ( existsinfo )
+	    existsinfo->set( nullptr, true );
+	return uirv;
+    }
+
+    PtrMan<Reader> rdr = createCoupledReader();
+    if ( !rdr )
+    {
+	uirv = mINTERNAL("Cannot create HDF5 reader from writer");
+	return uirv;
+    }
+
+    const OD::DataRepType retdtyp = rdr->getDataType( dsky, uirv );
+    if ( retdtyp != dt )
+    {
+	uirv.add( tr("Cannot open existing HDF5 dataset for write: "
+		     "mismatching data type") );
+	return uirv;
+    }
+
+    //TODO: check if the dataset is resizable
+
+    const int rank = addedinf.rank();
+
+    PtrMan<ArrayNDInfo> retinfo = rdr->getDataSizes( dsky, uirv );
+    if ( !retinfo )
+	return uirv;
+    else if ( retinfo->rank() != rank )
+    {
+	uirv.add( tr("Cannot open existing HDF5 dataset for write: "
+			    "mismatching array sizes") );
+	return uirv;
+    }
+
+    PtrMan<ArrayNDInfo> newszs = ArrayNDInfoImpl::create( rank );
+    for ( int idim=0; idim<rank; idim++ )
+    {
+	const int dir = changedirs.getSize(idim);
+	const int newsz = retinfo->getSize(idim) +
+			  dir * addedinf.getSize(idim);
+	newszs->setSize( idim, newsz );
+    }
+
+    if ( existsinfo )
+	*existsinfo = retinfo.release();
+
+    return resizeDataSet( dsky, *newszs );
+}
+
+
 uiRetVal HDF5::Writer::createTextDataSet( const DataSetKey& dsky )
 {
     uiRetVal uirv;
