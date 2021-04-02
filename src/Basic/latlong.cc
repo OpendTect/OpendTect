@@ -97,6 +97,47 @@ void LatLong::setDMS( bool lat, int d, int m, float s )
 }
 
 
+bool LatLong::isDMSString( const BufferString& llstr )
+{
+    const bool hasmin = llstr.contains( '\'' );
+    const bool hassec = llstr.contains( '\"' ) || llstr.contains( "''" );
+    return hasmin && hassec;
+}
+
+
+bool LatLong::parseDMSString( const BufferString& llstr, bool lat )
+{
+    // Lat-Long string as in: DDD MM' SS.SSSS'' (or SS.SSSS")
+    const SeparString ss( llstr.buf(), ' ' );
+    if ( ss.size() < 4 )
+	return false;
+
+    int degs = toInt( ss[0] );
+
+    BufferString minstr = ss[1];
+    minstr.remove( '\'' );
+    int mins = toInt( minstr );
+
+    BufferString secstr = ss[2];
+    secstr.remove( '\"' );
+    secstr.remove( '\'' );
+    float secs = toFloat( secstr );
+
+    const FixedString NESW = ss[3];
+    if ( NESW.size()==1 && degs>0 && (NESW[0]=='S' || NESW[0]=='W') )
+	degs *= -1;
+
+    if ( degs < 0 )
+    {
+	mins *= -1;
+	secs *= -1;
+    }
+
+    setDMS( lat, degs, mins, secs );
+    return true;
+}
+
+
 bool LatLong::setFromString( const char* str, bool lat )
 {
 // Supports strings formatted as dddmmssssh or ggg.gggggh
@@ -104,6 +145,9 @@ bool LatLong::setFromString( const char* str, bool lat )
     BufferString llstr = str;
     if ( llstr.isEmpty() )
 	return false;
+
+    if ( isDMSString(llstr) && parseDMSString(llstr,lat) )
+	return true;
 
     char& lastchar = llstr[llstr.size()-1];
     const bool hasSW = lastchar=='S' || lastchar=='W';
@@ -181,7 +225,7 @@ bool LatLong::setFromString( const char* str, bool lat )
 // LatLong2Coord
 LatLong2Coord::LatLong2Coord()
     : latdist_(cAvgEarthRadius*mDeg2RadD)
-    , lngdist_(mUdf(float))
+    , lngdist_(mUdf(double))
     , scalefac_(-1)
 {
 }
