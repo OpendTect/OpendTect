@@ -362,24 +362,6 @@ bool testLock( bool testcount, const char* type )
 }
 
 
-bool testSimpleSpinLock()
-{
-    volatile int lock = 0;
-    Threads::lockSimpleSpinLock( lock, Threads::Locker::WaitIfLocked );
-
-    mRunTest( "Simple spinlock acquire lock", (lock==1));
-    mRunTest( "Simple spinlock trylock on locked lock.",
-        !Threads::lockSimpleSpinLock( lock, Threads::Locker::DontWaitForLock ));
-
-    Threads::unlockSimpleSpinLock( lock );
-    mRunTest( "Simple spinlock release lock", lock==0 );
-
-    mRunTest( "Simple spinlock trylock on unlocked lock.",
-         Threads::lockSimpleSpinLock( lock, Threads::Locker::DontWaitForLock ));
-
-    return true;
-}
-
 bool testConditionVarTimeout()
 {
     Threads::ConditionVar condvar;
@@ -418,7 +400,6 @@ int mTestMainFnName( int argc, char** argv )
 
     if ( !testAtomicSetIfValueIs()
       || !testAtomicPointer()
-      || !testSimpleSpinLock()
       || !testConditionVarTimeout()
       || !testLock<Threads::Mutex>( false, "Mutex" )
       || !testLock<Threads::SpinLock>( true, "SpinLock" ) )
