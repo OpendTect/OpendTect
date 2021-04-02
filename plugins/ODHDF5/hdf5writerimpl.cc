@@ -235,6 +235,7 @@ void HDF5::WriterImpl::ptSlab( const SlabSpec& spec, const void* data,
     TypeSet<hsize_t> counts;
     try
     {
+	const H5::DSetCreatPropList proplist = h5ds.getCreatePlist();
 	H5::DataSpace filedataspace = h5ds.getSpace();
 	selectSlab( filedataspace, spec, &counts );
 	H5::DataSpace memdataspace( (nr_dims_type)spec.size(), counts.arr(),
