@@ -245,39 +245,8 @@ namespace OD
 }
 
 
-//--- Local static variable initialization ---
-// The circus below is because the M$ VS compiler does not properly initialise
-// static local variables under MT conditions (baffling, but true).
-// End result: never declare static local variables other than with the
-// mDefineStaticLocalObject macro.
-// Note that if you want to MT-safely return static local variables, you should
-// think about perthreadrepos.h stuff, for example the mDeclStaticString macro.
-
-#ifdef __win__
-namespace Threads
-{
-    mGlobal(Basic) bool lockSimpleSpinWaitLock(volatile int& lock);
-    mGlobal(Basic) void unlockSimpleSpinLock(volatile int& lock);
-}
-
-#define mLockStaticInitLock( nm ) \
-static volatile int nm = 0; \
-Threads::lockSimpleSpinWaitLock( nm )
-
-#define mUnlockStaticInitLock( nm ) \
-Threads::unlockSimpleSpinLock( nm )
-
-#else
-
-#define mLockStaticInitLock( nm )
-#define mUnlockStaticInitLock( nm )
-
-#endif
-
 #define mDefineStaticLocalObject( type, var, init ) \
-mLockStaticInitLock( static##var##lck__ ); \
 static type var init; \
-mUnlockStaticInitLock( static##var##lck__ );
 
 
 //--- Single-shot initialization support
