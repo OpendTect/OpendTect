@@ -74,6 +74,8 @@ public:
     uiString		    successMsg();
     uiString		    errMsg();
 
+    void		    setProperties(const GISWriter::Property&);
+
 protected:
 					    GISWriter();
     od_ostream*				    strm_	= nullptr;

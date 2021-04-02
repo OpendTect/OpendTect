@@ -83,7 +83,7 @@ bool uiGISExportSurvey::acceptOK( CallBacker* )
     props.width_ = mNINT32( lsfld_->getWidth() * 0.1f );
     props.stlnm_ = "survey";
     props.nmkeystr_ = "SURVEY_ID";
-    //wrr->setProperties( props );
+    wrr->setProperties( props );
     if ( !wrr->writePolygon(coords,si_->name()) )
     {
 	uiMSG().error( wrr->errMsg() );

@@ -34,27 +34,9 @@ public:
     typedef JSON::Object	Object;
     typedef JSON::Array		Array;
 
-			GeoJsonTree()
-			    : coordsys_(SI().getCoordSystem())
-			    , featarr_(0)
-			    , polyarr_(0)
-			    , topobj_(new Object())
-			{}
-			GeoJsonTree( const GeoJsonTree& oth )
-			    : Object(oth)
-			    , filename_(oth.filename_)
-			    , coordsys_( SI().getCoordSystem() )
-			    , topobj_(new Object())
-			    , featarr_(0)
-			    , polyarr_(0)
-			{}
-			GeoJsonTree( const Object& obj )
-			    : Object(obj)
-			    , coordsys_(SI().getCoordSystem())
-			    , topobj_(new Object())
-			    , featarr_(0)
-			    , polyarr_(0)
-			{}
+			GeoJsonTree();
+			GeoJsonTree(const GeoJsonTree& oth);
+			GeoJsonTree(const Object& obj);
     virtual		~GeoJsonTree()			{}
 
 			// will do GeoJSon check
@@ -77,15 +59,15 @@ public:
     ValueSet*		createJSON(BufferString geomtyp,
 			   const coord2dset& crdset, const BufferStringSet& nms,
 			    ConstRefMan<Coords::CoordSystem>,
-			    const BufferString& iconnm=BufferString::empty() );
+			    GISWriter::Property&);
     ValueSet*		createJSON(BufferString geomtyp,
 			   const coord3dset& crdset, const BufferStringSet& nms,
-			   ConstRefMan<Coords::CoordSystem>,
-			    const BufferString& iconnm=BufferString::empty());
+			    ConstRefMan<Coords::CoordSystem>,
+			    GISWriter::Property&);
     ValueSet*		createJSON(BufferString geomtyp,
 			      const pickset&,ConstRefMan<Coords::CoordSystem>,
 			    const BufferString& iconnm=BufferString::empty());
-    //void		setProperties(const GISWriter::Property&);
+    void		setProperties(const GISWriter::Property&);
 
 protected:
 
@@ -101,10 +83,10 @@ protected:
     Array*		createFeatCoordArray(Array* featarr, BufferString typ,
 							GISWriter::Property);
     Object*		createCRSArray(Array* featarr);
-    ConstRefMan<Coords::CoordSystem>	    coordsys_;
-    Array*		featarr_;
-    Array*		polyarr_;
-    Object*		topobj_;
+    ConstRefMan<Coords::CoordSystem> coordsys_		= SI().getCoordSystem();
+    Array*		featarr_			= nullptr;
+    Array*		polyarr_			= nullptr;
+    Object*		topobj_				= new Object();
     void		setCRS(ConstRefMan<Coords::CoordSystem>);
 
 };

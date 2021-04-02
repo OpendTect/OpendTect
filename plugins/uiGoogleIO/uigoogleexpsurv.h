@@ -14,7 +14,7 @@ class uiGenInput;
 class uiSelLineStyle;
 
 
-mClass(uiGoogleIO) uiGISExportSurvey : public uiDialog
+mExpClass(uiGoogleIO) uiGISExportSurvey : public uiDialog
 { mODTextTranslationClass(uiGISExportSurvey);
 public:
 

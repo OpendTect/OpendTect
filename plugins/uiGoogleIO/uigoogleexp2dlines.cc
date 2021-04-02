@@ -32,22 +32,27 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 
-uiGISExport2DSeis::uiGISExport2DSeis( uiSeis2DFileMan* p )
+uiGISExport2DSeis::uiGISExport2DSeis( uiParent* p, uiSeis2DFileMan* man,
+						    const BufferString& lnm )
     : uiDialog(p,uiDialog::Setup(
 		uiStrings::phrExport( tr("selected 2D seismics to GIS") ),
 		tr("Specify how to export"),
 		mODHelpKey (mGoogleExport2DSeisHelpID) ) )
-    , s2dfm_(p)
-    , putallfld_(0)
-    , allsel_(false)
+    , s2dfm_(man)
 {
-    getInitialSelectedLineNames();
-    const int nrsel = sellnms_.size();
+    if ( !lnm.isEmpty() && !man )
+	sellnms_.add( lnm );
 
-    if ( !allsel_ )
-	putallfld_ = new uiGenInput( this, uiStrings::sExport(),
-                                     BoolInpSpec(true,uiStrings::sAll(),
-		    nrsel > 1 ? tr("Selected lines"):tr("Selected line")) );
+    if ( man )
+    {
+	getInitialSelectedLineNames();
+	const int nrsel = sellnms_.size();
+
+	if ( !allsel_ )
+	    putallfld_ = new uiGenInput( this, uiStrings::sExport(),
+					 BoolInpSpec(true,uiStrings::sAll(),
+			nrsel > 1 ? tr("Selected lines"):tr("Selected line")) );
+    }
 
     const char* choices[]
 		= { "No", "At Start/End", "At Start only", "At End only", 0 };
@@ -78,6 +83,9 @@ uiGISExport2DSeis::~uiGISExport2DSeis()
 
 void uiGISExport2DSeis::getFinalSelectedLineNames()
 {
+    if ( !s2dfm_ )
+	return;
+
     if ( !allsel_ )
 	allsel_ = putallfld_ ? putallfld_->getBoolValue() : false;
     if ( !allsel_ )
@@ -92,6 +100,9 @@ void uiGISExport2DSeis::getFinalSelectedLineNames()
 
 void uiGISExport2DSeis::getInitialSelectedLineNames()
 {
+    if ( !s2dfm_ )
+	return;
+
     const uiListBox& lb( *s2dfm_->getListBox(false) );
     sellnms_.erase();
     const int nrsel = lb.nrChosen();
@@ -107,7 +118,9 @@ void uiGISExport2DSeis::getInitialSelectedLineNames()
 
 bool uiGISExport2DSeis::acceptOK( CallBacker* )
 {
-    getFinalSelectedLineNames();
+    if ( s2dfm_ )
+	getFinalSelectedLineNames();
+
     PtrMan<GISWriter> wrr = expfld_->createWriter();
     if (!wrr)
 	return false;
@@ -116,9 +129,10 @@ bool uiGISExport2DSeis::acceptOK( CallBacker* )
     props.color_ = lsfld_->getColor();
     props.width_ = lsfld_->getWidth() * .1;
     props.nmkeystr_ = "Line_No";
-    //wrr->setProperties( props );
+    wrr->setProperties( props );
     ObjectSet<const Pick::Set> picks;
     TypeSet<Coord> coords;
+
     for ( int idx=0; idx<sellnms_.size(); idx++ )
 	getCoordsForLine( picks, sellnms_.get(idx) );
 
@@ -134,13 +148,19 @@ bool uiGISExport2DSeis::acceptOK( CallBacker* )
 }
 
 
-void uiGISExport2DSeis::getCoordsForLine( pickset& picks, const char* lnm )
+void uiGISExport2DSeis::getCoordsForLine( pickset& picks,
+						    const BufferString& lnm )
 {
-    const Seis2DDataSet& dset( *s2dfm_->dataset_ );
-    const int iln = dset.indexOf( lnm );
-    if ( iln < 0 )
+    if ( lnm.isEmpty() )
 	return;
 
+    if ( s2dfm_ )
+    {
+	const Seis2DDataSet& dset( *s2dfm_->dataset_ );
+	const int iln = dset.indexOf( lnm );
+	if ( iln < 0 )
+	    return;
+    }
     mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 						Survey::GM().getGeometry(lnm));
     if ( !geom2d || geom2d->isEmpty() )

@@ -6,6 +6,7 @@
  * ID       : $Id$
 -*/
 
+#include "uigoogleiomod.h"
 #include "uidialog.h"
 #include "uifileinput.h"
 #include "uigeninput.h"

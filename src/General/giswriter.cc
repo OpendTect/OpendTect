@@ -93,3 +93,8 @@ uiString GISWriter::errMsg()
 {
     return tr("Failed to create %1").arg( factoryDisplayName() );
 }
+
+void GISWriter::setProperties( const GISWriter::Property& props )
+{
+    properties_ = props;
+}

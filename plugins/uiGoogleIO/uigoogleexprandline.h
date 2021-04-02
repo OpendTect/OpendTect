@@ -12,14 +12,14 @@ class uiSelLineStyle;
 namespace ODGoogle { class XMLWriter; }
 
 
-mClass(uiGoogleIO) uiGoogleExportRandomLine : public uiDialog
-{ mODTextTranslationClass(uiGoogleExportRandomLine);
+mExpClass(uiGoogleIO) uiGISExportRandomLine : public uiDialog
+{ mODTextTranslationClass(uiGISExportRandomLine);
 public:
 
-			uiGoogleExportRandomLine(uiParent*,
+			uiGISExportRandomLine(uiParent*,
 			    const TypeSet<Coord>* crd=nullptr,
 			    const char*nm=nullptr);
-			~uiGoogleExportRandomLine();
+			~uiGISExportRandomLine();
 
 protected:
 

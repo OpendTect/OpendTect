@@ -79,14 +79,14 @@ bool ODGoogle::KMLWriter::close()
 
 
 #define mDeclIconStNm \
-    const bool haveiconnm = !properties_.iconnm_.isEmpty(); \
-    const BufferString stnm( "s_od_icon_", \
+    const bool haveiconnm = !properties_.iconnm_.isEmpty() && \
+				     !properties_.iconnm_.isEqual("NONE"); \
+    const BufferString icnnm( "s_od_icon_", \
 			haveiconnm ? properties_.iconnm_ : "noicon" ) \
 
 bool ODGoogle::KMLWriter::writePolygon( const pickset& picks )
 {
-    if ( !putPolyStyle() )
-	return false;
+
 
     TypeSet<Coord3> coords;
     ObjectSet<const Pick::Location> locs;
@@ -99,9 +99,12 @@ bool ODGoogle::KMLWriter::writePolygon( const pickset& picks )
 	    continue;
 
 	pick->getLocations( locs );
+	locs.add( locs.get(0) );
 	for ( auto loc : locs )
 	    coords += loc->pos();
 
+	properties_.color_ = pick->disp_.color_;
+	putPolyStyle();
 	putPoly( coords, pick->name() );
     }
 
@@ -126,12 +129,14 @@ bool ODGoogle::KMLWriter::writePolygon( const coord2dset& coords,
 bool ODGoogle::KMLWriter::writePolygon( const coord3dset& coords,
 								const char* nm )
 {
-    return putPoly( coords, nm );
+    return putPolyStyle() && putPoly( coords, nm );
 }
 
 
 bool ODGoogle::KMLWriter::writeLine( const pickset& picks )
 {
+    putPolyStyle();
+
     ObjectSet<const Pick::Location> locs;
     TypeSet<Coord> coords;
 
@@ -153,7 +158,7 @@ bool ODGoogle::KMLWriter::writeLine( const pickset& picks )
 
 bool ODGoogle::KMLWriter::writeLine( const coord2dset& crdset, const char*nm )
 {
-    return putLine( crdset, nm );
+    return putPolyStyle() && putLine( crdset, nm );
 }
 
 
@@ -206,35 +211,27 @@ bool ODGoogle::KMLWriter::putIconStyles()
 
     mDeclIconStNm;
 
-    strm() << "\t<Style id=\"" << stnm << "\">\n"
+    strm() << "\t<Style id=\"" << icnnm << "\">\n"
 	"\t\t<IconStyle>\n"
 	"\t\t\t<scale>1.3</scale>\n";
-    if ( !properties_.iconnm_.isEqual("NONE") )
-	strm() << "\t\t\t<Icon></Icon>\n";
-    else
-	strm() << "\t\t\t<Icon>\n"
-	"\t\t\t\t<href>http://dgbes.com/images/od-"
-	<< properties_.iconnm_ << ".png</href>\n"
-	"\t\t\t</Icon>\n"
-	"\t\t<hotSpot x=\"" << properties_.xpixoffs_ <<
-	"\" y=\"2\" xunits=\"pixels\" yunits=\"pixels\"/>\n";
+
     strm() << "\t\t</IconStyle>\n";
-    strm() << "\t\t<OD::LineStyle>\n\t\t\t<color>";
+    strm() << "\t\t<LineStyle>\n\t\t\t<color>";
     strm() << properties_.color_.getStdStr( false, -1 );
     strm() << "</color>\n\t\t\t<width>";
     strm() << properties_.width_;
-    strm() << "</width>\n\t\t</OD::LineStyle>\n";
+    strm() << "</width>\n\t\t</LineStyle>\n";
 
     strm() << "\t</Style>\n\n";
 
-    strm() << "\t<StyleMap id=\"m" << stnm << "\">\n"
+    strm() << "\t<StyleMap id=\"m" << icnnm << "\">\n"
 	"\t\t<Pair>\n"
 	"\t\t\t<key>normal</key>\n"
-	"\t\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
+	"\t\t\t<styleUrl>#" << icnnm << "</styleUrl>\n"
 	"\t\t</Pair>\n"
 	"\t\t<Pair>\n"
 	"\t\t\t<key>highlight</key>\n"
-	"\t\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
+	"\t\t\t<styleUrl>#" << icnnm << "</styleUrl>\n"
 	"\t\t</Pair>\n"
 	"\t</StyleMap>\n\n" << od_endl;
 
@@ -269,7 +266,7 @@ bool ODGoogle::KMLWriter::putPlaceMark( const LatLong& ll, const char* nm )
 	"\t\t\t<heading>0</heading>\n"
 	"\t\t\t<altitudeMode>relativeToGround</altitudeMode>\n"
 	"\t\t</LookAt>\n"
-	"\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
+	"\t\t<styleUrl>#" << icnnm << "</styleUrl>\n"
 	"\t\t<Point>\n"
 	"\t\t\t<coordinates>" << lngstr;
     strm() << ',' << latstr << ",0</coordinates>\n"
@@ -288,7 +285,7 @@ bool ODGoogle::KMLWriter::putLine( const TypeSet<Coord>& crds, const char* nm )
     mDeclIconStNm;
     strm() << "\n\t<Placemark>\n"
 	"\t\t<name>" << nm << " [line]</name>\n"
-	"\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
+	"\t\t<styleUrl>#" << icnnm << "</styleUrl>\n"
 	"\t\t<LineString>\n"
 	"\t\t\t<tessellate>1</tessellate>\n"
 	"\t\t\t<coordinates>\n";
@@ -318,9 +315,11 @@ bool ODGoogle::KMLWriter::putPolyStyle()
 
     mDeclPolyStNm;
     strm() << "\t<Style id=\"" << properties_.stlnm_ << "\">\n"
-	"\t\t<OD::LineStyle>\n"
+	"\t\t<LineStyle>\n"
 	"\t\t\t<width>" << properties_.width_ << "</width>\n"
-	"\t\t</OD::LineStyle>\n"
+	"\t\t\t<color>" << properties_.color_.getStdStr( false, -1 )
+							    << "</color>\n"
+	"\t\t</LineStyle>\n"
 	"\t\t<PolyStyle>\n"
 	"\t\t\t<color>" << properties_.color_.getStdStr( false, -1 )
 			<< "</color>\n";

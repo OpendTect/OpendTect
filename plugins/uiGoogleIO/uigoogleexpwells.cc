@@ -137,7 +137,8 @@ bool uiGISExportWells::acceptOK( CallBacker* )
 	pick->add( loc );
 	picks.add( pick );
     }
-    //wrr->setProperties( prop );
+
+    wrr->setProperties( prop );
     if ( !wrr->writePoint(picks) )
     {
 	uiMSG().error( wrr->errMsg() );

@@ -35,8 +35,6 @@ bool GeoJSONWriter::open( const char* fnm )
     if ( !strm_ || !strm_->isOK() )
 	mErrRet( uiStrings::phrCannotOpenForWrite( fnm ) )
 
-    /*Do we need some header for file ??
-    */
     if ( !strm().isOK() )
     {
 	uiString emsg( tr("Error during write of GeoJSON header info") );
@@ -138,7 +136,7 @@ bool GeoJSONWriter::writeGeometry( BufferString geomtyp,
 	return false;
 
     OD::GeoJsonTree::ValueSet* valueset = geojsontree_->createJSON( geomtyp,
-						crdset, nms, coordsys_ );
+					crdset, nms, coordsys_, properties_ );
     BufferString str;
     valueset->dumpJSon( str );
     strm() << str;
@@ -154,7 +152,7 @@ bool GeoJSONWriter::writeGeometry( BufferString geomtyp,
 	return false;
 
     OD::GeoJsonTree::ValueSet* valueset = geojsontree_->createJSON( geomtyp,
-						crdset, nms, coordsys_ );
+					crdset, nms, coordsys_, properties_ );
     BufferString str;
     valueset->dumpJSon( str );
     strm() << str;

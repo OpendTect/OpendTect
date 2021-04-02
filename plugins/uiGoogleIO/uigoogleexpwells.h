@@ -10,7 +10,7 @@
 class uiMultiWellSel;
 class uiColorInput;
 
-mClass(uiGoogleIO) uiGISExportWells : public uiDialog
+mExpClass(uiGoogleIO) uiGISExportWells : public uiDialog
 { mODTextTranslationClass(uiGISExportWells);
 public:
 

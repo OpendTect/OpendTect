@@ -12,6 +12,21 @@
 #include "giswriter.h"
 #include "coordsystem.h"
 
+OD::GeoJsonTree::GeoJsonTree()
+    : Object(nullptr)
+{}
+
+
+OD::GeoJsonTree::GeoJsonTree( const GeoJsonTree& oth )
+    : Object(oth)
+    , filename_(oth.filename_)
+{}
+
+
+OD::GeoJsonTree::GeoJsonTree( const Object& obj )
+    : Object(obj)
+{}
+
 
 uiRetVal OD::GeoJsonTree::use( const char* fnm )
 {
@@ -97,10 +112,9 @@ void  OD::GeoJsonTree::addCoord( const Coord& coord, Array& poly )
     featarr_ = topobj_->set( "features", new Array(true) ); \
 } \
 
-#define mAddCoord \
+#define mAddCoordWithProperty(property) \
 for ( int idx=0; idx<nms.size(); idx++ ) \
 { \
-    GISWriter::Property property; \
     property.objnm_ = *nms[idx]; \
     polyarr_ = createFeatCoordArray( featarr_, geomtyp, property ); \
     Array* poly(0); \
@@ -148,8 +162,9 @@ OD::GeoJsonTree::Array* OD::GeoJsonTree::createFeatCoordArray( Array* featarr,
 
     Object* styleobj = featobj->set( "properties", new Object );
     const Color clr = property.color_;
-    styleobj->set( "fill", clr.getStdStr(false, -1) );
-    styleobj->set( "stroke-width", property.width_ );
+    styleobj->set( "fill", clr.getStdStr() );
+    styleobj->set( "stroke", clr.getStdStr() );
+    styleobj->set( "stroke-width", property.width_==0 ? 2 : property.width_ );
     styleobj->set( "fill-opacity", clr.t() );
 
     Object* crsobj = featobj->set( "crs", new Object );
@@ -165,15 +180,15 @@ OD::GeoJsonTree::Array* OD::GeoJsonTree::createFeatCoordArray( Array* featarr,
 
 
 OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
-	    const coord2dset& crdset, const BufferStringSet& nms,
-	    ConstRefMan<Coords::CoordSystem> crs, const BufferString& iconnm  )
+    const coord2dset& crdset, const BufferStringSet& nms,
+    ConstRefMan<Coords::CoordSystem> crs, GISWriter::Property& property )
 {
     if ( topobj_->isEmpty() )
 	mCreateFeatArray( geomtyp )
 
     setCRS( crs );
 
-    mAddCoord;
+    mAddCoordWithProperty( property );
 
     return topobj_->clone();
 }
@@ -181,7 +196,8 @@ OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
 
 OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
 	    const coord3dset& crdset, const BufferStringSet& nms,
-	    ConstRefMan<Coords::CoordSystem> crs, const BufferString& iconnm )
+	    ConstRefMan<Coords::CoordSystem> crs,
+	    GISWriter::Property& property )
 {
 
     if ( topobj_->isEmpty() )
@@ -189,7 +205,7 @@ OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
 
     setCRS( crs );
 
-    mAddCoord;
+    mAddCoordWithProperty( property );
 
     return topobj_->clone();
 }
@@ -214,10 +230,16 @@ OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
 	property.color_ = pick->disp_.color_;
 	property.width_ = pick->disp_.pixsize_*0.1;
 	property.objnm_ = pick->name();
-	property.iconnm_ = iconnm;
+
+	if ( !iconnm.isEmpty() )
+	    property.iconnm_ = iconnm;
+
 	polyarr_ = createFeatCoordArray( featarr_, geomtyp, property );
 	ObjectSet<const Pick::Location> crdset;
 	pick->getLocations( crdset );
+	if ( pick->isPolygon() && pick->disp_.connect_ == pick->disp_.Close )
+	    crdset.add( crdset.get(0) );
+
 	Array* poly(0);
 	if ( isfeatpoly_ )
 	    poly = polyarr_->add( new Array(false) );
@@ -228,6 +250,7 @@ OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
 	    {
 		if ( !isfeatpoly_ )
 		    poly = polyarr_->add( new Array(OD::JSON::Number) );
+
 		addCoord( crdset[cidx]->pos(), *poly );
 	    }
 	    else
@@ -249,9 +272,3 @@ bool OD::GeoJsonTree::isAntiMeridianCrossed( const coord3dset& crdset )
     }
     return true;
 }
-
-
-//void OD::GeoJsonTree::setProperties( const GISWriter::Property& property )
-//{
-//    property_ = property;
-//}

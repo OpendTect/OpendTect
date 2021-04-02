@@ -6,6 +6,7 @@
  * ID       : $Id$
 -*/
 
+
 #include "uigoogleexpdlg.h"
 
 class uiGenInput;
@@ -14,17 +15,20 @@ class uiIOObjSelGrp;
 namespace Pick { class Set; }
 
 
-mClass(uiGoogleIO) uiGISExportPolygon : public uiDialog
+mExpClass(uiGoogleIO) uiGISExportPolygon : public uiDialog
 { mODTextTranslationClass(uiGISExportPolygon);
 public:
-
 			uiGISExportPolygon(uiParent*,
 					    const MultiID& mid=MultiID::udf());
+			~uiGISExportPolygon();
 
 protected:
 
     uiGISExpStdFld*	expfld_;
-    uiIOObjSelGrp*	selfld_;
+    uiIOObjSelGrp*	selfld_			= nullptr;
+    uiGenInput*		inputyp_		= nullptr;
 
     bool		acceptOK(CallBacker*);
+    void		inputTypChngCB(CallBacker*);
+    MultiID		mid_;
 };

@@ -24,11 +24,11 @@
 #include <iostream>
 
 
-uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
+uiGISExportRandomLine::uiGISExportRandomLine( uiParent* p,
 		const TypeSet<Coord>* crds, const char* nm )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrExport(tr("Random Line to GIS")),
 				 tr("Specify how to export"),
-                                 mODHelpKey(mGoogleExportRandomLineHelpID) ) )
+				 mODHelpKey(mGoogleExportRandomLineHelpID)) )
     , crds_(crds)
 {
     uiStringSet choices;
@@ -39,7 +39,7 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
     putlnmfld_ = new uiGenInput( this, tr("Annotate line"),
 				 StringListInpSpec(choices) );
     putlnmfld_->setValue( 2 );
-    mAttachCB(putlnmfld_->valuechanged,uiGoogleExportRandomLine::putSel);
+    mAttachCB(putlnmfld_->valuechanged,uiGISExportRandomLine::putSel);
 
     lnmfld_ = new uiGenInput( this, tr("Line annotation"),
 			      StringInpSpec(nm) );
@@ -60,20 +60,20 @@ uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
 }
 
 
-uiGoogleExportRandomLine::~uiGoogleExportRandomLine()
+uiGISExportRandomLine::~uiGISExportRandomLine()
 {
     detachAllNotifiers();
     if ( crds_ )
 	crds_->empty();
 }
 
-void uiGoogleExportRandomLine::putSel( CallBacker* )
+void uiGISExportRandomLine::putSel( CallBacker* )
 {
     lnmfld_->display( putlnmfld_->getIntValue() != 0 );
 }
 
 
-bool uiGoogleExportRandomLine::acceptOK( CallBacker* )
+bool uiGISExportRandomLine::acceptOK( CallBacker* )
 {
     if ( crds_->size() < 1 )
 	return true;
@@ -90,12 +90,17 @@ bool uiGoogleExportRandomLine::acceptOK( CallBacker* )
     GISWriter::Property prop;
     prop.color_ = lsfld_->getColor();
     prop.width_ = lsfld_->getWidth() * .1;
-    //wrr->setProperties( prop );
-    /*if ( lnmchoice != 0 && lnmchoice < 3 )
-	wrr->writePoint( crds_[0], lnm );
+    wrr->setProperties( prop );
 
-    if ( lnmchoice == 1 || lnmchoice == 3 )
-	wrr->writePoint( crds_[crds_.size()-1], lnm );*/
+    mDynamicCastGet(ODGoogle::KMLWriter*,kmlwriter,wrr.ptr())
+    if ( kmlwriter )
+    {
+	if ( lnmchoice != 0 && lnmchoice < 3 )
+	    wrr->writePoint( crds_->get(0), lnm );
+
+	if ( lnmchoice == 1 || lnmchoice == 3 )
+	    wrr->writePoint( crds_->get(crds_->size()-1), lnm );
+    }
 
     if ( !wrr->writeLine(*crds_,lnm) )
     {
