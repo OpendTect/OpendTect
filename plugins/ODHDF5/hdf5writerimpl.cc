@@ -20,11 +20,6 @@ static unsigned gzip_pixels_per_block = 16;
 		    // can be an even number [2,32]
 static int gzip_encoding_status = -1;
 
-#define mUnLim4 H5S_UNLIMITED, H5S_UNLIMITED, H5S_UNLIMITED, H5S_UNLIMITED
-static hsize_t resizablemaxdims_[24] =
-{ mUnLim4, mUnLim4, mUnLim4, mUnLim4, mUnLim4, mUnLim4 };
-#define mDSResizing (createeditable_ ? resizablemaxdims_ : 0)
-
 #define mCatchErrDuringWrite() \
     mCatchAdd2uiRv( uiStrings::phrErrDuringWrite(fileName()) )
 
@@ -53,12 +48,6 @@ HDF5::WriterImpl::~WriterImpl()
 }
 
 
-void HDF5::WriterImpl::setEditableCreation( bool yn )
-{
-    createeditable_ = yn;
-}
-
-
 HDF5::Reader* HDF5::WriterImpl::createCoupledReader() const
 {
     return file_ ? new HDF5::ReaderImpl( *const_cast<H5::H5File*>(file_) ) : 0;
@@ -79,12 +68,6 @@ void HDF5::WriterImpl::openFile( const char* fnm, uiRetVal& uirv, bool edit )
 }
 
 
-void HDF5::WriterImpl::setChunkSize( int sz )
-{
-    chunksz_ = sz;
-}
-
-
 H5::Group* HDF5::WriterImpl::ensureGroup( const char* grpnm, uiRetVal& uirv )
 {
     if ( !selectGroup(grpnm) )
@@ -99,20 +82,9 @@ H5::Group* HDF5::WriterImpl::ensureGroup( const char* grpnm, uiRetVal& uirv )
 }
 
 
-static hsize_t getChunkSz4TwoChunks( hsize_t dimsz )
-{
-    hsize_t ret = dimsz / 2;
-    if ( dimsz % 2 )
-	ret++;
-    if ( ret < 1 )
-	ret = 1;
-    return ret;
-}
-
-
 H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
-				      const ArrayNDInfo& info, ODDataType dt,
-				      uiRetVal& uirv )
+				     const ArrayNDInfo& info, ODDataType dt,
+				     uiRetVal& uirv )
 {
     if ( !ensureGroup(dsky.groupName(),uirv) )
 	return nullptr;
@@ -121,28 +93,43 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
     TypeSet<hsize_t> dims, chunkdims;
     hsize_t maxdim = 0;
     hsize_t maxchunkdim = 0;
-    const bool mustchunk = createeditable_;
-    bool havelargerdimthanchunk = false;
-    ArrayNDInfo::dim_idx_type largestdim = 0;
+    const bool editable = dsky.isEditable();
+    const bool mustchunk = editable;
     for ( ArrayNDInfo::dim_idx_type idim=0; idim<nrdims_; idim++ )
     {
 	const auto dimsz = info.getSize( idim );
 	if ( dimsz > maxdim )
-	    { largestdim = idim; maxdim = dimsz; }
+	    { maxdim = dimsz; }
 	dims += dimsz;
-	if ( dimsz > chunksz_ )
-	    havelargerdimthanchunk = true;
     }
 
+    TypeSet<hsize_t> maxszs; bool hasmaxsz = false;
     for ( ArrayNDInfo::dim_idx_type idim=0; idim<nrdims_; idim++ )
     {
 	const hsize_t dimsz = dims[idim];
-	hsize_t chunkdim = dimsz < chunksz_ ? dimsz : chunksz_;
-	if ( mustchunk && !havelargerdimthanchunk && idim == largestdim )
-	    chunkdim = getChunkSz4TwoChunks( chunkdim );
+	const int chunksz = dsky.chunkSz( idim );
+	const int maxchunkzs = dsky.maxDimSz( idim );
+	hsize_t chunkdim = dimsz < chunksz ? dimsz : chunksz;
+	const bool hasmaxresize = !mIsUdf(maxchunkzs);
+	if ( mustchunk && hasmaxresize )
+	{
+	    chunkdim = maxchunkzs;
+	    hasmaxsz = true;
+	}
 	if ( maxchunkdim < chunkdim )
 	    maxchunkdim = chunkdim;
 	chunkdims += chunkdim;
+	maxszs += hasmaxresize ? H5S_UNLIMITED : dimsz;
+    }
+    /*TODO: check if one chunk does not exceed 4GB,
+      as larger chunks are not supported by the container */
+
+    if ( mustchunk && !hasmaxsz )
+    {
+	/*No specific axis provided. Net to set
+	    them all as unlimited */
+	for ( auto& maxsz : maxszs )
+	    maxsz = H5S_UNLIMITED;
     }
 
     mDefineStaticLocalObject(bool, allowzip,
@@ -158,7 +145,7 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
     const H5DataType h5dt = h5DataTypeFor( dt );
     try
     {
-	H5::DataSpace dataspace( nrdims_, dims.arr(), mDSResizing );
+	H5::DataSpace dataspace( nrdims_, dims.arr(), maxszs.arr() );
 	H5::DSetCreatPropList proplist;
 	if ( mustchunk || wantchunk )
 	    proplist.setChunk( nrdims_, chunkdims.arr() );
@@ -232,14 +219,16 @@ void HDF5::WriterImpl::reSzDS( const ArrayNDInfo& info, H5::DataSet& h5ds,
 void HDF5::WriterImpl::ptSlab( const SlabSpec& spec, const void* data,
 			       H5::DataSet& h5ds, uiRetVal& uirv )
 {
-    TypeSet<hsize_t> counts;
+    TypeSet<hsize_t> counts, maxdims;
     try
     {
-	const H5::DSetCreatPropList proplist = h5ds.getCreatePlist();
 	H5::DataSpace filedataspace = h5ds.getSpace();
 	selectSlab( filedataspace, spec, &counts );
-	H5::DataSpace memdataspace( (nr_dims_type)spec.size(), counts.arr(),
-				    mDSResizing );
+	maxdims.setSize( counts.size(), H5S_UNLIMITED );
+	filedataspace.getSimpleExtentDims( nullptr, maxdims.arr() );
+
+	H5::DataSpace memdataspace( (nr_dims_type)spec.size(),
+				    counts.arr(), maxdims.arr() );
 	h5ds.write( data, h5ds.getDataType(), memdataspace, filedataspace );
     }
     mCatchErrDuringWrite()
@@ -278,6 +267,7 @@ void HDF5::WriterImpl::ptStrings( const BufferStringSet& bss,
     for ( int istr=0; istr<nrstrs; istr++ )
 	strs[istr] = (char*)bss.get( istr ).buf();
     hsize_t dims[1] = { nrstrs };
+    hsize_t maxdims[1] = { H5S_UNLIMITED };
 
     try
     {
@@ -285,13 +275,10 @@ void HDF5::WriterImpl::ptStrings( const BufferStringSet& bss,
 	H5::DataSet newds;
 	if ( !existing )
 	{
-	    H5::DataSpace dspace( 1, dims, mDSResizing );
+	    H5::DataSpace dspace( 1, dims, maxdims );
 	    H5::DSetCreatPropList proplist;
-	    if ( createeditable_ )
-	    {
-		hsize_t chunkdims[1] = { getChunkSz4TwoChunks(nrstrs) };
-		proplist.setChunk( 1, chunkdims );
-	    }
+	    hsize_t chunkdims[1] = { 1 };
+	    proplist.setChunk( 1, chunkdims );
 	    newds = grpobj.createDataSet( dsnm, strtyp, dspace, proplist );
 	    h5obj = &newds;
 	}
