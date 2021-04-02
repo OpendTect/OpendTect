@@ -146,7 +146,7 @@ OD::GeoJsonTree::Array* OD::GeoJsonTree::createFeatCoordArray( Array* featarr,
     Object* featobj = featarr->add( new Object );
     featobj->set( "type", "Feature" );
 
-    Object* styleobj = featobj->set( "style", new Object );
+    Object* styleobj = featobj->set( "properties", new Object );
     const Color clr = property.color_;
     styleobj->set( "fill", clr.getStdStr(false, -1) );
     styleobj->set( "stroke-width", property.width_ );
