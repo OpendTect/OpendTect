@@ -654,19 +654,32 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
     if ( !newlog )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
-    if ( !needjustinfo )
+    const bool udfranges = newlog->dahRange().isUdf()
+					     || newlog->valueRange().isUdf();
+    if ( !needjustinfo || udfranges )
 	readLogData( *newlog, strm, bintype );
-
-    if ( SI().zInFeet() && version<4.195 )
-    {
-	for ( int idx=0; idx<newlog->size(); idx++ )
-	    newlog->dahArr()[idx] = newlog->dah(idx) * mToFeetFactorF;
-    }
 
     if ( wd_.track().isEmpty() )
 	getTrack();
 
-    return addToLogSet( newlog, needjustinfo );
+    const bool addedok = addToLogSet( newlog, needjustinfo );
+    Well::Log* wl = const_cast<Well::LogSet&>(data().logs()).
+						    getLog( newlog->name() );
+    if ( addedok && udfranges )
+    {
+	Well::Writer wrr( data().multiID(), data() );
+	wrr.putLog( *wl );
+    }
+
+    if ( addedok && SI().zInFeet() && version<4.195 )
+    {
+	for ( int idx=0; idx<wl->size(); idx++ )
+	    wl->dahArr()[idx] = wl->dah(idx) * mToFeetFactorF;
+
+	wl->updateDahRange();
+    }
+
+    return addedok;
 }
 
 
