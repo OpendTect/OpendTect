@@ -200,7 +200,7 @@ bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
     astrm.put( Well::Info::sKeyProvince(), wd_.info().province_ );
     astrm.put( Well::Info::sKeyCountry(), wd_.info().country_ );
     if ( wd_.info().surfacecoord_ != Coord(0,0) )
-	astrm.put( Well::Info::sKeyCoord(), wd_.info().surfacecoord_.toString());
+	astrm.put(Well::Info::sKeyCoord(), wd_.info().surfacecoord_.toString());
     astrm.put( Well::Info::sKeyReplVel(), wd_.info().replvel_ );
     astrm.put( Well::Info::sKeyGroundElev(), wd_.info().groundelev_ );
     astrm.newParagraph();
@@ -345,8 +345,9 @@ bool Well::odWriter::wrLogHdr(od_ostream& strm, const Well::Log& wl ) const
     const char* stortyp = binwrlogs_ ? (__islittle__ ? "Binary" : "Swapped")
 				     : "Ascii";
     astrm.put( Well::Log::sKeyStorage(), stortyp );
-    astrm.put( Well::Log::sKeyDahRange(), wl.dahRange().start,
-					  wl.dahRange().stop );
+    const Interval<float>& dahrange = wl.dahRange();
+    if ( !dahrange.isUdf() )
+	astrm.put( Well::Log::sKeyDahRange(), dahrange.start, dahrange.stop );
     const Interval<float>& logrange = wl.valueRange();
     if ( !logrange.isUdf() )
 	astrm.put( Well::Log::sKeyLogRange(), logrange.start, logrange.stop );
