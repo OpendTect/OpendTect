@@ -345,8 +345,9 @@ bool Well::odWriter::wrLogHdr(od_ostream& strm, const Well::Log& wl ) const
     const char* stortyp = binwrlogs_ ? (__islittle__ ? "Binary" : "Swapped")
 				     : "Ascii";
     astrm.put( Well::Log::sKeyStorage(), stortyp );
-    astrm.put( Well::Log::sKeyDahRange(), wl.dahRange().start,
-					  wl.dahRange().stop );
+    const Interval<float>& dahrange = wl.dahRange();
+    if ( !dahrange.isUdf() )
+	astrm.put( Well::Log::sKeyDahRange(), dahrange.start, dahrange.stop );
     const Interval<float>& logrange = wl.valueRange();
     if ( !logrange.isUdf() )
 	astrm.put( Well::Log::sKeyLogRange(), logrange.start, logrange.stop );
