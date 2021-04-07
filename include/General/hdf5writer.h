@@ -40,7 +40,7 @@ Notes:
 */
 
 mExpClass(General) Writer : public Access
-{
+{ mODTextTranslationClass(Writer)
 public:
 
     uiRetVal		open4Edit(const char*);
@@ -56,6 +56,16 @@ public:
     uiRetVal		createDataSet(const DataSetKey&,const ArrayNDInfo&,
 				      ODDataType);
     uiRetVal		createDataSet(const DataSetKey&,int,ODDataType);
+    uiRetVal		createDataSetIfMissing(const DataSetKey&,ODDataType,
+				const ArrayNDInfo& addedsz,
+				const ArrayNDInfo& changedir,
+				PtrMan<ArrayNDInfo>* existsinfo =nullptr);
+			//!<param changedir: Array reshaping behaviour
+			//! for each dimension: -1 = shrink, 0 = no change
+			//! 1 = grow
+    uiRetVal		createDataSetIfMissing(const DataSetKey&,ODDataType,
+				int addedsz,int changedir=1,
+				int* existsnrsamples =nullptr);
     uiRetVal		createTextDataSet(const DataSetKey&);
     uiRetVal		resizeDataSet(const DataSetKey&,const ArrayNDInfo&);
 			//!< You cannot change the 'rank', just the dim sizes
@@ -95,22 +105,19 @@ public:
     virtual bool	isReader() const	{ return false; }
     virtual Reader*	createCoupledReader() const			= 0;
 
-    virtual void	setChunkSize(int)				= 0;
-    virtual void	setEditableCreation(bool yn)			= 0;
-			//!< default is false: no dataset grow/shrink
-
 private:
 
     virtual H5::DataSet*	crDS(const DataSetKey&,const ArrayNDInfo&,
-				ODDataType,uiRetVal&)			= 0;
+				     ODDataType,uiRetVal&)		= 0;
     virtual H5::DataSet*	crTxtDS(const DataSetKey&,uiRetVal&)	= 0;
     virtual void	reSzDS(const ArrayNDInfo&,H5::DataSet&,
 				uiRetVal&)				= 0;
     virtual void	ptSlab(const SlabSpec&,const void*,
 			       H5::DataSet&,uiRetVal&)	= 0;
     virtual void	ptAll(const void*,H5::DataSet&,uiRetVal&)	= 0;
-    virtual void	ptStrings(const BufferStringSet&,H5::Group&,
-				  H5::DataSet*,const char* dsnm,uiRetVal&) = 0;
+    virtual void	ptStrings(const BufferStringSet&,
+				  H5::Group&,H5::DataSet*,
+				  const char* dsnm,uiRetVal&) = 0;
     virtual void	rmAttrib(const char*,H5::H5Object&)		= 0;
     virtual void	rmAllAttribs(H5::H5Object&)			= 0;
 
@@ -143,4 +150,3 @@ inline uiRetVal	Writer::put( const DataSetKey& dsky, const T* vals, int sz )
 }
 
 } // namespace HDF5
-

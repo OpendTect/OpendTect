@@ -29,6 +29,13 @@ const char* HDF5::Access::sNoDataPassed()
 { return "HDF5: Null data passed"; }
 
 
+HDF5::DataSetKey::DataSetKey( const char* grpnm, const char* dsnm )
+    : dsnm_(dsnm)
+{
+    setGroupName( grpnm );
+}
+
+
 BufferString HDF5::DataSetKey::fullDataSetName() const
 {
     FilePath fp;
@@ -58,18 +65,71 @@ bool HDF5::DataSetKey::hasGroup( const char* reqnm ) const
 }
 
 
-HDF5::DataSetKey HDF5::DataSetKey::groupKey( const HDF5::DataSetKey& parentgrp, const char* subgrpnm )
+HDF5::DataSetKey HDF5::DataSetKey::groupKey( const HDF5::DataSetKey& parentgrp,
+					     const char* subgrpnm )
 {
     return groupKey( parentgrp.fullDataSetName(), subgrpnm );
 }
 
 
-HDF5::DataSetKey HDF5::DataSetKey::groupKey( const char* fullparentnm, const char* grpnm )
+HDF5::DataSetKey HDF5::DataSetKey::groupKey( const char* fullparentnm,
+					     const char* grpnm )
 {
     const FilePath grpfp( fullparentnm, grpnm );
     BufferString grpkynm = grpfp.fullPath( FilePath::Unix );
     grpkynm.insertAt( 0, "/" );
     return DataSetKey( grpkynm );
+}
+
+
+void HDF5::DataSetKey::setChunkSize( int idim, int sz )
+{
+    setChunkSize( &sz, 1, idim );
+}
+
+
+void HDF5::DataSetKey::setChunkSize( const int* szs, int nrdims, int from )
+{
+    if ( !szs )
+    {
+	chunkszs_.setEmpty();
+	return;
+    }
+
+    const int to = from + nrdims - 1;
+    for ( int idx=chunkszs_.size(); idx<=to; idx++ )
+	chunkszs_ += mUdf(int);
+    for ( int i=from, idx=0; i<=to; i++, idx++ )
+	chunkszs_[i] = szs[idx] > 0 ? szs[idx] : mUdf(int);
+}
+
+
+void HDF5::DataSetKey::setMaximumSize( int idim, int maxsz )
+{
+    if ( idim < 0 )
+    {
+	maxsizedim_.setEmpty();
+	return;
+    }
+    else if ( maxsz < 1 )
+	return;
+
+    editable_ = true;
+    for ( int idx=maxsizedim_.size(); idx<=idim; idx++ )
+	maxsizedim_ += mUdf(int);
+    maxsizedim_[idim] = maxsz;
+}
+
+
+int HDF5::DataSetKey::chunkSz( int idim ) const
+{
+    return chunkszs_.validIdx(idim) ? chunkszs_[idim] : mUdf(int);
+}
+
+
+int HDF5::DataSetKey::maxDimSz(int idim ) const
+{
+    return maxsizedim_.validIdx(idim) ? maxsizedim_[idim] : mUdf(int);
 }
 
 
@@ -276,7 +336,10 @@ ArrayNDInfo* HDF5::Reader::getDataSizes( const DataSetKey& dsky,
 {
     const H5::DataSet* dsscope = getDSScope( dsky );
     if ( !dsscope )
+    {
+	uirv = sCantSetScope( dsky );
 	return nullptr;
+    }
 
     return gtDataSizes( *dsscope );
 }
@@ -286,7 +349,13 @@ HDF5::Access::nr_dims_type HDF5::Reader::getNrDims( const DataSetKey& dsky,
 						    uiRetVal& uirv ) const
 {
     const H5::DataSet* dsscope = getDSScope( dsky );
-    return dsscope ? nrDims() : -1;
+    if ( !dsscope )
+    {
+	uirv = sCantSetScope( dsky );
+	return -1;
+    }
+
+    return nrDims();
 }
 
 
@@ -437,7 +506,8 @@ uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
 
 
 uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
-				      const ArrayNDInfo& inf, ODDataType dt )
+				      const ArrayNDInfo& inf,
+				      ODDataType dt )
 {
     uiRetVal uirv;
     if ( !file_ )
@@ -447,6 +517,83 @@ uiRetVal HDF5::Writer::createDataSet( const DataSetKey& dsky,
 
     crDS( dsky, inf, dt, uirv );
     return uirv;
+}
+
+
+uiRetVal HDF5::Writer::createDataSetIfMissing( const DataSetKey& dsky,
+					ODDataType dt,
+					int addedsz, int changedir,
+					int* existsnrsamples )
+{
+    PtrMan<ArrayNDInfo> existsinfo;
+    uiRetVal uirv = createDataSetIfMissing( dsky, dt, Array1DInfoImpl(addedsz),
+					    Array1DInfoImpl(changedir),
+					    &existsinfo );
+    if ( uirv.isOK() && existsnrsamples &&
+	 existsinfo.ptr() && existsinfo->nrDims() > 0 )
+	*existsnrsamples = existsinfo->getSize(0);
+
+    return uirv;
+}
+
+
+uiRetVal HDF5::Writer::createDataSetIfMissing( const DataSetKey& dsky,
+					ODDataType dt,
+					const ArrayNDInfo& addedinf,
+					const ArrayNDInfo& changedirs,
+					PtrMan<ArrayNDInfo>* existsinfo )
+{
+    uiRetVal uirv;
+    if ( !hasDataSet(dsky) )
+    {
+	uirv = createDataSet( dsky, addedinf, dt );
+	if ( existsinfo )
+	    existsinfo->set( nullptr, true );
+	return uirv;
+    }
+
+    PtrMan<Reader> rdr = createCoupledReader();
+    if ( !rdr )
+    {
+	uirv = mINTERNAL("Cannot create HDF5 reader from writer");
+	return uirv;
+    }
+
+    const OD::DataRepType retdtyp = rdr->getDataType( dsky, uirv );
+    if ( retdtyp != dt )
+    {
+	uirv.add( tr("Cannot open existing HDF5 dataset for write: "
+		     "mismatching data type") );
+	return uirv;
+    }
+
+    //TODO: check if the dataset is resizable
+
+    const int rank = addedinf.nrDims();
+
+    PtrMan<ArrayNDInfo> retinfo = rdr->getDataSizes( dsky, uirv );
+    if ( !retinfo )
+	return uirv;
+    else if ( retinfo->nrDims() != rank )
+    {
+	uirv.add( tr("Cannot open existing HDF5 dataset for write: "
+			    "mismatching array sizes") );
+	return uirv;
+    }
+
+    PtrMan<ArrayNDInfo> newszs = ArrayNDInfoImpl::create( rank );
+    for ( int idim=0; idim<rank; idim++ )
+    {
+	const int dir = changedirs.getSize(idim);
+	const int newsz = retinfo->getSize(idim) +
+			  dir * addedinf.getSize(idim);
+	newszs->setSize( idim, newsz );
+    }
+
+    if ( existsinfo )
+	*existsinfo = retinfo.release();
+
+    return resizeDataSet( dsky, *newszs );
 }
 
 
@@ -523,7 +670,7 @@ uiRetVal HDF5::Writer::put( const DataSetKey& dsky, const BufferStringSet& bss )
 	mRetNoScopeInUiRv()
 
     if ( !bss.isEmpty() )
-	ptStrings( bss, *grpscope, setDSScope(dsky), dsky.dataSetName(), uirv );
+	ptStrings( bss, *grpscope, setDSScope(dsky), dsky.dataSetName(), uirv);
 
     return uirv;
 }
