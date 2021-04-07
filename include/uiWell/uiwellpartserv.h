@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -73,6 +72,7 @@ public:
     void			selectWellCoordsForRdmLine();
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
+    void			closePropDlg(const MultiID&);
     Notifier<uiWellPartServer>	randLineDlgClosed;
     Notifier<uiWellPartServer>	uiwellpropDlgClosed;
     void			setPreviewIds( const TypeSet<int>& ids )
@@ -98,6 +98,7 @@ protected:
 
     uiWellImportAsc*		uiwellimpdlg_		= nullptr;
     uiWell2RandomLineDlg*	rdmlinedlg_		= nullptr;
+    ObjectSet<uiWellDispPropDlg> wellpropdlgs_;
     uiD2TModelGen*		uid2tmgen_		= nullptr;
     uiD2TMLogSelDlg*		uid2tmlogseldlg_	= nullptr;
     uiSimpleMultiWellCreate*	impsimpledlg_		= nullptr;
@@ -121,14 +122,17 @@ protected:
     void			importReadyCB(CallBacker*);
     void			rdmlnDlgDeleted(CallBacker*);
     void			rdmlnDlgClosed(CallBacker*);
-    void			saveWellDispProps(ConstRefMan<Well::Data>&);
-    void			saveWellDispProps(ConstRefMan<Well::Data>&,
-						  const MultiID&);
+    void			saveWellDispProps(CallBacker*);
+    void			saveAllWellDispProps();
+    void			saveWellDispProps(const Well::Data&);
     void			applyTabProps(CallBacker*);
     void			resetAllProps(CallBacker*);
+    void			wellPropDlgClosed(CallBacker*);
+    void			wellPropDlgToBeDeleted(CallBacker*);
     void			simpImp(CallBacker*);
     void			simpleImpDlgClosed(CallBacker*);
     void			survChangedCB(CallBacker*);
+    int				getPropDlgIndex(const MultiID&);
 
 };
 

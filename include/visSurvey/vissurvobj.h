@@ -13,17 +13,18 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "color.h"
-#include "trckeyzsampling.h"
+
+#include "attribsel.h"
 #include "datapack.h"
+#include "factory.h"
 #include "gendefs.h"
 #include "multiid.h"
 #include "position.h"
 #include "ranges.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 #include "vissurvscene.h"
-#include "factory.h"
-#include "attribsel.h"
+
 
 
 class DataPointSet;
@@ -163,6 +164,7 @@ public:
     virtual OD::Color		getColor() const
 				{ return OD::Color::DgbColor(); }
 
+    OD::Color			getBackgroundColor() const;
     virtual void		setAnnotColor(OD::Color)		{}
     virtual OD::Color		getAnnotColor() const
 				{ return OD::Color::DgbColor(); }

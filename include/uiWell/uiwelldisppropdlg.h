@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -28,27 +27,22 @@ namespace Well { class Data; class DisplayProperties; };
 mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {mODTextTranslationClass(uiWellDispPropDlg)
 public:
-				uiWellDispPropDlg(uiParent*,
-					const Well::Data&,
-					OD::Color,bool is2ddisplay=false);
 				uiWellDispPropDlg(uiParent*,const MultiID&,
-					OD::Color,bool is2ddisplay=false);
-				uiWellDispPropDlg(uiParent*,
-					const Well::Data&,
-					bool is2ddisplay=false);
-				uiWellDispPropDlg(uiParent*,const MultiID&,
-						  bool is2ddisplay=false);
+						  bool is2ddisplay,
+						  OD::Color bgcolor);
 				~uiWellDispPropDlg();
 
+    Notifier<uiWellDispPropDlg> saveReq;
     Notifier<uiWellDispPropDlg> applyTabReq;
     Notifier<uiWellDispPropDlg> resetAllReq;
 
     enum TabType { LeftLog=0, CenterLog=1, RightLog=2, Marker=3, Track=4 };
+
     Well::Data*			wellData()		{ return wd_; }
     const Well::Data*		wellData() const	{ return wd_; }
 
     TabType			currentTab() const;
-    bool			is2D() const;
+    bool			is2D() const		{ return is2ddisplay_; }
     void			updateLogs();
 
 protected:
@@ -63,17 +57,17 @@ protected:
     virtual void		putToScreen();
 
     virtual void		setWDNotifiers(bool yn);
-
+    bool			acceptOK(CallBacker*) override;
+    virtual void		resetCB(CallBacker*);
     virtual void		applyTabPush(CallBacker*);
     virtual void		resetAllPush(CallBacker*);
+    virtual void		onClose(CallBacker*)		{}
+
     virtual void		propChg(CallBacker*);
     void			markersChgd(CallBacker*);
-    bool			acceptOK(CallBacker*);
-    virtual void		resetCB(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
     void			tabSel(CallBacker*);
-    void			init();
 };
 
 
@@ -86,7 +80,8 @@ mExpClass(uiWell) uiMultiWellDispPropDlg : public uiWellDispPropDlg
 public:
 				uiMultiWellDispPropDlg(uiParent*,
 						const ObjectSet<Well::Data>&,
-						bool is2ddisplay);
+						bool is2ddisplay,
+						OD::Color bgcolor);
 				~uiMultiWellDispPropDlg();
 
 protected:
@@ -96,9 +91,9 @@ protected:
 
     void			resetProps(int,int);
     virtual void 		wellSelChg(CallBacker*);
-    virtual void		setWDNotifiers(bool yn);
-    void			onClose(CallBacker*);
-    virtual void		applyTabPush(CallBacker*);
-    virtual void		resetAllPush(CallBacker*);
+    void			setWDNotifiers(bool yn) override;
+    void			onClose(CallBacker*) override;
+    void			applyTabPush(CallBacker*) override;
+    void			resetAllPush(CallBacker*) override;
 };
 

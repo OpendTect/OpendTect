@@ -13,10 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
+#include "color.h"
 #include "sets.h"
 #include "visdatagroup.h"
-
-/*!\brief Open Scene Graph*/
 
 /*!\brief Open Scene Graph*/
 
@@ -44,6 +44,8 @@ public:
 
     void		addObject(DataObject*);
 
+    void		setBackgroundColor(const OD::Color&);
+    OD::Color		getBackgroundColor() const;
     void		setCameraAmbientLight(float);
     float		getCameraAmbientLight() const;
     void		setCameraLightIntensity( float );

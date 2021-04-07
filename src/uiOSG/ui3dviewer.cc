@@ -60,9 +60,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QGesture>
 #include <QPainter>
 
-
-#define col2f(rgb) float(col.rgb())/255
-
 #include "uiobjbody.h"
 #include "keystrs.h"
 
@@ -1021,16 +1018,16 @@ void ui3DViewerBody::requestRedraw()
 
 void ui3DViewerBody::setBackgroundColor( const OD::Color& col )
 {
-    osg::Vec4 osgcol(col2f(r),col2f(g),col2f(b), 1.0);
-    getOsgCamera()->setClearColor( osgcol );
+    visBase::Scene* scene = getScene();
+    if ( scene )
+	scene->setBackgroundColor( col );
 }
 
 
 OD::Color ui3DViewerBody::getBackgroundColor() const
 {
-    const osg::Vec4 col = getOsgCamera()->getClearColor();
-    return OD::Color( mNINT32(col.r()*255), mNINT32(col.g()*255),
-		  mNINT32(col.b()*255) );
+    const visBase::Scene* scene = getScene();
+    return scene ? scene->getBackgroundColor() : OD::Color::NoColor();
 }
 
 
