@@ -87,12 +87,10 @@ private:
 
     bool		rmObj(const DataSetKey&) override;
 
-    void		setChunkSize(int) override;
-    void		setEditableCreation(bool) override;
+    void		setChunkSize(int) override	{}
+    void		setEditableCreation(bool) override	{}
 
-    int			chunksz_ = 64;
     unsigned		compressionlvl_ = 1;
-    bool		createeditable_ = false;
 
 };
 

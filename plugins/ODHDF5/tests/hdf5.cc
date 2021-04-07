@@ -37,9 +37,10 @@ static void fillArr2D( Array2D<T>& arr2d, int shft )
 
 
 #define mAddTestResult(desc) \
-    mRunStandardTestWithError( uirv.isOK(), desc, uirv.getText() )
+    mRunStandardTestWithError( uirv.isOK(), desc, toString(uirv) )
 
-static uiRetVal testCreateLargeDS( const HDF5::DataSetKey& grpdsky, HDF5::Writer& wrr )
+static uiRetVal testCreateLargeDS( const HDF5::DataSetKey& grpdsky,
+				   HDF5::Writer& wrr )
 {
     uiRetVal uirv;
     const int nrbatch = 5000;
@@ -53,15 +54,18 @@ static uiRetVal testCreateLargeDS( const HDF5::DataSetKey& grpdsky, HDF5::Writer
     arrdims += nrinl;
     arrdims += nrcrl;
     arrdims += nrz;
-    PtrMan<ArrayNDInfo> allinfo = ArrayNDInfoImpl::create( arrdims.arr(), arrdims.size() );
+    PtrMan<ArrayNDInfo> allinfo =
+	   ArrayNDInfoImpl::create( arrdims.arr(), arrdims.size() );
     Array3DImpl<float> arr( nrinl, nrcrl, nrz );
     if ( !arr.isOK() )
     {
-	uirv.add( uiStrings::phrCannotAllocateMemory(arr.totalSize()*sizeof(float)));
+	uirv.add( uiStrings::phrCannotAllocateMemory(
+		  arr.totalSize()*sizeof(float)) );
 	return uirv;
     }
     
-    const HDF5::DataSetKey dsky( grpdsky.fullDataSetName(), "BigData" );
+    HDF5::DataSetKey dsky( grpdsky.fullDataSetName(), "BigData" );
+    dsky.setMaximumSize( 0, 5 );
     uirv = wrr.createDataSet( dsky, *allinfo, OD::F32 );
     if ( !uirv.isOK() )
 	return uirv;
@@ -76,6 +80,7 @@ static uiRetVal testCreateLargeDS( const HDF5::DataSetKey& grpdsky, HDF5::Writer
     slabspec += HDF5::SlabDimSpec();
 
     const float* arrptr = arr.getData();
+    //Filling only the first 300 rows, all rows > 15 will get cropped anyway
     for ( int ibatch=0; ibatch<300; ibatch++ )
     {
 	slabspec[0].start_ = ibatch;
@@ -86,17 +91,48 @@ static uiRetVal testCreateLargeDS( const HDF5::DataSetKey& grpdsky, HDF5::Writer
 	    for ( int idx=0; idx<nrinl; idx++ )
 		for ( int idy=0; idy<nrcrl; idy++ )
 		    for ( int idz=0; idz<nrz; idz++ )
-			arr.set( idx, idy, idz, fact*arr.info().getOffset(idx,idy,idz) );
+		    {
+			arr.set( idx, idy, idz,
+				 fact*arr.info().getOffset(idx,idy,idz) );
+		    }
 	    uirv = wrr.putSlab( dsky, slabspec, arrptr );
 	    if ( !uirv.isOK() )
 		return uirv;
 	}
     }
 
-    arrdims[0] = 15;
+    const int croppedsz = 15;
+    arrdims[0] = croppedsz;
     allinfo = ArrayNDInfoImpl::create( arrdims.arr(), arrdims.size() );
     uirv = wrr.resizeDataSet( dsky, *allinfo );
     //Will crop the dataset, but keeps the remaining data
+
+    //Now let's append new data
+    const int nraddedrows = 10;
+    arrdims[0] += nraddedrows;
+    allinfo = ArrayNDInfoImpl::create( arrdims.arr(), arrdims.size() );
+    uirv = wrr.resizeDataSet( dsky, *allinfo );
+    /*Filling all new rows, except the last.
+      If it is still uninitialized, crop+append succeeded */
+    for ( int ibatch=croppedsz; ibatch<arrdims[0]-1; ibatch++ )
+    {
+	slabspec[0].start_ = ibatch;
+	for ( int iattr=0; iattr<nrattribs; iattr++ )
+	{
+	    slabspec[1].start_ = iattr;
+	    const float fact = iattr == 0 ? 1.f : -1.f;
+	    for ( int idx=0; idx<nrinl; idx++ )
+		for ( int idy=0; idy<nrcrl; idy++ )
+		    for ( int idz=0; idz<nrz; idz++ )
+		    {
+			arr.set( idx, idy, idz,
+				 fact*arr.info().getOffset(idx,idy,idz) );
+		    }
+	    uirv = wrr.putSlab( dsky, slabspec, arrptr );
+	    if ( !uirv.isOK() )
+		return uirv;
+	}
+    }
 
     return uirv;
 }
@@ -365,7 +401,6 @@ static bool testWrite()
 
     mRunStandardTestWithError( filename_==wrr->fileName(), "File name retained",
 			       BufferString(wrr->fileName(),"!=",filename_) )
-    wrr->setChunkSize( chunksz_ );
 
     Array2DImpl<float> arr2d( dim1_, dim2_ );
     IOPar iop;
@@ -379,6 +414,8 @@ static bool testWrite()
     wrr->setAttribute( "Attrib to be deleted", "" );
 
     HDF5::DataSetKey dsky;
+    TypeSet<int> chunkszs( 3, chunksz_ );
+    dsky.setChunkSize( chunkszs.arr(), chunkszs.size() );
     BufferStringSet compnms;
     compnms.add( "Component 1" ).add( "Component 2" );
 
@@ -411,9 +448,9 @@ static bool testWrite()
     }
     mAddTestResult( "Write blocks" );
 
-    for ( int idx=0; idx<compnms.size(); idx++ )
+    for ( const auto compnm : compnms )
     {
-	dsky = HDF5::DataSetKey( compnms[idx]->str() );
+	dsky = HDF5::DataSetKey( compnm->str() );
 	wrr->setAttribute( "key string", "value string", &dsky );
 	wrr->setAttribute( "a float", 30.25f, &dsky );
 	wrr->setAttribute( "a double", 30.25, &dsky );
@@ -469,7 +506,8 @@ static bool testWrite()
     mAddTestResult( "Create sub-group B" );
 
     //Editable
-    wrr->setEditableCreation( true );
+    dsky.setEditable( true );
+    dsky.setChunkSize( nullptr );
 
     TypeSet<short> ts;
     ts += 1; ts += 2; ts += 3; ts += 4;
@@ -612,7 +650,7 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
     PIM().loadAuto( false );
-    OD::ModDeps().ensureLoaded("General");
+    OD::ModDeps().ensureLoaded( "General" );
     PIM().loadAuto( true );
 
     if ( !HDF5::isAvailable() )
