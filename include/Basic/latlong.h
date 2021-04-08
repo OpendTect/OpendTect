@@ -51,9 +51,13 @@ public:
     void		setDMS(bool lat,int,int,float);
 
     bool		setFromString(const char*,bool lat);
+    static bool		isDMSString(const BufferString&);
 
     double		lat_;
     double		lng_;
+
+protected:
+    bool		parseDMSString(const BufferString&,bool lat);
 };
 
 
