@@ -34,23 +34,25 @@ public:
 			mCreateDataObj( Camera );
 
     osg::Camera*	osgCamera() const;
+    Color		getBackgroundColor() const;
     Coord3		getTranslation() const;
     Coord3		getScale() const;
     void		getRotation(Coord3& vec,double& angle)const;
     void		getLookAtMatrix(Coord3&,Coord3&,Coord3&)const;
 
+    void		setBackgroundColor(const Color&);
 
     Notifier<Camera>		preDraw;
     Notifier<Camera>		postDraw;
 
     const osg::RenderInfo*	getRenderInfo() const { return renderinfo_; }
-    				//!<Only available during pre/post draw cb
+				//!<Only available during pre/post draw cb
 
 private:
     friend			class DrawCallback;
 
     void			triggerDrawCallBack(const DrawCallback*,
-                                	            const osg::RenderInfo&);
+						    const osg::RenderInfo&);
 
     virtual			~Camera();
 

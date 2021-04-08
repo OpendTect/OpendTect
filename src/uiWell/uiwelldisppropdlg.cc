@@ -31,6 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 HiddenParam<uiWellDispPropDlg,Color*> wlldisppropcolmgr_( nullptr );
 HiddenParam<uiWellDispPropDlg,Notifier<uiWellDispPropDlg>*>
+		    wlldispsavereqmgr_( nullptr );
+HiddenParam<uiWellDispPropDlg,Notifier<uiWellDispPropDlg>*>
 		    wlldispapplytabreqmgr_( nullptr );
 HiddenParam<uiWellDispPropDlg,Notifier<uiWellDispPropDlg>*>
 		    wlldispresetallreqmgr_( nullptr );
@@ -39,50 +41,27 @@ HiddenParam<uiWellDispPropDlg,uiPushButton*> hp_resetall_( nullptr );
 
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
 
-uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd,
-				      Color bkCol, bool is2d )
-	: uiDialog(p,uiDialog::Setup( tr("Display properties of: %1")
-	    .arg(wd ? toUiString(wd->name()) : uiString::emptyString()),
-	    mNoDlgTitle, mODHelpKey(mWellDispPropDlgHelpID) )
-	    .savebutton(true).savechecked(false).applybutton(true).modal(true)
-	    .applytext(uiStrings::sReset()))
-	, applyAllReq(this)
-	, savedefault_(false)
-	, is2ddisplay_(is2d)
-{
-    wlldisppropcolmgr_.setParam( this, new Color( bkCol ) );
-    wlldispapplytabreqmgr_.setParam( this,
-		    new Notifier<uiWellDispPropDlg>(this) );
-    wlldispresetallreqmgr_.setParam( this,
-		    new Notifier<uiWellDispPropDlg>(this) );
-
-    wd_ = Well::MGR().get( wd->multiID(),
-			   Well::LoadReqs( Well::LogInfos,
-					   Well::Mrkrs,
-					   is2d ? Well::DispProps2D :
-						  Well::DispProps3D ) );
-    wd_->ref();
-    init();
-}
-
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
-	: uiWellDispPropDlg(p,wd,Color::NoColor(),is2d)
-{ }
+    : uiWellDispPropDlg(p,wd->multiID(),is2d,Color::NoColor())
+{}
 
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
-				      Color bkCol, bool is2d )
-	: uiDialog(p,uiDialog::Setup(tr("Display properties of: %1")
-	    .arg(toUiString(IOM().nameOf(wid))),
-	    mNoDlgTitle, mODHelpKey(mWellDispPropDlgHelpID) )
-	    .savebutton(true).savechecked(false).applybutton(true).modal(true)
-	    .applytext(uiStrings::sReset()))
-	, applyAllReq(this)
-	, savedefault_(false)
-	, is2ddisplay_(is2d)
+				      bool is2d, Color bkCol )
+    : uiDialog(p,uiDialog::Setup(
+			tr("Display properties of: %1").arg(IOM().nameOf(wid)),
+			mNoDlgTitle, mODHelpKey(mWellDispPropDlgHelpID) )
+			    .savebutton(true).savechecked(false)
+			    .applybutton(true).modal(false)
+			    .applytext(uiStrings::sReset()))
+    , savedefault_(false)
+    , is2ddisplay_(is2d)
+    , applyAllReq(this)
 {
     wlldisppropcolmgr_.setParam( this, new Color( bkCol ) );
+    wlldispsavereqmgr_.setParam( this,
+	new Notifier<uiWellDispPropDlg>( this ) );
     wlldispapplytabreqmgr_.setParam( this,
 	new Notifier<uiWellDispPropDlg>( this ) );
     wlldispresetallreqmgr_.setParam( this,
@@ -93,49 +72,14 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
 						is2d ? Well::DispProps2D :
 						       Well::DispProps3D ) );
     wd_->ref();
-    init();
-}
 
-
-uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
-				      bool is2d )
-	: uiWellDispPropDlg(p,wid,Color::NoColor(),is2d )
-{ }
-
-
-Color& uiWellDispPropDlg::backGroundColor()
-{
-    return *wlldisppropcolmgr_.getParam( this );
-}
-
-
-const Color& uiWellDispPropDlg::backGroundColor() const
-{
-    return *wlldisppropcolmgr_.getParam( this );
-}
-
-Notifier<uiWellDispPropDlg>& uiWellDispPropDlg::applyTabReq()
-{
-    return *wlldispapplytabreqmgr_.getParam( this );
-}
-
-Notifier<uiWellDispPropDlg>& uiWellDispPropDlg::resetAllReq()
-{
-    return *wlldispresetallreqmgr_.getParam( this );
-}
-
-
-void uiWellDispPropDlg::init()
-{
-    bool is2d = is2ddisplay_;
-
-    setCtrlStyle( OkAndCancel );
-    setOkText( uiStrings::sSave() );
+    setCtrlStyle( CloseOnly );
     setCancelText( uiStrings::sClose() );
     setButtonSensitive( APPLY, false );
 
     Well::DisplayProperties& props = wd_->displayProperties( is2ddisplay_ );
-    if ( backGroundColor() != Color::NoColor() )
+    if ( !wd_->dispParsLoaded() &&
+	 backGroundColor() != Color::NoColor() )
 	props.ensureColorContrastWith( backGroundColor() );
 
     ts_ = new uiTabStack( this, "Well display properties tab stack" );
@@ -147,15 +91,16 @@ void uiWellDispPropDlg::init()
     if ( !is2d )
 	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
 
-    uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[LeftLog],
+    Well::DisplayProperties::LogCouple& lc = *props.logs_[0];
+    auto* wlp1 = new uiWellLogDispProperties( tgs[LeftLog],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2d), props.logs_[0]->left_, wd_ );
-    uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[CenterLog],
+	.onlyfor2ddisplay(is2d), lc.left_, wd_ );
+    auto* wlp2 = new uiWellLogDispProperties( tgs[CenterLog],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2d), props.logs_[0]->center(), wd_ );
-    uiWellLogDispProperties* wlp3 = new uiWellLogDispProperties( tgs[RightLog],
+	.onlyfor2ddisplay(is2d), lc.center(), wd_ );
+    auto* wlp3 = new uiWellLogDispProperties( tgs[RightLog],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2d), props.logs_[0]->right_, wd_ );
+	.onlyfor2ddisplay(is2d), lc.right_, wd_ );
 
     propflds_ += wlp1;
     propflds_ += wlp2;
@@ -169,8 +114,8 @@ void uiWellDispPropDlg::init()
     uiWellDispProperties::Setup propsu =
 	uiWellDispProperties::Setup(tr("Marker size"),tr("Marker color"))
 	.onlyfor2ddisplay(is2d);
-    uiWellMarkersDispProperties* wellprops = new uiWellMarkersDispProperties(
-	tgs[Marker], propsu, props.markers_, markernms );
+    auto* wellprops = new uiWellMarkersDispProperties(
+		tgs[Marker], propsu, props.markers_, markernms );
     wellprops->setAllMarkerNames( markernms, markercols );
     propflds_ += wellprops;
 
@@ -197,7 +142,7 @@ void uiWellDispPropDlg::init()
 				      propflds_[idx]->props().subjectName()) );
     }
 
-    uiButtonGroup* bgrp = new uiButtonGroup( this, "", OD::Horizontal );
+    auto* bgrp = new uiButtonGroup( this, "", OD::Horizontal );
     hp_applycurrenttoall_.setParam( this, new uiPushButton( bgrp,
 				    tr("Apply Current to all wells"), true ) );
     mAttachCB( applyTabButton()->activated, uiWellDispPropDlg::applyTabPush );
@@ -206,13 +151,23 @@ void uiWellDispPropDlg::init()
     mAttachCB( resetAllButton()->activated, uiWellDispPropDlg::resetAllPush );
     bgrp->attach( centeredBelow, ts_ );
 
-    ts_->setCurrentPage( 1 );
-    mAttachCB(ts_->selChange(), uiWellDispPropDlg::tabSel);
+    TabType curtab = Track;
+    if ( !lc.left_.name_.isEmpty() && lc.left_.name_ != sKey::None() )
+	curtab = LeftLog;
+    else if (!lc.center().name_.isEmpty() && lc.center().name_ != sKey::None())
+	curtab = CenterLog;
+    else if ( !lc.right_.name_.isEmpty() && lc.right_.name_ != sKey::None() )
+	curtab = RightLog;
+
+    ts_->setCurrentPage( curtab );
+    mAttachCB( ts_->selChange(), uiWellDispPropDlg::tabSel );
 
     setWDNotifiers( true );
     mAttachCB( applyPushed, uiWellDispPropDlg::resetCB );
+    mAttachCB( windowClosed, uiWellDispPropDlg::onClose );
+    mAttachCB( postFinalise(), uiWellDispPropDlg::postFinaliseCB );
 
-    tabSel( 0 );
+    tabSel( nullptr );
     mDispNot.trigger();
 }
 
@@ -221,11 +176,42 @@ uiWellDispPropDlg::~uiWellDispPropDlg()
 {
     detachAllNotifiers();
     wlldisppropcolmgr_.removeAndDeleteParam( this );
+    wlldispsavereqmgr_.removeAndDeleteParam( this );
     wlldispapplytabreqmgr_.removeAndDeleteParam( this );
     wlldispresetallreqmgr_.removeAndDeleteParam( this );
     hp_applycurrenttoall_.removeParam( this );
     hp_resetall_.removeParam( this );
     wd_->unRef();
+}
+
+
+Color& uiWellDispPropDlg::backGroundColor()
+{
+    return *wlldisppropcolmgr_.getParam( this );
+}
+
+
+const Color& uiWellDispPropDlg::backGroundColor() const
+{
+    return *wlldisppropcolmgr_.getParam( this );
+}
+
+
+Notifier<uiWellDispPropDlg>& uiWellDispPropDlg::saveReq()
+{
+    return *wlldispsavereqmgr_.getParam( this );
+}
+
+
+Notifier<uiWellDispPropDlg>& uiWellDispPropDlg::applyTabReq()
+{
+    return *wlldispapplytabreqmgr_.getParam( this );
+}
+
+
+Notifier<uiWellDispPropDlg>& uiWellDispPropDlg::resetAllReq()
+{
+    return *wlldispresetallreqmgr_.getParam( this );
 }
 
 
@@ -238,6 +224,23 @@ uiPushButton* uiWellDispPropDlg::applyTabButton() const
 uiPushButton* uiWellDispPropDlg::resetAllButton() const
 {
     return hp_resetall_.getParam( this );
+}
+
+
+void uiWellDispPropDlg::postFinaliseCB( CallBacker* )
+{
+    uiButton* closebut = button( CANCEL );
+    auto* savebut = uiButton::getStd( closebut->parent(), OD::Ok,
+				mCB(this,uiWellDispPropDlg,acceptOKCB),
+				true, uiStrings::sSave() );
+    savebut->attach( leftOf, closebut );
+    savebut->finalise();
+}
+
+
+uiWellDispPropDlg::TabType uiWellDispPropDlg::currentTab() const
+{
+    return uiWellDispPropDlg::TabType( ts_->currentPageId() );
 }
 
 
@@ -366,20 +369,13 @@ void uiWellDispPropDlg::resetAllPush( CallBacker* cb )
 void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 {
     windowClosed.trigger();
-    wd_ = 0;
+    wd_ = nullptr;
     OBJDISP()->go( this );
 }
 
 
 void uiWellDispPropDlg::onClose( CallBacker* )
 {
-}
-
-
-bool uiWellDispPropDlg::acceptOK( CallBacker* )
-{
-    savedefault_ = saveButtonChecked();
-    return true;
 }
 
 
@@ -393,29 +389,38 @@ void uiWellDispPropDlg::resetCB( CallBacker* )
 }
 
 
-bool uiWellDispPropDlg::is2D() const
+bool uiWellDispPropDlg::rejectOK( CallBacker* )
 {
-    return is2ddisplay_;
+    return true;
 }
 
-uiWellDispPropDlg::TabType uiWellDispPropDlg::currentTab() const
+
+void uiWellDispPropDlg::acceptOKCB( CallBacker* )
 {
-    return (uiWellDispPropDlg::TabType) ts_->currentPageId();
+    saveReq().trigger();
 }
+
 
 
 //uiMultiWellDispPropDlg
 uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 						ObjectSet<Well::Data>& wds,
 						bool is2ddisplay )
-	: uiWellDispPropDlg(p,wds[0],is2ddisplay)
-	, wds_(wds)
-	, wellselfld_(0)
+    : uiMultiWellDispPropDlg(p,wds,is2ddisplay,Color::NoColor())
+{}
+
+
+uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
+					const ObjectSet<Well::Data>& wds,
+					bool is2ddisplay, Color bkcol )
+    : uiWellDispPropDlg(p,wds[0]->multiID(),is2ddisplay,bkcol)
+    , wds_(wds)
+    , wellselfld_(nullptr)
 {
     if ( wds_.size()>1 )
     {
 	BufferStringSet wellnames;
-	for ( int idx=0; idx< wds_.size(); idx++ )
+	for ( int idx=0; idx<wds_.size(); idx++ )
 	    wellnames.addIfNew( wds_[idx]->name() );
 
 	wellselfld_ = new uiLabeledComboBox( this, tr("Select Well") );

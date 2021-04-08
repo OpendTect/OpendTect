@@ -164,8 +164,19 @@ bool Well::Reader::fnnm() const { return ra_ ? ra_->fnnm() : false; }
 
 mImplSimpleWRFn(getInfo)
 mImplSimpleWRFn(getMarkers)
-mImplSimpleWRFn(getDispProps)
 mImplWRFn(bool,getLogs,bool,needjustinfo,false)
+
+
+bool Well::Reader::getDispProps() const
+{
+    if ( !ra_ )
+	return false;
+
+    const bool res = ra_->getDispProps();
+    if ( res )
+	const_cast<Well::Data*>( data() )->setDispParsLoaded( true );
+    return res;
+}
 
 
 bool Well::Reader::getTrack() const
@@ -840,7 +851,6 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
     IOPar iop; iop.getFrom( astrm );
     wd_.displayProperties(true).usePar( iop );
     wd_.displayProperties(false).usePar( iop );
-    wd_.setDispParsLoaded( true );
     return true;
 }
 

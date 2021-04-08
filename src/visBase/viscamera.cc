@@ -93,6 +93,29 @@ void Camera::triggerDrawCallBack( const DrawCallback* src,
 }
 
 
+#define col2f(rgb) float(col.rgb())/255
+
+void Camera::setBackgroundColor( const Color& col )
+{
+    if ( !camera_ )
+	return;
+
+    const osg::Vec4 osgcol( col2f(r), col2f(g), col2f(b), 1.0 );
+    camera_->setClearColor( osgcol );
+}
+
+
+Color Camera::getBackgroundColor() const
+{
+    if ( !camera_ )
+	return Color::NoColor();
+
+    const osg::Vec4 col = camera_->getClearColor();
+    return Color( mNINT32(col.r()*255), mNINT32(col.g()*255),
+		  mNINT32(col.b()*255) );
+}
+
+
 Coord3 Camera::getTranslation() const
 {
     osg::Vec3d	curscale;

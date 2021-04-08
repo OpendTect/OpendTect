@@ -15,13 +15,13 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "ptrman.h"
 
+class uiLabeledComboBox;
+class uiPushButton;
 class uiTabStack;
 class uiWellDispProperties;
-class uiLabeledComboBox;
-class uiMultiWellDispPropDlg;
-class uiPushButton;
 
 namespace Well { class Data; class DisplayProperties; };
+namespace WellCorr { class uiWellPropDlg; }
 
 
 /*!
@@ -31,33 +31,27 @@ namespace Well { class Data; class DisplayProperties; };
 mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {mODTextTranslationClass(uiWellDispPropDlg)
 public:
-				uiWellDispPropDlg(uiParent*,Well::Data*,Color,
+	mDeprecatedDef		uiWellDispPropDlg(uiParent*,Well::Data*,
 						  bool is2ddisplay=false);
 				uiWellDispPropDlg(uiParent*,const MultiID&,
-						  Color,bool is2ddisplay=false);
-				uiWellDispPropDlg(uiParent*,Well::Data*,
-						  bool is2ddisplay=false);
-				uiWellDispPropDlg(uiParent*,const MultiID&,
-						  bool is2ddisplay=false);
+						  bool is2ddisplay,
+						  Color bgcolor);
 				~uiWellDispPropDlg();
 
-    Notifier<uiWellDispPropDlg>	applyAllReq;
+    Notifier<uiWellDispPropDlg> applyAllReq; //Deprecated
+    Notifier<uiWellDispPropDlg>& saveReq();
     Notifier<uiWellDispPropDlg>& applyTabReq();
     Notifier<uiWellDispPropDlg>& resetAllReq();
 
     enum TabType { LeftLog=0, CenterLog=1, RightLog=2, Marker=3, Track=4 };
+
     Well::Data*			wellData()		{ return wd_; }
     const Well::Data*		wellData() const	{ return wd_; }
 
     TabType			currentTab() const;
-    bool			is2D() const;
-    bool			savedefault_;
+    bool			is2D() const		{ return is2ddisplay_; }
+    bool			savedefault_;	//Deprecated
     void			updateLogs();
-    void			resetCB(CallBacker*);
-    void			applyTabPush(CallBacker*);
-    void			resetAllPush(CallBacker*);
-    uiPushButton*		applyTabButton() const;
-    uiPushButton*		resetAllButton() const;
 
 protected:
 
@@ -65,8 +59,7 @@ protected:
     uiTabStack*			ts_;
     ObjectSet<uiWellDispProperties> propflds_;
     bool			is2ddisplay_;
-
-    Color&			  backGroundColor();
+    Color&			backGroundColor();
     const Color&		backGroundColor() const;
 
     virtual void		getFromScreen();
@@ -78,11 +71,22 @@ protected:
     virtual void		onClose(CallBacker*);
     virtual void		propChg(CallBacker*);
     void			markersChgd(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			rejectOK(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
     void			tabSel(CallBacker*);
-    void			init();
+
+    void			resetCB(CallBacker*);
+    void			applyTabPush(CallBacker*);
+    void			resetAllPush(CallBacker*);
+    uiPushButton*		applyTabButton() const;
+    uiPushButton*		resetAllButton() const;
+
+				//As we cannot override the virtual fn:
+    void			postFinaliseCB(CallBacker*);
+    void			acceptOKCB(CallBacker*);
+
+    friend class WellCorr::uiWellPropDlg;
 
 };
 
@@ -94,9 +98,13 @@ protected:
 mExpClass(uiWell) uiMultiWellDispPropDlg : public uiWellDispPropDlg
 {mODTextTranslationClass(uiMultiWellDispPropDlg)
 public:
-				uiMultiWellDispPropDlg(uiParent*,
+	mDeprecatedDef		uiMultiWellDispPropDlg(uiParent*,
 						ObjectSet<Well::Data>&,
 						bool is2ddisplay);
+				uiMultiWellDispPropDlg(uiParent*,
+						const ObjectSet<Well::Data>&,
+						bool is2ddisplay,
+						Color bgcolor);
 				~uiMultiWellDispPropDlg();
 
 protected:
@@ -113,6 +121,7 @@ protected:
     void			resetMWAllPush(CallBacker*);
 
     friend class uiWellDispPropDlg;
+
 };
 
 

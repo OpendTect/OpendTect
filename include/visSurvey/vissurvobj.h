@@ -156,6 +156,7 @@ public:
     virtual Color		getColor() const
 				{ return Color::DgbColor(); }
 
+    Color			getBackgroundColor() const;
     virtual void		setAnnotColor(Color)			{}
     virtual Color		getAnnotColor() const
 				{ return Color::DgbColor(); }

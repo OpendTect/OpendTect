@@ -164,6 +164,20 @@ void Scene::addObject( DataObject* dataobj )
 }
 
 
+void Scene::setBackgroundColor( const Color& col )
+{
+    if ( camera_ )
+	camera_->setBackgroundColor( col );
+}
+
+
+Color Scene::getBackgroundColor() const
+{
+    return camera_ ? camera_->getBackgroundColor()
+		   :  Color::NoColor();
+}
+
+
 void Scene::setCameraLightIntensity( float value )
 {
     if ( !camera_ ) return;
@@ -181,7 +195,6 @@ float Scene::getCameraLightIntensity() const
     const osg::Vec4 diffuse = headlight->getDiffuse();
     return diffuse[0];
 }
-
 
 
 void Scene::setCameraAmbientLight( float value )
