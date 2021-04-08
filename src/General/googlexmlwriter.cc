@@ -149,7 +149,10 @@ bool ODGoogle::KMLWriter::writeLine( const pickset& picks )
 	    continue;
 
 	pick->getLocations( locs );
-	putLine( coords, pick->name() );
+	for ( auto loc : locs )
+	    coords.add( loc->pos().coord() );
+
+	putLine( coords , pick->name() );
     }
 
     return true;
