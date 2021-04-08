@@ -3,7 +3,6 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Nov 2009
- * ID       : $Id$
 -*/
 
 #include "uigoogleexpdlg.h"
@@ -15,7 +14,7 @@ class BufferStringSet;
 namespace ODGoogle { class XMLWriter; }
 
 
-mClass(uiGoogleIO) uiGISExport2DSeis : public uiDialog
+mExpClass(uiGoogleIO) uiGISExport2DSeis : public uiDialog
 { mODTextTranslationClass(uiGISExport2DSeis);
 public:
 
