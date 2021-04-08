@@ -308,10 +308,18 @@ Coord3 Well::Track::getPos( float dh ) const
     else if ( idx1 < 0 || idx1 == dah_.size()-1 )
     {
         Coord3 ret ( idx1 < 0 ? pos_[0] : pos_[idx1] );
+	double deltamd = idx1<0 ? dah_[0] - dh :  dh - dah_[idx1];
+	if ( zistime_ )
+	{
+	    const double grad = idx1<0
+		? ((pos_[1].z-pos_[0].z)/(dah_[1]-dah_[0]))
+		: ((pos_[idx1].z-pos_[idx1-1].z)/(dah_[idx1]-dah_[idx1-1]));
+	    deltamd *= grad;
+	}
         if ( idx1 < 0 )
-            ret.z -= dah_[0] - dh;
+            ret.z -= deltamd;
         else
-            ret.z += dh - dah_[idx1];
+            ret.z += deltamd;
 
         return ret;
     }
