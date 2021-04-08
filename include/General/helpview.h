@@ -1,12 +1,10 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		18-8-2000
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -60,14 +58,13 @@ public:
     BufferString 	providername_;
     BufferString 	argument_;
 
-    			// Legacy
-                        HelpKey(const char* arg)
-                            : providername_("od")
-                            , argument_( arg )
-                        {}
+			// Legacy
+			HelpKey(const char* arg)
+			    : providername_("od")
+			    , argument_( arg )
+			{}
 };
 
 #define mODHelpKey( arg ) HelpKey( "od", ::toString(arg) )
 #define mODVideoKey( arg ) HelpKey( "odvideo", ::toString(arg) )
-
 

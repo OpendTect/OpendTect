@@ -2069,11 +2069,81 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
 }
 
 
+// uiCopyWellDlg
+uiCopyWellDlg::uiCopyWellDlg( uiParent* p )
+    : uiDialog(p,Setup(tr("Copy Well"),mNoDlgTitle,mODHelpKey(mWellCopyHelpID)))
+{
+    setOkText( uiStrings::sCopy() );
+
+    infld_ = new uiWellSel( this, true );
+    outfld_ = new uiWellSel( this, false );
+    outfld_->attach( alignedBelow, infld_ );
+}
+
+
+uiCopyWellDlg::~uiCopyWellDlg()
+{}
+
+
+void uiCopyWellDlg::setKey( const MultiID& key )
+{
+    infld_->setInput( key );
+    inpSelCB( nullptr );
+}
+
+
+MultiID uiCopyWellDlg::getKey() const
+{
+    return outfld_->key();
+}
+
+
+void uiCopyWellDlg::inpSelCB( CallBacker* )
+{
+    const IOObj* ioobj = infld_->ioobj();
+    if ( !ioobj )
+	return;
+
+    BufferString nm = ioobj->name();
+    nm.add( "_copy" );
+    outfld_->setInputText( nm );
+}
+
+
+bool uiCopyWellDlg::acceptOK( CallBacker* )
+{
+    const IOObj* inioobj = infld_->ioobj();
+    const IOObj* outioobj = outfld_->ioobj();
+    if ( !inioobj || !outioobj )
+	return false;
+
+    RefMan<Well::Data> wdin = Well::MGR().get( inioobj->key() );
+    if ( !wdin )
+	return false;
+
+    const Well::Writer wrr( *outioobj, *wdin );
+    if ( !wrr.put() )
+    {
+	uiMSG().error( wrr.errMsg() );
+	return false;
+    }
+
+    uiString msg = tr("Well successfully copied.\n\n"
+		      "Do you want to copy more Wells?");
+    const bool ret =
+	uiMSG().askGoOn( msg, uiStrings::sYes(),tr("No, close window") );
+    return !ret;
+}
+
+
+// uiWellMgrInfoDlg
 uiWellMgrInfoDlg::uiWellMgrInfoDlg( uiParent* p )
-: uiDialog(p,uiDialog::Setup(tr("Well::MGR Information"),mNoDlgTitle,mNoHelpKey)
-.applybutton(true).applytext(uiStrings::sReload()).modal(false))
+    : uiDialog(p,uiDialog::Setup(tr("Well::MGR Information"),
+		mNoDlgTitle,mNoHelpKey).applybutton(true)
+				.applytext(uiStrings::sReload()).modal(false))
 {
     setCtrlStyle( uiDialog::CloseOnly );
+
     browser_ = new uiTextBrowser( this );
     mAttachCB( applyPushed, uiWellMgrInfoDlg::refresh );
     mAttachCB( windowShown, uiWellMgrInfoDlg::refresh );
@@ -2084,6 +2154,7 @@ uiWellMgrInfoDlg::~uiWellMgrInfoDlg()
 {
     detachAllNotifiers();
 }
+
 
 void uiWellMgrInfoDlg::refresh( CallBacker* )
 {
