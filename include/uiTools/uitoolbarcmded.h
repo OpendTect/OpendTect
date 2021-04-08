@@ -50,11 +50,9 @@ public:
 				       const BufferStringSet& exenms );
     void		clear();
     BufferString	getCommand() const;
-    BufferString	getArguments() const;
     BufferString	getToolTip() const;
     BufferString	getIconFile() const;
     void		setCommand(const BufferString&);
-    void		setArguments(const BufferString&);
     void		setToolTip(const BufferString&);
     void		setIconFile(const BufferString&);
 
@@ -72,7 +70,6 @@ protected:
     bool		mkinvisible_;
     uiComboBox*		exeselfld_ = nullptr;
     uiFileInput*	commandfld_;
-    uiGenInput*		argumentsfld_;
     uiGenInput*		tooltipfld_;
     uiToolButton*	iconfld_;
     BufferString	iconfile_;

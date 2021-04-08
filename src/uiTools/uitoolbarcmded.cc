@@ -54,13 +54,9 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
     if ( exeselfld_ )
 	commandfld_->attach( alignedBelow, lblcb );
 
-    argumentsfld_ = new uiGenInput( this, tr("Arguments"), StringInpSpec() );
-    argumentsfld_->setElemSzPol( uiObject::WideVar );
-    argumentsfld_->attach( alignedBelow, commandfld_ );
-
     tooltipfld_ = new uiGenInput( this, tr("Tool Tip"), StringInpSpec() );
     tooltipfld_->setElemSzPol( uiObject::WideVar );
-    tooltipfld_->attach( alignedBelow, argumentsfld_ );
+    tooltipfld_->attach( alignedBelow, commandfld_ );
 
     iconfld_ = new uiToolButton( this, "programmer", tr("Select icon"),
 				 mCB(this,uiToolBarCommandEditor,iconSelCB) );
@@ -89,7 +85,6 @@ uiToolBarCommandEditor::~uiToolBarCommandEditor()
 void uiToolBarCommandEditor::initGrp( CallBacker* )
 {
     mAttachCB(commandfld_->valuechanged,uiToolBarCommandEditor::commandChgCB);
-    mAttachCB(argumentsfld_->valuechanged,uiToolBarCommandEditor::commandChgCB);
     mAttachCB(tooltipfld_->valuechanged,uiToolBarCommandEditor::commandChgCB);
 
     if ( checkbox_ )
@@ -158,8 +153,10 @@ void uiToolBarCommandEditor::updateCmdList( const BufferStringSet& paths,
 	res.add( tr("Other") );
 	NotifyStopper stopselchg( exeselfld_->selectionChanged );
 	NotifyStopper stopchg( changed );
+	BufferString current = exeselfld_->text();
 	exeselfld_->setEmpty();
 	exeselfld_->addItems( res );
+	exeselfld_->setCurrentItem( current );
 	exeSelChgCB( nullptr );
     }
 }
@@ -168,7 +165,6 @@ void uiToolBarCommandEditor::updateCmdList( const BufferStringSet& paths,
 void uiToolBarCommandEditor::clear()
 {
     setCommand( BufferString::empty() );
-    setArguments( BufferString::empty() );
     setToolTip( BufferString::empty() );
     setIconFile( "programmer" );
 }
@@ -177,12 +173,6 @@ void uiToolBarCommandEditor::clear()
 BufferString uiToolBarCommandEditor::getCommand() const
 {
     return commandfld_->fileName();
-}
-
-
-BufferString uiToolBarCommandEditor::getArguments() const
-{
-    return argumentsfld_->text();
 }
 
 
@@ -204,12 +194,6 @@ void uiToolBarCommandEditor::setCommand( const BufferString& cmd )
 }
 
 
-void uiToolBarCommandEditor::setArguments( const BufferString& args )
-{
-    argumentsfld_->setText( args );
-}
-
-
 void uiToolBarCommandEditor::setToolTip( const BufferString& tip )
 {
     tooltipfld_->setText( tip );
@@ -226,7 +210,6 @@ void uiToolBarCommandEditor::setIconFile( const BufferString& iconfile )
 void uiToolBarCommandEditor::advSetSensitive( bool yn )
 {
     commandfld_->setSensitive( yn );
-    argumentsfld_->setSensitive( yn );
     tooltipfld_->setSensitive( yn );
     iconfld_->setSensitive( yn );
 }
@@ -235,7 +218,6 @@ void uiToolBarCommandEditor::advSetSensitive( bool yn )
 void uiToolBarCommandEditor::advDisplay( bool yn )
 {
     commandfld_->display( yn );
-    argumentsfld_->display( yn );
     tooltipfld_->display( yn );
     iconfld_->display( yn );
 }
@@ -283,7 +265,6 @@ void uiToolBarCommandEditor::commandChgCB( CallBacker* )
 void uiToolBarCommandEditor::exeSelChgCB( CallBacker* )
 {
     BufferString cmd( exeselfld_->text() );
-    clear();
     if ( cmd=="Other" && isChecked() )
     {
 	advSetSensitive( true );
@@ -332,7 +313,6 @@ void uiToolBarCommandEditor::fillPar( IOPar& par ) const
     if ( isChecked() && cmd=="Other" )
     {
 	par.set( sKey::Command(), getCommand() );
-	par.set( sKey::Arguments(), getArguments() );
 	par.set( sKey::ToolTip(), getToolTip() );
 	par.set( sKey::IconFile(), getIconFile() );
     }
@@ -343,27 +323,26 @@ void uiToolBarCommandEditor::fillPar( IOPar& par ) const
 
 void uiToolBarCommandEditor::usePar( const IOPar& par )
 {
-    BufferString exenm, cmd, args, tip, iconfile;
+    BufferString exenm, cmd, tip, iconfile;
     if ( par.get( sKey::ExeName(), exenm ) && !exenm.isEmpty() && exeselfld_ )
     {
 	exeselfld_->setCurrentItem( exenm );
 	setChecked( true );
-	exeSelChgCB( nullptr );
     }
     else if ( par.get( sKey::Command(), cmd ) && !cmd.isEmpty() )
     {
-	par.get( sKey::Arguments(), args );
 	par.get( sKey::ToolTip(), tip );
 	par.get( sKey::IconFile(), iconfile );
 	if ( exeselfld_ )
 	    exeselfld_->setCurrentItem( "Other" );
 
 	setCommand( cmd );
-	setArguments( args );
 	setToolTip( tip );
 	setIconFile( iconfile );
 	setChecked( true );
     }
     else
 	setChecked( false );
+
+    exeSelChgCB( nullptr );
 }
