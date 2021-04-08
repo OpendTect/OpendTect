@@ -140,7 +140,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     const PtrMan<IOPar> idepar = pythonsetts.subselect( sKey::PythonIDE() );
-    BufferString exenm, cmd, args, tip, iconfile;
+    BufferString exenm, cmd, tip, iconfile;
     FilePath pybinpath;
     OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
     BufferStringSet paths;
@@ -169,7 +169,6 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	if ( !File::isExecutable(cmd) )
 	    return;
 
-	idepar->get( sKey::Arguments(), args );
 	idepar->get( sKey::ToolTip(), tip );
 	idepar->get( sKey::IconFile(), iconfile );
 	int id = 0;
@@ -177,9 +176,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	    id = usercmdtb_->addButton( iconfile, toUiString(tip),
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
-	cmd.addSpace().add(args);
 	commands_.add( cmd );
-
 	if ( usercmdmnu_ )
 	{
 	    uiAction* newitm = new uiAction(tr("Start %1 IDE...").arg(tip),
@@ -943,6 +940,7 @@ void usePar( const IOPar& par )
     else
 	custompathfld_->setChecked( false );
 
+    updateIDEfld();
     PtrMan<IOPar> idepar = par.subselect( sKey::PythonIDE() );
     if ( idepar )
 	pyidefld_->usePar( *idepar );
