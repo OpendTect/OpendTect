@@ -1491,7 +1491,6 @@ uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, bool direct, const char* nm )
 	? (ui3DViewerBody*) new uiDirectViewBody( *this, parnt )
 	: (ui3DViewerBody*) new ui3DIndirectViewBody( *this, parnt );
 
-
     return *osgbody_;
 }
 

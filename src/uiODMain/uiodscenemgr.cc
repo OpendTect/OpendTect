@@ -51,6 +51,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
+#include "uiosgutil.h"
 #include "pickset.h"
 #include "ptrman.h"
 #include "randomlinegeom.h"
@@ -85,6 +86,10 @@ static const int cWSWidth = 600;
 static const int cWSHeight = 500;
 static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
 
+#include "hiddenparam.h"
+HiddenParam<uiODSceneMgr,Notifier<uiODSceneMgr>*> hp_scenesshown_( nullptr );
+HiddenParam<uiODSceneMgr,Notifier<uiODSceneMgr>*> hp_sceneshidden_( nullptr );
+
 #define mWSMCB(fn) mCB(this,uiODSceneMgr,fn)
 #define mDoAllScenes(memb,fn,arg) \
     for ( int idx=0; idx<scenes_.size(); idx++ ) \
@@ -103,6 +108,9 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , tiletimer_(new Timer)
     , treeAdded(this)
 {
+    hp_sceneshidden_.setParam( this, new Notifier<uiODSceneMgr>(this) );
+    hp_scenesshown_.setParam( this, new Notifier<uiODSceneMgr>(this) );
+
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
 		       SurveyInfo::No2D );
     tifs_->addFactory( new uiODCrosslineTreeItemFactory, 1100,
@@ -141,6 +149,10 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 
     uiFont& font3d = FontList().get( FontData::key(FontData::Graphics3D) );
     mAttachCB( font3d.changed, uiODSceneMgr::font3DChanged );
+
+    mAttachCB( appl_.windowShown, uiODSceneMgr::showIfMinimized );
+    mAttachCB( appl_.windowShown, uiODSceneMgr::mdiAreaChanged );
+    setOSGTimerCallbacks( scenesShown(), scenesHidden() );
 }
 
 
@@ -152,6 +164,8 @@ uiODSceneMgr::~uiODSceneMgr()
     delete mdiarea_;
     delete wingrabber_;
     delete tiletimer_;
+    hp_sceneshidden_.removeAndDeleteParam( this );
+    hp_scenesshown_.removeAndDeleteParam( this );
 }
 
 
@@ -177,6 +191,8 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 {
     uiODSceneMgr::Scene& scn = *new uiODSceneMgr::Scene( mdiarea_ );
     scn.mdiwin_->closed().notify( mWSMCB(removeSceneCB) );
+    scn.mdiwin_->windowShown().notify( mWSMCB(mdiAreaChanged) );
+    scn.mdiwin_->windowHidden().notify( mWSMCB(mdiAreaChanged) );
     scenes_ += &scn;
     vwridx_++;
     BufferString vwrnm( "Viewer Scene ", vwridx_ );
@@ -332,6 +348,18 @@ void uiODSceneMgr::setSceneName( int sceneid, const uiString& nm )
 
 uiString uiODSceneMgr::getSceneName( int sceneid ) const
 { return const_cast<uiODSceneMgr*>(this)->visServ().getUiObjectName(sceneid); }
+
+
+Notifier<uiODSceneMgr>& uiODSceneMgr::scenesShown()
+{
+    return *hp_scenesshown_.getParam( this );
+}
+
+
+Notifier<uiODSceneMgr>& uiODSceneMgr::scenesHidden()
+{
+    return *hp_sceneshidden_.getParam( this );
+}
 
 
 void uiODSceneMgr::getScenePars( IOPar& iopar )
@@ -854,6 +882,22 @@ int uiODSceneMgr::getActiveSceneID() const
 
 void uiODSceneMgr::mdiAreaChanged( CallBacker* )
 {
+    bool visible = false;
+    if ( !appl_.isMinimized() )
+    {
+	for ( int idx=0; idx<scenes_.size(); idx++ )
+	{
+	    if ( !scenes_[idx]->mdiwin_->isMinimized() )
+	    {
+		scenesShown().trigger();
+		visible = true;
+		break;
+	    }
+	}
+    }
+    if ( !visible )
+	scenesHidden().trigger();
+
 //    const bool wasparalysed = mdiarea_->paralyse( true );
     if ( appl_.menuMgrAvailable() )
 	appl_.menuMgr().updateSceneMenu();
@@ -1490,6 +1534,12 @@ void uiODSceneMgr::font3DChanged( CallBacker* )
     }
 }
 
+
+void uiODSceneMgr::showIfMinimized( CallBacker* )
+{
+    if ( appl_.isMinimized() )
+	appl_.show();
+}
 
 // uiODSceneMgr::Scene
 uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
