@@ -73,6 +73,7 @@ protected:
     void			writeLogs();
     void			fillLogsFld();
     void			wellsChgd();
+    void			copyPush(CallBacker*);
     void			bulkD2TCB(CallBacker*);
     void			viewLogPush(CallBacker*);
     void			renameLogPush(CallBacker*);

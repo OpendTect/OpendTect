@@ -67,9 +67,12 @@ uiWellMan::uiWellMan( uiParent* p )
     createDefaultUI( false, true, true );
     setPrefWidth( 50 );
 
+    uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
+    manipgrp->addButton( "copyobj", tr("Copy Well"),
+			 mCB(this,uiWellMan,copyPush) );
+
     if ( SI().zIsTime() )
     {
-	uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 	manipgrp->addButton( "z2t",
 			tr("Set Depth to Time Model from other Well"),
 			mCB(this,uiWellMan,bulkD2TCB) );
@@ -198,6 +201,17 @@ void uiWellMan::getCurrentWells()
     }
 
     deepRef( curwds_ );
+}
+
+
+void uiWellMan::copyPush( CallBacker* cb )
+{
+    uiCopyWellDlg dlg( this );
+    if ( curioobj_ )
+	dlg.setKey( curioobj_->key() );
+
+    if ( dlg.go() )
+	updateCB( cb );
 }
 
 
