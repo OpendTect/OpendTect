@@ -251,22 +251,13 @@ void uiODWellTreeItem::initMenuItems()
 
 bool uiODWellTreeItem::init()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+			visserv_->getObject(sceneID()));
+
     if ( displayid_==-1 )
     {
 	auto* wd = new visSurvey::WellDisplay;
-	const ObjectSet<visSurvey::Scene>& scenes = visserv_->getAllScenes();
-	const int sceneid = sceneID();
-	visSurvey::Scene* sceneobj = nullptr;
-	for ( const auto scene : scenes )
-	{
-	    if ( scene->id() == sceneid )
-	    {
-		sceneobj = scene;
-		break;
-	    }
-	}
-
-	wd->setScene( sceneobj );
+	wd->setScene( scene );
 	displayid_ = wd->id();
 	if ( !wd->setMultiID(mid_) )
 	{
@@ -286,8 +277,6 @@ bool uiODWellTreeItem::init()
 	if ( !wd )
 	    return false;
 
-	mDynamicCastGet(visSurvey::Scene*,scene,
-			visserv_->getObject(sceneID()));
 	if ( scene )
 	    wd->setDisplayTransformation( scene->getUTM2DisplayTransform() );
     }
