@@ -217,3 +217,25 @@ protected:
     uiMultiWellSel*	wellfld_;
 };
 
+
+/* brief Dialog to copy a well */
+// This tool simply reads the well and all auxilary data
+// and writes it back to disk under another name
+
+mExpClass(uiWell) uiCopyWellDlg : public uiDialog
+{ mODTextTranslationClass(uiCopyWellDlg)
+public:
+			uiCopyWellDlg(uiParent*);
+			~uiCopyWellDlg();
+
+    void		setKey(const MultiID&);
+    MultiID		getKey() const;
+
+protected:
+
+    void		inpSelCB(CallBacker*);
+    bool		acceptOK(CallBacker*);
+
+    uiWellSel*		infld_;
+    uiWellSel*		outfld_;
+};
