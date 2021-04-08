@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "applicationdata.h"
 #include "sighndl.h"

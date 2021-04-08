@@ -4,7 +4,6 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "color.h"
 

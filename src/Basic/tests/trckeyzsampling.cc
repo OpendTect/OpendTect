@@ -5,7 +5,6 @@
  * FUNCTION : Test various functions of TrcKeySampling and TrcKeyZSampling.
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "testprog.h"
 #include "odjson.h"

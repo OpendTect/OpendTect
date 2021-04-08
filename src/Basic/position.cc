@@ -4,7 +4,6 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "position.h"
 #include "binidvalue.h"
