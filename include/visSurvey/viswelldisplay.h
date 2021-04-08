@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id$
 ________________________________________________________________________
 
 
@@ -107,6 +106,11 @@ public:
     void			showLogs(bool);
     bool			logNameShown() const;
     void			showLogName(bool);
+
+    void			setResolution(int res,TaskRunner*);
+    int				getResolution() const;
+    int				nrResolutions() const;
+    BufferString		getResolutionName(int res) const;
 
     const mVisTrans*		getDisplayTransformation() const;
     void			setDisplayTransformation(const mVisTrans*);

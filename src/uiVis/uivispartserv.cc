@@ -2177,7 +2177,6 @@ void uiVisPartServer::createMenuCB( CallBacker* cb )
     mAddMenuItemCond( baseitem, &changematerialmnuitem_, true, false,
 		      so->allowMaterialEdit() );
 
-    resmnuitem_.id = -1;
     resmnuitem_.removeItems();
     if ( so->nrResolutions()>1 )
     {
