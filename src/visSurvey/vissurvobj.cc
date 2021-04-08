@@ -102,6 +102,13 @@ void SurveyObject::setScene( Scene* sc )
 { scene_ = sc; }
 
 
+Color SurveyObject::getBackgroundColor() const
+{
+    const Scene* scene = getScene();
+    return scene ? scene->getBackgroundColor() : Color::NoColor();
+}
+
+
 bool SurveyObject::alreadyTransformed( int attrib ) const
 {
     const Attrib::SelSpec* as = getSelSpec( attrib );

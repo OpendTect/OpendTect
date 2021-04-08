@@ -70,7 +70,6 @@ public:
     void			selectWellCoordsForRdmLine();
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
-    mDeprecatedDef
     void			closePropDlg(const MultiID&);
     Notifier<uiWellPartServer>	randLineDlgClosed;
     Notifier<uiWellPartServer>	uiwellpropDlgClosed;
@@ -118,9 +117,12 @@ protected:
     void			importReadyCB(CallBacker*);
     void			rdmlnDlgDeleted(CallBacker*);
     void			rdmlnDlgClosed(CallBacker*);
-    mDeprecatedDef
     void			wellPropDlgClosed(CallBacker*);
+    void			wellPropDlgToBeDeleted(CallBacker*);
+    void			saveWellDispPropsCB(CallBacker*);
+    void			saveAllWellDispProps();
     void			saveWellDispProps(const Well::Data*);
+    mDeprecatedDef
     void			saveWellDispProps(const Well::Data&,
 						  const MultiID&);
     void			applyAll(CallBacker*);
@@ -129,7 +131,6 @@ protected:
     void			simpImp(CallBacker*);
     void			simpleImpDlgClosed(CallBacker*);
     void			survChangedCB(CallBacker*);
-    mDeprecatedDef
     int				getPropDlgIndex(const MultiID&);
 
 };

@@ -214,6 +214,9 @@ uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid )
 
 uiODWellTreeItem::~uiODWellTreeItem()
 {
+    if ( applMgr()->wellServer() )
+	applMgr()->wellServer()->closePropDlg( mid_ );
+
     deepErase( logmnuitems_ );
 }
 
@@ -249,15 +252,20 @@ void uiODWellTreeItem::initMenuItems()
 
 bool uiODWellTreeItem::init()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+			visserv_->getObject(sceneID()));
+
     if ( displayid_==-1 )
     {
-	visSurvey::WellDisplay* wd = new visSurvey::WellDisplay;
+	auto* wd = new visSurvey::WellDisplay;
+	wd->setScene( scene );
 	displayid_ = wd->id();
 	if ( !wd->setMultiID(mid_) )
 	{
 	    PtrMan<IOObj> ioobj = IOM().get( mid_ );
 	    const char* nm = ioobj ? ioobj->name().buf() : 0;
 	    uiMSG().error(tr("Could not load well %1").arg( nm ) );
+	    wd->setScene( nullptr );
 	    return false;
 	}
 
@@ -270,8 +278,6 @@ bool uiODWellTreeItem::init()
 	if ( !wd )
 	    return false;
 
-	mDynamicCastGet(visSurvey::Scene*,scene,
-			visserv_->getObject(sceneID()));
 	if ( scene )
 	    wd->setDisplayTransformation( scene->getUTM2DisplayTransform() );
     }
@@ -285,14 +291,13 @@ bool uiODWellTreeItem::doubleClick( uiTreeViewItem* item )
     if ( item != uitreeviewitem_ )
 	return uiTreeItem::doubleClick( item );
 
-    mDynamicCastGet(visSurvey::WellDisplay*,wd,
+    mDynamicCastGet(visSurvey::WellDisplay*,viswd,
 		    visserv_->getObject(displayid_));
-    if ( !wd ) return false;
+    if ( !viswd ) return false;
 
-    wd->restoreDispProp();
-    Color bkCol =
-	ODMainWin()->sceneMgr().get3DViewer( sceneID() )->getBackgroundColor();
-    applMgr()->wellServer()->editDisplayProperties( wd->getMultiID(), bkCol );
+    viswd->restoreDispProp();
+    applMgr()->wellServer()->editDisplayProperties( viswd->getMultiID(),
+						viswd->getBackgroundColor() );
     return true;
 }
 
@@ -377,11 +382,8 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	wd->restoreDispProp();
-	Color bkCol =
-	ODMainWin()->sceneMgr().get3DViewer( sceneID() )->getBackgroundColor();
-
 	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid,
-								    bkCol );
+						wd->getBackgroundColor() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( amplspectrummnuitem_.findItem(mnuid) )

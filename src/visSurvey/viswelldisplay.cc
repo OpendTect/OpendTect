@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "viswelldisplay.h"
 
-
+#include "color.h"
 #include "dataclipper.h"
 #include "draw.h"
 #include "iopar.h"
@@ -75,24 +75,15 @@ WellDisplay::WellDisplay()
 
 WellDisplay::~WellDisplay()
 {
+    detachAllNotifiers();
     setZAxisTransform( 0, 0 );
     removeChild( well_->osgNode() );
-    well_->unRef(); well_ = 0;
-    setSceneEventCatcher(0);
-    if ( transformation_ )
-	transformation_->unRef();
-    if ( wd_ )
-    {
-	wd_->trackchanged.remove( mCB(this,WellDisplay,fullRedraw) );
-	wd_->markerschanged.remove( mCB(this,WellDisplay,updateMarkers) );
-	wd_->disp3dparschanged.remove( mCB(this,WellDisplay,fullRedraw) );
-	if ( zistime_ )
-	    wd_->d2tchanged.remove( mCB(this,WellDisplay,fullRedraw) );
-	wd_->unRef();
-    }
-
+    unRefPtr( well_ );
+    setSceneEventCatcher( nullptr );
+    unRefPtr( transformation_ );
+    unRefPtr( wd_ );
     delete dispprop_;
-    unRefAndZeroPtr( markerset_ );
+    unRefPtr( markerset_ );
     delete pseudotrack_;
     delete timetrack_;
 }
@@ -101,7 +92,7 @@ WellDisplay::~WellDisplay()
 void WellDisplay::welldataDelNotify( CallBacker* )
 {
     saveDispProp( wd_ );
-    wd_ = 0;
+    wd_ = nullptr;
 }
 
 
@@ -115,25 +106,45 @@ Well::Data* WellDisplay::getWD() const
 
 Well::Data* WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 {
-    Well::LoadReqs lreqs(reqs);
-    lreqs.includes(Well::DispProps3D);
+    Well::LoadReqs lreqs( reqs );
+    Well::Man& wllmgr = Well::MGR();
     if ( !wd_ )
     {
 	WellDisplay* self = const_cast<WellDisplay*>( this );
-	self->wd_ = Well::MGR().get( wellid_, lreqs );
+	lreqs.includes( Well::DispProps3D );
+	const bool isloaded = wllmgr.isLoaded( wellid_ );
+	if ( isloaded )
+	    wllmgr.reload( wellid_, lreqs );
+
+	self->wd_ = wllmgr.get( wellid_, lreqs );
+	if ( !wd_ )
+	    return nullptr;
+
+	if ( !isloaded && !wd_->dispParsLoaded() )
+	{ //Only for wells without pre-existing display properties
+	    const Color bgcol = getBackgroundColor();
+	    if ( bgcol != Color::NoColor() )
+	    {
+		self->wd_->displayProperties( false )
+			   .ensureColorContrastWith( bgcol );
+	    }
+	}
+
 	if ( wd_ )
 	{
-	    wd_->trackchanged.notify( mCB(self,WellDisplay,fullRedraw) );
-	    wd_->markerschanged.notify( mCB(self,WellDisplay,updateMarkers) );
-	    wd_->disp3dparschanged.notify( mCB(self,WellDisplay,fullRedraw) );
+	    attachCB( wd_->trackchanged, mCB(self,WellDisplay,fullRedraw) );
+	    attachCB( wd_->markerschanged,mCB(self,WellDisplay,updateMarkers));
+	    attachCB( wd_->disp3dparschanged,mCB(self,WellDisplay,fullRedraw));
 	    if ( zistime_ )
-		wd_->d2tchanged.notify( mCB(self,WellDisplay,fullRedraw) );
+		attachCB( wd_->d2tchanged, mCB(self,WellDisplay,fullRedraw) );
 
 	    wd_->ref();
 	}
     }
     else
-	Well::MGR().get( wellid_, lreqs );
+    {
+	wllmgr.get( wellid_, lreqs );
+    }
 
     return wd_;
 }
@@ -259,10 +270,10 @@ void WellDisplay::fullRedraw( CallBacker* )
 #define mErrRet(s) { errmsg_ = s; return false; }
 bool WellDisplay::setMultiID( const MultiID& multiid )
 {
-    unRefAndZeroPtr(wd_);
+    unRefAndZeroPtr( wd_ );
     wellid_ = multiid;
     RefMan<Well::Data> wd = getWD();
-    if (!wd)
+    if ( !wd )
 	return false;
     const Well::D2TModel* d2t = wd->d2TModel();
     const bool trackabovesrd = wd->track().zRange().stop <
@@ -400,7 +411,7 @@ void WellDisplay::setLineStyle( const OD::LineStyle& lst )
 
 void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 {
-    const Well::LoadReqs lreqs(Well::Trck,  Well::LogInfos );
+    const Well::LoadReqs lreqs( Well::Trck,  Well::LogInfos );
     RefMan<Well::Data> wd = getWD( lreqs );
     if ( !wd )
 	return;

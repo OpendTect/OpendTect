@@ -47,7 +47,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
 	    wlsu.border_ = uiBorder(0);
 	    wlsu.annotinside_ = true;
 	}
-	uiWellLogDisplay* wld = new uiWellLogDisplay( this, wlsu );
+	auto* wld = new uiWellLogDisplay( this, wlsu );
 	logdisps_ += wld;
 	if ( s.nobackground_ )
 	    wld->setNoBackGround();
