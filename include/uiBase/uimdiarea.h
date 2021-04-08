@@ -48,6 +48,8 @@ public:
 
     NotifierAccess&		closed();
     Notifier<uiMdiAreaWindow>	changed;
+    NotifierAccess&		windowShown();
+    NotifierAccess&		windowHidden();
 
 
     mQtclass(QMdiSubWindow*)		qWidget();

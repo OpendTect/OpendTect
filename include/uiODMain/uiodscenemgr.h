@@ -57,6 +57,8 @@ public:
     CNotifier<uiODSceneMgr,int>	sceneClosed;
     CNotifier<uiODSceneMgr,int>	treeToBeAdded;
     CNotifier<uiODSceneMgr,int> treeAdded;
+    Notifier<uiODSceneMgr>&	scenesHidden();
+    Notifier<uiODSceneMgr>&	scenesShown();
 
     void			getScenePars(IOPar&);
     void			useScenePars(const IOPar&);
@@ -239,6 +241,7 @@ protected:
     friend class		uiODMain;
 
     void			resetStatusBar(int id=-1);
+    void			showIfMinimized(CallBacker*);
 };
 
 /*! Settings Tab for mouse interaction. */
