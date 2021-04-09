@@ -12,6 +12,8 @@
 
 class uiFileInput;
 class uiTableImpDataSel;
+namespace EM { class BulkHorizon2DScanner; }
+class uiPushButton;
 
 namespace Table { class FormatDesc; }
 
@@ -23,12 +25,18 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*);
+    void			scanPush(CallBacker*);
+    void			descChg(CallBacker*);
+    void			scanButState(CallBacker*);
 
-    uiFileInput*	inpfld_;
-    uiTableImpDataSel*	dataselfld_;
-    uiGenInput*		udftreatfld_;
-    Table::FormatDesc*	fd_;
+    uiFileInput*		inpfld_;
+    uiTableImpDataSel*		dataselfld_;
+    uiGenInput*			udftreatfld_;
+    Table::FormatDesc*		fd_;
+    EM::BulkHorizon2DScanner*	scanner_ = nullptr;
 
+    bool			getFileNames(BufferStringSet&) const;
+    bool			doImport();
 };
 

@@ -64,7 +64,9 @@ static Table::FormatDesc* getDesc( bool isfss, bool is2d )
 
 
 bool isXY() const
-{ return formOf( false, 1 ) == 0; }
+{
+    return formOf( false, 1 ) == 0;
+}
 
 
 bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,

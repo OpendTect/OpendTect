@@ -845,4 +845,67 @@ bool Horizon2DAscIO::isTraceNr() const
     return formOf(false,2) == 0;
 }
 
+
+Table::FormatDesc* BulkHorizon2DAscIO::getDesc()
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "Bulk 2D Horizon" );
+
+    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
+			StringInpSpec(sKey::FloatUdf()), Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( "Horizon name", Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
+    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( false, false );
+    fd->bodyinfos_ += ti;
+    Table::TargetInfo* trcspti = new Table::TargetInfo( "", IntInpSpec(),
+						    Table::Optional );
+    trcspti->form(0).setName( "Trace Nr" );
+    Table::TargetInfo::Form* spform =
+			new Table::TargetInfo::Form( "SP Nr", FloatInpSpec() );
+    trcspti->add( spform );
+    fd->bodyinfos_ += trcspti;
+    fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
+    return fd;
+}
+
+
+bool BulkHorizon2DAscIO::isTrcNr() const
+{
+    return formOf( false, 3 ) == 0;
+}
+
+
+int BulkHorizon2DAscIO::getData( BufferString& hornm, BufferString& linenm,
+					Coord3& crd, int& trcnr, float& spnr )
+{
+    if ( !finishedreadingheader_ )
+    {
+	if ( !getHdrVals(strm_) )
+	    return false;
+
+	udfval_ = getFValue( 0 );
+	finishedreadingheader_ = true;
+    }
+
+
+    const int ret = getNextBodyVals( strm_ );
+    if ( ret <= 0 )
+	return false;
+
+    hornm = getText( 0 );
+    linenm = getText(1);
+    crd = getPos3D( 2, 3, 5, udfval_ );
+    if ( isTrcNr() )
+    {
+	trcnr = getIntValue( 4, mUdf(int) );
+	spnr = mUdf(float);
+    }
+    else
+    {
+	spnr = getFValue( 4, udfval_ );
+	trcnr = mUdf(int);
+    }
+
+    return true;
+}
+
 } // namespace EM
