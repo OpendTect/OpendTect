@@ -1205,8 +1205,7 @@ const char* getUserAppDataPath()
     mDeclStaticString( ret );
 
 #ifndef OD_NO_QT
-    if ( ret.isEmpty() )
-	ret = QStandardPaths::locate( QStandardPaths::AppDataLocation, "",
+    ret = QStandardPaths::locate( QStandardPaths::GenericDataLocation, "",
 				      QStandardPaths::LocateDirectory );
 
 #endif
