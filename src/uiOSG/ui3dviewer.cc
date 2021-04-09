@@ -481,7 +481,6 @@ void ui3DViewerBody::setupView()
 
     // Camera projection must be initialized before computing home position
     reSizeEvent( 0 );
-    this->setBackgroundColor(Color::Anthracite());
 }
 
 
@@ -920,9 +919,15 @@ void ui3DViewerBody::setSceneID( int sceneid )
     if ( survscene )
 	setAnnotColor( survscene->getAnnotColor() );
 
-    if ( camera_ ) newscene->setCamera( camera_ );
+    if ( camera_ )
+	newscene->setCamera( camera_ );
 
-    if ( swapcallback_ ) swapcallback_->scene_ = scene_;
+    Color bgcol = Color::Anthracite();
+    Settings::common().get(
+	BufferString(sKeydTectScene(),ui3DViewer::sKeyBGColor()), bgcol );
+    setBackgroundColor( bgcol );
+    if ( swapcallback_ )
+	swapcallback_->scene_ = scene_;
 }
 
 
@@ -1446,18 +1451,15 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
 
     setViewMode( false );  // switches between view & interact mode
 
-#define mGetProp(get,str,tp,var,func) \
-    tp var; \
-    res = Settings::common().get(BufferString(sKeydTectScene(),str),var);\
-    if ( res ) func( var );
-
-    bool res = false;
-    mGetProp( get, sKeyBGColor(), Color, bgcol, setBackgroundColor );
-    mGetProp( getYN, sKeyAnimate(), bool, yn, enableAnimation );
+    bool yn = false;
+    bool res = Settings::common().getYN(
+	BufferString(sKeydTectScene(),sKeyAnimate()), yn );
+    if ( res )
+	enableAnimation( yn );
 
     BufferString modestr;
     res = Settings::common().get(
-    BufferString(sKeydTectScene(),sKeyWheelDisplayMode()), modestr );
+	BufferString(sKeydTectScene(),sKeyWheelDisplayMode()), modestr );
     if ( res )
     {
 	WheelMode mode; parseEnum( modestr, mode );
