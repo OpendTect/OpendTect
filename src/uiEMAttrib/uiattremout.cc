@@ -104,13 +104,28 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
     if ( !seldesc )
 	return nullptr;
 
-    if ( seldesc->isStored() ) // No component selection for stored data
+    if ( seldesc->isStored() )
+    // Component selection for stored data done in uiAttrSel
     {
+	BufferStringSet compnms;
 	const MultiID key( seldesc->getStoredID() );
-	SeisIOObjInfo::getCompNames( key, seloutnms );
-	if ( seloutnms.size()>1 )
-	    for ( int idx=0; idx<seloutnms.size(); idx++ )
-		seloutputs += idx;
+	SeisIOObjInfo::getCompNames( key, compnms );
+	if ( compnms.size()>1 )
+	{
+	    const int compnr = attrfld_->compNr();
+	    if ( compnr<0 )
+	    {
+		seloutnms = compnms;
+		for ( int idx=0; idx<seloutnms.size(); idx++ )
+		    seloutputs += idx;
+	    }
+	    else
+	    {
+		seloutnms.add(
+		    compnms.validIdx(compnr) ? compnms.get(compnr).buf() : "" );
+		seloutputs += compnr;
+	    }
+	}
     }
     else
     {
@@ -133,14 +148,11 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
 
     if ( !seloutputs.isEmpty() )
     {
-	if ( !seldesc->isStored() )
+	const BufferString prefix( outputnm, " - " );
+	for ( int idx=0; idx<seloutnms.size(); idx++ )
 	{
-	    const BufferString prefix( outputnm, " - " );
-	    for ( int idx=0; idx<seloutnms.size(); idx++ )
-	    {
-		BufferString& nm = seloutnms.get( idx );
-		nm.insertAt( 0, prefix.buf() );
-	    }
+	    BufferString& nm = seloutnms.get( idx );
+	    nm.insertAt( 0, prefix.buf() );
 	}
 
 	if ( seloutnms.size()==1 )

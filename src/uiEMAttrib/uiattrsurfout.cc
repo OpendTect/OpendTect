@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrsurfout.h"
 
 #include "array2dinterpolimpl.h"
+#include "attribdesc.h"
 #include "attriboutput.h"
 #include "ctxtioobj.h"
 #include "emsurfacetr.h"
@@ -120,7 +121,11 @@ void uiAttrSurfaceOut::settingsCB( CallBacker* )
 
 void uiAttrSurfaceOut::attribSel( CallBacker* )
 {
-    attrnmfld_->setText( attrfld_->getInput() );
+    const StringPair sp( attrfld_->getInput() );
+    if ( sp.second() == Attrib::Desc::sKeyAll() )
+	attrnmfld_->setText( sp.first() );
+    else
+	attrnmfld_->setText( sp.getCompString(true) );
     objSelCB(0);
 }
 
