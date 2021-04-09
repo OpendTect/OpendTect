@@ -183,6 +183,7 @@ public:
 
     Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
     int			outputNr() const	{ return attrdata_.outputnr_; }
+    int			compNr() const		{ return attrdata_.compnr_; }
     inline bool		is2D() const		{ return attrdata_.is2D(); }
     inline bool		is3D() const		{ return !is2D(); }
 
