@@ -272,18 +272,40 @@ bool Horizon2DScanner::getLineNames( BufferStringSet& nms ) const
 
 bool Horizon2DScanner::hasGaps()
 {
-    BufferStringSet lnms;
-    getLineNames( lnms );
-    int totalpos = 0;
-    for ( int idx=0; idx<lnms.size(); idx++ )
+    BufferStringSet lnmsset;
+    getLineNames( lnmsset );
+    bool hasgap = false;
+    Pos::IdxPairValueSet::SPos pos;
+    for ( int kidx=0; kidx<lnmsset.size(); kidx++  )
     {
-	mDynamicCastGet( const Survey::Geometry2D*, curlinegeom,
-		      Survey::GM().getGeometry(lnms.get(idx).buf()) );
+	mDynamicCastGet(const Survey::Geometry2D*,curlinegeom,
+			Survey::GM().getGeometry(lnmsset.get(kidx).buf()));
+	if ( !curlinegeom )
+	    continue;
 
-	PosInfo::Line2DData l2ddata =  curlinegeom->data();
-	StepInterval<Pos::TraceID> trcrg = l2ddata.trcNrRange();
-	totalpos += trcrg.nrSteps() + 1;
+	bool udfvalstart = false;
+	bool actualvalstart = false;
+	for ( int jidx=0; jidx<curlinegeom->size(); jidx++ )
+	{
+	    Pos::IdxPairValueSet::DataRow dr;
+	    if ( !bvalset_->next(pos) )
+		continue;
+
+	    bvalset_->get( pos, dr );
+	    const float val = dr.value(0);
+	    if ( mIsUdf(val) )
+	    {
+		udfvalstart = true;
+		if ( actualvalstart )
+		{
+		    hasgap = true;
+		    break;
+		}
+	    }
+	    else if ( !mIsUdf(val) && udfvalstart )
+		actualvalstart = true;
+	}
     }
 
-    return totalpos != bvalset_->totalSize();
+    return hasgap;
 }

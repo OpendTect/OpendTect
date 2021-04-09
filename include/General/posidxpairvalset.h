@@ -239,8 +239,8 @@ public:
 protected:
 
     const int			nrvals_;
-    TypeSet<IdxType>		frsts_;
-    ObjectSet< TypeSet<IdxType> > scndsets_;
+    TypeSet<IdxType>		frsts_;  //inline number set
+    ObjectSet< TypeSet<IdxType> > scndsets_;  // per inline  tracennumbers in 2D
     ObjectSet< TypeSet<float> > valsets_;
     bool			allowdup_;
 

@@ -64,6 +64,7 @@ set(OD_MODULE_SOURCES
 		lmkemfaulttransl.cc
 		poly2horvol.cc
 		polygonzchanger.cc
+		bulk2dhorizonscanner.cc
 		initearthmodel.cc
 )
 OD_INIT_MODULE()

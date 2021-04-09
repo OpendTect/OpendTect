@@ -12,28 +12,33 @@ ________________________________________________________________________
 #include "uibulk2dhorizonimp.h"
 
 #include "binidvalset.h"
-#include "emhorizon3d.h"
+#include "emhorizon2d.h"
+#include "bulk2dhorizonscanner.h"
+#include "emhorizonascio.h"
 #include "emmanager.h"
+#include "emsurfacetr.h"
 #include "executor.h"
-#include "posinfodetector.h"
+#include "hiddenparam.h"
+#include "ioman.h"
+#include "od_helpids.h"
 #include "od_istream.h"
+#include "od_ostream.h"
+#include "posinfodetector.h"
+#include "randcolor.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
 #include "tableascio.h"
 #include "tabledef.h"
 
 #include "uibutton.h"
 #include "uifiledlg.h"
+#include "uifileinput.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
-#include "od_helpids.h"
-#include "uifileinput.h"
-#include "emhorizon2d.h"
-#include "survgeom2d.h"
-#include "ioman.h"
-#include "emsurfacetr.h"
-#include "od_ostream.h"
-#include "randcolor.h"
+
+static HiddenParam<uiBulk2DHorizonImport,uiPushButton*> scanbut_(nullptr);
 
 class Horizon2DBulkImporter : public Executor
 { mODTextTranslationClass(Horizon2DBulkImporter);
@@ -71,8 +76,11 @@ od_int64 nrDone() const
 
 int nextStep()
 {
-    if ( !bvalset_ ) return Executor::ErrorOccurred();
-    if ( !bvalset_->next(pos_) ) return Executor::Finished();
+    if ( !bvalset_ )
+	return Executor::ErrorOccurred();
+
+    if ( !bvalset_->next(pos_) )
+	return Executor::Finished();
 
     BinID bid;
     const int nrvals = bvalset_->nrVals();
@@ -81,10 +89,10 @@ int nextStep()
 	vals[idx] = mUdf(float);
 
     bvalset_->get( pos_, bid, vals );
-    if ( bid.inl() < 0 ) return Executor::ErrorOccurred();
+    if ( bid.inl() < 0 )
+	return Executor::ErrorOccurred();
 
-    const Pos::GeomID geomid = bid.inl();
-
+    const Pos::GeomID geomid = geomids_[bid.inl()];
     if ( bid.inl() != prevlineidx_ )
     {
 	prevlineidx_ = bid.inl();
@@ -112,6 +120,7 @@ int nextStep()
 	const float curval = vals[validx];
 	if ( mIsUdf(curval) && udftreat_==Skip )
 	    continue;
+
 	const EM::SectionID sid = hors_[validx]->sectionID(0);
 	hors_[validx]->setPos( sid, geomid, curtrcnr, curval, false );
 
@@ -177,68 +186,7 @@ protected:
 };
 
 
-class BulkHorizon2DAscIO : public Table::AscIO
-{
-public:
-BulkHorizon2DAscIO( const Table::FormatDesc& fd, od_istream& strm )
-    : Table::AscIO(fd)
-    , strm_(strm)
-    , finishedreadingheader_(false)
-{}
 
-
-static Table::FormatDesc* getDesc()
-{
-    Table::FormatDesc* fd = new Table::FormatDesc( "Bulk 2D Horizon" );
-
-    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-			StringInpSpec(sKey::FloatUdf()), Table::Required );
-    fd->bodyinfos_ += new Table::TargetInfo( "Horizon name", Table::Required );
-    fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
-    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( false, false );
-    fd->bodyinfos_ += ti;
-    Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Optional );
-    trcspti->form(0).setName( "Trace Nr" );
-    Table::TargetInfo::Form* spform =
-		new Table::TargetInfo::Form( "SP Nr", IntInpSpec() );
-    trcspti->add( spform );
-    fd->bodyinfos_ += trcspti;
-    fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
-    return fd;
-}
-
-
-bool isTrNr() const
-{ return formOf( false, 3 ) == 0; }
-
-
-bool getData( BufferString& hornm, BufferString& linenm, Coord3& crd,
-								int& trcnr )
-{
-    if ( !finishedreadingheader_ )
-    {
-	if ( !getHdrVals(strm_) )
-	    return false;
-
-	udfval_ = getFValue( 0 );
-	finishedreadingheader_ = true;
-    }
-
-
-    const int ret = getNextBodyVals( strm_ );
-    if ( ret <= 0 ) return false;
-
-    hornm = getText( 0 );
-    linenm = getText(1);
-    crd = getPos3D( 2, 3, 5, udfval_ );
-    trcnr = mCast(int,getDValue(4, udfval_));
-    return true;
-}
-
-    od_istream&		strm_;
-    float		udfval_;
-    bool		finishedreadingheader_;
-};
 
 
 uiBulk2DHorizonImport::uiBulk2DHorizonImport( uiParent* p )
@@ -246,26 +194,45 @@ uiBulk2DHorizonImport::uiBulk2DHorizonImport( uiParent* p )
 				 tr("Multiple 2D Horizons")), mNoDlgTitle,
 				 mODHelpKey(mBulkHorizonImportHelpID) )
 			    .modal(false))
-    , fd_(BulkHorizon2DAscIO::getDesc())
+    , fd_(EM::BulkHorizon2DAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setExamStyle( File::Table );
+    mAttachCB(inpfld_->valuechanged,uiBulk2DHorizonImport::scanButState);
+    mAttachCB(inpfld_->valuechanged,uiBulk2DHorizonImport::descChg);
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 				    mODHelpKey(mTableImpDataSelwellsHelpID) );
+    mAttachCB(dataselfld_->descChanged,uiBulk2DHorizonImport::descChg);
     dataselfld_->attach( alignedBelow, inpfld_ );
+
+    auto scanbut = new uiPushButton( this, tr("Scan Input Files"),
+			    mCB(this,uiBulk2DHorizonImport,scanPush), false );
+    scanbut->attach( alignedBelow, dataselfld_ );
+
+    uiSeparator* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, scanbut );
+
     BufferStringSet udftreatments;
     udftreatments.add( "Skip" ).add( "Adopt" ).add( "Interpolate" );
     udftreatfld_ = new uiGenInput( this, tr("Undefined values"),
 				   StringListInpSpec(udftreatments) );
-    udftreatfld_->attach( alignedBelow, dataselfld_ );
+    udftreatfld_->attach( alignedBelow, scanbut );
+    udftreatfld_->attach( ensureBelow, sep );
+
+    scanbut_.setParam( this, scanbut );
+
+    mAttachCB(postFinalise(),uiBulk2DHorizonImport::scanButState);
 }
 
 
 uiBulk2DHorizonImport::~uiBulk2DHorizonImport()
 {
+    detachAllNotifiers();
+    scanbut_.removeAndDeleteParam( this );
+    delete scanner_;
     delete fd_;
 }
 
@@ -285,85 +252,113 @@ uiBulk2DHorizonImport::~uiBulk2DHorizonImport()
     return retval; \
  } \
 
-bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
+
+void uiBulk2DHorizonImport::descChg( CallBacker* )
 {
-    const BufferString fnm( inpfld_->fileName() );
-    if ( fnm.isEmpty() )
-	mErrRet( uiStrings::phrEnter(tr("the input file name")) )
-    od_istream strm( fnm );
-    if ( !strm.isOK() )
-	mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()))
+    delete scanner_;
+    scanner_ = nullptr;
+}
 
+
+void uiBulk2DHorizonImport::scanButState( CallBacker* )
+{
+    const FixedString filenm = inpfld_->fileName();
+    scanbut_.getParam( this )->setSensitive( !filenm.isEmpty() );
+}
+
+
+void uiBulk2DHorizonImport::scanPush( CallBacker* cb )
+{
     if ( !dataselfld_->commit() )
-	return false;
-    ObjectSet<BinIDValueSet> data;
-    BulkHorizon2DAscIO aio( *fd_, strm );
-    BufferString hornm; Coord3 crd;
-    BufferString linenm;
-    BufferStringSet hornmset; BufferStringSet linenmset;
-    BinIDValueSet* bidvs = 0;
-    TypeSet<int> trnrset;
-    int trnr=0;
-    BufferString prevhornm;
-    while ( aio.getData(hornm,linenm,crd,trnr) )
+	return;
+
+    BufferString msg;
+    if ( !EM::Horizon2DAscIO::isFormatOK(*fd_, msg) )
     {
-	if ( prevhornm.isEmpty() )
-	    prevhornm = hornm;
+	uiMSG().message( mToUiStringTodo(msg) );
+	return;
+    }
 
-	if ( !crd.isDefined() || hornm.isEmpty() )
-	    continue;
-	else
-	    hornmset.addIfNew(hornm);
+    if ( scanner_ )
+    {
+	if ( cb )
+	    scanner_->launchBrowser();
 
-	if ( linenm )
-	    linenmset.addIfNew(linenm);
+	return;
+    }
 
-	trnrset.add(trnr);
-	if ( !bidvs || (prevhornm != hornm) )
-	    bidvs = new BinIDValueSet( 1, true );
+    BufferStringSet filenms;
+    if ( !getFileNames(filenms) )
+	return;
 
-	Pos::GeomID geomid = Survey::GM().getGeomID(linenm);
-	int nr = 0;
-	const Survey::Geometry2D* curlinegeom(0);
+    scanner_ = new EM::BulkHorizon2DScanner( filenms, *fd_ );
+    uiTaskRunner taskrunner( this );
+    TaskRunner::execute( &taskrunner, *scanner_ );
+    if ( cb )
+	scanner_->launchBrowser();
+}
 
-	if ( aio.isTrNr() )
-	    nr = trnr;
-	else if ( crd.isDefined() )
+
+bool uiBulk2DHorizonImport::getFileNames( BufferStringSet& filenames ) const
+{
+    if ( !*inpfld_->fileName() )
+	mErrRet( tr("Please select input file(s)") )
+
+    inpfld_->getFileNames( filenames );
+    for ( int idx=0; idx<filenames.size(); idx++ )
+    {
+	const char* fnm = filenames[idx]->buf();
+	if ( !File::exists(fnm) )
 	{
-	    mDynamicCast( const Survey::Geometry2D*, curlinegeom,
-					Survey::GM().getGeometry(geomid) );
-	    if ( !curlinegeom )
-		return Executor::ErrorOccurred();
-	    PosInfo::Line2DPos pos;
-	    if ( !curlinegeom->data().getPos(crd.coord(),pos,
-							SI().inlDistance()) )
-		continue;
-	    nr = pos.nr_;
-	}
-
-	BinID bid(geomid,nr);
-	bidvs->add( bid, crd.z );
-
-	if ( (prevhornm != hornm) || data.isEmpty() )
-	{
-	    prevhornm = hornm;
-	    data += bidvs;
+	    uiString errmsg = tr("Cannot find input file:\n%1")
+			    .arg(fnm);
+	    filenames.setEmpty();
+	    mErrRet( errmsg );
 	}
     }
 
-    // TODO: Check if name exists, ask user to overwrite or give new name
-    BufferStringSet errors;
-    uiTaskRunner dlg( this );
-    ObjectSet<EM::Horizon2D> hor2ds;
+    return true;
+}
+
+
+bool uiBulk2DHorizonImport::doImport()
+{
+    scanPush( nullptr );
+    if ( !scanner_ )
+	return false;
+
+    const int udfchoice = udftreatfld_->getIntValue();
+    if ( scanner_->hasGaps() && udfchoice==0 )
+    {
+	const int res = uiMSG().askGoOn(
+		tr("Horizon has gaps, but interpolation is turned off.\n"
+		   "Continue?") );
+	if ( res==0 )
+	    return false;
+    }
+
+    TypeSet<BufferStringSet> linenms;
+    scanner_->getLineNames( linenms );
+    ObjectSet<BinIDValueSet> data = scanner_->getVals();
+    if ( data.size() == 0 )
+    {
+	uiString msg = tr("No valid positions found\nPlease re-examine "
+			  "input files and format definition");
+	uiMSG().message( msg );
+	return false;
+    }
+    BufferStringSet hornms;
+    scanner_->getHorizonName( hornms );
+    ObjectSet<EM::Horizon2D> horizons;
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
     EM::EMManager& em = EM::EMM();
-    PtrMan<IOObj> existioobj(0);
     BufferStringSet existinghornms;
-    for ( int idx=0; idx<hornmset.size(); idx++ )
+    for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	IOM().to( MultiID(IOObjContext::getStdDirData(
 						IOObjContext::Surf)->id_) );
-	if ( IOM().getLocal(hornm,0) )
-	    existinghornms.add(hornmset.get(idx));
+	if ( IOM().getLocal(hornms.get(idx),0) )
+	    existinghornms.add(hornms.get(idx));
     }
 
     if ( !existinghornms.isEmpty() )
@@ -374,10 +369,12 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	if ( !ret )
 	    return false;
     }
-    for ( int idx=0; idx<hornmset.size(); idx++ )
+
+    ObjectSet<EM::Horizon2D> hor2ds;
+    for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	hor2ds.setEmpty();
-	BufferString nm = hornmset.get( idx );
+	BufferString nm = hornms.get( idx );
 	PtrMan<IOObj> ioobj = IOM().getLocal( nm,
 				EMHorizon2DTranslatorGroup::sGroupName() );
 	EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() ) : -1;
@@ -397,16 +394,37 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	hor2ds += hor;
 
 	PtrMan<Horizon2DBulkImporter> importr = new Horizon2DBulkImporter(
-						linenmset, hor2ds, data[idx],
+						linenms[idx], hor2ds, data[idx],
 	    (Horizon2DBulkImporter::UndefTreat) udftreatfld_->getIntValue() );
 	uiTaskRunner impdlg( this );
 	if ( !TaskRunner::execute(&impdlg,*importr) )
 	    mDeburstRet( false, unRef );
 	PtrMan<Executor> saver = hor2ds[0]->saver();
 	if ( !saver->execute() )
-	    mErrRet(uiStrings::phrCannotSave(toUiString(hornm)))
+	    mErrRet(uiStrings::phrCannotSave(toUiString(hornms.get(idx))))
 
     }
+    return true;
+}
+
+bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
+{
+    const BufferString fnm( inpfld_->fileName() );
+    if ( fnm.isEmpty() )
+	mErrRet( uiStrings::phrEnter(tr("the input file name")) )
+
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()))
+
+    if ( !dataselfld_->commit() )
+	return false;
+
+    // TODO: Check if name exists, ask user to overwrite or give new name
+
+    const bool res = doImport();
+    if ( !res )
+	return false;
 
     uiString msg = tr( "2D Horizons successfully imported.\n\n"
 		    "Do you want to import more 2D Horizons?" );

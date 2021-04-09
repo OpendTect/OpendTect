@@ -64,11 +64,11 @@ mExpClass(EarthModel) Horizon2DAscIO : public Table::AscIO
 {
 public:
 				Horizon2DAscIO( const Table::FormatDesc& fd,
-						const char* filenm )
+					const char* filenm )
 				    : Table::AscIO(fd)
 				    , udfval_(mUdf(float))
 				    , finishedreadingheader_(false)
-				    , strm_(filenm)		    {}
+				    , strm_(filenm) {}
 
     static Table::FormatDesc*   getDesc();
     static void			updateDesc(Table::FormatDesc&,
@@ -93,6 +93,30 @@ protected:
     float			udfval_;
     bool			finishedreadingheader_;
 
+};
+
+
+mExpClass(EarthModel) BulkHorizon2DAscIO : public Table::AscIO
+{
+public:
+				BulkHorizon2DAscIO( const Table::FormatDesc& fd,
+							    const char* fnm )
+				    : Table::AscIO(fd)
+				    , strm_(fnm)
+				    , finishedreadingheader_(false) {}
+
+    static Table::FormatDesc*	getDesc();
+    bool			isTrcNr() const;
+    int				getData(BufferString& hornm,
+					BufferString& linenm,Coord3&,int& trcnr,
+					float& spnr);
+    bool			isOK() const { return strm_.isOK(); }
+
+protected:
+
+    od_istream			strm_;
+    float			udfval_;
+    bool			finishedreadingheader_;
 };
 
 } // namespace EM
