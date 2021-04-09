@@ -524,6 +524,7 @@ void uiListBox::updateCheckState()
 	cb_->setCheckState( OD::Checked );
     else
 	cb_->setCheckState( OD::PartiallyChecked );
+    itemChosen.trigger( -1 );
 }
 
 
