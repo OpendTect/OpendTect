@@ -2080,13 +2080,16 @@ uiCopyWellDlg::uiCopyWellDlg( uiParent* p )
     setOkText( uiStrings::sCopy() );
 
     infld_ = new uiWellSel( this, true );
+    mAttachCB( infld_->selectionDone, uiCopyWellDlg::inpSelCB );
     outfld_ = new uiWellSel( this, false );
     outfld_->attach( alignedBelow, infld_ );
 }
 
 
 uiCopyWellDlg::~uiCopyWellDlg()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiCopyWellDlg::setKey( const MultiID& key )
