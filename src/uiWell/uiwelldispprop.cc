@@ -268,6 +268,7 @@ void uiWellMarkersDispProperties::setSelNames()
 void uiWellMarkersDispProperties::setAllMarkerNames(
 					const BufferStringSet& allmarkernms )
 {
+    NotifyStopper ns( displaymarkersfld_->itemChosen );
     displaymarkersfld_->setEmpty();
     displaymarkersfld_->addItems( allmarkernms );
     setSelNames();
@@ -277,6 +278,7 @@ void uiWellMarkersDispProperties::setAllMarkerNames(
 void uiWellMarkersDispProperties::setAllMarkerNames( const BufferStringSet& nms,
 						     const TypeSet<Color>& cols)
 {
+    NotifyStopper ns( displaymarkersfld_->itemChosen );
     displaymarkersfld_->setEmpty();
     displaymarkersfld_->addItems( nms );
     for ( int idx=0; idx<cols.size(); idx++ )
