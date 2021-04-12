@@ -224,6 +224,7 @@ void uiODWellTreeItem::initMenuItems()
 {
     propertiesmnuitem_.text = m3Dots(uiStrings::sProperties());
     propertiesmnuitem_.iconfnm = "disppars";
+    propertiesmnuitem_.placement = 1000;
     logviewermnuitem_.text = m3Dots(tr("2D Log Viewer"));
     gend2tmmnuitem_.text = m3Dots(tr("Tie Well to Seismic"));
     gend2tmmnuitem_.iconfnm = "well_tie";

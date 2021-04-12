@@ -4,8 +4,6 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "viswelldisplay.h"
 
 #include "color.h"
@@ -46,29 +44,16 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace visSurvey
 {
 
-const char* WellDisplay::sKeyEarthModelID      = "EarthModel ID";
-const char* WellDisplay::sKeyWellID	       = "Well ID";
+const char* WellDisplay::sKeyEarthModelID	= "EarthModel ID";
+const char* WellDisplay::sKeyWellID		= "Well ID";
 
 WellDisplay::WellDisplay()
     : VisualObjectImpl(true)
-    , well_(0)
-    , wd_(0)
-    , wellid_(-1)
+    , changed_(this)
     , zistime_( SI().zIsTime() )
     , zinfeet_( SI().zInFeet() )
-    , eventcatcher_(0)
-    , changed_(this)
-    , logsnumber_(0)
-    , transformation_(0)
-    , picksallowed_(false)
-    , pseudotrack_(0)
-    , timetrack_(0)
-    , needsave_(false)
-    , dispprop_(0)
-    , datatransform_(0)
-    , markerset_(0)
 {
-    setMaterial(0);
+    setMaterial( nullptr );
     setWell( visBase::Well::create() );
 }
 
@@ -76,12 +61,13 @@ WellDisplay::WellDisplay()
 WellDisplay::~WellDisplay()
 {
     detachAllNotifiers();
-    setZAxisTransform( 0, 0 );
+    setZAxisTransform( nullptr, nullptr );
     removeChild( well_->osgNode() );
     unRefPtr( well_ );
     setSceneEventCatcher( nullptr );
     unRefPtr( transformation_ );
     unRefPtr( wd_ );
+
     delete dispprop_;
     unRefPtr( markerset_ );
     delete pseudotrack_;
@@ -149,10 +135,12 @@ Well::Data* WellDisplay::getWD( const Well::LoadReqs& reqs ) const
     return wd_;
 }
 
+
 void WellDisplay::saveDispProp( const Well::Data* wd )
 {
-    if ( !wd ) return;
-    dispprop_ = new Well::DisplayProperties( wd->displayProperties() );
+    deleteAndZeroPtr( dispprop_ );
+    if ( wd )
+	dispprop_ = new Well::DisplayProperties( wd->displayProperties() );
 }
 
 
@@ -160,6 +148,7 @@ void WellDisplay::restoreDispProp()
 {
     if ( !dispprop_ )
 	return;
+
     mGetWD( return );
     wd->displayProperties() = *dispprop_;
 }
@@ -238,7 +227,7 @@ void WellDisplay::fillLogParams(
 #define mDispLog( dsplSide, Side )\
 { \
     BufferString& logname = mGetLogPar( dsplSide, name_ );\
-    if ( wd->getLog( logname ) )\
+    if ( wd->getLog(logname) )\
 	display##Side##Log();\
 }
 void WellDisplay::fullRedraw( CallBacker* )
@@ -277,13 +266,14 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 	return false;
     const Well::D2TModel* d2t = wd->d2TModel();
     const bool trackabovesrd = wd->track().zRange().stop <
-			      -1.f * mCast(float,SI().seismicReferenceDatum());
+			      -1.f * float(SI().seismicReferenceDatum());
     if ( zistime_ && !d2t && !trackabovesrd )
 	mErrRet( "No depth to time model defined" )
 
     changed_.trigger();
     return true;
 }
+
 
 bool WellDisplay::needsConversionToTime() const
 {
@@ -294,6 +284,9 @@ bool WellDisplay::needsConversionToTime() const
 void WellDisplay::getTrackPos( const Well::Data* wd,
 			       TypeSet<Coord3>& trackpos )
 {
+    if ( !wd )
+	return;
+
     trackpos.erase();
     setName(  wd->name() );
 
@@ -327,7 +320,9 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
 
 void WellDisplay::updateMarkers( CallBacker* )
 {
-    if ( !well_ ) return;
+    if ( !well_ )
+	return;
+
     well_->removeAllMarkers();
     const Well::LoadReqs lreqs( Well::Mrkrs );
     RefMan<Well::Data> wd = getWD( lreqs );
@@ -338,8 +333,8 @@ void WellDisplay::updateMarkers( CallBacker* )
     fillMarkerParams( mp );
     well_->setMarkerSetParams( mp );
 
-    const Well::Track& track = needsConversionToTime() ? *timetrack_
-						       : wd->track();
+    const Well::Track& track =
+		needsConversionToTime() ? *timetrack_ : wd->track();
     const BufferStringSet selnms(
 		wd->displayProperties(false).markers_.selmarkernms_ );
     for ( int idx=0; idx<wd->markers().size(); idx++ )
@@ -393,6 +388,37 @@ mShowFunction( showMarkerName, markerNameShown )
 mShowFunction( showLogName, logNameShown )
 
 
+void WellDisplay::setResolution( int res, TaskRunner* )
+{
+    logresolution_ = res;
+    fullRedraw( nullptr );
+}
+
+
+int WellDisplay::getResolution() const
+{
+    return logresolution_;
+}
+
+
+int WellDisplay::nrResolutions() const
+{
+    return 5;
+}
+
+
+BufferString WellDisplay::getResolutionName( int res ) const
+{
+    const int val = mNINT32( Math::PowerOf( 2, float(res) ) );
+    if ( val==1 )
+	return "Full";
+    if ( val==2 )
+	return "Half";
+
+    return BufferString( "1 / ", val );
+}
+
+
 const OD::LineStyle* WellDisplay::lineStyle() const
 {
     return &well_->lineStyle();
@@ -419,27 +445,37 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     if (wd->track().size() < 2)
 	return;
 
-    const BufferString lognm( wd->logs().getLog( lp.logidx_ ).name() );
-    StepInterval<float> dahrg = wd->logs().getLog( lp.logidx_ ).dahRange();
-    dahrg.step = dahrg.width() / mCast(float, cMaxLogSamp - 1);
-    PtrMan<Well::Log> logdata = wd->getLog(lognm)->upScaleLog(dahrg);
+    const Well::Log& curlog = wd->logs().getLog( lp.logidx_ );
+    const BufferString lognm = curlog.name();
+    StepInterval<float> dahrg = curlog.dahRange();
+    dahrg.step = curlog.dahStep( true );
+
+    const int logres = getResolution();
+    if ( logres > 0 )
+    {
+	const float fact = Math::PowerOf( 2.f, float(logres) );
+	const float nrsamples = dahrg.nrfSteps() / fact;
+	dahrg.step = dahrg.width() / nrsamples;
+    }
+
+    PtrMan<Well::Log> logdata = wd->getLog(lognm)->upScaleLog( dahrg );
     logdata->setName( lognm );
 
     PtrMan<Well::Log> logfill;
-    if (isfilled)
+    if ( isfilled )
     {
 	const BufferString fillnm(wd->logs().getLog(lp.filllogidx_).name());
-	if (lognm == fillnm)
-	    logfill = new Well::Log(*logdata);
+	if ( lognm == fillnm )
+	    logfill = new Well::Log( *logdata );
 	else
 	{
-	    logfill = wd->getLog(fillnm)->upScaleLog(dahrg);
-	    logfill->setName(fillnm);
+	    logfill = wd->getLog(fillnm)->upScaleLog( dahrg );
+	    logfill->setName( fillnm );
 	}
     }
 
-    const Well::Track& track = needsConversionToTime() ? *timetrack_
-						       : wd->track();
+    const Well::Track& track =
+		needsConversionToTime() ? *timetrack_ : wd->track();
     float minval=mUdf(float), maxval=-mUdf(float);
     float minvalF=mUdf(float), maxvalF=-mUdf(float);
 
@@ -553,7 +589,7 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 
     well_->setLogColor( lp.col_, side );
     well_->setLogLineWidth( lp.size_, side );
-    well_->setLogWidth( mCast(float,lp.logwidth_), side );
+    well_->setLogWidth( float(lp.logwidth_), side );
 
     if ( lp.cliprate_ && lp.logidx_ >= 0 )
 	calcClippedRange( lp.cliprate_, lp.range_, lp.logidx_ );
@@ -636,8 +672,8 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     if ( needsconversiontotime && !timetrack_ )
 	return;
 
-    const Well::Track& track = needsconversiontotime
-			     ? *timetrack_ : wd->track();
+    const Well::Track& track =
+		needsconversiontotime ? *timetrack_ : wd->track();
 
     info = "Well: "; info += wd->name();
     info += ", MD ";
@@ -714,7 +750,7 @@ void WellDisplay::setDisplayTransformation( const mVisTrans* nt )
 
     well_->setDisplayTransformation( transformation_ );
     setDisplayTransformForPicks( transformation_ );
-    fullRedraw(0);
+    fullRedraw( nullptr );
 }
 
 
@@ -826,8 +862,8 @@ void WellDisplay::addPick( Coord3 pos )
     if ( !pseudotrack_ )
 	return;
 
-    const double zfactor = mCast(double,
-			   scene_ ? scene_->getZScale() : SI().zScale() );
+    const double zfactor =
+		double( scene_ ? scene_->getZScale() : SI().zScale() );
     const int insertidx = pseudotrack_->insertPoint(
 					Coord3(pos.x,pos.y,pos.z*zfactor) );
 
@@ -933,9 +969,8 @@ void WellDisplay::showKnownPositions()
 
 TypeSet<Coord3> WellDisplay::getWellCoords() const
 {
-    const double zfactor = mCast( double,
-			   scene_ ? scene_->getZScale() : SI().zScale() );
-
+    const double zfactor =
+		double( scene_ ? scene_->getZScale() : SI().zScale() );
     TypeSet<Coord3> coords = pseudotrack_->getAllPos();
     for ( int idx=0; idx<coords.size(); idx++ )
 	coords[idx].z /= zfactor;
@@ -969,17 +1004,22 @@ bool WellDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 
     if ( well_ )
 	well_->setZAxisTransform( zat, tr );
-    fullRedraw(0);
+
+    fullRedraw( nullptr );
     return true;
 }
 
 
 const ZAxisTransform* WellDisplay::getZAxisTransform() const
-{ return datatransform_; }
+{
+    return datatransform_;
+}
 
 
 void WellDisplay::dataTransformCB( CallBacker* )
-{ fullRedraw(0); }
+{
+    fullRedraw( nullptr );
+}
 
 
 void WellDisplay::fillPar( IOPar& par ) const
@@ -1006,9 +1046,7 @@ bool WellDisplay::usePar( const IOPar& par )
 	return false;
 
     if ( !setMultiID(newmid) )
-    {
-	return 1;
-    }
+	return true;
 
     mGetWD(return false);
     wd->displayProperties().usePar( par );
@@ -1028,6 +1066,5 @@ void WellDisplay::setPixelDensity( float dpi )
     if ( well_ )
 	well_->setPixelDensity( dpi );
 }
-
 
 } // namespace visSurvey

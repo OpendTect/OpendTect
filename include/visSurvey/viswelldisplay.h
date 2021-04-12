@@ -109,6 +109,11 @@ public:
     bool			logNameShown() const;
     void			showLogName(bool);
 
+    void			setResolution(int res,TaskRunner*);
+    int				getResolution() const;
+    int				nrResolutions() const;
+    BufferString		getResolutionName(int res) const;
+
     const mVisTrans*		getDisplayTransformation() const;
     void			setDisplayTransformation(const mVisTrans*);
     void			setDisplayTransformForPicks(const mVisTrans*);
@@ -162,28 +167,29 @@ protected:
     void			removePick(const visBase::EventInfo&);
     void			addPick(const visBase::EventInfo&,int);
 
-    Well::DisplayProperties*	dispprop_;
+    Well::DisplayProperties*	dispprop_		= nullptr;
 
     Coord3			mousepressposition_;
-    const mVisTrans*		transformation_;
-    MultiID			wellid_;
-    visBase::EventCatcher*	eventcatcher_;
-    visBase::MarkerSet*		markerset_;
-    visBase::Well*		well_;
-    Well::Track*		pseudotrack_;
-    Well::Track*		timetrack_;
-    Well::Data*			wd_;
+    const mVisTrans*		transformation_		= nullptr;
+    MultiID			wellid_			= MultiID::udf();
+    visBase::EventCatcher*	eventcatcher_		= nullptr;
+    visBase::MarkerSet*		markerset_		= nullptr;
+    visBase::Well*		well_			= nullptr;
+    Well::Track*		pseudotrack_		= nullptr;
+    Well::Track*		timetrack_		= nullptr;
+    Well::Data*			wd_			= nullptr;
 
-    ZAxisTransform*		datatransform_;
+    ZAxisTransform*		datatransform_		= nullptr;
     void			dataTransformCB(CallBacker*);
 
     Notifier<WellDisplay>	changed_;
 
-    int				logsnumber_;
-    int				mousepressid_;
-    bool			needsave_;
-    bool			onelogdisplayed_;
-    bool			picksallowed_;
+    int				logsnumber_		= 0;
+    int				mousepressid_		= -1;
+    bool			needsave_		= false;
+    bool			onelogdisplayed_	= false;
+    bool			picksallowed_		= false;
+    int				logresolution_ = 2; // 1/4 of full resolution
     const bool			zistime_;
     const bool			zinfeet_;
     static const char*		sKeyEarthModelID;
