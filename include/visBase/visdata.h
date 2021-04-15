@@ -139,11 +139,14 @@ public:
 				    right or left handed. */
     virtual bool		isRightHandSystem() const	{ return true; }
 
-    virtual void		setPixelDensity(float dpi);
     static float		getDefaultPixelDensity();
+    static void			setDefaultPixelDensity(float);
+				/* Will only affect objects to be created */
+
+    virtual void		setPixelDensity(float dpi);
     virtual float		getPixelDensity() const;
 
-    virtual const char*		errMsg() const	{ return 0; }
+    virtual const char*		errMsg() const	{ return nullptr; }
 
     bool			serialize(const char* filename,
 					  bool binary=false);

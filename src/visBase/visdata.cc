@@ -4,8 +4,6 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
-
 #include "visdata.h"
 
 #include "filepath.h"
@@ -21,16 +19,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgViewer/CompositeViewer>
 
 #if __win__
-#define mDefaultPixelDensity	96
+static float mDefaultPixelDensity = 96.f;
 #else
-#define mDefaultPixelDensity	72
+static float mDefaultPixelDensity = 72.f;
 #endif
-
 
 using namespace visBase;
 
-const void* DataObject::visualizationthread_ = 0;
-osgViewer::CompositeViewer* DataObject::commonviewer_ = 0;
+const void* DataObject::visualizationthread_ = nullptr;
+osgViewer::CompositeViewer* DataObject::commonviewer_ = nullptr;
 
 
 void DataObject::enableTraversal( unsigned int tt, bool yn )
@@ -147,6 +144,9 @@ void DataObject::setPixelDensity( float dpi )
 
 float DataObject::getDefaultPixelDensity()
 { return mDefaultPixelDensity; }
+
+void DataObject::setDefaultPixelDensity( float dpi )
+{ mDefaultPixelDensity = dpi; }
 
 
 float DataObject::getPixelDensity() const
