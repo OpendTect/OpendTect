@@ -563,7 +563,7 @@ void uiODViewer2D::dispPropChangedCB( CallBacker* )
 }
 
 
-void uiODViewer2D::winCloseCB( CallBacker* cb )
+void uiODViewer2D::winCloseCB( CallBacker* )
 {
     deleteAndZeroPtr( treetp_ );
     datamgr_->removeAll();
@@ -571,6 +571,10 @@ void uiODViewer2D::winCloseCB( CallBacker* cb )
     deepErase( auxdataeditors_ );
     removeAvailablePacks();
 
+    if ( viewwin_ )
+	viewwin_->viewer(0).removeAuxData( marker_ );
+
+    deleteAndZeroPtr( marker_ );
     viewwin_ = nullptr;
     viewWinClosed.trigger();
 }
