@@ -28,6 +28,7 @@ static const char* sKeyMarkerNmColor = "Marker Name Color";
 static const char* sKeyMarkerNmSameColor = "Marker Name Color Same as Marker";
 static const char* sKeyMarkerSingleColor = "Single Marker Color";
 static const char* sKeyMarkerSelected = "Selected Markers";
+static const char* sKeyMarkerUnselected = "Unselected Markers";
 static const char* sKey2DDisplayStrat = "Display Stratigraphy";
 
 static const char* sKeyLeftColor = "Left Log Color";
@@ -93,8 +94,72 @@ static const char* sKeyCenterColTabFlipped = "Center Log Color Table Flipped";
 static const char* sKeyCenterLogStyle = "Center Log Style";
 static const char* sKeyCenterLogWidthXY = "Center Log Width XY";
 
+HiddenParam<Well::DisplayProperties::Markers, BufferStringSet*>
+						hp_unselmarkernms_( nullptr );
 HiddenParam<Well::DisplayProperties::LogCouple, Well::DisplayProperties::Log*>
 		welldisppropcenterlogmgr_( nullptr );
+
+Well::DisplayProperties::Markers::Markers()
+    : BasicProps(2)
+    , shapeint_(0)
+    , cylinderheight_(1)
+    , issinglecol_(false)
+    , font_(10)
+    , samenmcol_(true)
+    , nmsizedynamic_(false)
+{
+    hp_unselmarkernms_.setParam( this, new BufferStringSet );
+}
+
+Well::DisplayProperties::Markers::Markers(
+				const Well::DisplayProperties::Markers& oth )
+    : BasicProps(oth)
+{
+    hp_unselmarkernms_.setParam( this, new BufferStringSet );
+    *this = oth;
+}
+
+
+Well::DisplayProperties::Markers& Well::DisplayProperties::Markers::operator=(
+				const Well::DisplayProperties::Markers& oth )
+{
+    BasicProps::operator=( oth );
+    shapeint_ = oth.shapeint_;
+    cylinderheight_ = oth.cylinderheight_;
+    issinglecol_ = oth.issinglecol_;
+    font_ = oth.font_;
+    samenmcol_ = oth.samenmcol_;
+    nmsizedynamic_ = oth.nmsizedynamic_;
+    *hp_unselmarkernms_.getParam( this ) = oth.unselmarkernms();
+    return *this;
+}
+
+
+Well::DisplayProperties::Markers::~Markers()
+{
+    hp_unselmarkernms_.removeAndDeleteParam( this );
+}
+
+
+BufferStringSet& Well::DisplayProperties::Markers::unselmarkernms() const
+{
+    return *hp_unselmarkernms_.getParam( this );
+}
+
+
+void Well::DisplayProperties::Markers::updateMarkerSelection(
+					    const BufferStringSet& allmarkers )
+{
+    BufferStringSet& unselnms = unselmarkernms();
+    unselnms.setEmpty();
+    for ( const auto* nm : allmarkers )
+    {
+	if ( !selmarkernms_.isPresent( nm->str() ) )
+	    unselnms.add( nm->str() );
+    }
+    selmarkernms_.setEmpty();
+}
+
 
 Well::DisplayProperties::LogCouple::LogCouple()
 {
@@ -156,8 +221,8 @@ Well::DisplayProperties::DisplayProperties( const char* subjname )
     logs_[0]->center().style_ = 2;
 
     const Settings& setts = Settings::fetch( "welldisp" );
-    markers_.selmarkernms_.erase();
     usePar( setts );
+    markers_.selmarkernms_.erase();
 }
 
 
@@ -296,8 +361,11 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
     mrkspar->get( sKeyMarkerCylinderHeight, cylinderheight_ );
     mrkspar->getYN( sKeyMarkerNmSameColor, samenmcol_);
     mrkspar->get( sKeyMarkerNmColor, nmcol_ );
-    mrkspar->get( sKeyMarkerSelected, selmarkernms_ );
-    if ( !mrkspar->getYN(sKeyMarkerDynamicNmSize,nmsizedynamic_) )
+    selmarkernms_.setEmpty();
+    unselmarkernms().setEmpty();
+    if (!mrkspar->get(sKeyMarkerUnselected, unselmarkernms()))
+	mrkspar->get( sKeyMarkerSelected, selmarkernms_ );
+    if (!mrkspar->getYN(sKeyMarkerDynamicNmSize,nmsizedynamic_))
 	nmsizedynamic_ = true; //Legacy
 
     const FixedString fontdata =
@@ -328,7 +396,7 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& par ) const
     mrkspar.set( sKeyMarkerNmFont, fontdata );
     mrkspar.setYN( sKeyMarkerNmSameColor, samenmcol_);
     mrkspar.set( sKeyMarkerNmColor, nmcol_ );
-    mrkspar.set( sKeyMarkerSelected, selmarkernms_ );
+    mrkspar.set( sKeyMarkerUnselected, unselmarkernms() );
     par.mergeComp( mrkspar, subjectName() );
 }
 
@@ -622,6 +690,11 @@ Well::DisplayProperties& Well::DisplayProperties::defaults()
 void Well::DisplayProperties::commitDefaults()
 {
     Settings& setts = Settings::fetch( "welldisp" );
-    defaults().fillPar( setts );
+    const Well::DisplayProperties& defs = defaults();
+    defs.fillPar( setts );
+    const BufferString key1( defs.subjectName() );
+    const BufferString key2( IOPar::compKey( defs.markers_.subjectName(),
+				       sKeyMarkerSelected ) );
+    setts.removeWithKey( IOPar::compKey( key1, key2 ) );
     setts.write();
 }

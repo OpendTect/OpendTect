@@ -86,7 +86,7 @@ public:
 			    {}
 			~Track()		{}
 
-	virtual const char* subjectName() const	{ return "Track"; }
+	virtual const char* subjectName() const { return "Track"; }
 
 	bool		dispabove_;
 	bool		dispbelow_;
@@ -103,18 +103,13 @@ public:
     mStruct(Well) Markers : public BasicProps
     {
 
-			Markers()
-			    : BasicProps(2)
-			    , shapeint_(0)
-			    , cylinderheight_(1)
-			    , issinglecol_(false)
-			    , font_(10)
-			    , samenmcol_(true)
-			    , nmsizedynamic_(false)
-			    {}
-			~Markers()	{}
+			Markers();
+			Markers(const Markers&);
+			~Markers();
 
-	virtual const char* subjectName() const	{ return "Markers"; }
+	Markers&	operator=(const Markers&);
+
+	virtual const char* subjectName() const { return "Markers"; }
 
 	int		shapeint_;
 	int		cylinderheight_;
@@ -122,8 +117,11 @@ public:
 	FontData	font_;
 	Color		nmcol_;
 	bool		samenmcol_;
-	BufferStringSet	selmarkernms_;
+	BufferStringSet selmarkernms_;
 	bool		nmsizedynamic_;
+
+	BufferStringSet&	unselmarkernms() const;
+	void		updateMarkerSelection(const BufferStringSet&);
 
     protected:
 
@@ -156,27 +154,27 @@ public:
 			    {}
 			~Log()			{}
 
-	virtual const char* subjectName() const	{ return "Log"; }
+	virtual const char* subjectName() const { return "Log"; }
 	void		    setTo(const Well::Data*, const Log&,
 				  bool forceifmissing=false);
 
 	BufferString	name_;
 	BufferString	fillname_;
-	float           cliprate_;
+	float		cliprate_;
 	Interval<float> range_;
 	Interval<float> fillrange_;
 	bool		isleftfill_;
 	bool		isrightfill_;
-	bool            islogarithmic_;
+	bool		islogarithmic_;
 	bool		islogreverted_;
-	bool            issinglecol_;
-	bool            isdatarange_;
+	bool		issinglecol_;
+	bool		isdatarange_;
 	bool		iscoltabflipped_;
-	int             repeat_;
-	float           repeatovlap_;
-	Color           linecolor_;
+	int		repeat_;
+	float		repeatovlap_;
+	Color		linecolor_;
 	Color		seiscolor_;
-	BufferString    seqname_;
+	BufferString	seqname_;
 	int		logwidth_;
 	int		style_;
 

@@ -347,7 +347,7 @@ void uiTieView::drawViewerWellMarkers()
 
 	const Well::DisplayProperties::Markers& mrkdisp
 						= data_.dispparams_.mrkdisp_;
-	if ( !mrkdisp.selmarkernms_.isPresent( marker->name() ) )
+	if ( mrkdisp.unselmarkernms().isPresent( marker->name() ) )
 	    continue;
 
 	float zpos = d2tm->getTime( marker->dah(), wd->track() );

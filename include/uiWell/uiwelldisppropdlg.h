@@ -81,6 +81,7 @@ protected:
     void			resetAllPush(CallBacker*);
     uiPushButton*		applyTabButton() const;
     uiPushButton*		resetAllButton() const;
+    uiPushButton*		saveButton() const;
 
 				//As we cannot override the virtual fn:
     void			postFinaliseCB(CallBacker*);
