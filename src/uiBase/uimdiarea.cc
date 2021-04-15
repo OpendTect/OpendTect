@@ -75,7 +75,10 @@ uiMdiAreaBody& uiMdiArea::mkbody( uiParent* p, const char* nm )
 
 
 uiMdiArea::~uiMdiArea()
-{ delete body_; }
+{
+    detachAllNotifiers();
+    delete body_;
+}
 
 
 void uiMdiArea::cascade()
@@ -180,8 +183,8 @@ void uiMdiArea::addWindow( uiMdiAreaWindow* grp )
     if ( !grp || !grp->pbody() ) return;
 
     body_->addSubWindow( grp->qWidget() );
-    grp->closed().notify( mCB(this,uiMdiArea,grpClosed) );
-    grp->changed.notify( mCB(this,uiMdiArea,grpChanged) );
+    mAttachCB( grp->closed(), uiMdiArea::grpClosed );
+    mAttachCB( grp->changed, uiMdiArea::grpChanged );
     grps_ += grp;
     body_->setActiveSubWindow( grp->qWidget() );
     windowActivated.trigger();
