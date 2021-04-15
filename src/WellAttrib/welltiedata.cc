@@ -131,6 +131,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
 	dispparams_.allmarkernms_.add( wdata.markers()[idx]->name() );
 	dispparams_.mrkdisp_.selmarkernms_.add( wdata.markers()[idx]->name() );
     }
+    dispparams_.mrkdisp_.unselmarkernms().erase();
 
     initwvlt_.reSample( cDefSeisSr() );
     BufferString wvltnm( estimatedwvlt_.name(), " from well ", wdata.name() );

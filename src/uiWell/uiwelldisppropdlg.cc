@@ -38,6 +38,7 @@ HiddenParam<uiWellDispPropDlg,Notifier<uiWellDispPropDlg>*>
 		    wlldispresetallreqmgr_( nullptr );
 HiddenParam<uiWellDispPropDlg,uiPushButton*> hp_applycurrenttoall_( nullptr );
 HiddenParam<uiWellDispPropDlg,uiPushButton*> hp_resetall_( nullptr );
+HiddenParam<uiWellDispPropDlg,uiPushButton*> hp_save_( nullptr );
 
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
 
@@ -181,6 +182,7 @@ uiWellDispPropDlg::~uiWellDispPropDlg()
     wlldispresetallreqmgr_.removeAndDeleteParam( this );
     hp_applycurrenttoall_.removeParam( this );
     hp_resetall_.removeParam( this );
+    hp_save_.removeParam( this );
     wd_->unRef();
 }
 
@@ -227,14 +229,20 @@ uiPushButton* uiWellDispPropDlg::resetAllButton() const
 }
 
 
+uiPushButton* uiWellDispPropDlg::saveButton() const
+{
+    return hp_save_.getParam( this );
+}
+
+
 void uiWellDispPropDlg::postFinaliseCB( CallBacker* )
 {
     uiButton* closebut = button( CANCEL );
-    auto* savebut = uiButton::getStd( closebut->parent(), OD::Ok,
-				mCB(this,uiWellDispPropDlg,acceptOKCB),
-				true, uiStrings::sSave() );
-    savebut->attach( leftOf, closebut );
-    savebut->finalise();
+    hp_save_.setParam( this, new uiPushButton( closebut->parent(),
+				     uiStrings::sSave(), true ) );
+    saveButton()->attach( leftOf, closebut );
+    saveButton()->finalise();
+    mAttachCB( saveButton()->activated, uiWellDispPropDlg::acceptOKCB );
 }
 
 

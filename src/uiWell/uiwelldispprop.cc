@@ -246,11 +246,12 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 
 void uiWellMarkersDispProperties::getSelNames()
 {
-    mrkprops().selmarkernms_.erase();
+    BufferStringSet& unselnms = mrkprops().unselmarkernms();
+    unselnms.erase();
     for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
     {
-	if ( displaymarkersfld_->isChosen( idx ) )
-	    mrkprops().selmarkernms_.add( displaymarkersfld_->textOfItem(idx) );
+	if ( !displaymarkersfld_->isChosen( idx ) )
+	    unselnms.add( displaymarkersfld_->textOfItem(idx) );
     }
 }
 
@@ -258,10 +259,26 @@ void uiWellMarkersDispProperties::getSelNames()
 void uiWellMarkersDispProperties::setSelNames()
 {
     NotifyStopper ns( displaymarkersfld_->itemChosen );
+    const BufferStringSet& unselnms = mrkprops().unselmarkernms();
     const BufferStringSet& nms = mrkprops().selmarkernms_;
-    displaymarkersfld_->setChosen( nms );
-    if ( !nms.isEmpty() )
-	displaymarkersfld_->setCurrentItem( nms.get(0).buf() );
+    if ( unselnms.isEmpty() && nms.isEmpty() )
+	displaymarkersfld_->chooseAll( true );
+    else if ( unselnms.isEmpty())
+	displaymarkersfld_->setChosen( nms );
+    else
+    {
+	BufferStringSet selnms;
+	displaymarkersfld_->getItems( selnms );
+	for ( const auto* mrkr : unselnms )
+	{
+	    const int idx = selnms.indexOf( mrkr->str() );
+	    if ( idx >= 0 )
+		selnms.removeSingle( idx );
+	}
+	displaymarkersfld_->setChosen( selnms );
+    }
+     if ( displaymarkersfld_->nrChosen() == 0 )
+	displaymarkersfld_->setCurrentItem( 0 );
 }
 
 
@@ -272,6 +289,10 @@ void uiWellMarkersDispProperties::setAllMarkerNames(
     displaymarkersfld_->setEmpty();
     displaymarkersfld_->addItems( allmarkernms );
     setSelNames();
+    if ( displaymarkersfld_->nrChosen()>0 )
+	displaymarkersfld_->setCurrentItem( displaymarkersfld_->firstChosen() );
+    else
+	displaymarkersfld_->setCurrentItem( 0 );
 }
 
 
@@ -284,6 +305,10 @@ void uiWellMarkersDispProperties::setAllMarkerNames( const BufferStringSet& nms,
     for ( int idx=0; idx<cols.size(); idx++ )
 	displaymarkersfld_->setPixmap( idx, cols[idx] );
     setSelNames();
+    if ( displaymarkersfld_->nrChosen()>0 )
+	displaymarkersfld_->setCurrentItem( displaymarkersfld_->firstChosen() );
+    else
+	displaymarkersfld_->setCurrentItem( 0 );
 }
 
 
@@ -292,6 +317,10 @@ void uiWellMarkersDispProperties::resetProps(
 {
     props_ = &pp;
     setSelNames();
+    if ( displaymarkersfld_->nrChosen()>0 )
+	displaymarkersfld_->setCurrentItem( displaymarkersfld_->firstChosen() );
+    else
+	displaymarkersfld_->setCurrentItem( 0 );
 }
 
 
