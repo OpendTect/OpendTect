@@ -176,7 +176,7 @@ void uiODSceneMgr::cleanUp( bool startnew )
 uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 {
     uiODSceneMgr::Scene& scn = *new uiODSceneMgr::Scene( mdiarea_ );
-    scn.mdiwin_->closed().notify( mWSMCB(removeSceneCB) );
+    mAttachCB( scn.mdiwin_->closed(), uiODSceneMgr::removeSceneCB );
     scenes_ += &scn;
     vwridx_++;
     BufferString vwrnm( "Viewer Scene ", vwridx_ );
@@ -208,8 +208,8 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     scn.vwr3d_->display( true );
     scn.vwr3d_->setAnnotationFont( visscene ? visscene->getAnnotFont()
 					    : FontData() );
-    scn.vwr3d_->viewmodechanged.notify( mWSMCB(viewModeChg) );
-    scn.vwr3d_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
+    mAttachCB( scn.vwr3d_->viewmodechanged, uiODSceneMgr::viewModeChg );
+    mAttachCB( scn.vwr3d_->pageupdown, uiODSceneMgr::pageUpDownPressed );
     scn.mdiwin_->display( true, false, maximized );
     actMode(0);
     treeToBeAdded.trigger( sceneid );
@@ -386,8 +386,8 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 
 	scn.vwr3d_->display( true );
 	scn.vwr3d_->showRotAxis( true );
-	scn.vwr3d_->viewmodechanged.notify( mWSMCB(viewModeChg) );
-	scn.vwr3d_->pageupdown.notify(mCB(this,uiODSceneMgr,pageUpDownPressed));
+	mAttachCB( scn.vwr3d_->viewmodechanged, uiODSceneMgr::viewModeChg );
+	mAttachCB( scn.vwr3d_->pageupdown, uiODSceneMgr::pageUpDownPressed );
 	scn.mdiwin_->display( true, false );
 
 	treeToBeAdded.trigger( sceneid );
