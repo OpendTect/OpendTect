@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattribpartserv.h"
 #include "uicreateattriblogdlg.h"
+#include "uimain.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -140,6 +141,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     else if ( mnuid == cNewWellIdx )
     {
 	visSurvey::WellDisplay* wd = new visSurvey::WellDisplay;
+	wd->setPixelDensity( uiMain::getMinDPI() );
 	wd->setupPicking(true);
 	BufferString wellname;
 	Color color;
@@ -259,6 +261,7 @@ bool uiODWellTreeItem::init()
     if ( displayid_==-1 )
     {
 	auto* wd = new visSurvey::WellDisplay;
+	wd->setPixelDensity( uiMain::getMinDPI() );
 	wd->setScene( scene );
 	displayid_ = wd->id();
 	if ( !wd->setMultiID(mid_) )
