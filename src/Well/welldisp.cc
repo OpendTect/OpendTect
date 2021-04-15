@@ -319,8 +319,7 @@ void Well::DisplayProperties::Track::doUsePar( const IOPar& par )
 
     trackpar->getYN( sKeyTrackNmIsAbove, dispabove_ );
     trackpar->getYN( sKeyTrackNmIsBelow, dispbelow_ );
-    if ( !trackpar->getYN(sKeyTrackDynamicNmSize,nmsizedynamic_) )
-	nmsizedynamic_ = true; //Legacy
+    trackpar->getYN( sKeyTrackDynamicNmSize, nmsizedynamic_ );
 
     const FixedString fontdata = trackpar->find( sKeyTrackNmFont );
     if ( fontdata )
@@ -365,8 +364,7 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
     unselmarkernms().setEmpty();
     if (!mrkspar->get(sKeyMarkerUnselected, unselmarkernms()))
 	mrkspar->get( sKeyMarkerSelected, selmarkernms_ );
-    if (!mrkspar->getYN(sKeyMarkerDynamicNmSize,nmsizedynamic_))
-	nmsizedynamic_ = true; //Legacy
+    mrkspar->getYN( sKeyMarkerDynamicNmSize, nmsizedynamic_ );
 
     const FixedString fontdata =
 	mrkspar->find( sKeyMarkerNmFont );
