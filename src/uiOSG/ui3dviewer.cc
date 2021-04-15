@@ -284,7 +284,6 @@ void ui3DViewerBody::setupHUD()
     hudcamera->setAllowEventFocus(false);
 
     hudscene_ = visBase::DataObjectGroup::create();
-    hudscene_->setPixelDensity( (float) uiMain::getMinDPI() );
 
     hudview_ = new osgViewer::View;
     hudview_->setCamera( hudcamera );
@@ -1423,11 +1422,29 @@ void ui3DViewerBody::saveHomePos()
 
 void ui3DViewerBody::setScenesPixelDensity( float dpi )
 {
+    bool updated = false;
     if ( scene_ )
-	scene_->setPixelDensity( dpi );
+    {
+	const float scenedpi = scene_->getPixelDensity();
+	if ( !mIsEqual(scenedpi,dpi,0.1f) )
+	{
+	    scene_->setPixelDensity( dpi );
+	    updated = true;
+	}
+    }
+
     if ( hudscene_ )
-	hudscene_->setPixelDensity( dpi );
-    requestRedraw();
+    {
+	const float huddpi = hudscene_->getPixelDensity();
+	if ( !mIsEqual(huddpi,dpi,0.1f) )
+	{
+	    hudscene_->setPixelDensity( dpi );
+	    updated = true;
+	}
+    }
+
+    if ( updated )
+	requestRedraw();
 }
 
 

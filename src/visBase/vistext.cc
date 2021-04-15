@@ -321,7 +321,7 @@ void Text2::setDisplayTransformation( const mVisTrans* newtr )
 
 void Text2::setPixelDensity( float dpi )
 {
-    if ( pixeldensity_==dpi )
+    if ( mIsEqual(pixeldensity_,dpi,0.1f) )
 	return;
 
     pixeldensity_ = dpi;
