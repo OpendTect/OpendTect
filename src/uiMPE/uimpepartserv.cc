@@ -406,7 +406,7 @@ void uiMPEPartServer::noTrackingRemoval()
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( ioobj )
     {
-	if ( !fullImplRemove(*ioobj) || !IOM().permRemove(mid) )
+	if ( !IOM().implRemove(ioobj->key(), true) )
 	    { pErrMsg( "Could not remove object" ); }
     }
 

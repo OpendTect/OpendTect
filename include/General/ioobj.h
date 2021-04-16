@@ -158,5 +158,4 @@ public:
 
 mGlobal(General) bool equalIOObj(const MultiID&,const MultiID&);
 mGlobal(General) bool areEqual(const IOObj*,const IOObj*);
-mGlobal(General) bool fullImplRemove(const IOObj&);
 

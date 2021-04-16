@@ -300,67 +300,19 @@ bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 	}
     }
 
-    ioobj.setName( newnm );
+    if ( !IOM().implRename(ioobj.key(), newnm) )
+	return false;
 
-    mDynamicCastGet(IOStream*,iostrm,&ioobj)
-    if ( iostrm )
-    {
-	if ( !iostrm->implExists(true) )
-	    iostrm->genFileName();
-	else
-	{
-	    IOStream chiostrm;
-	    chiostrm.copyFrom( iostrm );
-	    FilePath fp( iostrm->fileSpec().fileName() );
-	    if ( trans )
-		chiostrm.setExt( trans->defExtension() );
-
-	    BufferString cleannm( chiostrm.name() );
-	    cleannm.clean( BufferString::NoFileSeps );
-	    chiostrm.setName( cleannm );
-	    chiostrm.genFileName();
-	    chiostrm.setName( newnm );
-
-	    FilePath deffp( chiostrm.fileSpec().fileName() );
-	    fp.setFileName( deffp.fileName() );
-	    chiostrm.fileSpec().setFileName( fp.fullPath() );
-
-	    const bool newfnm = FixedString(chiostrm.fileSpec().fileName())
-					    != iostrm->fileSpec().fileName();
-	    if ( newfnm && !doReloc(trans,*iostrm,chiostrm) )
-	    {
-		if ( !newnm.contains('/') && !newnm.contains('\\') )
-		    return false;
-
-		newnm.clean( BufferString::AllowDots );
-		chiostrm.setName( newnm );
-		chiostrm.genFileName();
-		deffp.set( chiostrm.fileSpec().fileName() );
-		fp.setFileName( deffp.fileName() );
-		chiostrm.fileSpec().setFileName( fp.fullPath() );
-		chiostrm.setName( iostrm->name() );
-		if (!doReloc(trans, *iostrm, chiostrm))
-		    return false;
-	    }
-
-	    iostrm->copyFrom( &chiostrm );
-	}
-    }
-
-    IOM().commitChanges( ioobj );
     return true;
 }
 
 
 bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
 {
-    PtrMan<Translator> trans = ioobj.createTranslator();
-    const bool exists = trans ? trans->implExists(&ioobj, true)
-			      : ioobj.implExists(true);
-    const bool readonly = trans ? trans->implReadOnly(&ioobj)
-				: ioobj.implReadOnly();
-    bool shldrm = trans ? !trans->implManagesObjects(&ioobj)
-			: !ioobj.implManagesObjects();
+    const MultiID& key = ioobj.key();
+    const bool exists = IOM().implExists( key );
+    const bool readonly = IOM().isReadOnly( key );
+    bool shldrm = IOM().isManagesObject( key );
     if ( exists && readonly && shldrm )
     {
 	uiString msg = tr("'%1' is not writable; the actual data "
@@ -369,6 +321,7 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
 		     .arg(ioobj.name());
 	if ( !uiMSG().askContinue(msg) )
 	    return false;
+
 	shldrm = false;
     }
 
@@ -417,8 +370,6 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
     uiFileDialog dlg( this, uiFileDialog::Directory, oldfnm, filefilt, caption);
     if ( !dlg.go() ) return false;
 
-    IOStream chiostrm;
-    chiostrm.copyFrom( &iostrm );
     const char* newdir = dlg.fileName();
     if ( !File::isDirectory(newdir) )
     {
@@ -426,10 +377,7 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
 			 "or is not a folder."));
 	return false;
     }
-
-    FilePath fp( oldfnm ); fp.setPath( newdir );
-    chiostrm.fileSpec().setFileName( fp.fullPath() );
-    if (!doReloc(trans, iostrm, chiostrm))
+    if ( !IOM().implReloc(ioobj.key(), newdir) )
 	return false;
 
     IOM().commitChanges( ioobj );
@@ -467,34 +415,6 @@ bool uiIOObjManipGroup::readonlyEntry( IOObj& ioobj, Translator* trans,
 
     selChg();
     return false;
-}
-
-
-bool uiIOObjManipGroup::doReloc(Translator* trans, IOStream& iostrm,
-				 IOStream& chiostrm )
-{
-    const bool oldimplexist = trans ? trans->implExists( &iostrm, true )
-				    : iostrm.implExists( true );
-    const BufferString newfname( chiostrm.fullUserExpr() );
-
-    bool succeeded = true;
-    if ( oldimplexist )
-    {
-	const bool newimplexist = trans ? trans->implExists(&chiostrm, true)
-					: chiostrm.implExists(true);
-	if ( newimplexist && !uiIOObj(chiostrm).removeImpl(false,true) )
-	    return false;
-
-	CallBack cb( mCB(this,uiIOObjManipGroup,relocCB) );
-	succeeded = trans ? trans->implRename( &iostrm, newfname, &cb )
-			  : iostrm.implRename( newfname, &cb );
-    }
-
-    if ( succeeded )
-	iostrm.fileSpec().setFileName( newfname );
-    else
-	uiMSG().error(tr("Relocation failed"));
-    return succeeded;
 }
 
 

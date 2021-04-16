@@ -369,15 +369,6 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 }
 
 
-bool fullImplRemove( const IOObj& ioobj )
-{
-    if ( ioobj.isSubdir() ) return false;
-
-    PtrMan<Translator> tr = ioobj.createTranslator();
-    return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
-}
-
-
 IOSubDir::IOSubDir( const char* subdirnm )
     : IOObj(subdirnm)
     , isbad_(false)

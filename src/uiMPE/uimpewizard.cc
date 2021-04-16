@@ -554,7 +554,7 @@ void Wizard::restoreObject()
 
 	if ( ioobj )
 	{
-	    if ( !fullImplRemove(*ioobj) || !IOM().permRemove(mid) )
+	    if ( !IOM().implRemove(ioobj->key(), true) )
 		pErrMsg( "Could not remove object" );
 	}
     }
@@ -874,7 +874,8 @@ void Wizard::updateFinishButton( CallBacker* )
     mGetSeedPicker();
     const int nrseeds = seedpicker->nrSeeds();
 
-    const bool finishenabled = nrseeds >= seedpicker->minSeedsToLeaveInitStage();
+    const bool finishenabled = nrseeds >= seedpicker
+						->minSeedsToLeaveInitStage();
     setButtonSensitive( uiDialog::CANCEL, finishenabled );
 
     if ( oldsettingsseeds && oldsettingsseeds+nrseeds>2 )
