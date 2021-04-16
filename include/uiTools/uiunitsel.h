@@ -112,8 +112,8 @@ protected:
     BufferString		tblkey_;
 
     uiComboBox*			inpfld_;
-    uiComboBox*			propfld_;
-    uiComboBox*			mnfld_;
+    uiComboBox*			propfld_ = nullptr;
+    uiComboBox*			mnfld_ = nullptr;
 
     void			selChg( CallBacker* )	{ selChange.trigger(); }
     void			propSelChg(CallBacker*);

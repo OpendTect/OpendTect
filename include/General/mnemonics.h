@@ -89,11 +89,8 @@ mExpClass(General) MnemonicSet : public ObjectSet<Mnemonic>
 {
 public:
 				MnemonicSet()	{}
-				MnemonicSet( const MnemonicSet& mns )
-				    : ObjectSet<Mnemonic>(){ *this = mns; }
 				~MnemonicSet();
 
-    MnemonicSet&		operator =(const MnemonicSet&);
     inline Mnemonic*		find(const char* nm)	{ return fnd(nm); }
     inline const Mnemonic*	find(const char* nm) const { return fnd(nm); }
     MnemonicSet*		getSet(const PropertyRef*);
@@ -120,6 +117,11 @@ protected:
     Mnemonic*		fnd(const char*) const;
     virtual MnemonicSet&	doAdd( Mnemonic* mn )
 				{ add(mn); return *this; }
+
+private:
+			MnemonicSet(const MnemonicSet&) = delete;
+
+    MnemonicSet&	operator =(const MnemonicSet&) = delete;
 };
 
 

@@ -250,19 +250,6 @@ MnemonicSet::~MnemonicSet()
 }
 
 
-MnemonicSet& MnemonicSet::operator =( const MnemonicSet& mnc )
-{
-    if ( this != &mnc )
-    {
-	deepErase( *this );
-	for ( int idx=0; idx<mnc.size(); idx++ )
-	    *this += new Mnemonic( *mnc[idx] );
-    }
-
-    return *this;
-}
-
-
 int MnemonicSet::indexOf( const char* nm ) const
 {
     if ( nm && *nm )

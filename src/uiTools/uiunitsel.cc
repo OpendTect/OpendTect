@@ -63,7 +63,9 @@ uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
 
 
 uiUnitSel::~uiUnitSel()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiUnitSel::init()
@@ -73,22 +75,20 @@ void uiUnitSel::init()
     if ( tblkey_.isEmpty() )
 	tblkey_ = PropertyRef::StdTypeNames()[setup_.ptype_];
 
-    propfld_ = 0;
     if ( setup_.selproptype_ )
     {
 	propfld_ = new uiComboBox( this, "Properties" );
 	const BufferStringSet typnms( PropertyRef::StdTypeNames() );
 	propfld_->addItems( typnms );
 	propfld_->setCurrentItem( (int)setup_.ptype_ );
-	propfld_->selectionChanged.notify( mCB(this,uiUnitSel,propSelChg) );
+	mAttachCB( propfld_->selectionChanged, uiUnitSel::propSelChg );
     }
 
-    mnfld_ = nullptr;
     if ( setup_.selmnemtype_ )
     {
 	mnfld_ = new uiComboBox( this, "Mnemonic" );
 	mAttachCB( mnfld_->selectionChanged, uiUnitSel::mnSelChg );
-	MnemonicSet mns = eMNC();
+	MnemonicSet& mns = eMNC();
 	BufferStringSet mnsnames;
 	mns.getNames( mnsnames );
 	mnfld_->addItems( mnsnames );
@@ -104,7 +104,7 @@ void uiUnitSel::init()
     if ( setup_.mode_ == Setup::SymbolsOnly )
 	inpfld_->setHSzPol( uiObject::Small );
 
-    inpfld_->selectionChanged.notify( mCB(this,uiUnitSel,selChg) );
+    mAttachCB( inpfld_->selectionChanged, uiUnitSel::selChg );
     if ( mnfld_ )
 	inpfld_->attach( rightOf, mnfld_ );
     else if ( propfld_ )
