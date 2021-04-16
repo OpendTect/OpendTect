@@ -197,6 +197,9 @@ public:
     static bool		isCompatibleType(const char* omftypestr1,
 					 const char* omftypestr2);
 
+    static const char*	sKeyPartialScan()   { return "Partial Scan"; }
+    static const char*	sKeyFullScan()	    { return "Full Scan"; }
+
 protected:
 
     GeomType		geomtype_;

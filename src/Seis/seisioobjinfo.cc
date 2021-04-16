@@ -540,6 +540,28 @@ bool SeisIOObjInfo::getStats( IOPar& iop ) const
 { return getAux( sStatsFileExtension(), sKey::Stats(), iop ); }
 
 
+#define mMaxRandTrcs PosInfo::LineCollData::glob_size_type(100000)
+
+static bool addDataFromPos( const Seis::Provider::LineCollData& lcd,
+			const PosInfo::LineCollDataPos& lcdp,
+			Seis::Provider2D* prov2d, Seis::Provider3D* prov3d,
+			Seis::StatsCollector& ssc, uiRetVal& uirv )
+{
+    SeisTrc trc;
+    if ( prov2d )
+	uirv = prov2d->getAt( lcd.bin2D(lcdp), trc );
+    else
+	uirv = prov3d->getAt( lcd.binID(lcdp), trc );
+
+    if ( !uirv.isOK() )
+	return false;
+    else if ( trc.isNull() )
+	return true;
+
+    ssc.useTrace( trc );
+    return true;
+}
+
 RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
 {
     mChk(nullptr);
@@ -563,37 +585,71 @@ RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
 	return ret;
 
     Seis::StatsCollector ssc;
-    const auto& lcd = prov->possiblePositions();
-    PosInfo::LineCollDataPos lcdp;
-    Stats::RandGen randgen;
-    const bool is2d = prov->is2D();
-    while ( true )
+    const Seis::Provider::LineCollData& lcd = prov->possiblePositions();
+    PosInfo::LineCollData::glob_size_type maxdsnrtrcs = 0;
+    for ( const auto* cd : lcd )
     {
-	lcdp.lidx_ = randgen.getIndex( lcd.size() );
-	const auto& segs = lcd.get( lcdp.lidx_ )->segments_;
-	lcdp.segnr_ = randgen.getIndex( segs.size() );
-	lcdp.sidx_ = randgen.getIndex( segs.get(lcdp.segnr_).nrSteps()+1 );
-
-	uiRetVal uirv;
-	SeisTrc trc;
-	if ( is2d )
-	    uirv = prov->as2D()->getAt( lcd.bin2D(lcdp), trc );
-	else
-	    uirv = prov->as3D()->getAt( lcd.binID(lcdp), trc );
-	if ( !uirv.isOK() )
-	    break;
-	else if ( trc.isNull() )
-	    continue;
-
-	ssc.useTrace( trc );
-	if ( ssc.nrSamplesUsed() > 100000 )
-	    break;
+	const PosInfo::LineData::SegmentSet& segs = cd->segments_;
+	for ( const auto& seg : segs )
+	{
+	    maxdsnrtrcs +=
+		PosInfo::LineCollData::glob_size_type( seg.nrSteps()+1 );
+	}
     }
+
+    const PosInfo::LineCollData::glob_size_type maxnrtrcs =
+				mMIN(maxdsnrtrcs,mMaxRandTrcs);
+    Seis::Provider2D* prov2d = prov->as2D();
+    Seis::Provider3D* prov3d = prov->as3D();
+    const bool fullscan = maxnrtrcs == maxdsnrtrcs;
+    PosInfo::LineCollDataPos lcdp;
+    uiRetVal uirv;
+    if ( fullscan )
+    {
+	for ( lcdp.lidx_=0; lcdp.lidx_<lcd.size(); lcdp.lidx_++ )
+	{
+	    const PosInfo::LineData::SegmentSet& segs =
+				lcd.get( lcdp.lidx_ )->segments_;
+	    for ( lcdp.segnr_=0; lcdp.segnr_<segs.size(); lcdp.segnr_++ )
+	    {
+		const PosInfo::LineData::Segment& seg = segs[lcdp.segnr_];
+		const int segsz = seg.nrSteps()+1;
+		for ( lcdp.sidx_=0; lcdp.sidx_<segsz; lcdp.sidx_++ )
+		{
+		    addDataFromPos( lcd, lcdp, prov2d, prov3d,
+				    ssc, uirv );
+		}
+	    }
+	}
+    }
+    else
+    {
+	Stats::RandGen randgen;
+	PosInfo::LineCollData::glob_size_type nrdrawn = 0;
+	const PosInfo::LineCollData::glob_size_type maxnrtries =
+				    mMaxRandTrcs * 5;
+	while ( nrdrawn < maxnrtries )
+	{
+	    lcdp.lidx_ = randgen.getIndex( lcd.size() );
+	    const auto& segs = lcd.get( lcdp.lidx_ )->segments_;
+	    lcdp.segnr_ = randgen.getIndex( segs.size() );
+	    lcdp.sidx_ = randgen.getIndex( segs.get(lcdp.segnr_).nrSteps()+1 );
+	    nrdrawn++;
+	    if ( !addDataFromPos(lcd,lcdp,prov2d,prov3d,ssc,uirv) ||
+		  ssc.nrSamplesUsed() > maxnrtrcs )
+		break;
+	}
+    }
+
+    ret = &ssc.distribution();
+    if ( ret->isEmpty() )
+	ssc.setToUdf();
 
     ret = &ssc.distribution();
     if ( !ret->isEmpty() )
     {
-	iop.set( sKey::Source(), "Partial Scan" );
+	iop.set( sKey::Source(), fullscan ? sKeyFullScan()
+					  : sKeyPartialScan() );
 	ssc.fillPar( iop );
 	File::Path fp( ioobj_->mainFileName() );
 	fp.setExtension( sStatsFileExtension() );

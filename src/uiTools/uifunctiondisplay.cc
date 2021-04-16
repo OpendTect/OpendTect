@@ -161,7 +161,7 @@ void uiFunctionDisplay::setVals( const Interval<float>& xrg, const float* yvals,
     xvals_.erase(); yvals_.erase();
     if ( sz > 0 )
     {
-	const float dx = (xrg.stop-xrg.start) / (sz-1);
+	const float dx = sz == 1 ? 0 : (xrg.stop-xrg.start) / (sz-1);
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    xvals_ += xrg.start + idx * dx;

@@ -348,9 +348,15 @@ void uiSeisFileMan::showHistogram( CallBacker* )
     }
 
     BufferString datanm( curioobj_->name() );
-    const char* findres = iop.find( sKey::Source() );
-    if ( findres && *findres == 'P' )
-	datanm.add( " [Partial Scan]" );
+    const FixedString findres( iop.find( sKey::Source() ) );
+    if ( !findres.isEmpty() )
+    {
+	if ( findres == SeisIOObjInfo::sKeyPartialScan() )
+	    datanm.add( " [Partial Scan]" );
+	else if ( findres == SeisIOObjInfo::sKeyFullScan() )
+	    datanm.add( " [Full Scan]" );
+    }
+
     statswin->setDataName( datanm );
     statswin->show();
 }
