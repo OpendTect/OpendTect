@@ -30,9 +30,11 @@ public:
 			~StatsCollector();
 
     void		setEmpty();
+    void		setToUdf();
 
     void		useTrace(const SeisTrc&);
     od_int64		nrSamplesUsed() const	{ return nrvalshandled_; }
+    od_int64		nrTrcsHandles() const	{ return nrtrcshandled_; }
 
     const TrcKeyZSampling& trcKeyZSampling() const	{ return tkzs_; }
     DistribType&	distribution();

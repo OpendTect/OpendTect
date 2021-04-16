@@ -195,6 +195,14 @@ Interval<vT> DataDistributionExtracter<vT>::getDataRange() const
 template <class vT> inline
 int DataDistributionExtracter<vT>::getDefNrBins() const
 {
+    if ( totalsz_ == 1 )
+	return 1;
+
+    const vT width = bounds_.width();
+    const vT eps = mIsZero(width,1e-6f) ? 1e-6f : width * 1e-6f;
+    if ( mIsEqual(bounds_.start,bounds_.stop,eps) )
+	return 1;
+
     int ret = (int)(totalsz_ / 132);
     if ( ret < 8 )
 	ret = 8;
@@ -228,10 +236,13 @@ bool DataDistributionExtracter<vT>::doPrepare( int )
     if ( mIsUdf(bounds_.start) || mIsUdf(bounds_.stop) )
 	determineBounds();
 
-    if ( bounds_.start == bounds_.stop )
-	bounds_.stop = bounds_.start + (vT)1;
-    else if ( bounds_.start > bounds_.stop )
-	std::swap( bounds_.start, bounds_.stop );
+    if ( !mIsUdf(bounds_.start) && !mIsUdf(bounds_.stop) )
+    {
+	if ( bounds_.start == bounds_.stop )
+	    bounds_.stop = bounds_.start + (vT)1;
+	else if ( bounds_.start > bounds_.stop )
+	    std::swap( bounds_.start, bounds_.stop );
+    }
 
     SamplingData<vT> sd = getSamplingFor( bounds_, nrbins_ );
     distrib_ = new DistribType( sd, nrbins_ );
@@ -249,9 +260,6 @@ void DataDistributionExtracter<vT>::determineBounds()
 	bounds_.start = rg.start;
     if ( mIsUdf(bounds_.stop) )
 	bounds_.stop = rg.stop;
-
-    if ( mIsUdf(bounds_.start) || mIsUdf(bounds_.stop) )
-	{ bounds_.start = vT(0); bounds_.stop = vT(1); }
 }
 
 
@@ -259,12 +267,8 @@ template <class vT> inline
 void DataDistributionExtracter<vT>::putInBin( vT val, TypeSet<vT>& subdistrib,
 		    const SamplingData<vT>& sd, const int nrbins )
 {
-    if ( !mIsUdf(val) )
-    {
-	const int ibin
-		= DataDistribution<vT>::getBinNrFor( val, sd, nrbins );
-	subdistrib[ibin]++;
-    }
+    const int ibin = DataDistribution<vT>::getBinNrFor( val, sd, nrbins );
+    subdistrib[ibin]++;
 }
 
 
@@ -301,9 +305,12 @@ template <class vT> inline
 void RangeLimitedDataDistributionExtracter<vT>::init(
 		const TaskRunnerProvider& trprov )
 {
-    const int targetnrbins = extracter_.getDefNrBins();
-    extracter_.setNrBins( 32 * targetnrbins );
     extracter_.setBounds( extracter_.getDataRange() );
+    int targetnrbins = extracter_.getDefNrBins();
+    if ( targetnrbins > 1 )
+	targetnrbins *= 32;
+
+    extracter_.setNrBins( targetnrbins );
     if ( !trprov.execute(extracter_) )
 	{ distrib_ = new DistribType; return; }
 

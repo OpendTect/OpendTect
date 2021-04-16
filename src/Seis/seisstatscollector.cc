@@ -20,7 +20,7 @@ static const int cSampleBufferSize = 1048576;
 
 
 Seis::StatsCollector::StatsCollector( int icomp )
-    : vals_(0)
+    : vals_(nullptr)
     , selcomp_(icomp)
     , offsrg_(mUdf(float),0.f)
 {
@@ -41,7 +41,7 @@ void Seis::StatsCollector::setEmpty()
     mSetUdf( valrg_.start ); mSetUdf( valrg_.stop );
     delete [] vals_;
     mTryAlloc( vals_, float[cSampleBufferSize] );
-    distrib_ = 0;
+    distrib_ = nullptr;
 }
 
 
@@ -80,6 +80,18 @@ void Seis::StatsCollector::addPosition( const TrcKey& tk,
 		      tkzs_.hsamp_.step_.trcNr() );
     }
     nrtrcshandled_++;
+}
+
+
+void Seis::StatsCollector::setToUdf()
+{
+    setEmpty();
+    valrg_.start = valrg_.stop = mUdf(float);
+    offsrg_.start = offsrg_.stop = 0.f;
+    nrtrcshandled_ = tkzs_.hsamp_.totalNr();
+    nrvalshandled_ = nrvalscollected_ = totalnrsamples_ = tkzs_.totalNr();
+    const od_int64 nrsamples = mMIN(totalnrsamples_,cSampleBufferSize);
+    OD::sysMemValueSet( vals_, mUdf(float), nrsamples );
 }
 
 

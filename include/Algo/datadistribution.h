@@ -484,15 +484,15 @@ template <class VT> inline void DataDistribution<VT>::getAvgStd( pos_type& avg,
 {
     mLock4Read();
     const auto sz = cumdata_.size();
-    if ( sz < 2 )
-	{ avg = sampling_.start; std = (pos_type)0; return; }
+    if ( sz < 2 || cumdata_[sz-1] == VT(0) )
+	{ avg = sampling_.start; std = mUdf(pos_type); return; }
 
-    pos_type wtsum = (VT)0;
+    pos_type wtsum = VT(0);
     for ( auto idx=0; idx<sz; idx++ )
 	wtsum += data_[idx] * sampling_.atIndex( idx );
     avg = wtsum / cumdata_[sz-1];
 
-    pos_type sumsqdiffs = (VT)0;
+    pos_type sumsqdiffs = VT(0);
     for ( auto idx=0; idx<sz; idx++ )
     {
 	const auto diff = sampling_.atIndex(idx) - avg;
