@@ -336,12 +336,13 @@ void WellDisplay::updateMarkers( CallBacker* )
     const Well::Track& track =
 		needsConversionToTime() ? *timetrack_ : wd->track();
 
-    auto& markerdp = wd->displayProperties(false).markers_;
-    BufferStringSet& unselnms = markerdp.unselmarkernms_;
+    const Well::DisplayProperties::Markers& markerdp =
+			wd->displayProperties(false).markers_;
+    const BufferStringSet& unselnms = markerdp.unselmarkernms_;
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];
-	if ( unselnms.isPresent( wellmarker->name() ) )
+	if ( unselnms.isPresent(wellmarker->name()) )
 	    continue;
 
 	Coord3 pos = track.getPos( wellmarker->dah() );
