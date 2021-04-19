@@ -83,6 +83,7 @@ public:
 			//!< log values are all integers stored as floats
 			//! 
     Log*		upScaleLog(const StepInterval<float>&) const;
+    Log*		sampleLog(const StepInterval<float>&) const;
     static Log*		createSampledLog(const StepInterval<float>&,
 					 const float val = mUdf(float));
     
