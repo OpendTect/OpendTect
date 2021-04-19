@@ -287,6 +287,8 @@ void uiListBoxBody::handleSlideChange( int newstop, bool isclear )
 
     for ( int idx=rg.start; idx<=rg.stop; idx++ )
 	item(idx)->setCheckState( !isclear ? Qt::Checked : Qt::Unchecked );
+    lb_->updateCheckState();
+    lb_->itemChosen.trigger( -1 );
 }
 
 
@@ -332,12 +334,13 @@ void uiListBoxBody::mouseMoveEvent( QMouseEvent* ev )
 void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
 {
     lb_->bulkcheckchg_ = false;
-    lb_->updateCheckState();
+    const int lbidx = itemIdxAtEvPos( *ev );
 
-    const bool didslide = sliderg_.start>=0 && sliderg_.start != sliderg_.stop;
-    sliderg_.start = -1;
+    const bool didslide = sliderg_.start>=0 && sliderg_.start != lbidx;
     if ( didslide )
     {
+	handleSlideChange( lbidx, isCtrlPressed(*ev) );
+	sliderg_.start = -1;
 	const int refnr = lb_->beginCmdRecEvent( "selectionChanged" );
 	lb_->selectionChanged.trigger();
 	lb_->endCmdRecEvent( refnr, "selectionChanged" );
@@ -346,6 +349,7 @@ void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
 	if ( ev ) ev->accept();
 	return;
     }
+    sliderg_.start = -1;
 
     if ( !ev ) return;
 
@@ -526,7 +530,6 @@ void uiListBox::updateCheckState()
 	cb_->setCheckState( OD::Checked );
     else
 	cb_->setCheckState( OD::PartiallyChecked );
-    itemChosen.trigger( -1 );
 }
 
 

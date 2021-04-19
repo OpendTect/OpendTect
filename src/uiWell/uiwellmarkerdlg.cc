@@ -766,7 +766,7 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
     if ( !getKey(mid) )
 	return;
 
-    RefMan<Well::Data> wd = Well::MGR().get( mid );
+    RefMan<Well::Data> wd = Well::MGR().get(mid, Well::LoadReqs(Well::Mrkrs));
     if ( !wd )
     {
 	uiMSG().error( mToUiStringTodo(Well::MGR().errMsg()) );
@@ -774,7 +774,7 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
     }
 
     getMarkerSet( wd->markers() );
-    wd->markers().getNames( wd->displayProperties().markers_.selmarkernms_ );
+    wd->displayProperties().markers_.unselmarkernms_.setEmpty();
     wd->markerschanged.trigger();
 }
 

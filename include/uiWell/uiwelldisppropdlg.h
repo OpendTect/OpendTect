@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          October 2003
+ Author:	Nanne Hemstra
+ Date:		October 2003
 ________________________________________________________________________
 
 -*/
@@ -88,12 +88,18 @@ protected:
 
     ObjectSet<Well::Data>	wds_;
     uiLabeledComboBox*		wellselfld_ = nullptr;
+    bool			allapplied_ = false;
 
     void			resetProps(int,int);
-    virtual void 		wellSelChg(CallBacker*);
+    virtual void		wellSelChg(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			setWDNotifiers(bool yn) override;
     void			onClose(CallBacker*) override;
     void			applyTabPush(CallBacker*) override;
     void			resetAllPush(CallBacker*) override;
+
+    void			saveWellDispProps(const Well::Data*);
+    void			saveAllWellDispProps();
+
 };
 

@@ -127,11 +127,8 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     tracerg_.set( 0.f, stoptime, cDefSeisSr() );
     computeExtractionRange();
     for ( int idx=0; idx<wdata.markers().size(); idx++ )
-    {
 	dispparams_.allmarkernms_.add( wdata.markers()[idx]->name() );
-	dispparams_.mrkdisp_.selmarkernms_.add( wdata.markers()[idx]->name() );
-    }
-
+    dispparams_.mrkdisp_.unselmarkernms_.setEmpty();
     initwvlt_.reSample( cDefSeisSr() );
     BufferString wvltnm( estimatedwvlt_.name(), " from well ", wdata.name() );
     estimatedwvlt_.setName( wvltnm );

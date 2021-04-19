@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicombobox.h"
+#include "uimsg.h"
 #include "uiseparator.h"
 #include "uitabstack.h"
 
@@ -25,6 +26,8 @@ ________________________________________________________________________
 #include "welldisp.h"
 #include "wellman.h"
 #include "wellmarker.h"
+#include "wellwriter.h"
+
 
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
 
@@ -420,6 +423,7 @@ void uiMultiWellDispPropDlg::applyTabPush( CallBacker* )
 	}
     }
     wd_ = curwd;
+    allapplied_ = true;
 }
 
 
@@ -433,4 +437,46 @@ void uiMultiWellDispPropDlg::resetAllPush( CallBacker* )
 	putToScreen();
     }
     wd_ = curwd;
+    allapplied_ = false;
+}
+
+
+bool uiMultiWellDispPropDlg::acceptOK( CallBacker* )
+{
+    if ( saveButtonChecked() )
+    {
+	const Well::DisplayProperties& edprops = wd_->displayProperties(is2D());
+	edprops.defaults() = edprops;
+	edprops.commitDefaults();
+    }
+
+    if ( allapplied_ )
+    {
+	saveAllWellDispProps();
+	allapplied_ = false;
+    }
+    else
+	saveWellDispProps( wd_ );
+
+    return false;
+}
+
+
+void uiMultiWellDispPropDlg::saveAllWellDispProps()
+{
+    for ( int idwell=0; idwell<wds_.size(); idwell++ )
+    {
+	ConstRefMan<Well::Data> curwd( wds_[idwell] );
+	if ( curwd )
+	    saveWellDispProps( curwd.ptr() );
+    }
+}
+
+
+void uiMultiWellDispPropDlg::saveWellDispProps( const Well::Data* wd )
+{
+    Well::Writer wr( wd->multiID(), *wd );
+    if ( !wr.putDispProps() )
+	uiMSG().error(tr("Could not write display properties for \n%1")
+		    .arg(wd->name()));
 }

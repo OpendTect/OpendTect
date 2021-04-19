@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bruno
- Date:          Dec 2008
- RCS:           $Id$
+ Author:	Bruno
+ Date:		Dec 2008
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -135,6 +135,8 @@ protected:
     void		setMarkerNmColSel(CallBacker*);
     void		getSelNames();
     void		setSelNames();
+    void		selectFirstChosen();
+
     uiLabeledComboBox*	shapefld_;
     uiCheckBox*		singlecolfld_;
     uiLabeledSpinBox*	nmsizefld_;
@@ -173,7 +175,7 @@ protected:
 
     void		doPutToScreen();
     void		doGetFromScreen();
-    void                isFilledSel(CallBacker*);
+    void		isFilledSel(CallBacker*);
     void		setSeismicSel();
     void		setTubeSel();
     void		setWellLogSel();
@@ -192,29 +194,29 @@ protected:
     void		setStyleSensitive(bool);
 
     uiCheckList*	stylefld_;
-    uiGenInput*         clipratefld_;
-    uiGenInput*         rangefld_;
-    uiGenInput*         colorrangefld_;
-    uiGenInput*         cliprangefld_;
-    uiSpinBox*          ovlapfld_;
+    uiGenInput*		clipratefld_;
+    uiGenInput*		rangefld_;
+    uiGenInput*		colorrangefld_;
+    uiGenInput*		cliprangefld_;
+    uiSpinBox*		ovlapfld_;
     uiSpinBox*		repeatfld_;
-    uiLabeledSpinBox*   lblo_;
-    uiLabeledSpinBox*   lblr_;
+    uiLabeledSpinBox*	lblo_;
+    uiLabeledSpinBox*	lblr_;
     uiSlider*		logwidthslider_;
-    uiLabeledSpinBox*   lvlofdetailfld_;
-    uiLabeledComboBox*  logsfld_;
-    uiLabeledComboBox*  filllogsfld_;
-    uiLabeledComboBox*  logfilltypefld_;
-    uiCheckBox*         logarithmfld_;
-    uiCheckBox*         revertlogfld_;
-    uiCheckBox*         singlfillcolfld_;
-    uiCheckBox*         flipcoltabfld_;
+    uiLabeledSpinBox*	lvlofdetailfld_;
+    uiLabeledComboBox*	logsfld_;
+    uiLabeledComboBox*	filllogsfld_;
+    uiLabeledComboBox*	logfilltypefld_;
+    uiCheckBox*		logarithmfld_;
+    uiCheckBox*		revertlogfld_;
+    uiCheckBox*		singlfillcolfld_;
+    uiCheckBox*		flipcoltabfld_;
     uiColorTableSel*	coltablistfld_;
     uiColorInput*	seiscolorfld_;
     uiColorInput*	fillcolorfld_;
 
-    Interval<float>     valuerange_;
-    Interval<float>     fillvaluerange_;
+    Interval<float>	valuerange_;
+    Interval<float>	fillvaluerange_;
     const Well::LogSet*  wl_ = nullptr;
     const Well::Data*	wd_ = nullptr;
 

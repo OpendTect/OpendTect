@@ -124,7 +124,7 @@ public:
 	FontData	font_;
 	OD::Color	nmcol_;
 	bool		samenmcol_;
-	BufferStringSet	selmarkernms_;
+	BufferStringSet unselmarkernms_;
 	bool		nmsizedynamic_;
 
     protected:

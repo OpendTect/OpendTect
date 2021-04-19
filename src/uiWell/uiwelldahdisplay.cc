@@ -354,7 +354,7 @@ void uiWellDahDisplay::drawMarkers()
     for ( int idx=0; idx<markers()->size(); idx++ )
     {
 	const Well::Marker& mrkr = *((*markers())[idx]);
-	if ( !mrkdisp_.selmarkernms_.isPresent( mrkr.name() ) )
+	if ( mrkdisp_.unselmarkernms_.isPresent( mrkr.name() ) )
 	    continue;
 
 	const OD::Color& col =

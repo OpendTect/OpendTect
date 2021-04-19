@@ -26,7 +26,7 @@ static const char* sKeyMarkerNmFont = "Marker Name Font";
 static const char* sKeyMarkerNmColor = "Marker Name Color";
 static const char* sKeyMarkerNmSameColor = "Marker Name Color Same as Marker";
 static const char* sKeyMarkerSingleColor = "Single Marker Color";
-static const char* sKeyMarkerSelected = "Selected Markers";
+static const char* sKeyMarkerUnselected = "Unselected Markers";
 static const char* sKey2DDisplayStrat = "Display Stratigraphy";
 
 static const char* sKeyLeftColor = "Left Log Color";
@@ -107,7 +107,6 @@ Well::DisplayProperties::DisplayProperties( const char* subjname )
     logs_[0]->center_.style_ = 2;
 
     const Settings& setts = Settings::fetch( "welldisp" );
-    markers_.selmarkernms_.erase();
     usePar( setts );
 }
 
@@ -130,7 +129,7 @@ Well::DisplayProperties& Well::DisplayProperties::operator = (
 	for ( int idx=0; idx<logs_.size(); idx++ )
 	    *logs_[idx] = *dp.logs_[idx];
 
-    markers_.selmarkernms_ = dp.markers_.selmarkernms_;
+    markers_.unselmarkernms_ = dp.markers_.unselmarkernms_;
     return *this;
 
 }
@@ -242,8 +241,9 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
     mrkspar->get( sKeyMarkerCylinderHeight, cylinderheight_ );
     mrkspar->getYN( sKeyMarkerNmSameColor, samenmcol_);
     mrkspar->get( sKeyMarkerNmColor, nmcol_ );
-    mrkspar->get( sKeyMarkerSelected, selmarkernms_ );
-    mrkspar->getYN( sKeyMarkerDynamicNmSize, nmsizedynamic_ );
+    unselmarkernms_.setEmpty();
+    mrkspar->get( sKeyMarkerUnselected, unselmarkernms_ );
+    mrkspar->getYN(sKeyMarkerDynamicNmSize,nmsizedynamic_);
 
     const FixedString fontdata =
 	mrkspar->find( sKeyMarkerNmFont );
@@ -273,7 +273,7 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& par ) const
     mrkspar.set( sKeyMarkerNmFont, fontdata );
     mrkspar.setYN( sKeyMarkerNmSameColor, samenmcol_);
     mrkspar.set( sKeyMarkerNmColor, nmcol_ );
-    mrkspar.set( sKeyMarkerSelected, selmarkernms_ );
+    mrkspar.set( sKeyMarkerUnselected, unselmarkernms_ );
     par.mergeComp( mrkspar, subjectName() );
 }
 
@@ -567,6 +567,11 @@ Well::DisplayProperties& Well::DisplayProperties::defaults()
 void Well::DisplayProperties::commitDefaults()
 {
     Settings& setts = Settings::fetch( "welldisp" );
-    defaults().fillPar( setts );
+    const Well::DisplayProperties& defs = defaults();
+    defs.fillPar( setts );
+    const BufferString key1( defs.subjectName() );
+    const BufferString key2( IOPar::compKey( defs.markers_.subjectName(),
+				       sKeyMarkerUnselected ) );
+    setts.removeWithKey( IOPar::compKey( key1, key2 ) );
     setts.write();
 }
