@@ -2,10 +2,119 @@ OpendTect V6.6.x : Release info
 
 
 ----
-V6.6.1rc2: October 09, 2020
-* Fixed issues with services with survey change and application closing
+V6.6.3: April 21, 2021
+* bAdded a new “Paint” mode in pointsets to facilitate bulk picking of points
+* Added support for coordinate reference system GSK-2011
+* Fixed precision issues when sample rate is less than 1 in survey information
+* Fixed scaling problem of shotpoint number at SEG-Y import
+* Added a Simple T/D Model and implemented D2T transformation to the
+  horizon import
+* Fixed range calculation when creating depth scene
+* Added warning on Windows if the display scale is set too high for
+  OpendTect to display correctly
+* Improved displays of Z stretch factor 
+* Fixed Z stretch in depth surveys 
+* Fix display of saved Python IDE in Python Settings dialog
+* Standardizing ASCII file import/export
+    - Remember last chosen folder
+    - Added functionalities for standard file filters
+* Fixed imported 3D horizon in Depth domain with incorrect Z values
+* Bulk export and import of bodies now displays a correct message after
+  successful export/import 
+* Fixed crash while opening Grid 2D-3D Horizon window during the creation
+  of horizon 
+* Fixed HorizonData batch processing with multi-component volumes: 
+    - Added support for 'All' components as well as a single component
+    - When 'All' is selected, the suggested output name should not contain 
+      the word 'ALL'
+* Fixed connecting points issue in Pointsets
+* Fixed copying horizons inside a polygon
+* Users can now change size and color of markers on picked Polygon Body
+* Fix for cluster processing execution on Linux platform
+* Fixed displaying inappropriate error message if output wavelet name is empty
+* Fix for opening file dialog on GNOME (Linux platform)
+* Fixed capture scene using Presentation Maker
+* Wells loading/displaying made faster on Windows platform
+* Fixed unit labels in Manage Well Markers window 
+* Added replacement velocity options when copying TD values across wells
+  in the Well Manager
+* Log display now expands vertically over window extent in the log viewers
+* Fixed updating log after changing log properties in Well properties window
+* Fixed log width using slider in well display properties window
+* Fixed extrapolation of track display in time surveys
+* Implemented resolution setting for 3D well log displays
+* Fixed high CPU and GPU usage when wells are displayed in 3D scene if
+  OpendTect main window is minimized
+* Added new option 'Copy Well' to well manager
+* Fixed change in well marker name size on display properties dialog open
+* Marker selection information is no longer saved to user's well display
+  property defaults
+* Fixed displaying Wells properly in 3D scene after opening Well Table 
+* Improvements in Well display property window:
+    - Added a new Center Log Well display setting, where logs can be
+      displayed centred on the well track in the 3D scene
+    - Center Log has been made the default tab and the default style changes
+      have been applied
+    - Added a well display Settings file to the data folder to define default
+      display setting
+    - Added Reset button that reads the display settings for the current well
+      from disk and overwrites any unsaved changes in the dialog box
+    - Added "Apply Current to all wells" button that applies the contents of
+      the visible tab to all loaded wells. In the case of logs the change is
+      only applied if the log exists in the well
+    - Added a "Reset All" button that overwrites any changes to well display
+      settings with the settings stored on disk for all wells
+    - The “Dynamic” option for marker and well track text labels is now stored
+      in the parameters. Because it was never saved before, text labels in
+      existing databases may appear with an inappropriate size. Adjusting the
+      size and saving it once may thus be required
 
-V6.6.1rc1: October 5, 2020
+V6.6.2: December 29, 2020
+* Improved error messages in the volume builder
+* Fixed crash in "Add column" tool for crossplots
+* Fix for Math attribute in surveys without seismic data
+* Fixed crash while importing LAS file which contains LOC is UNKNOWN
+* Improved LAS file reading 
+    - When unit is not set for X/Y, read 1st value
+    - Also check for LAT and LON keys
+* Fixed Import and Export of horizons with option ‘Skip undefs’ option
+* Few improvements to survey creation log
+* Added option to use a polygon as work area
+* Fixed polygon fill in 3D scene
+* Improvements to cross-plot data import/export
+     - Labels are more consistent
+     - Export skips X/Y offset and selection status
+* Fixed unusable root/base python internal environment for PresentationMaker
+* Improved the resampling of logs with tiny gaps
+* Enabled resize of user message window 
+* SEG-Y classic tool is now only accessible by setting the environmnent
+  variable OD_ENABLE_SEGY_CLASSIC to the value 'Yes'
+* Improved SEGY examine window and made more useful
+     - Stand-alone window did not launch. Fixed static variable inits.
+     - Added fields for nrtraces, first trace, scroll step.
+     - Added buttons to scroll forward and back through SEG-Y file
+* Increasing Distributed computing maximum inline chunk size to 1000
+* Fixed several distributed computing erros from Linux to Linux
+* Fix for displaying contour values over horizon in status bar 
+* Fix for Depth units in time surveys with XY in feet
+* Fixed lateral shift applied to horizons when filtering
+* Fixed CTRL-Z in lists to uncheck all items
+* Fixed displaying HostID information
+
+V6.6.1: November 09, 2020
+* Fixed crossplot data extraction inside 3D bodies with random subselection
+* Support bulk import of directional wells
+* Renamed "Open Cross-plot" menu option to "Open Saved Cross-plot"
+* Fix for crash while picking seeds in Unc tracker
+* Well log display window can be closed again with window closing button 'X'
+* Fix for single wildcard case Multi 2D segy import
+* Fixed crash in Manage Stratigraphy
+* Remove redundant UI element from SEG import dialog
+* Fixed  error while merging 2D lines
+* Fix for displaying empty Firewall rule window after updating   
+  the OpendTect from the installer on windows platform
+* Added Sw, NetPay, Lithology and other mnemonics
+* Fixed issues with services with survey change and application closing
 * Adding the correct firewall exception for start_dtect executable
 * Support UnitOfMeasure, CRS and area subselection when importing from zmap
 * Show Operating System product name in host information dialog
@@ -20,6 +129,8 @@ V6.6.1rc1: October 5, 2020
 * Improve handling of depth domain data in frequency filter attribute
 * Record OpendTect version when creating objects
 * Added Presentation Maker icon to toolbar
+* Fixed issue in editing/running some Volume Processing steps like the
+  Horizon-limited filler
 
 v6.6.0: September 03, 2020
 * System may hang when removing inline after scrolling from position window,
