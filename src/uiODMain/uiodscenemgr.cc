@@ -51,6 +51,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
+#include "uiosgutil.h"
 #include "pickset.h"
 #include "ptrman.h"
 #include "randomlinegeom.h"
@@ -102,6 +103,8 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , viewModeChanged(this)
     , tiletimer_(new Timer)
     , treeAdded(this)
+    , scenesShown(this)
+    , scenesHidden(this)
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
 		       SurveyInfo::No2D );
@@ -141,6 +144,10 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 
     uiFont& font3d = FontList().get( FontData::key(FontData::Graphics3D) );
     mAttachCB( font3d.changed, uiODSceneMgr::font3DChanged );
+
+    mAttachCB( appl_.windowShown, uiODSceneMgr::showIfMinimized );
+    mAttachCB( appl_.windowShown, uiODSceneMgr::mdiAreaChanged );
+    setOSGTimerCallbacks( scenesShown, scenesHidden );
 }
 
 
@@ -177,6 +184,8 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 {
     uiODSceneMgr::Scene& scn = *new uiODSceneMgr::Scene( mdiarea_ );
     mAttachCB( scn.mdiwin_->closed(), uiODSceneMgr::removeSceneCB );
+    mAttachCB( scn.mdiwin_->windowShown(), uiODSceneMgr::mdiAreaChanged );
+    mAttachCB( scn.mdiwin_->windowHidden(), uiODSceneMgr::mdiAreaChanged );
     scenes_ += &scn;
     vwridx_++;
     BufferString vwrnm( "Viewer Scene ", vwridx_ );
@@ -854,6 +863,22 @@ int uiODSceneMgr::getActiveSceneID() const
 
 void uiODSceneMgr::mdiAreaChanged( CallBacker* )
 {
+    bool visible = false;
+    if ( !appl_.isMinimized() )
+    {
+	for ( int idx=0; idx<scenes_.size(); idx++ )
+	{
+	    if ( !scenes_[idx]->mdiwin_->isMinimized() )
+	    {
+		scenesShown.trigger();
+		visible = true;
+		break;
+	    }
+	}
+    }
+    if ( !visible )
+	scenesHidden.trigger();
+
 //    const bool wasparalysed = mdiarea_->paralyse( true );
     if ( appl_.menuMgrAvailable() )
 	appl_.menuMgr().updateSceneMenu();
@@ -1490,6 +1515,12 @@ void uiODSceneMgr::font3DChanged( CallBacker* )
     }
 }
 
+
+void uiODSceneMgr::showIfMinimized( CallBacker* )
+{
+    if ( appl_.isMinimized() )
+	appl_.show();
+}
 
 // uiODSceneMgr::Scene
 uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )

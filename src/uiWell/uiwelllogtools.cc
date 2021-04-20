@@ -303,7 +303,8 @@ uiGroup* uiWellLogToolWin::createEditGroup()
     uiGroup* actiongrp = new uiGroup( editgrp, "Action" );
     actiongrp->attach( hCentered );
     const char* acts[] =
-	{ "Remove Spikes", "FFT Filter", "Smooth", "Clip", nullptr };
+	{ "Remove Spikes", "FFT Filter", "Smooth",
+	  "Clip", "Upscale", "Resample", nullptr };
     uiLabeledComboBox* llc = new uiLabeledComboBox( actiongrp, acts,
 						    uiStrings::sAction() );
     actionfld_ = llc->box();
@@ -316,8 +317,7 @@ uiGroup* uiWellLogToolWin::createEditGroup()
     freqfld_ = new uiFreqFilterSelFreq( actiongrp );
     freqfld_->attach( alignedBelow, llc );
 
-    uiLabeledSpinBox* spbgt = new uiLabeledSpinBox( actiongrp,
-						    tr("Window size") );
+    auto* spbgt = new uiLabeledSpinBox( actiongrp,tr("Window size (samples)") );
     spbgt->attach( alignedBelow, llc );
     gatefld_ = spbgt->box();
     gatelbl_ = spbgt->label();
@@ -373,19 +373,47 @@ void uiWellLogToolWin::saveCB( CallBacker* )
 void  uiWellLogToolWin::actionSelCB( CallBacker* )
 {
     const int act = actionfld_->currentItem();
-
+    extfld_->setText( "_edited" );
     thresholdfld_->display( act == 0 );
     replacespikevalfld_->display( act == 0 );
     replacespikefld_->display( act == 0 );
     freqfld_->display( act == 1 );
     gatefld_->display( act != 1 );
     gatelbl_->display( act != 1 );
-    gatelbl_->setText( act > 2 ? tr("Clip rate (%)")
-			       : tr("Window size (samples)") );
-    StepInterval<int> sp = act > 2 ? StepInterval<int>(0,100,10)
-				   : StepInterval<int>(1,1500,5);
-    gatefld_->setInterval( sp );
-    gatefld_->setValue( act > 2 ? 1 : 300 );
+    if ( act == 2 )
+    {
+	gatelbl_->setText( tr("Window size (samples)") );
+	gatefld_->setNrDecimals( 0 );
+	gatefld_->setInterval( StepInterval<int>(1,1500,5) );
+	gatefld_->setValue( 300 );
+    }
+    else if ( act == 3 )
+    {
+	gatelbl_->setText( tr("Clip rate (%)") );
+	gatefld_->setNrDecimals( 0 );
+	gatefld_->setInterval( StepInterval<int>(0,100,10) );
+	gatefld_->setValue( 1 );
+    }
+    else if ( act == 4 )
+    {
+	const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
+	gatelbl_->setText( tr("Sample interval %1").
+		    arg(UnitOfMeasure::surveyDefDepthUnitAnnot( true, true )) );
+	gatefld_->setNrDecimals( 4 );
+	gatefld_->setInterval( StepInterval<float>(0.1,10,0.1) );
+	gatefld_->setValue( uom->isImperial() ? 0.5 : 0.1524 );
+	extfld_->setText( "_upscaled" );
+    }
+    else if ( act == 5 )
+    {
+	const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
+	gatelbl_->setText( tr("Sample interval %1").
+		    arg(UnitOfMeasure::surveyDefDepthUnitAnnot( true, true )) );
+	gatefld_->setNrDecimals( 4 );
+	gatefld_->setInterval( StepInterval<float>(0.1,10,0.1) );
+	gatefld_->setValue( uom->isImperial() ? 0.5 : 0.1524 );
+	extfld_->setText( "_resampled" );
+    }
 
     handleSpikeSelCB(0);
 }
@@ -606,6 +634,20 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    if ( outp[idx] < rg.start ) outp[idx] = rg.start;
 		    if ( outp[idx] > rg.stop )  outp[idx] = rg.stop;
 		}
+	    }
+	    else if ( act == 4 )
+	    {
+		StepInterval<float> rg( inplog.dahRange() );
+		rg.step = gatefld_->getFValue();
+		delete ld.outplogs_.replace( ld.outplogs_.indexOf( outplog ),
+				      inplog.upScaleLog( rg ) );
+	    }
+	    else if ( act == 5 )
+	    {
+		StepInterval<float> rg( inplog.dahRange() );
+		rg.step = gatefld_->getFValue();
+		delete ld.outplogs_.replace( ld.outplogs_.indexOf( outplog ),
+				      inplog.sampleLog( rg ) );
 	    }
 	}
     }

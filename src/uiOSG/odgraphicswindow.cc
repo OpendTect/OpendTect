@@ -12,8 +12,11 @@
 */
 
 #include "odgraphicswindow.h"
+#include "notify.h"
 #include "uimain.h"
 #include "uimainwin.h"
+#include "uiosgutil.h"
+
 
 #include <osg/DeleteHandler>
 #include <osgViewer/ViewerBase>
@@ -129,6 +132,7 @@ public:
     virtual ~HeartBeat();
 
     void init( osgViewer::ViewerBase *viewer );
+    void initCallbacks( const NotifierAccess&, const NotifierAccess& );
     void stopTimer();
     void timerEvent( QTimerEvent *ev  );
 
@@ -138,6 +142,7 @@ private:
     HeartBeat();
 
     void stopTimerCB(CallBacker*);
+    void startTimerCB(CallBacker*);
 
     static QPointer<HeartBeat> heartBeat;
 };
@@ -1096,6 +1101,13 @@ void setViewer( osgViewer::ViewerBase *viewer )
 }
 
 
+void setOSGTimerCallbacks( const NotifierAccess& start,
+			   const NotifierAccess& stop )
+{
+    HeartBeat::instance()->initCallbacks( start, stop );
+}
+
+
 /// Constructor. Must be called from main thread.
 HeartBeat::HeartBeat()
     : _timerId( 0 )
@@ -1129,6 +1141,16 @@ void HeartBeat::stopTimerCB( CallBacker* )
 }
 
 
+void HeartBeat::startTimerCB( CallBacker* )
+{
+    if ( _timerId == 0	)
+    {
+	_timerId = startTimer( 0 );
+	_lastFrameStartTime.setStartTick( 0 );
+    }
+}
+
+
 void HeartBeat::stopTimer()
 {
     if ( _timerId != 0 )
@@ -1154,6 +1176,14 @@ void HeartBeat::init( osgViewer::ViewerBase *viewer )
 	_timerId = startTimer( 0 );
 	_lastFrameStartTime.setStartTick( 0 );
     }
+}
+
+
+void HeartBeat::initCallbacks( const NotifierAccess& start,
+			       const NotifierAccess& stop )
+{
+    mAttachCB( start, HeartBeat::startTimerCB );
+    mAttachCB( stop, HeartBeat::stopTimerCB );
 }
 
 

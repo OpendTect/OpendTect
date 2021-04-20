@@ -295,15 +295,20 @@ bool uiMdiArea::paralyse( bool yn )
 }
 
 
-class ODMdiSubWindow : public QMdiSubWindow
+class ODMdiSubWindow : public QMdiSubWindow, public CallBacker
 {
 public:
 ODMdiSubWindow( uiMdiAreaWindow& mdiareawin,
 		QWidget* par=nullptr, Qt::WindowFlags flgs=Qt::WindowFlags() )
     : QMdiSubWindow( par, flgs )
     , mdiareawin_( mdiareawin )
+    , windowShown(this)
+    , windowHidden(this)
 {
 }
+
+Notifier<ODMdiSubWindow>	windowShown;
+Notifier<ODMdiSubWindow>	windowHidden;
 
 protected:
 void closeEvent( QCloseEvent* ev )
@@ -326,6 +331,19 @@ void closeEvent( QCloseEvent* ev )
 	ev->ignore();
 
     mdiarea.endCmdRecEvent( refnr, cmdrecmsg );
+}
+
+
+void showEvent( QShowEvent* ev )
+{
+    if ( !isMinimized() )
+	windowShown.trigger();
+}
+
+
+void hideEvent( QHideEvent* )
+{
+    windowHidden.trigger();
 }
 
     uiMdiAreaWindow&	mdiareawin_;
@@ -370,6 +388,21 @@ void uiMdiAreaWindow::setIcon( const char* icnnm )
 
 NotifierAccess& uiMdiAreaWindow::closed()
 { return mainObject()->closed; }
+
+
+NotifierAccess& uiMdiAreaWindow::windowShown()
+{
+    mDynamicCastGet(ODMdiSubWindow*, odmdia, qmdisubwindow_);
+    return odmdia->windowShown;
+}
+
+
+NotifierAccess& uiMdiAreaWindow::windowHidden()
+{
+    mDynamicCastGet(ODMdiSubWindow*, odmdia, qmdisubwindow_);
+    return odmdia->windowHidden;
+}
+
 
 QMdiSubWindow* uiMdiAreaWindow::qWidget()
 { return qmdisubwindow_; }

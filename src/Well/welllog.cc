@@ -445,6 +445,33 @@ Well::Log* Well::Log::upScaleLog( const StepInterval<float>& dahrg ) const
     LogUpScaler upscaler( outlog->size(), *this, *outlog, dahrg, uptype,
 			    logisvel );
     upscaler.execute();
+    outlog->setName( getName() );
+    outlog->setUnitMeasLabel( unitMeasLabel() );
+    outlog->setMnemLabel( mnemLabel() );
+    return outlog;
+}
+
+
+mDefParallelCalc3Pars(LogRegularSampler,
+		  od_static_tr("LogRegularSampler", "Regularly sample a log"),
+		      const Well::Log&, login, Well::Log&, logout,
+		      const StepInterval<float>&, dahrg)
+mDefParallelCalcBody( ,
+const float dah = dahrg_.atIndex(idx);
+const float val = login_.getValue( dah );
+logout_.setValue(idx, val);
+,
+)
+
+
+Well::Log* Well::Log::sampleLog( const StepInterval<float>& dahrg ) const
+{
+    Well::Log* outlog = createSampledLog( dahrg );
+    LogRegularSampler sampler( outlog->size(), *this, *outlog, dahrg );
+    sampler.execute();
+    outlog->setName( getName() );
+    outlog->setUnitMeasLabel( unitMeasLabel() );
+    outlog->setMnemLabel( mnemLabel() );
     return outlog;
 }
 
@@ -453,10 +480,15 @@ Well::Log* Well::Log::createSampledLog(const StepInterval<float>& dahrg,
 				 const float val)
 {
     Well::Log* wl = new Well::Log;
-    const int nr = dahrg.nrSteps();
-    for (int idx = 0; idx < nr + 1; idx++)
+    StepInterval<float> outdahrg( dahrg );
+    outdahrg.sort();
+    outdahrg.stop = Math::Floor( outdahrg.stop/outdahrg.step ) * outdahrg.step;
+    outdahrg.start = (Math::Floor( outdahrg.start/outdahrg.step )+1)
+								* outdahrg.step;
+    const int nr = outdahrg.nrSteps() + 1;
+    for (int idx = 0; idx < nr; idx++)
     {
-	const float dah = dahrg.atIndex(idx);
+	const float dah = outdahrg.atIndex(idx);
 	wl->addValue(dah, val);
     }
     return wl;
