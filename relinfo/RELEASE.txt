@@ -2,6 +2,73 @@ OpendTect V6.6.x : Release info
 
 
 ----
+V6.6.3: April 21, 2021
+* bAdded a new “Paint” mode in pointsets to facilitate bulk picking of points
+* Added support for coordinate reference system GSK-2011
+* Fixed precision issues when sample rate is less than 1 in survey information
+* Fixed scaling problem of shotpoint number at SEG-Y import
+* Added a Simple T/D Model and implemented D2T transformation to the
+  horizon import
+* Fixed range calculation when creating depth scene
+* Added warning on Windows if the display scale is set too high for
+  OpendTect to display correctly
+* Improved displays of Z stretch factor 
+* Fixed Z stretch in depth surveys 
+* Fix display of saved Python IDE in Python Settings dialog
+* Standardizing ASCII file import/export
+    - Remember last chosen folder
+    - Added functionalities for standard file filters
+* Fixed imported 3D horizon in Depth domain with incorrect Z values
+* Bulk export and import of bodies now displays a correct message after
+  successful export/import 
+* Fixed crash while opening Grid 2D-3D Horizon window during the creation
+  of horizon 
+* Fixed HorizonData batch processing with multi-component volumes: 
+    - Added support for 'All' components as well as a single component
+    - When 'All' is selected, the suggested output name should not contain 
+      the word 'ALL'
+* Fixed connecting points issue in Pointsets
+* Fixed copying horizons inside a polygon
+* Users can now change size and color of markers on picked Polygon Body
+* Fix for cluster processing execution on Linux platform
+* Fixed displaying inappropriate error message if output wavelet name is empty
+* Fix for opening file dialog on GNOME (Linux platform)
+* Fixed capture scene using Presentation Maker
+* Wells loading/displaying made faster on Windows platform
+* Fixed unit labels in Manage Well Markers window 
+* Added replacement velocity options when copying TD values across wells
+  in the Well Manager
+* Log display now expands vertically over window extent in the log viewers
+* Fixed updating log after changing log properties in Well properties window
+* Fixed log width using slider in well display properties window
+* Fixed extrapolation of track display in time surveys
+* Implemented resolution setting for 3D well log displays
+* Fixed high CPU and GPU usage when wells are displayed in 3D scene if
+  OpendTect main window is minimized
+* Added new option 'Copy Well' to well manager
+* Fixed change in well marker name size on display properties dialog open
+* Marker selection information is no longer saved to user's well display
+  property defaults
+* Fixed displaying Wells properly in 3D scene after opening Well Table 
+* Improvements in Well display property window:
+    - Added a new Center Log Well display setting, where logs can be
+      displayed centred on the well track in the 3D scene
+    - Center Log has been made the default tab and the default style changes
+      have been applied
+    - Added a well display Settings file to the data folder to define default
+      display setting
+    - Added Reset button that reads the display settings for the current well
+      from disk and overwrites any unsaved changes in the dialog box
+    - Added "Apply Current to all wells" button that applies the contents of
+      the visible tab to all loaded wells. In the case of logs the change is
+      only applied if the log exists in the well
+    - Added a "Reset All" button that overwrites any changes to well display
+      settings with the settings stored on disk for all wells
+    - The “Dynamic” option for marker and well track text labels is now stored
+      in the parameters. Because it was never saved before, text labels in
+      existing databases may appear with an inappropriate size. Adjusting the
+      size and saving it once may thus be required
+
 V6.6.2: December 29, 2020
 * Improved error messages in the volume builder
 * Fixed crash in "Add column" tool for crossplots
@@ -32,6 +99,7 @@ V6.6.2: December 29, 2020
 * Fix for Depth units in time surveys with XY in feet
 * Fixed lateral shift applied to horizons when filtering
 * Fixed CTRL-Z in lists to uncheck all items
+* Fixed displaying HostID information
 
 V6.6.1: November 09, 2020
 * Fixed crossplot data extraction inside 3D bodies with random subselection
