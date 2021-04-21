@@ -1,13 +1,16 @@
-OpendTect V6.4: Installation Notes
+OpendTect V6.6: Installation Notes
 
 For software installation, please refer to the online manual at:
-http://doc.opendtect.org/6.4.0/doc/od_userdoc/Default.htm#utilities/installation/update.htm
+https://doc.opendtect.org/6.6.0/doc/od_userdoc/Default.htm#utilities/installation/update.htm
 
 For system requirements, refer to:
 https://dgbes.com/index.php/download/system-requirements
 
 A System Administrator manual is available at:
-https://dgbes.com/images/PDF/administrators.pdf
+https://doc.opendtect.org/6.6.0/doc/admindoc/Default.htm
+
+Release notes are available at:
+https://dgbes.com/pdf/Release_Notes_6_6.pdf
 
 ---
 
