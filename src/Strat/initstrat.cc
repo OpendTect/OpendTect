@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratsinglaygen.h"
 #include "strattransl.h"
 #include "strattreetransl.h"
+#include "stratreftree.h"
 
 mDefModInitFn(Strat)
 {
@@ -29,4 +30,6 @@ mDefModInitFn(Strat)
     odStratLayerSequenceGenDescTranslator::initClass();
 
     Strat::SingleLayerGenerator::initClass();
+
+    Strat::init();
 }

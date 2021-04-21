@@ -25,17 +25,24 @@ public:
 
 RefTreeMgr()
 {
-    IOM().surveyChanged.notify( mCB(this,RefTreeMgr,doNull) );
+    mAttachCB( IOM().surveyChanged, RefTreeMgr::surveyChangedCB );
+    mAttachCB( IOM().applicationClosing, RefTreeMgr::surveyChangedCB );
+    mAttachCB( IOM().afterSurveyChange, RefTreeMgr::afterSurveyChangeCB );
 }
 
 ~RefTreeMgr()
 {
-    doNull( 0 );
+    detachAllNotifiers();
 }
 
-void doNull( CallBacker* )
+void surveyChangedCB( CallBacker* )
 {
-    deepErase( rts_ );
+    rts_.erase();
+}
+
+void afterSurveyChangeCB( CallBacker* )
+{
+    Strat::loadDefaultTree();
 }
 
 void createTree()
@@ -57,13 +64,20 @@ RefTree& curTree()
     return *rts_[rts_.size()-1];
 }
 
-    ObjectSet<RefTree> rts_;
+    ManagedObjectSet<RefTree> rts_;
 
 };
 
 
 static RefTreeMgr& refTreeMgr()
 { mDefineStaticLocalObject( RefTreeMgr, mgr, ); return mgr; }
+
+void init()
+{
+    refTreeMgr();
+    loadDefaultTree();
+}
+
 const RefTree& RT()
 { return refTreeMgr().curTree(); }
 void pushRefTree( RefTree* rt )
