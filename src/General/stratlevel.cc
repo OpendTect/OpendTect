@@ -48,17 +48,17 @@ public:
 
 LevelSetMgr()
 {
-    IOM().surveyChanged.notify( mCB(this,LevelSetMgr,doNull) );
+    mAttachCB( IOM().surveyChanged, LevelSetMgr::surveyChangedCB );
 }
 
 ~LevelSetMgr()
 {
-    doNull( 0 );
+    detachAllNotifiers();
 }
 
-void doNull( CallBacker* )
+void surveyChangedCB( CallBacker* )
 {
-    deepErase( lss_ );
+    lss_.erase();
 }
 
 void createSet()
@@ -92,7 +92,7 @@ LevelSet& curSet()
     return *lss_[lss_.size()-1];
 }
 
-    ObjectSet<LevelSet>	lss_;
+    ManagedObjectSet<LevelSet>	lss_;
 };
 
 
