@@ -141,6 +141,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     {
 	compfld_ = new uiLabeledComboBox( selgrp_, uiStrings::sComponent(),
 					  "Compfld" );
+	compfld_->box()->setHSzPol( uiObject::WideVar );
 	compfld_->attach( alignedBelow, topgrp );
 	entrySel(0);
     }
@@ -160,16 +161,14 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( !ioobj )
 	return;
 
-    compfld_->box()->setCurrentItem(0);
-    SeisTrcReader rdr( ioobj );
-    if ( !rdr.prepareWork(Seis::PreScan) ) return;
-    SeisTrcTranslator* transl = rdr.seisTranslator();
-    if ( !transl ) return;
+    compfld_->box()->setCurrentItem( 0 );
+
     BufferStringSet compnms;
-    transl->getComponentNames( compnms );
+    getComponentNames( compnms );
+
     compfld_->box()->setEmpty();
     compfld_->box()->addItems( compnms );
-    compfld_->display( transl->componentInfo().size()>1 );
+    compfld_->display( compnms.size() > 1 );
 }
 
 
@@ -209,16 +208,18 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
     uiIOObjSelDlg::usePar( iopar );
 
     if ( compfld_ )
-	entrySel(0);
+	entrySel( nullptr );
 
     if ( compfld_ )
     {
 	int selcompnr = mUdf(int);
-	if ( iopar.get( sKey::Component(), selcompnr ) && !mIsUdf( selcompnr) )
+	if ( iopar.get(sKey::Component(),selcompnr) && !mIsUdf(selcompnr) )
 	{
 	    BufferStringSet compnms;
 	    getComponentNames( compnms );
-	    if ( selcompnr >= compnms.size() ) return;
+	    if ( selcompnr >= compnms.size() )
+		return;
+
 	    compfld_->box()->setText( compnms.get(selcompnr).buf() );
 	}
     }
@@ -229,12 +230,11 @@ void uiSeisSelDlg::getComponentNames( BufferStringSet& compnms ) const
 {
     compnms.erase();
     const IOObj* ioobj = ioObj();
-    if ( !ioobj ) return;
-    SeisTrcReader rdr( ioobj );
-    if ( !rdr.prepareWork(Seis::PreScan) ) return;
-    SeisTrcTranslator* transl = rdr.seisTranslator();
-    if ( !transl ) return;
-    transl->getComponentNames( compnms );
+    if ( !ioobj )
+	return;
+
+    SeisIOObjInfo info( ioobj );
+    info.getComponentNames( compnms );
 }
 
 
@@ -385,7 +385,7 @@ void uiSeisSel::usePar( const IOPar& iop )
 
 void uiSeisSel::updateInput()
 {
-    BufferString ioobjkey;
+    MultiID ioobjkey = MultiID::udf();
     if ( workctio_.ioobj_ )
     {
 	ioobjkey = workctio_.ioobj_->key();
@@ -396,17 +396,15 @@ void uiSeisSel::updateInput()
     if ( !ioobjkey.isEmpty() )
 	uiIOSelect::setInput( ioobjkey );
 
-    if ( seissetup_.selectcomp_ && !mIsUdf( compnr_ ) )
+    if ( seissetup_.selectcomp_ && !mIsUdf(compnr_) )
     {
-	SeisTrcReader rdr( workctio_.ioobj_ );
-	if ( !rdr.prepareWork(Seis::PreScan) ) return;
-	SeisTrcTranslator* transl = rdr.seisTranslator();
-	if ( !transl ) return;
+	SeisIOObjInfo info( ioobjkey );
 	BufferStringSet compnms;
-	transl->getComponentNames( compnms );
-	if ( compnr_ >= compnms.size() || compnms.size()<2 ) return;
+	info.getComponentNames( compnms );
+	if ( !compnms.validIdx(compnr_) || compnms.size()<2 )
+	    return;
 
-	BufferString text = userNameFromKey( ioobjkey );
+	BufferString text = userNameFromKey( ioobjkey.buf() );
 	text += "|";
 	text += compnms.get( compnr_ );
 	uiIOSelect::setInputText( text.buf() );
