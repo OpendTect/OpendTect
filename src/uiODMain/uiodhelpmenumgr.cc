@@ -56,6 +56,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 
     mInsertItem( helpmnu_, tr("How-To Instructions"), mWorkflowsMnuItm, 0, 0 );
     mInsertItem( helpmnu_, tr("Training Manual"), mTrainingManualMnuItm, 0, 0 );
+    mInsertItem( helpmnu_, tr("Release Notes"), mReleaseNotesItm, 0, 0 );
     mInsertItem( helpmnu_, tr("Videos"), mTrainingVideosMnuItm, "video", 0 );
     mInsertItem( helpmnu_, tr("Attributes Table"), mAttribMatrixMnuItm,
 		 "attributematrix", 0 );
@@ -128,6 +129,10 @@ void uiODHelpMenuMgr::handle( int id )
 	{
 	    showShortKeys();
 	} break;
+	case mReleaseNotesItm:
+	{
+	    showReleaseNotes( false );
+	} break;
 	default:
 	{
 	    HelpProvider::provideHelp( HelpKey("od",0) );
@@ -148,6 +153,31 @@ void uiODHelpMenuMgr::showShortKeys()
     OS::CommandLauncher cl( machcomm );
     if ( !cl.execute(OS::RunInBG) )
 	uiMSG().error( cl.errorMsg() );
+}
+
+
+void uiODHelpMenuMgr::showReleaseNotes( bool isonline )
+{
+
+    BufferString urlstr;
+    if ( isonline )
+    {
+	urlstr.set( "https://backend.opendtect.org/backendscripts/" )
+	      .add( "docsites.php?version=660&module=relinfo" );
+    }
+    else
+    {
+	BufferString relnotesfnm( "Release_Notes_" );
+	relnotesfnm.add( mODMajorVersion ).add( "_" ).add( mODMinorVersion );
+	FilePath relnotesfp( GetSoftwareDir(true), "relinfo", relnotesfnm );
+	relnotesfp.setExtension( "pdf" );
+	if ( !File::exists(relnotesfp.fullPath()) )
+	    return;
+
+	urlstr.set( relnotesfp.fullPath() );
+    }
+
+    uiDesktopServices::openUrl( urlstr );
 }
 
 

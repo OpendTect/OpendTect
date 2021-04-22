@@ -260,4 +260,5 @@ ________________________________________________________________________
 #define mAttribMatrixMnuItm	(mHelpMnuBase + 9)
 #define mShortcutsMnuItm	(mHelpMnuBase + 10)
 #define mLegalMnuItm		(mHelpMnuBase + 11)
+#define mReleaseNotesItm	(mHelpMnuBase + 12)
 
