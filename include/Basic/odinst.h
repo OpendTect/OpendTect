@@ -25,7 +25,6 @@ namespace ODInst
     mGlobal(Basic) const char*	sKeyHasNoUpdate();
 
     mGlobal(Basic) BufferString	GetInstallerDir();
-    mGlobal(Basic) BufferString	GetWinInstallerDir();
     mGlobal(Basic) BufferString GetRelInfoDir();
     mGlobal(Basic) bool		canInstall(const char* dirnm);
     mGlobal(Basic) void		startInstManagement();
