@@ -22,5 +22,6 @@ mDefModInitFn(uiOSG)
     const int screendpi = uiMain::getMinDPI();
     visBase::DataObject::setDefaultPixelDensity( screendpi );
 
-    uiGLI().createAndShowMessage( true, "dTect.Last GL info" );
+    if ( uiMain::reqOpenGL() )
+	uiGLI().createAndShowMessage( true, "dTect.Last GL info" );
 }
