@@ -36,7 +36,6 @@ int mProgMainFnName( int argc, char** argv )
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiODMain" );
     PIM().loadAuto( true );
-    SetProgramArgs( argc, argv );
 
     CommandLineParser parser;
     BufferStringSet proctyp;
