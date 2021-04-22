@@ -173,19 +173,8 @@ const char* ODInst::sKeyHasNoUpdate()
 }
 
 
-BufferString ODInst::GetWinInstallerDir()
-{
-    FilePath installerfp( File::getUserAppDataPath(), "dGB Earth Sciences",
-	    		  "OpendTect Installer" );
-    return installerfp.fullPath();
-}
-
-
 BufferString ODInst::GetInstallerDir()
 {
-    if ( __iswin__ )
-	return GetWinInstallerDir();
-
     BufferString appldir( GetSoftwareDir(false) );
     if ( File::isLink(appldir) )
 	appldir = File::linkTarget( appldir );
