@@ -169,19 +169,13 @@ mImplWRFn(bool,getLogs,bool,needjustinfo,false)
 
 bool Well::Reader::getDispProps() const
 {
-    if ( !ra_ )
-	return false;
-
-    const bool res = ra_->getDispProps();
-    if ( res )
-	const_cast<Well::Data*>( data() )->setDispParsLoaded( true );
-    return res;
+    return ra_ ? ra_->getDispProps() : false;
 }
 
 
 bool Well::Reader::getTrack() const
 {
-    bool trackloaded = ra_ && ra_->getTrack();
+    const bool trackloaded = ra_ && ra_->getTrack();
     if ( trackloaded )
 	const_cast<Well::Track&>( data()->track() ).updateDahRange();
 
@@ -840,17 +834,14 @@ bool Well::odReader::getDispProps() const
 
 bool Well::odReader::getDispProps( od_istream& strm ) const
 {
-    double version = 0.0;
-    wd_.displayProperties(true) =
-				Well::DisplayProperties(Well::sKey2DDispProp());
-    wd_.displayProperties(false) = Well::DisplayProperties();
+    double version = 0.;
     if ( !rdHdr(strm,sKeyDispProps(),version) )
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );
     IOPar iop; iop.getFrom( astrm );
-    wd_.displayProperties(true).usePar( iop );
-    wd_.displayProperties(false).usePar( iop );
+    wd_.displayProperties( true ).usePar( iop );
+    wd_.displayProperties( false ).usePar( iop );
     return true;
 }
 

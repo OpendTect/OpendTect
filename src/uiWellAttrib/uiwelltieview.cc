@@ -340,14 +340,14 @@ void uiTieView::drawViewerWellMarkers()
 
     const Well::D2TModel* d2tm = wd->d2TModel();
     if ( !d2tm ) return;
+    const Well::DisplayProperties::Markers& mrkdisp =
+					    data_.dispparams_.mrkdisp_;
     for ( int midx=0; midx<wd->markers().size(); midx++ )
     {
 	const Well::Marker* marker = wd->markers()[midx];
 	if ( !marker  ) continue;
 
-	const Well::DisplayProperties::Markers& mrkdisp
-						= data_.dispparams_.mrkdisp_;
-	if ( mrkdisp.unselmarkernms().isPresent( marker->name() ) )
+	if ( !mrkdisp.isSelected(marker->name()) )
 	    continue;
 
 	float zpos = d2tm->getTime( marker->dah(), wd->track() );

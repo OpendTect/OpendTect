@@ -1,16 +1,23 @@
 dTect V6.6
-Well Display default settings
+Default settings
 Tue Dec 29 12:19:19 2020
 !
 welldisp
-Color: 0`0`255
-Size: 1
-Track.Track Name Size: 10
-Markers.Marker Name Size: 10
-Log.Left Log Style: 0
-Log.Left Log Width XY: 1000
-Log.Center Log Style: 2
-Log.Center Log Width XY: 1000
-Log.Right Log Style: 0
-Log.Right Log Width XY: 1000
+3D Display.Track.Color: 0`0`0`255
+3D Display.Track.Size: 1
+3D Display.Track.Track Name Above: Yes
+3D Display.Track.Track Name Below: No
+3D Display.Track.Track Name Size: 16
+3D Display.Track.Track Dynamic Name Size: No
+3D Display.Markers.Size: 5
+3D Display.Markers.Marker Shape: 0
+3D Display.Markers.Cylinder Height: 1
+3D Display.Markers.Marker Name Size: 0
+3D Display.Markers.Marker Dynamic Name Size: No
+3D Display.Log.Left Log Style: 0
+3D Display.Log.Left Log Width XY: 1000
+3D Display.Log.Center Log Style: 2
+3D Display.Log.Center Log Width XY: 1000
+3D Display.Log.Right Log Style: 0
+3D Display.Log.Right Log Width XY: 1000
 ! 

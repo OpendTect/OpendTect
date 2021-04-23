@@ -21,6 +21,10 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 
+class uiWellDispPropDlg;
+class uiWellPartServer;
+
+
 namespace Well
 {
 class Data;
@@ -37,11 +41,18 @@ public:
 
 			DisplayProperties(const char* subj = sKey3DDispProp());
 			DisplayProperties(const Well::DisplayProperties& dp)
-			{ *this = dp;}
+			{ *this = dp; setValid( dp.isValid() );
+				      setModified(false); }
 
     virtual		~DisplayProperties();
 
-    DisplayProperties&	operator = (const DisplayProperties& dp);
+    DisplayProperties&	operator =(const DisplayProperties&);
+    bool		operator ==(const DisplayProperties&) const;
+    bool		operator !=(const DisplayProperties&) const;
+
+    bool		is2D() const;
+    bool		isValid() const;
+    bool		isModified() const;
 
     mStruct(Well) BasicProps
     {
@@ -49,6 +60,8 @@ public:
 			    : size_(sz)
 			    , color_(Color(0,0,255))	{}
 	virtual		~BasicProps()			{}
+
+	bool		operator ==(const BasicProps&) const;
 
 	Color		color_;
 	int		size_;
@@ -88,6 +101,9 @@ public:
 
 	virtual const char* subjectName() const { return "Track"; }
 
+	bool		operator ==(const Track&) const;
+	bool		operator !=(const Track&) const;
+
 	bool		dispabove_;
 	bool		dispbelow_;
 	bool		nmsizedynamic_;
@@ -108,8 +124,15 @@ public:
 			~Markers();
 
 	Markers&	operator=(const Markers&);
+	bool		operator ==(const Markers&) const;
+	bool		operator !=(const Markers&) const;
 
 	virtual const char* subjectName() const { return "Markers"; }
+	bool		isEmpty() const;
+	bool		isSelected(const char* nm) const;
+
+	const BufferStringSet& markerNms(bool issel) const;
+	void		setMarkerNms(const BufferStringSet&,bool issel);
 
 	int		shapeint_;
 	int		cylinderheight_;
@@ -120,13 +143,18 @@ public:
 	BufferStringSet selmarkernms_;
 	bool		nmsizedynamic_;
 
-	BufferStringSet&	unselmarkernms() const;
-	void		updateMarkerSelection(const BufferStringSet&);
 
     protected:
 
 	virtual void	doUsePar(const IOPar&);
 	virtual void	doFillPar(IOPar&) const;
+
+	void		adjustSelection(const BufferStringSet& markernms);
+
+	const BufferStringSet& unselmarkernms() const;
+	BufferStringSet& unselmarkernms();
+
+	friend class DisplayProperties;
     };
 
     mStruct(Well) Log : public BasicProps
@@ -153,6 +181,9 @@ public:
 			    , style_( 0 )
 			    {}
 			~Log()			{}
+
+	bool		operator==(const Log&) const;
+	bool		operator!=(const Log&) const;
 
 	virtual const char* subjectName() const { return "Log"; }
 	void		    setTo(const Well::Data*, const Log&,
@@ -186,13 +217,24 @@ public:
 	virtual void	doFillLeftPar(IOPar&) const;
 
     public:
-	void	doLogUseCenterPar( const IOPar& );
-	void	doLogFillCenterPar( IOPar& ) const;
+	void		doLogUseCenterPar(const IOPar&);
+	void		doLogFillCenterPar(IOPar&) const;
     };
 
-    Track		track_;
-    Markers		markers_;
-    bool		displaystrat_; //2d only
+    void		setTrack(const Track&);
+    void		setMarkers(const Well::Data*,const Markers&);
+    void		setMarkersNms(const BufferStringSet&,bool issel);
+    void		setLeftLog(const Well::Data*,const Log&,
+				   int panelidx=0,bool forceifmissing=false);
+    void		setCenterLog(const Well::Data*,const Log&,
+				     int panelidx=0,bool forceifmissing=false);
+    void		setRightLog(const Well::Data*,const Log&,
+				    int panelidx=0,bool forceifmissing=false);
+    void		setDisplayStrat(bool yn);
+
+    Track		track_; //Will become private
+    Markers		markers_; //Will become private
+    bool		displaystrat_; //2d only, will become private
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
@@ -201,17 +243,21 @@ public:
     static DisplayProperties&	defaults();
     static void		commitDefaults();
 
-    mStruct(Well) LogCouple {
-		    LogCouple();
-		    LogCouple(const LogCouple&);
-		    ~LogCouple();
-	LogCouple& operator=(const LogCouple&);
+    mStruct(Well) LogCouple
+    {
+			LogCouple();
+			LogCouple(const LogCouple&);
+			~LogCouple();
+
+	LogCouple&	operator =(const LogCouple&);
+	bool		operator ==(const LogCouple&) const;
+	bool		operator !=(const LogCouple&) const;
 
 	Log left_, right_;
 	Log& center();
 	const Log& center() const;
     };
-    ObjectSet<LogCouple> logs_;
+    ObjectSet<LogCouple> logs_; //Will become private
 
     virtual const char* subjectName() const	{ return subjectname_.buf(); }
 
@@ -219,6 +265,12 @@ protected:
 
     BufferString	subjectname_;
 
+private:
+
+    void		setValid(bool yn);
+    void		setModified(bool yn);
+    friend class ::uiWellDispPropDlg;
+    friend class ::uiWellPartServer;
 };
 
 } // namespace

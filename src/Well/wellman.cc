@@ -281,8 +281,9 @@ bool Well::Man::reload( const MultiID& key, LoadReqs lreqs )
     if ( lreqs.isEmpty() )
 	lreqs = wd->loadState();
     lreqs.exclude( LoadReqs( Logs, LogInfos ) );
-    if ( !readReqData( key, wd, lreqs ) )
+    if ( !readReqData(key,wd,lreqs) )
 	return false;
+
     reloadLogs( key );
     wd->reloaded.trigger();
     return true;
@@ -296,7 +297,7 @@ bool Well::Man::reloadDispPars( const MultiID& key, bool for2d )
 
     const LoadReqs lreqs(for2d ? DispProps2D : DispProps3D);
     RefMan<Data> wd = wells_[wdidx];
-    if ( !readReqData( key, wd, lreqs ) )
+    if ( !readReqData(key,wd,lreqs) )
 	return false;
 
     for2d ? wd->disp2dparschanged.trigger() : wd->disp3dparschanged.trigger();
@@ -312,11 +313,12 @@ bool Well::Man::reloadLogs( const MultiID& key )
     BufferStringSet loadedlogs;
     RefMan<Data> wd = wells_[wdidx];
     wd->logs().getNames( loadedlogs, true );
-    if ( !readReqData( key, wd, LoadReqs(LogInfos) ) )
+    if ( !readReqData(key,wd,LoadReqs(LogInfos)) )
 	return false;
+
     bool res = true;
     for ( auto* loadedlog : loadedlogs )
-	if ( !wd->getLog( *loadedlog ) )
+	if ( !wd->getLog(*loadedlog) )
 	    res = false;
 
     wd->logschanged.trigger( -1 );

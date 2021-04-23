@@ -94,159 +94,131 @@ static const char* sKeyCenterColTabFlipped = "Center Log Color Table Flipped";
 static const char* sKeyCenterLogStyle = "Center Log Style";
 static const char* sKeyCenterLogWidthXY = "Center Log Width XY";
 
-HiddenParam<Well::DisplayProperties::Markers, BufferStringSet*>
-						hp_unselmarkernms_( nullptr );
-HiddenParam<Well::DisplayProperties::LogCouple, Well::DisplayProperties::Log*>
-		welldisppropcenterlogmgr_( nullptr );
 
-Well::DisplayProperties::Markers::Markers()
-    : BasicProps(2)
-    , shapeint_(0)
-    , cylinderheight_(1)
-    , issinglecol_(false)
-    , font_(10)
-    , samenmcol_(true)
-    , nmsizedynamic_(false)
-{
-    hp_unselmarkernms_.setParam( this, new BufferStringSet );
-}
-
-Well::DisplayProperties::Markers::Markers(
-				const Well::DisplayProperties::Markers& oth )
-    : BasicProps(oth)
-{
-    hp_unselmarkernms_.setParam( this, new BufferStringSet );
-    *this = oth;
-}
-
-
-Well::DisplayProperties::Markers& Well::DisplayProperties::Markers::operator=(
-				const Well::DisplayProperties::Markers& oth )
-{
-    BasicProps::operator=( oth );
-    shapeint_ = oth.shapeint_;
-    cylinderheight_ = oth.cylinderheight_;
-    issinglecol_ = oth.issinglecol_;
-    font_ = oth.font_;
-    samenmcol_ = oth.samenmcol_;
-    nmsizedynamic_ = oth.nmsizedynamic_;
-    *hp_unselmarkernms_.getParam( this ) = oth.unselmarkernms();
-    return *this;
-}
-
-
-Well::DisplayProperties::Markers::~Markers()
-{
-    hp_unselmarkernms_.removeAndDeleteParam( this );
-}
-
-
-BufferStringSet& Well::DisplayProperties::Markers::unselmarkernms() const
-{
-    return *hp_unselmarkernms_.getParam( this );
-}
-
-
-void Well::DisplayProperties::Markers::updateMarkerSelection(
-					    const BufferStringSet& allmarkers )
-{
-    BufferStringSet& unselnms = unselmarkernms();
-    unselnms.setEmpty();
-    for ( const auto* nm : allmarkers )
-    {
-	if ( !selmarkernms_.isPresent( nm->str() ) )
-	    unselnms.add( nm->str() );
-    }
-    selmarkernms_.setEmpty();
-}
-
-
-Well::DisplayProperties::LogCouple::LogCouple()
-{
-    welldisppropcenterlogmgr_.setParam( this, new DisplayProperties::Log() );
-}
-
-Well::DisplayProperties::LogCouple::LogCouple(
-			    const Well::DisplayProperties::LogCouple& other )
-    : left_(other.left_)
-    , right_(other.right_)
-{
-    welldisppropcenterlogmgr_.setParam( this,
-				new DisplayProperties::Log( other.center() ) );
-}
-
-
-Well::DisplayProperties::LogCouple::~LogCouple()
-{
-    welldisppropcenterlogmgr_.removeAndDeleteParam( this );
-}
-
-
-Well::DisplayProperties::LogCouple&
-    Well::DisplayProperties::LogCouple::operator=(
-			    const Well::DisplayProperties::LogCouple& other )
-{
-    left_ = other.left_;
-    right_ = other.right_;
-    welldisppropcenterlogmgr_.setParam( this,
-				new DisplayProperties::Log( other.center() ) );
-
-    return *this;
-}
-
-
-Well::DisplayProperties::Log& Well::DisplayProperties::LogCouple::center()
-{
-    return *welldisppropcenterlogmgr_.getParam( this );
-}
-
-const Well::DisplayProperties::Log&
-		Well::DisplayProperties::LogCouple::center() const
-{
-    return *welldisppropcenterlogmgr_.getParam( this );
-}
-
+static HiddenParam<Well::DisplayProperties,char> welldisppropvalidmgr(0);
+static HiddenParam<Well::DisplayProperties,char> welldisppropmodifiedmgr(0);
 
 
 Well::DisplayProperties::DisplayProperties( const char* subjname )
     : subjectname_(subjname)
     , displaystrat_(false)
 {
+    welldisppropvalidmgr.setParam( this, false );
+    welldisppropmodifiedmgr.setParam( this, false );
     logs_ += new LogCouple();
 
     logs_[0]->left_.isrightfill_ = true;
-    logs_[0]->right_.isleftfill_ = true;
     logs_[0]->center().isleftfill_ = true;
-
+    logs_[0]->right_.isleftfill_ = true;
     logs_[0]->center().style_ = 2;
 
     const Settings& setts = Settings::fetch( "welldisp" );
-    usePar( setts );
-    markers_.selmarkernms_.erase();
+    PtrMan<IOPar> par = setts.subselect( subjname );
+    usePar( par ? *par.ptr() : (const IOPar&)(setts) );
+    setValid( false );
+    setModified( false );
 }
 
 
 Well::DisplayProperties::~DisplayProperties()
 {
     deepErase( logs_ );
+    welldisppropvalidmgr.removeParam( this );
+    welldisppropmodifiedmgr.removeParam( this );
 }
 
 
-Well::DisplayProperties& Well::DisplayProperties::operator = (
-					const Well::DisplayProperties& dp )
+bool Well::DisplayProperties::isValid() const
 {
-    track_ = dp.track_;
-    markers_ = dp.markers_;
-    displaystrat_ = dp.displaystrat_;
-    if ( logs_.size() != dp.logs_.size() )
-	deepCopy( logs_, dp.logs_ );
+    return welldisppropvalidmgr.getParam( this );
+}
+
+
+bool Well::DisplayProperties::isModified() const
+{
+    return welldisppropmodifiedmgr.getParam( this );
+}
+
+
+void Well::DisplayProperties::setValid( bool yn )
+{
+    welldisppropvalidmgr.setParam( this, yn );
+}
+
+
+void Well::DisplayProperties::setModified( bool yn )
+{
+    welldisppropmodifiedmgr.setParam( this, yn );
+}
+
+
+Well::DisplayProperties& Well::DisplayProperties::operator =(
+						  const DisplayProperties& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    if ( !welldisppropvalidmgr.hasParam(this) )
+	welldisppropvalidmgr.setParam( this, false );
+    if ( !welldisppropmodifiedmgr.hasParam(this) )
+	welldisppropmodifiedmgr.setParam( this, false );
+
+    const bool modified = oth != *this;
+    subjectname_ = oth.subjectname_;
+    track_ = oth.track_;
+    markers_ = oth.markers_;
+    displaystrat_ = oth.displaystrat_;
+    if ( logs_.size() != oth.logs_.size() )
+	deepCopy( logs_, oth.logs_ );
     else
 	for ( int idx=0; idx<logs_.size(); idx++ )
-	    *logs_[idx] = *dp.logs_[idx];
+	    *logs_[idx] = *oth.logs_[idx];
 
-    markers_.selmarkernms_ = dp.markers_.selmarkernms_;
+    setModified( modified );
+
     return *this;
+}
 
+
+bool Well::DisplayProperties::operator ==( const DisplayProperties& oth ) const
+{
+    if ( &oth == this )
+	return true;
+
+    if ( FixedString(subjectName()) != oth.subjectName() ||
+	 track_ != oth.track_ ||
+	 markers_ != oth.markers_ ||
+	 displaystrat_ != oth.displaystrat_ ||
+	 logs_.size() != oth.logs_.size() )
+	return false;
+
+    for ( int idx=0; idx<logs_.size(); idx++ )
+    {
+	if ( *logs_.get(idx) != *oth.logs_.get(idx) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool Well::DisplayProperties::operator !=( const DisplayProperties& oth ) const
+{
+    return !(oth == *this);
+}
+
+
+bool Well::DisplayProperties::is2D() const
+{
+    return FixedString(subjectName()) == sKey2DDispProp();
+}
+
+
+bool Well::DisplayProperties::BasicProps::operator ==(
+						const BasicProps& oth ) const
+{
+    return size_ == oth.size_ && color_ == oth.color_ &&
+	   FixedString(subjectName()) == oth.subjectName();
 }
 
 
@@ -291,6 +263,7 @@ void Well::DisplayProperties::BasicProps::fillPar( IOPar& iop ) const
     doFillPar( iop );
 }
 
+
 void Well::DisplayProperties::BasicProps::fillLeftPar( IOPar& iop ) const
 {
     doFillLeftPar( iop );
@@ -308,6 +281,21 @@ void Well::DisplayProperties::BasicProps::fillCenterPar( IOPar& iop ) const
     mDynamicCastGet( const Log*, logprops, this );
     if ( logprops )
 	logprops->doLogFillCenterPar( iop );
+}
+
+
+bool Well::DisplayProperties::Track::operator ==( const Track& oth ) const
+{
+    return BasicProps::operator==(oth) &&
+	   dispabove_ == oth.dispabove_ && dispbelow_ == oth.dispbelow_ &&
+	   nmsizedynamic_ == oth.nmsizedynamic_ &&
+	   font_ == oth.font_;
+}
+
+
+bool Well::DisplayProperties::Track::operator !=( const Track& oth ) const
+{
+    return !(*this == oth );
 }
 
 
@@ -341,11 +329,145 @@ void Well::DisplayProperties::Track::doFillPar( IOPar& par ) const
     IOPar trackpar;
     trackpar.setYN( sKeyTrackNmIsAbove, dispabove_ );
     trackpar.setYN( sKeyTrackNmIsBelow, dispbelow_ );
-    trackpar.setYN( sKeyTrackDynamicNmSize, nmsizedynamic_ );
     BufferString fontdata;
     font_.putTo( fontdata );
     trackpar.set( sKeyTrackNmFont, fontdata );
+    trackpar.setYN( sKeyTrackDynamicNmSize, nmsizedynamic_ );
     par.mergeComp( trackpar, subjectName() );
+}
+
+
+HiddenParam<Well::DisplayProperties::Markers, BufferStringSet*>
+						hp_unselmarkernms_( nullptr );
+
+Well::DisplayProperties::Markers::Markers()
+    : BasicProps(5)
+    , shapeint_(0)
+    , cylinderheight_(1)
+    , issinglecol_(false)
+    , font_(0)
+    , samenmcol_(true)
+    , nmsizedynamic_(false)
+{
+    hp_unselmarkernms_.setParam( this, new BufferStringSet );
+}
+
+
+Well::DisplayProperties::Markers::Markers(
+				const Well::DisplayProperties::Markers& oth )
+    : BasicProps(oth)
+{
+    hp_unselmarkernms_.setParam( this, new BufferStringSet );
+    *this = oth;
+}
+
+
+Well::DisplayProperties::Markers::~Markers()
+{
+    hp_unselmarkernms_.removeAndDeleteParam( this );
+}
+
+
+const BufferStringSet& Well::DisplayProperties::Markers::unselmarkernms() const
+{
+    return const_cast<Markers&>(*this).unselmarkernms();
+}
+
+
+BufferStringSet& Well::DisplayProperties::Markers::unselmarkernms()
+{
+    return *hp_unselmarkernms_.getParam( this );
+}
+
+
+Well::DisplayProperties::Markers&
+    Well::DisplayProperties::Markers::operator=( const Markers& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    BasicProps::operator=( oth );
+    shapeint_ = oth.shapeint_;
+    cylinderheight_ = oth.cylinderheight_;
+    issinglecol_ = oth.issinglecol_;
+    font_ = oth.font_;
+    samenmcol_ = oth.samenmcol_;
+    nmsizedynamic_ = oth.nmsizedynamic_;
+    selmarkernms_ = oth.selmarkernms_;
+    *hp_unselmarkernms_.getParam( this ) = oth.unselmarkernms();
+
+    return *this;
+}
+
+
+bool Well::DisplayProperties::Markers::operator ==( const Markers& oth ) const
+{
+    return BasicProps::operator==(oth) &&
+	   shapeint_ == oth.shapeint_ &&
+	   cylinderheight_ == oth.cylinderheight_ &&
+	   issinglecol_ == oth.issinglecol_ &&
+	   font_ == oth.font_ &&
+	   nmcol_ == oth.nmcol_ && samenmcol_ == oth.samenmcol_ &&
+	   nmsizedynamic_ == oth.nmsizedynamic_ &&
+	   selmarkernms_ == oth.selmarkernms_ &&
+	   unselmarkernms() == oth.unselmarkernms();
+}
+
+
+bool Well::DisplayProperties::Markers::operator !=( const Markers& oth ) const
+{
+    return !(*this == oth );
+}
+
+
+bool Well::DisplayProperties::Markers::isEmpty() const
+{
+    return selmarkernms_.isEmpty() && unselmarkernms().isEmpty();
+}
+
+
+const BufferStringSet& Well::DisplayProperties::Markers::markerNms(
+							bool issel ) const
+{
+    return issel ? selmarkernms_ : unselmarkernms();
+}
+
+
+void Well::DisplayProperties::Markers::setMarkerNms( const BufferStringSet& nms,
+						     bool issel )
+{
+    BufferStringSet& markernms = issel ? selmarkernms_ : unselmarkernms();
+    markernms = nms;
+}
+
+
+bool Well::DisplayProperties::Markers::isSelected( const char* nm ) const
+{
+    if ( !selmarkernms_.isEmpty() && selmarkernms_.isPresent(nm) )
+	return true;
+
+    if ( !unselmarkernms().isEmpty() && unselmarkernms().isPresent(nm) )
+	return false;
+
+    return false;
+}
+
+
+void Well::DisplayProperties::Markers::adjustSelection(
+					const BufferStringSet& markernms )
+{
+    for ( int idx=selmarkernms_.size()-1; idx>=0; idx-- )
+    {
+	if ( !markernms.isPresent(selmarkernms_.get(idx)) )
+	    selmarkernms_.removeSingle(idx);
+    }
+
+    BufferStringSet& unselmarkernms_ = unselmarkernms();
+    for ( int idx=unselmarkernms_.size()-1; idx>=0; idx-- )
+    {
+	if ( !markernms.isPresent(unselmarkernms_.get(idx)) )
+	    unselmarkernms_.removeSingle(idx);
+    }
 }
 
 
@@ -360,10 +482,11 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
     mrkspar->get( sKeyMarkerCylinderHeight, cylinderheight_ );
     mrkspar->getYN( sKeyMarkerNmSameColor, samenmcol_);
     mrkspar->get( sKeyMarkerNmColor, nmcol_ );
-    selmarkernms_.setEmpty();
-    unselmarkernms().setEmpty();
-    if (!mrkspar->get(sKeyMarkerUnselected, unselmarkernms()))
-	mrkspar->get( sKeyMarkerSelected, selmarkernms_ );
+    BufferStringSet selmarkernms, unselmarkernames;
+    if ( mrkspar->get(sKeyMarkerSelected,selmarkernms) )
+	selmarkernms_ = selmarkernms;
+    if ( mrkspar->get(sKeyMarkerUnselected,unselmarkernames) )
+	unselmarkernms().add( unselmarkernames, false );
     mrkspar->getYN( sKeyMarkerDynamicNmSize, nmsizedynamic_ );
 
     const FixedString fontdata =
@@ -373,29 +496,57 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& par )
     else
     {
 	int sz = 0;
-	mrkspar->get( sKeyMarkerNmSize, sz );
-	font_.setPointSize( sz );
+	if ( mrkspar->get(sKeyMarkerNmSize,sz) )
+	    font_.setPointSize( sz );
     }
-
-    if ( font_.pointSize()==0 )
-	font_.setPointSize( FontData::defaultPointSize() );
 }
 
 
 void Well::DisplayProperties::Markers::doFillPar( IOPar& par ) const
 {
+    if ( !issinglecol_ )
+	par.removeWithKey( IOPar::compKey(subjectName(),sKey::Color()) );
+
     IOPar mrkspar;
-    mrkspar.setYN( sKeyMarkerSingleColor,issinglecol_);
+    mrkspar.setYN( sKeyMarkerSingleColor,issinglecol_ );
     mrkspar.set( sKeyMarkerShape, shapeint_ );
     mrkspar.set( sKeyMarkerCylinderHeight, cylinderheight_ );
-    mrkspar.setYN( sKeyMarkerDynamicNmSize, nmsizedynamic_ );
     BufferString fontdata;
     font_.putTo( fontdata );
     mrkspar.set( sKeyMarkerNmFont, fontdata );
-    mrkspar.setYN( sKeyMarkerNmSameColor, samenmcol_);
-    mrkspar.set( sKeyMarkerNmColor, nmcol_ );
+    mrkspar.setYN( sKeyMarkerDynamicNmSize, nmsizedynamic_ );
+    mrkspar.setYN( sKeyMarkerNmSameColor, samenmcol_ );
+    if ( !samenmcol_ )
+	mrkspar.set( sKeyMarkerNmColor, nmcol_ );
+
+    mrkspar.set( sKeyMarkerSelected, selmarkernms_ );
     mrkspar.set( sKeyMarkerUnselected, unselmarkernms() );
     par.mergeComp( mrkspar, subjectName() );
+}
+
+
+bool Well::DisplayProperties::Log::operator ==( const Log& oth ) const
+{
+    return BasicProps::operator==(oth) &&
+	   name_ == oth.name_ &&
+	   fillname_ == oth.fillname_ && seqname_ == oth.seqname_ &&
+	   isleftfill_ == oth.isleftfill_ && isrightfill_ == oth.isrightfill_ &&
+	   islogarithmic_ == oth.islogarithmic_ &&
+	   islogreverted_ == oth.islogreverted_ &&
+	   issinglecol_ == oth.issinglecol_ &&
+	   isdatarange_ == oth.isdatarange_ &&
+	   iscoltabflipped_ == oth.iscoltabflipped_ &&
+	   repeat_ == oth.repeat_ &&
+	   linecolor_ == oth.linecolor_ && seiscolor_ == oth.seiscolor_ &&
+	   logwidth_ == oth.logwidth_ && style_ == oth.style_ &&
+	   repeatovlap_ == oth.repeatovlap_ &&
+	   range_ == oth.range_ && fillrange_ == oth.fillrange_;
+}
+
+
+bool Well::DisplayProperties::Log::operator !=( const Log& oth ) const
+{
+    return !(*this == oth);
 }
 
 
@@ -506,6 +657,9 @@ void Well::DisplayProperties::Log::doLogUseCenterPar( const IOPar& par )
 
 void Well::DisplayProperties::Log::doFillLeftPar( IOPar& par ) const
 {
+    if ( name_ == sKey::None() )
+	return;
+
     float logwidth = float(logwidth_);
     if ( SI().xyInFeet() )
 	logwidth *= mFromFeetFactorF;
@@ -537,6 +691,9 @@ void Well::DisplayProperties::Log::doFillLeftPar( IOPar& par ) const
 
 void Well::DisplayProperties::Log::doFillRightPar( IOPar& par ) const
 {
+    if ( name_ == sKey::None() )
+	return;
+
     float logwidth = float(logwidth_);
     if ( SI().xyInFeet() )
 	logwidth *= mFromFeetFactorF;
@@ -568,6 +725,9 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& par ) const
 
 void Well::DisplayProperties::Log::doLogFillCenterPar( IOPar& par ) const
 {
+    if ( name_ == sKey::None() )
+	return;
+
     float logwidth = float(logwidth_);
     if ( SI().xyInFeet() )
 	logwidth *= mFromFeetFactorF;
@@ -605,10 +765,82 @@ void Well::DisplayProperties::Log::setTo( const Well::Data* wd, const Log& oth,
 }
 
 
+
+HiddenParam<Well::DisplayProperties::LogCouple, Well::DisplayProperties::Log*>
+		welldisppropcenterlogmgr_( nullptr );
+
+Well::DisplayProperties::LogCouple::LogCouple()
+{
+    welldisppropcenterlogmgr_.setParam( this, new DisplayProperties::Log() );
+}
+
+
+Well::DisplayProperties::LogCouple::LogCouple(
+			    const Well::DisplayProperties::LogCouple& oth )
+{
+    welldisppropcenterlogmgr_.setParam( this, new DisplayProperties::Log() );
+    *this = oth;
+}
+
+
+Well::DisplayProperties::LogCouple::~LogCouple()
+{
+    welldisppropcenterlogmgr_.removeAndDeleteParam( this );
+}
+
+
+Well::DisplayProperties::LogCouple&
+    Well::DisplayProperties::LogCouple::operator=( const LogCouple& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    left_ = oth.left_;
+    right_ = oth.right_;
+    *welldisppropcenterlogmgr_.getParam( this ) = oth.center();
+
+    return *this;
+}
+
+
+bool Well::DisplayProperties::LogCouple::operator==( const LogCouple& oth) const
+{
+    return left_ == oth.left_ && right_ == oth.right_ &&
+	   center() == oth.center();
+}
+
+
+bool Well::DisplayProperties::LogCouple::operator!=( const LogCouple& oth) const
+{
+    return !(*this == oth);
+}
+
+
+Well::DisplayProperties::Log& Well::DisplayProperties::LogCouple::center()
+{
+    return *welldisppropcenterlogmgr_.getParam( this );
+}
+
+
+const Well::DisplayProperties::Log&
+		Well::DisplayProperties::LogCouple::center() const
+{
+    return *welldisppropcenterlogmgr_.getParam( this );
+}
+
+
+
 void Well::DisplayProperties::usePar( const IOPar& iop )
 {
+    if ( iop.isEmpty() )
+	return;
+
+    const bool wasvalid = isValid();
+    const Well::DisplayProperties snapshot( *this );
+
     IOPar* par = iop.subselect( subjectName() );
     if ( !par ) par = new IOPar( iop );
+
     track_.usePar( *par );
     markers_.usePar( *par );
     logs_[0]->left_.useLeftPar( *par );
@@ -628,13 +860,33 @@ void Well::DisplayProperties::usePar( const IOPar& iop )
 	delete welliop;
 	welliop = par->subselect( toString(widx) );
     }
-    par->getYN(IOPar::compKey(subjectName(),sKey2DDisplayStrat),displaystrat_);
+
+    if ( is2D() )
+    {
+	if ( !par->getYN(sKey2DDisplayStrat,displaystrat_) )
+	    par->getYN(IOPar::compKey(subjectName(),sKey2DDisplayStrat),
+		       displaystrat_); //Read legacy data
+    }
+
     delete par;
+
+    const bool samedata = *this == snapshot;
+    if ( !wasvalid && !samedata )
+	setValid( true );
+    setModified( wasvalid && !samedata );
 }
 
 
 void Well::DisplayProperties::fillPar( IOPar& iop ) const
 {
+    if ( !isValid() && !isModified() )
+	return;
+
+    BufferString compkey( IOPar::compKey(subjectName(),track_.subjectName()) );
+    iop.removeWithKey( IOPar::compKey(compkey,sKeyTrackNmSize) );
+    compkey.set( IOPar::compKey(subjectName(),markers_.subjectName()) );
+    iop.removeWithKey( IOPar::compKey(compkey,sKeyMarkerNmSize) );
+
     IOPar par;
     track_.fillPar( par );
     markers_.fillPar( par );
@@ -647,35 +899,156 @@ void Well::DisplayProperties::fillPar( IOPar& iop ) const
 	par.mergeComp( tmpiop, idx ? toString( idx ) : "" );
 	//keeps compatibility with former versions
     }
-    par.setYN(IOPar::compKey(subjectName(),sKey2DDisplayStrat),displaystrat_);
+    if ( is2D() )
+	par.setYN( sKey2DDisplayStrat,displaystrat_ );
+
     iop.mergeComp( par, subjectName() );
+}
+
+
+void Well::DisplayProperties::setTrack( const Track& track )
+{
+    const bool modified = track != track_;
+    if ( modified )
+    {
+	track_ = track;
+	setModified( true );
+    }
+}
+
+
+void Well::DisplayProperties::setMarkers( const Well::Data* wd,
+					  const Markers& markers )
+{
+    Markers newmarkers( markers );
+    if ( wd )
+    {
+	BufferStringSet markernms;
+	Well::Man::getMarkersByID( wd->multiID(), markernms );
+	newmarkers.adjustSelection( markernms );
+    }
+
+    const bool modified = newmarkers != markers_;
+    if ( modified )
+    {
+	markers_ = newmarkers;
+	setModified( true );
+    }
+}
+
+void Well::DisplayProperties::setMarkersNms( const BufferStringSet& nms,
+					     bool issel )
+{
+    const BufferStringSet markernms = markers_.markerNms( issel );
+    if ( nms != markernms )
+    {
+	markers_.setMarkerNms( nms, issel );
+	setModified( true );
+    }
+}
+
+
+void Well::DisplayProperties::setLeftLog( const Well::Data* wd, const Log& log,
+					  int panelidx, bool forceifmissing )
+{
+    if ( !logs_.validIdx(panelidx) )
+	return;
+
+    const bool modified = logs_[panelidx]->left_ != log;
+    if ( modified )
+    {
+	logs_[panelidx]->left_.setTo( wd, log, forceifmissing );
+	setModified( true );
+    }
+}
+
+
+void Well::DisplayProperties::setCenterLog(const Well::Data* wd, const Log& log,
+					   int panelidx, bool forceifmissing )
+{
+    if ( !logs_.validIdx(panelidx) )
+	return;
+
+    const bool modified = logs_[panelidx]->center() != log;
+    if ( modified )
+    {
+	logs_[panelidx]->center().setTo( wd, log, forceifmissing );
+	setModified( true );
+    }
+}
+
+
+void Well::DisplayProperties::setRightLog( const Well::Data* wd, const Log& log,
+					   int panelidx, bool forceifmissing )
+{
+    if ( !logs_.validIdx(panelidx) )
+	return;
+
+    const bool modified = logs_[panelidx]->right_ != log;
+    if ( modified )
+    {
+	logs_[panelidx]->right_.setTo( wd, log, forceifmissing );
+	setModified( true );
+    }
+}
+
+
+void Well::DisplayProperties::setDisplayStrat( bool yn )
+{
+    const bool modified = displaystrat_ != yn;
+    if ( modified )
+    {
+	displaystrat_ = yn;
+	setModified( true );
+    }
 }
 
 
 void Well::DisplayProperties::ensureColorContrastWith( Color bkcol )
 {
-    TypeSet<Color> usecols = bkcol.complimentaryColors( 2 );
-    if ( bkcol.contrast(logs_[0]->left_.color_)<4.5 )
-	logs_[0]->left_.color_ = usecols[0];
-    if ( bkcol.contrast(logs_[0]->center().color_)<4.5 )
-	logs_[0]->center().color_ = usecols[0];
-    if ( bkcol.contrast(logs_[0]->right_.color_)<4.5 )
-	logs_[0]->right_.color_ = usecols[0];
-    if ( bkcol.contrast(markers_.color_)<4.5 )
-	markers_.color_ = usecols[1];
+    const TypeSet<Color> usecols = bkcol.complimentaryColors( 2 );
+    if ( usecols.size() < 2 )
+	return;
+
+    bool modified = false;
     if ( bkcol.contrast(track_.color_)<4.5 )
+    {
+	modified = modified || track_.color_ != usecols[1];
 	track_.color_ = usecols[1];
+    }
+    if ( markers_.issinglecol_ && bkcol.contrast(markers_.color_)<4.5 )
+    {
+	modified = modified || markers_.color_ != usecols[1];
+	markers_.color_ = usecols[1];
+    }
+
+    for ( auto* logpanel : logs_ )
+    {
+	ObjectSet<Log> logs( &logpanel->left_, &logpanel->center(),
+			     &logpanel->right_ );
+	for ( auto* log : logs )
+	{
+	    if ( log->name_ != "None" && bkcol.contrast(log->color_)<4.5 )
+	    {
+		modified = modified || log->color_ != usecols[0];
+		log->color_ = usecols[0];
+	    }
+	}
+    }
+
+    if ( modified )
+	setModified( true );
 }
 
 
 Well::DisplayProperties& Well::DisplayProperties::defaults()
 {
-    mDefineStaticLocalObject( PtrMan<Well::DisplayProperties>, ret, = 0 );
+    mDefineStaticLocalObject( PtrMan<Well::DisplayProperties>, ret, = nullptr );
 
     if ( !ret )
     {
 	const Settings& setts = Settings::fetch( "welldisp" );
-	Well::DisplayProperties* newret = new DisplayProperties;
+	auto* newret = new DisplayProperties;
 	newret->usePar( setts );
 
 	ret.setIfNull(newret,true);
@@ -692,7 +1065,10 @@ void Well::DisplayProperties::commitDefaults()
     defs.fillPar( setts );
     const BufferString key1( defs.subjectName() );
     const BufferString key2( IOPar::compKey( defs.markers_.subjectName(),
-				       sKeyMarkerSelected ) );
-    setts.removeWithKey( IOPar::compKey( key1, key2 ) );
-    setts.write();
+					     sKeyMarkerSelected ) );
+    const BufferString key3( IOPar::compKey( defs.markers_.subjectName(),
+					     sKeyMarkerUnselected ) );
+    setts.removeWithKey( IOPar::compKey(key1,key2) );
+    setts.removeWithKey( IOPar::compKey(key1,key3) );
+    setts.write( false );
 }
