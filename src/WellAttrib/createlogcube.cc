@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllogset.h"
+#include "welllog.h"
 #include "welldata.h"
 #include "wellman.h"
 
@@ -93,7 +94,7 @@ bool LogCubeCreator::LogCube::doWrite( const SeisTrcBuf& trcs ) const
 
 
 LogCubeCreator::WellData::WellData( const MultiID& wid )
-    : wd_(Well::MGR().get(wid))
+    : wd_(Well::MGR().get(wid, Well::LoadReqs(Well::Trck, Well::D2T)))
 {
     if ( !wd_ )
 	mErrRet( tr( "Cannot open well" ), true, return )
@@ -120,6 +121,8 @@ LogCubeCreator::WellData::~WellData()
 }
 
 
+#include "hiddenparam.h"
+HiddenParam<LogCubeCreator, const Well::LogSet*> hp_logset_( nullptr );
 
 LogCubeCreator::LogCubeCreator( const BufferStringSet& lognms,
 				const MultiID& wllid,
@@ -127,6 +130,7 @@ LogCubeCreator::LogCubeCreator( const BufferStringSet& lognms,
     : extractparams_(pars)
     , stepout_(nrtrcs)
 {
+    hp_logset_.setParam( this, nullptr );
     TypeSet<MultiID> wllids;
     wllids += wllid;
     init( lognms, wllids );
@@ -139,12 +143,27 @@ LogCubeCreator::LogCubeCreator( const BufferStringSet& lognms,
     : extractparams_(pars)
     , stepout_(nrtrcs)
 {
+    hp_logset_.setParam( this, nullptr );
+    init( lognms, wllids );
+}
+
+
+LogCubeCreator::LogCubeCreator(const BufferStringSet& lognms,
+			       const Well::LogSet& logset, const MultiID& wllid,
+			       const Well::ExtractParams& pars, int nrtrcs )
+    : extractparams_(pars)
+    , stepout_(nrtrcs)
+{
+    hp_logset_.setParam( this, &logset );
+    TypeSet<MultiID> wllids;
+    wllids += wllid;
     init( lognms, wllids );
 }
 
 
 LogCubeCreator::~LogCubeCreator()
 {
+    hp_logset_.removeParam( this );
     deepErase( welldata_ );
     deepErase( logcubes_ );
 }
@@ -160,7 +179,11 @@ bool LogCubeCreator::init( const BufferStringSet& lognms,
 
 	const BufferString& lognm = lognms.get( ilog );
 	if ( lognm.isEmpty() )
-	    continue;
+	{
+	    const uiString msg = tr("Log %1 is unnamed and will be skipped")
+								.arg(ilog+1);
+	    mErrRet(msg, errmsg_.isEmpty(), continue);
+	}
 
 	logcubes_ += new LogCube( lognm );
     }
@@ -370,10 +393,17 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 
     BufferStringSet lognms;
     getLogNames( lognms );
-    Well::LogSampler logsamp( *wd, extractparams_, lognms );
-    if ( !logsamp.execute() )
+    PtrMan<Well::LogSampler> logsamp;
+    if ( hp_logset_.getParam( this ) )
+	logsamp = new Well::LogSampler( *wd, extractparams_,
+					*hp_logset_.getParam( this ),
+					lognms );
+    else
+	logsamp = new Well::LogSampler( *wd, extractparams_, lognms );
+
+    if ( !logsamp->execute() )
     {
-	msg = tr( "%1 for well %2" ).arg( logsamp.errMsg() ).arg( wllnm );
+	msg = tr( "%1 for well %2" ).arg( logsamp->errMsg() ).arg( wllnm );
 	mErrRet( msg, errmsg_.isEmpty(), return false )
     }
 
@@ -398,12 +428,14 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 
 	logtrcs[ilog]->info().sampling = sampling;
 	welldata_[iwll]->trcs_ += new SeisTrcBuf( true );
-	logispresent += wd->logs().getLog( lognms.get(ilog) );
+	logispresent += hp_logset_.getParam(this) ?
+			    hp_logset_.getParam(this)->getLog(lognms.get(ilog))
+			    : wd->logs().getLog( lognms.get(ilog) );
     }
 
-    StepInterval<float> logzrg( logsamp.zRange().start, logsamp.zRange().stop,
+    StepInterval<float> logzrg( logsamp->zRange().start, logsamp->zRange().stop,
 				extractparams_.zstep_ );
-    const int ns = logsamp.nrZSamples();
+    const int ns = logsamp->nrZSamples();
     const int nrlogs = logcubes_.size();
     TypeSet<float> logvals;
     logvals.setSize( nrlogs );
@@ -418,7 +450,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 		continue;
 
 	    for ( int ilog=0; ilog<lognms.size(); ilog++ )
-		logvals[ilog] = logsamp.getLogVal( ilog, idz );
+		logvals[ilog] = logsamp->getLogVal( ilog, idz );
 	}
 
 	for ( int ilog=0; ilog<lognms.size(); ilog++ )

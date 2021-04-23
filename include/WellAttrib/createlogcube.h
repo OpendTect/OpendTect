@@ -30,6 +30,11 @@ public:
 				       const TypeSet<MultiID>& wllids,
 				       const Well::ExtractParams& pars,
 				       int nrtrcs=1);
+			LogCubeCreator(const BufferStringSet& lognms,
+				       const Well::LogSet& logset,
+				       const MultiID& wllid,
+				       const Well::ExtractParams& pars,
+				       int nrtrcs=1);
 			~LogCubeCreator();
 
 			//Returns false if an output already exists
