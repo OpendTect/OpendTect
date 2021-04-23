@@ -171,7 +171,6 @@ bool uiSaveDataDlg::saveLogs()
     endmsg = tr( "Check your permissions" );
     if ( !datawtr.writeLogs(logset,savetolog) )
     {
-	datawtr.removeLogs( logset );
 	msg = tr( "Cannot write log(s)", 0, logset.size() );
 	mAppMsg( endmsg, mErrRet( msg ) )
     }
@@ -181,27 +180,20 @@ bool uiSaveDataDlg::saveLogs()
 	const int nrtraces = outputgrp_->getNrRepeatTrcs();
 	Well::ExtractParams wep;
 	wep.setFixedRange( data.getModelRange(), true );
-	LogCubeCreator lcr( lognms, dataserver_.wellID(), wep, nrtraces );
+	LogCubeCreator lcr(lognms, logset, dataserver_.wellID(), wep, nrtraces);
 	if ( !lcr.setOutputNm(outputgrp_->getPostFix(),
 			      outputgrp_->withWellName()) )
 	{
 	    if ( !outputgrp_->askOverwrite(lcr.errMsg()) )
-	    {
-		datawtr.removeLogs( logset );
 		return false;
-	    }
 	    else
 		lcr.resetMsg();
 	}
 
 	uiTaskRunner* taskrunner = new uiTaskRunner( this );
 	if ( !TaskRunner::execute(taskrunner,lcr) || !lcr.isOK() )
-	{
-	    datawtr.removeLogs( logset );
 	    mErrRet( lcr.errMsg() )
-	}
 
-	datawtr.removeLogs( logset );
     }
 
     return true;

@@ -37,6 +37,7 @@ class Data;
 class Track;
 class Marker;
 class MarkerSet;
+class LogSet;
 
 /*!
 \brief Parameters (zrg, sampling method) to extract well data.
@@ -62,7 +63,7 @@ public :
     static const char*	sKeyLimits();
     static const char*	sKeyZSelection();
     static const char*	sKeyZRange();
-    static const char*  sKeySnapZRangeToSurvey();
+    static const char*	sKeySnapZRangeToSurvey();
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
@@ -81,6 +82,8 @@ public :
 
     //get
     Interval<float>	calcFrom(const Data&,const BufferStringSet& logs,
+				 bool todah=true) const;
+    Interval<float>	calcFrom(const Data&,const Well::LogSet& logset,
 				 bool todah=true) const;
 
     float		topOffset() const	{ return above_; }
@@ -159,7 +162,7 @@ public:
     const ObjectSet<MultiID>&	ids() const	{ return ids_; }
     const ObjectSet<Info>&	infos() const	{ return infos_; }
 				//!< Same size as ids()
-    const ObjectSet<MarkerSet>&	markers() const	{ return markers_; }
+    const ObjectSet<MarkerSet>& markers() const { return markers_; }
 				//!< If selected, same size as ids()
     const ObjectSet<BufferStringSet>& logs() const { return logs_; }
 				//!< If selected, same size as ids()
@@ -217,7 +220,7 @@ public:
     uiString	uiMessage() const   { return tr("Scanning well tracks"); }
     uiString	uiNrDoneText() const { return tr("Wells inspected"); }
     od_int64		nrDone() const	   { return curid_; }
-    od_int64		totalNr() const	   { return ids_.size(); }
+    od_int64		totalNr() const    { return ids_.size(); }
 
     uiString		errMsg() const
 			{ return errmsg_.isEmpty() ? uiString::emptyString()
@@ -272,7 +275,7 @@ public:
     uiString		uiMessage() const   { return msg_; }
     uiString		uiNrDoneText() const { return tr("Wells handled"); }
     od_int64		nrDone() const	   { return curid_; }
-    od_int64		totalNr() const	   { return ids_.size(); }
+    od_int64		totalNr() const    { return ids_.size(); }
 
     const BufferStringSet&	ioObjIds() const	{ return ids_; }
 
@@ -365,6 +368,11 @@ public:
 				float zstep, bool extractintime,
 				Stats::UpscaleType samppol,
 				const ObjectSet<const Well::Log>& logs);
+
+			LogSampler(const Well::Data& wd,
+				   const Well::ExtractParams&,
+				   const Well::LogSet&,
+				   const BufferStringSet&);
 
 			~LogSampler();
 
