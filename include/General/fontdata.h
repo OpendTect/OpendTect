@@ -31,6 +31,9 @@ public:
 				 bool ital=defaultItalic());
 			FontData(const char* fms); //! Calls getFrom
 
+    bool		operator ==(const FontData&) const;
+    bool		operator !=(const FontData&) const;
+
 			//! Store/retrieve (in FileMultiString format).
     bool		getFrom(const char* fms);
     void		putTo(BufferString&) const;

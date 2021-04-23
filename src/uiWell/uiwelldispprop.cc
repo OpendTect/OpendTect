@@ -39,7 +39,7 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
     , props_(&pr)
     , propChanged(this)
     , setup_(su)
-    , curwelllogproperty_(0)
+    , curwelllogproperty_(nullptr)
 {
     szfld_ = new uiLabeledSpinBox( this, su.mysztxt_ );
     szfld_->box()->setInterval( StepInterval<int>(0,100,1) );
@@ -246,38 +246,42 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 
 void uiWellMarkersDispProperties::getSelNames()
 {
-    BufferStringSet& unselnms = mrkprops().unselmarkernms();
-    unselnms.erase();
+    Well::DisplayProperties::Markers& markersdp = mrkprops();
+    BufferStringSet dpselnms, dpunselnms;
     for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
     {
-	if ( !displaymarkersfld_->isChosen( idx ) )
-	    unselnms.add( displaymarkersfld_->textOfItem(idx) );
+	if ( displaymarkersfld_->isChosen(idx) )
+	    dpselnms.add( displaymarkersfld_->textOfItem(idx) );
+	else
+	    dpunselnms.add( displaymarkersfld_->textOfItem(idx) );
     }
+
+    markersdp.setMarkerNms( dpselnms, true );
+    markersdp.setMarkerNms( dpunselnms, false );
 }
 
 
 void uiWellMarkersDispProperties::setSelNames()
 {
     NotifyStopper ns( displaymarkersfld_->itemChosen );
-    const BufferStringSet& unselnms = mrkprops().unselmarkernms();
-    const BufferStringSet& nms = mrkprops().selmarkernms_;
-    if ( unselnms.isEmpty() && nms.isEmpty() )
-	displaymarkersfld_->chooseAll( true );
-    else if ( unselnms.isEmpty())
-	displaymarkersfld_->setChosen( nms );
+    const Well::DisplayProperties::Markers& markersdp = mrkprops();
+    if ( markersdp.isEmpty() )
+	displaymarkersfld_->chooseAll( false );
     else
     {
-	BufferStringSet selnms;
-	displaymarkersfld_->getItems( selnms );
-	for ( const auto* mrkr : unselnms )
+	const BufferStringSet& dpselnms = markersdp.markerNms( true );
+	const BufferStringSet& dpunselnms = markersdp.markerNms( false );
+	for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
 	{
-	    const int idx = selnms.indexOf( mrkr->str() );
-	    if ( idx >= 0 )
-		selnms.removeSingle( idx );
+	    const BufferString itmtxt( displaymarkersfld_->textOfItem(idx) );
+	    if ( dpselnms.isPresent(itmtxt.buf()) )
+		displaymarkersfld_->setChosen( idx, true );
+	    else if ( dpunselnms.isPresent(itmtxt.buf()) )
+		displaymarkersfld_->setChosen( idx, false );
 	}
-	displaymarkersfld_->setChosen( selnms );
     }
-     if ( displaymarkersfld_->nrChosen() == 0 )
+
+    if ( displaymarkersfld_->nrChosen() == 0 )
 	displaymarkersfld_->setCurrentItem( 0 );
 }
 
@@ -324,7 +328,7 @@ void uiWellMarkersDispProperties::resetProps(
 }
 
 
-void uiWellMarkersDispProperties::markerFldsChged( CallBacker* cb )
+void uiWellMarkersDispProperties::markerFldsChged( CallBacker* )
 {
     colfld_->setSensitive( singlecolfld_->isChecked() );
     nmcolfld_->setSensitive( !samecolasmarkerfld_->isChecked() );
@@ -643,7 +647,7 @@ void uiWellLogDispProperties::doGetFromScreen()
     deflogwidth = logprops().logwidth_	= logwidthslider_->getIntValue();
 
     if ( !setup_.onlyfor2ddisplay_ && curwelllogproperty_ &&
-	    curwelllogproperty_!=this )
+	    curwelllogproperty_ != this )
     {
 	if ( curwelllogproperty_->logprops().style_ == 2 ||
 	     ( curwelllogproperty_->logprops().style_ != 2 &&
@@ -760,25 +764,35 @@ void uiWellLogDispProperties::isStyleChanged( CallBacker* )
 
 void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
 {
-    const BufferString curlognm = logsfld_->box()->text();
     wl_ = wls;
-    BufferStringSet lognames;
-    for ( int idx=0; idx< wl_->size(); idx++ )
-	lognames.addIfNew( wl_->getLog(idx).name() );
-    lognames.sort();
-    logsfld_->box()->setEmpty();
-    logsfld_->box()->addItem(uiStrings::sNone());
-    logsfld_->box()->addItems( lognames );
-    filllogsfld_->box()->setEmpty();
-    filllogsfld_->box()->addItem(uiStrings::sNone());
-    filllogsfld_->box()->addItems( lognames );
-    if ( lognames.isPresent(curlognm) )
+    BufferStringSet curlognames, newlognames;
+    uiComboBox* logsbox = logsfld_->box();
+    logsbox->getItems( curlognames );
+    for ( int idx=0; idx<wl_->size(); idx++ )
+	newlognames.addIfNew( wl_->getLog(idx).name() );
+    newlognames.sort();
+    if ( curlognames.size() > 1 )
     {
-	logsfld_->box()->setText( curlognm );
-	filllogsfld_->box()->setText( curlognm );
+	curlognames.removeSingle(0); //remove "None"
+	if ( newlognames == curlognames )
+	    return;
     }
 
-    logSel( 0 );
+    const BufferString curlognm = logsbox->text();
+    logsbox->setEmpty();
+    logsbox->addItem(uiStrings::sNone());
+    logsbox->addItems( newlognames );
+    uiComboBox* filllogsbox = filllogsfld_->box();
+    filllogsbox->setEmpty();
+    filllogsbox->addItem(uiStrings::sNone());
+    filllogsbox->addItems( newlognames );
+    if ( newlognames.isPresent(curlognm) )
+    {
+	logsbox->setText( curlognm );
+	filllogsbox->setText( curlognm );
+    }
+
+    logSel( nullptr );
 }
 
 

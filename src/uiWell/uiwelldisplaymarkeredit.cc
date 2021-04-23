@@ -487,10 +487,16 @@ void uiWellDispCtrlEditMarkerDlg::handleUsrClickCB( CallBacker* )
     if ( !isremove )
     {
 	addMoveMarker( idset, dah, mrknm );
-	curwd_->displayProperties(true).markers_.unselmarkernms().remove(
-									mrknm );
-	curwd_->displayProperties(false).markers_.unselmarkernms().remove(
-									mrknm );
+	Well::DisplayProperties& disp2d = curwd_->displayProperties(true);
+	Well::DisplayProperties& disp3d = curwd_->displayProperties(false);
+	ObjectSet<Well::DisplayProperties> dispprops( &disp2d, &disp3d );
+	for ( auto* dispprop : dispprops )
+	{
+	    Well::DisplayProperties::Markers& dpmarkers = dispprop->markers_;
+	    BufferStringSet markernms = dpmarkers.markerNms( false );
+	    markernms.remove( mrknm );
+	    dpmarkers.setMarkerNms( markernms, false );
+	}
     }
     else if ( curmrk_ )
     {

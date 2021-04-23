@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "hiddenparam.h"
 
 HiddenParam<Well::Data,BufferStringSet*> hp_lognms_(nullptr);
-HiddenParam<Well::Data,char> hp_disploaded_(0);
 
 // Keys for IOPars
 const char* Well::Info::sKeyDepthUnit() { return sKey::DepthUnit(); }
@@ -242,7 +241,6 @@ Well::Data::Data( const char* nm )
     lvlset.levelToBeRemoved.notify( mCB(this, Well::Data, levelToBeRemoved ) );
 
     hp_lognms_.setParam( this, new BufferStringSet );
-    hp_disploaded_.setParam( this, false );
 }
 
 
@@ -260,7 +258,6 @@ Well::Data::~Data()
 				mCB(this, Well::Data, levelToBeRemoved ) );
 
     hp_lognms_.removeAndDeleteParam( this );
-    hp_disploaded_.removeParam( this );
 }
 
 
@@ -331,11 +328,10 @@ void Well::Data::levelToBeRemoved( CallBacker* cb )
 Well::LoadReqs Well::Data::loadState() const
 {
     Well::LoadReqs lreqs( Well::Inf );
-    if ( dispParsLoaded() )
-    {
+    if ( disp2d_.isValid() || disp2d_.isModified() )
 	lreqs.add( Well::DispProps2D );
+    if ( disp3d_.isValid() || disp3d_.isModified() )
 	lreqs.add( Well::DispProps3D );
-    }
     if ( haveMarkers() )
 	lreqs.add( Well::Mrkrs );
     if ( haveD2TModel() )
@@ -418,17 +414,6 @@ void Well::Data::reloadLogNames() const
     MGR().getLogNamesByID(mid_, *lognms, false);
 }
 
-
-void Well::Data::setDispParsLoaded( bool yn )
-{
-    hp_disploaded_.setParam( this, yn );
-}
-
-
-bool Well::Data::dispParsLoaded() const
-{
-    return hp_disploaded_.getParam( this );
-}
 
 
 #define mName "Well name"

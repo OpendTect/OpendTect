@@ -31,7 +31,7 @@ namespace WellCorr { class uiWellPropDlg; }
 mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
 {mODTextTranslationClass(uiWellDispPropDlg)
 public:
-	mDeprecatedDef		uiWellDispPropDlg(uiParent*,Well::Data*,
+    mDeprecatedDef		uiWellDispPropDlg(uiParent*,Well::Data*,
 						  bool is2ddisplay=false);
 				uiWellDispPropDlg(uiParent*,const MultiID&,
 						  bool is2ddisplay,
@@ -51,7 +51,9 @@ public:
     TabType			currentTab() const;
     bool			is2D() const		{ return is2ddisplay_; }
     bool			savedefault_;	//Deprecated
-    void			updateLogs();
+    mDeprecatedDef void		updateLogs();
+    bool			needsSave() const;
+    void			setNeedsSave(bool yn);
 
 protected:
 
@@ -67,6 +69,8 @@ protected:
 
     virtual void		setWDNotifiers(bool yn);
 
+    void			postFinaliseCB(CallBacker*);
+
     virtual void		applyAllPush(CallBacker*);
     virtual void		onClose(CallBacker*);
     virtual void		propChg(CallBacker*);
@@ -76,16 +80,15 @@ protected:
     void			welldataDelNotify(CallBacker*);
     void			tabSel(CallBacker*);
 
-    void			resetCB(CallBacker*);
-    void			applyTabPush(CallBacker*);
-    void			resetAllPush(CallBacker*);
     uiPushButton*		applyTabButton() const;
+    void			applyTabPush(CallBacker*);
     uiPushButton*		resetAllButton() const;
-    uiPushButton*		saveButton() const;
-
+    void			resetAllPush(CallBacker*);
+    void			saveAsDefaultCB(CallBacker*);
 				//As we cannot override the virtual fn:
-    void			postFinaliseCB(CallBacker*);
+    uiButton*			saveButton() const;
     void			acceptOKCB(CallBacker*);
+    void			resetCB(CallBacker*);
 
     friend class WellCorr::uiWellPropDlg;
 

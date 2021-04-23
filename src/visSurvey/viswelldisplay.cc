@@ -36,14 +36,23 @@
 #define	mPickSz	3
 #define	mPickType 3
 
-#define mGetWD(act) RefMan<Well::Data> wd = getWD(); if ( !wd ) { act; }
+namespace visSurvey
+{
+
+static Well::LoadReqs defReqs()
+{
+    Well::LoadReqs lreqs( Well::D2T, Well::Trck, Well::DispProps3D );
+    lreqs.add( Well::LogInfos );
+    return lreqs;
+}
+
+#define mGetWD(act) RefMan<Well::Data> wd = getWD(defReqs()); \
+					    if ( !wd ) { act; }
 #define mMeter2Feet(val) val *= mToFeetFactorF;
 #define mFeet2Meter(val) val *= mFromFeetFactorF;
 #define mGetDispPar(param) wd->displayProperties().param
 
 
-namespace visSurvey
-{
 
 static HiddenParam<WellDisplay,int> hp_logres(0);
 
@@ -71,7 +80,7 @@ WellDisplay::WellDisplay()
     , zistime_( SI().zIsTime() )
     , zinfeet_( SI().zInFeet() )
 {
-    setMaterial(0);
+    setMaterial( nullptr );
     setWell( visBase::Well::create() );
     hp_logres.setParam( this, 2 ); // 1/4 of full resolution
 }
@@ -98,16 +107,13 @@ WellDisplay::~WellDisplay()
 
 void WellDisplay::welldataDelNotify( CallBacker* )
 {
-    saveDispProp( wd_ );
     wd_ = nullptr;
 }
 
 
 Well::Data* WellDisplay::getWD() const
 {
-    Well::LoadReqs lreqs( Well::D2T, Well::Trck, Well::DispProps3D );
-    lreqs.add( Well::LogInfos );
-    return getWD( lreqs );
+    return getWD( defReqs() );
 }
 
 
@@ -127,13 +133,13 @@ Well::Data* WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 	if ( !wd_ )
 	    return nullptr;
 
-	if ( !isloaded && !wd_->dispParsLoaded() )
+	const Well::DisplayProperties& dispprop3d = wd_->displayProperties();
+	if ( !isloaded && !dispprop3d.isValid() )
 	{ //Only for wells without pre-existing display properties
-	    const Color bgcol = getBackgroundColor();
-	    if ( bgcol != Color::NoColor() )
+	    if ( dispprop3d.track_.color_ == Color::NoColor() )
 	    {
-		self->wd_->displayProperties( false )
-			   .ensureColorContrastWith( bgcol );
+		self->wd_->displayProperties()
+			   .ensureColorContrastWith( getBackgroundColor() );
 	    }
 	}
 
@@ -262,13 +268,19 @@ void WellDisplay::fullRedraw( CallBacker* )
 
     visBase::Well::TrackParams tp;
     fillTrackParams( tp );
-    tp.toppos_ = &trackpos[0]; tp.botpos_ = &trackpos[trackpos.size()-1];
+    Coord3 wellhead = trackpos.first(); //Should be const, but cannot (API)
+    Coord3 welltd = trackpos.last(); //Should be const, but cannot (API)
+    tp.toppos_ = &wellhead;
+    tp.botpos_ = &welltd;
     tp.name_ = mToUiStringTodo(wd->name());
-    updateMarkers(0);
+    if ( wd_->displayProperties().isValid() ||
+	 wd_->displayProperties().isModified() )
+	updateMarkers( nullptr );
 
     well_->setTrack( trackpos );
     well_->setTrackProperties( tp.col_, tp.size_ );
     well_->setWellName( tp );
+
     well_->removeLogs();
 
     mDispLog( visBase::Well::Left, Left );
@@ -282,9 +294,7 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 {
     unRefAndZeroPtr( wd_ );
     wellid_ = multiid;
-    RefMan<Well::Data> wd = getWD();
-    if ( !wd )
-	return false;
+    mGetWD(return false);
     const Well::D2TModel* d2t = wd->d2TModel();
     const bool trackabovesrd = wd->track().zRange().stop <
 			      -1.f * float(SI().seismicReferenceDatum());
@@ -344,9 +354,16 @@ void WellDisplay::updateMarkers( CallBacker* )
     if ( !well_ )
 	return;
 
+    mGetWD(return);
+
+    const Well::DisplayProperties& dispprops = wd_->displayProperties();
+    const Well::DisplayProperties::Markers& markerdp = dispprops.markers_;
+    if ( markerdp.isEmpty() )
+	return;
+
     well_->removeAllMarkers();
     const Well::LoadReqs lreqs( Well::Mrkrs );
-    RefMan<Well::Data> wd = getWD( lreqs );
+    wd = getWD( lreqs );
     if ( !wd )
 	return;
 
@@ -356,32 +373,25 @@ void WellDisplay::updateMarkers( CallBacker* )
 
     const Well::Track& track =
 		needsConversionToTime() ? *timetrack_ : wd->track();
-
-    auto& markerdp = wd->displayProperties(false).markers_;
-    BufferStringSet& unselnms = markerdp.unselmarkernms();
-    const BufferStringSet& selnms = markerdp.selmarkernms_;
-    if ( !selnms.isEmpty() && unselnms.isEmpty() )
+    const Well::MarkerSet& markers = wd->markers();
+    for ( const auto* wellmarker : markers )
     {
-	BufferStringSet allmarkernms;
-	wd->markers().getNames( allmarkernms );
-	markerdp.updateMarkerSelection( allmarkernms );
-    }
-    for ( int idx=0; idx<wd->markers().size(); idx++ )
-    {
-	Well::Marker* wellmarker = wd->markers()[idx];
-	if ( unselnms.isPresent( wellmarker->name() ) )
+	if ( !markerdp.isSelected(wellmarker->name()) )
 	    continue;
 
+	 //Should be const, but cannot (API)
 	Coord3 pos = track.getPos( wellmarker->dah() );
 	if ( pos.isUdf() )
 	    continue;
 
 	mp.pos_ = &pos;
-	mp.name_ = mToUiStringTodo(wellmarker->name());
+	mp.name_ = mToUiStringTodo( wellmarker->name() );
 
-	if ( !mGetDispPar( markers_.issinglecol_ ) )
+	if ( !mGetDispPar(markers_.issinglecol_) )
 	    mp.col_ = wellmarker->color();
-	if ( mGetDispPar( markers_.samenmcol_ ) ) mp.namecol_  = mp.col_;
+
+	if ( mGetDispPar(markers_.samenmcol_) )
+	    mp.namecol_  = mp.col_;
 
 	well_->addMarker( mp );
     }
@@ -626,7 +636,7 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 
     well_->setLogColor( lp.col_, side );
     well_->setLogLineWidth( lp.size_, side );
-    well_->setLogWidth( mCast(float,lp.logwidth_), side );
+    well_->setLogWidth( float(lp.logwidth_), side );
 
     if ( lp.cliprate_ && lp.logidx_ >= 0 )
 	calcClippedRange( lp.cliprate_, lp.range_, lp.logidx_ );
@@ -893,8 +903,8 @@ void WellDisplay::addPick( Coord3 pos )
     if ( !pseudotrack_ )
 	return;
 
-    const double zfactor = mCast(double,
-			   scene_ ? scene_->getZScale() : SI().zScale() );
+    const double zfactor =
+		double( scene_ ? scene_->getZScale() : SI().zScale() );
     const int insertidx = pseudotrack_->insertPoint(
 					Coord3(pos.x,pos.y,pos.z*zfactor) );
 
@@ -1000,9 +1010,8 @@ void WellDisplay::showKnownPositions()
 
 TypeSet<Coord3> WellDisplay::getWellCoords() const
 {
-    const double zfactor = mCast( double,
-			   scene_ ? scene_->getZScale() : SI().zScale() );
-
+    const double zfactor =
+		double( scene_ ? scene_->getZScale() : SI().zScale() );
     TypeSet<Coord3> coords = pseudotrack_->getAllPos();
     for ( int idx=0; idx<coords.size(); idx++ )
 	coords[idx].z /= zfactor;
@@ -1098,6 +1107,5 @@ void WellDisplay::setPixelDensity( float dpi )
     if ( well_ )
 	well_->setPixelDensity( dpi );
 }
-
 
 } // namespace visSurvey

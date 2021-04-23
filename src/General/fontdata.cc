@@ -47,6 +47,22 @@ FontData::FontData( const char* fms )
 }
 
 
+bool FontData::operator ==( const FontData& oth ) const
+{
+    if ( &oth == this )
+	return true;
+
+    return family_ == oth.family_ && pointsize_ == oth.pointsize_ &&
+	   weight_ == oth.weight_ && italic_ == oth.italic_;
+}
+
+
+bool FontData::operator !=( const FontData& oth ) const
+{
+    return !(*this == oth);
+}
+
+
 int FontData::numWeight( FontData::Weight w )
 { return numwghts[(int)w]; }
 
