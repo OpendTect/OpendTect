@@ -53,13 +53,15 @@ public:
     void		removeFromDahFrom(int fromidx,float extradah);
 
     void		deInterpolate();
-    			//!< Remove unnecessary points
+			//!< Remove unnecessary points
     float*		dahArr()			{ return dah_.arr(); }
     const float*	dahArr() const			{ return dah_.arr(); }
 
     static Notifier<DahObj>&	instanceCreated();
 
 protected:
+
+    DahObj&		operator =(const DahObj&);
 
     TypeSet<float>	dah_;
     Interval<float>	dahrange_;

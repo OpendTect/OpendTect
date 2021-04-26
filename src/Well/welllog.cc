@@ -202,11 +202,11 @@ Well::Log& Well::Log::operator =( const Well::Log& wl )
 {
     if ( &wl != this )
     {
-	setName( wl.name() );
-	setUnitMeasLabel( wl.unitMeasLabel() );
-	dah_ = wl.dah_; vals_ = wl.vals_; range_ = wl.range_;
-	dahrange_ = wl.dahrange_;
+	DahObj::operator=( wl );
+	vals_ = wl.vals_;
+	range_ = wl.range_;
 	iscode_ = wl.iscode_;
+	setUnitMeasLabel( wl.unitMeasLabel() );
     }
     return *this;
 }

@@ -93,7 +93,7 @@ Notifier<Well::DahObj>& Well::DahObj::instanceCreated()
 
 
 Well::DahObj::DahObj( const char* nm )
-: NamedCallBacker(nm)
+  : NamedCallBacker(nm)
 {
     dahrange_.setUdf();
     instanceCreated().trigger( this );
@@ -101,9 +101,9 @@ Well::DahObj::DahObj( const char* nm )
 
 
 Well::DahObj::DahObj( const Well::DahObj& d )
-: NamedCallBacker(d.name())
-, dah_(d.dah_)
-, dahrange_(d.dahrange_)
+  : NamedCallBacker(d.name())
+  , dah_(d.dah_)
+  , dahrange_(d.dahrange_)
 {
     instanceCreated().trigger( this );
 }
@@ -113,6 +113,15 @@ Well::DahObj::~DahObj()
 {
     dah_.erase();
     sendDelNotif();
+}
+
+
+Well::DahObj& Well::DahObj::operator =( const Well::DahObj& oth )
+{
+    setName( oth.name() );
+    dah_ = oth.dah_;
+    dahrange_ = oth.dahrange_;
+    return *this;
 }
 
 
