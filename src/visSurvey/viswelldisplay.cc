@@ -55,6 +55,7 @@ static Well::LoadReqs defReqs()
 
 
 static HiddenParam<WellDisplay,int> hp_logres(0);
+#define mAutoRes 0
 
 const char* WellDisplay::sKeyEarthModelID	= "EarthModel ID";
 const char* WellDisplay::sKeyWellID		= "Well ID";
@@ -82,7 +83,7 @@ WellDisplay::WellDisplay()
 {
     setMaterial( nullptr );
     setWell( visBase::Well::create() );
-    hp_logres.setParam( this, 2 ); // 1/4 of full resolution
+    hp_logres.setParam( this, mAutoRes ); // Capped at 2000 samples
 }
 
 
@@ -442,13 +443,16 @@ int WellDisplay::getResolution() const
 
 int WellDisplay::nrResolutions() const
 {
-    return 5;
+    return 6;
 }
 
 
 BufferString WellDisplay::getResolutionName( int res ) const
 {
-    const int val = mNINT32( Math::PowerOf( 2, float(res) ) );
+    if ( res == mAutoRes )
+	return "Auto";
+
+    const int val = mNINT32( Math::PowerOf( 2, float(res-1) ) );
     if ( val==1 )
 	return "Full";
     if ( val==2 )
@@ -488,12 +492,15 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     const BufferString lognm = curlog.name();
     StepInterval<float> dahrg = curlog.dahRange();
     dahrg.step = curlog.dahStep( true );
+    const float lognrsamples = dahrg.nrfSteps();
 
-    const int logres = getResolution();
-    if ( logres > 0 )
+    int logres = getResolution();
+    if ( logres == mAutoRes && lognrsamples > cMaxLogSamp )
+	dahrg.step = dahrg.width() / float(cMaxLogSamp-1);
+    else if ( logres > 1 )
     {
-	const float fact = Math::PowerOf( 2.f, float(logres) );
-	const float nrsamples = dahrg.nrfSteps() / fact;
+	const float fact = Math::PowerOf( 2.f, float(logres-1) );
+	const float nrsamples = lognrsamples / fact;
 	dahrg.step = dahrg.width() / nrsamples;
     }
 
