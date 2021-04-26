@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwelldisppropdlg.h"
 
@@ -16,18 +15,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uimsg.h"
-#include "uitabstack.h"
 #include "uiseparator.h"
+#include "uitabstack.h"
 
 #include "ioman.h"
 #include "keystrs.h"
 #include "objdisposer.h"
+#include "od_helpids.h"
 #include "welldata.h"
 #include "welldisp.h"
 #include "wellman.h"
 #include "wellmarker.h"
-#include "wellreader.h"
-#include "od_helpids.h"
 
 #include "hiddenparam.h"
 
@@ -359,7 +357,7 @@ void uiWellDispPropDlg::markersChgd( CallBacker* )
 }
 
 
-void uiWellDispPropDlg::wdChg( CallBacker* cb )
+void uiWellDispPropDlg::wdChg( CallBacker* )
 {
     NotifyStopper ns( mDispNot );
     putToScreen();
