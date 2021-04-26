@@ -28,9 +28,7 @@ mExpClass(Well) DahObj : public ::NamedCallBacker
 {
 public:
 
-			DahObj( const char* nm=0 );
-			DahObj( const DahObj& d );
-			~DahObj();
+    virtual		~DahObj();
 
     inline int		size() const			{ return dah_.size(); }
     inline float	dah(int idx) const		{ return dah_[idx]; }
@@ -53,13 +51,18 @@ public:
     void		removeFromDahFrom(int fromidx,float extradah);
 
     void		deInterpolate();
-    			//!< Remove unnecessary points
+			//!< Remove unnecessary points
     float*		dahArr()			{ return dah_.arr(); }
     const float*	dahArr() const			{ return dah_.arr(); }
 
     static Notifier<DahObj>&	instanceCreated();
 
 protected:
+
+			DahObj(const char* nm=nullptr);
+			DahObj(const DahObj&);
+
+    DahObj&		operator =(const DahObj&);
 
     TypeSet<float>	dah_;
     Interval<float>	dahrange_;

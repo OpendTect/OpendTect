@@ -19,8 +19,7 @@ Well::Track& Well::Track::operator =( const Track& t )
 {
     if ( &t != this )
     {
-	setName( t.name() );
-	dah_ = t.dah_;
+	DahObj::operator=( t );
 	pos_ = t.pos_;
 	zistime_ = t.zistime_;
     }

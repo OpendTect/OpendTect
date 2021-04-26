@@ -29,9 +29,10 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 {
     if ( &d2t != this )
     {
-	setName( d2t.name() );
-	desc = d2t.desc; datasource = d2t.datasource;
-	dah_ = d2t.dah_; t_ = d2t.t_;
+	DahObj::operator=( d2t );
+	t_ = d2t.t_;
+	desc = d2t.desc;
+	datasource = d2t.datasource;
     }
     return *this;
 }
