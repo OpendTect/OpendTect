@@ -22,7 +22,7 @@ uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
     : uiWellDahDisplay::DahObjData( scn, isfirst, s )
     , logSet(this)
 {
-    disp_.color_ = OD::Color::stdDrawColor( isfirst ? 0 : 1 );
+    disp_.setColor( OD::Color::stdDrawColor( isfirst ? 0 : 1 ) );
 }
 
 
@@ -118,8 +118,8 @@ void uiWellLogDisplay::drawCurve( bool first )
 
     if ( !ld.curvepolyitm_ ) return;
     OD::LineStyle ls(OD::LineStyle::Solid);
-    ls.width_ = ld.disp_.size_;
-    ls.color_ = ld.disp_.color_;
+    ls.width_ = ld.disp_.getSize();
+    ls.color_ = ld.disp_.getColor();
     ld.curvepolyitm_->setPenStyle( ls );
     ld.curvepolyitm_->setVisible( ls.width_ > 0 );
 }
@@ -332,8 +332,8 @@ uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
     const CallBack cb( mCB(this,uiWellLogDispDlg,logSetCB) );
     dispfld_->logData(true).logSet.notify( cb );
     dispfld_->logData(false).logSet.notify( cb );
-    dispfld_->dahObjData(true).col_ = dispfld_->logData(true).disp_.color_;
-    dispfld_->dahObjData(false).col_ = dispfld_->logData(false).disp_.color_;
+    dispfld_->dahObjData(true).col_ = dispfld_->logData(true).disp_.getColor();
+    dispfld_->dahObjData(false).col_= dispfld_->logData(false).disp_.getColor();
 
     dispfld_->setPrefWidth( 300 );
     dispfld_->setPrefHeight( 500 );

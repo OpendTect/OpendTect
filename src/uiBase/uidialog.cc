@@ -91,6 +91,7 @@ void uiDialog::setOkText( const uiString& txt ) { mBody->setOkText(txt); }
 void uiDialog::setCancelText(const uiString& t) { mBody->setCancelText(t);}
 void uiDialog::enableSaveButton(const uiString& t){ mBody->enableSaveButton(t);}
 uiButton* uiDialog::button(Button b)		{ return mBody->button(b); }
+const uiButton* uiDialog::button(Button b) const { return mBody->button(b); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }
 void uiDialog::setHelpKey( const HelpKey& key ) { mBody->setHelpKey(key); }
@@ -108,10 +109,12 @@ bool uiDialog::isModal() const			{ return mBody->isModal(); }
 void uiDialog::setOkCancelText( const uiString& oktxt, const uiString& cncltxt )
 { mBody->setOkCancelText( oktxt, cncltxt ); }
 
-void uiDialog::setButtonSensitive(uiDialog::Button b, bool s )
+void uiDialog::setButtonSensitive( Button b, bool s )
     { mBody->setButtonSensitive(b,s); }
 void uiDialog::setSaveButtonChecked(bool b)
     { mBody->setSaveButtonChecked(b); }
+bool uiDialog::isButtonSensitive( Button b ) const
+    { return mBody->isButtonSensitive(b); }
 bool uiDialog::saveButtonChecked() const
     { return mBody->saveButtonChecked(); }
 bool uiDialog::hasSaveButton() const

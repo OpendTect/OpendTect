@@ -35,7 +35,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
 {
     const Well::DisplayProperties& disp = wd_.displayProperties( !use3ddisp_ );
 
-    for ( int idx=0; idx<disp.logs_.size(); idx++ )
+    for ( int idx=0; idx<disp.getNrLogPanels(); idx++ )
     {
 	uiWellLogDisplay::Setup wlsu;
 	wlsu.noyannot_ = s.noyannot_;
@@ -61,7 +61,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
 		control_->addDahDisplay( *wld );
 	}
     }
-    if ( disp.displaystrat_ )
+    if ( disp.displayStrat() )
     {
 	stratdisp_ = new uiWellStratDisplay( this );
 	if ( !logdisps_.isEmpty() )
@@ -131,12 +131,14 @@ void uiWellDisplay::setDisplayProperties()
 	uiWellLogDisplay::LogData& ld1 = logdisps_[idx]->logData(true);
 	uiWellLogDisplay::LogData& ld2 = logdisps_[idx]->logData(false);
 
-	if ( !dpp.logs_.validIdx( idx ) ) continue;
-	const Well::DisplayProperties::LogCouple* lc = dpp.logs_[idx];
-	const Well::DisplayProperties::Log& lp1 = lc->left_.name_!="None" ?
-								    lc->left_ :
-								    lc->center_;
-	const Well::DisplayProperties::Log& lp2 = lc->right_;
+	if ( !dpp.isValidLogPanel(idx) )
+	    continue;
+
+	const Well::DisplayProperties::LogCouple& lc = dpp.getLogs( idx );
+	const Well::DisplayProperties::Log& lp1 =
+				lc.left_.name_ != sKey::None() ? lc.left_ :
+								 lc.center_;
+	const Well::DisplayProperties::Log& lp2 = lc.right_;
 
 	const Well::Log* l1 = wd_.getLog( lp1.name_ );
 	const Well::Log* l2 = wd_.getLog( lp2.name_ );
@@ -145,7 +147,7 @@ void uiWellDisplay::setDisplayProperties()
 	ld1.xrev_ = false;			ld2.xrev_ = false;
 	ld1.disp_ = lp1;			ld2.disp_ = lp2;
 
-	logdisps_[idx]->markerDisp() = dpp.markers_;
+	logdisps_[idx]->markerDisp() = dpp.getMarkers();
 	logdisps_[idx]->dataChanged();
     }
 }

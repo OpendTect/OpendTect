@@ -54,8 +54,8 @@ public:
 	    mDefSetupMemb(bool,onlyfor2ddisplay)
     };
 
-			uiWellDispProperties(uiParent*,const Setup&,
-					Well::DisplayProperties::BasicProps&);
+    virtual		~uiWellDispProperties();
+
     Well::DisplayProperties::BasicProps& props()	{ return *props_; }
 
     void		putToScreen();
@@ -63,9 +63,11 @@ public:
 
 
     Notifier<uiWellDispProperties>	propChanged;
-    uiWellLogDispProperties*		curwelllogproperty_;
+    uiWellLogDispProperties*		curwelllogproperty_ = nullptr;
 
 protected:
+			uiWellDispProperties(uiParent*,const Setup&,
+					Well::DisplayProperties::BasicProps&);
 
     virtual void	doPutToScreen()			{}
     virtual void	doGetFromScreen()		{}
@@ -88,6 +90,7 @@ mExpClass(uiWell) uiWellTrackDispProperties : public uiWellDispProperties
 public:
 			uiWellTrackDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Track&);
+			~uiWellTrackDispProperties();
 
     Well::DisplayProperties::Track&	trackprops()
 	{ return static_cast<Well::DisplayProperties::Track&>(*props_); }
@@ -118,6 +121,7 @@ public:
 					Well::DisplayProperties::Markers&,
 					const BufferStringSet& allmarkernms,
 					bool is2d=false);
+			~uiWellMarkersDispProperties();
 
     Well::DisplayProperties::Markers&	mrkprops()
 	{ return static_cast<Well::DisplayProperties::Markers&>(*props_); }

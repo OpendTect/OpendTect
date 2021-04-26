@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwelldispprop.h"
 
@@ -35,19 +34,24 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
     , props_(&pr)
     , propChanged(this)
     , setup_(su)
-    , curwelllogproperty_(0)
 {
     szfld_ = new uiLabeledSpinBox( this, su.mysztxt_ );
     szfld_->box()->setInterval( StepInterval<int>(0,100,1) );
-    szfld_->box()->setValue( props().size_ );
-    szfld_->box()->valueChanging.notify(mCB(this,uiWellDispProperties,propChg));
-    uiColorInput::Setup csu( props().color_ );
+    szfld_->box()->setValue( props().getSize() );
+    mAttachCB( szfld_->box()->valueChanging, uiWellDispProperties::propChg );
+    uiColorInput::Setup csu( props().getColor() );
     csu.lbltxt( su.mycoltxt_ );
     colfld_ = new uiColorInput( this, csu, su.mycoltxt_.getFullString() );
     colfld_->attach( alignedBelow, szfld_ );
-    colfld_->colorChanged.notify( mCB(this,uiWellDispProperties,propChg) );
+    mAttachCB( colfld_->colorChanged, uiWellDispProperties::propChg );
 
     setHAlignObj( colfld_ );
+}
+
+
+uiWellDispProperties::~uiWellDispProperties()
+{
+    detachAllNotifiers();
 }
 
 
@@ -62,16 +66,16 @@ void uiWellDispProperties::putToScreen()
 {
     NotifyStopper ns1( szfld_->box()->valueChanging );
     NotifyStopper ns2( colfld_->colorChanged );
-    colfld_->setColor( props().color_ );
+    colfld_->setColor( props().getColor() );
     doPutToScreen();
-    szfld_->box()->setValue( props().size_ );
+    szfld_->box()->setValue( props().getSize() );
 }
 
 
 void uiWellDispProperties::getFromScreen()
 {
-    props().size_ = szfld_->box()->getIntValue();
-    props().color_ = colfld_->color();
+    props().setSize( szfld_->box()->getIntValue() );
+    props().setColor( colfld_->color() );
     doGetFromScreen();
 }
 
@@ -107,17 +111,20 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 
     doPutToScreen();
 
-    dispabovefld_->activated.notify(
-		mCB(this,uiWellTrackDispProperties,propChg) );
-    dispbelowfld_->activated.notify(
-		mCB(this,uiWellTrackDispProperties,propChg) );
-    nmsizefld_->box()->valueChanging.notify(
-		mCB(this,uiWellTrackDispProperties,propChg) );
-    nmstylefld_->selectionChanged.notify(
-	    mCB(this,uiWellTrackDispProperties,propChg) );
-    nmsizedynamicfld_->activated.notify(
-	mCB(this,uiWellTrackDispProperties,propChg) );
+    mAttachCB( dispabovefld_->activated, uiWellTrackDispProperties::propChg );
+    mAttachCB( dispbelowfld_->activated, uiWellTrackDispProperties::propChg );
+    mAttachCB( nmsizefld_->box()->valueChanging,
+	       uiWellTrackDispProperties::propChg );
+    mAttachCB( nmstylefld_->selectionChanged,
+	       uiWellTrackDispProperties::propChg );
+    mAttachCB( nmsizedynamicfld_->activated,
+	       uiWellTrackDispProperties::propChg );
+}
 
+
+uiWellTrackDispProperties::~uiWellTrackDispProperties()
+{
+    detachAllNotifiers();
 }
 
 
@@ -201,7 +208,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmsizedynamicfld_->attach( rightOf, nmstylefld_ );
 
     uiString dlgtxt = tr( "Name color" );
-    uiColorInput::Setup csu( mrkprops().color_ ); csu.lbltxt( dlgtxt );
+    uiColorInput::Setup csu( mrkprops().getColor() ); csu.lbltxt( dlgtxt );
     nmcolfld_ = new uiColorInput( this, csu, dlgtxt.getFullString() );
     nmcolfld_->attach( alignedBelow, nmsizefld_ );
     nmcolfld_->display( !setup_.onlyfor2ddisplay_ );
@@ -219,56 +226,81 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 	displaymarkersfld_->attach( alignedBelow, shapefld_ );
 
     doPutToScreen();
-    markerFldsChged(0);
+    markerFldsChged(nullptr);
 
-    CallBack propcb = mCB(this,uiWellMarkersDispProperties,propChg);
-    CallBack mrkrcb = mCB(this,uiWellMarkersDispProperties,markerFldsChged);
-    cylinderheightfld_->box()->valueChanging.notify( propcb );
-    nmcolfld_->colorChanged.notify( propcb );
-    nmsizefld_->box()->valueChanging.notify( propcb );
-    nmstylefld_->selectionChanged.notify( propcb );
-    samecolasmarkerfld_->activated.notify( propcb );
-    samecolasmarkerfld_->activated.notify( mrkrcb );
-    nmsizedynamicfld_->activated.notify( propcb );
+    mAttachCB( cylinderheightfld_->box()->valueChanging,
+	       uiWellMarkersDispProperties::propChg );
+    mAttachCB( nmcolfld_->colorChanged,
+	       uiWellMarkersDispProperties::propChg );
+    mAttachCB( nmsizefld_->box()->valueChanging,
+	       uiWellMarkersDispProperties::propChg );
+    mAttachCB( nmstylefld_->selectionChanged,
+	       uiWellMarkersDispProperties::propChg );
+    mAttachCB( samecolasmarkerfld_->activated,
+	       uiWellMarkersDispProperties::propChg );
+    mAttachCB( samecolasmarkerfld_->activated,
+	       uiWellMarkersDispProperties::markerFldsChged );
+    mAttachCB( nmsizedynamicfld_->activated,
+	       uiWellMarkersDispProperties::propChg );
 
-    singlecolfld_->activated.notify( propcb );
-    singlecolfld_->activated.notify( mrkrcb );
-    shapefld_->box()->selectionChanged.notify( propcb );
-    shapefld_->box()->selectionChanged.notify( mrkrcb );
-    displaymarkersfld_->itemChosen.notify( propcb );
-    displaymarkersfld_->itemChosen.notify( mrkrcb );
+    mAttachCB( singlecolfld_->activated,
+	       uiWellMarkersDispProperties::propChg );
+    mAttachCB( singlecolfld_->activated,
+	       uiWellMarkersDispProperties::markerFldsChged );
+    mAttachCB( shapefld_->box()->selectionChanged,
+	       uiWellMarkersDispProperties::propChg );
+    mAttachCB( shapefld_->box()->selectionChanged,
+	       uiWellMarkersDispProperties::markerFldsChged );
+    mAttachCB( displaymarkersfld_->itemChosen,
+	       uiWellMarkersDispProperties::propChg );
+    mAttachCB( displaymarkersfld_->itemChosen,
+	       uiWellMarkersDispProperties::markerFldsChged );
+}
+
+
+uiWellMarkersDispProperties::~uiWellMarkersDispProperties()
+{
+    detachAllNotifiers();
 }
 
 
 void uiWellMarkersDispProperties::getSelNames()
 {
-    mrkprops().unselmarkernms_.setEmpty();
+    Well::DisplayProperties::Markers& markersdp = mrkprops();
+    BufferStringSet dpselnms, dpunselnms;
     for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
     {
-	if ( !displaymarkersfld_->isChosen( idx ) )
-	    mrkprops().unselmarkernms_.add(displaymarkersfld_->textOfItem(idx));
+	if ( displaymarkersfld_->isChosen(idx) )
+	    dpselnms.add( displaymarkersfld_->textOfItem(idx) );
+	else
+	    dpunselnms.add( displaymarkersfld_->textOfItem(idx) );
     }
+
+    markersdp.setMarkerNms( dpselnms, true );
+    markersdp.setMarkerNms( dpunselnms, false );
 }
 
 
 void uiWellMarkersDispProperties::setSelNames()
 {
     NotifyStopper ns( displaymarkersfld_->itemChosen );
-    const BufferStringSet& unselnms = mrkprops().unselmarkernms_;
-    if ( unselnms.isEmpty() )
-	displaymarkersfld_->chooseAll( true );
+    const Well::DisplayProperties::Markers& markersdp = mrkprops();
+    if ( markersdp.isEmpty() )
+	displaymarkersfld_->chooseAll( false );
     else
     {
-	BufferStringSet selnms;
-	displaymarkersfld_->getItems( selnms );
-	for ( const auto* mrkr : unselnms )
+	const BufferStringSet& dpselnms = markersdp.markerNms( true );
+	const BufferStringSet& dpunselnms = markersdp.markerNms( false );
+	for ( int idx=0; idx<displaymarkersfld_->size(); idx++ )
 	{
-	    const int idx = selnms.indexOf( mrkr->str() );
-	    if ( idx >= 0 )
-		selnms.removeSingle( idx );
+	    const BufferString itmtxt( displaymarkersfld_->textOfItem(idx) );
+	    if ( dpselnms.isPresent(itmtxt.buf()) )
+		displaymarkersfld_->setChosen( idx, true );
+	    else if ( dpunselnms.isPresent(itmtxt.buf()) )
+		displaymarkersfld_->setChosen( idx, false );
 	}
-	displaymarkersfld_->setChosen( selnms );
     }
+
     if ( displaymarkersfld_->nrChosen() == 0 )
 	displaymarkersfld_->setCurrentItem( 0 );
 }
@@ -370,11 +402,15 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
 				Well::DisplayProperties::Log& lp,
 				const Well::Data* wd)
-    : uiWellLogDispProperties(p,su,lp,wd ? &wd->logs() : nullptr)
+    : uiWellLogDispProperties(p,su,lp, wd ? &wd->logs() : nullptr)
 {
     wd_ = wd;
     refPtr( wd_ );
 }
+
+
+#define mCBPropChg uiWellLogDispProperties::propChg
+#define mCBChoiceSel uiWellLogDispProperties::choiceSel
 
 uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
@@ -486,44 +522,48 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     setLogSet( wl );
     putToScreen();
 
-    CallBack propchgcb = mCB(this,uiWellLogDispProperties,propChg);
-    CallBack choiceselcb = mCB(this,uiWellLogDispProperties,choiceSel);
-    cliprangefld_->valuechanged.notify( choiceselcb );
-    clipratefld_->valuechanged.notify( choiceselcb );
-    colorrangefld_->valuechanged.notify( choiceselcb );
-    rangefld_->valuechanged.notify( choiceselcb );
-    clipratefld_->valuechanged.notify( propchgcb );
-    coltablistfld_->selectionChanged.notify( propchgcb );
-    colorrangefld_->valuechanged.notify( propchgcb );
-    fillcolorfld_->colorChanged.notify( propchgcb );
-    logwidthslider_->valueChanged.notify(propchgcb);
+    mAttachCB( cliprangefld_->valuechanged, mCBChoiceSel );
+    mAttachCB( clipratefld_->valuechanged, mCBChoiceSel );
+    mAttachCB( colorrangefld_->valuechanged, mCBChoiceSel );
+    mAttachCB( rangefld_->valuechanged, mCBChoiceSel );
+    mAttachCB( clipratefld_->valuechanged, mCBPropChg );
+    mAttachCB( coltablistfld_->selectionChanged, mCBPropChg );
+    mAttachCB( colorrangefld_->valuechanged, mCBPropChg );
+    mAttachCB( fillcolorfld_->colorChanged, mCBPropChg );
+    mAttachCB( logwidthslider_->valueChanged, mCBPropChg );
 
-    logarithmfld_->activated.notify( propchgcb );
-    ovlapfld_->valueChanging.notify( propchgcb );
-    rangefld_->valuechanged.notify( propchgcb );
-    repeatfld_->valueChanging.notify( propchgcb );
-    revertlogfld_->activated.notify( propchgcb );
-    seiscolorfld_->colorChanged.notify( propchgcb );
-    singlfillcolfld_->activated.notify( propchgcb );
-    stylefld_->changed.notify( propchgcb );
-    logfilltypefld_->box()->selectionChanged.notify( propchgcb );
-    flipcoltabfld_->activated.notify( propchgcb );
+    mAttachCB( logarithmfld_->activated, mCBPropChg );
+    mAttachCB( ovlapfld_->valueChanging, mCBPropChg );
+    mAttachCB( rangefld_->valuechanged, mCBPropChg );
+    mAttachCB( repeatfld_->valueChanging, mCBPropChg );
+    mAttachCB( revertlogfld_->activated, mCBPropChg );
+    mAttachCB( seiscolorfld_->colorChanged, mCBPropChg );
+    mAttachCB( singlfillcolfld_->activated, mCBPropChg );
+    mAttachCB( stylefld_->changed, mCBPropChg );
+    mAttachCB( logfilltypefld_->box()->selectionChanged, mCBPropChg );
+    mAttachCB( flipcoltabfld_->activated, mCBPropChg );
 
-    filllogsfld_->box()->selectionChanged.notify(
-		mCB(this,uiWellLogDispProperties,updateFillRange) );
-    logsfld_->box()->selectionChanged.notify(
-		mCB(this,uiWellLogDispProperties,logSel) );
-    logsfld_->box()->selectionChanged.notify(
-		mCB(this,uiWellLogDispProperties,updateRange) );
-    logsfld_->box()->selectionChanged.notify(
-		mCB(this,uiWellLogDispProperties,updateFillRange) );
-    logfilltypefld_->box()->selectionChanged.notify(
-		mCB(this,uiWellLogDispProperties,isFilledSel));
-    singlfillcolfld_->activated.notify(
-		mCB(this,uiWellLogDispProperties,isFilledSel) );
+    mAttachCB( filllogsfld_->box()->selectionChanged,
+	       uiWellLogDispProperties::updateFillRange );
+    mAttachCB( logsfld_->box()->selectionChanged,
+	       uiWellLogDispProperties::logSel );
+    mAttachCB( logsfld_->box()->selectionChanged,
+	       uiWellLogDispProperties::updateRange );
+    mAttachCB( logsfld_->box()->selectionChanged,
+	       uiWellLogDispProperties::updateFillRange );
+    mAttachCB( logfilltypefld_->box()->selectionChanged,
+	       uiWellLogDispProperties::isFilledSel );
+    mAttachCB( singlfillcolfld_->activated,
+	       uiWellLogDispProperties::isFilledSel );
 
-    stylefld_->changed.notify(
-	mCB(this,uiWellLogDispProperties,isStyleChanged) );
+    mAttachCB( stylefld_->changed, uiWellLogDispProperties::isStyleChanged );
+}
+
+
+uiWellLogDispProperties::~uiWellLogDispProperties()
+{
+    detachAllNotifiers();
+    unRefPtr( wd_ );
 }
 
 
@@ -625,7 +665,7 @@ void uiWellLogDispProperties::doGetFromScreen()
     deflogwidth = logprops().logwidth_	= logwidthslider_->getIntValue();
 
     if ( !setup_.onlyfor2ddisplay_ && curwelllogproperty_ &&
-	    curwelllogproperty_!=this )
+	    curwelllogproperty_ != this )
     {
 	if ( curwelllogproperty_->logprops().style_ == 2 ||
 	     ( curwelllogproperty_->logprops().style_ != 2 &&
@@ -636,11 +676,6 @@ void uiWellLogDispProperties::doGetFromScreen()
     }
 }
 
-
-uiWellLogDispProperties::~uiWellLogDispProperties()
-{
-    unRefPtr( wd_ );
-}
 
 void uiWellLogDispProperties::isFilledSel( CallBacker* )
 {
@@ -747,25 +782,35 @@ void uiWellLogDispProperties::isStyleChanged( CallBacker* )
 
 void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
 {
-    const BufferString curlognm = logsfld_->box()->text();
     wl_ = wls;
-    BufferStringSet lognames;
-    for ( int idx=0; idx< wl_->size(); idx++ )
-	lognames.addIfNew( wl_->getLog(idx).name() );
-    lognames.sort();
-    logsfld_->box()->setEmpty();
-    logsfld_->box()->addItem(uiStrings::sNone());
-    logsfld_->box()->addItems( lognames );
-    filllogsfld_->box()->setEmpty();
-    filllogsfld_->box()->addItem(uiStrings::sNone());
-    filllogsfld_->box()->addItems( lognames );
-    if ( lognames.isPresent(curlognm) )
+    BufferStringSet curlognames, newlognames;
+    uiComboBox* logsbox = logsfld_->box();
+    logsbox->getItems( curlognames );
+    for ( int idx=0; idx<wl_->size(); idx++ )
+	newlognames.addIfNew( wl_->getLog(idx).name() );
+    newlognames.sort();
+    if ( curlognames.size() > 1 )
     {
-	logsfld_->box()->setText( curlognm );
-	filllogsfld_->box()->setText( curlognm );
+	curlognames.removeSingle(0); //remove "None"
+	if ( newlognames == curlognames )
+	    return;
     }
 
-    logSel( 0 );
+    const BufferString curlognm = logsbox->text();
+    logsbox->setEmpty();
+    logsbox->addItem(uiStrings::sNone());
+    logsbox->addItems( newlognames );
+    uiComboBox* filllogsbox = filllogsfld_->box();
+    filllogsbox->setEmpty();
+    filllogsbox->addItem(uiStrings::sNone());
+    filllogsbox->addItems( newlognames );
+    if ( newlognames.isPresent(curlognm) )
+    {
+	logsbox->setText( curlognm );
+	filllogsbox->setText( curlognm );
+    }
+
+    logSel( nullptr );
 }
 
 
@@ -781,7 +826,7 @@ void uiWellLogDispProperties::selNone()
 {
     rangefld_->setValue( Interval<float>(0,0) );
     colorrangefld_->setValue( Interval<float>(0,0) );
-    colfld_->setColor( logprops().color_ );
+    colfld_->setColor( logprops().getColor() );
     seiscolorfld_->setColor( logprops().seiscolor_ );
     fillcolorfld_->setColor( logprops().seiscolor_ );
     stylefld_->setChecked( logprops().style_, true );

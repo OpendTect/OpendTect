@@ -26,6 +26,22 @@ const char* Well::Log::sKeyLogRange()	{ return "Log range"; }
 
 // ---- Well::LogSet
 
+
+Well::LogSet::LogSet()
+    : logAdded(this)
+    , logRemoved(this)
+{
+    init();
+}
+
+
+Well::LogSet::~LogSet()
+{
+    NotifyStopper ns( logRemoved );
+    setEmpty();
+}
+
+
 void Well::LogSet::getNames( BufferStringSet& nms, bool onlyloaded ) const
 {
     nms.setEmpty();
@@ -47,6 +63,7 @@ void Well::LogSet::add( Well::Log* wl )
     {
 	logs_ += wl;
 	updateDahIntv( *wl );
+	logAdded.trigger();
     }
     else
     {
@@ -54,6 +71,20 @@ void Well::LogSet::add( Well::Log* wl )
 	log->updateAfterValueChanges();
 	if ( log->isEmpty() )
 	    *log = *wl;
+    }
+}
+
+
+void Well::LogSet::add( const Well::LogSet& wls )
+{
+    NotifyStopper ns( logAdded );
+    const int prevsz = size();
+    for ( int idx=0; idx<wls.size(); idx++ )
+	add( new Well::Log(wls.getLog(idx)) );
+    if ( prevsz < size() )
+    {
+	ns.enableNotification();
+	logAdded.trigger();
     }
 }
 
@@ -116,9 +147,11 @@ Well::Log* Well::LogSet::remove( int logidx )
 {
     Log* log = logs_[logidx]; logs_ -= log;
     ObjectSet<Well::Log> tmp( logs_ );
-    logs_.erase(); init();
+    logs_.setEmpty();
+    init();
     for ( int idx=0; idx<tmp.size(); idx++ )
 	add( tmp[idx] );
+    logRemoved.trigger();
     return log;
 }
 
@@ -126,6 +159,7 @@ Well::Log* Well::LogSet::remove( int logidx )
 void Well::LogSet::setEmpty()
 {
     deepErase( logs_ );
+    logRemoved.trigger();
 }
 
 
@@ -180,7 +214,7 @@ const Mnemonic* Well::Log::mnemonic() const
     if (!mnemlbl_.isEmpty())
 	return eMNC().find( mnemlbl_ );
     else
-	return isCode() ? eMNC().getGuessed( propType() ) 
+	return isCode() ? eMNC().getGuessed( propType() )
 			: eMNC().getGuessed( unitOfMeasure() );
 }
 

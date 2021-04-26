@@ -969,29 +969,6 @@ void uiDialogBody::setSaveButtonChecked( bool yn )
 }
 
 
-void uiDialogBody::setButtonSensitive( uiDialog::Button but, bool yn )
-{
-    switch ( but )
-    {
-    case uiDialog::OK:		if ( okbut_ ) okbut_->setSensitive(yn);
-    break;
-    case uiDialog::CANCEL:	if ( cnclbut_ ) cnclbut_->setSensitive(yn);
-    break;
-    case uiDialog::APPLY:	if ( applybut_ ) applybut_->setSensitive(yn);
-    break;
-    case uiDialog::HELP:	if ( helpbut_ ) helpbut_->setSensitive(yn);
-    break;
-    case uiDialog::SAVE:
-	if ( savebutcb_ ) savebutcb_->setSensitive(yn);
-	if ( savebuttb_ ) savebuttb_->setSensitive(yn);
-    break;
-    case uiDialog::CREDITS:
-	if ( creditsbut_ ) creditsbut_->setSensitive(yn);
-    break;
-    }
-}
-
-
 uiButton* uiDialogBody::button( uiDialog::Button but )
 {
     switch ( but )
@@ -1007,7 +984,28 @@ uiButton* uiDialogBody::button( uiDialog::Button but )
     case uiDialog::CREDITS:	return creditsbut_; break;
     }
 
-    return 0;
+    return nullptr;
+}
+
+
+const uiButton* uiDialogBody::button( uiDialog::Button but ) const
+{
+    return mSelf().button( but );
+}
+
+
+void uiDialogBody::setButtonSensitive( uiDialog::Button but, bool yn )
+{
+    uiButton* butobj = button( but );
+    if ( butobj )
+	butobj->setSensitive( yn );
+}
+
+
+bool uiDialogBody::isButtonSensitive( uiDialog::Button but ) const
+{
+    const uiButton* butobj = button( but );
+    return butobj ? butobj->isSensitive() : false;
 }
 
 

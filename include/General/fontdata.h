@@ -31,6 +31,9 @@ public:
 				 bool ital=defaultItalic());
 			FontData(const char* fms); //! Calls getFrom
 
+    bool		operator ==(const FontData&) const;
+    bool		operator !=(const FontData&) const;
+
 			//! Store/retrieve (in FileMultiString format).
     bool		getFrom(const char* fms);
     void		putTo(BufferString&) const;
@@ -68,9 +71,9 @@ public:
 
 protected:
 
-    BufferString	family_;
-    int			pointsize_;
-    Weight		weight_;
-    bool		italic_;
+    BufferString	family_ = defaultFamily();
+    int			pointsize_ = defaultPointSize();
+    Weight		weight_ = defaultWeight();
+    bool		italic_ = defaultItalic();
 };
 

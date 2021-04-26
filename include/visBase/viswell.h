@@ -67,8 +67,8 @@ public:
     {
 				TrackParams()
 				{}
-	Coord3*			toppos_;
-	Coord3*			botpos_;
+	const Coord3*		toppos_;
+	const Coord3*		botpos_;
 	bool			isdispabove_;
 	bool			isdispbelow_;
 	FontData		font_;
@@ -92,7 +92,7 @@ public:
 	int			cylinderheight_;
 	FontData		font_;
 	OD::Color		namecol_;
-	Coord3*			pos_;
+	const Coord3*		pos_;
 	bool			nmsizedynamic_;
     };
 

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "uistring.h"
 
-namespace Well { class Data; class LogDisplayParSet; }
+namespace Well { class Data; class LogDisplayParSet; class DBDisplayProperties;}
 namespace OD { class Color; }
 
 class uiBulkDirectionalImport;
@@ -99,6 +99,7 @@ protected:
     uiWellImportAsc*		uiwellimpdlg_		= nullptr;
     uiWell2RandomLineDlg*	rdmlinedlg_		= nullptr;
     ObjectSet<uiWellDispPropDlg> wellpropdlgs_;
+    ObjectSet<Well::DBDisplayProperties> wellpropcaches_;
     uiD2TModelGen*		uid2tmgen_		= nullptr;
     uiD2TMLogSelDlg*		uid2tmlogseldlg_	= nullptr;
     uiSimpleMultiWellCreate*	impsimpledlg_		= nullptr;

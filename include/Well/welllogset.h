@@ -28,12 +28,12 @@ class Log;
 \brief Log set
 */
 
-mExpClass(Well) LogSet
+mExpClass(Well) LogSet : public CallBacker
 {
 public:
 
-			LogSet()		{ init(); }
-    virtual		~LogSet()		{ setEmpty(); }
+			LogSet();
+    virtual		~LogSet();
 
     void		getNames(BufferStringSet&, bool onlyloaded=false) const;
 
@@ -53,6 +53,7 @@ public:
     void		removeTopBottomUdfs();
 
     void		add(Log*);		//!< becomes mine
+    void		add(const LogSet&);	//!< copies all logs
     Log*		remove(int);		//!< becomes yours
     void		swap(int idx0,int idx1)	{ logs_.swap( idx0, idx1 ); }
     bool		validIdx(int idx) const	{ return logs_.validIdx(idx); }
@@ -63,6 +64,9 @@ public:
     TypeSet<int>	getSuitable(PropertyRef::StdType,
 				    const PropertyRef* altpr=0,
 				    BoolTypeSet* isalt=0) const;
+
+    Notifier<LogSet>	logAdded;
+    Notifier<LogSet>	logRemoved;
 
 protected:
 
@@ -77,6 +81,10 @@ protected:
     Log*		gtLog( const char* nm ) const
 			{ const int idx = indexOf(nm);
 			    return idx < 0 ? 0 : const_cast<Log*>(logs_[idx]); }
+
+private:
+			LogSet(const LogSet&)		= delete;
+    LogSet&		operator= (const LogSet&)	= delete;
 
 };
 

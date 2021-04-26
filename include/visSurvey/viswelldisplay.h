@@ -135,7 +135,6 @@ public:
     void			setupPicking(bool);
     void			showKnownPositions();
     void			restoreDispProp();
-    Well::Data*			getWD() const;
     Well::Data*			getWD(const Well::LoadReqs&) const;
     bool			needsConversionToTime() const;
 

@@ -35,14 +35,22 @@
 #define	mPickSz	3
 #define	mPickType 3
 
-#define mGetWD(act) RefMan<Well::Data> wd = getWD(); if ( !wd ) { act; }
+namespace visSurvey
+{
+
+static Well::LoadReqs defReqs()
+{
+    Well::LoadReqs lreqs( Well::D2T, Well::Trck, Well::DispProps3D );
+    lreqs.add( Well::LogInfos );
+    return lreqs;
+}
+
+#define mGetWD(act) RefMan<Well::Data> wd = getWD(defReqs()); \
+					    if ( !wd ) { act; }
 #define mMeter2Feet(val) val *= mToFeetFactorF;
 #define mFeet2Meter(val) val *= mFromFeetFactorF;
 #define mGetDispPar(param) wd->displayProperties().param
 
-
-namespace visSurvey
-{
 
 const char* WellDisplay::sKeyEarthModelID	= "EarthModel ID";
 const char* WellDisplay::sKeyWellID		= "Well ID";
@@ -77,16 +85,7 @@ WellDisplay::~WellDisplay()
 
 void WellDisplay::welldataDelNotify( CallBacker* )
 {
-    saveDispProp( wd_ );
     wd_ = nullptr;
-}
-
-
-Well::Data* WellDisplay::getWD() const
-{
-    Well::LoadReqs lreqs( Well::D2T, Well::Trck, Well::DispProps3D );
-    lreqs.add( Well::LogInfos );
-    return getWD( lreqs );
 }
 
 
@@ -106,13 +105,13 @@ Well::Data* WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 	if ( !wd_ )
 	    return nullptr;
 
-	if ( !isloaded && !wd_->dispParsLoaded() )
+	const Well::DisplayProperties& dispprop3d = wd_->displayProperties();
+	if ( !isloaded && !dispprop3d.isValid() )
 	{ //Only for wells without pre-existing display properties
-	    const OD::Color bgcol = getBackgroundColor();
-	    if ( bgcol != OD::Color::NoColor() )
+	    if ( dispprop3d.getTrack().getColor() == OD::Color::NoColor() )
 	    {
-		self->wd_->displayProperties( false )
-			   .ensureColorContrastWith( bgcol );
+		self->wd_->displayProperties()
+			   .ensureColorContrastWith( getBackgroundColor() );
 	    }
 	}
 
@@ -170,39 +169,40 @@ void WellDisplay::setWell( visBase::Well* well )
 void WellDisplay::fillTrackParams( visBase::Well::TrackParams& tp )
 {
     mGetWD(return);
-    tp.col_		= mGetDispPar( track_.color_ );
-    tp.isdispabove_	= mGetDispPar( track_.dispabove_ );
-    tp.isdispbelow_	= mGetDispPar( track_.dispbelow_ );
-    tp.font_		= mGetDispPar( track_.font_ );
-    tp.size_		= mGetDispPar( track_.size_ );
-    tp.nmsizedynamic_	= mGetDispPar( track_.nmsizedynamic_ );
+    tp.size_		= mGetDispPar( getTrack().getSize() );
+    tp.col_		= mGetDispPar( getTrack().getColor() );
+    tp.isdispabove_	= mGetDispPar( getTrack().dispabove_ );
+    tp.isdispbelow_	= mGetDispPar( getTrack().dispbelow_ );
+    tp.font_		= mGetDispPar( getTrack().font_ );
+    tp.nmsizedynamic_	= mGetDispPar( getTrack().nmsizedynamic_ );
 }
 
 
 void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
 {
     mGetWD(return);
-    mp.col_		= mGetDispPar( markers_.color_  );
-    mp.shapeint_	= mGetDispPar( markers_.shapeint_ );
-    mp.cylinderheight_	= mGetDispPar( markers_.cylinderheight_ );
-    mp.font_		= mGetDispPar( markers_.font_ );
-    mp.namecol_		= mGetDispPar( markers_.nmcol_ );
-    mp.size_		= mGetDispPar( markers_.size_ );
-    mp.nmsizedynamic_	= mGetDispPar( markers_.nmsizedynamic_ );
+    mp.size_		= mGetDispPar( getMarkers().getSize() );
+    mp.col_		= mGetDispPar( getMarkers().getColor()  );
+    mp.shapeint_	= mGetDispPar( getMarkers().shapeint_ );
+    mp.cylinderheight_	= mGetDispPar( getMarkers().cylinderheight_ );
+    mp.font_		= mGetDispPar( getMarkers().font_ );
+    mp.namecol_		= mGetDispPar( getMarkers().nmcol_ );
+    mp.nmsizedynamic_	= mGetDispPar( getMarkers().nmsizedynamic_ );
 }
 
 
 #define mGetLogPar(side,par)\
-side==visBase::Well::Left ? mGetDispPar(logs_[0]->left_.par) :\
-side==visBase::Well::Right ? mGetDispPar(logs_[0]->right_.par) :\
-			     mGetDispPar(logs_[0]->center_.par)
+side==visBase::Well::Left ? mGetDispPar(getLogs().left_.par) :\
+side==visBase::Well::Center ? mGetDispPar(getLogs().center_.par) :\
+			      mGetDispPar(getLogs().right_.par)
 
 void WellDisplay::fillLogParams(
 		visBase::Well::LogParams& lp, visBase::Well::Side side )
 {
     mGetWD(return);
+    lp.size_		= mGetLogPar( side, getSize() );
+    lp.col_		= mGetLogPar( side, getColor() );
     lp.cliprate_	= mGetLogPar( side, cliprate_ );
-    lp.col_		= mGetLogPar( side, color_);
     lp.fillname_	= mGetLogPar( side, fillname_ );
     lp.fillrange_	= mGetLogPar( side, fillrange_ );
     lp.isdatarange_	= mGetLogPar( side, isdatarange_ );
@@ -216,7 +216,6 @@ void WellDisplay::fillLogParams(
     lp.range_		= mGetLogPar( side, range_ );
     lp.repeat_		= mGetLogPar( side, repeat_);
     lp.seqname_		= mGetLogPar( side, seqname_ );
-    lp.size_		= mGetLogPar( side, size_ );
     lp.seiscolor_	= mGetLogPar( side, seiscolor_ );
     lp.iscoltabflipped_	= mGetLogPar( side, iscoltabflipped_ );
     int style		= mGetLogPar( side, style_ );
@@ -226,7 +225,7 @@ void WellDisplay::fillLogParams(
 
 #define mDispLog( dsplSide, Side )\
 { \
-    BufferString& logname = mGetLogPar( dsplSide, name_ );\
+    const BufferString& logname = mGetLogPar( dsplSide, name_ );\
     if ( wd->getLog(logname) )\
 	display##Side##Log();\
 }
@@ -241,13 +240,19 @@ void WellDisplay::fullRedraw( CallBacker* )
 
     visBase::Well::TrackParams tp;
     fillTrackParams( tp );
-    tp.toppos_ = &trackpos[0]; tp.botpos_ = &trackpos[trackpos.size()-1];
+    const Coord3 wellhead = trackpos.first();
+    const Coord3 welltd = trackpos.last();
+    tp.toppos_ = &wellhead;
+    tp.botpos_ = &welltd;
     tp.name_ = mToUiStringTodo(wd->name());
-    updateMarkers(0);
+    if ( wd_->displayProperties().isValid() ||
+	 wd_->displayProperties().isModified() )
+	updateMarkers( nullptr );
 
     well_->setTrack( trackpos );
     well_->setTrackProperties( tp.col_, tp.size_ );
     well_->setWellName( tp );
+
     well_->removeLogs();
 
     mDispLog( visBase::Well::Left, Left );
@@ -261,9 +266,7 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 {
     unRefAndZeroPtr( wd_ );
     wellid_ = multiid;
-    RefMan<Well::Data> wd = getWD();
-    if ( !wd )
-	return false;
+    mGetWD(return false);
     const Well::D2TModel* d2t = wd->d2TModel();
     const bool trackabovesrd = wd->track().zRange().stop <
 			      -1.f * float(SI().seismicReferenceDatum());
@@ -323,9 +326,16 @@ void WellDisplay::updateMarkers( CallBacker* )
     if ( !well_ )
 	return;
 
+    mGetWD(return);
+
+    const Well::DisplayProperties& dispprops = wd_->displayProperties();
+    const Well::DisplayProperties::Markers& markerdp = dispprops.getMarkers();
+    if ( markerdp.isEmpty() )
+	return;
+
     well_->removeAllMarkers();
     const Well::LoadReqs lreqs( Well::Mrkrs );
-    RefMan<Well::Data> wd = getWD( lreqs );
+    wd = getWD( lreqs );
     if ( !wd )
 	return;
 
@@ -335,26 +345,24 @@ void WellDisplay::updateMarkers( CallBacker* )
 
     const Well::Track& track =
 		needsConversionToTime() ? *timetrack_ : wd->track();
-
-    const Well::DisplayProperties::Markers& markerdp =
-			wd->displayProperties(false).markers_;
-    const BufferStringSet& unselnms = markerdp.unselmarkernms_;
-    for ( int idx=0; idx<wd->markers().size(); idx++ )
+    const Well::MarkerSet& markers = wd->markers();
+    for ( const auto* wellmarker : markers )
     {
-	Well::Marker* wellmarker = wd->markers()[idx];
-	if ( unselnms.isPresent(wellmarker->name()) )
+	if ( !markerdp.isSelected(wellmarker->name()) )
 	    continue;
 
-	Coord3 pos = track.getPos( wellmarker->dah() );
+	const Coord3 pos = track.getPos( wellmarker->dah() );
 	if ( pos.isUdf() )
 	    continue;
 
 	mp.pos_ = &pos;
-	mp.name_ = mToUiStringTodo(wellmarker->name());
+	mp.name_ = mToUiStringTodo( wellmarker->name() );
 
-	if ( !mGetDispPar( markers_.issinglecol_ ) )
+	if ( !mGetDispPar(getMarkers().issinglecol_) )
 	    mp.col_ = wellmarker->color();
-	if ( mGetDispPar( markers_.samenmcol_ ) ) mp.namecol_  = mp.col_;
+
+	if ( mGetDispPar(getMarkers().samenmcol_) )
+	    mp.namecol_  = mp.col_;
 
 	well_->addMarker( mp );
     }
@@ -541,7 +549,7 @@ void WellDisplay::setLogDisplay( visBase::Well::Side side )
     if ( !wd )
 	return;
 
-    BufferString& logname = mGetLogPar( side, name_ );
+    const BufferString& logname = mGetLogPar( side, name_ );
     if ( wd->logs().isEmpty() ) return;
     const int logidx = wd->logs().indexOf( logname );
     if ( logidx<0 )

@@ -102,9 +102,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	Well::LogSet* wls = new Well::LogSet( wd->logs() );
-	uiWellLogToolWin::LogData* ldata =
-	    new uiWellLogToolWin::LogData( *wls, wd->d2TModel(), &wd->track());
+	auto* ldata = new uiWellLogToolWin::LogData( wd->logs(), wd->d2TModel(),						     &wd->track() );
 	const Well::ExtractParams& params = welllogselfld_->params();
 	ldata->dahrg_ = params.calcFrom( *wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
@@ -671,14 +669,14 @@ void uiWellLogToolWin::displayLogs()
 	    uiWellLogDisplay* ld = logdisps_[nrdisp];
 	    uiWellLogDisplay::LogData* wld = &ld->logData( true );
 	    wld->setLog( inplogs[idlog] );
-	    wld->disp_.color_ = OD::Color::stdDrawColor( 1 );
+	    wld->disp_.setColor( OD::Color::stdDrawColor( 1 ) );
 	    wld->zoverlayval_ = 1;
 
 	    wld = &ld->logData( false );
 	    wld->setLog( outplogs.validIdx( idlog ) ? outplogs[idlog] : 0 );
 	    wld->xrev_ = false;
 	    wld->zoverlayval_ = 2;
-	    wld->disp_.color_ = OD::Color::stdDrawColor( 0 );
+	    wld->disp_.setColor( OD::Color::stdDrawColor( 0 ) );
 
 	    ld->setZRange( zdisplayrg_ );
 	    ld->reDraw();

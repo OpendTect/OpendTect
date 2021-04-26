@@ -774,7 +774,8 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
     }
 
     getMarkerSet( wd->markers() );
-    wd->displayProperties().markers_.unselmarkernms_.setEmpty();
+    BufferStringSet emptynms;
+    wd->displayProperties().setMarkersNms( emptynms, false );
     wd->markerschanged.trigger();
 }
 

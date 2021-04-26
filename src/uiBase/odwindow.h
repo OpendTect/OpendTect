@@ -175,8 +175,10 @@ public:
     void		enableSaveButton(const uiString& txt);
     void		setSaveButtonChecked(bool yn);
     void		setButtonSensitive(uiDialog::Button,bool yn);
+    bool		isButtonSensitive(uiDialog::Button) const;
     bool		saveButtonChecked() const;
     bool		hasSaveButton() const;
+    const uiButton*	button(uiDialog::Button) const;
     uiButton*		button(uiDialog::Button);
 
 			//! Separator between central dialog and Ok/Cancel bar?

@@ -170,9 +170,6 @@ public:
     bool			haveCheckShotModel() const { return csmodel_; }
     Well::LoadReqs		loadState() const;
     void			reloadLogNames() const;
-    void			setDispParsLoaded( bool yn )
-				{ disploaded_ = yn; }
-    bool			dispParsLoaded() const { return disploaded_; }
 
     Notifier<Well::Data>	d2tchanged;
     Notifier<Well::Data>	csmdlchanged;
@@ -195,7 +192,6 @@ protected:
     MarkerSet&		markers_;
     DisplayProperties&	disp2d_;
     DisplayProperties&	disp3d_;
-    bool		disploaded_ = false;
     mutable BufferStringSet	lognms_;
 };
 

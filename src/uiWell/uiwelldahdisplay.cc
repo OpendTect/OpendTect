@@ -354,11 +354,11 @@ void uiWellDahDisplay::drawMarkers()
     for ( int idx=0; idx<markers()->size(); idx++ )
     {
 	const Well::Marker& mrkr = *((*markers())[idx]);
-	if ( mrkdisp_.unselmarkernms_.isPresent( mrkr.name() ) )
+	if ( !mrkdisp_.isSelected(mrkr.name()) )
 	    continue;
 
 	const OD::Color& col =
-			mrkdisp_.issinglecol_? mrkdisp_.color_ : mrkr.color();
+		    mrkdisp_.issinglecol_? mrkdisp_.getColor() : mrkr.color();
 	const OD::Color& nmcol = mrkdisp_.samenmcol_ ? col :  mrkdisp_.nmcol_;
 
 	if ( col == OD::Color::NoColor() || col == OD::Color::White() )
@@ -373,7 +373,7 @@ void uiWellDahDisplay::drawMarkers()
 	uiLineItem* li = scene().addItem( new uiLineItem(
 	   mCast(float,x1),mCast(float,y),mCast(float,x2),mCast(float,y)));
 	const int shapeint = mrkdisp_.shapeint_;
-	const int drawsize = mrkdisp_.size_;
+	const int drawsize = mrkdisp_.getSize();
 	OD::LineStyle ls = OD::LineStyle( OD::LineStyle::Dot, drawsize, col );
 	if ( shapeint == 1 )
 	    ls.type_ =	OD::LineStyle::Solid;

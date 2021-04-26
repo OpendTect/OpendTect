@@ -38,12 +38,14 @@ public:
 
     enum TabType { LeftLog=0, CenterLog=1, RightLog=2, Marker=3, Track=4 };
 
-    Well::Data*			wellData()		{ return wd_; }
-    const Well::Data*		wellData() const	{ return wd_; }
+    virtual Well::Data*		wellData()		{ return wd_; }
+    virtual const Well::Data*	wellData() const	{ return wd_; }
 
     TabType			currentTab() const;
     bool			is2D() const		{ return is2ddisplay_; }
-    void			updateLogs();
+    bool			needsSave() const;
+
+    void			setNeedsSave(bool yn);
 
 protected:
 
@@ -56,12 +58,15 @@ protected:
     virtual void		getFromScreen();
     virtual void		putToScreen();
 
+    void			postFinaliseCB(CallBacker*);
     virtual void		setWDNotifiers(bool yn);
-    bool			acceptOK(CallBacker*) override;
-    virtual void		resetCB(CallBacker*);
+
     virtual void		applyTabPush(CallBacker*);
     virtual void		resetAllPush(CallBacker*);
-    virtual void		onClose(CallBacker*)		{}
+    void			saveAsDefaultCB(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
+    bool			rejectOK(CallBacker*) override;
+    virtual void		resetCB(CallBacker*);
 
     virtual void		propChg(CallBacker*);
     void			markersChgd(CallBacker*);
@@ -90,14 +95,14 @@ protected:
     uiLabeledComboBox*		wellselfld_ = nullptr;
     bool			allapplied_ = false;
 
-    void			resetProps(int,int);
-    virtual void		wellSelChg(CallBacker*);
-    bool			acceptOK(CallBacker*) override;
     void			setWDNotifiers(bool yn) override;
-    void			onClose(CallBacker*) override;
+
     void			applyTabPush(CallBacker*) override;
     void			resetAllPush(CallBacker*) override;
+    bool			acceptOK(CallBacker*) override;
 
+    void			resetProps(int,int);
+    void			wellSelChg(CallBacker*);
     void			saveWellDispProps(const Well::Data*);
     void			saveAllWellDispProps();
 

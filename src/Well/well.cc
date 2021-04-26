@@ -325,11 +325,10 @@ void Well::Data::levelToBeRemoved( CallBacker* cb )
 Well::LoadReqs Well::Data::loadState() const
 {
     Well::LoadReqs lreqs( Well::Inf );
-    if ( dispParsLoaded() )
-    {
+    if ( disp2d_.isValid() || disp2d_.isModified() )
 	lreqs.add( Well::DispProps2D );
+    if ( disp3d_.isValid() || disp3d_.isModified() )
 	lreqs.add( Well::DispProps3D );
-    }
     if ( haveMarkers() )
 	lreqs.add( Well::Mrkrs );
     if ( haveD2TModel() )

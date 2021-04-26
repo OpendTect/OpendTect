@@ -116,7 +116,8 @@ public:
     void		setModal(bool yn);
     bool		isModal() const;
 
-    uiButton*		button( Button but );
+    uiButton*		button(Button);
+    const uiButton*	button(Button) const;
     void		setButtonText( Button but, const uiString& txt );
 
     enum CtrlStyle	{ OkAndCancel, RunAndClose, CloseOnly };
@@ -137,6 +138,7 @@ public:
     void		setButtonSensitive(Button,bool);
     void		setSaveButtonChecked(bool);
     void		setTitleText(const uiString& txt);
+    bool		isButtonSensitive(Button) const;
     bool		hasSaveButton() const;
     bool		saveButtonChecked() const;
 
