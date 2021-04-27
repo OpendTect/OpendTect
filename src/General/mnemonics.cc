@@ -328,6 +328,18 @@ Mnemonic* MnemonicSet::getGuessed( const UnitOfMeasure* uom )
 }
 
 
+const Mnemonic* MnemonicSet::getGuessed( PropertyRef::StdType stdtype ) const
+{
+    return const_cast<MnemonicSet*>(this)->getGuessed( stdtype );
+}
+
+
+const Mnemonic* MnemonicSet::getGuessed( const UnitOfMeasure* uom ) const
+{
+    return const_cast<MnemonicSet*>(this)->getGuessed( uom );
+}
+
+
 void MnemonicSet::getNames( BufferStringSet& names ) const
 {
     for ( int idx=0; idx<size(); idx++ )
