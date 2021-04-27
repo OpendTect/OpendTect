@@ -171,6 +171,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 
     aliasfld_ = new uiGenInput( this, tr("Aliases (e.g. 'abc, uvw*xyz')"),
 				StringInpSpec(ss.buf()) );
+    aliasfld_->setElemSzPol( uiObject::Wide );
     aliasfld_->attach( alignedBelow, mnemonicsfld_ );
 
     if ( !mn_ )
@@ -195,7 +196,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 	unfld_ = new uiUnitSel( this, pr_.stdType() );
     else
     {
-	unfld_ = new uiUnitSel( this, mn_ );
+	unfld_ = new uiUnitSel( this, mn_->stdType() );
         unfld_->setUnit( mn_->disp_.unit_ );
     }
 
@@ -558,9 +559,9 @@ uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
     : uiVarWizardDlg(p,uiDialog::Setup(toUiString("%1 %2 - %3")
 		.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
 		.arg(uiStrings::sSelection()),
-		tr("You will be modeling layer properties, we have pre-selected"
-		    " essential ones.\nAdd properties only if you are interested in"
-		    " modeling those."),
+	tr("You will be modeling layer properties, we have pre-selected"
+	   " essential ones.\nAdd properties only if you are interested in"
+	   " modeling those."),
 		mODHelpKey(mSelectPropRefsHelpID)),
 		pars, (uiVarWizardDlg::Position)pos )
 {

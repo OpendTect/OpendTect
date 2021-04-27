@@ -185,10 +185,10 @@ const char* Well::Log::mnemLabel() const
 const Mnemonic* Well::Log::mnemonic() const
 {
     if (!mnemlbl_.isEmpty())
-	return eMNC().find( mnemlbl_ );
+	return MNC().find( mnemlbl_ );
     else
-	return isCode() ? eMNC().getGuessed( propType() )
-			: eMNC().getGuessed( unitOfMeasure() );
+	return isCode() ? MNC().getGuessed( propType() )
+			: MNC().getGuessed( unitOfMeasure() );
 }
 
 

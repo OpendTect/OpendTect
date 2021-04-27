@@ -32,11 +32,11 @@ class Mnemonic;
 mExpClass(General) Property
 { mODTextTranslationClass(Property);
 public:
-
 			Property( const PropertyRef& pr );
     virtual Property*	clone() const			= 0;
     static Property*	get(const IOPar&);
     virtual		~Property()			{}
+
     bool		isEqualTo(const Property&) const;
     virtual bool	isValue() const			{ return false; }
 
@@ -107,7 +107,6 @@ protected:
 mExpClass(General) PropertySet
 {
 public:
-
 			PropertySet()		{}
 			PropertySet(const PropertyRefSelection&);
 						//!< Creates ValueProperty's
@@ -178,13 +177,13 @@ public: \
 mExpClass(General) ValueProperty : public Property
 {
 public:
-
 			ValueProperty( const PropertyRef& pr )
 			: Property(pr)
-			, val_(mUdf(float))	{}
+			, val_(mnem()?mnem()->disp_.typicalrange_.center()
+				     :mUdf(float))	{}
 			ValueProperty( const PropertyRef& pr, float v )
 			: Property(pr)
-			, val_(v)		{}
+			, val_(v)			{}
     virtual bool	isValue() const		{ return true; }
 
     float		val_;
@@ -199,10 +198,10 @@ public:
 mExpClass(General) RangeProperty : public Property
 {
 public:
-
 			RangeProperty( const PropertyRef& pr )
 			: Property(pr)
-			, rg_(mnem()->disp_.range_)	{}
+			, rg_(mnem()?mnem()->disp_.range_
+				    :Interval<float>::udf())	{}
 			RangeProperty( const PropertyRef& pr,
 				       Interval<float> rg )
 			: Property(pr)
@@ -216,4 +215,3 @@ protected:
 
     float		gtAvgVal() const;
 };
-

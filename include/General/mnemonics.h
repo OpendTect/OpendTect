@@ -101,6 +101,10 @@ public:
 				//first match only
     Mnemonic*			getGuessed(PropertyRef::StdType);
 				//first match only
+    const Mnemonic*		getGuessed(const UnitOfMeasure*) const;
+				//first match only
+    const Mnemonic*		getGuessed(PropertyRef::StdType) const;
+				//first match only
     void			getNames(BufferStringSet&) const;
 
     int			add(Mnemonic*);
