@@ -558,17 +558,49 @@ void uiODApplMgrDispatcher::openXPlot()
 }
 
 
+class uiUpdateInfoDlg : public uiDialog
+{ mODTextTranslationClass(uiUpdateInfoDlg);
+public:
+		uiUpdateInfoDlg(uiParent*,uiString&);
+
+protected:
+    bool	acceptOK(CallBacker*) override;
+    uiCheckBox* relnotesbut_;
+};
+
+
+uiUpdateInfoDlg::uiUpdateInfoDlg( uiParent* p, uiString& infomsg )
+    : uiDialog( p, uiDialog::Setup(tr("Information"),infomsg,
+				   "mNoHelpID"))
+{
+    setCancelText( uiString::emptyString() );
+    relnotesbut_ = new uiCheckBox( this, tr("Show release notes") );
+    relnotesbut_->setChecked( true );
+}
+
+
+bool uiUpdateInfoDlg::acceptOK( CallBacker* )
+{
+    if ( relnotesbut_->isChecked() )
+	uiODApplMgr::showReleaseNotes( true );
+
+    return true;
+}
+
+
 void uiODApplMgrDispatcher::startInstMgr()
 {
-#ifndef __win__
-    uiString msg = tr("If you make changes to the application,\nplease "
-		      "restart OpendTect for the changes to take effect.");
-#else
+#ifdef __win__
     uiString msg = tr("Please close OpendTect application and all other "
 		      "OpendTect processes before proceeding for"
 		      " installation/update");
+#else
+    uiString msg = tr("If you make changes to the application,\nplease "
+		      "restart OpendTect for the changes to take effect.");
 #endif
-    uiMSG().message( msg );
+
+    uiUpdateInfoDlg dlg( par_, msg );
+    dlg.go();
     ODInst::startInstManagement();
 }
 

@@ -18,9 +18,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribcrossplot.h"
 #include "uiattribpartserv.h"
 #include "uiconvpos.h"
+#include "uidesktopservices.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uifiledlg.h"
+#include "uihelpview.h"
 #include "uimain.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
@@ -2031,3 +2033,12 @@ void uiODApplMgr::MiscSurvInfo::refresh()
 
 bool uiODApplMgr::isRestoringSession() const
 { return appl_.isRestoringSession(); }
+
+
+void uiODApplMgr::showReleaseNotes( bool isonline )
+{
+    const HelpKey key( ReleaseNotesProvider::sKeyFactoryName(),
+		       isonline ? ReleaseNotesProvider::sKeyFactoryName()
+				: nullptr );
+    HelpProvider::provideHelp( key );
+}

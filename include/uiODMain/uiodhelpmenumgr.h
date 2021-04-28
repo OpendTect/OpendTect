@@ -34,7 +34,6 @@ protected:
     uiString		getAboutString();
     void		showLegalInfo();
     void		showShortKeys();
-    void		showReleaseNotes(bool isonline);
 
     uiODMenuMgr*	mnumgr_;
     uiMenu*		helpmnu_;

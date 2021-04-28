@@ -114,3 +114,15 @@ private:
     IOPar			videolinks_;
 };
 
+
+mExpClass(uiBase) ReleaseNotesProvider : public HelpProvider
+{
+public:
+    static const char*		sKeyFactoryName();
+    static void			initClass();
+
+private:
+    static HelpProvider*	createInstance();
+    bool			hasHelp(const char* arg) const;
+    void			provideHelp(const char* arg) const;
+};

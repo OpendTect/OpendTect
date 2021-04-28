@@ -251,3 +251,54 @@ uiString VideoProvider::description( const char* arg ) const
     videolinks_.get( IOPar::compKey(toString(helpidx),"Title"), info );
     return toUiString(info);
 }
+
+
+//ReleaseNotesProvider
+const char* ReleaseNotesProvider::sKeyFactoryName()	{ return "relinfo"; }
+
+HelpProvider* ReleaseNotesProvider::createInstance()
+{ return new ReleaseNotesProvider; }
+
+
+void ReleaseNotesProvider::initClass()
+{ HelpProvider::factory().addCreator( createInstance, sKeyFactoryName() ); }
+
+
+void ReleaseNotesProvider::provideHelp( const char* arg ) const
+{
+    BufferString url;
+    bool online = false;
+    const FixedString argstr( arg );
+    if ( argstr.isEmpty() )
+    {
+	BufferString relnotesfnm( "Release_Notes_" );
+	relnotesfnm.add( mODMajorVersion ).add( "_" ).add( mODMinorVersion );
+	FilePath relnotesfp( GetSoftwareDir(true), "relinfo", relnotesfnm );
+	relnotesfp.setExtension( "pdf" );
+	url.set( relnotesfp.fullPath() );
+	if ( !File::exists(relnotesfp.fullPath()) )
+	{
+	    //Not found locally. Showing online relnotes.
+	    arg = sKeyFactoryName();
+	    online = true;
+	}
+    }
+    else
+	online = true;
+
+    if ( online )
+    {
+	url.set( mBaseUrl );
+	url.add( "/backendscripts/docsites.php?version=" )
+	   .add( toString(mODVersion) ).add( "&module=" ).add( arg );
+    }
+
+    uiDesktopServices::openUrl( url );
+}
+
+
+bool ReleaseNotesProvider::hasHelp( const char* arg ) const
+{
+    const FixedString argstr( arg );
+    return  argstr == sKeyFactoryName();
+}

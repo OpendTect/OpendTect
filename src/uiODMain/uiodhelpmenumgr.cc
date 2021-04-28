@@ -131,7 +131,7 @@ void uiODHelpMenuMgr::handle( int id )
 	} break;
 	case mReleaseNotesItm:
 	{
-	    showReleaseNotes( false );
+	    uiODApplMgr::showReleaseNotes( false );
 	} break;
 	default:
 	{
@@ -153,31 +153,6 @@ void uiODHelpMenuMgr::showShortKeys()
     OS::CommandLauncher cl( machcomm );
     if ( !cl.execute(OS::RunInBG) )
 	uiMSG().error( cl.errorMsg() );
-}
-
-
-void uiODHelpMenuMgr::showReleaseNotes( bool isonline )
-{
-
-    BufferString urlstr;
-    if ( isonline )
-    {
-	urlstr.set( "https://backend.opendtect.org/backendscripts/" )
-	      .add( "docsites.php?version=660&module=relinfo" );
-    }
-    else
-    {
-	BufferString relnotesfnm( "Release_Notes_" );
-	relnotesfnm.add( mODMajorVersion ).add( "_" ).add( mODMinorVersion );
-	FilePath relnotesfp( GetSoftwareDir(true), "relinfo", relnotesfnm );
-	relnotesfp.setExtension( "pdf" );
-	if ( !File::exists(relnotesfp.fullPath()) )
-	    return;
-
-	urlstr.set( relnotesfp.fullPath() );
-    }
-
-    uiDesktopServices::openUrl( urlstr );
 }
 
 

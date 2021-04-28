@@ -89,6 +89,8 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		deleteDlgs();
 
     void		posDlgClose(CallBacker*);
+    void		showReleaseNotesCB(CallBacker*);
+
     uiConvertPos*	convposdlg_;
     uiDataPointSetMan*	mandpsdlg_;
     uiManPROPS*		manpropsdlg_;

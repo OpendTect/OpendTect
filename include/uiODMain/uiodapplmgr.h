@@ -230,6 +230,7 @@ public:
 				    { return otherformatattrib_; }
     void			useDefColTab(int visid,int attrib);
     bool			isRestoringSession() const;
+    static void			showReleaseNotes(bool isonline);
 
 protected:
 

@@ -29,6 +29,7 @@ mDefModInitFn(uiBase)
     VideoProvider::init();
 
     WebsiteHelp::initClass();
+    ReleaseNotesProvider::initClass();
     uiRGBImageLoader::initClass();
 
     System::CrashDumper::getInstance().setSendAppl(
