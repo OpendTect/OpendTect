@@ -33,6 +33,7 @@ public:
 
     static void		preInitForOpenGL();
 			//!< call before the uiMain object is constructed
+    static bool		reqOpenGL();
 
 			uiMain(int& argc,char** argv);
 private:

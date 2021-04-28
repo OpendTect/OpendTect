@@ -412,9 +412,10 @@ void uiMain::preInit()
 #endif
 }
 
-
+static bool reqopengl = false;
 void uiMain::preInitForOpenGL()
 {
+    reqopengl = true;
 #ifdef __win__
     /*Dynamic dll loading makes OSG crash with Remote Desktop Protocol.
       Needs to set it explicitely. Sufficient for machine with Nvidia Quadro,
@@ -424,6 +425,12 @@ void uiMain::preInitForOpenGL()
     QApplication::setAttribute( Qt::AA_UseDesktopOpenGL );
 # endif
 #endif
+}
+
+
+bool uiMain::reqOpenGL()
+{
+    return reqopengl;
 }
 
 
