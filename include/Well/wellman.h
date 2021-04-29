@@ -77,6 +77,7 @@ public:
 
     void		cleanup();
     void		removeObject(const Data*);
+    void		removeObject(const MultiID&);
     Data*		get(const MultiID&);
     Data*		get(const MultiID&,LoadReqs);
     bool		readReqData(const MultiID&,Data*,LoadReqs);
