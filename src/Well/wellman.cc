@@ -153,6 +153,17 @@ void Well::Man::removeObject( const Well::Data* wd )
 }
 
 
+void Well::Man::removeObject( const MultiID& key )
+{
+    const int wdidx = gtByKey( key );
+    if ( wdidx < 0 )
+	return;
+
+    Data* wd = wells_[wdidx];
+    removeObject( wd );
+}
+
+
 void Well::Man::add( const MultiID& key, Well::Data* wll )
 {
     if ( !wll ) return;
