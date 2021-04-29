@@ -140,7 +140,7 @@ static OS::MachineCommand getFullMachComm( const char* reldir )
     mc.setProgram( installerfp.fullPath() )
       .addKeyedArg( "instdir", reldir );
 
-    return OS::MachineCommand( mc, true );
+    return OS::MachineCommand( mc, false );
 }
 
 
