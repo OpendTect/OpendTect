@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibutton.h"
 #include "uiflatviewstdcontrol.h"
+#include "uimsg.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodviewer2dposgrp.h"
 #include "uiodmain.h"
@@ -56,6 +57,14 @@ bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
     posgrp_->fillPar( seldatapar );
     Viewer2DPosDataSel posdatasel;
     posdatasel.usePar( seldatapar );
+
+    if ( posdatasel.postype_ == Viewer2DPosDataSel::RdmLine &&
+	 posdatasel.rdmlineid_==-1 )
+    {
+	uiMSG().error( tr("Selected RandomLine is not valid.") );
+	return false;
+    }
+
     odappl_.viewer2DMgr().displayIn2DViewer( posdatasel,
 					     false, initialx1pospercm_,
 	   				     initialx2pospercm_ );

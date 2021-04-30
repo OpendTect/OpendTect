@@ -284,8 +284,9 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 	    if ( !rdlobj )
 		return false;
 	    posdatasel_->rdmlinemultiid_ = rdlobj->key();
-	    posdatasel_->rdmlineid_ =
-		Geometry::RLM().get( rdlobj->key() )->ID();
+	    const Geometry::RandomLine* rdlgeom =
+				Geometry::RLM().get( rdlobj->key() );
+	    posdatasel_->rdmlineid_ = rdlgeom ? rdlgeom->ID() : -1;
 	    break;
     }
 
