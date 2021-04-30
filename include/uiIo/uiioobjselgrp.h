@@ -81,11 +81,24 @@ public:
 			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
 					const Setup&); \
 			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
-					const uiString& seltxt,const Setup&)
+					const uiString& seltxt,const Setup&); \
+			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
+					BufferStringSet& trnotallowed); \
+			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
+					const uiString& seltxt, \
+					BufferStringSet& trnotallowed); \
+			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
+				const Setup&,BufferStringSet& trnotallowed); \
+			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
+				    const uiString& seltxt,const Setup&, \
+				    BufferStringSet& trnotallowed)
 
 			mDefuiIOObjSelGrpConstructors(IOObjContext);
 			mDefuiIOObjSelGrpConstructors(CtxtIOObj);
 			~uiIOObjSelGrp();
+
+    void		setTrNotAllowed(const BufferStringSet&);
+    const BufferStringSet&    getTrNotAllowed() const;
 
     bool		isEmpty() const;
     int			size() const;

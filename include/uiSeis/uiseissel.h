@@ -67,6 +67,8 @@ public:
     };
 
 			uiSeisSel(uiParent*,const IOObjContext&,const Setup&);
+			uiSeisSel(uiParent*,const IOObjContext&,const Setup&,
+			    BufferStringSet& trnotallowed);
 			~uiSeisSel();
 
     virtual bool	fillPar(IOPar&) const;

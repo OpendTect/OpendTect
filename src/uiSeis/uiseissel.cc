@@ -260,6 +260,22 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 }
 
 
+uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
+		    const uiSeisSel::Setup& su, BufferStringSet& trnotallowed )
+	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),trnotallowed,
+						mkSetup(su,ctxt.forread_))
+	, seissetup_(mkSetup(su,ctxt.forread_))
+	, othdombox_(0)
+	, compnr_(0)
+{
+    workctio_.ctxt_ = inctio_.ctxt_;
+    if ( !ctxt.forread_ && Seis::is2D(seissetup_.geom_) )
+	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
+
+    mkOthDomBox();
+}
+
+
 void uiSeisSel::mkOthDomBox()
 {
     if ( !inctio_.ctxt_.forread_ && seissetup_.enabotherdomain_ )

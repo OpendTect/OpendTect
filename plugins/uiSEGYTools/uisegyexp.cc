@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 #include "segybatchio.h"
 #include "segyhdr.h"
+#include "segydirecttr.h"
 #include "segytr.h"
 #include "seisread.h"
 #include "seissingtrcproc.h"
@@ -194,7 +195,8 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     IOObjContext ctxt( uiSeisSel::ioContext( geom_, true ) );
     uiSeisSel::Setup sssu( geom_ ); sssu.steerpol(uiSeisSel::Setup::InclSteer);
     sssu.selectcomp(true);
-    seissel_ = new uiSeisSel( this, ctxt, sssu );
+    seissel_ = new uiSeisSel( this, ctxt, sssu,
+				    BufferStringSet(mSEGYDirectTranslNm) );
     mAttachCB( seissel_->selectionDone, uiSEGYExp::inpSel );
 
     uiSeisTransfer::Setup tsu( geom_ );

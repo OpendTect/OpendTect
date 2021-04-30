@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjselwritetransl.h"
 
 #include "ctxtioobj.h"
+#include "hiddenparam.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -43,6 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const MultiID udfmid( "-1" );
 
 static const char* dGBToDispStorageStr()    { return "OpendTect";  }
+static HiddenParam<uiIOObjSelGrp,BufferStringSet*> trnotallowed_(nullptr);
 
 
 class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
@@ -121,38 +123,154 @@ void relocStart( const char* msg )
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c )
     : muiIOObjSelGrpConstructorCommons
-{ init(); }
+{
+    trnotallowed_.setParam( this, new BufferStringSet() );
+    init();
+}
+
+
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 			      const uiString& seltxt )
     : muiIOObjSelGrpConstructorCommons
-{ init( seltxt ); }
+{
+    trnotallowed_.setParam( this, new BufferStringSet() );
+    init( seltxt );
+}
+
+
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 			      const uiIOObjSelGrp::Setup& su )
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
-{ init(); }
+{
+    trnotallowed_.setParam( this, new BufferStringSet() );
+    init();
+}
+
+
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 		      const uiString& seltxt, const uiIOObjSelGrp::Setup& su )
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
-{ init( seltxt ); }
+{
+    trnotallowed_.setParam( this, new BufferStringSet() );
+    init( seltxt );
+}
+
+
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c )
     : muiIOObjSelGrpConstructorCommons
-{ init(); }
+{
+    trnotallowed_.setParam( this, new BufferStringSet() );
+    init();
+}
+
+
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 			      const uiString& seltxt )
     : muiIOObjSelGrpConstructorCommons
-{ init( seltxt ); }
+{
+    trnotallowed_.setParam( this, new BufferStringSet() );
+    init( seltxt );
+}
+
+
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 			      const uiIOObjSelGrp::Setup& su )
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
-{ init(); }
+{
+    trnotallowed_.setParam( this, new BufferStringSet() );
+    init();
+}
+
+
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 		      const uiString& seltxt, const uiIOObjSelGrp::Setup& su )
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
-{ init( seltxt ); }
+{
+    trnotallowed_.setParam( this, new BufferStringSet() );
+    init( seltxt );
+}
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
+					    BufferStringSet& trnotallowed )
+    : muiIOObjSelGrpConstructorCommons
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init();
+}
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
+			const uiString& seltxt, BufferStringSet& trnotallowed )
+    : muiIOObjSelGrpConstructorCommons
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init( seltxt );
+}
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
+		const uiIOObjSelGrp::Setup& su, BufferStringSet& trnotallowed )
+    : muiIOObjSelGrpConstructorCommons
+    , setup_(su)
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init();
+}
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
+			const uiString& seltxt, const uiIOObjSelGrp::Setup& su,
+			BufferStringSet& trnotallowed )
+    : muiIOObjSelGrpConstructorCommons
+    , setup_(su)
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init( seltxt );
+}
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
+						BufferStringSet& trnotallowed )
+    : muiIOObjSelGrpConstructorCommons
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init();
+}
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
+			const uiString& seltxt, BufferStringSet& trnotallowed )
+    : muiIOObjSelGrpConstructorCommons
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init( seltxt );
+}
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
+		const uiIOObjSelGrp::Setup& su, BufferStringSet& trnotallowed )
+    : muiIOObjSelGrpConstructorCommons
+    , setup_(su)
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init();
+}
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
+		      const uiString& seltxt, const uiIOObjSelGrp::Setup& su,
+			BufferStringSet& trnotallowed)
+    : muiIOObjSelGrpConstructorCommons
+    , setup_(su)
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init( seltxt );
+}
 
 
 void uiIOObjSelGrp::init( const uiString& seltxt )
@@ -243,7 +361,8 @@ void uiIOObjSelGrp::mkWriteFlds()
     wrtrselfld_ = 0;
     if ( setup_.withwriteopts_ )
     {
-	wrtrselfld_ = new uiIOObjSelWriteTranslator( wrgrp, ctio_, true );
+	wrtrselfld_ = new uiIOObjSelWriteTranslator( wrgrp, ctio_,
+					getTrNotAllowed(), true );
 	wrtrselfld_->suggestedNameAvailble.notify(
 				mCB(this,uiIOObjSelGrp,nameAvCB) );
     }
@@ -295,8 +414,11 @@ void uiIOObjSelGrp::mkManipulators()
     const ObjectSet<const Translator>& tpls = ctio_.ctxt_.trgroup_->templates();
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
+	const BufferString trnm = tpls[idx]->typeName();
+	const BufferStringSet& trnotallowed = getTrNotAllowed();
 	if ( !IOObjSelConstraints::isAllowedTranslator(tpls[idx]->userName(),
-		ctio_.ctxt_.toselect_.allowtransls_) )
+	    ctio_.ctxt_.toselect_.allowtransls_) ||
+		(!trnotallowed.isEmpty() && trnotallowed.indexOf(trnm)>=0) )
 	    continue;
 
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
@@ -336,6 +458,20 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
     delete ctio_.ioobj_;
     delete &ctio_;
     delete lbchoiceio_;
+
+    trnotallowed_.removeAndDeleteParam( this );
+}
+
+
+const BufferStringSet& uiIOObjSelGrp::getTrNotAllowed() const
+{
+    return *trnotallowed_.getParam(this);
+}
+
+
+void uiIOObjSelGrp::setTrNotAllowed( const BufferStringSet& trnotallowed )
+{
+    *trnotallowed_.getParam( this ) = trnotallowed;
 }
 
 
@@ -888,6 +1024,30 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
 
 void uiIOObjSelGrp::newOutputNameCB( CallBacker* )
 {
+    const int deftransidx = ctio_.ctxt_.trgroup_->defTranslIdx();
+    const Translator* deftrans = ctio_.ctxt_.trgroup_->templates()[deftransidx];
+    PtrMan<IOObj> curioobj = IOM().get( currentID() );
+    const Translator* selectedtrans =
+				wrtrselfld_ ? wrtrselfld_->selectedTranslator()
+					    : 0;
+    const bool translatorchanged = curioobj && selectedtrans
+			 ? curioobj->translator() != selectedtrans->userName()
+			 : false;
+
+    if ( !translatorchanged && wrtrselfld_ )
+    {
+	if ( curioobj && wrtrselfld_->hasWriteOpts() )
+	{
+	    uiIOObjSelWriteTranslator currentwrtselfld( this, ctio_.ctxt_,
+					    getTrNotAllowed(), true );
+	    currentwrtselfld.use( *curioobj );
+	    if ( wrtrselfld_->hasSameWriteOpts(currentwrtselfld) )
+		wrtrselfld_->resetPars();
+	}
+
+	wrtrselfld_->setTranslator( deftrans );
+	updateCtxtIOObj();
+    }
 }
 
 

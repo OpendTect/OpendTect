@@ -35,6 +35,8 @@ static const char* rcsID mUsedVar = "$Id$";
 mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
 
 static HiddenParam<uiIOObjInserter,IOObjContext*> ctxt_(nullptr);
+static HiddenParam<uiIOObjSel,BufferStringSet*> trnotallowed_(nullptr);
+
 
 uiIOObjInserter::uiIOObjInserter( const Translator& trl )
     : objectInserted(this)
@@ -110,15 +112,29 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
     if ( uiIOObjInserter::allDisabled() )
 	return;
 
+    addInsertersToDlg( p, ctio, insertset, buttonset, BufferStringSet() );
+}
+
+
+void uiIOObjInserter::addInsertersToDlg( uiParent* p,
+					 CtxtIOObj& ctio,
+					 ObjectSet<uiIOObjInserter>& insertset,
+					 ObjectSet<uiButton>& buttonset,
+					 const BufferStringSet& transltoavoid )
+{
+    if ( uiIOObjInserter::allDisabled() )
+	return;
+
     const ObjectSet<const Translator>& tpls
 			= ctio.ctxt_.trgroup_->templates();
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
-	if ( !inserter || inserter->isDisabled() )
+	const BufferString trgrpnm = tpls[idx]->typeName();
+	if ( !inserter || inserter->isDisabled() ||
+	    (!transltoavoid.isEmpty() && transltoavoid.indexOf(trgrpnm)>=0) )
 	    continue;
 
-	inserter->setIOObjCtxt( ctio.ctxt_ );
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
 	if ( !tbsu )
 	    { delete inserter; continue; }
@@ -131,8 +147,6 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 	insertset += inserter;
     }
 }
-
-
 
 #define mConstructorInitListStart(c) \
     uiIOObjRetDlg(p,uiDialog::Setup(selTxt(c.forread_), \
@@ -262,7 +276,10 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const uiString& txt)
     , workctio_(*new CtxtIOObj(c))
     , setup_(mSelTxt(txt,c))
     , inctiomine_(true)
-{ init(); }
+{
+    trnotallowed_.setParam( this, new BufferStringSet() );
+    init();
+}
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
@@ -273,6 +290,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
     , setup_(su)
     , inctiomine_(true)
 {
+    trnotallowed_.setParam( this, new BufferStringSet() );
     init();
 }
 
@@ -284,7 +302,10 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiString& txt )
     , workctio_(*new CtxtIOObj(c))
     , setup_(mSelTxt(txt,c.ctxt_))
     , inctiomine_(false)
-{ init(); }
+{
+    trnotallowed_.setParam( this, new BufferStringSet() );
+    init();
+}
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
@@ -293,26 +314,85 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
     , workctio_(*new CtxtIOObj(c))
     , setup_(su)
     , inctiomine_(false)
-{ init(); }
+{
+    trnotallowed_.setParam( this, new BufferStringSet() );
+    init();
+}
+
+
+uiIOObjSel::uiIOObjSel( uiParent* p, BufferStringSet& trnotallowed,
+			    const IOObjContext& c, const uiString& txt)
+    : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c)),
+		 mCB(this,uiIOObjSel,doObjSel))
+    , inctio_(*new CtxtIOObj(c))
+    , workctio_(*new CtxtIOObj(c))
+    , setup_(mSelTxt(txt,c))
+    , inctiomine_(true)
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init();
+}
+
+
+uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
+		BufferStringSet& trnotallowed, const uiIOObjSel::Setup& su )
+    : uiIOSelect(p,su,mCB(this,uiIOObjSel,doObjSel))
+    , inctio_(*new CtxtIOObj(c))
+    , workctio_(*new CtxtIOObj(c))
+    , setup_(su)
+    , inctiomine_(true)
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init();
+}
+
+
+uiIOObjSel::uiIOObjSel( uiParent* p, BufferStringSet& trnotallowed,
+				    CtxtIOObj& c, const uiString& txt )
+    : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c.ctxt_)),
+		 mCB(this,uiIOObjSel,doObjSel))
+    , inctio_(c)
+    , workctio_(*new CtxtIOObj(c))
+    , setup_(mSelTxt(txt,c.ctxt_))
+    , inctiomine_(false)
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init();
+}
+
+
+uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c,
+		BufferStringSet& trnotallowed, const uiIOObjSel::Setup& su )
+    : uiIOSelect(p,su,mCB(this,uiIOObjSel,doObjSel))
+    , inctio_(c)
+    , workctio_(*new CtxtIOObj(c))
+    , setup_(su)
+    , inctiomine_(false)
+{
+    trnotallowed_.setParam( this, trnotallowed.clone() );
+    init();
+}
 
 
 void uiIOObjSel::init()
 {
     workctio_.ctxt_.fillTrGroup();
-    wrtrselfld_ = 0;
+    wrtrselfld_ = nullptr;
     if ( workctio_.ctxt_.forread_ && setup_.withinserters_ )
     {
 	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
-							    extselbuts_ );
+			    extselbuts_, getTrNotAllowed() );
 	for ( int idx=0; idx<inserters_.size(); idx++ )
 	    inserters_[idx]->objectInserted.notify(
 					mCB(this,uiIOObjSel,objInserted) );
     }
     else if ( setup_.withwriteopts_ )
     {
-	wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_, false );
+	wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_,
+					getTrNotAllowed(), false );
 	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
     }
+
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
     mAttachCB( IOM().afterSurveyChange, uiIOObjSel::survChangedCB );
     mAttachCB( optionalChecked, uiIOObjSel::optCheckCB );
@@ -324,8 +404,25 @@ uiIOObjSel::~uiIOObjSel()
     detachAllNotifiers();
     deepErase( inserters_ );
     if ( inctiomine_ )
-	{ delete inctio_.ioobj_; delete &inctio_; }
+    {
+	delete inctio_.ioobj_;
+	delete &inctio_;
+    }
+
     delete workctio_.ioobj_; delete &workctio_;
+    trnotallowed_.removeAndDeleteParam( this );
+}
+
+
+const BufferStringSet& uiIOObjSel::getTrNotAllowed() const
+{
+    return *trnotallowed_.getParam(this);
+}
+
+
+void uiIOObjSel::setTrNotAllowed( const BufferStringSet& trnotallowed )
+{
+    *trnotallowed_.getParam( this ) = trnotallowed;
 }
 
 

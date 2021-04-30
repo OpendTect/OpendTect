@@ -44,13 +44,35 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     , lbl_(0)
     , suggestedNameAvailble(this)
 {
+    init( ctio, BufferStringSet(), withopts );
+}
+
+
+uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
+				const CtxtIOObj& ctio,
+			const BufferStringSet& transltoavoid, bool withopts )
+    : uiGroup(p,"Write Translator selector")
+    , ctxt_(*new IOObjContext(ctio.ctxt_))
+    , selfld_(0)
+    , lbl_(0)
+    , suggestedNameAvailble(this)
+{
+    init( ctio, transltoavoid, withopts );
+}
+
+
+void uiIOObjSelWriteTranslator::init( const CtxtIOObj& ctio,
+			const BufferStringSet& transltoavoid, bool withopts )
+{
     optflds_.allowNull( true );
     const TranslatorGroup& trgrp = *ctio.ctxt_.trgroup_;
     const ObjectSet<const Translator>& alltrs = trgrp.templates();
     for ( int idx=0; idx<alltrs.size(); idx++ )
     {
 	const Translator* trl = alltrs[idx];
-	if ( IOObjSelConstraints::isAllowedTranslator(
+	if ( transltoavoid.indexOf(trl->typeName()) >= 0 )
+	    continue;
+	else if ( IOObjSelConstraints::isAllowedTranslator(
 		    trl->userName(),ctio.ctxt_.toselect_.allowtransls_)
 	  && trl->isUserSelectable( false ) )
 	    trs_ += trl;
