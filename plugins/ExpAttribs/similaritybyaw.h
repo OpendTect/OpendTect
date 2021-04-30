@@ -7,7 +7,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Haibin Di
  Date:          August 2013
- RCS:           $Id$ 
  ________________________________________________________________________
 -*/
 
