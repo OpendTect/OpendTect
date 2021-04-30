@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -52,6 +51,8 @@ public:
     void			bulkImportMarkers();
     void			bulkImportD2TModel();
     void			bulkImportDirectional();
+
+    void			exportWellData();
 
     void			manageWells();
     void			launchRockPhysics();

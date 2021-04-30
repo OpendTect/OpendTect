@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "uisimplemultiwell.h"
 #include "uitoolbutton.h"
 #include "uiwellrdmlinedlg.h"
+#include "uiwelldataexport.h"
 #include "uiwelldisplay.h"
 #include "uiwelldisppropdlg.h"
 #include "uiwelldlgs.h"
@@ -69,6 +70,7 @@ static HiddenParam<uiWellPartServer,uiBulkDirectionalImport*>
 							bulkdirdlgs(nullptr);
 static HiddenParam<uiWellPartServer,ObjectSet<WellDBDisplayProperties>* >
 						wellpropscachemgr_(nullptr);
+static HiddenParam<uiWellPartServer,uiWellExportFacility*> wellexpdlg(nullptr);
 
 int uiWellPartServer::evPreviewRdmLine()	    { return 0; }
 int uiWellPartServer::evCleanPreview()		    { return 1; }
@@ -93,6 +95,7 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
 {
     mAttachCB( IOM().surveyChanged, uiWellPartServer::survChangedCB );
     bulkdirdlgs.setParam( this, nullptr );
+    wellexpdlg.setParam( this, nullptr );
     wellpropscachemgr_.setParam( this, new ObjectSet<WellDBDisplayProperties> );
 }
 
@@ -102,6 +105,7 @@ uiWellPartServer::~uiWellPartServer()
     detachAllNotifiers();
     cleanup();
     bulkdirdlgs.removeParam( this );
+    wellexpdlg.removeAndDeleteParam( this );
     wellpropscachemgr_.removeAndDeleteParam( this );
 }
 
@@ -124,6 +128,7 @@ void uiWellPartServer::cleanup()
     deepErase( wellpropdlgs_ );
     deepErase( *wellpropscachemgr_.getParam( this ) );
     bulkdirdlgs.deleteAndZeroPtrParam( this );
+    wellexpdlg.deleteAndZeroPtrParam( this );
 
     Well::MGR().cleanup();
 }
@@ -170,6 +175,7 @@ void uiWellPartServer::bulkImportDirectional()
     if ( !dlg )
     {
 	dlg = new uiBulkDirectionalImport( parent() );
+	delete bulkdirdlgs.getParam( this );
 	bulkdirdlgs.setParam( this, dlg );
     }
 
@@ -190,6 +196,20 @@ void uiWellPartServer::importTrack()
     uiwellimpdlg_->importReady.notify(
 		mCB(this,uiWellPartServer,importReadyCB) );
     uiwellimpdlg_->show();
+}
+
+
+void uiWellPartServer::exportWellData()
+{
+    uiWellExportFacility* dlg = wellexpdlg.getParam( this );
+    if ( !dlg )
+    {
+	dlg = new uiWellExportFacility( parent(), *this );
+	delete wellexpdlg.getParam( this );
+	wellexpdlg.setParam( this, dlg );
+    }
+
+    dlg->show();
 }
 
 

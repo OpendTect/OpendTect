@@ -297,8 +297,9 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.wellserv_->bulkImportD2TModel();
 	    else if ( opt == 9 )
 		am_.wellserv_->bulkImportDirectional();
-
 	break;
+	mCase(Exp):
+	    am_.wellserv_->exportWellData(); break;
 	mCase(Man):	am_.wellserv_->manageWells();	break;
 	default:					break;
 	}

@@ -384,6 +384,7 @@ ________________________________________________________________________
 #define		mWellLogEditorHelpID				0x10701013
 #define		mWellRockPhysLauncherHelpID			0x10701014
 #define		mWellCopyHelpID					0x10701015
+#define		mWellExpDlg					0x10701016
 // Wells Display 02
 #define		mWellDispPropDlgHelpID				0x10702000
 #define		mDispEditMarkerDlgHelpID			0x10702001
