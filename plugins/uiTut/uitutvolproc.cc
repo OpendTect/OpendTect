@@ -4,7 +4,6 @@
  * DATE     : March 2016
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitutvolproc.h"
 
