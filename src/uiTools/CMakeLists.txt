@@ -49,10 +49,12 @@ set( OD_MODULE_SOURCES
 	uihandledlsitefail.cc
 	uihistogramdisplay.cc
 	uihistogramsel.cc
+	uihostiddlg.cc
 	uiinterpollayermodel.cc
 	uiiosel.cc
 	uiissuereporter.cc
 	uilistboxfilter.cc
+	uilocalhostgrp.cc
 	uimapperrangeeditor.cc
 	uimenuhandler.cc
 	uimapperrangeeditordlg.cc

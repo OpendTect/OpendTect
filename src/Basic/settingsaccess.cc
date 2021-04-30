@@ -49,6 +49,9 @@ const char* SettingsAccess::sKeyMouseWheelReversal()
 const char* SettingsAccess::sKeyMouseWheelZoomFactor()
 { return "dTect.Mouse Wheel Zoom Factor"; }
 
+const char* SettingsAccess::sKeyHostNameOverrule()
+{ return "dTect.HostName Overrule"; }
+
 
 SettingsAccess::SettingsAccess()
     : settings_( Settings::common() )
@@ -126,6 +129,28 @@ int SettingsAccess::getDefaultTexResFactor( int nrres ) const
 
     res = defaultTexResFactorFromEnvVar();
     return validResolution( res, nrres );
+}
+
+
+BufferString SettingsAccess::getHostNameOverrule() const
+{
+    BufferString overrule;
+    settings_.get( sKeyHostNameOverrule(), overrule );
+    return overrule;
+}
+
+
+void SettingsAccess::setHostNameOverrule( const char* nm )
+{
+    const BufferString orgoverrule = settings_.find( sKeyHostNameOverrule() );
+    const BufferString overrule( nm );
+    if ( overrule.isEmpty() )
+	settings_.removeWithKey( sKeyHostNameOverrule() );
+    else
+	settings_.set( sKeyHostNameOverrule(), overrule );
+
+    if ( overrule != orgoverrule )
+	settings_.write( false );
 }
 
 

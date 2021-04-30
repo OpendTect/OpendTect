@@ -4,18 +4,19 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Nageswara
- Date:		March 2020
+ Author:	Wayne Mogg
+ Date:		April 2021
  RCS:		$Id$
 ________________________________________________________________________
 -*/
 
-#include "uiodmainmod.h"
+#include "uitoolsmod.h"
 #include "uidialog.h"
 
 class uiGenInput;
+class uiLocalHostGrp;
 
-mExpClass(uiODMain) uiHostIDDlg : public uiDialog
+mExpClass(uiTools) uiHostIDDlg : public uiDialog
 { mODTextTranslationClass(uiHostIDDlg)
 public:
 			uiHostIDDlg(uiParent*);
@@ -23,7 +24,7 @@ protected:
     void		copyCB(CallBacker*);
 
     uiGenInput*		hostidfld_;
-    uiGenInput*		hostnmfld_;
+    uiLocalHostGrp*	localhostgrp_;
     uiGenInput*		osfld_;
     uiGenInput*		productnmfld_;
     uiGenInput*		usernmfld_;

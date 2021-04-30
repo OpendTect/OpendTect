@@ -61,7 +61,6 @@ set(OD_MODULE_SOURCES
 	uiodwelltreeitem.cc
 	uiodlangmenumgr.cc
 	uifirewallprocsetterdlg.cc
-	uiodhostiddlg.cc
 	uiserviceclientmgr.cc
 )
 
