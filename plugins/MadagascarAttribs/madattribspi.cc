@@ -4,7 +4,6 @@
  * DATE     : Sep 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "madagcattrib.h"
 #include "odplugin.h"

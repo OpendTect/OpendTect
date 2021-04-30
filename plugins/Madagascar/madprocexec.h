@@ -3,7 +3,6 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Jan 2008
- * ID       : $Id$
 -*/
 
 #include "madagascarmod.h"

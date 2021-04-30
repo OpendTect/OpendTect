@@ -3,7 +3,6 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : R. K. Singh
  * DATE     : March 2008
- * ID       : $Id$
 -*/
 
 
