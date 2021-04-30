@@ -4,7 +4,6 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "gravhorcalc.h"
 #include "timedepthconv.h"
