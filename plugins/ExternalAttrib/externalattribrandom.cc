@@ -4,7 +4,6 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "externalattribrandom.h"
 
