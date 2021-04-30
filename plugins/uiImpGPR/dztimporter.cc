@@ -4,7 +4,6 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "dztimporter.h"
 #include "seistrc.h"

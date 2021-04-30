@@ -3,7 +3,6 @@
  * (C) Your_copyright
  * AUTHOR   : You!
  * DATE     : Apr 2012
- * ID       : $Id$
 -*/
 
 #include "my_plugin_namemod.h"

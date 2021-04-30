@@ -3,7 +3,6 @@
  * AUTHOR   : Bert Bril
  * DATE     : Aug 2006
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicustomiodirmod.h"
 #include "uiioobjsel.h"
