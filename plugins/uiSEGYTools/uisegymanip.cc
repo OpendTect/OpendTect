@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisegymanip.h"
 #include "uisegytrchdrvalplot.h"
