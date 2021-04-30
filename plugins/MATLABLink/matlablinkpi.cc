@@ -4,7 +4,6 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "odplugin.h"
 #include "matlablinkmod.h"
