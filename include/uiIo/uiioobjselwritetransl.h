@@ -81,6 +81,9 @@ mExpClass(uiIo) uiIOObjSelWriteTranslator : public uiGroup
 public:
 			uiIOObjSelWriteTranslator(uiParent*,const CtxtIOObj&,
 					    bool withopts=false);
+			uiIOObjSelWriteTranslator(uiParent*,const CtxtIOObj&,
+				const BufferStringSet& transltoavoid,
+				bool withopts=false);
 			~uiIOObjSelWriteTranslator();
 
     bool		isEmpty() const;
@@ -115,6 +118,10 @@ protected:
     void		nmAvCB( CallBacker* )
 					{ suggestedNameAvailble.trigger(); }
     uiIOObjTranslatorWriteOpts* getCurOptFld() const;
+
+    void		init(const CtxtIOObj&,
+				const BufferStringSet& transltoavoid,
+				bool withopts=false);
 
 };
 

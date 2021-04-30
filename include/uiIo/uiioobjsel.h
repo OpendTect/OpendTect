@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          April 2001
- RCS:           $Id$
+ Author:	A.H. Bril
+ Date:		April 2001
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,15 @@ public:
 			uiIOObjSel(uiParent*,const IOObjContext&,
 			       const uiString& seltxt=uiString::empty());
 			uiIOObjSel(uiParent*,const IOObjContext&,const Setup&);
+			uiIOObjSel(uiParent*,BufferStringSet& trnotallowed,
+				const IOObjContext&,
+			       const uiString& seltxt=uiString::empty());
+			uiIOObjSel(uiParent*,const IOObjContext&,
+				BufferStringSet& trnotallowed,const Setup&);
 			~uiIOObjSel();
+
+    void		setTrNotAllowed(const BufferStringSet&);
+    const BufferStringSet&	getTrNotAllowed() const;
 
     void		setInput(const IOObj&);
     void		setInput(const MultiID&);
@@ -92,7 +100,7 @@ public:
     virtual MultiID	validKey() const; //!< no side-effects
     virtual uiObject*	endObj(bool left);
 
-    static IOObjContext	getWriteIOObjCtxt(IOObjContext);
+    static IOObjContext getWriteIOObjCtxt(IOObjContext);
 
 protected:
 
@@ -112,7 +120,7 @@ protected:
     void		optCheckCB(CallBacker*);
     void		initRead();
 
-    virtual const char*	userNameFromKey(const char*) const;
+    virtual const char* userNameFromKey(const char*) const;
     virtual void	objSel();
     virtual void	commitSucceeded()			{}
 
@@ -145,6 +153,10 @@ default).
 			uiIOObjSel(uiParent*,CtxtIOObj&,
 				const uiString& seltxt=uiString::empty());
 			uiIOObjSel(uiParent*,CtxtIOObj&,const Setup&);
+			uiIOObjSel(uiParent*,BufferStringSet& trnotallowed,
+			CtxtIOObj&,const uiString& seltxt=uiString::empty());
+			uiIOObjSel(uiParent*,CtxtIOObj&,
+			    BufferStringSet& trnotallowed,const Setup&);
     bool		commitInput();
     bool		doCommitInput(bool&);
     CtxtIOObj&		ctxtIOObj( bool work=false )
