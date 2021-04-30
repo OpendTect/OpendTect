@@ -3,7 +3,6 @@
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : Bert
  * DATE     : Jan 2009
- * ID       : $Id$
 -*/
 
 #include "uiqtappmod.h"
