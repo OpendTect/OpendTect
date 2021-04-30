@@ -158,5 +158,7 @@ public:
 
 mGlobal(General) bool equalIOObj(const MultiID&,const MultiID&);
 mGlobal(General) bool areEqual(const IOObj*,const IOObj*);
+
+mDeprecated("Use IOMam::implRemove instead")
 mGlobal(General) bool fullImplRemove(const IOObj&);
 

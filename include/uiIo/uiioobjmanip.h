@@ -110,9 +110,6 @@ protected:
     bool		renameEntry(IOObj&,Translator*);
     bool		relocEntry(IOObj&,Translator*);
     bool		readonlyEntry(IOObj&, Translator*,bool set2ro);
-
-    bool		doReloc(Translator*,IOStream&,IOStream&);
-
 };
 
 

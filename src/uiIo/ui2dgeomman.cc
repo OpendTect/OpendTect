@@ -160,7 +160,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 	    continue;
 
 	const BufferString lnm( ioobj->name() );
-	if ( !fullImplRemove(*ioobj) )
+	if ( !IOM().implRemove(ioobj->key()) )
 	{
 	    msgs += tr("Cannot remove %1").arg(lnm);
 	    continue;

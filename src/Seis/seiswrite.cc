@@ -188,7 +188,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     {
 	mDynamicCastGet(const IOStream*,strm,ioobj_)
 	if ( !strm || !strm->isMulti() )
-	    fullImplRemove( *ioobj_ );
+	    IOM().implRemove( ioobj_->key() );
 
 	if ( !ensureRightConn(trc,true) )
 	    return false;
