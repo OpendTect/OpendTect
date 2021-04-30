@@ -70,7 +70,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	}
     }
 
-    if ( dorm && !fullImplRemove(ioobj_) )
+    if ( dorm && !IOM().implRemove(ioobj_.key()) )
     {
 	if ( !silent_ )
 	{

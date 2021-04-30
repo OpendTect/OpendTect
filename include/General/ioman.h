@@ -36,7 +36,7 @@ more instances is probably not a good idea.
 */
 
 mExpClass(General) IOMan : public NamedCallBacker
-{
+{ mODTextTranslationClass(IOMan);
 public:
 
     bool		isBad() const		{ return state_ != Good; }
@@ -45,6 +45,15 @@ public:
 
     bool		isUsable(const MultiID&) const;
     bool		implExists(const MultiID&) const;
+    bool		isReadOnly(const MultiID&) const;
+    bool		isManagedObject(const MultiID&) const;
+    bool		implRename(const MultiID&,const char* newnm,
+				   const CallBack* cb=nullptr);
+    bool		implReloc(const MultiID&,const char* newdir,
+				   const CallBack* cb=nullptr);
+    bool		implRemove(const MultiID&,
+				   bool rmentry=false,uiRetVal* uirv=nullptr);
+
     void		removeUnusable(DBKeySet&);
 			//! Next functions return a new (unmanaged) IOObj
     IOObj*		get(const MultiID&) const;
@@ -148,6 +157,7 @@ private:
     int			levelOf(const char* dirnm) const;
     int			curLevel() const	{ return curlvl_; }
     bool		to(const IOSubDir*,bool);
+    bool		doReloc(const MultiID&,Translator*,IOStream&,IOStream&);
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
 
     friend class	IOMManager;

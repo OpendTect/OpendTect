@@ -554,7 +554,7 @@ void Wizard::restoreObject()
 
 	if ( ioobj )
 	{
-	    if ( !fullImplRemove(*ioobj) || !IOM().permRemove(mid) )
+	    if ( !IOM().implRemove(ioobj->key(), true) )
 		pErrMsg( "Could not remove object" );
 	}
     }
