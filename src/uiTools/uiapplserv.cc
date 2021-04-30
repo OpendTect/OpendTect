@@ -13,7 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiApplService::uiApplService( const char* nm )
-    : NamedObject(nm)				{}
+    : NamedObject(nm)
+{}
 
 
 uiApplPartServer::uiApplPartServer( uiApplService& a )

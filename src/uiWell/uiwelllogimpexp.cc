@@ -45,9 +45,9 @@ static const float defundefval = -999.25;
 uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
     : uiDialog(p,uiDialog::Setup(tr("Import Well Logs"),mNoDlgTitle,
 				 mODHelpKey(mImportLogsHelpID)))
-    , logsfld_(0)
-    , logstable_(0)
-    , intvunfld_(0)
+    , logsfld_(nullptr)
+    , logstable_(nullptr)
+    , intvunfld_(nullptr)
 {
     setOkText( uiStrings::sImport() );
 
@@ -334,13 +334,18 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {
 	if ( !wds_[idwell]->haveD2TModel() )
-	    { have2dtmodel = false; break; }
+	{
+	    have2dtmodel = false;
+	    break;
+	}
     }
+
     if ( SI().zIsTime() && have2dtmodel)
     {
 	new uiRadioButton( zunitgrp_, uiStrings::sSec().toLower() );
 	new uiRadioButton( zunitgrp_, uiStrings::sMsec().toLower() );
     }
+
     zunitgrp_->selectButton( zinft );
 
     const bool multiwells = wds.size() > 1;
@@ -377,7 +382,8 @@ void uiExportLogs::setDefaultRange( bool zinft )
 	{
 	    const Well::Log& log = wd.logs().getLog(idx);
 	    const int logsz = log.size();
-	    if ( logsz==0 ) continue;
+	    if ( logsz==0 )
+		continue;
 
 	    dahintv.include( wd.logs().dahInterval() );
 	    const float width = log.dah(logsz-1) - log.dah(0);
@@ -521,7 +527,8 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	else
 	{
 	    const Coord3 pos = wd.track().getPos( mdstor );
-	    if ( !pos.x && !pos.y && !pos.z ) continue;
+	    if ( !pos.x && !pos.y && !pos.z )
+		continue;
 
 	    if ( dobinid )
 	    {
@@ -543,7 +550,8 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	    else if ( outintime )
 	    {
 		z = wd.d2TModel()->getTime( mdstor, wd.track() );
-		if ( outinmsec && !mIsUdf(z) ) z *= cTWTFac;
+		if ( outinmsec && !mIsUdf(z) )
+		    z *= cTWTFac;
 	    }
 
 	    strm << od_tab << z;
@@ -552,13 +560,16 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	for ( int logidx=0; logidx<wd.logs().size(); logidx++ )
 	{
 	    const Well::Log& log = wd.logs().getLog( logidx );
-	    if ( !logsel_.isPresent( log.name() ) ) continue;
+	    if ( !logsel_.isPresent( log.name() ) )
+		continue;
+
 	    const float val = log.getValue( mdstor );
 	    if ( mIsUdf(val) )
-		strm << od_tab << "1e30";
+		strm << od_tab << mUdf(float);
 	    else
 		strm << od_tab << val;
 	}
+
 	strm << od_newline;
     }
 }
