@@ -16,27 +16,25 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
-#include "hilbertattrib.h"
-
-#include "ioman.h"
-#include "iodir.h"
-#include "ioobj.h"
-#include "iopar.h"
 #include "ctxtioobj.h"
 #include "datainpspec.h"
+#include "datapack.h"
+#include "hilbertattrib.h"
+#include "iodir.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "linekey.h"
+#include "nladesign.h"
+#include "nlamodel.h"
 #include "ptrman.h"
 #include "seisioobjinfo.h"
-#include "seistrctr.h"
-#include "linekey.h"
-#include "trckeyzsampling.h"
 #include "seispreload.h"
+#include "seistrctr.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 #include "zdomain.h"
-#include "datapack.h"
-
-#include "nlamodel.h"
-#include "nladesign.h"
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
@@ -45,6 +43,7 @@ ________________________________________________________________________
 #include "uiioobjinserter.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uilistboxfilter.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "od_helpids.h"
@@ -252,6 +251,7 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 
 uiAttrSelDlg::~uiAttrSelDlg()
 {
+    delete attribfilterfld_;
     delete selgrp_;
     delete attrinf_;
     deepErase( inserters_ );
@@ -354,7 +354,10 @@ void uiAttrSelDlg::createSelectionFields()
 	attroutfld_->addItems( attrinf_->attrnms_ );
 	attroutfld_->setHSzPol( uiObject::Wide );
 	attroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	attroutfld_->attach( rightOf, selgrp_ );
+	attroutfld_->attach( ensureRightOf, selgrp_ );
+
+	attribfilterfld_ = new uiListBoxFilter( *attroutfld_ );
+	attribfilterfld_->setItems( attrinf_->attrnms_ );
     }
 
     if ( havenlaouts )
@@ -522,7 +525,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     int selidx = -1;
     const int seltyp = selType();
     if ( seltyp==1 )		selidx = steeroutfld_->currentItem();
-    else if ( seltyp==2 )	selidx = attroutfld_->currentItem();
+    else if ( seltyp==2 )	selidx = attribfilterfld_->getCurrent();
     else if ( seltyp==3 )	selidx = nlaoutfld_->currentItem();
     else if ( seltyp==4 )	selidx = zdomoutfld_->currentItem();
     else if ( storoutfld_ )	selidx = storoutfld_->currentItem();

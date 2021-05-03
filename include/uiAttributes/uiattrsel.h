@@ -27,8 +27,9 @@ class TrcKeyZSampling;
 class uiButtonGroup;
 class uiGenInput;
 class uiIOObjInserter;
-class uiListBox;
 class uiLabeledComboBox;
+class uiListBox;
+class uiListBoxFilter;
 class uiRadioButton;
 
 /*!
@@ -139,6 +140,7 @@ protected:
     uiListBox*		storoutfld_;
     uiListBox*		steeroutfld_;
     uiListBox*		attroutfld_;
+    uiListBoxFilter*	attribfilterfld_;
     uiListBox*		nlaoutfld_;
     uiListBox*		zdomoutfld_;
     uiGenInput*		filtfld_;
