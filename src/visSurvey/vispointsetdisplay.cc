@@ -4,7 +4,6 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "color.h"
 #include "datapointset.h"
