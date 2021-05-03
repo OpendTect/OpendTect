@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: uiodviewer2dposgrp.cc 38687 2015-03-30 16:29:21Z nanne.hemstra@dgbes.com $";
 
 
 #include "uiodviewer2dposgrp.h"
