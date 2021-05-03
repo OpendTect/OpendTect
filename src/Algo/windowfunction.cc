@@ -4,7 +4,6 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "windowfunction.h"
 
