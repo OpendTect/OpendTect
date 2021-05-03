@@ -4,7 +4,6 @@
  * DATE     : Feb 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisbayesclass.h"
 #include "seisread.h"

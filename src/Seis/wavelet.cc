@@ -5,7 +5,6 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "wavelet.h"
 #include "waveletio.h"

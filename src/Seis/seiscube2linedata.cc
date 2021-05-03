@@ -4,7 +4,6 @@
  * DATE     : Apr 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiscube2linedata.h"
 #include "keystrs.h"
