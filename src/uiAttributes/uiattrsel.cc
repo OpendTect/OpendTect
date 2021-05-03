@@ -17,27 +17,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribparam.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
-#include "hilbertattrib.h"
-
-#include "ioman.h"
-#include "iodir.h"
-#include "ioobj.h"
-#include "iopar.h"
 #include "ctxtioobj.h"
 #include "datainpspec.h"
+#include "datapack.h"
+#include "hiddenparam.h"
+#include "hilbertattrib.h"
+#include "iodir.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "linekey.h"
+#include "nladesign.h"
+#include "nlamodel.h"
 #include "ptrman.h"
 #include "seisioobjinfo.h"
-#include "seistrctr.h"
-#include "linekey.h"
-#include "trckeyzsampling.h"
 #include "seispreload.h"
+#include "seistrctr.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 #include "zdomain.h"
-#include "datapack.h"
-
-#include "nlamodel.h"
-#include "nladesign.h"
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
@@ -46,9 +45,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjinserter.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uilistboxfilter.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "od_helpids.h"
+
+
+static HiddenParam<uiAttrSelDlg,uiListBoxFilter*> hp_attribfilter(nullptr);
+
 
 const Attrib::DescSet& emptyads2d()
 {
@@ -252,6 +256,7 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 
 uiAttrSelDlg::~uiAttrSelDlg()
 {
+    hp_attribfilter.removeAndDeleteParam( this );
     delete selgrp_;
     delete attrinf_;
     deepErase( inserters_ );
@@ -348,13 +353,18 @@ void uiAttrSelDlg::createSelectionFields()
     compfld_->attach( alignedBelow, storoutfld_ );
     compfld_->attach( ensureBelow, steeroutfld_ );
 
+    hp_attribfilter.setParam( this, nullptr );
     if ( haveattribs )
     {
 	attroutfld_ = new uiListBox( this, "Output attributes" );
 	attroutfld_->addItems( attrinf_->attrnms_ );
 	attroutfld_->setHSzPol( uiObject::Wide );
 	attroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	attroutfld_->attach( rightOf, selgrp_ );
+	attroutfld_->attach( ensureRightOf, selgrp_ );
+
+	auto* fltr = new uiListBoxFilter( *attroutfld_ );
+	fltr->setItems( attrinf_->attrnms_ );
+	hp_attribfilter.setParam( this, fltr );
     }
 
     if ( havenlaouts )
@@ -521,11 +531,16 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
     int selidx = -1;
     const int seltyp = selType();
-    if ( seltyp==1 )		selidx = steeroutfld_->currentItem();
-    else if ( seltyp==2 )	selidx = attroutfld_->currentItem();
-    else if ( seltyp==3 )	selidx = nlaoutfld_->currentItem();
-    else if ( seltyp==4 )	selidx = zdomoutfld_->currentItem();
-    else if ( storoutfld_ )	selidx = storoutfld_->currentItem();
+    if ( seltyp==1 )
+	selidx = steeroutfld_->currentItem();
+    else if ( seltyp==2 )
+	selidx = hp_attribfilter.getParam(this)->getCurrent();
+    else if ( seltyp==3 )
+	selidx = nlaoutfld_->currentItem();
+    else if ( seltyp==4 )
+	selidx = zdomoutfld_->currentItem();
+    else if ( storoutfld_ )
+	selidx = storoutfld_->currentItem();
     if ( selidx < 0 )
 	return false;
 
