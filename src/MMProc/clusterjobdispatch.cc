@@ -4,7 +4,6 @@
  * DATE     : Jan 2016
 -*/
 
-static const char* rcsID mUsedVar = "$Id $";
 
 #include "clusterjobdispatch.h"
 #include "envvars.h"
