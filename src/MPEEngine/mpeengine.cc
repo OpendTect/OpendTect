@@ -8,7 +8,6 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18Z nanne.hemstra@dgbes.com $";
 
 #include "mpeengine.h"
 
