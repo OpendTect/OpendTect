@@ -4,7 +4,6 @@
  * DATE     : Oct 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "stratlayseqgendesc.h"
 #include "stratsinglaygen.h"
