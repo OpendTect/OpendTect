@@ -4,7 +4,6 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "wellextractdata.h"
 #include "welllog.h"

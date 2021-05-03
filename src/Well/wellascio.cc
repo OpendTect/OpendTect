@@ -4,7 +4,6 @@
  * DATE     : May 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "wellimpasc.h"
 
