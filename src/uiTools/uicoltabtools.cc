@@ -7,7 +7,6 @@ Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicoltabtools.h"
 #include "uigeom.h"
