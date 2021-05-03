@@ -5,7 +5,6 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 /*!
 

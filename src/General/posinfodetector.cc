@@ -4,7 +4,6 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "posinfodetector.h"
 #include "trckeyzsampling.h"

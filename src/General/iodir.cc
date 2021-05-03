@@ -4,7 +4,6 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "iodir.h"
 

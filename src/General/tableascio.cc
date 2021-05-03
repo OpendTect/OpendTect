@@ -4,7 +4,6 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "tableascio.h"
 #include "tabledef.h"

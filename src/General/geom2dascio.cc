@@ -4,7 +4,6 @@
  * DATE     : September 2010
 -*/
 
-static const char* rcsID mUsedVar = " $";
 
 #include "geom2dascio.h"
 

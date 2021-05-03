@@ -4,7 +4,6 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "rockphysics.h"
 #include "mathproperty.h"

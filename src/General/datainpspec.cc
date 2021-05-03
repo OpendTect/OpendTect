@@ -4,7 +4,6 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "datainpspec.h"
 #include "iopar.h"
