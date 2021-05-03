@@ -38,6 +38,7 @@ public:
     void		setHostNameOverrule(const char*);
 
     BufferString	getTerminalEmulator();
+    void		setTerminalEmulator(const char*);
 
     static const char*	sKeyIcons();
     static const char*	sKeyShowInlProgress();

@@ -299,6 +299,7 @@ public:
     static uiString sColor(int num=1)	{ return tr("Color",0, num); }
     static uiString sColorTable(int num=1) { return tr("ColorTable",0,num); }
     static uiString sColumn(int num=1)	{ return tr("Column",0,num); }
+    static uiString sCommand(int num=1) { return tr("Command",0,num); }
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sConnection()	{ return tr("Connection"); }
     static uiString sConstant()		{ return tr("Constant"); }
@@ -478,6 +479,7 @@ public:
     static uiString sOperator()		{ return tr("Operator"); }
     static uiString sOptions()		{ return tr("Options"); }
     static uiString sOr()		{ return tr("or"); }
+    static uiString sOther()		{ return tr("Other"); }
     static uiString sOutpDataStore()	{ return tr("Output data store"); }
     static uiString sOutput()		{ return tr("Output"); }
     static uiString sOutputASCIIFile();
@@ -556,6 +558,7 @@ public:
     static uiString sSelection(int num=1) { return tr("Selection", 0, num ); }
     static uiString sSelect()		{ return tr("Select"); }
     static uiString sSelectedLog(int num =1) {return tr("Selected Log",0,num);}
+    static uiString sSelectIcon()	{ return tr("Select icon"); }
     static uiString sSelectPos()	{ return tr("Select position"); }
     static uiString sSelOutpFile()	{ return tr("Select output file"); }
     static uiString sSession(int num=1)	{ return tr("Session",0,num); }
@@ -602,6 +605,7 @@ public:
 								"location :"); }
     static uiString sToolbar()		{ return tr("Toolbar"); }
     static uiString sTools()		{ return tr("Tools"); }
+    static uiString sTooltip()		{ return tr("Tool Tip"); }
     static uiString sTop()		{ return tr("Top"); }
     static uiString sTopHor()		{ return tr("Top Horizon"); }
     static uiString sTrace(int num=1)	{ return tr("Trace",0,num); }

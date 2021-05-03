@@ -9,12 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "settingsaccess.h"
+#include "commanddefs.h"
 #include "envvars.h"
 #include "filepath.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "oscommand.h"
-
 
 const char* SettingsAccess::sKeyIcons()
 { return "dTect.Icons"; }
@@ -157,19 +157,28 @@ void SettingsAccess::setHostNameOverrule( const char* nm )
 BufferString SettingsAccess::getTerminalEmulator()
 {
     const BufferString orgtermcmd = settings_.find( sKey::TermEm() );
+    const BufferStringSet paths;
     BufferString termcmd = orgtermcmd;
-#ifdef __win__
     if ( termcmd.isEmpty() )
-	termcmd = "cmd.exe";
-#else
-    OS::MachineCommand mc( GetShellScript("od_find_term.bash") );
-    if ( !termcmd.isEmpty() )
-	mc.addArg( termcmd );
-    termcmd = mc.runAndCollectOutput();
-#endif
+	termcmd = CommandDefs::getTerminalCommands( paths ).get(0);
+
     settings_.set( sKey::TermEm(), termcmd );
     if ( termcmd != orgtermcmd )
 	settings_.write( false );
 
     return termcmd;
+}
+
+void SettingsAccess::setTerminalEmulator( const char* cmd )
+{
+    const BufferString orgtermcmd = settings_.find( sKey::TermEm() );
+    const BufferString termcmd( cmd );
+
+    if ( termcmd.isEmpty() )
+	settings_.removeWithKey( sKey::TermEm() );
+    else
+	settings_.set( sKey::TermEm(), termcmd );
+
+    if ( termcmd != orgtermcmd )
+	settings_.write( false );
 }

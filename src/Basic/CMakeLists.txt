@@ -60,6 +60,7 @@ set( OD_MODULE_SOURCES
 	callback.cc
 	color.cc
 	compoundkey.cc
+	commanddefs.cc
 	commandlineparser.cc
 	coordsystem.cc
 	dateinfo.cc

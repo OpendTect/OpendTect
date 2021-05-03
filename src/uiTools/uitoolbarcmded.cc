@@ -18,10 +18,26 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uitoolbutton.h"
 
+#include "commanddefs.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
 
+
+
+uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
+						const uiString& seltxt,
+						const CommandDefs& commands,
+						bool withcheck,
+						bool mkinvisible )
+    : uiGroup(p)
+    , commands_(*new CommandDefs(commands))
+    , mkinvisible_(mkinvisible)
+    , checked(this)
+    , changed(this)
+{
+    initui( seltxt, BufferStringSet(), withcheck );
+}
 
 uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 						const uiString& seltxt,
@@ -30,15 +46,29 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 						bool withcheck,
 						bool mkinvisible )
     : uiGroup(p)
+    , commands_(*new CommandDefs)
     , mkinvisible_(mkinvisible)
     , checked(this)
     , changed(this)
 {
+    for ( auto* exenm : exenms )
+	commands_.addCmd( *exenm, toUiString( *exenm ), *exenm,
+			  toUiString(*exenm), paths );
+
+    initui( seltxt, paths, withcheck );
+}
+
+
+void uiToolBarCommandEditor::initui( const uiString& seltxt,
+				     const BufferStringSet& paths,
+				     bool withcheck )
+{
     uiLabeledComboBox* lblcb = nullptr;
-    if ( !exenms.isEmpty() )
+    if ( !commands_.isEmpty() )
     {
-	uiStringSet found = createUiStrSet( paths, exenms );
-	lblcb = new uiLabeledComboBox( this, found, seltxt );
+	uiStringSet uinames( commands_.getUiNames() );
+	uinames.add( uiStrings::sOther() );
+	lblcb = new uiLabeledComboBox( this, uinames, seltxt );
 	lblcb->setStretch( 2, 1 );
 	exeselfld_ = lblcb->box();
     }
@@ -49,16 +79,17 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 #ifdef __win__
     su.filter("*.exe");
 #endif
-    commandfld_ = new uiFileInput( this, tr("Command"), su );
+    commandfld_ = new uiFileInput( this, uiStrings::sCommand(), su );
     commandfld_->setElemSzPol( uiObject::WideVar );
     if ( exeselfld_ )
 	commandfld_->attach( alignedBelow, lblcb );
 
-    tooltipfld_ = new uiGenInput( this, tr("Tool Tip"), StringInpSpec() );
+    tooltipfld_ = new uiGenInput( this, uiStrings::sTooltip(),
+				  StringInpSpec() );
     tooltipfld_->setElemSzPol( uiObject::WideVar );
     tooltipfld_->attach( alignedBelow, commandfld_ );
 
-    iconfld_ = new uiToolButton( this, "programmer", tr("Select icon"),
+    iconfld_ = new uiToolButton( this, "programmer", uiStrings::sSelectIcon(),
 				 mCB(this,uiToolBarCommandEditor,iconSelCB) );
     iconfld_->attach( rightOf, commandfld_ );
 
@@ -79,6 +110,7 @@ uiToolBarCommandEditor::uiToolBarCommandEditor( uiParent* p,
 uiToolBarCommandEditor::~uiToolBarCommandEditor()
 {
     detachAllNotifiers();
+    delete &commands_;
 }
 
 
@@ -115,47 +147,18 @@ bool uiToolBarCommandEditor::isChecked() const
 }
 
 
-BufferStringSet uiToolBarCommandEditor::createUiList(
-		const BufferStringSet& paths, const BufferStringSet& exenms )
+void uiToolBarCommandEditor::updateCmdList( const CommandDefs& commands )
 {
-    BufferStringSet res;
-    const bool usesyspath = paths.isEmpty();
-    for ( int idx=0; idx<exenms.size(); idx++ )
-    {
-	const BufferString tmp = File::findExecutable( exenms.get(idx), paths,
-						       usesyspath );
-	if ( !tmp.isEmpty() )
-	    res.add( exenms.get(idx) );
-    }
-
-    return res;
-}
-
-
-uiStringSet uiToolBarCommandEditor::createUiStrSet(
-		const BufferStringSet& paths, const BufferStringSet& exenms )
-{
-    const BufferStringSet res = createUiList( paths, exenms );
-    uiStringSet uires;
-    for ( int idx=0; idx<res.size(); idx++ )
-	uires.add( toUiString( res.get(idx) ) );
-
-    return uires;
-}
-
-
-void uiToolBarCommandEditor::updateCmdList( const BufferStringSet& paths,
-					    const BufferStringSet& exenms )
-{
+    commands_ = commands;
     if ( exeselfld_ )
     {
-	uiStringSet res = createUiStrSet( paths, exenms );
-	res.add( tr("Other") );
+	uiStringSet uinames( commands_.getUiNames() );
+	uinames.add( uiStrings::sOther() );
 	NotifyStopper stopselchg( exeselfld_->selectionChanged );
 	NotifyStopper stopchg( changed );
 	BufferString current = exeselfld_->text();
 	exeselfld_->setEmpty();
-	exeselfld_->addItems( res );
+	exeselfld_->addItems( uinames );
 	exeselfld_->setCurrentItem( current );
 	exeSelChgCB( nullptr );
     }
@@ -172,7 +175,14 @@ void uiToolBarCommandEditor::clear()
 
 BufferString uiToolBarCommandEditor::getCommand() const
 {
-    return commandfld_->fileName();
+    int current = commands_.size();
+    if ( exeselfld_ )
+	current = exeselfld_->currentItem();
+
+    if ( current==commands_.size() )
+	return commandfld_->fileName();
+    else
+	return commands_.get( current );
 }
 
 
@@ -264,19 +274,21 @@ void uiToolBarCommandEditor::commandChgCB( CallBacker* )
 
 void uiToolBarCommandEditor::exeSelChgCB( CallBacker* )
 {
-    BufferString cmd( exeselfld_->text() );
-    if ( cmd=="Other" && isChecked() )
+    int current = commands_.size();
+    if ( exeselfld_  )
+	current = exeselfld_->currentItem();
+    if ( isChecked() && current==commands_.size() )
     {
 	advSetSensitive( true );
 	advDisplay( true );
     }
-    else if ( isChecked() )
+    else if ( isChecked() && !commands_.isEmpty() )
     {
 	advSetSensitive( false );
 	advDisplay( !mkinvisible_ );
-	setCommand( cmd );
-	setToolTip( cmd );
-	setIconFile( cmd );
+	setCommand( commands_.get( current ) );
+	setToolTip( commands_.getToolTip( current ).getString() );
+	setIconFile( commands_.getIconName( current ) );
 	commandChgCB( nullptr );
     }
 }
@@ -306,27 +318,29 @@ void uiToolBarCommandEditor::iconSelCB( CallBacker* )
 
 void uiToolBarCommandEditor::fillPar( IOPar& par ) const
 {
-    BufferString cmd;
+    int current = commands_.size();
     if ( exeselfld_ )
-	cmd = exeselfld_->text();
+	current = exeselfld_->currentItem();
 
-    if ( isChecked() && cmd=="Other" )
+    if ( isChecked() && current==commands_.size() )
     {
 	par.set( sKey::Command(), getCommand() );
-	par.set( sKey::ToolTip(), getToolTip() );
+	par.set( sKey::ToolTip(), toUiString(getToolTip()) );
 	par.set( sKey::IconFile(), getIconFile() );
     }
-    else if ( isChecked() && !cmd.isEmpty() )
-	par.set( sKey::ExeName(), cmd );
+    else if ( isChecked() && !commands_.isEmpty() )
+	par.set( sKey::ExeName(), commands_.get( current ) );
 }
 
 
 void uiToolBarCommandEditor::usePar( const IOPar& par )
 {
-    BufferString exenm, cmd, tip, iconfile;
+    BufferString exenm, cmd, iconfile;
+    uiString tip;
     if ( par.get( sKey::ExeName(), exenm ) && !exenm.isEmpty() && exeselfld_ )
     {
-	exeselfld_->setCurrentItem( exenm );
+	int idx = commands_.indexOf( exenm );
+	exeselfld_->setCurrentItem( idx==-1 ? 0 : idx );
 	setChecked( true );
     }
     else if ( par.get( sKey::Command(), cmd ) && !cmd.isEmpty() )
@@ -337,7 +351,7 @@ void uiToolBarCommandEditor::usePar( const IOPar& par )
 	    exeselfld_->setCurrentItem( "Other" );
 
 	setCommand( cmd );
-	setToolTip( tip );
+	setToolTip( tip.getString() );
 	setIconFile( iconfile );
 	setChecked( true );
     }
