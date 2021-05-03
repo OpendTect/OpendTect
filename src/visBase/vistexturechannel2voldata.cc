@@ -8,7 +8,6 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "vistexturechannel2voldata.h"
 #include "envvars.h"
