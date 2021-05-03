@@ -4,7 +4,6 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "tableposprovider.h"
 #include "keystrs.h"
