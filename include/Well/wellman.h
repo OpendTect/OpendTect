@@ -93,6 +93,7 @@ public:
     const char*		errMsg() const		{ return msg_; }
     ObjectSet<Data>&	wells()			{ return wells_; }
 
+    bool		deleteLogs(const MultiID&,const BufferStringSet&);
     static bool		getWellKeys(TypeSet<MultiID>&,bool onlyloaded=false);
     static bool		getWellNames(BufferStringSet&,bool onlyloaded=false);
     static bool		getAllMarkerNames(BufferStringSet&,

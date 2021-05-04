@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllogset.h"
 #include "wellmarker.h"
 #include "wellreader.h"
+#include "wellwriter.h"
 #include "welltrack.h"
 #include "welltransl.h"
 
@@ -450,6 +451,36 @@ bool Well::Man::getAllMarkerInfo( BufferStringSet& nms, TypeSet<Color>& cols,
 	}
     }
     return !nms.isEmpty();
+}
+
+
+bool Well::Man::deleteLogs( const MultiID& key,
+			    const BufferStringSet& logstodel )
+{
+    const LoadReqs loadreq( Logs );
+    RefMan<Data> wd = get( key, loadreq );
+    if ( !wd )
+	return false;
+
+    LogSet& wls = wd->logs();
+    for ( int idl=0; idl<logstodel.size(); idl++ )
+    {
+	const BufferString& logname = logstodel.get( idl );
+	const int logidx = wls.indexOf( logname );
+	if ( logidx<0 )
+	    continue;
+
+	delete wls.remove( logidx );
+    }
+
+    Writer wwr( wd->multiID(), *wd );
+    if ( !wwr.putLogs() )
+    {
+	msg_ = wwr.errMsg();
+	return false;
+    }
+
+    return true;
 }
 
 
