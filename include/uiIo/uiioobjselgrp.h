@@ -83,15 +83,15 @@ public:
 			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
 					const uiString& seltxt,const Setup&); \
 			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
-					BufferStringSet& trnotallowed); \
+				    const BufferStringSet& trnotallowed); \
 			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
 					const uiString& seltxt, \
-					BufferStringSet& trnotallowed); \
+					const BufferStringSet& trnotallowed); \
 			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
-				const Setup&,BufferStringSet& trnotallowed); \
+			  const Setup&,const BufferStringSet& trnotallowed); \
 			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
 				    const uiString& seltxt,const Setup&, \
-				    BufferStringSet& trnotallowed)
+				    const BufferStringSet& trnotallowed)
 
 			mDefuiIOObjSelGrpConstructors(IOObjContext);
 			mDefuiIOObjSelGrpConstructors(CtxtIOObj);

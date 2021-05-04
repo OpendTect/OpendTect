@@ -61,11 +61,12 @@ public:
 			uiIOObjSel(uiParent*,const IOObjContext&,
 			       const uiString& seltxt=uiString::empty());
 			uiIOObjSel(uiParent*,const IOObjContext&,const Setup&);
-			uiIOObjSel(uiParent*,BufferStringSet& trnotallowed,
+			uiIOObjSel(uiParent*,
+				const BufferStringSet& trnotallowed,
 				const IOObjContext&,
 			       const uiString& seltxt=uiString::empty());
 			uiIOObjSel(uiParent*,const IOObjContext&,
-				BufferStringSet& trnotallowed,const Setup&);
+			    const BufferStringSet& trnotallowed,const Setup&);
 			~uiIOObjSel();
 
     void		setTrNotAllowed(const BufferStringSet&);
@@ -153,10 +154,11 @@ default).
 			uiIOObjSel(uiParent*,CtxtIOObj&,
 				const uiString& seltxt=uiString::empty());
 			uiIOObjSel(uiParent*,CtxtIOObj&,const Setup&);
-			uiIOObjSel(uiParent*,BufferStringSet& trnotallowed,
+			uiIOObjSel(uiParent*,
+			const BufferStringSet& trnotallowed,
 			CtxtIOObj&,const uiString& seltxt=uiString::empty());
 			uiIOObjSel(uiParent*,CtxtIOObj&,
-			    BufferStringSet& trnotallowed,const Setup&);
+			const BufferStringSet& trnotallowed,const Setup&);
     bool		commitInput();
     bool		doCommitInput(bool&);
     CtxtIOObj&		ctxtIOObj( bool work=false )

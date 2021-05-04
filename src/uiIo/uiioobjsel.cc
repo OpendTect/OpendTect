@@ -320,7 +320,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
 }
 
 
-uiIOObjSel::uiIOObjSel( uiParent* p, BufferStringSet& trnotallowed,
+uiIOObjSel::uiIOObjSel( uiParent* p, const BufferStringSet& trnotallowed,
 			    const IOObjContext& c, const uiString& txt)
     : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c)),
 		 mCB(this,uiIOObjSel,doObjSel))
@@ -335,7 +335,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, BufferStringSet& trnotallowed,
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
-		BufferStringSet& trnotallowed, const uiIOObjSel::Setup& su )
+	    const BufferStringSet& trnotallowed, const uiIOObjSel::Setup& su )
     : uiIOSelect(p,su,mCB(this,uiIOObjSel,doObjSel))
     , inctio_(*new CtxtIOObj(c))
     , workctio_(*new CtxtIOObj(c))
@@ -347,7 +347,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
 }
 
 
-uiIOObjSel::uiIOObjSel( uiParent* p, BufferStringSet& trnotallowed,
+uiIOObjSel::uiIOObjSel( uiParent* p, const BufferStringSet& trnotallowed,
 				    CtxtIOObj& c, const uiString& txt )
     : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c.ctxt_)),
 		 mCB(this,uiIOObjSel,doObjSel))
@@ -362,7 +362,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, BufferStringSet& trnotallowed,
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c,
-		BufferStringSet& trnotallowed, const uiIOObjSel::Setup& su )
+	    const BufferStringSet& trnotallowed, const uiIOObjSel::Setup& su )
     : uiIOSelect(p,su,mCB(this,uiIOObjSel,doObjSel))
     , inctio_(c)
     , workctio_(*new CtxtIOObj(c))

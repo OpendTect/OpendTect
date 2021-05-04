@@ -196,7 +196,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
-					    BufferStringSet& trnotallowed )
+					const BufferStringSet& trnotallowed )
     : muiIOObjSelGrpConstructorCommons
 {
     trnotallowed_.setParam( this, trnotallowed.clone() );
@@ -205,7 +205,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
-			const uiString& seltxt, BufferStringSet& trnotallowed )
+		const uiString& seltxt, const BufferStringSet& trnotallowed )
     : muiIOObjSelGrpConstructorCommons
 {
     trnotallowed_.setParam( this, trnotallowed.clone() );
@@ -214,7 +214,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
-		const uiIOObjSelGrp::Setup& su, BufferStringSet& trnotallowed )
+	const uiIOObjSelGrp::Setup& su, const BufferStringSet& trnotallowed )
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
@@ -225,7 +225,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 			const uiString& seltxt, const uiIOObjSelGrp::Setup& su,
-			BufferStringSet& trnotallowed )
+			const BufferStringSet& trnotallowed )
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
@@ -235,7 +235,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
 
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
-						BufferStringSet& trnotallowed )
+					const BufferStringSet& trnotallowed )
     : muiIOObjSelGrpConstructorCommons
 {
     trnotallowed_.setParam( this, trnotallowed.clone() );
@@ -244,7 +244,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
-			const uiString& seltxt, BufferStringSet& trnotallowed )
+		const uiString& seltxt, const BufferStringSet& trnotallowed )
     : muiIOObjSelGrpConstructorCommons
 {
     trnotallowed_.setParam( this, trnotallowed.clone() );
@@ -253,7 +253,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
-		const uiIOObjSelGrp::Setup& su, BufferStringSet& trnotallowed )
+	const uiIOObjSelGrp::Setup& su, const BufferStringSet& trnotallowed )
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
@@ -264,7 +264,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 		      const uiString& seltxt, const uiIOObjSelGrp::Setup& su,
-			BufferStringSet& trnotallowed)
+		    const BufferStringSet& trnotallowed)
     : muiIOObjSelGrpConstructorCommons
     , setup_(su)
 {
