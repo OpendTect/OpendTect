@@ -95,6 +95,7 @@ public:
 
 };
 
+mGlobal(Strat) void init();	// initializes RefTreeMgr and loads default tree
 mGlobal(Strat) const RefTree& RT();
 inline RefTree& eRT()	{ return const_cast<RefTree&>( RT() ); }
 
