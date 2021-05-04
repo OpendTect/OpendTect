@@ -55,9 +55,21 @@ const uiStratTreeWin& StratTWin()
 
     return *stratwin;
 }
+
+
 uiStratTreeWin& StratTreeWin()
 {
     return const_cast<uiStratTreeWin&>( StratTWin() );
+}
+
+
+static void saveAsDefaultTree( const MultiID& key )
+{
+    if ( key.isUdf() )
+	return;
+
+    SI().getPars().set( Strat::sKeyDefaultTree(), key );
+    SI().savePars();
 }
 
 
@@ -76,7 +88,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     setIsLocked( false );
     updateButtonSensitivity();
 
-    mAttachCB( IOM().surveyChanged, uiStratTreeWin::survChgCB );
+    mAttachCB( IOM().surveyToBeChanged, uiStratTreeWin::survChgCB );
     mAttachCB( postFinalise(), uiStratTreeWin::finalizeCB );
 }
 
@@ -146,6 +158,8 @@ void uiStratTreeWin::initWin()
 	treekey_ = key;
 	readTree( treekey_ );
     }
+
+    updateCaption();
 }
 
 
@@ -408,6 +422,7 @@ void uiStratTreeWin::openTree()
     delete ctio.ioobj_;
 
     readTree( treekey_ );
+    saveAsDefaultTree( treekey_ );
 }
 
 
@@ -437,13 +452,12 @@ bool uiStratTreeWin::askSave()
     const bool needsave = uitree_->anyChg() || needsave_ ||  lvllist_->anyChg();
     uitree_->setNoChg();
     lvllist_->setNoChg();
-    needsave_ = false;
 
     if ( needsave )
     {
-	int res = uiMSG().askSave( tr("Stratigraphic framework has changed."
-				      "\n\nDo you want to save it?") );
-
+	const int res = uiMSG().askSave(
+				tr("Stratigraphic framework has changed."
+				"\n\nDo you want to save it?") );
 	if ( res == 1 )
 	    return save( false );
 	else if ( res == 0 )
@@ -566,23 +580,20 @@ void uiStratTreeWin::unitRenamedCB( CallBacker* )
 
 bool uiStratTreeWin::closeOK()
 {
-    SI().getPars().set( Strat::sKeyDefaultTree(), treekey_ );
-    SI().savePars();
-
     return askSave();
 }
 
 
 void uiStratTreeWin::survChgCB( CallBacker* )
 {
-    IOM().surveyChanged.remove( mCB(this,uiStratTreeWin,survChgCB ) );
+    IOM().surveyToBeChanged.remove( mCB(this,uiStratTreeWin,survChgCB ) );
     if ( stratwin )
 	stratwin->close();
 
     OBJDISP()->go( uistratdisp_ );
 
-    delete lvllist_;
-    delete uitree_;
+    deleteAndZeroPtr( lvllist_ );
+    deleteAndZeroPtr( uitree_ );
     stratwin = nullptr;
 }
 

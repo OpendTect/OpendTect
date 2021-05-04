@@ -543,13 +543,14 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
     rectpts += uiPoint( x1, y1  );
     uiPolyLineItem* pli = scene_.addItem( new uiPolyLineItem(rectpts) );
     pli->setPenStyle(
-		    OD::LineStyle(OD::LineStyle::Solid,1,OD::Color::Black()) );
+	OD::LineStyle(OD::LineStyle::Solid,1,OD::Color::LightGrey()) );
     colitm.borderitm_ = pli;
 
     uiTextItem* ti = scene_.addItem( new uiTextItem(toUiString(colitm.name_)) );
     ti->setTextColor( OD::Color::Black() );
-    ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y1-18) );
-    ti->setAlignment( Alignment::HCenter );
+    ti->setPos( float((x1+x2)/2), float(y1-5) );
+    const Alignment al( Alignment::HCenter, Alignment::Bottom );
+    ti->setAlignment( al );
     ti->setZValue( 2 );
     colitm.bordertxtitm_ = ti;
 }
@@ -586,7 +587,7 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 	li->setPenStyle( OD::LineStyle(lst,2,lvl.color_) );
 	uiTextItem* ti = scene_.addItem( new uiTextItem(toUiString(lvl.name_)));
 	ti->setPos( mCast(float,x1+(x2-x1)/2), mCast(float,y) );
-	ti->setZValue( 2 );
+	ti->setZValue( 4 );
 	ti->setTextColor( lvl.color_ );
 
 	colitm.txtitms_ += ti;
@@ -597,16 +598,20 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 
 void uiStratDrawer::drawEmptyText()
 {
-    delete emptyitm_; emptyitm_ =0;
+    deleteAndZeroPtr( emptyitm_ );
 
-    const int x = xax_->getPix( 0 );
+    int x = xax_->getPix( 0 );
+    if ( !colitms_.isEmpty() )
+	x += colitms_[0]->size_/2;
+
     const int y1 = yax_->getPix( yax_->range().stop );
     const int y2 = yax_->getPix( yax_->range().start );
 
-    uiTextItem* ti = scene_.addItem( new uiTextItem( tr("<Click to add>") ) );
-    ti->setTextColor( OD::Color::Black() );
-    ti->setPos( mCast(float,x), mCast(float,y2 - abs((y2-y1)/2) -10) );
-    ti->setZValue( 2 );
+    auto* ti = new uiTextItem( tr("Right-click to add unit") );
+    scene_.addItem( ti );
+    ti->setTextColor( OD::Color::Red() );
+    ti->setPos( float(x+10), float(y2 - abs((y2-y1)/2)-10) );
+    ti->setZValue( 3 );
     emptyitm_ = ti;
 }
 
@@ -644,6 +649,7 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 	rectpts += uiPoint( x1, y2 );
 	rectpts += uiPoint( x1, y1 );
 	uiPolygonItem* pli = scene_.addPolygon( rectpts, true );
+	pli->setZValue( 3 );
 	pli->setPenColor( OD::Color::Black() );
 	if ( unit.color_ != OD::Color::White() )
 	    pli->setFillColor( unit.color_, true );
@@ -660,7 +666,7 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 	ti->setTextColor( OD::Color::Black() );
 	ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y2-abs((y2-y1)/2)-10) );
 	ti->setAlignment( Alignment::HCenter );
-	ti->setZValue( 2 );
+	ti->setZValue( 3 );
 	colitm.txtitms_ += ti;
 	colitm.unititms_ += pli;
     }
@@ -704,7 +710,6 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
 
 void uiStratViewControl::setSensitive( bool yn )
 {
-    detachAllNotifiers();
     rubbandzoombut_->setSensitive( yn );
     vertzoominbut_->setSensitive( yn );
     vertzoomoutbut_->setSensitive( yn );
