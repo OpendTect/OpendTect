@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "issuereporter.h"
 
@@ -21,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_istream.h"
 #include "odplatform.h"
 #include "odsysmem.h"
+#include "odver.h"
 #include "separstr.h"
 #include "thread.h"
 #include "uistrings.h"
