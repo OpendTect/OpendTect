@@ -211,10 +211,10 @@ const char* Well::Log::mnemLabel() const
 const Mnemonic* Well::Log::mnemonic() const
 {
     if (!mnemlbl_.isEmpty())
-	return eMNC().find( mnemlbl_ );
+	return MNC().find( mnemlbl_ );
     else
-	return isCode() ? eMNC().getGuessed( propType() )
-			: eMNC().getGuessed( unitOfMeasure() );
+	return isCode() ? MNC().getGuessed( propType() )
+			: MNC().getGuessed( unitOfMeasure() );
 }
 
 
@@ -471,7 +471,7 @@ logout_.setValue(idx, val);
 
 Well::Log* Well::Log::upScaleLog( const StepInterval<float>& dahrg ) const
 {
-    Well::Log* outlog = Well::Log::createSampledLog( dahrg, 1.0 );
+    Well::Log* outlog = createSampledLog( dahrg, 1.0 );
     const Stats::UpscaleType uptype = isCode() ? Stats::UseMostFreq :
 						    Stats::UseAvg;
     const bool logisvel = propType() == PropertyRef::Vel;

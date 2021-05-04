@@ -64,7 +64,11 @@ ThicknessPropertyRef()
     : PropertyRef( sKey::Thickness(), PropertyRef::Dist )
 {
     Mnemonic* mn = eMNC().getGuessed( stdType() );
-    setMnemonic( mn->name() );
+    if ( mn )
+    {
+	setMnemonic( mn->name() );
+	mn->disp_.typicalrange_.set( 1.f, 99.f );
+    }
 }
 
 private:
@@ -139,6 +143,13 @@ float PropertyRef::commonValue() const
     if ( defval_ && defval_->isValue() )
 	return defval_->value();
 
+    if ( !mn_.isEmpty() )
+    {
+	const Mnemonic* mn = MNC().find( mn_ );
+	if ( mn )
+	    return mn->disp_.typicalrange_.center();
+    }
+
     return 0;
 }
 
@@ -210,12 +221,12 @@ void PropertyRef::usePar( const IOPar& iop )
     iop.get( sKeyMnemonic, mn_ );
     if ( mn_.isEmpty() )
     {
-	Mnemonic* mn = eMNC().getGuessed(stdtype_);
+	const Mnemonic* mn = MNC().getGuessed( stdtype_ );
 	mn_ = mn->name();
     }
     if ( !mn_.isEmpty() )
     {
-	Mnemonic* mn = eMNC().find( mn_ );
+	const Mnemonic* mn = MNC().find( mn_ );
 	if ( mn )
 	    aliases_.add( mn->aliases(), false );
     }

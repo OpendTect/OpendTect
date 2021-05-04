@@ -170,6 +170,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 
     aliasfld_ = new uiGenInput( this, tr("Aliases (e.g. 'abc, uvw*xyz')"),
 				StringInpSpec(ss.buf()) );
+    aliasfld_->setElemSzPol( uiObject::Wide );
     aliasfld_->attach( alignedBelow, mnemonicsfld_ );
 
     if ( !mn_ )
@@ -195,7 +196,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 	unfld_ = new uiUnitSel( this, pr_.stdType() );
     else
     {
-	unfld_ = new uiUnitSel( this, mn_ );
+	unfld_ = new uiUnitSel( this, mn_->stdType() );
         unfld_->setUnit( mn_->disp_.unit_ );
     }
 

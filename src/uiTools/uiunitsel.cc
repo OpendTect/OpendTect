@@ -87,7 +87,7 @@ void uiUnitSel::init()
     {
 	mnfld_ = new uiComboBox( this, "Mnemonic" );
 	mAttachCB( mnfld_->selectionChanged, uiUnitSel::mnSelChg );
-	MnemonicSet& mns = eMNC();
+	const MnemonicSet& mns = MNC();
 	BufferStringSet mnsnames;
 	mns.getNames( mnsnames );
 	mnfld_->addItems( mnsnames );
