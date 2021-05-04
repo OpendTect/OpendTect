@@ -261,7 +261,7 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 
 
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
-		    const uiSeisSel::Setup& su, BufferStringSet& trnotallowed )
+	    const uiSeisSel::Setup& su, const BufferStringSet& trnotallowed )
 	: uiIOObjSel(p,getIOObjCtxt(ctxt,su),trnotallowed,
 						mkSetup(su,ctxt.forread_))
 	, seissetup_(mkSetup(su,ctxt.forread_))
