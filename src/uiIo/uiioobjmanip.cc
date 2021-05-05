@@ -419,6 +419,34 @@ bool uiIOObjManipGroup::readonlyEntry( IOObj& ioobj, Translator* trans,
 }
 
 
+bool uiIOObjManipGroup::doReloc( Translator* trans, IOStream& iostrm,
+				 IOStream& chiostrm )
+{
+    const bool oldimplexist = trans ? trans->implExists( &iostrm, true )
+				    : iostrm.implExists( true );
+    const BufferString newfname( chiostrm.fullUserExpr() );
+
+    bool succeeded = true;
+    if ( oldimplexist )
+    {
+	const bool newimplexist = trans ? trans->implExists(&chiostrm, true)
+					: chiostrm.implExists(true);
+	if ( newimplexist && !uiIOObj(chiostrm).removeImpl(false,true) )
+	    return false;
+
+	CallBack cb( mCB(this,uiIOObjManipGroup,relocCB) );
+	succeeded = trans ? trans->implRename( &iostrm, newfname, &cb )
+			  : iostrm.implRename( newfname, &cb );
+    }
+
+    if ( succeeded )
+	iostrm.fileSpec().setFileName( newfname );
+    else
+	uiMSG().error(tr("Relocation failed"));
+    return succeeded;
+}
+
+
 void uiIOObjManipGroup::relocCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const char*,msg,cb);

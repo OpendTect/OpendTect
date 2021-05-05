@@ -854,32 +854,41 @@ void IOMan::removeUnusable( DBKeySet& keys )
 
 bool IOMan::isUsable( const MultiID& key ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( key );
+    ConstPtrMan<IOObj> ioobj = IOM().get( key );
     return ioobj;
 }
 
 
 bool IOMan::implExists( const MultiID& key ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    PtrMan<Translator> trans = ioobj->createTranslator();
-    return trans ? trans->implExists(ioobj.ptr(), true)
-			  : ioobj->implExists(true);
+    ConstPtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+	return false;
+
+    ConstPtrMan<Translator> trans = ioobj->createTranslator();
+    return trans ? trans->implExists( ioobj.ptr(), true )
+		 : ioobj->implExists( true );
 }
 
 
 bool IOMan::isReadOnly( const MultiID& key ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    PtrMan<Translator> trans = ioobj->createTranslator();
-    return trans ? trans->implReadOnly(ioobj.ptr())
-			: ioobj->implReadOnly();
+    ConstPtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+	return false;
+
+    ConstPtrMan<Translator> trans = ioobj->createTranslator();
+    return trans ? trans->implReadOnly( ioobj.ptr() )
+		 : ioobj->implReadOnly();
 }
 
 
 bool IOMan::isManagedObject( const MultiID& key ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+	return false;
+
     PtrMan<Translator> trans = ioobj->createTranslator();
     return trans ? !trans->implManagesObjects(ioobj.ptr())
 			: !ioobj->implManagesObjects();
@@ -889,58 +898,75 @@ bool IOMan::isManagedObject( const MultiID& key ) const
 bool IOMan::implRename( const MultiID& key, const char* newname,
 					    const CallBack* cb )
 {
+    msg_.setEmpty();
     BufferString newnm( newname );
     PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+    {
+	msg_ = "Can not find object in database.";
+	return false;
+    }
+
+    if ( newnm == ioobj->name() )
+	return false;
+
+    ConstPtrMan<IOObj> othioobj = IOM().getLocal( newnm, ioobj->group() );
+    if ( othioobj )
+    {
+	msg_.set("Name '").add(newnm).add( "' is already in use.");
+	return false;
+    }
+
+// TODO: Add error messages when return value is false
     PtrMan<Translator> trans = ioobj->createTranslator();
     ioobj->setName( newnm );
 
     mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
-    if ( iostrm )
+    if ( !iostrm )
+	return IOM().commitChanges( *ioobj );
+
+    if ( !iostrm->implExists(true) )
     {
-	if ( !iostrm->implExists(true) )
-	    iostrm->genFileName();
-	else
-	{
-	    IOStream chiostrm;
-	    chiostrm.copyFrom( iostrm );
-	    FilePath fp( iostrm->fileSpec().fileName() );
-	    if ( trans )
-		chiostrm.setExt( trans->defExtension() );
-
-	    BufferString cleannm( chiostrm.name() );
-	    cleannm.clean( BufferString::NoFileSeps );
-	    chiostrm.setName( cleannm );
-	    chiostrm.genFileName();
-	    chiostrm.setName( newnm );
-
-	    FilePath deffp( chiostrm.fileSpec().fileName() );
-	    fp.setFileName( deffp.fileName() );
-	    chiostrm.fileSpec().setFileName( fp.fullPath() );
-
-	    const bool newfnm = FixedString(chiostrm.fileSpec().fileName())
-					    != iostrm->fileSpec().fileName();
-	    if ( newfnm && !doReloc(key, trans,*iostrm,chiostrm) )
-	    {
-		if ( !newnm.contains('/') && !newnm.contains('\\') )
-		    return false;
-
-		newnm.clean( BufferString::AllowDots );
-		chiostrm.setName( newnm );
-		chiostrm.genFileName();
-		deffp.set( chiostrm.fileSpec().fileName() );
-		fp.setFileName( deffp.fileName() );
-		chiostrm.fileSpec().setFileName( fp.fullPath() );
-		chiostrm.setName( iostrm->name() );
-		if (!doReloc(key, trans, *iostrm, chiostrm))
-		    return false;
-	    }
-
-	    iostrm->copyFrom( &chiostrm );
-	}
+	iostrm->genFileName();
+	return IOM().commitChanges( *ioobj );
     }
 
-    IOM().commitChanges( *ioobj );
-    return true;
+    IOStream chiostrm;
+    chiostrm.copyFrom( iostrm );
+    FilePath fp( iostrm->fileSpec().fileName() );
+    if ( trans )
+	chiostrm.setExt( trans->defExtension() );
+
+    BufferString cleannm( chiostrm.name() );
+    cleannm.clean( BufferString::NoFileSeps );
+    chiostrm.setName( cleannm );
+    chiostrm.genFileName();
+    chiostrm.setName( newnm );
+
+    FilePath deffp( chiostrm.fileSpec().fileName() );
+    fp.setFileName( deffp.fileName() );
+    chiostrm.fileSpec().setFileName( fp.fullPath() );
+
+    const bool newfnm = FixedString(chiostrm.fileSpec().fileName())
+				    != iostrm->fileSpec().fileName();
+    if ( newfnm && !doReloc(key,trans,*iostrm,chiostrm,cb) )
+    {
+	if ( !newnm.contains('/') && !newnm.contains('\\') )
+	    return false;
+
+	newnm.clean( BufferString::AllowDots );
+	chiostrm.setName( newnm );
+	chiostrm.genFileName();
+	deffp.set( chiostrm.fileSpec().fileName() );
+	fp.setFileName( deffp.fileName() );
+	chiostrm.fileSpec().setFileName( fp.fullPath() );
+	chiostrm.setName( iostrm->name() );
+	if ( !doReloc(key,trans,*iostrm,chiostrm,cb) )
+	    return false;
+    }
+
+    iostrm->copyFrom( &chiostrm );
+    return IOM().commitChanges( *ioobj );
 }
 
 
@@ -958,7 +984,7 @@ bool IOMan::implReloc( const MultiID& key,
 
     FilePath fp( oldfnm ); fp.setPath( newdir );
     chiostrm.fileSpec().setFileName( fp.fullPath() );
-    if (!doReloc(key, trans, *iostrm, chiostrm))
+    if ( !doReloc(key,trans,*iostrm,chiostrm,cb) )
 	return false;
 
     IOM().commitChanges( *ioobj );
@@ -984,7 +1010,8 @@ bool IOMan::implRemove( const MultiID& key, bool rmentry, uiRetVal* uirv )
 
 
 bool IOMan::doReloc( const MultiID& key, Translator* trans,
-			   IOStream& iostrm, IOStream& chiostrm )
+		     IOStream& iostrm, IOStream& chiostrm,
+		     const CallBack* cb )
 {
     const bool oldimplexist = trans ? trans->implExists( &iostrm, true )
 				    : iostrm.implExists( true );
@@ -998,8 +1025,8 @@ bool IOMan::doReloc( const MultiID& key, Translator* trans,
 	if ( newimplexist && !implRemove(key) )
 	    return false;
 
-	succeeded = trans ? trans->implRename( &iostrm, newfname, nullptr )
-			  : iostrm.implRename( newfname, nullptr );
+	succeeded = trans ? trans->implRename( &iostrm, newfname, cb )
+			  : iostrm.implRename( newfname, cb );
     }
 
     if ( succeeded )

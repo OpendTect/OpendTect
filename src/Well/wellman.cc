@@ -154,12 +154,11 @@ void Well::Man::removeObject( const Well::Data* wd )
 
 void Well::Man::removeObject( const MultiID& key )
 {
-    const int wdidx = gtByKey( key );
-    if ( wdidx < 0 )
+    const int idx = gtByKey( key );
+    if ( !wells_.validIdx(idx) )
 	return;
 
-    Data* wd = wells_[wdidx];
-    removeObject( wd );
+    wells_.removeSingle( idx )->unRef();
 }
 
 
