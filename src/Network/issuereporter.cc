@@ -11,11 +11,11 @@ ________________________________________________________________________
 #include "issuereporter.h"
 
 #include "commandlineparser.h"
-#include "iopar.h"
 #include "file.h"
 #include "filepath.h"
+#include "iopar.h"
 #include "oddirs.h"
-#include "odinst.h"
+#include "odver.h"
 #include "odnetworkaccess.h"
 #include "od_istream.h"
 #include "odplatform.h"
