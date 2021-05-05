@@ -371,6 +371,50 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
 }
 
 
+Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
+			    const Well::LogSet& logset, bool todah ) const
+{
+    if ( zselection_ == Times )
+    {
+	Interval<float> rg( fixedzrg_ );
+	snapZRangeToSurvey( rg, true, wd.d2TModel(), wd.track() );
+	return rg;
+    }
+
+    Interval<float> dahrg( mUdf(float), mUdf(float) );
+
+    const Well::Track& track = wd.track();
+    if ( track.isEmpty() )
+	return dahrg;
+
+    if (  zselection_ == Depths )
+    {
+	if ( todah )
+	{
+	    dahrg.start = track.getDahForTVD( fixedzrg_.start );
+	    dahrg.stop = track.getDahForTVD( fixedzrg_.stop );
+	    dahrg.limitTo( track.dahRange() );
+	}
+	else
+	    dahrg = fixedzrg_;
+
+	snapZRangeToSurvey( dahrg, false, 0, wd.track() );
+	return dahrg;
+    }
+
+    dahrg.include( logset.dahInterval() );
+
+    getMarkerRange( wd, dahrg );
+    if ( !todah )
+    {
+	mDah2TVD( dahrg.start, dahrg.start );
+	mDah2TVD( dahrg.stop, dahrg.stop );
+    }
+    snapZRangeToSurvey( dahrg, false, 0, wd.track() );
+    return dahrg;
+}
+
+
 void Well::ZRangeSelector::getMarkerRange( const Well::Data& wd,
 					Interval<float>& zrg ) const
 {
@@ -1076,6 +1120,23 @@ Well::LogSampler::LogSampler(const Well::D2TModel* d2t,
 {
     init( d2t, zrg, zrgisintime, zstep, extrintime, samppol );
     logset_ = logs;
+}
+
+
+Well::LogSampler::LogSampler( const Well::Data& wd,
+			      const Well::ExtractParams& pars,
+			      const Well::LogSet& logset,
+			      const BufferStringSet& lognms )
+    : ParallelTask("Resampling logs")
+    , track_( wd.track() )
+{
+    init( wd.d2TModel(), pars.calcFrom(wd,logset,false), pars.isInTime(),
+	    pars.zstep_, pars.extractzintime_, pars.samppol_ );
+    for ( auto* lognm : lognms )
+    {
+	const Well::Log* log = logset.getLog( lognm->buf() );
+	if ( log ) logset_ += log;
+    }
 }
 
 

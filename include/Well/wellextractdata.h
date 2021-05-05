@@ -37,6 +37,7 @@ class Data;
 class Track;
 class Marker;
 class MarkerSet;
+class LogSet;
 
 /*!
 \brief Parameters (zrg, sampling method) to extract well data.
@@ -81,6 +82,8 @@ public :
 
     //get
     Interval<float>	calcFrom(const Data&,const BufferStringSet& logs,
+				 bool todah=true) const;
+    Interval<float>	calcFrom(const Data&,const Well::LogSet& logset,
 				 bool todah=true) const;
 
     float		topOffset() const	{ return above_; }
@@ -364,6 +367,11 @@ public:
 				float zstep, bool extractintime,
 				Stats::UpscaleType samppol,
 				const ObjectSet<const Well::Log>& logs);
+
+			LogSampler(const Well::Data& wd,
+				   const Well::ExtractParams&,
+				   const Well::LogSet&,
+				   const BufferStringSet&);
 
 			~LogSampler();
 
