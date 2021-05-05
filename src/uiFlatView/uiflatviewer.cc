@@ -296,8 +296,6 @@ void uiFlatViewer::updateCB( CallBacker* cb )
 
 void uiFlatViewer::updateBitmapCB( CallBacker* )
 {
-    MouseCursorChanger cursorchgr( MouseCursor::Wait );
-
     ConstDataPackRef<FlatDataPack> wvapack = obtainPack( true );
     ConstDataPackRef<FlatDataPack> vdpack = obtainPack( false );
     bitmapdisp_->setDataPack( wvapack.ptr(), true );
