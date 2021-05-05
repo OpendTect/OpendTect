@@ -489,14 +489,24 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 				     basedirection_.y*SI().crlDistance()).abs();
 
     ConstDataPackRef<FlatDataPack> fdp = flatviewer_->obtainPack( false );
+    int nrtrcs = 0;
     if ( fdp )
     {
 	offsetrange_.setFrom( fdp->posData().range( true ) );
 	zrg_.setFrom( fdp->posData().range( false ) );
+	nrtrcs = fdp->size( true );
     }
 
-    if ( !offsetrange_.width() )
-	offsetrange_.stop = mDefaultWidth;
+    if ( nrtrcs < 2 )
+	offsetrange_.set( 0.f, mDefaultWidth );
+    else
+    {
+	const float inltrcdist = SI().inlDistance() * SI().inlStep();
+	const float crltrcdist = SI().crlDistance() * SI().crlStep();
+	const float minwidth = (nrtrcs - 1) * (inltrcdist + crltrcdist);
+	if ( offsetrange_.width() < minwidth )
+	    offsetrange_.set( 0.f, minwidth );
+    }
 
     Coord startpos( bid_.inl(), bid_.crl() );
     if ( seis2d_ )
