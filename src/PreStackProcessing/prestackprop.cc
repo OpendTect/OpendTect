@@ -7,53 +7,50 @@
 
 #include "prestackprop.h"
 
-#include "idxable.h"
 #include "flatposdata.h"
-#include "prestackgather.h"
-#include "statruncalc.h"
+#include "idxable.h"
 #include "linear.h"
 #include "math2.h"
+#include "prestackgather.h"
+#include "statruncalc.h"
 
 
 namespace PreStack
 {
 mDefineEnumUtils(PropCalc,CalcType,"Calculation type")
 {
-	"Statistics",
-	"AVO Attributes",
-	0
+    "Statistics",
+    "AVO Attributes",
+    0
 };
 
 mDefineEnumUtils(PropCalc,AxisType,"Axis transformation")
 {
-	"None",
-	"Logarithmic",
-	"Exponential",
-	"Quadratic",
-	"Square root",
-	"Absolute value",
-	"Sine-square",
-	0
+    "None",
+    "Logarithmic",
+    "Exponential",
+    "Quadratic",
+    "Square root",
+    "Absolute value",
+    "Sine-square",
+    0
 };
 
 mDefineEnumUtils(PropCalc,LSQType,"Axis type")
 {
-	"Intercept",
-	"Gradient",
-	"StdDev of Intercept",
-	"StdDev of Gradient",
-	"Correlation coefficient",
-	0
+    "Intercept",
+    "Gradient",
+    "StdDev of Intercept",
+    "StdDev of Gradient",
+    "Correlation coefficient",
+    0
 };
-
 
 
 PropCalc::PropCalc( const Setup& s )
     : setup_(s)
-    , gather_( 0 )
     , innermutes_( 0 )
     , outermutes_( 0 )
-    , angledata_( 0 )
 {
 }
 
@@ -70,14 +67,14 @@ void PropCalc::removeGather()
     {
 	if ( DPM(DataPackMgr::FlatID()).haveID( gather_->id() ) )
 	    DPM(DataPackMgr::FlatID()).release( gather_->id() );
-	gather_ = 0;
+	gather_ = nullptr;
     }
 
     if ( angledata_ )
     {
 	if ( DPM(DataPackMgr::FlatID()).haveID( angledata_->id() ) )
 	    DPM(DataPackMgr::FlatID()).release( angledata_->id() );
-	angledata_ = 0;
+	angledata_ = nullptr;
     }
 
     delete [] innermutes_;
@@ -114,10 +111,10 @@ void PropCalc::setGather( DataPack::ID id )
     removeGather();
 
     DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( id );
-    mDynamicCastGet( Gather*, g, dp );
-    if ( g )
+    mDynamicCastGet( Gather*, gather, dp );
+    if ( gather )
     {
-	gather_ = g;
+	gather_ = gather;
 	handleNewGather();
     }
     else if ( dp && DPM(DataPackMgr::FlatID()).haveID( id ) )
@@ -144,6 +141,7 @@ void PropCalc::setAngleData( DataPack::ID id )
     {
 	if ( angledata_ && DPM(DataPackMgr::FlatID()).haveID( angledata_->id()))
 	    DPM(DataPackMgr::FlatID()).release( angledata_->id() );
+
 	angledata_ = angledata;
 	init();
     }
@@ -262,6 +260,9 @@ float PropCalc::getVal( float z ) const
 		axisval = gather_->getOffset( itrc );
 	    else
 	    {
+		if ( !angledata_ )
+		    continue;
+
 		const float* angledata =
 		    angledata_->data().getData() +
 		    angledata_->data().info().getOffset( itrc, 0 );
@@ -289,7 +290,8 @@ float PropCalc::getVal( float z ) const
 
 static void transformAxis( TypeSet<float>& vals, PropCalc::AxisType at )
 {
-    if ( at == PropCalc::Norm ) return;
+    if ( at == PropCalc::Norm )
+	return;
 
     for ( int idx=0; idx<vals.size(); idx++ )
     {
@@ -313,7 +315,7 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 			      TypeSet<float>& yvals, TypeSet<float>& xvals )
 {
     const int nrvals = yvals.size();
-    if ( nrvals==0 )
+    if ( nrvals == 0 )
 	return 0.f;
 
     transformAxis( yvals, su.valaxis_ );
@@ -327,7 +329,7 @@ float PropCalc::getVal( const PropCalc::Setup& su,
     if ( su.calctype_ == Stats )
     {
 	rc.addValues( nrvals, yvals.arr() );
-	return (float) rc.getValue( su.stattype_ );
+	return float( rc.getValue(su.stattype_) );
     }
     else if ( xvals.size() != nrvals )
 	    return mUdf(float);

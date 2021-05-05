@@ -92,10 +92,10 @@ protected:
 
     void		removeGather();
 
-    Gather*		gather_;
+    Gather*		gather_ = nullptr;
     int*		innermutes_;
     int*		outermutes_;
-    Gather*		angledata_;
+    Gather*		angledata_ = nullptr;;
 
     Setup		setup_;
 	bool		anglevalinradians_ = false;
