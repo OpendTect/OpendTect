@@ -157,7 +157,8 @@ private:
     int			levelOf(const char* dirnm) const;
     int			curLevel() const	{ return curlvl_; }
     bool		to(const IOSubDir*,bool);
-    bool		doReloc(const MultiID&,Translator*,IOStream&,IOStream&);
+    bool		doReloc(const MultiID&,Translator*,IOStream&,IOStream&,
+				const CallBack* cb=nullptr);
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
 
     friend class	IOMManager;

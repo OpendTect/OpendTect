@@ -81,12 +81,7 @@ public:
     Data*		get(const MultiID&);
     Data*		get(const MultiID&,LoadReqs);
     bool		readReqData(const MultiID&,Data*,LoadReqs);
-    mDeprecated("Use get instead") void add(const MultiID&,Data*);
-			//!< Data becomes mine
-    mDeprecated("Use removeObject instead") Data* release(const MultiID&);
-			//!< Data becomes yours
     bool		isLoaded(const MultiID&) const;
-    mDeprecated("Specify LoadReqs") bool		reload(const MultiID&);
     bool		reload(const MultiID&,LoadReqs lreq);
     bool		reloadDispPars(const MultiID&, bool for2d=false);
     bool		reloadLogs(const MultiID&);
@@ -112,10 +107,6 @@ public:
 				       TypeSet<Color>&, TypeSet<float>&);
     static bool		getLogNamesByID(const MultiID&,BufferStringSet&,
 					bool onlyloaded=false);
-    mDeprecated("Use getLogNamesByID instead") static bool getLogNames(
-			const MultiID&,BufferStringSet&, bool forceLoad=false);
-    mDeprecated("Use getAllMarkerNames instead") static bool getMarkerNames(
-							    BufferStringSet&);
 
     static void		dumpMgrInfo(IOPar&);
 
@@ -131,6 +122,23 @@ protected:
 
     int			gtByKey(const MultiID&) const;
     Well::Data*		addNew(const MultiID&, LoadReqs lreq=LoadReqs(false));
+
+public:
+    mDeprecated("Use getLogNamesByID instead")
+    static bool		getLogNames(const MultiID&,BufferStringSet&,
+				    bool forceLoad=false);
+    mDeprecated("Use getAllMarkerNames instead")
+    static bool		getMarkerNames(BufferStringSet&);
+
+    mDeprecated("Use get instead")
+    void		add(const MultiID&,Data*); //!< Data becomes mine
+
+    mDeprecated("Use removeObject instead")
+    Data*		release(const MultiID&); //!< Data becomes yours
+
+    mDeprecated("Specify LoadReqs")
+    bool		reload(const MultiID&);
+
 };
 
 mGlobal(Well) Man& MGR();

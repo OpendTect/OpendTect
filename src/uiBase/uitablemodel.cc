@@ -71,7 +71,15 @@ DoubleItemDelegate()
 {}
 
 
-QString displayText( const QVariant& val, const QLocale& locale ) const
+QWidget* createEditor( QWidget* prnt,
+		       const QStyleOptionViewItem&,
+		       const QModelIndex& ) const override
+{
+    return new QLineEdit( prnt );
+}
+
+
+QString displayText( const QVariant& val, const QLocale& locale ) const override
 {
     bool ok;
     const double dval = val.toDouble( &ok );
