@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id$
 ________________________________________________________________________
 
  Include this file in any executable program you make.
