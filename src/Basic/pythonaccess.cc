@@ -1121,8 +1121,10 @@ void OD::PythonAccess::getPathToInternalEnv( FilePath& fp, bool userdef )
 FilePath OD::PythonAccess::getInternalEnvPath( bool userdef )
 {
     FilePath fp;
-    getInternalEnvironmentLocation( fp, userdef );
-    return fp;
+    if ( getInternalEnvironmentLocation(fp,userdef) )
+	return fp;
+
+    return FilePath();
 }
 
 

@@ -747,12 +747,12 @@ uiPythonSettings(uiParent* p, const char* nm )
 
     if ( !OD::PythonAccess::hasInternalEnvironment(false) )
     {
-	internalloc_ = new uiFileInput( this, tr("Environment root") );
+	internalloc_ = new uiFileInput( this, tr("Internal environment root") );
 	internalloc_->setSelectMode( uiFileDialog::DirectoryOnly );
 	internalloc_->attach( alignedBelow, pythonsrcfld_ );
     }
 
-    customloc_ = new uiFileInput( this,tr("Custom environment root"));
+    customloc_ = new uiFileInput( this, tr("Custom environment root") );
     customloc_->setSelectMode( uiFileDialog::DirectoryOnly );
     customloc_->attach( alignedBelow, pythonsrcfld_ );
 
@@ -963,14 +963,14 @@ void sourceChgCB( CallBacker* )
 {
     const int sourceidx = pythonsrcfld_->getIntValue();
     const OD::PythonSource source =
-		OD::PythonSourceDef().getEnumForIndex(sourceidx);
+		OD::PythonSourceDef().getEnumForIndex( sourceidx );
 
     if ( internalloc_ )
 	internalloc_->display( source == OD::Internal );
 
-    customloc_->display( source == OD::Custom );
-    if ( source == OD::System || source == OD::Internal )
-	customenvnmfld_->display( false );
+    const bool iscustom = source == OD::Custom;
+    customloc_->display( iscustom );
+    customenvnmfld_->display( iscustom );
 
     updateIDEfld();
     parChgCB( nullptr );
@@ -983,7 +983,6 @@ void customEnvChgCB( CallBacker* )
     parChgCB( nullptr );
 }
 
-
 void internalLocChgCB( CallBacker* )
 {
     updateIDEfld();
@@ -994,7 +993,6 @@ void parChgCB( CallBacker* )
 {
     getChanges();
 }
-
 
 void setCustomEnvironmentNames()
 {
@@ -1061,7 +1059,7 @@ void testCB(CallBacker*)
     if ( !OD::PythA().retrievePythonVersionStr() )
     {
 	uiString launchermsg;
-	uiRetVal uirv( tr("Cannot detect python version:\n%1")
+	uiRetVal uirv( tr("Cannot detect Python version:\n%1\n")
 		.arg(OD::PythA().lastOutput(true,&launchermsg)) );
 	uirv.add( tr("Python environment not usable") )
 	    .add( launchermsg );
@@ -1256,14 +1254,14 @@ bool acceptOK( CallBacker* )
 }
 
     uiGenInput*		pythonsrcfld_;
-    uiFileInput*	internalloc_ = nullptr;
+    uiFileInput*	internalloc_		= nullptr;
     uiFileInput*	customloc_;
     uiGenInput*		customenvnmfld_;
     uiPathSel*		custompathfld_;
     uiToolBarCommandEditor*	pyidefld_;
 
-    IOPar*		chgdsetts_ = nullptr;
-    bool		needrestore_ = false;
+    IOPar*		chgdsetts_		= nullptr;
+    bool		needrestore_		= false;
     IOPar		initialsetts_;
 
 };
