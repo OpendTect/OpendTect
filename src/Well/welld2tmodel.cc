@@ -753,7 +753,7 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
     d2t.setEmpty();
     for ( int idx=0; idx<zvals.size(); idx++ )
 	d2t.add( dahs[idx], mCast(float,tvals[idx]) );
-
+    d2t.updateDahRange();
     return true;
 }
 
