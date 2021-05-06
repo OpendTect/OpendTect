@@ -817,7 +817,7 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 	    break;
 	d2t->add( dah, val );
     }
-
+    d2t->updateDahRange();
     if ( !updateDTModel(d2t,csmdl,errmsg_) )
 	mErrRetStrmOper( tr("Time/Depth relation in file is not valid") )
 
