@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A. Huck
  Date:		January 2017
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
