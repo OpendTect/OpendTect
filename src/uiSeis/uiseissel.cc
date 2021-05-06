@@ -392,7 +392,7 @@ void uiSeisSel::updateInput()
 	    wrtrselfld_->use( *workctio_.ioobj_ );
     }
 
-    if ( !ioobjkey.isEmpty() )
+    if ( !ioobjkey.isUdf() )
 	uiIOSelect::setInput( ioobjkey );
 
     if ( seissetup_.selectcomp_ && !mIsUdf(compnr_) )
