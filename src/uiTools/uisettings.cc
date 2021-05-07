@@ -817,6 +817,7 @@ void initDlg(CallBacker*)
     mAttachCB( customenvnmfld_->checked, uiPythonSettings::parChgCB );
     mAttachCB( custompathfld_->selChange, uiPythonSettings::parChgCB );
     mAttachCB( pyidefld_->changed, uiPythonSettings::parChgCB );
+    mAttachCB( pyidefld_->checked, uiPythonSettings::parChgCB );
 }
 
 IOPar& curSetts()
@@ -934,17 +935,15 @@ void usePar( const IOPar& par )
     {
 	BufferStringSet paths;
 	paths.usePar( *pathpar );
-	custompathfld_->setChecked( true );
 	custompathfld_->setPaths( paths );
     }
-    else
-	custompathfld_->setChecked( false );
+    custompathfld_->setChecked( pathpar );
 
     updateIDEfld();
     PtrMan<IOPar> idepar = par.subselect( sKey::PythonIDE() );
     if ( idepar )
 	pyidefld_->usePar( *idepar );
-
+    pyidefld_->setChecked( idepar );
 }
 
 bool commitSetts( const IOPar& iop )
