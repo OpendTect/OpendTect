@@ -140,7 +140,7 @@ protected:
     uiListBox*		storoutfld_;
     uiListBox*		steeroutfld_;
     uiListBox*		attroutfld_;
-    uiListBoxFilter*	attribfilterfld_;
+    uiListBoxFilter*	attribfilterfld_	= nullptr;
     uiListBox*		nlaoutfld_;
     uiListBox*		zdomoutfld_;
     uiGenInput*		filtfld_;
