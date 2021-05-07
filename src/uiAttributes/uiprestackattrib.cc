@@ -233,11 +233,11 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     prestackinpfld_->setInput( aps->psID() );
 
     const MultiID ppid = aps->preProcID();
-    if ( !ppid.isEmpty() && ppid.ID(0)!=0 )
-    {
-	dopreprocessfld_->setValue( true );
+    const bool dopreproc = !ppid.isEmpty() && !ppid.isUdf();
+    dopreprocessfld_->setValue( dopreproc );
+    if ( dopreproc )
 	preprocsel_->setSel( ppid );
-    }
+
     calctypefld_->setValue( (int)aps->setup().calctype_ );
     if ( aps->setup().calctype_ == PreStack::PropCalc::Stats )
     {
@@ -339,13 +339,15 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     }
     mSetString(Attrib::StorageProvider::keyStr(),prestackinpfld_->getMultiID())
 
-    if ( dopreprocessfld_->getBoolValue() )
+    const bool dopreproc = dopreprocessfld_->getBoolValue();
+    MultiID preprocmid = MultiID::udf();
+    if ( dopreproc && !preprocsel_->getSel(preprocmid) )
     {
-	MultiID mid;
-	if ( !preprocsel_->getSel(mid))
-	    { errmsg_ = tr("Please select preprocessing setup"); return false; }
-	mSetString(Attrib::PSAttrib::preProcessStr(), mid );
+	errmsg_ = tr( "Please select preprocessing setup" );
+	return false;
     }
+
+    mSetString(Attrib::PSAttrib::preProcessStr(), preprocmid );
 
     const int calctyp = calctypefld_->getIntValue();
     mSetEnum(Attrib::PSAttrib::calctypeStr(),calctyp)
