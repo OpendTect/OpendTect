@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include <QPixmap>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
-#include <QStringList>
 #include <QTableView>
 
 
