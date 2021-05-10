@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include <QAbstractItemView>
 #include <QContextMenuEvent>
 #include <QLineEdit>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <QSize>
 
 mUseQtnamespace
@@ -165,10 +165,9 @@ void uiComboBox::setValidator( const BufferString& regex )
     if ( regex.isEmpty() )
 	return;
 
-    QRegExpValidator* textvl = new QRegExpValidator();
-    QRegExp regexp( regex.buf() );
-    textvl->setRegExp(regexp);
-
+    auto* textvl = new QRegularExpressionValidator;
+    QRegularExpression regexp( regex.buf() );
+    textvl->setRegularExpression( regexp );
     body_->setValidator(textvl);
 }
 

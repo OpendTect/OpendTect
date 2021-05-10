@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include <QContextMenuEvent>
 #include <QDoubleValidator>
 #include <QIntValidator>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <QSize>
 
 mUseQtnamespace
@@ -160,8 +160,8 @@ void uiLineEdit::setPasswordMode()
 
 void uiLineEdit::setTextValidator( const uiTextValidator& valstr )
 {
-    const QRegExp regexp( QString(valstr.getRegExString().buf()) );
-    const QRegExpValidator* regexpvl = new QRegExpValidator( regexp );
+    const QRegularExpression regexp( QString(valstr.getRegExString().buf()) );
+    const auto* regexpvl = new QRegularExpressionValidator( regexp );
     body_->setValidator( regexpvl );
 }
 
