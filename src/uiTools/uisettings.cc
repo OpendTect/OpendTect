@@ -822,12 +822,12 @@ uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
 
     if ( !OD::PythonAccess::hasInternalEnvironment(false) )
     {
-	internalloc_ = new uiFileInput( this, tr("Environment root") );
+	internalloc_ = new uiFileInput( this, tr("Internal environment root") );
 	internalloc_->setSelectMode( uiFileDialog::DirectoryOnly );
 	internalloc_->attach( alignedBelow, pythonsrcfld_ );
     }
 
-    customloc_ = new uiFileInput( this,tr("Custom environment root"));
+    customloc_ = new uiFileInput( this, tr("Custom environment root") );
     customloc_->setSelectMode( uiFileDialog::DirectoryOnly );
     customloc_->attach( alignedBelow, pythonsrcfld_ );
 
@@ -1069,9 +1069,9 @@ void uiPythonSettings::sourceChgCB( CallBacker* )
     if ( internalloc_ )
 	internalloc_->display( source == OD::Internal );
 
-    customloc_->display( source == OD::Custom );
-    if ( source == OD::System || source == OD::Internal )
-	customenvnmfld_->display( false );
+    const bool iscustom = source == OD::Custom;
+    customloc_->display( iscustom );
+    customenvnmfld_->display( iscustom );
 
     updateIDEfld();
     parChgCB( nullptr );
@@ -1162,7 +1162,7 @@ void uiPythonSettings::testCB(CallBacker*)
     if ( !OD::PythA().retrievePythonVersionStr() )
     {
 	uiString launchermsg;
-	uiRetVal uirv( tr("Cannot detect python version:\n%1")
+	uiRetVal uirv( tr("Cannot detect Python version:\n%1\n")
 		.arg(OD::PythA().lastOutput(true,&launchermsg)) );
 	uirv.add( tr("Python environment not usable") )
 	    .add( launchermsg );
