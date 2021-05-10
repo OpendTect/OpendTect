@@ -20,45 +20,52 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "color.h"
 #include "convert.h"
-#include "timefun.h"
 #include "oddirs.h"
 #include "odjson.h"
 #include "odver.h"
+#include "timefun.h"
+
+#include "hiddenparam.h"
+
 #include <stdio.h>
 #include <string.h>
 
+static HiddenParam<IOPar,int>	hp_patchversions(0);
 
 const int cMaxTypeSetItemsPerLine = 100;
 
 
 IOPar::IOPar( const char* nm )
-	: NamedObject(nm)
-	, keys_(*new BufferStringSet)
-	, vals_(*new BufferStringSet)
-        , minorversion_( mODMinorVersion )
-        , majorversion_( mODMajorVersion )
+    : NamedObject(nm)
+    , keys_(*new BufferStringSet)
+    , vals_(*new BufferStringSet)
+    , minorversion_( mODMinorVersion )
+    , majorversion_( mODMajorVersion )
 {
+    hp_patchversions.setParam( this, mODPatchVersion );
 }
 
 
 IOPar::IOPar( ascistream& astream )
-	: NamedObject("")
-	, keys_(*new BufferStringSet)
-	, vals_(*new BufferStringSet)
-        , minorversion_( mODMinorVersion )
-        , majorversion_( mODMajorVersion )
+    : NamedObject("")
+    , keys_(*new BufferStringSet)
+    , vals_(*new BufferStringSet)
+    , minorversion_( mODMinorVersion )
+    , majorversion_( mODMajorVersion )
 {
+    hp_patchversions.setParam( this, mODPatchVersion );
     getFrom( astream );
 }
 
 
 IOPar::IOPar( const IOPar& iop )
-	: NamedObject(iop.name())
-	, keys_(*new BufferStringSet)
-	, vals_(*new BufferStringSet)
-        , minorversion_( iop.minorversion_ )
-        , majorversion_( iop.majorversion_ )
+    : NamedObject(iop.name())
+    , keys_(*new BufferStringSet)
+    , vals_(*new BufferStringSet)
+    , minorversion_( iop.minorversion_ )
+    , majorversion_( iop.majorversion_ )
 {
+    hp_patchversions.setParam( this, iop.patchVersion() );
     for ( int idx=0; idx<iop.size(); idx++ )
 	add( iop.keys_.get(idx), iop.vals_.get(idx) );
 }
@@ -66,6 +73,7 @@ IOPar::IOPar( const IOPar& iop )
 
 IOPar::~IOPar()
 {
+    hp_patchversions.removeParam( this );
     setEmpty();
     delete &keys_;
     delete &vals_;
@@ -84,6 +92,7 @@ IOPar& IOPar::operator =( const IOPar& iop )
 
     minorversion_ = iop.minorversion_;
     majorversion_ = iop.majorversion_;
+    setPatchVersion( iop.patchVersion() );
     return *this;
 }
 
@@ -288,6 +297,7 @@ IOPar* IOPar::subselect( const char* kystr ) const
 
     iopar->majorversion_ = majorversion_;
     iopar->minorversion_ = minorversion_;
+    iopar->setPatchVersion( patchVersion() );
 
     if ( iopar->size() == 0 )
 	{ delete iopar; iopar = 0; }
@@ -1206,6 +1216,7 @@ void IOPar::getFrom( ascistream& strm )
 
     majorversion_ = strm.majorVersion();
     minorversion_ = strm.minorVersion();
+    setPatchVersion( strm.patchVersion() );
 }
 
 
@@ -1441,7 +1452,7 @@ void IOPar::dumpPretty( BufferString& res ) const
 
 
 int IOPar::odVersion() const
-{ return 100*majorversion_ + 10*minorversion_; }
+{ return 100*majorversion_ + 10*minorversion_ + patchVersion(); }
 
 
 void IOPar::fillJSON( OD::JSON::Object& obj )
@@ -1453,4 +1464,16 @@ void IOPar::fillJSON( OD::JSON::Object& obj )
 
 	obj.set( key, val );
     }
+}
+
+
+int IOPar::patchVersion() const
+{
+    return hp_patchversions.getParam(this);
+}
+
+
+void IOPar::setPatchVersion( int pv )
+{
+    hp_patchversions.setParam( this, pv );
 }

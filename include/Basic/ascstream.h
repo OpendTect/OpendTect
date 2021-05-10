@@ -97,6 +97,7 @@ public:
     const char*		timeStamp() const	{ return timestamp_.buf(); }
     int			majorVersion() const;
     int			minorVersion() const;
+    int			patchVersion() const;
 
     enum EntryType	{ Empty, Keyword, KeyVal, ParagraphMark, EndOfFile };
     EntryType		type() const;

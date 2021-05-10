@@ -286,7 +286,7 @@ public:
     void		setStdCreationEntries();
 
 
-// I/O  functions
+// I/O functions
 
     // to/from string: 'serialisation'
     void		getFrom(const char*);
@@ -311,21 +311,24 @@ public:
 			//!<Only set if read from file. Otherwise set to current
     int			minorVersion() const	{ return minorversion_; }
 			//!<Only set if read from file. Otherwise set to current
+    int			patchVersion() const;
+			//!<Only set if read from file. Otherwise set to current
     int			odVersion() const;
 			/*!<Only set if read from file. Otherwise set to current
-			    v4.6.0 returns as 460 */
+			    v6.6.0 returns as 660 */
 
     void		dumpPretty(BufferString&) const;
     void		dumpPretty(od_ostream&) const;
 
-    static const char*	sKeyDumpPretty()         { return "_pretty"; }
-    static const char*	sKeyHdr()		 { return "->";	     }
-    static const char*	sKeySubHdr()		 { return "-->";     }
+    static const char*	sKeyDumpPretty()	{ return "_pretty"; }
+    static const char*	sKeyHdr()		{ return "->"; }
+    static const char*	sKeySubHdr()		{ return "-->"; }
 
 protected:
 
     int			majorversion_;
     int			minorversion_;
+    void		setPatchVersion(int); // is defined as hiddenparam
 
     BufferStringSet&	keys_;
     BufferStringSet&	vals_;
