@@ -21,7 +21,6 @@ mFDQtclass(QTreeWidget)
 mFDQtclass(QTreeWidgetItem)
 mFDQtclass(QTreeWidgetItemIterator)
 mFDQtclass(QString)
-mFDQtclass(QStringList)
 
 class uiPixmap;
 class uiTreeViewBody;
