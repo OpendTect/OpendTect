@@ -31,32 +31,35 @@ const int cMaxTypeSetItemsPerLine = 100;
 
 
 IOPar::IOPar( const char* nm )
-	: NamedObject(nm)
-	, keys_(*new BufferStringSet)
-	, vals_(*new BufferStringSet)
-        , minorversion_( mODMinorVersion )
-        , majorversion_( mODMajorVersion )
+    : NamedObject(nm)
+    , majorversion_(mODMajorVersion)
+    , minorversion_(mODMinorVersion)
+    , patchversion_(mODPatchVersion)
+    , keys_(*new BufferStringSet)
+    , vals_(*new BufferStringSet)
 {
 }
 
 
 IOPar::IOPar( ascistream& astream )
-	: NamedObject("")
-	, keys_(*new BufferStringSet)
-	, vals_(*new BufferStringSet)
-        , minorversion_( mODMinorVersion )
-        , majorversion_( mODMajorVersion )
+    : NamedObject("")
+    , keys_(*new BufferStringSet)
+    , vals_(*new BufferStringSet)
+    , majorversion_(mODMajorVersion)
+    , minorversion_(mODMinorVersion)
+    , patchversion_(mODPatchVersion)
 {
     getFrom( astream );
 }
 
 
 IOPar::IOPar( const IOPar& iop )
-	: NamedObject(iop.name())
-	, keys_(*new BufferStringSet)
-	, vals_(*new BufferStringSet)
-        , minorversion_( iop.minorversion_ )
-        , majorversion_( iop.majorversion_ )
+    : NamedObject(iop.name())
+    , keys_(*new BufferStringSet)
+    , vals_(*new BufferStringSet)
+    , majorversion_(iop.majorversion_)
+    , minorversion_(iop.minorversion_)
+    , patchversion_(iop.patchversion_)
 {
     for ( int idx=0; idx<iop.size(); idx++ )
 	add( iop.keys_.get(idx), iop.vals_.get(idx) );
@@ -81,8 +84,9 @@ IOPar& IOPar::operator =( const IOPar& iop )
 	    add( iop.keys_.get(idx), iop.vals_.get(idx) );
     }
 
-    minorversion_ = iop.minorversion_;
     majorversion_ = iop.majorversion_;
+    minorversion_ = iop.minorversion_;
+    patchversion_ = iop.patchversion_;
     return *this;
 }
 
@@ -287,6 +291,7 @@ IOPar* IOPar::subselect( const char* kystr ) const
 
     iopar->majorversion_ = majorversion_;
     iopar->minorversion_ = minorversion_;
+    iopar->patchversion_ = patchversion_;
 
     if ( iopar->size() == 0 )
 	{ delete iopar; iopar = 0; }
@@ -1205,6 +1210,7 @@ void IOPar::getFrom( ascistream& strm )
 
     majorversion_ = strm.majorVersion();
     minorversion_ = strm.minorVersion();
+    minorversion_ = strm.patchVersion();
 }
 
 
@@ -1440,7 +1446,7 @@ void IOPar::dumpPretty( BufferString& res ) const
 
 
 int IOPar::odVersion() const
-{ return 100*majorversion_ + 10*minorversion_; }
+{ return 100*majorversion_ + 10*minorversion_ + patchVersion(); }
 
 
 void IOPar::fillJSON( OD::JSON::Object& obj )

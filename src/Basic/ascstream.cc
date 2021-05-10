@@ -38,11 +38,9 @@ extern "C" const char* GetProjectVersionName()
     BufferString& pvn = getPVN();
     if ( pvn.isEmpty() )
     {
-	pvn = "dTect";
-	pvn += " V";
-	pvn += mODMajorVersion;
-	pvn += ".";
-	pvn += mODMinorVersion;
+	pvn.set( "dTect V" ).add( mODMajorVersion )
+	   .add(".").add( mODMinorVersion )
+	   .add(".").add( mODPatchVersion );
     }
     return pvn.buf();
 }
@@ -358,25 +356,31 @@ bool ascistream::isOfFileType( const char* ftyp ) const
 const char* ascistream::version() const
 {
     const char* vptr = lastOcc( header_.buf(), 'V' );
-    if ( vptr ) return vptr + 1;
-    return "0.0";
+    if ( vptr )
+	return vptr + 1;
+
+    return "0.0.0";
 }
 
 
 int ascistream::majorVersion() const
 {
-    BufferString v( version() );
-    char* ptr = firstOcc( v.getCStr(), '.' );
-    if ( ptr ) *ptr = '\0';
-    return v.toInt();
+    const SeparString ss( version(), '.' );
+    return ss.size() > 0 ? ss.getIValue(0) : 0;
 }
 
 
 int ascistream::minorVersion() const
 {
-    BufferString v( version() );
-    char* ptr = lastOcc( v.getCStr(), '.' );
-    return toInt( ptr ? ptr+1 : v.buf() );
+    const SeparString ss( version(), '.' );
+    return ss.size() > 1 ? ss.getIValue(1) : 0;
+}
+
+
+int ascistream::patchVersion() const
+{
+    const SeparString ss( version(), '.' );
+    return ss.size() > 2 ? ss.getIValue(2) : 0;
 }
 
 

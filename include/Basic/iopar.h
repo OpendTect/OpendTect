@@ -59,6 +59,7 @@ public:
 			IOPar(ascistream&);
 			IOPar(const IOPar&);
 			~IOPar();
+
     IOPar&		operator =(const IOPar&);
     inline bool		operator ==( const IOPar& iop ) const
 			{ return isEqual(iop); }
@@ -287,9 +288,9 @@ public:
     void		setStdCreationEntries();
 
 
-// I/O	functions
+// I/O functions
 
-    // to/from string: 'serialisation'
+    // to/from string: 'serialization'
     void		getFrom(const char*);
     void		getParsFrom(const char*);
     void		putTo(BufferString&) const;
@@ -312,21 +313,24 @@ public:
 			//!<Only set if read from file. Otherwise set to current
     int			minorVersion() const	{ return minorversion_; }
 			//!<Only set if read from file. Otherwise set to current
+    int			patchVersion() const	{ return patchversion_; }
+			//!<Only set if read from file. Otherwise set to current
     int			odVersion() const;
 			/*!<Only set if read from file. Otherwise set to current
-			    v4.6.0 returns as 460 */
+			    v6.6.0 returns as 660 */
 
     void		dumpPretty(BufferString&) const;
     void		dumpPretty(od_ostream&) const;
 
-    static const char*	sKeyDumpPretty()	 { return "_pretty"; }
-    static const char*	sKeyHdr()		 { return "->";      }
-    static const char*	sKeySubHdr()		 { return "-->";     }
+    static const char*	sKeyDumpPretty()	{ return "_pretty"; }
+    static const char*	sKeyHdr()		{ return "->"; }
+    static const char*	sKeySubHdr()		{ return "-->"; }
 
 protected:
 
     int			majorversion_;
     int			minorversion_;
+    int			patchversion_;
 
     BufferStringSet&	keys_;
     BufferStringSet&	vals_;
