@@ -282,26 +282,51 @@ macro( COPY_THIRDPARTYLIBS )
 
     foreach( ODPLUGIN ${OD_QTPLUGINS} )
 	if ( "${ODPLUGIN}" STREQUAL "resources" )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${COPYFROMLIBDIR}/../resources
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
+	    if ( APPLE )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				 ${COPYFROMLIBDIR}/../Plugins/resources
+				 ${COPYTOLIBDIR}/../Plugins/resources )
+	    else()
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				 ${COPYFROMLIBDIR}/../resources
+				 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/resources )
+	    endif()
 	else()
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${COPYFROMLIBDIR}/../plugins/${ODPLUGIN}
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/plugins/${ODPLUGIN} )
+	    if ( APPLE )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				 ${COPYFROMLIBDIR}/../Plugins/${ODPLUGIN}
+				 ${COPYTOLIBDIR}/../Plugins/${ODPLUGIN} )
+	    else()
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				 ${COPYFROMLIBDIR}/../plugins/${ODPLUGIN}
+				 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/plugins/${ODPLUGIN} )
+	    endif()
 	endif()
     endforeach()
 
     foreach( TRANSLATION_FILE ${OD_QT_TRANSLATION_FILES} )
 	get_filename_component( QTWEB_LOCALS_FILE ${TRANSLATION_FILE} EXT  )
 	if( ${QTWEB_LOCALS_FILE} STREQUAL ".pak" )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${COPYFROMLIBDIR}/../translations/qtwebengine_locales/${TRANSLATION_FILE}
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/qtwebengine_locales/${TRANSLATION_FILE} )
+	    if ( APPLE )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				 ${COPYFROMLIBDIR}/../Plugins/translations/qtwebengine_locales/${TRANSLATION_FILE}
+				 ${COPYTOLIBDIR}/../Plugins/translations/qtwebengine_locales/${TRANSLATION_FILE} )
+	    else()
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				 ${COPYFROMLIBDIR}/../translations/qtwebengine_locales/${TRANSLATION_FILE}
+				 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/qtwebengine_locales/${TRANSLATION_FILE} )
+	    endif()
+>>>>>>> e28997ec48... Following the MAC structure while installing and package creation. [devel].
 	else()
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${COPYFROMLIBDIR}/../translations/${TRANSLATION_FILE}
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/${TRANSLATION_FILE} )
+	    if ( APPLE )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				 ${COPYFROMLIBDIR}/../Plugins/translations/${TRANSLATION_FILE}
+				 ${COPYTOLIBDIR}/../Plugins/translations/${TRANSLATION_FILE} )
+	    else()
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+				 ${COPYFROMLIBDIR}/../translations/${TRANSLATION_FILE}
+				 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/${TRANSLATION_FILE} )
+	    endif()
 	endif()
     endforeach()
 
