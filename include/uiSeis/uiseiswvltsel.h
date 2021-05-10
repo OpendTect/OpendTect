@@ -25,18 +25,18 @@ class uiWaveletExtraction;
 mExpClass(uiSeis) uiSeisWaveletSel : public uiGroup
 { mODTextTranslationClass(uiSeisWaveletSel)
 public:
-
 			uiSeisWaveletSel(uiParent*,
 					 const char* seltxt="Wavelet",
 					 bool withextract=true,
 					 bool withman=true,
 					 bool compact=false);
 			~uiSeisWaveletSel();
+
     void		rebuildList();
 
-    BufferString	getName() const;
     const MultiID&	getID() const;
     Wavelet*		getWavelet() const;
+    const char*		getWaveletName() const;
     void		setInput(const char*);
     void		setInput(const MultiID&);
 
@@ -56,6 +56,10 @@ protected:
     void		startMan(CallBacker*);
     void		selChg(CallBacker*);
 
+public:
+// Use getWaveletName() to get the wavelet name. This function is supposed to
+// return the name of the uiGroup.
+    BufferString	getName() const;
 };
 
 
@@ -66,4 +70,3 @@ public:
 				     const uiIOObjSel::Setup&);
     Wavelet*		getWavelet(bool noerr) const;
 };
-

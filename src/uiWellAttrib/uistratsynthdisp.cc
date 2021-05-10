@@ -641,7 +641,7 @@ void uiStratSynthDisp::setCurrentWavelet()
 
     if ( wvasd )
     {
-	wvasd->setWavelet( wvltfld_->getName() );
+	wvasd->setWavelet( wvltfld_->getWaveletName() );
 	currentwvasynthetic_ = wvasd;
 	if ( synthgendlg_ )
 	    synthgendlg_->updateWaveletName();
@@ -659,7 +659,7 @@ void uiStratSynthDisp::setCurrentWavelet()
     mDynamicCastGet(const StratPropSyntheticData*,prsd,vdsd);
     if ( vdsd && !prsd )
     {
-	vdsd->setWavelet( wvltfld_->getName() );
+	vdsd->setWavelet( wvltfld_->getWaveletName() );
 	currentvdsynthetic_ = vdsd;
 	if ( vdsynthnm != wvasynthnm )
 	{
