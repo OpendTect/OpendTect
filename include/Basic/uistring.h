@@ -22,7 +22,6 @@ class uiRetVal;
 namespace Pos { class IdxPair; }
 
 mFDQtclass( QString );
-mFDQtclass( QStringList );
 mFDQtclass( QTranslator );
 
 #define mTextTranslationClass(clss,pkgkey) \
