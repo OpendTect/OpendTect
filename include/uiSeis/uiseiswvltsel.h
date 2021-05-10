@@ -25,18 +25,18 @@ class uiWaveletExtraction;
 mExpClass(uiSeis) uiSeisWaveletSel : public uiGroup
 { mODTextTranslationClass(uiSeisWaveletSel)
 public:
-
 			uiSeisWaveletSel(uiParent*,
 					 const char* seltxt="Wavelet",
 					 bool withextract=true,
 					 bool withman=true,
 					 bool compact=false);
 			~uiSeisWaveletSel();
+
     void		rebuildList();
 
-    BufferString	getName() const;
     const MultiID&	getID() const;
     Wavelet*		getWavelet() const;
+    const char*		getWaveletName() const;
     void		setInput(const char*);
     void		setInput(const MultiID&);
 
@@ -66,4 +66,3 @@ public:
 				     const uiIOObjSel::Setup&);
     Wavelet*		getWavelet(bool noerr) const;
 };
-

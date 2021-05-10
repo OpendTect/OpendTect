@@ -28,12 +28,11 @@ ________________________________________________________________________
 uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
 				bool withextract, bool withman, bool compact )
     : uiGroup(p,"Wavelet selector")
-    , wvltextrdlg_(0)
     , newSelection(this)
+    , wvltextrdlg_(nullptr)
 {
-    uiLabeledComboBox* lcb =
-	new uiLabeledComboBox( this, seltxt ? mToUiStringTodo(seltxt) :
-							uiStrings::sWavelet() );
+    auto* lcb = new uiLabeledComboBox( this,
+		seltxt ? mToUiStringTodo(seltxt) : uiStrings::sWavelet() );
     nmfld_ = lcb->box();
     uiObject* lastfld = lcb->attachObj();
 
@@ -72,49 +71,49 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
 
 uiSeisWaveletSel::~uiSeisWaveletSel()
 {
+    detachAllNotifiers();
+
     deepErase( ids_ );
-    if ( wvltextrdlg_ ) wvltextrdlg_->close();
+    if ( wvltextrdlg_ )
+	wvltextrdlg_->close();
 }
 
 
 void uiSeisWaveletSel::initFlds( CallBacker* )
 {
-    nmfld_->selectionChanged.notify( mCB(this,uiSeisWaveletSel,selChg) );
+    mAttachCB( nmfld_->selectionChanged, uiSeisWaveletSel::selChg );
 }
 
 
 void uiSeisWaveletSel::setInput( const char* nm )
 {
-    if ( nm && *nm )
-    {
-	if ( !nmfld_->isPresent(nm) )
-	    rebuildList();
-	nmfld_->setText( nm );
-    }
+    const FixedString nmstr = nm;
+    if ( nmstr.isEmpty() )
+	return;
+
+    if ( !nmfld_->isPresent(nm) )
+	rebuildList();
+
+    nmfld_->setText( nm );
 }
 
 
 void uiSeisWaveletSel::setInput( const MultiID& mid )
 {
-    if ( mid.isEmpty() ) return;
+    if ( mid.isUdf() )
+	return;
 
-    IOObj* ioobj = IOM().get( mid );
-    if ( !ioobj ) return;
+    ConstPtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj )
+	return;
 
     setInput( ioobj->name() );
-    delete ioobj;
-}
-
-
-BufferString uiSeisWaveletSel::getName() const
-{
-    return nmfld_->text();
 }
 
 
 const MultiID& uiSeisWaveletSel::getID() const
 {
-    static const MultiID emptyid;
+    static const MultiID emptyid = MultiID::udf();
     const int selidx = nmfld_->currentItem();
     return selidx < 0 ? emptyid : *ids_[selidx];
 }
@@ -122,13 +121,22 @@ const MultiID& uiSeisWaveletSel::getID() const
 
 Wavelet* uiSeisWaveletSel::getWavelet() const
 {
-    const MultiID& id = getID();
-    if ( id.isEmpty() ) return 0;
-    IOObj* ioobj = IOM().get( id );
-    if ( !ioobj ) return 0;
+    const MultiID& mid = getID();
+    if ( mid.isUdf() )
+	return nullptr;
+
+    ConstPtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj )
+	return nullptr;
+
     Wavelet* ret = Wavelet::get( ioobj );
-    delete ioobj;
     return ret;
+}
+
+
+const char* uiSeisWaveletSel::getWaveletName() const
+{
+    return nmfld_->text();
 }
 
 
@@ -137,8 +145,8 @@ void uiSeisWaveletSel::extractCB( CallBacker* )
     if ( !wvltextrdlg_ )
     {
 	wvltextrdlg_ = new uiWaveletExtraction( this, false );
-	wvltextrdlg_->extractionDone.notify(
-		mCB(this,uiSeisWaveletSel,extractionDoneCB) );
+	mAttachCB( wvltextrdlg_->extractionDone,
+		   uiSeisWaveletSel::extractionDoneCB );
     }
 
     wvltextrdlg_->show();
@@ -170,10 +178,12 @@ void uiSeisWaveletSel::selChg( CallBacker* )
 
 void uiSeisWaveletSel::rebuildList()
 {
-    IOObjContext ctxt( mIOObjContext(Wavelet) );
+    const IOObjContext ctxt( mIOObjContext(Wavelet) );
     const IODir iodir( ctxt.getSelKey() );
     const IODirEntryList dil( iodir, ctxt );
-    nms_.erase(); deepErase( ids_ );
+    nms_.erase();
+    deepErase( ids_ );
+
     for ( int idx=0; idx<dil.size(); idx ++ )
     {
 	nms_.add( dil[idx]->ioobj_->name() );
@@ -183,7 +193,8 @@ void uiSeisWaveletSel::rebuildList()
     BufferString curwvlt( nmfld_->text() );
     nmfld_->selectionChanged.disable();
 
-    nmfld_->setEmpty(); nmfld_->addItems( nms_ );
+    nmfld_->setEmpty();
+    nmfld_->addItems( nms_ );
 
     int newidx = nms_.indexOf( curwvlt.buf() );
     if ( curwvlt.isEmpty() || newidx < 0 )
@@ -192,12 +203,11 @@ void uiSeisWaveletSel::rebuildList()
 		IOPar::compKey(sKey::Default(),ctxt.trgroup_->groupName()) );
 	if ( res && *res )
 	{
-	    IOObj* ioobj = IOM().get( MultiID(res) );
+	    ConstPtrMan<IOObj> ioobj = IOM().get( MultiID(res) );
 	    if ( ioobj )
 	    {
 		curwvlt = ioobj->name();
 		newidx = nms_.indexOf( curwvlt.buf() );
-		delete ioobj;
 		nmfld_->selectionChanged.enable();
 	    }
 	}
@@ -205,6 +215,7 @@ void uiSeisWaveletSel::rebuildList()
 
     if ( newidx >= 0 )
 	nmfld_->setCurrentItem( newidx );
+
     nmfld_->selectionChanged.enable();
 }
 

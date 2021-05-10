@@ -14,14 +14,13 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uimsg.h"
-#include "uiseparator.h"
-#include "uisplitter.h"
-#include "uispinbox.h"
 #include "uiseiswvltsel.h"
-
-#include "synthseis.h"
+#include "uiseparator.h"
+#include "uispinbox.h"
+#include "uisplitter.h"
 
 #include "od_helpids.h"
+#include "synthseis.h"
 
 
 #define mErrRet(s,act) \
@@ -123,7 +122,7 @@ void uiSynthSeisGrp::setRayTracerType( const char* type )
 
 const char* uiSynthSeisGrp::getWaveletName() const
 {
-    return wvltfld_->getName();
+    return wvltfld_->getWaveletName();
 }
 
 
