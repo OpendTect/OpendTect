@@ -331,18 +331,22 @@ const char* ascistream::version() const
 
 int ascistream::majorVersion() const
 {
-    BufferString v( version() );
-    char* ptr = firstOcc( v.getCStr(), '.' );
-    if ( ptr ) *ptr = '\0';
-    return v.toInt();
+    const SeparString ss( version(), '.' );
+    return ss.size() > 0 ? ss.getIValue(0) : 0;
 }
 
 
 int ascistream::minorVersion() const
 {
-    BufferString v( version() );
-    char* ptr = lastOcc( v.getCStr(), '.' );
-    return toInt( ptr ? ptr+1 : v.buf() );
+    const SeparString ss( version(), '.' );
+    return ss.size() > 1 ? ss.getIValue(1) : 0;
+}
+
+
+int ascistream::patchVersion() const
+{
+    const SeparString ss( version(), '.' );
+    return ss.size() > 2 ? ss.getIValue(2) : 0;
 }
 
 
