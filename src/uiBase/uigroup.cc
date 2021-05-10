@@ -112,7 +112,7 @@ public:
     void		setVSpacing( int space )
 			    { lomngr_->setVSpacing( space ); }
     void		setBorder( int b )
-			    { lomngr_->setMargin( b ); }
+			    { lomngr_->setContentsMargins( b, b, b, b ); }
 
     uiObject*		hAlignObj()			{ return halignobj_; }
     void		setHAlignObj( uiObject* o );
