@@ -1046,12 +1046,14 @@ od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 {
 #ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
-    return lastmodif ? qfi.lastModified().toTime_t()
+    const QDateTime dt = lastmodif ? qfi.lastModified()
 #if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-		     : qfi.birthTime().toTime_t();
+		     : qfi.birthTime();
 #else
-		     : qfi.created().toTime_t();
+		     : qfi.created();
 #endif
+
+    return dt.toSecsSinceEpoch();
 
 #else
     struct stat st_buf;

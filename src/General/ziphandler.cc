@@ -1703,7 +1703,7 @@ bool ZipHandler::setTimeDateModified( const char* fnm, od_uint16 timeindos,
     QDate qd( year, month, day );
     QDateTime qdt( qd, qt );
     od_int64 timeinsec;
-    timeinsec = qdt.toTime_t();
+    timeinsec = qdt.toSecsSinceEpoch();
 #ifdef __win__
     struct _utimbuf ut;
     ut.modtime = timeinsec;
