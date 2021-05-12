@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "uiwelldataexport.h"
 
+#include "filepath.h"
 #include "ioobj.h"
 #include "od_ostream.h"
 #include "survinfo.h"
@@ -42,7 +43,6 @@ ________________________________________________________________________
 static const char* sKeyTVD()		{ return "TVD"; }
 static const char* sKeyTVDGL()		{ return "TVDGL"; }
 static const char* sKeyTVDSD()		{ return "TVDSD"; }
-static const char* sKeyTWT()		{ return "TWT"; }
 static const char* sKeyVint()		{ return "Vint"; }
 
 static const UnitOfMeasure* getDisplayUnit( uiGenInput* ztype )
@@ -414,8 +414,6 @@ void uiWellExportFacility::writeLogs( od_ostream& strm )
     const Well::LogSet& logs = wd_->logs();
     BufferStringSet logsel;
     loglist_->getChosen( logsel );
-    const Well::Track& track = wd_->track();
-    const Well::D2TModel* d2t = wd_->d2TModel();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	const float md = intv.atIndex( idx );
