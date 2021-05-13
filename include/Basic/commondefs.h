@@ -194,22 +194,10 @@ namespace Threads
     mGlobal(Basic) bool lockSimpleSpinWaitLock(volatile int& lock);
     mGlobal(Basic) void unlockSimpleSpinLock(volatile int& lock);
 }
-
-#define mLockStaticInitLock( nm )
-//#define mLockStaticInitLock( nm ) \
-//static volatile int nm = 0; \
-//Threads::lockSimpleSpinWaitLock( nm );
-
-#define mUnlockStaticInitLock( nm )
-//#define mUnlockStaticInitLock( nm ) \
-//Threads::unlockSimpleSpinLock( nm );
-
-#else
-
-#define mLockStaticInitLock( nm )
-#define mUnlockStaticInitLock( nm )
-
 #endif
+
+#define mLockStaticInitLock( nm )
+#define mUnlockStaticInitLock( nm )
 
 #define mDefineStaticLocalObject( type, var, init ) \
 static type var init;

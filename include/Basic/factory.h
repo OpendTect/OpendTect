@@ -449,11 +449,8 @@ virtual const char* factoryKeyword() const { return kw; }
 #define mImplFactory1Param( T, P, funcname ) \
 ::Factory1Param<T,P>& funcname() \
 { \
-    mLockStaticInitLock( static_inst_lck__ ); \
     static PtrMan< ::Factory1Param<T,P> > \
 	inst(new ::Factory1Param<T,P>); \
-    mUnlockStaticInitLock( static_inst_lck__ ); \
-     \
     return *inst; \
 }
 
@@ -474,11 +471,8 @@ virtual const char* factoryKeyword() const { return kw; }
 #define mImplFactory2Param( T, P0, P1, funcname ) \
 ::Factory2Param<T,P0,P1>& funcname() \
 { \
-    mLockStaticInitLock( static_inst_lck__ ); \
     static PtrMan< ::Factory2Param<T,P0,P1> > \
 	inst(new ::Factory2Param<T,P0,P1>); \
-    mUnlockStaticInitLock( static_inst_lck__ ); \
-    \
     return *inst; \
 }
 
@@ -499,11 +493,8 @@ virtual const char* factoryKeyword() const { return kw; }
 #define mImplFactory3Param( T, P0, P1, P2,funcname ) \
 ::Factory3Param<T,P0,P1,P2>& funcname() \
 { \
-    mLockStaticInitLock( static_inst_lck__ ); \
     static PtrMan< ::Factory3Param<T,P0,P1,P2> > \
 	inst(new ::Factory3Param<T,P0,P1,P2>); \
-    mUnlockStaticInitLock( static_inst_lck__ ); \
-\
     return *inst; \
 }
 
