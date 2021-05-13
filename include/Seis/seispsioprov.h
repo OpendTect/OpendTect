@@ -173,6 +173,8 @@ public:
 			mDefEmptyTranslatorBaseConstructor(SeisPS3D)
 
     virtual bool	implRemove(const IOObj*) const;
+    virtual bool	implRename(const IOObj*,const char*,
+				   const CallBack* cb=0) const;
 };
 
 
