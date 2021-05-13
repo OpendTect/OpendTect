@@ -32,8 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # define sDirSep        "/"
 #endif
 
-#define mToSqMileFactorD	3.86102158542e-7 /* m^2 to mile^2
-				copied from data/UnitsOfMeasure */
+#define mToSqMileFactorD	3.58700642792e-8 // ft^2 to mile^2
 
 
 static const char* getStringFromInt( od_int32 val )
@@ -801,9 +800,9 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
 }
 
 
-const char* getAreaString( float m2, bool parensonunit, char* str )
+const char* getAreaString( float area, bool parensonunit, char* str )
 {
-    const BufferString areastr( getAreaString(m2,SI().xyInFeet(),
+    const BufferString areastr( getAreaString(area,SI().xyInFeet(),
 					      mUdf(int),parensonunit) );
 
     mDeclStaticString( retstr );
@@ -820,12 +819,12 @@ const char* getAreaString( float m2, bool parensonunit, char* str )
 }
 
 
-const char* getAreaString( float m2, bool xyinfeet, int precision,
+const char* getAreaString( float area, bool xyinfeet, int precision,
 			   bool parensonunit, char* str )
 {
     FixedString unit;
-    double val = m2;
-    if ( m2 > 10. )
+    double val = area;
+    if ( area > 10. )
     {
 	if ( xyinfeet )
 	{
@@ -841,10 +840,7 @@ const char* getAreaString( float m2, bool xyinfeet, int precision,
     else
     {
 	if ( xyinfeet )
-	{
-	    val *= (mToFeetFactorD * mToFeetFactorD);
 	    unit =  "sq ft";
-	}
 	else
 	{
 	    unit = "sq m";

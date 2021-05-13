@@ -754,9 +754,8 @@ float SurveyInfo::getArea( const Interval<int>& inlrg,
     const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl()) );
     const Coord c10 = transform( BinID(inlrg.stop+step.inl(),crlrg.start) );
 
-    const double scale = xyInFeet() ? mFromFeetFactorD : 1.;
-    const double d01 = c00.distTo( c01 ) * scale;
-    const double d10 = c00.distTo( c10 ) * scale;
+    const double d01 = c00.distTo( c01 );
+    const double d10 = c00.distTo( c10 );
 
     return sCast(float,d01*d10);
 }

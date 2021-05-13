@@ -30,6 +30,13 @@ float RayTracer1D::cDefaultBlockRatio()
 }
 
 
+StepInterval<float> RayTracer1D::sDefOffsetRange()
+{
+    return SI().xyInFeet() ? StepInterval<float>( 0.f, 18000.f, 300.f )
+			   : StepInterval<float>( 0.f, 6000.f, 100.f );
+}
+
+
 bool RayTracer1D::Setup::usePar( const IOPar& par )
 {
     par.getYN( sKeyPWave(), pdown_, pup_);
@@ -88,6 +95,13 @@ bool RayTracer1D::usePar( const IOPar& par )
     par.get( sKeyOffset(), offsets );
     if ( offsets.isEmpty() )
 	offsets += 0;
+
+    bool offsetisinfeet = false;
+    if ( par.getYN(sKeyOffsetInFeet(),offsetisinfeet) && offsetisinfeet )
+    {
+	for ( int idx=0; idx<offsets.size(); idx++ )
+	    offsets[idx] = offsets[idx] * mFromFeetFactorF;
+    }
 
     setOffsets( offsets );
     return setup().usePar( par );
