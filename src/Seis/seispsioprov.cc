@@ -64,14 +64,14 @@ SeisPSIOProviderFactory& SPSIOPF()
 
 const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
 {
-    if ( provs_.isEmpty() )	return 0;
+    if ( provs_.isEmpty() )	return nullptr;
     else if ( !t )		return provs_[0];
 
     for ( int idx=0; idx<provs_.size(); idx++ )
 	if ( provs_[idx]->type()==t )
 	    return provs_[idx];
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -118,10 +118,10 @@ bool SeisPSIOProviderFactory::getLineNames( const IOObj& ioobj,
 SeisPS3DReader* SeisPSIOProviderFactory::get3DReader( const IOObj& ioobj,
 						      int inl ) const
 {
-    if ( provs_.isEmpty() ) return 0;
+    if ( provs_.isEmpty() ) return nullptr;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPS3DReader* reader =
-	prov ? prov->get3DReader( ioobj, inl ) : 0;
+	prov ? prov->get3DReader( ioobj, inl ) : nullptr;
 
     if ( reader )
 	reader->usePar( ioobj.pars() );
@@ -133,11 +133,11 @@ SeisPS3DReader* SeisPSIOProviderFactory::get3DReader( const IOObj& ioobj,
 SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
 						      Pos::GeomID geomid ) const
 {
-    if ( provs_.isEmpty() ) return 0;
+    if ( provs_.isEmpty() ) return nullptr;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
 
     SeisPS2DReader* reader = prov ?
-	prov->get2DReader( ioobj, geomid ) : 0;
+	prov->get2DReader( ioobj, geomid ) : nullptr;
     if ( reader )
 	reader->usePar( ioobj.pars() );
 
@@ -148,11 +148,11 @@ SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
 SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
 						      const char* lnm ) const
 {
-    if ( provs_.isEmpty() ) return 0;
+    if ( provs_.isEmpty() ) return nullptr;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
 
     SeisPS2DReader* reader = prov ?
-	prov->get2DReader( ioobj, lnm ) : 0;
+	prov->get2DReader( ioobj, lnm ) : nullptr;
     if ( reader )
 	reader->usePar( ioobj.pars() );
 
@@ -162,10 +162,10 @@ SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
 
 SeisPSWriter* SeisPSIOProviderFactory::get3DWriter( const IOObj& ioobj ) const
 {
-    if ( provs_.isEmpty() ) return 0;
+    if ( provs_.isEmpty() ) return nullptr;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPSWriter* writer =
-	prov ? prov->get3DWriter( ioobj ) : 0;
+	prov ? prov->get3DWriter( ioobj ) : nullptr;
     if ( writer )
 	writer->usePar( ioobj.pars() );
 
@@ -176,10 +176,10 @@ SeisPSWriter* SeisPSIOProviderFactory::get3DWriter( const IOObj& ioobj ) const
 SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
 						    Pos::GeomID geomid ) const
 {
-    if ( provs_.isEmpty() ) return 0;
+    if ( provs_.isEmpty() ) return nullptr;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPSWriter* writer =
-	prov ? prov->get2DWriter( ioobj, geomid ) : 0;
+	prov ? prov->get2DWriter( ioobj, geomid ) : nullptr;
     if ( writer )
 	writer->usePar( ioobj.pars() );
 
@@ -190,10 +190,10 @@ SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
 SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
 						    const char* lnm ) const
 {
-    if ( provs_.isEmpty() ) return 0;
+    if ( provs_.isEmpty() ) return nullptr;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPSWriter* writer =
-	prov ? prov->get2DWriter( ioobj, lnm ) : 0;
+	prov ? prov->get2DWriter( ioobj, lnm ) : nullptr;
     if ( writer )
 	writer->usePar( ioobj.pars() );
 
@@ -205,7 +205,7 @@ SeisTrc* SeisPSReader::getTrace( const BinID& bid, int trcidx ) const
 {
     SeisTrcBuf buf( true );
     if ( !getGather(bid,buf) || buf.size()<=trcidx )
-	return 0;
+	return nullptr;
 
     return buf.remove( trcidx );
 }
@@ -225,12 +225,36 @@ bool SeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( ioobj )
     {
-	const FixedString res = ioobj->pars().find(
-					SeisPSIOProvider::sKeyCubeID );
-	if ( !res.isEmpty() )
-	    IOM().permRemove( MultiID(res) );
+	MultiID pseudocubeid;
+	ioobj->pars().get( SeisPSIOProvider::sKeyCubeID, pseudocubeid );
+	PtrMan<IOObj> pseudocubeobj = IOM().get( pseudocubeid );
+	if ( pseudocubeobj )
+	    IOM().permRemove( pseudocubeid );
     }
+
     return true;
+}
+
+
+bool SeisPS3DTranslator::implRename( const IOObj* ioobj, const char* newnm,
+				     const CallBack* cb ) const
+{
+    if ( ioobj )
+    {
+	MultiID pseudocubeid;
+	ioobj->pars().get( SeisPSIOProvider::sKeyCubeID, pseudocubeid );
+	PtrMan<IOObj> pseudocubeobj = IOM().get( pseudocubeid );
+	if ( pseudocubeobj )
+	{
+	    BufferString newpseudocubenm( "{" );
+	    newpseudocubenm.add( ioobj->name() ).add( "}" );
+	    pseudocubeobj->setName( newpseudocubenm );
+	    if ( !IOM().commitChanges(*pseudocubeobj) )
+		return false;
+	}
+    }
+
+    return Translator::implRename( ioobj, newnm, cb );
 }
 
 
@@ -255,6 +279,7 @@ bool CBVSSeisPS2DTranslator::implRemove( const IOObj* ioobj ) const
     BufferString fnm( ioobj->fullUserExpr(true) );
     if ( File::exists(fnm) )
 	File::remove( fnm );
+
     return !File::exists(fnm);
 }
 
@@ -263,7 +288,7 @@ SeisPSCubeSeisTrcTranslator::SeisPSCubeSeisTrcTranslator( const char* nm,
 							  const char* unm )
 	: SeisTrcTranslator(nm,unm)
 	, trc_(*new SeisTrc)
-	, psrdr_(0)
+	, psrdr_(nullptr)
 	, inforead_(false)
 	, posdata_(*new PosInfo::CubeData)
 {
@@ -384,7 +409,7 @@ bool SeisPSCubeSeisTrcTranslator::commitSelections_()
 bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 {
     if ( !toNext() ) return false;
-    SeisTrc* newtrc = 0;
+    SeisTrc* newtrc = nullptr;
     if ( !trcnrs_.isEmpty() )
     {
 	newtrc = psrdr_->getTrace( curbinid_, trcnrs_[0] );
