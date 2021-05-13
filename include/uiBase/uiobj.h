@@ -62,13 +62,13 @@ public:
     virtual int		width() const;	//!< Actual size in pixels
     virtual int		height() const;	//!< Actual size in pixels
 
-    virtual void	setName(const char*);
+    virtual void	setName(const char*) override;
 
     void		setToolTip(const uiString&);
     const uiString&	toolTip() const;
     static void		updateToolTips();
 
-    void		translateText();
+    void		translateText() override;
 
     void		display(bool yn,bool shrink=false,bool maximized=false);
     void		setFocus();
@@ -142,7 +142,7 @@ public:
 
     uiMainWin*		mainwin();
 
-    mQtclass(QWidget*)	getWidget() { return qwidget(); }
+    mQtclass(QWidget*)	getWidget() override { return qwidget(); }
     mQtclass(QWidget*)	qwidget();
     const mQtclass(QWidget*)	qwidget() const
 			      { return const_cast<uiObject*>(this)->qwidget(); }

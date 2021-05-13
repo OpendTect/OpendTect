@@ -80,7 +80,7 @@ public:
 
 protected:
 
-    virtual Batch::JobDispatcher&	gtDsptchr();
+    virtual Batch::JobDispatcher&	gtDsptchr() override;
     Batch::SingleJobDispatcher&		sjd_;
     HostDataList			hdl_;
 

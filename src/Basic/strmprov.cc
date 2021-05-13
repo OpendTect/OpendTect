@@ -99,12 +99,6 @@ static const char* mkUnLinked( const char* fnm )
 #endif
 
 
-static inline const char* remExecCmd()
-{
-    return OS::MachineCommand::defaultRemExec();
-}
-
-
 //---- Pre-loaded data ----
 
 

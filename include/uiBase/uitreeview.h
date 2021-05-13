@@ -119,8 +119,8 @@ public:
     void		insertItem(int,uiTreeViewItem*);
 
     uiParent*		parent()		{ return parent_; }
-    void		translateText();
-    bool		handleLongTabletPress();
+    void		translateText() override;
+    bool		handleLongTabletPress() override;
 
 			//! re-draws at next X-loop
     void		triggerUpdate();

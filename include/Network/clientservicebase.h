@@ -153,7 +153,7 @@ private:
     void		batchServiceToBeAdded(CallBacker*);
     void		batchServiceAdded(CallBacker*);
     void		batchServiceRemoved(CallBacker*);
-    void		doAppClosing(CallBacker*);
+    void		doAppClosing(CallBacker*) override;
 
     friend class uiServiceClientMgr;
 };

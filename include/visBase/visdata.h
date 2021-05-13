@@ -226,7 +226,7 @@ public:								\
     static void			initClass();			\
     static const char*		getStaticClassName();		\
     static const char*		sFactoryKeyword();		\
-    virtual const char*		getClassName() const
+    virtual const char*		getClassName() const override
 
 
 #define mCreateFactoryEntry( clss )				\

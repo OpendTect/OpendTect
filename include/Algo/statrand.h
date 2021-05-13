@@ -63,11 +63,6 @@ public:
     void		subselect(T&,od_int64 targetsz) const;
 			//!< Does not preserve order
 			//!< The removed items will really be erased
-
-private:
-
-    int			seed_;
-
 };
 
 

@@ -8,6 +8,7 @@
 
 #define _CRT_RAND_S
 
+#include "atomic.h"
 #include "statruncalc.h"
 #include "statrand.h"
 #include "timefun.h"
@@ -16,6 +17,7 @@
 
 
 Threads::Atomic<int> partsortglobalseed( 0 );
+Threads::Atomic<int> globalseed( 0 );
 
 
 mDefineNameSpaceEnumUtils(Stats,Type,"Statistic type")
@@ -43,20 +45,19 @@ mDefineNameSpaceEnumUtils(Stats,UpscaleType,"Upscale type")
 
 void initSeed( int seed )
 {
-    mDefineStaticLocalObject( int, seed_, = 0 );
-
+    // rand_s function on Windows does not use a seed.
+#ifndef __win__
     if ( seed == 0 )
     {
-	if ( seed_ != 0 )
+	if ( globalseed != 0 )
 	    return;
 
-	seed = (int)Time::getMilliSeconds();
+	globalseed = int( Time::getMilliSeconds() );
     }
 
-    seed_ = seed;
+    globalseed = seed;
 
-#ifndef __win__
-    srand48( (long)seed_ );
+    srand48( globalseed );
 #endif
 }
 
@@ -115,7 +116,6 @@ int Stats::CalcSetup::medianEvenHandling()
 
 
 Stats::RandGen::RandGen()
-    : seed_(0)
 {
     initSeed( 0 );
 }

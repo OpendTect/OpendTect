@@ -34,9 +34,9 @@ ________________________________________________________________________
 namespace System
 {
 
+#ifdef __lux64__
 static bool findLibraryPath( const char* libnm, FilePath& ret )
 {
-#ifdef __lux64__
     OS::MachineCommand mc( "/sbin/ldconfig" );
     mc.addFlag( "p", OS::OldStyle ).addPipe()
       .addArg( "grep" ).addArg( libnm );
@@ -71,10 +71,8 @@ static bool findLibraryPath( const char* libnm, FilePath& ret )
 
     ret.set( cmdoutlines_x64.first()->buf() );
     return ret.exists();
-#else
-    return false;
-#endif
 }
+#endif
 
 } // namespace System
 
@@ -82,9 +80,9 @@ static bool findLibraryPath( const char* libnm, FilePath& ret )
 namespace Network
 {
 
+#ifdef __lux64__
 static bool canUseSystemOpenSSL()
 {
-#ifdef __lux64__
     const FilePath libfp( __OpenSSL_Crypto_LIBRARY__ );
     const char* libnm = libfp.fileName().buf();
     FilePath ret;
@@ -99,10 +97,8 @@ static bool canUseSystemOpenSSL()
 
     BufferString cmdoutstr;
     return mc.execute( cmdoutstr ) && !cmdoutstr.isEmpty();
-#else
-    return false;
-#endif
 }
+#endif
 
 
 static void loadOpenSSL()

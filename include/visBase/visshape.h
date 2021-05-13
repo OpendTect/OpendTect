@@ -106,11 +106,11 @@ public:
 			 SoNode with getInventorNode() to take
 			 effect. */
 
-    virtual void	setDisplayTransformation( const mVisTrans* );
+    virtual void	setDisplayTransformation( const mVisTrans* ) override;
 			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates, 
 			     you will have to setTransformation again.	*/
-    const mVisTrans*	getDisplayTransformation() const;
+    const mVisTrans*	getDisplayTransformation() const override;
 			/*!<\note Direcly relayed to the coordinates */
     
     void		dirtyCoordinates();
@@ -122,7 +122,7 @@ public:
     virtual void	touchPrimitiveSet(int)			{}
     Geometry::PrimitiveSet*	getPrimitiveSet(int);
     const Geometry::PrimitiveSet* getPrimitiveSet(int) const;
-    void		setMaterial( Material* mt );
+    void		setMaterial( Material* mt ) override;
     void		materialChangeCB( CallBacker*  );
     void		coordinatesChangedCB( CallBacker* );
     void		enableCoordinatesChangedCB(bool yn)

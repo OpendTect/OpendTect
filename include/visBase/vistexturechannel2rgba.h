@@ -71,7 +71,7 @@ protected:
 				TextureChannel2RGBA();
 
     TextureChannels*		channels_;
-    osgGeo::LayeredTexture*     laytex_;
+    osgGeo::LayeredTexture*	laytex_;
 };
 
 
@@ -84,7 +84,7 @@ public:
     virtual int		nrChannels() const			= 0;
     virtual bool	addChannel()				= 0;
     virtual bool	enableNotify(bool)			= 0;
-    			//!<\returns previous status
+			//!<\returns previous status
     virtual void	touch()					= 0;
     virtual void	setNrChannels(int)			= 0;
 };
@@ -101,26 +101,27 @@ public:
     static ColTabTextureChannel2RGBA*	create()
 				mCreateDataObj(ColTabTextureChannel2RGBA);
 
-    void			swapChannels(int ch0,int ch1);
+    void			swapChannels(int ch0,int ch1) override;
 
-    bool			canSetSequence() const		{ return true;}
-    void			setSequence(int ch,const ColTab::Sequence&);
-    const ColTab::Sequence*	getSequence(int ch) const;
+    bool			canSetSequence() const	override { return true;}
+    void			setSequence(int ch,
+					    const ColTab::Sequence&) override;
+    const ColTab::Sequence*	getSequence(int ch) const override;
 
-    void			setEnabled(int ch,bool yn);
-    bool			isEnabled(int ch) const;
+    void			setEnabled(int ch,bool yn) override;
+    bool			isEnabled(int ch) const override;
 
     void			setTransparency(int ch,unsigned char yn);
     unsigned char		getTransparency(int ch) const;
 
-    int				maxNrChannels() const;
+    int				maxNrChannels() const override;
 
 protected:
-    void			notifyChannelInsert(int ch);
-    void			notifyChannelRemove(int ch);
+    void			notifyChannelInsert(int ch) override;
+    void			notifyChannelRemove(int ch) override;
 
     void			adjustNrChannels();
-    void			setChannels(TextureChannels*);
+    void			setChannels(TextureChannels*) override;
 
 				~ColTabTextureChannel2RGBA();
 
@@ -128,7 +129,7 @@ protected:
     void			getColors(int channel,
 					  TypeSet<unsigned char>&) const;
 
-    ObjectSet<ColTab::Sequence>	coltabs_;
+    ObjectSet<ColTab::Sequence> coltabs_;
     BoolTypeSet			enabled_;
     TypeSet<unsigned char>	opacity_;
 

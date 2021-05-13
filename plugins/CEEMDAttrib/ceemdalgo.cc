@@ -798,8 +798,8 @@ bool DecompInput::usePolynomial(
 	output->set( size_-1, yidx-1, vallast );
     }
 
-    delete unsortedfrequencies;
-    delete unsortedamplitudes;
+    delete[] unsortedfrequencies;
+    delete[] unsortedamplitudes;
     return true;
 }
 
@@ -823,7 +823,7 @@ bool DecompInput::sortSpectrum(
 	sortedampspectrum.add( freq, amp );
     }
 
-    delete indexsortedamplitudes;
+    delete[] indexsortedamplitudes;
     return true;
 }
 
