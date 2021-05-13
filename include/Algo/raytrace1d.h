@@ -86,7 +86,10 @@ public:
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
     static const char*  sKeyBlock()	   { return "Block model"; }
     static const char*  sKeyBlockRatio()   { return "Blocking ratio threshold";}
+    static const char*	sKeyOffsetInFeet() { return "Offset in Feet";}
     static float	cDefaultBlockRatio();
+
+    static StepInterval<float>	sDefOffsetRange();
 
     static void		setIOParsToZeroOffset(IOPar& iop);
 

@@ -582,9 +582,6 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
     if ( Seis::isPS(geom_) )
     {
 	BufferString offsetrangestr( "Offset range ", SI().getXYUnitString() );
-	if ( SI().xyInFeet() )
-	    offsrg.scale( mToFeetFactorF );
-
 	iop.add( offsetrangestr, offsrg.start, offsrg.stop );
     }
 }

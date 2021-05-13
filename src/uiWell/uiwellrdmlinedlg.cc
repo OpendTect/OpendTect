@@ -372,10 +372,9 @@ uiWell2RandomLineDlg::~uiWell2RandomLineDlg()
 
 void uiWell2RandomLineDlg::createFields()
 {
-    uiString txt = tr("Extend outward (%1" )
-		 .arg(SI().xyInFeet() ? tr("ft)") : tr("m)"));
-    float defdist = 100 * SI().inlDistance();
-    extendfld_ = new uiGenInput(this,txt,FloatInpSpec((float)mNINT32(defdist)));
+    uiString txt = tr( "Extend outward %1" ).arg( SI().getUiXYUnitString() );
+    const int defdist = mNINT32( 100 * SI().inlDistance() );
+    extendfld_ = new uiGenInput(this,txt,FloatInpSpec(float(defdist)));
     extendfld_->setWithCheck( true );
     extendfld_->setChecked( true );
 
@@ -431,8 +430,6 @@ void uiWell2RandomLineDlg::extendLine( TypeSet<Coord>& coords )
     if ( nrcoords < 1 ) return;
     float extradist = extendfld_->getFValue();
     if ( extradist < 0.1 || extradist > 1e6 ) return;
-    if ( SI().xyInFeet() )
-	extradist *= mFromFeetFactorF;
     if ( nrcoords == 1 )
     {
 	const Coord c( coords[0] );

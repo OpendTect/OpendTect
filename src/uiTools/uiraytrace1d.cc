@@ -15,8 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uistrings.h"
 
-static const StepInterval<float> sDefaultOffsetRange( 0.f, 6000.f, 100.f );
-
 mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&,
 			uiRayTracer1D::factory );
 
@@ -252,14 +250,12 @@ bool uiRayTracer1D::usePar( const IOPar& par )
     {
 	const float convfactor = SI().xyInFeet() ? mToFeetFactorF : 1;
 	Interval<float> offsetrg( offsets[0], offsets[offsets.size()-1] );
-	if ( SI().xyInFeet() )
-	    offsetrg.scale( mToFeetFactorF );
-
 	if ( offsetfld_ && offsetstepfld_  )
 	{
 	    offsetfld_->setValue( offsetrg );
-	    const float step = offsets.size() > 1 ? offsets[1]-offsets[0]
-						  : sDefaultOffsetRange.step;
+	    const float step =
+		offsets.size() > 1 ? offsets[1]-offsets[0]
+				   : RayTracer1D::sDefOffsetRange().step;
 	    offsetstepfld_->setValue( step * convfactor );
 	}
     }
@@ -288,15 +284,14 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 	offsetrg.start = mCast( float, offsetfld_->getIInterval().start );
 	offsetrg.stop = mCast( float, offsetfld_->getIInterval().stop );
 	offsetrg.step = offsetstepfld_->getFValue();
-	if ( SI().xyInFeet() )
-	    offsetrg.scale( mFromFeetFactorF );
-
     }
+
     TypeSet<float> offsets;
     for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
 	offsets += offsetrg.atIndex( idx );
 
     par.set( RayTracer1D::sKeyOffset(), offsets );
+    par.set( RayTracer1D::sKeyOffsetInFeet(), SI().xyInFeet() );
     par.setYN( RayTracer1D::sKeyReflectivity(), doreflectivity_);
 }
 

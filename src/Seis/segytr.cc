@@ -439,16 +439,8 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
     if ( coordsys_ && !mIsCoordSysSame )
 	infotouse.coord = coordsys_->convertFrom(
 				  infotouse.coord, *SI().getCoordSystem() );
-    if ( SI().xyInFeet() )
-    {
-	infotouse = trc.info();
-	infotouse.offset *= mToFeetFactorF;
-	trchead_.use( infotouse );
-    }
-    else
-    {
-	trchead_.use( infotouse );
-    }
+
+    trchead_.use( infotouse );
 
     SamplingData<float> sdtoput( useinpsd_ ? infotouse.sampling : outsd_ );
     const int nstoput = useinpsd_ ? trc.size() : outnrsamples_;
