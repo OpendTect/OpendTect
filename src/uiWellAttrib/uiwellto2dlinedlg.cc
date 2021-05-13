@@ -112,8 +112,6 @@ void uiWellTo2DLineDlg::extendLine( TypeSet<Coord>& coords )
     if ( nrcoords < 1 ) return;
     float extradist = extendfld_->getFValue();
     if ( extradist < 0.1 || extradist > 1e6 ) return;
-    if ( SI().xyInFeet() )
-	extradist *= mFromFeetFactorF;
     if ( nrcoords == 1 )
     {
 	const Coord c( coords[0] );

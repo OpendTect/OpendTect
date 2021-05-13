@@ -268,8 +268,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     renumbfld_->setChecked( true );
     renumbfld_->attach( alignedBelow, mrgoptfld_ );
 
-    double defsd = SI().crlDistance() / 2;
-    if ( SI().xyInFeet() ) defsd *= mToFeetFactorD;
+    const double defsd = SI().crlDistance() / 2;
     snapdistfld_ =
 	new uiGenInput( geomgrp, tr("Snap distance"), DoubleInpSpec(defsd));
     snapdistfld_->attach( alignedBelow, renumbfld_ );

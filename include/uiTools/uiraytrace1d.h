@@ -25,7 +25,7 @@ mExpClass(uiTools) uiRayTracer1D : public uiGroup
 { mODTextTranslationClass(uiRayTracer1D);
 public:
 
-    mExpClass(uiTools) Setup 		
+    mExpClass(uiTools) Setup
     {
 	public:	
 			Setup()
@@ -33,7 +33,7 @@ public:
 			    , doreflectivity_(true)
 			    , dooffsets_(false)
 			    , showzerooffsetfld_(true)
-			    , offsetrg_(0,6000,100)
+			    , offsetrg_(RayTracer1D::sDefOffsetRange())
 			    {}
 
 	mDefSetupMemb(bool,convertedwaves);
@@ -45,8 +45,8 @@ public:
 
     mDefineFactory2ParamInClass(uiRayTracer1D,uiParent*,const Setup&,factory);
 
-    virtual bool 	usePar(const IOPar&);
-    virtual void  	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
 
     void		displayOffsetFlds(bool yn); 
     bool		isOffsetFldsDisplayed() const;
@@ -59,13 +59,13 @@ public:
 protected:
 			uiRayTracer1D(uiParent*,const Setup&);
 
-    bool 		doreflectivity_;
+    bool		doreflectivity_;
 
     uiGenInput*		downwavefld_;
     uiGenInput*		upwavefld_;
 
-    uiGenInput* 	offsetfld_;
-    uiGenInput* 	offsetstepfld_;
+    uiGenInput*		offsetfld_;
+    uiGenInput*		offsetstepfld_;
     uiCheckBox*		iszerooffsetfld_;
     uiGenInput*		lastfld_;
 
@@ -83,17 +83,17 @@ public:
     static uiRayTracer1D* create(uiParent* p,const uiRayTracer1D::Setup& s)
 			    { return new uiVrmsRayTracer1D(p,s); }
 
-    static void         initClass();
+    static void		initClass();
 };
 
 
 mExpClass(uiTools) uiRayTracerSel : public uiGroup
 { mODTextTranslationClass(uiRayTracerSel);
 public:
-    			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
+			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
 
-    void                usePar(const IOPar&);
-    void                fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
 
     uiRayTracer1D*	current();
     const uiRayTracer1D* current() const;

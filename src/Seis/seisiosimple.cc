@@ -396,7 +396,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     trc.info().binid = bid;
     prevbid_ = bid;
     trc.info().coord = coord;
-    trc.info().offset = SI().xyInFeet() ? offs * mFromFeetFactorF : offs;
+    trc.info().offset = offs;
     trc.info().azimuth = azim;
     trc.info().nr = nr;
     trc.info().refnr = refnr;
@@ -526,7 +526,6 @@ int SeisIOSimple::writeExpTrc()
 	{
 	    float offs = trc_.info().offset;
 	    mPIEPAdj(Offset,offs,false);
-	    if ( SI().xyInFeet() ) offs *= mToFeetFactorF;
 	    binstrm.add( offs );
 	}
 	if ( data_.haveazim_ )

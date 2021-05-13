@@ -346,9 +346,6 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 	return false;
     }
 
-    const float convfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
-    offset.scale( convfactor );
-
     ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
     for ( int idx=0; idx<selentries_.size(); idx++ )
     {

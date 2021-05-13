@@ -296,8 +296,6 @@ void uiSeisFileMan::mkFileInfo()
 	    {
 		area = sCast(double,cs.hsamp_.lineDistance()) *
 			 cs.hsamp_.trcDistance() * spcinfo.expectednrtrcs;
-		if ( SI().xyInFeet() )
-		    area *= (mFromFeetFactorD * mFromFeetFactorD);
 	    }
 	    else
 	    {

@@ -265,9 +265,6 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     float val;
     if ( pars.get(sKey::Offset(),val) )
     {
-	if ( SI().xyInFeet() )
-	    val *= mToFeetFactorF;
-
 	mAddSep(); mesg += "Offs="; mesg += val;
 	mesg += " "; mesg += SI().getXYUnitString();
     }

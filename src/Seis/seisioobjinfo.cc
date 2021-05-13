@@ -1052,8 +1052,6 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 	    {
 		area = cs.hsamp_.lineDistance() *
 		       cs.hsamp_.trcDistance() * spcinfo.expectednrtrcs;
-		if ( SI().xyInFeet() )
-		    area *= (mFromFeetFactorD * mFromFeetFactorD);
 	    }
 	    else
 	    {

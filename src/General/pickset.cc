@@ -734,11 +734,7 @@ float Set::getXYArea( int setidx ) const
     if ( polygon.isSelfIntersecting() )
 	return mUdf(float);
 
-    float area = (float) polygon.area();
-    if ( SI().xyInFeet() )
-	area *= (mFromFeetFactorF*mFromFeetFactorF);
-
-    return area;
+    return float( polygon.area() );
 }
 
 

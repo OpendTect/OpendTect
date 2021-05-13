@@ -372,12 +372,7 @@ bool uiPreStackOutputGroup::go()
     float ofsrgstop = offsrgfld_->getFValue( 1 );
     if ( mIsUdf(ofsrgstart) )
 	ofsrgstart = 0;
-    if ( SI().xyInFeet() )
-    {
-	ofsrgstart *= mFromFeetFactorF;
-	if ( !mIsUdf(ofsrgstop) )
-	    ofsrgstop *= mFromFeetFactorF;
-    }
+
     copier.setOffsetRange( ofsrgstart, ofsrgstop );
 
     uiTaskRunner trunner( this );

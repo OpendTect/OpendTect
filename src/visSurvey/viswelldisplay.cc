@@ -47,8 +47,6 @@ static Well::LoadReqs defReqs()
 
 #define mGetWD(act) RefMan<Well::Data> wd = getWD(defReqs()); \
 					    if ( !wd ) { act; }
-#define mMeter2Feet(val) val *= mToFeetFactorF;
-#define mFeet2Meter(val) val *= mFromFeetFactorF;
 #define mGetDispPar(param) wd->displayProperties().param
 
 

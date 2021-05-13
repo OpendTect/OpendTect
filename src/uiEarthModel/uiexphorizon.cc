@@ -384,7 +384,7 @@ static void initGF( od_ostream& strm, const char* hornm,
     hnm.clean();
     od_sprintf( gfbuf, mHdr1GFLineLen+2,
 		"PROFILE %17sTYPE 1  4 %45s3d_ci7m.ifdf     %s ms\n",
-		"", "", SI().xyInFeet() ? "ft" : "m " );
+		"", "", SI().getXYUnitString(false) );
     int sz = hnm.size(); if ( sz > 17 ) sz = 17;
     OD::memCopy( gfbuf+8, hnm.buf(), sz );
     hnm = comment;
