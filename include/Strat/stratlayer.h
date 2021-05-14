@@ -85,7 +85,7 @@ protected:
     const LeafUnitRef*	ref_;
     float		ztop_;
     ObjectSet<LayerValue> vals_;
-    const Content*	content_;
+    const Content*	content_ = nullptr;
 
     void		setLV(int,LayerValue*);
 };
@@ -95,7 +95,7 @@ mExpClass(Strat) LayerValue
 { mODTextTranslationClass(LayerValue);
 public:
 
-    virtual LayerValue*	clone(const Layer* l=0) const	= 0;
+    virtual LayerValue* clone(const Layer* =nullptr) const	= 0;
     virtual		~LayerValue()			{}
     virtual bool	isSimple() const		{ return false; }
     virtual float	value() const			= 0;
@@ -111,7 +111,7 @@ mExpClass(Strat) SimpleLayerValue : public LayerValue
 public:
 			SimpleLayerValue( float val )
 			    : val_ (val)		{}
-    SimpleLayerValue*	clone(const Layer* l=0) const
+    SimpleLayerValue*	clone(const Layer* =nullptr) const
 			{ return new SimpleLayerValue(val_); }
 
     virtual bool	isSimple() const		{ return true; }

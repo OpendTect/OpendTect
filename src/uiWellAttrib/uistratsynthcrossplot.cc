@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "syntheticdata.h"
 #include "syntheticdataimpl.h"
 #include "stratlevel.h"
+#include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlayseqattrib.h"

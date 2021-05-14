@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uimainwin.h"
 #include "uistring.h"
 
@@ -24,12 +25,16 @@ class StratSynth;
 class SyntheticData;
 class TimeDepthModel;
 class Wavelet;
-namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
+namespace Strat
+{
+    class LayerModel;
+    class LayerModelProviderImpl;
+    class LayerSequenceGenDesc;
+}
 
 class uiLayerSequenceGenDesc;
 class uiStratGenDescTools;
 class uiStratLayerModelDisp;
-class uiStratLayerModelLMProvider;
 class uiStratLayModEditTools;
 class uiStratSynthCrossplot;
 class uiStratSynthDisp;
@@ -111,7 +116,7 @@ protected:
     uiToolBar*			analtb_;
 
     Strat::LayerSequenceGenDesc& desc_;
-    uiStratLayerModelLMProvider& lmp_;
+    Strat::LayerModelProviderImpl& lmp_;
     CtxtIOObj&			descctio_;
     ElasticPropSelection*	elpropsel_;
     /*mDeprecated*/ bool	mostlyfilledwithbrine_;
@@ -173,5 +178,3 @@ protected:
 public:
     uiStratSynthDisp*		getSynthDisp() const	{ return synthdisp_; }
 };
-
-

@@ -4,21 +4,23 @@
  * DATE     : Oct 2010
 -*/
 
-
 #include "stratlayseqattrib.h"
-#include "stratlayseqattribcalc.h"
-#include "strattransl.h"
-#include "stratlayer.h"
-#include "stratreftree.h"
-#include "stratlayermodel.h"
-#include "statruncalc.h"
-#include "propertyref.h"
+
 #include "ascstream.h"
 #include "datapointset.h"
-#include "separstr.h"
-#include "keystrs.h"
 #include "iopar.h"
+#include "keystrs.h"
+#include "propertyref.h"
+#include "separstr.h"
+#include "statruncalc.h"
+#include "strattransl.h"
+#include "stratlayer.h"
+#include "stratlayersequence.h"
+#include "stratlayermodel.h"
+#include "stratlayseqattribcalc.h"
+#include "stratreftree.h"
 #include "survinfo.h"
+
 #include <math.h>
 
 

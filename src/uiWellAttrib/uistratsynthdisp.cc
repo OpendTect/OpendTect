@@ -43,6 +43,7 @@ ________________________________________________________________________
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "synthseis.h"
+#include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "velocitycalc.h"
@@ -53,9 +54,6 @@ ________________________________________________________________________
 static const int cMarkerSize = 6;
 
 static const char* sKeySnapLevel()	{ return "Snap Level"; }
-static const char* sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
-static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
-static const char* sKeySynthetics()	{ return "Synthetics"; }
 static const char* sKeyViewArea()	{ return "Start View Area"; }
 static const char* sKeyNone()		{ return "None"; }
 static const char* sKeyRainbow()	{ return "Rainbow"; }
@@ -98,32 +96,29 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setStretch( 2, 0 );
 
-    uiLabeledComboBox* datalblcbx =
-	new uiLabeledComboBox( topgrp_, tr("Wiggle View"), "" );
+    auto* datalblcbx = new uiLabeledComboBox( topgrp_, tr("Wiggle View"), "" );
     wvadatalist_ = datalblcbx->box();
-    wvadatalist_->selectionChanged.notify(
-	    mCB(this,uiStratSynthDisp,wvDataSetSel) );
+    mAttachCB( wvadatalist_->selectionChanged, uiStratSynthDisp::wvDataSetSel);
     wvadatalist_->setHSzPol( uiObject::Wide );
 
-    uiToolButton* edbut = new uiToolButton( topgrp_, "edit",
+    auto* edbut = new uiToolButton( topgrp_, "edit",
 				tr("Add/Edit Synthetic DataSet"),
 				mCB(this,uiStratSynthDisp,addEditSynth) );
 
     edbut->attach( leftOf, datalblcbx );
 
-    uiGroup* dataselgrp = new uiGroup( this, "Data Selection" );
+    auto* dataselgrp = new uiGroup( this, "Data Selection" );
     dataselgrp->attach( rightBorder );
     dataselgrp->attach( ensureRightOf, topgrp_ );
 
-    uiLabeledComboBox* prdatalblcbx =
+    auto* prdatalblcbx =
 	new uiLabeledComboBox( dataselgrp, tr("Variable Density View"), "" );
     vddatalist_ = prdatalblcbx->box();
-    vddatalist_->selectionChanged.notify(
-	    mCB(this,uiStratSynthDisp,vdDataSetSel) );
+    mAttachCB( vddatalist_->selectionChanged, uiStratSynthDisp::vdDataSetSel );
     vddatalist_->setHSzPol( uiObject::Wide );
     prdatalblcbx->attach( leftBorder );
 
-    uiToolButton* expbut = new uiToolButton( prdatalblcbx, "export",
+    auto* expbut = new uiToolButton( prdatalblcbx, "export",
 			    uiStrings::phrExport( tr("Synthetic DataSet(s)")),
 			    mCB(this,uiStratSynthDisp,exportSynth) );
     expbut->attach( rightOf, vddatalist_ );
@@ -134,33 +129,33 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     datagrp_->setFrame( true );
     datagrp_->setStretch( 2, 0 );
 
-    uiToolButton* layertb = new uiToolButton( datagrp_, "defraytraceprops",
+    auto* layertb = new uiToolButton( datagrp_, "defraytraceprops",
 				    tr("Specify input for synthetic creation"),
 				    mCB(this,uiStratSynthDisp,layerPropsPush));
 
     wvltfld_ = new uiSeisWaveletSel( datagrp_, "", true, true, true );
-    wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
+    mAttachCB( wvltfld_->newSelection, uiStratSynthDisp::wvltChg );
     wvltfld_->setFrame( false );
     wvltfld_->attach( rightOf, layertb );
     curSS().setWavelet( wvltfld_->getWavelet() );
 
-    scalebut_ = new uiPushButton( datagrp_, tr("Scale"), false );
-    scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
+    scalebut_ = new uiPushButton( datagrp_, tr("Scale"),
+				  mCB(this,uiStratSynthDisp,scalePush), false );
     scalebut_->attach( rightOf, wvltfld_ );
 
-    uiLabeledComboBox* lvlsnapcbx =
-	new uiLabeledComboBox( datagrp_, VSEvent::TypeNames(),tr("Snap level"));
+    auto* lvlsnapcbx = new uiLabeledComboBox( datagrp_, VSEvent::TypeNames(),
+					      tr("Snap level") );
     levelsnapselfld_ = lvlsnapcbx->box();
     lvlsnapcbx->attach( rightOf, scalebut_ );
     lvlsnapcbx->setStretch( 2, 0 );
-    levelsnapselfld_->selectionChanged.notify(
-				mCB(this,uiStratSynthDisp,levelSnapChanged) );
+    mAttachCB( levelsnapselfld_->selectionChanged,
+	       uiStratSynthDisp::levelSnapChanged );
 
     prestackgrp_ = new uiGroup( datagrp_, "Prestack View Group" );
     prestackgrp_->attach( rightOf, lvlsnapcbx, 20 );
 
     offsetposfld_ = new uiSynthSlicePos( prestackgrp_, uiStrings::sOffset() );
-    offsetposfld_->positionChg.notify( mCB(this,uiStratSynthDisp,offsetChged));
+    mAttachCB( offsetposfld_->positionChg, uiStratSynthDisp::offsetChged );
 
     prestackbut_ = new uiToolButton( prestackgrp_, "nonmocorr64",
 				tr("View Offset Direction"),
@@ -640,7 +635,7 @@ void uiStratSynthDisp::setCurrentWavelet()
 	wvasd->setWavelet( wvltfld_->getWaveletName() );
 	currentwvasynthetic_ = wvasd;
 	if ( synthgendlg_ )
-	    synthgendlg_->updateWaveletName();
+	    synthgendlg_->grp()->updateWaveletName();
 	currentwvasynthetic_->fillGenParams( curSS().genParams() );
 	wvltChanged.trigger();
 	updateSynthetic( wvasynthnm, true );
@@ -1159,7 +1154,7 @@ void uiStratSynthDisp::selPreStackDataCB( CallBacker* )
 	allgnms.removeSingle( gidx );
     }
 
-    PreStackView::uiViewer2DSelDataDlg seldlg( prestackwin_, allgnms, selgnms );
+    PreStackView::uiViewer2DSelDataDlg seldlg( prestackwin_, allgnms, selgnms);
     if ( !seldlg.go() )
 	return;
 
@@ -1206,10 +1201,10 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
     {
 	prestackwin_ =
 	    new PreStackView::uiSyntheticViewer2DMainWin(this,"Prestack view");
-	prestackwin_->seldatacalled_.notify(
-		mCB(this,uiStratSynthDisp,selPreStackDataCB) );
-	prestackwin_->windowClosed.notify(
-		mCB(this,uiStratSynthDisp,preStackWinClosedCB) );
+	mAttachCB( prestackwin_->seldatacalled_,
+		   uiStratSynthDisp::selPreStackDataCB );
+	mAttachCB( prestackwin_->windowClosed,
+		   uiStratSynthDisp::preStackWinClosedCB );
     }
 
     displayPreStackSynthetic( currentwvasynthetic_ );
@@ -1439,15 +1434,15 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 {
     if ( !synthgendlg_ )
     {
-	synthgendlg_ = new uiSynthGenDlg( this, curSS());
-	synthgendlg_->synthRemoved.notify(
-		mCB(this,uiStratSynthDisp,syntheticRemoved) );
-	synthgendlg_->synthDisabled.notify(
-		mCB(this,uiStratSynthDisp,syntheticDisabled) );
-	synthgendlg_->synthChanged.notify(
-		mCB(this,uiStratSynthDisp,syntheticChanged) );
-	synthgendlg_->genNewReq.notify(
-			    mCB(this,uiStratSynthDisp,genNewSynthetic) );
+	synthgendlg_ = new uiSynthGenDlg( this, curSS() );
+	uiSynthParsGrp* uiparsgrp = synthgendlg_->grp();
+	mAttachCB( uiparsgrp->synthRemoved,
+		   uiStratSynthDisp::syntheticRemoved );
+	mAttachCB( uiparsgrp->synthDisabled,
+		   uiStratSynthDisp::syntheticDisabled );
+	mAttachCB( uiparsgrp->synthChanged,
+		   uiStratSynthDisp::syntheticChanged );
+	mAttachCB( uiparsgrp->genNewReq, uiStratSynthDisp::genNewSynthetic );
     }
 
     synthgendlg_->go();
@@ -1536,8 +1531,8 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
     updateSyntheticList( true );
     updateSyntheticList( false );
     synthsChanged.trigger();
-    synthgendlg_->putToScreen();
-    synthgendlg_->updateSynthNames();
+    synthgendlg_->grp()->putToScreen();
+    synthgendlg_->grp()->updateSynthNames();
 }
 
 
@@ -1582,8 +1577,9 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
 	IOPar synthpar;
 	genparams.fillPar( synthpar );
 	sd->fillDispPar( synthpar );
-	stratsynthpar.mergeComp( synthpar, IOPar::compKey(sKeySyntheticNr(),
-				 nr_nonproprefsynths-1) );
+	stratsynthpar.mergeComp( synthpar,
+		IOPar::compKey(StratSynth::sKeySyntheticNr(),
+				nr_nonproprefsynths-1) );
     }
 
     savedzoomwr_ = curView( false );
@@ -1594,9 +1590,9 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
     startviewareapts[2] = savedzoomwr_.right();
     startviewareapts[3] = savedzoomwr_.bottom();
     stratsynthpar.set( sKeyViewArea(), startviewareapts );
-    stratsynthpar.set( sKeyNrSynthetics(), nr_nonproprefsynths );
-    par.removeWithKey( sKeySynthetics() );
-    par.mergeComp( stratsynthpar, sKeySynthetics() );
+    stratsynthpar.set( StratSynth::sKeyNrSynthetics(), nr_nonproprefsynths );
+    par.removeWithKey( StratSynth::sKeySynthetics() );
+    par.mergeComp( stratsynthpar, StratSynth::sKeySynthetics() );
 }
 
 
@@ -1626,24 +1622,25 @@ bool uiStratSynthDisp::prepareElasticModel()
 
 bool uiStratSynthDisp::usePar( const IOPar& par )
 {
-    PtrMan<IOPar> stratsynthpar = par.subselect( sKeySynthetics() );
+    PtrMan<IOPar> stratsynthpar = par.subselect( StratSynth::sKeySynthetics());
     if ( !curSS().hasElasticModels() )
 	return false;
-    currentwvasynthetic_ = 0;
-    currentvdsynthetic_ = 0;
+    currentwvasynthetic_ = nullptr;
+    currentvdsynthetic_ = nullptr;
     curSS().clearSynthetics();
     deleteAndZeroPtr( d2tmodels_ );
     par.get( sKeyDecimation(), dispeach_);
     int nrsynths = 0;
     if ( stratsynthpar )
     {
-	stratsynthpar->get( sKeyNrSynthetics(), nrsynths );
-	currentvdsynthetic_ = 0;
-	currentwvasynthetic_ = 0;
+	stratsynthpar->get( StratSynth::sKeyNrSynthetics(), nrsynths );
+	currentvdsynthetic_ = nullptr;
+	currentwvasynthetic_ = nullptr;
 	for ( int idx=0; idx<nrsynths; idx++ )
 	{
 	    PtrMan<IOPar> synthpar =
-		stratsynthpar->subselect(IOPar::compKey(sKeySyntheticNr(),idx));
+		stratsynthpar->subselect(
+		    IOPar::compKey(StratSynth::sKeySyntheticNr(),idx));
 	    if ( !synthpar ) continue;
 	    SynthGenParams genparams;
 	    genparams.usePar( *synthpar );
@@ -1800,11 +1797,11 @@ uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const uiString& lbltxt )
 {
     label_ = new uiLabel( this, lbltxt );
     sliceposbox_ = new uiSpinBox( this, 0, "Slice position" );
-    sliceposbox_->valueChanging.notify( mCB(this,uiSynthSlicePos,slicePosChg));
-    sliceposbox_->valueChanged.notify( mCB(this,uiSynthSlicePos,slicePosChg));
+    mAttachCB( sliceposbox_->valueChanging, uiSynthSlicePos::slicePosChg );
+    mAttachCB( sliceposbox_->valueChanged, uiSynthSlicePos::slicePosChg );
     sliceposbox_->attach( rightOf, label_ );
 
-    uiLabel* steplabel = new uiLabel( this, uiStrings::sStep() );
+    auto* steplabel = new uiLabel( this, uiStrings::sStep() );
     steplabel->attach( rightOf, sliceposbox_ );
 
     slicestepbox_ = new uiSpinBox( this, 0, "Slice step" );
@@ -1816,6 +1813,12 @@ uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const uiString& lbltxt )
     nextbut_ = new uiToolButton( this, "nextpos", tr("Next position"),
 				 mCB(this,uiSynthSlicePos,nextCB) );
     nextbut_->attach( rightOf, prevbut_ );
+}
+
+
+uiSynthSlicePos::~uiSynthSlicePos()
+{
+    detachAllNotifiers();
 }
 
 

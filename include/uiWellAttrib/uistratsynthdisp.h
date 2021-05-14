@@ -229,6 +229,7 @@ mExpClass(uiWellAttrib) uiSynthSlicePos : public uiGroup
 { mODTextTranslationClass(uiSynthSlicePos);
 public:
 			uiSynthSlicePos(uiParent*,const uiString& lbltxt);
+			~uiSynthSlicePos();
 
     Notifier<uiSynthSlicePos>	positionChg;
     void		setLimitSampling(StepInterval<float>);

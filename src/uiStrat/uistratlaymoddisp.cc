@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "unitofmeasure.h"
 #include "property.h"
+#include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlevel.h"

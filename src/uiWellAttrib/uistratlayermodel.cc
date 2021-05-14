@@ -24,10 +24,10 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "settings.h"
 #include "stratlayseqgendesc.h"
-#include "stratlayermodel.h"
 #include "stratlaygen.h"
-#include "strattransl.h"
+#include "stratlayermodel.h"
 #include "stratlaymodgen.h"
+#include "strattransl.h"
 #include "stratreftree.h"
 #include "stratsynth.h"
 #include "survinfo.h"
@@ -266,80 +266,14 @@ uiStratLayerModel* uiStratLayerModel::getUILayerModel()
 }
 
 
-class uiStratLayerModelLMProvider : public Strat::LayerModelProvider
-{ mODTextTranslationClass(uiStratLayerModelLMProvider)
-public:
-
-uiStratLayerModelLMProvider()
-    : modled_(nullptr)
-{
-    modl_ = new Strat::LayerModel;
-    setEmpty();
-}
-
-~uiStratLayerModelLMProvider()
-{
-    delete modl_;
-    delete modled_;
-}
-
-Strat::LayerModel& getCurrent()
-{
-    return *curmodl_;
-}
-
-Strat::LayerModel& getEdited( bool yn )
-{
-    return yn ? *modled_ : *modl_;
-}
-
-void setUseEdited( bool yn )
-{
-    curmodl_ = yn ? modled_ : modl_;
-}
-
-void setEmpty()
-{
-    modl_->setEmpty();
-    if ( modled_ ) modled_->setEmpty();
-    curmodl_ = modl_;
-}
-
-void setBaseModel( Strat::LayerModel* newmdl )
-{
-    delete modl_;
-    modl_ = newmdl;
-}
-
-void resetEditing()
-{
-    delete modled_;
-    modled_ = new Strat::LayerModel;
-    curmodl_ = modl_;
-}
-
-void initEditing()
-{
-    if ( !modled_ )
-	modled_ = new Strat::LayerModel;
-    *modled_ = *modl_;
-    curmodl_ = modled_;
-}
-
-    Strat::LayerModel*		curmodl_;
-    Strat::LayerModel*		modl_;
-    Strat::LayerModel*		modled_;
-
-};
-
-
+//uiStratLayerModel
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     : uiMainWin(p,uiString::emptyString(),1,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , elpropsel_(nullptr)
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
     , analtb_(nullptr)
-    , lmp_(*new uiStratLayerModelLMProvider)
+    , lmp_(*new Strat::LayerModelProviderImpl)
     , needtoretrievefrpars_(false)
     , automksynth_(true)
     , moddisp_(nullptr)

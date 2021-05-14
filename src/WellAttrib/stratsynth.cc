@@ -46,6 +46,7 @@ ________________________________________________________________________
 #include "seistrcprop.h"
 #include "survinfo.h"
 #include "statruncalc.h"
+#include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "unitofmeasure.h"
@@ -451,7 +452,7 @@ SyntheticData* StratSynth::getSynthetic( const char* nm )
 	if ( synthetics_[idx]->name() == nm )
 	    return synthetics_[idx];
     }
-    return 0;
+    return nullptr;
 }
 
 
@@ -462,7 +463,7 @@ SyntheticData* StratSynth::getSynthetic( int id )
 	if ( synthetics_[idx]->id_ == id )
 	    return synthetics_[ idx ];
     }
-    return 0;
+    return nullptr;
 }
 
 
@@ -940,7 +941,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     if ( layMod().isEmpty() )
     {
 	errmsg_ = tr("Empty layer model.");
-	return 0;
+	return nullptr;
     }
 
     const bool ispsbased =
@@ -951,7 +952,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	 !swaveinfomsgshown_ )
     {
 	if ( !adjustElasticModel(layMod(),aimodels_,true) )
-	    return 0;
+	    return nullptr;
     }
 
     ObjectSet<SynthRayModel>* rms =
@@ -964,10 +965,10 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     if ( !ispsbased )
     {
 	if ( !runSynthGen(*synthgen,synthgenpar) )
-	    return 0;
+	    return nullptr;
     }
 
-    SyntheticData* sd = 0;
+    SyntheticData* sd = nullptr;
     if ( synthgenpar.synthtype_ == SynthGenParams::PreStack || ispsbased )
     {
 	if ( !ispsbased )
@@ -990,7 +991,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    }
 
 	    PreStack::GatherSetDataPack* dp =
-				new PreStack::GatherSetDataPack( 0, gatherset );
+			new PreStack::GatherSetDataPack( nullptr, gatherset );
 	    sd = new PreStackSyntheticData( synthgenpar, *dp );
 	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
 	    if ( rms )
@@ -1011,13 +1012,13 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    const SyntheticData* presd = getSynthetic( inputsdnm );
 	    if ( !presd )
 		mErrRet( tr(" input prestack synthetic data not found."),
-			 return 0 )
+			 return nullptr )
 
 	    mDynamicCastGet(const PreStack::GatherSetDataPack*,presgdp,
 			    &presd->getPack())
 	    if ( !presgdp )
 		mErrRet( tr(" input prestack synthetic data not found."),
-			 return 0 )
+			 return nullptr )
 	    CubeSampling cs( false );
 	    cs.zsamp_ = presgdp->zRange();
 
@@ -1029,16 +1030,16 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     }
     else if ( synthgenpar.synthtype_ == SynthGenParams::ZeroOffset )
     {
-	SeisTrcBuf* dptrcbuf = new SeisTrcBuf( true );
+	auto* dptrcbuf = new SeisTrcBuf( true );
 	synthgen->getStackedTraces( *dptrcbuf );
-	SeisTrcBufDataPack* dp =
+	auto* dp =
 	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
-				  PostStackSyntheticData::sDataPackCategory() );
+				PostStackSyntheticData::sDataPackCategory() );
 	sd = new PostStackSyntheticData( synthgenpar, *dp );
     }
 
     if ( !sd )
-	return 0;
+	return nullptr;
 
     if ( useed_ )
     {
@@ -1712,6 +1713,23 @@ void StratSynth::decimateTraces( SeisTrcBuf& tbuf, int fac ) const
 	if ( idx%fac )
 	    delete tbuf.remove( idx );
     }
+}
+
+
+void StratSynth::fillPar( IOPar& par ) const
+{
+    const int nrsynthetics = nrSynthetics();
+    for ( int idx=0; idx<nrsynthetics; idx++ )
+    {
+	const SyntheticData* sd = getSyntheticByIdx( idx );
+	SynthGenParams sgpars;
+	sd->fillGenParams( sgpars );
+	IOPar sdpar;
+	sgpars.fillPar( sdpar );
+	par.mergeComp( sdpar, IOPar::compKey(sKeySyntheticNr(),idx) );
+    }
+
+    par.set( sKeyNrSynthetics(), nrsynthetics );
 }
 
 

@@ -13,8 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "stratmod.h"
+
 #include "ailayer.h"
-#include "stratlayer.h"
 #include "propertyref.h"
 
 class ElasticPropSelection;
@@ -23,12 +23,13 @@ namespace Strat
 {
 class Layer;
 class Level;
-class UnitRef;
 class RefTree;
+class UnitRef;
 
 /*!\brief A sequence of layers.
 
-  You can provide a PropertyRefSelection* to give meaning to the values in the Layers.
+  You can provide a PropertyRefSelection* to give meaning to the values in
+  the Layers.
 
  */
 
@@ -36,15 +37,17 @@ mExpClass(Strat) LayerSequence
 {
 public:
 
-			LayerSequence(const PropertyRefSelection* prs=0);
+			LayerSequence(const PropertyRefSelection* =nullptr);
 			LayerSequence( const LayerSequence& ls )
 						{ *this = ls; }
     virtual		~LayerSequence();
-    LayerSequence&	operator =(const LayerSequence&);
-    bool		isEmpty() const		{ return layers_.isEmpty(); }
-    void		setEmpty()		{ deepErase(layers_); }
 
-    int			size() const		{ return layers_.size(); }
+    LayerSequence&	operator =(const LayerSequence&);
+
+    bool		isEmpty() const;
+    void		setEmpty();
+
+    int			size() const;
     ObjectSet<Layer>&	layers()		{ return layers_; }
     const ObjectSet<Layer>& layers() const	{ return layers_; }
     int			layerIdxAtZ(float) const; //!< returns -1 if outside
@@ -59,8 +62,9 @@ public:
     PropertyRefSelection& propertyRefs()	{ return props_; }
     const PropertyRefSelection& propertyRefs() const	{ return props_; }
 
-    void		getLayersFor( const UnitRef* ur, ObjectSet<Layer>& lys )
-			{ return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}
+    void		getLayersFor( const UnitRef* ur,
+				      ObjectSet<Layer>& lys )
+			{return getLayersFor(ur,(ObjectSet<const Layer>&)lys);}
     void		getLayersFor(const UnitRef*,
 				     ObjectSet<const Layer>&) const;
     void		getSequencePart(const Interval<float>& depthrg,
@@ -88,11 +92,9 @@ public:
 protected:
 
     ObjectSet<Layer>	layers_;
-    float		z0_;
+    float		z0_ = 0.f;
     PropertyRefSelection props_;
 
 };
 
-
 }; // namespace Strat
-

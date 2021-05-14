@@ -131,6 +131,12 @@ public:
     uiString		infoMsg() const;
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
 
+    void		fillPar(IOPar&) const;
+
+    static const char*	sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
+    static const char*	sKeySyntheticNr()	{ return "Synthetics Nr"; }
+    static const char*	sKeySynthetics()	{ return "Synthetics"; }
+
     static const char*	sKeyFRNameSuffix()	{ return " after FR"; }
 
 protected:

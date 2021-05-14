@@ -12,61 +12,78 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uidialog.h"
+#include "uigroup.h"
 #include "uistring.h"
 
 class StratSynth;
 
 class uiComboBox;
 class uiGenInput;
-class uiFlatViewer;
 class uiListBox;
 class uiLabeledComboBox;
 class uiPushButton;
 class uiSynthSeisGrp;
 
-mExpClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
-{ mODTextTranslationClass(uiSynthGenDlg);
+mExpClass(uiWellAttrib) uiSynthParsGrp : public uiGroup
+{ mODTextTranslationClass(uiSynthParsGrp);
 public:
-				uiSynthGenDlg(uiParent*,StratSynth&);
+				uiSynthParsGrp(uiParent*,StratSynth&);
+				~uiSynthParsGrp();
 
     bool			getFromScreen();
     void			putToScreen();
     void			updateSynthNames();
     void			updateWaveletName();
+    bool			doAccept();
     bool			isCurSynthChanged() const;
 
-    Notifier<uiSynthGenDlg>	genNewReq;
-    CNotifier<uiSynthGenDlg,BufferString> synthRemoved;
-    CNotifier<uiSynthGenDlg,BufferString> synthDisabled;
-    CNotifier<uiSynthGenDlg,BufferString> synthChanged;
+    Notifier<uiSynthParsGrp>	genNewReq;
+    CNotifier<uiSynthParsGrp,BufferString> synthRemoved;
+    CNotifier<uiSynthParsGrp,BufferString> synthDisabled;
+    CNotifier<uiSynthParsGrp,BufferString> synthChanged;
 
 protected:
+
+    void			initGrp(CallBacker*);
+    void			changeSyntheticsCB(CallBacker*);
+    void			removeSyntheticsCB(CallBacker*);
+    void			typeChg(CallBacker*);
+    void			angleInpChanged(CallBacker*);
+    void			parsChanged(CallBacker*);
+    void			nameChanged(CallBacker*);
+    void			genNewCB(CallBacker*);
+
     void			updateFieldDisplay();
-
-    uiComboBox*			typefld_;
-    uiLabeledComboBox*		psselfld_;
-    uiGenInput*		angleinpfld_;
-    uiGenInput*		namefld_;
-    uiPushButton*		gennewbut_;
-    uiPushButton*		applybut_;
-    uiPushButton*		revertbut_;
-    uiPushButton*		savebut_;
-    uiListBox*			synthnmlb_;
-    StratSynth&			stratsynth_;
-    uiSynthSeisGrp*		synthseis_;
-
     void			getPSNames(BufferStringSet&);
     bool			prepareSyntheticToBeChanged(bool toberemoved);
-    void			typeChg(CallBacker*);
-    void			genNewCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
-    void			removeSyntheticsCB(CallBacker*);
-    void			changeSyntheticsCB(CallBacker*);
-    void			parsChanged(CallBacker*);
-    void			angleInpChanged(CallBacker*);
-    void			nameChanged(CallBacker*);
-    bool			rejectOK(CallBacker*);
-    void			finaliseDone(CallBacker*);
+
+    StratSynth&			stratsynth_;
+    uiListBox*			synthnmlb_;
+    uiComboBox*			typefld_;
+    uiLabeledComboBox*		psselfld_;
+    uiGenInput*			angleinpfld_;
+    uiSynthSeisGrp*		synthseis_;
+    uiGenInput*			namefld_;
+    uiPushButton*		gennewbut_;
+
+};
+
+
+mExpClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
+{ mODTextTranslationClass(uiSynthGenDlg);
+public:
+				uiSynthGenDlg(uiParent*,StratSynth&);
+				~uiSynthGenDlg();
+
+    uiSynthParsGrp*		grp()		{ return uisynthparsgrp_; }
+    const uiSynthParsGrp*	grp() const	{ return uisynthparsgrp_; }
+
+private:
+
+    bool			acceptOK(CallBacker*) override;
+
+    uiSynthParsGrp*		uisynthparsgrp_;
 };
 

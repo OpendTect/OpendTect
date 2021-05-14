@@ -4,18 +4,20 @@
  * DATE     : Oct 2010
 -*/
 
-
 #include "stratlayseqgendesc.h"
+
+#include "ascstream.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "mathproperty.h"
+#include "ptrman.h"
+#include "stratlayer.h"
+#include "stratlayermodel.h"
+#include "stratlayersequence.h"
+#include "stratlaymodgen.h"
+#include "strattransl.h"
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
-#include "stratlaymodgen.h"
-#include "stratlayermodel.h"
-#include "strattransl.h"
-#include "mathproperty.h"
-#include "ascstream.h"
-#include "keystrs.h"
-#include "ptrman.h"
-#include "iopar.h"
 
 
 #define mFileType "Layer Sequence Generator Description"
