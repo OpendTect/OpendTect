@@ -29,24 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
-static const char* noprogbardispsymbs[] =
-    {	"|||||              ", " |||||             ", "  |||||            ",
-	"   |||||           ", "    |||||          ", "     |||||         ",
-	"      |||||        ", "       |||||       ", "        |||||      ",
-	"         |||||     ", "          |||||    ", "           |||||   ",
-	"            |||||  ", "             ||||| ", "              |||||",
-	"             ||||| ", "            |||||  ", "           |||||   ",
-	"          |||||    ", "         |||||     ", "        |||||      ",
-	"       |||||       ", "      |||||        ", "     |||||         ",
-	"    |||||          ", "   |||||           ", "  |||||            ",
-	" |||||             ", "|||||              " };
-
-#ifndef __debug__
-static const int noprogbardispnrsymbs = 29;
-#endif
-
-
-
 /*!If there is a main window up, we should always use that window as parent.
    Only if main window does not exist, use the provided parent. */
 
@@ -75,15 +57,9 @@ uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     , dispinfolock_(false)
     , uitaskrunnerthreadlock_(false)
     , dispmsgonerr_( dispmsgonerr )
-    , symbidx_( 0 )
+    , symbidx_(0)
+    , proglbl_(nullptr)
 {
-    proglbl_ = new uiLabel( this, toUiString(noprogbardispsymbs[0]) );
-    proglbl_->attach( hCentered );
-#ifdef __debug__
-    proglbl_->setPrefWidthInChar( 20 );
-    proglbl_->setAlignment( Alignment::Left );
-#endif
-
     progbar_ = new uiProgressBar( this, "ProgressBar", 0, 0 );
     progbar_->setPrefWidthInChar( 50 );
 
@@ -237,22 +213,6 @@ void uiTaskRunner::updateFields()
 	    sb.message( toUiString(eta), 3 );
 	}
     }
-
-    const bool disppb = totalnr > 0;
-    if ( !disppb )
-    {
-	symbidx_++;
-#ifdef __debug__
-	//TODO: solve in uiLabel:
-	// if you leave out the spaces at the end, number will be truncated
-	proglbl_->setText( tr("[dbg] step: %1     ").arg(symbidx_) );
-#else
-	if ( symbidx_ >= noprogbardispnrsymbs ) symbidx_ = 0;
-	proglbl_->setText( toUiString(noprogbardispsymbs[symbidx_]) );
-#endif
-    }
-    proglbl_->display( !disppb );
-    progbar_->display( disppb );
 
     prevtime_ = newtime;
 }
