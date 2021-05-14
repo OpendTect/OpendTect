@@ -93,6 +93,17 @@ BufferString ODInst::GetRelInfoDir()
 }
 
 
+BufferString ODInst::GetV6RelInfoDir()
+{
+    const BufferString v6dir = File::Path(GetSoftwareDir(true)).pathOnly();
+#ifdef __mac__
+    return File::Path( v6dir, "Resources", "relinfo" ).fullPath();
+#else
+    return File::Path( v6dir, "relinfo" ).fullPath();
+#endif
+}
+
+
 ODInst::RelType ODInst::getRelType()
 {
     File::Path relinfofp( GetRelInfoDir(), "README.txt" );
@@ -228,27 +239,39 @@ bool ODInst::updatesAvailable()
 }
 
 
-const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
+const char* ODInst::getPkgVersion( const char* pkg )
 {
     mDeclStaticString( ret );
-    const BufferString part1( "ver.", file_pkg_basenm );
-    BufferString fnm = part1;
-    fnm.add( "_" ).add( OD::Platform::local().shortName() );
-    File::Path fp( GetRelInfoDir(), fnm );
-    fp.setExtension( "txt", false );
-
-    fnm = fp.fullPath();
-    if ( !File::exists(fnm) )
+    const BufferString plfpkg( pkg, "_", OD::Platform::local().shortName() );
+    const BufferString verfilenmnoplf( "ver.", pkg, ".txt" );
+    const BufferString verfilenmwithplf( "ver.", plfpkg, ".txt" );
+    BufferString verfile;
+    if ( FixedString(pkg) == "v7" )
     {
-	fp.setFileName( part1 ); fp.setExtension( "txt", false );
-	fnm = fp.fullPath();
-	if ( !File::exists(fnm) )
-	    { ret = "[error: version file not found]"; return ret.buf(); }
+	File::Path fp( GetRelInfoDir(), verfilenmwithplf );
+	verfile = fp.fullPath();
+    }
+    else
+    {
+	File::Path fp( GetV6RelInfoDir(), verfilenmnoplf );
+	verfile = fp.fullPath();
+	if ( !File::exists(verfile) )
+	{
+	    fp.setFileName( verfilenmwithplf );
+	    verfile = fp.fullPath();
+	}
     }
 
-    File::getContent( fnm, ret );
+    if ( !File::exists(verfile) )
+    {
+	ret = "[error: version file not found]";
+	return ret.buf();
+    }
+
+    File::getContent( verfile, ret );
     if ( ret.isEmpty() )
 	ret = "[error: empty version file]";
+
     return ret.buf();
 }
 

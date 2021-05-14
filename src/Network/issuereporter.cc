@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "odplatform.h"
 #include "odsysmem.h"
+#include "odver.h"
 #include "separstr.h"
 #include "thread.h"
 #include "uistrings.h"
@@ -83,7 +84,7 @@ void System::IssueReporter::fillBasicReport( const char* filename )
     unfilteredreport.add( filename );
 
     unfilteredreport.add( "\n\nOpendTect's Version Name is :  " );
-    unfilteredreport.add( ODInst::getPkgVersion ( "base" ) );
+    unfilteredreport.add( GetFullODVersion() );
     unfilteredreport.add( "\nUser's platform is : " );
     unfilteredreport.add( OD::Platform::local().longName() );
 
@@ -134,7 +135,7 @@ bool System::IssueReporter::send()
     postvars.setYN( "return_text", true );
 
     BufferString remotefname ( OD::Platform::local().shortName(), "_" );
-    remotefname.add( ODInst::getPkgVersion ("base") );
+    remotefname.add( GetFullODVersion() );
     remotefname.add( "_" ).add( "crash_report.dmp" );
 
     const char* filetype = "dumpfile";
