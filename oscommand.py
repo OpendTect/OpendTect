@@ -14,7 +14,8 @@ import subprocess
 import json
 import threading
 
-from odpy.common import isWin, getExecPlfDir, get_log_stream, get_std_stream, std_msg, sTimeUnitString, log_msg
+from odpy.common import isWin, isLux, getODSoftwareDir, getExecPlfDir, \
+     get_log_stream, get_std_stream, std_msg, sTimeUnitString, log_msg
 
 def getODCommand(execnm,args=None):
   """OpendTect command
@@ -50,7 +51,14 @@ def getODCommand(execnm,args=None):
   """
 
   cmd = list()
-  cmd.append( os.path.join(getExecPlfDir(args),execnm) )
+  if isLux():
+    execscr = os.path.join( getODSoftwareDir(args), 'bin', 'exec_prog' )
+    if os.path.isfile( execscr ):
+      cmd.append( execscr )
+  if len(cmd) == 0:
+    cmd.append( os.path.join(getExecPlfDir(args),execnm) )
+  else:
+    cmd.append( execnm )
   return appendDtectArgs( cmd, args )
 
 def appendDtectArgs( cmd, args=None ):
