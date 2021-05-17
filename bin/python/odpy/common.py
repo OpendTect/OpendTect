@@ -268,6 +268,16 @@ def isWin():
 
   return platform.system() == 'Windows'
 
+def isLux():
+  """Is platform Linux?
+
+  Returns:
+    * True if running on any Linux platform
+
+  """
+
+  return platform.system() == 'Linux'
+
 def isMac():
   """Is platform Mac?
 
