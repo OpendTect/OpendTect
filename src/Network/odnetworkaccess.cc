@@ -80,9 +80,9 @@ static bool findLibraryPath( const char* libnm, FilePath& ret )
 namespace Network
 {
 
-#ifdef __lux64__
 static bool canUseSystemOpenSSL()
 {
+#ifdef __unix__
     const FilePath libfp( __OpenSSL_Crypto_LIBRARY__ );
     const char* libnm = libfp.fileName().buf();
     FilePath ret;
@@ -97,8 +97,10 @@ static bool canUseSystemOpenSSL()
 
     BufferString cmdoutstr;
     return mc.execute( cmdoutstr ) && !cmdoutstr.isEmpty();
-}
+#else
+    return false;
 #endif
+}
 
 
 static void loadOpenSSL()
