@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "task.h"
 
 class uiProgressBar;
-class uiLabel;
 class Timer;
 namespace Threads { class Thread; }
 
@@ -39,12 +38,10 @@ public:
 protected:
 
     uiProgressBar*	progbar_;
-    uiLabel*		proglbl_;
 
     Timer&		tim_;
     int         prevtime_ = 0;
     BufferString	execnm_;
-    int			symbidx_;
 
     Task*		task_;
     Threads::Lock	dispinfolock_;

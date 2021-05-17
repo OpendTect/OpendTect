@@ -56,7 +56,7 @@ int uiProgressBar::progress() const
 { return body_->value(); }
 
 void uiProgressBar::setTotalSteps( int tstp )
-{ body_->setMaximum( tstp > 1 ? tstp : 1 ); }
+{ body_->setMaximum( tstp > 0 ? tstp : 0 ); }
 
 int uiProgressBar::totalSteps() const
 { return body_->maximum(); }
