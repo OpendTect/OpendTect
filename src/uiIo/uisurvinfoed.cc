@@ -812,9 +812,12 @@ void uiSurveyInfoEditor::updatePar( CallBacker* )
 void uiSurveyInfoEditor::sipCB( CallBacker* )
 {
     const int sipidx = sipfld_ ? sipfld_->currentItem() : 0;
-    if ( sipidx < 1 ) return;
+    if ( sipidx < 1 )
+	return;
+
     sipfld_->setCurrentItem( 0 );
-    delete impiop_; impiop_ = 0; lastsip_ = 0;
+    deleteAndZeroPtr( impiop_ );
+    lastsip_ = nullptr;
 
     uiSurvInfoProvider* sip = sips_[sipidx-1];
     PtrMan<uiDialog> dlg = sip->dialog( this );
