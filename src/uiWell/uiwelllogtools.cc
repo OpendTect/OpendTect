@@ -305,7 +305,7 @@ uiGroup* uiWellLogToolWin::createEditGroup()
     actiongrp->attach( hCentered );
     const char* acts[] =
 	{ "Remove Spikes", "FFT Filter", "Smooth",
-	  "Clip", "Upscale", "Resample", nullptr };
+	  "Clip", "Upscale", "Resample", "Clean UDF", nullptr };
     auto* llc = new uiLabeledComboBox( actiongrp, acts, uiStrings::sAction() );
     actionfld_ = llc->box();
     actionfld_->selectionChanged.notify(mCB(this,uiWellLogToolWin,actionSelCB));
@@ -422,6 +422,12 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
 	gatefld_->setInterval( StepInterval<float>(0.1,10,0.1) );
 	gatefld_->setValue( uom->isImperial() ? 0.5 : 0.1524 );
 	extfld_->setText( "_resampled" );
+    }
+    else if ( act == 6 )
+    {
+	gatefld_->display( false );
+	gatelbl_->display( false );
+	extfld_->setText( "_udfcleaned" );
     }
 
     handleSpikeSelCB(0);
@@ -665,6 +671,11 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		rg.step = gatefld_->getFValue();
 		delete ld.outplogs_.replace( ld.outplogs_.indexOf( outplog ),
 				      inplog.sampleLog( rg ) );
+	    }
+	    else if ( act == 6 )
+	    {
+		delete ld.outplogs_.replace( ld.outplogs_.indexOf( outplog ),
+				      inplog.cleanUdfs() );
 	    }
 	}
     }

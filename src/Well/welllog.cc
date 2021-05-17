@@ -456,6 +456,50 @@ bool Well::Log::insertAtDah( float dh, float val )
 }
 
 
+Well::Log* Well::Log::cleanUdfs() const
+{
+    Well::Log* outlog = new Well::Log;
+    outlog->setName( getName() );
+    outlog->setUnitMeasLabel( unitMeasLabel() );
+    outlog->setMnemLabel( mnemLabel() );
+
+    bool first = true;
+    bool newz = true;
+    int numconsecudf = 0;
+    int lastidx = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( mIsUdf(vals_[idx]) )
+	{
+	    if ( numconsecudf==0 )
+		lastidx = idx;
+	    newz = true;
+	    numconsecudf++;
+	    continue;
+	}
+
+	if ( first )
+	{
+	    outlog->addValue( dah_[idx], vals_[idx] );
+	    first = false;
+	    newz = false;
+
+	}
+	else if ( newz && numconsecudf>=2 )
+	{
+	    outlog->addValue( dah_[lastidx], vals_[lastidx] );
+	    outlog->addValue( dah_[idx-1], vals_[idx-1] );
+	    outlog->addValue( dah_[idx], vals_[idx] );
+	    newz = false;
+	}
+	else
+	    outlog->addValue( dah_[idx], vals_[idx] );
+	numconsecudf = 0;
+    }
+    return outlog;
+}
+
+
 mDefParallelCalc5Pars(LogUpScaler, od_static_tr("LogUpScaler", "Upscale a log"),
     const Well::Log&, login, Well::Log&, logout,
     const StepInterval<float>&, dahrg, const Stats::UpscaleType, uptype,
