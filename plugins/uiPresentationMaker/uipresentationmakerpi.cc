@@ -37,7 +37,7 @@ private:
 
     uiDialog*			dlg_ = nullptr;
 
-    void			dTectMenuChanged() override;
+    void			init() override;
     void			dTectToolbarChanged() override;
     void			cleanup() override;
 
@@ -52,7 +52,7 @@ uiPresMakerPIMgr::uiPresMakerPIMgr()
 }
 
 
-void uiPresMakerPIMgr::dTectMenuChanged()
+void uiPresMakerPIMgr::init()
 {
     appl().menuMgr().toolsMnu()->insertAction(
 	new uiAction( m3Dots( tr("Presentation Maker") ),
