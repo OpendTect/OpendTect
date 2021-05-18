@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "i_qtable.h"
 
+#include "uibutton.h"
 #include "uicombobox.h"
 #include "uifont.h"
 #include "uilabel.h"
@@ -76,8 +77,8 @@ class CellObject
 			    , rowcol_(rc)    {}
 			~CellObject();
 
-    uiObject*		object_;
     QWidget*		qwidget_;
+    uiObject*		object_;
     RowCol		rowcol_;
 };
 
@@ -533,8 +534,6 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , istablereadonly_(false)
     , seliscols_(false)
 {
-    setGeometry.notify( mCB(this,uiTable,geometrySet_) );
-
     setStretch( 2, 2 );
 
     setSelectionMode( s.selmode_ );
@@ -545,11 +544,6 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
 
     QHeaderView* hhdr = body_->horizontalHeader();
     hhdr->setMinimumSectionSize( (int)(s.mincolwdt_*body_->fontWidth()) );
-
-    // Horrible ... using setPrefWidthInChar will prevent events to be emitted
-    cornerlabel_ = new uiLabel( parent(), tr("                    ") );
-    cornerlabel_->attach( atSamePosition, this );
-    cornerlabel_->display( false );
 }
 
 
@@ -1125,23 +1119,6 @@ void uiTable::setRowLabel( int row, const uiString& label )
 }
 
 
-void uiTable::setTopLeftCornerLabel( const uiString& txt )
-{
-    /*
-	Searched google, the item there is a button that is a local
-	QAbstractButton (class QTableCornerButton). I could get it using
-	qFindChildren but it's not visible. Tried many things, nothing worked.
-
-	Therefore this hack, but it works.
-    */
-
-
-    uiString todisp( tr("  %1") ); todisp.arg( txt );
-    cornerlabel_->setText( todisp );
-    cornerlabel_->display( true );
-}
-
-
 void uiTable::setRowToolTip( int row, const uiString& tt )
 {
     body_->getRCItem(row,true).setToolTip( toQString(tt) );
@@ -1152,6 +1129,12 @@ void uiTable::setLabelBGColor( int rc, OD::Color c, bool isrow )
 {
     QTableWidgetItem& qw = body_->getRCItem( rc, isrow );
     qw.setBackground( QBrush(QColor(c.r(),c.g(),c.b(),255)) );
+}
+
+
+void uiTable::setRowLabels( const BufferStringSet& labels )
+{
+    setRowLabels( labels.getUiStringSet() );
 }
 
 
@@ -1197,6 +1180,12 @@ void uiTable::setColumnLabels( const uiStringSet& lblset )
 
     for ( int i=0; i<lblset.size(); i++ )
 	setColumnLabel( i, lblset.get(i) );
+}
+
+
+void uiTable::setColumnLabels( const BufferStringSet& labels )
+{
+    setColumnLabels( labels.getUiStringSet() );
 }
 
 
@@ -1472,17 +1461,6 @@ void uiTable::popupMenu( CallBacker* )
 }
 
 
-void uiTable::geometrySet_( CallBacker* cb )
-{
-//    if ( !mainwin() ||  mainwin()->poppedUp() ) return;
-
-//    mCBCapsuleUnpack(uiRect&,sz,cb);
-//    const uiSize size = sz.getPixelSize();
-
-//    updateCellSizes( &size );
-}
-
-
 void uiTable::updateCellSizes( const uiSize* size )
 {
     if ( size ) lastsz = *size;
@@ -1731,6 +1709,10 @@ void uiTable::setCellObject( const RowCol& rc, uiObject* obj )
     mDynamicCastGet(uiComboBox*,cb,obj)
     if ( cb )
 	cb->selectionChanged.notify( mCB(this,uiTable,cellObjChangedCB) );
+
+    mDynamicCastGet(uiButton*,but,obj)
+    if ( but )
+	but->activated.notify( mCB(this,uiTable,cellObjChangedCB) );
 }
 
 
@@ -1746,6 +1728,10 @@ void uiTable::clearCellObject( const RowCol& rc )
     mDynamicCastGet(uiComboBox*,cb,obj)
     if ( cb )
 	cb->selectionChanged.remove( mCB(this,uiTable,cellObjChangedCB) );
+
+    mDynamicCastGet(uiButton*,but,obj)
+    if ( but )
+	but->activated.remove( mCB(this,uiTable,cellObjChangedCB) );
 
     body_->clearCellObject( rc );
 }

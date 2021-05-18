@@ -22,7 +22,6 @@ ________________________________________________________________________
 class BufferStringSet;
 class uiPixmap;
 class uiGroup;
-class uiLabel;
 class uiTableBody;
 
 
@@ -239,18 +238,18 @@ public:
     const char*		rowLabel( const RowCol& rc ) const
 			    { return rowLabel(rc.row()); }
     void		setRowLabel(int,const uiString&); // also sets tooltip
-    void		setRowLabels(const char**);
     void		setRowLabels(const uiStringSet&);
+    void		setRowLabels(const BufferStringSet&);
     void		setRowLabel( const RowCol& rc, const uiString& lbl )
 			    { setRowLabel( rc.row(), lbl ); }
     void		setRowToolTip(int,const uiString&);
-    void		setTopLeftCornerLabel(const uiString&);
 
     const char*		columnLabel(int) const;
     const char*		columnLabel( const RowCol& rc ) const
 			    { return columnLabel(rc.col()); }
     void		setColumnLabel(int,const uiString&); //also sets tooltip
     void		setColumnLabels(const uiStringSet&);
+    void		setColumnLabels(const BufferStringSet&);
     void		setColumnLabel( const RowCol& rc, const uiString& lbl )
 			    { setColumnLabel( rc.col(), lbl ); }
     void		setColumnToolTip(int,const uiString&);
@@ -352,7 +351,6 @@ protected:
     virtual void	popupMenu(CallBacker*);
     OD::ButtonState	buttonstate_;
 
-    void		geometrySet_(CallBacker*);
     void		updateCellSizes(const uiSize* sz=0);
     void		cellObjChangedCB(CallBacker*);
 
@@ -366,7 +364,6 @@ private:
 
     uiTableBody*	body_;
     uiTableBody&	mkbody(uiParent*,const char*,int,int);
-    uiLabel*		cornerlabel_;
 
     mutable uiSize	lastsz;
 
