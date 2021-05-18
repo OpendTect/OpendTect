@@ -219,7 +219,7 @@ const uiString uiBatchJobDispatcherSel::selectedInfo() const
 }
 
 
-bool uiBatchJobDispatcherSel::start()
+bool uiBatchJobDispatcherSel::start( Batch::ID* batchid )
 {
     const int selidx = selIdx();
     if ( selidx < 0 )
@@ -230,23 +230,7 @@ bool uiBatchJobDispatcherSel::start()
 
     uiBatchJobDispatcherLauncher* dl = uidispatchers_[selidx];
     dl->dispatcher().setJobName( jobname_.buf() );
-    Batch::ID batchid;
-    return dl->go( this, &batchid );
-}
-
-
-bool uiBatchJobDispatcherSel::start( Batch::ID& batchid )
-{
-    const int selidx = selIdx();
-    if ( selidx < 0 )
-    {
-	uiMSG().error( tr("Please select a batch execution method") );
-	return false;
-    }
-
-    uiBatchJobDispatcherLauncher* dl = uidispatchers_[selidx];
-    dl->dispatcher().setJobName( jobname_.buf() );
-    return dl->go( this, &batchid );
+    return dl->go( this, batchid );
 }
 
 
@@ -571,13 +555,8 @@ bool uiBatchProcDlg::acceptOK( CallBacker* )
     if ( !fillPar(par) )
 	return false;
 
-    Batch::ID batchid;
-    if ( !batchjobfld_->start(batchid) )
+    if ( !batchjobfld_->start(&batchid_) )
 	uiMSG().error( tr("Could not start batch program") );
-
-    //Only for od6.6, since we cannot store it in a dedicated class member:
-    if ( batchid > Batch::JobDispatcher::getInvalid() )
-	par.set( "batchid", batchid );
 
     return false;
 }
@@ -586,12 +565,4 @@ bool uiBatchProcDlg::acceptOK( CallBacker* )
 void uiBatchProcDlg::setProgName( const char* prognm )
 {
     batchjobfld_->jobSpec().prognm_ = prognm;
-}
-
-
-Batch::ID uiBatchProcDlg::getLastID() const
-{
-    Batch::ID batchid = Batch::JobDispatcher::getInvalid();
-    batchjobfld_->jobSpec().pars_.get( "batchid", batchid );
-    return batchid;
 }
