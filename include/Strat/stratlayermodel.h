@@ -30,7 +30,7 @@ class RefTree;
 /*!\brief A model consisting of layer sequences.
 
   The sequences will use the PropertyRefSelection managed by this object.
- 
+
  */
 
 mExpClass(Strat) LayerModel
@@ -124,7 +124,7 @@ private:
     LayerModel*		modled_ = nullptr;
     LayerModel*		curmodl_;
 
-    friend class uiStratLayerModel;
+    friend class ::uiStratLayerModel;
 
 };
 
