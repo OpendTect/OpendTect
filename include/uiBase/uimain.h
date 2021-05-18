@@ -77,7 +77,7 @@ public:
     static void		processEvents(int msec=3000);
 
     static KeyboardEventHandler& keyboardEventHandler();
-    static IdxPair	getDPI();
+    static IdxPair	getDPI(int screennr=-1);
     static int		getMinDPI();
     static double	getDefZoomLevel();
 

@@ -33,7 +33,6 @@ ________________________________________________________________________
 #include "thread.h"
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QIcon>
 #include <QKeyEvent>
 #include <QMenu>
@@ -562,7 +561,7 @@ void uiMain::setTopLevel( uiMainWin* obj )
 }
 
 
-void uiMain::setFont( const uiFont& fnt, bool PassToChildren )
+void uiMain::setFont( const uiFont& fnt, bool passtochildren )
 {
     font_ = &fnt;
     if ( !app_ )
@@ -601,40 +600,48 @@ int uiMain::nrScreens() const
 }
 
 
+static QScreen* getScreen( int screennr )
+{
+    const QList<QScreen*> screens = QGuiApplication::screens();
+    if ( screens.isEmpty() || screennr>=screens.size() )
+	return nullptr;
+
+    QScreen* qscreen = screennr<0 ? QGuiApplication::primaryScreen()
+				  : screens.at( screennr );
+    return qscreen;
+}
+
+
 uiSize uiMain::getScreenSize( int screennr, bool available ) const
 {
-    QList<QScreen*> screens = QGuiApplication::screens();
-    if ( screens.isEmpty() || screennr<0 || screennr>=screens.size() )
+    const QScreen* qscreen = getScreen( screennr );
+    if ( !qscreen )
         return uiSize( mUdf(int), mUdf(int) );
 
-    QScreen* qscreen = screens.at( screennr );
-    QRect qrect = available ? qscreen->availableGeometry()
-                            : qscreen->geometry();
+    const QRect qrect = available ? qscreen->availableGeometry()
+				  : qscreen->geometry();
     return uiSize( qrect.width(), qrect.height() );
 }
 
 
 uiSize uiMain::desktopSize() const
 {
-    if ( !app_ || !app_->desktop() )
+    QScreen* screen = QGuiApplication::primaryScreen();
+    if ( !screen )
 	return uiSize( mUdf(int), mUdf(int) );
 
-    return uiSize( app_->desktop()->width(), app_->desktop()->height() );
+    return uiSize( screen->geometry().width(), screen->geometry().height() );
 }
 
 
 double uiMain::getDevicePixelRatio( int screennr ) const
 {
-    const QList<QScreen*> screens = QGuiApplication::screens();
-    if ( screens.isEmpty() || screennr<0 || screennr>=screens.size() )
-	return mUdf(double);
-
-    const QScreen* qscreen = screens.at( screennr );
+    const QScreen* qscreen = getScreen( screennr );
     if ( !qscreen )
 	return mUdf(double);
 
-    return mCast(double,qscreen->logicalDotsPerInchX()) /
-	   mCast(double,qscreen->physicalDotsPerInchX());
+    return double(qscreen->logicalDotsPerInchX()) /
+	   double(qscreen->physicalDotsPerInchX());
 }
 
 
@@ -670,10 +677,14 @@ void uiMain::repaint()
 }
 
 
-IdxPair uiMain::getDPI()
+IdxPair uiMain::getDPI( int screennr )
 {
-    return IdxPair( QApplication::desktop()->physicalDpiX(),
-		    QApplication::desktop()->physicalDpiY() );
+    const QScreen* screen = getScreen( screennr );
+    if ( !screen )
+	return IdxPair(-1,-1);
+
+    return IdxPair( screen->physicalDotsPerInchX(),
+		    screen->physicalDotsPerInchY() );
 }
 
 
