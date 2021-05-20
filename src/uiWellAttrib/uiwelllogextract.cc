@@ -27,7 +27,10 @@ ________________________________________________________________________
 #include "posvecdataset.h"
 #include "posfilterset.h"
 #include "seisioobjinfo.h"
+#include "welldata.h"
 #include "wellextractdata.h"
+#include "welllog.h"
+#include "wellman.h"
 #include "wellmarker.h"
 
 #include "mousecursor.h"
@@ -201,16 +204,17 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
 		    "(check ranges, undefined sections ....)"))
     }
 
+    ExecutorGroup execgrp( "Reading log data" );
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	Well::LogDataExtracter wlde( ioobjids, dpss, SI().zIsTime() );
-	wlde.lognm_ = lognms.get(idx);
-	wlde.samppol_ = welllogselfld_->params().samppol_;
-	if ( !TaskRunner::execute( &taskrunner, wlde ) )
-	    return false;
+	auto* wlde = new Well::LogDataExtracter(ioobjids, dpss, SI().zIsTime());
+	wlde->lognm_ = lognms.get(idx);
+	wlde->samppol_ = welllogselfld_->params().samppol_;
+	execgrp.add( wlde );
     }
 
-    return true;
+    const bool res = TaskRunner::execute( &taskrunner, execgrp );
+    return res;
 }
 
 
@@ -221,13 +225,16 @@ bool uiWellLogExtractGrp::extractAttribData( DataPointSet& dps, int c1 )
     const_cast<PosVecDataSet*>( &(dps.dataSet()) )->pars() = descsetpars;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    Attrib::EngineMan aem; uiString errmsg;
+    Attrib::EngineMan aem;
+    uiString errmsg;
     PtrMan<Executor> tabextr = aem.getTableExtractor( dps, *ads_, errmsg, c1 );
     MouseCursorManager::restoreOverride();
     if ( !errmsg.isEmpty() )
 	mErrRet(errmsg)
+
     uiTaskRunner taskrunner( this );
-    return TaskRunner::execute( &taskrunner, *tabextr );
+    const bool res = TaskRunner::execute( &taskrunner, *tabextr );
+    return res;
 }
 
 
@@ -245,23 +252,35 @@ bool uiWellLogExtractGrp::extractDPS()
 {
     ObjectSet<DataColDef> dcds;
 
-    BufferString unit( "MD" );
-    unit.add( UnitOfMeasure::zUnitAnnot(false,true,true).getFullString() );
-    dcds += new DataColDef( unit );
-    BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
-    for ( int idx=0; idx<lognms.size(); idx++ )
-	dcds += new DataColDef( lognms[idx]->buf() );
-    if ( lognms.isEmpty() )
-	mErrRet(uiStrings::phrSelect(tr("at least one log")))
-    BufferStringSet attrnms;
-    if ( ads_ )
-	addDCDs( attrsfld_, dcds,  attrnms );
-
     BufferStringSet ioobjids, wellnms;
-    welllogselfld_->getSelWellNames( wellnms );
+    getWellNames( wellnms );
     welllogselfld_->getSelWellIDs( ioobjids );
     if ( ioobjids.isEmpty() )
 	mErrRet(uiStrings::phrSelect(tr("at least one well")))
+
+    BufferStringSet lognms;
+    getSelLogNames( lognms );
+    if ( lognms.isEmpty() )
+	mErrRet(uiStrings::phrSelect(tr("at least one log")))
+
+    dcds += new DataColDef( sKey::MD(), nullptr,
+			    UnitOfMeasure::surveyDefDepthUnit() );
+
+    for ( int idx=0; idx<lognms.size(); idx++ )
+    {
+	ConstRefMan<Well::Data> wd = Well::MGR().get( MultiID(ioobjids.get(0)),
+						      Well::LogInfos );
+	const char* lognm = lognms.get( idx ).buf();
+	const Well::Log* log = wd ? wd->getLog( lognm ) : nullptr;
+	if ( !log ) // should not happen
+	    continue;
+
+	dcds += new DataColDef( lognm, nullptr, log->unitOfMeasure() );
+    }
+
+    BufferStringSet attrnms;
+    if ( ads_ )
+	addDCDs( attrsfld_, dcds,  attrnms );
 
     ObjectSet<DataPointSet> dpss;
     if ( !extractWellData(ioobjids,lognms,dpss) )
@@ -320,12 +339,15 @@ bool uiWellLogExtractGrp::extractDPS()
     curdps_->dataChanged();
     MouseCursorManager::restoreOverride();
     if ( curdps_->isEmpty() )
-	mErrRet(uiStrings::phrCannotFind(uiStrings::sPosition(mPlural)
-								    .toLower()))
+	mErrRet(uiStrings::phrCannotFind(uiStrings::sPosition(2).toLower()))
 
-    BufferString dpsnm( "Well data:" );
+    BufferString dpsnm( "Well data: " );
     for ( int idx=0; idx<wellnms.size(); idx++ )
-    { dpsnm += wellnms[idx]->buf(); if ( idx!=wellnms.size()-1 ) dpsnm += ","; }
+    {
+	dpsnm += wellnms[idx]->buf();
+	if ( idx!=wellnms.size()-1 )
+	    dpsnm += ",";
+    }
 
     if ( !attrnms.isEmpty() )
     {

@@ -12,9 +12,10 @@ ________________________________________________________________________
 */
 
 #include "algomod.h"
+#include "bufstringset.h"
 #include "namedobj.h"
-#include "ranges.h"
 #include "od_iosfwd.h"
+#include "ranges.h"
 
 
 /*!
@@ -31,7 +32,7 @@ mExpClass(Algo) ProbDenFunc : public NamedObject
 public:
 
     virtual ProbDenFunc* clone() const				= 0;
-    virtual		~ProbDenFunc()				{}
+    virtual		~ProbDenFunc();
     virtual void	copyFrom(const ProbDenFunc&)		= 0;
     virtual bool	isEqual(const ProbDenFunc&) const;
 
@@ -61,14 +62,18 @@ public:
     virtual void	drawRandomPos(TypeSet<float>&) const	= 0;
     static const char*	sKeyNrDim();
 
+    void		setUOMSymbol(int dim,const char*);
+    const char*		getUOMSymbol(int dim) const;
+
 protected:
 
-			ProbDenFunc()				{}
+			ProbDenFunc();
 			ProbDenFunc(const ProbDenFunc&);
 
     virtual bool	isEq(const ProbDenFunc&) const		= 0;
-    			//!< already checked for type, name and dim names
+			//!< already checked for type, name and dim names
 
+    BufferStringSet	uoms_;
 };
 
 
@@ -80,9 +85,7 @@ mExpClass(Algo) ProbDenFunc1D : public ProbDenFunc
 {
 public:
 
-    virtual void	copyFrom( const ProbDenFunc& pdf )
-			{ varnm_ = pdf.dimName(0); setName(pdf.name()); }
-
+    virtual void	copyFrom(const ProbDenFunc&);
     virtual int		nrDims() const		{ return 1; }
     virtual const char*	dimName(int) const	{ return varName(); }
     virtual void	setDimName( int dim, const char* nm )
@@ -125,10 +128,7 @@ mExpClass(Algo) ProbDenFunc2D : public ProbDenFunc
 {
 public:
 
-    virtual void	copyFrom( const ProbDenFunc& pdf )
-			{ dim0nm_ = pdf.dimName(0); dim1nm_ = pdf.dimName(1);
-			  setName(pdf.name()); }
-
+    virtual void	copyFrom(const ProbDenFunc&);
     virtual int		nrDims() const			{ return 2; }
     virtual const char*	dimName(int) const;
     virtual void	setDimName( int dim, const char* nm )
@@ -149,18 +149,13 @@ public:
 
 protected:
 
-			ProbDenFunc2D( const char* vnm0="Dim 0",
-					const char* vnm1="Dim 1" )
-			    : dim0nm_(vnm0), dim1nm_(vnm1)	{}
-			ProbDenFunc2D( const ProbDenFunc2D& pdf )
-			    : ProbDenFunc(pdf)
-			    , dim0nm_(pdf.dim0nm_)
-			    , dim1nm_(pdf.dim1nm_)		{}
+			ProbDenFunc2D(const char* vnm0="Dim 0",
+				      const char* vnm1="Dim 1");
+			ProbDenFunc2D(const ProbDenFunc2D& pdf);
+
     ProbDenFunc2D&	operator =(const ProbDenFunc2D&);
 
     virtual float	gtVal(float,float) const	= 0;
     virtual void	drwRandPos(float&,float&) const = 0;
-
 };
-
 

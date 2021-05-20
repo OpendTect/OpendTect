@@ -31,6 +31,9 @@ struct DataColInfo
 };
 
 				uiPrDenFunVarSel(uiParent*, const DataColInfo&);
+				uiPrDenFunVarSel(uiParent*,const DataColInfo&,
+						 const uiString& lbl);
+
     int 			selNrBins() const;
     int 			selColID() const;
     StepInterval<float>		selColRange() const;
@@ -54,5 +57,7 @@ protected:
     void			attrChanged(CallBacker*);
     void			nrBinChanged(CallBacker*);
     void			rangeChanged(CallBacker*);
+
+    void			createGUI(uiObject* attachobj);
 };
 

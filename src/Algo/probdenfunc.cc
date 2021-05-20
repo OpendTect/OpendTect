@@ -8,16 +8,16 @@
 
 #include "sampledprobdenfunc.h"
 #include "probdenfuncdraw.h"
+#include "idxable.h"
 #include "interpol1d.h"
 #include "interpol2d.h"
+#include "interpolnd.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "math2.h"
-#include "interpolnd.h"
-#include "idxable.h"
-#include "statrand.h"
-#include "perthreadrepos.h"
 #include "od_iostream.h"
+#include "perthreadrepos.h"
+#include "statrand.h"
 
 static const float snappos = 1e-5;
 const char* ProbDenFunc::sKeyNrDim()	{ return "Nr dimensions"; }
@@ -62,9 +62,59 @@ float ProbDenFuncDraw::value( int ival, bool redrw ) const
 }
 
 
+// ProbDenFunc
+
+ProbDenFunc::ProbDenFunc()
+{}
+
+
 ProbDenFunc::ProbDenFunc( const ProbDenFunc& pdf )
     : NamedObject(pdf.name())
+    , uoms_(pdf.uoms_)
 {
+}
+
+
+ProbDenFunc::~ProbDenFunc()
+{}
+
+
+void ProbDenFunc::setUOMSymbol( int dim, const char* symbol )
+{
+    while ( uoms_.size() <= dim )
+	uoms_.add( "" );
+
+    uoms_.get(dim).set( symbol );
+}
+
+
+const char* ProbDenFunc::getUOMSymbol( int dim ) const
+{
+    return uoms_.validIdx(dim) ? uoms_.get(dim).buf() : nullptr;
+}
+
+
+bool ProbDenFunc::usePar( const IOPar& par )
+{
+    int nrdim = 0;
+    par.get( sKeyNrDim(), nrdim );
+    if ( nrdim < 1 )
+	return false;
+
+    for ( int idx=0; idx<nrdim; idx++ )
+    {
+	BufferString uomstr;
+	par.get( IOPar::compKey(sKey::Unit(),idx), uomstr );
+	setUOMSymbol( idx, uomstr );
+    }
+
+    return true;
+}
+
+
+void ProbDenFunc::copyFrom( const ProbDenFunc& oth )
+{
+    uoms_ = oth.uoms_;
 }
 
 
@@ -93,7 +143,10 @@ void ProbDenFunc::fillPar( IOPar& par ) const
     const int nrdim = nrDims();
     par.set( sKeyNrDim(), nrdim );
     for ( int idx=0; idx<nrdim; idx++ )
+    {
 	par.set( IOPar::compKey(sKey::Name(),idx), dimName(idx) );
+	par.set( IOPar::compKey(sKey::Unit(),idx), getUOMSymbol(idx) );
+    }
 }
 
 
@@ -129,11 +182,48 @@ bool ProbDenFunc::isCompatibleWith( const ProbDenFunc& pdf ) const
 }
 
 
+// ProbDenFunc1D
+void ProbDenFunc1D::copyFrom( const ProbDenFunc& pdf )
+{
+    varnm_ = pdf.dimName( 0 );
+    setName( pdf.name() );
+    ProbDenFunc::copyFrom( pdf );
+}
+
+
+// ProbDenFunc2D
+ProbDenFunc2D::ProbDenFunc2D( const char* vnm0, const char* vnm1 )
+    : dim0nm_(vnm0)
+    , dim1nm_(vnm1)
+{}
+
+
+ProbDenFunc2D::ProbDenFunc2D( const ProbDenFunc2D& pdf )
+    : ProbDenFunc(pdf)
+    , dim0nm_(pdf.dim0nm_)
+    , dim1nm_(pdf.dim1nm_)
+{}
+
+
+void ProbDenFunc2D::copyFrom( const ProbDenFunc& pdf )
+{
+    dim0nm_ = pdf.dimName(0);
+    dim1nm_ = pdf.dimName(1);
+    setName( pdf.name() );
+    ProbDenFunc::copyFrom( pdf );
+}
+
 
 ProbDenFunc2D& ProbDenFunc2D::operator =( const ProbDenFunc2D& pd )
 {
-    if ( this != & pd )
-	{ dim0nm_ = pd.dim0nm_; dim1nm_ = pd.dim1nm_; setName( pd.name() ); }
+    if ( this != &pd )
+    {
+	dim0nm_ = pd.dim0nm_;
+	dim1nm_ = pd.dim1nm_;
+	setName( pd.name() );
+	uoms_ = pd.uoms_;
+    }
+
     return *this;
 }
 
@@ -151,6 +241,7 @@ const char* ProbDenFunc2D::dimName( int idim ) const
 }
 
 
+// ArrayNDProbDenFunc
 ArrayNDProbDenFunc& ArrayNDProbDenFunc::operator =(
 			const ArrayNDProbDenFunc& oth )
 {
@@ -366,7 +457,7 @@ float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
 
 
 
-// 1D
+// Sampled1DProbDenFunc
 Sampled1DProbDenFunc::Sampled1DProbDenFunc()
     : ProbDenFunc1D("")
     , sd_(0,1)
@@ -495,6 +586,8 @@ bool Sampled1DProbDenFunc::usePar( const IOPar& par )
 
     par.get( IOPar::compKey(sKey::Sampling(),0), sd_ );
     par.get( IOPar::compKey(sKey::Name(),0), varnm_ );
+
+    ProbDenFunc::usePar( par );
     return sz>0;
 }
 
@@ -506,8 +599,7 @@ bool Sampled1DProbDenFunc::readBulk( od_istream& strm, bool binary )
 { return ArrayNDProbDenFunc::readBulkData( strm, binary ); }
 
 
-// 2D
-
+// Sampled2DProbDenFunc
 Sampled2DProbDenFunc::Sampled2DProbDenFunc()
     : ProbDenFunc2D("","")
     , sd0_(0,1)
@@ -622,6 +714,7 @@ bool Sampled2DProbDenFunc::usePar( const IOPar& par )
     par.get( IOPar::compKey(sKey::Name(),0), dim0nm_ );
     par.get( IOPar::compKey(sKey::Name(),1), dim1nm_ );
 
+    ProbDenFunc::usePar( par );
     return sz0>0 && sz1>0;
 }
 
@@ -633,8 +726,8 @@ bool Sampled2DProbDenFunc::readBulk( od_istream& strm, bool binary )
 { return ArrayNDProbDenFunc::readBulkData( strm, binary ); }
 
 
-// ND
 
+// SampledNDProbDenFunc
 SampledNDProbDenFunc::SampledNDProbDenFunc( int nrdims )
     : bins_( ArrayNDInfoImpl(nrdims) )
 {
@@ -681,7 +774,9 @@ SampledNDProbDenFunc& SampledNDProbDenFunc::operator =(
 	sds_ = spdf.sds_;
 	bins_ = spdf.bins_;
 	dimnms_ = spdf.dimnms_;
+	uoms_ = spdf.uoms_;
     }
+
     return *this;
 }
 
@@ -695,7 +790,10 @@ void SampledNDProbDenFunc::copyFrom( const ProbDenFunc& pdf )
     {
 	setName( pdf.name() );
 	for ( int idx=0; idx<nrDims(); idx++ )
+	{
 	    setDimName( idx, pdf.dimName(idx) );
+	    setUOMSymbol( idx, pdf.getUOMSymbol(idx) );
+	}
     }
 }
 
@@ -829,6 +927,8 @@ bool SampledNDProbDenFunc::usePar( const IOPar& par )
 	par.get( IOPar::compKey(sKey::Name(),idx), dimnm );
 	dimnms_.add( dimnm );
     }
+
+    ProbDenFunc::usePar( par );
 
     bins_.setSize( szs.arr() );
     return bins_.info().getTotalSz() > 0;

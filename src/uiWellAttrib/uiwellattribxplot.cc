@@ -26,6 +26,8 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 		     mODHelpKey(mWellAttribCrossPlotHelpID) ).modal(false))
 	, dpsdispmgr_(0)
 {
+    setOkText( uiStrings::sNext() );
+
     wellextractgrp_ =
 	new uiWellLogExtractGrp( this, uiWellLogExtractGrp::Setup(), d );
 }

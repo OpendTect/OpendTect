@@ -181,12 +181,13 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, percfld_(0)
 	, showbidsfld_(0)
 {
+    setOkText( uiStrings::sCrossPlot() );
+
     windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
     mAttachCB(IOM().applicationClosing,uiDataPointSet::applClosingCB);
 
     if ( mDPM.haveID(dps_.id()) )
 	mDPM.obtain( dps_.id() );
-    setCtrlStyle( CloseOnly );
     runcalcs_.allowNull( true );
 
     const int nrcols = initVars();
@@ -379,19 +380,22 @@ void uiDataPointSet::updColNames()
     for ( TColID tid=0; tid<nrcols; tid++ )
     {
 	uiString axnm;
-	if ( tid == xcol_ ) axnm = toUiString("[%1]").arg(uiStrings::sX());
-	if ( tid == ycol_ ) axnm = toUiString("[%1]").arg(uiStrings::sY());
-	if ( tid == y2col_ ) axnm = toUiString("[%1]").arg(uiStrings::sY2());
+	if ( tid == xcol_ )
+	    axnm = toUiString("[%1]").arg(uiStrings::sX());
+	if ( tid == ycol_ )
+	    axnm = toUiString("[%1]").arg(uiStrings::sY());
+	if ( tid == y2col_ )
+	    axnm = toUiString("[%1]").arg(uiStrings::sY2());
 
-	uiString colnm = ( tid == sortcol_ ? toUiString("*") :
-						   uiStrings::sEmptyString() );;
-	if ( !axnm.isEmpty() ) colnm = axnm;
+	uiString colnm =
+		tid == sortcol_ ? toUiString("*") : uiStrings::sEmptyString();
+	if ( !axnm.isEmpty() )
+	    colnm = axnm;
 
 	if ( tid == zcid )
 	    colnm = tr("%1 Z (%2)").arg(colnm).arg(zunitnm_);
 	else
-	    colnm = toUiString("%1 %2").arg(colnm).arg(toUiString(
-							userName(dColID(tid))));
+	    colnm = toUiString("%1 %2").arg(colnm).arg(userName(dColID(tid)));
 
 	if ( tid > tbl_->nrCols()-1 )
 	    tbl_->insertColumns( tid, 1 );
@@ -985,13 +989,6 @@ void uiDataPointSet::reDoTable()
     calcIdxs();
     updColNames();
 
-    for ( DColID dcid=0; dcid<dps_.nrCols(); dcid++ )
-    {
-	const UnitOfMeasure* mu = dps_.colDef(dcid).unit_;
-	if ( mu )
-	    tbl_->setColumnToolTip( tColID(dcid), mToUiStringTodo(mu->name()) );
-    }
-
     const int nrrows = tbl_->nrRows();
     for ( TRowID tid=0; tid<nrrows; tid++ )
     {
@@ -1040,7 +1037,16 @@ void uiDataPointSet::statsClose( CallBacker* )
 const char* uiDataPointSet::userName( uiDataPointSet::DColID did ) const
 {
     if ( did >= 0 )
-	return dps_.colName( did );
+    {
+	static BufferString colnm;
+	colnm = dps_.colName( did );
+	const UnitOfMeasure* uom = dps_.unit( did );
+	const BufferString symbolstr = uom ? uom->symbol() : "";
+	if ( !symbolstr.isEmpty() )
+	    colnm.addSpace().add( "(" ).add( symbolstr.buf() ).add( ")" );
+
+	return colnm.buf();
+    }
 
     if ( mIsTrcNr(did) )
 	return "Trace Nr";
@@ -1308,25 +1314,28 @@ bool uiDataPointSet::rejectOK( CallBacker* )
 {
     if ( !saveOK() )
 	return false;
-    return acceptOK( 0 );
+
+    removeSelPts( 0 );
+    mDPM.release( dps_.id() );
+
+    closeAndZeroPtr( xplotwin_ );
+    closeAndZeroPtr( statswin_ );
+
+    return true;
 }
 
 
 bool uiDataPointSet::acceptOK( CallBacker* )
 {
-    removeSelPts( 0 );
-    mDPM.release( dps_.id() );
-    if ( xplotwin_ )
+    if ( xcol_<0 || ycol_<0 )
     {
-	xplotwin_->close();
-	xplotwin_ = nullptr;
+	uiMSG().error( tr("Please select a column for %1")
+			.arg(xcol_<0 ? "X" : "Y") );
+	return false;
     }
-    if ( statswin_ )
-    {
-	statswin_->close();
-	statswin_ = nullptr;
-    }
-    return true;
+
+    showCrossPlot( nullptr );
+    return false;
 }
 
 
