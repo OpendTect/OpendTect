@@ -90,7 +90,7 @@ public:
     static uiString phrCrossline(const uiString&);
     //!<"Cross-line <string>
     static uiString phrCrossPlot(const uiString&);
-    //!<"Cross Plot <string>"
+    //!<"Cross-plot <string>"
     static uiString phrCopy(const uiString&);
     //!<"Copy <string>"
     static uiString phrCreate(const uiString& string);
@@ -423,7 +423,7 @@ public:
     static uiString sLicense(int n=1)	{ return tr("License",0,n); }
     static uiString sLine(int num=1)	{ return tr("Line",0,num); }
     static uiString sLineDip(bool for2d) { return for2d ? tr("Line Dip")
-							: tr("Crossline Dip"); }
+							: tr("Cross-line Dip");}
     static uiString sLineName(int num=1) { return tr("Line Name",0,num); }
     static uiString sLineStyle(int num=1) { return tr("Line Style",0,num); }
     static uiString sLithology(int num=1){ return tr("Lithology",0,num); }
