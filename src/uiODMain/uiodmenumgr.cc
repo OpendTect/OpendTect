@@ -540,8 +540,8 @@ void uiODMenuMgr::fillExportMenu()
     mAddExpMnu( Hor, exphor );
     mAddExpMnu( Flt, expflt );
     mAddExpMnu( Fltss, expfltss );
-	mAddExpMnu( FltSet, expfltset );
-	mAddExpMnu( Pick, exppick );
+    mAddExpMnu( FltSet, expfltset );
+    mAddExpMnu( Pick, exppick );
     mAddExpMnu( Wvlt, expwvlt );
     mAddExpMnu( MDef, expmute );
     mAddExpMnu( PDF, exppdf );
@@ -1094,7 +1094,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		mCB(appman,uiODApplMgr,doVolProc2DCB),
 		mCB(appman,uiODApplMgr,doVolProcCB) );
 
-    const int xplotid = dtecttb_->addButton( "xplot", tr("Cross-plot") );
+    const int xplotid = dtecttb_->addButton( "xplot", uiStrings::sCrossPlot() );
     uiMenu* mnu = new uiMenu();
     mnu->insertAction(
 	new uiAction(m3Dots(tr("Cross-plot Attribute vs Attribute Data")),
