@@ -47,9 +47,9 @@ uiStratLayerContent::uiStratLayerContent( uiParent* p, bool isfinal,
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 				isfinal ? tr("Content") : tr("Content zone") );
     fld_ = lcb->box();
-    fld_->addItem( toUiString("-") );
+    fld_->addItem( "-" );
     for ( int idx=0; idx<rt_.contents().size(); idx++ )
-	fld_->addItem( toUiString(rt_.contents()[idx]->name()) );
+	fld_->addItem( rt_.contents()[idx]->name() );
     setHAlignObj( lcb );
     fld_->selectionChanged.notify( mCB(this,uiStratLayerContent,contSel) );
 }
@@ -396,7 +396,7 @@ uiBasicLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
 			  mAlignment(HCenter,VCenter) ) );
     nm_->setPenColor( OD::Color::Black() );
     lithcol_ = scene_.addItem( new uiCircleItem );
-    const OD::Color lithcolor( gen_->unit().dispColor( true ) );
+    const OD::Color lithcolor( gen_->unit().dispColor(true) );
     lithcol_->setPenColor( lithcolor );
     lithcol_->setFillColor( lithcolor );
     top_ = scene_.addItem( new uiLineItem );
