@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitable.h"
 #include "i_qtable.h"
 
+#include "uibutton.h"
 #include "uicombobox.h"
 #include "uifont.h"
 #include "uilabel.h"
@@ -77,8 +78,8 @@ class CellObject
 			    , rowcol_(rc)    {}
 			~CellObject();
 
-    uiObject*		object_;
     QWidget*		qwidget_;
+    uiObject*		object_;
     RowCol		rowcol_;
 };
 
@@ -533,6 +534,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , columnClicked(this)
     , istablereadonly_(false)
     , seliscols_(false)
+    , cornerlabel_(nullptr)
 {
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
 
@@ -546,11 +548,6 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
 
     QHeaderView* hhdr = body_->horizontalHeader();
     hhdr->setMinimumSectionSize( (int)(s.mincolwdt_*body_->fontWidth()) );
-
-    // Horrible ... using setPrefWidthInChar will prevent events to be emitted
-    cornerlabel_ = new uiLabel( parent(), tr("                    ") );
-    cornerlabel_->attach( atSamePosition, this );
-    cornerlabel_->display( false );
 }
 
 
@@ -1064,7 +1061,8 @@ void uiTable::setColor( const RowCol& rc, const Color& col )
 Color uiTable::getColor( const RowCol& rc ) const
 {
     QTableWidgetItem* itm = body_->getItem( rc, false );
-    if ( !itm ) return Color(255,255,255);
+    if ( !itm )
+	return Color(255,255,255);
 
     const QColor qcol = itm->background().color();
     return Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
@@ -1087,7 +1085,8 @@ Color uiTable::getHeaderBackground( int idx, bool isrow ) const
 {
     QTableWidgetItem* itm = isrow ? body_->verticalHeaderItem( idx )
 					    : body_->horizontalHeaderItem( idx);
-    if ( !itm ) return Color(255,255,255);
+    if ( !itm )
+	return Color(255,255,255);
 
     const QColor qcol = itm->background().color();
     return Color( qcol.red(), qcol.green(), qcol.blue() );
@@ -1121,23 +1120,6 @@ void uiTable::setRowLabel( int row, const uiString& label )
     mGetQStr( qstr, label );
     itm.setText( qstr );
     itm.setToolTip( qstr );
-}
-
-
-void uiTable::setTopLeftCornerLabel( const uiString& txt )
-{
-    /*
-	Searched google, the item there is a button that is a local
-	QAbstractButton (class QTableCornerButton). I could get it using
-	qFindChildren but it's not visible. Tried many things, nothing worked.
-
-	Therefore this hack, but it works.
-    */
-
-
-    uiString todisp( tr("  %1") ); todisp.arg( txt );
-    cornerlabel_->setText( todisp );
-    cornerlabel_->display( true );
 }
 
 
@@ -1491,7 +1473,7 @@ void uiTable::popupMenu( CallBacker* )
 }
 
 
-void uiTable::geometrySet_( CallBacker* cb )
+void uiTable::geometrySet_( CallBacker* )
 {
 //    if ( !mainwin() ||  mainwin()->poppedUp() ) return;
 
@@ -1750,6 +1732,10 @@ void uiTable::setCellObject( const RowCol& rc, uiObject* obj )
     mDynamicCastGet(uiComboBox*,cb,obj)
     if ( cb )
 	cb->selectionChanged.notify( mCB(this,uiTable,cellObjChangedCB) );
+
+    mDynamicCastGet(uiButton*,but,obj)
+    if ( but )
+	but->activated.notify( mCB(this,uiTable,cellObjChangedCB) );
 }
 
 
@@ -1765,6 +1751,10 @@ void uiTable::clearCellObject( const RowCol& rc )
     mDynamicCastGet(uiComboBox*,cb,obj)
     if ( cb )
 	cb->selectionChanged.remove( mCB(this,uiTable,cellObjChangedCB) );
+
+    mDynamicCastGet(uiButton*,but,obj)
+    if ( but )
+	but->activated.remove( mCB(this,uiTable,cellObjChangedCB) );
 
     body_->clearCellObject( rc );
 }

@@ -240,18 +240,18 @@ public:
     const char*		rowLabel( const RowCol& rc ) const
 			    { return rowLabel(rc.row()); }
     void		setRowLabel(int,const uiString&); // also sets tooltip
-    void		setRowLabels(const char**);
     void		setRowLabels(const uiStringSet&);
+    void		setRowLabels(const BufferStringSet&);
     void		setRowLabel( const RowCol& rc, const uiString& lbl )
 			    { setRowLabel( rc.row(), lbl ); }
     void		setRowToolTip(int,const uiString&);
-    void		setTopLeftCornerLabel(const uiString&);
 
     const char*		columnLabel(int) const;
     const char*		columnLabel( const RowCol& rc ) const
 			    { return columnLabel(rc.col()); }
     void		setColumnLabel(int,const uiString&); //also sets tooltip
     void		setColumnLabels(const uiStringSet&);
+    void		setColumnLabels(const BufferStringSet&);
     void		setColumnLabel( const RowCol& rc, const uiString& lbl )
 			    { setColumnLabel( rc.col(), lbl ); }
     void		setColumnToolTip(int,const uiString&);
@@ -382,8 +382,8 @@ public:
     mDeprecated		("Use uiString")
     void		setRowLabel( int idx, const char* lbl )
 			{ setRowLabel(idx,toUiString(lbl)); }
-    mDeprecated		("Use uiString")
-    void		setRowLabels(const BufferStringSet&);
+    mDeprecated		("Use uiStringSet")
+    void		setRowLabels(const char**);
     mDeprecated		("Use uiString")
     void		setRowLabel( const RowCol& rc, const char* lbl )
 			    { setRowLabel( rc.row(), toUiString(lbl) ); }
@@ -394,11 +394,11 @@ public:
     mDeprecated		("Use uiString")
     void		setColumnLabel( int idx, const char* lbl )
 			{ setColumnLabel(idx,toUiString(lbl)); }
-    mDeprecated		("Use uiString")
+    mDeprecated		("Use uiStringSet")
     void		setColumnLabels(const char**);
-    mDeprecated		("Use uiString")
-    void		setColumnLabels(const BufferStringSet&);
+    mDeprecatedDef
+    void		setTopLeftCornerLabel(const uiString&);
 
-    void	       setPrefWidthInChars(int);
+    void		setPrefWidthInChars(int);
 };
 
