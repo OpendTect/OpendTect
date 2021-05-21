@@ -17,22 +17,42 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include <math.h>
 
-uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p,const DataColInfo& colinfos )
+uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p, const DataColInfo& colinfos )
     : uiGroup( p )
-    , colinfos_( colinfos )
-    , attrSelChanged( this )
+    , attrSelChanged(this)
+    , colinfos_(colinfos)
 {
-    uiLabeledComboBox* cbx =
-	new uiLabeledComboBox( this, colinfos_.colnms_, 
-			       uiStrings::sAttribute() );
+    auto* cbx = new uiLabeledComboBox( this, colinfos_.colnms_,
+				       uiStrings::sAttribute() );
     attrsel_ = cbx->box();
     attrsel_->selectionChanged.notify(
 	    mCB(this,uiPrDenFunVarSel,attrChanged) );
 
+    createGUI( cbx->attachObj() );
+}
+
+
+uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p, const DataColInfo& colinfos,
+				    const uiString& lbl )
+    : uiGroup( p )
+    , attrSelChanged(this)
+    , colinfos_(colinfos)
+{
+    auto* cbx = new uiLabeledComboBox( this, colinfos_.colnms_, lbl );
+    attrsel_ = cbx->box();
+    attrsel_->selectionChanged.notify(
+	    mCB(this,uiPrDenFunVarSel,attrChanged) );
+
+    createGUI( cbx->attachObj() );
+}
+
+
+void uiPrDenFunVarSel::createGUI( uiObject* attachobj )
+{
     rangesel_ = new uiGenInput( this, tr("Range"), FloatInpIntervalSpec() );
     rangesel_->valuechanged.notify( mCB(this,uiPrDenFunVarSel,rangeChanged) );
-    rangesel_->attach( rightTo, cbx );
-    
+    rangesel_->attach( rightTo, attachobj );
+
     nrbinsel_ = new uiGenInput( this, tr("Nr of Bins"), IntInpSpec() );
     nrbinsel_->setElemSzPol( uiObject::Small );
     nrbinsel_->setValue( 25 );
@@ -41,8 +61,8 @@ uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p,const DataColInfo& colinfos )
 
     setHAlignObj( attrsel_ );
 
-    attrChanged( 0 );
-    nrBinChanged( 0 );
+    attrChanged( nullptr );
+    nrBinChanged( nullptr );
 }
 
 
