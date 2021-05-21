@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiwellattribpartserv.h"
@@ -80,8 +79,9 @@ void uiWellAttribPartServer::wellManCreatedCB( CallBacker* cb )
     mDynamicCastGet(uiWellMan*,wm,cb)
     if ( !wm ) return;
 
-    new uiToolButton( wm->extraButtonGroup(), "xplot_wells", tr("Cross-plot"),
-			mCB(this,uiWellAttribPartServer,xplotCB) );
+    new uiToolButton( wm->extraButtonGroup(), "xplot_wells",
+		      uiStrings::sCrossPlot(),
+		      mCB(this,uiWellAttribPartServer,xplotCB) );
 }
 
 

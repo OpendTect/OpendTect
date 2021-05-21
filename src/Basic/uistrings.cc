@@ -419,7 +419,7 @@ uiString uiStrings::sCreateProbDesFunc()
 { return phrCreate( sProbDensFunc(false) ); }
 
 uiString uiStrings::sCrossPlot()
-{ return tr("Cross Plot"); }
+{ return tr("Cross-plot"); }
 
 uiString uiStrings::sData()
 { return tr("Data"); }

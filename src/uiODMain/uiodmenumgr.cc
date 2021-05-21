@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodmenumgr.h"
 
@@ -1091,7 +1090,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		mCB(appman,uiODApplMgr,doVolProc2DCB),
 		mCB(appman,uiODApplMgr,doVolProcCB) );
 
-    const int xplotid = dtecttb_->addButton( "xplot", tr("Cross-plot") );
+    const int xplotid = dtecttb_->addButton( "xplot", uiStrings::sCrossPlot() );
     uiMenu* mnu = new uiMenu();
     mnu->insertAction(
 	new uiAction(m3Dots(tr("Cross-plot Attribute vs Attribute Data")),
