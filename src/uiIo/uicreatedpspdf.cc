@@ -35,18 +35,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-static int cMaxNrPDFs = 3;
+static int cMaxNrPDFs = 6;
 
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 				const uiDataPointSetCrossPlotter* plotter )
     : uiDialog(p,uiDialog::Setup(uiStrings::sCreateProbDesFunc(),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
+    , pdf_(nullptr)
+    , nrdisp_(1)
+    , restrictedmode_(false)
+    , createfrmfld_(nullptr)
     , plotter_(plotter)
     , dps_(plotter_->dps())
-    , createfrmfld_(0)
-    , nrdisp_(1)
-    , pdf_(0)
-    , restrictedmode_(false)
 {
     createDefaultUI();
 }
@@ -56,12 +56,12 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps,
 				bool restricted )
     : uiDialog(p,uiDialog::Setup(uiStrings::sCreateProbDesFunc(),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
-    , plotter_(0)
-    , dps_(dps)
-    , createfrmfld_(0)
+    , pdf_(nullptr)
     , nrdisp_(1)
-    , pdf_(0)
     , restrictedmode_(restricted)
+    , createfrmfld_(nullptr)
+    , plotter_(nullptr)
+    , dps_(dps)
 {
     enableSaveButton( tr("View/Edit after creation") );
     createDefaultUI();
@@ -70,6 +70,8 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps,
 
 void uiCreateDPSPDF::createDefaultUI()
 {
+    setOkText( uiStrings::sCreate() );
+
     uiLabeledComboBox* selcbx = 0;
     if ( plotter_ && plotter_->selAreaSize() )
     {
@@ -98,7 +100,8 @@ void uiCreateDPSPDF::createDefaultUI()
 
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
-	uiPrDenFunVarSel* fld = new uiPrDenFunVarSel( this, colinfo );
+	uiString lbl = tr("%1 %2").arg(uiStrings::sDimension()).arg( idx+1 );
+	auto* fld = new uiPrDenFunVarSel( this, colinfo, lbl );
 	fld->attrSelChanged.notify( mCB(this,uiCreateDPSPDF,setColRange) );
 	fld->setColNr( plotter_ ? plotter_->axisData(idx).colid_ + 3
 				: idx+3 );
@@ -112,8 +115,8 @@ void uiCreateDPSPDF::createDefaultUI()
 	else
 	{
 	    fld->attach( alignedBelow, probflds_[idx-1] );
-	    uiButton* rmbut = new uiPushButton( this, tr("<- Less"), 
-                                                pushcb, true );
+	    uiButton* rmbut =
+		new uiPushButton( this, tr("<- Less"),	pushcb, true );
 	    rmbut->attach( rightAlignedBelow, fld );
 	    rmbuts_ += rmbut;
 	}
@@ -122,8 +125,8 @@ void uiCreateDPSPDF::createDefaultUI()
 	    addbuts_ += 0;
 	else
 	{
-	    uiButton* addbut = new uiPushButton( this, tr("More ->"), 
-                                                 pushcb, true);
+	    uiButton* addbut =
+		new uiPushButton( this, tr("More ->"), pushcb, true);
 	    addbut->attach( leftAlignedBelow, fld );
 	    addbuts_ += addbut;
 	}
@@ -135,7 +138,7 @@ void uiCreateDPSPDF::createDefaultUI()
     ioobjctxt.forread_ = false;
     outputfld_ = new uiIOObjSel( this, ioobjctxt );
     outputfld_->setLabelText(
-            uiStrings::phrOutput( uiStrings::sProbDensFunc(true,1)));
+	uiStrings::phrOutput(uiStrings::sProbDensFunc(true,1)) );
     outputfld_->attach( alignedBelow, probflds_[probflds_.size()-1] );
 
     butPush( addbuts_[1] );
@@ -165,7 +168,7 @@ float uiCreateDPSPDF::getVal( int dcid, int drid ) const
 	return val*SI().zDomain().userFactor();
     }
 
-    return dcid == (float) ( -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
+    return float( dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y );
 }
 
 
@@ -245,7 +248,14 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
     TypeSet<int> nrbins;
     for ( int dimnr=0; dimnr<prdf->nrDims(); dimnr++ )
     {
-	prdf->setDimName( dimnr, probflds_[dimnr]->selColName() );
+	const BufferString colnm = probflds_[dimnr]->selColName();
+	prdf->setDimName( dimnr, colnm );
+
+	const DataPointSet::ColID colid = dps_.indexOf( colnm.buf() );
+	const DataColDef& coldef = dps_.colDef( colid );
+	if ( coldef.unit_ )
+	    prdf->setUOMSymbol( dimnr, coldef.unit_->symbol() );
+
 	StepInterval<float> dimrg = probflds_[dimnr]->selColRange();
 	SamplingData<float>& sd = pdf.sampling( dimnr );
 	sd.start = dimrg.start + dimrg.step/2;

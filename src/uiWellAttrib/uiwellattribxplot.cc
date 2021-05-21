@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwellattribxplot.h"
 
@@ -27,6 +26,8 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 		     mODHelpKey(mWellAttribCrossPlotHelpID) ).modal(false))
 	, dpsdispmgr_(0)
 {
+    setOkText( uiStrings::sNext() );
+
     wellextractgrp_ =
 	new uiWellLogExtractGrp( this, uiWellLogExtractGrp::Setup(), d );
 }

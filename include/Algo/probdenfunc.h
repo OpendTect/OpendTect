@@ -32,7 +32,7 @@ mExpClass(Algo) ProbDenFunc : public NamedObject
 public:
 
     virtual ProbDenFunc* clone() const				= 0;
-    virtual		~ProbDenFunc()				{}
+    virtual		~ProbDenFunc()				{ cleanup(); }
     virtual void	copyFrom(const ProbDenFunc&)		= 0;
     virtual bool	isEqual(const ProbDenFunc&) const;
 
@@ -62,14 +62,21 @@ public:
     virtual void	drawRandomPos(TypeSet<float>&) const	= 0;
     static const char*	sKeyNrDim();
 
+    void		setUOMSymbol(int dim,const char*);
+    const char*		getUOMSymbol(int dim) const;
+    void		readUOMFromPar(const IOPar&);
+    void		copyUOMFrom(const ProbDenFunc&);
+
 protected:
 
-			ProbDenFunc()				{}
+			ProbDenFunc()				{ init(); }
 			ProbDenFunc(const ProbDenFunc&);
 
     virtual bool	isEq(const ProbDenFunc&) const		= 0;
-    			//!< already checked for type, name and dim names
+			//!< already checked for type, name and dim names
 
+    void		init();
+    void		cleanup();
 };
 
 
@@ -82,7 +89,8 @@ mExpClass(Algo) ProbDenFunc1D : public ProbDenFunc
 public:
 
     virtual void	copyFrom( const ProbDenFunc& pdf )
-			{ varnm_ = pdf.dimName(0); setName(pdf.name()); }
+			{ varnm_ = pdf.dimName(0); setName(pdf.name());
+			  copyUOMFrom(pdf); }
 
     virtual int		nrDims() const		{ return 1; }
     virtual const char*	dimName(int) const	{ return varName(); }
@@ -128,7 +136,7 @@ public:
 
     virtual void	copyFrom( const ProbDenFunc& pdf )
 			{ dim0nm_ = pdf.dimName(0); dim1nm_ = pdf.dimName(1);
-			  setName(pdf.name()); }
+			  setName(pdf.name()); copyUOMFrom(pdf); }
 
     virtual int		nrDims() const			{ return 2; }
     virtual const char*	dimName(int) const;
