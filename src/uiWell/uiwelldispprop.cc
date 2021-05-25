@@ -764,6 +764,8 @@ void uiWellLogDispProperties::isStyleChanged( CallBacker* )
 
 void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
 {
+    NotifyStopper nslogfld( logsfld_->box()->selectionChanged );
+    NotifyStopper nsfilllogsfld( filllogsfld_->box()->selectionChanged );
     wl_ = wls;
     BufferStringSet curlognames, newlognames;
     uiComboBox* logsbox = logsfld_->box();
