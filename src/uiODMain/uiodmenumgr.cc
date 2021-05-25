@@ -528,6 +528,7 @@ void uiODMenuMgr::fillExportMenu()
     insertAction( exppdf, m3Dots(tr("ASCII (RokDoc)")),
 			 mExpPDFAsciiMnuItm, ascic );
     insertAction( expwell, m3Dots(uiStrings::sASCII()), mExpWellACII, ascic );
+    insertAction( expwell, m3Dots(tr("Logs to LAS")), mExpLogLAS, ascic );
 
 // Fill expmenus_
     expmnus_.erase();
@@ -1460,6 +1461,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
     case mExpWellACII:			mDoOp(Exp,Wll,0); break;
+    case mExpLogLAS:			mDoOp(Exp,Wll,1); break;
     case mImpGeom2DAsciiMnuItm:		mDoOp(Imp,Geom,0); break;
     case mImpGeom2DSEGP1MnuItm:		mDoOp(Imp,Geom,1); break;
     case mExpGeom2DMnuItm:		mDoOp(Exp,Geom,0); break;

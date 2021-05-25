@@ -53,6 +53,7 @@ public:
     void			bulkImportDirectional();
 
     void			exportWellData();
+    void			exportLogToLAS();
 
     void			manageWells();
     void			launchRockPhysics();
