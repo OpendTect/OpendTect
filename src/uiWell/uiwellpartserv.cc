@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
+#include "uilaswriter.h"
 #include "uimsg.h"
 #include "uisimplemultiwell.h"
 #include "uitoolbutton.h"
@@ -210,6 +211,13 @@ void uiWellPartServer::exportWellData()
     }
 
     dlg->show();
+}
+
+
+void uiWellPartServer::exportLogToLAS()
+{
+    uiLASWriter dlg( parent() );
+    dlg.go();
 }
 
 
