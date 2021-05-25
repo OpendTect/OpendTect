@@ -129,6 +129,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/libexec
 			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/libexec )
+	endif()
 
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			     ${COPYFROMDATADIR}/mk_flexlm_links.csh
@@ -141,7 +142,6 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    if( NOT ${STATUS} EQUAL "0" )
 		message( "Failed to create license related links" )
 	    endif()
-	endif()	
     endif()
 
     if( WIN32 )
@@ -241,28 +241,40 @@ macro( COPY_THIRDPARTYLIBS )
 		if( ${PDBFILE} STREQUAL ".pdb" )
 		    continue()
 		endif()
-	    elseif ( APPLE )
-		execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIB} )
 	    else()
-		list( FIND SYSLIBS "${LIB}" ITEMIDX )
-		if ( NOT ${ITEMIDX} EQUAL -1 )
-		    if( NOT EXISTS ${COPYTOLIBDIR}/systemlibs )
+		if ( APPLE )
+		    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIB} )
+		endif()
+		if ( NOT APPLE )
+		    list( FIND SYSLIBS "${LIB}" ITEMIDX )
+		    if ( NOT ${ITEMIDX} EQUAL -1 )
+			if( NOT EXISTS ${COPYTOLIBDIR}/systemlibs )
 			    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/systemlibs )
-		    endif()
+			endif()
 
-		    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				     ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR}/systemlibs/${LIB} )
-		    continue()
+			execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+					 ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR}/systemlibs/${LIB} )
+			continue()
+		    endif()
 		endif()
 
 		list( FIND SSLLIBS "${LIB}" ITEMIDX )
 		if ( NOT ${ITEMIDX} EQUAL -1 )
-		    if( NOT EXISTS ${COPYTOLIBDIR}/OpenSSL )
-			    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/OpenSSL )
-		    endif()
+		    if ( APPLE )
+			if( NOT EXISTS ${COPYTODATADIR}/OpenSSL )
+			    file( MAKE_DIRECTORY ${COPYTODATADIR}/OpenSSL )
+			endif()
 
-		    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				     ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR}/OpenSSL/${LIB} )
+			execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+					 ${COPYFROMLIBDIR}/${LIB} ${COPYTODATADIR}/OpenSSL/${LIB} )
+		    else()
+			if( NOT EXISTS ${COPYTOLIBDIR}/OpenSSL )
+			    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/OpenSSL )
+			endif()
+
+			execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+					 ${COPYFROMLIBDIR}/${LIB} ${COPYTOLIBDIR}/OpenSSL/${LIB} )
+		    endif()
 		    continue()
 		endif()
 	    endif()
@@ -277,7 +289,7 @@ macro( COPY_THIRDPARTYLIBS )
 	    if ( APPLE )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 				 ${COPYFROMLIBDIR}/../Plugins/resources
-				 ${COPYTOLIBDIR}/../Plugins/resources )
+				 ${COPYTOLIBDIR}/../PlugIns/resources )
 	    else()
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 				 ${COPYFROMLIBDIR}/../resources
@@ -287,7 +299,7 @@ macro( COPY_THIRDPARTYLIBS )
 	    if ( APPLE )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 				 ${COPYFROMLIBDIR}/../Plugins/${ODPLUGIN}
-				 ${COPYTOLIBDIR}/../Plugins/${ODPLUGIN} )
+				 ${COPYTOLIBDIR}/../PlugIns/${ODPLUGIN} )
 	    else()
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 				 ${COPYFROMLIBDIR}/../plugins/${ODPLUGIN}
@@ -302,7 +314,7 @@ macro( COPY_THIRDPARTYLIBS )
 	    if ( APPLE )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				 ${COPYFROMLIBDIR}/../Plugins/translations/qtwebengine_locales/${TRANSLATION_FILE}
-				 ${COPYTOLIBDIR}/../Plugins/translations/qtwebengine_locales/${TRANSLATION_FILE} )
+				 ${COPYTOLIBDIR}/../PlugIns/translations/qtwebengine_locales/${TRANSLATION_FILE} )
 	    else()
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				 ${COPYFROMLIBDIR}/../translations/qtwebengine_locales/${TRANSLATION_FILE}
@@ -312,7 +324,7 @@ macro( COPY_THIRDPARTYLIBS )
 	    if ( APPLE )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				 ${COPYFROMLIBDIR}/../Plugins/translations/${TRANSLATION_FILE}
-				 ${COPYTOLIBDIR}/../Plugins/translations/${TRANSLATION_FILE} )
+				 ${COPYTOLIBDIR}/../PlugIns/translations/${TRANSLATION_FILE} )
 	    else()
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				 ${COPYFROMLIBDIR}/../translations/${TRANSLATION_FILE}
@@ -531,8 +543,8 @@ macro( CREATE_DEVELPACKAGES )
 
     if ( APPLE )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${COPYFROMDATADIR}/bin/od_cr_dev_env
-			 ${COPYTODATADIR}/od_cr_dev_env )
+			 ${COPYFROMDATADIR}/bin/od_cr_dev_env.csh
+			 ${COPYTODATADIR}/od_cr_dev_env.csh )
     endif()
 
     if( WIN32 )
