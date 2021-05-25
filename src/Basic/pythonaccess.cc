@@ -692,7 +692,7 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	strm.add( "Start \"%proctitle%\" /MIN " );
 #endif
     BufferStringSet args( cmd.args() );
-#ifdef __unix
+#ifdef __unix__
     const bool isscript = args.size() > 1 && args.get(0) == "-c";
 #endif
     args.insertAt( new BufferString( cmd.program() ), 0 );
