@@ -489,6 +489,9 @@ bool uiWellLogToolWin::saveLogs()
 	    ls.add( outplog );
 	    needsave_ = true;
 	}
+	RefMan<Well::Data> wd = Well::MGR().get( ld.wellid_,
+						 Well::LogInfos );
+	wd->logschanged.trigger( -1 );
     }
 
     return true;

@@ -553,6 +553,7 @@ void uiWellMan::logTools( CallBacker* )
 
     uiWellLogToolWinMgr tooldlg( this, &wellnms, &lognms );
     tooldlg.go();
+    fillLogsFld();
 }
 
 
@@ -676,7 +677,8 @@ void uiWellMan::wellsChgd()
     {
 	fillLogsFld();
 	Well::MGR().reload( curmultiids_[idwell], Well::LoadReqs(false) );
-	mDeleteLogs(idwell);
+	while ( curwds_[idwell]->logs().size() )
+	    delete curwds_[idwell]->logs().remove(0);
     }
 }
 
@@ -753,7 +755,8 @@ void uiWellMan::renameLogPush( CallBacker* )
     {
 	currdrs_[idwell]->getLogs();
 	Well::Log* log = curwds_[idwell]->logs().getLog(lognm);
-	if ( log ) log->setName( newnm );
+	if ( log )
+	    log->setName( newnm );
     }
     writeLogs();
 }

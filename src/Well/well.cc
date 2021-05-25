@@ -250,11 +250,13 @@ Well::Data::Data( const char* nm )
     lvlset.levelToBeRemoved.notify( mCB(this, Well::Data, levelToBeRemoved ) );
 
     hp_lognms_.setParam( this, new BufferStringSet );
+    mAttachCB(logschanged, Well::Data::reloadLogNames);
 }
 
 
 Well::Data::~Data()
 {
+    detachAllNotifiers();
     delete &track_;
     delete &logs_;
     delete &disp2d_;
@@ -423,6 +425,11 @@ void Well::Data::reloadLogNames() const
     MGR().getLogNamesByID(mid_, *lognms, false);
 }
 
+
+void Well::Data::reloadLogNames( CallBacker* )
+{
+    reloadLogNames();
+}
 
 
 #define mName "Well name"

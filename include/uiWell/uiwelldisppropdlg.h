@@ -75,6 +75,7 @@ protected:
     virtual void		onClose(CallBacker*);
     virtual void		propChg(CallBacker*);
     void			markersChgd(CallBacker*);
+    void			logsChgd(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
