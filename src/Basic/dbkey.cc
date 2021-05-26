@@ -120,6 +120,7 @@ DBKey DBKey::getLocal() const
 
 DBKeySet& DBKeySet::operator=( const TypeSet<MultiID>& mids )
 {
+    erase();
     for ( int idx=0; idx<mids.size(); idx++ )
 	add( mids[idx] );
 

@@ -1054,6 +1054,7 @@ bool IOPar::get( const char* keyw, DBKeySet& keys ) const
     if ( !get(keyw,strs) )
 	return false;
 
+    keys.erase();
     for ( auto str : strs )
 	keys.add( DBKey(str->str()) );
     return true;
