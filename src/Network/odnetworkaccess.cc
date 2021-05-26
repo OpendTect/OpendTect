@@ -33,10 +33,13 @@ ________________________________________________________________________
 
 namespace System
 {
-
-#ifdef __lux64__
+#ifdef __unix__
 static bool findLibraryPath( const char* libnm, FilePath& ret )
 {
+#ifdef __mac__
+    //TODO
+    return false;
+#else
     OS::MachineCommand mc( "/sbin/ldconfig" );
     mc.addFlag( "p", OS::OldStyle ).addPipe()
       .addArg( "grep" ).addArg( libnm );
@@ -71,6 +74,7 @@ static bool findLibraryPath( const char* libnm, FilePath& ret )
 
     ret.set( cmdoutlines_x64.first()->buf() );
     return ret.exists();
+#endif
 }
 #endif
 
@@ -88,7 +92,9 @@ static bool canUseSystemOpenSSL()
     FilePath ret;
     if ( !System::findLibraryPath(libnm,ret) )
 	return false;
-
+# ifdef __mac__
+    return ret.exists();
+# else
     OS::MachineCommand mc( "strings" );
     mc.addArg( ret.fullPath() ).addPipe()
       .addArg( "grep" )
@@ -97,6 +103,7 @@ static bool canUseSystemOpenSSL()
 
     BufferString cmdoutstr;
     return mc.execute( cmdoutstr ) && !cmdoutstr.isEmpty();
+# endif
 #else
     return false;
 #endif
@@ -111,12 +118,17 @@ static void loadOpenSSL()
 	return;
 
     //Load first crypto, then ssl
+#ifdef __mac__
+    const BufferString ssldir( "../Resources/OpenSSL" );
+#else
+    const BufferString ssldir( "OpenSSL" );
+#endif
     mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,cryptosha,
-	    = new RuntimeLibLoader(__OpenSSL_Crypto_LIBRARY__,"OpenSSL") );
+	    = new RuntimeLibLoader(__OpenSSL_Crypto_LIBRARY__,ssldir) );
 # ifdef __OpenSSL_SSL_LIBRARY__
     mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,sslsha,
 	    = cryptosha && cryptosha->isOK()
-	    ? new RuntimeLibLoader(__OpenSSL_SSL_LIBRARY__,"OpenSSL")
+	    ? new RuntimeLibLoader(__OpenSSL_SSL_LIBRARY__,ssldir)
 	    : nullptr );
 # endif
 #endif
