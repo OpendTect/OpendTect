@@ -96,6 +96,9 @@ public:
 
     double		getLimitValue(bool max) const;
 
+			DataCharacteristics( OD::DataRepType tp )
+			    : DataCharacteristics(UserType(tp))
+			{}
 };
 
 #undef mDeclConstr
