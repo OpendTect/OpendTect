@@ -169,7 +169,12 @@ void uiODHelpMenuMgr::showReleaseNotes( bool isonline )
     {
 	BufferString relnotesfnm( "Release_Notes_" );
 	relnotesfnm.add( mODMajorVersion ).add( "_" ).add( mODMinorVersion );
+#ifdef __mac__
+	FilePath relnotesfp( GetSoftwareDir(true), "Resources" );
+	relnotesfp.add( "relinfo" ).add( relnotesfnm );
+#else
 	FilePath relnotesfp( GetSoftwareDir(true), "relinfo", relnotesfnm );
+#endif
 	relnotesfp.setExtension( "pdf" );
 	if ( !File::exists(relnotesfp.fullPath()) )
 	    return;
