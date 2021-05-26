@@ -272,7 +272,11 @@ void ReleaseNotesProvider::provideHelp( const char* arg ) const
     {
 	BufferString relnotesfnm( "Release_Notes_" );
 	relnotesfnm.add( mODMajorVersion ).add( "_" ).add( mODMinorVersion );
-	FilePath relnotesfp( GetSoftwareDir(true), "relinfo", relnotesfnm );
+	FilePath relnotesfp( GetSoftwareDir(true) );
+#ifdef __mac__
+	relnotesfp.add( "Resources" );
+#endif
+	relnotesfp.add( "relinfo" ).add( relnotesfnm );
 	relnotesfp.setExtension( "pdf" );
 	url.set( relnotesfp.fullPath() );
 	if ( !File::exists(relnotesfp.fullPath()) )
