@@ -203,10 +203,15 @@ void uiWellDispPropDlg::setWDNotifiers( bool yn )
     if ( !wd_ ) return;
 
     if ( yn )
+    {
 	mAttachCB( mDispNot, uiWellDispPropDlg::wdChg );
+	mAttachCB( wd_->logschanged, uiWellDispPropDlg::logsChgd );
+    }
     else
+    {
 	mDetachCB( mDispNot, uiWellDispPropDlg::wdChg );
-
+	mDetachCB( wd_->logschanged, uiWellDispPropDlg::logsChgd );
+    }
     mAttachCB( wd_->markerschanged, uiWellDispPropDlg::markersChgd );
 }
 
@@ -244,6 +249,23 @@ void uiWellDispPropDlg::markersChgd( CallBacker* )
 
 	mrkrfld->setAllMarkerNames( markernms, markercols );
 	return;
+    }
+}
+
+
+void uiWellDispPropDlg::logsChgd( CallBacker* )
+{
+    const Well::Data* wd = wellData();
+    if ( !wd )
+	return;
+
+    for ( int idx=0; idx<propflds_.size(); idx++ )
+    {
+	mDynamicCastGet(uiWellLogDispProperties*,logsfld,propflds_[idx])
+	if ( !logsfld )
+	    continue;
+
+	logsfld->setLogSet( &wd->logs() );
     }
 }
 

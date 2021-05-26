@@ -70,6 +70,7 @@ protected:
 
     virtual void		propChg(CallBacker*);
     void			markersChgd(CallBacker*);
+    void			logsChgd(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
     void			tabSel(CallBacker*);

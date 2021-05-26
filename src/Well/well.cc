@@ -250,11 +250,13 @@ Well::Data::Data( const char* nm )
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
     lvlset.levelToBeRemoved.notify( mCB(this, Well::Data, levelToBeRemoved ) );
+    mAttachCB(logschanged, Data::reloadLogNames);
 }
 
 
 Well::Data::~Data()
 {
+    detachAllNotifiers();
     delete &track_;
     delete &logs_;
     delete &disp2d_;
@@ -408,6 +410,12 @@ Well::Log* Well::Data::getLogForEdit( const char* nm )
 void Well::Data::reloadLogNames() const
 {
     MGR().getLogNamesByID(mid_, lognms_, false);
+}
+
+
+void Well::Data::reloadLogNames( CallBacker* )
+{
+    reloadLogNames();
 }
 
 

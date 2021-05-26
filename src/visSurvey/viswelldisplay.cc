@@ -458,7 +458,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     if (wd->track().size() < 2)
 	return;
 
-    const Well::Log& curlog = wd->logs().getLog( lp.logidx_ );
+    const Well::Log& curlog = *wd->getLog( lp.name_ );
     const BufferString lognm = curlog.name();
     StepInterval<float> dahrg = curlog.dahRange();
     dahrg.step = curlog.dahStep( true );
@@ -474,21 +474,14 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	dahrg.step = dahrg.width() / nrsamples;
     }
 
-    PtrMan<Well::Log> logdata = wd->getLog(lognm)->upScaleLog( dahrg );
+    PtrMan<Well::Log> logdata = curlog.upScaleLog( dahrg );
     logdata->setName( lognm );
 
     PtrMan<Well::Log> logfill;
-    if ( isfilled )
-    {
-	const BufferString fillnm(wd->logs().getLog(lp.filllogidx_).name());
-	if ( lognm == fillnm )
-	    logfill = new Well::Log( *logdata );
-	else
-	{
-	    logfill = wd->getLog(fillnm)->upScaleLog( dahrg );
-	    logfill->setName( fillnm );
-	}
-    }
+    if ( isfilled && lognm==lp.fillname_ )
+	logfill = new Well::Log( *logdata );
+    else if ( isfilled )
+	logfill = wd->getLog( lp.fillname_ )->upScaleLog( dahrg );
 
     const Well::Track& track =
 		needsConversionToTime() ? *timetrack_ : wd->track();

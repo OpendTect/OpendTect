@@ -170,6 +170,7 @@ public:
     bool			haveCheckShotModel() const { return csmodel_; }
     Well::LoadReqs		loadState() const;
     void			reloadLogNames() const;
+    void			reloadLogNames(CallBacker*);
 
     Notifier<Well::Data>	d2tchanged;
     Notifier<Well::Data>	csmdlchanged;
