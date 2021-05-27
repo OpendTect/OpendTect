@@ -52,7 +52,6 @@ static const char* rcsID mUsedVar = "$Id$";
 uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     : uiGroup( p, "Select Z Range" )
     , zchoicefld_(0)
-    , abovefld_(0)
     , params_(new Well::ZRangeSelector())
     , ztimefac_(SI().showZ2UserFactor())
 {
@@ -139,6 +138,8 @@ uiWellZRangeSelector::~uiWellZRangeSelector()
 void uiWellZRangeSelector::onFinalise( CallBacker* )
 {
     putToScreen();
+    abovefld_->setToolTip( tr("Positive uphole") );
+    belowfld_->setToolTip( tr("Positive downhole") );
 }
 
 
@@ -171,8 +172,9 @@ void uiWellZRangeSelector::putToScreen()
 	mDefWMS;
 	wms->setInput( params_->topMarker(), true );
 	wms->setInput( params_->botMarker(), false );
-	abovefld_->setValue( params_->topOffset(), 0 );
-	belowfld_->setValue( params_->botOffset(), 0 );
+	const UnitOfMeasure* depthunit = UnitOfMeasure::surveyDefDepthUnit();
+	abovefld_->setValue( depthunit->userValue(params_->topOffset()), 0 );
+	belowfld_->setValue( depthunit->userValue(params_->botOffset()), 0 );
     }
     else
     {
@@ -199,8 +201,11 @@ void uiWellZRangeSelector::getFromScreen( CallBacker* )
     if ( selidx_ == cMarkersFld )
     {
 	mDefWMS;
-	params_->setTopMarker( wms->getText(true), abovefld_->getFValue(0,0) );
-	params_->setBotMarker( wms->getText(false), belowfld_->getFValue(0,0) );
+	const UnitOfMeasure* depthunit = UnitOfMeasure::surveyDefDepthUnit();
+	params_->setTopMarker( wms->getText(true),
+			depthunit->internalValue(abovefld_->getFValue()) );
+	params_->setBotMarker( wms->getText(false),
+			depthunit->internalValue(belowfld_->getFValue()) );
     }
     else
     {
@@ -306,9 +311,9 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 }
 
 
-void uiWellExtractParams::onFinalise( CallBacker* )
+void uiWellExtractParams::onFinalise( CallBacker* cb )
 {
-    putToScreen();
+    uiWellZRangeSelector::onFinalise( cb );
 }
 
 
@@ -468,9 +473,9 @@ void uiMultiWellLogSel::selectOnlyWritableWells()
 }
 
 
-void uiMultiWellLogSel::onFinalise( CallBacker* )
+void uiMultiWellLogSel::onFinalise( CallBacker* cb )
 {
-    putToScreen();
+    uiWellZRangeSelector::onFinalise( cb );
 }
 
 
