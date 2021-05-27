@@ -929,7 +929,7 @@ uiPluginInitMgr::uiPluginInitMgr()
     : appl_(*ODMainWin())
 {
     mAttachCB( DBM().surveyToBeChanged, uiPluginInitMgr::beforeSurvChgCB );
-    mAttachCB( DBM().surveyChanged, uiPluginInitMgr::afterSurvChgCB );
+    mAttachCB( DBM().afterSurveyChange, uiPluginInitMgr::afterSurvChgCB );
     mAttachCB( appl_.menuMgr().dTectMnuChanged, uiPluginInitMgr::menuChgCB );
     mAttachCB( appl_.menuMgr().dTectTBChanged, uiPluginInitMgr::tbChgCB );
     mAttachCB( appl_.sceneMgr().treeAdded, uiPluginInitMgr::treeAddCB );
