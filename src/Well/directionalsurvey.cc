@@ -59,11 +59,9 @@ static void getDevMinCurv( double md1, double md2,
 	rf = (2./beta) * tan(beta/2.);
 
     const double dmd = (md2-md1) / 2.;
-    double dx = dmd * (sini1*sina1 + sini2*sina2) * rf;
-    double dy = dmd * (sini1*cosa1 + sini2*cosa2) * rf;
-    delta.x += SI().xyInFeet() ? mToFeetFactorD*dx : dx;
-    delta.y += SI().xyInFeet() ? mToFeetFactorD*dy : dy;
-    delta.z += dmd * (cosi1+cosi2) * rf;
+    delta.x = dmd * (sini1*sina1 + sini2*sina2) * rf;
+    delta.y = dmd * (sini1*cosa1 + sini2*cosa2) * rf;
+    delta.z = dmd * (cosi1+cosi2) * rf;
 }
 
 
@@ -71,11 +69,11 @@ static void getDevMinCurv( double md1, double md2,
 static void getDevTangential( double md1, double md2,
 			      double incl2, double azi2, Coord3& delta )
 {
-    delta.x += (md2-md1) * sin( Math::toRadians(incl2) )
-			 * sin( Math::toRadians(azi2) );
-    delta.y += (md2-md1) * sin( Math::toRadians(incl2) )
-			 * cos( Math::toRadians(azi2) );
-    delta.z += (md2-md1) * cos( Math::toRadians(incl2) );
+    delta.x = (md2-md1) * sin( Math::toRadians(incl2) )
+			* sin( Math::toRadians(azi2) );
+    delta.y = (md2-md1) * sin( Math::toRadians(incl2) )
+			* cos( Math::toRadians(azi2) );
+    delta.z = (md2-md1) * cos( Math::toRadians(incl2) );
 }
 
 
@@ -84,11 +82,13 @@ void DirectionalSurvey::calcTrack( const TypeSet<double>& mds,
 				   const TypeSet<double>& azis,
 				   TypeSet<Coord3>& track )
 {
-    const Coord3 crd0( surfacecoord_, -kb_ );
-    track.add( crd0 );
-    Coord3 delta( 0, 0, 0 );
+    Coord3 curpos( surfacecoord_, -kb_ );
+    track.add( curpos );
+    const bool xyinfeet = SI().xyInFeet();
+    const bool mdinfeet = SI().zInFeet();
     for ( int idx=1; idx<mds.size(); idx++ )
     {
+	Coord3 delta( 0, 0, 0 );
 	if ( method_==MinCurv )
 	    getDevMinCurv( mds[idx-1], mds[idx],
 			   incls[idx-1], incls[idx],
@@ -97,8 +97,19 @@ void DirectionalSurvey::calcTrack( const TypeSet<double>& mds,
 	    getDevTangential( mds[idx-1], mds[idx],
 			      incls[idx], azis[idx], delta);
 
-	const Coord3 newcrd = crd0 + delta;
-	track.add( newcrd );
+	if ( xyinfeet && !mdinfeet )
+	{
+	    delta.x *= mToFeetFactorD;
+	    delta.y *= mToFeetFactorD;
+	}
+	else if ( !xyinfeet && mdinfeet )
+	{
+	    delta.x *= mFromFeetFactorD;
+	    delta.y *= mFromFeetFactorD;
+	}
+
+	curpos += delta;
+	track.add( curpos );
     }
 }
 
