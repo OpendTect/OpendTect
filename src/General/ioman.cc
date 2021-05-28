@@ -116,7 +116,7 @@ IOMan& IOM()
 
 IOMan::IOMan( const char* rd )
     : NamedCallBacker("IO Manager")
-    , dirptr_(0)
+    , dirptr_(nullptr)
     , survchgblocked_(false)
     , state_(IOMan::NeedInit)
     , lock_(Threads::Lock(false))
@@ -180,7 +180,7 @@ void IOMan::init()
     if ( dirptr_->key().isUdf() ) return;
 
     int nrstddirdds = IOObjContext::totalNrStdDirs();
-    const IOObjContext::StdDirData* prevdd = 0;
+    const IOObjContext::StdDirData* prevdd = nullptr;
     bool needwrite = false;
     FilePath rootfp( rootdir_, "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )
@@ -248,7 +248,7 @@ void IOMan::init()
 	to( emptykey, true );
     }
 
-    Survey::GMAdmin().fillGeometries(0);
+    Survey::GMAdmin().fillGeometries(nullptr);
 }
 
 
@@ -378,7 +378,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
     if ( basedatadir.isEmpty() )
 	mErrRet("Please set the environment variable DTECT_DATA.")
     else if ( !File::exists(basedatadir) )
-	mErrRetNotODDir(0)
+	mErrRetNotODDir(nullptr)
     else if ( !validOmf(basedatadir) )
 	mErrRetNotODDir(".omf")
 
@@ -520,7 +520,7 @@ IOObj* IOMan::get( const MultiID& k ) const
 {
     Threads::Locker lock( lock_ );
     if ( !IOObj::isKey(k) )
-	return 0;
+	return nullptr;
 
     MultiID ky( k );
     char* ptr = firstOcc( ky.getCStr(), '|' );
@@ -542,21 +542,21 @@ IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 			  bool onlyifsingle ) const
 {
     Threads::Locker lock( lock_ );
-    if ( isBad() || !tgname || !dirptr_ ) return 0;
+    if ( isBad() || !tgname || !dirptr_ ) return nullptr;
 
-    const IOObj* ioobj = 0;
+    const IOObj* ioobj = nullptr;
     for ( int idx=0; idx<dirptr_->size(); idx++ )
     {
 	if ( dirptr_->get(idx)->group()==tgname )
 	{
-	    if ( onlyifsingle && ioobj ) return 0;
+	    if ( onlyifsingle && ioobj ) return nullptr;
 
 	    ioobj = dirptr_->get( idx );
 	    if ( first && !onlyifsingle ) break;
 	}
     }
 
-    return ioobj ? ioobj->clone() : 0;
+    return ioobj ? ioobj->clone() : nullptr;
 }
 
 
@@ -564,7 +564,7 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
 {
     const FixedString fsobjnm( objname );
     if ( fsobjnm.isEmpty() )
-	return 0;
+	return nullptr;
 
     if ( fsobjnm.startsWith("ID=<") )
     {
@@ -583,7 +583,7 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
     if ( IOObj::isKey(objname) )
 	return get( MultiID(objname) );
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -593,13 +593,13 @@ IOObj* IOMan::getFirst( const IOObjContext& ctxt, int* nrfound ) const
 	*nrfound = 0;
 
     Threads::Locker lock( lock_ );
-    if ( !ctxt.trgroup_ ) return 0;
+    if ( !ctxt.trgroup_ ) return nullptr;
 
     if ( !IOM().to(ctxt.getSelKey()) || !dirptr_ )
-	return 0;
+	return nullptr;
 
     const ObjectSet<IOObj>& ioobjs = dirptr_->getObjs();
-    IOObj* ret = 0;
+    IOObj* ret = nullptr;
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj* ioobj = ioobjs[idx];
@@ -635,15 +635,15 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 	if ( res.isEmpty() )
 	{
 	    errmsg = BufferString( "Please specify '", iopkey, "'" );
-	    return 0;
+	    return nullptr;
 	}
 
 	if ( !IOObj::isKey(res.buf()) )
 	{
 	    CtxtIOObj ctio( ctxt );
 	    if ( !IOM().to(ctio.ctxt_.getSelKey()) || !dirptr_ )
-		return 0;
-	    const IOObj* ioob = dirptr_->get( res.buf(), 0 );
+		return nullptr;
+	    const IOObj* ioob = dirptr_->get( res.buf(), nullptr );
 	    if ( ioob )
 		res = ioob->key();
 	    else if ( mknew )
@@ -751,7 +751,7 @@ bool IOMan::setDir( const char* dirname )
 
 void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 {
-    ctio.setObj( 0 );
+    ctio.setObj( nullptr );
     if ( ctio.ctxt_.name().isEmpty() )
 	return;
 
@@ -763,7 +763,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 					ctio.ctxt_.trgroup_->groupName() );
     ctio.ctxt_.fillTrGroup();
     if ( ioobj && ctio.ctxt_.trgroup_->groupName() != ioobj->group() )
-	ioobj = 0;
+	ioobj = nullptr;
 
     bool needstrigger = false;
     if ( !ioobj )
@@ -782,7 +782,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 	}
     }
 
-    ctio.setObj( ioobj ? ioobj->clone() : 0 );
+    ctio.setObj( ioobj ? ioobj->clone() : nullptr );
     lock.unlockNow();
 
     if ( needstrigger )
@@ -810,10 +810,10 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 			  "is empty." );
 	msg.add( ".\nCannot create a default write IOObj for " )
 	   .add( ctio.ctxt_.name() );
-	pErrMsg( msg ); return 0;
+	pErrMsg( msg ); return nullptr;
     }
 
-    const Translator* templtr = 0;
+    const Translator* templtr = nullptr;
 
     if ( templs.validIdx(translidx) )
 	templtr = ctio.ctxt_.trgroup_->templates()[translidx];
@@ -837,7 +837,7 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 	}
     }
 
-    return templtr ? templtr->createWriteIOObj( ctio.ctxt_, newkey ) : 0;
+    return templtr ? templtr->createWriteIOObj( ctio.ctxt_, newkey ) : nullptr;
 }
 
 
@@ -1027,7 +1027,7 @@ IOObj* IOMan::get( const char* objname, const char* tgname ) const
 	return res->clone();
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -1037,10 +1037,17 @@ IOObj* IOMan::get( const IOObjContext& ctxt, const char* objnm ) const
 }
 
 
+bool IOMan::isPresent( const MultiID& key ) const
+{
+    PtrMan<IOObj> obj = get( key );
+    return obj != nullptr;
+}
+
+
 bool IOMan::isPresent( const char* objname, const char* tgname ) const
 {
     PtrMan<IOObj> obj = get( objname, tgname );
-    return obj != 0;
+    return obj != nullptr;
 }
 
 
