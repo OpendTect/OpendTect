@@ -35,13 +35,13 @@ class NotifierAccess;
 class CallBacker;
 
 
-typedef void (CallBacker::*CallBackFunction)(CallBacker*);
+using CallBackFunction = void(CallBacker::*)(CallBacker*);
 #define mCBFn(fn) (static_cast<CallBackFunction>(&fn))
 
 //!> To make your CallBack. Used in many places, especially the UI.
 #define mCB(obj,clss,fn) CallBack( static_cast<clss*>(obj), mCBFn(clss::fn))
 
-typedef void (*StaticCallBackFunction)(CallBacker*);
+using StaticCallBackFunction = void(*)(CallBacker*);
 #define mSCB(fn) CallBack( (static_cast<StaticCallBackFunction>(&fn)) )
 
 
@@ -250,21 +250,18 @@ public:
   available.
 */
 
-template <class PLT>
+template <class T>
 mClass(Basic) CBCapsule : public CallBacker
 {
 public:
-
-    typedef PLT		PayLoadType;
-
-			CBCapsule( PLT d, CallBacker* c )
+			CBCapsule( T d, CallBacker* c )
 			    : data(d), caller(c)	{}
 
-    PLT			data;
+    T			data;
     CallBacker*		caller;
 
-    CBCapsule<PLT>*	clone() const
-			    { return new CBCapsule<PLT>(data,caller); }
+    CBCapsule<T>*	clone() const
+			{ return new CBCapsule<T>(data,caller); }
     virtual bool	isCapsule() const		{ return true; }
 
 };
