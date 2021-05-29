@@ -205,7 +205,12 @@ static Threads::Lock& getEnvVarLock()
     return lock;
 }
 
-static IOPar envvar_entries;
+static IOPar& sEnvVarEntries()
+{
+    static PtrMan<IOPar> envvar_entries = new IOPar;
+    return *envvar_entries;
+}
+
 static int insysadmmode_ = 0;
 mExternC( Basic ) int InSysAdmMode(void) { return insysadmmode_; }
 mExternC( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
@@ -563,7 +568,9 @@ static void loadEntries( const char* fnm, IOPar* iop=0 )
     if ( !strm.isOK() )
 	return;
 
-    if ( !iop ) iop = &envvar_entries;
+    if ( !iop )
+	iop = &sEnvVarEntries();
+
     BufferString line;
     while ( strm.getLine(line) )
     {
@@ -608,7 +615,7 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
 	loadEntries(GetSetupDataFileName(ODSetupLoc_SWDirOnly,"EnvVars",1) );
     }
 
-    const char* res = envvar_entries.find( env );
+    const char* res = sEnvVarEntries().find( env );
     if ( !res ) res = GetOSEnvVar( env );
 
     mDeclStaticString( retbuf );
