@@ -111,5 +111,5 @@ void uiLocalHostGrp::overrulecheckedCB( CallBacker* )
 
 void uiLocalHostGrp::lookupaddrCB( CallBacker* )
 {
-    hostaddrfld_->setText( System::hostAddress( System::localHostName() ) );
+    hostaddrfld_->setText( System::localAddress() );
 }

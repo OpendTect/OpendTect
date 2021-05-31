@@ -54,6 +54,8 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
 #if QT_VERSION >= 0x050B00
     if ( addr.isGlobal() )
 	return ipv4only ? protocol == QAbstractSocket::IPv4Protocol : true;
+    else
+	return false;
 #elif QT_VERSION >= 0x050600
     if ( addr.isMulticast() )
 	return false;
