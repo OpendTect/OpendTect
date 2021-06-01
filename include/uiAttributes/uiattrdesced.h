@@ -216,6 +216,7 @@ protected: \
     static int factoryid_; \
 public: \
     static void initClass(); \
+    static void enableClass(bool yn); \
     static void removeClass(); \
     virtual const char* attribName() const; \
     static int factoryID() { return factoryid_; }
@@ -230,6 +231,9 @@ void clss::initClass() \
     factoryid_ = uiAF().add( displaynm, attr::attribName(), grp, \
 		 clss::createInstance, (int)domtyp, (int)dimtyp ); \
 } \
+\
+void clss::enableClass( bool yn ) \
+{ uiAF().enable( attr::attribName(), yn ); } \
 \
 void clss::removeClass() \
 { uiAF().remove( attr::attribName() ); } \

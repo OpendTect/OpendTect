@@ -29,7 +29,8 @@ public:
 
     int			add(const char* displaynm,const char* attrnm,
 			    const char* grpnm,uiAttrDescEdCreateFunc,int,int);
-    void		remove(const char* attrnm);
+    bool		enable(const char* attrnm,bool yn=true);
+    bool		remove(const char* attrnm);
     uiAttrDescEd*	create(uiParent*,const char* attrnm, bool,
 			       bool dispnm=true) const;
 
@@ -52,6 +53,8 @@ public:
     const char*		dispNameOf(const char*) const;
     const char*		attrNameOf(const char*) const;
     bool		isPresent(const char*,bool dispnm) const;
+    bool		isEnabled(const char*,bool dispnm) const;
+    bool		hasSteering() const;
 
 protected:
 
@@ -73,6 +76,7 @@ protected:
 	BufferString		grpnm_;
 	int			domtyp_;
 	int			dimtyp_;
+	bool			enabled_ = true;
 	uiAttrDescEdCreateFunc	crfn_;
     };
 

@@ -49,8 +49,7 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
 {
     if ( !doinit ) return;
 
-    const char* res = uiAF().attrNameOf( "Curvature" );
-    if ( !res )
+    if ( !uiAF().hasSteering() )
     {
 	nosteerlbl_ = new uiLabel( this, tr("<Steering unavailable>") );
 	setHAlignObj( nosteerlbl_ );
@@ -78,7 +77,8 @@ void uiSteeringSel::createFields()
     inpfld_ = new uiSteerAttrSel( this, descset_, is2d_ );
     inpfld_->attach( alignedBelow, typfld_ );
 
-    dirfld_ = new uiGenInput( this, tr("Azimuth (Inline-based)"), FloatInpSpec() );
+    dirfld_ = new uiGenInput( this, tr("Azimuth (Inline-based)"),
+			      FloatInpSpec() );
     dirfld_->attach( alignedBelow, typfld_ );
     uiString dipstr = tr("Apparent dip %1").arg(SI().zIsTime()
 				? tr("(us/m)") : tr("(degrees)"));

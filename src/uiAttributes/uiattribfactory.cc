@@ -52,16 +52,33 @@ int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
 }
 
 
-void uiAttributeFactory::remove( const char* attrnm )
+bool uiAttributeFactory::enable( const char* attrnm, bool yn )
+{
+    for ( auto* entry : entries_ )
+    {
+	if ( entry->attrnm_ == attrnm )
+	{
+	    entry->enabled_ = yn;
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
+bool uiAttributeFactory::remove( const char* attrnm )
 {
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
 	if ( entries_[idx]->attrnm_ == attrnm )
 	{
 	    delete entries_.removeSingle(idx);
-	    return;
+	    return true;
 	}
     }
+
+    return false;
 }
 
 
@@ -114,4 +131,17 @@ bool uiAttributeFactory::isPresent( const char* nm, bool isdispnm ) const
 {
     Entry* entry = getEntry( nm, isdispnm );
     return entry;
+}
+
+
+bool uiAttributeFactory::isEnabled( const char* nm, bool isdispnm ) const
+{
+    Entry* entry = getEntry( nm, isdispnm );
+    return entry ? entry->enabled_ : false;
+}
+
+
+bool uiAttributeFactory::hasSteering() const
+{
+    return isEnabled( "Curvature", false );
 }

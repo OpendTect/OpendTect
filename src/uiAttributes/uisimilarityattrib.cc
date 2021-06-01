@@ -108,12 +108,12 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     steerfld_->typeSelected.notify( mCB(this,uiSimilarityAttrib,steerTypeSel) );
     steerfld_->attach( alignedBelow, stepoutfld_ );
 
-    uiString mdlbl = tr("Maximum dip %1").arg(zIsTime() ? tr("(us/m)") 
+    uiString mdlbl = tr("Maximum dip %1").arg(zIsTime() ? tr("(us/m)")
 						        : tr(" (mm/m)"));
     maxdipfld_ = new uiGenInput( this, mdlbl, FloatInpSpec() );
     maxdipfld_->attach( alignedBelow, steerfld_ );
 
-    uiString ddlbl = tr("Delta dip %1").arg(zIsTime() ? tr("(us/m)") 
+    uiString ddlbl = tr("Delta dip %1").arg(zIsTime() ? tr("(us/m)")
 						      : tr(" (mm/m)"));
     deltadipfld_ = new uiGenInput( this, ddlbl, FloatInpSpec() );
     deltadipfld_->attach( alignedBelow, maxdipfld_ );
@@ -332,8 +332,7 @@ uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
     : uiSteeringSel( p, dset, is2d, true, false )
     , typeSelected(this)
 {
-    const char* res = uiAF().attrNameOf( "Curvature" );
-    if ( !res )
+    if ( !uiAF().hasSteering() )
     {
 	BufferStringSet steertyps;
 	steertyps.add( "None" );
@@ -382,6 +381,5 @@ bool uiSimilarityAttrib::uiSimiSteeringSel::wantBrowseDip() const
 
 int uiSimilarityAttrib::uiSimiSteeringSel::browseDipIdxInList() const
 {
-    const char* hassteerplug = uiAF().attrNameOf( "Curvature" );
-    return hassteerplug ? withconstdir_ ? 4 : 3 : 1;
+    return uiAF().hasSteering() ? withconstdir_ ? 4 : 3 : 1;
 }
