@@ -35,6 +35,9 @@ public:
     void		setDefaultTexResAsIndex(int idx,int nrres);
 			//!<system default represented by idx==nrres
 
+    BufferString	getHostNameOverrule() const;
+    void		setHostNameOverrule(const char*);
+
     BufferString	getTerminalEmulator();
 
     static const char*	sKeyIcons();
@@ -48,6 +51,7 @@ public:
     static const char*	sKeyAnisotropicPower();
     static const char*	sKeyMouseWheelReversal();
     static const char*	sKeyMouseWheelZoomFactor();
+    static const char*	sKeyHostNameOverrule();
 
 protected:
     Settings&			settings_;

@@ -53,6 +53,7 @@ set( OD_MODULE_SOURCES
 	uiiosel.cc
 	uiissuereporter.cc
 	uilistboxfilter.cc
+	uilocalhostgrp.cc
 	uimapperrangeeditor.cc
 	uimenuhandler.cc
 	uimapperrangeeditordlg.cc

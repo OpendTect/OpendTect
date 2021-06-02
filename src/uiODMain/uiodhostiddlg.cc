@@ -19,8 +19,16 @@ ___________________________________________________________________
 #include "uiclipboard.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uilocalhostgrp.h"
 #include "uimsg.h"
 #include "uitoolbutton.h"
+
+#include "hiddenparam.h"
+HiddenParam<uiHostIDDlg,uiLocalHostGrp*>hp_localhostgrp_( nullptr );
+uiLocalHostGrp* uiHostIDDlg::localhostgrp()
+{
+    return hp_localhostgrp_.getParam( this );
+}
 
 uiHostIDDlg::uiHostIDDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Host Information"),mNoDlgTitle,mNoHelpKey))
@@ -44,12 +52,12 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
 
     hostidfld_ = new uiGenInput( this, tr("HostID(s)") );
     hostidfld_->setReadOnly();
-    hostnmfld_ = new uiGenInput( this, tr("Computer/Host name") );
-    hostnmfld_->setReadOnly();
-    hostnmfld_->attach( alignedBelow, hostidfld_ );
+    hp_localhostgrp_.setParam( this,
+			    new uiLocalHostGrp( this, tr("Computer/Host") ) );
+    localhostgrp()->attach( alignedBelow, hostidfld_ );
     osfld_ = new uiGenInput( this, tr("Operating System") );
     osfld_->setReadOnly();
-    osfld_->attach( alignedBelow, hostnmfld_ );
+    osfld_->attach( alignedBelow, localhostgrp() );
     productnmfld_ = new uiGenInput( this, tr("OS Product name") );
     productnmfld_->setReadOnly();
     productnmfld_->attach( alignedBelow, osfld_ );
@@ -62,7 +70,6 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
 	hostidstext.quote( '"' );
 
     hostidfld_->setText( hostidstext );
-    hostnmfld_->setText( System::localHostName() );
     osfld_->setText( OD::Platform().longName() );
     productnmfld_->setText( System::productName() );
     usernmfld_->setText( GetUserNm() );
@@ -74,11 +81,17 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
 }
 
 
+uiHostIDDlg::~uiHostIDDlg()
+{
+    hp_localhostgrp_.removeParam( this );
+}
+
 void uiHostIDDlg::copyCB( CallBacker* )
 {
     BufferString txt;
     txt.add( "HostIDs: " ).add( hostidfld_->text() ).addNewLine()
-       .add("Host name: " ).add( hostnmfld_->text() ).addNewLine()
+       .add("Host name: " ).add( localhostgrp()->hostname() ).addNewLine()
+       .add("IP Address: " ).add( localhostgrp()->address() ).addNewLine()
        .add( "Operating System: " ).add( osfld_->text() ).addNewLine()
        .add( "Product name: " ).add( productnmfld_->text() ).addNewLine()
        .add( "User name: " ).add( usernmfld_->text() ).addNewLine();
