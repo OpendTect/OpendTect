@@ -56,16 +56,24 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
 	return ipv4only ? protocol == QAbstractSocket::IPv4Protocol : true;
     else
 	return false;
-#elif QT_VERSION >= 0x050600
+#else
+    const bool ret = ipv4only ? protocol == QAbstractSocket::IPv4Protocol
+		    : protocol > QAbstractSocket::UnknownNetworkLayerProtocol;
+
+#if QT_VERSION >= 0x050600
     if ( addr.isMulticast() )
 	return false;
+    else
+	return ret;
 #elif QT_VERSION >= 0x050000
     if ( addr.isLoopback() )
 	return false;
+    else
+	return ret;
+#else
+    return ret;
 #endif
-
-    return ipv4only ? protocol == QAbstractSocket::IPv4Protocol
-		    : protocol > QAbstractSocket::UnknownNetworkLayerProtocol;
+#endif
 }
 
 
