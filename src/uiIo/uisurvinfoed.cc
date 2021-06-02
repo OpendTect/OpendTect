@@ -702,6 +702,15 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	return false;
     }
 
+    uiSurvInfoProvider* sip = getSIP();
+    if ( sip )
+    {
+	uiDialog* dlg = getSIP()->fullSurveyImportDlg( this );
+	if ( dlg && !dlg->go() )
+	    uiMSG().warning( tr("Survey parameters imported successfully."
+					"Complete survey import failed") );
+    }
+
     return true;
 }
 
@@ -821,7 +830,8 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 
     uiSurvInfoProvider* sip = sips_[sipidx-1];
     PtrMan<uiDialog> dlg = sip->dialog( this );
-    if ( !dlg || !dlg->go() ) return;
+    if ( !dlg || !dlg->go() )
+	return;
 
     TrcKeyZSampling cs; Coord crd[3];
     if ( !sip->getInfo(dlg,cs,crd) )

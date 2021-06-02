@@ -53,6 +53,8 @@ public:
 
     virtual const char*		usrText() const		= 0;
     virtual uiDialog*		dialog(uiParent*)	= 0;
+    virtual uiDialog*		fullSurveyImportDlg(uiParent*)
+							    { return nullptr; }
     virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
 					Coord crd[3])	= 0;
     virtual bool		getLatLongAnchor(Coord&,LatLong&)
@@ -74,7 +76,7 @@ public:
     virtual const char*		importAskQuestion() const
 				{ return "Proceed to import?"; }
 
-    virtual IOPar*		getCoordSystemPars() const	{ return 0; }
+    virtual IOPar*		getCoordSystemPars() const  { return nullptr; }
 
     static bool		getRanges(TrcKeyZSampling&,Coord[3],Coord,Coord,double);
 
