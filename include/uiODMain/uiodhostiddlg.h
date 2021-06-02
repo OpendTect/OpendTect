@@ -14,13 +14,16 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiGenInput;
+class uiLocalHostGrp;
 
 mExpClass(uiODMain) uiHostIDDlg : public uiDialog
 { mODTextTranslationClass(uiHostIDDlg)
 public:
 			uiHostIDDlg(uiParent*);
+			~uiHostIDDlg();
 protected:
     void		copyCB(CallBacker*);
+    uiLocalHostGrp*	localhostgrp();
 
     uiGenInput*		hostidfld_;
     uiGenInput*		hostnmfld_;

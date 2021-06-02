@@ -290,21 +290,32 @@ static void mUnusedVar GetLocalHostNameNoQt( char* ret )
 }
 
 
+static BufferString localhostnameoverrule;
+extern "C" { mGlobal(Basic) void SetLocalHostNameOverrule(const char*); }
+mExternC(Basic) void SetLocalHostNameOverrule(const char* hostnm)
+{
+    mDefineStaticLocalObject(Threads::Mutex, mutex, );
+    Threads::MutexLocker lock(mutex);
+    localhostnameoverrule = hostnm;
+}
+
+
 const char* GetLocalHostName()
 {
-    mDefineStaticLocalObject( char, ret, [256] );
+    mDefineStaticLocalObject( PtrMan<BufferString>, ret, = new BufferString() );
+    if (!localhostnameoverrule.isEmpty())
+	ret->set( localhostnameoverrule );
 #ifndef OD_NO_QT
 # if QT_VERSION >= 0x050600
     const BufferString hostnm( QSysInfo::machineHostName() );
-    OD::sysMemCopy( ret, hostnm.buf(), hostnm.size() );
-    ret[hostnm.size()+1] = '\0';
+    ret->set( hostnm );
 # else
     GetLocalHostNameNoQt( ret );
 # endif
 #else
     GetLocalHostNameNoQt( ret );
 #endif
-    return ret;
+    return ret->str();;
 }
 
 
