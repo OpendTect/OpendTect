@@ -57,9 +57,16 @@ uiLocalHostGrp::~uiLocalHostGrp()
     detachAllNotifiers();
 }
 
+
 BufferString uiLocalHostGrp::hostname() const
 {
     return hostnmfld_->text();
+}
+
+
+BufferString uiLocalHostGrp::address() const
+{
+    return hostaddrfld_->text();
 }
 
 

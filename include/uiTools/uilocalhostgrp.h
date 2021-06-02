@@ -27,6 +27,7 @@ public:
 			~uiLocalHostGrp();
 
     BufferString	hostname() const;
+    BufferString	address() const;
 
 protected:
 

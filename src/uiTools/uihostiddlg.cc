@@ -78,6 +78,7 @@ void uiHostIDDlg::copyCB( CallBacker* )
     BufferString txt;
     txt.add( "HostIDs: " ).add( hostidfld_->text() ).addNewLine()
        .add("Host name: " ).add( localhostgrp_->hostname() ).addNewLine()
+       .add("IP Address: " ).add( localhostgrp_->address() ).addNewLine()
        .add( "Operating System: " ).add( osfld_->text() ).addNewLine()
        .add( "Product name: " ).add( productnmfld_->text() ).addNewLine()
        .add( "User name: " ).add( usernmfld_->text() ).addNewLine();
