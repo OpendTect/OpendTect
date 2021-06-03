@@ -85,28 +85,33 @@ endif
 
 # gets environment dirs and sets which dirs to walk through
 set envdirs=`ls $condainstdir/envs/`
-set envrepldirs='bin conda-meta etc/dbus-1 etc/fonts include include/libxslt lib lib/cairo lib/cmake/libxml2 lib/cmake/ZeroMQ lib/graphviz lib/gstreamer-1.0 lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.1.1 lib/itcl4.2.0 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu lib/python3.7/site-packages lib/python3.7/site-packages/nbconvert/tests/exporter_entrypoint lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/scipy lib/python3.7/site-packages/zmq/utils lib/tdbc1.0.6 lib/tdbc1.1.1 mkspecs mkspecs/modules share/dbus-1 share/doc/dbus/examples share/jupyter/kernels/python3 ssl/misc'
-set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d include/libxslt lib lib/cmake/libxml2 lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.1.1 lib/itcl4.2.0 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/xontrib lib/tdbc1.0.6 lib/tdbc1.1.1 shell/condabin ssl/misc'
+set envrepldirs='bin conda-meta etc/dbus-1 etc/fonts include include/libxslt lib lib/cairo lib/cmake/libxml2 lib/cmake/ZeroMQ lib/graphviz lib/gstreamer-1.0 lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.2.0 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu lib/python3.7/site-packages lib/python3.7/site-packages/nbconvert/tests/exporter_entrypoint lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/scipy lib/python3.7/site-packages/zmq/utils lib/tdbc1.1.1 mkspecs mkspecs/features/data mkspecs/modules share/dbus-1 share/doc/dbus/examples share/jupyter/kernels/python3 ssl/misc'
+set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d include/libxslt lib lib/cmake/libxml2 lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.2.0 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/xontrib lib/tdbc1.1.1 shell/condabin ssl/misc'
+set filtypes='text JSON'
 
 #set origdir="forced orig dir"
 
 # replace paths in miniconda3 dir
 echo "Setting up miniconda3..."
 foreach instrepldir ( $instrepldirs)
-    if (  -d  "${condainstdir}/${instrepldir}" )  then
+    if ( -d "${condainstdir}/${instrepldir}" )  then
 	if ( ! -w "${condainstdir}/${instrepldir}" ) then
-		chmod og+w ${condainstdir}/${instrepldir}
+		chmod +rwx ${condainstdir}/${instrepldir}
 	endif
         if ( -w "${condainstdir}/${instrepldir}" ) then
                 foreach fil (`ls --hide='~*' $condainstdir/$instrepldir`)
-                        set fildir=`file $condainstdir/$instrepldir/$fil | grep text | awk '{print $1}' | sed 's/.$//'`
-                        if ("$fildir" != "") then
-                                sed -i -- s,$origdir,$condainstdir,g $fildir
-                        endif
+			foreach filtype ( $filtypes )
+                        	set fildir=`file $condainstdir/$instrepldir/$fil | grep $filtype | awk '{print $1}' | sed 's/.$//'`
+                        	if ("$fildir" != "") then
+                                	sed -i -- s,$origdir,$condainstdir,g $fildir
+                        	endif
+			end
                 end
         else
-                echo "Warning: ${condainstdir}/${instrepldir} is not writable or does not exist, therefore skipping ${condainstdir}/${instrepldir}."
+                echo "Warning: ${condainstdir}/${instrepldir} is not writable, therefore skipping ${condainstdir}/${instrepldir}."
         endif
+    else
+	"Warning: ${condainstdir}/${instrepldir} does not exist, therefore skipping ${condainstdir}/${instrepldir}."
     endif
 end
 
@@ -124,20 +129,24 @@ if ("$envdirs" != "") then
                 endif
                 set origdir=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3, '$origcondalen')}'`
                 foreach envrepldir ( $envrepldirs )
-		    if (  -d  ${envrepldir} ) then
+		    if ( -d "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
 			if ( ! -w "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
-				chmod og+w "${condainstdir}/envs/${envdir}/${envrepldir}"
+				chmod +rwx "${condainstdir}/envs/${envdir}/${envrepldir}"
 			endif
                         if ( -w "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
                                 foreach fil (`ls --hide='~*' $condainstdir/envs/$envdir/$envrepldir`)
-                                        set fildir=`file $condainstdir/envs/$envdir/$envrepldir/$fil | grep text | awk '{print $1}' | sed 's/.$//'`
-                                        if ("$fildir" != "") then
-                                                sed -i -- s,$origdir,$condainstdir,g $fildir
-                                        endif
+					foreach filtype ( $filtypes )
+                                        	set fildir=`file $condainstdir/envs/$envdir/$envrepldir/$fil | grep $filtype | awk '{print $1}' | sed 's/.$//'`
+                                        	if ("$fildir" != "") then
+                                                	sed -i -- s,$origdir,$condainstdir,g $fildir
+                                        	endif
+					end
                                 end
-                        else
-                                echo "Warning: $envrepldir is not writable or does not exist, therefore skipping $envrepldir."
-                        endif
+			else
+				echo "Warning: $envreldir is not writable, therefore skipping $envrepldir."
+			endif
+		    else
+			echo "Warning: $envrepldir does not exist, therefore skipping $envrepldir."
 		    endif
                 end
         end
