@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "laswriter.h"
 
+#include "dateinfo.h"
 #include "od_ostream.h"
 #include "string2.h"
 #include "welldata.h"
@@ -39,13 +40,19 @@ LASWriter::LASWriter( const Well::Data& wd, const BufferStringSet& lognms,
     }
 
     mdrg_ = logs_.dahInterval();
-    mdrg_.step = 0.15f;
+    mdrg_.step = 0.1524f;
 }
 
 
 LASWriter::~LASWriter()
 {
     delete &logs_;
+}
+
+
+void LASWriter::setMDRange( const StepInterval<float>& rg )
+{
+    mdrg_ = rg;
 }
 
 
@@ -76,8 +83,13 @@ int LASWriter::nextStep()
 bool LASWriter::writeVersionInfoSection( od_ostream& strm )
 {
     strm << "~Version Information Section\n";
-    strm << " VERS.             2.0  : CWLS LOG ASCII STANDARD - VERSION 2.0\n";
-    strm << " WRAP.             NO   : ONE LINE PER DEPTH STEP\n";
+    strm << "VERS.              2.0  : CWLS LOG ASCII STANDARD - VERSION 2.0\n";
+    strm << "WRAP.              NO   : ONE LINE PER DEPTH STEP\n";
+
+    BufferString datestr;
+    DateInfo di;
+    di.toString( datestr );
+    strm << "CREA.              " << datestr.buf() << "\n";
     strm << "#\n";
     return true;
 }
@@ -110,8 +122,8 @@ bool LASWriter::writeWellInfoSection( od_ostream& strm )
     zstep.set( mdrg_.step, cNrMDDecimals );
     xcoord.set( wd_->info().surfacecoord.x, cNrXYDecimals );
     ycoord.set( wd_->info().surfacecoord.y, cNrXYDecimals );
-    const char* depthunit = true ? "M" : "F";
-    const char* xyunit = true ? "M" : "F";
+    const char* depthunit = zinfeet_ ? "F" : "M";
+    const char* xyunit = SI().xyInFeet() ? "F" : "M";
 
     strm << "~Well Information Section\n";
     strm << "#MNEM.UNIT         VALUE/NAME          DESCRIPTION\n";
@@ -140,7 +152,7 @@ bool LASWriter::writeWellInfoSection( od_ostream& strm )
 
 bool LASWriter::writeCurveInfoSection( od_ostream& strm )
 {
-    const char* depthunit = true ? "M" : "F";
+    const char* depthunit = zinfeet_ ? "F" : "M";
 
     strm << "~Curve Information Section\n";
     strm << "#MNEM.UNIT         API CODE            DESCRIPTION\n";
@@ -183,18 +195,21 @@ bool LASWriter::writeOtherSection( od_ostream& strm )
 
 bool LASWriter::writeLogData( od_ostream& strm )
 {
-    const BufferString mdformatstr = cformat( 'f' , 12, cNrMDDecimals );
-    const BufferString valformatstr = cformat( 'f' , 12, cNrValDecimals );
-    BufferString word( 15, false );
+    const BufferString mdformatstr = cformat( 'f', 12, cNrMDDecimals );
+    const BufferString valformatstr =
+			cformat( 'f', columnwidth_, cNrValDecimals );
+    BufferString word( columnwidth_+1, false );
     const int nrz = mdrg_.nrSteps() + 1;
 
     strm << "~Ascii Data Section\n";
     for ( int idz=0; idz<nrz; idz++ )
     {
-	const float md = mdrg_.atIndex( idz );
+	float md = mdrg_.atIndex( idz );
 	od_sprintf( word.getCStr(), word.bufSize(), mdformatstr.buf(),
 		    double(md) );
 	strm << word;
+
+	md = Well::displayToStorageDepth( md );
 	for ( int idx=0; idx<logs_.size(); idx++ )
 	{
 	    float val = logs_.getLog(idx).getValue( md );

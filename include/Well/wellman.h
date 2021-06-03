@@ -20,6 +20,7 @@ ________________________________________________________________________
 class IOObj;
 class MultiID;
 class BufferStringSet;
+class UnitOfMeasure;
 
 namespace Well
 {
@@ -110,6 +111,9 @@ public:
 
     static void		dumpMgrInfo(IOPar&);
 
+    static const UnitOfMeasure*	surveyDepthStorageUnit();
+    static const UnitOfMeasure*	surveyDepthDisplayUnit();
+
 protected:
 
 			Man()				{}
@@ -122,6 +126,9 @@ protected:
 
     int			gtByKey(const MultiID&) const;
     Well::Data*		addNew(const MultiID&, LoadReqs lreq=LoadReqs(false));
+
+    static const UnitOfMeasure*	depthstorageunit_;
+    static const UnitOfMeasure*	depthdisplayunit_;
 
 public:
     mDeprecated("Use getLogNamesByID instead")
@@ -144,6 +151,8 @@ public:
 mGlobal(Well) Man& MGR();
 
 mGlobal(Well) IOObj* findIOObj(const char* wellnm,const char* uwi);
+mGlobal(Well) float displayToStorageDepth(float);
+mGlobal(Well) float storageToDisplayDepth(float);
 
 } // namespace Well
 
