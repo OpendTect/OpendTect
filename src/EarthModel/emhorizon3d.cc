@@ -1139,6 +1139,8 @@ void ChildFinder::addTask( od_int64 pidx )
 {
     Threads::Locker locker( addlock_ );
     nrtodo_++;
+    locker.unlockNow();
+
     CallBack cb( mCB(this,ChildFinder,taskFinished) );
     Task* task = new FindTask( *this, pidx );
     twm_.addWork( Threads::Work(*task,true), &cb, queueid_,

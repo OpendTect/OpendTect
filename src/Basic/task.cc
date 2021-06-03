@@ -444,7 +444,7 @@ od_int64 ParallelTask::nrDone() const
 bool ParallelTask::executeParallel( bool parallel )
 {
     Threads::WorkManager& twm = Threads::WorkManager::twm();
-    if ( parallel && twm.isWorkThread() && !twm.nrFreeThreads() )
+    if ( parallel && twm.isWorkThread() && twm.nrFreeThreads()==0 )
 	parallel = false;
 
     totalnrcache_ = totalNr();
@@ -487,6 +487,9 @@ bool ParallelTask::executeParallel( bool parallel )
 
 	return res;
     }
+
+    if ( maxnrthreads > twm.nrFreeThreads()+1 )
+	maxnrthreads = twm.nrFreeThreads() + 1;
 
     //Don't take all threads, as we may want to have spare ones.
     const int nrthreads = mMIN(Threads::getNrProcessors(),maxnrthreads);
