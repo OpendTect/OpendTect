@@ -91,6 +91,10 @@ mGlobal(Basic) bool		copyDir(const char* from,const char* to,
 					BufferString* errmsg=0);
 mGlobal(Basic) bool		removeDir(const char*);
 mGlobal(Basic) bool		changeDir(const char* path);
+mGlobal(Basic) bool		checkDir(const char* fnm,bool forread,
+					 uiString* errmsg=0);
+				/*!< checks if the parent directory of a file
+				     is readable/writable */
 
 mGlobal(Basic) bool		getContent(const char*,BufferString&);
 mGlobal(Basic) od_int64		getFileSize(const char* fnm,

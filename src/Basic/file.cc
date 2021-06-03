@@ -897,6 +897,13 @@ bool changeDir( const char* dir )
 }
 
 
+bool checkDir( const char* fnm, bool forread, uiString* errmsg )
+{
+// TODO: implement
+    return true;
+}
+
+
 bool makeWritable( const char* fnm, bool yn, bool recursive )
 {
 #ifdef OD_NO_QT

@@ -17,6 +17,7 @@ endif( UNIX )
 
 set( QT_MOC_HEADERS
 	qtimercomm.h
+	qfilesystemcomm.h
 )
 
 set( OD_TEST_PROGS
@@ -74,6 +75,8 @@ set( OD_MODULE_SOURCES
 	file.cc
 	filepath.cc
 	filespec.cc
+	filesystemaccess.cc
+	filesystemwatcher.cc
 	gason.cpp
 	genc.cc
 	globexpr.cc

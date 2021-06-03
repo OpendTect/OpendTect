@@ -87,12 +87,14 @@ public:
     static BufferString	getTempFileName(const char* typ,const char* ext);
     static BufferString getTempFullPath(const char* typ,const char* ext);
     static BufferString getTimeStampFileName(const char* ext);
-    mDeprecated("Use getTempFullPath instead") static BufferString	getTempName( const char* ext=0 )
+    mDeprecated("Use getTempFullPath instead")
+    static BufferString	getTempName( const char* ext=0 )
 			{ return getTempFullPath(0,ext); }
     static BufferString	mkCleanPath(const char* path,Style fmt);
 
     static const char*	dirSep(Style);
     static const char*	sPrefSep;
+    static const char*	uriProtocolSeparator()		{ return "://"; }
 
     static BufferString getFullLongPath(const FilePath&);
 
