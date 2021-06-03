@@ -159,6 +159,8 @@ void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
     Threads::Locker locker( addlock_ );
     nrtodo_++;
     tasknr_++;
+    locker.unlockNow();
+
     CallBack cb( mCB(this,HorizonTrackerMgr,taskFinished) );
     Task* task = new TrackerTask( *this, seed, source, seedid );
     twm_.addWork( Threads::Work(*task,true), &cb, queueid_,
