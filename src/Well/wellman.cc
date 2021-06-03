@@ -131,6 +131,10 @@ Well::Man& Well::MGR()
 }
 
 
+const UnitOfMeasure* Well::Man::depthstorageunit_ = nullptr;
+const UnitOfMeasure* Well::Man::depthdisplayunit_ = nullptr;
+
+
 Well::Man::~Man()
 {
     cleanup();
@@ -140,6 +144,8 @@ Well::Man::~Man()
 void Well::Man::cleanup()
 {
     deepUnRef( wells_ );
+    depthstorageunit_ = nullptr;
+    depthdisplayunit_ = nullptr;
 }
 
 
@@ -565,6 +571,24 @@ bool Well::Man::getMarkerNames( BufferStringSet& nms )
 }
 
 
+const UnitOfMeasure* Well::Man::surveyDepthStorageUnit()
+{
+    if ( !depthstorageunit_ )
+	depthstorageunit_ = UnitOfMeasure::surveyDefDepthStorageUnit();
+
+    return depthstorageunit_;
+}
+
+
+const UnitOfMeasure* Well::Man::surveyDepthDisplayUnit()
+{
+    if ( !depthdisplayunit_ )
+	depthdisplayunit_ = UnitOfMeasure::surveyDefDepthUnit();
+
+    return depthdisplayunit_;
+}
+
+
 IOObj* Well::findIOObj( const char* nm, const char* uwi )
 {
     const MultiID mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
@@ -592,4 +616,20 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
     }
 
     return 0;
+}
+
+
+float Well::displayToStorageDepth( float zval )
+{
+    const UnitOfMeasure* storunit = Well::Man::surveyDepthStorageUnit();
+    const UnitOfMeasure* dispunit = Well::Man::surveyDepthDisplayUnit();
+    return getConvertedValue( zval, dispunit, storunit );
+}
+
+
+float Well::storageToDisplayDepth( float zval )
+{
+    const UnitOfMeasure* storunit = Well::Man::surveyDepthStorageUnit();
+    const UnitOfMeasure* dispunit = Well::Man::surveyDepthDisplayUnit();
+    return getConvertedValue( zval, storunit, dispunit );
 }
