@@ -191,6 +191,7 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	    uiMSG().error( errmsg );
 	    return false;
 	}
+	wd->logschanged.trigger( -1 );
     }
 
     return true;
