@@ -22,7 +22,7 @@ uiAttributeFactory::~uiAttributeFactory()
 
 uiAttributeFactory& uiAF()
 {
-    mDefineStaticLocalObject( PtrMan<uiAttributeFactory>, inst, 
+    mDefineStaticLocalObject( PtrMan<uiAttributeFactory>, inst,
 			      = new uiAttributeFactory );
     return *inst;
 }
@@ -30,7 +30,7 @@ uiAttributeFactory& uiAF()
 
 int uiAttributeFactory::add( const char* dispnm, const char* attrnm,
 			     const char* grpnm, uiAttrDescEdCreateFunc fn,
-       			     int domtyp, int dimtyp )
+			     int domtyp, int dimtyp )
 {
     Entry* entry = getEntry( dispnm, true );
     if ( !entry )
@@ -104,4 +104,17 @@ bool uiAttributeFactory::isPresent( const char* nm, bool isdispnm ) const
 {
     Entry* entry = getEntry( nm, isdispnm );
     return entry;
+}
+
+
+void uiAttributeFactory::remove( const char* attrnm )
+{
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	if ( entries_[idx]->attrnm_ == attrnm )
+	{
+	    delete entries_.removeSingle(idx);
+	    return;
+	}
+    }
 }

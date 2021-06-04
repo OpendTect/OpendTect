@@ -29,9 +29,9 @@ public:
     virtual		~uiAttributeFactory();
 
     int			add(const char* displaynm,const char* attrnm,
-	    		    const char* grpnm,uiAttrDescEdCreateFunc,int,int);
+			    const char* grpnm,uiAttrDescEdCreateFunc,int,int);
     uiAttrDescEd*	create(uiParent*,const char* nm, bool,
-	    		       bool dispnm=true) const;
+			       bool dispnm=true) const;
 
     int			size() const	{ return entries_.size(); }
     const char*		getAttribName( int idx ) const
@@ -42,12 +42,12 @@ public:
 					{ return entries_[idx]->grpnm_; }
     int			domainType( int idx ) const
 					{ return entries_[idx]->domtyp_; }
-    				//!< Is, in fact, uiAttrDescEd::DomainType
-    				//!< Not used to avoid dependency
+				//!< Is, in fact, uiAttrDescEd::DomainType
+				//!< Not used to avoid dependency
     int			dimensionType( int idx ) const
 					{ return entries_[idx]->dimtyp_; }
-    				//!< Is, in fact, uiAttrDescEd::DimensionType
-    				//!< Not used to avoid dependency
+				//!< Is, in fact, uiAttrDescEd::DimensionType
+				//!< Not used to avoid dependency
 
     const char*		dispNameOf(const char*) const;
     const char*		attrNameOf(const char*) const;
@@ -60,7 +60,7 @@ protected:
 				Entry(	const char* dn, const char* an,
 					const char* gn,
 					uiAttrDescEdCreateFunc fn,
-				    	int dt, int dimtyp )
+					int dt, int dimtyp )
 				    : dispnm_(dn)
 				    , attrnm_(an)
 				    , grpnm_(gn)
@@ -82,6 +82,9 @@ protected:
 
     friend mGlobal(uiAttributes) uiAttributeFactory&	uiAF();
     void			fillStd();
+
+public:
+    void		remove(const char*);
 };
 
 mGlobal(uiAttributes) uiAttributeFactory& uiAF();
