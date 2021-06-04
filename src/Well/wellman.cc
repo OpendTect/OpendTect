@@ -132,6 +132,10 @@ Well::Man& Well::MGR()
 }
 
 
+const UnitOfMeasure* Well::Man::depthstorageunit_ = nullptr;
+const UnitOfMeasure* Well::Man::depthdisplayunit_ = nullptr;
+
+
 Well::Man::~Man()
 {
     cleanup();
@@ -141,6 +145,8 @@ Well::Man::~Man()
 void Well::Man::cleanup()
 {
     deepUnRef( wells_ );
+    depthstorageunit_ = nullptr;
+    depthdisplayunit_ = nullptr;
 }
 
 
@@ -155,12 +161,11 @@ void Well::Man::removeObject( const Well::Data* wd )
 
 void Well::Man::removeObject( const MultiID& key )
 {
-    const int wdidx = gtByKey( key );
-    if ( wdidx < 0 )
+    const int idx = gtByKey( key );
+    if ( !wells_.validIdx(idx) )
 	return;
 
-    Data* wd = wells_[wdidx];
-    removeObject( wd );
+    wells_.removeSingle( idx )->unRef();
 }
 
 
@@ -205,12 +210,13 @@ Well::Data* Well::Man::get( const MultiID& key )
 Well::Data* Well::Man::get( const MultiID& key, LoadReqs reqs )
 {
     msg_.setEmpty();
+
     const int wdidx = gtByKey( key );
     Data* wd = wdidx < 0 ? nullptr : wells_[wdidx];
     if ( wd && wd->loadState().includes(reqs) )
         return wd;
 
-    if ( wd && wdidx >=0 )
+    if ( wdidx >=0 && wd )
     {
 	reqs.exclude( wd->loadState() );
 	if ( !readReqData(key,wd,reqs) )
@@ -598,11 +604,28 @@ bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
 }
 
 
-
 bool Well::Man::getMarkerNames( BufferStringSet& nms )
 {
     nms.setEmpty();
     return MGR().getAllMarkerNames( nms );
+}
+
+
+const UnitOfMeasure* Well::Man::surveyDepthStorageUnit()
+{
+    if ( !depthstorageunit_ )
+	depthstorageunit_ = UnitOfMeasure::surveyDefDepthStorageUnit();
+
+    return depthstorageunit_;
+}
+
+
+const UnitOfMeasure* Well::Man::surveyDepthDisplayUnit()
+{
+    if ( !depthdisplayunit_ )
+	depthdisplayunit_ = UnitOfMeasure::surveyDefDepthUnit();
+
+    return depthdisplayunit_;
 }
 
 
@@ -662,4 +685,20 @@ void Well::Man::dumpMgrInfo( IOPar& res )
 	    res.mergeComp( wpar, wd->info().name() );
 	}
     }
+}
+
+
+float Well::displayToStorageDepth( float zval )
+{
+    const UnitOfMeasure* storunit = Well::Man::surveyDepthStorageUnit();
+    const UnitOfMeasure* dispunit = Well::Man::surveyDepthDisplayUnit();
+    return getConvertedValue( zval, dispunit, storunit );
+}
+
+
+float Well::storageToDisplayDepth( float zval )
+{
+    const UnitOfMeasure* storunit = Well::Man::surveyDepthStorageUnit();
+    const UnitOfMeasure* dispunit = Well::Man::surveyDepthDisplayUnit();
+    return getConvertedValue( zval, storunit, dispunit );
 }
