@@ -5,7 +5,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Prajjaval Singh
  Date:		Feb 2020
- RCS:		$Id$
 ________________________________________________________________________
 
 

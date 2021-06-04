@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Raman Singh
  Date:		December 2020
- RCS:		$Id$
 ________________________________________________________________________
 
 
