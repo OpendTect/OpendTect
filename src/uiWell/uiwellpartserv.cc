@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
+#include "uilaswriter.h"
 #include "uimsg.h"
 #include "uisimplemultiwell.h"
 #include "uitoolbutton.h"
@@ -174,6 +175,19 @@ void uiWellPartServer::importTrack()
     uiwellimpdlg_->importReady.notify(
 		mCB(this,uiWellPartServer,importReadyCB) );
     uiwellimpdlg_->show();
+}
+
+
+void uiWellPartServer::exportWellData()
+{
+    pErrMsg("Not yet implemented");
+}
+
+
+void uiWellPartServer::exportLogToLAS()
+{
+    uiLASWriter dlg( parent() );
+    dlg.go();
 }
 
 

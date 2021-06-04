@@ -56,6 +56,9 @@ public:
     void			bulkImportDirectional();
     void			showWellMgrInfo();
 
+    void			exportWellData();
+    void			exportLogToLAS();
+
     void			manageWells();
     void			launchRockPhysics();
     bool			selectWells(TypeSet<MultiID>&);

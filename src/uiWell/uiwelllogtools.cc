@@ -295,6 +295,8 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
     cancelbut->attach( ensureBelow, horSepar );
 
     displayLogs();
+    const int maxwidth = 5;
+    sa->setPrefWidth( mMIN(logdisps_.size(),maxwidth)*cPrefWidth );
 }
 
 
@@ -305,7 +307,7 @@ uiGroup* uiWellLogToolWin::createEditGroup()
     actiongrp->attach( hCentered );
     const char* acts[] =
 	{ "Remove Spikes", "FFT Filter", "Smooth",
-	  "Clip", "Upscale", "Resample", "Clean UDF", nullptr };
+	  "Clip", "Upscale", "Resample", "Remove isolated undefined", nullptr };
     auto* llc = new uiLabeledComboBox( actiongrp, acts, uiStrings::sAction() );
     actionfld_ = llc->box();
     actionfld_->selectionChanged.notify(mCB(this,uiWellLogToolWin,actionSelCB));
@@ -490,6 +492,7 @@ bool uiWellLogToolWin::saveLogs()
 	RefMan<Well::Data> wd = Well::MGR().get( ld.wellid_, Well::LogInfos );
 	wd->logschanged.trigger( -1 );
     }
+
     return true;
 }
 
@@ -765,7 +768,7 @@ void uiWellLogEditor::fillTable()
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float md = uom ? uom->userValue( log_.dah(idx) ) : log_.dah(idx);
-	table_->setValue( RowCol(idx,0), md );
+	table_->setValue( RowCol(idx,0), md, 4 );
 	table_->setValue( RowCol(idx,1), log_.value(idx) );
     }
 }

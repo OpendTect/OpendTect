@@ -116,6 +116,8 @@ ________________________________________________________________________
 #define mExpPDFMnuItm		(mFileExpMnu + 90)
 #define mExpPDFAsciiMnuItm	(mFileExpMnu + 91)
 #define mExpGeom2DMnuItm	(mFileExpMnu + 95)
+#define mExpWellACII		(mFileExpMnu + 96)
+#define mExpLogLAS		(mFileExpMnu + 97)
 #define mExpSurveySetupItm	(mFileExpMnu + 100)
 
 #define mManColTabMnuItm	(mFileManMnu + 5)
