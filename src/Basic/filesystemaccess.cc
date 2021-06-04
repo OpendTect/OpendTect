@@ -514,8 +514,8 @@ StreamData LocalFileSystemAccess::createOStream( const char* uri,
 	openmode |= std::ios_base::in;
 
 #ifdef __msvc__
-    if ( isHidden(fnm.buf() ) )
-	hide( fnm.buf(), false );
+    if ( File::isHidden(fnm.buf() ) )
+	File::hide( fnm.buf(), false );
 
     impl->ostrm_ = new std::winofstream( fnm.buf(), openmode );
 #else
