@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "errmsg.h"
 #include "executor.h"
 #include "filepath.h"
+#include "filesystemaccess.h"
 #include "perthreadrepos.h"
 #include "ptrman.h"
 #include "pythonaccess.h"
@@ -35,15 +36,11 @@ ________________________________________________________________________
 # include <utime.h>
 #endif
 
-#ifndef OD_NO_QT
-# include <QDateTime>
-# include <QDir>
-# include <QFile>
-# include <QFileInfo>
-# include <QStandardPaths>
-#else
-# include <fstream>
-#endif
+#include <QDateTime>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QStandardPaths>
 
 #define mMBFactor (1024*1024)
 const char* not_implemented_str = "Not implemented";
@@ -62,13 +59,57 @@ mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 namespace File
 {
 
+static bool isSane( const char*& fnm )
+{
+    if ( !fnm )
+	return false;
+    mSkipBlanks( fnm );
+    return *fnm;
+}
+
+
+static bool fnmIsURI( const char*& fnm )
+{
+    if ( !isSane(fnm) )
+	return false;
+
+    const char* protsep = FilePath::uriProtocolSeparator();
+    const FixedString uri( fnm );
+    const char* ptrprotsep = uri.find( protsep );
+    if ( ptrprotsep )
+    {
+	if ( uri.startsWith( "file://", CaseInsensitive ) )
+	    fnm += 7;
+	else if ( ptrprotsep == fnm )
+	    fnm += FixedString(protsep).size();
+	else
+	{
+	    for ( const char* ptr=fnm; ptr!=ptrprotsep; ptr++ )
+	    {
+		if ( !isalnum(*ptr) || (ptr == fnm && isdigit(*ptr)) )
+		    return false;
+	    }
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
+static inline bool isLocal( const char* fnm )
+{
+    return isSane(fnm) && !fnmIsURI(fnm);
+}
+
+
 class RecursiveCopier : public Executor
 { mODTextTranslationClass(RecursiveCopier);
 public:
 			RecursiveCopier(const char* from,const char* to)
 			    : Executor("Copying Folder")
-			    , src_(from),dest_(to),fileidx_(0)
-			    , totalnr_(0),nrdone_(0)
+			    , src_(from)
+			    , dest_(to)
 			    , msg_(tr("Copying files"))
 			{
 			    makeRecursiveFileList(src_,filelist_,false);
@@ -85,9 +126,9 @@ protected:
 
     int			nextStep();
 
-    int			fileidx_;
-    od_int64		totalnr_;
-    od_int64		nrdone_;
+    int			fileidx_	= 0;
+    od_int64		totalnr_	= 0;
+    od_int64		nrdone_		= 0;
     BufferStringSet	filelist_;
     BufferString	src_;
     BufferString	dest_;
@@ -99,9 +140,6 @@ protected:
 #define mErrRet(s1) { msg_ = s1; return ErrorOccurred(); }
 int RecursiveCopier::nextStep()
 {
-#ifdef OD_NO_QT
-    return ErrorOccurred();
-#else
     if ( !fileidx_ )
     {
 	if ( File::exists(dest_) && !File::remove(dest_) )
@@ -135,7 +173,6 @@ int RecursiveCopier::nextStep()
     fileidx_++;
     nrdone_ += getFileSize( srcfile );
     return fileidx_ >= filelist_.size() ? Finished() : MoreToDo();
-#endif
 }
 
 
@@ -147,8 +184,6 @@ public:
 					 bool filesonly=false)
 			    : Executor("Removing Files")
 			    , dirname_(dirnm)
-			    , nrdone_(0)
-			    , fileidx_(0)
 			    , filesonly_(filesonly)
 			{
 			    if ( !externallist )
@@ -172,9 +207,9 @@ public:
 
 protected:
 
-    od_int64		fileidx_;
+    od_int64		fileidx_	= 0;
     od_int64		totalnr_;
-    od_int64		nrdone_;
+    od_int64		nrdone_		= 0;
     BufferStringSet	filelist_;
     BufferString	dirname_;
     uiString		msg_;
@@ -216,18 +251,28 @@ int RecursiveDeleter::nextStep()
 
 
 Executor* getRecursiveCopier( const char* from, const char* to )
-{ return new RecursiveCopier( from, to ); }
+{
+    return !isSane(from) || !isSane(to) ? nullptr
+	: new File::RecursiveCopier( from, to );
+}
+
 
 Executor* getRecursiveDeleter( const char* dirname,
 			       const BufferStringSet* externallist,
 			       bool filesonly )
-{ return new RecursiveDeleter( dirname, externallist, filesonly ); }
+{
+    return !isSane(dirname) ? nullptr
+	: new File::RecursiveDeleter( dirname, externallist, filesonly );
+}
 
 
 void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 			    bool followlinks )
 {
-    DirList files( dir, File::FilesInDir );
+    if ( !isSane(dir) )
+	return;
+
+    DirList files( dir, FilesInDir );
     for ( int idx=0; idx<files.size(); idx++ )
     {
 	if ( !followlinks )
@@ -245,11 +290,11 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 	else if ( !filelist.addIfNew(curdir) )
 	    continue;
 
-	if ( !File::isLink(curdir) )
+	if ( !isLink(curdir) )
 	    makeRecursiveFileList( curdir, filelist, followlinks );
 	else if ( followlinks )
 	{
-	    curdir = File::linkTarget( curdir );
+	    curdir = linkTarget( curdir );
 	    if ( !filelist.isPresent(curdir) )
 		makeRecursiveFileList( curdir, filelist, followlinks );
 	}
@@ -259,47 +304,18 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 
 od_int64 getFileSize( const char* fnm, bool followlink )
 {
-    if ( !followlink && isLink(fnm) )
-    {
-	od_int64 filesize = 0;
-#ifdef __win__
-	HANDLE file = CreateFile ( fnm, GENERIC_READ, 0, NULL, OPEN_EXISTING,
-				   FILE_ATTRIBUTE_NORMAL, NULL );
-	filesize = GetFileSize( file, NULL );
-	CloseHandle( file );
-#else
-	struct stat filestat;
-	filesize = lstat( fnm, &filestat )>=0 ? filestat.st_size : 0;
-#endif
-
-	return filesize;
-    }
-
-#ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
-    return qfi.size();
-#else
-    struct stat st_buf;
-    int status = stat(fnm, &st_buf);
-    if (status != 0)
-	return 0;
-
-    return st_buf.st_size;
-#endif
+    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    return fsa.getFileSize( fnm, followlink );
 }
+
 
 bool exists( const char* fnm )
 {
-    if ( !fnm || !*fnm )
+    if ( !isSane(fnm) )
 	return false;
 
-
-
-#ifndef OD_NO_QT
-    return QFile::exists( fnm );
-#else
-    return isReadable(fnm);
-#endif
+    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    return fsa.exists( fnm );
 }
 
 
@@ -311,65 +327,44 @@ bool isEmpty( const char* fnm )
 
 bool isDirEmpty( const char* dirnm )
 {
-#ifndef OD_NO_QT
+    if ( !isLocal(dirnm) )
+	return true;
+
     const QDir qdir( dirnm );
     return qdir.entryInfoList(QDir::NoDotAndDotDot|
 			      QDir::AllEntries).count() == 0;
-#else
-    return false;
-#endif
 }
 
 
 bool isFile( const char* fnm )
 {
-#ifndef OD_NO_QT
-    const QFileInfo qfi( fnm );
-    return qfi.isFile();
-#else
-    struct stat st_buf;
-    int status = stat(fnm, &st_buf);
-    if (status != 0)
+    if ( !isSane(fnm) )
 	return false;
 
-    return S_ISREG (st_buf.st_mode);
-#endif
+    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    return fsa.isFile( fnm );
 }
 
 
 bool isDirectory( const char* fnm )
 {
-#ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
-    if ( qfi.isDir() )
-	return true;
-
-    BufferString lnkfnm( fnm, ".lnk" );
-    qfi.setFile( lnkfnm.buf() );
-    return qfi.isDir();
-#else
-    struct stat st_buf;
-    int status = stat(fnm, &st_buf);
-    if (status != 0)
+    if ( !isSane(fnm) )
 	return false;
 
-    if ( S_ISDIR (st_buf.st_mode) )
-	return true;
+    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    return fsa.isDirectory( fnm );
+}
 
-    BufferString lnkfnm( fnm, ".lnk" );
-    status = stat ( lnkfnm.buf(), &st_buf);
-    if (status != 0)
-	return false;
 
-    return S_ISDIR (st_buf.st_mode);
-#endif
+bool isURI( const char* fnm )
+{
+    return isSane(fnm) && fnmIsURI(fnm);
 }
 
 
 BufferString findExecutable( const char* exenm, const BufferStringSet& paths,
 			     bool includesyspath )
 {
-#ifndef OD_NO_QT
     BufferString ret;
     if ( includesyspath )
 	ret = QStandardPaths::findExecutable( exenm, QStringList() );
@@ -378,7 +373,7 @@ BufferString findExecutable( const char* exenm, const BufferStringSet& paths,
     {
 	QStringList qpaths;
 	for ( int idx=0; idx<paths.size(); idx++ )
-	    qpaths.append( (const char*) paths.get( idx ) );
+	    qpaths.append( paths.get(idx).buf() );
 
 	const BufferString tmp = QStandardPaths::findExecutable( exenm,
 								 qpaths );
@@ -386,21 +381,13 @@ BufferString findExecutable( const char* exenm, const BufferStringSet& paths,
 	    ret = tmp;
     }
     return ret;
-#else
-    return BufferString::empty();
-#endif
 }
 
 const char* getCanonicalPath( const char* dir )
 {
     mDeclStaticString( ret );
-#ifndef OD_NO_QT
     const QDir qdir( dir );
     ret = qdir.canonicalPath();
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    ret = dir;
-#endif
     return ret.buf();
 }
 
@@ -408,48 +395,37 @@ const char* getCanonicalPath( const char* dir )
 const char* getAbsolutePath( const char* dir, const char* relfnm )
 {
     mDeclStaticString( ret );
-#ifndef OD_NO_QT
     const QDir qdir( dir );
     ret = qdir.absoluteFilePath( relfnm );
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    ret = relfnm;
-#endif
     return ret.buf();
 }
 
 
 const char* getRelativePath( const char* reltodir, const char* fnm )
 {
-#ifndef OD_NO_QT
     BufferString reltopath = getCanonicalPath( reltodir );
     BufferString path = getCanonicalPath( fnm );
     mDeclStaticString( ret );
     const QDir qdir( reltopath.buf() );
     ret = qdir.relativeFilePath( path.buf() );
     return ret.isEmpty() ? fnm : ret.buf();
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return fnm;
-#endif
 }
 
 
 bool isLink( const char* fnm )
 {
-#ifndef OD_NO_QT
+    if ( !isLocal(fnm) )
+	return false;
+
     QFileInfo qfi( fnm );
     return qfi.isSymLink();
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
 }
 
 
 void hide( const char* fnm, bool yn )
 {
-    if ( !exists(fnm) ) return;
+    if ( !isLocal(fnm) || !exists(fnm) )
+	return;
 
 #ifdef __win__
     const int attr = GetFileAttributes( fnm );
@@ -463,73 +439,49 @@ void hide( const char* fnm, bool yn )
 	if ( (attr & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN )
 	    SetFileAttributes( fnm, attr & ~FILE_ATTRIBUTE_HIDDEN );
     }
+#else
+    (void)yn;
 #endif
 }
 
 
 bool isHidden( const char* fnm )
 {
-#ifndef OD_NO_QT
+    if ( !isLocal(fnm) )
+	return false;
+
     QFileInfo qfi( fnm );
     return qfi.isHidden();
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
 }
 
 
 bool isReadable( const char* fnm )
 {
-#ifndef OD_NO_QT
-    const QFileInfo qfi( fnm );
-    return qfi.isReadable();
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
+    if ( !isSane(fnm) )
+	return false;
+
+    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    return fsa.isReadable( fnm );
 }
 
 
 bool isWritable( const char* fnm )
 {
-#ifndef OD_NO_QT
-    const QFileInfo qfi( fnm );
-    const bool iswritable = qfi.isWritable();
-# ifdef __unix__
-    return iswritable;
-# else
-    if ( !iswritable || WinUtils::IsUserAnAdmin() )
-	return iswritable;
-
-    return WinUtils::pathContainsTrustedInstaller(fnm)
-	    ? false : iswritable;
-
-# endif
-#else
-    struct stat st_buf;
-    int status = stat( fnm, &st_buf );
-    if (status != 0)
+    if ( !isSane(fnm) )
 	return false;
 
-    return st_buf.st_mode & S_IWUSR;
-#endif
+    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    return fsa.isWritable( fnm );
 }
 
 
 bool isExecutable( const char* fnm )
 {
-#ifndef OD_NO_QT
-    QFileInfo qfi( fnm );
-    return qfi.isReadable() && qfi.isExecutable();
-#else
-    struct stat st_buf;
-    int status = stat(fnm, &st_buf);
-    if ( status != 0 )
+    if ( !isLocal(fnm) )
 	return false;
 
-    return st_buf.st_mode & S_IXUSR;
-#endif
+    QFileInfo qfi( fnm );
+    return qfi.isReadable() && qfi.isExecutable();
 }
 
 
@@ -544,6 +496,8 @@ void setSystemFileAttrib( const char* fnm, bool yn )
 	SetFileAttributes( fnm, attr | FILE_ATTRIBUTE_SYSTEM );
     else
 	SetFileAttributes( fnm, attr & ~FILE_ATTRIBUTE_SYSTEM );
+#else
+    (void)yn;
 #endif
 }
 
@@ -574,6 +528,9 @@ bool isInUse( const char* fnm )
 	return false;
 
 #ifdef __win__
+    if ( isURI(fnm) )
+	return false;
+
     return WinUtils::isFileInUse( fnm );
 #else
     return false;
@@ -583,41 +540,23 @@ bool isInUse( const char* fnm )
 
 bool createDir( const char* fnm )
 {
-#ifndef OD_NO_QT
-    QDir qdir; return qdir.mkpath( fnm );
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
+    if ( !isSane(fnm) )
+	return false;
+
+    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    return fsa.createDirectory( fnm );
 }
 
 
 bool listDir( const char* dirnm, DirListType dlt, BufferStringSet& fnames,
 	      const char* mask )
 {
-    if ( !isDirectory(dirnm) )
+    if ( !isSane(dirnm) )
 	return false;
 
-    QDir qdir( dirnm );
-    if ( mask && *mask )
-    {
-	QStringList filters;
-	filters << mask;
-	qdir.setNameFilters( filters );
-    }
-
-    QDir::Filters dirfilters;
-    if ( dlt == FilesInDir )
-	dirfilters = QDir::Files | QDir::Hidden;
-    else if ( dlt == DirsInDir )
-	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden;
-    else
-	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files
-				| QDir::Hidden;
-
-    QStringList qlist = qdir.entryList( dirfilters );
-    for ( int idx=0; idx<qlist.size(); idx++ )
-	fnames.add( qlist[idx] );
+    const FileSystemAccess& fsa = FileSystemAccess::get( dirnm );
+    if ( !fsa.listDirectory(dirnm,dlt,fnames,mask) )
+	return false;
 
     fnames.sort();
     return true;
@@ -626,7 +565,18 @@ bool listDir( const char* dirnm, DirListType dlt, BufferStringSet& fnames,
 
 bool rename( const char* oldname, const char* newname, uiString* errmsg )
 {
-#ifndef OD_NO_QT
+/* TODO: move the rename implementation to LocalFileSystemAccess::rename
+    if ( !isSane(oldname) || !isSane(newname) )
+	return false;
+
+    if ( SystemAccess::getProtocol(oldname) !=
+	 SystemAccess::getProtocol(newname) )
+	return false;
+
+    const SystemAccess& fsa = SystemAccess::get( newname );
+    return fsa.rename( oldname, newname );
+*/
+
     if ( !File::exists(oldname) )
     {
 	if ( errmsg )
@@ -715,29 +665,31 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
     }
 
     OS::MachineCommand mc;
-#ifdef __win__
-    const BufferString destdrive = destdir.rootPath();
-    const FilePath sourcefp( oldname );
-    const BufferString sourcedrive = sourcefp.rootPath();
-    if ( destdrive != sourcedrive )
+    if ( !__iswin__ )
+	mc.setProgram( "mv" );
+    else
     {
-	BufferString msgstr;
-	res = File::copyDir( oldname, newname, &msgstr );
-	if ( !res )
+	const BufferString destdrive = destdir.rootPath();
+	const FilePath sourcefp( oldname );
+	const BufferString sourcedrive = sourcefp.rootPath();
+	if ( destdrive != sourcedrive )
 	{
-	    if ( errmsg && !msgstr.isEmpty() )
-		errmsg->append( msgstr );
-	    return false;
+	    BufferString msgstr;
+	    res = File::copyDir( oldname, newname, &msgstr );
+	    if ( !res )
+	    {
+		if ( errmsg && !msgstr.isEmpty() )
+		    errmsg->append( msgstr );
+		return false;
+	    }
+
+	    res = File::removeDir( oldname );
+	    return res;
 	}
 
-	res = File::removeDir( oldname );
-	return res;
+	mc.setProgram( "move" );
     }
 
-    mc.setProgram( "move" );
-#else
-    mc.setProgram( "mv" );
-#endif
     mc.addArg( oldname ).addArg( newname );
     BufferString stdoutput, stderror;
     res = mc.execute( stdoutput, &stderror );
@@ -753,36 +705,32 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
     }
 
     return res;
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
-
 }
 
 
 bool createLink( const char* fnm, const char* linknm )
 {
-#ifndef OD_NO_QT
-#ifdef __win__
-    BufferString winlinknm( linknm );
-    if ( !firstOcc(linknm,".lnk")  )
-	winlinknm += ".lnk";
-    return QFile::link( fnm, winlinknm.buf() );
-#else
-    return QFile::link( fnm, linknm );
-#endif // __win__
+    if ( !isLocal(fnm) )
+	return false;
 
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
+    BufferString fulllinknm( linknm );
+    if ( __iswin__ )
+    {
+	if ( !firstOcc(linknm,".lnk")  )
+	    fulllinknm += ".lnk";
+    }
+
+    return QFile::link( fnm, fulllinknm.buf() );
 }
 
 
 bool saveCopy( const char* from, const char* to )
 {
-    if ( isDirectory(from) ) return false;
+    if ( !isLocal(from) || !isLocal(to) )
+	return false;
+
+    if ( isDirectory(from) )
+	return false;
     if ( !exists(to) )
 	return File::copy( from, to );
 
@@ -798,8 +746,6 @@ bool saveCopy( const char* from, const char* to )
 
 bool copy( const char* from, const char* to, BufferString* errmsg )
 {
-#ifndef OD_NO_QT
-
     if ( isDirectory(from) || isDirectory(to)  )
 	return copyDir( from, to, errmsg );
 
@@ -820,18 +766,24 @@ bool copy( const char* from, const char* to, BufferString* errmsg )
 #endif
 
     return ret;
-
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
 }
 
 
 bool copyDir( const char* from, const char* to, BufferString* errmsg )
 {
-    if ( !from || !exists(from) || !to || !*to || exists(to) )
+    if ( !isLocal(from) || !isLocal(to) )
 	return false;
+
+    if ( !exists(from) || exists(to) )
+	return false;
+
+    uiString errmsgloc;
+    if ( !checkDir(from,true,&errmsgloc) || !checkDir(to,false,&errmsgloc) )
+    {
+	if ( errmsg && !errmsgloc.isEmpty() )
+	    errmsg->add( errmsgloc.getFullString() );
+	return false;
+    }
 
     PtrMan<Executor> copier = getRecursiveCopier( from, to );
     const bool res = copier->execute();
@@ -844,51 +796,40 @@ bool copyDir( const char* from, const char* to, BufferString* errmsg )
 
 bool resize( const char* fnm, od_int64 newsz )
 {
-    if ( !fnm || !*fnm )
-	return true;
+    if ( !isLocal(fnm) )
+	return false;
     else if ( newsz < 0 )
 	return remove( fnm );
-#ifndef OD_NO_QT
+
     return QFile::resize( fnm, newsz );
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
 }
 
 
 bool remove( const char* fnm )
 {
-    if ( !fnm || !*fnm )
+    if ( !isSane(fnm) )
 	return true;
-#ifndef OD_NO_QT
-    return isFile(fnm) ? QFile::remove( fnm ) : removeDir( fnm );
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    return false;
-#endif
+
+    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    return fsa.remove( fnm );
 }
 
 
 bool removeDir( const char* dirnm )
 {
-#ifdef OD_NO_QT
-    return false;
-#else
-    if ( !exists(dirnm) )
+    if ( !isSane(dirnm) )
 	return true;
 
-    if ( isLink(dirnm) )
-	return QFile::remove( dirnm );
-
-    QDir qdir( dirnm );
-    return qdir.removeRecursively();
-#endif
+    const FileSystemAccess& fsa = FileSystemAccess::get( dirnm );
+    return fsa.remove( dirnm, true );
 }
 
 
 bool changeDir( const char* dir )
 {
+    if ( !isLocal(dir) )
+	return false;
+
 #ifdef __win__
     return _chdir( dir )==0;
 #else
@@ -899,68 +840,87 @@ bool changeDir( const char* dir )
 
 bool checkDir( const char* fnm, bool forread, uiString* errmsg )
 {
-// TODO: implement
-    return true;
+    if ( !isSane(fnm) )
+    {
+	if ( errmsg )
+	    *errmsg = ::toUiString( "Please specify a folder name" );
+	return false;
+    }
+
+    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+
+    FilePath fp( fnm );
+    BufferString dirnm( fp.pathOnly() );
+
+    const bool success = forread ? fsa.isReadable( dirnm )
+				 : fsa.isWritable( dirnm );
+    if ( !success && errmsg )
+    {
+	errmsg->set( forread ? "Cannot read in folder: "
+			     : "Cannot write in folder: " );
+	errmsg->append( dirnm );
+	errmsg->appendPhrase( uiStrings::phrCheckPermissions() );
+    }
+
+    return success;
 }
 
 
 bool makeWritable( const char* fnm, bool yn, bool recursive )
 {
-#ifdef OD_NO_QT
-    return false;
-#else
-    BufferStringSet args;
-# ifdef __win__
-    OS::MachineCommand mc( "ATTRIB" );
-    mc.addArg( yn ? "-R" : "+R" ).addArg( fnm );
-    if ( recursive && isDirectory(fnm) )
-	mc.addArg( "/S" ).addArg( "/D" );
-# else
-    OS::MachineCommand mc( "chmod" );
-    if ( recursive && isDirectory(fnm) )
-	mc.addArg( "-R" );
-    mc.addArg( yn ? "ug+w" : "a-w" ).addArg( fnm );
-# endif
+    if ( !isSane(fnm) || !exists(fnm) )
+	return false;
+    else if ( fnmIsURI(fnm) )
+	return true;
 
-    return mc.execute();
-#endif
+    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    return fsa.setWritable( fnm, yn, recursive );
 }
 
 
 bool makeReadOnly(const char* fnm, bool recursive)
 {
-    return File::makeWritable(fnm, false, recursive);
+    return File::makeWritable( fnm, false, recursive );
 }
 
 
 bool makeExecutable( const char* fnm, bool yn )
 {
-#if ((defined __win__) || (defined OD_NO_QT) )
-    return true;
-#else
+    if ( __iswin__ )
+	return true;
+
+    if ( !isSane(fnm) )
+	return false;
+    else if ( fnmIsURI(fnm) )
+	return !yn;
+
     OS::MachineCommand mc( "chmod" );
     mc.addArg( yn ? "+r+x" : "-x" ).addArg( fnm );
     return mc.execute();
-#endif
 }
 
 
 bool setPermissions( const char* fnm, const char* perms, bool recursive )
 {
-#if ((defined __win__) || (defined OD_NO_QT) )
-    return false;
-#else
+    if ( __iswin__ )
+	return false;
+
+    if ( !isLocal(fnm) )
+	return false;
+
     OS::MachineCommand mc( "chmod" );
     if ( recursive && isDirectory(fnm) )
 	mc.addArg( "-R" );
     mc.addArg( perms ).addArg( fnm );
     return mc.execute();
-#endif
 }
 
 
 bool getContent( const char* fnm, BufferString& bs )
 {
+    if ( !isSane(fnm) )
+	return false;
+
     bs.setEmpty();
     if ( !fnm || !*fnm ) return false;
 
@@ -1007,26 +967,26 @@ BufferString getFileSizeString( const char* fnm )
 { return getFileSizeString( getKbSize(fnm) ); }
 
 
+#define mRetUnknown { ret.set( "<unknown>" ); return ret.buf(); }
+
 const char* timeCreated( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
-#ifndef OD_NO_QT
+    if ( !isLocal(fnm) )
+	mRetUnknown
+
     const QFileInfo qfi( fnm );
     if ( !fmt || !*fmt )
-# if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
 	ret = qfi.birthTime().toString( Qt::ISODate );
-# else
-	ret = qfi.created().toString( Qt::ISODate );
-# endif
-    else
-# if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-	ret = qfi.birthTime().toString( fmt );
-# else
-	ret = qfi.created().toString( fmt );
-# endif
 #else
-    pFreeFnErrMsg(not_implemented_str);
-    ret = "<unknown>";
+	ret = qfi.created().toString( Qt::ISODate );
+#endif
+    else
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+	ret = qfi.birthTime().toString( fmt );
+#else
+	ret = qfi.created().toString( fmt );
 #endif
     return ret.buf();
 }
@@ -1035,23 +995,23 @@ const char* timeCreated( const char* fnm, const char* fmt )
 const char* timeLastModified( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
-#ifndef OD_NO_QT
+    if ( !isLocal(fnm) )
+	mRetUnknown
+
     const QFileInfo qfi( fnm );
     if ( !fmt || !*fmt )
 	ret = qfi.lastModified().toString( Qt::ISODate );
     else
 	ret = qfi.lastModified().toString( fmt );
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    ret = "<unknown>";
-#endif
     return ret.buf();
 }
 
 
 od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 {
-#ifndef OD_NO_QT
+    if ( !isLocal(fnm) || isEmpty(fnm) )
+	return 0;
+
     const QFileInfo qfi( fnm );
     const QDateTime dt = lastmodif ? qfi.lastModified()
 #if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
@@ -1061,21 +1021,11 @@ od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 #endif
 
     return dt.toSecsSinceEpoch();
-
-#else
-    struct stat st_buf;
-    int status = stat(fnm, &st_buf);
-    if (status != 0)
-	return 0;
-
-    return lastmodif ? st_buf.st_mtime : st_buf.st_ctime;
-#endif
 }
 
 
 od_int64 getTimeInMilliSeconds( const char* fnm, bool lastmodif )
 {
-#ifndef OD_NO_QT
     const QFileInfo qfi( fnm );
     const QTime qtime = lastmodif ? qfi.lastModified().time()
 #if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
@@ -1086,19 +1036,43 @@ od_int64 getTimeInMilliSeconds( const char* fnm, bool lastmodif )
 
     const QTime daystart( 0, 0, 0, 0 );
     return daystart.msecsTo( qtime );
-#else
-    struct stat st_buf;
-    int status = stat( fnm, &st_buf );
-    if ( status != 0 )
-	return 0;
+}
 
-    return lastmodif ? st_buf.st_mtime * 1000 : st_buf.st_ctime * 1000;
-#endif
+
+bool waitUntilExists( const char* fnm, double maxwaittm,
+			    double* actualwaited )
+{
+    if ( actualwaited )
+	*actualwaited = 0;
+    if ( exists(fnm) )
+	return true;
+
+    const int msecsstart = Time::getMilliSeconds();
+    const double checkincr = 0.1;
+    double waittm = 0;
+    bool appeared = true;
+    while ( !exists(fnm) )
+    {
+	waittm += checkincr;
+	if ( waittm > maxwaittm )
+	    { appeared = false; break; }
+	Threads::sleep( checkincr );
+    }
+
+    if ( actualwaited )
+	*actualwaited = 1000. * (Time::getMilliSeconds() - msecsstart);
+
+    return appeared;
 }
 
 
 const char* linkValue( const char* linknm )
 {
+    if ( !isSane(linknm) )
+	return "";
+    else if ( fnmIsURI(linknm) )
+	return linknm;
+
 #ifdef __win__
     return linkTarget( linknm );
 #else
@@ -1116,15 +1090,15 @@ const char* linkValue( const char* linknm )
 
 const char* linkTarget( const char* linknm )
 {
+    if ( !isSane(linknm) )
+	return "";
+    else if ( fnmIsURI(linknm) )
+	return linknm;
+
     mDeclStaticString( ret );
-#ifndef OD_NO_QT
     const QFileInfo qfi( linknm );
     ret = qfi.isSymLink() ? qfi.symLinkTarget()
 			  : linknm;
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    ret = linknm;
-#endif
     return ret.buf();
 }
 
@@ -1141,17 +1115,7 @@ const char* linkEnd( const char* linknm )
 const char* getCurrentPath()
 {
     mDeclStaticString( ret );
-
-#ifndef OD_NO_QT
     ret = QDir::currentPath();
-#else
-    ret.setMinBufSize( 1024 );
-# ifdef __win__
-    _getcwd( ret.buf(), ret.minBufSize() );
-# else
-    getcwd( ret.getCStr(), ret.minBufSize() );
-# endif
-#endif
     return ret.buf();
 }
 
@@ -1159,12 +1123,7 @@ const char* getCurrentPath()
 const char* getHomePath()
 {
     mDeclStaticString( ret );
-#ifndef OD_NO_QT
     ret = QDir::homePath();
-#else
-    pFreeFnErrMsg(not_implemented_str);
-    ret = GetEnvVar( "HOME" );
-#endif
     return ret.buf();
 }
 
@@ -1191,19 +1150,11 @@ const char* getTempPath()
 	ret.set( userpath );
 	return ret.buf();
     }
-#ifndef OD_NO_QT
+
     ret = QDir::tempPath();
-# ifdef __win__
-    ret.replace( '/', '\\' );
-# endif
-#else
-    pFreeFnErrMsg(not_implemented_str);
-# ifdef __win__
-    ret = "C:\\TEMP";
-# else
-    ret = "/tmp";
-# endif
-#endif
+    if ( __iswin__ )
+	ret.replace( '/', '\\' );
+
     return ret.buf();
 }
 
@@ -1211,12 +1162,8 @@ const char* getTempPath()
 const char* getUserAppDataPath()
 {
     mDeclStaticString( ret );
-
-#ifndef OD_NO_QT
     ret = QStandardPaths::locate( QStandardPaths::GenericDataLocation, "",
 				      QStandardPaths::LocateDirectory );
-
-#endif
     return ret.buf();
 }
 
@@ -1224,17 +1171,8 @@ const char* getUserAppDataPath()
 const char* getRootPath( const char* path )
 {
     mDeclStaticString( ret );
-#ifndef OD_NO_QT
     const QDir qdir( path );
     ret = qdir.rootPath();
-#else
-    pFreeFnErrMsg(not_implemented_str);
-# ifdef __win__
-    ret = "/";
-# else
-    ret = "C:\\";
-# endif
-#endif
     return ret.buf();
 }
 
@@ -1247,11 +1185,7 @@ const char* textFilesFilter()
 
 const char* allFilesFilter()
 {
-#ifdef __win__
-    return "All Files (*.*)";
-#else
-    return "All Files (*)";
-#endif
+    return __iswin__ ? "All Files (*.*)" : "All Files (*)";
 }
 
 
@@ -1271,9 +1205,11 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
 }
 
 
-#ifdef __win__
 static bool canApplyScript( const char* scriptfnm )
 {
+    if ( !__iswin__ )
+	return true;
+
     od_ostream strm( scriptfnm );
     if ( !strm.isOK() )
 	return false;
@@ -1288,36 +1224,43 @@ static bool canApplyScript( const char* scriptfnm )
     remove( scriptfnm );
     return !res || !stderrstr.contains("is blocked by group policy");
 }
-#endif
+
 
 bool initTempDir()
 {
+    if ( !__iswin__ )
+	return true;
+
 #ifdef __win__
-    if ( !hasAppLocker() ||
+    const bool hasapplocker = hasAppLocker();
+#else
+    bool hasapplocker = false;
+#endif
+    if ( !hasapplocker ||
 	 !OD::PythonAccess::needCheckRunScript() ||
-         GetEnvVarYN("OD_DISABLE_APPLOCKER_TEST",false) )
-        return true;
+	 GetEnvVarYN("OD_DISABLE_APPLOCKER_TEST",false) )
+	return true;
 
     FilePath targetfp( getTempPath(),
-                FilePath::getTempFileName("applocker_test", "bat") );
+		       FilePath::getTempFileName("applocker_test", "bat") );
     BufferString tempfnm = targetfp.fullPath();
     if ( canApplyScript(tempfnm) )
-        return true;
+	return true;
 
     BufferStringSet errmsgs;
     errmsgs.add( BufferString(
-        "AppLocker prevents executing scripts in the folder: '",
-        targetfp.pathOnly(), "'" ) );
+	"AppLocker prevents executing scripts in the folder: '",
+	targetfp.pathOnly(), "'" ) );
     errmsgs.add("Some functionality of OpendTect might not work");
 
     const BufferString basedatadirstr( GetBaseDataDir() );
     if ( !File::isDirectory(basedatadirstr) )
     {
-        errmsgs.insertAt(
+	errmsgs.insertAt(
             new BufferString("Data root is not set and thus cannot be used "
             "to store temporary files."), 1 );
-        OD::DisplayErrorMessage( errmsgs.cat() );
-        return false;
+	OD::DisplayErrorMessage( errmsgs.cat() );
+	return false;
     }
 
     targetfp.set( GetBaseDataDir() ).add( "LogFiles" );
@@ -1329,15 +1272,14 @@ bool initTempDir()
 			     makeWritable( targetpath, true, false) );
     if ( !logfpcreated || !logfpmadewritable )
     {
-        errmsgs.insertAt(
-            new BufferString("Cannot redirect temporary files to '",
-                targetpath,
-                "' to store temporary files."), 1);
-        errmsgs.insertAt(
-            new BufferString("Cannot create that directory, "
-                "please check permissions"), 2 );
-        OD::DisplayErrorMessage( errmsgs.cat() );
-        return false;
+	errmsgs.insertAt(
+		new BufferString("Cannot redirect temporary files to '",
+				 targetpath,"' to store temporary files."), 1);
+	errmsgs.insertAt(
+		new BufferString("Cannot create that directory, "
+				 "please check permissions"), 2 );
+	OD::DisplayErrorMessage( errmsgs.cat() );
+	return false;
     }
 
     targetfp.add( "Temp" ); targetpath.set( targetfp.fullPath() );
@@ -1348,28 +1290,27 @@ bool initTempDir()
 			makeWritable( targetpath, true, false ));
     if ( !logfpcreated || !logfpmadewritable )
     {
-        errmsgs.insertAt(
-            new BufferString("Cannot redirect temporary files to '",
-                targetpath,
-                "' to store temporary files."), 1);
-        errmsgs.insertAt(
-            new BufferString("Cannot create that directory, "
-                "please check permissions"), 2);
-        OD::DisplayErrorMessage( errmsgs.cat() );
-        return false;
+	errmsgs.insertAt(
+		new BufferString("Cannot redirect temporary files to '",
+				 targetpath,"' to store temporary files."), 1);
+	errmsgs.insertAt(
+		new BufferString("Cannot create that directory, "
+				 "please check permissions"), 2);
+	OD::DisplayErrorMessage( errmsgs.cat() );
+	return false;
     }
 
     tempfnm = FilePath( targetpath,
-        FilePath::getTempFileName("applocker_test", "bat") ).fullPath();
+	FilePath::getTempFileName("applocker_test","bat") ).fullPath();
     const bool res = canApplyScript( tempfnm );
     if ( !res )
     {
-        errmsgs.insertAt(
-            new BufferString("AppLocker also prevents executing scripts "
-                "in the replacement folder: '",
-                targetfp.fullPath(), "'"), 1);
-        OD::DisplayErrorMessage( errmsgs.cat() );
-        return false;
+	errmsgs.insertAt(
+		new BufferString("AppLocker also prevents executing scripts "
+				 "in the replacement folder: '",
+				 targetfp.fullPath(), "'"), 1);
+	OD::DisplayErrorMessage( errmsgs.cat() );
+	return false;
     }
 
     temppathstr().set( targetfp.fullPath() );
@@ -1379,18 +1320,15 @@ bool initTempDir()
     mc.execute( stdoutstr, &stderrstr );
     if ( stderrstr.contains("is blocked by group policy") )
     {
-        errmsgs.get(0).set(stderrstr);
-        errmsgs.insertAt( new BufferString(
-            "AppLocker prevents executing the script '",
-                   mc.program(), "'" ), 1 );
-        OD::DisplayErrorMessage( errmsgs.cat() );
-        return false;
+	errmsgs.get(0).set(stderrstr);
+	errmsgs.insertAt(
+		new BufferString("AppLocker prevents executing the script '",
+				 mc.program(), "'" ), 1 );
+	OD::DisplayErrorMessage( errmsgs.cat() );
+	return false;
     }
 
     return res;
-#else
-    return true;
-#endif
 }
 
 } // namespace File

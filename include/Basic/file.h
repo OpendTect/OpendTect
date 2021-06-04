@@ -31,6 +31,8 @@ mGlobal(Basic) bool		isEmpty(const char*);
 mGlobal(Basic) bool		isDirEmpty(const char*);
 mGlobal(Basic) bool		isFile(const char*);
 mGlobal(Basic) bool		isDirectory(const char*);
+mGlobal(Basic) bool		isURI(const char*);
+
 mGlobal(Basic) BufferString	findExecutable(const char* exenm,
 					       const BufferStringSet& paths,
 					       bool includesyspath=true );
@@ -59,7 +61,7 @@ mGlobal(Basic) bool		isHidden(const char*);
 mGlobal(Basic) bool		isWritable(const char*);
 mGlobal(Basic) bool		makeWritable(const char*,bool yesno,
 					bool recursive);
-mGlobal(Basic) bool		makeReadOnly(const char* fnm, bool recursive);
+mGlobal(Basic) bool		makeReadOnly(const char* fnm,bool recursive);
 mGlobal(Basic) bool		isExecutable(const char*);
 mGlobal(Basic) bool		makeExecutable(const char*,bool yesno);
 mGlobal(Basic) void		setSystemFileAttrib(const char*,bool yn);
@@ -92,7 +94,7 @@ mGlobal(Basic) bool		copyDir(const char* from,const char* to,
 mGlobal(Basic) bool		removeDir(const char*);
 mGlobal(Basic) bool		changeDir(const char* path);
 mGlobal(Basic) bool		checkDir(const char* fnm,bool forread,
-					 uiString* errmsg=0);
+					 uiString* errmsg=nullptr);
 				/*!< checks if the parent directory of a file
 				     is readable/writable */
 
@@ -110,6 +112,9 @@ mGlobal(Basic) const char*	timeLastModified(const char* filenm,
 mGlobal(Basic) od_int64		getTimeInSeconds(const char*,bool modif=true);
 mGlobal(Basic) od_int64		getTimeInMilliSeconds( const char* fnm,
 					 bool lastmodif=true );//since day start
+mGlobal(Basic) bool		waitUntilExists(const char* fnm,
+						double maxwaittm,
+						double* actualwaited);
 
 mGlobal(Basic) const char*	getCurrentPath();
 mGlobal(Basic) const char*	getHomePath();

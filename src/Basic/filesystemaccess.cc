@@ -117,8 +117,7 @@ BufferString FileSystemAccess::iconForProtocol( const char* prot )
 }
 
 
-BufferString FileSystemAccess::withProtocol( const char* fnm,
-						const char* prot )
+BufferString FileSystemAccess::withProtocol( const char* fnm, const char* prot )
 {
     if ( FixedString(prot) == LocalFileSystemAccess::sFactoryKeyword() )
 	prot = 0;
@@ -141,8 +140,7 @@ BufferString FileSystemAccess::withProtocol( const char* fnm,
 }
 
 
-void FileSystemAccess::getProtocolNames( BufferStringSet& factnms,
-					   bool forread )
+void FileSystemAccess::getProtocolNames( BufferStringSet& factnms, bool forread)
 {
     factnms = factory().getNames();
     for ( int idx=0; idx<factnms.size(); idx++ )
@@ -354,8 +352,7 @@ bool LocalFileSystemAccess::isDirectory( const char* uri ) const
 
 
 
-bool LocalFileSystemAccess::remove( const char* uri,
-					  bool recursive ) const
+bool LocalFileSystemAccess::remove( const char* uri, bool recursive ) const
 {
     mGetFileNameAndRetFalseIfEmpty();
     if ( isFile(fnm) || File::isLink(fnm) )
@@ -372,29 +369,27 @@ bool LocalFileSystemAccess::remove( const char* uri,
 
 
 bool LocalFileSystemAccess::setWritable( const char* uri, bool yn,
-					       bool recursive ) const
+					 bool recursive ) const
 {
     mGetFileNameAndRetFalseIfEmpty();
 
-#ifdef OD_NO_QT
-    return false;
-#else
-# ifdef __win__
-    OS::MachineCommand mc( "ATTRIB" );
-    mc.addArg( yn ? "-R" : "+R" ).addArg( fnm );
-    if ( recursive && isDirectory(fnm) )
-	mc.addArg( "/S" ).addArg( "/D" );
-# else
-    OS::MachineCommand mc( "chmod" );
-    if ( recursive && isDirectory(fnm) )
-	mc.addArg( "-R" );
-    mc.addArg( yn ? "ug+w" : "a-w" ).addArg( fnm );
-# endif
+    OS::MachineCommand mc;
+    if ( __iswin__ )
+    {
+	mc.setProgram( "ATTRIB" );
+	mc.addArg( yn ? "-R" : "+R" ).addArg( fnm );
+	if ( recursive && isDirectory(fnm) )
+	    mc.addArg( "/S" ).addArg( "/D" );
+    }
+    else
+    {
+	mc.setProgram( "chmod" );
+	if ( recursive && isDirectory(fnm) )
+	    mc.addArg( "-R" );
+	mc.addArg( yn ? "ug+w" : "a-w" ).addArg( fnm );
+    }
 
     return mc.execute();
-#endif
-
-
 }
 
 
@@ -418,6 +413,7 @@ bool LocalFileSystemAccess::isWritable( const char* uri ) const
 bool LocalFileSystemAccess::rename( const char* fromuri,
 				    const char* touri, uiString* errmsg ) const
 {
+// TODO: get implementation from File::rename
     const BufferString from = withoutProtocol( fromuri );
     const BufferString to = withoutProtocol( touri );
     if ( from.isEmpty() || to.isEmpty() )
@@ -427,9 +423,8 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 }
 
 
-bool LocalFileSystemAccess::copy( const char* fromuri,
-					const char* touri,
-					uiString* errmsg ) const
+bool LocalFileSystemAccess::copy( const char* fromuri, const char* touri,
+				  uiString* errmsg ) const
 {
     const BufferString from = withoutProtocol( fromuri );
     const BufferString to = withoutProtocol( touri );
@@ -469,7 +464,7 @@ bool LocalFileSystemAccess::copy( const char* fromuri,
 
 
 od_int64 LocalFileSystemAccess::getFileSize( const char* uri,
-						   bool followlink ) const
+					     bool followlink ) const
 {
     const BufferString fnm = withoutProtocol( uri );
     if ( fnm.isEmpty() )
@@ -531,8 +526,8 @@ StreamData LocalFileSystemAccess::createOStream( const char* uri,
 }
 
 
-StreamData LocalFileSystemAccess::createIStream(const char* uri,
-						      bool binary ) const
+StreamData LocalFileSystemAccess::createIStream( const char* uri,
+						 bool binary ) const
 {
     BufferString fnm = withoutProtocol( uri );
     if ( fnm.isEmpty() )
