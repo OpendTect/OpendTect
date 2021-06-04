@@ -41,10 +41,10 @@ uiPluginMan::uiPluginMan( uiParent* p )
     listfld->selectionChanged.notify( mCB(this,uiPluginMan,selChg) );
 
     uiPushButton* loadbut = new uiPushButton( leftgrp, tr(" Load a plugin "),
-	    			mCB(this,uiPluginMan,loadPush), false );
+				mCB(this,uiPluginMan,loadPush), false );
     loadbut->attach( alignedBelow, listfld );
-    selatstartfld = new uiCheckBox( leftgrp, 
-                                    tr("Select auto-loaded at startup") ); 
+    selatstartfld = new uiCheckBox( leftgrp,
+				    tr("Select auto-loaded at startup") );
     selatstartfld->attach( alignedBelow, loadbut );
     selatstartfld->setChecked(
 	    Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup()) );
@@ -126,9 +126,9 @@ void uiPluginMan::selChg( CallBacker* )
     if ( data )
     {
 	const PluginInfo& piinf = *data->info_;
-	txt.add( "Created by: " ).add( piinf.creator_ );
+	txt.add( "Created by: " ).add( piinf.creator_ ).addNewLine();
 	if ( needDispProdName(piinf.productname_,piinf.dispname_) )
-	    txt.add( "\nProduct: " ).add( piinf.productname_ );
+	    txt.add( "Product: " ).add( piinf.productname_ );
 
 	txt.add( "\n\nFilename: " ).add( PIM().getFileName(*data) );
 	if ( piinf.version_ && *piinf.version_ )
@@ -143,8 +143,20 @@ void uiPluginMan::selChg( CallBacker* )
 		txt += ver;
 	    }
 	}
-	txt.add( "\n-----------------------------------------\n\n" )
-	    .add( piinf.text_ );
+	txt.addNewLine(2);
+	BufferStringSet pinftxt;
+	pinftxt.unCat( piinf.text_, "`" );
+	if ( pinftxt.size() > 0 )
+	{
+	    txt.add( pinftxt.get(0) ).addNewLine(2);
+	    pinftxt.removeSingle(0);
+	}
+	txt.add( "-----------------------------------------" ).addNewLine()
+	   .add( piinf.lictype_ == PluginInfo::GPL
+		   ? "Plugin released under GPL license"
+		   : "Commercial Plugin" );
+	if ( pinftxt.size() > 0 )
+	    txt.addNewLine(2).add( pinftxt.cat() );
     }
 
     infofld->setText( txt );
@@ -173,7 +185,7 @@ void uiPluginMan::loadPush( CallBacker* )
 	    loaddir = PIM().getAutoDir( false );
     }
 
-    uiFileDialog dlg( this, uiFileDialog::ExistingFile, loaddir, filt, 
+    uiFileDialog dlg( this, uiFileDialog::ExistingFile, loaddir, filt,
 		      captn );
     if ( !dlg.go() ) return;
 
