@@ -3,7 +3,6 @@
  * AUTHOR   : Bert
  * DATE     : July 2007
 -*/
-static const char* rcsID = "$Id$";
 
 #include "prog.h"
 #include "seisimpbpsif.h"
