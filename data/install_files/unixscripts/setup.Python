@@ -35,32 +35,6 @@ endif
 set condainstdir=`dirname "$0"`
 set condainstdir=`realpath "$condainstdir"`
 
-# create Python_envs.txt file in OpendTect data directory
-if ( $#argv >= 2 ) then
-        if ( "$1" == "--odinstdir" ) then
-                echo "Creating Python_envs.txt file..."
-                set odinstdir=$2
-                if ( -w "${odinstdir}/data" ) then
-                        set fil="${odinstdir}/data/Python_envs.txt"
-                        touch $fil
-                        echo "dTect V6.6" > $fil
-                        echo "Python" >> $fil
-                        date >> $fil
-                        echo "!" >> $fil
-                        echo "File name: ${condainstdir}" >> $fil
-                        echo "!" >> $fil
-			if ( -w "${odinstdir}/v7/data" ) then
-				cp $fil ${odinstdir}/v7/data
-			endif
-                else
-                        echo "Warning: cannot properly setup Python environments connection with OpendTect."
-                        echo "Reason: $odinstdir/data is not writable or does not exist."
-                        echo "Will exit the setup now..."
-                        exit 1
-                endif
-        endif
-endif
-
 if ( -d "${origdir}" ) then
     set origdir=`realpath ${origdir}`
     if ( "${origdir}" == "${condainstdir}" ) then

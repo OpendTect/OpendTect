@@ -36,18 +36,5 @@ if not exist %odinstdir%\data (
     exit /b 1
 )
 
-REM Create Python_envs.txt file
-set fil=%odinstdir%\data\Python_envs.txt
-echo dTect V6.8 > %fil%
-echo Python >> %fil%
-echo %DATE% %TIME% >> %fil%
-echo ! >> %fil%
-echo File name: %condarootdir% >> %fil%
-echo ! >> %fil%
-
-if exist %odinstdir%\v7\data (
-    copy %fil% %odinstdir%\v7\data
-)
-
 :eof
 exit /b 0
