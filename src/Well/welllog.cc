@@ -479,7 +479,7 @@ mDefParallelCalc5Pars(LogUpScaler, od_static_tr("LogUpScaler", "Upscale a log"),
     const StepInterval<float>&, dahrg, const Stats::UpscaleType, uptype,
     const bool, logisvel)
 mDefParallelCalcBody( ,
-const float dah = dahrg_.atIndex(idx);
+const float dah = logout_.dah(idx);
 const float val = Well::LogDataExtracter::calcVal(login_, dah, dahrg_.step,
 						    uptype_, logisvel_);
 logout_.setValue(idx, val);
@@ -508,7 +508,7 @@ mDefParallelCalc3Pars(LogRegularSampler,
 		      const Well::Log&, login, Well::Log&, logout,
 		      const StepInterval<float>&, dahrg)
 mDefParallelCalcBody( ,
-const float dah = dahrg_.atIndex(idx);
+const float dah = logout_.dah(idx);
 const float val = login_.getValue( dah );
 logout_.setValue(idx, val);
 ,
@@ -534,7 +534,7 @@ Well::Log* Well::Log::createSampledLog(const StepInterval<float>& dahrg,
     StepInterval<float> outdahrg( dahrg );
     outdahrg.sort();
     outdahrg.stop = Math::Floor( outdahrg.stop/outdahrg.step ) * outdahrg.step;
-    outdahrg.start = (Math::Floor( outdahrg.start/outdahrg.step )+1)
+    outdahrg.start = Math::Floor( outdahrg.start/outdahrg.step )
 								* outdahrg.step;
     const int nr = outdahrg.nrSteps() + 1;
     for (int idx = 0; idx < nr; idx++)
