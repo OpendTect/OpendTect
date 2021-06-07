@@ -66,6 +66,10 @@ public:
     uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return tr("Traces read"); }
 
+    Pos::GeomID		geomID() const;
+    bool		get(int trcnr,SeisTrc&) const;
+    bool		get(int trcnr,TraceData&,SeisTrcInfo*) const;
+
     virtual od_int64	nrDone() const			= 0;
     virtual od_int64	totalNr() const			= 0;
 
