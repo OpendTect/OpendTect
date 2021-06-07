@@ -142,7 +142,13 @@ Executor* Seis2DDataSet::lineFetcher( Pos::GeomID geomid, SeisTrcBuf& tbuf,
 	return 0;
     }
 
-    return liop_->getFetcher( ioobj_, geomid, tbuf, ntps, sd );
+    Executor* fetcher = liop_->getFetcher( ioobj_, geomid, tbuf, ntps, sd );
+    auto* getter = dynamic_cast<Seis2DLineGetter*>(fetcher);
+    const SeisTrcTranslator* trl = getter ? getter->translator() : nullptr;
+    if ( trl )
+	const_cast<SeisTrcTranslator*>(trl)->setCurGeomID( geomid );
+
+    return fetcher;
 }
 
 
