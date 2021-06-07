@@ -16,10 +16,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "idxable.h"
 #include "posinfo.h"
+#include "posinfo2d.h"
 #include "sorting.h"
 #include "strmoper.h"
 #include "statrand.h"
 #include "survgeom.h"
+#include "survgeom2d.h"
 #include "varlenarray.h"
 #include "od_iostream.h"
 
@@ -1474,7 +1476,45 @@ BinIDValueSet::~BinIDValueSet()
 
 void BinIDValueSet::setStepout( int trcstepout, int trcstep )
 {
-    pErrMsg("Not implemented yet");
+    (void)trcstep;
+    if ( isEmpty() || trcstepout<0 )
+	return;
+
+    for ( int ifirst=0; ifirst<frsts_.size(); ifirst++ )
+    {
+	const int frst = frsts_[ifirst];
+	const Pos::GeomID geomid( frst );
+	const Survey::Geometry2D& geom2d = Survey::GM().get2D( geomid );
+	if  ( geom2d.isEmpty() )
+	    continue;
+
+	Array1DImpl<bool> needed( geom2d.size() );
+	needed.setAll( false );
+
+	const PosInfo::Line2DData& data = geom2d.data();
+	const int sostep = data.trcNrRange().step;
+	const TypeSet<int>& scnds = getScndSet( ifirst );
+	for ( int iscnd=0; iscnd<scnds.size(); iscnd++ )
+	{
+	    const int centralnr = scnds[iscnd];
+	    for ( int ioffs=-trcstepout; ioffs<=trcstepout; ioffs++ )
+	    {
+		const int arridx = data.indexOf( centralnr+ioffs*sostep );
+		if ( needed.info().validPos(arridx) )
+		    needed.set( arridx, true );
+	    }
+	}
+
+	const od_uint64 arrsz = needed.totalSize();
+	for ( od_uint64 idx=0; idx<arrsz; idx++ )
+	{
+	    if ( needed.get(idx) )
+	    {
+		const Pos::IdxPair ip( frst, data.positions()[idx].nr_ );
+		addHorPosIfNeeded( ip );
+	    }
+	}
+    }
 }
 
 
