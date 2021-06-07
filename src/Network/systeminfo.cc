@@ -147,7 +147,10 @@ const char* hostAddress( const char* hostname, bool ipv4only )
 {
     mDeclStaticString( str );
     str.setEmpty();
-    const QHostInfo qhi = QHostInfo::fromName( QString(hostname) );
+    BufferString fqdn( hostname );
+    if ( fqdn == localHostName() )
+	fqdn.add( "." ).add( QHostInfo::localDomainName() );
+    const QHostInfo qhi = QHostInfo::fromName( QString(fqdn) );
     const QList<QHostAddress> addresses = qhi.addresses();
     for ( int idx=0; idx<addresses.size(); idx++ )
     {
