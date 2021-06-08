@@ -257,7 +257,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     , linenms_(lnms)
 {
     nrfld_ = new uiGenInput( this, tr("Number of Points to generate"),
-		    IntInpSpec(defnrpicks).setLimits(Interval<int>(1,10000)) );
+			     IntInpSpec(defnrpicks,1) );
 
     if ( hornms_.size() )
     {
