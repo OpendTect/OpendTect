@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "color.h"
 #include "datapointset.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -40,6 +41,7 @@ int uiPickPartServer::evGetHorDef2D()		{ return 3; }
 int uiPickPartServer::evFillPickSet()		{ return 4; }
 int uiPickPartServer::evDisplayPickSet()	{ return 7; }
 
+HiddenParam<uiPickPartServer,TypeSet<BinID>*> hp_trcpos2d( nullptr );
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -52,6 +54,7 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
     , exppsdlg_(0)
     , manpicksetsdlg_(0)
 {
+    hp_trcpos2d.setParam( this, new TypeSet<BinID> );
     mAttachCB( IOM().surveyChanged, uiPickPartServer::survChangedCB );
 }
 
@@ -59,6 +62,7 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
 uiPickPartServer::~uiPickPartServer()
 {
     detachAllNotifiers();
+    hp_trcpos2d.removeAndDeleteParam( this );
     delete &uipsmgr_;
     delete &gendef_;
     deepErase( selhorids_ );
@@ -293,49 +297,110 @@ bool uiPickPartServer::createRandom2DSet()
 }
 
 
-bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
+TypeSet<BinID>& uiPickPartServer::getTrcPos2D()
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    return *hp_trcpos2d.getParam( this );
+}
 
+
+bool uiPickPartServer::mkRandLocs2DBetweenHors( Pick::Set& ps,
+						const RandLocGenPars& rp )
+{
     selectlines_ = rp.linenms_;
     deepErase( selhorids_ );
+    selhorids_ += new MultiID( hinfos_[rp.horidx_]->multiid );
+    if ( rp.horidx2_ >= 0 )
+	selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
+
+    TypeSet<BinID>& trcpos2d = getTrcPos2D();
+    trcpos2d.erase();
     coords2d_.erase();
-    if ( rp.needhor_ )
-    {
-	selhorids_ += new MultiID( hinfos_[rp.horidx_]->multiid );
-	if ( rp.horidx2_ >= 0 )
-	    selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
-
-	hor2dzrgs_.erase();
-	sendEvent( evGetHorDef2D() );
-    }
-    else
-    {
-	for ( int iln=0; iln<selectlines_.size(); iln++ )
-	{
-	    const Survey::Geometry* geom =
-		Survey::GM().getGeometry( selectlines_.get(iln) );
-	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
-	    if ( !geom2d )
-		continue;
-
-	    const TypeSet<PosInfo::Line2DPos>& posns =
-				    geom2d->data().positions();
-	    for ( int ipos=0; ipos<posns.size(); ipos++ )
-		coords2d_ += posns[ipos].coord_;
-	}
-    }
+    hor2dzrgs_.erase();
+    sendEvent( evGetHorDef2D() );
 
     const int nrpos = coords2d_.size();
     if ( !nrpos ) return false;
 
+    ps.setCapacity( rp.nr_, false );
     for ( int ipt=0; ipt<rp.nr_; ipt++ )
     {
 	const int posidx = Stats::randGen().getIndex( nrpos );
-	Interval<float> zrg = rp.needhor_ ? hor2dzrgs_[posidx] : rp.zrg_;
-	float val = (float) ( zrg.start +
-				  Stats::randGen().get() * zrg.width(false) );
-	ps += Pick::Location( coords2d_[posidx], val );
+	const Interval<float>& zrg = hor2dzrgs_[posidx];
+	float val =
+	    float( zrg.start + Stats::randGen().get() * zrg.width(false) );
+	Pick::Location loc( coords2d_[posidx], val );
+	const BinID& trcpos = trcpos2d[posidx];
+	loc.setTrcKey( TrcKey(TrcKey::std2DSurvID(),trcpos) );
+	ps += loc;
+    }
+
+    return true;
+}
+
+
+static const PosInfo::Line2DPos* getLine2DPosForIndex( int posidx,
+			const TypeSet<int>& nrtrcs,
+			const ObjectSet<const Survey::Geometry2D>& geom2ds,
+			Pos::GeomID& geomid )
+{
+    for ( int idx=0; idx<geom2ds.size(); idx++ )
+    {
+	if ( posidx < nrtrcs[idx] )
+	{
+	    geomid = geom2ds[idx]->getID();
+	    return &geom2ds[idx]->data().positions()[posidx];
+	}
+
+	posidx -= nrtrcs[idx];
+    }
+
+    return nullptr;
+}
+
+
+bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
+{
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    if ( rp.needhor_ )
+	return mkRandLocs2DBetweenHors( ps, rp );
+
+    selectlines_ = rp.linenms_;
+    ObjectSet<const Survey::Geometry2D> geom2ds;
+    TypeSet<int> nrtrcs;
+    int nrpos = 0;
+
+    for ( int iln=0; iln<selectlines_.size(); iln++ )
+    {
+	const Survey::Geometry* geom =
+	    Survey::GM().getGeometry( selectlines_.get(iln) );
+	mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
+	if ( !geom2d )
+	    continue;
+
+	geom2ds.add( geom2d );
+	nrtrcs.add( geom2d->size() );
+	nrpos += geom2d->size();
+    }
+
+    if ( !nrpos )
+	return false;
+
+    const float zwidth = rp.zrg_.width( false );
+    Pos::GeomID geomid = mUdfGeomID;
+    ps.setCapacity( rp.nr_, false );
+    for ( int ipt=0; ipt<rp.nr_; ipt++ )
+    {
+	const int posidx = Stats::randGen().getIndex( nrpos );
+	const PosInfo::Line2DPos* l2dpos =
+			getLine2DPosForIndex( posidx, nrtrcs, geom2ds, geomid );
+	if ( !l2dpos )
+	    continue;
+
+	const float val =
+		float( rp.zrg_.start + Stats::randGen().get() * zwidth );
+	Pick::Location loc( l2dpos->coord_, val );
+	loc.setTrcKey( TrcKey(geomid,l2dpos->nr_) );
+	ps += loc;
     }
 
     return true;

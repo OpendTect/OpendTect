@@ -1706,6 +1706,16 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 				  TypeSet<Coord>& coords,
 				  TypeSet< Interval<float> >& zrgs )
 {
+    TypeSet<BinID> dummybids;
+    getSurfaceDef2D( selhorids, selectlines, coords, dummybids, zrgs );
+}
+
+
+void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
+				  const BufferStringSet& selectlines,
+				  TypeSet<Coord>& coords, TypeSet<BinID>& bids,
+				  TypeSet< Interval<float> >& zrgs )
+{
     if ( !selhorids.size() ) return;
 
     EM::ObjectID id;
@@ -1747,6 +1757,7 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 		Interval<float> zrg( z1, issecondhor ? z2 : z1 );
 		zrgs += zrg;
 		coords += pos1;
+		bids += BinID( geomid, trcnr );
 	    }
 	}
     }

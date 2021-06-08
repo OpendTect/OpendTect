@@ -152,6 +152,11 @@ public:
     void		getSurfaceDef2D(const ObjectSet<MultiID>&,
 					const BufferStringSet& sellines,
 					TypeSet<Coord>&,
+					TypeSet<BinID>&,
+					TypeSet< Interval<float> >&);
+    mDeprecatedDef void getSurfaceDef2D(const ObjectSet<MultiID>&,
+					const BufferStringSet& sellines,
+					TypeSet<Coord>&,
 					TypeSet< Interval<float> >&);
 
     bool		storeObject(const EM::ObjectID&,

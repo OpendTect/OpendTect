@@ -85,6 +85,7 @@ public:
     TypeSet<BufferStringSet>&	lineNames()		{ return linenms_; }
     BufferStringSet&		selectLines()		{ return selectlines_; }
     TypeSet<Coord>&		getPos2D()		{ return coords2d_; }
+    TypeSet<BinID>&		getTrcPos2D();
     TypeSet< Interval<float> >& getHor2DZRgs()		{ return hor2dzrgs_; }
 
 protected:
@@ -95,7 +96,7 @@ protected:
 
     ObjectSet<SurfaceInfo> 	hinfos_;
     ObjectSet<MultiID>		selhorids_;
-    TrcKeySampling			selhs_;
+    TrcKeySampling		selhs_;
     Pick::Set*			ps_;
     MultiID			picksetid_;
     MultiID			horid_;
@@ -112,5 +113,7 @@ protected:
     void			survChangedCB(CallBacker*);
     void			importReadyCB(CallBacker*);
     bool                        mkRandLocs2D(Pick::Set&,const RandLocGenPars&);
+    bool			mkRandLocs2DBetweenHors(Pick::Set&,
+							const RandLocGenPars&);
 };
 
