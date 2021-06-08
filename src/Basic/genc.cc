@@ -305,6 +305,7 @@ const char* GetLocalHostName()
     mDefineStaticLocalObject( PtrMan<BufferString>, ret, = new BufferString() );
     if (!localhostnameoverrule.isEmpty())
 	ret->set( localhostnameoverrule );
+
 #ifndef OD_NO_QT
 # if QT_VERSION >= 0x050600
     const BufferString hostnm( QSysInfo::machineHostName() );
@@ -315,7 +316,24 @@ const char* GetLocalHostName()
 #else
     GetLocalHostNameNoQt( ret );
 #endif
-    return ret->str();;
+    return ret->str();
+}
+
+static const char* noAddrFn( bool )	{ return nullptr; }
+typedef const char* (*constcharFromBoolFn)(bool);
+static constcharFromBoolFn localaddrfn_ = noAddrFn;
+
+mGlobal(Basic) void setGlobal_Basic_Fns(constcharFromBoolFn);
+void setGlobal_Basic_Fns( constcharFromBoolFn addrfn )
+{
+    localaddrfn_ = addrfn;
+}
+
+
+extern "C" { mGlobal(Basic) const char* GetLocalAddress( bool ipv4only ); }
+mExternC(Basic) const char* GetLocalAddress( bool ipv4only )
+{
+    return (*localaddrfn_)( ipv4only );
 }
 
 
