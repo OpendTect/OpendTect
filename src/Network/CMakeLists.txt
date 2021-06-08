@@ -22,6 +22,7 @@ set ( QT_MOC_HEADERS
 set ( OD_MODULE_SOURCES
 	cvsaccess.cc
 	hostdata.cc
+	initnetwork.cc
 	issuereporter.cc
 	jobcommunic.cc
 	netreqconnection.cc

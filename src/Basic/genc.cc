@@ -265,6 +265,24 @@ const char* GetLocalHostName()
 }
 
 
+static const char* noAddrFn( bool )	{ return nullptr; }
+typedef const char* (*constcharFromBoolFn)(bool);
+static constcharFromBoolFn localaddrfn_ = noAddrFn;
+
+mGlobal(Basic) void setGlobal_Basic_Fns(constcharFromBoolFn);
+void setGlobal_Basic_Fns( constcharFromBoolFn addrfn )
+{
+    localaddrfn_ = addrfn;
+}
+
+
+extern "C" { mGlobal(Basic) const char* GetLocalAddress( bool ipv4only ); }
+mExternC(Basic) const char* GetLocalAddress( bool ipv4only )
+{
+    return (*localaddrfn_)( ipv4only );
+}
+
+
 void SwapBytes( void* p, int n )
 {
     int nl = 0;
