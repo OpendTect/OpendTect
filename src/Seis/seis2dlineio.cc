@@ -37,9 +37,55 @@ Seis2DLineGetter::Seis2DLineGetter( SeisTrcBuf& trcbuf, int trcsperstep,
     , seldata_(sd.clone())
 {}
 
+
+Pos::GeomID Seis2DLineGetter::geomID() const
+{
+    return translator() ? translator()->curGeomID()
+			: (seldata_ ? seldata_->geomID() : mUdfGeomID);
+}
+
+
+bool Seis2DLineGetter::get( int trcnr, SeisTrc& trc ) const
+{
+    const SeisTrcTranslator* ctr = translator();
+    if ( !ctr )
+	return false;
+
+    auto* tr = const_cast<SeisTrcTranslator*>(ctr);
+    const BinID bid( geomID(), trcnr );
+    if ( !tr->goTo(bid) )
+	return false;
+
+    return tr->read( trc );
+}
+
+
+bool Seis2DLineGetter::get( int trcnr, TraceData& td, SeisTrcInfo* si) const
+{
+    const SeisTrcTranslator* ctr = translator();
+    if ( !ctr )
+	return false;
+
+    auto* tr = const_cast<SeisTrcTranslator*>(ctr);
+    const BinID bid( geomID(), trcnr );
+    if ( !tr->goTo(bid) )
+	return false;
+
+    SeisTrcInfo info;
+    SeisTrcInfo& inforet = si ? *si : info;
+    bool readok = tr->readInfo( inforet );
+    if ( readok )
+	readok = tr->readTraceData( &td );
+
+    return readok;
+}
+
+
 const char*
-SeisTrc2DTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
-{ return IOPar::compKey( sKey::Default(), sKeyDefault() ); }
+    SeisTrc2DTranslatorGroup::getSurveyDefaultKey( const IOObj* ioobj ) const
+{
+    return IOPar::compKey( sKey::Default(), sKeyDefault() );
+}
 
 
 class Seis2DLineIOProviderSet : public ObjectSet<Seis2DLineIOProvider>

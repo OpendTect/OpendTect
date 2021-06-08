@@ -58,12 +58,14 @@ public:
 mExpClass(Seis) Seis2DLineGetter : public Executor
 { mODTextTranslationClass(Seis2DLineGetter);
 public:
-			Seis2DLineGetter(SeisTrcBuf&,int trcsperstep,
-					 const Seis::SelData&);
     virtual		~Seis2DLineGetter()	{}
 
     uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return tr("Traces read"); }
+
+    Pos::GeomID		geomID() const;
+    bool		get(int trcnr,SeisTrc&) const;
+    bool		get(int trcnr,TraceData&,SeisTrcInfo*) const;
 
     virtual od_int64	nrDone() const			= 0;
     virtual od_int64	totalNr() const			= 0;
@@ -71,6 +73,8 @@ public:
     virtual const SeisTrcTranslator*	translator() const	{ return 0; }
 
 protected:
+			Seis2DLineGetter(SeisTrcBuf&,int trcsperstep,
+					 const Seis::SelData&);
 
     virtual int		nextStep()			= 0;
 
