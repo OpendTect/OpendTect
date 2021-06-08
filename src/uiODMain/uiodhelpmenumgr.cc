@@ -132,6 +132,15 @@ void uiODHelpMenuMgr::handle( int id )
 	{
 	    uiODApplMgr::showReleaseNotes( false );
 	} break;
+	case mFreeProjects:
+	case mCommProjects:
+	{
+	    const char* keystr = id==mFreeProjects
+					? WebsiteHelp::sKeyFreeProjects()
+					: WebsiteHelp::sKeyCommProjects();
+	    const HelpKey key( WebsiteHelp::sKeyFactoryName(), keystr );
+	    HelpProvider::provideHelp( key );
+	} break;
 	default:
 	{
 	    HelpProvider::provideHelp( HelpKey("od",0) );

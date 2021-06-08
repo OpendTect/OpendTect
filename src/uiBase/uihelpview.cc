@@ -53,11 +53,16 @@ void SimpleHelpProvider::provideHelp( const char* key ) const
 }
 
 
-static IOPar urltable;
+static IOPar& sUrlTable()
+{
+    static PtrMan<IOPar> iop = new IOPar;
+    return *iop;
+}
+
 
 void FlareHelpProvider::initClass( const char* factorykey, const char* baseurl )
 {
-    urltable.set( factorykey, baseurl );
+    sUrlTable().set( factorykey, baseurl );
     HelpProvider::factory().addCreator(FlareHelpProvider::createInstance,
 				       factorykey );
 }
@@ -83,7 +88,7 @@ void FlareHelpProvider::provideHelp( const char* argument ) const
 HelpProvider* FlareHelpProvider::createInstance()
 {
     const char* name = factory().currentName();
-    return new FlareHelpProvider( urltable.find( name ) );
+    return new FlareHelpProvider( sUrlTable().find( name ) );
 }
 
 #define mHtmlFileName	"Default.htm"
@@ -140,6 +145,8 @@ const char* WebsiteHelp::sKeyFactoryName()	{ return "website"; }
 const char* WebsiteHelp::sKeySupport()		{ return "support"; }
 const char* WebsiteHelp::sKeyVideos()		{ return "videos"; }
 const char* WebsiteHelp::sKeyAttribMatrix()	{ return "attribmatrix"; }
+const char* WebsiteHelp::sKeyFreeProjects()	{ return "freeprojects"; }
+const char* WebsiteHelp::sKeyCommProjects()	{ return "commprojects"; }
 
 void WebsiteHelp::provideHelp( const char* arg ) const
 {
@@ -150,7 +157,11 @@ void WebsiteHelp::provideHelp( const char* arg ) const
     else if ( argstr == sKeySupport() )
 	url = "https://dgbes.com/index.php/support";
     else if ( argstr == sKeyVideos() )
-	url = "http://videos.opendtect.org";
+	url = "https://videos.opendtect.org";
+    else if ( argstr == sKeyFreeProjects() )
+	url = "https://terranubis.com/datalist/free";
+    else if ( argstr == sKeyCommProjects() )
+	url = "https://terranubis.com/datalist";
 
     if ( url.isEmpty() )
 	uiMSG().error( tr("Cannot open website page") );
@@ -168,7 +179,12 @@ bool WebsiteHelp::hasHelp( const char* arg ) const
 
 
 // VideoProvider
-static IOPar sVideoIndexFiles;
+static IOPar& sVideoIndexFiles()
+{
+    static PtrMan<IOPar> iop = new IOPar;
+    return *iop;
+}
+
 
 VideoProvider::VideoProvider( const char* idxfnm )
     : indexfilenm_(idxfnm)
@@ -187,14 +203,14 @@ void VideoProvider::init()
 void VideoProvider::initClass( const char* context, const char* indexfnm )
 {
     HelpProvider::factory().addCreator( createInstance, context );
-    sVideoIndexFiles.set( context, indexfnm );
+    sVideoIndexFiles().set( context, indexfnm );
 }
 
 
 HelpProvider* VideoProvider::createInstance()
 {
     const char* name = factory().currentName();
-    return new VideoProvider( sVideoIndexFiles.find(name) );
+    return new VideoProvider( sVideoIndexFiles().find(name) );
 }
 
 

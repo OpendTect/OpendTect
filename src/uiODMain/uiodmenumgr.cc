@@ -70,13 +70,18 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     , addtimedepthsceneitm_(0)
     , faulttoolman_(0)
 {
-    surveymnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sSurvey()) );
-    analmnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sAnalysis()) );
-    procmnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sProcessing()) );
-    scenemnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sScenes()) );
-    viewmnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sView()) );
-    utilmnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sUtilities()) );
-    helpmnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sHelp()) );
+    uiMenuBar* mb = appl_.menuBar();
+    surveymnu_ = mb->addMenu( new uiMenu(uiStrings::sSurvey()) );
+    analmnu_ = mb->addMenu( new uiMenu(uiStrings::sAnalysis()) );
+    procmnu_ = mb->addMenu( new uiMenu(uiStrings::sProcessing()) );
+    scenemnu_ = mb->addMenu( new uiMenu(uiStrings::sScenes()) );
+    viewmnu_ = mb->addMenu( new uiMenu(uiStrings::sView()) );
+    utilmnu_ = mb->addMenu( new uiMenu(uiStrings::sUtilities()) );
+    auto* tnmnu = mb->addMenu( new uiMenu(toUiString("TerraNubis")) );
+    helpmnu_ = mb->addMenu( new uiMenu(uiStrings::sHelp()) );
+
+    insertAction( tnmnu, tr("Download Free Projects"), mFreeProjects );
+    insertAction( tnmnu, tr("Download Commercial Projects"), mCommProjects );
 
     dtecttb_ = new uiToolBar( &appl_, tr("OpendTect Tools"), uiToolBar::Top );
     viewtb_ = new uiToolBar( &appl_, tr("Graphical Tools"), uiToolBar::Left );
@@ -1616,6 +1621,12 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 					: (id == mStereoQuadMnuItm ? 2 : 0 );
 	sceneMgr().setStereoType( type );
 	updateStereoMenu();
+    } break;
+
+    case mFreeProjects :
+    case mCommProjects :
+    {
+	helpmgr_->handle( id );
     } break;
 
     default:
