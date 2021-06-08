@@ -146,6 +146,8 @@ const char* WebsiteHelp::sKeyFactoryName()	{ return "website"; }
 const char* WebsiteHelp::sKeySupport()		{ return "support"; }
 const char* WebsiteHelp::sKeyVideos()		{ return "videos"; }
 const char* WebsiteHelp::sKeyAttribMatrix()	{ return "attribmatrix"; }
+const char* WebsiteHelp::sKeyFreeProjects()	{ return "freeprojects"; }
+const char* WebsiteHelp::sKeyCommProjects()	{ return "commprojects"; }
 
 void WebsiteHelp::provideHelp( const char* arg ) const
 {
@@ -156,7 +158,11 @@ void WebsiteHelp::provideHelp( const char* arg ) const
     else if ( argstr == sKeySupport() )
 	url = "https://dgbes.com/index.php/support";
     else if ( argstr == sKeyVideos() )
-	url = "http://videos.opendtect.org";
+	url = "https://videos.opendtect.org";
+    else if ( argstr == sKeyFreeProjects() )
+	url = "https://terranubis.com/datalist/free";
+    else if ( argstr == sKeyCommProjects() )
+	url = "https://terranubis.com/datalist";
 
     if ( url.isEmpty() )
 	uiMSG().error( tr("Cannot open website page") );
