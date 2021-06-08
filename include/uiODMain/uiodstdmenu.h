@@ -27,6 +27,7 @@ ________________________________________________________________________
 #define mViewMnu		4000
 #define mUtilMnu		5000
 #define mAppMnu			6000
+#define mTerraNubisMnu		7000
 #define mHelpMnu		1000000000
 
 /* 'File' menu */
@@ -246,6 +247,10 @@ ________________________________________________________________________
 #define mSettSurvey		(mUtilSettingMnu + 42)
 #define mSettShortcutsMnuItm	(mUtilSettingMnu + 50)
 
+
+/* 'TerraNubis' menu */
+#define mFreeProjects		(mTerraNubisMnu+1)
+#define mCommProjects		(mTerraNubisMnu+2)
 
 /* 'Help' menu */
 

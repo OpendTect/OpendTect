@@ -85,6 +85,8 @@ public:
     static const char*		sKeySupport();
     static const char*		sKeyVideos();
     static const char*		sKeyAttribMatrix();
+    static const char*		sKeyFreeProjects();
+    static const char*		sKeyCommProjects();
 
 private:
     static HelpProvider*	createInstance();
