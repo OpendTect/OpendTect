@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visplanedatadisplay.h"
 #include "vishorizondisplay.h"
 #include "visrandomtrackdisplay.h"
+#include "visseis2ddisplay.h"
 #include "zaxistransform.h"
 
 
@@ -264,6 +265,26 @@ void LocationDisplay::pickCB( CallBacker* cb )
     if ( eventinfo.dragging )
 	updateDragger();
 
+    int eventid = -1;
+    pickedsobjid_ = -1;
+    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+    {
+	visBase::DataObject* dataobj =
+			visBase::DM().getObject( eventinfo.pickedobjids[idx] );
+	if ( !dataobj || dataobj == this )
+	    continue;
+
+	if ( dataobj->isPickable() )
+	    eventid = eventinfo.pickedobjids[idx];
+
+	mDynamicCastGet(const SurveyObject*,so,dataobj);
+	if ( so && so->allowsPicks() )
+	    pickedsobjid_ = eventid;
+
+	if ( pickedsobjid_ != -1 )
+	    break;
+    }
+
     if ( eventinfo.type == visBase::MouseClick && !eventinfo.pressed )
     {
 	if ( !draggerNormal() )
@@ -321,8 +342,18 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		if ( undoloccoord_.isDefined() )
 		{
 		    const ::Sphere dir = (*set_)[waitsforpositionid_].dir_;
-		    const Pick::Location undoloc( undoloccoord_, dir );
-		    const Pick::Location newloc( newpos, dir );
+		    Pick::Location undoloc( undoloccoord_, dir );
+		    Pick::Location newloc( newpos, dir );
+		    mDynamicCastGet(const Seis2DDisplay*,s2d,
+				    getPickedSurveyObject())
+		    if ( s2d )
+		    {
+			undoloc.setTrcKey(
+					(*set_)[waitsforpositionid_].trcKey() );
+			newloc.setTrcKey( TrcKey(s2d->getGeomID(),
+					s2d->getNearestTraceNr(newpos)) );
+		    }
+
 		    set_->moveWithUndo(
 			waitsforpositionid_, undoloc, newloc );
 		    Pick::Mgr().undo().setUserInteractionEnd(
@@ -353,26 +384,6 @@ void LocationDisplay::pickCB( CallBacker* cb )
     if ( eventinfo.type != visBase::MouseClick ||
 	 !OD::leftMouseButton( eventinfo.buttonstate_ ) )
 	return;
-
-    int eventid = -1;
-    pickedsobjid_ = -1;
-    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
-    {
-	visBase::DataObject* dataobj =
-			visBase::DM().getObject( eventinfo.pickedobjids[idx] );
-	if ( !dataobj || dataobj == this )
-	    continue;
-
-	if ( dataobj->isPickable() )
-	    eventid = eventinfo.pickedobjids[idx];
-
-	mDynamicCastGet(const SurveyObject*,so,dataobj);
-	if ( so && so->allowsPicks() )
-	    pickedsobjid_ = eventid;
-
-	if ( pickedsobjid_ != -1 )
-	    break;
-    }
 
     if ( eventid == -1 )
 	return;
@@ -792,9 +803,10 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	sower_->alternateSowingOrder( false );
 
     Pick::Location newloc( pos, dir );
-    const SurveyObject* so = getPickedSurveyObject();
-    if ( so )
-	newloc.setGeomID( so->getGeomID() );
+    mDynamicCastGet(const Seis2DDisplay*,s2d,getPickedSurveyObject())
+    if ( s2d )
+	newloc.setTrcKey( TrcKey(s2d->getGeomID(),
+				 s2d->getNearestTraceNr(pos)) );
 
     if ( insertpick )
     {
