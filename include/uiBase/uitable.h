@@ -310,6 +310,7 @@ public:
     void		setSelectionMode(SelectionMode);
     void		setSelectionBehavior(SelectionBehavior);
     void		editCell(const RowCol&,bool replace=false);
+    void		setMouseTracking(bool);
 
     mExpClass(uiBase) SelectionRange
     {
