@@ -1282,6 +1282,12 @@ void uiTable::editCell( const RowCol& rc, bool replace )
 }
 
 
+void uiTable::setMouseTracking( bool yn )
+{
+    body_->setMouseTracking( yn );
+}
+
+
 void uiTable::popupMenu( CallBacker* )
 {
     const int xcursorpos = QCursor::pos().x();
