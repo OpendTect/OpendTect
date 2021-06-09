@@ -464,6 +464,13 @@ Export_Basic od_ostream& logMsgStrm()
 Export_Basic void programmerErrMsg( const char* inpmsg, const char* cname,
 				    const char* fname, int linenr )
 {
+    bool isdebug = DBG::isOn();
+#ifdef __debug__
+    isdebug = true;
+#endif
+    if ( !isdebug )
+	return;
+
     BufferString msg( cname, " | " );
     msg.add( fname ).add( ":" ).add( linenr )
 	.add( " >> " ).add( inpmsg ).add( " <<" );
