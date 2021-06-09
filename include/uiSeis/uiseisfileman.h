@@ -58,6 +58,7 @@ protected:
     void		manPS(CallBacker*);
     void		showAttribSet(CallBacker*);
     void		showSEGYHeader(CallBacker*);
+    void		extrFrom3D(CallBacker*);
 
     virtual void	mkFileInfo();
     virtual void	ownSelChg();

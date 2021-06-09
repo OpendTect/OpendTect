@@ -13,38 +13,39 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseisfileman.h"
 
 #include "cbvsreadmgr.h"
-#include "trckeyzsampling.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
+#include "od_helpids.h"
 #include "seis2dlineio.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seistrctr.h"
-#include "survinfo.h"
-#include "zdomain.h"
 #include "separstr.h"
+#include "survinfo.h"
 #include "timedepthconv.h"
+#include "trckeyzsampling.h"
+#include "zdomain.h"
 
 #include "ui2dgeomman.h"
-#include "uitoolbutton.h"
-#include "uilistbox.h"
-#include "uitextedit.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
+#include "uilistbox.h"
 #include "uimergeseis.h"
-#include "uiseispsman.h"
+#include "uiseis2dfileman.h"
+#include "uiseis2dfrom3d.h"
+#include "uiseis2dgeom.h"
 #include "uiseisbrowser.h"
 #include "uiseiscopy.h"
 #include "uiseisioobjinfo.h"
-#include "uiseis2dfileman.h"
-#include "uiseis2dgeom.h"
+#include "uiseispsman.h"
 #include "uisplitter.h"
 #include "uitaskrunner.h"
-#include "od_helpids.h"
+#include "uitextedit.h"
+#include "uitoolbutton.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 
@@ -84,9 +85,9 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 		  SeisTrcTranslatorGroup::ioContext(),
 		is2d ? "2D Seismic Data" : "Seismic Data" )
     , is2d_(is2d)
-    , browsebut_(0)
-    , man2dlinesbut_(0)
-    , mergecubesbut_(0)
+    , browsebut_(nullptr)
+    , man2dlinesbut_(nullptr)
+    , mergecubesbut_(nullptr)
 {
     if ( !cbvsbrowsermgr_ )
 	cbvsbrowsermgr_ = new uiSeisCBVSBrowerMgr;
@@ -111,6 +112,9 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 	man2dlinesbut_ = manipgrp->addButton( "man2d", uiStrings::phrManage(
 					   uiStrings::sLine(2)),
 					   mCB(this,uiSeisFileMan,man2DPush) );
+	if ( SI().has3D() )
+	    manipgrp->addButton( "extr3dinto2d", tr("Extract from 3D cube"),
+			mCB(this,uiSeisFileMan,extrFrom3D) );
     }
     else
     {
@@ -128,12 +132,13 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				      mCB(this,uiSeisFileMan,showSEGYHeader) );
 
     mTriggerInstanceCreatedNotifier();
-    selChg(0);
+    mAttachCB( postFinalise(), uiSeisFileMan::selChg );
 }
 
 
 uiSeisFileMan::~uiSeisFileMan()
 {
+    detachAllNotifiers();
 }
 
 
@@ -255,7 +260,7 @@ const uiSeisFileMan::BrowserDef* uiSeisFileMan::getBrowserDef() const
 	}
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -267,139 +272,148 @@ void uiSeisFileMan::mkFileInfo()
     if ( oinf.isOK() )
     {
 
-    if ( is2d_ )
-    {
-	BufferStringSet nms;
-	SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
-	oinf.getLineNames( nms, opts2d );
-	txt += "Number of lines: "; txt += nms.size();
-    }
+	if ( is2d_ )
+	{
+	    BufferStringSet nms;
+	    SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
+	    oinf.getLineNames( nms, opts2d );
+	    txt += "Number of lines: "; txt += nms.size();
+	}
 
 #define mAddRangeTxt(line) \
     .add(" range: ").add(cs.hsamp_.start_.line).add(" - ") \
     .add(cs.hsamp_.stop_.line) \
     .add(" [").add(cs.hsamp_.step_.line).add("]")
 
-    const ZDomain::Def& zddef = oinf.zDomainDef();
-    TrcKeyZSampling cs;
-    if ( !is2d_ )
-    {
-	if ( oinf.getRanges(cs) )
+	const ZDomain::Def& zddef = oinf.zDomainDef();
+	TrcKeyZSampling cs;
+	if ( !is2d_ )
 	{
-	    txt.setEmpty();
-	    if ( !mIsUdf(cs.hsamp_.stop_.inl()) )
-		{ txt.add(sKey::Inline()) mAddRangeTxt(inl()); }
-	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
-		{ txt.addNewLine().add(sKey::Crossline()) mAddRangeTxt(crl()); }
-	    SeisIOObjInfo::SpaceInfo spcinfo;
-	    double area;
-	    if ( oinf.getDefSpaceInfo(spcinfo) )
+	    if ( oinf.getRanges(cs) )
 	    {
-		area = sCast(double,cs.hsamp_.lineDistance()) *
-			 cs.hsamp_.trcDistance() * spcinfo.expectednrtrcs;
-	    }
-	    else
-	    {
-		area = sCast(double,SI().getArea(cs.hsamp_.inlRange(),
-						 cs.hsamp_.crlRange()));
-	    }
-	    txt.add("\nArea: ")
-	       .add( getAreaString(sCast(float,area),SI().xyInFeet(),2,true) );
+		txt.setEmpty();
+		if ( !mIsUdf(cs.hsamp_.stop_.inl()) )
+		    txt.add( sKey::Inline()) mAddRangeTxt(inl() );
 
-	    StepInterval<float> zrg = cs.zsamp_;
-	    zrg.scale( zddef.userFactor() );
-	    const int nrdec = Math::NrSignificantDecimals( zrg.step );
-	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
-		.add(zddef.unitStr(true)).add(": ").add( zrg.start, nrdec )
-		.add(" - ").add( zrg.stop, nrdec )
-		.add(" [").add( zrg.step, nrdec ).add("]");
-	}
-    }
+		if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
+		    txt.addNewLine().add( sKey::Crossline())
+						    mAddRangeTxt(crl() );
 
-    if ( !curioobj_->pars().isEmpty() )
-    {
-	const IOPar& pars = curioobj_->pars();
-	FixedString parstr = pars.find( "Type" );
-	if ( !parstr.isEmpty() )
-	    txt.add( "\nType: " ).add( parstr );
-
-	parstr = pars.find( "Optimized direction" );
-	if ( !parstr.isEmpty() )
-	    txt.add( "\nOptimized direction: " ).add( parstr );
-	if ( pars.isTrue("Is Velocity") )
-	{
-	    Interval<float> topvavg, botvavg;
-	    txt += "\nVelocity Type: ";
-	    parstr = pars.find( "Velocity Type" );
-	    txt += parstr.isEmpty() ? "<unknown>" : parstr.str();
-
-	    if ( pars.get(VelocityStretcher::sKeyTopVavg(),topvavg)
-	      && pars.get(VelocityStretcher::sKeyBotVavg(),botvavg))
-	    {
-		const StepInterval<float> sizrg = SI().zRange(true);
-		StepInterval<float> dispzrg;
-
-		if ( SI().zIsTime() )
+		SeisIOObjInfo::SpaceInfo spcinfo;
+		double area;
+		if ( oinf.getDefSpaceInfo(spcinfo) )
 		{
-		    dispzrg.start = sizrg.start * topvavg.start / 2;
-		    dispzrg.stop = sizrg.stop * botvavg.stop / 2;
-		    dispzrg.step = (dispzrg.stop-dispzrg.start)
-					/ sizrg.nrSteps();
-		    txt.add( "\nDepth Range " )
-			.add( ZDomain::Depth().unitStr(true) );
+		    area = sCast(double,cs.hsamp_.lineDistance()) *
+			     cs.hsamp_.trcDistance() * spcinfo.expectednrtrcs;
 		}
 		else
 		{
-		    dispzrg.start = 2 * sizrg.start / topvavg.stop;
-		    dispzrg.stop = 2 * sizrg.stop / botvavg.start;
-		    dispzrg.step = (dispzrg.stop-dispzrg.start)
-					/ sizrg.nrSteps();
-		    dispzrg.scale( (float)ZDomain::Time().userFactor() );
-		    txt.add( "\nTime Range " )
-			.add( ZDomain::Time().unitStr(true) );
+		    area = sCast(double,SI().getArea(cs.hsamp_.inlRange(),
+						     cs.hsamp_.crlRange()));
 		}
 
-		txt.add( ": " ).add( dispzrg.start )
-		    .add( " - " ).add( dispzrg.stop );
+		txt.add("\nArea: ").add( getAreaString(
+				sCast(float,area),SI().xyInFeet(),2,true) );
+
+		StepInterval<float> zrg = cs.zsamp_;
+		zrg.scale( zddef.userFactor() );
+		const int nrdec = Math::NrSignificantDecimals( zrg.step );
+		txt.add( "\n" ).add( mFromUiStringTodo(zddef.getRange()) )
+		    .add( zddef.unitStr(true) ).add( ": " )
+		    .add( zrg.start, nrdec )
+		    .add( " - " ).add( zrg.stop, nrdec )
+		    .add( " [" ).add( zrg.step, nrdec ).add( "]" );
 	    }
 	}
-    }
 
-    BufferString dsstr = curioobj_->pars().find( sKey::DataStorage() );
-    if ( mIsOfTranslType(CBVS) )
-    {
-	CBVSSeisTrcTranslator* tri = CBVSSeisTrcTranslator::getInstance();
-	if ( tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),
-				Conn::Read) ) )
+	if ( !curioobj_->pars().isEmpty() )
 	{
-	    const BasicComponentInfo& bci =
-		*tri->readMgr()->info().compinfo_[0];
-	    const DataCharacteristics::UserType ut = bci.datachar.userType();
-	    dsstr = DataCharacteristics::getUserTypeString(ut);
-	}
-	delete tri;
-    }
-    if ( dsstr.size() > 4 )
-	txt.add( "\nStorage: " ).add( dsstr.buf() + 4 );
+	    const IOPar& pars = curioobj_->pars();
+	    FixedString parstr = pars.find( "Type" );
+	    if ( !parstr.isEmpty() )
+		txt.add( "\nType: " ).add( parstr );
 
-    const int nrcomp = oinf.nrComponents();
-    if ( nrcomp > 1 )
-	txt.add( "\nNumber of components: " ).add( nrcomp );
+	    parstr = pars.find( "Optimized direction" );
+	    if ( !parstr.isEmpty() )
+		txt.add( "\nOptimized direction: " ).add( parstr );
+
+	    if ( pars.isTrue("Is Velocity") )
+	    {
+		Interval<float> topvavg, botvavg;
+		txt += "\nVelocity Type: ";
+		parstr = pars.find( "Velocity Type" );
+		txt += parstr.isEmpty() ? "<unknown>" : parstr.str();
+
+		if ( pars.get(VelocityStretcher::sKeyTopVavg(),topvavg)
+		  && pars.get(VelocityStretcher::sKeyBotVavg(),botvavg))
+		{
+		    const StepInterval<float> sizrg = SI().zRange(true);
+		    StepInterval<float> dispzrg;
+
+		    if ( SI().zIsTime() )
+		    {
+			dispzrg.start = sizrg.start * topvavg.start / 2;
+			dispzrg.stop = sizrg.stop * botvavg.stop / 2;
+			dispzrg.step = (dispzrg.stop-dispzrg.start)
+					    / sizrg.nrSteps();
+			txt.add( "\nDepth Range " )
+			    .add( ZDomain::Depth().unitStr(true) );
+		    }
+		    else
+		    {
+			dispzrg.start = 2 * sizrg.start / topvavg.stop;
+			dispzrg.stop = 2 * sizrg.stop / botvavg.start;
+			dispzrg.step = (dispzrg.stop-dispzrg.start)
+					    / sizrg.nrSteps();
+			dispzrg.scale( (float)ZDomain::Time().userFactor() );
+			txt.add( "\nTime Range " )
+			    .add( ZDomain::Time().unitStr(true) );
+		    }
+
+		    txt.add( ": " ).add( dispzrg.start )
+			.add( " - " ).add( dispzrg.stop );
+		}
+	    }
+	}
+
+	BufferString dsstr = curioobj_->pars().find( sKey::DataStorage() );
+	if ( mIsOfTranslType(CBVS) )
+	{
+	    CBVSSeisTrcTranslator* tri = CBVSSeisTrcTranslator::getInstance();
+	    if ( tri->initRead( new StreamConn(curioobj_->fullUserExpr(true),
+				    Conn::Read) ) )
+	    {
+		const BasicComponentInfo& bci =
+		    *tri->readMgr()->info().compinfo_[0];
+		const DataCharacteristics::UserType ut =
+						    bci.datachar.userType();
+		dsstr = DataCharacteristics::getUserTypeString(ut);
+	    }
+
+	    delete tri;
+	}
+	if ( dsstr.size() > 4 )
+	    txt.add( "\nStorage: " ).add( dsstr.buf() + 4 );
+
+	const int nrcomp = oinf.nrComponents();
+	if ( nrcomp > 1 )
+	    txt.add( "\nNumber of components: " ).add( nrcomp );
 
 
     } // if ( oinf.isOK() )
 
     if ( txt.isEmpty() )
 	txt = "<No specific info available>\n";
-    txt.add( "\n" ).add( getFileInfo() );
 
+    txt.add( "\n" ).add( getFileInfo() );
     setInfo( txt );
 }
 
 
 od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
-    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) ) return -1;
+    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) )
+	return -1;
 
     od_int64 totalsz = 0;
     nrfiles = 0;
@@ -435,15 +449,16 @@ od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 
 void uiSeisFileMan::mergePush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const MultiID key( curioobj_->key() );
     TypeSet<MultiID> chsnmids;
     selgrp_->getChosen( chsnmids );
     uiMergeSeis dlg( this );
     dlg.setInputIds( chsnmids );
-    dlg.go();
-    selgrp_->fullUpdate( key );
+    if ( dlg.go() )
+	selgrp_->fullUpdate( key );
 }
 
 
@@ -460,13 +475,13 @@ void uiSeisFileMan::browsePush( CallBacker* )
 
 void uiSeisFileMan::man2DPush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const MultiID key( curioobj_->key() );
     uiSeis2DFileMan dlg( this, *curioobj_ );
-    dlg.go();
-
-    selgrp_->fullUpdate( key );
+    if ( dlg.go() )
+	selgrp_->fullUpdate( key );
 }
 
 
@@ -502,7 +517,8 @@ void uiSeisFileMan::manPS( CallBacker* )
 
 void uiSeisFileMan::showAttribSet( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     FilePath fp( curioobj_->fullUserExpr() );
     fp.setExtension( "proc" );
@@ -512,9 +528,18 @@ void uiSeisFileMan::showAttribSet( CallBacker* )
 
 void uiSeisFileMan::showSEGYHeader( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     FilePath fp( curioobj_->fullUserExpr() );
     fp.setExtension( "sgyhdr" );
     File::launchViewer( fp.fullPath(), File::ViewPars() );
+}
+
+
+void uiSeisFileMan::extrFrom3D( CallBacker* )
+{
+    uiSeis2DFrom3D dlg( this );
+    if ( dlg.go() )
+	updateCB( nullptr );
 }

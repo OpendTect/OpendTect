@@ -11,41 +11,40 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiseis2dfileman.h"
-#include "uiseispsman.h"
 
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "seis2ddata.h"
-#include "seiscbvs.h"
-#include "seiscbvs2d.h"
-#include "seis2dlinemerge.h"
-#include "seiscube2linedata.h"
-#include "survinfo.h"
-#include "survgeom2d.h"
-#include "posinfo2dsurv.h"
-#include "zdomain.h"
 #include "linesetposinfo.h"
+#include "od_helpids.h"
+#include "posinfo2dsurv.h"
+#include "seis2ddata.h"
+#include "seis2dlinemerge.h"
+#include "seiscbvs2d.h"
+#include "seiscbvs.h"
+#include "seiscube2linedata.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
+#include "zdomain.h"
 
 #include "ui2dgeomman.h"
-#include "uitoolbutton.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
-#include "uicombobox.h"
-#include "uigeninput.h"
 #include "uimsg.h"
-#include "uiseis2dfrom3d.h"
-#include "uiseisioobjinfo.h"
 #include "uiseisbrowser.h"
+#include "uiseisioobjinfo.h"
+#include "uiseispsman.h"
 #include "uiseissel.h"
-#include "uisplitter.h"
 #include "uiseparator.h"
-#include "uitextedit.h"
+#include "uisplitter.h"
 #include "uitaskrunner.h"
-#include "od_helpids.h"
+#include "uitextedit.h"
+#include "uitoolbutton.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
@@ -58,7 +57,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
 {
     setCtrlStyle( CloseOnly );
-    Survey::GMAdmin().updateGeometries( 0 );
+    Survey::GMAdmin().updateGeometries( nullptr );
 
     objinfo_ = new uiSeisIOObjInfo( ioobj );
     dataset_ = new Seis2DDataSet( ioobj );
@@ -71,15 +70,12 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 
     linegrp_ = new uiManipButGrp( linefld_ );
     linegrp_->addButton( uiManipButGrp::Remove, uiStrings::phrRemove(
-		    uiStrings::sLine()), mCB(this,uiSeis2DFileMan,removeLine) );
+		uiStrings::sLine()), mCB(this,uiSeis2DFileMan,removeLine) );
     linegrp_->addButton( "mergelines", uiStrings::phrMerge(
-			uiStrings::sLine(mPlural)),mCB(this,uiSeis2DFileMan,
-			mergeLines) );
+	    uiStrings::sLine(mPlural)),mCB(this,uiSeis2DFileMan,mergeLines) );
     linegrp_->addButton( "browseseis", tr("Browse/edit this line"),
 		        mCB(this,uiSeis2DFileMan,browsePush) );
-    if ( SI().has3D() )
-	linegrp_->addButton( "extr3dinto2d", tr("Extract from 3D cube"),
-			mCB(this,uiSeis2DFileMan,extrFrom3D) );
+
     linegrp_->attach( rightOf, linefld_->box() );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom" );
@@ -94,12 +90,13 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     fillLineBox();
 
     mTriggerInstanceCreatedNotifier();
-    lineSel(0);
+    mAttachCB( postFinalise(), uiSeis2DFileMan::lineSel );
 }
 
 
 uiSeis2DFileMan::~uiSeis2DFileMan()
 {
+    detachAllNotifiers();
     delete objinfo_;
     delete dataset_;
 }
@@ -123,12 +120,16 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
     infofld_->setText( "" );
     BufferStringSet linenms;
     linefld_->getChosen( linenms );
-    BufferString txt;
+    uiString txt;
     for ( int idx=0; idx<linenms.size(); idx++ )
     {
 	const Pos::GeomID geomid = Survey::GM().getGeomID( linenms.get(idx) );
 	const int lineidx = dataset_->indexOf( geomid );
-	if ( lineidx < 0 ) { pErrMsg("Huh"); continue; }
+	if ( lineidx < 0 )
+	{
+	    pErrMsg("Huh");
+	    continue;
+	}
 
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
@@ -141,8 +142,9 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	    l2dd = geom2d->data();
 	if ( !geom2d || l2dd.isEmpty() )
 	{
-	    txt += ( "\nCannot find geometry for line: " );
-	    txt += linenms.get(idx);
+	    txt.addNewLine();
+	    txt.append( tr("Cannot find geometry for line: %1").
+						    arg(linenms.get(idx)) );
 	    continue;
 	}
 
@@ -151,50 +153,68 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	l2dd.getPos( trcrg.start, firstpos );
 	l2dd.getPos( trcrg.stop, lastpos );
 
+	txt.addNewLine();
 	if ( hasrg )
 	{
 	    if ( idx > 0 )
-		txt += "\n\n";
-	    txt += "Details for line: "; txt += linenms.get(idx);
-	    txt += "\nNumber of traces: "; txt += sz;
-	    txt += "\nFirst trace: ";
+		txt.addNewLine();
+
+	    txt.append( tr("Details for line: %1").arg(linenms.get(idx)) );
+	    txt.addNewLine();
+	    txt.append( tr("Number of traces: %1").arg(sz) );
+	    txt.addNewLine();
+	    txt.append( tr("First trace: %1 %2") );
 	    const int nrdec = SI().nrXYDecimals();
 	    if ( l2dd.getPos(trcrg.start,firstpos) )
-		txt.add( firstpos.nr_ )
-		   .add( " " ).add( firstpos.coord_.toPrettyString(nrdec) );
-	    txt += "\nLast trace: ";
+		txt.arg( firstpos.nr_ )
+		   .arg( firstpos.coord_.toPrettyString(nrdec) ).addNewLine();
+	    txt.append( tr("Last trace: %1 %2") );
 	    if ( l2dd.getPos(trcrg.stop,lastpos) )
-		txt.add( lastpos.nr_ )
-		   .add( " " ).add( lastpos.coord_.toPrettyString(nrdec) );
+		txt.arg( lastpos.nr_ )
+		   .arg( lastpos.coord_.toPrettyString(nrdec) ).addNewLine();
 
-#define mAddZRangeTxt(memb) txt += \
-				zistm ? SI().zDomain().userFactor()*memb : memb
-	    txt += "\nZ-range: "; mAddZRangeTxt(zrg.start); txt += " - ";
-	    mAddZRangeTxt(zrg.stop);
-	    txt += " ["; mAddZRangeTxt(zrg.step); txt += "]";
+#define mAddZRangeTxt(memb) txt.arg( \
+			    zistm ? SI().zDomain().userFactor()*memb : memb )
+
+	    txt.append( tr("Z-range: %1 - %2 [%3]") );
+	    mAddZRangeTxt( zrg.start );
+	    mAddZRangeTxt( zrg.stop );
+	    mAddZRangeTxt( zrg.step );
 	}
 	else
 	{
-	    txt += "\nCannot read ranges for line: "; txt += linenms.get(idx);
-	    txt += "\nCBVS file might be corrupt or missing.\n";
+	    txt.append( tr("Cannot read ranges for line: %1")
+						    .arg(linenms.get(idx)) );
+	    txt.addNewLine();
+	    txt.append( tr("CBVS file might be corrupt or missing.") );
+	    txt.addNewLine();
 	}
 
 	const IOObj& ioobj = *objinfo_->ioObj();
 	SeisIOObjInfo sobinf( ioobj );
 	const int nrcomp = sobinf.nrComponents( geomid );
 	if ( nrcomp > 1 )
-	    { txt += "\nNumber of components: "; txt += nrcomp; }
+	{
+	    txt.addNewLine();
+	    txt.append( tr("Number of components: %1").arg(nrcomp) );
+	}
 
 	BufferString fname = SeisCBVS2DLineIOProvider::getFileName( ioobj,
 								    geomid );
 	FilePath fp( fname );
-
-	txt += "\nLocation: "; txt += fp.pathOnly();
-	txt += "\nFile name: "; txt += fp.fileName();
-	txt += "\nFile size: ";
-	txt += File::getFileSizeString( fname );
-	const char* timestr = File::timeLastModified( fname );
-	if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
+	txt.addNewLine();
+	txt.append( tr("Location: %1").arg(fp.pathOnly()) );
+	txt.addNewLine();
+	txt.append( tr("File name: %1").arg(fp.fileName()) );
+	txt.addNewLine();
+	txt.append( tr("File size: %1").arg(File::getFileSizeString(fname)) );
+	txt.addNewLine();
+	FixedString timestr( File::timeLastModified(fname) );
+	if ( !timestr.isEmpty() )
+	{
+	    txt.addNewLine();
+	    txt.append( tr("Last modified: %1").arg(timestr) );
+	}
     }
 
     infofld_->setText( txt );
@@ -222,7 +242,8 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
 
 void uiSeis2DFileMan::browsePush( CallBacker* )
 {
-    if ( !objinfo_ || !objinfo_->ioObj() ) return;
+    if ( !objinfo_ || !objinfo_->ioObj() )
+	return;
 
     const LineKey lk( linefld_->getText() );
     uiSeisBrowser::doBrowse( this, *objinfo_->ioObj(), true, &lk );
@@ -254,14 +275,14 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     ln2fld_->selectionChanged.notify(
 	    mCB(this,uiSeis2DFileManMergeDlg,fillData2MergeCB) );
 
-
-    const char* mrgopts[]
-	= { "Match trace numbers", "Match coordinates", "Bluntly append", 0 };
+    uiStringSet mrgopts;
+    mrgopts.add( tr("Match trace numbers") );
+    mrgopts.add( tr("Match coordinates") );
+    mrgopts.add( tr("Bluntly append") );
     mrgoptfld_ = new uiGenInput( geomgrp, uiStrings::phrMerge(tr("method")),
 				 StringListInpSpec(mrgopts) );
     mrgoptfld_->attach( alignedBelow, lcb2 );
     mrgoptfld_->valuechanged.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
-
 
     renumbfld_ = new uiGenInput( geomgrp, tr("Renumber; Start/step numbers"),
 				 IntInpSpec(1), IntInpSpec(1) );
@@ -290,16 +311,20 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     data2mergefld_ = new uiListBox( datagrp, su );
     data2mergefld_->attach( alignedBelow, stckfld_ );
 
-
     postFinalise().notify( mCB(this,uiSeis2DFileManMergeDlg,initWin) );
+}
+
+~uiSeis2DFileManMergeDlg()
+{
+    detachAllNotifiers();
 }
 
 void initWin( CallBacker* )
 {
-    optSel(0);
-    fillData2MergeCB( 0 );
-    renumbfld_->valuechanged.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
-    renumbfld_->checked.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
+    optSel( nullptr);
+    fillData2MergeCB( nullptr );
+    mAttachCB( renumbfld_->valuechanged, uiSeis2DFileManMergeDlg::optSel );
+    mAttachCB( renumbfld_->checked, uiSeis2DFileManMergeDlg::optSel );
 }
 
 
@@ -332,8 +357,8 @@ void optSel( CallBacker* )
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool acceptOK( CallBacker* )
 {
-    const char* outnm = outfld_->text();
-    if ( !outnm || !*outnm )
+    FixedString outnm( outfld_->text() );
+    if ( outnm.isEmpty() )
 	mErrRet( tr("Please enter a name for the merged line") );
 
     Pos::GeomID outgeomid = Geom2DImpHandler::getGeomID( outnm );
@@ -403,13 +428,15 @@ void uiSeis2DFileMan::redoAllLists()
 	delete dataset_;
 	dataset_ = new Seis2DDataSet( *(objinfo_->ioObj()) );
     }
+
     fillLineBox();
 }
 
 
 void uiSeis2DFileMan::mergeLines( CallBacker* )
 {
-    if ( linefld_->size() < 2 ) return;
+    if ( linefld_->size() < 2 )
+	return;
 
     BufferStringSet sellnms; int firstsel = -1;
     for ( int idx=0; idx<linefld_->size(); idx++ )
@@ -417,16 +444,24 @@ void uiSeis2DFileMan::mergeLines( CallBacker* )
 	if ( linefld_->isChosen(idx) )
 	{
 	    sellnms.add( linefld_->textOfItem(idx) );
-	    if ( firstsel < 0 ) firstsel = idx;
-	    if ( sellnms.size() > 1 ) break;
+	    if ( firstsel < 0 )
+		firstsel = idx;
+
+	    if ( sellnms.size() > 1 )
+		break;
 	}
     }
     if ( firstsel < 0 )
-	{ firstsel = 0; sellnms.add( linefld_->textOfItem(0) ); }
+    {
+	firstsel = 0;
+	sellnms.add( linefld_->textOfItem(0) );
+    }
+
     if ( sellnms.size() == 1 )
     {
 	if ( firstsel >= linefld_->size() )
 	    firstsel = -1;
+
 	sellnms.add( linefld_->textOfItem(firstsel+1) );
     }
 
@@ -438,7 +473,4 @@ void uiSeis2DFileMan::mergeLines( CallBacker* )
 
 void uiSeis2DFileMan::extrFrom3D( CallBacker* )
 {
-    uiSeis2DFrom3D dlg( this );
-    if ( dlg.go() )
-	redoAllLists();
 }
