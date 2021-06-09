@@ -22,6 +22,7 @@ set ( OD_MODULE_SOURCES
 	clientservicebase.cc
 	cvsaccess.cc
 	hostdata.cc
+	initnetwork.cc
 	issuereporter.cc
 	jobcommunic.cc
 	netreqconnection.cc

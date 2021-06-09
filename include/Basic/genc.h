@@ -28,6 +28,11 @@ mGlobal(Basic) int GetPID(void);
 mGlobal(Basic) const char* GetLocalHostName(void);
 		/*!< returns (as expected) local host name */
 
+mGlobal(Basic) const char* GetLocalAddress(bool ipv4only=true);
+		/*!< returns (as expected) local host IP address
+		  Implemented in Network, thus only available if you
+		  link (and init) the Network lib		 */
+
 mGlobal(Basic) const char* GetFullExecutablePath(void);
 		/*!< returns full path to executable. setProgramArgs
 		     must be called for it to work. */
