@@ -211,10 +211,10 @@ namespace Conv \
     { \
 	if ( !s || !*s ) { return; } \
     \
-	char* endptr = 0; \
-	type tmpval = (type) function; \
+	char* endptr = nullptr; \
+	type tmpval = sCast(type,function); \
 	if ( s != endptr ) \
-	    _to = (type) tmpval; \
+	    _to = sCast(type,tmpval); \
 	else if ( Values::Undef<type>::hasUdf() ) \
 	    Values::setUdf( _to ); \
     } \
@@ -222,10 +222,10 @@ namespace Conv \
     { \
 	if ( s.isEmpty() ) { return; } \
     \
-	char* endptr = 0; \
-	type tmpval = (type) function; \
+	char* endptr = nullptr; \
+	type tmpval = sCast(type,function); \
 	if ( s.str() != endptr ) \
-	    _to = (type) tmpval; \
+	    _to = sCast(type,tmpval); \
 	else if ( Values::Undef<type>::hasUdf() ) \
 	    Values::setUdf( _to ); \
     } \
@@ -233,13 +233,11 @@ namespace Conv \
     { \
 	if ( s.isEmpty() ) { return; } \
     \
-	char* endptr = 0; \
-	type tmpval = (type) function; \
+	char* endptr = nullptr; \
+	type tmpval = sCast(type,function); \
 	if ( s.str() != endptr ) \
-	    _to = (type) tmpval; \
+	    _to = sCast(type,tmpval); \
 	else if ( Values::Undef<type>::hasUdf() ) \
 	    Values::setUdf( _to ); \
     } \
 }
-
-

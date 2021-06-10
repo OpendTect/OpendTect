@@ -14,6 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "odversion.h"
 #include "plfdefs.h"
 
 #include <stdexcept>
