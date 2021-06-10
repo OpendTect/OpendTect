@@ -27,6 +27,7 @@ namespace visSurvey
 {
 
 class RandomTrackDisplay;
+class Seis2DDisplay;
 
 #define mCtrlLeftButton ( (OD::ButtonState) (OD::LeftButton+OD::ControlButton) )
 
@@ -65,6 +66,8 @@ protected:
     void		drawLine(const visBase::EventInfo&);
     void		drawLineOnRandLine(const RandomTrackDisplay*,
 	    				   const visBase::EventInfo&);
+    void		drawLineOn2DLine(const Seis2DDisplay*,
+	    				 const visBase::EventInfo&);
 
     void		paintSeeds(const visBase::EventInfo& curev,
 	    			   const visBase::EventInfo& prevev);
@@ -77,10 +80,15 @@ protected:
     void		paintSeedsOnRandLine(const RandomTrackDisplay*,
 	    				const visBase::EventInfo& curev,
 					const visBase::EventInfo& prevev);
+    void		paintSeedsOn2DLine(const Seis2DDisplay*,
+	    				const visBase::EventInfo& curev,
+					const visBase::EventInfo& prevev);
 
     void		eraseSeeds(const visBase::EventInfo& curev);
     void		eraseSeedsOnRandLine(const RandomTrackDisplay*,
 	    				     const visBase::EventInfo& curev);
+    void		eraseSeedsOn2DLine(const Seis2DDisplay*,
+	    				   const visBase::EventInfo& curev);
 
     visBase::EventCatcher*		eventcatcher_;
     const mVisTrans*			transformation_;

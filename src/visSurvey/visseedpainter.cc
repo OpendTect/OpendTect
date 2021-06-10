@@ -13,8 +13,10 @@
 #include "mouseevent.h"
 #include "pickset.h"
 #include "picksetmgr.h"
+#include "posinfo2d.h"
 #include "settings.h"
 #include "statrand.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
 #include "timefun.h"
 #include "trckeyzsampling.h"
@@ -24,6 +26,7 @@
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
+#include "visseis2ddisplay.h"
 #include "vissurvscene.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
@@ -290,6 +293,10 @@ void SeedPainter::paintSeeds( const visBase::EventInfo& curev,
     if ( !cursec || cursec != prevsec )
 	return;
 
+    mDynamicCastGet(const Seis2DDisplay*,s2d,cursec)
+    if ( s2d )
+	paintSeedsOn2DLine( s2d, curev, prevev );
+
     mDynamicCastGet(const RandomTrackDisplay*,rtd,cursec)
     if ( rtd )
 	paintSeedsOnRandLine( rtd, curev, prevev );
@@ -503,8 +510,7 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
     if ( prevbididx < 1 || prevbididx > path->size()-2 )
 	return;
 
-    int nrdiff = Math::Abs( bididx - prevbididx );
-    nrdiff = mNINT32(nrdiff/fac);
+    const int nrdiff = (bididx - prevbididx) / fac;
     const int cursampidx = SI().zRange().nearestIndex( curpos.z );
     const int prevsampidx = SI().zRange().nearestIndex( prevpos.z );
     const int sampdiff = cursampidx - prevsampidx;
@@ -570,12 +576,115 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
 }
 
  
+void SeedPainter::paintSeedsOn2DLine( const Seis2DDisplay* s2d,
+					const visBase::EventInfo& curev,
+					const visBase::EventInfo& prevev )
+{
+    Scene* scene = STM().currentScene();
+    if ( !scene )
+	return;
+
+    const Pos::GeomID geomid = s2d->getGeomID();
+    const Survey::Geometry2D* geom2d = Survey::GM().getGeometry(geomid)->as2D();
+    if ( !geom2d )
+	return;
+
+    const Coord3 curpos = curev.worldpickedpos;
+    const int curtrcnr = s2d->getNearestTraceNr( curpos );
+    const StepInterval<float> zrg = s2d->getZRange( false );
+    StepInterval<int> trcrg = s2d->getMaxTraceNrRange();
+    trcrg.limitTo( s2d->getTraceNrRange() );
+    const int nrtrcs = trcrg.nrSteps() + 1;
+    const int trcidx = trcrg.getIndex( curtrcnr );
+    if ( trcidx < 1 )
+	return;
+
+    const float fac =
+		getTrcNrStretchPerZSample( *scene, geom2d->averageTrcDist() );
+    const Coord3 prevpos = prevev.worldpickedpos;
+    const int prevtrcnr = s2d->getNearestTraceNr( prevpos );
+    const bool fillprev = prevev.type == visBase::MouseClick;
+    const int prevtrcidx = trcrg.getIndex( prevtrcnr );
+    if ( prevtrcidx < 1 )
+	return;
+
+    const int nrdiff = (trcidx - prevtrcidx) / fac;
+    const int cursampidx = SI().zRange().nearestIndex( curpos.z );
+    const int prevsampidx = SI().zRange().nearestIndex( prevpos.z );
+    const int sampdiff = cursampidx - prevsampidx;
+
+    const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
+    const int dia = radius_ * 2 + 1;
+    const Stats::RandGen rgx = Stats::randGen();
+    const Stats::RandGen rgy = Stats::randGen();
+    TypeSet<Pick::Location> mylocs;
+    TypeSet<int> indexes;
+    int locidx = set_->size();
+    const PosInfo::Line2DData& l2d = geom2d->data();
+    PosInfo::Line2DPos l2dpos;
+
+#define mAddPosOn2DLine(trcidx,sampidx) \
+    { \
+	const TrcKey tk( geomid, trcrg.atIndex(trcidx) ); \
+	const float z = SI().zRange().atIndex( sampidx ); \
+	if ( zrg.includes(z,false) && l2d.getPos(tk.trcNr(),l2dpos) ) \
+	{ \
+	    Pick::Location myloc( l2dpos.coord_, z ); \
+	    myloc.setTrcKey( tk ); \
+	    mylocs.add( myloc ); \
+	    indexes += locidx++; \
+	} \
+    }
+
+    for ( int ridx=0; ridx<nrpts; ridx++ )
+    {
+	const int ptidx1 = rgx.getIndex( dia ) - radius_;
+	const int ptidx2 = rgx.getIndex( dia ) - radius_;
+	const int ptidy1 = rgy.getIndex( dia ) - radius_;
+	const int ptidy2 = rgy.getIndex( dia ) - radius_;
+	const bool pt1incircle =
+	    (radius_*radius_) >= (ptidx1*ptidx1 + ptidy1*ptidy1);
+	const bool pt2incircle =
+	    (radius_*radius_) >= (ptidx2*ptidx2 + ptidy2*ptidy2);
+	const int trcidx1 = mNINT32(fac*ptidx1) + prevtrcidx;
+	const int trcidx2 = mNINT32(fac*ptidx2) + trcidx;
+	const int sampidx1 = ptidy1 + prevsampidx;
+	const int sampidx2 = ptidy2 + cursampidx;
+	if ( fillprev && pt1incircle && trcidx1>=0 && trcidx1<nrtrcs )
+	    mAddPosOn2DLine( trcidx1, sampidx1 )
+
+	if ( !pt2incircle )
+	    continue;
+
+	const int xdiff = ptidx2 + nrdiff;
+	const int ydiff = ptidy2 + sampdiff;
+	const bool pt2incircle1 =
+	    (radius_*radius_) >= (xdiff*xdiff + ydiff*ydiff);
+	if ( !pt2incircle1 && trcidx1>=0 && trcidx1<nrtrcs )
+	    mAddPosOn2DLine( trcidx2, sampidx2 );
+    }
+
+    if ( mylocs.isEmpty() )
+	return;
+
+    set_->bulkAppendWithUndo( mylocs, indexes );
+    Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
+	    			     set_, indexes );
+    picksetmgr_->reportBulkChange( 0, cd );
+
+}
+
+
 void SeedPainter::eraseSeeds( const visBase::EventInfo& curev )
 {
     Scene* scene = STM().currentScene();
     const MultiTextureSurveyObject* cursec = getSectionDisplay( curev );
     if ( !scene || !cursec )
 	return;
+
+    mDynamicCastGet(const Seis2DDisplay*,s2d,cursec)
+    if ( s2d )
+	eraseSeedsOn2DLine( s2d, curev );
 
     mDynamicCastGet(const RandomTrackDisplay*,rtd,cursec)
     if ( rtd )
@@ -677,6 +786,59 @@ void SeedPainter::eraseSeedsOnRandLine( const RandomTrackDisplay* rtd,
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
+ 
+void SeedPainter::eraseSeedsOn2DLine( const Seis2DDisplay* s2d,
+				      const visBase::EventInfo& curev )
+{
+    Scene* scene = STM().currentScene();
+    const Pos::GeomID geomid = s2d->getGeomID();
+    const Survey::Geometry2D* geom2d = Survey::GM().getGeometry(geomid)->as2D();
+    if ( !geom2d )
+	return;
+
+    const Coord3 curpos = curev.worldpickedpos;
+    const int curtrcnr = s2d->getNearestTraceNr( curpos );
+    const StepInterval<float> zrg = s2d->getZRange( false );
+    StepInterval<int> trcrg = s2d->getMaxTraceNrRange();
+    trcrg.limitTo( s2d->getTraceNrRange() );
+    const int trcidx = trcrg.getIndex( curtrcnr );
+    if ( trcidx < 1 )
+	return;
+
+    const float fac =
+		getTrcNrStretchPerZSample( *scene, geom2d->averageTrcDist() );
+    TypeSet<Pick::Location> mylocs;
+    TypeSet<int> indexes;
+    for ( int idx=0; idx<set_->size(); idx++ )
+    {
+	const Pick::Location& loc = set_->get( idx );
+	const TrcKey tk = loc.trcKey();
+	if ( !tk.is2D() || tk.geomID() != geomid )
+	    continue;
+
+	const int loctrcidx = trcrg.getIndex( tk.trcNr() );
+	if ( loctrcidx < 0 || !zrg.includes(loc.pos().z,false) )
+	    continue;
+
+	const int xdiff = (loctrcidx - trcidx) / fac;
+	const int ydiff = (loc.pos().z - curpos.z) / SI().zStep();
+	float distsq = xdiff*xdiff + ydiff*ydiff;
+	if ( distsq > radius_*radius_ )
+	    continue;
+
+	mylocs.add( loc );
+	indexes.add( idx );
+    }
+
+    if ( mylocs.isEmpty() )
+	return;
+
+    set_->bulkRemoveWithUndo( mylocs, indexes );
+    Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::ToBeRemoved,
+	    			     set_, indexes );
+    picksetmgr_->reportBulkChange( 0, cd );
+}
+
 
 void SeedPainter::drawLine( const visBase::EventInfo& eventinfo )
 {
@@ -688,6 +850,10 @@ void SeedPainter::drawLine( const visBase::EventInfo& eventinfo )
     const MultiTextureSurveyObject* so = getSectionDisplay( eventinfo );
     if ( !so || !scene )
 	return;
+
+    mDynamicCastGet(const Seis2DDisplay*,s2d,so)
+    if ( s2d )
+	drawLineOn2DLine( s2d, eventinfo );
 
     mDynamicCastGet(const RandomTrackDisplay*,rtd,so)
     if ( rtd )
@@ -728,8 +894,8 @@ void SeedPainter::drawLineOnRandLine( const RandomTrackDisplay* rtd,
 				      const visBase::EventInfo& eventinfo )
 {
     Scene* scene = STM().currentScene();
-    Coord3 pickedpos = eventinfo.worldpickedpos;
-    BinID pickedbid = SI().transform( pickedpos );
+    const Coord3 pickedpos = eventinfo.worldpickedpos;
+    const BinID pickedbid = SI().transform( pickedpos );
     const TypeSet<BinID>* path = rtd->getPath();
     const int bididx = path->indexOf( pickedbid );
     if ( bididx < 1 || bididx > path->size()-2 )
@@ -752,6 +918,49 @@ void SeedPainter::drawLineOnRandLine( const RandomTrackDisplay* rtd,
 	const BinID bid = path->get( posidx );
 	const Coord pt = SI().transform( bid );
 	circle_->addPoint( Coord3(pt,
+		    	pickedpos.z+circlecoords_[idx].y*SI().zStep()) );
+    }
+
+    circle_->dirtyCoordinates();
+}
+
+
+void SeedPainter::drawLineOn2DLine( const Seis2DDisplay* s2d,
+				    const visBase::EventInfo& eventinfo )
+{
+    Scene* scene = STM().currentScene();
+    const Pos::GeomID geomid = s2d->getGeomID();
+    const Survey::Geometry2D* geom2d = Survey::GM().getGeometry(geomid)->as2D();
+    if ( !geom2d )
+	return;
+
+    const Coord3 pickedpos = eventinfo.worldpickedpos;
+    const int pickedtrcnr = s2d->getNearestTraceNr( pickedpos );
+    StepInterval<int> trcrg = s2d->getMaxTraceNrRange();
+    trcrg.limitTo( s2d->getTraceNrRange() );
+    const int nrtrcs = trcrg.nrSteps() + 1;
+    const int trcidx = trcrg.getIndex( pickedtrcnr );
+    if ( trcidx < 1 )
+	return;
+
+    if ( circlecoords_.isEmpty() )
+	mkCircle();
+
+    const float fac =
+		getTrcNrStretchPerZSample( *scene, geom2d->averageTrcDist() );
+    const PosInfo::Line2DData& l2d = geom2d->data();
+    PosInfo::Line2DPos l2dpos;
+    for ( int idx=0; idx<circlecoords_.size(); idx++ )
+    {
+	const int posidx = trcidx + mNINT32( fac * circlecoords_[idx].x );
+	if ( posidx<0 || posidx>=nrtrcs )
+	    continue;
+
+	const int trcnr = trcrg.atIndex( posidx );
+	if ( !l2d.getPos(trcnr,l2dpos) )
+	    continue;
+
+	circle_->addPoint( Coord3(l2dpos.coord_,
 		    	pickedpos.z+circlecoords_[idx].y*SI().zStep()) );
     }
 
