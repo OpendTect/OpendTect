@@ -182,17 +182,17 @@ void* operator new[]( std::size_t sz )
 #define mConvDefFromStrToShortType(type,fn) \
 namespace Conv { \
     template <> void set( type& _to, const char* const& s ) \
-	{ _to = (type)fn(s); } \
+	{ _to = sCast(type,fn(s)); } \
     template <> void set( type& _to, const FixedString& s ) \
-	{ if ( !s.isEmpty() ) { _to = (type)fn(s.str()); } } \
+	{ if ( !s.isEmpty() ) { _to = sCast(type,fn(s.str())); } } \
     template <> void set( type& _to, const BufferString& s ) \
-	{ if ( !s.isEmpty() ) { _to = (type)fn(s.str()); } } \
+	{ if ( !s.isEmpty() ) { _to = sCast(type,fn(s.str())); } } \
 }
 
 mConvDefFromStrToShortType( short, atoi )
 mConvDefFromStrToShortType( unsigned short, atoi )
-mConvDefFromStrToSimpleType( int, (int)strtol(s,&endptr,0) )
-mConvDefFromStrToSimpleType( od_uint32, (od_uint32)strtoul(s,&endptr,0) )
+mConvDefFromStrToSimpleType( int, strtol(s,&endptr,0) )
+mConvDefFromStrToSimpleType( od_uint32, strtoul(s,&endptr,0) )
 mConvDefFromStrToSimpleType( od_int64, strtoll(s,&endptr,0) )
 mConvDefFromStrToSimpleType( od_uint64, strtoull(s,&endptr,0) )
 mConvDefFromStrToSimpleType( double, strtod(s,&endptr) )
@@ -201,7 +201,7 @@ mConvDefFromStrToSimpleType( float, strtof(s,&endptr) )
 
 static Threads::Lock& getEnvVarLock()
 {
-    mDefineStaticLocalObject( Threads::Lock, lock, (false) );
+    mDefineStaticLocalObject( Threads::Lock, lock, (false) )
     return lock;
 }
 
@@ -228,7 +228,7 @@ int initWinSock()
 
 const char* GetOSIdentifier()
 {
-    mDefineStaticLocalObject( PtrMan<BufferString>, ret, (0) );
+    mDefineStaticLocalObject( PtrMan<BufferString>, ret, (0) )
 
     if ( ret )
 	return ret->buf();
@@ -294,7 +294,7 @@ static BufferString localhostnameoverrule;
 extern "C" { mGlobal(Basic) void SetLocalHostNameOverrule(const char*); }
 mExternC(Basic) void SetLocalHostNameOverrule(const char* hostnm)
 {
-    mDefineStaticLocalObject(Threads::Mutex, mutex, );
+    mDefineStaticLocalObject(Threads::Mutex, mutex, )
     Threads::MutexLocker lock(mutex);
     localhostnameoverrule = hostnm;
 }
@@ -302,7 +302,7 @@ mExternC(Basic) void SetLocalHostNameOverrule(const char* hostnm)
 
 const char* GetLocalHostName()
 {
-    mDefineStaticLocalObject( PtrMan<BufferString>, ret, = new BufferString() );
+    mDefineStaticLocalObject( PtrMan<BufferString>, ret, = new BufferString() )
     if (!localhostnameoverrule.isEmpty())
 	ret->set( localhostnameoverrule );
 
@@ -340,7 +340,7 @@ mExternC(Basic) const char* GetLocalAddress( bool ipv4only )
 void SwapBytes( void* p, int n )
 {
     int nl = 0;
-    unsigned char* ptr = (unsigned char*)p;
+    unsigned char* ptr = sCast(unsigned char*,p);
     unsigned char c;
 
     if ( n < 2 ) return;
@@ -379,8 +379,8 @@ static bool is_exiting_ = false;
 
 void NotifyExitProgram( PtrAllVoidFn fn )
 {
-    mDefineStaticLocalObject( Threads::Atomic<int>, nrfns, (0) );
-    mDefineStaticLocalObject( PtrAllVoidFn, fns, [100] );
+    mDefineStaticLocalObject( Threads::Atomic<int>, nrfns, (0) )
+    mDefineStaticLocalObject( PtrAllVoidFn, fns, [100] )
     int idx;
 
     if ( fn == ((PtrAllVoidFn)(-1)) )
@@ -475,7 +475,7 @@ const char* getProcessNameForPID( int pid )
 #endif
     const FilePath procpath( procname );
     ret = procpath.fileName();
-    return ret.isEmpty() ? 0 : ret.buf();
+    return ret.isEmpty() ? nullptr : ret.buf();
 }
 
 
@@ -588,7 +588,7 @@ mExtern(Basic) void UnsetOSEnvVar( const char* env )
 }
 
 
-static void loadEntries( const char* fnm, IOPar* iop=0 )
+static void loadEntries( const char* fnm, IOPar* iop=nullptr )
 {
     if ( !fnm || !*fnm )
 	return;
@@ -624,11 +624,11 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
 {
     Threads::Locker lock( getEnvVarLock() );
     if ( !env || !*env )
-	{ pFreeFnErrMsg( "Asked for empty env var" ); return 0; }
+	{ pFreeFnErrMsg( "Asked for empty env var" ); return nullptr; }
     if ( insysadmmode_ )
 	return GetOSEnvVar( env );
 
-    mDefineStaticLocalObject( bool, filesread, = false );
+    mDefineStaticLocalObject( bool, filesread, = false )
     if ( !filesread )
     {
 	if ( !AreProgramArgsSet() )
@@ -874,7 +874,7 @@ static BufferString executablepathoverrule;
 extern "C" { mGlobal(Basic) void SetExecutablePathOverrule(const char*); }
 mExternC(Basic) void SetExecutablePathOverrule(const char* dirnm)
 {
-    mDefineStaticLocalObject(Threads::Mutex, mutex, );
+    mDefineStaticLocalObject(Threads::Mutex, mutex, )
     Threads::MutexLocker lock(mutex);
     executablepathoverrule = dirnm;
 }
@@ -905,8 +905,8 @@ static const char* getShortPathName( const char* path )
 
 mExternC(Basic) const char* GetFullExecutablePath( void )
 {
-    mDefineStaticLocalObject( BufferString, res, );
-    mDefineStaticLocalObject( Threads::Lock, lock, );
+    mDefineStaticLocalObject( BufferString, res, )
+    mDefineStaticLocalObject( Threads::Lock, lock, )
 
     Threads::Locker locker( lock );
 
@@ -929,8 +929,8 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 
 mExternC(Basic) const char* GetExecutableName( void )
 {
-    mDefineStaticLocalObject( BufferString, res, );
-    mDefineStaticLocalObject( Threads::Lock, lock, );
+    mDefineStaticLocalObject( BufferString, res, )
+    mDefineStaticLocalObject( Threads::Lock, lock, )
 
     Threads::Locker locker( lock );
 
@@ -940,7 +940,7 @@ mExternC(Basic) const char* GetExecutableName( void )
 	if ( !fpargv0.isAbsolute() )
 	    fpargv0 = FilePath( initialdir_, argv_[0] );
 
-	fpargv0.setExtension( 0 );
+	fpargv0.setExtension( nullptr );
 	res = fpargv0.fileName();
     }
 
