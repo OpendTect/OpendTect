@@ -262,7 +262,6 @@ uiODPickSetTreeItem::~uiODPickSetTreeItem()
     Pick::Mgr().removeCBs( this );
     paintmnuitem_.removeAndDeleteParam( this );
     paintingenabled_.removeParam( this );
-    paintdlg_.removeAndDeleteParam( this );
 }
 
 
@@ -497,6 +496,7 @@ void uiODPickSetTreeItem::showAllPicks( bool yn )
 
 void uiODPickSetTreeItem::prepareForShutdown()
 {
+    paintdlg_.removeAndDeleteParam( this );
     uiODDisplayTreeItem::prepareForShutdown();
 }
 
