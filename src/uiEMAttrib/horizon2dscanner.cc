@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "survinfo.h"
 #include "oddirs.h"
+#include "posidxpairvalue.h"
 #include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "posidxpairvalset.h"
@@ -288,12 +289,10 @@ bool Horizon2DScanner::hasGaps()
 	bool actualvalstart = false;
 	for ( int jidx=0; jidx<curlinegeom->size(); jidx++ )
 	{
-	    Pos::IdxPairValueSet::DataRow dr;
 	    if ( !bvalset_->next(pos) )
 		continue;
 
-	    bvalset_->get( pos, dr );
-	    const float val = dr.value(0);
+	    const float val = bvalset_->getVal( pos, 0 );
 	    if ( mIsUdf(val) )
 	    {
 		udfvalstart = true;
