@@ -25,6 +25,7 @@ typedef uiAttrDescEd* (*uiAttrDescEdCreateFunc)(uiParent*,bool);
 mExpClass(uiAttributes) uiAttributeFactory
 {
 public:
+    virtual		~uiAttributeFactory();
 
     uiAttrDescEd*	create(uiParent*,const char* nm,bool) const;
     uiAttrDescEd*	create(uiParent*,const uiString& nm,bool) const;
@@ -51,6 +52,7 @@ public:
 			{ return indexOf(nm) >= 0; }
     inline bool		isPresent( const uiString& nm ) const
 			{ return indexOf(nm) >= 0; }
+    bool		isEnabled(const char*) const;
 
 protected:
 
@@ -76,6 +78,7 @@ protected:
 	int		dimtyp_;
 	bool		supportsynthetic_;
 	bool		isgroupdef_;
+	bool		enabled_ = true;
 	uiAttrDescEdCreateFunc	crfn_;
     };
 
@@ -89,15 +92,13 @@ protected:
 
 public:
 
-    virtual		~uiAttributeFactory();
-
     int			add(const uiString& displaynm,const char* attrnm,
 			    const uiString& grpnm,uiAttrDescEdCreateFunc,
 			    int,int,bool synth,bool isgrpdef);
-    void		remove(const char* attrnm);
+    bool		remove(const char* attrnm);
+    bool		enable(const char* attrnm,bool yn=true);
 
-    inline bool		haveSteering() const
-			{ return isPresent( "Curvature" ); }
+    bool		hasSteering() const;
 
 };
 

@@ -48,7 +48,7 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const DescSet* ads,
 {
     if ( !doinit ) return;
 
-    if ( !uiAF().haveSteering() )
+    if ( !uiAF().hasSteering() )
     {
 	nosteerlbl_ = new uiLabel( this, tr("<Steering unavailable>") );
 	setHAlignObj( nosteerlbl_ );
