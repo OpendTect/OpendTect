@@ -34,6 +34,7 @@ public:
 
 
     static const char*		sKeyDoAtStartup();
+    static const char*		sKeyLicInstallExe();
 
 protected:
 
@@ -45,6 +46,8 @@ protected:
     bool			isVendorSelected(int) const;
     int				getVendorIndex(const char*) const;
     void			readVendorList();
+
+    void			showLicInstallCB(CallBacker*);
 
     bool			acceptOK(CallBacker*);
 
