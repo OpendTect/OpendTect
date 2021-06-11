@@ -139,7 +139,7 @@ void RandomLine::allNodePositions( TrcKeyPath& tks ) const
 
 void RandomLine::limitTo( const TrcKeyZSampling& cs )
 {
-    const Pos::SurvID survid = Survey::GM().default3DSurvID();
+    const Pos::SurvID survid = Survey::GeometryManager::get3DSurvID();
     if ( cs.hsamp_.survid_ != survid )
 	{ pErrMsg( "Limiting go range in different survey"); }
 
@@ -301,7 +301,7 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 			    bool allowduplicate,
 			    TypeSet<int>* segments )
 {
-    getPathBids( knots, Survey::GM().default3DSurvID(), bids,
+    getPathBids( knots, Survey::GeometryManager::get3DSurvID(), bids,
 		 allowduplicate, segments );
 }
 
@@ -386,7 +386,7 @@ RandomLineSet::RandomLineSet( const RandomLine& baserandln, double dist,
     if ( baserandln.nrNodes() != 2 )
 	return;
 
-    const Pos::SurvID survid = Survey::GM().default3DSurvID();
+    const Pos::SurvID survid = Survey::GeometryManager::get3DSurvID();
     ConstRefMan<Survey::Geometry3D> geom =
 	    Survey::GM().getGeometry3D( survid );
 
@@ -452,7 +452,7 @@ void RandomLineSet::insertLine( RandomLine& rl, int idx )
 void RandomLineSet::createParallelLines( const Line2& baseline,
 					 double dist )
 {
-    const Pos::SurvID survid = Survey::GM().default3DSurvID();
+    const Pos::SurvID survid = Survey::GeometryManager::get3DSurvID();
     ConstRefMan<Survey::Geometry3D> geom =
 	Survey::GM().getGeometry3D( survid );
     const TrcKeySampling hs( geom->sampling().hsamp_ );

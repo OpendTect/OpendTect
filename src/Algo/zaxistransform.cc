@@ -88,7 +88,7 @@ void ZAxisTransform::transform( const BinID& bid,
 				const SamplingData<float>& sd,
 				int sz,float* res) const
 {
-    transformTrc( Survey::GM().traceKey(Survey::GM().default3DSurvID(),
+    transformTrc( Survey::GM().traceKey(Survey::GeometryManager::get3DSurvID(),
 					bid.inl(), bid.crl()),
 		  sd, sz, res );
 }
@@ -98,8 +98,9 @@ void ZAxisTransform::transformBack( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    transformTrcBack( Survey::GM().traceKey( Survey::GM().default3DSurvID(),
-					    bid.inl(), bid.crl() ),
+    transformTrcBack( Survey::GM().traceKey(
+				Survey::GeometryManager::get3DSurvID(),
+				bid.inl(),bid.crl()),
 		      sd, sz, res );
 }
 

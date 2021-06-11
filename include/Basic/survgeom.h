@@ -138,8 +138,11 @@ public:
 				//!<Returns cUndefGeomID() if none found
 
     static TrcKey::SurvID	get2DSurvID()	{ return surv2did_; }
-    TrcKey::SurvID		default3DSurvID() const;
+    static TrcKey::SurvID	get3DSurvID()	{ return surv3did_; }
     static Pos::GeomID		cUndefGeomID()	{ return mUdf(Pos::GeomID); }
+
+    mDeprecated("Use get3DSurvID()")
+    TrcKey::SurvID		default3DSurvID() const;
 
 protected:
 
@@ -152,6 +155,7 @@ protected:
     Threads::Lock		lock_;
     ObjectSet<Geometry>		geometries_;
     static const TrcKey::SurvID	surv2did_;
+    static const TrcKey::SurvID	surv3did_;
 
     bool			hasduplnms_;
 

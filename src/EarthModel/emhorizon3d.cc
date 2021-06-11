@@ -302,7 +302,7 @@ Horizon3D::Horizon3D( EMManager& man )
     , parents_(0)
     , children_(0)
     , parentcolor_(Color::Yellow())
-    , survgeomid_( Survey::GM().default3DSurvID() )
+    , survgeomid_( Survey::GeometryManager::get3DSurvID() )
     , nodesource_( 0 )
     , arrayinited_( false )
 
