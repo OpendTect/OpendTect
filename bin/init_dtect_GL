@@ -18,6 +18,8 @@ if ( -d /usr/X11R6/lib64 ) then
    set nvglxlibdir=/usr/X11R6/lib64
 else if ( -d /usr/X11R6/lib ) then
    set nvglxlibdir=/usr/X11R6/lib
+else
+    exit 0
 endif
 
 set glliblist=`/sbin/ldconfig -p | grep libGL.so | grep x86-64`
