@@ -66,6 +66,8 @@ public:
 			{ return set_->validIdx(idx); }
     bool		isEmpty() const		{ return set_->isEmpty(); }
     void		setEmpty()		{ set_->setEmpty(); }
+    void		setFilePath(const FilePath&, idx_type idx);
+    FilePath		getFilePath(idx_type idx) const;
 
     OD::Set&		odSet()			{ return *set_; }
     const OD::Set&	odSet() const		{ return *set_; }
@@ -138,11 +140,11 @@ public:
     mMkGetFns(Object,	object, gtObjectByIdx )
 #   undef		mMkSubFn
 
-    bool		getBoolValue(idx_type) const;
-    od_int64		getIntValue(idx_type) const;
-    double		getDoubleValue(idx_type) const;
-    BufferString	getStringValue(idx_type) const;
-    FilePath    getFilePath(idx_type) const;
+    virtual bool		getBoolValue(idx_type) const;
+    virtual od_int64		getIntValue(idx_type) const;
+    virtual double		getDoubleValue(idx_type) const;
+    virtual BufferString	getStringValue(idx_type) const;
+    virtual FilePath		getFilePath(idx_type) const;
 
     uiRetVal		parseJSon(char* buf,int bufsz);
     static ValueSet*	getFromJSon(char* buf,int bufsz,uiRetVal&);
@@ -194,13 +196,16 @@ public:
 			Array(DataType,ValueSet* p=0);
 			Array(const Array&);
 			~Array();
-    virtual Array*	clone() const		{ return new Array(*this); }
-    virtual bool	isArray() const		{ return true; }
-    virtual void	setEmpty();
+    Array*		clone() const override	{ return new Array(*this); }
+    bool		isArray() const override	{ return true; }
+    void		setEmpty() override;
+    bool		isEmpty() const override;
+    bool		isData() const;
 
-    virtual ValueType	valueType(idx_type) const { return valtype_; }
+    ValueType		valueType(idx_type) const override
+			{ return valtype_; }
     ValueType		valType() const		{ return valtype_; }
-    virtual size_type	size() const;
+    size_type		size() const override;
 
 			// Only available if valType() == Data
     inline ValArr&	valArr()		{ return *valarr_; }
@@ -208,6 +213,12 @@ public:
 
     Array*		add(Array*);
     Object*		add(Object*);
+
+    bool		getBoolValue(idx_type) const override;
+    od_int64		getIntValue(idx_type) const override;
+    double		getDoubleValue(idx_type) const override;
+    BufferString	getStringValue(idx_type) const override;
+    FilePath		getFilePath(idx_type) const override;
 
 			// only usable if valType() == Data
 #   define		mDeclJSONArraySetFn( typ ) \
@@ -268,8 +279,8 @@ public:
 			Object( ValueSet* p=0 )
 			    : ValueSet(p)	{}
 			Object(const Object&);
-    virtual Object*	clone() const		{ return new Object(*this); }
-    virtual bool	isArray() const		{ return false; }
+    Object*	clone() const override	{ return new Object(*this); }
+    bool	isArray() const override { return false; }
 
     idx_type		indexOf(const char*) const;
     bool		isPresent( const char* ky ) const
@@ -296,15 +307,37 @@ public:
     inline const Object*	getObject( const BufferStringSet& bskey ) const
 					    { return gtObjectByKeys( bskey ); }
 
+    od_int64	getIntValue( idx_type idx ) const override
+			{ return ValueSet::getIntValue( idx ); }
+    bool	getBoolValue( idx_type idx ) const override
+		{ return ValueSet::getBoolValue( idx ); }
+    double	getDoubleValue( idx_type idx ) const override
+		{ return ValueSet::getDoubleValue( idx ); }
+    BufferString getStringValue( idx_type idx ) const override
+		{ return ValueSet::getStringValue( idx ); }
+    FilePath	getFilePath( idx_type idx ) const override
+		{ return ValueSet::getFilePath( idx ); }
+
     bool		getBoolValue(const char*) const;
     od_int64		getIntValue(const char*) const;
     double		getDoubleValue(const char*) const;
     BufferString	getStringValue(const char*) const;
-    FilePath        getFilePath(const char*) const;
+    FilePath		getFilePath(const char*) const;
     bool		getStrings(const char*,BufferStringSet&) const;
     bool		getGeomID(const char*,Pos::GeomID&) const;
     template <class T>
     bool		get(const char*,Interval<T>&) const;
+
+    bool		getBoolValue( const OD::String& str ) const
+			{ return getBoolValue( str.buf() ); }
+    od_int64		getIntValue( const OD::String& str ) const
+			{ return getIntValue( str.buf() ); }
+    double		getDoubleValue( const OD::String& str ) const
+			{ return getDoubleValue( str.buf() ); }
+    BufferString	getStringValue( const OD::String& str ) const
+			{ return getStringValue( str.buf() ); }
+    FilePath		getFilePath( const OD::String& str ) const
+			{ return getFilePath( str.buf() ); }
 
     Array*		set(const char* ky,Array*);
     Object*		set(const char* ky,Object*);
