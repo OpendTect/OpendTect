@@ -335,7 +335,7 @@ uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
     : uiSteeringSel( p, dset, is2d, true, false )
     , typeSelected(this)
 {
-    if ( uiAF().haveSteering() )
+    if ( uiAF().hasSteering() )
 	createFields();
     else
     {
@@ -384,5 +384,5 @@ bool uiSimilarityAttrib::uiSimiSteeringSel::wantBrowseDip() const
 
 int uiSimilarityAttrib::uiSimiSteeringSel::browseDipIdxInList() const
 {
-    return uiAF().haveSteering() ? withconstdir_ ? 4 : 3 : 1;
+    return uiAF().hasSteering() ? withconstdir_ ? 4 : 3 : 1;
 }
