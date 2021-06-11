@@ -335,8 +335,6 @@ bool BulkHorizon2DScanner::hasGaps()
 	    const Interval<int> colrng = bvalset->colRange( rowidx );
 	    TypeSet<int> seconds;
 	    bvalset->getSecondsAtIdx( rowidx, seconds );
-	    const int sz = seconds.size();
-	    const int wd = colrng.width();
 	    if ( colrng.width()+1 != seconds.size() )
 	    {
 		hasgap = true;
