@@ -26,7 +26,7 @@ if ( ! $?quietmode && ! $?license_shown ) then
     echo "OpendTect installation started ..."
     echo ""
     echo "The OpendTect license agreement can be found on the web site: "
-    echo "-> http://opendtect.org/rel/LICENSE.txt"
+    echo "-> https://opendtect.org/rel/LICENSE.txt"
     echo ""
     echo -n "Do you accept that agreement [y/n]? "
     set inp=$<
@@ -141,7 +141,7 @@ if ( $?quietmode ) then
     endif
     echo ""
     echo -n "* Having good graphics hardware and recently updated drivers is ESSENTIAL."
-    echo " See also http://opendtect.org/rel/hardware_requirements.html"
+    echo " See also https://doc.opendtect.org/6.6.0/doc/admindoc/Default.htm#system_requirements.htm"
     exit 0
 endif
 
@@ -163,6 +163,5 @@ if ( $?DTECT_DATA ) then
 endif
 echo ""
 echo "* Having good graphics hardware and recently updated drivers is ESSENTIAL."
-echo "  See also http://opendtect.org/rel/hardware_requirements.html"
+echo "  See also https://doc.opendtect.org/6.6.0/doc/admindoc/Default.htm#system_requirements.htm"
 echo ""
-
