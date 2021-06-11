@@ -8,15 +8,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "networkmod.h"
 #include "moddepmgr.h"
 
-void NetworkHttpFileSystemAccessinitClass();
+#include "systeminfo.h"
 
+typedef const char* (*constcharFromBoolFn)(bool);
+mGlobal(Basic) void setGlobal_Basic_Fns(constcharFromBoolFn);
+
+void NetworkHttpFileSystemAccessinitClass();
 
 mDefModInitFn(Network)
 {
     mIfNotFirstTime( return );
 
     NetworkHttpFileSystemAccessinitClass();
+    setGlobal_Basic_Fns( System::localAddress );
 }

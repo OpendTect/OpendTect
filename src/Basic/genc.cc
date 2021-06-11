@@ -58,7 +58,6 @@ static bool			datarootrequired_ = true;
 int& GetArgC()			{ return argc_; }
 char** GetArgV()		{ return argv_; }
 bool NeedDataBase()		{ return datarootrequired_; }
-
 bool AreProgramArgsSet()	{ return argc_ != -1; }
 mGlobal(Basic) void SetArgcAndArgv( int argc, char** argv )
 				{ argc_ = argc; argv_ = argv; }
@@ -302,6 +301,24 @@ const char* GetLocalHostName()
     GetLocalHostNameNoQt( ret );
 #endif
     return ret;
+}
+
+
+static const char* noAddrFn( bool )	{ return nullptr; }
+typedef const char* (*constcharFromBoolFn)(bool);
+static constcharFromBoolFn localaddrfn_ = noAddrFn;
+
+mGlobal(Basic) void setGlobal_Basic_Fns(constcharFromBoolFn);
+void setGlobal_Basic_Fns( constcharFromBoolFn addrfn )
+{
+    localaddrfn_ = addrfn;
+}
+
+
+extern "C" { mGlobal(Basic) const char* GetLocalAddress( bool ipv4only ); }
+mExternC(Basic) const char* GetLocalAddress( bool ipv4only )
+{
+    return (*localaddrfn_)( ipv4only );
 }
 
 
