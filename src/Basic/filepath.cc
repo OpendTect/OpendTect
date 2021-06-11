@@ -421,7 +421,7 @@ BufferString FilePath::getTempFileName( const char* typ, const char* ext )
 	fname.add( '_' ).add( typ );
     fname.add( '_' ).add( GetPID() ).add( '_' ).add( counter++ );
     if ( ext && *ext )
-	{ fname.add( "." ).add( ext ); }
+	fname.add( "." ).add( ext );
     return fname;
 }
 

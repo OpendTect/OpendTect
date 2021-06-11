@@ -26,6 +26,7 @@ static Pos::GeomID cSIGeomID = -1;
 mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
 const TrcKey::SurvID GeometryManager::surv2did_ = 0;
+const TrcKey::SurvID GeometryManager::surv3did_ = cSIGeomID;
 
 static PtrMan<GeometryManager> theinst = 0;
 
@@ -64,7 +65,7 @@ Geometry::~Geometry()
 
 const Geometry& Geometry::default3D()
 {
-    return *GM().getGeometry( GM().default3DSurvID() );
+    return *GM().getGeometry( GeometryManager::get3DSurvID() );
 }
 
 
@@ -457,7 +458,7 @@ Geometry::ID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
 	return cUndefGeomID();
 
     if ( !geom->is2D() )
-	return default3DSurvID();
+	return get3DSurvID();
 
     Geometry::ID geomid = getGeomID( geom->getName() );
     if ( geomid!=cUndefGeomID() )

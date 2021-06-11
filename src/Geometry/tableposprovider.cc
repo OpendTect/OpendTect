@@ -105,7 +105,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	{
 	    od_istream strm( res );
 	    if ( strm.isOK() )
-		bvs.getFrom( strm, Survey::GM().default3DSurvID() );
+		bvs.getFrom( strm, Survey::GeometryManager::get3DSurvID() );
 	    strm.close();
 	    if ( !bvs.isEmpty() )
 	    {
