@@ -133,7 +133,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 	    fp.add( "od_BatchHosts.exe" );
 	    BufferString fpbuf = fp.fullPath();
 	    details = tr("You can launch the process %1")
-					    .arg(toUiString(fp.fullPath()));
+					    .arg(fp.fullPath());
 	}
 	else if ( fileexists && !fileiswritable )
 	{
