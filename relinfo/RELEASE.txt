@@ -1,6 +1,15 @@
 OpendTect V6.4.x : Release info
 
 ----
+v6.4.5b: June 18, 2021
+Compatibility update wrt OpendTect-6.6:
+* Updated the startup banner
+* Updated broken links
+* Updated the text presented in the plugin manager dialog 
+  to provide more information
+* Fixed failure to start OpendTect on some Linux distributions
+  ('nvglxlibdir: Undefined variable' error)
+
 v6.4.5: December 02, 2019
 * Added new COLOP operator (in the Wavelet Manager & in Processing Menu) that
   facilitates Colored Inversion, Spectral Blueing and Spectral Whitening
