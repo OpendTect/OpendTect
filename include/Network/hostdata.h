@@ -42,6 +42,7 @@ public:
 
     enum PathType	{ Appl, Data };
 
+    bool		isStaticIP() const;
     void		setHostName(const char*);
     const char*		getHostName() const;
     void		setIPAddress(const char*);
@@ -90,6 +91,7 @@ public:
 protected:
 			HostData(const char* nm,const OD::Platform&);
 
+    bool		staticip_;
     BufferString	hostname_;
     BufferString	ipaddress_;
     BufferStringSet	aliases_;

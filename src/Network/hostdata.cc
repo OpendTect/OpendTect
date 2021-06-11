@@ -81,17 +81,41 @@ const char* HostData::localHostName()
 }
 
 
+bool HostData::isStaticIP() const
+{
+    return staticip_==true;
+}
+
+
 void HostData::setHostName( const char* nm )
-{ hostname_ = nm; }
+{
+    hostname_ = nm;
+    ipaddress_.setEmpty();
+    staticip_ = false;
+}
 
 const char* HostData::getHostName() const
-{ return hostname_; }
+{
+    if ( staticip_ )
+	return System::hostName( ipaddress_ );
+    else
+	return hostname_;
+}
 
 void HostData::setIPAddress( const char* ip )
-{ ipaddress_ = ip; }
+{
+    ipaddress_ = ip;
+    hostname_.setEmpty();
+    staticip_ = true;
+}
 
 const char* HostData::getIPAddress() const
-{ return ipaddress_; }
+{
+    if ( staticip_ )
+	return ipaddress_;
+    else
+	return System::hostAddress( hostname_ );
+}
 
 
 void HostData::setAlias( const char* nm )
@@ -170,14 +194,10 @@ void HostData::init( const char* nm )
     {
 	char* dot = name.find( '.' );
 	if ( dot ) { *dot ='\0'; addAlias(nm); }
-	hostname_ = name;
-	ipaddress_ = System::hostAddress( hostname_ );
+	setHostName( name );
     }
     else
-    {
-	ipaddress_ = name;
-	hostname_ = System::hostName( ipaddress_ );
-    }
+	setIPAddress( name );
 }
 
 
@@ -236,10 +256,10 @@ FilePath HostData::convPath( PathType pt, const FilePath& fp,
 
 bool HostData::isOK( uiString& errmsg ) const
 {
-    if ( hostname_.isEmpty() )
-	errmsg.append( "Hostname is empty; " );
-    if ( ipaddress_.isEmpty() )
-	errmsg.append( "IP address is empty; " );
+    if ( !staticip_ && BufferString(getIPAddress()).isEmpty() )
+	errmsg.append( "Hostname lookup failed; " );
+    if ( staticip_ && BufferString(getHostName()).isEmpty() )
+	errmsg.append( "IP address lookup failed; " );
 
     return errmsg.isEmpty();
 }
@@ -247,8 +267,16 @@ bool HostData::isOK( uiString& errmsg ) const
 
 void HostData::fillPar( IOPar& par ) const
 {
-    par.set( sKeyIPAddress(), ipaddress_ );
-    par.set( sKeyHostName(), hostname_ );
+    if ( staticip_ )
+    {
+	par.set( sKeyIPAddress(), ipaddress_ );
+	par.removeWithKey( sKeyHostName() );
+    }
+    else
+    {
+	par.set( sKeyHostName(), hostname_ );
+	par.removeWithKey( sKeyIPAddress() );
+    }
     par.set( sKeyDispName(), nrAliases() ? alias(0) : "" );
     par.set( sKeyPlatform(), platform_.shortName() );
     BufferString dataroot = data_pr_.fullPath();
@@ -259,11 +287,33 @@ void HostData::fillPar( IOPar& par ) const
 
 void HostData::usePar( const IOPar& par )
 {
-    par.get( sKeyIPAddress(), ipaddress_ );
-    par.get( sKeyHostName(), hostname_ );
-    BufferString res = hostname_;
+    if ( par.get(sKeyHostName(), hostname_) &&
+					par.get(sKeyIPAddress(), ipaddress_) )
+    {
+	staticip_ = false;
+	if ( ipaddress_==getIPAddress() )
+	{
+	    staticip_ = true;
+	    hostname_.setEmpty();
+	}
+	else
+	    ipaddress_.setEmpty();
+    }
+    else if( par.get(sKeyIPAddress(), ipaddress_) )
+    {
+	staticip_ = true;
+	hostname_.setEmpty();
+    }
+    else if( par.get(sKeyHostName(), hostname_) )
+    {
+	staticip_ = false;
+	ipaddress_.setEmpty();
+    }
+
+    const BufferString hostname( getHostName() );
+    BufferString res( hostname );
     par.get( sKeyDispName(), res );
-    if ( hostname_ != res ) addAlias( res );
+    if ( hostname != res ) addAlias( res );
 
     res.setEmpty();
     par.get( sKeyPlatform(), res );
