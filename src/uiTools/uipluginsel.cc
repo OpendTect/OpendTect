@@ -7,9 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uipluginsel.h"
+#include "uibutton.h"
 #include "uigraphicsviewbase.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
@@ -29,9 +29,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odver.h"
 #include "od_helpids.h"
 #include "od_istream.h"
-
+#include "oscommand.h"
 
 const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
+const char* uiPluginSel::sKeyLicInstallExe() { return "od_LicInstall"; }
 
 struct PluginProduct
 {
@@ -120,10 +121,21 @@ void uiProductTreeItem::checkCB( CallBacker* )
 }
 
 
+static bool hasodLicInstall()
+{
+    const BufferStringSet paths( GetExecPlfDir() );
+    const BufferString odlicinstall = File::findExecutable(
+				    uiPluginSel::sKeyLicInstallExe(), paths );
+    return !odlicinstall.isEmpty();
+}
+
+
 uiPluginSel::uiPluginSel( uiParent* p )
 	: uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,
 			mODHelpKey(mPluginSelHelpID) )
 			.savebutton(true)
+			.applybutton(hasodLicInstall())
+			.applytext(tr("Install licenses"))
 			.savetext(tr("Show this dialog at startup")))
 {
     uiString capt =
@@ -134,16 +146,21 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     setOkText( tr("Start OpendTect") );
     setSaveButtonChecked( true );
+
     readPackageList();
     const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     makeProductList( pimdata );
     createUI();
     showAlwaysOnTop();
+
+    if ( hasodLicInstall() )
+	mAttachCB(applyPushed, uiPluginSel::showLicInstallCB);
 }
 
 
 uiPluginSel::~uiPluginSel()
 {
+    detachAllNotifiers();
     deepErase( products_ );
     deepErase( vendors_ );
 }
@@ -336,4 +353,13 @@ bool uiPluginSel::isVendorSelected( int vendoridx ) const
     }
 
     return false;
+}
+
+
+void uiPluginSel::showLicInstallCB( CallBacker* )
+{
+   OS::MachineCommand mc( FilePath(GetExecPlfDir(),
+					       sKeyLicInstallExe()).fullPath());
+    const OS::CommandExecPars pars( OS::Wait4Finish );
+    mc.execute(pars);
 }

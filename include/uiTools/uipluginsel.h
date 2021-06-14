@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -35,6 +34,7 @@ public:
 
 
     static const char*		sKeyDoAtStartup();
+    static const char*		sKeyLicInstallExe();
 
 protected:
 
@@ -46,6 +46,8 @@ protected:
     bool			isVendorSelected(int) const;
     int				getVendorIndex(const char*) const;
     void			readVendorList();
+
+    void			showLicInstallCB(CallBacker*);
 
     bool			acceptOK(CallBacker*);
 
