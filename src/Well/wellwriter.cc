@@ -255,6 +255,13 @@ DataBuffer* Well::odWriter::getLogBuffer( od_istream& istrm ) const
 bool Well::odWriter::putLogs() const
 {
     ManagedObjectSet<DataBuffer> databufset;
+    for ( int idx=wd_.logs().size()-1; idx>=0; idx-- )
+    {
+	const Well::Log& wl = wd_.logs().getLog(idx);
+	if ( wl.size() == 0 )
+	    delete const_cast<Well::LogSet&>(wd_.logs()).remove( idx );
+    }
+
     for ( int idx=0; idx<wd_.logs().size(); idx++ )
     {
 	const BufferString fnm( getFileName(sExtLog(), idx+1) );
@@ -273,12 +280,13 @@ bool Well::odWriter::putLogs() const
     int idy = 0;
     for ( int idx=0; idx<wd_.logs().size(); idx++ )
     {
+	const Well::Log& wl = wd_.logs().getLog(idx);
+	const DataBuffer* dbuf = wl.isLoaded() ? nullptr :
+			    databufset.validIdx(idy) ? databufset.get(idy++) :
+						       nullptr;
 	mGetOutStream( sExtLog(), idx+1, return false )
 
 	errmsg_.setEmpty();
-	const Well::Log& wl = wd_.logs().getLog(idx);
-	const DataBuffer* dbuf = wl.isLoaded() ? nullptr
-					       : databufset.get(idy++);
 	if ( !putLog(strm,wl,dbuf) )
 	    return false;
     }
