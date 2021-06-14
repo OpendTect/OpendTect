@@ -214,16 +214,10 @@ int ODMain( uiMain& app )
 
     checkScreenRes();
 
-    bool dodlg = true;
-    Settings::common().getYN( uiPluginSel::sKeyDoAtStartup(), dodlg );
-    ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
-    if ( dodlg && pimdata.size() )
-    {
-	uiPluginSel dlg( odmain );
-	dlg.setPopupArea( uiMainWin::Auto );
-	if ( dlg.nrPlugins() && !dlg.go() )
-	    return 1;
-    }
+    uiPluginSel dlg( odmain );
+    dlg.setPopupArea( uiMainWin::Auto );
+    if ( !dlg.go() )
+	return 1;
 
     SetProgramRestarter( ODMainProgramRestarter );
 
