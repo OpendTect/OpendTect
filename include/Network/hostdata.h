@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -43,6 +42,7 @@ public:
 
     enum PathType	{ Appl, Data };
 
+    bool		isStaticIP() const;
     void		setHostName(const char*);
     const char*		getHostName() const;
     void		setIPAddress(const char*);
@@ -91,6 +91,7 @@ public:
 protected:
 			HostData(const char* nm,const OD::Platform&);
 
+    bool		staticip_() const;
     BufferString	hostname_;
     BufferString	ipaddress_;
     BufferStringSet	aliases_;

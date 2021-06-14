@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uibatchhostsdlg.h"
@@ -32,12 +31,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 
-static const int sIPCol		= 0;
-static const int sHostNameCol	= 1;
-static const int sDispNameCol	= 2;
-static const int sPlfCol	= 3;
-static const int sDataRootCol	= 4;
 
+static const int sMode		= 0;
+static const int sIPCol		= 1;
+static const int sHostNameCol	= 2;
+static const int sDispNameCol	= 3;
+static const int sPlfCol	= 4;
+static const int sDataRootCol	= 5;
+
+mDefineEnumUtils(uiBatchHostsDlg,HostLookupMode,"Host resolution")
+    { "Static IP", "Hostname DNS", nullptr };
 
 uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Setup Distributed Computing"),mNoDlgTitle,
@@ -73,13 +76,13 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     advbut->attach( rightTo, filefld );
     advbut->attach( rightBorder );
 
-    uiTable::Setup tsu( -1, 5 );
+    uiTable::Setup tsu( -1, 6 );
     tsu.rowdesc(uiStrings::sHost()).defrowlbl(true).selmode(uiTable::SingleRow);
     table_ = new uiTable( this, tsu, "Batch Hosts" );
     uiStringSet collbls;
-    collbls.add( tr("IP address") ).add( uiStrings::sHostName() )
-       .add( tr("Display Name") ).add( uiStrings::sPlatform() )
-       .add( tr("Survey Data Root") );
+    collbls.add( tr("Host Lookup Mode") ).add( tr("IP address") )
+	.add( uiStrings::sHostName() ).add( tr("Display Name") )
+	.add( uiStrings::sPlatform() ).add( tr("Survey Data Root") );
     table_->setColumnLabels( collbls );
     table_->setPrefWidth( 800 );
     table_->resizeHeaderToContents( true );
@@ -131,7 +134,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 	    fp.add( "od_BatchHosts.exe" );
 	    BufferString fpbuf = fp.fullPath();
 	    details = tr("You can launch the process %1")
-					    .arg(toUiString(fp.fullPath()));
+					    .arg(fp.fullPath());
 	}
 	else if ( fileexists && !fileiswritable )
 	{
@@ -179,8 +182,8 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     ulbl->attach( ensureBelow, sep );
 
     uiStringSet cmds;
-    cmds += toUiString("ssh");
-    cmds += toUiString("rsh");
+    cmds += ::toUiString("ssh");
+    cmds += ::toUiString("rsh");
     cmds += uiStrings::sEmptyString();
     uiGenInput* remoteshellfld = new uiGenInput( &dlg,
 				tr("Remote shell command"),
@@ -228,7 +231,6 @@ static void setIPAddress( uiTable& tbl, int row, const HostData& hd )
 {
     const RowCol rc( row, sIPCol );
     tbl.setText( rc, hd.getIPAddress() );
-    tbl.setColor( rc, Color::White() );
 }
 
 
@@ -236,7 +238,6 @@ static void setHostName( uiTable& tbl, int row, const HostData& hd )
 {
     const RowCol rc( row, sHostNameCol );
     tbl.setText( rc, hd.getHostName() );
-    tbl.setColor( rc, Color::White() );
 }
 
 
@@ -292,13 +293,28 @@ void uiBatchHostsDlg::fillTable()
 
     for ( int idx=0; idx<nrhosts; idx++ )
     {
-		HostData* hd = hostdatalist_[idx];
-		setIPAddress( *table_, idx, *hd );
-		checkIPAddress( idx );
-		setHostName( *table_, idx, *hd );
-		setDisplayName( *table_, idx, *hd );
-		setPlatform( *table_, idx, *hd );
-		setDataRoot( *table_, idx, *hd );
+	HostData* hd = hostdatalist_[idx];
+	BufferString ipaddr = hd->getIPAddress();
+	if ( !table_->getCellObject(RowCol(idx, sMode)) )
+	{
+	    auto* cb = new uiComboBox( nullptr,
+				       HostLookupModeDef().strings(), "mode");
+	    table_->setCellObject( RowCol(idx, sMode), cb );
+	}
+
+	mDynamicCastGet(uiComboBox*, lookupmode,
+				table_->getCellObject( RowCol(idx, sMode) ));
+	if ( hd->isStaticIP() )
+	    lookupmode->setCurrentItem( StaticIP );
+	else
+	    lookupmode->setCurrentItem( NameDNS );
+
+	setHostName( *table_, idx, *hd );
+	setIPAddress( *table_, idx, *hd );
+	checkHostData( idx );
+	setDisplayName( *table_, idx, *hd );
+	setPlatform( *table_, idx, *hd );
+	setDataRoot( *table_, idx, *hd );
     }
 
     table_->resizeColumnsToContents();
@@ -328,7 +344,7 @@ void uiBatchHostsDlg::rmHostCB( CallBacker* )
     if ( !hostname.isEmpty() )
 		msgtxt = tr( "Host %1" ).arg( hostname );
     else
-		msgtxt = ( toUiString(table_->rowLabel(row)) );
+		msgtxt = ( ::toUiString(table_->rowLabel(row)) );
 
     const uiString msg(tr("%1 will be removed from this list").arg(msgtxt));
     const bool res = uiMSG().askContinue( msg );
@@ -411,34 +427,46 @@ void uiBatchHostsDlg::changedCB( CallBacker* )
 
     NotifyStopper ns( table_->valueChanged );
 
-    if ( col==sIPCol )
-		ipAddressChanged( row );
+    if ( col==sMode )
+	lookupModeChanged( row );
+    else if ( col==sIPCol )
+	ipAddressChanged( row );
     else if ( col==sHostNameCol )
-		hostNameChanged( row );
+	hostNameChanged( row );
     else if ( col==sDispNameCol )
-		displayNameChanged( row );
+	displayNameChanged( row );
     else if ( col==sPlfCol )
-		platformChanged( row );
+	platformChanged( row );
     else if ( col==sDataRootCol )
-		dataRootChanged( row );
+	dataRootChanged( row );
 }
 
 
-static Color getCellColor( bool isok )
+static Color getCellColor( bool isok, bool readonly )
 {
     mDefineStaticLocalObject( Color, okcol, = Color::White() );
+    mDefineStaticLocalObject( Color, rocol, = Color::LightGrey() );
     mDefineStaticLocalObject( Color, errorcol, = Color::Red() );
-    return isok ? okcol : errorcol;
+    return isok ? (readonly ? rocol : okcol) : errorcol;
 }
 
 
-void uiBatchHostsDlg::checkIPAddress( int row )
+void uiBatchHostsDlg::checkIPAddress( int )
+{}
+
+
+void uiBatchHostsDlg::checkHostData( int row )
 {
     HostData& hd = *hostdatalist_[row];
-    const RowCol curcell = RowCol(row,sIPCol);
-    const char* ipaddress = hd.getIPAddress();
-    const bool isok = System::lookupHost( ipaddress );
-    table_->setColor( curcell, getCellColor(isok) );
+    uiString errmsg;
+    const bool isok = hd.isOK( errmsg );
+    const bool isstaticip = hd.isStaticIP();
+    table_->setCellReadOnly( RowCol(row, sIPCol), !isstaticip );
+    table_->setCellReadOnly( RowCol(row, sHostNameCol), isstaticip );
+
+    table_->setColor( RowCol(row, sIPCol), getCellColor(isok, !isstaticip) );
+    table_->setColor( RowCol(row, sHostNameCol),
+					       getCellColor(isok, isstaticip) );
 }
 
 
@@ -448,15 +476,13 @@ void uiBatchHostsDlg::ipAddressChanged( int row )
     const RowCol curcell = RowCol(row,sIPCol);
     const BufferString ipaddress = table_->text( curcell );
     hd.setIPAddress( ipaddress );
-    checkIPAddress( row );
-
     if ( autobox_->isChecked() )
     {
-		const FixedString hostname = System::hostName( ipaddress );
-		hd.setHostName( hostname );
-		setHostName( *table_, row, hd );
-		updateDisplayName( *table_, row, hd );
+	setHostName( *table_, row, hd );
+	updateDisplayName( *table_, row, hd );
     }
+
+    checkHostData( row );
 }
 
 
@@ -466,16 +492,13 @@ void uiBatchHostsDlg::hostNameChanged( int row )
     const RowCol curcell = RowCol(row,sHostNameCol);
     const BufferString hostname = table_->text( curcell );
     hd.setHostName( hostname );
-
-    const FixedString ipaddress = System::hostAddress( hostname );
-    table_->setColor( curcell, getCellColor(!ipaddress.isEmpty()) );
-
     if ( autobox_->isChecked() )
     {
-		hd.setIPAddress( ipaddress.buf() );
-		setIPAddress( *table_, row, hd );
-		updateDisplayName( *table_, row, hd );
+	setIPAddress( *table_, row, hd );
+	updateDisplayName( *table_, row, hd );
     }
+
+    checkHostData( row );
 }
 
 
@@ -514,6 +537,18 @@ void uiBatchHostsDlg::dataRootChanged( int row )
     hd.setDataRoot( table_->text(RowCol(row,sDataRootCol)) );
 }
 
+
+void uiBatchHostsDlg::lookupModeChanged( int row )
+{
+    HostData& hd = *hostdatalist_[row];
+    mDynamicCastGet(uiComboBox*, cb, table_->getCellObject(RowCol(row, sMode)));
+    if ( cb && cb->currentItem()==StaticIP )
+	hd.setIPAddress( table_->text(RowCol(row,sIPCol)) );
+    else
+	hd.setHostName( table_->text(RowCol(row,sHostNameCol)) );
+
+    checkHostData( row );
+}
 
 bool uiBatchHostsDlg::acceptOK( CallBacker* )
 {
