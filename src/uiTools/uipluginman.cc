@@ -52,12 +52,6 @@ uiPluginMan::uiPluginMan( uiParent* p )
 				mCB(this,uiPluginMan,loadPush), false );
     loadbut->attach( alignedBelow, pluginview_ );
 
-    selatstartfld_ = new uiCheckBox( leftgrp,
-				    tr("Select auto-loaded at startup") );
-    selatstartfld_->attach( alignedBelow, loadbut );
-    selatstartfld_->setChecked(
-	    Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup()) );
-
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     rightgrp->attach( rightOf, leftgrp );
 
@@ -323,13 +317,5 @@ void uiPluginMan::loadPush( CallBacker* )
 
 bool uiPluginMan::rejectOK( CallBacker* )
 {
-    const bool oldyn =
-	Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup());
-    const bool newyn = selatstartfld_->isChecked();
-    if ( oldyn != newyn )
-    {
-	Settings::common().setYN( uiPluginSel::sKeyDoAtStartup(), newyn );
-	Settings::common().write();
-    }
     return true;
 }

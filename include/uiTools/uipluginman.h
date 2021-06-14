@@ -29,7 +29,6 @@ public:
 protected:
 
     uiTreeView*		pluginview_;
-    uiCheckBox*		selatstartfld_;
 
     uiGenInput*		namefld_;
     uiGenInput*		productfld_;

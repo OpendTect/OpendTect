@@ -135,11 +135,9 @@ static bool hasodLicInstall()
 uiPluginSel::uiPluginSel( uiParent* p )
 	: uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,
 			mODHelpKey(mPluginSelHelpID) )
-			.savebutton(true)
 			.applybutton(hasodLicInstall())
 			.nrstatusflds(hasodLicInstall() ? 1 : 0)
-			.applytext(tr("Install licenses"))
-			.savetext(tr("Show this dialog at startup")))
+			.applytext(tr("Install licenses")))
 {
     uiString capt =
 	tr( "OpendTect V%1 : Select Plugins" ).arg( GetFullODVersion() );
@@ -148,7 +146,6 @@ uiPluginSel::uiPluginSel( uiParent* p )
     readVendorList();
 
     setOkText( tr("Start OpendTect") );
-    setSaveButtonChecked( true );
 
     readPackageList();
     const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
@@ -329,7 +326,6 @@ bool uiPluginSel::acceptOK( CallBacker* )
 	}
     }
 
-    Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
     Settings::common().set( PluginManager::sKeyDontLoad(), dontloadlist );
     Settings::common().write();
 
