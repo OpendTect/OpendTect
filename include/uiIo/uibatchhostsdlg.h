@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2014
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -24,6 +23,8 @@ class uiToolButton;
 mExpClass(uiIo) uiBatchHostsDlg : public uiDialog
 { mODTextTranslationClass(uiBatchHostsDlg)
 public:
+			enum HostLookupMode { StaticIP, NameDNS };
+			mDeclareEnumUtils(HostLookupMode);
 			uiBatchHostsDlg(uiParent*);
 			~uiBatchHostsDlg();
 
@@ -47,11 +48,13 @@ protected:
     void		testHostsCB(CallBacker*);
     void		hostSelCB(CallBacker*);
 
+    void		checkHostData(int row);
     void		checkIPAddress(int row);
     void		ipAddressChanged(int row);
     void		hostNameChanged(int row);
     void		displayNameChanged(int row);
     void		platformChanged(int row);
     void		dataRootChanged(int row);
+    void		lookupModeChanged(int row);
 };
 
