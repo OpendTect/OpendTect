@@ -34,7 +34,7 @@
 static bool fullImplRemove( const MultiID& key )
 {
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( ioobj->isSubdir() )
+    if ( !ioobj || ioobj->isSubdir() )
 	return false;
 
     PtrMan<Translator> tr = ioobj->createTranslator();
@@ -266,7 +266,7 @@ void IOMan::reInit( bool dotrigger )
     StreamProvider::unLoadAll();
     TranslatorGroup::clearSelHists();
 
-    delete dirptr_; dirptr_ = 0;
+    deleteAndZeroPtr( dirptr_ );
     survchgblocked_ = false;
     state_ = IOMan::NeedInit;
 

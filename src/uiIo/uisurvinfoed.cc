@@ -698,7 +698,8 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
     if ( !si_.write(rootdir_) )
     {
-       uiMSG().error(tr("Failed to write survey info.\nNo changes committed."));
+	uiMSG().error(
+	    tr("Failed to write survey info.\nNo changes committed.") );
 	return false;
     }
 
@@ -706,9 +707,15 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     if ( sip )
     {
 	uiDialog* dlg = getSIP()->fullSurveyImportDlg( this );
-	if ( dlg && !dlg->go() )
-	    uiMSG().warning( tr("Survey parameters imported successfully."
+	if ( dlg )
+	{
+	    const bool ret = uiMSG().askGoOn(
+				    tr("Proceed to import complete survey?") );
+
+	    if ( ret && !dlg->go() )
+		uiMSG().warning( tr("Survey parameters imported successfully."
 					"Complete survey import failed") );
+	}
     }
 
     return true;
