@@ -212,6 +212,7 @@ protected: \
     static DimensionType dimtyp_; \
 public: \
     static void		initClass(); \
+    static void		enableClass(bool yn); \
     static void		removeClass(); \
     static int		factoryID()		{ return factoryid_; } \
     const char*		attribName() const	{ return attrnm_; } \
@@ -240,6 +241,9 @@ void clss::initClass() \
     dispname_ = dispnm; domtyp_ = domtyp; dimtyp_ = dimtyp; \
     attrnm_ = attr::attribName(); \
 } \
+\
+void clss::enableClass( bool yn ) \
+{ uiAF().enable( attr::attribName(), yn ); } \
 \
 void clss::removeClass() \
 { uiAF().remove( attr::attribName() ); } \
