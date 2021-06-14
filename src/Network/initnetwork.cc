@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 
+#include "atomic.h"
 #include "systeminfo.h"
 
 extern "C" { mGlobal(Basic) const char* GetLocalAddress( bool ipv4only ); }
