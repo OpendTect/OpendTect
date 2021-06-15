@@ -10,9 +10,8 @@ ________________________________________________________________________
 
 */
 
-#ifndef commondefs_h
-# include "commondefs.h"
-#endif
+#include "commondefs.h"
+#include "plftypes.h"
 
 class IOPar;
 class BinID;
@@ -30,7 +29,6 @@ template<class T> class ObjectSet;
 template<class T> class StepInterval;
 
 typedef od_int32	Index_Type;
-typedef od_int32	Index_Delta_Type;
 typedef od_int64	DirtyCountType;
 typedef unsigned short	PortNr_Type;
 typedef od_int32	PID_Type;
