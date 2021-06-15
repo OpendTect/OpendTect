@@ -214,10 +214,15 @@ int ODMain( uiMain& app )
 
     checkScreenRes();
 
-    uiPluginSel dlg( odmain );
-    dlg.setPopupArea( uiMainWin::Auto );
-    if ( !dlg.go() )
-	return 1;
+    PtrMan<uiPluginSel> dlg = new uiPluginSel( odmain );
+    if ( dlg )
+    {
+	dlg->setPopupArea( uiMainWin::Auto );
+	if ( !dlg->go() )
+	    return 1;
+
+    }
+    dlg = nullptr;
 
     SetProgramRestarter( ODMainProgramRestarter );
 
