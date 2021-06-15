@@ -940,7 +940,7 @@ void Well::DisplayProperties::setMarkers( const Data* wd,
 }
 
 
-void Well::DisplayProperties::setMarkersNms( const BufferStringSet& nms,
+void Well::DisplayProperties::setMarkerNames( const BufferStringSet& nms,
 					     bool issel )
 {
     const BufferStringSet markernms = markers_.markerNms( issel );

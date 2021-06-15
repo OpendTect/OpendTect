@@ -84,7 +84,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
     TypeSet<OD::Color> markercols;
     wd_->markers().getColors( markercols );
     if ( !props.isValid() )
-	props.setMarkersNms( markernms, false );
+	props.setMarkerNames( markernms, false );
 
     uiWellDispProperties::Setup propsu =
 	uiWellDispProperties::Setup(tr("Marker size"),tr("Marker color"))

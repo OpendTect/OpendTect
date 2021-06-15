@@ -211,7 +211,9 @@ public:
 
     void		setTrack(const Track&);
     void		setMarkers(const Data*,const Markers&);
+    mDeprecated("Use setMarkerNames")
     void		setMarkersNms(const BufferStringSet&,bool issel);
+    void		setMarkerNames(const BufferStringSet&,bool issel);
     void		setLeftLog(const Data*,const Log&,
 				   int panelidx=0,bool forceifmissing=false);
     void		setCenterLog(const Data*,const Log&,
