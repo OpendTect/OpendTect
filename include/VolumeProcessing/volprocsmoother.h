@@ -36,7 +36,7 @@ public:
     TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
     StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
     StepInterval<int>	getInputZRgWithGeom(const StepInterval<int>&,
-				    Survey::Geometry::ID) const;
+				    Pos::GeomID) const;
 
     bool		setOperator(const char*,float param,
 				    int inlsz,int crlsz,int zsz);

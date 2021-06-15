@@ -92,7 +92,7 @@ void TrcKeySampling::init( bool tosi )
 {
     if ( tosi )
     {
-	init( Survey::GM().default3DSurvID() );
+	init( Survey::GeometryManager::get3DSurvID() );
     }
     else
     {
@@ -602,7 +602,7 @@ bool TrcKeySampling::usePar( const IOPar& pars )
 
     if ( !pars.get( sKey::SurveyID(), survid_ ) )
     {
-	survid_ = Survey::GM().default3DSurvID();
+	survid_ = Survey::GeometryManager::get3DSurvID();
     }
 
     if ( inlok && crlok )
@@ -720,7 +720,7 @@ bool TrcKeySampling::useJSON( const OD::JSON::Object& obj )
 
     survid_ = obj.getIntValue( sKey::SurveyID() );
     if ( mIsUdf(survid_) )
-	survid_ = Survey::GM().default3DSurvID();
+	survid_ = Survey::GeometryManager::get3DSurvID();
 
     return true;
 }
@@ -1457,6 +1457,7 @@ void TrcKeyZSampling::normalize()
     hsamp_.normalize();
     normaliseZ( zsamp_ );
 }
+
 
 
 void TrcKeySamplingIterator::setSampling( const TrcKeySampling& tks )

@@ -87,7 +87,7 @@ void ZAxisTransform::transform( const BinID& bid,
 				const SamplingData<float>& sd,
 				int sz,float* res) const
 {
-    transformTrc( Survey::GM().traceKey(Survey::GM().default3DSurvID(),
+    transformTrc( Survey::GM().traceKey(Survey::GeometryManager::get3DSurvID(),
 					bid.inl(), bid.crl()),
 		  sd, sz, res );
 }
@@ -97,8 +97,9 @@ void ZAxisTransform::transformBack( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    transformTrcBack( Survey::GM().traceKey( Survey::GM().default3DSurvID(),
-					    bid.inl(), bid.crl() ),
+    transformTrcBack( Survey::GM().traceKey(
+				Survey::GeometryManager::get3DSurvID(),
+				bid.inl(),bid.crl()),
 		      sd, sz, res );
 }
 
@@ -130,7 +131,7 @@ float ZAxisTransform::transformBack( const BinIDValue& pos ) const
 void ZAxisTransform::transform2D( const char* linenm, int trcnr,
 		const SamplingData<float>& sd, int sz, float* res ) const
 {
-    const Survey::Geometry::ID gid = Survey::GM().getGeomID( linenm );
+    const Pos::GeomID gid = Survey::GM().getGeomID( linenm );
     const TrcKey trckey = Survey::GM().traceKey( gid, trcnr );
     transformTrc( trckey, sd, sz, res );
 }
@@ -148,7 +149,7 @@ float ZAxisTransform::transform2D( const char* linenm, int trcnr,
 void ZAxisTransform::transformBack2D( const char* linenm, int trcnr,
 		const SamplingData<float>& sd, int sz, float* res ) const
 {
-    const Survey::Geometry::ID gid = Survey::GM().getGeomID( linenm );
+    const Pos::GeomID gid = Survey::GM().getGeomID( linenm );
     const TrcKey trckey = Survey::GM().traceKey( gid, trcnr );
     transformTrcBack( trckey, sd, sz, res );
 }

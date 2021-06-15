@@ -63,7 +63,7 @@ TrcKeySampling StatsCalculator::getInputHRg( const TrcKeySampling& hrg ) const
 
 /*StepInterval<int> StatsCalculator::getInputZRgWithGeom(
 				const StepInterval<int>& zrg,
-				Survey::Geometry::ID geomid ) const
+				Pos::GeomID geomid ) const
 {
     StepInterval<int> res( Step::getInputZRgWithGeom(zrg,geomid) );
     res.step = BinID( nzsampextra_, nzsampextra_ );

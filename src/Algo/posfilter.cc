@@ -375,7 +375,7 @@ void Pos::Provider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 
 
 Pos::Provider3D::Provider3D()
-    : survid_( Survey::GM().default3DSurvID() )
+    : survid_( Survey::GeometryManager::get3DSurvID() )
 {}
 
 

@@ -99,7 +99,7 @@ Survey::Geometry* dgbSurvGeom2DTranslator::readGeometry( const IOObj& ioobj,
     if ( !data->read(strm,false) )
 	{ delete data; return nullptr; }
 
-    const Survey::Geometry::ID geomid = ioobj.key().ID( 1 );
+    const Pos::GeomID geomid = ioobj.key().ID( 1 );
     data->setLineName( ioobj.name() );
     Survey::Geometry2D* geom = new Survey::Geometry2D( data );
     geom->setID( geomid );

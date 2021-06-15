@@ -425,7 +425,7 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	}
     }
 
-    Survey::Geometry::ID newgeomid =
+    Pos::GeomID newgeomid =
 		Geom2DImpHandler::getGeomID( linegeom.lineName() );
     if ( newgeomid == mUdfGeomID )
 	return false;

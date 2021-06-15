@@ -160,7 +160,8 @@ bool FaultStickPainter::addPolyLine()
 			const Coord3 pos = fss->getKnot( rc );
 			const BinID bid = SI().transform( pos.coord() );
 			const TrcKey trckey = Survey::GM().traceKey(
-			   Survey::GM().default3DSurvID(),bid.inl(),bid.crl() );
+				Survey::GeometryManager::get3DSurvID(),
+				bid.inl(),bid.crl() );
 			Coord3 editnormal(
 			    Geometry::RandomLine::getNormal(knots,trckey), 0.f);
 			const Coord3 nzednor = editnormal.normalize();
@@ -403,7 +404,7 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 							emfss->preferredColor();
 		    }
 		}
-		
+
 		viewer_.handleChange( FlatView::Viewer::Auxdata );
 		break;
 	    }

@@ -73,7 +73,7 @@ public:
 				 big input is needed? */
     virtual StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
     virtual StepInterval<int>	getInputZRgWithGeom(const StepInterval<int>&,
-					    Survey::Geometry::ID) const;
+					    Pos::GeomID) const;
 				/*!<When computing Z Sampling, how
 				 big input is needed? */
 

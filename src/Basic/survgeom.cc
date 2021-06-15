@@ -25,6 +25,7 @@ static Pos::GeomID cSIGeomID = -1;
 mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
 const TrcKey::SurvID GeometryManager::surv2did_ = 0;
+const TrcKey::SurvID GeometryManager::surv3did_ = cSIGeomID;
 
 static PtrMan<GeometryManager> theinst = 0;
 
@@ -44,14 +45,14 @@ bool isSynthetic( Pos::GeomID geomid )
 { return geomid == -2; }
 
 Pos::GeomID default3DGeomID()
-{ return Geometry::default3D().getID(); }
+{ return cSIGeomID; }
 
 bool isValidGeomID( Pos::GeomID geomid )
 { return geomid != -999 && !mIsUdf(geomid); }
 
 
 Geometry::Geometry()
-    : id_(mUdf(ID))
+    : id_(mUdfGeomID)
 {
 }
 
@@ -63,7 +64,7 @@ Geometry::~Geometry()
 
 const Geometry& Geometry::default3D()
 {
-    return *GM().getGeometry( GM().default3DSurvID() );
+    return *GM().getGeometry( GeometryManager::get3DSurvID() );
 }
 
 
@@ -100,7 +101,7 @@ Pos::SurvID Geometry::getSurvID() const
 {
     return is2D()
 	? Survey::GeometryManager::get2DSurvID()
-	: (Pos::SurvID) getID();
+	: Pos::SurvID( getID() );
 }
 
 
@@ -168,14 +169,14 @@ TrcKey::SurvID GeometryManager::default3DSurvID() const
 }
 
 
-const Geometry* GeometryManager::getGeometry( Geometry::ID geomid ) const
+const Geometry* GeometryManager::getGeometry( Pos::GeomID geomid ) const
 {
     const int idx = indexOf( geomid );
     return idx<0 ? 0 : geometries_[idx];
 }
 
 
-Geometry* GeometryManager::getGeometry( Geometry::ID geomid )
+Geometry* GeometryManager::getGeometry( Pos::GeomID geomid )
 {
     const int idx = indexOf( geomid );
     return idx<0 ? 0 : geometries_[idx];
@@ -224,7 +225,7 @@ const Geometry* GeometryManager::getGeometry( const char* nm ) const
 }
 
 
-Geometry::ID GeometryManager::getGeomID( const char* lnnm ) const
+Pos::GeomID GeometryManager::getGeomID( const char* lnnm ) const
 {
     const FixedString reqln( lnnm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
@@ -237,11 +238,11 @@ Geometry::ID GeometryManager::getGeomID( const char* lnnm ) const
 }
 
 
-Geometry::ID GeometryManager::getGeomID( const char* lsnm,
-					 const char* lnnm ) const
+Pos::GeomID GeometryManager::getGeomID( const char* lsnm,
+					const char* lnnm ) const
 {
     if ( !hasduplnms_ )
-        return getGeomID( lnnm );
+	return getGeomID( lnnm );
 
     BufferString newlnm = lsnm;
     newlnm.add( "-" );
@@ -250,7 +251,7 @@ Geometry::ID GeometryManager::getGeomID( const char* lsnm,
 }
 
 
-const char* GeometryManager::getName( Geometry::ID geomid ) const
+const char* GeometryManager::getName( Pos::GeomID geomid ) const
 {
     mGetConstGeom(geom,geomid);
     return geom ? geom->getName() : 0;
@@ -277,7 +278,7 @@ Coord GeometryManager::toCoord( const TrcKey& tk ) const
 }
 
 
-TrcKey GeometryManager::traceKey( Geometry::ID geomid, Pos::LineID lid,
+TrcKey GeometryManager::traceKey( Pos::GeomID geomid, Pos::LineID lid,
 				  Pos::TraceID tid ) const
 {
     mGetConstGeom(geom,geomid);
@@ -291,7 +292,7 @@ TrcKey GeometryManager::traceKey( Geometry::ID geomid, Pos::LineID lid,
 }
 
 
-TrcKey GeometryManager::traceKey( Geometry::ID geomid, Pos::TraceID tid ) const
+TrcKey GeometryManager::traceKey( Pos::GeomID geomid, Pos::TraceID tid ) const
 {
     mGetConstGeom(geom,geomid);
     if ( !geom || !geom->is2D() )
@@ -430,8 +431,8 @@ bool GeometryManager::write( Geometry& geom, uiString& errmsg )
 {
     if ( geom.is2D() )
     {
-	PtrMan<GeometryWriter> geomwriter =GeometryWriter::factory()
-						    .create( sKey::TwoD() );
+	PtrMan<GeometryWriter> geomwriter =
+			GeometryWriter::factory().create( sKey::TwoD() );
 	geom.ref();
 	if ( !geomwriter->write(geom,errmsg) )
 	{
@@ -450,16 +451,16 @@ bool GeometryManager::write( Geometry& geom, uiString& errmsg )
 }
 
 
-Geometry::ID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
+Pos::GeomID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
 {
     if ( !geom )
 	return cUndefGeomID();
 
     if ( !geom->is2D() )
-	return default3DSurvID();
+	return get3DSurvID();
 
-    Geometry::ID geomid = getGeomID( geom->getName() );
-    if ( geomid!=cUndefGeomID() )
+    Pos::GeomID geomid = getGeomID( geom->getName() );
+    if ( geomid != cUndefGeomID() )
 	return geomid;
 
     PtrMan<GeometryWriter> geomwriter =
@@ -474,7 +475,7 @@ Geometry::ID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
 }
 
 
-bool GeometryManager::removeGeometry( Geometry::ID geomid )
+bool GeometryManager::removeGeometry( Pos::GeomID geomid )
 {
     const int index = indexOf( geomid );
     if ( geometries_.validIdx(index) )
@@ -492,7 +493,7 @@ bool GeometryManager::removeGeometry( Geometry::ID geomid )
 }
 
 
-int GeometryManager::indexOf( Geometry::ID geomid ) const
+int GeometryManager::indexOf( Pos::GeomID geomid ) const
 {
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( geometries_[idx]->getID() == geomid )
@@ -502,30 +503,29 @@ int GeometryManager::indexOf( Geometry::ID geomid ) const
 }
 
 
-bool GeometryManager::fillGeometries( TaskRunner* taskrunner )
+bool GeometryManager::fillGeometries( TaskRunner* taskr )
 {
     Threads::Locker locker( lock_ );
     deepUnRef( geometries_ );
     ensureSIPresent();
     hasduplnms_ = hasDuplicateLineNames();
-    PtrMan<GeometryReader> geomreader = GeometryReader::factory()
-				        .create(sKey::TwoD());
-    return geomreader ? geomreader->read( geometries_, taskrunner ) : false;
+    PtrMan<GeometryReader> geomreader =
+		GeometryReader::factory().create(sKey::TwoD());
+    return geomreader && geomreader->read( geometries_, taskr );
 }
 
 
-bool GeometryManager::updateGeometries( TaskRunner* taskrunner )
+bool GeometryManager::updateGeometries( TaskRunner* taskr )
 {
     Threads::Locker locker( lock_ );
-    PtrMan<GeometryReader> geomreader = GeometryReader::factory()
-					.create(sKey::TwoD());
-    return geomreader ? geomreader->updateGeometries( geometries_, taskrunner )
-		      : false;
+    PtrMan<GeometryReader> geomreader =
+		GeometryReader::factory().create(sKey::TwoD());
+    return geomreader && geomreader->updateGeometries( geometries_, taskr );
 }
 
 
 bool GeometryManager::getList( BufferStringSet& names,
-			       TypeSet<Geometry::ID>& geomids, bool is2d ) const
+			       TypeSet<Pos::GeomID>& geomids, bool is2d ) const
 {
     names.erase();
     geomids.erase();
@@ -542,9 +542,9 @@ bool GeometryManager::getList( BufferStringSet& names,
 }
 
 
-Geometry::ID GeometryManager::findRelated( const Geometry& ref,
-					   Geometry::RelationType& reltype,
-					   bool usezrg ) const
+Pos::GeomID GeometryManager::findRelated( const Geometry& ref,
+					  Geometry::RelationType& reltype,
+					  bool usezrg ) const
 {
     int identicalidx=-1, supersetidx=-1, subsetidx=-1, relatedidx=-1;
     for ( int idx=0; identicalidx<0 && idx<geometries_.size(); idx++ )
@@ -571,6 +571,5 @@ Geometry::ID GeometryManager::findRelated( const Geometry& ref,
 
     reltype = Geometry::UnRelated; return cUndefGeomID();
 }
-
 
 } // namespace Survey

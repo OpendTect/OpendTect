@@ -283,7 +283,7 @@ StepInterval<int> VolProc::Step::getInputZRg(
 
 StepInterval<int> VolProc::Step::getInputZRgWithGeom(
 						const StepInterval<int>& zrg,
-						Survey::Geometry::ID ) const
+						Pos::GeomID ) const
 { return zrg; }
 
 

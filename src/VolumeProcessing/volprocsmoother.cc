@@ -45,7 +45,7 @@ StepInterval<int> Smoother::getInputZRg( const StepInterval<int>& zrg ) const
 { return Step::getInputZRg( zrg ); }
 
 StepInterval<int> Smoother::getInputZRgWithGeom( const StepInterval<int>& zrg,
-					 Survey::Geometry::ID geomid ) const
+					 Pos::GeomID geomid ) const
 { return Step::getInputZRgWithGeom( zrg, geomid  ); }
 
 
