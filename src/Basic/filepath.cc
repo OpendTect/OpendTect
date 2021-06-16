@@ -9,11 +9,13 @@
 
 #include "envvars.h"
 #include "file.h"
+#include "fixedstring.h"
 #include "genc.h"
 #include "msgh.h"
-#include "fixedstring.h"
 #include "oddirs.h"
+#include "staticstring.h"
 #include "timefun.h"
+
 #include <string.h>
 
 
@@ -92,6 +94,20 @@ static bool isServerPath( const char* path )
 {
     const FixedString pathstr = path;
     return pathstr.size()>1 && path[0]=='\\' && path[1]=='\\';
+}
+
+
+BufferString File::Path::getFullLongPath( const File::Path& fp )
+{
+    if ( !__iswin__ )
+	return fp.fullPath();
+
+    mDeclStaticString( longpath );
+    longpath.setMinBufSize( 1025 );
+#ifdef __win__
+    GetLongPathName(fp.fullPath(), longpath.getCStr(), longpath.minBufSize()-1);
+#endif
+    return longpath;
 }
 
 
