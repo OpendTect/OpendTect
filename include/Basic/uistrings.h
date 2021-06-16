@@ -450,10 +450,10 @@ public:
     static uiString sModify()		{ return tr("Modify"); }
     static uiString sMouse()		{ return tr("Mouse"); }
     static uiString sMove()		{ return tr("Move"); }
-    static uiString sMoveDown()		{ return tr("Move Down"); }
-    static uiString sMoveToBottom()	{ return tr("Move To Bottom"); }
-    static uiString sMoveToTop()	{ return tr("Move To Top"); }
-    static uiString sMoveUp()		{ return tr("Move Up"); }
+    static uiString sMoveDown()		{ return tr("Move down"); }
+    static uiString sMoveToBottom()	{ return tr("Move to bottom"); }
+    static uiString sMoveToTop()	{ return tr("Move to top"); }
+    static uiString sMoveUp()		{ return tr("Move up"); }
     static uiString sMsec()		{ return tr("Millisecond"); }
     static uiString sMute(int num=1)	{ return tr("Mute",0,num); }
     static uiString sName(int num=1)	{ return tr("Name",0,num); }
@@ -595,7 +595,7 @@ public:
     static uiString sSurvey(int num=1)  { return tr("Survey",0,num); }
     static uiString sSurveys()		{ return sSurvey(mPlural); }
     static uiString sTable(int num=1)	{ return tr("Table",0,num); }
-    static uiString sTakeSnapshot()	{ return tr("Take Snapshot"); }
+    static uiString sTakeSnapshot()	{ return tr("Take snapshot"); }
     static uiString sTension()		{ return tr("Tension"); }
     static uiString sTerminate()	{ return tr("Terminate"); }
     static uiString sTile()		{ return tr("Tile"); }
@@ -615,7 +615,7 @@ public:
     static uiString sTracking()		{ return tr("Tracking"); }
     static uiString sTransform()	{ return tr("Transform"); }
     static uiString sTransparency()	{ return tr("Transparency"); }
-    static uiString sTVD()		{ return tr("TVD", "True Vert Dpth"); }
+    static uiString sTVD()		{ return tr("TVD", "True Vert Depth"); }
     static uiString sTVDRelKB()		{ return tr("TVD rel KB",
 						"TVD relative to KB");}
     static uiString sTVDRelGL()		{ return tr("TVD rel GL",
@@ -673,7 +673,7 @@ public:
     static uiString sZip()		{ return tr("Zip"); }
     static uiString sZRange()		{ return tr("Z range"); }
     static uiString sZSlice(int num=1)	{ return tr("Z-slice",0,num); }
-    static uiString sZUnit()		{ return tr("Z-unit"); }
+    static uiString sZUnit()		{ return tr("Z unit"); }
     static uiString sZValue(int num=1)	{ return tr("Z value",0,num); }
 
     static uiString sDistUnitString(bool isfeet,bool abbrevated,
