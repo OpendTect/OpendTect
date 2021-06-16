@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 #include "commanddefs.h"
 #include "file.h"
+#include "plfdefs.h"
 #include "ptrman.h"
 
 
@@ -17,30 +18,34 @@ class TerminalCommands : public CommandDefs
 public:
     TerminalCommands( const BufferStringSet& paths )
     {
-    #ifdef __win__
-	addCmd( "wt.exe", tr("Windows Terminal"), "terminal.png",
-		tr("Windows Terminal"), paths );
-	addCmd( "powershell.exe", tr("Power Shell"), "terminal.png",
-		tr("Power Shell"), paths );
-	addCmd( "cmd.exe", tr("Command Prompt"), "terminal.png",
-		tr("Command Prompt"), paths );
-    #else
-	addCmd( "konsole", tr("KDE Konsole"), "terminal.png",
-		tr("KDE Konsole"), paths );
-	addCmd( "gnome-terminal", tr("Gnome Terminal"), "terminal.png",
-		tr("Gnome Terminal"), paths );
-	addCmd( "terminator", tr("Terminator"), "terminal.png",
-		tr("Terminator"), paths );
-	addCmd( "quake", tr("Quake"), "terminal.png", tr("Quake"), paths );
-	addCmd( "yakuake", tr("Yakuake"), "terminal.png", tr("Yakuake"), paths);
-	addCmd( "tilda", tr("Tilda"), "terminal.png", tr("Tilda"), paths );
-	addCmd( "macterm", tr("MacTerm"), "terminal.png", tr("MacTerm"),
-		paths );
-	addCmd( "Terminal", tr("Terminal"), "terminal.png", tr("Terminal"),
-		paths );
-	addCmd( "xterm", tr("X Terminal"), "terminal.png", tr("X Terminal"),
-		paths );
-    #endif
+	if ( __iswin__ )
+	{
+	    addCmd( "wt.exe", tr("Windows Terminal"), "terminal.png",
+		    tr("Windows Terminal"), paths );
+	    addCmd( "powershell.exe", tr("Power Shell"), "terminal.png",
+		    tr("Power Shell"), paths );
+	    addCmd( "cmd.exe", tr("Command Prompt"), "terminal.png",
+		    tr("Command Prompt"), paths );
+	}
+	else
+	{
+	    addCmd( "konsole", tr("KDE Konsole"), "terminal.png",
+		    tr("KDE Konsole"), paths );
+	    addCmd( "gnome-terminal", tr("Gnome Terminal"), "terminal.png",
+		    tr("Gnome Terminal"), paths );
+	    addCmd( "terminator", tr("Terminator"), "terminal.png",
+		    tr("Terminator"), paths );
+	    addCmd( "quake", tr("Quake"), "terminal.png", tr("Quake"), paths );
+	    addCmd( "yakuake", tr("Yakuake"), "terminal.png", tr("Yakuake"),
+		    paths);
+	    addCmd( "tilda", tr("Tilda"), "terminal.png", tr("Tilda"), paths );
+	    addCmd( "macterm", tr("MacTerm"), "terminal.png", tr("MacTerm"),
+		    paths );
+	    addCmd( "Terminal", tr("Terminal"), "terminal.png", tr("Terminal"),
+		    paths );
+	    addCmd( "xterm", tr("X Terminal"), "terminal.png", tr("X Terminal"),
+		    paths );
+	}
     }
 };
 

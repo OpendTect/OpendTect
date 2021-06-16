@@ -1367,11 +1367,11 @@ CommandDefs uiPythonSettings::getPythonIDECommands(
     comms.addCmd( "jupyter-notebook", tr("Jupyter-Notebook"),
 		  "jupyter-notebook.png", tr("Jupyter Notebook"), paths );
     comms.addCmd( "spyder", tr("Spyder"), "spyder.png", tr("Spyder"), paths );
-#ifdef __win__
-    comms.addCmd( "idle", tr("Idle"), "idle.png", tr("Idle"), paths );
-#else
-    comms.addCmd( "idle3", tr("Idle"), "idle.png", tr("Idle"), paths );
-#endif
+    if ( __iswin__ )
+	comms.addCmd( "idle", tr("Idle"), "idle.png", tr("Idle"), paths );
+    else
+	comms.addCmd( "idle3", tr("Idle"), "idle.png", tr("Idle"), paths );
+
     return comms;
 }
 
