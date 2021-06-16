@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	J.C. Glas
  Date:		01/12/2014
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -39,6 +38,7 @@ public:
     void		setHostNameOverrule(const char*);
 
     BufferString	getTerminalEmulator();
+    void		setTerminalEmulator(const char*);
 
     static const char*	sKeyIcons();
     static const char*	sKeyShowInlProgress();

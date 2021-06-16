@@ -325,6 +325,9 @@ uiString uiStrings::sBatchProgramFailedStart()
 uiString uiStrings::sColorTable(int num)
 { return tr("ColorTable",0,num); }
 
+uiString uiStrings::sCommand(int num)
+{ return tr("Command",0,num); }
+
 uiString uiStrings::sCalculate()
 { return tr("Calculate"); }
 
@@ -519,6 +522,9 @@ uiString uiStrings::sOpen()
 uiString uiStrings::sOptions()
 { return tr("Options"); }
 
+uiString uiStrings::sOther()
+{ return tr("Other"); }
+
 uiString uiStrings::sOutputSelection()
 { return phrOutput(sSelection().toLower()); }
 
@@ -567,6 +573,9 @@ uiString uiStrings::sSeismics( bool is2d, bool isps, int num )
 uiString uiStrings::sSelect()
 { return tr("Select"); }
 
+uiString uiStrings::sSelectIcon()
+{ return tr("Select icon"); }
+
 uiString uiStrings::sSelectPos()
 { return tr("Select Position"); }
 
@@ -603,6 +612,9 @@ uiString uiStrings::sStored()
 
 uiString uiStrings::sStratigraphy()
 { return tr( "Stratigraphy" ); }
+
+uiString uiStrings::sTooltip()
+{ return tr("Tool Tip"); }
 
 uiString uiStrings::sTrack()
 { return tr("Track" ); }
