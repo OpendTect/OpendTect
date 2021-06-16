@@ -63,5 +63,8 @@ mExpClass(uiSeis) uiWaveletSel : public uiIOObjSel
 public:
 			uiWaveletSel(uiParent*,bool forread,
 				     const uiIOObjSel::Setup&);
+			uiWaveletSel(uiParent*,bool forread);
+			~uiWaveletSel();
+
     Wavelet*		getWavelet(bool noerr) const;
 };

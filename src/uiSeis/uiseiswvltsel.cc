@@ -221,18 +221,30 @@ void uiSeisWaveletSel::rebuildList()
 
 
 // uiWaveletSel
-
 uiWaveletSel::uiWaveletSel( uiParent* p, bool forread,
 			    const uiIOObjSel::Setup& setup )
     : uiIOObjSel(p,mRWIOObjContext(Wavelet,forread),setup)
 {
-    uiString datatype = uiStrings::sWavelet();
     if ( setup.seltxt_.isEmpty() )
 	setLabelText( forread
 		     ? uiStrings::phrInput( uiStrings::sWavelet() )
 		     : uiStrings::phrOutput( uiStrings::sWavelet() ) );
     fillEntries();
 }
+
+
+uiWaveletSel::uiWaveletSel( uiParent* p, bool forread )
+    : uiIOObjSel(p,mRWIOObjContext(Wavelet,forread),Setup())
+{
+    setLabelText( forread
+		 ? uiStrings::phrInput( uiStrings::sWavelet() )
+		 : uiStrings::phrOutput( uiStrings::sWavelet() ) );
+    fillEntries();
+}
+
+
+uiWaveletSel::~uiWaveletSel()
+{}
 
 
 Wavelet* uiWaveletSel::getWavelet( bool noerr ) const
