@@ -30,7 +30,7 @@ public:
     bool			write(Geometry&,uiString&,
 				      const char* crfrmstr=0) const;
     IOObj*			createEntry(const char* name) const;
-    Geometry::ID		createNewGeomID(const char* name) const;
+    Pos::GeomID		createNewGeomID(const char* name) const;
 
 };
 

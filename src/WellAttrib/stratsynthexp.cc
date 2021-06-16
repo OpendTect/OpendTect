@@ -118,7 +118,7 @@ bool StratSynthExporter::prepareWriter()
     delete writer_;
     writer_ = new SeisTrcWriter( ctxt->ioobj_ );
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
-    Survey::Geometry::ID newgeomid =
+    Pos::GeomID newgeomid =
 	Survey::GM().getGeomID( linegeom_->lineName() );
     seldata->setGeomID( newgeomid );
     writer_->setSelData( seldata );

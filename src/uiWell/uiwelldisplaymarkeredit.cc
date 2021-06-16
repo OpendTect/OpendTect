@@ -494,7 +494,7 @@ void uiWellDispCtrlEditMarkerDlg::handleUsrClickCB( CallBacker* )
 	    BufferStringSet markernms =
 				dispprop->getMarkers().markerNms( false );
 	    markernms.remove( mrknm );
-	    dispprop->setMarkersNms( markernms, false );
+	    dispprop->setMarkerNames( markernms, false );
 	}
     }
     else if ( curmrk_ )

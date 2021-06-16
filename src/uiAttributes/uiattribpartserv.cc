@@ -1097,8 +1097,8 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
     TrcKeyPath trckeys;
     for ( int idx=0; idx<path.size(); idx++ )
-	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
-					  path[idx].inl(), path[idx].crl() );
+	trckeys += Survey::GM().traceKey(Survey::GeometryManager::get3DSurvID(),
+					 path[idx].inl(), path[idx].crl() );
 
     BinIDValueSet bidset( 2, false );
     for ( int idx = 0; idx<path.size(); idx++ )
@@ -1182,7 +1182,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
     TrcKeyPath trckeys;
     for ( int idx=0; idx<path->size(); idx++ )
-	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
+	trckeys += Survey::GM().traceKey(Survey::GeometryManager::get3DSurvID(),
 				       (*path)[idx].inl(), (*path)[idx].crl() );
 
     const MultiID mid( targetdesc->getStoredID() );

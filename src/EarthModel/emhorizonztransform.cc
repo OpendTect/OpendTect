@@ -242,9 +242,8 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	hortrckey = trckey;
     else
     {
-	Survey::Geometry::ID gid = trckey.geomID();
-	ConstRefMan<Survey::Geometry> keysurv =
-					    Survey::GM().getGeometry( gid );
+	const Pos::GeomID gid = trckey.geomID();
+	ConstRefMan<Survey::Geometry> keysurv = Survey::GM().getGeometry( gid );
 	if ( !keysurv )
 	    return false;
 
@@ -254,7 +253,7 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 
 	if ( hor3d )
 	{
-	    const Survey::Geometry::ID horgid =
+	    const Pos::GeomID horgid =
 		TrcKey(horizon_->getSurveyID(),BinID(-1,-1)).geomID();
 	    ConstRefMan<Survey::Geometry> horsurv =
 					    Survey::GM().getGeometry( horgid );

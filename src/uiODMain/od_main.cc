@@ -50,17 +50,5 @@ int mProgMainFnName( int argc, char** argv )
     OD::SetGlobalLogFile( nullptr );
     UsrMsg( msg );
 
-#ifdef __mac__
-    BufferString datfile( FilePath(GetSoftwareDir(0),
-			      "Resources/license.dgb.dat").fullPath());
-    if ( File::exists(datfile.buf()) )
-    {
-	BufferString valstr = GetEnvVar( "LM_LICENSE_FILE" );
-	if ( !valstr.isEmpty() ) valstr += ":";
-	valstr += datfile;
-	SetEnvVar( "LM_LICENSE_FILE", valstr.buf() );
-    }
-#endif
-
-     return ODMain( app );
+    return ODMain( app );
 }

@@ -148,7 +148,7 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
     {
 	const Well::Marker& mrkr = *mset[idx];
 	const float dah = mrkr.dah();
-	const float tvdss = mCast(float,trck.getPos(dah).z);
+	const float tvdss = sCast(float,trck.getPos(dah).z);
 	const float tvd = tvdss + kbelev;
 	strm << dah * zfac << od_tab
 	     << tvd * zfac << od_tab
@@ -162,9 +162,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Well Markers"),mNoDlgTitle,
 				     mODHelpKey(mMarkerDlgHelpID)))
 	, track_(t)
-	, oldmrkrs_(0)
-	, table_(0)
-	, unitfld_(0)
+	, oldmrkrs_(nullptr)
 {
     uiString title( toUiString("%1: %2") );
     title.arg( uiStrings::sWell() ).arg( t.name() );
@@ -188,32 +186,26 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
     table_->setPrefWidth( 650 );
 
-    uiButton* updatebut = new uiPushButton( this, tr("Update display"),
-				mCB(this,uiMarkerDlg,updateDisplayCB), true );
+    auto* updatebut = new uiPushButton( this, tr("Update display"),
+			mCB(this,uiMarkerDlg,updateDisplayCB), true );
     updatebut->attach( leftAlignedBelow, table_ );
 
-    uiButton* rfbut = new uiPushButton( this, uiStrings::sImport(),
-					mCB(this,uiMarkerDlg,rdFile), false );
+    auto* rfbut = new uiPushButton( this, uiStrings::sImport(),
+			mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightOf, updatebut );
 
-    uiButton* expbut = new uiPushButton( this, uiStrings::sExport(),
-					mCB(this,uiMarkerDlg,exportCB), false );
+    auto* expbut = new uiPushButton( this, uiStrings::sExport(),
+			mCB(this,uiMarkerDlg,exportCB), false );
     expbut->attach( rightOf, rfbut );
 
-    uiPushButton* setregmrkar =
-	new uiPushButton( this,	tr("Set as regional markers"),
-			  mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
-    setregmrkar->attach( alignedBelow, updatebut );
+    auto* setregmarker = new uiPushButton( this, tr("Set as regional markers"),
+			mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
+    setregmarker->attach( alignedBelow, updatebut );
 
-    uiToolButton* stratbut = new uiToolButton( this, "man_strat",
-				tr("Edit Stratigraphy to define Levels"),
-				mCB(this,uiMarkerDlg,doStrat) );
-    stratbut->attach( rightOf, setregmrkar );
-
-    uiToolButton* randclrbut = new uiToolButton( this, "random_color",
-				tr("Assign random colors to markers"),
-				mCB(this,uiMarkerDlg,assignRandomColorsCB) );
-    randclrbut->attach( rightOf, stratbut );
+    auto* randclrbut = new uiToolButton( this, "random_color",
+			tr("Assign random colors to markers"),
+			mCB(this,uiMarkerDlg,assignRandomColorsCB) );
+    randclrbut->attach( rightOf, setregmarker );
 
     unitfld_ = new uiCheckBox( this, tr("Z in Feet") );
     unitfld_->attach( rightAlignedBelow, table_ );
@@ -226,7 +218,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 
 uiMarkerDlg::~uiMarkerDlg()
 {
-    if ( oldmrkrs_ ) delete oldmrkrs_;
+    delete oldmrkrs_;
 }
 
 
@@ -247,8 +239,9 @@ int uiMarkerDlg::getNrRows() const
 {
     for ( int idx=table_->nrRows()-1; idx>=0; idx-- )
     {
-	const char* txt = table_->text( RowCol(idx,cNameCol) );
-	if ( txt && *txt ) return idx+1;
+	const FixedString txt = table_->text( RowCol(idx,cNameCol) );
+	if ( !txt.isEmpty() )
+	    return idx+1;
     }
 
     return 0;
@@ -268,8 +261,7 @@ bool uiMarkerDlg::getFromScreen()
 
 void uiMarkerDlg::markerAddedCB( CallBacker* )
 {
-    uiStratLevelSel* levelsel = new uiStratLevelSel( 0, true,
-						    uiStrings::sEmptyString() );
+    auto* levelsel = new uiStratLevelSel( 0, true, uiStrings::sEmptyString() );
     levelsel->selChange.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
     const int currentrow = table_->currentRow();
     const OD::Color defgreycol( 128, 128, 128 );
@@ -285,7 +277,6 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
     const RowCol rc = table_->notifiedCell();
     const int row = rc.row();
     const int col = rc.col();
-
     const bool depthchg = col == cDepthCol || col == cTVDCol || col==cTVDSSCol;
     const bool nmchg = col == cNameCol;
 
@@ -423,7 +414,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	    levelsel->setID( marker->levelID() );
 	    const float dah = marker->dah();
 	    table_->setValue( RowCol(irow,cDepthCol), dah*zfac, 2 );
-	    const float tvdss = mCast(float,track_.getPos(dah).z);
+	    const float tvdss = sCast(float,track_.getPos(dah).z);
 	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac, 2 );
 	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, 2 );
 	    table_->setText( RowCol(irow,cNameCol), marker->name() );
@@ -765,7 +756,7 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
     if ( !getKey(mid) )
 	return;
 
-    RefMan<Well::Data> wd = Well::MGR().get(mid, Well::LoadReqs(Well::Mrkrs));
+    RefMan<Well::Data> wd = Well::MGR().get( mid, Well::LoadReqs(Well::Mrkrs) );
     if ( !wd )
     {
 	uiMSG().error( mToUiStringTodo(Well::MGR().errMsg()) );
@@ -774,7 +765,7 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
 
     getMarkerSet( wd->markers() );
     BufferStringSet emptynms;
-    wd->displayProperties().setMarkersNms( emptynms, false );
+    wd->displayProperties().setMarkerNames( emptynms, false );
     wd->markerschanged.trigger();
 }
 

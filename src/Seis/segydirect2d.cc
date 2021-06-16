@@ -398,7 +398,7 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
     if ( !segydirectobj )
 	return 0;
 
-    const Survey::Geometry::ID geomid = ioobj.key().ID( 1 );
+    const Pos::GeomID geomid = ioobj.key().ID( 1 );
     const OD::String& segydeffnm =
 	SEGYDirect2DLineIOProvider::getFileName( *segydirectobj, geomid );
     SEGY::DirectDef sgydef( segydeffnm );

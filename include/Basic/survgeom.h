@@ -30,16 +30,14 @@ class Geometry3D;
 For 3D, a geometry is an Inl/Crl System.
 For 2D, each line has its own Geometry.
 
-Beware, the Geometry::ID != Survkey::ID for 2D geometries. The Geometry::ID
+Beware, the Pos::GeomID != Pos::SurvID for 2D geometries. The GeomID
 will end up in the lineNr() of the TrcKey.
-
 */
 
 mExpClass(Basic) Geometry
 { mRefCountImpl(Geometry)
 public:
 
-    typedef Pos::GeomID	ID;
     enum RelationType	{ UnRelated=0, Related, SubSet, SuperSet, Identical };
 			/*!< 'Related' means the two geometries have the same
 			  transform but neither includes the other. */
@@ -48,8 +46,8 @@ public:
     Pos::SurvID		getSurvID() const;
     static const Geometry& default3D();
 
-    ID			getID() const			{ return id_; }
-    void		setID( ID id )			{ id_ = id; }
+    Pos::GeomID		getID() const			{ return id_; }
+    void		setID( Pos::GeomID id )		{ id_ = id; }
     virtual const char*	getName() const			= 0;
 
     virtual Coord	toCoord(Pos::LineID,Pos::TraceID) const		= 0;
@@ -88,7 +86,7 @@ protected:
     TrcKeyZSampling		sampling_;
 private:
 
-    ID			id_;
+    Pos::GeomID			id_;
 
 };
 
@@ -137,8 +135,11 @@ public:
 				//!<Returns cUndefGeomID() if none found
 
     static TrcKey::SurvID	get2DSurvID()	{ return surv2did_; }
-    TrcKey::SurvID		default3DSurvID() const;
+    static TrcKey::SurvID	get3DSurvID()	{ return surv3did_; }
     static Pos::GeomID		cUndefGeomID()	{ return mUdf(Pos::GeomID); }
+
+    mDeprecated("Use get3DSurvID()")
+    TrcKey::SurvID		default3DSurvID() const;
 
 protected:
 
@@ -151,6 +152,7 @@ protected:
     Threads::Lock		lock_;
     ObjectSet<Geometry>		geometries_;
     static const TrcKey::SurvID	surv2did_;
+    static const TrcKey::SurvID	surv3did_;
 
     bool			hasduplnms_;
 

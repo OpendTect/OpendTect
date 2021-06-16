@@ -116,7 +116,7 @@ const TrcKey& Pick::Location::trcKey() const
 	return trckey_;
 
     mDefineStaticLocalObject( TrcKey, rettk, );
-    rettk.setSurvID( Survey::GM().default3DSurvID() );
+    rettk.setSurvID( Survey::GeometryManager::get3DSurvID() );
     rettk.setPosition( SI().transform(pos_) );
     return rettk;
 }

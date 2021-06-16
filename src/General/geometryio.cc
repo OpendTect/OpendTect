@@ -47,7 +47,7 @@ public:
 
 protected:
 
-    int indexOf( Geometry::ID geomid ) const
+    int indexOf( Pos::GeomID geomid ) const
     {
 	for ( int idx=0; idx<geometries_.size(); idx++ )
 	    if ( geometries_[idx]->getID() == geomid )
@@ -57,8 +57,8 @@ protected:
 
     int nextStep()
     {
-	const IOObj* ioobj = objs_[mCast(int,nrdone_)];
-	const Geometry::ID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );
+	const IOObj* ioobj = objs_[int(nrdone_)];
+	const Pos::GeomID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );
 	bool doupdate = false;
 	const int geomidx = indexOf( geomid );
 	if ( updateonly_ && geomidx!=-1 )
@@ -112,7 +112,7 @@ protected:
 	return true;
     }
 
-    bool isLoaded( Geometry::ID geomid ) const
+    bool isLoaded( Pos::GeomID geomid ) const
     {
 	for ( int idx=0; idx<geometries_.size(); idx++ )
 	    if ( geometries_[idx]->getID() == geomid )
@@ -161,7 +161,7 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
 }
 
 
-Geometry::ID GeometryWriter2D::createNewGeomID( const char* name ) const
+Pos::GeomID GeometryWriter2D::createNewGeomID( const char* name ) const
 {
     PtrMan<IOObj> geomobj = createEntry( name );
     if ( !geomobj )

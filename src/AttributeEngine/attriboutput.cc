@@ -1160,7 +1160,7 @@ void TableOutput::initPairsTable()
 {
     arebiddupl_ = false;
     BufferStringSet linenames;
-    TypeSet<Survey::Geometry::ID> ids;
+    TypeSet<Pos::GeomID> ids;
     Survey::GM().getList( linenames, ids, true );
     if ( !ids.size() ) //synthetics
     {

@@ -160,7 +160,8 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	else
 	{
 	    const TrcKey trckey = Survey::GM().traceKey(
-		    Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+			Survey::GeometryManager::get3DSurvID(),
+			bid.inl(), bid.crl() );
 	    if ( randfdp->getPath().indexOf(trckey)<0 )
 		continue;
 	}
@@ -334,7 +335,8 @@ void VW2DPickSet::drawAll()
 		const BinID bid = SI().transform(pos);
 		const FlatPosData& flatposdata = randfdp->posData();
 		const TrcKey trckey = Survey::GM().traceKey(
-			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+			Survey::GeometryManager::get3DSurvID(),
+			bid.inl(), bid.crl() );
 		const int bidindex = randfdp->getPath().indexOf( trckey );
 		const double bidpos = flatposdata.position( true, bidindex );
 		FlatView::Point point( bidpos, z );

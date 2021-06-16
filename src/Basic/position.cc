@@ -409,7 +409,7 @@ TrcKey::SurvID TrcKey::std2DSurvID()
 
 TrcKey::SurvID TrcKey::std3DSurvID()
 {
-    return Survey::GM().default3DSurvID();
+    return Survey::GeometryManager::get3DSurvID();
 }
 
 

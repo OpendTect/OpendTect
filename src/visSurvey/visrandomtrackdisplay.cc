@@ -274,7 +274,7 @@ TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
 
     cs.zsamp_.setFrom( getDepthInterval() );
     cs.zsamp_.step = appliedZRangeStep();
-    cs.hsamp_.survid_ = Survey::GM().default3DSurvID();
+    cs.hsamp_.survid_ = Survey::GeometryManager::get3DSurvID();
     return cs;
 }
 
@@ -1557,7 +1557,8 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 
     const BinID bid( SI().transform(pos) );
     const TrcKey trckey = Survey::GM().traceKey(
-	    Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+	Survey::GeometryManager::get3DSurvID(),
+	bid.inl(), bid.crl() );
     const int trcidx = randsdp->getNearestGlobalIdx( trckey );
     const int sampidx = randsdp->zRange().nearestIndex( pos.z );
     const Array3DImpl<float>& array = randsdp->data( version );
