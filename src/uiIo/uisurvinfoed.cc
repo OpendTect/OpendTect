@@ -349,19 +349,21 @@ void uiSurveyInfoEditor::mkTransfGrp()
     x0fld_->setElemSzPol( uiObject::SmallVar );
     x0fld_->attach( alignedBelow, dummy );
 
-    xinlfld_ = new uiGenInput ( trgrp_, tr("+ in-line *"),
+    xinlfld_ = new uiGenInput ( trgrp_, tr("+ %1 *").arg(uiStrings::sInline()),
 				       DoubleInpSpec().setName("Inl") );
     xinlfld_->setElemSzPol( uiObject::SmallVar );
-    xcrlfld_ = new uiGenInput ( trgrp_, tr("+ cross-line *"),
-				      DoubleInpSpec().setName("Crl") );
+    xcrlfld_ = new uiGenInput ( trgrp_,
+				tr("+ %1 *").arg(uiStrings::sCrossline()),
+				DoubleInpSpec().setName("Crl") );
     xcrlfld_->setElemSzPol( uiObject::SmallVar );
     y0fld_ = new uiGenInput ( trgrp_, tr("Y = "), DoubleInpSpec().setName("Y"));
     y0fld_->setElemSzPol( uiObject::SmallVar );
-    yinlfld_ = new uiGenInput ( trgrp_, tr("+ in-line *"),
+    yinlfld_ = new uiGenInput ( trgrp_, tr("+ %1 *").arg(uiStrings::sInline()),
 				      DoubleInpSpec() .setName("Inl"));
     yinlfld_->setElemSzPol( uiObject::SmallVar );
-    ycrlfld_ = new uiGenInput ( trgrp_, tr("+ cross-line *"),
-				      DoubleInpSpec() .setName("Crl"));
+    ycrlfld_ = new uiGenInput ( trgrp_,
+				tr("+ %1 *").arg(uiStrings::sCrossline()),
+				DoubleInpSpec() .setName("Crl"));
     ycrlfld_->setElemSzPol( uiObject::SmallVar );
     overrulefld_ = new uiCheckBox( trgrp_, tr("Overrule easy settings") );
     overrulefld_->setChecked( false );

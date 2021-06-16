@@ -1428,7 +1428,7 @@ void uiSurvey::putToScreen()
     infopars_.set( "CRS", crsinfo );
     infopars_.set( "Area", areainfo );
     infopars_.set( "Survey type", survtypeinfo );
-    infopars_.set( "In-line Orientation", orientinfo );
+    infopars_.set( "In-line orientation", orientinfo );
     infopars_.set( "Location", locinfo );
 
     BufferString infostr;

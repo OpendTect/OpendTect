@@ -206,7 +206,7 @@ uiManualConvGroup::uiManualConvGroup( uiParent* p, const SurveyInfo& si )
 {
     uiGroup* ingrp = new uiGroup( this, "TopGroup" );
 
-    inptypfld_ = new uiGenInput( ingrp, tr("Convert From"),
+    inptypfld_ = new uiGenInput( ingrp, tr("Convert from"),
 	StringListInpSpec(uiConvertPos::DataTypeDef().strings()) );
     mAttachCB( inptypfld_->valuechanged, uiManualConvGroup::inputTypChg );
     ingrp->setHAlignObj( inptypfld_ );
