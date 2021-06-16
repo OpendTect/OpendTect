@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiseiswvltimpexp.h"
@@ -30,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uistrings.h"
 #include "uitblimpexpdatasel.h"
+#include "uiseiswvltsel.h"
 #include "od_helpids.h"
 
 #include <math.h>
@@ -63,8 +63,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     scalefld_->attach( alignedBelow, dataselfld_ );
     scalefld_->attach( ensureBelow, sep );
 
-    ctio_.ctxt_.forread_ = false;
-    wvltfld_ = new uiIOObjSel( this, ctio_ );
+    wvltfld_ = new uiWaveletSel( this, false, uiIOObjSel::Setup() );
     wvltfld_->attach( alignedBelow, scalefld_ );
 }
 
@@ -91,11 +90,14 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet( tr("Please enter the input file name") )
-    if ( !wvltfld_->commitInput() )
+
+    const IOObj* wvltioobj = wvltfld_->ioobj( true );
+    if ( !wvltioobj )
 	mErrRet( !wvltfld_->isEmpty() ? uiString::emptyString()
 		: tr("Please enter a name for the new wavelet") )
     if ( !dataselfld_->commit() )
 	return false;
+
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet( uiStrings::sCantOpenInpFile() )
@@ -133,7 +135,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     if ( !mIsUdf(fac) && !mIsZero(fac,mDefEpsF) && !mIsEqual(fac,1.f,mDefEpsF) )
 	wvlt->transform( 0.f, fac );
 
-    if ( !wvlt->put(ctio_.ioobj_) )
+    if ( !wvlt->put(wvltioobj) )
 	mErrRet( tr("Cannot store wavelet on disk") )
 
     uiString msg = tr("Wavelet successfully imported."
@@ -146,7 +148,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 
 MultiID uiSeisWvltImp::selKey() const
 {
-    return ctio_.ioobj_ ? ctio_.ioobj_->key() : MultiID("");
+    return wvltfld_->key();
 }
 
 
@@ -158,7 +160,7 @@ uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
 {
     setOkText( uiStrings::sExport() );
 
-    wvltfld_ = new uiIOObjSel( this, mIOObjContext(Wavelet) );
+    wvltfld_ = new uiWaveletSel( this, true, uiIOObjSel::Setup() );
     mAttachCB( wvltfld_->selectionDone, uiSeisWvltExp::inputChgd );
 
     addzfld_ = new uiGenInput( this, uiStrings::phrOutput(SI().zIsTime() ?
@@ -193,7 +195,9 @@ void uiSeisWvltExp::inputChgd( CallBacker* )
 bool uiSeisWvltExp::acceptOK( CallBacker* )
 {
     const IOObj* ioobj = wvltfld_->ioobj();
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
+
     const BufferString fnm( outpfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet( tr("Please enter the output file name") )
@@ -238,8 +242,7 @@ uiSeisWvltCopy::uiSeisWvltCopy( uiParent* p, const IOObj* inioobj )
 {
     setOkText( uiStrings::sCopy() );
 
-    IOObjContext ctxt = mIOObjContext(Wavelet);
-    wvltinfld_ = new uiIOObjSel( this, ctxt );
+    wvltinfld_ = new uiWaveletSel( this, true, uiIOObjSel::Setup() );
     mAttachCB( wvltinfld_->selectionDone, uiSeisWvltCopy::inputChgd );
     if ( inioobj )
 	wvltinfld_->setInput( inioobj->key() );
@@ -248,8 +251,7 @@ uiSeisWvltCopy::uiSeisWvltCopy( uiParent* p, const IOObj* inioobj )
 				FloatInpSpec(1) );
     scalefld_->attach( alignedBelow, wvltinfld_ );
 
-    ctxt.forread_ = false;
-    wvltoutfld_ = new uiIOObjSel( this, ctxt );
+    wvltoutfld_ = new uiWaveletSel( this, false, uiIOObjSel::Setup() );
     wvltoutfld_->attach( alignedBelow, scalefld_ );
 }
 
@@ -280,9 +282,9 @@ void uiSeisWvltCopy::inputChgd(CallBacker *)
 bool uiSeisWvltCopy::acceptOK( CallBacker* )
 {
     const IOObj* inioobj = wvltinfld_->ioobj();
-    if ( !inioobj ) return false;
     const IOObj* outioobj = wvltoutfld_->ioobj();
-    if ( !outioobj ) return false;
+    if ( !inioobj || !outioobj )
+	return false;
 
     PtrMan<Wavelet> wvlt = Wavelet::get( inioobj );
     if ( !wvlt )
