@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisettings.h"
 
 #include "bufstring.h"
+#include "commanddefs.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
@@ -52,6 +52,50 @@ static const char* sKeyCommon = "<general>";
 
 namespace sKey {
     inline FixedString PythonIDE()	{ return "PythonIDE"; }
+    inline FixedString PythonTerm()	{ return "PythonTerm"; }
+};
+
+
+mExpClass(uiTools) uiPythonSettings : public uiDialog
+{ mODTextTranslationClass(uiPythonSettings);
+public:
+			uiPythonSettings(uiParent*, const char*);
+    virtual		~uiPythonSettings();
+
+    static CommandDefs	getPythonIDECommands(const BufferStringSet&);
+
+private:
+    void		initDlg(CallBacker*);
+    IOPar&		curSetts();
+    void		getChanges();
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+    bool		commitSetts(const IOPar&);
+    void		sourceChgCB(CallBacker*);
+    void		customEnvChgCB(CallBacker*);
+    void		internalLocChgCB(CallBacker*);
+    void		parChgCB(CallBacker*);
+    void		setCustomEnvironmentNames();
+    void		testPythonModules();
+    void		testCB(CallBacker*);
+    void		promptCB(CallBacker*);
+    bool		getPythonEnvBinPath(BufferString&) const;
+    void		updateIDEfld();
+    bool		useScreen();
+    bool		rejectOK(CallBacker*);
+    bool		acceptOK(CallBacker*);
+
+    uiGenInput*		pythonsrcfld_;
+    uiFileInput*	internalloc_ = nullptr;
+    uiFileInput*	customloc_;
+    uiGenInput*		customenvnmfld_;
+    uiPathSel*		custompathfld_;
+    uiToolBarCommandEditor*	pyidefld_;
+    uiToolBarCommandEditor*	pytermfld_;
+
+    IOPar*		chgdsetts_ = nullptr;
+    bool		needrestore_ = false;
+    IOPar		initialsetts_;
 };
 
 
@@ -140,7 +184,8 @@ void uiSettingsMgr::updateUserCmdToolBar()
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     const PtrMan<IOPar> idepar = pythonsetts.subselect( sKey::PythonIDE() );
-    BufferString exenm, cmd, tip, iconfile;
+    BufferString exenm, cmd, iconfile;
+    uiString tip;
     FilePath pybinpath;
     OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
     BufferStringSet paths;
@@ -148,20 +193,24 @@ void uiSettingsMgr::updateUserCmdToolBar()
 
     if ( idepar && idepar->get(sKey::ExeName(),exenm) && !exenm.isEmpty() )
     {
-	if ( File::findExecutable( exenm, paths ).isEmpty() )
-	    return;
-
-	int id = 0;
-	if ( usercmdtb_ )
-	    id = usercmdtb_->addButton( exenm, toUiString(exenm),
-				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
-	toolbarids_ += id;
-	commands_.add( exenm );
-	if ( usercmdmnu_ )
+	const auto commands = uiPythonSettings::getPythonIDECommands( paths );
+	const int idx = commands.indexOf( exenm );
+	if ( idx != -1 )
 	{
-	    uiAction* newitm = new uiAction(tr("Start %1 IDE...").arg(exenm),
+	    int id = 0;
+	    if ( usercmdtb_ )
+		id = usercmdtb_->addButton( commands.getIconName( idx ),
+					    commands.getToolTip( idx ),
+				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	    toolbarids_ += id;
+	    commands_.add( commands.get( idx ) );
+	    if ( usercmdmnu_ )
+	    {
+		auto* newitm = new uiAction(
+				tr("Start %1...").arg(commands.getUiName(idx)),
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
-	    usercmdmnu_->insertAction( newitm, id );
+		usercmdmnu_->insertAction( newitm, id );
+	    }
 	}
     }
     else if ( idepar && idepar->get(sKey::Command(),cmd) && !cmd.isEmpty() )
@@ -173,14 +222,57 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	idepar->get( sKey::IconFile(), iconfile );
 	int id = 0;
 	if ( usercmdtb_ )
-	    id = usercmdtb_->addButton( iconfile, toUiString(tip),
+	    id = usercmdtb_->addButton( iconfile, tip,
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
 	commands_.add( cmd );
 	if ( usercmdmnu_ )
 	{
-	    uiAction* newitm = new uiAction(tr("Start %1 IDE...").arg(tip),
+	    auto* newitm = new uiAction(tr("Start %1...").arg(tip),
+				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	    usercmdmnu_->insertAction( newitm, id );
+	}
+    }
+
+// Python Terminal command
+    const PtrMan<IOPar> termpar = pythonsetts.subselect( sKey::PythonTerm() );
+    if ( termpar && termpar->get(sKey::ExeName(),exenm) && !exenm.isEmpty() )
+    {
+	const BufferStringSet termpath;
+	const auto& commands = CommandDefs::getTerminalCommands( termpath );
+	const int idx = commands.indexOf( exenm );
+	if ( idx != -1 )
+	{
+	    int id = 0;
+	    if ( usercmdtb_ )
+		id = usercmdtb_->addButton( commands.getIconName( idx ),
+					    commands.getToolTip( idx ),
+				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	    toolbarids_ += id;
+	    commands_.add( commands.get( idx ) );
+	    if ( usercmdmnu_ )
+	    {
+		auto* newitm = new uiAction(
+				tr("Start %1...").arg(commands.getUiName(idx)),
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+		usercmdmnu_->insertAction( newitm, id );
+	    }
+	}
+    }
+    else if ( termpar && termpar->get(sKey::Command(),cmd) && !cmd.isEmpty() )
+    {
+	termpar->get( sKey::ToolTip(), tip );
+	termpar->get( sKey::IconFile(), iconfile );
+	int id = 0;
+	if ( usercmdtb_ )
+	    id = usercmdtb_->addButton( iconfile, tip,
+				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	toolbarids_ += id;
+	commands_.add( cmd );
+	if ( usercmdmnu_ )
+	{
+	    auto* newitm = new uiAction(tr("Start %1...").arg(tip),
+				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	    usercmdmnu_->insertAction( newitm, id );
 	}
     }
@@ -720,26 +812,8 @@ bool uiSettingsDlg::acceptOK( CallBacker* cb )
 }
 
 
-static const char* IDENames[] =
-{
-    "jupyter-lab",
-    "jupyter-notebook",
-    "spyder",
-#ifdef __win__
-    "idle",
-#else
-    "idle3",
-#endif
-    0
-};
-
-
-mExpClass(uiTools) uiPythonSettings : public uiDialog
-{ mODTextTranslationClass(uiPythonSettings);
-public:
-
-uiPythonSettings(uiParent* p, const char* nm )
-	: uiDialog(p, uiDialog::Setup(toUiString(nm),
+uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
+		: uiDialog(p, uiDialog::Setup(toUiString(nm),
 		tr("Set Python environment"),mODHelpKey(mPythonSettingsHelpID)))
 {
     pythonsrcfld_ = new uiGenInput(this, tr("Python environment"),
@@ -767,24 +841,33 @@ uiPythonSettings(uiParent* p, const char* nm )
 
     custompathfld_ = new uiPathSel( this, tr("Custom Module Path") );
     custompathfld_->attach( alignedBelow, customenvnmfld_ );
-    custompathfld_->attach( stretchedBelow, sep1 );
+    custompathfld_->attach( ensureBelow, sep1 );
 
     auto* sep2 = new uiSeparator( this );
     sep2->attach( stretchedBelow, custompathfld_ );
 
-    BufferStringSet exenms( IDENames );
     pyidefld_ = new uiToolBarCommandEditor( this,
 					    tr("Python IDE Command"),
-					    BufferStringSet(), exenms,
+					getPythonIDECommands(BufferStringSet()),
 					    true, false );
     pyidefld_->attach( alignedBelow, custompathfld_ );
-    pyidefld_->attach( stretchedBelow, sep2 );
+    pyidefld_->attach( ensureBelow, sep2 );
     pyidefld_->setChecked( false );
+
+    auto* sep3 = new uiSeparator( this );
+    sep3->attach( stretchedBelow, pyidefld_ );
+    pytermfld_ = new uiToolBarCommandEditor( this,
+					     tr("Python Console Command"),
+			 CommandDefs::getTerminalCommands(BufferStringSet()),
+					     true, false );
+    pytermfld_->attach( alignedBelow, pyidefld_ );
+    pytermfld_->attach( ensureBelow, sep3 );
+    pytermfld_->setChecked( false );
 
     auto* testbut = new uiPushButton( this, tr("Test"),
 			mCB(this,uiPythonSettings,testCB), true);
     testbut->setIcon( "test" );
-    testbut->attach( ensureBelow, pyidefld_ );
+    testbut->attach( ensureBelow, pytermfld_ );
 
     auto* cmdwinbut = new uiPushButton( this, tr("Launch Prompt"),
 			mCB(this,uiPythonSettings,promptCB), true );
@@ -794,14 +877,13 @@ uiPythonSettings(uiParent* p, const char* nm )
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
 }
 
-virtual ~uiPythonSettings()
+uiPythonSettings::~uiPythonSettings()
 {
     detachAllNotifiers();
 }
 
-private:
 
-void initDlg(CallBacker*)
+void uiPythonSettings::initDlg( CallBacker* )
 {
     usePar( curSetts() );
     fillPar( initialsetts_ ); //Backup for restore
@@ -818,15 +900,17 @@ void initDlg(CallBacker*)
     mAttachCB( custompathfld_->selChange, uiPythonSettings::parChgCB );
     mAttachCB( pyidefld_->changed, uiPythonSettings::parChgCB );
     mAttachCB( pyidefld_->checked, uiPythonSettings::parChgCB );
+    mAttachCB( pytermfld_->changed, uiPythonSettings::parChgCB );
+    mAttachCB( pytermfld_->checked, uiPythonSettings::parChgCB );
 }
 
-IOPar& curSetts()
+IOPar& uiPythonSettings::curSetts()
 {
     BufferString pythonstr( sKey::Python() );
     return Settings::fetch( pythonstr.toLower() );
 }
 
-void getChanges()
+void uiPythonSettings::getChanges()
 {
     IOPar* workpar = nullptr;
     if ( chgdsetts_ )
@@ -851,7 +935,7 @@ void getChanges()
     }
 }
 
-void fillPar( IOPar& par ) const
+void uiPythonSettings::fillPar( IOPar& par ) const
 {
     BufferString pythonstr( sKey::Python() );
     par.setName( pythonstr.toLower() );
@@ -896,9 +980,14 @@ void fillPar( IOPar& par ) const
     pyidefld_->fillPar( idecmd );
     if ( !idecmd.isEmpty() )
 	par.mergeComp( idecmd, sKey::PythonIDE() );
+
+    IOPar termcmd;
+    pytermfld_->fillPar( termcmd );
+    if ( !termcmd.isEmpty() )
+	par.mergeComp( termcmd, sKey::PythonTerm() );
 }
 
-void usePar( const IOPar& par )
+void uiPythonSettings::usePar( const IOPar& par )
 {
     OD::PythonSource source;
     if ( !OD::PythonSourceDef().parse(par,
@@ -944,12 +1033,22 @@ void usePar( const IOPar& par )
     if ( idepar )
 	pyidefld_->usePar( *idepar );
     pyidefld_->setChecked( idepar );
+
+    PtrMan<IOPar> termpar = par.subselect( sKey::PythonTerm() );
+    if ( termpar )
+	pytermfld_->usePar( *termpar );
+    pytermfld_->setChecked( termpar );
 }
 
-bool commitSetts( const IOPar& iop )
+bool uiPythonSettings::commitSetts( const IOPar& iop )
 {
     Settings& setts = Settings::fetch( iop.name() );
     setts.IOPar::operator =(iop);
+    if ( pytermfld_->isChecked() )
+	SettingsAccess().setTerminalEmulator( pytermfld_->getCommand() );
+    else
+	SettingsAccess().setTerminalEmulator( nullptr );
+
     if ( !setts.write(false) )
     {
 	uiMSG().error(tr("Cannot write %1").arg(setts.name()));
@@ -959,7 +1058,7 @@ bool commitSetts( const IOPar& iop )
     return true;
 }
 
-void sourceChgCB( CallBacker* )
+void uiPythonSettings::sourceChgCB( CallBacker* )
 {
     const int sourceidx = pythonsrcfld_->getIntValue();
     const OD::PythonSource source =
@@ -976,25 +1075,27 @@ void sourceChgCB( CallBacker* )
     parChgCB( nullptr );
 }
 
-void customEnvChgCB( CallBacker* )
+void uiPythonSettings::customEnvChgCB( CallBacker* )
 {
     setCustomEnvironmentNames();
     updateIDEfld();
     parChgCB( nullptr );
 }
 
-void internalLocChgCB( CallBacker* )
+
+void uiPythonSettings::internalLocChgCB( CallBacker* )
 {
     updateIDEfld();
     parChgCB( nullptr );
 }
 
-void parChgCB( CallBacker* )
+void uiPythonSettings::parChgCB( CallBacker* )
 {
     getChanges();
 }
 
-void setCustomEnvironmentNames()
+
+void uiPythonSettings::setCustomEnvironmentNames()
 {
     const BufferString envroot( customloc_->fileName() );
     const FilePath fp( envroot, "envs" );
@@ -1018,7 +1119,7 @@ void setCustomEnvironmentNames()
     customenvnmfld_->display( !envnames.isEmpty() );
 }
 
-void testPythonModules()
+void uiPythonSettings::testPythonModules()
 {
     uiUserShowWait usw( this,
 			tr("Retrieving list of installed Python modules") );
@@ -1049,7 +1150,7 @@ void testPythonModules()
     dlg.go();
 }
 
-void testCB(CallBacker*)
+void uiPythonSettings::testCB(CallBacker*)
 {
     if ( !useScreen() )
 	return;
@@ -1072,7 +1173,7 @@ void testCB(CallBacker*)
 }
 
 
-void promptCB( CallBacker* )
+void uiPythonSettings::promptCB( CallBacker* )
 {
     if ( !useScreen() )
 	return;
@@ -1090,7 +1191,7 @@ void promptCB( CallBacker* )
 }
 
 
-bool getPythonEnvBinPath( BufferString& pybinpath ) const
+bool uiPythonSettings::getPythonEnvBinPath( BufferString& pybinpath ) const
 {
     pybinpath.setEmpty();
     const int sourceidx = pythonsrcfld_->getIntValue();
@@ -1140,7 +1241,7 @@ bool getPythonEnvBinPath( BufferString& pybinpath ) const
 }
 
 
-void updateIDEfld()
+void uiPythonSettings::updateIDEfld()
 {
     BufferString pybinpath;
     getPythonEnvBinPath( pybinpath );
@@ -1148,12 +1249,12 @@ void updateIDEfld()
     BufferStringSet paths;
     if ( !pybinpath.isEmpty() )
 	paths.add( pybinpath );
-    BufferStringSet exenms( IDENames );
-    pyidefld_->updateCmdList( paths, exenms );
+
+    pyidefld_->updateCmdList( getPythonIDECommands( paths ) );
 }
 
 
-bool useScreen()
+bool uiPythonSettings::useScreen()
 {
     const int sourceidx = pythonsrcfld_->getIntValue();
     const OD::PythonSource source =
@@ -1210,7 +1311,7 @@ bool useScreen()
     return true;
 }
 
-bool rejectOK( CallBacker* )
+bool uiPythonSettings::rejectOK( CallBacker* )
 {
     if ( !needrestore_ )
 	return true;
@@ -1227,7 +1328,7 @@ bool rejectOK( CallBacker* )
     return true;
 }
 
-bool acceptOK( CallBacker* )
+bool uiPythonSettings::acceptOK( CallBacker* )
 {
     bool isok = true; bool ismodified = false;
     if ( chgdsetts_ )
@@ -1253,19 +1354,24 @@ bool acceptOK( CallBacker* )
     return isok;
 }
 
-    uiGenInput*		pythonsrcfld_;
-    uiFileInput*	internalloc_		= nullptr;
-    uiFileInput*	customloc_;
-    uiGenInput*		customenvnmfld_;
-    uiPathSel*		custompathfld_;
-    uiToolBarCommandEditor*	pyidefld_;
 
-    IOPar*		chgdsetts_		= nullptr;
-    bool		needrestore_		= false;
-    IOPar		initialsetts_;
+CommandDefs uiPythonSettings::getPythonIDECommands(
+				const BufferStringSet& paths=BufferStringSet() )
+{
+    CommandDefs comms;
 
-};
+    comms.addCmd( "jupyter-lab", tr("Jupyter-Lab"), "jupyter-lab.png",
+		  tr("Jupyter Lab"), paths );
+    comms.addCmd( "jupyter-notebook", tr("Jupyter-Notebook"),
+		  "jupyter-notebook.png", tr("Jupyter Notebook"), paths );
+    comms.addCmd( "spyder", tr("Spyder"), "spyder.png", tr("Spyder"), paths );
+    if ( __iswin__ )
+	comms.addCmd( "idle", tr("Idle"), "idle.png", tr("Idle"), paths );
+    else
+	comms.addCmd( "idle3", tr("Idle"), "idle.png", tr("Idle"), paths );
 
+    return comms;
+}
 
 
 uiDialog* uiSettings::getPythonDlg( uiParent* p, const char* nm )

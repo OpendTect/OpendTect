@@ -60,6 +60,7 @@ set( OD_MODULE_SOURCES
 	bufstring.cc
 	callback.cc
 	color.cc
+	commanddefs.cc
 	compoundkey.cc
 	commandlineparser.cc
 	coordsystem.cc
