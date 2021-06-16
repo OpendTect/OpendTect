@@ -5,7 +5,6 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "wavelet.h"
 #include "waveletio.h"
@@ -409,8 +408,12 @@ void Wavelet::transform( float constant, float factor )
 
 void Wavelet::normalize()
 {
-    transform( 0, 1.f/mMAX( fabs(getExtrValue(true)),
-		  fabs(getExtrValue(false))) );
+    const float maxval = mMAX( fabs(getExtrValue(true)),
+				fabs(getExtrValue(false)) );
+    if ( mIsZero(maxval,mDefEpsF) )
+	return;
+
+    transform( 0, 1.f/maxval );
 }
 
 
