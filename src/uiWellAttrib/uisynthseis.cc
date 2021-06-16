@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseiswvltsel.h"
-#include "uiseparator.h"
 #include "uispinbox.h"
 #include "uisplitter.h"
 
@@ -32,43 +31,28 @@ uiSynthSeisGrp::uiSynthSeisGrp( uiParent* p, const uiRayTracer1D::Setup& su )
     , surfreflcoeffld_(0)
     , parsChanged(this)
 {
-    rtsel_ = new uiRayTracerSel( this, su );
-    rtsel_->offsetChanged.notify( mCB(this,uiSynthSeisGrp,parsChangedCB) );
-
-    wvltfld_ = new uiSeisWaveletSel( this );
+    wvltfld_ = new uiSeisWaveletSel( this, "Wavelet", true, true, true );
     wvltfld_->newSelection.notify( mCB(this,uiSynthSeisGrp,parsChangedCB) );
-    wvltfld_->attach( alignedBelow, rtsel_ );
     wvltfld_->setFrame( false );
 
-    uiSeparator* lastsep = 0;
+    rtsel_ = new uiRayTracerSel( this, su );
+    rtsel_->offsetChanged.notify( mCB(this,uiSynthSeisGrp,parsChangedCB) );
+    rtsel_->attach( alignedBelow, wvltfld_ );
+
     if ( su.doreflectivity_ )
     {
-	uiSeparator* sep = new uiSeparator( this, "Reflectivity sep" );
-	sep->attach( stretchedBelow, wvltfld_ );
-
 	internalmultiplebox_ = new uiCheckBox( this,
-				    tr("Compute internal multiples") );
+				tr("Compute internal multiples") );
 	internalmultiplebox_->attach( alignedBelow, wvltfld_ );
-	internalmultiplebox_->attach( ensureBelow, sep );
 	surfreflcoeffld_ = new uiLabeledSpinBox( this,
-			    tr("Surface reflection coefficient"), 1 );
+				tr("Surface reflection coefficient"), 1 );
 	surfreflcoeffld_->box()->setInterval( (double)-1, (double)1, 0.1 );
 	surfreflcoeffld_->box()->setValue( 1 );
 	surfreflcoeffld_->attach( alignedBelow, internalmultiplebox_ );
-
-	lastsep = new uiSeparator( this, "Internal sep" );
-	lastsep->attach( stretchedBelow, surfreflcoeffld_ );
     }
 
     uisynthcorrgrp_ = new uiSynthCorrectionsGrp( this );
-    uisynthcorrgrp_->attach( alignedBelow, wvltfld_ );
-    if ( su.doreflectivity_ )
-    {
-	uisynthcorrgrp_->attach( alignedBelow, surfreflcoeffld_ );
-	uisynthcorrgrp_->attach( ensureBelow, lastsep );
-    }
-    else
-	uisynthcorrgrp_->attach( alignedBelow, wvltfld_ );
+    uisynthcorrgrp_->attach( alignedBelow, rtsel_ );
 
     uisynthcorrgrp_->nmoparsChanged_.notify(
 	    mCB(this,uiSynthSeisGrp,parsChangedCB) );
@@ -225,7 +209,7 @@ uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
 
     CallBack cbadv = mCB(this,uiSynthCorrectionsGrp,getAdvancedPush);
     advbut_ = new uiPushButton( this, uiStrings::sAdvanced(), cbadv, false );
-    advbut_->attach( alignedBelow, nmofld_ );
+    advbut_->attach( rightTo, nmofld_ );
 
     uiscadvdlg_ = new uiSynthCorrAdvancedDlg( this );
     setHAlignObj( nmofld_ );

@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uimsg.h"
@@ -498,8 +497,10 @@ int uiMsg::ask2D3D( const uiString& text, bool wcancel )
 	wcancel ? uiStrings::sCancel() : uiStrings::sEmptyString();
     PtrMan<QMessageBox> mb = createMessageBox( Question, popParnt(), text,
 	yestxt, notxt, cncltxt, wintitle, 0 );
-    mb->button(QMessageBox::Yes  )->setIcon( QIcon() );
-    mb->button(QMessageBox::No	)->setIcon( QIcon() );
+    uiIcon yesicon( "2d" );
+    uiIcon noicon( "3d" );
+    mb->button(QMessageBox::Yes)->setIcon( yesicon.qicon() );
+    mb->button(QMessageBox::No)->setIcon( noicon.qicon() );
     const int res = mb->exec();
 
     const int retval = res==QMessageBox::Yes ? 1 :
