@@ -119,8 +119,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     prdatalblcbx->attach( leftBorder );
 
     auto* expbut = new uiToolButton( prdatalblcbx, "export",
-			    uiStrings::phrExport( tr("Synthetic DataSet(s)")),
-			    mCB(this,uiStratSynthDisp,exportSynth) );
+			uiStrings::phrExport( tr("Synthetic DataSet(s)")),
+			mCB(this,uiStratSynthDisp,exportSynth) );
     expbut->attach( rightOf, vddatalist_ );
 
     datagrp_ = new uiGroup( this, "DataSet group" );
@@ -130,8 +130,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     datagrp_->setStretch( 2, 0 );
 
     auto* layertb = new uiToolButton( datagrp_, "defraytraceprops",
-				    tr("Specify input for synthetic creation"),
-				    mCB(this,uiStratSynthDisp,layerPropsPush));
+			tr("Specify input for synthetic creation"),
+			mCB(this,uiStratSynthDisp,layerPropsPush));
 
     wvltfld_ = new uiSeisWaveletSel( datagrp_, "", true, true, true );
     mAttachCB( wvltfld_->newSelection, uiStratSynthDisp::wvltChg );
@@ -688,7 +688,6 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	return false;
     }
 
-
     mDynamicCastGet(const PostStackSyntheticData*,pssd,currentwvasynthetic_);
     const SeisTrcBuf& tbuf = pssd->postStackPack().trcBuf();
     if ( tbuf.isEmpty() )
@@ -697,6 +696,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 			 "Please regenerate the synthetic."));
 	return false;
     }
+
     BufferString levelname;
     if ( curSS().getLevel() )
 	levelname = curSS().getLevel()->name();
@@ -711,10 +711,10 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     bool is2d = SI().has2D();
     if ( is2d && SI().has3D() )
     {
-	int res = uiMSG().question(tr("Type of seismic data to use"),
-				  uiStrings::s2D(), uiStrings::s3D(),
-				  uiStrings::sCancel(), tr("Specify geometry"));
-	if ( res < 0 ) return false;
+	const int res = uiMSG().ask2D3D( tr("Use 2D or 3D data?"), true );
+	if ( res < 0 )
+	    return false;
+
 	is2d = res == 1;
     }
 
@@ -733,7 +733,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	    rv = true;
 	    wvltfld_->setInput( mid );
 	}
-	vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+	vwr_->handleChange( sCast(unsigned int,FlatView::Viewer::All) );
     }
     return rv;
 }

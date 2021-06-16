@@ -79,7 +79,7 @@ uiSynthParsGrp::uiSynthParsGrp( uiParent* p, StratSynth& gp )
     rsu.dooffsets(true).convertedwaves(true).showzerooffsetfld(false);
     synthseis_ = new uiSynthSeisGrp( toppargrp, rsu );
     mAttachCB( synthseis_->parsChanged, uiSynthParsGrp::parsChanged );
-    synthseis_->attach( alignedBelow, angleinpfld_ );
+    synthseis_->attach( alignedBelow, lblcbx );
     toppargrp->setHAlignObj( synthseis_ );
 
     auto* botpargrp = new uiGroup( rightgrp, "Parameter Group - Last Part" );
@@ -110,6 +110,7 @@ uiSynthParsGrp::~uiSynthParsGrp()
 
 void uiSynthParsGrp::initGrp( CallBacker* )
 {
+    typeChg( nullptr );
     updateSynthNames();
     synthnmlb_->setCurrentItem( 0 );
     changeSyntheticsCB( nullptr );
@@ -153,9 +154,13 @@ void uiSynthParsGrp::updateSynthNames()
 void uiSynthParsGrp::changeSyntheticsCB( CallBacker* )
 {
     FixedString synthnm( synthnmlb_->getText() );
-    if ( synthnm.isEmpty() ) return;
+    if ( synthnm.isEmpty() )
+	return;
+
     SyntheticData* sd = stratsynth_.getSynthetic( synthnm.buf() );
-    if ( !sd ) return;
+    if ( !sd )
+	return;
+
     sd->fillGenParams( stratsynth_.genParams() );
     putToScreen();
 }

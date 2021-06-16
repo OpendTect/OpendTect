@@ -40,6 +40,7 @@
 #include "uibutton.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uiseiswvltsel.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
@@ -113,7 +114,7 @@ void drawMarkerLine( float val )
 	OD::LineStyle ls( OD::LineStyle::Solid, 2, OD::Color(0,255,0) );
 	markerlineitem_ = dispfld_->scene().addItem( new uiLineItem() );
 	markerlineitem_->setPenStyle( ls );
-	markerlineitem_->setZValue( 3 );
+	markerlineitem_->setZValue( 50 );
     }
 
     markerlineitem_->setLine( valx, valytop, valx, valybottom );
@@ -133,9 +134,8 @@ void drawMarkerLine( float val )
 uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 					const SeisTrcBuf& tb,
 					const MultiID& wid, const char* lvlnm )
-    : uiDialog(p,Setup(tr("Scale synthetics"),
-		       tr("Determine scaling for synthetics"),
-			mODHelpKey(mSynthToRealScaleHelpID) ))
+    : uiDialog(p,Setup(tr("Create Synthetic Data Scaling Wavelet"),
+			mNoDlgTitle,mODHelpKey(mSynthToRealScaleHelpID) ))
     , seisev_(*new Strat::SeisEvent)
     , is2d_(is2d)
     , synth_(tb)
@@ -150,13 +150,12 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 	{ new uiLabel( this, msg ); return; }
     mNoDealRet( Strat::LVLS().isEmpty(), tr("No Stratigraphic Levels defined") )
     mNoDealRet( tb.isEmpty(), tr("Generate models first") )
-    mNoDealRet( inpwvltid_.isEmpty(), uiStrings::phrCreate(
-							tr("a Wavelet first")) )
+    mNoDealRet( inpwvltid_.isEmpty(), tr("Create a Wavelet first") )
     mNoDealRet( !lvlnm || !*lvlnm || (*lvlnm == '-' && *(lvlnm+1) == '-'),
 				   uiStrings::phrSelect(tr("Stratigraphic Level"
 				   "\nbefore starting this tool")) )
 
-    uiString wintitle = tr("Determine scaling for synthetics using '%1'")
+    uiString wintitle = tr("Determine scaling for synthetic data using '%1'")
 				    .arg(toUiString(IOM().nameOf(inpwvltid_)));
     setTitleText( wintitle );
 
@@ -181,23 +180,23 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     evfld_ = new uiStratSeisEvent( this, ssesu );
     evfld_->attach( alignedBelow, polyfld_ );
 
-    uiPushButton* gobut = new uiPushButton( this, tr("Extract amplitudes"),
+    auto* gobut = new uiPushButton( this, tr("Extract amplitudes"),
 				mCB(this,uiSynthToRealScale,goPush), true );
     gobut->attach( alignedBelow, evfld_ );
 
-    uiSeparator* sep = new uiSeparator( this, "separator" );
+    auto* sep = new uiSeparator( this, "separator" );
     sep->attach( stretchedBelow, gobut );
 
-    valislbl_ = new uiLabel( this, tr("       [Amplitude values]       ") );
+    valislbl_ = new uiLabel( this, tr("   Amplitude values   ") );
     valislbl_->setAlignment( Alignment::HCenter );
     valislbl_->attach( centeredBelow, sep );
 
-    uiGroup* statsgrp = new uiGroup( this, "Stats displays" );
+    auto* statsgrp = new uiGroup( this, "Stats displays" );
 
-    synthstatsfld_ = new uiSynthToRealScaleStatsDisp( statsgrp, "Synthetics",
-						      true );
-    realstatsfld_ = new uiSynthToRealScaleStatsDisp( statsgrp, "Real Seismics",
-						     false );
+    synthstatsfld_ =
+	new uiSynthToRealScaleStatsDisp( statsgrp, "Synthetic Data", true );
+    realstatsfld_ =
+	new uiSynthToRealScaleStatsDisp( statsgrp, "Real Data", false );
     realstatsfld_->attach( rightOf, synthstatsfld_ );
     const CallBack setsclcb( mCB(this,uiSynthToRealScale,setScaleFld) );
     synthstatsfld_->usrValChanged.notify( setsclcb );
@@ -205,15 +204,16 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     realstatsfld_->usrValChanged.notify( setsclcb );
     statsgrp->setHAlignObj( realstatsfld_ );
 
-    finalscalefld_ = new uiGenInput( this, uiString::emptyString(),
-                                     FloatInpSpec() );
-    finalscalefld_->attach( centeredBelow, statsgrp );
-    new uiLabel( this, tr("Scaling factor"), finalscalefld_ );
+    auto* outputgrp = new uiGroup( this, "Output" );
+    finalscalefld_ = new uiGenInput( outputgrp, uiString::emptyString(),
+				     FloatInpSpec() );
+    new uiLabel( outputgrp, tr("Scaling factor"), finalscalefld_ );
 
-    IOObjContext wvltctxt( mIOObjContext(Wavelet) );
-    wvltctxt.forread_ = false;
-    wvltfld_ = new uiIOObjSel( this, wvltctxt, tr("Save scaled Wavelet as") );
+    wvltfld_ = new uiWaveletSel( outputgrp, false,
+		uiIOObjSel::Setup(tr("Output scaled Wavelet")) );
     wvltfld_->attach( alignedBelow, finalscalefld_ );
+    outputgrp->setHAlignObj( wvltfld_ );
+    outputgrp->attach( centeredBelow, statsgrp );
 
     postFinalise().notify( mCB(this,uiSynthToRealScale,initWin) );
 }
@@ -256,10 +256,11 @@ bool uiSynthToRealScale::getEvent()
 {
     if ( !evfld_->getFromScreen() )
 	return false;
+
     seisev_ = evfld_->event();
     const bool isrms = evfld_->getFullExtrWin().nrSteps() > 0;
-    valislbl_->setText( isrms ? tr("[Amplitude RMS values]")  
-			      : tr("       [Amplitude values]       ") );
+    valislbl_->setText( isrms ? tr("Amplitude RMS values")
+			      : tr("   Amplitude values   ") );
     return true;
 }
 
@@ -282,7 +283,7 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
 
     const IOObj* ioobj = horfld_->ioobj();
     if ( !ioobj ) return false;
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(), 
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
 							  &taskr );
     mDynamicCastGet(EM::Horizon*,hor,emobj);
     if ( !hor ) return false;
