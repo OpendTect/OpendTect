@@ -26,22 +26,20 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uiseiswvltsel.h"
 #include "uiwindowfuncseldlg.h"
 #include "od_helpids.h"
 
 
 uiSeisWvltCreate::uiSeisWvltCreate( uiParent* p, uiDialog::Setup su )
 	: uiDialog(p,su)
-	, ctio_(*mMkCtxtIOObj(Wavelet))
 {
-    ctio_.ctxt_.forread_ = false;
-    wvltfld_ = new uiIOObjSel( this, ctio_ );
+    wvltfld_ = new uiWaveletSel( this, false );
 }
 
 
 uiSeisWvltCreate::~uiSeisWvltCreate()
 {
-    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -49,10 +47,11 @@ uiSeisWvltCreate::~uiSeisWvltCreate()
 
 bool uiSeisWvltCreate::putWvlt( const Wavelet& wvlt )
 {
-    if ( !wvltfld_->commitInput() )
+    const IOObj* ioobj = wvltfld_->ioobj( true );
+    if ( !ioobj )
 	mErrRet( tr("Please enter a name for the new Wavelet") );
 
-    if ( !wvlt.put(ctio_.ioobj_) )
+    if ( !wvlt.put(ioobj) )
 	mErrRet( tr("Cannot write wavelet") )
 
     return true;
@@ -61,7 +60,7 @@ bool uiSeisWvltCreate::putWvlt( const Wavelet& wvlt )
 
 MultiID uiSeisWvltCreate::storeKey() const
 {
-    return ctio_.ioobj_ ? ctio_.ioobj_->key() : MultiID("");
+    return wvltfld_->key();
 }
 
 
@@ -84,7 +83,7 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
 				BoolInpSpec(true,tr("Ricker"),tr("Sinc")) );
 
     const float sisr = SI().zStep();
-    const float deffrq = mCast( float, mNINT32(getFreqScaler()*0.1f/sisr) );
+    const float deffrq = sCast( float, mNINT32(getFreqScaler()*0.1f/sisr) );
     // 20% of nyquist frequency
 
     uiString txt= tr("Central %1 (%2)")
@@ -128,25 +127,25 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
 }
 
 
-static const char* centernms[] = { "maximum amplitude", "maximum Energy", 0 };
+static const char* centernms[] = { "Maximum amplitude", "Maximum energy", 0 };
 uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     : uiSeisWvltCreate(p,uiDialog::Setup(tr("Stack Wavelets"),
 		       mNoDlgTitle,mODHelpKey(mSeisWvltMergeHelpID)))
     , maxwvltsize_(0)
-    , stackedwvlt_(0)
+    , stackedwvlt_(nullptr)
     , curwvltnm_(curwvltnm)
 {
     normalizefld_ = new uiCheckBox( this, tr("Normalize wavelets") );
-    normalizefld_->activated.notify( mCB(this,uiSeisWvltMerge,reloadAll) );
+    mAttachCB( normalizefld_->activated, uiSeisWvltMerge::reloadAll );
 
     centerfld_ = new uiCheckBox( this, tr("Center wavelets") );
-    centerfld_->activated.notify( mCB(this,uiSeisWvltMerge,centerChged) );
-    centerfld_->activated.notify( mCB(this,uiSeisWvltMerge,reloadAll) );
+    mAttachCB( centerfld_->activated, uiSeisWvltMerge::centerChged );
+    mAttachCB( centerfld_->activated, uiSeisWvltMerge::reloadAll );
     centerfld_->attach( rightOf, normalizefld_ );
 
     centerchoicefld_ = new uiLabeledComboBox( this, centernms, tr("at") );
-    centerchoicefld_->box()->selectionChanged.notify(
-					mCB(this,uiSeisWvltMerge,reloadAll) );
+    mAttachCB( centerchoicefld_->box()->selectionChanged,
+	       uiSeisWvltMerge::reloadAll );
     centerchoicefld_->box()->setHSzPol( uiObject::MedVar );
     centerchoicefld_->attach( rightOf, centerfld_ );
     centerchoicefld_->display( false );
@@ -163,8 +162,8 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     {
 	wvltdrawer_[idx]->setAsCurrent( curwvltnm );
 	wvltdrawer_[idx]->display( !idx );
-	wvltdrawer_[idx]->funclistselChged.notify(
-				mCB(this,uiSeisWvltMerge,funcSelChg) );
+	mAttachCB( wvltdrawer_[idx]->funclistselChged,
+		   uiSeisWvltMerge::funcSelChg );
 	normalizefld_->attach( alignedAbove, wvltdrawer_[idx] );
 	wvltfld_->attach( ensureBelow, wvltdrawer_[idx] );
     }
@@ -173,30 +172,30 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
 
 uiSeisWvltMerge::~uiSeisWvltMerge()
 {
-    for ( int idx=0; idx<wvltdrawer_.size(); idx++ )
-	wvltdrawer_[idx]->funclistselChged.remove(
-				mCB(this,uiSeisWvltMerge,funcSelChg) );
+    detachAllNotifiers();
     deepErase( wvltset_ );
     deepErase( wvltfuncset_ );
-    stackedwvlt_ = 0;
+    stackedwvlt_ = nullptr;
 }
 
 
-#define mGetCurDrawer() uiFuncSelDraw* wd = getCurrentDrawer(); if (!wd) return;
 void uiSeisWvltMerge::funcSelChg( CallBacker* )
 {
-    mGetCurDrawer();
+    uiFuncSelDraw* wd = getCurrentDrawer();
+    if ( !wd )
+	return;
+
     NotifyStopper nsf( wd->funclistselChged );
     const int selsz = wd->getNrSel();
     if ( selsz==1 && wd->isSelected( wd->getListSize()-1 ) )
 	return;
 
-    clearStackedWvlt(0);
+    clearStackedWvlt( nullptr );
     wvltfld_->setSensitive( selsz > 1 );
     if ( selsz <= 1 ) return;
 
     makeStackedWvlt();
-    wd->funcCheckChg(0);
+    wd->funcCheckChg( nullptr );
 
     TypeSet<int> selitems;
     wd->getSelectedItems( selitems );
@@ -217,7 +216,10 @@ void uiSeisWvltMerge::clearStackedWvlt( uiFuncSelDraw* )
 
 void uiSeisWvltMerge::makeStackedWvlt()
 {
-    mGetCurDrawer();
+    uiFuncSelDraw* wd = getCurrentDrawer();
+    if ( !wd )
+	return;
+
     TypeSet<int> selitems;
     wd->getSelectedItems( selitems );
     int selsize = selitems.size();
@@ -239,7 +241,8 @@ void uiSeisWvltMerge::makeStackedWvlt()
 
 void uiSeisWvltMerge::constructDrawer( bool isnormalized )
 {
-    float minhght=0; float maxhght=0;
+    float minhght=0;
+    float maxhght=0;
     for ( int wvltidx=0; wvltidx<wvltset_.size(); wvltidx++ )
     {
 	Wavelet* wvlt = new Wavelet( *wvltset_[wvltidx] );
@@ -257,7 +260,7 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
 
     uiFunctionDrawer::Setup su; su.name_ = "Wavelet Stacking";
     su.funcrg_ = xaxrg;
-    xaxrg.scale( (float)SI().zDomain().userFactor() );
+    xaxrg.scale( float(SI().zDomain().userFactor()) );
     su.xaxrg_ = xaxrg;
     su.yaxrg_ = yaxrg;
 
@@ -274,22 +277,30 @@ uiFuncSelDraw* uiSeisWvltMerge::getCurrentDrawer()
 
 void uiSeisWvltMerge::reloadWvlts()
 {
-    deepErase( wvltset_ ); stackedwvlt_ = 0;
+    deepErase( wvltset_ );
+    stackedwvlt_ = nullptr;
     namelist_.setEmpty();
 
-    const IODir iodir( ctio_.ctxt_.getSelKey() );
-    const IODirEntryList del( iodir, ctio_.ctxt_ );
+    IOObjContext ctxt = mIOObjContext(Wavelet);
+    const IODir iodir( ctxt.getSelKey() );
+    const IODirEntryList del( iodir, ctxt );
     if ( del.size() < 2 )
-    { uiMSG().error( tr("not enough wavelets available") ); return; }
+    {
+	uiMSG().error( tr("Not enough wavelets available") );
+	return;
+    }
 
     Interval<float> xrg;
     float minsampling = mUdf(float);
     for ( int delidx=0; delidx<del.size(); delidx++ )
     {
 	const IOObj* ioobj = del[delidx]->ioobj_;
-	if ( !ioobj ) continue;
+	if ( !ioobj )
+	    continue;
+
 	Wavelet* wvlt = Wavelet::get( ioobj );
-	if ( !wvlt ) continue;
+	if ( !wvlt )
+	    continue;
 
 	wvltset_ += wvlt;
 	namelist_.add( ioobj->name() );
@@ -370,7 +381,7 @@ void uiSeisWvltMerge::reloadAll( CallBacker* )
     reloadWvlts();
     reloadFunctions();
 
-    funcSelChg( 0 );
+    funcSelChg( nullptr );
     wvltdrawer_[0]->display( !normalizefld_->isChecked() );
     wvltdrawer_[1]->display( normalizefld_->isChecked() );
 }
@@ -382,7 +393,8 @@ void uiSeisWvltMerge::centerToMaxEnergyPos( Wavelet& wvlt )
     Array1DImpl<float> hilb ( wvlt.size() );
     wvltattr.getHilbert( hilb );
 
-    float max = 0;	int centeridx = 0;
+    float max = 0;
+    int centeridx = 0;
     for ( int idx=0; idx<wvlt.size(); idx++ )
     {
 	float val = fabs( hilb.get(idx) );
@@ -429,7 +441,8 @@ bool uiSeisWvltMerge::acceptOK( CallBacker* )
 
 // Get samplerate of selected items only and resample stackedwavelet accordingly
     uiFuncSelDraw* wd = getCurrentDrawer();
-    TypeSet<int> selitms; wd->getSelectedItems( selitms );
+    TypeSet<int> selitms;
+    wd->getSelectedItems( selitms );
     float sr = mUdf(float);
     for ( int idx=0; idx<selitms.size(); idx++ )
     {

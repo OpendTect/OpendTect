@@ -86,7 +86,7 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     filterszfld_->valuechanging.notify( mCB(this,uiWaveletMatchDlg,filterSzCB));
     filterszfld_->attach( rightOf, wvlt1fld_ );
 
-    wvltoutfld_ = new uiWaveletSel( this, false, uiIOObjSel::Setup() );
+    wvltoutfld_ = new uiWaveletSel( this, false );
     wvltoutfld_->attach( alignedBelow, wvlt1fld_ );
     wvltoutfld_->setStretch( 0, 0 );
 }

@@ -11,11 +11,11 @@ ________________________________________________________________________
 #include "uiwaveletextraction.h"
 
 #include "uigeninput.h"
-#include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiposprovgroupstd.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
+#include "uiseiswvltsel.h"
 #include "uiselsurvranges.h"
 #include "uiseissubsel.h"
 #include "uitaskrunner.h"
@@ -43,9 +43,8 @@ ________________________________________________________________________
 
 
 uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
-    : uiDialog( p,Setup(tr("Extract Wavelet"),mNoDlgTitle,
-                        mODHelpKey(mWaveletExtractionHelpID) )
-	             .modal(false) )
+    : uiDialog(p,Setup(tr("Extract Wavelet"),mNoDlgTitle,
+			mODHelpKey(mWaveletExtractionHelpID) ).modal(false) )
     , wvltsize_(0)
     , zrangefld_(0)
     , extractionDone(this)
@@ -59,8 +58,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
     seisselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,true),
 				 uiSeisSel::Setup(gt) );
-    seisselfld_->selectionDone.notify(
-			mCB(this,uiWaveletExtraction,inputSelCB) );
+    mAttachCB( seisselfld_->selectionDone, uiWaveletExtraction::inputSelCB );
     if ( !is2d )
     {
 	subselfld3d_ = new uiSeis3DSubSel( this, Seis::SelSetup(false,false)
@@ -74,12 +72,12 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
 	linesel2dfld_ = new uiSeis2DMultiLineSel(this,uiStrings::sEmptyString(),
 						 false,true);
 	linesel2dfld_->attach( alignedBelow, seisselfld_ );
-	linesel2dfld_->selectionChanged.notify(
-			mCB(this,uiWaveletExtraction,lineSelCB) );
+	mAttachCB( linesel2dfld_->selectionChanged,
+		   uiWaveletExtraction::lineSelCB );
     }
 
     createCommonUIFlds();
-    postFinalise().notify( mCB(this,uiWaveletExtraction,choiceSelCB) );
+    mAttachCB( postFinalise(), uiWaveletExtraction::choiceSelCB );
 }
 
 
@@ -88,8 +86,7 @@ void uiWaveletExtraction::createCommonUIFlds()
     zextraction_ = new uiGenInput( this, tr("Vertical Extraction"),
 			BoolInpSpec(linesel2dfld_,tr("Z range"),
 				    uiStrings::sHorizon(mPlural)) );
-    zextraction_->valuechanged.notify(
-				mCB(this,uiWaveletExtraction,choiceSelCB) );
+    mAttachCB( zextraction_->valuechanged, uiWaveletExtraction::choiceSelCB );
 
     linesel2dfld_ ? zextraction_->attach( alignedBelow, linesel2dfld_ )
 		  : zextraction_->attach( alignedBelow, subselfld3d_ );
@@ -110,20 +107,19 @@ void uiWaveletExtraction::createCommonUIFlds()
     taperfld_->attach( alignedBelow, wtlengthfld_ );
 
     wvltphasefld_ = new uiGenInput( this, tr("Phase (Degrees)"),
-                                    IntInpSpec(0) );
+				    IntInpSpec(0) );
     wvltphasefld_->attach( alignedBelow, taperfld_ );
 
-    IOObjContext wvltctxt( mIOObjContext(Wavelet) );
-    wvltctxt.forread_ = false;
-    outputwvltfld_ = new uiIOObjSel( this, wvltctxt );
+    outputwvltfld_ = new uiWaveletSel( this, false );
     outputwvltfld_->attach( alignedBelow, wvltphasefld_ );
 
-    postFinalise().notify( mCB(this,uiWaveletExtraction,inputSelCB) );
+    mAttachCB( postFinalise(), uiWaveletExtraction::inputSelCB );
 }
 
 
 uiWaveletExtraction::~uiWaveletExtraction()
 {
+    detachAllNotifiers();
     delete seldata_;
 }
 

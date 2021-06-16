@@ -37,7 +37,6 @@ protected:
 
     bool		putWvlt(const Wavelet&);
 
-    CtxtIOObj&		ctio_;
     uiIOObjSel*		wvltfld_;
 };
 

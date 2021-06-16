@@ -32,7 +32,6 @@ public:
 
 protected:
 
-    CtxtIOObj&		ctio_;
     Table::FormatDesc&	fd_;
 
     uiFileInput*	inpfld_;
