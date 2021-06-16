@@ -8,6 +8,12 @@ PLFNAME=`uname`
 if [[ "${PLFNAME}" = "Darwin" ]]; then
     echo "Unsupported platform"
     exit 1
+else
+    if [[ -n "${DTECT_APPL}" ]]; then
+	if [[ "${DTECT_APPL}" == *6.4.0 || "${DTECT_APPL}" == *6.2.0 ]]; then
+	    unset LD_LIBRARY_PATH
+	fi
+    fi
 fi
 
 if [[ ! -f /bin/csh ]]; then
