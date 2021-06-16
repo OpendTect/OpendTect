@@ -107,7 +107,10 @@ BufferString File::Path::getFullLongPath( const File::Path& fp )
 #ifdef __win__
     GetLongPathName(fp.fullPath(), longpath.getCStr(), longpath.minBufSize()-1);
 #endif
-    return longpath;
+    BufferString fpstr = longpath;
+    if ( fpstr.isEmpty() )
+	fpstr = fp.fullPath();
+    return fpstr;
 }
 
 
