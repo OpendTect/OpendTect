@@ -98,6 +98,8 @@ public:
     static const char*	sPrefSep;
     static const char*	uriProtocolSeparator()		{ return "://"; }
 
+    static BufferString getFullLongPath(const File::Path&);
+
 protected:
 
     bool		isabs_;
