@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistratsynthdisp.h"
 #include "uisynthgendlg.h"
@@ -99,24 +98,23 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     topgrp_ = new uiGroup( this, "Top group" );
     topgrp_->setStretch( 2, 0 );
 
-    uiLabeledComboBox* datalblcbx =
-	new uiLabeledComboBox( topgrp_, tr("Wiggle View"), "" );
+    auto* datalblcbx = new uiLabeledComboBox( topgrp_, tr("Wiggle View"), "" );
     wvadatalist_ = datalblcbx->box();
     wvadatalist_->selectionChanged.notify(
 	    mCB(this,uiStratSynthDisp,wvDataSetSel) );
     wvadatalist_->setHSzPol( uiObject::Wide );
 
-    uiToolButton* edbut = new uiToolButton( topgrp_, "edit",
+    auto* edbut = new uiToolButton( topgrp_, "edit",
 				tr("Add/Edit Synthetic DataSet"),
 				mCB(this,uiStratSynthDisp,addEditSynth) );
 
     edbut->attach( leftOf, datalblcbx );
 
-    uiGroup* dataselgrp = new uiGroup( this, "Data Selection" );
+    auto* dataselgrp = new uiGroup( this, "Data Selection" );
     dataselgrp->attach( rightBorder );
     dataselgrp->attach( ensureRightOf, topgrp_ );
 
-    uiLabeledComboBox* prdatalblcbx =
+    auto* prdatalblcbx =
 	new uiLabeledComboBox( dataselgrp, tr("Variable Density View"), "" );
     vddatalist_ = prdatalblcbx->box();
     vddatalist_->selectionChanged.notify(
@@ -124,9 +122,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vddatalist_->setHSzPol( uiObject::Wide );
     prdatalblcbx->attach( leftBorder );
 
-    uiToolButton* expbut = new uiToolButton( prdatalblcbx, "export",
-			    uiStrings::phrExport( tr("Synthetic DataSet(s)")),
-			    mCB(this,uiStratSynthDisp,exportSynth) );
+    auto* expbut = new uiToolButton( prdatalblcbx, "export",
+			uiStrings::phrExport( tr("Synthetic DataSet(s)")),
+			mCB(this,uiStratSynthDisp,exportSynth) );
     expbut->attach( rightOf, vddatalist_ );
 
     datagrp_ = new uiGroup( this, "DataSet group" );
@@ -135,9 +133,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     datagrp_->setFrame( true );
     datagrp_->setStretch( 2, 0 );
 
-    uiToolButton* layertb = new uiToolButton( datagrp_, "defraytraceprops",
-				    tr("Specify input for synthetic creation"),
-				    mCB(this,uiStratSynthDisp,layerPropsPush));
+    auto* layertb = new uiToolButton( datagrp_, "defraytraceprops",
+			tr("Specify input for synthetic creation"),
+			mCB(this,uiStratSynthDisp,layerPropsPush));
 
     wvltfld_ = new uiSeisWaveletSel( datagrp_, "", true, true, true );
     wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
@@ -149,7 +147,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
     scalebut_->attach( rightOf, wvltfld_ );
 
-    uiLabeledComboBox* lvlsnapcbx =
+    auto* lvlsnapcbx =
 	new uiLabeledComboBox( datagrp_, VSEvent::TypeNames(),tr("Snap level"));
     levelsnapselfld_ = lvlsnapcbx->box();
     lvlsnapcbx->attach( rightOf, scalebut_ );
@@ -694,7 +692,6 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	return false;
     }
 
-
     mDynamicCastGet(const PostStackSyntheticData*,pssd,currentwvasynthetic_);
     const SeisTrcBuf& tbuf = pssd->postStackPack().trcBuf();
     if ( tbuf.isEmpty() )
@@ -703,6 +700,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 			 "Please regenerate the synthetic."));
 	return false;
     }
+
     BufferString levelname;
     if ( curSS().getLevel() )
 	levelname = curSS().getLevel()->name();
@@ -717,10 +715,10 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     bool is2d = SI().has2D();
     if ( is2d && SI().has3D() )
     {
-	int res = uiMSG().question(tr("Type of seismic data to use"),
-				  uiStrings::s2D(), uiStrings::s3D(),
-				  uiStrings::sCancel(), tr("Specify geometry"));
-	if ( res < 0 ) return false;
+	const int res = uiMSG().ask2D3D( tr("Use 2D or 3D data?"), true );
+	if ( res < 0 )
+	    return false;
+
 	is2d = res == 1;
     }
 
@@ -739,7 +737,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	    rv = true;
 	    wvltfld_->setInput( mid );
 	}
-	vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+	vwr_->handleChange( sCast(unsigned int,FlatView::Viewer::All) );
     }
     return rv;
 }

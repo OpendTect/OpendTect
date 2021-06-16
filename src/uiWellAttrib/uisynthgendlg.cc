@@ -7,7 +7,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+
+#include "uisynthgendlg.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -17,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uisplitter.h"
 #include "uisynthseis.h"
-#include "uisynthgendlg.h"
 
 #include "synthseis.h"
 #include "stratsynth.h"
@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mErrRet(s,act) \
 { uiMsgMainWinSetter mws( mainwin() ); if (!s.isEmpty()) uiMSG().error(s); act;}
 
-uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
+uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp )
     : uiDialog(p,uiDialog::Setup(tr("Specify Synthetic Parameters"),mNoDlgTitle,
 				 mODHelpKey(mRayTrcParamsDlgHelpID) )
 				.modal(false))
@@ -80,7 +80,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     rsu.dooffsets(true).convertedwaves(true).showzerooffsetfld(false);
     synthseis_ = new uiSynthSeisGrp( toppargrp, rsu );
     synthseis_->parsChanged.notify( mCB(this,uiSynthGenDlg,parsChanged) );
-    synthseis_->attach( alignedBelow, angleinpfld_ );
+    synthseis_->attach( alignedBelow, lblcbx );
     toppargrp->setHAlignObj( synthseis_ );
 
     uiGroup* botpargrp = new uiGroup( rightgrp, "Parameter Group - Last Part" );
@@ -105,9 +105,10 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 
 void uiSynthGenDlg::finaliseDone( CallBacker* )
 {
+    typeChg( nullptr );
     updateSynthNames();
     synthnmlb_->setCurrentItem( 0 );
-    changeSyntheticsCB( 0 );
+    changeSyntheticsCB( nullptr );
 }
 
 
@@ -148,9 +149,13 @@ void uiSynthGenDlg::updateSynthNames()
 void uiSynthGenDlg::changeSyntheticsCB( CallBacker* )
 {
     FixedString synthnm( synthnmlb_->getText() );
-    if ( synthnm.isEmpty() ) return;
+    if ( synthnm.isEmpty() )
+	return;
+
     SyntheticData* sd = stratsynth_.getSynthetic( synthnm.buf() );
-    if ( !sd ) return;
+    if ( !sd )
+	return;
+
     sd->fillGenParams( stratsynth_.genParams() );
     putToScreen();
 }
