@@ -43,12 +43,12 @@ public:
 protected:
 
     bool		is2d_;
-    uiToolButton*	browsebut_;
+    uiToolButton*	browsebut_	    = nullptr;
     uiToolButton*	attribbut_;
     uiToolButton*	segyhdrbut_;
     uiToolButton*	copybut_;
-    uiToolButton*	man2dlinesbut_;
-    uiToolButton*	mergecubesbut_;
+    uiToolButton*	man2dlinesbut_	    = nullptr;
+    uiToolButton*	mergecubesbut_	    = nullptr;
 
     void		mergePush(CallBacker*);
     void		browsePush(CallBacker*);
@@ -57,6 +57,7 @@ protected:
     void		manPS(CallBacker*);
     void		showAttribSet(CallBacker*);
     void		showSEGYHeader(CallBacker*);
+    void		extrFrom3D(CallBacker*);
 
     virtual void	mkFileInfo();
     virtual void	ownSelChg();

@@ -45,7 +45,6 @@ protected:
     void		removeLine(CallBacker*);
     void		mergeLines(CallBacker*);
     void		browsePush(CallBacker*);
-    void		extrFrom3D(CallBacker*);
 
     uiListBox*		linefld_;
     uiTextEdit*		infofld_;

@@ -12,38 +12,39 @@ ________________________________________________________________________
 #include "uiseisfileman.h"
 
 #include "cbvsreadmgr.h"
-#include "trckeyzsampling.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
+#include "od_helpids.h"
 #include "seis2dlineio.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seistrctr.h"
-#include "survinfo.h"
-#include "zdomain.h"
 #include "separstr.h"
+#include "survinfo.h"
 #include "timedepthconv.h"
+#include "trckeyzsampling.h"
+#include "zdomain.h"
 
 #include "ui2dgeomman.h"
-#include "uitoolbutton.h"
-#include "uilistbox.h"
-#include "uitextedit.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
+#include "uilistbox.h"
 #include "uimergeseis.h"
-#include "uiseispsman.h"
+#include "uiseis2dfileman.h"
+#include "uiseis2dfrom3d.h"
+#include "uiseis2dgeom.h"
 #include "uiseisbrowser.h"
 #include "uiseiscopy.h"
 #include "uiseisioobjinfo.h"
-#include "uiseis2dfileman.h"
-#include "uiseis2dgeom.h"
+#include "uiseispsman.h"
 #include "uisplitter.h"
 #include "uitaskrunner.h"
-#include "od_helpids.h"
+#include "uitextedit.h"
+#include "uitoolbutton.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 
@@ -55,7 +56,7 @@ uiSeisCBVSBrowerMgr()
 {
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
 			    CBVSSeisTrcTranslator::translKey() );
-    bdef->tooltip_ = tr( "Browse/Edit CBVS cube '%1'" );
+    bdef->tooltip_ = tr("Browse/Edit CBVS cube '%1'");
     bdef->cb_ = mCB(this,uiSeisCBVSBrowerMgr,doBrowse);
     uiSeisFileMan::addBrowser( bdef );
 }
@@ -83,9 +84,6 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 		  SeisTrcTranslatorGroup::ioContext(),
 		is2d ? "2D Seismic Data" : "Seismic Data" )
     , is2d_(is2d)
-    , browsebut_(0)
-    , man2dlinesbut_(0)
-    , mergecubesbut_(0)
 {
     if ( !cbvsbrowsermgr_ )
 	cbvsbrowsermgr_ = new uiSeisCBVSBrowerMgr;
@@ -110,6 +108,9 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 	man2dlinesbut_ = manipgrp->addButton( "man2d", uiStrings::phrManage(
 					   uiStrings::sLine(2)),
 					   mCB(this,uiSeisFileMan,man2DPush) );
+	if ( SI().has3D() )
+	    manipgrp->addButton( "extr3dinto2d", tr("Extract from 3D cube"),
+			mCB(this,uiSeisFileMan,extrFrom3D) );
     }
     else
     {
@@ -127,12 +128,13 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				      mCB(this,uiSeisFileMan,showSEGYHeader) );
 
     mTriggerInstanceCreatedNotifier();
-    selChg(0);
+    mAttachCB( postFinalise(), uiSeisFileMan::selChg );
 }
 
 
 uiSeisFileMan::~uiSeisFileMan()
 {
+    detachAllNotifiers();
 }
 
 
@@ -254,7 +256,7 @@ const uiSeisFileMan::BrowserDef* uiSeisFileMan::getBrowserDef() const
 	}
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -434,15 +436,16 @@ od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 
 void uiSeisFileMan::mergePush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const MultiID key( curioobj_->key() );
     TypeSet<MultiID> chsnmids;
     selgrp_->getChosen( chsnmids );
     uiMergeSeis dlg( this );
     dlg.setInputIds( chsnmids );
-    dlg.go();
-    selgrp_->fullUpdate( key );
+    if ( dlg.go() )
+	selgrp_->fullUpdate( key );
 }
 
 
@@ -459,13 +462,13 @@ void uiSeisFileMan::browsePush( CallBacker* )
 
 void uiSeisFileMan::man2DPush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const MultiID key( curioobj_->key() );
     uiSeis2DFileMan dlg( this, *curioobj_ );
-    dlg.go();
-
-    selgrp_->fullUpdate( key );
+    if ( dlg.go() )
+	selgrp_->fullUpdate( key );
 }
 
 
@@ -501,7 +504,8 @@ void uiSeisFileMan::manPS( CallBacker* )
 
 void uiSeisFileMan::showAttribSet( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     FilePath fp( curioobj_->fullUserExpr() );
     fp.setExtension( "proc" );
@@ -511,9 +515,18 @@ void uiSeisFileMan::showAttribSet( CallBacker* )
 
 void uiSeisFileMan::showSEGYHeader( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     FilePath fp( curioobj_->fullUserExpr() );
     fp.setExtension( "sgyhdr" );
     File::launchViewer( fp.fullPath(), File::ViewPars() );
+}
+
+
+void uiSeisFileMan::extrFrom3D( CallBacker* )
+{
+    uiSeis2DFrom3D dlg( this );
+    if ( dlg.go() )
+	updateCB( nullptr );
 }
