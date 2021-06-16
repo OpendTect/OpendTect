@@ -1,6 +1,6 @@
 # Sets up CMake variables for projects who link against OpendTect
 #
-# Copyright (C): dGB Beheer B. V. 
+# Copyright (C): dGB Beheer B.V. 1995-@YEAR@
 #
 #
 #Set OpendTect version

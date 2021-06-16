@@ -1,6 +1,6 @@
 # This file should be placed in the root directory of your project.
 #
-# Copyright (C): dGB Beheer B.V., 2013-
+# Copyright (C): dGB Beheer B.V., 2013-@YEAR@
 #
 
 set ( CTEST_CUSTOM_TESTS_IGNORE @CTEST_CUSTOM_TESTS_IGNORE@ )

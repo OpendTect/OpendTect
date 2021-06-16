@@ -13,6 +13,6 @@
 	<key>CFBundleName</key>
 	<string>@BUNDLENAME@</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>© @YEAR@, dGB Beheer BV</string>
+	<string>© @YEAR@, dGB Beheer B.V.</string>
 </dict>
 </plist>
