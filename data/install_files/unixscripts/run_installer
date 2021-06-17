@@ -12,6 +12,7 @@ else
     if [[ -n "${DTECT_APPL}" ]]; then
 	if [[ "${DTECT_APPL}" == *6.4.0 || "${DTECT_APPL}" == *6.2.0 ]]; then
 	    unset LD_LIBRARY_PATH
+	    export OD_UPDATE_FROM_LEGACY="yes"
 	fi
     fi
 fi
@@ -52,7 +53,6 @@ if [[ -z $pngfilenm ]]; then
     exit 1
 fi
 
-
 infomsg=`ldd $qtfile | grep "not found"`
 if [[ -n "$infomsg" ]]; then
     infomsg=`ldd $qtfile | grep "not found" | grep -v $pngfilenm`
@@ -68,5 +68,16 @@ if [[ -n $DTECT_APPL ]]; then
     export DTECT_APPL=""
 fi
 
-"${curdir}/od_instmgr" "$@"
-exit $?
+if [[ -z "${OD_UPDATE_FROM_LEGACY}" ]]; then
+    "${curdir}/od_instmgr" "$@"
+    exit $?
+fi
+
+unset OD_UPDATE_FROM_LEGACY
+outputstr=`"${curdir}/od_instmgr" "$@"`
+
+if [[ ("$?" != 0) ]]; then
+   exit $?
+elif [[ "${outputstr}"=="Updates available" ]]; then
+   exit 1
+fi
