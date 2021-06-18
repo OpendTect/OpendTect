@@ -67,6 +67,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdata.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+
 #include <iostream>
 
 
@@ -193,7 +195,7 @@ static void checkScreenRes()
 void ODMainProgramRestarter()
 {
     if ( ODMainWin() )
-	ODMainWin()->restart();
+	ODMainWin()->restart( true, true );
     else
 	{ pFreeFnErrMsg("No ODMainWin(). Cannot restart"); }
 }
@@ -242,6 +244,8 @@ int ODMain( uiMain& app )
 #define mMemStatusFld 4
 static uiString cputxt_;
 
+HiddenParam<uiODMain,BufferString*> odmainproginfomgr_(nullptr);
+
 uiODMain::uiODMain( uiMain& a )
     : uiMainWin(0,toUiString("OpendTect Main Window"),5,true)
     , uiapp_(a)
@@ -265,6 +269,7 @@ uiODMain::uiODMain( uiMain& a )
     , justBeforeGo(this)
     , programname_( "OpendTect" )
 {
+    odmainproginfomgr_.setParam( this, new BufferString );
     setIconText( getProgramString() );
     uiapp_.setTopLevel( this );
 
@@ -300,6 +305,8 @@ uiODMain::~uiODMain()
     memtimer_.stop();
     if ( ODMainWin()==this )
 	manODMainWin( nullptr );
+
+    odmainproginfomgr_.removeAndDeleteParam( this );
 
     delete &lastsession_;
     delete &sesstimer_;
@@ -379,7 +386,7 @@ bool uiODMain::buildUI()
     menumgr_ = new uiODMenuMgr( this );
     menumgr_->initSceneMgrDepObjs( applmgr_, scenemgr_ );
 
-    uiColorTableToolBar* tb = new uiColorTableToolBar( this );
+    auto* tb = new uiColorTableToolBar( this );
     ctabtb_ = tb;
     ctabed_ = new uiVisColTabEd( *tb );
     ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
@@ -737,6 +744,13 @@ void uiODMain::setProgramName( const char* nm )
 }
 
 
+void uiODMain::setProgInfo( const char* info )
+{
+    odmainproginfomgr_.getParam(this)->set( info );
+    updateCaption();
+}
+
+
 bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
 {
     if ( !applmgr_->attrServer() ) return false;
@@ -799,40 +813,47 @@ void uiODMain::updateCaption()
 	.arg( getProgramString() )
 	.arg( OD::Platform::local().osName() );
 
-    if ( ODInst::getAutoInstType() == ODInst::InformOnly
-	&& ODInst::updatesAvailable() )
+    if ( ODInst::getAutoInstType() == ODInst::InformOnly &&
+	 ODInst::updatesAvailable() )
 	capt.append( tr(" *UPDATE AVAILABLE*") );
 
-    const char* usr = GetSoftwareUser();
-    if ( usr && *usr )
-    {
+    const BufferString usr( GetSoftwareUser() );
+    if ( !usr.isEmpty() )
 	capt.append( tr(" [%1] ").arg( usr ) );
-    }
 
     if ( !SI().name().isEmpty() )
 	capt.append( " : %1" ).arg( SI().name() );
+
+    const BufferString& programinfo_ = *odmainproginfomgr_.getParam( this );
+    if ( !programinfo_.isEmpty() )
+	capt.append( " [%1]" ).arg( programinfo_ );
 
     setCaption( capt );
 }
 
 
-bool uiODMain::closeOK()
+bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 {
     saveSettings();
 
+    const uiString actstr = restarting_ ? uiStrings::sRestart()
+					: uiStrings::sClose();
     bool askedanything = false;
-    uiString actstr = restarting_ ? uiStrings::sRestart() : uiStrings::sClose();
-    if ( !askStore(askedanything,
-	  uiStrings::phrJoinStrings(actstr,toUiString(programname_)) ) )
+    if ( withinteraction )
     {
-	uiMSG().message( restarting_ ? tr("Restart cancelled")
-				     : tr("Closing cancelled"));
-	return false;
+	if ( !askStore(askedanything,
+	      uiStrings::phrJoinStrings(actstr,toUiString(programname_)) ) )
+	{
+	    uiMSG().message( restarting_ ? tr("Restart cancelled")
+					 : tr("Closing cancelled") );
+	    return false;
+	}
     }
 
-    if ( failed_ ) return true;
+    if ( failed_ )
+	return true;
 
-    if ( !askedanything )
+    if ( !askedanything && doconfirm )
     {
 	if ( !uiMSG().askGoOn( tr("Do you want to %1 %2?")
 			       .arg(restarting_?"restart":"close")
@@ -862,11 +883,28 @@ uiString uiODMain::getProgramName()
 }
 
 
-void uiODMain::restart()
+bool uiODMain::prepareRestart( bool withinteraction, bool doconfirm )
+{
+    if ( !closeOK(withinteraction,doconfirm) )
+	return false;
+
+    //TODO:
+    // 1) offer to save the session
+    // 2) offer to remember which data is preloaded
+    // Save session ID and preload spec in a file restart.pars in ~/.od (user)
+    // Make sure that if a restart.pars file is found at startup, stuff will
+    // be restored. Remove restart.pars when done
+
+    return true;
+}
+
+
+void uiODMain::restart( bool withinteraction, bool doconfirm )
 {
     restarting_ = true;
-
-    if ( !closeOK() )
+    if ( !withinteraction && !doconfirm )
+	exit( false, false );
+    else if ( !prepareRestart(withinteraction,doconfirm) )
     {
 	restarting_ = false;
 	return;
@@ -882,9 +920,13 @@ void uiODMain::restart()
 }
 
 
-void uiODMain::exit()
+void uiODMain::exit( bool withinteraction, bool doconfirm )
 {
-    if ( !closeOK() ) return;
+    if ( withinteraction || doconfirm )
+    {
+	if ( !closeOK(withinteraction,doconfirm) )
+	    return;
+    }
 
     uiapp_.exit(0);
 }
@@ -892,8 +934,9 @@ void uiODMain::exit()
 
 void uiODMain::forceExit()
 {
-    uiapp_.exit(0);
+    return exit( false, false );
 }
+
 
 uiServiceClientMgr& uiODMain::serviceMgr()
 {

@@ -1498,8 +1498,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mPreLoadSeisMnuItm:	applMgr().manPreLoad(uiODApplMgr::Seis); break;
     case mPreLoadHorMnuItm:	applMgr().manPreLoad(uiODApplMgr::Hor); break;
-    case mRestartMnuItm:	appl_.restart(); break;
-    case mExitMnuItm:		appl_.exit(); break;
+    case mRestartMnuItm:	appl_.restart(true,true); break;
+    case mExitMnuItm:		appl_.exit(true,true); break;
     case mEditAttrMnuItm:	applMgr().editAttribSet(); break;
     case mEdit2DAttrMnuItm:	applMgr().editAttribSet(true); break;
     case mEdit3DAttrMnuItm:	applMgr().editAttribSet(false); break;
