@@ -1925,7 +1925,7 @@ void uiODApplMgr::manSurvCB( CallBacker* )
 {
     const int retval = selectSurvey(0);
     if ( retval == 4 )
-	appl_.forceExit();
+	appl_.exit( false, false );
 }
 void uiODApplMgr::tieWellToSeismic( CallBacker* )
 { wellattrserv_->createD2TModel(MultiID()); }

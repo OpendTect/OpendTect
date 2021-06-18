@@ -46,8 +46,12 @@ public:
 			~uiODMain();
 
     bool		go();
-    void		restart();
-    void		exit();
+    void		restart(bool interact,bool doconfirm);
+    void		exit(bool interact,bool doconfirm);
+    mDeprecated("Provide arguments")
+    void		restart()	{ restart(true,true); }
+    mDeprecated("Provide arguments")
+    void		exit()		{ exit(true,true); }
 
     uiODApplMgr&	applMgr()	{ return *applmgr_; }
     uiODMenuMgr&	menuMgr()	{ return *menumgr_; } //!< + toolbar
@@ -81,6 +85,8 @@ public:
     bool		isRestoringSession()	{ return restoringsess_; }
     void		setProgramName(const char*);
 			//Default is "OpendTect"
+    void		setProgInfo(const char*);
+    mDeprecated("Use exit function")
     void		forceExit();
 
     static uiString	sODDesc()
@@ -104,12 +110,14 @@ protected:
     MultiID		cursessid_;
     bool		failed_;
 
-    virtual bool	closeOK();
+    virtual bool	closeOK()	{ return closeOK(true,true); }
+    bool		closeOK(bool interact,bool doconfirm);
+    bool		prepareRestart(bool interact,bool doconfirm);
     void		afterStartupCB(CallBacker*);
     void		afterSurveyChgCB(CallBacker*);
     void		handleStartupSession();
     void		restoreSession(const IOObj*);
-    void		closeApplication();
+    mDeprecatedDef void closeApplication();
 
 private:
 

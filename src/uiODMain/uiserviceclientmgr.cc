@@ -153,9 +153,10 @@ void uiServiceClientMgr::doPyEnvChange( CallBacker* )
 {
     OD::JSON::Object sinfo;
     getPythEnvRequestInfo( sinfo );
-    for ( const auto service : services_ )
+    for ( const auto* service : services_ )
     {
-	const uiRetVal uirv = sendRequest( *service, sKeyPyEnvChangeEv(), sinfo );
+	const uiRetVal uirv = sendRequest( *service, sKeyPyEnvChangeEv(),
+					   sinfo );
 	if ( !uirv.isOK() )
 	    uiMSG().error( uirv );
     }
@@ -174,7 +175,7 @@ void uiServiceClientMgr::closeApp()
     auto* mainwin = ODMainWin();
     if ( mainwin )
     {
-	mainwin->forceExit();
+	mainwin->exit( false, false );
 	return;
     }
 
