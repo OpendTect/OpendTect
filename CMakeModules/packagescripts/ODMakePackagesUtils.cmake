@@ -316,7 +316,6 @@ macro( COPY_THIRDPARTYLIBS )
 				 ${COPYFROMLIBDIR}/../translations/qtwebengine_locales/${TRANSLATION_FILE}
 				 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/translations/qtwebengine_locales/${TRANSLATION_FILE} )
 	    endif()
->>>>>>> e28997ec48... Following the MAC structure while installing and package creation. [devel].
 	else()
 	    if ( APPLE )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
