@@ -11,7 +11,8 @@ ________________________________________________________________________
 
 #include "refcount.h"
 
-using namespace RefCount;
+namespace RefCount
+{
 
 #define mInvalidRefCount (-1)
 #define mStartRefCount (-2)
@@ -124,7 +125,7 @@ void Referenced::removeObserver(WeakPtrBase* obs)
 #endif
 
 
-
+// Counter
 Counter::Counter()
     : count_( mStartRefCount )
 {}
@@ -298,6 +299,7 @@ void Counter::removeObserver( WeakPtrBase* obj )
 }
 
 
+// WeakPtrBase
 WeakPtrBase::WeakPtrBase()
     : ptr_( 0 )
 {}
@@ -386,7 +388,7 @@ void WeakPtrBase::set( Referenced* p )
 
 
 
-void RefCount::WeakPtrSetBase::blockCleanup()
+void WeakPtrSetBase::blockCleanup()
 {
     while ( true )
     {
@@ -400,7 +402,9 @@ void RefCount::WeakPtrSetBase::blockCleanup()
 }
 
 
-void RefCount::WeakPtrSetBase::unblockCleanup()
+void WeakPtrSetBase::unblockCleanup()
 {
     blockcleanup_--;
 }
+
+} // namespace RefCount
