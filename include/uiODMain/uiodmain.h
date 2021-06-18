@@ -45,8 +45,8 @@ public:
 			~uiODMain();
 
     bool		go();
-    void		restart();
-    void		exit();
+    void		restart(bool interact=true,bool doconfirm=true);
+    void		exit(bool interact=true,bool doconfirm=true);
 
     uiODApplMgr&	applMgr()	{ return *applmgr_; }
     uiODMenuMgr&	menuMgr()	{ return *menumgr_; } //!< + toolbar
@@ -80,7 +80,7 @@ public:
     bool		isRestoringSession()	{ return restoringsess_; }
     void		setProgramName(const char*);
 			//Default is "OpendTect"
-    void		forceExit();
+    void		setProgInfo(const char*);
 
     static uiString	sODDesc()
 				{ return tr("OpendTect Main Window"); }
@@ -99,11 +99,14 @@ protected:
     bool		restoringsess_	= false;
     bool		restarting_	= false;
     BufferString	programname_;
+    BufferString	programinfo_;
 
     MultiID		cursessid_;
     bool		failed_		= true;
 
-    virtual bool	closeOK();
+    bool		closeOK() override	{ return closeOK(true,true); }
+    bool		closeOK(bool interact,bool doconfirm);
+    bool		prepareRestart(bool interact,bool doconfirm);
     void		afterStartupCB(CallBacker*);
     void		afterSurveyChgCB(CallBacker*);
     void		handleStartupSession();

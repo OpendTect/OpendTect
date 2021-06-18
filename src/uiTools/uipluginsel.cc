@@ -151,7 +151,6 @@ uiPluginSel::uiPluginSel( uiParent* p )
     const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     makeProductList( pimdata );
     createUI();
-    showAlwaysOnTop();
 
     if ( hasodLicInstall() )
 	mAttachCB(applyPushed, uiPluginSel::showLicInstallCB);

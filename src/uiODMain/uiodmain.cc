@@ -720,6 +720,13 @@ void uiODMain::setProgramName( const char* nm )
 }
 
 
+void uiODMain::setProgInfo( const char* info )
+{
+    programinfo_ = info;
+    updateCaption();
+}
+
+
 bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
 {
     if ( !applmgr_->attrServer() ) return false;
@@ -782,40 +789,46 @@ void uiODMain::updateCaption()
 	.arg( getProgramString() )
 	.arg( OD::Platform::local().osName() );
 
-    if ( ODInst::getAutoInstType() == ODInst::InformOnly
-	&& ODInst::updatesAvailable() )
+    if ( ODInst::getAutoInstType() == ODInst::InformOnly &&
+	 ODInst::updatesAvailable() )
 	capt.append( tr(" *UPDATE AVAILABLE*") );
 
-    const char* usr = GetSoftwareUser();
-    if ( usr && *usr )
-    {
+    const BufferString usr( GetSoftwareUser() );
+    if ( !usr.isEmpty() )
 	capt.append( tr(" [%1] ").arg( usr ) );
-    }
 
     if ( !SI().name().isEmpty() )
 	capt.append( " : %1" ).arg( SI().name() );
+
+    if ( !programinfo_.isEmpty() )
+	capt.append( " [%1]" ).arg( programinfo_ );
 
     setCaption( capt );
 }
 
 
-bool uiODMain::closeOK()
+bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 {
     saveSettings();
 
+    const uiString actstr = restarting_ ? uiStrings::sRestart()
+					: uiStrings::sClose();
     bool askedanything = false;
-    uiString actstr = restarting_ ? uiStrings::sRestart() : uiStrings::sClose();
-    if ( !askStore(askedanything,
-	  uiStrings::phrJoinStrings(actstr,toUiString(programname_)) ) )
+    if ( withinteraction )
     {
-	uiMSG().message( restarting_ ? tr("Restart cancelled")
-				     : tr("Closing cancelled"));
-	return false;
+	if ( !askStore(askedanything,
+	      uiStrings::phrJoinStrings(actstr,toUiString(programname_)) ) )
+	{
+	    uiMSG().message( restarting_ ? tr("Restart cancelled")
+					 : tr("Closing cancelled") );
+	    return false;
+	}
     }
 
-    if ( failed_ ) return true;
+    if ( failed_ )
+	return true;
 
-    if ( !askedanything )
+    if ( !askedanything && doconfirm )
     {
 	if ( !uiMSG().askGoOn( tr("Do you want to %1 %2?")
 			       .arg(restarting_?"restart":"close")
@@ -840,11 +853,28 @@ uiString uiODMain::getProgramName()
 }
 
 
-void uiODMain::restart()
+bool uiODMain::prepareRestart( bool withinteraction, bool doconfirm )
+{
+    if ( !closeOK(withinteraction,doconfirm) )
+	return false;
+
+    //TODO:
+    // 1) offer to save the session
+    // 2) offer to remember which data is preloaded
+    // Save session ID and preload spec in a file restart.pars in ~/.od (user)
+    // Make sure that if a restart.pars file is found at startup, stuff will
+    // be restored. Remove restart.pars when done
+
+    return true;
+}
+
+
+void uiODMain::restart( bool withinteraction, bool doconfirm )
 {
     restarting_ = true;
-
-    if ( !closeOK() )
+    if ( !withinteraction && !doconfirm )
+	exit( false, false );
+    else if ( !prepareRestart(withinteraction,doconfirm) )
     {
 	restarting_ = false;
 	return;
@@ -860,18 +890,17 @@ void uiODMain::restart()
 }
 
 
-void uiODMain::exit()
+void uiODMain::exit( bool withinteraction, bool doconfirm )
 {
-    if ( !closeOK() ) return;
+    if ( withinteraction || doconfirm )
+    {
+	if ( !closeOK(withinteraction,doconfirm) )
+	    return;
+    }
 
     uiapp_.exit(0);
 }
 
-
-void uiODMain::forceExit()
-{
-    uiapp_.exit(0);
-}
 
 uiServiceClientMgr& uiODMain::serviceMgr()
 {

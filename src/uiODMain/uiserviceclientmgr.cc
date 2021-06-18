@@ -173,7 +173,7 @@ void uiServiceClientMgr::closeApp()
     auto* mainwin = ODMainWin();
     if ( mainwin )
     {
-	mainwin->forceExit();
+	mainwin->exit( false, false );
 	return;
     }
 
