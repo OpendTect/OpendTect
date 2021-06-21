@@ -140,7 +140,7 @@ File::Path& File::Path::set( const char* inpfnm )
 	    domain_.add( *domptr );
 	    domptr++;
 	}
-	fnm = 0;
+	fnm = nullptr;
 	if ( *domptr == '/' )
 	    fnm = fnmbs.buf() + (domptr - fnmcopy.buf());
 	isabs_ = true;
@@ -155,7 +155,7 @@ File::Path& File::Path::set( const char* inpfnm )
 	    if ( otherdsptr && ( !dsptr || otherdsptr < dsptr ) )
 		dsptr = otherdsptr;
 
-	    if ( dsptr > ptr )
+	    if ( dsptr > ptr || (__iswin__ && !dsptr) )
 	    {
 		prefix_ = fnm;
 		*firstOcc( prefix_.getCStr(), *sPrefSep ) = '\0';
@@ -173,8 +173,9 @@ File::Path& File::Path::set( const char* inpfnm )
 	    fnm += prefix_.size();
 	}
 
-	isabs_ = *fnm == '\\' || *fnm == '/';
-	if ( isabs_ ) fnm++;
+	isabs_ = *fnm == '\\' || *fnm == '/' || (__iswin__ && !*fnm);
+	if ( isabs_ && *fnm)
+	    fnm++;
     }
 
     addPart( fnm );
