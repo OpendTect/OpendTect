@@ -616,7 +616,7 @@ bool listDir( const char* dirnm, DirListType dlt, BufferStringSet& fnames,
 	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files
 				| QDir::Hidden;
 
-    QStringList qlist = qdir.entryList( dirfilters );
+    const QStringList qlist = qdir.entryList( dirfilters );
     for ( int idx=0; idx<qlist.size(); idx++ )
 	fnames.add( qlist[idx] );
 

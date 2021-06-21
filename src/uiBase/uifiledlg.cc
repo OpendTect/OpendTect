@@ -130,32 +130,32 @@ uiFileDialog::uiFileDialog( uiParent* parnt, uiFileDialog::Type typ,
 
 int uiFileDialog::go()
 {
-    FilePath fp( fname_ );
+    const FilePath fp( fname_ );
     fname_ = fp.fullPath();
     BufferString dirname;
-    if ( !File::isDirectory(fname_) )
+    if ( File::isDirectory(fname_) )
+    {
+	dirname = fname_;
+	fname_.setEmpty();
+    }
+    else
     {
 	if ( !File::isDirectory(fp.pathOnly()) )
 	{
 	    dirname = GetPersonalDir();
-	    fname_ = "";
+	    fname_.setEmpty();
 	}
 	else if ( !File::exists(fname_) &&
 		  (mode_ == ExistingFile || mode_ == ExistingFiles) )
 	{
 	    dirname = fp.pathOnly();
-	    fname_ = "";
+	    fname_.setEmpty();
 	}
 	else
 	{
 	    dirname = fp.pathOnly();
 	    fname_ = fp.fileName();
 	}
-    }
-    else
-    {
-	dirname = fname_;
-	fname_ = "";
     }
 
     if ( GetEnvVarYN("OD_FILE_SELECTOR_BROKEN") )
