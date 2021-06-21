@@ -311,7 +311,9 @@ bool LocalFileSystemAccess::listDirectory( const char* uri,
     if ( !isDirectory(uri) )
 	return false;
 
-    const BufferString fnm = withoutProtocol( uri );
+    BufferString fnm = withoutProtocol( uri );
+    if ( __iswin__ && fnm.size() == 2 && fnm.last() == *FilePath::sPrefSep )
+	fnm.add( "\\" );
 
     QDir qdir( fnm.str() );
     if ( mask && *mask )
@@ -330,7 +332,7 @@ bool LocalFileSystemAccess::listDirectory( const char* uri,
 	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files
 				| QDir::Hidden;
 
-    QStringList qlist = qdir.entryList( dirfilters );
+    const QStringList qlist = qdir.entryList( dirfilters );
     for ( int idx=0; idx<qlist.size(); idx++ )
 	filenames.add( qlist[idx] );
 
