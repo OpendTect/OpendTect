@@ -75,6 +75,7 @@ public:
     const OD::String&	fileName() const;
     BufferString	baseName() const; //!<return name of file w/o path & ext
     BufferString	pathOnly() const;
+    BufferString	pathOnly(Style) const;
     BufferString	winDrive() const;
 
     const OD::String&	dir(int nr=-1) const;
@@ -88,7 +89,8 @@ public:
     static BufferString	getTempFileName(const char* typ,const char* ext);
     static BufferString getTempFullPath(const char* typ,const char* ext);
     static BufferString getTimeStampFileName(const char* ext);
-    mDeprecated("Use getTempFullPath instead") static BufferString	getTempName( const char* ext=0 )
+    mDeprecated("Use getTempFullPath instead")
+    static BufferString getTempName( const char* ext=0 )
 			{ return getTempFullPath(0,ext); }
     static BufferString	mkCleanPath(const char* path,Style fmt);
 
