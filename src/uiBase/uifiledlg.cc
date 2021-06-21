@@ -111,22 +111,27 @@ mStopAllowDeprecatedSection
 
 int uiFileDialog::go()
 {
-    File::Path fp( fname_ );
+    const File::Path fp( fname_ );
     fname_ = fp.fullPath();
     BufferString dirname;
-    if ( !File::isDirectory(fname_) )
+    if ( File::isDirectory(fname_) )
+    {
+	dirname = fname_;
+	fname_.setEmpty();
+    }
+    else
     {
 	if ( !File::isDirectory(fp.pathOnly()) )
 	{
 	    dirname = GetPersonalDir();
-	    fname_ = "";
+	    fname_.setEmpty();
 	}
 	else if ( !File::exists(fname_) &&
 		  (mode_ == OD::SelectFileForWrite
 		    || mode_ == OD::SelectMultiFile) )
 	{
 	    dirname = fp.pathOnly();
-	    fname_ = "";
+	    fname_.setEmpty();
 	}
 	else
 	{
@@ -134,11 +139,10 @@ int uiFileDialog::go()
 	    fname_ = fp.fileName();
 	}
     }
-    else
-    {
-	dirname = fname_;
-	fname_ = "";
-    }
+
+    if ( __iswin__ && dirname.size() == 2 &&
+	 dirname.last() == *File::Path::sPrefSep )
+	dirname.add( File::Path::dirSep(File::Path::Windows) );
 
     if ( GetEnvVarYN("OD_FILE_SELECTOR_BROKEN") )
     {
