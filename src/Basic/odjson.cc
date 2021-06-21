@@ -271,12 +271,11 @@ void OD::JSON::ValArr::setFilePath( const FilePath& fp, idx_type idx )
 	return;
     }
 
-    BufferString bs( fp.fullPath() );
-#ifdef __win__
-    bs.replace( "\\", "/" );
-#endif
+    BufferString& bs = strings().get( idx );
+    bs.set( fp.fullPath() );
+    if ( __iswin__ )
+	bs.replace( "\\", "/" );
 
-    strings().replace( idx, &bs );
 }
 
 
