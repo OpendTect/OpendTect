@@ -33,12 +33,10 @@ ________________________________________________________________________
 #endif
 
 
-#ifndef OD_NO_QT
-# include <QDateTime>
-# include <QDir>
-# include <QFile>
-# include <QFileInfo>
-#endif
+#include <QDateTime>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 
 
 mImplClassFactory( File::SystemAccess, factory );
@@ -343,7 +341,9 @@ bool File::LocalFileSystemAccess::listDirectory( const char* uri,
     if ( !isDirectory(uri) )
 	return false;
 
-    const BufferString fnm = withoutProtocol( uri );
+    BufferString fnm = withoutProtocol( uri );
+    if ( __iswin__ && fnm.size() == 2 && fnm.last() == *Path::sPrefSep )
+	fnm.add( "\\" );
 
     QDir qdir( fnm.str() );
     if ( mask && *mask )
@@ -362,7 +362,7 @@ bool File::LocalFileSystemAccess::listDirectory( const char* uri,
 	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files
 				| QDir::Hidden;
 
-    QStringList qlist = qdir.entryList( dirfilters );
+    const QStringList qlist = qdir.entryList( dirfilters );
     for ( int idx=0; idx<qlist.size(); idx++ )
 	filenames.add( qlist[idx] );
 
