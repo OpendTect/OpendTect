@@ -120,6 +120,7 @@ public:
     static BufferString	mkCleanPath(const char* path,Style fmt);
     static const char*	dirSep(Style);
     BufferString	fullPath(Style,bool cleanup=true) const;
+    BufferString	pathOnly(Style) const;
 
 };
 
