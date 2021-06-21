@@ -343,7 +343,7 @@ bool File::LocalFileSystemAccess::listDirectory( const char* uri,
 
     BufferString fnm = withoutProtocol( uri );
     if ( __iswin__ && fnm.size() == 2 && fnm.last() == *Path::sPrefSep )
-	fnm.add( "\\" );
+	fnm.add( Path::dirSep(Path::Windows) );
 
     QDir qdir( fnm.str() );
     if ( mask && *mask )
