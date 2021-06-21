@@ -73,7 +73,7 @@ public:
 
     const OD::String&	fileName() const;
     BufferString	baseName() const; //!<return name of file w/o path & ext
-    BufferString	pathOnly() const;
+    BufferString	pathOnly(Style s=Local) const;
     BufferString	winDrive() const;
 
     const OD::String&	dir(int nr=-1) const;

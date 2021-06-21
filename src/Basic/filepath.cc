@@ -304,8 +304,12 @@ bool FilePath::makeRelativeTo( const FilePath&  b )
 
 BufferString FilePath::fullPath( Style f, bool cleanup ) const
 {
-    const BufferString res = dirUpTo(lvls_.size());
-    return cleanup ? mkCleanPath(res,f) : res;
+    BufferString res = dirUpTo( lvls_.size() );
+    if ( cleanup )
+	res = mkCleanPath( res, f );
+    if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 1 )
+	res.add( dirSep(Windows) );
+    return res;
 }
 
 
@@ -354,8 +358,14 @@ BufferString FilePath::getTimeStampFileName( const char* ext )
 }
 
 
-BufferString FilePath::pathOnly() const
-{ return dirUpTo(lvls_.size()-2); }
+BufferString FilePath::pathOnly( Style f ) const
+{
+    BufferString res = dirUpTo( lvls_.size()-2 );
+    if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 2 )
+	res.add( dirSep(Windows) );
+
+    return res;
+}
 
 
 const OD::String& FilePath::dir( int nr ) const
