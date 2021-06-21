@@ -140,10 +140,6 @@ int uiFileDialog::go()
 	}
     }
 
-    if ( __iswin__ && dirname.size() == 2 &&
-	 dirname.last() == *File::Path::sPrefSep )
-	dirname.add( File::Path::dirSep(File::Path::Windows) );
-
     if ( GetEnvVarYN("OD_FILE_SELECTOR_BROKEN") )
     {
 	uiDialog dlg( parnt_, uiDialog::Setup(tr("Specify file name"),

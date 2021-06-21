@@ -336,6 +336,8 @@ BufferString File::Path::fullPath( Style f, bool cleanup ) const
     BufferString res = dirUpTo(-1);
     if ( cleanup )
 	res = mkCleanPath( res, f );
+    if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 1 )
+	res.add( dirSep(Windows) );
     if ( postfix_ )
 	res.add( postfix_ );
     return res;
@@ -388,9 +390,19 @@ BufferString File::Path::getTimeStampFileName( const char* ext )
 }
 
 
-BufferString File::Path::pathOnly() const
+BufferString FilePath::pathOnly() const
 {
-    return dirUpTo(lvls_.size()-2);
+    return pathOnly( Local );
+}
+
+
+BufferString FilePath::pathOnly( Style f ) const
+{
+    BufferString res = dirUpTo( lvls_.size()-2 );
+    if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 2 )
+	res.add( dirSep(Windows) );
+
+    return res;
 }
 
 
