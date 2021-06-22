@@ -761,6 +761,13 @@ void uiODMain::setProgramName( const char* nm )
 }
 
 
+void uiODMain::setProgInfo( const char* info )
+{
+    programinfo_.set( info );
+    updateCaption();
+}
+
+
 bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
 {
     if ( !applmgr_->attrServer() ) return false;
@@ -823,12 +830,12 @@ void uiODMain::updateCaption( CallBacker* )
 	.arg( getProgramString() )
 	.arg( OD::Platform::local().longName() );
 
-    if ( ODInst::getAutoInstType() == ODInst::InformOnly
-	&& ODInst::updatesAvailable() )
+    if ( ODInst::getAutoInstType() == ODInst::InformOnly &&
+	 ODInst::updatesAvailable() )
 	capt.appendPhrase( tr(" *UPDATE AVAILABLE*"), uiString::NoSep );
 
-    const char* usr = GetSoftwareUser();
-    if ( usr && *usr )
+    const BufferString usr = GetSoftwareUser();
+    if ( !usr.isEmpty() )
     {
 	BufferString str; str.add("[").add(usr).add("]");
 	capt.appendPlainText( str, true );
@@ -836,8 +843,14 @@ void uiODMain::updateCaption( CallBacker* )
 
     if ( !DBM().isBad() && !SI().name().isEmpty() )
     {
-	BufferString str; str.add(" :").add(" ").add(SI().name());
-	capt.appendPlainText( str );
+	BufferString str; str.add(": " ).add( SI().name() );
+	capt.appendPlainText( str, true );
+    }
+
+    if ( !programinfo_.isEmpty() )
+    {
+	BufferString str; str.add("[").add(programinfo_).add("]");
+	capt.appendPlainText( str, true );
     }
 
     setCaption( capt );
