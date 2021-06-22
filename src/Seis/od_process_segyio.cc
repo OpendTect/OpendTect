@@ -33,6 +33,9 @@
 #include "seiswrite.h"
 #include "seisread.h"
 
+#include <stdio.h>
+#include <iostream>
+
 static void splitIOPars( const IOPar& base, ObjectSet<IOPar>& pars, bool is2d )
 {
     if ( !is2d ) // Splitting only needed for multi 2D line I/O
@@ -84,15 +87,25 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
 {
     PtrMan<IOPar> outpar = iop.subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )
-	{ strm << "Batch parameters 'Ouput' empty" << od_endl; return false; }
+    {
+	strm << "Batch parameters 'Ouput' empty" << od_endl;
+	return false;
+    }
 
     SEGY::FileSpec fs; fs.usePar( iop );
-    IOObj* inioobj = fs.getIOObj( true );
+    PtrMan<IOObj> inioobj = fs.getIOObj( true );
     if ( !inioobj )
-	{ strm << "Input file spec is not OK" << od_endl; return false; }
+    {
+	strm << "Input file spec is not OK" << od_endl;
+	return false;
+    }
+
     PtrMan<IOObj> outioobj = IOM().get( outpar->find(sKey::ID()) );
     if ( !outioobj )
-	{ strm << "Output object spec is not OK" << od_endl; return false; }
+    {
+	strm << "Output object spec is not OK" << od_endl;
+	return false;
+    }
 
     outpar->removeWithKey( sKey::ID() );
 	// important! otherwise reader will try to read output ID ...
@@ -100,23 +113,34 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
     RefMan<Coords::CoordSystem> crs = Coords::CoordSystem::createSystem(
 								    *outpar );
 
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
-				"SEG-Y importer", &iop,
+    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( *inioobj,
+				*outioobj, "SEG-Y importer", &iop,
 				toUiString("Importing traces") );
+    if ( !stp->isOK() )
+    {
+	strm.add( stp->errMsg() );
+	return false;
+    }
+
+    stp->setProcPars( *outpar, is2d );
+    const bool res = stp->go( strm );
 
     const SeisTrcReader* rdr = stp->reader();
     SeisTrcTranslator* transl =
 		    const_cast<SeisTrcTranslator*>(rdr->seisTranslator());
-    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
-    if ( segytr )
-	segytr->setCoordSys( crs );
+    if ( !transl )
+	return false;
 
-    stp->setProcPars( *outpar, is2d );
-    const bool res = stp->go( strm );
-    if ( res && segytr && !is2d )
+    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
+    if ( !segytr )
+	return false;
+
+    segytr->setCoordSys( crs );
+    if ( res && !is2d )
     {
 	const SEGY::TxtHeader& th = *segytr->txtHeader();
-	BufferString buf; th.getText( buf );
+	BufferString buf;
+	th.getText( buf );
 	writeSEGYHeader( buf, *outioobj );
     }
 
@@ -128,20 +152,32 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
 {
     PtrMan<IOPar> inppar = iop.subselect( sKey::Input() );
     if ( !inppar || inppar->isEmpty() )
-	{ strm << "Batch parameters 'Input' empty" << od_endl; return false; }
+    {
+	strm << "Batch parameters 'Input' empty" << od_endl;
+	return false;
+    }
 
     PtrMan<IOPar> outpar = iop.subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )
-	{ strm << "Batch parameters 'Ouput' empty" << od_endl; return false; }
+    {
+	strm << "Batch parameters 'Ouput' empty" << od_endl;
+	return false;
+    }
 
     PtrMan<IOObj> inioobj = IOM().get( inppar->find(sKey::ID()) );
     if ( !inioobj )
-	{ strm << "Input seismics is not OK" << od_endl; return false; }
+    {
+	strm << "Input seismics is not OK" << od_endl;
+	return false;
+    }
 
     SEGY::FileSpec fs; fs.usePar( *outpar );
-    IOObj* outioobj = fs.getIOObj( true );
+    PtrMan<IOObj> outioobj = fs.getIOObj( true );
     if ( !outioobj )
-	{ strm << "Output SEG-Y file is not OK" << od_endl; return false; }
+    {
+	strm << "Output SEG-Y file is not OK" << od_endl;
+	return false;
+    }
 
     int compnr;
     if ( !inppar->get( sKey::Component(), compnr ) )
@@ -155,15 +191,23 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
 
     RefMan<Coords::CoordSystem> crs = Coords::CoordSystem::createSystem(
 								    *outpar );
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
-			    "SEG-Y exporter", outpar,
-			    mToUiStringTodo("Exporting traces"), compnr );
+    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( *inioobj,
+			    *outioobj, "SEG-Y exporter", outpar,
+			    toUiString("Exporting traces"), compnr );
+    if ( !stp->isOK() )
+    {
+	strm.add( stp->errMsg() );
+	return false;
+    }
+
     const SeisTrcWriter& wrr = stp->writer();
     SeisTrcTranslator* transl =
 		    const_cast<SeisTrcTranslator*>(wrr.seisTranslator());
     mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
-    if ( segytr )
-	segytr->setCoordSys( crs );
+    if ( !segytr )
+	return false;
+
+    segytr->setCoordSys( crs );
     stp->setProcPars( *outpar, is2d );
     return stp->go( strm );
 }
@@ -171,6 +215,7 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
 
 static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
 {
+    std::cout << &strm;
     MultiID mid;
     iop.get( sKey::Output(), mid );
     if ( mid.isEmpty() )
@@ -189,6 +234,7 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
 	strm << "Missing or invalid file name in parameter file\n";
 	return false;
     }
+
     SEGY::FileSpec::makePathsRelative( iop );
 
     SEGY::FileIndexer indexer( mid, !isps, filespec, is2d, iop );

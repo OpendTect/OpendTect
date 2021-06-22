@@ -294,7 +294,7 @@ bool uiSeisMMProc::prepareCurrentJob()
 
 Executor* uiSeisMMProc::getPostProcessor() const
 {
-    return jobprov_ ? jobprov_->getPostProcessor() : 0;
+    return jobprov_ ? jobprov_->getPostProcessor() : nullptr;
 }
 
 

@@ -24,22 +24,44 @@ bool BatchProgram::doWork( od_ostream& strm )
 {
     PtrMan<IOPar> inpar = pars().subselect( sKey::Input() );
     if ( !inpar || inpar->isEmpty() )
-	{ strm << "Batch parameters 'Input' empty" << od_endl; return false; }
+    {
+	strm << "Batch parameters 'Input' empty" << od_endl;
+	return false;
+    }
+
     PtrMan<IOObj> inioobj = IOM().get( inpar->find(sKey::ID()) );
     if ( !inioobj )
-	{ strm << "Input object spec is not OK" << od_endl; return false; }
+    {
+	strm << "Input object spec is not OK" << od_endl;
+	return false;
+    }
+
     SeisIOObjInfo ioobjinfo( *inioobj );
     if ( !ioobjinfo.isOK() )
-	{ strm << "Input data is not OK" << od_endl; return false; }
+    {
+	strm << "Input data is not OK" << od_endl;
+	return false;
+    }
+
     else if ( ioobjinfo.isPS() )
-	{ strm << "Pre-Stack data not supported" << od_endl; return false; }
+    {
+	strm << "Pre-Stack data not supported" << od_endl;
+	return false;
+    }
 
     PtrMan<IOPar> outpar = pars().subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )
-	{ strm << "Batch parameters 'Ouput' empty" << od_endl; return false; }
+    {
+	strm << "Batch parameters 'Ouput' empty" << od_endl;
+	return false;
+    }
+
     PtrMan<IOObj> outioobj = IOM().get( outpar->find(sKey::ID()) );
     if ( !outioobj )
-	{ strm << "Output object spec is not OK" << od_endl; return false; }
+    {
+	strm << "Output object spec is not OK" << od_endl;
+	return false;
+    }
 
     if ( ioobjinfo.is2D() )
     {
@@ -47,11 +69,17 @@ bool BatchProgram::doWork( od_ostream& strm )
 	return copier.go( &strm, false, true );
     }
 
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
-				"", &pars(), uiString::emptyString() );
+    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( *inioobj,
+			*outioobj, "", &pars(), uiString::emptyString() );
+    if ( !stp->isOK() )
+    {
+	strm << stp->errMsg();
+	return false;
+    }
+
     stp->setProcPars( pars(), false );
     int compnr = -1; // all components
     inpar->get( sKey::Component(), compnr );
-    SeisCubeCopier copier( stp, compnr );
+    SeisCubeCopier copier( stp.release(), compnr );
     return copier.go( &strm, false, true );
 }

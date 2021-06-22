@@ -191,15 +191,21 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 	iop.set( sKey::GeomID(), geomid );
     }
 
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( inobj, outobj,
-					extxt, &iop, worktxt );
+    PtrMan<SeisSingleTraceProc> stp =
+	    new SeisSingleTraceProc( inobj, outobj, extxt, &iop, worktxt );
+    if ( !stp->isOK() )
+    {
+	uiMSG().error( stp->errMsg() );
+	return nullptr;
+    }
+
     stp->setScaler( scalefld_->getScaler() );
     stp->skipNullTraces( removeNull() );
     stp->fillNullTraces( fillNull() );
     stp->setResampler( getResampler() );
     stp->setExtTrcToSI( extendTrcsToSI() );
 
-    return stp;
+    return stp.release();
 }
 
 

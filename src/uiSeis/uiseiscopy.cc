@@ -134,19 +134,34 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 	return false;
     }
 
-    Executor* exec = transffld_->getTrcProc( *inioobj, *outioobj, "",
+    PtrMan<Executor> exec = transffld_->getTrcProc( *inioobj, *outioobj, "",
 						uiStrings::sEmptyString() );
-    mDynamicCastGet(SeisSingleTraceProc*,stp,exec)
-    SeisCubeCopier copier( stp, compnr );
+    mDynamicCastGet(SeisSingleTraceProc*,stp,exec.ptr())
+    if ( !stp )
+	return false;
+
+    PtrMan<SeisSingleTraceProc> workstp( stp );
+    exec.release();
+    if ( !workstp->isOK() )
+    {
+	uiMSG().error( stp->errMsg() );
+	return false;
+    }
+
+    SeisCubeCopier copier( workstp.release(), compnr );
     uiTaskRunner taskrunner( this );
     if ( !taskrunner.execute(copier) )
-	{ uiMSG().error( copier.uiMessage() ); return false; }
+    {
+	uiMSG().error( copier.uiMessage() );
+	return false;
+    }
 
     const uiString msg = tr( "%1 successfully copied.\n\n"
 			     "Do you want to copy more %2?" )
 			     .arg(outioobj->name()).arg(outioobj->group());
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				      tr("No, close window") );
+
     return !ret;
 }
 

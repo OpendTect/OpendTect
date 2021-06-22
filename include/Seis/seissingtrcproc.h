@@ -52,9 +52,12 @@ public:
 
     bool		addReader(const IOObj&,const IOPar* iop=0);
 			//!< Must be done before any step
-    void		setInput(const IOObj&,const IOObj&,const char*,
+    bool		setInput(const IOObj&,const IOObj&,const char*,
 				 const IOPar*,const uiString&);
 			//!< Must be done before any step
+
+    bool		isOK() const	    { return errmsg_.isEmpty(); }
+    uiString		errMsg() const	    { return errmsg_; }
 
     void		skipCurTrc()		{ skipcurtrc_ = true; }
 			//!< will also be checked after processing CB
@@ -101,6 +104,7 @@ protected:
     SeisTrc*		worktrc_;
     SeisResampler*	resampler_;
     uiString		curmsg_;
+    uiString		errmsg_;
     bool		allszsfound_;
     bool		skipcurtrc_;
     int			nrwr_;

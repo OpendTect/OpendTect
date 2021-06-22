@@ -207,12 +207,18 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
 
     uiSeisIOObjInfo ioobjinfo( *outioobj_, true );
     if ( !ioobjinfo.checkSpaceLeft(transffld_->spaceInfo()) )
-	{ rmTmpIOObj(); return false; }
+    {
+	rmTmpIOObj();
+	return false;
+    }
 
     PtrMan<Executor> exec = transffld_->getTrcProc( *inioobj, *outioobj_,
 		    "Importing CBVS seismic cube", tr("Loading data") );
     if ( !exec )
-	{ rmTmpIOObj(); return false; }
+    {
+	rmTmpIOObj();
+	return false;
+    }
 
     uiTaskRunner dlg( this );
     const bool allok = dlg.execute( *exec ) ;

@@ -533,19 +533,19 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 #   define mRet(yn) \
     { delete tmpioobj; SEGY::TxtHeader::info2D() = false; return yn; }
 
-    Executor* exec = transffld_->getTrcProc( inioobj, *useoutioobj,
+    PtrMan<Executor> exec = transffld_->getTrcProc( inioobj, *useoutioobj,
 				    "Output seismic data", tr("Writing traces"),
 				    linenm );
     if ( !exec )
 	mRet( false )
-    PtrMan<Executor> execptrman = exec;
 
-    mDynamicCastGet(SeisSingleTraceProc*,sstp,exec)
+    mDynamicCastGet(SeisSingleTraceProc*,sstp,exec.ptr())
     if ( sstp )
     {
 	if ( !sstp->reader(0) )
 	    mRet( false )
-	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
+
+	    SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
 	SeisIOObjInfo oinf( rdr.ioObj() );
 	rdr.setComponent( seissel_->compNr() );
 
@@ -576,8 +576,6 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 
     uiTaskRunner dlg( this );
     rv = TaskRunner::execute( &dlg, *exec );
-    execptrman.erase();
-
     if ( tmpioobj )
 	IOM().commitChanges( *tmpioobj );
 
