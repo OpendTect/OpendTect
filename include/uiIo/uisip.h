@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Oct 2008
+ Author:	Bert
+ Date:		Oct 2008
 ________________________________________________________________________
 
 -*/
@@ -53,8 +53,9 @@ public:
 
     virtual const char*		usrText() const		= 0;
     virtual uiDialog*		dialog(uiParent*)	= 0;
-    virtual uiDialog*		fullSurveyImportDlg(uiParent*)
-							    { return nullptr; }
+    virtual uiDialog*		launchSurveyImportDlg(uiParent*)
+						     { return nullptr;}
+    virtual bool		hasSurveyImportDlg() { return false; }
     virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
 					Coord crd[3])	= 0;
     virtual bool		getLatLongAnchor(Coord&,LatLong&)

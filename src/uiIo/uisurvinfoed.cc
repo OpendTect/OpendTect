@@ -632,6 +632,7 @@ bool uiSurveyInfoEditor::setSurvName()
 	uiMSG().error( tr("Please specify a valid survey name") );
 	return false;
     }
+
     si_.setName( newsurvnm );
     return true;
 }
@@ -706,18 +707,13 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     }
 
     uiSurvInfoProvider* sip = getSIP();
-    if ( sip )
+    if ( isnew_ && sip && sip->hasSurveyImportDlg() )
     {
-	uiDialog* dlg = getSIP()->fullSurveyImportDlg( this );
-	if ( dlg )
-	{
-	    const bool ret = uiMSG().askGoOn(
-				    tr("Proceed to import complete survey?") );
+	const bool ret = uiMSG().askGoOn(
+				tr("Proceed to import Survey data Object") );
 
-	    if ( ret && !dlg->go() )
-		uiMSG().warning( tr("Survey parameters imported successfully."
-					"Complete survey import failed") );
-	}
+	if ( ret )
+	    sip->launchSurveyImportDlg( this->parent() )->go();
     }
 
     return true;
