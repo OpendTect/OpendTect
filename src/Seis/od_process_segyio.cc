@@ -33,9 +33,6 @@
 #include "seiswrite.h"
 #include "seisread.h"
 
-#include <stdio.h>
-#include <iostream>
-
 static void splitIOPars( const IOPar& base, ObjectSet<IOPar>& pars, bool is2d )
 {
     if ( !is2d ) // Splitting only needed for multi 2D line I/O
@@ -215,7 +212,6 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
 
 static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
 {
-    std::cout << &strm;
     MultiID mid;
     iop.get( sKey::Output(), mid );
     if ( mid.isEmpty() )
