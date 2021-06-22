@@ -65,6 +65,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdata.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+
 #include <iostream>
 
 
@@ -187,6 +189,8 @@ int ODMain( int argc, char** argv )
 #define mMemStatusFld 4
 static uiString cputxt_;
 
+HiddenParam<uiODMain,BufferString*> odmainproginfomgr_(nullptr);
+
 uiODMain::uiODMain( uiMain& a )
     : uiMainWin(0,toUiString("OpendTect Main Window"),5,true)
     , uiapp_(a)
@@ -210,6 +214,7 @@ uiODMain::uiODMain( uiMain& a )
     , justBeforeGo(this)
     , programname_( "OpendTect" )
 {
+    odmainproginfomgr_.setParam( this, new BufferString );
     setIconText( getProgramString() );
     uiapp_.setTopLevel( this );
 
@@ -245,6 +250,8 @@ uiODMain::~uiODMain()
     memtimer_.stop();
     if ( ODMainWin()==this )
 	manODMainWin( 0 );
+
+    odmainproginfomgr_.removeAndDeleteParam( this );
 
     delete ctabwin_;
     delete &lastsession_;
@@ -683,6 +690,13 @@ void uiODMain::setProgramName( const char* nm )
 }
 
 
+void uiODMain::setProgInfo( const char* info )
+{
+    odmainproginfomgr_.getParam(this)->set( info );
+    updateCaption();
+}
+
+
 bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
 {
     if ( !applmgr_->attrServer() ) return false;
@@ -745,18 +759,20 @@ void uiODMain::updateCaption()
 	.arg( getProgramString() )
 	.arg( OD::Platform::local().shortName() );
 
-    if ( ODInst::getAutoInstType() == ODInst::InformOnly
-	&& ODInst::updatesAvailable() )
+    if ( ODInst::getAutoInstType() == ODInst::InformOnly &&
+	 ODInst::updatesAvailable() )
 	capt.append( tr(" *UPDATE AVAILABLE*") );
 
-    const char* usr = GetSoftwareUser();
-    if ( usr && *usr )
-    {
+    const BufferString usr( GetSoftwareUser() );
+    if ( !usr.isEmpty() )
 	capt.append( tr(" [%1] ").arg( usr ) );
-    }
 
     if ( !SI().name().isEmpty() )
 	capt.append( ": %1" ).arg( SI().name() );
+
+    const BufferString& programinfo_ = *odmainproginfomgr_.getParam( this );
+    if ( !programinfo_.isEmpty() )
+	capt.append( " [%1]" ).arg( programinfo_ );
 
     setCaption( capt );
 }

@@ -81,6 +81,7 @@ public:
     bool		isRestoringSession()	{ return restoringsess_; }
     void		setProgramName(const char*);
 			//Default is "OpendTect"
+    void		setProgInfo(const char*);
     void		forceExit();
 
 protected:
