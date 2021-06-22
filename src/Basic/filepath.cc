@@ -104,7 +104,7 @@ FilePath& FilePath::set( const char* _fnm )
 	if ( otherdsptr && ( !dsptr || otherdsptr < dsptr ) )
 	    dsptr = otherdsptr;
 
-	if ( dsptr > ptr )
+	if ( dsptr > ptr || (__iswin__ && !dsptr) )
 	{
 	    prefix_ = fnm;
 	    *firstOcc( prefix_.getCStr(), *sPrefSep ) = '\0';
@@ -122,9 +122,11 @@ FilePath& FilePath::set( const char* _fnm )
 	fnm += prefix_.size();
     }
 
-    isabs_ = *fnm == '\\' || *fnm == '/';
+    isabs_ = *fnm == '\\' || *fnm == '/' || (__iswin__ && !*fnm);
 
-    if ( isabs_ ) fnm++;
+    if ( isabs_ && *fnm )
+	fnm++;
+
     addPart( fnm );
     compress();
     return *this;
@@ -277,8 +279,12 @@ bool FilePath::makeRelativeTo( const FilePath&  b )
 
 BufferString FilePath::fullPath( Style f, bool cleanup ) const
 {
-    const BufferString res = dirUpTo(lvls_.size());
-    return cleanup ? mkCleanPath(res,f) : res;
+    BufferString res = dirUpTo( lvls_.size() );
+    if ( cleanup )
+	res = mkCleanPath( res, f );
+    if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 1 )
+	res.add( dirSep(Windows) );
+    return res;
 }
 
 
@@ -328,7 +334,14 @@ BufferString FilePath::getTimeStampFileName( const char* ext )
 
 
 BufferString FilePath::pathOnly() const
-{ return dirUpTo(lvls_.size()-2); }
+{
+    const Style f = Local;
+    BufferString res = dirUpTo( lvls_.size()-2 );
+    if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 2 )
+	res.add( dirSep(Windows) );
+
+    return res;
+}
 
 
 const OD::String& FilePath::dir( int nr ) const
