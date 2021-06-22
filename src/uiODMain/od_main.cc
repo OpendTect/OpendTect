@@ -29,7 +29,7 @@ extern int ODMain(uiMain&);
 
 int mProgMainFnName( int argc, char** argv )
 {
-    SetProgramArgs( argc, argv, false );
+    SetProgramArgs( argc, argv );
     const FixedString argv1( argv[1] );
     const bool showversiononly = argv1 == "-v" || argv1 == "--version";
     if ( showversiononly )
