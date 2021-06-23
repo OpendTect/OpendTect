@@ -187,7 +187,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     auto* sep = new uiSeparator( this, "separator" );
     sep->attach( stretchedBelow, gobut );
 
-    valislbl_ = new uiLabel( this, tr("       Amplitude values	     ") );
+    valislbl_ = new uiLabel( this, tr("   Amplitude values   ") );
     valislbl_->setAlignment( Alignment::HCenter );
     valislbl_->attach( centeredBelow, sep );
 
