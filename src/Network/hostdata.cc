@@ -277,6 +277,23 @@ bool HostData::isOK( uiString& errmsg ) const
 }
 
 
+bool HostData::isValidIPAddress( const char* ipaddr )
+{
+    BufferStringSet octets;
+    octets.unCat( ipaddr, "." );
+    if ( octets.size()<4 )
+	return false;
+    for ( const auto* str : octets )
+    {
+	if ( !str->isNumber(true) )
+	    return false;
+	if ( str->toInt()<0 || str->toInt()>255 )
+	    return false;
+    }
+    return true;
+}
+
+
 void HostData::fillPar( IOPar& par ) const
 {
     if ( staticip_() )

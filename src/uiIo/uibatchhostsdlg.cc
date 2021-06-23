@@ -475,7 +475,14 @@ void uiBatchHostsDlg::ipAddressChanged( int row )
     HostData& hd = *hostdatalist_[row];
     const RowCol curcell = RowCol(row,sIPCol);
     const BufferString ipaddress = table_->text( curcell );
+    if ( !HostData::isValidIPAddress(ipaddress) )
+    {
+	uiMSG().error(tr("Invalid IP address"));
+	return;
+    }
+
     hd.setIPAddress( ipaddress );
+
     if ( autobox_->isChecked() )
     {
 	setHostName( *table_, row, hd );
