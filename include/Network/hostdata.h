@@ -84,6 +84,7 @@ public:
 			{ return localhd_ ? *localhd_ : *this; }
 
     bool		isOK(uiString& errmsg) const;
+    static bool		isValidIPAddress(const char*);
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
