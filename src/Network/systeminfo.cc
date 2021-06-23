@@ -53,27 +53,18 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
     const QAbstractSocket::NetworkLayerProtocol protocol = addr.protocol();
 #if QT_VERSION >= 0x050B00
     if ( addr.isGlobal() )
-	return ipv4only ? protocol == QAbstractSocket::IPv4Protocol : true;
-    else
-	return false;
-#else
-    const bool ret = ipv4only ? protocol == QAbstractSocket::IPv4Protocol
-		    : protocol > QAbstractSocket::UnknownNetworkLayerProtocol;
-
-#if QT_VERSION >= 0x050600
+	return ipv4only ? protocol == QAbstractSocket::IPv4Protocol
+		: protocol > QAbstractSocket::UnknownNetworkLayerProtocol;
+#elif QT_VERSION >= 0x050600
     if ( addr.isMulticast() )
 	return false;
-    else
-	return ret;
 #elif QT_VERSION >= 0x050000
     if ( addr.isLoopback() )
 	return false;
-    else
-	return ret;
-#else
-    return ret;
 #endif
-#endif
+
+    return ipv4only ? protocol == QAbstractSocket::IPv4Protocol
+		    : protocol > QAbstractSocket::UnknownNetworkLayerProtocol;
 }
 
 
@@ -118,9 +109,8 @@ const char* localAddress( bool ipv4only )
 
     // Fallback implementation for some new OS/hardware
     const QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
-    for ( int idx=0; idx<addresses.size(); idx++ )
+    for ( const auto& addr : addresses )
     {
-	const QHostAddress& addr = addresses[idx];
 	if ( !isAcceptable(addr,ipv4only) )
 	    continue;
 
@@ -152,9 +142,8 @@ const char* hostAddress( const char* hostname, bool ipv4only )
 	fqdn.add( "." ).add( QHostInfo::localDomainName() );
     const QHostInfo qhi = QHostInfo::fromName( QString(fqdn) );
     const QList<QHostAddress> addresses = qhi.addresses();
-    for ( int idx=0; idx<addresses.size(); idx++ )
+    for ( const auto& addr : addresses )
     {
-	const QHostAddress& addr = addresses[idx];
 	if ( !isAcceptable(addr,ipv4only) )
 	    continue;
 
