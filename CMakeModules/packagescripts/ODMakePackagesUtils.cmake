@@ -127,18 +127,6 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
 				     ${CMAKE_BUILD_TYPE} lib
 				     WORKING_DIRECTORY ${COPYTOLIBDIR}/.. )
-
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			     ${COPYFROMDATADIR}/mk_flexlm_links.csh
-			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
-	    execute_process( COMMAND
-		    ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh
-		    WORKING_DIRECTORY ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
-		    RESULT_VARIABLE STATUS )
-	    file( REMOVE_RECURSE ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh )
-	    if( NOT ${STATUS} EQUAL "0" )
-		message( "Failed to create license related links" )
-	    endif()
 	endif()	
     endif()
 
