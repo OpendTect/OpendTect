@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static bool fullImplRemove( const MultiID& key )
 {
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( ioobj->isSubdir() )
+    if ( !ioobj || ioobj->isSubdir() )
 	return false;
 
     PtrMan<Translator> tr = ioobj->createTranslator();
