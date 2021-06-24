@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "od_istream.h"
 #include "oscommand.h"
+#include "threadwork.h"
 
 const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
 const char* uiPluginSel::sKeyLicInstallExe() { return "od_LicInstall"; }
@@ -150,7 +151,8 @@ uiPluginSel::uiPluginSel( uiParent* p )
     createUI();
 
     if ( hasodLicInstall() )
-	mAttachCB(applyPushed, uiPluginSel::showLicInstallCB);
+	mAttachCB(applyPushed, uiPluginSel::startLicInstallCB);
+
 }
 
 
@@ -348,6 +350,13 @@ bool uiPluginSel::isVendorSelected( int vendoridx ) const
     }
 
     return false;
+}
+
+
+void uiPluginSel::startLicInstallCB( CallBacker* )
+{
+    Threads::WorkManager::twm().addWork( Threads::Work(mCB(this, uiPluginSel,
+							  showLicInstallCB)) );
 }
 
 

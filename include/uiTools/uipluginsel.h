@@ -47,6 +47,7 @@ protected:
     int				getVendorIndex(const char*) const;
     void			readVendorList();
 
+    void			startLicInstallCB(CallBacker*);
     void			showLicInstallCB(CallBacker*);
 
     bool			acceptOK(CallBacker*);
