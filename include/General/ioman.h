@@ -52,6 +52,7 @@ public:
 				   const CallBack* cb=nullptr);
     bool		implRemove(const MultiID&,
 				   bool rmentry=false,uiRetVal* uirv=nullptr);
+    bool		implRemove(const IOObj&) const;
 
     void		removeUnusable(DBKeySet&);
 			//! Next functions return a new (unmanaged) IOObj
