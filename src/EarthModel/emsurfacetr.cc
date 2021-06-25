@@ -156,7 +156,7 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
     setIOObj( &ioobj );
     Executor* ret = getWriter();
     if ( fullremove && ret )
-	IOM().implRemove( ioobj.key() );
+	IOM().implRemove( ioobj );
 
     return ret;
 }

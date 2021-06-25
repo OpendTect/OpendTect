@@ -32,14 +32,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "transl.h"
 
 
-static bool fullImplRemove( const MultiID& key )
+static bool doRemoveImpl( const IOObj& ioobj )
 {
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj || ioobj->isSubdir() )
+    if ( ioobj.isSubdir() )
 	return false;
 
-    PtrMan<Translator> tr = ioobj->createTranslator();
-    return tr ? tr->implRemove( ioobj.ptr() ) : ioobj->implRemove();
+    PtrMan<Translator> tr = ioobj.createTranslator();
+    return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
 }
 
 
@@ -994,7 +993,11 @@ bool IOMan::implReloc( const MultiID& key,
 
 bool IOMan::implRemove( const MultiID& key, bool rmentry, uiRetVal* uirv )
 {
-    if ( !fullImplRemove(key) && !rmentry )
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+	return false;
+
+    if ( !doRemoveImpl(*ioobj) && !rmentry )
     {
 	if ( uirv )
 	    *uirv = tr("Could not delete data file(s).");
@@ -1006,6 +1009,12 @@ bool IOMan::implRemove( const MultiID& key, bool rmentry, uiRetVal* uirv )
 	return false;
 
     return true;
+}
+
+
+bool IOMan::implRemove( const IOObj& obj ) const
+{
+    return doRemoveImpl( obj );
 }
 
 

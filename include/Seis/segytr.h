@@ -64,6 +64,7 @@ public:
     SEGY::FileReadOpts&	fileReadOpts()		{ return fileopts_; }
     const unsigned char* blockBuf() const	{ return blockbuf_; }
 
+    bool		implRemove( const IOObj* ) const	{ return true; }
     virtual bool	implManagesObjects( const IOObj* ) const
 						{ return true; }
     void		cleanUp();
