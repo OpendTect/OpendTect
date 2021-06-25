@@ -379,8 +379,15 @@ def getODSoftwareDir(args=None):
   """
 
   if args != None and 'dtectexec' in args:
-    bindir = getExecPlfDir(args)
-    return bindir
+    appldir = getExecPlfDir(args)
+    if os.path.exists( appldir):
+      appldir = os.path.dirname( appldir )
+    if os.path.exists( appldir):
+      appldir = os.path.dirname( appldir )
+    if os.path.exists( appldir):
+      appldir = os.path.dirname( appldir )
+    if os.path.exists( appldir):
+      return appldir
   applenvvar = 'DTECT_APPL'
   if isWin():
     applenvvar = 'DTECT_WINAPPL'
@@ -447,6 +454,42 @@ def getExecPlfDir(args=None):
   else:
     return os.path.join( getODSoftwareDir(), 'bin', getPlfSubDir(), getBinSubDir())
 
+def add_user_dtectdata( args=None ):
+  dtectdatadir = None
+  if 'DTECT_DATA' in os.environ:
+      dtectdatadir = os.environ['DTECT_DATA']
+  else:
+    settsfnm = 'settings'
+    if 'DTECT_USER' in os.environ:
+      settsfnm += '.' + os.environ['DTECT_USER']
+    settsfp = os.path.join( '~', '.od', settsfnm )
+    settsfnm = os.path.expanduser( settsfp )
+    from odpy.iopar import read_from_iopar
+    if os.path.exists(settsfnm):
+      dtectdatadir = read_from_iopar( settsfnm, 'Default DATA directory' )
+  if dtectdatadir != None:
+    if args == None:
+      args = {'dtectdata': [dtectdatadir]}
+    else:
+      args.update({'dtectdata': [dtectdatadir]})
+  return args 
+
+def add_user_survey( args=None ):
+  surveydir = None
+  survfnm = 'survey'
+  survfp = os.path.join( '~', '.od', survfnm )
+  survfnm = os.path.expanduser( survfp )
+  from odpy.iopar import read_from_iopar
+  if os.path.exists(survfnm):
+    with open( survfnm, 'r' ) as fp:
+      surveydir = fp.readline()
+  if surveydir != None:
+    if args == None:
+      args = {'survey': [surveydir]}
+    else:
+      args.update({'survey': [surveydir]})
+  return args
+
 def getODArgs(args=None):
   """OpendTect arguments dictionary
 
@@ -462,6 +505,7 @@ def getODArgs(args=None):
   Returns:
     * dict: A dictionary with the following key-values:
         * 'dtectexec' : Full path to the OpendTect installation (see getExecPlfDir)
+        * 'dtectdata' : The root projects directory name, if provided by the input dictionary
         * 'survey' : The survey directory name, if provided by the input dictionary
         * 'proclog' : The log file from proclog_logger if applicable
         * 'syslog' : The log file frol syslog_logger if applicable
@@ -471,9 +515,13 @@ def getODArgs(args=None):
   ret = {
     'dtectexec': [getExecPlfDir(args)]
   }
-  if args != None and 'dtectdata' in args:
+  if args == None:
+    ret = add_user_dtectdata( ret )
+  elif 'dtectdata' in args:
     ret.update({'dtectdata': args['dtectdata']})
-  if args != None and 'survey' in args:
+  if args == None:
+    ret = add_user_survey( ret )
+  elif args != None and 'survey' in args:
     ret.update({'survey': args['survey']})
   if has_log_file() :
     ret.update({'proclog': args['logfile'].name})
