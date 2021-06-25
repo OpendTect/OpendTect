@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "uipluginsel.h"
 #include "uiseispartserv.h"
 #include "uisetdatadir.h"
+#include "uisplashscreen.h"
 #include "uistrattreewin.h"
 #include "uisurvey.h"
 #include "uisurvinfoed.h"
@@ -220,6 +221,10 @@ int ODMain( uiMain& app )
     }
 
     SetProgramRestarter( ODMainProgramRestarter );
+    const uiPixmap pm( "../splash" );
+    uiSplashScreen splash( pm );
+    splash.show();
+    splash.showMessage( "Loading plugins ..." );
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiODMain" );
@@ -227,7 +232,9 @@ int ODMain( uiMain& app )
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
 
+    splash.showMessage( "Initializing Scene ..." );
     odmain->initScene();
+    splash.finish( odmain );
     return odmain->go() ? 0 : 1;
 }
 
