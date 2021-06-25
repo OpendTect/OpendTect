@@ -222,9 +222,9 @@ int ODMain( uiMain& app )
 
     SetProgramRestarter( ODMainProgramRestarter );
     const uiPixmap pm( "../splash" );
-    uiSplashScreen splash( pm );
-    splash.show();
-    splash.showMessage( "Loading plugins ..." );
+    PtrMan<uiSplashScreen> splash = new uiSplashScreen( pm );
+    splash->show();
+    splash->showMessage( "Loading plugins ..." );
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiODMain" );
@@ -232,9 +232,9 @@ int ODMain( uiMain& app )
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
 
-    splash.showMessage( "Initializing Scene ..." );
+    splash->showMessage( "Initializing Scene ..." );
     odmain->initScene();
-    splash.finish( odmain );
+    splash = nullptr;
     return odmain->go() ? 0 : 1;
 }
 
