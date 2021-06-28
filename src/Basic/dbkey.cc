@@ -12,8 +12,15 @@ ________________________________________________________________________
 #include "dbkey.h"
 
 #include "bufstringset.h"
+#include "ptrman.h"
 #include "surveydisklocation.h"
 #include "typeset.h"
+
+
+DBKey::DBKey( const DBKey& key )
+{
+    *this = key;
+}
 
 
 DBKey::~DBKey()
@@ -64,11 +71,12 @@ bool DBKey::operator !=( const DBKey& oth ) const
 
 void DBKey::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
 {
-    delete survloc_;
-    if ( sdl.isCurrentSurvey() )
-        survloc_ = nullptr;
-    else
-        survloc_ = new SurveyDiskLocation( sdl );
+    deleteAndZeroPtr( survloc_ );
+    if ( !sdl.isCurrentSurvey() )
+    {
+	survloc_ = new SurveyDiskLocation;
+	*survloc_ = sdl;
+    }
 }
 
 
@@ -81,8 +89,7 @@ const SurveyDiskLocation& DBKey::surveyDiskLocation() const
 
 void DBKey::clearSurveyDiskLocation()
 {
-    delete survloc_;
-    survloc_ = nullptr;
+    deleteAndZeroPtr( survloc_ );
 }
 
 

@@ -28,6 +28,7 @@ public:
 			DBKey( const MultiID& mid )
 			    : MultiID(mid)
 			{}
+			DBKey(const DBKey&);
 			~DBKey();
 
     DBKey&		operator =(const DBKey&);
