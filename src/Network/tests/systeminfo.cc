@@ -57,13 +57,15 @@ public:
 	hostaddress = System::hostAddress( "dgb29", true );
 	mRunStandardTest( hostaddress=="192.168.0.29", "dgb29 ipv4" );
 
-	hostaddress = System::hostAddress( "dgb29.enschede.dgbes.com" );
-	mRunStandardTest( hostaddress=="192.168.0.29", "dgb29.domain ipv4" );
-
 	hostaddress = System::hostAddress( "dgb29", false );
 	mRunStandardTest( !hostaddress.isEmpty(), "dgb29 ipv6" );
 
-	hostaddress = System::hostAddress( "dgb29.enschede.dgbes.com", false );
+	const BufferString dgb29hostname =
+		__iswin__ ? "dgb29.DGBES.local" : "dgb29.enschede.dgbes.com";
+	hostaddress = System::hostAddress( dgb29hostname );
+	mRunStandardTest( hostaddress=="192.168.0.29", "dgb29.domain ipv4" );
+
+	hostaddress = System::hostAddress( dgb29hostname, false );
 	mRunStandardTest( !hostaddress.isEmpty(), "dgb29.domain ipv6" );
 
 	return true;
