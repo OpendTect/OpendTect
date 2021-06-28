@@ -90,7 +90,7 @@ def set_log_file( filenm, logger ):
     handler = logging.StreamHandler(sys.stderr)
     logger.addHandler( handler )
     return
-  if not os.path.exists(filenm):
+  if not os.path.isfile(filenm):
     std_msg( 'Log file not found: ', filenm )
     return
   handler = logging.FileHandler(filenm,'a')
@@ -380,13 +380,10 @@ def getODSoftwareDir(args=None):
 
   if args != None and 'dtectexec' in args:
     appldir = getExecPlfDir(args)
-    if os.path.exists( appldir):
-      appldir = os.path.dirname( appldir )
-    if os.path.exists( appldir):
-      appldir = os.path.dirname( appldir )
-    if os.path.exists( appldir):
-      appldir = os.path.dirname( appldir )
-    if os.path.exists( appldir):
+    for i in range(3):
+      if os.path.isdir(appldir):
+        appldir = os.path.dirname( appldir )
+    if os.path.isdir( appldir):
       return appldir
   applenvvar = 'DTECT_APPL'
   if isWin():
@@ -402,7 +399,7 @@ def getODSoftwareDir(args=None):
     curdir = os.path.dirname( curdir )
     maxrecur = maxrecur-1
   devfile = os.path.join( curdir, 'CTestConfig.cmake' )
-  if os.path.exists(devfile):
+  if os.path.isfile(devfile):
       return getODBinaryDir(curdir)
   return curdir
 
@@ -454,19 +451,113 @@ def getExecPlfDir(args=None):
   else:
     return os.path.join( getODSoftwareDir(), 'bin', getPlfSubDir(), getBinSubDir())
 
-def add_user_dtectdata( args=None ):
-  dtectdatadir = None
+def get_settings_dir():
+  """Directory with the OpendTect user settings
+
+  Parameters
+  ------
+  Can be overruled by setting the
+  environment variable DTECT_PERSONAL_DIR
+
+  Returns
+  ------
+  Full path to $HOME/.od
+
+  """
+  if 'DTECT_PERSONAL_DIR' in os.environ:
+    return os.environ['DTECT_PERSONAL_DIR']
+  ret = os.path.join( '~', '.od' )
+  return os.path.expanduser( ret )
+
+def get_settings_filename( filenm='settings' ):
+  """Get file path to an OpendTect settings file
+
+  Parameters
+  ----------
+    * filenm (string, optional): base file name inside .od folder
+    default is 'settings'
+    Will be influenced by the environment variable DTECT_USER if
+    set.
+
+  Returns
+  ------
+  Full path to $HOME/.od/filenm[.DTECT_USER]
+
+  """
+  if 'DTECT_USER' in os.environ:
+    filenm += '.' + os.environ['DTECT_USER']
+  return os.path.join( get_settings_dir(), filenm )
+
+def get_base_datadir():
+  """Get the OpendTect Survey Data Root directory
+
+  Parameters
+  ----------
+  Can be overruled by setting the
+  environment variable DTECT_DATA
+
+  Returns
+  ------
+  Full path to the Opendtect Survey Data Root
+  as written inside from get_settings_filename()
+
+  """
+  if isWin():
+    if 'DTECT_WINDATA':
+      appldata = os.environ['DTECT_WINDATA']
+      if os.path.isdir(appldata):
+        return appldata
   if 'DTECT_DATA' in os.environ:
-      dtectdatadir = os.environ['DTECT_DATA']
-  else:
-    settsfnm = 'settings'
-    if 'DTECT_USER' in os.environ:
-      settsfnm += '.' + os.environ['DTECT_USER']
-    settsfp = os.path.join( '~', '.od', settsfnm )
-    settsfnm = os.path.expanduser( settsfp )
+    appldata = os.environ['DTECT_DATA']
+    if os.path.isdir(appldata):
+      return appldata
+  settsfnm = get_settings_filename()
+  if os.path.isfile(settsfnm):
     from odpy.iopar import read_from_iopar
-    if os.path.exists(settsfnm):
-      dtectdatadir = read_from_iopar( settsfnm, 'Default DATA directory' )
+    return read_from_iopar( settsfnm, 'Default DATA directory' )
+  return None
+
+def get_surveydir():
+  """Get the OpendTect Current Survey directory
+
+  Returns
+  -------
+  Directory name of the current survey as written inside
+  get_settings_filename( 'survey' )
+
+  """
+  survfnm = get_settings_filename( filenm='survey' )
+  if os.path.isfile(survfnm):
+    with open( survfnm, 'r' ) as fp:
+      return fp.readline()
+  return None
+
+def get_data_dir():
+  """Full path to the current OpendTect Survey directory
+
+  Returns
+  ------
+  Full path to the current survey as retrieved by
+  get_base_datadir() and get_surveydir()
+
+  """
+  return os.path.join( get_base_datadir(), get_surveydir() )
+
+def add_user_dtectdata( args=None ):
+  """Returns the OpendTect Survey Data Root in a dictionary
+
+  Parameters
+  ----------
+    * args (dict, optional)
+      Dictionary where the returned value is added/updated
+
+  Returns
+  -------
+    Dictionary with the member 'dtectdata'. The value
+    for that member should point to the return of get_base_datadir()
+
+  """
+  dtectdatadir = get_base_datadir()
   if dtectdatadir != None:
     if args == None:
       args = {'dtectdata': [dtectdatadir]}
@@ -475,14 +566,20 @@ def add_user_dtectdata( args=None ):
   return args 
 
 def add_user_survey( args=None ):
-  surveydir = None
-  survfnm = 'survey'
-  survfp = os.path.join( '~', '.od', survfnm )
-  survfnm = os.path.expanduser( survfp )
-  from odpy.iopar import read_from_iopar
-  if os.path.exists(survfnm):
-    with open( survfnm, 'r' ) as fp:
-      surveydir = fp.readline()
+  """Returns the OpendTect Survey Directory in a dictionary
+
+  Parameters
+  ----------
+  * args (dict, optional)
+    Dictionary where the returned value is added/updated
+
+  Returns
+  -------
+  Dictionary with the member 'survey'. The value
+  for that member should point to the return of get_surveydir()
+
+  """
+  surveydir = get_surveydir()
   if surveydir != None:
     if args == None:
       args = {'survey': [surveydir]}
@@ -505,8 +602,8 @@ def getODArgs(args=None):
   Returns:
     * dict: A dictionary with the following key-values:
         * 'dtectexec' : Full path to the OpendTect installation (see getExecPlfDir)
-        * 'dtectdata' : The root projects directory name, if provided by the input dictionary
-        * 'survey' : The survey directory name, if provided by the input dictionary
+        * 'dtectdata' : The root projects directory name
+        * 'survey' : The survey directory name
         * 'proclog' : The log file from proclog_logger if applicable
         * 'syslog' : The log file frol syslog_logger if applicable
 
@@ -555,7 +652,7 @@ def getIconFp(nm,args=None):
   """
   oddir = getODSoftwareDir(args)
   ret = os.path.join(oddir,'data','icons.Default',nm)+'.png'
-  if os.path.exists(ret):
+  if os.path.isfile(ret):
     return ret
   return None
 
@@ -611,10 +708,6 @@ def writeFile( fnm, content ):
   except:
     return False
   return True
-
-def getTempDir():
-    # This HAS to correspond with the C++ getTempDir() function
-    return tempfile.gettempdir()
 
 class Timer(threading.Timer):
     """Repeated timer
