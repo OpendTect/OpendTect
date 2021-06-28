@@ -37,9 +37,13 @@ public:
 			SurveyDiskLocation()	{} //!< current
 			SurveyDiskLocation(const char* dirnm,const char* bp=0);
 			SurveyDiskLocation(const FilePath& fulldir);
+			SurveyDiskLocation(const SurveyDiskLocation&);
+			~SurveyDiskLocation();
+
     bool		operator ==(const SurveyDiskLocation&) const;
     bool		operator !=( const SurveyDiskLocation& oth ) const
 			{ return !(*this == oth); }
+    SurveyDiskLocation&	operator=(const SurveyDiskLocation&);
 
     BufferString	basePath() const;
     void		setBasePath( const char* bp )	{ basepath_ = bp; }

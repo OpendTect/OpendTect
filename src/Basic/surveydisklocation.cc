@@ -40,6 +40,18 @@ SurveyDiskLocation::SurveyDiskLocation( const FilePath& fp )
 }
 
 
+SurveyDiskLocation::SurveyDiskLocation( const SurveyDiskLocation& sdl )
+    : basepath_(sdl.basePath())
+    , dirname_(sdl.dirName())
+{
+}
+
+
+SurveyDiskLocation::~SurveyDiskLocation()
+{
+}
+
+
 bool SurveyDiskLocation::operator ==( const SurveyDiskLocation& oth ) const
 {
     if ( dirName() != oth.dirName() )
@@ -51,6 +63,15 @@ bool SurveyDiskLocation::operator ==( const SurveyDiskLocation& oth ) const
     FilePath fp( basePath() ), ofp( oth.basePath() );
     fp.makeCanonical(); ofp.makeCanonical();
     return fp == ofp;
+}
+
+
+SurveyDiskLocation&
+    SurveyDiskLocation::operator=( const SurveyDiskLocation& oth )
+{
+    dirname_ = oth.dirname_;
+    basepath_ = oth.basepath_;
+    return *this;
 }
 
 
