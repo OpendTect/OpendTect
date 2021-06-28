@@ -76,8 +76,8 @@ fi
 unset OD_UPDATE_FROM_LEGACY
 outputstr=`"${curdir}/od_instmgr" "$@"`
 
-if [[ ("$?" != 0) ]]; then
-   exit $?
-elif [[ "${outputstr}"=="Updates available" ]]; then
+if [[ "$?" == "0" ]]  && [[ "${outputstr}" == "Updates available" ]]; then
    exit 1
 fi
+
+exit $?
