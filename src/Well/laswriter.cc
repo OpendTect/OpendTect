@@ -201,6 +201,10 @@ bool LASWriter::writeLogData( od_ostream& strm )
     BufferString word( columnwidth_+1, false );
     const int nrz = mdrg_.nrSteps() + 1;
 
+    const UnitOfMeasure* mdunit =
+		UnitOfMeasure::getGuessed( zinfeet_ ? "ft" : "m" );
+    const UnitOfMeasure* storunit = Well::Man::surveyDepthStorageUnit();
+
     strm << "~Ascii Data Section\n";
     for ( int idz=0; idz<nrz; idz++ )
     {
@@ -209,7 +213,7 @@ bool LASWriter::writeLogData( od_ostream& strm )
 		    double(md) );
 	strm << word;
 
-	md = Well::displayToStorageDepth( md );
+	md = getConvertedValue( md, mdunit, storunit );
 	for ( int idx=0; idx<logs_.size(); idx++ )
 	{
 	    float val = logs_.getLog(idx).getValue( md );
