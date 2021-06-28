@@ -425,12 +425,17 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
     return true;
 }
 
+
 bool SeisCBVS2DLinePutter::close()
 {
-    if ( !tr_ ) return true;
+    if ( !tr_ )
+	return true;
+
     tr_->setIs2D( true );
-    bool ret = tr_->close();
-    if ( ret ) errmsg_ = tr_->errMsg();
+    const bool ret = tr_->close();
+    if ( !ret )
+	errmsg_ = tr_->errMsg();
+
     return ret;
 }
 
