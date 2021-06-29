@@ -13,6 +13,8 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
+#include "uigroup.h"
+#include "datapack.h"
 #include "multiid.h"
 #include "seistype.h"
 
@@ -21,6 +23,7 @@ class DataCharacteristics;
 class IOObj;
 class Scaler;
 class TrcKeyZSampling;
+class uiComboBox;
 class uiGenInput;
 class uiListBox;
 class uiMapperRangeEditor;
@@ -95,3 +98,40 @@ protected:
     uiGenInput*			torgfld_;
 };
 
+
+
+mExpClass(uiSeis) uiSeisPreLoadedDataSel : public uiGroup
+{ mODTextTranslationClass(uiSeisPreLoadedDataSel)
+public:
+				uiSeisPreLoadedDataSel(uiParent*,Seis::GeomType,
+					const uiString& txt=uiString::empty());
+				~uiSeisPreLoadedDataSel();
+
+    const MultiID&		selectedKey() const;
+    const char*			selectedName() const;
+    DataPack::ID		selectedDPID() const;
+    int				selectedCompNr() const;
+    const char*			selectedCompName() const;
+
+    void			setInput(const MultiID&,int compnr=0);
+
+    Notifier<uiSeisPreLoadedDataSel>	selectionChanged;
+
+protected:
+
+    void			selCB(CallBacker*);
+    void			selPushCB(CallBacker*);
+    void			preloadCB(CallBacker*);
+    void			updateCB(CallBacker*);
+
+    Seis::GeomType		geomtype_;
+    TypeSet<MultiID>		keys_;
+    BufferStringSet		names_;
+    MultiID			selkey_;
+
+    int				compnr_		= 0;
+
+    uiComboBox*			nmfld_;
+    uiButton*			selbut_;
+    uiButton*			preloadbut_;
+};

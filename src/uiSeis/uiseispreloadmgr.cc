@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiaxishandler.h"
 #include "uibuttongroup.h"
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uihistogramdisplay.h"
 #include "uiioobjsel.h"
@@ -45,6 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiscaler.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
+#include "uiselsimple.h"
 #include "uiselsurvranges.h"
 #include "uisplitter.h"
 #include "uistrings.h"
@@ -762,4 +764,252 @@ bool uiSeisPreLoadSel::acceptOK( CallBacker* )
     }
 
     return seissel_->ioobj();
+}
+
+
+
+// uiSeisPreLoadedDataSel
+uiSeisPreLoadedDataSel::uiSeisPreLoadedDataSel( uiParent* p, GeomType geom,
+						const uiString& txt )
+    : uiGroup(p,"Pre-loaded Data Selection")
+    , geomtype_(geom)
+    , selkey_(MultiID::udf())
+    , selectionChanged(this)
+{
+    auto* lcb = new uiLabeledComboBox( this, txt );
+    nmfld_ = lcb->box();
+    nmfld_->setHSzPol( uiObject::Wide );
+    mAttachCB( nmfld_->selectionChanged, uiSeisPreLoadedDataSel::selCB );
+
+    selbut_ = uiButton::getStd( this, OD::Select,
+			mCB(this,uiSeisPreLoadedDataSel,selPushCB), false );
+    selbut_->attach( rightOf, lcb );
+
+    preloadbut_ = new uiPushButton( this, tr("Pre-load"),
+			mCB(this,uiSeisPreLoadedDataSel,preloadCB), false );
+    preloadbut_->attach( rightOf, selbut_ );
+
+    mAttachCB( PLDM().changed, uiSeisPreLoadedDataSel::updateCB );
+    setHAlignObj( lcb );
+    updateCB( nullptr );
+}
+
+
+uiSeisPreLoadedDataSel::~uiSeisPreLoadedDataSel()
+{
+    detachAllNotifiers();
+}
+
+
+void uiSeisPreLoadedDataSel::setInput( const MultiID& inpkey, int compnr )
+{
+    const int selidx = keys_.indexOf( inpkey );
+    if ( selidx < 0 )
+	return;
+
+
+    mDynamicCastGet(const SeisDataPack*,seisdp,PLDM().get(inpkey))
+    if ( !seisdp )
+	return;
+
+    nmfld_->setCurrentItem( selidx+1 );
+    selkey_ = inpkey;
+    compnr_ = (compnr >= 0 && compnr < seisdp->nrComponents()) ? compnr : 0;
+}
+
+
+const MultiID& uiSeisPreLoadedDataSel::selectedKey() const
+{
+    return selkey_;
+}
+
+
+const char* uiSeisPreLoadedDataSel::selectedName() const
+{
+    return nmfld_->text();
+}
+
+
+int uiSeisPreLoadedDataSel::selectedCompNr() const
+{
+    return compnr_;
+}
+
+
+const char* uiSeisPreLoadedDataSel::selectedCompName() const
+{
+    if ( selkey_.isUdf() )
+	return nullptr;
+
+    mDynamicCastGet(const SeisDataPack*,dp,PLDM().get(selkey_))
+    if ( !dp || dp->nrComponents()==1 || compnr_ < dp->nrComponents() )
+	return nullptr;
+
+    return dp->getComponentName( compnr_ );
+}
+
+
+DataPack::ID uiSeisPreLoadedDataSel::selectedDPID() const
+{
+    const DataPack* dp = PLDM().get( selkey_ );
+    return dp ? dp->id() : DataPack::cUdfID();
+}
+
+
+void uiSeisPreLoadedDataSel::updateCB( CallBacker* )
+{
+    keys_.erase();
+    names_.setEmpty();
+    const ObjectSet<PreLoadDataEntry>& plentries = PLDM().getEntries();
+    for ( int idx=0; idx<plentries.size(); idx++ )
+    {
+	SeisIOObjInfo objinfo( plentries[idx]->mid_ );
+	if ( objinfo.geomType() != geomtype_ )
+	    continue;
+
+	keys_.add( plentries[idx]->mid_ );
+	names_.add( plentries[idx]->name_ );
+    }
+
+    const BufferString curselnm = nmfld_->text();
+    nmfld_->setEmpty();
+    nmfld_->addItem( OD::String::empty() );
+    nmfld_->addItems( names_ );
+    if ( !curselnm.isEmpty() && names_.isPresent(curselnm) )
+	nmfld_->setCurrentItem( curselnm );
+    else
+    {
+	selkey_.setUdf();
+	nmfld_->setCurrentItem( 0 );
+	compnr_ = 0;
+    }
+}
+
+
+void uiSeisPreLoadedDataSel::selCB( CallBacker* )
+{
+    const int selidx = nmfld_->currentItem() - 1;
+    if ( selidx < 0 )
+    {
+	selkey_ = MultiID::udf();
+	return;
+    }
+
+    const MultiID selkey = keys_[selidx];
+    mDynamicCastGet(const SeisDataPack*,dp,PLDM().get(selkey))
+    if ( !dp )
+	return;
+
+    if ( dp->nrComponents() == 1 )
+	compnr_ = 0;
+    else // multi-comp
+    {
+	BufferStringSet compnms;
+	for ( int idx=0; idx<dp->nrComponents(); idx++ )
+	    compnms.add( dp->getComponentName(idx) );
+
+	uiSelectFromList::Setup su(
+		uiStrings::phrSelect(uiStrings::sComponent()), compnms );
+	uiSelectFromList seldlg( this, su );
+	if ( !seldlg.go() || seldlg.selection() < 0 )
+	{
+	    setInput( selkey_, compnr_ );
+	    return;
+	}
+
+	compnr_ = seldlg.selection();
+    }
+
+    selkey_ = selkey;
+    selectionChanged.trigger();
+}
+
+
+class uiSeisPLDataSelDlg : public uiSelectFromList
+{
+public:
+uiSeisPLDataSelDlg( uiParent* p, const uiSelectFromList::Setup& su,
+		    const TypeSet<MultiID>& keys )
+    : uiSelectFromList(p,su)
+    , keys_(keys)
+{
+    compfld_ = new uiLabeledComboBox( this, uiStrings::sComponent() );
+    compfld_->box()->setHSzPol( uiObject::Wide );
+    compfld_->attach( alignedBelow, selFld() );
+    compfld_->display( false );
+
+    selFld()->selectionChanged.notify( mCB(this,uiSeisPLDataSelDlg,selCB) );
+}
+
+
+void selCB( CallBacker* )
+{
+    compfld_->box()->setEmpty();
+    const int selidx = selFld()->currentItem();
+    if ( !keys_.validIdx(selidx) )
+	return;
+
+    mDynamicCastGet(const SeisDataPack*,seisdp,PLDM().get(keys_[selidx]))
+    if ( !seisdp )
+	return;
+
+    const int nrcomps = seisdp->nrComponents();
+    if ( nrcomps < 2 )
+    {
+	compfld_->display( false );
+	return;
+    }
+
+    for ( int idx=0; idx<nrcomps; idx++ )
+	compfld_->box()->addItem( seisdp->getComponentName(idx) );
+
+    compfld_->display( true );
+}
+
+    uiLabeledComboBox*		compfld_;
+    const TypeSet<MultiID>&	keys_;
+};
+
+
+void uiSeisPreLoadedDataSel::selPushCB( CallBacker* )
+{
+    if ( keys_.isEmpty() )
+    {
+	uiString msg( tr("No pre-loaded volumes are available at the moment.\n"
+			 "Do you want to pre-load one now?") );
+	if ( uiMSG().askGoOn(msg,tr("Pre-load"),uiStrings::sCancel()) )
+	    preloadCB( nullptr );
+
+	return;
+    }
+
+    uiSelectFromList::Setup su( uiStrings::sSelect(), names_ );
+    uiSeisPLDataSelDlg seldlg( this, su, keys_ );
+    if ( !seldlg.go() || seldlg.selection() < 0 )
+	return;
+
+    NotifyStopper ns( nmfld_->selectionChanged );
+    nmfld_->setCurrentItem( seldlg.selection() + 1 );
+    selkey_ = keys_.get( seldlg.selection() );
+    compnr_ = seldlg.compfld_->box()->currentItem();
+    if ( compnr_ < 0 )
+	compnr_ = 0;
+
+    selectionChanged.trigger();
+}
+
+
+void uiSeisPreLoadedDataSel::preloadCB( CallBacker* )
+{
+    bool doselect = keys_.isEmpty();
+    NotifyStopper ns( PLDM().changed );
+    uiSeisPreLoadMgr pldlg( this );
+    pldlg.go();
+
+    updateCB( nullptr );
+    if ( doselect && !keys_.isEmpty() )
+    {
+	setInput( keys_.first() );
+	selCB( nullptr );
+    }
 }

@@ -39,3 +39,10 @@ inline Color getRandStdDrawColor()
     return Color::stdDrawColor( curidx );
 }
 
+
+inline Color getRandomFillColor()
+{
+    return Color( (unsigned char) (155 + Stats::randGen().getIndex(100)),
+		  (unsigned char) (155 + Stats::randGen().getIndex(100)),
+		  (unsigned char) (155 + Stats::randGen().getIndex(100)) );
+}
