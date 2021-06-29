@@ -92,6 +92,11 @@ protected:
     void		removeAux( int idx )	{ pos_.removeSingle(idx); }
     void		eraseAux()		{ pos_.erase(); }
 
+public:
+
+    bool		extendIfNecessary(const Interval<float>& dahrg);
+			//!< return if changed
+
 };
 
 
