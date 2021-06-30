@@ -94,20 +94,61 @@ Coord3 Well::Track::getPos( ZType dh ) const
 	return mUdf(Coord3);
 
     int idx1;
-    if ( IdxAble::findFPPos(dahs_,dahs_.size(),dh,-1,idx1) )
+    const int tracksz = dahs_.size();
+    if ( IdxAble::findFPPos(dahs_,tracksz,dh,-1,idx1) )
 	return pos_[idx1];
-    else if ( idx1 < 0 || idx1 == dahs_.size()-1 )
-    {
-	Coord3 ret( idx1 < 0 ? pos_[0] : pos_[idx1] );
-	if ( idx1 < 0 )
-	    ret.z_ -= dahs_[0] - dh;
-	else
-	    ret.z_ += dh - dahs_[idx1];
+    else if ( idx1 >= 0 && idx1 < tracksz-1 )
+	return coordAfterIdx( dh, idx1 );
 
-	return ret;
+    Coord3 ret;
+    if ( idx1 < 0 )
+    {
+	double deltamd = dahs_[0] - dh;
+	if ( tracksz < 2 || zistime_ )
+	{
+	    ret = pos_[0];
+	    if ( tracksz > 1 && zistime_ )
+	    {
+		const double grad = ( pos_[1].z_- pos_[0].z_ ) /
+				    ( dahs_[1]  - dahs_[0] );
+		deltamd *= grad;
+	    }
+	    ret.z_ -= deltamd;
+	}
+	else
+	{
+	    const double firstmddiff = dahs_[1] - dahs_[0];
+	    const Coord3& firstpos = pos_[0];
+	    const Coord3& secpos = pos_[1];
+	    const Coord3 posdiff = secpos - firstpos;
+	    ret = firstpos - posdiff * deltamd/firstmddiff;
+	}
+    }
+    else
+    {
+	double deltamd = dh - dahs_[tracksz-1];
+	if ( tracksz < 2 || zistime_ )
+	{
+	    ret = pos_[tracksz-1];
+	    if ( tracksz > 1 && zistime_ )
+	    {
+		const double grad = ( pos_[idx1].z_ - pos_[idx1-1].z_ ) /
+				    ( dahs_[idx1]   - dahs_[idx1-1] );
+		deltamd *= grad;
+	    }
+	    ret.z_ += deltamd;
+	}
+	else
+	{
+	    const double lastmddiff = dahs_[tracksz-1] - dahs_[tracksz-2];
+	    const Coord3& lastpos = pos_[tracksz-1];
+	    const Coord3& seclastpos = pos_[tracksz-2];
+	    const Coord3 posdiff = lastpos - seclastpos;
+	    ret = lastpos + posdiff * deltamd/lastmddiff;
+	}
     }
 
-    return coordAfterIdx( dh, idx1 );
+    return ret;
 }
 
 
@@ -155,6 +196,47 @@ bool Well::Track::alwaysDownward() const
 
 	prevz = curz;
     }
+
+    return true;
+}
+
+
+bool Well::Track::extendIfNecessary( const Interval<float>& dahrg )
+{
+    mLock4Read();
+    const int tracksz = size();
+    if ( tracksz < 2 || zIsTime() )
+	return false;
+
+    Interval<float> newdahrg( dahrg );
+    if ( mIsUdf(newdahrg.start) || mIsUdf(newdahrg.stop) )
+	return false;
+    else if ( newdahrg.start < 0.f )
+	newdahrg.start = 0.f;
+
+    const Interval<float> trackrg = dahRange();
+    if ( mIsUdf(trackrg.start) || mIsUdf(trackrg.stop) ||
+	 (newdahrg.start+1e-2f > trackrg.start &&
+	  newdahrg.stop-1e-2f < trackrg.stop) )
+	return false;
+
+    mLock2Write();
+    bool updated = false;
+    if ( newdahrg.start < trackrg.start )
+    {
+	pos_.insert( 0, getPos( newdahrg.start ) );
+	dahs_.insert( 0, newdahrg.start );
+	updated = true;
+    }
+
+    if ( newdahrg.stop > trackrg.stop )
+    {
+	addPoint( getPos( newdahrg.stop ), newdahrg.stop );
+	updated = true;
+    }
+
+    if ( updated )
+	mSendEntireObjChgNotif();
 
     return true;
 }
