@@ -56,6 +56,7 @@ protected:
     bool		gtTrack(od_istream&,float) const;
     bool		doGetD2T(od_istream&,bool csmdl) const;
     bool		doGetD2T(bool) const;
+    void		adjustTrackIfNecessary(bool frommarkers=false) const;
     void		getLogNames(BufferStringSet&,TypeSet<int>&) const;
 
     static Log*		rdLogHdr(od_istream&,int&,int,IOPar&);

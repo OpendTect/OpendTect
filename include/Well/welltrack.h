@@ -88,6 +88,11 @@ protected:
     friend class	TrackSampler;
     friend class	TrackIter;
 
+public:
+
+    bool		extendIfNecessary(const Interval<float>& dahrg);
+			//!< return if changed
+
 };
 
 
