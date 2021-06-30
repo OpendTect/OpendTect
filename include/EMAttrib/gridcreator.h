@@ -60,6 +60,7 @@ protected:
 				       const TrcKeyZSampling&);
     bool		initFromRandomLine(const IOPar&,const IOObj&,
 					   const IOObj&,const TrcKeyZSampling&);
+    Pos::GeomID		getGeomID(const char* lnm);
 };
 
 
