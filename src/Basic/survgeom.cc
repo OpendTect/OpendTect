@@ -199,9 +199,17 @@ static Geometry2D& dummyGeom2D()
     return *ret;
 }
 
+
 const Geometry2D& GeometryManager::get2D( Pos::GeomID geomid ) const
 {
     const Geometry* geom = getGeometry( geomid );
+    return geom && geom->as2D() ? *geom->as2D(): dummyGeom2D();
+}
+
+
+Geometry2D& GeometryManager::get2D( Pos::GeomID geomid )
+{
+    Geometry* geom = getGeometry( geomid );
     return geom && geom->as2D() ? *geom->as2D(): dummyGeom2D();
 }
 

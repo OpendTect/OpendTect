@@ -165,6 +165,7 @@ public:
       Use the following functions only when you know what you are doing. */
 
     Geometry*			getGeometry(Pos::GeomID);
+    Geometry2D&			get2D(Pos::SurvID);
     bool			write(Geometry&,uiString&);
     Pos::GeomID			addNewEntry(Geometry*,uiString&);
 				/*! Returns new GeomID. */
