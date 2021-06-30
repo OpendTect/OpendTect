@@ -508,7 +508,7 @@ static double getDatumTwtFromFile( const TypeSet<double>& zvals,
 
     BendPointBasedMathFunction<double,double> tdcurve(
 	  BendPointBasedMathFunction<double,double>::Linear,
-	  BendPointBasedMathFunction<double,double>::ExtraPolGradient );
+	  BendPointBasedMathFunction<double,double>::None );
 
     for ( int idz=0; idz<zvals.size(); idz++ )
 	tdcurve.add( zvals[idz], tvals[idz] );

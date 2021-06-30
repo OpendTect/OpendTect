@@ -530,8 +530,36 @@ bool Well::odReader::getTrack() const
 	    welltrack.setPoint( idx, pos, (float) pos.z );
 	}
     }
+
     wd_.track().updateDahRange();
     return isok;
+}
+
+
+void Well::odReader::adjustTrackIfNecessary( bool frommarkers ) const
+{
+    Interval<float> newmdrg;
+    if ( frommarkers )
+    {
+	const MarkerSet& markers = wd_.markers();
+	if ( markers.isEmpty() )
+	    return;
+
+	newmdrg.set( mUdf(float), -mUdf(float) );
+	for ( const auto* marker : markers )
+	    newmdrg.include( marker->dah() );
+    }
+    else
+    {
+	const LogSet& logs = wd_.logs();
+	if ( logs.isEmpty() )
+	    return;
+
+	newmdrg = logs.dahInterval();
+    }
+
+    if ( const_cast<Track&>(wd_.track()).extendIfNecessary(newmdrg) )
+	wd_.trackchanged.trigger();
 }
 
 
@@ -592,7 +620,7 @@ bool Well::odReader::getLogs( bool needjustinfo ) const
     {
 	mGetInpStream( sExtLog(), idx, false, break )
 
-	if ( !addLog(strm, needjustinfo) )
+	if ( !addLog(strm,needjustinfo) )
 	{
 	    setStrmOperErrMsg( strm, tr("read data") );
 	    ErrMsg( errmsg_ ); errmsg_.setEmpty();
@@ -600,6 +628,9 @@ bool Well::odReader::getLogs( bool needjustinfo ) const
 	    continue;
 	}
     }
+
+    if ( rv )
+	adjustTrackIfNecessary();
 
     return rv;
 }
@@ -683,6 +714,9 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
 
 	wl->updateDahRange();
     }
+
+    if ( addedok )
+	adjustTrackIfNecessary();
 
     return addedok;
 }
@@ -773,6 +807,8 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 	else
 	    wd_.markers().insertNew( wm );
     }
+
+    adjustTrackIfNecessary( true );
 
     return true;
 }
