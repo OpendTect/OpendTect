@@ -170,29 +170,31 @@ bool Seis2DGridCreator::init( const IOPar& par )
 			       : initFromRandomLine(par,*input,*output,bbox);
 }
 
-#define mHandleLineGeom \
-uiString errmsg; \
-Pos::GeomID geomid = Survey::GM().getGeomID( linenm ); \
-const bool islinepresent = geomid != Survey::GeometryManager::cUndefGeomID(); \
-if ( !islinepresent ) \
-{ \
-    PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linenm ); \
-    Survey::Geometry2D* newgeom2d = new Survey::Geometry2D( l2d ); \
-    newgeom2d->ref(); \
-    geomid = Survey::GMAdmin().addNewEntry( newgeom2d, errmsg ); \
-    newgeom2d->unRef(); \
-    if ( geomid == Survey::GeometryManager::cUndefGeomID() ) \
-    { \
-	failedlines_.add( linenm ); \
-	continue; \
-    } \
-} \
-else if ( islinepresent && dooverwrite ) \
-{ \
-    Survey::Geometry* geom = Survey::GMAdmin().getGeometry( geomid ); \
-    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom); \
-    geom2d->dataAdmin().setEmpty(); \
+
+Pos::GeomID Seis2DGridCreator::getGeomID( const char* linenm )
+{
+    Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+    const bool ispresent = geomid != mUdfGeomID;
+    if ( ispresent )
+    {
+	Survey::Geometry* geom = Survey::GMAdmin().getGeometry( geomid );
+	mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
+	geom2d->dataAdmin().setEmpty();
+	return geomid;
+    }
+
+    PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linenm );
+    Survey::Geometry2D* newgeom2d = new Survey::Geometry2D( l2d );
+    newgeom2d->ref();
+    uiString errmsg;
+    geomid = Survey::GMAdmin().addNewEntry( newgeom2d, errmsg );
+    newgeom2d->unRef();
+    if ( geomid == mUdfGeomID )
+	failedlines_.add( linenm );
+
+    return geomid;
 }
+
 
 bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 					const IOObj& input, const IOObj& output,
@@ -219,9 +221,6 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	    inlines += str.getIValue(idx);
     }
 
-    bool dooverwrite = false;
-    if ( par.find(sKeyOverWrite()) )
-	par.getYN( sKeyOverWrite(), dooverwrite );
     FixedString inlstr = par.find( sKeyInlPrefix() );
     failedlines_.setEmpty();
     for ( int idx=0; idx<inlines.size(); idx++ )
@@ -231,7 +230,10 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	BufferString linenm( inlstr.str() );
 	linenm.add( inlines[idx] );
 
-	mHandleLineGeom
+	const Pos::GeomID geomid = getGeomID( linenm.buf() );
+	if ( geomid == mUdfGeomID )
+	    continue;
+
 	add( new Seis2DLineCreator(input,cs,output,geomid) );
     }
 
@@ -258,7 +260,10 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	cs.hsamp_.start_.crl() = cs.hsamp_.stop_.crl() = crosslines[idx];
 	BufferString linenm( crlstr.str() );
 	linenm.add( crosslines[idx] );
-	mHandleLineGeom
+	const Pos::GeomID geomid = getGeomID( linenm.buf() );
+	if ( geomid == mUdfGeomID )
+	    continue;
+
 	add( new Seis2DLineCreator(input,cs,output,geomid) );
     }
 
@@ -306,7 +311,9 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 
 	BufferString linenm( parstr.str() );
 	linenm.add( idx );
-	mHandleLineGeom
+	const Pos::GeomID geomid = getGeomID( linenm.buf() );
+	if ( geomid == mUdfGeomID )
+	    continue;
 
 	RefMan<Geometry::RandomLine> rdl = new Geometry::RandomLine;
 	rdl->addNode( line->start_ );
@@ -323,7 +330,10 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 
 	BufferString linenm( perstr.str() );
 	linenm.add( idx );
-	mHandleLineGeom
+	const Pos::GeomID geomid = getGeomID( linenm.buf() );
+	if ( geomid == mUdfGeomID )
+	    continue;
+
 	RefMan<Geometry::RandomLine> rdl = new Geometry::RandomLine;
 	rdl->addNode( line->start_ );
 	rdl->addNode( line->stop_ );
