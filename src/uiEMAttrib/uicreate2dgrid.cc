@@ -23,11 +23,12 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
-#include "uiselsurvranges.h"
+#include "uiseis2dfrom3d.h"
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
-#include "uiseparator.h"
 #include "uiseissel.h"
+#include "uiselsurvranges.h"
+#include "uiseparator.h"
 #include "uisurvmap.h"
 #include "uitaskrunner.h"
 #include "uiworld2ui.h"
@@ -696,6 +697,12 @@ void uiCreate2DGrid::fillHorPar( IOPar& par )
 
 bool uiCreate2DGrid::checkInput( IOPar& par ) const
 {
+    return checkLineNames() == 1;
+}
+
+
+int uiCreate2DGrid::checkLineNames() const
+{
     BufferStringSet linenames;
     const bool frominlcrl = sourceselfld_ ? sourceselfld_->getBoolValue()
 					  : false;
@@ -722,54 +729,23 @@ bool uiCreate2DGrid::checkInput( IOPar& par ) const
     }
 
     if ( ovwrlinenms.isEmpty() )
-	return true;
+	return 1;
 
-    Seis2DDataSet s2dds( *outfld_->ioobj() );
-    BufferStringSet lines;
-    s2dds.getLineNames( lines );
+    uiString msg =
+	tr( "The following lines are already there in the database:\n%1\n\n"
+	    "Do you want to overwrite them?\n"
+	    "If you want to extract data along existing 2D lines without "
+	    "overwriting the geometries, choose 'Extract 2D from 3D'." )
+	    .arg( ovwrlinenms.getDispString(20) );
 
-    BufferStringSet linestoremove;
-    for ( int idx=0; idx<ovwrlinenms.size(); idx++ )
-    {
-	BufferString line = ovwrlinenms.get( idx );
-	if ( !lines.isPresent(line) )
-	    linestoremove.add( line );
-    }
-
-    while ( linestoremove.size() )
-    {
-	int lineidx = ovwrlinenms.indexOf( linestoremove.get(0) );
-	if ( lineidx >= 0 )
-	    ovwrlinenms.removeSingle( lineidx );
-	linestoremove.removeSingle( 0 );
-    }
-
-
-    if ( !ovwrlinenms.isEmpty() )
-    {
-	uiString msg = tr( "Following lines are already there. Do you want to "
-			  "overwrite?\n\nLines : " );
-	for ( int idx=0; idx<ovwrlinenms.size(); idx++ )
-	{
-	    msg.append( ovwrlinenms.get(idx) );
-	    msg.append( idx == ovwrlinenms.size()-1 ? ", " : "." );
-	}
-
-	bool res = uiMSG().askGoOn( msg );
-	par.setYN( Seis2DGridCreator::sKeyOverWrite(), res );
-	return res;
-    }
-
-    return true;
+    return uiMSG().askGoOnAfter( msg, uiStrings::sCancel(),
+		uiStrings::sOverwrite(), m3Dots(tr("Extract 2D from 3D")) );
 }
 
 
 bool uiCreate2DGrid::fillPar()
 {
     IOPar par;
-    if ( !infld_->ioobj() || !outfld_->ioobj() || !checkInput(par) )
-	return false;
-
     fillSeisPar( par );
     IOPar& batchpar = batchfld_->jobSpec().pars_;
     batchpar.mergeComp( par, "Seis" );
@@ -791,6 +767,20 @@ bool uiCreate2DGrid::fillPar()
 
 bool uiCreate2DGrid::acceptOK( CallBacker* )
 {
+    if ( !infld_->ioobj() || !outfld_->ioobj() )
+	return false;
+
+    const int res = checkLineNames();
+    if ( res < 0 )
+	return false;
+
+    if ( res == 0 )
+    {
+	uiSeis2DFrom3D dlg( this );
+	dlg.go();
+	return true;
+    }
+
     if ( !fillPar() )
 	return false;
 

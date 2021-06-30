@@ -163,7 +163,10 @@ protected:
     void			fillSeisPar(IOPar&);
     void			fillHorPar(IOPar&);
 
+    mDeprecated			("Use checkLineNames()")
     bool			checkInput(IOPar&) const;
+
+    int				checkLineNames() const;
     bool			acceptOK(CallBacker*);
 };
 
