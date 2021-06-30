@@ -177,14 +177,13 @@ Pos::GeomID Seis2DGridCreator::getGeomID( const char* linenm )
     const bool ispresent = geomid != mUdfGeomID;
     if ( ispresent )
     {
-	Survey::Geometry* geom = Survey::GMAdmin().getGeometry( geomid );
-	mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
-	geom2d->dataAdmin().setEmpty();
+	Survey::Geometry2D& geom2d = Survey::GMAdmin().get2D( geomid );
+	geom2d.setEmpty();
 	return geomid;
     }
 
     PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linenm );
-    Survey::Geometry2D* newgeom2d = new Survey::Geometry2D( l2d );
+    auto* newgeom2d = new Survey::Geometry2D( l2d );
     newgeom2d->ref();
     uiString errmsg;
     geomid = Survey::GMAdmin().addNewEntry( newgeom2d, errmsg );

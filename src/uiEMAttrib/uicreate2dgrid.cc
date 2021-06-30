@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "uiseis2dfrom3d.h"
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
-#include "uiseissel.h"
 #include "uiselsurvranges.h"
 #include "uiseparator.h"
 #include "uisurvmap.h"
