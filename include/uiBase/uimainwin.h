@@ -93,6 +93,10 @@ public:
 			/* Return if changed. Will hide the dialog
 			   if finalised and already shown */
     void		showAndActivate();
+			/* Only for windows already shown before */
+    void		setActivateOnFirstShow(bool yn=true);
+			/* Activates the window once after its
+			   first pops-up */
     void		activate();
 
     virtual void	show();
@@ -243,6 +247,8 @@ public:
 			// Not for casual use
     static void		programActiveWindow(uiMainWin*);
     static uiMainWin*	programmedActiveWindow();
+    static void		setActivateBehaviour(OD::WindowActivationBehavior);
+    static OD::WindowActivationBehavior getActivateBehaviour();
 
     mDeprecated		("Use uiString")
     void		setCaption( const char* str )

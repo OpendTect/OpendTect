@@ -33,12 +33,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QPainter>
+#include <QtPlatformHeaders/QWindowsWindowFunctions>
 #include <QPrinter>
 #include <QScreen>
-
-#ifdef __win__
-# include <QtPlatformHeaders/QWindowsWindowFunctions>
-#endif
 
 mUseQtnamespace
 
@@ -302,7 +299,7 @@ bool uiMainWin::doSetWindowFlags( od_uint32 todoflagi, bool setyn )
     const Qt::WindowFlags todoflag( todoflagi );
     const Qt::WindowFlags flags = body_->windowFlags();
     if ( ( setyn &&  (flags & todoflag)) ||
-         (!setyn && !(flags & todoflag)) )
+	 (!setyn && !(flags & todoflag)) )
 	return false;
 
     if ( !isMinimized() && !isHidden() )
@@ -332,18 +329,43 @@ void uiMainWin::showAndActivate()
 }
 
 
+void uiMainWin::setActivateOnFirstShow( bool yn )
+{
+    setActivateBehaviour( yn ? OD::AlwaysActivateWindow
+			     : OD::DefaultActivateWindow );
+}
+
+
+static OD::WindowActivationBehavior activateAct = OD::DefaultActivateWindow;
+
+void uiMainWin::setActivateBehaviour(
+		    OD::WindowActivationBehavior activateact )
+{
+    if ( !__iswin__ )
+	return;
+
+    activateAct = activateact;
+#if QT_VERSION >= QT_VERSION_CHECK(5,7,0)
+    const bool alwayshow = activateAct == OD::AlwaysActivateWindow;
+    QWindowsWindowFunctions::setWindowActivationBehavior(
+	  alwayshow ? QWindowsWindowFunctions::AlwaysActivateWindow
+		    : QWindowsWindowFunctions::DefaultActivateWindow );
+#endif
+}
+
+
+OD::WindowActivationBehavior uiMainWin::getActivateBehaviour()
+{
+    return activateAct;
+}
+
+
 void uiMainWin::activate()
 {
     if ( !finalised() )
 	return;
 
-#ifdef __win__
-# if QT_VERSION >= QT_VERSION_CHECK(5,7,0)
-    QWindowsWindowFunctions::setWindowActivationBehavior(
-			    QWindowsWindowFunctions::AlwaysActivateWindow );
-# endif
-#endif
-
+    setActivateOnFirstShow();
     body_->activateWindow();
 }
 
@@ -598,12 +620,12 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 
     std::string snapshotfile = OD_Win_GetSnapShotFile( filenm );
     if ( snapshotfile.empty() )
-        return false;
+	return false;
 
     QPixmap desktopsnapshot;
 
     if ( !desktopsnapshot.load( snapshotfile.c_str() ) )
-        { ErrMsg( "Generated GDI+ image does not load in Qt" ); return false; }
+	{ ErrMsg( "Generated GDI+ image does not load in Qt" ); return false; }
 
     File::remove( snapshotfile.c_str() );
 
@@ -618,26 +640,26 @@ bool uiMainWin::grab( const char* filenm, int zoom,
 
     if ( zoom > 0 )
     {
-        QWidget* qwin = qApp->activeModalWidget();
-        if ( !qwin || zoom==1 )
-            qwin = body_;
+	QWidget* qwin = qApp->activeModalWidget();
+	if ( !qwin || zoom==1 )
+	    qwin = body_;
 
 	#ifdef __win__
 
-        RECT rect = {};
-        GetWindowRect( (HWND)qwin->winId() , &rect );
-        const int width  = rect.right - rect.left;
-        const int height = rect.bottom - rect.top;
+	RECT rect = {};
+	GetWindowRect( (HWND)qwin->winId() , &rect );
+	const int width  = rect.right - rect.left;
+	const int height = rect.bottom - rect.top;
 
 #else
 
-        const int width = qwin->frameGeometry().width();
-        /*on windows, it gets width till end of monitor and not entire widget*/
-        const int height = qwin->frameGeometry().height();
+	const int width = qwin->frameGeometry().width();
+	/*on windows, it gets width till end of monitor and not entire widget*/
+	const int height = qwin->frameGeometry().height();
 
 #endif
-        desktopsnapshot = desktopsnapshot.copy( qwin->x(), qwin->y(),
-                                                width, height );
+	desktopsnapshot = desktopsnapshot.copy( qwin->x(), qwin->y(),
+						width, height );
     }
 
     return desktopsnapshot.save( QString(filenm), format, quality );
