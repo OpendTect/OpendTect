@@ -24,6 +24,7 @@ public:
     void		saveToSettings();
     void		readFromSettings();
     void		forBlankPresentation();
+    void		forFile(const char*);
 
     float		availableWidth() const;
     float		availableHeigth() const;

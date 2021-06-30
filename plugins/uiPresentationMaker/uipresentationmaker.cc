@@ -201,6 +201,7 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
     pptxfld_->setDefaultExtension( "pptx" );
     pptxfld_->setFileName( templfnm );
     pptxfld_->attach( alignedBelow, templatefld_ );
+    mAttachCB(pptxfld_->valuechanged, uiPresentationMakerDlg::templateChgCB);
 
     fis.forread(false);
     outputfld_ = new uiFileInput( this, tr("Output pptx"), fis );
@@ -262,8 +263,8 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
 	mCB(this,uiPresentationMakerDlg,showLogCB), false );
     logbut->attach( rightTo, createbut );
 
-    templateCB(0);
-    imageTypeCB(0);
+    templateCB( nullptr );
+    imageTypeCB( nullptr );
 
     afterPopup.notify(mCB(this,uiPresentationMakerDlg,checkCB) );
 }
@@ -277,7 +278,10 @@ uiPresentationMakerDlg::~uiPresentationMakerDlg()
 
 
 void uiPresentationMakerDlg::checkCB( CallBacker* )
-{ checkInstallation(); }
+{
+    checkInstallation();
+    templateChgCB( nullptr );
+}
 
 
 bool uiPresentationMakerDlg::checkInstallation()
@@ -337,6 +341,33 @@ void uiPresentationMakerDlg::templateCB( CallBacker* )
 {
     const bool isblank = templatefld_->getBoolValue();
     pptxfld_->display( !isblank );
+}
+
+
+void uiPresentationMakerDlg::templateChgCB( CallBacker* )
+{
+    const BufferString templfnm( getTemplateFileName() );
+    if ( !templfnm.isEmpty() )
+    {
+	specs_.getSlideLayout().forFile( templfnm.buf() );
+    }
+}
+
+
+BufferString uiPresentationMakerDlg::getTemplateFileName()
+{
+    const bool isblankpres = templatefld_->getBoolValue();
+    if ( isblankpres )
+	return BufferString::empty();
+
+    const BufferString templfnm( pptxfld_->fileName() );
+    if ( !File::exists(templfnm.buf()) )
+    {
+	uiMSG().error( tr("Template pptx does not exist. "
+	    "Select another template pptx or create a blank presentation.") );
+	return BufferString::empty();
+    }
+    return templfnm;
 }
 
 
@@ -526,14 +557,9 @@ void uiPresentationMakerDlg::createCB( CallBacker* )
     if ( !docont )
 	return;
 
-    const bool isblankpres = templatefld_->getBoolValue();
-    const BufferString templfnm = !isblankpres ? pptxfld_->fileName() : "";
-    if ( !isblankpres && !File::exists(templfnm.buf()) )
-    {
-	uiMSG().error( tr("Template pptx does not exist. "
-	    "Select another template pptx or create a blank presentation.") );
+    const BufferString templfnm( getTemplateFileName() );
+    if ( !templfnm.isEmpty() && !File::exists(templfnm) )
 	return;
-    }
 
     specs_.setTitle( title );
     specs_.setOutputFilename( outputfnm );
