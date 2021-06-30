@@ -221,7 +221,8 @@ int ODMain( uiMain& app )
     if ( dlg )
     {
 	dlg->setPopupArea( uiMainWin::Auto );
-	if ( !dlg->go() )
+	dlg->setActivateOnFirstShow();
+	if ( dlg->go() == uiDialog::Rejected )
 	    return 1;
 
     }
