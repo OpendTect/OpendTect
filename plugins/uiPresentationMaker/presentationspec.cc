@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "pythonaccess.h"
 #include "settings.h"
 #include "uimain.h"
 #include "uipixmap.h"
@@ -81,6 +82,34 @@ void SlideLayout::forBlankPresentation()
     setts.get( sRightStr(), right_ );
     setts.get( sTopStr(), top_ );
     setts.get( sBottomStr(), bottom_ );
+}
+
+
+void SlideLayout::forFile( const char* filenm )
+{
+    if ( !File::exists(filenm) )
+	return;
+
+    BufferStringSet pycom;
+    pycom.add("from pptx import Presentation");
+    pycom.add(BufferString("ps = Presentation(r'",filenm,"')"));
+    pycom.add("print(ps.slide_width.inches, ps.slide_height.inches, sep='|')");
+
+    const bool res = OD::PythA().executeScript( pycom );
+    uiString errmsg;
+    const BufferString stdoutstr = OD::PythA().lastOutput( false, nullptr );
+    const BufferString stderrstr = OD::PythA().lastOutput( true, &errmsg );
+    if ( !res || stdoutstr.isEmpty() )
+	return;
+
+    BufferStringSet itms;
+    itms.unCat( stdoutstr, "|" );
+    if ( itms.size()!=2 || !itms[0]->isNumber() || !itms[1]->isNumber() )
+	return;
+
+    format_ = 3;
+    width_ = itms[0]->toFloat();
+    height_ = itms[1]->toFloat();
 }
 
 
@@ -153,7 +182,7 @@ void SlideContent::addBlankSlide( BufferString& script )
 
 void SlideContent::addAsFirstSlide( BufferString& script )
 {
-    script.add( "title = first_slide.shapes.title\n" );
+    script.add( "title = first_slide.shapes[0]\n" );
     addTitle( script );
     addImage( script );
 }
@@ -163,7 +192,7 @@ void SlideContent::addWithFirstSlideLayout( BufferString& script )
 {
     script.add(
 	"slide = prs.slides.add_slide(slide_layout)\n"
-	"title = slide.shapes.title\n" );
+	"title = slide.shapes[0]\n" );
     addTitle( script );
     addImage( script );
 }
@@ -365,7 +394,7 @@ static void initTitleSlide( BufferString& script, const char* title )
 {
     script.add(
 	"title_slide = prs.slides[0]\n"
-	"title = title_slide.shapes.title\n" )
+	"title = title_slide.shapes[0]\n" )
 	  .add( "title.text = '" ).add( title ).add( "'" ).addNewLine(2);
 }
 

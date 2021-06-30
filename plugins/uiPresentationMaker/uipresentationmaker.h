@@ -45,7 +45,9 @@ protected:
     void		removeCB(CallBacker*);
     void		createCB(CallBacker*);
     void		showLogCB(CallBacker*);
+    void		templateChgCB(CallBacker*);
 
+    BufferString	getTemplateFileName();
     void		updateWindowList();
     void		updateSceneList();
     void		updateScreenList();
