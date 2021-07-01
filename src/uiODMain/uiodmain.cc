@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uicoltabsel.h"
 #include "uiempartserv.h"
+#include "uifixinvaliddataroot.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
@@ -30,7 +31,7 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uipluginsel.h"
 #include "uiseispartserv.h"
-#include "uifixinvaliddataroot.h"
+#include "uisplashscreen.h"
 #include "uistrattreewin.h"
 #include "uisurvinfoed.h"
 #include "uitoolbar.h"
@@ -222,13 +223,18 @@ int ODMain( uiMain& app )
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     if ( dodlg && !pimdata.isEmpty() )
     {
-	uiPluginSel dlg( ODMainWin() );
+	uiPluginSel dlg( odmain );
 	dlg.setPopupArea( uiMainWin::Auto );
-	if ( dlg.nrPlugins() && !dlg.go() )
+	dlg.setActivateOnFirstShow();
+	if ( dlg.nrPlugins() && dlg.go() == uiDialog::Rejected )
 	    return 1;
     }
 
     SetProgramRestarter( ODMainProgramRestarter );
+    const uiPixmap pm( "../splash" );
+    PtrMan<uiSplashScreen> splash = new uiSplashScreen( pm );
+    splash->show();
+    splash->showMessage( "Loading plugins ..." );
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiODMain" );
@@ -237,7 +243,10 @@ int ODMain( uiMain& app )
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
 
+    splash->showMessage( "Initializing Scene ..." );
     odmain->initScene();
+    splash = nullptr;
+    odmain->setActivateOnFirstShow();
     return odmain->go() ? 0 : 1;
 }
 

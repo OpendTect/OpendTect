@@ -100,6 +100,11 @@ enum StdActionType
     Video
 };
 
+enum WindowActivationBehavior
+{
+    DefaultActivateWindow,
+    AlwaysActivateWindow
+};
 
 mGlobal(Basic) bool haveUserSetStyleName();
 mGlobal(Basic) BufferString getActiveStyleName();

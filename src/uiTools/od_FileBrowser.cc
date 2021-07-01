@@ -96,7 +96,7 @@ int mProgMainFnName( int argc, char** argv )
     uiTextFileDlg::Setup fdsetup( toUiString(fnm) );
     fdsetup.allowopen( vp.editable_ ).allowsave( true );
     PtrMan<uiDialog> dlg = new uiTextFileDlg( 0, vp, fdsetup, fnm );
-    dlg->showAlwaysOnTop();
+    dlg->setActivateOnFirstShow();
     app.setTopLevel( dlg );
     dlg->show();
 
