@@ -255,8 +255,7 @@ void uiToolBarCommandEditor::checkCB( CallBacker* )
 	if ( exeselfld_ )
 	{
 	    exeselfld_->setSensitive( ischecked );
-	    if ( ischecked )
-		exeSelChgCB( nullptr );
+	    exeSelChgCB( nullptr );
 	}
 	else
 	    advSetSensitive( ischecked );
@@ -291,6 +290,8 @@ void uiToolBarCommandEditor::exeSelChgCB( CallBacker* )
 	setIconFile( commands_.getIconName( current ) );
 	commandChgCB( nullptr );
     }
+    else if ( !isChecked() )
+	advSetSensitive( false );
 }
 
 
@@ -299,13 +300,16 @@ void uiToolBarCommandEditor::iconSelCB( CallBacker* )
     const FilePath iconsdirfp(
 	    GetSetupDataFileDir(ODSetupLoc_ApplSetupPref,false),
 	    "icons.Default" );
-    FilePath iconfp( iconfile_ ); iconfp.setExtension( "png" );
+    FilePath iconfp( iconfile_ );
     if ( iconsdirfp.exists() && !iconfp.isAbsolute() )
+    {
 	iconfp.insert( iconsdirfp.fullPath() );
+	iconfp.setExtension( "png" );
+    }
+
+    const char* filter = "PNG (*.png);;JPEG (*.jpg *.jpeg);; ICO (*.ico)";
     uiFileDialog dlg( this, uiFileDialog::ExistingFile, iconfp.fullPath(),
-		       "*.png" );
-    if ( iconsdirfp.exists() )
-	dlg.setDirectory( iconsdirfp.fullPath() );
+		      filter );
     if ( ! dlg.go() )
 	return;
 
