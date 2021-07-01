@@ -19,8 +19,17 @@ const GlobExpr Table::RecordMatcher::emptyge_;
 
 char Table::ImportHandler::readNewChar() const
 {
-    const char c = strm_.peek();
+    char c = strm_.peek();
     strm_.ignore( 1 );
+    if ( c == '\r' )
+    {
+	c = strm_.peek();
+	if ( c == '\n' )
+	    strm_.ignore( 1 );
+	else
+	    c = '\n';
+    }
+
     return atEnd() ? '\n' : c;
 }
 
