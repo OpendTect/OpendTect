@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class uiButton;
 class uiCheckBox;
+class uiUserShowWait;
 class uiTreeView;
 struct PluginProduct;
 struct PluginVendor;
@@ -49,11 +50,13 @@ protected:
 
     void			startLicInstallCB(CallBacker*);
     void			showLicInstallCB(CallBacker*);
+    void			licInstallDlgClosed(CallBacker*);
 
     bool			acceptOK(CallBacker*);
 
     ObjectSet<PluginProduct>	products_;
     ObjectSet<PluginVendor>	vendors_;
     uiTreeView*			treefld_;
+    uiUserShowWait*		uisw_ = nullptr;
 };
 
