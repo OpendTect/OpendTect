@@ -66,6 +66,69 @@ mImplNumberTestFn( testOnlyIntRead, int i; float f,
 	   i == 123 && !strm.isOK() )
 
 
+bool testLineEndings()
+{
+    const char* dgbstr = "dGB Earth Sciences";
+    const BufferString testfnm = getTestTempFileName();
+    od_ostream ostrm( testfnm );
+    mRunStandardTestWithError( ostrm.isOK(),
+		      "Opening temporary file for write",
+		       ostrm.errMsg().getFullString().str() );
+
+    int idx = 0;
+    int size = 0;
+    while ( idx < 4 )
+    {
+	BufferString str;
+	str.add( dgbstr[idx++] );
+	str.add( idx ).add( " " ).add( idx*idx ).add( "\t" ).add( idx*idx*idx );
+	str.add( "\r" ); // CR only (Some exostic OS or apps)
+	ostrm << str;
+	size += str.size();
+    }
+
+    while ( idx < 10 )
+    {
+	BufferString str;
+	str.add( dgbstr[idx++] );
+	str.add( idx ).add( " " ).add( idx*idx ).add( "\t" ).add( idx*idx*idx );
+	str.add( "\n" ); // LF only (Unix)
+	ostrm << str;
+	size += str.size();
+    }
+
+    while ( idx < 18 )
+    {
+	BufferString str;
+	str.add( dgbstr[idx++] );
+	str.add( idx ).add( " " ).add( idx*idx ).add( "\t" ).add( idx*idx*idx );
+	str.add( "\r\n" ); // CR+LF (Windows)
+	ostrm << str;
+	size += str.size();
+    }
+
+    ostrm.close();
+    mRunStandardTestWithError( File::getFileSize(testfnm) == size,
+		      "Checking size of temporary file",
+		      "File size is incorrect" );
+
+    od_istream istrm( testfnm );
+    mRunStandardTestWithError( istrm.isOK(),
+		      "Opening temporary file for read",
+		       istrm.errMsg().getFullString().str() );
+
+    BufferString line, firstchars;
+    while ( istrm.getLine(line) )
+	firstchars.add( line[0] );
+
+    mRunStandardTestWithError( firstchars == dgbstr,
+		      "Checking line sanity",
+		      "Error reading some line endings" );
+
+    return true;
+}
+
+
 bool testPipeInput()
 {
     FixedString message = "OpendTect rules";
@@ -211,6 +274,11 @@ int mTestMainFnName( int argc, char** argv )
     mDoTest(strm5,"123\n-0.0e-22\n888",testIfFNumberIs0);
     mDoTest(strm6,"123",testOnlyIntRead);
     mDoTest(strm7,"\n123\n \n",testOnlyIntRead);
+
+    od_cout() << "-> Line endings test." << od_endl;
+
+    if ( !testLineEndings() )
+	return doExit( 1 );
 
     od_cout() << "-> Pipe input test." << od_endl;
 
