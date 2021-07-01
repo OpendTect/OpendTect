@@ -267,7 +267,7 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs, bool* nlfound )
 	return false;
 
     char partbuf[1024+1]; int bufidx = 0;
-    while ( ch != '\n' )
+    while ( ch != '\n' && ch != '\r' )
     {
 	if ( bs )
 	    addToBS( *bs, partbuf, bufidx, ch );
@@ -275,14 +275,20 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs, bool* nlfound )
 	    break;
     }
 
+    if ( ch == '\r' )
+    {
+	peekChar( strm, ch );
+	if ( ch == '\n' )
+	    strm.ignore( 1 );
+	else
+	    ch = '\n';
+    }
+
     if ( nlfound )
 	*nlfound = ch == '\n';
 
     if ( bs && bufidx )
 	{ partbuf[bufidx] = '\0'; *bs += partbuf; }
-
-    if ( bs )
-	removeLastIfCR( *bs );
 
     return !strm.bad();
 }
