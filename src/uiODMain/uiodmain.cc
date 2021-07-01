@@ -216,7 +216,8 @@ int ODMain( uiMain& app )
     {
 	uiPluginSel dlg( odmain );
 	dlg.setPopupArea( uiMainWin::Auto );
-	if ( dlg.nrPlugins() && !dlg.go() )
+	dlg.setActivateOnFirstShow();
+	if ( dlg.nrPlugins() && dlg.go() == uiDialog::Rejected )
 	    return 1;
     }
 
@@ -235,6 +236,7 @@ int ODMain( uiMain& app )
     splash->showMessage( "Initializing Scene ..." );
     odmain->initScene();
     splash = nullptr;
+    odmain->setActivateOnFirstShow();
     return odmain->go() ? 0 : 1;
 }
 

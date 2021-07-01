@@ -79,9 +79,10 @@ int mProgMainFnName( int argc, char** argv )
     {
 	uiMain app( argc, argv );
 	OD::ModDeps().ensureLoaded( "uiSeis" );
-	PtrMan<uiDialog> cp = new uiClusterProc( 0, iop );
+	PtrMan<uiDialog> cp = new uiClusterProc( nullptr, iop );
 
 	app.setTopLevel( cp );
+	cp->setActivateOnFirstShow();
 	cp->show();
 
 	return app.exec();

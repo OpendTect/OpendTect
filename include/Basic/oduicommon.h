@@ -97,6 +97,12 @@ enum StdActionType
     Video
 };
 
+enum WindowActivationBehavior
+{
+    DefaultActivateWindow,
+    AlwaysActivateWindow
+};
+
 } // namespace OD
 
 
