@@ -75,6 +75,7 @@ int mProgMainFnName( int argc, char** argv )
 	PtrMan<uiDialog> cp = new uiClusterProc( 0, iop );
 
 	app.setTopLevel( cp );
+	cp->setActivateOnFirstShow();
 	cp->show();
 
 	return app.exec();

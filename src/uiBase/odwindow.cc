@@ -235,6 +235,11 @@ void uiMainWinBody::doShow( bool minimized )
 
     move( handle_.popuparea_ );
     raise();
+    if ( uiMainWin::getActivateBehaviour() == OD::AlwaysActivateWindow )
+    {
+	activateWindow();
+	uiMainWin::setActivateBehaviour( OD::DefaultActivateWindow );
+    }
 
     if ( modal_ )
 	eventloop_.exec();

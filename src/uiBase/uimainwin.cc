@@ -32,12 +32,9 @@ ________________________________________________________________________
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QPainter>
+#include <QtPlatformHeaders/QWindowsWindowFunctions>
 #include <QPrinter>
 #include <QScreen>
-
-#ifdef __win__
-# include <QtPlatformHeaders/QWindowsWindowFunctions>
-#endif
 
 mUseQtnamespace
 
@@ -334,18 +331,43 @@ void uiMainWin::showAndActivate()
 }
 
 
+void uiMainWin::setActivateOnFirstShow( bool yn )
+{
+    setActivateBehaviour( yn ? OD::AlwaysActivateWindow
+			     : OD::DefaultActivateWindow );
+}
+
+
+static OD::WindowActivationBehavior activateAct = OD::DefaultActivateWindow;
+
+void uiMainWin::setActivateBehaviour(
+		    OD::WindowActivationBehavior activateact )
+{
+    if ( !__iswin__ )
+	return;
+
+    activateAct = activateact;
+#if QT_VERSION >= QT_VERSION_CHECK(5,7,0)
+    const bool alwayshow = activateAct == OD::AlwaysActivateWindow;
+    QWindowsWindowFunctions::setWindowActivationBehavior(
+	  alwayshow ? QWindowsWindowFunctions::AlwaysActivateWindow
+		    : QWindowsWindowFunctions::DefaultActivateWindow );
+#endif
+}
+
+
+OD::WindowActivationBehavior uiMainWin::getActivateBehaviour()
+{
+    return activateAct;
+}
+
+
 void uiMainWin::activate()
 {
     if ( !finalised() )
 	return;
 
-#ifdef __win__
-# if QT_VERSION >= QT_VERSION_CHECK(5,7,0)
-    QWindowsWindowFunctions::setWindowActivationBehavior(
-			    QWindowsWindowFunctions::AlwaysActivateWindow );
-# endif
-#endif
-
+    setActivateOnFirstShow();
     body_->activateWindow();
 }
 
