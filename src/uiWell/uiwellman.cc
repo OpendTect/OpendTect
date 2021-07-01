@@ -388,7 +388,7 @@ void uiWellMan::edMarkers( CallBacker* )
 
     const MultiID curmid( curioobj_->key() );
     RefMan<Well::Data> wd = Well::MGR().get( curmid,
-					     Well::LoadReqs( Well::Mrkrs ) );
+			 Well::LoadReqs( Well::Trck, Well::D2T, Well::Mrkrs ) );
     if ( !wd )
     {
 	ErrMsg( Well::MGR().errMsg() );
@@ -404,7 +404,7 @@ void uiWellMan::edMarkers( CallBacker* )
     const Well::MarkerSet origmarkers = wd->markers();
 
     wd->track().setName( curioobj_->name() );
-    uiMarkerDlg dlg( this, wd->track() );
+    uiMarkerDlg dlg( this, wd->track(), wd->d2TModel() );
     dlg.setMarkerSet( wd->markers() );
     if ( !dlg.go() )
 	return;

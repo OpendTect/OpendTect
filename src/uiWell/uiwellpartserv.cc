@@ -209,12 +209,12 @@ void uiWellPartServer::importMarkers()
 
     const MultiID mid = wellseldlg.chosenID();
     RefMan<Well::Data> wd = Well::MGR().get( mid,
-				Well::LoadReqs( Well::Trck, Well::Mrkrs ) );
+			Well::LoadReqs( Well::Trck, Well::D2T, Well::Mrkrs ) );
     if ( !wd ) return;
 
     wd->track().setName( wd->name() );
     const Well::MarkerSet origmarkers = wd->markers();
-    uiMarkerDlg dlg( parent(), wd->track() );
+    uiMarkerDlg dlg( parent(), wd->track(), wd->d2TModel() );
     dlg.setMarkerSet( wd->markers() );
     if ( !dlg.go() ) return;
 

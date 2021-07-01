@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "stratlevel.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "welld2tmodel.h"
 #include "welldata.h"
 #include "welldisp.h"
 #include "wellman.h"
@@ -55,8 +56,9 @@ static const int cNameCol  = 0;
 static const int cDepthCol = 1;
 static const int cTVDCol = 2;
 static const int cTVDSSCol = 3;
-static const int cColorCol = 4;
-static const int cLevelCol = 5;
+static const int cTWTCol = 4;
+static const int cColorCol = 5;
+static const int cLevelCol = 6;
 
 
 static void getColumnLabels( uiStringSet& lbls, uiCheckBox* unfld,
@@ -78,6 +80,8 @@ static void getColumnLabels( uiStringSet& lbls, uiCheckBox* unfld,
 	    .add( uiStrings::sTVDSS().withSurvDepthUnit() );
     }
 
+    lbls.add( uiStrings::sTWT().withSurvZUnit() );
+
     lbls.add( uiStrings::sColor() );
     if ( withlvls )
 	lbls.add( uiStrings::sRegionalMarker() );
@@ -96,6 +100,7 @@ static uiTable* createMarkerTable( uiParent* p, int nrrows, bool editable )
     ret->setColumnResizeMode( uiTable::ResizeToContents );
     ret->setColumnStretchable( cLevelCol, true );
     ret->setNrRows( nrrows );
+    ret->setColumnReadOnly( cTWTCol, true );
     ret->setColumnReadOnly( cColorCol, true );
     ret->setPrefWidth( 650 );
 
@@ -119,7 +124,8 @@ static float uiMarkerDlgzFactor( uiCheckBox* cb=0 )
 
 
 void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
-			const Well::Track& trck, uiCheckBox* cb )
+			const Well::Track& trck, const Well::D2TModel* d2t,
+			uiCheckBox* cb )
 {
     uiFileDialog fdlg( p, false, 0, 0, tr("%1 for export")
 				       .arg(uiStrings::sFileName()) );
@@ -139,8 +145,11 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
     getColumnLabels( colnms, cb, false );
     strm << colnms.get( cDepthCol ).getFullString() << od_tab
 	 << colnms.get( cTVDCol ).getFullString() << od_tab
-	 << colnms.get( cTVDSSCol ).getFullString() << od_tab
-	 << colnms.get( cNameCol ).getFullString() << od_newline;
+	 << colnms.get( cTVDSSCol ).getFullString() << od_tab;
+    if ( SI().zIsTime() && d2t )
+	 strm << colnms.get( cTWTCol ).getFullString() << od_tab;
+
+    strm << colnms.get( cNameCol ).getFullString() << od_newline;
 
     const float kbelev = trck.getKbElev();
     const float zfac = uiMarkerDlgzFactor( cb );
@@ -152,16 +161,23 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
 	const float tvd = tvdss + kbelev;
 	strm << dah * zfac << od_tab
 	     << tvd * zfac << od_tab
-	     << tvdss * zfac << od_tab
-	     << mrkr.name() << od_newline;
+	     << tvdss * zfac << od_tab;
+	if ( SI().zIsTime() && d2t )
+	{
+	    const float twt = d2t->getTime( dah, trck );
+	    strm << twt * SI().zDomain().userFactor() << od_tab;
+	}
+	strm << mrkr.name() << od_newline;
     }
 }
 
 
-uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
+uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t,
+			  const Well::D2TModel* d2t )
 	: uiDialog(p,uiDialog::Setup(tr("Edit Well Markers"),mNoDlgTitle,
 				     mODHelpKey(mMarkerDlgHelpID)))
 	, track_(t)
+	, d2tmodel_(d2t)
 	, oldmrkrs_(nullptr)
 {
     uiString title( toUiString("%1: %2") );
@@ -174,8 +190,6 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 						.selmode(uiTable::Multi),
 			  "Well Marker Table" );
     BufferStringSet header;
-    getColLabels( header );
-    table_->setColumnLabels( header.getUiStringSet() );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setColumnStretchable( cLevelCol, true );
     table_->setNrRows( cNrEmptyRows );
@@ -211,6 +225,9 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     unitfld_->attach( rightAlignedBelow, table_ );
     unitfld_->setChecked( SI().depthsInFeet() );
     unitfld_->activated.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
+
+    getColLabels( header );
+    table_->setColumnLabels( header.getUiStringSet() );
 
     setPrefWidthInChar( 60 );
 }
@@ -417,6 +434,12 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	    const float tvdss = sCast(float,track_.getPos(dah).z);
 	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac, 2 );
 	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, 2 );
+	    if ( SI().zIsTime() && d2tmodel_ )
+	    {
+		const float twt = d2tmodel_->getTime( dah, track_ );
+		table_->setValue( RowCol(irow,cTWTCol),
+					 twt * SI().zDomain().userFactor(),2  );
+	    }
 	    table_->setText( RowCol(irow,cNameCol), marker->name() );
 	    table_->setColor( RowCol(irow,cColorCol), marker->color() );
 	    if ( marker->levelID() >= 0 )
@@ -734,7 +757,7 @@ void uiMarkerDlg::exportCB( CallBacker* )
 	return;
     }
 
-    exportMarkerSet( this, mset, track_, unitfld_ );
+    exportMarkerSet( this, mset, track_, d2tmodel_, unitfld_ );
 }
 
 
@@ -837,6 +860,13 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
     if ( md2tvdss || !istvd )
 	table_->setValue( RowCol(row,cTVDCol), tvd * zfac );
 
+    if ( SI().zIsTime() && d2tmodel_ )
+    {
+	const float twt = d2tmodel_->getTime( dah, track_ );
+	table_->setValue( RowCol(row,cTWTCol),
+					 twt * SI().zDomain().userFactor(), 2 );
+    }
+
     return true;
 }
 
@@ -935,5 +965,6 @@ void uiMarkerViewDlg::exportCB( CallBacker* )
     if ( !wd_ )
 	return;
 
-    uiMarkerDlg::exportMarkerSet( this, wd_->markers(), wd_->track() );
+    uiMarkerDlg::exportMarkerSet( this, wd_->markers(), wd_->track(),
+							      wd_->d2TModel() );
 }
