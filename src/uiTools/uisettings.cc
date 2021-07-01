@@ -62,7 +62,7 @@ public:
 			uiPythonSettings(uiParent*, const char*);
     virtual		~uiPythonSettings();
 
-    static CommandDefs	getPythonIDECommands(const BufferStringSet&);
+    static CommandDefs	getPythonIDECommands();
 
 private:
     void		initDlg(CallBacker*);
@@ -186,14 +186,10 @@ void uiSettingsMgr::updateUserCmdToolBar()
     const PtrMan<IOPar> idepar = pythonsetts.subselect( sKey::PythonIDE() );
     BufferString exenm, cmd, iconfile;
     uiString tip;
-    FilePath pybinpath;
-    OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
-    BufferStringSet paths;
-    paths.add( pybinpath.fullPath() );
 
     if ( idepar && idepar->get(sKey::ExeName(),exenm) && !exenm.isEmpty() )
     {
-	const auto commands = uiPythonSettings::getPythonIDECommands( paths );
+	const auto commands = uiPythonSettings::getPythonIDECommands();
 	const int idx = commands.indexOf( exenm );
 	if ( idx != -1 )
 	{
@@ -847,9 +843,9 @@ uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
     sep2->attach( stretchedBelow, custompathfld_ );
 
     pyidefld_ = new uiToolBarCommandEditor( this,
-					    tr("Python IDE Command"),
-					getPythonIDECommands(BufferStringSet()),
-					    true, false );
+					tr("Python IDE Command"),
+					getPythonIDECommands(),
+					true, false );
     pyidefld_->attach( alignedBelow, custompathfld_ );
     pyidefld_->attach( ensureBelow, sep2 );
     pyidefld_->setChecked( false );
@@ -1243,14 +1239,7 @@ bool uiPythonSettings::getPythonEnvBinPath( BufferString& pybinpath ) const
 
 void uiPythonSettings::updateIDEfld()
 {
-    BufferString pybinpath;
-    getPythonEnvBinPath( pybinpath );
-
-    BufferStringSet paths;
-    if ( !pybinpath.isEmpty() )
-	paths.add( pybinpath );
-
-    pyidefld_->updateCmdList( getPythonIDECommands( paths ) );
+    pyidefld_->updateCmdList( getPythonIDECommands() );
 }
 
 
@@ -1355,11 +1344,14 @@ bool uiPythonSettings::acceptOK( CallBacker* )
 }
 
 
-CommandDefs uiPythonSettings::getPythonIDECommands(
-				const BufferStringSet& paths=BufferStringSet() )
+CommandDefs uiPythonSettings::getPythonIDECommands()
 {
-    CommandDefs comms;
+    BufferStringSet paths;
+    FilePath pybinpath;
+    OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
+    paths.add( pybinpath.fullPath() );
 
+    CommandDefs comms;
     comms.addCmd( "jupyter-lab", tr("Jupyter-Lab"), "jupyter-lab.png",
 		  tr("Jupyter Lab"), paths );
     comms.addCmd( "jupyter-notebook", tr("Jupyter-Notebook"),
