@@ -245,6 +245,7 @@ int ODMain( uiMain& app )
     splash->showMessage( "Initializing Scene ..." );
     odmain->initScene();
     splash = nullptr;
+    odmain->setActivateOnFirstShow();
     return odmain->go() ? 0 : 1;
 }
 
