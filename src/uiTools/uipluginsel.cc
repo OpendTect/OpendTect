@@ -15,12 +15,14 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 #include "uigroup.h"
 #include "uilabel.h"
+#include "uimsg.h"
 #include "uipixmap.h"
 #include "uitreeview.h"
 
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "plugins.h"
@@ -131,12 +133,16 @@ static bool hasodLicInstall()
 }
 
 
+static HiddenParam<uiPluginSel,uiUserShowWait*> uipluginseluiswmgr_(nullptr);
+
 uiPluginSel::uiPluginSel( uiParent* p )
 	: uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,
 			mODHelpKey(mPluginSelHelpID) )
 			.applybutton(hasodLicInstall())
+			.nrstatusflds(hasodLicInstall() ? 1 : 0)
 			.applytext(tr("Install licenses")))
 {
+    uipluginseluiswmgr_.setParam( this, nullptr );
     uiString capt =
 	tr( "OpendTect V%1 : Select Plugins" ).arg( GetFullODVersion() );
     setCaption( capt );
@@ -151,8 +157,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
     createUI();
 
     if ( hasodLicInstall() )
-	mAttachCB(applyPushed, uiPluginSel::startLicInstallCB);
-
+	mAttachCB( applyPushed, uiPluginSel::startLicInstallCB );
 }
 
 
@@ -161,6 +166,7 @@ uiPluginSel::~uiPluginSel()
     detachAllNotifiers();
     deepErase( products_ );
     deepErase( vendors_ );
+    uipluginseluiswmgr_.removeAndDeleteParam( this );
 }
 
 
@@ -173,7 +179,7 @@ void uiPluginSel::readVendorList()
 
     for ( int idx=0; idx<vendorpars.size(); idx++ )
     {
-	PluginVendor* pv = new PluginVendor;
+	auto* pv = new PluginVendor;
 	pv->vendorkey_ = vendorpars.getKey(idx);
 	vendorpars.get( pv->vendorkey_, pv->aliases_ );
 	pv->vendorname_ = pv->aliases_.get(0);
@@ -261,11 +267,11 @@ void uiPluginSel::makeProductList(
 
 void uiPluginSel::createUI()
 {
-    uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
+    auto* grp = new uiGroup( this, "OpendTect plugins to load" );
 
-    uiGraphicsViewBase* banner = new uiGraphicsViewBase( grp, "OpendTect" );
+    auto* banner = new uiGraphicsViewBase( grp, "OpendTect" );
     uiPixmap pm( "banner.png" );
-    uiPixmapItem* pmitem = new uiPixmapItem( pm );
+    auto* pmitem = new uiPixmapItem( pm );
     banner->scene().addItem( pmitem );
     banner->setPrefHeight( pm.height() );
     banner->setPrefWidth( pm.width() );
@@ -292,7 +298,8 @@ void uiPluginSel::createUI()
 	    PluginProduct& pprod = *products_[idx];
 	    if ( getVendorIndex(pprod.creator_) != idv )
 		continue;
-	    uiProductTreeItem* item = new uiProductTreeItem( venditem, pprod );
+
+	    auto* item = new uiProductTreeItem( venditem, pprod );
 	    item->setPixmap( 0, uiPixmap(pprod.pckgnm_) );
 	    height++;
 	}
@@ -305,6 +312,9 @@ void uiPluginSel::createUI()
 
 bool uiPluginSel::acceptOK( CallBacker* )
 {
+    if ( uipluginseluiswmgr_.getParam(this) )
+	return false;
+
     FileMultiString dontloadlist;
     for ( int idx=0; idx<products_.size(); idx++ )
     {
@@ -355,15 +365,32 @@ bool uiPluginSel::isVendorSelected( int vendoridx ) const
 
 void uiPluginSel::startLicInstallCB( CallBacker* )
 {
-    Threads::WorkManager::twm().addWork( Threads::Work(mCB(this, uiPluginSel,
-							  showLicInstallCB)) );
+    if ( uipluginseluiswmgr_.getParam(this) )
+	return;
+
+    setButtonSensitive( APPLY, false );
+    uipluginseluiswmgr_.deleteAndZeroPtrParam( this );
+    uipluginseluiswmgr_.setParam( this,
+	    new uiUserShowWait(this, tr("Launching license edition dialog") ) );
+
+    const CallBack startliccb( mCB(this,uiPluginSel,showLicInstallCB) );
+    CallBack finishedcb( mCB(this,uiPluginSel,licInstallDlgClosed) );
+    Threads::WorkManager::twm().addWork(
+		    Threads::Work(startliccb), &finishedcb );
 }
 
 
 void uiPluginSel::showLicInstallCB( CallBacker* )
 {
-   OS::MachineCommand mc( FilePath(GetExecPlfDir(),
-					       sKeyLicInstallExe()).fullPath());
-    const OS::CommandExecPars pars( OS::Wait4Finish );
-    mc.execute(pars);
+    OS::MachineCommand mc( FilePath(GetExecPlfDir(),
+				    sKeyLicInstallExe()).fullPath() );
+    mc.execute();
+}
+
+
+void uiPluginSel::licInstallDlgClosed( CallBacker* )
+{
+    mEnsureExecutedInMainThread( uiPluginSel::licInstallDlgClosed );
+    setButtonSensitive( APPLY, true );
+    uipluginseluiswmgr_.deleteAndZeroPtrParam( this );
 }

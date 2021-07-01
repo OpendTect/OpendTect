@@ -49,6 +49,7 @@ protected:
 
     void			startLicInstallCB(CallBacker*);
     void			showLicInstallCB(CallBacker*);
+    void			licInstallDlgClosed(CallBacker*);
 
     bool			acceptOK(CallBacker*);
 
