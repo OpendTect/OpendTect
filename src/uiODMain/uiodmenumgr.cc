@@ -985,7 +985,8 @@ void uiODMenuMgr::fillUtilMenu()
 	installmnu_->insertSeparator();
     }
 
-    insertAction( installmnu_, m3Dots(tr("Python Settings")), mSettPython );
+    insertAction( installmnu_, m3Dots(tr("Python Settings")), mSettPython,
+		  "python" );
     insertAction( installmnu_, m3Dots(tr("Connection Settings")),
 		 mInstConnSettsMnuItm );
     insertAction( installmnu_, m3Dots(tr("Plugins")), mPluginsMnuItm );

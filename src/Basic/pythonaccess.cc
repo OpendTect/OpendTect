@@ -692,7 +692,7 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 	strm.add( "Start \"%proctitle%\" /MIN " );
 #endif
     BufferStringSet args( cmd.args() );
-#ifdef __unix
+#ifdef __unix__
     const bool isscript = args.size() > 1 && args.get(0) == "-c";
 #endif
     args.insertAt( new BufferString( cmd.program() ), 0 );
@@ -1093,10 +1093,11 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
 	ManagedObjectSet<FilePath> fps;
 	BufferStringSet envnms;
 	getSortedVirtualEnvironmentLoc( fps, envnms );
-	if ( fps.size()<1 )
-	    return;
-	fp = *fps[0];
-	fp.add( "envs" ).add( envnms.get(0) );
+	if ( !fps.isEmpty() )
+	{
+	    fp = *fps.first();
+	    fp.add( "envs" ).add( envnms.first()->buf() );
+	}
     }
 }
 

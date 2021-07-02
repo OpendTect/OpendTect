@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uipathsel.h"
+#include "uipixmap.h"
 #include "uiseparator.h"
 #include "uishortcutsmgr.h"
 #include "uistrings.h"
@@ -48,6 +49,7 @@ ________________________________________________________________________
 
 
 static const char* sKeyCommon = "<general>";
+
 
 
 namespace sKey {
@@ -180,55 +182,70 @@ void uiSettingsMgr::updateUserCmdToolBar()
     commands_.erase();
     toolbarids_.erase();
 
+    if ( usercmdtb_ )
+    {
+	usercmdtb_->addButton( "python", tr("Open Python Settings dialog"),
+				mCB(this,uiSettingsMgr,doPythonSettingsCB) );
+    }
+
 // Python IDE command
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     const PtrMan<IOPar> idepar = pythonsetts.subselect( sKey::PythonIDE() );
-    BufferString exenm, cmd, iconfile;
-    uiString tip;
 
+    BufferString cmd, iconnm;
+    uiString tooltip, uiname;
+    BufferString exenm;
     if ( idepar && idepar->get(sKey::ExeName(),exenm) && !exenm.isEmpty() )
     {
 	const auto commands = uiPythonSettings::getPythonIDECommands();
 	const int idx = commands.indexOf( exenm );
 	if ( idx != -1 )
 	{
-	    int id = 0;
-	    if ( usercmdtb_ )
-		id = usercmdtb_->addButton( commands.getIconName( idx ),
-					    commands.getToolTip( idx ),
-				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
-	    toolbarids_ += id;
-	    commands_.add( commands.get( idx ) );
-	    if ( usercmdmnu_ )
-	    {
-		auto* newitm = new uiAction(
-				tr("Start %1...").arg(commands.getUiName(idx)),
-				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
-		usercmdmnu_->insertAction( newitm, id );
-	    }
+	    cmd = commands.get( idx );
+	    uiname = commands.getUiName( idx );
+	    iconnm = commands.getIconName( idx );
+	    tooltip = commands.getToolTip( idx );
 	}
     }
-    else if ( idepar && idepar->get(sKey::Command(),cmd) && !cmd.isEmpty() )
+    else if ( idepar && idepar->get(sKey::Command(),cmd) && !cmd.isEmpty() &&
+	      File::isExecutable(cmd) )
     {
-	if ( !File::isExecutable(cmd) )
-	    return;
+	idepar->get( sKey::IconFile(), iconnm );
+	idepar->get( sKey::ToolTip(), tooltip );
+	uiname = tooltip;
+    }
+    else
+    {
+	const auto commands = uiPythonSettings::getPythonIDECommands();
+	if ( !commands.isEmpty() )
+	{
+	    const int idx = 0;
+	    cmd = commands.get( idx );
+	    uiname = commands.getUiName( idx );
+	    iconnm = commands.getIconName( idx );
+	    tooltip = commands.getToolTip( idx );
+	}
+    }
 
-	idepar->get( sKey::ToolTip(), tip );
-	idepar->get( sKey::IconFile(), iconfile );
+    if ( !cmd.isEmpty() )
+    {
 	int id = 0;
 	if ( usercmdtb_ )
-	    id = usercmdtb_->addButton( iconfile, tip,
+	    id = usercmdtb_->addButton( iconnm, tooltip,
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
 	commands_.add( cmd );
 	if ( usercmdmnu_ )
 	{
-	    auto* newitm = new uiAction(tr("Start %1...").arg(tip),
-				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	    auto* newitm = new uiAction(tr("Start %1").arg(uiname),
+		    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	    usercmdmnu_->insertAction( newitm, id );
 	}
     }
+
+    cmd.setEmpty(); exenm.setEmpty(); iconnm.setEmpty();
+    tooltip.setEmpty(); uiname.setEmpty();
 
 // Python Terminal command
     const PtrMan<IOPar> termpar = pythonsetts.subselect( sKey::PythonTerm() );
@@ -239,36 +256,44 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	const int idx = commands.indexOf( exenm );
 	if ( idx != -1 )
 	{
-	    int id = 0;
-	    if ( usercmdtb_ )
-		id = usercmdtb_->addButton( commands.getIconName( idx ),
-					    commands.getToolTip( idx ),
-				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
-	    toolbarids_ += id;
-	    commands_.add( commands.get( idx ) );
-	    if ( usercmdmnu_ )
-	    {
-		auto* newitm = new uiAction(
-				tr("Start %1...").arg(commands.getUiName(idx)),
-				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
-		usercmdmnu_->insertAction( newitm, id );
-	    }
+	    cmd = commands.get( idx );
+	    uiname = commands.getUiName( idx );
+	    iconnm = commands.getIconName( idx );
+	    tooltip = commands.getToolTip( idx );
 	}
     }
     else if ( termpar && termpar->get(sKey::Command(),cmd) && !cmd.isEmpty() )
     {
-	termpar->get( sKey::ToolTip(), tip );
-	termpar->get( sKey::IconFile(), iconfile );
+	termpar->get( sKey::IconFile(), iconnm );
+	termpar->get( sKey::ToolTip(), tooltip );
+	uiname = tooltip;
+    }
+    else
+    {
+	const BufferStringSet termpath;
+	const auto& commands = CommandDefs::getTerminalCommands( termpath );
+	if ( !commands.isEmpty() )
+	{
+	    const int idx = 0;
+	    cmd = commands.get( idx );
+	    uiname = commands.getUiName( idx );
+	    iconnm = commands.getIconName( idx );
+	    tooltip = commands.getToolTip( idx );
+	}
+    }
+
+    if ( !cmd.isEmpty() )
+    {
 	int id = 0;
 	if ( usercmdtb_ )
-	    id = usercmdtb_->addButton( iconfile, tip,
+	    id = usercmdtb_->addButton( iconnm, tooltip,
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
 	commands_.add( cmd );
 	if ( usercmdmnu_ )
 	{
-	    auto* newitm = new uiAction(tr("Start %1...").arg(tip),
-				    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+	    auto* newitm = new uiAction(tr("Start %1").arg(uiname),
+		    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	    usercmdmnu_->insertAction( newitm, id );
 	}
     }
@@ -283,7 +308,7 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
 
     const int tbid = action->getID();
     int idx = toolbarids_.indexOf( tbid );
-    if ( !toolbarids_.validIdx( idx ) )
+    if ( !toolbarids_.validIdx(idx) )
 	return;
 
     OS::MachineCommand mc( commands_.get(idx) );
@@ -299,6 +324,14 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
 			      uirv);
 	return;
     }
+}
+
+
+void uiSettingsMgr::doPythonSettingsCB( CallBacker* )
+{
+    uiDialog* dlg = uiSettings::getPythonDlg( uiMain::theMain().topLevel(),
+					      "Set Python Settings" );
+    dlg->go();
 }
 
 
@@ -812,6 +845,7 @@ uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
 		: uiDialog(p, uiDialog::Setup(toUiString(nm),
 		tr("Set Python environment"),mODHelpKey(mPythonSettingsHelpID)))
 {
+    setIcon( uiPixmap("python") );
     pythonsrcfld_ = new uiGenInput(this, tr("Python environment"),
 		StringListInpSpec(OD::PythonSourceDef().strings()));
 
@@ -872,6 +906,7 @@ uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
 
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
 }
+
 
 uiPythonSettings::~uiPythonSettings()
 {
@@ -1357,10 +1392,8 @@ CommandDefs uiPythonSettings::getPythonIDECommands()
     comms.addCmd( "jupyter-notebook", tr("Jupyter-Notebook"),
 		  "jupyter-notebook.png", tr("Jupyter Notebook"), paths );
     comms.addCmd( "spyder", tr("Spyder"), "spyder.png", tr("Spyder"), paths );
-    if ( __iswin__ )
-	comms.addCmd( "idle", tr("Idle"), "idle.png", tr("Idle"), paths );
-    else
-	comms.addCmd( "idle3", tr("Idle"), "idle.png", tr("Idle"), paths );
+    const BufferString idlecmd( __iswin__ ? "idle" : "idle3" );
+    comms.addCmd( idlecmd, tr("Idle"), "idle.png", tr("Idle"), paths );
 
     return comms;
 }
