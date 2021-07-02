@@ -143,55 +143,55 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
     BufferStringSet complist;
     uiMultOutSel::fillInAvailOutNames( *inpdesc, complist );
     uiMultCompDlg compdlg( parent, complist );
-    if ( compdlg.go() )
+    if ( !compdlg.go() )
+	return false;
+
+    MultiID mid;
+    BufferString userrefstr ( inpdesc->userRef() );
+    userrefstr.trimBlanks();
+    if ( stringEndsWith( "|ALL", userrefstr.buf() ))
+	userrefstr[ userrefstr.size()-4 ] = '\0';
+
+    if ( is2d )
     {
-	MultiID mid;
-	BufferString userrefstr ( inpdesc->userRef() );
-	userrefstr.trimBlanks();
-	if ( stringEndsWith( "|ALL", userrefstr.buf() ))
-	    userrefstr[ userrefstr.size()-4 ] = '\0';
+	mid = attrinf.ioobjids_.get(0);
+    }
+    else
+    {
+	const int inpidx = attrinf.ioobjnms_.indexOf( userrefstr.buf() );
+	if ( inpidx<0 ) return false;
 
-	if ( is2d )
-	{
-	    mid = attrinf.ioobjids_.get(0);
-	}
-	else
-	{
-	    const int inpidx = attrinf.ioobjnms_.indexOf( userrefstr.buf() );
-	    if ( inpidx<0 ) return false;
+	mid = attrinf.ioobjids_.get(inpidx);
+    }
 
-	    mid = attrinf.ioobjids_.get(inpidx);
-	}
+    TypeSet<int> selectedcomps;
+    compdlg.getCompNrs( selectedcomps );
+    const int selcompssz = selectedcomps.size();
+    if ( selcompssz )
+	targetspecs.erase();
 
-	TypeSet<int> selectedcomps;
-	compdlg.getCompNrs( selectedcomps );
-	const int selcompssz = selectedcomps.size();
-	if ( selcompssz )
-	    targetspecs.erase();
+    TypeSet<int> outputids;
+    getOutputIDs( *inpdesc, outputids );
+    for ( int idx=0; idx<selcompssz; idx++ )
+    {
+	const int compidx = selectedcomps[idx];
+	const DescID newinpid = curdescset->getStoredID( mid, compidx,
+					true, true, complist.get(compidx) );
+	Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,
+						    complist.get(compidx) );
+	if ( !newdesc ) continue;
 
-	TypeSet<int> outputids;
-	getOutputIDs( *inpdesc, outputids );
-	for ( int idx=0; idx<selcompssz; idx++ )
-	{
-	    const int compidx = selectedcomps[idx];
-	    const DescID newinpid = curdescset->getStoredID( mid, compidx,
-					    true, true, complist.get(compidx) );
-	    Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,
-							complist.get(compidx) );
-	    if ( !newdesc ) continue;
+	if ( !outputids.isEmpty() )
+	    newdesc->selectOutput( outputids[compidx] );
 
-	    if ( !outputids.isEmpty() )
-		newdesc->selectOutput( outputids[compidx] );
-
-	    DescID newdid = curdescset->getID( *newdesc );
-	    SelSpec as( 0, newdid );
-	    BufferString bfs;
-	    newdesc->getDefStr( bfs );
-	    as.setDefString( bfs.buf() );
-	    as.setRefFromID( *curdescset );
-	    as.set2DFlag( is2d );
-	    targetspecs += as;
-	}
+	DescID newdid = curdescset->getID( *newdesc );
+	SelSpec as( 0, newdid );
+	BufferString bfs;
+	newdesc->getDefStr( bfs );
+	as.setDefString( bfs.buf() );
+	as.setRefFromID( *curdescset );
+	as.set2DFlag( is2d );
+	targetspecs += as;
     }
 
     return true;
