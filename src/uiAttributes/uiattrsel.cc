@@ -496,6 +496,8 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     compfld_->box()->addItem( uiStrings::sAll() );
     compfld_->box()->addItems( compnms );
     compfld_->display( compnms.size()>=2 );
+    if ( !in_action_ && compnms.validIdx(attrdata_.compnr_) )
+	compfld_->box()->setCurrentItem( attrdata_.compnr_ + 1 );
 }
 
 
