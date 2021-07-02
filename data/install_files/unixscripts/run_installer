@@ -10,10 +10,9 @@ if [[ "${PLFNAME}" = "Darwin" ]]; then
     exit 1
 else
     if [[ -n "${DTECT_APPL}" ]]; then
-	if [[ "${DTECT_APPL}" == *6.4.0 || "${DTECT_APPL}" == *6.2.0 ]]; then
-	    unset LD_LIBRARY_PATH
-	    export OD_UPDATE_FROM_LEGACY="yes"
-	fi
+        if [[ "${DTECT_APPL}" == *6.4.0 || "${DTECT_APPL}" == *6.2.0 ]]; then
+            unset LD_LIBRARY_PATH
+        fi
     fi
 fi
 
@@ -68,16 +67,5 @@ if [[ -n $DTECT_APPL ]]; then
     export DTECT_APPL=""
 fi
 
-if [[ -z "${OD_UPDATE_FROM_LEGACY}" ]]; then
-    "${curdir}/od_instmgr" "$@"
-    exit $?
-fi
-
-unset OD_UPDATE_FROM_LEGACY
-outputstr=`"${curdir}/od_instmgr" "$@"`
-
-if [[ ("$?" != 0) ]]; then
-   exit $?
-elif [[ "${outputstr}"=="Updates available" ]]; then
-   exit 1
-fi
+"${curdir}/od_instmgr" "$@"
+exit $?
