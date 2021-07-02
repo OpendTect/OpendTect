@@ -70,7 +70,10 @@ HostData::HostData( const HostData& oth )
     , data_pr_( oth.data_pr_ )
     , localhd_( oth.localhd_ )
 {
-    init( oth.hostname_ );
+    if ( oth.isStaticIP() )
+	init( oth.ipaddress_ );
+    else
+	init( oth.hostname_ );
 }
 
 
@@ -139,7 +142,7 @@ void HostData::setAlias( const char* nm )
 bool HostData::isKnownAs( const char* nm ) const
 {
     if ( !nm || !*nm ) return false;
-    if ( hostname_ == nm ) return true;
+    if ( BufferString(getHostName()) == nm ) return true;
     for ( int idx=0; idx<aliases_.size(); idx++ )
 	if ( *aliases_[idx] == nm ) return true;
     return false;
@@ -148,7 +151,7 @@ bool HostData::isKnownAs( const char* nm ) const
 
 void HostData::addAlias( const char* nm )
 {
-    if ( !nm || !*nm || hostname_ == nm ) return;
+    if ( !nm || !*nm || BufferString(getHostName()) == nm ) return;
     for ( int idx=0; idx<aliases_.size(); idx++ )
 	if ( *aliases_[idx] == nm ) return;
     aliases_.add( nm );
@@ -157,7 +160,7 @@ void HostData::addAlias( const char* nm )
 
 BufferString HostData::getFullDispString() const
 {
-    BufferString ret( hostname_ );
+    BufferString ret( getHostName() );
     for ( int idx=0; idx<nrAliases(); idx++ )
 	ret.add( " / " ).add( alias(idx) );
     return ret;
@@ -209,7 +212,12 @@ void HostData::init( const char* nm )
 	setHostName( name );
     }
     else
+    {
 	setIPAddress( name );
+	name = getHostName();
+	char* dot = name.find( '.' );
+	if ( dot ) { *dot ='\0'; addAlias(name); }
+    }
 }
 
 
@@ -651,7 +659,7 @@ void HostDataList::dump( od_ostream& strm ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const HostData* hd = (*this)[idx];
-	mPrMemb(hd,hostname_)
+	mPrMemb(hd,getHostName())
 	mPrMemb(hd,isWindows())
 	mPrMemb(hd,appl_pr_.fullPath())
 	mPrMemb(hd,data_pr_.fullPath())
@@ -710,7 +718,7 @@ void HostDataList::handleLocal()
     if ( hnm != lochd.getHostName() )
     {
 	BufferString oldnm = lochd.getHostName();
-	lochd.hostname_ = hnm;
+	lochd.setHostName( hnm );
 	lochd.addAlias( oldnm );
 	for ( int idx=0; idx<lochd.aliases_.size(); idx++ )
 	{
