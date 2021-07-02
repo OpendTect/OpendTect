@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include <bitset>
 
+class DBKey;
 class IOObj;
 class MultiID;
 class BufferStringSet;
@@ -81,6 +82,7 @@ public:
     void		removeObject(const MultiID&);
     Data*		get(const MultiID&);
     Data*		get(const MultiID&,LoadReqs);
+    Data*		get(const DBKey&,LoadReqs);
     bool		readReqData(const MultiID&,Data*,LoadReqs);
     bool		isLoaded(const MultiID&) const;
     bool		reload(const MultiID&,LoadReqs lreq);

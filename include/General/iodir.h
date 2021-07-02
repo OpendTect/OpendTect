@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "namedobj.h"
 #include "od_iosfwd.h"
+
+class DBKey;
 class IOObj;
 
 
@@ -38,6 +40,7 @@ public:
 			IODir(const char*);
 			IODir(const MultiID&);
 			~IODir();
+
     void		reRead();
     bool		isBad() const		{ return !isok_; }
     const MultiID&	key() const		{ return key_; }
@@ -63,6 +66,7 @@ public:
     bool		permRemove(const MultiID&);
     bool		ensureUniqueName(IOObj&);
 
+    static IOObj*	getObj(const DBKey&);
     static IOObj*	getObj(const MultiID&);
     static IOObj*	getMain(const char*);
 
@@ -86,6 +90,7 @@ private:
     static IOObj*	doRead(const char*,IODir*,int id=-1);
     static void		setDirName(IOObj&,const char*);
     static IOObj*	readOmf(od_istream&,const char*,IODir*,int);
+    static IOObj*	getIOObj(const char* dirnm,const MultiID&);
 
     bool		build();
     bool		wrOmf(od_ostream&) const;

@@ -14,18 +14,20 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "ctxtioobj.h"
-#include "namedobj.h"
 #include "multiid.h"
+#include "namedobj.h"
+#include "surveydisklocation.h"
 
 class CommandLineParser;
 class CtxtIOObj;
 class IODir;
+class IOMManager;
 class IOObj;
 class IOObjContext;
-class IOMManager;
 class IOSubDir;
 class SurveyInfo;
 class SurveyDataTreePreparer;
+class SurveyDiskLocation;
 
 /*!
 \brief manages the 'Meta-'data store for the IOObj's.
@@ -43,6 +45,7 @@ public:
     bool		isReady() const;
     const OD::String&	message() const		{ return msg_; }
 
+    bool		isUsable(const DBKey&) const;
     bool		isUsable(const MultiID&) const;
     bool		implExists(const MultiID&) const;
     bool		isReadOnly(const MultiID&) const;
@@ -57,6 +60,7 @@ public:
 
     void		removeUnusable(DBKeySet&);
 			//! Next functions return a new (unmanaged) IOObj
+    IOObj*		get(const DBKey&) const;
     IOObj*		get(const MultiID&) const;
     IOObj*		getLocal(const char* objname,const char* tgname) const;
     IOObj*		getOfGroup(const char* tgname,bool first=true,
@@ -83,6 +87,7 @@ public:
     bool		isKey(const char* keystr) const;
     const char*		nameOf(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
+    const char*		objectName(const DBKey&) const;
 
     MultiID		createNewKey(const MultiID& dirkey);
 
@@ -134,6 +139,9 @@ public:
 
     static bool		isValidDataRoot(const char* dirnm);
     static bool		isValidSurveyDir(const char* dirnm);
+
+    static void		setTempSurvey(const SurveyDiskLocation&);
+    static void		cancelTempSurvey();
 
 private:
 
@@ -205,3 +213,15 @@ public:
 mGlobal(General) IOMan&	IOM();
 
 
+mExpClass(General) SurveyChanger
+{
+public:
+				SurveyChanger(const SurveyDiskLocation&);
+				~SurveyChanger();
+
+    static bool			hasChanged();
+    static SurveyDiskLocation	changedToSurvey();
+
+private:
+    bool			needscleanup_	= false;
+};

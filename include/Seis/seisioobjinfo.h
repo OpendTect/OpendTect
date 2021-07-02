@@ -38,6 +38,7 @@ mExpClass(Seis) ObjectSummary
 {
 public:
 			ObjectSummary(const MultiID&);
+			ObjectSummary(const DBKey&);
 			ObjectSummary(const IOObj&);
 			ObjectSummary(const IOObj&,Pos::GeomID);
 			ObjectSummary(const ObjectSummary&);
@@ -98,6 +99,7 @@ public:
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
 			SeisIOObjInfo(const MultiID&);
+			SeisIOObjInfo(const DBKey&);
 			SeisIOObjInfo(const char* ioobjnm,Seis::GeomType);
 			SeisIOObjInfo(const SeisIOObjInfo&);
 			~SeisIOObjInfo();

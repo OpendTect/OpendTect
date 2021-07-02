@@ -13,14 +13,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 
 #include "ascstream.h"
-#include "ctxtioobj.h"
 #include "binidvalset.h"
+#include "ctxtioobj.h"
 #include "datapointset.h"
 #include "filepath.h"
 #include "iodir.h"
 #include "iodirentry.h"
-#include "ioobj.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "polygon.h"
@@ -401,4 +401,24 @@ Pick::Set* Pick::getSet( const MultiID& mid, BufferString& errmsg )
     }
 
     return &(Pick::Mgr().get(setidx));
+}
+
+
+
+Pick::Set* Pick::getSet( const DBKey& key, BufferString& errmsg )
+{
+    if ( !key.hasSurveyLocation() )
+	return getSet( sCast(const MultiID&,key), errmsg );
+
+    SurveyChanger chgr( key.surveyDiskLocation() );
+    PtrMan<IOObj> ioobj = IODir::getObj( key );
+    if ( !ioobj )
+	return nullptr;
+
+    Pick::Set* ps = new Pick::Set;
+    if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
+	return ps;
+
+    delete ps;
+    return nullptr;
 }
