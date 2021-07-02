@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iodirentry.h"
 #include "ioman.h"
 #include "ptrman.h"
+#include "surveydisklocation.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "welllog.h"
@@ -74,7 +75,7 @@ void Well::LoadReqs::include( const LoadReqs& oth )
 {
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
     {
-        if ( oth.reqs_[idx]==1 )
+	if ( oth.reqs_[idx]==1 )
             reqs_[ idx ] = 1;
     }
 
@@ -99,7 +100,7 @@ void Well::LoadReqs::exclude( const LoadReqs& oth )
 bool Well::LoadReqs::includes( const LoadReqs& oth ) const
 {
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
-	if ( oth.reqs_[idx] == 1 && reqs_[idx] == 0 )
+	if ( oth.reqs_[idx]==1 && reqs_[idx]==0 )
 	    return false;
     return true;
 }
@@ -225,6 +226,16 @@ Well::Data* Well::Man::get( const MultiID& key, LoadReqs reqs )
     }
 
     return addNew( key, reqs );
+}
+
+
+Well::Data* Well::Man::get( const DBKey& key, LoadReqs reqs )
+{
+    SurveyDiskLocation sdl;
+    if ( key.hasSurveyLocation() )
+	sdl = key.surveyDiskLocation();
+    SurveyChanger chgr( sdl );
+    return get( sCast(const MultiID&,key), reqs );
 }
 
 
@@ -391,7 +402,7 @@ bool Well::Man::getWellKeys( TypeSet<MultiID>& ids, bool onlyloaded )
 bool Well::Man::getWellNames( BufferStringSet& wellnms, bool onlyloaded )
 {
     TypeSet<MultiID> ids;
-    getWellKeys( ids );
+    getWellKeys( ids, onlyloaded );
     for ( int idx=0; idx<ids.size(); idx++ )
 	wellnms.add( IOM().nameOf(ids[idx]) );
 

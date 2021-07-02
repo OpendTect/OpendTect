@@ -114,7 +114,8 @@ BufferString ServerProgTool::getKeyedArgStr( const char* ky,
 
 DBKey ServerProgTool::getDBKey( const char* ky, bool mandatory ) const
 {
-    const DBKey ret( getKeyedArgStr(ky,mandatory) );
+    DBKey ret;
+    ret.fromString( getKeyedArgStr(ky,mandatory) );
     if ( mandatory && !ret.isValid() )
 	respondError( BufferString("Invalid key provided for '",ky,"'") );
     return ret;

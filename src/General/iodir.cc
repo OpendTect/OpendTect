@@ -4,7 +4,6 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "iodir.h"
 
@@ -15,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iosubdir.h"
 #include "safefileio.h"
 #include "separstr.h"
+#include "surveydisklocation.h"
 
 
 IODir::IODir( const char* dirnm )
@@ -174,11 +174,12 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 }
 
 
-IOObj* IODir::getObj( const MultiID& ky )
+
+IOObj* IODir::getIOObj( const char* _dirnm, const MultiID& ky )
 {
-    BufferString dirnm( IOM().rootDir() );
+    BufferString dirnm( _dirnm );
     if ( dirnm.isEmpty() || !File::isDirectory(dirnm) )
-	return 0;
+	return nullptr;
 
     int nrkeys = ky.nrKeys();
     for ( int idx=0; idx<nrkeys; idx++ )
@@ -192,7 +193,24 @@ IOObj* IODir::getObj( const MultiID& ky )
 	delete ioobj;
     }
 
-    return 0;
+    return nullptr;
+}
+
+
+
+IOObj* IODir::getObj( const DBKey& ky )
+{
+    if ( !ky.hasSurveyLocation() )
+	return getObj( sCast(const MultiID&,ky) );
+
+    return getIOObj( ky.surveyDiskLocation().fullPath(), ky );
+}
+
+
+IOObj* IODir::getObj( const MultiID& ky )
+{
+    BufferString dirnm( IOM().rootDir() );
+    return getIOObj( dirnm.buf(), ky );
 }
 
 

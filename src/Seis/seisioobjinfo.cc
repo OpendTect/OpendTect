@@ -15,13 +15,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "keystrs.h"
 #include "globexpr.h"
+#include "hiddenparam.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
+#include "keystrs.h"
 #include "keystrs.h"
 #include "linekey.h"
 #include "posinfo2d.h"
@@ -47,11 +48,24 @@ static const char* rcsID mUsedVar = "$Id$";
 
 Seis::ObjectSummary::ObjectSummary( const MultiID& mid )
     : ioobjinfo_(*new SeisIOObjInfo(mid))
-{ init(); }
+{
+    init();
+}
+
+
+Seis::ObjectSummary::ObjectSummary( const DBKey& dbkey )
+    : ioobjinfo_(*new SeisIOObjInfo(dbkey))
+{
+    init();
+}
+
 
 Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj )
     : ioobjinfo_(*new SeisIOObjInfo(ioobj))
-{ init(); }
+{
+    init();
+}
+
 
 Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj, Pos::GeomID geomid )
     : ioobjinfo_(*new SeisIOObjInfo(ioobj))
@@ -62,7 +76,10 @@ Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj, Pos::GeomID geomid )
 
 Seis::ObjectSummary::ObjectSummary( const Seis::ObjectSummary& oth )
     : ioobjinfo_(*new SeisIOObjInfo(oth.ioobjinfo_))
-{ init(); }
+{
+    init();
+}
+
 
 Seis::ObjectSummary::~ObjectSummary()
 {
@@ -70,8 +87,8 @@ Seis::ObjectSummary::~ObjectSummary()
 }
 
 
-Seis::ObjectSummary& Seis::ObjectSummary::operator =(
-						const Seis::ObjectSummary& oth )
+Seis::ObjectSummary&
+	Seis::ObjectSummary::operator =( const Seis::ObjectSummary& oth )
 {
     if ( &oth == this ) return *this;
 
@@ -155,18 +172,46 @@ bool Seis::ObjectSummary::hasSameFormatAs( const BinDataDesc& desc ) const
 	return rv
 
 
+static HiddenParam<SeisIOObjInfo,SurveyChanger*> hp_changer(nullptr);
+
 SeisIOObjInfo::SeisIOObjInfo( const IOObj* ioobj )
-	: ioobj_(ioobj ? ioobj->clone() : nullptr)	{ setType(); }
+    : ioobj_(ioobj ? ioobj->clone() : nullptr)
+{
+    hp_changer.setParam( this, nullptr );
+    setType();
+}
+
+
 SeisIOObjInfo::SeisIOObjInfo( const IOObj& ioobj )
-	: ioobj_(ioobj.clone())				{ setType(); }
+    : ioobj_(ioobj.clone())
+{
+    hp_changer.setParam( this, nullptr );
+    setType();
+}
+
+
 SeisIOObjInfo::SeisIOObjInfo( const MultiID& id )
-	: ioobj_(IOM().get(id))				{ setType(); }
+    : ioobj_(IOM().get(id))
+{
+    hp_changer.setParam( this, nullptr );
+    setType();
+}
+
+
+SeisIOObjInfo::SeisIOObjInfo( const DBKey& dbkey )
+{
+    hp_changer.setParam( this, new SurveyChanger(dbkey.surveyDiskLocation()) );
+    ioobj_ = IOM().get( dbkey );
+    setType();
+}
 
 
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
 	: geomtype_(geomtype)
 	, ioobj_(nullptr)
 {
+    hp_changer.setParam( this, nullptr );
+
     mGoToSeisDir();
     switch ( geomtype_ )
     {
@@ -192,8 +237,9 @@ SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
 
 
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
-	: ioobj_(nullptr)
+    : ioobj_(nullptr)
 {
+    hp_changer.setParam( this, nullptr );
     mGoToSeisDir();
     ioobj_ = IOM().getLocal( ioobjnm, nullptr );
     setType();
@@ -201,15 +247,15 @@ SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
 
 
 SeisIOObjInfo::SeisIOObjInfo( const SeisIOObjInfo& sii )
-	: geomtype_(sii.geomtype_)
-	, bad_(sii.bad_)
 {
-    ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
+    hp_changer.setParam( this, nullptr );
+    *this = sii;
 }
 
 
 SeisIOObjInfo::~SeisIOObjInfo()
 {
+    hp_changer.removeAndDeleteParam( this );
     delete ioobj_;
 }
 
@@ -222,7 +268,15 @@ SeisIOObjInfo& SeisIOObjInfo::operator =( const SeisIOObjInfo& sii )
 	ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
 	geomtype_ = sii.geomtype_;
 	bad_ = sii.bad_;
+	SurveyChanger* chgr = hp_changer.getParam( this );
+	if ( chgr && chgr->hasChanged() )
+	{
+	    SurveyDiskLocation sdl = chgr->changedToSurvey();
+	    delete hp_changer.getParam( this );
+	    hp_changer.setParam( this, new SurveyChanger(sdl) );
+	}
     }
+
     return *this;
 }
 

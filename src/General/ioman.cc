@@ -14,23 +14,25 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "iodir.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "iosubdir.h"
 #include "keystrs.h"
 #include "msgh.h"
-#include "oddirs.h"
 #include "od_ostream.h"
+#include "oddirs.h"
+#include "perthreadrepos.h"
 #include "separstr.h"
 #include "settings.h"
-#include "perthreadrepos.h"
 #include "strmprov.h"
+#include "surveydisklocation.h"
 #include "survinfo.h"
 #include "timefun.h"
-#include "genc.h"
 #include "transl.h"
 
+extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 
 static bool doRemoveImpl( const IOObj& ioobj )
 {
@@ -516,6 +518,16 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 }
 
 
+IOObj* IOMan::get( const DBKey& ky ) const
+{
+    Threads::Locker lock( lock_ );
+    if ( !IOObj::isKey(ky) )
+	return nullptr;
+
+    return IODir::getObj( ky );
+}
+
+
 IOObj* IOMan::get( const MultiID& k ) const
 {
     Threads::Locker lock( lock_ );
@@ -708,6 +720,16 @@ const char* IOMan::nameOf( const char* id ) const
 }
 
 
+const char* IOMan::objectName( const DBKey& key ) const
+{
+    mDeclStaticString( ret );
+    PtrMan<IOObj> ioobj = IODir::getObj( key );
+    ret = ioobj ? ioobj->name().buf()
+		: BufferString("ID=<",key.toString(false),">").buf();
+    return ret.buf();
+}
+
+
 const char* IOMan::curDirName() const
 {
     return dirptr_ ? dirptr_->dirName() : (const char*)rootdir_;
@@ -848,6 +870,13 @@ void IOMan::removeUnusable( DBKeySet& keys )
 	if ( !isUsable(keys.get(idx)) )
 	    keys.removeSingle( idx );
     }
+}
+
+
+bool IOMan::isUsable( const DBKey& key ) const
+{
+    ConstPtrMan<IOObj> ioobj = IOM().get( key );
+    return ioobj;
 }
 
 
@@ -1448,4 +1477,56 @@ IODir* IOMan::getDir( const MultiID& mid ) const
     }
 
     return nullptr;
+}
+
+
+void IOMan::setTempSurvey( const SurveyDiskLocation& sdl )
+{
+    SetCurBaseDataDirOverrule( sdl.basePath() );
+    SurveyInfo::setSurveyName( sdl.dirName() );
+    IOM().setRootDir( GetDataDir() );
+}
+
+
+void IOMan::cancelTempSurvey()
+{
+    SetCurBaseDataDirOverrule( "" );
+    SurveyInfo::setSurveyName( "" );
+    IOM().setRootDir( GetDataDir() );
+}
+
+
+// SurveyChanger
+SurveyChanger::SurveyChanger( const SurveyDiskLocation& sdl )
+{
+    needscleanup_ = false;
+    if ( sdl.isCurrentSurvey() )
+	return;
+
+    SurveyDiskLocation cursdl = changedToSurvey();
+    if ( cursdl != sdl )
+    {
+	IOMan::setTempSurvey( sdl );
+	needscleanup_ = true;
+    }
+}
+
+
+SurveyChanger::~SurveyChanger()
+{
+    if ( needscleanup_ )
+	IOMan::cancelTempSurvey();
+}
+
+
+bool SurveyChanger::hasChanged()
+{
+    return !changedToSurvey().isCurrentSurvey();
+}
+
+
+SurveyDiskLocation SurveyChanger::changedToSurvey()
+{
+    const FilePath fp( GetDataDir() );
+    return SurveyDiskLocation( fp );
 }
