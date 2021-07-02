@@ -20,11 +20,11 @@ public:
     {
 	if ( __iswin__ )
 	{
-	    addCmd( "wt.exe", tr("Windows Terminal"), "terminal.png",
+	    addCmd( "wt.exe", tr("Windows Terminal"), "terminal-wt.png",
 		    tr("Windows Terminal"), paths );
-	    addCmd( "powershell.exe", tr("Power Shell"), "terminal.png",
+	    addCmd( "powershell.exe", tr("Power Shell"), "powershell.png",
 		    tr("Power Shell"), paths );
-	    addCmd( "cmd.exe", tr("Command Prompt"), "terminal.png",
+	    addCmd( "cmd.exe", tr("Command Prompt"), "cmd.png",
 		    tr("Command Prompt"), paths );
 	}
 	else
