@@ -40,6 +40,7 @@ private:
 
     void	keyPressedCB(CallBacker*);
     void	doToolBarCmdCB(CallBacker*);
+    void	doPythonSettingsCB(CallBacker*);
 
     BufferStringSet	commands_;
     TypeSet<int>	toolbarids_;

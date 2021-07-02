@@ -1093,10 +1093,11 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
 	ManagedObjectSet<FilePath> fps;
 	BufferStringSet envnms;
 	getSortedVirtualEnvironmentLoc( fps, envnms );
-	if ( fps.size()<1 )
-	    return;
-	fp = *fps[0];
-	fp.add( "envs" ).add( envnms.get(0) );
+	if ( !fps.isEmpty() )
+	{
+	    fp = *fps.first();
+	    fp.add( "envs" ).add( envnms.first()->buf() );
+	}
     }
 }
 
