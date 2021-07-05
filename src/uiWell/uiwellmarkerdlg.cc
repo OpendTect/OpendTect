@@ -80,7 +80,10 @@ static void getColumnLabels( uiStringSet& lbls, uiCheckBox* unfld,
 	    .add( uiStrings::sTVDSS().withSurvDepthUnit() );
     }
 
-    lbls.add( uiStrings::sTWT().withSurvZUnit() );
+    if ( SI().zIsTime() )
+	lbls.add( uiStrings::sTWT().withSurvZUnit() );
+    else
+	lbls.add( uiString::empty() );
 
     lbls.add( uiStrings::sColor() );
     if ( withlvls )
@@ -101,6 +104,7 @@ static uiTable* createMarkerTable( uiParent* p, int nrrows, bool editable )
     ret->setColumnStretchable( cLevelCol, true );
     ret->setNrRows( nrrows );
     ret->setColumnReadOnly( cTWTCol, true );
+    ret->hideColumn( cTWTCol, !SI().zIsTime() );
     ret->setColumnReadOnly( cColorCol, true );
     ret->setPrefWidth( 650 );
 
@@ -228,6 +232,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t,
 
     getColLabels( header );
     table_->setColumnLabels( header.getUiStringSet() );
+    table_->hideColumn( cTWTCol, !SI().zIsTime() );
 
     setPrefWidthInChar( 60 );
 }
