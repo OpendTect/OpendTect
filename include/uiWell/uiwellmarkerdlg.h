@@ -19,6 +19,7 @@ class uiStratLevelSel;
 class uiCheckBox;
 class uiTable;
 namespace Well {
+    class D2TModel;
     class Data;
     class Marker;
     class Track;
@@ -31,6 +32,9 @@ namespace Well {
 mExpClass(uiWell) uiMarkerDlg : public uiDialog
 { mODTextTranslationClass(uiMarkerDlg);
 public:
+				uiMarkerDlg(uiParent*,const Well::Track&,
+					    const Well::D2TModel*);
+    mDeprecated("Do not use legacy constructor")
 				uiMarkerDlg(uiParent*,const Well::Track&);
 				~uiMarkerDlg();
 
@@ -40,12 +44,20 @@ public:
     static void			exportMarkerSet(uiParent* p,
 						const Well::MarkerSet& mset,
 						const Well::Track& trck,
-						uiCheckBox* cb=0 );
+						const Well::D2TModel* d2t,
+						uiCheckBox* cb=nullptr );
+
+    mDeprecated("Use function taking Depth to Time model")
+    static void			exportMarkerSet(uiParent* p,
+						const Well::MarkerSet& mset,
+						const Well::Track& trck,
+						uiCheckBox* cb=nullptr );
 protected:
 
     uiTable*			table_;
     uiCheckBox*			unitfld_;
     const Well::Track&		track_;
+    const Well::D2TModel*	d2tmodel_();
     Well::MarkerSet*		oldmrkrs_;
 
     //TODO will go with the Strat level Sel
