@@ -55,6 +55,16 @@ public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
 			const uiString& titletxt=uiString::emptyString());
 			uiIOObjSelDlg(uiParent*,const Setup&,const CtxtIOObj&);
+			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
+			const BufferStringSet& trnotallowed,
+			const uiString& titletxt=uiString::emptyString());
+			uiIOObjSelDlg(uiParent*,const Setup&,const CtxtIOObj&,
+			    const BufferStringSet& trnotallowed);
+			~uiIOObjSelDlg();
+
+
+    void		setTrNotAllowed(const BufferStringSet&);
+    const BufferStringSet&	getTrNotAllowed() const;
 
     int			nrChosen() const	{ return selgrp_->nrChosen(); }
     const MultiID&	chosenID(int i=0) const { return selgrp_->chosenID(i); }

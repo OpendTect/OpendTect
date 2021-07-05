@@ -36,7 +36,7 @@ mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
 
 static HiddenParam<uiIOObjInserter,IOObjContext*> ctxt_(nullptr);
 static HiddenParam<uiIOObjSel,BufferStringSet*> trnotallowed_(nullptr);
-
+static HiddenParam<uiIOObjSelDlg,BufferStringSet*> translnotallowed_(nullptr);
 
 uiIOObjInserter::uiIOObjInserter( const Translator& trl )
     : objectInserted(this)
@@ -167,6 +167,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
     : mConstructorInitListStart(ctio.ctxt_)
     , setup_( ttxt )
 {
+    translnotallowed_.setParam( this, new BufferStringSet() );
     init( ctio );
 }
 
@@ -176,7 +177,47 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
     : mConstructorInitListStart(ctio.ctxt_)
     , setup_( su )
 {
+    translnotallowed_.setParam( this, new BufferStringSet() );
     init( ctio );
+}
+
+
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
+		    const BufferStringSet& trnotallowed, const uiString& ttxt )
+    : mConstructorInitListStart(ctio.ctxt_)
+    , setup_( ttxt )
+{
+    translnotallowed_.setParam( this, trnotallowed.clone() );
+    init( ctio );
+}
+
+
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
+		const CtxtIOObj& ctio, const BufferStringSet& trnotallowed )
+    : mConstructorInitListStart(ctio.ctxt_)
+    , setup_( su )
+{
+    translnotallowed_.setParam( this, trnotallowed.clone() );
+    init( ctio );
+}
+
+
+uiIOObjSelDlg::~uiIOObjSelDlg()
+{
+    detachAllNotifiers();
+    translnotallowed_.removeAndDeleteParam( this );
+}
+
+
+const BufferStringSet& uiIOObjSelDlg::getTrNotAllowed() const
+{
+    return *translnotallowed_.getParam(this);
+}
+
+
+void uiIOObjSelDlg::setTrNotAllowed( const BufferStringSet& trnotallowed )
+{
+    *translnotallowed_.getParam( this ) = trnotallowed;
 }
 
 
@@ -201,10 +242,10 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     sgsu.allowsetdefault( setup_.allowsetsurvdefault_ );
     sgsu.withwriteopts( setup_.withwriteopts_ );
     sgsu.withinserters( setup_.withinserters_ );
-    selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu );
+    selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu, getTrNotAllowed() );
     selgrp_->getListField()->setHSzPol( uiObject::WideVar );
     statusBar()->setTxtAlign( 0, Alignment::Right );
-    selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
+    mAttachCB( selgrp_->newStatusMsg, uiIOObjSelDlg::statusMsgCB );
 
     int nr = setup_.multisel_ ? mPlural : 1;
 
@@ -237,8 +278,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 	captn = captn.arg( toUiString(ctio.ctxt_.name()) );
     setCaption( captn );
 
-    selgrp_->getListField()->doubleClicked.notify(
-	    mCB(this,uiDialog,accept) );
+    mAttachCB( selgrp_->getListField()->doubleClicked, uiDialog::accept );
 }
 
 
@@ -808,7 +848,8 @@ uiIOObjRetDlg* uiIOObjSel::mkDlg()
     sdsu.multisel( false )
 	.withwriteopts( setup_.withwriteopts_ )
 	.withinserters( setup_.withinserters_ );
-    uiIOObjSelDlg* ret = new uiIOObjSelDlg( this, sdsu, workctio_ );
+    uiIOObjSelDlg* ret = new uiIOObjSelDlg( this, sdsu, workctio_,
+						    getTrNotAllowed() );
     uiIOObjSelGrp* selgrp = ret->selGrp();
     if ( selgrp )
     {
