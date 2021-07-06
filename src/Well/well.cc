@@ -4,7 +4,6 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -17,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "idxable.h"
 #include "iopar.h"
 #include "stratlevel.h"
+#include "uistrings.h"
 #include "wellman.h"
 #include "wellreader.h"
 
@@ -65,13 +65,15 @@ mDefineEnumUtils( Well::Info, WellType, "Well Type" )
   "canceledlocation", "injectiondisposalwell", 0 };
 
 mDefineEnumUtils(Well::Info, DepthType, "Depth type")
-{ Well::Info::sKeyMD(), Well::Info::sKeyTVD(), Well::Info::sKeyTVDSS(), 0 };
+{ Well::Info::sKeyMD(), Well::Info::sKeyTVD(), Well::Info::sKeyTVDSS(),
+  sKey::TWT(), nullptr };
  template <>
  void EnumDefImpl<Well::Info::DepthType>::init()
  {
      uistrings_ += ::toUiString( "MD" );
      uistrings_ += ::toUiString( "TVD" );
      uistrings_ += ::toUiString( "TVDSS" );
+     uistrings_ += uiStrings::sTWT();
  }
 
 int Well::Info::legacyLogWidthFactor()
