@@ -40,9 +40,9 @@ inline OD::Color getRandStdDrawColor()
 }
 
 
-inline Color getRandomFillColor()
+inline OD::Color getRandomFillColor()
 {
-    return Color( (unsigned char) (155 + Stats::randGen().getIndex(100)),
-		  (unsigned char) (155 + Stats::randGen().getIndex(100)),
-		  (unsigned char) (155 + Stats::randGen().getIndex(100)) );
+    return OD::Color( (unsigned char) (155 + Stats::randGen().getIndex(100)),
+	    	      (unsigned char) (155 + Stats::randGen().getIndex(100)),
+		      (unsigned char) (155 + Stats::randGen().getIndex(100)) );
 }
