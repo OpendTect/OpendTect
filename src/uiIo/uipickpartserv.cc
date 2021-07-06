@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "color.h"
 #include "datapointset.h"
-#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -41,8 +40,6 @@ int uiPickPartServer::evGetHorDef2D()		{ return 3; }
 int uiPickPartServer::evFillPickSet()		{ return 4; }
 int uiPickPartServer::evDisplayPickSet()	{ return 7; }
 
-HiddenParam<uiPickPartServer,TypeSet<BinID>*> hp_trcpos2d( nullptr );
-
 uiPickPartServer::uiPickPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , psmgr_(Pick::Mgr())
@@ -54,7 +51,6 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
     , exppsdlg_(0)
     , manpicksetsdlg_(0)
 {
-    hp_trcpos2d.setParam( this, new TypeSet<BinID> );
     mAttachCB( IOM().surveyChanged, uiPickPartServer::survChangedCB );
 }
 
@@ -62,7 +58,6 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
 uiPickPartServer::~uiPickPartServer()
 {
     detachAllNotifiers();
-    hp_trcpos2d.removeAndDeleteParam( this );
     delete &uipsmgr_;
     delete &gendef_;
     deepErase( selhorids_ );
@@ -297,12 +292,6 @@ bool uiPickPartServer::createRandom2DSet()
 }
 
 
-TypeSet<BinID>& uiPickPartServer::getTrcPos2D()
-{
-    return *hp_trcpos2d.getParam( this );
-}
-
-
 bool uiPickPartServer::mkRandLocs2DBetweenHors( Pick::Set& ps,
 						const RandLocGenPars& rp )
 {
@@ -312,8 +301,7 @@ bool uiPickPartServer::mkRandLocs2DBetweenHors( Pick::Set& ps,
     if ( rp.horidx2_ >= 0 )
 	selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
 
-    TypeSet<BinID>& trcpos2d = getTrcPos2D();
-    trcpos2d.erase();
+    trcpos2d_.erase();
     coords2d_.erase();
     hor2dzrgs_.erase();
     sendEvent( evGetHorDef2D() );
@@ -329,7 +317,7 @@ bool uiPickPartServer::mkRandLocs2DBetweenHors( Pick::Set& ps,
 	float val =
 	    float( zrg.start + Stats::randGen().get() * zrg.width(false) );
 	Pick::Location loc( coords2d_[posidx], val );
-	const BinID& trcpos = trcpos2d[posidx];
+	const BinID& trcpos = trcpos2d_[posidx];
 	loc.setTrcKey( TrcKey(TrcKey::std2DSurvID(),trcpos) );
 	ps += loc;
     }
