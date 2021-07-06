@@ -49,6 +49,7 @@ public:
 	mDefSetupMemb(bool,allowsetsurvdefault)
 	mDefSetupMemb(bool,withwriteopts)
 	mDefSetupMemb(bool,withinserters)
+	mDefSetupMemb(BufferStringSet,trsnotallwed);
     };
 
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
