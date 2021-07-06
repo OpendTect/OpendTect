@@ -315,7 +315,7 @@ int mProgMainFnName( int argc, char** argv )
 	st.provideInfo();
     else if ( clp.hasKey(sRemoveCmd) )
 	st.removeObj();
-    else if ( clp.isPresent(sCreateCmd) )
+    else if ( clp.hasKey(sCreateCmd) )
 	st.createObj();
     else
 	st.exitWithUsage();
