@@ -34,6 +34,7 @@ ________________________________________________________________________
 static const char* sKeySI = "Survey Info";
 static const char* sKeyXTransf = "Coord-X-BinID";
 static const char* sKeyYTransf = "Coord-Y-BinID";
+static const char* sSurvFile = ".survey";
 static const char* sKeyDefsFile = ".defs";
 static const char* sKeySurvDefs = "Survey defaults";
 static const char* sKeyLogFile = "survey.log";
@@ -321,21 +322,47 @@ Survey::Geometry::RelationType Survey::Geometry3D::compare(
 //==============================================================================
 
 
-static ManagedObjectSet<SurveyInfo> survinfostack;
+static ManagedObjectSet<SurveyInfo>* survinfostack = nullptr;
+
+static void deleteSurveyStack()
+{
+    if ( survinfostack )
+	survinfostack->setEmpty();
+}
+
+ManagedObjectSet<SurveyInfo>& survInfoStackMgr_()
+{
+    static PtrMan<ManagedObjectSet<SurveyInfo> > sistackmgr = nullptr;
+    if ( !sistackmgr )
+    {
+	auto* newsistackmgr = new ManagedObjectSet<SurveyInfo>;
+	if ( sistackmgr .setIfNull(newsistackmgr,true) )
+	    NotifyExitProgram( &deleteSurveyStack );
+    }
+    return *sistackmgr.ptr();
+}
+
+ManagedObjectSet<SurveyInfo>& survInfoStack()
+{
+    if ( !survinfostack )
+	survinfostack = &survInfoStackMgr_();
+    return *survinfostack;
+}
+
 
 const SurveyInfo& SI()
 {
-    int cursurvinfoidx = survinfostack.size() - 1;
+    int cursurvinfoidx = survInfoStack().size() - 1;
     if ( cursurvinfoidx < 0 )
     {
 	SurveyInfo* newsi = SurveyInfo::read( GetDataDir() );
 	if ( !newsi )
 	    newsi = new SurveyInfo;
-	survinfostack += newsi;
-	cursurvinfoidx = survinfostack.size() - 1;
+	survInfoStack() += newsi;
+	cursurvinfoidx = survInfoStack().size() - 1;
     }
 
-    return *survinfostack[cursurvinfoidx];
+    return *survInfoStack()[cursurvinfoidx];
 }
 
 
@@ -344,14 +371,14 @@ void SurveyInfo::pushSI( SurveyInfo* newsi )
     if ( !newsi )
 	pFreeFnErrMsg("Null survinfo pushed");
     else
-	survinfostack += newsi;
+	survInfoStack() += newsi;
 }
 
 
 SurveyInfo* SurveyInfo::popSI()
 {
-    return survinfostack.isEmpty() ? 0
-	 : survinfostack.removeSingle( survinfostack.size()-1 );
+    return survInfoStack().isEmpty() ? 0
+	 : survInfoStack().removeSingle( survInfoStack().size()-1 );
 }
 
 
@@ -1418,6 +1445,59 @@ void SurveyInfo::readSavedCoordSystem() const
 		Coords::CoordSystem::createSystem( *coordsystempar );
 
     sfio.closeSuccess();
+}
+
+#define mErrRetDoesntExist(fnm) \
+    { ret.add( uiStrings::phrFileDoesNotExist(fnm) ); return ret; }
+
+uiRetVal SurveyInfo::isValidDataRoot( const char* inpdirnm )
+{
+    uiRetVal ret;
+
+    FilePath fp( inpdirnm ? inpdirnm : GetBaseDataDir() );
+    const BufferString dirnm( fp.fullPath() );
+    if ( !File::isDirectory(dirnm) || !File::isWritable(dirnm) )
+	mErrRetDoesntExist( dirnm );
+
+    fp.add( ".omf" );
+    const BufferString omffnm( fp.fullPath() );
+    if ( !File::exists(omffnm) )
+	mErrRetDoesntExist( omffnm );
+
+    fp.setFileName( SurveyInfo::sKeySetupFileName() );
+    if ( File::exists(fp.fullPath()) )
+    {
+	// probably we're in a survey. So let's check:
+	fp.setFileName( "Misc" );
+	if ( File::isDirectory(fp.fullPath()) )
+	    ret.add( tr("'%1' has '%2' file").arg(dirnm)
+		    .arg(SurveyInfo::sKeySetupFileName()) );
+    }
+
+    return ret;
+}
+
+
+uiRetVal SurveyInfo::isValidSurveyDir( const char* dirnm )
+{
+    uiRetVal ret;
+
+    FilePath fp( dirnm, ".omf" );
+    const BufferString omffnm( fp.fullPath() );
+    if ( !File::exists(omffnm) )
+	mErrRetDoesntExist( omffnm );
+
+    fp.setFileName( sSurvFile );
+    const BufferString survfnm( fp.fullPath() );
+    if ( !File::exists(survfnm) )
+	mErrRetDoesntExist( survfnm );
+
+    fp.setFileName( sSeismicSubDir() );
+    const BufferString seisdirnm( fp.fullPath() );
+    if ( !File::isDirectory(seisdirnm) )
+	mErrRetDoesntExist( seisdirnm );
+
+    return ret;
 }
 
 

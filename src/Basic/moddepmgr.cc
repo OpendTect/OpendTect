@@ -56,7 +56,14 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
 
 OD::ModDepMgr::~ModDepMgr()
 {
-    deepErase( shlibaccs_ );
+    deepErase(shlibaccs_);
+}
+
+
+void OD::ModDepMgr::closeAll()
+{
+    for ( auto* shlibaccs : shlibaccs_ )
+	shlibaccs->close();
 }
 
 

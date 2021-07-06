@@ -1440,3 +1440,13 @@ BufferString IOMan::getNewTempDataRootDir()
     }
     return tmpdataroot;
 }
+
+
+mExternC(General) const char* setDBMDataSource( const char* fullpath,
+						bool refresh )
+{
+    mDeclStaticString(ret);
+    const uiRetVal uirv = IOM().setDataSource( fullpath, refresh );
+    ret = uirv.getText();
+    return ret.buf();
+}

@@ -26,9 +26,9 @@ extern "C" {
 /* C Access. C++ should use PluginManager! */
 
 /*! To be called from program (once for EARLY, once for LATE) */
-void LoadAutoPlugins(int inittype);
+mGlobal(Basic) void LoadAutoPlugins(int inittype);
 /*! To be called from program if needed */
-int LoadPlugin(const char* libnm);
+mGlobal(Basic) int LoadPlugin(const char* libnm);
 
 }
 
@@ -92,7 +92,8 @@ public:
     void			loadAuto(bool late);
 				//!< see class comments
     bool			load(const char* libnm);
-    					//!< Explicit load of a plugin
+					//!< Explicit load of a plugin
+    void			unLoadAll();
 
     CNotifier<PluginManager,int>    allPluginsLoaded;
 
@@ -100,7 +101,7 @@ public:
     {
 	enum AutoSource		{ None, UserDir, AppDir, Both };
 	static bool		isUserDir( AutoSource src )
-	    			{ return src != AppDir && src != None; }
+				{ return src != AppDir && src != None; }
 
 				Data( const char* nm )
 				    : name_(nm)
@@ -126,11 +127,11 @@ public:
 
     bool		isPresent(const char*) const;
     const char*		userName(const char*) const;
-    			/*!<returns name in plugin-info, or moduleName
-    			    if plugin info is not available. */
-    			
+			/*!<returns name in plugin-info, or moduleName
+			    if plugin info is not available. */
+
     static const char*	moduleName(const char*);
-    			//!< returns without path, 'lib' and extension
+			//!< returns without path, 'lib' and extension
     const char*		getFileName(const Data&) const;
 
     const char*		getAutoDir( bool usr ) const
@@ -141,7 +142,7 @@ public:
 
 private:
 
-    				PluginManager();
+				PluginManager();
 
     ObjectSet<Data>		data_;
 

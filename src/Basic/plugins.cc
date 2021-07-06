@@ -43,12 +43,12 @@ extern "C" {
     typedef const char* (*ArgcArgvCCRetFn)(int,char**);
     typedef PluginInfo* (*PluginInfoRetFn)(void);
 
-    void LoadAutoPlugins( int inittype )
+    mExternC(Basic) void LoadAutoPlugins( int inittype )
     {
 	PIM().loadAuto( inittype == PI_AUTO_INIT_LATE );
     }
 
-    int LoadPlugin( const char* libnm )
+    mExternC(Basic) int LoadPlugin( const char* libnm )
     {
 	return PIM().load( libnm ) ? 1 : 0;
     }
@@ -612,6 +612,20 @@ void PluginManager::loadAuto( bool late )
     }
 
     allPluginsLoaded.trigger( pitype );
+}
+
+
+void PluginManager::unLoadAll()
+{
+    for ( auto* data : data_ )
+    {
+	if ( !data || !data->isloaded_ || !data->sla_ )
+	    continue;
+
+	data->sla_->close();
+	deleteAndZeroPtr( data->sla_ );
+	data->isloaded_ = false;
+    }
 }
 
 

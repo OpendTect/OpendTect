@@ -65,6 +65,9 @@ protected:
     void		readDeps(od_istream&);
     int			getLoadIdx(const char*) const;
 
+public:
+    void		closeAll();
+
 };
 
 mGlobal(Basic) const ModDepMgr& ModDeps();
