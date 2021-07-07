@@ -56,7 +56,7 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
 
 OD::ModDepMgr::~ModDepMgr()
 {
-    deepErase(shlibaccs_);
+    deepErase( shlibaccs_ );
 }
 
 
@@ -149,7 +149,7 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
     {
 	const BufferString& modnm( md->mods_.get(idep) );
 	if ( modnm == "AllNonUi" )
-	    continue; // Not a library, just a group label 
+	    continue; // Not a library, just a group label
 
 	const int loadedidx = getLoadIdx( modnm );
 	if ( loadedidx >= 0 )

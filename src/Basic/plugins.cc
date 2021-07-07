@@ -65,7 +65,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
     BufferString targetlibnm( lnm );
     if ( File::isLink(lnm) )
-	targetlibnm = File::linkTarget(lnm);
+	targetlibnm = File::linkEnd(lnm);
 
     if ( File::exists(targetlibnm) )
     {
@@ -96,6 +96,10 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
     }
 
 #endif
+    else
+    {
+	errmsg_.set( "Library file not found: " ).add( lnm );
+    }
 
     if ( !errmsg_.isEmpty() )
 	ErrMsg( errmsg_ );
@@ -207,13 +211,9 @@ PluginManager::PluginManager()
 }
 
 
-static BufferString getProgNm( const char* argv0 )
+PluginManager::~PluginManager()
 {
-    FilePath fp( argv0 );
-#ifdef __win__
-    fp.setExtension( nullptr );
-#endif
-    return fp.fileName();
+    deepErase( data_ );
 }
 
 
@@ -292,9 +292,8 @@ const PluginManager::Data* PluginManager::findDataWithDispName(
 			const char* nm ) const
 {
     if ( !nm || !*nm ) return 0;
-    for ( int idx=0; idx<data_.size(); idx++ )
+    for ( auto* data : data_ )
     {
-	const Data* data = data_[idx];
 	const PluginInfo* piinf = data->info_;
 	if ( piinf && piinf->dispname_ && FixedString(piinf->dispname_)==nm)
 	    return data;
@@ -318,9 +317,8 @@ const char* PluginManager::getFileName( const PluginManager::Data& data ) const
 
 PluginManager::Data* PluginManager::fndData( const char* nm ) const
 {
-    for ( int idx=0; idx<data_.size(); idx++ )
+    for ( auto* data : data_ )
     {
-	const Data* data = data_[idx];
 	if ( data->name_ == nm )
 	    return const_cast<Data*>(data);
     }
@@ -394,25 +392,28 @@ void PluginManager::getNotLoadedByUser( BufferStringSet& dontloadlist ) const
 
 void PluginManager::openALOEntries()
 {
-    for ( int idx=0; idx<data_.size(); idx++ )
+    for ( auto* dataptr : data_ )
     {
-	Data& data = *data_[idx];
-	data.sla_ = 0;
+	Data& data = *dataptr;
+	deleteAndZeroPtr( data.sla_ );
 	if ( data.autosource_ == Data::None )
 	    continue;
 
 	data.sla_ = new SharedLibAccess( getFileName(data) );
 	if ( !data.sla_->isOK() )
 	{
-	    delete data.sla_; data.sla_ = 0;
+	    const FixedString errmsg( data.sla_->errMsg() );
+	    if ( !errmsg.isEmpty() )
+		ErrMsg( errmsg );
 
+	    deleteAndZeroPtr( data.sla_ );
 	    if ( data.autosource_ == Data::Both )
 	    {
 		data.autosource_ = data.autosource_ == Data::UserDir
 				    ? Data::AppDir : Data::UserDir;
 		data.sla_ = new SharedLibAccess( getFileName(data) );
 		if ( !data.sla_->isOK() )
-		    { delete data.sla_; data.sla_ = 0; }
+		    { deleteAndZeroPtr( data.sla_ ); }
 	    }
 	}
 
@@ -431,7 +432,7 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 {
     FilePath fp( dirnm, sPluginDir, GetPlfSubDir() );
     DirList dl( fp.fullPath(), File::FilesInDir );
-    const BufferString prognm = getProgNm( GetArgV()[0] );
+    const BufferString prognm = GetExecutableName();
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm = dl.get(idx);
@@ -575,9 +576,9 @@ void PluginManager::loadAuto( bool late )
     getNotLoadedByUser( dontloadlist );
 
     const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
-    for ( int idx=0; idx<data_.size(); idx++ )
+    for ( auto* dataptr : data_ )
     {
-	Data& data = *data_[idx];
+	Data& data = *dataptr;
 	if ( !data.sla_ || !data.sla_->isOK() || data.autosource_==Data::None )
 	    continue;
 
