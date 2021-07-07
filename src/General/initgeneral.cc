@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 
+#include "commandlineparser.h"
 #include "dbman.h"
 #include "elasticpropseltransl.h"
 #include "genc.h"
@@ -95,4 +96,5 @@ GeneralModuleIniter::GeneralModuleIniter()
 
     Survey::GeometryIO_init2DGeometry();
     DBM().initFirst(); //Trigger creation & reading of geometries
+    DBM().setDataSource( CommandLineParser() );
 }

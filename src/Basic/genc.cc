@@ -8,6 +8,7 @@
 #include "genc.h"
 
 #include "applicationdata.h"
+#include "commandlineparser.h"
 #include "debug.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -17,8 +18,10 @@
 #include "ptrman.h"
 #include "file.h"
 #include "filepath.h"
+#include "moddepmgr.h"
 #include "staticstring.h"
 #include "threadlock.h"
+#include "plugins.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "od_iostream.h"
@@ -45,19 +48,17 @@
 # define mEnvVarDirSep ':'
 #endif
 
-#ifndef OD_NO_QT
-# include <QString>
-# include <QSysInfo>
-#endif
+#include <QString>
+#include <QSysInfo>
 
 
 static BufferString		initialdir_;
 static int			argc_ = -1;
 static char**			argv_ = nullptr;
-static bool			datarootrequired_ = true;
+static bool			needdataroot_ = true;
 int& GetArgC()			{ return argc_; }
 char** GetArgV()		{ return argv_; }
-bool NeedDataBase()		{ return datarootrequired_; }
+bool NeedDataBase()		{ return needdataroot_; }
 bool AreProgramArgsSet()	{ return argc_ != -1; }
 mGlobal(Basic) void SetArgcAndArgv( int argc, char** argv )
 				{ argc_ = argc; argv_ = argv; }
@@ -803,30 +804,26 @@ static void insertInPath( const char* envkey, const char* dir, const char* sep )
 #endif
 
 
-static void getDataRoot( bool isrequired )
+static bool checkDataRoot()
 {
     BufferString dataroot = GetBaseDataDir();
 
-    bool drootinargs = false;
-    if ( argc_ > 2 && FixedString(argv_[1]) == "--dataroot" )
-    {
-	dataroot = File::linkEnd( argv_[2] );
-	drootinargs = true;
-    }
+    CommandLineParser parser;
+    if ( parser.getKeyedInfo(CommandLineParser::sDataRootArg(),dataroot) )
+	dataroot = File::linkEnd( dataroot );
 
     const uiRetVal uirv = SurveyInfo::isValidDataRoot( dataroot );
-    if ( !uirv.isOK() && isrequired )
+    if ( !uirv.isOK() )
     {
 	ErrMsg( BufferString( argv_[0], ": ", uirv.getText() ) );
-	ExitProgram( 1 );
+	return false;
     }
 
-    if ( drootinargs )
-	SetBaseDataDir( dataroot );
+    return true;
 }
 
 
-mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
+mExtern(Basic) bool SetProgramArgs( int argc, char** argv, bool ddrequired )
 {
     char* getcwdres = getcwd( initialdir_.getCStr(), initialdir_.minBufSize() );
     if ( !getcwdres )
@@ -838,10 +835,11 @@ mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
 	argv_[idx] = argv[idx];
 
     od_putProgInfo( argc_, argv_ );
-    datarootrequired_ = drrequired;
-    getDataRoot( drrequired );
+    needdataroot_ = ddrequired;
+    if ( needdataroot_ && !checkDataRoot() )
+	return false;
 
-#ifndef __win__
+#ifdef __unix__
     File::Path fp( GetFullExecutablePath() );
     const BufferString execdir( fp.pathOnly() );
     insertInPath( "PATH", execdir.buf(), ":" );
@@ -860,27 +858,29 @@ mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool drrequired )
 #else
     SetEnvVar( "DTECT_APPL", GetSoftwareDir(true) );
 #endif
+    return true;
 }
 
 
 static const char* getShortPathName( const char* path )
 {
-#ifndef __win__
+#ifdef __unix__
     return path;
 #else
-    char fullpath[1024];
-
-    // get the fullpath to the exectuabe including the extension.
-    // Necessary because we cannot use argv[0] on Windows
-    GetModuleFileName( NULL, fullpath, (sizeof(fullpath)/sizeof(char)) );
-
-	//Extract the shortname by removing spaces
     mDeclStaticString( shortpath );
+    //Extract the shortname by removing spaces
     shortpath.setMinBufSize( 1025 );
-    GetShortPathName( fullpath, shortpath.getCStr(), shortpath.minBufSize()-1 );
+    GetShortPathName( path, shortpath.getCStr(), shortpath.minBufSize()-1 );
 
     return shortpath;
 #endif
+}
+
+
+static BufferString& GetExecutablePathOverrule()
+{
+    mDeclStaticString(res);
+    return res;
 }
 
 
@@ -893,11 +893,30 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 
     if ( res.isEmpty() )
     {
-	File::Path fpargv0 = argv_[0];
-	if ( !fpargv0.isAbsolute() )
-	    fpargv0 = File::Path( initialdir_, argv_[0] );
+	if ( !GetExecutablePathOverrule().isEmpty() )
+	    res = GetExecutablePathOverrule().str();
+	else
+	{
+	    File::Path executable;
+#ifdef __win__
+	    char fullpath[1024];
 
-	res = getShortPathName( fpargv0.fullPath() );
+	    // get the fullpath to the executabe including the extension.
+	    // Necessary because we cannot use argv[0] on Windows
+	    GetModuleFileName(NULL, fullpath, (sizeof(fullpath)/sizeof(char)));
+	    executable = fullpath;
+#else
+	    executable = GetArgV()[0];
+#endif
+	    if ( !executable.isAbsolute() )
+	    {
+		File::Path filepath = initialdir_.buf();
+		filepath.add( GetArgV()[0] );
+		executable = filepath;
+	    }
+
+	    res = getShortPathName( executable.fullPath() );
+	}
     }
 
     return res;
@@ -917,15 +936,90 @@ mExternC(Basic) const char* GetExecutableName( void )
 	if ( !fpargv0.isAbsolute() )
 	    fpargv0 = File::Path( initialdir_, argv_[0] );
 
-	fpargv0.setExtension( 0 );
+	fpargv0.setExtension( nullptr );
 	res = fpargv0.fileName();
     }
 
     return res;
 }
 
+
 mExternC(Basic) void sleepSeconds( double secs )
 {
     if ( secs > 0 )
 	Threads::sleep( secs );
+}
+
+
+mExternC(Basic) bool SetBindings( const char* odbindir, int argc, char** argv,
+				  bool needdatabase )
+{
+    if ( AreProgramArgsSet() )
+	return true;
+
+    if ( !File::exists(odbindir) && File::isDirectory(odbindir) )
+    {
+	std::cerr << "Err: Cannot set bindings without a valid path";
+	std::cerr << std::endl;
+	return false;
+    }
+
+    BufferString& executablepathoverrule = GetExecutablePathOverrule();
+    executablepathoverrule.set( odbindir )
+			  .add( File::Path::dirSep(File::Path::Local) );
+    BufferString libnm( 256, false );
+    SharedLibAccess::getLibName( "Basic", libnm.getCStr(), libnm.bufSize() );
+    executablepathoverrule.add( libnm );
+
+    if ( !File::exists(executablepathoverrule) )
+    {
+	std::cerr << "Err: Cannot find Basic library in: '";
+	std::cerr << odbindir << "'" << std::endl;
+	return false;
+    }
+
+    const int newargc = argc+1;
+    char** newargv = new char*[newargc];
+    newargv[0] = (char*)(executablepathoverrule.str());
+    for ( int idx=0; idx<argc; idx++ )
+	newargv[idx+1] = argv[idx];
+
+    SetRunContext( OD::BatchProgCtxt );
+    const bool ret = SetProgramArgs( newargc, newargv, needdatabase );
+    delete [] newargv;
+    return ret;
+}
+
+
+mExternC(Basic) bool InitBindings( const char** moddeps, bool forgui )
+{
+    if ( !AreProgramArgsSet() )
+    {
+	std::cerr << "Err: Cannot initialize bindings before they are set";
+	std::cerr << std::endl;
+	return false;
+    }
+
+    PIM().loadAuto( false );
+    while ( true )
+    {
+	const char* moddep = *moddeps++;
+	if ( !moddep || !*moddep )
+	    break;
+
+	OD::ModDeps().ensureLoaded( moddep );
+    }
+
+    if ( forgui )
+	PIM().loadAuto( true );
+
+    return true;
+}
+
+
+mExternC(Basic) void CloseBindings()
+{
+    NotifyExitProgram( (PtrAllVoidFn)(-1) );
+    PIM().unLoadAll();
+    const_cast<OD::ModDepMgr&>( OD::ModDeps() ).closeAll();
 }

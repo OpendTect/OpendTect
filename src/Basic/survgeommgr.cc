@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "dbkey.h"
 
 #include "envvars.h"
+#include "genc.h"
 #include "keystrs.h"
 #include "survinfo.h"
 #include "task.h"
@@ -28,10 +29,32 @@ mUseType( SurvGM,	size_type );
 BufferString Survey::GeometryManager::factorykey_;
 mImplClassFactory(Survey::Geometry2DReader,factory);
 mImplClassFactory(Survey::Geometry2DWriter,factory);
+
+static PtrMan<SurvGM>* thesurvgm = nullptr;
+
+static void deleteSurvGM()
+{
+    if ( thesurvgm )
+	thesurvgm->erase();
+}
+
+PtrMan<SurvGM>& survGMMgr_()
+{
+    static PtrMan<SurvGM> survgmmgr_ = nullptr;
+    if ( !survgmmgr_ )
+    {
+	auto* newsurvgmmgr = new SurvGM;
+	if ( survgmmgr_.setIfNull(newsurvgmmgr,true) )
+	    NotifyExitProgram( &deleteSurvGM );
+    }
+    return survgmmgr_;
+}
+
 const SurvGM& Survey::GM()
 {
-    static PtrMan<SurvGM> theinst = 0;
-    return *theinst.createIfNull();
+    if ( !thesurvgm )
+	thesurvgm = &survGMMgr_();
+    return *(*thesurvgm).ptr();
 }
 
 

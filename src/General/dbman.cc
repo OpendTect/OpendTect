@@ -14,6 +14,7 @@
 #include "filepath.h"
 #include "timefun.h"
 #include "genc.h"
+#include "staticstring.h"
 #include "survinfo.h"
 #include "survgeom.h"
 #include "survgeommgr.h"
@@ -991,4 +992,14 @@ void DBMan::findTempObjs( ObjectSet<IOObj>& ioobjs,
 	const DirID dirid( DirID::get(iosubd->key().objID().getI()) );
 	DBDir::getTmpIOObjs( dirid, ioobjs, cnstrts );
     }
+}
+
+
+mExternC(General) const char* setDBMDataSource( const char* fullpath,
+						bool refresh )
+{
+    mDeclStaticString(ret);
+    const uiRetVal uirv = DBM().setDataSource( fullpath, refresh );
+    ret = uirv.getText();
+    return ret.buf();
 }

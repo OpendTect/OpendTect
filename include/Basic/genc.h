@@ -106,6 +106,25 @@ mGlobal(Basic) const char* GetLastSystemErrorMessage(void);
 inline void EmptyFunction()			{}
 /* Used in some macros and ifdefs */
 
+mGlobal(Basic) bool SetBindings(const char* odbindir,int argc,char** argv,
+			bool needdatabase);
+/*!< Sets the Basic library, one must provide a valid path to the folder
+   containing the OpendTect binaries. Additional arguments can be provided,
+   for instance to set the dataroot and survey:
+   --dataroot "C:\\surveys" --survey F3_Demo
+*/
+mGlobal(Basic) bool InitBindings(const char** moddeps,bool forgui=false);
+/*!< Initialised the basic modules, and auto-loads plugins if needed,
+*    providing that ALO files exists.
+*/
+mGlobal(Basic) void CloseBindings();
+/*!< If you no longer need bindings to OpendTect, this will make
+     OpendTect cleanup and release the libraries if possible */
+
+
+mGlobal(Basic) bool AreProgramArgsSet(void);
+mGlobal(Basic) bool NeedDataBase();
+
 }
 
 
@@ -118,9 +137,7 @@ mGlobal(Basic) void DisableAutoSleep();
 mGlobal(Basic) void EnableAutoSleep();
 
 
-mGlobal(Basic) void SetProgramArgs(int argc,char** argv,
+mGlobal(Basic) bool SetProgramArgs(int argc,char** argv,
                                    bool require_valid_dataroot=true);
-mGlobal(Basic) bool AreProgramArgsSet(void);
 mGlobal(Basic) char** GetArgV(void);
 mGlobal(Basic) int& GetArgC(void);
-mGlobal(Basic) bool NeedDataBase();
