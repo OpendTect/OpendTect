@@ -60,6 +60,13 @@ OD::ModDepMgr::~ModDepMgr()
 }
 
 
+void OD::ModDepMgr::closeAll()
+{
+    for ( auto* shlibaccs : shlibaccs_ )
+	shlibaccs->close();
+}
+
+
 static BufferString mkErrMsg( od_istream& strm, const char* msg,
 				const char* detail )
 {

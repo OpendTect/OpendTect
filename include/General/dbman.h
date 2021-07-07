@@ -30,6 +30,13 @@ There will be one DBMan available through the global function DBM(). Creating
 more instances is probably not a good idea.
 */
 
+extern "C" {
+
+mGlobal(General) const char* setDBMDataSource(const char* fullpath,
+					    bool refresh=false);
+    /*!< Sets the current survey of the database manager IOM()
+	  Returns an error message if it fails */
+}
 
 mExpClass(General) DBMan : public Monitorable
 { mODTextTranslationClass(DBMan);

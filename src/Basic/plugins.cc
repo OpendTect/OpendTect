@@ -45,12 +45,12 @@ extern "C" {
     typedef const char* (*ArgcArgvCCRetFn)(int,char**);
     typedef PluginInfo* (*PluginInfoRetFn)(void);
 
-    void LoadAutoPlugins( int inittype )
+    mExternC(Basic) void LoadAutoPlugins( int inittype )
     {
 	PIM().loadAuto( inittype == PI_AUTO_INIT_LATE );
     }
 
-    int LoadPlugin( const char* libnm )
+    mExternC(Basic) int LoadPlugin( const char* libnm )
     {
 	return PIM().load( libnm ) ? 1 : 0;
     }
@@ -84,6 +84,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 	}
 	SetErrorMode( oldmod );
     }
+
 #else
 
     if ( File::exists(lnm) )
@@ -95,6 +96,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
 	dlerror();    /* Clear any existing error */
     }
+
 #endif
     else
     {
@@ -305,7 +307,7 @@ const PluginManager::Data* PluginManager::findDataWithDispName(
 			const char* nm ) const
 {
     if ( !nm || !*nm ) return 0;
-    for ( auto data : data_ )
+    for ( auto* data : data_ )
     {
 	const PluginInfo* piinf = data->info_;
 	if ( piinf && piinf->dispname_ && FixedString(piinf->dispname_)==nm)
@@ -330,7 +332,7 @@ const char* PluginManager::getFileName( const PluginManager::Data& data ) const
 
 PluginManager::Data* PluginManager::fndData( const char* nm ) const
 {
-    for ( auto data : data_ )
+    for ( auto* data : data_ )
     {
 	if ( data->name_ == nm )
 	    return const_cast<Data*>(data);
@@ -404,7 +406,7 @@ void PluginManager::getNotLoadedByUser( BufferStringSet& dontloadlist ) const
 
 void PluginManager::openALOEntries()
 {
-    for ( auto dataptr : data_ )
+    for ( auto* dataptr : data_ )
     {
 	Data& data = *dataptr;
 	deleteAndZeroPtr( data.sla_ );
@@ -612,7 +614,7 @@ void PluginManager::loadAuto( bool late )
     getNotLoadedByUser( dontloadlist );
 
     const int pitype = late ? PI_AUTO_INIT_LATE : PI_AUTO_INIT_EARLY;
-    for ( auto dataptr : data_ )
+    for ( auto* dataptr : data_ )
     {
 	Data& data = *dataptr;
 	if ( !data.sla_ || !data.sla_->isOK() || data.autosource_==Data::None )
@@ -658,7 +660,7 @@ void PluginManager::loadSurveyRelatedTools()
     BufferStringSet dontloadlist;
     getNotLoadedByUser( dontloadlist );
 
-    for ( auto dataptr : data_ )
+    for ( auto* dataptr : data_ )
     {
 	Data& data = *dataptr;
 	if ( !data.sla_ || !data.sla_->isOK() || data.autosource_==Data::None )
@@ -688,6 +690,20 @@ void PluginManager::loadSurveyRelatedTools()
 	    msg += userName(data.name_); msg += "'";
 	    UsrMsg( msg );
 	}
+    }
+}
+
+
+void PluginManager::unLoadAll()
+{
+    for ( auto* data : data_ )
+    {
+	if ( !data || !data->isloaded_ || !data->sla_ )
+	    continue;
+
+	data->sla_->close();
+	deleteAndZeroPtr( data->sla_ );
+	data->isloaded_ = false;
     }
 }
 

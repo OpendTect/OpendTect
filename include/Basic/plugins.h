@@ -26,9 +26,9 @@ extern "C" {
 /* C Access. C++ should use PluginManager! */
 
 /*! To be called from program (once for EARLY, once for LATE) */
-void LoadAutoPlugins(int inittype);
+mGlobal(Basic) void LoadAutoPlugins(int inittype);
 /*! To be called from program if needed */
-int LoadPlugin(const char* libnm);
+mGlobal(Basic) int LoadPlugin(const char* libnm);
 
 }
 
@@ -99,6 +99,7 @@ public:
 				//!< see class comments
     bool			load(const char* libnm);
 					//!< Explicit load of a plugin
+    void			unLoadAll();
 
     CNotifier<PluginManager,int>    allPluginsLoaded;
 

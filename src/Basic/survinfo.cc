@@ -90,11 +90,11 @@ void EnumDefImpl<SurveyInfo::Pol2D3D>::init()
 #define mZScale() defaultXYtoZScale( mZUnit(), mXYUnit() )
 
 
-static PtrMan<SurveyInfo> global_si_ = 0;
+static PtrMan<SurveyInfo> global_si_ = nullptr;
 
 static void DeleteSI()
 {
-    global_si_ = 0;
+    global_si_ = nullptr;
 }
 
 
@@ -105,10 +105,8 @@ const SurveyInfo& SI( const SurveyInfo* si )
 
     if ( !global_si_ && !IsExiting() )
     {
-	if ( global_si_.setIfNull( new SurveyInfo, true ) )
-	{
+	if ( global_si_.setIfNull(new SurveyInfo,true) )
 	    NotifyExitProgram( &DeleteSI );
-	}
     }
 
     return *global_si_;
@@ -1418,7 +1416,7 @@ void SurveyInfo::readSavedCoordSystem() const
 	defpars_.subselect( sKey::CoordSys() );
 
     RefMan<Coords::CoordSystem> newsys = !crspar ? 0
-		    		: Coords::CoordSystem::createSystem( *crspar );
+				: Coords::CoordSystem::createSystem( *crspar );
     if ( newsys )
 	const_cast<SurveyInfo*>(this)->coordsystem_ = newsys;
 
