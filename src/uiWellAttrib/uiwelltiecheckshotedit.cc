@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "welllog.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
+#include "wellmarker.h"
 #include "welltiecshot.h"
 #include "welltiedata.h"
 #include "welltiegeocalculator.h"
@@ -106,6 +107,11 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     d2tdisplay_->setData( data );
     driftdisplay_->setData( data );
     driftdisplay_->attach( rightOf, d2tdisplay_ );
+
+    BufferStringSet markernms;
+    wd_.markers().getNames( markernms );
+    d2tdisplay_->markerDisp().setMarkerNms( markernms, false );
+    driftdisplay_->markerDisp().setMarkerNms( markernms, false );
 
 #define mInitWidth 400
 #define mInitHeight 600
