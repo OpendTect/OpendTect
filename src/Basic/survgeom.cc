@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 
+#include "genc.h"
 #include "keystrs.h"
 #include "multiid.h"
 #include "survinfo.h"
@@ -28,11 +29,31 @@ mImplFactory(GeometryWriter,GeometryWriter::factory);
 const TrcKey::SurvID GeometryManager::surv2did_ = 0;
 const TrcKey::SurvID GeometryManager::surv3did_ = cSIGeomID;
 
-static PtrMan<GeometryManager> theinst = 0;
+static PtrMan<GeometryManager>* thegeommgr = nullptr;
+
+static void deleteGeometryManager()
+{
+    if ( thegeommgr )
+	thegeommgr->erase();
+}
+
+PtrMan<GeometryManager>& geomMgr_()
+{
+    static PtrMan<GeometryManager> geommgr_ = nullptr;
+    if ( !geommgr_ )
+    {
+	auto* newgeommgr = new GeometryManager;
+	if ( geommgr_.setIfNull(newgeommgr,true) )
+	    NotifyExitProgram( &deleteGeometryManager );
+    }
+    return geommgr_;
+}
 
 const GeometryManager& GM()
 {
-    return *theinst.createIfNull();
+    if ( !thegeommgr )
+	thegeommgr = &geomMgr_();
+    return *(*thegeommgr).ptr();
 }
 
 

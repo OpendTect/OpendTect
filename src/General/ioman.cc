@@ -1512,6 +1512,16 @@ SurveyChanger::SurveyChanger( const SurveyDiskLocation& sdl )
 }
 
 
+mExternC(General) const char* setDBMDataSource( const char* fullpath,
+						bool refresh )
+{
+    mDeclStaticString(ret);
+    const uiRetVal uirv = IOM().setDataSource( fullpath, refresh );
+    ret = uirv.getText();
+    return ret.buf();
+}
+
+
 SurveyChanger::~SurveyChanger()
 {
     if ( needscleanup_ )

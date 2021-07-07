@@ -299,6 +299,9 @@ public:
 
     void		update3DGeometry();
 
+    static uiRetVal	isValidDataRoot(const char*);
+    static uiRetVal	isValidSurveyDir(const char*);
+
     static const char*	curSurveyName();
 
 			// No, you really don't need these!
