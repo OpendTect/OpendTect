@@ -39,8 +39,8 @@ more instances is probably not a good idea.
 
 extern "C" {
 
-mGlobal(Basic) const char* setDBMDataSource(const char* fullpath,
-					    bool refresh=false);
+mGlobal(General) const char* setDBMDataSource(const char* fullpath,
+					      bool refresh=false);
     /*!< Sets the current survey of the database manager IOM()
 	  Returns an error message if it fails */
 }
