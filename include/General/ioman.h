@@ -37,6 +37,14 @@ There will be one IOMan available through the global function IOM(). Creating
 more instances is probably not a good idea.
 */
 
+extern "C" {
+
+mGlobal(Basic) const char* setDBMDataSource(const char* fullpath,
+					    bool refresh=false);
+    /*!< Sets the current survey of the database manager IOM()
+	  Returns an error message if it fails */
+}
+
 mExpClass(General) IOMan : public NamedCallBacker
 { mODTextTranslationClass(IOMan);
 public:

@@ -53,6 +53,11 @@ extern "C" {
     {
 	return PIM().load( libnm ) ? 1 : 0;
     }
+
+    mExternC(Basic) int doLoadPlugin( const char* libnm )
+    {
+	return LoadPlugin( libnm );
+    }
 };
 
 
@@ -621,6 +626,20 @@ void PluginManager::loadAuto( bool late )
 	    msg += userName(data.name_); msg += "'";
 	    UsrMsg( msg );
 	}
+    }
+}
+
+
+void PluginManager::unLoadAll()
+{
+    for ( auto* data : data_ )
+    {
+	if ( !data || !data->isloaded_ || !data->sla_ )
+	    continue;
+
+	data->sla_->close();
+	deleteAndZeroPtr( data->sla_ );
+	data->isloaded_ = false;
     }
 }
 

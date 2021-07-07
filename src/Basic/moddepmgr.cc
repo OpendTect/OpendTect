@@ -61,6 +61,13 @@ OD::ModDepMgr::~ModDepMgr()
 }
 
 
+void OD::ModDepMgr::closeAll()
+{
+    for ( auto* shlibaccs : shlibaccs_ )
+	shlibaccs->close();
+}
+
+
 static BufferString mkErrMsg( od_istream& strm, const char* msg,
 				const char* detail )
 {
@@ -143,7 +150,7 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
     {
 	const BufferString& modnm( md->mods_.get(idep) );
 	if ( modnm == "AllNonUi" )
-	    continue; // Not a library, just a group label 
+	    continue; // Not a library, just a group label
 
 	const int loadedidx = getLoadIdx( modnm );
 	if ( loadedidx >= 0 )

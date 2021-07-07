@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 
+#include "commandlineparser.h"
 #include "mathproperty.h"
 #include "ioman.h"
 #include "genc.h"
@@ -69,5 +70,5 @@ mDefModInitFn(General)
     SimpleT2DTransform::initClass();
     SimpleD2TTransform::initClass();
 
-    IOM(); //Trigger creation & reading of geometries
+    IOM().setDataSource( CommandLineParser() );
 }

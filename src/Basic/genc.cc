@@ -8,6 +8,7 @@
 #include "genc.h"
 
 #include "applicationdata.h"
+#include "commandlineparser.h"
 #include "envvars.h"
 #include "debug.h"
 #include "oddirs.h"
@@ -18,14 +19,17 @@
 #include "ptrman.h"
 #include "file.h"
 #include "filepath.h"
+#include "moddepmgr.h"
 #include "perthreadrepos.h"
 #include "threadlock.h"
 #include "od_iostream.h"
 #include "odmemory.h"
 #include "odruncontext.h"
+#include "plugins.h"
 #include "separstr.h"
 #include "convert.h"
 #include "iopar.h"
+#include "survinfo.h"
 #include <iostream>
 #include <string.h>
 
@@ -61,13 +65,13 @@
 static BufferString		initialdir_;
 static int			argc_ = -1;
 static char**			argv_ = nullptr;
-static bool			datarootrequired_ = true;
+static bool			needdataroot_ = true;
+static bool			datarootseterror_ = false;
 int& GetArgC()			{ return argc_; }
 char** GetArgV()		{ return argv_; }
-bool NeedDataBase()		{ return datarootrequired_; }
+bool NeedDataBase()		{ return needdataroot_; }
 bool AreProgramArgsSet()	{ return argc_ != -1; }
-mGlobal(Basic) void SetArgcAndArgv( int argc, char** argv )
-				{ argc_ = argc; argv_ = argv; }
+
 
 static OD::RunCtxt runctxt_ = OD::UnknownCtxt;
 namespace OD
@@ -834,6 +838,25 @@ static void insertInPath( const char* envkey, const char* dir, const char* sep )
 #endif
 
 
+static bool checkDataRoot()
+{
+    BufferString dataroot = GetBaseDataDir();
+
+    CommandLineParser parser;
+    if ( parser.getVal(CommandLineParser::sDataRootArg(),dataroot) )
+	dataroot = File::linkEnd( dataroot );
+
+    const uiRetVal uirv = SurveyInfo::isValidDataRoot( dataroot );
+    if ( !uirv.isOK() )
+    {
+	ErrMsg( BufferString( argv_[0], ": ", uirv.getText() ) );
+	return false;
+    }
+
+    return true;
+}
+
+
 mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool ddrequired )
 {
     char* getcwdres = getcwd( initialdir_.getCStr(), initialdir_.minBufSize() );
@@ -846,10 +869,14 @@ mExtern(Basic) void SetProgramArgs( int argc, char** argv, bool ddrequired )
 	argv_[idx] = argv[idx];
 
     od_putProgInfo( argc_, argv_ );
+    needdataroot_ = ddrequired;
+    if ( needdataroot_ && !checkDataRoot() )
+    {
+	datarootseterror_ = true;
+	return;
+    }
 
-    datarootrequired_ = ddrequired;
-
-#ifndef __win__
+#ifdef __unix__
     FilePath fp( GetFullExecutablePath() );
     const BufferString execdir( fp.pathOnly() );
     insertInPath( "PATH", execdir.buf(), ":" );
@@ -882,21 +909,13 @@ mExternC(Basic) void SetExecutablePathOverrule(const char* dirnm)
 
 static const char* getShortPathName( const char* path )
 {
-    if (!executablepathoverrule.isEmpty())
-	return executablepathoverrule;
-#ifndef __win__
+#ifdef __unix__
     return path;
 #else
-    char fullpath[1024];
-
-    // get the fullpath to the exectuabe including the extension.
-    // Necessary because we cannot use argv[0] on Windows
-    GetModuleFileName( NULL, fullpath, (sizeof(fullpath)/sizeof(char)) );
-
-	//Extract the shortname by removing spaces
     mDeclStaticString( shortpath );
+    //Extract the shortname by removing spaces
     shortpath.setMinBufSize( 1025 );
-    GetShortPathName( fullpath, shortpath.getCStr(), shortpath.minBufSize()-1 );
+    GetShortPathName( path, shortpath.getCStr(), shortpath.minBufSize()-1 );
 
     return shortpath;
 #endif
@@ -912,15 +931,30 @@ mExternC(Basic) const char* GetFullExecutablePath( void )
 
     if ( res.isEmpty() )
     {
-	FilePath executable = GetArgV()[0];
-	if ( !executable.isAbsolute() )
+	if ( !executablepathoverrule.isEmpty() )
+	    res = executablepathoverrule;
+	else
 	{
-	    FilePath filepath = initialdir_.buf();
-	    filepath.add( GetArgV()[0] );
-	    executable = filepath;
-	}
+	    FilePath executable;
+#ifdef __win__
+	    char fullpath[1024];
 
-	res = getShortPathName( executable.fullPath() );
+	    // get the fullpath to the executabe including the extension.
+	    // Necessary because we cannot use argv[0] on Windows
+	    GetModuleFileName(NULL, fullpath, (sizeof(fullpath)/sizeof(char)));
+	    executable = fullpath;
+#else
+	    executable = GetArgV()[0];
+#endif
+	    if ( !executable.isAbsolute() )
+	    {
+		FilePath filepath = initialdir_.buf();
+		filepath.add( GetArgV()[0] );
+		executable = filepath;
+	    }
+
+	    res = getShortPathName( executable.fullPath() );
+	}
     }
 
     return res;
@@ -947,8 +981,83 @@ mExternC(Basic) const char* GetExecutableName( void )
     return res;
 }
 
+
 mExternC(Basic) void sleepSeconds( double secs )
 {
     if ( secs > 0 )
 	Threads::sleep( secs );
+}
+
+
+mExternC(Basic) bool SetBindings( const char* odbindir, int argc, char** argv,
+				  bool needdatabase )
+{
+    if ( AreProgramArgsSet() )
+	return true;
+
+    if ( !File::exists(odbindir) && File::isDirectory(odbindir) )
+    {
+	std::cerr << "Err: Cannot set bindings without a valid path";
+	std::cerr << std::endl;
+	return false;
+    }
+
+    executablepathoverrule.set( odbindir )
+			  .add( FilePath::dirSep(FilePath::Local) );
+    BufferString libnm( 256, false );
+    SharedLibAccess::getLibName( "Basic", libnm.getCStr(), libnm.bufSize() );
+    executablepathoverrule.add( libnm );
+
+    if ( !File::exists(executablepathoverrule) )
+    {
+	std::cerr << "Err: Cannot find Basic library in: '";
+	std::cerr << odbindir << "'" << std::endl;
+	return false;
+    }
+
+    const int newargc = argc+1;
+    char** newargv = new char*[newargc];
+    newargv[0] = (char*)(executablepathoverrule.str());
+    for ( int idx=0; idx<argc; idx++ )
+	newargv[idx+1] = argv[idx];
+
+    SetRunContext( OD::BatchProgCtxt );
+    SetProgramArgs( newargc, newargv, needdatabase );
+    const bool ret = datarootseterror_;
+    delete [] newargv;
+    return ret;
+}
+
+
+mExternC(Basic) bool InitBindings( const char** moddeps, bool forgui )
+{
+    if ( !AreProgramArgsSet() )
+    {
+	std::cerr << "Err: Cannot initialize bindings before they are set";
+	std::cerr << std::endl;
+	return false;
+    }
+
+    PIM().loadAuto( false );
+    while ( true )
+    {
+	const char* moddep = *moddeps++;
+	if ( !moddep || !*moddep )
+	    break;
+
+	OD::ModDeps().ensureLoaded( moddep );
+    }
+
+    if ( forgui )
+	PIM().loadAuto( true );
+
+    return true;
+}
+
+
+mExternC(Basic) void CloseBindings()
+{
+    NotifyExitProgram( (PtrAllVoidFn)(-1) );
+    PIM().unLoadAll();
+    const_cast<OD::ModDepMgr&>( OD::ModDeps() ).closeAll();
 }
