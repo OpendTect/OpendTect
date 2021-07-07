@@ -29,22 +29,24 @@ public:
 	}
 	else
 	{
-	    addCmd( "konsole", tr("KDE Konsole"), "terminal.png",
+	    addCmd( "konsole", tr("KDE Konsole"), "terminal-kde.png",
 		    tr("KDE Konsole"), paths );
-	    addCmd( "gnome-terminal", tr("Gnome Terminal"), "terminal.png",
-		    tr("Gnome Terminal"), paths );
-	    addCmd( "terminator", tr("Terminator"), "terminal.png",
+	    addCmd( "gnome-terminal", tr("Gnome Terminal"),
+			"terminal-gnome.png", tr("Gnome Terminal"), paths );
+	    addCmd( "terminator", tr("Terminator"), "terminal-terminator.png",
 		    tr("Terminator"), paths );
-	    addCmd( "quake", tr("Quake"), "terminal.png", tr("Quake"), paths );
-	    addCmd( "yakuake", tr("Yakuake"), "terminal.png", tr("Yakuake"),
-		    paths);
-	    addCmd( "tilda", tr("Tilda"), "terminal.png", tr("Tilda"), paths );
-	    addCmd( "macterm", tr("MacTerm"), "terminal.png", tr("MacTerm"),
-		    paths );
-	    addCmd( "Terminal", tr("Terminal"), "terminal.png", tr("Terminal"),
-		    paths );
-	    addCmd( "xterm", tr("X Terminal"), "terminal.png", tr("X Terminal"),
-		    paths );
+	    addCmd( "quake", tr("Quake"), "terminal-quake.png",
+			tr("Quake"), paths );
+	    addCmd( "yakuake", tr("Yakuake"), "terminal-yakuake.png",
+			tr("Yakuake"), paths);
+	    addCmd( "tilda", tr("Tilda"), "terminal-tilda.png",
+			tr("Tilda"), paths );
+	    addCmd( "macterm", tr("MacTerm"), "terminal-mac.png",
+			tr("MacTerm"), paths );
+	    addCmd( "Terminal", tr("Terminal"), "terminal.png",
+			tr("Terminal"), paths );
+	    addCmd( "xterm", tr("X Terminal"), "terminal-xterm.png",
+			tr("X Terminal"), paths );
 	}
     }
 };
