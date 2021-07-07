@@ -1023,7 +1023,7 @@ mExternC(Basic) bool SetBindings( const char* odbindir, int argc, char** argv,
 
     SetRunContext( OD::BatchProgCtxt );
     SetProgramArgs( newargc, newargv, needdatabase );
-    const bool ret = datarootseterror_;
+    const bool ret = !datarootseterror_;
     delete [] newargv;
     return ret;
 }
