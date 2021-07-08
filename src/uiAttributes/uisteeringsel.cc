@@ -13,6 +13,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisteeringsel.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribdescsetman.h"
+#include "attribdescsetsholder.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsel.h"
@@ -34,6 +36,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 using namespace Attrib;
+
+namespace Attrib
+{
+
+IOPar& uiSteerSelinpSelHist( bool is2d )
+{
+    static PtrMan<IOPar> ret;
+    DescSetMan* dsman = eDSHolder().getDescSetMan( is2d );
+    if ( !dsman && !ret )
+	ret = new IOPar( "Fallback Steering selection history" );
+
+    return dsman ? dsman->steerSelHistory() : *ret.ptr();
+}
+
+} // namespace Attrib
 
 IOPar& uiSteeringSel::inpselhist = *new IOPar( "Steering selection history" );
 
@@ -75,17 +92,18 @@ void uiSteeringSel::createFields()
     steertyps.add( "None" ).add( "Central" ).add( "Full" );
     if ( withconstdir_ ) steertyps.add ( "Constant direction" );
     typfld_ = new uiGenInput( this, uiStrings::sSteering(), 
-                              StringListInpSpec(steertyps) );
+			      StringListInpSpec(steertyps) );
     typfld_->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
 
     inpfld_ = new uiSteerAttrSel( this, descset_, is2d_ );
-    inpfld_->getHistory( inpselhist );
+    inpfld_->getHistory( uiSteerSelinpSelHist(is2d_) );
     inpfld_->attach( alignedBelow, typfld_ );
 
-    dirfld_ = new uiGenInput( this, tr("Azimuth (Inline-based)"), FloatInpSpec() );
+    dirfld_ = new uiGenInput( this, tr("Azimuth (Inline-based)"),
+			      FloatInpSpec() );
     dirfld_->attach( alignedBelow, typfld_ );
     uiString dipstr = tr("Apparent dip %1").arg(SI().zIsTime() ? tr("(us/m)") 
-						            : tr("(degrees)"));
+							    : tr("(degrees)"));
     dipfld_ = new uiGenInput( this, dipstr, FloatInpSpec() );
     dipfld_->attach( alignedBelow, dirfld_ );
 
@@ -145,13 +163,13 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
     {
 	type = 1;
 	inpfld_->setDesc( ad->getInput(0) );
-	inpfld_->updateHistory( inpselhist );
+	inpfld_->updateHistory( uiSteerSelinpSelHist(is2d_) );
     }
     else if ( attribname == "FullSteering" )
     {
 	type = 2;
 	inpfld_->setDesc( ad->getInput(0) );
-	inpfld_->updateHistory( inpselhist );
+	inpfld_->updateHistory( uiSteerSelinpSelHist(is2d_) );
     }
 
     if ( !notypechange_ )

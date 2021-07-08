@@ -43,7 +43,8 @@ public:
                         //!< Added for convenience in UI building
 
     void		fillHist();
-    IOPar&		inputHistory()			{ return inpselhist_; }
+    IOPar&		inputHistory()		{ return inpselhist_; }
+    IOPar&		steerSelHistory()	{ return steerselhist_; }
 
     MultiID		attrsetid_;
 
