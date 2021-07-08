@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "uisteeringsel.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribdescsetman.h"
+#include "attribdescsetsholder.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsel.h"
@@ -33,6 +35,22 @@ ________________________________________________________________________
 
 
 using namespace Attrib;
+
+namespace Attrib
+{
+
+static IOPar& uiSteerSelinpSelHist( bool is2d )
+{
+    static PtrMan<IOPar> ret;
+    DescSetMan* dsman = eDSHolder().getDescSetMan( is2d );
+    if ( !dsman && !ret )
+	ret = new IOPar( "Fallback Steering selection history" );
+
+    return dsman ? dsman->steerSelHistory() : *ret.ptr();
+}
+
+} // namespace Attrib
+
 
 uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
 			      bool is2d, bool withconstdir, bool doinit )
@@ -75,6 +93,7 @@ void uiSteeringSel::createFields()
     typfld_->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
 
     inpfld_ = new uiSteerAttrSel( this, descset_, is2d_ );
+    inpfld_->getHistory( uiSteerSelinpSelHist(is2d_) );
     inpfld_->attach( alignedBelow, typfld_ );
 
     dirfld_ = new uiGenInput( this, tr("Azimuth (Inline-based)"),
@@ -141,11 +160,13 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
     {
 	type = 1;
 	inpfld_->setDesc( ad->getInput(0) );
+	inpfld_->getHistory( uiSteerSelinpSelHist(is2d_) );
     }
     else if ( attribname == "FullSteering" )
     {
 	type = 2;
 	inpfld_->setDesc( ad->getInput(0) );
+	inpfld_->getHistory( uiSteerSelinpSelHist(is2d_) );
     }
 
     if ( !notypechange_ )
