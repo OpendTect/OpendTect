@@ -1448,19 +1448,33 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
 }
 
 
-bool OD::PythonAccess::openTerminal() const
+bool OD::PythonAccess::openTerminal( const char* cmdstr,
+				     const BufferStringSet* args,
+				     const char* workingdirstr ) const
 {
-    const BufferString termem = SettingsAccess().getTerminalEmulator();
+    if ( !cmdstr || !*cmdstr )
+    {
+	laststderr_ = "[Internal] No terminal name provided";
+	return false;
+    }
+
 #ifdef __win__
-    OS::MachineCommand cmd( "start" );
-    cmd.addArg( termem );
+    OS::MachineCommand mc( "start" );
+    mc.addArg( cmdstr );
     OS::CommandExecPars pars( OS::Wait4Finish );
 #else
-    OS::MachineCommand cmd( termem );
+    OS::MachineCommand mc( cmdstr );
     OS::CommandExecPars pars( OS::RunInBG );
 #endif
-    pars.workingdir( GetPersonalDir() );
-    return execute( cmd, pars );
+    if ( args )
+	mc.addArgs( *args );
+
+    BufferString workingdir( workingdirstr );
+    if ( workingdir.isEmpty() )
+	workingdir.set( GetPersonalDir() );
+
+    pars.workingdir( workingdir );
+    return execute( mc, pars );
 }
 
 

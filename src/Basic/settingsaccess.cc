@@ -152,33 +152,3 @@ void SettingsAccess::setHostNameOverrule( const char* nm )
     if ( overrule != orgoverrule )
 	settings_.write( false );
 }
-
-
-BufferString SettingsAccess::getTerminalEmulator()
-{
-    const BufferString orgtermcmd = settings_.find( sKey::TermEm() );
-    const BufferStringSet paths;
-    BufferString termcmd = orgtermcmd;
-    if ( termcmd.isEmpty() )
-	termcmd = CommandDefs::getTerminalCommands( paths ).get(0);
-
-    settings_.set( sKey::TermEm(), termcmd );
-    if ( termcmd != orgtermcmd )
-	settings_.write( false );
-
-    return termcmd;
-}
-
-void SettingsAccess::setTerminalEmulator( const char* cmd )
-{
-    const BufferString orgtermcmd = settings_.find( sKey::TermEm() );
-    const BufferString termcmd( cmd );
-
-    if ( termcmd.isEmpty() )
-	settings_.removeWithKey( sKey::TermEm() );
-    else
-	settings_.set( sKey::TermEm(), termcmd );
-
-    if ( termcmd != orgtermcmd )
-	settings_.write( false );
-}

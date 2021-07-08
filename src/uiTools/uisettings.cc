@@ -132,12 +132,69 @@ void uiSettingsMgr::keyPressedCB( CallBacker* )
 	OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
     if ( bs == OD::ControlButton && kbe.key_==OD::KB_T && !kbe.isrepeat_ )
     {
-	terminalRequested.trigger();
 	uiMain::keyboardEventHandler().setHandled( true );
-	const BufferString workdir( GetPersonalDir() );
-	if ( !OD::PythA().openTerminal() )
-	    OS::CommandLauncher::openTerminal( workdir );
+	openTerminal();
     }
+}
+
+
+uiRetVal uiSettingsMgr::openTerminal( bool withfallback, const char* cmdstr,
+				      const BufferStringSet* args,
+				      const char* workingdir )
+{
+    uiRetVal uirv;
+    BufferString cmd( cmdstr );
+    if ( cmd.isEmpty() )
+    {
+	if ( commands_.validIdx(termcmdidx_) )
+	{
+	    cmd = commands_.get( termcmdidx_ );
+	}
+	else
+	{
+	    const CommandDefs& cmddefs =
+			CommandDefs::getTerminalCommands( BufferStringSet() );
+	    if ( cmddefs.isEmpty() )
+	    {
+		uirv = tr("No suitable terminal emulator found on this system");
+		return uirv;
+	    }
+
+	    cmd.set( cmddefs.first()->buf() );
+	}
+    }
+
+    terminalRequested.trigger();
+    BufferString errmsg;
+    uiString launchermsg;
+    bool res = OD::PythA().openTerminal( cmd, args, workingdir );
+    if ( !res )
+    {
+	uiString firstmsg = tr( "Cannot launch terminal" );
+	if ( withfallback )
+	{
+	    res = OS::CommandLauncher::openTerminal( cmd, args,
+					&errmsg, &launchermsg, workingdir );
+	    if ( !res && !errmsg.isEmpty() )
+		firstmsg.appendPhraseSameLine( tr(": %1").arg(errmsg) );
+	}
+	else
+	{
+	    errmsg = OD::PythA().lastOutput( true, &launchermsg );
+	    if ( !errmsg.isEmpty() )
+		firstmsg.appendPhraseSameLine( tr(" withpython: %1")
+						.arg(errmsg) );
+	}
+
+	if ( !res )
+	{
+	    uirv.add( firstmsg );
+	    if ( !launchermsg.isEmpty() )
+		uirv.add( launchermsg );
+	}
+    }
+
+    return uirv;
 }
 
 
@@ -181,6 +238,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	usercmdmnu_->clear();
     commands_.erase();
     toolbarids_.erase();
+    termcmdidx_ = -1;
 
     if ( usercmdtb_ )
     {
@@ -287,16 +345,34 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	int id = 0;
 	if ( usercmdtb_ )
 	    id = usercmdtb_->addButton( iconnm, tooltip,
-				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+				mCB(this,uiSettingsMgr,doTerminalCmdCB) );
 	toolbarids_ += id;
 	commands_.add( cmd );
+	termcmdidx_ = commands_.size()-1;
 	if ( usercmdmnu_ )
 	{
 	    auto* newitm = new uiAction(tr("Start %1").arg(uiname),
-		    mCB(this,uiSettingsMgr,doToolBarCmdCB) );
+		    mCB(this,uiSettingsMgr,doTerminalCmdCB) );
 	    usercmdmnu_->insertAction( newitm, id );
 	}
     }
+}
+
+
+void uiSettingsMgr::doTerminalCmdCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiAction*,action,cb);
+    if ( !action )
+	return;
+
+    const int tbid = action->getID();
+    int idx = toolbarids_.indexOf( tbid );
+    if ( !toolbarids_.validIdx(idx) )
+	return;
+
+    const uiRetVal uirv = openTerminal( true, commands_.get(idx) );
+    if ( !uirv.isOK() )
+	uiMSG().error( uirv );
 }
 
 
@@ -1074,15 +1150,10 @@ void uiPythonSettings::usePar( const IOPar& par )
 bool uiPythonSettings::commitSetts( const IOPar& iop )
 {
     Settings& setts = Settings::fetch( iop.name() );
-    setts.IOPar::operator =(iop);
-    if ( pytermfld_->isChecked() )
-	SettingsAccess().setTerminalEmulator( pytermfld_->getCommand() );
-    else
-	SettingsAccess().setTerminalEmulator( nullptr );
-
+    setts.IOPar::operator =( iop );
     if ( !setts.write(false) )
     {
-	uiMSG().error(tr("Cannot write %1").arg(setts.name()));
+	uiMSG().error( tr( "Cannot write %1" ).arg( setts.name() ) );
 	return false;
     }
 
@@ -1140,7 +1211,7 @@ void uiPythonSettings::setCustomEnvironmentNames()
 						      &externalroot );
     for ( int idx=envnames.size()-1; idx>=0; idx-- )
     {
-        if ( envnames.get(idx).isEmpty() )
+	if ( envnames.get(idx).isEmpty() )
 	    envnames.removeSingle(idx);
     }
 
@@ -1209,15 +1280,11 @@ void uiPythonSettings::promptCB( CallBacker* )
     if ( !useScreen() )
 	return;
 
-    if ( !OD::PythA().openTerminal() )
+    uiRetVal uirv = uiSettsMgr().openTerminal( false );
+    if ( !uirv.isOK() )
     {
-	uiString launchermsg;
-	uiRetVal uirv( tr("Cannot launch terminal with python:\n%1")
-	    .arg(OD::PythA().lastOutput(true,&launchermsg)) );
-	uirv.add( tr("Python environment not usable") )
-	    .add( launchermsg );
+	uirv.add( tr("Python environment not usable") );
 	uiMSG().error( uirv );
-	return;
     }
 }
 
@@ -1331,6 +1398,7 @@ bool uiPythonSettings::useScreen()
 
     OD::PythA().istested_ = false;
     OD::PythA().updatePythonPath();
+    uiSettsMgr().updateUserCmdToolBar();
 
     return true;
 }
@@ -1345,6 +1413,7 @@ bool uiPythonSettings::rejectOK( CallBacker* )
 	OD::PythA().istested_ = false;
 	OD::PythA().envChangeCB( nullptr );
 	OD::PythA().updatePythonPath();
+	uiSettsMgr().updateUserCmdToolBar();
     }
     else
 	uiMSG().warning( tr("Cannot restore the initial settings") );

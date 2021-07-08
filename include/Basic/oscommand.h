@@ -41,7 +41,7 @@ public:
 			    , needmonitor_(false)
 			    , prioritylevel_(lt>=Batch ? -1.0f : 0.0f)
 			    , isconsoleuiprog_(false)
-                , runasadmin_(false)     {}
+			    , runasadmin_(false)     {}
 
     mDeprecated		("Use CommandExecPars(LaunchType) instead")
     explicit		CommandExecPars(bool isbatchprog);
@@ -60,8 +60,8 @@ public:
 			    //!< if true, will ignore monitor settings
 
     mDefSetupClssMemb(CommandExecPars,bool,runasadmin);
-                //!< launch in a new session as admin
-                //!< Windows only.
+		//!< launch in a new session as admin
+		//!< Windows only.
 
     mDefSetupClssMemb(CommandExecPars,BufferString,workingdir);
 
@@ -227,7 +227,11 @@ public:
     od_istream*		getStdError() { return stderror_; }
     od_ostream*		getStdInput() { return stdinput_; }
 
-    static bool		openTerminal(const char* workdir);
+    static bool		openTerminal(const char* cmd,
+				     const BufferStringSet* args=nullptr,
+				     BufferString* errmsg =nullptr,
+				     uiString* launchermsg =nullptr,
+				     const char* workdir =nullptr);
 
 protected:
 

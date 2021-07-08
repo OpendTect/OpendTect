@@ -37,9 +37,6 @@ public:
     BufferString	getHostNameOverrule() const;
     void		setHostNameOverrule(const char*);
 
-    BufferString	getTerminalEmulator();
-    void		setTerminalEmulator(const char*);
-
     static const char*	sKeyIcons();
     static const char*	sKeyShowInlProgress();
     static const char*	sKeyShowCrlProgress();
