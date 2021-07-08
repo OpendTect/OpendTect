@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "ascstream.h"
 #include "bufstringset.h"
+#include "commanddefs.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
@@ -925,7 +926,7 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	{
 	    const BufferString envpath( dl.fullPath( idx ) );
 	    const DirList priorityfiles( envpath, File::FilesInDir,
-			    		 sKeyPriorityGlobExpr() );
+					 sKeyPriorityGlobExpr() );
 	    if ( !priorityfiles.isEmpty() )
 	    {
 		const FilePath priofp( priorityfiles.fullPath(0) );
@@ -1443,17 +1444,42 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
 
 bool OD::PythonAccess::openTerminal() const
 {
-    const BufferString termem = SettingsAccess().getTerminalEmulator();
+    const CommandDefs& cmddefs =
+			CommandDefs::getTerminalCommands( BufferStringSet() );
+    if ( cmddefs.isEmpty() )
+	return false;
+
+    return openTerminal( cmddefs.first()->buf(), nullptr, nullptr );
+}
+
+
+bool OD::PythonAccess::openTerminal( const char* cmdstr,
+				     const BufferStringSet* args,
+				     const char* workingdirstr ) const
+{
+    if ( !cmdstr || !*cmdstr )
+    {
+	laststderr_ = "[Internal] No terminal name provided";
+	return false;
+    }
+
 #ifdef __win__
-    OS::MachineCommand cmd( "start" );
-    cmd.addArg( termem );
+    OS::MachineCommand mc( "start" );
+    mc.addArg( cmdstr );
     OS::CommandExecPars pars( OS::Wait4Finish );
 #else
-    OS::MachineCommand cmd( termem );
+    OS::MachineCommand mc( cmdstr );
     OS::CommandExecPars pars( OS::RunInBG );
 #endif
-    pars.workingdir( GetPersonalDir() );
-    return execute( cmd, pars );
+    if ( args )
+	mc.addArgs( *args );
+
+    BufferString workingdir( workingdirstr );
+    if ( workingdir.isEmpty() )
+	workingdir.set( GetPersonalDir() );
+
+    pars.workingdir( workingdir );
+    return execute( mc, pars );
 }
 
 

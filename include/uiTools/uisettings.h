@@ -33,12 +33,17 @@ public:
 
     void	loadToolBarCmds(uiMainWin&);
     void	updateUserCmdToolBar();
+    uiRetVal	openTerminal(bool withfallback=true,
+			     const char* cmd=nullptr,
+			     const BufferStringSet* args=nullptr,
+			     const char* workingdir=nullptr);
 
     Notifier<uiSettingsMgr> terminalRequested;
 
 private:
 
     void	keyPressedCB(CallBacker*);
+    void	doTerminalCmdCB(CallBacker*);
     void	doToolBarCmdCB(CallBacker*);
     void	doPythonSettingsCB(CallBacker*);
 

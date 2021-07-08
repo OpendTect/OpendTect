@@ -8,6 +8,7 @@
 
 #include "oscommand.h"
 
+#include "commanddefs.h"
 #include "commandlineparser.h"
 #include "envvars.h"
 #include "file.h"
@@ -864,19 +865,19 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 
     if ( pars.runasadmin_ )
     {
-        BufferString argsstr;
-        for ( int idx=0; idx<mc.args().size(); idx++ )
-        {
-            BufferString arg( mc.args().get(idx) );
-            if ( arg.find(" ") )
-                arg.quote('\"');
-            if ( !argsstr.isEmpty() )
-                argsstr.addSpace();
-            argsstr.add( arg );
-        }
-        const HINSTANCE res = ShellExecuteA( NULL, "runas", mc.program(),
-            argsstr, pars.workingdir_, SW_SHOW );
-        return static_cast<int>(reinterpret_cast<uintptr_t>(res)) >
+	BufferString argsstr;
+	for ( int idx=0; idx<mc.args().size(); idx++ )
+	{
+	    BufferString arg( mc.args().get(idx) );
+	    if ( arg.find(" ") )
+		arg.quote('\"');
+	    if ( !argsstr.isEmpty() )
+		argsstr.addSpace();
+	    argsstr.add( arg );
+	}
+	const HINSTANCE res = ShellExecuteA( NULL, "runas", mc.program(),
+	    argsstr, pars.workingdir_, SW_SHOW );
+	return static_cast<int>(reinterpret_cast<uintptr_t>(res)) >
 							    HINSTANCE_ERROR;
     }
 #endif
@@ -889,7 +890,7 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
     }
 
     DBG::message( DBG_DBG,
-        BufferString("About to execute: ",mc.toString(&pars)) );
+	BufferString("About to execute: ",mc.toString(&pars)) );
 
     const bool wt4finish = pars.launchtype_ == Wait4Finish;
     const bool createstreams = pars.createstreams_;
@@ -1141,17 +1142,56 @@ int OS::CommandLauncher::catchError()
 
 bool OS::CommandLauncher::openTerminal( const char* workdir )
 {
-    MachineCommand mc( SettingsAccess().getTerminalEmulator() );
+    const CommandDefs& cmddefs =
+			CommandDefs::getTerminalCommands( BufferStringSet() );
+    if ( cmddefs.isEmpty() )
+	return false;
+
+    return openTerminal( cmddefs.first()->buf(), nullptr, nullptr, nullptr,
+			 workdir );
+}
+
+
+bool OS::CommandLauncher::openTerminal( const char* cmdstr,
+			    const BufferStringSet* args, BufferString* errmsg,
+			    uiString* launchermsg, const char* workdirstr )
+{
+    if ( !cmdstr || !*cmdstr )
+    {
+	if ( errmsg )
+	    errmsg->set( "[Internal] No terminal name provided" );
+	return false;
+    }
+
+    MachineCommand mc( cmdstr );
+    if ( __iswin__ && FixedString(cmdstr).contains("cmd") )
+    {
+	mc.addArg( "/D" ).addArg( "/K" );
+	const BufferString cmdstring(
+			"prompt $COpendTect$F $P$G && title Command Prompt" );
+	mc.addArg( cmdstring );
+    }
+
+    if ( args )
+	mc.addArgs( *args );
+
+    BufferString workdir( workdirstr );
+    if ( workdir.isEmpty() )
+	workdir = GetPersonalDir();
+
     CommandExecPars pars( RunInBG );
-#ifdef __win__
-    mc.addArg( "/D" ).addArg( "/K" );
-    const BufferString cmdstring(
-	"prompt $COpendTect$F $P$G && title Command Prompt" );
-    mc.addArg( cmdstring );
-    pars.isconsoleuiprog( true );
-#endif
-    pars.workingdir( workdir );
-    return mc.execute( pars );
+    pars.createstreams( !__iswin__ )
+	.workingdir( workdir )
+	.isconsoleuiprog( __iswin__ );
+
+    CommandLauncher cl( mc );
+    const bool res = cl.execute( pars );
+    if ( launchermsg )
+	launchermsg->set( cl.errorMsg() );
+    if ( errmsg && cl.getStdError() )
+	cl.getStdError()->getAll( *errmsg );
+
+    return res;
 }
 
 
