@@ -181,13 +181,13 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, percfld_(0)
 	, showbidsfld_(0)
 {
-    setOkText( uiStrings::sCrossPlot() );
-
     windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
     mAttachCB(IOM().applicationClosing,uiDataPointSet::applClosingCB);
 
     if ( mDPM.haveID(dps_.id()) )
 	mDPM.obtain( dps_.id() );
+
+    setCtrlStyle( CloseOnly );
     runcalcs_.allowNull( true );
 
     const int nrcols = initVars();
