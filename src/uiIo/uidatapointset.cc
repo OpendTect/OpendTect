@@ -1315,27 +1315,18 @@ bool uiDataPointSet::rejectOK( CallBacker* )
     if ( !saveOK() )
 	return false;
 
-    removeSelPts( 0 );
-    mDPM.release( dps_.id() );
-
-    closeAndZeroPtr( xplotwin_ );
-    closeAndZeroPtr( statswin_ );
-
-    return true;
+    return acceptOK( nullptr );
 }
 
 
 bool uiDataPointSet::acceptOK( CallBacker* )
 {
-    if ( xcol_<0 || ycol_<0 )
-    {
-	uiMSG().error( tr("Please select a column for %1")
-			.arg(xcol_<0 ? "X" : "Y") );
-	return false;
-    }
+    removeSelPts( nullptr );
+    mDPM.release( dps_.id() );
 
-    showCrossPlot( nullptr );
-    return false;
+    closeAndZeroPtr( xplotwin_ );
+    closeAndZeroPtr( statswin_ );
+    return true;
 }
 
 
