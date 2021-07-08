@@ -37,7 +37,9 @@ public:
     BufferString	getHostNameOverrule() const;
     void		setHostNameOverrule(const char*);
 
+    mDeprecated("Use CommandDefs class")
     BufferString	getTerminalEmulator();
+    mDeprecated("Use CommandDefs class")
     void		setTerminalEmulator(const char*);
 
     static const char*	sKeyIcons();

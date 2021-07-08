@@ -106,7 +106,11 @@ namespace OD
 	uiRetVal	hasModule(const char* modname,
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
+	mDeprecated("Provide cmd and args")
 	bool		openTerminal() const;
+	bool		openTerminal(const char* cmd,
+				     const BufferStringSet* args=nullptr,
+				     const char* workdir=nullptr) const;
 	static void	getPathToInternalEnv(FilePath&,bool userdef);
 	static void	GetPythonEnvPath(FilePath&);
 	static void	GetPythonEnvBinPath(FilePath&);
