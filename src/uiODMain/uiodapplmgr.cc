@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodviewer2dmgr.h"
 #include "uipickpartserv.h"
 #include "uiseispartserv.h"
+#include "uisteeringsel.h"
 #include "uistereodlg.h"
 #include "uistratlayermodel.h"
 #include "uistrings.h"
@@ -134,6 +135,7 @@ uiODApplMgr::~uiODApplMgr()
     delete mpeserv_;
     delete pickserv_;
     delete nlaserv_;
+    delete &uiSteeringSel::inpselhist;
     delete attrserv_;
     delete volprocserv_;
     delete seisserv_;
