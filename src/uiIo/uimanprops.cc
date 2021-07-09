@@ -419,7 +419,7 @@ void uiBuildPROPS::editReq( bool isadd )
 	return;
 
     Property* pr = nullptr;
-    PropertyRef::StdType stdtype;
+    PropertyRef::StdType stdtype = PropertyRef::Other;
     if ( isadd )
 	stdtype = PropertyRef::StdTypeDef().parse( nm );
     else
