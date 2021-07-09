@@ -61,7 +61,7 @@ public:
     void		setEmpty();
 
     TypeSet<int>	getSuitable(PropertyRef::StdType,
-				    const PropertyRef* altpr=0,
+				    const Mnemonic* altmn=nullptr,
 				    BoolTypeSet* isalt=0) const;
 
     Notifier<LogSet>	logAdded;

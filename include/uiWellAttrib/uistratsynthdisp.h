@@ -20,7 +20,9 @@ class SeisTrcBuf;
 class StratSynth;
 class SyntheticData;
 class PropertyRef;
+class Property;
 class PropertyRefSelection;
+class PropertySelection;
 class TaskRunner;
 class Wavelet;
 class uiButton;
@@ -64,7 +66,7 @@ public:
     const ObjectSet<SyntheticData>& getSynthetics() const;
     SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
     SyntheticData*	getSyntheticData(const char* nm);
-    const PropertyRefSelection&	modelPropertyRefs() const;
+    const PropertySelection&	modelProperties() const;
 
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
 

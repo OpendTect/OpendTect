@@ -32,7 +32,7 @@ BufferString Strat::LayerValue::dumpStr() const
 
 
 Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
-	const Layer& lay, const PropertyRefSelection& prs, float xpos )
+	const Layer& lay, const PropertySelection& prs, float xpos )
     : form_(form)
     , lay_(lay)
     , myform_(false)
@@ -43,7 +43,7 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 
 
 Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
-		const Layer& lay, const PropertyRefSelection& prs )
+		const Layer& lay, const PropertySelection& prs )
     : form_(*new Math::Formula(false,MathProperty::getSpecVars()))
     , lay_(lay)
     , myform_(true)
@@ -75,7 +75,7 @@ void Strat::FormulaLayerValue::setXPos( float xpos )
 }
 
 
-void Strat::FormulaLayerValue::useForm( const PropertyRefSelection& prs )
+void Strat::FormulaLayerValue::useForm( const PropertySelection& prs )
 {
     const int nrinps = form_.nrInputs();
 
@@ -156,9 +156,9 @@ void Strat::FormulaLayerValue::fillPar( IOPar& iop ) const
 
 //------ Layer ------
 
-const PropertyRef& Strat::Layer::thicknessRef()
+const Property& Strat::Layer::thicknessProp()
 {
-    return PropertyRef::thickness();
+    return Property::thickness();
 }
 
 
@@ -272,7 +272,7 @@ void Strat::Layer::setValue( int ival, float val )
 
 
 void Strat::Layer::setValue( int ival, const Math::Formula& form,
-			     const PropertyRefSelection& prs, float xpos )
+			     const PropertySelection& prs, float xpos )
 {
     mEnsureEnoughVals();
 
@@ -281,7 +281,7 @@ void Strat::Layer::setValue( int ival, const Math::Formula& form,
 
 
 void Strat::Layer::setValue( int ival, const IOPar& iop,
-				const PropertyRefSelection& prs )
+				const PropertySelection& prs )
 {
     mEnsureEnoughVals();
 

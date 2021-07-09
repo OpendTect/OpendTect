@@ -123,11 +123,11 @@ void uiElasticPropSelGrp::uiSelInpGrp::use( Math::Expression* expr )
 
 uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
 					const BufferStringSet& prs,
-					ElasticPropertyRef& elprop,
+					ElasticProperty& elprop,
 					const TypeSet<ElasticFormula>& el )
     : uiGroup( p, "Elastic Prop Sel Grp" )
     , propnms_(prs)
-    , elpropref_(elprop)
+    , elprop_(elprop)
     , elformsel_(elprop.formula())
     , availableformulas_(el)
     , expr_(0)
@@ -169,11 +169,11 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
     storenamefld_->attach( alignedBelow, inpgrps_[inpgrps_.size()-1] );
     storenamefld_->attach( ensureBelow, storenamesep_ );
 
-    updateRefPropNames();
+    updatePropNames();
 }
 
 
-void uiElasticPropSelGrp::updateRefPropNames()
+void uiElasticPropSelGrp::updatePropNames()
 {
     for ( int idx=0; idx<inpgrps_.size(); idx++ )
 	inpgrps_[idx]->fillList();
@@ -260,7 +260,7 @@ void uiElasticPropSelGrp::getFromScreen()
 		elformsel_.variables().add( txt );
 	}
     }
-    elpropref_.setName( storenamefld_->text() );
+    elprop_.setName( storenamefld_->text() );
 }
 
 
@@ -275,7 +275,7 @@ void uiElasticPropSelGrp::putToScreen()
     else
 	selmathfld_->box()->setCurrentItem( elformsel_.name() );
     formfld_->setText( expr );
-    storenamefld_->setText( elpropref_.name() );
+    storenamefld_->setText( elprop_.name() );
 
     getMathExpr();
 
@@ -308,7 +308,7 @@ static const char** props = ElasticFormula::TypeNames();
 
 #define mErrRet(s,act) { uiMSG().error(s); act; }
 uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
-					const PropertyRefSelection& prs,
+					const PropertySelection& prs,
 					ElasticPropSelection& elsel )
     : uiDialog(p,uiDialog::Setup(tr("Elastic Model"),
 	       tr("Specify how to obtain density and "
@@ -322,7 +322,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
     orgpropnms_.erase();
     for ( int idx=0; idx<prs.size(); idx++ )
     {
-	const PropertyRef* ref = prs[idx];
+	const Property* ref = prs[idx];
 	orgpropnms_.addIfNew( ref->name() );
     }
     if ( orgpropnms_.isEmpty() )
@@ -339,7 +339,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 	tgs += new uiGroup( ts_->tabGroup(), props[idx] );
 	TypeSet<ElasticFormula> formulas;
 	ElFR().getByType( tp, formulas );
-	ElasticPropertyRef& epr = elpropsel_.getByType( tp );
+	ElasticProperty& epr = elpropsel_.getByType( tp );
 	propflds_ += new uiElasticPropSelGrp(tgs[idx], propnms_, epr, formulas);
 	ts_->addTab( tgs[idx], toUiString(props[idx]) );
     }
@@ -397,7 +397,7 @@ bool uiElasticPropSelDlg::screenSelectionChanged()
     }
 
     for ( int idx=0; idx<propflds_.size(); idx++ )
-	propflds_[idx]->updateRefPropNames();
+	propflds_[idx]->updatePropNames();
 
     return true;
 }
@@ -406,7 +406,7 @@ bool uiElasticPropSelDlg::screenSelectionChanged()
 void uiElasticPropSelDlg::elasticPropSelectionChanged( CallBacker* )
 {
     for ( int idx=0; idx<propflds_.size(); idx++ )
-	propflds_[idx]->setPropRef( elpropsel_.getByIdx( idx ) );
+	propflds_[idx]->setProp( elpropsel_.getByIdx( idx ) );
 
     for ( int idx=0; idx<propflds_.size(); idx++ )
 	propflds_[idx]->putToScreen();
@@ -500,7 +500,7 @@ bool uiElasticPropSelDlg::doRead( const MultiID& mid )
     propnms_ = orgpropnms_;
     for ( int idx=0; idx<elpropsel_.size(); idx++ )
     {
-	const ElasticPropertyRef& epr = elpropsel_.getByIdx(idx);
+	const ElasticProperty& epr = elpropsel_.getByIdx(idx);
 	propnms_.addIfNew( epr.name() );
     }
 

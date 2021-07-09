@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "mnemonics.h"
 #include "objdisposer.h"
 #include "od_helpids.h"
 #include "od_iostream.h"
@@ -462,9 +463,9 @@ bool uiStratLayerModel::isEditUsed() const
 }
 
 
-const PropertyRefSelection& uiStratLayerModel::modelProperties() const
+const PropertySelection& uiStratLayerModel::modelProperties() const
 {
-    return synthdisp_->modelPropertyRefs();
+    return synthdisp_->modelProperties();
 }
 
 
@@ -928,7 +929,7 @@ void uiStratLayerModel::doGenModels( bool forceupdsynth, bool overridedispeach )
     seqdisp_->prepareDesc();
     seqdisp_->setFromEditDesc();
     Strat::LayerModel* newmodl = new Strat::LayerModel;
-    newmodl->propertyRefs() = desc_.propSelection();
+    newmodl->properties() = desc_.propSelection();
     newmodl->setElasticPropSel( lmp_.getCurrent().elasticPropSel() );
     mcs.restore();
 
@@ -1002,8 +1003,8 @@ void uiStratLayerModel::setModelProps()
 {
     BufferStringSet nms;
     const Strat::LayerModel& lm = lmp_.getCurrent();
-    for ( int idx=1; idx<lm.propertyRefs().size(); idx++ )
-	nms.add( lm.propertyRefs()[idx]->name() );
+    for ( int idx=1; idx<lm.properties().size(); idx++ )
+	nms.add( lm.properties()[idx]->name() );
     modtools_->setProps( nms );
     nms.erase(); const Strat::LevelSet& lvls = Strat::LVLS();
     for ( int idx=0; idx<lvls.size(); idx++ )
@@ -1035,7 +1036,11 @@ void uiStratLayerModel::setElasticProps()
 	if ( !elpropsel_ )
 	{
 	    elpropsel_ = new ElasticPropSelection;
-	    ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
+	    MnemonicSelection mns;
+	    for ( const auto* prop : desc_.propSelection() )
+		mns += &prop->mnem();
+
+	    ElasticPropGuess( mns, *elpropsel_ );
 	}
     }
 
@@ -1101,11 +1106,11 @@ void uiStratLayerModel::prepareFluidRepl()
     lmp_.initEditing();
     Strat::LayerModel& edlm = lmp_.getEdited( true );
     const bool hasswave =
-	edlm.propertyRefs().find(PropertyRef::standardSVelStr()) >= 0 ||
-	edlm.propertyRefs().find(PropertyRef::standardSVelAliasStr()) >= 0;
+	edlm.properties().find(Property::standardSVelStr()) >= 0 ||
+	edlm.properties().find(Property::standardSVelAliasStr()) >= 0;
     if ( !hasswave )
-	edlm.propertyRefs() += new PropertyRef( PropertyRef::standardSVelStr(),
-						PropertyRef::Vel );
+	edlm.properties() += new ValueProperty( Property::standardSVelStr(),
+						*MNC().find("SVEL") );
 }
 
 

@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 namespace Math { class Formula; }
 class MathProperty;
-class PropertyRefSelection;
+class PropertySelection;
 class uiMathFormula;
 
 
@@ -23,7 +23,7 @@ mExpClass(uiIo) uiMathPropEdDlg : public uiDialog
 public:
 
 			uiMathPropEdDlg(uiParent*,MathProperty&,
-					const PropertyRefSelection&);
+					const PropertySelection&);
 
 			~uiMathPropEdDlg();
 
@@ -31,7 +31,7 @@ protected:
 
     MathProperty&	prop_;
     uiMathFormula*	formfld_;
-    const PropertyRefSelection& prs_;
+    const PropertySelection& prs_;
 
     void		inpSel(CallBacker*);
     void		formSet(CallBacker*);

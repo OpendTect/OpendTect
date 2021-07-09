@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 class PropertyRef;
+class Property;
 class UnitOfMeasure;
 class uiGenInput;
 class uiUnitSel;
@@ -21,7 +22,7 @@ mExpClass(uiTools) uiPropertyValFld : public uiGroup
 {
 public:
 
-			uiPropertyValFld(uiParent*,const PropertyRef&,
+			uiPropertyValFld(uiParent*,const Property&,
 					 float defval=mUdf(float),
 					 const UnitOfMeasure* defunit=0);
 

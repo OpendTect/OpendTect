@@ -12,6 +12,8 @@ ________________________________________________________________________
 
 #include "keystrs.h"
 #include "propertyref.h"
+#include "property.h"
+#include "mnemonics.h"
 #include "stratlevel.h"
 #include "stratlayermodel.h"
 #include "uicombobox.h"
@@ -449,10 +451,10 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 
 //-----------------------------------------------------------------------------
 
-#define mCreatePropSelFld( propnm, txt, prop, prevbox ) \
+#define mCreatePropSelFld( propnm, txt, mnem, prevbox ) \
     uiLabeledComboBox* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
     propnm##fld_ = lblbox##propnm->box(); \
-    const PropertyRefSelection subsel##propnm = proprefsel.subselect( prop );\
+    const PropertySelection subsel##propnm = proprefsel.subselect( mnem );\
     for ( int idx=0; idx<subsel##propnm.size(); idx++ )\
 	if ( subsel##propnm[idx] )\
 	    propnm##fld_->addItem( toUiString(subsel##propnm[idx]->name()) );\
@@ -461,7 +463,7 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 
 
 uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
-					const PropertyRefSelection& proprefsel,
+					const PropertySelection& proprefsel,
 				const uiStratLayModFRPropSelector::Setup& set )
 	: uiDialog(p,uiDialog::Setup(tr("Property Selector"),
 				     tr("There are multiple properties "
@@ -473,22 +475,25 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
     , finalsatfld_(nullptr)
     , porosityfld_(nullptr)
 {
-    mCreatePropSelFld(den, tr("Reference for Density"), PropertyRef::Den, 0);
-    mCreatePropSelFld(vp, tr("Reference for Vp"), PropertyRef::Vel, lblboxden);
+    mCreatePropSelFld(den, tr("Reference for Density"),
+		      *MNC().getGuessed(PropertyRef::Den), 0);
+    mCreatePropSelFld(vp, tr("Reference for Vp"),
+		      *MNC().getGuessed(PropertyRef::Vel), lblboxden);
     uiLabeledComboBox* prevfld = lblboxvp;
     if ( set.withswave_ )
     {
-	mCreatePropSelFld(vs, tr("Reference for Vs"), PropertyRef::Vel,prevfld);
+	mCreatePropSelFld(vs, tr("Reference for Vs"),
+			  *MNC().getGuessed(PropertyRef::Vel),prevfld);
 	prevfld = lblboxvs;
-	if ( proprefsel.find(PropertyRef::standardSVelStr()) >=0 ||
-	     proprefsel.find(PropertyRef::standardSVelAliasStr()) >= 0 )
-	    setVSProp( PropertyRef::standardSVelStr() );
+	if ( proprefsel.find(Property::standardSVelStr()) >=0 ||
+	     proprefsel.find(Property::standardSVelAliasStr()) >= 0 )
+	    setVSProp( Property::standardSVelStr() );
     }
 
     if ( set.withinitsat_ )
     {
 	mCreatePropSelFld( initialsat, tr("Reference for Initial Saturation"),
-			   PropertyRef::Volum, prevfld );
+			   *MNC().getGuessed(PropertyRef::Volum), prevfld );
 	prevfld = lblboxinitialsat;
 	if ( proprefsel.find("Water Saturation") >=0 )
 	    setInitialSatProp( "Water Saturation" );
@@ -497,7 +502,7 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
     if ( set.withfinalsat_ )
     {
 	mCreatePropSelFld( finalsat, tr("Reference for Final Saturation"),
-			   PropertyRef::Volum, prevfld );
+			   *MNC().getGuessed(PropertyRef::Volum), prevfld );
 	prevfld = lblboxfinalsat;
 	if ( proprefsel.find("Water Saturation") >=0 )
 	    setFinalSatProp( "Water Saturation" );
@@ -506,16 +511,16 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
     if ( set.withpor_ )
     {
 	mCreatePropSelFld( porosity, tr("Reference for Porosity"),
-			   PropertyRef::Volum, prevfld );
+			   *MNC().getGuessed(PropertyRef::Volum), prevfld );
 	if ( proprefsel.find("Porosity") >= 0 )
 	    setPorProp( "Porosity" );
     }
 
     const bool haspwave =
-	    proprefsel.find(PropertyRef::standardPVelStr()) >=0 ||
-	    proprefsel.find(PropertyRef::standardPVelAliasStr()) >= 0;
+	    proprefsel.find(Property::standardPVelStr()) >=0 ||
+	    proprefsel.find(Property::standardPVelAliasStr()) >= 0;
     if ( haspwave )
-	setVPProp( PropertyRef::standardPVelStr() );
+	setVPProp( Property::standardPVelStr() );
     else
 	errmsg_ = tr( "No reference to P wave velocity found" );
 }

@@ -18,12 +18,12 @@ ________________________________________________________________________
 
 
 uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
-				  const PropertyRefSelection& prs )
+				  const PropertySelection& prs )
     : uiDialog( p, Setup(tr("Math property"),
 		tr("Value generation by formula for %1")
 		.arg(toUiString(pr.name())), mODHelpKey(mMathPropEdDlgHelpID)) )
     , prop_(pr)
-    , prs_(*new PropertyRefSelection(prs))
+    , prs_(*new PropertySelection(prs))
 {
     uiMathFormula::Setup umfsu( tr("Formula (like den * vel)") );
     umfsu.proptype( prop_.ref().stdType() )
@@ -36,8 +36,8 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     BufferStringSet availpropnms;
     for ( int idx=0; idx<prs_.size(); idx++ )
     {
-	const PropertyRef* ref = prs_[idx];
-	if ( ref != &pr.ref() )
+	const Property* ref = prs_[idx];
+	if ( ref != &pr )
 	    availpropnms.add( ref->name() );
     }
     formfld_->setNonSpecInputs( availpropnms );
@@ -76,8 +76,8 @@ void uiMathPropEdDlg::setPType4Inp( int inpidx )
     if ( formfld_->isSpec(inpidx) || formfld_->isConst(inpidx) )
 	return;
 
-    const PropertyRef* pr = prs_.getByName( formfld_->getInput(inpidx) );
-    PropertyRef::StdType ptyp = pr ? pr->stdType() : PropertyRef::Other;
+    const Property* pr = prs_.getByName( formfld_->getInput(inpidx) );
+    PropertyRef::StdType ptyp = pr ? pr->mnem().stdType() : PropertyRef::Other;
     formfld_->inpFld(inpidx)->setPropType( ptyp );
 }
 

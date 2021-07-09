@@ -39,7 +39,7 @@ public:
     virtual LayerGenerator* clone() const
 			{ return canBeCloned() ? createClone() : 0; }
     virtual bool	canBeCloned() const			= 0;
-    virtual const char*	name() const				= 0;
+    virtual const char* name() const				= 0;
     virtual float	dispThickness(bool max=false) const	= 0;
 
     virtual bool	usePar(const IOPar&,const RefTree&);
@@ -53,8 +53,8 @@ public:
 
     virtual bool	reset() const	{ return true; }
     virtual uiString	errMsg() const	{ return uiString::emptyString(); }
-    virtual void	syncProps(const PropertyRefSelection&)		= 0;
-    virtual void	updateUsedProps(PropertyRefSelection&) const	= 0;
+    virtual void	syncProps(const PropertySelection&)		= 0;
+    virtual void	updateUsedProps(PropertySelection&) const	= 0;
 
     void		setGenDesc( LayerSequenceGenDesc* gd )	{ gendesc_=gd; }
 
@@ -64,7 +64,7 @@ protected:
     virtual bool	genMaterial(LayerSequence&,Property::EvalOpts) const
 							= 0;
     virtual bool	postProcess(LayerSequence&,float pos) const
-    							{ return true; }
+							{ return true; }
 
     const LayerSequenceGenDesc* gendesc_; //!< set before generation
     friend class	LayerSequenceGenDesc;
@@ -81,12 +81,12 @@ public: \
     virtual const char* factoryKeyword() const	{ return typeStr(); } \
     static Strat::LayerGenerator* create()	{ return new clss; } \
     static void		initClass() { factory().addCreator(create,typeStr());} \
-    virtual const char*	name() const; \
+    virtual const char* name() const; \
     virtual float	dispThickness(bool max=true) const; \
     virtual bool	usePar(const IOPar&,const Strat::RefTree&); \
     virtual void	fillPar(IOPar&) const; \
-    virtual void	syncProps(const PropertyRefSelection&); \
-    virtual void	updateUsedProps(PropertyRefSelection&) const
+    virtual void	syncProps(const PropertySelection&); \
+    virtual void	updateUsedProps(PropertySelection&) const
 
 
 

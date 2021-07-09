@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Oct 2010
+ Author:	Bert
+ Date:		Oct 2010
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "factory.h"
 
-class PropertyRefSelection;
+class PropertySelection;
 
 class uiParent;
 class uiObject;
@@ -36,9 +36,9 @@ mExpClass(uiStrat) uiLayerSequenceGenDesc
 { mODTextTranslationClass(uiLayerSequenceGenDesc);
 public:
 
-  			uiLayerSequenceGenDesc(Strat::LayerSequenceGenDesc&);
+			uiLayerSequenceGenDesc(Strat::LayerSequenceGenDesc&);
     mDefineFactory2ParamInClass(uiLayerSequenceGenDesc,uiParent*,
-	    		Strat::LayerSequenceGenDesc&,factory);
+			Strat::LayerSequenceGenDesc&,factory);
     virtual		~uiLayerSequenceGenDesc()	{}
     virtual bool	separateDisplay()		{ return true; }
 
@@ -60,7 +60,7 @@ protected:
 
     Strat::LayerSequenceGenDesc& desc_;
     bool		needsave_;
-    bool		isValidSelection(const PropertyRefSelection&) const;
+    bool		isValidSelection(const PropertySelection&) const;
 
 public:
 	const Strat::LayerSequenceGenDesc& currentDesc() const;
@@ -72,7 +72,7 @@ public:
 #define mDefuiLayerSequenceGenDescFns(clss,typstr) \
 public: \
     static const char*	typeStr()			{ return typstr; } \
-    virtual const char*	factoryKeyword() const		{ return typeStr(); } \
+    virtual const char* factoryKeyword() const		{ return typeStr(); } \
     static uiLayerSequenceGenDesc* create( uiParent* p, \
 					   Strat::LayerSequenceGenDesc& gd ) \
 						    { return new clss(p,gd); } \

@@ -14,9 +14,10 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "uivarwizarddlg.h"
 class Mnemonic;
+class Property;
 class PropertyRef;
-class PropertyRefSet;
-class PropertyRefSelection;
+class PropertySet;
+class PropertySelection;
 class uiBuildPROPS;
 class uiGenInput;
 class uiListBox;
@@ -42,23 +43,23 @@ protected:
 };
 
 
-/*!\brief Allow user to select PropertyRefs.
+/*!\brief Allow user to select Propertys.
 
   Beware. Even on cancel, the user may have removed defined refs from PROPS().
-  Therefore, even on cancel the PropertyRefSelection can be changed. Code
+  Therefore, even on cancel the PropertySelection can be changed. Code
   should look something like:
 
-  uiSelectPropRefs dlg( this, prs );
+  uiSelectProps dlg( this, prs );
   if ( dlg.go() || dlg.structureChanged() )
       handleRefChanges();
 
  */
 
-mExpClass(uiIo) uiSelectPropRefsGrp : public uiDlgGroup
-{ mODTextTranslationClass(uiSelectPropRefsGrp);
+mExpClass(uiIo) uiSelectPropsGrp : public uiDlgGroup
+{ mODTextTranslationClass(uiSelectPropsGrp);
 public:
 
-			uiSelectPropRefsGrp(uiParent*,PropertyRefSelection&,
+			uiSelectPropsGrp(uiParent*,PropertySelection&,
 					    const char* lbltxt=0);
 
     bool		structureChanged() const	{ return structchg_; }
@@ -67,39 +68,39 @@ public:
 protected:
 
     uiListBox*		propfld_;
-    PropertyRefSelection& prsel_;
+    PropertySelection& prsel_;
     bool		structchg_;
 
     void		fillList();
     void		manPROPS(CallBacker*);
 
-    const PropertyRefSet& props_; // PROPS()
-    const PropertyRef*	thref_; // &PropertyRef::thickness()
+    const PropertySet& props_; // PROPS()
+    const Property*	thref_; // &PropertyRef::thickness()
 };
 
 
-mExpClass(uiIo) uiSelectPropRefs : public uiDialog
-{ mODTextTranslationClass(uiSelectPropRefs);
+mExpClass(uiIo) uiSelectProps : public uiDialog
+{ mODTextTranslationClass(uiSelectProps);
 public:
-				uiSelectPropRefs(uiParent*,
-						 PropertyRefSelection&,
+				uiSelectProps(uiParent*,
+						 PropertySelection&,
 						 const char* lbltxt=0);
     bool		structureChanged() const
 			{ return proprefgrp_->structureChanged(); }
 protected:
-    uiSelectPropRefsGrp*	proprefgrp_;
+    uiSelectPropsGrp*	proprefgrp_;
     
     bool			acceptOK(CallBacker*);
 };
 
 
-mExpClass(uiIo) uiSelectPropRefsVWDlg : public uiVarWizardDlg
-{ mODTextTranslationClass(uiSelectPropRefsVWDlg);
+mExpClass(uiIo) uiSelectPropsVWDlg : public uiVarWizardDlg
+{ mODTextTranslationClass(uiSelectPropsVWDlg);
 public:
-			uiSelectPropRefsVWDlg(uiParent*,PropertyRefSelection&,
+			uiSelectPropsVWDlg(uiParent*,PropertySelection&,
 					      IOPar&,int,const char* lbltxt=0);
 protected:
-    uiSelectPropRefsGrp*	proprefgrp_;
+    uiSelectPropsGrp*	proprefgrp_;
     
     bool			acceptOK(CallBacker*);
 };

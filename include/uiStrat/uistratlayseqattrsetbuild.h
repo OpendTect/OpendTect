@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "uibuildlistfromlist.h"
 #include "propertyref.h"
+#include "property.h"
 class CtxtIOObj;
 namespace Strat { class RefTree; class LayerModel; class LaySeqAttribSet; }
 
@@ -32,7 +33,7 @@ public:
     			~uiStratLaySeqAttribSetBuild();
 
     const Strat::LaySeqAttribSet& attribSet() const	{ return attrset_; }
-    const PropertyRefSelection&	  propertyRefs() const	{ return props_; }
+    const PropertySelection&	  properties() const	{ return props_; }
 
     bool			handleUnsaved();
     				//!< Only returns false on user cancel
@@ -43,7 +44,7 @@ protected:
     Strat::LaySeqAttribSet&	attrset_;
     const bool			setismine_;
     const Strat::RefTree&	reftree_;
-    PropertyRefSelection	props_;
+    PropertySelection	props_;
     CtxtIOObj&			ctio_;
     const SetTypeSel		typesel_;
     bool			anychg_;

@@ -18,7 +18,8 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class PropertyRef;
-class PropertyRefSelection;
+class Property;
+class PropertySelection;
 namespace Math { class Formula; }
 
 namespace Strat
@@ -31,7 +32,7 @@ class LayerValue;
 /*!\brief data for a layer.
 
   Layers are atached to a UnitRef. To understand the values, you need access to
-  the governing PropertyRefSet, usually attached to the LayerSequence that
+  the governing PropertySet, usually attached to the LayerSequence that
   the Layer is part of.
 
  */
@@ -68,8 +69,8 @@ public:
     void		setThickness(float v);
     void		setValue(int,float);
     void		setValue(int,const Math::Formula&,
-				 const PropertyRefSelection&,float xpos=0.5f);
-    void		setValue(int,const IOPar&,const PropertyRefSelection&);
+				 const PropertySelection&,float xpos=0.5f);
+    void		setValue(int,const IOPar&,const PropertySelection&);
     void		setValue(int,LayerValue*); //!< becomes mine
     void		setContent( const Content& c )	{ content_ = &c; }
     void		setXPos(float); // only affects Math lay vals
@@ -77,7 +78,7 @@ public:
     ID			id() const;	//!< unitRef().fullCode()
     OD::Color		dispColor(bool lith_else_upnode) const;
 
-    static const PropertyRef& thicknessRef();
+    static const Property& thicknessProp();
 
 protected:
 
@@ -133,10 +134,10 @@ public:
 
 			FormulaLayerValue(const Math::Formula&,
 					  const Strat::Layer&,
-					  const PropertyRefSelection&,
+					  const PropertySelection&,
 					  float xpos);
 			FormulaLayerValue(const IOPar&,const Strat::Layer&,
-					  const PropertyRefSelection&);
+					  const PropertySelection&);
 			~FormulaLayerValue();
     FormulaLayerValue*	clone(const Layer*) const;
 
@@ -161,7 +162,7 @@ protected:
     mutable TypeSet<float>	inpvals_;
     mutable uiString	        errmsg_;
 
-    void			useForm(const PropertyRefSelection&);
+    void			useForm(const PropertySelection&);
 
 };
 

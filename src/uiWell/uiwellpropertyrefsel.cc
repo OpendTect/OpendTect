@@ -30,30 +30,30 @@ ________________________________________________________________________
 static const char* sKeyPlsSel = "Please select";
 
 
-uiWellSinglePropSel::uiWellSinglePropSel( uiParent* p, const PropertyRef& pr,
-	                                const PropertyRef* alternatepr )
-    : uiGroup( p, pr.name() )
-    , propref_(pr)
-    , altpropref_(alternatepr)
-    , altbox_(0)
-    , altpref_(-1)
-    , altPropChosen(this)
+uiWellSingleMnemSel::uiWellSingleMnemSel( uiParent* p, const Mnemonic& mn,
+					const Mnemonic* alternatemn )
+    : uiGroup( p, mn.name() )
+    , mnem_(mn)
+    , altmnem_(alternatemn)
+    , altbox_(nullptr)
+    , altmn_(-1)
+    , altMnemChosen(this)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox(this, toUiString(pr.name()));
+    uiLabeledComboBox* lcb = new uiLabeledComboBox(this, toUiString(mn.name()));
     lognmfld_ = lcb->box();
     lognmfld_->selectionChanged.notify(
-			       mCB(this,uiWellSinglePropSel,updateSelCB) );
+			       mCB(this,uiWellSingleMnemSel,updateSelCB) );
 
-    uiUnitSel::Setup ussu( propref_.stdType() ); ussu.withnone( true );
+    uiUnitSel::Setup ussu( mnem_.stdType() ); ussu.withnone( true );
     unfld_ = new uiUnitSel( this, ussu );
-    unfld_->setPropType( propref_.stdType() );
+    unfld_->setPropType( mnem_.stdType() );
     unfld_->attach( rightOf, lcb );
 
-    if ( altpropref_ )
+    if ( altmnem_ )
     {
-	altbox_ = new uiCheckBox( this, toUiString(altpropref_->name()) );
+	altbox_ = new uiCheckBox( this, toUiString(altmnem_->name()) );
 	altbox_->attach( rightOf, unfld_ );
-	altbox_->activated.notify( mCB(this,uiWellSinglePropSel,switchPropCB) );
+	altbox_->activated.notify( mCB(this,uiWellSingleMnemSel,switchMnemCB) );
     }
 
     setHAlignObj( lognmfld_ );
@@ -63,7 +63,7 @@ uiWellSinglePropSel::uiWellSinglePropSel( uiParent* p, const PropertyRef& pr,
 static const char* sNoUnMeasLbl = "-";
 
 
-bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
+bool uiWellSingleMnemSel::setAvailableLogs( const Well::LogSet& wls )
 {
     normnms_.setEmpty(); altnms_.setEmpty();
     normnms_.add( sKeyPlsSel ); altnms_.add( sKeyPlsSel );
@@ -71,8 +71,8 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
     normunmeaslbls_.add( sNoUnMeasLbl ); altunmeaslbls_.add( sNoUnMeasLbl );
 
     BoolTypeSet arealt;
-    TypeSet<int> logidxs = wls.getSuitable( propref_.stdType(),
-					     altpropref_, &arealt );
+    TypeSet<int> logidxs = wls.getSuitable( mnem_.stdType(),
+					     altmnem_, &arealt );
     for ( int idx=0; idx<logidxs.size(); idx++ )
     {
 	const Well::Log& wl = wls.getLog( logidxs[idx] );
@@ -87,13 +87,13 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
     const int nrnorm = normnms_.size();
     const int nralt = altnms_.size();
 
-    if ( altpref_ < 0 )
+    if ( altmn_ < 0 )
     {
-	altpref_ = nralt > nrnorm ? 1 : 0;
+	altmn_ = nralt > nrnorm ? 1 : 0;
 	if ( altbox_ )
 	{
 	    NotifyStopper ns( altbox_->activated );
-	    altbox_->setChecked( altpref_ );
+	    altbox_->setChecked( altmn_ );
 	}
     }
 
@@ -102,36 +102,36 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
 }
 
 
-void uiWellSinglePropSel::updateSelCB( CallBacker* )
+void uiWellSingleMnemSel::updateSelCB( CallBacker* )
 {
-    altPropChosen.trigger();
+    altMnemChosen.trigger();
 }
 
 
-void uiWellSinglePropSel::switchPropCB( CallBacker* )
+void uiWellSingleMnemSel::switchMnemCB( CallBacker* )
 {
-    if ( altpropref_ )
+    if ( altmnem_ )
 	updateLogInfo();
 }
 
 
-void uiWellSinglePropSel::updateLogInfo()
+void uiWellSingleMnemSel::updateLogInfo()
 {
-    const bool isalt = altPropSelected();
+    const bool isalt = altMnemSelected();
     const BufferStringSet& nms = isalt ? altnms_ : normnms_;
     const int sz = nms.size();
     if ( sz < 1 )
 	return;
 
-    const BufferString selpropnm = selPropRef().name();
+    const BufferString selmn = selMnem().name();
     int selidx = 0;
     if ( sz < 2 || nms.get(0) != sKeyPlsSel )
-	selidx = nms.nearestMatch( selpropnm );
+	selidx = nms.nearestMatch( selmn );
     else
     {
 	BufferStringSet matchnms = nms;
 	matchnms.removeSingle( 0 );
-	selidx = matchnms.nearestMatch( selpropnm ) + 1;
+	selidx = matchnms.nearestMatch( selmn ) + 1;
     }
 
     lognmfld_->setEmpty(); lognmfld_->addItems( nms );
@@ -145,105 +145,105 @@ void uiWellSinglePropSel::updateLogInfo()
     if ( !selunstr.isEmpty() )
 	unfld_->setUnit( selunstr );
 
-    updateSelCB( 0 );
+    updateSelCB( nullptr );
 }
 
 
-void uiWellSinglePropSel::setCurrent( const char* lnm )
+void uiWellSingleMnemSel::setCurrent( const char* lnm )
 {
     lognmfld_->setCurrentItem( lnm );
 }
 
 
-void uiWellSinglePropSel::setUOM( const UnitOfMeasure& um )
+void uiWellSingleMnemSel::setUOM( const UnitOfMeasure& um )
 {
     unfld_->setUnit( &um );
 }
 
 
-void uiWellSinglePropSel::set( const char* txt, bool alt,
+void uiWellSingleMnemSel::set( const char* txt, bool alt,
 				const UnitOfMeasure* um)
 {
-    selectAltProp( alt );
+    selectAltMnem( alt );
     setCurrent( txt );
     unfld_->setUnit( um );
 }
 
 
-const char* uiWellSinglePropSel::logName() const
+const char* uiWellSingleMnemSel::logName() const
 {
     return lognmfld_->text();
 }
 
 
-const UnitOfMeasure* uiWellSinglePropSel::getUnit() const
+const UnitOfMeasure* uiWellSingleMnemSel::getUnit() const
 {
     return unfld_->getUnit();
 }
 
 
-void uiWellSinglePropSel::selectAltProp( bool yn )
+void uiWellSingleMnemSel::selectAltMnem( bool yn )
 {
     if ( altbox_ )
 	altbox_->setChecked( yn );
 }
 
 
-bool uiWellSinglePropSel::altPropSelected() const
+bool uiWellSingleMnemSel::altMnemSelected() const
 {
     return altbox_ ? altbox_->isChecked() : false;
 }
 
 
-const PropertyRef& uiWellSinglePropSel::selPropRef() const
+const Mnemonic& uiWellSingleMnemSel::selMnem() const
 {
-    return altPropSelected() ? *altpropref_ : propref_;
+    return altMnemSelected() ? *altmnem_ : mnem_;
 }
 
 
 
-uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
+uiWellMnemSel::uiWellMnemSel( uiParent* p, const MnemonicSelection& mns )
     : uiGroup(p," property selection from well logs")
     , logCreated(this)
 {
-    for ( int idx=0; idx<prs.size(); idx ++ )
+    for ( int idx=0; idx<mns.size(); idx ++ )
     {
-	const PropertyRef& pr = *prs[idx];
-	if ( pr.isThickness() || pr.hasFixedDef() )
-	    continue;
+	const Mnemonic& mn = *mns[idx];
+	/*if ( mn.isThickness() || mn.hasFixedDef() )
+	    continue;*/
 
-	const PropertyRef* altpr = 0;
-	const bool issonic = pr.hasType( PropertyRef::Son );
-	const bool isvel = pr.hasType( PropertyRef::Vel );
+	const Mnemonic* altmn = nullptr;
+	const bool issonic = mn.hasType( PropertyRef::Son );
+	const bool isvel = mn.hasType( PropertyRef::Vel );
 	if ( issonic || isvel )
 	{
 	    const int pidx = PROPS().indexOf( issonic ? PropertyRef::Vel
 						      : PropertyRef::Son );
 	    if ( pidx >= 0 )
-		altpr = PROPS()[pidx];
+		altmn = &PROPS().get(pidx).mnem();
 	}
 
-	uiWellSinglePropSel* fld = new uiWellSinglePropSel( this, pr, altpr );
-	fld->altPropChosen.notify( mCB(this,uiWellPropSel,updateSelCB) );
-	if ( propflds_.size() > 0 )
-	    fld->attach( alignedBelow, propflds_[propflds_.size()-1] );
+	uiWellSingleMnemSel* fld = new	uiWellSingleMnemSel( this, mn, altmn );
+	fld->altMnemChosen.notify( mCB(this,uiWellMnemSel,updateSelCB) );
+	if ( mnemflds_.size() > 0 )
+	    fld->attach( alignedBelow, mnemflds_[mnemflds_.size()-1] );
 	else
 	    setHAlignObj( fld );
 
-	propflds_ += fld;
+	mnemflds_ += fld;
     }
 
-    for ( int idx=0; idx<propflds_.size(); idx ++ )
+    for ( int idx=0; idx<mnemflds_.size(); idx ++ )
     {
 	uiToolButton* createbut = new uiToolButton( this, "newlog",
 		tr("Create a log from other logs"),
-		mCB(this,uiWellPropSel,createLogPushed) );
+		mCB(this,uiWellMnemSel,createLogPushed) );
 	uiToolButton* viewbut = new uiToolButton( this, "view_log",
-		tr("View log"), mCB(this,uiWellPropSel,viewLogPushed) );
+		tr("View log"), mCB(this,uiWellMnemSel,viewLogPushed) );
 	if ( idx )
 	    createbut->attach( ensureBelow, createbuts_[idx-1] );
-	for ( int idotherpr=0; idotherpr<propflds_.size(); idotherpr++ )
-	    createbut->attach( ensureRightOf, propflds_[idotherpr] );
+	for ( int idothermn=0; idothermn<mnemflds_.size(); idothermn++ )
+	    createbut->attach( ensureRightOf, mnemflds_[idothermn] );
 	viewbut->attach( rightOf, createbut );
 	createbuts_ += createbut;
 	viewbuts_ += viewbut;
@@ -251,12 +251,12 @@ uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
 }
 
 
-void uiWellPropSel::updateSelCB( CallBacker* c )
+void uiWellMnemSel::updateSelCB( CallBacker* c )
 {
     if ( !c )
 	return;
 
-    mDynamicCastGet(uiWellSinglePropSel*, fld, c);
+    mDynamicCastGet(uiWellSingleMnemSel*, fld, c);
     if ( !fld )
 	return;
     const Well::Data* wd = Well::MGR().get( wellid_ );
@@ -268,34 +268,34 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
     const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
     if ( !logun )
     {
-	const UnitOfMeasure* emptyuom = 0;
+	const UnitOfMeasure* emptyuom = nullptr;
 	fld->setUOM( *emptyuom );
 	return;
     }
-    const PropertyRef& propref = fld->normPropRef();
-    const PropertyRef* altpropref = fld->altPropRef();
+    const Mnemonic& mnem = fld->normMnem();
+    const Mnemonic* altmnem = fld->altMnem();
     bool isreverted;
-    if ( propref.stdType() == logun->propType() )
+    if ( mnem.stdType() == logun->propType() )
 	isreverted = false;
-    else if ( altpropref && altpropref->stdType() == logun->propType() )
+    else if ( altmnem && altmnem->stdType() == logun->propType() )
 	isreverted = true;
     else
 	return;
-    fld->selectAltProp( isreverted );
+    fld->selectAltMnem( isreverted );
     fld->setUOM ( *logun );
 }
 
 
-bool uiWellPropSel::setAvailableLogs( const Well::LogSet& logs,
-				      BufferStringSet& notokpropnms  )
+bool uiWellMnemSel::setAvailableLogs( const Well::LogSet& logs,
+				      BufferStringSet& notokmns  )
 {
     bool allok = true;
-    notokpropnms.erase();
-    for ( int iprop=0; iprop<propflds_.size(); iprop++ )
+    notokmns.erase();
+    for ( int idx=0; idx<mnemflds_.size(); idx++ )
     {
-	if ( !propflds_[iprop]->setAvailableLogs(logs) )
+	if ( !mnemflds_[idx]->setAvailableLogs(logs) )
 	{
-	    notokpropnms.add( propflds_[iprop]->normPropRef().name() );
+	    notokmns.add( mnemflds_[idx]->normMnem().name() );
 	    allok = false;
 	}
     }
@@ -303,14 +303,14 @@ bool uiWellPropSel::setAvailableLogs( const Well::LogSet& logs,
 }
 
 
-bool uiWellPropSel::isOK() const
+bool uiWellMnemSel::isOK() const
 {
-    for ( int idx=0; idx<propflds_.size(); idx++ )
+    for ( int idx=0; idx<mnemflds_.size(); idx++ )
     {
-	if ( FixedString(propflds_[idx]->logName()) == sKeyPlsSel )
+	if ( FixedString(mnemflds_[idx]->logName()) == sKeyPlsSel )
 	{
 	    uiMSG().error(tr("Please create/select a log for %1")
-			.arg(propflds_[idx]->normPropRef().name()));
+			.arg(mnemflds_[idx]->normMnem().name()));
 	    return false;
 	}
     }
@@ -318,31 +318,34 @@ bool uiWellPropSel::isOK() const
 }
 
 
-void uiWellPropSel::setLog( const PropertyRef::StdType tp,
+void uiWellMnemSel::setLog( const PropertyRef::StdType tp,
 				const char* nm, bool usealt,
 				const UnitOfMeasure* uom, int idx )
 {
-    if ( !propflds_.validIdx(idx) )
+    if ( !mnemflds_.validIdx(idx) )
 	{ pErrMsg("Idx failure"); return; }
-    if ( !propflds_[idx]->normPropRef().hasType( tp ) )
+    if ( !mnemflds_[idx]->normMnem().hasType( tp ) )
 	{ pErrMsg("Type failure"); return; }
-    propflds_[idx]->set( nm, usealt, uom );
+    mnemflds_[idx]->set( nm, usealt, uom );
 }
 
 
-bool uiWellPropSel::getLog( const PropertyRef::StdType proptyp,
+bool uiWellMnemSel::getLog( const PropertyRef::StdType proptyp,
 		BufferString& retlognm, bool& retisrev, BufferString& retuom,
 		int idx ) const
 {
-    if ( !propflds_.validIdx(idx) )
+    if ( !mnemflds_.validIdx(idx) )
 	{ pErrMsg("Idx failure"); return false; }
 
-    const uiWellSinglePropSel& fld = *propflds_[idx];
-    const bool isrev = fld.altPropSelected();
-    const PropertyRef& pr = fld.normPropRef();
-    const PropertyRef* altpr = isrev ? fld.altPropRef() : 0;
+    const uiWellSingleMnemSel& fld = *mnemflds_[idx];
+    const bool isrev = fld.altMnemSelected();
+    const Mnemonic& pr = fld.normMnem();
+    const Mnemonic* altpr = isrev ? fld.altMnem() : nullptr;
     if ( !pr.hasType(proptyp) && !(altpr && altpr->hasType(proptyp)) )
-	{ pErrMsg("Type failure"); return false; }
+    {
+	pErrMsg("Type failure");
+	return false;
+    }
 
     const BufferString lognm = fld.logName();
     if ( lognm.isEmpty() || lognm == sKeyPlsSel )
@@ -360,55 +363,55 @@ bool uiWellPropSel::getLog( const PropertyRef::StdType proptyp,
 }
 
 
-uiWellSinglePropSel* uiWellPropSel::getPropSelFromListByName(
+uiWellSingleMnemSel* uiWellMnemSel::getMnemSelFromListByName(
 						const BufferString& propnm )
 {
-    for ( int idx=0; idx<propflds_.size(); idx++ )
+    for ( int idx=0; idx<mnemflds_.size(); idx++ )
     {
-	uiWellSinglePropSel* fld = propflds_[idx];
-	if ( propnm == fld->normPropRef().name()
-	  || (fld->altPropRef() && propnm == fld->altPropRef()->name()) )
+	uiWellSingleMnemSel* fld = mnemflds_[idx];
+	if ( propnm == fld->normMnem().name()
+	  || (fld->altMnem() && propnm == fld->altMnem()->name()) )
 	    return fld;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
-uiWellSinglePropSel* uiWellPropSel::getPropSelFromListByIndex( int idx )
+uiWellSingleMnemSel* uiWellMnemSel::getMnemSelFromListByIndex( int idx )
 {
-    return propflds_.validIdx(idx) ? propflds_[idx] : 0;
+    return mnemflds_.validIdx(idx) ? mnemflds_[idx] : nullptr;
 }
 
 
-void uiWellPropSel::createLogPushed( CallBacker* cb )
+void uiWellMnemSel::createLogPushed( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb);
     const int idxofbut = createbuts_.indexOf( but );
-    if ( !propflds_.validIdx( idxofbut ) )
+    if ( !mnemflds_.validIdx( idxofbut ) )
 	return;
 
     TypeSet<MultiID> idset; idset += wellid_;
     uiWellLogCalc dlg( this, idset );
-    dlg.setOutputLogName( propflds_[idxofbut]->selPropRef().name() );
+    dlg.setOutputLogName( mnemflds_[idxofbut]->selMnem().name() );
     dlg.go();
 
     if ( dlg.haveNewLogs() )
     {
 	logCreated.trigger();
-	propflds_[idxofbut]->setCurrent( dlg.getOutputLogName() );
+	mnemflds_[idxofbut]->setCurrent( dlg.getOutputLogName() );
     }
 }
 
 
-void uiWellPropSel::viewLogPushed( CallBacker* cb )
+void uiWellMnemSel::viewLogPushed( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb);
     const int idxofbut = viewbuts_.indexOf( but );
-    if ( !propflds_.validIdx( idxofbut ) )
+    if ( !mnemflds_.validIdx( idxofbut ) )
 	return;
 
-    const BufferString lognm( propflds_[idxofbut]->logName() );
+    const BufferString lognm( mnemflds_[idxofbut]->logName() );
     if ( lognm == sKeyPlsSel )
 	return;
 

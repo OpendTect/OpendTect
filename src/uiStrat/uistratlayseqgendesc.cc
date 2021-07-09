@@ -106,13 +106,19 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
 {
     if ( desc_.propSelection().size() < 2 )
     {
-	PropertyRefSelection prs( desc_.propSelection() );
+	PropertySelection prs( desc_.propSelection() );
 	int pidx = PROPS().indexOf( PropertyRef::Den );
-	if ( pidx >= 0 ) prs += PROPS()[pidx];
+	if ( pidx >= 0 )
+	    prs.add( &PROPS().get(pidx) );
+
 	pidx = PROPS().indexOf( PropertyRef::Vel );
-	if ( pidx >= 0 ) prs += PROPS()[pidx];
+	if ( pidx >= 0 )
+	    prs.add( &PROPS().get(pidx) );
+
 	pidx = PROPS().indexOf( PropertyRef::Imp );
-	if ( pidx >= 0 ) prs += PROPS()[pidx];
+	if ( pidx >= 0 )
+	    prs.add( &PROPS().get(pidx) );
+
 	desc_.setPropSelection( prs );
     }
 
@@ -123,7 +129,7 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
 
 
 bool uiLayerSequenceGenDesc::isValidSelection(
-	const PropertyRefSelection& props ) const
+	const PropertySelection& props ) const
 {
     if ( props.isEmpty() )
 	mErrRet( tr("No property is selected.") )
@@ -133,12 +139,16 @@ bool uiLayerSequenceGenDesc::isValidSelection(
 	return false;
     }
 
-    PropertyRefSelection densityprops = props.subselect( PropertyRef::Den );
+    PropertySelection densityprops =
+	props.subselect( *MNC().getGuessed(PropertyRef::Den) );
     if ( densityprops.isEmpty() )
 	mErrRet( tr("No property of type 'Density' selected") )
-    PropertyRefSelection velocityprops = props.subselect( PropertyRef::Vel );
+
+    PropertySelection velocityprops =
+	props.subselect( *MNC().getGuessed(PropertyRef::Vel) );
     if ( velocityprops.isEmpty() )
 	mErrRet( tr("No property of type 'Velocity' selected") )
+
     return true;
 }
 
@@ -154,8 +164,8 @@ const Strat::LayerSequenceGenDesc& uiLayerSequenceGenDesc::currentDesc() const
 
 bool uiLayerSequenceGenDesc::selProps()
 {
-    PropertyRefSelection prs( desc_.propSelection() );
-    uiSelectPropRefs dlg( outerObj()->parent(), prs );
+    PropertySelection prs( desc_.propSelection() );
+    uiSelectProps dlg( outerObj()->parent(), prs );
     const bool ret = dlg.go();
     if ( ret || dlg.structureChanged() )
     {
@@ -226,8 +236,8 @@ void uiExtLayerSequenceGenDesc::setFromEditDesc()
 
 bool uiExtLayerSequenceGenDesc::selProps()
 {
-    PropertyRefSelection prs( editdesc_.propSelection() );
-    uiSelectPropRefs dlg( outerObj()->parent(), prs );
+    PropertySelection prs( editdesc_.propSelection() );
+    uiSelectProps dlg( outerObj()->parent(), prs );
     const bool ret = dlg.go();
     if ( ret || dlg.structureChanged() )
     {
@@ -469,7 +479,7 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     if ( disp.gen_->properties().isEmpty() )
 	return;
     const Property& thprop = disp.gen_->properties().get( 0 );
-    if ( !thprop.ref().isThickness() )
+    if ( !thprop.isThickness() )
     {
 	pErrMsg( "Thickness should always be the first property" );
 	return;
@@ -582,17 +592,15 @@ public:
 uiSimpPropertyEd( uiParent* p, const Property& prop )
     : uiGroup(p,prop.ref().name())
 {
-    const PropertyRef& pr = prop.ref();
-
     const char* opts[] = { "Value", "Range", 0 };
-    typfld_ = new uiComboBox(this, opts, BufferString(pr.name(), " type"));
+    typfld_ = new uiComboBox(this, opts, BufferString(prop.name(), " type"));
     typfld_->selectionChanged.notify( mCB(this,uiSimpPropertyEd,updDisp) );
     typfld_->setHSzPol( uiObject::Small );
-    prelbl_ = new uiLabel( this, toUiString(pr.name()), typfld_ );
+    prelbl_ = new uiLabel( this, toUiString(prop.name()), typfld_ );
     valfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec() );
     rgfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec(),
 			     FloatInpSpec() );
-    uiUnitSel::Setup ussu( pr.stdType() ); ussu.withnone( true );
+    uiUnitSel::Setup ussu( prop.mnem().stdType() ); ussu.withnone( true );
     unfld_ = new uiUnitSel( this, ussu );
 
     valfld_->attach( rightOf, typfld_ );
@@ -681,8 +689,9 @@ bool setProp( PropertySet& props, int idx )
 
     const Property& oldprop = props.get( idx );
     Property* newprop = isRg()
-		? (Property*)new RangeProperty( oldprop.ref(), rg_ )
-		: (Property*)new ValueProperty( oldprop.ref(), rg_.start );
+		? (Property*)new RangeProperty( oldprop.mnem(), rg_ )
+		: (Property*)new ValueProperty( oldprop.name(),
+						oldprop.mnem(), rg_.start );
     props.replace( idx, newprop );
 
     return true;
@@ -706,7 +715,7 @@ public:
 
 uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 			  const Strat::RefTree& rt,
-			  const PropertyRefSelection& proprefs,
+			  const PropertySelection& proprefs,
 			  const Strat::SingleLayerGenerator* nearun=0 )
     : uiDialog(p,uiDialog::Setup(inpun ? tr("Edit layer") : tr("Create layer"),
 				 tr("Define layer generation"),
@@ -740,7 +749,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
     uiSimpPropertyEd* prevfld = 0;
     for ( int iprop=0; iprop<proprefs.size(); iprop++ )
     {
-	const PropertyRef& pr = *proprefs[iprop];
+	const Property& pr = *proprefs[iprop];
 
 	const int idxof = props.indexOf( pr );
 	if ( idxof >= 0 )
@@ -771,7 +780,7 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 			    defval = newdv;
 		    }
 		}
-		toadd = new ValueProperty( pr, defval );
+		toadd = new ValueProperty( pr.name(), pr.mnem(), defval );
 	    }
 	    workprops_.add( toadd );
 	}

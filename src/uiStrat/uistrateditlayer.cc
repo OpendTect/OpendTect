@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "stratlith.h"
 #include "stratunitref.h"
 #include "propertyref.h"
+#include "property.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "uipropvalfld.h"
@@ -54,11 +55,11 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     uiGroup* algrp = topfld_;
     for ( int ival=0; ival<lay_.nrValues(); ival++ )
     {
-	if ( ival >= ls.propertyRefs().size() )
+	if ( ival >= ls.properties().size() )
 	    break;
 
 	const float val = lay_.value( ival );
-	const PropertyRef& pr = *ls.propertyRefs()[ival];
+	const Property& pr = *ls.properties()[ival];
 
 	uiPropertyValFld* valfld = new uiPropertyValFld( this, pr, val );
 	if ( ival == 0 )

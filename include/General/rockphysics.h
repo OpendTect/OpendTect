@@ -88,7 +88,7 @@ public:
     void		fillPar(IOPar&) const;
 
     bool		setDef(const char*); // Will add var- and constdefs
-    MathProperty*	getProperty(const PropertyRef* pr=0) const;
+    MathProperty*	getProperty(const Mnemonic* mn=nullptr) const;
 
 };
 

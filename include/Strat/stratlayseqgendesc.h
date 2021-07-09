@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "multiid.h"
 #include "propertyref.h"
+#include "property.h"
 #include "iopar.h"
 #include "od_iosfwd.h"
 #include "uistring.h"
@@ -44,8 +45,8 @@ public:
     const RefTree&	refTree() const		{ return rt_; }
     IOPar&		getWorkBenchParams()	{ return workbenchparams_; }
 
-    const PropertyRefSelection& propSelection() const	{ return propsel_; }
-    void		setPropSelection(const PropertyRefSelection&);
+    const PropertySelection& propSelection() const	{ return propsel_; }
+    void		setPropSelection(const PropertySelection&);
     float		startDepth() const	{ return startdepth_; }
     void		setStartDepth( float z)	{ startdepth_ = z; }
     const MultiID& 	elasticPropSel() const;
@@ -68,7 +69,7 @@ protected:
     IOPar		workbenchparams_;
 
     const RefTree&	rt_;
-    PropertyRefSelection propsel_;
+    PropertySelection	propsel_;
     MultiID		elasticpropselmid_;
     float		startdepth_;
 

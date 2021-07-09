@@ -170,7 +170,7 @@ void Well::LogSet::removeTopBottomUdfs()
 
 
 TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
-	const PropertyRef* altpr, BoolTypeSet* arealt ) const
+	const Mnemonic* altmn, BoolTypeSet* arealt ) const
 {
     TypeSet<int> ret;
     if ( arealt )
@@ -183,8 +183,8 @@ TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
 	bool isalt = false;
 	bool isok = !loguom || ptype == PropertyRef::Other
 		 || loguom->propType() == ptype;
-	if ( !isok && altpr )
-	    isok = isalt = loguom->propType() == altpr->stdType();
+	if ( !isok && altmn )
+	    isok = isalt = loguom->propType() == altmn->stdType();
 	if ( isok )
 	{
 	    ret += idx;

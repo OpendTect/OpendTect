@@ -39,6 +39,7 @@ ________________________________________________________________________
 #include "prestackgather.h"
 #include "prestackanglecomputer.h"
 #include "propertyref.h"
+#include "property.h"
 #include "raytracerrunner.h"
 #include "separstr.h"
 #include "seisbufadapters.h"
@@ -475,19 +476,22 @@ SyntheticData* StratSynth::getSyntheticByIdx( int idx )
 
 const SyntheticData* StratSynth::getSyntheticByIdx( int idx ) const
 {
-    return synthetics_.validIdx( idx ) ?  synthetics_[idx] : 0;
+    return synthetics_.validIdx( idx ) ?  synthetics_[idx] : nullptr;
 }
 
 
-int StratSynth::syntheticIdx( const PropertyRef& pr ) const
+int StratSynth::syntheticIdx( const Property& pr ) const
 {
     for ( int idx=0; idx<synthetics_.size(); idx++ )
     {
 	mDynamicCastGet(const StratPropSyntheticData*,pssd,synthetics_[idx]);
-	if ( !pssd ) continue;
-	if ( pr == pssd->propRef() )
+	if ( !pssd )
+	    continue;
+
+	if ( pr == pssd->prop() )
 	    return idx;
     }
+
     return 0;
 }
 
@@ -516,13 +520,13 @@ void StratSynth::getSyntheticNames( BufferStringSet& nms,
 }
 
 
-SyntheticData* StratSynth::getSynthetic( const	PropertyRef& pr )
+SyntheticData* StratSynth::getSynthetic( const	Property& pr )
 {
     for ( int idx=0; idx<synthetics_.size(); idx++ )
     {
 	mDynamicCastGet(StratPropSyntheticData*,pssd,synthetics_[idx]);
 	if ( !pssd ) continue;
-	if ( pr == pssd->propRef() )
+	if ( pr == pssd->prop() )
 	    return pssd;
     }
     return 0;
@@ -706,7 +710,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
 {
     const ElasticPropSelection& eps = lm_.elasticPropSel();
-    const PropertyRefSelection& props = lm_.propertyRefs();
+    const PropertySelection& props = lm_.properties();
+    MnemonicSelection mns;
+    for ( const auto* pr : props )
+	mns.addIfNew( &pr->mnem() );
 
     aimodel.erase();
     uiString errmsg;
@@ -718,7 +725,7 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
 	return false;
     }
 
-    ElasticPropGen elpgen( eps, props );
+    ElasticPropGen elpgen( eps, mns );
     const float srddepth = -1.f*mCast(float,SI().seismicReferenceDatum() );
     int firstidx = 0;
     if ( seq.startDepth() < srddepth )
@@ -1177,7 +1184,7 @@ bool doPrepare( int nrthreads )
     const int sz = zrg.nrSteps() + 1;
     for ( int idz=0; idz<sz; idz++ )
 	layermodels_ += new Strat::LayerModel();
-    const PropertyRefSelection& props = lm_.propertyRefs();
+    const PropertySelection& props = lm_.properties();
     for ( int iprop=1; iprop<props.size(); iprop++ )
     {
 	SeisTrcBuf* trcbuf = new SeisTrcBuf( sd_.postStackPack().trcBuf() );
@@ -1233,7 +1240,7 @@ bool doPrepare( int nrthreads )
 
 bool doFinish( bool success )
 {
-    const PropertyRefSelection& props = lm_.propertyRefs();
+    const PropertySelection& props = lm_.properties();
     SynthGenParams sgp;
     sd_.fillGenParams( sgp );
     for ( int idx=0; idx<seisbufdps_.size(); idx++ )
@@ -1262,7 +1269,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const StepInterval<double>& zrg =
 	sd_.postStackPack().posData().range( false );
     const int sz = layermodels_.size();
-    const PropertyRefSelection& props = lm_.propertyRefs();
+    const PropertySelection& props = lm_.properties();
     for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++ )
     {
 	addToNrDone( 1 );
@@ -1273,9 +1280,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	for ( int iprop=1; iprop<props.size(); iprop++ )
 	{
-	    const PropertyRef& pr = *props[iprop];
+	    const Property& pr = *props[iprop];
 	    const OD::String& propnm = pr.name();
-	    const PropertyRef::StdType prtype = pr.stdType();
+	    const PropertyRef::StdType prtype = pr.mnem().stdType();
 	    const bool propisvel = prtype == PropertyRef::Vel;
 	    const UnitOfMeasure* uom = UoMR().getDefault( propnm, prtype );
 	    SeisTrcBufDataPack* dp = seisbufdps_[iprop-1];
@@ -1960,7 +1967,7 @@ void PSBasedPostStackSyntheticData::useGenParams( const SynthGenParams& sgp )
 
 StratPropSyntheticData::StratPropSyntheticData( const SynthGenParams& sgp,
 						    SeisTrcBufDataPack& dp,
-						    const PropertyRef& pr )
+						    const Property& pr )
     : PostStackSyntheticData( sgp, dp )
     , prop_(pr)
 {}

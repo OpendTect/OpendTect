@@ -1467,12 +1467,16 @@ void uiStratSynthDisp::offsetChged( CallBacker* )
 }
 
 
-const PropertyRefSelection& uiStratSynthDisp::modelPropertyRefs() const
-{ return layerModel().propertyRefs(); }
+const PropertySelection& uiStratSynthDisp::modelProperties() const
+{
+    return layerModel().properties();
+}
 
 
 const ObjectSet<const TimeDepthModel>* uiStratSynthDisp::d2TModels() const
-{ return d2tmodels_; }
+{
+    return d2tmodels_;
+}
 
 
 void uiStratSynthDisp::vdDataSetSel( CallBacker* )

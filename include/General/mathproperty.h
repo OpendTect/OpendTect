@@ -30,7 +30,8 @@ namespace Math { class Formula; class SpecVarSet; }
 mExpClass(General) MathProperty : public Property
 { mODTextTranslationClass(Property)
 public:
-			MathProperty(const PropertyRef&,const char* def=0);
+			MathProperty(const char* nm,
+				     const Mnemonic&,const char* def=nullptr);
 			MathProperty(const MathProperty&);
 			~MathProperty();
 
@@ -49,25 +50,25 @@ public:
 
     mDefPropertyFns(MathProperty,"Math");
 
-			// convenience, shielding from Math::Formula
-    const char*		formText(bool user_display=false) const;
-    int			nrInputs() const;
-    const char*		inputName(int) const;
-    const UnitOfMeasure* inputUnit(int) const;
-    bool		isConst(int) const;
-    void		setUnit(const UnitOfMeasure*);
-    const UnitOfMeasure* unit() const;
+				// convenience, shielding from Math::Formula
+    const char*			formText(bool user_display=false) const;
+    int				nrInputs() const;
+    const char*			inputName(int) const;
+    const UnitOfMeasure*	inputUnit(int) const;
+    bool			isConst(int) const;
+    void			setUnit(const UnitOfMeasure*);
+    const UnitOfMeasure*	unit() const;
 
     static const Math::SpecVarSet& getSpecVars();
 
 protected:
 
-    Math::Formula&		form_;
-    mutable ObjectSet<const Property> inps_;
-    mutable uiString	errmsg_;
-    mutable BufferString	fulldef_;
+    Math::Formula&			form_;
+    mutable ObjectSet<const Property>	inps_;
+    mutable uiString			errmsg_;
+    mutable BufferString		fulldef_;
 
-    void			setPreV5Def(const char*);
+    void		setPreV5Def(const char*);
 
 };
 

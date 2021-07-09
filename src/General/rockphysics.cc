@@ -178,17 +178,17 @@ bool RockPhysics::Formula::setDef( const char* str )
 }
 
 
-
-MathProperty* RockPhysics::Formula::getProperty( const PropertyRef* pr ) const
+MathProperty* RockPhysics::Formula::getProperty( const Mnemonic* mn ) const
 {
-    if ( !pr )
+    if ( !mn )
     {
-	PropertyRefSelection prs = PropertyRefSelection::getAll( type_ );
-	if ( prs.isEmpty() )
+	MnemonicSelection mns = MnemonicSelection::getAll( type_ );
+	if ( mns.isEmpty() )
 	    return 0;
-	pr = prs[0];
+	mn = mns[0];
     }
-    return new MathProperty( *pr, def_ );
+
+    return new MathProperty( mn->name(), *mn, def_ );
 }
 
 

@@ -12,10 +12,11 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiunitsel.h"
 #include "propertyref.h"
+#include "property.h"
 #include "unitofmeasure.h"
 
 
-uiPropertyValFld::uiPropertyValFld( uiParent* p, const PropertyRef& pr,
+uiPropertyValFld::uiPropertyValFld( uiParent* p, const Property& pr,
 			float defval, const UnitOfMeasure* defunit )
     : uiGroup(p,BufferString(pr.name()," input"))
     , prevuom_(0)
@@ -23,7 +24,7 @@ uiPropertyValFld::uiPropertyValFld( uiParent* p, const PropertyRef& pr,
     , valueChanged(this)
 {
     valfld_ = new uiGenInput(this, mToUiStringTodo(pr.name()), FloatInpSpec());
-    unfld_ = new uiUnitSel( this, pr.stdType() );
+    unfld_ = new uiUnitSel( this, pr.mnem().stdType() );
     if ( defunit )
 	unfld_->setUnit( defunit );
     unfld_->setName( BufferString(pr.name()," unit") );

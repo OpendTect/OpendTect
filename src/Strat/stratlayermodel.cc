@@ -35,12 +35,12 @@ Strat::LayerModel& Strat::LayerModel::operator =( const LayerModel& oth )
 	return *this;
 
     setEmpty();
-    proprefs_ = oth.proprefs_;
+    props_ = oth.props_;
     elasticpropsel_ = oth.elasticpropsel_;
     for ( int iseq=0; iseq<oth.seqs_.size(); iseq++ )
     {
 	auto* newseq = new LayerSequence( *oth.seqs_[iseq] );
-	newseq->propertyRefs() = proprefs_;
+	newseq->properties() = props_;
 	seqs_ += newseq;
     }
 
@@ -80,7 +80,7 @@ void Strat::LayerModel::setEmpty()
 
 Strat::LayerSequence& Strat::LayerModel::addSequence()
 {
-    auto* newseq = new LayerSequence( &proprefs_ );
+    auto* newseq = new LayerSequence( &props_ );
     seqs_ += newseq;
     return *newseq;
 }
@@ -89,19 +89,19 @@ Strat::LayerSequence& Strat::LayerModel::addSequence()
 Strat::LayerSequence& Strat::LayerModel::addSequence(
 				const LayerSequence& inpls )
 {
-    auto* newls = new LayerSequence( &proprefs_ );
+    auto* newls = new LayerSequence( &props_ );
     newls->setStartDepth( inpls.startDepth() );
 
-    const PropertyRefSelection& inpprops = inpls.propertyRefs();
+    const PropertySelection& inpprops = inpls.properties();
     for ( int ilay=0; ilay<inpls.size(); ilay++ )
     {
 	const Layer& inplay = *inpls.layers()[ilay];
 	auto* newlay = new Layer( inplay.unitRef() );
 	newlay->setThickness( inplay.thickness() );
 	newlay->setContent( inplay.content() );
-	for ( int iprop=1; iprop<proprefs_.size(); iprop++ )
+	for ( int iprop=1; iprop<props_.size(); iprop++ )
 	{
-	    const int idxof = inpprops.indexOf( proprefs_[iprop] );
+	    const int idxof = inpprops.indexOf( props_[iprop] );
 	    newlay->setValue( iprop,
 			idxof < 0 ? mUdf(float) : inplay.value(idxof) );
 	}
@@ -134,7 +134,7 @@ const Strat::RefTree& Strat::LayerModel::refTree() const
 
 
 bool Strat::LayerModel::readHeader( od_istream& strm,
-		PropertyRefSelection& props, int& nrseqs, bool& mathpreserve )
+		PropertySelection& props, int& nrseqs, bool& mathpreserve )
 {
     BufferString word;
     strm.getWord( word, false );
@@ -161,7 +161,7 @@ bool Strat::LayerModel::readHeader( od_istream& strm,
 	strm.getLine( propnm );
 	if ( iprop != 0 )
 	{
-	    const PropertyRef* p = PROPS().find( propnm.buf() );
+	    const Property* p = PROPS().find( propnm.buf() );
 	    if ( !p )
 	    {
 		ErrMsg( BufferString("Property not found: ",propnm) );
@@ -184,12 +184,12 @@ bool Strat::LayerModel::read( od_istream& strm )
     deepErase( seqs_ );
     int nrseqs = 0;
     bool mathpreserve = false;
-    PropertyRefSelection newprops;
+    PropertySelection newprops;
     if ( !readHeader(strm,newprops,nrseqs,mathpreserve) )
 	return false;
 
     const int nrprops = newprops.size();
-    proprefs_ = newprops;
+    props_ = newprops;
 
     BufferString word;
     const RefTree& rt = RT();
@@ -200,7 +200,7 @@ bool Strat::LayerModel::read( od_istream& strm )
 	BufferString linestr;
 	strm.getLine( linestr );
 	SeparString separlinestr( linestr.buf(), od_tab );
-	LayerSequence* seq = new LayerSequence( &proprefs_ );
+	LayerSequence* seq = new LayerSequence( &props_ );
 	int nrlays = separlinestr.getIValue( 1 );
 	if ( separlinestr.size()>2 )
 	{
@@ -246,7 +246,7 @@ bool Strat::LayerModel::read( od_istream& strm )
 		    else
 		    {
 			IOPar iop; iop.getFrom( txt );
-			newlay->setValue( iprop, iop, proprefs_ );
+			newlay->setValue( iprop, iop, props_ );
 		    }
 		}
 	    }
@@ -267,14 +267,14 @@ bool Strat::LayerModel::write( od_ostream& strm, int modnr,
 					bool mathpreserve ) const
 {
     const int nrseqs = seqs_.size();
-    const int nrprops = proprefs_.size();
+    const int nrprops = props_.size();
     strm << "#M" << modnr << od_tab << nrprops << od_tab << nrseqs << od_endl;
 
     if ( mathpreserve )
 	strm << "#MATH PRESERVED" << od_endl;
 
     for ( int iprop=0; iprop<nrprops; iprop++ )
-	strm << "#P" << iprop << od_tab << proprefs_[iprop]->name() << od_endl;
+	strm << "#P" << iprop << od_tab << props_[iprop]->name() << od_endl;
 
     for ( int iseq=0; iseq<nrseqs; iseq++ )
     {

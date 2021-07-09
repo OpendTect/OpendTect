@@ -79,9 +79,9 @@ void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 	const char* res = iop.find( IOPar::compKey(sKey::Property(),idx) );
 	if ( !res || !*res ) break;
 
-	const PropertyRef* pr = PROPS().find( res );
-	if ( !pr && Strat::Layer::thicknessRef().name() == res )
-	    pr = &Strat::Layer::thicknessRef();
+	const Property* pr = PROPS().find( res );
+	if ( !pr && Strat::Layer::thicknessProp().name() == res )
+	    pr = &Strat::Layer::thicknessProp();
 	if ( !pr )
 	    continue;
 	BufferString nm; mDoIOPar( get, sKey::Name(), nm );
@@ -152,10 +152,10 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 	statupscl_ = Stats::upscaleTypeFor( stattype_ );
     }
 
-    for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )
+    for ( int idx=0; idx<lm.properties().size(); idx++ )
     {
-	if ( lm.propertyRefs()[idx] &&
-		lm.propertyRefs()[idx]->name() == attr_.prop_.name() )
+	if ( lm.properties()[idx] &&
+		lm.properties()[idx]->name() == attr_.prop_.name() )
 	    { validx_ = idx; break; }
     }
     if ( validx_ < 0 )
@@ -181,13 +181,13 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 
 bool Strat::LaySeqAttribCalc::isDist() const
 {
-    return attr_.prop_.stdType() == PropertyRef::Dist;
+    return attr_.prop_.mnem().stdType() == PropertyRef::Dist;
 }
 
 
 bool Strat::LaySeqAttribCalc::isVel() const
 {
-    return attr_.prop_.stdType() == PropertyRef::Vel;
+    return attr_.prop_.mnem().stdType() == PropertyRef::Vel;
 }
 
 
@@ -220,7 +220,7 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
 	return propval;
     }
 
-    LayerSequence* newseq = new LayerSequence( &seq.propertyRefs() );
+    LayerSequence* newseq = new LayerSequence( &seq.properties() );
     seq.getSequencePart( zrg, true, *newseq );
     if ( !newseq || newseq->isEmpty() )
 	mRetUdfVal;

@@ -16,7 +16,7 @@ ________________________________________________________________________
 class RayTracer1D;
 class ElasticModel;
 class SeisTrcBufDataPack;
-class PropertyRef;
+class Property;
 
 namespace PreStack { class GatherSetDataPack; class Gather; }
 
@@ -133,14 +133,14 @@ mExpClass(WellAttrib) StratPropSyntheticData : public PostStackSyntheticData
 public:
 				StratPropSyntheticData(const SynthGenParams&,
 							SeisTrcBufDataPack&,
-							const PropertyRef&);
+							const Property&);
 
-    const PropertyRef&		propRef() const { return prop_; }
+    const Property&		prop() const { return prop_; }
     SynthGenParams::SynthType	synthType() const
 				{ return SynthGenParams::StratProp; }
 
 protected:
-    const PropertyRef&		prop_;
+    const Property&		prop_;
 };
 
 

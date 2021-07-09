@@ -4,28 +4,150 @@
  * DATE     : Dec 2003
 -*/
 
-
+#include "ascstream.h"
+#include "iopar.h"
+#include "ioman.h"
+#include "keystrs.h"
 #include "mathproperty.h"
-#include "propertyref.h"
 #include "mathformula.h"
 #include "mathspecvars.h"
-#include "unitofmeasure.h"
-#include "keystrs.h"
-#include "iopar.h"
+#include "propertyref.h"
 #include "separstr.h"
+#include "safefileio.h"
+#include "unitofmeasure.h"
 #include <typeinfo>
 
 
-Property::Property( const PropertyRef& pr )
-    : ref_(pr)
-    , lastval_(mUdf(float))
-    , mn_(MNC().find(pr.getMnemonic()))
-{}
+static const char* filenamebase = "Properties";
+static const char* sKeyMnemonic = "Mnemonic";
+static const char* sKeyDefaultValue = "DefaultValue";
+static const char* sKeyDefinition = "Definition";
 
+mImplFactory2Param(Property,const char*,const Mnemonic&,Property::factory)
 
-const char* Property::name() const
+static bool thickness_propman_is_deleting_thickness = false;
+
+class ThicknessProperty : public ValueProperty
 {
-    return ref_.name().buf();
+public:
+
+ThicknessProperty()
+    : ValueProperty( sKey::Thickness(), Mnemonic::distance() )
+{
+    disp_.range_ = Interval<float>(0,10000);
+    disp_.typicalrange_ = Interval<float>(0,100);
+}
+
+private:
+
+~ThicknessProperty()
+{
+    if ( !thickness_propman_is_deleting_thickness )
+    { pErrMsg( "Fatal error, should not delete 'Thickness'." ); }
+}
+
+friend struct Prop_Thick_Man;
+
+};
+
+
+struct Prop_Thick_Man : public CallBacker
+{
+
+Prop_Thick_Man()
+{
+    ref_ = new ThicknessProperty();
+    setZUnit();
+    IOM().afterSurveyChange.notify( mCB(this,Prop_Thick_Man,setZUnit) );
+}
+
+
+~Prop_Thick_Man()
+{
+    thickness_propman_is_deleting_thickness = true;
+    delete ref_;
+}
+
+
+void setDefaultVals( const Property* otherthref )
+{
+    ref_->defval_ = otherthref->defval_;
+}
+
+
+void setZUnit( CallBacker* cb=0 )
+{
+    ref_->disp_.unit_ =
+	UnitOfMeasure::zUnitAnnot( false, true, false ).getFullString();
+}
+
+    ThicknessProperty*	     ref_;
+};
+
+
+Prop_Thick_Man* getProp_Thick_Man()
+{
+    mDefineStaticLocalObject( PtrMan<Prop_Thick_Man>, ptm,
+			      = new Prop_Thick_Man );
+    return ptm;
+}
+
+
+const Property& Property::thickness()
+{
+    return *getProp_Thick_Man()->ref_;
+}
+
+
+void Property::setThickness( const Property* thref )
+{
+    getProp_Thick_Man()->setDefaultVals( thref );;
+}
+
+
+Property& Property::operator =( const Property& pr )
+{
+    if ( this != &pr )
+    {
+	setName( pr.name() );
+	mn_ = const_cast<Mnemonic&>( pr.mnem() );
+	disp_ = pr.disp_;
+    }
+
+    return *this;
+}
+
+
+/*Property::Property( const char* name, const Mnemonic& mn )
+    : lastval_(mUdf(float))
+    , mn_(mn)
+{}*/
+float Property::commonValue() const
+{
+    if ( defval_ && defval_->isValue() )
+	return defval_->value();
+
+    const bool udf0 = mIsUdf(disp_.range_.start);
+    const bool udf1 = mIsUdf(disp_.range_.stop);
+    if ( udf0 && udf1 )
+	return 0;
+
+    if ( udf0 || udf1 )
+	return udf0 ? disp_.range_.stop : disp_.range_.start;
+
+    return disp_.range_.center();
+}
+
+
+bool Property::isKnownAs( const char* nm ) const
+{
+    if ( !nm || !*nm )
+	return false;
+
+    if ( caseInsensitiveEqual(nm,name().buf(),0) )
+	return true;
+
+    return false;
 }
 
 
@@ -41,9 +163,79 @@ bool Property::isEqualTo( const Property& oth ) const
 
 void Property::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Name(), name() );
+    iop.set( sKeyMnemonic, mn_.name() );
+    iop.set( sKey::Color(), disp_.color_ );
+
+    Interval<float> vintv( disp_.range_ );
+    const UnitOfMeasure* uom = UoMR().get( disp_.unit_ );
+    if ( uom )
+    {
+	if ( !mIsUdf(vintv.start) )
+	    vintv.start = uom->getUserValueFromSI(vintv.start);
+	if ( !mIsUdf(vintv.stop) )
+	    vintv.stop = uom->getUserValueFromSI(vintv.stop);
+    }
+
+    FileMultiString fms;
+    fms += ::toString( vintv.start );
+    fms += ::toString( vintv.stop );
+    if ( !disp_.unit_.isEmpty() )
+	fms += disp_.unit_;
+    iop.set( sKey::Range(), fms );
+
     iop.set( sKey::Type(), type() );
     iop.set( sKey::Value(), def() );
+}
+
+
+void Property::getDataUsingPar( const IOPar& iop )
+{
+    iop.get( sKey::Color(), disp_.color_ );
+    FileMultiString fms( iop.find(sKey::Range()) );
+    int sz = fms.size();
+    if ( sz > 1 )
+    {
+	disp_.range_.start = fms.getFValue( 0 );
+	disp_.range_.stop = fms.getFValue( 1 );
+	if ( sz > 2 )
+	{
+	    disp_.unit_ = fms[2];
+	    const UnitOfMeasure* uom = UoMR().get( disp_.unit_ );
+	    if ( uom )
+	    {
+		if ( !mIsUdf(disp_.range_.start) )
+		    disp_.range_.start = uom->getSIValue(disp_.range_.start);
+		if ( !mIsUdf(disp_.range_.stop) )
+		    disp_.range_.stop = uom->getSIValue(disp_.range_.stop);
+	    }
+	}
+    }
+
+    deleteAndZeroPtr( defval_ );
+    deleteAndZeroPtr( mathdef_ );
+    BufferString mathdefstr;
+    fms = iop.find( sKeyDefaultValue );
+    sz = fms.size();
+    if ( sz > 1 )
+    {
+	const BufferString typ( fms[0] );
+	Property* prop = factory().create( name(), typ, mn_ );
+	mDynamicCastGet(MathProperty*,mp,prop)
+	if ( !mp )
+	    defval_ = new ValueProperty( name(), mn_, toFloat(fms[1]) );
+	else
+	{
+	    mathdef_ = mp;
+	    mathdef_->setDef( fms[1] );
+	}
+    }
+
+    const FixedString def = iop.find( sKeyDefinition );
+    if ( !def.isEmpty() )
+	mathdef_ = new MathProperty( name(), mn_, def );
+
+    if ( !defval_ )
+	defval_ = new ValueProperty( name(), mn_, commonValue() );
 }
 
 
@@ -57,19 +249,42 @@ void Property::usePar( const IOPar& iop )
 
 Property* Property::get( const IOPar& iop )
 {
-    const char* nm = iop.find( sKey::Name() );
-    if ( !nm || !*nm ) return 0;
+    PropertyRef::StdType st = PropertyRef::Other;
+    BufferString propnm, mn;
+    if ( !iop.isPresent(sKey::Name()) )
+    {
+	propnm = iop.getKey( 0 );
+	if ( propnm.isEmpty() )
+	    return nullptr;
 
-    const PropertyRef* ref = PROPS().find( nm );
-    if ( !ref && PropertyRef::thickness().name() == nm )
-	ref = &PropertyRef::thickness();
-    if ( !ref ) return 0;
+	const BufferString stdtypstr( iop.getValue(0) );
+	PropertyRef::parseEnumStdType(stdtypstr, st );
+
+    }
+    else
+    {
+	iop.get(sKey::Name(), propnm);
+	if ( propnm.isEmpty() )
+	    return nullptr;
+    }
+
+    Mnemonic* mnm = nullptr;
+    iop.get( sKeyMnemonic, mn );
+    if ( mn.isEmpty() )
+	mnm = const_cast<Mnemonic*>( MNC().getGuessed(st) );
+    else
+	mnm = const_cast<Mnemonic*>( MNC().find(mn) );
 
     const char* typ = iop.find( sKey::Type() );
-    if ( !typ || !*typ ) typ = ValueProperty::typeStr();
-    Property* prop = factory().create( typ, *ref );
+    if ( !typ || !*typ )
+	typ = ValueProperty::typeStr();
+
+    Property* prop = factory().create( typ, propnm, *mnm );
     if ( prop )
+    {
+	prop->getDataUsingPar( iop );
 	prop->usePar( iop );
+    }
 
     return prop;
 }
@@ -82,7 +297,28 @@ bool Property::init(const PropertySet&) const
 }
 
 
+void Property::setFixedDef( const MathProperty* mp )
+{
+    delete mathdef_;
+    mathdef_ = mp ? mp->clone() : nullptr;
+}
+
+
+
 //------- ValueProperty ----------
+
+
+ValueProperty::ValueProperty( const char* nm, const Mnemonic& mnc )
+    : Property(nm, mnc)
+    , val_(mnc.disp_.typicalrange_.center())
+{}
+
+
+ValueProperty::ValueProperty( const char* nm, const Mnemonic& mnc, float v )
+    : Property(nm, mnc)
+{
+    val_ = v;
+}
 
 
 const char* ValueProperty::def() const
@@ -151,7 +387,7 @@ float RangeProperty::gtAvgVal() const
 	sanerg.start = sanerg.stop;
     else if ( mIsUdf(sanerg.stop) )
 	sanerg.stop = sanerg.start;
-    if ( ref().isThickness() )
+    if ( isThickness() )
     {
 	if ( sanerg.start < 0 ) sanerg.start = 0;
 	if ( sanerg.stop < sanerg.start ) sanerg.stop = sanerg.start;
@@ -174,49 +410,37 @@ float RangeProperty::gtVal( Property::EvalOpts eo ) const
 
 //------- MathProperty ----------
 
-static const PropertyRef& depthPropRef()
-{
-    mDefineStaticLocalObject( PtrMan<PropertyRef>, depthpropref,
-				= new PropertyRef("depth", PropertyRef::Dist) );
-    return *depthpropref;
-}
-
 static const ValueProperty& depthProp()
 {
     mDefineStaticLocalObject( PtrMan<ValueProperty>, depthprop,
-				 = new ValueProperty(depthPropRef(), 0) );
+			 = new ValueProperty("Depth",Mnemonic::distance(), 0) );
+    depthprop->disp_.range_ = Interval<float>(0,5000);
+    depthprop->disp_.typicalrange_ = Interval<float>(0,5000);
     return *depthprop;
 }
 
-static const PropertyRef& relDepthPropRef()
-{
-    mDefineStaticLocalObject( PtrMan<PropertyRef>, reldepthpropref,
-			    = new PropertyRef("RelDepth", PropertyRef::Dist) );
-    return *reldepthpropref;
-}
 
 static const ValueProperty& relDepthProp()
 {
     mDefineStaticLocalObject( PtrMan<ValueProperty>, reldepthprop,
-				 = new ValueProperty(relDepthPropRef(), 0) );
+		     = new ValueProperty("RelDepth",Mnemonic::distance(), 0) );
+    reldepthprop->disp_.range_ = Interval<float>( Interval<float>::udf() );
+    reldepthprop->disp_.typicalrange_ = Interval<float>(-1000,1000);
     return *reldepthprop;
 }
 
-static const PropertyRef& xposPropRef()
-{
-    mDefineStaticLocalObject( PtrMan<PropertyRef>, xpospropref,
-			    = new PropertyRef("XPos", PropertyRef::Volum) );
-    return *xpospropref;
-}
 
 static const ValueProperty& xposProp()
 {
     mDefineStaticLocalObject( PtrMan<ValueProperty>, xposprop,
-				 = new ValueProperty(xposPropRef(), 0) );
+			 = new ValueProperty("XPos",Mnemonic::distance(), 0) );
+    xposprop->disp_.range_ = Interval<float>(0,1);
+    xposprop->disp_.typicalrange_ = Interval<float>(0,1);
     return *xposprop;
 }
-static const FixedString sKeyMathForm( "Formula: " );
 
+
+static const FixedString sKeyMathForm( "Formula: " );
 
 const Math::SpecVarSet& MathProperty::getSpecVars()
 {
@@ -235,8 +459,9 @@ const Math::SpecVarSet& MathProperty::getSpecVars()
 }
 
 
-MathProperty::MathProperty( const PropertyRef& pr, const char* df )
-    : Property(pr)
+MathProperty::MathProperty( const char* propnm,
+			    const Mnemonic& mn, const char* df )
+    : Property(propnm, mn)
     , form_(*new Math::Formula(false,getSpecVars()))
 {
     inps_.allowNull( true );
@@ -246,11 +471,10 @@ MathProperty::MathProperty( const PropertyRef& pr, const char* df )
 
 
 MathProperty::MathProperty( const MathProperty& oth )
-    : Property(oth.ref())
+    : Property(oth.name(), oth.mnem())
     , form_(*new Math::Formula(oth.form_))
     , inps_(oth.inps_)
-{
-}
+{}
 
 
 MathProperty::~MathProperty()
@@ -378,11 +602,11 @@ void MathProperty::setPreV5Def( const char* inpstr )
 	return;
 
     // Variables were the property names, need to replace them with "v_i_xx"
-    const PropertyRefSet& props = PROPS();
+    const PropertySet& props = PROPS();
     BufferStringSet propnms;
     for ( int idx=props.size()-1; idx>-2; idx-- )
     {
-	const char* propnm = idx<0 ? "Thickness" : props[idx]->name().buf();
+	const char* propnm = idx<0 ? "Thickness" : props.get(idx).name().buf();
 	if ( !defstr.contains(propnm) )
 	    continue;
 	propnms.add( propnm );
@@ -393,6 +617,7 @@ void MathProperty::setPreV5Def( const char* inpstr )
 
 	defstr.replace( propnm, varnm );
     }
+
     form_.setText( defstr );
     if ( !form_.isOK() )
 	return;
@@ -488,14 +713,16 @@ PropertyRef::StdType MathProperty::inputType( int iinp ) const
     {
 	const Property* inp = inps_[iinp];
 	if ( inp )
-	    return inp->ref().stdType();
+	    return inp->mnem().stdType();
     }
 
-    PropertyRefSelection prs( PropertyRefSelection::getAll(true,&ref()) );
+    const Property* exclude = PROPS().find( name() );
+    PropertySet prs(
+	    PropertySet::getAll(true, exclude) );
     const char* propnm = form_.inputDef( iinp );
-    const PropertyRef* pr = prs.getByName( propnm );
+    const Property* pr = prs.getByName( propnm );
     if ( pr )
-	return pr->stdType();
+	return pr->mnem().stdType();
 
     return PropertyRef::Other;
 }
@@ -508,7 +735,7 @@ void MathProperty::setInput( int iinp, const Property* p )
 
     if ( p && p->dependsOn(*this) )
     {
-	BufferString msg( "Invalid cyclic dependency for ", ref().name() );
+	BufferString msg( "Invalid cyclic dependency for ", name() );
 	ErrMsg( msg );
 	p = 0;
     }
@@ -559,12 +786,94 @@ const UnitOfMeasure* MathProperty::unit() const
 }
 
 
+//------- PropertySetMgr ----------
+
+class PropertySetMgr : public CallBacker
+{
+public:
+
+PropertySetMgr()
+    : prs_(0)
+{
+    IOM().surveyChanged.notify( mCB(this,PropertySetMgr,doNull) );
+}
+
+
+~PropertySetMgr()
+{
+    delete prs_;
+}
+
+
+void doNull( CallBacker* )
+{
+    delete prs_; prs_ = 0;
+}
+
+void createSet()
+{
+    Repos::FileProvider rfp( filenamebase, true );
+    while ( rfp.next() )
+    {
+	const BufferString fnm( rfp.fileName() );
+	SafeFileIO sfio( fnm );
+	if ( !sfio.open(true) )
+	    continue;
+
+	ascistream astrm( sfio.istrm(), true );
+	PropertySet* oldprs = prs_;
+	prs_ = new PropertySet;
+	prs_->readFrom( astrm );
+	if ( prs_->isEmpty() )
+	{
+	    delete prs_;
+	    prs_ = oldprs;
+	    sfio.closeSuccess();
+	}
+	else
+	{
+	    delete oldprs;
+	    sfio.closeSuccess();
+	    break;
+	}
+    }
+
+    if ( !prs_ )
+	prs_ = new PropertySet;
+
+    MNC();	//Creating a MnemonicSet at the same time as PropertyRefSet
+}
+
+    PropertySet* prs_;
+
+};
+
+
 //------- PropertySet ----------
 
-PropertySet::PropertySet( const PropertyRefSelection& prs )
+const PropertySet& PROPS()
 {
-    for ( int idx=0; idx<prs.size(); idx++ )
-	props_ += new ValueProperty( *prs[idx] );
+    mDefineStaticLocalObject( PropertySetMgr, rsm, );
+    if ( !rsm.prs_ )
+	rsm.createSet();
+
+    return *rsm.prs_;
+}
+
+
+PropertySet::PropertySet( const MnemonicSelection& mncs )
+{
+    for ( int idx=0; idx<mncs.size(); idx++ )
+	props_ += new ValueProperty( mncs[idx]->name(), *mncs[idx] );
+
+    props_ += getProp_Thick_Man()->ref_;
+}
+
+
+PropertySet::~PropertySet()
+{
+    props_ -= getProp_Thick_Man()->ref_;
+    erase();
 }
 
 
@@ -587,22 +896,30 @@ void PropertySet::replace( int idx, Property* p )
 }
 
 
+void PropertySet::swap( int idx1, int idx2 )
+{
+    props_.swap( idx1, idx2 );
+}
+
+
 int PropertySet::indexOf( const char* nm, bool matchaliases ) const
 {
-    if ( !nm || !*nm ) return -1;
+    if ( !nm || !*nm )
+	return -1;
 
     for ( int idx=0; idx<props_.size(); idx++ )
     {
 	const Property& p = *props_[idx];
-	if ( p.ref().name() == nm )
+	if ( p.name() == nm )
 	    return idx;
     }
+
     if ( matchaliases )
     {
 	for ( int idx=0; idx<props_.size(); idx++ )
 	{
 	    const Property& p = *props_[idx];
-	    if ( p.ref().isKnownAs(nm) )
+	    if ( p.mnem().isKnownAs(nm) )
 		return idx;
 	}
     }
@@ -623,7 +940,7 @@ int PropertySet::indexOf( PropertyRef::StdType st, int occ ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Property& pr = *props_[idx];
-	if ( pr.ref().hasType(st) )
+	if ( pr.mnem().hasType(st) )
 	{
 	    occ--;
 	    if ( occ < 0 )
@@ -632,6 +949,27 @@ int PropertySet::indexOf( PropertyRef::StdType st, int occ ) const
     }
 
     return -1;
+}
+
+
+PropertySet PropertySet::getAll( bool withth, const Property* exclude )
+{
+    PropertySet ret;
+    if ( !withth )
+    {
+	const int idxth = ret.indexOf( *getProp_Thick_Man()->ref_ );
+	ret.remove( idxth );
+    }
+
+    const PropertySet& props = PROPS();
+    for ( int idx=0; idx<props.size(); idx++ )
+    {
+	const Property* pr = &props.get( idx );
+	if ( pr != exclude )
+	    ret.add( const_cast<Property*>(pr) );
+    }
+
+    return ret;
 }
 
 
@@ -698,9 +1036,155 @@ void PropertySet::resetMemory()
 
 
 void PropertySet::getPropertiesOfRefType( PropertyRef::StdType proptype,
-					  ObjectSet<Property>& resultset ) const
+			      ObjectSet<const Property>& resultset ) const
 {
     for ( int idx=0; idx<props_.size(); idx++ )
-	if ( props_[idx] && props_[idx]->ref().hasType( proptype ) )
-	    resultset += const_cast<PropertySet*>(this)->props_[idx];
+	if ( props_[idx] && props_[idx]->mnem().hasType(proptype) )
+	    resultset += props_[idx];
+}
+
+
+bool PropertySet::save( Repos::Source src ) const
+{
+    Repos::FileProvider rfp( filenamebase );
+    BufferString fnm = rfp.fileName( src );
+
+    SafeFileIO sfio( fnm, true );
+    if ( !sfio.open(false) )
+    {
+	BufferString msg( "Cannot write to " ); msg += fnm;
+	ErrMsg( sfio.errMsg() );
+	return false;
+    }
+
+    ascostream astrm( sfio.ostrm() );
+    if ( !writeTo(astrm) )
+	{ sfio.closeFail(); return false; }
+
+    return sfio.closeSuccess();
+}
+
+
+void PropertySet::readFrom( ascistream& astrm )
+{
+    props_ -= getProp_Thick_Man()->ref_;
+    deepErase( props_ );
+
+    while ( !atEndOfSection(astrm.next()) )
+    {
+	IOPar iop; iop.getFrom(astrm);
+	props_ += Property::get( iop );
+    }
+}
+
+
+bool PropertySet::writeTo( ascostream& astrm ) const
+{
+    astrm.putHeader( "Properties" );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Property& pr = *props_[idx];
+	IOPar iop;
+	iop.set( sKey::Name(),pr.name() );
+	pr.fillPar( iop );
+	iop.putTo( astrm );
+    }
+
+    return astrm.isOK();
+}
+
+
+PropertySelection::PropertySelection()
+{
+    *this += getProp_Thick_Man()->ref_;
+}
+
+
+bool PropertySelection::operator ==( const PropertySelection& oth ) const
+{
+    if ( size() != oth.size() )
+	return false;
+
+    for ( int idx=0; idx<size(); idx++ )
+	if ( (*this)[idx] != oth[idx] )
+	    return false;
+
+    return true;
+}
+
+
+int PropertySelection::indexOf( const char* nm ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Property& pr = *((*this)[idx]);
+	if ( pr.name() == nm )
+	    return idx;
+    }
+    return -1;
+}
+
+
+int PropertySelection::find( const char* nm ) const
+{
+    const int idxof = indexOf( nm );
+    if ( idxof >= 0 )
+	return idxof;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Property& pr = *((*this)[idx]);
+	if ( pr.isKnownAs( nm ) )
+	    return idx;
+    }
+
+    return -1;
+    }
+
+
+PropertySelection PropertySelection::subselect( const Mnemonic& mn ) const
+{
+    PropertySelection subsel;
+    subsel.erase();
+    for ( int idx=0; idx<size(); idx++ )
+	if ( (*this)[idx] && (*this)[idx]->mnem()==mn  )
+	    subsel += (*this) [idx];
+
+    return subsel;
+}
+
+
+PropertySelection PropertySelection::getAll( bool withth,
+					const Property* exclude )
+{
+    PropertySelection ret;
+    if ( !withth )
+      ret -= getProp_Thick_Man()->ref_;
+
+    const PropertySet& props = PROPS();
+    for ( int idx=0; idx<props.size(); idx++ )
+    {
+	const Property* pr = &props.get( idx );
+	if ( pr != exclude )
+	    ret += pr;
+    }
+    return ret;
+}
+
+
+PropertySelection PropertySelection::getAll( const Mnemonic& mn )
+{
+    PropertySelection ret;
+    if ( mn != Mnemonic::distance() )
+	ret -= getProp_Thick_Man()->ref_;
+
+    const PropertySet& props = PROPS();
+    for ( int idx=0; idx<props.size(); idx++ )
+    {
+	const Property* pr = &props.get( idx );
+	if ( pr->mnem() == mn )
+	    ret += pr;
+    }
+
+    return ret;
 }

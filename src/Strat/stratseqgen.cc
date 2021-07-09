@@ -103,8 +103,8 @@ void Strat::LayerGenerator::fillPar( IOPar& iop ) const
 bool Strat::LayerGenerator::generateMaterial( Strat::LayerSequence& seq,
 					      Property::EvalOpts eo ) const
 {
-    if ( seq.propertyRefs().isEmpty() )
-	updateUsedProps( seq.propertyRefs() );
+    if ( seq.properties().isEmpty() )
+	updateUsedProps( seq.properties() );
     return genMaterial( seq, eo );
 }
 
@@ -123,11 +123,16 @@ Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
 {
     elasticpropselmid_.setEmpty();
     int pidx = PROPS().indexOf( PropertyRef::Den );
-    if ( pidx >= 0 ) propsel_ += PROPS()[pidx];
+    if ( pidx >= 0 )
+	propsel_ += &PROPS().get( pidx );
+
     pidx = PROPS().indexOf( PropertyRef::Vel );
-    if ( pidx >= 0 ) propsel_ += PROPS()[pidx];
+    if ( pidx >= 0 )
+	propsel_ += &PROPS().get( pidx );
+
     pidx = PROPS().indexOf( PropertyRef::Imp );
-    if ( pidx >= 0 ) propsel_ += PROPS()[pidx];
+    if ( pidx >= 0 )
+	propsel_ += &PROPS().get( pidx );
 }
 
 
@@ -222,7 +227,7 @@ bool Strat::LayerSequenceGenDesc::putTo( od_ostream& strm ) const
 
 
 void Strat::LayerSequenceGenDesc::setPropSelection(
-		const PropertyRefSelection& prsel )
+		const PropertySelection& prsel )
 {
     propsel_ = prsel;
     for ( int idx=0; idx<size(); idx++ )
@@ -365,7 +370,8 @@ Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
     : unit_(ur)
     , content_(&Strat::Content::unspecified())
 {
-    props_.add( new ValueProperty(PropertyRef::thickness()) );
+    const Property& thprop = Property::thickness();
+    props_.add( new ValueProperty(thprop.name(),thprop.mnem()) );
 }
 
 
@@ -388,8 +394,9 @@ float Strat::SingleLayerGenerator::dispThickness( bool max ) const
 {
     if ( props_.isEmpty() )
 	return 1;
+
     const Property& thprop = props_.get( 0 );
-    if ( !thprop.ref().isThickness() )
+    if ( !thprop.isThickness() )
     {
 	pErrMsg( "Thickness should always be the first property" );
 	return 1;
@@ -400,7 +407,11 @@ float Strat::SingleLayerGenerator::dispThickness( bool max ) const
 
     const float th0 = thprop.value( mPropertyEvalNew(0) );
     const float th1 = thprop.value( mPropertyEvalNew(1) );
-    if ( mIsUdf(th0) ) return th1; if ( mIsUdf(th1) ) return th0;
+    if ( mIsUdf(th0) )
+	return th1;
+
+    if ( mIsUdf(th1) )
+	return th0;
 
     return th0 < th1 ? th1 : th0;
 }
@@ -412,25 +423,25 @@ const Strat::LeafUnitRef& Strat::SingleLayerGenerator::unit() const
 }
 
 
-void Strat::SingleLayerGenerator::syncProps( const PropertyRefSelection& prsel )
+void Strat::SingleLayerGenerator::syncProps( const PropertySelection& prsel )
 {
     // remove old
     for ( int idx=0; idx<props_.size(); idx++ )
     {
-	const PropertyRef* pr = &props_.get(idx).ref();
+	const Property* pr = &props_.get(idx);
 	if ( !prsel.isPresent(pr) )
 	    { props_.remove(idx); idx--; }
     }
     // add new
     for ( int idx=0; idx<prsel.size(); idx++ )
     {
-	const PropertyRef& pr = *prsel[idx];
+	const Property& pr = *prsel[idx];
 	if ( props_.indexOf(pr) < 0 )
 	{
 	    if ( pr.hasFixedDef() )
 		props_.add( pr.fixedDef().clone() );
 	    else
-		props_.add( new ValueProperty(pr) );
+		props_.add( new ValueProperty(pr.name(), pr.mnem()) );
 	}
     }
 
@@ -439,10 +450,10 @@ void Strat::SingleLayerGenerator::syncProps( const PropertyRefSelection& prsel )
     props_.erase();
     for ( int idx=0; idx<prsel.size(); idx++ )
     {
-	const PropertyRef& pr = *prsel[idx];
+	const Property& pr = *prsel[idx];
 	const int copyidx = copypropset.indexOf( pr );
 	if ( copyidx<0 )
-	    props_.add( new ValueProperty(pr) );
+	    props_.add( new ValueProperty(pr.name(), pr.mnem()) );
 	else
 	    props_.add( copypropset.get(copyidx).clone() );
     }
@@ -450,11 +461,11 @@ void Strat::SingleLayerGenerator::syncProps( const PropertyRefSelection& prsel )
 
 
 void Strat::SingleLayerGenerator::updateUsedProps(
-					PropertyRefSelection& prsel ) const
+					PropertySelection& prsel ) const
 {
     for ( int idx=0; idx<props_.size(); idx++ )
     {
-	const PropertyRef* pr = &props_.get(idx).ref();
+	const Property* pr = &props_.get(idx);
 	if ( !prsel.isPresent(pr) )
 	    prsel += pr;
     }
@@ -526,7 +537,7 @@ bool Strat::SingleLayerGenerator::reset() const
 bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 					       Property::EvalOpts eo ) const
 {
-    const PropertyRefSelection& prs = seq.propertyRefs();
+    const PropertySelection& prs = seq.properties();
 
     Layer* newlay = new Layer( unit() );
     newlay->setContent( content() );
@@ -538,12 +549,12 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     // first non-Math
     for ( int ipr=0; ipr<prs.size(); ipr++ )
     {
-	const PropertyRef* pr = prs[ipr];
+	const Property* pr = prs[ipr];
 
 	for ( int iprop=0; iprop<props_.size(); iprop++ )
 	{
 	    const Property& prop = props_.get( iprop );
-	    if ( pr != &prop.ref() )
+	    if ( pr != &prop )
 		continue;
 
 	    mDynamicCastGet(const MathProperty*,mp,&prop)
@@ -570,9 +581,9 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     for ( int mathidx=0; mathidx<indexesofprsmath.size(); mathidx++ )
     {
 	const int ipr = indexesofprsmath[mathidx];
-	const PropertyRef* pr = prs[ipr];
+	const Property* pr = prs[ipr];
 	const Property& prop = props_.get( correspondingidxinprops[mathidx] );
-	if ( pr != &prop.ref() )
+	if ( pr != &prop )
 	    { pErrMsg("Huh? should never happen"); continue; }
 	if ( eo.isPrev() )
 	    newlay->setValue( ipr, prop.value( eo ) );

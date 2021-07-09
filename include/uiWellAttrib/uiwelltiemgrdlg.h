@@ -18,13 +18,14 @@ ________________________________________________________________________
 namespace Well { class Data; }
 
 class ElasticPropSelection;
+class MnemonicSelection;
 
 class uiIOObjSel;
 class uiLabeledComboBox;
 class uiCheckBox;
 class uiGenInput;
 class uiSeisSel;
-class uiWellPropSel;
+class uiWellMnemSel;
 class uiSeis2DLineNameSel;
 class uiSeisWaveletSel;
 class uiWaveletExtraction;
@@ -52,7 +53,7 @@ protected:
     ElasticPropSelection& elpropsel_;
     bool		savedefaut_;
     ObjectSet<uiTieWin> welltiedlgset_;
-    uiWellPropSel*	logsfld_;
+    uiWellMnemSel*	logsfld_;
 
     Well::Data*		wd_;
 

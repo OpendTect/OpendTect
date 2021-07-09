@@ -143,7 +143,7 @@ protected:
 };
 
 
-class PropertyRefSelection;
+class PropertySelection;
 
 mExpClass(uiStrat) uiStratLayModFRPropSelector : public uiDialog
 { mODTextTranslationClass(uiStratLayModFRPropSelector)
@@ -166,7 +166,7 @@ public:
     };
 
 			uiStratLayModFRPropSelector(uiParent*,
-						  const PropertyRefSelection&,
+						  const PropertySelection&,
 						  const Setup&);
 
     void		setDenProp(const char*);

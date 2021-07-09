@@ -41,7 +41,8 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType st )
 
 uiUnitSel::uiUnitSel( uiParent* p, Mnemonic* mn )
     : uiGroup(p,"UnitSel")
-    , setup_(mn ? mn->stdType() : PropertyRef::Dist, toUiString(""), mn )
+    , setup_(mn ? mn->propRefType().stdType()
+		: PropertyRef::Dist, toUiString(""), mn )
     , selChange(this)
     , propSelChange(this)
 {

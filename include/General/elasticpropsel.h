@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "elasticprop.h"
 #include "uistrings.h"
+#include "mnemonics.h"
 
 class IOObj;
 
@@ -20,7 +21,7 @@ class IOObj;
 \brief User parameters to compute values for an elastic layer (den,p/s-waves).
 */
 
-mExpClass(General) ElasticPropSelection : public PropertyRefSelection
+mExpClass(General) ElasticPropSelection : public PropertySelection
 { mODTextTranslationClass(ElasticPropSelection)
 public:
 
@@ -31,11 +32,11 @@ public:
 				~ElasticPropSelection();
     ElasticPropSelection&	operator =(const ElasticPropSelection&);
 
-    ElasticPropertyRef&		getByIdx( int idx )	{ return gt(idx); }
-    const ElasticPropertyRef&	getByIdx( int idx ) const { return gt(idx); }
-    ElasticPropertyRef&		getByType( ElasticFormula::Type tp )
+    ElasticProperty&		getByIdx( int idx )	{ return gt(idx); }
+    const ElasticProperty&	getByIdx( int idx ) const { return gt(idx); }
+    ElasticProperty&		getByType( ElasticFormula::Type tp )
 							{ return gt(tp); }
-    const ElasticPropertyRef&	getByType( ElasticFormula::Type tp ) const
+    const ElasticProperty&	getByType( ElasticFormula::Type tp ) const
 							{ return gt(tp); }
 
     static ElasticPropSelection* getByDBKey(const MultiID&);
@@ -52,8 +53,8 @@ public:
 
 protected:
 
-    ElasticPropertyRef&		gt(ElasticFormula::Type) const;
-    ElasticPropertyRef&		gt(int idx) const;
+    ElasticProperty&		gt(ElasticFormula::Type) const;
+    ElasticProperty&		gt(int idx) const;
     bool			checkForValidSelPropsDesc(
 					const ElasticFormula&,
 					BufferStringSet& faultynms,
@@ -66,17 +67,17 @@ protected:
 
 /*!
 \brief Computes elastic properties using parameters in ElasticPropSelection and
-PropertyRefSelection.
+MnemonicSelection.
 */
 
 mExpClass(General) ElasticPropGen
 {
 public:
 			ElasticPropGen(const ElasticPropSelection& eps,
-					const PropertyRefSelection& rps)
-			    : elasticprops_(eps), refprops_(rps) {}
+					const MnemonicSelection& mns)
+			    : elasticprops_(eps), mns_(mns) {}
 
-    float		getVal(const ElasticPropertyRef& ef,
+    float		getVal(const ElasticProperty& ef,
 				const float* proprefvals,
 				int proprefsz) const
 			{ return getVal(ef.formula(),proprefvals, proprefsz); }
@@ -87,7 +88,7 @@ public:
 protected:
 
     const ElasticPropSelection& elasticprops_;
-    const PropertyRefSelection& refprops_;
+    const MnemonicSelection&	mns_;
 
     float		getVal(const ElasticFormula& ef,
 				const float* proprefvals,
@@ -97,19 +98,19 @@ protected:
 
 /*!
 \brief Guesses elastic properties using parameters in ElasticPropSelection and
-PropertyRefSelection.
+MnemonicSelection.
 */
 
 mExpClass(General) ElasticPropGuess
 {
 public:
-			ElasticPropGuess(const PropertyRefSelection&,
+			ElasticPropGuess(const MnemonicSelection&,
 						ElasticPropSelection&);
 protected:
 
-    void		guessQuantity(const PropertyRefSelection&,
+    void		guessQuantity(const MnemonicSelection&,
 					ElasticFormula::Type);
-    bool		guessQuantity(const PropertyRef&,ElasticFormula::Type);
+    bool		guessQuantity(const Mnemonic&,ElasticFormula::Type);
 
     ElasticPropSelection& elasticprops_;
 };

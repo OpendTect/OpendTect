@@ -26,9 +26,29 @@ mDefineEnumUtils(Mnemonic,Scale,"Plot Scale")
 };
 
 
+Mnemonic::Mnemonic( const char* nm, const PropertyRef& pr )
+    : NamedObject(nm)
+    , pr_(const_cast<PropertyRef&>(pr))
+{}
+
+
+Mnemonic::Mnemonic( const char* nm, PropertyRef::StdType stdtype )
+    : NamedObject(nm)
+    , pr_(*new PropertyRef(nm, stdtype))
+{}
+
+
+Mnemonic::Mnemonic( const Mnemonic& mnc )
+    : NamedObject(mnc.name())
+    , pr_(const_cast<PropertyRef&>(mnc.propRefType()))
+{
+    *this = mnc;
+}
+
+
 Mnemonic::~Mnemonic()
 {
-    delete mathdef_;
+    delete &pr_;
 }
 
 
@@ -39,7 +59,7 @@ Mnemonic& Mnemonic::operator =( const Mnemonic& mnc )
 	setName( mnc.name() );
 	this->logtypename_ = mnc.logtypename_;
 	this->aliases_ = mnc.aliases();
-	this->stdtype_ =mnc.stdType();
+	this->pr_ = mnc.propRefType();
 	this->disp_ = mnc.disp_;
     }
     return *this;
@@ -55,13 +75,6 @@ bool Mnemonic::operator ==( const Mnemonic& mnc ) const
 bool Mnemonic::operator !=( const Mnemonic& mnc ) const
 {
     return name() != mnc.name();
-}
-
-
-void Mnemonic::setFixedDef( const MathProperty* mp )
-{
-    delete mathdef_;
-    mathdef_ = mp ? mp->clone() : nullptr;
 }
 
 
@@ -93,7 +106,13 @@ void Mnemonic::usePar( const IOPar& iop )
 	if ( idx == 0 )
 	    logtypename_ = fms[idx];
 	else if ( idx == 1 )
-	    stdtype_ = PropertyRef::StdTypeDef().parse( fms[idx] );
+	{
+	    const BufferString proprefnm = fms[idx];
+	    const PropertyRef::StdType stdtype =
+		PropertyRef::StdTypeDef().parse( proprefnm );
+	    pr_.setName( proprefnm );
+	    pr_.setStdType( stdtype );
+	}
 	else if ( idx >=2 && idx <=7 )
 	{
 	    disp_.scale_ = Mnemonic::ScaleDef().parse( fms[2] );
@@ -132,7 +151,7 @@ void Mnemonic::usePar( const IOPar& iop )
 void Mnemonic::fillPar( IOPar& iop ) const
 {
     FileMultiString fms( logtypename_ );
-    fms += PropertyRef::StdTypeDef().toString( stdType() );
+    fms += PropertyRef::StdTypeDef().toString( pr_.stdType() );
     fms += Mnemonic::ScaleDef().toString( disp_.scale_ );
     Interval<float> vrange( disp_.range_ );
     Interval<float> vtypicalrange( disp_.typicalrange_ );
@@ -167,6 +186,21 @@ void Mnemonic::fillPar( IOPar& iop ) const
     }
 
     iop.set( name(), fms );
+}
+
+
+const Mnemonic& Mnemonic::undef()
+{
+    return *new Mnemonic( "Other", PropertyRef::undef() );
+}
+
+
+const Mnemonic& Mnemonic::distance()
+{
+   auto* ret = new Mnemonic( "DIST", PropertyRef::Dist );
+   ret->disp_.range_ = Interval<float>(0,mUdf(float));
+   ret->disp_.typicalrange_ = Interval<float>::udf();
+   return *ret;
 }
 
 
@@ -225,6 +259,8 @@ void createSet()
 
     if ( !mns_ )
 	mns_ = new MnemonicSet;
+
+//    PROPS(); //Creating a PropertyRefSet
 }
 
     MnemonicSet* mns_;
@@ -260,6 +296,7 @@ int MnemonicSet::indexOf( const char* nm ) const
 	    if ( mnc.name() == nm )
 		return idx;
 	}
+
 	for ( int idx=0; idx<size(); idx++ )
 	{
 	    const Mnemonic& mnc = *(*this)[idx];
@@ -295,7 +332,7 @@ Mnemonic* MnemonicSet::getGuessed( PropertyRef::StdType stdtype )
 	    return &mnc;
     }
 
-    return find("OTH");
+    return &const_cast<Mnemonic&>( Mnemonic::undef() );
 }
 
 
@@ -311,7 +348,7 @@ Mnemonic* MnemonicSet::getGuessed( const UnitOfMeasure* uom )
 	}
     }
 
-    return find("OTH");
+    return &const_cast<Mnemonic&>( Mnemonic::undef() );
 }
 
 
@@ -392,7 +429,7 @@ void MnemonicSet::readFrom( ascistream& astrm )
 	    if ( find(mnemonicnm) )
 		continue;
 
-	    Mnemonic* mnc = new Mnemonic( mnemonicnm );
+	    Mnemonic* mnc = new Mnemonic( mnemonicnm, PropertyRef::Other );
 	    mnc->usePar( iop );
 
 	    if ( add(mnc) < 0 )
@@ -467,6 +504,21 @@ MnemonicSelection MnemonicSelection::getAll( const Mnemonic* exclude )
     {
 	const Mnemonic* mn = mns[idx];
 	if ( mn != exclude )
+	    ret += mn;
+    }
+
+    return ret;
+}
+
+
+MnemonicSelection MnemonicSelection::getAll( const PropertyRef::StdType typ )
+{
+    MnemonicSelection ret;
+    const MnemonicSet& mns = MNC();
+    for ( int idx=0; idx<mns.size(); idx++ )
+    {
+	const Mnemonic* mn = mns[idx];
+	if ( mn->stdType() == typ )
 	    ret += mn;
     }
 

@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "ailayer.h"
 #include "propertyref.h"
+#include "property.h"
 
 class ElasticPropSelection;
 
@@ -27,7 +28,7 @@ class UnitRef;
 
 /*!\brief A sequence of layers.
 
-  You can provide a PropertyRefSelection* to give meaning to the values in
+  You can provide a PropertySelection* to give meaning to the values in
   the Layers.
 
  */
@@ -36,7 +37,7 @@ mExpClass(Strat) LayerSequence
 {
 public:
 
-			LayerSequence(const PropertyRefSelection* =nullptr);
+			LayerSequence(const PropertySelection* =nullptr);
 			LayerSequence( const LayerSequence& ls )
 						{ *this = ls; }
     virtual		~LayerSequence();
@@ -58,8 +59,8 @@ public:
     Interval<float>	zRange() const;
     void		setXPos(float);
 
-    PropertyRefSelection& propertyRefs()	{ return props_; }
-    const PropertyRefSelection& propertyRefs() const	{ return props_; }
+    PropertySelection&	properties()		{ return props_; }
+    const PropertySelection& properties() const { return props_; }
 
     void		getLayersFor( const UnitRef* ur,
 				      ObjectSet<Layer>& lys )
@@ -92,7 +93,7 @@ protected:
 
     ObjectSet<Layer>	layers_;
     float		z0_ = 0.f;
-    PropertyRefSelection props_;
+    PropertySelection	props_;
 
 };
 

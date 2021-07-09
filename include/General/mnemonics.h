@@ -28,19 +28,17 @@ public:
     enum Scale		{ Linear, Logarithmic };
 			mDeclareEnumUtils(Scale)
 
-			Mnemonic( const char* nm=nullptr )
-			    : NamedObject(nm)
-			    , mathdef_(nullptr)		{}
-			Mnemonic( const Mnemonic& mnc )
-			    : NamedObject(mnc.name())
-			    , mathdef_(nullptr)		{ *this = mnc; }
+			Mnemonic(const char* nm=nullptr,
+				 const PropertyRef& pr=PropertyRef::undef());
+			Mnemonic(const char* nm=nullptr,
+				 PropertyRef::StdType=PropertyRef::Other);
+			Mnemonic(const Mnemonic& mnc);
     virtual		~Mnemonic();
 
     Mnemonic&		operator =(const Mnemonic&);
     bool		operator ==( const Mnemonic& mnc ) const;
     bool		operator !=( const Mnemonic& mnc ) const;
     bool		isKnownAs(const char*) const;
-    bool		hasFixedDef() const		{ return mathdef_; }
 
 
     mExpStruct(General) DispDefs
@@ -60,23 +58,23 @@ public:
 
     inline BufferStringSet&		aliases()	{ return aliases_; }
     inline const BufferStringSet&	aliases() const { return aliases_; }
-    inline PropertyRef::StdType		stdType() const { return stdtype_; }
-    const MathProperty&			fixedDef() const{ return *mathdef_; }
+    inline const PropertyRef&		propRefType() const	{ return pr_;}
+    inline PropertyRef::StdType stdType() const      { return pr_.stdType(); }
 
-    inline void		setStdType( PropertyRef::StdType t )
-			{ stdtype_ = t; }
     inline bool		hasType( PropertyRef::StdType t ) const
-			{ return stdtype_ == t; }
+			{ return pr_.stdType() == t; }
     inline bool		isCompatibleWith( const PropertyRef& pr ) const
-			{ return hasType(pr.stdType()); }
-    void		setFixedDef(const MathProperty*);
+			{ return pr.stdType() == pr_.stdType(); }
+
+    static const Mnemonic& undef();
+    static const Mnemonic& distance();
+    //todo: check for comments
 
 protected:
 
     BufferStringSet		aliases_;
     BufferString		logtypename_;
-    PropertyRef::StdType	stdtype_;
-    MathProperty*		mathdef_;
+    PropertyRef&		pr_;
 
     friend class		MnemonicSet;
     void			usePar(const IOPar&);
@@ -154,4 +152,5 @@ public:
 			  return idx < 0 ? 0 : (*this)[idx]; }
 
     static MnemonicSelection getAll(const Mnemonic* exclude=nullptr);
+    static MnemonicSelection getAll(const PropertyRef::StdType);
 };

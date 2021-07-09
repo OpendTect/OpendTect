@@ -153,7 +153,11 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     logsgrp->attach( alignedBelow, wellfld_ );
     logsgrp->attach( ensureBelow, sep );
 
-    logsfld_ = new uiWellPropSel( logsgrp, elpropsel_ );
+    MnemonicSelection mns;
+    for ( const auto* elprop : elpropsel_  )
+	mns += &elprop->mnem();
+
+    logsfld_ = new uiWellMnemSel( logsgrp, mns );
     logsfld_->logCreated.notify( wllselcb );
 
     used2tmbox_ = new uiCheckBox( logsgrp, tr("Use existing depth/time model"));
@@ -511,8 +515,8 @@ bool uiTieWinMGRDlg::initSetup()
     if ( !logsfld_->isOK() )
 	mErrRet( tr("Cannot select appropriate logs") )
 
-    uiWellSinglePropSel* psflden = logsfld_->
-				 getPropSelFromListByIndex( mDensityIdx );
+    uiWellSingleMnemSel* psflden = logsfld_->
+				 getMnemSelFromListByIndex( mDensityIdx );
     if ( !psflden )
 	mErrRet( uiStrings::phrCannotFind(
 				tr("the density in the log selection list")) )
@@ -528,8 +532,8 @@ bool uiTieWinMGRDlg::initSetup()
     den->setUnitMeasLabel( uom->symbol() );
     wtsetup_.denlognm_ = psflden->logName();
 
-    uiWellSinglePropSel* psflvp = logsfld_->
-				getPropSelFromListByIndex( mPwaveIdx );
+    uiWellSingleMnemSel* psflvp = logsfld_->
+				getMnemSelFromListByIndex( mPwaveIdx );
     if ( !psflvp )
 	mErrRet( uiStrings::phrCannotFind(
 				    tr("the Pwave in the log selection list")) )
@@ -544,7 +548,7 @@ bool uiTieWinMGRDlg::initSetup()
 
     vp->setUnitMeasLabel( uom->symbol() );
     wtsetup_.vellognm_ = psflvp->logName();
-    wtsetup_.issonic_  = psflvp->altPropSelected();
+    wtsetup_.issonic_  = psflvp->altMnemSelected();
 
     wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
     if ( wtsetup_.useexistingd2tm_ )
