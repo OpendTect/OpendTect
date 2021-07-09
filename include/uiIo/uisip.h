@@ -51,6 +51,8 @@ mExpClass(uiIo) uiSurvInfoProvider
 {
 public:
 
+    virtual			~uiSurvInfoProvider()	{}
+
     virtual const char*		usrText() const		= 0;
     virtual uiDialog*		dialog(uiParent*)	= 0;
     virtual uiDialog*		launchSurveyImportDlg(uiParent*)
