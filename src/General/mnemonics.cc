@@ -26,12 +26,6 @@ mDefineEnumUtils(Mnemonic,Scale,"Plot Scale")
 };
 
 
-Mnemonic::Mnemonic( const char* nm, const PropertyRef& pr )
-    : NamedObject(nm)
-    , pr_(const_cast<PropertyRef&>(pr))
-{}
-
-
 Mnemonic::Mnemonic( const char* nm, PropertyRef::StdType stdtype )
     : NamedObject(nm)
     , pr_(*new PropertyRef(nm, stdtype))
@@ -191,7 +185,7 @@ void Mnemonic::fillPar( IOPar& iop ) const
 
 const Mnemonic& Mnemonic::undef()
 {
-    return *new Mnemonic( "Other", PropertyRef::undef() );
+    return *new Mnemonic( "Other", PropertyRef::Other );
 }
 
 

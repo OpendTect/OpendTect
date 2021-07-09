@@ -29,8 +29,6 @@ public:
 			mDeclareEnumUtils(Scale)
 
 			Mnemonic(const char* nm=nullptr,
-				 const PropertyRef& pr=PropertyRef::undef());
-			Mnemonic(const char* nm=nullptr,
 				 PropertyRef::StdType=PropertyRef::Other);
 			Mnemonic(const Mnemonic& mnc);
     virtual		~Mnemonic();
