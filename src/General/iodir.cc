@@ -17,9 +17,9 @@
 
 
 IODir::IODir( const char* dirnm )
-	: isok_(false)
-	, dirname_(dirnm)
-	, curid_(0)
+    : isok_(false)
+    , dirname_(dirnm)
+    , curid_(0)
 {
     if ( build() )
 	isok_ = true;
@@ -27,15 +27,15 @@ IODir::IODir( const char* dirnm )
 
 
 IODir::IODir()
-	: isok_(false)
-	, curid_(0)
+    : isok_(false)
+    , curid_(0)
 {
 }
 
 
 IODir::IODir( const MultiID& ky )
-	: isok_(false)
-	, curid_(0)
+    : isok_(false)
+    , curid_(0)
 {
     IOObj* ioobj = getObj( ky );
     if ( !ioobj ) return;
@@ -55,7 +55,7 @@ IODir::IODir( const MultiID& ky )
 
 IODir::~IODir()
 {
-    deepErase(objs_);
+    deepErase( objs_ );
 }
 
 
@@ -91,7 +91,7 @@ IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
 	msg += "\n-> Please check directory (read permissions, existence):\n'";
 	msg += dirnm; msg += "'";
 	ErrMsg( msg );
-	return 0;
+	return nullptr;
     }
 
     IOObj* ret = readOmf( sfio.istrm(), dirnm, dirptr, needid );
@@ -137,7 +137,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     }
     astream.next();
 
-    IOObj* retobj = 0;
+    IOObj* retobj = nullptr;
     while ( astream.type() != ascistream::EndOfFile )
     {
 	IOObj* obj = IOObj::get(astream,dirnm,dirky);
@@ -177,7 +177,7 @@ IOObj* IODir::getObj( const MultiID& ky )
 {
     BufferString dirnm( IOM().rootDir() );
     if ( dirnm.isEmpty() || !File::isDirectory(dirnm) )
-	return 0;
+	return nullptr;
 
     int nrkeys = ky.nrKeys();
     for ( int idx=0; idx<nrkeys; idx++ )
@@ -191,7 +191,7 @@ IOObj* IODir::getObj( const MultiID& ky )
 	delete ioobj;
     }
 
-    return 0;
+    return nullptr;
 }
 
 

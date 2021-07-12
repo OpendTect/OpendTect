@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 
 uiSEGYSurvInfoProvider::uiSEGYSurvInfoProvider()
+    : uiSurvInfoProvider()
 {}
 
 uiSEGYSurvInfoProvider::~uiSEGYSurvInfoProvider()

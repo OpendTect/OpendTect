@@ -200,6 +200,7 @@ Scene::~Scene()
 
     mRemoveSelector;
     delete zdomaininfo_;
+    delete &infopar_;
 }
 
 

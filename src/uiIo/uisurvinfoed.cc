@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "mousecursor.h"
@@ -477,10 +478,21 @@ void uiSurveyInfoEditor::updateLabels()
 }
 
 
+static void deleteSIPS()
+{
+    deepErase( uiSurveyInfoEditor::survInfoProvs() );
+}
+
+
 ObjectSet<uiSurvInfoProvider>& uiSurveyInfoEditor::survInfoProvs()
 {
-    mDefineStaticLocalObject( PtrMan<ObjectSet<uiSurvInfoProvider> >, sips,
-			      = new ObjectSet<uiSurvInfoProvider> )
+    static PtrMan<ObjectSet<uiSurvInfoProvider> > sips;
+    if ( !sips )
+    {
+	auto* newsips = new ObjectSet<uiSurvInfoProvider>;
+	if ( sips.setIfNull(newsips,true) )
+	    NotifyExitProgram( &deleteSIPS );
+    }
     return *sips;
 }
 

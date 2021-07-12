@@ -294,7 +294,7 @@ IOPar* IOPar::subselect( const char* kystr ) const
     iopar->patchversion_ = patchversion_;
 
     if ( iopar->size() == 0 )
-	{ delete iopar; iopar = 0; }
+	{ delete iopar; iopar = nullptr; }
 
     return iopar;
 }
