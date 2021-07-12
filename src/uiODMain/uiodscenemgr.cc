@@ -162,6 +162,7 @@ uiODSceneMgr::~uiODSceneMgr()
     cleanUp( false );
     delete tifs_;
     delete mdiarea_;
+    deepErase( scenes_ );
     delete wingrabber_;
     delete tiletimer_;
     hp_sceneshidden_.removeAndDeleteParam( this );
