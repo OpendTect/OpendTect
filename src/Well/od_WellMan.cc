@@ -49,6 +49,7 @@ class WellServerTool : public ServerProgTool
 {
 public:
 			WellServerTool(int,char**);
+			~WellServerTool();
 
     void		listWells();
     void		getWellInfo();
@@ -74,6 +75,12 @@ WellServerTool::WellServerTool( int argc, char** argv )
     : ServerProgTool(argc,argv,"Well")
 {
     initParsing( cProtocolNr );
+}
+
+
+WellServerTool::~WellServerTool()
+{
+    Well::MGR().cleanup();
 }
 
 
