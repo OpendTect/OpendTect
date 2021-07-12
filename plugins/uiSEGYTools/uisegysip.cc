@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSEGYSurvInfoProvider::uiSEGYSurvInfoProvider()
+    : uiSurvInfoProvider()
 {}
 
 uiSEGYSurvInfoProvider::~uiSEGYSurvInfoProvider()

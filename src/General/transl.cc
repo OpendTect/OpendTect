@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "fixedstring.h"
+#include "genc.h"
 #include "iostrm.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -137,14 +138,40 @@ static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
     return 0;
 }
 
-static EmptyTrGroup* emptytrgroup = 0;
-#define mRetEG \
-{ if ( !emptytrgroup ) emptytrgroup = new EmptyTrGroup; return *emptytrgroup; }
+static PtrMan<EmptyTrGroup>* emptytrgroup = nullptr;
+
+static void deleteEmptyGroup()
+{
+    if ( emptytrgroup )
+	emptytrgroup->erase();
+}
+
+PtrMan<EmptyTrGroup>& emptyTrGroupMgr_()
+{
+    static PtrMan<EmptyTrGroup> ret = nullptr;
+    if ( !ret )
+    {
+	auto* newemptygroup = new EmptyTrGroup;
+	if ( ret.setIfNull(newemptygroup,true) )
+	    NotifyExitProgram( &deleteEmptyGroup );
+    }
+    return ret;
+}
+
+EmptyTrGroup& emptyTrGroup()
+{
+    if ( !emptytrgroup )
+	emptytrgroup = &emptyTrGroupMgr_();
+    return *(*emptytrgroup).ptr();
+}
+
 
 TranslatorGroup& TranslatorGroup::getGroup( const char* nm )
 {
     TranslatorGroup* ret = findGroup( groups(), nm, true );
-    if ( !ret ) mRetEG
+    if ( !ret )
+	return emptyTrGroup();
+
     return *ret;
 }
 
@@ -179,7 +206,8 @@ TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
 	DBG::message( msg );
     }
 
-    if ( !newgrp ) mRetEG
+    if ( !newgrp )
+	return emptyTrGroup();
 
     TranslatorGroup* grp = findGroup( getGroups(), newgrp->groupName(), false );
     if ( grp )
