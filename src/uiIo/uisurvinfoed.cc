@@ -41,6 +41,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uisip.h"
+#include "ui2dsip.h"
 #include "uisurvey.h"
 #include "uisurveyselect.h"
 #include "uitabstack.h"
@@ -477,10 +479,55 @@ void uiSurveyInfoEditor::updateLabels()
 }
 
 
+#if defined( __gnuc__ )
+_Pragma("GCC diagnostic push") \
+_Pragma("GCC diagnostic ignored \"-Werror=delete-non-virtual-dtor\"")
+#endif
+
 static void deleteSIPS()
 {
-    deepErase( uiSurveyInfoEditor::survInfoProvs() );
+    ObjectSet<uiSurvInfoProvider>& sips = uiSurveyInfoEditor::survInfoProvs();
+    for ( int idx=sips.size()-1; idx>=0; idx-- )
+    {
+	uiSurvInfoProvider* sip = sips[idx];
+	mDynamicCastGet(ui2DSurvInfoProvider*,ui2dsip,sip);
+	if ( ui2dsip )
+	{
+	    sips -= sip;
+	    delete ui2dsip;
+	    continue;
+	}
+
+	mDynamicCastGet(uiNavSurvInfoProvider*,uinavsip,sip)
+	if ( uinavsip )
+	{
+	    sips -= sip;
+	    delete uinavsip;
+	    continue;
+	}
+
+	mDynamicCastGet(uiCopySurveySIP*,uicopysip,sip)
+	if ( uicopysip )
+	{
+	    sips -= sip;
+	    delete uicopysip;
+	    continue;
+	}
+
+	mDynamicCastGet(uiSurveyFileSIP*,uifilesip,sip)
+	if ( uifilesip )
+	{
+	    sips -= sip;
+	    delete uifilesip;
+	    continue;
+	}
+    }
+
 }
+
+#if defined( __gnuc__ )
+_Pragma("GCC diagnostic pop")
+#endif
 
 
 ObjectSet<uiSurvInfoProvider>& uiSurveyInfoEditor::survInfoProvs()
