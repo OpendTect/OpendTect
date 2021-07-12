@@ -479,11 +479,6 @@ void uiSurveyInfoEditor::updateLabels()
 }
 
 
-#if defined( __gnuc__ )
-_Pragma("GCC diagnostic push") \
-_Pragma("GCC diagnostic ignored \"-Werror=delete-non-virtual-dtor\"")
-#endif
-
 static void deleteSIPS()
 {
     ObjectSet<uiSurvInfoProvider>& sips = uiSurveyInfoEditor::survInfoProvs();
@@ -522,12 +517,7 @@ static void deleteSIPS()
 	    continue;
 	}
     }
-
 }
-
-#if defined( __gnuc__ )
-_Pragma("GCC diagnostic pop")
-#endif
 
 
 ObjectSet<uiSurvInfoProvider>& uiSurveyInfoEditor::survInfoProvs()
