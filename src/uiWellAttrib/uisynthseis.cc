@@ -43,7 +43,7 @@ uiSynthSeisGrp::uiSynthSeisGrp( uiParent* p, const uiRayTracer1D::Setup& su )
     {
 	internalmultiplebox_ = new uiCheckBox( this,
 				tr("Compute internal multiples") );
-	internalmultiplebox_->attach( alignedBelow, wvltfld_ );
+	internalmultiplebox_->attach( alignedBelow, rtsel_ );
 	surfreflcoeffld_ = new uiLabeledSpinBox( this,
 				tr("Surface reflection coefficient"), 1 );
 	surfreflcoeffld_->box()->setInterval( (double)-1, (double)1, 0.1 );
