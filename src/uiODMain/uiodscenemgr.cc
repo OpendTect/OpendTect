@@ -143,6 +143,7 @@ uiODSceneMgr::~uiODSceneMgr()
     cleanUp( false );
     delete tifs_;
     delete mdiarea_;
+    deepErase( viewers_ );
     delete wingrabber_;
     delete tiletimer_;
 }
