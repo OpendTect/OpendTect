@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "mousecursor.h"
@@ -476,10 +477,21 @@ void uiSurveyInfoEditor::updateLabels()
 }
 
 
+static void deleteSIPS()
+{
+    deepErase( uiSurveyInfoEditor::survInfoProvs() );
+}
+
+
 ObjectSet<uiSurvInfoProvider>& uiSurveyInfoEditor::survInfoProvs()
 {
-    mDefineStaticLocalObject( PtrMan<ObjectSet<uiSurvInfoProvider> >, sips,
-			      = new ObjectSet<uiSurvInfoProvider> )
+    static PtrMan<ObjectSet<uiSurvInfoProvider> > sips;
+    if ( !sips )
+    {
+	auto* newsips = new ObjectSet<uiSurvInfoProvider>;
+	if ( sips.setIfNull(newsips,true) )
+	    NotifyExitProgram( &deleteSIPS );
+    }
     return *sips;
 }
 
@@ -631,6 +643,7 @@ bool uiSurveyInfoEditor::setSurvName()
 	uiMSG().error( tr("Please specify a valid survey name") );
 	return false;
     }
+
     si_.setName( newsurvnm );
     return true;
 }
@@ -813,13 +826,17 @@ void uiSurveyInfoEditor::updatePar( CallBacker* )
 void uiSurveyInfoEditor::sipCB( CallBacker* )
 {
     const int sipidx = sipfld_ ? sipfld_->currentItem() : 0;
-    if ( sipidx < 1 ) return;
+    if ( sipidx < 1 )
+	return;
+
     sipfld_->setCurrentItem( 0 );
-    delete impiop_; impiop_ = 0; lastsip_ = 0;
+    deleteAndZeroPtr( impiop_ );
+    lastsip_ = nullptr;
 
     uiSurvInfoProvider* sip = sips_[sipidx-1];
     PtrMan<uiDialog> dlg = sip->dialog( this );
-    if ( !dlg || !dlg->go() ) return;
+    if ( !dlg || !dlg->go() )
+	return;
 
     TrcKeyZSampling cs; Coord crd[3];
     if ( !sip->getInfo(dlg,cs,crd) )

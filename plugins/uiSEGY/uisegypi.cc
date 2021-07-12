@@ -82,6 +82,7 @@ private:
     void		exp3DPSCB(CallBacker*);
     void		reSortCB(CallBacker*);
     void		readStarterCB(CallBacker*);
+    void		applicationClosingCB(CallBacker*);
 
     void		impClassicCB( CallBacker* )	{ impClassic( false ); }
     void		linkClassicCB( CallBacker* )	{ impClassic( true ); }
@@ -116,6 +117,8 @@ uiSEGYMgr::uiSEGYMgr()
     psbdef->tooltip_ = tr("Change file/folder names in SEG-Y file %1");
     psbdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisPreStackMan::addBrowser( psbdef );
+
+    mAttachCB( IOM().applicationClosing, uiSEGYMgr::applicationClosingCB );
 }
 
 
@@ -126,6 +129,25 @@ uiSEGYMgr::~uiSEGYMgr()
 
 
 #define muiSEGYMgrCB(fn) mCB(this,uiSEGYMgr,fn)
+
+
+void uiSEGYMgr::applicationClosingCB( CallBacker* )
+{
+    const ObjectSet<uiSurvInfoProvider>& sips =
+				uiSurveyInfoEditor::survInfoProvs();
+    for ( int idx=sips.size()-1; idx>=0; idx-- )
+    {
+	const uiSurvInfoProvider* sip = sips[idx];
+	mDynamicCastGet(const uiSEGYSurvInfoProvider*,segysip,sip)
+	if ( !segysip )
+	    continue;
+
+	const_cast<ObjectSet<uiSurvInfoProvider>&>( sips ) -=
+		   const_cast<uiSurvInfoProvider*>( sip );
+	delete segysip;
+    }
+}
+
 
 void uiSEGYMgr::dTectMenuChanged()
 {

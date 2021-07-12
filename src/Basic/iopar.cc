@@ -300,7 +300,7 @@ IOPar* IOPar::subselect( const char* kystr ) const
     iopar->setPatchVersion( patchVersion() );
 
     if ( iopar->size() == 0 )
-	{ delete iopar; iopar = 0; }
+	{ delete iopar; iopar = nullptr; }
 
     return iopar;
 }
