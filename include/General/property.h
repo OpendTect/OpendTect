@@ -59,9 +59,9 @@ public:
 
     inline const PropertyRef& ref() const	{ return mn_.propRefType(); }
     inline const Mnemonic&    mnem() const	{ return mn_; }
-    void		setMnemonic( const Mnemonic& mn )	{ mn_ = mn; }
     bool		hasType( PropertyRef::StdType tp ) const
 						{ return mnem().hasType(tp); }
+    void		setMnemonic(const Mnemonic& mn);
 
     virtual void	reset()			     { lastval_ = mUdf(float); }
     virtual bool	init(const PropertySet&) const;

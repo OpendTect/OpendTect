@@ -118,10 +118,13 @@ Property& Property::operator =( const Property& pr )
 }
 
 
-/*Property::Property( const char* name, const Mnemonic& mn )
-    : lastval_(mUdf(float))
-    , mn_(mn)
-{}*/
+void Property::setMnemonic( const Mnemonic& mn )
+{
+    mn_ = mn;
+    disp_ = mn.disp_;
+}
+
+
 float Property::commonValue() const
 {
     if ( defval_ && defval_->isValue() )

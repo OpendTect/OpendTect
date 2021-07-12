@@ -387,31 +387,6 @@ Mnemonic* MnemonicSet::fnd( const char* nm ) const
 }
 
 
-bool MnemonicSet::save() const
-{
-    Repos::FileProvider rfp( filenamebase );
-    rfp.setSource(Repos::Rel);
-    BufferString fnm = rfp.fileName();
-
-    SafeFileIO sfio( fnm, true );
-    if ( !sfio.open(false) )
-    {
-	BufferString msg( "Cannot write to " ); msg += fnm;
-	ErrMsg( sfio.errMsg() );
-	return false;
-    }
-
-    ascostream astrm( sfio.ostrm() );
-    if ( !writeTo(astrm) )
-    {
-	sfio.closeFail();
-	return false;
-    }
-
-    return sfio.closeSuccess();
-}
-
-
 void MnemonicSet::readFrom( ascistream& astrm )
 {
     while ( !atEndOfSection(astrm.next()) )
@@ -430,21 +405,6 @@ void MnemonicSet::readFrom( ascistream& astrm )
 		delete mnc;
 	}
     }
-}
-
-
-bool MnemonicSet::writeTo( ascostream& astrm ) const
-{
-    astrm.putHeader( "Mnemonic" );
-    IOPar iop;
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	const Mnemonic& mnc = *(*this)[idx];
-	iop.setKey( idx, mnc.name() );
-	mnc.fillPar( iop );
-    }
-    iop.putTo( astrm );
-    return astrm.isOK();
 }
 
 

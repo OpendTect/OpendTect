@@ -101,9 +101,7 @@ public:
 
     int			add(Mnemonic*);
     int			indexOf(const char*) const;
-    bool		save() const;
     void		readFrom(ascistream&);
-    bool		writeTo(ascostream&) const;
     int			indexOf( const Mnemonic* mn ) const
 			{ return ObjectSet<Mnemonic>::indexOf(mn); }
     inline bool		isPresent( const Mnemonic* mn ) const

@@ -298,10 +298,11 @@ void uiEditProp::mnemonicSelCB( CallBacker* )
             ss += mn_->aliases().get(idx);
 
 	aliasfld_->setText( ss );
-	colfld_->setColor( mn_->disp_.color_ );
+	pr_.setMnemonic( *mn_ );
+	colfld_->setColor( pr_.disp_.color_ );
 	unfld_->setMnemonic( *mn_ );
 	curunit_ = unfld_->getUnit();
-	Interval<float> vintv( mn_->disp_.typicalrange_ );
+	Interval<float> vintv( pr_.disp_.typicalrange_ );
 	if ( curunit_ )
 	{
 	    if ( !mIsUdf(vintv.start) )
@@ -400,13 +401,6 @@ bool uiEditProp::acceptOK( CallBacker* )
 	pr_.setFixedDef( nullptr );
     else
 	pr_.setFixedDef( definitionmathprop_.clone() );
-
-    if ( mn_ )
-    {
-	MnemonicSet& mnc = eMNC();
-	*mnc.find( mn_->name() ) = *mn_;
-	MNC().save();
-    }
 
     return true;
 }
