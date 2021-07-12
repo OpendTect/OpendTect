@@ -843,6 +843,7 @@ static bool checkDataRoot()
     BufferString dataroot = GetBaseDataDir();
 
     CommandLineParser parser;
+    parser.setKeyHasValue( CommandLineParser::sDataRootArg() );
     if ( parser.getVal(CommandLineParser::sDataRootArg(),dataroot) )
 	dataroot = File::linkEnd( dataroot );
 
