@@ -79,9 +79,15 @@ bool uiWellSingleMnemSel::setAvailableLogs( const Well::LogSet& wls )
 	const OD::String& lognm = wl.name();
 	const BufferString& unmeaslbl = wl.unitMeasLabel();
 	if ( arealt[idx] )
-	    { altnms_.add( lognm ); altunmeaslbls_.add( unmeaslbl ); }
+	{
+	    altnms_.add( lognm );
+	    altunmeaslbls_.add( unmeaslbl );
+	}
 	else
-	    { normnms_.add( lognm ); normunmeaslbls_.add( unmeaslbl ); }
+	{
+	    normnms_.add( lognm );
+	    normunmeaslbls_.add( unmeaslbl );
+	}
     }
 
     const int nrnorm = normnms_.size();

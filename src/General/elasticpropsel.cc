@@ -213,7 +213,7 @@ void ElasticFormulaRepository::getByType( ElasticFormula::Type tp,
 
 
 ElasticProperty::ElasticProperty( const char* nm, const ElasticFormula& f )
-    : ValueProperty(nm, *MNC().getGuessed(elasticToStdType(formula_.type())))
+    : ValueProperty(nm, *MNC().getGuessed(elasticToStdType(f.type())))
     , formula_(f)
 {}
 
@@ -228,12 +228,6 @@ PropertyRef::StdType
 
     return PropertyRef::Other;
 }
-
-
-/*Property* ElasticProperty::clone() const
-{
-    return new ElasticProperty( name(), formula_ );
-}*/
 
 
 //---
