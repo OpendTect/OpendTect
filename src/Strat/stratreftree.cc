@@ -48,7 +48,7 @@ void RefTree::initTree()
 RefTree::~RefTree()
 {
     beingdeleted_ = true;
-    udfleaf_.toBeDeleted.disable();
+    delete &udfleaf_;
     Strat::eLVLS().levelToBeRemoved.remove(
 	    mCB(this,Strat::RefTree,levelToBeRemoved) );
     deleteNotif.trigger();
