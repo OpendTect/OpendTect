@@ -43,7 +43,7 @@ private:
 ~ThicknessProperty()
 {
     if ( !thickness_propman_is_deleting_thickness )
-    { pErrMsg( "Fatal error, should not delete 'Thickness'." ); }
+	pErrMsg( "Fatal error, should not delete 'Thickness'." );
 }
 
 friend struct Prop_Thick_Man;
@@ -872,7 +872,9 @@ PropertySet::PropertySet( const MnemonicSelection& mncs )
 
 PropertySet::~PropertySet()
 {
-    props_ -= getProp_Thick_Man()->ref_;
+    if ( !thickness_propman_is_deleting_thickness )
+	props_ -= getProp_Thick_Man()->ref_;
+
     erase();
 }
 
@@ -1059,7 +1061,10 @@ bool PropertySet::save( Repos::Source src ) const
 
     ascostream astrm( sfio.ostrm() );
     if ( !writeTo(astrm) )
-	{ sfio.closeFail(); return false; }
+    {
+	sfio.closeFail();
+	return false;
+    }
 
     return sfio.closeSuccess();
 }
