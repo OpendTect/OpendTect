@@ -599,10 +599,11 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* bky )
 
 void uiIOObjSel::setInput( const MultiID& mid )
 {
-    workctio_.setObj( IOM().get( mid ) );
-    uiIOSelect::setInput( mid.buf() );
-    if ( workctio_.ioobj_ && wrtrselfld_ )
-        wrtrselfld_->use(*workctio_.ioobj_);
+    IOObj* inpobj = IOM().get( mid );
+    workctio_.setObj( inpobj );
+    uiIOSelect::setInput( inpobj ? mid.buf() : nullptr );
+    if ( inpobj && wrtrselfld_ )
+	wrtrselfld_->use( *inpobj );
 }
 
 
