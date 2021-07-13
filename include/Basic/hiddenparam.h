@@ -87,8 +87,9 @@ HiddenParam<O,V>::~HiddenParam()
     if ( objects_.size() )
     { //Using std C++ function because we cannot use pErrMsg or BufferString
 	const char* nm = className( *objects_[0] );
-	std::cerr << "(PE) HiddenParam in " << nm
-		  << " | Deleting a HiddenParam prematurely\n";
+	const int sz = objects_.size();
+	std::cerr << "(PE) HiddenParam in " << nm << " (" << sz
+		  << " counts) | Deleting a HiddenParam prematurely\n";
     }
 #endif
 }
