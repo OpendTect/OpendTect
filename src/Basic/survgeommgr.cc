@@ -35,13 +35,16 @@ static PtrMan<SurvGM>* thesurvgm = nullptr;
 static void deleteSurvGM()
 {
     if ( thesurvgm )
+    {
 	thesurvgm->erase();
+	thesurvgm = nullptr;
+    }
 }
 
 PtrMan<SurvGM>& survGMMgr_()
 {
     static PtrMan<SurvGM> survgmmgr_ = nullptr;
-    if ( !survgmmgr_ )
+    if ( !survgmmgr_ && !IsExiting() )
     {
 	auto* newsurvgmmgr = new SurvGM;
 	if ( survgmmgr_.setIfNull(newsurvgmmgr,true) )
@@ -90,9 +93,13 @@ const Geometry3D& Survey::GeometryManager::get3DGeometry() const
 const Survey::Geometry* Survey::GeometryManager::getGeometry(
 						const char* nm ) const
 {
-    const auto& sigeom = get3DGeometry();
+    if ( IsExiting() )
+	return nullptr;
+
+    const Geometry3D& sigeom = get3DGeometry();
     if ( sigeom.hasName(nm) )
 	return &sigeom;
+
     return get2DGeometry( nm );
 }
 
@@ -100,22 +107,30 @@ const Survey::Geometry* Survey::GeometryManager::getGeometry(
 const Survey::Geometry2D* Survey::GeometryManager::get2DGeometry(
 							GeomID gid ) const
 {
+    if ( IsExiting() )
+	return nullptr;
+
     Threads::Locker locker( geometrieslock_ );
     for ( const auto* geom : geometries_ )
 	if ( geom->geomID() == gid )
 	    return geom;
-    return 0;
+
+    return nullptr;
 }
 
 
 const Survey::Geometry2D* Survey::GeometryManager::get2DGeometry(
 						const char* nm ) const
 {
+    if ( IsExiting() )
+	return nullptr;
+
     Threads::Locker locker( geometrieslock_ );
     for ( const auto* geom : geometries_ )
 	if ( geom->hasName(nm) )
 	    return geom;
-    return 0;
+
+    return nullptr;
 }
 
 
@@ -160,10 +175,13 @@ int Survey::GeometryManager::gtIndexOf( GeomID geomid ) const
 
 Survey::Geometry* Survey::GeometryManager::gtGeometry( GeomID geomid ) const
 {
+    if ( IsExiting() )
+	return nullptr;
+
     if ( geomid == GeomID::get3D() )
 	return const_cast<Geometry3D*>( &Geometry::get3D() );
     else if ( !geomid.isValid() )
-	return 0;
+	return nullptr;
 
     Threads::Locker locker( geometrieslock_ );
     const int idx = gtIndexOf( geomid );
@@ -171,7 +189,7 @@ Survey::Geometry* Survey::GeometryManager::gtGeometry( GeomID geomid ) const
 	return const_cast<Geometry2D*>( geometries_[idx] );
 
     pErrMsg( "Geometry ID not present, most probably programmer error" );
-    return 0;
+    return nullptr;
 }
 
 
@@ -185,7 +203,7 @@ GeomID Survey::GeometryManager::getGeomID( const char* lnnm ) const
 const char* Survey::GeometryManager::getName( GeomID geomid ) const
 {
     const auto* geom = getGeometry( geomid );
-    return geom ? geom->name().str() : 0;
+    return geom ? geom->name().str() : nullptr;
 }
 
 
