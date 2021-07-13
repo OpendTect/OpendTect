@@ -421,8 +421,10 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
     if ( !res )
 	return false;
 
+#ifdef __debug__
     if ( res && laststderr_.contains("(PE) HiddenParam") )
 	laststderr_.setEmpty();
+#endif
 
     const bool testscriptout = scriptexpectedout && *scriptexpectedout;
     res = doscript ?  (testscriptout ? laststdout_ ==
