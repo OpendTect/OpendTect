@@ -34,13 +34,16 @@ static PtrMan<GeometryManager>* thegeommgr = nullptr;
 static void deleteGeometryManager()
 {
     if ( thegeommgr )
+    {
 	thegeommgr->erase();
+	thegeommgr = nullptr;
+    }
 }
 
 PtrMan<GeometryManager>& geomMgr_()
 {
     static PtrMan<GeometryManager> geommgr_ = nullptr;
-    if ( !geommgr_ )
+    if ( !geommgr_ && !IsExiting() )
     {
 	auto* newgeommgr = new GeometryManager;
 	if ( geommgr_.setIfNull(newgeommgr,true) )
@@ -143,10 +146,14 @@ GeometryManager::GeometryManager()
 {}
 
 GeometryManager::~GeometryManager()
-{ deepUnRef( geometries_ ); }
+{
+    deepUnRef( geometries_ );
+}
 
 int GeometryManager::nrGeometries() const
-{ return geometries_.size(); }
+{
+    return geometries_.size();
+}
 
 
 bool GeometryManager::isUsable( Pos::GeomID geomid ) const
@@ -193,15 +200,21 @@ TrcKey::SurvID GeometryManager::default3DSurvID() const
 
 const Geometry* GeometryManager::getGeometry( Geometry::ID geomid ) const
 {
+    if ( IsExiting() )
+	return nullptr;
+
     const int idx = indexOf( geomid );
-    return idx<0 ? 0 : geometries_[idx];
+    return idx<0 ? nullptr : geometries_[idx];
 }
 
 
 Geometry* GeometryManager::getGeometry( Geometry::ID geomid )
 {
+    if ( IsExiting() )
+	return nullptr;
+
     const int idx = indexOf( geomid );
-    return idx<0 ? 0 : geometries_[idx];
+    return idx<0 ? nullptr : geometries_[idx];
 }
 
 
@@ -209,7 +222,7 @@ const Geometry3D* GeometryManager::getGeometry3D( Pos::SurvID sid ) const
 {
     const TrcKey tk( sid, BinID(0,0) );
     const Geometry* geom = getGeometry( tk.geomID() );
-    return geom ? geom->as3D() : 0;
+    return geom ? geom->as3D() : nullptr;
 }
 
 
@@ -240,23 +253,29 @@ const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
     if ( mid.nrKeys() == 2 )
 	return getGeometry( mid.ID(1) );
 
-    return 0;
+    return nullptr;
 }
 
 
 const Geometry* GeometryManager::getGeometry( const char* nm ) const
 {
+    if ( IsExiting() )
+	return nullptr;
+
     const FixedString namestr( nm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( namestr == geometries_[idx]->getName() )
 	    return geometries_[idx];
 
-    return 0;
+    return nullptr;
 }
 
 
 Geometry::ID GeometryManager::getGeomID( const char* lnnm ) const
 {
+    if ( IsExiting() )
+	return cUndefGeomID();
+
     const FixedString reqln( lnnm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
@@ -284,7 +303,7 @@ Geometry::ID GeometryManager::getGeomID( const char* lsnm,
 const char* GeometryManager::getName( Geometry::ID geomid ) const
 {
     mGetConstGeom(geom,geomid);
-    return geom ? geom->getName() : 0;
+    return geom ? geom->getName() : nullptr;
 }
 
 
@@ -372,7 +391,7 @@ void GeometryManager::addGeometry( Survey::Geometry& geom )
 
 bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 {
-    fillGeometries(0);
+    fillGeometries( nullptr );
     if ( nrGeometries() > 1 ) // Already have new 2D geoms
 	return true;
 
@@ -426,7 +445,7 @@ bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
     }
 
     if ( fetchedgeometry )
-	fillGeometries(0);
+	fillGeometries( nullptr );
 
     return true;
 }
@@ -602,6 +621,5 @@ Geometry::ID GeometryManager::findRelated( const Geometry& ref,
 
     reltype = Geometry::UnRelated; return cUndefGeomID();
 }
-
 
 } // namespace Survey
