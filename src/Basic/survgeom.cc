@@ -221,7 +221,7 @@ const Geometry3D* GeometryManager::getGeometry3D( Pos::SurvID sid ) const
 {
     const TrcKey tk( sid, BinID(0,0) );
     const Geometry* geom = getGeometry( tk.geomID() );
-    return geom ? geom->as3D() : 0;
+    return geom ? geom->as3D() : nullptr;
 }
 
 
@@ -252,23 +252,29 @@ const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
     if ( mid.nrKeys() == 2 )
 	return getGeometry( mid.ID(1) );
 
-    return 0;
+    return nullptr;
 }
 
 
 const Geometry* GeometryManager::getGeometry( const char* nm ) const
 {
+    if ( IsExiting() )
+	return nullptr;
+
     const FixedString namestr( nm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
 	if ( namestr == geometries_[idx]->getName() )
 	    return geometries_[idx];
 
-    return 0;
+    return nullptr;
 }
 
 
 Pos::GeomID GeometryManager::getGeomID( const char* lnnm ) const
 {
+    if ( IsExiting() )
+	return cUndefGeomID();
+
     const FixedString reqln( lnnm );
     for ( int idx=0; idx<geometries_.size(); idx++ )
     {
@@ -296,7 +302,7 @@ Pos::GeomID GeometryManager::getGeomID( const char* lsnm,
 const char* GeometryManager::getName( Pos::GeomID geomid ) const
 {
     mGetConstGeom(geom,geomid);
-    return geom ? geom->getName() : 0;
+    return geom ? geom->getName() : nullptr;
 }
 
 
@@ -384,7 +390,7 @@ void GeometryManager::addGeometry( Survey::Geometry& geom )
 
 bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 {
-    fillGeometries(0);
+    fillGeometries( nullptr );
     if ( nrGeometries() > 1 ) // Already have new 2D geoms
 	return true;
 
@@ -438,7 +444,7 @@ bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
     }
 
     if ( fetchedgeometry )
-	fillGeometries(0);
+	fillGeometries( nullptr );
 
     return true;
 }
