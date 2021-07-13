@@ -33,13 +33,16 @@ static PtrMan<GeometryManager>* thegeommgr = nullptr;
 static void deleteGeometryManager()
 {
     if ( thegeommgr )
+    {
 	thegeommgr->erase();
+	thegeommgr = nullptr;
+    }
 }
 
 PtrMan<GeometryManager>& geomMgr_()
 {
     static PtrMan<GeometryManager> geommgr_ = nullptr;
-    if ( !geommgr_ )
+    if ( !geommgr_ && !IsExiting() )
     {
 	auto* newgeommgr = new GeometryManager;
 	if ( geommgr_.setIfNull(newgeommgr,true) )
@@ -142,10 +145,14 @@ GeometryManager::GeometryManager()
 {}
 
 GeometryManager::~GeometryManager()
-{ deepUnRef( geometries_ ); }
+{
+    deepUnRef( geometries_ );
+}
 
 int GeometryManager::nrGeometries() const
-{ return geometries_.size(); }
+{
+    return geometries_.size();
+}
 
 
 bool GeometryManager::isUsable( Pos::GeomID geomid ) const
@@ -192,15 +199,21 @@ TrcKey::SurvID GeometryManager::default3DSurvID() const
 
 const Geometry* GeometryManager::getGeometry( Pos::GeomID geomid ) const
 {
+    if ( IsExiting() )
+	return nullptr;
+
     const int idx = indexOf( geomid );
-    return idx<0 ? 0 : geometries_[idx];
+    return idx<0 ? nullptr : geometries_[idx];
 }
 
 
 Geometry* GeometryManager::getGeometry( Pos::GeomID geomid )
 {
+    if ( IsExiting() )
+	return nullptr;
+
     const int idx = indexOf( geomid );
-    return idx<0 ? 0 : geometries_[idx];
+    return idx<0 ? nullptr : geometries_[idx];
 }
 
 
