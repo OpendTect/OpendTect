@@ -85,7 +85,10 @@ HiddenParam<O,V>::~HiddenParam()
     Threads::Locker locker( lock_ );
     if ( objects_.size() )
     { //Using std C++ function because we cannot use pErrMsg or BufferString
-	std::cerr << "(PE) HiddenParam | Deleting a HiddenParam prematurely\n";
+	const char* nm = className( *objects_[0] );
+	const int sz = objects_.size();
+	std::cerr << "(PE) HiddenParam in " << nm << " (" << sz
+		  << " counts) | Deleting a HiddenParam prematurely\n";
     }
 #endif
 }
