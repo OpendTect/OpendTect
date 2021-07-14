@@ -26,8 +26,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	endif()
 
 	COPY_THIRDPARTYLIBS()
-
-	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
+	set( LIBLIST ${LIBLIST};${PLUGINS} )
     endif()
 
 
@@ -41,33 +40,21 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    unset( SYSTEMLIBS )
     endif()
 
-    message( "Copying ${OD_PLFSUBDIR} libraries" )
-    foreach( FILE ${LIBLIST} )
-	string( FIND ${FILE} "osgGeo" ISOSGGEO )
-	if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
-		set(LIB "lib${FILE}.so")
-	elseif( APPLE )
-		set( LIB "lib${FILE}.dylib" )
-	elseif( WIN32 )
-		set( LIB "${FILE}.dll" )
-	endif()
-
-	if (  NOT ${ISOSGGEO} EQUAL -1 )
-	   #Added osgGeo lib to OD_THIRD_PARTY_LIBS. Will be used to create devel package
-	    set( OD_THIRD_PARTY_LIBS ${OD_THIRD_PARTY_LIBS} ${LIB} )
-	endif()
-
-	if( WIN64 )
+    foreach( LIB ${LIBLIST} )
+	if( WIN32 )
+	    set( LIBNM "${LIB}.dll" )
 	    #Stripping not required on windows
 	elseif( APPLE )
-	    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIB} )
+	    set( LIBNM "lib${LIB}.dylib" )
+	    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIBNM} )
 	    #Not using breakpad on MAC
 	else()
-	    execute_process( COMMAND strip ${COPYFROMLIBDIR}/${LIB} )
+	    set( LIBNM "lib${LIB}.so")
+	    execute_process( COMMAND strip ${COPYFROMLIBDIR}/${LIBNM} )
 	endif()
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			 ${COPYFROMLIBDIR}/${LIB}
-			 ${COPYTOLIBDIR}/${LIB} )
+			 ${COPYFROMLIBDIR}/${LIBNM}
+			 ${COPYTOLIBDIR}/${LIBNM} )
 #copying breakpad symbols
 	if ( OD_ENABLE_BREAKPAD )
 	    if( WIN32 )
@@ -76,12 +63,12 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 		#TODO
 	    else()
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				 ${COPYFROMLIBDIR}/symbols/${LIB}
-				 ${COPYTOLIBDIR}/symbols/${LIB} )
+				 ${COPYFROMLIBDIR}/symbols/${LIBNM}
+				 ${COPYTOLIBDIR}/symbols/${LIBNM} )
 	    endif()
 	endif()
 
-	file( GLOB ALOFILES ${COPYFROMDATADIR}/plugins/${OD_PLFSUBDIR}/*.${FILE}.alo )
+	file( GLOB ALOFILES ${COPYFROMDATADIR}/plugins/${OD_PLFSUBDIR}/*.${LIB}.alo )
 	foreach( ALOFILE ${ALOFILES} )
 	    get_filename_component( ALOFILENAME ${ALOFILE} NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${ALOFILE}
@@ -118,8 +105,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/odExternal
 			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/odExternal )
-	elseif( APPLE )
-	else()
+	elseif( NOT APPLE )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/libexec
 			     ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/libexec )
@@ -132,13 +118,12 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 
     if( WIN32 )
 	if( ${PACKAGE_NAME} STREQUAL "base" )
-		set( EXECLIST "${EXECLIST};${WINEXECLIST}" )
+	    set( EXECLIST "${EXECLIST};${WINEXECLIST}" )
 	endif()
     endif()
 
-    message( "Copying ${OD_PLFSUBDIR} executables" )
     foreach( EXE ${EXECLIST} )
-	if( WIN64 )
+	if( WIN32 )
 	    #Stripping not required on windows
 	elseif( APPLE )
 	    #Not using breakpad on MAC , Stripping not required
@@ -205,27 +190,16 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
     set( EXTERNALLIBS "")
 
     ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
-    message( "DONE" )
 endmacro( CREATE_PACKAGE )
 
 
 macro( COPY_THIRDPARTYLIBS )
-    message( "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
+    message( STATUS "Copying ${OD_PLFSUBDIR} thirdparty libraries" )
     list( APPEND SYSLIBS ${SYSTEMLIBS} )
     list( APPEND SSLLIBS ${OPENSSLLIBS} )
     foreach( LIB ${OD_THIRD_PARTY_FILES} )
-	string(FIND ${LIB} "osg" OSGVALUE )
-	if( ${OSGVALUE} GREATER -1 )
-	    continue()
-	endif()
-
-	string(FIND ${LIB} "OpenThreads" OSGOPENTHREADSVALUE )
-	if( ${OSGOPENTHREADSVALUE} GREATER -1 )
-	    continue()
-	endif()
-
 	string( FIND ${LIB} "Qt" ISQTLIB )
-	if (  APPLE  AND NOT ${ISQTLIB} EQUAL -1 )
+	if (  APPLE AND NOT ${ISQTLIB} EQUAL -1 )
 	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
 				 ${COPYTOLIBDIR}/${LIB}.framework/Versions
 				 ${COPYTOLIBDIR}/${LIB}.framework/Versions/${QT_VERSION_MAJOR} )
@@ -293,7 +267,7 @@ macro( COPY_THIRDPARTYLIBS )
     endforeach()
 
     foreach( TRANSLATION_FILE ${OD_QT_TRANSLATION_FILES} )
-	get_filename_component( QTWEB_LOCALS_FILE ${TRANSLATION_FILE} EXT  )
+	get_filename_component( QTWEB_LOCALS_FILE ${TRANSLATION_FILE} EXT )
 	if( ${QTWEB_LOCALS_FILE} STREQUAL ".pak" )
 	    if ( APPLE )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -320,7 +294,7 @@ macro( COPY_THIRDPARTYLIBS )
 endmacro( COPY_THIRDPARTYLIBS )
 
 macro( COPY_MAC_SYSTEMLIBS )
-    message( "Copying ${OD_PLFSUBDIR} system libraries" )
+    message( STATUS "Copying ${OD_PLFSUBDIR} system libraries" )
     if( APPLE )
 	foreach( SYSLIB ${SYSTEMLIBS} )
 	    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${SYSLIB} )
@@ -465,7 +439,7 @@ macro( INIT_DESTINATIONDIR  PACKAGE_NAME )
 			     ${DESTINATION_DIR}/. )
     endif()
 
-    message( "Preparing package ${VER_FILENAME}.zip ......" )
+    message( STATUS "Preparing package ${VER_FILENAME}.zip ......" )
 endmacro( INIT_DESTINATIONDIR )
 
 
@@ -483,11 +457,6 @@ macro( CREATE_DEVELPACKAGES )
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${COPYFROMDATADIR}/dtect
 		     ${COPYTODATADIR}/dtect )
-    if ( WIN32 )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-		 ${COPYFROMLIBDIR}/../Debug/platforms
-		 ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}/Debug/platforms )
-    endif()
 
     foreach( SPECFILE ${SPECFILES} )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -507,7 +476,7 @@ macro( CREATE_DEVELPACKAGES )
     endforeach()
 
     foreach( DIR CMakeModules include src plugins spec )
-	message( "Copying ${DIR} files" )
+	message( STATUS "Copying ${DIR} files" )
 	if( "${DIR}" STREQUAL "plugins" )
 	    foreach( ODPLUGIN ${ODPLUGINS} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -544,13 +513,18 @@ macro( CREATE_DEVELPACKAGES )
 	    file( GLOB PDBFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${PDBLIB}.* )
 	    set( FILES ${FILES} ${PDBFILES} )
 	    foreach( FIL ${FILES} )
-		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			${FIL} ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
+		if ( EXISTS "${FIL}" ) #Some modules have no library
+		    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+			    "${FIL}" ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
+		endif()
 	    endforeach()
 
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-		${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${DLIB}.lib
-		${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
+	    if ( EXISTS "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${DLIB}.lib" )
+		#Some modules have no library
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
+		    ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${DLIB}.lib
+		    ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
+	    endif()
 	endforeach()
 	#Copying executables and pdb files
 	foreach( EXELIB ${EXECLIST} )
@@ -597,7 +571,7 @@ macro( CREATE_DOCPACKAGES PACKAGE_NAME )
 				 ${CMAKE_INSTALL_PREFIX}/doc/Programmer/Generated
 				 ${DESTINATION_DIR}/doc/Programmer/Generated )
 	    else()
-		message( "Class doc not installed correctly. ${PACKAGE_FILENAME} is not self contained." )
+		message( FATAL_ERROR "Class doc not installed correctly. ${PACKAGE_FILENAME} is not self contained." )
 	    endif()
 	endif()
     endif()
@@ -606,13 +580,11 @@ endmacro( CREATE_DOCPACKAGES )
 
 macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
     if( WIN32 )
-	message( "Using ${OD_PLFSUBDIR} zip command" )
 	execute_process( COMMAND ${SOURCE_DIR}/bin/win64/zip -r -q
 				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS )
     else()
-	message( "Using ${OD_PLFSUBDIR} zip command" )
 	execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS )
@@ -626,15 +598,15 @@ endmacro( ZIPPACKAGE )
 #Genarate Symbols and then Strip the binaries
 macro ( OD_GENERATE_BREAKPAD_SYMBOLS ALLLIBS EXECS)
     if ( NOT DEFINED BREAKPAD_DIR )
-	message ( FATAL_EEROR "BREAKPAD_DIR not defined" )
+	message ( FATAL_ERROR "BREAKPAD_DIR not defined" )
     endif()
     if ( NOT EXISTS ${BREAKPAD_DIR} )
-	message ( FATAL_EEROR "BREAKPAD_DIR: ${BREAKPAD_DIR} not found" )
+	message ( FATAL_ERROR "BREAKPAD_DIR: ${BREAKPAD_DIR} not found" )
     endif()
 
     set( SYMBOLDIRNM symbols_v7_${OD_PLFSUBDIR}_${FULLVER_NAME} )
     if( NOT EXISTS ${PACKAGE_DIR}/${SYMBOLDIRNM} )
-	    file( MAKE_DIRECTORY ${PACKAGE_DIR}/symbols/${SYMBOLDIRNM} )
+	file( MAKE_DIRECTORY ${PACKAGE_DIR}/symbols/${SYMBOLDIRNM} )
     endif()
     set( SYMBOLDIR ${PACKAGE_DIR}/symbols/${SYMBOLDIRNM} )
 

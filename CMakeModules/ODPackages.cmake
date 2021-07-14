@@ -23,10 +23,10 @@ macro( OD_ADD_PACKAGES_TARGET )
     endif()
 
     if ( EXISTS "${OD_BINARY_DEBUG_BASEDIR}" )
-	 set( ONLY_SET_VAR ON )
-	include ( "${OD_BINARY_DEBUG_BASEDIR}/CMakeModules/FindOpendTect.cmake" )
+	set( ONLY_SET_VAR ON )
+	include ( "${CMAKE_CURRENT_BINARY_DIR}/CMakeModules/FindOpendTect.cmake" )
 	set( OD_THIRD_PARTY_FILES_DEBUG ${OD_THIRD_PARTY_FILES} )
-	include ( "${OD_BINARY_BASEDIR}/CMakeModules/FindOpendTect.cmake" )
+	include ( "${CMAKE_CURRENT_BINARY_DIR}/CMakeModules/FindOpendTect.cmake" )
 	unset( ONLY_SET_VAR )
     endif()
     add_custom_target( packages  ${CMAKE_COMMAND} 
@@ -44,6 +44,7 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DPACKAGE_DIR=${PACKAGE_DIR}
 	    -DBINARY_DIR=${CMAKE_BINARY_DIR}
 	    -DBREAKPAD_DIR=${BREAKPAD_DIR}
+	    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 	    -DOD_ENABLE_BREAKPAD=${OD_ENABLE_BREAKPAD}
 	    -DBUILD_DOCUMENTATION=${BUILD_DOCUMENTATION}
 	    -DBUILD_USERDOC=${BUILD_USERDOC}
