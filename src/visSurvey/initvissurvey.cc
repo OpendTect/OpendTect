@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 #include "visfaultdisplay.h"
+#include "visfaultsetdisplay.h"
 #include "visfaultsticksetdisplay.h"
 #include "vishorizon2ddisplay.h"
 #include "vishorizondisplay.h"
@@ -36,6 +37,7 @@ mDefModInitFn(visSurvey)
 
     visSurvey::FaultDisplay::initClass();
     visSurvey::FaultStickSetDisplay::initClass();
+    visSurvey::FaultSetDisplay::initClass();
     visSurvey::Horizon2DDisplay::initClass();
     visSurvey::HorizonDisplay::initClass();
     visSurvey::MarchingCubesDisplay::initClass();

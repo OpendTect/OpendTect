@@ -986,7 +986,8 @@ void uiODSceneMgr::rebuildTrees()
     {
 	Scene& scene = *scenes_[idx];
 	const int sceneid = scene.vwr3d_->sceneID();
-	TypeSet<int> visids; visServ().getChildIds( sceneid, visids );
+	TypeSet<int> visids;
+	visServ().getChildIds( sceneid, visids );
 
 	for ( int idy=0; idy<visids.size(); idy++ )
 	{
