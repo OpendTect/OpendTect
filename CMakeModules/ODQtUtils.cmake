@@ -158,10 +158,9 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
     else()
 	install( PROGRAMS "${QTDIR}/libexec/QtWebEngineProcess"
 		 DESTINATION bin/${OD_PLFSUBDIR}/libexec )
-	OD_PREPARE_EXTERNALS_FILELIST( "${QTDIR}/libexec/QtWebEngineProcess" )
     endif()
 
-    list( APPEND OD_QTPLUGINS resources translations )
+    list( APPEND OD_QTPLUGINS resources )
     set( OD_QTPLUGINS ${OD_QTPLUGINS} PARENT_SCOPE )
 endmacro(QT_SETUP_WEBENGINE_INTERNALS)
 
