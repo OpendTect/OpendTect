@@ -4,9 +4,6 @@
 # Date:		August 2012		
 #RCS:           $Id$
 
-message( "SOURCE_DIR: ${SOURCE_DIR}" )
-message( "BINARY_DIR: ${BINARY_DIR}" )
-
 if ( EXISTS  CMakeModules/packagescripts/packages.cmake )
 	#//to read file on dgb if CMAKE_BUILD_DIR is different from CMAKE_SOURCE_DIR
 	include( CMakeModules/packagescripts/packages.cmake ) 
@@ -80,4 +77,4 @@ if ( "${OD_ENABLE_BREAKPAD}" STREQUAL "ON" )
 		     ${PACKAGE_DIR}/symbols/${SYMBOLDIRNM} )
     ZIPPACKAGE( ${SYMBOLDIRNM}.zip ${SYMBOLDIRNM} ${PACKAGE_DIR}/symbols )
 endif()
-message( "\n Created packages are available under ${PACKAGE_DIR}" )
+message( STATUS "\n Created packages are available under ${PACKAGE_DIR}" )
