@@ -1,28 +1,30 @@
 #(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# Description:	CMake script to build a release
-# Author:	K. Tingdahl
+# Description:  CMake script to build a release
+# Author:       K. Tingdahl
 # Date:		August 2012		
-#RCS:		$Id$
+#RCS:           $Id$
 
-if ( EXISTS  CMakeModules/packagescripts/packages.cmake )
-	#//to read file on dgb if CMAKE_BUILD_DIR is different from CMAKE_SOURCE_DIR
-	include( CMakeModules/packagescripts/packages.cmake ) 
-elseif ( EXISTS ${SOURCE_DIR}/CMakeModules/packagescripts/packages.cmake ) 
-	#to read file on od if CMAKE_BUILD_DIR is different from CMAKE_SOURCE_DIR
+if ( "${OpendTect_DIR}" STREQUAL "" )
+    set( OpendTect_DIR "${SOURCE_DIR}" )
+endif()
+
+if ( EXISTS ${SOURCE_DIR}/CMakeModules/packagescripts/packages.cmake ) 
     include( ${SOURCE_DIR}/CMakeModules/packagescripts/packages.cmake ) 
 else()
     message( FATAL_ERROR "File packages.cmake not found" )
 endif()
-include( ${SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
+include( ${OpendTect_DIR}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
 foreach ( BASEPACKAGE ${BASEPACKAGES} )
-    if ( EXISTS CMakeModules/packagescripts/${BASEPACKAGE}.cmake )
-	include( CMakeModules/packagescripts/${BASEPACKAGE}.cmake) 
+    if( EXISTS ${BINARY_DIR}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake )
+       include( ${BINARY_DIR}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake )
     elseif( EXISTS ${SOURCE_DIR}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake )
        include( ${SOURCE_DIR}/CMakeModules/packagescripts/${BASEPACKAGE}.cmake )
+    else()
+	message( FATAL_ERROR "Configuration file not found for package ${BASEPACKAGE}" )
     endif()
-	INIT_DESTINATIONDIR( ${PACK} )
-	CREATE_BASEPACKAGES( ${PACK} )
+    INIT_DESTINATIONDIR( ${PACK} )
+    CREATE_BASEPACKAGES( ${PACK} )
 endforeach()
 
 foreach ( PACKAGE ${PACKAGELIST} )
@@ -30,10 +32,12 @@ foreach ( PACKAGE ${PACKAGELIST} )
        ("${PACKAGE}" STREQUAL "classdoc") )
 	set( PACK ${PACKAGE} )
     else()
-	if ( EXISTS  CMakeModules/packagescripts/${PACKAGE}.cmake )
-	    include( CMakeModules/packagescripts/${PACKAGE}.cmake)
+	if( EXISTS ${BINARY_DIR}/CMakeModules/packagescripts/${PACKAGE}.cmake )
+	   include( ${BINARY_DIR}/CMakeModules/packagescripts/${PACKAGE}.cmake )
 	elseif( EXISTS ${SOURCE_DIR}/CMakeModules/packagescripts/${PACKAGE}.cmake )
 	   include( ${SOURCE_DIR}/CMakeModules/packagescripts/${PACKAGE}.cmake )
+	else()
+	    message( FATAL_ERROR "Configuration file not found for package ${PACKAGE}" )
 	endif()
     endif()
     if( NOT DEFINED OpendTect_VERSION_MAJOR )
@@ -48,11 +52,11 @@ foreach ( PACKAGE ${PACKAGELIST} )
 	message( FATAL_ERROR "CMAKE_INSTALL_PREFIX is not Defined. " )
     endif()
 
-    if( ${OD_PLFSUBDIR} STREQUAL "win32" OR ${OD_PLFSUBDIR} STREQUAL "win64" )
-	    if( NOT EXISTS "${SOURCE_DIR}/bin/win64/zip.exe" )
-		message( FATAL_ERROR "${SOURCE_DIR}/bin/win64/zip.exe is not existed. Unable to create packages." )
+    if( WIN32 )
+	if( NOT EXISTS "${OpendTect_DIR}/bin/win64/zip.exe" )
+	    message( FATAL_ERROR "${OpendTect_DIR}/bin/win64/zip.exe does not exist. Unable to create packages." )
 	endif()
-    endif()
+    endif( WIN32 )
 
     INIT_DESTINATIONDIR( ${PACK} )
     if( ${PACK} STREQUAL "devel" )
