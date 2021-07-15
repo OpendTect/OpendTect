@@ -80,7 +80,15 @@ if ( BUILD_USERDOC )
         set( USERDOC_PROJECT "" CACHE FILEPATH "Path to user documentation project" )
 	set( USERDOC_TARGET "HTML" CACHE STRING "Documentation target" )
 	find_program( MADCAP_FLARE_EXEC madbuild.exe
-		  HINTS "E:/Program Files/MadCap Software/MadCap Flare 16/Flare.app"
+		  PATHS
+			"C:/Program Files/MadCap Software/"
+			"D:/Program Files/MadCap Software/"
+			"E:/Program Files/MadCap Software/"
+		  PATH_SUFFIXES
+			"MadCap Flare 16/Flare.app"
+			"MadCap Flare 17/Flare.app"
+			"MadCap Flare 18/Flare.app"
+			"MadCap Flare 19/Flare.app"
 		  DOC "Madcap Flare Executable"
              	  NO_DEFAULT_PATH )
 
