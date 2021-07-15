@@ -8,6 +8,7 @@
 
 #include "moddepmgr.h"
 #include "visfaultdisplay.h"
+#include "visfaultsetdisplay.h"
 #include "visfaultsticksetdisplay.h"
 #include "vishorizon2ddisplay.h"
 #include "vishorizondisplay.h"
@@ -34,6 +35,7 @@ mDefModInitFn(visSurvey)
     mIfNotFirstTime( return );
 
     visSurvey::FaultDisplay::initClass();
+    visSurvey::FaultSetDisplay::initClass();
     visSurvey::FaultStickSetDisplay::initClass();
     visSurvey::Horizon2DDisplay::initClass();
     visSurvey::HorizonDisplay::initClass();
