@@ -258,8 +258,8 @@ macro( COPY_THIRDPARTYLIBS )
 	if ( "${ODPLUGIN}" STREQUAL "resources" )
 	    if ( APPLE )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				 ${COPYFROMLIBDIR}/../Plugins/resources
-				 ${COPYTOLIBDIR}/../Plugins/resources )
+				 ${COPYFROMLIBDIR}/../PlugIns/resources
+				 ${COPYTOLIBDIR}/../PlugIns/resources )
 	    else()
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 				 ${COPYFROMLIBDIR}/../resources
@@ -268,8 +268,8 @@ macro( COPY_THIRDPARTYLIBS )
 	else()
 	    if ( APPLE )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-				 ${COPYFROMLIBDIR}/../Plugins/${ODPLUGIN}
-				 ${COPYTOLIBDIR}/../Plugins/${ODPLUGIN} )
+				 ${COPYFROMLIBDIR}/../PlugIns/${ODPLUGIN}
+				 ${COPYTOLIBDIR}/../PlugIns/${ODPLUGIN} )
 	    else()
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 				 ${COPYFROMLIBDIR}/../plugins/${ODPLUGIN}
@@ -283,8 +283,8 @@ macro( COPY_THIRDPARTYLIBS )
 	if( ${QTWEB_LOCALS_FILE} STREQUAL ".pak" )
 	    if ( APPLE )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				 ${COPYFROMLIBDIR}/../Plugins/translations/qtwebengine_locales/${TRANSLATION_FILE}
-				 ${COPYTOLIBDIR}/../Plugins/translations/qtwebengine_locales/${TRANSLATION_FILE} )
+				 ${COPYFROMLIBDIR}/../PlugIns/translations/qtwebengine_locales/${TRANSLATION_FILE}
+				 ${COPYTOLIBDIR}/../PlugIns/translations/qtwebengine_locales/${TRANSLATION_FILE} )
 	    else()
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				 ${COPYFROMLIBDIR}/../translations/qtwebengine_locales/${TRANSLATION_FILE}
@@ -293,8 +293,8 @@ macro( COPY_THIRDPARTYLIBS )
 	else()
 	    if ( APPLE )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				 ${COPYFROMLIBDIR}/../Plugins/translations/${TRANSLATION_FILE}
-				 ${COPYTOLIBDIR}/../Plugins/translations/${TRANSLATION_FILE} )
+				 ${COPYFROMLIBDIR}/../PlugIns/translations/${TRANSLATION_FILE}
+				 ${COPYTOLIBDIR}/../PlugIns/translations/${TRANSLATION_FILE} )
 	    else()
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 				 ${COPYFROMLIBDIR}/../translations/${TRANSLATION_FILE}
