@@ -210,6 +210,7 @@ public:
     bool		isNotifierAttached(const NotifierAccess*) const;
 			//!<Only for debugging purposes, don't use
     virtual bool	isCapsule() const	{ return false; }
+    virtual CallBacker* trueCaller()		{ return this; }
 
     void		detachAllNotifiers() const;
 			//!<Call from the destructor of your inherited object
@@ -261,7 +262,8 @@ public:
 
     CBCapsule<T>*	clone() const
 			{ return new CBCapsule<T>(data,caller); }
-    virtual bool	isCapsule() const		{ return true; }
+    bool		isCapsule() const override	{ return true; }
+    CallBacker*		trueCaller() override		{ return caller; }
 
 };
 
