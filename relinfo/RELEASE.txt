@@ -2,6 +2,67 @@ OpendTect V6.6.x : Release info
 
 
 ----
+V6.6.4: July 16, 2021
+* Fixed crash while calculating AVO intercept from pre-stack volume
+* Fixed -1's in seismic data selection fields
+* Fix for squeezed display of angle gathers in 3D scene
+* Fix for saving/retrieving 'Preprocess' option in Prestack attribute GUI
+* Fixed curves missing from well tie checkshot editor
+* Added an export option for: well track, d2tmodel, checkshot data,
+  markers and logs
+* No meter to feet conversion of offset values of Prestack gathers during
+  import/export
+* Pseudo 3D cubes are now renamed when the source Prestack cubes are renamed
+* Fix for multiple entries of PresentationMaker in the menu when survey
+  is changed
+* Fix for updating the 3D log display properties window when logs are changed
+  in the Well manager and Well table
+* Fixed meter-to-feet conversion issues while importing deviated well tracks
+  Implemented log export to LAS
+* Fixed error message ‘Undefined variable:nvglxlibdir’ while launching
+  OpendTect on Linux  (CentOS 7) platform without X11R6 in users’ machine
+* Fixed disappearance of Log curves on displaying logs created via
+  'Create Attribute Log'
+* Fix for crash on importing logs from LAS file containing a log with all
+  undefined values
+* Provision of an interface for showing the local hostname/IP address
+* Fixed depth error in well log sampling
+* Added a TerraNubis menu with links to free and commercial projects
+* The dialog that shows the IP address of the local machine now correctly
+  displays its IPv4 address, and not (occasionally) the loopback address
+* Fixed failure to submit jobs for distributed processing on Debian-based
+  Operating System (Ubuntu)
+* Increased max number of dimensions from 3 to 6 for creating
+  Probability Density Function(PDF) from Crossplot
+* Fix for crash while normalizing a wavelet if all the values are zero
+* Added a scanner for 2D bulk horizon Import
+* Support of float Short Point number in 2D Horizon Import
+* Added  an option for setting the console command to be used when
+  launching a command prompt in the Python settings window.
+* Added an option to launch License Settings window in the
+  Plugin Selection (startup) window
+* Removed the option to hide the Plugin Selection (startup) window
+  which appears on launching OpendTect
+* Setup Distributed Computing dialog can now be configured using either
+  static IP addresses or host names
+* Seed Painter is enabled for 2D lines
+* Prevent input of invalid IP address in “Setup Distributed Computing” window
+* Fixed crash while exporting a 2D line 
+* Added the startup splash screen when the plugins are loaded and during
+  the 3D scene initialization
+* Fixed failure to save a trained model in dgbpy
+* Fixed implementation of well displays
+* Fixed Presentation Maker plugin issues with custom file template 
+* Fixed new windows sometimes falling behind at startup
+* 2D Grid creation will always overwrite line geometries
+* Settings should look in given python path for IDE commands
+* Fixed handling of different line endings during ASCII import
+* The user commands toolbar lets users to access Python settings window,
+  Python IDE and Python console even when the user settings are empty
+* A couple of UI fixes in Attribute selection
+* Fixed Multi Machine processing for static IP hosts
+* Added TWT column to Edit Well Markers and export Markers
+
 V6.6.3: April 21, 2021
 * bAdded a new “Paint” mode in pointsets to facilitate bulk picking of points
 * Added support for coordinate reference system GSK-2011
