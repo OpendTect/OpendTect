@@ -50,7 +50,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    #Stripping not required on windows
 	elseif( APPLE )
 	    set( LIBNM "lib${LIB}.dylib" )
-	    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIBNM} )
+	    execute_process( COMMAND ${OpendTect_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIBNM} )
 	    #Not using breakpad on MAC
 	else()
 	    set( LIBNM "lib${LIB}.so")
@@ -213,7 +213,7 @@ macro( COPY_THIRDPARTYLIBS )
 		endif()
 	    else()
 		if ( APPLE )
-		    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIB} )
+		    execute_process( COMMAND ${OpendTect_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${LIB} )
 		endif()
 		if ( NOT APPLE )
 		    list( FIND SYSLIBS "${LIB}" ITEMIDX )
@@ -309,7 +309,7 @@ macro( COPY_MAC_SYSTEMLIBS )
     message( STATUS "Copying ${OD_PLFSUBDIR} system libraries" )
     if( APPLE )
 	foreach( SYSLIB ${SYSTEMLIBS} )
-	    execute_process( COMMAND ${SOURCE_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${SYSLIB} )
+	    execute_process( COMMAND ${OpendTect_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMLIBDIR}/${SYSLIB} )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${COPYFROMLIBDIR}/${SYSLIB} ${COPYTOLIBDIR} )
 	endforeach()
     endif()
@@ -596,7 +596,7 @@ endmacro( CREATE_DOCPACKAGES )
 
 macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
     if( WIN32 )
-	execute_process( COMMAND ${SOURCE_DIR}/bin/win64/zip -r -q
+	execute_process( COMMAND ${OpendTect_DIR}/bin/win64/zip -r -q
 				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS )
