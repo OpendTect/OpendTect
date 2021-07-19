@@ -9,7 +9,4 @@ SET( PLUGINS Tut )
 
 INCLUDE ( ODdGBPlugins.cmake OPTIONAL )
 
-FOREACH( PLUGIN ${PLUGINS} )
-    add_subdirectory( ${PLUGIN} )
-ENDFOREACH()
-
+OD_ADD_MODULES( plugins ${PLUGINS} )
