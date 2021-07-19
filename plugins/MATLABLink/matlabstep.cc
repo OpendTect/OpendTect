@@ -67,7 +67,11 @@ static mxArray* createParameterArray( const BufferStringSet& names,
     for ( int idx=0; idx<nrfields; idx++ )
     {
 	fieldnames[idx] = new char[80];
+#ifdef __win__
+	strcpy_s( fieldnames[idx], 80, names.get(idx) );
+#else
 	strcpy( fieldnames[idx], names.get(idx) );
+#endif
     }
 
     mxArray* parsarr = mxCreateStructMatrix( 1, 1, nrfields,
@@ -277,9 +281,9 @@ bool MatlabStep::usePar( const IOPar& par )
 
 
 od_int64 MatlabStep::extraMemoryUsage( OutputSlotID,
-	const TrcKeySampling& hsamp, const StepInterval<int>& zsamp ) const
+	const TrcKeySampling& hsamp, const StepInterval<int>& ) const
 {
-    return getBaseMemoryUsage( hsamp, zsamp );
+    return getComponentMemory( hsamp, true );
 }
 
 
