@@ -104,24 +104,37 @@ endmacro(OD_ADD_EXTERNALS)
 #Macro for going through a list of modules and adding them
 macro ( OD_ADD_MODULES )
     set( DIR ${ARGV0} )
+    if ( "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
+	set( MODULE_OUTPUT_DIR ${DIR} )
+    else()
+	string(REPLACE ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} MODULE_OUTPUT_DIR ${DIR})
+    endif()
     foreach( OD_MODULE_NAME ${ARGV} )
 	if ( NOT ${OD_MODULE_NAME} STREQUAL ${DIR} )
 	    add_subdirectory( ${DIR}/${OD_MODULE_NAME} 
-		    	      ${DIR}/${OD_MODULE_NAME} )
+			      ${MODULE_OUTPUT_DIR}/${OD_MODULE_NAME} )
 	endif()
     endforeach()
+    unset( MODULE_OUTPUT_DIR )
 endmacro(OD_ADD_MODULES)
 
 # Macro for going through a list of modules and adding them
 # as optional targets
 macro ( OD_ADD_OPTIONAL_MODULES )
     set( DIR ${ARGV0} )
-
+    if ( "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
+	set( MODULE_OUTPUT_DIR ${DIR} )
+    else()
+	string(REPLACE ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} MODULE_OUTPUT_DIR ${DIR})
+    endif()
     foreach( OD_MODULE_NAME ${ARGV} )
 	if ( NOT ${OD_MODULE_NAME} MATCHES ${DIR} )
-	    add_subdirectory( ${DIR}/${OD_MODULE_NAME} EXCLUDE_FROM_ALL )
+	    add_subdirectory( ${DIR}/${OD_MODULE_NAME} 
+			      "${MODULE_OUTPUT_DIR}/${OD_MODULE_NAME}"
+			      EXCLUDE_FROM_ALL )
 	endif()
     endforeach()
+    unset( MODULE_OUTPUT_DIR )
 endmacro()
 
 
