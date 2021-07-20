@@ -32,16 +32,14 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 
 	COPY_THIRDPARTYLIBS()
 	set( LIBLIST ${LIBLIST};${PLUGINS} )
-    endif()
-
-    if( ${PACKAGE_NAME} STREQUAL "dgbpro" )
+    elseif( ${PACKAGE_NAME} STREQUAL "dgbpro" )
 	COPY_THIRDPARTYLIBS()
     endif()
 
     #TODO Need to check whether we need to use this macro on MAC.
-    if ( APPLE AND SYSTEMLIBS ) #TODO Need to check whether we  need to use this macro on MAC.
-	    COPY_MAC_SYSTEMLIBS()
-	    unset( SYSTEMLIBS )
+    if ( APPLE AND SYSTEMLIBS ) #TODO Need to check whether we	need to use this macro on MAC.
+	COPY_MAC_SYSTEMLIBS()
+	unset( SYSTEMLIBS )
     endif()
 
     foreach( LIB ${LIBLIST} )
@@ -55,25 +53,34 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	else()
 	    set( LIBNM "lib${LIB}.so")
 	endif()
-	file( COPY ${COPYFROMLIBDIR}/${LIBNM}
-	      DESTINATION ${COPYTOLIBDIR} )
-#copying breakpad symbols
-	if ( OD_ENABLE_BREAKPAD )
-	    if( WIN32 )
-		#TODO
-	    elseif( APPLE )
-		#TODO
-	    else()
-		file( COPY ${COPYFROMLIBDIR}/symbols/${LIBNM}
-		      DESTINATION ${COPYTOLIBDIR}/symbols )
+	if ( ("${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
+	      NOT "${PACKAGE_NAME}" STREQUAL "devel") OR
+	     ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND
+	      "${PACKAGE_NAME}" STREQUAL "devel") )
+	    file( COPY ${COPYFROMLIBDIR}/${LIBNM}
+		  DESTINATION ${COPYTOLIBDIR} )
+
+	    #copying breakpad symbols
+	    if ( OD_ENABLE_BREAKPAD )
+		if( WIN32 )
+		    #TODO
+		elseif( APPLE )
+		    #TODO
+		else()
+		    file( COPY ${COPYFROMLIBDIR}/symbols/${LIBNM}
+			  DESTINATION ${COPYTOLIBDIR}/symbols )
+		endif()
 	    endif()
 	endif()
 
-	file( GLOB ALOFILES ${COPYFROMDATADIR}/plugins/${OD_PLFSUBDIR}/*.${LIB}.alo )
-	foreach( ALOFILE ${ALOFILES} )
-	    file( COPY ${ALOFILE}
-		  DESTINATION ${COPYTODATADIR}/plugins/${OD_PLFSUBDIR} )
-	endforeach()
+	if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
+	     NOT "${PACKAGE_NAME}" STREQUAL "devel" )
+	    file( GLOB ALOFILES ${COPYFROMDATADIR}/plugins/${OD_PLFSUBDIR}/*.${LIB}.alo )
+	    foreach( ALOFILE ${ALOFILES} )
+		file( COPY ${ALOFILE}
+		      DESTINATION ${COPYTODATADIR}/plugins/${OD_PLFSUBDIR} )
+	    endforeach()
+	endif()
     endforeach()
 
     foreach( PYDIR ${PYTHONDIR} )
@@ -86,7 +93,6 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
     endforeach()
     unset( PYTHONDIR )
     unset( PYTHONFILES )
-
 
     if( ${PACKAGE_NAME} STREQUAL "dgbbase" )
 #Install lm 
@@ -115,31 +121,35 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	endif()
     endif()
 
-    foreach( EXE ${EXECLIST} )
-
-	if( WIN32 )
-	    file( COPY ${COPYFROMLIBDIR}/${EXE}.exe
-		  DESTINATION ${COPYTOLIBDIR} )
-	elseif( APPLE )
-	    file( COPY ${COPYFROMEXEDIR}/${EXE}
-		  DESTINATION ${COPYTOEXEDIR} )
-	else()
-	    file( COPY ${COPYFROMLIBDIR}/${EXE}
-		  DESTINATION ${COPYTOLIBDIR} )
-	endif()
-
-#copying breakpad symbols
-	if ( OD_ENABLE_BREAKPAD )
-	    if ( WIN32 )
-		#TODO
+    if ( ("${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
+	  NOT "${PACKAGE_NAME}" STREQUAL "devel") OR
+	 ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" AND
+	  "${PACKAGE_NAME}" STREQUAL "devel") )
+	foreach( EXE ${EXECLIST} )
+	    if( WIN32 )
+		file( COPY ${COPYFROMLIBDIR}/${EXE}.exe
+		      DESTINATION ${COPYTOLIBDIR} )
 	    elseif( APPLE )
-		#TODO
+		file( COPY ${COPYFROMEXEDIR}/${EXE}
+		      DESTINATION ${COPYTOEXEDIR} )
 	    else()
-		file( COPY ${COPYFROMLIBDIR}/symbols/${EXE}
-		      DESTINATION ${COPYTOLIBDIR}/symbols )
+		file( COPY ${COPYFROMLIBDIR}/${EXE}
+		      DESTINATION ${COPYTOLIBDIR} )
 	    endif()
-	endif()
-    endforeach()
+
+	    #copying breakpad symbols
+	    if ( OD_ENABLE_BREAKPAD )
+		if ( WIN32 )
+		    #TODO
+		elseif( APPLE )
+		    #TODO
+		else()
+		    file( COPY ${COPYFROMLIBDIR}/symbols/${EXE}
+			  DESTINATION ${COPYTOLIBDIR}/symbols )
+		endif()
+	    endif()
+	endforeach()
+    endif()
 
     if( ${PACKAGE_NAME} STREQUAL "base" )
 	foreach( SPECFILE ${SPECFILES} )
@@ -289,7 +299,7 @@ macro( CREATE_BASEPACKAGES PACKAGE_NAME )
     if( ${STATUS} EQUAL "0" )
 	set( ODDGBSTR "dgb" )
 	set( RELFILENAM ${RELFILENAM}.${ODDGBSTR}.txt )
-        file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
+	file( GLOB QMFILES ${COPYFROMDATADIR}/data/localizations/*.qm )
 	foreach( QMFILE ${QMFILES} )
 	    get_filename_component( QMFILENM ${QMFILE} NAME )
 	    file( COPY ${COPYFROMDATADIR}/data/localizations/${QMFILENM}
@@ -372,9 +382,6 @@ macro( INIT_DESTINATIONDIR PACKAGE_NAME )
 	file( MAKE_DIRECTORY ${PACKAGE_DIR} )
     endif()
 
-    if( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
-	file( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
-    endif()
     set( REL_DIR "${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH}" )
     set( FULLVER_NAME "${OpendTect_FULL_VERSION}" )
     if( APPLE )
@@ -386,12 +393,26 @@ macro( INIT_DESTINATIONDIR PACKAGE_NAME )
 	file( REMOVE_RECURSE ${DESTINATION_DIR} )
     endif()
 
+    if( NOT ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
+	      "${PACKAGE_NAME}" STREQUAL "devel") )
+	if ( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
+	    file( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
+	endif()
+
+	file( WRITE ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
+	file( APPEND ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
+	if( APPLE )
+	    file( COPY ${CMAKE_INSTALL_PREFIX}/Contents/Info.plist
+		  DESTINATION ${DESTINATION_DIR} )
+	endif()
+    endif()
+
     if ( NOT APPLE )
 	if( NOT ${PACKAGE_NAME} STREQUAL "basedata" AND
 	    NOT ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
-	    file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
-	    set( COPYFROMLIBDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release )
-	    set( COPYTOLIBDIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
+	    file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+	    set( COPYFROMLIBDIR ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+	    set( COPYTOLIBDIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
 	endif()
 
 	set( COPYFROMDATADIR ${CMAKE_INSTALL_PREFIX} )
@@ -407,106 +428,104 @@ macro( INIT_DESTINATIONDIR PACKAGE_NAME )
 	set( COPYTODATADIR ${DESTINATION_DIR}/Resources )
     endif()
 
-    file( WRITE ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
-    file( APPEND ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
-    if( APPLE )
-	file( COPY ${CMAKE_INSTALL_PREFIX}/Contents/Info.plist
-	      DESTINATION ${DESTINATION_DIR} )
+    if ( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" OR
+	 "${PACKAGE_NAME}" STREQUAL "devel" )
+	message( STATUS "Preparing package ${VER_FILENAME}.zip ......" )
     endif()
-
-    message( STATUS "Preparing package ${VER_FILENAME}.zip ......" )
 endmacro( INIT_DESTINATIONDIR )
 
 
 macro( CREATE_DEVELPACKAGES )
-    file( MAKE_DIRECTORY ${COPYFROMDATADIR}/doc
-			 ${COPYTODATADIR}/doc/Programmer)
-    file( COPY ${SOURCE_DIR}/CMakeLists.txt
-	  DESTINATION ${COPYTODATADIR} )
-    file( COPY ${COPYFROMDATADIR}/doc/Programmer/batchprogexample
-	       ${COPYFROMDATADIR}/doc/Programmer/pluginexample
-	  DESTINATION ${COPYTODATADIR}/doc/Programmer )
-    file( COPY ${COPYFROMDATADIR}/dtect
-	  DESTINATION ${COPYTODATADIR} )
-
-    foreach( SPECFILE ${SPECFILES} )
-	file( COPY ${COPYFROMDATADIR}/doc/Programmer/${SPECFILE}
-	      DESTINATION ${COPYTODATADIR}/doc )
-    endforeach()
-
-    file( GLOB HTMLFILES ${BINARY_DIR}/doc/Programmer/*.html )
-    foreach( HTMLFILE ${HTMLFILES} )
-	file( COPY ${HTMLFILE}
+    if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+	COPY_THIRDPARTYLIBS()
+	file( MAKE_DIRECTORY ${COPYFROMDATADIR}/doc
+			     ${COPYTODATADIR}/doc/Programmer)
+	file( COPY ${SOURCE_DIR}/CMakeLists.txt
+	      DESTINATION ${COPYTODATADIR} )
+	file( COPY ${COPYFROMDATADIR}/doc/Programmer/batchprogexample
+		   ${COPYFROMDATADIR}/doc/Programmer/pluginexample
 	      DESTINATION ${COPYTODATADIR}/doc/Programmer )
-    endforeach()
-    file( GLOB PNGFILES ${SOURCE_DIR}/doc/Programmer/*.png )
-    foreach( PNGFILE ${PNGFILES} )
-	file( COPY ${PNGFILE}
-	      DESTINATION ${COPYTODATADIR}/doc/Programmer )
-    endforeach()
+	file( COPY ${COPYFROMDATADIR}/dtect
+	      DESTINATION ${COPYTODATADIR} )
 
-    foreach( DIR CMakeModules include src plugins spec )
-	if( "${DIR}" STREQUAL "plugins" )
-	    foreach( ODPLUGIN ${ODPLUGINS} )
-		file( COPY ${COPYFROMDATADIR}/plugins/${ODPLUGIN}
-		      DESTINATION ${COPYTODATADIR}/plugins )
-	    endforeach()
+	foreach( SPECFILE ${SPECFILES} )
+	    file( COPY ${COPYFROMDATADIR}/doc/Programmer/${SPECFILE}
+		  DESTINATION ${COPYTODATADIR}/doc )
+	endforeach()
+
+	file( GLOB HTMLFILES ${BINARY_DIR}/doc/Programmer/*.html )
+	foreach( HTMLFILE ${HTMLFILES} )
+	    file( COPY ${HTMLFILE}
+		  DESTINATION ${COPYTODATADIR}/doc/Programmer )
+	endforeach()
+	file( GLOB PNGFILES ${SOURCE_DIR}/doc/Programmer/*.png )
+	foreach( PNGFILE ${PNGFILES} )
+	    file( COPY ${PNGFILE}
+		  DESTINATION ${COPYTODATADIR}/doc/Programmer )
+	endforeach()
+
+	foreach( DIR CMakeModules include src plugins spec )
+	    if( "${DIR}" STREQUAL "plugins" )
+		foreach( ODPLUGIN ${ODPLUGINS} )
+		    file( COPY ${COPYFROMDATADIR}/plugins/${ODPLUGIN}
+			  DESTINATION ${COPYTODATADIR}/plugins )
+		endforeach()
+	    else()
+		file( COPY ${COPYFROMDATADIR}/${DIR}
+		      DESTINATION ${COPYTODATADIR} )
+	    endif()
+	endforeach()
+
+	if ( WIN32 )
+	    file( COPY ${SOURCE_DIR}/bin/od_cr_dev_env.bat
+		  DESTINATION ${DESTINATION_DIR}/bin )
 	else()
-	    file( COPY ${COPYFROMDATADIR}/${DIR}
+	    file( COPY ${COPYFROMDATADIR}/bin/od_cr_dev_env.csh
 		  DESTINATION ${COPYTODATADIR} )
 	endif()
-    endforeach()
-
-    if ( APPLE )
-	file( COPY ${COPYFROMDATADIR}/bin/od_cr_dev_env.csh
-	      DESTINATION ${COPYTODATADIR} )
     endif()
 
     if( WIN32 )
 	file( MAKE_DIRECTORY ${DESTINATION_DIR}/bin
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug
-			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
-	file( COPY ${SOURCE_DIR}/bin/od_cr_dev_env.bat
-	      DESTINATION ${DESTINATION_DIR}/bin )
+			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
 
 	set( DEVELLIBS ${ODLIBLIST} ${ODPLUGINS} ${SPECSOURCES} )
 	#Copying dll, pdb and lib files.
-	foreach( DLIB ${DEVELLIBS} )
-	    file( GLOB FILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${DLIB}.* )
-	    string( TOLOWER ${DLIB} PDBLIB )
-	    file( GLOB PDBFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${PDBLIB}.* )
-	    set( FILES ${FILES} ${PDBFILES} )
-	    foreach( FIL ${FILES} )
-		if ( EXISTS "${FIL}" ) #Some modules have no library
-		    file( COPY ${FIL}
-			  DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
+	if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
+	    foreach( DLIB ${DEVELLIBS} )
+		if ( EXISTS "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${DLIB}.lib" )
+		    #Some modules have no library
+		    file( COPY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${DLIB}.lib
+			  DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
 		endif()
 	    endforeach()
-
-	    if ( EXISTS "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${DLIB}.lib" )
-		#Some modules have no library
-		file( COPY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${DLIB}.lib
-		      DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
-	    endif()
-	endforeach()
-	#Copying executables and pdb files
-	foreach( EXELIB ${EXECLIST} )
-	    file( GLOB EXEFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${EXELIB}.* )
-	    string( TOLOWER ${EXELIB} EXEPDBLIB )
-	    file( GLOB EXEPDBFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${EXEPDBLIB}.* )
-	    set( EXEILES ${EXEFILES} ${EXEPDBFILES} )
-	    foreach( ELIB ${EXEILES} )
-		file( COPY ${ELIB}
-		      DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
+	else()
+	    foreach( DLIB ${DEVELLIBS} )
+		file( GLOB FILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${DLIB}.* )
+		string( TOLOWER ${DLIB} PDBLIB )
+		file( GLOB PDBFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${PDBLIB}.* )
+		set( FILES ${FILES} ${PDBFILES} )
+		foreach( FIL ${FILES} )
+		    if ( EXISTS "${FIL}" ) #Some modules have no library
+			file( COPY ${FIL}
+			      DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+		    endif()
+		endforeach()
 	    endforeach()
-	endforeach()
 
-	#Copying third party debug libraries
-	foreach( THIRDPARTY_DEBUGLIB ${OD_THIRD_PARTY_FILES_DEBUG} )
-	    file( COPY ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/${THIRDPARTY_DEBUGLIB}
-		  DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Debug )
-	endforeach()
+	    #Copying executables and pdb files
+	    foreach( EXELIB ${EXECLIST} )
+		file( GLOB EXEFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${EXELIB}.* )
+		string( TOLOWER ${EXELIB} EXEPDBLIB )
+		file( GLOB EXEPDBFILES ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}/${EXEPDBLIB}.* )
+		set( EXEILES ${EXEFILES} ${EXEPDBFILES} )
+		foreach( ELIB ${EXEILES} )
+		    file( COPY ${ELIB}
+			  DESTINATION ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
+		endforeach()
+	    endforeach()
+	endif()
     endif()
 
     ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
@@ -541,19 +560,23 @@ endmacro( CREATE_DOCPACKAGES )
 
 macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
     if( WIN32 )
-	execute_process( COMMAND ${OpendTect_DIR}/bin/win64/zip -r -q
+	execute_process( COMMAND ${OpendTect_DIR}/bin/win64/zip -r -q -u
 				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS )
     else()
-	execute_process( COMMAND zip -r -y -q "${PACKAGE_FILENAME}" ${REL_DIR} 
+	execute_process( COMMAND zip -r -q -u -y
+				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS )
     endif()
 
-    if( NOT ${STATUS} EQUAL "0" )
+    #Error code 12 == "Nothing to do": can be ignored
+    if( NOT ${STATUS} EQUAL "0" AND NOT ${STATUS} EQUAL "12" )
 	message( FATAL_ERROR "Failed to create zip file ${PACKAGE_FILENAME}" )
-   endif()
+    endif()
+
+    file( REMOVE_RECURSE "${PACKAGE_DIR}/${REL_DIR}" )
 endmacro( ZIPPACKAGE )
 
 #Genarate Symbols and then Strip the binaries

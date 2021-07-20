@@ -28,20 +28,12 @@ macro( OD_ADD_PACKAGES_TARGET )
 	set( INCLUDE_ODHDF5 "NO" )
     endif()
 
-    if ( EXISTS "${OD_BINARY_DEBUG_BASEDIR}" )
-	set( ONLY_SET_VAR ON )
-	include ( "${CMAKE_CURRENT_BINARY_DIR}/CMakeModules/FindOpendTect.cmake" )
-	set( OD_THIRD_PARTY_FILES_DEBUG ${OD_THIRD_PARTY_FILES} )
-	include ( "${CMAKE_CURRENT_BINARY_DIR}/CMakeModules/FindOpendTect.cmake" )
-	unset( ONLY_SET_VAR )
-    endif()
     add_custom_target( packages  ${CMAKE_COMMAND} 
 	    -DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR} 
 	    -DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR} 
 	    -DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH} 
 	    -DOpendTect_FULL_VERSION=${OpendTect_FULL_VERSION}
 	    "-DOD_THIRD_PARTY_FILES=\"${OD_THIRD_PARTY_FILES}\""
-	    "-DOD_THIRD_PARTY_FILES_DEBUG=\"${OD_THIRD_PARTY_FILES_DEBUG}\""
 	    "-DOD_QTPLUGINS=\"${OD_QTPLUGINS}\""
 	    "-DOD_QT_TRANSLATION_FILES=\"${OD_QT_TRANSLATION_FILES}\""
 	    -DQT_VERSION_MAJOR=${QT_VERSION_MAJOR}
