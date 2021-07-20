@@ -554,15 +554,21 @@ od_int64 Processor::totalNr() const
 
 
 od_int64 Processor::nrDone() const
-{ return nrdone_; }
+{
+    return nrdone_;
+}
 
 
 uiString Processor::uiMessage() const
-{ return errmsg_.isEmpty() ? tr("Processing") : errmsg_; }
+{
+    return errmsg_.isEmpty() ? tr("Processing") : errmsg_;
+}
 
 
 void Processor::addOutputInterest( int sel )
-{ outpinterest_.addIfNew( sel ); }
+{
+    outpinterest_.addIfNew( sel < 0 ? 0 : sel );
+}
 
 
 const char* Processor::getAttribName() const
