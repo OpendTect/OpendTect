@@ -245,6 +245,7 @@ bool uiMultiAttribSel::is2D() const
 void uiMultiAttribSel::fillAttribFld()
 {
     attribfld_->setEmpty();
+    allids_.setEmpty();
     if ( !descset_ )
 	return;
 
@@ -301,7 +302,8 @@ void uiMultiAttribSel::updateSelFld()
     for ( int idx=0; idx<selids_.size(); idx++ )
     {
 	const Attrib::Desc* desc = descset_->getDesc( selids_[idx] );
-	if (!desc ) continue;
+	if (!desc )
+	    continue;
 
 	selfld_->addItem( toUiString(desc->userRef()) );
     }
