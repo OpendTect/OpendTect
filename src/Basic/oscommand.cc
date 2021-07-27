@@ -267,7 +267,7 @@ BufferString& GetIsolateScript()
 
 void OS::MachineCommand::setIsolationScript( const char* fnm )
 {
-    if ( File::exists(fnm) )
+    if ( !fnm || File::exists(fnm) )
 	GetIsolateScript().set( fnm );
 }
 
@@ -466,7 +466,7 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 	{
 	    ret.addArg( hname_.str() );
 	    if ( prognm.startsWith("od_") )
-		ret.addArg( File::Path(GetShellScript("exec_prog")).fullPath() );
+		ret.addArg(File::Path(GetShellScript("exec_prog")).fullPath());
 	}
 	ret.addArg( prognm );
     }

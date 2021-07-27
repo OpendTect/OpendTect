@@ -311,7 +311,7 @@ BufferString& GetPythonActivatorExe()
 
 void OD::PythonAccess::setPythonActivator( const char* fnm )
 {
-    if ( File::exists(fnm) )
+    if ( !fnm || File::exists(fnm) )
 	GetPythonActivatorExe().set( fnm );
 }
 
