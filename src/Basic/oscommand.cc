@@ -272,7 +272,7 @@ BufferString& GetIsolateScript()
 
 void OS::MachineCommand::setIsolationScript( const char* fnm )
 {
-    if ( File::exists(fnm) )
+    if ( !fnm || File::exists(fnm) )
 	GetIsolateScript().set( fnm );
 }
 
