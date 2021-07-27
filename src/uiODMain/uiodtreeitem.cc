@@ -41,15 +41,14 @@ uiODTreeTop::uiODTreeTop( ui3DViewer* sovwr, uiTreeView* lv, uiODApplMgr* am,
     setPropertyPtr( viewerptr(), sovwr );
     setPropertyPtr( applmgrstr(), am );
 
-    tfs->addnotifier.notify( mCB(this,uiODTreeTop,addFactoryCB) );
-    tfs->removenotifier.notify( mCB(this,uiODTreeTop,removeFactoryCB) );
+    mAttachCB(tfs->addnotifier, uiODTreeTop::addFactoryCB);
+    mAttachCB(tfs->removenotifier, uiODTreeTop::removeFactoryCB);
 }
 
 
 uiODTreeTop::~uiODTreeTop()
 {
-    tfs->addnotifier.remove( mCB(this,uiODTreeTop,addFactoryCB) );
-    tfs->removenotifier.remove( mCB(this,uiODTreeTop,removeFactoryCB) );
+    detachAllNotifiers();
 }
 
 
