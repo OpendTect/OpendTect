@@ -283,6 +283,7 @@ public:
 				  int width=16,int height=10);
     void		setPixmap(int column,const ColTab::Sequence&,
 				  int width=16,int height=10);
+    void		setBold(int column,bool yn);
 
     virtual const char* key(int,bool) const		{ return 0; }
     virtual int		compare( uiTreeViewItem*,int column,bool) const
