@@ -14,6 +14,7 @@
 #include "iosubdir.h"
 #include "safefileio.h"
 #include "separstr.h"
+#include "surveydisklocation.h"
 
 
 IODir::IODir( const char* dirnm )
@@ -173,9 +174,10 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 }
 
 
-IOObj* IODir::getObj( const MultiID& ky )
+
+IOObj* IODir::getIOObj( const char* _dirnm, const MultiID& ky )
 {
-    BufferString dirnm( IOM().rootDir() );
+    BufferString dirnm( _dirnm );
     if ( dirnm.isEmpty() || !File::isDirectory(dirnm) )
 	return nullptr;
 
@@ -192,6 +194,22 @@ IOObj* IODir::getObj( const MultiID& ky )
     }
 
     return nullptr;
+}
+
+
+IOObj* IODir::getObj( const DBKey& ky )
+{
+    if ( !ky.hasSurveyLocation() )
+	return getObj( sCast(const MultiID&,ky) );
+
+    return getIOObj( ky.surveyDiskLocation().fullPath(), ky );
+}
+
+
+IOObj* IODir::getObj( const MultiID& ky )
+{
+    BufferString dirnm( IOM().rootDir() );
+    return getIOObj( dirnm.buf(), ky );
 }
 
 

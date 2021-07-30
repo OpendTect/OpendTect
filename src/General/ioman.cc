@@ -13,23 +13,25 @@
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "iodir.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "iosubdir.h"
 #include "keystrs.h"
 #include "msgh.h"
-#include "oddirs.h"
 #include "od_ostream.h"
+#include "oddirs.h"
+#include "perthreadrepos.h"
 #include "separstr.h"
 #include "settings.h"
-#include "perthreadrepos.h"
 #include "strmprov.h"
+#include "surveydisklocation.h"
 #include "survinfo.h"
 #include "timefun.h"
-#include "genc.h"
 #include "transl.h"
 
+extern "C" { mGlobal(Basic) void SetCurBaseDataDirOverrule(const char*); }
 
 static bool doRemoveImpl( const IOObj& ioobj )
 {
@@ -707,6 +709,16 @@ const char* IOMan::nameOf( const char* id ) const
 }
 
 
+const char* IOMan::objectName( const DBKey& key ) const
+{
+    mDeclStaticString( ret );
+    PtrMan<IOObj> ioobj = IODir::getObj( key );
+    ret = ioobj ? ioobj->name().buf()
+		: BufferString("ID=<",key.toString(false),">").buf();
+    return ret.buf();
+}
+
+
 const char* IOMan::curDirName() const
 {
     return dirptr_ ? dirptr_->dirName() : (const char*)rootdir_;
@@ -852,32 +864,41 @@ void IOMan::removeUnusable( DBKeySet& keys )
 
 bool IOMan::isUsable( const MultiID& key ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( key );
+    ConstPtrMan<IOObj> ioobj = IOM().get( key );
     return ioobj;
 }
 
 
 bool IOMan::implExists( const MultiID& key ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    PtrMan<Translator> trans = ioobj->createTranslator();
-    return trans ? trans->implExists(ioobj.ptr(), true)
-			  : ioobj->implExists(true);
+    ConstPtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+	return false;
+
+    ConstPtrMan<Translator> trans = ioobj->createTranslator();
+    return trans ? trans->implExists( ioobj.ptr(), true )
+		 : ioobj->implExists( true );
 }
 
 
 bool IOMan::isReadOnly( const MultiID& key ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    PtrMan<Translator> trans = ioobj->createTranslator();
-    return trans ? trans->implReadOnly(ioobj.ptr())
-			: ioobj->implReadOnly();
+    ConstPtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+	return false;
+
+    ConstPtrMan<Translator> trans = ioobj->createTranslator();
+    return trans ? trans->implReadOnly( ioobj.ptr() )
+		 : ioobj->implReadOnly();
 }
 
 
 bool IOMan::isManagesObject( const MultiID& key ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+	return false;
+
     PtrMan<Translator> trans = ioobj->createTranslator();
     return trans ? !trans->implManagesObjects(ioobj.ptr())
 			: !ioobj->implManagesObjects();
@@ -1449,4 +1470,36 @@ mExternC(General) const char* setDBMDataSource( const char* fullpath,
     const uiRetVal uirv = IOM().setDataSource( fullpath, refresh );
     ret = uirv.getText();
     return ret.buf();
+}
+
+
+void IOMan::setTempSurvey( const SurveyDiskLocation& sdl )
+{
+    SetCurBaseDataDirOverrule( sdl.basePath() );
+    SurveyInfo::setSurveyName( sdl.dirName() );
+    IOM().setRootDir( GetDataDir() );
+}
+
+
+void IOMan::cancelTempSurvey()
+{
+    SetCurBaseDataDirOverrule( "" );
+    SurveyInfo::setSurveyName( "" );
+    IOM().setRootDir( GetDataDir() );
+}
+
+
+// SurveyChanger
+SurveyChanger::SurveyChanger( const SurveyDiskLocation& sdl )
+{
+    incurrentsurvey_ = sdl == SurveyDiskLocation::currentSurvey();
+    if ( !incurrentsurvey_ )
+	IOMan::setTempSurvey( sdl );
+}
+
+
+SurveyChanger::~SurveyChanger()
+{
+    if ( !incurrentsurvey_ )
+	IOMan::cancelTempSurvey();
 }

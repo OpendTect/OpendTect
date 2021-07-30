@@ -13,18 +13,19 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "ctxtioobj.h"
-#include "namedobj.h"
 #include "multiid.h"
+#include "namedobj.h"
 
 class CommandLineParser;
 class CtxtIOObj;
-class IOMManager;
 class IODir;
+class IOMManager;
 class IOObj;
 class IOObjContext;
 class IOSubDir;
 class SurveyInfo;
 class SurveyDataTreePreparer;
+class SurveyDiskLocation;
 
 /*!
 \brief manages the 'Meta-'data store for the IOObj's.
@@ -90,6 +91,7 @@ public:
     bool		isKey(const char* keystr) const;
     const char*		nameOf(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
+    const char*		objectName(const DBKey&) const;
 
     MultiID		createNewKey(const MultiID& dirkey);
 
@@ -143,6 +145,8 @@ public:
     static bool		isValidSurveyDir(const char* dirnm);
     static BufferString getNewTempDataRootDir();
 
+    static void		setTempSurvey(const SurveyDiskLocation&);
+    static void		cancelTempSurvey();
 
 private:
 
@@ -217,3 +221,14 @@ public:
 mGlobal(General) IOMan& IOM();
 
 
+mExpClass(General) SurveyChanger
+{
+public:
+		SurveyChanger(const SurveyDiskLocation&);
+		~SurveyChanger();
+
+    bool	inCurrentSurvey()	{ return incurrentsurvey_; }
+
+private:
+    bool incurrentsurvey_;
+};

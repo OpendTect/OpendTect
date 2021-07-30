@@ -6,34 +6,36 @@
 
 
 #include "wellextractdata.h"
+
+#include "arrayndimpl.h"
+#include "binidvalue.h"
+#include "ctxtioobj.h"
+#include "datacoldef.h"
+#include "datapointset.h"
+#include "envvars.h"
+#include "filepath.h"
+#include "iodir.h"
+#include "iodirentry.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "multiid.h"
+#include "oddirs.h"
+#include "posvecdataset.h"
+#include "ptrman.h"
+#include "sorting.h"
+#include "strmprov.h"
+#include "surveydisklocation.h"
+#include "survinfo.h"
+#include "welld2tmodel.h"
+#include "welldata.h"
+#include "welllog.h"
+#include "welllogset.h"
 #include "wellman.h"
 #include "wellmarker.h"
 #include "wellreader.h"
 #include "welltrack.h"
-#include "welld2tmodel.h"
-#include "welllogset.h"
-#include "welllog.h"
-#include "welldata.h"
 #include "welltransl.h"
-#include "arrayndimpl.h"
-#include "datapointset.h"
-#include "posvecdataset.h"
-#include "survinfo.h"
-#include "iodirentry.h"
-#include "ctxtioobj.h"
-#include "datacoldef.h"
-#include "filepath.h"
-#include "strmprov.h"
-#include "iodir.h"
-#include "ioobj.h"
-#include "ioman.h"
-#include "iopar.h"
-#include "ptrman.h"
-#include "multiid.h"
-#include "sorting.h"
-#include "envvars.h"
-#include "binidvalue.h"
-#include "surveydisklocation.h"
 
 #include <math.h>
 
@@ -74,10 +76,9 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     , curidx_(0)
     , survloc_(*new SurveyDiskLocation)
 {
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    iodir_ = new IODir( ctio->ctxt_.getSelKey() );
-    direntries_ = new IODirEntryList( *iodir_, ctio->ctxt_ );
-    totalnr_ = direntries_->size();
+    iodir_ = nullptr;
+    direntries_ = nullptr;
+    totalnr_ = 0;
     curmsg_ = totalnr_ ? tr("Gathering information") : tr("No wells");
 }
 
@@ -132,6 +133,16 @@ SurveyDiskLocation& Well::InfoCollector::survey() const
 
 int Well::InfoCollector::nextStep()
 {
+    SurveyChanger chgr( survey() );
+
+    if ( !iodir_ )
+    {
+	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
+	iodir_ = new IODir( ctio->ctxt_.getSelKey() );
+	direntries_ = new IODirEntryList( *iodir_, ctio->ctxt_ );
+	totalnr_ = direntries_->size();
+    }
+
     if ( curidx_ >= totalnr_ )
 	return Finished();
 
@@ -141,7 +152,7 @@ int Well::InfoCollector::nextStep()
 
     BufferStringSet lognms;
     RefMan<Well::Data> wd = 0;
-    if ( isloaded )
+    if ( chgr.inCurrentSurvey() && isloaded )
     {
 	wd = Well::MGR().get( wmid );
 	if ( wd && dologs_ )
@@ -152,13 +163,13 @@ int Well::InfoCollector::nextStep()
     if ( !wd )
     {
 	wd = new Well::Data;
-	Well::Reader rdr( wmid, *wd );
+	Well::Reader rdr( *ioobj, *wd );
 	res = rdr.getInfo();
-	if ( dotracks_ )
-	    res = res && rdr.getTrack();
-	if ( domrkrs_ )
-	    res = res && rdr.getMarkers();
-	if ( dologs_ )
+	if ( res && dotracks_ )
+	    res = rdr.getTrack();
+	if ( res && domrkrs_ )
+	    res = rdr.getMarkers();
+	if ( res && dologs_ )
 	    rdr.getLogInfo( lognms );
     }
 
