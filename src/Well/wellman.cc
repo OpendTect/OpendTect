@@ -10,8 +10,8 @@
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
-#include "monitor.h"
 #include "ptrman.h"
+#include "surveydisklocation.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "welllog.h"
@@ -101,7 +101,7 @@ bool Well::LoadReqs::includes( const LoadReqs& oth ) const
 {
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
 	if ( oth.reqs_[idx]==1 && reqs_[idx]==0 )
-            return false;
+	    return false;
     return true;
 }
 
@@ -226,6 +226,16 @@ Well::Data* Well::Man::get( const MultiID& key, LoadReqs reqs )
     }
 
     return addNew( key, reqs );
+}
+
+
+Well::Data* Well::Man::get( const DBKey& key, LoadReqs reqs )
+{
+    SurveyDiskLocation sdl;
+    if ( key.hasSurveyLocation() )
+	sdl = key.surveyDiskLocation();
+    SurveyChanger chgr( sdl );
+    return get( sCast(const MultiID&,key), reqs );
 }
 
 

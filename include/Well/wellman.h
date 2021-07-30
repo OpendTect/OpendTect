@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "color.h"
 #include <bitset>
 
+class DBKey;
 class IOObj;
 class MultiID;
 class BufferStringSet;
@@ -81,13 +82,10 @@ public:
     void		removeObject(const MultiID&);
     Data*		get(const MultiID&);
     Data*		get(const MultiID&,LoadReqs);
+    Data*		get(const DBKey&,LoadReqs);
     bool		readReqData(const MultiID&,Data*,LoadReqs);
-    mDeprecated("Use get instead") void add(const MultiID&,Data*);
-			//!< Data becomes mine
-    mDeprecated("Use removeObject instead") Data* release(const MultiID&);
-			//!< Data becomes yours
     bool		isLoaded(const MultiID&) const;
-    bool		reload(const MultiID&, LoadReqs lreq=LoadReqs(false));
+    bool		reload(const MultiID&,LoadReqs lreq=LoadReqs(false));
     bool		reloadDispPars(const MultiID&, bool for2d=false);
     bool		reloadLogs(const MultiID&);
     bool		validID(const MultiID&) const;
@@ -113,10 +111,6 @@ public:
 				       TypeSet<OD::Color>&, TypeSet<float>&);
     static bool		getLogNamesByID(const MultiID&,BufferStringSet&,
 					bool onlyloaded=false);
-    mDeprecated("Use getLogNamesByID instead") static bool getLogNames(
-			const MultiID&,BufferStringSet&, bool forceLoad=false);
-    mDeprecated("Use getAllMarkerNames instead") static bool getMarkerNames(
-							    BufferStringSet&);
     Coord		getMapLocation(const MultiID&) const;
     static void		dumpMgrInfo(IOPar&);
 
@@ -137,6 +131,20 @@ protected:
 
     static const UnitOfMeasure*	depthstorageunit_;
     static const UnitOfMeasure*	depthdisplayunit_;
+
+public:
+    mDeprecated("Use getLogNamesByID instead")
+    static bool		getLogNames(const MultiID&,BufferStringSet&,
+				    bool forceLoad=false);
+    mDeprecated("Use getAllMarkerNames instead")
+    static bool		getMarkerNames(BufferStringSet&);
+
+    mDeprecated("Use get instead")
+    void		add(const MultiID&,Data*); //!< Data becomes mine
+
+    mDeprecated("Use removeObject instead")
+    Data*		release(const MultiID&); //!< Data becomes yours
+
 };
 
 mGlobal(Well) Man& MGR();
