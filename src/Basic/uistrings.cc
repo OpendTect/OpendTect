@@ -240,7 +240,7 @@ uiString uiStrings::phrOutput( const uiString& string )
 { return toUiString(joinstring).arg( sOutput() ).arg( string ); }
 
 uiString uiStrings::phrPlsSelectAtLeastOne( const uiString& string )
-{ return tr("Please select at least one").arg(string); }
+{ return tr("Please select at least one %1").arg(string); }
 
 uiString uiStrings::phrReading( const uiString& string )
 { return tr( "Reading %1").arg( string ); }
