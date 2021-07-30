@@ -961,6 +961,13 @@ void uiTreeViewItem::setPixmap( int column, const ColTab::Sequence& seq,
 }
 
 
+void uiTreeViewItem::setBold( int column, bool yn )
+{
+    QFont qfont = qItem()->font( column );
+    qfont.setBold( yn );
+    qItem()->setFont( column, qfont );
+}
+
 int uiTreeViewItem::nrChildren() const
 { return qItem()->childCount(); }
 
