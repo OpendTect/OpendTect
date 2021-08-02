@@ -4,7 +4,7 @@
 # (C) dGB Beheer B.V.
 # $Id$
 #
-# Sets up the python environments (version 1.2.5)
+# Sets up the python environments (version 1.2.7)
 #_______________________________________________________________________________
 
 if ( "$1" == "--help" ) then
@@ -59,8 +59,8 @@ endif
 
 # gets environment dirs and sets which dirs to walk through
 set envdirs=`ls $condainstdir/envs/`
-set envrepldirs='bin conda-meta etc/dbus-1 etc/fonts include include/libxslt lib lib/cairo lib/cmake/libxml2 lib/cmake/ZeroMQ lib/graphviz lib/gstreamer-1.0 lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.2.0 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu lib/python3.7/site-packages lib/python3.7/site-packages/nbconvert/tests/exporter_entrypoint lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/scipy lib/python3.7/site-packages/zmq/utils lib/tdbc1.1.1 mkspecs mkspecs/features/data mkspecs/modules share/dbus-1 share/doc/dbus/examples share/jupyter/kernels/python3 ssl/misc'
-set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d include/libxslt lib lib/cmake/libxml2 lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.2.0 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/xontrib lib/tdbc1.1.1 shell/condabin ssl/misc'
+set envrepldirs='bin conda-meta etc/dbus-1 etc/fonts include include/libxslt lib lib/cmake/libxml2 lib/cmake/ZeroMQ lib/gstreamer-1.0 lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.2.0 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu lib/python3.7/site-packages lib/python3.7/site-packages/nbconvert/tests/exporter_entrypoint lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/scipy lib/python3.7/site-packages/zmq/utils lib/tdbc1.1.1 mkspecs mkspecs/features/data mkspecs/modules share/dbus-1 share/doc/dbus/examples share/jupyter/kernels/python3 ssl/misc'
+set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d include/libxslt lib lib/cmake/libxml2 lib/icu lib/icu/58.2 lib/icu/current lib/icu/current.c~ lib/itcl4.2.0 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/xontrib lib/tdbc1.1.1 shell/condabin ssl/misc'
 set filtypes='text JSON'
 
 #set origdir="forced orig dir"
@@ -75,10 +75,11 @@ foreach instrepldir ( $instrepldirs)
         if ( -w "${condainstdir}/${instrepldir}" ) then
                 foreach fil (`ls --hide='~*' $condainstdir/$instrepldir`)
 			foreach filtype ( $filtypes )
-                        	set fildir=`file $condainstdir/$instrepldir/$fil | grep $filtype | awk '{print $1}' | sed 's/.$//'`
-                        	if ("$fildir" != "") then
-                                	sed -i -- s,$origdir,$condainstdir,g $fildir
-                        	endif
+				set findfiltype=`file $condainstdir/$instrepldir/$fil | awk '{sub($1 FS, "")}1' | grep $filtype`
+                                if ("$findfiltype" != "") then
+                                        set filrepl=$condainstdir/$instrepldir/$fil
+                                        sed -i -- s,$origdir,$condainstdir,g $filrepl
+                                endif
 			end
                 end
         else
@@ -110,10 +111,11 @@ if ("$envdirs" != "") then
                         if ( -w "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
                                 foreach fil (`ls --hide='~*' $condainstdir/envs/$envdir/$envrepldir`)
 					foreach filtype ( $filtypes )
-                                        	set fildir=`file $condainstdir/envs/$envdir/$envrepldir/$fil | grep $filtype | awk '{print $1}' | sed 's/.$//'`
-                                        	if ("$fildir" != "") then
-                                                	sed -i -- s,$origdir,$condainstdir,g $fildir
-                                        	endif
+						set findfiltype=`file $condainstdir/envs/$envdir/$envrepldir/$fil | awk '{sub($1 FS, "")}1' | grep $filtype`
+                                                if ("$findfiltype" != "") then
+                                                        set filrepl=$condainstdir/envs/$envdir/$envrepldir/$fil
+                                                        sed -i -- s,$origdir,$condainstdir,g $filrepl
+                                                endif
 					end
                                 end
 			else
