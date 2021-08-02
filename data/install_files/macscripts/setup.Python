@@ -4,7 +4,7 @@
 # (C) dGB Beheer B.V.
 # $Id$
 #
-# Sets up the python environments
+# Sets up the python environments (version 1.2.7)
 #_______________________________________________________________________________
 
 if ( "$1" == "--help" ) then
@@ -24,7 +24,23 @@ endif
 set origdir=`cat bin/conda | head -n 1 | awk '{print substr($0, 3, '$origcondalen')}'`
 
 # at this point current directory is installation directory.
-set condainstdir=`pwd`
+set findspace = `pwd | grep -e '^\s[^\s]' -e '[^\s]\s$' -e '[^\s]\s[^\s]' | wc | awk '{print $1}'`
+if ( $findspace > 0 ) then
+    echo "Warning: cannot setup Python environments when there is 1 or more spaces in the path."
+    echo "Will exit the setup now..."
+    exit 1
+endif
+
+set condainstdir=`dirname "$0"`
+set condainstdir=`cd $condainstdir ; pwd -P`
+
+if ( -d "${origdir}" ) then
+    set origdir=`cd ${origdir} ; pwd -P`
+    if ( "${origdir}" == "${condainstdir}" ) then
+        echo "Already up-to-date"
+        exit 0
+    endif
+endif
 
 if ( ! -w "${condainstdir}" ) then
     echo "Warning: cannot properly setup Python environments."
@@ -42,72 +58,70 @@ endif
 
 # gets environment dirs and sets which dirs to walk through
 set envdirs=`ls $condainstdir/envs/`
-set envrepldirs='bin conda-meta etc/fonts lib/python3.7/site-packages ssl/misc'
-set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d lib lib/itcl4.1.1 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-darwin shell/condabin ssl/misc'
+set envrepldirs='../odmlpython-cpu-mkl bin conda-meta etc/dbus-1 include include/libxslt lib lib/gettext lib/icu lib/itcl4.2.0 lib/openjpeg-2.3 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-darwin lib/python3.7/site-packages lib/tdbc1.1.1 mkspecs share/dbus-1 ssl/misc'
+set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d lib lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.2.0 lib/openjpeg-2.3 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-darwin lib/python3.7/site-packages/numexpr lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/xontrib lib/tdbc1.1.1 shell/condabin ssl/misc'
+set filtypes='text JSON'
+
+#set origdir="forced orig dir"
 
 # replace paths in miniconda3 dir
 echo "Setting up miniconda3..."
-foreach instrepldir ( $instrepldirs)
-	if ( -w "${condainstdir}/${instrepldir}" ) then
-        	foreach fil (`ls $condainstdir/$instrepldir`)
-                	set fildir=`file $condainstdir/$instrepldir/$fil | grep ASCII | awk '{print $1}' | sed 's/.$//'`
-                	if ("$fildir" != "") then
-                        	sed -i -- s,$origdir,$condainstdir,g $fildir
-                	endif
-        	end
-	else
-		echo "Warning: ${condainstdir}/${instrepldir} is not writable or does not exist, therefore skipping ${condainstdir}/${instrepldir}."
-	endif
+foreach instrepldir ( $instrepldirs )
+        if ( -d "${condainstdir}/${instrepldir}" )  then
+        if ( ! -w "${condainstdir}/${instrepldir}" ) then
+                chmod +rwx ${condainstdir}/${instrepldir}
+        endif
+                if ( -w "${condainstdir}/${instrepldir}" ) then
+                        foreach fil (`ls $condainstdir/$instrepldir`)
+                        foreach filtype ( $filtypes )
+                                set findfiltype=`file $condainstdir/$instrepldir/$fil | awk '{sub($1 FS, "")}1' | grep $filtype`
+                                if ("$findfiltype" != "") then
+					set filrepl=$condainstdir/$instrepldir/$fil
+                                        sed -i -- s,$origdir,$condainstdir,g $filrepl
+                                endif
+                        end
+                        end
+                else
+                        echo "Warning: ${condainstdir}/${instrepldir} is not writable, therefore skipping ${condainstdir}/${instrepldir}."
+		endif
+        else
+                echo "Warning: ${condainstdir}/${instrepldir} is not writable or does not exist, therefore skipping ${condainstdir}/${instrepldir}."
+        endif
 end
 
 # replace paths in environment dirs
 if ("$envdirs" != "") then
-	foreach envdir ( $envdirs )
-		echo "Setting up environment $envdir..."
-		set origcondapos=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/miniconda3/")}' | bc`
+        foreach envdir ( $envdirs )
+                echo "Setting up environment $envdir..."
+                set origcondapos=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/miniconda3/")}' | bc`
                 set origcondalen=`echo $origcondapos+10`
                 if ( $origcondapos == 0 ) then
                         set origcondapos=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/Python/")}' | bc`
                         set origcondalen=`echo $origcondapos+6`
                 endif
                 set origdir=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3, '$origcondalen')}'`
-		foreach envrepldir ( $envrepldirs )
-			if ( -w "${envrepldir}" ) then
-				foreach fil (`ls $condainstdir/envs/$envdir/$envrepldir`)
-					set fildir=`file $condainstdir/envs/$envdir/$envrepldir/$fil | grep ASCII | awk '{print $1}' | sed 's/.$//'`
-					if ("$fildir" != "") then
-						sed -i -- s,$origdir,$condainstdir,g $fildir
-					endif
-				end
-			else
-				echo "Warning: $envrepldir is not writable or does not exist, therefore skipping $envrepldir."
-			endif
-		end
-	end
+                foreach envrepldir ( $envrepldirs )
+                        if ( -d "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
+                        if ( ! -w "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
+                                chmod +rwx "${condainstdir}/envs/${envdir}/${envrepldir}"
+                        endif
+                        	if ( -w "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
+                                	foreach fil (`ls $condainstdir/envs/$envdir/$envrepldir`)
+                                	foreach filtype ( $filtypes )
+                                        	set findfiltype=`file $condainstdir/envs/$envdir/$envrepldir/$fil | awk '{sub($1 FS, "")}1' | grep $filtype`
+                                        	if ("$findfiltype" != "") then
+                                                	set filrepl=$condainstdir/envs/$envdir/$envrepldir/$fil
+                                                	sed -i -- s,$origdir,$condainstdir,g $filrepl
+                                        	endif
+                                	end
+                                	end
+                        	else
+                                	echo "Warning: $envrepldir is not writable or does not exist, therefore skipping $envrepldir."
+                        	endif
+                        else
+                                echo "Warning: $envrepldir does not exist, therefore skipping $envrepldir."
+                        endif
+                end
+        end
 endif
 
-# create Python_envs.txt file in OpendTect data directory
-if ( $#argv >= 2 ) then
-        if ( "$1" == "--odinstdir" ) then
-                echo "Creating Python_envs.txt file..."
-                set odinstdir=$2
-                if ( -w "${odinstdir}/data" ) then
-                        set fil="${odinstdir}/data/Python_envs.txt"
-                        touch $fil
-                        echo "dTect V6.4" > $fil
-                        echo "Python" >> $fil
-                        date >> $fil
-                        echo "!" >> $fil
-                        echo "File name: ${condainstdir}" >> $fil
-                        echo "!" >> $fil
-			if ( -w "${odinstdir}/v7/data" ) then
-                                cp $fil ${odinstdir}/v7/data
-                        endif
-                else
-                        echo "Warning: cannot properly setup Python environments connection with OpendTect."
-                        echo "Reason: $odinstdir/data is not writable or does not exist."
-                        echo "Will exit the setup now..."
-                        exit 1
-                endif
-        endif
-endif
