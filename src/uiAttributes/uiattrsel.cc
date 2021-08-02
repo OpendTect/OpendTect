@@ -336,6 +336,7 @@ void uiAttrSelDlg::createSelectionFields()
     storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     storoutfld_->attach( rightOf, selgrp_ );
     setPreloadIcon( storoutfld_, attrinf_->ioobjids_ );
+    storoutfld_->resizeWidthToContents();
 
     steeroutfld_ = new uiListBox( this, "Steered output" );
     steeroutfld_->addItems( attrinf_->steernms_ );

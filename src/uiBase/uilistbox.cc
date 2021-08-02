@@ -976,7 +976,7 @@ void uiListBox::setPixmap( int index, const Color& col )
     if ( index<0 || index>=size() || !lb_->body().item(index) )
 	return;
 
-    QSize sz = lb_->body().iconSize();
+    const QSize sz = lb_->body().iconSize();
     uiPixmap pm( sz.width(), sz.height() ); pm.fill( col );
     setPixmap( index, pm );
 }
@@ -1107,7 +1107,9 @@ bool uiListBox::isMarked( int idx ) const
 
 void uiListBox::setMarked( int idx, bool yn )
 {
-    if ( isMarked(idx) == yn ) return;
+    if ( isMarked(idx) == yn )
+	return;
+
     lb_->body().getItemMark( idx ) = yn;
     lb_->body().updateText( idx );
 }
@@ -1565,6 +1567,67 @@ void uiListBox::getCheckedItems( TypeSet<int>& items ) const
     for ( int idx=0; idx<this->size(); idx++ )
 	if ( isItemChecked(idx) )
 	    items += idx;
+}
+
+
+void uiListBox::resizeToContents( int minw, int maxw, int minh, int maxh )
+{
+    resizeWidthToContents( minw, maxw );
+    resizeHeightToContents( minh, maxh );
+}
+
+
+static int sMinWidth = 300;
+static int sMaxWidth = 600;
+static int sMinHeight = 150;
+static int sMaxHeight = 400;
+
+void uiListBox::resizeWidthToContents( int minw, int maxw )
+{
+    const int nritems = size();
+    if ( nritems==0 )
+	return;
+
+    if ( minw < 0 ) minw = sMinWidth;
+    if ( maxw < 0 ) maxw = sMaxWidth;
+
+    int prefwidth = minw;
+    for ( int idx=0; idx<nritems; idx++ )
+    {
+	const uiString& itmtxt = lb_->body().getItemText(idx);
+	prefwidth = mMAX( prefwidth, lb_->body().fontWidthFor(itmtxt) );
+    }
+
+    prefwidth += 30; // Seems to be necessary in all cases
+
+    if ( isMultiChoice() )
+	prefwidth += 20;
+
+    QListWidgetItem* item0 = lb_->body().item(0);
+    if ( item0 && !item0->icon().isNull() )
+	prefwidth += lb_->body().iconSize().width();
+
+    if ( prefwidth > maxw )
+	prefwidth = maxw;
+    lb_->setPrefWidth( prefwidth );
+}
+
+
+void uiListBox::resizeHeightToContents( int minh, int maxh )
+{
+    const int nritems = size();
+    if ( nritems==0 )
+	return;
+
+    if ( minh < 0 ) minh = sMinHeight;
+    if ( maxh < 0 ) maxh = sMaxHeight;
+
+    int prefheight = nritems * lb_->body().fontHeight();
+    if ( prefheight < minh )
+	prefheight = minh;
+    else if ( prefheight > maxh )
+	prefheight = maxh;
+    lb_->setPrefHeight( prefheight );
 }
 
 

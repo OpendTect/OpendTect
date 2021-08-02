@@ -242,7 +242,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     sgsu.withwriteopts( setup_.withwriteopts_ );
     sgsu.withinserters( setup_.withinserters_ );
     selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu, getTrNotAllowed() );
-    selgrp_->getListField()->setHSzPol( uiObject::WideVar );
+    selgrp_->getListField()->resizeWidthToContents();
     statusBar()->setTxtAlign( 0, Alignment::Right );
     mAttachCB( selgrp_->newStatusMsg, uiIOObjSelDlg::statusMsgCB );
 

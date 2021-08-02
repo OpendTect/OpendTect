@@ -144,6 +144,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     getRecentDataRoots( dirlist_ );
     addDataRootIfNew( dirlist_, curdatadir_ );
     updateListFld();
+    dirlistfld_->resizeToContents();
 
     uiButtonGroup* sortgrp = new uiButtonGroup( this, "", OD::Vertical );
     new uiToolButton( sortgrp, uiToolButton::UpArrow,uiStrings::sMoveUp(),

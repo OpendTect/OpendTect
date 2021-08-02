@@ -220,6 +220,11 @@ public:
 						 const CallBack& wcb )
 			{ retrievecb_ = rcb; savecb_ = wcb; }
 
+    void		resizeToContents(int minw=-1,int maxw=-1,
+					 int minh=-1,int maxh=-1);
+    void		resizeWidthToContents(int minw=-1,int maxw=-1);
+    void		resizeHeightToContents(int minh=-1,int maxh=-1);
+
 private:
 
     void		translateText();
