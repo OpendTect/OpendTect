@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 class BufferStringSet;
+class FileMultiString;
 
 
 /*!

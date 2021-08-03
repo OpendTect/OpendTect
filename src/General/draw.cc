@@ -94,7 +94,7 @@ void clss::toString( BufferString& bs ) const \
     FileMultiString fms; \
     fms = toString(type_); \
     fms += par; \
-    color_.fill( bs ); \
+    color_.fill(bs); \
     fms += FileMultiString(bs); \
     bs = fms; \
 }
