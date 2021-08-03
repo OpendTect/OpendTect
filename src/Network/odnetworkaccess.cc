@@ -354,7 +354,7 @@ od_int64 FileDownloader::getDownloadSize()
 	    return errorOccured();
 
 	od_int64 filesize = odnr_->qNetworkReply()->header
-			    ( QNetworkRequest::ContentLengthHeader ).toInt();
+	    		( QNetworkRequest::ContentLengthHeader ).toLongLong();
 	totalbytes += filesize;
 	while( !odnr_->qNetworkReply()->isFinished() )
 	    qeventloop.exec();
