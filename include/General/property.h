@@ -35,14 +35,14 @@ public:
 			Property( const char* name,
 				  const Mnemonic& mn = Mnemonic::undef() )
 			    : NamedObject(name)
-			    , lastval_(mUdf(float))
+			    , disp_( mn.disp_ )
 			    , mn_(*const_cast<Mnemonic*>(&mn))
-			    , disp_( mn.disp_ )				{}
+			    , lastval_(mUdf(float))			{}
 			Property( const Property& pr )
 			    : NamedObject(pr.name())
-			    , lastval_(pr.value())
+			    , disp_(pr.mnem().disp_)
 			    , mn_(const_cast<Mnemonic&>(pr.mnem()))
-			    , disp_(mn_.disp_)				{}
+			    , lastval_(pr.value())			{}
 
     virtual Property*	clone() const			= 0;
     static Property*	get(const IOPar&);
