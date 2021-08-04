@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup NLA NLA
+\brief Non-Linear Analysis
 
 This module handles the Non-Linear Analysis (NLA) interfaces in OpendTect.
 In order to accommodate more advanced methods than Attribute evaluation

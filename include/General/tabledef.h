@@ -50,11 +50,13 @@ public:
  Alas, for example an interval can be specified as either start/stop or
  start/width. Then you'd have to specify:
 
+ <pre>
  Table::TargetInfo sampinfspec( "Sampling info", form, Table::Required,
 				PropertyRef::surveyZType() );
  TargetInfo::Form* form = new TargetInfo::Form( "Start/Stop", FloatInpSpec() );
  form->add( FloatInpSpec() );
  sampinfspec.add( form->duplicate( "Start/Width" ) );
+ </pre>
 
 */
 
@@ -88,7 +90,6 @@ public:
 
 
 			TargetInfo( const char* nm, ReqSpec rs=Optional )
-					//!< Single string
 			    : NamedObject(nm), req_(rs)
 			    , proptype_(PropertyRef::Other)
 				{ add( nm ); }

@@ -3,14 +3,16 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
- Date:		September 2012
- SVN:		$Id$
+ Date:		Aug 2021
 ________________________________________________________________________
 
 -*/
 
 
 /*!
-\defgroup EMAttrib EMAttrib
-\brief Classes which need access to both EarthModel and Attributes
+\defgroup CRS CRS
+\brief Coordinate Reference %System
+
+\namespace Coords
+For classes dealing with Coordinate Reference %System
 */

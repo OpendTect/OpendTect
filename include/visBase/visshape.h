@@ -86,7 +86,7 @@ mExpClass(visBase) VertexShape : public Shape
 
 public:
     
-    static VertexShape*	create()
+    static VertexShape* create()
 			mCreateDataObj(VertexShape);
 
     void		setPrimitiveType(Geometry::PrimitiveSet::PrimitiveType);
@@ -97,7 +97,7 @@ public:
 
     virtual  void	  setCoordinates(Coordinates* coords);
     virtual  Coordinates* getCoordinates() { return coords_; }
-    virtual  const Coordinates*	  getCoordinates() const { return coords_; }
+    virtual  const Coordinates*   getCoordinates() const { return coords_; }
     virtual  void	  setLineStyle(const OD::LineStyle&){};
 
     void		removeSwitch();
@@ -107,11 +107,11 @@ public:
 			 effect. */
 
     virtual void	setDisplayTransformation( const mVisTrans* );
-    			/*!<\note The transformation is forwarded to the
+			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates, 
-			     you will have to setTransformation again.  */
+			     you will have to setTransformation again.	*/
     const mVisTrans*	getDisplayTransformation() const;
-    			/*!<\note Direcly relayed to the coordinates */
+			/*!<\note Direcly relayed to the coordinates */
     
     void		dirtyCoordinates();
 
@@ -138,9 +138,10 @@ public:
     int			getNormalBindType();
     void		setNormalBindType(BindType);
     void		updatePartialGeometry(Interval<int>);
-    void		useVertexBufferRender(bool);
-			/*!<\true, osg use vertex buffer to render and ignore
-			    displaylist false, osg use display list to render.*/
+    void		useVertexBufferRender(bool yn);
+			/*!<If yn=true, osg use vertex buffer to render and
+			    ignore displaylist false, osg use display list to
+			    render.*/
 
     void		setTextureChannels(TextureChannels*);
     const unsigned char*  getTextureData(int&,int&,int&) const;
@@ -148,9 +149,9 @@ public:
     void		setAttribAndMode(osg::StateAttribute*);
 
 protected:
-    			VertexShape( Geometry::PrimitiveSet::PrimitiveType,
+			VertexShape( Geometry::PrimitiveSet::PrimitiveType,
 				     bool creategeode );
-    			~VertexShape();
+			~VertexShape();
     
     void		setupOsgNode();
 
@@ -158,7 +159,7 @@ protected:
     virtual void	removePrimitiveSetFromScene(const osg::PrimitiveSet*);
 
     void		setUpdateVar(bool& var,bool yn);
-			//! Will trigger redraw request if necessary
+			//!<Will trigger redraw request if necessary
 
     bool		needstextureupdate_;	// Only set via setUpdateVar(.)
 
@@ -185,7 +186,7 @@ protected:
 
     Geometry::PrimitiveSet::PrimitiveType	primitivetype_;
 
-    Threads::Lock 				lock_;
+    Threads::Lock				lock_;
 						/*!<lock protects primitiveset
 						and osg color array*/
     ObjectSet<Geometry::PrimitiveSet>		primitivesets_;

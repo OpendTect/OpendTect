@@ -12,5 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiViewer2D uiViewer2D
-
+\brief OpendTect's 2D Viewer
 */

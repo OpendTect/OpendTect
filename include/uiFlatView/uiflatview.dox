@@ -12,5 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiFlatView uiFlatView
-
+\brief 2D viewer classes
 */

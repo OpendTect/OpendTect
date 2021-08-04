@@ -29,6 +29,7 @@ public:
     void		setUnitFrom(od_uint64 number,bool maximum=true);
 			/*!<Sets the unit (B, KB, MB, GB, TB) based on the
 			 number.
+			 \param number
 			 \param maximum will only change unit if a larger
 			 unit is needed.
 			 */

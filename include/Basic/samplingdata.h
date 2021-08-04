@@ -34,9 +34,11 @@ public:
     template <class FT> inline float	getfIndex(FT) const;
     template <class FT> inline int	nrSteps(FT) const;
     template <class FT> inline int	nearestIndex(FT) const;
-    template <class FT> inline int	indexOnOrAfter(FT,
+    template <class FT> inline int	indexOnOrAfter(FT x,
 						    float eps=mDefEps ) const;
-					//!\param eps is in number of samples.
+					/*!<
+					\param x get index for value x
+					\param eps is in number of samples. */
     template <class IT> inline T	atIndex(IT) const;
     template <class FT> inline T	snap(FT) const;
 

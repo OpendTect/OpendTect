@@ -81,7 +81,7 @@ Here are some commonly used functions to judge the position relation between
 point and line, point and triangle, point and circle or sphere.
 */
 
-/*Calculate a 3x3 matrix's determinent given by v[0]-v[8] with 9 elements. */
+/*!Calculate a 3x3 matrix's determinent given by v[0]-v[8] with 9 elements. */
 inline double determinent33( const double* v )
 {
     return v[0]*(v[4]*v[8]-v[5]*v[7])+v[1]*(v[5]*v[6]-v[3]*v[8])+
@@ -89,7 +89,7 @@ inline double determinent33( const double* v )
 }
 
 
-/*Calculate a 4x4 matrix's determinent given by rows r0, r1, r2, r3 with the
+/*!Calculate a 4x4 matrix's determinent given by rows r0, r1, r2, r3 with the
   last column 1, 1, 1, 1. */
 inline double determinent44( const Coord3& r0, const Coord3& r1,
 		             const Coord3& r2, const Coord3& r3 )
@@ -102,7 +102,7 @@ inline double determinent44( const Coord3& r0, const Coord3& r1,
 	   r0.z*determinent33( d2 )-determinent33( d3 );
 }
 
-/*!<Each ri represents a row of 4 elements. */
+/*!Each ri represents a row of 4 elements. */
 inline double determinent44( const double* r0, const double* r1,
 			     const double* r2, const double* r3 )
 {
@@ -118,7 +118,7 @@ inline double determinent44( const double* r0, const double* r1,
 	   r0[2]*determinent33( d2 )-r0[3]*determinent33( d3 );
 }
 
-/*!<Check the point pt is inside the circumcircle of p1, p2, p3 or not. */
+/*!Check the point pt is inside the circumcircle of p1, p2, p3 or not. */
 inline bool isInsideCircle( const Coord& pt,
 			    const Coord& p1, const Coord& p2, const Coord& p3 )
 {
@@ -135,7 +135,7 @@ inline bool isInsideCircle( const Coord& pt,
 }
 
 
-/*!<Check the point p is inside the circumsphere of a, b, c, d or not. */
+/*!Check the point p is inside the circumsphere of a, b, c, d or not. */
 inline bool isInsideCircumSphere( const Coord3& p, const Coord3& a,
 	const Coord3& b, const Coord3& c, const Coord3& d )
 {
@@ -172,7 +172,7 @@ inline bool sameSide2D( const Coord& p1, const Coord& p2,
 }
 
 
-/*!<Only when four points are coplanar. */
+/*! Only when four points are coplanar. */
 inline bool sameSide3D( const Coord3& p1, const Coord3& p2,
 			const Coord3& a, const Coord3& b, double epsilon )
 {
@@ -182,7 +182,7 @@ inline bool sameSide3D( const Coord3& p1, const Coord3& p2,
 }
 
 
-/*!<Use this function only when the 4 points are all in a plane. */
+/*!Use this function only when the 4 points are all in a plane. */
 inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b,
 			       const Coord& c, double epsilon )
 {
@@ -195,7 +195,7 @@ inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b,
 }
 
 
-/*!<Only when four points are coplanar. */
+/*!Only when four points are coplanar. */
 inline bool pointInTriangle3D( const Coord3& p, const Coord3& a,
 			const Coord3& b, const Coord3& c, double epsilon,
 			bool useangularmethod )
@@ -222,13 +222,13 @@ inline bool pointInTriangle3D( const Coord3& p, const Coord3& a,
 }
 
 
-/*!<Only when four points are coplanar. */
+/*!Only when four points are coplanar. */
 inline bool pointInTriangle3D( const Coord3& p, const Coord3& a,
 			const Coord3& b, const Coord3& c, double epsilon )
 { return pointInTriangle3D( p, a, b, c, epsilon, false ); }
 
 
-/*!< Check to see if the point P is on the edge AB or not.*/
+/*! Check to see if the point P is on the edge AB or not.*/
 inline bool pointOnEdge2D( const Coord& p, const Coord& a, const Coord& b,
 			   double epsilon )
 {
@@ -258,7 +258,7 @@ inline bool pointOnEdge3D( const Coord3& p, const Coord3& a, const Coord3& b,
 }
 
 
-/*!<For point and polygon lie on the same plane only. In 2D case, set all zs'
+/*! For point and polygon lie on the same plane only. In 2D case, set all zs'
     to be 0, we also consider the case that the point is exactly on a vertex as
     inside. Use the check that all the angle sum should be 2 Pi. */
 inline bool pointInPolygon( const Coord3& pt, const TypeSet<Coord3>& plgknots,
@@ -485,21 +485,24 @@ mExpClass(Algo) Plane3
 public:
 			Plane3();
 			Plane3(double, double, double, double);
-			Plane3( const Coord3& vectors, const Coord3&,
+			Plane3(const Coord3& vec1,const Coord3&,
 				bool twovectors );
-			/*!<\param twovectors	Specifies if the second argument
+			/*!<
+			  \param vec1		First vector
+			  \param twovectors	Specifies if the second argument
 						is a vector or a position
 			*/
-			Plane3( const Coord3&, const Coord3&, const Coord3& );
-			Plane3( const TypeSet<Coord3>& );
+			Plane3(const Coord3&,const Coord3&,const Coord3&);
+			Plane3(const TypeSet<Coord3>&);
 
-    void		set( const Coord3& vector, const Coord3&,
-			     bool twovectors );
-			/*!<\param twovectors	Specifies if the second argument
+    void		set(const Coord3& vec1,const Coord3&,bool twovectors);
+			/*!<
+			  \param vec1		First vector
+			  \param twovectors	Specifies if the second argument
 						is a vector or a position
 			*/
-    void		set( const Coord3&, const Coord3&, const Coord3& );
-    float		set( const TypeSet<Coord3>& );
+    void		set(const Coord3&,const Coord3&,const Coord3&);
+    float		set(const TypeSet<Coord3>&);
 			/*!< \returns	a value between 0-1 that indicates how
 					well the points fit to a plane.
 					1 = perfect fit 0 = no fit

@@ -379,6 +379,7 @@ public:
 			 to be released after it is used. For convenience use
 			 ConstDataPackRef which releases the DataPack in its
 			 destructor.
+			 \param wva if true, wiggle, else variable density
 			 \param checkother if true, the datapack of other
 			 display (i.e. variable density or wiggles) is returned
 			 if the specified display has no datapack. */
@@ -391,8 +392,8 @@ public:
     virtual bool	isVertical() const		{ return true; }
     bool		isVisible(bool wva) const;
     void		setVisible(bool wva, bool visibility);
-			//!< Will also handleChange.
-			//!< So, do not use unless you want both.
+			/*!< Will also handleChange.
+			So, do not use unless you want both.*/
 
     Coord3		getCoord(const Point&) const;
 

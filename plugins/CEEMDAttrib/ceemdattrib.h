@@ -11,7 +11,7 @@
 #include "mathfunc.h"
 #include "commondefs.h"
 
-/*!\CEEMD Attributes
+/*!%CEEMD Attributes
 
 Input:
 0		Data

@@ -106,7 +106,7 @@ template <class T> class ConstRefMan;
 
 */
 
-//!\cond
+
 namespace RefCount
 {
 class WeakPtrBase;

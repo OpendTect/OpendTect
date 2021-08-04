@@ -32,10 +32,12 @@ namespace std
 
   Usage like:
 
+<pre>
   std::winfilebuf fb;
   std::istream strm( &fb );
+</pre>
 
-  After C:\Program Files (x86)\Microsoft Visual Studio 8\VC\include\fstream
+  After "C:\Program Files (x86)\Microsoft Visual Studio 8\VC\include\fstream"
   Only change is: fseek -> _fseeki64
 */
 

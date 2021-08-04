@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          10-12-1999
- RCS:           $Id$
+ Author:	Kristofer Tingdahl
+ Date:		10-12-1999
+ RCS:		$Id$
 ________________________________________________________________________
 
 
@@ -43,7 +43,7 @@ public:
     void		setScope(int nr,int batchsampling);
 			/*!<\param nr number of signals
 			    \param batchsampling number of samples between
-			    	   signal starts. */
+				   signal starts. */
     void		setScope(int nr,const int* batchstarts);
 			/*!<\param nr number of signals
 			    \param batchstarts pointer to array with the indices
@@ -51,9 +51,9 @@ public:
 
     bool		setDir(bool forward);
     bool		getDir() const	{ return forward_; }
-    			//true for forward
+			//true for forward
     bool		run(bool parallel);
-    			//SequentialTask::execute can be used as well
+			//SequentialTask::execute can be used as well
 
 			~GenericTransformND();
 protected:
@@ -93,12 +93,12 @@ protected:
 
 	void		setSize(int);
 	void		setDir(bool forward);
-	void		setSampling(int);
+	void		setSampling(int samplespacing);
 			//!<\param samplespacing sampling within a signal.
 	void		setScope(int nr,int batchsampling);
 			/*!<\param nr number of signals
 			    \param batchsampling number of samples between
-			    	   signal starts. */
+				   signal starts. */
 	void		setScope(int nr,const int* batchstarts);
 			/*!<\param nr number of signals
 			    \param batchstarts pointer to array with the indices
@@ -109,7 +109,7 @@ protected:
 
     protected:
 				
-    				Transform1D();
+				Transform1D();
 
 	int			sz_;
 	bool			forward_;

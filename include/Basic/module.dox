@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup Basic Basic
-\section Introduction
+\section basic_intro Introduction
 
   This module handles all things that are so basic to all other modules that
   they can be seen as a layer of common services to the entire system. One of
@@ -30,7 +30,7 @@ ________________________________________________________________________
   objects that do selected things in a way that fits our system.
 
 
-  \section Content Content
+  \section basic_content Content
 
   We'll just name a few groups of services. There are many more isolated
   useful objects, defines, functions and so forth.

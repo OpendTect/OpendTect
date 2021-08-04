@@ -62,9 +62,11 @@ public:
 			/*!<Blends image with another image of same size.
 			The provided images' transparency will be used to
 			blend the two images proportionally.
+			\param sourceimage
 			\param blendtransparency if true, the color will be
 			blended by source image's color if the transparency
 			equal to the param blendtransparencyval.
+			\param blendtransparencyval
 			\param blendequaltransparency if false,the color
 			will be not blended when sourceimage has same
 			transparency as this image has.

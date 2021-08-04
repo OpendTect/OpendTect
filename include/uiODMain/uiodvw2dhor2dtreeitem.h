@@ -95,7 +95,7 @@ protected:
     bool		trackerefed_;
 
     void		renameVisObj();
-			/*!<\don't use it. only for keep ABI.*/
+			/*!<Don't use it. only for keep ABI.*/
 
 };
 

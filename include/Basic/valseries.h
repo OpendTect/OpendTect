@@ -213,8 +213,8 @@ public:
 		    , nriterations_( nriterations )
 		{}
 
-od_int64	nrIterations() const { return nriterations_; }
-bool		doWork( od_int64 start, od_int64 stop, int )
+    od_int64	nrIterations() const { return nriterations_; }
+    bool	doWork( od_int64 start, od_int64 stop, int )
 		{
 		    od_int64 nrleft = stop-start+1;
 		    const T* fromarr = from_.arr();

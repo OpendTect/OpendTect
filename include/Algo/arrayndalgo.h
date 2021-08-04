@@ -1112,11 +1112,14 @@ public:
 
     Order			getOrder() const	{ return order_; }
 
-    template <class T> void	apply(const Coord& pos,bool dir,T&) const;
+    template <class T> void	apply(const Coord& pos,bool dir,T& val) const;
 				/*!<Applies the trend to a value tied to
-				    a position */
-				/*!<\param dir: true for detrend,
-						false for restore */
+				    a position
+				    \param pos
+				    \param dir true for detrend,
+						false for restore
+				    \param val result after apply
+				 */
 
 protected:
 

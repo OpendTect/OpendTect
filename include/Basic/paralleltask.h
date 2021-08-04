@@ -127,7 +127,9 @@ private:
 			    will be called with all intervals from 0 to
 			    ParallelTask::nrIterations()-1. The function must
 			    be designed to be able to run in parallel.
-			    \param threadid gives an identifier (between 0 and
+			    \param start first index
+			    \param stop last index
+			    \param threadidx gives an identifier (between 0 and
 				   nr of threads -1) that is unique to each call
 				   to doWork. */
     virtual bool	doPrepare(int nrthreads)	{ return true; }

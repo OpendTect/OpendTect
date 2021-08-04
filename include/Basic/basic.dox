@@ -4,7 +4,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		September 2012
- SVN:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -12,5 +11,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup Basic Basic
-Basic, general purpose utilities.
+\brief Basic purpose utilities.
 */

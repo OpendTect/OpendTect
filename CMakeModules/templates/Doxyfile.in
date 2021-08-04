@@ -293,6 +293,11 @@ WARN_IF_UNDOCUMENTED   = YES
 # tags, which will be replaced by the file and line number from which the 
 # warning originated and the warning text.
 
+WARN_IF_INCOMPLETE_DOC = NO
+# If WARN_IF_INCOMPLETE_DOC is set to YES, doxygen will warn about
+# incomplete function parameter documentation. If set to NO, doxygen will
+# accept that some parameters have no documentation without warning.
+
 WARN_FORMAT            = "$file:$line: $text"
 
 # The WARN_LOGFILE tag can be used to specify a file to which warning 
@@ -673,10 +678,30 @@ INCLUDE_FILE_PATTERNS  =
 # omitted =1 is assumed.
 
 PREDEFINED	       = __doxygen__= \
+    DOXYGEN_SHOULD_SKIP_THIS \
     "mExpClass(mod)=/*!\ingroup mod */ class"\
     "mClass(mod)=/*!\ingroup mod */ class"\
-    "mStruct=struct"\
+    "mStruct(mod)= struct"\
     "mGlobal(mod)="\
+    "mExtern(mod)="\
+    "mDeprecated(msg)=[[deprecated(msg)]]"\
+    "mODTextTranslationClass(mod)="\
+    "isTranslator(spec,clss)="\
+    "isTranslatorGroup(spec)="\
+    "defineTranslator(spec,clss,key)="\
+    "defineTranslatorGroup(clss,nm)="\
+    "mDefEmptyTranslatorBaseConstructor(cls)="\
+    "mDefEmptyTranslatorConstructor(spec,cls)="\
+    "mDefaultFactoryInstantiation(base,sub,nm,uinm)="\
+    "mDefineFactory1ParamInClass(fn,key,fact)="\
+    "mDefineFactoryInClass(clss,fact)="\
+    "mRefCountImpl(clss)="\
+    "mRefCountImplNoDestructor(clss)="\
+    "mQtclass(clss)= clss"\
+    "mFDQtclass(clss)= clss"\
+    "mDeclareEnumUtils(tp)="\
+    "mDefSetupMemb(tp,mem)=tp mem;"\
+    "mGenImplMonitorableAssignment(templ,clss,clss2)="\
     "mSoODClass=/*!\ingroup SoOD */ class"\
     "mProtected=protected"\
     "mPolyRet(base,clss)= clss"\
@@ -759,14 +784,14 @@ TEMPLATE_RELATIONS     = YES
 # file showing the direct and indirect include dependencies of the file with 
 # other documented files.
 
-INCLUDE_GRAPH          = YES
+INCLUDE_GRAPH          = NO
 
 # If the ENABLE_PREPROCESSING, SEARCH_INCLUDES, INCLUDED_BY_GRAPH, and 
 # HAVE_DOT tags are set to YES then doxygen will generate a graph for each 
 # documented header file showing the documented files that directly or 
 # indirectly include this file.
 
-INCLUDED_BY_GRAPH      = YES
+INCLUDED_BY_GRAPH      = NO
 
 # If the GRAPHICAL_HIERARCHY and HAVE_DOT tags are set to YES then doxygen 
 # will graphical hierarchy of all classes instead of a textual one.

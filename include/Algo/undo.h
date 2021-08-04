@@ -55,7 +55,8 @@ public:
     int				addEvent(UndoEvent* event,
 	    				 const char* description=0);
     				/*!<\param event The new event (becomes mine).
-				    \return the event id. */
+				  \param description
+				  \return the event id. */
     int				currentEventID() const;
     int				firstEventID() const;
     int				lastEventID() const;
