@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup Seis Seis
+\brief This module contains classes related to handling of Seismic data
 
 Seismic data is sampled data along a vertical axis. Many 'traces' will usually
 occupy a volume (3D seismics) or separate lines (2D data).

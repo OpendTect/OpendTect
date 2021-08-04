@@ -12,7 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup Network Network
-
-  This module contains all Network related classes.
-
+\brief This module contains all %network related classes.
 */

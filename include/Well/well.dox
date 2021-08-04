@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup Well Well
+\brief All %Well related classes
 
   The OpendTect Well object is a single track, logs and markers bearing thing
   with some global data and possibly a Depth vs %Time model attached.

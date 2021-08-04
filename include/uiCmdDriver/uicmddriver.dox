@@ -12,5 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiCmdDriver uiCmdDriver
-
+\brief User interface for the Command Driver
 */

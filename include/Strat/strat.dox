@@ -12,8 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup Strat Strat
-
-Stratigraphy
+\brief Stratigraphy
 
 This module supports hierarchical naming of units, with supporting tools like
 lithology selection.

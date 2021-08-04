@@ -12,5 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup AttributeEngine AttributeEngine
-
+\brief Manages attribute computations
 */

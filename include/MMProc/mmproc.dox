@@ -12,6 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup MMProc MMProc
-
-  Multi Machine Processing
+\brief This module contains Multi Machine Processing classes
 */

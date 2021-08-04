@@ -12,5 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup Velocity Velocity
-
+\brief This module contains Velocity functions
 */

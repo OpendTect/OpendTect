@@ -11,6 +11,6 @@ ________________________________________________________________________
 
 
 /*!
-\defgroup Prog Prog
-
+\defgroup Batch Batch
+\brief Core tools for batch processing
 */

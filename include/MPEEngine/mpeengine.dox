@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup MPEEngine MPEEngine
+\brief This module contains horizon and fault tracking classes
 
   MPE stands for Model, Predict, Edit and is where all tracking and editing
   functions are located. The functionality is managed by the MPEEngine, and
