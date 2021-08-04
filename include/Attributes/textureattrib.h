@@ -14,6 +14,9 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "arraynd.h"
 
+namespace Attrib
+{
+
 /*!
 \brief %Texture Attribute
 Texture Attribute definitions from
@@ -27,9 +30,6 @@ Outputs:
 0               Texture attributes
 </pre>
 */
-
-namespace Attrib
-{
 
 mClass(TextureAttrib) Texture : public Provider
 { mODTextTranslationClass(Texture);

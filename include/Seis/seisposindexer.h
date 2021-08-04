@@ -60,7 +60,9 @@ public:
 
 				PosIndexer(const PosKeyList&,bool doindex,
 					   bool excludeunreasonable);
-				/*!<\param excludeunreasonable enables rejection
+				/*!<
+				  \param doindex
+				  \param excludeunreasonable enables rejection
 					   of traces far outside survey. */
     virtual			~PosIndexer();
 

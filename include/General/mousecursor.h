@@ -27,38 +27,34 @@ public:
     virtual		~MouseCursor();
 		    /*! This enum type defines the various cursors that can be
 		        used.
-
-			\value Arrow		standard arrow cursor
-			\value UpArrow		upwards arrow
-			\value Cross		crosshair
-			\value Wait		hourglass/watch
-			\value Ibeam		ibeam/text entry
-			\value SizeVer		vertical resize
-			\value SizeHor 		horizontal resize
-			\value SizeFDiag	diagonal resize (\)
-			\value SizeBDiag	diagonal resize (/)
-			\value SizeAll		all directions resize
-			\value Blank		blank/invisible cursor
-			\value SplitV		vertical splitting
-			\value SplitH		horizontal splitting
-			\value PointingHand	a pointing hand
-			\value Forbidden	a slashed circle
-			\value WhatsThis	an arrow with a question mark
-			\value Busy		hourglass/watch
-			\value OpenHand		an open hand
-			\value ClosedHand	a closed hand
-			\value Bitmap
-			\value NotSet
-
 			Arrow is the default for widgets in a normal state.
 		    */
-    enum Shape		{ Arrow, UpArrow, Cross, Wait, Ibeam,
-			  SizeVer, SizeHor, SizeBDiag, SizeFDiag, SizeAll,
-			  Blank, SplitV, SplitH, PointingHand, Forbidden,
-			  WhatsThis, Busy, OpenHand, ClosedHand,
-			  Last = ClosedHand, Bitmap = 24, NotSet,
-			  //Custom cursors
-			  GreenArrow, Rotator, Pencil
+    enum Shape		{
+			  Arrow,	//!<standard arrow cursor
+			  UpArrow,	//!<upwards arrow
+			  Cross,	//!<crosshair
+			  Wait,		//!<hourglass/watch
+			  Ibeam,	//!<ibeam/text entry
+			  SizeVer,	//!<vertical resize
+			  SizeHor,	//!<horizontal resize
+			  SizeBDiag,	//!<diagonal resize (\)
+			  SizeFDiag,	//!<diagonal resize (/)
+			  SizeAll,	//!<all directions resize
+			  Blank,	//!<blank/invisible cursor
+			  SplitV,	//!<vertical splitting
+			  SplitH,	//!<horizontal splitting
+			  PointingHand, //!<a pointing hand
+			  Forbidden,	//!<a slashed circle
+			  WhatsThis,	//!<an arrow with a question mark
+			  Busy,		//!<hourglass/watch
+			  OpenHand,	//!<an open hand
+			  ClosedHand,	//!<a closed hand
+			  Last = ClosedHand,	//!<
+			  Bitmap = 24,	//!<
+			  NotSet,	//!<
+			  GreenArrow,	//!<Custom cursor
+			  Rotator,	//!<Custom cursor
+			  Pencil	//!<Custom cursor
 			};
 
     			MouseCursor();

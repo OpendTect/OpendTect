@@ -88,7 +88,7 @@ public:
     virtual const char*		dirName() const		{ return dirnm_; }
 				//!< The directory ame within the tree
     virtual IOPar&		pars() const			{ return pars_;}
-				//!< These are the extra parameters: #xxx: yyy
+				//!< These are the extra parameters: "#xxx: yyy"
 				//!< in .omf
     void			updateCreationPars() const;
 

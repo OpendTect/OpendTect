@@ -203,7 +203,9 @@ public:
 
     bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0,
 				 const Coord3& = Coord3::udf());
-			/*!<\param menutype Please refer to \ref
+			/*!<
+			  \param id
+			  \param menutype Please refer to \ref
 				uiMenuHandler::executeMenu for a detailed
 				description.
 			*/

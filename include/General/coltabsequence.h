@@ -83,8 +83,9 @@ public:
     void		changeColor(int,
 				    unsigned char,unsigned char,unsigned char);
     void		changePos(int,float);
-    int			setColor(float pos, //!< Insert or change
+    int			setColor(float pos,
 				 unsigned char,unsigned char,unsigned char);
+			//!<Inserts or changes color
     void		removeColor(int);
     void		removeAllColors();
     void		flipColor();

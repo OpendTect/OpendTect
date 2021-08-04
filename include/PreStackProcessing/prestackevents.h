@@ -136,12 +136,13 @@ public:
     Executor*			setStorageID(const MultiID& mid,
 					     bool reload );
 				/*!<Sets the storage id.
-				    \param reload if true,
+				  \param mid Database Object key
+				  \param reload if true,
 					all data will be removed, forceReload
 					will trigger, and data at the reload
 					positions will be loaded from the new
 					data.
-				    Note that no data on disk is
+				   \note Note that no data on disk is
 				    changed/duplicated. That can be done with
 				    the translator. */
     const MultiID&		getStorageID() const;

@@ -104,14 +104,14 @@ public:
 			//!< The composite key where int will be --> string
     static const char*	compKey( const char* ky1, const OD::String& ky2 )
 			{ return compKey(ky1,ky2.str()); }
-    IOPar*		subselect(const char*) const;
-			//!< returns iopar with key that start with <str>.
+    IOPar*		subselect(const char* str) const;
+			//!< returns iopar with key that start with str.
     IOPar*		subselect(int) const;
 			//!< returns iopar with key that start with number.
     IOPar*		subselect( const OD::String& fs ) const
 			{ return subselect( fs.str() ); }
-    void		removeSubSelection(const char*);
-			//!< removes with key that start with <str>.
+    void		removeSubSelection(const char* str);
+			//!< removes with key that start with str.
     void		removeSubSelection(int);
 			//!< removes with key that start with number.
     void		removeSubSelection( const OD::String& fs )
@@ -208,7 +208,7 @@ public:
 			{ add( ky, val.str() ); }
     void		addVal(const char* ky,const char* valtoadd);
     			/*!< Append valtoadd to existing vals:
-			     ky: <existing vals>`valtoadd */
+			     ky: \<existing vals\>`valtoadd */
     void		update(const char* ky,const char* val);
 			/*!< removes if val is empty or null */
 

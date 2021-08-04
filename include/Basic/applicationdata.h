@@ -20,10 +20,12 @@ mFDQtclass(QCoreApplication);
 class QEventLoopReceiver;
 
 
-/*!Wrapper class around the QCoreApplicaiton, which provides an event-loop
-   for console applications. It can also be used in GUI program as an
-   access-point (adding events and telling it to quit) to QApplication (which
-   has to be created before creating the ApplicationData.
+/*!
+\brief Wrapper class around the QCoreApplicaiton.
+
+   Provides an event-loop for console applications. It can also be used in GUI
+   program as an access-point (adding events and telling it to quit) to
+   QApplication (which has to be created before creating the ApplicationData.
 */
 
 mExpClass(Basic) ApplicationData : public CallBacker
@@ -56,5 +58,3 @@ protected:
     mQtclass(QCoreApplication)* application_ = nullptr;
 
 };
-
-

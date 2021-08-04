@@ -24,9 +24,9 @@ mExpClass(uiTools) uiGenInputDlgEntry
 public:
 			uiGenInputDlgEntry( const uiString& t,
 					    DataInpSpec* s )
-			    //!< DataInpSpec becomes mine
 			    : txt(t), spec(s?s:new StringInpSpec)
 			    , allowundef(false)			{}
+			    // DataInpSpec becomes mine
 			~uiGenInputDlgEntry()			{ delete spec; }
 
     uiString		txt;

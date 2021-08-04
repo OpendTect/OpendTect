@@ -6,7 +6,7 @@
 -*/
 
 
-/*!\CEEMD Test Trace Data
+/*!CEEMD Test Trace Data
 
 Synthetic data courtesy Jianjun Hun and Mirko van der Baan, University of
 Alberta. Signal is comprised of initial 20Hz cosine wave, superposed 100Hz

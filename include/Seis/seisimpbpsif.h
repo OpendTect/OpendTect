@@ -32,19 +32,19 @@ class SeisPSImpDataMgr;
    data specific for the shot, then the data per receiver (group) follows.
  * Mandatory data for each shot is number, X and Y. For receivers: X and Y.
 
-  The header needs to define the 'attributes' with '#Value.' lines. Example:
+  The header needs to define the 'attributes' with "#Value." lines. Example:
 
-#Value.1.0: SHOT NUMBER
-#Value.1.1: SOURCE X
-#value.1.2: SOURCE Y
-#Value.1.3: SOURCE ATTRIBUTE-1 = SOURCE PRESSURE (PSI)
-#Value.1.4: SOURCE ATTRIBUTE-2 = SPEED THROUGH WATER (KNOTS)
-
-#Value.2.1: STREAMER-1 NEAR RECEIVER X
-#Value.2.2: STREAMER-1 NEAR RECEIVER Y
-#Value.2.3: RECEIVER ATTRIBUTE-1 = STREAMER-1 NEAR RECEIVER DEPTH (METRES)
-#Value.2.4: RECEIVER ATTRIBUTE-2 = STREAMER-1 NEAR RECEIVER AMBIENT RMS NOISE
-
+\c \#Value.1.0: SHOT NUMBER \n
+\c \#Value.1.1: SOURCE X \n
+\c \#Value.1.2: SOURCE Y \n
+\c \#Value.1.3: SOURCE ATTRIBUTE-1 = SOURCE PRESSURE (PSI) \n
+\c \#Value.1.4: SOURCE ATTRIBUTE-2 = SPEED THROUGH WATER (KNOTS) \n
+ \n
+\c \#Value.2.1: STREAMER-1 NEAR RECEIVER X \n
+\c \#Value.2.2: STREAMER-1 NEAR RECEIVER Y \n
+\c \#Value.2.3: RECEIVER ATTRIBUTE-1 = STREAMER-1 NEAR RECEIVER DEPTH (METRES) \n
+\c \#Value.2.4: RECEIVER ATTRIBUTE-2 = STREAMER-1 NEAR RECEIVER AMBIENT RMS NOISE \n
+\n
 Typically, lines will be extremely long. The number of values per line is:
 3 + nr_opt_shot_attribs + N * (2 + nr_opt_rcv_attribs).
 

@@ -248,10 +248,6 @@ public:
 					  const char* filetype,
 					  const EM::Surface& surface,
 					  bool binary );
-			dgbSurfaceWriter( const char* fulluserexpr,
-					  const char* filetype,
-					  const EM::Surface& surface,
-					  bool binary );
 			/*!< Sets up object, but does not touch file (that's
 			     done in nextStep() )
 			\param ioobj	The IOObj with info about where to
@@ -260,7 +256,12 @@ public:
 					the file header.
 			\param surface	The surface that should be written with
 					data.
+			\param binary	If true, writes in binary, else in ascii
 			*/
+			dgbSurfaceWriter( const char* fulluserexpr,
+					  const char* filetype,
+					  const EM::Surface& surface,
+					  bool binary );
 			~dgbSurfaceWriter();
 			/*!< Closes the stream */
 

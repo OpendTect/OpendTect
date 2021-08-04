@@ -25,9 +25,9 @@ namespace Attrib
   %Convolve convolves a signal with the on the command-line specified signal.
 
 <pre>
-  Convolve [kernel=LowPass|Laplacian|Prewitt] [shape=Sphere] [size=3]
+  Convolve [kernel=LowPass|Laplacian|Prewitt] [shape=%Sphere] [size=3]
 
-  Kernel:         Uses Shape      Uses Size       Desc
+  %Kernel:         Uses Shape      Uses Size       Description
 
   LowPass         Yes             Yes             A basic averaging kernel.
   Laplacian       Yes             Yes             A laplacian kernel(signal-avg)
@@ -39,11 +39,10 @@ namespace Attrib
   0       Signal to be convolved.
 
   Outputs:
-  0       Sum of the convolution with all kernels / N
+  0       Sum of the convolution with all kernels divided by N
   1       Subkernel 1
-  .
-  .
-  .
+  2	  Subkernel 2
+  .	  ...
   N	  Subkernel N
 </pre>
 */
@@ -61,10 +60,10 @@ public:
     static const char*		sizeStr()		{ return "size"; }
     static const char*		waveletStr()		{ return "waveletid"; }
     static const char*		kernelTypeStr(int);
-    static const char*	shapeTypeStr(int);
+    static const char*		shapeTypeStr(int);
 
-    static const float	prewitt[];
-    static const float	prewitt2D[];
+    static const float		prewitt[];
+    static const float		prewitt2D[];
 
     virtual bool		isSingleTrace() const;
     virtual void		prepPriorToBoundsCalc();
@@ -126,6 +125,4 @@ protected:
     Kernel*			kernel_;
 };
 
-}; // namespace Attrib
-
-
+} // namespace Attrib

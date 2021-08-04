@@ -57,15 +57,16 @@ public:
     CNotifier<Element,const TypeSet<GeomPosID>*>	movementnotifier;
     CNotifier<Element,const TypeSet<GeomPosID>*>	nrpositionnotifier;
 
-    void			blockCallBacks(bool yn,bool flush=true);
     				/*!Block callbacks until further notice.
 				   If blocked, lists of added/changed positions
 				   will accumulate changes, so they can be
 				   flushed when the block is turned off.
+				   \param yn
 				   \param flush specifies whether a callback
 					  with all accumulated changes will
 					  be triggered.
 				*/
+    void			blockCallBacks(bool yn,bool flush=true);
     bool			blocksCallBacks() const { return blockcbs_; }
 
 protected:

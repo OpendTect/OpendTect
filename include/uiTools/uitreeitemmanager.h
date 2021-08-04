@@ -91,11 +91,11 @@ public:
 				    (i.e. the child's parentType() is not
 				    the same as this), it will try to find
 				    a valid parent somewhere else in the tree.
+				    \param child becomes mine
 				    \param below specifies wether the child
 				    shoule be added above or below eventual
 				    existing siblings.
-				    \note child becomes mine regardless of
-					  return value.  */
+				*/
     virtual void		removeChild(uiTreeItem*);
     virtual void		removeAllChildren();
 
@@ -175,6 +175,7 @@ protected:
 				    \param below specifies wether the child
 				    should be added above or below eventual
 				    existing siblings.
+				    \param downwards
 				*/
 
     virtual const char*		parentType() const = 0;
@@ -297,6 +298,7 @@ public:
 							created treeitems should
 							be placed when making
 							a new tree.
+					   \param pol2d
 					*/
     void				remove( const char* );
 

@@ -794,6 +794,7 @@ inline int StepInterval<T>::nrSteps() const
     return ret < 0 ? -ret : ret;
 }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #define mDefFNrSteps(typ) \
 template <> \
@@ -808,6 +809,8 @@ inline int StepInterval<typ>::nrSteps() const \
 
 mDefFNrSteps(float)
 mDefFNrSteps(double)
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 template <class T>
 inline bool StepInterval<T>::isCompatible( const StepInterval<T>& b,

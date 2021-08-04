@@ -109,6 +109,7 @@ protected:
 
 typedef DataDistribution<float> FloatDistrib;
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 template <class VT> inline
 DataDistribution<VT>::DataDistribution( const DataDistribution<VT>& oth )
@@ -149,7 +150,8 @@ DataDistribution<VT>::DataDistribution( const TypeSet<VT>& d )
 
 
 template <class VT> inline
-DataDistribution<VT>::DataDistribution( const TypeSet<VT>& d, SamplingData<VT> sd )
+DataDistribution<VT>::DataDistribution( const TypeSet<VT>& d,
+					SamplingData<VT> sd )
     : data_(d.size(),0)
     , cumdata_(d.size(),0)
     , sampling_(sd)
@@ -499,3 +501,6 @@ const DataDistribution<VT>& DataDistribution<VT>::getEmptyDistrib()
 					= new DataDistribution<VT> );
     return *theempty;
 }
+
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */

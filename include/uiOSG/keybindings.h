@@ -4,8 +4,8 @@
  ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        N. Hemstra
- Date:          Dec 2002
+ Author:	N. Hemstra
+ Date:		Dec 2002
 ________________________________________________________________________
 
 */
@@ -19,14 +19,14 @@ ________________________________________________________________________
 /*!
 \brief Class for setting keybindings.
 
-  Each binding is a BufferString. This string contains the several keys 
-  separated by a `.  e.g. zoom = "Left`Control"
+  Each binding is a BufferString. This string contains the several keys
+  separated by a back-quote.  e.g. zoom = "Left`Control"
 */
 
 mExpClass(uiOSG) KeyBindings
 {
 public:
-    				KeyBindings(const char* nm=0)
+				KeyBindings(const char* nm=0)
 				    : name_(nm) {};
 
     BufferString		name_;
@@ -59,7 +59,7 @@ public:
 mExpClass(uiOSG) EventButton
 {
 public:
-                                EventButton() {}
+				EventButton() {}
 
     BufferString		mousebut_;
     BufferString		keybut_;
@@ -73,14 +73,14 @@ public:
 mExpClass(uiOSG) KeyBindMan
 {
 public:
-                                KeyBindMan();
-                                ~KeyBindMan();
+				KeyBindMan();
+				~KeyBindMan();
 
     void			setTrackballManipulator(
 						osgGeo::TrackballManipulator*);
 
     void			setKeyBindings(const char*);
-    void                        getAllKeyBindings(BufferStringSet&);
+    void			getAllKeyBindings(BufferStringSet&);
     const char*			getCurrentKeyBindings() const
 				{ return curkeybinding_; }
 

@@ -50,9 +50,9 @@ public :
     void		setExtractionPars(float step, bool intime);
 
     bool		computeFromLogs();
-			/*!<\set at least the velocity log before */
+			/*!<Set at least the velocity log before */
     bool		computeFromDTModel();
-			/*!<\logs won't be used - not yet implemented */
+			/*!<Logs won't be used - not yet implemented */
     const ElasticModel&	elasticModel() const	{ return emodel_; }
 
 

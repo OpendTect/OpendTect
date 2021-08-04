@@ -176,19 +176,17 @@ inline iT nrBlocks( iT totalsamples, iT basesize, iT overlapsize )
 }
 
 
-/*!
-\brief Taper an indexable array from 1 to taperfactor. If lowpos is less
-than highpos, the samples array[0] to array[lowpos] will be set to zero.
-If lowpos is more than highpos, the samples array[lowpos]  to array[sz-1]
-will be set to zero. The taper can be either cosine or linear.
-*/
-
 namespace Taper
 {
     enum Type { Cosine, Linear };
 };
 
-
+/*!
+Taper an indexable array from 1 to taperfactor. If lowpos is less
+than highpos, the samples array[0] to array[lowpos] will be set to zero.
+If lowpos is more than highpos, the samples array[lowpos]  to array[sz-1]
+will be set to zero. The taper can be either cosine or linear.
+*/
 template <class T>
 bool taperArray( T* array, int sz, int lowpos, int highpos, Taper::Type type )
 {
@@ -223,10 +221,12 @@ bool taperArray( T* array, int sz, int lowpos, int highpos, Taper::Type type )
 }
 
 
-/*!>
+/*!
  Gradient from a series of 4 points, sampled like:
+ <pre>
  x:  -2  -1  0  1  2
  y: ym2 ym1 y0 y1 y2
+ </pre>
  The gradient estimation is done at x=0. y0 is generally not needed, but it
  will be used if there are one or more undefineds.
  The function will return mUdf(T) if there are too many missing values.

@@ -35,7 +35,7 @@ public:
     void		getCosTapered(float*,float) const;
     bool		getFreqFiltered(float*,float f1,float f2,
 					float f3,float f4) const;
-			/*!<\param f1-f4: See FFTFiter class */
+			/*!<\param f1,f2,f3,f4: See FFTFiter class */
     void		applyFreqWindow(const ArrayNDWindow&,int padfac,
 					Array1DImpl<float>&);
     void		transform(Array1D<float_complex>&,int sz=-1);

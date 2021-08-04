@@ -93,7 +93,7 @@ protected:
     EM::ObjectID	emid_;
     VW2DFaultSS2D*	fssview_;
     void		renameVisObj();
-			/*!<\don't use it. only for keep ABI.*/
+			/*!<Don't use it. only for keep ABI.*/
 };
 
 

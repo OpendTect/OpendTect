@@ -138,9 +138,10 @@ public:
     int			getNormalBindType();
     void		setNormalBindType(BindType);
     void		updatePartialGeometry(Interval<int>);
-    void		useVertexBufferRender(bool);
-			/*!<\true, osg use vertex buffer to render and ignore
-			    displaylist false, osg use display list to render.*/
+    void		useVertexBufferRender(bool yn);
+			/*!<If yn=true, osg use vertex buffer to render and
+			    ignore displaylist false, osg use display list to
+			    render.*/
 
     void		setTextureChannels(TextureChannels*);
     const unsigned char*  getTextureData(int&,int&,int&) const;
@@ -158,7 +159,7 @@ protected:
     virtual void	removePrimitiveSetFromScene(const osg::PrimitiveSet*);
 
     void		setUpdateVar(bool& var,bool yn);
-			//! Will trigger redraw request if necessary
+			//!<Will trigger redraw request if necessary
 
     bool		needstextureupdate_;	// Only set via setUpdateVar(.)
 

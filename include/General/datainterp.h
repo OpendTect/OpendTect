@@ -49,7 +49,10 @@ public:
 					   identical to the current machine's.*/
     static DataInterpreter<T>*	create(const IOPar& par,const char* key,
 				       bool alsoifequal);
-				/*!<\param alsoifequal determines whether an
+				/*!<
+				  \param par
+				  \param key
+				  \param alsoifequal determines whether an
 				           interpreter should be created
 					   if the format in DataChar is
 					   identical to the current machine's.*/

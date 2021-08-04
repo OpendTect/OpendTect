@@ -120,7 +120,7 @@ public:
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;
 
-    void			setTranslationDragKeys(bool depth, int );
+    void			setTranslationDragKeys(bool depth,int keys);
 				/*!<\param depth specifies wheter the depth or
 						 the plane setting should be
 						 changed.

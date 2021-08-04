@@ -209,7 +209,7 @@ public:
 				    BufferStringSet& vals,
 				    const char* onlyneedkey=0)
 				{ getKeysVals(defstr,keys, vals, onlyneedkey); }
-				/*!<Fills \akeys and \avals with pairs of
+				/*!<Fills \a keys and \a vals with pairs of
 				    parameters from the defstr. */
 
     static const char* sKeyOutput();
@@ -227,7 +227,7 @@ protected:
 				    BufferStringSet& keys,
 				    BufferStringSet& vals,
 				    const char* onlyneedkey=0);
-				/*!<Fills \akeys and \avals with pairs of
+				/*!<Fills \a keys and \a vals with pairs of
 				    parameters from the defstr. */
 
     TypeSet<Seis::DataType>	outputtypes_;

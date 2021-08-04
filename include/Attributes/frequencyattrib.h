@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          07-10-1999
+ Author:	Kristofer Tingdahl
+ Date:		07-10-1999
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ namespace Attrib
 class DataHolder;
 
 /*!
-\brief Frequency Attribute
+\brief %Frequency Attribute
   
   Calculates a number of attributes (see below) from the frequency domain
   in a gate. The gate can be windowed with the window specified in
@@ -72,23 +72,23 @@ public:
     static const char*		gateStr()		{ return "gate"; }
     static const char*		normalizeStr()		{ return "normalize"; }
     static const char*		windowStr()		{ return "window"; }
-    static const char*          paramvalStr()           { return "paramval"; }
+    static const char*		paramvalStr()		{ return "paramval"; }
     static const char*		dumptofileStr()		{ return "dumptofile"; }
     static const char*		smoothspectrumStr()	{ return "smoothspect";}
 
-    void                        prepPriorToBoundsCalc();
+    void			prepPriorToBoundsCalc();
 
 protected:
-    				~Frequency();
+				~Frequency();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
     static void			updateDefaults(Desc&);
 
-    bool                	checkInpAndParsAtStart();
+    bool			checkInpAndParsAtStart();
     bool			allowParallelComputation() const
-    				{ return false; }
+				{ return false; }
     bool			getInputOutput(int input,
-	    				       TypeSet<int>& res) const;
+					       TypeSet<int>& res) const;
     bool			getInputData(const BinID&,int idx);
     bool			computeData(const DataHolder&,const BinID& rel,
 					    int z0,int nrsamples,
@@ -107,7 +107,7 @@ protected:
     float			variable_;
 
     const DataHolder*		redata_;
-    const DataHolder*           imdata_;
+    const DataHolder*		imdata_;
     int				realidx_;
     int				imagidx_;
     bool			smoothspectrum_;
@@ -117,9 +117,9 @@ protected:
     int				fftsz_;
     Fourier::CC*		fft_;
 
-    Array1DImpl<float_complex>*	signal_;
-    Array1DImpl<float_complex>*	timedomain_;
-    Array1DImpl<float_complex>*	freqdomain_;
+    Array1DImpl<float_complex>* signal_;
+    Array1DImpl<float_complex>* timedomain_;
+    Array1DImpl<float_complex>* freqdomain_;
 
     mExpClass(Attributes) FreqFunc : public FloatMathFunction
     {
@@ -144,5 +144,4 @@ protected:
     };
 };
 
-}; // namespace Attrib
-
+} // namespace Attrib

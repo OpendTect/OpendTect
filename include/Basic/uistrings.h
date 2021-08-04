@@ -27,85 +27,85 @@ mExpClass(Basic) uiStrings
 public:
 //Phrases
     static uiString phrAdd(const uiString&);
-    //!<"Add <string>"
+    //!<"Add" + string
     static uiString phrAllocating(od_int64);
     static uiString phrASCII(const uiString& string);
-    //!<"ASCII <string>"
+    //!<"ASCII" + string
     static uiString phrCalculate(const uiString&);
-    //!<"Calculate <string>"
+    //!<"Calculate" + string
     static uiString phrCalculateFrom(const uiString& string);
-    //!<"Calculate from <string>"
+    //!<"Calculate from" + string
     static uiString phrCannotAdd(const uiString&);
-    //!<"Cannot Add <string>"
+    //!<"Cannot Add" + string
     static uiString phrCannotCopy(const uiString&);
-    //!<"Cannot Copy <string>"
+    //!<"Cannot Copy" + string
     static uiString phrCannotCreate(const uiString& string);
-    //!<"Cannot create <string>"
+    //!<"Cannot create" + string
     static uiString phrCannotCreateDBEntryFor(const uiString& string);
-    //!<"Cannot create database entry for <string>"
+    //!<"Cannot create database entry for" + string
     static uiString phrCannotCreateDirectory(const uiString& string);
-    //!<"Cannot create directory <string>"
+    //!<"Cannot create directory" + string
     static uiString phrCannotEdit(const uiString&);
-    //!<"Cannot edit <string>"
+    //!<"Cannot edit" + string
     static uiString phrCannotExtract(const uiString&);
-    //!<"Cannot extract <string>"
+    //!<"Cannot extract" + string
     static uiString phrCannotFind(const uiString& string);
-    //!<"Cannot find <string>"
+    //!<"Cannot find" + string
     static uiString phrCannotFindDBEntry(const uiString&);
     static uiString phrCannotFindDBEntry(const MultiID&);
     //!<"Cannot find database entry for
     static uiString phrCannotImport(const uiString&);
-    //!"Cannot Import <string>"
+    //!"Cannot Import" + string
     static uiString phrCannotLoad(const uiString&);
-    //!"Cannot Load <string>"
+    //!"Cannot Load" + string
     static uiString phrCannotOpen(const uiString& string);
-    //!<"Cannot open <string>"
+    //!<"Cannot open" + string
     static uiString phrCannotOpen(const char*,bool forread);
     static uiString phrCannotOpenForRead(const char*);
     static uiString phrCannotOpenForWrite(const char*);
     static uiString phrCannotRead(const uiString& string);
     static uiString phrCannotRead(const char*);
-    //!<"Cannot read <string>"
+    //!<"Cannot read" + string
     static uiString phrCannotSave(const uiString&);
-    //!<"Cannot Save <string>"
+    //!<"Cannot Save" + string
     static uiString phrCannotRemove(const uiString& string);
     static uiString phrCannotRemove(const char*);
-    //!<"Cannot remove <string>"
+    //!<"Cannot remove" + string
     static uiString phrCannotUnZip(const uiString&);
-    //!<"Cannot UnZip <string>"
+    //!<"Cannot UnZip" + string
     static uiString phrCannotZip(const uiString&);
-    //!<"Cannot Zip <string>"
+    //!<"Cannot Zip" + string
     static uiString phrCannotWrite(const uiString& string);
-    //!<"Cannot write <string>"
+    //!<"Cannot write" + string
     static uiString phrCannotWriteDBEntry(const uiString&);
-    //!<"Cannot write database entry for <string>"
+    //!<"Cannot write database entry for" + string
     static uiString phrCannotStart(const uiString&);
-    //!<"Cannot Start <string>"
+    //!<"Cannot Start" + string
     static uiString phrColonString(const uiString&);
-    //!<": <string>"
+    //!<":" + string
     static uiString phrCheck(const uiString&);
-    //!<"Check <string>"
+    //!<"Check" + string
     static uiString phrCreateNew(const uiString&);
-    //!<"Create New <string>"
+    //!<"Create New" + string
     static uiString phrCrossline(const uiString&);
-    //!<"Cross-line <string>
+    //!<"Cross-line" + string
     static uiString phrCrossPlot(const uiString&);
-    //!<"Cross-plot <string>"
+    //!<"Cross-plot" + string
     static uiString phrCopy(const uiString&);
-    //!<"Copy <string>"
+    //!<"Copy" + string
     static uiString phrCreate(const uiString& string);
-    //!<"Create <string>"
+    //!<"Create" + string
     static uiString phrData(const uiString&);
-    //!<"Data <string>"
+    //!<"Data" + string
     static uiString phrDelete(const uiString&);
-    //!<"Delete <string>"
+    //!<"Delete" + string
     static uiString phrDiagnostic(const char*);
     static uiString phrDoesntExist(const uiString& string,int num=1);
-    //!<"<string> does/do not exist"
+    //!<"string + "does/do not exist"
     static uiString phrEdit(const uiString& string);
-    //!<"Edit <string>"
+    //!<"Edit" + string
     static uiString phrEnter(const uiString&);
-    //!<"Enter <string>"
+    //!<"Enter" + string
     static uiString phrErrDuringIO(bool read,const char* objnm=nullptr);
     static uiString phrErrDuringIO(bool read,const uiString&);
     static uiString phrErrDuringRead( const char* objnm=nullptr )
@@ -117,86 +117,86 @@ public:
     static uiString phrErrDuringWrite( const uiString& subj )
 		    { return phrErrDuringIO( false, subj ); }
     static uiString phrExistsContinue(const uiString&,bool overwrite);
-    //!<"<string> exists. Continue?" or "<string> exists. Overwrite?
+    //!<string + "exists. Continue?" or string + "exists. Overwrite?"
     static uiString phrExport(const uiString& string);
-    //!<"Export <string>"
+    //!<"Export" + string
     static uiString phrExtract(const uiString&);
-    //!<"Extract <string>"
+    //!<"Extract" + string
     static uiString phrFileDoesNotExist(const char*);
     static uiString phrGenerating(const uiString&);
-    //!<"Generating <string>"
+    //!<"Generating" + string
     static uiString phrImport(const uiString& string);
-    //!<"Import <string>"
+    //!<"Import" + string
     static uiString phrInline(const uiString&);
-    //!<"In-line <string>
+    //!<"In-line" + string
     static uiString phrInput(const uiString&);
-    //!<"Input <string>"
+    //!<"Input" + string
     static uiString phrInsert(const uiString&);
-    //!<"Insert <string>"
+    //!<"Insert" + string
     static uiString phrInternalErr(const char*);
     static uiString phrInvalid(const uiString& string);
-    //!<"Invalid <string>"
+    //!<"Invalid" + string
     static uiString phrJoinStrings(const uiString& a,const uiString& b);
-    //!<"<a> <b>
+    //!<a + b
     static uiString phrJoinStrings(const uiString& a,const uiString& b,
 				   const uiString& c);
-    //!<"<a> <b> <c>
+    //!<a + b + c
     static uiString phrLoad(const uiString&);
-    //!<"Load <string>"
+    //!<"Load" + string
     static uiString phrManage(const uiString&);
-    //!<"Manage <string>"
+    //!<"Manage" + string
     static uiString phrMerge(const uiString&);
-    //!<"Merge <string>"
+    //!<"Merge" + string
     static uiString phrModify(const uiString&);
-    //!<"Modify <string>"
+    //!<"Modify" + string
     static uiString phrOpen(const uiString&);
-    //!<"Open <string>"
+    //!<"Open" + string
     static uiString phrOutput(const uiString&);
-    //!<"Output <string>"
+    //!<"Output" + string
     static uiString phrPlsSelectAtLeastOne(const uiString&);
     static uiString phrReading(const uiString&);
-    //!<"Reading <string>"
+    //!<"Reading" + string
     static uiString phrRemove(const uiString&);
-    //!<"Remove <string>"
+    //!<"Remove" + string
     static uiString phrRemoveSelected(const uiString&);
-    //!<"Remove Selected <string>"
+    //!<"Remove Selected" + string
     static uiString phrRename(const uiString&);
-    //!<"Rename <string>"
+    //!<"Rename" + string
     static uiString phrSave(const uiString&);
-    //!<"Save <string>"
+    //!<"Save" + string
     static uiString phrSelect(const uiString& string);
-    //!<"Select <string>"
+    //!<"Select" + string
     static uiString phrSelectObjectWrongType(const uiString& string);
-    //!<"Selected object is not a <string>"
+    //!<"Selected object is not a" + string
     static uiString phrSelectPos(const uiString& string);
-    //!<"Select Position <string>"
+    //!<"Select Position" + string
     static uiString phrSetAs(const uiString&);
-    //<!"Set As <string>"
+    //<!"Set As" + string
     static uiString phrShowIn(const uiString&);
-    //<!"Show in <string>"
+    //<!"Show in" + string
     static uiString phrSpecify(const uiString&);
-    //<!"Specify <string>"
+    //<!"Specify" + string
     static uiString phrStorageDir(const uiString& string);
-    //!<"Storage Directory <string>"
+    //!<"Storage Directory" + string
     static uiString phrSuccessfullyExported(const uiString&);
-    //!<"Successfully exported <string>"
+    //!<"Successfully exported" + string
     static uiString phrTODONotImpl(const char* clssname);
-    //!<"[clssname] TO DO: Not Implemented">
+    //!<"[clssname] TO DO: Not Implemented"
     static uiString phrNotImplInThisVersion(const char* fromver);
-    //!<"Not impl in this version of OpendTect. Please use version xx or up">
+    //!<"Not impl in this version of OpendTect. Please use version xx or up"
     static uiString phrThreeDots(const uiString& string,bool immediate=false);
-    //!<string> ...
+    //!<string + "..."
     static uiString phrUnexpected(const uiString&,const char* what=nullptr);
     static uiString phrWriting(const uiString&);
-    //!<"Writing <string>"
+    //!<"Writing" + string
     static uiString phrXcoordinate(const uiString&);
-    //!<"X-coordinate <string>"
+    //!<"X-coordinate" + string
     static uiString phrYcoordinate(const uiString&);
-    //!<"Y-coordinate <string>"
+    //!<"Y-coordinate" + string
     static uiString phrZIn(const uiString&);
-    //!<"Z in <string>"
+    //!<"Z in" + string
     static uiString phrZRange(const uiString&);
-    //!<"Z Range <string>"
+    //!<"Z Range" + string
 
     //Phrases that don't need specifics, can be used when context is obvious
     static uiString phrCannotAllocateMemory(od_int64 reqsz=-1);

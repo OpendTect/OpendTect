@@ -57,10 +57,14 @@ public:
     void			setGatherIsNMOCorrected( bool yn )
 				{ gatheriscorrected_ = yn; }
     void			setNoSmoother();
-			    /*!<\param length Filter length in survey Z unit*/
     void			setMovingAverageSmoother(float length,
 				        BufferString win=HanningWindow::sName(),
 					float param=0.95);
+				/*!<\param length Filter length in survey
+				  Z unit
+				  \param win
+				  \param param
+				 */
     void			setFFTSmoother(float freqf3,float freqf4);
     void			setSmoothingPars(const IOPar&);
 

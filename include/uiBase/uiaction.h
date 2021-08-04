@@ -168,11 +168,12 @@ public:
     int				getID(const uiAction*) const;
     int				getID(const mQtclass(QAction)*) const;
 
-    int				insertAction(uiAction*,int id=-1,
+    int				insertAction(uiAction* act,int id=-1,
 					     const uiAction* before = 0);
-				/*!<\param uiAction* becomes mine.
+				/*!<\param act becomes mine.
 				    \param id The ID that is returned if the
 					      item is selected.
+				    \param before Insert action before this one
 				 */
     int				insertAction(const MenuItem&);
 

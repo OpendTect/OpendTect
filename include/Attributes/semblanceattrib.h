@@ -13,6 +13,9 @@ ________________________________________________________________________
 #include "attributesmod.h"
 #include "attribprovider.h"
 
+namespace Attrib
+{
+
 /*!\brief Semblance Attribute
 
 Semblance gate= pos0= pos1= stepout=1,1
@@ -41,9 +44,6 @@ Output:
 0       Semblance
 
 */
-
-namespace Attrib
-{
 
 mExpClass(Attributes) Semblance : public Provider
 {

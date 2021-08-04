@@ -29,7 +29,7 @@ public:
 				RowCol(const Pos::IdxPair&);
 
     inline RowCol		operator+(const RowCol&) const;
-    inline RowCol	 	operator-(const RowCol&) const;
+    inline RowCol		operator-(const RowCol&) const;
     inline RowCol		operator+() const;
     inline RowCol		operator-() const;
     inline RowCol		operator*(const RowCol&) const;
@@ -49,7 +49,7 @@ public:
     static inline RowCol	fromInt32(int);
 
     RowCol			getDirection() const;
-    		/*!<\returns a rowcol where row/col are either -1, 0 or 1 where
+		/*!<\returns a rowcol where row/col are either -1, 0 or 1 where
 		    depending on if row/col of the object is negative, zero or
 		    positive. */
 
@@ -58,7 +58,7 @@ public:
 		      going from 0,0 to the object and the vector
 		      going from 0,0 to rc.*/
     float			clockwiseAngleTo(const RowCol& rc) const;
-    		/*!<\returns the angle between the vector going from
+		/*!<\returns the angle between the vector going from
 		     0,0 to the object and the vector going from 0,0
 		     to rc in the clockwise direction.*/
     float			counterClockwiseAngleTo(const RowCol&) const;
@@ -72,7 +72,7 @@ public:
 };
 
 
-inline RowCol::RowCol( RowCol::IdxType i, RowCol::IdxType c )
+inline RowCol::RowCol( int i, int c )
     : Pos::IdxPair(i,c)
 {
 }

@@ -96,12 +96,16 @@ public:
 
     static bool		calcDepths(const ValueSeries<float>& vels,int velsz,
 				   const SamplingData<double>&,float* depths);
-			/*!<\param vels Velocity as Vint in time */
+			/*!<\param vels Velocity as Vint in time
+			  \param velsz,depths
+			 */
 
     static bool		calcDepths(const ValueSeries<float>& vels,int velsz,
 				   const ValueSeries<double>& times,
 				   double* depths);
-			 /*!<\param vels Velocity as Vint in time */
+			 /*!<\param vels Velocity as Vint in time
+			   \param velsz,times,depths
+			  */
 
 			mDeprecatedDef
     static bool		calcDepths(const ValueSeries<float>& vels,
@@ -110,11 +114,15 @@ public:
 
     static bool		calcTimes(const ValueSeries<float>& vels,int velsz,
 				  const ValueSeries<float>& depth,float* times);
-			 /*!<\param vels Velocity as Vint in depth*/
+			 /*!<\param vels Velocity as Vint in depth
+			   \param velsz,times,depth
+			  */
 
     static bool		calcTimes(const ValueSeries<float>& vels, int velsz,
 				   const SamplingData<double>&, float* times);
-			 /*!<\param vels Velocity as Vint in depth*/
+			 /*!<\param vels Velocity as Vint in depth
+			   \param velsz,times
+			  */
 protected:
 
     void		calcZ(const float*,int inpsz,

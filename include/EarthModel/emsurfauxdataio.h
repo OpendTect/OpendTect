@@ -33,7 +33,7 @@ mExpClass(EarthModel) dgbSurfDataWriter : public Executor
 public:
 				dgbSurfDataWriter(const EM::Horizon3D& surf,
 						  int dataidx,
-						  const TrcKeySampling*,
+						  const TrcKeySampling* sel,
 						  bool binary,
 						  const char* filename);
 			/*!<\param surf		The surface with the values
@@ -44,6 +44,7 @@ public:
 						Can be null, i.e. no selection
 			    \param binary	Specify whether the data should
 						be written in binary format
+			    \param filename	File name to write to
 			*/
 
 				~dgbSurfDataWriter();

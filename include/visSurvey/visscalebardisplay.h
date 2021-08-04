@@ -13,12 +13,12 @@ ________________________________________________________________________
 
 #include "vislocationdisplay.h"
 
+namespace visSurvey
+{
+
 /*!\brief
   ScaleBar Display
 */
-
-namespace visSurvey
-{
 
 mExpClass(visSurvey) ScaleBarDisplay : public LocationDisplay
 {

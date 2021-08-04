@@ -15,15 +15,13 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "vistransform.h"
 
-
 namespace visBase { class PolyLine; }
-
-
-/*!\brief Used for displaying a polyline, preview for a random line created
-  throught well path*/
 
 namespace visSurvey
 {
+
+/*!\brief Used for displaying a polyline, preview for a random line created
+  throught well path*/
 
 mExpClass(visSurvey) PolyLineDisplay : public visBase::VisualObjectImpl,
 				    public visSurvey::SurveyObject
@@ -36,8 +34,8 @@ public:
 				    toUiString(sFactoryKeyword()));
 
     void			fillPolyLine(const TypeSet<Coord>&);
-    void                        fillPolyLine(const Coord3&);
-    void                        setDisplayTransformation(const mVisTrans*);
+    void			fillPolyLine(const Coord3&);
+    void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
     const char*			errMsg() const { return errmsg_.str(); }

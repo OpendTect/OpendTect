@@ -62,7 +62,7 @@ protected:
 				const int seedid);
 
     void		addTask(const TrcKeyValue&,const TrcKeyValue&);
-			/*!<\don't use it. only for keep ABI.*/
+			/*!<Don't use it. only for keep ABI.*/
     void		taskFinished(CallBacker*);
     void		updateCB(CallBacker*);
     int			queueid_;

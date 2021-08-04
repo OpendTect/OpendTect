@@ -39,8 +39,9 @@ public:
 
     inline size_type		size() const;
     inline virtual od_int64	nrItems() const		{ return size(); }
-    inline virtual bool		setSize(size_type,T val=T());
-				/*!<\param val value assigned to new items */
+    inline virtual bool		setSize(size_type sz,T val=T());
+				/*!<\param sz number of new items
+				  \param val value assigned to new items */
     inline virtual bool		setCapacity(size_type sz,bool withmargin);
 				/*!<Allocates mem only, no size() change */
     inline virtual size_type	getCapacity() const;
