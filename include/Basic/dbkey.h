@@ -21,13 +21,12 @@ mExpClass(Basic) DBKey : public MultiID
 {
 public:
 			DBKey()
-			{}
-			DBKey( const char* keystr )
-			    : MultiID(keystr)
-			{}
+			{ setUdf(); }
 			DBKey( const MultiID& mid )
 			    : MultiID(mid)
 			{}
+			DBKey(const MultiID& mid,
+			      const SurveyDiskLocation&);
 			DBKey(const DBKey&);
 			~DBKey();
 
@@ -46,6 +45,7 @@ public:
 
     DBKey		getLocal() const;
 
+    bool		fromString(const char*);
     BufferString	toString(bool withsurvloc) const;
 
 protected:

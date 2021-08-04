@@ -12,9 +12,17 @@ ________________________________________________________________________
 #include "dbkey.h"
 
 #include "bufstringset.h"
+#include "filepath.h"
 #include "ptrman.h"
 #include "surveydisklocation.h"
 #include "typeset.h"
+
+
+DBKey::DBKey( const MultiID& mid, const SurveyDiskLocation& sdl )
+    : MultiID(mid)
+{
+    setSurveyDiskLocation( sdl );
+}
 
 
 DBKey::DBKey( const DBKey& key )
@@ -106,6 +114,31 @@ BufferString DBKey::toString( bool withsurvloc ) const
 	ret.add( "`" ).add( surveyDiskLocation().fullPath() );
 
     return ret;
+}
+
+
+bool DBKey::fromString( const char* str )
+{
+    setUdf();
+    deleteAndZeroPtr( survloc_ );
+
+    BufferString keystr( str );
+    if ( keystr.isEmpty() )
+	return true;
+
+    char* ptr = keystr.find( '`' );
+    if ( ptr )
+    {
+	*ptr = '\0';
+	const BufferString survpath = ptr + 1;
+	const FilePath fp( survpath );
+	const SurveyDiskLocation sdl( fp.fullPath() );
+	setSurveyDiskLocation( sdl );
+    }
+
+    // check if keystr is of type MultiID.
+    impl_ = keystr;
+    return true;
 }
 
 
