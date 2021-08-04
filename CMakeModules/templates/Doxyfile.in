@@ -166,7 +166,7 @@ HIDE_SCOPE_NAMES       = NO
 # will generate a verbatim copy of the header file for each class for 
 # which an include is specified. Set to NO to disable this.
 
-VERBATIM_HEADERS       = YES
+VERBATIM_HEADERS       = NO
 
 # If the SHOW_INCLUDE_FILES tag is set to YES (the default) then Doxygen 
 # will put list of the files that are included by a file in the documentation 
@@ -204,6 +204,22 @@ SORT_MEMBER_DOCS       = YES
 # tag is set to YES, then doxygen will reuse the documentation of the first 
 # member in the group (if any) for the other members of the group. By default 
 # all members of a group must be documented explicitly.
+
+SORT_GROUP_NAMES	= YES
+
+# If the SORT_GROUP_NAMES tag is set to YES then doxygen will sort the
+# hierarchy of group names into alphabetical order. If set to NO the
+# group names will appear in their defined order.
+
+SORT_BRIEF_DOCS		= YES
+SORT_MEMBER_DOCS	= YES
+SORT_MEMBERS_CTORS_1ST	= YES
+
+SHOW_FILES		= NO
+
+# Set the SHOW_FILES tag to NO to disable the generation of the Files page.
+# This will remove the Files entry from the Quick Index and from the
+# Folder Tree View (if specified).
 
 DISTRIBUTE_GROUP_DOC   = NO
 
