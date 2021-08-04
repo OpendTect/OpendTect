@@ -15,11 +15,9 @@ ________________________________________________________________________
 #include "attribprovider.h"
 template <class T> class ValueSeries;
 
-/*!\brief uses automatic gain control to scale traces.
-*/
-
 namespace Attrib
 {
+//!\brief Uses automatic gain control to scale traces.
 
 mClass(MadagascarAttribs) MadAGC : public Provider
 {

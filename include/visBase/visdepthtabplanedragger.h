@@ -59,9 +59,9 @@ public:
 
     void			setDim(int dim);
 				/*!< Sets the dim of the plane's normal
-				    \param dim=0 x-axis
-				    \param dim=1 y-axis
-				    \param dim=2 z-axis
+				    \param dim =0 x-axis
+				    dim=1 y-axis
+				    dim=2 z-axis
 				*/
     int				getDim() const;
 

@@ -12,8 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiVolumeProcessing uiVolumeProcessing
-\section Introduction Introduction
-
-\section Content Content
-
+\brief Volume Processing User Interface
 */

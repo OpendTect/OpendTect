@@ -12,8 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiEMAttrib uiEMAttrib
-
-EMAttrib User Interface
+\brief EMAttrib User Interface
 
 Here you will find all attribute handling regarding EarthModel objects.
 The uiEMAttribPartServer delivers the services needed.

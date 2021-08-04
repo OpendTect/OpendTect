@@ -61,9 +61,12 @@ public:
     void			removeLine(Pos::GeomID geomid);
 
     bool			isAtEdge(const PosID&) const;
-    PosID			getNeighbor(const PosID&,bool nextcol,
+    PosID			getNeighbor(const PosID& posid,bool nextcol,
 					    bool retundef=false) const;
-				/*!<\param retundef specifies what to do
+				/*!<
+				  \param posid
+				  \param nextcol
+				  \param retundef specifies what to do
 				           if no neighbor is found. If it
 					   true, it returnes unf, if not
 					   it return the id of the undef

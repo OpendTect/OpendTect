@@ -50,7 +50,7 @@ You will see several %1 or %2.
 Those represent variables (for example: %1=elephant, %2 = mouse) So instead of saying "elephant is bigger than mouse", I say %1 is bigger than %2.
 So you do not need to translate %1 or %2, just keep those same characters. So that would become (in Chinese) %1 大 于 %2 , or %2 小于 %1.
 
-So every time you select a Source text  line in the Strings box, type in the translation of that source text in the field : <Language> translation. Sometimes there is only one field, sometimes there are two fields (for singular and plural).
+So every time you select a Source text  line in the Strings box, type in the translation of that source text in the field : Language translation. Sometimes there is only one field, sometimes there are two fields (for singular and plural).
 After every translation, press the icon in the top row with the green V , to save your translation and go to the next Source text in the Strings box.
 
 If ever there is a Source text, that you do not know how to translate, then simply leave the translation field empty.

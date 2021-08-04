@@ -136,8 +136,8 @@ mExpClass(Algo) SincInterpolator
 public:
 			~SincInterpolator();
 
-			/*!<\param fmax Maximum frequency in input dataset
-			    \param lmax Maximum length of the interpolator*/
+			/*!\param fmax Maximum frequency in input dataset
+			   \param lmax Maximum length of the interpolator*/
     virtual bool	initTable(float fmax,int lmax);
     inline bool		isTableOK() const;
 

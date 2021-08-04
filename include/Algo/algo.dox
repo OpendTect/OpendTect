@@ -12,5 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup Algo Algo
-
+\brief Algebra, Calculus and %Geometry related tools.
 */

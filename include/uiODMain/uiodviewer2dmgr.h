@@ -94,7 +94,7 @@ public:
     void			addNewTempFault(EM::ObjectID mid);
     void			getLoadedFaults( TypeSet<EM::ObjectID>&) const;
     void			getFaultVwr2DIDs(EM::ObjectID emid,
-	    					 TypeSet<int>&) const;
+						 TypeSet<int>&) const;
 
     //FaultStickSet
     void			getFaultSSVwr2DIDs( EM::ObjectID emid,
@@ -132,7 +132,7 @@ protected:
 				~uiODViewer2DMgr();
 
     uiODViewer2D&		addViewer2D(int visid);
-    ObjectSet<uiODViewer2D>     viewers2d_;
+    ObjectSet<uiODViewer2D>	viewers2d_;
     Line2DInterSectionSet*	l2dintersections_;
     SelectedAuxAnnot		selauxannot_;
     TypeSet<Pos::GeomID>	geom2dids_;
@@ -142,8 +142,8 @@ protected:
 
     uiODMain&			appl_;
 
-    inline uiODApplMgr&         applMgr()     { return appl_.applMgr(); }
-    inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
+    inline uiODApplMgr&		applMgr()     { return appl_.applMgr(); }
+    inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
     void			viewObjAdded(CallBacker*);
     void			viewObjToBeRemoved(CallBacker*);
@@ -161,7 +161,9 @@ protected:
 				for which a new uiODViewer2D will be created.
 				\param curvwr2d is the current 2D Viewer of
 				which the newly created 2D Viewer will inherit
-				Attrib::SelSpec and other display properties.*/
+				Attrib::SelSpec and other display properties.
+				\param initcentr
+				 */
     void			attachNotifiersAndSetAuxData(uiODViewer2D*);
     Line2DInterSection::Point	intersectingLineID(const uiODViewer2D*,
 						   float pos) const;
@@ -181,7 +183,7 @@ protected:
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
 
-    friend class                uiODMain;
+    friend class		uiODMain;
 
 public:
     bool			isItemPresent(const uiTreeItem*) const;

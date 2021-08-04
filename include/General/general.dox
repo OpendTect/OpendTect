@@ -12,13 +12,14 @@ ________________________________________________________________________
 
 /*!
 \defgroup General General
-\section Introduction Introduction
+\brief General purpose classes
+\section general_intro Introduction
 
 This module uses the services from the Basic module and adds services that
 are (in general) more or less OpendTect specific. Just like the Basic module
 the services are used by all other modules.
 
-\section Content Content
+\section general_content Content
 Some of the groups of services are:
 
 <ul>

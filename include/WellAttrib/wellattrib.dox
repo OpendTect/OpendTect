@@ -12,5 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup WellAttrib WellAttrib
-
+\brief Classes which need access to both Wells and Attributes 
 */

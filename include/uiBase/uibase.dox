@@ -12,7 +12,8 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiBase uiBase
-\section Introduction Introduction Basic User Interface
+\brief Basic User Interface
+\section uibase_intro Introduction Basic User Interface
 
 This module is a set of cooperating classes that enable creating User
 Interfaces. This layer on top of the already wonderful Qt package was created

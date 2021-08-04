@@ -48,7 +48,10 @@ public:
 			after changing view and bitmaps are filled in extra
 			available space without changing aspect ratio
 			(if has to be constant) along with needed
-			uiFlatViewer::setBoundingRect(const uiRect&). */
+			uiFlatViewer::setBoundingRect(const uiRect&).
+			\param newsize
+			\param vwr
+			 */
     virtual void	flip(bool hor);
 			//!< reverses uiWorldRect's LR or TB swapping
     virtual void	doPropertiesDialog(int vieweridx=0);

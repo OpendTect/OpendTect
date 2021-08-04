@@ -143,6 +143,7 @@ public:
 		/*! Block elastic model so that no blocks have larger difference
 		  than the threshold. Attempts will be made to put boundaries at
 		  large changes.
+		  \param relthreshold
 		  \param pvelonly Will use density and SVel as well if false */
 
     void	block(float relthreshold,bool pvelonly);

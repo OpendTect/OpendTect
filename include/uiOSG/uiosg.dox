@@ -12,18 +12,17 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiOSG uiOSG
-
-  Where OSG meets Qt
+\brief Where OSG meets Qt
 
   Qt and OSG are both wonderful packages. Unfortunately, they both want to
   grab the main loop of an application. Fortunately, the OSG people have made
   the bridge: the osgQt package.
 
   As both OSG and Qt are covered with our interfaces, we also had to cover
-  the SoQt part with the uiOSG module.
+  the osgQt part with the uiOSG module.
 
-  The core class in this module is the uiSoViewer class, derived from OSG's
-  osgQt::Viewer. This is the window where the scene will be rendered.
+  The core class in this module is the ui3DViewer class, using OSG's
+  osgViewer::View class. This is the viewer where the scene will be rendered.
   Other classes handle viewer related issues, like keybindings and
   stereoviewing.
 

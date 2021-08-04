@@ -12,8 +12,7 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiSeis uiSeis
-
-Seismics User Interface
+\brief Seismic Data User Interface
 
 Most of the tools in this module enable import and export of seismic
 data into/from the OpendTect data store. The merge and manage tools manipulate

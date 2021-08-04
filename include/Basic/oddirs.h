@@ -28,7 +28,7 @@ mGlobal(Basic) const char* GetBaseDataDir(void);
 /*!< Base data directory: DTECT_[WIN]DATA or from User Settings. */
 
 mGlobal(Basic) const char* GetDataDir(void);
-/*!< Survey directory: GetBaseDataDir()/<current survey> */
+/*!< Survey directory: GetBaseDataDir()/\<current survey\> */
 
 mGlobal(Basic) const char* GetProcFileName(const char*);
 /*!< Returns file name in GetDataDir()/Proc. Pass null for directory. */

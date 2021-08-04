@@ -198,7 +198,7 @@ public:
 			    \returns if it was attached. */
     bool		attachCB(const NotifierAccess* notif,const CallBack& cb,
 				 bool onlyifnew=false) const;
-			/*!<\note Attaches only if \param notif is not null.*/
+			/*!<\note Attaches only if \a notif is not null.*/
 
     void		detachCB(const NotifierAccess&,const CallBack&) const;
 			/*!<\note Normally not needed if you don't
@@ -206,7 +206,7 @@ public:
     void		detachCB( const NotifierAccess* notif,
 				  const CallBack& cb ) const
 			{ if ( notif ) detachCB( *notif, cb ); }
-			/*!<\note Detaches only if \param notif is not null.*/
+			/*!<\note Detaches only if \a notif is not null.*/
 
     bool		isNotifierAttached(const NotifierAccess*) const;
 			//!<Only for debugging purposes, don't use

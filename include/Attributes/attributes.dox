@@ -13,7 +13,8 @@ ________________________________________________________________________
 /*!
 \defgroup Attributes Attributes
 
-  This module contains the definition of the 'standard' OpendTect attributes.
+\brief This module contains the definition of 'standard' attributes.
+
   Contained are attributes like Energy, Similarity, Volume Statistics, etc.
   The base class for all attributes is the Provider class.
 
@@ -23,8 +24,6 @@ ________________________________________________________________________
   If you want to make your own attributes, please consult the Programmer's
   manual, section 'Plugins'. You'll find an annotated example of the Coherency
   attribute implementation.
-
-
 
 \namespace Attrib
 \brief OpendTect attributes

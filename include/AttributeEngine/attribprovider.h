@@ -218,7 +218,11 @@ protected:
 				in this function to compute the attribute's
 				outputs. The results will be stored as
 				different series in the DataHolder output.
-				 \param threadid thread identifier that may
+				\param output
+				\param relpos
+				\param t0
+				\param nrsamples
+				\param threadidx thread identifier that may
 				  be handy when using multiple threads. */
     int				getDataIndex(int input) const;
 				/*!<Gets the index of the serie needed in the

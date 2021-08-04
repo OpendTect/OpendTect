@@ -90,7 +90,7 @@ protected:
     EM::ObjectID	emid_;
     VW2DFault*		faultview_;
     void		renameVisObj();
-			/*!<\don't use it. only for keep ABI.*/
+			/*!<Don't use it. only for keep ABI.*/
 
 };
 

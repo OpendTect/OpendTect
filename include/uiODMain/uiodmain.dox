@@ -12,10 +12,9 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiODMain uiODMain
+\brief OpendTect Top Level
 
-OpendTect Top Level
-
-\section Introduction Introduction
+\section uiodmain_intro Introduction
 
   'Real systems have no top' (Betrand Meyer). What he meant is that real
   sytems cannot be characterised by a single function which can be split up
@@ -59,7 +58,7 @@ OpendTect Top Level
   'Dependency Inversion' principle. In the overview of the Programmer's manual
   you will see a reference to documentation on this.
 
-\section Content Content
+\section uiodmain_content Content
 
   As things are, two major things need to be introduced: the top-level manager
   objects and their responsibilities, and the 'Part Server' architecture.

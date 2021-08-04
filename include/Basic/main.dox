@@ -4,7 +4,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		September 2012
- SVN:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -15,4 +14,15 @@ ________________________________________________________________________
 \mainpage
 This is the OpendTect class documentation, automatically generated from our
 source code.
+
+OpendTect is a free, open source seismic interpretation system and software development platform. The system supports all tools needed for visualizing, analyzing and interpreting 2D, 3D and 4D seismic and Ground Penetrating Radar (GPR) data. The software is written in C++ and the same codebase compiles and runs on Windows, MacOS and Linux. It also has a mature plugin programming interface that allows third parties to develop plugins to add functionality to the system without touching the OpendTect source code. A binary installer for OpendTect can be downloaded from the dGB download page.
+
+This source code is released under the GPLv3 or higher license. Commercial and Academic licenses are offered by dGB Earth Sciences for OpendTect Pro, an extension of OpendTect that adds special functions for professional users and the potential to rent or purchase commercial plugins offering access to unique seismic interpretation workflows. The differences in functionality of the open source OpendTect, commercial OpendTect Pro and commercial plugins is compared here.
+
+OpendTect is a flexible and powerful R&D software platform that you can extend for seismic data analysis. dGB Earth Sciences is also available to undertake industry funded (single or multi-client) projects to enhance OpendTect itself or create advanced plugin functionality.
+
+OpendTect is used worldwide by thousands of open source users, thousands of academic users and hundreds of commercial users.
+
+For more information on plugin development, please read: https://github.com/OpendTect/OpendTect
+
 */

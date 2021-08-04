@@ -12,5 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup Geometry Geometry
-
+\brief This module contains classes to store geometry of horizons, faults, etc
 */

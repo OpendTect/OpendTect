@@ -12,5 +12,5 @@ ________________________________________________________________________
 
 /*!
 \defgroup uiPreStackProcessing uiPreStackProcessing
-
+\brief Prestack Processing User Interface
 */

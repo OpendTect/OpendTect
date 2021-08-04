@@ -1,5 +1,4 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
@@ -8,7 +7,6 @@ ________________________________________________________________________
  Date:		April 2006
  RCS:		$Id$
 ________________________________________________________________________
-
 
 -*/
 
@@ -34,16 +32,16 @@ public:
     int			addPoint(const Coord3&);
     const Coord3	getPoint(int posidx) const;
     const Coord3	getPoint(int,bool scenespace) const;
-			/*!<\if scenespace is true, return display coordinates,
+			/*!<If scenespace is true, return display coordinates,
 			false, return world coordinates.*/
 
     void		removeAllPoints();
     int			size() const ;
 
     void		setDisplayTransformation( const mVisTrans* );
-    			/*!<\note The transformation is forwarded to the
-			     the coordinates, if you change coordinates,
-			     you will have to setTransformation again.  */
+			/*!<The transformation is forwarded to the
+			    the coordinates, if you change coordinates,
+			    you will have to setTransformation again.  */
     void		clear();
 protected:
 			~PointSet();
@@ -52,5 +50,3 @@ protected:
 };
 
 } // namespace visBase
-
-

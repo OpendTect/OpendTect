@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        K. Tingdahl
- Date:          March 2006
- RCS:           $Id$
+ Author:	K. Tingdahl
+ Date:		March 2006
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -53,14 +53,14 @@ public:
 				MarchingCubesModel(const MarchingCubesModel&);
 
     MarchingCubesModel&		operator=(const MarchingCubesModel&);
-    bool 			operator==(const MarchingCubesModel&) const;
+    bool			operator==(const MarchingCubesModel&) const;
 
     bool			set(const Array3D<float>& arr,
-	    		    	    int i0,int i1, int i2,float threshold);
+				    int i0,int i1, int i2,float threshold);
 
     bool			isEmpty() const;
 
-    static unsigned char 	determineModel( bool c000, bool c001, bool c010,
+    static unsigned char	determineModel( bool c000, bool c001, bool c010,
 						bool c011, bool c100, bool c101,
 						bool c110, bool c111 );
 
@@ -74,7 +74,7 @@ public:
 
     unsigned char	model_;		//Don't change the order of these
     unsigned char	submodel_;	//since they are written to 
-    unsigned char	axispos_[3]; 	//the stream in this order
+    unsigned char	axispos_[3];	//the stream in this order
 };
 
 
@@ -82,12 +82,12 @@ mExpClass(Geometry) MarchingCubesSurface : public CallBacker
 { mRefCountImpl(MarchingCubesSurface);
 public:
 
-    			MarchingCubesSurface();
+			MarchingCubesSurface();
 
     bool		setVolumeData(int xorigin,int yorigin,int zorigin,
-	    			      const Array3D<float>&,float threshold,
+				      const Array3D<float>&,float threshold,
 				      TaskRunner* = 0);
-    			/*!<Replaces the surface within the array3d's volume
+			/*!<Replaces the surface within the array3d's volume
 			    with an isosurface from the array and its
 			    threshold. Make sure inside body value is less than
 			    the threshold, outside value is bigger than the 
@@ -97,27 +97,27 @@ public:
     bool		isEmpty() const;
 
     bool		getModel(const int* pos, unsigned char& model,
-	    			 unsigned char& submodel) const;
+				 unsigned char& submodel) const;
 
     Executor*		writeTo(od_ostream&,bool binary=true) const;
     Executor*		readFrom(od_istream&,
-	    			 const DataInterpreter<od_int32>*);
+				 const DataInterpreter<od_int32>*);
 
     MultiDimStorage<MarchingCubesModel>		models_;
     mutable Threads::Lock			modelslock_;
 
     Notifier<MarchingCubesSurface>		change;
     bool					allchanged_;
-    						//!<set when change is trig.
+						//!<set when change is trig.
     Interval<int>				changepos_[3];
-    						//!<set when change is trig.
+						//!<set when change is trig.
 };
 
 
 mExpClass(Geometry) Implicit2MarchingCubes : public ParallelTask
 { mODTextTranslationClass(Implicit2MarchingCubes);
 public:
-    		Implicit2MarchingCubes(int posx, int posy, int posz,
+		Implicit2MarchingCubes(int posx, int posy, int posz,
 				const Array3D<float>&, float threshold,
 				MarchingCubesSurface&);
 		~Implicit2MarchingCubes();
@@ -125,7 +125,7 @@ public:
     od_int64	nrIterations() const;
     bool	doWork(od_int64,od_int64,int);
     uiString	uiMessage() const
-    		{ return tr("Implicit body to MarchingCubes: Contouring"); }
+		{ return tr("Implicit body to MarchingCubes: Contouring"); }
 
 
 protected:
@@ -155,9 +155,10 @@ public:
 					bool nodistance);
 		/*!<originx .. originz gives the surface location of the 
 		    array's origin.
+		    \param originx,originy,originz
 		    \param nodistance enables faster processing, but the
-		           array will only be filled with -1, 0 and 1 depending
-		           on the side of the surface*/
+			   array will only be filled with -1, 0 and 1 depending
+			   on the side of the surface*/
 		~MarchingCubes2Implicit();
 
     float	threshold() const { return 0; }
@@ -174,8 +175,8 @@ protected:
 
     friend	class MarchingCubes2ImplicitDistGen; 
     
-    bool        shouldSetValue(od_int64 offset, int newval );
-    void        setValue(od_int64 offset,int newval,bool checkval);
+    bool	shouldSetValue(od_int64 offset, int newval );
+    void	setValue(od_int64 offset,int newval,bool checkval);
 
     const MarchingCubesSurface&			surface_;
     int						originx_;
@@ -186,8 +187,8 @@ protected:
 
     bool					nodistance_;
 
-    mutable Threads::Barrier   			barrier_;
-    Array3D<int>&               		result_;
+    mutable Threads::Barrier			barrier_;
+    Array3D<int>&				result_;
     od_int64					nrdefined_;
 
     bool*					newfloodfillers_;

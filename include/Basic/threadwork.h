@@ -50,6 +50,7 @@ public:
 				/*!<Manual queues will not be executed
 				    automaticall, only at executeQueue.
 				    \returns queid
+				    \param type See QueueType
 				    \param name is for debugging
                                 */
     void                        setQueueName(int queueid,const char*);
@@ -71,7 +72,9 @@ public:
 				/*!<\param forcedifferentthread will force
 					work to be put on the queue, even if it
 					could be done directly in current
-					thread. */
+					thread.
+				    \param finished, queueid, putfirstinline,
+					   discardduplicates*/
 
     bool			addWork(TypeSet<Work>&, int queueid = -1,
 					bool firstinline = false);

@@ -14,7 +14,8 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "coord.h"
 
-/*!Stores offset and azimuth as an int, wich makes it easy to compare them
+/*!
+\brief Stores offset and azimuth as an int, wich makes it easy to compare them
 without having to think of epsilons when comparing.
 
 The offset has a precision of 0.1 meter and have the range of -419430 and
@@ -40,7 +41,8 @@ public:
     void		setOffset(float);
     void		setAzimuth(float);
     float		distanceTo(const OffsetAzimuth&,bool sq=false) const;
-    			/*!\If sq is true, the square distance is returned. */
+			/*!<\note If sq is true, the square distance is
+			  returned. */
 
     Coord		srcRcvPos(const Coord& center,bool add=true) const;
 			/*!<\returns center + (or - depending on variable add)
