@@ -968,6 +968,7 @@ void uiTreeViewItem::setBold( int column, bool yn )
     qItem()->setFont( column, qfont );
 }
 
+
 int uiTreeViewItem::nrChildren() const
 { return qItem()->childCount(); }
 
