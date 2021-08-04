@@ -309,6 +309,11 @@ WARN_IF_UNDOCUMENTED   = YES
 # tags, which will be replaced by the file and line number from which the 
 # warning originated and the warning text.
 
+WARN_IF_INCOMPLETE_DOC = NO
+# If WARN_IF_INCOMPLETE_DOC is set to YES, doxygen will warn about
+# incomplete function parameter documentation. If set to NO, doxygen will
+# accept that some parameters have no documentation without warning.
+
 WARN_FORMAT            = "$file:$line: $text"
 
 # The WARN_LOGFILE tag can be used to specify a file to which warning 
