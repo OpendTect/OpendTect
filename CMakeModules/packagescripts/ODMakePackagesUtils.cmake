@@ -393,20 +393,6 @@ macro( INIT_DESTINATIONDIR PACKAGE_NAME )
 	file( REMOVE_RECURSE ${DESTINATION_DIR} )
     endif()
 
-    if( NOT ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
-	      "${PACKAGE_NAME}" STREQUAL "devel") )
-	if ( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
-	    file( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
-	endif()
-
-	file( WRITE ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
-	file( APPEND ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
-	if( APPLE )
-	    file( COPY ${CMAKE_INSTALL_PREFIX}/Contents/Info.plist
-		  DESTINATION ${DESTINATION_DIR} )
-	endif()
-    endif()
-
     if ( NOT APPLE )
 	if( NOT ${PACKAGE_NAME} STREQUAL "basedata" AND
 	    NOT ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
@@ -427,6 +413,21 @@ macro( INIT_DESTINATIONDIR PACKAGE_NAME )
 	set( COPYFROMDATADIR ${CMAKE_INSTALL_PREFIX}/Contents/Resources )
 	set( COPYTODATADIR ${DESTINATION_DIR}/Resources )
     endif()
+
+    if( NOT ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
+	      "${PACKAGE_NAME}" STREQUAL "devel") )
+	if ( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
+	    file( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
+	endif()
+
+	file( WRITE ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt ${FULLVER_NAME} )
+	file( APPEND ${COPYTODATADIR}/relinfo/ver.${VER_FILENAME}.txt "\n" )
+	if( APPLE )
+	    file( COPY ${CMAKE_INSTALL_PREFIX}/Contents/Info.plist
+		  DESTINATION ${DESTINATION_DIR} )
+	endif()
+    endif()
+
 
     if ( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" OR
 	 "${PACKAGE_NAME}" STREQUAL "devel" )
