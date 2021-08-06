@@ -46,11 +46,24 @@
 
 Seis::ObjectSummary::ObjectSummary( const MultiID& mid )
     : ioobjinfo_(*new SeisIOObjInfo(mid))
-{ init(); }
+{
+    init();
+}
+
+
+Seis::ObjectSummary::ObjectSummary( const DBKey& dbkey )
+    : ioobjinfo_(*new SeisIOObjInfo(dbkey))
+{
+    init();
+}
+
 
 Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj )
     : ioobjinfo_(*new SeisIOObjInfo(ioobj))
-{ init(); }
+{
+    init();
+}
+
 
 Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj, Pos::GeomID geomid )
     : ioobjinfo_(*new SeisIOObjInfo(ioobj))
@@ -61,7 +74,10 @@ Seis::ObjectSummary::ObjectSummary( const IOObj& ioobj, Pos::GeomID geomid )
 
 Seis::ObjectSummary::ObjectSummary( const Seis::ObjectSummary& oth )
     : ioobjinfo_(*new SeisIOObjInfo(oth.ioobjinfo_))
-{ init(); }
+{
+    init();
+}
+
 
 Seis::ObjectSummary::~ObjectSummary()
 {
@@ -69,8 +85,8 @@ Seis::ObjectSummary::~ObjectSummary()
 }
 
 
-Seis::ObjectSummary& Seis::ObjectSummary::operator =(
-						const Seis::ObjectSummary& oth )
+Seis::ObjectSummary&
+	Seis::ObjectSummary::operator =( const Seis::ObjectSummary& oth )
 {
     if ( &oth == this ) return *this;
 
@@ -155,11 +171,32 @@ bool Seis::ObjectSummary::hasSameFormatAs( const BinDataDesc& desc ) const
 
 
 SeisIOObjInfo::SeisIOObjInfo( const IOObj* ioobj )
-	: ioobj_(ioobj ? ioobj->clone() : nullptr)	{ setType(); }
+    : ioobj_(ioobj ? ioobj->clone() : nullptr)
+{
+    setType();
+}
+
+
 SeisIOObjInfo::SeisIOObjInfo( const IOObj& ioobj )
-	: ioobj_(ioobj.clone())				{ setType(); }
+    : ioobj_(ioobj.clone())
+{
+    setType();
+}
+
+
 SeisIOObjInfo::SeisIOObjInfo( const MultiID& id )
-	: ioobj_(IOM().get(id))				{ setType(); }
+    : ioobj_(IOM().get(id))
+{
+    setType();
+}
+
+
+SeisIOObjInfo::SeisIOObjInfo( const DBKey& dbkey )
+{
+    surveychanger_ = new SurveyChanger( dbkey.surveyDiskLocation() );
+    ioobj_ = IOM().get( dbkey );
+    setType();
+}
 
 
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
@@ -191,7 +228,7 @@ SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
 
 
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
-	: ioobj_(nullptr)
+    : ioobj_(nullptr)
 {
     mGoToSeisDir();
     ioobj_ = IOM().getLocal( ioobjnm, nullptr );
@@ -200,15 +237,14 @@ SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
 
 
 SeisIOObjInfo::SeisIOObjInfo( const SeisIOObjInfo& sii )
-	: geomtype_(sii.geomtype_)
-	, bad_(sii.bad_)
 {
-    ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
+    *this = sii;
 }
 
 
 SeisIOObjInfo::~SeisIOObjInfo()
 {
+    delete surveychanger_;
     delete ioobj_;
 }
 
@@ -221,7 +257,14 @@ SeisIOObjInfo& SeisIOObjInfo::operator =( const SeisIOObjInfo& sii )
 	ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
 	geomtype_ = sii.geomtype_;
 	bad_ = sii.bad_;
+	if ( surveychanger_ && surveychanger_->hasChanged() )
+	{
+	    SurveyDiskLocation sdl = surveychanger_->changedToSurvey();
+	    delete surveychanger_;
+	    surveychanger_ = new SurveyChanger( sdl );
+	}
     }
+
     return *this;
 }
 
@@ -1060,10 +1103,10 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 	    }
 
 	    inf.addKeyValue( uiStrings::sArea(),
-		     getAreaString(mCast(float,area),SI().xyInFeet(),2,true) );
+		     getAreaString(float(area),SI().xyInFeet(),2,true) );
 
 	    StepInterval<float> dispzrg( cs.zsamp_ );
-	    dispzrg.scale( (float)zddef.userFactor() );
+	    dispzrg.scale( float(zddef.userFactor()) );
 	    inf.addKeyValue( zddef.getRange().withUnit(zddef.unitStr()),
 		    toUiString("%1 - %2 [%3]")
 		    .arg(dispzrg.start).arg(dispzrg.stop).arg(dispzrg.step) );
@@ -1100,7 +1143,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 		    dispzrg.stop = sizrg.stop * botvavg.stop / 2;
 		    dispzrg.step = (dispzrg.stop-dispzrg.start)
 					/ sizrg.nrSteps();
-		    dispzrg.scale( (float)ZDomain::Depth().userFactor() );
+		    dispzrg.scale( float(ZDomain::Depth().userFactor()) );
 		    keystr = tr("Depth Range")
 			    .withUnit( ZDomain::Depth().unitStr() );
 		}
@@ -1111,7 +1154,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 		    dispzrg.stop = 2 * sizrg.stop / botvavg.start;
 		    dispzrg.step = (dispzrg.stop-dispzrg.start)
 					/ sizrg.nrSteps();
-		    dispzrg.scale( (float)ZDomain::Time().userFactor() );
+		    dispzrg.scale( float(ZDomain::Time().userFactor()) );
 		    keystr = tr("Time Range")
 			    .withUnit( ZDomain::Time().unitStr() );
 		}

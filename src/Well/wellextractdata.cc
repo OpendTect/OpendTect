@@ -152,7 +152,7 @@ int Well::InfoCollector::nextStep()
 
     BufferStringSet lognms;
     RefMan<Well::Data> wd = 0;
-    if ( chgr.inCurrentSurvey() && isloaded )
+    if ( survey().isCurrentSurvey() && isloaded )
     {
 	wd = Well::MGR().get( wmid );
 	if ( wd && dologs_ )

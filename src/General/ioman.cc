@@ -517,6 +517,16 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 }
 
 
+IOObj* IOMan::get( const DBKey& ky ) const
+{
+    Threads::Locker lock( lock_ );
+    if ( !IOObj::isKey(ky) )
+	return nullptr;
+
+    return IODir::getObj( ky );
+}
+
+
 IOObj* IOMan::get( const MultiID& k ) const
 {
     Threads::Locker lock( lock_ );
@@ -859,6 +869,13 @@ void IOMan::removeUnusable( DBKeySet& keys )
 	if ( !isUsable(keys.get(idx)) )
 	    keys.removeSingle( idx );
     }
+}
+
+
+bool IOMan::isUsable( const DBKey& key ) const
+{
+    ConstPtrMan<IOObj> ioobj = IOM().get( key );
+    return ioobj;
 }
 
 
@@ -1492,14 +1509,34 @@ void IOMan::cancelTempSurvey()
 // SurveyChanger
 SurveyChanger::SurveyChanger( const SurveyDiskLocation& sdl )
 {
-    incurrentsurvey_ = sdl == SurveyDiskLocation::currentSurvey();
-    if ( !incurrentsurvey_ )
+    needscleanup_ = false;
+    if ( sdl.isCurrentSurvey() )
+	return;
+
+    SurveyDiskLocation cursdl = changedToSurvey();
+    if ( cursdl != sdl )
+    {
 	IOMan::setTempSurvey( sdl );
+	needscleanup_ = true;
+    }
 }
 
 
 SurveyChanger::~SurveyChanger()
 {
-    if ( !incurrentsurvey_ )
+    if ( needscleanup_ )
 	IOMan::cancelTempSurvey();
+}
+
+
+bool SurveyChanger::hasChanged()
+{
+    return !changedToSurvey().isCurrentSurvey();
+}
+
+
+SurveyDiskLocation SurveyChanger::changedToSurvey()
+{
+    const FilePath fp( GetDataDir() );
+    return SurveyDiskLocation( fp );
 }

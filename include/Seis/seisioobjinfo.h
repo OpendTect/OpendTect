@@ -25,6 +25,7 @@ class BufferStringSet;
 class IOObj;
 class SeisIOObjInfo;
 class SeisTrcTranslator;
+class SurveyChanger;
 class TrcKeyZSampling;
 namespace ZDomain { class Def; }
 
@@ -37,6 +38,7 @@ mExpClass(Seis) ObjectSummary
 {
 public:
 			ObjectSummary(const MultiID&);
+			ObjectSummary(const DBKey&);
 			ObjectSummary(const IOObj&);
 			ObjectSummary(const IOObj&,Pos::GeomID);
 			ObjectSummary(const ObjectSummary&);
@@ -96,6 +98,7 @@ public:
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
 			SeisIOObjInfo(const MultiID&);
+			SeisIOObjInfo(const DBKey&);
 			SeisIOObjInfo(const char* ioobjnm,Seis::GeomType);
 			SeisIOObjInfo(const SeisIOObjInfo&);
 			~SeisIOObjInfo();
@@ -200,6 +203,7 @@ protected:
     Seis::GeomType	geomtype_;
     bool		bad_;
     IOObj*		ioobj_;
+    SurveyChanger*	surveychanger_	= nullptr;
 
     void		setType();
 
@@ -210,5 +214,3 @@ protected:
     void		getPostStackUserInfo(uiStringSet&) const;
     void		getPreStackUserInfo(uiStringSet&) const;
 };
-
-

@@ -77,6 +77,6 @@ public:
 protected:
 
     BufferString	basepath_;	//!< The 'data root'
-    BufferString	dirname_;	//!< The subdirectory name
+    BufferString	dirname_;	//!< The survey directory name
 
 };
