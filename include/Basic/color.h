@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 class BufferStringSet;
-class FileMultiString;
-
 
 /*!
 \brief Color is an RGB color object, with a transparancy. The storage is in
