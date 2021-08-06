@@ -234,7 +234,7 @@ public:
     // class needs an exact match! Passing a derived object would make the
     // template function convert it to (const char*).
     inline FileMultiString& add( const FileMultiString& fms )
-			{ return add( (SeparString&)fms ); }
+			{ return add( sCast(const SeparString&,fms) ); }
     template <class T> inline
     FileMultiString&	operator +=( T t )		{ return add( t ); }
     inline FileMultiString& operator +=( const OD::String& ods )
