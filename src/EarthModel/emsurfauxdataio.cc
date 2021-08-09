@@ -174,7 +174,7 @@ int dgbSurfDataWriter::nextStep()
 	    }
 
 	    if ( subids_.isEmpty() )
-		mErrRetWrite(tr("No data available for this surface"))
+		return Finished();
 
 	    if ( !writeInt(sectionid) || !writeInt(subids_.size()) )
 		mErrRetWrite(tr("Error in writing data information"))
@@ -380,14 +380,20 @@ int dgbSurfDataReader::nextStep()
 	    }
 	    else
 	    {
-		if ( !readInt(nrsections_) || nrsections_ < 0 )
-		    mErrRetReadNoDeleteAux( 
+		readInt( nrsections_ );
+		if ( stream_->atEOF() )
+		    return Finished();
+		if ( nrsections_ < 0 )
+		    mErrRetReadNoDeleteAux(
 		    uiStrings::phrCannotRead( sHorizonData() ) )
 	    }
 
 	    int cursec = -1;
-	    if ( !readInt(cursec) || !readInt(valsleftonsection_) || cursec<0 )
-		mErrRetReadNoDeleteAux( 
+	    const bool res = !readInt(cursec) || !readInt(valsleftonsection_);
+	    if ( stream_->atEOF() )
+		return Finished();
+	    if ( res || cursec<0 )
+		mErrRetReadNoDeleteAux(
 		uiStrings::phrCannotRead( sHorizonData() ) )
 
 	    currentsection_ = mCast(EM::SectionID,cursec);
