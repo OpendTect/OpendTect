@@ -1479,6 +1479,16 @@ IODir* IOMan::getDir( const MultiID& mid ) const
 }
 
 
+mExternC(General) const char* setDBMDataSource( const char* fullpath,
+						bool refresh )
+{
+    mDeclStaticString(ret);
+    const uiRetVal uirv = IOM().setDataSource( fullpath, refresh );
+    ret = uirv.getText();
+    return ret.buf();
+}
+
+
 void IOMan::setTempSurvey( const SurveyDiskLocation& sdl )
 {
     SetCurBaseDataDirOverrule( sdl.basePath() );
@@ -1508,16 +1518,6 @@ SurveyChanger::SurveyChanger( const SurveyDiskLocation& sdl )
 	IOMan::setTempSurvey( sdl );
 	needscleanup_ = true;
     }
-}
-
-
-mExternC(General) const char* setDBMDataSource( const char* fullpath,
-						bool refresh )
-{
-    mDeclStaticString(ret);
-    const uiRetVal uirv = IOM().setDataSource( fullpath, refresh );
-    ret = uirv.getText();
-    return ret.buf();
 }
 
 
