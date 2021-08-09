@@ -15,7 +15,6 @@ macro( OD_CONF_PROJ4 )
     endif()
     execute_process(
 	COMMAND "${CMAKE_COMMAND}"
-	--config ${CMAKE_BUILD_TYPE}
 	${EXTGENERATOR}
 	-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 	-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
