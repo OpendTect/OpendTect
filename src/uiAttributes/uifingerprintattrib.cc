@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uifingerprintattrib.h"
 #include "uifingerprintcalcobj.h"
@@ -53,7 +52,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-static const int cInitNrRows = 4;
+static const int cInitNrRows = 3;
 
 static const char* statstrs[] =
 {
@@ -133,8 +132,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 				   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
     pickretriever_ = PickRetriever::getInstance();
-    pickretriever_->finished()->notify(
-			mCB(this,uiFingerPrintAttrib,pickRetrieved) );
+    mAttachCB( pickretriever_->finished(), uiFingerPrintAttrib::pickRetrieved );
 
     if ( is2d_ )
     {
@@ -142,56 +140,50 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 	linefld_->attach( alignedBelow, refposfld_ );
     }
 
-    picksetfld_ = new uiIOObjSel( this, ctio_, mJoinUiStrs(sPointSet(),
-							   sFile().toLower()) );
+    picksetfld_ = new uiIOObjSel( this, ctio_,
+			mJoinUiStrs(sPointSet(),sFile().toLower()) );
     picksetfld_->attach( alignedBelow, refgrp_ );
     picksetfld_->display( false );
 
     statsfld_ = new uiGenInput( this, tr("PointSet statistic"),
-			       StringListInpSpec(statstrs) );
+				StringListInpSpec(statstrs) );
     statsfld_->attach( alignedBelow, picksetfld_ );
     statsfld_->display( false );
 
     manlbl_ = new uiLabel( this,
-	          tr("Please select some attributes and go to Advanced"));
+		tr("Please select some attributes and go to Advanced"));
     manlbl_->attach( alignedBelow, refgrp_ );
 
     uiGroup* tblgrp = new uiGroup( this );
-    if ( linefld_ )	tblgrp->attach( alignedBelow, linefld_ );
-    else		tblgrp->attach( alignedBelow, statsfld_ );
-    table_ = new uiTable( tblgrp, uiTable::Setup()
+    if ( linefld_ )
+	tblgrp->attach( alignedBelow, linefld_ );
+    else
+	tblgrp->attach( alignedBelow, statsfld_ );
+
+    table_ = new uiTable( tblgrp, uiTable::Setup(cInitNrRows,1)
 				.rowdesc(uiStrings::sAttribute())
-				.rowgrow(true)
-				.minrowhgt(1.5)
-				.maxrowhgt(1.8)
 				.defrowlbl("")
-				.fillcol(true)
-				.fillrow(true)
-				.removeselallowed(false)
-				.mincolwdt(3.f*uiObject::baseFldSize())
-				.maxcolwdt(4.f*uiObject::baseFldSize()),
+				.removeselallowed(false),
 			  "Reference attributes table" );
 
     table_->setColumnLabel( 0, tr("Reference attribute") );
-    table_->setNrRows( cInitNrRows );
-    table_->setStretch( 2, 0 );
-    table_->setToolTip(tr("Right-click to add, insert or remove an attribute"));
-    table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
-    table_->rowDeleted.notify( mCB(this,uiFingerPrintAttrib,deleteRowCB) );
+    table_->setStretch( 2, 2 );
 
-    uiString str = tr("Right-click\nto add,\ninsert or\nremove\nan attribute");
-    uiLabel* tablelab = new uiLabel( tblgrp, str );
-    tablelab->attach( leftTo, table_ );
+    auto* newbut = new uiToolButton( tblgrp, "plus", tr("Add new attribute"),
+			mCB(this,uiFingerPrintAttrib,insertRowCB) );
+    newbut->attach( rightTo, table_ );
+    auto* removebut = new uiToolButton( tblgrp, "remove", uiStrings::sRemove(),
+			mCB(this,uiFingerPrintAttrib,deleteRowCB) );
+    removebut->attach( alignedBelow, newbut );
 
     CallBack cbcalc = mCB(this,uiFingerPrintAttrib,calcPush);
-    uiPushButton* calcbut =
-		new uiPushButton( tblgrp, tr("Calculate parameters"),
-                                  cbcalc, true);
+    auto* calcbut =
+	new uiPushButton( tblgrp, tr("Calculate parameters"), cbcalc, true);
     calcbut->attach( alignedBelow, table_ );
 
     CallBack cbrg = mCB(this,uiFingerPrintAttrib,getAdvancedPush);
-    uiPushButton* advbut = new uiPushButton( tblgrp, uiStrings::sAdvanced(),
-                                             cbrg, false );
+    auto* advbut =
+	new uiPushButton( tblgrp, uiStrings::sAdvanced(), cbrg, false );
     advbut->attach( rightAlignedBelow, table_ );
 
     setHAlignObj( table_ );
@@ -201,10 +193,9 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 
 uiFingerPrintAttrib::~uiFingerPrintAttrib()
 {
+    detachAllNotifiers();
     delete ctio_.ioobj_;
     delete &ctio_;
-    pickretriever_->finished()->remove(
-			mCB(this,uiFingerPrintAttrib,pickRetrieved) );
 }
 
 
@@ -222,8 +213,6 @@ void uiFingerPrintAttrib::initTable( int nrrows )
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
-	attrbox->setLabelSelectable( false );	// reveals table right-click
-						// menu underneath the label
 	attrbox->setBorder( 0 );
 	attribflds_ += attrbox;
 	table_->setCellGroup( RowCol(idx,0), attrbox );
@@ -233,13 +222,12 @@ void uiFingerPrintAttrib::initTable( int nrrows )
 }
 
 
-void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
+void uiFingerPrintAttrib::insertRowCB( CallBacker* )
 {
-    const int newrow = table_->newCell().row();
+    const int newrow = table_->nrRows();
+    table_->insertRows( newrow, 1 );
     const uiAttrSelData asd( is2d_, false );
     uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
-    attrbox->setLabelSelectable( false );	// reveals table right-click
-						// menu underneath the label
     attrbox->setDescSet( ads_ );
     attribflds_.insertAt( attrbox, newrow );
     table_->setCellGroup( RowCol(newrow,0), attrbox );
@@ -252,19 +240,22 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 }
 
 
-void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
+void uiFingerPrintAttrib::deleteRowCB( CallBacker* )
 {
-    const int row2rm = table_->notifiedCell().row();
-    if ( row2rm<0 || row2rm >= attribflds_.size() )
+    const int currow = table_->currentRow();
+    if ( currow<0 || currow >= attribflds_.size() )
 	return;
 
-    attribflds_.removeSingle( row2rm );
+    table_->removeRow( currow );
+    attribflds_.removeSingle( currow );
     setAttrSelName( attribflds_ );
 
     TypeSet<int> weights = calcobj_->getWeights();
-    weights.removeSingle( row2rm );
-
+    weights.removeSingle( currow );
     calcobj_->setWeights( weights );
+
+    const int newcurrow = currow<attribflds_.size() ? currow : currow-1;
+    table_->selectRow( newcurrow );
 }
 
 
@@ -322,7 +313,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	table_->removeRow( 0 );
     initTable( nrvals );
 
-    if ( desc.getParam( FingerPrint::rangeStr() ) )
+    if ( desc.getParam(FingerPrint::rangeStr()) )
     {
 	TypeSet< Interval<float> > ranges;
 	mDescGetConstParamGroup(FloatGateParam,rangeset,desc,
@@ -337,7 +328,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	calcobj_->setRanges( ranges );
     }
 
-    if ( desc.getParam( FingerPrint::weightStr() ) )
+    if ( desc.getParam(FingerPrint::weightStr()) )
     {
 	TypeSet<int> weights;
 	mDescGetConstParamGroup(IntParam,weightset,desc,
@@ -404,7 +395,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     valueset->setSize( values.size() );
     for ( int idx=0; idx<values.size(); idx++ )
     {
-	ValParam& valparam = (ValParam&)(*valueset)[idx];
+	ValParam& valparam = sCast(ValParam&,(*valueset)[idx]);
 	valparam.setValue( values[idx] );
     }
 
@@ -415,7 +406,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     rangeset->setSize( ranges.size() );
     for ( int idx=0; idx<ranges.size(); idx++ )
     {
-	FloatGateParam& fgateparam = (FloatGateParam&)(*rangeset)[idx];
+	FloatGateParam& fgateparam = sCast(FloatGateParam&,(*rangeset)[idx]);
 	fgateparam.setValue( ranges[idx] );
     }
 
@@ -533,9 +524,10 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     BinIDValueSet* valuesset = createValuesBinIDSet( errmsg );
     if ( calcobj_->getRgRefType()==1 && calcobj_->getRgRefPick().isEmpty() )
     {
-	uiMSG().error(tr("Please choose the pickset from which\n"
-	                 "the ranges will be computed"));
+	uiMSG().error( tr("Please choose the pickset from which\n"
+			  "the ranges will be computed"));
     }
+
     if ( !errmsg.isEmpty() )
     {
 	uiMSG().error( errmsg );
@@ -664,8 +656,8 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
     , calcobj_(*calcobj)
 {
     rangesgrp_ = new uiButtonGroup( this, "Get ranges from", OD::Horizontal );
-    uiRadioButton* manualbut = new uiRadioButton( rangesgrp_,
-                                                  uiStrings::sManual() );
+    uiRadioButton* manualbut =
+		new uiRadioButton( rangesgrp_, uiStrings::sManual() );
     manualbut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     picksetbut_ = new uiRadioButton( rangesgrp_,uiStrings::sPointSet());
     picksetbut_->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
@@ -762,7 +754,7 @@ void uiFPAdvancedDlg::rangeSel( CallBacker* )
 	return;\
     }\
 
-void uiFPAdvancedDlg::calcPush( CallBacker* cb )
+void uiFPAdvancedDlg::calcPush( CallBacker* )
 {
     mRetIfErr;
     errmsg_.setEmpty();
@@ -801,7 +793,7 @@ void uiFPAdvancedDlg::calcPush( CallBacker* cb )
 }
 
 
-bool uiFPAdvancedDlg::acceptOK( CallBacker* cb )
+bool uiFPAdvancedDlg::acceptOK( CallBacker* )
 {
     calcobj_.clearValues();
     calcobj_.clearRanges();
