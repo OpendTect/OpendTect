@@ -166,7 +166,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     {
 	wd = Well::MGR().get( wmid );
 	if ( !wd )
-	    uiMSG().error( mToUiStringTodo(Well::MGR().errMsg()) );
+	    mErrRet( mToUiStringTodo(Well::MGR().errMsg()) )
     }
     else
     {
