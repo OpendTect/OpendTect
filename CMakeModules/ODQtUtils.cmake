@@ -251,7 +251,9 @@ macro( OD_ADD_QT )
 endmacro(OD_ADD_QT)
 
 macro( QT_DTECT_WEBENGINE )
-    if ( DEFINED Dtect_QtWebEngine OR "${USE_QtWebEngine}" )
+    if ( (DEFINED Dtect_QtWebEngine OR "${USE_QtWebEngine}") OR
+	 (NOT DEFINED Dtect_QtWebEngine AND DEFINED CACHE{USE_QtWebEngine} AND
+	  NOT "$CACHE{USE_QtWebEngine}") )
 	find_package( Qt5 QUIET COMPONENTS WebEngineWidgets )
 	if ( Qt5WebEngineWidgets_FOUND )
 	    set( USE_QtWebEngine ON CACHE BOOL "Build with Qt5 WebEngineWidgets" FORCE )
