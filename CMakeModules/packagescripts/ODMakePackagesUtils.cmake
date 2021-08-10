@@ -564,17 +564,21 @@ macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
 	execute_process( COMMAND ${OpendTect_DIR}/bin/win64/zip -r -q -u
 				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
-				 RESULT_VARIABLE STATUS )
+				 RESULT_VARIABLE STATUS
+				 OUTPUT_VARIABLE OUTVAR 
+				 ERROR_VARIABLE ERRVAR )
     else()
 	execute_process( COMMAND zip -r -q -u -y
 				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
-				 RESULT_VARIABLE STATUS )
+				 RESULT_VARIABLE STATUS
+				 OUTPUT_VARIABLE OUTVAR 
+				 ERROR_VARIABLE ERRVAR )
     endif()
 
     #Error code 12 == "Nothing to do": can be ignored
     if( NOT ${STATUS} EQUAL "0" AND NOT ${STATUS} EQUAL "12" )
-	message( FATAL_ERROR "Failed to create zip file ${PACKAGE_FILENAME}" )
+	message( FATAL_ERROR "Failed to create zip file ${PACKAGE_FILENAME}: ${STATUS}" )
     endif()
 
     file( REMOVE_RECURSE "${PACKAGE_DIR}/${REL_DIR}" )
