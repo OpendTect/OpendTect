@@ -467,7 +467,6 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     setDragMode( uiGraphicsViewBase::NoDrag );
     getMouseEventHandler().buttonReleased.notify(
 	    mCB(this,uiGraphicsViewBase,rubberBandCB) );
-    setBackgroundColor( OD::Color::White() );
 
     allviewers += this;
 }
