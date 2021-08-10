@@ -267,23 +267,25 @@ OD_CURRENT_DATE( DATE )
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/buildinfo.h.in
 		${CMAKE_BINARY_DIR}/include/Basic/buildinfo.h @ONLY )
 
-#Installing source
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include
-		   ${CMAKE_SOURCE_DIR}/plugins ${CMAKE_SOURCE_DIR}/spec
-	 DESTINATION ${MISC_INSTALL_PREFIX}/
-	 FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
-	 FILES_MATCHING PATTERN "*.h" PATTERN "*.c" PATTERN "*.cc" PATTERN "*.xpm"
-			PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
-			PATTERN ".svn" EXCLUDE PATTERN CMakeFiles EXCLUDE )
-
-#Installing cmake genetated files from CMAKE_BINARY_DIR directory
-if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
-    install( DIRECTORY ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR}/include
-		       ${CMAKE_BINARY_DIR}/plugins ${CMAKE_SOURCE_DIR}/spec
+if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+    #Installing source
+    install( DIRECTORY ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include
+		       ${CMAKE_SOURCE_DIR}/plugins ${CMAKE_SOURCE_DIR}/spec
 	     DESTINATION ${MISC_INSTALL_PREFIX}/
 	     FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 	     FILES_MATCHING PATTERN "*.h" PATTERN "*.c" PATTERN "*.cc" PATTERN "*.xpm"
 			    PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
 			    PATTERN ".svn" EXCLUDE PATTERN CMakeFiles EXCLUDE )
+
+    #Installing cmake genetated files from CMAKE_BINARY_DIR directory
+    if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
+	install( DIRECTORY ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR}/include
+		       ${CMAKE_BINARY_DIR}/plugins ${CMAKE_SOURCE_DIR}/spec
+		 DESTINATION ${MISC_INSTALL_PREFIX}/
+		 FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+		 FILES_MATCHING PATTERN "*.h" PATTERN "*.c" PATTERN "*.cc" PATTERN "*.xpm"
+				PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
+				PATTERN ".svn" EXCLUDE PATTERN CMakeFiles EXCLUDE )
+    endif()
 endif()
 
