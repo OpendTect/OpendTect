@@ -20,6 +20,10 @@ macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_FILE ${PROJECT_BINARY_DIR}/CMakeModules/Doxyfile )
     set( OD_DOXYGEN_LOGO ${PROJECT_BINARY_DIR}/doc/Programmer/images/logo.png )
 
+    if ( NOT EXISTS "${OD_DOXYGEN_PATH}" )
+	file(MAKE_DIRECTORY "${OD_DOXYGEN_PATH}" )
+    endif()
+
     foreach ( OD_DOXYGEN_MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
 	set( INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE} )
 	if ( EXISTS ${INCLUDE_DIR} )
