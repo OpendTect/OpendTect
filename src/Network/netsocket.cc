@@ -422,7 +422,10 @@ Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf,
 					    qtcpsocket_->read(buf, readsize);
 	if ( bytesread == -1 )
 	{
-	    errmsg_.setFrom( qtcpsocket_->errorString() );
+	    if ( isLocal() )
+		errmsg_.setFrom( qlocalsocket_->errorString() );
+	    else
+		errmsg_.setFrom( qtcpsocket_->errorString() );
 	    return ReadError;
 	}
 
