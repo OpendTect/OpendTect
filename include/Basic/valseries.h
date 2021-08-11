@@ -274,7 +274,7 @@ ValueSeries<RT>* MultiArrayValueSeries<RT,AT>::clone() const
 
 // OffsetValueSeries
 template <class T>
-static HiddenParam<OffsetValueSeries<T>,od_int64>	cursizes(0);
+HiddenParam<OffsetValueSeries<T>,od_int64>	cursizes(0);
 
 template <class T> inline
 OffsetValueSeries<T>::OffsetValueSeries( ValueSeries<T>& src, od_int64 off )
