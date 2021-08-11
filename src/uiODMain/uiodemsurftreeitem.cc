@@ -383,23 +383,29 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiODEarthModelSurfaceTreeItem::isHorReady( const EM::ObjectID& emid )
+bool uiODEarthModelSurfaceTreeItem::askSave()
+{
+    return isHorReady( emid_ );
+}
+
+
+bool uiODEarthModelSurfaceTreeItem::isHorReady( const EM::ObjectID& )
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( !emobj )
 	return false;
 
-    if ( !IOM().get(emobj->multiID()) )
+    const MultiID key = emobj->multiID();
+    if ( !IOM().isUsable(key) || emobj->isChanged() )
     {
-	uiString msg = tr(" To continue, "
-	    "%1'%2' has to be saved.\n\nDo you want to save it?")
+	const uiString msg = tr("To continue, "
+	    "%1 '%2' has to be saved.\n\nDo you want to save it?")
 	    .arg(emobj->getTypeStr()).arg(emobj->name());
-
 	const int ret = uiMSG().askSave( msg, false );
 	if ( ret!=1 )
 	    return false;
 
-	saveCB( 0 );
+	return doSave();
     }
 
     return true;
@@ -433,11 +439,19 @@ void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
 
 void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 {
+    const bool issaved = doSave();
+    if ( issaved && cb )
+	NotSavedPrompter::NSP().reportSuccessfullSave();
+}
+
+
+bool uiODEarthModelSurfaceTreeItem::doSave()
+{
     uiMPEPartServer* mps = applMgr()->mpeServer();
     uiEMPartServer* ems = applMgr()->EMServer();
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
-    const bool hastracker = MPE::engine().hasTracker(emid_);
+    const bool hastracker = MPE::engine().hasTracker( emid_ );
 
     if ( !hastracker && ems->isGeometryChanged(emid_)
 		     && ems->nrAttributes(emid_)>0 )
@@ -447,7 +461,7 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 		   "not valid anymore and will be removed now.\n"
 		   "Continue saving?") );
 	if ( !res )
-	    return;
+	    return false;
     }
 
     bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
@@ -457,14 +471,17 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 	savewithname = !ioobj;
     }
 
-    if ( applMgr()->EMServer()->storeObject( emid_, savewithname ) && cb )
-	NotSavedPrompter::NSP().reportSuccessfullSave();
+    const bool stored =
+	applMgr()->EMServer()->storeObject( emid_, savewithname );
+    if ( !stored )
+	return false;
 
     applMgr()->visServer()->setUiObjectName( displayid_,
 					     ems->getUiName(emid_) );
-    const MultiID mid = ems->getStorageID(emid_);
+    const MultiID mid = ems->getStorageID( emid_ );
     mps->saveSetup( mid );
     updateColumnText( uiODSceneMgr::cNameColumn() );
+    return true;
 }
 
 
