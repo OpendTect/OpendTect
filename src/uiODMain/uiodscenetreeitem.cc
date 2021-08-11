@@ -35,15 +35,14 @@ uiODSceneTreeTop::uiODSceneTreeTop( uiTreeView* lv, uiTreeFactorySet* tfs_,
     , tfs(tfs_)
     , sceneid_(sceneid)
 {
-    tfs->addnotifier.notify( mCB(this,uiODSceneTreeTop,addFactoryCB) );
-    tfs->removenotifier.notify( mCB(this,uiODSceneTreeTop,removeFactoryCB) );
+    mAttachCB( tfs->addnotifier, uiODSceneTreeTop::addFactoryCB );
+    mAttachCB( tfs->removenotifier, uiODSceneTreeTop::removeFactoryCB );
 }
 
 
 uiODSceneTreeTop::~uiODSceneTreeTop()
 {
-    tfs->addnotifier.remove( mCB(this,uiODSceneTreeTop,addFactoryCB) );
-    tfs->removenotifier.remove( mCB(this,uiODSceneTreeTop,removeFactoryCB) );
+    detachAllNotifiers();
 }
 
 
