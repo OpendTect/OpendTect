@@ -571,7 +571,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
      if ( mnuid == fillholesmnuitem_.id || mnuid == snapeventmnuitem_.id ||
 	 mnuid == filterhormnuitem_.id || mnuid == geom2attrmnuitem_.id )
      {
-	if ( !isHorReady(emid_) )
+	if ( !askSave() )
 	    return;
      }
 
@@ -1003,8 +1003,9 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
     bool handled = true;
     if ( mnuid==interpolatemnuitem_.id )
     {
-	if ( !isHorReady(emid_) )
+	if ( !askSave() )
 	    return;
+
 	const int visid = displayID();
 	const bool isoverwrite = applMgr()->EMServer()->fillHoles( emid_, true);
 	mDynamicCastGet(visSurvey::HorizonDisplay*,hd,

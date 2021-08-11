@@ -32,6 +32,8 @@ public:
     void		setOnlyAtSectionsDisplay(bool);
     bool		isOnlyAtSections() const;
 
+    bool		askSave();
+
 protected:
 			uiODEarthModelSurfaceTreeItem(const EM::ObjectID&);
 			~uiODEarthModelSurfaceTreeItem();
@@ -45,9 +47,9 @@ protected:
     void		finishedEditingCB(CallBacker*);
     void		prepareForShutdown();
 
+    bool		doSave();
     void		askSaveCB(CallBacker*);
     void		saveCB(CallBacker*);
-    bool		isHorReady(const EM::ObjectID&);
 
     EM::ObjectID	emid_;
     uiVisEMObject*	uivisemobj_;
@@ -73,6 +75,9 @@ protected:
     MenuItem		reloadmnuitem_;
     MenuItem		trackmenuitem_;
     MenuItem		starttrackmnuitem_;
+
+    mDeprecated("Use askSave")
+    bool		isHorReady(EM::ObjectID&)	{ return askSave(); }
 };
 
 
