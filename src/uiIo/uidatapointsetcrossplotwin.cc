@@ -62,7 +62,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , showselptswstbid_(-1)
     , multicolcodtbid_(-1)
 {
-    windowClosed.notify( mCB(this,uiDataPointSetCrossPlotWin,closeNotif) );
+    mAttachCB( windowClosed, uiDataPointSetCrossPlotWin::closeNotif );
 
     Settings& setts = Settings::common();
     if ( !setts.get(sKeyMinDPPts(),minptsfordensity_) )
@@ -85,8 +85,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     eachfld_->setValue( perc );
     eachfld_->setInterval( StepInterval<float>(0.f,100.f,0.1f) );
     eachfld_->setToolTip( tr("Percentage of points displayed") );
-    eachfld_->valueChanged.notify(
-			mCB(this,uiDataPointSetCrossPlotWin,eachChg) );
+    mAttachCB( eachfld_->valueChanged, uiDataPointSetCrossPlotWin::eachChg );
     plotter_.plotperc_ = perc;
     disptb_.addObject( eachfld_ );
 
@@ -99,10 +98,8 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
     colortb_.enableManage( false );
     colortb_.display( false );
-    colortb_.seqChanged.notify(
-	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
-    colortb_.scaleChanged.notify(
-	    mCB(this,uiDataPointSetCrossPlotWin,colTabChanged) );
+    mAttachCB( colortb_.seqChanged, uiDataPointSetCrossPlotWin::colTabChanged );
+    mAttachCB( colortb_.scaleChanged,uiDataPointSetCrossPlotWin::colTabChanged);
 
     plotter_.setColTab( colortb_.colTabSeq() );
     plotter_.setCTMapper( colortb_.colTabMapperSetup() );
@@ -113,8 +110,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     selfld_->addItem( tr("Select only Y1") );
     selfld_->addItem( tr("Select only Y2") );
     selfld_->addItem( tr("Select both") );
-    selfld_->selectionChanged.notify(
-		mCB(this,uiDataPointSetCrossPlotWin,selOption) );
+    mAttachCB( selfld_->selectionChanged,uiDataPointSetCrossPlotWin::selOption);
     selfld_->setSensitive( false );
     seltb_.addObject( selfld_ );
 
@@ -194,18 +190,29 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    plotter_.y2grpColors().add( coly2 );
 	}
 	grpfld_->setCurrentItem( 0 );
-	grpfld_->selectionChanged.notify(
-			    mCB(this,uiDataPointSetCrossPlotWin,grpChg) );
+	mAttachCB( grpfld_->selectionChanged,
+		   uiDataPointSetCrossPlotWin::grpChg );
 	disptb_.addObject( grpfld_ );
     }
 
     setSelectable( 0 );
-    plotter_.drawTypeChanged.notify(
-	    mCB(this,uiDataPointSetCrossPlotWin,drawTypeChangedCB) );
-    plotter_.coltabRgChanged.notify(
-	    mCB(this,uiDataPointSetCrossPlotWin,coltabRgChangedCB) );
+    mAttachCB( plotter_.drawTypeChanged,
+		uiDataPointSetCrossPlotWin::drawTypeChangedCB );
+    mAttachCB( plotter_.coltabRgChanged,
+		uiDataPointSetCrossPlotWin::coltabRgChangedCB );
     plotter_.setPrefWidth( 700 );
     plotter_.setPrefHeight( 500 );
+}
+
+
+uiDataPointSetCrossPlotWin::~uiDataPointSetCrossPlotWin()
+{
+    detachAllNotifiers();
+
+    delete removeToolBar( &colortb_ );
+    delete refineseldlg_;
+    delete propdlg_;
+    delete selgrpdlg_;
 }
 
 
@@ -393,14 +400,6 @@ bool acceptOk( CallBacker* )
     BufferStringSet		names_;
     bool			isy2shown_;
 };
-
-
-uiDataPointSetCrossPlotWin::~uiDataPointSetCrossPlotWin()
-{
-    delete refineseldlg_;
-    delete propdlg_;
-    delete selgrpdlg_;
-}
 
 
 void uiDataPointSetCrossPlotWin::setSelectionDomain( CallBacker* )
