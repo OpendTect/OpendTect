@@ -148,6 +148,8 @@ public:
     virtual void		setPixelDensity(float dpi);
     const visBase::MarkerSet*	getSeedMarkerSet() const;
 
+    virtual bool		getOnlyAtSectionsDisplay() const
+				{ return displayedOnlyAtSections(); }
 
 protected:
 				EMObjectDisplay();
@@ -200,8 +202,6 @@ protected:
 
     bool				burstalertison_;
     bool				ctrldown_;
-    ObjectSet< Selector<Coord3> >	selectors_;
-					/*!<not used anymore,only for ABI.*/
     TypeSet<EM::SubID>			selectionids_;
     EMChangeData			emchangedata_;
 
@@ -213,17 +213,9 @@ protected:
     static const char*			sKeySections();
     static const char*			sKeyPosAttrShown();
 
-
 private:
     void				unSelectAll();
     void				updateLockedSeedsColor();
-    const TypeSet<int>			findOverlapSelectors(
-						    visBase::PolygonSelection*);
-					/*!<not used anymore,only for ABI.*/
-public:
-    virtual bool		getOnlyAtSectionsDisplay() const
-				{ return displayedOnlyAtSections(); }
 };
 
 } // namespace visSurvey
-

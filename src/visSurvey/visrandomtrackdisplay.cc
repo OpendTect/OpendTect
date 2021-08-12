@@ -70,6 +70,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     , markerset_( visBase::MarkerSet::create() )
     , rl_(0)
     , nrgeomchangecbs_(0)
+    , premovingselids_(0)
+    , geomnodejustmoved_(false)
     , pickstartnodeidx_( -1 )
     , ispicking_(false)
     , oldstyledoubleclicked_(0)
@@ -196,6 +198,7 @@ RandomTrackDisplay::~RandomTrackDisplay()
     }
 
     setZAxisTransform( 0, 0 );
+    delete premovingselids_;
 }
 
 
@@ -1045,7 +1048,6 @@ void RandomTrackDisplay::acceptManipulation()
 
     movingnotifystopper.enableNotification();
     moving_.trigger();
-
 }
 
 
@@ -1108,11 +1110,6 @@ BufferString RandomTrackDisplay::getManipulationString() const
 }
 
 
-// ABI-shortcut allowed because user can drag only one random line at a time
-static TypeSet<int>* premovingselids_ = 0;
-static bool geomnodejustmoved_ = false;
-
-
 void RandomTrackDisplay::geomChangeCB( CallBacker* cb )
 {
     if ( isPicking() )			// Just abort polyline instead of
@@ -1166,9 +1163,7 @@ void RandomTrackDisplay::geomNodeMoveCB( CallBacker* cb )
 
 	    if ( !isSelected() )
 	    {
-		if ( premovingselids_ )
-		    delete premovingselids_;
-
+		delete premovingselids_;
 		premovingselids_ =
 			new TypeSet<int>( visBase::DM().selMan().selected() );
 		select();

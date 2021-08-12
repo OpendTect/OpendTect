@@ -174,9 +174,7 @@ protected:
     IOPar* crspars_ = nullptr;
 
 public:
-			//Do NOT use, for ABI compatibility only
     void		reset();
-
 };
 
 

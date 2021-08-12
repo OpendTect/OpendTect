@@ -12,17 +12,14 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
-#include "uistring.h"
-
 #include "emposid.h"
 
 class Vw2DHorizon2D;
 
-
 mExpClass(uiODMain) uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVw2DHor2DParentTreeItem);
 public:
-    				uiODVw2DHor2DParentTreeItem();
+				uiODVw2DHor2DParentTreeItem();
 				~uiODVw2DHor2DParentTreeItem();
 
     bool			showSubMenu();
@@ -33,18 +30,17 @@ public:
     void			removeHorizon2D(EM::ObjectID emid);
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon2D(EM::ObjectID emid);
+    void			setupTrackingHorizon2D(EM::ObjectID emid);
 
 protected:
 
     bool			init();
     const char*			iconName() const;
-    bool                        handleSubMenu(int);
+    bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
     void			getNonLoadedTrackedHor2Ds(
 					TypeSet<EM::ObjectID>&);
-public:
-    void			setupTrackingHorizon2D(EM::ObjectID emid);
 };
 
 
@@ -55,7 +51,7 @@ public:
     const char*		name() const 	{ return typeid(*this).name(); }
     uiTreeItem*		create() const
     			{ return new uiODVw2DHor2DParentTreeItem(); }
-    uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
 };
 
 
@@ -92,9 +88,4 @@ protected:
     EM::ObjectID	emid_;
     Vw2DHorizon2D*	horview_;
     bool		trackerefed_;
-
-    void		renameVisObj();
-			/*!<Don't use it. only for keep ABI.*/
-
 };
-

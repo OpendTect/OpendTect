@@ -30,11 +30,11 @@ namespace visBase
     class HorizonSection;
     class HorizonSectionTile;
 /*!
-\brief HorizonTileResolutionTesselator class is an independent usage for 
-tesselating coordinates, normals and primitive set of horizon tiles. it is 
-specifically for exporting horizon to Pdf3D in which the exported horizon has 
-no relation with the existing displayed horizon in coordinates, normals and 
-primitive set. thus we can export horizon into different resolution without 
+\brief HorizonTileResolutionTesselator class is an independent usage for
+tesselating coordinates, normals and primitive set of horizon tiles. it is
+specifically for exporting horizon to Pdf3D in which the exported horizon has
+no relation with the existing displayed horizon in coordinates, normals and
+primitive set. thus we can export horizon into different resolution without
 influence current displayed horizon in the secne.
 note: the class doesn't do anything with texture.
 */
@@ -45,9 +45,9 @@ public:
     HorizonTileResolutionTesselator(const HorizonSection* hrsection,char res);
     ~HorizonTileResolutionTesselator();
     od_int64		    nrIterations() const { return nrtiles_; }
-    uiString		    uiMessage() const 
+    uiString		    uiMessage() const
 			    { return tr("Tessellating horizon"); }
-    uiString		    uiNrDoneText() const 
+    uiString		    uiNrDoneText() const
 			    { return tr("Parts completed"); }
 
     bool		    doPrepare(int);
@@ -124,15 +124,11 @@ public:
 
 protected:
 
-    bool doWork(od_int64, od_int64, int);
-    bool doFinish(bool);
+    bool		doWork(od_int64,od_int64,int);
+    bool		doFinish(bool);
 
-    bool doOldWork(od_int64, od_int64, int);
-    bool doNewWork(od_int64, od_int64, int);
     int					nrcrdspertileside_;
     char				resolution_;
-    ObjectSet<HorizonSectionTile>	hrtiles_;
-    /*! don't use it, only for keep ABI */
     const Geometry::BinIDSurface*	geo_;
     StepInterval<int>			rrg_, crg_;
     ZAxisTransform*			zaxistransform_;
@@ -152,6 +148,4 @@ public:
     HorizonSectionTile*		tile_;
 };
 
-
-}
-
+} // namespace visBase

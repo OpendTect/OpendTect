@@ -59,10 +59,13 @@ public:
 
 protected:
     void		addTask(const TrcKeyValue&,const TrcKeyValue&,
-				const int seedid);
+				int seedid);
 
-    void		addTask(const TrcKeyValue&,const TrcKeyValue&);
-			/*!<Don't use it. only for keep ABI.*/
+    mDeprecatedDef
+    void		addTask( const TrcKeyValue& seed,
+				 const TrcKeyValue& source )
+			{ addTask( seed, source, 1 ); }
+
     void		taskFinished(CallBacker*);
     void		updateCB(CallBacker*);
     int			queueid_;

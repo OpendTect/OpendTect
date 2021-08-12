@@ -102,8 +102,8 @@ protected:
     int				cureventnr_;
     void			beginSeedClickEvent(EM::EMObject*);
     void			endSeedClickEvent(EM::EMObject*);
+    mDeprecated("Use other setUndoLevel")
     void			setUndoLevel(int);
-				/*don't use it, only for keep ABI */
 
     void			setUndoLevel(const EM::ObjectID&,
 					     int preveventnr);

@@ -33,10 +33,6 @@ public:
 			ReadAccess( Data& d ) : wd_(d)	{}
     virtual		~ReadAccess()			{}
 
-    virtual bool	get() const			= 0;
-			/*!< Obsolete, will be removed after 6.0.
-			     Well::Reader::get() takes over		*/
-
     virtual bool	getInfo() const			= 0;
     virtual bool	getTrack() const		= 0;
     virtual bool	getLogs(bool needjustinfo=false) const	  = 0;
@@ -60,15 +56,17 @@ protected:
     bool		updateDTModel(D2TModel*,bool ischeckshot,
 					uiString& errmsg) const;
 
-    mDeprecated		("use UiString")
+    mDeprecated("use updateDTModel with uiString")
     bool		updateDTModel(D2TModel*,bool ischeckshot,
 					BufferString& errmsg) const;
 			//!< D2TModel will become mine and may even be deleted
 
-    mDeprecatedDef bool updateDTModel(D2TModel*,const Track&,float,bool) const;
+    mDeprecatedDef
+    bool		updateDTModel(D2TModel*,const Track&,float,bool) const;
 
+public:
+    mDeprecated("Use other get functions, or Well::Reader::get")
+    virtual bool	get() const			= 0;
 };
 
-}; // namespace Well
-
-
+} // namespace Well

@@ -93,7 +93,7 @@ public:
 				//!<Segment-based coding: inner nodes doubled
 
     void			getTraceKeyPath(TrcKeyPath&,
-                                                TypeSet<Coord>*) const;
+						TypeSet<Coord>*) const;
     Interval<float>		getDataTraceRange() const;
     TypeSet<Coord>		getTrueCoords() const;
 
@@ -226,6 +226,8 @@ protected:
     void			updateMouseCursorCB(CallBacker*);
 
     int				nrgeomchangecbs_;
+    TypeSet<int>*		premovingselids_;
+    bool			geomnodejustmoved_;
 
     Geometry::RandomLine*	rl_;
     visBase::TexturePanelStrip*	panelstrip_;
@@ -256,7 +258,6 @@ protected:
     struct UpdateStageInfo
     {
 	float			oldzrgstart_;
-	float			mapfactor_;	// obsolete
     };
     UpdateStageInfo		updatestageinfo_;
 

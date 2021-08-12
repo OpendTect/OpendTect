@@ -59,9 +59,9 @@ protected:
     bool			retrackFromSeedList();
     int				nrLineNeighbors(int colnr) const;
     bool			interpolateSeeds(bool manualnode);
+    mDeprecatedDef
     bool			interpolateSeeds();
-				/*!<don't use it, only for keep ABI*/
-				
+
     TrcKeyZSampling		getTrackBox() const;
     bool			getNextSeedPos(int seedpos,int dirstep,
 					       int& nextseedpos) const;

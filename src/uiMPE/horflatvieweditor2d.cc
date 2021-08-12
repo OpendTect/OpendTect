@@ -724,7 +724,7 @@ bool HorizonFlatViewEditor2D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 
 	if ( doerase || manualmodeclick )
 	{
-	    spk.addSeedToPatch( tkv );
+	    spk.addSeedToPatch( tkv, true );
 	    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
 	    if ( tracker )
 	    {

@@ -286,25 +286,4 @@ const unsigned char* TexturePanelStrip::getTextureData() const
     return image ? image->data() : 0;
 }
 
-
-bool TexturePanelStrip::calcTextureCoordinates( TypeSet<Coord3>& coordin,
-	TypeSet<Coord>& coordout ) const
-{
-    return true;
-}
-
-
-Coord TexturePanelStrip::getImageTextureCoord( const Coord3 dispcrd,
-    double minx, double xlen, double minz, double zlen ) const
-{
-    return Coord( 0, 0 );
-
-}
-
-
-void TexturePanelStrip::getMinAndLengthInfo( double& minval, double& len,
-    bool bz ) const
-{
-}
-
 } // namespace visBase

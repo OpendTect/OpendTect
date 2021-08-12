@@ -884,15 +884,6 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 }
 
 
-const TypeSet<int> EMObjectDisplay::findOverlapSelectors(
-    visBase::PolygonSelection* polysel )
-{
-    // for keep ABI. do nothing
-    TypeSet<int> overlapselectors;
-    return overlapselectors;
-}
-
-
 void EMObjectDisplay::updateSelections()
 {
     const Selector<Coord3>* selector = scene_->getSelector();

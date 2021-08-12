@@ -113,18 +113,6 @@ protected:
 private:
     bool			calcTextureCoordinates(int,
 						       TypeSet<Coord>&)const;
-
-    bool			calcTextureCoordinates(TypeSet<Coord3>& coordin,
-					TypeSet<Coord>& coordout) const;
-				/*!<don't use it, only for keep ABI.*/
-    Coord			getImageTextureCoord(const Coord3 dispcrd,
-					double minx,double xlen,double minz,
-					double zlen) const;
-				/*!<don't use it, only for keep ABI.*/
-    void			getMinAndLengthInfo(double& minval,double& len,
-						    bool bz=false) const;
-				/*!<don't use it, only for keep ABI.*/
 };
 
-};
-
+} // namespace visBase

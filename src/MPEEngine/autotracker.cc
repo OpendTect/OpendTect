@@ -143,14 +143,7 @@ void HorizonTrackerMgr::setSeeds( const TypeSet<TrcKey>& seeds )
 
 
 void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
-				 const TrcKeyValue& source )
-{
-   addTask( seed, source, 1 ); // only for keep ABI
-}
-
-
-void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
-				 const TrcKeyValue& source, const int seedid )
+				 const TrcKeyValue& source, int seedid )
 {
     mDynamicCastGet(EM::Horizon*,hor,tracker_.emObject())
     if ( !hor || !hor->hasZ(source.tk_) )

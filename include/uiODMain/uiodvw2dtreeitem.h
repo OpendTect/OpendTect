@@ -27,7 +27,7 @@ namespace Attrib { class SelSpec; }
 mExpClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODVw2DTreeItem)
 public:
-		uiODVw2DTreeItem(const uiString&);
+			uiODVw2DTreeItem(const uiString&);
 			~uiODVw2DTreeItem();
 
     bool		setZAxisTransform(ZAxisTransform*);
@@ -41,8 +41,7 @@ public:
     static bool		create(uiTreeItem*,int vwrvisid,int displayid);
     static bool		create(uiTreeItem*,const uiODViewer2D&,int displayid);
     const uiODVw2DTreeItem* getVW2DItem(int displayid) const;
-    void		addKeyBoardEvent( int id );
-
+    void		addKeyBoardEvent(int id);
 
 protected:
 
@@ -82,15 +81,14 @@ protected:
 
 private:
     void		doStoreObject(bool);
-
 };
 
 
 mExpClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
 {
-    public:
-	virtual uiTreeItem* createForVis(const uiODViewer2D&,int visid) const
-				{ return 0; }
+public:
+    virtual uiTreeItem* createForVis(const uiODViewer2D&,int visid) const
+			{ return 0; }
 };
 
 
@@ -123,5 +121,3 @@ protected:
     uiTreeFactorySet*		tfs_;
     bool			selectWithKey(int);
 };
-
-

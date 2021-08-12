@@ -349,17 +349,6 @@ bool uiODVw2DFaultSSTreeItem::select()
 }
 
 
-void uiODVw2DFaultSSTreeItem::renameVisObj()
-{
-    const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
-    TypeSet<int> visobjids;
-    applMgr()->visServer()->findObject( midintree, visobjids );
-    for ( int idx=0; idx<visobjids.size(); idx++ )
-	applMgr()->visServer()->setUiObjectName( visobjids[idx], name_ );
-    applMgr()->visServer()->triggerTreeUpdate();
-}
-
-
 #define mPropID		0
 #define mSaveID		1
 #define mSaveAsID	2

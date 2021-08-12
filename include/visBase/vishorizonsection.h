@@ -130,18 +130,10 @@ public:
     void			forceRedraw(bool=true);
     bool			executePendingUpdates();
 
-    int				getNrTitles() const;
-    bool			getTitleCoordinates(int,TypeSet<Coord3>&) const;
-				/*!<don't use it, only for ABI*/
+    int				getNrTiles() const;
     const unsigned char*	getTextureData(int titleidx,int& w,int& h)const;
-    bool			getTitleNormals(
-				    int titleidx,TypeSet<Coord3>&) const;
-				/*!<don't use it, only for ABI*/
-    bool			getTitleTextureCoordinates(
-				    int titleidx,TypeSet<Coord>&) const;
-    bool			getTitlePrimitiveSet(int titleidx,
-				    TypeSet<int>&,GeometryType) const;
-				/*!<don't use it, only for ABI*/
+    bool			getTileTextureCoordinates(
+				    int tileidx,TypeSet<Coord>&) const;
     int				getTexturePixelSizeInBits() const;
     void			setUsingNeighborsInIsolatedLine(bool);
     bool			usingNeighborsInIsolatedLine() const;
@@ -172,7 +164,7 @@ protected:
 
     void			configSizeParameters();
     void			updateAutoResolution( const osg::CullStack* );
-    HorizonSectionTile*		getTitle(int idx);
+    HorizonSectionTile*		getTile(int idx);
     bool			checkTileIndex(int) const;
 
     void			setUpdateVar(bool& var,bool yn);
@@ -185,7 +177,7 @@ protected:
     RowCol			origin_;
 
     bool			userchangedisplayrg_;
-    int             linewidths_ = 1;
+    int				linewidths_ = 1;
     StepInterval<int>		displayrrg_;
     StepInterval<int>		displaycrg_;
     StepInterval<int>		texturerowrg_;
@@ -233,8 +225,6 @@ protected:
     TypeSet<int>		updatedtileresolutions_;
     bool			wireframedisplayed_;
     bool			useneighbors_;
-
 };
 
 } // namespace visBase
-

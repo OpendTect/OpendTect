@@ -751,7 +751,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	if ( doerase || manualmodeclick )
 	{
-	    seedpicker->addSeedToPatch( seedpos );
+	    seedpicker->addSeedToPatch( seedpos, true );
 	    updatePatchDisplay();
 	}
 	else if ( !ctrlbut && !sowingmode_ )
@@ -1288,12 +1288,8 @@ void uiMPEMan::initFromDisplay()
 }
 
 
-void uiMPEMan::setUndoLevel( int preveventnr )
+void uiMPEMan::setUndoLevel( int )
 {
-    Undo& emundo = EM::EMM().undo();
-    const int currentevent = emundo.currentEventID();
-    if ( currentevent != preveventnr )
-	    emundo.setUserInteractionEnd(currentevent);
 }
 
 

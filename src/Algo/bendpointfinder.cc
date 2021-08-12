@@ -9,14 +9,15 @@
 #include "survgeom.h"
 #include "trigonometry.h"
 
-
-#define nrworking_ nrthreads_	/* ABI preservation */
+mStartAllowDeprecatedSection
 
 BendPointFinderBase::BendPointFinderBase( int sz, float eps )
     : sz_(sz)
     , epssq_(eps*eps)
-    , nrworking_(0)
+    , nrthreads_(nrworking_)
 {}
+
+mStopAllowDeprecatedSection
 
 
 bool BendPointFinderBase::doPrepare( int )
@@ -118,8 +119,6 @@ void BendPointFinderBase::findInSegment( int idx0, int idx1 )
     if ( nrdone )
 	addToNrDone( nrdone );
 }
-
-#undef nrworking_	/* ABI preservation */
 
 
 // BendPointFinder2DBase

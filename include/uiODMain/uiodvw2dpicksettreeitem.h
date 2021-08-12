@@ -12,17 +12,16 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
-
 #include "emposid.h"
 
 class VW2DPickSet;
 
-namespace Pick{ class Set; class SetMgr; }
+namespace Pick { class Set; class SetMgr; }
 
 
 
 mExpClass(uiODMain) uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DPickSetParentTreeItem);
+{ mODTextTranslationClass(uiODVw2DPickSetParentTreeItem)
 public:
 				uiODVw2DPickSetParentTreeItem();
 				~uiODVw2DPickSetParentTreeItem();
@@ -89,5 +88,3 @@ protected:
     Pick::Set&		pickset_;
     VW2DPickSet*	vw2dpickset_;
 };
-
-

@@ -12,43 +12,40 @@ ________________________________________________________________________
 
 #include "visbasemod.h"
 #include "color.h"
+#include "coltabmapper.h"
+#include "coltabsequence.h"
 #include "ranges.h"
 #include "trckeyzsampling.h"
 #include "visdata.h"
-#include "coltabmapper.h"
-#include "coltabsequence.h"
 #include "visosg.h"
 
 class TaskRunner;
 template <class T> class Array3D;
 template <class T> class ValueSeries;
 
-
 namespace osgVolume { class Volume; class VolumeTile; class ImageLayer;
 		      class TransparencyProperty; }
 namespace osg { class Switch; class Image; class TransferFunction1D; }
 namespace osgGeo { class RayTracedTechnique; }
 
-
-
 namespace visBase
 {
-    class Material;
-    class TextureChannel2RGBA;
+class Material;
+class TextureChannel2RGBA;
 
 mExpClass(visBase) VolumeRenderScalarField : public DataObject
 {
 public:
-
     static VolumeRenderScalarField*	create()
-	                        	mCreateDataObj(VolumeRenderScalarField);
+					mCreateDataObj(VolumeRenderScalarField);
+
+    void			setScalarField(int attr,const Array3D<float>*,
+					       bool mine,const TrcKeyZSampling&,
+					       TaskRunner*);
 
     void			setChannels2RGBA(visBase::TextureChannel2RGBA*);
     TextureChannel2RGBA*	getChannels2RGBA();
     const TextureChannel2RGBA*	getChannels2RGBA() const;
-
-    void			setScalarField(int attr,const Array3D<float>*,
-					   bool mine,TaskRunner*); // obsolete
 
     void			setColTabMapperSetup(int attr,
 						     const ColTab::MapperSetup&,
@@ -89,6 +86,8 @@ public:
     void			swapAttribs(int attr0,int attr1);
     void			setAttribTransparency(int attr,unsigned char);
 
+    TrcKeyZSampling		getMultiAttribTrcKeyZSampling() const;
+
     void			setRightHandSystem(bool);
     bool			isRightHandSystem() const;
 
@@ -110,10 +109,8 @@ protected:
 					AttribData();
 					~AttribData();
 
-	od_int64			totalSz() const;	// obsolete
 	bool				isInVolumeCache() const;
 
-	int				sz0_, sz1_, sz2_;	// obsolete
 	ColTab::Mapper			mapper_;
 	unsigned char*			indexcache_;
 	int				indexcachestep_;
@@ -151,12 +148,13 @@ protected:
     osgGeo::RayTracedTechnique*		raytt_;
 
     void			updateResizeCache(int attr,TaskRunner*);
+
 public:
+
+    mDeprecated("Use other setScalarField")
     void			setScalarField(int attr,const Array3D<float>*,
-					       bool mine,const TrcKeyZSampling&,
-					       TaskRunner*);
-    TrcKeyZSampling		getMultiAttribTrcKeyZSampling() const;
+					   bool mine,TaskRunner*);
+
 };
 
-}
-
+} // namespace visBase

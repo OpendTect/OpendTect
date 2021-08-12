@@ -63,23 +63,23 @@ public:
     EMObject*		createTempObject(const char* type);
 
     BufferString	objectName(const MultiID&) const;
-    			/*!<\returns the name of the object */
+			/*!<\returns the name of the object */
     const char*		objectType(const MultiID&) const;
-    			/*!<\returns the type of the object */
+			/*!<\returns the type of the object */
 
     ObjectID		getObjectID(const MultiID&) const;
-    			/*!<\note that the relationship between storage id 
+			/*!<\note that the relationship between storage id
 			     (MultiID) and EarthModel id (ObjectID) may change
 			     due to "Save as" operations and similar. */
     MultiID		getMultiID(const ObjectID&) const;
-    			/*!<\note that the relationship between storage id 
+			/*!<\note that the relationship between storage id
 			     (MultiID) and EarthModel id (ObjectID) may change
 			     due to "Save as" operations and similar. */
 
     void		burstAlertToAll(bool yn);
 
     void		removeSelected(const ObjectID&,const Selector<Coord3>&,
-	    			       TaskRunner*);
+				       TaskRunner*);
     bool		readDisplayPars(const MultiID&,IOPar&) const;
     bool		writeDisplayPars(const MultiID&,const IOPar&) const;
     bool		getSurfaceData(const MultiID&,SurfaceIOData&,
@@ -92,17 +92,14 @@ protected:
     mStruct(EarthModel) EMObjUndo
     {
 	EMObjUndo(const EM::ObjectID& id)
-	: undo_(*new EMUndo()),id_(id) {}
-
+	    : undo_(*new EMUndo()),id_(id) {}
 	~EMObjUndo() { delete &undo_; }
-	Undo&	     undo_;
-	EM::ObjectID id_;
+
+	Undo&		undo_;
+	EM::ObjectID	id_;
     };
 
     ObjectSet<EMObjUndo>	undolist_;
-
-    Undo&			undo_;
-				/*don't use it, only for keep ABI */
 
     ObjectSet<EMObject>		objects_;
 
@@ -110,10 +107,10 @@ protected:
     static const char*	displayparameterstr();
 
     bool		readParsFromDisplayInfoFile(const MultiID&,
-						    IOPar&)const;
+						    IOPar&) const;
     bool		readParsFromGeometryInfoFile(const MultiID&,
-						     IOPar&)const;
-    int			undoIndexOf(const EM::ObjectID& id);
+						     IOPar&) const;
+    int			undoIndexOf(const EM::ObjectID&);
 
 public:
 
@@ -124,27 +121,30 @@ public:
     Executor*		objectLoader(const MultiID&,
 	    			     const SurfaceIODataSelection* =0);
     Executor*		objectLoader(const TypeSet<MultiID>&,
-	    			     const SurfaceIODataSelection* =0,
+				     const SurfaceIODataSelection* =0,
 				     TypeSet<MultiID>* idstobeloaded =0);
-        		/*!< idstobeloaded are the ids for which the objects 
+			/*!< idstobeloaded are the ids for which the objects
 			     will be actually loaded */
 
     EM::ObjectID	createObject(const char* type,const char* name);
-    			/*!< Creates a new object, saves it and loads it.
+			/*!< Creates a new object, saves it and loads it.
 			     Removes any loaded object with the same name!  */
 
-    			/*Interface from EMObject to report themselves */
+			/*Interface from EMObject to report themselves */
     void		addObject(EMObject*);
     void		removeObject(const EMObject*);
 
+    mDeprecatedDef
     Undo&		undo();
-			/*don't use it, only for keep ABI */
+    mDeprecatedDef
     const Undo&		undo() const;
-			/*don't use it, only for keep ABI */
 
     void		eraseUndoList();
     Undo&		undo(const EM::ObjectID&);
 
+private:
+    Undo&			undo_;
+				/*don't use it, only for keep ABI */
 };
 
 

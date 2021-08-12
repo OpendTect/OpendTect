@@ -441,17 +441,6 @@ void uiODVw2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
 }
 
 
-void uiODVw2DHor2DTreeItem::renameVisObj()
-{
-    const MultiID midintree = applMgr()->EMServer()->getStorageID(emid_);
-    TypeSet<int> visobjids;
-    applMgr()->visServer()->findObject( midintree, visobjids );
-    for ( int idx=0; idx<visobjids.size(); idx++ )
-	applMgr()->visServer()->setUiObjectName( visobjids[idx], name_ );
-    applMgr()->visServer()->triggerTreeUpdate();
-}
-
-
 #define mPropID		0
 #define mStartID	1
 #define mSettsID	2

@@ -384,7 +384,7 @@ public:
     void			setMaxDistBetwTrcs( float maxdist )
 						{ maxdisttrcs_ = maxdist; }
     void			setMedianDistBetwTrcs(float mediandist);
-    void                        setPossibleBinIDDuplic() { arebiddupl_ = true; }
+    void			setPossibleBinIDDuplic() { arebiddupl_ = true; }
     void			initPairsTable();
 
 protected:

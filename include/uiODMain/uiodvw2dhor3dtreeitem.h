@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
-
 #include "emposid.h"
 
 class Vw2DHorizon3D;
@@ -95,8 +94,4 @@ protected:
     bool		oldactivevolupdated_;
     bool		trackerefed_;
     void		emobjAbtToDelCB(CallBacker*);
-    void		renameVisObj();
-			/*!<Don't use it. only for keep ABI.*/
-
 };
-

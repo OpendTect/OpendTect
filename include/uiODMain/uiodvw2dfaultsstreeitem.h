@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
-
 #include "emposid.h"
 
 class VW2DFaultSS3D;
@@ -20,9 +19,9 @@ class uiODViewer2D;
 
 
 mExpClass(uiODMain) uiODVw2DFaultSSParentTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DFaultSSParentTreeItem);
+{ mODTextTranslationClass(uiODVw2DFaultSSParentTreeItem)
 public:
-    				uiODVw2DFaultSSParentTreeItem();
+				uiODVw2DFaultSSParentTreeItem();
 				~uiODVw2DFaultSSParentTreeItem();
 
     bool			showSubMenu();
@@ -32,6 +31,7 @@ public:
     void			removeFaultSS(EM::ObjectID);
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS(EM::ObjectID emid);
+    void			setupNewTempFaultSS(EM::ObjectID emid);
 
 protected:
 
@@ -39,9 +39,7 @@ protected:
     const char*			iconName() const;
     bool			handleSubMenu(int);
     const char*			parentType() const
-    				{ return typeid(uiODVw2DTreeTop).name(); }
-public:
-    void			setupNewTempFaultSS(EM::ObjectID emid);
+				{ return typeid(uiODVw2DTreeTop).name(); }
 };
 
 
@@ -87,8 +85,4 @@ protected:
 
     EM::ObjectID	emid_;
     VW2DFaultSS3D*	fssview_;
-    void		renameVisObj();
-			/*!<Don't use it. only for keep ABI.*/
-
 };
-

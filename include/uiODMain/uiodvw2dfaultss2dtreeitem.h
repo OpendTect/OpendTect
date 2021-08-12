@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
-#include "uistring.h"
-
 #include "emposid.h"
 
 
@@ -22,9 +20,9 @@ class uiODViewer2D;
 
 
 mExpClass(uiODMain) uiODVw2DFaultSS2DParentTreeItem : public uiODVw2DTreeItem
-{ mODTextTranslationClass(uiODVw2DFaultSS2DParentTreeItem);
+{ mODTextTranslationClass(uiODVw2DFaultSS2DParentTreeItem)
 public:
-    				uiODVw2DFaultSS2DParentTreeItem();
+				uiODVw2DFaultSS2DParentTreeItem();
 				~uiODVw2DFaultSS2DParentTreeItem();
 
     bool			showSubMenu();
@@ -92,8 +90,4 @@ protected:
 
     EM::ObjectID	emid_;
     VW2DFaultSS2D*	fssview_;
-    void		renameVisObj();
-			/*!<Don't use it. only for keep ABI.*/
 };
-
-

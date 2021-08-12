@@ -11,7 +11,6 @@
 #include "separstr.h"
 #include "envvars.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "ptrman.h"
 #include <iostream>
 
@@ -34,6 +33,7 @@ DataManager::DataManager()
     : freeid_( 0 )
     , selman_( *new SelectionManager )
     , removeallnotify( this )
+    , prevobjectidx_(0)
 { }
 
 
@@ -62,9 +62,6 @@ int DataManager::highestID() const
 }
 
 
-static int prevobjectidx_ = 0;	// ABI-shortcut. OD has only one DataManager
-
-
 #define mSmartLinearSearch( reversecondition, foundcondition, foundactions ) \
     const int sz = objects_.size(); \
     int idx = prevobjectidx_; \
@@ -81,6 +78,7 @@ static int prevobjectidx_ = 0;	// ABI-shortcut. OD has only one DataManager
 	    foundactions; \
 	} \
     }
+
 
 DataObject* DataManager::getObject( int id )
 {

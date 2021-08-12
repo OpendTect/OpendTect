@@ -44,10 +44,7 @@ namespace visBase
 
 
 VolumeRenderScalarField::AttribData::AttribData()
-    : sz0_( 1 )
-    , sz1_( 1 )
-    , sz2_( 1 )
-    , indexcache_( 0 )
+    : indexcache_( 0 )
     , indexcachestep_( 0 )
     , ownsindexcache_( false )
     , datacache_( 0 )
@@ -63,12 +60,6 @@ VolumeRenderScalarField::AttribData::~AttribData()
     clearDataCache();
     clearResizeCache();
     clearIndexCache();
-}
-
-
-od_int64 VolumeRenderScalarField::AttribData::totalSz() const	// obsolete
-{
-    return sz0_ * sz1_ * sz2_;
 }
 
 

@@ -40,7 +40,6 @@ const char* PickSetDisplay::sKeyDisplayBody()	{ return "Show Body"; }
 PickSetDisplay::PickSetDisplay()
     : LocationDisplay()
     , markerset_(visBase::MarkerSet::create())
-    , polyline_(nullptr)
     , needline_(false)
     , bodydisplay_(nullptr)
     , shoulddisplaybody_( false )
@@ -865,7 +864,6 @@ void PickSetDisplay::polygonFinishedCB(CallBacker*)
 void PickSetDisplay::unSelectAll()
 {
     markerset_->setMarkersSingleColor( color_ );
-    deepErase( selectors_ );
     pickselstatus_.setAll( false );
 }
 

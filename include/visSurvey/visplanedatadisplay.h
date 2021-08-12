@@ -225,7 +225,6 @@ protected:
 	bool		refreeze_;
 	TrcKeyZSampling oldcs_;
 	SliceType	oldorientation_;
-	Coord		oldimagesize_;		// obsolete
     };
     UpdateStageInfo			updatestageinfo_;
     TrcKeyZSampling			startmovepos_;

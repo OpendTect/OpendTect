@@ -47,13 +47,16 @@ protected:
     TypeSet<int>		bendpts_;
     TypeSet<Interval<int> >	queue_;
     Threads::ConditionVar	lock_;
-    bool			finished_;	/* Obsolete, will be removed. */
-    int				nrwaiting_;	/* Obsolete, will be removed. */
-    int				nrthreads_;	/* Obsolete, will be removed,
-						   but now used as nrworking_
-						   variable to preserve ABI. */
+    int				nrworking_	= 0;
     int				sz_;
     const float			epssq_;
+
+    mDeprecatedObs
+    bool			finished_;	/* Obsolete, will be removed. */
+    mDeprecatedObs
+    int				nrwaiting_;	/* Obsolete, will be removed. */
+    mDeprecated("Use nrworking_")
+    int&			nrthreads_;	/* Obsolete, will be removed. */
 };
 
 

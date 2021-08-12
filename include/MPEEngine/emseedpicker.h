@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Bril
- Date:          23-10-1996
- Contents:      Ranges
+ Author:	A.H. Bril
+ Date:		23-10-1996
+ Contents:	Ranges
 ________________________________________________________________________
 
 -*/
@@ -29,30 +29,36 @@ namespace MPE
 
 class EMTracker;
 class EMSeedPicker;
+
 mExpClass(MPEEngine) Patch
 { mRefCountImpl(Patch);
 public:
 			    Patch(const EMSeedPicker*);
+
     const TypeSet<TrcKeyValue>&  getPath() const;
     void		    getTrcKeySampling(TrcKeySampling&) const;
-    int                     nrSeeds();
-    Coord3                  seedCoord(int) const;
+    int			    nrSeeds();
+    Coord3		    seedCoord(int) const;
     int			    addSeed(const TrcKeyValue&,bool sort);
-    int			    addSeed(const TrcKeyValue&);
-			    /*!<don't use it, only for keep ABI. */
     void		    removeSeed(int);
     void		    clear();
     
 protected:
-    EM::PosID               seedNode(int) const;
+    EM::PosID		    seedNode(int) const;
     int			    findClosedSeed3d(const EM::PosID&);
     int			    findClosedSeed2d(const TrcKeyValue&);
+    int			    findClosestSeedRdmIdx(const EM::PosID&);
     const EMSeedPicker*     seedpicker_;
+
 private:
     TypeSet<TrcKeyValue>    seeds_;
-protected:
-    int			    findClosestSeedRdmIdx(const EM::PosID&);
+
+public:
+    mDeprecatedDef
+    int			    addSeed(const TrcKeyValue&);
 };
+
+
 /*!
 \brief Handles adding of seeds and retracking of events based on new seeds. An
 instance of the class is usually available from each EMTracker.
@@ -75,8 +81,6 @@ public:
     bool		stopSeedPick();
 
     void		addSeedToPatch(const TrcKeyValue&,bool sort);
-    void		addSeedToPatch(const TrcKeyValue&);
-			 /*!<don't use it, only for keep ABI. */
 
     bool		addSeed(const TrcKeyValue&,bool drop=false);
     virtual bool	addSeed(const TrcKeyValue& seedcrd,bool drop,
@@ -86,8 +90,8 @@ public:
     int			indexOf(const TrcKey&) const;
 
     virtual bool	removeSeed(const TrcKey&,
-	    			   bool enviromment=true,
-	    			   bool retrack=true)		{ return false;}
+				   bool enviromment=true,
+				   bool retrack=true)		{ return false;}
     virtual TrcKey	replaceSeed(const TrcKey&,const TrcKeyValue&)
 			{ return TrcKey::udf(); }
 
@@ -108,14 +112,14 @@ public:
     TrackMode		getTrackMode() const;
     bool		doesModeUseVolume() const		{ return false;}
 
-    virtual const char*	errMsg() const				{ return 0; }
+    virtual const char* errMsg() const				{ return 0; }
 
 
     void		setSeedPickArea(const TrcKeySampling&);
     const TrcKeySampling& getSeedPickArea() const;
     EMTracker&		emTracker() const { return tracker_; }
-    bool		lineTrackDirection( BinID& dir, 
-				            bool perptotrackdir = false ) const;
+    bool		lineTrackDirection( BinID& dir,	
+					    bool perptotrackdir = false ) const;
     virtual bool	updatePatchLine(bool) { return false; }
     Undo&		horPatchUndo();
     const Undo&		horPatchUndo() const;
@@ -152,6 +156,9 @@ protected:
     Patch*		patch_;
     Undo&		patchundo_;
 
+public:
+    mDeprecatedDef
+    void		addSeedToPatch(const TrcKeyValue&);
 };
 
 } // namespace MPE

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
-
 #include "emposid.h"
 
 class VW2DFault;
@@ -33,6 +32,7 @@ public:
     void			removeFault(EM::ObjectID);
     void			addFaults(const TypeSet<EM::ObjectID>&);
     void			addNewTempFault(EM::ObjectID emid);
+    void			setupNewTempFault(EM::ObjectID emid);
 
 protected:
 
@@ -41,8 +41,6 @@ protected:
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-public:
-    void			setupNewTempFault(EM::ObjectID emid);
 };
 
 
@@ -88,9 +86,4 @@ protected:
 
     EM::ObjectID	emid_;
     VW2DFault*		faultview_;
-    void		renameVisObj();
-			/*!<Don't use it. only for keep ABI.*/
-
 };
-
-

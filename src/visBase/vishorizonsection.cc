@@ -68,7 +68,7 @@ bool TileCoordinatesUpdator::doWork( od_int64 start, od_int64 stop, int )
 
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
-	HorizonSectionTile* tile = hrsection_->getTitle( idx );
+	HorizonSectionTile* tile = hrsection_->getTile( idx );
 	updateCoordinates( tile );
     }
     return true;
@@ -385,7 +385,7 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 }
 
 
-HorizonSectionTile* HorizonSection::getTitle(int idx)
+HorizonSectionTile* HorizonSection::getTile(int idx)
 {
     HorizonSectionTile** tileptrs = tiles_.getData();
     if ( !tileptrs || (idx>=tiles_.info().getTotalSz()) )
@@ -788,7 +788,7 @@ HorizonTextureHandler& HorizonSection::getTextureHandler()
 { return *hortexturehandler_; }
 
 
-int HorizonSection::getNrTitles() const
+int HorizonSection::getNrTiles() const
 {
     return tiles_.info().getTotalSz();
 }
@@ -798,23 +798,13 @@ bool HorizonSection::checkTileIndex( int tidx ) const
 {
     const bool szok = tidx<tiles_.info().getTotalSz();
     const bool dataok = tiles_.getData();
-    const bool titledataok = tiles_.getData()[tidx];
-    return szok && dataok && titledataok;
-}
-
-
-bool HorizonSection::getTitleCoordinates(
-    int titleidx, TypeSet<Coord3>& coords ) const
-{
-    if ( !checkTileIndex(titleidx) ) return false;
-    if ( tiles_.getData() && titleidx<tiles_.info().getTotalSz() )
-	return tiles_.getData()[titleidx]->getResolutionCoordinates( coords );
-    return false;
+    const bool tiledataok = tiles_.getData()[tidx];
+    return szok && dataok && tiledataok;
 }
 
 
 const unsigned char* HorizonSection::getTextureData(
-    int titleidx, int& width, int& height ) const
+    int tileidx, int& width, int& height ) const
 {
     osgGeo::LayeredTexture* texture = getOsgTexture();
     const osg::Image* entireimg = texture->getCompositeTextureImage();
@@ -841,28 +831,13 @@ int HorizonSection::getTexturePixelSizeInBits() const
 }
 
 
-bool HorizonSection::getTitleNormals( int titleidx,
-	TypeSet<Coord3>& normals ) const
+bool HorizonSection::getTileTextureCoordinates(
+	int tileidx, TypeSet<Coord>& coords ) const
 {
-    if ( !checkTileIndex(titleidx) ) return false;
-    return tiles_.getData()[titleidx]->getResolutionNormals( normals );
-}
+    if ( !checkTileIndex(tileidx) )
+	return false;
 
-
-bool HorizonSection::getTitleTextureCoordinates(
-	int titleidx, TypeSet<Coord>& coords ) const
-{
-    if ( !checkTileIndex(titleidx) ) return false;
-    return tiles_.getData()[titleidx]->getResolutionTextureCoordinates(coords);
-
-}
-
-
-bool HorizonSection::getTitlePrimitiveSet( int titleidx, TypeSet<int>& ps,
-    GeometryType type ) const
-{
-    if ( !checkTileIndex(titleidx) ) return false;
-    return tiles_.getData()[titleidx]->getResolutionPrimitiveSet( ps, type );
+    return tiles_.getData()[tileidx]->getResolutionTextureCoordinates(coords);
 }
 
 

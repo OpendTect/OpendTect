@@ -12,10 +12,11 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "sets.h"
-#include "factory.h"
 #include "callback.h"
+#include "factory.h"
+#include "sets.h"
 #include <typeinfo>
+
 namespace osg { class Node; }
 
 namespace visBase
@@ -23,12 +24,12 @@ namespace visBase
 class DataObject;
 class SelectionManager;
 
-/*!\brief */
+/*!\brief the visBase Data Manager */
 
 mExpClass(visBase) DataManager : public CallBacker
 {
 public:
-    			DataManager();
+			DataManager();
     virtual		~DataManager();
 
     const char*		errMsg() const;
@@ -46,7 +47,7 @@ public:
     const DataObject*	getIndexedObject(int idx) const;
 
     SelectionManager&	selMan() { return selman_; }
- 
+
     void		fillPar(IOPar&) const;
 			//Only saves freeid_
     bool		usePar(const IOPar&);
@@ -55,6 +56,7 @@ public:
     Notifier<DataManager>	removeallnotify;
 
     mDefineFactoryInClass( DataObject, factory );
+
 protected:
 
     friend class	DataObject;
@@ -62,6 +64,7 @@ protected:
     void		removeObject( DataObject* );
 
     ObjectSet<DataObject>	objects_;
+    mutable int			prevobjectidx_;
 
     int				freeid_;
     SelectionManager&		selman_;
@@ -73,6 +76,4 @@ protected:
 
 mGlobal(visBase) DataManager& DM();
 
-};
-
-
+} // namespace visBase

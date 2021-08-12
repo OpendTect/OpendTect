@@ -97,10 +97,7 @@ protected:
     bool			getResolutionNormals(TypeSet<Coord3>&) const;
     bool			getResolutionTextureCoordinates(
 							TypeSet<Coord>&) const;
-    bool			getResolutionPrimitiveSet(
-					     TypeSet<int>&,GeometryType) const;
-				/*!<don't use it, only for ABI. */
-  bool				getResolutionPrimitiveSet( char res,
+    bool			getResolutionPrimitiveSet( char res,
 					     TypeSet<int>&,GeometryType) const;
     bool			getResolutionCoordinates(TypeSet<Coord3>&)const;
 
@@ -110,8 +107,6 @@ protected:
     void			initTexCoordLayers();
     osg::Array*			getNormals() { return normals_; }
     osg::Array*			getOsgVertexArray(){ return osgvertices_; }
-
-protected:
 
     friend class		HorizonSectionTilePosSetup;
     friend class		TileTesselator;
@@ -170,4 +165,3 @@ protected:
 };
 
 } // namespace visBase
-

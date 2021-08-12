@@ -765,15 +765,7 @@ bool HorizonSectionTile::getResolutionTextureCoordinates(
 
 
 bool HorizonSectionTile::getResolutionPrimitiveSet(
-    TypeSet<int>& ps,GeometryType type) const
-{
-    const char res = getActualResolution();
-    return getResolutionPrimitiveSet( res, ps, type );
-}
-
-
-bool HorizonSectionTile::getResolutionPrimitiveSet(
-    char res, TypeSet<int>& ps,GeometryType type) const
+			char res, TypeSet<int>& ps, GeometryType type ) const
 {
     if ( res==-1 ) res = 0;
 

@@ -58,8 +58,9 @@ protected:
 					bool perptotrackdir=false) const;
 
     bool		interpolateSeeds(bool setmanualnode);
+    mDeprecatedDef
     bool		interpolateSeeds();
-			/*!<don't use it, only for keep ABI*/
+
     TrcKeyZSampling	getTrackBox() const;
     bool		getNextSeed(const BinID& seedbid,const BinID& dir,
 				    BinID& nextseedbid) const;
@@ -70,7 +71,6 @@ private:
     void		extendSeedListEraseInBetween(
 			    bool wholeline,const BinID& startbid,
 			    bool startwasdefined,const BinID& dir );
-			
 };
 
 } // namespace MPE

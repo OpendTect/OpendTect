@@ -306,72 +306,7 @@ od_int64 HorizonSectionTilePosSetup::nrIterations() const
 }
 
 
-bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
-					 int threadid )
-{
-    if ( hrtiles_.size()>0 )
-	return doOldWork( start, stop, threadid );
-    else
-	return doNewWork( start, stop, threadid );
-}
-
-
-bool HorizonSectionTilePosSetup::doFinish( bool sucess )
-{
-    if ( sucess && horsection_ )
-    {
-	horsection_->forceupdate_ =  true;
-    }
-
-    return sucess;
-}
-
-
-bool HorizonSectionTilePosSetup::doOldWork( od_int64 start, od_int64 stop, int )
-{
-    if ( !geo_ )
-	return false;
-
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
-    {
-	if ( !hrtiles_[idx] )
-	     continue;
-
-	const RowCol& origin = hrtiles_[idx]->origin_;
-	TypeSet<Coord3> positions;
-	positions.setCapacity( (nrcrdspertileside_)*(nrcrdspertileside_),
-			       false );
-	for ( int rowidx=0; rowidx<nrcrdspertileside_ ; rowidx++ )
-	{
-	    const int row = origin.row() + rowidx*rrg_.step;
-	    const bool rowok = rrg_.includes(row, false);
-	    const StepInterval<int> geocolrg = geo_->colRange( row );
-	    const StepInterval<int> colrg(
-		mMAX(geocolrg.start,crg_.start),
-		mMIN(geocolrg.stop,crg_.stop), crg_.step );
-
-	    for ( int colidx=0; colidx<nrcrdspertileside_ ; colidx++ )
-	    {
-		const int col = origin.col() + colidx*colrg.step;
-		Coord3 pos = rowok && colrg.includes(col, false)
-		    ? geo_->getKnot(RowCol(row,col),false)
-		    : Coord3::udf();
-		if ( zaxistransform_ )
-		    pos.z = zaxistransform_->transform( pos );
-		positions += pos;
-	    }
-	}
-
-	hrtiles_[idx]->setPositions( positions );
-	hrtiles_[idx]->tesselateResolution( resolution_, false );
-	addToNrDone( 1 );
-    }
-
-    return true;
-}
-
-
-bool HorizonSectionTilePosSetup::doNewWork( od_int64 start, od_int64 stop, int )
+bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop, int )
 {
     if ( !geo_ )
 	return false;
@@ -429,6 +364,17 @@ bool HorizonSectionTilePosSetup::doNewWork( od_int64 start, od_int64 stop, int )
     }
 
     return true;
+}
+
+
+bool HorizonSectionTilePosSetup::doFinish( bool sucess )
+{
+    if ( sucess && horsection_ )
+    {
+	horsection_->forceupdate_ =  true;
+    }
+
+    return sucess;
 }
 
 } // namespace visBase

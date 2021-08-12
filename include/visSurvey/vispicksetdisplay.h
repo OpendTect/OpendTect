@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "vislocationdisplay.h"
 
 namespace visBase { class MarkerSet; class PolyLine;
-		    class DrawStyle; class RandomPos2Body; 
+		    class DrawStyle; class RandomPos2Body;
 		    class Dragger; class PolyLine3D; }
 
 namespace visSurvey
@@ -102,7 +102,7 @@ protected:
 				    const ObjectSet<const SurveyObject>&,int);
     virtual void		updateDragger();
     visBase::MarkerSet*		createOneMarker() const;
-    
+
     void			turnOnSelectionMode(bool);
     void			polygonFinishedCB(CallBacker*);
     void			updateSelections(
@@ -115,8 +115,6 @@ protected:
     virtual void		setDraggerNormal(const Coord3&);
 
     visBase::MarkerSet*		markerset_;
-    visBase::PolyLine*		polyline_;
-				//<don't use it, only for keep ABI
     bool			needline_;
 
     static const char*		sKeyNrPicks();

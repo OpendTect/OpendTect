@@ -151,7 +151,6 @@ protected:
     int				pickedsobjid_; //!< Picked SurveyObject ID
     int				voiidx_;
     bool			ctrldown_;
-    ObjectSet< Selector<Coord3> >   selectors_;
 
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;
@@ -170,9 +169,7 @@ protected:
     Coord3			undoloccoord_;
     bool			undomove_;
     bool			selectionmodel_;
-    bool            allowdoubleclicks_ = true;
-
+    bool			allowdoubleclicks_ = true;
 };
 
 } // namespace visSurvey
-
