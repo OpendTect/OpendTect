@@ -870,6 +870,7 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
     else
     {
 	xplotwin_ = new uiDataPointSetCrossPlotWin( *this );
+	xplotwin_->setDeleteOnClose( true );
 	uiDataPointSetCrossPlotter& xpl = xplotwin_->plotter();
 	xpl.selectionChanged.notify( mCB(this,uiDataPointSet,xplotSelChg) );
 	xpl.removeRequest.notify( mCB(this,uiDataPointSet,xplotRemReq) );
