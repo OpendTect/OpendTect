@@ -574,7 +574,8 @@ int Well::TrackSampler::nextStep()
 	dahcolnr_ = -1;
     else
     {
-	dps->dataSet().add( new DataColDef(sKeyDAHColName()) );
+	dps->dataSet().add( new DataColDef(sKeyDAHColName(), nullptr,
+			       UnitOfMeasure::surveyDefDepthStorageUnit()) );
 	dahcolnr_ = dps->nrCols() - 1;
     }
 
@@ -788,18 +789,19 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
 				      const Well::Data& wd,
 				      const Well::Track& track )
 {
-    DataPointSet::ColID dpscolidx = dps.indexOf( lognm_ );
-    if ( dpscolidx < 0 )
-    {
-	dps.dataSet().add( new DataColDef(lognm_) );
-	dpscolidx = dps.nrCols() - 1;
-	if ( dpscolidx < 0 ) return;
-    }
-
     int wlidx = wd.logs().indexOf( lognm_ );
     if ( wlidx < 0 )
 	return;
     const Well::Log& wl = wd.logs().getLog( wlidx );
+
+    DataPointSet::ColID dpscolidx = dps.indexOf( lognm_ );
+    if ( dpscolidx < 0 )
+    {
+	dps.dataSet().add( new DataColDef(lognm_, nullptr,
+							  wl.unitOfMeasure()) );
+	dpscolidx = dps.nrCols() - 1;
+	if ( dpscolidx < 0 ) return;
+    }
 
     const int dahcolidx = dps.indexOf( sKeyDAHColName() );
     bool usegenalgo = dahcolidx >= 0 || !track.alwaysDownward();

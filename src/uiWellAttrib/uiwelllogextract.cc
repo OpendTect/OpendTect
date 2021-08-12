@@ -286,6 +286,23 @@ bool uiWellLogExtractGrp::extractDPS()
     if ( !extractWellData(ioobjids,lognms,dpss) )
 	mErrRet(uiStrings::sEmptyString())
 
+    for ( const auto* dps : dpss )
+    {
+	bool badunits = false;
+	for ( int icol=0; icol<dps->nrCols(); icol++ )
+	{
+	    if ( dcds.get(icol)->unit_ != dps->colDef( icol ).unit_ )
+	    {
+		uiMSG().warning( tr("Inconsistent units found\n"
+	 "All data will be converted to the same units as the first well.") );
+		badunits = true;
+		break;
+	    }
+	}
+	if ( badunits )
+	    break;
+    }
+
     PtrMan<Pos::Filter> filt = 0;
     if ( posfiltfld_ )
     {
@@ -323,7 +340,12 @@ bool uiWellLogExtractGrp::extractDPS()
 	    DataPointSet::DataRow newdr( dr );
 	    newdr.data_.setSize( nrattribs + nrlogs, mUdf(float) );
 	    for ( int ilog=0; ilog<nrlogs; ilog++ )
-		newdr.data_[ilog] = dr.data_[ilog];
+	    {
+		const UnitOfMeasure* out_uom = curdps_->colDef( ilog ).unit_;
+		const UnitOfMeasure* in_uom = curdps.colDef( ilog ).unit_;
+		newdr.data_[ilog] = getConvertedValue( dr.data_[ilog], in_uom,
+						       out_uom );
+	    }
 	    for ( int iattr=0; iattr<nrattribs; iattr++ )
 		newdr.data_[nrlogs+iattr] = mUdf(float);
 	    newdr.setGroup( (unsigned short)(idps+1) );
