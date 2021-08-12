@@ -360,9 +360,11 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	if ( data_.isxy_ )
 	{
 	    binstrm.get( coord.x ).get( coord.y );
-	    if ( !(*SI().getCoordSystem() == *data_.getCoordSys()) )
-		coord = SI().getCoordSystem()->convertFrom(
-						coord, *data_.getCoordSys() );
+	    ConstRefMan<Coords::CoordSystem> sicrs = SI().getCoordSystem();
+	    ConstRefMan<Coords::CoordSystem> datacrs = data_.getCoordSys();
+	    if ( sicrs && datacrs && !(*sicrs == *datacrs) )
+		coord = sicrs->convertFrom( coord, *datacrs );
+
 	    bid = SI().transform( coord );
 	}
 	else
@@ -370,7 +372,6 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    binstrm.get( bid.inl() ).get( bid.crl() );
 	    coord = SI().transform( bid );
 	}
-
     }
 
     if ( isps )
@@ -386,7 +387,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	else
 	    offsnr_++;
     }
-    
+
     trc.info() = trc_.info();
     if ( !strm_->isOK() || !trc.reSize(data_.nrsamples_,0) )
 	return Finished();
