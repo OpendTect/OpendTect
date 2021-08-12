@@ -98,6 +98,7 @@ IOPar& ProcDesc::Data::readPars()
 	pars_.read( fp.fullPath(), 0 );
     else
 	return pars_;
+
     setEmpty();
     pars_.get( ProcDesc::DataEntry::sKeyODv6(), addedodv6procs_ );
     pars_.get( ProcDesc::DataEntry::sKeyODv7(), addedodv7procs_ );

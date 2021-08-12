@@ -54,26 +54,15 @@ int mProgMainFnName( int argc, char** argv )
     BufferString path;
     if ( proctyp.size() > 1 )
 	path = *proctyp[1];
-    bool instlrlaunchedproc = false;
-    if ( proctyp.size() > 2 )
-    {
-	BufferString str = *proctyp[2];
-	instlrlaunchedproc = str.isEqual( "Yes", CaseInsensitive );
-    }
 
     ePDD().setPath( path );
-
-    ProcDesc::DataEntry::ActionType typ = ePDD().getActionType();
-    if ( instlrlaunchedproc && typ != ProcDesc::DataEntry::Add )
-	return 0;
-
     BufferString pythonpath;
-    if ( proctyp.size() > 4 )
+    if ( proctyp.size() > 3 )
     {
 	BufferString str = GetArgV()[ proctyp.size() - 1];
 	bool useextparth = str.isEqual( OD::PythA().sKeyUseExtPyPath(),
 							    CaseInsensitive );
-	if (useextparth)
+	if ( useextparth )
 	    pythonpath = GetArgV()[ proctyp.size() ];
     }
 
