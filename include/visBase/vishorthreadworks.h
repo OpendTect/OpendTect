@@ -42,21 +42,23 @@ note: the class doesn't do anything with texture.
 mExpClass(visBase) HorizonTileResolutionTesselator: public ParallelTask
 { mODTextTranslationClass(HorizonTileResolutionTesselator);
 public:
-    HorizonTileResolutionTesselator(const HorizonSection* hrsection,char res);
-    ~HorizonTileResolutionTesselator();
-    od_int64		    nrIterations() const { return nrtiles_; }
-    uiString		    uiMessage() const
-			    { return tr("Tessellating horizon"); }
-    uiString		    uiNrDoneText() const
-			    { return tr("Parts completed"); }
+			HorizonTileResolutionTesselator(const HorizonSection*,
+							char res);
+			~HorizonTileResolutionTesselator();
 
-    bool		    doPrepare(int);
-    bool		    doWork(od_int64,od_int64,int);
+    od_int64		nrIterations() const { return nrtiles_; }
+    uiString		uiMessage() const
+			{ return tr("Tessellating horizon"); }
+    uiString		uiNrDoneText() const
+			{ return tr("Parts completed"); }
 
-    bool		    getTitleCoordinates(int,TypeSet<Coord3>&) const;
-    bool		    getTitleNormals(int,TypeSet<Coord3>&) const;
-    bool		    getTitlePrimitiveSet(int,TypeSet<int>&,
-						 GeometryType) const;
+    bool		doPrepare(int);
+    bool		doWork(od_int64,od_int64,int);
+
+    bool		getTileCoordinates(int,TypeSet<Coord3>&) const;
+    bool		getTileNormals(int,TypeSet<Coord3>&) const;
+    bool		getTilePrimitiveSet(int,TypeSet<int>&,
+						GeometryType) const;
 
 private:
     bool		    createTiles();
@@ -65,6 +67,7 @@ private:
     int				nrtiles_;
     char			resolution_;
 };
+
 
 class HorizonTileRenderPreparer: public ParallelTask
 { mODTextTranslationClass(HorizonTileRenderPreparer);

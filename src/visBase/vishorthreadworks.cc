@@ -206,7 +206,7 @@ bool HorizonTileResolutionTesselator::createTiles()
 }
 
 
-bool HorizonTileResolutionTesselator::getTitleCoordinates( int idx,
+bool HorizonTileResolutionTesselator::getTileCoordinates( int idx,
     TypeSet<Coord3>& coords ) const
 {
     if ( idx>=0 && idx<hrtiles_.size() )
@@ -216,7 +216,7 @@ bool HorizonTileResolutionTesselator::getTitleCoordinates( int idx,
 }
 
 
-bool HorizonTileResolutionTesselator::getTitleNormals(
+bool HorizonTileResolutionTesselator::getTileNormals(
     int idx, TypeSet<Coord3>& normals ) const
 {
     if ( idx>=0 && idx<hrtiles_.size() )
@@ -226,7 +226,7 @@ bool HorizonTileResolutionTesselator::getTitleNormals(
 }
 
 
-bool HorizonTileResolutionTesselator::getTitlePrimitiveSet( int idx,
+bool HorizonTileResolutionTesselator::getTilePrimitiveSet( int idx,
     TypeSet<int>& ps, GeometryType type ) const
 {
     if ( idx>=0 && idx<hrtiles_.size() )
