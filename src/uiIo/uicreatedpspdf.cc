@@ -157,11 +157,7 @@ uiCreateDPSPDF::~uiCreateDPSPDF()
 float uiCreateDPSPDF::getVal( int dcid, int drid ) const
 {
     if ( dcid >= 0 )
-    {
-	const float val = dps_.value( dcid, drid );
-	const UnitOfMeasure* mu = dps_.colDef( dcid ).unit_;
-	return mu ? mu->userValue(val) : val;
-    }
+	return dps_.value( dcid, drid );
     else if ( dcid == -1 )
     {
 	const float val = dps_.z( drid );

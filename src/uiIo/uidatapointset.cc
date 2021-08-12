@@ -1136,12 +1136,7 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 float uiDataPointSet::getVal( DColID dcid, DRowID drid, bool foruser ) const
 {
     if ( dcid >= 0 )
-    {
-	const float val = dps_.value( dcid, drid );
-	if ( !foruser ) return val;
-	const UnitOfMeasure* mu = dps_.colDef( dcid ).unit_;
-	return mu ? mu->userValue(val) : val;
-    }
+	return dps_.value( dcid, drid );
 
     if ( mIsTrcNr(dcid) )
 	return mCast(float,dps_.pos( drid ).nr_);
@@ -1171,11 +1166,7 @@ void uiDataPointSet::valChg( CallBacker* )
     bool poschgd = false;
 
     if ( dcid >= 0 )
-    {
-	float val = tbl_->getFValue( cell );
-	const UnitOfMeasure* mu = dps_.colDef( dcid ).unit_;
-	afterchgdr_.data_[dcid] = mu ? mu->internalValue(val) : val;
-    }
+	afterchgdr_.data_[dcid] = tbl_->getFValue( cell );
     else
     {
 	const char* txt = tbl_->text( cell );
