@@ -176,7 +176,7 @@ private:
 
 uiContourTreeItemContourGenerator::uiContourTreeItemContourGenerator(
 			uiContourTreeItem* p, const Array2D<float>* field )
-    : nrcontours_( p->contourintv_.nrSteps() )
+    : nrcontours_( p->contourintv_.nrSteps()+1 )
     , uicitem_( p )
     , field_( field )
     , zfactor_( 0 )
