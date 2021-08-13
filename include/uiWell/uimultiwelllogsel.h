@@ -95,12 +95,7 @@ public:
 				    , withsampling_(false)
 				    , singlelog_(false)
 				    , withextractintime_(SI().zIsTime())
-				    {
-					if ( SI().depthsInFeet() )
-					    defmeterstep_ =
-						0.5f*mFromFeetFactorF;
-
-				    }
+				    { }
 
 	mDefSetupMemb(bool,withzstep)
 	mDefSetupMemb(bool,withsampling)

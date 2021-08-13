@@ -291,7 +291,7 @@ bool uiWellLogExtractGrp::extractDPS()
 	bool badunits = false;
 	for ( int icol=0; icol<dps->nrCols(); icol++ )
 	{
-	    if ( dcds.get(icol)->unit_ != dps->colDef( icol ).unit_ )
+	    if ( icol!=0 && dcds.get(icol)->unit_ != dps->colDef( icol ).unit_ )
 	    {
 		uiMSG().warning( tr("Inconsistent units found\n"
 	 "All data will be converted to the same units as the first well.") );
@@ -323,7 +323,6 @@ bool uiWellLogExtractGrp::extractDPS()
 	new DataPointSet( TypeSet<DataPointSet::DataRow>(), dcds, false, false);
     mDPM.addAndObtain( curdps_ );
 
-    const UnitOfMeasure* uom = UoMR().get( "Feet" );
     deepErase( dcds );
     const int nrattribs = attrnms.size();
     const int nrlogs = lognms.size() + 1;
@@ -349,9 +348,6 @@ bool uiWellLogExtractGrp::extractDPS()
 	    for ( int iattr=0; iattr<nrattribs; iattr++ )
 		newdr.data_[nrlogs+iattr] = mUdf(float);
 	    newdr.setGroup( (unsigned short)(idps+1) );
-
-	    if ( uom && !SI().zInFeet() && SI().depthsInFeet() )
-		newdr.data_[0] = uom->getUserValueFromSI( newdr.data_[0] );
 
 	    curdps_->setRow( newdr );
 	}
