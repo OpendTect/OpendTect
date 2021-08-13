@@ -57,6 +57,7 @@ public:
 
     static const char*		sKeyContourDefString();
     static const char*		sKeyZValue();
+    int				getNrContours() const;
 
 private:
 
