@@ -45,7 +45,9 @@ else if ( !zdata_.zistime_ && track() )\
     if ( zdata_.zistime_ && zdata_.d2T() && track() )\
     zpos = d2T()->getTime( zpos, *track() )*SI().zDomain().userFactor();\
     else if ( !zdata_.zistime_ && track() )\
-    zpos = track() ? (float) zdata_.track()->getPos( zpos ).z*fac : 0; \
+    zpos = track() ? (float) zdata_.track()->getPos( zpos ).z : 0; \
+    if ( !mIsUdf(zpos) ) \
+	zpos *= fac; \
     if ( !ld1_->yax_.range().includes( zpos, true ) )\
 	continue;
 
@@ -128,7 +130,7 @@ public:
     {
 				    Data( const Well::Data* wd )
 				    : zrg_(mUdf(float),mUdf(float))
-				    , zistime_(SI().zIsTime())
+				    , zistime_(false)
 				    , dispzinft_(SI().depthsInFeet())
 				    , wd_(wd)
 				    { if ( wd_ ) wd_->ref(); }

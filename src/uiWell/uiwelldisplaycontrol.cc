@@ -129,7 +129,10 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 
 void uiWellDisplayControl::getPosInfo( BufferString& info ) const
 {
-    info.setEmpty(); if ( !seldisp_ ) return;
+    info.setEmpty();
+    if ( !seldisp_ || mIsUdf(dah_) )
+	return;
+
     const uiWellDahDisplay::DahObjData& data1 = seldisp_->dahObjData(true);
     const uiWellDahDisplay::DahObjData& data2 = seldisp_->dahObjData(false);
     if ( data1.hasData() ) { info += "  "; data1.getInfoForDah(dah_,info); }

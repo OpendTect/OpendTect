@@ -281,6 +281,9 @@ void uiTieView::zoomChg( CallBacker* )
 							  data_.wd_->track() );
 	float zrgstop = data_.wd_->d2TModel()->getDah( (float) curwr.bottom(),
 							  data_.wd_->track() );
+	if ( mIsUdf(zrgstart) )
+	    zrgstart = data_.wd_->d2TModel()->dah(0);
+
 	if ( mIsUdf(zrgstop) )
 	{
 	    const int sz = data_.wd_->d2TModel()->size();

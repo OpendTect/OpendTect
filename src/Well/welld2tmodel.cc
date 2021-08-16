@@ -219,6 +219,9 @@ int Well::D2TModel::getVelocityIdx( float pos, const Track& track,
 	     ? IdxAble::getUpperIdx( dah_, dtsize, pos )
 	     : IdxAble::getUpperIdx( t_, dtsize, pos );
 
+    if ( idah < 0 )
+	return 0;
+
     if ( idah >= (dtsize-1) && posisdah )
     {
 	int idx = 0;

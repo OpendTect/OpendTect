@@ -164,6 +164,7 @@ bool SimpleTimeDepthTransform::setID( const MultiID& mid )
 void SimpleTimeDepthTransform::fillPar( IOPar& par ) const
 {
     ZAxisTransform::fillPar( par );
+    par.merge( tozdomaininfo_.pars_ );
 }
 
 

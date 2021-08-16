@@ -592,8 +592,8 @@ void uiWellMan::logUOMPush( CallBacker* )
 	mErrRet(uiStrings::sNoLogSel())
 
     BufferStringSet wellnms;
-    selGroup()->getListField()->getChosen( wellnms );
-    const int nrchosenwls = selGroup()->getListField()->nrChosen();
+    selGroup()->getChosen( wellnms );
+    const int nrchosenwls = selGroup()->nrChosen();
     ObjectSet<Well::LogSet> wls;
     for  ( int widx=0; widx<nrchosenwls; widx++ )
     {
@@ -685,55 +685,47 @@ void uiWellMan::wellsChgd()
 
 #define mEnsureLogSelected(msgtxt) \
     if ( logsfld_->isEmpty() ) return; \
-    const int nrsel = logsfld_->nrChosen(); \
-    if ( nrsel < 1 ) \
+    const int nrsellogs = logsfld_->nrChosen(); \
+    if ( nrsellogs < 1 ) \
 	mErrRet(msgtxt)
-
-
 
 
 void uiWellMan::viewLogPush( CallBacker* )
 {
     mEnsureLogSelected(uiStrings::sNoLogSel())
-    currdrs_[0]->getLogs();
-    const Well::LogSet& wls = curwds_[0]->logs();
-    const char* lognm = logsfld_->textOfItem( logsfld_->firstChosen() );
-    const Well::Log* wl = wls.getLog( lognm );
-    if ( !wl )
-	mErrRet( uiStrings::phrCannotRead( uiStrings::sWellLog() ) )
-
-    BufferStringSet lognms;
-    logsfld_->getChosen( lognms );
-    const int maxnrchosen = curwds_.size()*lognms.size();
-
-    if ( !maxnrchosen || maxnrchosen > 2 )
+    const int nrchosen = curwds_.size()*nrsellogs;
+    if ( nrchosen < 1 || nrchosen > 2 )
 	return;
 
-    const Well::Log* wl1=0;
-    const Well::Log* wl2=0;
+    const Well::Log* wl1 = nullptr;
+    const Well::Log* wl2 = nullptr;
+    BufferStringSet lognms;
+    logsfld_->getChosen( lognms );
     if ( curwds_[0] )
     {
-	const Well::LogSet& wls1 = curwds_[0]->logs();
-	wl1 = wls1.getLog( lognms.get(0) );
-	if (  lognms.size() == 2 )
-	    wl2 = wls1.getLog( lognms.get(1) );
+	if ( currdrs_[0]->getLog(lognms.get(0)) )
+	    wl1 = curwds_[0]->logs().getLog( lognms.get(0) );
+
+	if ( lognms.size() == 2 )
+	{
+	    if ( currdrs_[0]->getLog(lognms.get(1)) )
+		wl2 = curwds_[0]->logs().getLog( lognms.get(1) );
+	}
     }
 
     if ( curwds_.size() > 1 && curwds_[1] )
     {
-	currdrs_[1]->getLogs();
-	const Well::LogSet& wls2 = curwds_[1]->logs();
-	wl2 = wls2.getLog( lognms.get( 0 ) );
+	if ( currdrs_[1]->getLog(lognms.get(0)) )
+	    wl2 = curwds_[1]->logs().getLog( lognms.get(0) );
     }
+
+    if ( !wl1 || (nrchosen==2 && !wl2) )
+	mErrRet( uiStrings::phrCannotRead(uiStrings::sWellLog()) )
 
     BufferStringSet wnms;
     selGroup()->getChosen( wnms );
-    if ( wnms.size() == 1 )
-	(void)uiWellLogDispDlg::popupNonModal( this, wl1, wl2,
-					       wnms.get(0), 0 );
-    else if ( wnms.size() == 2 )
-	(void)uiWellLogDispDlg::popupNonModal( this, wl1, wl2,
-					       wnms.get(0), wnms.get(1) );
+    uiWellLogDispDlg::popupNonModal( this, wl1, wl2, wnms.get(0),
+				     wnms.size() > 1 ? wnms.get(1) : nullptr );
 }
 
 
@@ -768,7 +760,7 @@ void uiWellMan::removeLogPush( CallBacker* )
 
     uiString msg;
     msg = tr("%1will be removed from disk.\nDo you wish to continue?")
-	.arg(nrsel == 1 ? tr("This log ") : tr("These logs "));
+	.arg(nrsellogs == 1 ? tr("This log ") : tr("These logs "));
     if ( !uiMSG().askRemove(msg) )
 	return;
 

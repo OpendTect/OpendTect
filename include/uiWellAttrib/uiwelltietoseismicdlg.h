@@ -67,8 +67,12 @@ protected:
     DispParams&			params_;
 
     uiCheckBox*			markerfld_;
+
+    mDeprecatedObs
     uiCheckBox*			zinftfld_;
+    mDeprecatedObs
     uiCheckBox*			zintimefld_;
+
     uiGroup*			vwrgrp_;
     uiLabeledComboBox*		eventtypefld_;
     uiGenInput*			nrtrcsfld_;
@@ -91,9 +95,7 @@ protected:
     void			createViewerTaskFields(uiGroup*);
     void			createDispPropFields(uiGroup*);
     void			drawFields();
-    void			getDispParams();
     void			initAll();
-    void			putDispParams();
     void			resetInfoDlg();
 
     void			okPushCB(CallBacker*);
@@ -105,7 +107,6 @@ protected:
     void			clearLastPick(CallBacker*);
     void			clearPicks(CallBacker*);
     void			dispParPushed(CallBacker*);
-    void			dispPropChg(CallBacker*);
     void			dispInfoMsg(CallBacker*);
     void			displayUserMsg(CallBacker*);
     void			doWork(CallBacker*);
@@ -129,6 +130,12 @@ protected:
     void			nrtrcsCB(CallBacker*);
     void			wvltSelCB(CallBacker*);
 
+    mDeprecatedObs
+    void			getDispParams();
+    mDeprecatedObs
+    void			putDispParams();
+    mDeprecatedObs
+    void			dispPropChg(CallBacker*);
 };
 
 
