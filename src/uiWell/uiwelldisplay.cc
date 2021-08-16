@@ -114,6 +114,7 @@ void uiWellDisplay::setDahData()
     uiWellDahDisplay::Data data( &wd_ );
     data.zrg_ = zrg_;
     data.dispzinft_ = dispzinft_;
+    data.zistime_ = zistime_;
 
     for ( int idx=0; idx<logdisps_.size(); idx++ )
 	logdisps_[idx]->setData( data );

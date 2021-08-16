@@ -428,7 +428,6 @@ uiWellLogDispDlg* uiWellLogDispDlg::popupNonModal( uiParent* p,
     uiWellLogDispDlg* dlg = new uiWellLogDispDlg( p, wldsu, true );
     uiWellDahDisplay::Data data(dlg->logDisplay().zData());
     data.dispzinft_ = true;
-    data.zistime_ = false;
     dlg->logDisplay().setData(data);
     dlg->setLog( wl1, true, wellnm1 );
     if ( wl2 )
