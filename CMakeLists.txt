@@ -146,6 +146,9 @@ OD_WRITE_FINDFILE()
 OD_WRITE_TEST_PROJECT_DESC( ${OD_BINARY_BASEDIR}/test )
 
 OD_ADD_PACKAGES_TARGET()
+if ( WIN32 )
+    OD_ADD_SIGNLIBRARIES_TARGET()
+endif()
 
 set( PLUGIN_DIR ""  CACHE PATH "Path to eventual extra plugins" )
 if ( EXISTS ${PLUGIN_DIR}/CMakeLists.txt )
