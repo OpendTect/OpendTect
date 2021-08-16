@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uistrings.h"
 
 #include "coltabsequence.h"
 #include "dataclipper.h"
@@ -189,8 +190,8 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
 	ld.valrg_ = dcs.getRange( ld.cliprate_ );
     }
 
-    float startpos = ld.zrg_.start = ld.dahobj_->dah( 0 );
-    float stoppos = ld.zrg_.stop = ld.dahobj_->dah( sz-1 );
+    float startpos = ld.dahobj_->dah( 0 );
+    float stoppos = ld.dahobj_->dah( sz-1 );
     if ( zdata_.zistime_ && d2T() && d2T()->size() > 1 && track() )
     {
 	startpos = d2T()->getTime( startpos, *track() )*1000;
@@ -201,6 +202,7 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
 	startpos = (float) track()->getPos( startpos ).z;
 	stoppos = (float) track()->getPos( stoppos ).z;
     }
+
     ld.zrg_.start = startpos;
     ld.zrg_.stop = stoppos;
 }
@@ -242,6 +244,16 @@ void uiWellDahDisplay::setAxisRanges( bool first )
     if ( dispzrg.start < dispzrg.stop )
 	dispzrg.sort( false );
 
+    if ( !zdata_.zistime_ )
+    {
+	const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
+	if ( uom )
+	{
+	    dispzrg.start = uom->userValue( dispzrg.start );
+	    dispzrg.stop = uom->userValue( dispzrg.stop );
+	}
+    }
+
     ld.yax_.setBounds( dispzrg );
 }
 
@@ -252,6 +264,11 @@ void uiWellDahDisplay::draw()
 
     ld1_->plotAxis();
     ld2_->plotAxis();
+    uiString yaxisnm( zdata_.zistime_ ? uiStrings::sTWT() : uiStrings::sMD() );
+    yaxisnm.withUnit( zdata_.zistime_ ?
+	    UnitOfMeasure::surveyDefTimeUnitAnnot(true,false) :
+	    UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
+    ld1_->yax_.setCaption( yaxisnm );
 
     drawMarkers();
     drawCurve( true );
@@ -330,12 +347,6 @@ void uiWellDahDisplay::drawCurve( bool first )
 	ti->setPos( txtpt );
 	ld.curveitms_.add( ti );
     }
-
-
-    if ( first && zdata_.wd_ )
-	ld.yax_.annotAtEnd( zdata_.zistime_ ? tr("(ms)") :
-			    SI().depthsInFeet() ? tr("(ft)") : tr("(m)") );
-
 }
 
 

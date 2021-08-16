@@ -67,8 +67,6 @@ protected:
     DispParams&			params_;
 
     uiCheckBox*			markerfld_;
-    uiCheckBox*			zinftfld_;
-    uiCheckBox*			zintimefld_;
     uiGroup*			vwrgrp_;
     uiLabeledComboBox*		eventtypefld_;
     uiGenInput*			nrtrcsfld_;
@@ -89,11 +87,8 @@ protected:
     void			addControls();
     void			addToolBarTools();
     void			createViewerTaskFields(uiGroup*);
-    void			createDispPropFields(uiGroup*);
     void			drawFields();
-    void			getDispParams();
     void			initAll();
-    void			putDispParams();
     void			resetInfoDlg();
 
     void			okPushCB(CallBacker*);
@@ -105,7 +100,6 @@ protected:
     void			clearLastPick(CallBacker*);
     void			clearPicks(CallBacker*);
     void			dispParPushed(CallBacker*);
-    void			dispPropChg(CallBacker*);
     void			dispInfoMsg(CallBacker*);
     void			displayUserMsg(CallBacker*);
     void			doWork(CallBacker*);

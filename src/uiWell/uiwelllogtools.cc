@@ -47,6 +47,9 @@ ________________________________________________________________________
 
 static const int cPrefWidth = 150;
 static const int cPrefHeight = 450;
+static const int cPrefVSpacing = 2;
+static const int cWellSep = 5;
+static const int cDefNrLogs = 6;
 
 uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 					  const BufferStringSet* welllnms,
@@ -242,21 +245,31 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
 {
     auto* sa = new uiScrollArea( this );
     sa->limitHeight(true);
-    sa->setMinimumHeight( cPrefHeight );
     uiGroup* displaygrp = new uiGroup( nullptr, "Well display group" );
-    displaygrp->setHSpacing( 0 );
+    displaygrp->setHSpacing( cWellSep );
 
     zdisplayrg_ = logdatas_[0]->dahrg_;
-    uiGroup* wellgrp; uiGroup* prevgrp = nullptr; uiLabel* wellnm;
+    uiGroup* prevgrp = new uiGroup( displaygrp, "Empty group" );
+    int initialwidth = cWellSep;
+    int totalwidth = cWellSep;
+    int initialheight = cPrefHeight;
     for ( int idx=0; idx<logdatas_.size(); idx++ )
     {
 	LogData& logdata = *logdatas_[idx];
-	wellgrp  = new uiGroup( displaygrp, "Well group" );
+	auto* wellgrp  = new uiGroup( displaygrp, "Well group" );
 	if ( prevgrp ) wellgrp->attach( rightOf, prevgrp );
-	wellgrp->setHSpacing( 0 );
+	wellgrp->setHSpacing( 1 );
+	wellgrp->setVSpacing( cPrefVSpacing );
 	wellgrp->setStretch( 0, 2 );
-	wellnm = new uiLabel( wellgrp, toUiString(logdata.wellname_) );
+	auto* wellnm = new uiLabel( wellgrp, toUiString(logdata.wellname_) );
 	wellnm->setVSzPol( uiObject::Small );
+	totalwidth += cWellSep;
+	if ( logdisps_.size() <= cDefNrLogs )
+	    initialwidth += cWellSep;
+
+	if ( idx == 0 )
+	    initialheight += wellnm->height() + 2*cPrefVSpacing;
+
 	for ( int idlog=0; idlog<logdata.inplogs_.size(); idlog++ )
 	{
 	    uiWellLogDisplay::Setup su; su.samexaxisrange_ = true;
@@ -267,14 +280,19 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
 	    if ( idlog )
 		ld->attach( rightOf, logdisps_[logdisps_.size()-1] );
 	    ld->attach( ensureBelow, wellnm );
+
 	    logdisps_ += ld;
+	    totalwidth += cPrefWidth + 1;
+	    if ( logdisps_.size() <= cDefNrLogs )
+		initialwidth += cPrefWidth + 1;
 	}
 	prevgrp = wellgrp;
     }
     zdisplayrg_.sort();
 
-    displaygrp->attachObj()->setMinimumWidth( logdisps_.size()*cPrefWidth );
+    displaygrp->attachObj()->setMinimumWidth( totalwidth );
     sa->setObject( displaygrp->attachObj() );
+    sa->setMinimumHeight( initialheight );
     sa->setObjectResizable( true );
     uiGroup* editgrp = withedit ? createEditGroup() : nullptr;
     if ( editgrp )
@@ -295,8 +313,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
     cancelbut->attach( ensureBelow, horSepar );
 
     displayLogs();
-    const int maxwidth = 5;
-    sa->setPrefWidth( mMIN(logdisps_.size(),maxwidth)*cPrefWidth );
+    sa->setPrefWidth( initialwidth );
 }
 
 

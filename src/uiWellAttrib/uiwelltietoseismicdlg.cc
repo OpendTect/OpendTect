@@ -59,14 +59,15 @@ const WellTie::Setup& uiTieWin::welltieSetup() const
     return server_.data().setup();
 }
 
+
 uiTieWin::uiTieWin( uiParent* p, Server& wts )
     : uiFlatViewMainWin(p,
 			uiFlatViewMainWin::Setup(uiString::emptyString())
 			.deleteonclose(false))
     , server_(wts)
     , stretcher_(*new EventStretch(server_.pickMgr(),server_.d2TModelMgr()))
-    , controlview_(0)
-    , infodlg_(0)
+    , controlview_(nullptr)
+    , infodlg_(nullptr)
     , params_(server_.dispParams())
 {
     drawer_ = new uiTieView( this, &viewer(), server_.data() );
@@ -85,7 +86,7 @@ uiTieWin::uiTieWin( uiParent* p, Server& wts )
 
 uiTieWin::~uiTieWin()
 {
-    cleanUp(0);
+    cleanUp(nullptr);
     delete &stretcher_;
     delete infodlg_;
     delete drawer_;
@@ -97,7 +98,7 @@ void uiTieWin::initAll()
 {
     drawFields();
     addControls();
-    doWork( 0 );
+    doWork( nullptr );
     show();
 }
 
@@ -118,7 +119,6 @@ void uiTieWin::usePar( const IOPar& par )
     if ( infodlg_ )
 	infodlg_->usePar( par );
     par_ = par;
-    putDispParams();
 }
 
 
@@ -156,8 +156,7 @@ void uiTieWin::doWork( CallBacker* )
     if ( server_.warnMsg().isSet() )
 	uiMSG().warning( server_.warnMsg() );
 
-    getDispParams();
-    reDrawAll(0);
+    reDrawAll( nullptr );
     drawer_->enableCtrlNotifiers( true );
 }
 
@@ -222,13 +221,14 @@ void uiTieWin::drawFields()
     vwrtaskgrp->attach( rightBorder );
     createViewerTaskFields( vwrtaskgrp );
 
-    uiGroup* disppropgrp = new uiGroup( this, "Display Properties group" );
-    disppropgrp->attach( ensureLeftOf, vwrtaskgrp );
-    disppropgrp->attach( ensureBelow, sep1 );
-    createDispPropFields( disppropgrp );
+    wvltfld_ = new uiSeisWaveletSel( this, "Wavelet", false, false );
+    wvltfld_->setInput( server_.data().setup().wvltid_ );
+    wvltfld_->newSelection.notify( mCB(this,uiTieWin,wvltSelCB) );
+    wvltfld_->attach( leftOf, vwrtaskgrp );
+    wvltfld_->attach( ensureBelow, sep1 );
 
     uiSeparator* sep2 = new uiSeparator( this );
-    sep2->attach( stretchedBelow, disppropgrp );
+    sep2->attach( stretchedBelow, wvltfld_ );
     sep2->attach( ensureBelow, vwrtaskgrp );
 
     uiPushButton* okbut = new uiPushButton( this, tr("OK/Save"),
@@ -307,55 +307,6 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 }
 
 
-void uiTieWin::createDispPropFields( uiGroup* dispgrp )
-{
-    mGetWD(return);
-    dispgrp->setHSpacing( 50 );
-
-    zintimefld_ = new uiCheckBox( dispgrp, tr("Z in time") );
-    zinftfld_ = new uiCheckBox( dispgrp, tr("Z in %1").arg(
-				SI().depthsInFeet()?tr("feet"):tr("meter")) );
-    zinftfld_->attach( alignedBelow, zintimefld_ );
-
-    putDispParams();
-
-    const CallBack pccb( mCB(this,uiTieWin,dispPropChg) );
-    zintimefld_->activated.notify( pccb );
-    zinftfld_->activated.notify( pccb );
-
-    wvltfld_ = new uiSeisWaveletSel( dispgrp, "Wavelet", false, false );
-    wvltfld_->setInput( server_.data().setup().wvltid_ );
-    wvltfld_->newSelection.notify( mCB(this,uiTieWin,wvltSelCB) );
-    wvltfld_->attach( rightTo, zintimefld_ );
-}
-
-
-void uiTieWin::getDispParams()
-{
-    params_.iszinft_ = zinftfld_->isChecked();
-    params_.iszintime_ = zintimefld_->isChecked();
-}
-
-
-void uiTieWin::putDispParams()
-{
-    zinftfld_->setChecked( params_.iszinft_ );
-    zintimefld_->setChecked( params_.iszintime_ );
-}
-
-
-void uiTieWin::dispPropChg( CallBacker*cb )
-{
-    getDispParams();
-    if ( cb == zintimefld_ )
-	zinftfld_->setChecked( !params_.iszintime_ );
-    else
-	zintimefld_->setChecked( !params_.iszinft_ );
-
-    reDrawAll(0);
-}
-
-
 void uiTieWin::infoPushed( CallBacker* )
 {
     if ( !infodlg_ )
@@ -415,7 +366,7 @@ void uiTieWin::applyPushed( CallBacker* cb )
     stretcher_.doWork( cb );
     server_.updateExtractionRange();
     if ( infodlg_ )
-	infodlg_->dtmodelChanged(0);
+	infodlg_->dtmodelChanged( nullptr );
 
     doWork( cb );
     clearPicks( cb );
@@ -461,7 +412,7 @@ void uiTieWin::undoPushed( CallBacker* cb )
     clearPicks( cb );
 
     if ( infodlg_ )
-	infodlg_->dtmodelChanged(0);
+	infodlg_->dtmodelChanged( nullptr );
 
     undobut_->setSensitive( false );
     applybut_->setSensitive( false );
@@ -481,7 +432,7 @@ void uiTieWin::matchHorMrks( CallBacker* )
     {
 	if ( !uiMSG().askGoOn( msg ) )
 	    return;
-	controlview_->loadHorizons(0);
+	controlview_->loadHorizons( nullptr );
     }
     pmgr.clearAllPicks();
     uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(),mNoDlgTitle,
@@ -584,8 +535,8 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 				.modal(false))
 	, server_(server)
 	, selidx_(0)
-	, crosscorr_(0)
-	, wvltdraw_(0)
+	, crosscorr_(nullptr)
+	, wvltdraw_(nullptr)
 	, redrawNeeded(this)
 	, data_(server_.data())
 {
@@ -737,7 +688,7 @@ void uiInfoDlg::usePar( const IOPar& par )
 	wvltdraw_->setActiveWavelet( isinitwvltactive );
 
     putToScreen();
-    zrgChanged(0);
+    zrgChanged( nullptr );
 }
 
 
@@ -819,12 +770,12 @@ void uiInfoDlg::putToScreen()
 
 void uiInfoDlg::dtmodelChanged( CallBacker* )
 {
-    needNewEstimatedWvlt(0);
+    needNewEstimatedWvlt( nullptr );
     if ( !isInitWvltActive() )
 	if ( !server_.updateSynthetics(getWavelet()) )
 	    mErrRet( server_.errMsg() )
 
-    synthChanged(0);
+    synthChanged( nullptr );
 }
 
 
@@ -836,7 +787,7 @@ void uiInfoDlg::wvltChanged( CallBacker* )
     if( !server_.updateSynthetics(getWavelet()) )
 	mErrRet( server_.errMsg() )
 
-    synthChanged(0);
+    synthChanged( nullptr );
 }
 
 
@@ -845,7 +796,7 @@ void uiInfoDlg::needNewEstimatedWvlt( CallBacker* )
     if ( !computeNewWavelet() )
 	return;
 
-    wvltChanged(0);
+    wvltChanged( nullptr );
 }
 
 
@@ -855,7 +806,7 @@ void uiInfoDlg::synthChanged( CallBacker* )
     if ( !server_.computeCrossCorrelation() )
 	mErrRet( server_.errMsg() )
 
-    crossCorrelationChanged(0);
+    crossCorrelationChanged( nullptr );
 }
 
 
@@ -868,12 +819,12 @@ void uiInfoDlg::zrgChanged( CallBacker* )
     if ( zrg_.isRev() )
 	mErrRet( tr("Top marker must be above base marker.") )
     server_.setCrossCorrZrg( zrg_ );
-    needNewEstimatedWvlt(0);
+    needNewEstimatedWvlt( nullptr );
 
     if ( !server_.computeCrossCorrelation() )
 	mErrRet( server_.errMsg() )
 
-    crossCorrelationChanged(0);
+    crossCorrelationChanged( nullptr );
 }
 
 
@@ -1057,7 +1008,7 @@ bool uiInfoDlg::computeNewWavelet()
 
 void uiInfoDlg::drawData()
 {
-    crossCorrelationChanged(0);
+    crossCorrelationChanged( nullptr );
     if ( wvltdraw_ )
 	wvltdraw_->redrawWavelets();
 }
