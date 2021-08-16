@@ -165,6 +165,8 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 	mErrRetWithFileName( "No traces found" )
 
     ns_ = int(thdr->nrSamples());
+    if ( ns_ == 0 )
+	ns_ = binns_;
 
     SeisTrcInfo ti; thdr->fill( ti, 1.0f );
     sampling_ = ti.sampling;
@@ -194,10 +196,15 @@ void SEGY::LoadDef::reInit( bool alsohdef )
     trcnrdef_ = SamplingData<int>( 1000, 1 );
     psoffssrc_ = FileReadOpts::InFile;
     psoffsdef_ = SamplingData<float>( 0.f, 1.f );
-    usezsamplinginfile_ = useformatinfile_ = false;
+    usenrsampsinfile_ = true;
+    usezsamplinginfile_ = true;
+    useformatinfile_ = true;
     coordsys_ = SI().getCoordSystem();
     if ( alsohdef )
-	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }
+    {
+	delete hdrdef_;
+	hdrdef_ = new TrcHeaderDef;
+    }
 }
 
 
@@ -225,6 +232,7 @@ SEGY::LoadDef& SEGY::LoadDef::operator =( const SEGY::LoadDef& oth )
 	trcnrdef_ = oth.trcnrdef_;
 	psoffssrc_ = oth.psoffssrc_;
 	psoffsdef_ = oth.psoffsdef_;
+	usenrsampsinfile_ = oth.usenrsampsinfile_;
 	usezsamplinginfile_ = oth.usezsamplinginfile_;
 	useformatinfile_ = oth.useformatinfile_;
 	hdrdef_ = new TrcHeaderDef( *oth.hdrdef_ );
