@@ -157,7 +157,7 @@ SortedList<T>& SortedList<T>::operator -=( const T& nv )
 
     if ( pos == -1 ) return *this;
 
-    vec_.removeSingle( pos );
+    vec_.remove( pos );
     return *this;
 }
 
