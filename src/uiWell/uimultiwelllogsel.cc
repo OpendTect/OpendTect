@@ -268,18 +268,19 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 
     if ( dostep_ )
     {
-	const float dptstep = s.defmeterstep_;
+	const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
+	const float dptstep = mRounded(int, uom ?
+				    uom->getUserValueFromSI(s.defmeterstep_)
+				    : s.defmeterstep_);
 	const float timestep = SI().zStep()*ztimefac_;
 	params().zstep_ = dptstep;
 	uiString dptstpbuf = uiStrings::phrJoinStrings(uiStrings::sStep(),
-					SI().getUiXYUnitString(true,true));
+				    UnitOfMeasure::zUnitAnnot(false,true,true));
 	uiString timelbl = UnitOfMeasure::zUnitAnnot( true, true, true );
 	uiString timestpbuf =
 		uiStrings::phrJoinStrings(uiStrings::sStep(),timelbl);
 
-	const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
-	const float zstepval = uom ? uom->userValue(dptstep) : dptstep;
-	depthstepfld_ = new uiGenInput(this, dptstpbuf, FloatInpSpec(zstepval));
+	depthstepfld_ = new uiGenInput(this, dptstpbuf, FloatInpSpec(dptstep));
 	timestepfld_ = new uiGenInput(this, timestpbuf, FloatInpSpec(timestep));
 	depthstepfld_->setElemSzPol( uiObject::Small );
 	timestepfld_->setElemSzPol( uiObject::Small );
@@ -332,11 +333,7 @@ void uiWellExtractParams::putToScreen()
 	    timestepfld_->setValue( step );
 	}
 	else
-	{
-	    const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
-	    step = uom ? uom->userValue(step) : step;
 	    depthstepfld_->setValue( step );
-	}
     }
 
     if ( sampfld_ )
@@ -366,7 +363,8 @@ void uiWellExtractParams::getFromScreen( CallBacker* cb )
     {
 	float step = depthstepfld_->getFValue();
 	const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
-	step = uom ? uom->getSIValue(step) : step;
+	step = uom ? uom->internalValue(step) : step;
+
 	if ( params().extractzintime_ )
 	{
 	    step = timestepfld_->getFValue();
