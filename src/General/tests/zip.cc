@@ -12,14 +12,19 @@
 #include "file.h"
 #include "filepath.h"
 
+#define mCleanup() \
+    delete taskrun; \
+    File::remove( zipfilename.fullPath() ); \
+    File::remove( zipfilename2.fullPath() ); \
+    File::removeDir( outputdir.fullPath() ); \
+
 
 #define mRunTest(testname,command) \
 { \
 if ( !command ) \
 { \
     errStream() << testname << " failed!\n" << err.getFullString(); \
-    File::remove( zipfilename.fullPath() ); \
-    File::removeDir( outputdir.fullPath() ); \
+    mCleanup() \
     return 1; \
 } \
 else \
@@ -41,8 +46,7 @@ else \
     { \
 	errStream() << "Data integrety check failed!\n" \
 			       << dest.fullPath(); \
-	File::remove( zipfilename.fullPath() ); \
-	File::removeDir( outputdir.fullPath() ); \
+	mCleanup() \
 	return 1; \
     } \
     else \
@@ -59,22 +63,33 @@ int mTestMainFnName( int argc, char** argv )
     FilePath tozip( basedir );
     tozip.add( "F3_Test_Survey" );
     uiString err;
-    FilePath zipfilename( FilePath::getTempFullPath("zip_test","zip") );
+    const FilePath zipfilename(
+		FilePath::getTempFullPath("zip_test","zip") );
+    const FilePath zipfilename2(
+		FilePath::getTempFullPath("zip_test2","zip") );
+
     FilePath outputdir( zipfilename.pathOnly() );
     outputdir.add( "F3_Test_Survey" );
 
+    TaskRunner* taskrun = nullptr;
+    if ( !quiet_ )
+	taskrun = new TextTaskRunner( logStream() );
+
     mRunTest("Zipping", ZipUtils::makeZip(zipfilename.fullPath(),
-					  tozip.fullPath(),err) );
+					  tozip.fullPath(),err,taskrun) );
+    mRunTest("Zipping (copy)", ZipUtils::makeZip(zipfilename2.fullPath(),
+					  tozip.fullPath(),err,taskrun) );
     mRunTest("Unzipping", ZipUtils::unZipArchive(zipfilename.fullPath(),
-						 outputdir.pathOnly(),err) );
+					 outputdir.pathOnly(),err,taskrun) );
+    mRunTest("Unzipping (copy)", ZipUtils::unZipArchive(zipfilename2.fullPath(),
+					 outputdir.pathOnly(),err,taskrun) );
 
     mCheckDataIntegrity( "Seismics","Seismic.cbvs" );
     mCheckDataIntegrity( "Misc",".omf" );
     mCheckDataIntegrity( "Surfaces","horizonrelations.txt" );
     mCheckDataIntegrity( "WellInfo","F03-4^5.wll" );
 
-    File::remove( zipfilename.fullPath() );
-    File::removeDir( outputdir.fullPath() );
+    mCleanup();
 
     return 0;
 }
