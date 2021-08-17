@@ -39,11 +39,41 @@ ________________________________________________________________________
 #include <QLayout>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTextEdit>
 
 #define sError() uiStrings::sError()
 #define sWarning() uiStrings::sWarning()
 
 mUseQtnamespace
+
+class ODMessageBox : public QMessageBox
+{
+public:
+ODMessageBox( QWidget* parent )
+    : QMessageBox(parent)
+{
+}
+
+protected:
+bool event( QEvent* event )
+{
+    const bool res = QMessageBox::event( event );
+    QTextEdit* textedit = findChild<QTextEdit*>();
+    if ( textedit && textedit->isVisible() )
+    {
+	const QSizePolicy::Policy szpol = QSizePolicy::Expanding;
+	const int maxsz = QWIDGETSIZE_MAX;
+	textedit->setMaximumSize( maxsz, maxsz );
+	textedit->setSizePolicy( szpol, szpol );
+	setMaximumSize( maxsz, maxsz );
+	setSizePolicy( szpol, szpol );
+    }
+
+    return res;
+}
+
+};
+
 
 uiMsg& gUiMsg( const uiParent* p )
 {
@@ -251,7 +281,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
         QCheckBox** notagain )
 {
 
-    QMessageBox* mb = new QMessageBox( parent );
+    ODMessageBox* mb = new ODMessageBox( parent );
     mb->setIcon( (QMessageBox::Icon)icon );
     mb->setWindowTitle( toQString(title) );
     mb->setText( toQString(txt) );
@@ -498,6 +528,7 @@ void uiMsg::errorWithDetailProc( uiStringSet& strings )
 					       uiString::empty(),
 					       oktxt, wintitle, 0 );
     mb->setDefaultButton( QMessageBox::Abort );
+    mb->setSizeGripEnabled( true );
 
     if ( strings.size()>1 )
     {

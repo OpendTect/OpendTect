@@ -224,6 +224,7 @@ bool Seis::ProviderTester::testGetViaSD( const TrcKey& tk, bool exists )
 
     SelData* prevsd = prov_->selData() ? prov_->selData()->clone() : 0;
     prov_->setSelData( new RangeSelData(tk) );
+    prov_->commitSelections();
 
     if ( exists )
     {
