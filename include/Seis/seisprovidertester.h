@@ -67,10 +67,10 @@ public:
 
 
     static const char*	survName()		{ return "F3_Test_Survey"; }
-    static DBKey	volDBKey()		{ return DBKey("100010.1010"); }
-    static DBKey	volPSDBKey()		{ return DBKey("100010.1020"); }
-    static DBKey	lineDBKey()		{ return DBKey("100010.1030"); }
-    static DBKey	linePSDBKey()		{ return DBKey("100010.1040"); }
+    static DBKey	volDBKey()		{ return DBKey("100010.2"); }
+    static DBKey	volPSDBKey()		{ return DBKey("100010.6"); }
+    static DBKey	lineDBKey()		{ return DBKey("100010.12"); }
+    static DBKey	linePSDBKey()		{ return DBKey("100010.13"); }
     static int		nrLineGeometries()	{ return 3; }
     static GeomID	lineGeomID(int);
     static BufferString	lineGeomNameBase()	{ return "IOTest Line Geom "; }
