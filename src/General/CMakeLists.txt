@@ -13,6 +13,7 @@ endif()
 list ( APPEND OD_TEST_PROGS
 	mathexpression.cc
 	mathformula.cc
+	mnemonics.cc
 	posidxpairvalset.cc
 )
 set( OD_NIGHTLY_TEST_PROGS zip.cc )
