@@ -53,9 +53,47 @@ bool testBits()
     return true;
 }
 
+
+bool testNiceNumber()
+{
+    mRunStandardTest(Math::NiceNumber(0.f)==0.f, "NiceNumber(0.f)");
+    mRunStandardTest(Math::NiceNumber(14.f)==10.f, "NiceNumber(14.f)");
+    mRunStandardTest(Math::NiceNumber(-14.f)==-10.f, "NiceNumber(-14.f)");
+    mRunStandardTest(Math::NiceNumber(14.f, false)==20.f,
+						     "NiceNumber(14.f, false)");
+    mRunStandardTest(Math::NiceNumber(-14.f, false)==-20.f,
+						 "NiceNumber(-14.f, false)");
+    mRunStandardTest(Math::NiceNumber(0.14f)==0.1f, "NiceNumber(0.14f)");
+    mRunStandardTest(Math::NiceNumber(-0.14f)==-0.1f, "NiceNumber(-0.14f)");
+    mRunStandardTest(Math::NiceNumber(0.14f, false)==0.2f,
+						 "NiceNumber(0.14f, false)");
+    mRunStandardTest(Math::NiceNumber(-0.14f, false)==-0.2f,
+						 "NiceNumber(-0.14f, false)");
+
+    mRunStandardTest(Math::NiceNumber(0.0)==0.0, "NiceNumber(0.0)");
+    mRunStandardTest(Math::NiceNumber(14.0)==10.0, "NiceNumber(14.0)");
+    mRunStandardTest(Math::NiceNumber(-14.0)==-10.0, "NiceNumber(-14.0)");
+    mRunStandardTest(Math::NiceNumber(14.0, false)==20.0,
+						     "NiceNumber(14.0, false)");
+    mRunStandardTest(Math::NiceNumber(-14.0, false)==-20.0,
+						 "NiceNumber(-14.0, false)");
+    mRunStandardTest(Math::NiceNumber(0.14)==0.1, "NiceNumber(0.14)");
+    mRunStandardTest(Math::NiceNumber(-0.14)==-0.1, "NiceNumber(-0.14)");
+    mRunStandardTest(Math::NiceNumber(0.14, false)==0.2,
+						 "NiceNumber(0.14, false)");
+    mRunStandardTest(Math::NiceNumber(-0.14, false)==-0.2,
+						 "NiceNumber(-0.14, false)");
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    return testBits() ? 0 : 1;
+    if (       !testBits()
+	    || !testNiceNumber() )
+	return 1;
+
+    return 0;
 }

@@ -197,6 +197,8 @@ public:
     inline T		snapStep(const T& inpstep) const;
 			/*!<Snaps inpstep to a positive multiple of step. */
 
+    StepInterval<T>	niceInterval(int, bool allowrev=true) const;
+
      T			step;
 
 };
@@ -850,3 +852,27 @@ mDefFltisCompat(float,1e-5f)
 mDefFltisCompat(double,1e-10)
 // Do not change the above releps values as they originate from the types.
 
+
+template <class T> inline
+StepInterval<T> StepInterval<T>::niceInterval( int maxsteps, bool canrev ) const
+{
+    if ( isUdf() )
+	return udf();
+
+    const bool isrev = Interval<T>::isRev();
+    const T min = isrev ? this->stop : this->start;
+    const T max = isrev ? this->start : this->stop;
+    if ( mIsZero(min, mDefEps) && mIsZero(max, mDefEps) )
+	return StepInterval<T>();
+
+    T range = Math::Abs( max - min );
+    if ( mIsZero(range, mDefEps) )
+	range = 0.2 * Math::Abs( min );
+
+    range = Math::NiceNumber( range, false );
+    const T nice_step = Math::NiceNumber( range/(maxsteps), true );
+    const T nice_min = Math::Floor( min/nice_step ) * nice_step;
+    const T nice_max = Math::Ceil( max/nice_step ) * nice_step;
+    return isrev && canrev ? StepInterval<T>( nice_max, nice_min, nice_step ) :
+			     StepInterval<T>( nice_min, nice_max, nice_step );
+}
