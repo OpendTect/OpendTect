@@ -126,6 +126,14 @@ void Text::setText( const uiString& newtext )
 }
 
 
+void Text::setRotation( float radangle, const Coord3& axis )
+{
+    osg::Quat rotation;
+    rotation.makeRotate( radangle, osg::Vec3d(axis.x, axis.y, axis.z) );
+    osgtext_->setRotation( rotation );
+}
+
+
 void Text::setJustification( Justification just )
 {
     if ( just == Center )
