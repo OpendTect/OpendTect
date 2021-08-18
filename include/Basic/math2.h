@@ -136,6 +136,9 @@ mGlobal(Basic) float IntPowerOf(float,int);
 mGlobal(Basic) int NrSignificantDecimals(double);
 
 
+mGlobal(Basic) float NiceNumber(float, bool round=true);
+mGlobal(Basic) double NiceNumber(double, bool round=true);
+
 } // namespace Math
 
 

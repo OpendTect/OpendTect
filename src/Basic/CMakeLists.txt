@@ -35,6 +35,7 @@ set( OD_TEST_PROGS
 	odjson.cc
 	oscommand.cc
 	pythoncomm.cc
+	ranges.cc
 	refcount.cc
 	sets.cc
 	string.cc

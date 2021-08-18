@@ -180,3 +180,69 @@ int Math::NrSignificantDecimals( double val )
 
     return ret-2;
 }
+
+
+static int niceFraction( bool round, double fraction )
+{
+    int nice_fraction = 0;
+    if ( round )
+    {
+	if ( fraction < 1.5 )
+	    nice_fraction = 1;
+	else if (fraction < 3)
+	    nice_fraction = 2;
+	else if (fraction < 7)
+	    nice_fraction = 5;
+	else
+	    nice_fraction = 10;
+    }
+    else
+    {	if (fraction <= 1)
+	    nice_fraction = 1;
+	else if (fraction <= 2)
+	    nice_fraction = 2;
+	else if (fraction <= 5)
+	    nice_fraction = 5;
+	else
+	    nice_fraction = 10;
+    }
+    return nice_fraction;
+}
+
+
+float Math::NiceNumber( float val, bool round )
+{
+    if ( mIsZero( val, mDefEpsF) )
+	return 0.f;
+
+    float signfactor = 1.f;
+    if ( val<0.f )
+    {
+	signfactor = -1.f;
+	val = -val;
+    }
+
+    const float exponent = Floor( log10( val) );
+    const float fraction = val / pow(10.f, exponent);
+
+    return niceFraction(round, fraction) * pow(10.f, exponent) * signfactor;
+}
+
+
+double Math::NiceNumber( double val, bool round )
+{
+    if ( mIsZero( val, mDefEpsD) )
+	return 0.0;
+
+    double signfactor = 1.0;
+    if ( val<0.0 )
+    {
+	signfactor = -1.0;
+	val = -val;
+    }
+
+    const double exponent = Floor( log10( val) );
+    const double fraction = val / pow(10.0, exponent);
+
+    return niceFraction(round, fraction) * pow(10.0, exponent) * signfactor;
+}
