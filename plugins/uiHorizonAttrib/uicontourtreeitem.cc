@@ -826,7 +826,15 @@ void intvChanged( CallBacker* cb )
 	intv.scale( 1.0f/zfac_ );
 
     contourintv_.step = intv.step;
-    uiString txt( tr("Number of contours: %1").arg(intv.nrSteps()+1) );
+    const float steps = intv.nrSteps();
+    float nrsteps = intv.nrfSteps();
+    const float eps = 1.0e-01;
+    if ( mIsEqual(nrsteps,steps,eps) )
+	nrsteps = steps;
+    else
+	nrsteps = Math::Floor( nrsteps );
+
+    uiString txt( tr("Number of contours: %1").arg(nrsteps+1) );
     toStatusBar( txt );
 }
 
