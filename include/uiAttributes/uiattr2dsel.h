@@ -18,7 +18,9 @@ ________________________________________________________________________
 namespace Attrib { class Desc; class DescSet; class SelInfo; }
 
 class uiButtonGroup;
+class uiGenInput;
 class uiListBox;
+class uiListBoxFilter;
 class uiRadioButton;
 class NLAModel;
 
@@ -31,11 +33,11 @@ mExpClass(uiAttributes) uiAttr2DSelDlg : public uiDialog
 public:
 
 			uiAttr2DSelDlg(uiParent*,const Attrib::DescSet*,
-				       const TypeSet<Pos::GeomID>&,
-				       const NLAModel*,const char* curnm=0);
+					const TypeSet<Pos::GeomID>&,
+					const NLAModel*,const char* curnm=0);
 			uiAttr2DSelDlg(uiParent*,const Attrib::DescSet*,
 					const TypeSet<Pos::GeomID>&,
-					const NLAModel*, ZDomain::Info&,
+					const NLAModel*,ZDomain::Info&,
 					const char* curnm=0);
 			~uiAttr2DSelDlg();
 
@@ -51,36 +53,35 @@ protected:
     TypeSet<Pos::GeomID> geomids_;
     Attrib::DescID	descid_;
     const NLAModel*	nla_;
-    int			seltype_;
+    int			seltype_	= 0;
     BufferString	storednm_;
     BufferString	curnm_;
-    int			compnr_;
-    int			outputnr_;
+    int			compnr_		= -1;
+    int			outputnr_	= -1;
 
     uiButtonGroup*	selgrp_;
     uiRadioButton*	storfld_;
-    uiRadioButton*	steerfld_;
+    uiRadioButton*	steerfld_	= nullptr;
     uiRadioButton*	attrfld_;
-    uiRadioButton*	nlafld_;
+    uiRadioButton*	nlafld_		= nullptr;
 
     uiListBox*		storoutfld_;
-    uiListBox*		steeroutfld_;
-    uiListBox*		attroutfld_;
-    uiListBox*		nlaoutfld_;
+    uiListBox*		steeroutfld_	= nullptr;
+    uiListBox*		attroutfld_	= nullptr;
+    uiListBox*		nlaoutfld_	= nullptr;
+    uiGenInput*		storsteerfilter_;
+    uiListBoxFilter*	attrfilter_		= nullptr;
 
     void		doFinalise( CallBacker* );
     void		initFields(const Attrib::DescSet&);
     void		selDone(CallBacker*);
+    void		filtChg(CallBacker*);
     virtual bool	acceptOK(CallBacker*);
     int			selType() const;
 
     void		createSelectionButtons(ZDomain::Info&);
     void		createSelectionFields(ZDomain::Info&);
 
-    // Do not use. Deprecated.
-    void		createSelectionButtons();
-    void		createSelectionFields();
-
+    void		createSelectionButtons();	// ZDomain::SI()
+    void		createSelectionFields();	// ZDomain::SI()
 };
-
-
