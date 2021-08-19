@@ -59,7 +59,7 @@ void uiSurfaceSel::getFullList()
 	names_.add( ioobj->name() );
     }
 
-    listfld_->addItems( names_ );
+    filterfld_->setItems( names_ );
     listfld_->resizeToContents();
 }
 
@@ -72,8 +72,8 @@ void uiSurfaceSel::removeFromList( const TypeSet<MultiID>& ids )
 	if ( surfidx < 0 )
 	    continue;
 
-	listfld_->removeItem( surfidx );
 	mids_.removeSingle( surfidx );
+	filterfld_->removeItem( surfidx );
     }
 }
 
@@ -112,7 +112,6 @@ int uiSurfaceSel::nrChosen() const
 
 void uiSurfaceSel::clearList()
 {
-    listfld_->setEmpty();
     filterfld_->setEmpty();
     names_.erase();
     mids_.erase();
