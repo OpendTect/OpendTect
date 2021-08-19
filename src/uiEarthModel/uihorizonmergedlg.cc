@@ -57,7 +57,7 @@ uiHorizonMergeDlg::~uiHorizonMergeDlg()
 
 void uiHorizonMergeDlg::setInputHors( const TypeSet<MultiID>& mids )
 {
-     horselfld_->setSelSurfaceIds( mids );
+     horselfld_->setChosen( mids );
 }
 
 
@@ -72,7 +72,7 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     uiTaskRunner uitr( this );
 
     TypeSet<MultiID> mids;
-    horselfld_->getSelSurfaceIds( mids );
+    horselfld_->getChosen( mids );
     if ( mids.size() < 2 )
     {
 	uiMSG().error( tr("Please select at least 2 horizons") );

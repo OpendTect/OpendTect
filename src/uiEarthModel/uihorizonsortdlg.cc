@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d, bool loadneeded )
-    : uiDialog(p,Setup(tr("Horizon sorter"),tr("Select horizons"),mNoHelpKey))
+    : uiDialog(p,Setup(tr("Select Horizons"),mNoDlgTitle,mNoHelpKey))
     , is2d_( is2d )
     , loadneeded_(loadneeded)
 {
@@ -45,18 +45,20 @@ uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d, bool loadneeded )
 
 
 uiHorizonSortDlg::~uiHorizonSortDlg()
-{ deepUnRef( horizons_ ); }
+{
+    deepUnRef( horizons_ );
+}
 
 
 void uiHorizonSortDlg::setSelected( const TypeSet<MultiID>& horids )
 {
-    horsel_->setSelSurfaceIds( horids );
+    horsel_->setChosen( horids );
 }
 
 
 void uiHorizonSortDlg::getSelectedHorizons( TypeSet<MultiID>& horids ) const
 {
-    horsel_->getSelSurfaceIds( horids );
+    horsel_->getChosen( horids );
 }
 
 
@@ -82,7 +84,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    bool sorted = sortFromRelationTree( horids );
+    const bool sorted = sortFromRelationTree( horids );
     uiTaskRunner taskrunner( this );
     PtrMan<Executor> horreader = 0;
     if ( !sorted || loadneeded_ )
