@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribstorprovider.h"
 #include "ctxtioobj.h"
 #include "datainpspec.h"
+#include "hiddenparam.h"
 #include "hilbertattrib.h"
 #include "iodir.h"
 #include "ioman.h"
@@ -27,21 +28,24 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linekey.h"
 #include "nlamodel.h"
 #include "ptrman.h"
-#include "seistrctr.h"
-#include "linekey.h"
-#include "trckeyzsampling.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
+#include "seistrctr.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uilistboxfilter.h"
 #include "uimsg.h"
 
 using namespace Attrib;
+
+static HiddenParam<uiAttr2DSelDlg,uiGenInput*> hp_datafilter(nullptr);
+static HiddenParam<uiAttr2DSelDlg,uiListBoxFilter*> hp_attribfilter(nullptr);
 
 
 uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
@@ -51,8 +55,8 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     : uiDialog(p,Setup( uiStrings::phrSelect( tr("Dataset") ),
 			mNoDlgTitle,mNoHelpKey))
     , geomids_(geomids)
-    , nla_(nla)
     , descid_(-1,true)
+    , nla_(nla)
     , curnm_(curnm)
     , seltype_(0)
     , selgrp_(nullptr)
@@ -98,8 +102,8 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     : uiDialog(p,Setup( uiStrings::phrSelect( tr("Dataset") ),
 			mNoDlgTitle,mNoHelpKey))
     , geomids_(geomids)
-    , nla_(nla)
     , descid_(-1,true)
+    , nla_(nla)
     , curnm_(curnm)
     , seltype_(0)
     , selgrp_(nullptr)
@@ -140,6 +144,8 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 
 uiAttr2DSelDlg::~uiAttr2DSelDlg()
 {
+    hp_datafilter.removeAndDeleteParam( this );
+    hp_attribfilter.removeAndDeleteParam( this );
     delete selgrp_;
     delete attrinf_;
 }
@@ -205,87 +211,15 @@ static void getDataNames( const TypeSet<Pos::GeomID> ids,
 
 void uiAttr2DSelDlg::createSelectionButtons()
 {
-    selgrp_ = new uiButtonGroup( this, "Input selection", OD::Vertical );
-
-    SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
-    BufferStringSet nms;
-    getDataNames( geomids_, o2d, nms );
-
-    storfld_ = new uiRadioButton( selgrp_, uiStrings::sStored() );
-    storfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
-    storfld_->setSensitive( nms.size() );
-
-    o2d.steerpol_ = 1;
-    nms.erase();
-    getDataNames( geomids_, o2d, nms );
-    const bool havesteer = !nms.isEmpty();
-    if ( havesteer )
-    {
-	steerfld_ = new uiRadioButton( selgrp_, uiStrings::sSteering() );
-	steerfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
-    }
-
-    const bool haveattribs = attrinf_->attrnms_.size();
-    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttribute(mPlural) );
-    attrfld_->setSensitive( haveattribs );
-    attrfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
-
-    if ( !nla_ ) return;
-
-    nlafld_ = new uiRadioButton( selgrp_, toUiString(nla_->nlaType(false)) );
-    nlafld_->setSensitive( attrinf_->nlaoutnms_.size() );
-    nlafld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
+    ZDomain::Info info( ZDomain::SI() );
+    createSelectionButtons( info );
 }
 
 
 void uiAttr2DSelDlg::createSelectionFields()
 {
-    SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
-    BufferStringSet nms;
-    getDataNames( geomids_, o2d, nms );
-
-    storoutfld_ = new uiListBox( this, "Stored cubes" );
-    storoutfld_->addItems( nms );
-    storoutfld_->setHSzPol( uiObject::Wide );
-    storoutfld_->setCurrentItem( 0 );
-    storoutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
-    storoutfld_->attach( rightOf, selgrp_ );
-
-    o2d.steerpol_ = 1;
-    nms.erase();
-    getDataNames( geomids_, o2d, nms );
-    const bool havesteer = !nms.isEmpty();
-    if ( havesteer )
-    {
-	nms.sort();
-	steeroutfld_ = new uiListBox( this, "Steering" );
-	steeroutfld_->addItems( nms );
-	steeroutfld_->setHSzPol( uiObject::Wide );
-	steeroutfld_->setCurrentItem( 0 );
-	steeroutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
-	steeroutfld_->attach( rightOf, selgrp_ );
-    }
-
-    const bool haveattribs = !attrinf_->attrnms_.isEmpty();
-    if ( haveattribs )
-    {
-	attroutfld_ = new uiListBox( this, "Attributes" );
-	attroutfld_->addItems( attrinf_->attrnms_ );
-	attroutfld_->setHSzPol( uiObject::Wide );
-	attroutfld_->setCurrentItem( 0 );
-	attroutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
-	attroutfld_->attach( rightOf, selgrp_ );
-    }
-
-    if ( !attrinf_->nlaoutnms_.isEmpty() )
-    {
-	nlaoutfld_ = new uiListBox( this, "NLAs" );
-	nlaoutfld_->addItems( attrinf_->nlaoutnms_ );
-	nlaoutfld_->setHSzPol( uiObject::Wide );
-	nlaoutfld_->setCurrentItem( 0 );
-	nlaoutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
-	nlaoutfld_->attach( rightOf, selgrp_ );
-    }
+    ZDomain::Info info( ZDomain::SI() );
+    createSelectionFields( info );
 }
 
 
@@ -339,6 +273,11 @@ void uiAttr2DSelDlg::createSelectionFields( ZDomain::Info& info )
     storoutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
     storoutfld_->attach( rightOf, selgrp_ );
 
+    auto* filtfld = new uiGenInput( this, uiStrings::sFilter(), "*" );
+    hp_datafilter.setParam( this, filtfld );
+    filtfld->attach( centeredAbove, storoutfld_ );
+    filtfld->valuechanged.notify( mCB(this,uiAttr2DSelDlg,filtChg) );
+
     o2d.steerpol_ = 1;
     nms.erase();
     getDataNames( geomids_, o2d, nms );
@@ -354,6 +293,7 @@ void uiAttr2DSelDlg::createSelectionFields( ZDomain::Info& info )
 	steeroutfld_->attach( rightOf, selgrp_ );
     }
 
+    hp_attribfilter.setParam( this, nullptr );
     const bool haveattribs = !attrinf_->attrnms_.isEmpty();
     if ( haveattribs )
     {
@@ -362,7 +302,11 @@ void uiAttr2DSelDlg::createSelectionFields( ZDomain::Info& info )
 	attroutfld_->setHSzPol( uiObject::Wide );
 	attroutfld_->setCurrentItem( 0 );
 	attroutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
-	attroutfld_->attach( rightOf, selgrp_ );
+	attroutfld_->attach( ensureRightOf, selgrp_ );
+
+	auto* fltr = new uiListBoxFilter( *attroutfld_ );
+	fltr->setItems( attrinf_->attrnms_ );
+	hp_attribfilter.setParam( this, fltr );
     }
 
     if ( !attrinf_->nlaoutnms_.isEmpty() )
@@ -396,6 +340,26 @@ void uiAttr2DSelDlg::selDone( CallBacker* )
     if ( steeroutfld_ ) steeroutfld_->display( seltyp == 1 );
     if ( attroutfld_ ) attroutfld_->display( seltyp == 2 );
     if ( nlaoutfld_ ) nlaoutfld_->display( seltyp == 3 );
+    hp_datafilter.getParam(this)->display( seltyp==0 || seltyp==1 );
+}
+
+
+void uiAttr2DSelDlg::filtChg( CallBacker* )
+{
+    if ( !storoutfld_ )
+	return;
+
+    const bool issteersel = selType() == 1;
+    uiListBox* outfld = issteersel ? steeroutfld_ : storoutfld_;
+    BufferStringSet& nms = issteersel ? attrinf_->steernms_
+				      : attrinf_->ioobjnms_;
+    outfld->setEmpty();
+    attrinf_->fillStored( issteersel, hp_datafilter.getParam(this)->text() );
+    if ( nms.isEmpty() )
+	return;
+
+    outfld->addItems( nms );
+    outfld->setCurrentItem( 0 );
 }
 
 
@@ -438,7 +402,10 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 	compnr_ = 1;
     }
     else if ( seltype_ == 2 )
+    {
+	selidx = hp_attribfilter.getParam(this)->getCurrent();
 	descid_ = attrinf_->attrids_[selidx];
+    }
     else if ( seltype_ == 3 )
     {
 	descid_ = DescID::undef();
