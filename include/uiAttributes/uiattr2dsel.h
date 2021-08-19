@@ -72,6 +72,7 @@ protected:
     void		doFinalise( CallBacker* );
     void		initFields(const Attrib::DescSet&);
     void		selDone(CallBacker*);
+    void		filtChg(CallBacker*);
     virtual bool	acceptOK(CallBacker*);
     int			selType() const;
 
