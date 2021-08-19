@@ -18,14 +18,22 @@ ________________________________________________________________________
 
 class IOObjContext;
 class uiListBox;
+class uiListBoxFilter;
 
 mExpClass(uiEarthModel) uiSurfaceSel : public uiGroup
 {
 public:
 			~uiSurfaceSel();
 
+    void		getChosen(TypeSet<MultiID>&) const;
+    void		setChosen(const TypeSet<MultiID>&);
+    int			nrChosen() const;
+
+    mDeprecated("Use getChosen")
     virtual void	getSelSurfaceIds(TypeSet<MultiID>&) const;
+    mDeprecated("Use setChosen")
     void		setSelSurfaceIds(const TypeSet<MultiID>&);
+    mDeprecated("Use nrChosen")
     int 		getSelItems() const;
 
     void		removeFromList(const TypeSet<MultiID>&);
@@ -37,6 +45,8 @@ protected:
     void		getFullList();
 
     uiListBox*		listfld_;
+    uiListBoxFilter*	filterfld_;
+
     TypeSet<MultiID>	mids_;
     BufferStringSet	names_;
 
@@ -81,5 +91,3 @@ public:
 protected:
 
 };
-
-

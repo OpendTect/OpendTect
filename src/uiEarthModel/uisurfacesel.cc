@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uisurfacesel.h"
 
 #include "uilistbox.h"
+#include "uilistboxfilter.h"
 
 #include "ctxtioobj.h"
 #include "emsurfacetr.h"
@@ -30,11 +31,13 @@ uiSurfaceSel::uiSurfaceSel( uiParent* p, const IOObjContext& ct )
 {
     listfld_ = new uiListBox( this, "listbox", OD::ChooseAtLeastOne );
     listfld_->setHSzPol( uiObject::Wide );
+    filterfld_ = new uiListBoxFilter( *listfld_ );
 }
 
 
 uiSurfaceSel::~uiSurfaceSel()
 {
+    delete filterfld_;
     delete &ctxt_;
 }
 
@@ -57,6 +60,7 @@ void uiSurfaceSel::getFullList()
     }
 
     listfld_->addItems( names_ );
+    listfld_->resizeToContents();
 }
 
 
@@ -74,41 +78,59 @@ void uiSurfaceSel::removeFromList( const TypeSet<MultiID>& ids )
 }
 
 
-void uiSurfaceSel::getSelSurfaceIds( TypeSet<MultiID>& mids ) const
+void uiSurfaceSel::getChosen( TypeSet<MultiID>& mids ) const
 {
     TypeSet<int> selidxs;
-    listfld_->getChosen( selidxs );
+    filterfld_->getChosen( selidxs );
     for (  int idx=0; idx<selidxs.size(); idx++ )
 	mids += mids_[ selidxs[idx] ];
 }
 
 
-void uiSurfaceSel::setSelSurfaceIds( const TypeSet<MultiID>& mids )
+void uiSurfaceSel::setChosen( const TypeSet<MultiID>& mids )
 {
-    TypeSet<int> selidxs;
+    BufferStringSet names;
     for ( int idx=0; idx<mids.size(); idx++ )
     {
-	const int surfidx = mids_.indexOf( mids[idx] );
-	if ( surfidx < 0 ) continue;
-	selidxs += surfidx;
+	const MultiID mid = mids[idx];
+	const int surfidx = mids_.indexOf( mid );
+	if ( surfidx < 0 )
+	    continue;
+
+	names.add( IOM().nameOf(mid) );
     }
 
-     listfld_->setChosen( selidxs );
+    listfld_->setChosen( names );
 }
 
 
-int uiSurfaceSel::getSelItems() const
-{ return listfld_->nrChosen(); }
+int uiSurfaceSel::nrChosen() const
+{
+    return filterfld_->nrChosen();
+}
 
 
 void uiSurfaceSel::clearList()
 {
     listfld_->setEmpty();
+    filterfld_->setEmpty();
     names_.erase();
     mids_.erase();
 }
 
 
+// Deprecated
+void uiSurfaceSel::getSelSurfaceIds( TypeSet<MultiID>& mids ) const
+{ getChosen( mids ); }
+
+void uiSurfaceSel::setSelSurfaceIds( const TypeSet<MultiID>& mids )
+{ setChosen( mids ); }
+
+int uiSurfaceSel::getSelItems() const
+{ return nrChosen(); }
+
+
+// uiSurface3DSel
 uiSurface3DSel::uiSurface3DSel( uiParent* p, const IOObjContext& ct )
     : uiSurfaceSel( p, ct )
 {}
