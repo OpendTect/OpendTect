@@ -102,23 +102,7 @@ void Mnemonic::usePar( const IOPar& iop )
 	    disp_.typicalrange_.start = fms.getFValue( 5 );
 	    disp_.typicalrange_.stop = fms.getFValue( 6 );
 	    if ( idx == 7 )
-	    {
 		disp_.unit_ = fms[7];
-		const UnitOfMeasure* uom = UoMR().get( disp_.unit_ );
-		if ( uom )
-		{
-		    if ( !mIsUdf(disp_.range_.start) )
-			disp_.range_.start=uom->getSIValue(disp_.range_.start);
-		    if ( !mIsUdf(disp_.range_.stop) )
-			disp_.range_.stop=uom->getSIValue(disp_.range_.stop);
-		    if ( !mIsUdf(disp_.typicalrange_.start) )
-			disp_.typicalrange_.start = uom->getSIValue(
-						    disp_.typicalrange_.start);
-		    if ( !mIsUdf(disp_.typicalrange_.stop) )
-			disp_.typicalrange_.stop = uom->getSIValue(
-						    disp_.typicalrange_.stop);
-		}
-	    }
 	}
 	else if ( idx >= 8 && idx <= 10 )
 	    disp_.color_.set( fms.getFValue(8), fms.getFValue(9),
@@ -136,18 +120,7 @@ void Mnemonic::fillPar( IOPar& iop ) const
     fms += Mnemonic::ScaleDef().toString( disp_.scale_ );
     Interval<float> vrange( disp_.range_ );
     Interval<float> vtypicalrange( disp_.typicalrange_ );
-    const UnitOfMeasure* uom = UoMR().get( disp_.unit_ );
-    if ( uom )
-    {
-	if ( !mIsUdf(vrange.start) )
-	    vrange.start = uom->getUserValueFromSI(vrange.start);
-	if ( !mIsUdf(vrange.stop) )
-	    vrange.stop = uom->getUserValueFromSI(vrange.stop);
-	if ( !mIsUdf(vtypicalrange.start) )
-	    vtypicalrange.start = uom->getUserValueFromSI(vtypicalrange.start);
-	if ( !mIsUdf(vtypicalrange.stop) )
-	    vtypicalrange.stop = uom->getUserValueFromSI(vtypicalrange.stop);
-    }
+
     fms.add( vrange.start );
     fms.add( vrange.stop );
     fms.add( vtypicalrange.start );

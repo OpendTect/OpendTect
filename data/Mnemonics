@@ -13,12 +13,12 @@ RESD: Deep Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`
 RESM: Medium Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0` 
 RESS: Shallow Resistivity`Resistivity`Log`0.2`2000`0.2`2000`ohmm`200`200`0` 
 IL: Induction Log`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`ILD`ILM`AHT`AHO`HDIL`HRI
-DT: Sonic`Sonic travel time`Lin`40`250`50`150`Seconds/meter`0`255`255`AC`ACL`BHC`BCS
-DTS: Shear Sonic`Sonic travel time`Lin`60`425`50`150`Seconds/meter`255`20`147`DSI`FWS
-PHI: Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0` 
-PHIT: Total Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0` 
-PHIE: Effective Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0` 
-PHIS: Sonic Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0` 
+DT: Sonic`Sonic travel time`Lin`220`30`200`50`Microseconds/foot`0`255`255`AC`ACL`BHC`BCS
+DTS: Shear Sonic`Sonic travel time`Lin`440`60`400`100`Microseconds/foot`255`20`147`DSI`FWS
+PHI: Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`
+PHIT: Total Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`
+PHIE: Effective Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`
+PHIS: Sonic Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`
 PHID: Density Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`DPHI`DPOR
 PHIN: Neutron Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0` 
 NPHI: Compensated Neutron`Volumetrics`Lin`45`-15`30`0`%`200`200`0`CNL
