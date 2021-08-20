@@ -211,6 +211,9 @@ static int niceFraction( bool round, double fraction )
 
 float Math::NiceNumber( float val, bool round )
 {
+    if ( mIsZero( val, mDefEpsF) )
+	return 0.f;
+
     float signfactor = 1.f;
     if ( val<0.f )
     {
@@ -227,6 +230,9 @@ float Math::NiceNumber( float val, bool round )
 
 double Math::NiceNumber( double val, bool round )
 {
+    if ( mIsZero( val, mDefEpsD) )
+	return 0.0;
+
     double signfactor = 1.0;
     if ( val<0.0 )
     {
