@@ -26,14 +26,14 @@ SW: Water Saturation`Volumetrics`Lin`0`100`0`100`%`0`200`255`SAT`SWE
 VCL: Vclay`Volumetrics`Lin`0`100`0`100`%`100`200`100`VCLU`VCLC`VCLF`VSH
 VSVP: Vs/Vp`Elastic Ratio`Lin`0.1`0.67`0.1`0.5``200`150`200`
 VPVS: Vp/Vs`Elastic Ratio`Lin`1.5`10`2`10``200`150`150`
-IMP: Impedence`Impedance`Lin`2e6`2e7`2e6`2e7``255`150`0`
-AI: Acoustic Impedence`Impedance`Lin`2e6`2e7`2e6`2e7``255`150`0`
-EI: Elastic Impedence`Impedance`Lin`2e6`2e7`2e6`2e7``200`255`100`
-SI: Shear Impedence`Impedance`Lin`2e6`2e7`2e6`2e7``100`255`100`
-VEL: Velocity`Velocity`Lin`500`4500`500`4500`m/s`0`200`0`V
-PVEL: Pwave Velocity`Velocity`Lin`1500`4500`1500`4500`m/s`0`200`0`V
-SVEL: Swave Velocity`Velocity`Lin`500`2000`500`2000`m/s`0`200`0`
-PERM: Permeability`Permeability`Log`1`500`1`500`mD`200`0`0`
+IMP: Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`Meter/second x Kg/m3`255`150`0`
+AI: Acoustic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`Meter/second x Kg/m3`255`150`0`
+EI: Elastic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`Meter/second x Kg/m3`200`255`100`
+SI: Shear Impedance`Impedance`Lin`1e6`1.2e7`1.1e6`1.1e7`Meter/second x Kg/m3`100`255`100`
+VEL: Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`V
+PVEL: Pwave Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`V
+SVEL: Swave Velocity`Velocity`Lin`250`3800`800`3800`m/s`0`200`0`
+PERM: Permeability`Permeability`Log`0.01`5000`1`2000`mD`200`0`0`
 PR: Poissons Ratio`Elastic Ratio`Lin`0.1`0.5`0.1`0.5``200`100`200`POI
 TEMP: Temperature`Temperature`Lin`5`300`10`150`deg.C`0`0`0` 
 LITHO: Lithology`Classification`Lin`0`7`1`5``0`255`255`
