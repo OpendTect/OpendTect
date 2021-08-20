@@ -204,7 +204,7 @@ void uiArray2DInterpolSel::fillPar( IOPar& iopar ) const
     if ( !result_ )
 	return;
 
-    iopar.set( sKey::Name(), methodsel_->text() );
+    iopar.set( sKey::Name(), result_->factoryKeyword() );
     result_->fillPar( iopar );
 }
 
