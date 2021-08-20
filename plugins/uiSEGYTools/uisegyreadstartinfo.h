@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uisegycommon.h"
 #include "uisegyimptype.h"
 
-class DataClipSampler;
+class RowCol;
 class uiTable;
 class uiSpinBox;
 class uiLineEdit;
@@ -36,12 +36,15 @@ public:
 
 			uiSEGYReadStartInfo(uiParent*,SEGY::LoadDef&,
 					const SEGY::ImpType* fixedimptyp=0);
+			~uiSEGYReadStartInfo();
 
     void		setImpTypIdx(int,bool updnow=true);
     void		setScanInfo(const SEGY::ScanInfoSet&);
     void		showNrSamplesSetting(bool);
     void		showZSamplingSetting(bool);
+    void		setRev1Values();
 
+    void		setLoadDefCache(const SEGY::LoadDef&);
     void		useLoadDef(); //!< when you have changed the loaddef
     void		fillLoadDef();
 
@@ -107,6 +110,10 @@ protected:
     void		setByteFldContents(const SEGY::HdrEntryKeyData&);
     void		parChanged(bool);
 
+    void		clearTable();
+    void		removeFromTable(uiObject*);
+    void		removeFromTable(uiGroup*);
+
     bool		isVSP() const		{ return imptype_.isVSP(); }
     void		setCellTxt(int col,int row,const uiString&);
 
@@ -114,5 +121,3 @@ protected:
     void		parChg(CallBacker*);
 
 };
-
-
