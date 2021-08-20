@@ -203,10 +203,7 @@ void uiArray2DInterpolSel::fillPar( IOPar& iopar ) const
     if ( !result_ )
 	return;
 
-    const BufferStringSet& methods = Array2DInterpol::factory().getNames();
-    const int methodidx = methodsel_ ? methodsel_->getIntValue() : 0;
-    if ( methods.validIdx(methodidx) )
-	iopar.set( sKey::Name(), methods.get(methodidx) );
+    iopar.set( sKey::Name(), result_->factoryKeyword() );
     result_->fillPar( iopar );
 }
 
