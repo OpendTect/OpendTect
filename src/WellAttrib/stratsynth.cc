@@ -39,7 +39,6 @@ ________________________________________________________________________
 #include "prestackgather.h"
 #include "prestackanglecomputer.h"
 #include "propertyref.h"
-#include "property.h"
 #include "raytracerrunner.h"
 #include "separstr.h"
 #include "seisbufadapters.h"
@@ -480,15 +479,13 @@ const SyntheticData* StratSynth::getSyntheticByIdx( int idx ) const
 }
 
 
-int StratSynth::syntheticIdx( const Property& pr ) const
+int StratSynth::syntheticIdx( const PropertyRef& pr ) const
 {
     for ( int idx=0; idx<synthetics_.size(); idx++ )
     {
 	mDynamicCastGet(const StratPropSyntheticData*,pssd,synthetics_[idx]);
-	if ( !pssd )
-	    continue;
-
-	if ( pr == pssd->prop() )
+	if ( !pssd ) continue;
+	if ( pr == pssd->propRef() )
 	    return idx;
     }
 
@@ -520,13 +517,13 @@ void StratSynth::getSyntheticNames( BufferStringSet& nms,
 }
 
 
-SyntheticData* StratSynth::getSynthetic( const	Property& pr )
+SyntheticData* StratSynth::getSynthetic( const	PropertyRef& pr )
 {
     for ( int idx=0; idx<synthetics_.size(); idx++ )
     {
 	mDynamicCastGet(StratPropSyntheticData*,pssd,synthetics_[idx]);
 	if ( !pssd ) continue;
-	if ( pr == pssd->prop() )
+	if ( pr == pssd->propRef() )
 	    return pssd;
     }
     return 0;
@@ -673,59 +670,77 @@ ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems )
     : ParallelTask( "Elastic Model Generator" )
     , lm_(lm)
     , aimodels_(ems)
+    , nrmodels_(lm.size())
 {
     aimodels_.setSize( lm_.size(), ElasticModel() );
+    msg_ = tr( "Generating elastic model" );
 }
 
 
-uiString uiMessage() const
+uiString uiMessage() const override	{ return msg_; }
+uiString uiNrDoneText() const override	{ return tr("Models done"); }
+
+private:
+
+static float cMaximumVpWaterVel()
+{ return 1510.f; }
+
+od_int64 nrIterations() const override	{ return nrmodels_; }
+
+bool doPrepare( int nrthreads ) override
 {
-    if ( errmsg_.isEmpty() )
-	return tr("Generating elastic model");
-    else
-	return errmsg_;
-}
-
-uiString uiNrDoneText() const	{ return tr("Models done"); }
-
-protected :
-
-bool doWork( od_int64 start, od_int64 stop, int threadid )
-{
-    for ( int idm=(int) start; idm<=stop; idm++ )
+    const ElasticPropSelection& eps = lm_.elasticPropSel();
+    uiString errmsg;
+    if ( !eps.isValidInput(&errmsg) )
     {
-	addToNrDone(1);
-	ElasticModel& curem = aimodels_[idm];
+	msg_ = tr( "Cannot create elastic model as %1" ).arg( errmsg );
+	return false;
+    }
+
+    deepErase( elpgens_ );
+    const PropertyRefSelection& props = lm_.propertyRefs();
+    for ( int idx=0; idx<nrthreads; idx++ )
+    {
+	auto* elpgen = new ElasticPropGen( eps, props );
+	if ( !elpgen || !elpgen->isOK() )
+	{
+	    delete elpgen;
+	    msg_ = tr( "Cannot determine elastic property definitions" );
+	    break;
+	}
+
+	elpgens_.add( elpgen );
+    }
+
+    return elpgens_.size() == nrthreads;
+
+}
+
+bool doWork( od_int64 start, od_int64 stop, int threadid ) override
+{
+    if ( !elpgens_.validIdx(threadid) )
+	return false;
+
+    ElasticPropGen& elpgen = *elpgens_.get( threadid );
+    for ( int idm=int(start); idm<=stop; idm++, addToNrDone(1) )
+    {
 	const Strat::LayerSequence& seq = lm_.sequence( idm );
 	if ( seq.isEmpty() )
 	    continue;
 
-	if ( !fillElasticModel(seq,curem) )
+	ElasticModel& curem = aimodels_[idm];
+	if ( !fillElasticModel(seq,elpgen,curem) )
 	    return false;
     }
 
     return true;
 }
 
-bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
+bool fillElasticModel( const Strat::LayerSequence& seq, ElasticPropGen& elpgen,
+		       ElasticModel& aimodel )
 {
-    const ElasticPropSelection& eps = lm_.elasticPropSel();
-    const PropertySelection& props = lm_.properties();
-    MnemonicSelection mns;
-    for ( const auto* pr : props )
-	mns.addIfNew( &pr->mnem() );
+    aimodel.setEmpty();
 
-    aimodel.erase();
-    uiString errmsg;
-    if ( !eps.isValidInput(&errmsg) )
-    {
-	mutex_.lock();
-	errmsg_ = tr("Cannot create elastic model as %1").arg(errmsg);
-	mutex_.unLock();
-	return false;
-    }
-
-    ElasticPropGen elpgen( eps, mns );
     const float srddepth = -1.f*mCast(float,SI().seismicReferenceDatum() );
     int firstidx = 0;
     if ( seq.startDepth() < srddepth )
@@ -734,23 +749,24 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
     if ( seq.isEmpty() )
     {
 	mutex_.lock();
-	errmsg_ = tr("Elastic model is not proper to generate synthetics as a "
+	msg_ = tr("Elastic model is not proper to generate synthetics as a "
 		  "layer sequence has no layers");
 	mutex_.unLock();
 	return false;
     }
 
-    for ( int idx=firstidx; idx<seq.size(); idx++ )
+    const ObjectSet<Strat::Layer>& layers = seq.layers();
+    for ( int idx=firstidx; idx<layers.size(); idx++ )
     {
-	const Strat::Layer* lay = seq.layers()[idx];
-	float thickness = lay->thickness();
+	const Strat::Layer& lay = *layers.get( idx );
+	float thickness = lay.thickness();
 	if ( idx == firstidx )
-	    thickness -= srddepth - lay->zTop();
-	if ( thickness < 1e-4 )
+	    thickness -= srddepth - lay.zTop();
+	if ( thickness < 1e-4f )
 	    continue;
 
-	float dval =mUdf(float), pval = mUdf(float), sval = mUdf(float);
-	TypeSet<float> layervals; lay->getValues( layervals );
+	float dval = mUdf(float), pval = mUdf(float), sval = mUdf(float);
+	TypeSet<float> layervals; lay.getValues( layervals );
 	elpgen.getVals( dval, pval, sval, layervals.arr(), layervals.size() );
 
 	// Detect water - reset Vs
@@ -764,7 +780,7 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
     if ( aimodel.isEmpty() )
     {
 	mutex_.lock();
-	errmsg_ = tr("After discarding layers with no thickness "
+	msg_ = tr("After discarding layers with no thickness "
 		     "no layers remained");
 	mutex_.unLock();
 	return false;
@@ -773,16 +789,19 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
     return true;
 }
 
-static float cMaximumVpWaterVel()
-{ return 1510.f; }
-
-od_int64 nrIterations() const
-{ return lm_.size(); }
+bool doFinish( bool /* success */ ) override
+{
+    deepErase( elpgens_ );
+    return true;
+}
 
 const Strat::LayerModel&	lm_;
+const od_int64			nrmodels_;
 TypeSet<ElasticModel>&		aimodels_;
 Threads::Mutex			mutex_;
-uiString			errmsg_;
+uiString			msg_;
+
+ObjectSet<ElasticPropGen>	elpgens_;
 
 };
 
@@ -797,6 +816,7 @@ bool StratSynth::createElasticModels()
     ElasticModelCreator emcr( layMod(), aimodels_ );
     if ( !TaskRunner::execute(taskr_,emcr) )
 	return false;
+
     bool modelsvalid = false;
     for ( int idx=0; idx<aimodels_.size(); idx++ )
     {
@@ -1184,7 +1204,7 @@ bool doPrepare( int nrthreads )
     const int sz = zrg.nrSteps() + 1;
     for ( int idz=0; idz<sz; idz++ )
 	layermodels_ += new Strat::LayerModel();
-    const PropertySelection& props = lm_.properties();
+    const PropertyRefSelection& props = lm_.propertyRefs();
     for ( int iprop=1; iprop<props.size(); iprop++ )
     {
 	SeisTrcBuf* trcbuf = new SeisTrcBuf( sd_.postStackPack().trcBuf() );
@@ -1240,7 +1260,7 @@ bool doPrepare( int nrthreads )
 
 bool doFinish( bool success )
 {
-    const PropertySelection& props = lm_.properties();
+    const PropertyRefSelection& props = lm_.propertyRefs();
     SynthGenParams sgp;
     sd_.fillGenParams( sgp );
     for ( int idx=0; idx<seisbufdps_.size(); idx++ )
@@ -1269,7 +1289,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const StepInterval<double>& zrg =
 	sd_.postStackPack().posData().range( false );
     const int sz = layermodels_.size();
-    const PropertySelection& props = lm_.properties();
+    const PropertyRefSelection& props = lm_.propertyRefs();
     for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++ )
     {
 	addToNrDone( 1 );
@@ -1280,10 +1300,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	for ( int iprop=1; iprop<props.size(); iprop++ )
 	{
-	    const Property& pr = *props[iprop];
+	    const PropertyRef& pr = *props[iprop];
 	    const OD::String& propnm = pr.name();
-	    const PropertyRef::StdType prtype = pr.mnem().stdType();
-	    const bool propisvel = prtype == PropertyRef::Vel;
+	    const Mnemonic::StdType prtype = pr.stdType();
+	    const bool propisvel = prtype == Mnemonic::Vel;
 	    const UnitOfMeasure* uom = UoMR().getDefault( propnm, prtype );
 	    SeisTrcBufDataPack* dp = seisbufdps_[iprop-1];
 	    SeisTrcBuf& trcbuf = dp->trcBuf();
@@ -1967,7 +1987,7 @@ void PSBasedPostStackSyntheticData::useGenParams( const SynthGenParams& sgp )
 
 StratPropSyntheticData::StratPropSyntheticData( const SynthGenParams& sgp,
 						    SeisTrcBufDataPack& dp,
-						    const Property& pr )
+						    const PropertyRef& pr )
     : PostStackSyntheticData( sgp, dp )
     , prop_(pr)
 {}

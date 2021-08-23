@@ -18,9 +18,7 @@ ________________________________________________________________________
 class CtxtIOObj;
 class ElasticPropSelection;
 class PropertyRef;
-class Property;
 class PropertyRefSelection;
-class PropertySelection;
 class SeisTrcBuf;
 class StratSynth;
 class SyntheticData;
@@ -74,7 +72,7 @@ public:
     const StratSynth&			normalStratSynth() const;
     const StratSynth&			editStratSynth() const;
     bool				isEditUsed() const;
-    const PropertySelection&		modelProperties() const;
+    const PropertyRefSelection& modelProperties() const;
     const ObjectSet<const TimeDepthModel>& d2TModels() const;
     const Wavelet*			wavelet() const;
     MultiID				genDescID() const;

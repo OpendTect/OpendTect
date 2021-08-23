@@ -40,9 +40,9 @@ uiStratLaySeqAttribSetBuild::uiStratLaySeqAttribSetBuild( uiParent* p,
     , anychg_(false)
 {
     BufferStringSet dispnms;
-    for ( int idx=0; idx<lm.properties().size(); idx++ )
+    for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )
     {
-	const Property* pr = lm.properties()[idx];
+	const PropertyRef* pr = lm.propertyRefs()[idx];
 	dispnms.add( pr->name() );
 	props_ += pr;
     }
@@ -101,7 +101,7 @@ void uiStratLaySeqAttribSetBuild::editReq( bool isadd )
 	attr = attrset_.attr( nm );
     else
     {
-	const Property* prop = props_.getByName( nm );
+	const PropertyRef* prop = props_.getByName( nm );
 	if ( !prop ) return;
 	attr = new Strat::LaySeqAttrib( attrset_, *prop );
 	for ( int idx=0; idx<reftree_.lithologies().size(); idx++ )

@@ -70,7 +70,7 @@ public:
     SyntheticData*	replaceSynthetic(int id);
     SyntheticData*	addDefaultSynthetic();
     int			syntheticIdx(const char* nm) const;
-    int			syntheticIdx(const Property&) const;
+    int			syntheticIdx(const PropertyRef&) const;
     SyntheticData*	getSynthetic(const char* nm);
     inline const SyntheticData* getSynthetic( const char* nm ) const
 			{ const int idx = syntheticIdx( nm );
@@ -80,8 +80,8 @@ public:
 					  SynthGenParams::SynthType) const;
     void		getSyntheticNames(BufferStringSet&,bool wantpres) const;
     SyntheticData*	getSynthetic(int id);
-    SyntheticData*	getSynthetic(const Property&);
-    inline const SyntheticData* getSynthetic( const Property& prf ) const
+    SyntheticData*	getSynthetic(const PropertyRef&);
+    inline const SyntheticData* getSynthetic( const PropertyRef& prf ) const
 			{ const int idx = syntheticIdx( prf );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
 							   : 0; }
@@ -144,7 +144,7 @@ protected:
     const bool			useed_;
     const StratSynthLevel*	level_;
     SynthGenParams		genparams_;
-    PropertySelection		props_;
+    PropertyRefSelection	props_;
     ObjectSet<SyntheticData>	synthetics_;
     TypeSet<ElasticModel>	aimodels_;
     int				lastsyntheticid_;

@@ -11,26 +11,31 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
+
 class PropertyRef;
-class Property;
 class UnitOfMeasure;
 class uiGenInput;
 class uiUnitSel;
+
+/*!\brief Interface for displaying/editing a value based on a PropertyRef
+	  All input/output value (must) match the PropertyRef unit
+*/
 
 
 mExpClass(uiTools) uiPropertyValFld : public uiGroup
 {
 public:
 
-			uiPropertyValFld(uiParent*,const Property&,
-					 float defval=mUdf(float),
-					 const UnitOfMeasure* defunit=0);
+			uiPropertyValFld(uiParent*,const PropertyRef&,
+					 float defval);
+			~uiPropertyValFld();
 
-    float		getValue(bool internal=true) const;
-    void		setValue(float val,bool isinternal=true);
+    float		getValue() const;
+    void		setValue(float val);
+			//!< using
     const char*		getUnitName() const;
     const UnitOfMeasure* getUnit() const;
-    void		setUnit(const UnitOfMeasure* uom=0);
+    void		setUnit(const UnitOfMeasure* uom=nullptr);
     void		setUnitName(const char*);
 
     void		setReadOnly(bool); //!< will still allow unit selection
@@ -40,6 +45,7 @@ public:
 
 protected:
 
+    const UnitOfMeasure* pruom_;
     uiGenInput*		valfld_;
     uiUnitSel*		unfld_;
     const UnitOfMeasure* prevuom_;

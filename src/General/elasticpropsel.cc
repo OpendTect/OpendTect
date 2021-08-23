@@ -14,14 +14,14 @@ ________________________________________________________________________
 #include "elasticpropseltransl.h"
 
 #include "ascstream.h"
-#include "streamconn.h"
-#include "keystrs.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
+#include "keystrs.h"
 #include "math.h"
 #include "mathexpression.h"
 #include "rockphysics.h"
+#include "streamconn.h"
 #include "unitofmeasure.h"
 
 static const char* sKeyElasticsSize	= "Nr of Elastic Properties";
@@ -38,7 +38,7 @@ mDefSimpleTranslators(ElasticPropSelection,
 		      "Elastic Property Selection",od,Seis);
 
 mDefineEnumUtils(ElasticFormula,Type,"Elastic Property")
-{ "Density", "PWave", "SWave", 0 };
+{ "Density", "PWave", "SWave", nullptr };
 
 
 ElasticFormula& ElasticFormula::operator =( const ElasticFormula& ef )
@@ -78,7 +78,7 @@ void ElasticFormula::usePar( const IOPar& par )
 const char* ElasticFormula::parseVariable( int idx, float& val ) const
 {
     if ( !variables_.validIdx( idx ) )
-	return 0;
+	return nullptr;
 
     val = mUdf( float );
     const char* var = variables_.get( idx );
@@ -90,15 +90,16 @@ const char* ElasticFormula::parseVariable( int idx, float& val ) const
 
 ElasticFormulaRepository& ElFR()
 {
-    mDefineStaticLocalObject(	PtrMan<ElasticFormulaRepository>,
-                              elasticrepos, (0) );
+    mDefineStaticLocalObject( PtrMan<ElasticFormulaRepository>,
+			      elasticrepos, = nullptr );
     if ( !elasticrepos )
     {
-	ElasticFormulaRepository* newrepos = new ElasticFormulaRepository;
-	newrepos->addRockPhysicsFormulas();
-	newrepos->addPreDefinedFormulas();
-
-        elasticrepos.setIfNull( newrepos, true );
+	auto* newrepos = new ElasticFormulaRepository;
+	if ( elasticrepos.setIfNull(newrepos,true) )
+	{
+	    newrepos->addRockPhysicsFormulas();
+	    newrepos->addPreDefinedFormulas();
+	}
     }
 
     return *elasticrepos;
@@ -139,11 +140,11 @@ void ElasticFormulaRepository::addRockPhysicsFormulas()
 	ElasticFormula::parseEnumType( props[idx], tp );
 	BufferStringSet fnms;
 	ROCKPHYSFORMS().getRelevant(
-			    ElasticProperty::elasticToStdType(tp), fnms );
+			    ElasticPropertyRef::elasticToStdType(tp), fnms );
 
 	for ( int idfor=0; idfor<fnms.size(); idfor ++ )
 	{
-	    BufferString elasnm = fnms.get( idfor );
+	    const BufferString elasnm = fnms.get( idfor );
 	    const RockPhysics::Formula* rpf =
 					ROCKPHYSFORMS().getByName( elasnm );
 	    if ( !rpf ) continue;
@@ -152,26 +153,37 @@ void ElasticFormulaRepository::addRockPhysicsFormulas()
 
 	    Math::ExpressionParser mep( rpf->def_ );
 	    Math::Expression* me = mep.parse();
-	    if ( !me ) continue;
+	    if ( !me )
+		continue;
 
 	    int cstidx = 0; int varidx = 0;
 	    for ( int idvar=0; idvar<me->nrVariables(); idvar++)
 	    {
-		if ( me->getType( idvar ) == Math::Expression::Constant )
+		if ( me->getType(idvar) == Math::Expression::Constant )
 		{
-		    if ( rpf->constdefs_.validIdx( cstidx ) )
+		    if ( rpf->constdefs_.validIdx(cstidx) )
+		    {
 			fm.variables().add(
 			    toString( rpf->constdefs_[cstidx]->defaultval_ ) );
+			fm.units().add( BufferString::empty() );
+
+		    }
 		    cstidx++;
 		}
 		else
 		{
-		    if ( rpf->vardefs_.validIdx( varidx ) )
+		    if ( rpf->vardefs_.validIdx(varidx) )
+		    {
 			fm.variables().add( rpf->vardefs_[varidx]->desc_ );
+			fm.units().add( rpf->vardefs_[varidx]->unit_ );
+		    }
 		    varidx++;
 		}
 	    }
 
+	    fm.units().add( rpf->unit_ );
+
+	    delete me;
 	    formulas_ += fm;
 	}
     }
@@ -212,127 +224,110 @@ void ElasticFormulaRepository::getByType( ElasticFormula::Type tp,
 }
 
 
-ElasticProperty::ElasticProperty( const char* nm, const ElasticFormula& f )
-    : ValueProperty(nm, *MNC().getGuessed(elasticToStdType(f.type())))
+//------- ElasticPropertyRef ----------
+
+ElasticPropertyRef::ElasticPropertyRef( const Mnemonic& mn, const char* nm,
+					const ElasticFormula& f )
+    : PropertyRef(mn,nm)
     , formula_(f)
-{}
+{
+    if ( !isElastic() )
+	pErrMsg( "Incorrect type when building ElasticPropertyRef" );
+}
+
+
+ElasticPropertyRef* ElasticPropertyRef::clone() const
+{
+    return new ElasticPropertyRef( *this );
+}
 
 
 PropertyRef::StdType
-	ElasticProperty::elasticToStdType(ElasticFormula::Type tp )
+	ElasticPropertyRef::elasticToStdType( ElasticFormula::Type tp )
 {
     if ( tp == ElasticFormula::PVel || tp == ElasticFormula::SVel )
-	return PropertyRef::Vel;
+	return Mnemonic::Vel;
     if ( tp == ElasticFormula::Den )
-	return PropertyRef::Den;
+	return Mnemonic::Den;
 
-    return PropertyRef::Other;
+    return Mnemonic::Other;
 }
 
 
 //---
 
 ElasticPropSelection::ElasticPropSelection( bool withswave )
+    : PropertyRefSelection(false)
 {
-    mkEmpty(); // get rid of thickness
-
     const char** props = ElasticFormula::TypeNames();
     for ( int idx=0; props[idx]; idx++ )
     {
 	ElasticFormula::Type tp;
 	ElasticFormula::parseEnumType( props[idx], tp );
-	if ( withswave || tp != ElasticFormula::SVel )
-	{
-	    auto* epr = new ElasticProperty( props[idx],
-				    ElasticFormula(props[idx],"", tp) );
-	    *this += epr;
-	}
+	if ( tp == ElasticFormula::SVel && !withswave )
+	    continue;
+
+	const PropertyRef* pr = PROPS().getByName( props[idx] );
+	const Mnemonic* mnc = pr
+	     ? MNC().getByName( pr->mnName() )
+	     : &MNC().getGuessed( ElasticPropertyRef::elasticToStdType(tp) );
+	if ( !mnc )
+	    { pErrMsg("Should not happen"); continue; }
+
+	add( new ElasticPropertyRef( *mnc, props[idx],
+				     ElasticFormula(props[idx],"",tp) ) );
     }
+}
+
+
+ElasticPropSelection::ElasticPropSelection( const ElasticPropSelection& oth )
+    : PropertyRefSelection(false)
+{
+    *this = oth;
+}
+
+
+ElasticPropSelection::~ElasticPropSelection()
+{
+    erase();
 }
 
 
 ElasticPropSelection& ElasticPropSelection::operator =(
 					const ElasticPropSelection& oth )
 {
-    if ( this != &oth )
-    {
-	mkEmpty();
-	for ( int idx=0; idx<oth.size(); idx++ )
-	{
-	    auto* epr = new ElasticProperty( oth.gt(idx) );
-	    mDynamicCastGet(Property*,pr,epr);
-	    *this += pr;
-	}
-    }
+    deepCopyClone( *this, oth );
     return *this;
 }
 
 
-ElasticPropSelection::~ElasticPropSelection()
+ElasticPropertyRef* ElasticPropSelection::getByType( ElasticFormula::Type tp )
 {
-    mkEmpty();
+    const ElasticPropertyRef* ret =
+	  const_cast<const ElasticPropSelection*>( this )->getByType( tp );
+    return const_cast<ElasticPropertyRef*>( ret );
 }
 
 
-static ElasticProperty& emptyEPR()
+const ElasticPropertyRef* ElasticPropSelection::getByType(
+						ElasticFormula::Type tp ) const
 {
-    static PtrMan<ElasticProperty> emptyepr = nullptr;
-    if ( !emptyepr )
+    for ( const auto* pr : *this )
     {
-	auto* newepr = new ElasticProperty( "Empty",
-				    ElasticFormula("","",ElasticFormula::Den) );
-	emptyepr.setIfNull( newepr, true);
+	const auto* epr = sCast(const ElasticPropertyRef*,pr);
+	if ( epr->elasticType() == tp )
+	    return epr;
     }
 
-    return *emptyepr;
+    return nullptr;
 }
-
-
-void ElasticPropSelection::mkEmpty()
-{
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	const Property* pr = (*this)[idx];
-	mDynamicCastGet(const ElasticProperty*,epr,pr)
-	if ( epr && epr != &emptyEPR() )
-	    delete const_cast<ElasticProperty*>( epr );
-    }
-
-    erase();
-}
-
-
-ElasticProperty& ElasticPropSelection::gt( int idx ) const
-{
-    const Property* pr = validIdx(idx) ? (*this)[idx] : 0;
-    mDynamicCastGet(const ElasticProperty*,epr,pr);
-    return const_cast<ElasticProperty&> ( epr ? *epr : emptyEPR() );
-}
-
-
-
-ElasticProperty& ElasticPropSelection::gt( ElasticFormula::Type tp ) const
-{
-    const ElasticProperty* epr = 0;
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	mDynamicCastGet(const ElasticProperty*,curepr,(*this)[idx]);
-	if ( curepr && curepr->elasticType() == tp )
-	{
-	    epr = curepr;
-	    break;
-	}
-    }
-    return const_cast<ElasticProperty&> ( epr ? *epr : emptyEPR() );
-}
-
 
 
 bool ElasticPropSelection::isValidInput( uiString* errmsg ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    for ( const auto* pr : *this )
     {
-	const ElasticProperty& epr = getByIdx( idx );
+	const auto& epr = sCast(const ElasticPropertyRef&,*pr);
 	const char* propnm = epr.name();
 	const BufferStringSet& vars = epr.formula().variables();
 	if ( vars.isEmpty() )
@@ -345,19 +340,19 @@ bool ElasticPropSelection::isValidInput( uiString* errmsg ) const
 	if ( !epr.formula().expression() )
 	    continue;
 
-	if ( vars.isPresent( epr.name() ) )
+	if ( vars.isPresent(propnm) )
 	{
 	    if ( errmsg )
 		*errmsg = tr("%1 is dependent on itself").arg(propnm);
 	    return false;
 	}
 
-	for ( int idpr=0; idpr<size(); idpr++ )
+	for ( const auto* altpr : *this )
 	{
-	    if ( idpr == idx )
+	    if ( altpr == pr )
 		continue;
 
-	    const ElasticProperty& elpr = getByIdx( idpr );
+	    const auto& elpr = sCast(const ElasticPropertyRef&,*altpr);
 	    const char* nm = elpr.name();
 	    const ElasticFormula& form = elpr.formula();
 	    if ( vars.isPresent(nm) && form.variables().isPresent( propnm ) )
@@ -369,11 +364,12 @@ bool ElasticPropSelection::isValidInput( uiString* errmsg ) const
 	    }
 	}
     }
+
     return true;
 }
 
 
-ElasticPropGuess::ElasticPropGuess( const MnemonicSelection& mns,
+ElasticPropGuess::ElasticPropGuess( const PropertyRefSelection& prs,
 				    ElasticPropSelection& sel )
     : elasticprops_(sel)
 {
@@ -382,71 +378,77 @@ ElasticPropGuess::ElasticPropGuess( const MnemonicSelection& mns,
     {
 	ElasticFormula::Type tp;
 	ElasticFormula::parseEnumType( props[idx], tp );
-	guessQuantity( mns, tp );
+	guessQuantity( prs, tp );
     }
 }
 
 
-void ElasticPropGuess::guessQuantity( const MnemonicSelection& mns,
-					ElasticFormula::Type tp )
+void ElasticPropGuess::guessQuantity( const PropertyRefSelection& prs,
+				      ElasticFormula::Type tp )
 {
     if ( tp == ElasticFormula::SVel )
     {
-	int svelidx = mns.find( "Swave velocity" );
-	int shearsonidx = mns.find( "Shear Sonic" );
-	if ( svelidx>= 0 )
-	    guessQuantity( *mns[svelidx], tp );
-	else if ( shearsonidx >= 0 )
-	    guessQuantity( *mns[shearsonidx], tp );
+	const PropertyRef* svelpr = prs.getByMnemonic( Mnemonic::defSVEL() );
+	if ( svelpr )
+	    guessQuantity( *svelpr, tp );
 	else
 	{
-	    for ( int idx=0; idx<mns.size(); idx++ )
-		if ( guessQuantity( *mns[idx], tp ) )
-		    break;
+	    const PropertyRef* shearpr = prs.getByMnemonic( Mnemonic::defDTS());
+	    if ( shearpr )
+		guessQuantity( *shearpr, tp );
+	    else
+	    {
+		for ( const auto* pr : prs )
+		    if ( guessQuantity(*pr,tp) )
+			break;
+	    }
 	}
     }
     else
-	for ( int idx=0; idx<mns.size(); idx++ )
-	    if ( guessQuantity( *mns[idx], tp ) )
+	for ( const auto* pr : prs )
+	    if ( guessQuantity(*pr,tp) )
 		break;
 }
 
 
-bool ElasticPropGuess::guessQuantity( const Mnemonic& mn,
-					ElasticFormula::Type tp )
+bool ElasticPropGuess::guessQuantity( const PropertyRef& pref,
+				      ElasticFormula::Type tp )
 {
-    ElasticFormula& fm = elasticprops_.getByType( tp ).formula();
+    ElasticPropertyRef* epr = elasticprops_.getByType( tp );
+    if ( !epr )
+	return false;
+
+    ElasticFormula& fm = epr->formula();
     if ( !fm.variables().isEmpty() )
 	return false;
 
-    if ( mn.stdType() == ElasticProperty::elasticToStdType( tp ) ||
-	 mn.stdType() == PropertyRef::Son )
+    if ( pref.stdType() == ElasticPropertyRef::elasticToStdType(tp) ||
+	 pref.stdType() == Mnemonic::Son )
     {
 	if ( tp == ElasticFormula::SVel )
 	{
-	    if ( mn.aliases().isPresent( "SVel" ) ||
-		 mn.name() == "Swave velocity" )
-		fm.variables().add( mn.name() );
-	    else if ( mn.aliases().isPresent( "DTS" ) ||
-		      mn.name() == "Shear Sonic" )
+	    if ( pref.isCompatibleWith(Mnemonic::defSVEL()) )
+		fm.variables().add( pref.name() );
+	    else if ( pref.isCompatibleWith(Mnemonic::defDTS()) )
 	    {
 		TypeSet<ElasticFormula> efs; ElFR().getByType( tp, efs );
 		if ( !efs.isEmpty() )
 		{
 		    const int ownformidx = efs.size()-1;
 		    fm = efs[ownformidx];
-		    fm.variables().add( mn.name() );
+		    fm.variables().add( pref.name() );
 		}
 	    }
 	    else
 	    {
-		TypeSet<ElasticFormula> efs; ElFR().getByType( tp, efs );
+		TypeSet<ElasticFormula> efs;
+		ElFR().getByType( tp, efs );
 		if ( !efs.isEmpty() )
 		    fm = efs[0];
 	    }
 	}
 	else
-	    fm.variables().add( mn.name() );
+	    fm.variables().add( pref.name() );
 
 	return true;
     }
@@ -454,71 +456,137 @@ bool ElasticPropGuess::guessQuantity( const Mnemonic& mn,
 }
 
 
-void ElasticPropGen::getVals( float& den, float& pvel, float& svel,
-			      const float* vals,int sz) const
-{
-    const ElasticProperty& denref =
-				elasticprops_.getByType(ElasticFormula::Den);
-    const ElasticProperty& pvref =
-				elasticprops_.getByType(ElasticFormula::PVel);
-    const ElasticProperty& svref =
-				elasticprops_.getByType(ElasticFormula::SVel);
 
-    den  = getVal( denref.formula(), vals, sz );
-    pvel = getVal( pvref.formula(), vals, sz );
-    svel = getVal( svref.formula(), vals, sz );
+ElasticPropGen::ElasticPropGen( const ElasticPropSelection& eps,
+				const PropertyRefSelection& prs )
+{
+    exprs_.setNullAllowed();
+    const ElasticPropertyRef* denref = eps.getByType( ElasticFormula::Den );
+    const ElasticPropertyRef* pvelref = eps.getByType( ElasticFormula::PVel );
+    const ElasticPropertyRef* svelref = eps.getByType( ElasticFormula::SVel );
+    denform_ = denref ? init( denref->formula(), prs ) : nullptr;
+    pvelform_ = pvelref ? init( pvelref->formula(), prs ) : nullptr;
+    svelform_ = svelref ? init( svelref->formula(), prs ) : nullptr;
 }
 
 
+ElasticPropGen::~ElasticPropGen()
+{
+    deepErase( propidxsset_ );
+    deepErase( propuomsset_ );
+    deepErase( exprs_ );
+}
 
-float ElasticPropGen::getVal( const ElasticFormula& ef,
-			      const float* vals, int sz ) const
+
+bool ElasticPropGen::isOK() const
+{
+    return denform_ && pvelform_ && svelform_;
+}
+
+
+const ElasticFormula* ElasticPropGen::init( const ElasticFormula& ef,
+					    const PropertyRefSelection& prs )
 {
     const BufferStringSet& selvars = ef.variables();
     if ( selvars.isEmpty() )
-	return mUdf( float );
+	return nullptr;
 
-    Math::Expression* expr = 0;
+    Math::Expression* expr = nullptr;
     if ( ef.expression() )
     {
-	Math::ExpressionParser mep( ef.expression() ); expr = mep.parse();
+	Math::ExpressionParser mep( ef.expression() );
+	expr = mep.parse();
     }
 
-    float val = mUdf(float);
+    exprs_.add( expr );
+    auto* propuoms = new ObjectSet<const UnitOfMeasure>;
+    propuoms->setNullAllowed();
+    propuomsset_.add( propuoms );
+    auto* propidxs = new TypeSet<int>;
+    propidxsset_.add( propidxs );
+    if ( !expr )
+    {
+	const PropertyRef* pr = prs.getByName( selvars.first()->buf() );
+	if ( !pr )
+	    return nullptr;
+
+	propidxs->add( prs.indexOf(pr) );
+	propuoms->add( pr->unit() );
+	return &ef;
+    }
+
     for ( int idx=0; idx<selvars.size(); idx++ )
     {
-	const char* var = ef.parseVariable( idx, val );
-	if ( caseInsensitiveEqual(var,"P-wave velocity" ))
-	    var = "Pwave velocity"; // ugly temporary fix needs rework #1748
-
-	if ( mns_.isPresent(var) )
+	const BufferString var( selvars.get(idx) );
+	const Math::Expression::VarType typ = expr->getType( idx );
+	if ( typ == Math::Expression::Constant )
 	{
-	    const int pridx = mns_.indexOf(var);
-	    if ( pridx<0 || pridx>=sz )
-		val = mUdf(float);
-	    else
-		val = vals[pridx];
+	    expr->setVariableValue( idx, var.toDouble() );
+	    propidxs->add( -1 );
+	    propuoms->add( nullptr );
+	    continue;
 	}
-	else if ( elasticprops_.isPresent(var) && ef.name() != var )
+	else if ( typ == Math::Expression::Variable )
 	{
-	    const int propidx = elasticprops_.indexOf(var);
-	    val = getVal( elasticprops_.getByIdx(propidx), vals, sz );
-	}
+	    const PropertyRef* pr = prs.getByName( var );
+	    if ( !pr )
+		return nullptr;
 
-	if ( !expr )
-	    break;
-
-	if ( ef.variables().size() == ef.units().size() )
-	{
-	    const char* uoms = ef.units().get( idx ).buf();
-	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( uoms );
-	    val = uom && !mIsUdf(val) ? uom->getSIValue( val ) : val;
+	    propidxs->add( prs.indexOf(pr) );
+	    propuoms->add( pr->unit() );
 	}
-	expr->setVariableValue( idx, val );
+	else
+	    return nullptr;
     }
-    val = expr ? mCast(float,expr->getValue()) : val;
-    delete expr;
-    return val;
+
+    return &ef;
+}
+
+
+void ElasticPropGen::getVals( float& den, float& pvel, float& svel,
+			      const float* vals, int sz) const
+{
+    den  = getValue( *denform_, *propidxsset_[0], *propuomsset_[0], exprs_[0],
+		     vals, sz );
+    pvel = getValue( *pvelform_, *propidxsset_[1], *propuomsset_[1], exprs_[1],
+		     vals, sz );
+    svel = getValue( *svelform_, *propidxsset_[2], *propuomsset_[2], exprs_[2],
+		     vals, sz );
+}
+
+
+float ElasticPropGen::getValue( const ElasticFormula& ef,
+				const TypeSet<int>& propidxs,
+				const ObjectSet<const UnitOfMeasure>& propuoms,
+				const Math::Expression* expr,
+				const float* vals, int sz )
+{
+    if ( !expr )
+    {
+	const float exprval = vals[propidxs.first()];
+	const UnitOfMeasure* pruom = propuoms.first();
+	return pruom ? pruom->getSIValue(exprval) : exprval;
+    }
+
+    const BufferStringSet& selvars = ef.variables();
+    const BufferStringSet& units = ef.units();
+    auto* edexpr = const_cast<Math::Expression*>( expr );
+    for ( int ivar=0; ivar<selvars.size(); ivar++ )
+    {
+	if ( expr->getType(ivar) != Math::Expression::Variable )
+	    continue;
+
+	float exprval = vals[propidxs[ivar]];
+	const UnitOfMeasure* pruom = propuoms[ivar];
+	const UnitOfMeasure* formuom = units.validIdx(ivar)
+				 ? UoMR().get( units[ivar]->buf() ) : nullptr;
+	if ( formuom != pruom )
+	    convValue( exprval, pruom, formuom );
+	edexpr->setVariableValue( ivar, exprval );
+    }
+
+    const UnitOfMeasure* formoutuom = UoMR().get( units.last()->buf() );
+    return formoutuom->getSIValue( float(expr->getValue()) );
 }
 
 
@@ -526,43 +594,56 @@ float ElasticPropGen::getVal( const ElasticFormula& ef,
 
 ElasticPropSelection* ElasticPropSelection::getByDBKey( const MultiID& mid )
 {
-    const IOObj* obj = mid.isEmpty() ? 0 : IOM().get( mid );
-    return obj ? getByIOObj( obj ) : 0;
+    const IOObj* obj = mid.isEmpty() ? nullptr : IOM().get( mid );
+    return obj ? getByIOObj( obj ) : nullptr;
 }
 
 
 ElasticPropSelection* ElasticPropSelection::getByIOObj( const IOObj* ioobj )
 {
-    if ( !ioobj ) return 0;
+    if ( !ioobj )
+	return nullptr;
+
     PtrMan<ElasticPropSelectionTranslator> translator =
 		(ElasticPropSelectionTranslator*)ioobj->createTranslator();
 
-    if ( !translator ) return 0;
-    ElasticPropSelection* eps = 0;
+    if ( !translator )
+	return nullptr;
+
+    ElasticPropSelection* eps = nullptr;
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( conn && !conn->isBad() )
     {
-	eps = new ElasticPropSelection;
-
 	if ( !conn->forRead() || !conn->isStream() )
-	    return 0;
+	    return nullptr;
+
 	StreamConn& strmconn = static_cast<StreamConn&>( *conn );
 	ascistream astream( strmconn.iStream() );
 	if ( !astream.isOfFileType(mTranslGroupName(ElasticPropSelection)) )
-	    return 0;
+	    return nullptr;
 
-	while ( !atEndOfSection( astream.next() ) )
+	eps = new ElasticPropSelection;
+	while ( !atEndOfSection(astream.next()) )
 	{
 	    IOPar iop; iop.getFrom( astream );
 	    ElasticFormula::Type tp;
-	    ElasticFormula::parseEnumType( iop.find( sKeyType ), tp );
-	    eps->getByType( tp ).formula().usePar( iop );
-	    BufferString nm; iop.get( sKeyPropertyName, nm );
-	    eps->getByType( tp ).setName(nm);
+	    ElasticFormula::parseEnumType( iop.find(sKeyType), tp );
+	    ElasticPropertyRef* epr = eps->getByType( tp );
+	    if ( !epr )
+		continue;
+
+	    epr->formula().usePar( iop );
+	    BufferString nm;
+	    if ( iop.get(sKeyPropertyName,nm) )
+		epr->setName(nm);
 	}
+
 	if ( !astream.isOK() )
+	{
+	    deleteAndZeroPtr( eps );
 	    ErrMsg( "Problem reading Elastic property selection from file" );
+	}
     }
     else
 	ErrMsg( "Cannot open elastic property selection file" );
@@ -584,18 +665,22 @@ bool ElasticPropSelection::put( const IOObj* ioobj ) const
     {
 	if ( !conn->forWrite() || !conn->isStream() )
 	    return false;
-	StreamConn& strmconn = static_cast<StreamConn&>( *conn );
+
+	StreamConn& strmconn = sCast(StreamConn&,*conn);
 	ascostream astream( strmconn.oStream() );
 	const BufferString head(
 			mTranslGroupName(ElasticPropSelection), " file" );
-	if ( !astream.putHeader( head ) ) return false;
+	if ( !astream.putHeader(head) )
+	    return false;
 
 	IOPar iop;
-	for ( int idx=0; idx<size(); idx++ )
+	for ( const auto* pr : *this )
 	{
-	    iop.set( sKeyPropertyName, getByIdx(idx).name() );
-	    getByIdx(idx).formula().fillPar( iop );
-	    iop.putTo( astream ); iop.setEmpty();
+	    iop.setEmpty();
+	    const auto& epr = sCast(const ElasticPropertyRef&,*pr);
+	    iop.set( sKeyPropertyName, epr.name() );
+	    epr.formula().fillPar( iop );
+	    iop.putTo( astream );
 	}
 	if ( astream.isOK() )
 	    retval = true;
@@ -613,13 +698,14 @@ void ElasticPropSelection::fillPar( IOPar& par ) const
 {
     IOPar elasticpar;
     elasticpar.set( sKeyElasticsSize, size() );
-    for ( int idx=0; idx<size(); idx++ )
+    for ( const auto* pr : *this )
     {
+	const auto& epr = sCast(const ElasticPropertyRef&,*pr);
 	IOPar elasticproprefpar;
-	elasticproprefpar.set( sKey::Name(), getByIdx(idx).name().buf() );
-	getByIdx(idx).formula().fillPar( elasticproprefpar );
+	elasticproprefpar.set( sKey::Name(), epr.name() );
+	epr.formula().fillPar( elasticproprefpar );
 	elasticpar.mergeComp( elasticproprefpar,
-			      IOPar::compKey(sKeyElastic,idx) );
+			      IOPar::compKey(sKeyElastic,indexOf(pr)) );
     }
 
     par.mergeComp( elasticpar, sKeyElasticProp );
@@ -629,12 +715,14 @@ void ElasticPropSelection::fillPar( IOPar& par ) const
 bool ElasticPropSelection::usePar( const IOPar& par )
 {
     PtrMan<IOPar> elasticpar = par.subselect( sKeyElasticProp );
-    if ( !elasticpar ) return false;
+    if ( !elasticpar )
+	return false;
+
     int elasticsz = 0;
     elasticpar->get( sKeyElasticsSize, elasticsz );
     if ( !elasticsz ) return false;
 
-    deepErase( *this );
+    erase();
     bool errocc = false;
     BufferStringSet faultynms;
     BufferStringSet corrnms;
@@ -642,10 +730,13 @@ bool ElasticPropSelection::usePar( const IOPar& par )
     {
 	PtrMan<IOPar> elasticproprefpar =
 	    elasticpar->subselect( IOPar::compKey(sKeyElastic,idx) );
-	if ( !elasticproprefpar ) continue;
+	if ( !elasticproprefpar )
+	    continue;
+
 	BufferString elasticnm;
 	elasticproprefpar->get( sKey::Name(), elasticnm );
-	ElasticFormula formulae( 0, 0, ElasticFormula::Type(idx) );
+	const ElasticFormula::Type tp = ElasticFormula::Type( idx );
+	ElasticFormula formulae( nullptr, nullptr, tp );
 	formulae.usePar( *elasticproprefpar );
 
 	if ( !checkForValidSelPropsDesc(formulae,faultynms,corrnms) )
@@ -653,8 +744,18 @@ bool ElasticPropSelection::usePar( const IOPar& par )
 	    errocc = true;
 	    continue;
 	}
+
+	const Mnemonic::StdType stdtype =
+			ElasticPropertyRef::elasticToStdType( tp );
+	const Mnemonic& mn = MNC().getGuessed( stdtype );
+	if ( mn.isUdf() )
+	{
+	    errocc = true;
+	    continue;
+	}
+
 	if ( !errocc )
-	    (*this) += new ElasticProperty( elasticnm, formulae );
+	    add( new ElasticPropertyRef( mn, elasticnm, formulae ) );
 
 	if ( errocc )
 	{
@@ -675,6 +776,19 @@ bool ElasticPropSelection::usePar( const IOPar& par )
 }
 
 
+ElasticPropSelection& ElasticPropSelection::doAdd( const PropertyRef* pr )
+{
+    if ( !pr || !pr->isElasticForm() || getByName(pr->name(),false) )
+    {
+	delete pr;
+	return *this;
+    }
+
+    ObjectSet<const PropertyRef>::doAdd( pr );
+    return *this;
+}
+
+
 bool ElasticPropSelection::checkForValidSelPropsDesc(
 		    const ElasticFormula& formula, BufferStringSet& faultynms,
 						    BufferStringSet& corrnms )
@@ -684,11 +798,15 @@ bool ElasticPropSelection::checkForValidSelPropsDesc(
     if ( variables.isEmpty() )
 	return noerror;
 
-    const MnemonicSelection mns( MnemonicSelection::getAll() );
-    BufferStringSet dispnms;
+    if ( !ePROPS().ensureHasElasticProps() )
+    {
+	corrnms.add( "<No Valid Suggestion>" );
+	return false;
+    }
 
-    for ( int idx=0; idx<mns.size(); idx++ )
-	dispnms.add(mns[idx]->name());
+    BufferStringSet dispnms;
+    for ( const auto* pr : PROPS() )
+	dispnms.add( pr->name() );
 
     for ( int jidx=0; jidx<variables.size(); jidx++ )
     {

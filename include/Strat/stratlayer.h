@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class PropertyRef;
-class Property;
-class PropertySelection;
+class PropertyRefSelection;
+class UnitOfMeasure;
 namespace Math { class Formula; }
 
 namespace Strat
@@ -32,7 +32,7 @@ class LayerValue;
 /*!\brief data for a layer.
 
   Layers are atached to a UnitRef. To understand the values, you need access to
-  the governing PropertySet, usually attached to the LayerSequence that
+  the governing PropertyRefSet, usually attached to the LayerSequence that
   the Layer is part of.
 
  */
@@ -69,8 +69,8 @@ public:
     void		setThickness(float v);
     void		setValue(int,float);
     void		setValue(int,const Math::Formula&,
-				 const PropertySelection&,float xpos=0.5f);
-    void		setValue(int,const IOPar&,const PropertySelection&);
+				 const PropertyRefSelection&,float xpos=0.5f);
+    void		setValue(int,const IOPar&,const PropertyRefSelection&);
     void		setValue(int,LayerValue*); //!< becomes mine
     void		setContent( const Content& c )	{ content_ = &c; }
     void		setXPos(float); // only affects Math lay vals
@@ -78,7 +78,7 @@ public:
     ID			id() const;	//!< unitRef().fullCode()
     OD::Color		dispColor(bool lith_else_upnode) const;
 
-    static const Property& thicknessProp();
+    static const PropertyRef& thicknessRef();
 
 protected:
 
@@ -134,10 +134,11 @@ public:
 
 			FormulaLayerValue(const Math::Formula&,
 					  const Strat::Layer&,
-					  const PropertySelection&,
-					  float xpos);
+					  const PropertyRefSelection&,
+					  int outpridx,float xpos);
 			FormulaLayerValue(const IOPar&,const Strat::Layer&,
-					  const PropertySelection&);
+					  const PropertyRefSelection&,
+					  int outpridx);
 			~FormulaLayerValue();
     FormulaLayerValue*	clone(const Layer*) const;
 
@@ -151,7 +152,8 @@ public:
 protected:
 
 				FormulaLayerValue(const Math::Formula&,
-				      const Strat::Layer&,float,bool c=false);
+				      const Strat::Layer&,float xpos,
+				      bool copyform=false);
 
     const Math::Formula&	form_;
     const Layer&		lay_;
@@ -159,10 +161,12 @@ protected:
     float			xpos_;
 
     TypeSet<int>		inpidxs_;
+    ObjectSet<const UnitOfMeasure> inpuoms_;
+    const UnitOfMeasure*	outputuom_ = nullptr;
     mutable TypeSet<float>	inpvals_;
     mutable uiString	        errmsg_;
 
-    void			useForm(const PropertySelection&);
+    void			useForm(const PropertyRefSelection&,int outidx);
 
 };
 

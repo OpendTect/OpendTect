@@ -719,10 +719,10 @@ void uiExportHorizon::addZChg( CallBacker* )
     {
 	FixedString zdomain = getZDomain();
 	if ( zdomain==ZDomain::sKeyDepth() )
-	    unitsel_->setPropType( PropertyRef::Dist );
+	    unitsel_->setPropType( Mnemonic::Dist );
 	else if ( zdomain==ZDomain::sKeyTime() )
 	{
-	    unitsel_->setPropType( PropertyRef::Time );
+	    unitsel_->setPropType( Mnemonic::Time );
 	    unitsel_->setUnit( "Milliseconds" );
 	}
     }

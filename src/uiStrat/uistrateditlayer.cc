@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "stratlith.h"
 #include "stratunitref.h"
 #include "propertyref.h"
-#include "property.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "uipropvalfld.h"
@@ -43,25 +42,25 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     lithfld_->setReadOnly();
     const bool depthinft = SI().depthsInFeet();
     float dpth = lay_.zTop(); if ( depthinft ) dpth *= mToFeetFactorF;
-    const uiString thtxt(tr("Top depth (%1").arg( depthinft ? tr("ft)") 
+    const uiString thtxt(tr("Top depth (%1").arg( depthinft ? tr("ft)")
 							    : tr("m)")));
     topfld_ = new uiGenInput( this, thtxt, FloatInpSpec(dpth) );
     topfld_->attach( alignedBelow, lithfld_ );
     topfld_->setReadOnly();
 
-    uiSeparator* sep = new uiSeparator( this );
+    auto* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, topfld_ );
 
     uiGroup* algrp = topfld_;
     for ( int ival=0; ival<lay_.nrValues(); ival++ )
     {
-	if ( ival >= ls.properties().size() )
+	if ( ival >= ls.propertyRefs().size() )
 	    break;
 
 	const float val = lay_.value( ival );
-	const Property& pr = *ls.properties()[ival];
+	const PropertyRef& pr = *ls.propertyRefs()[ival];
 
-	uiPropertyValFld* valfld = new uiPropertyValFld( this, pr, val );
+	auto* valfld = new uiPropertyValFld( this, pr, val );
 	if ( ival == 0 )
 	{
 	    if ( depthinft )
@@ -77,7 +76,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 	    valfld->setReadOnly( true );
     }
 
-    contfld_ = new uiStratLayerContent( this, true, lay.unitRef().refTree() ); 
+    contfld_ = new uiStratLayerContent( this, true, lay.unitRef().refTree() );
     contfld_->set( lay.content() );
     contfld_->attach( alignedBelow, algrp );
 }
@@ -103,7 +102,7 @@ bool uiStratEditLayer::getFromScreen( bool emituierrs )
 	const float val = valflds_[ival]->getValue();
 	uiString msg;
 	if ( mIsUdf(val) )
-	    msg =  tr("Please enter a value for %1") 
+	    msg =  tr("Please enter a value for %1")
 		 .arg( valflds_[ival]->propName() );
 	else if ( ival == 0 && val <= 0 )
 	    msg = tr("Please set the thickness to a positive number");
@@ -145,7 +144,7 @@ void uiStratEditLayer::valChg( CallBacker* )
     for ( int ival=0; ival<valflds_.size(); ival++ )
     {
 	if ( worklay_.isMath(ival) )
-	    valflds_[ival]->setValue( worklay_.value(ival), true );
+	    valflds_[ival]->setValue( worklay_.value(ival) );
     }
 }
 

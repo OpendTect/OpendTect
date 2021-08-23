@@ -103,8 +103,8 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( formnr>=0 && formnr<tinf_.nrForms() && formfld_ )
 	formfld_->setCurrentItem( formnr );
 
-    PropertyRef::StdType proptyp = tinf_.propertyType();
-    if ( proptyp != PropertyRef::Other )
+    Mnemonic::StdType proptyp = tinf_.propertyType();
+    if ( proptyp != Mnemonic::Other )
     {
 	unitfld_ = new uiUnitSel( this,
 				uiUnitSel::Setup(proptyp,uiStrings::sUnit()) );

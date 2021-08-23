@@ -215,7 +215,7 @@ bool Well::ElasticModelComputer::getLogUnits()
     }
 
     velpissonic_ = uomset_[mPVelIdx] &&
-		   uomset_[mPVelIdx]->propType() == PropertyRef::Son;
+		   uomset_[mPVelIdx]->propType() == Mnemonic::Son;
 
     return true;
 }

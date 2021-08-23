@@ -98,14 +98,14 @@ void update( const RockPhysics::Formula::ConstDef* pcd )
 
 uiRockPhysForm::uiRockPhysForm( uiParent* p )
     : uiGroup(p,"RockPhyics Formula Selector")
-    , fixedtype_(PropertyRef::Den)
+    , fixedtype_(Mnemonic::Den)
 {
-    BufferStringSet typnms( PropertyRef::StdTypeNames() );
+    BufferStringSet typnms( Mnemonic::StdTypeNames() );
     for ( int idx=0; idx<typnms.size(); idx++ )
     {
 	BufferStringSet nms;
-	const PropertyRef::StdType typ
-			= PropertyRef::parseEnumStdType( typnms.get(idx) );
+	const Mnemonic::StdType typ
+			= Mnemonic::parseEnumStdType( typnms.get(idx) );
 	ROCKPHYSFORMS().getRelevant( typ, nms );
 	if ( nms.isEmpty() )
 	    { typnms.removeSingle( idx ); idx--; }
@@ -121,7 +121,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p )
 }
 
 
-uiRockPhysForm::uiRockPhysForm( uiParent* p, PropertyRef::StdType typ )
+uiRockPhysForm::uiRockPhysForm( uiParent* p, Mnemonic::StdType typ )
     : uiGroup(p,"RockPhyics Formula Selector")
     , fixedtype_(typ)
     , typfld_(0)
@@ -175,23 +175,23 @@ void uiRockPhysForm::createFlds( uiGroup* attobj )
 }
 
 
-PropertyRef::StdType uiRockPhysForm::getType() const
+Mnemonic::StdType uiRockPhysForm::getType() const
 {
     if ( !typfld_ )
 	return fixedtype_;
 
     const char* txt = typfld_->text();
     if ( !txt || !*txt )
-	return PropertyRef::Other;
+	return Mnemonic::Other;
 
-    return PropertyRef::parseEnumStdType(txt);
+    return Mnemonic::parseEnumStdType(txt);
 }
 
 
-void uiRockPhysForm::setType( PropertyRef::StdType typ )
+void uiRockPhysForm::setType( Mnemonic::StdType typ )
 {
     if ( typfld_ )
-	typfld_->setText( PropertyRef::toString(typ) );
+	typfld_->setText( Mnemonic::toString(typ) );
 
     BufferStringSet nms;
     ROCKPHYSFORMS().getRelevant( typ, nms );
@@ -213,7 +213,7 @@ void uiRockPhysForm::typSel( CallBacker* cb )
     const char* txt = typfld_->text();
     if ( !txt || !*txt ) return;
 
-    setType( PropertyRef::parseEnumStdType(txt) );
+    setType( Mnemonic::parseEnumStdType(txt) );
 }
 
 
@@ -279,7 +279,7 @@ const char* uiRockPhysForm::getText( bool replcst ) const
 
 
 bool uiRockPhysForm::getFormulaInfo( Math::Formula& form,
-			     TypeSet<PropertyRef::StdType>* sttypes ) const
+			     TypeSet<Mnemonic::StdType>* sttypes ) const
 {
     if ( sttypes )
 	sttypes->setEmpty();

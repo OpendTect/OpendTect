@@ -28,7 +28,7 @@
 static const char* sKeyFileType = mFileType;
 mDefSimpleTranslators(StratLayerSequenceAttribSet,mFileType,od,Attr);
 mDefineEnumUtils(Strat::LaySeqAttrib,Transform,"Value Transformation")
-{ "Power", "Log", "Exp", 0 };
+{ "Power", "Log", "Exp", nullptr };
 
 
 Strat::LaySeqAttrib* Strat::LaySeqAttribSet::gtAttr( const char* nm ) const
@@ -38,7 +38,7 @@ Strat::LaySeqAttrib* Strat::LaySeqAttribSet::gtAttr( const char* nm ) const
 	if ( attr(idx).name() == nm )
 	    return const_cast<Strat::LaySeqAttrib*>( (*this)[idx] );
     }
-    return 0;
+    return nullptr;
 }
 
 
@@ -72,22 +72,22 @@ void Strat::LaySeqAttribSet::putTo( IOPar& iop ) const
 
 void Strat::LaySeqAttribSet::getFrom( const IOPar& iop )
 {
-    deepErase( *this );
+    erase();
 
     for ( int idx=0; ; idx++ )
     {
 	const char* res = iop.find( IOPar::compKey(sKey::Property(),idx) );
 	if ( !res || !*res ) break;
 
-	const Property* pr = PROPS().find( res );
-	if ( !pr && Strat::Layer::thicknessProp().name() == res )
-	    pr = &Strat::Layer::thicknessProp();
+	const PropertyRef* pr = PROPS().getByName( res, false );
+	if ( !pr && Strat::Layer::thicknessRef().name() == res )
+	    pr = &Strat::Layer::thicknessRef();
 	if ( !pr )
 	    continue;
 	BufferString nm; mDoIOPar( get, sKey::Name(), nm );
 	if ( nm.isEmpty() || attr(nm) ) continue;
 
-	LaySeqAttrib* lsa = new LaySeqAttrib( *this, *pr, nm );
+	auto* lsa = new LaySeqAttrib( *this, *pr, nm );
 	mDoIOPar( getYN, LaySeqAttrib::sKeyIsLocal(), lsa->islocal_ );
 	mDoIOPar( get, LaySeqAttrib::sKeyStats(), lsa->stat_ );
 	if ( !lsa->islocal_ )
@@ -152,10 +152,10 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 	statupscl_ = Stats::upscaleTypeFor( stattype_ );
     }
 
-    for ( int idx=0; idx<lm.properties().size(); idx++ )
+    for ( int idx=0; idx<lm.propertyRefs().size(); idx++ )
     {
-	if ( lm.properties()[idx] &&
-		lm.properties()[idx]->name() == attr_.prop_.name() )
+	if ( lm.propertyRefs()[idx] &&
+		lm.propertyRefs()[idx]->name() == attr_.prop_.name() )
 	    { validx_ = idx; break; }
     }
     if ( validx_ < 0 )
@@ -181,13 +181,13 @@ Strat::LaySeqAttribCalc::LaySeqAttribCalc( const Strat::LaySeqAttrib& desc,
 
 bool Strat::LaySeqAttribCalc::isDist() const
 {
-    return attr_.prop_.mnem().stdType() == PropertyRef::Dist;
+    return attr_.prop_.stdType() == Mnemonic::Dist;
 }
 
 
 bool Strat::LaySeqAttribCalc::isVel() const
 {
-    return attr_.prop_.mnem().stdType() == PropertyRef::Vel;
+    return attr_.prop_.stdType() == Mnemonic::Vel;
 }
 
 
@@ -220,7 +220,7 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
 	return propval;
     }
 
-    LayerSequence* newseq = new LayerSequence( &seq.properties() );
+    auto* newseq = new LayerSequence( &seq.propertyRefs() );
     seq.getSequencePart( zrg, true, *newseq );
     if ( !newseq || newseq->isEmpty() )
 	mRetUdfVal;

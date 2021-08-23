@@ -12,7 +12,8 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
-#include "propertyref.h"
+#include "mnemonics.h"
+
 class uiComboBox;
 class uiGenInput;
 class uiLabel;
@@ -29,14 +30,14 @@ mExpClass(uiTools) uiRockPhysForm : public uiGroup
 public:
 
 			uiRockPhysForm(uiParent*);
-			uiRockPhysForm(uiParent*,PropertyRef::StdType);
+			uiRockPhysForm(uiParent*,Mnemonic::StdType);
 
-    PropertyRef::StdType getType() const;
-    void		setType(PropertyRef::StdType);
+    Mnemonic::StdType	getType() const;
+    void		setType(Mnemonic::StdType);
 				//!< only works when 1st constructor used
 
     bool		getFormulaInfo(Math::Formula&,
-				    TypeSet<PropertyRef::StdType>* tps=0) const;
+			    TypeSet<Mnemonic::StdType>* tps=nullptr) const;
     const char*		getText(bool replace_consts=true) const;
 
     const char*		errMsg() const		{ return errmsg_.buf(); }
@@ -50,7 +51,7 @@ protected:
     uiTextBrowser*	descriptionfld_;
     ObjectSet<uiRockPhysConstantFld>	cstflds_;
 
-    const PropertyRef::StdType fixedtype_;
+    const Mnemonic::StdType fixedtype_;
     BufferString	errmsg_;
 
     void		typSel(CallBacker*);

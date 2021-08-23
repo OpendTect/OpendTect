@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 #include "keystrs.h"
 #include "propertyref.h"
-#include "property.h"
-#include "mnemonics.h"
 #include "stratlevel.h"
 #include "stratlayermodel.h"
 #include "uicombobox.h"
@@ -451,76 +449,90 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 
 //-----------------------------------------------------------------------------
 
-#define mCreatePropSelFld( propnm, txt, mnem, prevbox ) \
-    uiLabeledComboBox* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
+#define mCreatePropSelFld( propnm, txt, prop, prevbox ) \
+    auto* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
     propnm##fld_ = lblbox##propnm->box(); \
-    const PropertySelection subsel##propnm = proprefsel.subselect( mnem );\
+    const PropertyRefSelection subsel##propnm = proprefsel.subselect( prop );\
     for ( int idx=0; idx<subsel##propnm.size(); idx++ )\
 	if ( subsel##propnm[idx] )\
 	    propnm##fld_->addItem( toUiString(subsel##propnm[idx]->name()) );\
     if ( prevbox )\
-	lblbox##propnm->attach( alignedBelow, prevbox );
+	lblbox##propnm->attach( alignedBelow, (uiObject*)prevbox );
 
 
 uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
-					const PropertySelection& proprefsel,
+					const PropertyRefSelection& proprefsel,
 				const uiStratLayModFRPropSelector::Setup& set )
 	: uiDialog(p,uiDialog::Setup(tr("Property Selector"),
 				     tr("There are multiple properties "
 					"referenced with the same type. \n"
 					"Please specify which one to use as: "),
 		     mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
-    , vsfld_(nullptr)
-    , initialsatfld_(nullptr)
-    , finalsatfld_(nullptr)
-    , porosityfld_(nullptr)
 {
-    mCreatePropSelFld(den, tr("Reference for Density"),
-		      *MNC().getGuessed(PropertyRef::Den), 0);
-    mCreatePropSelFld(vp, tr("Reference for Vp"),
-		      *MNC().getGuessed(PropertyRef::Vel), lblboxden);
+    mCreatePropSelFld(den, tr("Reference for Density"), Mnemonic::Den,
+			nullptr);
+    mCreatePropSelFld(vp, tr("Reference for Vp"), Mnemonic::Vel, lblboxden);
     uiLabeledComboBox* prevfld = lblboxvp;
+    ePROPS().ensureHasElasticProps( set.withswave_ );
     if ( set.withswave_ )
     {
-	mCreatePropSelFld(vs, tr("Reference for Vs"),
-			  *MNC().getGuessed(PropertyRef::Vel),prevfld);
+	mCreatePropSelFld(vs, tr("Reference for Vs"), Mnemonic::Vel, prevfld );
 	prevfld = lblboxvs;
-	if ( proprefsel.find(Property::standardSVelStr()) >=0 ||
-	     proprefsel.find(Property::standardSVelAliasStr()) >= 0 )
-	    setVSProp( Property::standardSVelStr() );
+	const PropertyRef* svelpr =
+				proprefsel.getByMnemonic( Mnemonic::defSVEL() );
+	if ( svelpr )
+	    setVSProp( svelpr->name() );
     }
 
     if ( set.withinitsat_ )
     {
 	mCreatePropSelFld( initialsat, tr("Reference for Initial Saturation"),
-			   *MNC().getGuessed(PropertyRef::Volum), prevfld );
+			   Mnemonic::Volum, prevfld );
 	prevfld = lblboxinitialsat;
-	if ( proprefsel.find("Water Saturation") >=0 )
-	    setInitialSatProp( "Water Saturation" );
+	const PropertyRef* swpr = proprefsel.getByMnemonic( Mnemonic::defSW() );
+	if ( swpr )
+	    setInitialSatProp( swpr->name() );
     }
 
     if ( set.withfinalsat_ )
     {
 	mCreatePropSelFld( finalsat, tr("Reference for Final Saturation"),
-			   *MNC().getGuessed(PropertyRef::Volum), prevfld );
+			   Mnemonic::Volum, prevfld );
 	prevfld = lblboxfinalsat;
-	if ( proprefsel.find("Water Saturation") >=0 )
-	    setFinalSatProp( "Water Saturation" );
+	const PropertyRef* swpr = proprefsel.getByMnemonic( Mnemonic::defSW() );
+	if ( swpr )
+	    setFinalSatProp( swpr->name() );
     }
 
     if ( set.withpor_ )
     {
 	mCreatePropSelFld( porosity, tr("Reference for Porosity"),
-			   *MNC().getGuessed(PropertyRef::Volum), prevfld );
-	if ( proprefsel.find("Porosity") >= 0 )
-	    setPorProp( "Porosity" );
+			   Mnemonic::Volum, prevfld );
+	const PropertyRef* porpr = proprefsel.getByMnemonic(Mnemonic::defPHI());
+	if ( porpr )
+	    setPorProp( porpr->name() );
+	else
+	{
+	    const MnemonicSelection mnsel = MnemonicSelection::getAllPorosity();
+	    if ( !mnsel.isEmpty() )
+	    {
+		porpr = proprefsel.getByMnemonic( *mnsel.first() );
+		if ( porpr )
+		    setPorProp( porpr->name() );
+	    }
+	}
     }
 
-    const bool haspwave =
-	    proprefsel.find(Property::standardPVelStr()) >=0 ||
-	    proprefsel.find(Property::standardPVelAliasStr()) >= 0;
-    if ( haspwave )
-	setVPProp( Property::standardPVelStr() );
+    const PropertyRef* denpr = proprefsel.getByMnemonic( Mnemonic::defDEN() );
+    if ( denpr )
+	setDenProp( denpr->name() );
+    else
+	errmsg_ = tr( "No reference to density found" );
+
+    const PropertyRef* pvelpr =
+			    proprefsel.getByMnemonic( Mnemonic::defPVEL() );
+    if ( pvelpr )
+	setVPProp( pvelpr->name() );
     else
 	errmsg_ = tr( "No reference to P wave velocity found" );
 }

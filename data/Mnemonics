@@ -6,15 +6,15 @@ GR: Gamma ray`Gamma Ray`Lin`0`250`0`150`API`255`0`0`CGR`GRS`SGR`KTH
 POTA: Spectral Gamma Ray`Gamma Ray`Lin`0`100`0`100`%`255`0`0`
 THOR: Spectral Gamma Ray`Gamma Ray`Lin`0`40`0`40`ppm`255`0`0`
 URAN: Spectral Gamma Ray`Gamma Ray`Lin`0`30`0`30`ppm`255`0`0`
-RHOB: Bulk Density`Density`Lin`1.5`3.5`2`3`Gram/cm3`0`0`205`RHOZ`DEN`ZDEN`RHO8`
+RHOB: Bulk Density`Density`Lin`1.5`3.5`2`3`g/cc`0`0`205`RHOZ`DEN`ZDEN`RHO8`
 SP: Spontaneous Potential`Electrical Potential`Lin`-0.1`0.1`-0.1`0.1`V`0`255`100`0`SSP
 RT: Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LL`ML`HALS`HRLD`HRLS`DLL
 RESD: Deep Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`
 RESM: Medium Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`
 RESS: Shallow Resistivity`Resistivity`Log`0.2`2000`0.2`2000`ohmm`200`200`0`
 IL: Induction Log`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`ILD`ILM`AHT`AHO`HDIL`HRI
-DT: Sonic`Sonic travel time`Lin`220`30`200`50`Microseconds/foot`0`255`255`AC`ACL`BHC`BCS
-DTS: Shear Sonic`Sonic travel time`Lin`440`60`400`100`Microseconds/foot`255`20`147`DSI`FWS
+DT: Sonic`Sonic travel time`Lin`220`30`200`50`us/ft`0`255`255`AC`ACL`BHC`BCS
+DTS: Shear Sonic`Sonic travel time`Lin`440`60`400`100`us/ft`255`20`147`DSI`FWS
 PHI: Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`
 PHIT: Total Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`
 PHIE: Effective Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`

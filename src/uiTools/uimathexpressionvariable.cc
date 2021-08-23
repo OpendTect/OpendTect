@@ -65,7 +65,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
     constfld_->attach( alignedWith, inpfld_ );
     if ( withunit )
     {
-	uiUnitSel::Setup uussu( PropertyRef::Other, tr("convert to:") );
+	uiUnitSel::Setup uussu( Mnemonic::Other, tr("convert to:") );
 	uussu.withnone( true );
 	unfld_ = new uiUnitSel( this, uussu );
 	unfld_->attach( rightOf, inpgrp_ );
@@ -321,7 +321,7 @@ void uiMathExpressionVariable::setUnit( const UnitOfMeasure* uom )
 }
 
 
-void uiMathExpressionVariable::setPropType( PropertyRef::StdType typ )
+void uiMathExpressionVariable::setPropType( Mnemonic::StdType typ )
 {
     if ( unfld_ )
 	unfld_->setPropType( typ );

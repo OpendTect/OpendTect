@@ -46,7 +46,7 @@ Table::FormatDesc* TrackAscIO::getDesc()
     fd->bodyinfos_ += zti;
     Table::TargetInfo* ti = new Table::TargetInfo( "MD", FloatInpSpec(),
 						   Table::Optional );
-    ti->setPropertyType( PropertyRef::Dist );
+    ti->setPropertyType( Mnemonic::Dist );
     ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     fd->bodyinfos_ += ti;
     return fd;
@@ -291,7 +291,7 @@ Table::TargetInfo* gtDepthTI( bool withuns )
 						   Table::Required );
     if ( withuns )
     {
-	ti->setPropertyType( PropertyRef::Dist );
+	ti->setPropertyType( Mnemonic::Dist );
 	ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     }
 
@@ -392,7 +392,7 @@ void D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
     fd->bodyinfos_ += ti;
 
     ti = new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
-				PropertyRef::Time );
+				Mnemonic::Time );
     ti->form(0).setName( "TWT" );
     ti->add( new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() ) );
     ti->selection_.unit_ = UoMR().get( "Milliseconds" );
@@ -475,7 +475,7 @@ Table::FormatDesc* BulkTrackAscIO::getDesc()
     zti->add( new Table::TargetInfo::Form( "TVD", FloatInpSpec()) );
     fd->bodyinfos_ += zti;
     auto* mdti = new Table::TargetInfo( "MD", FloatInpSpec(), Table::Optional,
-					PropertyRef::Dist );
+					Mnemonic::Dist );
     mdti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     fd->bodyinfos_ += mdti;
     fd->bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyUwid(),
@@ -573,7 +573,7 @@ Table::FormatDesc* BulkD2TModelAscIO::getDesc()
     fd->bodyinfos_ += ti;
 
     ti = new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
-				PropertyRef::Time );
+				Mnemonic::Time );
     ti->form(0).setName( "TWT" );
     ti->add( new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() ) );
     ti->selection_.unit_ = UoMR().get( "Milliseconds" );
@@ -645,7 +645,7 @@ Table::FormatDesc* DirectionalAscIO::getDesc()
     Table::FormatDesc* fd = new Table::FormatDesc( "Directional Survey" );
     Table::TargetInfo* ti = new Table::TargetInfo( "MD", DoubleInpSpec(),
 						   Table::Required );
-    ti->setPropertyType( PropertyRef::Dist );
+    ti->setPropertyType( Mnemonic::Dist );
     ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     fd->bodyinfos_ += ti;
 
@@ -726,7 +726,7 @@ Table::FormatDesc* BulkDirectionalAscIO::getDesc()
     fd->bodyinfos_ += gtWellNameTI();
     Table::TargetInfo* ti = new Table::TargetInfo( "MD", DoubleInpSpec(),
 						   Table::Required );
-    ti->setPropertyType( PropertyRef::Dist );
+    ti->setPropertyType( Mnemonic::Dist );
     ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
     fd->bodyinfos_ += ti;
 

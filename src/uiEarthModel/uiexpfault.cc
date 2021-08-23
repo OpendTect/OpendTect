@@ -122,7 +122,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     transfld_->display( false );
     transfld_->attach( alignedBelow, zfld_ );
 
-    uiUnitSel::Setup unitselsu( PropertyRef::surveyZType(), tr("Z in") );
+    uiUnitSel::Setup unitselsu( Mnemonic::surveyZType(), tr("Z in") );
     zunitsel_ = new uiUnitSel( this, unitselsu );
     zunitsel_->attach( alignedBelow, transfld_ );
 
@@ -415,10 +415,10 @@ void uiExportFault::addZChg( CallBacker* )
     {
 	FixedString zdomain = getZDomain();
 	if ( zdomain==ZDomain::sKeyDepth() )
-	    zunitsel_->setPropType( PropertyRef::Dist );
+	    zunitsel_->setPropType( Mnemonic::Dist );
 	else if ( zdomain==ZDomain::sKeyTime() )
 	{
-	    zunitsel_->setPropType( PropertyRef::Time );
+	    zunitsel_->setPropType( Mnemonic::Time );
 	    zunitsel_->setUnit( "Milliseconds" );
 	}
     }

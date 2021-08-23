@@ -6,16 +6,17 @@
 
 
 #include "tableascio.h"
+
+#include "ascstream.h"
+#include "file.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "od_iostream.h"
+#include "perthreadrepos.h"
+#include "separstr.h"
 #include "tabledef.h"
 #include "tableconvimpl.h"
 #include "unitofmeasure.h"
-#include "separstr.h"
-#include "iopar.h"
-#include "ascstream.h"
-#include "keystrs.h"
-#include "file.h"
-#include "perthreadrepos.h"
-#include "od_iostream.h"
 
 namespace Table
 {
@@ -355,19 +356,19 @@ Table::TargetInfo* TargetInfo::mkZPos( bool isreq, bool wu, int zopt )
 	if ( zopt == 0 )
 	{
 	    ti = new TargetInfo( "Z", FloatInpSpec(), reqspec,
-		    		 PropertyRef::surveyZType() );
+				 Mnemonic::surveyZType() );
 	    ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
 	}
 	else if ( zopt < 0 )
 	{
 	    ti = new TargetInfo( sKey::Time(), FloatInpSpec(), reqspec,
-		    		 PropertyRef::Time );
+				 Mnemonic::Time );
 	    ti->selection_.unit_ = UoMR().get( "Milliseconds" );
 	}
 	else
 	{
 	    ti = new TargetInfo( sKey::Depth(), FloatInpSpec(), reqspec,
-		    		 PropertyRef::Dist );
+				 Mnemonic::Dist );
 	    ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
 	}
     }

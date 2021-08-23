@@ -12,11 +12,13 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
+
+#include "mnemonics.h"
 #include "position.h"
 #include "ranges.h"
-#include "propertyref.h"
-class BufferStringSet;
 
+class BufferStringSet;
+class PropertyRef;
 
 namespace Well
 {
@@ -60,9 +62,9 @@ public:
     bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();
 
-    TypeSet<int>	getSuitable(PropertyRef::StdType,
-				    const Mnemonic* altmn=nullptr,
-				    BoolTypeSet* isalt=0) const;
+    TypeSet<int>	getSuitable(Mnemonic::StdType,
+				    const PropertyRef* altpr=nullptr,
+				    BoolTypeSet* isalt=nullptr) const;
 
     Notifier<LogSet>	logAdded;
     Notifier<LogSet>	logRemoved;

@@ -147,7 +147,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     else
     {
 	ObjectSet<const UnitOfMeasure> uns;
-	UoMR().getRelevant( PropertyRef::Dist, uns );
+	UoMR().getRelevant( Mnemonic::Dist, uns );
 	BufferStringSet unnms;
 	for ( int idx=0; idx<uns.size(); idx++ )
 	    unnms.add( uns[idx]->name() );

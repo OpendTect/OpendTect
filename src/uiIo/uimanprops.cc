@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "mathexpression.h"
 #include "mathproperty.h"
-#include "mnemonics.h"
 #include "separstr.h"
 #include "uibuildlistfromlist.h"
 #include "uicolor.h"
@@ -35,75 +34,88 @@ ________________________________________________________________________
 class uiBuildPROPS : public uiBuildListFromList
 { mODTextTranslationClass(uiBuildPROPS);
 public:
-			uiBuildPROPS(uiParent*,PropertySet&,bool);
+			uiBuildPROPS(uiParent*,PropertyRefSet&);
+			~uiBuildPROPS();
 
-    PropertySet&	props_;
-    bool		allowmath_;
+    PropertyRefSet&	props_;
 
-    virtual const char*	avFromDef(const char*) const;
-    virtual void	editReq(bool);
-    virtual void	removeReq();
-    virtual void	itemSwitch(const char*,const char*);
     void		initGrp(CallBacker*);
-    bool		isPropRemovable(int propidx);
+
+    void		editReq(bool) override;
+    void		removeReq() override;
+    const char*		avFromDef(const char*) const override;
+    void		itemSwitch(const char*,const char*) override;
+    bool		isPropRemovable(const PropertyRef*);
 
 };
 
 
-uiBuildPROPS::uiBuildPROPS( uiParent* p, PropertySet& prs, bool allowmath )
+uiBuildPROPS::uiBuildPROPS( uiParent* p, PropertyRefSet& prs )
     : uiBuildListFromList(p,
-	    uiBuildListFromList::Setup(false,"property type","usable property")
-	    .withio(false).withtitles(true), "Property selection group")
+	    uiBuildListFromList::Setup(false,"mnemonic","property reference")
+	    .withio(false).withtitles(true), "PropertyRef selection group")
     , props_(prs)
-    , allowmath_(allowmath)
 {
-    const BufferStringSet dispnms( PropertyRef::StdTypeNames() );
-
-    setAvailable( dispnms );
+    BufferStringSet mncnames;
+    MNC().getNames( mncnames );
+    mncnames.sort();
+    setAvailable( mncnames );
 
     BufferStringSet pnms;
-    for ( int idx=0; idx<props_.size(); idx++ )
-	pnms.add( props_.get(idx).name() );
-
+    for ( const auto* pr : prs )
+	pnms.add( pr->name() );
     pnms.sort();
-    for ( int idx=0; idx<pnms.size(); idx++ )
-	addItem( pnms.get(idx) );
 
-    postFinalise().notify( mCB(this,uiBuildPROPS,initGrp) );
+    for ( const auto* prnm : pnms )
+	addItem( prnm->buf() );
+
+    mAttachCB( postFinalise(), uiBuildPROPS::initGrp );
 }
+
+
+uiBuildPROPS::~uiBuildPROPS()
+{
+    detachAllNotifiers();
+}
+
 
 void uiBuildPROPS::initGrp( CallBacker* )
 {
     if ( !props_.isEmpty() )
-	setCurDefSel( props_.get(0).name() );
+	setCurDefSel( props_.first()->name() );
+
+    usrchg_ = false;
 }
+
 
 const char* uiBuildPROPS::avFromDef( const char* nm ) const
 {
-    const Property* pr = props_.find( nm );
-    if ( !pr )
-	return 0;
-
-    return PropertyRef::toString( pr->mnem().stdType() );
+    const PropertyRef* pr = const_cast<const PropertyRefSet&>(props_)
+					.getByName( nm, false );
+    return pr ? pr->mnName() : nullptr;
 }
 
 
-class uiEditProp : public uiDialog
-{ mODTextTranslationClass(uiEditProp);
+class uiEditPropRef : public uiDialog
+{ mODTextTranslationClass(uiEditPropRef);
 public:
 
-			uiEditProp(uiParent*,Property&,bool);
-			uiEditProp(uiParent*,const char* nm,
-				   PropertyRef::StdType,bool);
-    bool		acceptOK(CallBacker*);
+			uiEditPropRef(uiParent*,PropertyRef&,bool isadd);
+			~uiEditPropRef();
 
-    Property&		pr_;
-    Mnemonic*		mn_;
-    const bool		withform_;
+    bool		acceptOK(CallBacker*) override;
+
+    bool		isChanged() const	{ return changed_; }
+
+private:
+
+    PropertyRef&	pr_;
+    bool		changed_ = false;
 
     uiGenInput*		namefld_;
     uiGenInput*		mnemonicsfld_;
-    uiGenInput*		aliasfld_;
+    uiGenInput*		mnaliasfld_;
+    uiGenInput*		praliasfld_;
     uiColorInput*	colfld_;
     uiGenInput*		rgfld_;
     uiUnitSel*		unfld_;
@@ -117,134 +129,103 @@ public:
     MathProperty	defaultmathprop_;
 
     void		setForm(bool);
+    void		setUpdated()			{ changed_ = true; }
 
-    void		setDefinitionForm(CallBacker*)	{ setForm(true); }
-    void		setDefaultForm(CallBacker*)	{ setForm(false); }
-    void		definitionChecked(CallBacker*);
+    void		initDlg(CallBacker*);
+    void		nameChgCB(CallBacker*);
     void		mnemonicSelCB(CallBacker*);
+    void		aliasChgCB(CallBacker*);
+    void		colorChgCB(CallBacker*);
+    void		rangeChgCB(CallBacker*);
     void		unitSel(CallBacker*);
+    void		valueChgCB(CallBacker*);
+    void		setDefaultForm(CallBacker*)	{ setForm( false ); }
+    void		definitionChecked(CallBacker*);
+    void		setDefinitionForm(CallBacker*)	{ setForm( true ); }
 
-protected:
-    void		fillDlg(bool fromavilprop=false);
 };
 
 
-uiEditProp::uiEditProp( uiParent* p, const char* nm,
-			PropertyRef::StdType stdtype, bool supportform )
+uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
     : uiDialog(p,uiDialog::Setup(tr("Property definition"),
-			    toUiString("%1 '%2' property")
-			    .arg(uiStrings::sAdd())
-			    .arg(PropertyRef::toString(stdtype)),
-			    mODHelpKey(mEditPropRefHelpID) ))
-    , pr_(*new ValueProperty(nm,*MNC().getGuessed(stdtype)))
-    , defaultmathprop_(*new MathProperty(pr_.name(),pr_.mnem()))
-    , definitionmathprop_(*new MathProperty(pr_.name(),pr_.mnem()))
-    , withform_(supportform)
-    , curunit_(nullptr)
-{
-    fillDlg( true );
-}
-
-
-uiEditProp::uiEditProp( uiParent* p, Property& pr, bool supportform )
-    : uiDialog(p,uiDialog::Setup(tr("Property definition"),
-			     toUiString("%1 '%2' property")
-			     .arg(uiStrings::sEdit())
-			     .arg( PropertyRef::toString(pr.mnem().stdType())),
-			     mODHelpKey(mEditPropRefHelpID) ))
+				 toUiString("%1 '%2' property").arg(isadd ?
+				 uiStrings::sAdd():uiStrings::sEdit()).
+				 arg( Mnemonic::toString(pr.stdType())),
+				 mODHelpKey(mEditPropRefHelpID) ))
     , pr_(pr)
-    , defaultmathprop_(*new MathProperty(pr.name(),pr.mnem()))
-    , definitionmathprop_(*new MathProperty(pr.name(),pr.mnem()))
-    , withform_(supportform)
-    , curunit_(nullptr)
-{
-    fillDlg();
-}
-
-
-void uiEditProp::fillDlg( bool fromavailprop )
+    , defaultmathprop_(pr)
+    , definitionmathprop_(pr)
+    , curunit_(pr.unit())
 {
     namefld_ = new uiGenInput( this, uiStrings::sName(),
-			       StringInpSpec(pr_.name()) );
+			       StringInpSpec(pr.name()) );
+    mAttachCB( namefld_->valuechanged, uiEditPropRef::nameChgCB );
 
-    MnemonicSet& mns = eMNC();
+    const MnemonicSelection mnsel( pr.stdType() );
     BufferStringSet mnnames;
-    if ( !fromavailprop )
-	mnnames.add( pr_.mnem().name() );
-    else
-    {
-	MnemonicSet* mnsforpr = mns.getSet( &pr_.ref() );
-	mnsforpr->getNames( mnnames );
-	if ( mnnames.isEmpty() )
-	    mns.getNames( mnnames );
-    }
+    for ( const auto* mnc : mnsel )
+	mnnames.add( mnc->name() );
 
+    const Mnemonic& mn = pr.mn_;
     mnemonicsfld_ = new uiGenInput( this, tr("Mnemonic"),
-	   			StringListInpSpec(mnnames) );
+				    StringListInpSpec(mnnames) );
+    mnemonicsfld_->setText( mn.name() );
     mnemonicsfld_->attach( alignedBelow, namefld_ );
-    mAttachCB( mnemonicsfld_->valuechanged, uiEditProp::mnemonicSelCB );
-    mn_ = mns.find( mnemonicsfld_->text() );
+    mAttachCB( mnemonicsfld_->valuechanged, uiEditPropRef::mnemonicSelCB );
 
-    SeparString ss;
-    if ( mn_ )
-    {
-	for ( int idx=0; idx<mn_->aliases().size(); idx++ )
-	    ss += mn_->aliases().get(idx);
-    }
+    SeparString mnss, prss;
+    for ( const auto* mnalias : mn.aliases() )
+	mnss += mnalias->buf();
+    for ( const auto* pralias : pr.propaliases_ )
+	prss += pralias->buf();
 
-    aliasfld_ = new uiGenInput( this, tr("Aliases (e.g. 'abc, uvw*xyz')"),
-				StringInpSpec(ss.buf()) );
-    aliasfld_->setElemSzPol( uiObject::Wide );
-    aliasfld_->attach( alignedBelow, mnemonicsfld_ );
+    mnaliasfld_ = new uiGenInput( this, tr("Mnemonic aliases"),
+				  StringInpSpec(mnss.buf()) );
+    mnaliasfld_->setElemSzPol( uiObject::Wide );
+    mnaliasfld_->setReadOnly();
+    mnaliasfld_->attach( alignedBelow, mnemonicsfld_ );
 
-    colfld_ = new uiColorInput( this,
-				uiColorInput::Setup(pr_.disp_.color_)
-				.lbltxt(tr("Default display color")) );
-    colfld_->attach( alignedBelow, aliasfld_ );
+    praliasfld_ = new uiGenInput( this, tr("Aliases (e.g. 'abc, uvw*xyz')"),
+				StringInpSpec(prss.buf()) );
+    praliasfld_->setElemSzPol( uiObject::Wide );
+    praliasfld_->attach( alignedBelow, mnaliasfld_ );
+    mAttachCB( praliasfld_->valuechanged, uiEditPropRef::aliasChgCB );
+
+    colfld_ = new uiColorInput( this, uiColorInput::Setup(pr_.disp_.color_)
+					.lbltxt(tr("Default display color")) );
+    colfld_->attach( alignedBelow, praliasfld_ );
+    mAttachCB( colfld_->colorChanged, uiEditPropRef::colorChgCB );
 
     rgfld_ = new uiGenInput( this, tr("Typical value range"),
-			     FloatInpIntervalSpec() );
+			     FloatInpIntervalSpec(pr.disp_.typicalrange_) );
     rgfld_->attach( alignedBelow, colfld_ );
+    mAttachCB( rgfld_->valuechanged, uiEditPropRef::rangeChgCB );
 
-    unfld_ = new uiUnitSel( this, pr_.mnem().stdType() );
-    unfld_->setUnit( pr_.disp_.unit_ );
-
+    unfld_ = new uiUnitSel( this, pr_.stdType() );
     unfld_->inpFld()->setHSzPol( uiObject::MedVar );
     unfld_->attach( rightOf, rgfld_ );
-    unfld_->selChange.notify( mCB(this,uiEditProp,unitSel) );
-    curunit_ = unfld_->getUnit();
-
-    Interval<float> udfintv;
-    udfintv.setUdf();
-    Interval<float> vintv( &pr_ ? pr_.disp_.typicalrange_ : udfintv );
-    if ( curunit_ )
-    {
-	if ( !mIsUdf(vintv.start) )
-	    vintv.start = curunit_->getUserValueFromSI( vintv.start );
-	if ( !mIsUdf(vintv.stop) )
-	    vintv.stop = curunit_->getUserValueFromSI( vintv.stop );
-    }
-    rgfld_->setValue( vintv );
+    unfld_->setUnit( curunit_ );
+    mAttachCB( unfld_->selChange, uiEditPropRef::unitSel );
 
     defaultfld_ = new uiGenInput( this, tr("Default value") );
     defaultfld_->attach( alignedBelow, rgfld_ );
-    if ( !pr_.defval_ || pr_.defval_->isValue() )
+    if ( pr_.disp_.defval_ )
     {
-	float val = pr_.defval_ ? pr_.defval_->value()
-				      : pr_.commonValue();
-	if ( curunit_ )
-	    val = curunit_->getUserValueFromSI( val );
-
-	if ( val )
+	if ( pr_.disp_.defval_->isValue() )
+	{
+	    const float val = pr_.disp_.defval_->value();
 	    defaultfld_->setValue( val );
+	}
+	else if ( pr.disp_.defval_->isFormula() )
+	{
+	    defaultmathprop_.setDef( pr_.disp_.defval_->def() );
+	    defaultfld_->setText( defaultmathprop_.formText(true) );
+	}
     }
-    else
-    {
-	defaultmathprop_.setDef( pr_.defval_->def() );
-	defaultfld_->setText( defaultmathprop_.formText(true) );
-    }
+    mAttachCB( defaultfld_->valuechanged, uiEditPropRef::valueChgCB );
+
     defaultformbut_ = new uiPushButton( this, tr("Formula"),
-				mCB(this,uiEditProp,setDefaultForm), false );
+				mCB(this,uiEditPropRef,setDefaultForm), false );
     defaultformbut_->attach( rightOf, defaultfld_ );
 
     definitionfld_ = new uiGenInput( this, tr("Fixed definition") );
@@ -256,17 +237,66 @@ void uiEditProp::fillDlg( bool fromavailprop )
 	definitionmathprop_.setDef( pr_.fixedDef().def() );
 	definitionfld_->setText( definitionmathprop_.formText(true) );
     }
+
     definitionformbut_ = new uiPushButton( this, tr("Formula"),
-			    mCB(this,uiEditProp,setDefinitionForm), false );
+			    mCB(this,uiEditPropRef,setDefinitionForm), false );
     definitionformbut_->attach( rightOf, definitionfld_ );
 
-    const CallBack defchckcb( mCB(this,uiEditProp,definitionChecked) );
-    definitionfld_->checked.notify( defchckcb );
-    postFinalise().notify( defchckcb );
+    mAttachCB( postFinalise(), uiEditPropRef::initDlg );
 }
 
 
-void uiEditProp::unitSel( CallBacker* )
+uiEditPropRef::~uiEditPropRef()
+{
+    detachAllNotifiers();
+}
+
+
+void uiEditPropRef::initDlg( CallBacker* )
+{
+    mAttachCB( definitionfld_->checked, uiEditPropRef::definitionChecked );
+}
+
+
+void uiEditPropRef::nameChgCB( CallBacker* )
+{
+    setUpdated();
+}
+
+
+void uiEditPropRef::mnemonicSelCB( CallBacker* )
+{
+    const Mnemonic* mn = MNC().getByName( mnemonicsfld_->text(), false );
+    if ( !mn || mn == &pr_.mn_ )
+	return;
+
+    SeparString mnss;
+    for ( const auto* mnalias : mn->aliases() )
+	mnss += mnalias->buf();
+    mnaliasfld_->setText( mnss );
+    setUpdated();
+}
+
+
+void uiEditPropRef::aliasChgCB( CallBacker* )
+{
+    setUpdated();
+}
+
+
+void uiEditPropRef::colorChgCB( CallBacker* )
+{
+    setUpdated();
+}
+
+
+void uiEditPropRef::rangeChgCB( CallBacker* )
+{
+    setUpdated();
+}
+
+
+void uiEditPropRef::unitSel( CallBacker* )
 {
     const UnitOfMeasure* newun = unfld_->getUnit();
     if ( newun == curunit_ )
@@ -276,131 +306,96 @@ void uiEditProp::unitSel( CallBacker* )
     convValue( vintv.start, curunit_, newun );
     convValue( vintv.stop, curunit_, newun );
     rgfld_->setValue( vintv );
-    if ( !pr_.defval_ || pr_.defval_->isValue() )
+    if ( pr_.disp_.defval_ && pr_.disp_.defval_->isValue() )
     {
-	float val = pr_.defval_ ? pr_.defval_->value()
-				      : pr_.commonValue();
-	val = newun->getUserValueFromSI( val );
+	float val = defaultfld_->getDValue();
+	convValue( val, curunit_, newun );
 	defaultfld_->setValue( val );
     }
 
     curunit_ = newun;
+    setUpdated();
 }
 
 
-void uiEditProp::mnemonicSelCB( CallBacker* )
+void uiEditPropRef::valueChgCB( CallBacker* )
 {
-    mn_ = eMNC().find( mnemonicsfld_->text() );
-    if ( mn_ )
-    {
-	SeparString ss;
-	for ( int idx=0; idx<mn_->aliases().size(); idx++ )
-            ss += mn_->aliases().get(idx);
-
-	aliasfld_->setText( ss );
-	pr_.setMnemonic( *mn_ );
-	colfld_->setColor( pr_.disp_.color_ );
-	unfld_->setMnemonic( *mn_ );
-	curunit_ = unfld_->getUnit();
-	Interval<float> vintv( pr_.disp_.typicalrange_ );
-	if ( curunit_ )
-	{
-	    if ( !mIsUdf(vintv.start) )
-		vintv.start = curunit_->getUserValueFromSI( vintv.start );
-	    if ( !mIsUdf(vintv.stop) )
-		vintv.stop = curunit_->getUserValueFromSI( vintv.stop );
-	}
-
-	rgfld_->setValue( vintv );
-    }
+    setUpdated();
 }
 
 
-void uiEditProp::setForm( bool definition )
+void uiEditPropRef::definitionChecked( CallBacker* )
 {
-    PropertySelection prsel = PropertySelection::getAll( true, &pr_ );
+    definitionformbut_->setSensitive( definitionfld_->isChecked() );
+    defaultformbut_->display( !definitionfld_->isChecked() );
+    setUpdated();
+}
+
+
+void uiEditPropRef::setForm( bool definition )
+{
+    PropertyRefSelection prsel( true, &pr_ );
     MathProperty& mped = definition ? definitionmathprop_ : defaultmathprop_;
     uiMathPropEdDlg dlg( parent(), mped, prsel );
     if ( !dlg.go() )
 	return;
 
     (definition?definitionfld_:defaultfld_)->setText( mped.formText(true) );
-}
-
-
-void uiEditProp::definitionChecked( CallBacker* )
-{
-    definitionformbut_->setSensitive( definitionfld_->isChecked() );
-    defaultformbut_->display( !definitionfld_->isChecked() );
+    setUpdated();
 }
 
 
 #define mErrRet(s,retype) { uiMSG().error(s); return retype; }
 
-bool uiEditProp::acceptOK( CallBacker* )
+bool uiEditPropRef::acceptOK( CallBacker* )
 {
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() || !iswalpha(newnm[0]) || newnm.size() < 2 )
 	mErrRet(uiStrings::sEnterValidName(),false);
+
     const BufferString definitionstr( definitionfld_->text() );
     const bool isfund = definitionfld_->isChecked();
     if ( isfund && definitionstr.isEmpty() )
 	mErrRet( tr("Please un-check the 'Fixed Definition' - or provide one"),
 		 false );
 
-    pr_.setName( newnm );
-    SeparString ss( aliasfld_->text() ); const int nral = ss.size();
-    if ( mn_ )
+    const Mnemonic* mn = MNC().getByName( mnemonicsfld_->text(), false );
+    if ( mn && mn != &pr_.mn_ )
     {
-	pr_.setMnemonic( *mn_ );
-	mn_->aliases().erase();
-	for ( int idx=0; idx<nral; idx++ )
-	{
-	    if ( mn_ )
-		mn_->aliases().add( ss[idx] );
-	}
-
-	pr_.disp_.color_ = colfld_->color();
-	Interval<float> vintv( rgfld_->getFInterval() );
-	if ( !curunit_ )
-	    pr_.disp_.unit_.setEmpty();
-	else
-	{
-	    pr_.disp_.unit_ = curunit_->name();
-	    if ( !mIsUdf(vintv.start) )
-		vintv.start = curunit_->getSIValue( vintv.start );
-
-	    if ( !mIsUdf(vintv.stop) )
-		vintv.stop = curunit_->getSIValue( vintv.stop );
-	}
-
-	pr_.disp_.typicalrange_ = vintv;
+	const PropertyRef newpr( *mn, newnm );
+	pr_ = newpr;
     }
+    else
+	pr_.setName( newnm );
+
+    pr_.propaliases_.setEmpty();
+    const SeparString ss( praliasfld_->text() );
+    const int nral = ss.size();
+    for ( int idx=0; idx<nral; idx++ )
+	pr_.propaliases_.add( ss[idx] );
+
+    pr_.disp_.color_ = colfld_->color();
+    NotifyStopper ns( pr_.unitChanged_ );
+    pr_.disp_.typicalrange_ = rgfld_->getFInterval();
+    pr_.setUnit( curunit_ ? curunit_->symbol() : "" );
 
     BufferString defaultstr( defaultfld_->text() );
     defaultstr.trimBlanks();
+    delete pr_.disp_.defval_;
     if ( defaultstr.isEmpty() )
-    {
-	delete pr_.defval_;
-	pr_.defval_ = 0;
-    }
+	pr_.disp_.defval_ = nullptr;
     else
     {
-	if ( !withform_ || defaultstr.isNumber() )
+	if ( defaultstr.isNumber() )
 	{
-	    float val = defaultstr.toFloat();
-	    if ( curunit_ )
-		val = curunit_->getSIValue( val );
-	    pr_.defval_ = new ValueProperty( pr_.name(), pr_.mnem() );
+	    const float val = defaultstr.toFloat();
+	    pr_.disp_.defval_ = new ValueProperty( pr_, val );
 	}
 	else
-	    pr_.defval_ = new MathProperty( defaultmathprop_ );
+	    pr_.disp_.defval_ = new MathProperty( defaultmathprop_ );
     }
 
-    if ( !isfund )
-	pr_.setFixedDef( nullptr );
-    else
-	pr_.setFixedDef( definitionmathprop_.clone() );
+    pr_.setFixedDef( isfund ? &definitionmathprop_ : nullptr );
 
     return true;
 }
@@ -409,53 +404,73 @@ bool uiEditProp::acceptOK( CallBacker* )
 void uiBuildPROPS::editReq( bool isadd )
 {
     const char* nm = isadd ? curAvSel() : curDefSel();
-    if ( !nm || !*nm )
-	return;
+    if ( !nm || !*nm ) return;
 
-    Property* pr = nullptr;
-    PropertyRef::StdType stdtype = PropertyRef::Other;
-    if ( isadd )
-	stdtype = PropertyRef::StdTypeDef().parse( nm );
-    else
-	pr = props_.find( nm );
-
-    if ( !isadd && !pr )
-	return;
-
-    PtrMan<uiEditProp> dlg = pr ? new uiEditProp( this, *pr, allowmath_ )
-				: new uiEditProp( this, nm ,
-						  stdtype, allowmath_ );
-    if ( !dlg->go() )
-	return;
-
+    PropertyRef* pr = nullptr;
+    const PropertyRefSet& props = const_cast<const PropertyRefSet&>( props_ );
     if ( isadd )
     {
-	pr = &dlg->pr_;
-	if ( props_.isPresent(pr->name()) )
-	    mErrRet( tr("Property with same name '%1' already "
-			" present.").arg(pr->name()),  )
-	props_.add( pr );
-    }
+	const Mnemonic* mn = MNC().getByName( nm, false );
+	if ( !mn )
+	    return;
 
-    handleSuccessfullEdit( isadd, pr->name() );
+	BufferString propnm;
+	if ( !props.getByName(mn->name(),false) )
+	    propnm.set( mn->name() );
+
+	pr = new PropertyRef( *mn, propnm.buf() );
+    }
+    else
+	pr = const_cast<PropertyRef*>( props.getByName(nm,false) );
+
+    if ( !pr )
+	return;
+
+    uiEditPropRef dlg( this, *pr, isadd );
+    if ( !dlg.go() )
+    {
+	if ( isadd )
+	    delete pr;
+    }
+    else
+    {
+	if ( isadd )
+	{
+	    if ( props.getByName(pr->name(),false) )
+	    {
+		const BufferString propnm( pr->name() );
+		delete pr;
+		mErrRet( tr("Property with same name '%1' already "
+			    " present.").arg(propnm),  )
+	    }
+
+	    props_ += pr;
+	}
+
+	usrchg_ = usrchg_ || dlg.isChanged();
+	handleSuccessfullEdit( isadd, pr->name() );
+    }
 }
 
 
-bool uiBuildPROPS::isPropRemovable( int propidx )
+bool uiBuildPROPS::isPropRemovable( const PropertyRef* propref )
 {
-    const Property* prop = &props_.get( propidx );
-    if ( prop->isThickness() )
+    if ( !propref )
+	return false;
+
+    if ( propref->isThickness() )
 	mErrRet( tr("Cannot remove inbuilt property 'Thickness'."), false )
-    if ( prop->mnem().stdType()==PropertyRef::Den ||
-	 prop->mnem().stdType()==PropertyRef::Vel )
+
+    if ( propref->stdType() == Mnemonic::Den ||
+	 propref->stdType() == Mnemonic::Vel )
     {
-	ObjectSet<const Property> subselprs;
-	props_.getPropertiesOfRefType( prop->mnem().stdType(), subselprs );
+	PropertyRefSelection subselprs;
+	props_.subselect( propref->stdType(), subselprs );
 	if ( subselprs.size()<=1 )
-	    mErrRet( tr( "Cannot remove this property.Need to have atleast one "
+	    mErrRet( tr( "Cannot remove this property. "
+			 "Need to have at least one "
 			 "usable property of type '%1'")
-			.arg(PropertyRef::toString(
-					    prop->mnem().stdType())), false )
+			.arg(Mnemonic::toString(propref->stdType())), false )
     }
 
     return true;
@@ -465,30 +480,28 @@ bool uiBuildPROPS::isPropRemovable( int propidx )
 void uiBuildPROPS::removeReq()
 {
     const char* prnm = curDefSel();
-    if ( prnm && *prnm )
+    const PropertyRef* pr = const_cast<const PropertyRefSet&>( props_ )
+						.getByName( prnm, false );
+    if ( isPropRemovable(pr) )
     {
-	const int idx = props_.indexOf( prnm );
-	if ( idx < 0 ) return;
-	if ( isPropRemovable(idx) )
-	{
-	    props_.remove( idx );
-	    removeItem();
-	}
+	props_ -= const_cast<PropertyRef*>( pr );
+	delete pr;
     }
 }
 
 
 void uiBuildPROPS::itemSwitch( const char* nm1, const char* nm2 )
 {
-    const int idx1 = props_.indexOf( nm1 );
-    const int idx2 = props_.indexOf( nm2 );
-    if ( idx1 < 0 || idx2 < 0 )
+    const PropertyRefSet& props = const_cast<const PropertyRefSet&>( props_ );
+    const PropertyRef* pr1 = props.getByName( nm1, false );
+    const PropertyRef* pr2 = props.getByName( nm2, false );
+    if ( !pr1 || !pr2 )
     {
 	pErrMsg("Huh");
 	return;
     }
 
-    props_.swap( idx1, idx2 );
+    props_.swap( props.indexOf(pr1), props.indexOf(pr2) );
 }
 
 
@@ -498,8 +511,7 @@ uiManPROPS::uiManPROPS( uiParent* p )
 				 mODHelpKey(mManPROPSHelpID)))
 {
     setCtrlStyle( CloseOnly );
-    eMNC();
-    buildfld_ = new uiBuildPROPS( this, ePROPS(), true );
+    buildfld_ = new uiBuildPROPS( this, ePROPS() );
     const char* strs[] = { "For this survey only",
 			   "As default for all surveys",
 			   "As default for my user ID only", nullptr };
@@ -513,7 +525,6 @@ bool uiManPROPS::rejectOK( CallBacker* )
     if ( !haveUserChange() )
 	return true;
 
-    ePROPS() = buildfld_->props_;
     const int isrc = srcfld_->getIntValue();
     const Repos::Source repsrc =   isrc == 0	? Repos::Survey
 				: (isrc == 1	? Repos::Data
@@ -539,7 +550,7 @@ bool uiManPROPS::haveUserChange() const
 }
 
 
-uiSelectProps::uiSelectProps( uiParent* p,PropertySelection& prs,
+uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
 				    const char* lbl )
     : uiDialog(p,uiDialog::Setup(toUiString("%1 %2 - %3")
 		.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
@@ -547,18 +558,18 @@ uiSelectProps::uiSelectProps( uiParent* p,PropertySelection& prs,
 		uiStrings::phrSelect(tr("layer properties to use")),
 		mODHelpKey(mSelectPropRefsHelpID) ))
 {
-    proprefgrp_ = new uiSelectPropsGrp( this, prs, lbl );
+    proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
 }
 
 
-bool uiSelectProps::acceptOK( CallBacker* )
+bool uiSelectPropRefs::acceptOK( CallBacker* )
 {
     return proprefgrp_->acceptOK();
 }
 
 
-uiSelectPropsVWDlg::uiSelectPropsVWDlg(
-	uiParent* p, PropertySelection& prs, IOPar& pars, int pos,
+uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
+	uiParent* p, PropertyRefSelection& prs, IOPar& pars, int pos,
 	const char* lbl )
     : uiVarWizardDlg(p,uiDialog::Setup(toUiString("%1 %2 - %3")
 	    .arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
@@ -569,23 +580,23 @@ uiSelectPropsVWDlg::uiSelectPropsVWDlg(
 	    mODHelpKey(mSelectPropRefsHelpID)),
 	    pars, (uiVarWizardDlg::Position)pos )
 {
-    proprefgrp_ = new uiSelectPropsGrp( this, prs, lbl );
+    proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
 }
 
 
-bool uiSelectPropsVWDlg::acceptOK( CallBacker* )
+bool uiSelectPropRefsVWDlg::acceptOK( CallBacker* )
 {
     return proprefgrp_->acceptOK();
 }
 
 
 
-uiSelectPropsGrp::uiSelectPropsGrp( uiParent* p,PropertySelection& prs,
+uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,PropertyRefSelection& prs,
 					  const char* lbl )
     : uiDlgGroup(p,tr("Layer Properties"))
     , props_(PROPS())
     , prsel_(prs)
-    , thref_(&Property::thickness())
+    , thref_(&PropertyRef::thickness())
     , structchg_(false)
 {
     uiListBox::Setup su( OD::ChooseAtLeastOne, mToUiStringTodo(lbl),
@@ -595,14 +606,14 @@ uiSelectPropsGrp::uiSelectPropsGrp( uiParent* p,PropertySelection& prs,
 
     uiToolButton* manpropsbut = new uiToolButton( this, "man_props",
 					tr("Manage available properties"),
-					mCB(this,uiSelectPropsGrp,manPROPS));
+					mCB(this,uiSelectPropRefsGrp,manPROPS));
     manpropsbut->attach( centeredRightOf, propfld_ );
 }
 
 
-void uiSelectPropsGrp::fillList()
+void uiSelectPropRefsGrp::fillList()
 {
-    PropertySelection prs( PropertySelection::getAll(false) );
+    PropertyRefSelection prs( false, nullptr );
     BufferStringSet dispnms; addNames( prs, dispnms );
     if ( dispnms.isEmpty() )
 	return;
@@ -614,7 +625,7 @@ void uiSelectPropsGrp::fillList()
     for ( int idx=0; idx<dispnms.size(); idx++ )
     {
 	const char* nm = dispnms.get( idx ).buf();
-	const bool issel = prsel_.isPresent( nm );
+	const bool issel = prsel_.getByName( nm, false );
 	propfld_->setChosen( idx, issel );
 	if ( issel && firstsel < 0 ) firstsel = idx;
     }
@@ -623,7 +634,7 @@ void uiSelectPropsGrp::fillList()
 }
 
 
-void uiSelectPropsGrp::manPROPS( CallBacker* )
+void uiSelectPropRefsGrp::manPROPS( CallBacker* )
 {
     BufferStringSet orgnms;
     for ( int idx=0; idx<prsel_.size(); idx++ )
@@ -647,10 +658,10 @@ void uiSelectPropsGrp::manPROPS( CallBacker* )
 }
 
 
-bool uiSelectPropsGrp::acceptOK()
+bool uiSelectPropRefsGrp::acceptOK()
 {
     prsel_.erase();
-    prsel_.insertAt( &Property::thickness(), 0 );
+    prsel_.insertAt( &PropertyRef::thickness(), 0 );
 
     for ( int idx=0; idx<propfld_->size(); idx++ )
     {
@@ -658,7 +669,7 @@ bool uiSelectPropsGrp::acceptOK()
 	    continue;
 
 	const char* pnm = propfld_->textOfItem( idx );
-	const Property* pr = props_.find( pnm );
+	const PropertyRef* pr = props_.getByName( pnm, false );
 	if ( !pr ) { pErrMsg("Huh"); structchg_ = true; continue; }
 	prsel_ += pr;
     }

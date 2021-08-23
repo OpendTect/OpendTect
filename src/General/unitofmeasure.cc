@@ -6,14 +6,15 @@
 
 
 #include "unitofmeasure.h"
+
 #include "ascstream.h"
-#include "separstr.h"
-#include "survinfo.h"
-#include "od_iostream.h"
+#include "debug.h"
 #include "file.h"
 #include "filepath.h"
-#include "debug.h"
 #include "ioman.h"
+#include "od_iostream.h"
+#include "separstr.h"
+#include "survinfo.h"
 #include "uistrings.h"
 
 static const char* filenamebase = "UnitsOfMeasure";
@@ -264,8 +265,8 @@ void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm,
 	const int nrtypes = types.size();
 	for ( int ityp=0; ityp<nrtypes; ityp++ )
 	{
-	    PropertyRef::StdType stdtype;
-	    PropertyRef::parseEnumStdType( types[ityp], stdtype );
+	    PropType stdtype;
+	    Mnemonic::parseEnumStdType( types[ityp], stdtype );
 	    UnitOfMeasure un( stream.keyWord(), symb, fac, stdtype );
 	    un.setScaler( LinScaler(shft,fac) );
 	    un.setSource( src );
@@ -304,7 +305,7 @@ bool UnitOfMeasureRepository::write( Repos::Source src ) const
 	const UnitOfMeasure& uom = *entries[idx];
 	if ( uom.source() != src ) continue;
 
-	FileMultiString fms( PropertyRef::getStdTypeString(uom.propType()) );
+	FileMultiString fms( Mnemonic::getStdTypeString(uom.propType()) );
 	fms += uom.symbol();
 	fms += uom.scaler().toString();
 	astrm.put( uom.name(), fms );
@@ -379,7 +380,7 @@ const UnitOfMeasure* UnitOfMeasureRepository::get( const char* nm ) const
 }
 
 
-const UnitOfMeasure* UnitOfMeasureRepository::get( PropertyRef::StdType typ,
+const UnitOfMeasure* UnitOfMeasureRepository::get( PropType typ,
 						   const char* nm ) const
 {
     ObjectSet<const UnitOfMeasure> uns; getRelevant( typ, uns );
@@ -427,20 +428,19 @@ bool UnitOfMeasureRepository::add( const UnitOfMeasure& uom )
 }
 
 
-void UnitOfMeasureRepository::getRelevant(
-		PropertyRef::StdType typ,
-		ObjectSet<const UnitOfMeasure>& ret ) const
+void UnitOfMeasureRepository::getRelevant( PropType typ,
+			    ObjectSet<const UnitOfMeasure>& ret ) const
 {
     for ( int idx=0; idx<entries.size(); idx++ )
     {
-	if ( typ == PropertyRef::Other || entries[idx]->propType() == typ )
+	if ( typ == Mnemonic::Other || entries[idx]->propType() == typ )
 	    ret += entries[idx];
     }
 }
 
 
 const UnitOfMeasure* UnitOfMeasureRepository::getInternalFor(
-		PropertyRef::StdType st ) const
+							PropType st ) const
 {
     ObjectSet<const UnitOfMeasure> candidates;
     getRelevant( st, candidates );
@@ -462,10 +462,10 @@ const UnitOfMeasure* UnitOfMeasureRepository::getCurDefaultFor(
 
 
 const UnitOfMeasure* UnitOfMeasureRepository::getDefault( const char* ky,
-					PropertyRef::StdType st ) const
+							  PropType st ) const
 {
     const UnitOfMeasure* ret = getCurDefaultFor( ky );
     if ( !ret )
-	ret = getCurDefaultFor( PropertyRef::toString(st) );
+	ret = getCurDefaultFor( Mnemonic::toString(st) );
     return ret ? ret : getInternalFor( st );
 }

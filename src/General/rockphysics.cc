@@ -6,13 +6,14 @@
 
 
 #include "rockphysics.h"
-#include "mathproperty.h"
+
 #include "ascstream.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "mathproperty.h"
 #include "safefileio.h"
 #include "separstr.h"
-#include "keystrs.h"
-#include "iopar.h"
-#include "ioman.h"
 
 static const char* filenamebase = "RockPhysics";
 static const char* sKeyDef = "Formula";
@@ -30,9 +31,10 @@ RockPhysics::Formula::~Formula()
 
 RockPhysics::Formula* RockPhysics::Formula::get( const IOPar& iop )
 {
-    Formula* fm = new Formula( PropertyRef::Other );
+    auto* fm = new Formula( Mnemonic::Other );
     if ( !fm->usePar(iop) )
-	{ delete fm; return 0; }
+	{ delete fm; return nullptr; }
+
     return fm;
 }
 
@@ -70,7 +72,7 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
     if ( nm.isEmpty() ) return false;
 
     setName( nm );
-    type_ = PropertyRef::parseEnumStdType( iop.getValue(0) );
+    type_ = Mnemonic::parseEnumStdType( iop.getValue(0) );
     iop.get( sKeyDef, def_ );
     iop.get( sKey::Unit(), unit_ );
     iop.get( sKey::Desc(), desc_ );
@@ -82,12 +84,13 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 	IOPar* subpar = iop.subselect( IOPar::compKey(sKeyVar,idx) );
 	if ( !subpar || subpar->isEmpty() )
 	    { delete subpar; break; }
+
 	nm = subpar->find( sKey::Name() );
 	if ( !nm.isEmpty() )
 	{
 	    const PropType typ =
-		    PropertyRef::parseEnumStdType( subpar->find(sKey::Type()) );
-	    VarDef* vd = new VarDef( nm, typ );
+		    Mnemonic::parseEnumStdType( subpar->find(sKey::Type()) );
+	    auto* vd = new VarDef( nm, typ );
 	    subpar->get( sKey::Unit(), vd->unit_ );
 	    subpar->get( sKey::Desc(), vd->desc_ );
 	    vd->desc_ = getStrFromFMS( vd->desc_ );
@@ -178,17 +181,17 @@ bool RockPhysics::Formula::setDef( const char* str )
 }
 
 
-MathProperty* RockPhysics::Formula::getProperty( const Mnemonic* mn ) const
+MathProperty* RockPhysics::Formula::getProperty( const PropertyRef* pr ) const
 {
-    if ( !mn )
+    if ( !pr )
     {
-	MnemonicSelection mns = MnemonicSelection::getAll( type_ );
-	if ( mns.isEmpty() )
-	    return 0;
-	mn = mns[0];
+	const PropertyRefSelection prs( type_ );
+	if ( prs.isEmpty() )
+	    return nullptr;
+	pr = prs.first();
     }
 
-    return new MathProperty( mn->name(), *mn, def_ );
+    return new MathProperty( *pr, def_ );
 }
 
 
@@ -275,7 +278,7 @@ int RockPhysics::FormulaSet::getIndexOf( const char* nm ) const
 }
 
 
-void RockPhysics::FormulaSet::getRelevant( PropertyRef::StdType tp,
+void RockPhysics::FormulaSet::getRelevant( Formula::PropType tp,
 					   BufferStringSet& nms ) const
 {
     nms.erase();

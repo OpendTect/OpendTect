@@ -18,12 +18,12 @@ ________________________________________________________________________
 
 
 uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
-				  const PropertySelection& prs )
+				  const PropertyRefSelection& prs )
     : uiDialog( p, Setup(tr("Math property"),
 		tr("Value generation by formula for %1")
 		.arg(toUiString(pr.name())), mODHelpKey(mMathPropEdDlgHelpID)) )
     , prop_(pr)
-    , prs_(*new PropertySelection(prs))
+    , prs_(*new PropertyRefSelection(prs))
 {
     uiMathFormula::Setup umfsu( tr("Formula (like den * vel)") );
     umfsu.proptype( prop_.ref().stdType() )
@@ -36,8 +36,8 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     BufferStringSet availpropnms;
     for ( int idx=0; idx<prs_.size(); idx++ )
     {
-	const Property* ref = prs_[idx];
-	if ( ref != &pr )
+	const PropertyRef* ref = prs_[idx];
+	if ( ref != &pr.ref() )
 	    availpropnms.add( ref->name() );
     }
     formfld_->setNonSpecInputs( availpropnms );
@@ -76,8 +76,8 @@ void uiMathPropEdDlg::setPType4Inp( int inpidx )
     if ( formfld_->isSpec(inpidx) || formfld_->isConst(inpidx) )
 	return;
 
-    const Property* pr = prs_.getByName( formfld_->getInput(inpidx) );
-    PropertyRef::StdType ptyp = pr ? pr->mnem().stdType() : PropertyRef::Other;
+    const PropertyRef* pr = prs_.getByName( formfld_->getInput(inpidx) );
+    Mnemonic::StdType ptyp = pr ? pr->stdType() : Mnemonic::Other;
     formfld_->inpFld(inpidx)->setPropType( ptyp );
 }
 
@@ -88,7 +88,7 @@ void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 		  tr("Use a rock physics formula"),
 		  mODHelpKey(mRockPhysFormHelpID)) );
     uiRockPhysForm* rpffld = new uiRockPhysForm( &dlg, prop_.ref().stdType() );
-    TypeSet<PropertyRef::StdType> inputtypes;
+    TypeSet<Mnemonic::StdType> inputtypes;
     if ( dlg.go() && rpffld->getFormulaInfo(prop_.getForm(),&inputtypes) )
 	formfld_->useForm( &inputtypes );
 }

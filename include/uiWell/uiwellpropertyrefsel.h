@@ -9,13 +9,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "multiid.h"
-#include "mnemonics.h"
-#include "welllogset.h"
-#include "uigroup.h"
 #include "uiwellmod.h"
+
+#include "uigroup.h"
 #include "uistring.h"
 
+#include "mnemonics.h"
+#include "multiid.h"
+#include "welllogset.h"
+
+class PropertyRef;
+class PropertyRefSelection;
 class UnitOfMeasure;
 
 class uiLabel;
@@ -27,11 +31,11 @@ class uiUnitSel;
 namespace Well { class LogSet; }
 
 
-mExpClass(uiWell) uiWellSingleMnemSel : public uiGroup
-{ mODTextTranslationClass(uiWellSingleMnemSel);
+mExpClass(uiWell) uiWellSinglePropSel : public uiGroup
+{ mODTextTranslationClass(uiWellSinglePropSel);
 public:
-			uiWellSingleMnemSel(uiParent*,const Mnemonic&,
-					const Mnemonic* alternatemn=0);
+			uiWellSinglePropSel(uiParent*,const PropertyRef&,
+				const PropertyRef* alternatepr=nullptr);
 
     bool		setAvailableLogs(const Well::LogSet&);
 
@@ -42,62 +46,62 @@ public:
     const char*         logName() const;
     const UnitOfMeasure* getUnit() const;
 
-    void		selectAltMnem(bool yn);
-    bool		altMnemSelected() const;
+    void		selectAltProp(bool yn);
+    bool		altPropSelected() const;
 
-    const Mnemonic&	normMnem() const	{ return mnem_; }
-    const Mnemonic*	altMnem() const		{ return altmnem_; }
-    const Mnemonic&	selMnem() const;
+    const PropertyRef&	normPropRef() const	{ return propref_; }
+    const PropertyRef*	altPropRef() const	{ return altpropref_; }
+    const PropertyRef&	selPropRef() const;
 
-    Notifier<uiWellSingleMnemSel> altMnemChosen;
+    Notifier<uiWellSinglePropSel> altPropChosen;
 
 protected:
 
-    const Mnemonic&	mnem_;
-    const Mnemonic*	altmnem_;
+    const PropertyRef&	propref_;
+    const PropertyRef*	altpropref_ = nullptr;
     BufferStringSet	normnms_, normunmeaslbls_;
     BufferStringSet	altnms_, altunmeaslbls_;
-    int			altmn_;
+    int			altpref_ = -1;
 
     uiComboBox*         lognmfld_;
     uiUnitSel*          unfld_;
     uiCheckBox*         altbox_;
 
     void		updateSelCB(CallBacker*);
-    void		switchMnemCB(CallBacker*);
+    void		switchPropCB(CallBacker*);
 
     void                updateLogInfo();
 
 };
 
 
-mExpClass(uiWell) uiWellMnemSel : public uiGroup
-{ mODTextTranslationClass(uiWellMnemSel);
+mExpClass(uiWell) uiWellPropSel : public uiGroup
+{ mODTextTranslationClass(uiWellPropSel);
 public:
 
-			uiWellMnemSel(uiParent*,const MnemonicSelection&);
-    int			size() const	{ return mnemflds_.size(); }
+			uiWellPropSel(uiParent*,const PropertyRefSelection&);
+    int			size() const	{ return propflds_.size(); }
 
     bool		setAvailableLogs(const Well::LogSet&,
-	    				 BufferStringSet& notokpropnms);
-    void		setLog(const PropertyRef::StdType,const char*,
-				bool check,const UnitOfMeasure*, int idx);
-    bool		getLog(const PropertyRef::StdType,BufferString&,
-				bool&, BufferString& uom, int idx) const;
+					 BufferStringSet& notokpropnms);
+    void		setLog(const Mnemonic::StdType,const char*,
+			       bool check,const UnitOfMeasure*,int idx);
+    bool		getLog(const Mnemonic::StdType,BufferString&,
+			       bool&,BufferString& uom,int idx) const;
 
-    uiWellSingleMnemSel* getMnemSelFromListByName(const BufferString&);
-    uiWellSingleMnemSel* getMnemSelFromListByIndex(int);
+    uiWellSinglePropSel* getPropSelFromListByName(const BufferString&);
+    uiWellSinglePropSel* getPropSelFromListByIndex(int);
     virtual bool	isOK() const;
     void		setWellID( const MultiID& wid ) { wellid_ = wid; }
 
     uiButton*		getRightmostButton( int idx ) { return viewbuts_[idx]; }
 
     MultiID		wellid_;
-    Notifier<uiWellMnemSel> logCreated;
+    Notifier<uiWellPropSel> logCreated;
 
 protected:
 
-    ObjectSet<uiWellSingleMnemSel> mnemflds_;
+    ObjectSet<uiWellSinglePropSel> propflds_;
     ObjectSet<uiButton> createbuts_;
     ObjectSet<uiButton> viewbuts_;
 

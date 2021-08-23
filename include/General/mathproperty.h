@@ -11,9 +11,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "property.h"
 #include "uistring.h"
+
 class UnitOfMeasure;
 namespace Math { class Formula; class SpecVarSet; }
 
@@ -30,15 +30,17 @@ namespace Math { class Formula; class SpecVarSet; }
 mExpClass(General) MathProperty : public Property
 { mODTextTranslationClass(Property)
 public:
-			MathProperty(const char* nm,
-				     const Mnemonic&,const char* def=nullptr);
+			MathProperty(const PropertyRef&,
+				     const char* def=nullptr);
 			MathProperty(const MathProperty&);
 			~MathProperty();
+
+    bool		isFormula() const		{ return true; }
 
     Math::Formula&	getForm()		{ return form_; }
     const Math::Formula& getForm() const	{ return form_; }
 
-    PropertyRef::StdType inputType(int) const;
+    Mnemonic::StdType	inputType(int) const;
     bool		haveInput( int idx ) const    { return inps_[idx]; }
     void		setInput(int,const Property*);
 			//!< Must be done for all inputs after each setDef()
@@ -63,12 +65,17 @@ public:
 
 protected:
 
-    Math::Formula&			form_;
+    Math::Formula&		form_;
     mutable ObjectSet<const Property>	inps_;
-    mutable uiString			errmsg_;
-    mutable BufferString		fulldef_;
+    mutable uiString		errmsg_;
+    mutable BufferString	fulldef_;
 
-    void		setPreV5Def(const char*);
+    void			setPreV5Def(const char*);
+
+private:
+
+    void			doUnitChange(const UnitOfMeasure* olduom,
+				const UnitOfMeasure* newuom) override;
 
 };
 

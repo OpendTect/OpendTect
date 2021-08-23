@@ -43,7 +43,7 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
     if ( !log ) return 0;
 
     Well::Log proclog( *log );
-    if ( log->propType() == PropertyRef::Son )
+    if ( log->propType() == Mnemonic::Son )
 	son2TWT( proclog, wd );
     else
 	vel2TWT( proclog, wd );
@@ -81,7 +81,7 @@ void GeoCalculator::son2Vel( Well::Log& log ) const
     if ( loguom )
     {
 	isimperial = loguom->isImperial();
-	if ( loguom->propType()==PropertyRef::Son )
+	if ( loguom->propType()==Mnemonic::Son )
 	{
 	    issonic = true;
 	    if ( loguom->name().contains("Milli") )
@@ -113,7 +113,7 @@ void GeoCalculator::son2Vel( Well::Log& log ) const
 
 void GeoCalculator::son2TWT( Well::Log& log, const Well::Data& wd ) const
 {
-    if ( log.propType() == PropertyRef::Son )
+    if ( log.propType() == Mnemonic::Son )
     {
 	son2Vel( log );
 	vel2TWT( log, wd );
@@ -133,7 +133,7 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
        return;
 
     const UnitOfMeasure* loguom = log.unitOfMeasure();
-    bool logisvel = loguom && loguom->propType() == PropertyRef::Vel;
+    bool logisvel = loguom && loguom->propType() == Mnemonic::Vel;
     BufferString outuomlbl = logisvel ? "s"
 				      : getDistUnitString( SI().depthsInFeet(),
 							   false );
@@ -384,7 +384,7 @@ void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t,
     for ( int idx=0; idx<d2t.size(); idx++ )
 	log.addValue( d2t.dah( idx ), d2t.value( idx ) );
 
-    const PropertyRef::StdType tp = PropertyRef::Time;
+    const Mnemonic::StdType tp = Mnemonic::Time;
     log.setUnitMeasLabel( UoMR().getInternalFor(tp)->symbol() );
 }
 

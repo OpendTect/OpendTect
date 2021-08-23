@@ -11,12 +11,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "propertyref.h"
+#include "mnemonics.h"
 #include "repos.h"
-class MathProperty;
+
 class ascistream;
 class ascostream;
+class MathProperty;
+class PropertyRef;
 
 
 /*!\brief Ref Data for a (usually petrophysical) property.
@@ -36,9 +37,9 @@ mExpClass(General) Formula : public NamedObject
 {
 public:
 
-    typedef PropertyRef::StdType PropType;
+    typedef Mnemonic::StdType PropType;
 
-			Formula( PropType t, const char* nm=0 )
+			Formula( PropType t, const char* nm=nullptr )
 			    : NamedObject(nm)
 			    , type_(t)		{}
 
@@ -88,7 +89,7 @@ public:
     void		fillPar(IOPar&) const;
 
     bool		setDef(const char*); // Will add var- and constdefs
-    MathProperty*	getProperty(const Mnemonic* mn=nullptr) const;
+    MathProperty*	getProperty(const PropertyRef* pr=nullptr) const;
 
 };
 
@@ -99,7 +100,7 @@ public:
 			~FormulaSet();
 
     int			getIndexOf(const char*) const;
-    void		getRelevant(PropertyRef::StdType,
+    void		getRelevant(Formula::PropType,
 				    BufferStringSet&) const;
 
     const Formula*	getByName( const char* nm ) const

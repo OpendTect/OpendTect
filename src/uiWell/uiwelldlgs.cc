@@ -1876,21 +1876,23 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 	    logs_ += log;
 	    const char* curruom = log->unitMeasLabel();
 	    const char* currmnem = log->mnemLabel();
-	    Mnemonic* mn = nullptr;
+	    const Mnemonic* mn = nullptr;
 	    const UnitOfMeasure* uom = nullptr;
 	    if ( currmnem )
-		mn = eMNC().find( currmnem );
+		mn = MNC().getByName( currmnem, false );
 
 	    if ( curruom )
 		uom = UnitOfMeasure::getGuessed( curruom );
 
 	    if ( !mn )
-		mn = eMNC().getGuessed( uom );
+		mn = &MNC().getGuessed( uom );
+	    if ( mn->isUdf() )
+		mn = nullptr;
 
-	    uiUnitSel::Setup ussu( mn ? mn->stdType() : PropertyRef::Other,
+	    uiUnitSel::Setup ussu( mn ? mn->stdType() : Mnemonic::Other,
 				   uiStrings::sEmptyString(), mn );
 	    ussu.selmnemtype( true );
-	    uiUnitSel* unfld = new uiUnitSel( 0, ussu );
+	    auto* unfld = new uiUnitSel( nullptr, ussu );
 	    if ( mn )
 		unfld->setMnemonic( *mn );
 
@@ -1971,7 +1973,7 @@ void uiSetD2TFromOtherWell::inpSelCB( CallBacker* )
 {
     const MultiID key = inpwellfld_->key( true );
     RefMan<Well::Data> wd =
- 	key.isUdf() ? nullptr : Well::MGR().get( key, Well::Inf );
+	key.isUdf() ? nullptr : Well::MGR().get( key, Well::Inf );
     if ( !wd )
 	return;
 

@@ -10,11 +10,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "enums.h"
-#include "bufstringset.h"
+#include "propertyref.h"
 #include "repos.h"
-#include "property.h"
 
 /*!
 \brief Elastic formula def to generate elastic layers.
@@ -47,10 +44,10 @@ public:
     inline Type type() const		{ return type_; }
     inline bool hasType( Type t ) const { return type_ == t;}
 
-    BufferStringSet&	variables()		{ return variables_; }
     const BufferStringSet& variables() const	{ return variables_; }
-    BufferStringSet&	units()		{ return units_; }
+    BufferStringSet&	variables()		{ return variables_; }
     const BufferStringSet& units() const	{ return units_; }
+    BufferStringSet&	units()			{ return units_; }
     const char*		parseVariable(int idx,float&) const;
 
     void		fillPar(IOPar&) const;
@@ -58,11 +55,15 @@ public:
 
 protected:
 
+
     BufferString	expression_;
     BufferStringSet	variables_;
     BufferStringSet	units_;
 
     Type		type_;
+
+    friend class ElasticFormulaRepository;
+    friend class ElasticPropGuess;
 };
 
 
@@ -103,13 +104,17 @@ mGlobal(General) ElasticFormulaRepository& ElFR();
 \brief Elastic property reference data.
 */
 
-mExpClass(General) ElasticProperty : public ValueProperty
+mExpClass(General) ElasticPropertyRef : public PropertyRef
 {
 public:
+			ElasticPropertyRef(const Mnemonic&,const char*,
+					   const ElasticFormula&);
 
-			ElasticProperty(const char* nm,const ElasticFormula&);
+    ElasticPropertyRef* clone() const override;
 
-    static PropertyRef::StdType elasticToStdType(ElasticFormula::Type);
+    bool		isElasticForm() const override	{ return true; }
+
+    static Mnemonic::StdType elasticToStdType(ElasticFormula::Type);
 
     ElasticFormula&	formula()		{ return formula_; }
     const ElasticFormula& formula() const	{ return formula_; }
@@ -117,7 +122,7 @@ public:
     ElasticFormula::Type elasticType()		{ return formula_.type(); }
     ElasticFormula::Type elasticType() const	{ return formula_.type(); }
 
-protected:
+private:
 
     ElasticFormula	formula_;
 

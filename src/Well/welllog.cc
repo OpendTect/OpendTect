@@ -11,8 +11,8 @@
 #include "bufstringset.h"
 #include "iopar.h"
 #include "idxable.h"
-#include "mnemonics.h"
 #include "paralleltask.h"
+#include "propertyref.h"
 #include "stattype.h"
 #include "unitofmeasure.h"
 
@@ -169,8 +169,8 @@ void Well::LogSet::removeTopBottomUdfs()
 }
 
 
-TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
-	const Mnemonic* altmn, BoolTypeSet* arealt ) const
+TypeSet<int> Well::LogSet::getSuitable( Mnemonic::StdType ptype,
+	const PropertyRef* altpr, BoolTypeSet* arealt ) const
 {
     TypeSet<int> ret;
     if ( arealt )
@@ -181,10 +181,10 @@ TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
 	const char* loguomlbl = logs_[idx]->unitMeasLabel();
 	const UnitOfMeasure* loguom = UnitOfMeasure::getGuessed( loguomlbl );
 	bool isalt = false;
-	bool isok = !loguom || ptype == PropertyRef::Other
+	bool isok = !loguom || ptype == Mnemonic::Other
 		 || loguom->propType() == ptype;
-	if ( !isok && altmn )
-	    isok = isalt = loguom->propType() == altmn->stdType();
+	if ( !isok && altpr )
+	    isok = isalt = loguom->propType() == altpr->stdType();
 	if ( isok )
 	{
 	    ret += idx;
@@ -210,11 +210,13 @@ const char* Well::Log::mnemLabel() const
 
 const Mnemonic* Well::Log::mnemonic() const
 {
-    if (!mnemlbl_.isEmpty())
-	return MNC().find( mnemlbl_ );
+    if ( mnemlbl_.isEmpty() )
+    {
+	return isCode() ? &MNC().getGuessed( propType() )
+			: &MNC().getGuessed( unitOfMeasure() );
+    }
     else
-	return isCode() ? MNC().getGuessed( propType() )
-			: MNC().getGuessed( unitOfMeasure() );
+	return MNC().getByName( mnemlbl_, false );
 }
 
 
@@ -372,18 +374,18 @@ void Well::Log::convertTo( const UnitOfMeasure* touom )
 	unitmeaslbl_ = touom->symbol();
     else
     {
-	PropertyRef::StdType tp = curuom->propType();
+	Mnemonic::StdType tp = curuom->propType();
 	const UnitOfMeasure* siuom = UoMR().getInternalFor( tp );
 	unitmeaslbl_ = siuom ? siuom->symbol() : "";
     }
 }
 
 
-PropertyRef::StdType Well::Log::propType() const
+Mnemonic::StdType Well::Log::propType() const
 {
     const UnitOfMeasure* uom = unitOfMeasure();
     return uom ? uom->propType() : ( isCode() ?
-	    PropertyRef::Class : PropertyRef::Other );
+	    Mnemonic::Class : Mnemonic::Other );
 }
 
 
@@ -518,7 +520,7 @@ Well::Log* Well::Log::upScaleLog( const StepInterval<float>& dahrg ) const
     Well::Log* outlog = createSampledLog( dahrg, 1.0 );
     const Stats::UpscaleType uptype = isCode() ? Stats::UseMostFreq :
 						    Stats::UseAvg;
-    const bool logisvel = propType() == PropertyRef::Vel;
+    const bool logisvel = propType() == Mnemonic::Vel;
     LogUpScaler upscaler( outlog->size(), *this, *outlog, dahrg, uptype,
 			    logisvel );
     upscaler.execute();

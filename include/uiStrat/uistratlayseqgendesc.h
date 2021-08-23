@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "factory.h"
 
-class PropertySelection;
+class PropertyRefSelection;
 
 class uiParent;
 class uiObject;
@@ -60,7 +60,7 @@ protected:
 
     Strat::LayerSequenceGenDesc& desc_;
     bool		needsave_;
-    bool		isValidSelection(const PropertySelection&) const;
+    bool		isValidSelection(const PropertyRefSelection&) const;
 
 public:
 	const Strat::LayerSequenceGenDesc& currentDesc() const;

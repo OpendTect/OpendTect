@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "stratreftree.h"
 #include "stratunitrefiter.h"
 #include "propertyref.h"
-#include "property.h"
 #include "stattype.h"
 #include "uilistbox.h"
 #include "uilabel.h"
@@ -97,7 +96,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	new uiLabel( integrgrp_, tr("Statistics on results"), stattypfld_ );
 #   define mAddStatItm(enm) \
 	stattypfld_->addItem( toUiString(Stats::TypeNames()[Stats::enm]) );
-	if ( attr_.prop_.mnem().hasType(PropertyRef::Dist) )
+	if ( attr_.prop_.hasType(Mnemonic::Dist) )
 	    mAddStatItm(Sum);
 
 	mAddStatItm(Average); mAddStatItm(Median); mAddStatItm(StdDev);

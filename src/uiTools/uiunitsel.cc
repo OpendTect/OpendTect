@@ -29,7 +29,7 @@ uiUnitSel::uiUnitSel( uiParent* p, const uiUnitSel::Setup& su )
 }
 
 
-uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType st )
+uiUnitSel::uiUnitSel( uiParent* p, Mnemonic::StdType st )
     : uiGroup(p,"UnitSel")
     , setup_(st)
     , selChange(this)
@@ -39,10 +39,10 @@ uiUnitSel::uiUnitSel( uiParent* p, PropertyRef::StdType st )
 }
 
 
-uiUnitSel::uiUnitSel( uiParent* p, Mnemonic* mn )
+uiUnitSel::uiUnitSel( uiParent* p, const Mnemonic* mn )
     : uiGroup(p,"UnitSel")
-    , setup_(mn ? mn->propRefType().stdType()
-		: PropertyRef::Dist, toUiString(""), mn )
+    , setup_(mn ? mn->stdType()
+		: Mnemonic::Dist, toUiString(""), mn )
     , selChange(this)
     , propSelChange(this)
 {
@@ -53,7 +53,7 @@ uiUnitSel::uiUnitSel( uiParent* p, Mnemonic* mn )
 
 uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
     : uiGroup(p,"UnitSel")
-    , setup_(SI().zIsTime() ? PropertyRef::Time : PropertyRef::Dist,
+    , setup_(SI().zIsTime() ? Mnemonic::Time : Mnemonic::Dist,
 	     mToUiStringTodo(lbltxt))
     , selChange(this)
     , propSelChange(this)
@@ -73,12 +73,12 @@ void uiUnitSel::init()
     units_.allowNull( true );
     tblkey_ = setup_.lbltxt_.getFullString();
     if ( tblkey_.isEmpty() )
-	tblkey_ = PropertyRef::StdTypeNames()[setup_.ptype_];
+	tblkey_ = Mnemonic::StdTypeNames()[setup_.ptype_];
 
     if ( setup_.selproptype_ )
     {
 	propfld_ = new uiComboBox( this, "Properties" );
-	const BufferStringSet typnms( PropertyRef::StdTypeNames() );
+	const BufferStringSet typnms( Mnemonic::StdTypeNames() );
 	propfld_->addItems( typnms );
 	propfld_->setCurrentItem( (int)setup_.ptype_ );
 	mAttachCB( propfld_->selectionChanged, uiUnitSel::propSelChg );
@@ -154,7 +154,7 @@ IOPar& uiUnitSel::lastUsed()
 }
 
 
-void uiUnitSel::setPropFld( PropertyRef::StdType typ )
+void uiUnitSel::setPropFld( Mnemonic::StdType typ )
 {
     setup_.ptype_ = typ;
     if ( propfld_ )
@@ -167,7 +167,7 @@ void uiUnitSel::setPropFld( PropertyRef::StdType typ )
 }
 
 
-void uiUnitSel::setMnemFld( Mnemonic* mn )
+void uiUnitSel::setMnemFld( const Mnemonic* mn )
 {
     if ( mnfld_ )
     {
@@ -279,32 +279,31 @@ double uiUnitSel::getInternalValue( double val ) const
 { return gtIntnValue( getUnit(), val ); }
 
 
-void uiUnitSel::setPropType( PropertyRef::StdType typ )
+void uiUnitSel::setPropType( Mnemonic::StdType typ )
 {
     setPropFld( typ );
     usePar( lastUsed() );
 }
 
 
-Mnemonic* uiUnitSel::mnemonic() const
+const Mnemonic* uiUnitSel::mnemonic() const
 {
     return setup_.mn_;
 }
 
 
-void uiUnitSel::setMnemonic( Mnemonic& mn )
+void uiUnitSel::setMnemonic( const Mnemonic& mn )
 {
     setMnemFld( &mn );
-    const char* res = mn.disp_.unit_;
-    const UnitOfMeasure* un = UoMR().get( res );
+    const UnitOfMeasure* un = UoMR().get( mn.disp_.getUnitLbl() );
     setUnFld( un );
 }
 
 
 const char* uiUnitSel::tblKey() const
 {
-    if ( setup_.ptype_ != PropertyRef::Other )
-	return PropertyRef::StdTypeNames()[setup_.ptype_];
+    if ( setup_.ptype_ != Mnemonic::Other )
+	return Mnemonic::StdTypeNames()[setup_.ptype_];
     return tblkey_;
 }
 
@@ -322,7 +321,7 @@ bool uiUnitSel::usePar( const IOPar& iop, const char* altkey )
     if ( res && *res )
     {
 	const UnitOfMeasure* un = UoMR().get( res );
-	if ( setup_.ptype_ == PropertyRef::Other
+	if ( setup_.ptype_ == Mnemonic::Other
 		|| (un && un->propType() == setup_.ptype_) )
 	{
 	    setUnFld( un );
@@ -354,10 +353,10 @@ void uiUnitSel::update()
 				    : (setup_.withnone_ ? sDispNone : "") );
     inpfld_->setEmpty();
     if ( propfld_ )
-	setup_.ptype_ = (PropertyRef::StdType)propfld_->currentItem();
+	setup_.ptype_ = (Mnemonic::StdType)propfld_->currentItem();
 
     if ( mnfld_ )
-	setup_.mn_ = eMNC().find( mnfld_->text() );
+	setup_.mn_ = MNC().getByName( mnfld_->text() );
 
     units_.erase();
     if ( setup_.mn_ )
@@ -366,14 +365,14 @@ void uiUnitSel::update()
 	UoMR().getRelevant( setup_.ptype_, units_ );
 
     if ( setup_.withnone_ )
-	units_.insertAt( 0, 0 );
+	units_.insertAt( nullptr, 0 );
 
     for ( int idx=0; idx<units_.size(); idx++ )
 	inpfld_->addItem( getSelTxt(units_[idx]) );
 
     if ( !olddef.isEmpty() && inpfld_->isPresent(olddef) )
 	inpfld_->setText( olddef );
-    else if ( setup_.ptype_ == PropertyRef::Dist )
+    else if ( setup_.ptype_ == Mnemonic::Dist )
 	inpfld_->setText( mFromUiStringTodo(getSelTxt(
 					UnitOfMeasure::surveyDefDepthUnit())) );
 }

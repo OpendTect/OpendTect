@@ -106,19 +106,14 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
 {
     if ( desc_.propSelection().size() < 2 )
     {
-	PropertySelection prs( desc_.propSelection() );
-	int pidx = PROPS().indexOf( PropertyRef::Den );
-	if ( pidx >= 0 )
-	    prs.add( &PROPS().get(pidx) );
+	PropertyRefSelection prs( desc_.propSelection() );
+	if ( !ePROPS().ensureHasElasticProps(false,true) )
+	    return;
 
-	pidx = PROPS().indexOf( PropertyRef::Vel );
-	if ( pidx >= 0 )
-	    prs.add( &PROPS().get(pidx) );
-
-	pidx = PROPS().indexOf( PropertyRef::Imp );
-	if ( pidx >= 0 )
-	    prs.add( &PROPS().get(pidx) );
-
+	const PropertyRefSet& props = PROPS();
+	prs.add( props.getByMnemonic(Mnemonic::defDEN()) )
+	   .add( props.getByMnemonic(Mnemonic::defPVEL()) )
+	   .add( props.getByMnemonic(Mnemonic::defAI()) );
 	desc_.setPropSelection( prs );
     }
 
@@ -129,25 +124,22 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
 
 
 bool uiLayerSequenceGenDesc::isValidSelection(
-	const PropertySelection& props ) const
+				const PropertyRefSelection& props ) const
 {
     if ( props.isEmpty() )
 	mErrRet( tr("No property is selected.") )
-    if ( !props[0]->isThickness() )
+
+    if ( !props.first()->isThickness() )
     {
 	pErrMsg( "Thickness should always be the first property" );
 	return false;
     }
 
-    PropertySelection densityprops =
-	props.subselect( *MNC().getGuessed(PropertyRef::Den) );
-    if ( densityprops.isEmpty() )
+    if ( !props.getByMnemonic(Mnemonic::defDEN()) )
 	mErrRet( tr("No property of type 'Density' selected") )
 
-    PropertySelection velocityprops =
-	props.subselect( *MNC().getGuessed(PropertyRef::Vel) );
-    if ( velocityprops.isEmpty() )
-	mErrRet( tr("No property of type 'Velocity' selected") )
+    if ( !props.getByMnemonic(Mnemonic::defPVEL()) )
+	mErrRet( tr("No property of type 'P-wave velocity' selected") )
 
     return true;
 }
@@ -164,8 +156,8 @@ const Strat::LayerSequenceGenDesc& uiLayerSequenceGenDesc::currentDesc() const
 
 bool uiLayerSequenceGenDesc::selProps()
 {
-    PropertySelection prs( desc_.propSelection() );
-    uiSelectProps dlg( outerObj()->parent(), prs );
+    PropertyRefSelection prs( desc_.propSelection() );
+    uiSelectPropRefs dlg( outerObj()->parent(), prs );
     const bool ret = dlg.go();
     if ( ret || dlg.structureChanged() )
     {
@@ -236,8 +228,8 @@ void uiExtLayerSequenceGenDesc::setFromEditDesc()
 
 bool uiExtLayerSequenceGenDesc::selProps()
 {
-    PropertySelection prs( editdesc_.propSelection() );
-    uiSelectProps dlg( outerObj()->parent(), prs );
+    PropertyRefSelection prs( editdesc_.propSelection() );
+    uiSelectPropRefs dlg( outerObj()->parent(), prs );
     const bool ret = dlg.go();
     if ( ret || dlg.structureChanged() )
     {
@@ -395,9 +387,9 @@ uiBasicLayerSequenceGenDesc::DispUnit::DispUnit( uiGraphicsScene& scn,
 	gen_ = slg;
     else
     {
-	Strat::SingleLayerGenerator* newgen = new Strat::SingleLayerGenerator;
+	auto* newgen = new Strat::SingleLayerGenerator;
 	gen_ = newgen; genmine_ = true;
-	Property& pr = newgen->properties().get(0);
+	Property& pr = *newgen->properties().first();
 	mDynamicCastGet(ValueProperty*,vpr,&pr)
 	vpr->val_ = lg.dispThickness();
     }
@@ -478,8 +470,8 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     DispUnit& disp = *disps_[idx];
     if ( disp.gen_->properties().isEmpty() )
 	return;
-    const Property& thprop = disp.gen_->properties().get( 0 );
-    if ( !thprop.isThickness() )
+    const Property& thprop = *disp.gen_->properties().first();
+    if ( !thprop.ref().isThickness() )
     {
 	pErrMsg( "Thickness should always be the first property" );
 	return;
@@ -591,25 +583,38 @@ public:
 
 uiSimpPropertyEd( uiParent* p, const Property& prop )
     : uiGroup(p,prop.ref().name())
+    , pruom_(prop.ref().unit())
 {
-    const char* opts[] = { "Value", "Range", 0 };
-    typfld_ = new uiComboBox(this, opts, BufferString(prop.name(), " type"));
-    typfld_->selectionChanged.notify( mCB(this,uiSimpPropertyEd,updDisp) );
-    typfld_->setHSzPol( uiObject::Small );
-    prelbl_ = new uiLabel( this, toUiString(prop.name()), typfld_ );
+    const PropertyRef& pr = prop.ref();
+
+    const char* opts[] = { "Value", "Range", nullptr };
+    typfld_ = new uiComboBox(this, opts, BufferString(pr.name(), " type"));
+    typfld_->setHSzPol( uiObject::Medium );
+    mAttachCB( typfld_->selectionChanged, uiSimpPropertyEd::updDisp );
+
+    prelbl_ = new uiLabel( this, toUiString(pr.name()), typfld_ );
     valfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec() );
     rgfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec(),
 			     FloatInpSpec() );
-    uiUnitSel::Setup ussu( prop.mnem().stdType() ); ussu.withnone( true );
+    uiUnitSel::Setup ussu( pr.stdType() ); ussu.withnone( true );
     unfld_ = new uiUnitSel( this, ussu );
+    unfld_->setUnit( prop.ref().unit() );
+    mAttachCB( unfld_->selChange, uiSimpPropertyEd::unitChgCB );
 
     valfld_->attach( rightOf, typfld_ );
     rgfld_->attach( rightOf, typfld_ );
     unfld_->attach( rightOf, rgfld_ );
 
     setFrom( prop );
-    postFinalise().notify( mCB(this,uiSimpPropertyEd,updDisp) );
+    prevuom_ = pruom_;
     setHAlignObj( valfld_ );
+
+    mAttachCB( postFinalise(), uiSimpPropertyEd::updDisp );
+}
+
+~uiSimpPropertyEd()
+{
+    detachAllNotifiers();
 }
 
 bool isRg() const
@@ -625,74 +630,91 @@ void updDisp( CallBacker* )
 }
 
 
-void setFldVal( uiGenInput* inp, float val, const UnitOfMeasure* un, int fldnr )
+void unitChgCB( CallBacker* )
 {
-    const bool isudf = mIsUdf(val);
-    if ( un && !isudf )
-	val = un->getUserValueFromSI( val );
-    inp->setValue( val, fldnr );
+    const UnitOfMeasure* curuom = unfld_->getUnit();
+    if ( prevuom_ == curuom )
+	return;
+
+    float val = valfld_->getFValue();
+    Interval<float> rg = rgfld_->getFInterval();
+    convValue( val, prevuom_, curuom );
+    convValue( rg.start, prevuom_, curuom );
+    convValue( rg.stop, prevuom_, curuom );
+
+    prevuom_ = curuom;
+
+    valfld_->setValue( val );
+    rgfld_->setValue( rg.start, 0 );
+    rgfld_->setValue( rg.stop, 1 );
 }
 
 
 void setFrom( const Property& prop )
 {
     const UnitOfMeasure* un = unfld_->getUnit();
-    mDynamicCastGet(const RangeProperty*,rgprop,&prop)
-    if ( rgprop )
+    if ( prop.isRange() )
     {
+	mDynamicCastGet(const RangeProperty*,rgprop,&prop)
 	typfld_->setCurrentItem( 1 );
 	setFldVal( rgfld_, rgprop->rg_.start, un, 0 );
 	setFldVal( rgfld_, rgprop->rg_.stop, un, 1 );
 	const float val =  mIsUdf(rgprop->rg_.start)	? rgprop->rg_.stop
-		      : (mIsUdf(rgprop->rg_.stop)	? rgprop->rg_.start
+			: (mIsUdf(rgprop->rg_.stop)	? rgprop->rg_.start
 							: rgprop->rg_.center());
 	setFldVal( valfld_, val, un, 0 );
     }
     else
     {
 	typfld_->setCurrentItem( 0 );
-	float val = prop.value( mPropertyEvalAvg );
+	const float val = prop.value( mPropertyEvalAvg );
 	setFldVal( rgfld_, val, un, 0 );
 	setFldVal( rgfld_, val, un, 1 );
 	setFldVal( valfld_, val, un, 0 );
     }
 }
 
+
+void setFldVal( uiGenInput* inp, float val, const UnitOfMeasure* un, int fldnr )
+{
+    const float newval = getConvertedValue( val, pruom_, un );
+    inp->setValue( newval, fldnr );
+}
+
+
 bool getRange()
 {
     const UnitOfMeasure* un = unfld_->getUnit();
-    if ( !isRg() )
-    {
-	const float val = valfld_->getFValue();
-	if ( mIsUdf(val) )
-	    return false;
-	rg_.start = !un ? val : un->getSIValue( val );
-    }
-    else
+    if ( isRg() )
     {
 	Interval<float> rg = rgfld_->getFInterval();
 	if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
 	    return false;
-	rg_ = rg;
-	if ( un )
-	{
-	    rg_.start = un->getSIValue( rg_.start );
-	    rg_.stop = un->getSIValue( rg_.stop );
-	}
+
+	rg_.start = getConvertedValue( rg.start, un, pruom_ );
+	rg_.stop = getConvertedValue( rg.stop, un, pruom_ );
     }
+    else
+    {
+	const float val = valfld_->getFValue();
+	if ( mIsUdf(val) )
+	    return false;
+	rg_.start = getConvertedValue( val, un, pruom_ );
+    }
+
     return true;
 }
 
 bool setProp( PropertySet& props, int idx )
 {
-    if ( !getRange() ) return false;
+    if ( !getRange() )
+	return false;
 
-    const Property& oldprop = props.get( idx );
+    const Property& oldprop = *props.get( idx );
     Property* newprop = isRg()
-		? (Property*)new RangeProperty( oldprop.mnem(), rg_ )
-		: (Property*)new ValueProperty( oldprop.name(),
-						oldprop.mnem(), rg_.start );
-    props.replace( idx, newprop );
+		? (Property*)new RangeProperty( oldprop.ref(), rg_ )
+		: (Property*)new ValueProperty( oldprop.ref(), rg_.start );
+    delete props.replace( idx, newprop );
 
     return true;
 }
@@ -703,6 +725,8 @@ bool setProp( PropertySet& props, int idx )
     uiGenInput*		valfld_;
     uiGenInput*		rgfld_;
     uiUnitSel*		unfld_;
+    const UnitOfMeasure* prevuom_;
+    const UnitOfMeasure* pruom_;
 
     Interval<float>	rg_;
 
@@ -715,7 +739,7 @@ public:
 
 uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 			  const Strat::RefTree& rt,
-			  const PropertySelection& proprefs,
+			  const PropertyRefSelection& proprefs,
 			  const Strat::SingleLayerGenerator* nearun=0 )
     : uiDialog(p,uiDialog::Setup(inpun ? tr("Edit layer") : tr("Create layer"),
 				 tr("Define layer generation"),
@@ -749,46 +773,46 @@ uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
     uiSimpPropertyEd* prevfld = 0;
     for ( int iprop=0; iprop<proprefs.size(); iprop++ )
     {
-	const Property& pr = *proprefs[iprop];
-
-	const int idxof = props.indexOf( pr );
-	if ( idxof >= 0 )
-	    workprops_.add( props.get(idxof).clone() );
+	const PropertyRef& pr = *proprefs[iprop];
+	const Property* prop = props.getByName( pr.name(), false );
+	if ( prop )
+	    workprops_.add( prop->clone() );
 	else if ( pr.hasFixedDef() )
 	    workprops_.add( pr.fixedDef().clone() );
 	else
 	{
-	    Property* toadd = 0;
-	    if ( pr.defval_ )
+	    Property* toadd = nullptr;
+	    if ( pr.disp_.defval_ )
 	    {
-		const BufferString typ = pr.defval_->type();
+		const BufferString typ = pr.disp_.defval_->type();
 		if ( typ == ValueProperty::typeStr()
 		  || typ == RangeProperty::typeStr() )
-		    toadd = pr.defval_->clone();
+		    toadd = pr.disp_.defval_->clone();
 	    }
 	    if ( !toadd )
 	    {
-		float defval = pr.commonValue();
+		float defval = pr.disp_.commonValue();
 		if ( nearun )
 		{
-		    const int nidxof = nearun->properties().indexOf( pr );
-		    if ( nidxof >= 0 )
+		    const Property* nearunprop =
+			    nearun->properties().getByName( pr.name(), false );
+		    if ( nearunprop )
 		    {
-			const float newdv = nearun->properties().get(nidxof)
-						.value( mPropertyEvalAvg );
+			const float newdv =
+					nearunprop->value( mPropertyEvalAvg );
 			if ( !mIsUdf(newdv) )
 			    defval = newdv;
 		    }
 		}
-		toadd = new ValueProperty( pr.name(), pr.mnem(), defval );
+		toadd = new ValueProperty( pr, defval );
 	    }
 	    workprops_.add( toadd );
 	}
 
-	uiSimpPropertyEd* fld = 0;
+	uiSimpPropertyEd* fld = nullptr;
 	if ( !pr.hasFixedDef() )
 	{
-	    fld = new uiSimpPropertyEd( propgrp, workprops_.get(iprop) );
+	    fld = new uiSimpPropertyEd( propgrp, *workprops_.get(iprop) );
 	    if ( prevfld )
 		fld->attach( alignedBelow, prevfld );
 	    prevfld = fld;
@@ -819,7 +843,7 @@ bool acceptOK( CallBacker* )
 	uiSimpPropertyEd* fld = propflds_[idx];
 	if ( fld && !fld->setProp(workprops_,idx) )
 	{
-	    const Property& prop = workprops_.get(idx);
+	    const Property& prop = *workprops_.get(idx);
 	    uiMSG().error(tr("Please fill the values for '%1'")
 			.arg(prop.name()));
 	    return false;

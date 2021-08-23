@@ -53,8 +53,8 @@ public:
 
     virtual bool	reset() const	{ return true; }
     virtual uiString	errMsg() const	{ return uiString::emptyString(); }
-    virtual void	syncProps(const PropertySelection&)		= 0;
-    virtual void	updateUsedProps(PropertySelection&) const	= 0;
+    virtual void	syncProps(const PropertyRefSelection&)		= 0;
+    virtual void	updateUsedProps(PropertyRefSelection&) const	= 0;
 
     void		setGenDesc( LayerSequenceGenDesc* gd )	{ gendesc_=gd; }
 
@@ -85,8 +85,8 @@ public: \
     virtual float	dispThickness(bool max=true) const; \
     virtual bool	usePar(const IOPar&,const Strat::RefTree&); \
     virtual void	fillPar(IOPar&) const; \
-    virtual void	syncProps(const PropertySelection&); \
-    virtual void	updateUsedProps(PropertySelection&) const
+    virtual void	syncProps(const PropertyRefSelection&); \
+    virtual void	updateUsedProps(PropertyRefSelection&) const
 
 
 

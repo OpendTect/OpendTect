@@ -1,6 +1,6 @@
-dTect V4.3
+dTect V6.8
 Properties
-Fri Apr 13 16:46:39 2012
+Mon Aug 16 03:02:44 2021
 !
 Density: Density
 Aliases: Den`Rho`RhoB`RhoZ
@@ -8,13 +8,13 @@ Color: 0`0`200
 Range: 2.2`2.8`g/cc
 !
 Pwave velocity: Velocity
-Aliases: PVel`Vel`V
+Aliases: PVel`Vel`V`PWave`P-wave`P-wave velocity
 Color: 0`200`0
 Range: 1500`4500`m/s
 DefaultValue: Value`2000
 !
 Swave velocity: Velocity
-Aliases: SVel`Svel
+Aliases: SVel`Svel`SWave`S-wave`S-wave velocity
 Color: 0`255`0
 Range: 500`2000`m/s
 DefaultValue: Value`1400
@@ -23,7 +23,7 @@ Porosity: Volumetrics
 Aliases: Phi`Por`Phie`PIGN
 Color: 200`200`0
 Range: 0`30`%
-DefaultValue: Value`0.1
+DefaultValue: Value`10
 !
 Permeability: Permeability
 Aliases: Perm
@@ -59,25 +59,25 @@ Range: 40`240`us/ft
 Acoustic Impedance: Impedance
 Aliases: AI`Pimpedance
 Color: 255`150`0
-Range: 2e6`2e7
+Range: 2000`20000`m/s x g/cc
 Definition: Formula: +## [Expression] ## [den * vel] ##.+## [Input.0.Def] ## [Density] ##.+## [Input.1.Def] ## [Pwave velocity] ##.
 !
 Elastic Impedance: Impedance
 Aliases: EI
 Color: 200`255`100
-Range: 2e6`2e7
+Range: 2000`20000`m/s x g/cc
 !
 Shear Impedance: Impedance
 Aliases: SI
 Color: 100`255`100
-Range: 2e6`2e7
+Range: 2000`20000`m/s x g/cc
 Definition: Formula: +## [Expression] ## [den * vel] ##.+## [Input.0.Def] ## [Density] ##.+## [Input.1.Def] ## [Swave velocity] ##.
 !
 Water Saturation: Volumetrics
 Aliases: Sat`SW`SWE
 Color: 0`200`255
 Range: 0`100`%
-DefaultValue: Value`1
+DefaultValue: Value`100
 !
 Spontaneous Potential: Electrical Potential
 Aliases: SP
@@ -120,10 +120,10 @@ Color: 100`200`100
 Range: 2e-10`2e-06
 !
 Vshale: Volumetrics
-Aliases: Vclay`VCL`VSH
+Aliases: Vclay`VCL`VSH`Volume of Shale
 Color: 100`200`100
 Range: 0`100`%
-DefaultValue: Value`1
+DefaultValue: Value`100
 !
 Delta: Anisotropy
 Color: 150`200`150

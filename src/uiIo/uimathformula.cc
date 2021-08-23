@@ -75,9 +75,9 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 
     if ( setup_.withunits_ )
     {
-	const bool haveproptype = setup_.proptype_ != PropertyRef::Other;
-	uiUnitSel::Setup uussu( PropertyRef::Other,
-		haveproptype ? tr("Formula output unit") : 
+	const bool haveproptype = setup_.proptype_ != Mnemonic::Other;
+	uiUnitSel::Setup uussu( Mnemonic::Other,
+		haveproptype ? tr("Formula output unit") :
 			       tr("Formula result is") );
 	uussu.selproptype( !haveproptype ).withnone( true );
 	unitfld_ = new uiUnitSel( this, uussu );
@@ -207,7 +207,7 @@ bool uiMathFormula::updateForm() const
 }
 
 
-bool uiMathFormula::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
+bool uiMathFormula::useForm( const TypeSet<Mnemonic::StdType>* inputtypes )
 {
     const bool isbad = form_.isBad();
     if ( !isbad )
@@ -222,7 +222,7 @@ bool uiMathFormula::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 	if ( !isbad && idx<form_.nrInputs() )
 	{
 	    const int specidx = form_.specIdx( idx );
-	    PropertyRef::StdType ptyp = PropertyRef::Other;
+	    Mnemonic::StdType ptyp = Mnemonic::Other;
 	    if ( specidx < 0 && inputtypes && inputtypes->validIdx(idx) )
 		ptyp = (*inputtypes)[idx];
 	    inpfld.setPropType( ptyp );
@@ -356,7 +356,7 @@ class uiMathFormulaEdRec : public uiDialog
 public:
 
 uiMathFormulaEdRec( uiParent* p, Math::Formula& form, const char* s_if_2 )
-    : uiDialog( this, Setup( 
+    : uiDialog( this, Setup(
 	tr("Recursion start value %1").arg(toUiString(s_if_2)),
 	tr("Recursive formula: Starting value %1").arg(toUiString(s_if_2)),
 	mNoHelpKey) )
@@ -434,7 +434,7 @@ void uiMathFormula::readReq( CallBacker* )
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(Math::Formula::sKeyFileType()) )
-	{ uiMSG().error(tr("Input file is not of 'Math Formula' type")); 
+	{ uiMSG().error(tr("Input file is not of 'Math Formula' type"));
           return; }
     IOPar iop( astrm );
     form_.usePar( iop );

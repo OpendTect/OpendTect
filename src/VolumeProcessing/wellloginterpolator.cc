@@ -98,7 +98,7 @@ bool init( InterpolationLayerModel& layermodel )
     if ( !log )
 	return false;
 
-    logisvelocity_ = log->propType() == PropertyRef::Vel;
+    logisvelocity_ = log->propType() == Mnemonic::Vel;
 
     delete log_;
     log_ = applyFilter( *wd, *log );

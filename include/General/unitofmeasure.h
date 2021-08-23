@@ -11,9 +11,10 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "propertyref.h"
-#include "scaler.h"
+
+#include "mnemonics.h"
 #include "repos.h"
+#include "scaler.h"
 #include "survinfo.h"
 
 class UnitOfMeasureRepository;
@@ -34,11 +35,13 @@ mExpClass(General) UnitOfMeasure : public NamedObject
 { mODTextTranslationClass(UnitOfMeasure);
 public:
 
+    typedef Mnemonic::StdType PropType;
+
 			UnitOfMeasure()
-			    : proptype_(PropertyRef::Other)
+			    : proptype_(Mnemonic::Other)
 			    , source_(Repos::Temp) {}
 			UnitOfMeasure( const char* n, const char* s, double f,
-				      PropertyRef::StdType t=PropertyRef::Other)
+				       PropType t=Mnemonic::Other )
 			    : NamedObject(n), symbol_(s)
 			    , scaler_(0,f), source_(Repos::Temp)
 			    , proptype_(t)	{}
@@ -48,15 +51,12 @@ public:
     UnitOfMeasure&	operator =(const UnitOfMeasure&);
 
     const char*		symbol() const		{ return symbol_.buf(); }
-    PropertyRef::StdType propType() const	{ return proptype_; }
+    PropType		propType() const	{ return proptype_; }
     const LinScaler&	scaler() const		{ return scaler_; }
 
-    void		setSymbol( const char* s )
-						{ symbol_ = s; }
-    void		setScaler( const LinScaler& s )
-						{ scaler_ = s; }
-    void		setPropType( PropertyRef::StdType t )
-						{ proptype_ = t; }
+    void		setSymbol( const char* s )	{ symbol_ = s; }
+    void		setScaler( const LinScaler& s ) { scaler_ = s; }
+    void		setPropType( PropType t )	{ proptype_ = t; }
 
     bool		isImperial() const;
 
@@ -104,7 +104,7 @@ protected:
 
     BufferString	symbol_;
     LinScaler		scaler_;
-    PropertyRef::StdType proptype_;
+    PropType		proptype_;
     Repos::Source	source_;
 
 };
@@ -134,17 +134,19 @@ mExpClass(General) UnitOfMeasureRepository
 {
 public:
 
-    const UnitOfMeasure* get(PropertyRef::StdType,const char* nm) const;
+    typedef UnitOfMeasure::PropType PropType;
+
+    const UnitOfMeasure* get(PropType,const char* nm) const;
     const UnitOfMeasure* get(const char* nm) const;
     static const char*	guessedStdName(const char*);
 			//!< May return null
 
     const ObjectSet<const UnitOfMeasure>& all() const	{ return entries; }
-    void		getRelevant(PropertyRef::StdType,
+    void		getRelevant(PropType,
 				    ObjectSet<const UnitOfMeasure>&) const;
     const UnitOfMeasure* getCurDefaultFor(const char* key) const;
-    const UnitOfMeasure* getInternalFor(PropertyRef::StdType) const;
-    const UnitOfMeasure* getDefault(const char* key,PropertyRef::StdType) const;
+    const UnitOfMeasure* getInternalFor(PropType) const;
+    const UnitOfMeasure* getDefault(const char* key,PropType) const;
 
     bool		add(const UnitOfMeasure&);
 			//!< returns false when already present

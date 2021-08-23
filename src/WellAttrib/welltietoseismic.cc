@@ -593,7 +593,7 @@ bool DataPlayer::copyDataToLogSet()
     if ( denlogfrommodel && denlog )
     {
 	const UnitOfMeasure* denuomfrommodel =
-				UoMR().getInternalFor(PropertyRef::Den);
+				UoMR().getInternalFor(Mnemonic::Den);
 	if ( denuomfrommodel )
 	    denlogfrommodel->setUnitMeasLabel( denuomfrommodel->symbol() );
 
@@ -603,7 +603,7 @@ bool DataPlayer::copyDataToLogSet()
     Well::Log* ailogfrommodel = data_.logset_.getLog( data_.sKeyAI() );
     if ( ailogfrommodel && sonuom && denuom )
     {
-	const PropertyRef::StdType& impprop = PropertyRef::Imp;
+	const Mnemonic::StdType& impprop = Mnemonic::Imp;
 	const UnitOfMeasure* aiuomfrommodel = UoMR().getInternalFor( impprop );
 	ailogfrommodel->setUnitMeasLabel( aiuomfrommodel->symbol() );
 	float fact = mCast( float, denuom->scaler().factor );

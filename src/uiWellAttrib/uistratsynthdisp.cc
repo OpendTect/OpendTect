@@ -1467,9 +1467,9 @@ void uiStratSynthDisp::offsetChged( CallBacker* )
 }
 
 
-const PropertySelection& uiStratSynthDisp::modelProperties() const
+const PropertyRefSelection& uiStratSynthDisp::modelPropertyRefs() const
 {
-    return layerModel().properties();
+    return layerModel().propertyRefs();
 }
 
 

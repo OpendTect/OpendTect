@@ -57,7 +57,7 @@ public:
     void		selectSubInput(int);
     void		setUnit(const UnitOfMeasure*);
     void		setUnit(const char*);
-    void		setPropType(PropertyRef::StdType);
+    void		setPropType(Mnemonic::StdType);
 
     Notifier<uiMathExpressionVariable> inpSel;
     Notifier<uiMathExpressionVariable> subInpSel;

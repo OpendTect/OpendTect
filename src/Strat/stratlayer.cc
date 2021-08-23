@@ -10,6 +10,7 @@
 #include "mathformula.h"
 #include "mathproperty.h"
 #include "stratreftree.h"
+#include "unitofmeasure.h"
 
 
 static const char* sKeyXPos = "XPos";
@@ -32,30 +33,34 @@ BufferString Strat::LayerValue::dumpStr() const
 
 
 Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
-	const Layer& lay, const PropertySelection& prs, float xpos )
+	const Layer& lay, const PropertyRefSelection& prs, int outpridx,
+	float xpos )
     : form_(form)
     , lay_(lay)
     , myform_(false)
 {
+    inpuoms_.setNullAllowed();
     setXPos( xpos );
-    useForm( prs );
+    useForm( prs, outpridx );
 }
 
 
 Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
-		const Layer& lay, const PropertySelection& prs )
+		const Layer& lay, const PropertyRefSelection& prs,
+		int outpridx )
     : form_(*new Math::Formula(false,MathProperty::getSpecVars()))
     , lay_(lay)
     , myform_(true)
     , xpos_(0.f)
 {
+    inpuoms_.setNullAllowed();
     const_cast<Math::Formula&>(form_).usePar( iop );
 
     const char* res = iop.find( sKeyXPos );
     if ( res )
 	setXPos( toFloat(res) );
 
-    useForm( prs );
+    useForm( prs, outpridx );
 }
 
 
@@ -65,8 +70,10 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
     , myform_(cpform)
     , lay_(lay)
 {
+    inpuoms_.setNullAllowed();
     setXPos( xpos );
 }
+
 
 void Strat::FormulaLayerValue::setXPos( float xpos )
 {
@@ -75,21 +82,22 @@ void Strat::FormulaLayerValue::setXPos( float xpos )
 }
 
 
-void Strat::FormulaLayerValue::useForm( const PropertySelection& prs )
+void Strat::FormulaLayerValue::useForm( const PropertyRefSelection& prs,
+					int outidx )
 {
     const int nrinps = form_.nrInputs();
 
     for ( int iinp=0; iinp<nrinps; iinp++ )
     {
-	int inpidx = -1;
+	const PropertyRef* pr = nullptr;
 	float inpval = 0.f;
 	if ( form_.isConst(iinp) )
 	   inpval = float(form_.getConstVal(iinp));
 	else if ( !form_.isSpec(iinp) )
 	{
 	    const char* pnm = form_.inputDef( iinp );
-	    inpidx = prs.indexOf( pnm );
-	    if ( inpidx < 0 )
+	    pr = prs.getByName( pnm, false );
+	    if ( !pr )
 	    {
 		errmsg_ = tr( "%1 - Formula cannot be resolved:\n'%2'"
 			      "\nCannot find '%3'")
@@ -99,9 +107,14 @@ void Strat::FormulaLayerValue::useForm( const PropertySelection& prs )
 	    }
 	}
 
-	inpidxs_ += inpidx; // not more than one because no shifts allowed
+	// not more than one because no shifts allowed
+	inpidxs_ += pr ? prs.indexOf( pr ) : -1;
+	inpuoms_ += pr ? pr->unit() : nullptr;
 	inpvals_ += inpval;
     }
+
+    const PropertyRef* pr = prs.validIdx(outidx) ? prs.get( outidx ) : nullptr;
+    outputuom_ = pr ? pr->unit() : nullptr;
 }
 
 
@@ -118,6 +131,8 @@ Strat::FormulaLayerValue* Strat::FormulaLayerValue::clone(
     auto* ret = new FormulaLayerValue( form_, lay ? *lay : lay_,
 				       xpos_, myform_ );
     ret->inpidxs_ = inpidxs_;
+    ret->inpuoms_ = inpuoms_;
+    ret->outputuom_ = outputuom_;
     ret->inpvals_ = inpvals_;
     ret->errmsg_ = errmsg_;
     return ret;
@@ -134,7 +149,11 @@ float Strat::FormulaLayerValue::value() const
     {
 	const int inpidx = inpidxs_[iinp];
 	if ( inpidx >= 0 )
+	{
 	    inpvals_[iinp] = lay_.value( inpidx );
+	    const UnitOfMeasure* inpuom = inpuoms_.get( iinp );
+	    convValue( inpvals_[iinp], inpuom, form_.inputUnit(iinp) );
+	}
 	else
 	{
 	    if ( form_.isSpec(iinp) )
@@ -143,7 +162,8 @@ float Strat::FormulaLayerValue::value() const
 	}
     }
 
-    return form_.getValue( inpvals_.arr() );
+    const float outval = form_.getValue( inpvals_.arr() );
+    return getConvertedValue( outval, form_.outputUnit(), outputuom_ );
 }
 
 
@@ -156,9 +176,9 @@ void Strat::FormulaLayerValue::fillPar( IOPar& iop ) const
 
 //------ Layer ------
 
-const Property& Strat::Layer::thicknessProp()
+const PropertyRef& Strat::Layer::thicknessRef()
 {
-    return Property::thickness();
+    return PropertyRef::thickness();
 }
 
 
@@ -272,23 +292,23 @@ void Strat::Layer::setValue( int ival, float val )
 
 
 void Strat::Layer::setValue( int ival, const Math::Formula& form,
-			     const PropertySelection& prs, float xpos )
+			     const PropertyRefSelection& prs, float xpos )
 {
     mEnsureEnoughVals();
 
-    setLV( ival, new FormulaLayerValue(form,*this,prs,xpos) );
+    setLV( ival, new FormulaLayerValue(form,*this,prs,ival,xpos) );
 }
 
 
 void Strat::Layer::setValue( int ival, const IOPar& iop,
-				const PropertySelection& prs )
+				const PropertyRefSelection& prs )
 {
     mEnsureEnoughVals();
 
     if ( iop.size() == 1 && iop.getKey(0) == sKey::Value() )
 	setValue( ival, toFloat(iop.getValue(0)) );
     else
-	setLV( ival, new FormulaLayerValue(iop,*this,prs) );
+	setLV( ival, new FormulaLayerValue(iop,*this,prs,ival) );
 }
 
 

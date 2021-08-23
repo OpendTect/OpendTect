@@ -19,7 +19,6 @@ ________________________________________________________________________
 class CtxtIOObj;
 class IOObj;
 class PropertyRefSelection;
-class PropertySelection;
 namespace Math { class Expression; }
 
 class uiLabeledComboBox;
@@ -34,11 +33,12 @@ mExpClass(uiSeis) uiElasticPropSelGrp : public uiGroup
 public:
 				uiElasticPropSelGrp(uiParent*,
 					 const BufferStringSet&,
-					 ElasticProperty&,
+					 ElasticPropertyRef&,
 					 const TypeSet<ElasticFormula>&);
+				~uiElasticPropSelGrp();
 
-    void			setProp(const ElasticProperty& pr)
-				{ elprop_ = pr; }
+    void			setPropRef( const ElasticPropertyRef& pr )
+				{ elpropref_ = pr; }
 
     void			getFromScreen();
     void			putToScreen();
@@ -46,7 +46,7 @@ public:
     const char*			quantityName() const;
     bool			isDefinedQuantity() const;
 
-    void			updatePropNames();
+    void			updateRefPropNames();
 
 protected:
 
@@ -54,16 +54,18 @@ protected:
     uiLabeledComboBox*		selmathfld_;
     const BufferStringSet&	propnms_;
 
-    ElasticProperty&		elprop_;
+    ElasticPropertyRef&		elpropref_;
     ElasticFormula&		elformsel_;
     const TypeSet<ElasticFormula> availableformulas_;
 
-    Math::Expression*		expr_;
+    Math::Expression*		expr_ = nullptr;
 
     mExpClass(uiSeis) uiSelInpGrp : public uiGroup
     { mODTextTranslationClass(uiSelInpGrp);
     public:
-			uiSelInpGrp(uiParent*,const BufferStringSet&,int);
+				uiSelInpGrp(uiParent*,const BufferStringSet&,
+					    int);
+				~uiSelInpGrp();
 
 	const char*		textOfVariable() const;
 	void			setVariable(const char*,float val);
@@ -100,7 +102,7 @@ mExpClass(uiSeis) uiElasticPropSelDlg : public uiDialog
 { mODTextTranslationClass(uiElasticPropSelDlg);
 public:
 				uiElasticPropSelDlg(uiParent*,
-					const PropertySelection&,
+					const PropertyRefSelection&,
 					ElasticPropSelection&);
 				~uiElasticPropSelDlg();
 

@@ -171,14 +171,10 @@ bool uiStratLayerModelDisp::haveAnyZoom() const
 
 
 float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
-						const Property* pr,
+						const PropertyRef* pr,
 						int propidx ) const
 {
-    const UnitOfMeasure* uom = UoMR().getDefault( pr->name(),
-						  pr->mnem().stdType() );
-    const float sival = propidx < lay.nrValues() ? lay.value( propidx )
-						 : mUdf(float);
-    return uom ? uom->getUserValueFromSI( sival ) : sival;
+    return propidx < lay.nrValues() ? lay.value( propidx ) : mUdf(float);
 }
 
 
@@ -363,7 +359,7 @@ void selCB( CallBacker* )
 	return;
 
     Strat::LayerModel newlm;
-    PropertySelection propref;
+    PropertyRefSelection propref;
     int nrseqs = 0;
     bool mathpreserved = false;
     if ( !newlm.readHeader(*strm,propref,nrseqs,mathpreserved) )
@@ -503,8 +499,8 @@ bool uiStratLayerModelDisp::getCurPropDispPars(
 bool uiStratLayerModelDisp::setPropDispPars(const LMPropSpecificDispPars& pars)
 {
     BufferStringSet propnms;
-    for ( int idx=0; idx<layerModel().properties().size(); idx++ )
-	propnms.add( layerModel().properties().get(idx)->name() );
+    for ( int idx=0; idx<layerModel().propertyRefs().size(); idx++ )
+	propnms.add( layerModel().propertyRefs()[idx]->name() );
 
     if ( !propnms.isPresent(pars.propnm_) )
 	return false;
@@ -572,11 +568,12 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
 
 	    const int disppropidx = tools_.selPropIdx();
 	    if ( depth >= z0 && depth<= z1 &&
-		 seq.properties().validIdx(disppropidx) )
+		 seq.propertyRefs().validIdx(disppropidx) )
 	    {
-		const Property* pr = seq.properties().get( disppropidx );
-		const float val = getLayerPropValue( lay, pr, disppropidx );
-		statusbarmsg.set( pr->name(), val );
+		const PropertyRef& pr = *seq.propertyRefs()[disppropidx];
+		BufferString valstr( getLayerPropValue(lay,&pr,disppropidx) );
+		valstr.addSpace().add( pr.disp_.getUnitLbl() );
+		statusbarmsg.set( pr.name(), valstr );
 		statusbarmsg.set( "Layer", lay.name() );
 		statusbarmsg.set( "Lithology", lay.lithology().name() );
 		if ( !lay.content().isUnspecified() )
@@ -921,8 +918,7 @@ void uiStratSimpleLayerModelDisp::updZoomBox()
 	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth; \
 	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth; \
 	    const float val = \
-	      getLayerPropValue(lay, \
-				seq.properties().get(dispprop_),dispprop_); \
+	      getLayerPropValue(lay,seq.propertyRefs()[dispprop_],dispprop_); \
 
 #define mEndLayLoop() \
 	} \
@@ -1080,7 +1076,7 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
     getBounds();
     const Strat::LayerModel& lm = layerModel();
     const int nrseqs = lm.size();
-    const bool haveprop = lm.properties().validIdx(dispprop_);
+    const bool haveprop = lm.propertyRefs().validIdx(dispprop_);
     mGetDispZrg(zrg_,dispzrg);
     StepInterval<double> zrg( dispzrg.start, dispzrg.stop,
 			      dispzrg.width()/5.0f );
@@ -1088,8 +1084,7 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
 	    true, StepInterval<double>(1, nrseqs<2 ? 1 : nrseqs,1) );
     emptydp_->posData().setRange( false, zrg );
     emptydp_->setName( !haveprop ? "No property selected"
-				 : lm.properties()
-					 .get(dispprop_)->name().buf() );
+				 : lm.propertyRefs()[dispprop_]->name().buf() );
     vwr_.setViewToBoundingBox();
 }
 

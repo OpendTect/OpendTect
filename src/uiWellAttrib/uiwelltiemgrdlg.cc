@@ -153,11 +153,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     logsgrp->attach( alignedBelow, wellfld_ );
     logsgrp->attach( ensureBelow, sep );
 
-    MnemonicSelection mns;
-    for ( const auto* elprop : elpropsel_  )
-	mns += &elprop->mnem();
-
-    logsfld_ = new uiWellMnemSel( logsgrp, mns );
+    logsfld_ = new uiWellPropSel( logsgrp, elpropsel_ );
     logsfld_->logCreated.notify( wllselcb );
 
     used2tmbox_ = new uiCheckBox( logsgrp, tr("Use existing depth/time model"));
@@ -412,7 +408,7 @@ bool uiTieWinMGRDlg::getVelLogInSetup() const
 	}
 
 	const UnitOfMeasure* velpuom = vp->unitOfMeasure();
-	const PropertyRef::StdType tp = PropertyRef::Vel;
+	const Mnemonic::StdType tp = Mnemonic::Vel;
 	const bool reverted = wtsetup_.issonic_;
 	logsfld_->setLog( tp, wtsetup_.vellognm_, reverted, velpuom, mPwaveIdx);
     }
@@ -438,7 +434,7 @@ bool uiTieWinMGRDlg::getDenLogInSetup() const
 	}
 
 	const UnitOfMeasure* denuom = den->unitOfMeasure();
-	const PropertyRef::StdType tp = PropertyRef::Den;
+	const Mnemonic::StdType tp = Mnemonic::Den;
 	const bool reverted = false;
 	logsfld_->setLog( tp, wtsetup_.denlognm_, reverted, denuom,mDensityIdx);
     }
@@ -515,8 +511,8 @@ bool uiTieWinMGRDlg::initSetup()
     if ( !logsfld_->isOK() )
 	mErrRet( tr("Cannot select appropriate logs") )
 
-    uiWellSingleMnemSel* psflden = logsfld_->
-				 getMnemSelFromListByIndex( mDensityIdx );
+    uiWellSinglePropSel* psflden = logsfld_->
+				 getPropSelFromListByIndex( mDensityIdx );
     if ( !psflden )
 	mErrRet( uiStrings::phrCannotFind(
 				tr("the density in the log selection list")) )
@@ -532,8 +528,8 @@ bool uiTieWinMGRDlg::initSetup()
     den->setUnitMeasLabel( uom->symbol() );
     wtsetup_.denlognm_ = psflden->logName();
 
-    uiWellSingleMnemSel* psflvp = logsfld_->
-				getMnemSelFromListByIndex( mPwaveIdx );
+    uiWellSinglePropSel* psflvp = logsfld_->
+				getPropSelFromListByIndex( mPwaveIdx );
     if ( !psflvp )
 	mErrRet( uiStrings::phrCannotFind(
 				    tr("the Pwave in the log selection list")) )
@@ -548,7 +544,7 @@ bool uiTieWinMGRDlg::initSetup()
 
     vp->setUnitMeasLabel( uom->symbol() );
     wtsetup_.vellognm_ = psflvp->logName();
-    wtsetup_.issonic_  = psflvp->altMnemSelected();
+    wtsetup_.issonic_  = psflvp->altPropSelected();
 
     wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
     if ( wtsetup_.useexistingd2tm_ )

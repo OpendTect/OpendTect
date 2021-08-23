@@ -11,12 +11,13 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "coordsystem.h"
-#include "sets.h"
-#include "rowcol.h"
-#include "namedobj.h"
 #include "datainpspec.h"
-#include "propertyref.h"
+#include "mnemonics.h"
+#include "namedobj.h"
+#include "rowcol.h"
+#include "sets.h"
 
 class UnitOfMeasure;
 
@@ -51,7 +52,7 @@ public:
 
  <pre>
  Table::TargetInfo sampinfspec( "Sampling info", form, Table::Required,
-				PropertyRef::surveyZType() );
+				Mnemonic::surveyZType() );
  TargetInfo::Form* form = new TargetInfo::Form( "Start/Stop", FloatInpSpec() );
  form->add( FloatInpSpec() );
  sampinfspec.add( form->duplicate( "Start/Width" ) );
@@ -90,16 +91,16 @@ public:
 
 			TargetInfo( const char* nm, ReqSpec rs=Optional )
 			    : NamedObject(nm), req_(rs)
-			    , proptype_(PropertyRef::Other)
+			    , proptype_(Mnemonic::Other)
 				{ add( nm ); }
 			TargetInfo( const char* nm, DataInpSpec* spec,
 				  ReqSpec rs=Optional,
-				  PropertyRef::StdType p=PropertyRef::Other )
+				  Mnemonic::StdType p=Mnemonic::Other )
 			    : NamedObject(nm), req_(rs), proptype_(p)
 				{ add( nm, spec ); }
 			TargetInfo( const char* nm, const DataInpSpec& spec,
 				  ReqSpec rs=Optional,
-				  PropertyRef::StdType p=PropertyRef::Other )
+				  Mnemonic::StdType p=Mnemonic::Other )
 			    : NamedObject(nm), req_(rs), proptype_(p)
 				{ add( nm, spec ); }
 
@@ -114,8 +115,8 @@ public:
 
     bool		isOptional() const	{ return req_ != Required; }
     bool		isHidden() const	{ return req_ == Hidden; }
-    PropertyRef::StdType propertyType() const	{ return proptype_; }
-    void		setPropertyType( PropertyRef::StdType p )
+    Mnemonic::StdType	propertyType() const	{ return proptype_; }
+    void		setPropertyType( Mnemonic::StdType p )
 			    { proptype_ = p; }
     int			nrForms() const		{ return forms_.size(); }
     Form&		form( int idx )		{ return *forms_[idx]; }
@@ -143,7 +144,7 @@ public:
 				Elem( const RowCol& rc, const char* kw=0 )
 				    : pos_(rc), keyword_(kw)	{}
 				Elem( const char* s )
-				    : pos_(0,-1), val_(s) 	{}
+				    : pos_(0,-1), val_(s)	{}
 
 	    bool		isInFile() const
 				    { return pos_.col() >= 0; }
@@ -207,7 +208,7 @@ public:
 protected:
 
     ReqSpec		req_;
-    PropertyRef::StdType proptype_;
+    Mnemonic::StdType	proptype_;
     ObjectSet<Form>	forms_;
 
     static TargetInfo*	mkZPos(bool,bool wu=false,int zopt=0);

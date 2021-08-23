@@ -29,7 +29,7 @@ class RefTree;
 
 /*!\brief A model consisting of layer sequences.
 
-  The sequences will use the PropertySelection managed by this object.
+  The sequences will use the PropertyRefSelection managed by this object.
 
  */
 
@@ -56,8 +56,8 @@ public:
 				//!< Does a match of props
     void			removeSequence(int);
 
-    PropertySelection&		properties()		{ return props_; }
-    const PropertySelection&	properties() const	{ return props_; }
+    PropertyRefSelection&	propertyRefs()		{ return proprefs_; }
+    const PropertyRefSelection& propertyRefs() const	{ return proprefs_; }
     void			prepareUse() const;
 
     void			setElasticPropSel(const ElasticPropSelection&);
@@ -66,7 +66,7 @@ public:
 
     const RefTree&		refTree() const;
 
-    bool			readHeader(od_istream&,PropertySelection&,
+    bool			readHeader(od_istream&,PropertyRefSelection&,
 					   int& nrseq,bool& mathpreserve);
     bool			read(od_istream&);
     bool			write(od_ostream&,int modnr=0,
@@ -78,7 +78,7 @@ public:
 protected:
 
     ObjectSet<LayerSequence>	seqs_;
-    PropertySelection		props_;
+    PropertyRefSelection	proprefs_;
     ElasticPropSelection	elasticpropsel_;
 
 };

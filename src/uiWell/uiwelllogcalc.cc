@@ -61,15 +61,15 @@ static Math::SpecVarSet& getSpecVars()
     mDefineStaticLocalObject( Math::SpecVarSet, svs, );
     svs.setEmpty();
 
-    svs.add( "MD", "Depth Along Hole", true, PropertyRef::Dist );
-    svs.add( "TVD", "Z coordinate", true, PropertyRef::Dist );
-    svs.add( "TVDSS", "TVD below SS", true, PropertyRef::Dist );
-    svs.add( "TVDSD", "TVD below SD", true, PropertyRef::Dist );
-    svs.add( "DZ", "Delta Z", true, PropertyRef::Dist );
+    svs.add( "MD", "Depth Along Hole", true, Mnemonic::Dist );
+    svs.add( "TVD", "Z coordinate", true, Mnemonic::Dist );
+    svs.add( "TVDSS", "TVD below SS", true, Mnemonic::Dist );
+    svs.add( "TVDSD", "TVD below SD", true, Mnemonic::Dist );
+    svs.add( "DZ", "Delta Z", true, Mnemonic::Dist );
     if ( SI().zIsTime() )
     {
-	svs.add( "TWT", "Two-way traveltime", true, PropertyRef::Time );
-	svs.add( "VINT", "Interval velocity", true, PropertyRef::Vel );
+	svs.add( "TWT", "Two-way traveltime", true, Mnemonic::Time );
+	svs.add( "VINT", "Interval velocity", true, Mnemonic::Vel );
     }
     return svs;
 }
@@ -169,7 +169,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     nmfld_ = new uiGenInput( this, tr("Name for new log") );
     nmfld_->attach( alignedBelow, lcb );
 
-    uiUnitSel::Setup uussu( PropertyRef::Other,
+    uiUnitSel::Setup uussu( Mnemonic::Other,
 			    tr("Output unit of measure") );
     uussu.withnone( true );
     outunfld_ = new uiUnitSel( this, uussu );
@@ -233,7 +233,7 @@ uiWellLogCalc::~uiWellLogCalc()
 }
 
 
-bool uiWellLogCalc::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
+bool uiWellLogCalc::useForm( const TypeSet<Mnemonic::StdType>* inputtypes )
 {
     if ( !formfld_ )
 	return false;
@@ -252,9 +252,9 @@ bool uiWellLogCalc::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
     }
 
     const UnitOfMeasure* formun = formfld_->getUnit();
-    const PropertyRef::StdType prevtyp = outunfld_->propType();
-    const PropertyRef::StdType newtyp = formun ? formun->propType()
-					       : PropertyRef::Other;
+    const Mnemonic::StdType prevtyp = outunfld_->propType();
+    const Mnemonic::StdType newtyp = formun ? formun->propType()
+					    : Mnemonic::Other;
     if ( prevtyp != newtyp )
     {
 	outunfld_->setPropType( newtyp );
@@ -286,7 +286,7 @@ bool acceptOK( CallBacker* )
 }
 
 bool getFormulaInfo( Math::Formula& form,
-		     TypeSet<PropertyRef::StdType>& varstypes ) const
+		     TypeSet<Mnemonic::StdType>& varstypes ) const
 { return formgrp_->getFormulaInfo(form,&varstypes); }
 
     uiRockPhysForm*	formgrp_;
@@ -297,7 +297,7 @@ bool getFormulaInfo( Math::Formula& form,
 void uiWellLogCalc::rockPhysReq( CallBacker* )
 {
     uiWellLogCalcRockPhys dlg( this );
-    TypeSet<PropertyRef::StdType> inputtypes;
+    TypeSet<Mnemonic::StdType> inputtypes;
     if ( !dlg.go() || !dlg.getFormulaInfo(form_,inputtypes) )
 	return;
 
@@ -330,7 +330,7 @@ void uiWellLogCalc::formUnitSel( CallBacker* )
 {
     const UnitOfMeasure* formun = formfld_->getUnit();
     if ( !formun )
-	outunfld_->setPropType( PropertyRef::Other );
+	outunfld_->setPropType( Mnemonic::Other );
     else
 	outunfld_->setUnit( formun );
 }

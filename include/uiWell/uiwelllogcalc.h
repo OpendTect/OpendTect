@@ -12,9 +12,10 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uidialog.h"
+
 #include "bufstringset.h"
+#include "mnemonics.h"
 #include "multiid.h"
-#include "propertyref.h"
 
 class uiUnitSel;
 class uiGenInput;
@@ -70,7 +71,7 @@ protected:
     };
 
     void		getAllLogs();
-    bool		useForm(const TypeSet<PropertyRef::StdType>* t=0);
+    bool		useForm(const TypeSet<Mnemonic::StdType>* t=nullptr);
     Well::Log*		getLog4InpIdx(Well::LogSet&,int varnr);
     void		setUnits4Log(int);
     void		fillSRFld(int);

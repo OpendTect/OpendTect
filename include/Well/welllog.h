@@ -12,11 +12,12 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "welldahobj.h"
-#include "ranges.h"
+
 #include "iopar.h"
+#include "mnemonics.h"
+#include "ranges.h"
 #include "unitofmeasure.h"
-#include "propertyref.h"
+#include "welldahobj.h"
 
 namespace Well
 {
@@ -77,7 +78,7 @@ public:
     const UnitOfMeasure* unitOfMeasure() const;
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
     void		convertTo(const UnitOfMeasure*);
-    PropertyRef::StdType propType() const;
+    Mnemonic::StdType	propType() const;
     bool		isCode() const			{ return iscode_; }
 			//!< log values are all integers stored as floats
 			//!

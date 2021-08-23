@@ -10,119 +10,149 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "enums.h"
+
 #include "bufstringset.h"
+#include "color.h"
+#include "enums.h"
+#include "manobjectset.h"
 #include "namedobj.h"
-#include "objectset.h"
-#include "propertyref.h"
 #include "ranges.h"
 #include "uistring.h"
-#include "unitofmeasure.h"
 
-class MathProperty;
+class UnitOfMeasure;
+
+
+/*!\brief Reference data common to measured logs and simulated properties.
+
+We prepare for many variants of the name as is not uncommon in practice
+(Density, PVEL, SVEL, ...). The names will be unique - case insensitive,
+in the Set. Hence, identity is established case insensitive.
+Aliases are matched with a GlobExpr, so you can add with wildcards and the like.
+
+ */
+
 
 mExpClass(General) Mnemonic : public NamedObject
 { mODTextTranslationClass(Mnemonic);
 public:
 
+    enum StdType	{
+			    Anis, Area, Class, Comp, Den, Dist, ElaRa, ElPot,
+			    GR, Imp, Perm, Pres, PresGrad, PresWt, Res, Son,
+			    Temp, Time, Vel, Volum, Vol, Other
+			};
+			mDeclareEnumUtils(StdType)
+    static StdType	surveyZType();
+
     enum Scale		{ Linear, Logarithmic };
 			mDeclareEnumUtils(Scale)
 
-			Mnemonic(const char* nm=nullptr,
-				 PropertyRef::StdType=PropertyRef::Other);
+			Mnemonic(const char* nm=nullptr,StdType=Other);
 			Mnemonic(const Mnemonic& mnc);
     virtual		~Mnemonic();
 
     Mnemonic&		operator =(const Mnemonic&);
-    bool		operator ==( const Mnemonic& mnc ) const;
-    bool		operator !=( const Mnemonic& mnc ) const;
+    bool		operator ==(const Mnemonic&) const;
+    bool		operator !=(const Mnemonic&) const;
+    bool		matches(const char* nm,bool matchaliases) const;
     bool		isKnownAs(const char*) const;
 
+    inline bool		isUdf() const	{ return *this == undef(); }
+
+protected:
+    void			usePar(const IOPar&);
+
+public:
 
     mExpStruct(General) DispDefs
     {
-			DispDefs()
-			: range_(mUdf(float),mUdf(float))
-			, typicalrange_(mUdf(float),mUdf(float))	{}
+			DispDefs();
+	virtual		~DispDefs();
+
+	bool		operator ==(const DispDefs&) const;
+	bool		operator !=(const DispDefs&) const;
+
+	virtual bool	setUnit(const char*);
+			//!< Returns if changed
+
+	virtual const Interval<float>& defRange() const { return range_; }
+	virtual float	commonValue() const;
+	const char*	getUnitLbl() const	{ return unitlbl_.buf(); }
 
 	OD::Color	color_;
-	Interval<float> range_;
-	Interval<float> typicalrange_;
-	BufferString	unit_;
+	Interval<float> range_ = Interval<float>::udf();
+	Interval<float> typicalrange_ = Interval<float>::udf();
 	Mnemonic::Scale scale_;
+
+    protected:
+
+	BufferString	unitlbl_;
+	friend void Mnemonic::usePar(const IOPar&);
     };
 
     DispDefs		disp_;
 
+    inline StdType	stdType() const			{ return stdtype_; }
     inline BufferStringSet&		aliases()	{ return aliases_; }
     inline const BufferStringSet&	aliases() const { return aliases_; }
-    inline const PropertyRef&		propRefType() const	{ return pr_;}
-    inline PropertyRef::StdType stdType() const      { return pr_.stdType(); }
 
-    inline bool		hasType( PropertyRef::StdType t ) const
-			{ return pr_.stdType() == t; }
-    inline bool		isCompatibleWith( const PropertyRef& pr ) const
-			{ return pr.stdType() == pr_.stdType(); }
+    inline bool		hasType( StdType t ) const { return stdtype_ == t; }
 
-    static const Mnemonic& undef();
     static const Mnemonic& distance();
-    //todo: check for comments
+    static const Mnemonic& volume();
+    static const Mnemonic& undef();
+    static const Mnemonic& defDEN();
+    static const Mnemonic& defPVEL();
+    static const Mnemonic& defSVEL();
+    static const Mnemonic& defDT();
+    static const Mnemonic& defDTS();
+    static const Mnemonic& defPHI();
+    static const Mnemonic& defSW();
+    static const Mnemonic& defAI();
+    static const Mnemonic& defSI();
+
+    static const char*	sKeyMnemonic();
 
 protected:
 
-    BufferStringSet		aliases_;
+    StdType			stdtype_;
     BufferString		logtypename_;
-    PropertyRef&		pr_;
+    BufferStringSet		aliases_;
 
     friend class		MnemonicSet;
-    void			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 };
 
 
-mExpClass(General) MnemonicSet : public ObjectSet<Mnemonic>
+mExpClass(General) MnemonicSet : public ManagedObjectSet<Mnemonic>
 {
 public:
-				MnemonicSet()	{}
-				~MnemonicSet();
 
-    inline Mnemonic*		find(const char* nm)	{ return fnd(nm); }
-    inline const Mnemonic*	find(const char* nm) const { return fnd(nm); }
-    MnemonicSet*		getSet(const PropertyRef*);
-    Mnemonic*			getGuessed(const UnitOfMeasure*);
-				//first match only
-    Mnemonic*			getGuessed(PropertyRef::StdType);
-				//first match only
-    const Mnemonic*		getGuessed(const UnitOfMeasure*) const;
-				//first match only
-    const Mnemonic*		getGuessed(PropertyRef::StdType) const;
-				//first match only
-    void			getNames(BufferStringSet&) const;
-
-    int			add(Mnemonic*);
-    int			indexOf(const char*) const;
-    void		readFrom(ascistream&);
-    int			indexOf( const Mnemonic* mn ) const
-			{ return ObjectSet<Mnemonic>::indexOf(mn); }
-    inline bool		isPresent( const Mnemonic* mn ) const
-			{ return ObjectSet<Mnemonic>::isPresent(mn); }
-    inline bool		isPresent( const char* nm ) const
-			{ return indexOf(nm) >= 0; }
-
-protected:
-
-    Mnemonic*		fnd(const char*) const;
-    virtual MnemonicSet&	doAdd( Mnemonic* mn )
-				{ add(mn); return *this; }
+    const Mnemonic*	getByName(const char*,bool matchaliases=true) const;
+    const Mnemonic&	getGuessed(const UnitOfMeasure*) const;
+			//!< first match only, returns undef() is missing
+    const Mnemonic&	getGuessed(Mnemonic::StdType,
+			       const BufferStringSet* hintnms =nullptr) const;
+			//!< first match only, returns undef() is missing
+    void		getNames(BufferStringSet&) const;
 
 private:
-			MnemonicSet(const MnemonicSet&) = delete;
+			MnemonicSet();
 
+			MnemonicSet(const MnemonicSet&) = delete;
     MnemonicSet&	operator =(const MnemonicSet&) = delete;
+
+    Mnemonic*		getByName(const char*,bool matchaliases=true);
+
+    MnemonicSet&	doAdd(Mnemonic*) override;
+
+    void		readFrom(ascistream&);
+
+    friend class MnemonicSetMgr;
 };
 
 
-mGlobal( General ) const MnemonicSet& MNC();
+mGlobal(General) const MnemonicSet& MNC();
 inline MnemonicSet& eMNC()	{ return const_cast<MnemonicSet&>(MNC()); }
 
 
@@ -130,23 +160,15 @@ mExpClass(General) MnemonicSelection : public ObjectSet<const Mnemonic>
 {
 public:
 
-			MnemonicSelection()	{}
-    bool		operator ==(const MnemonicSelection&) const;
+			MnemonicSelection();
+			MnemonicSelection(const Mnemonic* exclude);
+			MnemonicSelection(const Mnemonic::StdType);
 
-    int			indexOf(const char*) const;
-    int			find(const char*) const;
+    const Mnemonic*	getByName(const char*,bool matchaliases=true) const;
+    static MnemonicSelection	getAllVolumetrics();
+    static MnemonicSelection	getAllPorosity();
 
-    inline bool		isPresent( const char* mnnm ) const
-			{ return indexOf( mnnm ) >= 0; }
-    inline int		indexOf( const Mnemonic* mn ) const
-			{ return ObjectSet<const Mnemonic>::indexOf(mn); }
-    inline bool		isPresent( const Mnemonic* mn ) const
-			{ return ObjectSet<const Mnemonic>::isPresent(mn); }
+private:
 
-    inline const Mnemonic* getSingle( const char* nm ) const
-			{ const int idx = indexOf(nm);
-			  return idx < 0 ? 0 : (*this)[idx]; }
-
-    static MnemonicSelection getAll(const Mnemonic* exclude=nullptr);
-    static MnemonicSelection getAll(const PropertyRef::StdType);
+    static void		getAll(const BufferStringSet&,MnemonicSelection&);
 };

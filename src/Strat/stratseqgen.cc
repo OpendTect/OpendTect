@@ -81,10 +81,10 @@ Strat::LayerGenerator* Strat::LayerGenerator::get( const IOPar& iop,
 						const Strat::RefTree& rt )
 {
     Strat::LayerGenerator* ret = factory().create( iop.find(sKey::Type()) );
-    if ( !ret ) return 0;
+    if ( !ret ) return nullptr;
     if ( ret->usePar(iop,rt) )
 	return ret;
-    delete ret; return 0;
+    delete ret; return nullptr;
 }
 
 
@@ -103,8 +103,8 @@ void Strat::LayerGenerator::fillPar( IOPar& iop ) const
 bool Strat::LayerGenerator::generateMaterial( Strat::LayerSequence& seq,
 					      Property::EvalOpts eo ) const
 {
-    if ( seq.properties().isEmpty() )
-	updateUsedProps( seq.properties() );
+    if ( seq.propertyRefs().isEmpty() )
+	updateUsedProps( seq.propertyRefs() );
     return genMaterial( seq, eo );
 }
 
@@ -118,41 +118,36 @@ Strat::LayerSequenceGenDesc::LayerSequenceGenDesc(
 
 
 Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
-    : rt_(rt)
-    , startdepth_(0)
+    : ObjectSet<LayerGenerator>()
+    , rt_(rt)
 {
-    elasticpropselmid_.setEmpty();
-    int pidx = PROPS().indexOf( PropertyRef::Den );
-    if ( pidx >= 0 )
-	propsel_ += &PROPS().get( pidx );
+    if ( !ePROPS().ensureHasElasticProps(false,true) )
+	return;
 
-    pidx = PROPS().indexOf( PropertyRef::Vel );
-    if ( pidx >= 0 )
-	propsel_ += &PROPS().get( pidx );
-
-    pidx = PROPS().indexOf( PropertyRef::Imp );
-    if ( pidx >= 0 )
-	propsel_ += &PROPS().get( pidx );
+    const PropertyRefSet& props = PROPS();
+    propsel_.add( props.getByMnemonic( Mnemonic::defDEN() ) )
+	    .add( props.getByMnemonic( Mnemonic::defPVEL() ) )
+	    .add( props.getByMnemonic( Mnemonic::defAI() ) );
 }
 
 
 Strat::LayerSequenceGenDesc::~LayerSequenceGenDesc()
 {
-    deepErase( *this );
+    erase();
 }
 
 
 Strat::LayerSequenceGenDesc& Strat::LayerSequenceGenDesc::operator=(
-	const Strat::LayerSequenceGenDesc& other )
+	const Strat::LayerSequenceGenDesc& oth )
 {
-    if ( this == &other ) return *this;
-    deepErase( *this );
-    for ( int idx=0; idx<other.size(); idx++ )
-	*this += other[idx]->clone();
-    setPropSelection( other.propsel_ );
-    workbenchparams_ = other.workbenchparams_;
-    elasticpropselmid_ = other.elasticpropselmid_;
-    startdepth_ = other.startdepth_;
+    if ( this == &oth )
+	return *this;
+
+    deepCopyClone( *this, oth );
+    setPropSelection( oth.propsel_ );
+    workbenchparams_ = oth.workbenchparams_;
+    elasticpropselmid_ = oth.elasticpropselmid_;
+    startdepth_ = oth.startdepth_;
     return *this;
 }
 
@@ -163,7 +158,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
     if ( !astrm.isOfFileType(sKeyFileType) )
 	{ errmsg_ = tr("Bad header found"); return false; }
 
-    deepErase( *this );
+    erase();
 
     IOPar iop; iop.getFrom(astrm);
     iop.get( sKeyTopdepth, startdepth_ );
@@ -184,7 +179,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
 
 	LayerGenerator* lg = LayerGenerator::get( iop, rt_ );
 	if ( lg )
-	    { lg->setGenDesc( this ); *this += lg; }
+	    { lg->setGenDesc( this ); add( lg ); }
     }
 
     if ( isEmpty() )
@@ -194,11 +189,8 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
     }
 
     propsel_.erase();
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	const LayerGenerator& lgen = *(*this)[idx];
-	lgen.updateUsedProps( propsel_ );
-    }
+    for ( const auto* lgen : *this )
+	lgen->updateUsedProps( propsel_ );
 
     return true;
 }
@@ -227,11 +219,11 @@ bool Strat::LayerSequenceGenDesc::putTo( od_ostream& strm ) const
 
 
 void Strat::LayerSequenceGenDesc::setPropSelection(
-		const PropertySelection& prsel )
+					const PropertyRefSelection& prsel )
 {
     propsel_ = prsel;
-    for ( int idx=0; idx<size(); idx++ )
-	(*this)[idx]->syncProps( propsel_ );
+    for ( auto* gen : *this )
+	gen->syncProps( propsel_ );
 }
 
 
@@ -370,16 +362,13 @@ Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
     : unit_(ur)
     , content_(&Strat::Content::unspecified())
 {
-    const Property& thprop = Property::thickness();
-    props_.add( new ValueProperty(thprop.name(),thprop.mnem()) );
+    props_.add( new ValueProperty(PropertyRef::thickness()) );
 }
 
 
 Strat::LayerGenerator* Strat::SingleLayerGenerator::createClone() const
 {
-    Strat::SingleLayerGenerator* newlaygen =
-	new Strat::SingleLayerGenerator( *this );
-    return newlaygen;
+    return new Strat::SingleLayerGenerator( *this );
 }
 
 
@@ -393,13 +382,13 @@ const char* Strat::SingleLayerGenerator::name() const
 float Strat::SingleLayerGenerator::dispThickness( bool max ) const
 {
     if ( props_.isEmpty() )
-	return 1;
+	return 1.f;
 
-    const Property& thprop = props_.get( 0 );
-    if ( !thprop.isThickness() )
+    const Property& thprop = *props_.first();
+    if ( !thprop.ref().isThickness() )
     {
 	pErrMsg( "Thickness should always be the first property" );
-	return 1;
+	return 1.f;
     }
 
     if ( !max )
@@ -423,58 +412,53 @@ const Strat::LeafUnitRef& Strat::SingleLayerGenerator::unit() const
 }
 
 
-void Strat::SingleLayerGenerator::syncProps( const PropertySelection& prsel )
+void Strat::SingleLayerGenerator::syncProps( const PropertyRefSelection& prsel )
 {
     // remove old
-    for ( int idx=0; idx<props_.size(); idx++ )
+    for ( int idx=props_.size()-1; idx>=0; idx-- )
     {
-	const Property* pr = &props_.get(idx);
-	if ( !prsel.isPresent(pr) )
-	    { props_.remove(idx); idx--; }
+	const PropertyRef& pr = props_.get(idx)->ref();
+	if ( !prsel.isPresent(&pr) )
+	    delete props_.removeSingle( idx );
     }
     // add new
-    for ( int idx=0; idx<prsel.size(); idx++ )
+    for ( const auto* pr : prsel )
     {
-	const Property& pr = *prsel[idx];
-	if ( props_.indexOf(pr) < 0 )
+	if ( !props_.getByName(pr->name(),false) )
 	{
-	    if ( pr.hasFixedDef() )
-		props_.add( pr.fixedDef().clone() );
+	    if ( pr->hasFixedDef() )
+		props_.add( pr->fixedDef().clone() );
 	    else
-		props_.add( new ValueProperty(pr.name(), pr.mnem()) );
+		props_.add( new ValueProperty(*pr) );
 	}
     }
 
     //put everything in same order
     PropertySet copypropset( props_ );
     props_.erase();
-    for ( int idx=0; idx<prsel.size(); idx++ )
+    for ( const auto* pr : prsel )
     {
-	const Property& pr = *prsel[idx];
-	const int copyidx = copypropset.indexOf( pr );
-	if ( copyidx<0 )
-	    props_.add( new ValueProperty(pr.name(), pr.mnem()) );
-	else
-	    props_.add( copypropset.get(copyidx).clone() );
+	const Property* copyprop = copypropset.getByName( pr->name() );
+	props_.add( copyprop ? copyprop->clone() : new ValueProperty(*pr) );
     }
 }
 
 
 void Strat::SingleLayerGenerator::updateUsedProps(
-					PropertySelection& prsel ) const
+					PropertyRefSelection& prsel ) const
 {
-    for ( int idx=0; idx<props_.size(); idx++ )
+    for ( const auto* prop : props_ )
     {
-	const Property* pr = &props_.get(idx);
-	if ( !prsel.isPresent(pr) )
-	    prsel += pr;
+	const PropertyRef& pr = prop->ref();
+	if ( !prsel.isPresent(&pr) )
+	    prsel.add( &pr );
     }
 }
 
 
 bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 {
-    unit_ = 0;
+    unit_ = nullptr;
     const char* res = iop.find( sKey::Unit() );
     if ( res && *res )
     {
@@ -482,6 +466,7 @@ bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 	if ( ur && ur->isLeaf() )
 	    unit_ = static_cast<const LeafUnitRef*>( ur );
     }
+
     res = iop.find( sKey::Content() );
     if ( res && *res )
     {
@@ -517,10 +502,12 @@ void Strat::SingleLayerGenerator::fillPar( IOPar& iop ) const
     else
 	iop.set( sKey::Content(), content().name() );
 
-    for ( int pidx=0; pidx<props_.size(); pidx++ )
+    for ( const auto* prop : props_ )
     {
-	IOPar subpar; props_.get(pidx).fillPar( subpar );
-	const BufferString ky( IOPar::compKey(sKey::Property(),pidx) );
+	IOPar subpar;
+	prop->fillPar( subpar );
+	const BufferString ky( IOPar::compKey(sKey::Property(),
+			       props_.indexOf(prop)) );
 	iop.mergeComp( subpar, ky );
     }
 }
@@ -537,11 +524,11 @@ bool Strat::SingleLayerGenerator::reset() const
 bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 					       Property::EvalOpts eo ) const
 {
-    const PropertySelection& prs = seq.properties();
+    const PropertyRefSelection& prs = seq.propertyRefs();
 
-    Layer* newlay = new Layer( unit() );
+    auto* newlay = new Layer( unit() );
     newlay->setContent( content() );
-    const_cast<PropertySet*>(&props_)->resetMemory();
+    const_cast<PropertySet*>( &props_ )->resetMemory();
 
     TypeSet<int> indexesofprsmath;
     TypeSet<int> correspondingidxinprops;
@@ -549,29 +536,28 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     // first non-Math
     for ( int ipr=0; ipr<prs.size(); ipr++ )
     {
-	const Property* pr = prs[ipr];
+	const PropertyRef* pr = prs[ipr];
 
-	for ( int iprop=0; iprop<props_.size(); iprop++ )
+	for ( const auto* prop : props_ )
 	{
-	    const Property& prop = props_.get( iprop );
-	    if ( pr != &prop )
+	    if ( &prop->ref() != pr )
 		continue;
 
-	    mDynamicCastGet(const MathProperty*,mp,&prop)
-	    if ( !mp )
+	    const int iprop = props_.indexOf( prop );
+	    if ( prop->isFormula() )
 	    {
-		const float val = prop.value( eo );
-		if (mIsUdf(val) && !prop.errMsg().isEmpty())
-		    { errmsg_ = prop.errMsg(); return false; }
+		indexesofprsmath += ipr;
+		correspondingidxinprops += iprop;
+	    }
+	    else
+	    {
+		const float val = prop->value( eo );
+		if (mIsUdf(val) && !prop->errMsg().isEmpty() )
+		    { errmsg_ = prop->errMsg(); return false; }
 		else if ( ipr == 0 && val < 1e-8 )
 		    { delete newlay; return true; }
 
 		newlay->setValue( iprop, val ) ;
-	    }
-	    else
-	    {
-		indexesofprsmath += ipr;
-		correspondingidxinprops += iprop;
 	    }
 	    break;
 	}
@@ -581,9 +567,9 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     for ( int mathidx=0; mathidx<indexesofprsmath.size(); mathidx++ )
     {
 	const int ipr = indexesofprsmath[mathidx];
-	const Property* pr = prs[ipr];
-	const Property& prop = props_.get( correspondingidxinprops[mathidx] );
-	if ( pr != &prop )
+	const PropertyRef* pr = prs[ipr];
+	const Property& prop = *props_.get( correspondingidxinprops[mathidx] );
+	if ( pr != &prop.ref() )
 	    { pErrMsg("Huh? should never happen"); continue; }
 	if ( eo.isPrev() )
 	    newlay->setValue( ipr, prop.value( eo ) );

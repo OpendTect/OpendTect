@@ -143,7 +143,7 @@ protected:
 };
 
 
-class PropertySelection;
+class PropertyRefSelection;
 
 mExpClass(uiStrat) uiStratLayModFRPropSelector : public uiDialog
 { mODTextTranslationClass(uiStratLayModFRPropSelector)
@@ -166,7 +166,7 @@ public:
     };
 
 			uiStratLayModFRPropSelector(uiParent*,
-						  const PropertySelection&,
+						  const PropertyRefSelection&,
 						  const Setup&);
 
     void		setDenProp(const char*);
@@ -192,11 +192,11 @@ protected:
     virtual bool	acceptOK(CallBacker*);
 
     uiComboBox*		vpfld_;
-    uiComboBox*		vsfld_;
+    uiComboBox*		vsfld_ = nullptr;
     uiComboBox*		denfld_;
-    uiComboBox*		initialsatfld_;
-    uiComboBox*		finalsatfld_;
-    uiComboBox*		porosityfld_;
+    uiComboBox*		initialsatfld_ = nullptr;
+    uiComboBox*		finalsatfld_ = nullptr;
+    uiComboBox*		porosityfld_ = nullptr;
     mutable uiString	errmsg_;
 
 };

@@ -10,10 +10,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
 #include "elasticprop.h"
+#include "propertyref.h"
 #include "uistrings.h"
-#include "mnemonics.h"
+
+namespace Math { class Expression; }
 
 class IOObj;
 
@@ -21,45 +22,44 @@ class IOObj;
 \brief User parameters to compute values for an elastic layer (den,p/s-waves).
 */
 
-mExpClass(General) ElasticPropSelection : public PropertySelection
+mExpClass(General) ElasticPropSelection : public PropertyRefSelection
 { mODTextTranslationClass(ElasticPropSelection)
 public:
 
 				ElasticPropSelection(bool withswave=true);
 				ElasticPropSelection(
-					const ElasticPropSelection& elp)
-				{ *this = elp; }
+						const ElasticPropSelection&);
 				~ElasticPropSelection();
-    ElasticPropSelection&	operator =(const ElasticPropSelection&);
 
-    ElasticProperty&		getByIdx( int idx )	{ return gt(idx); }
-    const ElasticProperty&	getByIdx( int idx ) const { return gt(idx); }
-    ElasticProperty&		getByType( ElasticFormula::Type tp )
-							{ return gt(tp); }
-    const ElasticProperty&	getByType( ElasticFormula::Type tp ) const
-							{ return gt(tp); }
+    ElasticPropSelection&	operator =(
+					const ElasticPropSelection&);
+
+    bool			isElasticSel() const override	{ return true; }
+
+    ElasticPropertyRef*		getByType(ElasticFormula::Type);
+    const ElasticPropertyRef*	getByType(ElasticFormula::Type) const;
 
     static ElasticPropSelection* getByDBKey(const MultiID&);
     static ElasticPropSelection* getByIOObj(const IOObj*);
     bool			put(const IOObj*) const;
 
-    bool			isValidInput(uiString*
-				errmsg = 0) const;
+    bool			isValidInput(uiString* errmsg = nullptr) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
+    void			erase() override	{ deepErase(*this); }
+
     uiString			errMsg() { return errmsg_; }
 
-protected:
+private:
 
-    ElasticProperty&		gt(ElasticFormula::Type) const;
-    ElasticProperty&		gt(int idx) const;
+    ElasticPropSelection&	doAdd(const PropertyRef*) override;
+
     bool			checkForValidSelPropsDesc(
 					const ElasticFormula&,
 					BufferStringSet& faultynms,
 					BufferStringSet& corrnms);
-    void			mkEmpty();
 
     uiString			errmsg_;
 };
@@ -67,50 +67,54 @@ protected:
 
 /*!
 \brief Computes elastic properties using parameters in ElasticPropSelection and
-MnemonicSelection.
+PropertyRefSelection.
 */
 
 mExpClass(General) ElasticPropGen
 {
 public:
-			ElasticPropGen(const ElasticPropSelection& eps,
-					const MnemonicSelection& mns)
-			    : elasticprops_(eps), mns_(mns) {}
+			ElasticPropGen(const ElasticPropSelection&,
+				       const PropertyRefSelection&);
+			~ElasticPropGen();
 
-    float		getVal(const ElasticProperty& ef,
-				const float* proprefvals,
-				int proprefsz) const
-			{ return getVal(ef.formula(),proprefvals, proprefsz); }
+    bool		isOK() const;
 
-    void		getVals(float& den,float& pbel,float& svel,
+    void		getVals(float& den,float& pvel,float& svel,
 				const float* proprefvals,int proprefsz) const;
 
-protected:
+private:
 
-    const ElasticPropSelection& elasticprops_;
-    const MnemonicSelection&	mns_;
+    const ElasticFormula*	denform_;
+    const ElasticFormula*	pvelform_;
+    const ElasticFormula*	svelform_;
+    ObjectSet<TypeSet<int> >	propidxsset_;
+    ObjectSet<ObjectSet<const UnitOfMeasure> > propuomsset_;
+    ObjectSet<Math::Expression> exprs_;
 
-    float		getVal(const ElasticFormula& ef,
-				const float* proprefvals,
-				int proprefsz) const;
+    const ElasticFormula* init(const ElasticFormula&,
+			       const PropertyRefSelection&);
+    static float	getValue(const ElasticFormula&,const TypeSet<int>&,
+				 const ObjectSet<const UnitOfMeasure>&,
+				 const Math::Expression*,
+				 const float* proprefvals,int proprefsz);
 };
 
 
 /*!
 \brief Guesses elastic properties using parameters in ElasticPropSelection and
-MnemonicSelection.
+PropertyRefSelection.
 */
 
 mExpClass(General) ElasticPropGuess
 {
 public:
-			ElasticPropGuess(const MnemonicSelection&,
+			ElasticPropGuess(const PropertyRefSelection&,
 						ElasticPropSelection&);
 protected:
 
-    void		guessQuantity(const MnemonicSelection&,
+    void		guessQuantity(const PropertyRefSelection&,
 					ElasticFormula::Type);
-    bool		guessQuantity(const Mnemonic&,ElasticFormula::Type);
+    bool		guessQuantity(const PropertyRef&,ElasticFormula::Type);
 
     ElasticPropSelection& elasticprops_;
 };

@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uistrings.h"
 #include "mathformula.h"
-#include "propertyref.h"
+#include "mnemonics.h"
 class uiButton;
 class uiUnitSel;
 class uiToolButton;
@@ -41,14 +41,14 @@ public:
 			    , maxnrinps_(6)
 			    , withsubinps_(false)
 			    , withunits_(true)
-			    , proptype_(PropertyRef::Other)	{}
+			    , proptype_(Mnemonic::Other)	{}
 
 	mDefSetupMemb(uiString,label);
 	mDefSetupMemb(int,maxnrinps);
 	mDefSetupMemb(BufferString,stortype); // if empty, no I/O
 	mDefSetupMemb(bool,withsubinps);
 	mDefSetupMemb(bool,withunits);
-	mDefSetupMemb(PropertyRef::StdType,proptype); // used if withunits_
+	mDefSetupMemb(Mnemonic::StdType,proptype); // used if withunits_
 
     };
 
@@ -62,7 +62,8 @@ public:
     bool		setText(const char*);
     const char*		text() const;
 
-    bool		useForm(const TypeSet<PropertyRef::StdType>* inptyps=0);
+    bool		useForm(
+			const TypeSet<Mnemonic::StdType>* inptyps=nullptr);
     bool		updateForm() const;
 
 			// shortcuts for things available in form
@@ -99,7 +100,7 @@ protected:
     uiToolButton*	recbut_;
     uiToolButton*	openbut_;
     uiToolButton*	savebut_;
-    int			notifinpnr_;
+    int		notifinpnr_;
 
     Setup		setup_;
     TypeSet<double>	recvals_;

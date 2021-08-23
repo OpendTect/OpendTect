@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "od_iosfwd.h"
 class PropertyRef;
-class Property;
 
 
 namespace Strat
@@ -27,7 +26,7 @@ class LaySeqAttribSet;
 
 /*!\brief attrib to extract from layer sequences
 
-  Rather than attaching everything to the UnitRefs, Propertys etc., we simply
+  Rather than attaching everything to the UnitRefs, PropertyRefs etc., we simply
   work with strings. When actual evaluation needs to be done, construct a
   LaySeqAttribCalc object.
 
@@ -40,7 +39,7 @@ public:
     enum Transform	{ Pow, Log, Exp };
 			mDeclareEnumUtils(Transform)
 
-			LaySeqAttrib( LaySeqAttribSet& s,const Property& p,
+			LaySeqAttrib( LaySeqAttribSet& s,const PropertyRef& p,
 				      const char* nm=0 )
 			    : NamedObject(nm)
 			    , set_(&s), prop_(p)
@@ -48,7 +47,7 @@ public:
 			    , transform_(Pow)
 			    , transformval_(mUdf(float))	{}
 
-    const Property&	prop_;
+    const PropertyRef&	prop_;
     bool		islocal_;
     BufferString	stat_; // either Stats::Type or Stats::UpscaleType
 
@@ -80,7 +79,7 @@ protected:
 
 /*!\brief attribs to extract from layer sequences
 
-  Rather than attaching everything to the UnitRefs, Propertys etc., we simply
+  Rather than attaching everything to the UnitRefs, PropertyRefs etc., we simply
   work with strings. When actual evaluation needs to be done, the
   LaySeqAttribCalc will step in.
 

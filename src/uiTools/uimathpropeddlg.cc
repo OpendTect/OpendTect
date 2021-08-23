@@ -65,7 +65,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     propfld_->doubleClicked.notify( inspropcb );
 
     Math::SpecVarSet svs;
-    svs.add( "Depth", "Vertical depth", true, PropertyRef::Dist );
+    svs.add( "Depth", "Vertical depth", true, Mnemonic::Dist );
     svs.add( "XPos", "Relative horizontal position (0-1)" );
     uiGroup* varsgrp = new uiGroup( this, "Variable selection group" );
     for ( int idx=0; idx<cMaxNrInps; idx++ )
@@ -115,7 +115,7 @@ void uiMathPropEdDlg::insProp( CallBacker* )
 void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Rock Physics",
-		  "Use a rock physics formula", 
+		  "Use a rock physics formula",
                   mODHelpKey(mMathPropEdDlgrockPhysReqHelpID) ) );
     uiRockPhysForm* formgrp = new uiRockPhysForm( &dlg, prop_.ref().stdType() );
     if ( dlg.go() )

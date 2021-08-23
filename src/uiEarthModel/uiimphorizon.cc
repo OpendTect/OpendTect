@@ -125,7 +125,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     if ( isgeom && SI().zIsTime() )
     {
 	tdsel_ = new uiCheckBox( this, tr("Horizon is in Depth domain"),
-	    			mCB(this,uiImportHorizon,zDomSel) );
+				mCB(this,uiImportHorizon,zDomSel) );
 	tdsel_->attach( alignedBelow, attrlistfld_ );
 	tdsel_->attach( ensureBelow, sep );
 
@@ -770,7 +770,7 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     subselfld_->attach( alignedBelow, attachobj );
 
     unitfld_ = new uiUnitSel( this,
-		uiUnitSel::Setup(PropertyRef::Dist,uiStrings::sUnit()) );
+		uiUnitSel::Setup(Mnemonic::Dist,uiStrings::sUnit()) );
     unitfld_->attach( alignedBelow, subselfld_ );
 
     IOObjContext ctxt = mIOObjContext( EMHorizon3D );

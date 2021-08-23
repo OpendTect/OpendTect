@@ -11,22 +11,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "generalmod.h"
-#include "generalmod.h"
-#include "ranges.h"
-#include "namedobj.h"
-#include "enums.h"
-#include "bufstringset.h"
-#include "color.h"
+#include "mnemonics.h"
 #include "repos.h"
 
-
-class ascistream;
-class ascostream;
 class Property;
 class MathProperty;
-class Mnemonic;
-struct PropRef_ThickRef_Man;
+class uiEditPropRef;
 
 
 /*!\brief Ref Data for a (usually petrophysical) property.
@@ -34,48 +24,168 @@ struct PropRef_ThickRef_Man;
 We prepare for many variants of the name as is not uncommon in practice
 (Density, Den, Rho, RhoB, ... you know the drill). The names will be unique
 - case insensitive, in the Set. Hence, identity is established case insensitive.
-Aliases are matched with a GlobExpr, so you can add with wildcards and the like.
 
  */
 
-mExpClass(General) PropertyRef : public NamedObject
+mExpClass(General) PropertyRef : public NamedCallBacker
 {
 public:
 
-    enum StdType	{
-			    Anis, Area, Class, Comp, Den, Dist, ElaRa, ElPot,
-			    GR, Imp, Perm, Pres, PresGrad, PresWt, Res, Son,
-			    Temp, Time, Vel, Volum, Vol, Other
-			};
-			mDeclareEnumUtils(StdType)
-    static StdType	surveyZType();
+    typedef Mnemonic::StdType StdType;
 
-			PropertyRef( const char* nm, StdType t=Other )
-			    : NamedObject(nm)
-			    , stdtype_(t)		{}
-			PropertyRef( const PropertyRef& pr )
-			    : NamedObject(pr.name())	{ *this = pr; }
+			PropertyRef(const Mnemonic& = Mnemonic::undef(),
+				    const char* nm=nullptr);
+			PropertyRef(const PropertyRef&);
     virtual		~PropertyRef();
-    PropertyRef&	operator =(const PropertyRef&);
-    inline bool		operator ==( const PropertyRef& pr ) const
-			{ return name() == pr.name(); }
-    inline bool		operator !=( const PropertyRef& pr ) const
-			{ return name() != pr.name(); }
-    bool		isKnownAs(const char*) const;
 
-    inline StdType	stdType() const			{ return stdtype_; }
+    virtual PropertyRef* clone() const	{ return new PropertyRef(*this); }
+
+    static PropertyRef* get(const IOPar&);
+
+    PropertyRef&	operator =(const PropertyRef&);
+    bool		operator ==(const PropertyRef&) const;
+    bool		operator !=(const PropertyRef&) const;
+    bool		matches(const char* nm,bool matchaliases) const;
+    bool		isKnownAs(const char*) const;
+    bool		hasFixedDef() const	{ return mathdef_; }
+    bool		isElastic() const;
+    virtual bool	isElasticForm() const	{ return false; }
+
+    inline const char*	mnName() const		{ return mn_.name(); }
+    inline StdType	stdType() const		{ return mn_.stdType(); }
     inline bool		hasType( StdType t ) const
-			{ return stdtype_ == t; }
+			{ return mn_.stdType() == t; }
+    inline bool		isCompatibleWith( const Mnemonic& mn ) const
+			{ return &mn == &mn_; }
     inline bool		isCompatibleWith( const PropertyRef& pr ) const
 			{ return hasType(pr.stdType()); }
-    inline void		setStdType( StdType t ) { stdtype_ = t; }
+    void		setFixedDef(const MathProperty*);
+				//!< copy will be made
+    void		setUnit(const char*);
 
-    static const PropertyRef& undef();
+    void		addAliases(const BufferStringSet&);
+    const BufferStringSet aliases() const;
+    const MathProperty& fixedDef() const		{ return *mathdef_; }
+			//!< be sure hasFixedDef() returns true!
+
+    mExpStruct(General) DispDefs : public Mnemonic::DispDefs
+    {
+			DispDefs();
+			DispDefs(const Mnemonic::DispDefs&);
+			~DispDefs();
+
+	DispDefs&	operator =(const DispDefs&);
+	bool		operator ==(const DispDefs&) const;
+	bool		operator !=(const DispDefs&) const;
+	void		copyFrom(const Mnemonic::DispDefs&);
+
+	const Interval<float>& defRange() const override
+			{ return typicalrange_; }
+
+	float		commonValue() const override;
+
+	Property*	defval_ = nullptr;
+
+    private:
+	bool		setUnit(const char*) override;
+	friend class PropertyRef;
+
+    };
+
+    DispDefs		disp_;
+    const UnitOfMeasure* unit() const		{ return uom_; }
+    CNotifier<PropertyRef,const UnitOfMeasure*> unitChanged_;
+			//!< Returns the previous unit
+
+    static const PropertyRef& thickness();
+		//!< use this always. It has automatic defaults from SI()
+    inline bool		isThickness() const	{ return this == &thickness(); }
+
+    static const char*	standardDenStr()	{ return "Density";}
+    static const char*	standardDenAliasStr()	{ return "Den";}
+    static const char*	standardPVelStr()	{ return "Pwave velocity";}
+    static const char*	standardPVelAliasStr()	{ return "PVel";}
+    static const char*	standardSVelStr()	{ return "Swave velocity";}
+    static const char*	standardSVelAliasStr()	{ return "SVel";}
 
 protected:
 
-    StdType		stdtype_;
+    const Mnemonic&	mn_;
+    BufferStringSet	propaliases_;
+    MathProperty*	mathdef_ = nullptr;
+    const UnitOfMeasure* uom_ = nullptr;
+
+    friend class PropertyRefSet;
+    friend class uiEditPropRef;
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
 
 };
 
+
+
+mExpClass(General) PropertyRefSet : public ManagedObjectSet<PropertyRef>
+{
+public:
+
+    const PropertyRef*	getByName(const char*,bool matchaliases=true) const;
+    const PropertyRef*	getByType(PropertyRef::StdType,int occ=0) const;
+    const PropertyRef*	getByMnemonic(const Mnemonic&,int occ=0) const;
+
+    PropertyRef*	ensurePresent(const Mnemonic&,const char* nm1,
+				      const char* nm2=nullptr,
+				      const char* nm3=nullptr);
+    bool		ensureHasElasticProps(bool withswave=true,
+					      bool withai=false);
+
+    bool		subselect(PropertyRef::StdType,
+				  ObjectSet<const PropertyRef>&)const;
+
+private:
+			PropertyRefSet();
+
+			PropertyRefSet(const PropertyRefSet&) = delete;
+    PropertyRefSet&	operator =(const PropertyRefSet&) = delete;
+
+    PropertyRef*	getByName(const char*,bool matchaliases=true);
+    PropertyRef*	getByType(PropertyRef::StdType,int occ=0);
+
+    PropertyRefSet&	doAdd(PropertyRef*) override;
+
+    void		readFrom(ascistream&);
+    bool		writeTo(ascostream&) const;
+    bool		save(Repos::Source) const;
+
+    friend class PropertyRefSetMgr;
+    friend class uiManPROPS;
+
+};
+
+mGlobal(General) const PropertyRefSet& PROPS();
+inline PropertyRefSet& ePROPS() { return const_cast<PropertyRefSet&>(PROPS()); }
+
+
+mExpClass(General) PropertyRefSelection : public ObjectSet<const PropertyRef>
+{
+public:
+
+			PropertyRefSelection(bool with_thickness=true);
+			//<! with only thickness, or empty
+			PropertyRefSelection(bool with_thickness,
+					     const PropertyRef* exclude);
+			//<! Filled with relevant items from PROPS()
+			PropertyRefSelection(const Mnemonic&);
+			//<! Filled with relevant items from PROPS()
+			PropertyRefSelection(PropertyRef::StdType);
+			//<! Filled with relevant items from PROPS()
+
+    virtual bool	isElasticSel() const		{ return false; }
+
+    const PropertyRef*	getByName(const char*,bool matchaliases=true) const;
+    const PropertyRef*	getByType(PropertyRef::StdType,int occ=0) const;
+    const PropertyRef*	getByMnemonic(const Mnemonic&,int occ=0) const;
+
+    PropertyRefSelection subselect(PropertyRef::StdType) const;
+
+};
 

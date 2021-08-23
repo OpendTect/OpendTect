@@ -99,7 +99,7 @@ static bool testRepeatingVar()
 	od_cout() << "Expression: '" << expr << "'\n";
 
     Math::SpecVarSet svs;
-    svs += Math::SpecVar( "Aap", "Dit is aapje", true, PropertyRef::Dist );
+    svs += Math::SpecVar( "Aap", "Dit is aapje", true, Mnemonic::Dist );
     svs += Math::SpecVar( "Noot", "Dit is nootje", false );
     Math::Formula form( true, svs, expr );
 

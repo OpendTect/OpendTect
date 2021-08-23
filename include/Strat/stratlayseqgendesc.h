@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "objectset.h"
 #include "multiid.h"
 #include "propertyref.h"
-#include "property.h"
 #include "iopar.h"
 #include "od_iosfwd.h"
 #include "uistring.h"
@@ -45,11 +44,11 @@ public:
     const RefTree&	refTree() const		{ return rt_; }
     IOPar&		getWorkBenchParams()	{ return workbenchparams_; }
 
-    const PropertySelection& propSelection() const	{ return propsel_; }
-    void		setPropSelection(const PropertySelection&);
+    const PropertyRefSelection& propSelection() const	{ return propsel_; }
+    void		setPropSelection(const PropertyRefSelection&);
     float		startDepth() const	{ return startdepth_; }
     void		setStartDepth( float z)	{ startdepth_ = z; }
-    const MultiID& 	elasticPropSel() const;
+    const MultiID&	elasticPropSel() const;
     void		setElasticPropSel(const MultiID&);
 
     bool		getFrom(od_istream&);
@@ -64,14 +63,16 @@ public:
     int			indexFromUserIdentification(const char*) const;
     LayerSequenceGenDesc& operator=(const LayerSequenceGenDesc&);
 
+    void		erase() override		{ deepErase(*this); }
+
 protected:
 
     IOPar		workbenchparams_;
 
     const RefTree&	rt_;
-    PropertySelection	propsel_;
+    PropertyRefSelection propsel_;
     MultiID		elasticpropselmid_;
-    float		startdepth_;
+    float		startdepth_ = 0.f;
 
     static const char*	sKeyWorkBenchParams();
     mutable uiString	errmsg_;

@@ -1712,9 +1712,9 @@ void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
 	    ti = new Table::TargetInfo( fldname.buf(), FloatInpSpec(),
 					Table::Required );
 	    if ( fldname == sKey::Time() )
-		ti->setPropertyType( PropertyRef::Time );
+		ti->setPropertyType( Mnemonic::Time );
 	    else if ( fldname == sKey::Depth() )
-		ti->setPropertyType( PropertyRef::Dist );
+		ti->setPropertyType( Mnemonic::Dist );
 
 	}
 

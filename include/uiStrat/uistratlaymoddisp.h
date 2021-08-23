@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uistring.h"
 
-class Property;
+class PropertyRef;
 class uiGraphicsScene;
 class uiStratLayModEditTools;
 class uiTextItem;
@@ -76,7 +76,7 @@ public:
     void		displayFRText(bool yn,bool isbrine);
 
     float		getLayerPropValue(const Strat::Layer&,
-					  const Property*,int) const;
+					  const PropertyRef*,int) const;
     bool		setPropDispPars(const LMPropSpecificDispPars&);
     bool		getCurPropDispPars(LMPropSpecificDispPars&) const;
     void		clearDispPars()		{ lmdisppars_.erase(); }

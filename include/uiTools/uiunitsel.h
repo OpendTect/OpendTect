@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "uistrings.h"
-#include "propertyref.h"
+
 #include "mnemonics.h"
 
 class uiComboBox;
@@ -44,10 +44,10 @@ public:
 
 	enum Mode		{ SymbolsOnly, NamesOnly, Full };
 
-				Setup( PropertyRef::StdType st,
+				Setup( Mnemonic::StdType st,
 				       const uiString labeltxt=
 				       uiStrings::sEmptyString(),
-				       Mnemonic* mn = nullptr )
+				       const Mnemonic* mn = nullptr )
 				    : ptype_(st)
 				    , mn_(mn)
 				    , lbltxt_(mToUiStringTodo(labeltxt))
@@ -56,8 +56,8 @@ public:
 				    , selmnemtype_(mn ? true : false)
 				    , withnone_(false)	{}
 
-	mDefSetupMemb(PropertyRef::StdType,ptype)
-	mDefSetupMemb(Mnemonic*,mn)
+	mDefSetupMemb(Mnemonic::StdType,ptype)
+	mDefSetupMemb(const Mnemonic*,mn)
 	mDefSetupMemb(uiString,lbltxt)
 	mDefSetupMemb(Mode,mode)
 	mDefSetupMemb(bool,selproptype)
@@ -66,13 +66,13 @@ public:
     };
 
 				uiUnitSel(uiParent*,const Setup&);
-				uiUnitSel(uiParent*,PropertyRef::StdType);
-				uiUnitSel(uiParent*,Mnemonic* mn=nullptr);
-				uiUnitSel(uiParent*,const char* lbltxt=0);
+				uiUnitSel(uiParent*,Mnemonic::StdType);
+				uiUnitSel(uiParent*,const Mnemonic* mn=nullptr);
+				uiUnitSel(uiParent*,const char* lbltxt=nullptr);
 					//!< For survey Z unit
 				~uiUnitSel();
 
-    void			setUnit(const UnitOfMeasure* uom=0);
+    void			setUnit(const UnitOfMeasure* uom=nullptr);
     void			setUnit(const char*);
     const UnitOfMeasure*	getUnit() const;
     const char*			getUnitName() const;
@@ -83,19 +83,20 @@ public:
     double			getInternalValue(double uservalue) const;
 
 
-    PropertyRef::StdType	propType() const	{ return setup_.ptype_;}
-    void			setPropType(PropertyRef::StdType);
+    Mnemonic::StdType		propType() const	{ return setup_.ptype_;}
+    void			setPropType(Mnemonic::StdType);
 
-    Mnemonic*			mnemonic() const;
-    void			setMnemonic(Mnemonic&);
+    const Mnemonic*		mnemonic() const;
+    void			setMnemonic(const Mnemonic&);
 
     uiComboBox*			inpFld() const	{ return inpfld_; }
 
     Notifier<uiUnitSel>		selChange;
     Notifier<uiUnitSel>		propSelChange;
 
-    void			fillPar(IOPar&,const char* altkey=0) const;
-    bool			usePar(const IOPar&,const char* altkey=0);
+    void			fillPar(IOPar&,
+					const char* altkey=nullptr) const;
+    bool			usePar(const IOPar&,const char* altkey=nullptr);
 
     const char*			tblKey() const;
 				    //!< For UnitOfMeasure::currentDefaults()
@@ -117,8 +118,8 @@ protected:
     void			selChg( CallBacker* )	{ selChange.trigger(); }
     void			propSelChg(CallBacker*);
     void			mnSelChg(CallBacker*);
-    void			setPropFld(PropertyRef::StdType);
-    void			setMnemFld(Mnemonic*);
+    void			setPropFld(Mnemonic::StdType);
+    void			setMnemFld(const Mnemonic*);
     void			setUnFld(const UnitOfMeasure*);
     void			update();
     uiString			getSelTxt(const UnitOfMeasure*) const;

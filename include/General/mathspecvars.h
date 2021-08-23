@@ -11,7 +11,8 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "propertyref.h"
+
+#include "mnemonics.h"
 
 
 namespace Math
@@ -26,7 +27,7 @@ public:
 
 			SpecVar( const char* varnm, const char* dispnm,
 				 bool hasuns=false,
-				 PropertyRef::StdType typ=PropertyRef::Other )
+				 Mnemonic::StdType typ=Mnemonic::Other )
 			    : varnm_(varnm), dispnm_(dispnm)
 			    , hasunits_(hasuns), type_(typ)	{}
     bool		operator ==( const SpecVar& oth ) const
@@ -35,7 +36,7 @@ public:
     BufferString	varnm_;
     BufferString	dispnm_;
     bool		hasunits_;
-    PropertyRef::StdType type_;
+    Mnemonic::StdType	type_;
 
 };
 
@@ -50,8 +51,8 @@ public:
     int			getIndexOf(const char* varnm) const;
     void		getNames(BufferStringSet&,bool usrdisp=true) const;
     void		add( const char* varnm, const char* dispnm,
-			   bool hasuns=false, PropertyRef::StdType typ
-						=PropertyRef::Other )
+			   bool hasuns=false, Mnemonic::StdType typ
+						=Mnemonic::Other )
 			{ *this += SpecVar(varnm,dispnm,hasuns,typ); }
 
 			// convenience
@@ -68,7 +69,7 @@ public:
 			{ return (*this)[idx].dispnm_; }
     bool		hasUnits( int idx )
 			{ return (*this)[idx].hasunits_; }
-    PropertyRef::StdType propType( int idx )
+    Mnemonic::StdType	propType( int idx )
 			{ return (*this)[idx].type_; }
 
     static const SpecVarSet& getEmpty();

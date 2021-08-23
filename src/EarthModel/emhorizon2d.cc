@@ -772,7 +772,7 @@ void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
     Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( false, false );
     fd->bodyinfos_ += ti;
     Table::TargetInfo* trcspti = new Table::TargetInfo( "", IntInpSpec(),
-	    						Table::Optional );
+							Table::Optional );
     trcspti->form(0).setName( "Trace Nr" );
     Table::TargetInfo::Form* spform =
 			new Table::TargetInfo::Form( "SP Nr", FloatInpSpec() );
@@ -783,7 +783,7 @@ void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
     {
 	BufferString fldname = hornms.get( idx );
 	ti = new Table::TargetInfo( fldname.buf(), FloatInpSpec(),
-			Table::Required, PropertyRef::surveyZType() );
+			Table::Required, Mnemonic::surveyZType() );
 	ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
 	fd->bodyinfos_ += ti;
     }

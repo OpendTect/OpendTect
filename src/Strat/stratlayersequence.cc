@@ -14,7 +14,7 @@
 
 //------ LayerSequence ------
 
-Strat::LayerSequence::LayerSequence( const PropertySelection* prs )
+Strat::LayerSequence::LayerSequence( const PropertyRefSelection* prs )
 {
     if ( prs )
 	props_ = *prs;

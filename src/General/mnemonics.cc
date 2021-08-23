@@ -7,34 +7,132 @@
 
 
 #include "mnemonics.h"
+
 #include "ascstream.h"
 #include "ioman.h"
 #include "globexpr.h"
-#include "mathproperty.h"
 #include "safefileio.h"
 #include "separstr.h"
 #include "unitofmeasure.h"
 
 static const char* filenamebase = "Mnemonics";
+const char* Mnemonic::sKeyMnemonic()	{ return "Mnemonic"; }
+
+//------- Mnemonic::DispDefs ----------
+
+Mnemonic::DispDefs::DispDefs()
+{
+}
+
+
+Mnemonic::DispDefs::~DispDefs()
+{
+}
+
+
+bool Mnemonic::DispDefs::operator ==( const DispDefs& oth ) const
+{
+    if ( this == &oth )
+	return true;
+
+    return color_ == oth.color_ &&
+	   scale_ == oth.scale_ &&
+	   unitlbl_ == oth.unitlbl_ &&
+	   range_ == oth.range_ &&
+	   typicalrange_ == oth.typicalrange_;
+}
+
+
+bool Mnemonic::DispDefs::operator !=( const DispDefs& oth ) const
+{
+    return !(*this == oth );
+}
+
+
+bool Mnemonic::DispDefs::setUnit( const char* newunitlbl )
+{
+    const UnitOfMeasure* olduom = UoMR().get( unitlbl_ );
+    const UnitOfMeasure* newuom = UoMR().get( newunitlbl );
+    if ( newuom == olduom )
+	return false;
+
+    unitlbl_.set( newunitlbl );
+    convValue( range_.start, olduom, newuom );
+    convValue( range_.stop, olduom, newuom );
+    convValue( typicalrange_.start, olduom, newuom );
+    convValue( typicalrange_.stop, olduom, newuom );
+
+    return true;
+}
+
+
+float Mnemonic::DispDefs::commonValue() const
+{
+    const Interval<float>& range = defRange();
+    const bool udf0 = mIsUdf(range.start);
+    const bool udf1 = mIsUdf(range.stop);
+    if ( udf0 && udf1 )
+	return 0.f;
+
+    if ( udf0 || udf1 )
+	return udf0 ? range.stop : range.start;
+
+    return range.center();
+}
+
+
+//------- Mnemonic ----------
+
+mDefineEnumUtils(Mnemonic,StdType,"Standard Property")
+{
+	"Anisotropy",
+	"Area",
+	"Classification",
+	"Compressibility",
+	"Density",
+	"Distance/Depth",
+	"Elastic Ratio",
+	"Electrical Potential",
+	"Gamma Ray",
+	"Impedance",
+	"Permeability",
+	"Pressure",
+	"Pressure Gradient",
+	"Pressure-Weight",
+	"Resistivity",
+	"Sonic travel time",
+	"Temperature",
+	"Time",
+	"Velocity",
+	"Volumetrics", // ratios: relative
+	"Volume", // absolute
+	"Other",
+	nullptr
+};
+
+
+Mnemonic::StdType Mnemonic::surveyZType()
+{
+    return SI().zIsTime() ? Time : Dist;
+}
 
 
 mDefineEnumUtils(Mnemonic,Scale,"Plot Scale")
 {
     "Linear",
     "Logarithmic",
-    0
+    nullptr
 };
 
 
-Mnemonic::Mnemonic( const char* nm, PropertyRef::StdType stdtype )
+Mnemonic::Mnemonic( const char* nm, StdType stdtype )
     : NamedObject(nm)
-    , pr_(*new PropertyRef(nm, stdtype))
+    , stdtype_(stdtype)
 {}
 
 
 Mnemonic::Mnemonic( const Mnemonic& mnc )
     : NamedObject(mnc.name())
-    , pr_(const_cast<PropertyRef&>(mnc.propRefType()))
 {
     *this = mnc;
 }
@@ -42,33 +140,45 @@ Mnemonic::Mnemonic( const Mnemonic& mnc )
 
 Mnemonic::~Mnemonic()
 {
-    delete &pr_;
 }
 
 
-Mnemonic& Mnemonic::operator =( const Mnemonic& mnc )
+Mnemonic& Mnemonic::operator =( const Mnemonic& oth )
 {
-    if ( this != &mnc )
+    if ( this != &oth )
     {
-	setName( mnc.name() );
-	this->logtypename_ = mnc.logtypename_;
-	this->aliases_ = mnc.aliases();
-	this->pr_ = mnc.propRefType();
-	this->disp_ = mnc.disp_;
+	NamedObject::setName( oth.name() );
+	stdtype_ = oth.stdtype_;
+	logtypename_ = oth.logtypename_;
+	aliases_ = oth.aliases_;
+	disp_ = oth.disp_;
     }
     return *this;
 }
 
 
-bool Mnemonic::operator ==( const Mnemonic& mnc ) const
+bool Mnemonic::operator ==( const Mnemonic& oth ) const
 {
-    return name() == mnc.name();
+    if ( this == &oth )
+	return true;
+
+    return stdtype_ == oth.stdtype_ &&
+	   name() == oth.name() &&
+	   logtypename_ == oth.logtypename_ &&
+	   aliases_ == oth.aliases_ &&
+	   disp_ == oth.disp_;
 }
 
 
-bool Mnemonic::operator !=( const Mnemonic& mnc ) const
+bool Mnemonic::operator !=( const Mnemonic& oth ) const
 {
-    return name() != mnc.name();
+    return !(*this == oth);
+}
+
+
+bool Mnemonic::matches( const char* nm, bool matchaliases ) const
+{
+    return matchaliases ? isKnownAs( nm ) : name() == nm;
 }
 
 
@@ -77,12 +187,12 @@ bool Mnemonic::isKnownAs( const char* nm ) const
     if ( !nm || !*nm )
 	return false;
 
-    if ( caseInsensitiveEqual(nm,name().buf(),0) )
+    if ( name().matches(nm,CaseInsensitive) )
 	return true;
 
-    for ( int idx=0; idx<aliases_.size(); idx++ )
+    for ( const auto* aliasnm : aliases_ )
     {
-	const GlobExpr ge( aliases_.get(idx), CaseInsensitive );
+	const GlobExpr ge( *aliasnm, CaseInsensitive );
 	if ( ge.matches(nm) )
 	    return true;
     }
@@ -94,29 +204,25 @@ void Mnemonic::usePar( const IOPar& iop )
 {
     aliases_.erase();
     FileMultiString fms( iop.find(name()) );
-    int sz = fms.size();
+    const int sz = fms.size();
     for ( int idx=0; idx<sz; idx++ )
     {
 	if ( idx == 0 )
 	    logtypename_ = fms[idx];
 	else if ( idx == 1 )
-	{
-	    const BufferString proprefnm = fms[idx];
-	    const PropertyRef::StdType stdtype =
-		PropertyRef::StdTypeDef().parse( proprefnm );
-	    pr_.setName( proprefnm );
-	    pr_.setStdType( stdtype );
-	}
-	else if ( idx >=2 && idx <=7 )
-	{
+	    stdtype_ = StdTypeDef().parse( fms[idx] );
+	else if ( idx == 2 )
 	    disp_.scale_ = Mnemonic::ScaleDef().parse( fms[2] );
+	else if ( idx == 3 )
 	    disp_.range_.start = fms.getFValue( 3 );
+	else if ( idx == 4 )
 	    disp_.range_.stop = fms.getFValue( 4 );
+	else if ( idx == 5 )
 	    disp_.typicalrange_.start = fms.getFValue( 5 );
+	else if ( idx == 6 )
 	    disp_.typicalrange_.stop = fms.getFValue( 6 );
-	    if ( idx == 7 )
-		disp_.unit_ = fms[7];
-	}
+	else if ( idx == 7 )
+	    disp_.unitlbl_.set( fms[7] ); //Not setUnit!
 	else if ( idx >= 8 && idx <= 10 )
 	    disp_.color_.set( fms.getFValue(8), fms.getFValue(9),
 						fms.getFValue(10) );
@@ -129,28 +235,21 @@ void Mnemonic::usePar( const IOPar& iop )
 void Mnemonic::fillPar( IOPar& iop ) const
 {
     FileMultiString fms( logtypename_ );
-    fms += PropertyRef::StdTypeDef().toString( pr_.stdType() );
+    fms += StdTypeDef().toString( stdtype_ );
     fms += Mnemonic::ScaleDef().toString( disp_.scale_ );
-    Interval<float> vrange( disp_.range_ );
-    Interval<float> vtypicalrange( disp_.typicalrange_ );
-
+    const Interval<float> vrange( disp_.range_ );
+    const Interval<float> vtypicalrange( disp_.typicalrange_ );
     fms.add( vrange.start );
     fms.add( vrange.stop );
     fms.add( vtypicalrange.start );
     fms.add( vtypicalrange.stop );
-    if ( !disp_.unit_.isEmpty() )
-	fms += disp_.unit_;
-    else
-	fms += "";
-
+    const char* unitlbl = disp_.getUnitLbl();
+    fms += unitlbl && *unitlbl ? unitlbl : "";
     fms += disp_.color_.r();
     fms += disp_.color_.g();
     fms += disp_.color_.b();
-    if ( !aliases_.isEmpty() )
-    {
-	for ( int idx=0; idx<aliases_.size(); idx++ )
-	    fms += aliases_.get(idx);
-    }
+    for ( int idx=0; idx<aliases_.size(); idx++ )
+	fms += aliases_.get(idx);
 
     iop.set( name(), fms );
 }
@@ -158,25 +257,75 @@ void Mnemonic::fillPar( IOPar& iop ) const
 
 const Mnemonic& Mnemonic::undef()
 {
-    return *new Mnemonic( "Other", PropertyRef::Other );
+    mDefineStaticLocalObject( PtrMan<Mnemonic>, udf, = nullptr );
+    if ( !udf )
+    {
+	auto* newudf = new Mnemonic( "Other", Other );
+	if ( udf.setIfNull(newudf,true) )
+	{
+	    BufferStringSet& aliases = newudf->aliases();
+	    aliases.add( "" ).add( "undef*" ).add( "?undef?" )
+		   .add( "?undefined?" )
+		   .add( "udf" ).add( "unknown" ).add( "other" );
+	    newudf->disp_.color_ = OD::Color::LightGrey();
+	}
+    }
+    return *udf;
 }
 
 
 const Mnemonic& Mnemonic::distance()
 {
-   auto* ret = new Mnemonic( "DIST", PropertyRef::Dist );
-   ret->disp_.range_ = Interval<float>(0,mUdf(float));
-   ret->disp_.typicalrange_ = Interval<float>::udf();
-   return *ret;
+    mDefineStaticLocalObject( PtrMan<Mnemonic>, dist, = nullptr );
+    if ( !dist )
+    {
+	auto* ret = new Mnemonic( "DIST", Dist );
+	if ( dist.setIfNull(ret,true) )
+	{
+	    ret->disp_.range_ = Interval<float>( 0.f, mUdf(float) );
+	    ret->disp_.typicalrange_ = Interval<float>( 0.f, mUdf(float) );
+	    /* NO default unit, as lateral (XY) and vertical(Z) distances
+	       may have different units */
+	}
+    }
+    return *dist;
 }
 
+
+const Mnemonic& Mnemonic::volume()
+{
+    mDefineStaticLocalObject( PtrMan<Mnemonic>, volume, = nullptr );
+    if ( !volume )
+    {
+	auto* ret = new Mnemonic( "VOL", Volum );
+	if ( volume.setIfNull(ret,true) )
+	{
+	    ret->disp_.range_ = Interval<float>( 0.f, mUdf(float) );
+	    ret->disp_.typicalrange_ = Interval<float>( 0.f, mUdf(float) );
+	}
+    }
+    return *volume;
+}
+
+
+const Mnemonic& Mnemonic::defDEN() { return *MNC().getByName("RHOB",false); }
+const Mnemonic& Mnemonic::defPVEL() { return *MNC().getByName("PVEL",false); }
+const Mnemonic& Mnemonic::defSVEL() { return *MNC().getByName("SVEL",false); }
+const Mnemonic& Mnemonic::defDT() { return *MNC().getByName("DT",false); }
+const Mnemonic& Mnemonic::defDTS() { return *MNC().getByName("DTS",false); }
+const Mnemonic& Mnemonic::defPHI() { return *MNC().getByName("PHI",false); }
+const Mnemonic& Mnemonic::defSW() { return *MNC().getByName("SW",false); }
+const Mnemonic& Mnemonic::defAI() { return *MNC().getByName("AI",false); }
+const Mnemonic& Mnemonic::defSI() { return *MNC().getByName("SI",false); }
+
+
+//------- MnemonicSetMgr ----------
 
 class MnemonicSetMgr : public CallBacker
 {
 public:
 
 MnemonicSetMgr()
-    : mns_( nullptr )
 {
     mAttachCB( IOM().surveyChanged, MnemonicSetMgr::doNull );
 }
@@ -226,11 +375,9 @@ void createSet()
 
     if ( !mns_ )
 	mns_ = new MnemonicSet;
-
-//    PROPS(); //Creating a PropertyRefSet
 }
 
-    MnemonicSet* mns_;
+    MnemonicSet* mns_ = nullptr;
 
 };
 
@@ -245,118 +392,86 @@ const MnemonicSet& MNC()
 }
 
 
-/* ----MnemonicSet---- */
+//------- MnemonicSet ----------
 
-MnemonicSet::~MnemonicSet()
+MnemonicSet::MnemonicSet()
+    : ManagedObjectSet<Mnemonic>()
 {
-    deepErase( *this );
 }
 
 
-int MnemonicSet::indexOf( const char* nm ) const
+Mnemonic* MnemonicSet::getByName( const char* nm, bool matchaliases )
+{
+    const Mnemonic* ret =
+	const_cast<const MnemonicSet*>(this)->getByName( nm, matchaliases );
+    return const_cast<Mnemonic*>( ret );
+}
+
+
+const Mnemonic* MnemonicSet::getByName( const char* nm,
+					bool matchaliases ) const
 {
     if ( nm && *nm )
     {
-	for ( int idx=0; idx<size(); idx++ )
-	{
-	    const Mnemonic& mnc = *(*this)[idx];
-	    if ( mnc.name() == nm )
-		return idx;
-	}
-
-	for ( int idx=0; idx<size(); idx++ )
-	{
-	    const Mnemonic& mnc = *(*this)[idx];
-	    if ( mnc.isKnownAs(nm) )
-		return idx;
-	}
+	for ( const auto* mnc : *this )
+	    if ( mnc->matches(nm,matchaliases) )
+		return mnc;
     }
 
-    return -1;
+    return nullptr;
 }
 
 
-MnemonicSet* MnemonicSet::getSet( const PropertyRef* pr )
+const Mnemonic& MnemonicSet::getGuessed( Mnemonic::StdType stdtype,
+					 const BufferStringSet* hintnms ) const
 {
-    MnemonicSet* mns = new MnemonicSet();
-    for ( int idx=0; idx<size(); idx++ )
+    const MnemonicSelection mnsel( stdtype );
+    if ( !hintnms )
+	return mnsel.isEmpty() ? Mnemonic::undef() : *mnsel.first();
+
+    for ( const auto* hintnm : *hintnms )
     {
-	Mnemonic& mnc = *(*this)[idx];
-	if ( mnc.hasType(pr->stdType()) )
-	    mns->add( &mnc );
+	const Mnemonic* mn = mnsel.getByName( hintnm->str() );
+	if ( mn )
+	    return *mn;
     }
 
-    return mns;
+    return *mnsel.first();
 }
 
 
-Mnemonic* MnemonicSet::getGuessed( PropertyRef::StdType stdtype )
+const Mnemonic& MnemonicSet::getGuessed( const UnitOfMeasure* uom ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
+    if ( !uom )
+	return Mnemonic::undef();
+
+    for ( const auto* mnc : *this )
     {
-	Mnemonic& mnc = *(*this)[idx];
-	if ( mnc.hasType(stdtype) )
-	    return &mnc;
+	if ( mnc->hasType(uom->propType()) )
+	   return *mnc;
     }
 
-    return &const_cast<Mnemonic&>( Mnemonic::undef() );
-}
-
-
-Mnemonic* MnemonicSet::getGuessed( const UnitOfMeasure* uom )
-{
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	Mnemonic& mnc = *(*this)[idx];
-	if ( uom )
-	{
-	    if ( mnc.hasType(uom->propType()) )
-	       return &mnc;
-	}
-    }
-
-    return &const_cast<Mnemonic&>( Mnemonic::undef() );
-}
-
-
-const Mnemonic* MnemonicSet::getGuessed( PropertyRef::StdType stdtype ) const
-{
-    return const_cast<MnemonicSet*>(this)->getGuessed( stdtype );
-}
-
-
-const Mnemonic* MnemonicSet::getGuessed( const UnitOfMeasure* uom ) const
-{
-    return const_cast<MnemonicSet*>(this)->getGuessed( uom );
+    return Mnemonic::undef();
 }
 
 
 void MnemonicSet::getNames( BufferStringSet& names ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
-	names.add( (*this)[idx]->name() );
+    for ( const auto* mnc : *this )
+	names.add( mnc->name() );
 }
 
 
-int MnemonicSet::add( Mnemonic* mn )
+MnemonicSet& MnemonicSet::doAdd( Mnemonic* mn )
 {
-    if ( !mn )
-	return -1;
-
-    if ( !isPresent(mn->name()) )
+    if ( !mn || getByName(mn->name(),false) )
     {
-	ObjectSet<Mnemonic>::doAdd( mn );
-	return size()-1;
+	delete mn;
+	return *this;
     }
 
-    return -1;
-}
-
-
-Mnemonic* MnemonicSet::fnd( const char* nm ) const
-{
-    const int idx = indexOf( nm );
-    return idx < 0 ? nullptr : const_cast<Mnemonic*>( (*this)[idx] );
+    ObjectSet<Mnemonic>::doAdd( mn );
+    return *this;
 }
 
 
@@ -364,90 +479,106 @@ void MnemonicSet::readFrom( ascistream& astrm )
 {
     while ( !atEndOfSection(astrm.next()) )
     {
-	IOPar iop; iop.getFrom(astrm);
+	IOPar iop; iop.getFrom( astrm );
 	for ( int idx=0; idx<iop.size(); idx++ )
 	{
 	    const BufferString mnemonicnm( iop.getKey(idx) );
-	    if ( find(mnemonicnm) )
+	    if ( getByName(mnemonicnm,false) )
 		continue;
 
-	    Mnemonic* mnc = new Mnemonic( mnemonicnm, PropertyRef::Other );
+	    auto* mnc = new Mnemonic( mnemonicnm, Mnemonic::Other );
 	    mnc->usePar( iop );
-
-	    if ( add(mnc) < 0 )
-		delete mnc;
+	    add( mnc );
 	}
     }
 }
 
 
-bool MnemonicSelection::operator ==( const MnemonicSelection& oth ) const
+//------- MnemonicSelection ----------
+
+MnemonicSelection::MnemonicSelection()
+    : ObjectSet<const Mnemonic>()
 {
-    if ( size() != oth.size() )
-	return false;
-
-    for ( int idx=0; idx<size(); idx++ )
-	if ( (*this)[idx] != oth[idx] )
-	    return false;
-
-    return true;
 }
 
 
-int MnemonicSelection::indexOf( const char* nm ) const
+MnemonicSelection::MnemonicSelection( const Mnemonic* exclude )
+    : ObjectSet<const Mnemonic>()
 {
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	const Mnemonic& mn = *((*this)[idx]);
-	if ( mn.name() == nm )
-	    return idx;
-    }
-    return -1;
-}
-
-
-int MnemonicSelection::find( const char* nm ) const
-{
-    const int idxof = indexOf( nm );
-    if ( idxof >= 0 )
-	return idxof;
-
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	const Mnemonic& mn = *((*this)[idx]);
-	if ( mn.isKnownAs( nm ) )
-	    return idx;
-    }
-
-    return -1;
-}
-
-
-MnemonicSelection MnemonicSelection::getAll( const Mnemonic* exclude )
-{
-    MnemonicSelection ret;
     const MnemonicSet& mns = MNC();
-    for ( int idx=0; idx<mns.size(); idx++ )
+    for ( const auto* mnc : mns )
     {
-	const Mnemonic* mn = mns[idx];
-	if ( mn != exclude )
-	    ret += mn;
+	if ( mnc != exclude )
+	    add( mnc );
     }
-
-    return ret;
 }
 
 
-MnemonicSelection MnemonicSelection::getAll( const PropertyRef::StdType typ )
+MnemonicSelection::MnemonicSelection( const Mnemonic::StdType stdtyp )
+    : ObjectSet<const Mnemonic>()
 {
-    MnemonicSelection ret;
     const MnemonicSet& mns = MNC();
-    for ( int idx=0; idx<mns.size(); idx++ )
+    for ( const auto* mnc : mns )
     {
-	const Mnemonic* mn = mns[idx];
-	if ( mn->stdType() == typ )
-	    ret += mn;
+	if ( mnc->stdType() == stdtyp )
+	    add( mnc );
+    }
+}
+
+
+const Mnemonic* MnemonicSelection::getByName( const char* nm,
+					      bool matchaliases ) const
+{
+    if ( nm && *nm )
+    {
+	for ( const auto* mnc : *this )
+	    if ( mnc->matches(nm,matchaliases) )
+		return mnc;
     }
 
-    return ret;
+    return nullptr;
+}
+
+
+void MnemonicSelection::getAll( const BufferStringSet& mnnms,
+				MnemonicSelection& ret )
+{
+    MnemonicSelection mnrefsel;
+    const MnemonicSet& mns = MNC();
+    for ( const auto* mnnm : mnnms )
+	mnrefsel.add( mns.getByName(mnnm->buf(),false) );
+
+    for ( const auto* mn : mns )
+    {
+	for ( const auto* mnref : mnrefsel )
+	{
+	    if ( mn == mnref )
+	    {
+		ret.add( mn );
+		mnrefsel -= mn;
+		break;
+	    }
+	}
+    }
+}
+
+
+MnemonicSelection MnemonicSelection::getAllVolumetrics()
+{
+    MnemonicSelection mnsel;
+    const BufferStringSet mnrefnms( "VCL" );
+    getAll( mnrefnms, mnsel );
+
+    return mnsel;
+}
+
+
+MnemonicSelection MnemonicSelection::getAllPorosity()
+{
+    MnemonicSelection mnsel;
+    BufferStringSet mnrefnms( "PHI", "PHIT", "PHIE" );
+    mnrefnms.add( "PHIS" ).add( "PHID" ).add( "PHIN" );
+    getAll( mnrefnms, mnsel );
+
+    return mnsel;
 }
