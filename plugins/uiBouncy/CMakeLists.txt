@@ -2,7 +2,6 @@
 #
 #	Makefile : 	uiBouncy plugin
 # 	March 2012	Nageswara
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Bouncy uiODMain )
