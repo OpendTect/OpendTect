@@ -4,7 +4,6 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "initgmtplugin.h"
 #include "odplugin.h"

@@ -5,7 +5,6 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimadagascarmain.h"
 #include "uimenu.h"
