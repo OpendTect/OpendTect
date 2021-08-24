@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Prestack stuff
 # 	2008		K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Velocity)

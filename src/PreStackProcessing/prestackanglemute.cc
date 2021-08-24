@@ -4,7 +4,6 @@
  * DATE     : January 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "prestackanglemute.h"
 
