@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Attribute Engine classes
 # 	Jul 2000	Kris Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS NLA Seis )
