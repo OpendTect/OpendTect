@@ -4,7 +4,6 @@
  * DATE     : Dec 2019
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigoogleexppointset.h"
 #include "googlexmlwriter.h"

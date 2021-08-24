@@ -4,7 +4,6 @@
  * DATE     : Jul 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uigoogleiomod.h"

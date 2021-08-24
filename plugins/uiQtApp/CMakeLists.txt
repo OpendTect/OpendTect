@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Qt App plugin example
 # 	March 2012	Nageswara
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain)
