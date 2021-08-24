@@ -2,7 +2,6 @@
 # Description:  CMake script to define od packages
 # Author:       Nageswara
 # Date:         May 2013
-#RCS:           $Id$
 
 set( BASEPACKAGES basedatadefs )
 set( PACKAGELIST basedefs develdefs )
