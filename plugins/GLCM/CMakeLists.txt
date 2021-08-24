@@ -2,7 +2,6 @@
 #
 #	Makefile : 	GLCM plugin
 # 	Jan 2012	C.G. Eichkitz
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS AttributeEngine)
