@@ -20,4 +20,3 @@ Qt: 5.15.0
 OpenSceneGraph: 3.6.5
 HDF5 (optional): 1.12.0
 
-# $Id$
