@@ -8,7 +8,6 @@
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "visseis2ddisplay.h"
 

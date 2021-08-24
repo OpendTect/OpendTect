@@ -4,7 +4,6 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "visannot.h"
 #include "vistext.h"

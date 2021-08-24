@@ -4,7 +4,6 @@
  * DATE     : July 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "vispseventdisplay.h"
 

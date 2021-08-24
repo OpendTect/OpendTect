@@ -4,7 +4,6 @@
  * DATE     : Apr 2013
 */
 
-const char* rcsID mUsedVar = "$Id$";
 
 #include "visosg.h"
 #include "osgver.h"

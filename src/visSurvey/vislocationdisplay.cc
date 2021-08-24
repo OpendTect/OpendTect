@@ -4,7 +4,6 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "vislocationdisplay.h"
 

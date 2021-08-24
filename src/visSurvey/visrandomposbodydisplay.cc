@@ -4,7 +4,6 @@
  * DATE     : January 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "visrandomposbodydisplay.h"
 

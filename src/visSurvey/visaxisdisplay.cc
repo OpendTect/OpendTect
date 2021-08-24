@@ -4,7 +4,6 @@
  * DATE     : Feb 2020
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "visaxisdisplay.h"
 namespace visSurvey
