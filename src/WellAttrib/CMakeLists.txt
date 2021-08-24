@@ -2,7 +2,6 @@
 #
 #	Makefile : 	WellAttrib
 # 	Jul 2000	Bruno Chaintreuil
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Well Attributes Strat )
