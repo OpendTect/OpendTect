@@ -4,7 +4,6 @@
  * DATE     : Mar 2001 / Mar 2016
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "picksetmgr.h"
 

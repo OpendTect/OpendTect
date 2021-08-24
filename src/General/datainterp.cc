@@ -5,7 +5,6 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "datainterp.h"
 

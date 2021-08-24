@@ -5,7 +5,6 @@
  * FUNCTION : Help viewing
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "helpview.h"
 #include "keystrs.h"

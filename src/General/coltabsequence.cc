@@ -4,7 +4,6 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"

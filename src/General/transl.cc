@@ -5,7 +5,6 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "transl.h"
 

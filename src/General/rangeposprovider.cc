@@ -4,7 +4,6 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID mUnusedVar = "$Id$";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"

@@ -4,7 +4,6 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 /*! \brief Several implementations for UI-related things.
 

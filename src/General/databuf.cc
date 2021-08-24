@@ -4,7 +4,6 @@
  * DATE     : 28-2-1996
  * FUNCTION : Data buffers and collections of buffers (trace data)
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "tracedata.h"

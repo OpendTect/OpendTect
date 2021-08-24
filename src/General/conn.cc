@@ -5,7 +5,6 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "streamconn.h"
 #include "od_iostream.h"

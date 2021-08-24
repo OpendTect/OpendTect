@@ -4,7 +4,6 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
