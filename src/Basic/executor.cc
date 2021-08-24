@@ -4,7 +4,6 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "executor.h"
 

@@ -4,7 +4,6 @@
  * DATE     : 21-9-1995
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "namedobj.h"
 #include "iopar.h"

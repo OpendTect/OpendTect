@@ -5,7 +5,6 @@
  * FUNCTION : Default user settings
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "settings.h"
 

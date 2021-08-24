@@ -5,7 +5,6 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "winutils.h"

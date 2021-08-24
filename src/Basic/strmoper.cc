@@ -5,7 +5,6 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "strmoper.h"
 

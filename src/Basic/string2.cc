@@ -5,7 +5,6 @@
  * FUNCTION : Functions for string manipulations
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "string2.h"
 

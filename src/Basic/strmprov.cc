@@ -5,7 +5,6 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "strmprov.h"
 
