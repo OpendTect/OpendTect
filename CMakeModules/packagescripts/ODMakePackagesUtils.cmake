@@ -2,7 +2,6 @@
 # Description:	CMake script to build a release
 # Author:	Nageswara
 # Date:		August 2012		
-#RCS:		$Id$
 
 macro ( CREATE_PACKAGE PACKAGE_NAME )
     if( ${PACKAGE_NAME} STREQUAL "base" )

@@ -2,7 +2,6 @@
 #
 #	CopyRight:	dGB Beheer B.V.
 # 	June 2013	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set ( ITTNOTIFY_DIR "" CACHE PATH "Directory of ITT notify" )
