@@ -4,7 +4,6 @@
  * DATE     : July 2014
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "wellioprov.h"
