@@ -11,30 +11,16 @@ ________________________________________________________________________
 */
 
 #include "plfdefs.h"
+#include <cstdint>
 
-#ifdef __sun__
-# include <sys/types.h>
-#else
-# ifndef __msvc__
-#  include <stdint.h>
-# endif
+#define od_int8		std::int8_t
+#define od_uint8	std::uint8_t
 
-#endif
+#define od_int16	std::int16_t
+#define od_uint16	std::uint16_t
 
-/* 16 bits short is standard. Only use to emphasise the 16-bitness */
-#define od_int16	short
-#define od_uint16	unsigned short
+#define od_int32	std::int32_t
+#define od_uint32	std::uint32_t
 
-/* 32 bits int is standard. Only use to emphasise the 32-bitness */
-#define od_int32	int
-#define od_uint32	unsigned int
-
-/* 64 bits is int64_t. The definition is in various header files. */
-#ifndef __msvc__
-# define od_int64	int64_t
-# define od_uint64	uint64_t
-#else
-# define od_int64 	__int64
-# define od_uint64	unsigned __int64
-#endif
-
+#define od_int64	std::int64_t
+#define od_uint64	std::uint64_t

@@ -30,7 +30,7 @@ template<class T> class StepInterval;
 
 typedef od_int32	Index_Type;
 typedef od_int64	DirtyCountType;
-typedef unsigned short	PortNr_Type;
+typedef od_uint16	PortNr_Type;
 typedef od_int32	PID_Type;
 
 enum CaseSensitivity	{ CaseSensitive=0, CaseInsensitive=1 };
@@ -47,8 +47,8 @@ enum DataRepType
 template <class T> DataRepType GetDataRepType() { return AutoDataRep; }
 #   define mDefDataRepTypeGetFn( ctyp, drtyp ) \
 template <> inline DataRepType GetDataRepType<ctyp>() { return drtyp; }
-mDefDataRepTypeGetFn( signed char, SI8 )
-mDefDataRepTypeGetFn( unsigned char, UI8 )
+mDefDataRepTypeGetFn( od_int8, SI8 )
+mDefDataRepTypeGetFn( od_uint8, UI8 )
 mDefDataRepTypeGetFn( od_int16, SI16 )
 mDefDataRepTypeGetFn( od_uint16, UI16 )
 mDefDataRepTypeGetFn( od_int32, SI32 )
