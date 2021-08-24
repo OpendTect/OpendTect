@@ -4,7 +4,6 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "math2.h"
 #include "undefval.h"

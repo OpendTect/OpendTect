@@ -5,7 +5,6 @@
  * FUNCTION : date info
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "dateinfo.h"
 #include "timefun.h"

@@ -4,7 +4,6 @@
  * DATE     : Dec 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "bufstring.h"
 #include "globexpr.h"

@@ -4,7 +4,6 @@
  * DATE     : Sep 2011
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "callback.h"
 #include "notify.h"
