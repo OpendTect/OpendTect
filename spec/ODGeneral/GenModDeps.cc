@@ -5,7 +5,6 @@
  * FUNCTION : Generate file to include in make.Vars
 -*/
 
-static const char* rcsID = "$Id$";
 
 #include "prog.h"
 #include "od_iostream.h"

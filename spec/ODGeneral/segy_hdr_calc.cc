@@ -4,7 +4,6 @@
  * DATE     : May 2006
 -*/
 
-static const char* rcsID = "$Id";
 
 #include "strmprov.h"
 #include "ibmformat.h"

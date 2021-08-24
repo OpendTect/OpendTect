@@ -15,7 +15,6 @@
 
 -*/
 
-static const char* rcsID = "$Id$";
 
 #include "ioobj.h"
 #include "iopar.h"

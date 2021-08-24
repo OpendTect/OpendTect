@@ -4,7 +4,6 @@
  * FUNCTION : get special folder location
 -*/
 
-static const char* rcsID = "$Id$";
 
 
 #include "prog.h"

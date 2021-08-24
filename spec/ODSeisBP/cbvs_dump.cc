@@ -4,7 +4,6 @@
  * DATE     : 2000
 -*/
 
-static const char* rcsID = "$Id";
 
 #include "seistrc.h"
 #include "seiscbvs.h"

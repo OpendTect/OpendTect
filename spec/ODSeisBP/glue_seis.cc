@@ -4,7 +4,6 @@
  * DATE     : 25-9-1999
 -*/
 
-static const char* rcsID = "$Id$";
 #include "prog.h"
 #include "batchprog.h"
 #include "ioman.h"

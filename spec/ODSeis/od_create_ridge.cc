@@ -3,7 +3,6 @@
  * AUTHOR   : R. K. Singh
  * DATE     : July 2007
 -*/
-static const char* rcsID = "$Id$";
 
 #include "conn.h"
 #include "cubesampling.h"

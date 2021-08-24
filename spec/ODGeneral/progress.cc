@@ -1,4 +1,3 @@
-static const char* rcsID = "$Id$";
 
 #include <iostream>
 #include "progressmeter.h"
