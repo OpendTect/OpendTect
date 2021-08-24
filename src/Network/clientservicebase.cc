@@ -4,7 +4,6 @@
 * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 * Author:	A. Huck
 * Date:		Oct 2020
-* RCS:		$Id$
 * ________________________________________________________________________
 *
 * -*/
