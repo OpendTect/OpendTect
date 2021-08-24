@@ -2,7 +2,6 @@
 #
 #	Makefile : 	uiMATLAB plugin
 # 	March 2012	Nanne Hemstra
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 if ( NOT MATLAB_DIR STREQUAL "" )

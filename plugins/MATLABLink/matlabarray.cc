@@ -4,7 +4,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		May 2013
-SVN:		$Id$
 ________________________________________________________________________
 
 -*/
