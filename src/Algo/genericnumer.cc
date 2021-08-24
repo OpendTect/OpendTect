@@ -3,7 +3,6 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "genericnumer.h"
 #include "undefval.h"

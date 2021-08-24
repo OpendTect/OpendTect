@@ -4,7 +4,6 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "delaunay3d.h"
 

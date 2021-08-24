@@ -5,7 +5,6 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "checksum.h"
 #include "testprog.h"

@@ -4,7 +4,6 @@
  * DATE     : Jan 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "sampledprobdenfunc.h"

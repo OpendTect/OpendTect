@@ -4,7 +4,6 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id: array2dinterpol.cc 38250 2015-02-24 07:48:19Z bart.degroot@dgbes.com $";
 
 #include "contcurvinterpol.h"
 #include "arrayndimpl.h"

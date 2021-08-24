@@ -4,7 +4,6 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "spectrogram.h"
 #include "arrayndimpl.h"

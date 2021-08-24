@@ -4,7 +4,6 @@
  * DATE     : May 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "valseriesevent.h"
 

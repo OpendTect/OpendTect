@@ -9,7 +9,6 @@
 ---------------------------------------------------------------------------
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "bodyvolumecalc.h"

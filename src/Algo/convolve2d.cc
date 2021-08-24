@@ -4,7 +4,6 @@
  * DATE     : 8-20-2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "convolve2d.h"
 
