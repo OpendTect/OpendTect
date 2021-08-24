@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
