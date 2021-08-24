@@ -5,7 +5,6 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "tutmod.h"
 #include "tutorialattrib.h"

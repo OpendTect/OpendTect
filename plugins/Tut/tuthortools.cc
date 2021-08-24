@@ -4,7 +4,6 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "tuthortools.h"
 #include "emhorizon3d.h"
