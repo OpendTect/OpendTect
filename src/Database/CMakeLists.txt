@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Basic utilities
 # 	July 1995	A.H. Bril
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS General )

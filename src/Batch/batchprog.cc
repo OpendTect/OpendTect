@@ -5,7 +5,6 @@
  * FUNCTION : Batch Program 'driver'
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
 

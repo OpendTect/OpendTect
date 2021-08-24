@@ -4,7 +4,6 @@
  * DATE     : June 2001
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "nlacrdesc.h"
 

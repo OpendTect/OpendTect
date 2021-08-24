@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Batch
 # 	Sep 1998	A.H. Bril
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 ADD_DEFINITIONS( -D_CONSOLE )
