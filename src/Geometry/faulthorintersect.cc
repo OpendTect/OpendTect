@@ -4,7 +4,6 @@
  * DATE     : March 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "faulthorintersect.h"
 

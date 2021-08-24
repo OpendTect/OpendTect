@@ -4,7 +4,6 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "faultsticksurface.h"
 #include "binidvalue.h"
