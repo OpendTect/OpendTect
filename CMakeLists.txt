@@ -2,7 +2,6 @@
 #
 #       CopyRight:      dGB Beheer B.V.
 #       Jan 2012        K. Tingdahl
-#       SVN:		$Id$
 #_______________________________________________________________________________
 
 cmake_minimum_required ( VERSION 3.14.7 )

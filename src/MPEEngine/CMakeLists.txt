@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Tracking
 # 	April 2004	N. Hemstra
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS EarthModel AttributeEngine )

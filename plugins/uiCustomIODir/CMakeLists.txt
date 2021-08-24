@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Create your own custom data directory
 # 	Feb 2014:	Bert
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain)

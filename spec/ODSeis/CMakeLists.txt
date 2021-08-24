@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Seismic/Test
 # 	May 2001 :	Bert
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET( OD_MODULE_DEPS Seis )

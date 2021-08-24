@@ -2,7 +2,6 @@
 #
 #	Makefile : 	GLCM plugin
 # 	Jan 2012	C.G. Eichkitz
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiODMain GLCM)

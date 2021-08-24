@@ -2,7 +2,6 @@
 #
 #	Makefile : 	VMB::VelocityFunction
 # 	2008		Kris
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set( OD_MODULE_DEPS Velocity Well )

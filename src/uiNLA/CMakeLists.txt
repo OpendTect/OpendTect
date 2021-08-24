@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Non-Linear Analysis Ui
 # 	Sep 2003	A.H. Bril
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiIo NLA Well Seis )

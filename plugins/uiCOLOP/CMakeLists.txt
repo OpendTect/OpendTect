@@ -2,7 +2,6 @@
 #
 #	Makefile :	COLOP (UI)
 #	Sep 2019	Khushnood
-#	RCS :		$Id$
 #_______________________________________________________________________________
 if( WIN32 )
     SET(OD_MODULE_DEPS uiODMain)

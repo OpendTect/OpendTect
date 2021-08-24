@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Plugin 'template'
 # 	Apr 2012	Bert
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiODMain)

@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Madagascar Attributes, User Interface
 # 	March 2012	Nageswara
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS uiAttributes MadagascarAttribs)

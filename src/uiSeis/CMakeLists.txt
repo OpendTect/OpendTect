@@ -2,7 +2,6 @@
 #
 #	Makefile : 	ui - Seis
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiIo Seis Velocity)

@@ -2,7 +2,6 @@
 #
 #	Makefile : 	HorizonAttrib plugin
 # 	March 2012	Nageswara
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS  Basic Algo AttributeEngine PreStackProcessing

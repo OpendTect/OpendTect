@@ -2,7 +2,6 @@
 #
 #	Makefile : 	ui- based on vis stuff.
 # 	July 2002	Nanne Hemstra
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS uiOSG uiMPE )
