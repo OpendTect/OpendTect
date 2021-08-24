@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
