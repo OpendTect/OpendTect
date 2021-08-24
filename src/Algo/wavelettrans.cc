@@ -4,7 +4,6 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 

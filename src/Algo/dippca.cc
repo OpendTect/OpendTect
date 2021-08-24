@@ -5,7 +5,6 @@
  * DATE     : June 2012
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "dippca.h"
 
