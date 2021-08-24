@@ -3,7 +3,6 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiswrite.h"
 

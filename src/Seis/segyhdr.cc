@@ -4,7 +4,6 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "segyhdr.h"

@@ -3,7 +3,6 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "segyresorter.h"
 #include "segydirectdef.h"

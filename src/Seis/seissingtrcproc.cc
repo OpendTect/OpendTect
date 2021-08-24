@@ -4,7 +4,6 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"

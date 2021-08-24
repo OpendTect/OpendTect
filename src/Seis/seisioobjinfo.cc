@@ -4,7 +4,6 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisioobjinfo.h"
 

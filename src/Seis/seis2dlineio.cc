@@ -4,7 +4,6 @@
  * DATE     : Dec 2009
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seis2dlineio.h"
 

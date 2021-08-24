@@ -5,7 +5,6 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisresampler.h"
 #include "trckeyzsampling.h"

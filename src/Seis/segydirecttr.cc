@@ -4,7 +4,6 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"

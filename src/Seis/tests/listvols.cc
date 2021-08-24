@@ -4,7 +4,6 @@
  * DATE     : Aug 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "testprog.h"
 

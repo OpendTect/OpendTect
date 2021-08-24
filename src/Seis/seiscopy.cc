@@ -4,7 +4,6 @@
  * DATE     : Oct 2014
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiscopy.h"
 #include "seis2ddata.h"

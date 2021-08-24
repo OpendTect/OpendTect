@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seis2dto3d.h"
 
