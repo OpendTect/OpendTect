@@ -5,7 +5,6 @@
  * FUNCTION : Clipboard functionality
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiclipboard.h"
 
