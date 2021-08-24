@@ -2,7 +2,6 @@
 #
 #	Makefile :	Distributed processing
 # 	July 2008	Bert
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS Network)
