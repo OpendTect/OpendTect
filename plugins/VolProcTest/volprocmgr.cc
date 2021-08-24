@@ -4,7 +4,6 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "volprocmgr.h"
