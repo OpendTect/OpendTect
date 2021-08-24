@@ -2,7 +2,6 @@
 #
 #	Makefile: 	MATLAB plugin
 # 	Feb 2012	Nanne
-#	RCS:		$Id$
 #_______________________________________________________________________________
 
 set( MATLAB_DIR "" CACHE PATH "Directory containing MATLAB-SDK" )
