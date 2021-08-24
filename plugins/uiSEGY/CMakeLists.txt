@@ -2,7 +2,6 @@
 #
 #	Makefile : 	SEG-Y UI
 # 	June 2015	Bert
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 FIND_OD_PLUGIN( "uiSEGYTools" )

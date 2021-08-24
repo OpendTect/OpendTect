@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id:$";
 
 #include "uisegyreadstartinfo.h"
 #include "segyuiscandata.h"
