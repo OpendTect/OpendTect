@@ -47,6 +47,8 @@ public:
 					    bool scenespace = false);
     Coord3			getPosition() const;
 
+    void			setRotation(float radangle,const Coord3& axis);
+
     void			setFontData(const FontData&, float pixeldens);
     const FontData&		getFontData() const	{ return fontdata_; }
 

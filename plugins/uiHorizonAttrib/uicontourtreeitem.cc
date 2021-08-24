@@ -538,6 +538,8 @@ void uiContourTreeItemContourGenerator::addContourLabel(
 
 class uiContourParsDlg : public uiDialog
 { mODTextTranslationClass(uiContourParsDlg);
+
+static const int defelevval = 0;
 public:
 
 uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
@@ -621,15 +623,13 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     degreeslblfld_ = new uiLabel( this, toUiString("(deg)") );
     degreeslblfld_->attach( rightOf, elevationfld_ );
 
-    elevationfld_->box()->setSpecialValueText( "Off" );
-    elevationfld_->box()->setInterval( -5, 75, 5 );
+    elevationfld_->box()->setInterval( -180, 165, 15 );
+    elevationfld_->box()->setValue( defelevval );
     elevationfld_->box()->doSnap( true );
     mAttachCB( elevationfld_->box()->valueChanging,
 					    uiContourParsDlg::elevationChg );
     mAttachCB( elevationfld_->box()->valueChanged,
 					    uiContourParsDlg::uiDisplayCB );
-    disableLabelElevation();
-
     mAttachCB( postFinalise(), uiContourParsDlg::finaliseCB );
 }
 
@@ -681,6 +681,12 @@ const FontData& getFontData() const
 }
 
 
+float getRotation() const
+{
+    return elevationfld_->box()->getFValue();
+}
+
+
 void setLabelAlignment( visBase::Text::Justification alignment )
 {
     if ( alignment == visBase::Text::BottomRight )
@@ -705,7 +711,7 @@ int getLabelAlignment() const
 
 void disableLabelElevation()
 {
-    elevationfld_->box()->setValue( elevationfld_->box()->minValue() );
+    elevationfld_->box()->setValue( defelevval	);
 }
 
 
@@ -737,6 +743,7 @@ protected:
 bool acceptOK( CallBacker* )
 {
     intervalChanged.trigger();
+    propertyChanged.trigger();
     return false;
 }
 
@@ -819,7 +826,15 @@ void intvChanged( CallBacker* cb )
 	intv.scale( 1.0f/zfac_ );
 
     contourintv_.step = intv.step;
-    uiString txt( tr("Number of contours: %1").arg(intv.nrSteps()+1) );
+    const float steps = intv.nrSteps();
+    float nrsteps = intv.nrfSteps();
+    const float eps = 1.0e-01;
+    if ( mIsEqual(nrsteps,steps,eps) )
+	nrsteps = steps;
+    else
+	nrsteps = Math::Floor( nrsteps );
+
+    uiString txt( tr("Number of contours: %1").arg(nrsteps+1) );
     toStatusBar( txt );
 }
 
@@ -1164,7 +1179,6 @@ void uiContourTreeItem::showPropertyDlg()
 	    propdlg_->setFontData( labels_->text(0)->getFontData() );
 	    propdlg_->setLabelAlignment( (visBase::Text::Justification)
 				   labels_->text(0)->getJustification() );
-	    propdlg_->disableLabelElevation();
 	}
     }
 
@@ -1220,10 +1234,12 @@ void uiContourTreeItem::propChangeCB( CallBacker* cb )
     {
 	showlabels_ = dlg->showLabels();
 	labels_->turnOn( lines_->isOn() && showlabels_ );
-
 	labels_->setFontData( dlg->getFontData() );
+	const Coord3 axis ( 0, 0, 1 );
+	const float rotangrad = Math::toRadians( dlg->getRotation() );
 	for ( int idx=0; idx<labels_->nrTexts(); idx++ )
 	{
+	    labels_->text(idx)->setRotation( rotangrad, axis );
 	    labels_->text(idx)->setJustification(
 		    (visBase::Text::Justification) dlg->getLabelAlignment() );
 	    labels_->text(idx)->setColor( color_ );
