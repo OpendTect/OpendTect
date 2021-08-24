@@ -2,7 +2,6 @@
 # Description:  CMake script to define package variables
 # Author:       Nageswara
 # Date:         August 2012
-#RCS:           $Id$
 
 SET( LIBLIST Madagascar uiMadagascar MadagascarAttribs MadagascarAttribs )
 SET( EXECLIST od_madexec )

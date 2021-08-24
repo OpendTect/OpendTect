@@ -2,7 +2,6 @@
 # Description:  CMake script to define gmt package variables
 # Author:       Nageswara
 # Date:         August 2012
-#RCS:           $Id$
 
 SET( LIBLIST GMT uiGMT )
 SET( EXECLIST od_gmtexec )

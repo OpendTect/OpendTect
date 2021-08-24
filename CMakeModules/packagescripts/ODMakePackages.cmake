@@ -2,7 +2,6 @@
 # Description:  CMake script to build a release
 # Author:       K. Tingdahl
 # Date:		August 2012		
-#RCS:           $Id$
 
 if ( "${OpendTect_DIR}" STREQUAL "" )
     set( OpendTect_DIR "${SOURCE_DIR}" )
