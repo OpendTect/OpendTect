@@ -4,7 +4,6 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id: emsurfaceposprov.cc 38252 2015-02-24 07:57:39Z bart.degroot@dgbes.com $";
 
 #include "emsurfaceposprov.h"
 

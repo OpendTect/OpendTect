@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Earth Model
 # 	MNov 1999	Kris Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 SET(OD_MODULE_DEPS Geometry)

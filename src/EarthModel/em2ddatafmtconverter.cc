@@ -4,7 +4,6 @@
  * DATE     : Jan 2014
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "ascstream.h"

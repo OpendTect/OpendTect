@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: emregion.cc 38690 2015-03-30 18:00:30Z nanne.hemstra@dgbes.com $";
 
 
 #include "emregion.h"
