@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiseis2dfrom3d.h"
