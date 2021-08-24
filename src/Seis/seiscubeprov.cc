@@ -4,7 +4,6 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiscubeprov.h"
 

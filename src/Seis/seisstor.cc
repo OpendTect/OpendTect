@@ -5,7 +5,6 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisseqio.h"
 #include "seiscbvs.h"

@@ -5,7 +5,6 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "seistrc.h"
 #include "seiscommon.h"
