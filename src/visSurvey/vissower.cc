@@ -4,7 +4,6 @@
  * DATE     : December 2010
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "vissower.h"

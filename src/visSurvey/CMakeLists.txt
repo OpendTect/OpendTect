@@ -2,7 +2,6 @@
 #
 #	Makefile : 	Visualization - OpendTect Specific
 # 	Jan 2002	K. Tingdahl
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set(OD_MODULE_DEPS visBase EarthModel MPEEngine Well PreStackProcessing )
