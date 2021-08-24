@@ -4,7 +4,6 @@
  * DATE     :	Nov 2013
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "ziputils.h"

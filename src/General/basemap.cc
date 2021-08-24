@@ -4,7 +4,6 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "basemapimpl.h"
 #include "coord.h"

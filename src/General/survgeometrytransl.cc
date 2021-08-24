@@ -4,7 +4,6 @@
  * DATE     : Dec 2012
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "survgeometrytransl.h"
 

@@ -6,7 +6,6 @@
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"

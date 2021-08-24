@@ -4,7 +4,6 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "fontdata.h"
 #include "separstr.h"
