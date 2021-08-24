@@ -4,7 +4,6 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprochorinterfiller.h"
 
