@@ -7,7 +7,6 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
