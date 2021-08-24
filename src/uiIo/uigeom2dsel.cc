@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: Exp $";
 
 
 #include "uigeom2dsel.h"

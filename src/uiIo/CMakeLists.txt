@@ -2,7 +2,6 @@
 #
 #	Makefile : 	uiIo - OpendTect specific tools on top of uiBase/Tools
 # 	Jul 2000	A.H. Bril
-#	RCS :		$Id$
 #_______________________________________________________________________________
 
 set( OD_MODULE_DEPS uiTools uiFlatView Geometry )
