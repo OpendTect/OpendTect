@@ -4,7 +4,6 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "uivolprocvolreader.h"
 #include "uimsg.h"
