@@ -4,7 +4,6 @@
  * DATE     : December 2011
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "impbodyplaneintersect.h"
 

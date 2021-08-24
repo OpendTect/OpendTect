@@ -4,7 +4,6 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "faultstickset.h"
 
