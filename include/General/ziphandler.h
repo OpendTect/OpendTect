@@ -55,6 +55,7 @@ public:
     friend class		ZipUtils;
     friend class		Zipper;
     friend class		UnZipper;
+    friend class		MultiArchiveUnZipper;
 
     enum CompLevel		{ NoComp=0, SuperFast=1, Fast=3, Normal=6,
 								Maximum=9 };

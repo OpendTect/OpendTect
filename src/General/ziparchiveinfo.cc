@@ -45,6 +45,19 @@ bool ZipArchiveInfo::getAllFnms( BufferStringSet& fnms ) const
 }
 
 
+od_int64 ZipArchiveInfo::getTotalSize( bool uncomp ) const
+{
+    od_int64 ret = 0;
+    if ( !isok_ )
+	return ret;
+
+    for( int idx=0; idx<fileinfo_.size(); idx++ )
+	ret += (uncomp ? getFileUnCompSize(idx) : getFileCompSize(idx) );
+
+    return ret;
+}
+
+
 od_int64 ZipArchiveInfo::getFileCompSize( const char* fnm ) const
 {
     if ( !isok_ )
