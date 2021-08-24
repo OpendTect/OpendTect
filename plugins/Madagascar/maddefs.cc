@@ -4,7 +4,6 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
 
 #include "maddefs.h"
 #include "envvars.h"
