@@ -5,7 +5,6 @@
  * FUNCTION : Create extra picks from locations file
 -*/
 
-static const char* rcsID = "$Id$";
 
 #include "prog.h"
 #include "strmprov.h"

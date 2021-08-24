@@ -4,7 +4,6 @@
  * FUNCTION : Get cygwin directory if installed
 -*/
 
-static const char* rcsID = "$Id$";
 
 
 #include "prog.h"
