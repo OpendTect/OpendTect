@@ -7,7 +7,6 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: initvolumeprocessing.cc 37082 2014-10-29 16:52:02Z nanne.hemstra@dgbes.com $";
 
 
 #include "moddepmgr.h"
