@@ -54,18 +54,18 @@ protected:
     ObjectSet<uiTieWin> welltiedlgset_;
     uiWellPropSel*	logsfld_;
 
-    Well::Data*		wd_;
+    Well::Data*		wd_ = nullptr;
 
     uiIOObjSel*         wellfld_;
     uiSeisWaveletSel*	wvltfld_;
-    uiGenInput*		typefld_;
-    uiGenInput*		seisextractfld_;
-    uiSeisSel*		seis2dfld_;
-    uiSeisSel*		seis3dfld_;
-    uiSeis2DLineNameSel* seislinefld_;
+    uiGenInput*		typefld_ = nullptr;
+    uiGenInput*		seisextractfld_ = nullptr;
+    uiSeisSel*		seis2dfld_ = nullptr;
+    uiSeisSel*		seis3dfld_ = nullptr;
+    uiSeis2DLineNameSel* seislinefld_ = nullptr;
     uiCheckBox*		used2tmbox_;
     uiLabeledComboBox*	cscorrfld_;
-    uiWaveletExtraction* extractwvltdlg_;
+    uiWaveletExtraction* extractwvltdlg_ = nullptr;
 
     void		getSetup( const char* wllnm );
     bool		getSeismicInSetup();
@@ -75,8 +75,8 @@ protected:
     void		saveWellTieSetup(const MultiID&,
 					 const WellTie::Setup&) const;
 
-    void		onFinalise(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    void		initDlg(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		typeSelChg(CallBacker*);
     void		seisSelChg(CallBacker*);
     void		seis2DCheckChg(CallBacker*);

@@ -61,13 +61,6 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 		.savechecked(false)
 		.modal(false))
 	, wtsetup_(wtsetup)
-	, seis2dfld_(0)
-	, seis3dfld_(0)
-	, seislinefld_(0)
-	, seisextractfld_(0)
-	, typefld_(0)
-	, extractwvltdlg_(0)
-	, wd_(0)
 	, elpropsel_(*new ElasticPropSelection(false))
 {
     setVideoKey( mODVideoKey(mWellTiMgrDlemgHelpID) );
@@ -79,12 +72,12 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	wellfld_->setInput( wtsetup_.wellid_ );
 
     const CallBack wllselcb( mCB(this,uiTieWinMGRDlg,wellSelChg) );
-    wellfld_->selectionDone.notify( wllselcb );
+    mAttachCB( wellfld_->selectionDone, uiTieWinMGRDlg::wellSelChg );
 
-    uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
+    auto* sep = new uiSeparator( this, "Well2Seismic Sep" );
     sep->attach( stretchedBelow, wellfld_ );
 
-    uiGroup* seisgrp = new uiGroup( this, "Seismic selection group" );
+    auto* seisgrp = new uiGroup( this, "Seismic selection group" );
     seisgrp->attach( ensureBelow, sep );
     seisgrp->attach( alignedBelow, wellfld_ );
 
@@ -99,7 +92,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	typefld_ = new uiGenInput( seisgrp, tr("Seismic"),
 				   StringListInpSpec( seistypes ) );
 	typefld_->setValue( true );
-	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,typeSelChg) );
+	mAttachCB( typefld_->valuechanged, uiTieWinMGRDlg::typeSelChg );
     }
 
     if ( has2d )
@@ -115,9 +108,8 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	if ( typefld_ )
 	    seis2dfld_->attach( alignedBelow, typefld_ );
 
-	seis2dfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
-	seis2dfld_->optionalChecked.notify(
-				      mCB(this,uiTieWinMGRDlg,seis2DCheckChg) );
+	mAttachCB( seis2dfld_->selectionDone, uiTieWinMGRDlg::seisSelChg );
+	mAttachCB( seis2dfld_->optionalChecked, uiTieWinMGRDlg::seis2DCheckChg);
 
 	seislinefld_ = new uiSeis2DLineNameSel( seisgrp, true );
 	seislinefld_->display( !has3d );
@@ -139,7 +131,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	if ( typefld_ )
 	    seis3dfld_->attach( alignedBelow, typefld_ );
 
-	seis3dfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
+	mAttachCB( seis3dfld_->selectionDone, uiTieWinMGRDlg::seisSelChg );
     }
 
     seisgrp->setHAlignObj( typefld_ ? (uiGroup*)typefld_
@@ -149,15 +141,15 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     sep = new uiSeparator( this, "Seismic2Log Sep" );
     sep->attach( stretchedBelow, seisgrp );
 
-    uiGroup* logsgrp = new uiGroup( this, "Log selection group" );
+    auto* logsgrp = new uiGroup( this, "Log selection group" );
     logsgrp->attach( alignedBelow, wellfld_ );
     logsgrp->attach( ensureBelow, sep );
 
     logsfld_ = new uiWellPropSel( logsgrp, elpropsel_ );
-    logsfld_->logCreated.notify( wllselcb );
+    mAttachCB( logsfld_->logCreated, uiTieWinMGRDlg::wellSelChg );
 
     used2tmbox_ = new uiCheckBox( logsgrp, tr("Use existing depth/time model"));
-    used2tmbox_->activated.notify( mCB(this, uiTieWinMGRDlg, d2TSelChg ) );
+    mAttachCB( used2tmbox_->activated, uiTieWinMGRDlg::d2TSelChg );
     used2tmbox_->attach( alignedBelow, logsfld_ );
 
     const char** corrs = WellTie::Setup::CorrTypeNames();
@@ -173,34 +165,34 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     wvltfld_->attach( alignedBelow, wellfld_ );
     wvltfld_->attach( ensureBelow, sep );
 
-    afterPopup.notify( mCB(this,uiTieWinMGRDlg,onFinalise) );
+    mAttachCB( postFinalise(), uiTieWinMGRDlg::initDlg );
 }
 
 
 uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
+    detachAllNotifiers();
     delWins();
-    if ( extractwvltdlg_ )
-	delete extractwvltdlg_;
-
-    if ( wd_ )
-	wd_->unRef();
-
+    delete extractwvltdlg_;
+    unRefPtr( wd_ );
     delete &wtsetup_;
     delete &elpropsel_;
 }
 
 
-void uiTieWinMGRDlg::onFinalise( CallBacker* )
+void uiTieWinMGRDlg::initDlg( CallBacker* )
 {
-    wellSelChg( 0 );
+    wellSelChg( nullptr );
 }
 
 
 void uiTieWinMGRDlg::delWins()
 {
     while ( !welltiedlgset_.isEmpty() )
-	welltiedlgset_[0]->close();
+    {
+	uiTieWin* tiedlg = welltiedlgset_.pop();
+	closeAndZeroPtr( tiedlg );
+    }
 }
 
 

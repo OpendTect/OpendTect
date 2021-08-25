@@ -39,8 +39,7 @@ uiWellSinglePropSel::uiWellSinglePropSel( uiParent* p, const PropertyRef& pr,
 {
     auto* lcb = new uiLabeledComboBox(this, toUiString(pr.name()));
     lognmfld_ = lcb->box();
-    lognmfld_->selectionChanged.notify(
-			       mCB(this,uiWellSinglePropSel,updateSelCB) );
+    mAttachCB( lognmfld_->selectionChanged, uiWellSinglePropSel::updateSelCB );
 
     uiUnitSel::Setup ussu( propref_.stdType() ); ussu.withnone( true );
     unfld_ = new uiUnitSel( this, ussu );
@@ -51,10 +50,16 @@ uiWellSinglePropSel::uiWellSinglePropSel( uiParent* p, const PropertyRef& pr,
     {
 	altbox_ = new uiCheckBox( this, toUiString(altpropref_->name()) );
 	altbox_->attach( rightOf, unfld_ );
-	altbox_->activated.notify( mCB(this,uiWellSinglePropSel,switchPropCB) );
+	mAttachCB( altbox_->activated, uiWellSinglePropSel::switchPropCB );
     }
 
     setHAlignObj( lognmfld_ );
+}
+
+
+uiWellSinglePropSel::~uiWellSinglePropSel()
+{
+    detachAllNotifiers();
 }
 
 
@@ -217,7 +222,7 @@ uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
 						   : Mnemonic::defDT() );
 
 	auto* fld = new uiWellSinglePropSel( this, *pr, altpr );
-	fld->altPropChosen.notify( mCB(this,uiWellPropSel,updateSelCB) );
+	mAttachCB( fld->altPropChosen, uiWellPropSel::updateSelCB );
 	if ( propflds_.isEmpty() )
 	    setHAlignObj( fld );
 	else
@@ -241,6 +246,12 @@ uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
 	createbuts_ += createbut;
 	viewbuts_ += viewbut;
     }
+}
+
+
+uiWellPropSel::~uiWellPropSel()
+{
+    detachAllNotifiers();
 }
 
 

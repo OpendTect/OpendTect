@@ -36,6 +36,7 @@ mExpClass(uiWell) uiWellSinglePropSel : public uiGroup
 public:
 			uiWellSinglePropSel(uiParent*,const PropertyRef&,
 				const PropertyRef* alternatepr=nullptr);
+			~uiWellSinglePropSel();
 
     bool		setAvailableLogs(const Well::LogSet&);
 
@@ -65,7 +66,7 @@ protected:
 
     uiComboBox*         lognmfld_;
     uiUnitSel*          unfld_;
-    uiCheckBox*         altbox_;
+    uiCheckBox*         altbox_ = nullptr;
 
     void		updateSelCB(CallBacker*);
     void		switchPropCB(CallBacker*);
@@ -80,6 +81,8 @@ mExpClass(uiWell) uiWellPropSel : public uiGroup
 public:
 
 			uiWellPropSel(uiParent*,const PropertyRefSelection&);
+			~uiWellPropSel();
+
     int			size() const	{ return propflds_.size(); }
 
     bool		setAvailableLogs(const Well::LogSet&,
