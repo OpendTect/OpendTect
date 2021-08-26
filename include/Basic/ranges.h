@@ -860,14 +860,19 @@ StepInterval<T> StepInterval<T>::niceInterval( int maxsteps, bool canrev ) const
 	return udf();
 
     const bool isrev = Interval<T>::isRev();
-    const T min = isrev ? this->stop : this->start;
-    const T max = isrev ? this->start : this->stop;
+    T min = isrev ? this->stop : this->start;
+    T max = isrev ? this->start : this->stop;
     if ( mIsZero(min, mDefEps) && mIsZero(max, mDefEps) )
 	return StepInterval<T>();
 
     T range = Math::Abs( max - min );
     if ( mIsZero(range, mDefEps) )
+    {
 	range = 0.2 * Math::Abs( min );
+	min -= range;
+	max += range;
+	range += range;
+    }
 
     range = Math::NiceNumber( range, false );
     const T nice_step = Math::NiceNumber( range/(maxsteps), true );
