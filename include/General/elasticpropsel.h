@@ -52,12 +52,15 @@ public:
 
     uiString			errMsg() { return errmsg_; }
 
+    static const Mnemonic*	getByType(ElasticFormula::Type,const char* nm);
+
 private:
 
     ElasticPropSelection&	doAdd(const PropertyRef*) override;
 
-    bool			checkForValidSelPropsDesc(
+    static bool			checkForValidSelPropsDesc(
 					const ElasticFormula&,
+					const Mnemonic&,
 					BufferStringSet& faultynms,
 					BufferStringSet& corrnms);
 

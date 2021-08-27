@@ -84,6 +84,7 @@ protected:
 	uiGenInput*		varnmfld_;
 	uiGenInput*		ctefld_;
 
+	void			initGrp(CallBacker*);
 	void			selVarCB(CallBacker*);
     };
     ObjectSet<uiSelInpGrp>	inpgrps_;

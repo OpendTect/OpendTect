@@ -78,14 +78,18 @@ Property* Property::get( const IOPar& iop )
     if ( !nm || !*nm )
 	return nullptr;
 
-    const PropertyRef* ref = PROPS().getByName( nm );
-    if ( !ref && PropertyRef::thickness().name() == nm )
-	ref = &PropertyRef::thickness();
+    const PropertyRef* ref = PropertyRef::thickness().name() == nm
+			   ? &PropertyRef::thickness()
+			   : PROPS().getByName( nm, false );
+    if ( !ref )
+	ref = PROPS().getByName( nm, true );
     if ( !ref )
 	return nullptr;
 
     const char* typ = iop.find( sKey::Type() );
-    if ( !typ || !*typ ) typ = ValueProperty::typeStr();
+    if ( !typ || !*typ )
+	typ = ValueProperty::typeStr();
+
     Property* prop = factory().create( typ, *ref );
     if ( prop )
 	prop->usePar( iop );

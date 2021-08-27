@@ -151,7 +151,7 @@ void ElasticFormulaRepository::addRockPhysicsFormulas()
 
 	    ElasticFormula fm( elasnm, rpf->def_, tp );
 
-	    Math::ExpressionParser mep( rpf->def_ );
+	    const Math::ExpressionParser mep( rpf->def_ );
 	    Math::Expression* me = mep.parse();
 	    if ( !me )
 		continue;
@@ -267,14 +267,11 @@ ElasticPropSelection::ElasticPropSelection( bool withswave )
 	if ( tp == ElasticFormula::SVel && !withswave )
 	    continue;
 
-	const PropertyRef* pr = PROPS().getByName( props[idx] );
-	const Mnemonic* mnc = pr
-	     ? MNC().getByName( pr->mnName() )
-	     : &MNC().getGuessed( ElasticPropertyRef::elasticToStdType(tp) );
-	if ( !mnc )
+	const Mnemonic* mn = getByType( tp, props[idx] );
+	if ( !mn )
 	    { pErrMsg("Should not happen"); continue; }
 
-	add( new ElasticPropertyRef( *mnc, props[idx],
+	add( new ElasticPropertyRef( *mn, props[idx],
 				     ElasticFormula(props[idx],"",tp) ) );
     }
 }
@@ -494,7 +491,7 @@ const ElasticFormula* ElasticPropGen::init( const ElasticFormula& ef,
     Math::Expression* expr = nullptr;
     if ( ef.expression() )
     {
-	Math::ExpressionParser mep( ef.expression() );
+	const Math::ExpressionParser mep( ef.expression() );
 	expr = mep.parse();
     }
 
@@ -571,22 +568,26 @@ float ElasticPropGen::getValue( const ElasticFormula& ef,
     const BufferStringSet& selvars = ef.variables();
     const BufferStringSet& units = ef.units();
     auto* edexpr = const_cast<Math::Expression*>( expr );
-    for ( int ivar=0; ivar<selvars.size(); ivar++ )
+    const int nrvars = selvars.size();
+    for ( int ivar=0; ivar<nrvars; ivar++ )
     {
 	if ( expr->getType(ivar) != Math::Expression::Variable )
 	    continue;
 
 	float exprval = vals[propidxs[ivar]];
 	const UnitOfMeasure* pruom = propuoms[ivar];
-	const UnitOfMeasure* formuom = units.validIdx(ivar)
+	const UnitOfMeasure* formuom = units.validIdx( ivar )
 				 ? UoMR().get( units[ivar]->buf() ) : nullptr;
 	if ( formuom != pruom )
 	    convValue( exprval, pruom, formuom );
 	edexpr->setVariableValue( ivar, exprval );
     }
 
-    const UnitOfMeasure* formoutuom = UoMR().get( units.last()->buf() );
-    return formoutuom->getSIValue( float(expr->getValue()) );
+    const UnitOfMeasure* formoutuom = units.validIdx( nrvars )
+				    ? UoMR().get( units.last()->buf() )
+				    : nullptr;
+    const float retval = float(expr->getValue());
+    return formoutuom ? formoutuom->getSIValue( retval ) : retval;
 }
 
 
@@ -720,7 +721,8 @@ bool ElasticPropSelection::usePar( const IOPar& par )
 
     int elasticsz = 0;
     elasticpar->get( sKeyElasticsSize, elasticsz );
-    if ( !elasticsz ) return false;
+    if ( !elasticsz )
+	return false;
 
     erase();
     bool errocc = false;
@@ -739,23 +741,21 @@ bool ElasticPropSelection::usePar( const IOPar& par )
 	ElasticFormula formulae( nullptr, nullptr, tp );
 	formulae.usePar( *elasticproprefpar );
 
-	if ( !checkForValidSelPropsDesc(formulae,faultynms,corrnms) )
+	const Mnemonic* mn = getByType( tp, elasticnm );
+	if ( !mn || mn->isUdf() )
 	{
 	    errocc = true;
 	    continue;
 	}
 
-	const Mnemonic::StdType stdtype =
-			ElasticPropertyRef::elasticToStdType( tp );
-	const Mnemonic& mn = MNC().getGuessed( stdtype );
-	if ( mn.isUdf() )
+	if ( !checkForValidSelPropsDesc(formulae,*mn,faultynms,corrnms) )
 	{
 	    errocc = true;
 	    continue;
 	}
 
 	if ( !errocc )
-	    add( new ElasticPropertyRef( mn, elasticnm, formulae ) );
+	    add( new ElasticPropertyRef( *mn, elasticnm, formulae ) );
 
 	if ( errocc )
 	{
@@ -789,12 +789,24 @@ ElasticPropSelection& ElasticPropSelection::doAdd( const PropertyRef* pr )
 }
 
 
+const Mnemonic* ElasticPropSelection::getByType( ElasticFormula::Type tp,
+						 const char* nm )
+{
+    const Mnemonic::StdType stdtype =
+				ElasticPropertyRef::elasticToStdType( tp );
+    const PropertyRefSelection prs( stdtype );
+    const MnemonicSelection mns( stdtype );
+    const PropertyRef* pr = prs.getByName( nm );
+    return pr ? mns.getByName( pr->mnName() ) : &MNC().getGuessed( stdtype );
+}
+
+
 bool ElasticPropSelection::checkForValidSelPropsDesc(
-		    const ElasticFormula& formula, BufferStringSet& faultynms,
-						    BufferStringSet& corrnms )
+		    const ElasticFormula& formula, const Mnemonic& mn,
+		    BufferStringSet& faultynms, BufferStringSet& corrnms )
 {
     bool noerror = true;
-    BufferStringSet variables = formula.variables();
+    const BufferStringSet& variables = formula.variables();
     if ( variables.isEmpty() )
 	return noerror;
 
@@ -804,34 +816,65 @@ bool ElasticPropSelection::checkForValidSelPropsDesc(
 	return false;
     }
 
-    BufferStringSet dispnms;
-    for ( const auto* pr : PROPS() )
-	dispnms.add( pr->name() );
-
-    for ( int jidx=0; jidx<variables.size(); jidx++ )
+    const BufferString formexptrstr( formula.expression() );
+    PtrMan<Math::Expression> expr;
+    if ( !formexptrstr.isEmpty() )
     {
-	BufferString varnm;
-	varnm = variables.get( jidx );
-	if ( dispnms.indexOf(varnm) < 0 )
+	const Math::ExpressionParser parser( formexptrstr );
+	expr = parser.parse();
+	if ( !expr )
+	{
+	    corrnms.add( "<Invalid formula>" );
+	    return false;
+	}
+    }
+
+    PropertyRefSelection prs, stdprs, allprs;
+    if ( expr )
+    {
+	prs = PropertyRefSelection( mn );
+	stdprs = PropertyRefSelection( mn.stdType() );
+	allprs = PropertyRefSelection( true, nullptr );
+    }
+    else
+	prs = PropertyRefSelection( mn );
+
+    for ( int idx=0; idx<variables.size(); idx++ )
+    {
+	const Math::Expression::VarType vartp = expr ? expr->getType( idx )
+						 : Math::Expression::Variable;
+	if ( vartp == Math::Expression::Recursive )
+	    continue;
+
+	const BufferString& varnm = variables.get( idx );
+	if ( vartp == Math::Expression::Constant )
+	{
+	    if ( !varnm.isNumber() )
+	    {
+		faultynms.add( varnm );
+		noerror = false;
+	    }
+
+	    continue;
+	}
+
+	const PropertyRef* pr = prs.getByName( varnm );
+	if ( !pr && expr )
+	    pr = stdprs.getByName( varnm );
+	if ( !pr && expr )
+	    pr = allprs.getByName( varnm );
+	if ( !pr )
 	{
 	    faultynms.add( varnm );
 	    noerror = false;
-	    bool foundmatch = false;
-	    for ( int kidx=0; kidx<dispnms.size(); kidx++ )
-	    {
-		const BufferString dispnm = dispnms.get( kidx );
-		foundmatch = varnm.isEqual( dispnm, CaseInsensitive );
-		if ( foundmatch )
-		{
-		    corrnms.add( dispnm );
-		    break;
-		}
-
-	    }
-	    if ( !foundmatch )
-		corrnms.add( "<No Valid Suggestion>" );
-
+	    corrnms.add( "<No Valid Suggestion>" );
 	    continue;
+	}
+
+	if ( varnm != pr->name() )
+	{
+	    corrnms.add( pr->name() );
+	    const_cast<BufferString&>( varnm ).set( pr->name() );
 	}
     }
 

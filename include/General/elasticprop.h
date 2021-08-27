@@ -41,8 +41,8 @@ public:
     void		setExpression( const char* expr) { expression_ = expr; }
     const char*		expression() const	{ return expression_.str();}
 
-    inline Type type() const		{ return type_; }
-    inline bool hasType( Type t ) const { return type_ == t;}
+    inline Type		type() const		{ return type_; }
+    inline bool		hasType( Type t ) const { return type_ == t;}
 
     const BufferStringSet& variables() const	{ return variables_; }
     BufferStringSet&	variables()		{ return variables_; }
@@ -85,7 +85,7 @@ public:
 
     void			clear()  { formulas_.erase(); }
 
-    bool	write(Repos::Source) const;
+    bool			write(Repos::Source) const;
 
 protected:
 

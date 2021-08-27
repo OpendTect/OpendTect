@@ -38,7 +38,7 @@ uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
     varnmfld_ = new uiGenInput( this, tr("For") );
     varnmfld_->setElemSzPol( uiObject::Small );
 
-    auto* lbl = new uiLabeledComboBox( this, uiStrings::sUse());
+    auto* lbl = new uiLabeledComboBox( this, uiStrings::sUse() );
     lbl->attach( rightOf, varnmfld_ );
 
     inpfld_ = lbl->box();
@@ -49,16 +49,21 @@ uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
     ctefld_->attach( rightOf, lbl );
     ctefld_->setElemSzPol( uiObject::Small );
 
-    display( false );
-
     setHAlignObj( lbl );
-    selVarCB( nullptr );
+    mAttachCB( postFinalise(), uiElasticPropSelGrp::uiSelInpGrp::initGrp );
 }
 
 
 uiElasticPropSelGrp::uiSelInpGrp::~uiSelInpGrp()
 {
     detachAllNotifiers();
+}
+
+
+void uiElasticPropSelGrp::uiSelInpGrp::initGrp( CallBacker* )
+{
+    display( false );
+    selVarCB( nullptr );
 }
 
 
@@ -84,7 +89,7 @@ const char* uiElasticPropSelGrp::uiSelInpGrp::textOfVariable() const
 {
     return isactive_ ? isconstant_ ? toString( ctefld_->getFValue() )
 				   : inpfld_->text()
-		     : 0;
+		     : nullptr;
 }
 
 
