@@ -55,12 +55,13 @@ set( OD_MODULE_SOURCES
 	uilistboxfilter.cc
 	uilocalhostgrp.cc
 	uimapperrangeeditor.cc
-	uimenuhandler.cc
 	uimapperrangeeditordlg.cc
 	uimarkerstyle.cc
 	uimathexpression.cc
 	uimathexpressionvariable.cc
 	uimeasuredlg.cc
+	uimenuhandler.cc
+	uimnemonicsel.cc
 	uinotsaveddlg.cc
 	uiobjectitemview.cc
 	uiobjectitemviewwin.cc
