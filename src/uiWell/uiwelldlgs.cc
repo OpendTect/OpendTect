@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicolor.h"
+#include "uiconstvel.h"
 #include "uid2tmodelgrp.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
@@ -1937,7 +1938,7 @@ bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 
 
 // uiSetD2TFromOtherWell
-static HiddenParam<uiSetD2TFromOtherWell,uiGenInput*> replvelfld_(nullptr);
+static HiddenParam<uiSetD2TFromOtherWell,uiConstantVel*> replvelfld_(nullptr);
 
 uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
     : uiDialog(p,Setup(tr("Set Depth-Time Model"),mNoDlgTitle,mTODOHelpKey))
@@ -1945,8 +1946,8 @@ uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
     inpwellfld_ = new uiWellSel( this, true, tr("Use D2T model from"), false );
     mAttachCB( inpwellfld_->selectionDone, uiSetD2TFromOtherWell::inpSelCB );
 
-    auto* velfld = new uiGenInput( this, tr("New replacement velocity"),
-				   FloatInpSpec() );
+    auto* velfld = new uiConstantVel( this, Vel::getGUIDefaultVelocity(),
+				      tr("New replacement velocity") );
     velfld->setWithCheck( true );
     velfld->attach( alignedBelow, inpwellfld_ );
     replvelfld_.setParam( this, velfld );
@@ -1978,7 +1979,9 @@ void uiSetD2TFromOtherWell::inpSelCB( CallBacker* )
     if ( !wd )
 	return;
 
-    replvelfld_.getParam(this)->setValue( wd->info().replvel );
+    const float dispreplvel =
+	UnitOfMeasure::surveyDefVelUnit()->userValue( wd->info().replvel );
+    replvelfld_.getParam(this)->setValue( dispreplvel );
 }
 
 
@@ -2021,7 +2024,8 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
 
     uiGenInput* velfld = replvelfld_.getParam(this);
     const bool chgreplvel = velfld->isChecked();
-    const float newreplvel = velfld->getFValue();
+    const float newreplvel =
+	UnitOfMeasure::surveyDefVelUnit()->internalValue( velfld->getFValue() );
 
     const int mdlsz = dtmodel.size();
     TypeSet<double> inputdepths( mdlsz, 0. );
