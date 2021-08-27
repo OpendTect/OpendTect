@@ -42,7 +42,7 @@ uiUnitSel::uiUnitSel( uiParent* p, Mnemonic::StdType st )
 uiUnitSel::uiUnitSel( uiParent* p, const Mnemonic* mn )
     : uiGroup(p,"UnitSel")
     , setup_(mn ? mn->stdType()
-		: Mnemonic::Dist, toUiString(""), mn )
+		: Mnemonic::Dist, uiString::empty(), mn )
     , selChange(this)
     , propSelChange(this)
 {
@@ -88,9 +88,14 @@ void uiUnitSel::init()
     {
 	mnfld_ = new uiComboBox( this, "Mnemonic" );
 	mAttachCB( mnfld_->selectionChanged, uiUnitSel::mnSelChg );
-	const MnemonicSet& mns = MNC();
+	MnemonicSelection mns = setup_.mn_ &&
+				setup_.mn_->stdType() != Mnemonic::Other
+			      ? MnemonicSelection( setup_.mn_->stdType() )
+			      : MnemonicSelection( nullptr );
+
 	BufferStringSet mnsnames;
-	mns.getNames( mnsnames );
+	for ( const auto* mn : mns )
+	    mnsnames.add( mn->name() );
 	mnfld_->addItems( mnsnames );
 	if ( setup_.mn_ )
 	{
@@ -219,7 +224,7 @@ void uiUnitSel::setUnit( const UnitOfMeasure* un )
 void uiUnitSel::setUnit( const char* unitnm )
 {
     const FixedString unnm( unitnm );
-    const UnitOfMeasure* un = 0;
+    const UnitOfMeasure* un = nullptr;
 
     if ( !unnm.isEmpty() && unnm != "-" )
 	un = UoMR().get( unitnm );
@@ -295,8 +300,7 @@ const Mnemonic* uiUnitSel::mnemonic() const
 void uiUnitSel::setMnemonic( const Mnemonic& mn )
 {
     setMnemFld( &mn );
-    const UnitOfMeasure* un = UoMR().get( mn.disp_.getUnitLbl() );
-    setUnFld( un );
+    setUnFld( mn.unit() );
 }
 
 

@@ -190,7 +190,7 @@ bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
 
     ascostream astrm( strm );
     astrm.put( Well::Info::sKeyDepthUnit(),
-	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
+	    UnitOfMeasure::surveyDefDepthStorageUnit()->symbol() );
     astrm.put( Well::Info::sKeyUwid(), wd_.info().uwid_ );
     astrm.put( Well::Info::sKeyOper(), wd_.info().oper_ );
     astrm.put( Well::Info::sKeyField(), wd_.info().field_ );
@@ -332,17 +332,17 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl,
 }
 
 
-bool Well::odWriter::wrLogHdr(od_ostream& strm, const Well::Log& wl ) const
+bool Well::odWriter::wrLogHdr( od_ostream& strm, const Well::Log& wl ) const
 {
     if ( !strm.isOK() )
 	return false;
 
     ascostream astrm( strm );
     astrm.put( Well::Info::sKeyDepthUnit(),
-	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
+	    UnitOfMeasure::surveyDefDepthStorageUnit()->symbol() );
     astrm.put( sKey::Name(), wl.name() );
-    const bool haveunits = *wl.unitMeasLabel();
-    const bool havemnemonics = wl.mnemLabel();
+    const bool havemnemonics = wl.haveMnemonic();
+    const bool haveunits = wl.haveUnit();
     const bool havepars = !wl.pars().isEmpty();
     if ( havemnemonics )
 	astrm.put( Well::Log::sKeyMnemLbl(), wl.mnemLabel() );
@@ -438,7 +438,7 @@ bool Well::odWriter::putMarkers( od_ostream& strm ) const
 
     ascostream astrm( strm );
     astrm.put( Well::Info::sKeyDepthUnit(),
-	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
+	    UnitOfMeasure::surveyDefDepthStorageUnit()->symbol() );
     for ( int idx=0; idx<wd_.markers().size(); idx++ )
     {
 	BufferString basekey; basekey += idx+1;
@@ -488,7 +488,7 @@ bool Well::odWriter::doPutD2T( od_ostream& strm, bool csmdl ) const
     astrm.put( sKey::Desc(), d2t.desc );
     astrm.put( D2TModel::sKeyDataSrc(), d2t.datasource );
     astrm.put( Well::Info::sKeyDepthUnit(),
-	    UnitOfMeasure::surveyDefDepthStorageUnit()->name() );
+	    UnitOfMeasure::surveyDefDepthStorageUnit()->symbol() );
     astrm.newParagraph();
 
     for ( int idx=0; idx<d2t.size(); idx++ )

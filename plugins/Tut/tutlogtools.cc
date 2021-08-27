@@ -13,16 +13,17 @@ Tut::LogTools::LogTools( const Well::Log& inp, Well::Log& outp )
 	: inplog_(inp)
 	, outplog_(outp)
 {
-}		
+}
 
 bool Tut::LogTools::runSmooth( const int inpgate )
 {
+    outplog_.setMnemLabel( inplog_.mnemLabel() );
     outplog_.setUnitMeasLabel( inplog_.unitMeasLabel() );
 
-    const int gate = inpgate % 2 ? inpgate : inpgate + 1;  
+    const int gate = inpgate % 2 ? inpgate : inpgate + 1;
     const int rad = gate / 2;
     Stats::WindowedCalc<float> wcalc(
-	    		Stats::CalcSetup().require(Stats::Median), gate );
+			Stats::CalcSetup().require(Stats::Median), gate );
     const int sz = inplog_.size();
     for ( int idx=0; idx<sz+rad; idx++ )
     {

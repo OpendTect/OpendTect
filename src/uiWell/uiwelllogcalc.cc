@@ -551,16 +551,16 @@ Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx,
 {
     Well::Log* ret = getLog4InpIdx( wls, inpidx );
     if ( !ret || ret->isEmpty() )
-	return 0;
+	return nullptr;
 
     if ( convtosi )
     {
-	const char* logunitnm = ret->unitMeasLabel();
-	const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
+	const UnitOfMeasure* logun = ret->unitOfMeasure();
 	if ( logun )
 	{
 	    float* valarr = ret->valArr();
-	    for ( int idx=0; idx<ret->size(); idx++ )
+	    const int sz = ret->size();
+	    for ( int idx=0; idx<sz; idx++ )
 		valarr[idx] = logun->getSIValue( valarr[idx] );
 	}
     }

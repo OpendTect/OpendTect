@@ -7,7 +7,7 @@ POTA: Spectral Gamma Ray`Gamma Ray`Lin`0`100`0`100`%`255`0`0`
 THOR: Spectral Gamma Ray`Gamma Ray`Lin`0`40`0`40`ppm`255`0`0`
 URAN: Spectral Gamma Ray`Gamma Ray`Lin`0`30`0`30`ppm`255`0`0`
 RHOB: Bulk Density`Density`Lin`1.5`3.5`2`3`g/cc`0`0`205`RHOZ`DEN`ZDEN`RHO8`
-SP: Spontaneous Potential`Electrical Potential`Lin`-0.1`0.1`-0.1`0.1`V`0`255`100`0`SSP
+SP: Spontaneous Potential`Electrical Potential`Lin`-0.1`0.1`-0.1`0.1`V`0`255`100`SSP
 RT: Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LL`ML`HALS`HRLD`HRLS`DLL
 RESD: Deep Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`
 RESM: Medium Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`
@@ -26,13 +26,13 @@ SW: Water Saturation`Volumetrics`Lin`0`100`0`100`%`0`200`255`SAT`SWE
 VCL: Vclay`Volumetrics`Lin`0`100`0`100`%`100`200`100`VCLU`VCLC`VCLF`VSH
 VSVP: Vs/Vp`Elastic Ratio`Lin`0.1`0.67`0.1`0.5``200`150`200`
 VPVS: Vp/Vs`Elastic Ratio`Lin`1.5`10`2`10``200`150`150`
-IMP: Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`Meter/second x Kg/m3`255`150`0`
-AI: Acoustic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`Meter/second x Kg/m3`255`150`0`
-EI: Elastic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`Meter/second x Kg/m3`200`255`100`
-SI: Shear Impedance`Impedance`Lin`1e6`1.2e7`1.1e6`1.1e7`Meter/second x Kg/m3`100`255`100`
-VEL: Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`V
-PVEL: Pwave Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`V
-SVEL: Swave Velocity`Velocity`Lin`250`3800`800`3800`m/s`0`200`0`
+IMP: Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`255`150`0`
+AI: Acoustic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`255`150`0`P Imp
+EI: Elastic Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`200`255`100`EEI
+SI: Shear Impedance`Impedance`Lin`1e6`1.2e7`1.1e6`1.1e7`m/s x kg/m3`100`255`100`S Imp
+VEL: Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`Vint`Vrms`Vavg
+PVEL: Pwave Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`P wave`Vp
+SVEL: Swave Velocity`Velocity`Lin`250`3800`800`3800`m/s`0`200`0`S wave`Vs
 PERM: Permeability`Permeability`Log`0.01`5000`1`2000`mD`200`0`0`
 PR: Poissons Ratio`Elastic Ratio`Lin`0.1`0.5`0.1`0.5``200`100`200`POI
 TEMP: Temperature`Temperature`Lin`5`300`10`150`deg.C`0`0`0`
@@ -47,7 +47,7 @@ EPS: Epsilon`Anisotropy`Lin`-1`1`-1`1``200`150`150`EP
 ETA: Eta`Anisotropy`Lin`-1`1`-1`1``200`150`250`
 LR: LambdaRho`Pressure-Weight`Lin`5`80`5`80`GPa.g/cm3`100`150`255
 MR: MuRho`Pressure-Weight`Lin`5`60`5`60`GPa.g/cm3`100`255`150
-PP: Pressure`Pressure`lin`0`200`0`200`bar`0`0`255`PRES`P
+PP: Pressure`Pressure`lin`0`200`0`200`bar`0`0`255`PRES
 RSV: Reservoir`Classification`lin`0`1`0`1``255`0`255`
 CONF: Confidence`Other`Lin`````````
 OTH: Other`Other`Lin`````````

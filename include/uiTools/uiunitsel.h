@@ -46,14 +46,14 @@ public:
 
 				Setup( Mnemonic::StdType st,
 				       const uiString labeltxt=
-				       uiStrings::sEmptyString(),
+					     uiString::empty(),
 				       const Mnemonic* mn = nullptr )
 				    : ptype_(st)
 				    , mn_(mn)
 				    , lbltxt_(mToUiStringTodo(labeltxt))
 				    , mode_(Full)
 				    , selproptype_(false)
-				    , selmnemtype_(mn ? true : false)
+				    , selmnemtype_(false)
 				    , withnone_(false)	{}
 
 	mDefSetupMemb(Mnemonic::StdType,ptype)
@@ -87,6 +87,7 @@ public:
     void			setPropType(Mnemonic::StdType);
 
     const Mnemonic*		mnemonic() const;
+    bool			hasMnemonicSelection() const { return mnfld_; }
     void			setMnemonic(const Mnemonic&);
 
     uiComboBox*			inpFld() const	{ return inpfld_; }

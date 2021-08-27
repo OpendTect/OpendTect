@@ -268,8 +268,7 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
 	return;
 
     const Well::Log* log = wd->logs().getLog( fld->logName() );
-    const char* logunitnm = log ? log->unitMeasLabel() : 0;
-    const UnitOfMeasure* logun = UnitOfMeasure::getGuessed( logunitnm );
+    const UnitOfMeasure* logun = log ? log->unitOfMeasure() : nullptr;
     if ( !logun )
     {
 	const UnitOfMeasure* emptyuom = nullptr;

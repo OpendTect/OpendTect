@@ -43,7 +43,7 @@ double UnitFactors::getVelFactor( const Well::Log& vellog, bool issonic ) const
 
 const UnitOfMeasure* UnitFactors::getUOM( const Well::Log& log ) const
 {
-    return UnitOfMeasure::getGuessed( log.unitMeasLabel() );
+    return log.unitOfMeasure();
 }
 
 

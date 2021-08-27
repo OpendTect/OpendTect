@@ -161,10 +161,7 @@ bool LASWriter::writeCurveInfoSection( od_ostream& strm )
     for ( int idx=0; idx<logs_.size(); idx++ )
     {
 	const Well::Log& log = logs_.getLog( idx );
-	const UnitOfMeasure* uom = log.unitOfMeasure();
-	BufferString uomstr = uom ? uom->symbol() : "";
-	if ( uomstr.isEmpty() )
-	    uomstr = log.unitMeasLabel();
+	BufferString uomstr = log.unitMeasLabel();
 	uomstr.remove( ' ' );
 	strm << create( log.mnemLabel(), uomstr,
 			"", BufferString(toString(idx+1)," ",log.name()) );

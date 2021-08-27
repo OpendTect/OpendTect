@@ -194,6 +194,7 @@ public:
 			uiWellLogUOMDlg(uiParent*,ObjectSet<Well::LogSet> wls,
 					const BufferStringSet wellnms,
 					const BufferStringSet lognms);
+			~uiWellLogUOMDlg();
 
 protected:
 
@@ -201,6 +202,7 @@ protected:
     ObjectSet<uiUnitSel>	unflds_;
     uiTable*			uominfotbl_;
 
+    void		initDlg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     void		fillTable(ObjectSet<Well::LogSet> wls,

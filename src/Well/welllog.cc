@@ -178,8 +178,7 @@ TypeSet<int> Well::LogSet::getSuitable( Mnemonic::StdType ptype,
 
     for ( int idx=0; idx<logs_.size(); idx++ )
     {
-	const char* loguomlbl = logs_[idx]->unitMeasLabel();
-	const UnitOfMeasure* loguom = UnitOfMeasure::getGuessed( loguomlbl );
+	const UnitOfMeasure* loguom = logs_[idx]->unitOfMeasure();
 	bool isalt = false;
 	bool isok = !loguom || ptype == Mnemonic::Other
 		 || loguom->propType() == ptype;
@@ -199,43 +198,24 @@ TypeSet<int> Well::LogSet::getSuitable( Mnemonic::StdType ptype,
 
 // ---- Well::Log
 
-const char* Well::Log::mnemLabel() const
+
+
+
+Well::Log& Well::Log::operator =( const Well::Log& oth )
 {
-    if ( mnemlbl_.isEmpty() )
-	return mnemonic()->name();
-
-    return mnemlbl_;
-}
-
-
-const Mnemonic* Well::Log::mnemonic() const
-{
-    if ( mnemlbl_.isEmpty() )
+    if ( &oth != this )
     {
-	return isCode() ? &MNC().getGuessed( propType() )
-			: &MNC().getGuessed( unitOfMeasure() );
+	DahObj::operator=( oth );
+	vals_ = oth.vals_;
+	range_ = oth.range_;
+	mn_ = oth.mn_;
+	uom_ = oth.uom_;
+	mnemlbl_ = oth.mnemlbl_;
+	unitmeaslbl_ = oth.unitmeaslbl_;
+	iscode_ = oth.iscode_;
+	pars_ = oth.pars_;
     }
-    else
-	return MNC().getByName( mnemlbl_, false );
-}
 
-
-void Well::Log::setMnemLabel( const char* mnem )
-{
-    mnemlbl_ = mnem;
-}
-
-
-Well::Log& Well::Log::operator =( const Well::Log& wl )
-{
-    if ( &wl != this )
-    {
-	DahObj::operator=( wl );
-	vals_ = wl.vals_;
-	range_ = wl.range_;
-	iscode_ = wl.iscode_;
-	setUnitMeasLabel( wl.unitMeasLabel() );
-    }
     return *this;
 }
 
@@ -355,40 +335,6 @@ void Well::Log::addValue( float dh, float val )
 }
 
 
-const UnitOfMeasure* Well::Log::unitOfMeasure() const
-{
-    return UnitOfMeasure::getGuessed(unitmeaslbl_);
-}
-
-
-void Well::Log::convertTo( const UnitOfMeasure* touom )
-{
-    const UnitOfMeasure* curuom = unitOfMeasure();
-    if ( !curuom || !vals_.size() )
-	return;
-
-    for ( int idx=0; idx<vals_.size(); idx++ )
-	convValue( vals_[idx], curuom, touom );
-
-    if ( touom )
-	unitmeaslbl_ = touom->symbol();
-    else
-    {
-	Mnemonic::StdType tp = curuom->propType();
-	const UnitOfMeasure* siuom = UoMR().getInternalFor( tp );
-	unitmeaslbl_ = siuom ? siuom->symbol() : "";
-    }
-}
-
-
-Mnemonic::StdType Well::Log::propType() const
-{
-    const UnitOfMeasure* uom = unitOfMeasure();
-    return uom ? uom->propType() : ( isCode() ?
-	    Mnemonic::Class : Mnemonic::Other );
-}
-
-
 void Well::Log::updateAfterValueChanges()
 {
     for ( int idx=0; idx<size(); idx++ )
@@ -449,6 +395,116 @@ void Well::Log::removeTopBottomUdfs()
 }
 
 
+const char* Well::Log::mnemLabel() const
+{
+    if ( mnemlbl_.isEmpty() && !mn_ )
+	mnemonic();
+
+    return mnemlbl_.buf();
+}
+
+
+const Mnemonic* Well::Log::mnemonic() const
+{
+    if ( !mn_ )
+    {
+	const Mnemonic* ret = MNC().getByName( mnemlbl_, false );
+	if ( ret )
+	{
+	    const_cast<Log&>( *this ).setMnemonic( *ret );
+	    return ret;
+	}
+
+	ret = MNC().getByName( name(), true );
+	const UnitOfMeasure* uom = unitOfMeasure();
+	if ( ret && ((uom && ret->stdType() == uom->propType()) || !uom) )
+	{
+	    const_cast<Log&>( *this ).setMnemonic( *ret );
+	    return ret;
+	}
+
+	const_cast<Log&>( *this ).setMnemonic(
+				isCode() ? MNC().getGuessed( propType() )
+					 : MNC().getGuessed( uom ) );
+    }
+
+    return mn_;
+}
+
+
+void Well::Log::setMnemonic( const Mnemonic& mn )
+{
+    mn_ = &mn;
+    mnemlbl_ = mn_->name();
+}
+
+
+void Well::Log::setMnemLabel( const char* mnem )
+{
+    const Mnemonic* mn = MNC().getByName( mnem, false );
+    if ( mn )
+    {
+	setMnemonic( *mn );
+	return;
+    }
+
+    mn_ = nullptr;
+    mnemlbl_.set( mnem );
+}
+
+
+void Well::Log::setUnitOfMeasure( const UnitOfMeasure* newuom )
+{
+    uom_ = newuom;
+    BufferString unitlbl( uom_ ? uom_->symbol() : "" );
+    if ( unitlbl.isEmpty() && uom_ )
+	unitlbl.set( uom_->name().str() );
+
+    if ( !unitlbl.isEmpty() )
+	unitmeaslbl_.set( unitlbl );
+}
+
+
+void Well::Log::setUnitMeasLabel( const char* newunitlbl, bool tryconvert )
+{
+    if ( !tryconvert )
+    {
+	uom_ = UoMR().get( newunitlbl );
+	unitmeaslbl_.set( newunitlbl );
+	return;
+    }
+
+    setUnitOfMeasure( UnitOfMeasure::getGuessed(newunitlbl) );
+    if ( unitmeaslbl_.isEmpty() )
+	unitmeaslbl_.set( newunitlbl );
+}
+
+
+void Well::Log::convertTo( const UnitOfMeasure* touom )
+{
+    const UnitOfMeasure* curuom = unitOfMeasure();
+    if ( !curuom || vals_.isEmpty() )
+	return;
+
+    for ( auto& val : vals_ )
+	convValue( val, curuom, touom );
+
+    setUnitOfMeasure( touom ? touom : UoMR().getInternalFor(propType()) );
+}
+
+
+Mnemonic::StdType Well::Log::propType() const
+{
+    const Mnemonic* mn = mnemonic();
+    if ( mn )
+	return mn->stdType();
+
+    const UnitOfMeasure* uom = unitOfMeasure();
+    return uom ? uom->propType()
+	       : ( isCode() ? Mnemonic::Class : Mnemonic::Other );
+}
+
+
 bool Well::Log::insertAtDah( float dh, float val )
 {
     mWellDahObjInsertAtDah( dh, val, vals_, false );
@@ -460,10 +516,10 @@ bool Well::Log::insertAtDah( float dh, float val )
 
 Well::Log* Well::Log::cleanUdfs() const
 {
-    Well::Log* outlog = new Well::Log;
+    auto* outlog = new Well::Log;
     outlog->setName( getName() );
-    outlog->setUnitMeasLabel( unitMeasLabel() );
     outlog->setMnemLabel( mnemLabel() );
+    outlog->setUnitMeasLabel( unitMeasLabel() );
 
     bool first = true;
     bool newz = true;
@@ -525,8 +581,8 @@ Well::Log* Well::Log::upScaleLog( const StepInterval<float>& dahrg ) const
 			    logisvel );
     upscaler.execute();
     outlog->setName( getName() );
-    outlog->setUnitMeasLabel( unitMeasLabel() );
     outlog->setMnemLabel( mnemLabel() );
+    outlog->setUnitMeasLabel( unitMeasLabel() );
     return outlog;
 }
 
@@ -549,8 +605,8 @@ Well::Log* Well::Log::sampleLog( const StepInterval<float>& dahrg ) const
     LogRegularSampler sampler( outlog->size(), *this, *outlog, dahrg );
     sampler.execute();
     outlog->setName( getName() );
-    outlog->setUnitMeasLabel( unitMeasLabel() );
     outlog->setMnemLabel( mnemLabel() );
+    outlog->setUnitMeasLabel( unitMeasLabel() );
     return outlog;
 }
 

@@ -759,11 +759,8 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     table_->rowInserted.notify( mCB(this,uiWellLogEditor,rowInsertCB) );
     uiString mdlbl = toUiString("MD %1").arg(toUiString(SI().xyUnit()) );
     uiString loglbl = toUiString(log_.name());
-    const uiString uomlbl = log_.unitOfMeasure()
-			  ? mToUiStringTodo( log_.unitOfMeasure()->symbol() )
-			  : mToUiStringTodo( log_.unitMeasLabel() );
-    if ( !uomlbl.isEmpty() )
-	loglbl = toUiString("%1 (%2)").arg(loglbl).arg(uomlbl);
+    if ( log_.haveUnit() )
+	loglbl = toUiString("%1 (%2)").arg(loglbl).arg( log.unitMeasLabel() );
 
     uiStringSet colnms; colnms.add(mdlbl).add(loglbl);
     table_->setColumnLabels( colnms );

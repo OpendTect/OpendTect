@@ -638,6 +638,7 @@ bool DataPlayer::processLog( const Well::Log* log,
     if ( !log )
 	mErrRet( tr( "Can not find log '%1'" ).arg( nm ) )
 
+    outplog.setMnemLabel( log->mnemLabel() );
     outplog.setUnitMeasLabel( log->unitMeasLabel() );
 
     int sz = log->size();

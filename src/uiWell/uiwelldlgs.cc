@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
+#include "uicombobox.h"
 #include "uicolor.h"
 #include "uid2tmodelgrp.h"
 #include "uifileinput.h"
@@ -1834,6 +1835,13 @@ uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, ObjectSet<Well::LogSet> wls,
 				 mNoDlgTitle,mNoHelpKey))
 {
     fillTable( wls, wellnms, lognms );
+    mAttachCB( postFinalise(), uiWellLogUOMDlg::initDlg );
+}
+
+
+uiWellLogUOMDlg::~uiWellLogUOMDlg()
+{
+    detachAllNotifiers();
 }
 
 
@@ -1874,34 +1882,31 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 	    }
 
 	    logs_ += log;
-	    const char* curruom = log->unitMeasLabel();
-	    const char* currmnem = log->mnemLabel();
-	    const Mnemonic* mn = nullptr;
-	    const UnitOfMeasure* uom = nullptr;
-	    if ( currmnem )
-		mn = MNC().getByName( currmnem, false );
-
-	    if ( curruom )
-		uom = UnitOfMeasure::getGuessed( curruom );
-
-	    if ( !mn )
-		mn = &MNC().getGuessed( uom );
-	    if ( mn->isUdf() )
-		mn = nullptr;
+	    const Mnemonic* mn = log->mnemonic();
+	    const UnitOfMeasure* uom = log->unitOfMeasure();
 
 	    uiUnitSel::Setup ussu( mn ? mn->stdType() : Mnemonic::Other,
-				   uiStrings::sEmptyString(), mn );
-	    ussu.selmnemtype( true );
+				   uiString::empty(), mn );
+	    ussu.selmnemtype( !mn || mn->isUdf() ||
+			       mn->stdType() == Mnemonic::Other )
+		.withnone( !mn && !uom );
 	    auto* unfld = new uiUnitSel( nullptr, ussu );
-	    if ( mn )
-		unfld->setMnemonic( *mn );
-
 	    unfld->setUnit( uom );
 	    unflds_ += unfld;
 	    uominfotbl_->setText( RowCol(rowidx,0), wellnms.get(wlsidx) );
 	    uominfotbl_->setText( RowCol(rowidx,1), lognms.get(lidx ) );
 	    uominfotbl_->setCellGroup( RowCol(rowidx,2), unfld );
 	}
+    }
+}
+
+
+void uiWellLogUOMDlg::initDlg( CallBacker* )
+{
+    for ( auto* unfld : unflds_ )
+    {
+	uiComboBox* unitcb = unfld->inpFld();
+	unitcb->display( !unitcb->isEmpty() );
     }
 }
 
@@ -1922,10 +1927,15 @@ bool uiWellLogUOMDlg::setUoMValues()
 	if ( !log )
 	    continue;
 
-	const UnitOfMeasure* newuom = unflds_[lidx]->getUnit();
-	const Mnemonic* mn =  unflds_[lidx]->mnemonic();
-	log->setUnitMeasLabel( newuom ? newuom->name().buf() : 0 );
-	log->setMnemLabel( mn ? mn->name().buf() : 0 );
+	const uiUnitSel* unfld = unflds_[lidx];
+	if ( unfld->hasMnemonicSelection() )
+	{
+	    const Mnemonic* mn =  unfld->mnemonic();
+	    if ( mn )
+		log->setMnemonic( *mn );
+	}
+
+	log->setUnitOfMeasure( unfld->getUnit() );
     }
 
     return true;

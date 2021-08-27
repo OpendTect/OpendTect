@@ -152,6 +152,7 @@ Mnemonic& Mnemonic::operator =( const Mnemonic& oth )
 	logtypename_ = oth.logtypename_;
 	aliases_ = oth.aliases_;
 	disp_ = oth.disp_;
+	uom_ = oth.uom_;
     }
     return *this;
 }
@@ -162,7 +163,7 @@ bool Mnemonic::operator ==( const Mnemonic& oth ) const
     if ( this == &oth )
 	return true;
 
-    return stdtype_ == oth.stdtype_ &&
+    return stdtype_ == oth.stdtype_ && uom_ == oth.uom_ &&
 	   name() == oth.name() &&
 	   logtypename_ == oth.logtypename_ &&
 	   aliases_ == oth.aliases_ &&
@@ -184,18 +185,27 @@ bool Mnemonic::matches( const char* nm, bool matchaliases ) const
 
 bool Mnemonic::isKnownAs( const char* nm ) const
 {
-    if ( !nm || !*nm )
+    const FixedString nmstr( nm );
+    if ( nmstr.isEmpty() )
 	return false;
 
     if ( name().matches(nm,CaseInsensitive) )
 	return true;
 
-    for ( const auto* aliasnm : aliases_ )
+    BufferStringSet nms( name(), logtypename_ );
+    nms.add( aliases_, false );
+    for ( const auto* findnm : nms )
     {
-	const GlobExpr ge( *aliasnm, CaseInsensitive );
-	if ( ge.matches(nm) )
+	if ( findnm->isEmpty() )
+	    continue;
+
+	BufferString gexpr( findnm->buf() );
+	gexpr.trimBlanks().replace( " ", "*" ).add( "*" );
+	const GlobExpr ge( gexpr, false );
+	if ( ge.matches(nmstr) )
 	    return true;
     }
+
     return false;
 }
 
@@ -222,12 +232,16 @@ void Mnemonic::usePar( const IOPar& iop )
 	else if ( idx == 6 )
 	    disp_.typicalrange_.stop = fms.getFValue( 6 );
 	else if ( idx == 7 )
-	    disp_.unitlbl_.set( fms[7] ); //Not setUnit!
+	    setUnit( fms[7] );
 	else if ( idx >= 8 && idx <= 10 )
 	    disp_.color_.set( fms.getFValue(8), fms.getFValue(9),
 						fms.getFValue(10) );
 	else
-	    aliases_.add( fms[idx] );
+	{
+	    const FixedString fmsstr = fms[idx];
+	    if ( !fmsstr.isEmpty() )
+		aliases_.add( fmsstr );
+	}
     }
 }
 
@@ -252,6 +266,20 @@ void Mnemonic::fillPar( IOPar& iop ) const
 	fms += aliases_.get(idx);
 
     iop.set( name(), fms );
+}
+
+
+void Mnemonic::setUnit( const char* newunitlbl )
+{
+    uom_ = UoMR().get( newunitlbl );
+    if ( !uom_ )
+	uom_ = UoMR().getInternalFor( stdType() );
+
+    BufferString unitlbl( uom_ ? uom_->symbol() : "" );
+    if ( unitlbl.isEmpty() )
+	unitlbl.set( uom_ ? uom_->name().str() : newunitlbl );
+
+    disp_.unitlbl_.set( unitlbl ); //Not setUnit!
 }
 
 

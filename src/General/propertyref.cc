@@ -230,19 +230,27 @@ bool PropertyRef::matches( const char* nm, bool matchaliases ) const
 
 bool PropertyRef::isKnownAs( const char* nm ) const
 {
-    if ( !nm || !*nm )
+    const FixedString nmstr( nm );
+    if ( nmstr.isEmpty() )
 	return false;
 
     if ( name().matches(nm,CaseInsensitive) )
 	return true;
 
-    const BufferStringSet aliasnms = aliases();
-    for ( const auto* aliasnm : aliasnms )
+    BufferStringSet nms( name() );
+    nms.add( aliases(), false );
+    for ( const auto* findnm : nms )
     {
-	const GlobExpr ge( *aliasnm, CaseInsensitive );
-	if ( ge.matches(nm) )
+	if ( findnm->isEmpty() )
+	    continue;
+
+	BufferString gexpr( findnm->buf() );
+	gexpr.trimBlanks().replace( " ", "*" ).add( "*" );
+	const GlobExpr ge( gexpr, false );
+	if ( ge.matches(nmstr) )
 	    return true;
     }
+
     return false;
 }
 
@@ -267,7 +275,11 @@ void PropertyRef::setUnit( const char* newunitlbl )
     if ( !uom_ )
 	uom_ = UoMR().getInternalFor( stdType() );
 
-    if ( !disp_.setUnit(uom_ ? uom_->symbol() : "") )
+    BufferString unitlbl( uom_ ? uom_->symbol() : "" );
+    if ( unitlbl.isEmpty() )
+	unitlbl.set( uom_ ? uom_->name().str() : newunitlbl );
+
+    if ( !disp_.setUnit(unitlbl) )
 	return;
 
     unitChanged_.trigger( olduom );

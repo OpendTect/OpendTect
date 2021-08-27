@@ -470,7 +470,7 @@ void uiExportLogs::writeHeader( od_ostream& strm, const Well::Data& wd )
 	lognm.replace( '+', '_' );
 	lognm.replace( '-', '_' );
 	strm << od_tab << lognm;
-	if ( *log.unitMeasLabel() )
+	if ( log.haveUnit() )
 	    strm << "(" << log.unitMeasLabel() << ")";
     }
 

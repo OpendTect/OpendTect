@@ -59,8 +59,9 @@ public:
 
     inline bool		isUdf() const	{ return *this == undef(); }
 
-protected:
-    void			usePar(const IOPar&);
+private:
+
+    void		setUnit(const char* lbl);
 
 public:
 
@@ -71,9 +72,6 @@ public:
 
 	bool		operator ==(const DispDefs&) const;
 	bool		operator !=(const DispDefs&) const;
-
-	virtual bool	setUnit(const char*);
-			//!< Returns if changed
 
 	virtual const Interval<float>& defRange() const { return range_; }
 	virtual float	commonValue() const;
@@ -87,10 +85,17 @@ public:
     protected:
 
 	BufferString	unitlbl_;
-	friend void Mnemonic::usePar(const IOPar&);
+
+	virtual bool	setUnit(const char*);
+			//!< Returns if changed
+
+    private:
+	friend void Mnemonic::setUnit(const char*);
     };
 
     DispDefs		disp_;
+    const UnitOfMeasure* unit() const			{ return uom_; }
+			//!< For conversions only, do not use to get the label
 
     inline StdType	stdType() const			{ return stdtype_; }
     inline BufferStringSet&		aliases()	{ return aliases_; }
@@ -118,9 +123,12 @@ protected:
     StdType			stdtype_;
     BufferString		logtypename_;
     BufferStringSet		aliases_;
+    const UnitOfMeasure*	uom_ = nullptr;
 
     friend class		MnemonicSet;
+    void			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
+
 };
 
 

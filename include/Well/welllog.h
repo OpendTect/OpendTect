@@ -44,12 +44,12 @@ mExpClass(Well) Log : public DahObj
 {
 public:
 
-			Log( const char* nm=0 )
+			Log( const char* nm=nullptr )
 			: DahObj(nm)
 			, range_(mUdf(float),-mUdf(float))
-			, iscode_(false)		{}
-			Log( const Log& t )
-			: DahObj("")			{ *this = t; }
+			{}
+			Log( const Log& oth )
+			: DahObj("")			{ *this = oth; }
     Log&		operator =(const Log&);
 
     bool		isLoaded() const;
@@ -72,16 +72,20 @@ public:
 
     const char*		mnemLabel() const;
     const Mnemonic*	mnemonic() const;
-    void		setMnemLabel( const char* );
+    bool		haveMnemonic() const	{ return !mnemlbl_.isEmpty(); }
+    void		setMnemonic(const Mnemonic&);
+    void		setMnemLabel(const char*);
 
     const char*		unitMeasLabel() const		{ return unitmeaslbl_;}
-    const UnitOfMeasure* unitOfMeasure() const;
-    void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
+    const UnitOfMeasure* unitOfMeasure() const		{ return uom_; }
+    bool		haveUnit() const{ return !unitmeaslbl_.isEmpty(); }
+    void		setUnitOfMeasure(const UnitOfMeasure*);
+    void		setUnitMeasLabel(const char*,bool converttosymbol=true);
     void		convertTo(const UnitOfMeasure*);
     Mnemonic::StdType	propType() const;
     bool		isCode() const			{ return iscode_; }
 			//!< log values are all integers stored as floats
-			//!
+
     Log*		cleanUdfs() const;
     Log*		upScaleLog(const StepInterval<float>&) const;
     Log*		sampleLog(const StepInterval<float>&) const;
@@ -105,9 +109,11 @@ protected:
 
     TypeSet<float>	vals_;
     Interval<float>	range_;
-    BufferString	unitmeaslbl_;
+    const Mnemonic*	mn_ = nullptr;
+    const UnitOfMeasure* uom_ = nullptr;
     BufferString	mnemlbl_;
-    bool		iscode_;
+    BufferString	unitmeaslbl_;
+    bool		iscode_ = false;
     IOPar		pars_;
 
     void		removeAux( int idx )	{ vals_.removeSingle(idx); }
