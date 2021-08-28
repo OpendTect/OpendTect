@@ -1027,12 +1027,19 @@ void uiStratLayerModel::setElasticProps()
 	    uiMSG().warning( elpropsel_->errMsg() );
 	    deleteAndZeroPtr( elpropsel_ );
 	}
+	else if ( elpropsel_->size() < 3 )
+	    ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
     }
 
     if ( !elpropsel_ )
     {
 	elpropsel_ = ElasticPropSelection::getByDBKey( desc_.elasticPropSel() );
-	if ( !elpropsel_ )
+	if ( elpropsel_ )
+	{
+	    if ( elpropsel_->size() < 3 )
+		ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
+	}
+	else
 	{
 	    elpropsel_ = new ElasticPropSelection;
 	    ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
@@ -1047,7 +1054,7 @@ void uiStratLayerModel::setElasticProps()
 	    errmsg = tr("%1\nPlease define a new value.").arg(errmsg);
 	    uiMSG().message(errmsg);
 	}
-	if ( !selElasticProps( *elpropsel_ ) )
+	if ( !selElasticProps(*elpropsel_) )
 	    return;
     }
 

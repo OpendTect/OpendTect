@@ -43,6 +43,7 @@ public:
     static ElasticPropSelection* getByIOObj(const IOObj*);
     bool			put(const IOObj*) const;
 
+    bool			ensureHasType(ElasticFormula::Type);
     bool			isValidInput(uiString* errmsg = nullptr) const;
 
     void			fillPar(IOPar&) const;

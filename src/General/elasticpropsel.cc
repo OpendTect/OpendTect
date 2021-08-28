@@ -320,6 +320,21 @@ const ElasticPropertyRef* ElasticPropSelection::getByType(
 }
 
 
+bool ElasticPropSelection::ensureHasType( ElasticFormula::Type tp )
+{
+    const ElasticPropSelection defpropsel( tp == ElasticFormula::SVel );
+    const ElasticPropertyRef* defelastpr = defpropsel.getByType( tp );
+    if ( !defelastpr )
+	return false;
+
+    const ElasticPropertyRef* elastpr = getByType( tp );
+    if ( !elastpr )
+	add( defelastpr->clone() );
+
+    return true;
+}
+
+
 bool ElasticPropSelection::isValidInput( uiString* errmsg ) const
 {
     for ( const auto* pr : *this )
@@ -375,6 +390,7 @@ ElasticPropGuess::ElasticPropGuess( const PropertyRefSelection& prs,
     {
 	ElasticFormula::Type tp;
 	ElasticFormula::parseEnumType( props[idx], tp );
+	elasticprops_.ensureHasType( tp );
 	guessQuantity( prs, tp );
     }
 }
@@ -428,7 +444,8 @@ bool ElasticPropGuess::guessQuantity( const PropertyRef& pref,
 		fm.variables().add( pref.name() );
 	    else if ( pref.isCompatibleWith(Mnemonic::defDTS()) )
 	    {
-		TypeSet<ElasticFormula> efs; ElFR().getByType( tp, efs );
+		TypeSet<ElasticFormula> efs;
+		ElFR().getByType( tp, efs );
 		if ( !efs.isEmpty() )
 		{
 		    const int ownformidx = efs.size()-1;
