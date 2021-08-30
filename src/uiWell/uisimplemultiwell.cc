@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitable.h"
 #include "uid2tmodelgrp.h"
+#include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
 
@@ -338,6 +339,58 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 }
 
 
+class SimpleMultiWellImporter : public Executor
+{
+public:
+SimpleMultiWellImporter( uiSimpleMultiWellCreate& mygui )
+    : Executor("Multi-well creator")
+    , mygui_(mygui)
+{
+}
+
+od_int64 nrDone() const
+{
+    return curidx_;
+}
+
+od_int64 totalNr() const
+{
+    return mygui_.tbl_->nrRows();
+}
+
+uiString uiNrDoneText() const
+{
+    return uiStrings::sPositionsDone();
+}
+
+int nextStep()
+{
+    if ( curidx_ >= totalNr() )
+	return Finished();
+
+    BufferString wellnm( mygui_.tbl_->text(RowCol(curidx_,0) ) );
+    if ( wellnm.trimBlanks().isEmpty() )
+	return Finished();
+
+    uiSMWCData wcd( wellnm );
+    if ( !mygui_.getWellCreateData(curidx_++,wellnm,wcd) )
+	return MoreToDo();
+
+    PtrMan<IOObj> ioobj = mygui_.getIOObj( wellnm );
+    if ( !ioobj )
+	return MoreToDo();
+
+    if ( !mygui_.createWell(wcd,*ioobj) )
+	return ErrorOccurred();
+
+    return MoreToDo();
+}
+
+	int				curidx_ = 0;
+	uiSimpleMultiWellCreate&	mygui_;
+};
+
+
 bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 {
     crwellids_.erase();
@@ -350,22 +403,10 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 
     IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
 
-    for ( int irow=0; ; irow++ )
-    {
-	BufferString wellnm( tbl_->text(RowCol(irow,0) ) );
-	if ( wellnm.trimBlanks().isEmpty() ) break;
-
-	uiSMWCData wcd( wellnm );
-	if ( !getWellCreateData(irow,wellnm,wcd) )
-	    continue;
-
-	IOObj* ioobj = getIOObj( wellnm );
-	if ( !ioobj )
-	    continue;
-
-	if ( !createWell(wcd,*ioobj) )
-	    return false;
-    }
+    SimpleMultiWellImporter impexec( *this );
+    uiTaskRunner uitr( this );
+    if ( !uitr.execute(impexec) )
+	return false;
 
     if ( crwellids_.isEmpty() )
     {

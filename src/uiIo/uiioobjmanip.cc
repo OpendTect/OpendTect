@@ -337,6 +337,7 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
     uiString info = tr("Delete the following objects"
 		       " from the database permanently?\n%1");
 
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     uiStringSet selnms;
     for (int idx = 0; idx<ioobjs.size(); idx++)
 	selnms += ioobjs[idx]->uiName();

@@ -388,8 +388,7 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 	iostrm->setDirName( dirnm );
     iostrm->setExt( transl.defExtension() );
 
-    IODir iodir( ky );
-    iodir.ensureUniqueName( *iostrm );
+    IOM().ensureUniqueName( *iostrm );
     const BufferString uniqnm( iostrm->name() );
     int ifnm = 0;
     while ( true )
@@ -399,7 +398,7 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 	    break;
 	ifnm++;
 	iostrm->setName( BufferString(uniqnm,ifnm) );
-	iodir.ensureUniqueName( *iostrm );
+	IOM().ensureUniqueName( *iostrm );
     }
 
     iostrm->updateCreationPars();

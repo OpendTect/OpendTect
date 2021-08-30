@@ -117,9 +117,9 @@ public:
     BufferString&	addTab(int nrtabs=1);
     BufferString&	addNewLine(int nrnewlines=1);
 
-    inline unsigned int	bufSize() const		{ return len_; }
+    inline unsigned int bufSize() const		{ return len_; }
     bool		setBufSize(unsigned int);
-    inline unsigned int	minBufSize() const	{ return minlen_; }
+    inline unsigned int minBufSize() const	{ return minlen_; }
     void		setMinBufSize(unsigned int);
 
     BufferString&	replace(char from,char to);
@@ -209,7 +209,7 @@ BufferString::BufferString( const char* s1, const T& t, const char* s2 )
 { *this += s1; *this += t; *this += s2; }
 
 inline const char* BufferString::gtStr() const
-{ return buf_ && *buf_ ? const_cast<char*>( buf_ ) : nullptr; }
+{ return buf_ && *buf_ ? buf_ : nullptr; }
 
 inline bool BufferString::operator==( const BufferString& s ) const
 { return isEqual( s.buf_ ); }
@@ -263,7 +263,8 @@ inline BufferString& BufferString::setLim( double d, int maxnrchars )
 
 
 /*!
-\brief A StringPair has two strings, first() and second(). The getCompString() function concatanates the two strings with the pipe character ('|') in between.
+\brief A StringPair has two strings, first() and second(). The getCompString()
+function concatanates the two strings with the pipe character ('|') in between.
 */
 
 mExpClass(Basic) StringPair
@@ -276,9 +277,9 @@ public:
 
     static char		separator() { return '|'; }
 
-    const BufferString&	first() const	{ return first_; }
+    const BufferString& first() const	{ return first_; }
     BufferString&	first()		{ return first_; }
-    const BufferString&	second() const	{ return second_; }
+    const BufferString& second() const	{ return second_; }
     BufferString&	second()	{ return second_; }
 
     const OD::String&	getCompString() const;

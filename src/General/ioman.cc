@@ -483,7 +483,10 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 
     const bool issamedir = dirptr_ && ky == dirptr_->key();
     if ( !forcereread && issamedir )
+    {
+	dirptr_->update();
 	return true;
+    }
 
     MultiID dirkey;
     IOObj* refioobj = IODir::getObj( ky );
@@ -859,6 +862,18 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
     }
 
     return templtr ? templtr->createWriteIOObj( ctio.ctxt_, newkey ) : nullptr;
+}
+
+
+bool IOMan::ensureUniqueName( IOObj& ioobj )
+{
+    if ( !dirptr_ || ioobj.key().parent() != dirptr_->key() )
+    {
+	if ( !to(ioobj.key().parent()) || !dirptr_ )
+	    return false;
+    }
+
+    return dirptr_->ensureUniqueName( ioobj );
 }
 
 
