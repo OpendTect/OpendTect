@@ -45,6 +45,7 @@ protected:
     void		addRow(const uiSMWCData&,int&);
 
     friend class	uiSimpleMultiWellCreateReadData;
+    friend class	SimpleMultiWellImporter;
 
 };
 

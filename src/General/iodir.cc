@@ -10,18 +10,21 @@
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "iosubdir.h"
 #include "safefileio.h"
 #include "separstr.h"
 #include "surveydisklocation.h"
 
+static HiddenParam<IODir,od_int64> hp_lastmodtime(0);
 
 IODir::IODir( const char* dirnm )
     : isok_(false)
     , dirname_(dirnm)
     , curid_(0)
 {
+    hp_lastmodtime.setParam( this, 0 );
     if ( build() )
 	isok_ = true;
 }
@@ -31,6 +34,7 @@ IODir::IODir()
     : isok_(false)
     , curid_(0)
 {
+    hp_lastmodtime.setParam( this, 0 );
 }
 
 
@@ -38,6 +42,7 @@ IODir::IODir( const MultiID& ky )
     : isok_(false)
     , curid_(0)
 {
+    hp_lastmodtime.setParam( this, 0 );
     IOObj* ioobj = getObj( ky );
     if ( !ioobj ) return;
     dirname_ = ioobj->dirName();
@@ -56,13 +61,19 @@ IODir::IODir( const MultiID& ky )
 
 IODir::~IODir()
 {
+    hp_lastmodtime.removeParam( this );
     deepErase( objs_ );
 }
 
 
 bool IODir::build()
 {
-    return doRead( dirname_, this );
+    if ( !doRead(dirname_,this) )
+	return false;
+
+    hp_lastmodtime.setParam( this,
+	    File::getTimeInSeconds(FilePath(dirname_,".omf").fullPath()) );
+    return true;
 }
 
 
@@ -153,9 +164,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 	    if ( id == 1 )
 		dirptr->setName( obj->name() );
 
-	    if ( !dirptr->addObj(obj,false) )
-		continue;
-
+	    dirptr->addObjNoChecks( obj );
 	    if ( id < 99999 && id > dirptr->curid_ )
 		dirptr->curid_ = id;
 	}
@@ -279,6 +288,16 @@ bool IODir::create( const char* dirnm, const MultiID& ky, IOObj* mainobj )
 }
 
 
+void IODir::update()
+{
+    const od_int64 lastmodtime = hp_lastmodtime.getParam( this );
+    const od_int64 curmodtime =
+		File::getTimeInSeconds( FilePath(dirname_,".omf").fullPath() );
+    if ( curmodtime > lastmodtime )
+	reRead();
+}
+
+
 void IODir::reRead()
 {
     IODir rdiodir( dirname_ );
@@ -289,13 +308,15 @@ void IODir::reRead()
 	rdiodir.objs_.erase();
 	curid_ = rdiodir.curid_;
 	isok_ = true;
+	hp_lastmodtime.setParam( this,
+	    File::getTimeInSeconds(FilePath(dirname_,".omf").fullPath()) );
     }
 }
 
 
 bool IODir::permRemove( const MultiID& ky )
 {
-    reRead();
+    update();
     if ( isBad() ) return false;
 
     int sz = objs_.size();
@@ -325,7 +346,7 @@ bool IODir::commitChanges( const IOObj* ioobj )
 
     IOObj* clone = ioobj->clone();
     if ( !clone ) return false;
-    reRead();
+    update();
     if ( isBad() ) { delete clone; return false; }
 
     int sz = objs_.size();
@@ -346,11 +367,18 @@ bool IODir::commitChanges( const IOObj* ioobj )
 }
 
 
+void IODir::addObjNoChecks( IOObj* ioobj )
+{
+    objs_ += ioobj;
+    setDirName( *ioobj, dirName() );
+}
+
+
 bool IODir::addObj( IOObj* ioobj, bool persist )
 {
     if ( persist )
     {
-	reRead();
+	update();
 	if ( isBad() ) return false;
     }
 
@@ -453,7 +481,8 @@ bool IODir::wrOmf( od_ostream& strm ) const
 
 bool IODir::doWrite() const
 {
-    SafeFileIO sfio( FilePath(dirname_,".omf").fullPath(), false );
+    const BufferString filenm = FilePath( dirname_, ".omf" ).fullPath();
+    SafeFileIO sfio( filenm, false );
     if ( !sfio.open(false) )
 	mErrRet(true)
 
@@ -466,6 +495,8 @@ bool IODir::doWrite() const
     if ( !sfio.closeSuccess() )
 	mErrRet(true)
 
+    hp_lastmodtime.setParam( cCast(IODir*,this),
+			     File::getTimeInSeconds(filenm) );
     return true;
 }
 

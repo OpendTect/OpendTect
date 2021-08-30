@@ -96,12 +96,16 @@ private:
     bool		wrOmf(od_ostream&) const;
     IOObj*		get( int idx )		{ return objs_[idx]; }
     IOObj*		get(const MultiID&);
+    void		addObjNoChecks(IOObj*);
 
     MultiID		newKey() const;
 
     friend class	IOMan;
     friend class	IOObj;
 
+public:
+
+    void		update();
 };
 
 
