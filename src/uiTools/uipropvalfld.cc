@@ -24,13 +24,14 @@ uiPropertyValFld::uiPropertyValFld( uiParent* p, const PropertyRef& pr,
 {
     valfld_ = new uiGenInput( this, mToUiStringTodo(pr.name()),
 			      FloatInpSpec(defval) );
-    unfld_ = new uiUnitSel( this, pr.stdType() );
+
+    uiUnitSel::Setup ussu( pr.stdType() );
+    ussu.mode( uiUnitSel::Setup::SymbolsOnly );
+    unfld_ = new uiUnitSel( this, ussu );
     unfld_->setName( BufferString(pr.name()," unit") );
     unfld_->setUnit( pruom_ );
     unfld_->attach( rightOf, valfld_ );
     setHAlignObj( valfld_ );
-
-    prevuom_ = unfld_->getUnit();
 
     mAttachCB( valfld_->valuechanged, uiPropertyValFld::valChg );
     mAttachCB( unfld_->selChange, uiPropertyValFld::unChg );
@@ -49,15 +50,19 @@ void uiPropertyValFld::valChg( CallBacker* )
 }
 
 
-void uiPropertyValFld::unChg( CallBacker* )
+void uiPropertyValFld::unChg( CallBacker* cb )
 {
+    if ( !cb )
+	return;
+
+    mCBCapsuleUnpack(const UnitOfMeasure*,prevuom,cb);
     const UnitOfMeasure* newuom = unfld_->getUnit();
-    if ( newuom == prevuom_ )
+    if ( newuom == prevuom )
 	return;
 
     const float val = getConvertedValue( valfld_->getFValue(),
-					 prevuom_, newuom );
-    prevuom_ = newuom;
+					 prevuom, newuom );
+    prevuom = newuom;
     setValue( val );
 }
 

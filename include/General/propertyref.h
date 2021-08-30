@@ -95,7 +95,7 @@ public:
     DispDefs		disp_;
     const UnitOfMeasure* unit() const		{ return uom_; }
 			//!< For conversions only, do not use to get the label
-    CNotifier<PropertyRef,const UnitOfMeasure*> unitChanged_;
+    CNotifier<PropertyRef,const UnitOfMeasure*> unitChanged;
 			//!< Returns the previous unit
 
     static const PropertyRef& thickness();

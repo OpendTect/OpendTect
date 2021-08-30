@@ -106,8 +106,15 @@ void uiUnitSel::init()
     }
 
     inpfld_ = new uiComboBox( this, "Units" );
+    uiObject::SzPolicy szpol;
     if ( setup_.mode_ == Setup::SymbolsOnly )
-	inpfld_->setHSzPol( uiObject::Small );
+	szpol = setup_.variableszpol_ ? uiObject::SmallVar : uiObject::Small;
+    else if ( setup_.mode_ == Setup::NamesOnly )
+	szpol = setup_.variableszpol_ ? uiObject::MedVar : uiObject::Medium;
+    else
+	szpol = setup_.variableszpol_ ? uiObject::MedVar : uiObject::Wide;
+
+    inpfld_->setHSzPol( szpol );
 
     mAttachCB( inpfld_->selectionChanged, uiUnitSel::selChg );
     if ( mnfld_ )
@@ -120,13 +127,60 @@ void uiUnitSel::init()
 	setHAlignObj( inpfld_ );
     else
     {
-	uiLabel* lbl = new uiLabel( this, setup_.lbltxt_ );
+	auto* lbl = new uiLabel( this, setup_.lbltxt_ );
 	lbl->attach( leftOf, leftcb );
 	setHAlignObj( leftcb );
     }
 
+    mAttachCB( postFinalise(), uiUnitSel::initGrp );
+}
+
+
+void uiUnitSel::initGrp( CallBacker* )
+{
     update();
     usePar( lastUsed() );
+    displayGroup( !inpfld_->isEmpty() );
+}
+
+
+void uiUnitSel::update()
+{
+    const BufferString olddef( !inpfld_->isEmpty() ? inpfld_->text()
+				    : (setup_.withnone_ ? sDispNone : "") );
+    inpfld_->setEmpty();
+    if ( propfld_ )
+	setup_.ptype_ = (Mnemonic::StdType)propfld_->currentItem();
+
+    if ( mnfld_ )
+	setup_.mn_ = MNC().getByName( mnfld_->text() );
+
+    units_.erase();
+    if ( setup_.mn_ )
+	UoMR().getRelevant( setup_.mn_->stdType(), units_ );
+    else
+	UoMR().getRelevant( setup_.ptype_, units_ );
+
+    if ( setup_.withnone_ )
+	units_.insertAt( nullptr, 0 );
+
+    for ( int idx=0; idx<units_.size(); idx++ )
+	inpfld_->addItem( getSelTxt(units_[idx]) );
+
+    if ( !olddef.isEmpty() && inpfld_->isPresent(olddef) )
+	inpfld_->setText( olddef );
+    else if ( setup_.ptype_ == Mnemonic::Dist )
+	inpfld_->setText( mFromUiStringTodo(getSelTxt(
+					UnitOfMeasure::surveyDefDepthUnit())) );
+    prevuom_ = getUnit();
+}
+
+
+void uiUnitSel::selChg( CallBacker* )
+{
+    const UnitOfMeasure* prevuom = prevuom_;
+    prevuom_ = gtUnit();
+    selChange.trigger( prevuom );
 }
 
 
@@ -241,20 +295,27 @@ const UnitOfMeasure* uiUnitSel::getUnit() const
 
 const UnitOfMeasure* uiUnitSel::gtUnit() const
 {
-    int selidx = inpfld_->currentItem();
-    return units_.validIdx( selidx ) ? units_[selidx] : 0;
+    const int selidx = inpfld_->currentItem();
+    return units_.validIdx( selidx ) ? units_[selidx] : nullptr;
 }
 
 
 const char* uiUnitSel::getUnitName() const
 {
-    fillPar( lastUsed() );
+    const UnitOfMeasure* uom = getUnit();
+    const int selidx = inpfld_->currentItem();
+    return !uom || (setup_.withnone_ && selidx == 0) ? nullptr
+						     : uom->getLabel();
+}
 
-    int selidx = inpfld_->currentItem();
-    if ( selidx < 0 || (setup_.withnone_ && selidx == 0) )
-	return 0;
 
-    return inpfld_->text();
+void uiUnitSel::displayGroup( bool yn )
+{
+    inpfld_->display( yn );
+    if ( propfld_ )
+	propfld_->display( yn );
+    if ( mnfld_ )
+	mnfld_->display( yn );
 }
 
 
@@ -314,8 +375,9 @@ const char* uiUnitSel::tblKey() const
 
 void uiUnitSel::fillPar( IOPar& iop, const char* altkey ) const
 {
-    const UnitOfMeasure* un = gtUnit();
-    iop.update( altkey ? altkey : tblKey(), un ? un->name().buf() : 0 );
+    prevuom_ = gtUnit();
+    iop.update( altkey ? altkey : tblKey(), prevuom_ ? prevuom_->getLabel()
+						     : nullptr );
 }
 
 
@@ -348,35 +410,4 @@ uiString uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
     mDeclStaticString( ret );
     ret.set( un->symbol() ).add( " (" ).add( un->name() ).add( ")" );
     return mToUiStringTodo(ret);
-}
-
-
-void uiUnitSel::update()
-{
-    const BufferString olddef( !inpfld_->isEmpty() ? inpfld_->text()
-				    : (setup_.withnone_ ? sDispNone : "") );
-    inpfld_->setEmpty();
-    if ( propfld_ )
-	setup_.ptype_ = (Mnemonic::StdType)propfld_->currentItem();
-
-    if ( mnfld_ )
-	setup_.mn_ = MNC().getByName( mnfld_->text() );
-
-    units_.erase();
-    if ( setup_.mn_ )
-	UoMR().getRelevant( setup_.mn_->stdType(), units_ );
-    else
-	UoMR().getRelevant( setup_.ptype_, units_ );
-
-    if ( setup_.withnone_ )
-	units_.insertAt( nullptr, 0 );
-
-    for ( int idx=0; idx<units_.size(); idx++ )
-	inpfld_->addItem( getSelTxt(units_[idx]) );
-
-    if ( !olddef.isEmpty() && inpfld_->isPresent(olddef) )
-	inpfld_->setText( olddef );
-    else if ( setup_.ptype_ == Mnemonic::Dist )
-	inpfld_->setText( mFromUiStringTodo(getSelTxt(
-					UnitOfMeasure::surveyDefDepthUnit())) );
 }

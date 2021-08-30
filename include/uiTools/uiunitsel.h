@@ -54,6 +54,7 @@ public:
 				    , mode_(Full)
 				    , selproptype_(false)
 				    , selmnemtype_(false)
+				    , variableszpol_(false)
 				    , withnone_(false)	{}
 
 	mDefSetupMemb(Mnemonic::StdType,ptype)
@@ -62,6 +63,7 @@ public:
 	mDefSetupMemb(Mode,mode)
 	mDefSetupMemb(bool,selproptype)
 	mDefSetupMemb(bool,selmnemtype)
+	mDefSetupMemb(bool,variableszpol)
 	mDefSetupMemb(bool,withnone)
     };
 
@@ -90,9 +92,8 @@ public:
     bool			hasMnemonicSelection() const { return mnfld_; }
     void			setMnemonic(const Mnemonic&);
 
-    uiComboBox*			inpFld() const	{ return inpfld_; }
-
-    Notifier<uiUnitSel>		selChange;
+    CNotifier<uiUnitSel,const UnitOfMeasure*>		selChange;
+				//!< Returns previous unit
     Notifier<uiUnitSel>		propSelChange;
 
     void			fillPar(IOPar&,
@@ -110,19 +111,24 @@ protected:
 
     Setup			setup_;
     ObjectSet<const UnitOfMeasure> units_;
+    mutable const UnitOfMeasure* prevuom_ = nullptr;
     BufferString		tblkey_;
 
     uiComboBox*			inpfld_;
     uiComboBox*			propfld_ = nullptr;
     uiComboBox*			mnfld_ = nullptr;
 
-    void			selChg( CallBacker* )	{ selChange.trigger(); }
+    void			initGrp(CallBacker*);
+    void			selChg(CallBacker*);
     void			propSelChg(CallBacker*);
     void			mnSelChg(CallBacker*);
+
     void			setPropFld(Mnemonic::StdType);
     void			setMnemFld(const Mnemonic*);
     void			setUnFld(const UnitOfMeasure*);
     void			update();
+    void			displayGroup(bool yn);
+
     uiString			getSelTxt(const UnitOfMeasure*) const;
     const UnitOfMeasure*	gtUnit() const;
 

@@ -1903,11 +1903,6 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 
 void uiWellLogUOMDlg::initDlg( CallBacker* )
 {
-    for ( auto* unfld : unflds_ )
-    {
-	uiComboBox* unitcb = unfld->inpFld();
-	unitcb->display( !unitcb->isEmpty() );
-    }
 }
 
 

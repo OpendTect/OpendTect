@@ -51,6 +51,8 @@ public:
     UnitOfMeasure&	operator =(const UnitOfMeasure&);
 
     const char*		symbol() const		{ return symbol_.buf(); }
+    const char*		getLabel() const;
+			//!< Symbol or name if no symbol, for IOPar I/O
     PropType		propType() const	{ return proptype_; }
     const LinScaler&	scaler() const		{ return scaler_; }
 
@@ -99,6 +101,9 @@ public:
     static void		saveCurrentDefaults();
 			//!< store as a user setting on Survey level
 			//!< this will be done automatically at survey changes
+
+    static BufferString	getUnitLbl(const UnitOfMeasure*,
+				   const char* deflbl=nullptr);
 
 protected:
 

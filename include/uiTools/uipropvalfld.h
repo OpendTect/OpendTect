@@ -48,7 +48,6 @@ protected:
     const UnitOfMeasure* pruom_;
     uiGenInput*		valfld_;
     uiUnitSel*		unfld_;
-    const UnitOfMeasure* prevuom_;
     mutable float	lastsetvalue_;
 
     void		handleValChg(float,bool) const;

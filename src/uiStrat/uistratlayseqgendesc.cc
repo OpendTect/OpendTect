@@ -596,7 +596,8 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     valfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec() );
     rgfld_ = new uiGenInput( this, uiString::emptyString(), FloatInpSpec(),
 			     FloatInpSpec() );
-    uiUnitSel::Setup ussu( pr.stdType() ); ussu.withnone( true );
+    uiUnitSel::Setup ussu( pr.stdType() );
+    ussu.mode( uiUnitSel::Setup::SymbolsOnly );
     unfld_ = new uiUnitSel( this, ussu );
     unfld_->setUnit( prop.ref().unit() );
     mAttachCB( unfld_->selChange, uiSimpPropertyEd::unitChgCB );
@@ -606,7 +607,6 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     unfld_->attach( rightOf, rgfld_ );
 
     setFrom( prop );
-    prevuom_ = pruom_;
     setHAlignObj( valfld_ );
 
     mAttachCB( postFinalise(), uiSimpPropertyEd::updDisp );
@@ -630,19 +630,21 @@ void updDisp( CallBacker* )
 }
 
 
-void unitChgCB( CallBacker* )
+void unitChgCB( CallBacker* cb )
 {
+    if ( !cb )
+	return;
+
+    mCBCapsuleUnpack(const UnitOfMeasure*,prevuom,cb);
     const UnitOfMeasure* curuom = unfld_->getUnit();
-    if ( prevuom_ == curuom )
+    if ( prevuom == curuom )
 	return;
 
     float val = valfld_->getFValue();
     Interval<float> rg = rgfld_->getFInterval();
-    convValue( val, prevuom_, curuom );
-    convValue( rg.start, prevuom_, curuom );
-    convValue( rg.stop, prevuom_, curuom );
-
-    prevuom_ = curuom;
+    convValue( val, prevuom, curuom );
+    convValue( rg.start, prevuom, curuom );
+    convValue( rg.stop, prevuom, curuom );
 
     valfld_->setValue( val );
     rgfld_->setValue( rg.start, 0 );
@@ -725,7 +727,6 @@ bool setProp( PropertySet& props, int idx )
     uiGenInput*		valfld_;
     uiGenInput*		rgfld_;
     uiUnitSel*		unfld_;
-    const UnitOfMeasure* prevuom_;
     const UnitOfMeasure* pruom_;
 
     Interval<float>	rg_;

@@ -275,11 +275,7 @@ void Mnemonic::setUnit( const char* newunitlbl )
     if ( !uom_ )
 	uom_ = UoMR().getInternalFor( stdType() );
 
-    BufferString unitlbl( uom_ ? uom_->symbol() : "" );
-    if ( unitlbl.isEmpty() )
-	unitlbl.set( uom_ ? uom_->name().str() : newunitlbl );
-
-    disp_.unitlbl_.set( unitlbl ); //Not setUnit!
+    disp_.unitlbl_ = UnitOfMeasure::getUnitLbl( uom_, newunitlbl );
 }
 
 

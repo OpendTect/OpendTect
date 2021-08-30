@@ -24,7 +24,7 @@ mImplFactory1Param(Property,const PropertyRef&,Property::factory)
 Property::Property( const PropertyRef& pr )
     : ref_(pr)
 {
-    mAttachCB( pr.unitChanged_, Property::unitChangedCB );
+    mAttachCB( pr.unitChanged, Property::unitChangedCB );
 }
 
 

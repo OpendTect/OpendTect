@@ -197,6 +197,25 @@ uiString UnitOfMeasure::surveyDefVelUnitAnnot( bool symb, bool withparens )
 }
 
 
+const char* UnitOfMeasure::getLabel() const
+{
+    return symbol_.isEmpty() ? name().str() : symbol();
+}
+
+
+BufferString UnitOfMeasure::getUnitLbl( const UnitOfMeasure* uom,
+					const char* deflbl )
+{
+    BufferString ret;
+    if ( uom )
+	ret.set( uom->getLabel() );
+    if ( ret.isEmpty() && deflbl )
+	ret.set( deflbl );
+
+    return ret;
+}
+
+
 bool UnitOfMeasure::isImperial() const
 {
     const char* unitnm = name();

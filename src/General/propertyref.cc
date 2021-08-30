@@ -162,7 +162,7 @@ float PropertyRef::DispDefs::commonValue() const
 PropertyRef::PropertyRef( const Mnemonic& mn, const char* nm )
     : NamedCallBacker((nm && *nm) ? nm : mn.name().buf())
     , mn_(mn)
-    , unitChanged_(this)
+    , unitChanged(this)
 {
     disp_.copyFrom( mn.disp_ );
 }
@@ -171,7 +171,7 @@ PropertyRef::PropertyRef( const Mnemonic& mn, const char* nm )
 PropertyRef::PropertyRef( const PropertyRef& pr )
     : NamedCallBacker(pr.name())
     , mn_(pr.mn_)
-    , unitChanged_(this)
+    , unitChanged(this)
 {
     *this = pr;
 }
@@ -275,14 +275,11 @@ void PropertyRef::setUnit( const char* newunitlbl )
     if ( !uom_ )
 	uom_ = UoMR().getInternalFor( stdType() );
 
-    BufferString unitlbl( uom_ ? uom_->symbol() : "" );
-    if ( unitlbl.isEmpty() )
-	unitlbl.set( uom_ ? uom_->name().str() : newunitlbl );
-
+    const BufferString unitlbl = UnitOfMeasure::getUnitLbl( uom_, newunitlbl );
     if ( !disp_.setUnit(unitlbl) )
 	return;
 
-    unitChanged_.trigger( olduom );
+    unitChanged.trigger( olduom );
 }
 
 
@@ -350,15 +347,17 @@ void PropertyRef::usePar( const IOPar& iop )
     iop.get( sKey::Color(), disp_.color_ );
     fms = iop.find( sKey::Range() );
     sz = fms.size();
+    Interval<float> typicalrange = disp_.typicalrange_;
     if ( sz > 1 )
     {
-	disp_.typicalrange_.start = fms.getFValue( 0 );
-	disp_.typicalrange_.stop = fms.getFValue( 1 );
+	typicalrange.start = fms.getFValue( 0 );
+	typicalrange.stop = fms.getFValue( 1 );
     }
     if ( sz > 2 )
     {
-	NotifyStopper ns( unitChanged_ );
+	NotifyStopper ns( unitChanged );
 	setUnit( fms[2] );
+	disp_.typicalrange_ = typicalrange;
     }
 
     deleteAndZeroPtr( disp_.defval_ );

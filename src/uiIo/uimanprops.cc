@@ -124,7 +124,6 @@ private:
     uiPushButton*	defaultformbut_;
     uiPushButton*	definitionformbut_;
 
-    const UnitOfMeasure* curunit_;
     MathProperty	definitionmathprop_;
     MathProperty	defaultmathprop_;
 
@@ -155,7 +154,6 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
     , pr_(pr)
     , defaultmathprop_(pr)
     , definitionmathprop_(pr)
-    , curunit_(pr.unit())
 {
     namefld_ = new uiGenInput( this, uiStrings::sName(),
 			       StringInpSpec(pr.name()) );
@@ -201,10 +199,11 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
     rgfld_->attach( alignedBelow, colfld_ );
     mAttachCB( rgfld_->valuechanged, uiEditPropRef::rangeChgCB );
 
-    unfld_ = new uiUnitSel( this, pr_.stdType() );
-    unfld_->inpFld()->setHSzPol( uiObject::MedVar );
+    uiUnitSel::Setup ussu( pr_.stdType() );
+    ussu.variableszpol( true );
+    unfld_ = new uiUnitSel( this, ussu );
     unfld_->attach( rightOf, rgfld_ );
-    unfld_->setUnit( curunit_ );
+    unfld_->setUnit( pr_.unit() );
     mAttachCB( unfld_->selChange, uiEditPropRef::unitSel );
 
     defaultfld_ = new uiGenInput( this, tr("Default value") );
@@ -296,24 +295,27 @@ void uiEditPropRef::rangeChgCB( CallBacker* )
 }
 
 
-void uiEditPropRef::unitSel( CallBacker* )
+void uiEditPropRef::unitSel( CallBacker* cb )
 {
+    if ( !cb )
+	return;
+
+    mCBCapsuleUnpack(const UnitOfMeasure*,prevuom,cb);
     const UnitOfMeasure* newun = unfld_->getUnit();
-    if ( newun == curunit_ )
+    if ( newun == prevuom )
 	return;
 
     Interval<double> vintv( rgfld_->getDInterval() );
-    convValue( vintv.start, curunit_, newun );
-    convValue( vintv.stop, curunit_, newun );
+    convValue( vintv.start, prevuom, newun );
+    convValue( vintv.stop, prevuom, newun );
     rgfld_->setValue( vintv );
     if ( pr_.disp_.defval_ && pr_.disp_.defval_->isValue() )
     {
 	float val = defaultfld_->getDValue();
-	convValue( val, curunit_, newun );
+	convValue( val, prevuom, newun );
 	defaultfld_->setValue( val );
     }
 
-    curunit_ = newun;
     setUpdated();
 }
 
@@ -375,9 +377,9 @@ bool uiEditPropRef::acceptOK( CallBacker* )
 	pr_.propaliases_.add( ss[idx] );
 
     pr_.disp_.color_ = colfld_->color();
-    NotifyStopper ns( pr_.unitChanged_ );
+    NotifyStopper ns( pr_.unitChanged );
     pr_.disp_.typicalrange_ = rgfld_->getFInterval();
-    pr_.setUnit( curunit_ ? curunit_->symbol() : "" );
+    pr_.setUnit( unfld_->getUnitName() );
 
     BufferString defaultstr( defaultfld_->text() );
     defaultstr.trimBlanks();
