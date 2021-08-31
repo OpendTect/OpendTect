@@ -56,6 +56,7 @@ public:
     friend class		ZipUtils;
     friend class		Zipper;
     friend class		UnZipper;
+    friend class		MultiArchiveUnZipper;
 
     enum CompLevel		{ NoComp=0, SuperFast=1, Fast=3, Normal=6,
 								Maximum=9 };
@@ -109,7 +110,7 @@ protected:
     bool			readZIP64EndOfCentralDirLocator();
     bool			readZIP64EndOfCentralDirRecord();
     bool			readXtraFldForZIP64(const char*,int);
-    bool                        readAndSetFileAttr();
+    bool			readAndSetFileAttr();
 
     bool			initMakeZip(const char*,const BufferStringSet&);
     bool			initAppend(const char*,const char*);
@@ -126,7 +127,7 @@ protected:
     bool			setEndOfCentralDirHeader(od_int64,od_uint32);
     bool			setZIP64EndOfDirRecord(od_int64);
     bool			setZIP64EndOfDirLocator(od_int64);
-    od_uint32                   setExtFileAttr(od_uint32);
+    od_uint32			setExtFileAttr(od_uint32);
 
     const BufferStringSet&	getAllFileNames() { return allfilenames_; }
     od_int64			getCumulativeFileCount() const 
@@ -140,7 +141,7 @@ protected:
     bool			reportReadError(const char* filenm=0) const;
     bool			reportWriteError(const char* filenm=0) const;
     bool			reportStrmReadError(od_istream*,
-	    					    const char*) const;
+						    const char*) const;
     void			closeInputStream();
     void			closeOutputStream();
 

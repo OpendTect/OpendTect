@@ -1394,6 +1394,7 @@ int ZipHandler::readLocalFileHeader()
 
 bool ZipHandler::openStreamToWrite()
 {
+    closeOutputStream();
     SeparString str( destfile_.buf(), '/' );
     BufferString pathonly = 0;
     FilePath fp = destfile_.buf();
