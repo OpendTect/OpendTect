@@ -177,11 +177,16 @@ void uiSEGYExamine::rowClck( CallBacker* )
 
 void uiSEGYExamine::saveHdr( CallBacker* )
 {
-    if ( !rdr_ ) return;
-    uiFileDialog dlg( this, false,
-		      FilePath(GetDataDir(),"Seismics").fullPath(), 0,
+    if ( !rdr_ )
+	return;
+
+    FilePath fp( setup_.fs_.fileName() );
+    fp.setExtension( "sgyhdr" );
+    uiFileDialog dlg( this, false, fp.fullPath(), nullptr,
 		      tr("Save SEG-Y Textual Header to") );
-    if ( !dlg.go() ) return;
+    dlg.setDirectory( setup_.fs_.dirName() );
+    if ( !dlg.go() )
+	return;
 
     od_ostream strm( dlg.fileName() );
     if ( !strm.isOK() )
