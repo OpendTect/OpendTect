@@ -40,8 +40,9 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     uiLabel* label = new uiLabel( this, lbltxt );
 
     factorylist_ = new uiListBox( this, "Preprocessing methods",
-							    OD::ChooseOnlyOne );
+				  OD::ChooseOnlyOne );
     factorylist_->addItems( Processor::factory().getUserNames() );
+    factorylist_->resizeHeightToContents();
     factorylist_->setHSzPol( uiObject::Wide );
     factorylist_->selectionChanged.notify(
 	    mCB(this,uiProcessorManager,factoryClickCB) );
