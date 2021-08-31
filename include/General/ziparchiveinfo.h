@@ -34,6 +34,7 @@ public:
     const char*			errorMsg() const;
 
     bool			getAllFnms(BufferStringSet&) const;
+    od_int64			getTotalSize(bool uncomp=true) const;
 
     //!< All sizes in Bytes
     od_int64			getFileCompSize(const char* fnm) const;

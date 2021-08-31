@@ -192,21 +192,89 @@ bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
 }
 
 
+class MultiArchiveUnZipper : public Executor
+{ mODTextTranslationClass(MultiArchiveUnZipper);
+public:
+MultiArchiveUnZipper( const BufferStringSet& archvs, const char* destination )
+    : Executor("Unpacking Archives")
+    , archives_(archvs)
+    , dest_(destination)
+{
+    for ( int idx=0; idx<archives_.size(); idx++ )
+    {
+	ZipArchiveInfo info( archives_.get(idx) );
+	totalnr_ += info.getTotalSize(true);
+    }
+
+}
+
+
+int nextStep()
+{
+    if ( archidx_ >= archives_.size() )
+	return Finished();
+
+    ZipHandler zh;
+    if ( !zh.initUnZipArchive(archives_.get(archidx_),dest_) )
+	return ErrorOccurred();
+
+    int nrfiles = zh.getCumulativeFileCount();
+    for ( int idx=0; idx<nrfiles; idx++ )
+    {
+	if ( !zh.extractNextFile() )
+	{
+	    errmsg_ = toUiString( zh.errorMsg() );
+	    return ErrorOccurred();
+	}
+
+	archivenrdone_ = zh.getNrDoneSize();
+    }
+
+    archidx_++;
+    nrdone_ += archivenrdone_;
+    archivenrdone_ = 0;
+    return MoreToDo();
+}
+
+
+od_int64 nrDone() const
+{ return (nrdone_+archivenrdone_)/mBytesToMBFactor; }
+
+
+od_int64 totalNr() const
+{ return totalnr_/mBytesToMBFactor; }
+
+
+uiString uiNrDoneText() const
+{ return tr("MBytes Processed: "); }
+
+
+uiString uiMessage() const
+{
+    if ( errmsg_.isEmpty() )
+	return tr("Extracting data");
+    else
+	return errmsg_;
+}
+
+	const BufferStringSet&	archives_;
+	const char*		dest_;
+	int			archidx_ = 0;
+	od_int64		nrdone_ = 0;
+	od_int64		archivenrdone_ = 0;
+	od_int64		totalnr_ = 0;
+	uiString		errmsg_;
+
+};
+
 bool ZipUtils::unZipArchives( const BufferStringSet& archvs,
 			     const char* basepath,
 			     uiString& errmsg, TaskRunner* taskrunner )
 {
-    ExecutorGroup execgrp( "Archive unpacker" );
-    for ( int idx=0; idx<archvs.size(); idx++ )
+    MultiArchiveUnZipper muz( archvs, basepath );
+    if ( !(TaskRunner::execute(taskrunner,muz)) )
     {
-	const BufferString& archvnm = archvs.get( idx );
-	UnZipper* exec = new UnZipper( archvnm, basepath );
-	execgrp.add( exec );
-    }
-
-    if ( !(TaskRunner::execute(taskrunner,execgrp)) )
-    {
-	errmsg = execgrp.uiMessage();
+	errmsg = muz.uiMessage();
 	return false;
     }
 
@@ -231,6 +299,7 @@ bool ZipUtils::unZipFile( const char* srcfnm, const char* fnm, const char* path,
 UnZipper::UnZipper( const char* zipfnm,const char* destination )
     : Executor("Unpacking Archive")
     , nrdone_(0)
+    , isok_(false)
 { isok_ = ziphd_.initUnZipArchive( zipfnm, destination ); }
 
 

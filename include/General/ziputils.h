@@ -91,23 +91,23 @@ mExpClass(General) Zipper : public Executor
 { mODTextTranslationClass(Zipper)
 public:
 				Zipper(const char*,const BufferStringSet&, 
-                                       ZipHandler::CompLevel);
+				       ZipHandler::CompLevel);
 
-                                Zipper(const char*,const char*, 
-                                       ZipHandler::CompLevel);
+				Zipper(const char*,const char*,
+				       ZipHandler::CompLevel);
 
     uiString			uiMessage() const;
     od_int64			nrDone() const;
     uiString			uiNrDoneText() const;
     od_int64			totalNr() const;
-    bool                        isOk() const { return isok_; }
+    bool			isOk() const { return isok_; }
 
 protected:
 
     int				nextStep();
     ZipHandler			ziphd_;
     int				nrdone_;
-    bool                        isok_;
+    bool			isok_;
 };
 
 
@@ -126,14 +126,14 @@ public:
     od_int64			nrDone() const;
     uiString			uiNrDoneText() const;
     od_int64			totalNr() const;
-    bool                        isOk() const { return isok_; }
+    bool			isOk() const { return isok_; }
 
 protected:
 
     int				nextStep();
     ZipHandler			ziphd_;
     int				nrdone_;
-    bool                        isok_;
+    bool			isok_;
 };
 
 
