@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "linekey.h"
 #include "multiid.h"
 #include "ptrman.h"
 #include "seis2ddata.h"

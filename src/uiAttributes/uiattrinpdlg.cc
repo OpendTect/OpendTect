@@ -11,21 +11,23 @@ ________________________________________________________________________
 #include "uiattrinpdlg.h"
 
 #include "bufstringset.h"
-#include "uisteeringsel.h"
-#include "uitextedit.h"
-#include "seistrctr.h"
-#include "seisselection.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
-#include "uilabel.h"
-#include "uimsg.h"
 #include "keystrs.h"
+#include "linekey.h"
+#include "od_helpids.h"
 #include "oddirs.h"
 #include "perthreadrepos.h"
-#include "od_helpids.h"
+#include "seisselection.h"
+#include "seistrctr.h"
+
+#include "uilabel.h"
+#include "uimsg.h"
+#include "uisteeringsel.h"
+#include "uitextedit.h"
 
 
-uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset, 
+uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 			    bool issteer, bool is2d, const char* prevrefnm )
     : uiDialog(p,uiDialog::Setup(tr("Attribute set definition"),
 		       issteer ? tr("Select Steering input")
@@ -42,14 +44,14 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     BufferString txt;
     for ( int idx=0; idx<refset.size(); idx++ )
 	{ txt += refset.get(idx); txt += "\n"; }
-    
+
     uiTextEdit* txtfld = new uiTextEdit( this, "File Info", true );
     txtfld->setPrefHeightInChar( 10 );
     txtfld->setPrefWidthInChar( 40 );
     txtfld->setText( txt );
     txtfld->attach( alignedBelow, infolbl );
 
-    uiString seltext = issteer ? uiStrings::phrInput(tr("SteeringCube")) 
+    uiString seltext = issteer ? uiStrings::phrInput(tr("SteeringCube"))
 			       : uiStrings::phrInput(uiStrings::sSeismicData());
     if ( prevrefnm )
     {
