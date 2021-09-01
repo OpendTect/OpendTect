@@ -45,9 +45,12 @@ ________________________________________________________________________
 #define mUseTxtCol 2
 #define mUseCol 3
 
-static const Color qscellcolor = Color( 255, 255, 225 ); // palish yellow
-static const Color optqscellcolor = Color( 255, 255, 245 ); // even paler yellow
-static const Color optcellcolor = Color( 245, 245, 245 ); // very light grey
+// palish yellow
+static const Color qscellcolor( 255, 255, 225 );
+// even paler yellow
+static const Color optqscellcolor( 255, 255, 245 );
+// very light grey
+static const Color optcellcolor( 245, 245, 245 );
 
 class uiSEGYByteNr : public uiGroup
 { mODTextTranslationClass(uiSEGYByteNr)
