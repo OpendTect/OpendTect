@@ -686,14 +686,35 @@ void uiSEGYReadStartInfo::parChg( CallBacker* cb )
 void uiSEGYReadStartInfo::setRev1Values()
 {
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
-    const SEGY::HdrEntry xentry = *hdef[SEGY::TrcHeader::EntryXcdp()];
-    xcoordbytefld_->setHdrEntry( xentry );
-    const SEGY::HdrEntry yentry = *hdef[SEGY::TrcHeader::EntryYcdp()];
-    ycoordbytefld_->setHdrEntry( yentry );
-    const SEGY::HdrEntry ientry = *hdef[SEGY::TrcHeader::EntryInline()];
-    inlbytefld_->setHdrEntry( ientry );
-    const SEGY::HdrEntry centry = *hdef[SEGY::TrcHeader::EntryCrossline()];
-    crlbytefld_->setHdrEntry( centry );
+    if ( xcoordbytefld_ )
+    {
+	const SEGY::HdrEntry xentry = *hdef[SEGY::TrcHeader::EntryXcdp()];
+	xcoordbytefld_->setHdrEntry( xentry );
+	const SEGY::HdrEntry yentry = *hdef[SEGY::TrcHeader::EntryYcdp()];
+	ycoordbytefld_->setHdrEntry( yentry );
+    }
+
+    if ( inlbytefld_ )
+    {
+	const SEGY::HdrEntry ientry = *hdef[SEGY::TrcHeader::EntryInline()];
+	inlbytefld_->setHdrEntry( ientry );
+	const SEGY::HdrEntry centry = *hdef[SEGY::TrcHeader::EntryCrossline()];
+	crlbytefld_->setHdrEntry( centry );
+    }
+
+    if ( trcnrbytefld_ )
+    {
+	const SEGY::HdrEntry tentry = *hdef[SEGY::TrcHeader::EntryCdp()];
+	trcnrbytefld_->setHdrEntry( tentry );
+	const SEGY::HdrEntry sentry = *hdef[SEGY::TrcHeader::EntrySP()];
+	refnrbytefld_->setHdrEntry( sentry );
+    }
+
+    if ( offsetbytefld_ )
+    {
+	const SEGY::HdrEntry oentry = *hdef[SEGY::TrcHeader::EntryOffset()];
+	offsetbytefld_->setHdrEntry( oentry );
+    }
 }
 
 
