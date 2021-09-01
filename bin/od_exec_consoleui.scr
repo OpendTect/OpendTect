@@ -36,6 +36,6 @@ else
     endif
 
     $xtermcmd -bg blue -fg yellow -geometry 80x25 \
-		-fn "-*-fixed-*-r-*-*-20-*-*-*-*-*-*-*" -e $*
+		-fn "-*-fixed-*-r-*-*-20-*-*-*-*-*-*-*" -e $*:q
 
 endif
