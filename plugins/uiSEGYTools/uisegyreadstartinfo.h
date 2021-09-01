@@ -36,12 +36,15 @@ public:
 
 			uiSEGYReadStartInfo(uiParent*,SEGY::LoadDef&,
 					const SEGY::ImpType* fixedimptyp=0);
+			~uiSEGYReadStartInfo();
 
     void		setImpTypIdx(int,bool updnow=true);
     void		setScanInfo(const SEGY::ScanInfoSet&);
     void		showNrSamplesSetting(bool);
     void		showZSamplingSetting(bool);
+    void		setRev1Values();
 
+    void		setLoadDefCache(const SEGY::LoadDef&);
     void		useLoadDef(); //!< when you have changed the loaddef
     void		fillLoadDef();
 
@@ -79,6 +82,7 @@ protected:
     uiLineEdit*		offsgenstepfld_;
 
     SEGY::LoadDef&	loaddef_;
+    const SEGY::LoadDef& loaddefcache_;
     SEGY::ImpType	imptype_;
     const bool		inptypfixed_;
     int			nrrows_;
@@ -107,6 +111,10 @@ protected:
     void		setByteFldContents(const SEGY::HdrEntryKeyData&);
     void		parChanged(bool);
 
+    void		clearTable();
+    void		removeFromTable(uiObject*);
+    void		removeFromTable(uiGroup*);
+
     bool		isVSP() const		{ return imptype_.isVSP(); }
     void		setCellTxt(int col,int row,const uiString&);
 
@@ -114,5 +122,3 @@ protected:
     void		parChg(CallBacker*);
 
 };
-
-

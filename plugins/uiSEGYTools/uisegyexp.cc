@@ -545,7 +545,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	if ( !sstp->reader(0) )
 	    mRet( false )
 
-	    SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
+	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
 	SeisIOObjInfo oinf( rdr.ioObj() );
 	rdr.setComponent( seissel_->compNr() );
 

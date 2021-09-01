@@ -9,17 +9,19 @@ ________________________________________________________________________
 -*/
 
 #include "uisegyreadstartinfo.h"
-#include "segyuiscandata.h"
-#include "segyhdrkeydata.h"
+
 #include "segyhdr.h"
-#include "uilabel.h"
-#include "uitable.h"
-#include "uispinbox.h"
-#include "uilineedit.h"
+#include "segyhdrkeydata.h"
+#include "segyuiscandata.h"
+
 #include "uicombobox.h"
-#include "uiseparator.h"
-#include "uisegyimptype.h"
+#include "uilabel.h"
+#include "uilineedit.h"
 #include "uisegydef.h"
+#include "uisegyimptype.h"
+#include "uiseparator.h"
+#include "uispinbox.h"
+#include "uitable.h"
 
 #define mNrInfoRows 10
 #define mNrInfoCols 4
@@ -43,18 +45,11 @@ ________________________________________________________________________
 #define mUseCol 3
 
 // palish yellow
-static const OD::Color qscellcolor = OD::Color( 255, 255, 225 );
+static const OD::Color qscellcolor( 255, 255, 225 );
 // even paler yellow
-static const OD::Color optqscellcolor = OD::Color( 255, 255, 245 );
+static const OD::Color optqscellcolor( 255, 255, 245 );
 // very light grey
-static const OD::Color optcellcolor = OD::Color( 245, 245, 245 );
-
-#define mGetGeomType(varnm) const Seis::GeomType varnm = imptype_.geomType()
-#define mGetParChgCB(varnm) \
-    const CallBack varnm( mCB(this,uiSEGYReadStartInfo,parChg) )
-
-#define sEmpty uiString::emptyString()
-
+static const OD::Color optcellcolor( 245, 245, 245 );
 
 class uiSEGYByteNr : public uiGroup
 { mODTextTranslationClass(uiSEGYByteNr)
@@ -177,11 +172,10 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
 					  const SEGY::ImpType* imptyp )
     : uiGroup(p,"SEGY read start info")
     , loaddef_(scd)
+    , loaddefcache_(*new SEGY::LoadDef(scd))
     , loaddefChanged(this)
     , revChanged(this)
     , parsbeingset_(false)
-    , nrsampsrcfld_(nullptr)
-    , zsampsrcfld_(nullptr)
     , xcoordbytefld_(nullptr)
     , ycoordbytefld_(nullptr)
     , inlbytefld_(nullptr)
@@ -196,7 +190,7 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     , offsgengrp_(nullptr)
     , inptypfixed_(imptyp)
     , nrunswappedfmts_(5)
-    , sBytePos(tr("from header"))
+    , sBytePos(tr("From header"))
 {
     nrrows_ = mNrInfoRows;
     if ( inptypfixed_ )
@@ -210,9 +204,9 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
 
     tbl_ = new uiTable( this, uiTable::Setup(nrrows_,mNrInfoCols)
 				  .manualresize(true), "Info table" );
-    tbl_->setColumnLabel( mItemCol, sEmpty );
+    tbl_->setColumnLabel( mItemCol, uiString::empty() );
     tbl_->setColumnLabel( mQSResCol, tr("Quick scan result") );
-    tbl_->setColumnLabel( mUseTxtCol, sEmpty );
+    tbl_->setColumnLabel( mUseTxtCol, uiStrings::sSource() );
     tbl_->setColumnLabel( mUseCol, tr("Actually use") );
     tbl_->setColumnStretchable( mItemCol, false );
     tbl_->setColumnStretchable( mQSResCol, true );
@@ -223,9 +217,9 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
     tbl_->setTableReadOnly( true );
     tbl_->setLeftHeaderHidden( true );
     setCellTxt( mItemCol, mRevRow, tr("SEG-Y revision") );
-    setCellTxt( mUseTxtCol, mRevRow, sEmpty );
+    setCellTxt( mUseTxtCol, mRevRow, uiString::empty() );
     setCellTxt( mItemCol, mDataFormatRow, tr("Data format") );
-    setCellTxt( mUseTxtCol, mDataFormatRow, sEmpty );
+    setCellTxt( mUseTxtCol, mDataFormatRow, uiString::empty() );
     setCellTxt( mItemCol, mNrSamplesRow, tr("Number of samples") );
     setCellTxt( mItemCol, mZRangeRow, tr("Z range") );
 
@@ -235,27 +229,22 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd,
 }
 
 
-#   define mAdd2Tbl(fld,row,col) \
-    fld->setStretch( 2, 1 ); \
-    tbl_->setCellObject( RowCol(row,col), fld );
-
-#   define mRemoveFromTable(fld,row,col) { \
-    if ( fld ) \
-    { \
-	tbl_->clearCellObject( RowCol(row,col) ); \
-	fld = nullptr; \
-    } }
+uiSEGYReadStartInfo::~uiSEGYReadStartInfo()
+{
+    delete &loaddefcache_;
+}
 
 
 void uiSEGYReadStartInfo::mkBasicInfoFlds()
 {
     const CallBack revchgcb( mCB(this,uiSEGYReadStartInfo,revChg) );
-    mGetParChgCB( parchgcb );
+    const CallBack parchgcb( mCB(this,uiSEGYReadStartInfo,parChg) );
 
-    const char* revstrs[] = { "0", "1", "2", nullptr };
+    const char* revstrs[] =
+		{ "User defined", "Revision 1", "Revision 2", nullptr };
     revfld_ = new uiComboBox( nullptr, revstrs, "Revision" );
     revfld_->selectionChanged.notify( revchgcb );
-    mAdd2Tbl( revfld_, mRevRow, mUseCol );
+    tbl_->setCellObject( RowCol(mRevRow,mUseCol), revfld_ );
 
     BufferStringSet fmts( SEGY::FilePars::getFmts(true) );
     nrunswappedfmts_ = (short)(fmts.size() - 1); // not the 'From file header'
@@ -265,31 +254,28 @@ void uiSEGYReadStartInfo::mkBasicInfoFlds()
     fmts.add( swpdfmts, true );
     fmtfld_ = new uiComboBox( nullptr, fmts, "Format" );
     fmtfld_->selectionChanged.notify( parchgcb );
-    mAdd2Tbl( fmtfld_, mDataFormatRow, mUseCol );
+    tbl_->setCellObject( RowCol(mDataFormatRow,mUseCol), fmtfld_ );
 
-    if ( !inptypfixed_ || imptype_.is2D() )
-    {
-	nrsampsrcfld_ = new uiComboBox( nullptr, "Nr samples source" );
-	nrsampsrcfld_->addItem( tr("From header") );
-	nrsampsrcfld_->addItem( tr("Use fixed") );
-	nrsampsrcfld_->selectionChanged.notify( parchgcb );
-	nrsampsrcfld_->display( false );
-	mAdd2Tbl( nrsampsrcfld_, mNrSamplesRow, mUseTxtCol );
+    const uiString fromhdrstr = tr("From header");
+    const uiString usrdefstr = tr("User defined");
+    nrsampsrcfld_ = new uiComboBox( nullptr, "Nr samples source" );
+    nrsampsrcfld_->addItem( fromhdrstr );
+    nrsampsrcfld_->addItem( usrdefstr );
+    nrsampsrcfld_->selectionChanged.notify( parchgcb );
+    tbl_->setCellObject( RowCol(mNrSamplesRow,mUseTxtCol), nrsampsrcfld_ );
 
-	zsampsrcfld_ = new uiComboBox( nullptr, "Z sampling source" );
-	zsampsrcfld_->addItem( tr("From header") );
-	zsampsrcfld_->addItem( tr("Use fixed") );
-	zsampsrcfld_->selectionChanged.notify( parchgcb );
-	zsampsrcfld_->display( false );
-	mAdd2Tbl( zsampsrcfld_, mZRangeRow, mUseTxtCol );
-    }
+    zsampsrcfld_ = new uiComboBox( nullptr, "Z sampling source" );
+    zsampsrcfld_->addItem( fromhdrstr );
+    zsampsrcfld_->addItem( usrdefstr );
+    zsampsrcfld_->selectionChanged.notify( parchgcb );
+    tbl_->setCellObject( RowCol(mZRangeRow,mUseTxtCol), zsampsrcfld_ );
 
     nsfld_ = new uiSpinBox( nullptr, 0, "Samples" );
     nsfld_->setInterval( 1, INT32_MAX );
-    nsfld_->valueChanged.notify( parchgcb );
-    mAdd2Tbl( nsfld_, mNrSamplesRow, mUseCol );
+    nsfld_->valueChanging.notify( parchgcb );
+    tbl_->setCellObject( RowCol(mNrSamplesRow,mUseCol), nsfld_ );
 
-    uiGroup* grp = new uiGroup( nullptr, "Z Range" );
+    auto* grp = new uiGroup( nullptr, "Z Range" );
     auto lbl = new uiLabel( grp, uiStrings::sStart() );
     zstartfld_ = new uiLineEdit( grp, FloatInpSpec(0.f), "Z Start" );
     zstartfld_->setToolTip( tr("Z position of first trace sample") );
@@ -319,64 +305,76 @@ void uiSEGYReadStartInfo::manNonBasicRows()
 }
 
 
-void uiSEGYReadStartInfo::manCoordDefFlds()
+void uiSEGYReadStartInfo::clearTable()
 {
-    if ( isVSP() || !loaddef_.isRev0() )
-    {
-	mRemoveFromTable( xcoordbytefld_, mXRow, mUseCol )
-	mRemoveFromTable( ycoordbytefld_, mYRow, mUseCol )
-    }
-    else if ( !xcoordbytefld_ )
-    {
-	mGetParChgCB( parchgcb );
-	xcoordbytefld_ = new uiSEGYByteNr( nullptr, "X-coord byte" );
-	xcoordbytefld_->changed.notify( parchgcb );
-	tbl_->setCellGroup( RowCol(mXRow,mUseCol), xcoordbytefld_ );
-	ycoordbytefld_ = new uiSEGYByteNr( nullptr, "Y-coord byte" );
-	ycoordbytefld_->changed.notify( parchgcb );
-	tbl_->setCellGroup( RowCol(mYRow,mUseCol), ycoordbytefld_ );
-    }
+    remove2DDefFlds();
+    remove3DDefFlds();
+
+    removeFromTable( xcoordbytefld_ ); xcoordbytefld_ = nullptr;
+    removeFromTable( ycoordbytefld_ ); ycoordbytefld_ = nullptr;
+
+    removeFromTable( psoffsrcfld_ ); psoffsrcfld_ = nullptr;
+    removeFromTable( offsgengrp_ ); offsgengrp_ = nullptr;
+    offsgenstartfld_ = offsgenstepfld_ = nullptr;
+    offsetbytefld_ = nullptr;
+    removeFromTable( azimuthbytefld_ ); azimuthbytefld_ = nullptr;
 }
-
-
-#define mRemoveRefNrByteFld() \
-    mRemoveFromTable( refnrbytefld_, mKey2Row, mUseCol )
-#define mRemoveTrcNrByteFld() \
-    mRemoveFromTable( trcnrbytefld_, mKey1Row, mUseCol )
-#define mRemoveTrcNrGenGrp() { \
-    mRemoveFromTable( trcnrgengrp_, mKey1Row, mUseCol ); \
-    trcnrgenstartfld_ = trcnrgenstepfld_ = nullptr; }
 
 
 void uiSEGYReadStartInfo::remove2DDefFlds()
 {
-    mRemoveFromTable( trcnrsrcfld_, mKey1Row, mUseTxtCol );
-    mRemoveTrcNrByteFld();
-    mRemoveTrcNrGenGrp();
-    mRemoveRefNrByteFld();
+    removeFromTable( refnrbytefld_ ); refnrbytefld_ = nullptr;
+    removeFromTable( trcnrsrcfld_ ); trcnrsrcfld_ = nullptr;
+    removeFromTable( trcnrgengrp_ ); trcnrgengrp_ = nullptr;
+    trcnrgenstartfld_ = trcnrgenstepfld_ = nullptr;
+    trcnrbytefld_ = nullptr;
 }
 
 
 void uiSEGYReadStartInfo::remove3DDefFlds()
 {
-    mRemoveFromTable( inlbytefld_, mKey1Row, mUseCol )
-    mRemoveFromTable( crlbytefld_, mKey2Row, mUseCol )
+    removeFromTable( inlbytefld_ ); inlbytefld_ = nullptr;
+    removeFromTable( crlbytefld_ ); crlbytefld_ = nullptr;
+}
+
+
+void uiSEGYReadStartInfo::removeFromTable( uiObject* obj )
+{
+    if ( obj )
+	tbl_->clearCellObject( tbl_->getCell(obj) );
+}
+
+
+void uiSEGYReadStartInfo::removeFromTable( uiGroup* obj )
+{
+    if ( obj )
+	tbl_->clearCellObject( tbl_->getCell(obj) );
+}
+
+
+void uiSEGYReadStartInfo::manCoordDefFlds()
+{
+    if ( xcoordbytefld_ || isVSP() )
+	return;
+
+    const CallBack parchgcb( mCB(this,uiSEGYReadStartInfo,parChg) );
+    xcoordbytefld_ = new uiSEGYByteNr( nullptr, "X-coord byte" );
+    xcoordbytefld_->changed.notify( parchgcb );
+    tbl_->setCellGroup( RowCol(mXRow,mUseCol), xcoordbytefld_ );
+    ycoordbytefld_ = new uiSEGYByteNr( nullptr, "Y-coord byte" );
+    ycoordbytefld_->changed.notify( parchgcb );
+    tbl_->setCellGroup( RowCol(mYRow,mUseCol), ycoordbytefld_ );
 }
 
 
 void uiSEGYReadStartInfo::man2DDefFlds()
 {
-    mGetGeomType( gt );
-
+    const Seis::GeomType gt = imptype_.geomType();
     if ( isVSP() || !Seis::is2D(gt) )
-	{ remove2DDefFlds(); return; }
+	return;
 
-    remove3DDefFlds();
-    mGetParChgCB( parchgcb );
-
-    if ( !loaddef_.isRev0() )
-	mRemoveRefNrByteFld()
-    else if ( !refnrbytefld_ )
+    const CallBack parchgcb( mCB(this,uiSEGYReadStartInfo,parChg) );
+    if ( !refnrbytefld_ )
     {
 	refnrbytefld_ = new uiSEGYByteNr( nullptr, "Ref/SP number byte" );
 	refnrbytefld_->changed.notify( parchgcb );
@@ -389,55 +387,47 @@ void uiSEGYReadStartInfo::man2DDefFlds()
 	trcnrsrcfld_->addItem( tr("In file") );
 	trcnrsrcfld_->addItem( tr("Generate") );
 	trcnrsrcfld_->selectionChanged.notify( parchgcb );
-	mAdd2Tbl( trcnrsrcfld_, mKey1Row, mUseTxtCol );
+	tbl_->setCellObject( RowCol(mKey1Row,mUseTxtCol), trcnrsrcfld_ );
     }
 
-    if ( loaddef_.havetrcnrs_ )
+    if ( !trcnrgengrp_ )
     {
-	mRemoveTrcNrGenGrp();
-	if ( !trcnrbytefld_ )
-	{
-	    trcnrbytefld_ = new uiSEGYByteNr( nullptr, "Trace number byte" );
-	    trcnrbytefld_->changed.notify( parchgcb );
-	    tbl_->setCellGroup( RowCol(mKey1Row,mUseCol), trcnrbytefld_ );
-	}
+	trcnrgengrp_ = new uiGroup( nullptr, "Trace number Generation" );
+
+	trcnrbytefld_ = new uiSEGYByteNr( trcnrgengrp_, "Trace number byte" );
+	trcnrbytefld_->changed.notify( parchgcb );
+
+	trcnrgenstartfld_ = new uiLineEdit( trcnrgengrp_,
+		IntInpSpec(1000), "Trace Number Start" );
+	trcnrgenstartfld_->setToolTip( tr("%1 start value")
+				       .arg( uiStrings::sTraceNumber() ) );
+	trcnrgenstartfld_->editingFinished.notify( parchgcb );
+	trcnrgenstartfld_->setStretch( 2, 1 );
+	trcnrgenstepfld_ = new uiLineEdit( trcnrgengrp_,
+		IntInpSpec(1), "Trace number Step" );
+	trcnrgenstepfld_->setToolTip( tr("Step in trace numbers") );
+	trcnrgenstepfld_->editingFinished.notify( parchgcb );
+	trcnrgenstepfld_->setStretch( 2, 1 );
+	trcnrgenstepfld_->attach( rightOf, trcnrgenstartfld_ );
+
+	tbl_->setCellGroup( RowCol(mKey1Row,mUseCol), trcnrgengrp_ );
     }
-    else
-    {
-	mRemoveTrcNrByteFld();
-	if ( !trcnrgengrp_ )
-	{
-	    trcnrgengrp_ = new uiGroup( nullptr, "Trace number Generation" );
-	    trcnrgenstartfld_ = new uiLineEdit( trcnrgengrp_,
-		    IntInpSpec(1000), "Trace Number Start" );
-	    trcnrgenstartfld_->setToolTip( tr("%1 start value")
-					   .arg( uiStrings::sTraceNumber() ) );
-	    trcnrgenstartfld_->editingFinished.notify( parchgcb );
-	    trcnrgenstartfld_->setStretch( 2, 1 );
-	    trcnrgenstepfld_ = new uiLineEdit( trcnrgengrp_,
-		    IntInpSpec(1), "Trace number Step" );
-	    trcnrgenstepfld_->setToolTip( tr("Step in trace numbers") );
-	    trcnrgenstepfld_->editingFinished.notify( parchgcb );
-	    trcnrgenstepfld_->setStretch( 2, 1 );
-	    trcnrgenstepfld_->attach( rightOf, trcnrgenstartfld_ );
-	    tbl_->setCellGroup( RowCol(mKey1Row,mUseCol), trcnrgengrp_ );
-	}
-    }
+
+    trcnrbytefld_->display( loaddef_.havetrcnrs_ );
+    trcnrgenstartfld_->display( !loaddef_.havetrcnrs_ );
+    trcnrgenstepfld_->display( !loaddef_.havetrcnrs_ );
 }
 
 
 void uiSEGYReadStartInfo::man3DDefFlds()
 {
-    mGetGeomType( gt );
-
-    if ( isVSP() || Seis::is2D(gt) || !loaddef_.isRev0() )
-	{ remove3DDefFlds(); return; }
-
-    remove2DDefFlds();
-    mGetParChgCB( parchgcb );
+    const Seis::GeomType gt = imptype_.geomType();
+    if ( isVSP() || Seis::is2D(gt) )
+	return;
 
     if ( !inlbytefld_ )
     {
+	const CallBack parchgcb( mCB(this,uiSEGYReadStartInfo,parChg) );
 	inlbytefld_ = new uiSEGYByteNr( nullptr, "Inline byte" );
 	inlbytefld_->changed.notify( parchgcb );
 	tbl_->setCellGroup( RowCol(mKey1Row,mUseCol), inlbytefld_ );
@@ -453,85 +443,73 @@ void uiSEGYReadStartInfo::manPSDefFlds()
     if ( !mHavePSRow )
 	return;
 
-    mGetGeomType( gt );
-    mGetParChgCB( parchgcb );
-
-#define mRemoveOffsByteFld() \
-	mRemoveFromTable( offsetbytefld_, mOffsetRow, mUseCol )
-#define mRemoveOffsGenGrp() \
-	mRemoveFromTable( offsgengrp_, mOffsetRow, mUseCol ); \
-	offsgenstartfld_ = offsgenstepfld_ = nullptr
-#define mRemoveAziByteFld() \
-	mRemoveFromTable( azimuthbytefld_, mAzimuthRow, mUseCol )
-
+    const Seis::GeomType gt = imptype_.geomType();
     if ( isVSP() || !Seis::isPS(gt) )
-    {
-	mRemoveFromTable( psoffsrcfld_, mOffsetRow, mUseTxtCol );
-	mRemoveOffsByteFld();
-	mRemoveOffsGenGrp();
-	mRemoveAziByteFld();
-    }
-    else
-    {
-	if ( !psoffsrcfld_ )
-	{
-	    psoffsrcfld_ = new uiComboBox( nullptr, "Offset source" );
-	    psoffsrcfld_->addItem( tr("In file") );
-	    psoffsrcfld_->addItem( tr("From Src/Rcv (X,Y)") );
-	    psoffsrcfld_->addItem( tr("Generate") );
-	    psoffsrcfld_->selectionChanged.notify( parchgcb );
-	    mAdd2Tbl( psoffsrcfld_, mOffsetRow, mUseTxtCol );
-	}
-	switch ( loaddef_.psoffssrc_ )
-	{
-	    case SEGY::FileReadOpts::InFile:
-	    {
-		mRemoveOffsGenGrp();
-		if ( !offsetbytefld_ )
-		{
-		    offsetbytefld_ = new uiSEGYByteNr( nullptr, "Offset byte" );
-		    offsetbytefld_->changed.notify( parchgcb );
-		    tbl_->setCellGroup( RowCol(mOffsetRow,mUseCol),
-					offsetbytefld_);
-		}
-	    }
-	    break;
-	    case SEGY::FileReadOpts::UsrDef:
-	    {
-		mRemoveOffsByteFld();
-		if ( !offsgengrp_ )
-		{
-		    offsgengrp_ = new uiGroup( nullptr, "Offset Generation" );
-		    offsgenstartfld_ = new uiLineEdit( offsgengrp_,
-			    FloatInpSpec(0.f), "Offset Start" );
-		    offsgenstartfld_->setToolTip( tr("Offset start value") );
-		    offsgenstartfld_->editingFinished.notify( parchgcb );
-		    offsgenstartfld_->setStretch( 2, 1 );
-		    offsgenstepfld_ = new uiLineEdit( offsgengrp_,
-			    FloatInpSpec(100.f,0.f), "Offset Step" );
-		    offsgenstepfld_->setToolTip( tr("Step in offset values") );
-		    offsgenstepfld_->editingFinished.notify( parchgcb );
-		    offsgenstepfld_->setStretch( 2, 1 );
-		    offsgenstepfld_->attach( rightOf, offsgenstartfld_ );
-		    tbl_->setCellGroup( RowCol(mOffsetRow,mUseCol),
-					offsgengrp_ );
-		}
-	    }
-	    break;
-	    case SEGY::FileReadOpts::SrcRcvCoords:
-	    {
-		mRemoveOffsByteFld();
-		mRemoveOffsGenGrp();
-	    }
-	    break;
-	}
+	return;
 
-	if ( !azimuthbytefld_ )
+    const CallBack parchgcb( mCB(this,uiSEGYReadStartInfo,parChg) );
+    if ( !psoffsrcfld_ )
+    {
+	psoffsrcfld_ = new uiComboBox( nullptr, "Offset source" );
+	psoffsrcfld_->addItem( tr("In file") );
+	psoffsrcfld_->addItem( tr("From Src/Rcv (X,Y)") );
+	psoffsrcfld_->addItem( tr("Generate") );
+	psoffsrcfld_->selectionChanged.notify( parchgcb );
+	tbl_->setCellObject( RowCol(mOffsetRow,mUseTxtCol), psoffsrcfld_ );
+    }
+
+    if ( !offsgengrp_ )
+    {
+	offsgengrp_ = new uiGroup( nullptr, "Offset Generation" );
+
+	offsetbytefld_ = new uiSEGYByteNr( offsgengrp_, "Offset byte" );
+	offsetbytefld_->changed.notify( parchgcb );
+
+	offsgenstartfld_ = new uiLineEdit( offsgengrp_,
+		FloatInpSpec(0.f), "Offset Start" );
+	offsgenstartfld_->setToolTip( tr("Offset start value") );
+	offsgenstartfld_->editingFinished.notify( parchgcb );
+	offsgenstartfld_->setStretch( 2, 1 );
+	offsgenstepfld_ = new uiLineEdit( offsgengrp_,
+		FloatInpSpec(100.f,0.f), "Offset Step" );
+	offsgenstepfld_->setToolTip( tr("Step in offset values") );
+	offsgenstepfld_->editingFinished.notify( parchgcb );
+	offsgenstepfld_->setStretch( 2, 1 );
+	offsgenstepfld_->attach( rightOf, offsgenstartfld_ );
+
+	tbl_->setCellGroup( RowCol(mOffsetRow,mUseCol), offsgengrp_ );
+    }
+
+    switch ( loaddef_.psoffssrc_ )
+    {
+	case SEGY::FileReadOpts::InFile:
 	{
-	    azimuthbytefld_ = new uiSEGYByteNr( nullptr, "Azimuth byte" );
-	    azimuthbytefld_->changed.notify( parchgcb );
-	    tbl_->setCellGroup( RowCol(mAzimuthRow,mUseCol), azimuthbytefld_);
+	    offsetbytefld_->display( true );
+	    offsgenstartfld_->display( false );
+	    offsgenstepfld_->display( false );
 	}
+	break;
+	case SEGY::FileReadOpts::UsrDef:
+	{
+	    offsetbytefld_->display( false );
+	    offsgenstartfld_->display( true );
+	    offsgenstepfld_->display( true );
+	}
+	break;
+	case SEGY::FileReadOpts::SrcRcvCoords:
+	{
+	    offsgenstartfld_->display( false );
+	    offsgenstepfld_->display( false );
+	    offsetbytefld_->display( false );
+	}
+	break;
+    }
+
+    if ( !azimuthbytefld_ )
+    {
+	azimuthbytefld_ = new uiSEGYByteNr( nullptr, "Azimuth byte" );
+	azimuthbytefld_->changed.notify( parchgcb );
+	tbl_->setCellGroup( RowCol(mAzimuthRow,mUseCol), azimuthbytefld_);
     }
 }
 
@@ -541,7 +519,7 @@ void uiSEGYReadStartInfo::manPSDefFlds()
 
 void uiSEGYReadStartInfo::updateCellTexts()
 {
-    mGetGeomType( gt );
+    const Seis::GeomType gt = imptype_.geomType();
     const bool is2d = Seis::is2D( gt );
     const bool isps = Seis::isPS( gt );
     const bool isvsp = isVSP();
@@ -553,7 +531,7 @@ void uiSEGYReadStartInfo::updateCellTexts()
     uiString ky1ustxt; uiString ky2ustxt;
     uiString nrtrcsusrtxt;
     xittxt = yittxt = ky1ittxt = ky2ittxt = offsittxt = azitxt =
-    xustxt = yustxt = ky1ustxt = ky2ustxt = nrtrcsusrtxt = sEmpty;
+    xustxt = yustxt = ky1ustxt = ky2ustxt = nrtrcsusrtxt = uiString::empty();
     if ( isvsp )
 	nrtrcsusrtxt = tr("(1 trace used)");
     else
@@ -571,10 +549,9 @@ void uiSEGYReadStartInfo::updateCellTexts()
 	    azitxt = mJoinUiStrRange( sAzimuth() );
 	}
 
-	if ( loaddef_.isRev0() )
-	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;
+	xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;
 
-	const uiString iscalcstr = tr( "[Calculated]" );
+	const uiString iscalcstr = tr( "Calculated" );
 	if ( is2d )
 	    ky1ustxt = sBytePos;
 	else
@@ -596,28 +573,28 @@ void uiSEGYReadStartInfo::updateCellTexts()
 	setCellTxt( mItemCol, mAzimuthRow, azitxt );
     }
 
-    setCellTxt( mQSResCol, mKey1Row, isvsp ? sEmpty
+    setCellTxt( mQSResCol, mKey1Row, isvsp ? uiString::empty()
 		: (is2d ? trcnrinfotxt_ : inlinfotxt_) );
-    setCellTxt( mQSResCol, mKey2Row, isvsp ? sEmpty
+    setCellTxt( mQSResCol, mKey2Row, isvsp ? uiString::empty()
 		: (is2d ? refnrinfotxt_ : crlinfotxt_) );
-    setCellTxt( mQSResCol, mXRow, isvsp ? sEmpty : xinfotxt_ );
-    setCellTxt( mQSResCol, mYRow, isvsp ? sEmpty : yinfotxt_ );
+    setCellTxt( mQSResCol, mXRow, isvsp ? uiString::empty() : xinfotxt_ );
+    setCellTxt( mQSResCol, mYRow, isvsp ? uiString::empty() : yinfotxt_ );
     setCellTxt( mQSResCol, mOffsetRow,
-		!isvsp && isps ? offsetinfotxt_ : sEmpty );
+		!isvsp && isps ? offsetinfotxt_ : uiString::empty() );
     setCellTxt( mQSResCol, mAzimuthRow,
-		!isvsp && isps ? azimuthinfotxt_ : sEmpty );
+		!isvsp && isps ? azimuthinfotxt_ : uiString::empty() );
     setCellTxt( mUseTxtCol, mKey2Row, ky2ustxt );
     setCellTxt( mUseTxtCol, mXRow, xustxt );
     setCellTxt( mUseTxtCol, mYRow, yustxt );
     if ( !is2d )
 	setCellTxt( mUseTxtCol, mKey1Row, ky1ustxt );
-    setCellTxt( mUseTxtCol, mAzimuthRow, isps ? sBytePos : sEmpty );
+    setCellTxt( mUseTxtCol, mAzimuthRow, isps ? sBytePos : uiString::empty() );
 }
 
 
 void uiSEGYReadStartInfo::showNrSamplesSetting( bool yn )
 {
-    nsfld_->display( yn );
+    nsfld_->setSensitive( yn );
 }
 
 
@@ -625,24 +602,38 @@ void uiSEGYReadStartInfo::showZSamplingSetting( bool yn )
 {
     uiGroup* zsampgrp = tbl_->getCellGroup( RowCol(mZRangeRow,mUseCol) );
     if ( zsampgrp )
-	zsampgrp->display( yn );
+	zsampgrp->setSensitive( yn );
+}
+
+
+static void setEntries( uiSEGYByteNr* fld, const SEGY::HdrEntryDataSet& heds,
+			int rev1entry )
+{
+    if ( !fld )
+	return;
+
+    SEGY::HdrEntryDataSet& entries = const_cast<SEGY::HdrEntryDataSet&>(heds);
+    if ( rev1entry>=0 && !entries.idxs_.isPresent(rev1entry) )
+    {
+	entries.idxs_.add( rev1entry );
+	sort( entries.idxs_ );
+	entries.rejectedidxs_ -= rev1entry;
+    }
+
+    fld->setEntries( entries );
 }
 
 
 void uiSEGYReadStartInfo::setByteFldContents( const SEGY::HdrEntryKeyData& hkd )
 {
-#define mSetBFCont(nm,cont) \
-    if ( nm##bytefld_ ) \
-	nm##bytefld_->setEntries( cont )
-
-    mSetBFCont( xcoord, hkd.x_ );
-    mSetBFCont( ycoord, hkd.y_ );
-    mSetBFCont( inl, hkd.inl_ );
-    mSetBFCont( crl, hkd.crl_ );
-    mSetBFCont( trcnr, hkd.trcnr_ );
-    mSetBFCont( refnr, hkd.refnr_ );
-    mSetBFCont( offset, hkd.offs_ );
-    mSetBFCont( azimuth, hkd.azimuth_ );
+    setEntries( xcoordbytefld_, hkd.x_, SEGY::TrcHeader::EntryXcdp() );
+    setEntries( ycoordbytefld_, hkd.y_, SEGY::TrcHeader::EntryYcdp() );
+    setEntries( inlbytefld_, hkd.inl_, SEGY::TrcHeader::EntryInline() );
+    setEntries( crlbytefld_, hkd.crl_, SEGY::TrcHeader::EntryCrossline() );
+    setEntries( trcnrbytefld_, hkd.trcnr_, SEGY::TrcHeader::EntryCdp() );
+    setEntries( refnrbytefld_, hkd.refnr_, SEGY::TrcHeader::EntrySP() );
+    setEntries( offsetbytefld_, hkd.offs_, SEGY::TrcHeader::EntryOffset() );
+    setEntries( azimuthbytefld_, hkd.azimuth_, -1 );
 }
 
 
@@ -665,12 +656,60 @@ void uiSEGYReadStartInfo::revChg( CallBacker* )
 
 void uiSEGYReadStartInfo::parChg( CallBacker* cb )
 {
-    if ( nrsampsrcfld_ && cb == nrsampsrcfld_ )
-	showNrSamplesSetting( nrsampsrcfld_->currentItem() );
-    else if ( zsampsrcfld_ && cb == zsampsrcfld_ )
-	showZSamplingSetting( zsampsrcfld_->currentItem() );
+    if ( cb == nrsampsrcfld_ )
+    {
+	const bool fromheader = nrsampsrcfld_->currentItem() == 0;
+	if ( fromheader )
+	    nsfld_->setValue( loaddefcache_.ns_ );
+	showNrSamplesSetting( !fromheader );
+    }
+    else if ( cb == zsampsrcfld_ )
+    {
+	const bool fromheader = zsampsrcfld_->currentItem() == 0;
+	if ( fromheader )
+	{
+	    zstartfld_->setValue( loaddefcache_.sampling_.start );
+	    srfld_->setValue( loaddefcache_.sampling_.step );
+	}
+	showZSamplingSetting( !fromheader );
+    }
 
     parChanged( false );
+}
+
+
+void uiSEGYReadStartInfo::setRev1Values()
+{
+    const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
+    if ( xcoordbytefld_ )
+    {
+	const SEGY::HdrEntry xentry = *hdef[SEGY::TrcHeader::EntryXcdp()];
+	xcoordbytefld_->setHdrEntry( xentry );
+	const SEGY::HdrEntry yentry = *hdef[SEGY::TrcHeader::EntryYcdp()];
+	ycoordbytefld_->setHdrEntry( yentry );
+    }
+
+    if ( inlbytefld_ )
+    {
+	const SEGY::HdrEntry ientry = *hdef[SEGY::TrcHeader::EntryInline()];
+	inlbytefld_->setHdrEntry( ientry );
+	const SEGY::HdrEntry centry = *hdef[SEGY::TrcHeader::EntryCrossline()];
+	crlbytefld_->setHdrEntry( centry );
+    }
+
+    if ( trcnrbytefld_ )
+    {
+	const SEGY::HdrEntry tentry = *hdef[SEGY::TrcHeader::EntryCdp()];
+	trcnrbytefld_->setHdrEntry( tentry );
+	const SEGY::HdrEntry sentry = *hdef[SEGY::TrcHeader::EntrySP()];
+	refnrbytefld_->setHdrEntry( sentry );
+    }
+
+    if ( offsetbytefld_ )
+    {
+	const SEGY::HdrEntry oentry = *hdef[SEGY::TrcHeader::EntryOffset()];
+	offsetbytefld_->setHdrEntry( oentry );
+    }
 }
 
 
@@ -678,6 +717,9 @@ void uiSEGYReadStartInfo::parChanged( bool revchg )
 {
     if ( parsbeingset_ )
 	return;
+
+    if ( revchg && revfld_->currentItem()>0 )
+	setRev1Values();
 
     fillLoadDef();
 
@@ -697,6 +739,8 @@ void uiSEGYReadStartInfo::setImpTypIdx( int idx, bool doupd )
 	imptype_.tidx_ = idx;
     }
 
+    clearTable();
+
     if ( doupd )
 	parChanged( false );
 }
@@ -709,7 +753,7 @@ void uiSEGYReadStartInfo::clearInfo()
     trcnrinfotxt_.setEmpty(); refnrinfotxt_.setEmpty();
     offsetinfotxt_.setEmpty(); azimuthinfotxt_.setEmpty();
     for ( int irow=0; irow<mKey1Row; irow++ )
-	setCellTxt( mQSResCol, irow, sEmpty );
+	setCellTxt( mQSResCol, irow, uiString::empty() );
 
     updateCellTexts();
 }
@@ -726,16 +770,15 @@ void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfoSet& sis )
     tbl_->setColumnLabel( mUseCol, nrfiles <= 1 ? tr("Actually use")
 					: tr("Actually use (for all files)") );
 
-    uiString txt = nrfiles <= 1 ? uiString::emptyString()
+    uiString txt = nrfiles <= 1 ? uiString::empty()
 				: tr( "%1 files selected" ).arg( nrfiles );
     tbl_->setColumnLabel( mItemCol, txt );
 
     if ( nrfiles < 1 )
-	{ clearInfo(); return; }
-
-    loaddef_.usenrsampsinfile_ = nrfiles > 1;
-    if ( nrsampsrcfld_ ) nrsampsrcfld_->display( nrfiles > 1 );
-    if ( zsampsrcfld_ ) zsampsrcfld_->display( nrfiles > 1 );
+    {
+	clearInfo();
+	return;
+    }
 
     manNonBasicRows();
     setByteFldContents( sis.keyData() );
@@ -765,23 +808,24 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
     else if ( bi.dataswapped_ )
 	txt.arg( tr(" (data bytes swapped)") );
     else
-	txt.arg( sEmpty  );
+	txt.arg( uiString::empty()  );
     setCellTxt( mQSResCol, mDataFormatRow, txt );
 
     txt.set( "%1 (%2 %3)" );
     const int nrtrcs = sis.nrTraces();
-    txt.arg( bi.ns_ ).arg( nrtrcs ).arg( nrtrcs == 1?tr("trace"):tr("traces") );
+    txt.arg( bi.ns_ ).arg( nrtrcs )
+	.arg( nrtrcs==1 ? tr("trace") : tr("traces") );
     setCellTxt( mQSResCol, mNrSamplesRow, txt );
 
     if ( mIsUdf(bi.sampling_.step) )
-	txt = sEmpty;
+	txt = uiString::empty();
     else
     {
 	txt.set( "%1 - %2 - %3 (s or %4)" );
-	const float endz = loaddef_.sampling_.start
-			 + (bi.ns_-1) * loaddef_.sampling_.step;
-	txt.arg( loaddef_.sampling_.start ).arg( endz )
-	   .arg(loaddef_.sampling_.step)
+	const float endz = bi.sampling_.start
+			 + (bi.ns_-1) * bi.sampling_.step;
+	txt.arg( bi.sampling_.start ).arg( endz )
+	   .arg( bi.sampling_.step )
 	   .arg( sis.inFeet() ? tr("ft") : tr("m") );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
@@ -804,6 +848,12 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
     else
 	refnrinfotxt_.set(rgstr).arg( rgs.refnrs_.start )
 				.arg( rgs.refnrs_.stop );
+}
+
+
+void uiSEGYReadStartInfo::setLoadDefCache( const SEGY::LoadDef& ld )
+{
+    cCast(SEGY::LoadDef&,loaddefcache_) = ld;
 }
 
 
@@ -840,69 +890,62 @@ void uiSEGYReadStartInfo::useLoadDef()
 	}
     }
 
-    if ( nrsampsrcfld_ )
-    {
-	nrsampsrcfld_->setCurrentItem( loaddef_.usenrsampsinfile_ ? 0 : 1 );
-	showNrSamplesSetting( !loaddef_.usenrsampsinfile_ );
-    }
+    nrsampsrcfld_->setCurrentItem( loaddef_.usenrsampsinfile_ ? 0 : 1 );
+    showNrSamplesSetting( !loaddef_.usenrsampsinfile_ );
 
-    if ( zsampsrcfld_ )
-    {
-	zsampsrcfld_->setCurrentItem( loaddef_.usezsamplinginfile_ ? 0 : 1 );
-	showZSamplingSetting( !loaddef_.usezsamplinginfile_ );
-    }
+    zsampsrcfld_->setCurrentItem( loaddef_.usezsamplinginfile_ ? 0 : 1 );
+    showZSamplingSetting( !loaddef_.usezsamplinginfile_ );
 
+    NotifyStopper ns( nsfld_->valueChanging );
     nsfld_->setValue( loaddef_.ns_ );
     zstartfld_->setValue( loaddef_.sampling_.start );
     srfld_->setValue( loaddef_.sampling_.step );
     if ( imptype_.isVSP() )
 	{ parsbeingset_ = false; return; }
 
-#   define mSetToByteNr(fld,memb) \
-    if ( fld ) fld->setHdrEntry( loaddef_.hdrdef_->memb )
-
-    mSetToByteNr( xcoordbytefld_, xcoord_  );
-    mSetToByteNr( ycoordbytefld_, ycoord_  );
-
     const Seis::GeomType gt = imptype_.geomType();
     if ( Seis::is2D(gt) )
     {
 	trcnrsrcfld_->setCurrentItem( loaddef_.havetrcnrs_ ? 0 : 1 );
-	mSetToByteNr( refnrbytefld_, refnr_  );
-	mSetToByteNr( trcnrbytefld_, trnr_  );
+	refnrbytefld_->setHdrEntry( loaddef_.hdrdef_->refnr_ );
+	if ( trcnrbytefld_ )
+	    trcnrbytefld_->setHdrEntry( loaddef_.hdrdef_->trnr_ );
 	if ( trcnrgengrp_ )
 	{
 	    trcnrgenstartfld_->setValue( loaddef_.trcnrdef_.start );
 	    trcnrgenstepfld_->setValue( loaddef_.trcnrdef_.step );
 	}
     }
-    else
-    {
-	mSetToByteNr( inlbytefld_, inl_  );
-	mSetToByteNr( crlbytefld_, crl_  );
 
-	if ( xcoordbytefld_ )
-	{
-	    const bool isic = loaddef_.icvsxytype_==SEGY::FileReadOpts::ICOnly;
-	    const bool isxy = loaddef_.icvsxytype_==SEGY::FileReadOpts::XYOnly;
-	    xcoordbytefld_->setSensitive( !isic );
-	    ycoordbytefld_->setSensitive( !isic );
-	    inlbytefld_->setSensitive( !isxy );
-	    crlbytefld_->setSensitive( !isxy );
-	}
+    if ( xcoordbytefld_ )
+    {
+	const bool isic = loaddef_.icvsxytype_==SEGY::FileReadOpts::ICOnly;
+	xcoordbytefld_->setSensitive( !isic );
+	ycoordbytefld_->setSensitive( !isic );
+	xcoordbytefld_->setHdrEntry( loaddef_.hdrdef_->xcoord_ );
+	ycoordbytefld_->setHdrEntry( loaddef_.hdrdef_->ycoord_ );
+    }
+
+    if ( inlbytefld_ )
+    {
+	const bool isxy = loaddef_.icvsxytype_==SEGY::FileReadOpts::XYOnly;
+	inlbytefld_->setSensitive( !isxy );
+	crlbytefld_->setSensitive( !isxy );
+	inlbytefld_->setHdrEntry( loaddef_.hdrdef_->inl_ );
+	crlbytefld_->setHdrEntry( loaddef_.hdrdef_->crl_ );
     }
 
     if ( Seis::isPS(gt) )
     {
 	psoffsrcfld_->setCurrentItem( (int)loaddef_.psoffssrc_ );
-	mSetToByteNr( offsetbytefld_, offs_  );
-	if ( offsgengrp_ )
+	offsetbytefld_->setHdrEntry( loaddef_.hdrdef_->offs_ );
+	if ( offsgenstartfld_ )
 	{
 	    offsgenstartfld_->setValue( loaddef_.psoffsdef_.start );
 	    offsgenstepfld_->setValue( loaddef_.psoffsdef_.step );
 	}
 
-	mSetToByteNr( azimuthbytefld_, azim_ );
+	azimuthbytefld_->setHdrEntry( loaddef_.hdrdef_->azim_ );
     }
 
     parsbeingset_ = false;
@@ -915,20 +958,12 @@ void uiSEGYReadStartInfo::fillLoadDef()
 
     const int fmtidx = fmtfld_->currentItem();
     loaddef_.dataswapped_ = fmtidx > nrunswappedfmts_;
-    if ( fmtidx > 0 )
-	loaddef_.format_ = (short)(*fmtfld_->text() - '0');
-    else
-    {
-	loaddef_.format_ = 0;
-	loaddef_.useformatinfile_ = true;
-    }
+    loaddef_.useformatinfile_ = fmtidx == 0;
+    loaddef_.format_ = fmtidx==0 ? 0 : short(*fmtfld_->text() - '0');
+    loaddef_.usenrsampsinfile_ = nrsampsrcfld_->currentItem() == 0;
+    loaddef_.usezsamplinginfile_ = zsampsrcfld_->currentItem() == 0;
 
-    if ( nrsampsrcfld_ )
-	loaddef_.usenrsampsinfile_ = nrsampsrcfld_->currentItem() == 0;
-    if ( zsampsrcfld_ )
-	loaddef_.usezsamplinginfile_ = zsampsrcfld_->currentItem() == 0;
-
-    int newns = nsfld_->getIntValue();
+    const int newns = nsfld_->getIntValue();
     if ( newns > SEGY::cMaxReasonableNrSamples() )
     {
 	// TODO: Add message with donot show again
@@ -948,39 +983,43 @@ void uiSEGYReadStartInfo::fillLoadDef()
     if ( imptype_.isVSP() )
 	return;
 
+    if ( xcoordbytefld_ )
+    {
+	loaddef_.hdrdef_->xcoord_ = xcoordbytefld_->hdrEntry();
+	loaddef_.hdrdef_->ycoord_ = ycoordbytefld_->hdrEntry();
+    }
+
     const Seis::GeomType gt = imptype_.geomType();
-#   define mSetByteNr(fld,memb) \
-    if ( fld ) loaddef_.hdrdef_->memb = fld->hdrEntry()
-
-    mSetByteNr( xcoordbytefld_, xcoord_  );
-    mSetByteNr( ycoordbytefld_, ycoord_  );
-
     if ( Seis::is2D(gt) )
     {
-	mSetByteNr( refnrbytefld_, refnr_  );
-	mSetByteNr( trcnrbytefld_, trnr_  );
-	loaddef_.havetrcnrs_ = trcnrsrcfld_ && trcnrsrcfld_->currentItem() == 0;
+	loaddef_.hdrdef_->refnr_ = refnrbytefld_->hdrEntry();
+	if ( trcnrbytefld_ )
+	    loaddef_.hdrdef_->trnr_ = trcnrbytefld_->hdrEntry();
+	loaddef_.havetrcnrs_ = trcnrsrcfld_->currentItem() == 0;
 	if ( trcnrgengrp_ )
 	{
 	    SamplingData<int>& def = loaddef_.trcnrdef_;
 	    def.start = trcnrgenstartfld_->getIntValue();
-	    if ( mIsUdf(def.start) ) def.start = 1;
+	    if ( mIsUdf(def.start) )
+		def.start = 1;
+
 	    def.step = trcnrgenstepfld_->getIntValue();
-	    if ( mIsUdf(def.step) || def.step == 0 ) def.step = 1;
+	    if ( mIsUdf(def.step) || def.step == 0 )
+		def.step = 1;
 	}
     }
-    else
+    else if ( inlbytefld_ )
     {
-	mSetByteNr( inlbytefld_, inl_  );
-	mSetByteNr( crlbytefld_, crl_  );
+	loaddef_.hdrdef_->inl_ = inlbytefld_->hdrEntry();
+	loaddef_.hdrdef_->crl_ = crlbytefld_->hdrEntry();
     }
 
     if ( Seis::isPS(gt) )
     {
 	loaddef_.psoffssrc_ = (SEGY::FileReadOpts::PSDefType)
 				    psoffsrcfld_->currentItem();
-	mSetByteNr( offsetbytefld_, offs_  );
-	if ( offsgengrp_ )
+	loaddef_.hdrdef_->offs_ = offsetbytefld_->hdrEntry();
+	if ( offsgenstartfld_ )
 	{
 	    SamplingData<float>& def = loaddef_.psoffsdef_;
 	    def.start = offsgenstartfld_->getFValue();
@@ -989,6 +1028,6 @@ void uiSEGYReadStartInfo::fillLoadDef()
 	    if ( mIsUdf(def.step) ) def.step = 1.f;
 	}
 
-	mSetByteNr( azimuthbytefld_, azim_ );
+	loaddef_.hdrdef_->azim_ = azimuthbytefld_->hdrEntry();
     }
 }

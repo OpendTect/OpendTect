@@ -100,7 +100,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	.objtype( tr("SEG-Y") ).defseldir(sImportFromPath);
     inpfld_ = new uiFileInput( topgrp_, uiStrings::phrJoinStrings(
 			       uiStrings::sInputFile(),tr("*=wildcard")),fisu );
-    inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
+    mAttachCB( inpfld_->valuechanged, uiSEGYReadStarter::inpChg );
     editbut_ = uiButton::getStd( topgrp_, OD::Edit,
 				 mCB(this,uiSEGYReadStarter,editFile), false );
     editbut_->attach( rightOf, inpfld_ );
@@ -113,7 +113,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     else
     {
 	typfld_ = new uiSEGYImpType( topgrp_, !forsurvsetup );
-	typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
+	mAttachCB( typfld_->typeChanged, uiSEGYReadStarter::typChg );
 	typfld_->attach( alignedBelow, inpfld_ );
 	attachobj = typfld_->attachObj();
     }
@@ -145,8 +145,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     midgrp_ = new uiGroup( this, "Mid group" );
     midgrp_->attach( ensureBelow, sep );
     infofld_ = new uiSEGYReadStartInfo( midgrp_, loaddef_, imptyp );
-    infofld_->loaddefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
-    infofld_->revChanged.notify( mCB(this,uiSEGYReadStarter,revChg) );
+    mAttachCB( infofld_->loaddefChanged, uiSEGYReadStarter::defChg );
+    mAttachCB( infofld_->revChanged, uiSEGYReadStarter::revChg );
 
     sep = new uiSeparator( this, "Bot sep" );
     sep->attach( stretchedBelow, midgrp_ );
@@ -170,7 +170,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     botgrp_->setStretch( 2, 1 );
 
     setToolStates();
-    postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
+    mAttachCB( postFinalise(), uiSEGYReadStarter::initWin );
 }
 
 
@@ -243,10 +243,11 @@ void uiSEGYReadStarter::createTools()
     coordscalefld_->setHSzPol( uiObject::Small );
     coordscalefld_->setToolTip( tr( "Enter a value if you want to ignore "
 	"the coordinate scaling in the trace headers."
-	"\nAll coordinates read will then be multiplied by that factor." ));
+	"\nAll coordinates read will then be multiplied by that factor."
+	"\nEntering 0 will reset the scaling back to scale found in header "
+	"(scalco byte 71-72)." ));
     coordscalefld_->setPlaceholderText( tr("scale XY") );
-    coordscalefld_->editingFinished.notify(
-			    mCB(this,uiSEGYReadStarter,coordscaleChg) );
+    mAttachCB(coordscalefld_->returnPressed, uiSEGYReadStarter::coordscaleChg );
     coordscalefld_->attach( alignedBelow, lowest );
     lowest = coordscalefld_;
     toolgrp->attach( rightOf, infofld_ );
@@ -386,8 +387,19 @@ void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
     }
 
     scaninfos_->finish();
+
     displayScanResults();
     lastscanwasfull_ = full;
+
+    if ( ct == uiSEGYReadStarter::KeepNone )
+    {
+	const bool isrev0 = loaddef_.revision_==0;
+	if ( !isrev0 )
+	{
+	    infofld_->setRev1Values();
+	    infofld_->fillLoadDef();
+	}
+    }
 }
 
 
@@ -589,6 +601,7 @@ void uiSEGYReadStarter::runClassic( bool imp )
     classicrdr_ = new uiSEGYRead( this, su, &iop );
     if ( !timer_ )
 	timer_ = new Timer( "uiSEGYReadStarter timer" );
+
     timer_->tick.notify( mCB(this,uiSEGYReadStarter,initClassic));
     timer_->start( 1, true );
 }
@@ -747,14 +760,15 @@ void uiSEGYReadStarter::updateCoordScale()
 
     BufferString edtxt = coordscalefld_->text();
     edtxt.trimBlanks();
-    if ( edtxt.isEmpty() )
-	return;
+    const bool reset = edtxt == "0" || edtxt.isEmpty();
+    if ( reset )
+	coordscalefld_->setEmpty();
 
-    loaddef_.coordscale_ = edtxt.toFloat();
+    loaddef_.coordscale_ = reset ? mUdf(float) : edtxt.toFloat();
 }
 
 
-void uiSEGYReadStarter::coordscaleChg( CallBacker* cb )
+void uiSEGYReadStarter::coordscaleChg( CallBacker* )
 {
     updateCoordScale();
     forceRescan();
@@ -830,7 +844,7 @@ bool acceptOK( CallBacker* )
 };
 
 
-void uiSEGYReadStarter::editHdrEntrySettings( CallBacker* cb )
+void uiSEGYReadStarter::editHdrEntrySettings( CallBacker* )
 {
     uiSEGYHdrEntrySettings dlg( this );
     dlg.go();
@@ -1056,7 +1070,10 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
     {
 	scaninfos_->setInFeet( zinft );
 	if ( ct == KeepNone )
+	{
 	    static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
+	    infofld_->setLoadDefCache( loaddef_ );
+	}
     }
 
     si.getFromSEGYBody( strm, loaddef_, forsurvsetup_, clipsampler_, trunner );

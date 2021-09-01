@@ -141,6 +141,7 @@ void uiSEGY::displayReport( uiParent* p, const IOPar& rep, const char* fnm )
     dlg->setDeleteOnClose( true ); dlg->go();
 }
 
+
 #include "uisegywriteopts.h"
 #include "uisegydirectinserter.h"
 
