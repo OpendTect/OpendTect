@@ -231,6 +231,9 @@ void uiSEGYExamine::dispHist( CallBacker* )
 
 void uiSEGYExamine::updateInput( CallBacker* )
 {
+    if ( !rdr_ )
+	return;
+
     display( true );
     setName( setup_.fs_.dispName() );
 
@@ -380,7 +383,8 @@ void uiSEGYExamine::nrTrcsCB( CallBacker* )
 
 void uiSEGYExamine::updateMaxTrace()
 {
-    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,rdr_->translator())
+    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,
+		    rdr_ ? rdr_->translator() : nullptr)
     if ( !segytr )
 	return;
 
