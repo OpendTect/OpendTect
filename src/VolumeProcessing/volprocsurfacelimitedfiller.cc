@@ -321,10 +321,13 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     }
 
     TypeSet<double> horz;
-    bool allhordefined = true;
     for ( int idy=0; idy<hors_.size(); idy++ )
     {
-	if ( !hors_[idy] ) continue;
+	if ( !hors_[idy] )
+	{
+	    horz += mUdf(double);
+	    continue;
+	}
 
 	mDynamicCastGet(const EM::Horizon2D*,hor2d,hors_[idy])
 	if ( hor2d )
@@ -332,10 +335,25 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 			.toInt64();
 
 	horz += hors_[idy]->getPos(hors_[idy]->sectionID(0),bidsq).z;
+    }
+
+    double topz = mUdf(double);
+    double bottomz = mUdf(double);
+    for ( int idy=0; idy<horz.size(); idy++ )
+    {
 	if ( mIsUdf(horz[idy]) )
+	    continue;
+
+	if ( side_[idy] == mBelow )
 	{
-	    allhordefined = false;
-	    break;
+	    if ( mIsUdf(topz) || horz[idy]>topz )
+		topz = horz[idy];
+	}
+
+	if ( side_[idy] == mAbove )
+	{
+	    if ( mIsUdf(bottomz) || horz[idy]<bottomz )
+		bottomz = horz[idy];
 	}
     }
 
@@ -366,19 +384,8 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     for ( int idx=outputmaxidx; idx>=0; idx-- )
     {
 	const double curz = output->sampling().zsamp_.atIndex( idx );
-	bool cancalculate = allhordefined;
-	if ( allhordefined )
-	{
-	    for ( int idy=0; idy<horz.size(); idy++ )
-	    {
-		if ( (horz[idy]>curz && side_[idy]==mBelow) ||
-		     (horz[idy]<curz && side_[idy]==mAbove) )
-		{
-		    cancalculate = false;
-		    break;
-		}
-	    }
-	}
+	const bool cancalculate = !mIsUdf(topz) && !mIsUdf(bottomz) &&
+		curz>topz && curz<bottomz;
 
 	double value = mUdf(double);
 	if ( cancalculate && initok )
