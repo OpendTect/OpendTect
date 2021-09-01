@@ -298,7 +298,7 @@ const char** prefix::enm##Names() \
 bool prefix::parseEnum##enm(const char* txt, prefix::enm& res ) \
 { \
     const bool isok = prefix::parseEnum( txt, res ); \
-    if ( !isok ) res = (prefix::enm) 0; \
+    if ( !isok ) res = sCast(prefix::enm,0); \
     return isok; \
 } \
 bool prefix::parseEnum(const char* txt, prefix::enm& res ) \
