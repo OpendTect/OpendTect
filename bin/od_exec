@@ -159,53 +159,24 @@ if ( $extrascript != "" ) then
     source $extrascript
 endif
 
-
-set argsnospaces=""
-set argswithspaces=""
-
-more_args:
-
-if ( "$1" != "" ) then
-
-    set arg="$1"
-    set hasspacechar = `echo "$arg" | sed -n "s/[ ].*//p" | wc -c`
-    if( ${hasspacechar} ) then
-	if ( "$argswithspaces" == "" ) then
-	    set argswithspaces="$arg"
-	else
-	    set argswithspaces="$argswithspaces $arg"
-	endif
-    else
-	if ( "$argsnospaces" == "" ) then
-	    set argsnospaces="$arg"
-	else
-	    set argsnospaces="$argsnospaces $arg"
-	endif
-    endif
-
-    shift
-    goto more_args
-
-endif
-
 set exitcode = 0
 if ( $issys == yes ) then
 
     if ( $?DTECT_SCRIPT_DEBUG ) then
-	echo "$0 : $xtermcmd $nicecmd $argsnospaces $argswithspaces"
+	echo "$0 : $xtermcmd $nicecmd $*:q"
     endif
 
     if ( $background == yes ) then
-	$xtermcmd $nicecmd "$argsnospaces" $argswithspaces:q &
+	$xtermcmd $nicecmd $*:q &
 	set exitcode = $status
 	sleep 1 # Needed for Multi-machine processing with DTECT_DEBUG on.
     else
-	$xtermcmd $nicecmd "$argsnospaces" $argswithspaces:q
+	$xtermcmd $nicecmd $*:q
 	set exitcode = $status
     endif
 else
     if ( $?DTECT_SCRIPT_DEBUG ) then
-	echo "$0 : $xtermcmd $nicecmd $bindir/$argsnospaces $argswithspaces"
+	echo "$0 : $xtermcmd $nicecmd $bindir/$*:q"
     endif
 
     if ( $?DTECT_PRELOAD ) then
@@ -213,11 +184,11 @@ else
     endif
 
     if ( $background == yes ) then
-	$xtermcmd $nicecmd "$bindir"/$argsnospaces $argswithspaces:q &
+	$xtermcmd $nicecmd $bindir/$*:q &
 	set exitcode = $status
 	sleep 1 # Needed for Multi-machine processing with DTECT_DEBUG on.
     else
-	$xtermcmd $nicecmd "$bindir"/$argsnospaces $argswithspaces:q
+	$xtermcmd $nicecmd $bindir/$*:q
 	set exitcode = $status
     endif
 endif

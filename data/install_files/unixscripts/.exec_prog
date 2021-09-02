@@ -15,38 +15,13 @@ source "__INST_DIR__/bin/init_dtect" >&! /dev/null
 if ( $status != 0 ) then
     exit 1
 endif
-if ( `which initwarn | grep aliased | wc -l` == 1 ) then
-    initwarn
-    unalias initwarn
-endif
-
-set argsnospaces=""
-set argswithspaces=""
-
-more_args:
-
-if ( "$1" != "" ) then
-
-    set arg="$1"
-    set hasspacechar = `echo "$arg" | sed -n "s/[ ].*//p" | wc -c`
-    if( ${hasspacechar} ) then
-        if ( "$argswithspaces" == "" ) then
-            set argswithspaces="$arg"
-        else
-            set argswithspaces="$argswithspaces $arg"
-        endif
-    else
-        if ( "$argsnospaces" == "" ) then
-            set argsnospaces="$arg"
-        else
-            set argsnospaces="$argsnospaces $arg"
-        endif
+which initwarn >& /dev/null
+set result=$status
+if ( $result == 0 ) then
+    if ( `which initwarn | grep aliased | wc -l` == 1 ) then
+	initwarn
+	unalias initwarn
     endif
-
-    shift
-    goto more_args
-
 endif
 
-$CSHCMD "__INST_DIR__/bin/od_exec" $argsnospaces $argswithspaces:q
-
+$CSHCMD "__INST_DIR__/bin/od_exec" $*:q
