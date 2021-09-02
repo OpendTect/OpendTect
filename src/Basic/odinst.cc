@@ -269,6 +269,35 @@ bool ODInst::updatesAvailable()
     return stdoutstr == sKeyHasUpdate();
 }
 
+namespace ODInst {
+static Threads::Lock odinstlock_( Threads::Lock::SmallWork );
+};
+
+
+bool ODInst::haveUpdates( int isavailable )
+{
+    Threads::Locker lock( ODInst::odinstlock_,
+			  isavailable<0 ? Threads::Locker::ReadLock
+					: Threads::Locker::WriteLock );
+    static int updavailable = -1;
+    if ( isavailable > -1 )
+	updavailable = isavailable;
+
+    return updavailable == 1;
+}
+
+
+void ODInst::checkUpdatesAvailable()
+{
+    mGetFullMachComm(mRelRootDir,return);
+    machcomm.addFlag( "updcheck_report" );
+    BufferString stdoutstr;
+    if ( !machcomm.execute(stdoutstr) || stdoutstr.isEmpty() )
+	haveUpdates( 0 );
+
+    haveUpdates( stdoutstr == sKeyHasUpdate() ? 1 : 0 );
+}
+
 
 const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
 {

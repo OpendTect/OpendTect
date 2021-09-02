@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Feb 2012
- RCS:           $Id$
+ Author:	Bert
+ Date:		Feb 2012
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -24,16 +24,16 @@ namespace ODInst
     mGlobal(Basic) const char*	sKeyHasUpdate();
     mGlobal(Basic) const char*	sKeyHasNoUpdate();
 
-    mGlobal(Basic) BufferString	GetInstallerDir();
+    mGlobal(Basic) BufferString GetInstallerDir();
     mGlobal(Basic) BufferString GetRelInfoDir();
     mGlobal(Basic) bool		canInstall(const char* dirnm);
     mGlobal(Basic) void		startInstManagement();
     mGlobal(Basic) void		startInstManagementWithRelDir(const char*);
 
     mGlobal(Basic) bool		updatesAvailable();
-    mGlobal(Basic)  mDeprecated("Use updatesAvailable") bool		runInstMgrForUpdt();
+    mGlobal(Basic) mDeprecated("Use updatesAvailable") bool runInstMgrForUpdt();
     mGlobal(Basic) const char*	getPkgVersion(const char* file_pkg_basenm);
-    				//!< For example, the Base pkg has "base" 
+				//!< For example, the Base pkg has "base" 
     inline bool			isErrPkgVersion( const char* s )
 				{ return !s || !*s || *s == '['; }
 
@@ -49,7 +49,7 @@ namespace ODInst
 	OD_INSTALLER_POLICY must be the enum string (i.e. the keys in settings)
       */
     mGlobal(Basic) bool		autoInstTypeIsFixed();
-    mGlobal(Basic) AutoInstType	getAutoInstType();
+    mGlobal(Basic) AutoInstType getAutoInstType();
     mGlobal(Basic) void		setAutoInstType(AutoInstType);
 
     mGlobal(Basic) const BufferStringSet& autoInstTypeUserMsgs();
@@ -58,6 +58,8 @@ namespace ODInst
 
     mGlobal(Basic) RelType		getRelType();
     mGlobal(Basic) BufferString		getInstallerPlfDir();
+    mGlobal(Basic) bool			haveUpdates(int inited=-1);
+    mGlobal(Basic) void			checkUpdatesAvailable();
 
 
 } // namespace

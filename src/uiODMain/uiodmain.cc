@@ -63,6 +63,7 @@ ________________________________________________________________________
 #include "settingsaccess.h"
 #include "survgeom.h"
 #include "survinfo.h"
+#include "threadwork.h"
 #include "timer.h"
 #include "visdata.h"
 #include "od_helpids.h"
@@ -690,6 +691,7 @@ void uiODMain::sessTimerCB( CallBacker* )
 void uiODMain::afterStartupCB( CallBacker* )
 {
     uiServiceClientMgr::setFor( *this );
+    startCheckUpdateAvailable();
 }
 
 
@@ -815,6 +817,28 @@ void uiODMain::afterSurveyChgCB( CallBacker* )
 }
 
 
+void uiODMain::startCheckUpdateAvailable()
+{
+    CallBack checkupdavailable( mCB(this,uiODMain,doCheckUpdateAvailableCB) );
+    CallBack updcheckfinish( mCB(this,uiODMain,updateCaptionCB) );
+    Threads::WorkManager::twm().addWork( Threads::Work(checkupdavailable),
+					 &updcheckfinish );
+}
+
+
+void uiODMain::doCheckUpdateAvailableCB( CallBacker* )
+{
+    ODInst::checkUpdatesAvailable();
+}
+
+
+void uiODMain::updateCaptionCB( CallBacker* )
+{
+    mEnsureExecutedInMainThread( uiODMain::updateCaptionCB );
+    updateCaption();
+}
+
+
 void uiODMain::updateCaption()
 {
     uiString capt = toUiString( "%1 (%2)" )
@@ -822,7 +846,7 @@ void uiODMain::updateCaption()
 	.arg( OD::Platform::local().osName() );
 
     if ( ODInst::getAutoInstType() == ODInst::InformOnly &&
-	 ODInst::updatesAvailable() )
+	 ODInst::haveUpdates() )
 	capt.append( tr(" *UPDATE AVAILABLE*") );
 
     const BufferString usr( GetSoftwareUser() );
