@@ -551,7 +551,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 	    ylim.sort();
 	}
     }
-    else if ( seis2d_ )
+    else if ( seis2d_ && !seis2d_->getGeometry().positions().isEmpty() )
     {
 	const Coord startpt = seis2d_->getGeometry().positions().first().coord_;
 	const Coord stoppt = seis2d_->getGeometry().positions().last().coord_;
