@@ -144,6 +144,10 @@ private:
     uiString		getProgramString() const;
     void		translateText();
 
+    void		startCheckUpdateAvailable();
+    void		doCheckUpdateAvailableCB(CallBacker*);
+    void		updateCaptionCB(CallBacker*);
+
 public:
 
     bool		sceneMgrAvailable() const	{ return scenemgr_; }
