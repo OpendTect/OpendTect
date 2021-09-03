@@ -225,6 +225,9 @@ void TrcKeySampling::set2DDef()
 void TrcKeySampling::setLineRange( const Interval<int>& inlrg )
 {
     start_.lineNr() = inlrg.start; stop_.lineNr() = inlrg.stop;
+    if ( !inlrg.hasStep() )
+	return;
+
     mDynamicCastGet(const StepInterval<int>*,inlsrg,&inlrg)
     if ( inlsrg )
 	step_.lineNr() = inlsrg->step;
@@ -234,6 +237,9 @@ void TrcKeySampling::setLineRange( const Interval<int>& inlrg )
 void TrcKeySampling::setTrcRange( const Interval<int>& crlrg )
 {
     start_.trcNr() = crlrg.start; stop_.trcNr() = crlrg.stop;
+    if ( !crlrg.hasStep() )
+	return;
+
     mDynamicCastGet(const StepInterval<int>*,crlsrg,&crlrg)
     if ( crlsrg )
 	step_.trcNr() = crlsrg->step;
