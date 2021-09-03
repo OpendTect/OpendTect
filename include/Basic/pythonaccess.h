@@ -41,10 +41,9 @@ namespace OD
     public:
 			PythonAccess();
 			~PythonAccess();
-
+	mDeprecated("Use ProcDesc::DataEntry::getTypeFlag(Type)")
 	static BufferString sKeyUseExtPyPath()
-				    { return "Use_External_Python_Path"; }
-
+				{ return "Use_External_Python_Path"; }
 	uiRetVal	isUsable(bool force=false,
 				 const char* scriptstr=nullptr,
 				 const char* scriptexpectedout=nullptr) const;
@@ -179,7 +178,6 @@ namespace OD
 	void		addBasePath(const FilePath&);
 			/*<! For plugins to update PYTHONPATH
 			     during initialization */
-
     };
 
     mGlobal(Basic) PythonAccess& PythA();

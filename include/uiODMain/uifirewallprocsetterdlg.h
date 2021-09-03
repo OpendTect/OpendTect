@@ -27,6 +27,7 @@ public:
 					const BufferString* path=nullptr,
 					const BufferString* pypath=nullptr);
 				~uiFirewallProcSetter();
+    bool			hasWorkToDo() const;
 protected:
 
     uiListBox*			odproclistbox_;

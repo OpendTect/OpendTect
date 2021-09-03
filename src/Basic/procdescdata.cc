@@ -24,6 +24,12 @@ void EnumDefImpl<ProcDesc::DataEntry::Type>::init()
  }
 
 
+static const char* sCMDAdd() { return "add"; }
+static const char* sCMDRemove() { return "rm"; }
+static const char* sCMDAddAndRemove() { return "all"; }
+static const char* sFlagODPath() { return "odpath"; }
+static const char* sFlagPyPath() { return "pypath"; }
+
 mDefineEnumUtils(ProcDesc::DataEntry,ActionType,"ActionType")
 {
     "Add", "Remove", "AddNRemove", 0
@@ -35,6 +41,50 @@ mDefineEnumUtils(ProcDesc::DataEntry,ActionType,"ActionType")
      uistrings_ += uiStrings::sRemove();
      uistrings_ += tr("Not sure");
  }
+
+
+
+const char* ProcDesc::DataEntry::getCMDActionKey( const ActionType acttype )
+{
+    if ( acttype == Add )
+	return sCMDAdd();
+    else if ( acttype == Remove )
+	return sCMDRemove();
+    else
+	return sCMDAddAndRemove();
+}
+
+
+ProcDesc::DataEntry::ActionType ProcDesc::DataEntry::getActionTypeForCMDKey(
+						   const BufferString& actcmd )
+{
+    if ( actcmd.isEqual(sCMDAdd()) )
+	return Add;
+    else if ( actcmd.isEqual(sCMDRemove()) )
+	return Remove;
+    else
+	return AddNRemove;
+}
+
+
+const char* ProcDesc::DataEntry::getTypeFlag( const Type type )
+{
+    if ( type == Python )
+	return sFlagODPath();
+    else
+	return sFlagPyPath();
+}
+
+
+bool ProcDesc::DataEntry::isCMDOK( const BufferString& cmd )
+{
+    if ( cmd.isEqual(sCMDAdd()) ||
+	    cmd.isEqual(sCMDRemove()) ||
+		cmd.isEqual(sCMDAddAndRemove()) )
+	return true;
+
+    return false;
+}
 
 
 ProcDesc::Data& ePDD()

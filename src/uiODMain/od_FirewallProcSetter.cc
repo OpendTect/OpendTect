@@ -20,12 +20,46 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-/*
-Arguments :
-		0 : Process Type
-		1 : Path to OD Dir
-		2 : Bool, Is process launched from installer
-*/
+static const char* odflag()
+{
+    return ProcDesc::DataEntry::getTypeFlag( ProcDesc::DataEntry::ODv6 );
+}
+
+
+static const char* pyflag()
+{
+    return ProcDesc::DataEntry::getTypeFlag( ProcDesc::DataEntry::Python );
+}
+
+
+static void printBatchUsage()
+{
+    od_ostream& strm = od_ostream::logStream();
+    strm << "Usage: " << "od_FilewallProcSetter ";
+    strm << "[--help] ";
+    strm << "[--" << odflag() << " <path till the OpendTect installation directory ([...]/OpendTect/6.6.0)>] ";
+    strm << "[--" << pyflag() << " <path till python folder>]";
+    strm << "It uses administrative rights to launch FirewallProcSetter Dialog\n";
+    strm << "\nThese are common actions that dialog can do\n";
+    strm << "\t"
+	 << ProcDesc::DataEntry::getCMDActionKey( ProcDesc::DataEntry::Add )
+	 << "\t to add rules to firewall\n";
+    strm << "\t"
+	 << ProcDesc::DataEntry::getCMDActionKey( ProcDesc::DataEntry::Remove )
+	 << "\t to remove rules from firewall\n";
+    strm << "\t"
+	 << ProcDesc::DataEntry::getCMDActionKey( ProcDesc::DataEntry::AddNRemove )
+	 << "\t  to add and remove rules to firewall\n";
+    strm << "\n Use short and quoted paths";
+    strm << od_endl;
+}
+
+#define mErrRet() \
+{ \
+    printBatchUsage(); \
+    return 1; \
+}
+
 
 int mProgMainFnName( int argc, char** argv )
 {
@@ -37,39 +71,39 @@ int mProgMainFnName( int argc, char** argv )
     PIM().loadAuto( true );
 
     CommandLineParser parser;
-    BufferStringSet proctyp;
-    parser.getNormalArguments( proctyp );
-
-    if ( proctyp.isEmpty() )
-	return 0;
-
-    const int proctypidx =
-	    ProcDesc::DataEntry::ActionTypeDef().indexOf( proctyp[0]->buf() );
-
-#ifdef mUseCrashDumper
-    //Disable IssueReporter for IssueReporter itself.
-    System::CrashDumper::getInstance().setSendAppl( "" );
-#endif
-    BufferString path;
-    if ( proctyp.size() > 1 )
-	path = *proctyp[1];
-
-    ePDD().setPath( path );
-    BufferString pythonpath;
-    if ( proctyp.size() > 3 )
+    if ( parser.hasKey("help") || parser.hasKey("h") )
     {
-	BufferString str = GetArgV()[ proctyp.size() - 1];
-	bool useextparth = str.isEqual( OD::PythA().sKeyUseExtPyPath(),
-							    CaseInsensitive );
-	if ( useextparth )
-	    pythonpath = GetArgV()[ proctyp.size() ];
+	printBatchUsage();
+	return 0;
     }
 
-    ProcDesc::DataEntry::ActionType type =
-	ProcDesc::DataEntry::ActionTypeDef().getEnumForIndex( proctypidx );
+    parser.setKeyHasValue( odflag() );
+    parser.setKeyHasValue( pyflag() );
+    BufferStringSet proctyp;
+    parser.getNormalArguments( proctyp );
+    if ( proctyp.isEmpty() )
+	mErrRet()
 
-    PtrMan<uiDialog> dlg = new uiFirewallProcSetter( nullptr,
-						type, &path, &pythonpath );
+    const BufferString type = parser.getArg( 0 );
+    if ( !ProcDesc::DataEntry::isCMDOK(type) )
+	mErrRet();
+
+    BufferString path;
+    if ( parser.getVal(odflag(),path) && !File::isDirectory(path) )
+	ePDD().setPath( path );
+
+    BufferString pythonpath;
+    if ( parser.getVal(pyflag(),pythonpath) && !File::isDirectory(pythonpath) )
+	mErrRet();
+
+    const ProcDesc::DataEntry::ActionType opertype =
+		    ProcDesc::DataEntry::getActionTypeForCMDKey( type );
+
+    PtrMan<uiFirewallProcSetter> dlg = new uiFirewallProcSetter( nullptr,
+					    opertype, &path, &pythonpath );
+    if ( !dlg->hasWorkToDo() )
+	return 0;
+
     app.setTopLevel( dlg );
     dlg->show();
 
