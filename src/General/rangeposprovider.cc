@@ -8,14 +8,16 @@
 #include <tuple>
 
 #include "rangeposprovider.h"
+
+#include "fullsubsel.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "posinfo2d.h"
+#include "statrand.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-#include "posinfo2d.h"
-#include "iopar.h"
 #include "trckeyzsampling.h"
-#include "keystrs.h"
 #include "uistrings.h"
-#include "statrand.h"
 
 #define mGet2DGeometry(gid) \
     const auto& geom2d = SurvGeom::get2D( gid )
@@ -192,10 +194,23 @@ bool Pos::RangeProvider3D::includes( const BinID& bid, float z ) const
 void Pos::RangeProvider3D::usePar( const IOPar& iop )
 {
     dorandom_ = false;
-    iop.getYN( sKey::Random(), dorandom_ );
-    tkzs_.usePar( iop );
-    if ( dorandom_ )
-	iop.get( sKey::NrValues(), nrsamples_);
+
+    Survey::FullSubSel fss;
+    fss.setEmpty();
+    fss.usePar( iop );
+    if ( fss.is3D() && fss.nrGeomIDs() == 1 )
+    {
+	tkzs_.hsamp_.setInlRange( fss.inlRange() );
+	tkzs_.hsamp_.setCrlRange( fss.crlRange() );
+	tkzs_.zsamp_ = fss.zRange();
+    }
+    else
+    {
+	iop.getYN( sKey::Random(), dorandom_ );
+	tkzs_.usePar( iop );
+	if ( dorandom_ )
+	    iop.get( sKey::NrValues(), nrsamples_);
+    }
 
     zsampsz_ = tkzs_.zsamp_.nrSteps()+1;
 }
