@@ -187,7 +187,7 @@ void Pos::RangeProvider3D::usePar( const IOPar& iop )
     iop.getYN( sKey::Random(), dorandom_ );
     tkzs_.usePar( iop );
     if ( dorandom_ )
-	iop.get( sKey::NrValues(), nrsamples_);
+	iop.get( sKey::NrValues(), nrsamples_ );
 
     zsampsz_ = tkzs_.zsamp_.nrSteps()+1;
 }
