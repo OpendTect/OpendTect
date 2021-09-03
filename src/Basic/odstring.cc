@@ -153,7 +153,8 @@ unsigned int OD::String::count( char tocount ) const
 }
 
 
-unsigned int OD::String::getLevenshteinDist( const char* s, bool casesens ) const
+unsigned int OD::String::getLevenshteinDist( const char* s,
+					     bool casesens ) const
 {
     const unsigned int len1 = size();
     const unsigned int len2 = FixedString(s).size();
@@ -208,6 +209,13 @@ bool OD::String::isYesNo() const
 int OD::String::toInt() const
 {
     return ::toInt( str() );
+}
+
+
+od_uint64 OD::String::toUInt64() const
+{
+    const double val = toDouble();
+    return od_uint64(val);
 }
 
 
