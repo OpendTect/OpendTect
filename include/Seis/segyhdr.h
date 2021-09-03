@@ -11,17 +11,21 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "segythdef.h"
+
 #include "coord.h"
-#include "samplingdata.h"
-#include "datachar.h"
 #include "coordsystem.h"
+#include "datachar.h"
+#include "samplingdata.h"
+#include "segythdef.h"
+#include "seistype.h"
+
 class SeisTrcInfo;
 class od_ostream;
 
 
 namespace SEGY
 {
+
 class Hdrdef;
 
 #define SegyTxtHeaderLength		3200
@@ -38,38 +42,46 @@ class Hdrdef;
 mExpClass(Seis) TxtHeader
 {
 public:
-
 		TxtHeader() : revision_(1) { clearText(); }
 		TxtHeader(int rev);	//!< rev only relevant when writing
-    void	clear()			{ clearText(); setLineStarts(); }
+		~TxtHeader();
 
-    void	setUserInfo(const char*);
-    void	setSurveySetupInfo(const Coords::CoordSystem*);
-    void	setPosInfo(const TrcHeaderDef&);
-    void	setStartPos(float);
+    void	clear();
+
+    int		setInfo(const char* datanm,const Coords::CoordSystem*,
+			const TrcHeaderDef&);
+    void	setUserInfo(int firstlinenr,const char*);
+		//!< Optional, should be called last
+
+    void	setGeomID(const Pos::GeomID&);
+    void	setGeomType( Seis::GeomType tp )	{ geomtype_ = tp; }
+		//!< Used when writing header
 
     void	getText(BufferString&) const;
     void	setText(const char*);
 
     bool	isAscii() const;
-    void        setAscii();
-    void        setEbcdic();
+    void	setAscii();
+    void	setEbcdic();
 
     unsigned char txt_[SegyTxtHeaderLength];
-
-    static bool& info2D();
 
     void	setLineStarts();
     void	dump(od_ostream&) const;
 
 protected:
 
-    int		revision_;
+    int			revision_	= 1;
+    Seis::GeomType	geomtype_	= Seis::Vol;
 
-    void	putAt(int,int,int,const char*);
+    void	putAt(int row,int startpos,int endpos,const char* txt);
     void	getFrom(int,int,int,char*) const;
 
     void	clearText();
+
+    int		setGeneralInfo(const char* datanm);
+    int		setSurveySetupInfo(int firstlinenr,const Coords::CoordSystem*);
+    int		setPosInfo(int firstlinenr,const TrcHeaderDef&);
 };
 
 
@@ -78,8 +90,9 @@ protected:
 mExpClass(Seis) BinHeader
 {
 public:
-
 		BinHeader();
+		~BinHeader();
+
     void	setInput(const void*,bool needswap=false);
     void	setForWrite();
 
@@ -126,8 +139,8 @@ public:
 protected:
 
     unsigned char	buf_[SegyBinHeaderLength];
-    bool		forwrite_;
-    bool		needswap_;
+    bool		forwrite_	= false;
+    bool		needswap_	= false;
 
 public:
 
@@ -147,17 +160,16 @@ public:
 mExpClass(Seis) TrcHeader
 {
 public:
-
 			TrcHeader(unsigned char*,const TrcHeaderDef&,bool rev0,
 				  bool manbuf=false);
-			TrcHeader( const TrcHeader& oth )
-			    : buf_(0), mybuf_(false), hdef_(oth.hdef_)
-			{ *this = oth; }
+			TrcHeader(const TrcHeader&);
     void		initRead(); //!< must call once before first usage
 			~TrcHeader();
     TrcHeader&		operator =(const TrcHeader&);
 
     static const HdrDef& hdrDef();
+
+    static void		fillRev1Def(TrcHeaderDef&);
 
     unsigned short	nrSamples() const;
     void		putSampling(SamplingData<float>,unsigned short);
@@ -169,22 +181,25 @@ public:
     float		postScale(int numbfmt) const;
     Coord		getCoord(bool rcv,float extcoordsc) const;
 
-    unsigned char*	buf_;
+    unsigned char*	buf_		= nullptr;
     const TrcHeaderDef&	hdef_;
-    bool		isrev0_;
+    bool		isrev0_		= false;
+    Seis::GeomType	geomtype_	= Seis::Vol;
 
-    bool		isusable; // trid < 2 ; mostly ignored but not always
-    bool		nonrectcoords; // counit == 1, 2 or 3
+    bool		isusable	= true;
+			//!< trid < 2 ; mostly ignored but not always
+    bool		nonrectcoords	= false;
+			//!< counit == 1, 2 or 3
 
     void		dump(od_ostream&) const;
 
 protected:
 
-    bool		mybuf_;
-    bool		needswap_;
-    int			previnl_;
-    int			seqnr_;
-    int			lineseqnr_;
+    bool		mybuf_		= false;
+    bool		needswap_	= false;
+    int			previnl_	= -1;
+    int			seqnr_		= 1;
+    int			lineseqnr_	= 1;
 
     double		getCoordScale(float extcoordsc) const;
 
@@ -229,6 +244,4 @@ public:
 
 };
 
-} // namespace
-
-
+} // namespace SEGY

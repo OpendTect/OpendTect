@@ -754,8 +754,20 @@ bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
 			       StepInterval<float>& zrg ) const
 {
     mChk(false);
-    PtrMan<Seis2DDataSet> dataset = new Seis2DDataSet( *ioobj_ );
-    return dataset->getRanges( geomid, trcrg, zrg );
+    if ( !isPS() )
+    {
+	ConstPtrMan<Seis2DDataSet> dataset = new Seis2DDataSet( *ioobj_ );
+	return dataset->getRanges( geomid, trcrg, zrg );
+    }
+
+    ConstPtrMan<SeisPS2DReader> rdr = SPSIOPF().get2DReader( *ioobj_, geomid );
+    if ( !rdr )
+	return false;
+
+    zrg = rdr->getZRange();
+    const PosInfo::Line2DData& l2dd = rdr->posData();
+    trcrg = l2dd.trcNrRange();
+    return true;
 }
 
 

@@ -514,7 +514,6 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 			const char* linenm )
 {
-    const bool is2d = Seis::is2D( geom_ );
     PtrMan<uiSeisIOObjInfo> ioobjinfo = new uiSeisIOObjInfo( outioobj, true );
     if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
 	return false;
@@ -529,9 +528,8 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	useoutioobj = tmpioobj;
     }
 
-    SEGY::TxtHeader::info2D() = is2d;
 #   define mRet(yn) \
-    { delete tmpioobj; SEGY::TxtHeader::info2D() = false; return yn; }
+    { delete tmpioobj; return yn; }
 
     PtrMan<Executor> exec = transffld_->getTrcProc( inioobj, *useoutioobj,
 				    "Output seismic data", tr("Writing traces"),
@@ -559,12 +557,12 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 
 	if ( !autogentxthead_ && !hdrtxt_.isEmpty() && segytr )
 	{
-	    SEGY::TxtHeader* th = new SEGY::TxtHeader;
+	    auto* th = new SEGY::TxtHeader;
+	    th->setGeomType( geom_ );
 	    th->setText( hdrtxt_ );
 	    segytr->setTxtHeader( th );
 	}
     }
-
 
     bool rv = false;
     if ( linenm && *linenm )

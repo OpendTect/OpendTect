@@ -4,32 +4,31 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-
-
 #include "segyhdr.h"
-#include "string2.h"
-#include "survinfo.h"
-#include "settings.h"
+
+#include "envvars.h"
+#include "linekey.h"
+#include "math2.h"
+#include "msgh.h"
+#include "od_iostream.h"
+#include "odver.h"
+#include "posimpexppars.h"
 #include "seisinfo.h"
 #include "seispacketinfo.h"
-#include "trckeyzsampling.h"
-#include "msgh.h"
-#include "math2.h"
-#include "envvars.h"
+#include "settings.h"
+#include "string2.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
 #include "timefun.h"
-#include "linekey.h"
-#include "od_iostream.h"
-#include "posimpexppars.h"
+#include "trckeyzsampling.h"
 
 
-static const int cTxtHeadNrLines = 40;
-static const int cTxtHeadCharsPerLine = 80;
-
-bool& SEGY::TxtHeader::info2D()
-{ mDefineStaticLocalObject( bool, is2d, = false ); return is2d; }
+static const int sTxtHeadNrLines = 40;
+static const int sTxtHeadCharsPerLine = 80;
+static const int sDefStartPos = 7;
 
 
-    static unsigned char segyhdre2a[256] = {
+static unsigned char segyhdre2a[256] = {
 0x00,0x01,0x02,0x03,0x9C,0x09,0x86,0x7F,0x97,0x8D,0x8E,0x0B,0x0C,0x0D,0x0E,0x0F,
 0x10,0x11,0x12,0x13,0x9D,0x85,0x08,0x87,0x18,0x19,0x92,0x8F,0x1C,0x1D,0x1E,0x1F,
 0x80,0x81,0x82,0x83,0x84,0x0A,0x17,0x1B,0x88,0x89,0x8A,0x8B,0x8C,0x05,0x06,0x07,
@@ -85,6 +84,13 @@ static void Ascii2Ebcdic( unsigned char *chbuf, int len )
 }
 
 
+static const char* sSeparatorLine()
+{
+    return "----------------------------------------"
+	   "------------------------------------";
+}
+
+
 SEGY::TxtHeader::TxtHeader( int rev )
     : revision_(rev)
 {
@@ -92,53 +98,14 @@ SEGY::TxtHeader::TxtHeader( int rev )
 }
 
 
-void SEGY::TxtHeader::setSurveySetupInfo( const Coords::CoordSystem* crs )
+SEGY::TxtHeader::~TxtHeader()
+{}
+
+
+void SEGY::TxtHeader::clear()
 {
-    BufferString str;
-    const char* res = Settings::common().find( "Company" );
-    if ( !res ) res = "OpendTect";
-    str = "Created by: "; str += res;
-    str += "     ("; str += Time::getDateTimeString(); str += ")";
-    putAt( 1, 6, 75, str );
-    putAt( 2, 6, 75, BufferString("Survey: '", SI().name(),"'") );
-    BinID bid = SI().sampling(false).hsamp_.start_;
-    Coord coord = SI().transform( bid );
-    if ( crs && !(*crs == *SI().getCoordSystem()) )
-	coord = crs->convertFrom( coord, *SI().getCoordSystem() );
-    coord.x = fabs(coord.x); coord.y = fabs(coord.y);
-    if ( !mIsEqual(bid.inl(),coord.x,mDefEps)
-      || !mIsEqual(bid.crl(),coord.x,mDefEps)
-      || !mIsEqual(bid.inl(),coord.y,mDefEps)
-      || !mIsEqual(bid.crl(),coord.y,mDefEps) )
-    {
-	putAt( 13, 6, 75, "Survey setup:" );
-	coord = SI().transform( bid );
-	str.set( bid.toString() ).add( " = " ).add( coord.toPrettyString() );
-	putAt( 14, 6, 75, str );
-	bid.crl() = SI().sampling(false).hsamp_.stop_.crl();
-	coord = SI().transform( bid );
-	str.set( bid.toString() ).add( " = " ).add( coord.toPrettyString() );
-	putAt( 15, 6, 75, str );
-	bid.inl() = SI().sampling(false).hsamp_.stop_.inl();
-	bid.crl() = SI().sampling(false).hsamp_.start_.crl();
-	coord = SI().transform( bid );
-	str.set( bid.toString() ).add( " = " ).add( coord.toPrettyString() );
-	putAt( 16, 6, 75, str );
-
-	if ( crs )
-	{
-	    str = crs->summary();
-	    putAt( 17, 6, 75, str );
-	}
-
-    }
-
-    if ( !SI().zIsTime() )
-    {
-	str = "Depth survey: 1 SEG-Y millisec = 1 ";
-	str += SI().getZUnitString(false);
-	putAt( 18, 6, 75, str );
-    }
+    clearText();
+    setLineStarts();
 }
 
 
@@ -148,40 +115,225 @@ void SEGY::TxtHeader::clearText()
 }
 
 
-void SEGY::TxtHeader::setLineStarts()
+int SEGY::TxtHeader::setInfo( const char* datanm,
+			      const Coords::CoordSystem* crs,
+			      const TrcHeaderDef& def )
 {
-    for ( int iln=0; iln<cTxtHeadNrLines; iln++ )
+    int lnr = setGeneralInfo( datanm );
+    lnr = setSurveySetupInfo( ++lnr, crs );
+    lnr = setPosInfo( ++lnr, def );
+    return lnr;
+}
+
+
+int SEGY::TxtHeader::setGeneralInfo( const char* datanm )
+{
+    int lnr = 0;
+    BufferString str;
+    str = "SEG-Y exported from OpendTect "; str += GetFullODVersion();
+    str += " at "; str += Time::getDateTimeString();
+    putAt( ++lnr, sDefStartPos, 75, str );
+    putAt( ++lnr, sDefStartPos, 75, "Survey:" );
+    putAt( lnr, 21, 75, SI().name() );
+
+    const StringPair sp( datanm );
+    putAt( ++lnr, sDefStartPos, 75, "Data name:" );
+    putAt( lnr, 21, 75, sp.first() );
+    if ( sp.hasSecond() )
     {
-	const int i80 = iln*cTxtHeadCharsPerLine;
-	const BufferString lnrstr( iln < 9 ? "0" : "", iln+1 );
-	txt_[i80] = 'C'; txt_[i80+1] = lnrstr[0]; txt_[i80+2] = lnrstr[1];
+	putAt( ++lnr, sDefStartPos, 75, "Component:" );
+	putAt( lnr, 21, 75, sp.second() );
     }
 
-    BufferString rvstr( "SEG Y REV" );
-    rvstr += revision_;
-    putAt( cTxtHeadNrLines-1, 6, 75, rvstr.buf() );
-    putAt( cTxtHeadNrLines, 6, 75, "END TEXTUAL HEADER" );
+    const bool is2d = Seis::is2D( geomtype_ );
+    if ( is2d )
+	putAt( ++lnr, sDefStartPos, 75, "Line name:" );
+
+    putAt( ++lnr, sDefStartPos-1, 75, sSeparatorLine() );
+    return lnr;
 }
 
 
-void SEGY::TxtHeader::setAscii()
-{ if ( !isAscii() ) Ebcdic2Ascii( txt_, SegyTxtHeaderLength ); }
-void SEGY::TxtHeader::setEbcdic()
-{ if ( isAscii() ) Ascii2Ebcdic( txt_, SegyTxtHeaderLength ); }
-
-
-bool SEGY::TxtHeader::isAscii() const
+static BufferString pointTxt( int idx, const BinID& bid,
+			      const Coords::CoordSystem* crs )
 {
-    return txt_[0]!=0xC3 && txt_[0]!=0x83;
+    const bool needsconversion = crs && !(*crs == *SI().getCoordSystem());
+    Coord crd = SI().transform( bid );
+    if ( needsconversion )
+	crd = crs->convertFrom( crd, *SI().getCoordSystem() );
+    BufferString txt( "Corner ", idx, ":  " );
+    txt.add( "X: " ).add( crd.x, 2 ).add( "  Y: " ).add( crd.y, 2 );
+    txt.add( "  IL: " ).add( bid.inl() ).add( "  XL: " ).add( bid.crl() );
+    return txt;
 }
 
 
-void SEGY::TxtHeader::setUserInfo( const char* infotxt )
+int SEGY::TxtHeader::setSurveySetupInfo( int firstlnr,
+					 const Coords::CoordSystem* tocrs )
 {
-    if ( !infotxt || !*infotxt ) return;
+    int lnr = firstlnr-1;
+    const Coords::CoordSystem* crs =
+		tocrs ? tocrs : SI().getCoordSystem().ptr();
+
+    BufferString str;
+    const bool is2d = Seis::is2D( geomtype_ );
+    if ( !is2d )
+    {
+	BinID bid = SI().sampling(false).hsamp_.start_;
+	putAt( ++lnr, sDefStartPos, 75, pointTxt(1,bid,crs).buf() );
+
+	bid.crl() = SI().sampling(false).hsamp_.stop_.crl();
+	putAt( ++lnr, sDefStartPos, 75, pointTxt(2,bid,crs).buf() );
+
+	bid = SI().sampling(false).hsamp_.stop_;
+	putAt( ++lnr, sDefStartPos, 75, pointTxt(3,bid,crs).buf() );
+
+	bid.crl() = SI().sampling(false).hsamp_.start_.crl();
+	putAt( ++lnr, sDefStartPos, 75, pointTxt(4,bid,crs).buf() );
+
+	const float inldist = SI().inlDistance(), crldist = SI().crlDistance();
+	str.set("Bin size:  ").add(inldist,2).add(" x ").add(crldist,2)
+	   .addSpace().add( SI().getXYUnitString() );
+	putAt( ++lnr, sDefStartPos, 75, str );
+    }
+
+    if ( crs && crs->isProjection() )
+	str = crs->summary();
+    else
+	str = "CRS: Not set";
+
+    putAt( ++lnr, sDefStartPos, 75, str );
+
+    putAt( ++lnr, sDefStartPos-1, 75, sSeparatorLine() );
+    return lnr;
+}
+
+
+int SEGY::TxtHeader::setPosInfo( int firstlinenr, const SEGY::TrcHeaderDef& thd)
+{
+    int zrglinenr = -1;
+    int xlinenr = -1;
+    int ylinenr = -1;
+    BufferString txt;
+    short bytepos;
+    SeisPacketInfo* info = thd.pinfo;
+    int lnr = firstlinenr;
+    if ( Seis::is2D(geomtype_) )
+    {
+	putAt( lnr, sDefStartPos, 20, BufferString(sKey::TraceNr(),":") );
+	txt.set(info->crlrg.start).add("-").add(info->crlrg.stop);
+	putAt( lnr, 21, 32, txt );
+	putAt( lnr, 33, 75, BufferString("inc: ",info->crlrg.step) );
+
+	Interval<float> sprg( 0, 0 );
+	const Survey::Geometry2D& geom2d =
+			Survey::GM().get2D( info->inlrg.start );
+	if ( !geom2d.spnrs().isEmpty() )
+	    sprg.set( geom2d.spnrs().first(), geom2d.spnrs().last() );
+	putAt( ++lnr, sDefStartPos, 20, BufferString(sKey::Shotpoint(),":") );
+	txt.set(sprg.start).add("-").add(sprg.stop);
+	putAt( lnr, 21, 32, txt );
+
+	zrglinenr = ++lnr;
+
+	putAt( ++lnr, sDefStartPos-1, 75, sSeparatorLine() );
+
+	bytepos = thd.trnr_.bytepos_;
+	putAt( ++lnr, sDefStartPos, 25,
+			BufferString(sKey::TraceNr()," byte:") );
+	txt.set(bytepos+1).add("-").add(bytepos+4);
+	putAt( lnr, 30, 75, txt.buf() );
+
+	bytepos = thd.refnr_.bytepos_;
+	putAt( ++lnr, sDefStartPos, 25,
+			BufferString(sKey::Shotpoint()," byte:"));
+	txt.set(bytepos+1).add("-").add(bytepos+4);
+	putAt( lnr, 30, 75, txt.buf() );
+
+	xlinenr = ++lnr;
+	ylinenr = ++lnr;
+    }
+    else
+    {
+	putAt( lnr, sDefStartPos, 19, BufferString(sKey::Inline(),":") );
+	txt.set(info->inlrg.start).add("-").add(info->inlrg.stop);
+	putAt( lnr, 21, 31, txt );
+	putAt( lnr, 33, 75, BufferString("inc: ",info->inlrg.step) );
+
+	putAt( ++lnr, sDefStartPos, 19, BufferString(sKey::Crossline(),":") );
+	txt.set(info->crlrg.start).add("-").add(info->crlrg.stop);
+	putAt( lnr, 21, 31, txt );
+	putAt( lnr, 33, 75, BufferString("inc: ",info->crlrg.step) );
+
+	zrglinenr = ++lnr;
+
+	putAt( ++lnr, sDefStartPos-1, 75, sSeparatorLine() );
+
+	bytepos = thd.inl_.bytepos_;
+	putAt( ++lnr, sDefStartPos, 25,
+				BufferString(sKey::Inline()," byte:") );
+	txt.set(bytepos+1).add("-").add(bytepos+4);
+	putAt( lnr, 30, 75, txt.buf() );
+
+	bytepos = thd.crl_.bytepos_;
+	putAt( ++lnr, sDefStartPos, 25,
+				BufferString(sKey::Crossline()," byte:") );
+	txt.set(bytepos+1).add("-").add(bytepos+4);
+	putAt( lnr, 30, 75, txt.buf() );
+
+	xlinenr = ++lnr;
+	ylinenr = ++lnr;
+    }
+
+    if ( Seis::isPS(geomtype_) )
+    {
+	bytepos = thd.offs_.bytepos_;
+	putAt( ++lnr, sDefStartPos, 25,
+				BufferString(sKey::Offset()," byte:") );
+	txt.set(bytepos+1).add("-").add(bytepos+4);
+	putAt( lnr, 30, 75, txt.buf() );
+
+	bytepos = thd.azim_.bytepos_;
+	putAt( ++lnr, sDefStartPos, 25,
+				BufferString(sKey::Azimuth()," byte:") );
+	txt.set(bytepos+1).add("-").add(bytepos+2);
+	putAt( lnr, 30, 75, txt.buf() );
+    }
+
+    putAt( ++lnr, sDefStartPos-1, 75, sSeparatorLine() );
+
+// Common entries
+    StepInterval<float> zrg = info->zrg;
+    zrg.scale( SI().zDomain().userFactor() );
+    const int nrdec = SI().nrZDecimals();
+    BufferString key = sKey::Z();
+    key.addSpace().add( SI().getZUnitString() ).add(":");
+    putAt( zrglinenr, sDefStartPos, 20, key );
+    txt.set(zrg.start,nrdec).add("-").add(zrg.stop,nrdec);
+    putAt( zrglinenr, 21, 32, txt );
+    putAt( zrglinenr, 33, 75, BufferString("inc: ",zrg.step) );
+
+    bytepos = thd.xcoord_.bytepos_;
+    putAt( xlinenr, sDefStartPos, 25, BufferString(sKey::XCoord()," byte:") );
+    txt.set(bytepos+1).add("-").add(bytepos+4);
+    putAt( xlinenr, 30, 75, txt.buf() );
+
+    bytepos = thd.ycoord_.bytepos_;
+    putAt( ylinenr, sDefStartPos, 25, BufferString(sKey::YCoord()," byte:") );
+    txt.set(bytepos+1).add("-").add(bytepos+4);
+    putAt( ylinenr, 30, 75, txt.buf() );
+
+    return lnr;
+}
+
+
+void SEGY::TxtHeader::setUserInfo( int firstlinenr, const char* infotxt )
+{
+    if ( !infotxt || !*infotxt )
+	return;
 
     BufferString buf;
-    int lnr = 16;
+    int lnr = firstlinenr;
     while ( lnr < 35 )
     {
 	char* ptr = buf.getCStr();
@@ -189,7 +341,7 @@ void SEGY::TxtHeader::setUserInfo( const char* infotxt )
 	while ( *infotxt && *infotxt != '\n' && ++idx < 75 )
 	    *ptr++ = *infotxt++;
 	*ptr = '\0';
-	putAt( lnr, 5, cTxtHeadCharsPerLine, buf );
+	putAt( lnr, 5, sTxtHeadCharsPerLine, buf );
 
 	if ( !*infotxt ) break;
 	lnr++;
@@ -198,56 +350,61 @@ void SEGY::TxtHeader::setUserInfo( const char* infotxt )
 }
 
 
-void SEGY::TxtHeader::setPosInfo( const SEGY::TrcHeaderDef& thd )
+void SEGY::TxtHeader::setGeomID( const Pos::GeomID& geomid )
 {
-    putAt( 7, 6, 75, "Positions according to the SEG-Y Rev. 1 standard." );
-    if ( !info2D() ) return;
+    if ( !Seis::is2D(geomtype_) )
+	return;
 
-    if ( !thd.trnr_.isUdf() )
-    {
-	BufferString txt( "Trace number at byte: ", thd.trnr_.bytepos_+1 );
-	if ( thd.trnr_.issmall_ ) txt += " (2-byte)";
-	putAt( 8, 6, 6+txt.size(), txt.buf() );
-    }
-
-    if ( !thd.linename.isEmpty() )
-    {
-	LineKey lk( thd.linename );
-	putAt( 4, 6, 20, "Line name:" );
-	putAt( 4, 20, 75, lk.lineName() );
-	putAt( 4, 45, 75, lk.attrName() );
-    }
-    if ( thd.pinfo )
-    {
-	BufferString txt( "Trace number range: ",
-			  thd.pinfo->crlrg.start, " - " );
-	txt += thd.pinfo->crlrg.stop;
-	putAt( 5, 6, 75, txt );
-    }
-
-    putAt( 36, 6, 75, "2-D line" );
+    const BufferString linenm = Survey::GM().getName( geomid );
+    putAt( 4, 21, 75, linenm );
 }
 
 
-void SEGY::TxtHeader::setStartPos( float sp )
+void SEGY::TxtHeader::setLineStarts()
 {
-    if ( mIsZero(sp,mDefEps) ) return;
+    for ( int iln=0; iln<sTxtHeadNrLines; iln++ )
+    {
+	const int i80 = iln*sTxtHeadCharsPerLine;
+	const BufferString lnrstr( iln < 9 ? "0" : "", iln+1 );
+	txt_[i80] = 'C'; txt_[i80+1] = lnrstr[0]; txt_[i80+2] = lnrstr[1];
+    }
 
-    BufferString txt( "First sample at:", sp );
-    putAt( 10, 6, 75, txt );
-    putAt( 11, 10, 75, "(in bytes 109 (+) and 105 (-) of the trace header)");
+    BufferString rvstr( "SEG-Y REV" );
+    rvstr += revision_;
+    putAt( sTxtHeadNrLines-1, sDefStartPos, 75, rvstr.buf() );
+    putAt( sTxtHeadNrLines, sDefStartPos, 75, "END TEXTUAL HEADER" );
+}
+
+
+void SEGY::TxtHeader::setAscii()
+{
+    if ( !isAscii() )
+	Ebcdic2Ascii( txt_, SegyTxtHeaderLength );
+}
+
+
+void SEGY::TxtHeader::setEbcdic()
+{
+    if ( isAscii() )
+	Ascii2Ebcdic( txt_, SegyTxtHeaderLength );
+}
+
+
+bool SEGY::TxtHeader::isAscii() const
+{
+    return txt_[0]!=0xC3 && txt_[0]!=0x83;
 }
 
 
 void SEGY::TxtHeader::getText( BufferString& bs ) const
 {
-    char buf[cTxtHeadCharsPerLine+1];
-    getFrom( 1, 1, cTxtHeadCharsPerLine, buf );
+    char buf[sTxtHeadCharsPerLine+1];
+    getFrom( 1, 1, sTxtHeadCharsPerLine, buf );
     bs = buf;
-    for ( int iln=2; iln<=cTxtHeadNrLines; iln++ )
+    for ( int iln=2; iln<=sTxtHeadNrLines; iln++ )
     {
 	bs += "\n";
-	getFrom( iln, 1, cTxtHeadCharsPerLine, buf );
+	getFrom( iln, 1, sTxtHeadCharsPerLine, buf );
 	bs += buf;
     }
 }
@@ -259,13 +416,13 @@ void SEGY::TxtHeader::setText( const char* txt )
 
     BufferString bs( txt );
     char* ptr = bs.getCStr();
-    for ( int iln=1; iln<=cTxtHeadNrLines; iln++ )
+    for ( int iln=1; iln<=sTxtHeadNrLines; iln++ )
     {
 	char* endptr = firstOcc( ptr, '\n' );
 	if ( !endptr ) break;
 	*endptr = '\0';
 
-	putAt( iln, 1, cTxtHeadCharsPerLine, ptr );
+	putAt( iln, 1, sTxtHeadCharsPerLine, ptr );
 	ptr = endptr + 1; if ( !*ptr ) break;
     }
 
@@ -277,9 +434,9 @@ void SEGY::TxtHeader::getFrom( int line, int pos, int endpos, char* str ) const
 {
     if ( !str ) return;
 
-    int charnr = (line-1)*cTxtHeadCharsPerLine + pos - 1;
-    if ( endpos > cTxtHeadCharsPerLine ) endpos = cTxtHeadCharsPerLine;
-    int maxcharnr = (line-1)*cTxtHeadCharsPerLine + endpos;
+    int charnr = (line-1)*sTxtHeadCharsPerLine + pos - 1;
+    if ( endpos > sTxtHeadCharsPerLine ) endpos = sTxtHeadCharsPerLine;
+    int maxcharnr = (line-1)*sTxtHeadCharsPerLine + endpos;
 
     while ( iswspace(txt_[charnr]) && charnr < maxcharnr ) charnr++;
     while ( charnr < maxcharnr ) *str++ = txt_[charnr++];
@@ -292,9 +449,9 @@ void SEGY::TxtHeader::putAt( int line, int pos, int endpos, const char* str )
 {
     if ( !str || !*str ) return;
 
-    int charnr = (line-1)*cTxtHeadCharsPerLine + pos - 1;
-    if ( endpos > cTxtHeadCharsPerLine ) endpos = cTxtHeadCharsPerLine;
-    int maxcharnr = (line-1)*cTxtHeadCharsPerLine + endpos;
+    int charnr = (line-1)*sTxtHeadCharsPerLine + pos - 1;
+    if ( endpos > sTxtHeadCharsPerLine ) endpos = sTxtHeadCharsPerLine;
+    int maxcharnr = (line-1)*sTxtHeadCharsPerLine + endpos;
 
     while ( charnr < maxcharnr && *str )
     {
@@ -311,9 +468,13 @@ void SEGY::TxtHeader::dump( od_ostream& stream ) const
 }
 
 
+// SEGY::BinHeader
 SEGY::BinHeader::BinHeader()
-	: needswap_(false)
-	, forwrite_(false)
+{
+}
+
+
+SEGY::BinHeader::~BinHeader()
 {
 }
 
@@ -471,19 +632,21 @@ void SEGY::BinHeader::dump( od_ostream& strm ) const
 }
 
 
+// SEGY::TrcHeader
 SEGY::TrcHeader::TrcHeader( unsigned char* b, const SEGY::TrcHeaderDef& hd,
 				bool isrev0, bool ismine )
     : buf_(b)
-    , mybuf_(ismine)
     , hdef_(hd)
-    , needswap_(false)
     , isrev0_(isrev0)
-    , seqnr_(1)
-    , lineseqnr_(1)
-    , previnl_(-1)
-    , isusable(true)
-    , nonrectcoords(false)
+    , mybuf_(ismine)
 {
+}
+
+
+SEGY::TrcHeader::TrcHeader( const TrcHeader& oth )
+    : hdef_(oth.hdef_)
+{
+    *this = oth;
 }
 
 
@@ -500,6 +663,7 @@ SEGY::TrcHeader& SEGY::TrcHeader::operator =( const SEGY::TrcHeader& oth )
     {
 	needswap_ = oth.needswap_;
 	isrev0_ = oth.isrev0_;
+	geomtype_ = oth.geomtype_;
 	seqnr_ = oth.seqnr_;
 	lineseqnr_ = oth.lineseqnr_;
 	previnl_ = oth.previnl_;
@@ -537,6 +701,19 @@ const SEGY::HdrDef& SEGY::TrcHeader::hdrDef()
 }
 
 
+void SEGY::TrcHeader::fillRev1Def( TrcHeaderDef& thd )
+{
+    const SEGY::HdrDef& defs = SEGY::TrcHeader::hdrDef();
+    thd.inl_ = *defs[SEGY::TrcHeader::EntryInline()];
+    thd.crl_ = *defs[SEGY::TrcHeader::EntryCrossline()];
+    thd.xcoord_ = *defs[SEGY::TrcHeader::EntryXcdp()];
+    thd.ycoord_ = *defs[SEGY::TrcHeader::EntryYcdp()];
+    thd.trnr_ = *defs[SEGY::TrcHeader::EntryCdp()];
+    thd.refnr_ = *defs[SEGY::TrcHeader::EntrySP()];
+    thd.offs_ = *defs[SEGY::TrcHeader::EntryOffset()];
+}
+
+
 void SEGY::TrcHeader::initRead()
 {
     const short trid = (short)entryVal( EntryTrid() );
@@ -558,7 +735,7 @@ void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
     SamplingData<float> sd( sdin );
     mPIEPAdj(Z,sd.start,false); mPIEPAdj(Z,sd.step,false);
 
-    const float zfac = mCast( float, SI().zDomain().userFactor() );
+    const float zfac = sCast( float, SI().zDomain().userFactor() );
     float drt = sd.start * zfac;
     short delrt = (short)mNINT32(drt);
     setEntryVal( EntryLagA(), -delrt ); // For HRS and Petrel
@@ -580,7 +757,7 @@ void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
     setEntryVal( EntryYcdp(), icy );
 
     int tnr = ti.nr; mPIEPAdj(TrcNr,tnr,false);
-    if ( SEGY::TxtHeader::info2D() )
+    if ( Seis::is2D(geomtype_) )
     {
 	if ( !mIsUdf(ti.refnr) )
 	{
@@ -607,9 +784,10 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     setEntryVal( EntryDUse(), 1 );
     setEntryVal( EntryCoUnit(), 1 );
 
-    const bool is2d = SEGY::TxtHeader::info2D();
+    const bool is2d = Seis::is2D( geomtype_ );
     if ( !is2d && ti.binid.inl() != previnl_ )
 	lineseqnr_ = 1;
+
     previnl_ = ti.binid.inl();
     int nr2put = is2d ? seqnr_ : lineseqnr_;
     setEntryVal( EntryTracl(), nr2put );
@@ -655,7 +833,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     intval = mNINT32( ti.azimuth * 360 / M_PI );
     hdef_.azim_.putValue( buf_, intval );
 
-    const float zfac = mCast( float, SI().zDomain().userFactor() );
+    const float zfac = sCast( float, SI().zDomain().userFactor() );
 #define mSetScaledMemb(nm,fac) \
     if ( !mIsUdf(ti.nm) ) \
 	{ intval = mNINT32(ti.nm*fac); hdef_.nm##_.putValue( buf_, intval ); }
@@ -701,10 +879,10 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
     ti.coord.y = entryVal( EntryYcdp() );
     ti.binid.inl() = entryVal( EntryInline() );
     ti.binid.crl() = entryVal( EntryCrossline() );
-    ti.refnr = mCast( float, entryVal( EntrySP() ) );
+    ti.refnr = sCast( float, entryVal(EntrySP()) );
     if ( !isrev0_ )
     {
-	const short scalnr = (short)entryVal( EntrySPscale() );
+	const short scalnr = sCast( short, entryVal(EntrySPscale()) );
 	if ( scalnr )
 	{
 	    ti.refnr *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
@@ -735,10 +913,10 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	getRev1Flds( ti ); // if rev 0, start with rev 1 as default
 
     const float zfac = 1.0f / SI().zDomain().userFactor();
-    short delrt = mCast( short, entryVal( EntryDelRt() ) );
+    short delrt = sCast( short, entryVal(EntryDelRt()) );
     if ( delrt == 0 )
     {
-	delrt = - (short)entryVal( EntryLagA() ); // HRS and Petrel
+	delrt = - sCast( short, entryVal(EntryLagA()) ); // HRS and Petrel
 	mDefineStaticLocalObject( const bool, smt_bad_laga,
 				  = GetEnvVarYN("OD_SEGY_BAD_LAGA") );
 	if ( smt_bad_laga )
@@ -786,9 +964,9 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     ti.binid.crl() = hdef_.crl_.getValue(buf_,needswap_);
     mPIEPAdj(BinID,ti.binid,true);
 
-    ti.offset = mCast( float, hdef_.offs_.getValue(buf_,needswap_) );
+    ti.offset = sCast( float, hdef_.offs_.getValue(buf_,needswap_) );
     if ( ti.offset < 0 ) ti.offset = -ti.offset;
-    ti.azimuth = mCast( float, hdef_.azim_.getValue(buf_,needswap_) );
+    ti.azimuth = sCast( float, hdef_.azim_.getValue(buf_,needswap_) );
     ti.azimuth *= M_PI / 360;
     if ( hdef_.trnr_.bytepos_ >= 0 )
 	ti.nr = hdef_.trnr_.getValue(buf_,needswap_);
@@ -820,15 +998,17 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 
 double SEGY::TrcHeader::getCoordScale( float extcoordsc ) const
 {
-    if ( !mIsUdf(extcoordsc) ) return extcoordsc;
-    const short scalco = mCast( short, entryVal( EntryScalco() ) );
+    if ( !mIsUdf(extcoordsc) )
+	return double(extcoordsc);
+
+    const short scalco = sCast( short, entryVal(EntryScalco()) );
     return scalco ? (scalco > 0 ? scalco : -1./scalco) : 1;
 }
 
 
 Coord SEGY::TrcHeader::getCoord( bool rcv, float extcoordsc ) const
 {
-    double scale = getCoordScale( extcoordsc );
+    const double scale = getCoordScale( extcoordsc );
     Coord ret(	entryVal( rcv?EntryGx():EntrySx() ),
 		entryVal( rcv?EntryGy():EntrySy() ) );
     ret.x *= scale; ret.y *= scale;

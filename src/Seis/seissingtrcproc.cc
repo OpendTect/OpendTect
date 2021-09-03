@@ -14,6 +14,7 @@
 #include "multiid.h"
 #include "ptrman.h"
 #include "scaler.h"
+#include "seisioobjinfo.h"
 #include "seispacketinfo.h"
 #include "seispsioprov.h"
 #include "seispswrite.h"
@@ -504,8 +505,29 @@ bool SeisSingleTraceProc::writeTrc()
 	const SeisTrcReader& currdr = *rdrs_[currdridx_];
 	SeisTrcTranslator& wrtr = *wrr_.seisTranslator();
 	wrtr.setCurGeomID( currdr.geomID() );
+	if ( currdr.ioObj() )
+	{
+	    StringPair datanm( currdr.ioObj()->name() );
+	    const SeisTrcTranslator* trl = currdr.seisTranslator();
+	    auto compinfo = trl->componentInfo();
+	    if ( trl && compinfo.size()>1 && trl->nrSelComps()==1 )
+	    {
+		const int selcomp = trl->selComp( 0 );
+		if ( compinfo.validIdx(selcomp) )
+		    datanm.second() = compinfo[selcomp]->name();
+	    }
+
+	    wrtr.setDataName( datanm.getCompString() );
+	}
+
 	if ( currdr.is2D() )
-	    wrtr.packetInfo().crlrg = currdr.curTrcNrRange();
+	{
+	    wrtr.packetInfo().inlrg.set( currdr.geomID(), currdr.geomID(), 1 );
+	    if ( currdr.selData() )
+		wrtr.packetInfo().crlrg = currdr.selData()->crlRange();
+	    else
+		wrtr.packetInfo().crlrg = currdr.curTrcNrRange();
+	}
 	else
 	{
 	    if ( !wrr_.prepareWork(*worktrc_) )

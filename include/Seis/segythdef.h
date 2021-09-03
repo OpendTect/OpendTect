@@ -68,7 +68,6 @@ public:
     static const char*	sRefNrByte();
     static const char*	sPickByte();
 
-    BufferString	linename;
     SeisPacketInfo*	pinfo;
 };
 

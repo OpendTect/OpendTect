@@ -13,22 +13,23 @@ Translators for seismic traces.
 -*/
 
 #include "seismod.h"
-#include "transl.h"
+
+#include "basiccompinfo.h"
 #include "ctxtioobj.h"
 #include "samplingdata.h"
-#include "basiccompinfo.h"
 #include "seisinfo.h"
 #include "seistype.h"
-#include "linekey.h"
+#include "transl.h"
 
-class SeisTrc;
+class BufferStringSet;
 class LinScaler;
+class SeisPacketInfo;
+class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class TraceData;
 class TrcKeyZSampling;
-class SeisPacketInfo;
-class BufferStringSet;
+
 namespace PosInfo	{ class CubeData; }
 namespace Seis		{ class SelData; }
 
@@ -230,8 +231,8 @@ public:
     void		enforceSurvinfoWrite( bool yn )
 			{ enforce_survinfo_write = yn; }
 
-    const LineKey&	curLineKey() const		{ return curlinekey_; }
-    void		setCurLineKey( const LineKey& lk ) { curlinekey_ = lk; }
+    const char*		dataName() const	{ return dataname_.buf(); }
+    void		setDataName( const char* nm )	{ dataname_ = nm; }
     Pos::GeomID		curGeomID() const		{ return geomid_; }
     void		setCurGeomID( Pos::GeomID gid )	{ geomid_ = gid; }
 
@@ -268,7 +269,7 @@ protected:
     int					outnrsamples_;
     Interval<int>			samprg_;
     Pos::GeomID				geomid_;
-    LineKey				curlinekey_;
+    BufferString			dataname_;
     bool				headerdonenew_;
     bool				datareaddone_;
     TraceData*				storbuf_;
@@ -328,5 +329,3 @@ public:
     bool		readTraceData( TraceData* td=nullptr )
 			{ return readData(td); }
 };
-
-

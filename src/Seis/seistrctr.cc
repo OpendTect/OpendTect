@@ -171,13 +171,23 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 
     innrsamples_ = outnrsamples_ = trc.size();
     if ( innrsamples_ < 1 )
-	{ errmsg_ = tr("Empty first trace"); return false; }
+    {
+	errmsg_ = tr("Empty first trace");
+	return false;
+    }
 
     insd_ = outsd_ = trc.info().sampling;
 
-    if ( !initConn(c) || !initWrite_( trc ) )
+    if ( seldata_ )
     {
-	delete conn_; conn_ = 0;
+	pinfo_.inlrg = seldata_->inlRange();
+	pinfo_.crlrg = seldata_->crlRange();
+	pinfo_.zrg = seldata_->zRange();
+    }
+
+    if ( !initConn(c) || !initWrite_(trc) )
+    {
+	deleteAndZeroPtr( conn_ );
 	return false;
     }
 
