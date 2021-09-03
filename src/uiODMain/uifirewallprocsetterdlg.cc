@@ -22,7 +22,7 @@
 
 #include "iopar.h"
 
-
+#include "hiddenparam.h"
 
 
 uiString getWindowTitle()
@@ -43,6 +43,7 @@ uiString getDialogTitle( ProcDesc::DataEntry::ActionType typ )
 	return mNoDlgTitle;
 }
 
+static HiddenParam<uiFirewallProcSetter,BufferString*> acttypstr_(nullptr);
 
 typedef ProcDesc::DataEntry PDE;
 
@@ -51,16 +52,19 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
 			const BufferString* path, const BufferString* pypath )
     : uiDialog(p, Setup(getWindowTitle(),mNoDlgTitle,
 			mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
-    , addremfld_(0)
-    , pythonproclistbox_(0)
-    , odproclistbox_(0)
+    , addremfld_(nullptr)
+    , pythonproclistbox_(nullptr)
+    , odproclistbox_(nullptr)
 {
+    acttypstr_.setParam( this,
+		    new BufferString(PDE::ActionTypeDef().getKey(acttyp)) );
     setTitleText( getDialogTitle(acttyp) );
     if ( !path || path->isEmpty() )
 	exepath_ = GetExecPlfDir();
     else
     {
-	const FilePath fp( path->buf(), "bin", GetPlfSubDir(), GetBinSubDir() );
+	const FilePath fp( path->buf(), "bin", GetPlfSubDir(),
+							    GetBinSubDir() );
 	exepath_ = fp.fullPath();
     }
 
@@ -109,6 +113,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
 	odproclistbox_->chooseAll();
 	attachobj = odproclistbox_->attachObj();
     }
+
     odproclistbox_->display( addremfld_ || !odprocdescs_.isEmpty() );
 
     su.lbl( tr("Python Executables") );
@@ -126,6 +131,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
 				uiFirewallProcSetter::statusUpdatePyProcCB);
 	pythonproclistbox_->chooseAll();
     }
+
     pythonproclistbox_->display( addremfld_|| !pyprocdescs_.isEmpty() );
 
     PDE::ActionType ty = ePDD().getActionType();
@@ -134,6 +140,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
        setOkText( PDE::ActionTypeDef().getUiStringForIndex(ty) );
        if ( addremfld_ )
 	   addremfld_->display( false );
+
        toadd_ = ty == PDE::Add;
        selectionChgCB(0);
     }
@@ -167,18 +174,32 @@ void uiFirewallProcSetter::setEmpty()
 }
 
 
+uiFirewallProcSetter::~uiFirewallProcSetter()
+{
+    detachAllNotifiers();
+    acttypstr_.removeAndDeleteParam( this );
+}
+
+
+bool uiFirewallProcSetter::hasWorkToDo() const
+{
+    const PDE::ActionType availacttype = ePDD().getActionType();
+    const BufferString* acttyp = acttypstr_.getParam( this );
+    const PDE::ActionType type = PDE::ActionTypeDef().getEnumForIndex(
+			    PDE::ActionTypeDef().indexOf(acttyp->buf()) );
+    if ( availacttype == PDE::AddNRemove || type == PDE::AddNRemove )
+	return true;
+
+    return type == availacttype;
+}
+
+
 void uiFirewallProcSetter::init()
 {
     const FilePath fp( exepath_ );
     const BufferString exceptionlistpath = fp.dirUpTo( fp.nrLevels()-4 );
     ePDD().setPath( exceptionlistpath );
     mGetData
-}
-
-
-uiFirewallProcSetter::~uiFirewallProcSetter()
-{
-    detachAllNotifiers();
 }
 
 

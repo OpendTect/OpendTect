@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "bufstringset.h"
 #include "commanddefs.h"
+#include "commandlineparser.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
@@ -22,8 +23,8 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odplatform.h"
 #include "oscommand.h"
-#include "separstr.h"
 #include "procdescdata.h"
+#include "separstr.h"
 #include "settingsaccess.h"
 #include "string2.h"
 #include "timefun.h"
@@ -77,7 +78,6 @@ OD::PythonAccess::PythonAccess()
     : envChange(this)
 {
 }
-
 
 
 OD::PythonAccess::~PythonAccess()
@@ -162,22 +162,19 @@ void OD::PythonAccess::initClass()
     PythonSource source = hasInternalEnvironment() ? Internal : System;
     PythonSourceDef().parse( pythonsetts, sKeyPythonSrc(), source );
     FilePath externalroot;
+    CommandLineParser clp;
     const int totnrarg = GetArgC();
     bool useextparth = false;
-    if ( totnrarg > 4 )
+    const char* pypathkey = ProcDesc::DataEntry::getTypeFlag(
+					    ProcDesc::DataEntry::Python );
+    BufferString rootstr;
+    if ( clp.getVal(pypathkey,rootstr) )
     {
-	BufferString str = GetArgV()[ totnrarg - 2 ];
-	useextparth = str.isEqual( PythA().sKeyUseExtPyPath(),
-							    CaseInsensitive );
-	if ( useextparth )
-	{
-	    externalroot = GetArgV()[ totnrarg - 1 ];
-	    if ( externalroot.isEmpty() ||
-				!File::exists(externalroot.fullPath()) )
-		return;
+	if ( rootstr.isEmpty() || !File::isDirectory(rootstr) )
+	    return;
 
-	    source = Custom;
-	}
+	externalroot.setPath( rootstr );
+	source = Custom;
     }
 
     if ( source == Custom )
