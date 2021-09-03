@@ -102,14 +102,17 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
     OS::MachineCommand mc( "netsh", "advfirewall", "firewall" );
     mc.addArg( toadd ? "add" : "delete" )
        .addArg( "rule" )
-       .addArg( BufferString("name=\"",procnm,"\"") )
-       .addArg( BufferString("program=\"",fp.fullPath(),"\"") );
-    if (toadd)
+       .addArg( BufferString("name=\"",procnm,"\"") );
+    char shortpath[1024];
+    GetShortPathName( fp.fullPath().buf(), shortpath, 1024 );
+    mc.addArg( BufferString("program=\"",shortpath,"\"") );
+    if ( toadd )
     {
 	mc.addArg( "enable=yes" );
 	mc.addArg( "dir=in" );
 	mc.addArg( "action=allow" );
     }
+
     OS::CommandExecPars pars( OS::RunInBG );
     pars.runasadmin( !WinUtils::IsUserAnAdmin() );
     return mc.execute( pars );
