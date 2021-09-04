@@ -14,7 +14,6 @@
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
-#include "keystrs.h"
 #include "globexpr.h"
 #include "iodir.h"
 #include "iodirentry.h"
