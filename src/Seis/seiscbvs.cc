@@ -223,22 +223,22 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 {
     if ( forread_ && !is2d_ && seldata_ && !seldata_->isAll() )
     {
-	TrcKeyZSampling cs;
+	TrcKeyZSampling tkzs;
 	Interval<int> inlrg = seldata_->inlRange();
 	Interval<int> crlrg = seldata_->crlRange();
-	cs.hsamp_.start_.inl() = inlrg.start;
-	cs.hsamp_.start_.crl() = crlrg.start;
-	cs.hsamp_.stop_.inl() = inlrg.stop;
-	cs.hsamp_.stop_.crl() = crlrg.stop;
-	cs.zsamp_.start = outsd_.start; cs.zsamp_.step = outsd_.step;
-	cs.zsamp_.stop = outsd_.start + (outnrsamples_-1) * outsd_.step;
+	tkzs.hsamp_.start_.inl() = inlrg.start;
+	tkzs.hsamp_.start_.crl() = crlrg.start;
+	tkzs.hsamp_.stop_.inl() = inlrg.stop;
+	tkzs.hsamp_.stop_.crl() = crlrg.stop;
+	tkzs.zsamp_.start = outsd_.start;
+	tkzs.zsamp_.step = outsd_.step;
+	tkzs.zsamp_.stop = outsd_.start + (outnrsamples_-1) * outsd_.step;
 
-	if ( !rdmgr_->pruneReaders( cs ) )
-	    if (!rdmgr_->pruneReaders(cs))
-	    {
+	if ( rdmgr_->pruneReaders(tkzs) == 0 )
+	{
 	    errmsg_ = tr("Input contains no relevant data");
 	    return false;
-	    }
+	}
     }
 
     delete [] compsel_;
