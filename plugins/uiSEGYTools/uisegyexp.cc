@@ -530,8 +530,12 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     SEGY::TxtHeader::info2D() = is2d;
+    SEGY::TxtHeader::isPS() = Seis::isPS( geom_ );
 #   define mRet(yn) \
-    { delete tmpioobj; SEGY::TxtHeader::info2D() = false; return yn; }
+    { delete tmpioobj; \
+      SEGY::TxtHeader::info2D() = false; \
+      SEGY::TxtHeader::isPS() = false; \
+      return yn; }
 
     PtrMan<Executor> exec = transffld_->getTrcProc( inioobj, *useoutioobj,
 				    "Output seismic data", tr("Writing traces"),

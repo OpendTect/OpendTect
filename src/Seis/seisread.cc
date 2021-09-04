@@ -992,14 +992,16 @@ int SeisTrcReader::getNrOffsets( int maxnrpostobechecked ) const
 	    return mUdf(int);
 
 	const PosInfo::Line2DData& l2d = rdr2d->posData();
-	for ( int posidx=0; posidx<l2d.positions().size() &&
-			    posidx<maxnrpostobechecked; posidx++ )
+	const TypeSet<PosInfo::Line2DPos>& allpos = l2d.positions();
+	const int nrpos = allpos.size();
+	const int step = float(nrpos) / (maxnrpostobechecked-1);
+	for ( int posidx=0; posidx<nrpos; posidx+=step )
 	{
 	    const int trcnr = l2d.positions()[posidx].nr_;
 	    SeisTrcBuf tmptbuf( true );
 	    rdr2d->getGath( trcnr, tmptbuf );
 	    if ( nroffsets<tmptbuf.size() )
-		nroffsets=tmptbuf.size();
+		nroffsets = tmptbuf.size();
 	}
     }
 

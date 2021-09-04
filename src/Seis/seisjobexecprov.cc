@@ -298,7 +298,8 @@ MultiID SeisJobExecProv::tempStorID() const
 
 Executor* SeisJobExecProv::getPostProcessor()
 {
-    if ( is2d_ ) return 0;
+    if ( is2d_ )
+	return nullptr;
 
     PtrMan<IOObj> inioobj = IOM().get( tmpstorid_ );
     PtrMan<IOObj> outioobj = IOM().get( seisoutid_ );

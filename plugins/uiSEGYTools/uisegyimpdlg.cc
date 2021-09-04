@@ -362,6 +362,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     SEGY::TxtHeader::info2D() = is2d;
+    SEGY::TxtHeader::isPS() = isps;
     PtrMan<SeisTrcWriter> wrr = new SeisTrcWriter( &outioobj );
     SeisStdImporterReader* rdr = new SeisStdImporterReader( inioobj, "SEG-Y" );
     rdr->removeNull( transffld_->removeNull() );
@@ -403,5 +404,6 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	rv = ioobjinfo->provideUserInfo();
 
     SEGY::TxtHeader::info2D() = false;
+    SEGY::TxtHeader::isPS() = false;
     return rv;
 }

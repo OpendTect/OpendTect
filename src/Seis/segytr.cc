@@ -269,7 +269,8 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 
 void SEGYSeisTrcTranslator::updateCDFromBuf()
 {
-    SeisTrcInfo info; trchead_.fill( info, fileopts_.coordscale_ );
+    SeisTrcInfo info;
+    trchead_.fill( info, fileopts_.coordscale_ );
     if ( othdomain_ )
 	info.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
 
@@ -395,22 +396,23 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	filepars_.fmt_ = nrFormatFor( storbuf_->getInterpreter()->dataChar() );
 
     trchead_.isrev0_ = false;
+    if ( !trchead_.isrev0_ )
+	SEGY::TrcHeader::fillRev1Def( fileopts_.thdef_ );
 
     if ( !txthead_ )
     {
-	txthead_ = new SEGY::TxtHeader( trchead_.isrev0_ ? 0 : 1);
-	if ( coordsys_ )
-	    txthead_->setSurveySetupInfo( coordsys_ );
-
-	txthead_->setUserInfo( pinfo_.usrinfo );
-	fileopts_.thdef_.linename = curlinekey_;
 	fileopts_.thdef_.pinfo = &pinfo_;
-	txthead_->setPosInfo( fileopts_.thdef_ );
-	txthead_->setStartPos( outsd_.start );
+	txthead_ = new SEGY::TxtHeader( trchead_.isrev0_ ? 0 : 1 );
+	int lastlnr =
+		txthead_->setInfo( curlinekey_, coordsys_, fileopts_.thdef_ );
+	txthead_->setGeomID( curGeomID() );
+
+	txthead_->setUserInfo( ++lastlnr, pinfo_.usrinfo );
 	if ( Settings::common().isTrue("SEGY.Text Header EBCDIC") )
 	    txthead_->setEbcdic();
     }
-    if ( !sConn().oStream().addBin( txthead_->txt_, SegyTxtHeaderLength ) )
+
+    if ( !sConn().oStream().addBin(txthead_->txt_,SegyTxtHeaderLength) )
 	mErrRet(tr("Cannot write SEG-Y Textual header"))
 
     binhead_.setForWrite();

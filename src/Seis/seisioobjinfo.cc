@@ -22,7 +22,6 @@
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
-#include "keystrs.h"
 #include "linekey.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
@@ -765,8 +764,20 @@ bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
 			       StepInterval<float>& zrg ) const
 {
     mChk(false);
-    PtrMan<Seis2DDataSet> dataset = new Seis2DDataSet( *ioobj_ );
-    return dataset->getRanges( geomid, trcrg, zrg );
+    if ( !isPS() )
+    {
+	ConstPtrMan<Seis2DDataSet> dataset = new Seis2DDataSet( *ioobj_ );
+	return dataset->getRanges( geomid, trcrg, zrg );
+    }
+
+    ConstPtrMan<SeisPS2DReader> rdr = SPSIOPF().get2DReader( *ioobj_, geomid );
+    if ( !rdr )
+	return false;
+
+    zrg = rdr->getZRange();
+    const PosInfo::Line2DData& l2dd = rdr->posData();
+    trcrg = l2dd.trcNrRange();
+    return true;
 }
 
 
@@ -1114,10 +1125,10 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 	    }
 
 	    inf.addKeyValue( uiStrings::sArea(),
-		     getAreaString(mCast(float,area),SI().xyInFeet(),2,true) );
+		     getAreaString(float(area),SI().xyInFeet(),2,true) );
 
 	    StepInterval<float> dispzrg( cs.zsamp_ );
-	    dispzrg.scale( (float)zddef.userFactor() );
+	    dispzrg.scale( float(zddef.userFactor()) );
 	    inf.addKeyValue( zddef.getRange().withUnit(zddef.unitStr()),
 		    toUiString("%1 - %2 [%3]")
 		    .arg(dispzrg.start).arg(dispzrg.stop).arg(dispzrg.step) );
@@ -1154,7 +1165,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 		    dispzrg.stop = sizrg.stop * botvavg.stop / 2;
 		    dispzrg.step = (dispzrg.stop-dispzrg.start)
 					/ sizrg.nrSteps();
-		    dispzrg.scale( (float)ZDomain::Depth().userFactor() );
+		    dispzrg.scale( float(ZDomain::Depth().userFactor()) );
 		    keystr = tr("Depth Range")
 			    .withUnit( ZDomain::Depth().unitStr() );
 		}
@@ -1165,7 +1176,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 		    dispzrg.stop = 2 * sizrg.stop / botvavg.start;
 		    dispzrg.step = (dispzrg.stop-dispzrg.start)
 					/ sizrg.nrSteps();
-		    dispzrg.scale( (float)ZDomain::Time().userFactor() );
+		    dispzrg.scale( float(ZDomain::Time().userFactor()) );
 		    keystr = tr("Time Range")
 			    .withUnit( ZDomain::Time().unitStr() );
 		}
