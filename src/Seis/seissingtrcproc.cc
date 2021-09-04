@@ -509,12 +509,11 @@ bool SeisSingleTraceProc::writeTrc()
 	{
 	    StringPair datanm( currdr.ioObj()->name() );
 	    const SeisTrcTranslator* trl = currdr.seisTranslator();
-	    auto compinfo = trl->componentInfo();
-	    if ( trl && compinfo.size()>1 && trl->nrSelComps()==1 )
+	    if ( trl && trl->componentInfo().size()>1 && trl->nrSelComps()==1 )
 	    {
 		const int selcomp = trl->selComp( 0 );
-		if ( compinfo.validIdx(selcomp) )
-		    datanm.second() = compinfo[selcomp]->name();
+		if ( trl->componentInfo().validIdx(selcomp) )
+		    datanm.second() = trl->componentInfo()[selcomp]->name();
 	    }
 
 	    wrtr.setDataName( datanm.getCompString() );
