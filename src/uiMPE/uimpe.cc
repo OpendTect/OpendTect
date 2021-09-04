@@ -103,7 +103,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
 		DataCharacteristics::toString( dc.userType() );
     uiString txt1 = tr("Pre-load Full Volume");
     if ( usertypestr.size() > 4 )
-	txt1.append( tr(" as %1").arg(usertypestr.buf()+4) );
+	txt1.append( tr("as %1").arg(usertypestr.buf()+4) );
     new uiCheckBox( grp, txt1 );
     new uiCheckBox( grp, tr("Choose Pre-load Parameters") );
     grp->selectButton(0);
