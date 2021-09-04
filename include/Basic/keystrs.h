@@ -139,6 +139,7 @@ namespace sKey
     inline FixedString Setup()		{ return "Setup"; }
     inline FixedString Shape()		{ return "Shape"; }
     inline FixedString Shortcuts()	{ return "Shortcuts"; }
+    inline FixedString Shotpoint()	{ return "Shotpoint"; }
     inline FixedString Size()		{ return "Size"; }
     inline FixedString SliceType()	{ return "SliceType"; }
     inline FixedString Source()		{ return "Source"; }

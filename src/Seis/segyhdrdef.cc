@@ -462,7 +462,7 @@ SEGY::TrcHeaderDef::TrcHeaderDef()
     , ycoord_("Y coordinate","Y-Coordinate",77)
     , trnr_("Trace identification number","Trace Number",21)
     , offs_("Distance between source and receiver","Offset",37)
-    , azim_("Direction of line between source and receiver","Azimuth")
+    , azim_("Direction of line between source and receiver","Azimuth",203,true)
     , pick_("Picked Z position","Pick")
     , refnr_("Auxiliary number for trace identification","Ref/SP Number",17)
 {}

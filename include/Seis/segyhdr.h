@@ -17,12 +17,14 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "datachar.h"
 #include "coordsystem.h"
+
 class SeisTrcInfo;
 class od_ostream;
 
 
 namespace SEGY
 {
+
 class Hdrdef;
 
 #define SegyTxtHeaderLength		3200
@@ -39,26 +41,37 @@ class Hdrdef;
 mExpClass(Seis) TxtHeader
 {
 public:
-
 		TxtHeader() : revision_(1) { clearText(); }
 		TxtHeader(int rev);	//!< rev only relevant when writing
     void	clear()			{ clearText(); setLineStarts(); }
 
+    int		setInfo(const char* datanm,const Coords::CoordSystem*,
+			const TrcHeaderDef&);
+    void	setUserInfo(int firstlinenr,const char*);
+		//!< Optional, should be called last
+
+    void	setGeomID(const Pos::GeomID&);
+
+    mDeprecated("Use other setUserInfo")
     void	setUserInfo(const char*);
+    mDeprecated("Use setInfo")
     void	setSurveySetupInfo(const Coords::CoordSystem*);
+    mDeprecated("Use setInfo")
     void	setPosInfo(const TrcHeaderDef&);
+    mDeprecated("Use setInfo")
     void	setStartPos(float);
 
     void	getText(BufferString&) const;
     void	setText(const char*);
 
     bool	isAscii() const;
-    void        setAscii();
-    void        setEbcdic();
+    void	setAscii();
+    void	setEbcdic();
 
     unsigned char txt_[SegyTxtHeaderLength];
 
     static bool& info2D();
+    static bool& isPS();
 
     void	setLineStarts();
     void	dump(od_ostream&) const;
@@ -71,6 +84,10 @@ protected:
     void	getFrom(int,int,int,char*) const;
 
     void	clearText();
+
+    int		setGeneralInfo(const char* datanm);
+    int		setSurveySetupInfo(int firstlinenr,const Coords::CoordSystem*);
+    int		setPosInfo(int firstlinenr,const TrcHeaderDef&);
 };
 
 
@@ -160,6 +177,8 @@ public:
 
     static const HdrDef& hdrDef();
 
+    static void		fillRev1Def(TrcHeaderDef&);
+
     unsigned short	nrSamples() const;
     void		putSampling(SamplingData<float>,unsigned short);
 
@@ -230,6 +249,4 @@ public:
 
 };
 
-} // namespace
-
-
+} // namespace SEGY
