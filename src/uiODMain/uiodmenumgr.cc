@@ -896,6 +896,21 @@ void uiODMenuMgr::fillViewMenu()
     uiMenu& toolbarsmnu = appl_.getToolbarsMenu();
     toolbarsmnu.setName("Toolbars");
     viewmnu_->addMenu( &toolbarsmnu );
+
+    auto* treeitm = new uiAction( tr("Show tree"),
+				mCB(this,uiODMenuMgr,toggleTreeMode) );
+    viewmnu_->insertAction( treeitm );
+    treeitm->setCheckable( true );
+    treeitm->setChecked( true );
+    treeitm->setShortcut( "F11" );
+}
+
+
+void uiODMenuMgr::toggleTreeMode( CallBacker* cb )
+{
+    mDynamicCastGet(uiAction*,action,cb)
+    const bool ison = action ? action->isChecked() : true;
+    sceneMgr().showTree( ison );
 }
 
 

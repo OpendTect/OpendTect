@@ -49,7 +49,7 @@ public:
     void			cleanUp(bool startnew=true);
     int				nrScenes()	{ return scenes_.size(); }
     int				addScene(bool maximized,ZAxisTransform* =0,
-		     const uiString& nm=uiString::emptyString());
+				    const uiString& nm=uiString::emptyString());
 				//!<Returns scene id
     void			setSceneName(int sceneid,const uiString&);
     uiString			getSceneName(int sceneid) const;
@@ -169,6 +169,8 @@ public:
 
     uiTreeFactorySet*		treeItemFactorySet()	{ return tifs_; }
     uiTreeView*			getTree(int sceneid);
+    void			showTree(bool yn);
+    bool			treeShown() const;
 
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
