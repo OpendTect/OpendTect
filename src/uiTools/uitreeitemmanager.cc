@@ -103,7 +103,11 @@ bool uiTreeItem::doubleClick( uiTreeViewItem* item )
 void uiTreeItem::updateSelection( int selid, bool downward )
 {
     if ( uitreeviewitem_ )
-        uitreeviewitem_->setSelected( shouldSelect(selid) );
+    {
+	const bool sel = shouldSelect( selid );
+        uitreeviewitem_->setSelected( sel );
+	uitreeviewitem_->setBold( 0, sel );
+    }
 
     if ( downward )
     {
@@ -329,6 +333,7 @@ void uiTreeItem::moveItemToTop()
 	parent_->getItem()->takeItem( item );
 	parent_->getItem()->insertItem( 0, item );
 	item->setSelected( issel );
+	item->setBold( 0, issel );
 	item->setOpen( isopen );
     }
     mEnabSelChg( true )
