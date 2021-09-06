@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "hdf5writerimpl.h"
 
+#include "datachar.h"
 #include "envvars.h"
 #include "hdf5readerimpl.h"
 #include "uistrings.h"
@@ -94,7 +95,7 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
     hsize_t maxdim = 0;
     hsize_t maxchunkdim = 0;
     const bool editable = dsky.isEditable();
-    const bool mustchunk = editable;
+    bool mustchunk = editable;
     for ( ArrayNDInfo::dim_idx_type idim=0; idim<nrdims_; idim++ )
     {
 	const auto dimsz = info.getSize( idim );
@@ -104,6 +105,7 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
     }
 
     TypeSet<hsize_t> maxszs; bool hasmaxsz = false;
+    od_uint64 totsz = 1;
     for ( ArrayNDInfo::dim_idx_type idim=0; idim<nrdims_; idim++ )
     {
 	const hsize_t dimsz = dims[idim];
@@ -120,9 +122,39 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 	    maxchunkdim = chunkdim;
 	chunkdims += chunkdim;
 	maxszs += hasmaxresize ? H5S_UNLIMITED : dimsz;
+	totsz *= chunkdim;
     }
-    /*TODO: check if one chunk does not exceed 4GB,
-      as larger chunks are not supported by the container */
+
+    const DataCharacteristics dc( dt );
+    totsz *= dc.nrBytes();
+    static od_uint64 maxhdf5chunksz = mDef4GB;
+    if ( totsz >= maxhdf5chunksz && !chunkdims.isEmpty() )
+	// More than 4GB, needs further chunking
+    {
+	// Will try to split the largest dimension
+	int maxdimidx = 0;
+	for ( int idim=1; idim<nrdims_; idim++ )
+	{
+	    if ( chunkdims[idim] > chunkdims[maxdimidx] )
+		maxdimidx = idim;
+	}
+
+	const double chunkratio = double(totsz) / (maxhdf5chunksz-1);
+	const double new1dsz = double(chunkdims[maxdimidx]) / chunkratio;
+	if ( new1dsz > 1. )
+	{
+	    maxchunkdim = Math::Floor( new1dsz );
+	    if ( maxchunkdim > 0 )
+	    {
+		maxszs[maxdimidx] = H5S_UNLIMITED;
+		chunkdims[maxdimidx] = maxchunkdim;
+		hasmaxsz = true;
+		mustchunk = true;
+		const_cast<DataSetKey&>( dsky ).setMaximumSize( maxdimidx,
+								maxchunkdim );
+	    }
+	}
+    }
 
     if ( mustchunk && !hasmaxsz )
     {

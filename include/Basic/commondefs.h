@@ -130,6 +130,13 @@ inline T& getNonConst( const T& t )
 #define mDeg2RadF		0.017453292519943292f
 #define mRad2DegF		57.295779513082323f
 
+//--- File size-related constants
+
+#define mDef1MB 1048576ULL
+#define mDef128MB 134217728ULL
+#define mDef1GB 1073741824ULL
+#define mDef4GB 4294967296ULL
+#define mDef32GB 34359738368ULL
 
 //--- C++ tools
 
