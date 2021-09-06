@@ -87,14 +87,25 @@ bool Property::init(const PropertySet&) const
 
 const char* ValueProperty::def() const
 {
-    return ::toString( val_ );
+    static FileMultiString fms;
+    fms = ::toString( val_ );
+    const BufferString unitlbl( ref_.getStorUnitLbl() );
+    if ( !unitlbl.isEmpty() )
+	fms += unitlbl;
+
+    return fms.buf();
 }
 
 
 void ValueProperty::setDef( const char* defstr )
 {
-    if ( defstr && *defstr )
-	val_ = toFloat( defstr );
+    const FileMultiString fms( defstr );
+    const int sz = fms.size();
+    if ( sz > 0 )
+	val_ = toFloat( fms[0] );
+
+    const UnitOfMeasure* inpuom = sz > 1 ? UoMR().get( fms[1] ) : nullptr;
+    convValue( val_, inpuom, ref_.storUnit() );
 }
 
 
@@ -119,22 +130,27 @@ const char* RangeProperty::def() const
 	return "1e30`0";
 
     static FileMultiString fms;
-    fms = ::toString(rg_.start);
-    fms += ::toString(rg_.stop);
-    return fms.buf();
+    fms = ::toString( rg_.start );
+    fms += ::toString( rg_.stop );
+    const BufferString unitlbl( ref_.getStorUnitLbl() );
+    if ( !unitlbl.isEmpty() )
+	fms += unitlbl;
+
+    return BufferString( fms.buf() );
 }
 
 
 void RangeProperty::setDef( const char* defstr )
 {
-    if ( !defstr || !*defstr )
-	rg_.start = mUdf(float);
-    else
-    {
-	FileMultiString fms( defstr );
-	rg_.start = fms.getFValue( 0 );
-	rg_.stop = fms.getFValue( 1 );
-    }
+    const FileMultiString fms( defstr );
+    const int sz = fms.size();
+    rg_.start = sz > 0 ? fms.getFValue( 0 ) : 1e30f;
+    rg_.stop = sz > 1 ? fms.getFValue( 1 ) : 0.f;
+
+    const UnitOfMeasure* inpuom = sz > 2 ? UoMR().get( fms[2] ) : nullptr;
+    const UnitOfMeasure* targetuom = ref_.storUnit();
+    convValue( rg_.start, inpuom, targetuom );
+    convValue( rg_.stop, inpuom, targetuom );
 }
 
 
