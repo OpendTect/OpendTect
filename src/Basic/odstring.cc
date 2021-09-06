@@ -213,6 +213,13 @@ int OD::String::toInt() const
 }
 
 
+od_uint64 OD::String::toUInt64() const
+{
+    const double val = toDouble();
+    return od_uint64(val);
+}
+
+
 float OD::String::toFloat() const
 {
     return ::toFloat( str() );

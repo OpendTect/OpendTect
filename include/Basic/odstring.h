@@ -75,6 +75,7 @@ public:
     bool		isNumber(bool int_only=false) const;
     bool		isYesNo() const;
     int			toInt() const;
+    od_uint64		toUInt64() const;
     float		toFloat() const;
     double		toDouble() const;
     bool		toBool() const;
