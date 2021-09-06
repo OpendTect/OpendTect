@@ -150,7 +150,24 @@ float PropertyRef::commonValue() const
 	    return mn->disp_.typicalrange_.center();
     }
 
-    return 0;
+    return 0.f;
+}
+
+
+const UnitOfMeasure* PropertyRef::storUnit() const
+{
+    return UoMR().getInternalFor( stdtype_ );
+}
+
+
+BufferString PropertyRef::getStorUnitLbl() const
+{
+    BufferString ret;
+    const UnitOfMeasure* uom = storUnit();
+    if ( uom )
+	ret.set( uom->getLabel() );
+
+    return ret;
 }
 
 

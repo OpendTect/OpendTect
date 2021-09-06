@@ -27,6 +27,7 @@ class ascostream;
 class Property;
 class MathProperty;
 class Mnemonic;
+class UnitOfMeasure;
 struct PropRef_ThickRef_Man;
 
 
@@ -88,6 +89,11 @@ public:
     static const PropertyRef& undef();
 
     Property*		defval_;
+
+    const UnitOfMeasure* storUnit() const;
+			//!< In memory
+    BufferString	getStorUnitLbl() const;
+			//!< In memory
 
     static const PropertyRef& thickness();
 		//!< use this always. It has automatic defaults from SI()
