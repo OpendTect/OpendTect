@@ -127,7 +127,7 @@ H5::DataSet* HDF5::WriterImpl::crDS( const DataSetKey& dsky,
 
     const DataCharacteristics dc( dt );
     totsz *= dc.nrBytes();
-    static od_uint64 maxhdf5chunksz = 4294967296ULL;
+    static od_uint64 maxhdf5chunksz = mDef4GB;
     if ( totsz >= maxhdf5chunksz && !chunkdims.isEmpty() )
 	// More than 4GB, needs further chunking
     {
