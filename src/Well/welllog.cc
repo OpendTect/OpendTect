@@ -374,6 +374,33 @@ void Well::Log::updateAfterValueChanges()
     iscode_ = true;
 }
 
+#define mDefZStep 0.1524f
+#define mMaxGap 1.f
+void Well::Log::prepareForDisplay()
+{
+    const float zfacmtofeet = SI().zIsTime() && SI().depthsInFeet()
+							? mToFeetFactorF
+							: 1.f;
+    const float startdah = dahRange().start;
+    const int startidx = indexOf( startdah );
+    for ( int idx=startidx+1; idx<size(); idx++ )
+    {
+	const float dah0 = dah_[idx-1];
+	const float val0 = vals_[idx-1];
+	if ( mIsUdf(val0) )
+	    continue;
+
+	const float dah1 = dah_[idx];
+	const float gap = dah1-dah0;
+	const float maxgap = mMaxGap*zfacmtofeet;
+	if ( gap >= maxgap )
+	{
+	    dah_.insert( idx, dah0-(mDefZStep*zfacmtofeet) );
+	    vals_.insert( idx, mUdf(float) );
+	}
+    }
+}
+
 
 void Well::Log::ensureAscZ()
 {
