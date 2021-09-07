@@ -236,6 +236,8 @@ void uiMPEMan::keyEventCB( CallBacker* )
 	action = sManMode;
     else if ( kev.key_ == OD::KB_S )
 	action = sSnapMode;
+    else if ( kev.key_ == OD::KB_H )
+	action = sSett;
 
     if ( action != -1 )
 	handleAction( action );
