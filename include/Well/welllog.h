@@ -62,6 +62,8 @@ public:
 			//!< addition must always ascend or descend
     void		updateAfterValueChanges();
 			//!< call it upon any change of value(s)
+    void		prepareForDisplay();
+			//!<call it when plotting this log, preferably on a copy
     void		ensureAscZ();
 			// Do this after adding values when Z may be reversed
     bool		insertAtDah(float md,float val);
