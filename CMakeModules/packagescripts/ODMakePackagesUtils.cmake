@@ -20,7 +20,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	
 	file(COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
 	     DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}
-	     FILES_MATCHING PATTERN lmutil )
+	     FILES_MATCHING PATTERN lmutil* )
 
 	if( NOT "${MATLAB_DIR}" STREQUAL "" )
 	    if ( NOT EXISTS "${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB" )
@@ -98,9 +98,10 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 
 	file( COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
 	      DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}
-	      FILES_MATCHING PATTERN dgbld
-			     PATTERN lmgrd
-			     PATTERN lmtools )
+	      FILES_MATCHING PATTERN dgbld*
+			     PATTERN lmutil*
+			     PATTERN lmgrd*
+			     PATTERN lmtools* )
 	if ( WIN32 )
 	    file( COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/odExternal
 		  DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR} )
@@ -176,6 +177,16 @@ macro( COPY_THIRDPARTYLIBS )
     list( APPEND SYSLIBS ${SYSTEMLIBS} )
     list( APPEND SSLLIBS ${OPENSSLLIBS} )
     foreach( LIB ${OD_THIRD_PARTY_FILES} )
+	string(FIND ${LIB} "osg" OSGVALUE )
+	if( ${OSGVALUE} GREATER -1 )
+	    continue()
+	endif()
+
+	string(FIND ${LIB} "OpenThreads" OSGOPENTHREADSVALUE )
+	if( ${OSGOPENTHREADSVALUE} GREATER -1 )
+	    continue()
+	endif()
+
 	string( FIND ${LIB} "Qt" ISQTLIB )
 	if (  APPLE AND NOT ${ISQTLIB} EQUAL -1 )
 	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
