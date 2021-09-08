@@ -40,6 +40,10 @@ public:
     void			setOutputLogName(const char* nm);
     const char*			getOutputLogName() const;
 
+    bool			updateWells(const TypeSet<MultiID>&);
+
+    Notifier<uiWellLogCalc>	logschanged;
+
 protected:
 
     uiMathFormula*		formfld_;
@@ -53,7 +57,7 @@ protected:
     Math::Formula&		form_;
     float			zsampintv_;
     BufferStringSet		lognms_;
-    const TypeSet<MultiID>	wellids_;
+    TypeSet<MultiID>		wellids_;
     bool			havenew_;
 
     struct InpData

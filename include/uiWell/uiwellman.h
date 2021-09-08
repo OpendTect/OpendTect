@@ -19,7 +19,7 @@ class uiGroup;
 class uiToolButton;
 class uiPushButton;
 namespace Well { class Data; class Reader; }
-
+class uiWellLogCalc;
 
 mExpClass(uiWell) uiWellMan : public uiObjFileMan
 { mODTextTranslationClass(uiWellMan)
@@ -63,6 +63,10 @@ protected:
     uiToolButton*		d2tbut_;
     uiToolButton*		csbut_;
     uiToolButton*		markerbut_;
+
+    uiWellLogCalc*		welllogcalcdlg_ = nullptr;
+    void			updateLogsFld(CallBacker*);
+    void			calcClosedCB(CallBacker*);
 
     void			setWellToolButtonProperties();
     void			setLogToolButtonProperties();

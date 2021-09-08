@@ -150,6 +150,7 @@ uiWellMan::uiWellMan( uiParent* p )
 
 uiWellMan::~uiWellMan()
 {
+    detachAllNotifiers();
     deepErase( currdrs_ );
     deepUnRef( curwds_ );
 }
@@ -277,6 +278,17 @@ void uiWellMan::setButToolTip( uiButton* but, const uiString& oper,
     but->setToolTip( tt );
 }
 
+
+void uiWellMan::updateLogsFld( CallBacker* )
+{
+    fillLogsFld();
+}
+
+
+void uiWellMan::calcClosedCB( CallBacker* )
+{
+    welllogcalcdlg_ = nullptr;
+}
 
 #define mSetWellButToolTip(but,objtyp) \
     setButToolTip( but, edvwstr, objtyp, curwellnm )
@@ -575,10 +587,23 @@ void uiWellMan::calcLogs( CallBacker* )
 	|| availablelognms_.isEmpty() || curmultiids_.isEmpty() ) return;
 
     currdrs_[0]->getLogs();
-    uiWellLogCalc dlg( this, curmultiids_ );
-    dlg.go();
-    if ( dlg.haveNewLogs() )
-	wellsChgd();
+    if ( !welllogcalcdlg_ )
+    {
+	welllogcalcdlg_ = new  uiWellLogCalc( this, curmultiids_ );
+	welllogcalcdlg_->setModal( false );
+	welllogcalcdlg_->setDeleteOnClose( true );
+	mAttachCB(welllogcalcdlg_->logschanged,uiWellMan::updateLogsFld);
+	mAttachCB(welllogcalcdlg_->windowClosed,uiWellMan::calcClosedCB);
+    }
+
+    if ( !welllogcalcdlg_->updateWells(curmultiids_) )
+    {
+	mDetachCB(welllogcalcdlg_->logschanged,uiWellMan::updateLogsFld);
+	welllogcalcdlg_->close();
+	return;
+    }
+
+    welllogcalcdlg_->show();
 }
 
 

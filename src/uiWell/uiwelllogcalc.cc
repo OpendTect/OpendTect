@@ -101,6 +101,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 	, formfld_(0)
 	, nmfld_(0)
 	, havenew_(false)
+	, logschanged(this)
 {
     if ( wellids_.isEmpty() )
     {
@@ -178,6 +179,26 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     postFinalise().notify( formsetcb );
     if ( rockphysmode )
 	afterPopup.notify( rockphyscb );
+}
+
+
+bool uiWellLogCalc::updateWells( const TypeSet<MultiID>& wellids )
+{
+    wellids_ = wellids;
+    if ( wellids_.isEmpty() )
+    {
+	uiMSG().error(tr( "No wells.\nPlease import or create a well first.") );
+	return false;
+    }
+    setTitleText( tr("%1").arg(getDlgTitle(wellids_)) );
+    getAllLogs();
+    if ( superwls_.isEmpty() || lognms_.isEmpty() )
+    {
+	uiMSG().error( tr("Selected wells have no logs.\n"
+			   "Please import at least one.") );
+	return false;
+    }
+    return true;
 }
 
 
@@ -503,6 +524,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
     uiMSG().message( tr("Successfully added this log") );
     havenew_ = true;
+    logschanged.trigger();
     return false;
 }
 
