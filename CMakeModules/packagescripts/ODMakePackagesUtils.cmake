@@ -99,6 +99,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	file( COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
 	      DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}
 	      FILES_MATCHING PATTERN dgbld*
+			     PATTERN lmutil*
 			     PATTERN lmgrd*
 			     PATTERN lmtools* )
 	if ( WIN32 )
@@ -176,6 +177,16 @@ macro( COPY_THIRDPARTYLIBS )
     list( APPEND SYSLIBS ${SYSTEMLIBS} )
     list( APPEND SSLLIBS ${OPENSSLLIBS} )
     foreach( LIB ${OD_THIRD_PARTY_FILES} )
+	string(FIND ${LIB} "osg" OSGVALUE )
+	if( ${OSGVALUE} GREATER -1 )
+	    continue()
+	endif()
+
+	string(FIND ${LIB} "OpenThreads" OSGOPENTHREADSVALUE )
+	if( ${OSGOPENTHREADSVALUE} GREATER -1 )
+	    continue()
+	endif()
+
 	string( FIND ${LIB} "Qt" ISQTLIB )
 	if (  APPLE AND NOT ${ISQTLIB} EQUAL -1 )
 	    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/${LIB}.framework
