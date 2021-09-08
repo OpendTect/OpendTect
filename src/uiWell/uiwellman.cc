@@ -51,6 +51,8 @@ ________________________________________________________________________
 
 mDefineInstanceCreatedNotifierAccess(uiWellMan)
 
+#include "hiddenparam.h"
+static HiddenParam<uiWellMan,uiWellLogCalc*> hp_welllogcalcdlg_(nullptr);
 
 uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(
@@ -63,6 +65,7 @@ uiWellMan::uiWellMan( uiParent* p )
     , csbut_(0)
     , iswritable_(true)
 {
+    hp_welllogcalcdlg_.setParam( this, nullptr );
     createDefaultUI( false, true, true );
     setPrefWidth( 50 );
 
@@ -150,8 +153,28 @@ uiWellMan::uiWellMan( uiParent* p )
 
 uiWellMan::~uiWellMan()
 {
+    detachAllNotifiers();
+    hp_welllogcalcdlg_.removeAndDeleteParam( this );
     deepErase( currdrs_ );
     deepUnRef( curwds_ );
+}
+
+
+uiWellLogCalc* uiWellMan::welllogcalcdlg()
+{
+    return hp_welllogcalcdlg_.getParam( this );
+}
+
+
+void uiWellMan::updateLogsFld( CallBacker* )
+{
+    fillLogsFld();
+}
+
+
+void uiWellMan::calcClosedCB( CallBacker* )
+{
+    hp_welllogcalcdlg_.setParam( this, nullptr );
 }
 
 
@@ -575,10 +598,24 @@ void uiWellMan::calcLogs( CallBacker* )
 	|| availablelognms_.isEmpty() || curmultiids_.isEmpty() ) return;
 
     currdrs_[0]->getLogs();
-    uiWellLogCalc dlg( this, curmultiids_ );
-    dlg.go();
-    if ( dlg.haveNewLogs() )
-	wellsChgd();
+
+    uiWellLogCalc* welllogcalcdlg_ = welllogcalcdlg();
+    if ( !welllogcalcdlg_ )
+    {
+	welllogcalcdlg_ = new  uiWellLogCalc( this, curmultiids_ );
+	welllogcalcdlg_->setModal( false );
+	welllogcalcdlg_->setDeleteOnClose( true );
+	mAttachCB(welllogcalcdlg_->logschanged(),uiWellMan::updateLogsFld);
+	mAttachCB(welllogcalcdlg_->windowClosed,uiWellMan::calcClosedCB);
+    }
+
+    if ( !welllogcalcdlg_->updateWells(curmultiids_) )
+    {
+	mDetachCB(welllogcalcdlg_->logschanged(),uiWellMan::updateLogsFld);
+	welllogcalcdlg_->close();
+	return;
+    }
+    welllogcalcdlg_->show();
 }
 
 
