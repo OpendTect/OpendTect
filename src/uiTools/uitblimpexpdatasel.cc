@@ -106,13 +106,11 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     Mnemonic::StdType proptyp = tinf_.propertyType();
     if ( proptyp != Mnemonic::Other )
     {
-	unitfld_ = new uiUnitSel( this,
-				uiUnitSel::Setup(proptyp,uiStrings::sUnit()) );
+	uiUnitSel::Setup uusu( proptyp, uiStrings::sUnit() );
+	uusu.allowneg( true );
+	unitfld_ = new uiUnitSel( this, uusu );
+	unitfld_->setUnit( tinf_.selection_.unit_ );
 	unitfld_->attach( rightTo, rightmostfld_ );
-	if ( tinf_.selection_.unit_ )
-	    unitfld_->setUnit( tinf_.selection_.unit_->name() );
-	else
-	    unitfld_->setUnit();
     }
 
     if ( tinf_.selection_.coordsys_

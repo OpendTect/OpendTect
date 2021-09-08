@@ -34,31 +34,23 @@ mGlobal(General) UnitOfMeasureRepository& UoMR();
 mExpClass(General) UnitOfMeasure : public NamedObject
 { mODTextTranslationClass(UnitOfMeasure);
 public:
+			UnitOfMeasure(const UnitOfMeasure&);
 
     typedef Mnemonic::StdType PropType;
 
-			UnitOfMeasure()
-			    : proptype_(Mnemonic::Other)
-			    , source_(Repos::Temp) {}
-			UnitOfMeasure( const char* n, const char* s, double f,
-				       PropType t=Mnemonic::Other )
-			    : NamedObject(n), symbol_(s)
-			    , scaler_(0,f), source_(Repos::Temp)
-			    , proptype_(t)	{}
-			UnitOfMeasure( const UnitOfMeasure& uom )
-			    : NamedObject(uom.name())
-						{ *this = uom; }
+			~UnitOfMeasure();
+
     UnitOfMeasure&	operator =(const UnitOfMeasure&);
+
+    static const UnitOfMeasure* getGuessed(const char*);
 
     const char*		symbol() const		{ return symbol_.buf(); }
     const char*		getLabel() const;
 			//!< Symbol or name if no symbol, for IOPar I/O
-    PropType		propType() const	{ return proptype_; }
+    PropType		propType(int idx=0) const;
+    int			nrTypes() const		{ return proptypes_.size(); }
     const LinScaler&	scaler() const		{ return scaler_; }
-
-    void		setSymbol( const char* s )	{ symbol_ = s; }
-    void		setScaler( const LinScaler& s ) { scaler_ = s; }
-    void		setPropType( PropType t )	{ proptype_ = t; }
+    Repos::Source	source() const		{ return source_; }
 
     bool		isImperial() const;
 
@@ -72,10 +64,6 @@ public:
     T			internalValue(T inp) const;
     template <class T>
     T			userValue(T inp) const;
-
-    static const UnitOfMeasure* getGuessed(const char*);
-    Repos::Source	source() const			{ return source_; }
-    void		setSource( Repos::Source s )	{ source_ = s; }
 
     static const UnitOfMeasure* surveyDefZUnit();
 				//!<Default unit in displays (ms,m,ft)
@@ -105,12 +93,38 @@ public:
     static BufferString	getUnitLbl(const UnitOfMeasure*,
 				   const char* deflbl=nullptr);
 
-protected:
+private:
+			UnitOfMeasure(const char* nm,const char* symb,
+				      double shft,double fact,
+				      const TypeSet<PropType>&,Repos::Source);
 
     BufferString	symbol_;
     LinScaler		scaler_;
-    PropType		proptype_;
+    TypeSet<PropType>	proptypes_;
     Repos::Source	source_;
+
+    friend class UnitOfMeasureRepository;
+
+public:
+			mDeprecated("Should not be used")
+			UnitOfMeasure()
+			    : source_(Repos::Temp) {}
+
+			mDeprecated("Should not be used")
+			UnitOfMeasure( const char* n, const char* s, double f,
+				       PropType t=Mnemonic::Other )
+			    : NamedObject(n), symbol_(s)
+			    , scaler_(0,f), source_(Repos::Temp)	{}
+
+    mDeprecatedDef
+    void		setSymbol( const char* s )	{ symbol_ = s; }
+    mDeprecatedDef
+    void		setScaler( const LinScaler& s ) { scaler_ = s; }
+    mDeprecatedDef
+    void		setPropType( PropType prtyp )
+			{ proptypes_.setEmpty(); proptypes_.add( prtyp ); }
+    mDeprecatedDef
+    void		setSource( Repos::Source s )	{ source_ = s; }
 
 };
 
@@ -146,7 +160,7 @@ public:
     static const char*	guessedStdName(const char*);
 			//!< May return null
 
-    const ObjectSet<const UnitOfMeasure>& all() const	{ return entries; }
+    const ObjectSet<const UnitOfMeasure>& all() const	{ return entries_; }
     void		getRelevant(PropType,
 				    ObjectSet<const UnitOfMeasure>&) const;
     const UnitOfMeasure* getCurDefaultFor(const char* key) const;
@@ -161,7 +175,7 @@ private:
 
 			UnitOfMeasureRepository();
 
-    ManagedObjectSet<const UnitOfMeasure> entries;
+    ManagedObjectSet<const UnitOfMeasure> entries_;
 
     void		addUnitsFromFile(const char*,Repos::Source);
     const UnitOfMeasure* findBest(const ObjectSet<const UnitOfMeasure>&,

@@ -36,6 +36,7 @@ public:
     const char*		getUnitName() const;
     const UnitOfMeasure* getUnit() const;
     void		setUnit(const UnitOfMeasure* uom=nullptr);
+    mDeprecatedDef
     void		setUnitName(const char*);
 
     void		setReadOnly(bool); //!< will still allow unit selection

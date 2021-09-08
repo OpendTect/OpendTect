@@ -111,7 +111,7 @@ void uiPropertyValFld::setUnit( const UnitOfMeasure* uom )
 
 void uiPropertyValFld::setUnitName( const char* nm )
 {
-    unfld_->setUnit( nm );
+    setUnit( UoMR().get( nm ) );
 }
 
 

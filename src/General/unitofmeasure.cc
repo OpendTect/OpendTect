@@ -86,6 +86,32 @@ UnitOfMeasureRepository& UoMR()
 }
 
 
+
+UnitOfMeasure::UnitOfMeasure( const char* nm, const char* symb,
+			      double shft, double fact,
+			      const TypeSet<PropType>& stdtypes,
+			      Repos::Source src )
+    : NamedObject(nm)
+    , symbol_(symb)
+    , scaler_(shft,fact)
+    , proptypes_(stdtypes)
+    , source_(src)
+{
+}
+
+
+UnitOfMeasure::UnitOfMeasure( const UnitOfMeasure& uom )
+    : NamedObject(uom.name())
+{
+    *this = uom;
+}
+
+
+UnitOfMeasure::~UnitOfMeasure()
+{
+}
+
+
 UnitOfMeasure& UnitOfMeasure::operator =( const UnitOfMeasure& uom )
 {
     if ( this != &uom )
@@ -93,10 +119,16 @@ UnitOfMeasure& UnitOfMeasure::operator =( const UnitOfMeasure& uom )
 	setName( uom.name() );
 	symbol_ = uom.symbol_;
 	scaler_ = uom.scaler_;
-	proptype_ = uom.proptype_;
+	proptypes_ = uom.proptypes_;
 	source_ = uom.source_;
     }
     return *this;
+}
+
+
+UnitOfMeasure::PropType UnitOfMeasure::propType( int idx ) const
+{
+    return proptypes_.validIdx(idx) ? proptypes_[idx] : Mnemonic::Other;
 }
 
 
@@ -115,9 +147,8 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefZUnit()
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefZStorageUnit()
 {
-    return SI().zIsTime()
-	? UoMR().get(secondsKey)
-	: surveyDefDepthStorageUnit();
+    return SI().zIsTime() ? UoMR().get( secondsKey )
+			  : surveyDefDepthStorageUnit();
 }
 
 
@@ -271,26 +302,31 @@ void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm,
 	return;
 
     ascistream stream( strm, true );
-    while ( !atEndOfSection( stream.next() ) )
+    while ( !atEndOfSection(stream.next()) )
     {
-	FileMultiString fms( stream.value() );
+	const FileMultiString fms( stream.value() );
 	const int sz = fms.size();
-	if ( sz < 3 ) continue;
-	SeparString types( fms[0], '|' );
+	if ( sz < 3 )
+	    continue;
+
+	const SeparString types( fms[0], '|' );
 	const BufferString symb = fms[1];
-	double fac = fms.getDValue( 2 );
-	double shft = sz > 3 ? fms.getDValue( 3 ) : 0.;
+	const double fac = fms.getDValue( 2 );
+	const double shft = sz > 3 ? fms.getDValue( 3 ) : 0.;
 
 	const int nrtypes = types.size();
+	TypeSet<UnitOfMeasure::PropType> stdtypes;
 	for ( int ityp=0; ityp<nrtypes; ityp++ )
 	{
 	    PropType stdtype;
 	    Mnemonic::parseEnumStdType( types[ityp], stdtype );
-	    UnitOfMeasure un( stream.keyWord(), symb, fac, stdtype );
-	    un.setScaler( LinScaler(shft,fac) );
-	    un.setSource( src );
-	    add( un );
+	    stdtypes += stdtype;
 	}
+
+	const UnitOfMeasure un( stream.keyWord(), symb, shft, fac,
+				stdtypes, src );
+
+	add( un );
     }
 }
 
@@ -301,9 +337,9 @@ bool UnitOfMeasureRepository::write( Repos::Source src ) const
     const BufferString fnm = rfp.fileName( src );
 
     bool havesrc = false;
-    for ( int idx=0; idx<entries.size(); idx++ )
+    for ( const auto* uom : entries_ )
     {
-	if ( entries[idx]->source() == src )
+	if ( uom->source() == src )
 	    { havesrc = true; break; }
     }
     if ( !havesrc )
@@ -319,15 +355,15 @@ bool UnitOfMeasureRepository::write( Repos::Source src ) const
 
     ascostream astrm( strm );
     astrm.putHeader( "Units of Measure" );
-    for ( int idx=0; idx<entries.size(); idx++ )
+    for ( const auto* uom : entries_ )
     {
-	const UnitOfMeasure& uom = *entries[idx];
-	if ( uom.source() != src ) continue;
+	if ( uom->source() != src )
+	    continue;
 
-	FileMultiString fms( Mnemonic::getStdTypeString(uom.propType()) );
-	fms += uom.symbol();
-	fms += uom.scaler().toString();
-	astrm.put( uom.name(), fms );
+	FileMultiString fms( Mnemonic::getStdTypeString(uom->propType()) );
+	fms += uom->symbol();
+	fms += uom->scaler().toString();
+	astrm.put( uom->name(), fms );
     }
 
     return true;
@@ -389,13 +425,13 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
     break;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
 const UnitOfMeasure* UnitOfMeasureRepository::get( const char* nm ) const
 {
-    return findBest( entries, nm );
+    return findBest( entries_, nm );
 }
 
 
@@ -433,7 +469,7 @@ const UnitOfMeasure* UnitOfMeasureRepository::findBest(
 	    return uns[idx];
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -442,7 +478,7 @@ bool UnitOfMeasureRepository::add( const UnitOfMeasure& uom )
     if ( get(uom.name()) || get(uom.symbol()) )
 	return false;
 
-    entries += new UnitOfMeasure( uom );
+    entries_.add( new UnitOfMeasure(uom) );
     return true;
 }
 
@@ -450,10 +486,16 @@ bool UnitOfMeasureRepository::add( const UnitOfMeasure& uom )
 void UnitOfMeasureRepository::getRelevant( PropType typ,
 			    ObjectSet<const UnitOfMeasure>& ret ) const
 {
-    for ( int idx=0; idx<entries.size(); idx++ )
+    for ( const auto* uom : entries_ )
     {
-	if ( typ == Mnemonic::Other || entries[idx]->propType() == typ )
-	    ret += entries[idx];
+	for ( const auto& stdtype : uom->proptypes_ )
+	{
+	    if ( stdtype == typ )
+	    {
+		ret += uom;
+		break;
+	    }
+	}
     }
 }
 
@@ -463,20 +505,19 @@ const UnitOfMeasure* UnitOfMeasureRepository::getInternalFor(
 {
     ObjectSet<const UnitOfMeasure> candidates;
     getRelevant( st, candidates );
-    for ( int idx=0; idx<candidates.size(); idx++ )
-    {
-	if ( candidates[idx]->scaler().isEmpty() )
-	    return candidates[idx];
-    }
-    return 0;
+    for ( const auto* uom : candidates )
+	if ( uom->scaler().isEmpty() )
+	    return uom;
+
+    return nullptr;
 }
 
 
 const UnitOfMeasure* UnitOfMeasureRepository::getCurDefaultFor(
 		const char* ky ) const
 {
-    const char* res = UnitOfMeasure::currentDefaults().find( ky );
-    return res && *res ? get( res ) : 0;
+    const FixedString res = UnitOfMeasure::currentDefaults().find( ky );
+    return res.isEmpty() ? nullptr : get( res );
 }
 
 

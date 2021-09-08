@@ -307,17 +307,16 @@ void uiMathExpressionVariable::fill( Math::Formula& form ) const
 }
 
 
-void uiMathExpressionVariable::setUnit( const char* s )
-{
-    if ( unfld_ )
-	unfld_->setUnit( s );
-}
-
-
 void uiMathExpressionVariable::setUnit( const UnitOfMeasure* uom )
 {
     if ( unfld_ )
 	unfld_->setUnit( uom );
+}
+
+
+void uiMathExpressionVariable::setUnit( const char* nm )
+{
+    setUnit( UoMR().get( nm ) );
 }
 
 

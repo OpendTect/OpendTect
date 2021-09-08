@@ -1,13 +1,13 @@
-dTect V4.5
+dTect V6.8.0
 Units of measure
-Fri Mar 15 16:32:41 2013
+Tue Sep 07 11:36:14 2021
 !
 Seconds: Time`s`1
 Milliseconds: Time`ms`0.001
 Microseconds: Time`us`1e-6
--Seconds: Time`s`-1
--Milliseconds: Time`ms`-0.001
--Microseconds: Time`us`-1e-6
+-Seconds: Time`-s`-1
+-Milliseconds: Time`-ms`-0.001
+-Microseconds: Time`-us`-1e-6
 Meter: Distance/Depth`m`1
 Feet: Distance/Depth`ft`0.3048
 Inches: Distance/Depth`in`0.0254
@@ -30,9 +30,10 @@ Feet/second x Kg/m3: Impedance`ft/s x kg/m3`0.3048
 Feet/second x Gram/cm3: Impedance`ft/s x g/cc`304.8
 Kg/m3 / Microseconds/feet: Impedance`kg/m3 / us/ft`304800
 Gram/ft2s: Impedance`g/ft2s`0.0107639
-Fraction: Volumetrics``1
+Fraction: Volumetrics|Other``1
 Ratio: Elastic Ratio|Anisotropy``1
 Percent: Volumetrics|Elastic Ratio|Anisotropy`%`0.01
+Parts-per-million: Fluid`ppm`1e-6
 Darcy: Permeability`D`9.8692327e-13
 mDarcy: Permeability`mD`9.8692327e-16
 API: Gamma Ray`API`1

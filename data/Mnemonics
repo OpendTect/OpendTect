@@ -1,11 +1,11 @@
 dTect V6.8.0
 Mnemonic
-Fri 09 Jul 2021, 03:07:11
+Tue Sep 07 11:36:14 2021
 !
 GR: Gamma ray`Gamma Ray`Lin`0`250`0`150`API`255`0`0`CGR`GRS`SGR`KTH
-POTA: Spectral Gamma Ray`Gamma Ray`Lin`0`100`0`100`%`255`0`0`
-THOR: Spectral Gamma Ray`Gamma Ray`Lin`0`40`0`40`ppm`255`0`0`
-URAN: Spectral Gamma Ray`Gamma Ray`Lin`0`30`0`30`ppm`255`0`0`
+POTA: Spectral Gamma Ray`Volumetrics`Lin`0`100`0`100`%`255`0`0`
+THOR: Spectral Gamma Ray`Fluid`Lin`0`40`0`40`ppm`255`0`0`
+URAN: Spectral Gamma Ray`Fluid`Lin`0`30`0`30`ppm`255`0`0`
 RHOB: Bulk Density`Density`Lin`1.5`3.5`2`3`g/cc`0`0`205`RHOZ`DEN`ZDEN`RHO8`
 SP: Spontaneous Potential`Electrical Potential`Lin`-0.1`0.1`-0.1`0.1`V`0`255`100`SSP
 RT: Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LL`ML`HALS`HRLD`HRLS`DLL
@@ -38,10 +38,9 @@ PR: Poissons Ratio`Elastic Ratio`Lin`0.1`0.5`0.1`0.5``200`100`200`POI
 TEMP: Temperature`Temperature`Lin`5`300`10`150`deg.C`0`0`0`
 LITHO: Lithology`Classification`Lin`0`7`1`5``0`255`255`
 NETP: NetPay`Classification`Lin`0`1`0`1``255`255`0`
-NMR: Nuclear Magnetic Resonance`Other`Lin`0.1`10000`0.3`3000`ms`0`0`0`CMR`MRIL`MREX
-CAL: Caliper`Other`Lin`0`25`0`25`in`0`0`0`CALI
-BS: Bit Size`Other`Lin`-5`20`-5`20`in`0`0`0`BIT
-PEF: Photoeletcric Factor`Other`Lin`0`10`0`10``0`0`0`PE`PEFZ
+NMR: Nuclear Magnetic Resonance`Time`Lin`0.1`10000`0.3`3000`ms`0`0`0`CMR`MRIL`MREX
+CAL: Caliper`Distance/Depth`Lin`0`25`0`25`in`0`0`0`CALI
+BS: Bit Size`Distance/Depth`Lin`-5`20`-5`20`in`0`0`0`BIT
 DEL: Delta`Anisotropy`Lin`-1`1`-1`1``150`200`150`DL
 EPS: Epsilon`Anisotropy`Lin`-1`1`-1`1``200`150`150`EP
 ETA: Eta`Anisotropy`Lin`-1`1`-1`1``200`150`250`

@@ -769,8 +769,9 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     subselfld_->attach( alignedBelow, attachobj );
 
-    unitfld_ = new uiUnitSel( this,
-		uiUnitSel::Setup(Mnemonic::Dist,uiStrings::sUnit()) );
+    uiUnitSel::Setup uusu( Mnemonic::Dist, uiStrings::sUnit() );
+    uusu.allowneg( true );
+    unitfld_ = new uiUnitSel( this, uusu );
     unitfld_->attach( alignedBelow, subselfld_ );
 
     IOObjContext ctxt = mIOObjContext( EMHorizon3D );

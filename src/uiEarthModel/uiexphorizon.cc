@@ -347,7 +347,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     transfld_->display( false );
     transfld_->attach( alignedBelow, attachobj );
 
-    unitsel_ = new uiUnitSel( this, "Z Unit" );
+    unitsel_ = new uiUnitSel( this, uiUnitSel::Setup(tr("Z Unit")) );
+    unitsel_->setUnit( UnitOfMeasure::surveyDefZUnit() );
     unitsel_->attach( alignedBelow, transfld_ );
 
     headerfld_ = new uiGenInput( this, tr("Header"),
@@ -717,13 +718,16 @@ void uiExportHorizon::addZChg( CallBacker* )
     const bool displayunit = !isgf && zfld_->getIntValue()!=1;
     if ( displayunit )
     {
-	FixedString zdomain = getZDomain();
-	if ( zdomain==ZDomain::sKeyDepth() )
+	const FixedString zdomainstr = getZDomain();
+	if ( zdomainstr == ZDomain::sKeyDepth() )
+	{
 	    unitsel_->setPropType( Mnemonic::Dist );
-	else if ( zdomain==ZDomain::sKeyTime() )
+	    unitsel_->setUnit( UnitOfMeasure::surveyDefDepthUnit() );
+	}
+	else if ( zdomainstr == ZDomain::sKeyTime() )
 	{
 	    unitsel_->setPropType( Mnemonic::Time );
-	    unitsel_->setUnit( "Milliseconds" );
+	    unitsel_->setUnit( UnitOfMeasure::surveyDefTimeUnit() );
 	}
     }
 

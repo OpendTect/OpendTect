@@ -93,6 +93,7 @@ mDefineEnumUtils(Mnemonic,StdType,"Standard Property")
 	"Distance/Depth",
 	"Elastic Ratio",
 	"Electrical Potential",
+	"Fluid", // Only for some radioactive measurements
 	"Gamma Ray",
 	"Impedance",
 	"Permeability",
@@ -111,9 +112,9 @@ mDefineEnumUtils(Mnemonic,StdType,"Standard Property")
 };
 
 
-Mnemonic::StdType Mnemonic::surveyZType()
+Mnemonic::StdType Mnemonic::surveyZType( const SurveyInfo* si )
 {
-    return SI().zIsTime() ? Time : Dist;
+    return (si ? si->zIsTime() : SI().zIsTime()) ? Time : Dist;
 }
 
 

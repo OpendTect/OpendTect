@@ -145,8 +145,9 @@ void uiWellSinglePropSel::updateLogInfo()
 	selunstr.set( (isalt ? altunmeaslbls_ : normunmeaslbls_).get(selidx) );
     }
 
-    if ( !selunstr.isEmpty() )
-	unfld_->setUnit( selunstr );
+    const UnitOfMeasure* uom = UoMR().get( selunstr );
+    if ( uom )
+	unfld_->setUnit( uom );
 
     updateSelCB( nullptr );
 }

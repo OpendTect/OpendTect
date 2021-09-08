@@ -38,11 +38,11 @@ public:
 
     enum StdType	{
 			    Anis, Area, Class, Comp, Den, Dist, ElaRa, ElPot,
-			    GR, Imp, Perm, Pres, PresGrad, PresWt, Res, Son,
-			    Temp, Time, Vel, Volum, Vol, Other
+			    Fluid, GR, Imp, Perm, Pres, PresGrad, PresWt, Res,
+			    Son, Temp, Time, Vel, Volum, Vol, Other
 			};
 			mDeclareEnumUtils(StdType)
-    static StdType	surveyZType();
+    static StdType	surveyZType(const SurveyInfo* =nullptr);
 
     enum Scale		{ Linear, Logarithmic };
 			mDeclareEnumUtils(Scale)

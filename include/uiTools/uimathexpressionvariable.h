@@ -56,6 +56,7 @@ public:
     void		selectInput(const char*,bool exact=false);
     void		selectSubInput(int);
     void		setUnit(const UnitOfMeasure*);
+    mDeprecatedDef
     void		setUnit(const char*);
     void		setPropType(Mnemonic::StdType);
 

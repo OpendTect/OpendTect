@@ -122,8 +122,8 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     transfld_->display( false );
     transfld_->attach( alignedBelow, zfld_ );
 
-    uiUnitSel::Setup unitselsu( Mnemonic::surveyZType(), tr("Z in") );
-    zunitsel_ = new uiUnitSel( this, unitselsu );
+    zunitsel_ = new uiUnitSel( this, uiUnitSel::Setup(tr("Z Unit")) );
+    zunitsel_->setUnit( UnitOfMeasure::surveyDefZUnit() );
     zunitsel_->attach( alignedBelow, transfld_ );
 
     stickidsfld_ = new uiCheckList( this, uiCheckList::ChainAll,
@@ -413,13 +413,16 @@ void uiExportFault::addZChg( CallBacker* )
     const bool displayunit = zfld_->getIntValue()!=1;
     if ( displayunit )
     {
-	FixedString zdomain = getZDomain();
-	if ( zdomain==ZDomain::sKeyDepth() )
+	const FixedString zdomainstr = getZDomain();
+	if ( zdomainstr == ZDomain::sKeyDepth() )
+	{
 	    zunitsel_->setPropType( Mnemonic::Dist );
-	else if ( zdomain==ZDomain::sKeyTime() )
+	    zunitsel_->setUnit( UnitOfMeasure::surveyDefDepthUnit() );
+	}
+	else if ( zdomainstr == ZDomain::sKeyTime() )
 	{
 	    zunitsel_->setPropType( Mnemonic::Time );
-	    zunitsel_->setUnit( "Milliseconds" );
+	    zunitsel_->setUnit( UnitOfMeasure::surveyDefTimeUnit() );
 	}
     }
 

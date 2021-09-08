@@ -45,7 +45,7 @@ public:
 	enum Mode		{ SymbolsOnly, NamesOnly, Full };
 
 				Setup( Mnemonic::StdType st,
-				       const uiString labeltxt=
+				       const uiString& labeltxt=
 					     uiString::empty(),
 				       const Mnemonic* mn = nullptr )
 				    : ptype_(st)
@@ -55,7 +55,11 @@ public:
 				    , selproptype_(false)
 				    , selmnemtype_(false)
 				    , variableszpol_(false)
+				    , allowneg_(false)
 				    , withnone_(false)	{}
+				Setup(const uiString&,
+				      const SurveyInfo* =nullptr);
+				//<! For Z unit only
 
 	mDefSetupMemb(Mnemonic::StdType,ptype)
 	mDefSetupMemb(const Mnemonic*,mn)
@@ -64,26 +68,18 @@ public:
 	mDefSetupMemb(bool,selproptype)
 	mDefSetupMemb(bool,selmnemtype)
 	mDefSetupMemb(bool,variableszpol)
+	mDefSetupMemb(bool,allowneg)
 	mDefSetupMemb(bool,withnone)
     };
 
 				uiUnitSel(uiParent*,const Setup&);
 				uiUnitSel(uiParent*,Mnemonic::StdType);
 				uiUnitSel(uiParent*,const Mnemonic* mn=nullptr);
-				uiUnitSel(uiParent*,const char* lbltxt=nullptr);
-					//!< For survey Z unit
 				~uiUnitSel();
 
     void			setUnit(const UnitOfMeasure* uom=nullptr);
-    void			setUnit(const char*);
     const UnitOfMeasure*	getUnit() const;
     const char*			getUnitName() const;
-
-    float			getUserValue(float internalval) const;
-    double			getUserValue(double internalval) const;
-    float			getInternalValue(float uservalue) const;
-    double			getInternalValue(double uservalue) const;
-
 
     Mnemonic::StdType		propType() const	{ return setup_.ptype_;}
     void			setPropType(Mnemonic::StdType);
@@ -91,6 +87,8 @@ public:
     const Mnemonic*		mnemonic() const;
     bool			hasMnemonicSelection() const { return mnfld_; }
     void			setMnemonic(const Mnemonic&);
+
+    void			setReadOnly(bool yn=true);
 
     CNotifier<uiUnitSel,const UnitOfMeasure*>		selChange;
 				//!< Returns previous unit
@@ -136,6 +134,21 @@ private:
 
     void			init();
 
+public:
+
+    mDeprecatedDef		uiUnitSel(uiParent* p,
+					  const char* lbltxt=nullptr);
+
+    mDeprecatedDef
+    void			setUnit(const char*);
+    mDeprecatedDef
+    float			getUserValue(float internalval) const;
+    mDeprecatedDef
+    double			getUserValue(double internalval) const;
+    mDeprecatedDef
+    float			getInternalValue(float uservalue) const;
+    mDeprecatedDef
+    double			getInternalValue(double uservalue) const;
 };
 
 

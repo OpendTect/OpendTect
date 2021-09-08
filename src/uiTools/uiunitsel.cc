@@ -19,6 +19,14 @@ ________________________________________________________________________
 
 static const char* sDispNone = "-";
 
+
+uiUnitSel::Setup::Setup( const uiString& txtlbl, const SurveyInfo* si )
+    : Setup( Mnemonic::surveyZType(si), txtlbl )
+{
+    allowneg( true );
+}
+
+
 uiUnitSel::uiUnitSel( uiParent* p, const uiUnitSel::Setup& su )
     : uiGroup(p,"UnitSel")
     , setup_(su)
@@ -48,7 +56,6 @@ uiUnitSel::uiUnitSel( uiParent* p, const Mnemonic* mn )
 {
     init();
 }
-
 
 
 uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
@@ -159,7 +166,21 @@ void uiUnitSel::update()
     if ( setup_.mn_ )
 	UoMR().getRelevant( setup_.mn_->stdType(), units_ );
     else
-	UoMR().getRelevant( setup_.ptype_, units_ );
+    {
+	if ( setup_.ptype_ == Mnemonic::Other )
+	    units_.append( UoMR().all() );
+	else
+	    UoMR().getRelevant( setup_.ptype_, units_ );
+    }
+
+    if ( !setup_.allowneg_ )
+    {
+	for ( int idx=units_.size()-1; idx>=0; idx-- )
+	{
+	    if ( units_.get(idx)->scaler().factor < 0. )
+		units_.removeSingle( idx );
+	}
+    }
 
     if ( setup_.withnone_ )
 	units_.insertAt( nullptr, 0 );
@@ -228,6 +249,9 @@ void uiUnitSel::setPropFld( Mnemonic::StdType typ )
 
 void uiUnitSel::setMnemFld( const Mnemonic* mn )
 {
+    if ( mn )
+	setup_.ptype_ = mn->stdType();
+
     if ( mnfld_ )
     {
 	NotifyStopper nst( mnfld_->selectionChanged );
@@ -275,14 +299,9 @@ void uiUnitSel::setUnit( const UnitOfMeasure* un )
 }
 
 
-void uiUnitSel::setUnit( const char* unitnm )
+void uiUnitSel::setUnit( const char* nm )
 {
-    const FixedString unnm( unitnm );
-    const UnitOfMeasure* un = nullptr;
-
-    if ( !unnm.isEmpty() && unnm != "-" )
-	un = UoMR().get( unitnm );
-    setUnit( un );
+    setUnit( UoMR().get(nm) );
 }
 
 
@@ -309,6 +328,16 @@ const char* uiUnitSel::getUnitName() const
 }
 
 
+void uiUnitSel::setReadOnly( bool yn )
+{
+    inpfld_->setReadOnly( yn );
+    if ( propfld_ )
+	propfld_->setReadOnly( yn );
+    if ( mnfld_ )
+	mnfld_->setReadOnly( yn );
+}
+
+
 void uiUnitSel::displayGroup( bool yn )
 {
     inpfld_->display( yn );
@@ -317,32 +346,6 @@ void uiUnitSel::displayGroup( bool yn )
     if ( mnfld_ )
 	mnfld_->display( yn );
 }
-
-
-template <class T> static T gtUserValue( const UnitOfMeasure* uom, T val )
-{
-    if ( mIsUdf(val) )
-	return val;
-    return uom ? uom->getUserValueFromSI( val ) : val;
-}
-
-
-template <class T> static T gtIntnValue( const UnitOfMeasure* uom, T val )
-{
-    if ( mIsUdf(val) )
-	return val;
-    return uom ? uom->getSIValue( val ) : val;
-}
-
-
-float uiUnitSel::getUserValue( float val ) const
-{ return gtUserValue( getUnit(), val ); }
-double uiUnitSel::getUserValue( double val ) const
-{ return gtUserValue( getUnit(), val ); }
-float uiUnitSel::getInternalValue( float val ) const
-{ return gtIntnValue( getUnit(), val ); }
-double uiUnitSel::getInternalValue( double val ) const
-{ return gtIntnValue( getUnit(), val ); }
 
 
 void uiUnitSel::setPropType( Mnemonic::StdType typ )
@@ -403,7 +406,10 @@ uiString uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
     if ( !un )
 	return mToUiStringTodo(sDispNone);
     else if ( setup_.mode_ == Setup::SymbolsOnly )
-	return mToUiStringTodo(un->symbol());
+    {
+	const FixedString symb( un->symbol() );
+	return mToUiStringTodo( symb.isEmpty() ? sDispNone : symb.str() );
+    }
     else if ( setup_.mode_ == Setup::NamesOnly )
 	return mToUiStringTodo(un->name().buf());
 
@@ -411,3 +417,29 @@ uiString uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
     ret.set( un->symbol() ).add( " (" ).add( un->name() ).add( ")" );
     return mToUiStringTodo(ret);
 }
+
+
+template <class T> static T gtUserValue( const UnitOfMeasure* uom, T val )
+{
+    if ( mIsUdf(val) )
+	return val;
+    return uom ? uom->getUserValueFromSI( val ) : val;
+}
+
+
+template <class T> static T gtIntnValue( const UnitOfMeasure* uom, T val )
+{
+    if ( mIsUdf(val) )
+	return val;
+    return uom ? uom->getSIValue( val ) : val;
+}
+
+
+float uiUnitSel::getUserValue( float val ) const
+{ return gtUserValue( getUnit(), val ); }
+double uiUnitSel::getUserValue( double val ) const
+{ return gtUserValue( getUnit(), val ); }
+float uiUnitSel::getInternalValue( float val ) const
+{ return gtIntnValue( getUnit(), val ); }
+double uiUnitSel::getInternalValue( double val ) const
+{ return gtIntnValue( getUnit(), val ); }
