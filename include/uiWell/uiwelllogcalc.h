@@ -40,6 +40,10 @@ public:
     void			setOutputLogName(const char* nm);
     const char*			getOutputLogName() const;
 
+    bool			updateWells(const TypeSet<MultiID>&);
+
+    Notifier<uiWellLogCalc>&	logschanged();
+
 protected:
 
     uiMathFormula*		formfld_;

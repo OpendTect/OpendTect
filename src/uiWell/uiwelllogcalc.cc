@@ -96,6 +96,8 @@ static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 
 
 static HiddenParam<uiWellLogCalc,uiToolButton*> outputviewbuts(nullptr);
+HiddenParam<uiWellLogCalc,Notifier<uiWellLogCalc>*> hp_logschanged( nullptr );
+
 
 uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 			      bool rockphysmode )
@@ -110,6 +112,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 	, havenew_(false)
 {
     outputviewbuts.setParam( this, nullptr );
+    hp_logschanged.setParam( this, new Notifier<uiWellLogCalc>( this ) );
 
     if ( wellids_.isEmpty() )
     {
@@ -198,6 +201,33 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 }
 
 
+Notifier<uiWellLogCalc>& uiWellLogCalc::logschanged()
+{
+    return *hp_logschanged.getParam( this );
+}
+
+
+bool uiWellLogCalc::updateWells( const TypeSet<MultiID>& wellids )
+{
+    auto& wids = const_cast<TypeSet<MultiID>& >( this->wellids_ );
+    wids = wellids;
+    if ( wellids_.isEmpty() )
+    {
+	uiMSG().error(tr( "No wells.\nPlease import or create a well first.") );
+	return false;
+    }
+    setTitleText( tr("%1").arg(getDlgTitle(wellids_)) );
+    getAllLogs();
+    if ( superwls_.isEmpty() || lognms_.isEmpty() )
+    {
+	uiMSG().error( tr("Selected wells have no logs.\n"
+			   "Please import at least one.") );
+	return false;
+    }
+    return true;
+}
+
+
 void uiWellLogCalc::getAllLogs()
 {
     for ( int idx=0; idx<wellids_.size(); idx++ )
@@ -246,6 +276,7 @@ void uiWellLogCalc::getAllLogs()
 uiWellLogCalc::~uiWellLogCalc()
 {
     outputviewbuts.removeParam( this );
+    hp_logschanged.removeAndDeleteParam( this );
     delete &form_;
     delete &superwls_;
 }
@@ -513,6 +544,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
     uiMSG().message( tr("Successfully added this log") );
     havenew_ = true;
+    logschanged().trigger();
     return false;
 }
 
