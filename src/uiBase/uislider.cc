@@ -20,10 +20,31 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "scaler.h"
 
+#include <QProxyStyle>
 #include <QString>
 #include <math.h>
 
 mUseQtnamespace
+
+// Own Style to let slider move to clicked mouse position. Based on:
+//https://www.qtcentre.org/threads/9208-QSlider-step-customize?p=49035#post49035
+
+class ODSliderStyle : public QProxyStyle
+{
+public:
+using QProxyStyle::QProxyStyle;
+
+int styleHint( QStyle::StyleHint hint, const QStyleOption* option=nullptr,
+	       const QWidget* widget=nullptr,
+	       QStyleHintReturn* returndata=nullptr ) const override
+{
+    if ( hint == QStyle::SH_Slider_AbsoluteSetButtons )
+	return (Qt::LeftButton | Qt::MidButton | Qt::RightButton);
+    return QProxyStyle::styleHint( hint, option, widget, returndata );
+}
+
+};
+
 
 //------------------------------------------------------------------------------
 
@@ -32,13 +53,13 @@ class uiSliderBody : public uiObjBodyImpl<uiSliderObj,QSlider>
 public:
 
 			uiSliderBody(uiSliderObj&,uiParent*,const char*);
+    virtual		~uiSliderBody();
 
-    virtual		~uiSliderBody()		{ delete &messenger_; }
-
-    virtual int	nrTxtLines() const	{ return 1; }
+    virtual int		nrTxtLines() const	{ return 1; }
 
 private:
 
+    ODSliderStyle*	style_;
     i_SliderMessenger&	messenger_;
 
 };
@@ -50,6 +71,15 @@ uiSliderBody::uiSliderBody( uiSliderObj& hndl, uiParent* p, const char* nm )
 {
     setHSzPol( uiObject::Medium );
     setFocusPolicy( Qt::WheelFocus );
+    style_ = new ODSliderStyle( this->style() );
+    setStyle( style_ );
+}
+
+
+uiSliderBody::~uiSliderBody()
+{
+    delete &messenger_;
+    delete style_;
 }
 
 
@@ -350,6 +380,12 @@ int uiSlider::tickStep() const
 
 void uiSlider::setTickStep( int s )
 { slider_->body().setTickInterval(s); }
+
+void uiSlider::setPageStep( int s )
+{ slider_->body().setPageStep( s ); }
+
+int uiSlider::pageStep() const
+{ return slider_->body().pageStep(); }
 
 
 void uiSlider::sliderMove( CallBacker* )

@@ -100,6 +100,8 @@ public:
     int			tickStep() const;
     void		setOrientation(OD::Orientation);
     OD::Orientation	getOrientation() const;
+    void		setPageStep(int);
+    int			pageStep() const;
 
     void		setInverted(bool);
     bool		isInverted() const;
