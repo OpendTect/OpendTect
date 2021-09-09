@@ -57,7 +57,7 @@ public:
 
 protected:
 
-    mutable Stats::NormalRandGen* rgen_;
+    mutable Stats::NormalRandGen* rgen_ = nullptr;
 
     virtual float	gtAvgPos() const		{ return exp_; }
     virtual float	gtVal(float) const;
@@ -90,8 +90,8 @@ public:
 
 protected:
 
-    mutable Stats::NormalRandGen* rgen0_;
-    mutable Stats::NormalRandGen* rgen1_;
+    mutable Stats::NormalRandGen* rgen0_ = nullptr;
+    mutable Stats::NormalRandGen* rgen1_ = nullptr;
 
     virtual float	gtVal(float,float) const;
     virtual void	drwRandPos(float&,float&) const;
@@ -156,9 +156,8 @@ public:
 protected:
 
 
-    ObjectSet<TypeSet<int> >	corrs4vars_;
     mutable ObjectSet<Stats::NormalRandGen> rgens_;
-    Array2DMatrix<float>*	cholesky_;
+    Array2DMatrix<float>*	cholesky_ = nullptr;
 
 };
 
