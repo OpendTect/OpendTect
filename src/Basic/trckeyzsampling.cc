@@ -160,6 +160,9 @@ TrcKeySampling& TrcKeySampling::set( const Interval<int>& inlrg,
 void TrcKeySampling::setLineRange( const Interval<int>& inlrg )
 {
     start_.lineNr() = inlrg.start; stop_.lineNr() = inlrg.stop;
+    if ( !inlrg.hasStep() )
+	return;
+
     mDynamicCastGet(const StepInterval<int>*,inlsrg,&inlrg)
     if ( inlsrg )
 	step_.lineNr() = inlsrg->step;
@@ -169,6 +172,9 @@ void TrcKeySampling::setLineRange( const Interval<int>& inlrg )
 void TrcKeySampling::setTrcRange( const Interval<int>& crlrg )
 {
     start_.trcNr() = crlrg.start; stop_.trcNr() = crlrg.stop;
+    if ( !crlrg.hasStep() )
+	return;
+
     mDynamicCastGet(const StepInterval<int>*,crlsrg,&crlrg)
     if ( crlsrg )
 	step_.trcNr() = crlsrg->step;
@@ -1378,15 +1384,20 @@ bool TrcKeyZSampling::isEqual( const TrcKeyZSampling& tkzs, float zeps ) const
 bool TrcKeyZSampling::usePar( const IOPar& par )
 {
     bool isok = hsamp_.usePar( par );
-    if ( hsamp_.is2D() )
+    PtrMan<IOPar> subpars;
+    const bool is2d = hsamp_.is2D();
+    if ( is2d )
     {
-	PtrMan<IOPar> subpars =
-			par.subselect( IOPar::compKey( sKey::Line(), 0 ) );
-	if ( !subpars ) return false;
-	return isok && subpars->get( sKey::ZRange(), zsamp_ );
+	subpars = par.subselect( IOPar::compKey(sKey::Line(),0) );
+	if ( !subpars )
+	    return false;
     }
-    else
-	return isok && par.get( sKey::ZRange(), zsamp_ );
+
+    const IOPar& iop = is2d ? *subpars.ptr() : par;
+    if ( !is2d && !iop.get("Z Subsel.0.Range",zsamp_) )
+	isok = isok && par.get( sKey::ZRange(), zsamp_ );
+
+    return isok;
 }
 
 
