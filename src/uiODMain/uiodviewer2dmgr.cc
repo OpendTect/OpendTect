@@ -596,9 +596,10 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	if ( x1auxposidx>=0 &&
 	     curvwr.appearance().annot_.x1_.auxannot_[x1auxposidx].isNormal() )
 	{
-	    intpoint2d = intersectingLineID( curvwr2d, mCast(float,wp.x) );
+	    intpoint2d = intersectingLineID( curvwr2d, sCast(float,wp.x) );
 	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
-	       return;
+		return;
+
 	    const uiString show2dtxt = m3Dots(tr("Show Line '%1'")).arg(
 					Survey::GM().getName(intpoint2d.line) );
 	    menu.insertAction( new uiAction(show2dtxt), 0 );
@@ -642,14 +643,20 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 
 	if ( menuid==0 )
 	{
-	    const PosInfo::Line2DData& l2ddata =
-		Survey::GM().getGeometry( intpoint2d.line )->as2D()->data();
+	    const Survey::Geometry* geom =
+			Survey::GM().getGeometry( intpoint2d.line );
+	    const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
+	    if ( !geom2d )
+		return;
+
+	    const PosInfo::Line2DData& l2ddata = geom2d->data();
 	    const StepInterval<int> trcnrrg = l2ddata.trcNrRange();
 	    const float trcdist =
 		l2ddata.distBetween( trcnrrg.start, intpoint2d.linetrcnr );
 	    if ( mIsUdf(trcdist) )
 		return;
-	    initialcentre = uiWorldPoint( mCast(double,trcdist), samplecrdz );
+
+	    initialcentre = uiWorldPoint( double(trcdist), double(samplecrdz) );
 	    newtkzs.hsamp_.init( intpoint2d.line );
 	    newtkzs.hsamp_.setLineRange(
 		    Interval<int>(intpoint2d.line,intpoint2d.line) );
@@ -657,19 +664,17 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	else if ( menuid == 1 )
 	{
 	    newtkzs.hsamp_.setLineRange( Interval<int>(bid.inl(),bid.inl()) );
-	    initialcentre = uiWorldPoint( mCast(double,bid.crl()), samplecrdz );
+	    initialcentre.setXY( double(bid.crl()), double(samplecrdz) );
 	}
 	else if ( menuid == 2 )
 	{
 	    newtkzs.hsamp_.setTrcRange( Interval<int>(bid.crl(),bid.crl()) );
-	    initialcentre = uiWorldPoint( mCast(double,bid.inl()), samplecrdz );
+	    initialcentre.setXY( double(bid.inl()), double(samplecrdz) );
 	}
 	else if ( menuid == 3 )
 	{
-	    newtkzs.zsamp_ = Interval<float>( mCast(float,samplecrdz),
-					      mCast(float,samplecrdz) );
-	    initialcentre = uiWorldPoint( mCast(double,bid.inl()),
-					  mCast(double,bid.crl()) );
+	    newtkzs.zsamp_ = Interval<float>( samplecrdz, samplecrdz );
+	    initialcentre.setXY( bid.inl(), bid.crl() );
 	}
 
 	create2DViewer( *curvwr2d, newtkzs, initialcentre );
