@@ -131,7 +131,8 @@ bool Horizon2DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 	return true;
 
     mGetHorizon(hor2d,false);
-    const Survey::Geometry2D* geom2d =Survey::GM().getGeometry(geomid_)->as2D();
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
+    const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
     if ( !geom2d )
 	return false;
 
@@ -146,7 +147,7 @@ bool Horizon2DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 
 	if ( isvisualseed || lastseed_!=seed )
 	{
-	    hor2d->setZAndNodeSourceType( 
+	    hor2d->setZAndNodeSourceType(
 		seed.tk_, seed.val_, true, EM::EMObject::Auto );
 	    hor2d->setAttrib( seed.tk_, EM::EMObject::sSeedNode(),
 			      isvisualseed, true );
@@ -162,7 +163,7 @@ bool Horizon2DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 	const bool pickedposwasdef = hor2d->hasZ( seed.tk_ );
 	if ( !drop || !pickedposwasdef )
 	{
-	    hor2d->setZAndNodeSourceType( 
+	    hor2d->setZAndNodeSourceType(
 		seed.tk_, seed.val_, true, EM::EMObject::Auto );
 	    if ( trackmode_ != DrawBetweenSeeds )
 		tracker_.snapPositions( seedlist_ );
@@ -213,7 +214,7 @@ bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
     if ( trackmode_ == TrackFromSeeds && !doerase )
 	return addPatchSowingSeeds();
 
-    if ( trackmode_ != DrawBetweenSeeds && 
+    if ( trackmode_ != DrawBetweenSeeds &&
 	trackmode_ != DrawAndSnap && !doerase )
 	return false;
 
@@ -224,7 +225,7 @@ bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
     for ( int idx=0; idx<path.size(); idx++ )
     {
 	const float val = !doerase ? path[idx].val_ : mUdf(float);
-	hor2d->setZAndNodeSourceType( path[idx].tk_, val, true, 
+	hor2d->setZAndNodeSourceType( path[idx].tk_, val, true,
 	    EM::EMObject::Manual );
 	if ( trackmode_ == DrawAndSnap )
 	{
@@ -245,7 +246,7 @@ bool Horizon2DSeedPicker::updatePatchLine( bool doerase )
     }
     interpolateSeeds( true );
     hor2d->setBurstAlert( false );
-    EM::EMM().undo(hor2d->id()).setUserInteractionEnd( 
+    EM::EMM().undo(hor2d->id()).setUserInteractionEnd(
 	EM::EMM().undo(hor2d->id()).currentEventID() );
     return true;
 }
@@ -268,7 +269,7 @@ bool Horizon2DSeedPicker::addPatchSowingSeeds()
 	firstthreebendpoints_++;
     }
     hor2d->setBurstAlert( false );
-    EM::EMM().undo(hor2d->id()).setUserInteractionEnd( 
+    EM::EMM().undo(hor2d->id()).setUserInteractionEnd(
 	EM::EMM().undo(hor2d->id()).currentEventID() );
     return true;
 }
@@ -322,7 +323,8 @@ bool Horizon2DSeedPicker::getNextSeedPos( int seedpos, int dirstep,
 TrcKey Horizon2DSeedPicker::replaceSeed( const TrcKey& oldseed,
 					 const TrcKeyValue& newseedin )
 {
-    const Survey::Geometry2D* geom2d =Survey::GM().getGeometry(geomid_)->as2D();
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
+    const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
     if ( !geom2d || trackmode_ != DrawBetweenSeeds )
 	return TrcKey::udf();
 
@@ -458,13 +460,13 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 	}
 
 	// to erase points attached to start
-	if ( curdefined && 
+	if ( curdefined &&
 	    !hor2d->isNodeSourceType(curtk,EM::EMObject::Manual) )
 	    eraselist_ += curtk;
     }
 
     for ( int idx=0; idx<eraselist_.size(); idx++ )
-	hor2d->setZAndNodeSourceType( 
+	hor2d->setZAndNodeSourceType(
 	eraselist_[idx], mUdf(float), true, EM::EMObject::Auto );
 }
 
