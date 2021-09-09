@@ -172,6 +172,7 @@ protected:
     void		updateDTectToolBar(CallBacker*);
     void		updateDTectMnus(CallBacker*);
     void		toggViewMode(CallBacker*);
+    void		toggleTreeMode(CallBacker*);
     void		add2D3DMenuItem(uiMenu&,const char* iconnnm,
 					const uiString& menuitmtxt,
 					int itmid2d=-1,int itmid3d=-1);

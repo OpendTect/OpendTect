@@ -963,7 +963,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
     scn.lv_->display( true );
     appl_.addDockWindow( *scn.dw_, uiMainWin::Left );
-    scn.dw_->display( true );
+    scn.dw_->setVisible( treeShown() );
 }
 
 
@@ -1008,6 +1008,19 @@ uiTreeView* uiODSceneMgr::getTree( int sceneid )
 {
     Scene* scene = getScene( sceneid );
     return scene ? scene->lv_ : 0;
+}
+
+
+void uiODSceneMgr::showTree( bool yn )
+{
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+	scenes_[idx]->dw_->setVisible( yn );
+}
+
+
+bool uiODSceneMgr::treeShown() const
+{
+    return scenes_.size()>1 ? scenes_[0]->dw_->isVisible() : true;
 }
 
 

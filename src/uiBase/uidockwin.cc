@@ -112,6 +112,18 @@ void uiDockWin::setGroup( uiGroup* grp )
 }
 
 
+void uiDockWin::setVisible( bool yn )
+{
+    body_->setVisible( yn );
+}
+
+
+bool uiDockWin::isVisible() const
+{
+    return body_->isVisible();
+}
+
+
 uiString uiDockWin::getDockName() const
 {
     uiString res;
