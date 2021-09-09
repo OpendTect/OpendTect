@@ -49,7 +49,7 @@ Gaussian1DProbDenFunc& Gaussian1DProbDenFunc::operator =(
 	ProbDenFunc1D::copyFrom( oth );
 	exp_ = oth.exp_; std_ = oth.std_;
 	delete rgen_;
-	rgen_ = oth.rgen_ ? new Stats::NormalRandGen( *oth.rgen_ ) : 0;
+	rgen_ = oth.rgen_ ? new Stats::NormalRandGen( *oth.rgen_ ) : nullptr;
     }
     return *this;
 }
@@ -103,7 +103,7 @@ bool Gaussian1DProbDenFunc::usePar( const IOPar& par )
     par.get( sKey::Average(), exp_ );
     par.get( sKey::StdDev(), std_ );
     par.get( IOPar::compKey(sKey::Name(),0), varnm_ );
-    delete rgen_; rgen_ = 0;
+    deleteAndZeroPtr( rgen_ );
     return true;
 }
 
@@ -111,7 +111,8 @@ bool Gaussian1DProbDenFunc::usePar( const IOPar& par )
 
 Gaussian2DProbDenFunc::~Gaussian2DProbDenFunc()
 {
-    delete rgen0_; delete rgen1_;
+    delete rgen0_;
+    delete rgen1_;
 }
 
 
@@ -124,8 +125,8 @@ Gaussian2DProbDenFunc& Gaussian2DProbDenFunc::operator =(
 	exp0_ = oth.exp0_; exp1_ = oth.exp1_;
 	std0_ = oth.std0_; std1_ = oth.std1_;
 	cc_ = oth.cc_;
-	rgen0_ = oth.rgen0_ ? new Stats::NormalRandGen( *oth.rgen0_ ) : 0;
-	rgen1_ = oth.rgen1_ ? new Stats::NormalRandGen( *oth.rgen1_ ) : 0;
+	rgen0_ = oth.rgen0_ ? new Stats::NormalRandGen( *oth.rgen0_ ) : nullptr;
+	rgen1_ = oth.rgen1_ ? new Stats::NormalRandGen( *oth.rgen1_ ) : nullptr;
     }
     return *this;
 }
@@ -168,7 +169,7 @@ bool Gaussian2DProbDenFunc::usePar( const IOPar& par )
     par.get( "Correlation", cc_ );
     par.get( IOPar::compKey(sKey::Name(),0), dim0nm_ );
     par.get( IOPar::compKey(sKey::Name(),1), dim1nm_ );
-    delete rgen0_; delete rgen1_; rgen0_ = rgen1_ = 0;
+    deleteAndZeroPtr( rgen0_ ); deleteAndZeroPtr( rgen1_ );
     return true;
 }
 
@@ -205,7 +206,7 @@ void Gaussian2DProbDenFunc::drwRandPos( float& p0, float& p1 ) const
 // ND
 
 GaussianNDProbDenFunc::GaussianNDProbDenFunc( int nrdims )
-    : cholesky_(0)
+    : cholesky_(nullptr)
 {
     for ( int idx=0; idx<nrdims; idx++ )
 	vars_ += VarDef( BufferString("Dim ",idx) );
@@ -214,6 +215,7 @@ GaussianNDProbDenFunc::GaussianNDProbDenFunc( int nrdims )
 
 GaussianNDProbDenFunc::~GaussianNDProbDenFunc()
 {
+    deepErase( rgens_ );
     delete cholesky_;
 }
 
@@ -226,6 +228,9 @@ GaussianNDProbDenFunc& GaussianNDProbDenFunc::operator =(
 	setName( oth.name() );
 	vars_ = oth.vars_;
 	corrs_ = oth.corrs_;
+	delete cholesky_;
+	cholesky_ = oth.cholesky_ ? new Array2DMatrix<float>( *oth.cholesky_ )
+				  : nullptr;
 	deepCopy( rgens_, oth.rgens_ );
     }
     return *this;
@@ -416,7 +421,7 @@ static void fillCorrMat( Array2DMatrix<float>& mat )
 void GaussianNDProbDenFunc::prepareRandDrawing() const
 {
     GaussianNDProbDenFunc& self = *const_cast<GaussianNDProbDenFunc*>( this );
-    delete self.cholesky_; self.cholesky_ = 0;
+    deleteAndZeroPtr( self.cholesky_ );
 
     const int nrdims = nrDims();
     if ( corrs_.size() >= nrdims )
@@ -433,7 +438,7 @@ void GaussianNDProbDenFunc::prepareRandDrawing() const
 	fillCorrMat( corrmat );
 	self.cholesky_ = new Array2DMatrix<float>( nrdims );
 	if ( !corrmat.getCholesky(*self.cholesky_) )
-	    { delete self.cholesky_; self.cholesky_ = 0; }
+	    { deleteAndZeroPtr( self.cholesky_ ); }
     }
 }
 

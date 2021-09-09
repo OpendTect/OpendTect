@@ -36,10 +36,11 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     : uiGroup(p,"ProbDenFunc editor")
     , inpdf_(pdf)
     , editable_(ed)
-    , pdf_(*pdf.clone())
+    , pdf_(*new GaussianNDProbDenFunc(pdf.nrDims()))
     , nrdims_(pdf.nrDims())
     , chgd_(false)
 {
+    pdf_ = pdf;
 }
 
 
