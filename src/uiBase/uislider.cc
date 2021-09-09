@@ -39,7 +39,11 @@ int styleHint( QStyle::StyleHint hint, const QStyleOption* option=nullptr,
 	       QStyleHintReturn* returndata=nullptr ) const override
 {
     if ( hint == QStyle::SH_Slider_AbsoluteSetButtons )
-	return (Qt::LeftButton | Qt::MidButton | Qt::RightButton);
+    {
+	int val = Qt::LeftButton | Qt::MidButton | Qt::RightButton;
+	return val;
+    }
+
     return QProxyStyle::styleHint( hint, option, widget, returndata );
 }
 
