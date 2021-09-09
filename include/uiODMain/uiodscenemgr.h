@@ -170,6 +170,8 @@ public:
 
     uiTreeFactorySet*		treeItemFactorySet()	{ return tifs_; }
     uiTreeView*			getTree(int sceneid);
+    void			showTree(bool yn);
+    bool			treeShown() const;
 
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
