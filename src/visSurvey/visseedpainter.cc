@@ -575,7 +575,7 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
 
 }
 
- 
+
 void SeedPainter::paintSeedsOn2DLine( const Seis2DDisplay* s2d,
 					const visBase::EventInfo& curev,
 					const visBase::EventInfo& prevev )
@@ -585,7 +585,8 @@ void SeedPainter::paintSeedsOn2DLine( const Seis2DDisplay* s2d,
 	return;
 
     const Pos::GeomID geomid = s2d->getGeomID();
-    const Survey::Geometry2D* geom2d = Survey::GM().getGeometry(geomid)->as2D();
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
     if ( !geom2d )
 	return;
 
@@ -693,7 +694,7 @@ void SeedPainter::eraseSeeds( const visBase::EventInfo& curev )
     mDynamicCastGet(const PlaneDataDisplay*,pdd,cursec)
     if ( !pdd )
 	return;
- 
+
     const TrcKeyZSampling tkzs = pdd->getTrcKeyZSampling();
     const bool isinl = pdd->getOrientation()==OD::InlineSlice;
     const bool isz = pdd->getOrientation()==OD::ZSlice;
@@ -736,12 +737,12 @@ void SeedPainter::eraseSeeds( const visBase::EventInfo& curev )
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
- 
+
 void SeedPainter::eraseSeedsOnRandLine( const RandomTrackDisplay* rtd,
 					const visBase::EventInfo& curev )
 {
     Scene* scene = STM().currentScene();
- 
+
     const Coord3 curpos = curev.worldpickedpos;
     const BinID curbid = SI().transform( curpos );
     const TypeSet<BinID>* path = rtd->getPath();
@@ -786,13 +787,14 @@ void SeedPainter::eraseSeedsOnRandLine( const RandomTrackDisplay* rtd,
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
- 
+
 void SeedPainter::eraseSeedsOn2DLine( const Seis2DDisplay* s2d,
 				      const visBase::EventInfo& curev )
 {
     Scene* scene = STM().currentScene();
     const Pos::GeomID geomid = s2d->getGeomID();
-    const Survey::Geometry2D* geom2d = Survey::GM().getGeometry(geomid)->as2D();
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
     if ( !geom2d )
 	return;
 
@@ -862,7 +864,7 @@ void SeedPainter::drawLine( const visBase::EventInfo& eventinfo )
     mDynamicCastGet(const PlaneDataDisplay*,pdd,so)
     if ( !pdd )
 	return;
- 
+
     Coord3 pickedpos = eventinfo.worldpickedpos;
     BinID pickedbid = SI().transform( pickedpos );
     const TrcKeyZSampling tkzs = pdd->getTrcKeyZSampling();
@@ -930,7 +932,8 @@ void SeedPainter::drawLineOn2DLine( const Seis2DDisplay* s2d,
 {
     Scene* scene = STM().currentScene();
     const Pos::GeomID geomid = s2d->getGeomID();
-    const Survey::Geometry2D* geom2d = Survey::GM().getGeometry(geomid)->as2D();
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
     if ( !geom2d )
 	return;
 

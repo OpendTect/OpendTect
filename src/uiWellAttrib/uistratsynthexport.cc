@@ -466,7 +466,11 @@ bool uiStratSynthExport::createHor2Ds()
     if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 	return false;
 
-    const Survey::Geometry2D* geom2d = Survey::GM().getGeometry(geomid)->as2D();
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
+    if ( !geom2d )
+	return false;
+
     StepInterval<Pos::TraceID> trcnrrg = geom2d->data().trcNrRange();
     for ( int horidx=0; horidx<sslvls_.size(); horidx++ )
     {
