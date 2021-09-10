@@ -184,6 +184,7 @@ protected:
     uiAction*		stereooffsetitm_;
     uiAction*		addtimedepthsceneitm_;
     uiAction*		lastsceneitm_;
+    uiAction*		showtreeitm_			= nullptr;
     int			axisid_, actviewid_, cameraid_, soloid_;
     int			coltabid_, polyselectid_,viewselectid_,curviewmode_ ;
     int			viewinlid_, viewcrlid_, viewzid_, viewnid_, viewnzid_;

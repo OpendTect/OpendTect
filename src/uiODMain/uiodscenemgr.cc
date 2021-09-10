@@ -1000,7 +1000,7 @@ void uiODSceneMgr::showTree( bool yn )
 
 bool uiODSceneMgr::treeShown() const
 {
-    return !scenes_.isEmpty() ? scenes_[0]->dw_->isVisible() : true;
+    return scenes_.size()>1 ? scenes_[0]->dw_->isVisible() : true;
 }
 
 

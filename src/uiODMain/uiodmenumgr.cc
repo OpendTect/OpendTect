@@ -897,12 +897,12 @@ void uiODMenuMgr::fillViewMenu()
     toolbarsmnu.setName("Toolbars");
     viewmnu_->addMenu( &toolbarsmnu );
 
-    auto* treeitm = new uiAction( tr("Show tree"),
+    showtreeitm_ = new uiAction( tr("Show tree"),
 				mCB(this,uiODMenuMgr,toggleTreeMode) );
-    viewmnu_->insertAction( treeitm );
-    treeitm->setCheckable( true );
-    treeitm->setChecked( true );
-    treeitm->setShortcut( "F11" );
+    viewmnu_->insertAction( showtreeitm_ );
+    showtreeitm_->setCheckable( true );
+    showtreeitm_->setChecked( true );
+    showtreeitm_->setShortcut( "F11" );
 }
 
 
@@ -1799,6 +1799,8 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillSceneMenu();
     fillAnalMenu();
     fillProcMenu();
+
+    showtreeitm_->setChecked( true );
     dTectMnuChanged.trigger();
 }
 
