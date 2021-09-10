@@ -476,10 +476,13 @@ public:
     static uiString sOn()		{ return tr("On","in action"); }
     static uiString sOnlyAtSections()	{ return tr("Only at Sections"); }
     static uiString sOpen()		{ return tr("Open" ); }
+    static uiString sODTColTab()
+				    { return tr("OpendTect *_coltab file"); }
     static uiString sOperator()		{ return tr("Operator"); }
     static uiString sOptions()		{ return tr("Options"); }
     static uiString sOr()		{ return tr("or"); }
     static uiString sOther()		{ return tr("Other"); }
+    static uiString sOtherUser()	{ return tr("Other user"); }
     static uiString sOutpDataStore()	{ return tr("Output data store"); }
     static uiString sOutput()		{ return tr("Output"); }
     static uiString sOutputASCIIFile();
@@ -495,6 +498,7 @@ public:
     static uiString sParameter(int num=1) { return tr("Parameter",0,num); }
     static uiString sPause()		{ return tr("Pause"); }
     static uiString sPercentageDone()	{ return tr("Percentage done"); }
+    static uiString sPetrelAlut()	{ return tr("Petrel *.alut"); }
     static uiString sPickSet(int num=1)	{ return tr("PickSet",0,num); }
     static uiString sPlatform()		{ return tr("Platform"); }
     static uiString sPoint(int n=1)	{ return tr("Point",0,n); }

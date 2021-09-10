@@ -25,11 +25,14 @@ class uiListBox;
 mExpClass(uiTools) uiColTabImport : public uiDialog
 { mODTextTranslationClass(uiColTabImport)
 public:
+    enum ImportType	{ OtherUser, ODTColTab, PetrelAlut };
+    mDeclareEnumUtils(ImportType)
+
 				uiColTabImport(uiParent*);
 				~uiColTabImport();
 
     const char*			getCurrentSelColTab() const;
-    
+
 protected:
 
     uiGenInput*			choicefld_;
@@ -47,7 +50,10 @@ protected:
     void			showMessage(const uiString&);
     void			showList();
 
+    void			getFromSettingsPar(const IOPar&);
+    void			getFromAlutFiles(const BufferStringSet&);
+
 private :
-    static uiString		getLabel(bool);
+    static uiString		getLabel(ImportType);
 };
 
