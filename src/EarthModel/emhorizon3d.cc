@@ -1730,6 +1730,16 @@ bool Horizon3DAscIO::isXY() const
 }
 
 
+const UnitOfMeasure* Horizon3DAscIO::getSelZUnit() const
+{
+    const UnitOfMeasure* ret = units_.size() > 2 ? units_[2] : nullptr;
+    if ( !ret )
+	ret = UnitOfMeasure::surveyDefTimeUnit();
+
+    return ret;
+}
+
+
 int Horizon3DAscIO::getNextLine( Coord& pos, TypeSet<float>& data )
 {
     data.erase();
