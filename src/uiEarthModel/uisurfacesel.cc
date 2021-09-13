@@ -62,9 +62,8 @@ void uiSurfaceSel::getFullList()
 	names_.add( ioobj->name() );
     }
 
-    listfld_->addItems( names_ );
-    listfld_->resizeToContents();
     hp_surfacefilter.getParam(this)->setItems( names_ );
+    listfld_->resizeToContents();
 }
 
 
