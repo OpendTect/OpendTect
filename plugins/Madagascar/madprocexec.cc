@@ -35,7 +35,7 @@ mDefineEnumUtils(ODMad::ProcExec,FlowStage,"Flow Stage")
 # define mStdIOFileBuf std::filebuf
 #define mFPArgs fp
 
-#else
+#elif __lux__
 
 # include <fstream>
 
@@ -49,10 +49,13 @@ mDefineEnumUtils(ODMad::ProcExec,FlowStage,"Flow Stage")
 
 static od_ostream* getOStreamFromCmd( const char* comm, FILE*& fp )
 {
+#ifdef __mac__
+    return new od_ostream( comm );
+#else
+    std::ostream* ostrm = 0;
     BufferString cmd( comm );
 
     fp = mPOpen( cmd, "w" );
-    std::ostream* ostrm = 0;
 
     if ( fp )
     {
@@ -61,6 +64,7 @@ static od_ostream* getOStreamFromCmd( const char* comm, FILE*& fp )
     }
 
     return new od_ostream( ostrm );
+#endif
 }
 
 
