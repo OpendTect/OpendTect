@@ -53,6 +53,9 @@ public:
 
     virtual const char*		usrText() const		= 0;
     virtual uiDialog*		dialog(uiParent*)	= 0;
+    virtual uiDialog*		launchSurveyImportDlg(uiParent*)
+						     { return nullptr;}
+    virtual bool		hasSurveyImportDlg() { return false; }
     virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
 					Coord crd[3])	= 0;
     virtual bool		getLatLongAnchor(Coord&,LatLong&)
