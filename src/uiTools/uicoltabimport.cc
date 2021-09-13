@@ -24,10 +24,21 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "oddirs.h"
 #include "od_helpids.h"
+#include "od_istream.h"
 #include "settings.h"
 
 
-
+static uiStringSet getImportOptions()
+{
+    uiStringSet opts;
+    opts.add( uiStrings::sOtherUser() );
+    opts.add( uiStrings::sODTColTab() );
+    opts.add( uiStrings::sPetrelAlut() );
+    return opts;
+}
+#define mOtherUser 0
+#define mODTColTab 1
+#define mPetrelAlut 2
 
 static BufferString sHomePath;
 static BufferString sFilePath;
@@ -41,11 +52,11 @@ uiColTabImport::uiColTabImport( uiParent* p )
     setOkText( uiStrings::sImport() );
 
     choicefld_ = new uiGenInput( this, tr("Import from"),
-	BoolInpSpec(true,tr("Other user"), uiStrings::sFile()) );
+				 StringListInpSpec(getImportOptions()) );
     choicefld_->valuechanged.notify( mCB(this,uiColTabImport,choiceSel) );
 
     sHomePath = sFilePath = GetPersonalDir();
-    dirfld_ = new uiFileInput( this, getLabel(true),
+    dirfld_ = new uiFileInput( this, getLabelStr(mOtherUser),
 			       uiFileInput::Setup(sHomePath)
 			       .directories(true) );
     dirfld_->setReadOnly();
@@ -85,13 +96,28 @@ const char* uiColTabImport::getCurrentSelColTab() const
 
 void uiColTabImport::choiceSel( CallBacker* )
 {
-    const bool fromuser = choicefld_->getBoolValue();
-    dirfld_->setSelectMode(
-	fromuser ? uiFileDialog::DirectoryOnly : uiFileDialog::ExistingFile );
-    dirfld_->setTitleText( getLabel(fromuser) );
-    dirfld_->setFileName( fromuser ? sHomePath : sFilePath );
+    switch( choicefld_->getIntValue() )
+    {
+	case mOtherUser:
+	    dirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
+	    dirfld_->setTitleText( tr("User's HOME folder") );
+	    dirfld_->setFileName( sHomePath );
+	    dtectusrfld_->display( true );
+	    break;
+	case mODTColTab:
+	    dirfld_->setSelectMode( uiFileDialog::ExistingFile );
+	    dirfld_->setTitleText( uiStrings::sODTColTab() );
+	    dirfld_->setFileName( sFilePath );
+	    dtectusrfld_->display( false );
+	    break;
+	case mPetrelAlut:
+	    dirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
+	    dirfld_->setTitleText( uiStrings::sPetrelAlut() );
+	    dirfld_->setFileName( sHomePath );
+	    dtectusrfld_->display( false );
+	    break;
+    }
 
-    dtectusrfld_->display( fromuser );
     usrSel(0);
 }
 
@@ -102,25 +128,41 @@ uiString uiColTabImport::getLabel( bool fromusr )
     return ret;
 }
 
+
+uiString uiColTabImport::getLabelStr( int imptype )
+{
+    switch( imptype )
+    {
+	case mOtherUser: return tr("User's HOME folder");
+			break;
+	case mODTColTab: return uiStrings::sODTColTab();
+			break;
+	case mPetrelAlut: return uiStrings::sPetrelAlut();
+			break;
+    }
+    return uiString::empty();
+}
+
+
 #define mErrRet(s1) { uiMSG().error(s1); return; }
 
 void uiColTabImport::usrSel( CallBacker* )
 {
-    PtrMan<IOPar> ctabiop = 0;
+    PtrMan<IOPar> ctabiop = nullptr;
     listfld_->setEmpty();
 
-    const bool fromuser = choicefld_->getBoolValue();
+    const int imptype = choicefld_->getIntValue();
 
     FilePath fp( dirfld_->fileName() );
     if ( !File::exists(fp.fullPath()) )
     {
 	uiMSG().error(tr("Please select an existing %1")
-		    .arg(fromuser ? uiStrings::sFolder().toLower()
+		    .arg(imptype==mODTColTab ? uiStrings::sFolder().toLower()
 				  : uiStrings::sFile().toLower() ));
 	return;
     }
 
-    if ( fromuser )
+    if ( imptype==mOtherUser )
     {
 	sHomePath = fp.fullPath();
 
@@ -143,8 +185,10 @@ void uiColTabImport::usrSel( CallBacker* )
 	}
 	else
 	    showList();
+
+	getFromSettingsPar( *ctabiop );
     }
-    else
+    else if ( imptype==mODTColTab )
     {
 	const BufferString fnm = fp.fullPath();
 	if ( File::isDirectory(fnm) )
@@ -167,13 +211,30 @@ void uiColTabImport::usrSel( CallBacker* )
 		return;
 	    }
 	}
-    }
 
+	getFromSettingsPar( *ctabiop );
+    }
+    else if ( imptype==mPetrelAlut )
+    {
+	BufferStringSet filenms;
+	File::listDir( fp.fullPath(), File::FilesInDir, filenms, "*.alut" );
+	if ( filenms.isEmpty() )
+	{
+	    showMessage( tr("No *.alut files found in selected folder") );
+	    return;
+	}
+	getFromAlutFiles( filenms );
+    }
+}
+
+
+void uiColTabImport::getFromSettingsPar( const IOPar& par )
+{
     deepErase( seqs_ );
     int nrinvalididx = 0;
     for ( int idx=0; ; idx++ )
     {
-	IOPar* subpar = ctabiop->subselect( idx );
+	IOPar* subpar = par.subselect( idx );
 	if ( !subpar || !subpar->size() )
 	{
 	    delete subpar;
@@ -191,7 +252,7 @@ void uiColTabImport::usrSel( CallBacker* )
 	seqs_ += seq;
 	uiPixmap coltabpix( 16, 10 );
 	coltabpix.fill( *seq, true );
-	listfld_->addItem( toUiString(nm), coltabpix );
+	listfld_->addItem( ::toUiString(nm), coltabpix );
     }
 
     if ( listfld_->isEmpty() )
@@ -199,6 +260,60 @@ void uiColTabImport::usrSel( CallBacker* )
 		   (uiStrings::sColorTable(), tr("from Selected"),
 		    uiStrings::sFile())));
     else
+	showList();
+}
+
+
+void uiColTabImport::getFromAlutFiles( const BufferStringSet& filenms )
+{
+    deepErase( seqs_ );
+    for ( const auto* filenm : filenms )
+    {
+	FilePath fp( dirfld_->fileName(), filenm->str() );
+	od_istream strm( fp.fullPath() );
+	if ( !strm.isOK() )
+	    continue;
+
+	auto* seq = new ColTab::Sequence;
+	seq->setName( fp.baseName() );
+	TypeSet<int> r, g, b, a;
+	BufferString line;
+	BufferStringSet nums;
+	while ( strm.isOK() )
+	{
+	    strm.getLine( line );
+	    if ( line.isEmpty() || strm.isBad() )
+		break;
+
+	    nums.setEmpty();
+	    nums.unCat( line, "," );
+	    if ( nums.size()!=4 )
+		break;
+
+	    r += nums[0]->toInt();
+	    g += nums[1]->toInt();
+	    b += nums[2]->toInt();
+	    a += nums[3]->toInt();
+	}
+	if ( r.isEmpty() )
+	{
+	    delete seq;
+	    continue;
+	}
+	StepInterval<float> si( 0.f, 1.f, 1.f/(r.size()-1) );
+	for ( int idx=0; idx<r.size(); idx++ )
+	{
+	    const float pos = si.atIndex( idx );
+	    seq->setColor( pos, r[idx], g[idx], b[idx] );
+	    if ( idx==0 || idx==r.size()-1 || a[idx]!=a[idx-1] )
+		seq->setTransparency( Geom::Point2D<float>(pos,255-a[idx]) );
+	}
+	seqs_ += seq;
+	uiPixmap coltabpix( 16, 10 );
+	coltabpix.fill( *seq, true );
+	listfld_->addItem( ::toUiString(fp.baseName()), coltabpix );
+    }
+    if ( !listfld_->isEmpty() )
 	showList();
 }
 
