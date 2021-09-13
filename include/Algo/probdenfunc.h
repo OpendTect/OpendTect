@@ -31,23 +31,29 @@ mExpClass(Algo) ProbDenFunc : public NamedObject
 {
 public:
 
-    virtual ProbDenFunc* clone() const				= 0;
     virtual		~ProbDenFunc();
+
+    virtual ProbDenFunc* clone() const				= 0;
     virtual void	copyFrom(const ProbDenFunc&)		= 0;
     virtual bool	isEqual(const ProbDenFunc&) const;
 
     virtual const char*	getTypeStr() const			= 0;
     virtual int		nrDims() const				= 0;
-    virtual const char*	dimName(int dim) const			= 0;
-    virtual void	setDimName(int dim,const char*)		= 0;
+    const char*		dimName(int dim) const;
+    const char*		getUOMSymbol(int dim) const;
+
+    void		setDimName(int dim,const char*);
+    void		setUOMSymbol(int dim,const char*);
+
     virtual float	averagePos(int dim) const		= 0;
+    virtual float	stddevPos(int dim) const		= 0;
     virtual float	value(const TypeSet<float>&) const	= 0;
 
     virtual bool	canScale() const			{ return false;}
     virtual void	scale(float)				{}
     virtual float	normFac() const				{ return 1; }
 
-    			// Used for file store/retrieve:
+			// Used for file store/retrieve:
     virtual void	fillPar(IOPar&) const			= 0;
     virtual bool	usePar(const IOPar&)			= 0;
     virtual void	writeBulk(od_ostream&,bool binary) const {}
@@ -62,17 +68,17 @@ public:
     virtual void	drawRandomPos(TypeSet<float>&) const	= 0;
     static const char*	sKeyNrDim();
 
-    void		setUOMSymbol(int dim,const char*);
-    const char*		getUOMSymbol(int dim) const;
-
 protected:
 
 			ProbDenFunc();
 			ProbDenFunc(const ProbDenFunc&);
 
     virtual bool	isEq(const ProbDenFunc&) const		= 0;
-			//!< already checked for type, name and dim names
+			//!< already checked for type, name, dim names and units
 
+private:
+
+    BufferStringSet	dimnms_;
     BufferStringSet	uoms_;
 };
 
@@ -85,35 +91,26 @@ mExpClass(Algo) ProbDenFunc1D : public ProbDenFunc
 {
 public:
 
-    virtual void	copyFrom(const ProbDenFunc&);
-    virtual int		nrDims() const		{ return 1; }
-    virtual const char*	dimName(int) const	{ return varName(); }
-    virtual void	setDimName( int dim, const char* nm )
-						{ if ( !dim ) varnm_ = nm; }
+    int			nrDims() const override		{ return 1; }
 
-    virtual const char*	varName() const		{ return varnm_; }
-
-    virtual float	averagePos(int) const	{ return gtAvgPos(); }
+    float		averagePos(int) const override	{ return gtAvgPos(); }
+    float		stddevPos(int) const override
+						{ return gtStdDevPos(); }
     inline float	value( float v ) const	{ return gtVal( v ); }
-    virtual float	value( const TypeSet<float>& v ) const
+    float		value( const TypeSet<float>& v ) const override
 						{ return gtVal( v[0] ); }
 
     inline void		drawRandomPos( float& v ) const
 			{ drwRandPos( v ); }
-    virtual void	drawRandomPos( TypeSet<float>& v ) const
+    void		drawRandomPos( TypeSet<float>& v ) const override
 			{ v.setSize(1); drwRandPos( v[0] ); }
-
-    BufferString	varnm_;
 
 protected:
 
-			ProbDenFunc1D( const char* vnm="" )
-			    : varnm_(vnm)	{}
-			ProbDenFunc1D( const ProbDenFunc1D& pdf )
-			    : ProbDenFunc(pdf)
-			    , varnm_(pdf.varnm_)		{}
+			ProbDenFunc1D(const char* vnm="");
 
     virtual float	gtAvgPos() const	= 0;
+    virtual float	gtStdDevPos() const	= 0;
     virtual float	gtVal(float) const	= 0;
     virtual void	drwRandPos(float&) const = 0;
 
@@ -128,32 +125,22 @@ mExpClass(Algo) ProbDenFunc2D : public ProbDenFunc
 {
 public:
 
-    virtual void	copyFrom(const ProbDenFunc&);
-    virtual int		nrDims() const			{ return 2; }
-    virtual const char*	dimName(int) const;
-    virtual void	setDimName( int dim, const char* nm )
-			{ if ( dim < 2 ) (dim ? dim1nm_ : dim0nm_) = nm; }
+    int			nrDims() const override		{ return 2; }
 
     float		value( float x1, float x2 ) const
 			{ return gtVal( x1, x2 ); }
-    virtual float	value( const TypeSet<float>& v ) const
+    float		value( const TypeSet<float>& v ) const override
 			{ return gtVal( v[0], v[1] ); }
 
     inline void		drawRandomPos( float& x1, float& x2 ) const
 			{ drwRandPos( x1, x2 ); }
-    virtual void	drawRandomPos( TypeSet<float>& v ) const
+    void		drawRandomPos( TypeSet<float>& v ) const override
 			{ v.setSize(2); drwRandPos( v[0], v[1] ); }
-
-    BufferString	dim0nm_;
-    BufferString	dim1nm_;
 
 protected:
 
 			ProbDenFunc2D(const char* vnm0="Dim 0",
 				      const char* vnm1="Dim 1");
-			ProbDenFunc2D(const ProbDenFunc2D& pdf);
-
-    ProbDenFunc2D&	operator =(const ProbDenFunc2D&);
 
     virtual float	gtVal(float,float) const	= 0;
     virtual void	drwRandPos(float&,float&) const = 0;

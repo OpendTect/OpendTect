@@ -40,10 +40,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 				const uiDataPointSetCrossPlotter* plotter )
     : uiDialog(p,uiDialog::Setup(uiStrings::sCreateProbDesFunc(),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
-    , pdf_(nullptr)
-    , nrdisp_(1)
     , restrictedmode_(false)
-    , createfrmfld_(nullptr)
     , plotter_(plotter)
     , dps_(plotter_->dps())
 {
@@ -55,11 +52,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps,
 				bool restricted )
     : uiDialog(p,uiDialog::Setup(uiStrings::sCreateProbDesFunc(),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
-    , pdf_(nullptr)
-    , nrdisp_(1)
     , restrictedmode_(restricted)
-    , createfrmfld_(nullptr)
-    , plotter_(nullptr)
     , dps_(dps)
 {
     enableSaveButton( tr("View/Edit after creation") );
@@ -71,7 +64,7 @@ void uiCreateDPSPDF::createDefaultUI()
 {
     setOkText( uiStrings::sCreate() );
 
-    uiLabeledComboBox* selcbx = 0;
+    uiLabeledComboBox* selcbx = nullptr;
     if ( plotter_ && plotter_->selAreaSize() )
     {
 	BufferStringSet seltype( DPSDensityCalcND::CalcAreaTypeNames(), 3 );;
@@ -107,25 +100,23 @@ void uiCreateDPSPDF::createDefaultUI()
 	setColRange( fld );
 	if ( idx == 0 )
 	{
-	    rmbuts_ += 0;
+	    rmbuts_ += nullptr;
 	    if ( selcbx )
 		fld->attach( alignedBelow, selcbx );
 	}
 	else
 	{
 	    fld->attach( alignedBelow, probflds_[idx-1] );
-	    uiButton* rmbut =
-		new uiPushButton( this, tr("<- Less"),	pushcb, true );
+	    auto* rmbut = new uiPushButton( this, tr("<- Less"), pushcb, true );
 	    rmbut->attach( rightAlignedBelow, fld );
 	    rmbuts_ += rmbut;
 	}
 
 	if ( idx == cMaxNrPDFs-1 )
-	    addbuts_ += 0;
+	    addbuts_ += nullptr;
 	else
 	{
-	    uiButton* addbut =
-		new uiPushButton( this, tr("More ->"), pushcb, true);
+	    auto* addbut = new uiPushButton( this, tr("More ->"), pushcb, true);
 	    addbut->attach( leftAlignedBelow, fld );
 	    addbuts_ += addbut;
 	}
@@ -140,10 +131,16 @@ void uiCreateDPSPDF::createDefaultUI()
 	uiStrings::phrOutput(uiStrings::sProbDensFunc(true,1)) );
     outputfld_->attach( alignedBelow, probflds_[probflds_.size()-1] );
 
-    butPush( addbuts_[1] );
-    if ( plotter_ && plotter_->isY2Shown() )
-	butPush( addbuts_[2] );
-    handleDisp( 0 );
+    int nrattribs = dps_.nrCols();
+    if ( FixedString(dps_.colName(0)) == sKey::MD() )
+	nrattribs--;
+
+    for ( int idx=1; idx<=2; idx++ )
+    {
+	if ( nrattribs > idx )
+	    butPush( addbuts_[idx] );
+    }
+    handleDisp( nullptr );
 }
 
 
@@ -249,46 +246,29 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 	const DataPointSet::ColID colid = dps_.indexOf( colnm.buf() );
 	const DataColDef& coldef = dps_.colDef( colid );
 	if ( coldef.unit_ )
-	    prdf->setUOMSymbol( dimnr, coldef.unit_->symbol() );
+	    prdf->setUOMSymbol( dimnr, coldef.unit_->getLabel() );
 
-	StepInterval<float> dimrg = probflds_[dimnr]->selColRange();
-	SamplingData<float>& sd = pdf.sampling( dimnr );
-	sd.start = dimrg.start + dimrg.step/2;
-	sd.step = dimrg.step;
+	const StepInterval<float> dimrg = probflds_[dimnr]->selColRange();
+	pdf.setRange( dimnr, dimrg );
 
-	DPSDensityCalcND::AxisParam* axparam =
-	    new DPSDensityCalcND::AxisParam();
+	auto* axparam = new DPSDensityCalcND::AxisParam();
 	axparam->colid_ = probflds_[dimnr]->selColID();
 	axparam->valrange_ = dimrg;
 	nrbins += probflds_[dimnr]->selNrBins();
 	axisparams += axparam;
     }
 
-    if ( prdf->nrDims() == 1 )
-    {
-	mDynamicCastGet(Sampled1DProbDenFunc*,sprdf,&pdf)
-	if ( !sprdf ) return;
-	sprdf->bins_.setSize( nrbins[0] );
-    }
-    else if ( prdf->nrDims() == 2 )
-    {
-	mDynamicCastGet(Sampled2DProbDenFunc*,sprdf,&pdf)
-	if ( !sprdf ) return;
-	sprdf->bins_.setSize( nrbins[0], nrbins[1] );
-    }
-    else
-    {
-	mDynamicCastGet(SampledNDProbDenFunc*,sprdf,&pdf)
-	if ( !sprdf ) return;
-	sprdf->bins_.setSize( nrbins.arr() );
-    }
+    if ( !pdf.setSize(nrbins) )
+	return;
 
     DPSDensityCalcND::CalcAreaType areatype = DPSDensityCalcND::All;
     if ( createfrmfld_ )
 	DPSDensityCalcND::parseEnum( createfrmfld_->text(), areatype );
+
     DPSDensityCalcND denscalc( dps_, axisparams, pdf.getData(), areatype );
     if ( plotter_ )
 	denscalc.setGroup( plotter_->curGroup() );
+
     uiTaskRunner taskrunner( this );
     TaskRunner::execute( &taskrunner, denscalc );
 }

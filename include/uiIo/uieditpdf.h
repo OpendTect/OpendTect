@@ -14,19 +14,22 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uidialog.h"
 
-class ProbDenFunc;
+class uiComboBox;
+class uiFlatViewMainWin;
 class uiGenInput;
+class uiListBox;
+class uiPDF1DViewWin;
+class uiPushButton;
 class uiTable;
 class uiTabStack;
-class uiPDF1DViewWin;
-class uiFlatViewMainWin;
-class uiComboBox;
-class uiPushButton;
-class uiListBox;
 class uiToolButton;
+class uiUnitSel;
 class Gaussian1DProbDenFunc;
 class Gaussian2DProbDenFunc;
 class GaussianNDProbDenFunc;
+class MnemonicSelection;
+class ProbDenFunc;
+class UnitOfMeasure;
 
 
 /*!\brief Base class for edit probability density function editors. */
@@ -34,12 +37,23 @@ class GaussianNDProbDenFunc;
 mExpClass(uiIo) uiEditProbDenFunc : public uiGroup
 { mODTextTranslationClass(uiEditProbDenFunc);
 public:
-			uiEditProbDenFunc(uiParent*,ProbDenFunc&,bool editable);
+
+    virtual		~uiEditProbDenFunc();
 
     virtual bool	commitChanges()			= 0;
     inline bool		isChanged() const		{ return chgd_; }
 
+    static void		getPars(const MnemonicSelection*,
+				const BufferStringSet* varnms,int idx,
+				BufferString& varnm,Interval<float>& rg,
+				const UnitOfMeasure*&);
+
+    static const UnitOfMeasure* guessUnit(const ProbDenFunc&,int idim);
+
 protected:
+			uiEditProbDenFunc(uiParent*,ProbDenFunc&,bool editable);
+
+    const UnitOfMeasure* getUnit(int idim);
 
     ProbDenFunc&	pdf_;
     const ProbDenFunc&	inpdf_;
@@ -55,8 +69,10 @@ protected:
 mExpClass(uiIo) uiEditProbDenFuncDlg : public uiDialog
 { mODTextTranslationClass(uiEditProbDenFuncDlg);
 public:
-			uiEditProbDenFuncDlg(uiParent*,ProbDenFunc&,bool edit,
-						bool isnew=false);
+			uiEditProbDenFuncDlg(uiParent*,ProbDenFunc&,
+					 bool edit,bool isnew=false,
+					 const MnemonicSelection* =nullptr,
+					 const BufferStringSet* varnms=nullptr);
 
     bool		isChanged() const	{ return edfld_->isChanged(); }
 
@@ -77,23 +93,25 @@ public:
 			uiEditSampledProbDenFunc(uiParent*,ProbDenFunc&,bool);
 			~uiEditSampledProbDenFunc();
 
-    virtual bool	commitChanges();
+    bool		commitChanges() override;
 
 protected:
 
-    int			curdim2_;
+    int			curdim2_ = 0;
 
     uiTabStack*		tabstack_;
     ObjectSet<uiGenInput> nmflds_;
-    uiTable*		tbl_;
-    uiFlatViewMainWin*	vwwinnd_;
-    uiPDF1DViewWin*	vwwin1d_;
+    ObjectSet<uiUnitSel> unflds_;
+    uiTable*		tbl_ = nullptr;
+    uiFlatViewMainWin*	vwwinnd_ = nullptr;
+    uiPDF1DViewWin*	vwwin1d_ = nullptr;
 
     void		mkTable(uiGroup*);
 
     bool		getNamesFromScreen();
+    void		getUnitsFromScreen();
     void		putValsToScreen();
-    bool		getValsFromScreen(bool* chg=0);
+    bool		getValsFromScreen(bool* chg=nullptr);
     void		setToolTips();
     void		updateUI();
 
@@ -115,26 +133,31 @@ class uiEditGaussianProbDenFunc : public uiEditProbDenFunc
 public:
 
 			uiEditGaussianProbDenFunc(uiParent*,ProbDenFunc&,
-						bool editable,bool isnew=false);
+				    bool editable,bool isnew=false,
+				    const MnemonicSelection* = nullptr,
+				    const BufferStringSet* varnms = nullptr);
 
-    virtual bool	commitChanges();
+			~uiEditGaussianProbDenFunc();
+
+    bool		commitChanges() override;
 
 protected:
 
-    Gaussian1DProbDenFunc* pdf1d_;
-    Gaussian2DProbDenFunc* pdf2d_;
-    GaussianNDProbDenFunc* pdfnd_;
+    Gaussian1DProbDenFunc* pdf1d_ = nullptr;
+    Gaussian2DProbDenFunc* pdf2d_ = nullptr;
+    GaussianNDProbDenFunc* pdfnd_ = nullptr;
 
-    uiTabStack*		tabstack_;
-    uiGenInput*		ccfld_;
+    uiTabStack*		tabstack_ = nullptr;
+    uiGenInput*		ccfld_ = nullptr;
     ObjectSet<uiGenInput> nmflds_;
     ObjectSet<uiGenInput> expflds_;
     ObjectSet<uiGenInput> stdflds_;
-    uiComboBox*		var1fld_;
-    uiComboBox*		var2fld_;
-    uiPushButton*	addsetbut_;
+    ObjectSet<uiUnitSel> unflds_;
+    uiComboBox*		var1fld_ = nullptr;
+    uiComboBox*		var2fld_ = nullptr;
+    uiPushButton*	addsetbut_ = nullptr;
     uiListBox*		defcorrsfld_;
-    uiToolButton*	rmbut_;
+    uiToolButton*	rmbut_ = nullptr;
 
     float		getCC() const;
     void		mkCorrTabFlds(uiGroup*);
@@ -143,6 +166,7 @@ protected:
 
     void		initGrp(CallBacker*);
     void		tabChg(CallBacker*);
+    void		unitChgCB(CallBacker*);
     void		corrSel(CallBacker*);
     void		varSel(CallBacker*);
     void		addSetPush(CallBacker*);

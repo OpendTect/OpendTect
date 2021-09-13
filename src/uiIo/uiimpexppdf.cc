@@ -11,11 +11,12 @@ ________________________________________________________________________
 
 #include "uiimpexppdf.h"
 
+#include "uieditpdf.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
-#include "uistrings.h"
 #include "uitoolbutton.h"
+#include "uiunitsel.h"
 
 #include "ascstream.h"
 #include "ctxtioobj.h"
@@ -27,6 +28,7 @@ ________________________________________________________________________
 #include "probdenfunctr.h"
 #include "sampledprobdenfunc.h"
 #include "timefun.h"
+#include "unitofmeasure.h"
 
 static const char* sKeyXLogType = "X Log Type";
 static const char* sKeyYLogType = "Y Log Type";
@@ -54,24 +56,32 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     varnmsfld_ = new uiGenInput( this, tr("Output variable names"),
 				 StringInpSpec(), StringInpSpec() );
     varnmsfld_->attach( alignedBelow, inpfld_ );
+    extendbut_ = new uiToolButton( this, "extendpdf",
+	    tr("Extend one row/col outward"), mCB(this,uiImpRokDocPDF,extPDF) );
+    extendbut_->attach( rightOf, varnmsfld_ );
 
     uiGroup* grp = new uiGroup( this, "Output PDF sampling" );
     xrgfld_ = new uiGenInput( grp, tr("Output var1 range"),
 			      FloatInpIntervalSpec());
+    uiUnitSel::Setup uusu( Mnemonic::Other );
+    uusu.mode( uiUnitSel::Setup::SymbolsOnly ).withnone( true );
+    xunitfld_ = new uiUnitSel( grp, uusu );
+    xunitfld_->attach( rightOf, xrgfld_ );
     xnrbinfld_ = new uiGenInput( grp, tr("Nr of Bins"), IntInpSpec(10,1) );
     xnrbinfld_->setElemSzPol( uiObject::Small );
-    xnrbinfld_->attach( rightOf, xrgfld_ );
+    xnrbinfld_->attach( rightOf, xunitfld_ );
+
     yrgfld_ = new uiGenInput( grp, tr("Output var2 range"),
 			      FloatInpIntervalSpec());
+    yunitfld_ = new uiUnitSel( grp, uusu );
+    yunitfld_->attach( rightOf, yrgfld_ );
     ynrbinfld_ = new uiGenInput( grp, tr("Nr of Bins"), IntInpSpec(10,1) );
     ynrbinfld_->setElemSzPol( uiObject::Small );
     yrgfld_->attach( alignedBelow, xrgfld_ );
-    ynrbinfld_->attach( rightOf, yrgfld_ );
+    ynrbinfld_->attach( rightOf, yunitfld_ );
+
     grp->setHAlignObj( xrgfld_ );
     grp->attach( alignedBelow, varnmsfld_ );
-    extendbut_ = new uiToolButton( this, "extendpdf",
-	    tr("Extend one row/col outward"), mCB(this,uiImpRokDocPDF,extPDF) );
-    extendbut_->attach( centeredRightOf, grp );
 
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread_ = false;
@@ -97,8 +107,10 @@ void uiImpRokDocPDF::setDisplayedFields( bool dim1, bool dim2 )
     extendbut_->display( doshow );
     xrgfld_->display( dim1 );
     xnrbinfld_->display( dim1 );
+    xunitfld_->display( dim1 );
     yrgfld_->display( dim2 );
     ynrbinfld_->display( dim2 );
+    yunitfld_->display( dim2 );
 }
 
 
@@ -139,12 +151,18 @@ int getNrDims()
     return nrdims;
 }
 
+
+const UnitOfMeasure* guessUnit( const ProbDenFunc& pdf, int dim )
+{
+    return uiEditProbDenFunc::guessUnit( pdf, dim );
+}
+
 // reOpen needed after problem with setPostion( 0 ) in RELEASE mode
 #define mRewindStream(msg) \
 { \
     strm_.reOpen(); \
     if ( !strm_.isOK() ) \
-    { errmsg_ = msg; strm_.addErrMsgTo( errmsg_ ); return 0; } \
+    { errmsg_ = msg; strm_.addErrMsgTo( errmsg_ ); return nullptr; } \
 }
 
 
@@ -174,7 +192,7 @@ Sampled1DProbDenFunc* get1DPDF()
     if ( nr < 0 )
     {
 	errmsg_ = tr("Could not find size for X variable");
-	return 0;
+	return nullptr;
     }
 
     Array1DImpl<float> a1d( nr );
@@ -193,9 +211,13 @@ Sampled1DProbDenFunc* get1DPDF()
     }
     strm_.close();
 
-    Sampled1DProbDenFunc* pdf = new Sampled1DProbDenFunc( a1d );
+    auto* pdf = new Sampled1DProbDenFunc( a1d );
     pdf->setDimName( 0, varnm );
-    pdf->sd_ = sd;
+    pdf->sampling() = sd;
+    const UnitOfMeasure* uom = uiEditProbDenFunc::guessUnit( *pdf, 0 );
+    if ( uom )
+	pdf->setUOMSymbol( 0, uom->getLabel() );
+
     return pdf;
 }
 
@@ -236,7 +258,7 @@ Sampled2DProbDenFunc* get2DPDF()
     {
 	errmsg_ = tr("Could not find size for %1")
 		.arg(nr0 < 0 ? tr("X variable") : tr("Y variable"));
-	return 0;
+	return nullptr;
     }
 
     Array2DImpl<float> a2d( nr0, nr1 );
@@ -257,9 +279,19 @@ Sampled2DProbDenFunc* get2DPDF()
     }
     strm_.close();
 
-    Sampled2DProbDenFunc* pdf = new Sampled2DProbDenFunc( a2d );
-    pdf->setDimName( 0, dim0nm ); pdf->setDimName( 1, dim1nm );
-    pdf->sd0_ = sd0; pdf->sd1_ = sd1;
+    auto* pdf = new Sampled2DProbDenFunc( a2d );
+    pdf->setDimName( 0, dim0nm );
+    pdf->setDimName( 1, dim1nm );
+    pdf->sampling(0) = sd0;
+    pdf->sampling(1) = sd1;
+    const UnitOfMeasure* uom = uiEditProbDenFunc::guessUnit( *pdf, 0 );
+    if ( uom )
+	pdf->setUOMSymbol( 0, uom->getLabel() );
+
+    uom = uiEditProbDenFunc::guessUnit( *pdf, 1 );
+    if ( uom )
+	pdf->setUOMSymbol( 1, uom->getLabel() );
+
     return pdf;
 }
 
@@ -276,7 +308,7 @@ Sampled2DProbDenFunc* get2DPDF()
 \
     if ( nrdims == 1 ) \
 	pdf = imp.get1DPDF(); \
-    else \
+    else if ( nrdims == 2 ) \
 	pdf = imp.get2DPDF(); \
 \
     if ( !pdf ) \
@@ -288,34 +320,41 @@ Sampled2DProbDenFunc* get2DPDF()
     mDynamicCast(Sampled1DProbDenFunc*,pdfa,pdf) \
     mDynamicCast(Sampled2DProbDenFunc*,pdfb,pdf) \
     if ( !pdfa && !pdfb ) \
+    { \
 	act; \
+    } \
 }
 
 void uiImpRokDocPDF::selChg( CallBacker* )
 {
     RokDocImporter imp( inpfld_->fileName() );
-    ArrayNDProbDenFunc* pdf = 0;
-    mInitPDFRead(return)
+    ArrayNDProbDenFunc* pdf = nullptr;
+    mInitPDFRead(delete pdf;return)
 
-    Sampled1DProbDenFunc* pdf1d = 0;
-    Sampled2DProbDenFunc* pdf2d = 0;
-    mCastPDF(pdf1d,pdf2d,pdf,return)
+    Sampled1DProbDenFunc* pdf1d = nullptr;
+    Sampled2DProbDenFunc* pdf2d = nullptr;
+    mCastPDF(pdf1d,pdf2d,pdf,delete pdf;return)
 
-    const SamplingData<float> sdx = pdf1d ? pdf1d->sd_ : pdf2d->sd0_;
-
-    varnmsfld_->setText( pdf1d ? pdf1d->varnm_ : pdf2d->dim0nm_, 0 );
-    const int szx = pdf->size( 0 );
-    xrgfld_->setValue( sdx.start, 0 );
-    xrgfld_->setValue( sdx.atIndex( szx-1 ), 1 );
-    xnrbinfld_->setValue( szx );
+    varnmsfld_->setText( pdf1d ? pdf1d->dimName( 0 ) : pdf2d->dimName( 0 ) );
+    const Interval<float> xrg = pdf->getRange( 0 );
+    xrgfld_->setValue( xrg.start, 0 );
+    xrgfld_->setValue( xrg.stop, 1 );
+    xnrbinfld_->setValue( pdf->size(0) );
+    const UnitOfMeasure* uom = UoMR().get( pdf1d ? pdf1d->getUOMSymbol(0)
+						 : pdf2d->getUOMSymbol(0) );
+    if ( uom )
+	xunitfld_->setUnit( uom );
 
     if ( pdf2d )
     {
-	varnmsfld_->setText( pdf2d->dim1nm_, 1 );
-	const int szy = pdf2d->size( 1 );
-	yrgfld_->setValue( pdf2d->sd1_.start, 0 );
-	yrgfld_->setValue( pdf2d->sd1_.atIndex( szy-1 ), 1 );
-	ynrbinfld_->setValue( szy );
+	varnmsfld_->setText( pdf2d->dimName( 1 ), 1 );
+	const Interval<float> yrg = pdf->getRange( 1 );
+	yrgfld_->setValue( yrg.start, 0 );
+	yrgfld_->setValue( yrg.stop, 1 );
+	ynrbinfld_->setValue( pdf->size(1) );
+	uom = UoMR().get( pdf2d->getUOMSymbol(1) );
+	if ( uom )
+	    yunitfld_->setUnit( uom );
     }
 
     setDisplayedFields( pdf1d || pdf2d, pdf2d );
@@ -327,14 +366,19 @@ void uiImpRokDocPDF::selChg( CallBacker* )
 
 
 static bool getPDFFldRes( uiGenInput* rgfld, uiGenInput* szfld,
-			  StepInterval<float>& rg )
+			  StepInterval<float>& rg, bool forgui )
 {
     rg = rgfld->getFInterval();
     const int sz = szfld->getIntValue();
     if ( mIsUdf(sz) )
 	return false;
 
-    rg.step = sz == 1 ? mUdf(float) : rg.width() / (sz - 1);
+    rg.step = sz < 1 ? mUdf(float) : rg.width() / sz;
+    if ( !forgui )
+    {
+	rg.start += rg.step / 2.f;
+	rg.stop -= rg.step / 2.f;
+    }
 
     return !rg.isUdf() || sz == 1;
 }
@@ -343,13 +387,16 @@ static bool getPDFFldRes( uiGenInput* rgfld, uiGenInput* szfld,
 static void extPDFFlds( uiGenInput* rgfld, uiGenInput* szfld )
 {
     StepInterval<float> rg;
-    if ( !getPDFFldRes(rgfld,szfld,rg) ) return;
+    if ( !getPDFFldRes(rgfld,szfld,rg,true) )
+	return;
 
     if ( mIsUdf(rg.step) ) return;
 
-    rg.start -= rg.step; rg.stop += rg.step;
+    rg.start -= rg.step;
+    rg.stop += rg.step;
 
-    rgfld->setValue( rg ); szfld->setValue( rg.nrSteps() + 1 );
+    rgfld->setValue( rg );
+    szfld->setValue( rg.nrSteps() );
 }
 
 
@@ -363,13 +410,13 @@ void uiImpRokDocPDF::extPDF( CallBacker* )
 ArrayNDProbDenFunc* uiImpRokDocPDF::getAdjustedPDF(
 						ArrayNDProbDenFunc* in ) const
 {
-    Sampled1DProbDenFunc* inpdf1d = 0;
-    Sampled2DProbDenFunc*inpdf2d = 0;
-    mCastPDF(inpdf1d,inpdf2d,in,return 0)
+    Sampled1DProbDenFunc* inpdf1d = nullptr;
+    Sampled2DProbDenFunc* inpdf2d = nullptr;
+    mCastPDF(inpdf1d,inpdf2d,in,return nullptr)
 
     StepInterval<float> xrg, yrg;
-    if ( !getPDFFldRes(xrgfld_,xnrbinfld_,xrg) ||
-	 ( inpdf2d && !getPDFFldRes(yrgfld_,ynrbinfld_,yrg) ) )
+    if ( !getPDFFldRes(xrgfld_,xnrbinfld_,xrg,false) ||
+	 ( inpdf2d && !getPDFFldRes(yrgfld_,ynrbinfld_,yrg,false) ) )
     { uiMSG().error(uiStrings::phrInvalid(uiStrings::phrOutput(
 						tr("Range/Size")))); return 0; }
 
@@ -396,31 +443,29 @@ ArrayNDProbDenFunc* uiImpRokDocPDF::getAdjustedPDF(
 	}
     }
 
-    delete in; in = 0;
-    ArrayNDProbDenFunc* newpdf = 0;
+    deleteAndZeroPtr( in );
     if ( pdfis1d )
     {
-	newpdf = new Sampled1DProbDenFunc( a1d );
-	Sampled1DProbDenFunc* newpdf1d = 0;
-	mDynamicCast(Sampled1DProbDenFunc*,newpdf1d,newpdf)
-	if ( !newpdf1d )
-	    return 0;
-
-	newpdf1d->varnm_ = varnmsfld_->text( 0 );
-	newpdf1d->sd_ = SamplingData<float>( xrg );
+	auto* newpdf = new Sampled1DProbDenFunc( a1d );
+	newpdf->setDimName( 0, varnmsfld_->text(0) );
+	newpdf->sampling() = SamplingData<float>( xrg );
+	const UnitOfMeasure* uom = xunitfld_->getUnit();
+	if ( uom )
+	    newpdf->setUOMSymbol( 0, uom->getLabel() );
 	return newpdf;
     }
 
-    newpdf = new Sampled2DProbDenFunc( a2d );
-    Sampled2DProbDenFunc* newpdf2d = 0;
-    mDynamicCast(Sampled2DProbDenFunc*,newpdf2d,newpdf)
-    if ( !newpdf2d )
-	return 0;
-
-    newpdf2d->dim0nm_ = varnmsfld_->text( 0 );
-    newpdf2d->dim1nm_ = varnmsfld_->text( 1 );
-    newpdf2d->sd0_ = SamplingData<float>( xrg );
-    newpdf2d->sd1_ = SamplingData<float>( yrg );
+    auto* newpdf = new Sampled2DProbDenFunc( a2d );
+    newpdf->setDimName( 0, varnmsfld_->text(0) );
+    newpdf->setDimName( 1, varnmsfld_->text(1) );
+    newpdf->sampling(0) = SamplingData<float>( xrg );
+    newpdf->sampling(1) = SamplingData<float>( yrg );
+    const UnitOfMeasure* uom = xunitfld_->getUnit();
+    if ( uom )
+	newpdf->setUOMSymbol( 0, uom->getLabel() );
+    uom = yunitfld_->getUnit();
+    if ( uom )
+	newpdf->setUOMSymbol( 1, uom->getLabel() );
 
     return newpdf;
 }
@@ -435,15 +480,15 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
     { uiMSG().error( tr("Please enter a variable name") ); return false; }
 
     RokDocImporter imp( inpfld_->fileName() );
-    ArrayNDProbDenFunc* pdf = 0;
-    mInitPDFRead(return false)
+    ArrayNDProbDenFunc* pdf = nullptr;
+    mInitPDFRead(delete pdf; return false)
 
     pdf = getAdjustedPDF( pdf );
     if ( !pdf )
 	return false;
 
-    Sampled1DProbDenFunc* pdf1d = 0;
-    Sampled2DProbDenFunc* pdf2d = 0;
+    Sampled1DProbDenFunc* pdf1d = nullptr;
+    Sampled2DProbDenFunc* pdf2d = nullptr;
     mCastPDF(pdf1d,pdf2d,pdf,return false)
 
     uiString errmsg;
@@ -462,9 +507,11 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 
 
 uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
-: uiDialog(p,uiDialog::Setup(uiStrings::phrExport(
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport(
 	   uiStrings::sProbDensFunc(false,1) ),
 	   mNoDlgTitle, mODHelpKey(mExpRokDocPDFHelpID) )
+				 .savetext(tr("With units"))
+				 .savebutton(true).savechecked(true)
 				 .modal(false))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
@@ -485,12 +532,12 @@ class RokDocExporter
 public:
 
 RokDocExporter( const char* fnm )
-    :strm_(fnm)
+    : strm_(fnm)
 {
 }
 
 
-bool put1DPDF( const Sampled1DProbDenFunc& pdf )
+bool put1DPDF( const Sampled1DProbDenFunc& pdf, bool withunits )
 {
     if ( !strm_.isOK() )
 	{ errmsg_ = uiStrings::sCantOpenOutpFile(); return false; }
@@ -500,10 +547,13 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf )
 	 << " on " << Time::getDateTimeString() << "\n\n";
 
     const int nrx = pdf.size( 0 );
+    BufferString varnm( pdf.dimName(0) );
+    if ( withunits )
+	varnm.add( " (" ).add( pdf.getUOMSymbol(0) ).add( ")" );
 
-    strm_ << "X Log Type        : " << pdf.dimName(0) << '\n';
-    strm_ << "X Mid Bin Minimum : " << pdf.sd_.start << '\n';
-    strm_ << "X Bin Width       : " << pdf.sd_.step << '\n';
+    strm_ << "X Log Type	: " << varnm << '\n';
+    strm_ << "X Mid Bin Minimum : " << pdf.sampling().start << '\n';
+    strm_ << "X Bin Width	: " << pdf.sampling().step << '\n';
     strm_ << "X No of Bins      : " << nrx << "\n\n";
 
     static const char* twentyspaces = "                    ";
@@ -515,7 +565,7 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf )
 
     for ( int idx=0; idx<nrx; idx++ )
     {
-	BufferString txt; txt += pdf.bins_.get(idx);
+	BufferString txt( pdf.get(idx) );
 	const int len = txt.size();
 	txt += len < 20 ? twentyspaces + len : " ";
 	strm_ << txt;
@@ -528,7 +578,7 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf )
 }
 
 
-bool put2DPDF( const Sampled2DProbDenFunc& pdf )
+bool put2DPDF( const Sampled2DProbDenFunc& pdf, bool withunits )
 {
     if ( !strm_.isOK() )
 	{ errmsg_ = uiStrings::sCantOpenOutpFile(); return false; }
@@ -539,16 +589,24 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf )
 
     const int nrx = pdf.size( 0 );
     const int nry = pdf.size( 1 );
-    const float xwidth = nrx == 1 ? 0.f : pdf.sd0_.step;
-    const float ywidth = nry == 1 ? 0.f : pdf.sd1_.step;
+    const float xwidth = nrx == 1 ? 0.f : pdf.sampling(0).step;
+    const float ywidth = nry == 1 ? 0.f : pdf.sampling(1).step;
 
-    strm_ << "X Log Type        : " << pdf.dimName(0) << '\n';
-    strm_ << "X Mid Bin Minimum : " << pdf.sd0_.start << '\n';
+    BufferString varnm( pdf.dimName(0) );
+    if ( withunits )
+	varnm.add( " (" ).add( pdf.getUOMSymbol(0) ).add( ")" );
+
+    strm_ << "X Log Type	: " << varnm << '\n';
+    strm_ << "X Mid Bin Minimum : " << pdf.sampling(0).start << '\n';
     strm_ << "X Bin Width       : " << xwidth << '\n';
     strm_ << "X No of Bins      : " << nrx << "\n\n";
 
-    strm_ << "Y Log Type        : " << pdf.dimName(1) << '\n';
-    strm_ << "Y Mid Bin Minimum : " << pdf.sd1_.start << '\n';
+    varnm.set( pdf.dimName(1) );
+    if ( withunits )
+	varnm.add( " (" ).add( pdf.getUOMSymbol(1) ).add( ")" );
+
+    strm_ << "Y Log Type	: " << varnm << '\n';
+    strm_ << "Y Mid Bin Minimum : " << pdf.sampling(1).start << '\n';
     strm_ << "Y Bin Width       : " << ywidth << '\n';
     strm_ << "Y No of Bins      : " << nry << "\n\n";
 
@@ -562,7 +620,7 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf )
 	strm_ << '\n';
 	for ( int ix=0; ix<nrx; ix++ )
 	{
-	    BufferString txt; txt += pdf.bins_.get(ix,iy);
+	    BufferString txt( pdf.get( ix, iy ) );
 	    const int len = txt.size();
 	    txt += len < 20 ? twentyspaces + len : " ";
 	    strm_ << txt;
@@ -598,9 +656,11 @@ bool uiExpRokDocPDF::acceptOK( CallBacker* )
 	return false;
     }
 
+    const bool withunits = saveButtonChecked();
+
     RokDocExporter exp( outfld_->fileName() );
-    if ( ( s1dpdf && !exp.put1DPDF(*s1dpdf) ) ||
-	 ( s2dpdf && !exp.put2DPDF(*s2dpdf) ) )
+    if ( ( s1dpdf && !exp.put1DPDF(*s1dpdf,withunits) ) ||
+	 ( s2dpdf && !exp.put2DPDF(*s2dpdf,withunits) ) )
     { uiMSG().error(exp.errmsg_); return false; }
 
     uiMSG().message( uiStrings::phrSuccessfullyExported(

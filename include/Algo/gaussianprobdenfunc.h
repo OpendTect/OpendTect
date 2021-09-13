@@ -45,24 +45,27 @@ mExpClass(Algo) Gaussian1DProbDenFunc : public ProbDenFunc1D
 {
 public:
 
-			Gaussian1DProbDenFunc( float exp=0, float stdev=1 )
-			    : rgen_(0), exp_(exp), std_(stdev)	{}
+			Gaussian1DProbDenFunc( const char* dimnm =nullptr )
+			    : ProbDenFunc1D(dimnm)	{}
 			Gaussian1DProbDenFunc(const Gaussian1DProbDenFunc& oth)
-			    : rgen_(0)	{ *this = oth; }
+						{ *this = oth; }
 
 			mDefGaussianProbDenFuncFns(Gaussian1D)
 
-    float		exp_;
-    float		std_;
+    Gaussian1DProbDenFunc& set( float exp,float std )
+			{ exp_ = exp; std_ = std; return *this; }
 
-protected:
+private:
+
+    float		gtAvgPos() const override	{ return exp_; }
+    float		gtStdDevPos() const override	{ return std_; }
+    float		gtVal(float) const override;
+    void		drwRandPos(float&) const override;
+
+    float		exp_ = 0.f;
+    float		std_ = 1.f;
 
     mutable Stats::NormalRandGen* rgen_ = nullptr;
-
-    virtual float	gtAvgPos() const		{ return exp_; }
-    virtual float	gtVal(float) const;
-    virtual void	drwRandPos(float&) const;
-
 };
 
 
@@ -72,29 +75,35 @@ mExpClass(Algo) Gaussian2DProbDenFunc : public ProbDenFunc2D
 {
 public:
 
-			Gaussian2DProbDenFunc()
-			    : rgen0_(0), rgen1_(0)
-			    , exp0_(0), exp1_(0)
-			    , std0_(1), std1_(1), cc_(0) {}
+			Gaussian2DProbDenFunc( const char* dim0nm =nullptr,
+					       const char* dim1nm =nullptr )
+			    : ProbDenFunc2D(dim0nm,dim1nm)	{}
 			Gaussian2DProbDenFunc(const Gaussian2DProbDenFunc& oth)
-			    : rgen0_(0), rgen1_(0)	{ *this = oth; }
+				{ *this = oth; }
 
 			mDefGaussianProbDenFuncFns(Gaussian2D)
 
-    virtual float	averagePos( int dim ) const
+    Gaussian2DProbDenFunc& set(int idim,float exp,float std);
+    Gaussian2DProbDenFunc& setCorrelation( float cc )
+			{ cc_ = cc; return *this; }
+
+    float		averagePos( int dim ) const override
 			{ return dim ? exp1_ : exp0_; }
+    float		stddevPos( int dim ) const override
+			{ return dim ? std1_ : std0_; }
+    float		getCorrelation() const	{ return cc_; }
 
-    float		exp0_, exp1_;
-    float		std0_, std1_;
-    float		cc_;
+private:
 
-protected:
+    float		gtVal(float,float) const override;
+    void		drwRandPos(float&,float&) const override;
+
+    float		exp0_ = 0.f, exp1_ = 0.f;
+    float		std0_ = 1.f, std1_ = 1.f;
+    float		cc_ = 0.f;
 
     mutable Stats::NormalRandGen* rgen0_ = nullptr;
     mutable Stats::NormalRandGen* rgen1_ = nullptr;
-
-    virtual float	gtVal(float,float) const;
-    virtual void	drwRandPos(float&,float&) const;
 
 };
 
@@ -110,10 +119,9 @@ public:
 						{ *this = oth; }
 			mDefGaussianProbDenFuncFns(GaussianND)
 
-    virtual int		nrDims() const		{ return vars_.size(); }
-    virtual const char*	dimName(int) const;
-    virtual void	setDimName(int,const char*);
-    virtual float	averagePos(int) const;
+    int			nrDims() const override;
+    float		averagePos(int) const override;
+    float		stddevPos(int) const override;
 
     void		prepareRandDrawing() const;
     virtual void	drawRandomPos(TypeSet<float>&) const;
@@ -124,12 +132,11 @@ public:
     {
     public:
 
-			VarDef( const char* nm, float e=0, float s=1 )
-			    : name_(nm), exp_(e), std_(s)	{}
-	bool		operator ==( const VarDef& vd ) const
-			{ return name_ == vd.name_; }
+			VarDef( float e=0.f, float s=1.f )
+			    : exp_(e), std_(s)	{}
+	bool		operator ==( const VarDef& oth ) const
+			{ return exp_ == oth.exp_ && std_ == oth.std_; }
 
-	BufferString	name_;
 	float		exp_;
 	float		std_;
     };
@@ -153,8 +160,7 @@ public:
 
     const char*		firstUncorrelated() const;
 
-protected:
-
+private:
 
     mutable ObjectSet<Stats::NormalRandGen> rgens_;
     Array2DMatrix<float>*	cholesky_ = nullptr;

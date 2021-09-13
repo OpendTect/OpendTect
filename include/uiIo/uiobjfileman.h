@@ -47,12 +47,13 @@ protected:
     uiGroup*			infogrp_;
     uiButtonGroup*		extrabutgrp_;
 
-    IOObj*			curioobj_;
+    IOObj*			curioobj_ = nullptr;
     IOObjContext&		ctxt_;
-    bool			curimplexists_;
+    bool			curimplexists_ = false;
     BufferString		ctxtfilter_;
 
     void			finaliseStartCB(CallBacker*);
+    void			finaliseDoneCB(CallBacker*);
     void			saveNotes(CallBacker*);
     void			readNotes();
     void			setInfo(const char* txt);
@@ -67,6 +68,7 @@ protected:
     virtual od_int64		getFileSize(const char*,int&) const;
 
     void			selChg(CallBacker*);
+    virtual void		initDlg()		{}
     virtual void		ownSelChg()		{}
     void			updateCB(CallBacker*);
     virtual void		updateList()		{}

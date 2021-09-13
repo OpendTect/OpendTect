@@ -36,19 +36,19 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
 			    const IOObjContext& ctxt,
 			    const char* ctxtfilter )
     : uiDialog(p,s)
-    , curioobj_(0)
     , ctxt_(*new IOObjContext(ctxt))
-    , curimplexists_(false)
     , ctxtfilter_(ctxtfilter)
 {
     ctxt_.toselect_.allownonuserselectable_ = true;
     setCtrlStyle( CloseOnly );
-    preFinalise().notify( mCB(this,uiObjFileMan,finaliseStartCB) );
+    mAttachCB( preFinalise(), uiObjFileMan::finaliseStartCB );
+    mAttachCB( postFinalise(), uiObjFileMan::finaliseDoneCB );
 }
 
 
 uiObjFileMan::~uiObjFileMan()
 {
+    detachAllNotifiers();
     delete curioobj_;
     delete &ctxt_;
 }
@@ -65,11 +65,11 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
 
     selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiStrings::sEmptyString(),
 									sgsu );
-    selgrp_->selectionChanged.notify( mCB(this,uiObjFileMan,selChg) );
-    selgrp_->itemChosen.notify( mCB(this,uiObjFileMan,selChg) );
+    mAttachCB( selgrp_->selectionChanged, uiObjFileMan::selChg );
+    mAttachCB( selgrp_->itemChosen, uiObjFileMan::selChg );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
 
-    uiToolButton* refreshbut =
+    auto* refreshbut =
 	new uiToolButton( selgrp_->getListField(), "refresh", tr("Refresh"),
 			  mCB(this,uiObjFileMan,updateCB) );
     refreshbut->attach( rightBorder, selgrp_->getFilterFieldAttachObj() );
@@ -83,7 +83,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     extrabutgrp_->setPrefHeight( ft.height()*2 );
 
     infogrp_ = new uiGroup( this, "Info Group" );
-    uiLabel* infolbl = new uiLabel( infogrp_, uiString::emptyString() );
+    auto* infolbl = new uiLabel( infogrp_, uiString::emptyString() );
     infolbl->setIcon( "info" );
     infolbl->setToolTip( tr("Data Information") );
 
@@ -91,13 +91,13 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     infofld_->attach( rightTo, infolbl );
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
-    uiToolButton* dummytb = new uiToolButton( infogrp_, "empty",
+    auto* dummytb = new uiToolButton( infogrp_, "empty",
 					uiString::emptyString(), CallBack() );
     dummytb->attach( rightTo, infofld_ );
     dummytb->display( false );
 
-    uiGroup* notesgrp = new uiGroup( this, "Notes Group" );
-    uiLabel* noteslbl = new uiLabel( notesgrp, uiString::emptyString() );
+    auto* notesgrp = new uiGroup( this, "Notes Group" );
+    auto* noteslbl = new uiLabel( notesgrp, uiString::emptyString() );
     noteslbl->setIcon( "notes" );
     noteslbl->setToolTip( tr("Notes for selected data") );
 
@@ -106,14 +106,13 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     notesfld_->setStretch( 2, 2 );
     notesfld_->setToolTip( tr("Notes") );
     notesfld_->attach( rightTo, noteslbl );
-    uiToolButton* savebut =
-		new uiToolButton( notesgrp, "save", tr("Save Notes"),
-	    mCB(this,uiObjFileMan,saveNotes) );
+    auto* savebut = new uiToolButton( notesgrp, "save", tr("Save Notes"),
+				      mCB(this,uiObjFileMan,saveNotes) );
     savebut->attach( rightTo, notesfld_ );
 
     setPrefWidth( cPrefWidth );
 
-    uiSplitter* sep = new uiSplitter( this, "List-Info splitter", false );
+    auto* sep = new uiSplitter( this, "List-Info splitter", false );
     sep->addGroup( listgrp_ );
     sep->addGroup( infogrp_ );
     sep->addGroup( notesgrp );
@@ -125,6 +124,12 @@ void uiObjFileMan::finaliseStartCB( CallBacker* )
     const bool hasbuttons = extrabutgrp_->nrButtons() > 0;
     extrabutgrp_->display( hasbuttons, !hasbuttons );
     selgrp_->setCurrent( 0 );
+}
+
+
+void uiObjFileMan::finaliseDoneCB( CallBacker* )
+{
+    initDlg();
 }
 
 

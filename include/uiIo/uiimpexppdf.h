@@ -11,11 +11,14 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+
 #include "uidialog.h"
+
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
 class uiToolButton;
+class uiUnitSel;
 class ArrayNDProbDenFunc;
 class Sampled1DProbDenFunc;
 class Sampled2DProbDenFunc;
@@ -35,8 +38,10 @@ protected:
     uiGenInput*		varnmsfld_;
     uiGenInput*		xrgfld_;
     uiGenInput*		xnrbinfld_;
+    uiUnitSel*		xunitfld_;
     uiGenInput*		yrgfld_;
     uiGenInput*		ynrbinfld_;
+    uiUnitSel*		yunitfld_;
     uiToolButton*	extendbut_;
     uiIOObjSel*		outputfld_;
 

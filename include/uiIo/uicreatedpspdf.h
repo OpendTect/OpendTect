@@ -44,23 +44,23 @@ protected:
     ObjectSet<uiPrDenFunVarSel>	probflds_;
     ObjectSet<uiButton>		addbuts_;
     ObjectSet<uiButton>		rmbuts_;
-    ProbDenFunc*		pdf_;
-    int				nrdisp_;
+    ProbDenFunc*		pdf_ = nullptr;
+    int				nrdisp_ = 1;
     bool			restrictedmode_;
 
     uiIOObjSel*			outputfld_;
-    uiComboBox*			createfrmfld_;
+    uiComboBox*			createfrmfld_ = nullptr;
     uiComboBox*			createoffld_;
     uiGenInput*			nrbinfld_;
-    const uiDataPointSetCrossPlotter* plotter_;
+    const uiDataPointSetCrossPlotter* plotter_ = nullptr;
     const DataPointSet&		dps_;
 
     void			createDefaultUI();
-    bool 			createPDF();
-    void 			viewPDF();
-    
+    bool			createPDF();
+    void			viewPDF();
+
     float			getVal(int rid,int cid) const;
-    void 			fillPDF(ArrayNDProbDenFunc&);
+    void			fillPDF(ArrayNDProbDenFunc&);
     void			setColRange(CallBacker*);
     void			butPush(CallBacker*);
     void			handleDisp(CallBacker*);

@@ -20,9 +20,9 @@
 static bool test2DPDF()
 {
     Gaussian2DProbDenFunc pdf;
-    pdf.exp0_ = 50; pdf.std0_ = 10;
-    pdf.exp1_ = 1000; pdf.std1_ = 100;
-    pdf.cc_ = mCorrCoeff;
+    pdf.set( 0, 50.f, 10.f )
+       .set( 1, 1000.f, 100.f )
+       .setCorrelation( mCorrCoeff );
 
     pdf.prepareRandDrawing();
 
@@ -49,9 +49,11 @@ static bool test2DPDF()
 	csu.require( Stats::Average ).require( Stats::StdDev );
 	Stats::RunCalc<float> x0rc( csu ); Stats::RunCalc<float> x1rc( csu );
 	x0rc.addValues( mNrPts2Draw, x0 ); x1rc.addValues( mNrPts2Draw, x1 );
-	od_cout() << "X0: exp=" << pdf.exp0_ << " std=" << pdf.std0_
+	od_cout() << "X0: exp=" << pdf.averagePos(0)
+		  << " std=" << pdf.stddevPos(0)
 		  << " => avg=" << x0rc.average() << " std=" << x0rc.stdDev();
-	od_cout() << "\nX1: exp=" << pdf.exp1_ << " std=" << pdf.std1_
+	od_cout() << "\nX1: exp=" << pdf.averagePos(1)
+		  << " std=" << pdf.stddevPos(1)
 		  << " => avg=" << x1rc.average() << " std=" << x1rc.stdDev();
 	od_cout() << od_endl;
     }

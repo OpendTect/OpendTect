@@ -12,24 +12,28 @@ ________________________________________________________________________
 #include "uieditpdf.h"
 
 #include "uiaxishandler.h"
-#include "uitoolbutton.h"
 #include "uibuttongroup.h"
-#include "uimsg.h"
-#include "uiflatviewmainwin.h"
+#include "uicombobox.h"
 #include "uiflatviewer.h"
+#include "uiflatviewmainwin.h"
 #include "uifunctiondisplay.h"
 #include "uigeninput.h"
-#include "uitabstack.h"
-#include "uitable.h"
-#include "uicombobox.h"
-#include "uilistbox.h"
 #include "uilabel.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uitable.h"
+#include "uitabstack.h"
+#include "uitoolbutton.h"
+#include "uiunitsel.h"
 
 #include "arrayndsmoother.h"
 #include "flatposdata.h"
+#include "globexpr.h"
 #include "sampledprobdenfunc.h"
 #include "gaussianprobdenfunc.h"
 #include "od_helpids.h"
+#include "propertyref.h"
+#include "unitofmeasure.h"
 
 
 uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
@@ -43,14 +47,145 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
 }
 
 
+uiEditProbDenFunc::~uiEditProbDenFunc()
+{
+    delete &pdf_;
+}
+
+
+const UnitOfMeasure* uiEditProbDenFunc::getUnit( int idim )
+{
+    const UnitOfMeasure* ret = UoMR().get( pdf_.getUOMSymbol(idim) );
+    return ret ? ret : guessUnit( pdf_, idim );
+}
+
+
+const UnitOfMeasure* uiEditProbDenFunc::guessUnit( const ProbDenFunc& pdf,
+						   int idim )
+{
+    const BufferString varnm( pdf.dimName(idim) );
+
+    // Let's try to determine at type from a property/mnemonic name
+    const PropertyRef* pr = PROPS().getByName( varnm, false ); //Exact
+    const Mnemonic* pdfmn = nullptr;
+    if ( pr )
+	pdfmn = MNC().getByName( pr->mnName(), false );
+    else
+    {
+	pr = PROPS().getByName( varnm, true );
+	if ( pr )
+	    pdfmn = MNC().getByName( pr->mnName(), false );
+	else
+	{
+	    const Mnemonic* mn = MNC().getByName( varnm, false ); //Exact
+	    if ( mn )
+		pdfmn = mn;
+	    else
+	    {
+		mn = MNC().getByName( varnm, true );
+		if ( mn )
+		    pdfmn = mn;
+	    }
+	}
+    }
+
+    if ( !pdfmn )
+    { // Finally see if the unit name or symbol is part of the dim name
+	const ObjectSet<const UnitOfMeasure>& units = UoMR().all();
+	for ( const auto* uom : units )
+	{
+	    BufferString gexpr( "*", uom->name(), "*" );
+	    const GlobExpr ge( gexpr, false );
+	    if ( ge.matches(varnm) )
+	    {
+		pdfmn = &MNC().getGuessed( uom );
+		break;
+	    }
+	}
+	for ( const auto* uom : units )
+	{
+	    BufferString gexpr( uom->symbol() );
+	    if ( gexpr.isEmpty() || (!gexpr.contains("/") &&
+		 gexpr != "%" ) )
+		continue;
+
+	    gexpr.insertAt( 0, "*" ).add( "*" );
+	    const GlobExpr ge( gexpr, false );
+	    if ( ge.matches(varnm) )
+	    {
+		pdfmn = &MNC().getGuessed( uom );
+		break;
+	    }
+	}
+    }
+
+    if ( !pdfmn || pdfmn->stdType() == Mnemonic::Other )
+	return nullptr;
+
+    const float avgval = pdf.averagePos( idim );
+    const UnitOfMeasure* ret = UoMR().getInternalFor( pdfmn->stdType() );
+    if ( mIsUdf(avgval) )
+	return ret;
+
+    const Interval<float>& mnvalrg = pdfmn->disp_.range_;
+    const UnitOfMeasure* mnuom = pdfmn->unit();
+    if ( !mnuom || mnvalrg.isUdf() )
+	return ret;
+
+    ObjectSet<const UnitOfMeasure> units;
+    UoMR().getRelevant( pdfmn->stdType(), units );
+    if ( units.isPresent(mnuom) )
+	units -= mnuom;
+
+    units.insertAt( mnuom, 0 );
+    for ( const auto* uom : units )
+    {
+	const float newval = getConvertedValue( avgval, uom, mnuom );
+	if ( mnvalrg.includes(newval,true) )
+	    return uom;
+    }
+
+    return ret;
+}
+
+
+void uiEditProbDenFunc::getPars( const MnemonicSelection* mns,
+			    const BufferStringSet* varnms, int idx,
+			    BufferString& varnm, Interval<float>& rg,
+			    const UnitOfMeasure*& uom )
+{
+    varnm.set( varnms && varnms->validIdx(idx) ? varnms->get(idx).buf() : "" );
+    const Mnemonic* mn = mns && mns->validIdx(idx) ? mns->get(idx) : nullptr;
+    bool isset = false;
+    if ( !varnm.isEmpty() )
+    {
+	const PropertyRef* pr = PROPS().getByName( varnm, false );
+	if ( pr )
+	{
+	    isset = true;
+	    rg = pr->disp_.range_;
+	    uom = pr->unit();
+	}
+    }
+    if ( mn && !isset )
+    {
+	varnm.set( mn->name() );
+	rg = mn->disp_.range_;
+	uom = mn->unit();
+    }
+}
+
+
+
 uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
-					    bool ed, bool isnew )
+					    bool ed, bool isnew,
+					    const MnemonicSelection* mns,
+					    const BufferStringSet* varnms )
     : uiDialog(p,uiDialog::Setup(toUiString("%1 %2").arg(ed ? tr("Edit") :
 	     tr("Browse")).arg(tr("Probability Density Function")),
 	     toUiString("%1 '%2'").arg(ed ? "Edit" : "Browse").arg(pdf.name()
 	     .isEmpty() ? tr("PDF") : mToUiStringTodo(pdf.name())),
 	     mODHelpKey(mEditProbDenFuncHelpID) ))
-	     , edfld_(0)
 {
     if ( !ed )
 	setCtrlStyle( uiDialog::CloseOnly );
@@ -59,7 +194,8 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
     if ( typ.startsWith("Sampled") )
 	edfld_ = new uiEditSampledProbDenFunc( this, pdf, ed );
     else if ( typ.startsWith("Gaussian") )
-	edfld_ = new uiEditGaussianProbDenFunc( this, pdf, ed, isnew );
+	edfld_ = new uiEditGaussianProbDenFunc( this, pdf, ed,
+						isnew, mns, varnms );
     else
 	new uiLabel( this, tr("Unsupported PDF type: %1")
 						   .arg(mToUiStringTodo(typ)) );
@@ -91,40 +227,51 @@ bool uiEditProbDenFuncDlg::acceptOK( CallBacker* )
 uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
 				ProbDenFunc& pdf, bool ed )
     : uiEditProbDenFunc(p,pdf,ed)
-    , vwwin1d_(0)
-    , vwwinnd_(0)
-    , tbl_(0)
-    , curdim2_(0)
 {
     tabstack_ = new uiTabStack( this, "Tabs" );
     mDeclArrNDPDF;
-    uiGroup* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Names group" );
+    auto* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Names group" );
     for ( int idim=0; idim<nrdims_; idim++ )
     {
-	uiString txt;
-	if ( nrdims_ > 1 )
-	    txt = tr( "Variable %1" ).arg( idim + 1 );
-	else
-	    txt = tr("Variable name");
-	uiGenInput* nmfld = new uiGenInput(dimnmgrp, txt, pdf_.dimName(idim) );
+	const uiString txt = nrdims_ > 1 ? tr( "Variable %1" ).arg( idim + 1 )
+					 : tr( "Variable name" );
+	auto* nmfld = new uiGenInput( dimnmgrp, txt, pdf_.dimName(idim) );
+	const UnitOfMeasure* uom = getUnit( idim );
+	uiUnitSel::Setup uusu( uom ? uom->propType() : Mnemonic::Other );
+	uusu.withnone( !uom );
+	auto* unitfld = new uiUnitSel( dimnmgrp, uusu );
+	unitfld->setUnit( uom );
+	unitfld->attach( rightOf, nmfld );
 	if ( idim )
 	    nmfld->attach( alignedBelow, nmflds_[idim-1] );
+
 	nmflds_ += nmfld;
+	unflds_ += unitfld;
 	if ( !editable_ )
+	{
 	    nmfld->setReadOnly( true );
+	    unitfld->setReadOnly( true );
+	}
     }
+
     tabstack_->addTab( dimnmgrp, nrdims_ < 2 ? uiStrings::sName() :
 					       uiStrings::sName(mPlural) );
 
     if ( !andpdf || nrdims_ > 3 )
 	return;
 
-    uiGroup* grp = new uiGroup( tabstack_->tabGroup(), "Values group" );
+    auto* grp = new uiGroup( tabstack_->tabGroup(), "Values group" );
     mkTable( grp );
     tabstack_->addTab( grp, uiStrings::sValue(mPlural) );
-    tabstack_->selChange().notify( mCB(this,uiEditSampledProbDenFunc,tabChg) );
+    mAttachCB( tabstack_->selChange(), uiEditSampledProbDenFunc::tabChg );
 
     updateUI();
+}
+
+
+uiEditSampledProbDenFunc::~uiEditSampledProbDenFunc()
+{
+    detachAllNotifiers();
 }
 
 
@@ -157,7 +304,7 @@ void uiEditSampledProbDenFunc::mkTable( uiGroup* grp )
 	tbl_->setRowLabel( irow, toUiString(rowval) );
     }
 
-    uiButtonGroup* bgrp = new uiButtonGroup( grp, "Buttons", OD::Vertical );
+    auto* bgrp = new uiButtonGroup( grp, "Buttons", OD::Vertical );
     new uiToolButton( bgrp, nrdims_ == 1 ? "distmap" : "viewprdf",
 	    tr("View function"), mCB(this,uiEditSampledProbDenFunc,viewPDF) );
     if ( editable_ )
@@ -177,12 +324,6 @@ void uiEditSampledProbDenFunc::mkTable( uiGroup* grp )
 			    mCB(this,uiEditSampledProbDenFunc,dimPrev) );
     }
     bgrp->attach( rightOf, tbl_ );
-}
-
-
-uiEditSampledProbDenFunc::~uiEditSampledProbDenFunc()
-{
-    delete &pdf_;
 }
 
 
@@ -206,6 +347,21 @@ bool uiEditSampledProbDenFunc::getNamesFromScreen()
     }
 
     return true;
+}
+
+
+void uiEditSampledProbDenFunc::getUnitsFromScreen()
+{
+    for ( int idim=0; idim<nrdims_; idim++ )
+    {
+	const UnitOfMeasure* screenuom = unflds_[idim]->getUnit();
+	const UnitOfMeasure* pdfuom = UoMR().get( pdf_.getUOMSymbol( idim ) );
+	if ( screenuom == pdfuom )
+	    continue;
+
+	pdf_.setUOMSymbol( idim, UnitOfMeasure::getUnitLbl(screenuom) );
+	chgd_ = true;
+    }
 }
 
 
@@ -303,7 +459,6 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
     mDeclSzVars; mDeclIdxs;
     if ( !andpdf || !getValsFromScreen() ) return;
 
-    const CallBack clsecb( mCB(this,uiEditSampledProbDenFunc,vwWinClose) );
     const ArrayND<float>& data = andpdf->getData();
     if ( nrdims_ == 1 )
     {
@@ -321,7 +476,8 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	    vwwin1d_->disp_->xAxis()->setCaption( toUiString(pdf_.dimName(0)) );
 	    vwwin1d_->disp_->yAxis(false)->setCaption( uiStrings::sValue() );
 	    vwwin1d_->setDeleteOnClose( true );
-	    vwwin1d_->windowClosed.notify( clsecb );
+	    mAttachCB( vwwin1d_->windowClosed,
+		       uiEditSampledProbDenFunc::vwWinClose );
 	}
 	vwwin1d_->show();
     }
@@ -345,7 +501,8 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	    ann.setAxesAnnot( true );
 	    ann.x1_.name_ = pdf_.dimName(0);
 	    ann.x2_.name_ = pdf_.dimName(1);
-	    vwwinnd_->windowClosed.notify( clsecb );
+	    mAttachCB( vwwinnd_->windowClosed,
+		       uiEditSampledProbDenFunc::vwWinClose );
 	}
 
 	if ( nrdims_ > 2 )
@@ -390,7 +547,8 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 
 void uiEditSampledProbDenFunc::vwWinClose( CallBacker* )
 {
-    vwwinnd_ = 0; vwwin1d_ = 0;
+    vwwin1d_ = nullptr;
+    vwwinnd_ = nullptr;
 }
 
 
@@ -400,6 +558,7 @@ void uiEditSampledProbDenFunc::tabChg( CallBacker* )
 	return;
 
     getNamesFromScreen();
+    getUnitsFromScreen();
     if ( tbl_ )
 	setToolTips();
 }
@@ -410,6 +569,9 @@ void uiEditSampledProbDenFunc::setToolTips()
     mDeclSzVars;
 #define mMkTT(dim) \
     BufferString tt( pdf_.dimName(dim) ); \
+    const UnitOfMeasure* pdfuom = UoMR().get( pdf_.getUOMSymbol( dim ) ); \
+    if ( pdfuom ) \
+	tt.add( " (" ).add( pdfuom->getLabel() ).add( ")" ); \
     if ( nrdims_ > 2 ) { mAddDim2Str(tt); }
 
     if ( nrdims_ > 1 )
@@ -461,13 +623,15 @@ void uiEditSampledProbDenFunc::updateUI()
 {
     putValsToScreen();
     if ( vwwinnd_ || vwwin1d_ )
-	viewPDF( 0 );
+	viewPDF( nullptr );
 
     mDynamicCastGet(uiDialog*,dlg,parent())
-    if ( !dlg ) return;
+    if ( !dlg )
+	return;
 
     mDeclArrNDPDF;
-    if ( !andpdf ) return;
+    if ( !andpdf )
+	return;
 
     uiString title = tr("%1 '%2'").arg(editable_ ? uiStrings::sEdit() :
 		     tr("Browse ")).arg(pdf_.name());
@@ -479,10 +643,12 @@ void uiEditSampledProbDenFunc::updateUI()
 
 bool uiEditSampledProbDenFunc::commitChanges()
 {
-    if ( !editable_ ) return true;
+    if ( !editable_ )
+	return true;
 
     if ( !getNamesFromScreen() )
 	return false;
+    getUnitsFromScreen();
     if ( tbl_ && !getValsFromScreen(&chgd_) )
 	return false;
 
@@ -494,16 +660,11 @@ bool uiEditSampledProbDenFunc::commitChanges()
 
 
 uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
-					ProbDenFunc& pdf, bool ed, bool isnew )
+					ProbDenFunc& pdf,
+					bool ed, bool isnew,
+					const MnemonicSelection* mnsel,
+					const BufferStringSet* varnms )
     : uiEditProbDenFunc(p,pdf,ed)
-    , tabstack_(0)
-    , ccfld_(0)
-    , pdf1d_(0)
-    , pdf2d_(0)
-    , pdfnd_(0)
-    , var1fld_(0)
-    , addsetbut_(0)
-    , rmbut_(0)
 {
     if ( nrdims_ == 1 )
 	mDynamicCast(Gaussian1DProbDenFunc*,pdf1d_,&pdf_)
@@ -512,33 +673,56 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
     else
 	mDynamicCast(GaussianNDProbDenFunc*,pdfnd_,&pdf_)
 
-    uiGroup* varsgrp = 0;
-    if ( !pdfnd_ )
-	varsgrp = new uiGroup( this, "Vars group" );
-    else
+    uiGroup* varsgrp = nullptr;
+    if ( pdfnd_ )
     {
 	tabstack_ = new uiTabStack( this, "Tabs" );
 	varsgrp = new uiGroup( tabstack_->tabGroup(), "Vars group" );
     }
+    else
+	varsgrp = new uiGroup( this, "Vars group" );
 
     for ( int idim=0; idim<nrdims_; idim++ )
     {
-	uiGenInput* nmfld = new uiGenInput( varsgrp, uiString::emptyString(),
-					StringInpSpec(pdf.dimName(idim)) );
-	uiGenInput* expfld = new uiGenInput( varsgrp, uiString::emptyString(),
-                                             FloatInpSpec() );
-	uiGenInput* stdfld = new uiGenInput( varsgrp, uiString::emptyString(),
-                                             FloatInpSpec() );
-	if ( !isnew )
+	auto* nmfld = new uiGenInput( varsgrp, uiString::empty(),
+				      StringInpSpec(pdf.dimName(idim)) );
+	auto* expfld = new uiGenInput( varsgrp, uiString::empty(),
+				       FloatInpSpec() );
+	auto* stdfld = new uiGenInput( varsgrp, uiString::empty(),
+				       FloatInpSpec() );
+	BufferString varnm;
+	Interval<float> rg = Interval<float>::udf();
+	const UnitOfMeasure* uom = nullptr;
+	if ( isnew )
+	    getPars( mnsel, varnms, idim, varnm, rg, uom );
+	else
+	    uom = getUnit( idim );
+
+	uiUnitSel::Setup uusu( Mnemonic::Other );
+	uusu.mn( mnsel && mnsel->validIdx(idim) ? mnsel->get(idim) : nullptr )
+	    .mode( uiUnitSel::Setup::SymbolsOnly ).withnone( !uom );
+	auto* unitfld = new uiUnitSel( varsgrp, uusu );
+	mAttachCB( unitfld->selChange, uiEditGaussianProbDenFunc::unitChgCB );
+
+	if ( isnew )
+	{
+	    nmfld->setText( varnm );
+	    if ( !rg.isUdf() )
+	    {
+		expfld->setValue( rg.center() );
+		stdfld->setValue( rg.width()/4.f );
+	    }
+	}
+	else
 	{
 	    nmfld->setText( pdf.dimName(idim) );
 	    float exp, stdev;
 	    if ( pdf1d_ )
-		{ exp = pdf1d_->exp_; stdev = pdf1d_->std_; }
+		{ exp = pdf1d_->averagePos(0); stdev = pdf1d_->stddevPos(0); }
 	    else if ( pdf2d_ && idim==0 )
-		{ exp = pdf2d_->exp0_; stdev = pdf2d_->std0_; }
+		{ exp = pdf2d_->averagePos(0); stdev = pdf2d_->stddevPos(0); }
 	    else if ( pdf2d_ && idim==1 )
-		{ exp = pdf2d_->exp1_; stdev = pdf2d_->std1_; }
+		{ exp = pdf2d_->averagePos(1); stdev = pdf2d_->stddevPos(1); }
 	    else
 	    {
 		exp = pdfnd_->vars_[idim].exp_;
@@ -548,12 +732,14 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	    stdfld->setValue( stdev );
 	}
 
+	unitfld->setUnit( uom );
+
 	if ( idim > 0 )
 	    nmfld->attach( alignedBelow, nmflds_[idim-1] );
 	else
 	{
 	    varsgrp->setHAlignObj( expfld );
-	    uiLabel* lbl = new uiLabel( varsgrp, tr("Variable name") );
+	    auto* lbl = new uiLabel( varsgrp, tr("Variable name") );
 	    lbl->attach( centeredAbove, nmfld );
 	    lbl = new uiLabel( varsgrp, tr("Expectation") );
 	    lbl->attach( centeredAbove, expfld );
@@ -562,25 +748,28 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	}
 	expfld->attach( rightOf, nmfld );
 	stdfld->attach( rightOf, expfld );
-	nmflds_ += nmfld; expflds_ += expfld; stdflds_ += stdfld;
+	unitfld->attach( rightOf, stdfld );
+	nmflds_ += nmfld; expflds_ += expfld;
+	stdflds_ += stdfld; unflds_ += unitfld;
 	if ( !editable_ )
 	{
 	    nmfld->setReadOnly( true );
 	    expfld->setReadOnly( true );
 	    stdfld->setReadOnly( true );
+	    unitfld->setReadOnly( true );
 	}
     }
 
     if ( !pdf1d_ )
     {
-	uiGroup* ccgrp = 0;
+	uiGroup* ccgrp = nullptr;
 	if ( pdf2d_ )
 	{
 	    ccfld_ = new uiGenInput(this,uiStrings::sCorrelation(),
 							       FloatInpSpec(0));
 	    ccfld_->attach( alignedBelow, varsgrp );
 	    if ( !isnew )
-		ccfld_->setValue( pdf2d_->cc_ );
+		ccfld_->setValue( pdf2d_->getCorrelation() );
 	    if ( !editable_ )
 		ccfld_->setReadOnly( true );
 	}
@@ -590,11 +779,17 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	    mkCorrTabFlds( ccgrp );
 	    tabstack_->addTab( varsgrp, tr("Distributions") );
 	    tabstack_->addTab( ccgrp, uiStrings::sCorrelation(mPlural) );
-	    tabstack_->selChange().notify(
-				mCB(this,uiEditGaussianProbDenFunc,tabChg) );
-	    postFinalise().notify(mCB(this,uiEditGaussianProbDenFunc,initGrp));
+	    mAttachCB( tabstack_->selChange(),
+		       uiEditGaussianProbDenFunc::tabChg );
+	    mAttachCB( postFinalise(), uiEditGaussianProbDenFunc::initGrp );
 	}
     }
+}
+
+
+uiEditGaussianProbDenFunc::~uiEditGaussianProbDenFunc()
+{
+    detachAllNotifiers();
 }
 
 
@@ -602,7 +797,7 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 {
     if ( editable_ )
     {
-	uiGroup* topgrp = new uiGroup( ccgrp, "CC top group" );
+	auto* topgrp = new uiGroup( ccgrp, "CC top group" );
 	topgrp->setFrame( true );
 	var1fld_ = new uiComboBox( topgrp, "Var 1" );
 	var2fld_ = new uiComboBox( topgrp, "Var 2" );
@@ -610,10 +805,11 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 							      FloatInpSpec(0));
 	var2fld_->attach( rightOf, var1fld_ );
 	ccfld_->attach( rightOf, var2fld_ );
-	const CallBack varselcb( mCB(this,uiEditGaussianProbDenFunc,varSel) );
-	var1fld_->selectionChanged.notify( varselcb );
-	var2fld_->selectionChanged.notify( varselcb );
-	uiLabel* lbl = new uiLabel( topgrp, tr("Correlate") );
+	mAttachCB( var1fld_->selectionChanged,
+		   uiEditGaussianProbDenFunc::varSel) ;
+	mAttachCB( var2fld_->selectionChanged,
+		   uiEditGaussianProbDenFunc::varSel) ;
+	auto* lbl = new uiLabel( topgrp, tr("Correlate") );
 	lbl->attach( centeredAbove, var1fld_ );
 	lbl = new uiLabel( topgrp, tr("With") );
 	lbl->attach( centeredAbove, var2fld_ );
@@ -623,15 +819,16 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 	const CallBack cb( mCB(this,uiEditGaussianProbDenFunc,addSetPush) );
 	addsetbut_ = new uiPushButton( ccgrp, uiStrings::sAdd(), cb, true );
 	addsetbut_->attach( centeredBelow, topgrp );
-	ccfld_->updateRequested.notify( cb );
+	mAttachCB( ccfld_->updateRequested,
+		   uiEditGaussianProbDenFunc::addSetPush );
     }
 
     defcorrsfld_ = new uiListBox( ccgrp, "Defined Correlations" );
     if ( editable_ )
 	defcorrsfld_->attach( centeredBelow, addsetbut_ );
     defcorrsfld_->setStretch( 2, 2 );
-    defcorrsfld_->selectionChanged.notify(
-				mCB(this,uiEditGaussianProbDenFunc,corrSel) );
+    mAttachCB( defcorrsfld_->selectionChanged,
+	       uiEditGaussianProbDenFunc::corrSel );
 
     if ( editable_ )
     {
@@ -696,11 +893,11 @@ void uiEditGaussianProbDenFunc::tabChg( CallBacker* )
     BufferStringSet varnms;
     for ( int idx=0; idx<nmflds_.size(); idx++ )
     {
+	pdfnd_->setDimName( idx, nmflds_[idx]->text() );
 	GaussianNDProbDenFunc::VarDef& vd = pdfnd_->vars_[idx];
-	vd.name_ = nmflds_[idx]->text();
 	vd.exp_ = expflds_[idx]->getFValue();
 	vd.std_ = stdflds_[idx]->getFValue();
-	varnms.add( vd.name_ );
+	varnms.add( pdfnd_->dimName(idx) );
     }
 
     if ( var1fld_ )
@@ -708,10 +905,37 @@ void uiEditGaussianProbDenFunc::tabChg( CallBacker* )
 	NotifyStopper stopper1( var1fld_->selectionChanged );
 	NotifyStopper stopper2( var2fld_->selectionChanged );
 	var1fld_->setEmpty(); var2fld_->setEmpty();
-	var1fld_->addItems( varnms ); var2fld_->addItems( varnms );
+	var1fld_->addItems( varnms );
+	var2fld_->addItems( varnms );
+	if ( varnms.size() > 1 )
+	    var2fld_->setCurrentItem( 1 );
     }
 
-    corrSel( 0 );
+    corrSel( nullptr );
+}
+
+
+void uiEditGaussianProbDenFunc::unitChgCB( CallBacker* cb )
+{
+    if ( !cb )
+	return;
+
+    mCBCapsuleUnpackWithCaller(const UnitOfMeasure*,prevuom,cber,cb);
+    mDynamicCastGet(uiUnitSel*,notifunfld,cber);
+    if ( !notifunfld )
+	return;
+
+    const int idx = unflds_.indexOf( notifunfld );
+    if ( !unflds_.validIdx(idx) )
+	return;
+
+    const UnitOfMeasure* curuom = notifunfld->getUnit();
+    uiGenInput* expfld = expflds_.get( idx );
+    uiGenInput* stdfld = stdflds_.get( idx );
+    const float expval = expfld->getFValue();
+    const float stdval = stdfld->getFValue();
+    expfld->setValue( getConvertedValue(expval,prevuom,curuom) );
+    stdfld->setValue( getConvertedValue(stdval,prevuom,curuom) );
 }
 
 
@@ -729,7 +953,7 @@ void uiEditGaussianProbDenFunc::corrSel( CallBacker* )
     var2fld_->setCurrentItem( corr.idx1_ );
     ccfld_->setValue( corr.cc_ );
 
-    varSel( 0 );
+    varSel( nullptr );
 }
 
 
@@ -795,7 +1019,8 @@ void uiEditGaussianProbDenFunc::rmPush( CallBacker* )
 
 bool uiEditGaussianProbDenFunc::commitChanges()
 {
-    if ( !editable_ ) return true;
+    if ( !editable_ )
+	return true;
 
     BufferStringSet varnms;
     if ( pdfnd_ )
@@ -806,33 +1031,37 @@ bool uiEditGaussianProbDenFunc::commitChanges()
 	const FixedString nm = nmflds_[idim]->text();
 	const float exp = expflds_[idim]->getFValue();
 	const float stdev = stdflds_[idim]->getFValue();
+	const UnitOfMeasure* uom = unflds_[idim]->getUnit();
 	if ( nm.isEmpty() )
 	    mErrRet(tr("Please enter a name for all dimensions"))
 	else if (varnms.isPresent(nm))
 	    mErrRet(tr("Please enter different names for all dimensions"))
 	if (mIsUdf(exp) || mIsUdf(stdev))
 	    mErrRet(tr("Please enter all distribution values"))
-	    if (stdev == 0)
+	if (stdev == 0)
 	    mErrRet(tr("Standard deviations cannot be zero"))
+	if (stdev < 0)
+	    mErrRet(tr("Standard deviations cannot be negative"))
 	varnms.add( nm );
 
+	pdf_.setDimName( idim, nm );
+	pdf_.setUOMSymbol( idim, UnitOfMeasure::getUnitLbl(uom) );
 	if ( pdfnd_ )
-	    pdfnd_->vars_ += GaussianNDProbDenFunc::VarDef( nm, exp, stdev );
+	    pdfnd_->vars_ += GaussianNDProbDenFunc::VarDef( exp, stdev );
 	else
 	{
-	    pdf_.setDimName( idim, nm );
 	    if ( pdf1d_ )
-		{ pdf1d_->exp_ = exp; pdf1d_->std_ = stdev; }
+		pdf1d_->set( exp, stdev );
 	    else if ( idim == 0 )
-		{ pdf2d_->exp0_ = exp; pdf2d_->std0_ = stdev; }
+		pdf2d_->set( 0, exp, stdev );
 	    else if ( idim == 1 )
-		{ pdf2d_->exp1_ = exp; pdf2d_->std1_ = stdev; }
+		pdf2d_->set( 1, exp, stdev );
 	}
     }
 
     if ( pdfnd_ )
     {
-	tabChg( 0 );
+	tabChg( nullptr );
 	const char* uncorr = pdfnd_->firstUncorrelated();
 	if ( uncorr && *uncorr && !uiMSG().askGoOn(
 	    tr("Variable '%1' is not correlated."
@@ -842,8 +1071,8 @@ bool uiEditGaussianProbDenFunc::commitChanges()
     }
     else if ( pdf2d_ )
     {
-	pdf2d_->cc_ = getCC();
-	if ( mIsUdf(pdf2d_->cc_) )
+	pdf2d_->setCorrelation( getCC() );
+	if ( mIsUdf(pdf2d_->getCorrelation()) )
 	    return false;
     }
 

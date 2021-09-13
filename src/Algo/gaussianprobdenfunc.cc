@@ -21,7 +21,7 @@ static const char* sKeyCorr = "Corr";
 
 static inline float draw01Normal( const Stats::NormalRandGen& rgen )
 {
-    return (float)rgen.get();
+    return float(rgen.get());
 }
 
 static inline float draw01Correlated( const Stats::NormalRandGen& rgen,
@@ -92,7 +92,7 @@ void Gaussian1DProbDenFunc::drwRandPos( float& pos ) const
 
 void Gaussian1DProbDenFunc::fillPar( IOPar& par ) const
 {
-    ProbDenFunc::fillPar( par );
+    ProbDenFunc1D::fillPar( par );
     par.set( sKey::Average(), exp_ );
     par.set( sKey::StdDev(), std_ );
 }
@@ -100,9 +100,9 @@ void Gaussian1DProbDenFunc::fillPar( IOPar& par ) const
 
 bool Gaussian1DProbDenFunc::usePar( const IOPar& par )
 {
+    ProbDenFunc1D::usePar( par );
     par.get( sKey::Average(), exp_ );
     par.get( sKey::StdDev(), std_ );
-    par.get( IOPar::compKey(sKey::Name(),0), varnm_ );
     deleteAndZeroPtr( rgen_ );
     return true;
 }
@@ -155,7 +155,7 @@ bool Gaussian2DProbDenFunc::isEq( const ProbDenFunc& oth ) const
 
 void Gaussian2DProbDenFunc::fillPar( IOPar& par ) const
 {
-    ProbDenFunc::fillPar( par );
+    ProbDenFunc2D::fillPar( par );
     par.set( sKey::Average(), exp0_, exp1_ );
     par.set( sKey::StdDev(), std0_, std1_ );
     par.set( "Correlation", cc_ );
@@ -164,13 +164,31 @@ void Gaussian2DProbDenFunc::fillPar( IOPar& par ) const
 
 bool Gaussian2DProbDenFunc::usePar( const IOPar& par )
 {
+    ProbDenFunc2D::usePar( par );
     par.get( sKey::Average(), exp0_, exp1_ );
     par.get( sKey::StdDev(), std0_, std1_ );
     par.get( "Correlation", cc_ );
-    par.get( IOPar::compKey(sKey::Name(),0), dim0nm_ );
-    par.get( IOPar::compKey(sKey::Name(),1), dim1nm_ );
-    deleteAndZeroPtr( rgen0_ ); deleteAndZeroPtr( rgen1_ );
+    deleteAndZeroPtr( rgen0_ );
+    deleteAndZeroPtr( rgen1_ );
     return true;
+}
+
+
+ Gaussian2DProbDenFunc&  Gaussian2DProbDenFunc::set( int idim, float exp,
+						     float std )
+{
+    if ( idim == 0 )
+    {
+	exp0_ = exp;
+	std0_ = std;
+    }
+    else if ( idim == 1 )
+    {
+	exp1_ = exp;
+	std1_ = std;
+    }
+
+    return *this;
 }
 
 
@@ -206,9 +224,13 @@ void Gaussian2DProbDenFunc::drwRandPos( float& p0, float& p1 ) const
 // ND
 
 GaussianNDProbDenFunc::GaussianNDProbDenFunc( int nrdims )
+    : ProbDenFunc()
 {
     for ( int idx=0; idx<nrdims; idx++ )
-	vars_ += VarDef( BufferString("Dim ",idx) );
+    {
+	setDimName( 0, BufferString("Dim ",idx) );
+	vars_ += VarDef();
+    }
 }
 
 
@@ -224,7 +246,7 @@ GaussianNDProbDenFunc& GaussianNDProbDenFunc::operator =(
 {
     if ( this != &oth )
     {
-	setName( oth.name() );
+	ProbDenFunc::operator=( oth );
 	vars_ = oth.vars_;
 	corrs_ = oth.corrs_;
 	delete cholesky_;
@@ -242,11 +264,7 @@ void GaussianNDProbDenFunc::copyFrom( const ProbDenFunc& pdf )
     if ( gpdfnd )
 	*this = *gpdfnd;
     else
-    {
-	setName( pdf.name() );
-	for ( int idx=0; idx<nrDims(); idx++ )
-	    setDimName( idx, pdf.dimName(idx) );
-    }
+	ProbDenFunc::copyFrom( pdf );
 }
 
 
@@ -280,25 +298,9 @@ bool GaussianNDProbDenFunc::isEq( const ProbDenFunc& oth ) const
 }
 
 
-const char* GaussianNDProbDenFunc::dimName( int idim ) const
+int GaussianNDProbDenFunc::nrDims() const
 {
-    if ( !vars_.validIdx(idim) )
-    {
-	pErrMsg("bad dim");
-	mDeclStaticString( ret );
-	ret.set( "Dim " ).add( idim );
-	return ret.buf();
-    }
-    return vars_[idim].name_;
-}
-
-
-void GaussianNDProbDenFunc::setDimName( int idim, const char* nm )
-{
-    if ( vars_.validIdx(idim) )
-	vars_[idim].name_ = nm;
-    else
-	{ pErrMsg("bad dim"); }
+    return vars_.size();
 }
 
 
@@ -307,6 +309,14 @@ float GaussianNDProbDenFunc::averagePos( int idim ) const
     if ( !vars_.validIdx(idim) )
 	{ pErrMsg("bad dim"); return 0; }
     return vars_[idim].exp_;
+}
+
+
+float GaussianNDProbDenFunc::stddevPos( int idim ) const
+{
+    if ( !vars_.validIdx(idim) )
+	{ pErrMsg("bad dim"); return 1.f; }
+    return vars_[idim].std_;
 }
 
 
@@ -319,17 +329,19 @@ float GaussianNDProbDenFunc::value( const TypeSet<float>& poss ) const
     if ( nrdims == 1 )
     {
 	const VarDef& vd = vars_[0];
-	Gaussian1DProbDenFunc pdf1d( vd.exp_, vd.std_ );
+	Gaussian1DProbDenFunc pdf1d;
+	pdf1d.set( vd.exp_, vd.std_ );
 	return pdf1d.value( poss[0] );
     }
     else if ( nrdims == 2 )
     {
-	const VarDef& vd0 = vars_[0]; const VarDef& vd1 = vars_[1];
+	const VarDef& vd0 = vars_[0];
+	const VarDef& vd1 = vars_[1];
 	Gaussian2DProbDenFunc pdf2d;
-	pdf2d.exp0_ = vd0.exp_; pdf2d.std0_ = vd0.std_;
-	pdf2d.exp1_ = vd1.exp_; pdf2d.std1_ = vd1.std_;
+	pdf2d.set( 0, vd0.exp_, vd0.std_ )
+	     .set( 1, vd1.exp_, vd1.std_ );
 	if ( !corrs_.isEmpty() )
-	    pdf2d.cc_ = corrs_[0].cc_;
+	    pdf2d.setCorrelation( corrs_[0].cc_ );
 	return pdf2d.value( poss[0], poss[1] );
     }
     if ( nrdims > 3 )
@@ -493,7 +505,8 @@ void GaussianNDProbDenFunc::drawRandomPos( TypeSet<float>& poss ) const
     for ( int idim=0; idim<vars_.size(); idim++ )
     {
 	const VarDef& vd = vars_[idim];
-	poss[idim] *= vd.std_; poss[idim] += vd.exp_;
+	poss[idim] *= vd.std_;
+	poss[idim] += vd.exp_;
     }
 }
 
@@ -510,31 +523,30 @@ const char* GaussianNDProbDenFunc::firstUncorrelated() const
 
     for ( int idim=0; idim<nrdims; idim++ )
 	if ( !havecorr[idim] )
-	    return vars_[idim].name_.buf();
+	    return dimName( idim );
 
-    return 0;
+    return nullptr;
 }
 
 
 void GaussianNDProbDenFunc::fillPar( IOPar& par ) const
 {
-    const int nrdims = nrDims();
     ProbDenFunc::fillPar( par );
+    const int nrdims = nrDims();
     if ( nrdims == 1 )
     {
-	Gaussian1DProbDenFunc pdf1d( vars_[0].exp_, vars_[0].std_ );
+	Gaussian1DProbDenFunc pdf1d( dimName(0) );
 	pdf1d.setName( name() );
-	pdf1d.varnm_ = vars_[0].name_;
+	pdf1d.set( vars_[0].exp_, vars_[0].std_ );
 	pdf1d.fillPar( par );
     }
     else if ( nrdims == 2 )
     {
-	Gaussian2DProbDenFunc pdf2d;
+	Gaussian2DProbDenFunc pdf2d( dimName(0), dimName(1) );
 	pdf2d.setName( name() );
-	pdf2d.dim0nm_ = vars_[0].name_; pdf2d.dim1nm_ = vars_[1].name_;
-	pdf2d.exp0_ = vars_[0].exp_; pdf2d.exp1_ = vars_[1].exp_;
-	pdf2d.std0_ = vars_[0].std_; pdf2d.std1_ = vars_[1].std_;
-	pdf2d.cc_ = corrs_.isEmpty() ? 0 : corrs_[0].cc_;
+	pdf2d.set( 0, vars_[0].exp_, vars_[0].std_ )
+	     .set( 1, vars_[1].exp_, vars_[1].std_ )
+	     .setCorrelation( corrs_.isEmpty() ? 0 : corrs_[0].cc_ );
 	pdf2d.fillPar( par );
     }
 
@@ -558,18 +570,21 @@ bool GaussianNDProbDenFunc::usePar( const IOPar& par )
     if ( newnrdims != nrdims )
     {
 	for ( int idx=nrdims; idx<newnrdims; idx++ )
-	    vars_ += VarDef( BufferString("Dim ",idx) );
+	{
+	    setDimName( idx, BufferString("Dim ",idx) );
+	    vars_ += VarDef();
+	}
 	while ( newnrdims < nrDims() )
-	    vars_.removeSingle( vars_.size() - 1 );
+	    vars_.pop();
 	nrdims = newnrdims;
     }
 
     for ( int idx=0; idx<nrdims; idx++ )
-    {
 	par.get( IOPar::compKey(sKeyDimStats,idx), vars_[idx].exp_,
 						   vars_[idx].std_ );
-	par.get( IOPar::compKey(sKey::Name(),idx), vars_[idx].name_ );
-    }
+
+    ProbDenFunc::usePar( par );
+
     corrs_.erase();
     for ( int idx=0; ; idx++ )
     {

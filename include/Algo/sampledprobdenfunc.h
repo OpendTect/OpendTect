@@ -27,25 +27,27 @@ ________________________________________________________________________
 mExpClass(Algo) ArrayNDProbDenFunc
 {
 public:
-    virtual		~ArrayNDProbDenFunc()	{ delete [] cumbins_; }
+    virtual		~ArrayNDProbDenFunc();
     ArrayNDProbDenFunc&	operator =(const ArrayNDProbDenFunc&);
 
     int			size( int dim ) const
 			{ return getArrND().info().getSize(dim); }
     od_uint64		totalSize() const
 			{ return getArrND().info().getTotalSz(); }
+    const ArrayND<float>& getData() const		{ return getArrND(); }
 
-    virtual const ArrayND<float>& getData() const
-			{ return getArrND(); }
-    virtual ArrayND<float>& getData()
+    bool		setSize(const TypeSet<int>&);
+    bool		setSize(const int*,int sz);
+    ArrayND<float>&	getData()
 			{ return const_cast<ArrayND<float>&>(getArrND()); }
-    virtual ArrayND<float>* getArrClone() const	= 0;
+    ArrayND<float>*	getArrClone() const;
 
-    virtual SamplingData<float>	sampling( int dim ) const
+    const SamplingData<float>& sampling( int dim ) const
 			{ return getSampling(dim); }
-    virtual SamplingData<float>& sampling( int dim )
-			{ return const_cast<SamplingData<float>&>(
-							getSampling(dim)); }
+    SamplingData<float>& sampling(int dim);
+
+    Interval<float>	getRange(int dim) const;
+    void		setRange(int dim,const StepInterval<float>&);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -56,24 +58,30 @@ public:
     static float	findAveragePos(const float*,int,float grandtotal);
 
 protected:
-			ArrayNDProbDenFunc()
-			: cumbins_(nullptr)		{}
-			ArrayNDProbDenFunc( const ArrayNDProbDenFunc& oth)
-			: cumbins_(nullptr)		{ *this = oth; }
+			ArrayNDProbDenFunc(int nrdims);
+			ArrayNDProbDenFunc( const ArrayNDProbDenFunc& oth )
+							{ *this = oth; }
 
     virtual const ArrayND<float>& getArrND() const	= 0;
-    virtual const SamplingData<float>& getSampling(int) const	= 0;
     virtual float	getNormFac() const;
     virtual void	doScale(float);
     virtual bool	gtIsEq(const ProbDenFunc&) const;
 
-    mutable float*	cumbins_;
-    mutable TypeSet<float> avgpos_;
+    mutable float*	cumbins_ = nullptr;
 
     void		prepRndDrw() const;
     void		fillCumBins() const;
     od_uint64		getRandBin() const;
     od_uint64		getBinPos(float) const;
+
+    int			nrDims_() const { return getData().info().getNDim(); }
+
+private:
+
+    const SamplingData<float>& getSampling(int) const;
+
+    TypeSet<SamplingData<float> > sds_;
+    mutable TypeSet<float> avgpos_;
 
 };
 
@@ -100,33 +108,37 @@ mExpClass(Algo) Sampled1DProbDenFunc : public ProbDenFunc1D
 {
 public:
 
-			Sampled1DProbDenFunc();
+			Sampled1DProbDenFunc(const char* vnm="");
 			Sampled1DProbDenFunc(const Array1D<float>&);
 			Sampled1DProbDenFunc(const TypeSet<float>&);
 			Sampled1DProbDenFunc(const float*,int);
 			Sampled1DProbDenFunc(const Sampled1DProbDenFunc&);
     Sampled1DProbDenFunc& operator =(const Sampled1DProbDenFunc&);
-    virtual void	copyFrom(const ProbDenFunc&);
+    void		copyFrom(const ProbDenFunc&) override;
 			mDefArrayNDProbDenFuncFns(Sampled1D)
 
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
-    virtual void	writeBulk(od_ostream&,bool binary) const;
-    virtual bool	readBulk(od_istream&,bool binary);
-    virtual ArrayND<float>* getArrClone() const
-			{ return new Array1DImpl<float>(bins_); }
+    const SamplingData<float>& sampling() const;
+    SamplingData<float>& sampling();
 
-    SamplingData<float>	sd_;
+    float		get( int idx ) const	{ return bins_.get( idx ); }
+    void		set( int idx, float val )
+			{ bins_.set( idx, val ); }
+
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
+    void		writeBulk(od_ostream&,bool binary) const override;
+    bool		readBulk(od_istream&,bool binary) override;
+
+private:
+
+    const ArrayND<float>&	getArrND() const override { return bins_; }
+
+    float		gtAvgPos() const override;
+    float		gtStdDevPos() const override	{ return mUdf(float); }
+    float		gtVal(float) const override;
+    void		drwRandPos(float&) const override;
+
     Array1DImpl<float>	bins_;
-
-protected:
-
-    virtual const ArrayND<float>&	getArrND() const	{ return bins_;}
-    virtual const SamplingData<float>&	getSampling(int) const	{ return sd_; }
-
-    virtual float	gtAvgPos() const;
-    virtual float	gtVal(float) const;
-    virtual void	drwRandPos(float&) const;
 
 };
 
@@ -140,42 +152,43 @@ mExpClass(Algo) Sampled2DProbDenFunc : public ProbDenFunc2D
 {
 public:
 
-			Sampled2DProbDenFunc();
+			Sampled2DProbDenFunc(const char* vnm0= "",
+					     const char* vnm1= "");
 			Sampled2DProbDenFunc(const Array2D<float>&);
 			Sampled2DProbDenFunc(const Sampled2DProbDenFunc&);
     Sampled2DProbDenFunc& operator =(const Sampled2DProbDenFunc&);
-    virtual void	copyFrom(const ProbDenFunc&);
+    void		copyFrom(const ProbDenFunc&) override;
 			mDefArrayNDProbDenFuncFns(Sampled2D)
 
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
-    virtual void	writeBulk(od_ostream&,bool binary) const;
-    virtual bool	readBulk(od_istream&,bool binary);
-    virtual ArrayND<float>* getArrClone() const
-			{ return new Array2DImpl<float>(bins_); }
-    virtual float	averagePos( int dim ) const
+    float		get( int idx, int idy ) const
+			{ return bins_.get( idx, idy ); }
+    void		set(int idx,int idy, float val )
+			{ bins_.set( idx, idy, val ); }
+
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
+    void		writeBulk(od_ostream&,bool binary) const override;
+    bool		readBulk(od_istream&,bool binary) override;
+    float		averagePos( int dim ) const override
 			{ return getAveragePos( dim ); }
+    float		stddevPos( int dim ) const override
+			{ return mUdf(float); }
 
-    SamplingData<float>	sd0_;
-    SamplingData<float>	sd1_;
+private:
+
+
+    const ArrayND<float>&	getArrND() const override { return bins_; }
+
+    float		gtVal(float,float) const override;
+    void		drwRandPos(float&,float&) const override;
+
     Array2DImpl<float>	bins_;
-
-protected:
-
-    virtual const ArrayND<float>&	getArrND() const	{ return bins_;}
-    virtual const SamplingData<float>&	getSampling( int d ) const
-					{ return d ? sd1_ : sd0_; }
-
-    virtual float	gtVal(float,float) const;
-    virtual void	drwRandPos(float&,float&) const;
 
 };
 
 
 /*!
 \brief Multi-dimensional PDF based on binned data.
-
-  If the 'dimnms_' are not filled, 'Dim0', 'Dim1' ... etc. will be returned.
 */
 
 mExpClass(Algo) SampledNDProbDenFunc : public ProbDenFunc
@@ -187,39 +200,36 @@ public:
 			SampledNDProbDenFunc(const ArrayND<float>&);
 			SampledNDProbDenFunc(const SampledNDProbDenFunc&);
     SampledNDProbDenFunc& operator =(const SampledNDProbDenFunc&);
-    virtual void	copyFrom(const ProbDenFunc&);
+    void		copyFrom(const ProbDenFunc&) override;
 			mDefArrayNDProbDenFuncFns(SampledND)
 
-    virtual int		nrDims() const	{ return bins_.info().getNDim(); }
-    virtual const char*	dimName(int) const;
-    virtual void	setDimName( int dim, const char* nm )
-					{ *dimnms_[dim] = nm; }
-    virtual float	averagePos( int dim ) const
+    int			nrDims() const override
+			{ return ArrayNDProbDenFunc::nrDims_(); }
+
+    void		setND( int* idxs, float val )
+			{ bins_.setND( idxs, val ); }
+
+    float		averagePos( int dim ) const override
 			{ return getAveragePos( dim ); }
-    virtual float	value(const TypeSet<float>&) const;
-    virtual void	drawRandomPos(TypeSet<float>&) const;
-    virtual ArrayND<float>* getArrClone() const
-			{ return new ArrayNDImpl<float>(bins_); }
+    float		stddevPos(int) const override	{ return mUdf(float); }
+    float		value(const TypeSet<float>&) const override;
+    void		drawRandomPos(TypeSet<float>&) const override;
 
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
-    virtual void	writeBulk(od_ostream&,bool binary) const;
-    virtual bool	readBulk(od_istream&,bool binary);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
+    void		writeBulk(od_ostream&,bool binary) const override;
+    bool		readBulk(od_istream&,bool binary) override;
 
-    TypeSet< SamplingData<float> > sds_;
+
+private:
+
+    const ArrayND<float>& getArrND() const override	{ return bins_; }
+
     ArrayNDImpl<float>	bins_;
-    BufferStringSet	dimnms_;
-
-protected:
-
-    virtual const ArrayND<float>& getArrND() const
-			{ return bins_;}
-    virtual const SamplingData<float>& getSampling( int d ) const
-			{ return sds_[d]; }
 
 public:
 
-			SampledNDProbDenFunc();
+			SampledNDProbDenFunc(); //TODO: remove ?
 
 };
 
