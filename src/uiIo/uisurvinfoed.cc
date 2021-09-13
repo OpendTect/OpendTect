@@ -348,23 +348,25 @@ void uiSurveyInfoEditor::mkTransfGrp()
 {
     trgrp_ = new uiGroup( tabs_->tabGroup(), "I/C to X/Y transformation" );
     uiLabel* dummy = new uiLabel( trgrp_, uiStrings::sEmptyString() );
-    x0fld_ = new uiGenInput ( trgrp_, tr("X = "), DoubleInpSpec().setName("X"));
+    x0fld_ = new uiGenInput ( trgrp_, toUiString("%1 = ").arg(uiStrings::sX()),
+						DoubleInpSpec().setName("X"));
     x0fld_->setElemSzPol( uiObject::SmallVar );
     x0fld_->attach( alignedBelow, dummy );
 
-    xinlfld_ = new uiGenInput ( trgrp_, tr("+ in-line *"),
-				       DoubleInpSpec().setName("Inl") );
+    xinlfld_ = new uiGenInput ( trgrp_, toUiString("+ %1 *").
+		arg(uiStrings::sInline()), DoubleInpSpec().setName("Inl") );
     xinlfld_->setElemSzPol( uiObject::SmallVar );
-    xcrlfld_ = new uiGenInput ( trgrp_, tr("+ cross-line *"),
-				      DoubleInpSpec().setName("Crl") );
+    xcrlfld_ = new uiGenInput ( trgrp_, toUiString("+ %1 *").
+		arg(uiStrings::sCrossline()), DoubleInpSpec().setName("Crl") );
     xcrlfld_->setElemSzPol( uiObject::SmallVar );
-    y0fld_ = new uiGenInput ( trgrp_, tr("Y = "), DoubleInpSpec().setName("Y"));
+    y0fld_ = new uiGenInput ( trgrp_, toUiString("%1 = ").arg(uiStrings::sY()),
+						DoubleInpSpec().setName("Y"));
     y0fld_->setElemSzPol( uiObject::SmallVar );
-    yinlfld_ = new uiGenInput ( trgrp_, tr("+ in-line *"),
-				      DoubleInpSpec() .setName("Inl"));
+    yinlfld_ = new uiGenInput ( trgrp_, toUiString("+ %1 *").
+		   arg(uiStrings::sInline()), DoubleInpSpec() .setName("Inl"));
     yinlfld_->setElemSzPol( uiObject::SmallVar );
-    ycrlfld_ = new uiGenInput ( trgrp_, tr("+ cross-line *"),
-				      DoubleInpSpec() .setName("Crl"));
+    ycrlfld_ = new uiGenInput ( trgrp_, toUiString("+ %1 *").
+		arg(uiStrings::sCrossline()), DoubleInpSpec() .setName("Crl"));
     ycrlfld_->setElemSzPol( uiObject::SmallVar );
     overrulefld_ = new uiCheckBox( trgrp_, tr("Overrule easy settings") );
     overrulefld_->setChecked( false );
@@ -748,8 +750,19 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
     if ( !si_.write(rootdir_) )
     {
-       uiMSG().error(tr("Failed to write survey info.\nNo changes committed."));
+	uiMSG().error(
+	    tr("Failed to write survey info.\nNo changes committed.") );
 	return false;
+    }
+
+    uiSurvInfoProvider* sip = getSIP();
+    if ( isnew_ && sip && sip->hasSurveyImportDlg() )
+    {
+	const bool ret = uiMSG().askGoOn(
+				tr("Proceed to import Survey data Object") );
+
+	if ( ret )
+	    sip->launchSurveyImportDlg( this->parent() )->go();
     }
 
     return true;
