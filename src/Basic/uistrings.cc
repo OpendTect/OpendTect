@@ -515,6 +515,9 @@ uiString uiStrings::sModify()
 uiString uiStrings::sNew()
 { return tr("New"); }
 
+uiString uiStrings::sODTColTab()
+{ return tr("OpendTect *_coltab file"); }
+
 uiString uiStrings::sOpen()
 { return tr("Open" ); }
 
@@ -524,6 +527,9 @@ uiString uiStrings::sOptions()
 uiString uiStrings::sOther()
 { return tr("Other"); }
 
+uiString uiStrings::sOtherUser()
+{ return tr("Other user"); }
+
 uiString uiStrings::sOutputSelection()
 { return phrOutput(sSelection().toLower()); }
 
@@ -532,6 +538,9 @@ uiString uiStrings::sOutputASCIIFile()
 
 uiString uiStrings::sOutputFileExistsOverwrite()
 { return phrExistsConinue( tr("Output file"), true); }
+
+uiString uiStrings::sPetrelAlut()
+{ return tr("Petrel *.alut"); }
 
 uiString uiStrings::sProbDensFunc( bool abbrevation, int num )
 {

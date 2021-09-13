@@ -470,6 +470,7 @@ public:
     static uiString sNoValidData()	{ return tr("No valid data found"); }
     static uiString sObject()		{ return tr("Object"); }
     static uiString sObjectID()		{ return tr("Object ID"); }
+    static uiString sODTColTab();
     static uiString sOff()		{ return tr("Off","not in action"); }
     static uiString sOffset()		{ return tr("Offset"); }
     static uiString sOk()		{ return tr("OK"); }
@@ -480,6 +481,7 @@ public:
     static uiString sOptions();
     static uiString sOr()		{ return tr("or"); }
     static uiString sOther();
+    static uiString sOtherUser();
     static uiString sOutpDataStore()	{ return tr("Output data store"); }
     static uiString sOutputFile()	{ return tr("Output file"); }
     static uiString sOutputStatistic()	{ return phrOutput( tr("statistic") ); }
@@ -495,6 +497,7 @@ public:
     static uiString sPause()		{ return tr("Pause"); }
     static uiString sParameter(int num=1) { return tr("Parameter",0,num); }
     static uiString sPercentageDone()	{ return tr("Percentage done"); }
+    static uiString sPetrelAlut();
     static uiString sPickSet(int num=1)	{ return tr("PickSet",0,num); }
     static uiString sPlatform()		{ return tr("Platform"); }
     static uiString sPoint(int n=1)	{ return tr("Point",0,n); }

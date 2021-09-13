@@ -30,7 +30,7 @@ public:
 				~uiColTabImport();
 
     const char*			getCurrentSelColTab() const;
-    
+
 protected:
 
     uiGenInput*			choicefld_;
@@ -48,7 +48,12 @@ protected:
     void			showMessage(const uiString&);
     void			showList();
 
+    void			getFromSettingsPar(const IOPar&);
+    void			getFromAlutFiles(const BufferStringSet&);
+
 private :
+				mDeprecated("Use getLabelStr instead")
     static uiString		getLabel(bool);
+    static uiString		getLabelStr(int);
 };
 
