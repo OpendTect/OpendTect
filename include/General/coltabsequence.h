@@ -108,6 +108,8 @@ public:
     void		setMarkColor( Color c )
 			{ markcolor_ = c; triggerAll(); }
 
+    void		simplify();
+
     static const char*	sKeyValCol();
     static const char*	sKeyMarkColor();
     static const char*	sKeyUdfColor();
