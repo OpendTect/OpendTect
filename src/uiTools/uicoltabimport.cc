@@ -305,9 +305,9 @@ void uiColTabImport::getFromAlutFiles( const BufferStringSet& filenms )
 	{
 	    const float pos = si.atIndex( idx );
 	    seq->setColor( pos, r[idx], g[idx], b[idx] );
-	    if ( idx==0 || idx==r.size()-1 || a[idx]!=a[idx-1] )
-		seq->setTransparency( Geom::Point2D<float>(pos,255-a[idx]) );
+	    seq->setTransparency( Geom::Point2D<float>(pos,255-a[idx]) );
 	}
+	seq->simplify();
 	seqs_ += seq;
 	uiPixmap coltabpix( 16, 10 );
 	coltabpix.fill( *seq, true );

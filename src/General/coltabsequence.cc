@@ -9,6 +9,7 @@
 #include "coltabindex.h"
 
 #include "ascstream.h"
+#include "bendpointfinder.h"
 #include "bufstringset.h"
 #include "file.h"
 #include "iopar.h"
@@ -29,6 +30,30 @@ const char* ColTab::Sequence::sKeyNrSegments()	{ return "Nr segments"; }
 const char* ColTab::Sequence::sKeyRainbow()	{ return "Rainbow"; }
 
 static const char* sKeyCtabSettsKey = "coltabs";
+
+class BendPointFinderColors : public BendPointFinderBase
+{
+public:
+		BendPointFinderColors(const ColTab::Sequence&);
+protected:
+    float	getMaxSqDistToLine(int& idx,int start,int stop) const;
+    double	sqDistTo(int ipt, int segstart, int segend) const;
+
+    const ColTab::Sequence&	seq_;
+};
+
+
+class BendPointFinderTrans : public BendPointFinderBase
+{
+public:
+		BendPointFinderTrans(const ColTab::Sequence&);
+protected:
+    float	getMaxSqDistToLine(int& idx,int start, int stop) const;
+    double	sqDistTo(int ipt, int segstart, int segend) const;
+
+    const ColTab::Sequence&	seq_;
+};
+
 
 #define mInitStdMembs(uc,mc) \
       undefcolor_(uc) \
@@ -728,4 +753,146 @@ float ColTab::Sequence::snapToSegmentCenter( float x ) const
     if ( segment>=nrsegments_ )
 	segment = nrsegments_-1;
     return segment*segmentsize;
+}
+
+
+void	ColTab::Sequence::simplify()
+{
+    BendPointFinderColors cfinder( *this );
+    cfinder.executeParallel( false );
+    const TypeSet<int>& bpc = cfinder.bendPoints();
+    if ( bpc.size() )
+    {
+	for ( int idx=size()-1; idx>=0; idx-- )
+	{
+	    if ( !bpc.isPresent(idx) )
+		removeColor( idx );
+	}
+    }
+
+    BendPointFinderTrans tfinder( *this );
+    tfinder.executeParallel( false );
+    const TypeSet<int>& bpt = tfinder.bendPoints();
+    if ( bpt.size() )
+    {
+	for ( int idx=transparencySize()-1; idx>=0; idx-- )
+	{
+	    if ( !bpt.isPresent(idx) )
+		removeTransparencyAt( idx );
+	}
+    }
+}
+
+
+
+BendPointFinderColors::BendPointFinderColors( const ColTab::Sequence& seq )
+    : BendPointFinderBase(seq.size(), 1.f/255.f)
+    , seq_(seq)
+{}
+
+
+float BendPointFinderColors::getMaxSqDistToLine( int& idx, int start,
+						 int stop ) const
+{
+    if ( stop-start==2 )
+    {
+	idx = start+1;
+	float pos = ( seq_.position(start) + seq_.position(stop) ) / 2.f;
+	float r = ( seq_.r(start) + seq_.r(stop) ) / 2.f;
+	float g = ( seq_.g(start) + seq_.g(stop) ) / 2.f;
+	float b = ( seq_.b(start) + seq_.b(stop) ) / 2.f;
+	pos  = ( seq_.position(idx) - pos );
+	r = ( seq_.r(idx) - r ) / 255.f;
+	g = ( seq_.g(idx) - g ) / 255.f;
+	b = ( seq_.b(idx) - b ) / 255.f;
+	return pos*pos + r*r + g*g + b*b;
+    }
+
+    double dsqmax = 0.0;
+    for ( int ipt=start+1; ipt<stop; ipt++ )
+    {
+	const double dsq = sqDistTo( ipt, start, stop );
+	if ( dsq>dsqmax )
+	{
+	    dsqmax = dsq;
+	    idx = ipt;
+	}
+    }
+    return float( dsqmax );
+}
+
+
+double BendPointFinderColors::sqDistTo( int ipt, int segstrt, int segend ) const
+{
+    const double pos_s = seq_.position(segend) - seq_.position(segstrt);
+    const double r_s = ( seq_.r(segend) - seq_.r(segstrt) ) / 255.;
+    const double g_s = ( seq_.g(segend) - seq_.g(segstrt) ) / 255.;
+    const double b_s = ( seq_.b(segend) - seq_.b(segstrt) ) / 255.;
+
+    double pos_p = seq_.position(ipt) - seq_.position(segstrt);
+    double r_p = ( seq_.r(ipt) - seq_.r(segstrt) ) / 255.;
+    double g_p = ( seq_.g(ipt) - seq_.g(segstrt) ) / 255.;
+    double b_p = ( seq_.b(ipt) - seq_.b(segstrt) ) / 255.;
+
+    const double t = (pos_p*pos_s + r_p*r_s + g_p*g_s + b_p*b_s)/
+				    (pos_s*pos_s + r_s*r_s + g_s*g_s + b_s*b_s);
+    pos_p -= t*pos_s;
+    r_p -= t*r_s;
+    g_p -= t*g_s;
+    b_p -= t*b_s;
+    return pos_p*pos_p + r_p*r_p + g_p*g_p + b_p*b_p;
+}
+
+
+BendPointFinderTrans::BendPointFinderTrans( const ColTab::Sequence& seq )
+    : BendPointFinderBase(seq.transparencySize(), 1.f/255.f)
+    , seq_(seq)
+{}
+
+
+float BendPointFinderTrans::getMaxSqDistToLine( int& idx, int start,
+						 int stop ) const
+{
+    if ( stop-start==2 )
+    {
+	idx = start+1;
+	const Geom::PointF trans = ( seq_.transparency(start) +
+					       seq_.transparency(stop) ) / 2.f;
+	const Geom::PointF trans_idx = seq_.transparency( idx );
+	const float pos = trans_idx.x - trans.x;
+	const float tmp = ( trans_idx.y - trans.y ) / 255.f;
+	return pos*pos + tmp*tmp;
+    }
+
+    double dsqmax = 0.0;
+    for ( int ipt=start+1; ipt<stop; ipt++ )
+    {
+	const double dsq = sqDistTo( ipt, start, stop );
+	if ( dsq>dsqmax )
+	{
+	    dsqmax = dsq;
+	    idx = ipt;
+	}
+    }
+    return float( dsqmax );
+}
+
+
+double BendPointFinderTrans::sqDistTo( int ipt, int segstrt, int segend ) const
+{
+    const Geom::PointF tr_s = seq_.transparency(segend) -
+						    seq_.transparency(segstrt);
+    const double pos_s = tr_s.x;
+    const double trans_s = tr_s.y / 255.;
+
+    const Geom::PointF tr_p = seq_.transparency(ipt) -
+						    seq_.transparency(segstrt);
+    double pos_p = tr_p.x;
+    double trans_p = tr_p.y / 255.;
+
+    const double t = (pos_p*pos_s + trans_p*trans_s)/
+						(pos_s*pos_s + trans_s*trans_s);
+    pos_p -= t*pos_s;
+    trans_p -= t*trans_s;
+    return pos_p*pos_p + trans_p*trans_p;
 }
