@@ -20,10 +20,11 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 #include "bufstring.h"
-#include "sampledprobdenfunc.h"
-#include "simpnumer.h"
-#include "probdenfunctr.h"
+#include "gaussianprobdenfunc.h"
 #include "od_helpids.h"
+#include "probdenfunctr.h"
+#include "sampledprobdenfunc.h"
+#include "unitofmeasure.h"
 
 static const int cPrefWidth = 75;
 
@@ -91,6 +92,8 @@ void uiProbDenFuncMan::browsePush( CallBacker* )
 	else
 	    selgrp_->fullUpdate( saveioobj->key() );
     }
+
+    dlg.cleanup();
 }
 
 
@@ -110,14 +113,83 @@ void uiProbDenFuncMan::mkFileInfo()
     txt += getFileInfo();
 
     mGetPDF(pdf);
-    if ( pdf )
+    if ( !pdf )
     {
-	txt += BufferString( "\nType: ", pdf->getTypeStr() );
-	for ( int idx=0; idx<pdf->nrDims(); idx++ )
+	setInfo( txt );
+	return;
+    }
+
+    txt.add( "\nType: " ).add( pdf->getTypeStr() );
+    for ( int idx=0; idx<pdf->nrDims(); idx++ )
+    {
+	BufferString lbl( "\nDimension ", idx+1, ": " );
+	lbl.add( pdf->dimName(idx) );
+	txt.add( lbl );
+    }
+
+    mDynamicCastGet(const Gaussian1DProbDenFunc*,gauss1dpdf,pdf.ptr());
+    mDynamicCastGet(const Gaussian2DProbDenFunc*,gauss2dpdf,pdf.ptr());
+    txt.addNewLine();
+    for ( int idx=0; idx<pdf->nrDims(); idx++ )
+    {
+	BufferString propdesc( "\n[", pdf->dimName(idx), "]\t" );
+	propdesc.add( "Avg: " ).add( pdf->averagePos(idx) );
+	mDynamicCastGet(const ArrayNDProbDenFunc*,sampledpdf,pdf.ptr());
+	if ( sampledpdf )
 	{
-	    BufferString lbl( "\nDimension ", idx+1, ": " );
-	    txt += lbl; txt += pdf->dimName(idx);
+	    const SamplingData<float> sd = sampledpdf->sampling( idx );
+	    const int dimsz = sampledpdf->size( idx );
+	    Interval<float> rg;
+	    rg.start = sd.start - sd.step / 2.f;
+	    rg.stop = sd.atIndex( dimsz-1 ) + sd.step / 2.f;
+	    if ( !rg.isUdf() )
+	    {
+		propdesc.add( ",\tMin: " ).add( rg.start );
+		propdesc.add( ",\tMax: " ).add( rg.stop );
+	    }
+	}
+
+	float stdevval = mUdf(float);
+	if ( gauss1dpdf )
+	    stdevval = gauss1dpdf->std_;
+	if ( gauss2dpdf )
+	    stdevval = idx==0 ? gauss2dpdf->std0_ : gauss2dpdf->std1_;
+
+	if ( !mIsUdf(stdevval) )
+	    propdesc.add( ",\tStddev: " ).add( stdevval );
+
+	const UnitOfMeasure* uom = UoMR().get( pdf->getUOMSymbol(idx) );
+	if ( uom )
+	    propdesc.add( " (" ).add( uom->getLabel() ).add( ")" );
+	else
+	    propdesc.add( " [No unit, use editor to set them]" );
+
+	txt.add( propdesc );
+    }
+
+    if ( gauss2dpdf )
+    {
+	const float corr = gauss2dpdf->cc_;
+	if ( !mIsUdf(corr) )
+	    txt.add( "\nCorrelation: " ).add( corr );
+    }
+
+    mDynamicCastGet(const GaussianNDProbDenFunc*,gaussndpdf,pdf.ptr());
+    if ( gaussndpdf )
+    {
+	const TypeSet<GaussianNDProbDenFunc::Corr>& corrs = gaussndpdf->corrs_;
+	for ( const auto& corr : corrs )
+	{
+	    const float cc = corr.cc_;
+	    if ( !mIsUdf(cc) )
+	    {
+		const BufferString varnm1 = pdf->dimName( corr.idx0_ );
+		const BufferString varnm2 = pdf->dimName( corr.idx1_ );
+		txt.add( "\nCorrelation " ).add( varnm1 )
+		   .add( "/" ).add( varnm2 ).add( ":\t" ).add( cc );
+	    }
 	}
     }
+
     setInfo( txt );
 }
