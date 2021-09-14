@@ -39,7 +39,8 @@ int styleHint( QStyle::StyleHint hint, const QStyleOption* option=nullptr,
 	       QStyleHintReturn* returndata=nullptr ) const override
 {
     if ( hint == QStyle::SH_Slider_AbsoluteSetButtons )
-	return (Qt::LeftButton | Qt::MidButton | Qt::RightButton);
+	return (Qt::LeftButton | Qt::MiddleButton | Qt::RightButton);
+
     return QProxyStyle::styleHint( hint, option, widget, returndata );
 }
 
@@ -59,7 +60,6 @@ public:
 
 private:
 
-    ODSliderStyle*	style_;
     i_SliderMessenger&	messenger_;
 
 };
@@ -71,15 +71,13 @@ uiSliderBody::uiSliderBody( uiSliderObj& hndl, uiParent* p, const char* nm )
 {
     setHSzPol( uiObject::Medium );
     setFocusPolicy( Qt::WheelFocus );
-    style_ = new ODSliderStyle( this->style() );
-    setStyle( style_ );
+    setStyle( new ODSliderStyle(this->style()) );
 }
 
 
 uiSliderBody::~uiSliderBody()
 {
     delete &messenger_;
-    delete style_;
 }
 
 
