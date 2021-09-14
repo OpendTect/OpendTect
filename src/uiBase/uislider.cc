@@ -60,7 +60,6 @@ public:
 
 private:
 
-    ODSliderStyle*	style_;
     i_SliderMessenger&	messenger_;
 
 };
@@ -72,15 +71,13 @@ uiSliderBody::uiSliderBody( uiSliderObj& hndl, uiParent* p, const char* nm )
 {
     setHSzPol( uiObject::Medium );
     setFocusPolicy( Qt::WheelFocus );
-    style_ = new ODSliderStyle( this->style() );
-    setStyle( style_ );
+    setStyle( new ODSliderStyle(this->style()) );
 }
 
 
 uiSliderBody::~uiSliderBody()
 {
     delete &messenger_;
-    delete style_;
 }
 
 
