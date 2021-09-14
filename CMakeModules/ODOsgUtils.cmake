@@ -151,6 +151,9 @@ macro(OD_SETUP_OSG)
 	endforeach()
 
 	list ( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
+	if ( UNIX )
+	    add_fontconfig( OD_MODULE_EXTERNAL_LIBS "${OD_MODULE_EXTERNAL_LIBS}" )
+	endif()
     endif()
 
 
