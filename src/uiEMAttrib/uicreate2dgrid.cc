@@ -74,8 +74,8 @@ void setBaseLine( const Grid2D::Line* baseline )
 #define mDrawLine(line) { \
     const Coord start = SI().transform( line->start_ ); \
     const Coord stop = SI().transform( line->stop_ ); \
-    uiLineItem* item = new uiLineItem; \
-    item->setLine( start, stop ); \
+    TypeSet<uiWorldPoint> pts; pts.add( start ); pts.add( stop ); \
+    auto* item = new uiPolyLineItem( pts ); \
     item->setPenStyle( ls ); \
     item->setZValue( graphicszval ); \
     graphitem_.addChild( item ); \
@@ -89,7 +89,8 @@ void update()
     if ( !grid_ ) return;
 
     OD::LineStyle ls;
-    ls.width_ = 5;
+    ls.color_ = Color( 40, 140, 180 );
+    ls.width_ = 1;
     int graphicszval = 2;
     for ( int idx=0; idx<grid_->size(true); idx++ )
     {
@@ -117,7 +118,6 @@ protected:
     ObjectSet<uiLineItem>	lines_;
     const Grid2D::Line*		baseline_;
     const Grid2D*		grid_;
-
 };
 
 
@@ -162,7 +162,7 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
     CallBack parscb = mCB(this,ui2DGridLinesFromInlCrl,paramsChgCB);
     inlmodefld_ = new uiGenInput( this, uiStrings::sInline(),
 				  BoolInpSpec(true,uiStrings::sRange(),
-				  tr("Loose")) );
+				  tr("Individual line(s)")) );
     inlmodefld_->valuechanged.notify( modecb );
 
     inlrgfld_ = new uiSelNrRange( this, uiSelNrRange::Inl, true );
@@ -175,7 +175,7 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
 
     crlmodefld_ = new uiGenInput( this, uiStrings::sCrossline(),
 				  BoolInpSpec(true,uiStrings::sRange(),
-				  tr("Loose")) );
+				  tr("Individual line(s)")) );
     crlmodefld_->valuechanged.notify( modecb );
     crlmodefld_->attach( alignedBelow, inlrgfld_ );
 
@@ -350,8 +350,8 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
     {
 	rdlfld_ = new uiIOObjSel( this, mIOObjContext(RandomLineSet),
 				uiStrings::phrInput(uiStrings::sRandomLine()) );
-	rdlfld_->selectionDone.notify( mCB(this,ui2DGridLinesFromRandLine,
-					   paramsChgCB) );
+	rdlfld_->selectionDone.notify(
+		mCB(this,ui2DGridLinesFromRandLine,paramsChgCB) );
 	pardistfld_->attach( alignedBelow, rdlfld_ );
     }
 
@@ -408,22 +408,7 @@ bool ui2DGridLinesFromRandLine::computeGrid()
 void ui2DGridLinesFromRandLine::paramsChgCB( CallBacker* cb )
 {
     if ( cb && cb == rdlfld_ )
-    {
-	if ( !rdlfld_->ioobj(true) )
-	    return;
-
-	Geometry::RandomLineSet geom;
-	BufferString msg;
-	if ( !RandomLineSetTranslator::retrieve(geom,rdlfld_->ioobj(),msg) )
-	{
-	    uiMSG().error( mToUiStringTodo(msg) );
-	    return;
-	}
-
-	const Geometry::RandomLine* rdl = geom.isEmpty() ? 0 : geom.lines()[0];
-	baseline_->start_ = rdl->nodePosition( 0 );
-	baseline_->stop_ = rdl->nodePosition( rdl->nrNodes() - 1 );
-    }
+	processInput();
 
     ui2DGridLines::updateRange();
 }
@@ -454,6 +439,31 @@ void ui2DGridLinesFromRandLine::getLineNames( BufferStringSet& linenames ) const
 	linename += diplidx;
 	linenames.add( linename );
     }
+}
+
+
+bool ui2DGridLinesFromRandLine::hasLine() const
+{
+    return !baseline_->start_.isUdf() && !baseline_->stop_.isUdf();
+}
+
+
+void ui2DGridLinesFromRandLine::processInput()
+{
+    if ( !rdlfld_->ioobj(true) )
+	return;
+
+    Geometry::RandomLineSet geom;
+    BufferString msg;
+    if ( !RandomLineSetTranslator::retrieve(geom,rdlfld_->ioobj(),msg) )
+    {
+	uiMSG().error( mToUiStringTodo(msg) );
+	return;
+    }
+
+    const Geometry::RandomLine* rdl = geom.isEmpty() ? 0 : geom.lines()[0];
+    baseline_->start_ = rdl->nodePosition( 0 );
+    baseline_->stop_ = rdl->nodePosition( rdl->nrNodes() - 1 );
 }
 
 
@@ -630,9 +640,19 @@ void uiCreate2DGrid::srcSelCB( CallBacker* )
     if ( !sourceselfld_ )
 	return;
 
-    inlcrlgridgrp_->display( sourceselfld_->getBoolValue() );
-    randlinegrdgrp_->display( !sourceselfld_->getBoolValue() );
-    updatePreview( 0 );
+    const bool isinlcrlbased = sourceselfld_->getBoolValue();
+    inlcrlgridgrp_->display( isinlcrlbased );
+    randlinegrdgrp_->display( !isinlcrlbased );
+
+    if ( !isinlcrlbased )
+    {
+	mDynamicCastGet(ui2DGridLinesFromRandLine*,rlgrp,randlinegrdgrp_)
+	if ( !rlgrp->hasLine() )
+	    rlgrp->processInput();
+    }
+
+    ui2DGridLines* grp = isinlcrlbased ? inlcrlgridgrp_ : randlinegrdgrp_;
+    grp->updateRange();
 }
 
 
@@ -645,9 +665,8 @@ void uiCreate2DGrid::outSelCB( CallBacker* )
 
 void uiCreate2DGrid::updatePreview( CallBacker* )
 {
-    bool isinlcrlbased = sourceselfld_ && sourceselfld_->getBoolValue();
-    const ui2DGridLines* grp = isinlcrlbased ? inlcrlgridgrp_
-					       : randlinegrdgrp_;
+    const bool isinlcrlbased = sourceselfld_ && sourceselfld_->getBoolValue();
+    const ui2DGridLines* grp = isinlcrlbased ? inlcrlgridgrp_ : randlinegrdgrp_;
     const Grid2D* grid = grp->getGridLines();
     preview_->setGrid( grid );
     preview_->setBaseLine( grp->getBaseLine() );
