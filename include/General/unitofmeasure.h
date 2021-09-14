@@ -41,6 +41,7 @@ public:
 			~UnitOfMeasure();
 
     UnitOfMeasure&	operator =(const UnitOfMeasure&);
+    bool		isCompatibleWith(const UnitOfMeasure&) const;
 
     static const UnitOfMeasure* getGuessed(const char*);
 

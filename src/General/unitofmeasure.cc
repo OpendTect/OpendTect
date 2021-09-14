@@ -126,6 +126,17 @@ UnitOfMeasure& UnitOfMeasure::operator =( const UnitOfMeasure& uom )
 }
 
 
+bool UnitOfMeasure::isCompatibleWith( const UnitOfMeasure& oth ) const
+{
+    for ( const auto& othprtyp : oth.proptypes_ )
+	for ( const auto& prtyp : proptypes_ )
+	    if ( othprtyp == prtyp )
+		return true;
+
+    return false;
+}
+
+
 UnitOfMeasure::PropType UnitOfMeasure::propType( int idx ) const
 {
     return proptypes_.validIdx(idx) ? proptypes_[idx] : Mnemonic::Other;
