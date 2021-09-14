@@ -464,6 +464,57 @@ OPTION ( OD_CREATE_COMPILE_DATABASE "Create compile_commands.json database for a
 if ( OD_CREATE_COMPILE_DATABASE )
     set( CMAKE_EXPORT_COMPILE_COMMANDS "ON" )
 endif()
+
+macro( GET_OD_BASE_EXECUTABLES )
+    foreach(  MODULE ${OD_CORE_MODULE_NAMES_od} ${OD_SPECPROGS} ${OD_PLUGINS} )
+	list( APPEND OD_BASE_EXECUTABLE ${OD_${MODULE}_PROGS} )
+    endforeach()
+endmacro()
+
+
+function( add_fontconfig OUTPUT_LIST INPUT_LIST )
+    list( APPEND LIBLIST ${INPUT_LIST} )
+
+    if ( APPLE )
+	od_find_library( LIBFONTCONFIG libfontconfig.1.dylib )
+    else()
+	od_find_library( LIBFONTCONFIG libfontconfig.so.1 )
+    endif()
+
+    if ( LIBFONTCONFIG )
+	list ( APPEND LIBLIST "${LIBFONTCONFIG}" )
+    else()
+	message( FATAL_ERROR "Required system library not found: libfontconfig" )
+    endif()
+
+    if ( APPLE )
+	od_find_library( LIBFREETYPELOC libfreetype.6.dylib )
+    else()
+	od_find_library( LIBFREETYPELOC libfreetype.so.6 )
+    endif()
+
+    if ( LIBFREETYPELOC )
+	list ( APPEND LIBLIST "${LIBFREETYPELOC}" )
+    else()
+	message( FATAL_ERROR "Required system library not found: libfreetype" )
+    endif()
+
+    if ( APPLE )
+	od_find_library( LIBPNGLOC libpng16.16.dylib )
+    else()
+	od_find_library( LIBPNGLOC libpng16.so.16 libpng15.so.15 libpng12.so.0 )
+    endif()
+
+    if ( LIBPNGLOC )
+	list ( APPEND LIBLIST "${LIBPNGLOC}" )
+    else()
+	message( FATAL_ERROR "Required system library not found: libpng" )
+    endif()
+
+    set( ${OUTPUT_LIST} ${LIBLIST} PARENT_SCOPE )
+endfunction(add_fontconfig)
+
+
 # Used compile_commands.json for include-what-you-use
 # python3 /usr/local/bin/iwyu_tool.py -p . > iwyu_results.txt
 # Note that this tool is of limited use as it wants to dictate all includes
