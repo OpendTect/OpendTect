@@ -250,7 +250,7 @@ uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
 	if ( !editable_ )
 	{
 	    nmfld->setReadOnly( true );
-	    unitfld->setReadOnly( true );
+	    unitfld->setSensitive( false );
 	}
     }
 
@@ -760,7 +760,7 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	    nmfld->setReadOnly( true );
 	    expfld->setReadOnly( true );
 	    stdfld->setReadOnly( true );
-	    unitfld->setReadOnly( true );
+	    unitfld->setSensitive( false );
 	}
     }
 

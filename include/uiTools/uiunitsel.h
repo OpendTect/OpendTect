@@ -88,8 +88,6 @@ public:
     bool			hasMnemonicSelection() const { return mnfld_; }
     void			setMnemonic(const Mnemonic&);
 
-    void			setReadOnly(bool yn=true);
-
     CNotifier<uiUnitSel,const UnitOfMeasure*>		selChange;
 				//!< Returns previous unit
     Notifier<uiUnitSel>		propSelChange;

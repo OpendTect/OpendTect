@@ -328,16 +328,6 @@ const char* uiUnitSel::getUnitName() const
 }
 
 
-void uiUnitSel::setReadOnly( bool yn )
-{
-    inpfld_->setReadOnly( yn );
-    if ( propfld_ )
-	propfld_->setReadOnly( yn );
-    if ( mnfld_ )
-	mnfld_->setReadOnly( yn );
-}
-
-
 void uiUnitSel::displayGroup( bool yn )
 {
     inpfld_->display( yn );
