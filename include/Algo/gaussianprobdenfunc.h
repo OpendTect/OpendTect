@@ -47,9 +47,9 @@ mExpClass(Algo) Gaussian1DProbDenFunc : public ProbDenFunc1D
 public:
 
 			Gaussian1DProbDenFunc( float exp=0, float stdev=1 )
-			    : rgen_(0), exp_(exp), std_(stdev)	{}
+			    : rgen_(nullptr), exp_(exp), std_(stdev)	{}
 			Gaussian1DProbDenFunc(const Gaussian1DProbDenFunc& oth)
-			    : rgen_(0)	{ *this = oth; }
+			    : rgen_(nullptr)	{ *this = oth; }
 
 			mDefGaussianProbDenFuncFns(Gaussian1D)
 
@@ -74,7 +74,7 @@ mExpClass(Algo) Gaussian2DProbDenFunc : public ProbDenFunc2D
 public:
 
 			Gaussian2DProbDenFunc()
-			    : rgen0_(0), rgen1_(0)
+			    : rgen0_(nullptr), rgen1_(nullptr)
 			    , exp0_(0), exp1_(0)
 			    , std0_(1), std1_(1), cc_(0) {}
 			Gaussian2DProbDenFunc(const Gaussian2DProbDenFunc& oth)
@@ -108,7 +108,7 @@ public:
 
 			GaussianNDProbDenFunc(int nrdims=3);
 			GaussianNDProbDenFunc(const GaussianNDProbDenFunc& oth)
-						{ *this = oth; }
+					{ cholesky_ = nullptr; *this = oth; }
 			mDefGaussianProbDenFuncFns(GaussianND)
 
     virtual int		nrDims() const		{ return vars_.size(); }

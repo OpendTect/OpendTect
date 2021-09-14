@@ -48,6 +48,10 @@ protected:
     const bool		editable_;
     bool		chgd_;
 
+public:
+
+    void		cleanup();
+
 };
 
 
@@ -66,6 +70,10 @@ protected:
     uiEditProbDenFunc*	edfld_;
 
     bool		acceptOK(CallBacker*);
+
+public:
+
+    void		cleanup();
 
 };
 

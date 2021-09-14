@@ -21,13 +21,13 @@ static const char* sKeyCorr = "Corr";
 
 static inline float draw01Normal( const Stats::NormalRandGen& rgen )
 {
-    return (float)rgen.get();
+    return float(rgen.get());
 }
 
 static inline float draw01Correlated( const Stats::NormalRandGen& rgen,
 					float othdraw, float cc )
 {
-    const float draw = (float) rgen.get();
+    const float draw = float(rgen.get());
     return cc * othdraw + Math::Sqrt(1 - cc*cc) * draw;
 }
 
@@ -104,6 +104,8 @@ bool Gaussian1DProbDenFunc::usePar( const IOPar& par )
     par.get( sKey::StdDev(), std_ );
     par.get( IOPar::compKey(sKey::Name(),0), varnm_ );
     deleteAndZeroPtr( rgen_ );
+    readUOMFromPar( par );
+
     return true;
 }
 
@@ -170,6 +172,8 @@ bool Gaussian2DProbDenFunc::usePar( const IOPar& par )
     par.get( IOPar::compKey(sKey::Name(),0), dim0nm_ );
     par.get( IOPar::compKey(sKey::Name(),1), dim1nm_ );
     deleteAndZeroPtr( rgen0_ ); deleteAndZeroPtr( rgen1_ );
+    readUOMFromPar( par );
+
     return true;
 }
 
@@ -225,7 +229,8 @@ GaussianNDProbDenFunc& GaussianNDProbDenFunc::operator =(
 {
     if ( this != &oth )
     {
-	setName( oth.name() );
+	copyNameFrom( oth );
+	copyUOMFrom( oth );
 	vars_ = oth.vars_;
 	corrs_ = oth.corrs_;
 	delete cholesky_;
@@ -244,7 +249,8 @@ void GaussianNDProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 	*this = *gpdfnd;
     else
     {
-	setName( pdf.name() );
+	copyNameFrom( pdf );
+	copyUOMFrom( pdf );
 	for ( int idx=0; idx<nrDims(); idx++ )
 	    setDimName( idx, pdf.dimName(idx) );
     }
@@ -571,6 +577,9 @@ bool GaussianNDProbDenFunc::usePar( const IOPar& par )
 						   vars_[idx].std_ );
 	par.get( IOPar::compKey(sKey::Name(),idx), vars_[idx].name_ );
     }
+
+    readUOMFromPar( par );
+
     corrs_.erase();
     for ( int idx=0; ; idx++ )
     {

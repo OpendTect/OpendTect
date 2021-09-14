@@ -36,11 +36,16 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     : uiGroup(p,"ProbDenFunc editor")
     , inpdf_(pdf)
     , editable_(ed)
-    , pdf_(*new GaussianNDProbDenFunc(pdf.nrDims()))
+    , pdf_(*pdf.clone())
     , nrdims_(pdf.nrDims())
     , chgd_(false)
 {
-    pdf_ = pdf;
+}
+
+
+void uiEditProbDenFunc::cleanup()
+{
+    delete &pdf_;
 }
 
 
@@ -51,7 +56,7 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 	     toUiString("%1 '%2'").arg(ed ? "Edit" : "Browse").arg(pdf.name()
 	     .isEmpty() ? tr("PDF") : mToUiStringTodo(pdf.name())),
 	     mODHelpKey(mEditProbDenFuncHelpID) ))
-	     , edfld_(0)
+    , edfld_(nullptr)
 {
     if ( !ed )
 	setCtrlStyle( uiDialog::CloseOnly );
@@ -73,6 +78,14 @@ bool uiEditProbDenFuncDlg::acceptOK( CallBacker* )
 	return true;
 
     return edfld_->commitChanges();
+}
+
+
+void uiEditProbDenFuncDlg::cleanup()
+{
+    mDynamicCastGet(uiEditGaussianProbDenFunc*,gaussedfld,edfld_);
+    if ( gaussedfld )
+	edfld_->cleanup();
 }
 
 
@@ -472,8 +485,12 @@ void uiEditSampledProbDenFunc::updateUI()
 
     uiString title = tr("%1 '%2'").arg(editable_ ? uiStrings::sEdit() :
 		     tr("Browse ")).arg(pdf_.name());
-    title = toUiString("%1 %2").arg(title).arg(tr("at %2 = %3")
+    if ( pdf_.nrDims() > 2 )
+    {
+	title = toUiString("%1 %2").arg(title).arg(tr("at %2 = %3")
 	    .arg(pdf_.dimName(2)).arg(andpdf->sampling(2).atIndex(curdim2_)));
+    }
+
     dlg->setTitleText( title );
 }
 

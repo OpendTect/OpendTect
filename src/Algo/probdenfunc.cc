@@ -68,9 +68,11 @@ float ProbDenFuncDraw::value( int ival, bool redrw ) const
 static HiddenParam<ProbDenFunc,BufferStringSet*> hp_uoms(nullptr);
 
 ProbDenFunc::ProbDenFunc( const ProbDenFunc& pdf )
-    : NamedObject(pdf.name())
+    : NamedObject()
 {
     init();
+    copyNameFrom( pdf );
+    copyUOMFrom( pdf );
 }
 
 
@@ -119,6 +121,12 @@ void ProbDenFunc::readUOMFromPar( const IOPar& par )
 }
 
 
+void ProbDenFunc::copyNameFrom( const ProbDenFunc& oth )
+{
+    NamedObject::operator=( oth );
+}
+
+
 void ProbDenFunc::copyUOMFrom( const ProbDenFunc& pdf )
 {
     for ( int dim=0; dim<pdf.nrDims(); dim++ )
@@ -128,7 +136,8 @@ void ProbDenFunc::copyUOMFrom( const ProbDenFunc& pdf )
 
 bool ProbDenFunc::isEqual( const ProbDenFunc& oth ) const
 {
-    if ( FixedString(getTypeStr()) != oth.getTypeStr() )
+    if ( FixedString(getTypeStr()) != oth.getTypeStr() ||
+	 name() != oth.name() )
 	return false;
 
     const int nrdims = nrDims();
@@ -140,6 +149,11 @@ bool ProbDenFunc::isEqual( const ProbDenFunc& oth ) const
 	if ( FixedString(dimName(idim)) != oth.dimName(idim) )
 	    return false;
     }
+
+    const BufferStringSet& othuoms = *hp_uoms.getParam( &oth );
+    BufferStringSet& uoms = *hp_uoms.getParam( this );
+    if ( uoms != othuoms )
+	return false;
 
     return isEq( oth );
 }
@@ -190,14 +204,26 @@ bool ProbDenFunc::isCompatibleWith( const ProbDenFunc& pdf ) const
 }
 
 
+ProbDenFunc1D& ProbDenFunc1D::operator =( const ProbDenFunc1D& pdf )
+{
+    if ( this != &pdf )
+    {
+	varnm_ = pdf.varnm_;
+	copyNameFrom( pdf );
+	copyUOMFrom( pdf );
+    }
+
+    return *this;
+}
+
 
 ProbDenFunc2D& ProbDenFunc2D::operator =( const ProbDenFunc2D& pd )
 {
-    if ( this != & pd )
+    if ( this != &pd )
     {
 	dim0nm_ = pd.dim0nm_;
 	dim1nm_ = pd.dim1nm_;
-	setName( pd.name() );
+	copyNameFrom( pd );
 	copyUOMFrom( pd );
     }
 
@@ -436,6 +462,7 @@ float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
 // Sampled1DProbDenFunc
 Sampled1DProbDenFunc::Sampled1DProbDenFunc()
     : ProbDenFunc1D("")
+    , ArrayNDProbDenFunc()
     , sd_(0,1)
     , bins_(1)
 {}
@@ -443,6 +470,7 @@ Sampled1DProbDenFunc::Sampled1DProbDenFunc()
 
 Sampled1DProbDenFunc::Sampled1DProbDenFunc( const Array1D<float>& a1d )
     : ProbDenFunc1D("")
+    , ArrayNDProbDenFunc()
     , sd_(0,1)
     , bins_(a1d)
 {
@@ -451,6 +479,7 @@ Sampled1DProbDenFunc::Sampled1DProbDenFunc( const Array1D<float>& a1d )
 
 Sampled1DProbDenFunc::Sampled1DProbDenFunc( const TypeSet<float>& vals )
     : ProbDenFunc1D("")
+    , ArrayNDProbDenFunc()
     , sd_(0,1)
     , bins_(vals.size())
 {
@@ -461,6 +490,7 @@ Sampled1DProbDenFunc::Sampled1DProbDenFunc( const TypeSet<float>& vals )
 
 Sampled1DProbDenFunc::Sampled1DProbDenFunc( const float* vals, int sz )
     : ProbDenFunc1D("")
+    , ArrayNDProbDenFunc()
     , sd_(0,1)
     , bins_(sz)
 {
@@ -579,6 +609,7 @@ bool Sampled1DProbDenFunc::readBulk( od_istream& strm, bool binary )
 // Sampled2DProbDenFunc
 Sampled2DProbDenFunc::Sampled2DProbDenFunc()
     : ProbDenFunc2D("","")
+    , ArrayNDProbDenFunc()
     , sd0_(0,1)
     , sd1_(0,1)
     , bins_(1,1)
@@ -588,6 +619,7 @@ Sampled2DProbDenFunc::Sampled2DProbDenFunc()
 
 Sampled2DProbDenFunc::Sampled2DProbDenFunc( const Array2D<float>& a2d )
     : ProbDenFunc2D("","")
+    , ArrayNDProbDenFunc()
     , sd0_(0,1)
     , sd1_(0,1)
     , bins_(a2d)
@@ -597,11 +629,11 @@ Sampled2DProbDenFunc::Sampled2DProbDenFunc( const Array2D<float>& a2d )
 
 Sampled2DProbDenFunc::Sampled2DProbDenFunc( const Sampled2DProbDenFunc& spdf )
     : ProbDenFunc2D(spdf)
+    , ArrayNDProbDenFunc(spdf)
     , sd0_(spdf.sd0_)
     , sd1_(spdf.sd1_)
     , bins_(spdf.bins_)
 {
-    copyUOMFrom( spdf );
 }
 
 
@@ -611,6 +643,7 @@ Sampled2DProbDenFunc& Sampled2DProbDenFunc::operator =(
     if ( this != &spdf )
     {
 	ProbDenFunc2D::operator =( spdf );
+	ArrayNDProbDenFunc::operator =( spdf );
 	sd0_ = spdf.sd0_;
 	sd1_ = spdf.sd1_;
 	bins_ = spdf.bins_;
@@ -708,7 +741,9 @@ bool Sampled2DProbDenFunc::readBulk( od_istream& strm, bool binary )
 
 // SampledNDProbDenFunc
 SampledNDProbDenFunc::SampledNDProbDenFunc( int nrdims )
-    : bins_( ArrayNDInfoImpl(nrdims) )
+    : ProbDenFunc()
+    , ArrayNDProbDenFunc()
+    , bins_( ArrayNDInfoImpl(nrdims) )
 {
     for ( int idx=0; idx<nrdims; idx++ )
     {
@@ -719,7 +754,9 @@ SampledNDProbDenFunc::SampledNDProbDenFunc( int nrdims )
 
 
 SampledNDProbDenFunc::SampledNDProbDenFunc( const ArrayND<float>& arr )
-    : bins_(arr)
+    : ProbDenFunc()
+    , ArrayNDProbDenFunc()
+    , bins_(arr)
 {
     for ( int idx=0; idx<arr.info().getNDim(); idx++ )
     {
@@ -731,16 +768,18 @@ SampledNDProbDenFunc::SampledNDProbDenFunc( const ArrayND<float>& arr )
 
 SampledNDProbDenFunc::SampledNDProbDenFunc( const SampledNDProbDenFunc& spdf )
     : ProbDenFunc(spdf)
+    , ArrayNDProbDenFunc(spdf)
     , bins_(spdf.bins_)
     , sds_(spdf.sds_)
     , dimnms_(spdf.dimnms_)
 {
-    copyUOMFrom( spdf );
 }
 
 
 SampledNDProbDenFunc::SampledNDProbDenFunc()
-    : bins_(ArrayNDImpl<float>(ArrayNDInfoImpl(0)))
+    : ProbDenFunc()
+    , ArrayNDProbDenFunc()
+    , bins_(ArrayNDImpl<float>(ArrayNDInfoImpl(0)))
 {
 }
 
@@ -750,11 +789,11 @@ SampledNDProbDenFunc& SampledNDProbDenFunc::operator =(
 {
     if ( this != &spdf )
     {
-	setName( spdf.name() );
+	copyNameFrom( spdf );
+	copyUOMFrom( spdf );
 	sds_ = spdf.sds_;
 	bins_ = spdf.bins_;
 	dimnms_ = spdf.dimnms_;
-	copyUOMFrom( spdf );
     }
 
     return *this;
@@ -768,12 +807,10 @@ void SampledNDProbDenFunc::copyFrom( const ProbDenFunc& pdf )
 	*this = *spdfnd;
     else
     {
-	setName( pdf.name() );
+	ProbDenFunc::copyNameFrom( pdf );
+	ProbDenFunc::copyUOMFrom( pdf );
 	for ( int idx=0; idx<nrDims(); idx++ )
-	{
 	    setDimName( idx, pdf.dimName(idx) );
-	    setUOMSymbol( idx, pdf.getUOMSymbol(idx) );
-	}
     }
 }
 

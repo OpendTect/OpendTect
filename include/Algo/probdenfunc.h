@@ -47,7 +47,7 @@ public:
     virtual void	scale(float)				{}
     virtual float	normFac() const				{ return 1; }
 
-    			// Used for file store/retrieve:
+			// Used for file store/retrieve:
     virtual void	fillPar(IOPar&) const			= 0;
     virtual bool	usePar(const IOPar&)			= 0;
     virtual void	writeBulk(od_ostream&,bool binary) const {}
@@ -73,10 +73,11 @@ protected:
 			ProbDenFunc(const ProbDenFunc&);
 
     virtual bool	isEq(const ProbDenFunc&) const		= 0;
-			//!< already checked for type, name and dim names
+			//!< already checked for type, name, dim names and units
 
     void		init();
     void		cleanup();
+    void		copyNameFrom(const ProbDenFunc&);
 };
 
 
@@ -89,15 +90,15 @@ mExpClass(Algo) ProbDenFunc1D : public ProbDenFunc
 public:
 
     virtual void	copyFrom( const ProbDenFunc& pdf )
-			{ varnm_ = pdf.dimName(0); setName(pdf.name());
-			  copyUOMFrom(pdf); }
+			{ varnm_ = pdf.dimName(0); copyNameFrom( pdf );
+			  copyUOMFrom( pdf ); }
 
     virtual int		nrDims() const		{ return 1; }
     virtual const char*	dimName(int) const	{ return varName(); }
     virtual void	setDimName( int dim, const char* nm )
 						{ if ( !dim ) varnm_ = nm; }
 
-    virtual const char*	varName() const		{ return varnm_; }
+    virtual const char* varName() const		{ return varnm_; }
 
     virtual float	averagePos(int) const	{ return gtAvgPos(); }
     inline float	value( float v ) const	{ return gtVal( v ); }
@@ -119,6 +120,8 @@ protected:
 			    : ProbDenFunc(pdf)
 			    , varnm_(pdf.varnm_)		{}
 
+    ProbDenFunc1D&	operator =(const ProbDenFunc1D&);
+
     virtual float	gtAvgPos() const	= 0;
     virtual float	gtVal(float) const	= 0;
     virtual void	drwRandPos(float&) const = 0;
@@ -136,7 +139,7 @@ public:
 
     virtual void	copyFrom( const ProbDenFunc& pdf )
 			{ dim0nm_ = pdf.dimName(0); dim1nm_ = pdf.dimName(1);
-			  setName(pdf.name()); copyUOMFrom(pdf); }
+			  copyNameFrom( pdf ); copyUOMFrom( pdf ); }
 
     virtual int		nrDims() const			{ return 2; }
     virtual const char*	dimName(int) const;

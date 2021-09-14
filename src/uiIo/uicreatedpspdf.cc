@@ -377,5 +377,6 @@ void uiCreateDPSPDF::viewPDF()
 {
     uiEditProbDenFuncDlg editdlg( this, *pdf_, true );
     editdlg.go();
+    editdlg.cleanup();
     mSavePDF( return );
 }
