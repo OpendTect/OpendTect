@@ -113,9 +113,14 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	const bool issingleline = hor2d_.geometry().nrLines()<2;
 	curinterp_->setFillType( issingleline ? Array2DInterpol::Full
 					      : Array2DInterpol::ConvexHull );
-	curinterp_->setArray( sd_[cursectnr_]->arr_, taskrunner );
-
+	const bool res =
+		curinterp_->setArray( sd_[cursectnr_]->arr_, taskrunner );
 	msg_ = curinterp_->uiMessage();
+	if ( !res )
+	{
+	    deleteAndZeroPtr( curinterp_ );
+	    deepErase( sd_ );
+	}
     }
 
     hor3d_.removeAll();
@@ -220,9 +225,14 @@ od_int64 Hor2DTo3D::totalNr() const
 
 int Hor2DTo3D::nextStep()
 {
-    if ( sd_.isEmpty() )
+    if ( !curinterp_ && sd_.isEmpty() )
     {
-	msg_ = tr( "No data in selected area");
+	msg_ = tr("No data to grid.");
+	return Executor::ErrorOccurred();
+    }
+    else if ( sd_.isEmpty() )
+    {
+	msg_ = tr( "No data in selected area.");
 	return Executor::ErrorOccurred();
     }
 

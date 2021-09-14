@@ -72,6 +72,7 @@ public:
     virtual float	getValue(const Coord&,const TypeSet<double>* weights=0,
 				 const TypeSet<int>* relevantpoints=0) const;
 			//!<Does the gridding
+    const TypeSet<float>* getValues() const		{ return values_; }
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
