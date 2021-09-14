@@ -635,8 +635,12 @@ void uiEditSampledProbDenFunc::updateUI()
 
     uiString title = tr("%1 '%2'").arg(editable_ ? uiStrings::sEdit() :
 		     tr("Browse ")).arg(pdf_.name());
-    title = toUiString("%1 %2").arg(title).arg(tr("at %2 = %3")
+    if ( pdf_.nrDims() > 2 )
+    {
+	title = toUiString("%1 %2").arg(title).arg(tr("at %2 = %3")
 	    .arg(pdf_.dimName(2)).arg(andpdf->sampling(2).atIndex(curdim2_)));
+    }
+
     dlg->setTitleText( title );
 }
 
