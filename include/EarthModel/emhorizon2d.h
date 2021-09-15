@@ -46,6 +46,7 @@ public:
     const char*			lineSet(int id) const;
     Pos::GeomID			geomID(int idx) const;
     void			getGeomIDs(TypeSet<Pos::GeomID>&) const;
+    bool			hasLine(Pos::GeomID) const;
 
     PosID			getPosID(const TrcKey&) const;
     TrcKey			getTrcKey(const PosID&) const;
