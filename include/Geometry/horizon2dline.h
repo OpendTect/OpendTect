@@ -41,42 +41,42 @@ public:
     int			nrLines() const		 { return geomids_.size(); }
     Pos::GeomID		geomID(int rowidx) const { return geomids_[rowidx]; }
     void		getGeomIDs(TypeSet<Pos::GeomID>&) const;
+    bool		hasLine(Pos::GeomID) const;
 
-    bool		addRow(Pos::GeomID geomid,const TypeSet<Coord>&,
+    bool		addRow(Pos::GeomID,const TypeSet<Coord>&,
 			       int start,int step);
 			/*!<\returns id of new path. */
-    bool		addUdfRow(Pos::GeomID geomid,int start,int stop,
-								   int step);
+    bool		addUdfRow(Pos::GeomID,int start,int stop,int step);
 			/*!<\returns id of new path. */
 
-    void		setRow(Pos::GeomID geomid,const TypeSet<Coord>&,
+    void		setRow(Pos::GeomID,const StepInterval<int>* trcrg);
+    void		setRow(Pos::GeomID,const TypeSet<Coord>&,
 			       int start,int step);
     bool		reassignRow(Pos::GeomID from,Pos::GeomID to);
 
-    void		syncRow(Pos::GeomID Geomid,
+    void		syncRow(Pos::GeomID,
 				const PosInfo::Line2DData&);
 
-    void		removeRow(Pos::GeomID Geomid);
+    void		removeRow(Pos::GeomID);
 
-    void		removeCols(Pos::GeomID Geomid,int start,int stop);
+    void		removeCols(Pos::GeomID,int start,int stop);
 
-    int			getRowIndex(Pos::GeomID Geomid) const;
+    int			getRowIndex(Pos::GeomID) const;
 
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int rowindex) const;
-    StepInterval<int>	colRangeForGeomID(Pos::GeomID geomid) const;
+    StepInterval<int>	colRangeForGeomID(Pos::GeomID) const;
     virtual StepInterval<int> colRange() const
 			{ return RowColSurface::colRange(); }
-    Interval<float>	zRange(Pos::GeomID geomid) const;
+    Interval<float>	zRange(Pos::GeomID) const;
 
-    void		geometry(Pos::GeomID geomid,
-				 PosInfo::Line2DData&)const;
+    void		geometry(Pos::GeomID,PosInfo::Line2DData&)const;
 
     Coord3		getKnot(const RowCol& rc) const; // rc.row() = rowindex
     bool		setKnot(const RowCol&,const Coord3&);
 
     bool		isKnotDefined(const RowCol&) const;
-    Coord3		computePosition(Pos::GeomID geomid,int trcnr) const;
+    Coord3		computePosition(Pos::GeomID,int trcnr) const;
 
     virtual void	trimUndefParts();
     bool		hasSupport(const RowCol&) const;

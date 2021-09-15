@@ -882,7 +882,7 @@ public:
 //uiFaultParSel
 
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
-    : uiCompoundParSel(p,toUiString("***************")) 
+    : uiCompoundParSel(p,toUiString("***************"))
       //Hack So that textfld_ label is correctly updated
     , is2d_(is2d)
     , isfltset_(false)
@@ -1120,8 +1120,9 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel )
 	objfld_->selectionDone.notify( mCB(this,uiAuxDataSel,objSelCB) );
     }
 
-    auxdatafld_ = new uiIOSelect( this,
-				  uiIOSelect::Setup(uiStrings::sHorizonData()),
+    uiString seltxt = uiStrings::sOutput();
+    seltxt.append( uiStrings::sHorizonData() );
+    auxdatafld_ = new uiIOSelect( this, uiIOSelect::Setup(seltxt),
 				  mCB(this,uiAuxDataSel,auxSelCB) );
     if ( objfld_ )
 	auxdatafld_->attach( alignedBelow, objfld_ );

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "interpol1d.h"
 #include "posinfo2d.h"
+#include "survgeom2d.h"
 #include "undefval.h"
 #include <limits.h>
 
@@ -44,10 +45,22 @@ Horizon2DLine::~Horizon2DLine()
 
 
 Horizon2DLine* Horizon2DLine::clone() const
-{ return new Horizon2DLine(*this); }
+{
+    return new Horizon2DLine(*this);
+}
+
 
 void Horizon2DLine::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
-{ geomids = geomids_; }
+{
+    geomids = geomids_;
+}
+
+
+bool Horizon2DLine::hasLine( Pos::GeomID geomid ) const
+{
+    return geomids_.isPresent( geomid );
+}
+
 
 bool Horizon2DLine::addRow( Pos::GeomID geomid,const TypeSet<Coord>& coords,
 			    int start, int step )
@@ -188,6 +201,27 @@ void Horizon2DLine::removeCols( Pos::GeomID geomid, int col1, int col2 )
     {
 	for ( int idx=startidx; idx<=stopidx; idx++ )
 	    (*rows_[rowidx])[idx] = Coord3::udf();
+    }
+}
+
+
+void Horizon2DLine::setRow( Pos::GeomID geomid, const StepInterval<int>* trcrg )
+{
+    const int rowidx = getRowIndex( geomid );
+    if ( !rows_.validIdx(rowidx) )
+	return;
+
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
+    if ( !geom2d )
+	return;
+
+    StepInterval<int> trcrg2use = trcrg ? *trcrg : geom2d->data().trcNrRange();
+    rows_[rowidx]->setSize( trcrg2use.nrSteps()+1, Coord3::udf() );
+    for ( int idx=0; idx<trcrg2use.nrSteps()+1; idx++ )
+    {
+	const Coord crd = geom2d->toCoord( trcrg2use.atIndex(idx) );
+	(*rows_[rowidx])[idx] = Coord3( crd, mUdf(double) );
     }
 }
 
