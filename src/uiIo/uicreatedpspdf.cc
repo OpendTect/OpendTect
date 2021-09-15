@@ -44,6 +44,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
     , plotter_(plotter)
     , dps_(plotter_->dps())
 {
+    enableSaveButton( tr("View/Edit after creation") );
     createDefaultUI();
 }
 
