@@ -89,9 +89,12 @@ const char* ValueProperty::def() const
 {
     static FileMultiString fms;
     fms = ::toString( val_ );
+    /*
+       Not writing the UoM, to preserve compatibility between 6.6.X versions
     const BufferString unitlbl( ref_.getStorUnitLbl() );
     if ( !unitlbl.isEmpty() )
 	fms += unitlbl;
+    */
 
     return fms.buf();
 }
@@ -132,11 +135,14 @@ const char* RangeProperty::def() const
     static FileMultiString fms;
     fms = ::toString( rg_.start );
     fms += ::toString( rg_.stop );
+    /*
+       Not writing the UoM, to preserve compatibility between 6.6.X versions
     const BufferString unitlbl( ref_.getStorUnitLbl() );
     if ( !unitlbl.isEmpty() )
 	fms += unitlbl;
+    */
 
-    return BufferString( fms.buf() );
+    return fms.buf();
 }
 
 
