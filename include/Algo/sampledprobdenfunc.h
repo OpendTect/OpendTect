@@ -135,6 +135,7 @@ private:
 
     float		gtAvgPos() const override;
     float		gtStdDevPos() const override	{ return mUdf(float); }
+    bool		hasLims() const override	{ return true; }
     float		gtVal(float) const override;
     void		drwRandPos(float&) const override;
 
@@ -179,6 +180,7 @@ private:
 
     const ArrayND<float>&	getArrND() const override { return bins_; }
 
+    bool		hasLims() const override	{ return true; }
     float		gtVal(float,float) const override;
     void		drwRandPos(float&,float&) const override;
 
@@ -212,6 +214,7 @@ public:
     float		averagePos( int dim ) const override
 			{ return getAveragePos( dim ); }
     float		stddevPos(int) const override	{ return mUdf(float); }
+    bool		hasLimits() const override	{ return true; }
     float		value(const TypeSet<float>&) const override;
     void		drawRandomPos(TypeSet<float>&) const override;
 

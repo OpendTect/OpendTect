@@ -47,6 +47,7 @@ public:
 
     virtual float	averagePos(int dim) const		= 0;
     virtual float	stddevPos(int dim) const		= 0;
+    virtual bool	hasLimits() const			= 0;
     virtual float	value(const TypeSet<float>&) const	= 0;
 
     virtual bool	canScale() const			{ return false;}
@@ -96,6 +97,7 @@ public:
     float		averagePos(int) const override	{ return gtAvgPos(); }
     float		stddevPos(int) const override
 						{ return gtStdDevPos(); }
+    bool		hasLimits() const override { return hasLims(); }
     inline float	value( float v ) const	{ return gtVal( v ); }
     float		value( const TypeSet<float>& v ) const override
 						{ return gtVal( v[0] ); }
@@ -111,6 +113,7 @@ protected:
 
     virtual float	gtAvgPos() const	= 0;
     virtual float	gtStdDevPos() const	= 0;
+    virtual bool	hasLims() const		= 0;
     virtual float	gtVal(float) const	= 0;
     virtual void	drwRandPos(float&) const = 0;
 
@@ -126,6 +129,7 @@ mExpClass(Algo) ProbDenFunc2D : public ProbDenFunc
 public:
 
     int			nrDims() const override		{ return 2; }
+    bool		hasLimits() const override { return hasLims(); }
 
     float		value( float x1, float x2 ) const
 			{ return gtVal( x1, x2 ); }
@@ -143,6 +147,7 @@ protected:
 				      const char* vnm1="Dim 1");
 
     virtual float	gtVal(float,float) const	= 0;
+    virtual bool	hasLims() const			= 0;
     virtual void	drwRandPos(float&,float&) const = 0;
 };
 

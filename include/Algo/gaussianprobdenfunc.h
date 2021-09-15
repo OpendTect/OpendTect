@@ -59,6 +59,7 @@ private:
 
     float		gtAvgPos() const override	{ return exp_; }
     float		gtStdDevPos() const override	{ return std_; }
+    bool		hasLims() const override	{ return false; }
     float		gtVal(float) const override;
     void		drwRandPos(float&) const override;
 
@@ -95,6 +96,7 @@ public:
 
 private:
 
+    bool		hasLims() const override	{ return false; }
     float		gtVal(float,float) const override;
     void		drwRandPos(float&,float&) const override;
 
@@ -120,6 +122,7 @@ public:
 			mDefGaussianProbDenFuncFns(GaussianND)
 
     int			nrDims() const override;
+    bool		hasLimits() const override	{ return false; }
     float		averagePos(int) const override;
     float		stddevPos(int) const override;
 
