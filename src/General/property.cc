@@ -219,7 +219,7 @@ const char* RangeProperty::def() const
     if ( !unitlbl.isEmpty() )
 	fms += unitlbl;
 
-    return BufferString( fms.buf() );
+    return fms.buf();
 }
 
 
