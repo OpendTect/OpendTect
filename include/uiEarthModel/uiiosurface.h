@@ -236,7 +236,7 @@ protected:
     void			doDlg(CallBacker*);
     void			updateOnSelChgCB(CallBacker*);
     bool			is2d_;
-    bool            isfltset_;
+    bool			isfltset_;
     BufferStringSet		selfaultnms_;
     TypeSet<MultiID>		selfaultids_;
     TypeSet<Pos::GeomID>	geomids_;
@@ -247,6 +247,7 @@ protected:
     int				defaultoptidx_;
     uiPushButton*		clearbut_;
 };
+
 
 mExpClass(uiEarthModel) uiAuxDataGrp : public uiGroup
 { mODTextTranslationClass(uiAuxDataGrp)
@@ -270,7 +271,7 @@ mExpClass(uiEarthModel) uiAuxDataSel : public uiGroup
 { mODTextTranslationClass(uiAuxDataSel)
 public:
 				uiAuxDataSel(uiParent*,const char* type,
-					     bool withobjsel);
+					     bool withobjsel,bool forread);
 				~uiAuxDataSel();
 
     void			setKey(const MultiID&);
@@ -288,5 +289,6 @@ protected:
     BufferString		objtype_;
     MultiID			key_;
     BufferString		seldatanm_;
+    bool			forread_;
 };
 
