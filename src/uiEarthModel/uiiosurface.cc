@@ -885,7 +885,7 @@ public:
 //uiFaultParSel
 
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
-    : uiCompoundParSel(p,toUiString("***************")) 
+    : uiCompoundParSel(p,toUiString("***************"))
       //Hack So that textfld_ label is correctly updated
     , is2d_(is2d)
     , isfltset_(false)
@@ -1110,11 +1110,13 @@ void uiAuxDataGrp::selChg( CallBacker* )
 
 
 // uiAuxDataSel
-uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel )
+uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel,
+			    bool forread )
     : uiGroup(p,"AuxDataSel")
     , objfld_(nullptr)
     , objtype_(typ)
     , key_(MultiID::udf())
+    , forread_(forread)
 {
     if ( withobjsel )
     {
@@ -1123,8 +1125,9 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel )
 	objfld_->selectionDone.notify( mCB(this,uiAuxDataSel,objSelCB) );
     }
 
-    auxdatafld_ = new uiIOSelect( this,
-				  uiIOSelect::Setup(uiStrings::sHorizonData()),
+    uiString seltxt = forread ? uiStrings::sInput() : uiStrings::sOutput();
+    seltxt.append( uiStrings::sHorizonData() );
+    auxdatafld_ = new uiIOSelect( this, uiIOSelect::Setup(seltxt),
 				  mCB(this,uiAuxDataSel,auxSelCB) );
     if ( objfld_ )
 	auxdatafld_->attach( alignedBelow, objfld_ );
@@ -1184,7 +1187,7 @@ void uiAuxDataSel::auxSelCB( CallBacker* )
 {
     uiDialog dlg( this,
 	uiDialog::Setup(tr("Select Horizon Data"),mNoDlgTitle,mTODOHelpKey) );
-    uiAuxDataGrp* grp = new uiAuxDataGrp( &dlg, false );
+    uiAuxDataGrp* grp = new uiAuxDataGrp( &dlg, forread_ );
     grp->setKey( key_ );
     BufferString datanm = auxdatafld_->getInput();
     grp->setDataName( datanm );
