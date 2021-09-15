@@ -70,9 +70,9 @@ ProcDesc::DataEntry::ActionType ProcDesc::DataEntry::getActionTypeForCMDKey(
 const char* ProcDesc::DataEntry::getTypeFlag( const Type type )
 {
     if ( type == Python )
-	return sFlagODPath();
-    else
 	return sFlagPyPath();
+    else
+	return sFlagODPath();
 }
 
 
