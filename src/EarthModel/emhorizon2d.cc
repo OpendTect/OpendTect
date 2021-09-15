@@ -36,14 +36,14 @@ Horizon2DGeometry::Horizon2DGeometry( Surface& surface )
 
 
 Geometry::Horizon2DLine*
-Horizon2DGeometry::sectionGeometry( const SectionID& sid )
+	Horizon2DGeometry::sectionGeometry( const SectionID& sid )
 {
     return (Geometry::Horizon2DLine*)SurfaceGeometry::sectionGeometry( sid );
 }
 
 
 const Geometry::Horizon2DLine*
-Horizon2DGeometry::sectionGeometry( const SectionID& sid ) const
+	Horizon2DGeometry::sectionGeometry( const SectionID& sid ) const
 {
     return (const Geometry::Horizon2DLine*)
 	SurfaceGeometry::sectionGeometry( sid );
@@ -75,7 +75,10 @@ int Horizon2DGeometry::lineIndex( const char* linenm ) const
 
 
 const char* Horizon2DGeometry::lineName( int lidx ) const
-{ return Survey::GM().getName( geomID(lidx) ); }
+{
+    return Survey::GM().getName( geomID(lidx) );
+}
+
 
 Pos::GeomID Horizon2DGeometry::geomID( int lineidx ) const
 {
@@ -89,6 +92,14 @@ void Horizon2DGeometry::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
     const Geometry::Horizon2DLine* hor2dline = sectionGeometry( SectionID(0) );
     if ( hor2dline )
 	hor2dline->getGeomIDs( geomids );
+}
+
+
+bool Horizon2DGeometry::hasLine( Pos::GeomID geomid ) const
+{
+    const EM::SectionID sid = surface_.sectionID( 0 );
+    const Geometry::Horizon2DLine* hor2dline = sectionGeometry( sid );
+    return hor2dline ? hor2dline->hasLine( geomid ) : false;
 }
 
 
@@ -131,7 +142,10 @@ bool Horizon2DGeometry::addLine( Pos::GeomID geomid, int step )
 
 bool Horizon2DGeometry::addLine( Pos::GeomID geomid,
 				 const StepInterval<int>& trg )
-{ return doAddLine( geomid, trg, false ); }
+{
+    return doAddLine( geomid, trg, false );
+}
+
 
 bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 				   const StepInterval<int>& inptrg,
@@ -673,7 +687,16 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
 			    bool onlyfillundefs )
 {
     Geometry::Horizon2DLine* geom = geometry_.sectionGeometry( sid );
-    if ( !geom || geom->isEmpty() )
+    if ( !geom )
+	return false;
+
+    bool res = geom->hasLine( geomid );
+    if ( res )
+	geom->setRow( geomid, &trcrg );
+    else
+	res = geometry_.addLine( geomid, trcrg );
+
+    if ( !res )
 	return false;
 
     const int lineidx = geom->getRowIndex( geomid );
