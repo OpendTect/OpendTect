@@ -100,6 +100,8 @@ public:
     const Grid2D::Line*		getBaseLine() const	{ return baseline_; }
     bool			fillPar(IOPar&) const;
     void			getLineNames(BufferStringSet&) const;
+    bool			hasLine() const;
+    void			processInput();
 
 protected:
 
