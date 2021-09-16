@@ -77,7 +77,8 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     usesimifld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     usesimifld_->attach( alignedBelow, ampthresholdfld_ );
 
-    uiString compwindtxt( tr("Compare window ").arg(SI().getUiZUnitString()) );
+    uiString compwindtxt =
+		tr("Compare window %1").arg(SI().getUiZUnitString());
     compwinfld_ = new uiGenInput( this, compwindtxt, FloatInpIntervalSpec() );
     compwinfld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     compwinfld_->attach( alignedBelow, usesimifld_ );
