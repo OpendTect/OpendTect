@@ -45,7 +45,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	, formUnitSet(this)
 	, notifinpnr_(-1)
 {
-    bool wantio = !setup_.stortype_.isEmpty();
+    const bool wantio = !setup_.stortype_.isEmpty();
     if ( wantio )
 	ctio_.ctxt_.toselect_.require_.set( sKey::Type(), setup_.stortype_ );
     const CallBack formsetcb( mCB(this,uiMathFormula,formSetCB) );
@@ -108,10 +108,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 
     if ( bgrp )
     {
-	if ( unitfld_ )
-	    bgrp->attach( rightTo, unitfld_ );
-	else
-	    bgrp->attach( rightTo, exprfld_ );
+	bgrp->attach( rightTo, exprfld_ );
 	bgrp->attach( rightBorder );
     }
 
@@ -215,7 +212,11 @@ bool uiMathFormula::useForm( const TypeSet<Mnemonic::StdType>* inputtypes )
 
     const UnitOfMeasure* formun = isbad ? 0 : form_.outputUnit();
     if ( unitfld_ )
+    {
 	unitfld_->setUnit( formun );
+	unitfld_->setSensitive( !inputtypes );
+    }
+
     for ( int idx=0; idx<inpflds_.size(); idx++ )
     {
 	uiMathExpressionVariable& inpfld = *inpflds_[idx];

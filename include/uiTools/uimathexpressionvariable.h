@@ -17,6 +17,7 @@ class BufferStringSet;
 class UnitOfMeasure;
 namespace Math { class Formula; class Expression; }
 class uiLabel;
+class uiLineEdit;
 class uiUnitSel;
 class uiGenInput;
 class uiComboBox;
@@ -55,9 +56,15 @@ public:
 
     void		selectInput(const char*,bool exact=false);
     void		selectSubInput(int);
-    void		setUnit(const UnitOfMeasure*);
+    void		setSelUnit(const UnitOfMeasure*);
+			//!<unit of selected variable
+    void		setFormUnit(const UnitOfMeasure*);
+			//!<unit required by formula
     mDeprecatedDef
     void		setUnit(const char*);
+    mDeprecated("Use setFormUnit")
+    void		setUnit(const UnitOfMeasure* uom)
+			{ setFormUnit(uom); }
     void		setPropType(Mnemonic::StdType);
 
     Notifier<uiMathExpressionVariable> inpSel;
@@ -77,18 +84,21 @@ protected:
     BufferString	varnm_;
     BufferStringSet	nonspecinputs_;
     BufferStringSet	nonspecsubinputs_;
-    bool		isactive_;
-    bool		isconst_;
-    int			specidx_;
+    bool		isactive_	= true;
+    bool		isconst_	= false;
+    int			specidx_	= -1;
     Math::SpecVarSet&	specvars_;
 
     uiGroup*		inpgrp_;
     uiLabel*		inplbl_;
     uiComboBox*		inpfld_;
-    uiComboBox*		subinpfld_;
+    uiComboBox*		subinpfld_	= nullptr;
     uiGenInput*		constfld_;
-    uiUnitSel*		unfld_;
-    uiToolButton*	vwbut_;
+    uiLineEdit*		selunfld_	= nullptr;
+    uiUnitSel*		unfld_		= nullptr;
+    uiLabel*		unitlbl_	= nullptr;
+    uiLabel*		formlbl_	= nullptr;
+    uiToolButton*	vwbut_		= nullptr;
 
     void		updateDisp();
     void		updateInpNms(bool sub);
@@ -96,5 +106,3 @@ protected:
     void		setVariable(const char*,bool);
 
 };
-
-

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uilineedit.h"
 #include "uimathexpression.h"
 #include "uimsg.h"
 #include "uiunitsel.h"
@@ -34,50 +35,57 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
 	int varidx, bool withunit, bool withsub, const Math::SpecVarSet* svs )
     : uiGroup(p,BufferString("MathExprVar ",varidx))
     , varidx_(varidx)
-    , isconst_(false)
-    , specidx_(-1)
-    , isactive_(true)
-    , subinpfld_(0)
-    , unfld_(0)
-    , vwbut_(0)
     , specvars_(*new Math::SpecVarSet(svs?*svs:emptsvs))
     , inpSel(this)
     , subInpSel(this)
 {
     inpgrp_ = new uiGroup( this, "Input group" );
     inpfld_ = new uiComboBox( inpgrp_, BufferString("input ",varidx_+1) );
-    const uiString lblstr = tr("For input number %1 use").arg(varidx_+1);
-    inpfld_->setHSzPol(uiObject::WideMax);
+    const uiString lblstr = tr("For %1 use").arg(varidx_+1);
+    inpfld_->setHSzPol( uiObject::WideMax );
     inplbl_ = new uiLabel( inpgrp_, lblstr, inpfld_ );
     inplbl_->setPrefWidthInChar( 35 );
     inplbl_->setAlignment( Alignment::Right );
-    inpfld_->selectionChanged.notify(
-			mCB(this,uiMathExpressionVariable,inpChg) );
+    mAttachCB( inpfld_->selectionChanged, uiMathExpressionVariable::inpChg );
 
     if ( withsub )
     {
 	subinpfld_ = new uiComboBox( inpgrp_, "Sub Input" );
 	subinpfld_->attach( rightOf, inpfld_ );
-	subinpfld_->selectionChanged.notify(
-			    mCB(this,uiMathExpressionVariable,subInpChg) );
+	mAttachCB( subinpfld_->selectionChanged,
+		   uiMathExpressionVariable::subInpChg );
     }
+
     constfld_ = new uiGenInput( inpgrp_, tr("Value for 'c0'"), FloatInpSpec() );
     constfld_->attach( alignedWith, inpfld_ );
     if ( withunit )
     {
-	uiUnitSel::Setup uussu( Mnemonic::Other, tr("convert to:") );
+	selunfld_ = new uiLineEdit( this, "Unit" );
+	selunfld_->setReadOnly();
+	selunfld_->attach( rightOf, inpgrp_ );
+
+	uiUnitSel::Setup uussu( Mnemonic::Other );
 	uussu.withnone( true );
 	unfld_ = new uiUnitSel( this, uussu );
-	unfld_->attach( rightOf, inpgrp_ );
+	unfld_->attach( rightOf, selunfld_ );
+
+	if ( varidx==0 )
+	{
+	    unitlbl_ = new uiLabel( this, tr("Input unit") );
+	    unitlbl_->attach( alignedAbove, selunfld_ );
+	    formlbl_ = new uiLabel( this, tr("Formula requires") );
+	    formlbl_->attach( alignedAbove, unfld_ );
+	}
     }
 
     setHAlignObj( inpfld_ );
-    preFinalise().notify( mCB(this,uiMathExpressionVariable,initFlds) );
+    mAttachCB( preFinalise(), uiMathExpressionVariable::initFlds );
 }
 
 
 uiMathExpressionVariable::~uiMathExpressionVariable()
 {
+    detachAllNotifiers();
     delete &specvars_;
 }
 
@@ -87,7 +95,7 @@ void uiMathExpressionVariable::addInpViewIcon( const char* icnm, const char* tt,
 {
     vwbut_ = new uiToolButton( inpgrp_, icnm, mToUiStringTodo(tt), cb );
     vwbut_->attach( rightOf, subinpfld_ ? subinpfld_ : inpfld_ );
-    inpSel.notify( mCB(this,uiMathExpressionVariable,showHideVwBut) );
+    mAttachCB( inpSel, uiMathExpressionVariable::showHideVwBut );
 }
 
 
@@ -104,10 +112,11 @@ void uiMathExpressionVariable::updateInpNms( bool sub )
 	nms = sub ? nonspecsubinputs_ : nonspecinputs_;
     else if ( !sub )
 	specvars_.getNames( nms );
+
     inpfld->addItems( nms );
     inpfld->setCurrentItem( curseltxt );
     if ( sub )
-	inpfld->display( !isconst_ && isactive_ );
+	inpfld->display( !nms.isEmpty() && !isconst_ && isactive_ );
 }
 
 
@@ -129,6 +138,7 @@ uiGroup* uiMathExpressionVariable::rightMostField()
 {
     if ( unfld_ )
 	return unfld_;
+
     return inpgrp_;
 }
 
@@ -148,12 +158,19 @@ void uiMathExpressionVariable::updateDisp()
     inplbl_->display( dodisp );
     if ( subinpfld_ )
 	subinpfld_->display( dodisp && !nonspecsubinputs_.isEmpty() );
+
     if ( unfld_ )
     {
 	if ( specidx_ >= 0 )
 	    dodisp = dodisp && specvars_.hasUnits(specidx_);
 	unfld_->display( dodisp );
+	selunfld_->display( dodisp );
+	if ( unitlbl_ )
+	    unitlbl_->display( dodisp );
+	if ( formlbl_ )
+	    formlbl_->display( dodisp );
     }
+
     showHideVwBut();
 }
 
@@ -235,7 +252,7 @@ void uiMathExpressionVariable::use( const Math::Formula& form )
     else if ( unfld_ )
 	unfld_->setPropType( form.specVars()[specidx_].type_ );
 
-    setUnit( form.inputUnit(varidx_) );
+    setFormUnit( form.inputUnit(varidx_) );
 }
 
 
@@ -293,6 +310,7 @@ const UnitOfMeasure* uiMathExpressionVariable::getUnit() const
 {
     if ( !unfld_ || !unfld_->mainObject()->isDisplayed() )
 	return 0;
+
     return unfld_->getUnit();
 }
 
@@ -307,16 +325,20 @@ void uiMathExpressionVariable::fill( Math::Formula& form ) const
 }
 
 
-void uiMathExpressionVariable::setUnit( const UnitOfMeasure* uom )
+void uiMathExpressionVariable::setFormUnit( const UnitOfMeasure* uom )
 {
-    if ( unfld_ )
-	unfld_->setUnit( uom );
+    if ( !unfld_ )
+	return;
+
+    unfld_->setUnit( uom );
+    unfld_->setSensitive( !uom );
 }
 
 
-void uiMathExpressionVariable::setUnit( const char* nm )
+void uiMathExpressionVariable::setSelUnit( const UnitOfMeasure* uom )
 {
-    setUnit( UoMR().get( nm ) );
+    if ( selunfld_ )
+	selunfld_->setText( uom ? uom->symbol() : "-" );
 }
 
 

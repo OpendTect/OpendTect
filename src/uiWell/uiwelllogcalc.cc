@@ -11,15 +11,15 @@ ________________________________________________________________________
 
 #include "uiwelllogcalc.h"
 
-#include "uitoolbutton.h"
-#include "uigeninput.h"
-#include "uimathformula.h"
-#include "uimathexpressionvariable.h"
-#include "uirockphysform.h"
-#include "uimsg.h"
-#include "uilabel.h"
-#include "uiseparator.h"
 #include "uicombobox.h"
+#include "uigeninput.h"
+#include "uilabel.h"
+#include "uimathexpressionvariable.h"
+#include "uimathformula.h"
+#include "uimsg.h"
+#include "uirockphysform.h"
+#include "uiseparator.h"
+#include "uitoolbutton.h"
 #include "uiunitsel.h"
 #include "uiwelllogdisplay.h"
 
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "mathformula.h"
 #include "mathspecvars.h"
+#include "od_helpids.h"
 #include "ptrman.h"
 #include "survinfo.h"
 #include "welld2tmodel.h"
@@ -37,7 +38,6 @@ ________________________________________________________________________
 #include "wellreader.h"
 #include "welltrack.h"
 #include "wellwriter.h"
-#include "od_helpids.h"
 
 #define mMDIdx		0
 #define mTVDIdx		1
@@ -51,9 +51,13 @@ ________________________________________________________________________
 #define mInterpMax1	1
 #define mInterpNotAll	2
 #define mInterpAll	3
-#define mGetInterpols() \
-    BufferStringSet pols; \
-    pols.add("No").add("One log max").add("Unless all undef").add("Yes")
+static uiStringSet getInterpolationOptions()
+{
+    uiStringSet pols;
+    pols.add(uiStrings::sNo()).add( toUiString("One log max"))
+	.add(toUiString("Unless all undef")).add(uiStrings::sYes());
+    return pols;
+}
 
 
 static Math::SpecVarSet& getSpecVars()
@@ -92,16 +96,13 @@ static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 
 uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 			      bool rockphysmode )
-	: uiDialog(p,uiDialog::Setup(tr("Calculate New Logs"),
-				     mToUiStringTodo(getDlgTitle(wllids)),
-				     mODHelpKey(mWellLogCalcHelpID) ))
-	, superwls_(*new Well::LogSet)
-	, form_(*new Math::Formula(true,getSpecVars()))
-	, wellids_(wllids)
-	, formfld_(0)
-	, nmfld_(0)
-	, havenew_(false)
-	, logschanged(this)
+    : uiDialog(p,uiDialog::Setup(tr("Calculate New Logs"),
+				 mToUiStringTodo(getDlgTitle(wllids)),
+				 mODHelpKey(mWellLogCalcHelpID) ))
+    , logschanged(this)
+    , superwls_(*new Well::LogSet)
+    , form_(*new Math::Formula(true,getSpecVars()))
+    , wellids_(wllids)
 {
     if ( wellids_.isEmpty() )
     {
@@ -155,26 +156,31 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 			     FloatInpSpec(defsr) );
     srfld_->attach( alignedBelow, formfld_ );
     srfld_->attach( ensureBelow, sep );
+
     ftbox_ = new uiCheckBox( this, tr("Feet") );
     ftbox_->setChecked( SI().depthsInFeet() );
     ftbox_->activated.notify( mCB(this,uiWellLogCalc,feetSel) );
     ftbox_->attach( rightOf, srfld_ );
 
-    mGetInterpols();
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, pols,
-			       tr("Inter/extrapolate input logs?"));
+    auto* lcb = new uiLabeledComboBox( this, getInterpolationOptions(),
+				       tr("Inter/extrapolate input logs?"));
     interppolfld_ = lcb->box();
     interppolfld_->setCurrentItem( 0 );
-    lcb->attach( alignedBelow, srfld_ );
+    lcb->attach( rightTo, ftbox_ );
 
     nmfld_ = new uiGenInput( this, tr("Name for new log") );
-    nmfld_->attach( alignedBelow, lcb );
+    nmfld_->attach( alignedBelow, srfld_ );
+
+    viewlogbut_ = new uiToolButton( this, "view_log",
+	tr("View output log"), mCB(this,uiWellLogCalc,viewOutputCB) );
+    viewlogbut_->attach( rightTo, nmfld_ );
+    viewlogbut_->setSensitive( false );
 
     uiUnitSel::Setup uussu( Mnemonic::Other,
-			    tr("Output unit of measure") );
+			    tr("New log's unit of measure") );
     uussu.withnone( true );
     outunfld_ = new uiUnitSel( this, uussu );
-    outunfld_->attach( alignedBelow, nmfld_ );
+    outunfld_->attach( alignedBelow, lcb );
 
     postFinalise().notify( formsetcb );
     if ( rockphysmode )
@@ -258,10 +264,12 @@ bool uiWellLogCalc::useForm( const TypeSet<Mnemonic::StdType>* inputtypes )
 {
     if ( !formfld_ )
 	return false;
+
     if ( inputtypes )
     {
 	if ( !formfld_->useForm(inputtypes) )
 	    return false;
+
 	for ( int idx=0; idx<inputtypes->size(); idx++ )
 	{
 	    TypeSet<int> propidxs = superwls_.getSuitable( (*inputtypes)[idx] );
@@ -270,6 +278,12 @@ bool uiWellLogCalc::useForm( const TypeSet<Mnemonic::StdType>* inputtypes )
 		nms.add( superwls_.getLog(propidxs[ilog]).name() );
 	    formfld_->setNonSpecInputs( nms, idx );
 	}
+    }
+    else
+    {
+	BufferStringSet nms;
+	superwls_.getNames( nms, false );
+	formfld_->setNonSpecInputs( nms, -1 );
     }
 
     const UnitOfMeasure* formun = formfld_->getUnit();
@@ -367,13 +381,14 @@ void uiWellLogCalc::setUnits4Log( int inpidx )
 {
     if ( form_.isSpec(inpidx) || form_.isConst(inpidx) )
 	return;
+
     const Well::Log* wl = getLog4InpIdx( superwls_, inpidx );
     if ( !wl )
 	{ pErrMsg("Huh"); return; }
 
     uiMathExpressionVariable* inpfld = formfld_->inpFld( inpidx );
     inpfld->setPropType( wl->propType() );
-    inpfld->setUnit( wl->unitOfMeasure() );
+    inpfld->setSelUnit( wl->unitOfMeasure() );
 }
 
 
@@ -395,7 +410,7 @@ void uiWellLogCalc::fillSRFld( int inpidx )
 }
 
 
-void uiWellLogCalc::inpSel( CallBacker* cb )
+void uiWellLogCalc::inpSel( CallBacker* )
 {
     const int inpidx = formfld_->inpSelNotifNr();
     if ( inpidx >= form_.nrInputs() )
@@ -409,9 +424,12 @@ void uiWellLogCalc::inpSel( CallBacker* cb )
 void uiWellLogCalc::vwLog( CallBacker* cb )
 {
     const int inpnr = formfld_->vwLogInpNr( cb );
-    if ( inpnr < 0 ) return;
+    if ( inpnr < 0 )
+	return;
+
     const Well::Log* wl = getLog4InpIdx( superwls_, inpnr );
-    if ( !wl ) return;
+    if ( !wl )
+	return;
 
     uiWellLogDisplay::Setup wldsu;
     wldsu.nrmarkerchars( 10 );
@@ -424,7 +442,13 @@ void uiWellLogCalc::vwLog( CallBacker* cb )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-#define mErrContinue(s) { uiMSG().error(s); continue; }
+#define mErrContinue(s) { deleteLog(inpdatas); uiMSG().error(s); continue; }
+
+void uiWellLogCalc::deleteLog( TypeSet<InpData>& inpdatas )
+{
+    for ( int idx=0; idx<inpdatas.size(); idx++ )
+	deleteAndZeroPtr( inpdatas[idx].wl_ );
+}
 
 
 bool uiWellLogCalc::acceptOK( CallBacker* )
@@ -451,43 +475,20 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     bool successfulonce = false;
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
     {
+	TypeSet<InpData> inpdatas;
 	const MultiID wmid = wellids_[iwell];
 	RefMan<Well::Data> wd = Well::MGR().get( wmid );
-	bool isinplogunitsi = true;
-	for ( int i = 0; i<form_.nrInputs(); i++ )
-	{
-	    if ( form_.inputUnit(i) )
-		isinplogunitsi = form_.inputUnit(i)->scaler().isEmpty();
-
-	    if( !isinplogunitsi )
-		break;
-	}
-
-	bool isoutputlogunitsi = true;
-	if ( form_.outputUnit() )
-	    isoutputlogunitsi = form_.outputUnit()->scaler().isEmpty();
-
-	if ( !isinplogunitsi && !isoutputlogunitsi )
-	{
-	    bool res = uiMSG().askContinue(tr("The log units are not SI units. "
-				    "Are you sure you want to continue?"));
-	    if ( !res )
-		return false;
-	}
-	else if ( !isinplogunitsi || !isoutputlogunitsi )
-	{
-	    uiMSG().error(tr("Input and Output Log units do not match.\n"
-		"Please correct the units and proceed"));
-	    return false;
-	}
-
 	if ( !wd )
 	    mErrContinue( tr("%1").arg(Well::MGR().errMsg()) )
 
 	Well::LogSet& wls = wd->logs();
-	TypeSet<InpData> inpdatas;
+	// TODO: Change to an ObjectSet. Can not do proper memory management
+	// with a TypeSet. Hence the addition of deleteLog.
 	if ( !getInpDatas(wls,inpdatas) )
+	{
+	    deleteLog( inpdatas );
 	    continue;
+	}
 
 	Well::Log* newwl = new Well::Log( newnm );
 	wls.add( newwl );
@@ -517,6 +518,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 			.arg(wd->name()) )
 
 	successfulonce = true;
+	deleteLog( inpdatas );
     }
 
     if ( !successfulonce )
@@ -524,6 +526,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
     uiMSG().message( tr("Successfully added this log") );
     havenew_ = true;
+    viewlogbut_->setSensitive( true );
     logschanged.trigger();
     return false;
 }
@@ -571,10 +574,11 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx,
 				     bool convtosi )
 {
-    Well::Log* ret = getLog4InpIdx( wls, inpidx );
-    if ( !ret || ret->isEmpty() )
+    Well::Log* inplog = getLog4InpIdx( wls, inpidx );
+    if ( !inplog || inplog->isEmpty() )
 	return nullptr;
 
+    Well::Log* ret = new Well::Log( *inplog );
     if ( convtosi )
     {
 	const UnitOfMeasure* logun = ret->unitOfMeasure();
@@ -592,7 +596,7 @@ Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx,
 
 
 static void selectInpVals( const TypeSet<float>& noudfinpvals,
-			const int interppol, TypeSet<float>& inpvals )
+			int interppol, TypeSet<float>& inpvals )
 {
     const int sz = inpvals.size();
     if ( sz == 0 || interppol == mInterpNone )
@@ -712,3 +716,22 @@ void uiWellLogCalc::setOutputLogName( const char* nm )
 
 const char* uiWellLogCalc::getOutputLogName() const
 { return nmfld_ ? nmfld_->text() : 0; }
+
+
+void uiWellLogCalc::viewOutputCB( CallBacker* )
+{
+    const char* lognm = getOutputLogName();
+    const Well::Log* wl = superwls_.getLog( lognm );
+    if ( !wl )
+    {
+	uiMSG().error( tr("Can not find log '%1' for this well.").arg(lognm) );
+	return;
+    }
+
+    uiWellLogDisplay::Setup wldsu;
+    wldsu.nrmarkerchars( 10 );
+    uiWellLogDispDlg* dlg = new uiWellLogDispDlg( this, wldsu, true );
+    dlg->setLog( wl, true );
+    dlg->setDeleteOnClose( true );
+    dlg->show();
+}
