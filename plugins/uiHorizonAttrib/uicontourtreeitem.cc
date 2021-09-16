@@ -808,9 +808,15 @@ void intvChanged( CallBacker* cb )
 {
     StepInterval<float> intv = intvfld_->getFStepInterval();
     if ( intv.start < rg_.start || intv.start > rg_.stop )
-	intvfld_->setValue( contourintv_.start, 0 );
+    {
+	intvfld_->setValue( Math::Ceil(rg_.start), 0 );
+	intv.start = Math::Ceil(rg_.start);
+    }
     if ( intv.stop < rg_.start || intv.stop > rg_.stop )
-	intvfld_->setValue( contourintv_.stop, 1 );
+    {
+	intvfld_->setValue( Math::Floor(rg_.stop), 1 );
+	intv.stop =  Math::Floor(rg_.stop);
+    }
 
     bool invalidstep = ( intv.step <= 0 || intv.step > rg_.width() ) ?
 			true : false;
@@ -828,7 +834,8 @@ void intvChanged( CallBacker* cb )
     contourintv_.step = intv.step;
     const float steps = intv.nrSteps();
     float nrsteps = intv.nrfSteps();
-    const float eps = 1.0e-01;
+    const float eps = 1.0e-02;
+
     if ( mIsEqual(nrsteps,steps,eps) )
 	nrsteps = steps;
     else
