@@ -99,6 +99,8 @@ public:
     void		deepRedraw( CallBacker* =0 )            {reDraw(true); }
 
     void		setStretch( int h, int v ){ mIfMO()->setStretch(h,v); }
+    int			stretch( bool h ) const
+			{ return mainObject() ? mainObject()->stretch(h) : 0; }
 
     OD::Color		backgroundColor() const;
     OD::Color		roBackgroundColor() const;

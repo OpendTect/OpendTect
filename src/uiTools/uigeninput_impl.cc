@@ -258,6 +258,10 @@ void uiGenInputInputFld::init()
     }
 
     mDoAllElemObjs(setHSzPol(hpol))
+
+    const int hstretch = p_->stretch( true );
+    const int vstretch = p_->stretch( false );
+    mDoAllElemObjs( setStretch(hstretch,vstretch) )
 }
 
 

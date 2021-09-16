@@ -108,6 +108,7 @@ public:
     If stretch factor is > 1, then object will already grow at pop-up.
 */
     void		setStretch(int hor,int ver);
+    int			stretch(bool hor) const;
 
 
 /*! \brief attaches object to another

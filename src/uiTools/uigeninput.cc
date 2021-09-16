@@ -106,7 +106,6 @@ uiTextInputFld( uiGenInput* p, const DataInpSpec& spec,
 {
     const FixedString spectxt = spec.text();
     setText( spectxt.buf(), 0 );
-    usrinpobj.setStretch( 2, 0 );
 }
 
 };
@@ -814,7 +813,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     , finalised_(false) \
     , idxes_(*new TypeSet<uiGenInputFieldIdx>) \
     , selText_(uiStrings::sEmptyString()), withchk_(false) \
-    , labl_(0), titletext_(disptxt), cbox_(0), selbut_(0) \
+    , labl_(nullptr), titletext_(disptxt), cbox_(nullptr), selbut_(nullptr) \
     , valuechanging(this), valuechanged(this) \
     , checked(this), updateRequested(this) \
     , checked_(false), rdonly_(false), rdonlyset_(false) \

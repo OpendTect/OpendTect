@@ -559,6 +559,9 @@ void uiObject::setPrefHeightInChar( float h )
 void uiObject::setStretch( int hor, int ver )
      {mBody()->setStretch(hor,ver); }
 
+int uiObject::stretch( bool hor ) const
+    { return mConstBody()->stretch(hor,false); }
+
 void uiObject::attach( constraintType tp, int margin )
     { mBody()->attach(tp, (uiObject*)0, margin); }
 
