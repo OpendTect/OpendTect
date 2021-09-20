@@ -12,6 +12,8 @@
 namespace Bouncy
 {
 
+/*!\brief A game created as an example of a 3D visualization plugin */
+
 mExpClass(Bouncy) BouncyController : public CallBacker
 {
 public:
