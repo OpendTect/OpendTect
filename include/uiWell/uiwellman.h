@@ -18,8 +18,8 @@ class uiButton;
 class uiGroup;
 class uiToolButton;
 class uiPushButton;
-namespace Well { class Data; class Reader; }
 class uiWellLogCalc;
+namespace Well { class Data; class Reader; class Log; }
 
 mExpClass(uiWell) uiWellMan : public uiObjFileMan
 { mODTextTranslationClass(uiWellMan)
@@ -54,6 +54,7 @@ protected:
     uiToolButton*		logrmbut_;
     uiToolButton*		logexpbut_;
     uiToolButton*		loguombut_;
+    uiToolButton*		logmnembut_;
     uiToolButton*		logedbut_;
     uiToolButton*		logupbut_;
     uiToolButton*		logdownbut_;
@@ -74,8 +75,11 @@ protected:
     void			getCurrentWells();
     void			mkFileInfo();
     void			writeLogs();
+    void			writeLog(const MultiID&,
+					 Well::Data&,const Well::Log&);
     void			fillLogsFld();
     void			wellsChgd();
+    void			wellLogsChgd(const BufferStringSet& lognms);
     void			copyPush(CallBacker*);
     void			bulkD2TCB(CallBacker*);
     void			viewLogPush(CallBacker*);
@@ -85,6 +89,7 @@ protected:
     void			moveLogsPush(CallBacker*);
     void			logSel(CallBacker*);
     void			logUOMPush(CallBacker*);
+    void			logMnemPush(CallBacker*);
 
     void			edMarkers(CallBacker*);
     void			edWellTrack(CallBacker*);

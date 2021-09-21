@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uimnemonicsel.h"
 #include "uiseparator.h"
 #include "uistrings.h"
 #include "uitable.h"
@@ -1942,6 +1943,156 @@ bool uiWellLogUOMDlg::acceptOK( CallBacker* )
     return setUoMValues();
 }
 
+
+//============================================================================
+
+uiWellLogMnemDlg::uiWellLogMnemDlg( uiParent* p,
+				    ObjectSet<ObjectSet<Well::Log>>& wls,
+				    TypeSet<MultiID>& keys,
+				    const BufferStringSet& wellnms )
+    : uiDialog(p,uiDialog::Setup(tr("Set units of measure for logs"),
+				 mNoDlgTitle,mNoHelpKey))
+    , wls_( wls )
+    , keys_( keys )
+{
+    fillTable( wellnms );
+    mAttachCB( postFinalise(), uiWellLogMnemDlg::initDlg );
+}
+
+
+uiWellLogMnemDlg::~uiWellLogMnemDlg()
+{
+    detachAllNotifiers();
+}
+
+
+void uiWellLogMnemDlg::fillTable( const BufferStringSet& wellnms )
+{
+    mneminfotbl_ = new uiTable( this, uiTable::Setup()
+				    .manualresize(true)
+				    .fillrow(true)
+				    .removeselallowed(false),
+				"Units info" );
+    mneminfotbl_->setPrefWidth( 520 );
+    mneminfotbl_->setPrefHeight( 400 );
+    mneminfotbl_->setTableReadOnly( true );
+    uiStringSet collbls;
+    collbls.add( tr("Well name") )
+	   .add( tr("Log name") )
+	   .add( tr("Mnemonic") );
+    mneminfotbl_->setColumnLabels( collbls );
+    mneminfotbl_->setColumnResizeMode( uiTable::ResizeToContents );
+    const int nrwls = wls_.size();
+    int nrrows = 0;
+    for ( const auto* logset : wls_ )
+	nrrows += logset->size();
+
+    mneminfotbl_->setNrRows( nrrows );
+    int rowidx = -1;
+    for ( int wlsidx=0; wlsidx<nrwls; wlsidx++ )
+    {
+	const ObjectSet<Well::Log>* logset = wls_[wlsidx];
+	for ( const auto* log : *logset )
+	{
+	    rowidx++;
+	    const Mnemonic* mn = log->mnemonic();
+	    const UnitOfMeasure* uom = log->unitOfMeasure();
+	    if ( !mn && uom )
+		mn = &MNC().getGuessed(uom);
+
+	    uiMnemonicsSel::Setup mnsu( mn ? mn->stdType() : Mnemonic::Other,
+					uiString::empty() );
+	    auto* mnemfld = new uiMnemonicsSel( nullptr, mnsu );
+	    if ( mn )
+		mnemfld->setMnemonic( *mn );
+
+	    mnemflds_ += mnemfld;
+	    mneminfotbl_->setText( RowCol(rowidx,0), wellnms.get(wlsidx) );
+	    mneminfotbl_->setText( RowCol(rowidx,1), log->name() );
+	    mneminfotbl_->setCellGroup( RowCol(rowidx,2), mnemfld );
+	}
+    }
+}
+
+
+void uiWellLogMnemDlg::initDlg( CallBacker* )
+{
+}
+
+
+bool uiWellLogMnemDlg::setMnemonics()
+{
+    int logssz = 0;
+    for ( const auto* logset : wls_ )
+	logssz += logset->size();
+
+    if ( !logssz || logssz!=mneminfotbl_->nrRows() )
+    {
+	uiMSG().message( tr("No logs found.") );
+	return false;
+    }
+
+    TypeSet<TypeSet<int>> uneditedidxs;
+    uneditedidxs.setSize( wls_.size() );
+    int row = 0;
+    for ( int idx=0; idx<wls_.size(); idx++ )
+    {
+	ObjectSet<Well::Log>* logset = wls_.get( idx );
+	for ( int lidx=0; lidx<logset->size(); lidx++ )
+	{
+	    Well::Log* log = logset->get(lidx);
+	    if ( !log )
+	    {
+		row++;
+		continue;
+	    }
+
+	    const UnitOfMeasure* uom = log->unitOfMeasure();
+	    const Mnemonic* mn =  mnemflds_[row]->mnemonic();
+	    if ( mn && mn!=log->mnemonic() )
+		log->setMnemonic( *mn );
+	    else
+	    {
+		uneditedidxs[idx].add( lidx );
+		row++;
+		continue;
+	    }
+
+	    if ( !uom || !uom->isCompatibleWith(*mn->unit()) )
+		log->setUnitOfMeasure( mnemflds_[row]->mnemonic()->unit() );
+
+	    row++;
+	}
+    }
+
+    for ( auto* logset : wls_ )
+    {
+	const int idx = wls_.indexOf( logset );
+	for ( int lidx=logset->size()-1; lidx>=0; lidx-- )
+	{
+	    if ( uneditedidxs[idx].isPresent(lidx) )
+		delete logset->removeSingle( lidx );
+	}
+    }
+
+    for ( int idx=wls_.size()-1; idx>=0; idx-- )
+    {
+	ObjectSet<Well::Log>* logset = wls_.get( idx );
+	if ( logset->isEmpty() )
+	{
+	    delete wls_.removeSingle( idx );
+	    keys_.removeSingle(idx);
+	}
+    }
+
+    return true;
+}
+
+
+bool uiWellLogMnemDlg::acceptOK( CallBacker* )
+{
+    return setMnemonics();
+}
 
 
 // uiSetD2TFromOtherWell

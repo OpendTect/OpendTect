@@ -29,6 +29,7 @@ class uiTable;
 class uiTableImpDataSel;
 class uiTextBrowser;
 class uiUnitSel;
+class uiMnemonicsSel;
 class uiWellSel;
 class BufferStringSet;
 
@@ -211,6 +212,31 @@ protected:
     bool		setUoMValues();
 };
 
+
+/* brief Dialog for editing the logs's mnemonic */
+
+mExpClass(uiWell) uiWellLogMnemDlg : public uiDialog
+{ mODTextTranslationClass(uiWellLogMnemDlg);
+public:
+			uiWellLogMnemDlg(uiParent*,
+					ObjectSet<ObjectSet<Well::Log>>& wls,
+					TypeSet<MultiID>& keys,
+					const BufferStringSet& wellnms);
+			~uiWellLogMnemDlg();
+
+protected:
+
+    ObjectSet<ObjectSet<Well::Log>>&		wls_;
+    ObjectSet<uiMnemonicsSel>			mnemflds_;
+    TypeSet<MultiID>&				keys_;
+    uiTable*					mneminfotbl_;
+
+    void		initDlg(CallBacker*);
+    bool		acceptOK(CallBacker*);
+
+    void		fillTable(const BufferStringSet&);
+    bool		setMnemonics();
+};
 
 
 /* brief Dialog to set Depth-to-Time model to selected wells */

@@ -109,6 +109,9 @@ uiWellMan::uiWellMan( uiParent* p )
     loguombut_ = butgrp->addButton( "unitsofmeasure",
 					tr("View/edit unit of measure"),
 					mCB(this,uiWellMan,logUOMPush) );
+    logmnembut_= butgrp->addButton( "mnemonic",
+					tr("View/edit mnemonic"),
+					mCB(this,uiWellMan,logMnemPush) );
     logedbut_ = butgrp->addButton( "edit", uiStrings::sEdit(),
 			mCB(this,uiWellMan,editLogPush) );
     logupbut_ = butgrp->addButton( "uparrow", uiStrings::sMoveUp(),
@@ -609,7 +612,9 @@ void uiWellMan::calcLogs( CallBacker* )
 
 void uiWellMan::logUOMPush( CallBacker* )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() )
+	return;
+
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );
     if ( lognms.isEmpty() )
@@ -619,7 +624,7 @@ void uiWellMan::logUOMPush( CallBacker* )
     selGroup()->getChosen( wellnms );
     const int nrchosenwls = selGroup()->nrChosen();
     ObjectSet<Well::LogSet> wls;
-    for  ( int widx=0; widx<nrchosenwls; widx++ )
+    for ( int widx=0; widx<nrchosenwls; widx++ )
     {
 	currdrs_[widx]->getLogs();
 	wls += &curwds_[widx]->logs();
@@ -630,6 +635,64 @@ void uiWellMan::logUOMPush( CallBacker* )
 	return;
 
     writeLogs();
+}
+
+
+void uiWellMan::logMnemPush( CallBacker* )
+{
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() )
+	return;
+
+    BufferStringSet lognms;
+    logsfld_->getChosen( lognms );
+    if ( lognms.isEmpty() )
+	mErrRet(uiStrings::sNoLogSel())
+
+    BufferStringSet wellnms;
+    selGroup()->getChosen( wellnms );
+    const int nrchosenwls = selGroup()->nrChosen();
+    ObjectSet<ObjectSet<Well::Log>> wls;
+    TypeSet<MultiID> selkeys;
+    for ( int widx=0; widx<nrchosenwls; widx++ )
+    {
+	Well::Reader& rdr = *currdrs_[widx];
+	Well::Data& wd = *curwds_.get(widx);
+	auto* sellogs = new ObjectSet<Well::Log>();
+	for ( int idx=0; idx<lognms.size(); idx++ )
+	{
+	    BufferString& curlognm = lognms.get(idx);
+	    rdr.getLog( curlognm );
+	    auto* curlog = new Well::Log( *wd.logs().getLog(curlognm) );
+	    sellogs->addIfNew( curlog );
+	}
+
+	wls += sellogs;
+	selkeys += curwds_.get(widx)->multiID();
+    }
+
+    uiWellLogMnemDlg dlg( this, wls, selkeys, wellnms );
+    if ( !dlg.go() )
+	return;
+
+
+    selGroup()->chooseAll( false );
+    selGroup()->setChosen( selkeys );
+    BufferStringSet editedlognms;
+    for ( int widx=0; widx<wls.size(); widx++ )
+    {
+	const MultiID& currkey = curmultiids_[widx];
+	currdrs_[widx]->getLogs( true );
+	Well::Data* currwd = curwds_.get( widx );
+	const ObjectSet<Well::Log>* logset = wls.get( widx );
+	for ( const auto* log : *logset )
+	{
+	    writeLog( currkey, *currwd, *log );
+	    editedlognms.addIfNew( log->name() );
+	}
+    }
+
+    deepErase( wls );
+    wellLogsChgd( editedlognms );
 }
 
 
@@ -689,9 +752,19 @@ void uiWellMan::writeLogs()
     {
 	Well::Writer wwr( curmultiids_[idwell], *curwds_[idwell] );
 	if ( !wwr.putLogs() )
-	    uiMSG().error( mToUiStringTodo(wwr.errMsg()) );
+	    uiMSG().error( wwr.errMsg() );
     }
+
     wellsChgd();
+}
+
+
+void uiWellMan::writeLog(const MultiID& key,
+			 Well::Data& wd, const Well::Log& log )
+{
+    Well::Writer wwr( key, wd );
+    if ( !wwr.putLog( log ) )
+	uiMSG().error( wwr.errMsg() );
 }
 
 
@@ -701,6 +774,27 @@ void uiWellMan::wellsChgd()
     {
 	fillLogsFld();
 	Well::MGR().reload( curmultiids_[idwell] );
+	while ( curwds_[idwell]->logs().size() )
+	    delete curwds_[idwell]->logs().remove(0);
+    }
+}
+
+
+void uiWellMan::wellLogsChgd( const BufferStringSet& lognms )
+{
+    for ( int idwell=0; idwell<curwds_.size(); idwell++ )
+    {
+	Well::Data* wd = Well::MGR().get( curmultiids_[idwell],	
+					  Well::LoadReqs(Well::Logs) );
+	for ( const auto* lognm : lognms )
+	{
+	    currdrs_[idwell]->getLog( *lognm );
+	    const int idx = wd->logs().indexOf( *lognm );
+	    delete wd->logs().remove( idx );
+	    wd->logs().add( new Well::Log(*curwds_[idwell]->logs()
+							   .getLog(*lognm)) );
+	}
+
 	while ( curwds_[idwell]->logs().size() )
 	    delete curwds_[idwell]->logs().remove(0);
     }
