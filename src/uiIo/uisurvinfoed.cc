@@ -755,14 +755,13 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	return false;
     }
 
-    uiSurvInfoProvider* sip = getSIP();
-    if ( isnew_ && sip && sip->hasSurveyImportDlg() )
+    if ( isnew_ && lastsip_ && lastsip_->hasSurveyImportDlg() )
     {
 	const bool ret = uiMSG().askGoOn(
 				tr("Proceed to import Survey data Object") );
 
 	if ( ret )
-	    sip->launchSurveyImportDlg( this->parent() )->go();
+	    lastsip_->launchSurveyImportDlg( this->parent() )->go();
     }
 
     return true;
