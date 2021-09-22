@@ -155,7 +155,6 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 
 uiScenePropertyDlg::~uiScenePropertyDlg()
 {
-    delete separationdlg_;
 }
 
 
