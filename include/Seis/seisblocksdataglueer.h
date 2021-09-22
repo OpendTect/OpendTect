@@ -12,12 +12,14 @@ ________________________________________________________________________
 
 #include "binid.h"
 #include "bin2d.h"
+#include "enums.h"
 #include "seisblocks.h"
 
 class ArrayNDInfo;
 template <class T> class Array1D;
 template <class T> class Array2D;
 template <class T> class Array3D;
+template <class T> class ArrayND;
 class SeisTrc;
 
 namespace PosInfo
@@ -35,6 +37,7 @@ class Storer;
 namespace Blocks
 {
 
+class TraceValues;
 class LineBuf;
 
 /*!\brief Takes in 'small' tiles or blocks of (seismic) data and makes
@@ -52,6 +55,8 @@ class LineBuf;
 mExpClass(Seis) DataGlueer
 {
 public:
+    enum MergeMode { Average, Crop, Blend };
+    mDeclareEnumUtils(MergeMode)
 
     mUseType( Seis,		Storer );
     mUseType( IdxPair,		pos_type );
@@ -61,9 +66,11 @@ public:
     typedef int			idx_type;
     typedef Array2D<val_type>	Arr2D;
     typedef Array3D<val_type>	Arr3D;
+    typedef ArrayND<val_type>	ArrND;
 
 
-		DataGlueer(const SelData&,Storer&);
+		DataGlueer(const SelData&,Storer&,
+			   Coord3f overlap, MergeMode merge=Blend);
 		//!< SelData provides the enveloppe of possible samples
 		~DataGlueer();
 
@@ -95,6 +102,9 @@ protected:
     pos_type		lastwrittenline_    = -1;
     ObjectSet<LineBuf>	linebufs_;
     LineCollData*	lcd_		    = nullptr;
+    MergeMode		mergemode_;
+    ArrND*		weights_	    = nullptr;
+    Coord3f		overlap_;
 
     void	initGeometry(const ArrayNDInfo&);
     void	addPos(const Bin2D&,const Arr2D&,z_type);
@@ -103,7 +113,7 @@ protected:
 
     LineBuf*	getBuf(pos_type);
     uiRetVal	storeLineBuf(const LineBuf&);
-    void	fillTrace(SeisTrc&,Array1D<int>&);
+    void	fillTrace(SeisTrc&,TraceValues&);
 
     StepInterval<pos_type>	trcNrRange(pos_type lnr) const;
 

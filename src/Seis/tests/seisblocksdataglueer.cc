@@ -70,7 +70,8 @@ static bool testCreate()
 			  StepInterval<int>(600, 620, 1 ),
 			  ZSampling(1.0f,1.5f,0.004f) );
     const Seis::RangeSelData sd( css );
-    Seis::Blocks::DataGlueer dg( sd, strr );
+    Seis::Blocks::DataGlueer dg( sd, strr, Coord3f(0.f, 0.f, 0.f),
+				 Seis::Blocks::DataGlueer::Average );
     dg.setSteps( BinID(2,1), 0.004f );
     uiRetVal uirv;
     Array3DImpl<float> arr( 6, 10, 14 );

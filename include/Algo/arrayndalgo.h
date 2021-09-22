@@ -841,16 +841,22 @@ public:
 			ArrayNDWindow(const ArrayNDInfo&,bool rectangular,
 				      const char* winnm,
 				      float paramval=mUdf(float));
+			ArrayNDWindow(const ArrayNDInfo&,bool rectangular,
+				      const char* winnm,
+				      const TypeSet<float>& paramvals);
 			~ArrayNDWindow();
 
     bool		isOK() const		{ return window_; }
 
-    float		getParamVal() const	{ return paramval_; }
+    float		getParamVal(int dim=0) const { return paramval_[dim]; }
+    void		setParamVal(int dim=0, float paramval=mUdf(float));
+    void		setParamVals(const TypeSet<float>&);
     float*		getValues() const	{ return window_; }
 
     void		setValue(od_int64 idx,float val) { window_[idx]=val; }
     bool		setType(WindowType);
     bool		setType(const char*,float paramval=mUdf(float));
+    bool		setType(const char*,const TypeSet<float>&);
 
     bool		resize(const ArrayNDInfo&);
 
@@ -914,9 +920,10 @@ protected:
     bool			rectangular_;
 
     BufferString		windowtypename_;
-    float			paramval_;
+    TypeSet<float>		paramval_;
 
     bool			buildWindow(const char* winnm,float pval);
+    bool			buildWindow(const char* winnm);
 };
 
 
