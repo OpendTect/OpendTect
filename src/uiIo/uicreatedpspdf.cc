@@ -47,6 +47,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
     , plotter_(plotter)
     , dps_(plotter_->dps())
 {
+    enableSaveButton( tr("View/Edit after creation") );
     createDefaultUI();
 }
 
@@ -71,7 +72,7 @@ void uiCreateDPSPDF::createDefaultUI()
 {
     setOkText( uiStrings::sCreate() );
 
-    uiLabeledComboBox* selcbx = 0;
+    uiLabeledComboBox* selcbx = nullptr;
     if ( plotter_ && plotter_->selAreaSize() )
     {
 	BufferStringSet seltype( DPSDensityCalcND::CalcAreaTypeNames(), 3 );;
@@ -107,25 +108,23 @@ void uiCreateDPSPDF::createDefaultUI()
 	setColRange( fld );
 	if ( idx == 0 )
 	{
-	    rmbuts_ += 0;
+	    rmbuts_ += nullptr;
 	    if ( selcbx )
 		fld->attach( alignedBelow, selcbx );
 	}
 	else
 	{
 	    fld->attach( alignedBelow, probflds_[idx-1] );
-	    uiButton* rmbut =
-		new uiPushButton( this, tr("<- Less"),	pushcb, true );
+	    auto* rmbut = new uiPushButton( this, tr("<- Less"), pushcb, true );
 	    rmbut->attach( rightAlignedBelow, fld );
 	    rmbuts_ += rmbut;
 	}
 
 	if ( idx == cMaxNrPDFs-1 )
-	    addbuts_ += 0;
+	    addbuts_ += nullptr;
 	else
 	{
-	    uiButton* addbut =
-		new uiPushButton( this, tr("More ->"), pushcb, true);
+	    auto* addbut = new uiPushButton( this, tr("More ->"), pushcb, true);
 	    addbut->attach( leftAlignedBelow, fld );
 	    addbuts_ += addbut;
 	}
@@ -140,10 +139,16 @@ void uiCreateDPSPDF::createDefaultUI()
 	uiStrings::phrOutput(uiStrings::sProbDensFunc(true,1)) );
     outputfld_->attach( alignedBelow, probflds_[probflds_.size()-1] );
 
-    butPush( addbuts_[1] );
-    if ( plotter_ && plotter_->isY2Shown() )
-	butPush( addbuts_[2] );
-    handleDisp( 0 );
+    int nrattribs = dps_.nrCols();
+    if ( FixedString(dps_.colName(0)) == sKey::MD() )
+	nrattribs--;
+
+    for ( int idx=1; idx<=2; idx++ )
+    {
+	if ( nrattribs > idx )
+	    butPush( addbuts_[idx] );
+    }
+    handleDisp( nullptr );
 }
 
 
