@@ -1829,13 +1829,16 @@ const OD::Color& uiNewWellDlg::getWellColor()
 
 //============================================================================
 
-uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, ObjectSet<Well::LogSet> wls,
-				  const BufferStringSet wellnms,
-				  const BufferStringSet lognms )
+uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p,
+				  ObjectSet<ObjectSet<Well::Log>>& wls,
+				  TypeSet<MultiID>& keys,
+				  const BufferStringSet& wellnms )
     : uiDialog(p,uiDialog::Setup(tr("Set units of measure for logs"),
 				 mNoDlgTitle,mNoHelpKey))
+    ,wls_( wls )
+    , keys_( keys )
 {
-    fillTable( wls, wellnms, lognms );
+    fillTable( wellnms );
     mAttachCB( postFinalise(), uiWellLogUOMDlg::initDlg );
 }
 
@@ -1846,9 +1849,7 @@ uiWellLogUOMDlg::~uiWellLogUOMDlg()
 }
 
 
-void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
-			    const BufferStringSet& wellnms,
-			    const BufferStringSet& lognms )
+void uiWellLogUOMDlg::fillTable( const BufferStringSet& wellnms )
 {
     uominfotbl_ = new uiTable( this, uiTable::Setup()
 				    .manualresize(true)
@@ -1864,28 +1865,21 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
            .add( tr("Unit of measure") );
     uominfotbl_->setColumnLabels( collbls );
     uominfotbl_->setColumnResizeMode( uiTable::ResizeToContents );
-    const int nrwls = wls.size();
-    const int nrlogs = lognms.size();
-    const int nrrows = nrwls*nrlogs;
+    const int nrwls = wls_.size();
+    int nrrows = 0;
+    for ( const auto* logset : wls_ )
+	nrrows += logset->size();
+
     uominfotbl_->setNrRows( nrrows );
     int rowidx = -1;
     for ( int wlsidx=0; wlsidx<nrwls; wlsidx++ )
     {
-	for ( int lidx=0; lidx<nrlogs; lidx++ )
+	const ObjectSet<Well::Log>* logset = wls_[wlsidx];
+	for ( const auto* log : *logset )
 	{
 	    rowidx++;
-	    Well::Log* log = wls[wlsidx]->getLog( lognms.get(lidx) );
-	    if ( !log )
-	    {
-		uominfotbl_->removeRow( rowidx );
-		rowidx--;
-		continue;
-	    }
-
-	    logs_ += log;
 	    const Mnemonic* mn = log->mnemonic();
 	    const UnitOfMeasure* uom = log->unitOfMeasure();
-
 	    uiUnitSel::Setup ussu( mn ? mn->stdType() : Mnemonic::Other,
 				   uiString::empty(), mn );
 	    ussu.selmnemtype( !mn || mn->isUdf() ||
@@ -1895,7 +1889,7 @@ void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
 	    unfld->setUnit( uom );
 	    unflds_ += unfld;
 	    uominfotbl_->setText( RowCol(rowidx,0), wellnms.get(wlsidx) );
-	    uominfotbl_->setText( RowCol(rowidx,1), lognms.get(lidx ) );
+	    uominfotbl_->setText( RowCol(rowidx,1), log->name() );
 	    uominfotbl_->setCellGroup( RowCol(rowidx,2), unfld );
 	}
     }
@@ -1909,29 +1903,71 @@ void uiWellLogUOMDlg::initDlg( CallBacker* )
 
 bool uiWellLogUOMDlg::setUoMValues()
 {
-    const int logssz = logs_.size();
+    int logssz = 0;
+    for ( const auto* logset : wls_ )
+	logssz += logset->size();
+
     if ( !logssz || logssz!=uominfotbl_->nrRows() )
     {
 	uiMSG().message( tr("No logs found.") );
 	return false;
     }
 
-    const int nrrows = uominfotbl_->nrRows();
-    for ( int lidx=0; lidx<nrrows; lidx++ )
+    TypeSet<TypeSet<int>> uneditedidxs;
+    uneditedidxs.setSize( wls_.size() );
+    int row = 0;
+    for ( int idx=0; idx<wls_.size(); idx++ )
     {
-	Well::Log* log = logs_[lidx];
-	if ( !log )
-	    continue;
-
-	const uiUnitSel* unfld = unflds_[lidx];
-	if ( unfld->hasMnemonicSelection() )
+	ObjectSet<Well::Log>* logset = wls_.get( idx );
+	for ( int lidx=0; lidx<logset->size(); lidx++ )
 	{
-	    const Mnemonic* mn =  unfld->mnemonic();
-	    if ( mn )
-		log->setMnemonic( *mn );
-	}
+	    Well::Log* log = logset->get( lidx );
+	    if ( !log )
+	    {
+		row++;
+		continue;
+	    }
 
-	log->setUnitOfMeasure( unfld->getUnit() );
+	    const uiUnitSel* unfld = unflds_[row];
+	    if ( unfld->hasMnemonicSelection() )
+	    {
+		const Mnemonic* mn =  unfld->mnemonic();
+		if ( mn && mn!=log->mnemonic() )
+		    log->setMnemonic( *mn );
+	    }
+
+	    const UnitOfMeasure* uom = unfld->getUnit();
+	    if ( uom && uom!=log->unitOfMeasure() )
+		log->setUnitOfMeasure( unfld->getUnit() );
+	    else
+	    {
+		uneditedidxs[idx].add( lidx );
+		row++;
+		continue;
+	    }
+
+	    row++;
+	}
+    }
+
+    for ( auto* logset : wls_ )
+    {
+	const int idx = wls_.indexOf( logset );
+	for ( int lidx=logset->size()-1; lidx>=0; lidx-- )
+	{
+	    if ( uneditedidxs[idx].isPresent(lidx) )
+		delete logset->removeSingle( lidx );
+	}
+    }
+
+    for ( int idx=wls_.size()-1; idx>=0; idx-- )
+    {
+	ObjectSet<Well::Log>* logset = wls_.get( idx );
+	if ( logset->isEmpty() )
+	{
+	    delete wls_.removeSingle( idx );
+	    keys_.removeSingle(idx);
+	}
     }
 
     return true;

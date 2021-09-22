@@ -623,18 +623,47 @@ void uiWellMan::logUOMPush( CallBacker* )
     BufferStringSet wellnms;
     selGroup()->getChosen( wellnms );
     const int nrchosenwls = selGroup()->nrChosen();
-    ObjectSet<Well::LogSet> wls;
+    ObjectSet<ObjectSet<Well::Log>> wls;
+    TypeSet<MultiID> selkeys;
     for ( int widx=0; widx<nrchosenwls; widx++ )
     {
-	currdrs_[widx]->getLogs();
-	wls += &curwds_[widx]->logs();
+	Well::Reader& rdr = *currdrs_[widx];
+	Well::Data& wd = *curwds_.get(widx);
+	auto* sellogs = new ObjectSet<Well::Log>();
+	for ( int idx=0; idx<lognms.size(); idx++ )
+	{
+	    BufferString& curlognm = lognms.get(idx);
+	    rdr.getLog( curlognm );
+	    auto* curlog = new Well::Log( *wd.logs().getLog(curlognm) );
+	    sellogs->addIfNew( curlog );
+	}
+
+	wls += sellogs;
+	selkeys += curwds_.get(widx)->multiID();
     }
 
-    uiWellLogUOMDlg dlg( this, wls, wellnms, lognms );
+    uiWellLogUOMDlg dlg( this, wls, selkeys, wellnms );
     if ( !dlg.go() )
 	return;
 
-    writeLogs();
+    selGroup()->chooseAll( false );
+    selGroup()->setChosen( selkeys );
+    BufferStringSet editedlognms;
+    for ( int widx=0; widx<wls.size(); widx++ )
+    {
+	const MultiID& currkey = curmultiids_[widx];
+	currdrs_[widx]->getLogs( true );
+	Well::Data* currwd = curwds_.get( widx );
+	const ObjectSet<Well::Log>* logset = wls.get( widx );
+	for ( const auto* log : *logset )
+	{
+	    writeLog( currkey, *currwd, *log );
+	    editedlognms.addIfNew( log->name() );
+	}
+    }
+
+    deepErase( wls );
+    wellLogsChgd( editedlognms );
 }
 
 

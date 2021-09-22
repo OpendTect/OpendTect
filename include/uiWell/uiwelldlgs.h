@@ -192,23 +192,23 @@ protected:
 mExpClass(uiWell) uiWellLogUOMDlg : public uiDialog
 { mODTextTranslationClass(uiWellLogUOMDlg);
 public:
-			uiWellLogUOMDlg(uiParent*,ObjectSet<Well::LogSet> wls,
-					const BufferStringSet wellnms,
-					const BufferStringSet lognms);
+			uiWellLogUOMDlg(uiParent*,
+					ObjectSet<ObjectSet<Well::Log>>& wls,
+					TypeSet<MultiID>& keys,
+					const BufferStringSet& wellnms);
 			~uiWellLogUOMDlg();
 
 protected:
 
-    ObjectSet<Well::Log>	logs_;
-    ObjectSet<uiUnitSel>	unflds_;
-    uiTable*			uominfotbl_;
+    ObjectSet<ObjectSet<Well::Log>>&		wls_;
+    ObjectSet<uiUnitSel>			unflds_;
+    TypeSet<MultiID>&				keys_;
+    uiTable*					uominfotbl_;
 
     void		initDlg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
-    void		fillTable(ObjectSet<Well::LogSet> wls,
-			     const BufferStringSet& wellnms,
-			     const BufferStringSet& lognms);
+    void		fillTable(const BufferStringSet& wellnms);
     bool		setUoMValues();
 };
 

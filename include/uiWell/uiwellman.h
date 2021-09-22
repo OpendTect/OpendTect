@@ -18,8 +18,8 @@ class uiButton;
 class uiGroup;
 class uiToolButton;
 class uiPushButton;
-class uiWellLogCalc;
 namespace Well { class Data; class Reader; class Log; }
+class uiWellLogCalc;
 
 mExpClass(uiWell) uiWellMan : public uiObjFileMan
 { mODTextTranslationClass(uiWellMan)
