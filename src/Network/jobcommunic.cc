@@ -35,7 +35,7 @@ public:
     BufferString	msg_;
 };
 
-static HiddenParam<JobCommunic,int> jobcommsendretmgr_( 0 );
+static	HiddenParam<JobCommunic,int> jobcommsendretmgr_( 0 );
 static HiddenParam<JobCommunic,Threads::Lock*> jobcommlockmgr_( nullptr );
 static HiddenParam<JobCommunic,Threads::Lock*> jobcommsendmsglockmgr_( nullptr);
 
@@ -55,9 +55,8 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
     , logstream_(createLogStream())
 {
     jobcommsendretmgr_.setParam( this, 0 );
-    jobcommlockmgr_.setParam( this, new Threads::Lock( true ) );
-    jobcommsendmsglockmgr_.setParam( this, new Threads::Lock( true ) );
-
+    jobcommlockmgr_.setParam( this, new Threads::Lock(true) );
+    jobcommsendmsglockmgr_.setParam( this, new Threads::Lock(true) );
     min_time_between_msgupdates_ =
 				1000 * GetEnvVarIVal( "DTECT_MM_INTRVAL", 1 );
     lastupdate_ = timestamp_;
@@ -89,9 +88,8 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
     , logstream_(createLogStream())
 {
     jobcommsendretmgr_.setParam( this, 0 );
-    jobcommlockmgr_.setParam( this, new Threads::Lock( true ) );
-    jobcommsendmsglockmgr_.setParam( this, new Threads::Lock( true ) );
-
+    jobcommlockmgr_.setParam( this, new Threads::Lock(true) );
+    jobcommsendmsglockmgr_.setParam( this, new Threads::Lock(true) );
     min_time_between_msgupdates_ =
 				1000 * GetEnvVarIVal( "DTECT_MM_INTRVAL", 1 );
     lastupdate_ = timestamp_;
@@ -110,8 +108,16 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid,
 JobCommunic::~JobCommunic()
 {
     detachAllNotifiers();
+    clearHiddenParams();
     delete socket_;
     delete logstream_;
+}
+
+void JobCommunic::clearHiddenParams()
+{
+    jobcommsendretmgr_.removeParam( this );
+    jobcommlockmgr_.removeAndDeleteParam( this );
+    jobcommsendmsglockmgr_.removeAndDeleteParam( this );
 }
 
 
@@ -252,19 +258,18 @@ void JobCommunic::sendMsgCB( CallBacker* cber )
 
     primaryhostinfo = inp[0];
     bool ret = !inp.isEmpty();
+    bool appexit = false;
     if ( !ret )
     {
 	BufferString emsg( "Error reading from Primary Host: ",
 			    socket_->errMsg().getFullString() );
 	setErrMsg( emsg );
     }
-
     else if ( primaryhostinfo == mRSP_WORK )
 	pausereq_ = false;
 
     else if ( primaryhostinfo == mRSP_PAUSE )
 	pausereq_ = true;
-
     else if ( primaryhostinfo == mRSP_STOP )
     {
 	buf = buildString( sdata.tag_, mSTAT_KILLED, msg );
@@ -273,7 +278,9 @@ void JobCommunic::sendMsgCB( CallBacker* cber )
 	logMsg( writestat, logmsg,
 	    !writestat ? socket_->errMsg().getFullString().str() : "" );
 	directMsg( "Exiting on request of Primary Host." );
+	clearHiddenParams();
 	ApplicationData::exit( -1 );
+	appexit = true;
     }
     else
     {
@@ -284,7 +291,8 @@ void JobCommunic::sendMsgCB( CallBacker* cber )
 	ret = false;
     }
 
-    jobcommsendretmgr_.setParam( this, ret ? 1 : 0 );
+    if ( !appexit )
+	jobcommsendretmgr_.setParam( this, ret ? 1 : 0 );
 }
 
 
