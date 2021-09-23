@@ -73,7 +73,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
     else
 	pypath_ = *pypath;
 
-    uiObject* attachobj(0);
+    uiObject* attachobj( nullptr );
     uiListBox::Setup su;
     if ( acttyp == PDE::AddNRemove )
     {
@@ -142,13 +142,20 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
 	   addremfld_->display( false );
 
        toadd_ = ty == PDE::Add;
-       selectionChgCB(0);
+       selectionChgCB( nullptr );
     }
 
+    mAttachCB( postFinalise(), uiFirewallProcSetter::updateCB );
+}
+
+
+void uiFirewallProcSetter::updateCB( CallBacker* )
+{
     if ( odproclistbox_->isDisplayed() )
-	mAttachCB(postFinalise(),uiFirewallProcSetter::statusUpdateODProcCB);
-    else
-	mAttachCB(postFinalise(),uiFirewallProcSetter::statusUpdatePyProcCB);
+	statusUpdateODProcCB( nullptr );
+
+    if ( pythonproclistbox_->isDisplayed() )
+	statusUpdatePyProcCB( nullptr );
 }
 
 #define mGetAddBool \
@@ -183,6 +190,9 @@ uiFirewallProcSetter::~uiFirewallProcSetter()
 
 bool uiFirewallProcSetter::hasWorkToDo() const
 {
+    if ( odprocdescs_.isEmpty() && pyprocdescs_.isEmpty() )
+	return false;
+
     const PDE::ActionType availacttype = ePDD().getActionType();
     const BufferString* acttyp = acttypstr_.getParam( this );
     const PDE::ActionType type = PDE::ActionTypeDef().getEnumForIndex(

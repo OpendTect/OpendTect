@@ -44,6 +44,7 @@ protected:
     void			statusUpdateODProcCB(CallBacker*);
     void			statusUpdatePyProcCB(CallBacker*);
     void			selectionChgCB(CallBacker*);
+    void			updateCB(CallBacker*);
 
     bool			toadd_;
     BufferString		exepath_;
