@@ -90,7 +90,6 @@ public:
     bool		pauseRequested() const
 			    { return pausereq_; }
     void		disConnect();
-
 protected:
 
 // TODO: Rename to primaryauth_;
@@ -140,6 +139,7 @@ private:
     od_ostream*		logstream_;
     od_ostream*		createLogStream();
     void		dumpSystemInfo();
+    void		clearHiddenParams();
 
     mDeprecated("Use checkPrimaryHostTimeout()")
     void		checkMasterTimeout();
