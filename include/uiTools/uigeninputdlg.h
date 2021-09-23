@@ -92,7 +92,7 @@ public:
 			uiGenInputDlg(uiParent*,const uiString& dlgtitle,
 				      ObjectSet<uiGenInputDlgEntry>*);
 			    //!< the ObjectSet becomes mine.
-			~uiGenInputDlg()	{ delete group; }
+			~uiGenInputDlg()	{}
 
     const char*		text(int i=0);
     int			getIntValue(int i=0);

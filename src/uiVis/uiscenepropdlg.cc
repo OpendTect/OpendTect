@@ -154,9 +154,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 
 
 uiScenePropertyDlg::~uiScenePropertyDlg()
-{
-    delete separationdlg_;
-}
+{}
 
 
 void uiScenePropertyDlg::selAnnotFontCB( CallBacker* )
