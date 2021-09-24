@@ -29,8 +29,10 @@ ________________________________________________________________________
 class uiGenInputFieldIdx
 {
 public:
-		uiGenInputFieldIdx( int fidx, int sidx )
-		    : fldidx_( fidx ), subidx_( sidx ) {}
+uiGenInputFieldIdx( int fidx, int sidx )
+    : fldidx_(fidx)
+    , subidx_(sidx)
+{}
 
     bool	operator ==( const uiGenInputFieldIdx& idx ) const
 		{ return fldidx_ == idx.fldidx_ && subidx_ == idx.subidx_; }
@@ -40,17 +42,20 @@ public:
 };
 
 
-#define mName( dis, idx, defnm ) \
-    ( dis.name(idx) ? dis.name(idx) : defnm )
+static const char* sName( const DataInpSpec& spec, int idx, const char* def )
+{
+    const FixedString specnm = spec.name(idx);
+    return specnm.isEmpty() ? def : spec.name(idx);
+}
 
 template <class T>
 class uiSimpleInputFld : public uiGenInputInputFld
 {
 public:
-uiSimpleInputFld( uiGenInput* p, const DataInpSpec& dis,
+uiSimpleInputFld( uiGenInput* p, const DataInpSpec& spec,
 		  const char* nm="Line Edit Field" )
-    : uiGenInputInputFld(p,dis)
-    , usrinpobj(*new T(p,dis,mName(dis,0,nm)))
+    : uiGenInputInputFld(p,spec)
+    , usrinpobj(*new T(p,spec,sName(spec,0,nm)))
 {
     init();
     setReadOnly( false );
@@ -63,55 +68,84 @@ uiSimpleInputFld( uiGenInput* p, const DataInpSpec& dis,
 			mCB(this,uiGenInputInputFld,updateReqNotify) );
 }
 
-virtual	~uiSimpleInputFld()	{ delete &usrinpobj; }
+virtual ~uiSimpleInputFld()
+{
+    delete &usrinpobj;
+}
+
 
 virtual UserInputObj* element( int idx=0 )
-{ return idx == 0 ? &usrinpobj : 0; }
+{
+    return idx == 0 ? &usrinpobj : 0;
+}
+
 
 virtual uiObject* mainObj()
-{ return dynamic_cast<uiObject*>(&usrinpobj); }
+{
+    return dynamic_cast<uiObject*>(&usrinpobj);
+}
 
-T&	getUsrInpObj()	{ return usrinpobj; }
+
+T& getUsrInpObj()
+{
+    return usrinpobj;
+}
 
 protected:
 
     T&			usrinpobj;
 };
 
-typedef uiSimpleInputFld<uiLineEdit>	uiTextInputFld;
+
+class uiTextInputFld : public uiSimpleInputFld<uiLineEdit>
+{
+public:
+uiTextInputFld( uiGenInput* p, const DataInpSpec& spec,
+		const char* nm="Text Input Field" )
+    : uiSimpleInputFld<uiLineEdit>(p,spec,sName(spec,0,nm))
+{
+    const FixedString spectxt = spec.text();
+    setText( spectxt.buf(), 0 );
+}
+
+};
+
 
 class uiFileInputFld : public uiSimpleInputFld<uiLineEdit>
 {
 public:
-			uiFileInputFld( uiGenInput* p,
-					 const DataInpSpec& dis,
-					 const char* nm="File Input Field" )
-			    : uiSimpleInputFld<uiLineEdit>( p, dis,
-							    mName(dis,0,nm) )
-			    {
-				setText( dis.text() ? dis.text() : "", 0 );
-				usrinpobj.setStretch( 2, 0 );
-			    }
+uiFileInputFld( uiGenInput* p, const DataInpSpec& spec,
+		const char* nm="File Input Field" )
+    : uiSimpleInputFld<uiLineEdit>(p,spec,sName(spec,0,nm))
+{
+    setText( spec.text() ? spec.text() : "", 0 );
+    usrinpobj.setStretch( 2, 0 );
+}
 
-    virtual void	setText( const char* s, int idx )
-			    {
-				if ( idx ) return;
-				usrinpobj.setText(s);
-				usrinpobj.end();
-			    }
+
+virtual void setText( const char* s, int idx )
+{
+    if ( idx ) return;
+    usrinpobj.setText(s);
+    usrinpobj.end();
+}
+
 };
+
 
 class uiBoolInpFld : public uiSimpleInputFld<uiGenInputBoolFld>
 {
 public:
-			uiBoolInpFld( uiGenInput* p,
-					 const DataInpSpec& dis,
-					 const char* nm="Bool Input Field" )
-			    : uiSimpleInputFld<uiGenInputBoolFld>( p, dis,
-							       mName(dis,0,nm) )
-			    {}
+uiBoolInpFld( uiGenInput* p, const DataInpSpec& spec,
+		const char* nm="Bool Input Field" )
+    : uiSimpleInputFld<uiGenInputBoolFld>(p,spec,sName(spec,0,nm))
+{}
 
-    virtual uiObject*	mainObj()	{ return usrinpobj.mainObject(); }
+virtual uiObject* mainObj()
+{
+    return usrinpobj.mainObject();
+}
+
 };
 
 
@@ -119,7 +153,7 @@ class uiPositionInpFld : public uiGenInputInputFld
 {
 public:
 			uiPositionInpFld( uiGenInput* p,
-					 const DataInpSpec& dis,
+					 const DataInpSpec& spec,
 					 const char* nm="Position Inp Field" );
 
     virtual uiObject*	mainObj()		{ return flds_[0]; }
@@ -150,20 +184,20 @@ protected:
 };
 
 
-uiPositionInpFld::uiPositionInpFld( uiGenInput* p, const DataInpSpec& dis,
+uiPositionInpFld::uiPositionInpFld( uiGenInput* p, const DataInpSpec& spec,
 					const char* nm )
-    : uiGenInputInputFld(p,dis)
+    : uiGenInputInputFld(p,spec)
     , valueChanged(this)
 {
-    mDynamicCastGet(const PositionInpSpec*,spc,&dis)
+    mDynamicCastGet(const PositionInpSpec*,spc,&spec)
     if ( !spc ) { pErrMsg("HUH - expect crash"); return; }
 
-    addFld( p, mName(dis,0,nm) );
+    addFld( p, sName(spec,0,nm) );
     const bool istrcnr = spc->setup().is2d_ && !spc->setup().wantcoords_;
     if ( spc->setup().isps_ || !istrcnr )
-	addFld( p, mName(dis,1,nm) );
+	addFld( p, sName(spec,1,nm) );
     if ( spc->setup().isps_ && !istrcnr )
-	addFld( p, mName(dis,2,nm) );
+	addFld( p, sName(spec,2,nm) );
 
     init();
 }
@@ -325,8 +359,8 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 				       const char* nm )
     : uiGenInputInputFld( p, dis )
     , intvalGrp( *new uiGroup(p,nm) )
-    , start( *new uiLineEdit(&intvalGrp,dis,mName(dis,0,nm)) )
-    , stop( *new uiLineEdit(&intvalGrp,dis,mName(dis,1,nm)) )
+    , start( *new uiLineEdit(&intvalGrp,dis,sName(dis,0,nm)) )
+    , stop( *new uiLineEdit(&intvalGrp,dis,sName(dis,1,nm)) )
     , step( 0 )
 {
     mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&dis)
@@ -349,7 +383,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 
     if ( spc->hasStep() )
     {
-	step = new uiLineEdit(&intvalGrp,mName(dis,2,nm));
+	step = new uiLineEdit( &intvalGrp, sName(dis,2,nm) );
 	if ( !dis.name(2) && nm && *nm )
 	    step->setName( BufferString(nm," step").buf() );
 
@@ -427,8 +461,8 @@ uiIntIntervalInpFld::uiIntIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
     , symm_(0)
 {
     grp_ = new uiGroup( p, nm );
-    start_ = new uiSpinBox( grp_, 0,  mName(dis,0,nm) );
-    stop_ = new uiSpinBox( grp_, 0,  mName(dis,1,nm) );
+    start_ = new uiSpinBox( grp_, 0, sName(dis,0,nm) );
+    stop_ = new uiSpinBox( grp_, 0, sName(dis,1,nm) );
 
     if ( (!dis.name(0) || !dis.name(1)) && nm && *nm )
     {
@@ -451,7 +485,7 @@ uiIntIntervalInpFld::uiIntIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 
     if ( iiis->hasStep() )
     {
-	step_ = new uiSpinBox( grp_, 0,  mName(dis,2,nm) );
+	step_ = new uiSpinBox( grp_, 0, sName(dis,2,nm) );
 	if ( !dis.name(2) && nm && *nm )
 	    step_->setName( BufferString(nm," step").buf() );
 
@@ -585,79 +619,86 @@ void uiIntIntervalInpFld::symmCB( CallBacker* )
 class uiStrLstInpFld : public uiGenInputInputFld
 {
 public:
-			uiStrLstInpFld( uiGenInput* p,
-					 const DataInpSpec& dis,
-					 const char* nm="uiStrLstInpFld" )
-			    : uiGenInputInputFld( p, dis )
-			    , cbb_( *new uiComboBox(p,mName(dis,0,nm)) )
-			{
-			    init();
+uiStrLstInpFld( uiGenInput* p, const DataInpSpec& dis,
+		const char* nm="uiStrLstInpFld" )
+    : uiGenInputInputFld( p, dis )
+    , cbb_( *new uiComboBox(p,sName(dis,0,nm)) )
+{
+    init();
 
-			    const EnumDef* enumdef = enumDef();
-			    if ( enumdef )
-			    {
-				for ( int idx=0; idx<enumdef->size(); idx++ )
-				{
-				    const char* iconid =
-		enumdef->getIconFileForIndex(idx);
-				    if ( iconid )
-					 cbb_.setIcon(idx,iconid);
-				}
-			    }
+    const EnumDef* enumdef = enumDef();
+    if ( enumdef )
+    {
+	for ( int idx=0; idx<enumdef->size(); idx++ )
+	{
+	    const char* iconid = enumdef->getIconFileForIndex( idx );
+	    if ( iconid )
+		 cbb_.setIcon(idx,iconid);
+	}
+    }
 
-			    cbb_.setReadOnly( true );
-			    cbb_.selectionChanged.notify(
-				mCB(this,uiGenInputInputFld,valChangedNotify) );
-			}
+    cbb_.setReadOnly( true );
+    cbb_.selectionChanged.notify(
+	mCB(this,uiGenInputInputFld,valChangedNotify) );
+}
 
-    virtual bool	isUndef(int) const		{ return false; }
 
-    virtual const char* text(int idx) const
-			{
-			    const EnumDef* enumdef = enumDef();
-			    if ( !enumdef )
-				return cbb_.text();
+virtual bool isUndef(int) const
+{ return false; }
 
-			    const int selidx = cbb_.currentItem();
-			    return enumdef->getKeyForIndex( selidx );
-			}
-    virtual void	setText( const char* t,int idx )
-			{
-			    const EnumDef* enumdef = enumDef();
-			    if ( enumdef &&
-				 enumdef->isValidKey(t) )
-			    {
-				const int selidx = enumdef->indexOf(t);
-				cbb_.setCurrentItem( selidx );
-				return;
-			    }
 
-			    cbb_.setCurrentItem(t);
-			}
-    virtual void	setReadOnly( bool yn = true, int idx=0 )
-			{
-			    if ( !yn )
-			      { pErrMsg("Stringlist input must be read-only"); }
-			}
+virtual const char* text(int idx) const
+{
+    const EnumDef* enumdef = enumDef();
+    if ( !enumdef )
+	return cbb_.text();
 
-    virtual UserInputObj* element( int idx=0 )		{ return &cbb_; }
-    virtual uiObject*	mainObj()			{ return &cbb_; }
+    const int selidx = cbb_.currentItem();
+    return enumdef->getKeyForIndex( selidx );
+}
+
+
+virtual void setText( const char* t,int idx )
+{
+    const EnumDef* enumdef = enumDef();
+    if ( enumdef && enumdef->isValidKey(t) )
+    {
+	const int selidx = enumdef->indexOf(t);
+	cbb_.setCurrentItem( selidx );
+	return;
+    }
+
+    cbb_.setCurrentItem(t);
+}
+
+
+virtual void setReadOnly( bool yn = true, int idx=0 )
+{
+    if ( !yn )
+      { pErrMsg("Stringlist input must be read-only"); }
+}
+
+virtual UserInputObj* element( int idx=0 )
+{ return &cbb_; }
+
+virtual uiObject* mainObj()
+{ return &cbb_; }
 
 protected:
-    const EnumDef*	enumDef() const
-			{
-			    mDynamicCastGet(const StringListInpSpec*, strspec,
-					    &spec() );
-			    if ( !strspec )
-				return 0;
+const EnumDef* enumDef() const
+{
+    mDynamicCastGet(const StringListInpSpec*,strspec,&spec())
+    if ( !strspec )
+	return 0;
 
-			    return strspec->enumDef();
-			}
+    return strspec->enumDef();
+}
 
-    virtual void		setvalue_( int i, int idx )
-				   { cbb_.setCurrentItem(i); }
-    virtual int			getvalue_( int idx )	const
-				   { return cbb_.currentItem(); }
+virtual void setvalue_( int i, int idx )
+{ cbb_.setCurrentItem(i); }
+
+virtual int getvalue_( int idx ) const
+{ return cbb_.currentItem(); }
 
     uiComboBox&			cbb_;
 };
@@ -772,7 +813,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     , finalised_(false) \
     , idxes_(*new TypeSet<uiGenInputFieldIdx>) \
     , selText_(uiStrings::sEmptyString()), withchk_(false) \
-    , labl_(0), titletext_(disptxt), cbox_(0), selbut_(0) \
+    , labl_(nullptr), titletext_(disptxt), cbox_(nullptr), selbut_(nullptr) \
     , valuechanging(this), valuechanged(this) \
     , checked(this), updateRequested(this) \
     , checked_(false), rdonly_(false), rdonlyset_(false) \
