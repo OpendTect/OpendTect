@@ -171,9 +171,8 @@ void uiWellZRangeSelector::putToScreen()
 	mDefWMS;
 	wms->setInput( params_->topMarker(), true );
 	wms->setInput( params_->botMarker(), false );
-	const UnitOfMeasure* depthunit = UnitOfMeasure::surveyDefDepthUnit();
-	abovefld_->setValue( depthunit->userValue(params_->topOffset()), 0 );
-	belowfld_->setValue( depthunit->userValue(params_->botOffset()), 0 );
+	abovefld_->setValue( params_->topOffset(), 0 );
+	belowfld_->setValue( params_->botOffset(), 0 );
     }
     else
     {
@@ -200,11 +199,8 @@ void uiWellZRangeSelector::getFromScreen( CallBacker* )
     if ( selidx_ == cMarkersFld )
     {
 	mDefWMS;
-	const UnitOfMeasure* depthunit = UnitOfMeasure::surveyDefDepthUnit();
-	params_->setTopMarker( wms->getText(true),
-			depthunit->internalValue(abovefld_->getFValue()) );
-	params_->setBotMarker( wms->getText(false),
-			depthunit->internalValue(belowfld_->getFValue()) );
+	params_->setTopMarker( wms->getText(true), abovefld_->getFValue() );
+	params_->setBotMarker( wms->getText(false), belowfld_->getFValue() );
     }
     else
     {
@@ -362,8 +358,6 @@ void uiWellExtractParams::getFromScreen( CallBacker* cb )
     if ( dostep_ )
     {
 	float step = depthstepfld_->getFValue();
-	const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
-	step = uom ? uom->internalValue(step) : step;
 
 	if ( params().extractzintime_ )
 	{
