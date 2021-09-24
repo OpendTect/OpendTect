@@ -80,6 +80,7 @@ public:
 			//!< nr < 0 returns last dir name
     BufferString	dirUpTo(int) const;
 			//!< nr < 0 returns last dir, including prefix
+    BufferString	fileFrom(int level) const;
     BufferString	partitionName() const;
     BufferString	rootPath() const;
 
