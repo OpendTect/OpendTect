@@ -27,6 +27,7 @@ public:
 					const BufferString* path=nullptr,
 					const BufferString* pypath=nullptr);
 				~uiFirewallProcSetter();
+    bool			hasWorkToDo() const;
 protected:
 
     uiListBox*			odproclistbox_;
@@ -43,6 +44,7 @@ protected:
     void			statusUpdateODProcCB(CallBacker*);
     void			statusUpdatePyProcCB(CallBacker*);
     void			selectionChgCB(CallBacker*);
+    void			updateCB(CallBacker*);
 
     bool			toadd_;
     BufferString		exepath_;
@@ -52,6 +54,7 @@ protected:
     BufferStringSet		pyprocnms_;
     uiStringSet			pyprocdescs_;
     BufferString		pypath_;
+    BufferString		acttypstr_;
 
     uiString			sStatusBarMsg()
 				{ return tr("Path : %1"); }

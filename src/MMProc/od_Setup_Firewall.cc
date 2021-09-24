@@ -106,7 +106,7 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
     char shortpath[1024];
     GetShortPathName( fp.fullPath().buf(), shortpath, 1024 );
     mc.addArg( BufferString("program=\"",shortpath,"\"") );
-    if (toadd)
+    if ( toadd )
     {
 	mc.addArg( "enable=yes" );
 	mc.addArg( "dir=in" );

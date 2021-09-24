@@ -19,7 +19,6 @@ class uiString;
 namespace ProcDesc
 {
 
-
     mExpClass(Basic) DataEntry
     {
     public:
@@ -39,6 +38,10 @@ namespace ProcDesc
 	static const char*	sKeyODv7()	    { return "ODv7"; }
 	static const char*	sKeyPython()	    { return "Python"; }
 	static const char*	sKeyActionTaken()   { return "ActionTaken"; }
+	static const char*	getCMDActionKey(const ActionType);
+	static ActionType	getActionTypeForCMDKey(const BufferString&);
+	static const char*	getTypeFlag(const Type);
+	static bool		isCMDOK(const BufferString&);
     };
 
     mExpClass(Basic) Data : public ManagedObjectSet<DataEntry>
