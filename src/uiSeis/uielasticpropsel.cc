@@ -159,7 +159,6 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
 
     singleinpfld_ = new uiLabeledComboBox( this, uiStrings::sUse() );
     singleinpfld_->attach( alignedBelow, selmathfld_ );
-    const MnemonicSet& mns = MNC();
     const PropertyRefSet& props = PROPS();
     BufferStringSet propnms;
     for ( const auto* propnm : propnms_ )
@@ -168,8 +167,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
 	if ( !pr )
 	    continue;
 
-	const Mnemonic* mn = mns.getByName( pr->mnName(), false );
-	if ( mn && elprop.isCompatibleWith(*mn) )
+	if ( elprop.isCompatibleWith(pr->mn()) )
 	    propnms.addIfNew( propnm->buf() );
     }
 

@@ -194,6 +194,7 @@ void uiUnitSel::update()
 	inpfld_->setText( mFromUiStringTodo(getSelTxt(
 					UnitOfMeasure::surveyDefDepthUnit())) );
     prevuom_ = getUnit();
+    displayGroup( !inpfld_->isEmpty() );
 }
 
 

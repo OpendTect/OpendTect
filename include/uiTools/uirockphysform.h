@@ -15,12 +15,10 @@ ________________________________________________________________________
 #include "mnemonics.h"
 
 class uiComboBox;
-class uiGenInput;
-class uiLabel;
-class uiPushButton;
-class uiTextEdit;
-class uiTextBrowser;
+class uiMnemonicsSel;
 class uiRockPhysConstantFld;
+class uiTextBrowser;
+class uiTextEdit;
 namespace Math { class Formula; }
 namespace RockPhysics { class Formula; }
 
@@ -30,34 +28,38 @@ mExpClass(uiTools) uiRockPhysForm : public uiGroup
 public:
 
 			uiRockPhysForm(uiParent*);
-			uiRockPhysForm(uiParent*,Mnemonic::StdType);
+			uiRockPhysForm(uiParent*,const Mnemonic&);
+			~uiRockPhysForm();
 
-    Mnemonic::StdType	getType() const;
-    void		setType(Mnemonic::StdType);
-				//!< only works when 1st constructor used
+    uiRetVal		isOK() const;
 
-    bool		getFormulaInfo(Math::Formula&,
-			    TypeSet<Mnemonic::StdType>* tps=nullptr) const;
+    const Mnemonic&	getMnemonic() const;
+
     const char*		getText(bool replace_consts=true) const;
+    bool		getFormulaInfo(Math::Formula&) const;
 
-    const char*		errMsg() const		{ return errmsg_.buf(); }
-    bool		isOK();
+    mDeprecated("Use MnemonicSelection")
+    bool		getFormulaInfo(Math::Formula&,
+				       TypeSet<Mnemonic::StdType>*) const;
 
-protected:
+private:
 
-    uiComboBox*		typfld_;
+    uiComboBox*		typfld_ = nullptr;
+    ObjectSet<uiMnemonicsSel> mnselflds_;
     uiComboBox*		nmfld_;
     uiTextEdit*		formulafld_;
     uiTextBrowser*	descriptionfld_;
     ObjectSet<uiRockPhysConstantFld>	cstflds_;
 
-    const Mnemonic::StdType fixedtype_;
-    BufferString	errmsg_;
+    const Mnemonic*	fixedmn_ = nullptr;
 
+    void		initGrp(CallBacker*);
     void		typSel(CallBacker*);
+    void		mnSel(CallBacker*);
     void		nameSel(CallBacker*);
 
-    void		createFlds(uiGroup*);
+    void		createFlds(uiObject*);
+    void		setType(const Mnemonic&);
     BufferString	getFormText(const RockPhysics::Formula&,bool) const;
 
 };

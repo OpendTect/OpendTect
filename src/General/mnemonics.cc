@@ -211,6 +211,19 @@ bool Mnemonic::isKnownAs( const char* nm ) const
 }
 
 
+bool Mnemonic::isCompatibleWith( const Mnemonic* oth ) const
+{
+    if ( !oth )
+	return false;
+
+    static MnemonicSelection allpors = MnemonicSelection::getAllPorosity();
+    static MnemonicSelection allvols = MnemonicSelection::getAllVolumetrics();
+    return this == oth ||
+	   ( allpors.isPresent(this) && allpors.isPresent(oth) ) ||
+	   ( allvols.isPresent(this) && allvols.isPresent(oth) );
+}
+
+
 void Mnemonic::usePar( const IOPar& iop )
 {
     aliases_.erase();
@@ -285,13 +298,14 @@ const Mnemonic& Mnemonic::undef()
     mDefineStaticLocalObject( PtrMan<Mnemonic>, udf, = nullptr );
     if ( !udf )
     {
-	auto* newudf = new Mnemonic( "Other", Other );
+	auto* newudf = new Mnemonic( "OTH", Other );
 	if ( udf.setIfNull(newudf,true) )
 	{
+	    newudf->logtypename_ = "Other";
 	    BufferStringSet& aliases = newudf->aliases();
 	    aliases.add( "" ).add( "undef*" ).add( "?undef?" )
 		   .add( "?undefined?" )
-		   .add( "udf" ).add( "unknown" ).add( "other" );
+		   .add( "udf" ).add( "unknown" );
 	    newudf->disp_.color_ = OD::Color::LightGrey();
 	}
     }
@@ -342,6 +356,8 @@ const Mnemonic& Mnemonic::defPHI() { return *MNC().getByName("PHI",false); }
 const Mnemonic& Mnemonic::defSW() { return *MNC().getByName("SW",false); }
 const Mnemonic& Mnemonic::defAI() { return *MNC().getByName("AI",false); }
 const Mnemonic& Mnemonic::defSI() { return *MNC().getByName("SI",false); }
+const Mnemonic& Mnemonic::defVEL() { return *MNC().getByName("VEL",false); }
+const Mnemonic& Mnemonic::defTime() { return *MNC().getByName("TWT",false); }
 
 
 //------- MnemonicSetMgr ----------
@@ -536,6 +552,8 @@ MnemonicSelection::MnemonicSelection( const Mnemonic* exclude )
 	if ( mnc != exclude )
 	    add( mnc );
     }
+
+    add( &Mnemonic::undef() );
 }
 
 
@@ -548,6 +566,9 @@ MnemonicSelection::MnemonicSelection( const Mnemonic::StdType stdtyp )
 	if ( mnc->stdType() == stdtyp )
 	    add( mnc );
     }
+
+    if ( stdtyp == Mnemonic::Other )
+	add( &Mnemonic::undef() );
 }
 
 
@@ -569,11 +590,11 @@ void MnemonicSelection::getAll( const BufferStringSet& mnnms,
 				MnemonicSelection& ret )
 {
     MnemonicSelection mnrefsel;
-    const MnemonicSet& mns = MNC();
+    const MnemonicSelection allmns( nullptr );
     for ( const auto* mnnm : mnnms )
-	mnrefsel.add( mns.getByName(mnnm->buf(),false) );
+	mnrefsel.add( allmns.getByName(mnnm->buf(),false) );
 
-    for ( const auto* mn : mns )
+    for ( const auto* mn : allmns )
     {
 	for ( const auto* mnref : mnrefsel )
 	{

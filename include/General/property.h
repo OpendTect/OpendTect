@@ -41,6 +41,7 @@ public:
     virtual bool	isFormula() const		{ return false; }
 
     inline const PropertyRef& ref() const		{ return ref_; }
+    inline const Mnemonic& mn() const		{ return ref_.mn(); }
     inline const UnitOfMeasure* unit() const	{ return ref_.unit(); }
     const char*		name() const;
 

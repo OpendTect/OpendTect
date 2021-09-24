@@ -9,21 +9,22 @@ ________________________________________________________________________
 -*/
 
 #include "mathformula.h"
-#include "keystrs.h"
-#include "mathspecvars.h"
-#include "mathformulatransl.h"
-#include "mathexpression.h"
-#include "unitofmeasure.h"
+
 #include "iopar.h"
+#include "keystrs.h"
+#include "mathexpression.h"
+#include "mathformulatransl.h"
+#include "mathspecvars.h"
+#include "unitofmeasure.h"
 
 mDefSimpleTranslators(MathFormula,Math::Formula::sKeyFileType(),od,Misc);
-
-static Math::SpecVarSet emptyspecvarset;
 
 
 const Math::SpecVarSet& Math::SpecVarSet::getEmpty()
 {
-    return emptyspecvarset;
+    static ConstPtrMan<Math::SpecVarSet> emptyspecvarset =
+						new Math::SpecVarSet();
+    return *emptyspecvarset.ptr();
 }
 
 
@@ -60,28 +61,23 @@ Interval<int> Math::Formula::InpDef::shftRg() const
 
 
 Math::Formula::Formula( bool inpseries, const char* txt )
-    : expr_(0)
-    , specvars_(&SpecVarSet::getEmpty())
+    : specvars_(&SpecVarSet::getEmpty())
     , inputsareseries_(inpseries)
-    , outputunit_(0)
 {
     setText( txt );
 }
 
 
 Math::Formula::Formula( bool inpseries, const SpecVarSet& svs, const char* txt )
-    : expr_(0)
-    , specvars_(&svs)
+    : specvars_(&svs)
     , inputsareseries_(inpseries)
-    , outputunit_(0)
 {
     setText( txt );
 }
 
 
 Math::Formula::Formula( const Math::Formula& oth )
-    : expr_(0)
-    , inputsareseries_(true)
+    : inputsareseries_(true)
 {
     *this = oth;
 }
@@ -92,10 +88,11 @@ Math::Formula& Math::Formula::operator =( const Math::Formula& oth )
     if ( this != &oth )
     {
 	delete expr_;
-	expr_ = oth.expr_ ? oth.expr_->clone() : 0;
+	expr_ = oth.expr_ ? oth.expr_->clone() : nullptr;
 	text_ = oth.text_;
 	inps_ = oth.inps_;
-	outputunit_ = oth.outputunit_;
+	outputformunit_ = oth.outputformunit_;
+	outputvalunit_ = oth.outputvalunit_;
 	recstartvals_ = oth.recstartvals_;
 	prevvals_ = oth.prevvals_;
 	inpidxs_ = oth.inpidxs_;
@@ -226,20 +223,55 @@ void Math::Formula::setInputDef( int iinp, const char* def )
 }
 
 
-void Math::Formula::setInputUnit( int iinp, const UnitOfMeasure* uom )
+void Math::Formula::setInputMnemonic( int iinp, const Mnemonic* mn )
+{
+    if ( !inps_.validIdx(iinp) )
+	return;
+
+    InpDef& inp = inps_[iinp];
+    inp.formmn_ = mn;
+    if ( !mn )
+	return;
+
+    if ( !inp.formunit_ ||
+	 (inp.formunit_ && mn->unit() &&
+	  !inp.formunit_->isCompatibleWith(*mn->unit())) )
+	inp.formunit_ = mn->unit();
+}
+
+
+void Math::Formula::setInputFormUnit( int iinp, const UnitOfMeasure* uom )
 {
     if ( inps_.validIdx(iinp) )
-	inps_[iinp].unit_ = uom;
+	inps_[iinp].formunit_ = uom;
+}
+
+
+void Math::Formula::setInputValUnit( int iinp, const UnitOfMeasure* uom )
+{
+    if ( inps_.validIdx(iinp) )
+	inps_[iinp].valunit_ = uom;
 }
 
 
 void Math::Formula::clearInputDefs()
 {
-    for ( int iinp=0; iinp<inps_.size(); iinp++ )
+    for ( auto& inp : inps_ )
     {
-	inps_[iinp].inpdef_.setEmpty();
-	inps_[iinp].unit_ = 0;
+	inp.inpdef_.setEmpty();
+	inp.formmn_ = nullptr;
+	inp.formunit_ = nullptr;
+	inp.valunit_ = nullptr;
     }
+}
+
+
+void Math::Formula::clearAllDefs()
+{
+    clearInputDefs();
+    outputformmn_ = nullptr;
+    outputformunit_ = nullptr;
+    outputvalunit_ = nullptr;
 }
 
 
@@ -292,17 +324,7 @@ void Math::Formula::startNewSeries() const
 }
 
 
-float Math::Formula::getValue( const float* vals, bool internuns ) const
-{
-    const int nrinpvals = nrValues2Provide();
-    TypeSet<double> dvals;
-    for ( int ival=0; ival<nrinpvals; ival++ )
-	dvals += vals[ival];
-    return (float)getValue( dvals.arr(), internuns );
-}
-
-
-double Math::Formula::getValue( const double* vals, bool internuns ) const
+double Math::Formula::getValue( const double* vals ) const
 {
     if ( !expr_ )
 	return mUdf(double);
@@ -312,19 +334,19 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
     {
 	startNewSeries();
 	for ( int ishift=prevvals_.size(); ishift<maxRecShift(); ishift++ )
-	    prevvals_ += 0;
+	    prevvals_ += 0.;
 
     }
 
     for ( int ivar=0; ivar<inpidxs_.size(); ivar++ )
     {
 	const int inpidx = inpidxs_[ivar];
-	double val = 0;
+	double val = 0.;
 	if ( inpidx >= 0 )
 	{
 	    val = vals[ validxs_[ivar] ];
-	    if ( inps_[inpidx].unit_ && !mIsUdf(val) )
-		val = inps_[inpidx].unit_->getUserValueFromSI( val );
+	    if ( inps_[inpidx].valunit_ )
+		convValue( val, inps_[inpidx].valunit_,inps_[inpidx].formunit_);
 	}
 	else if ( inputsareseries_ )
 	{
@@ -336,15 +358,18 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
 	    }
 	    expr_->setVariableValue( ivar, val );
 	}
+
 	expr_->setVariableValue( ivar, val );
     }
 
-    const double formval = expr_->getValue();
+    double retval = expr_->getValue();
     if ( inputsareseries_ )
-	prevvals_ += formval;
+	prevvals_ += retval;
 
-    return outputunit_ && internuns ? outputunit_->getSIValue( formval )
-				    : formval;
+    if ( outputvalunit_ )
+	convValue( retval, outputformunit_, outputvalunit_ );
+
+    return retval;
 }
 
 
@@ -358,7 +383,8 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
 void Math::Formula::fillPar( IOPar& iop ) const
 {
     iop.update( sKeyExpression(), text_ );
-    iop.update( mOutUnKy, outputunit_ ? outputunit_->name().buf() : 0 );
+    iop.update( mOutUnKy, outputformunit_ ? outputformunit_->name().buf()
+					  : nullptr );
 
     if ( recstartvals_.isEmpty() )
 	iop.removeWithKey( sKeyRecStartVals() );
@@ -372,8 +398,7 @@ void Math::Formula::fillPar( IOPar& iop ) const
 	mDefInpKeybase;
 
 	iop.set( mInpDefKy, id.inpdef_ );
-	BufferString unstr;
-	if ( id.unit_ ) unstr = id.unit_->name();
+	const BufferString unstr = UnitOfMeasure::getUnitLbl( id.formunit_ );
 	iop.update( mInpUnKy, unstr );
     }
 }
@@ -387,7 +412,7 @@ void Math::Formula::usePar( const IOPar& iop )
 
     BufferString unstr;
     iop.get( mOutUnKy, unstr );
-    outputunit_ = unstr.isEmpty() ? 0 : UoMR().get( unstr );
+    outputformunit_ = unstr.isEmpty() ? nullptr : UoMR().get( unstr );
 
     iop.get( sKeyRecStartVals(), recstartvals_ );
 
@@ -398,6 +423,40 @@ void Math::Formula::usePar( const IOPar& iop )
 
 	iop.get( mInpDefKy, id.inpdef_ );
 	iop.get( mInpUnKy, unstr );
-	id.unit_ = UoMR().get( unstr );
+	id.formunit_ = UoMR().get( unstr );
     }
+}
+
+
+//Legacy:
+mStartAllowDeprecatedSection
+float Math::Formula::getValue( const float* vals, bool internuns ) const
+{
+    const int nrinpvals = nrValues2Provide();
+    TypeSet<double> dvals;
+    for ( int ival=0; ival<nrinpvals; ival++ )
+	dvals += vals[ival];
+
+    return sCast(float,getValue( dvals.arr(), internuns ) );
+}
+mStopAllowDeprecatedSection
+
+
+double Math::Formula::getValue( const double* vals, bool internuns ) const
+{
+    if ( internuns )
+    {
+	auto& thisform = const_cast<Formula&>( *this );
+	TypeSet<InpDef>& inps = thisform.inps_;
+	for ( auto& inp : inps )
+	{
+	    if ( inp.formunit_ )
+		inp.valunit_ = UoMR().getInternalFor(inp.formunit_->propType());
+	}
+	if ( outputformunit_ )
+	    thisform.outputvalunit_ =
+			UoMR().getInternalFor( outputformunit_->propType() );
+    }
+
+    return getValue( vals );
 }

@@ -12,16 +12,17 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "ranges.h"
-#include "typeset.h"
 #include "threadlock.h"
+#include "typeset.h"
 
+class Mnemonic;
 class UnitOfMeasure;
 
 namespace Math
 {
 
-class SpecVarSet;
 class Expression;
+class SpecVarSet;
 
 
 
@@ -31,13 +32,16 @@ class Expression;
  and they are not 'regular input'. See SpecVars and SpecVarSet.
 
  At construction or when calling setText(), the input text is parsed. Then,
- the variable definitions are known. You can use setInputUnit(idx) before
+ the variable definitions are known. You can use setInputFormUnit(idx) before
  calculation, this unit is the unit that the user wants the variable value to
- be converted to before inserting it into the mathexpression.
+ be used into the mathexpression. setOutputFormUnit(idx) will specify the unit
+ of the variable return by the mathexpression.
 
  When you know what is required, you can provide numbers for the different
  inputs and get a result using getValue(). The input values you provide must
- be in internal units.
+ match the form input units, otherwise setInputValUnit must be called.
+ The output values will match the form output unit, unless setOutputValUnit
+ was called.
 
  If your formula is to work on a series of input vectors, then two things
  become possible:
@@ -65,9 +69,10 @@ mExpClass(General) Formula
 {
 public:
 
-			Formula(bool inputsareseries=true,const char* txt=0);
+			Formula(bool inputsareseries=true,
+				const char* txt=nullptr);
 			Formula(bool inputsareseries,const SpecVarSet&,
-				const char* txt=0);
+				const char* txt=nullptr);
 			Formula(const Formula&);
 			~Formula();
     Formula&		operator =(const Formula&);
@@ -102,19 +107,35 @@ public:
 		// 2. Things to set before calculation or store
 
     void		setInputDef(int,const char*);
-    void		setInputUnit(int,const UnitOfMeasure*);
-    void		setOutputUnit( const UnitOfMeasure* uom )
-						{ outputunit_ = uom; }
+    void		setInputMnemonic(int,const Mnemonic*);
+    void		setInputFormUnit(int,const UnitOfMeasure*);
+			//!< The input unit within the expression
+    void		setOutputMnemonic( const Mnemonic* mn )
+						{ outputformmn_ = mn; }
+    void		setOutputFormUnit( const UnitOfMeasure* uom )
+						{ outputformunit_ = uom; }
+			//!< The output unit of the math expression
     TypeSet<double>&	recStartVals()		{ return recstartvals_; }
     void		clearInputDefs();
+    void		clearAllDefs();
+
+    void		setInputValUnit(int,const UnitOfMeasure*);
+			//!< The input unit of incoming values
+    void		setOutputValUnit( const UnitOfMeasure* uom )
+						{ outputvalunit_ = uom; }
+			//!< The unit of the returned value (getValue)
+
 
 		// 3. Things you have set yourself or that were retrieved
 
-    const UnitOfMeasure* outputUnit() const	{ return outputunit_; }
     const char*		inputDef( int iinp ) const
-						{ return inps_[iinp].inpdef_; }
-    const UnitOfMeasure* inputUnit( int iinp ) const
-						{ return inps_[iinp].unit_; }
+					{ return inps_[iinp].inpdef_.buf(); }
+    const Mnemonic*	inputMnemonic( int iinp ) const
+						{ return inps_[iinp].formmn_; }
+    const UnitOfMeasure* inputFormUnit( int iinp ) const
+						{ return inps_[iinp].formunit_;}
+    const Mnemonic*	outputMnemonic() const	{ return outputformmn_; }
+    const UnitOfMeasure* outputFormUnit() const { return outputformunit_; }
     double		getConstVal(int) const;
 			//!< if isConst returns toDouble(inputDef(i)), else Udf
 
@@ -122,14 +143,15 @@ public:
 
     int			nrValues2Provide() const;
     void		startNewSeries() const; // resets recursive values
-    float		getValue(const float*,bool internal_units=true) const;
-    double		getValue(const double*,bool internal_units=true) const;
+
+    double		getValue(const double*) const;
+			/*!< You may annotate the units of incoming values,
+			     and require the conversion of the output value */
 
 		// 5. store/retrieve to/from IOPar
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
-
 
     const Expression*	expression() const	{ return expr_; };
     const SpecVarSet&	specVars() const	{ return *specvars_; }
@@ -151,7 +173,7 @@ protected:
 	enum Type		{ Var, Const, Spec };
 
 				InpDef( const char* nm, Type t )
-				    : varname_(nm), unit_(0), type_(t)	{}
+				    : varname_(nm), type_(t)	{}
 	bool			operator==( const InpDef& id ) const
 				{ return varname_ == id.varname_; }
 
@@ -159,7 +181,9 @@ protected:
 	Type			type_;		// from Expression
 	TypeSet<int>		shifts_;	// from Expression
 	BufferString		inpdef_;	// filled by class user
-	const UnitOfMeasure*	unit_;		// filled by class user
+	const Mnemonic*		formmn_ = nullptr; // filled by class user
+	const UnitOfMeasure*	formunit_ = nullptr; // filled by class user
+	const UnitOfMeasure*	valunit_ = nullptr; // filled by class user
 
 	Interval<int>		shftRg() const;
 	bool			isConst() const	{ return type_ == Const; }
@@ -169,12 +193,14 @@ protected:
 
     BufferString	text_;
     TypeSet<InpDef>	inps_;
-    const UnitOfMeasure* outputunit_;
+    const Mnemonic*	outputformmn_ = nullptr;
+    const UnitOfMeasure* outputformunit_ = nullptr;
+    const UnitOfMeasure* outputvalunit_ = nullptr;
     TypeSet<double>	recstartvals_;
     const SpecVarSet*	specvars_;
     const bool		inputsareseries_;
 
-    Expression*		expr_;
+    Expression*		expr_ = nullptr;
 
 			// length: expr_->nrVariables()
     TypeSet<int>	inpidxs_;
@@ -187,6 +213,13 @@ protected:
 
     int			varNameIdx(const char* varnm) const;
     void		addShift(int,int,int&,TypeSet< TypeSet<int> >&);
+
+public:
+
+    mDeprecated("Use getValue")
+    float		getValue(const float* vals,bool internuns=true) const;
+    mDeprecated("Use getValue")
+    double		getValue(const double* vals,bool internuns) const;
 
 };
 

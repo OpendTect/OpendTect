@@ -139,8 +139,8 @@ void ElasticFormulaRepository::addRockPhysicsFormulas()
 	ElasticFormula::Type tp;
 	ElasticFormula::parseEnumType( props[idx], tp );
 	BufferStringSet fnms;
-	ROCKPHYSFORMS().getRelevant(
-			    ElasticPropertyRef::elasticToStdType(tp), fnms );
+	const Mnemonic& mn = ElasticPropertyRef::elasticToMnemonic( tp );
+	ROCKPHYSFORMS().getRelevant( mn, fnms );
 
 	for ( int idfor=0; idfor<fnms.size(); idfor ++ )
 	{
@@ -242,15 +242,24 @@ ElasticPropertyRef* ElasticPropertyRef::clone() const
 }
 
 
+const Mnemonic& ElasticPropertyRef::elasticToMnemonic(
+						ElasticFormula::Type tp )
+{
+    if ( tp == ElasticFormula::Den )
+	return Mnemonic::defDEN();
+    if ( tp == ElasticFormula::PVel )
+	return Mnemonic::defPVEL();
+    if ( tp == ElasticFormula::SVel )
+	return Mnemonic::defSVEL();
+
+    return Mnemonic::undef();
+}
+
+
 PropertyRef::StdType
 	ElasticPropertyRef::elasticToStdType( ElasticFormula::Type tp )
 {
-    if ( tp == ElasticFormula::PVel || tp == ElasticFormula::SVel )
-	return Mnemonic::Vel;
-    if ( tp == ElasticFormula::Den )
-	return Mnemonic::Den;
-
-    return Mnemonic::Other;
+    return elasticToMnemonic( tp ).stdType();
 }
 
 
@@ -809,12 +818,10 @@ ElasticPropSelection& ElasticPropSelection::doAdd( const PropertyRef* pr )
 const Mnemonic* ElasticPropSelection::getByType( ElasticFormula::Type tp,
 						 const char* nm )
 {
-    const Mnemonic::StdType stdtype =
-				ElasticPropertyRef::elasticToStdType( tp );
-    const PropertyRefSelection prs( stdtype );
-    const MnemonicSelection mns( stdtype );
+    const Mnemonic& mn = ElasticPropertyRef::elasticToMnemonic( tp );
+    const PropertyRefSelection prs( mn );
     const PropertyRef* pr = prs.getByName( nm );
-    return pr ? mns.getByName( pr->mnName() ) : &MNC().getGuessed( stdtype );
+    return pr ? &pr->mn() : &mn;
 }
 
 

@@ -18,42 +18,25 @@ class ascistream;
 class ascostream;
 class MathProperty;
 class PropertyRef;
+class RockPhysicsFormulaMgr;
 
-
-/*!\brief Ref Data for a (usually petrophysical) property.
-
-We prepare for many variants of the name as is not uncommon in practice
-(Density, Den, Rho, RhoB, ... you know the drill). The names will be unique
-- case insensitive, in the Set. Hence, identity is established case insensitive.
-Aliases are matched with a GlobExpr, so you can add with wildcards and the like.
-
- */
 
 
 namespace RockPhysics
 {
 
+/*!\brief A Mathematics formula based on Mnemonics */
+
 mExpClass(General) Formula : public NamedObject
 {
 public:
-
-    typedef Mnemonic::StdType PropType;
-
-			Formula( PropType t, const char* nm=nullptr )
+			Formula( const Mnemonic& mn, const char* nm=nullptr )
 			    : NamedObject(nm)
-			    , type_(t)		{}
-
-    static Formula*	get(const IOPar&);	//!< returns null if bad IOPar
+			    , mn_(&mn)			{}
 			~Formula();
-			Formula( const Formula& f ) { *this = f; }
-    Formula&		operator =(const Formula&);
-    inline bool		operator ==( const Formula& pr ) const
-			{ return name() == pr.name(); }
-    inline bool		operator !=( const Formula& pr ) const
-			{ return name() != pr.name(); }
 
-    inline bool		hasPropType( PropType t ) const
-						{ return type_ == t; }
+    inline bool		isCompatibleWith( const Mnemonic* mn ) const
+						{ return mn_ == mn; }
 
     mExpClass(General) ConstDef : public NamedObject
     {
@@ -64,59 +47,88 @@ public:
 			    , defaultval_(mUdf(float))	{}
 	BufferString	desc_;
 	Interval<float>	typicalrg_;
-	float defaultval_;
+	float		defaultval_;
     };
     mExpClass(General) VarDef : public NamedObject
     {
     public:
-			VarDef( const char* nm, PropType t )
+			VarDef( const char* nm, const Mnemonic& mn )
 			    : NamedObject(nm)
-			    , type_(t)			{}
+			    , mn_(&mn)			{}
 	BufferString	desc_;
-	PropType	type_;
+	const Mnemonic* mn_;
 	BufferString	unit_;
     };
 
-    PropType		type_;
     BufferString	def_;
     BufferString	desc_;
+    const Mnemonic*	mn_;
     BufferString	unit_;
     ObjectSet<ConstDef>	constdefs_;
     ObjectSet<VarDef>	vardefs_;
-    Repos::Source	src_;
 
-    bool		usePar(const IOPar&);
-    void		fillPar(IOPar&) const;
+    void		setSource( Repos::Source src )	{ src_ = src; }
 
     bool		setDef(const char*); // Will add var- and constdefs
     MathProperty*	getProperty(const PropertyRef* pr=nullptr) const;
 
+private:
+
+			Formula( const Formula& f ) { *this = f; }
+
+    static Formula*	get(const IOPar&);	//!< returns null if bad IOPar
+
+    Formula&		operator =(const Formula&);
+    inline bool		operator ==( const Formula& pr ) const
+			{ return name() == pr.name(); }
+    inline bool		operator !=( const Formula& pr ) const
+			{ return name() != pr.name(); }
+
+    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+
+    Repos::Source	src_;
+
+    friend class FormulaSet;
+
+public:
+			mDeprecated("Use Mnemonic")
+    bool		hasPropType(Mnemonic::StdType) const;
+
 };
 
+
+/*!\brief A repository of mathematics formulaes based on Mnemonics */
 
 mExpClass(General) FormulaSet : public ObjectSet<const Formula>
 {
 public:
+    typedef Mnemonic::StdType PropType;
+
 			~FormulaSet();
 
     int			getIndexOf(const char*) const;
-    void		getRelevant(Formula::PropType,
+    bool		hasType(PropType) const;
+    void		getRelevant(const Mnemonic&,
 				    BufferStringSet&) const;
+    void		getRelevant(PropType,MnemonicSelection&) const;
 
     const Formula*	getByName( const char* nm ) const
 			{
 			    const int idxof = getIndexOf( nm );
-			    return idxof<0 ? 0 : (*this)[idxof];
+			    return validIdx(idxof) ? get( idxof ) : nullptr;
 			}
+
+private:
 
     bool		save(Repos::Source) const;
 
     void		readFrom(ascistream&);
     bool		writeTo(ascostream&) const;
 
+    friend class ::RockPhysicsFormulaMgr;
+
 };
-
-
 
 } // namespace RockPhysics
 

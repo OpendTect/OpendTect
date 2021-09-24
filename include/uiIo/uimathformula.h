@@ -11,19 +11,21 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+
 #include "uigroup.h"
-#include "uistrings.h"
-#include "mathformula.h"
 #include "mnemonics.h"
+
 class uiButton;
-class uiUnitSel;
-class uiToolButton;
-class uiToolButtonSetup;
 class uiMathExpression;
 class uiMathExpressionVariable;
+class uiMnemonicsSel;
+class uiToolButton;
+class uiToolButtonSetup;
+class uiUnitSel;
+
 class CtxtIOObj;
 class UnitOfMeasure;
-namespace Math { class Form; }
+namespace Math { class Formula; }
 
 
 /* edits a Math::Formula */
@@ -36,34 +38,33 @@ public:
     mExpClass(uiIo) Setup
     {
     public:
-			Setup( const uiString& lbl=uiStrings::sEmptyString() )
+			Setup( const uiString& lbl=uiString::empty() )
 			    : label_(lbl)
 			    , maxnrinps_(6)
 			    , withsubinps_(false)
 			    , withunits_(true)
-			    , proptype_(Mnemonic::Other)	{}
+			    , mn_(nullptr)	{}
 
 	mDefSetupMemb(uiString,label);
 	mDefSetupMemb(int,maxnrinps);
 	mDefSetupMemb(BufferString,stortype); // if empty, no I/O
 	mDefSetupMemb(bool,withsubinps);
 	mDefSetupMemb(bool,withunits);
-	mDefSetupMemb(Mnemonic::StdType,proptype); // used if withunits_
+	mDefSetupMemb(const Mnemonic*,mn); // used if withunits_
 
     };
 
 			uiMathFormula(uiParent*,Math::Formula&,const Setup&);
 			~uiMathFormula();
 
-
-    void		setNonSpecInputs(const BufferStringSet&,int iinp=-1);
-    void		setNonSpecSubInputs(const BufferStringSet&,int iinp=-1);
-
     bool		setText(const char*);
-    const char*		text() const;
+    bool		useForm();
+    void		setNonSpecInputs(const BufferStringSet&,
+					 const MnemonicSelection* =nullptr);
+    void		setNonSpecSubInputs(const BufferStringSet&,int iinp);
+    void		setFixedFormUnits( bool yn )	{ fixedunits_ = yn; }
 
-    bool		useForm(
-			const TypeSet<Mnemonic::StdType>* inptyps=nullptr);
+    const char*		text() const;
     bool		updateForm() const;
 
 			// shortcuts for things available in form
@@ -72,52 +73,62 @@ public:
     bool		isSpec(int) const;
     bool		isConst(int) const;
     double		getConstVal(int) const;
-    const UnitOfMeasure* getUnit() const;
 
     uiButton*		addButton(const uiToolButtonSetup&);
     void		addInpViewIcon(const char* icnm,const char* tooltip,
 					const CallBack&);
 
-    Notifier<uiMathFormula> formSet;
     Notifier<uiMathFormula> inpSet;
     Notifier<uiMathFormula> subInpSet;
+    Notifier<uiMathFormula> formMnSet;
     Notifier<uiMathFormula> formUnitSet;
 
     uiMathExpression*	exprFld()		{ return exprfld_; }
     int			nrInpFlds() const	{ return inpflds_.size(); }
     uiMathExpressionVariable* inpFld( int idx )	{ return inpflds_[idx]; }
-    uiUnitSel*		unitFld()		{ return unitfld_; }
-    int			inpSelNotifNr() const	{ return notifinpnr_; }
     int			vwLogInpNr(CallBacker*) const;
     bool		checkValidNrInputs() const;
 
-protected:
+private:
 
     Math::Formula&	form_;
     uiMathExpression*	exprfld_;
+    MnemonicSelection*	mnsel_ = nullptr;
     ObjectSet<uiMathExpressionVariable> inpflds_;
-    uiUnitSel*		unitfld_;
-    uiToolButton*	recbut_;
+    uiMnemonicsSel*	mnselfld_ = nullptr;
+    uiUnitSel*		unitfld_ = nullptr;
+    bool		fixedunits_ = false;
+    uiToolButton*	recbut_ = nullptr;
     uiToolButton*	openbut_;
     uiToolButton*	savebut_;
-    int		notifinpnr_;
 
     Setup		setup_;
     TypeSet<double>	recvals_;
     CtxtIOObj&		ctio_;
 
     BufferString	getIOFileName(bool forread);
-    bool		setNotifInpNr(const CallBacker*);
+    bool		setNotifInpNr(const CallBacker*,int& inpnr);
+    void		guessInputFormDefs();
+    bool		guessOutputFormDefs();
+    bool		setOutputDefsFromForm();
 
     void		initFlds(CallBacker*);
     void		formSetCB(CallBacker*);
     void		inpSetCB(CallBacker*);
     void		subInpSetCB(CallBacker*);
+    void		formMnSetCB(CallBacker*);
     void		formUnitSetCB(CallBacker*);
     void		recButPush(CallBacker*);
     void		readReq(CallBacker*);
     void		writeReq(CallBacker*);
 
+			uiMathFormula(const uiMathFormula&) = delete;
+   uiMathFormula&	operator =(const uiMathFormula&) = delete;
+
+public:
+
+    mDeprecated("Use MnemonicSelection")
+    bool		useForm(const TypeSet<Mnemonic::StdType>*);
 };
 
 
