@@ -45,7 +45,16 @@ uiString getDialogTitle( ProcDesc::DataEntry::ActionType typ )
 
 static HiddenParam<uiFirewallProcSetter,BufferString*> acttypstr_(nullptr);
 
-typedef ProcDesc::DataEntry PDE;
+
+uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p )
+    : uiDialog(p, Setup(getWindowTitle(),mNoDlgTitle,
+			mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
+    , addremfld_(nullptr)
+    , pythonproclistbox_(nullptr)
+    , odproclistbox_(nullptr)
+{
+    initUI();
+}
 
 uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
 			ProcDesc::DataEntry::ActionType acttyp,
@@ -55,6 +64,33 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
     , addremfld_(nullptr)
     , pythonproclistbox_(nullptr)
     , odproclistbox_(nullptr)
+{
+    initUI( path, pypath, acttyp );
+}
+
+
+#define mGetAddBool \
+    if ( addremfld_ && addremfld_->isDisplayed() ) \
+	toadd_ = addremfld_->getBoolValue(); \
+
+#define mGetData \
+    mGetAddBool \
+    setEmpty(); \
+    PDE::ActionType acttyp = toadd_ ? PDE::Add : PDE::Remove; \
+    ePDD().getProcData( odv6procnms_, odprocdescs_, PDE::ODv6, acttyp ); \
+    ePDD().getProcData( odv7procnms_, odprocdescs_, PDE::ODv7, acttyp ); \
+    pyprocdescs_ = getPythonExecList(); \
+
+
+uiFirewallProcSetter::~uiFirewallProcSetter()
+{
+    detachAllNotifiers();
+    acttypstr_.removeAndDeleteParam( this );
+}
+
+
+void uiFirewallProcSetter::initUI( const BufferString* path,
+    const BufferString* pypath, PDE::ActionType acttyp )
 {
     acttypstr_.setParam( this,
 		    new BufferString(PDE::ActionTypeDef().getKey(acttyp)) );
@@ -79,8 +115,6 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
     {
 	addremfld_ = new uiGenInput( this, uiStrings::sAction(),
 	    BoolInpSpec(true, uiStrings::sAdd(), uiStrings::sRemove()) );
-	mAttachCB( addremfld_->valuechanged,
-				    uiFirewallProcSetter::selectionChgCB );
 	attachobj = addremfld_->attachObj();
 	toadd_ = addremfld_->getBoolValue();
     }
@@ -104,6 +138,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
     {
 	if ( attachobj )
 	    odproclistbox_->attach( alignedBelow, attachobj );
+
 	odproclistbox_->addItems(odprocdescs_);
 	odproclistbox_->setHSzPol(uiObject::SzPolicy::WideMax);
 	mAttachCB(odproclistbox_->leftButtonClicked,
@@ -125,6 +160,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
     {
 	if ( attachobj )
 	    pythonproclistbox_->attach( alignedBelow, attachobj );
+
 	mAttachCB(pythonproclistbox_->leftButtonClicked,
 			    uiFirewallProcSetter::statusUpdatePyProcCB);
 	mAttachCB(pythonproclistbox_->selectionChanged,
@@ -138,14 +174,63 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
     if ( ty != PDE::AddNRemove )
     {
        setOkText( PDE::ActionTypeDef().getUiStringForIndex(ty) );
-       if ( addremfld_ )
-	   addremfld_->display( false );
-
        toadd_ = ty == PDE::Add;
        selectionChgCB( nullptr );
     }
 
+    if ( addremfld_ )
+	mAttachCB( addremfld_->valuechanged,
+				    uiFirewallProcSetter::selectionChgCB );
+
     mAttachCB( postFinalise(), uiFirewallProcSetter::updateCB );
+    mAttachCB( postFinalise(), uiFirewallProcSetter::updateAddRemFld );
+
+}
+
+
+void uiFirewallProcSetter::init()
+{
+    const FilePath fp( exepath_ );
+    const BufferString exceptionlistpath = fp.dirUpTo( fp.nrLevels()-4 );
+    ePDD().setPath( exceptionlistpath );
+    mGetData
+}
+
+
+void uiFirewallProcSetter::updateUI( const BufferString& path,
+			    const BufferString& pypath, PDE::ActionType typ )
+{
+    acttypstr_.removeAndDeleteParam( this );
+    acttypstr_.setParam( this,
+		    new BufferString(PDE::ActionTypeDef().getKey(typ)) );
+    setTitleText( getDialogTitle(typ) );
+    if ( !path.isEmpty() )
+    {
+	const FilePath fp( path.buf(), "bin", GetPlfSubDir(),
+							    GetBinSubDir() );
+	exepath_ = fp.fullPath();
+    }
+
+    if ( !pypath.isEmpty() )
+	pypath_ = pypath;
+
+    init();
+
+    updateAddRemFld( nullptr );
+    selectionChgCB( nullptr );
+    updateCB( nullptr );
+}
+
+
+void uiFirewallProcSetter::updateAddRemFld( CallBacker* )
+{
+    PDE::ActionType ty = ePDD().getActionType();
+    if ( ty != PDE::AddNRemove )
+    {
+	setOkText( PDE::ActionTypeDef().getUiStringForIndex(ty) );
+	toadd_ = addremfld_->getBoolValue();
+	addremfld_->display( false );
+    }
 }
 
 
@@ -158,18 +243,6 @@ void uiFirewallProcSetter::updateCB( CallBacker* )
 	statusUpdatePyProcCB( nullptr );
 }
 
-#define mGetAddBool \
-    if ( addremfld_ && addremfld_->isDisplayed() ) \
-	toadd_ = addremfld_->getBoolValue(); \
-
-#define mGetData \
-    mGetAddBool \
-    setEmpty(); \
-    PDE::ActionType acttyp = toadd_ ? PDE::Add : PDE::Remove; \
-    ePDD().getProcData( odv6procnms_, odprocdescs_, PDE::ODv6, acttyp ); \
-    ePDD().getProcData( odv7procnms_, odprocdescs_, PDE::ODv7, acttyp ); \
-    pyprocdescs_ = getPythonExecList(); \
-
 
 void uiFirewallProcSetter::setEmpty()
 {
@@ -178,13 +251,6 @@ void uiFirewallProcSetter::setEmpty()
     odv6procnms_.setEmpty();
     odv7procnms_.setEmpty();
     odprocdescs_.setEmpty();
-}
-
-
-uiFirewallProcSetter::~uiFirewallProcSetter()
-{
-    detachAllNotifiers();
-    acttypstr_.removeAndDeleteParam( this );
 }
 
 
@@ -201,15 +267,6 @@ bool uiFirewallProcSetter::hasWorkToDo() const
 	return true;
 
     return type == availacttype;
-}
-
-
-void uiFirewallProcSetter::init()
-{
-    const FilePath fp( exepath_ );
-    const BufferString exceptionlistpath = fp.dirUpTo( fp.nrLevels()-4 );
-    ePDD().setPath( exceptionlistpath );
-    mGetData
 }
 
 
@@ -237,14 +294,14 @@ void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
     FilePath exefp( exepath_ );
     const BufferString str = exefp.fullPath();
     BufferString procnm;
-    if ( selidx < v6procsz )
+    if ( selidx < v6procsz && !odv6procnms_.isEmpty() )
     {
 	procnm = *odv6procnms_[selidx];
 	procnm.add( ".exe" );
 	exefp.add( procnm );
 	procfp = exefp.fullPath();
     }
-    else
+    else if ( !odv7procnms_.isEmpty() )
     {
 	selidx -= v6procsz;
 
@@ -264,7 +321,7 @@ void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
 void uiFirewallProcSetter::statusUpdatePyProcCB(CallBacker* cb)
 {
     const int selidx = pythonproclistbox_->currentItem();
-    if ( selidx < 0 )
+    if ( selidx < 0 || pyprocnms_.isEmpty() )
 	return;
 
     FilePath exefp( pypath_ );

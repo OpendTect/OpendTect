@@ -62,6 +62,7 @@ namespace ProcDesc
 	IOPar&			readPars();
 	bool			writePars(const IOPar&,bool toadd);
 	static BufferString	sKeyODExecNm() { return "od_main"; }
+	bool			hasWorkToDo(const BufferString& pypath,bool);
 
     protected:
 	IOPar			pars_;
