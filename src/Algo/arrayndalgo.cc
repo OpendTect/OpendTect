@@ -106,6 +106,13 @@ bool ArrayNDWindow::setType( ArrayNDWindow::WindowType wintype )
 }
 
 
+float ArrayNDWindow::getParamVal( int dim ) const
+{
+    const TypeSet<float>& paramvals = *hp_paramval_.getParam( this );
+    return paramvals.validIdx(dim) ? paramvals[dim] : mUdf(float);
+}
+
+
 void ArrayNDWindow::setParamVal( int dim, float paramval )
 {
     if ( !paramvals_().validIdx(dim) )
