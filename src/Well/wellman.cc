@@ -646,7 +646,8 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
     if ( nm && *nm )
     {
 	const IOObj* ioobj = iodir.get( nm, "Well" );
-	if ( ioobj ) return ioobj->clone();
+	if ( ioobj )
+	    return ioobj->clone();
     }
 
     if ( uwi && *uwi )
@@ -657,7 +658,8 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
 	for ( int idx=0; idx<del.size(); idx++ )
 	{
 	    const IOObj* ioobj = del[idx]->ioobj_;
-	    if ( !ioobj ) continue;
+	    if ( !ioobj )
+		continue;
 
 	    Well::Reader wr( *ioobj, *data );
 	    if ( wr.getInfo() && data->info().uwid_ == uwi )
@@ -667,6 +669,77 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
 
     return 0;
 }
+
+
+bool Well::Man::writeAndRegister( const MultiID& key , const Well::Log& log )
+{
+    RefMan<Well::Data> wd = get( key, Well::LoadReqs( Well::LogInfos ) );
+    if ( !wd )
+    {
+	delete &log;
+	return false;
+    }
+
+    const BufferString newlognm = log.name();
+    Well::LogSet& currlogset = wd->logs();
+    Well::Log currlogcopy;
+    bool logadded = false;
+    if ( currlogset.isPresent(newlognm) )
+    {
+	Well::Log& currlog = *currlogset.getLog( newlognm );
+	currlogcopy = currlog;
+	currlog = log;
+	delete &log;
+    }
+    else
+    {
+	currlogset.add( const_cast<Well::Log*>(&log) );
+	logadded = true;
+    }
+
+    Well::Writer wtr( key, *wd );
+    if ( !wtr.putLog(*currlogset.getLog(newlognm)) )
+    {
+	if ( currlogcopy.isLoaded() )
+	    *currlogset.getLog(newlognm) = currlogcopy;
+	else if ( logadded )
+	{
+	    const int idx = currlogset.indexOf( newlognm );
+	    delete currlogset.remove( idx );
+	}
+
+	msg_ = wtr.errMsg();
+	return false;
+    }
+
+    const int newlogidx = currlogset.indexOf( newlognm );
+    wd->logschanged.trigger( newlogidx );
+    return true;
+}
+
+
+bool Well::Man::writeAndRegister( const MultiID& key ,
+				  ObjectSet<Well::Log>& logset )
+{
+    bool res = true;
+    for ( int idx=logset.size()-1; idx>=0; idx-- )
+    {
+	Well::Log* currlog = logset.get( idx );
+	if ( !currlog )
+	    continue;
+
+	if ( !writeAndRegister(key,*currlog) )
+	{
+	    res = false;
+	    continue;
+	}
+
+	logset.removeSingle( idx );
+    }
+
+    return res;
+}
+
 
 void Well::Man::dumpMgrInfo( IOPar& res )
 {

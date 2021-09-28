@@ -490,8 +490,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	Well::Log* newwl = new Well::Log( newnm );
-	wls.add( newwl );
+	auto* newwl = new Well::Log( newnm );
 	if ( !calcLog(*newwl,inpdatas,wd->track(),wd->d2TModel()) )
 	    mErrContinue( tr("Cannot compute log for %1").arg(wd->name()))
 
@@ -512,10 +511,8 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	if ( outun )
 	    newwl->setUnitMeasLabel( outun->name() );
 
-	Well::Writer wtr( wmid, *wd );
-	if ( !wtr.putLog(*newwl) )
-	    mErrContinue( tr("Cannot write new log for %1")
-			.arg(wd->name()) )
+	if ( !Well::MGR().writeAndRegister(wmid,*newwl) )
+	    mErrContinue( tr(Well::MGR().errMsg()) );
 
 	successfulonce = true;
 	deleteLog( inpdatas );
