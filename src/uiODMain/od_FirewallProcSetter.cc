@@ -15,10 +15,75 @@ ________________________________________________________________________
 #include "prog.h"
 #include "pythonaccess.h"
 #include "procdescdata.h"
+
 #include "uifirewallprocsetterdlg.h"
+#include "uidialog.h"
+#include "uifileinput.h"
 #include "uimain.h"
 #include "uimsg.h"
 
+
+//Parameter dialog box
+
+mClass(uiODMain) FirewallParameterDlg : public uiDialog
+{ mODTextTranslationClass(FirewallParameterDlg)
+protected:
+    uiFileInput*    odpthfld_ = nullptr;
+    uiFileInput*    pypthfld_ = nullptr;
+    uiGenInput*	    acttypefld_ = nullptr;
+
+    BufferString    odpth_;
+    BufferString    pypth_;
+    BufferString    actcmd_;
+
+public:
+	FirewallParameterDlg( uiParent* p, const BufferString& odpath,
+			      const BufferString& pypath,
+			      const BufferString& cmd )
+	: uiDialog(p,uiDialog::Setup(tr("Missing Parameters"),mNoDlgTitle,
+				mNoHelpKey).oktext(tr("Update Parameters")))
+	{
+	    uiFileInput::Setup flsu;
+	    flsu .forread( true );
+	    flsu.directories( true );
+	    odpthfld_ = new uiFileInput( this, tr("OpendTect Directory Path"),
+									flsu );
+	    odpthfld_->setFileName( odpath );
+
+	    pypthfld_ = new uiFileInput( this, tr("Python Directory Path"),
+									flsu );
+	    pypthfld_->attach( alignedBelow, odpthfld_ );
+	    odpthfld_->setFileName( odpath );
+	    if ( !ProcDesc::DataEntry::isCMDOK(cmd) )
+	    {
+		acttypefld_ = new uiGenInput( this, toUiString("ActionType"),
+				StringListInpSpec
+				(ProcDesc::DataEntry::ActionTypeDef().keys()) );
+		PDE::ActionType type = PDE::getActionTypeForCMDKey( cmd );
+		acttypefld_->setText( PDE::ActionTypeDef().getKey(type) );
+		acttypefld_->attach( alignedBelow, pypthfld_ );
+	    }
+	    else
+		actcmd_ = cmd;
+	}
+
+	bool acceptOK(CallBacker*)
+	{
+	    odpth_ = odpthfld_->text();
+	    pypth_ = pypthfld_->text();
+	    if ( acttypefld_ )
+	    {
+		const int idx = acttypefld_->getIntValue();
+		actcmd_ = PDE::getCMDActionKey(
+				PDE::ActionTypeDef().getEnumForIndex(idx) );
+	    }
+	    return true;
+	}
+
+	const BufferString& getODPath() const { return odpth_; }
+	const BufferString& getPyPath() const { return pypth_; }
+	const BufferString& getActCmd() const { return actcmd_; }
+};
 
 static const char* odflag()
 {
@@ -81,31 +146,50 @@ int mProgMainFnName( int argc, char** argv )
     parser.setKeyHasValue( pyflag() );
     BufferStringSet proctyp;
     parser.getNormalArguments( proctyp );
+    bool errocc = false;
     if ( proctyp.isEmpty() )
-	mErrRet()
+	errocc = true;
 
-    const BufferString type = parser.getArg( 0 );
-    if ( !ProcDesc::DataEntry::isCMDOK(type) )
-	mErrRet();
+    BufferString type;
+    if ( !errocc )
+	type = proctyp.get( 0 );
 
     BufferString path;
-    if ( parser.getVal(odflag(),path) && !File::isDirectory(path) )
-	ePDD().setPath( path );
+    if ( !parser.getVal(odflag(),path) && !File::isDirectory(path) )
+	errocc = true;
 
     BufferString pythonpath;
-    if ( parser.getVal(pyflag(),pythonpath) && !File::isDirectory(pythonpath) )
-	mErrRet();
+    if ( !parser.getVal(pyflag(),pythonpath) && !File::isDirectory(pythonpath) )
+	errocc = true;
 
+    PtrMan<uiFirewallProcSetter> fwdlg = new uiFirewallProcSetter( nullptr );
+    app.setTopLevel( fwdlg );
+    if ( errocc )
+    {
+	PtrMan<FirewallParameterDlg> dlg = new FirewallParameterDlg( fwdlg,
+						    path, pythonpath, type );
+	dlg->setActivateOnFirstShow();
+	if ( dlg->go() == uiDialog::Rejected )
+	    return 1;
+
+	type = dlg->getActCmd();
+	path = dlg->getODPath();
+	pythonpath = dlg->getPyPath();
+    }
+
+    ePDD().setPath( path );
     const ProcDesc::DataEntry::ActionType opertype =
 		    ProcDesc::DataEntry::getActionTypeForCMDKey( type );
-
-    PtrMan<uiFirewallProcSetter> dlg = new uiFirewallProcSetter( nullptr,
-					    opertype, &path, &pythonpath );
-    if ( !dlg->hasWorkToDo() )
+    const bool isrem = PDE::Remove == opertype;
+    if ( !ePDD().hasWorkToDo(pythonpath,!isrem) )
+    {
+	uiMSG().warning(
+		toUiString("No exes for adding at the specified location") );
 	return 0;
+    }
 
-    app.setTopLevel( dlg );
-    dlg->show();
-
+    fwdlg->updateUI( path, pythonpath, opertype );
+    fwdlg->setActivateOnFirstShow();
+    fwdlg->show();
     return app.exec();
 }

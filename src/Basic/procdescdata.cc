@@ -43,7 +43,6 @@ mDefineEnumUtils(ProcDesc::DataEntry,ActionType,"ActionType")
  }
 
 
-
 const char* ProcDesc::DataEntry::getCMDActionKey( const ActionType acttype )
 {
     if ( acttype == Add )
@@ -104,6 +103,52 @@ void ProcDesc::Data::setPath( const BufferString& path )
 {
     path_ = path;
 }
+
+
+bool ProcDesc::Data::hasWorkToDo( const BufferString& pypath, bool toadd )
+ {
+    ProcDesc::DataEntry::ActionType acttyp =
+		toadd ? ProcDesc::DataEntry::Add : ProcDesc::DataEntry::Remove;
+
+    BufferStringSet pyprocnms;
+    uiStringSet pyprocdescs;
+    ePDD().getProcData( pyprocnms, pyprocdescs,
+					ProcDesc::DataEntry::Python, acttyp );
+
+
+    FilePath fp( pypath );
+    fp.add( "envs" );
+
+    for ( int idx=pyprocnms.size()-1; idx>=0; idx-- )
+    {
+	const FilePath pyexefp( fp.fullPath(), pyprocnms.get(idx),
+								"python.exe" );
+
+	if ( !File::exists(pyexefp.fullPath()) )
+	{
+	    pyprocnms.removeSingle( idx );
+	    pyprocdescs.removeSingle( idx );
+	    continue;
+	}
+    }
+
+    uiStringSet odprocdescs;
+    BufferStringSet odv6procnms;
+    BufferStringSet odv7procnms;
+    ePDD().getProcData( odv6procnms, odprocdescs, ProcDesc::DataEntry::ODv6,
+								    acttyp );
+    ePDD().getProcData( odv7procnms, odprocdescs, ProcDesc::DataEntry::ODv7,
+								    acttyp );
+    if ( odprocdescs.isEmpty() && pyprocdescs.isEmpty() )
+	return false;
+
+    const ProcDesc::DataEntry::ActionType availacttype = ePDD().getActionType();
+    if ( availacttype == ProcDesc::DataEntry::AddNRemove ||
+			acttyp == ProcDesc::DataEntry::AddNRemove )
+	return true;
+
+    return acttyp == availacttype;
+ }
 
 
 ProcDesc::Data& ProcDesc::Data::add( ProcDesc::DataEntry* pdde )
