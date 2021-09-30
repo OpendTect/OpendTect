@@ -1409,13 +1409,29 @@ bool ZipHandler::openStreamToWrite()
 	}
     }
 
-    if ( !File::exists( pathonly.buf() ) )
-	File::createDir( pathonly.buf() );
+    if ( !File::exists( pathonly.buf() )
+	 && !File::createDir( pathonly.buf() ) )
+    {
+	errormsg_.set( "Failed to create directory: " ).add( pathonly.buf() );
+	return false;
+    }
 
     if ( File::exists(destfile_) )
     {
-	if ( !File::isWritable(destfile_) )
-	    File::makeWritable( destfile_, true, false );
+	if ( !File::isWritable(destfile_)
+	     && !File::makeWritable( destfile_, true, false ) )
+	{
+	    errormsg_.set( "Failed to make ").add( destfile_ )
+		     .add( " file writable." );
+	    return false;
+	}
+
+	if ( File::isInUse(destfile_) )
+	{
+	    errormsg_.set( destfile_ ).add( " is in use." );
+	    return false;
+	}
+
 	if ( File::isLink(destfile_) && !File::remove(destfile_) )
 	    return reportWriteError();
     }
