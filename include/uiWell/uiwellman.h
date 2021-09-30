@@ -19,7 +19,7 @@ class uiButton;
 class uiGroup;
 class uiToolButton;
 class uiPushButton;
-namespace Well { class Data; class Reader; }
+namespace Well { class Data; class Reader; class Log; }
 class uiWellLogCalc;
 
 mExpClass(uiWell) uiWellMan : public uiObjFileMan
@@ -75,8 +75,11 @@ protected:
     void			getCurrentWells();
     void			mkFileInfo();
     void			writeLogs();
+    void			writeLog(const MultiID&,
+					 Well::Data&,const Well::Log&);
     void			fillLogsFld();
     void			wellsChgd();
+    void			wellLogsChgd(const BufferStringSet& lognms);
     void			copyPush(CallBacker*);
     void			bulkD2TCB(CallBacker*);
     void			viewLogPush(CallBacker*);

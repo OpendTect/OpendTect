@@ -647,30 +647,31 @@ void uiWellMan::logUOMPush( CallBacker* )
 
 void uiWellMan::editLogPush( CallBacker* )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() )
+	return;
+
     const int selidx = logsfld_->firstChosen();
     if ( selidx < 0 )
 	mErrRet(uiStrings::sNoLogSel())
 
-    currdrs_[0]->getLogs();
     const char* lognm = logsfld_->textOfItem( selidx );
-    Well::LogSet& wls = curwds_[0]->logs();
-    const int curlogidx = wls.indexOf( lognm );
-    if ( curlogidx < 0 )
-	mErrRet(uiStrings::phrCannotRead(uiStrings::sWellLog()))
-
-    Well::Log& wl = wls.getLog( curlogidx );
-    uiWellLogEditor dlg( this, wl );
+    currdrs_.get(0)->getLog( lognm );
+    PtrMan<Well::Log> curlog = new Well::Log(
+					*curwds_.get(0)->logs().getLog(lognm) );
+    uiWellLogEditor dlg( this, *curlog );
     if ( !dlg.go() || !dlg.isLogChanged() )
 	return;
 
     const bool res = uiMSG().askSave(
 			tr("One or more log values have been changed."
 			   "\n\nDo you want to save your changes?"), false );
-    if ( !res ) return;
+    if ( !res )	
+	return;
 
-    wl.updateAfterValueChanges();
-    writeLogs();
+    curlog->updateAfterValueChanges();
+    currdrs_.get(0)->getLogs( true );//--To-Do >fix this hack with a global sol
+    writeLog( curmultiids_[0], *curwds_.get(0), *curlog );
+    wellLogsChgd( BufferStringSet(lognm) );
 }
 
 
@@ -707,12 +708,42 @@ void uiWellMan::writeLogs()
 }
 
 
+void uiWellMan::writeLog(const MultiID& key,
+			 Well::Data& wd, const Well::Log& log )
+{
+    Well::Writer wwr( key, wd );
+    if ( !wwr.putLog( log ) )
+	uiMSG().error( wwr.errMsg() );
+}
+
+
 void uiWellMan::wellsChgd()
 {
     for ( int idwell=0; idwell<curwds_.size(); idwell++ )
     {
 	fillLogsFld();
 	Well::MGR().reload( curmultiids_[idwell], Well::LoadReqs(false) );
+	while ( curwds_[idwell]->logs().size() )
+	    delete curwds_[idwell]->logs().remove(0);
+    }
+}
+
+
+void uiWellMan::wellLogsChgd( const BufferStringSet& lognms )
+{
+    for ( int idwell=0; idwell<curwds_.size(); idwell++ )
+    {
+	Well::Data* wd = Well::MGR().get( curmultiids_[idwell],
+					  Well::LoadReqs(Well::Logs) );
+	for ( const auto* lognm : lognms )
+	{
+	    currdrs_[idwell]->getLog( *lognm );
+	    const int idx = wd->logs().indexOf( *lognm );
+	    delete wd->logs().remove( idx );
+	    wd->logs().add( new Well::Log(*curwds_[idwell]->logs()
+							   .getLog(*lognm)) );
+	}
+
 	while ( curwds_[idwell]->logs().size() )
 	    delete curwds_[idwell]->logs().remove(0);
     }
