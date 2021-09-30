@@ -52,8 +52,6 @@ Well::LoadReqs& Well::LoadReqs::add( SubObjType typ )
 {
     if ( typ != D2T || SI().zIsTime() )
         reqs_[typ] = 1;
-    if ( typ == Trck )
-        reqs_[Inf] = 1;
     if ( typ == Logs )
 	reqs_[LogInfos] = 1;
     return *this;
@@ -260,9 +258,9 @@ Coord Well::Man::getMapLocation( const MultiID& id ) const
     if ( !ioobj )
 	return Coord::udf();
 
-    RefMan<Well::Data> data = new Well::Data;
+    RefMan<Data> data = new Data;
     Coord maploc;
-    Well::Reader rdr( *ioobj, *data );
+    Reader rdr( *ioobj, *data );
     return rdr.getMapLocation(maploc) ? maploc : Coord::udf();
 }
 
