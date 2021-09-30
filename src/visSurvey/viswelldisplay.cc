@@ -96,6 +96,7 @@ WellDisplay::~WellDisplay()
     setSceneEventCatcher( nullptr );
     unRefPtr( transformation_ );
     unRefPtr( wd_ );
+    Well::MGR().lightCleanup();
 
     delete dispprop_;
     unRefPtr( markerset_ );

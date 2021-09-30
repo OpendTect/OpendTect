@@ -140,6 +140,17 @@ Well::Man::~Man()
 }
 
 
+void Well::Man::lightCleanup()
+{
+    for ( int idx=wells_.size()-1; idx>=0; idx-- )
+    {
+	Data* wd = wells_.get( idx );
+	if ( wd->nrRefs() == 1 )
+	    wd->unRef();
+    }
+}
+
+
 void Well::Man::cleanup()
 {
     deepUnRef( wells_ );

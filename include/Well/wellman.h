@@ -154,6 +154,9 @@ public:
     mDeprecated("Specify LoadReqs")
     bool		reload(const MultiID&);
 
+			//Expert usage only
+    void		lightCleanup();
+
 };
 
 mGlobal(Well) Man& MGR();
