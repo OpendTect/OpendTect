@@ -108,6 +108,8 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	elseif( NOT APPLE )
 	    file( COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/libexec
 		  DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR} )
+	    file(COPY "${COPYFROMLIBDIR}/../lib"
+		 DESTINATION "${COPYTOLIBDIR}/../" )
 	endif()
     endif()
 
