@@ -11,7 +11,7 @@
 
 #include "hiddenparam.h"
 
-HiddenParam<ArrayNDWindow,TypeSet<float>*> hp_paramval_(nullptr);
+static HiddenParam<ArrayNDWindow,TypeSet<float>*> hp_paramval_(nullptr);
 
 
 mDefineEnumUtils( ArrayNDWindow, WindowType, "Windowing type")
@@ -174,7 +174,8 @@ bool ArrayNDWindow::buildWindow( const char* winnm )
     if ( !windowfunc ) { delete [] window_; window_ = 0; return false; }
 
     const bool hasvar = windowfunc->hasVariable();
-    if ( hasvar && !windowfunc->setVariable(paramvals_()[0]) )
+    TypeSet<float>& paramvals = paramvals_();
+    if ( hasvar && !windowfunc->setVariable(paramvals[0]) )
     { delete [] window_; window_ = 0; delete windowfunc; return false; }
 
     if ( !rectangular_ )
@@ -186,9 +187,9 @@ bool ArrayNDWindow::buildWindow( const char* winnm )
 	    for ( int idx=0; idx<ndim; idx++ )
 	    {
 		if ( hasvar )
-		    windowfunc->setVariable( paramvals_().validIdx(idx) ?
-					     paramvals_()[idx] :
-					     paramvals_().last() );
+		    windowfunc->setVariable( paramvals.validIdx(idx) ?
+					     paramvals[idx] :
+					     paramvals.last() );
 
 		const float halfsz = float(size_.getSize(idx)-1) / 2.f;
 		const float distval = mIsZero(halfsz, mDefEpsF) ? 0.f :
@@ -211,8 +212,8 @@ bool ArrayNDWindow::buildWindow( const char* winnm )
 	    for ( int idx=0; idx<ndim; idx++ )
 	    {
 		if ( hasvar )
-		    windowfunc->setVariable( paramvals_().validIdx(idx) ?
-				    paramvals_()[idx] : paramvals_().last() );
+		    windowfunc->setVariable( paramvals.validIdx(idx) ?
+				    paramvals[idx] : paramvals.last() );
 
 		const float halfsz = float(size_.getSize(idx)-1) / 2.f;
 		const float distval = mIsZero(halfsz, mDefEpsF) ? 0.f :
