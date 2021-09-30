@@ -331,7 +331,7 @@ void Well::Data::levelToBeRemoved( CallBacker* cb )
     if ( lvlset->levels().validIdx( lvlidx ) )
     {
 	const Strat::Level& lvl = *lvlset->levels()[lvlidx];
-	Well::Marker* mrk = markers().getByLvlID( lvl.id() );
+	Marker* mrk = markers().getByLvlID( lvl.id() );
 	if ( mrk )
 	    mrk->setLevelID( -1 );
     }
@@ -340,17 +340,19 @@ void Well::Data::levelToBeRemoved( CallBacker* cb )
 
 Well::LoadReqs Well::Data::loadState() const
 {
-    Well::LoadReqs lreqs( Well::Inf );
+    LoadReqs lreqs( false );
+    if ( info_.isLoaded() )
+	lreqs.add( Inf );
     if ( disp2d_.isValid() || disp2d_.isModified() )
-	lreqs.add( Well::DispProps2D );
+	lreqs.add( DispProps2D );
     if ( disp3d_.isValid() || disp3d_.isModified() )
-	lreqs.add( Well::DispProps3D );
+	lreqs.add( DispProps3D );
     if ( haveMarkers() )
-	lreqs.add( Well::Mrkrs );
+	lreqs.add( Mrkrs );
     if ( haveD2TModel() )
-	lreqs.add( Well::D2T );
+	lreqs.add( D2T );
     if ( haveCheckShotModel() )
-	lreqs.add( Well::CSMdl );
+	lreqs.add( CSMdl );
     if ( haveLogs() )
     {
 	const BufferStringSet& lognms = storedLogNames();
@@ -362,15 +364,16 @@ Well::LoadReqs Well::Data::loadState() const
 	}
 	if (nloaded == lognms.size())
 	{
-	    lreqs.add(Well::Logs);
-	    lreqs.add(Well::LogInfos);
+	    lreqs.add(Logs);
+	    lreqs.add(LogInfos);
 	}
 	else if ( logs_.size() == lognms.size() )
-	    lreqs.add( Well::LogInfos );
-
+	    lreqs.add( LogInfos );
     }
+
     if ( !track_.isEmpty() )
-	lreqs.add( Well::Trck );
+	lreqs.add( Trck );
+
     return lreqs;
 }
 
@@ -433,6 +436,15 @@ void Well::Data::reloadLogNames( CallBacker* )
     reloadLogNames();
 }
 
+
+bool Well::Info::isLoaded() const
+{
+    return surfacecoord != Coord() ||
+	   !uwid.isEmpty() || !oper.isEmpty() || !state.isEmpty() ||
+	   !county.isEmpty() || !source_.isEmpty() ||
+	   welltype_ != None || !mIsUdf(groundelev) ||
+	   !mIsEqual(replvel,getDefaultVelocity(),1e-1f);
+}
 
 #define mName "Well name"
 
