@@ -463,8 +463,13 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     if ( newnm.isEmpty() )
 	mErrRet(tr("Please provide a name for the new log"))
     if ( lognms_.isPresent(newnm) || superwls_.getLog(newnm) )
-	mErrRet(tr("A log with this name already exists."
-		"\nPlease enter a different name for the new log"))
+    {
+	const bool ret = uiMSG().askOverwrite(
+			tr("A log with this name already exists."
+			"\nDo you want to overwrite it?"));
+	if ( !ret )
+	    return false;
+    }
 
     zsampintv_ = srfld_->getFValue();
     if ( mIsUdf(zsampintv_) )
