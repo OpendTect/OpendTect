@@ -432,18 +432,19 @@ BinID PosInfo::CubeData::nearestBinID( const BinID& bid, idx_type mxoff ) const
 	return bid; // exact match
 
     BinID ret( 0, 0 );
-    pos_type minnroff = mUdf( pos_type );
+    const Coord pos = bid.coord();
+    Pos::Ordinate_Type minoff = MAXFLOAT;
     for ( idx_type idx=inlidx-mxoff; idx<=inlidx+mxoff; idx++ )
     {
 	if ( !validIdx(idx) )
 	    continue;
 	const LineData& ld = *get( idx );
 	pos_type nearcrl = ld.nearestNumber( bid.crl() );
-	pos_type nroff = std::abs( ld.linenr_-bid.inl() )
-			  + std::abs( nearcrl-bid.crl() );
-	if ( nroff < minnroff )
+	const BinID nrbid( ld.linenr_, nearcrl );
+	const Pos::Ordinate_Type nroff = pos.sqDistTo( nrbid.coord() );
+	if ( nroff < minoff )
 	{
-	    minnroff = nroff;
+	    minoff = nroff;
 	    ret = BinID( ld.linenr_, nearcrl );
 	}
     }

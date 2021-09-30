@@ -2445,7 +2445,7 @@ public:
 
     mUseType( Survey, HorSubSel );
 
-    Array3DNearPadder( int padsize, const PosInfo::LineCollData& lcd,
+    Array3DNearPadder( BinID padsize, const PosInfo::LineCollData& lcd,
 		       const CubeSubSel& css, Array3D<T>& arr )
     : ParallelTask("Padding by nearest trace")
     , lcd_(lcd)
@@ -2486,6 +2486,7 @@ protected:
 
 	const od_int64 nbytes = nrtrcsp * sizeof(T);
 	const PosInfo::CubeData* cd = lcd_.asCubeData();
+	const int pad = mMIN( padsize_.inl(), padsize_.crl() );
 
 	for ( od_int64 idx=start; idx<=stop; idx++, hiter.next() )
 	{
@@ -2496,9 +2497,9 @@ protected:
 	    if ( cd->includes( bid ) )
 		continue;
 
-	    const BinID nrbid = cd->nearestBinID( bid, padsize_ );
-	    if ( abs((bid-nrbid).inl())>padsize_ ||
-		 abs((bid-nrbid).crl())>padsize_ )
+	    const BinID nrbid = cd->nearestBinID( bid, pad );
+	    if ( abs((bid-nrbid).inl())>padsize_.inl() ||
+		 abs((bid-nrbid).crl())>padsize_.crl() )
 		continue;
 
 	    const int nrinlidx = chss.idx4Inl( nrbid.inl() );
@@ -2537,6 +2538,6 @@ protected:
     const PosInfo::LineCollData&	lcd_;
     const CubeSubSel&		css_;
     od_int64			totalnr_;
-    int				padsize_;
+    BinID			padsize_;
 
 };
