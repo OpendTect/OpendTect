@@ -131,7 +131,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     formfld_ = new uiMathFormula( this, form_, mfsu );
     formfld_->addInpViewIcon( "view_log", "Display this log",
 			      mCB(this,uiWellLogCalc,vwLog) );
-    formfld_->setNonSpecInputs( lognms_, &mnsel_ );
+    formfld_->setNonSpecInputs( lognms_, -1, &mnsel_ );
     mAttachCB( formfld_->inpSet, uiWellLogCalc::inpSel );
     mAttachCB( formfld_->formMnSet, uiWellLogCalc::formMnSet );
     mAttachCB( formfld_->formUnitSet, uiWellLogCalc::formUnitSel );

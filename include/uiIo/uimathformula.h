@@ -59,9 +59,9 @@ public:
 
     bool		setText(const char*);
     bool		useForm();
-    void		setNonSpecInputs(const BufferStringSet&,
+    void		setNonSpecInputs(const BufferStringSet&,int iinp=-1,
 					 const MnemonicSelection* =nullptr);
-    void		setNonSpecSubInputs(const BufferStringSet&,int iinp);
+    void		setNonSpecSubInputs(const BufferStringSet&,int iinp=-1);
     void		setFixedFormUnits( bool yn )	{ fixedunits_ = yn; }
 
     const char*		text() const;

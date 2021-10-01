@@ -137,14 +137,17 @@ uiButton* uiMathFormula::addButton( const uiToolButtonSetup& tbs )
 }
 
 
-void uiMathFormula::setNonSpecInputs( const BufferStringSet& inps,
+void uiMathFormula::setNonSpecInputs( const BufferStringSet& inps, int ivar,
 				      const MnemonicSelection* mnsel )
 {
     delete mnsel_;
     mnsel_ = mnsel ? new MnemonicSelection( *mnsel ) : nullptr;
 
-    for ( auto* inpfld : inpflds_ )
-	inpfld->setNonSpecInputs( inps, mnsel_ );
+    for ( int idx=0; idx<inpflds_.size(); idx++ )
+    {
+	if ( ivar < 0 || ivar == idx )
+	    inpflds_[idx]->setNonSpecInputs( inps, mnsel_ );
+    }
 }
 
 
