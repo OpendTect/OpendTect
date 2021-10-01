@@ -102,7 +102,7 @@ bool SeisTrc::chkForSpecVal( int icomp, bool isnull ) const
 	for ( int isamp=0; isamp<sz; isamp++ )
 	{
 	    const float val = get( isamp, icomp );
-	    if ( (isnull && val) || (!isnull && mIsUdf(val)) )
+	    if ( (isnull && !mIsUdf(val)) || (!isnull && mIsUdf(val)) )
 		return !isnull;
 	}
     }
