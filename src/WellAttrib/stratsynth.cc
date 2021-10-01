@@ -1304,7 +1304,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    const OD::String& propnm = pr.name();
 	    const Mnemonic::StdType prtype = pr.stdType();
 	    const bool propisvel = prtype == Mnemonic::Vel;
-	    const UnitOfMeasure* uom = UoMR().getDefault( propnm, prtype );
 	    SeisTrcBufDataPack* dp = seisbufdps_[iprop-1];
 	    SeisTrcBuf& trcbuf = dp->trcBuf();
 	    const int bufsz = trcbuf.size();
@@ -1348,9 +1347,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		    if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
 			continue;
 
-		    const float userval =
-			!uom ? mUdf(float) : uom->getUserValueFromSI( val );
-		    propval.addValue( propisvel ? 1.f / userval : userval,
+		    propval.addValue( propisvel ? 1.f / val : val,
 				      lay->thickness() );
 		}
 		const float val = mCast( float, propval.average() );
