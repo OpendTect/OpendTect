@@ -39,13 +39,20 @@ ________________________________________________________________________
 #include <QFileInfo>
 
 
-mImplFactory( FileSystemAccess, FileSystemAccess::factory );
+mImplFactory( OD::FileSystemAccess, OD::FileSystemAccess::factory );
 
 static const char* sProtSep = FilePath::uriProtocolSeparator();
 static const int cProtSepLen = FixedString(sProtSep).size();
 
+#define mLocalFileSystemNotInited	0
+#define mLocalFileSystemIniting		1
+#define mLocalFileSystemInited		2
+static Threads::Atomic<int> lfsinitstate_ = mLocalFileSystemNotInited;
+static const OD::FileSystemAccess* lfsinst_ = 0;
+static ObjectSet<const OD::FileSystemAccess> systemaccesses_;
 
-class LocalFileSystemAccess : public FileSystemAccess
+
+class LocalFileSystemAccess : public OD::FileSystemAccess
 { mODTextTranslationClass(LocalFileSystemAccess);
 public:
 
@@ -81,102 +88,13 @@ public:
 
 private:
 
-    static FileSystemAccess*	createInstance()
+    static OD::FileSystemAccess*	createInstance()
 				{ return new LocalFileSystemAccess; }
 };
-
-
-BufferString FileSystemAccess::getProtocol( const char* filename )
-{
-    BufferString res = filename;
-
-    char* protend = res.find( sProtSep );
-    if ( protend )
-	*protend = 0;
-    else
-	res = LocalFileSystemAccess::sFactoryKeyword();
-
-    return res;
-}
-
-
-BufferString FileSystemAccess::withoutProtocol( const char* uri )
-{
-    BufferString input( uri );
-    char* protend = input.find( sProtSep );
-    if ( !protend )
-	return input;
-
-    return BufferString( protend + cProtSepLen );
-}
-
-
-BufferString FileSystemAccess::iconForProtocol( const char* prot )
-{
-    return BufferString( "fileaccess_", prot );
-}
-
-
-BufferString FileSystemAccess::withProtocol( const char* fnm, const char* prot )
-{
-    if ( FixedString(prot) == LocalFileSystemAccess::sFactoryKeyword() )
-	prot = 0;
-
-    if ( !fnm || !*fnm )
-	return prot && *prot ? BufferString( prot, sProtSep )
-			     : BufferString::empty();
-
-    const char* protend = firstOcc( fnm, sProtSep );
-    BufferString newfnm;
-    if ( prot )
-	newfnm.add( prot ).add( sProtSep );
-
-    if ( !protend )
-	newfnm.add( fnm );
-    else
-	newfnm.add( protend + cProtSepLen );
-
-    return newfnm;
-}
-
-
-void FileSystemAccess::getProtocolNames( BufferStringSet& factnms, bool forread)
-{
-    factnms = factory().getNames();
-    for ( int idx=0; idx<factnms.size(); idx++ )
-    {
-	const FileSystemAccess& fsa = getByProtocol( factnms.get(idx) );
-	if ( (forread && !fsa.readingSupported())
-	  || (!forread && !fsa.writingSupported()) )
-	{
-	    factnms.removeSingle( idx );
-	    idx--;
-	}
-    }
-}
-
-
-bool FileSystemAccess::exists( const char* uri ) const
-{ return isReadable( uri ); }
-
-bool FileSystemAccess::isFile( const char* uri ) const
-{ return isReadable( uri ); }
-
-od_int64 FileSystemAccess::getFileSize( const char* uri, bool ) const
-{ return isReadable(uri) ? -1 : 0; }
-
 
 // Set up a mechanism to run initClass once. Since this will likely be done
 // while initialising the static file and global variables, we cannot
 // put this in initbasic.cc.
-
-#define mLocalFileSystemNotInited	0
-#define mLocalFileSystemIniting		1
-#define mLocalFileSystemInited		2
-static Threads::Atomic<int> lfsinitstate_ = mLocalFileSystemNotInited;
-static const FileSystemAccess* lfsinst_ = 0;
-static ObjectSet<const FileSystemAccess> systemaccesses_;
-
 
 void LocalFileSystemAccess::initClass()
 {
@@ -195,75 +113,6 @@ void LocalFileSystemAccess::initClass()
 	    lfsinitstate_ = mLocalFileSystemInited;
 	}
     }
-}
-
-
-const FileSystemAccess& FileSystemAccess::get( const char* fnm )
-{
-    BufferString protocol = getProtocol( fnm );
-    return gtByProt( protocol );
-}
-
-
-const FileSystemAccess& FileSystemAccess::getByProtocol( const char* prot )
-{
-    BufferString protocol( prot );
-    return gtByProt( protocol );
-}
-
-
-const FileSystemAccess& FileSystemAccess::getLocal()
-{
-    BufferString empty;
-    return gtByProt( empty );
-}
-
-
-const FileSystemAccess& FileSystemAccess::gtByProt( BufferString& protocol )
-{
-    if ( lfsinitstate_ != mLocalFileSystemInited )
-	LocalFileSystemAccess::initClass();
-
-    if ( protocol.isEmpty() )
-	return *lfsinst_;
-
-    // search for previously used instance. First exact match (e.g. "http")
-    for ( int idx=0; idx<systemaccesses_.size(); idx++ )
-    {
-	const FileSystemAccess& item = *systemaccesses_[idx];
-	if ( protocol == item.protocol() )
-	    return item;
-    }
-    // maybe we've been passed a variant (e.g. "https" for "http")
-    for ( int idx=0; idx<systemaccesses_.size(); idx++ )
-    {
-	const FileSystemAccess& item = *systemaccesses_[idx];
-	if ( protocol.startsWith(item.protocol()) )
-	    return item;
-    }
-
-    // OK, so we have not made an instantiation of the protocol yet
-    // See if we have anything for it in the factory
-
-    const BufferStringSet nms = factory().getNames();
-    if ( !nms.isPresent(protocol) )
-    {
-	// again, we may have a variant
-	for ( int idx=0; idx<nms.size(); idx++ )
-	    if ( protocol.startsWith(nms.get(idx)) )
-		protocol = nms.get(idx);
-		// no break, we want to use the last one added
-    }
-
-    FileSystemAccess* res = factory().create( protocol );
-    if ( !res )
-    {
-	ErrMsg( BufferString("Unknown file access protocol:\n",protocol) );
-	return *lfsinst_;
-    }
-
-    systemaccesses_ += res;
-    return *res;
 }
 
 
@@ -565,3 +414,167 @@ StreamData LocalFileSystemAccess::createIStream( const char* uri,
     res.setImpl( impl );
     return res;
 }
+
+
+namespace OD
+{
+
+BufferString FileSystemAccess::getProtocol( const char* filename )
+{
+    BufferString res = filename;
+
+    char* protend = res.find( sProtSep );
+    if ( protend )
+	*protend = 0;
+    else
+	res = LocalFileSystemAccess::sFactoryKeyword();
+
+    return res;
+}
+
+
+BufferString FileSystemAccess::withoutProtocol( const char* uri )
+{
+    BufferString input( uri );
+    char* protend = input.find( sProtSep );
+    if ( !protend )
+	return input;
+
+    return BufferString( protend + cProtSepLen );
+}
+
+
+BufferString FileSystemAccess::iconForProtocol( const char* prot )
+{
+    return BufferString( "fileaccess_", prot );
+}
+
+
+BufferString FileSystemAccess::withProtocol( const char* fnm, const char* prot )
+{
+    if ( FixedString(prot) == LocalFileSystemAccess::sFactoryKeyword() )
+	prot = 0;
+
+    if ( !fnm || !*fnm )
+	return prot && *prot ? BufferString( prot, sProtSep )
+			     : BufferString::empty();
+
+    const char* protend = firstOcc( fnm, sProtSep );
+    BufferString newfnm;
+    if ( prot )
+	newfnm.add( prot ).add( sProtSep );
+
+    if ( !protend )
+	newfnm.add( fnm );
+    else
+	newfnm.add( protend + cProtSepLen );
+
+    return newfnm;
+}
+
+
+void FileSystemAccess::getProtocolNames( BufferStringSet& factnms, bool forread)
+{
+    factnms = factory().getNames();
+    for ( int idx=0; idx<factnms.size(); idx++ )
+    {
+	const FileSystemAccess& fsa = getByProtocol( factnms.get(idx) );
+	if ( (forread && !fsa.readingSupported())
+	  || (!forread && !fsa.writingSupported()) )
+	{
+	    factnms.removeSingle( idx );
+	    idx--;
+	}
+    }
+}
+
+
+bool FileSystemAccess::exists( const char* uri ) const
+{
+    return isReadable( uri );
+}
+
+
+bool FileSystemAccess::isFile( const char* uri ) const
+{
+    return isReadable( uri );
+}
+
+
+od_int64 FileSystemAccess::getFileSize( const char* uri, bool ) const
+{
+    return isReadable(uri) ? -1 : 0;
+}
+
+
+const FileSystemAccess& FileSystemAccess::get( const char* fnm )
+{
+    BufferString protocol = getProtocol( fnm );
+    return gtByProt( protocol );
+}
+
+
+const FileSystemAccess& FileSystemAccess::getByProtocol( const char* prot )
+{
+    BufferString protocol( prot );
+    return gtByProt( protocol );
+}
+
+
+const FileSystemAccess& FileSystemAccess::getLocal()
+{
+    BufferString empty;
+    return gtByProt( empty );
+}
+
+
+const FileSystemAccess& FileSystemAccess::gtByProt( BufferString& protocol )
+{
+    if ( lfsinitstate_ != mLocalFileSystemInited )
+	LocalFileSystemAccess::initClass();
+
+    if ( protocol.isEmpty() )
+	return *lfsinst_;
+
+    // search for previously used instance. First exact match (e.g. "http")
+    for ( int idx=0; idx<systemaccesses_.size(); idx++ )
+    {
+	const FileSystemAccess& item = *systemaccesses_[idx];
+	if ( protocol == item.protocol() )
+	    return item;
+    }
+    // maybe we've been passed a variant (e.g. "https" for "http")
+    for ( int idx=0; idx<systemaccesses_.size(); idx++ )
+    {
+	const FileSystemAccess& item = *systemaccesses_[idx];
+	if ( protocol.startsWith(item.protocol()) )
+	    return item;
+    }
+
+    // OK, so we have not made an instantiation of the protocol yet
+    // See if we have anything for it in the factory
+
+    const BufferStringSet nms = factory().getNames();
+    if ( !nms.isPresent(protocol) )
+    {
+	// again, we may have a variant
+	for ( int idx=0; idx<nms.size(); idx++ )
+	    if ( protocol.startsWith(nms.get(idx)) )
+		protocol = nms.get(idx);
+		// no break, we want to use the last one added
+    }
+
+    FileSystemAccess* res = factory().create( protocol );
+    if ( !res )
+    {
+	ErrMsg( BufferString("Unknown file access protocol:\n",protocol) );
+	return *lfsinst_;
+    }
+
+    systemaccesses_ += res;
+    return *res;
+}
+
+
+
+} // namespace OD

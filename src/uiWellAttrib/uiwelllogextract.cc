@@ -183,6 +183,31 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
     wts.locradius_ = !radiusfld_ ? 0.f : radiusfld_->getFValue();
     wts.mkdahcol_ = true;
     wts.params_ = welllogselfld_->params();
+    if ( !wts.params_.isInTime() )
+    {
+	wts.params_.zstep_ = getConvertedValue( wts.params_.zstep_,
+				UnitOfMeasure::surveyDefDepthUnit(),
+				UnitOfMeasure::surveyDefDepthStorageUnit() );
+	wts.params_.setTopMarker( wts.params_.topMarker(),
+			      getConvertedValue(wts.params_.topOffset(),
+				UnitOfMeasure::surveyDefDepthUnit(),
+				UnitOfMeasure::surveyDefDepthStorageUnit()) );
+	wts.params_.setBotMarker( wts.params_.botMarker(),
+			      getConvertedValue(wts.params_.botOffset(),
+				UnitOfMeasure::surveyDefDepthUnit(),
+				UnitOfMeasure::surveyDefDepthStorageUnit()) );
+	if ( !wts.params_.getFixedRange().isUdf() )
+	{
+	    float start = wts.params_.getFixedRange().start;
+	    float stop = wts.params_.getFixedRange().stop;
+	    start = getConvertedValue( start,
+				       UnitOfMeasure::surveyDefDepthUnit(),
+				  UnitOfMeasure::surveyDefDepthStorageUnit() );
+	    stop = getConvertedValue( stop, UnitOfMeasure::surveyDefDepthUnit(),
+				  UnitOfMeasure::surveyDefDepthStorageUnit() );
+	    wts.params_.setFixedRange( Interval<float>(start, stop), false );
+	}
+    }
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, wts ) )
 	return false;

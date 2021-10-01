@@ -304,7 +304,7 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 
 od_int64 getFileSize( const char* fnm, bool followlink )
 {
-    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.getFileSize( fnm, followlink );
 }
 
@@ -314,7 +314,7 @@ bool exists( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.exists( fnm );
 }
 
@@ -341,7 +341,7 @@ bool isFile( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.isFile( fnm );
 }
 
@@ -351,7 +351,7 @@ bool isDirectory( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.isDirectory( fnm );
 }
 
@@ -460,7 +460,7 @@ bool isReadable( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.isReadable( fnm );
 }
 
@@ -470,7 +470,7 @@ bool isWritable( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.isWritable( fnm );
 }
 
@@ -543,7 +543,7 @@ bool createDir( const char* fnm )
     if ( !isSane(fnm) )
 	return false;
 
-    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.createDirectory( fnm );
 }
 
@@ -554,7 +554,7 @@ bool listDir( const char* dirnm, DirListType dlt, BufferStringSet& fnames,
     if ( !isSane(dirnm) )
 	return false;
 
-    const FileSystemAccess& fsa = FileSystemAccess::get( dirnm );
+    const auto& fsa = OD::FileSystemAccess::get( dirnm );
     if ( !fsa.listDirectory(dirnm,dlt,fnames,mask) )
 	return false;
 
@@ -810,7 +810,7 @@ bool remove( const char* fnm )
     if ( !isSane(fnm) )
 	return true;
 
-    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.remove( fnm );
 }
 
@@ -820,7 +820,7 @@ bool removeDir( const char* dirnm )
     if ( !isSane(dirnm) )
 	return true;
 
-    const FileSystemAccess& fsa = FileSystemAccess::get( dirnm );
+    const auto& fsa = OD::FileSystemAccess::get( dirnm );
     return fsa.remove( dirnm, true );
 }
 
@@ -847,7 +847,7 @@ bool checkDir( const char* fnm, bool forread, uiString* errmsg )
 	return false;
     }
 
-    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
 
     FilePath fp( fnm );
     BufferString dirnm( fp.pathOnly() );
@@ -873,7 +873,7 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
     else if ( fnmIsURI(fnm) )
 	return true;
 
-    const FileSystemAccess& fsa = FileSystemAccess::get( fnm );
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.setWritable( fnm, yn, recursive );
 }
 

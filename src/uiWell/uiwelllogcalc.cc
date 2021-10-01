@@ -445,8 +445,13 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     if ( newnm.isEmpty() )
 	mErrRet(tr("Please provide a name for the new log"))
     if ( lognms_.isPresent(newnm) || superwls_.getLog(newnm) )
-	mErrRet(tr("A log with this name already exists."
-		"\nPlease enter a different name for the new log"))
+    {
+	const bool ret = uiMSG().askOverwrite(
+			tr("A log with this name already exists."
+			"\nDo you want to overwrite it?"));
+	if ( !ret )
+	    return false;
+    }
 
     zsampintv_ = srfld_->getFValue();
     if ( mIsUdf(zsampintv_) )
@@ -477,7 +482,6 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	}
 
 	auto* newwl = new Well::Log( newnm );
-	wls.add( newwl );
 	if ( !calcLog(*newwl,inpdatas,wd->track(),wd->d2TModel()) )
 	    mErrContinue( tr("Cannot compute log for %1").arg(wd->name()))
 
@@ -485,9 +489,8 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    newwl->setMnemonic( *outmn );
 	newwl->setUnitOfMeasure( outun );
 
-	Well::Writer wtr( wmid, *wd );
-	if ( !wtr.putLog(*newwl) )
-	    mErrContinue( tr("Cannot write new log for %1").arg(wd->name()) )
+	if ( !Well::MGR().writeAndRegister(wmid,*newwl) )
+	    mErrContinue( tr(Well::MGR().errMsg()) );
 
 	successfulonce = true;
 	deleteLog( inpdatas );

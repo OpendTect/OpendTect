@@ -14,6 +14,9 @@ ________________________________________________________________________
 #include "factory.h"
 #include "strmdata.h"
 
+namespace OD
+{
+
 /*!\brief Interface to files and directories, whether local or cloud.
 
  OpendTect objects will always, one way or the other, use this interface to:
@@ -96,3 +99,5 @@ protected:
     static const FileSystemAccess&	gtByProt(BufferString&);
 
 };
+
+} // namespace OD
