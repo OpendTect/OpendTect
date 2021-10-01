@@ -113,9 +113,9 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 {
     if ( lm.isEmpty() )
     {
-    errmsg_ = tr("Input model is empty.\n"
-		 "You need to generate layer models.");
-    return;
+	errmsg_ = tr("Input model is empty.\n"
+		     "You need to generate layer models.");
+	return;
     }
 
     TypeSet<DataPack::FullID> fids, psfids;
@@ -129,9 +129,9 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
     }
     if ( fids.isEmpty() && psfids.isEmpty() )
     {
-    errmsg_ = tr("Missing or invalid 'datapacks'."
-		 "\nMost likely, no synthetics are available.");
-    return;
+	errmsg_ = tr("Missing or invalid 'datapacks'."
+		     "\nMost likely, no synthetics are available.");
+	return;
     }
 
     uiAttribDescSetBuild::Setup bsu( true );
@@ -160,6 +160,7 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 
 uiStratSynthCrossplot::~uiStratSynthCrossplot()
 {
+    detachAllNotifiers();
     deepErase( extrgates_ );
 }
 
@@ -184,24 +185,29 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 
     DataPointSet* dps = seisattrs.createDataPointSet(Attrib::DescSetup(),false);
     if ( !dps )
-	{ uiMSG().error(seisattrs.errMsg()); return 0; }
+	{ uiMSG().error(seisattrs.errMsg()); return nullptr; }
 
+    PosVecDataSet& pvds = dps->dataSet();
+    const UnitOfMeasure* depunit = PropertyRef::thickness().unit();
     if ( dps->nrCols() )
     {
-	dps->dataSet().insert(dps->nrFixedCols(),new DataColDef(sKey::Depth()));
-	dps->dataSet().insert( dps->nrFixedCols()+1,
-		    new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
+	pvds.insert( dps->nrFixedCols(),
+		     new DataColDef( sKey::Depth(), nullptr, depunit ) );
+	pvds.insert( dps->nrFixedCols()+1,
+		     new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
     }
     else
     {
-	dps->dataSet().add( new DataColDef(sKey::Depth()) );
-	dps->dataSet().add(
-		    new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
+	pvds.add( new DataColDef( sKey::Depth(), nullptr, depunit ) );
+	pvds.add( new DataColDef(Strat::LayModAttribCalc::sKeyModelIdx()) );
     }
 
-    for ( int iattr=0; iattr<seqattrs.size(); iattr++ )
-	dps->dataSet().add(
-		new DataColDef(seqattrs.attr(iattr).name(),toString(iattr)) );
+    int iattr = 0;
+    for ( const auto* seqattr : seqattrs )
+    {
+	const UnitOfMeasure* uom = seqattr->prop_.unit();
+	pvds.add( new DataColDef(seqattr->name(),toString(iattr++),uom) );
+    }
 
     for ( int isynth=0; isynth<synthdatas_.size(); isynth++ )
     {
