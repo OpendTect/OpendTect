@@ -161,9 +161,7 @@ protected:
     float			xpos_;
 
     TypeSet<int>		inpidxs_;
-    ObjectSet<const UnitOfMeasure> inpuoms_;
-    const UnitOfMeasure*	outputuom_ = nullptr;
-    mutable TypeSet<float>	inpvals_;
+    mutable TypeSet<double>	inpvals_;
     mutable uiString	        errmsg_;
 
     void			useForm(const PropertyRefSelection&,int outidx);

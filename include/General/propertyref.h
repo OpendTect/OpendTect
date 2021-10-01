@@ -51,7 +51,7 @@ public:
     bool		isElastic() const;
     virtual bool	isElasticForm() const	{ return false; }
 
-    inline const char*	mnName() const		{ return mn_.name(); }
+    inline const Mnemonic&	mn() const	{ return mn_; }
     inline StdType	stdType() const		{ return mn_.stdType(); }
     inline bool		hasType( StdType t ) const
 			{ return mn_.stdType() == t; }

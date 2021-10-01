@@ -169,6 +169,17 @@ void Well::LogSet::removeTopBottomUdfs()
 }
 
 
+TypeSet<int> Well::LogSet::getSuitable( const Mnemonic& mn ) const
+{
+    TypeSet<int> ret;
+    for ( const auto* log : logs_ )
+	if ( mn.isCompatibleWith(log->mnemonic()) )
+	    ret += logs_.indexOf(log);
+
+    return ret;
+}
+
+
 TypeSet<int> Well::LogSet::getSuitable( Mnemonic::StdType ptype,
 	const PropertyRef* altpr, BoolTypeSet* arealt ) const
 {

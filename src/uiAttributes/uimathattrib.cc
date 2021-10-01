@@ -43,10 +43,10 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 {
     uiAttrSelData asd( is2d );
     uiMathFormula::Setup mfsu( tr("Formula (like 'nearstk + c0 * farstk')") );
-    mfsu.withunits( false ).maxnrinps( 8 ).withsubinps(true)
+    mfsu.withunits( false ).maxnrinps( 8 ).withsubinps( true )
 	.stortype( "Attribute calculation" );
     formfld_ = new uiMathFormula( this, form_, mfsu );
-    formfld_->formSet.notify( mCB(this,uiMathAttrib,formSel) );
+//  formfld_->formSet.notify( mCB(this,uiMathAttrib,formSel) );
     formfld_->inpSet.notify( mCB(this,uiMathAttrib,inpSel) );
     updateNonSpecInputs();
     const CallBack rockphyscb( mCB(this,uiMathAttrib,rockPhysReq) );
@@ -69,13 +69,7 @@ void uiMathAttrib::formSel( CallBacker* )
 }
 
 
-DataPack::FullID uiMathAttrib::getInputDPID() const
-{
-    return getInputDPID( formfld_->inpSelNotifNr() );
-}
-
-
-DataPack::FullID uiMathAttrib::getInputDPID(int inpidx ) const
+DataPack::FullID uiMathAttrib::getInputDPID( int inpidx ) const
 {
     DataPack::FullID undefid;
     undefid.setUdf();
@@ -100,16 +94,17 @@ DataPack::FullID uiMathAttrib::getInputDPID(int inpidx ) const
 
 void uiMathAttrib::inpSel( CallBacker* cb )
 {
-    if ( !ads_ ) return;	//?
-
-    int inpidx = formfld_->inpSelNotifNr();
-    if ( inpidx<0 || inpidx>=formfld_->nrInpFlds() || !dpfids_.isEmpty() )
+    if ( !ads_ || !dpfids_.isEmpty() )
 	return;
 
-    formfld_->setNonSpecSubInputs( BufferStringSet(), inpidx );
+    mDynamicCastGet(uiMathExpressionVariable*,inpfld,cb);
+    if ( !inpfld || !inpfld->isActive() ||
+	  inpfld->isConst() || inpfld->isSpec() )
+	return;
 
-    Desc* inpdesc = ads_->getDescFromUIListEntry(
-				    formfld_->inpFld(inpidx)->getInput() );
+    inpfld->setNonSpecSubInputs( BufferStringSet() );
+
+    Desc* inpdesc = ads_->getDescFromUIListEntry( inpfld->getInput() );
     if ( !inpdesc || !inpdesc->isStored() )
 	return;
 
@@ -123,7 +118,7 @@ void uiMathAttrib::inpSel( CallBacker* cb )
 	BufferStringSet nms;
 	seisinfo.getComponentNames( nms );
 	nms.insertAt( new BufferString("ALL"), 0 );
-	formfld_->setNonSpecSubInputs( nms, inpidx );
+	inpfld->setNonSpecSubInputs( nms );
     }
 }
 
@@ -132,11 +127,10 @@ void uiMathAttrib::rockPhysReq( CallBacker* )
 {
     uiDialog rpdlg( this, uiDialog::Setup(uiStrings::sRockPhy(),mNoDlgTitle,
 					  mODHelpKey(mrockPhysReqHelpID)) );
-    uiRockPhysForm* rpform = new uiRockPhysForm( &rpdlg );
-    if ( !rpdlg.go() )
+    auto* rpform = new uiRockPhysForm( &rpdlg );
+    if ( !rpdlg.go() || !rpform->getFormulaInfo(form_) )
 	return;
 
-    rpform->getFormulaInfo( form_ );
     formfld_->useForm();
 }
 
@@ -149,7 +143,7 @@ bool uiMathAttrib::setParameters( const Desc& desc )
     mIfGetString( Attrib::Mathematics::expressionStr(), expression,
 		  formfld_->setText(expression) );
 
-    formSel(0);
+    formSel(nullptr);
 
     int constidx = 0;
     TypeSet<int> inpindexesinuse;
@@ -208,6 +202,7 @@ void uiMathAttrib::updateNonSpecInputs()
     }
     else if ( ads_ )
 	ads_->fillInUIInputList( inpnms );
+
     formfld_->setNonSpecInputs( inpnms );
 }
 

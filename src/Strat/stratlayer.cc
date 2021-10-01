@@ -39,7 +39,6 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
     , lay_(lay)
     , myform_(false)
 {
-    inpuoms_.setNullAllowed();
     setXPos( xpos );
     useForm( prs, outpridx );
 }
@@ -53,7 +52,6 @@ Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
     , myform_(true)
     , xpos_(0.f)
 {
-    inpuoms_.setNullAllowed();
     const_cast<Math::Formula&>(form_).usePar( iop );
 
     const char* res = iop.find( sKeyXPos );
@@ -70,7 +68,6 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
     , myform_(cpform)
     , lay_(lay)
 {
-    inpuoms_.setNullAllowed();
     setXPos( xpos );
 }
 
@@ -86,18 +83,21 @@ void Strat::FormulaLayerValue::useForm( const PropertyRefSelection& prs,
 					int outidx )
 {
     const int nrinps = form_.nrInputs();
+    auto& form = const_cast<Math::Formula&>( form_ );
 
     for ( int iinp=0; iinp<nrinps; iinp++ )
     {
 	const PropertyRef* pr = nullptr;
-	float inpval = 0.f;
-	if ( form_.isConst(iinp) )
-	   inpval = float(form_.getConstVal(iinp));
+	double inpval = 0.;
+	if ( form.isConst(iinp) )
+	   inpval = form_.getConstVal( iinp );
 	else if ( !form_.isSpec(iinp) )
 	{
 	    const char* pnm = form_.inputDef( iinp );
 	    pr = prs.getByName( pnm, false );
-	    if ( !pr )
+	    if ( pr )
+		form.setInputValUnit( iinp, pr->unit() );
+	    else
 	    {
 		errmsg_ = tr( "%1 - Formula cannot be resolved:\n'%2'"
 			      "\nCannot find '%3'")
@@ -109,12 +109,12 @@ void Strat::FormulaLayerValue::useForm( const PropertyRefSelection& prs,
 
 	// not more than one because no shifts allowed
 	inpidxs_ += pr ? prs.indexOf( pr ) : -1;
-	inpuoms_ += pr ? pr->unit() : nullptr;
 	inpvals_ += inpval;
     }
 
     const PropertyRef* pr = prs.validIdx(outidx) ? prs.get( outidx ) : nullptr;
-    outputuom_ = pr ? pr->unit() : nullptr;
+    if ( pr )
+	form.setOutputValUnit( pr->unit() );
 }
 
 
@@ -131,8 +131,6 @@ Strat::FormulaLayerValue* Strat::FormulaLayerValue::clone(
     auto* ret = new FormulaLayerValue( form_, lay ? *lay : lay_,
 				       xpos_, myform_ );
     ret->inpidxs_ = inpidxs_;
-    ret->inpuoms_ = inpuoms_;
-    ret->outputuom_ = outputuom_;
     ret->inpvals_ = inpvals_;
     ret->errmsg_ = errmsg_;
     return ret;
@@ -145,25 +143,21 @@ float Strat::FormulaLayerValue::value() const
 	return mUdf(float);
 
     const int nrinps = form_.nrInputs();
+    double* inpvals = inpvals_.arr();
     for ( int iinp=0; iinp<nrinps; iinp++ )
     {
 	const int inpidx = inpidxs_[iinp];
 	if ( inpidx >= 0 )
-	{
-	    inpvals_[iinp] = lay_.value( inpidx );
-	    const UnitOfMeasure* inpuom = inpuoms_.get( iinp );
-	    convValue( inpvals_[iinp], inpuom, form_.inputUnit(iinp) );
-	}
+	    inpvals[iinp] = lay_.value( inpidx );
 	else
 	{
 	    if ( form_.isSpec(iinp) )
-		inpvals_[iinp] = form_.specIdx(iinp)<2 ? lay_.depth() : xpos_;
+		inpvals[iinp] = form_.specIdx(iinp)<2 ? lay_.depth() : xpos_;
 	    // consts are already filled
 	}
     }
 
-    const float outval = form_.getValue( inpvals_.arr() );
-    return getConvertedValue( outval, form_.outputUnit(), outputuom_ );
+    return sCast(float,form_.getValue( inpvals ) );
 }
 
 

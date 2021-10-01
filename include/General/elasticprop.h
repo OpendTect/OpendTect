@@ -114,6 +114,7 @@ public:
 
     bool		isElasticForm() const override	{ return true; }
 
+    static const Mnemonic& elasticToMnemonic(ElasticFormula::Type);
     static Mnemonic::StdType elasticToStdType(ElasticFormula::Type);
 
     ElasticFormula&	formula()		{ return formula_; }

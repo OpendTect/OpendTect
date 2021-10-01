@@ -343,10 +343,11 @@ const Math::SpecVarSet& MathProperty::getSpecVars()
 
     if ( svs.isEmpty() )
     {
-	svs.add( "Depth", "Depth", true, Mnemonic::Dist );
-	svs.add( "Z", "Depth", true, Mnemonic::Dist );
-	svs.add( "RelDepth", "Relative Depth", true, Mnemonic::Dist );
-	svs.add( "RelZ", "Relative Depth", true, Mnemonic::Dist );
+	const Mnemonic* distmn = &Mnemonic::distance();
+	svs.add( "Depth", "Depth", true, distmn );
+	svs.add( "Z", "Depth", true, distmn );
+	svs.add( "RelDepth", "Relative Depth", true, distmn );
+	svs.add( "RelZ", "Relative Depth", true, distmn );
 	svs.add( "XPos", "Relative horizontal position (0-1)" );
     }
 
@@ -441,9 +442,11 @@ bool MathProperty::init( const PropertySet& ps ) const
 	}
 
 	inps_ += prop;
+	form_.setInputValUnit( iinp, prop->unit() );
     }
 
     const_cast<MathProperty*>(this)->reset();
+    form_.setOutputValUnit( unit() );
 
     return true;
 }
@@ -477,7 +480,8 @@ const char* MathProperty::def() const
 
 void MathProperty::setDef( const char* defstr )
 {
-    inps_.erase(); form_.clearInputDefs();
+    inps_.erase();
+    form_.clearInputDefs();
 
     if ( !FixedString(defstr).startsWith(sKeyMathForm) )
 	{ setPreV5Def( defstr ); return; }
@@ -498,16 +502,18 @@ void MathProperty::setPreV5Def( const char* inpstr )
 
     // Variables were the property names, need to replace them with "v_i_xx"
     const PropertyRefSet& props = PROPS();
-    BufferStringSet propnms;
+    PropertyRefSelection prs;
     for ( int idx=props.size()-1; idx>-2; idx-- )
     {
-	const char* propnm = idx<0 ? "Thickness" : props.get(idx)->name().buf();
+	const PropertyRef& pr = idx<0 ? PropertyRef::thickness()
+				      : *props.get( idx );
+	const OD::String& propnm = pr.name();
 	if ( !defstr.contains(propnm) )
 	    continue;
-	propnms.add( propnm );
 
+	prs.add( &pr );
 	BufferString cleanpropnm( propnm ); cleanpropnm.clean();
-	BufferString varnm( "v_", propnms.size(), "_" );
+	BufferString varnm( "v_", prs.size(), "_" );
 	varnm.add( cleanpropnm );
 
 	defstr.replace( propnm, varnm );
@@ -520,7 +526,7 @@ void MathProperty::setPreV5Def( const char* inpstr )
     const int nrinps = form_.nrInputs();
     for ( int iinp=0; iinp<nrinps; iinp++ )
     {
-	BufferString varnm( form_.variableName(iinp) );
+	const BufferString varnm( form_.variableName(iinp) );
 	if ( !varnm.startsWith("v_") )
 	{
 	    ErrMsg( BufferString("Could not fully use Pre-V5 math property."
@@ -531,22 +537,22 @@ void MathProperty::setPreV5Def( const char* inpstr )
 	BufferString varidxstr( varnm.buf() + 2 );
 	varidxstr.replace( '_', '\0' );
 	const int propidx = toInt( varidxstr.buf() ) - 1;
-	if ( !propnms.validIdx(propidx) )
+	if ( !prs.validIdx(propidx) )
 	    { pErrMsg("Huh"); continue; }
 
-	form_.setInputDef( iinp, propnms.get(propidx) );
+	const PropertyRef& pr = *prs.get(propidx);
+	form_.setInputDef( iinp, pr.name() );
+	form_.setInputMnemonic( iinp, &pr.mn() );
+
+	const UnitOfMeasure* uom = nullptr;
+	if ( fmssz > 2 + iinp )
+	    uom = UoMR().get( fms[2+iinp] );
+
+	form_.setInputFormUnit( iinp, uom );
     }
 
     if ( fmssz > 1 )
-	form_.setOutputUnit( UoMR().get(fms[1]) );
-
-    for ( int iinp=0; iinp<form_.nrInputs(); iinp++ )
-    {
-	const UnitOfMeasure* uom = 0;
-	if ( fmssz > 2 + iinp )
-	    uom = UoMR().get( fms[2+iinp] );
-	form_.setInputUnit( iinp, uom );
-    }
+	form_.setOutputFormUnit( UoMR().get(fms[1]) );
 }
 
 
@@ -566,13 +572,13 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 	nonmatheo.valopt_ = EvalOpts::Prev;
     const EvalOpts matheo( eo );
 
-    TypeSet<float> inpvals;
+    TypeSet<double> inpvals;
     for ( int iinp=0; iinp<inps_.size(); iinp++ )
     {
 	const Property* prop = inps_[iinp];
-	float val;
+	double val = 0.;
 	if ( !prop )
-	    val = float(form_.getConstVal(iinp));
+	    val = form_.getConstVal( iinp );
 	else
 	{
 	    if ( prop == &xposProp() )
@@ -584,38 +590,40 @@ float MathProperty::gtVal( Property::EvalOpts eo ) const
 		    val *= mToFeetFactorF;
 	    }
 	    else
-	    {
 		val = prop->value( prop->isFormula() ? matheo : nonmatheo );
-		convValue( val, prop->unit(), form_.inputUnit(iinp) );
-	    }
 	}
+
 	inpvals += val;
     }
 
-    const float outval = form_.getValue( inpvals.arr() );
-    return getConvertedValue( outval, form_.outputUnit(), unit() );
+    return sCast(float, form_.getValue( inpvals.arr() ) );
 }
 
 
-Mnemonic::StdType MathProperty::inputType( int iinp ) const
+const Mnemonic* MathProperty::inputMnemonic( int iinp ) const
 {
     if ( iinp < 0 || iinp >= nrInputs() )
-	return Mnemonic::Other;
+	return nullptr;
 
     if ( inps_.validIdx(iinp) )
     {
 	const Property* inp = inps_[iinp];
 	if ( inp )
-	    return inp->ref().stdType();
+	    return &inp->mn();
     }
 
-    const PropertyRefSelection prs( true, &ref() );
+    PropertyRefSelection prs( true );
+    prs.append( PropertyRefSelection( mn() ) );
     const char* propnm = form_.inputDef( iinp );
     const PropertyRef* pr = prs.getByName( propnm );
-    if ( pr )
-	return pr->stdType();
+    return pr ? &pr->mn() : nullptr;
+}
 
-    return Mnemonic::Other;
+
+Mnemonic::StdType MathProperty::inputType( int iinp ) const
+{
+    const Mnemonic* mn = inputMnemonic( iinp );
+    return mn ? mn->stdType() : Mnemonic::undef().stdType();
 }
 
 
@@ -632,6 +640,7 @@ void MathProperty::setInput( int iinp, const Property* p )
     }
 
     inps_.replace( iinp, p );
+    form_.setInputValUnit( iinp, p->unit() );
 }
 
 
@@ -655,7 +664,7 @@ const char* MathProperty::inputName( int iinp ) const
 
 const UnitOfMeasure* MathProperty::inputUnit( int iinp ) const
 {
-    return form_.inputUnit( iinp );
+    return form_.inputFormUnit( iinp );
 }
 
 
@@ -667,13 +676,13 @@ bool MathProperty::isConst( int iinp ) const
 
 void MathProperty::setUnit( const UnitOfMeasure* uom )
 {
-    form_.setOutputUnit( uom );
+    form_.setOutputFormUnit( uom );
 }
 
 
 const UnitOfMeasure* MathProperty::unit() const
 {
-    return form_.outputUnit();
+    return form_.outputFormUnit();
 }
 
 

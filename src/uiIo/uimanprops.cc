@@ -92,7 +92,7 @@ const char* uiBuildPROPS::avFromDef( const char* nm ) const
 {
     const PropertyRef* pr = const_cast<const PropertyRefSet&>(props_)
 					.getByName( nm, false );
-    return pr ? pr->mnName() : nullptr;
+    return pr ? pr->mn().name().str() : nullptr;
 }
 
 

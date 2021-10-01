@@ -33,12 +33,9 @@ protected:
     uiMathFormula*	formfld_;
     const PropertyRefSelection& prs_;
 
-    void		inpSel(CallBacker*);
-    void		formSet(CallBacker*);
     void		rockPhysReq(CallBacker*);
+    void		inpSel(CallBacker*);
     bool		acceptOK(CallBacker*);
-
-    void		setPType4Inp(int);
 
 };
 

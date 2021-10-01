@@ -31,15 +31,16 @@ public:
 			uiMathExpressionVariable(uiParent*,int varidx,
 				    bool withuom=true,
 				    bool withsubinps=false,
-				    const Math::SpecVarSet* svs=0);
+				    const Math::SpecVarSet* svs=nullptr);
 			~uiMathExpressionVariable();
 
     void		addInpViewIcon(const char* inm,const char* tooltip,
 					const CallBack&);
-    void		setNonSpecInputs(const BufferStringSet&);
+    void		setNonSpecInputs(const BufferStringSet&,
+					 const MnemonicSelection* =nullptr);
     void		setNonSpecSubInputs(const BufferStringSet&);
 
-    virtual void	use(const Math::Formula&);
+    virtual void	use(const Math::Formula&,bool fixedunits=false);
     virtual void	use(const Math::Expression*);
 
     int			varIdx() const		{ return varidx_; }
@@ -49,23 +50,24 @@ public:
 
     bool		isActive() const	{ return isactive_; }
     bool		isConst() const		{ return isconst_; }
+    bool		isSpec() const;
     int			specIdx() const		{ return specidx_; }
     const char*		getInput() const;
+    const Mnemonic*	getMnemonic() const	{ return curmn_; }
     const UnitOfMeasure* getUnit() const;
     void		fill(Math::Formula&) const;
+    BufferStringSet	getInputNms(const Mnemonic* =nullptr,
+				    bool sub=false) const;
 
     void		selectInput(const char*,bool exact=false);
     void		selectSubInput(int);
     void		setSelUnit(const UnitOfMeasure*);
 			//!<unit of selected variable
-    void		setFormUnit(const UnitOfMeasure*);
+    void		setFormType(const Mnemonic&);
+			//!<Mnemonic required by formula
+    void		setFormUnit(const UnitOfMeasure*,bool sensitiveyn);
 			//!<unit required by formula
-    mDeprecatedDef
-    void		setUnit(const char*);
-    mDeprecated("Use setFormUnit")
-    void		setUnit(const UnitOfMeasure* uom)
-			{ setFormUnit(uom); }
-    void		setPropType(Mnemonic::StdType);
+
 
     Notifier<uiMathExpressionVariable> inpSel;
     Notifier<uiMathExpressionVariable> subInpSel;
@@ -78,11 +80,13 @@ protected:
     void		initFlds( CallBacker* )	{ updateDisp(); }
     void		inpChg( CallBacker* )	{ inpSel.trigger(); }
     void		subInpChg( CallBacker* ) { subInpSel.trigger(); }
-    void		showHideVwBut(CallBacker* cb=0);
+    void		showHideVwBut(CallBacker* =nullptr);
 
     const int		varidx_;
     BufferString	varnm_;
     BufferStringSet	nonspecinputs_;
+    const MnemonicSelection*	mnsel_ = nullptr;
+    const Mnemonic*	curmn_ = nullptr;
     BufferStringSet	nonspecsubinputs_;
     bool		isactive_	= true;
     bool		isconst_	= false;
@@ -94,15 +98,25 @@ protected:
     uiComboBox*		inpfld_;
     uiComboBox*		subinpfld_	= nullptr;
     uiGenInput*		constfld_;
-    uiLineEdit*		selunfld_	= nullptr;
-    uiUnitSel*		unfld_		= nullptr;
     uiLabel*		unitlbl_	= nullptr;
+    uiLineEdit*		selunfld_	= nullptr;
     uiLabel*		formlbl_	= nullptr;
+    uiUnitSel*		unfld_		= nullptr;
     uiToolButton*	vwbut_		= nullptr;
 
     void		updateDisp();
     void		updateInpNms(bool sub);
     void		setActive(bool);
-    void		setVariable(const char*,bool);
+    void		setVariable(const char*,bool cst);
+
+public:
+
+    mDeprecated("Use setFormUnit")
+    void		setUnit(const char*);
+    mDeprecated("Use setFormUnit")
+    void		setUnit( const UnitOfMeasure* uom )
+			{ setFormUnit( uom, true ); }
+    mDeprecated("Provide a Mnemonic object")
+    void		setPropType(Mnemonic::StdType);
 
 };

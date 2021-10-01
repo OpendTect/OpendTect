@@ -31,7 +31,7 @@ RockPhysics::Formula::~Formula()
 
 RockPhysics::Formula* RockPhysics::Formula::get( const IOPar& iop )
 {
-    auto* fm = new Formula( Mnemonic::Other );
+    auto* fm = new Formula( Mnemonic::undef() );
     if ( !fm->usePar(iop) )
 	{ delete fm; return nullptr; }
 
@@ -44,8 +44,8 @@ RockPhysics::Formula& RockPhysics::Formula::operator =(
 {
     if ( this != &fm )
     {
-	setName( fm.name() );
-	type_ = fm.type_;
+	NamedObject::operator=( fm );
+	mn_ = fm.mn_;
 	def_ = fm.def_;
 	desc_ = fm.desc_;
 	src_ = fm.src_;
@@ -72,51 +72,63 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
     if ( nm.isEmpty() ) return false;
 
     setName( nm );
-    type_ = Mnemonic::parseEnumStdType( iop.getValue(0) );
+    const BufferString mnemonicnm( iop.getValue(0) );
+    mn_ = mnemonicnm.startsWith("Distance")
+	? &Mnemonic::distance()
+	: MNC().getByName( mnemonicnm, false );
+    if ( !mn_ )
+	{ pErrMsg("Incorrect RockPhysics input in repository"); }
+
     iop.get( sKeyDef, def_ );
     iop.get( sKey::Unit(), unit_ );
     iop.get( sKey::Desc(), desc_ );
     desc_ = getStrFromFMS( desc_ );
 
+    PtrMan<IOPar> subpar;
     deepErase( vardefs_ );
     for ( int idx=0; ; idx++ )
     {
-	IOPar* subpar = iop.subselect( IOPar::compKey(sKeyVar,idx) );
+	subpar = iop.subselect( IOPar::compKey(sKeyVar,idx) );
 	if ( !subpar || subpar->isEmpty() )
-	    { delete subpar; break; }
+	    break;
 
 	nm = subpar->find( sKey::Name() );
 	if ( !nm.isEmpty() )
 	{
-	    const PropType typ =
-		    Mnemonic::parseEnumStdType( subpar->find(sKey::Type()) );
-	    auto* vd = new VarDef( nm, typ );
+	    BufferString mninpnm;
+	    subpar->get( sKey::Type(), mninpnm );
+	    const Mnemonic* mn = mninpnm.startsWith("Distance")
+			       ? &Mnemonic::distance()
+			       : MNC().getByName( mninpnm, false );
+	    if ( !mn )
+		{ pErrMsg("Incorrect RockPhysics input in repository"); }
+
+	    auto* vd = new VarDef( nm, mn ? *mn : Mnemonic::undef() );
 	    subpar->get( sKey::Unit(), vd->unit_ );
 	    subpar->get( sKey::Desc(), vd->desc_ );
 	    vd->desc_ = getStrFromFMS( vd->desc_ );
 
 	    vardefs_ += vd;
 	}
-	delete subpar;
     }
 
     deepErase( constdefs_ );
     for ( int idx=0; ; idx++ )
     {
-	IOPar* subpar = iop.subselect( IOPar::compKey(sKeyConst,idx) );
+	subpar = iop.subselect( IOPar::compKey(sKeyConst,idx) );
 	if ( !subpar || subpar->isEmpty() )
-	    { delete subpar; break; }
+	    break;
+
 	nm = subpar->find( sKey::Name() );
 	if ( !nm.isEmpty() )
 	{
-	    ConstDef* cd = new ConstDef( nm );
+	    auto* cd = new ConstDef( nm );
 	    subpar->get( sKey::Desc(), cd->desc_ );
 	    cd->desc_ = getStrFromFMS( cd->desc_ );
 	    subpar->get( sKeyRg, cd->typicalrg_ );
 	    subpar->get( sKey::Default(), cd->defaultval_ );
 	    constdefs_ += cd;
 	}
-	delete subpar;
     }
 
     return true;
@@ -134,7 +146,7 @@ static void setIOPWithNLs( IOPar& iop, const char* ky, const char* val )
 void RockPhysics::Formula::fillPar( IOPar& iop ) const
 {
     iop.setEmpty();
-    iop.set( name(), toString(type_) );
+    iop.set( name(), mn_ ? mn_->name() : Mnemonic::undef().name() );
     iop.set( sKeyDef, def_ );
     setIOPWithNLs( iop, sKey::Desc(), desc_ );
     iop.set( sKey::Unit(), unit_ );
@@ -142,7 +154,8 @@ void RockPhysics::Formula::fillPar( IOPar& iop ) const
     {
 	const VarDef& vd = *vardefs_[idx];
 	const BufferString keybase( IOPar::compKey(sKeyVar,idx) );
-	iop.set( IOPar::compKey(keybase,sKey::Type()), toString(vd.type_) );
+	const Mnemonic& mn = vd.mn_ ? *vd.mn_ : Mnemonic::undef();
+	iop.set( IOPar::compKey(keybase,sKey::Type()), mn.name() );
 	iop.set( IOPar::compKey(keybase,sKey::Name()), vd.name() );
 	iop.set( IOPar::compKey(keybase,sKey::Unit()), vd.unit_ );
 	setIOPWithNLs( iop, IOPar::compKey(keybase,sKey::Desc()), vd.desc_ );
@@ -164,7 +177,8 @@ bool RockPhysics::Formula::setDef( const char* str )
     deepErase( vardefs_ ); deepErase( constdefs_ );
     def_ = str;
     MathProperty* mp = getProperty();
-    if ( !mp ) return false;
+    if ( !mp )
+	return false;
 
     const int nrvars = mp->nrInputs();
     for ( int idx=0; idx<nrvars; idx++ )
@@ -173,7 +187,10 @@ bool RockPhysics::Formula::setDef( const char* str )
 	if ( mp->isConst(idx) )
 	    constdefs_ += new ConstDef( inpnm );
 	else
-	    vardefs_ += new VarDef( inpnm, mp->inputType(idx) );
+	{
+	    const Mnemonic* mn = mp->inputMnemonic( idx );
+	    vardefs_ += new VarDef( inpnm, mn ? *mn : Mnemonic::undef() );
+	}
     }
 
     delete mp;
@@ -185,7 +202,7 @@ MathProperty* RockPhysics::Formula::getProperty( const PropertyRef* pr ) const
 {
     if ( !pr )
     {
-	const PropertyRefSelection prs( type_ );
+	const PropertyRefSelection prs( mn_ ? *mn_ : Mnemonic::undef() );
 	if ( prs.isEmpty() )
 	    return nullptr;
 	pr = prs.first();
@@ -219,6 +236,7 @@ void doNull( CallBacker* )
 void createSet()
 {
     Repos::FileProvider rfp( filenamebase, true );
+    rfp.setSource( Repos::Source::ApplSetup );
     while ( rfp.next() )
     {
 	const BufferString fnm( rfp.fileName() );
@@ -227,13 +245,15 @@ void createSet()
 	    continue;
 
 	ascistream astrm( sfio.istrm(), true );
-	RockPhysics::FormulaSet* tmp = new RockPhysics::FormulaSet;
+	auto* tmp = new RockPhysics::FormulaSet;
 	tmp->readFrom( astrm );
 	if ( tmp->isEmpty() )
 	    delete tmp;
 	else
 	{
 	    delete fms_;
+	    for ( const auto* fm : *tmp )
+		const_cast<RockPhysics::Formula*>(fm)->setSource(rfp.source());
 	    fms_ = tmp;
 	    sfio.closeSuccess();
 	    break;
@@ -246,7 +266,7 @@ void createSet()
 	fms_ = new RockPhysics::FormulaSet;
 }
 
-    RockPhysics::FormulaSet*	fms_ = 0;
+    RockPhysics::FormulaSet*	fms_ = nullptr;
 
 };
 
@@ -278,15 +298,34 @@ int RockPhysics::FormulaSet::getIndexOf( const char* nm ) const
 }
 
 
-void RockPhysics::FormulaSet::getRelevant( Formula::PropType tp,
+void RockPhysics::FormulaSet::getRelevant( const Mnemonic& mn,
 					   BufferStringSet& nms ) const
 {
-    nms.erase();
-    for ( int idx=0; idx<size(); idx++ )
+    for ( const auto* fm : *this )
     {
-	const Formula& fm = *(*this)[idx];
-	if ( fm.hasPropType(tp) )
-	    nms.add( fm.name() );
+	if ( fm->mn_ == &mn )
+	    nms.add( fm->name() );
+    }
+}
+
+
+bool RockPhysics::FormulaSet::hasType( PropType tp ) const
+{
+    for ( const auto* fm : *this )
+	if ( fm->mn_ && fm->mn_->stdType() == tp )
+	    return true;
+
+    return false;
+}
+
+
+void RockPhysics::FormulaSet::getRelevant( PropType tp,
+					   MnemonicSelection& mnsel ) const
+{
+    for ( const auto* fm : *this )
+    {
+	if ( fm->mn_ && fm->mn_->stdType() == tp )
+	    mnsel.addIfNew( fm->mn_ );
     }
 }
 
