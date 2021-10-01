@@ -231,7 +231,7 @@ void uiStratLayerModel::initClass()
 
 void uiStratLayerModel::doBasicLayerModel()
 {
-    doLayerModel( uiBasicLayerSequenceGenDesc::typeStr() );
+    doBasicLayerModel( &StratTreeWin() );
 }
 
 
@@ -281,7 +281,6 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     , waveletChanged(this)
     , saveRequired(this)
     , retrieveRequired(this)
-    , xplotdlg_(nullptr)
 {
     setDeleteOnClose( true );
 
@@ -394,12 +393,13 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 
     setWinTitle();
     StratTreeWin().changeLayerModelNumber( true );
-    postFinalise().notify( mCB(this,uiStratLayerModel,initWin) );
+    mAttachCB( postFinalise(), uiStratLayerModel::initWin );
 }
 
 
 uiStratLayerModel::~uiStratLayerModel()
 {
+    detachAllNotifiers();
     delete &desc_;
     delete &lmp_;
     delete descctio_.ioobj_; delete &descctio_;
@@ -607,14 +607,16 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
     if ( !synthdisp_->getSynthetics().size() )
 	return;
 
-    delete xplotdlg_;
-    xplotdlg_ = new uiStratSynthCrossplot( this, layerModel(),
-					   synthdisp_->getSynthetics() );
-    if ( !xplotdlg_->errMsg().isEmpty() )
-	{ uiMSG().error( xplotdlg_->errMsg() ); return; }
+    uiStratSynthCrossplot xplotdlg( this, layerModel(),
+				    synthdisp_->getSynthetics() );
+    if ( !xplotdlg.errMsg().isEmpty() )
+	{ uiMSG().error( xplotdlg.errMsg() ); return; }
+
     const char* lvlnm = modtools_->selLevel();
-    if ( lvlnm && *lvlnm ) xplotdlg_->setRefLevel( lvlnm );
-    xplotdlg_->show();
+    if ( lvlnm && *lvlnm )
+	xplotdlg.setRefLevel( lvlnm );
+
+    xplotdlg.show();
 }
 
 

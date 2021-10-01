@@ -84,9 +84,11 @@ public:
 
     bool			checkUnscaledWavelet();
 
-    static void			doBasicLayerModel(); //do not use this
+    mDeprecated("Provide a model name")
+    static void			doBasicLayerModel();
+    mDeprecated("Provide a model name")
     static void			doLayerModel(const char* modnm,int opt=0);
-				//do not use the above function
+
     static void			doBasicLayerModel(uiParent*);
     static void			doLayerModel(uiParent*,const char* modnm,
 								int opt=0);
@@ -98,9 +100,6 @@ public:
 						bool isbrine);
     void			prepareFluidRepl();
     void			resetFluidRepl();
-
-    //Utility
-    //SyntheticData*		getCurrentSyntheticData() const;
 
     void			setSynthView(const uiWorldRect& wr);
     const uiWorldRect&		curSynthView() const;
@@ -121,8 +120,6 @@ protected:
     /*mDeprecated*/ bool	mostlyfilledwithbrine_;
     bool			needtoretrievefrpars_;
     bool			automksynth_;
-    uiStratSynthCrossplot*	xplotdlg_;
-
 
     bool			canShowFlattened() const;
     void			setWinTitle();
