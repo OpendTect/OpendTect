@@ -337,7 +337,7 @@ Table::TargetInfo* TargetInfo::mkZPos( bool isreq, bool wu, int zopt )
 	{
 	    ti = new TargetInfo( sKey::Time(), FloatInpSpec(), reqspec,
 		    		 PropertyRef::Time );
-	    ti->selection_.unit_ = UoMR().get( "Milliseconds" );
+	    ti->selection_.unit_ = UnitOfMeasure::surveyDefTimeUnit();
 	}
 	else
 	{
