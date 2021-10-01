@@ -935,7 +935,7 @@ bool IOMan::implRename( const MultiID& key, const char* newname,
     {
 	if ( !iostrm->implExists(true) )
 	    iostrm->genFileName();
-	else
+	else if ( !isManagesObject(key) )
 	{
 	    IOStream chiostrm;
 	    chiostrm.copyFrom( iostrm );
