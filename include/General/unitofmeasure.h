@@ -177,12 +177,15 @@ template <class T> inline T UnitOfMeasure::internalValue( T inp ) const
 {
     if ( SI().zInFeet() )
     {
-	if ( symbol_.contains("ft") )
+	if ( symbol_.isEqual("ft") )
 	    return inp;
-	else if ( symbol_.contains("m") )
+	else if ( symbol_.isEqual("-ft") )
+	    return inp* -1;
+	else if ( symbol_.isEqual("m") || symbol_.isEqual("-m") )
 	{
 	    const UnitOfMeasure* feetunit = UoMR().get( "ft" );
-	    return feetunit ? feetunit->getUserValueFromSI( inp ) : inp;
+	    inp = symbol_.contains("-") ? inp * -1 : inp;
+	    return feetunit ? feetunit->getSIValue( inp ) : inp;
 	}
     }
 
@@ -194,11 +197,14 @@ template <class T> inline T UnitOfMeasure::userValue( T inp ) const
 {
     if ( SI().zInFeet() )
     {
-	if ( symbol_.contains("ft") )
+	if ( symbol_.isEqual("ft") )
 	    return inp;
-	else if ( symbol_.contains("m") )
+	else if ( symbol_.isEqual("-ft") )
+	    return inp* -1;
+	else if ( symbol_.isEqual("m") || symbol_.isEqual("m") )
 	{
 	    const UnitOfMeasure* feetunit = UoMR().get( "ft" );
+	    inp = symbol_.contains("-") ? inp * -1 : inp;
 	    return feetunit ? feetunit->getSIValue( inp ) : inp;
 	}
     }
