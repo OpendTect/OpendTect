@@ -211,8 +211,10 @@ void OD::getSystemMemory( od_int64& total, od_int64& free )
     MEMORYSTATUSEX status;
     status.dwLength = sizeof(status);
     GlobalMemoryStatusEx(&status);
-    total = status.ullTotalPhys;
     free = status.ullAvailPhys;
+    od_uint64 physicalmemory = 0;
+    GetPhysicallyInstalledSystemMemory(&physicalmemory);
+    total = mCast(od_int64,physicalmemory) * 1024;
     virttotal = status.ullTotalPageFile;
     virtfree = status.ullAvailPageFile;
 #endif
