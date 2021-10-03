@@ -6,17 +6,20 @@ Copyright (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.
 
 Module Summary
 
-odpy.commmon is the main important module in odpy. Allows for basic interactions with the OpendTect softwre and database
+odpy.common is the main important module in odpy. Allows for basic interactions with the OpendTect softwre and database
 
 KEY methods
 
-* getODsoftwareDir
-  * used to get the root directory of the Opendtect installation
-* getBinSubDir 
+* getODsoftwareDir()
+
+  * gets the root directory of the Opendtect installation
+* getBinSubDir()
+
   * binary sub directory for executables in an OpendTect installation
   * returns information on the release type
-* getODargs
-  * returns a dict containing information about the Opendtect executable, project database path and current survey name
+* getODargs()
+
+  * get dict containing information about the Opendtect executable, project database path and current survey name
 
 """
 

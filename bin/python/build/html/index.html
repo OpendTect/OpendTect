@@ -42,16 +42,25 @@
 </dd>
 </dl>
 <p>Module Summary</p>
-<p>odpy.commmon is the main important module in odpy. Allows for basic interactions with the OpendTect softwre and database</p>
+<p>odpy.common is the main important module in odpy. Allows for basic interactions with the OpendTect softwre and database</p>
 <p>KEY methods</p>
 <ul class="simple">
-<li><p>getODsoftwareDir
-* used to get the root directory of the Opendtect installation</p></li>
-<li><p>getBinSubDir
-* binary sub directory for executables in an OpendTect installation
-* returns information on the release type</p></li>
-<li><p>getODargs
-* returns a dict containing information about the Opendtect executable, project database path and current survey name</p></li>
+<li><p>getODsoftwareDir()</p>
+<ul>
+<li><p>gets the root directory of the Opendtect installation</p></li>
+</ul>
+</li>
+<li><p>getBinSubDir()</p>
+<ul>
+<li><p>binary sub directory for executables in an OpendTect installation</p></li>
+<li><p>returns information on the release type</p></li>
+</ul>
+</li>
+<li><p>getODargs()</p>
+<ul>
+<li><p>get dict containing information about the Opendtect executable, project database path and current survey name</p></li>
+</ul>
+</li>
 </ul>
 <dl class="py class">
 <dt class="sig sig-object py" id="odpy.common.Timer">

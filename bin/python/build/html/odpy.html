@@ -49,6 +49,27 @@
 </ul>
 </dd>
 </dl>
+<p>Module Summary</p>
+<p>odpy.common is the main important module in odpy. Allows for basic interactions with the OpendTect softwre and database</p>
+<p>KEY methods</p>
+<ul class="simple">
+<li><p>getODsoftwareDir()</p>
+<ul>
+<li><p>gets the root directory of the Opendtect installation</p></li>
+</ul>
+</li>
+<li><p>getBinSubDir()</p>
+<ul>
+<li><p>binary sub directory for executables in an OpendTect installation</p></li>
+<li><p>returns information on the release type</p></li>
+</ul>
+</li>
+<li><p>getODargs()</p>
+<ul>
+<li><p>get dict containing information about the Opendtect executable, project database path and current survey name</p></li>
+</ul>
+</li>
+</ul>
 <dl class="py class">
 <dt class="sig sig-object py" id="odpy.common.Timer">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">Timer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.Timer" title="Permalink to this definition">¶</a></dt>
@@ -376,27 +397,78 @@ in an OpendTect software installation</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.get_handler_filename">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_handler_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.get_handler_filename" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Gets logger filename</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>logger</strong> (<em>*</em>) – log file object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Log file name if any, None if not</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>str</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.get_handler_stream">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_handler_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.get_handler_stream" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Gets log handler stream</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>logger</strong> (<em>*</em>) – log file object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>where log info streams to if log handler exist,
+returns None if handler level is not set</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>str</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.get_log_file">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_log_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.get_log_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Full log file path for odpy.common</p>
+<dl class="simple">
+<dt>Returs:</dt><dd><ul class="simple">
+<li><p>str: Path to log file for odpy.common</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.get_log_logger">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_log_logger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.get_log_logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns logger</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.get_log_stream">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_log_stream</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.get_log_stream" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Gets odpy.commom log stream handler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>log stream handler name</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>str</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.get_settings_dir">
@@ -444,17 +516,37 @@ in an OpendTect software installation</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.get_std_logger">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_std_logger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.get_std_logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns module logger</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.get_std_stream">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_std_stream</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.get_std_stream" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Gets current module stream handler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>log stream handler name</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>str</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.get_stdlog_file">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_stdlog_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.get_stdlog_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Full log file path for current module</p>
+<dl class="simple">
+<dt>Returs:</dt><dd><ul class="simple">
+<li><p>str: Path to log file for current module</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.get_surveydir">
@@ -474,17 +566,42 @@ in an OpendTect software installation</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.has_file_handlers">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">has_file_handlers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.has_file_handlers" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>To check if a log file has a file handler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>logger</strong> (<em>*</em>) – Logger file object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if logger is a file handler logger</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>bool</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.has_log_file">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">has_log_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.has_log_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Checks if log (odproclog) has a file handler</p>
+<p>Returns:
+* bool: True if log file (odproclog) has a File handler and False if otherwise</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.has_stdlog_file">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">has_stdlog_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.has_stdlog_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Checks if module log has a file handler</p>
+<dl class="simple">
+<dt>Returns</dt><dd><ul class="simple">
+<li><p>bool: True if module log file has a File handler and False if otherwise</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.initLogging">
@@ -573,7 +690,30 @@ to setup the module loggers proclog_logger and syslog_logger</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.mergeArgs">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">mergeArgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.mergeArgs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Concatenates input strings and objects if more than one as single string</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>*</em>) – Message to be printed</p></li>
+<li><p><strong>b-f</strong> (<em>*</em>) – Message to be printed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Concatenated string</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>str</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>All objects are formatted to strings using the str() function</p></li>
+<li><p>All outputs are automatically separated by spaces.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.redirect_stdout">
@@ -654,7 +794,20 @@ for instance before starting a new task.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.set_log_file">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">set_log_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.set_log_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Sets log file with the handler based on the filename</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filenm</strong> (<em>*</em>) – log file name</p></li>
+<li><p><strong>logger</strong> (<em>*</em>) – log object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nothing.
+Removes past handlers if any and sets new log handler type based on file name</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.std_msg">
@@ -667,14 +820,11 @@ for instance before starting a new task.</p>
 <li><p><strong>b-f</strong> (<em>*</em>) – Message to be printed</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Concatenated string</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>str</p></li>
+</dl>
+<dl class="simple">
+<dt>Prints:</dt><dd><ul class="simple">
+<li><p>str: Concatenated string</p></li>
 </ul>
-</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
@@ -688,12 +838,42 @@ for instance before starting a new task.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.tail">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">tail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_buffer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4098</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.tail" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the last line(s) from a file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fp</strong> (<em>*</em>) – opened log file</p></li>
+<li><p><strong>lines</strong> (<em>*</em>) – number of last lines in a file to be printed</p></li>
+<li><p><strong>strip_empty</strong> (<em>bool</em>) – removes empty new lines if True</p></li>
+<li><p><strong>buffer</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="odpy.common.writeFile">
 <span class="sig-prename descclassname"><span class="pre">odpy.common.</span></span><span class="sig-name descname"><span class="pre">writeFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fnm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#odpy.common.writeFile" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates a new file with contents</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fnm</strong> (<em>str</em>) – name of file to be created/written to</p></li>
+<li><p><strong>content</strong> (<em>str</em>) – content to be addedto the file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if file has been successfully created
+False if file isn’t created due to an error</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>bool</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="odpy-dbman-module">
