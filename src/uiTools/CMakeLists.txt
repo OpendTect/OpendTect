@@ -29,6 +29,7 @@ set( OD_MODULE_SOURCES
 	uicompparsel.cc
 	uiconstvel.cc
 	uicoordsystem.cc
+	uidatapackmon.cc
 	uidirectionalplot.cc
 	uidlggroup.cc
 	uifileinput.cc
