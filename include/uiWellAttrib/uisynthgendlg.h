@@ -1,5 +1,4 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
@@ -46,8 +45,8 @@ protected:
 
     uiComboBox*			typefld_;
     uiLabeledComboBox*		psselfld_;
-    uiGenInput*		angleinpfld_;
-    uiGenInput*		namefld_;
+    uiGenInput*			angleinpfld_;
+    uiGenInput*			namefld_;
     uiPushButton*		gennewbut_;
     uiPushButton*		applybut_;
     uiPushButton*		revertbut_;
@@ -69,4 +68,3 @@ protected:
     bool			rejectOK(CallBacker*);
     void			finaliseDone(CallBacker*);
 };
-
