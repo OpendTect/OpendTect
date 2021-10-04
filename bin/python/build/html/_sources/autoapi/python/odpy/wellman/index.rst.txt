@@ -1,0 +1,135 @@
+:py:mod:`python.odpy.wellman`
+=============================
+
+.. py:module:: python.odpy.wellman
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   python.odpy.wellman.getNames
+   python.odpy.wellman.getInfo
+   python.odpy.wellman.getName
+   python.odpy.wellman.getLogNames
+   python.odpy.wellman.getLog
+   python.odpy.wellman.getLogs
+   python.odpy.wellman.getDBKey
+   python.odpy.wellman.getWellDBList
+   python.odpy.wellman.getMarkers
+   python.odpy.wellman.getTrack
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   python.odpy.wellman.wellmanexe
+   python.odpy.wellman.wlldbdirid
+   python.odpy.wellman.wlltrlgrp
+   python.odpy.wellman.dgbtrl
+   python.odpy.wellman.dblist
+
+
+.. py:data:: wellmanexe
+   :annotation: = od_WellMan
+
+   
+
+.. py:data:: wlldbdirid
+   :annotation: = 100050
+
+   
+
+.. py:data:: wlltrlgrp
+   :annotation: = Well
+
+   
+
+.. py:data:: dgbtrl
+   :annotation: = dGB
+
+   
+
+.. py:data:: dblist
+   
+
+   
+
+.. py:function:: getNames(reload=False, args=None)
+
+
+.. py:function:: getInfo(wllnm, reload=False, args=None)
+
+
+.. py:function:: getName(dbkey, reload=False, args=None)
+
+
+.. py:function:: getLogNames(wllnm, reload=False, args=None)
+
+
+.. py:function:: getLog(wllnm, lognm, reload=False, args=None)
+
+   Get a well log from the OpendTect database
+   Read a single log from the OpendTect database, with
+   any depth resampling or unit conversion.
+
+   Args:
+     wllnm (string): Well database name
+     lognm (string): Log name as reported by getLogNames(wllnm)
+     reload (boolean, optional): Force re-reading of the database files
+         (no caching allowed). Default to False
+     args (dictionary, optional): Dictionary of optional parameters (see common).
+         Default to None.
+         
+   Returns:
+     tuple: Two arrays with depths (MD) and log values
+
+
+
+
+.. py:function:: getLogs(wllnm, logidxlst, zstep=0.5, reload=False, args=None)
+
+   Get re-sampled logs from OpendTect
+
+   Args:
+       wllnm (string): Well database name
+       logidxlst (string): List of log indices to be resampled
+       zstep (double, optional): Resampling step in meters. Default to 0.5
+       reload (boolean, optional): Force re-reading of the database files
+           (no caching allowed). Default to False
+       args (dictionary, optional): Dictionary of optional parameters (see common).
+           Default to None.
+
+   Returns:
+     dict: Dictionary with log names as keys, logs as numpy arrays.
+         A depth array is also always output.
+
+   Example:
+      Get the logs from the well F03-4 with database indices 0, 1, 4, 6:
+      >>> logs = odpy.wellman.getLogs( 'F03-4', '0`1`4`6' )
+      
+      Undefined log samples will get the value 1e30 (not NaN)
+
+
+
+
+.. py:function:: getDBKey(wllnm, reload=False, args=None)
+
+
+.. py:function:: getWellDBList(reload, args=None)
+
+
+.. py:function:: getMarkers(wllnm, reload=False, args=None)
+
+
+.. py:function:: getTrack(wllnm, reload=False, args=None)
+
+

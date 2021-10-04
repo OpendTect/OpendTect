@@ -1,0 +1,100 @@
+:py:mod:`python.odpy.ranges`
+============================
+
+.. py:module:: python.odpy.ranges
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   python.odpy.ranges.get_range
+   python.odpy.ranges.arrayFromRange
+   python.odpy.ranges.get_range_steps
+   python.odpy.ranges.getLineObj
+   python.odpy.ranges.getTraceObj
+   python.odpy.ranges.getZObj
+   python.odpy.ranges.getAxesAsRanges
+   python.odpy.ranges.getAxesAsArrays
+   python.odpy.ranges.getIntervalStr
+   python.odpy.ranges.printSampling
+   python.odpy.ranges.niceNumber
+   python.odpy.ranges.niceRange
+
+
+
+.. py:function:: get_range(samp)
+
+
+.. py:function:: arrayFromRange(rg)
+
+
+.. py:function:: get_range_steps(samp)
+
+
+.. py:function:: getLineObj(obj)
+
+
+.. py:function:: getTraceObj(obj)
+
+
+.. py:function:: getZObj(obj)
+
+
+.. py:function:: getAxesAsRanges(tkzs)
+
+
+.. py:function:: getAxesAsArrays(tkzs)
+
+
+.. py:function:: getIntervalStr(rg, label)
+
+
+.. py:function:: printSampling(tkzs)
+
+
+.. py:function:: niceNumber(value, round=True)
+
+   Return a nicely rounded number.
+
+   Parameters
+   ----------
+   value : float
+     Input value.
+   round : boolean, optional
+     If true returned number will be rounded otherwise returns the ceiling. The default is True.
+
+   Returns
+   -------
+   float
+     The nice number.
+
+
+
+.. py:function:: niceRange(min, max, maxsteps=10)
+
+   Return a nicely rounded range - good for axes.
+
+   Parameters
+   ----------
+   min : float
+        Range minimum.
+    max : float
+        Range maximum.
+    maxsteps : int, optional
+        Maximum number of major tick steps desired in output range. The default is 10.
+
+    Returns
+    -------
+    niceMin : float
+       The nicely rounded minimum.
+    niceMax : float
+        The nicely rounded maximum.
+    
+
+

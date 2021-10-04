@@ -1,0 +1,71 @@
+:py:mod:`python.odpy.dbman`
+===========================
+
+.. py:module:: python.odpy.dbman
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   python.odpy.dbman.getDBList
+   python.odpy.dbman.getInfoFromDBListByNameOrKey
+   python.odpy.dbman.getInfoByName
+   python.odpy.dbman.getInfoByKey
+   python.odpy.dbman.getDBDict
+   python.odpy.dbman.getByName
+   python.odpy.dbman.getDBKeyForName
+   python.odpy.dbman.retFileLoc
+   python.odpy.dbman.getFileLocation
+   python.odpy.dbman.getNewEntryFileName
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   python.odpy.dbman.dbmanexe
+
+
+.. py:data:: dbmanexe
+   :annotation: = od_DBMan
+
+   
+
+.. py:function:: getDBList(translnm, alltrlsgrps=False, exenm=dbmanexe, args=None)
+
+
+.. py:function:: getInfoFromDBListByNameOrKey(nm_or_key, dblist)
+
+
+.. py:function:: getInfoByName(objnm, translnm, exenm=dbmanexe, args=None)
+
+
+.. py:function:: getInfoByKey(objkey, exenm=dbmanexe, args=None)
+
+
+.. py:function:: getDBDict(cmd)
+
+
+.. py:function:: getByName(dblist, retname, keystr)
+
+
+.. py:function:: getDBKeyForName(dblist, retname)
+
+
+.. py:function:: retFileLoc(bstdout)
+
+
+.. py:function:: getFileLocation(dbkey, args=None)
+
+
+.. py:function:: getNewEntryFileName(objnm, dirid, trgrp, trl, ext, ftype=None, args=None)
+
+

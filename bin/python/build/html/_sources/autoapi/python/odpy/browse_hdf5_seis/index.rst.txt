@@ -1,0 +1,94 @@
+:py:mod:`python.odpy.browse_hdf5_seis`
+======================================
+
+.. py:module:: python.odpy.browse_hdf5_seis
+
+
+Module Contents
+---------------
+
+.. py:data:: filenm
+   
+
+   
+
+.. py:data:: filebasenm
+   
+
+   
+
+.. py:data:: si
+   
+
+   
+
+.. py:data:: attribinfo
+   
+
+   
+
+.. py:data:: samplinginfo
+   
+
+   
+
+.. py:data:: datatkzs
+   
+
+   
+
+.. py:data:: axes
+   
+
+   
+
+.. py:data:: blocksinfo
+   
+
+   
+
+.. py:data:: blocksrg
+   
+
+   
+
+.. py:data:: usrinp
+   :annotation: = 1
+
+   
+
+.. py:data:: compnms
+   
+
+   
+
+.. py:data:: attribnm
+   
+
+   
+
+.. py:data:: nrcomps
+   
+
+   
+
+.. py:data:: cont
+   :annotation: = Y
+
+   
+
+.. py:data:: slicesel
+   
+
+   
+
+.. py:data:: h5file
+   
+
+   
+
+.. py:data:: cubepos
+   
+
+   
+

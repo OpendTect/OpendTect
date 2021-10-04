@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>python.odpy.oscommand &mdash; odpy 6.6 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> odpy
+            <img src="../../../../_static/od_small.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                6.6
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">odpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.oscommand</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/python/odpy/oscommand/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-python.odpy.oscommand">
+<span id="python-odpy-oscommand"></span><h1><a class="reference internal" href="#module-python.odpy.oscommand" title="python.odpy.oscommand"><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.oscommand</span></code></a><a class="headerlink" href="#module-python.odpy.oscommand" title="Permalink to this headline"></a></h1>
+<p>Tools for managing OS commands</p>
+<dl class="simple">
+<dt>Copyright (C) dGB Beheer B.V.; (LICENSE) <a class="reference external" href="http://opendtect.org/OpendTect_license.txt">http://opendtect.org/OpendTect_license.txt</a></dt><dd><ul class="simple">
+<li><p>AUTHOR : A. Huck</p></li>
+<li><p>DATE   : Apr 2019</p></li>
+</ul>
+</dd>
+</dl>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline"></a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.oscommand.getODCommand" title="python.odpy.oscommand.getODCommand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getODCommand</span></code></a>(execnm, args=None)</p></td>
+<td><p>OpendTect command</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.oscommand.appendDtectArgs" title="python.odpy.oscommand.appendDtectArgs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">appendDtectArgs</span></code></a>(cmd, args=None)</p></td>
+<td><p>Append OpendTect arguments</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.oscommand.getPythonExecNm" title="python.odpy.oscommand.getPythonExecNm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getPythonExecNm</span></code></a>()</p></td>
+<td><p>Python executable name</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.oscommand.getPythonCommand" title="python.odpy.oscommand.getPythonCommand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getPythonCommand</span></code></a>(scriptfile, posargs=None, dict=None, args=None)</p></td>
+<td><p>Python command line</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.oscommand.execCommand" title="python.odpy.oscommand.execCommand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execCommand</span></code></a>(cmd, background=False)</p></td>
+<td><p>Command execution</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.oscommand.isRunning" title="python.odpy.oscommand.isRunning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isRunning</span></code></a>(proc)</p></td>
+<td><p>is the process running?</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.oscommand.pauseProcess" title="python.odpy.oscommand.pauseProcess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pauseProcess</span></code></a>(proc)</p></td>
+<td><p>Pause a running process</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.oscommand.resumeProcess" title="python.odpy.oscommand.resumeProcess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resumeProcess</span></code></a>(proc)</p></td>
+<td><p>Resume a paused process</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.oscommand.printProcessTime" title="python.odpy.oscommand.printProcessTime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">printProcessTime</span></code></a>(procnm, isstart, print_fn=std_msg, withprocline=True)</p></td>
+<td><p>Print processing timestamp</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.oscommand.kill" title="python.odpy.oscommand.kill"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kill</span></code></a>(proc)</p></td>
+<td><p>Terminate a process</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.oscommand.startAndWait" title="python.odpy.oscommand.startAndWait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">startAndWait</span></code></a>(cmd)</p></td>
+<td><p>Run a command with subprocess</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.oscommand.log_subprocess_output" title="python.odpy.oscommand.log_subprocess_output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_subprocess_output</span></code></a>(pipe)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.oscommand.startDetached" title="python.odpy.oscommand.startDetached"><code class="xref py py-obj docutils literal notranslate"><span class="pre">startDetached</span></code></a>(cmd)</p></td>
+<td><p>Run a command in the background with psutil</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.getODCommand">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">getODCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execnm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.getODCommand" title="Permalink to this definition"></a></dt>
+<dd><p>OpendTect command</p>
+<p>For a given OpendTect executable, get its full command line</p>
+<dl>
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>execnm (list): [Executable name]</p></li>
+<li><p>arg (dict, optional):
+Dictionary with the members ‘dtectdata’ and ‘survey’ as
+single element lists, and/or ‘dtectexec’ (see odpy.getODSoftwareDir)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>list: OpendTect command line</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><p>The two standard arguments providing the current survey location
+will be added to the command line arguments.</p>
+</dd>
+<dt>Examples:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">  &#39;dtectdata&#39;: [&#39;D:\ODData&#39;],</span>
+<span class="go">  &#39;survey&#39;: [&#39;F3_Demo&#39;]</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">getODCommand</span><span class="p">()</span>
+<span class="go">[&#39;C:\Program Files\OpendTect\6.6.0\bin\win64\Release\od_process_attrib&#39;,</span>
+<span class="go">&#39;--dataroot&#39;,</span>
+<span class="go">&#39;D:\ODData&#39;,</span>
+<span class="go">&#39;--survey&#39;,</span>
+<span class="go">&#39;F3_Demo&#39;]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.appendDtectArgs">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">appendDtectArgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.appendDtectArgs" title="Permalink to this definition"></a></dt>
+<dd><p>Append OpendTect arguments</p>
+<dl>
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>cmd (list): List to which the returned elements will be added</p></li>
+<li><p>arg (dict, optional):
+Dictionary with the members ‘dtectdata’ and ‘survey’ as
+single element lists, and/or ‘dtectexec’ (see odpy.getODSoftwareDir)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>list: Input list with the added data root and survey directory name if provided</p></li>
+</ul>
+</dd>
+<dt>Examples:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">  &#39;dtectdata&#39;: [&#39;D:\ODData&#39;],</span>
+<span class="go">  &#39;survey&#39;: [&#39;F3_Demo&#39;]</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">appendDtectArgs</span><span class="p">(</span> <span class="n">args</span> <span class="p">)</span>
+<span class="go">[&#39;--dataroot&#39;, &#39;D:\ODData&#39;, &#39;--survey&#39;, &#39;F3_Demo&#39;]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.getPythonExecNm">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">getPythonExecNm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.getPythonExecNm" title="Permalink to this definition"></a></dt>
+<dd><p>Python executable name</p>
+<p>shortcut to sys.executable</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.getPythonCommand">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">getPythonCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scriptfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.getPythonCommand" title="Permalink to this definition"></a></dt>
+<dd><p>Python command line</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>scriptfile (str): Python script or executable</p></li>
+<li><p>posargs (list, optional):
+Positional arguments for that script (default is None)</p></li>
+<li><p>dict (str, optional): Value for the argument with key “–dict”:
+String from which a json object can be parsed (default is None)</p></li>
+<li><p>args (dict):
+Dictionary with the members ‘dtectdata’ and ‘survey’ as
+single element lists, and/or ‘dtectexec’ (see odpy.getODSoftwareDir).
+The dictionary may also contain the members ‘proclog’ and ‘syslog’ as
+strings, each being the full path to a log file.</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>list:
+Fully formed command line to be executed by the python executable</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.execCommand">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">execCommand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.execCommand" title="Permalink to this definition"></a></dt>
+<dd><p>Command execution</p>
+<p>Launches the execution of a command with its arguments.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>cmd (list): command to be executed with its arguments.</p></li>
+<li><p>background (bool, optional):
+The command is forked if True (default is False).</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str:
+The stdout print of the subprocess.CompletedProcess (default)
+or a psutil.Popen object (background=True)</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><p>This is an interface to the subprocess module.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.isRunning">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">isRunning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.isRunning" title="Permalink to this definition"></a></dt>
+<dd><p>is the process running?</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>proc (psutil.Popen): Process to be checked</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>bool: True if the process is running.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.pauseProcess">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">pauseProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.pauseProcess" title="Permalink to this definition"></a></dt>
+<dd><p>Pause a running process</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>proc (psutil.Popen): Process to be paused</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>Set and return subprocess.Popen.returncode</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.resumeProcess">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">resumeProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.resumeProcess" title="Permalink to this definition"></a></dt>
+<dd><p>Resume a paused process</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>proc (psutil.Popen): Process to be resumed</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>Set and return subprocess.Popen.returncode</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.printProcessTime">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">printProcessTime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">procnm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isstart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">std_msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">withprocline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.printProcessTime" title="Permalink to this definition"></a></dt>
+<dd><p>Print processing timestamp</p>
+<dl>
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>procnm (str): Process name</p></li>
+<li><p>isstart (bool): Status: Start or end of this process.</p></li>
+<li><p>print_fn (function, optional):
+function to be used for the printing of the timestamp
+(default is odpy.std_msg, which default to stderr)</p></li>
+<li><p>withprocline (bool, optional):
+Print the timestamp preceeded by a label string (default is True)</p></li>
+</ul>
+</dd>
+<dt>Examples:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">printProcessTime</span><span class="p">(</span> <span class="s1">&#39;od_process&#39;</span><span class="p">,</span> <span class="kc">True</span> <span class="p">)</span>
+<span class="go">Process: &#39;od_process&#39;</span>
+<span class="go">Started: Mon 20 Apr 2020, 17:23:32</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">printProcessTime</span><span class="p">(</span> <span class="s1">&#39;od_process&#39;</span><span class="p">,</span> <span class="kc">False</span> <span class="p">)</span>
+<span class="go">Process: &#39;od_process&#39;</span>
+<span class="go">Finished: Mon 20 Apr 2020, 17:23:37</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">printProcessTime</span><span class="p">(</span> <span class="s1">&#39;od_process&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">withprocline</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span>
+<span class="go">Finished: Mon 20 Apr 2020, 17:23:37</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.kill">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">kill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.kill" title="Permalink to this definition"></a></dt>
+<dd><p>Terminate a process</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>proc (psutil.Popen): Object view of the process</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>Set and return subprocess.Popen.returncode</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.startAndWait">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">startAndWait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.startAndWait" title="Permalink to this definition"></a></dt>
+<dd><p>Run a command with subprocess</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>cmd (list): command to be executed with its arguments.</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str:
+stdout from the executed and retrieved subprocess.CompletedProcess</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>The command is executed by the run function of the subprocess module.</p></li>
+<li><p>stdout is captured with a PIPE from the child process.</p></li>
+<li><p>stderr is captured and forwarded to odpy.syslog_logger.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.log_subprocess_output">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">log_subprocess_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipe</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.log_subprocess_output" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.oscommand.startDetached">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.oscommand.</span></span><span class="sig-name descname"><span class="pre">startDetached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.oscommand.startDetached" title="Permalink to this definition"></a></dt>
+<dd><p>Run a command in the background with psutil</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>cmd (list): command to be executed with its arguments.</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>psutil.Popen: Object view of the process</p>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>The command is executed by the Popen function of the psutil module.</p></li>
+<li><p>Since the command is run as a daemon, it does not block the execution of the script.</p></li>
+<li><p>stdout is captured and forwarded to odpy.proclog_logger.</p></li>
+<li><p>stderr is captured and forwarded to odpy.proclog_logger.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, dGB Earth Sciences.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

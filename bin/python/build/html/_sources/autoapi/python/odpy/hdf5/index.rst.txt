@@ -1,0 +1,123 @@
+:py:mod:`python.odpy.hdf5`
+==========================
+
+.. py:module:: python.odpy.hdf5
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   python.odpy.hdf5.openFile
+   python.odpy.hdf5.getInfoDataSet
+   python.odpy.hdf5.ensureHasDataset
+   python.odpy.hdf5.getAttr
+   python.odpy.hdf5.setAttr
+   python.odpy.hdf5.hasAttr
+   python.odpy.hdf5.getAttrs
+   python.odpy.hdf5.getText
+   python.odpy.hdf5.setArray
+   python.odpy.hdf5.getBoolValue
+   python.odpy.hdf5.getIArray_
+   python.odpy.hdf5.getIntValue
+   python.odpy.hdf5.getIInterval
+   python.odpy.hdf5.getIStepInterval
+   python.odpy.hdf5.getIArray
+   python.odpy.hdf5.getDArray_
+   python.odpy.hdf5.getDValue
+   python.odpy.hdf5.getDInterval
+   python.odpy.hdf5.getDStepInterval
+   python.odpy.hdf5.getDArray
+   python.odpy.hdf5.getAttribInfo
+   python.odpy.hdf5.getTransform
+   python.odpy.hdf5.getSurveyInfo
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   python.odpy.hdf5.dGBInfoDSName
+
+
+.. py:data:: dGBInfoDSName
+   :annotation: = ++info++
+
+   
+
+.. py:function:: openFile(filenm, mode)
+
+
+.. py:function:: getInfoDataSet(h5file_or_grp)
+
+
+.. py:function:: ensureHasDataset(h5file_or_grp)
+
+
+.. py:function:: getAttr(dataset, ky)
+
+
+.. py:function:: setAttr(dataset, ky, str)
+
+
+.. py:function:: hasAttr(dataset, ky)
+
+
+.. py:function:: getAttrs(dataset, ky)
+
+
+.. py:function:: getText(infos, ky)
+
+
+.. py:function:: setArray(infos, ky, arr)
+
+
+.. py:function:: getBoolValue(infos, ky)
+
+
+.. py:function:: getIArray_(valsstr)
+
+
+.. py:function:: getIntValue(infos, ky)
+
+
+.. py:function:: getIInterval(infos, ky)
+
+
+.. py:function:: getIStepInterval(infos, ky)
+
+
+.. py:function:: getIArray(infos, ky)
+
+
+.. py:function:: getDArray_(valsstr)
+
+
+.. py:function:: getDValue(infos, ky)
+
+
+.. py:function:: getDInterval(infos, ky)
+
+
+.. py:function:: getDStepInterval(infos, ky)
+
+
+.. py:function:: getDArray(infos, ky)
+
+
+.. py:function:: getAttribInfo(filenm)
+
+
+.. py:function:: getTransform(info)
+
+
+.. py:function:: getSurveyInfo(filenm)
+
+

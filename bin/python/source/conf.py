@@ -12,17 +12,19 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../python'))
+print(sys.path)
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'odpy_docs'
-copyright = '2021, Arnaud Huck'
-author = 'Arnaud Huck'
+project = 'odpy'
+copyright = '2020, dGB Earth Sciences'
+author = 'dGB Earth Sciences'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+version = '6.6'
+release = '6.6'
 
 
 # -- General configuration ---------------------------------------------------
@@ -30,8 +32,12 @@ release = '1.0.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.napoleon'
-]
+extensions = ['autoapi.extension','sphinx.ext.intersphinx']
+
+intersphinx_mapping = {
+    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+    'python': ('https://docs.python.org/3/', None),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -41,15 +47,30 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# The master toctree document.
+master_doc = 'index'
+
+# The name of the Pygments (syntax highlighting) style to use
+pygments_style = 'sphinx'
+
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
+#html_style = 'custom.css'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_logo = '../od_small.png'
+html_favicon = None
+
+# -- Autoapi options -------------------------------------------------------
+
+autoapi_type = 'python'
+autoapi_dirs = ['../../']

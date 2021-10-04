@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>python.odpy.common &mdash; odpy 6.6 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> odpy
+            <img src="../../../../_static/od_small.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                6.6
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">odpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.common</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/python/odpy/common/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-python.odpy.common">
+<span id="python-odpy-common"></span><h1><a class="reference internal" href="#module-python.odpy.common" title="python.odpy.common"><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.common</span></code></a><a class="headerlink" href="#module-python.odpy.common" title="Permalink to this headline"></a></h1>
+<p>Common tools for odpy package</p>
+<dl class="simple">
+<dt>Copyright (C) dGB Beheer B.V.; (LICENSE) <a class="reference external" href="http://opendtect.org/OpendTect_license.txt">http://opendtect.org/OpendTect_license.txt</a></dt><dd><ul class="simple">
+<li><p>AUTHOR : A. Huck</p></li>
+<li><p>DATE   : July 2018</p></li>
+</ul>
+</dd>
+</dl>
+<p>Module Summary</p>
+<p>odpy.common is the main important module in odpy. Allows for basic interactions with the OpendTect softwre and database</p>
+<p>KEY methods</p>
+<ul class="simple">
+<li><p>getODsoftwareDir()</p>
+<ul>
+<li><p>gets the root directory of the Opendtect installation</p></li>
+</ul>
+</li>
+<li><p>getBinSubDir()</p>
+<ul>
+<li><p>binary sub directory for executables in an OpendTect installation</p></li>
+<li><p>returns information on the release type</p></li>
+</ul>
+</li>
+<li><p>getODargs()</p>
+<ul>
+<li><p>get dict containing information about the Opendtect executable, project database path and current survey name</p></li>
+</ul>
+</li>
+</ul>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline"></a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.Timer" title="python.odpy.common.Timer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Timer</span></code></a></p></td>
+<td><p>Repeated timer</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline"></a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.sTimeUnitString" title="python.odpy.common.sTimeUnitString"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sTimeUnitString</span></code></a>(ismilli=False, abbr=True)</p></td>
+<td><p>OpendTect-like time stamp</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.initLogging" title="python.odpy.common.initLogging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initLogging</span></code></a>(args)</p></td>
+<td><p>odpy Logger initialization</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.set_log_file" title="python.odpy.common.set_log_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_log_file</span></code></a>(filenm, logger)</p></td>
+<td><p>Sets log file with the handler based on the filename</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.get_log_logger" title="python.odpy.common.get_log_logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_log_logger</span></code></a>()</p></td>
+<td><p>Returns logger</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.get_std_logger" title="python.odpy.common.get_std_logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_std_logger</span></code></a>()</p></td>
+<td><p>Returns module logger</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.mergeArgs" title="python.odpy.common.mergeArgs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mergeArgs</span></code></a>(a, b=None, c=None, d=None, e=None, f=None)</p></td>
+<td><p>Concatenates input strings and objects if more than one as single string</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.std_msg" title="python.odpy.common.std_msg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">std_msg</span></code></a>(a, b=None, c=None, d=None, e=None, f=None)</p></td>
+<td><p>Print to odpy standard logger</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.log_msg" title="python.odpy.common.log_msg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_msg</span></code></a>(a, b=None, c=None, d=None, e=None, f=None)</p></td>
+<td><p>Print to odpy processing logger</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.has_file_handlers" title="python.odpy.common.has_file_handlers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_file_handlers</span></code></a>(logger)</p></td>
+<td><p>To check if a log file has a file handler</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.has_stdlog_file" title="python.odpy.common.has_stdlog_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_stdlog_file</span></code></a>()</p></td>
+<td><p>Checks if module log has a file handler</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.has_log_file" title="python.odpy.common.has_log_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_log_file</span></code></a>()</p></td>
+<td><p>Checks if log (odproclog) has a file handler</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.get_handler_stream" title="python.odpy.common.get_handler_stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_handler_stream</span></code></a>(logger)</p></td>
+<td><p>Gets log handler stream</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.get_handler_filename" title="python.odpy.common.get_handler_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_handler_filename</span></code></a>(logger)</p></td>
+<td><p>Gets logger filename</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.get_std_stream" title="python.odpy.common.get_std_stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_std_stream</span></code></a>()</p></td>
+<td><p>Gets current module stream handler</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.get_log_stream" title="python.odpy.common.get_log_stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_log_stream</span></code></a>()</p></td>
+<td><p>Gets odpy.commom log stream handler</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.get_stdlog_file" title="python.odpy.common.get_stdlog_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_stdlog_file</span></code></a>()</p></td>
+<td><p>Full log file path for current module</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.get_log_file" title="python.odpy.common.get_log_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_log_file</span></code></a>()</p></td>
+<td><p>Full log file path for odpy.common</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.reset_log_file" title="python.odpy.common.reset_log_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_log_file</span></code></a>(keeplines=0)</p></td>
+<td><p>Log file reset</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.redirect_stdout" title="python.odpy.common.redirect_stdout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">redirect_stdout</span></code></a>()</p></td>
+<td><p>Stdout-stderr redirection</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.restore_stdout" title="python.odpy.common.restore_stdout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restore_stdout</span></code></a>()</p></td>
+<td><p>Stdout-stderr restore</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.isWin" title="python.odpy.common.isWin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isWin</span></code></a>()</p></td>
+<td><p>Is platform Windows?</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.isLux" title="python.odpy.common.isLux"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isLux</span></code></a>()</p></td>
+<td><p>Is platform Linux?</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.isMac" title="python.odpy.common.isMac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isMac</span></code></a>()</p></td>
+<td><p>Is platform Mac?</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.getPlfSubDir" title="python.odpy.common.getPlfSubDir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getPlfSubDir</span></code></a>()</p></td>
+<td><p>Platform sub-directory</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.getBinSubDir" title="python.odpy.common.getBinSubDir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBinSubDir</span></code></a>()</p></td>
+<td><p>Binary sub-directory</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.getODSoftwareDir" title="python.odpy.common.getODSoftwareDir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getODSoftwareDir</span></code></a>(args=None)</p></td>
+<td><p>OpendTect sofware directory</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.getODBinaryDir" title="python.odpy.common.getODBinaryDir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getODBinaryDir</span></code></a>(srcpath)</p></td>
+<td><p>Get the binary directory from the source directory</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.getExecPlfDir" title="python.odpy.common.getExecPlfDir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getExecPlfDir</span></code></a>(args=None)</p></td>
+<td><p>OpendTect executables directory</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.get_settings_dir" title="python.odpy.common.get_settings_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_settings_dir</span></code></a>()</p></td>
+<td><p>Directory with the OpendTect user settings</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.get_settings_filename" title="python.odpy.common.get_settings_filename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_settings_filename</span></code></a>(filenm='settings')</p></td>
+<td><p>Get file path to an OpendTect settings file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.get_base_datadir" title="python.odpy.common.get_base_datadir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_base_datadir</span></code></a>()</p></td>
+<td><p>Get the OpendTect Survey Data Root directory</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.get_surveydir" title="python.odpy.common.get_surveydir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_surveydir</span></code></a>()</p></td>
+<td><p>Get the OpendTect Current Survey directory</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.get_data_dir" title="python.odpy.common.get_data_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data_dir</span></code></a>()</p></td>
+<td><p>Full path to the current OpendTect Survey directory</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.add_user_dtectdata" title="python.odpy.common.add_user_dtectdata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_user_dtectdata</span></code></a>(args=None)</p></td>
+<td><p>Returns the OpendTect Survey Data Root in a dictionary</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.add_user_survey" title="python.odpy.common.add_user_survey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_user_survey</span></code></a>(args=None)</p></td>
+<td><p>Returns the OpendTect Survey Directory in a dictionary</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.getODArgs" title="python.odpy.common.getODArgs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getODArgs</span></code></a>(args=None)</p></td>
+<td><p>OpendTect arguments dictionary</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.getIconFp" title="python.odpy.common.getIconFp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIconFp</span></code></a>(nm, args=None)</p></td>
+<td><p>Path to an OpendTect icon file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.tail" title="python.odpy.common.tail"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tail</span></code></a>(fp, lines=1, strip_empty=False, _buffer=4098)</p></td>
+<td><p>Returns the last line(s) from a file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.batchIsFinished" title="python.odpy.common.batchIsFinished"><code class="xref py py-obj docutils literal notranslate"><span class="pre">batchIsFinished</span></code></a>(logfile)</p></td>
+<td><p>OpendTect batch processing status</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.writeFile" title="python.odpy.common.writeFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">writeFile</span></code></a>(fnm, content)</p></td>
+<td><p>Creates a new file with contents</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline"></a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.logconfig" title="python.odpy.common.logconfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logconfig</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.common.syslog_logger" title="python.odpy.common.syslog_logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">syslog_logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.common.proclog_logger" title="python.odpy.common.proclog_logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">proclog_logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id0" title="python.odpy.common.handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handler</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="python.odpy.common.handler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handler</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.sTimeUnitString">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">sTimeUnitString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ismilli</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abbr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.sTimeUnitString" title="Permalink to this definition"></a></dt>
+<dd><p>OpendTect-like time stamp</p>
+<dl>
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>ismilli (bool, optional): Include millisecond (default is False)</p></li>
+<li><p>abbr (bool, optional): Abbreviated (default is True)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: Time stamp string formatted like done by OpendTect</p></li>
+</ul>
+</dd>
+<dt>Examples:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sTimeUnitString</span><span class="p">()</span>
+<span class="go">&#39;Mon 20 Apr 2020, 13:59:54&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sTimeUnitString</span><span class="p">(</span> <span class="kc">True</span> <span class="p">)</span>
+<span class="go">&#39;Mon 20 Apr 2020, 13:59:54.001245&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sTimeUnitString</span><span class="p">(</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span> <span class="p">)</span>
+<span class="go">&#39;Mon 20 Apr 2020, 13:59:54.001245&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sTimeUnitString</span><span class="p">(</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span> <span class="p">)</span>
+<span class="go">&#39;Monday 20 April 2020, 13:59:54&#39;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="python.odpy.common.logconfig">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">logconfig</span></span><a class="headerlink" href="#python.odpy.common.logconfig" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="python.odpy.common.syslog_logger">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">syslog_logger</span></span><a class="headerlink" href="#python.odpy.common.syslog_logger" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="python.odpy.common.proclog_logger">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">proclog_logger</span></span><a class="headerlink" href="#python.odpy.common.proclog_logger" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="python.odpy.common.handler">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">handler</span></span><a class="headerlink" href="#python.odpy.common.handler" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">handler</span></span><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.initLogging">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">initLogging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.initLogging" title="Permalink to this definition"></a></dt>
+<dd><p>odpy Logger initialization</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>args (dict):
+The members ‘logfile’ and ‘sysout’ from the input dictionary are supposed to contain existing filenames which are used
+to setup the module loggers proclog_logger and syslog_logger</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.set_log_file">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">set_log_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.set_log_file" title="Permalink to this definition"></a></dt>
+<dd><p>Sets log file with the handler based on the filename</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>filenm (str): log file name</p></li>
+<li><p>logger (object): log object</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>Nothing.
+Removes past handlers if any and sets new log handler type based on file name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_log_logger">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_log_logger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_log_logger" title="Permalink to this definition"></a></dt>
+<dd><p>Returns logger</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_std_logger">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_std_logger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_std_logger" title="Permalink to this definition"></a></dt>
+<dd><p>Returns module logger</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.mergeArgs">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">mergeArgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.mergeArgs" title="Permalink to this definition"></a></dt>
+<dd><p>Concatenates input strings and objects if more than one as single string</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>a (object or string): Message to be printed</p></li>
+<li><p>b-f (object or string, optional): Message to be printed</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: Concatenated string</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>All objects are formatted to strings using the str() function</p></li>
+<li><p>All outputs are automatically separated by spaces.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.std_msg">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">std_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.std_msg" title="Permalink to this definition"></a></dt>
+<dd><p>Print to odpy standard logger</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>a (object or string): Message to be printed</p></li>
+<li><p>b-f (object or string, optional): Message to be printed</p></li>
+</ul>
+</dd>
+<dt>Prints:</dt><dd><ul class="simple">
+<li><p>str: Concatenated string</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>All objects are formatted to strings using the str() function</p></li>
+<li><p>All outputs are automatically separated by spaces.</p></li>
+<li><p>Reserved for standard logging information.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.log_msg">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">log_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.log_msg" title="Permalink to this definition"></a></dt>
+<dd><p>Print to odpy processing logger</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>a (object or string): Message to be printed</p></li>
+<li><p>b-f (object or string, optional): Message to be printed</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: Concatenated string</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>All objects are formatted to strings using the str() function</p></li>
+<li><p>All outputs are automatically separated by spaces.</p></li>
+<li><p>Reserved for processing logging information,</p></li>
+<li><p>i.e. to report progress on a task</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.has_file_handlers">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">has_file_handlers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.has_file_handlers" title="Permalink to this definition"></a></dt>
+<dd><p>To check if a log file has a file handler</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>logger (object): Logger file object</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>bool: True if logger is a file handler logger</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.has_stdlog_file">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">has_stdlog_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.has_stdlog_file" title="Permalink to this definition"></a></dt>
+<dd><p>Checks if module log has a file handler</p>
+<dl class="simple">
+<dt>Returns</dt><dd><ul class="simple">
+<li><p>bool: True if module log file has a File handler and False if otherwise</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.has_log_file">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">has_log_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.has_log_file" title="Permalink to this definition"></a></dt>
+<dd><p>Checks if log (odproclog) has a file handler</p>
+<p>Returns:
+* bool: True if log file (odproclog) has a File handler and False if otherwise</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_handler_stream">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_handler_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_handler_stream" title="Permalink to this definition"></a></dt>
+<dd><p>Gets log handler stream</p>
+<dl>
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>logger (object): log file object</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: where log info streams to if log handler exist,</p></li>
+</ul>
+<p>returns None if handler level is not set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_handler_filename">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_handler_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_handler_filename" title="Permalink to this definition"></a></dt>
+<dd><p>Gets logger filename</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>logger (object): log file object</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: Log file name if any, None if not</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_std_stream">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_std_stream</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_std_stream" title="Permalink to this definition"></a></dt>
+<dd><p>Gets current module stream handler</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: log stream handler name</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_log_stream">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_log_stream</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_log_stream" title="Permalink to this definition"></a></dt>
+<dd><p>Gets odpy.commom log stream handler</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: log stream handler name</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_stdlog_file">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_stdlog_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_stdlog_file" title="Permalink to this definition"></a></dt>
+<dd><p>Full log file path for current module</p>
+<dl class="simple">
+<dt>Returs:</dt><dd><ul class="simple">
+<li><p>str: Path to log file for current module</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_log_file">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_log_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_log_file" title="Permalink to this definition"></a></dt>
+<dd><p>Full log file path for odpy.common</p>
+<dl class="simple">
+<dt>Returs:</dt><dd><ul class="simple">
+<li><p>str: Path to log file for odpy.common</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.reset_log_file">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">reset_log_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keeplines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.reset_log_file" title="Permalink to this definition"></a></dt>
+<dd><p>Log file reset</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>keeplines (int, optional):
+Number of lines from the top of the file to keep (default is 0)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Empty the log file pointed at by the processing logger,
+for instance before starting a new task.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.redirect_stdout">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">redirect_stdout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.redirect_stdout" title="Permalink to this definition"></a></dt>
+<dd><p>Stdout-stderr redirection</p>
+<ul class="simple">
+<li><p>Forces stdout to point to odpy.proclog_logger</p></li>
+<li><p>Forces stderr to point to odpy.syslog_logger</p></li>
+</ul>
+<dl class="simple">
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Changes the value of sys.stdout and sys.stderr</p></li>
+<li><p>Should be avoided as much as possible: To be used only when one cannot
+redirect in any other way.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.restore_stdout">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">restore_stdout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.restore_stdout" title="Permalink to this definition"></a></dt>
+<dd><p>Stdout-stderr restore</p>
+<p>Undo operation of redirect_stdout</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.isWin">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">isWin</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.isWin" title="Permalink to this definition"></a></dt>
+<dd><p>Is platform Windows?</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>True if running on any Windows platform</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.isLux">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">isLux</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.isLux" title="Permalink to this definition"></a></dt>
+<dd><p>Is platform Linux?</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>True if running on any Linux platform</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.isMac">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">isMac</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.isMac" title="Permalink to this definition"></a></dt>
+<dd><p>Is platform Mac?</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>True if running on any Mac-OS platform</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.getPlfSubDir">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">getPlfSubDir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.getPlfSubDir" title="Permalink to this definition"></a></dt>
+<dd><p>Platform sub-directory</p>
+<p>Platform specific sub-directory as existing
+in an OpendTect software installation</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: string like: ‘lux64’, ‘win64’, ‘mac’.
+None if the platform is not supported by OpendTect</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.getBinSubDir">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">getBinSubDir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.getBinSubDir" title="Permalink to this definition"></a></dt>
+<dd><p>Binary sub-directory</p>
+<p>Sub-directory containing the executables in an OpendTect installation</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: string like: ‘Debug’, ‘Release’, ‘RelWithDebInfo’.
+None if no such sub-directory is found.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><p>Assumes that the OpendTect installation contains the
+executable ‘od_FileBrowser’, and that this installation can
+be located by the function getODSoftwareDir()</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.getODSoftwareDir">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">getODSoftwareDir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.getODSoftwareDir" title="Permalink to this definition"></a></dt>
+<dd><p>OpendTect sofware directory</p>
+<dl>
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>args (dict, optional):
+Dictionary with the member ‘dtectexec’. The value
+for that member should point to the executables folder
+of the requested application</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: Full path to the OpendTect software installation</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Retrieved from either the input dictionary
+or from the current environment by reading
+the ‘DTECT_APPL’ or ‘DTECT_WINAPPL’ variables which
+are set by OpendTect at runtime.</p></li>
+<li><p>Neither dictionary nor environment variables need to be set
+if the current module is placed within an OpendTect installation</p></li>
+</ul>
+</dd>
+<dt>Examples:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">getODSoftwareDir</span><span class="p">()</span>
+<span class="go">&#39;C:\Program Files\OpendTect\6.6.0&#39;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.getODBinaryDir">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">getODBinaryDir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">srcpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.getODBinaryDir" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Get the binary directory from the source directory</dt><dd><p>Only useful for development environments</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>srcpath<span class="classifier">Full path to a directory</span></dt><dd><p>Path to the OpendTect source directory, configured with cmake</p>
+</dd>
+</dl>
+<p>Full path to OpendTect binary directory</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.getExecPlfDir">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">getExecPlfDir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.getExecPlfDir" title="Permalink to this definition"></a></dt>
+<dd><p>OpendTect executables directory</p>
+<dl>
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>args (dict, optional):
+Dictionary with the member ‘dtectexec’. The value
+for that member should point to the executables folder
+of the requested application</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: Full path to the binaries of an OpendTect installation</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Assumes that the software installation can be located with getODSoftwareDir()
+and that python is running on a platform supported by OpendTect.</p></li>
+</ul>
+</dd>
+<dt>Examples:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">getExecPlfDir</span><span class="p">()</span>
+<span class="go">&#39;C:\Program Files\OpendTect\6.6.0\bin\win64\Release&#39;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_settings_dir">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_settings_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_settings_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Directory with the OpendTect user settings</p>
+<p>Can be overruled by setting the
+environment variable DTECT_PERSONAL_DIR</p>
+<p>Full path to $HOME/.od</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_settings_filename">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_settings_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'settings'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_settings_filename" title="Permalink to this definition"></a></dt>
+<dd><p>Get file path to an OpendTect settings file</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>filenm (string, optional): base file name inside .od folder</p></li>
+</ul>
+<p>default is ‘settings’
+Will be influenced by the environment variable DTECT_USER if
+set.</p>
+</div></blockquote>
+<p>Full path to $HOME/.od/filenm[.DTECT_USER]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_base_datadir">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_base_datadir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_base_datadir" title="Permalink to this definition"></a></dt>
+<dd><p>Get the OpendTect Survey Data Root directory</p>
+<p>Can be overruled by setting the
+environment variable DTECT_DATA</p>
+<p>Full path to the Opendtect Survey Data Root
+as written inside from get_settings_filename()</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_surveydir">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_surveydir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_surveydir" title="Permalink to this definition"></a></dt>
+<dd><p>Get the OpendTect Current Survey directory</p>
+<p>Directory name of the current survey as written inside
+get_settings_filename( ‘survey’ )</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.get_data_dir">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">get_data_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.get_data_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Full path to the current OpendTect Survey directory</p>
+<p>Full path to the current survey as retrieved by
+get_base_datadir() and get_surveydir()</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.add_user_dtectdata">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">add_user_dtectdata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.add_user_dtectdata" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the OpendTect Survey Data Root in a dictionary</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>args (dict, optional)
+Dictionary where the returned value is added/updated</p></li>
+</ul>
+</div></blockquote>
+<blockquote>
+<div><p>Dictionary with the member ‘dtectdata’. The value
+for that member should point to the return of get_base_datadir()</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.add_user_survey">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">add_user_survey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.add_user_survey" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the OpendTect Survey Directory in a dictionary</p>
+<ul class="simple">
+<li><p>args (dict, optional)
+Dictionary where the returned value is added/updated</p></li>
+</ul>
+<p>Dictionary with the member ‘survey’. The value
+for that member should point to the return of get_surveydir()</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.getODArgs">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">getODArgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.getODArgs" title="Permalink to this definition"></a></dt>
+<dd><p>OpendTect arguments dictionary</p>
+<p>Create a dictionary that contains typical OpendTect
+command line arguments and the files from this module’ loggers</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>args (dict, optional):
+Dictionary with the member ‘dtectexec’. The value
+for that member should point to the executables folder
+of the requested application</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>dict: A dictionary with the following key-values:</dt><dd><ul>
+<li><p>‘dtectexec’ : Full path to the OpendTect installation (see getExecPlfDir)</p></li>
+<li><p>‘dtectdata’ : The root projects directory name</p></li>
+<li><p>‘survey’ : The survey directory name</p></li>
+<li><p>‘proclog’ : The log file from proclog_logger if applicable</p></li>
+<li><p>‘syslog’ : The log file frol syslog_logger if applicable</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.getIconFp">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">getIconFp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.getIconFp" title="Permalink to this definition"></a></dt>
+<dd><p>Path to an OpendTect icon file</p>
+<dl>
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>nm (string): Icon file basename (without extension)</p></li>
+<li><p>args (dict, optional)
+Dictionary with the member ‘dtectexec’. The value
+for that member should point to the executables folder
+of the requested application</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: Full path to the icon folder of the OpendTect installation</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><p>Assumes that the software installation can be located with getODSoftwareDir()</p>
+</dd>
+<dt>Examples:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">getIconFp</span><span class="p">(</span> <span class="s1">&#39;dgbpro&#39;</span> <span class="p">)</span>
+<span class="go">&#39;C:\Program Files\OpendTect\6.6.0\data\icons.Default\dgbpro.png&#39;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.tail">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">tail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_buffer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4098</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.tail" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the last line(s) from a file</p>
+<dl>
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>fp (object): opened log file</p></li>
+<li><p>lines (int): number of last lines in a file to be printed</p></li>
+</ul>
+<p>strip_empty (bool): removes empty new lines if True
+buffer (int):</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.batchIsFinished">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">batchIsFinished</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.batchIsFinished" title="Permalink to this definition"></a></dt>
+<dd><p>OpendTect batch processing status</p>
+<p>Checks if an OpendTect batch process reached completion by
+parsing its log file.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><p>logfile (str): Full path to an existing OpendTect log file.</p>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>bool:
+True if the file exists and contains ‘Finished batch processing’ at its tail.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><p>Instantaneous status. To monitor if the processing finishes,
+the user must repeatedly call this function.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.common.writeFile">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">writeFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fnm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.writeFile" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a new file with contents</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><p>fnm (str): name of file to be created/written to
+content (str): content to be addedto the file</p>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>bool:
+True if file has been successfully created
+False if file isn’t created due to an error</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="python.odpy.common.Timer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">Timer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.Timer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Timer" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threading.Timer</span></code></a></p>
+<p>Repeated timer</p>
+<p>Timer that restarts automatically after each interval</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="python.odpy.common.Timer.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.Timer.run" title="Permalink to this definition"></a></dt>
+<dd><p>Method representing the thread’s activity.</p>
+<p>You may override this method in a subclass. The standard run() method
+invokes the callable object passed to the object’s constructor as the
+target argument, if any, with sequential and keyword arguments taken
+from the args and kwargs arguments, respectively.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, dGB Earth Sciences.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

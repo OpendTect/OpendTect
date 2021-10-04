@@ -1,0 +1,34 @@
+:py:mod:`python.odpy`
+=====================
+
+.. py:module:: python.odpy
+
+.. autoapi-nested-parse::
+
+   Generic Python tools for OpendTect
+
+   Copyright (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+     * AUTHOR   : A. Huck
+     * DATE     : Aug. 2018
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   browse_hdf5_seis/index.rst
+   common/index.rst
+   dbman/index.rst
+   gpuinfo/index.rst
+   hdf5/index.rst
+   iopar/index.rst
+   oscommand/index.rst
+   ranges/index.rst
+   test_ioserv/index.rst
+   volpreload/index.rst
+   wellman/index.rst
+
+

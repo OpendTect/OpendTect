@@ -1,0 +1,26 @@
+:py:mod:`python.odpy.volpreload`
+================================
+
+.. py:module:: python.odpy.volpreload
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   python.odpy.volpreload.getAxes
+   python.odpy.volpreload.preLoad
+
+
+
+.. py:function:: getAxes(sampling, dataarr)
+
+
+.. py:function:: preLoad(filenm, attribute=None, sampling=None, fillval=None)
+
+

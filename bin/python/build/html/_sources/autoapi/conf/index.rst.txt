@@ -1,0 +1,94 @@
+:py:mod:`conf`
+==============
+
+.. py:module:: conf
+
+
+Module Contents
+---------------
+
+.. py:data:: project
+   :annotation: = odpy
+
+   
+
+.. py:data:: copyright
+   :annotation: = 2020, dGB Earth Sciences
+
+   
+
+.. py:data:: author
+   :annotation: = dGB Earth Sciences
+
+   
+
+.. py:data:: version
+   :annotation: = 6.6
+
+   
+
+.. py:data:: release
+   :annotation: = 6.6
+
+   
+
+.. py:data:: extensions
+   :annotation: = ['autoapi.extension', 'sphinx.ext.intersphinx']
+
+   
+
+.. py:data:: intersphinx_mapping
+   
+
+   
+
+.. py:data:: templates_path
+   :annotation: = ['_templates']
+
+   
+
+.. py:data:: exclude_patterns
+   :annotation: = []
+
+   
+
+.. py:data:: master_doc
+   :annotation: = index
+
+   
+
+.. py:data:: pygments_style
+   :annotation: = sphinx
+
+   
+
+.. py:data:: html_theme
+   :annotation: = sphinx_rtd_theme
+
+   
+
+.. py:data:: html_static_path
+   :annotation: = ['_static']
+
+   
+
+.. py:data:: html_logo
+   :annotation: = ../od_small.png
+
+   
+
+.. py:data:: html_favicon
+   
+
+   
+
+.. py:data:: autoapi_type
+   :annotation: = python
+
+   
+
+.. py:data:: autoapi_dirs
+   :annotation: = ['../../']
+
+   
+

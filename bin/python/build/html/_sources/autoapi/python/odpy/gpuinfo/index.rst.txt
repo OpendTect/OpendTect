@@ -1,0 +1,46 @@
+:py:mod:`python.odpy.gpuinfo`
+=============================
+
+.. py:module:: python.odpy.gpuinfo
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   python.odpy.gpuinfo.is_cuda_available
+   python.odpy.gpuinfo.detect_gpus
+   python.odpy.gpuinfo.nr_gpus
+   python.odpy.gpuinfo.compute_capability
+   python.odpy.gpuinfo.id
+   python.odpy.gpuinfo.name
+   python.odpy.gpuinfo.get_memory_info
+
+
+
+.. py:function:: is_cuda_available()
+
+
+.. py:function:: detect_gpus(printfn=print)
+
+
+.. py:function:: nr_gpus()
+
+
+.. py:function:: compute_capability(devnum=0)
+
+
+.. py:function:: id(devnum=0)
+
+
+.. py:function:: name(devnum=0)
+
+
+.. py:function:: get_memory_info(devnum=None)
+
+

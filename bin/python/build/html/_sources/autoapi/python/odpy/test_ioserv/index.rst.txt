@@ -1,0 +1,69 @@
+:py:mod:`python.odpy.test_ioserv`
+=================================
+
+.. py:module:: python.odpy.test_ioserv
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   python.odpy.test_ioserv.dbg_pr
+   python.odpy.test_ioserv.put_to_output
+   python.odpy.test_ioserv.get_from_input
+   python.odpy.test_ioserv.mk_int_bytes
+   python.odpy.test_ioserv.get_int_from_bytes
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   python.odpy.test_ioserv.inpstrm
+   python.odpy.test_ioserv.outstrm
+   python.odpy.test_ioserv.outvals
+   python.odpy.test_ioserv.data_read
+
+
+.. py:data:: inpstrm
+   
+
+   
+
+.. py:data:: outstrm
+   
+
+   
+
+.. py:function:: dbg_pr(what, val)
+
+
+.. py:function:: put_to_output(what)
+
+
+.. py:function:: get_from_input(nr)
+
+
+.. py:function:: mk_int_bytes(ival)
+
+
+.. py:function:: get_int_from_bytes(data_read)
+
+
+.. py:data:: outvals
+   
+
+   
+
+.. py:data:: data_read
+   
+
+   
+

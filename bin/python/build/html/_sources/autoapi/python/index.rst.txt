@@ -1,0 +1,24 @@
+:py:mod:`python`
+================
+
+.. py:module:: python
+
+.. autoapi-nested-parse::
+
+   Module initialization
+
+   Copyright (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+     * AUTHOR   : A. Huck
+     * DATE     : Aug. 2018
+
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   odpy/index.rst
+
+

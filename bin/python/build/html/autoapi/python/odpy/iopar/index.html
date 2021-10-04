@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>python.odpy.iopar &mdash; odpy 6.6 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> odpy
+            <img src="../../../../_static/od_small.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                6.6
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">odpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.iopar</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/python/odpy/iopar/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-python.odpy.iopar">
+<span id="python-odpy-iopar"></span><h1><a class="reference internal" href="#module-python.odpy.iopar" title="python.odpy.iopar"><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.iopar</span></code></a><a class="headerlink" href="#module-python.odpy.iopar" title="Permalink to this headline"></a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline"></a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.iopar.read_line" title="python.odpy.iopar.read_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_line</span></code></a>(words)</p></td>
+<td><p>Interprets one line from an IOPar (ascii) file</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.iopar.read_from_iopar" title="python.odpy.iopar.read_from_iopar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_from_iopar</span></code></a>(fnm, searchkey)</p></td>
+<td><p>Return the value of a key from an OpendTect IOPar text file</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.iopar.read_line">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.iopar.</span></span><span class="sig-name descname"><span class="pre">read_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">words</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.iopar.read_line" title="Permalink to this definition"></a></dt>
+<dd><p>Interprets one line from an IOPar (ascii) file</p>
+<ul class="simple">
+<li><p>words (string): One line as read from an open text file</p></li>
+</ul>
+<p>Tuple of two key,val strings interpreted from the input line
+Everything right of the first colon is part of the value string
+val can be an empty string</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.iopar.read_from_iopar">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.iopar.</span></span><span class="sig-name descname"><span class="pre">read_from_iopar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fnm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">searchkey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.iopar.read_from_iopar" title="Permalink to this definition"></a></dt>
+<dd><p>Return the value of a key from an OpendTect IOPar text file</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>fnm (string): Full path to an OpendTect IOPar (ascii) file</p></li>
+<li><p>searchkey (string): Key in the IOPar for which the value string
+is requested</p></li>
+</ul>
+</div></blockquote>
+<p>If the searchkey is present in the file, value string the corresponds
+to it. Can be an empty string.
+None or empty string otherwise.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, dGB Earth Sciences.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
