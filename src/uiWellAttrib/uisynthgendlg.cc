@@ -71,7 +71,7 @@ uiSynthParsGrp::uiSynthParsGrp( uiParent* p, StratSynth& gp )
     FloatInpIntervalSpec finpspec(false);
     finpspec.setLimits( Interval<float>(0,90) );
     finpspec.setDefaultValue( Interval<float>(0,30) );
-    angleinpfld_ = new uiGenInput( toppargrp, tr("Angle Range"), finpspec );
+    angleinpfld_ = new uiGenInput( toppargrp, tr("Angle range"), finpspec );
     angleinpfld_->attach( alignedBelow, psselfld_ );
     mAttachCB( angleinpfld_->valuechanged, uiSynthParsGrp::angleInpChanged );
 
@@ -291,6 +291,7 @@ void uiSynthParsGrp::updateFieldDisplay()
     const bool psbased = synthtype == SynthGenParams::AngleStack ||
 			 synthtype == SynthGenParams::AVOGradient;
     synthseis_->updateFieldDisplay();
+    synthseis_->display( !psbased );
     psselfld_->display( psbased );
     if ( psbased )
 	synthseis_->updateDisplayForPSBased();

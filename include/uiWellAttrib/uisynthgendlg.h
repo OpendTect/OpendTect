@@ -85,4 +85,3 @@ private:
 
     uiSynthParsGrp*		uisynthparsgrp_;
 };
-
