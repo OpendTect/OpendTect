@@ -76,6 +76,7 @@ public:
     static uiString phrCannotZip(const uiString&);
     //!<"Cannot Zip" + string
     static uiString phrCannotWrite(const uiString& string);
+    static uiString phrCannotWrite(const char*);
     //!<"Cannot write" + string
     static uiString phrCannotWriteDBEntry(const uiString&);
     //!<"Cannot write database entry for" + string
