@@ -35,6 +35,8 @@ ________________________________________________________________________
 #include "welltiegeocalculator.h"
 #include "welltiepickset.h"
 
+#include "hiddenparam.h"
+static HiddenParam<WellTie::uiTieView, char> hp_segpospolarity_( 0 );
 
 #define mGetWD(act) const Well::Data* wd = data_.wd_; if ( !wd ) act;
 
@@ -56,6 +58,7 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
     , nrtrcs_(5)
     , infoMsgChanged(this)
 {
+    hp_segpospolarity_.setParam( this, true );
     initFlatViewer();
     initLogViewers();
     initWellControl();
@@ -72,14 +75,31 @@ uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data )
 
 uiTieView::~uiTieView()
 {
+    hp_segpospolarity_.removeParam( this );
     delete wellcontrol_;
     delete &trcbuf_;
+}
+
+
+bool uiTieView::segpospolarity_() const
+{
+    return hp_segpospolarity_.getParam( this );
 }
 
 
 void uiTieView::setNrTrcs( int nrtrcs )
 {
     nrtrcs_ = nrtrcs > 0 ? nrtrcs : 5;
+    redrawViewer();
+}
+
+void uiTieView::setSEGPositivePolarity( bool yn )
+{
+    if ( segpospolarity_()==yn )
+	return;
+
+    hp_segpospolarity_.setParam( this, yn );
+    data_.synthtrc_.reverse();
     redrawViewer();
 }
 

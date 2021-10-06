@@ -84,6 +84,7 @@ protected:
     uiPushButton*		clearlastpicksbut_;
     uiPushButton*		matchhormrksbut_;
     uiToolBar*			toolbar_;
+    uiGenInput*			polarityfld_();
 
     uiControlView*		controlview_;
     uiInfoDlg*			infodlg_;
@@ -93,7 +94,6 @@ protected:
     void			addControls();
     void			addToolBarTools();
     void			createViewerTaskFields(uiGroup*);
-    void			createDispPropFields(uiGroup*);
     void			drawFields();
     void			initAll();
     void			resetInfoDlg();
@@ -129,6 +129,7 @@ protected:
     void			cleanUp(CallBacker*);
     void			nrtrcsCB(CallBacker*);
     void			wvltSelCB(CallBacker*);
+    void			polarityChanged(CallBacker*);
 
     mDeprecatedObs
     void			getDispParams();
@@ -136,6 +137,8 @@ protected:
     void			putDispParams();
     mDeprecatedObs
     void			dispPropChg(CallBacker*);
+    mDeprecatedObs
+    void			createDispPropFields(uiGroup*);
 };
 
 

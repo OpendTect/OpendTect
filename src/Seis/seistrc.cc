@@ -6,6 +6,7 @@
 -*/
 
 
+#include "scaler.h"
 #include "seistrc.h"
 #include "seiscommon.h"
 #include "simpnumer.h"
@@ -277,6 +278,12 @@ void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
 		trc.data().getComponent(icomp)->data(),
 		sz * (int)dc.nrBytes() );
     }
+}
+
+void SeisTrc::reverse( int icomp )
+{
+    static const LinScaler revscale = LinScaler( 0., -1. );
+    data_.scale( revscale, icomp );
 }
 
 

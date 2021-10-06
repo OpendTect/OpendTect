@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "uiwelldlgs.h"
 #include "uiwelllogdisplay.h"
 
+#include "seiscommon.h"
 #include "seistrc.h"
 #include "wavelet.h"
 #include "welldata.h"
@@ -46,6 +47,9 @@ ________________________________________________________________________
 #include "welltiepickset.h"
 #include "welltiesetup.h"
 #include "od_helpids.h"
+
+#include "hiddenparam.h"
+HiddenParam<WellTie::uiTieWin,uiGenInput*> hp_polarityfld_( nullptr );
 
 namespace WellTie
 {
@@ -73,6 +77,11 @@ uiTieWin::uiTieWin( uiParent* p, Server& wts )
     , zinftfld_(nullptr)
     , zintimefld_(nullptr)
 {
+    hp_polarityfld_.setParam( this, new uiGenInput( this,
+			      uiStrings::sPolarity(),
+			      BoolInpSpec(true, Seis::sSEGPositive(),
+						Seis::sSEGNegative()) ) );
+
     drawer_ = new uiTieView( this, &viewer(), server_.data() );
     drawer_->infoMsgChanged.notify( mCB(this,uiTieWin,dispInfoMsg) );
     server_.pickMgr().pickadded.notify( mCB(this,uiTieWin,checkIfPick) );
@@ -90,11 +99,18 @@ mStopAllowDeprecatedSection
 
 uiTieWin::~uiTieWin()
 {
+    hp_polarityfld_.removeParam( this );
     cleanUp(nullptr);
     delete &stretcher_;
     delete infodlg_;
     delete drawer_;
     delete &server_;
+}
+
+
+uiGenInput* uiTieWin::polarityfld_()
+{
+    return hp_polarityfld_.getParam( this );
 }
 
 
@@ -225,13 +241,18 @@ void uiTieWin::drawFields()
     vwrtaskgrp->attach( rightBorder );
     createViewerTaskFields( vwrtaskgrp );
 
-    uiGroup* disppropgrp = new uiGroup( this, "Display Properties group" );
-    disppropgrp->attach( leftOf, vwrtaskgrp );
-    disppropgrp->attach( ensureBelow, sep1 );
-    createDispPropFields( disppropgrp );
+    polarityfld_()->attach( leftOf, vwrtaskgrp );
+    polarityfld_()->attach( ensureBelow, sep1 );
+    polarityfld_()->valuechanged.notify( mCB(this, uiTieWin, polarityChanged) );
+
+    wvltfld_ = new uiSeisWaveletSel( this, "Wavelet", false, false );
+    wvltfld_->setInput( server_.data().setup().wvltid_ );
+    wvltfld_->newSelection.notify( mCB(this,uiTieWin,wvltSelCB) );
+    wvltfld_->attach( leftOf, polarityfld_() );
+    wvltfld_->attach( ensureBelow, sep1 );
 
     uiSeparator* sep2 = new uiSeparator( this );
-    sep2->attach( stretchedBelow, disppropgrp );
+    sep2->attach( stretchedBelow, wvltfld_ );
     sep2->attach( ensureBelow, vwrtaskgrp );
 
     uiPushButton* okbut = new uiPushButton( this, tr("OK/Save"),
@@ -307,15 +328,6 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 	               mCB(this,uiTieWin,infoPushed), false );
     infobut_->attach( ensureBelow, applybut_ );
     infobut_->attach( leftOf, matchhormrksbut_ );
-}
-
-
-void uiTieWin::createDispPropFields( uiGroup* dispgrp )
-{
-    mGetWD(return);
-    wvltfld_ = new uiSeisWaveletSel( dispgrp, "Wavelet", false, false );
-    wvltfld_->setInput( server_.data().setup().wvltid_ );
-    wvltfld_->newSelection.notify( mCB(this,uiTieWin,wvltSelCB) );
 }
 
 
@@ -525,6 +537,13 @@ void uiTieWin::dispInfoMsg( CallBacker* cb )
 {
     mCBCapsuleUnpack(BufferString,mesg,cb);
     statusBar()->message( mToUiStringTodo(mesg.buf()) );
+}
+
+
+void uiTieWin::polarityChanged( CallBacker* )
+{
+    const bool isSEGPositive = polarityfld_()->getBoolValue();
+    drawer_->setSEGPositivePolarity( isSEGPositive );;
 }
 
 
@@ -1049,6 +1068,9 @@ void uiTieWin::putDispParams()
 {}
 
 void uiTieWin::dispPropChg( CallBacker*cb )
+{}
+
+void uiTieWin::createDispPropFields( uiGroup* dispgrp )
 {}
 
 } // namespace WellTie
