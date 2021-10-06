@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "uiwelldlgs.h"
 #include "uiwelllogdisplay.h"
 
+#include "seiscommon.h"
 #include "seistrc.h"
 #include "wavelet.h"
 #include "welldata.h"
@@ -221,11 +222,19 @@ void uiTieWin::drawFields()
     vwrtaskgrp->attach( rightBorder );
     createViewerTaskFields( vwrtaskgrp );
 
+    polarityfld_ = new uiGenInput( this, uiStrings::sPolarity(),
+				   BoolInpSpec(true, Seis::sSEGPositive(),
+						     Seis::sSEGNegative()) );
+    polarityfld_->attach( leftOf, vwrtaskgrp );
+    polarityfld_->attach( ensureBelow, sep1 );
+    polarityfld_->valuechanged.notify( mCB(this, uiTieWin, polarityChanged) );
+
     wvltfld_ = new uiSeisWaveletSel( this, "Wavelet", false, false );
     wvltfld_->setInput( server_.data().setup().wvltid_ );
     wvltfld_->newSelection.notify( mCB(this,uiTieWin,wvltSelCB) );
-    wvltfld_->attach( leftOf, vwrtaskgrp );
+    wvltfld_->attach( leftOf, polarityfld_ );
     wvltfld_->attach( ensureBelow, sep1 );
+
 
     uiSeparator* sep2 = new uiSeparator( this );
     sep2->attach( stretchedBelow, wvltfld_ );
@@ -513,6 +522,13 @@ void uiTieWin::dispInfoMsg( CallBacker* cb )
 {
     mCBCapsuleUnpack(BufferString,mesg,cb);
     statusBar()->message( mToUiStringTodo(mesg.buf()) );
+}
+
+
+void uiTieWin::polarityChanged( CallBacker* )
+{
+    const bool isSEGPositive = polarityfld_->getBoolValue();
+    drawer_->setSEGPositivePolarity( isSEGPositive );
 }
 
 

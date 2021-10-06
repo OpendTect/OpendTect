@@ -28,6 +28,14 @@ namespace Seis
 				{ return mIsEqual(offs1,offs2,cDefOffsetEps());}
 					//!< Undef *not* supported
 
+
+    mGlobal(Seis) inline uiString sSEGPositive()
+		    { return od_static_tr("sSEGPositive",
+					"SEG Positive"); }
+    mGlobal(Seis) inline uiString sSEGNegative()
+		    { return od_static_tr("sSEGNegative",
+			    "SEG Negative (North Sea)"); }
+
 } // namespace Seis
 
 

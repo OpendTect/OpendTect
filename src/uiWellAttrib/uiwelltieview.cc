@@ -84,6 +84,17 @@ void uiTieView::setNrTrcs( int nrtrcs )
 }
 
 
+void uiTieView::setSEGPositivePolarity( bool yn )
+{
+    if ( segpospolarity_==yn )
+	return;
+
+    segpospolarity_ = yn;
+    data_.synthtrc_.reverse();
+    redrawViewer();
+}
+
+
 void uiTieView::initWellControl()
 {
     wellcontrol_ = new uiWellDisplayControl( *logsdisp_[0] );

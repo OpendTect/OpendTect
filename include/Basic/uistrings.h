@@ -505,6 +505,7 @@ public:
     static uiString sPoint(int n=1)	{ return tr("Point",0,n); }
     static uiString sPointsDone()	{ return tr("Points done"); }
     static uiString sPointSet(int num=1){ return tr("PointSet",0,num); }
+    static uiString sPolarity()		{ return tr("Polarity"); }
     static uiString sPolygon(int num=1)	{ return tr("Polygon",0,num); }
     static uiString sPolyLine(int num=1) { return tr("PolyLine",0,num); }
     static uiString sPosition(int num=1){ return tr("Position",0,num); }
