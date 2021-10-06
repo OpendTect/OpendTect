@@ -109,7 +109,7 @@ uiWellMan::uiWellMan( uiParent* p )
     loguombut_ = butgrp->addButton( "unitsofmeasure",
 					tr("View/edit unit of measure"),
 					mCB(this,uiWellMan,logUOMPush) );
-    logmnembut_= butgrp->addButton( "mnemonic",
+    logmnembut_= butgrp->addButton( "mnemonics",
 					tr("View/edit mnemonic"),
 					mCB(this,uiWellMan,logMnemPush) );
     logedbut_ = butgrp->addButton( "edit", uiStrings::sEdit(),
