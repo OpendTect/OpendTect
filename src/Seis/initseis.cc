@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 #include "timedepthconv.h"
+#include "seiscommon.h"
 #include "seisseqio.h"
 #include "segytr.h"
 #include "seiscbvs.h"
@@ -93,4 +94,16 @@ mDefModInitFn(Seis)
 
     Seis2DTo3DInterPolImpl::initClass();
     Pos::SeisProvider3D::initClass();
+}
+
+
+uiString Seis::sSEGPositive()
+{
+    return od_static_tr("sSEGPositive", "SEG Positive");
+}
+
+
+uiString Seis::sSEGNegative()
+{
+    return od_static_tr("sSEGNegative", "SEG Negative (North Sea)");
 }

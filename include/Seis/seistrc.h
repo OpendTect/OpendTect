@@ -68,6 +68,7 @@ public:
     bool		hasUndef(int icomp=-1) const;
     inline void		zero( int icomp=-1 )
 			{ data_.zero( icomp ); }
+    void		reverse( int icomp=-1 );
     void		setAll(float,int icomp=-1);
     void		setNrComponents(int,DataCharacteristics::UserType dt
 					=DataCharacteristics::Auto);

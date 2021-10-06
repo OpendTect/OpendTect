@@ -29,6 +29,9 @@ namespace Seis
 				{ return mIsEqual(offs1,offs2,cDefOffsetEps());}
 					//!< Undef *not* supported
 
+    mGlobal(Seis) uiString sSEGPositive();
+    mGlobal(Seis) uiString sSEGNegative();
+
 } // namespace Seis
 
 

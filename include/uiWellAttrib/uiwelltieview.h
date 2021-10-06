@@ -56,6 +56,8 @@ public:
     void			setNrTrcs(int);
     int				nrTrcs() const		{ return nrtrcs_; }
 
+    void			setSEGPositivePolarity(bool);
+
     void			enableCtrlNotifiers(bool);
 
     ObjectSet<uiWellLogDisplay>& logDisps() { return logsdisp_; }
@@ -78,6 +80,7 @@ protected:
     SeisTrcBuf&			trcbuf_;
     SeisTrcBufDataPack*		seisdp_;
     int				nrtrcs_;
+    bool			segpospolarity_() const;
 
     ObjectSet<FlatView::AuxData> userpickauxdatas_;
     ObjectSet<FlatView::AuxData> wellmarkerauxdatas_;
