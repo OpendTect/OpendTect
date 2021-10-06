@@ -12,13 +12,14 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "raytrace1d.h"
 #include "uigroup.h"
 #include "uistring.h"
 
-class uiGenInput;
 class uiCheckBox;
-class uiLabeledComboBox;
+class uiComboBox;
+class uiGenInput;
 
 
 mExpClass(uiTools) uiRayTracer1D : public uiGroup
@@ -27,7 +28,7 @@ public:
 
     mExpClass(uiTools) Setup
     {
-	public:	
+	public:
 			Setup()
 			    : convertedwaves_(false)
 			    , doreflectivity_(true)
@@ -45,30 +46,39 @@ public:
 
     mDefineFactory2ParamInClass(uiRayTracer1D,uiParent*,const Setup&,factory);
 
+			~uiRayTracer1D();
+
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
 
-    void		displayOffsetFlds(bool yn); 
+    void		displayOffsetFlds(bool yn);
     bool		isOffsetFldsDisplayed() const;
     void		setOffsetRange(StepInterval<float>);
     bool		doOffsets() const	{ return offsetfld_; }
     bool		hasZeroOffsetFld() const{ return iszerooffsetfld_; }
     bool		isZeroOffset() const;
-    Notifier<uiRayTracer1D>	offsetChanged;
+
+    Notifier<uiRayTracer1D>	parsChanged;
 
 protected:
 			uiRayTracer1D(uiParent*,const Setup&);
 
+    void		parsChangedCB(CallBacker*);
+    virtual void	doOffsetChanged()		{}
+
     bool		doreflectivity_;
 
-    uiGenInput*		downwavefld_;
-    uiGenInput*		upwavefld_;
+    uiGenInput*		downwavefld_ = nullptr;
+    uiGenInput*		upwavefld_ = nullptr;
 
-    uiGenInput*		offsetfld_;
-    uiGenInput*		offsetstepfld_;
-    uiCheckBox*		iszerooffsetfld_;
-    uiGenInput*		lastfld_;
+    uiGenInput*		offsetfld_ = nullptr;
+    uiGenInput*		offsetstepfld_ = nullptr;
+    uiCheckBox*		iszerooffsetfld_ = nullptr;
+    uiGenInput*		lastfld_ = nullptr;
 
+private:
+
+    void		initGrp(CallBacker*);
     void		zeroOffsetChecked(CallBacker*);
     void		offsetChangedCB(CallBacker*);
 };
@@ -91,24 +101,28 @@ mExpClass(uiTools) uiRayTracerSel : public uiGroup
 { mODTextTranslationClass(uiRayTracerSel);
 public:
 			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
+			~uiRayTracerSel();
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
 
-    uiRayTracer1D*	current();
     const uiRayTracer1D* current() const;
-    bool		setCurrent(int);
+    uiRayTracer1D*	current();
+
     bool		setCurrentType(const char*);
-    Notifier<uiRayTracerSel> offsetChanged;
+
+    Notifier<uiRayTracerSel> parsChanged;
 
 protected:
 
-    uiLabeledComboBox*	raytracerselfld_;
-
+    uiComboBox*		raytracerselfld_ = nullptr;
     ObjectSet<uiRayTracer1D> grps_;
 
+    bool		setCurrent(int);
+
+    void		initGrp(CallBacker*);
     void		selRayTraceCB(CallBacker*);
-    void		offsChangedCB(CallBacker*);
+    void		parsChangedCB(CallBacker*);
 };
 
 

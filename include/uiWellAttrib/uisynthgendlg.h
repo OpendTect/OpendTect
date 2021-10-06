@@ -31,41 +31,54 @@ public:
 				uiSynthParsGrp(uiParent*,StratSynth&);
 				~uiSynthParsGrp();
 
-    bool			getFromScreen();
-    void			putToScreen();
-    void			updateSynthNames();
-    void			updateWaveletName();
-    bool			doAccept();
-    bool			isCurSynthChanged() const;
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
-    Notifier<uiSynthParsGrp>	genNewReq;
+    void		updateWaveletName();
+
+    CNotifier<uiSynthParsGrp,BufferString> synthAdded;
+    CNotifier<uiSynthParsGrp,BufferString> synthChanged;
     CNotifier<uiSynthParsGrp,BufferString> synthRemoved;
     CNotifier<uiSynthParsGrp,BufferString> synthDisabled;
-    CNotifier<uiSynthParsGrp,BufferString> synthChanged;
 
 protected:
 
     void			initGrp(CallBacker*);
-    void			changeSyntheticsCB(CallBacker*);
+    void			addSyntheticsCB(CallBacker*);
+    void			newSynthSelCB(CallBacker*);
+    void			updateSyntheticsCB(CallBacker*);
     void			removeSyntheticsCB(CallBacker*);
+    void			newCB(CallBacker*);
+    void			openCB(CallBacker*);
+    void			saveCB(CallBacker*);
+    void			saveAsCB(CallBacker*);
     void			typeChg(CallBacker*);
-    void			angleInpChanged(CallBacker*);
     void			parsChanged(CallBacker*);
     void			nameChanged(CallBacker*);
-    void			genNewCB(CallBacker*);
 
+    bool			getFromScreen();
+    void			putToScreen();
+
+    bool			confirmSave();
+    bool			doSave(const char* fnm);
     void			updateFieldDisplay();
     void			getPSNames(BufferStringSet&);
     bool			prepareSyntheticToBeChanged(bool toberemoved);
+    bool			doAddSynthetic(bool isupdate=false);
 
     StratSynth&			stratsynth_;
     uiListBox*			synthnmlb_;
+    uiPushButton*		updatefld_;
+    uiPushButton*		removefld_;
+
     uiComboBox*			typefld_;
     uiLabeledComboBox*		psselfld_;
     uiGenInput*			angleinpfld_;
     uiSynthSeisGrp*		synthseis_;
     uiGenInput*			namefld_;
-    uiPushButton*		gennewbut_;
+    uiPushButton*		addnewfld_;
+
+    BufferString		lastsavedfnm_;
 
 };
 
@@ -80,8 +93,6 @@ public:
     const uiSynthParsGrp*	grp() const	{ return uisynthparsgrp_; }
 
 private:
-
-    bool			acceptOK(CallBacker*) override;
 
     uiSynthParsGrp*		uisynthparsgrp_;
 };

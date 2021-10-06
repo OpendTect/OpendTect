@@ -28,10 +28,9 @@ public:
 							SeisTrcBufDataPack&);
 				~PostStackSyntheticData();
 
-    bool			isPS() const	  { return false; }
-    bool			hasOffset() const { return false; }
-    bool			isAngleStack() const { return false; }
-    SynthGenParams::SynthType	synthType() const
+    bool			isPS() const override	   { return false; }
+    bool			hasOffset() const override { return false; }
+    SynthGenParams::SynthType	synthType() const override
 				{ return SynthGenParams::ZeroOffset; }
 
     const SeisTrc*		getTrace(int seqnr) const;
@@ -51,8 +50,10 @@ public:
 				PSBasedPostStackSyntheticData(
 				    const SynthGenParams&,SeisTrcBufDataPack&);
 				~PSBasedPostStackSyntheticData();
+
     void			useGenParams(const SynthGenParams&);
     void			fillGenParams(SynthGenParams&) const;
+
 protected:
     BufferString		inpsynthnm_;
     Interval<float>		anglerg_;
@@ -68,9 +69,9 @@ public:
 				    SeisTrcBufDataPack& sbufdp )
 				    : PSBasedPostStackSyntheticData(sgp,sbufdp)
 				{}
-    bool			isAVOGradient() const	{ return true; }
-    bool			isAngleStack() const	{ return false; }
-    SynthGenParams::SynthType	synthType() const
+
+    bool			isAVOGradient() const override	{ return true; }
+    SynthGenParams::SynthType	synthType() const override
 				{ return SynthGenParams::AVOGradient; }
 protected:
 };
@@ -85,9 +86,9 @@ public:
 				    SeisTrcBufDataPack& sbufdp )
 				    : PSBasedPostStackSyntheticData(sgp,sbufdp)
 				{}
-    bool			isAVOGradient() const	{ return false; }
-    bool			isAngleStack() const	{ return true; }
-    SynthGenParams::SynthType	synthType() const
+
+    bool			isAngleStack() const override	{ return true; }
+    SynthGenParams::SynthType	synthType() const override
 				{ return SynthGenParams::AngleStack; }
 protected:
 };
@@ -100,12 +101,12 @@ public:
 						PreStack::GatherSetDataPack&);
 				~PreStackSyntheticData();
 
-    bool				isPS() const	  { return true; }
+    bool				isPS() const override  { return true; }
     bool				isNMOCorrected() const;
-    bool				hasOffset() const;
+    bool				hasOffset() const override;
     const Interval<float>		offsetRange() const;
     float				offsetRangeStep() const;
-    SynthGenParams::SynthType		synthType() const
+    SynthGenParams::SynthType		synthType() const override
 					{ return SynthGenParams::PreStack; }
 
     void				setAngleData(
@@ -135,8 +136,10 @@ public:
 							SeisTrcBufDataPack&,
 							const PropertyRef&);
 
+    bool			isStratProp() const override	{ return true; }
+
     const PropertyRef&		propRef() const { return prop_; }
-    SynthGenParams::SynthType	synthType() const
+    SynthGenParams::SynthType	synthType() const override
 				{ return SynthGenParams::StratProp; }
 
 protected:

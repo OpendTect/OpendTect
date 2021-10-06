@@ -37,6 +37,7 @@ defineTranslator(TwoDData,SeisTrc,"TwoD DataSet");
 defineTranslator(SEGYDirect,SeisTrc,mSEGYDirectTranslNm);
 defineTranslator(SeisPSCube,SeisTrc,"PS Cube");
 defineTranslator(Blocks,SeisTrc,BlocksSeisTrcTranslator::sKeyTrName());
+mDefSimpleTranslators(SyntheticDataPars,"Synthetic Data Parameters",dgb,Seis)
 
 mDefSimpleTranslatorioContext(SeisTrc,Seis)
 mDefSimpleTranslatorSelector(SeisTrc);
@@ -63,6 +64,8 @@ mDefModInitFn(Seis)
     SeisPS2DTranslatorGroup::initClass();
     WaveletTranslatorGroup::initClass();
     dgbWaveletTranslator::initClass();
+    SyntheticDataParsTranslatorGroup::initClass();
+    dgbSyntheticDataParsTranslator::initClass();
 
     // The order here is important!
     // The first one is the default unless explicitly changed.

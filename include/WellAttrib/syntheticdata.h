@@ -21,22 +21,24 @@ class TimeDepthModel;
 
 mStruct(WellAttrib) SynthFVSpecificDispPars
 {
-    			SynthFVSpecificDispPars()
+			SynthFVSpecificDispPars()
 			: overlap_(1)	{}
     ColTab::MapperSetup	vdmapper_;
     ColTab::MapperSetup	wvamapper_;
     BufferString	ctab_;
-    float 		overlap_;
+    float		overlap_;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 };
 
 
 /*! brief the basic synthetic dataset. contains the data cubes*/
-mExpClass(WellAttrib) SyntheticData : public NamedObject 
+mExpClass(WellAttrib) SyntheticData : public NamedCallBacker
 {
 public:
-    					~SyntheticData();
+
+    typedef int SynthID;
+					~SyntheticData();
 
     void				setName(const char*);
 
@@ -46,18 +48,20 @@ public:
     float				getDepth(float time,int seqnr) const;
 
     const DataPack&			getPack() const {return datapack_;}
-    DataPack&				getPack() 	{return datapack_;}
+    DataPack&				getPack()	{return datapack_;}
 
-    ObjectSet<const TimeDepthModel> 	d2tmodels_;
+    ObjectSet<const TimeDepthModel>	d2tmodels_;
     ObjectSet<const TimeDepthModel>	zerooffsd2tmodels_;
 
     DataPack::FullID			datapackid_;
 
-    int					id_;
-    virtual bool			isPS() const 		= 0;
-    virtual bool			hasOffset() const 	= 0;
-    virtual bool			isAngleStack() const;
+    SynthID				id_;
+    virtual bool			isPS() const		= 0;
+    virtual bool			hasOffset() const	= 0;
+    virtual bool			isAngleStack() const  { return false; }
     virtual bool			isAVOGradient() const { return false; }
+    virtual bool			isStratProp() const   { return false; }
+    virtual bool			isAttribute() const   { return false; }
     virtual SynthGenParams::SynthType	synthType() const	= 0;
 
     virtual void			useGenParams(const SynthGenParams&);
@@ -67,7 +71,7 @@ public:
     const char*				waveletName() const { return wvltnm_; }
     void				setWavelet( const char* wvltnm )
 					{ wvltnm_ = wvltnm; }
-    SynthFVSpecificDispPars&		dispPars() 	{ return disppars_; }
+    SynthFVSpecificDispPars&		dispPars()	{ return disppars_; }
     const SynthFVSpecificDispPars&	dispPars() const
 							{ return disppars_; }
 
@@ -75,7 +79,7 @@ protected:
 					SyntheticData(const SynthGenParams&,
 						      DataPack&);
 
-    BufferString 			wvltnm_;
+    BufferString			wvltnm_;
     IOPar				raypars_;
     SynthFVSpecificDispPars		disppars_;
 

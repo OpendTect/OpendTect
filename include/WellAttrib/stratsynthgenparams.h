@@ -17,11 +17,16 @@ ________________________________________________________________________
 
 mStruct(WellAttrib) SynthGenParams
 {
-			SynthGenParams();
-
     enum SynthType	{ PreStack, ZeroOffset, StratProp, AngleStack,
 			  AVOGradient };
-    			mDeclareEnumUtils(SynthType);
+			mDeclareEnumUtils(SynthType);
+
+			SynthGenParams( SynthType tp=ZeroOffset );
+
+    bool		operator== (const SynthGenParams&) const;
+    bool		operator!= (const SynthGenParams&) const;
+
+    bool		isOK() const;
 
     SynthType		synthtype_;
     BufferString	name_;
@@ -30,31 +35,22 @@ mStruct(WellAttrib) SynthGenParams
     BufferString	wvltnm_;
     Interval<float>	anglerg_;
 
-    static const char*	sKeyInvalidInputPS()	{ return "Invalid Input"; }
-    
     bool		hasOffsets() const;
-    bool		isPreStack() const 	{ return synthtype_==PreStack; }
+    bool		isPreStack() const	{ return synthtype_==PreStack; }
     bool		isPSBased() const
 			{ return synthtype_==AngleStack ||
 				 synthtype_==AVOGradient; }
     void		createName(BufferString&) const;
-    			//!<Create name from wvlt and raypars
+			//!<Create name from wvlt and raypars
     void		fillPar(IOPar&) const;
+
     void		usePar(const IOPar&);
+
+    static const char*	sKeyInvalidInputPS()	{ return "Invalid Input"; }
+
+private:
+
     void		setDefaultValues();
-
-bool operator==( const SynthGenParams& gp ) const
-{
-    bool hassameanglerg = true;
-    bool hassameinput = true;
-    if ( gp.isPSBased() )
-    {
-	hassameanglerg = anglerg_==gp.anglerg_;
-	hassameinput = inpsynthnm_==gp.inpsynthnm_;
-    }
-
-    return isPreStack()==gp.isPreStack() && wvltnm_==gp.wvltnm_ &&
-	   raypars_==gp.raypars_ && hassameanglerg && hassameinput; }
 
 };
 

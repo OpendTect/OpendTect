@@ -34,6 +34,8 @@ namespace PosInfo	{ class CubeData; }
 namespace Seis		{ class SelData; }
 
 
+mDeclEmptyTranslatorBundle(Seis,SyntheticDataPars,dgb,"synthpars")
+
 
 /*!\brief Seismic Trace translator.
 

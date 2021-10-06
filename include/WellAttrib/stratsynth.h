@@ -58,16 +58,18 @@ protected:
 mExpClass(WellAttrib) StratSynth
 { mODTextTranslationClass(StratSynth);
 public:
+
+    mUseType( SyntheticData, SynthID );
+
 				StratSynth(const Strat::LayerModelProvider&,
 					   bool useed);
 				~StratSynth();
 
     int			nrSynthetics() const;
-    SyntheticData*	addSynthetic();
     SyntheticData*	addSynthetic(const SynthGenParams&);
     bool		removeSynthetic(const char*);
     bool		disableSynthetic(const char*);
-    SyntheticData*	replaceSynthetic(int id);
+    SyntheticData*	replaceSynthetic(SynthID);
     SyntheticData*	addDefaultSynthetic();
     int			syntheticIdx(const char* nm) const;
     int			syntheticIdx(const PropertyRef&) const;
@@ -75,19 +77,20 @@ public:
     inline const SyntheticData* getSynthetic( const char* nm ) const
 			{ const int idx = syntheticIdx( nm );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
-							   : 0; }
+							   : nullptr; }
+    void		getSyntheticNames(BufferStringSet&) const;
     void		getSyntheticNames(BufferStringSet&,
 					  SynthGenParams::SynthType) const;
     void		getSyntheticNames(BufferStringSet&,bool wantpres) const;
-    SyntheticData*	getSynthetic(int id);
+    SyntheticData*	getSynthetic(SynthID);
     SyntheticData*	getSynthetic(const PropertyRef&);
     inline const SyntheticData* getSynthetic( const PropertyRef& prf ) const
 			{ const int idx = syntheticIdx( prf );
 			  return synthetics_.validIdx(idx) ? synthetics_[idx]
-							   : 0; }
+							   : nullptr; }
     SyntheticData*	getSyntheticByIdx(int idx);
     const SyntheticData* getSyntheticByIdx(int idx) const;
-    void		clearSynthetics();
+    void		clearSynthetics(bool excludeprops=false);
     void		generateOtherQuantities();
     bool		createElasticModels();
     void		clearElasticModels()
@@ -126,11 +129,12 @@ public:
 
     void		setTaskRunner( TaskRunner* t )	{ taskr_ = t; }
     bool		hasTaskRunner() const		{ return taskr_; }
-    uiString		errMsg() const;
-    uiString		infoMsg() const;
-    void		clearInfoMsg()	{ infomsg_.setEmpty(); }
+    uiRetVal		errMsg() const			{ return errmsg_; }
+    uiRetVal		infoMsg() const			{ return infomsg_; }
+    void		clearInfoMsg()	{ infomsg_.setOK(); }
 
     void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
     static const char*	sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
     static const char*	sKeySyntheticNr()	{ return "Synthetics Nr"; }
@@ -147,12 +151,12 @@ protected:
     PropertyRefSelection	props_;
     ObjectSet<SyntheticData>	synthetics_;
     TypeSet<ElasticModel>	aimodels_;
-    int				lastsyntheticid_;
+    SynthID			lastsyntheticid_;
     bool			swaveinfomsgshown_;
     const Wavelet*		wvlt_;
 
-    uiString			errmsg_;
-    uiString			infomsg_;
+    uiRetVal			errmsg_;
+    uiRetVal			infomsg_;
     TaskRunner*			taskr_;
     SynthRayModelManager	synthrmmgr_;
 
@@ -162,21 +166,19 @@ protected:
 					 ElasticModel&,int seqidx);
     bool		adjustElasticModel(const Strat::LayerModel&,
 					   TypeSet<ElasticModel>&,bool chksvel);
-    void		generateOtherQuantities(
-				const PostStackSyntheticData& sd,
-				const Strat::LayerModel&);
-    SyntheticData*	generateSD();
     SyntheticData*	generateSD( const SynthGenParams&);
     bool		runSynthGen(Seis::RaySynthGenerator&,
 				    const SynthGenParams&);
-    SyntheticData*	createAngleStack(const SyntheticData& sd,
+    SyntheticData*	createAngleStack(const SyntheticData&,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
-    SyntheticData*	createAVOGradient(const SyntheticData& sd,
+    SyntheticData*	createAVOGradient(const SyntheticData&,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
     void		createAngleData(PreStackSyntheticData&,
 					const ObjectSet<RayTracer1D>&);
+    void		generateOtherQuantities(const PostStackSyntheticData&,
+						const Strat::LayerModel&);
 
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
     void		putD2TModelsInSD(SyntheticData&,
