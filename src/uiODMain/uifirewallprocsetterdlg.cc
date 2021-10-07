@@ -224,6 +224,9 @@ void uiFirewallProcSetter::updateUI( const BufferString& path,
 
 void uiFirewallProcSetter::updateAddRemFld( CallBacker* )
 {
+    if ( !addremfld_ )
+	return;
+
     PDE::ActionType ty = ePDD().getActionType();
     if ( ty != PDE::AddNRemove )
     {
