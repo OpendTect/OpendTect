@@ -37,6 +37,7 @@ protected:
     static uiZAxisTransform*	createInstance(uiParent*,const char*,
 					       const char*);
     void			createCB(CallBacker*);
+    void			editCB(CallBacker*);
     void			setZRangeCB(CallBacker*);
 
     uiIOObjSel* 		selfld_;
