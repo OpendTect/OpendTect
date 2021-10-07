@@ -162,34 +162,55 @@ int mProgMainFnName( int argc, char** argv )
     if ( !parser.getVal(pyflag(),pythonpath) && !File::isDirectory(pythonpath) )
 	errocc = true;
 
-    PtrMan<uiFirewallProcSetter> fwdlg = new uiFirewallProcSetter( nullptr );
-    app.setTopLevel( fwdlg );
+    PtrMan<uiFirewallProcSetter> fwdlg = nullptr;
     if ( errocc )
     {
+	fwdlg = new uiFirewallProcSetter( nullptr );
+	app.setTopLevel( fwdlg );
 	PtrMan<FirewallParameterDlg> dlg = new FirewallParameterDlg( fwdlg,
 						    path, pythonpath, type );
 	dlg->setActivateOnFirstShow();
+	dlg->showAlwaysOnTop();
 	if ( dlg->go() == uiDialog::Rejected )
 	    return 1;
 
 	type = dlg->getActCmd();
 	path = dlg->getODPath();
 	pythonpath = dlg->getPyPath();
-    }
+	ePDD().setPath( path );
+	const ProcDesc::DataEntry::ActionType opertype =
+			ProcDesc::DataEntry::getActionTypeForCMDKey( type );
+	const bool isrem = PDE::Remove == opertype;
+	if ( !ePDD().hasWorkToDo(pythonpath,!isrem) )
+	{
+	    if ( isrem )
+		uiMSG().warning(
+			    "No executables for removal from Firewall rules");
+	    else
+		uiMSG().warning(
+		    toUiString("No executables for adding to Firewall rules") );
 
-    ePDD().setPath( path );
-    const ProcDesc::DataEntry::ActionType opertype =
-		    ProcDesc::DataEntry::getActionTypeForCMDKey( type );
-    const bool isrem = PDE::Remove == opertype;
-    if ( !ePDD().hasWorkToDo(pythonpath,!isrem) )
+	    return 0;
+	}
+
+	fwdlg->updateUI( path, pythonpath, opertype );
+	fwdlg->setActivateOnFirstShow();
+
+    }
+    else
     {
-	uiMSG().warning(
-		toUiString("No exes for adding at the specified location") );
-	return 0;
+	ePDD().setPath( path );
+	const ProcDesc::DataEntry::ActionType opertype =
+			ProcDesc::DataEntry::getActionTypeForCMDKey( type );
+	const bool isrem = PDE::Remove == opertype;
+	if ( !ePDD().hasWorkToDo(pythonpath,!isrem) )
+	    return 0;
+
+	fwdlg = new uiFirewallProcSetter( nullptr,
+					    opertype, &path, &pythonpath );
+	app.setTopLevel( fwdlg );
     }
 
-    fwdlg->updateUI( path, pythonpath, opertype );
-    fwdlg->setActivateOnFirstShow();
     fwdlg->show();
     return app.exec();
 }
