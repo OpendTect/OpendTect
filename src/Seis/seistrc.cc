@@ -78,24 +78,30 @@ void SeisTrc::setInterpolator( ValueSeriesInterpolator<float>* intpol )
 
 bool SeisTrc::isNull( int icomp ) const
 {
-    return chkForSpecVal( icomp, true );
-}
-
-
-bool SeisTrc::hasUndef( int icomp ) const
-{
-    return chkForSpecVal( icomp, false );
-}
-
-
-bool SeisTrc::chkForSpecVal( int icomp, bool isnull ) const
-{
     if ( icomp >= nrComponents() )
-	return isnull;
+	return true;
 
     Interval<int> comps( icomp, icomp );
     if ( icomp < 0 )
-	{ comps.start = 0; comps.stop = nrComponents()-1; }
+	comps.set( 0, nrComponents()-1 );
+
+    for ( icomp=comps.start; icomp<=comps.stop; icomp++ )
+    {
+	if ( !data_.isZero(icomp) )
+	    return false;
+    }
+    return true;
+}
+
+
+bool SeisTrc::isUdf( int icomp ) const
+{
+    if ( icomp >= nrComponents() )
+	return true;
+
+    Interval<int> comps( icomp, icomp );
+    if ( icomp < 0 )
+	comps.set( 0, nrComponents()-1 );
 
     const int sz = size();
     for ( icomp=comps.start; icomp<=comps.stop; icomp++ )
@@ -103,12 +109,34 @@ bool SeisTrc::chkForSpecVal( int icomp, bool isnull ) const
 	for ( int isamp=0; isamp<sz; isamp++ )
 	{
 	    const float val = get( isamp, icomp );
-	    if ( (isnull && !mIsUdf(val)) || (!isnull && mIsUdf(val)) )
-		return !isnull;
+	    if ( !mIsUdf(val) )
+		return false;
 	}
     }
+    return true;
+}
 
-    return isnull;
+
+bool SeisTrc::hasUndef( int icomp ) const
+{
+    if ( icomp >= nrComponents() )
+	return true;
+
+    Interval<int> comps( icomp, icomp );
+    if ( icomp < 0 )
+	comps.set( 0, nrComponents()-1 );
+
+    const int sz = size();
+    for ( icomp=comps.start; icomp<=comps.stop; icomp++ )
+    {
+	for ( int isamp=0; isamp<sz; isamp++ )
+	{
+	    const float val = get( isamp, icomp );
+	    if ( mIsUdf(val) )
+		return true;
+	}
+    }
+    return false;
 }
 
 

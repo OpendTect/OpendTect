@@ -64,6 +64,7 @@ public:
     float		getValue(float,int icomp) const;
 
     bool		isNull(int icomp=-1) const;
+    bool		isUdf(int icomp=-1) const;
     bool		hasUndef(int icomp=-1) const;
     inline void		zero( int icomp=-1 )
 			{ data_.zero( icomp ); }
@@ -119,8 +120,6 @@ protected:
     TraceData						data_;
     SeisTrcInfo						info_;
     mutable PtrMan<ValueSeriesInterpolator<float> >	intpol_;
-
-    bool		chkForSpecVal(int icomp,bool isnull) const;
 
 private:
 
