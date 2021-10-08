@@ -238,7 +238,7 @@ uiSimpleTimeDepthTransform::~uiSimpleTimeDepthTransform()
 ZAxisTransform* uiSimpleTimeDepthTransform::getSelection()
 {
     unRefAndZeroPtr( transform_ );
-    ConstPtrMan<IOObj> ioobj = selfld_->ioobj( true );
+    const IOObj* ioobj = selfld_->ioobj( true );
     if ( !ioobj )
 	return nullptr;
 
