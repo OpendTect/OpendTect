@@ -74,3 +74,19 @@ html_favicon = None
 
 autoapi_type = 'python'
 autoapi_dirs = ['../../']
+
+autodoc_default_flags = ['members', 'private-members', 'special-members',
+                         #'undoc-members',
+                         'show-inheritance']
+
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    # Ref: https://stackoverflow.com/a/21449475/
+    exclusions = ('__weakref__',  # special-members
+                  '__doc__', '__module__', '__dict__', 'tail' # undoc-members
+                  )
+    exclude = name in exclusions
+    # return True if (skip or exclude) else None  # Can interfere with subsequent skip functions.
+    return True if exclude else None
+ 
+def setup(app):
+    app.connect('autodoc-skip-member', autodoc_skip_member)

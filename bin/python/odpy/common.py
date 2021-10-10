@@ -5,10 +5,12 @@ Copyright (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.
   * DATE   : July 2018
 
 Module Summary
+###############
 
 odpy.common is the main important module in odpy. Allows for basic interactions with the OpendTect softwre and database
 
 KEY methods
+-------------
 
 * getODsoftwareDir()
 

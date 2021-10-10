@@ -82,7 +82,7 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.dbman.getDBList" title="python.odpy.dbman.getDBList"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDBList</span></code></a>(translnm, alltrlsgrps=False, exenm=dbmanexe, args=None)</p></td>
-<td><p></p></td>
+<td><p>Gets information on survey database wells</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.dbman.getInfoFromDBListByNameOrKey" title="python.odpy.dbman.getInfoFromDBListByNameOrKey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInfoFromDBListByNameOrKey</span></code></a>(nm_or_key, dblist)</p></td>
 <td><p></p></td>
@@ -91,7 +91,7 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.dbman.getInfoByKey" title="python.odpy.dbman.getInfoByKey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInfoByKey</span></code></a>(objkey, exenm=dbmanexe, args=None)</p></td>
-<td><p></p></td>
+<td><p>Gets datbase info on well</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.dbman.getDBDict" title="python.odpy.dbman.getDBDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDBDict</span></code></a>(cmd)</p></td>
 <td><p></p></td>
@@ -106,7 +106,7 @@
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.dbman.getFileLocation" title="python.odpy.dbman.getFileLocation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getFileLocation</span></code></a>(dbkey, args=None)</p></td>
-<td><p></p></td>
+<td><p>Gets full file path</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.dbman.getNewEntryFileName" title="python.odpy.dbman.getNewEntryFileName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNewEntryFileName</span></code></a>(objnm, dirid, trgrp, trl, ext, ftype=None, args=None)</p></td>
 <td><p></p></td>
@@ -135,7 +135,23 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getDBList">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.dbman.</span></span><span class="sig-name descname"><span class="pre">getDBList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">translnm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alltrlsgrps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exenm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">dbmanexe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.dbman.getDBList" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets information on survey database wells</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>translnm (string): default value=’Well’</p></li>
+<li><p>alltrlsgrps (bool): if True, returns information on TranslatorGroups for available wells</p></li>
+<li><p>exenm (string): database executable file</p></li>
+<li><p>args (dict, optional):
+Dictionary with the members ‘dtectdata’ and ‘survey’ as
+single element lists, and/or ‘dtectexec’ (see odpy.common.getODSoftwareDir)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>dict: Dictionary containing database survey well information (size, IDs, Names, Formats, Status)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getInfoFromDBListByNameOrKey">
@@ -150,7 +166,20 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getInfoByKey">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.dbman.</span></span><span class="sig-name descname"><span class="pre">getInfoByKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objkey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exenm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">dbmanexe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.dbman.getInfoByKey" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets datbase info on well</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>objkey (str): well ID key</p></li>
+<li><p>exenm (str): executable file name</p></li>
+<li><p>args (dict, optional):
+Dictionary with the members ‘dtectdata’ and ‘survey’ as
+single element lists, and/or ‘dtectexec’ (see odpy.common.getODSoftwareDir)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>dict: file info (ID, Name, Format, File name, etc)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getDBDict">
@@ -175,7 +204,19 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getFileLocation">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.dbman.</span></span><span class="sig-name descname"><span class="pre">getFileLocation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dbkey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.dbman.getFileLocation" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets full file path</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>dbkey (str): object database key</p></li>
+<li><p>args (dict, optional):
+Dictionary with the members ‘dtectdata’ and ‘survey’ as
+single element lists, and/or ‘dtectexec’ (see odpy.common.getODSoftwareDir)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>str: full path to file</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getNewEntryFileName">

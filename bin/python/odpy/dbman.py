@@ -6,6 +6,20 @@ from odpy.oscommand import getODCommand, execCommand
 dbmanexe = 'od_DBMan'
 
 def getDBList(translnm,alltrlsgrps=False,exenm=dbmanexe,args=None):
+  """ Gets information on survey database wells
+
+  Parameters:
+    * translnm (string): default value='Well'
+    * alltrlsgrps (bool): if True, returns information on TranslatorGroups for available wells
+    * exenm (string): database executable file
+    * args (dict, optional):
+      Dictionary with the members 'dtectdata' and 'survey' as 
+      single element lists, and/or 'dtectexec' (see odpy.common.getODSoftwareDir)
+
+  Returns:
+    * dict: Dictionary containing database survey well information (size, IDs, Names, Formats, Status)
+  """
+
   cmd = getODCommand(exenm,args)
   cmd.append( '--json' )
   if alltrlsgrps:
@@ -49,6 +63,19 @@ def getInfoByName(objnm,translnm,exenm=dbmanexe,args=None ):
   return ret
 
 def getInfoByKey(objkey,exenm=dbmanexe,args=None ):
+  """ Gets datbase info on well
+
+  Parameters:
+    * objkey (str): well ID key
+    * exenm (str): executable file name
+    * args (dict, optional):
+      Dictionary with the members 'dtectdata' and 'survey' as 
+      single element lists, and/or 'dtectexec' (see odpy.common.getODSoftwareDir)
+
+  Returns:
+    dict: file info (ID, Name, Format, File name, etc)
+  """
+
   cmd = getODCommand(exenm,args)
   cmd.append( '--json' )
   cmd.append( '--info' )
@@ -86,6 +113,18 @@ def retFileLoc( bstdout ):
   return fileloc['File_name']
 
 def getFileLocation( dbkey, args=None ):
+  """  Gets full file path
+
+  Parameters:
+    * dbkey (str): object database key
+    * args (dict, optional):
+      Dictionary with the members 'dtectdata' and 'survey' as 
+      single element lists, and/or 'dtectexec' (see odpy.common.getODSoftwareDir)
+
+  Returns:
+    str: full path to file
+  """
+
   cmd = getODCommand(dbmanexe,args)
   cmd.append( '--json' )
   cmd.append( '--info' )

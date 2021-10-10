@@ -12,10 +12,12 @@
      * DATE   : July 2018
 
    Module Summary
+   ###############
 
    odpy.common is the main important module in odpy. Allows for basic interactions with the OpendTect softwre and database
 
    KEY methods
+   -------------
 
    * getODsoftwareDir()
 

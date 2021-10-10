@@ -19,6 +19,7 @@ odpy.common module
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: tail()
 
 odpy.dbman module
 -----------------

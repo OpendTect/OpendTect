@@ -13,11 +13,39 @@ dgbtrl = 'dGB'
 dblist = None
 
 def getNames( reload=False, args=None ):
+  """ Gets survey well names from database
+
+  Parameters:
+    * reload (boolean, optional): Force re-reading of the database files
+          (no caching allowed). Default to False
+    * args (dictionary, optional): Dictionary of optional parameters (see common).
+          Default to None.
+
+  Returns:
+    * list: list of available survey wells from database
+
+
+  """
+
   if args == None:
     args = odcommon.getODArgs()
   return getWellDBList(reload,args)['Names']
 
 def getInfo( wllnm, reload=False, args=None ):
+  """ Gets information for a well
+
+  Parameters:
+    * wllnm (str): well name from survey
+    * reload (boolean, optional): Force re-reading of the database files
+          (no caching allowed). Default to False
+    * args (dictionary, optional): Dictionary of optional parameters (see common).
+          Default to None.
+
+  Returns:
+    * dict: information on well ID, name, x y cordinates, status etc
+
+  """
+
   ret = oddbman.getInfoByName( wllnm, wlltrlgrp,exenm=oddbman.dbmanexe, args=args )
   dbkey = getDBKey( wllnm, reload=reload, args=args )
   if dbkey != None:
@@ -34,6 +62,21 @@ def getInfo( wllnm, reload=False, args=None ):
   return ret
 
 def getName( dbkey, reload=False, args=None ):
+  """ Gets well name
+
+  Parameters:
+    * dbkey (str): well database key
+    * reload (boolean, optional): Force re-reading of the database files
+          (no caching allowed). Default to False
+    * args (dictionary, optional): Dictionary of optional parameters (see common).
+          Default to None.
+
+  Returns:
+    * str: Well name
+
+
+  """
+
   cmd = getODCommand(wellmanexe,args)
   cmd.append( '--info' )
   cmd.append( dbkey )
@@ -41,6 +84,20 @@ def getName( dbkey, reload=False, args=None ):
   return ret['Name']
 
 def getLogNames( wllnm, reload=False, args=None ):
+  """ Gets logs available for a well
+
+  Paramters:
+    * wllnm (str): name of well
+    * reload (boolean, optional): Force re-reading of the database files
+          (no caching allowed). Default to False
+    * args (dictionary, optional): Dictionary of optional parameters (see common).
+          Default to None.
+
+  Returns:
+    * list: list containing log names
+
+  """
+
   dbkey = getDBKey( wllnm, reload=reload, args=args )
   cmd = getODCommand(wellmanexe,args)
   cmd.append( '--list-logs' )
@@ -53,12 +110,12 @@ def getLog( wllnm, lognm, reload=False, args=None ):
     Read a single log from the OpendTect database, with
     any depth resampling or unit conversion.
     
-    Args:
-      wllnm (string): Well database name
-      lognm (string): Log name as reported by getLogNames(wllnm)
-      reload (boolean, optional): Force re-reading of the database files
+    Parameters:
+      * wllnm (string): Well database name
+      * lognm (string): Log name as reported by getLogNames(wllnm)
+      * reload (boolean, optional): Force re-reading of the database files
           (no caching allowed). Default to False
-      args (dictionary, optional): Dictionary of optional parameters (see common).
+      * args (dictionary, optional): Dictionary of optional parameters (see common).
           Default to None.
           
     Returns:
@@ -77,7 +134,7 @@ def getLog( wllnm, lognm, reload=False, args=None ):
 def getLogs( wllnm, logidxlst, zstep=0.5, reload=False, args=None ):
   """Get re-sampled logs from OpendTect
 
-  Args:
+  Parameters:
       wllnm (string): Well database name
       logidxlst (string): List of log indices to be resampled
       zstep (double, optional): Resampling step in meters. Default to 0.5
@@ -113,11 +170,35 @@ def getLogs( wllnm, logidxlst, zstep=0.5, reload=False, args=None ):
   return result
 
 def getDBKey( wllnm, reload=False, args=None ):
+  """ Gets well database key
+
+  Parameters:
+    * wllnm (str): well name
+    * reload (boolean, optional): Force re-reading of the database files
+          (no caching allowed). Default to False
+    * args (dictionary, optional): Dictionary of optional parameters (see common).
+          Default to None.
+
+  Returns:
+    str: Database key for well name provided
+  """
+
   global dblist
   dblist = getWellDBList(reload,args)
   return oddbman.getDBKeyForName( dblist, wllnm )  
 
 def getWellDBList( reload, args=None ):
+  """ Gets information on wells from database for a survey
+
+  Parameters:
+    * reload (boolean, optional): Force re-reading of the database files (no caching allowed)
+    * args (dictionary, optional): Dictionary of optional parameters (see common).
+          Default to None.
+
+  Returns:
+    dict: containing information on survey database wells (size, IDs, Names, Status, etc)
+  """
+
   global dblist
   if dblist != None and not reload:
     return dblist
@@ -128,6 +209,19 @@ def getWellDBList( reload, args=None ):
   return dblist
 
 def getMarkers( wllnm, reload=False, args=None ):
+  """ Gets information on available markers for a well
+
+  Parameters:
+    * wllnm (str): well name
+    * reload (boolean, optional): Force re-reading of the database files
+          (no caching allowed). Default to False
+    * args (dictionary, optional): Dictionary of optional parameters (see common).
+          Default to None.
+
+  Returns:
+    tuple: contains lists of available markers (names, MDs, colors)
+  """
+
   dbkey = getDBKey( wllnm, reload=reload, args=args )
   cmd = getODCommand(wellmanexe,args)
   cmd.append( '--list-markers' )
@@ -136,6 +230,20 @@ def getMarkers( wllnm, reload=False, args=None ):
   return (ret['Names'], ret['MDs'], ret['Color'])
 
 def getTrack( wllnm, reload=False, args=None ):
+  """ Gets well (track) depth information
+
+  Parameters:
+    * wllnm (str): well name
+    * reload (boolean, optional): Force re-reading of the database files
+          (no caching allowed). Default to False
+    * args (dictionary, optional): Dictionary of optional parameters (see common).
+          Default to None.
+
+    Returns:
+      tuple: contains lists of track depths (MDs, TVDs, x cord., y cord.)
+
+  """
+
   dbkey = getDBKey( wllnm, reload=reload, args=args )
   cmd = getODCommand(wellmanexe, args)
   cmd.append( '--read-track' )

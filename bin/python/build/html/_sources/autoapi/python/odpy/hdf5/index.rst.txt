@@ -3,6 +3,26 @@
 
 .. py:module:: python.odpy.hdf5
 
+.. autoapi-nested-parse::
+
+   Copyright (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+     * AUTHOR : A. Huck
+     * DATE   : Nov 2018
+
+   Module Summary
+   ###############
+
+   Tools for reading hdf5 files created by OpendTect. Ensures standard access to hdf5
+   for  independent workflow
+
+   KEY methods
+   -------------
+
+   * openFile()
+
+     * opens any h5 or hdf5 files, ensures and optimize access to the file
+
+
 
 Module Contents
 ---------------
@@ -54,26 +74,108 @@ Attributes
 
 .. py:function:: openFile(filenm, mode)
 
+   Opens and ensures and optimize access to the hdf5 file
+
+   Parameters:
+     * filenm (str): HDF5 file name
+     * mode (str): options to read, write or edit to the file (r, r+, w, w-, x, a)
+
+   Returns:
+     * obj: A HDF5 file object (in mode selected)
+
 
 .. py:function:: getInfoDataSet(h5file_or_grp)
+
+   Gets info on HDF5 object
+
+   Parameters:
+     * h5file_or_grp (object): hdf5 file object
+
+   Returns:
+     * obj: A h5 dataset object created by OpendTect,
+            Input error is generated if HDF5 file is not created by OpendTect
+
+   Notes:
+     * KeyError (HDF5 key not found) is returned if dataset has no attribute passed           
 
 
 .. py:function:: ensureHasDataset(h5file_or_grp)
 
+   Ensures HDF5 object has info file (++info++) created by OpendTect
+
+   Parameters:
+     * h5file_or_grp (obj): HDF5 file object
+
+   Returns:
+     * obj: A h5 dataset object created by OpendTect
+
 
 .. py:function:: getAttr(dataset, ky)
+
+   Gets attribute value from HDF5 Dataset 
+
+   Parameters:
+     * dataset (obj): HDF5 file object
+     * ky (str): HDF5 attribute name
+
+   Returns:
+     bytes: Attribute value
+
+   Notes:
+     * KeyError (HDF5 key not found) is returned if dataset has no attribute passed
 
 
 .. py:function:: setAttr(dataset, ky, str)
 
+   Sets HDF5 dataset attribute
+
+   Parameters:
+     * dataset (obj): HDF5 file object
+     * ky (str): attribute name
+     * str (str): attribute value
+
+   Returns:
+     * Nothing (sets dataset attribute)
+
 
 .. py:function:: hasAttr(dataset, ky)
+
+   Checks if HDF5 object has attribute
+
+   Parameters:
+     * dataset (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     * bool: True if attribute is present, False if otherwise
 
 
 .. py:function:: getAttrs(dataset, ky)
 
+   Gets attribute value(s) from HDF5 dataset
+
+   Parameters:
+     * dataset (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     * list: of atrribute value(s)
+
+   Notes:
+     * KeyError (HDF5 key not found) is returned if dataset has no attribute passed
+       List of available attributes is displayed
+
 
 .. py:function:: getText(infos, ky)
+
+   Gets attribute text value from HDF5 dataset 
+
+   Parameters:
+     * infos (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     * str: attribute value
 
 
 .. py:function:: setArray(infos, ky, arr)

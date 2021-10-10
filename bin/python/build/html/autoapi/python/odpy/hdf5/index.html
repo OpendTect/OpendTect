@@ -71,6 +71,28 @@
              
   <section id="module-python.odpy.hdf5">
 <span id="python-odpy-hdf5"></span><h1><a class="reference internal" href="#module-python.odpy.hdf5" title="python.odpy.hdf5"><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.hdf5</span></code></a><a class="headerlink" href="#module-python.odpy.hdf5" title="Permalink to this headline"></a></h1>
+<dl class="simple">
+<dt>Copyright (C) dGB Beheer B.V.; (LICENSE) <a class="reference external" href="http://opendtect.org/OpendTect_license.txt">http://opendtect.org/OpendTect_license.txt</a></dt><dd><ul class="simple">
+<li><p>AUTHOR : A. Huck</p></li>
+<li><p>DATE   : Nov 2018</p></li>
+</ul>
+</dd>
+</dl>
+<section id="module-summary">
+<h2>Module Summary<a class="headerlink" href="#module-summary" title="Permalink to this headline"></a></h2>
+<p>Tools for reading hdf5 files created by OpendTect. Ensures standard access to hdf5
+for  independent workflow</p>
+<section id="key-methods">
+<h3>KEY methods<a class="headerlink" href="#key-methods" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>openFile()</p>
+<ul>
+<li><p>opens any h5 or hdf5 files, ensures and optimize access to the file</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
 <section id="functions">
@@ -82,28 +104,28 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.openFile" title="python.odpy.hdf5.openFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openFile</span></code></a>(filenm, mode)</p></td>
-<td><p></p></td>
+<td><p>Opens and ensures and optimize access to the hdf5 file</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.hdf5.getInfoDataSet" title="python.odpy.hdf5.getInfoDataSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInfoDataSet</span></code></a>(h5file_or_grp)</p></td>
-<td><p></p></td>
+<td><p>Gets info on HDF5 object</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.ensureHasDataset" title="python.odpy.hdf5.ensureHasDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensureHasDataset</span></code></a>(h5file_or_grp)</p></td>
-<td><p></p></td>
+<td><p>Ensures HDF5 object has info file (++info++) created by OpendTect</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.hdf5.getAttr" title="python.odpy.hdf5.getAttr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAttr</span></code></a>(dataset, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets attribute value from HDF5 Dataset</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.setAttr" title="python.odpy.hdf5.setAttr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAttr</span></code></a>(dataset, ky, str)</p></td>
-<td><p></p></td>
+<td><p>Sets HDF5 dataset attribute</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.hdf5.hasAttr" title="python.odpy.hdf5.hasAttr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hasAttr</span></code></a>(dataset, ky)</p></td>
-<td><p></p></td>
+<td><p>Checks if HDF5 object has attribute</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.getAttrs" title="python.odpy.hdf5.getAttrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAttrs</span></code></a>(dataset, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets attribute value(s) from HDF5 dataset</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.hdf5.getText" title="python.odpy.hdf5.getText"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getText</span></code></a>(infos, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets attribute text value from HDF5 dataset</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.setArray" title="python.odpy.hdf5.setArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setArray</span></code></a>(infos, ky, arr)</p></td>
 <td><p></p></td>
@@ -174,42 +196,152 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.openFile">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">openFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.openFile" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Opens and ensures and optimize access to the hdf5 file</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>filenm (str): HDF5 file name</p></li>
+<li><p>mode (str): options to read, write or edit to the file (r, r+, w, w-, x, a)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>obj: A HDF5 file object (in mode selected)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getInfoDataSet">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getInfoDataSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5file_or_grp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getInfoDataSet" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets info on HDF5 object</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>h5file_or_grp (object): hdf5 file object</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>obj: A h5 dataset object created by OpendTect,</dt><dd><p>Input error is generated if HDF5 file is not created by OpendTect</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>KeyError (HDF5 key not found) is returned if dataset has no attribute passed</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.ensureHasDataset">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">ensureHasDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5file_or_grp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.ensureHasDataset" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Ensures HDF5 object has info file (++info++) created by OpendTect</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>h5file_or_grp (obj): HDF5 file object</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>obj: A h5 dataset object created by OpendTect</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getAttr">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getAttr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getAttr" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets attribute value from HDF5 Dataset</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>dataset (obj): HDF5 file object</p></li>
+<li><p>ky (str): HDF5 attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>bytes: Attribute value</p>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>KeyError (HDF5 key not found) is returned if dataset has no attribute passed</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.setAttr">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">setAttr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.setAttr" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sets HDF5 dataset attribute</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>dataset (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+<li><p>str (str): attribute value</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>Nothing (sets dataset attribute)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.hasAttr">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">hasAttr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.hasAttr" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Checks if HDF5 object has attribute</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>dataset (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>bool: True if attribute is present, False if otherwise</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getAttrs">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getAttrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getAttrs" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets attribute value(s) from HDF5 dataset</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>dataset (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>list: of atrribute value(s)</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>KeyError (HDF5 key not found) is returned if dataset has no attribute passed
+List of available attributes is displayed</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getText">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getText</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getText" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets attribute text value from HDF5 dataset</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>infos (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: attribute value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.setArray">

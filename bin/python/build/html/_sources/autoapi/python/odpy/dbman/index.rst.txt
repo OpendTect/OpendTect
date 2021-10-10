@@ -41,6 +41,19 @@ Attributes
 
 .. py:function:: getDBList(translnm, alltrlsgrps=False, exenm=dbmanexe, args=None)
 
+   Gets information on survey database wells
+
+   Parameters:
+     * translnm (string): default value='Well'
+     * alltrlsgrps (bool): if True, returns information on TranslatorGroups for available wells
+     * exenm (string): database executable file
+     * args (dict, optional):
+       Dictionary with the members 'dtectdata' and 'survey' as 
+       single element lists, and/or 'dtectexec' (see odpy.common.getODSoftwareDir)
+
+   Returns:
+     * dict: Dictionary containing database survey well information (size, IDs, Names, Formats, Status)
+
 
 .. py:function:: getInfoFromDBListByNameOrKey(nm_or_key, dblist)
 
@@ -49,6 +62,18 @@ Attributes
 
 
 .. py:function:: getInfoByKey(objkey, exenm=dbmanexe, args=None)
+
+   Gets datbase info on well
+
+   Parameters:
+     * objkey (str): well ID key
+     * exenm (str): executable file name
+     * args (dict, optional):
+       Dictionary with the members 'dtectdata' and 'survey' as 
+       single element lists, and/or 'dtectexec' (see odpy.common.getODSoftwareDir)
+
+   Returns:
+     dict: file info (ID, Name, Format, File name, etc)
 
 
 .. py:function:: getDBDict(cmd)
@@ -64,6 +89,17 @@ Attributes
 
 
 .. py:function:: getFileLocation(dbkey, args=None)
+
+   Gets full file path
+
+   Parameters:
+     * dbkey (str): object database key
+     * args (dict, optional):
+       Dictionary with the members 'dtectdata' and 'survey' as 
+       single element lists, and/or 'dtectexec' (see odpy.common.getODSoftwareDir)
+
+   Returns:
+     str: full path to file
 
 
 .. py:function:: getNewEntryFileName(objnm, dirid, trgrp, trl, ext, ftype=None, args=None)

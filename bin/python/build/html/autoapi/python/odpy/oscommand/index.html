@@ -72,11 +72,28 @@
   <section id="module-python.odpy.oscommand">
 <span id="python-odpy-oscommand"></span><h1><a class="reference internal" href="#module-python.odpy.oscommand" title="python.odpy.oscommand"><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.oscommand</span></code></a><a class="headerlink" href="#module-python.odpy.oscommand" title="Permalink to this headline"></a></h1>
 <p>Tools for managing OS commands</p>
-<dl class="simple">
+<dl>
 <dt>Copyright (C) dGB Beheer B.V.; (LICENSE) <a class="reference external" href="http://opendtect.org/OpendTect_license.txt">http://opendtect.org/OpendTect_license.txt</a></dt><dd><ul class="simple">
 <li><p>AUTHOR : A. Huck</p></li>
 <li><p>DATE   : Apr 2019</p></li>
 </ul>
+</dd>
+<dt>General Example:</dt><dd><p>How to launch the OpendTect software from python terminal</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">execnm</span> <span class="o">=</span> <span class="s1">&#39;od_main&#39;</span> <span class="c1">#execnm is executable name=od_main for the OpendTect software</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmds</span> <span class="o">=</span> <span class="n">getODCommand</span><span class="p">(</span><span class="n">execnm</span><span class="p">)</span>
+<span class="go">  [&#39;C:\PROGRA~1\OPENDT~1\6683E8~1.0\bin\win64\Release\od_main&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">execpath</span> <span class="o">=</span> <span class="n">cmd</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">odproc</span> <span class="o">=</span> <span class="n">execCommand</span><span class="p">(</span><span class="n">execpath</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># exeCommand executes the command in background mode and launches software</span>
+</pre></div>
+</div>
+<p>getODCommand and execCommand wrapped into a function</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">launchApp</span><span class="p">(</span><span class="n">execnm</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="go">      return execCommand(getODCommand(execnm))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">launchApp</span><span class="p">(</span><span class="n">od_DBMain</span><span class="o">.</span><span class="n">exe</span><span class="p">)</span>          <span class="c1">#od_DBMain is executable used by odpy.dbman</span>
+</pre></div>
+</div>
 </dd>
 </dl>
 <section id="module-contents">
@@ -138,9 +155,9 @@
 <dl>
 <dt>Parameters:</dt><dd><ul class="simple">
 <li><p>execnm (list): [Executable name]</p></li>
-<li><p>arg (dict, optional):
+<li><p>args (dict, optional):
 Dictionary with the members ‘dtectdata’ and ‘survey’ as
-single element lists, and/or ‘dtectexec’ (see odpy.getODSoftwareDir)</p></li>
+single element lists, and/or ‘dtectexec’ (see odpy.common.getODSoftwareDir)</p></li>
 </ul>
 </dd>
 <dt>Returns:</dt><dd><ul class="simple">
@@ -156,7 +173,7 @@ will be added to the command line arguments.</p>
 <span class="go">}</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">getODCommand</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">getODCommand</span><span class="p">(</span><span class="n">od_process_attrib</span><span class="p">)</span>
 <span class="go">[&#39;C:\Program Files\OpendTect\6.6.0\bin\win64\Release\od_process_attrib&#39;,</span>
 <span class="go">&#39;--dataroot&#39;,</span>
 <span class="go">&#39;D:\ODData&#39;,</span>

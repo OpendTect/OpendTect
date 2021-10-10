@@ -7,6 +7,42 @@
 Module Contents
 ---------------
 
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   conf.autodoc_skip_member
+   conf.setup
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   conf.project
+   conf.copyright
+   conf.author
+   conf.version
+   conf.release
+   conf.extensions
+   conf.intersphinx_mapping
+   conf.templates_path
+   conf.exclude_patterns
+   conf.master_doc
+   conf.pygments_style
+   conf.html_theme
+   conf.html_static_path
+   conf.html_logo
+   conf.html_favicon
+   conf.autoapi_type
+   conf.autoapi_dirs
+   conf.autodoc_default_flags
+
+
 .. py:data:: project
    :annotation: = odpy
 
@@ -91,4 +127,15 @@ Module Contents
    :annotation: = ['../../']
 
    
+
+.. py:data:: autodoc_default_flags
+   :annotation: = ['members', 'private-members', 'special-members', 'show-inheritance']
+
+   
+
+.. py:function:: autodoc_skip_member(app, what, name, obj, skip, options)
+
+
+.. py:function:: setup(app)
+
 
