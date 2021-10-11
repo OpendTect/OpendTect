@@ -271,7 +271,7 @@ void uiSimpleTimeDepthTransform::createCB( CallBacker* )
 
 void uiSimpleTimeDepthTransform::editCB( CallBacker* )
 {
-    ConstPtrMan<IOObj> ioobj = selfld_->ioobj( true );
+    const IOObj* ioobj = selfld_->ioobj( true );
     if ( !ioobj )
     {
 	uiMSG().error( tr("Cannot read object from store") );
