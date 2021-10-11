@@ -758,7 +758,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     if ( isnew_ && lastsip_ && lastsip_->hasSurveyImportDlg() )
     {
 	const bool ret = uiMSG().askGoOn(
-				tr("Proceed to import Survey data Object") );
+				tr("Proceed to import Survey data Objects") );
 
 	if ( ret )
 	    lastsip_->launchSurveyImportDlg( this->parent() )->go();
