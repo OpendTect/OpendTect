@@ -180,38 +180,169 @@ Attributes
 
 .. py:function:: setArray(infos, ky, arr)
 
+   Sets array values for dataset attribute
+
+   Parameters:
+     * infos (obj): HDF5 file object
+     * ky (str): attribute name
+     * arr (list, tup, int, float, str): attribute value(s)
+
+   Returns:
+     * Nothing (sets dataset attribute value(s))
+
 
 .. py:function:: getBoolValue(infos, ky)
+
+   Gets boolean value
+
+   Parameters:
+     * infos (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     bool: True if attribute key evaluates to 'Yes', False if otherwise
 
 
 .. py:function:: getIArray_(valsstr)
 
+   Provides integer equivalence of input. Converts input or element of input into integers
+
+   Parameters:
+     * valsstr (int, float, list of int/float)
+
+   Returns:
+     * int, list of int
+
 
 .. py:function:: getIntValue(infos, ky)
+
+   Gets integer value of attribute
+
+   Parameters:
+     * infos (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     * int: attribute value
+
+   Notes:
+     * Returns ValueError if attribute value is text
 
 
 .. py:function:: getIInterval(infos, ky)
 
+   Gets interval int values of attribute
+
+   Parameters:
+     * infos (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     * list: interval int values
+
+   Notes:
+     * Returns ValueError if attribute value is text
+
 
 .. py:function:: getIStepInterval(infos, ky)
+
+   Gets interval step int values of attribute
+
+   Parameters:
+     * infos (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     * tuple: interval step int values
+
+   Notes:
+     * Returns ValueError if attribute value is text
 
 
 .. py:function:: getIArray(infos, ky)
 
+   Gets array int values of attribute
+
+   Parameters:
+     * infos (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     * list: attribute int values
+
+   Notes:
+     * Returns ValueError if attribute value is text
+
 
 .. py:function:: getDArray_(valsstr)
+
+   Provides float equivalence of input. Converts input or element of input into floats
+
+   Parameters:
+     * valsstr (int, float, list of int/float)
+
+   Returns:
+     * float, list of float
 
 
 .. py:function:: getDValue(infos, ky)
 
+   Gets float value of attribute
+
+   Parameters:
+     * infos (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     * float: attribute value
+
+   Notes:
+     * Returns ValueError if attribute value is text
+
 
 .. py:function:: getDInterval(infos, ky)
+
+   Gets interval float values of attribute
+
+   Parameters:
+     * infos (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     * list: interval float values
+
+   Notes:
+     * Returns ValueError if attribute value is text
 
 
 .. py:function:: getDStepInterval(infos, ky)
 
+   Gets float interval step values of attribute
+
+   Parameters:
+     * infos (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     * tuple: interval step float values
+
+   Notes:
+     * Returns ValueError if attribute value is text
+
 
 .. py:function:: getDArray(infos, ky)
+
+   Gets array float values of attribute
+
+   Parameters:
+     * infos (obj): HDF5 file object
+     * ky (str): attribute name
+
+   Returns:
+     * list: attribute float values
+
+   Notes:
+     * Returns ValueError if attribute value is text
 
 
 .. py:function:: getAttribInfo(filenm)
@@ -221,5 +352,13 @@ Attributes
 
 
 .. py:function:: getSurveyInfo(filenm)
+
+   Gets survey information
+
+   Parameters:
+     * filenm (str): file name
+
+   Returns:
+     * orderedDict: containing information on survey name, survey ranges (inline, crossline, x, y), transform
 
 

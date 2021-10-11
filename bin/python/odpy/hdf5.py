@@ -154,6 +154,17 @@ def getText( infos, ky ):
   return ret
 
 def setArray( infos, ky, arr ):
+  """ Sets array values for dataset attribute
+
+  Parameters:
+    * infos (obj): HDF5 file object
+    * ky (str): attribute name
+    * arr (list, tup, int, float, str): attribute value(s)
+
+  Returns:
+    * Nothing (sets dataset attribute value(s))
+  """
+
   try:
     arrstr = '`'.join( map(str,arr) )
   except TypeError:
@@ -161,9 +172,28 @@ def setArray( infos, ky, arr ):
   setAttr( infos, ky, arrstr )
 
 def getBoolValue( infos, ky ):
+  """ Gets boolean value
+
+  Parameters:
+    * infos (obj): HDF5 file object
+    * ky (str): attribute name
+
+  Returns:
+    bool: True if attribute key evaluates to 'Yes', False if otherwise
+  """
+
   return getAttr( infos, ky ) == "Yes"
 
 def getIArray_( valsstr ):
+  """ Provides integer equivalence of input. Converts input or element of input into integers
+
+  Parameters:
+    * valsstr (int, float, list of int/float)
+
+  Returns:
+    * int, list of int
+  """
+
   if isinstance(valsstr,list) and len(valsstr) > 1:
     ret = list()
     for valstr in valsstr:
@@ -175,18 +205,79 @@ def getIArray_( valsstr ):
     return int(float(valsstr))
 
 def getIntValue( infos, ky ):
+  """ Gets integer value of attribute
+
+  Parameters:
+    * infos (obj): HDF5 file object
+    * ky (str): attribute name
+
+  Returns:
+    * int: attribute value
+
+  Notes:
+    * Returns ValueError if attribute value is text
+  """
+
   return getIArray_( getText(infos,ky) )
 
 def getIInterval( infos, ky ):
+  """ Gets interval int values of attribute
+
+  Parameters:
+    * infos (obj): HDF5 file object
+    * ky (str): attribute name
+
+  Returns:
+    * list: interval int values
+
+  Notes:
+    * Returns ValueError if attribute value is text
+  """
+
   return getIArray_( getText(infos,ky) )
 
 def getIStepInterval( infos, ky ):
+  """ Gets interval step int values of attribute
+
+  Parameters:
+    * infos (obj): HDF5 file object
+    * ky (str): attribute name
+
+  Returns:
+    * tuple: interval step int values
+
+  Notes:
+    * Returns ValueError if attribute value is text
+  """
+
   return getIArray_( getText(infos,ky) )
 
 def getIArray( infos, ky ):
+  """ Gets array int values of attribute
+
+  Parameters:
+    * infos (obj): HDF5 file object
+    * ky (str): attribute name
+
+  Returns:
+    * list: attribute int values
+
+  Notes:
+    * Returns ValueError if attribute value is text
+  """
+
   return getIArray_( getText(infos,ky) )
 
 def getDArray_( valsstr ):
+  """ Provides float equivalence of input. Converts input or element of input into floats
+
+  Parameters:
+    * valsstr (int, float, list of int/float)
+
+  Returns:
+    * float, list of float
+  """
+
   if isinstance(valsstr,list) and len(valsstr) > 1:
     ret = list()
     for valstr in valsstr:
@@ -195,15 +286,66 @@ def getDArray_( valsstr ):
   return float(valsstr)
   
 def getDValue( infos, ky ):
+  """ Gets float value of attribute
+
+  Parameters:
+    * infos (obj): HDF5 file object
+    * ky (str): attribute name
+
+  Returns:
+    * float: attribute value
+
+  Notes:
+    * Returns ValueError if attribute value is text
+  """
   return getDArray_( getText(infos,ky) )
 
 def getDInterval( infos, ky ):
+  """ Gets interval float values of attribute
+
+  Parameters:
+    * infos (obj): HDF5 file object
+    * ky (str): attribute name
+
+  Returns:
+    * list: interval float values
+
+  Notes:
+    * Returns ValueError if attribute value is text
+  """
+
   return getDArray_( getText(infos,ky) )
 
 def getDStepInterval( infos, ky ):
+  """ Gets float interval step values of attribute
+
+  Parameters:
+    * infos (obj): HDF5 file object
+    * ky (str): attribute name
+
+  Returns:
+    * tuple: interval step float values
+
+  Notes:
+    * Returns ValueError if attribute value is text
+  """
+
   return getDArray_( getText(infos,ky) )
 
 def getDArray( infos, ky ):
+  """ Gets array float values of attribute
+
+  Parameters:
+    * infos (obj): HDF5 file object
+    * ky (str): attribute name
+
+  Returns:
+    * list: attribute float values
+
+  Notes:
+    * Returns ValueError if attribute value is text
+  """
+
   return getDArray_( getText(infos,ky) )
 
 def getAttribInfo( filenm ):
@@ -260,6 +402,15 @@ def getTransform( info ):
   })
 
 def getSurveyInfo( filenm ):
+  """ Gets survey information
+
+  Parameters:
+    * filenm (str): file name
+
+  Returns:
+    * orderedDict: containing information on survey name, survey ranges (inline, crossline, x, y), transform
+  """
+
   h5file = openFile( filenm, 'r' )
   infods = getInfoDataSet( h5file )
   surveyname = getText(infods,"Name.Survey")

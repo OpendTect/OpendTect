@@ -128,40 +128,40 @@ for  independent workflow</p>
 <td><p>Gets attribute text value from HDF5 dataset</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.setArray" title="python.odpy.hdf5.setArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setArray</span></code></a>(infos, ky, arr)</p></td>
-<td><p></p></td>
+<td><p>Sets array values for dataset attribute</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.hdf5.getBoolValue" title="python.odpy.hdf5.getBoolValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBoolValue</span></code></a>(infos, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets boolean value</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.getIArray_" title="python.odpy.hdf5.getIArray_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIArray_</span></code></a>(valsstr)</p></td>
-<td><p></p></td>
+<td><p>Provides integer equivalence of input. Converts input or element of input into integers</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.hdf5.getIntValue" title="python.odpy.hdf5.getIntValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIntValue</span></code></a>(infos, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets integer value of attribute</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.getIInterval" title="python.odpy.hdf5.getIInterval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIInterval</span></code></a>(infos, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets interval int values of attribute</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.hdf5.getIStepInterval" title="python.odpy.hdf5.getIStepInterval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIStepInterval</span></code></a>(infos, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets interval step int values of attribute</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.getIArray" title="python.odpy.hdf5.getIArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIArray</span></code></a>(infos, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets array int values of attribute</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.hdf5.getDArray_" title="python.odpy.hdf5.getDArray_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDArray_</span></code></a>(valsstr)</p></td>
-<td><p></p></td>
+<td><p>Provides float equivalence of input. Converts input or element of input into floats</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.getDValue" title="python.odpy.hdf5.getDValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDValue</span></code></a>(infos, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets float value of attribute</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.hdf5.getDInterval" title="python.odpy.hdf5.getDInterval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDInterval</span></code></a>(infos, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets interval float values of attribute</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.getDStepInterval" title="python.odpy.hdf5.getDStepInterval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDStepInterval</span></code></a>(infos, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets float interval step values of attribute</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.hdf5.getDArray" title="python.odpy.hdf5.getDArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDArray</span></code></a>(infos, ky)</p></td>
-<td><p></p></td>
+<td><p>Gets array float values of attribute</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.getAttribInfo" title="python.odpy.hdf5.getAttribInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAttribInfo</span></code></a>(filenm)</p></td>
 <td><p></p></td>
@@ -170,7 +170,7 @@ for  independent workflow</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.hdf5.getSurveyInfo" title="python.odpy.hdf5.getSurveyInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSurveyInfo</span></code></a>(filenm)</p></td>
-<td><p></p></td>
+<td><p>Gets survey information</p></td>
 </tr>
 </tbody>
 </table>
@@ -346,62 +346,235 @@ List of available attributes is displayed</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.setArray">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">setArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.setArray" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sets array values for dataset attribute</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>infos (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+<li><p>arr (list, tup, int, float, str): attribute value(s)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>Nothing (sets dataset attribute value(s))</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getBoolValue">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getBoolValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getBoolValue" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets boolean value</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>infos (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>bool: True if attribute key evaluates to ‘Yes’, False if otherwise</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getIArray_">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getIArray_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valsstr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getIArray_" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Provides integer equivalence of input. Converts input or element of input into integers</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>valsstr (int, float, list of int/float)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>int, list of int</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getIntValue">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getIntValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getIntValue" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets integer value of attribute</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>infos (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>int: attribute value</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Returns ValueError if attribute value is text</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getIInterval">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getIInterval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getIInterval" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets interval int values of attribute</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>infos (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>list: interval int values</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Returns ValueError if attribute value is text</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getIStepInterval">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getIStepInterval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getIStepInterval" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets interval step int values of attribute</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>infos (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>tuple: interval step int values</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Returns ValueError if attribute value is text</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getIArray">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getIArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getIArray" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets array int values of attribute</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>infos (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>list: attribute int values</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Returns ValueError if attribute value is text</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getDArray_">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getDArray_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valsstr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getDArray_" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Provides float equivalence of input. Converts input or element of input into floats</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>valsstr (int, float, list of int/float)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>float, list of float</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getDValue">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getDValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getDValue" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets float value of attribute</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>infos (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>float: attribute value</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Returns ValueError if attribute value is text</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getDInterval">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getDInterval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getDInterval" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets interval float values of attribute</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>infos (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>list: interval float values</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Returns ValueError if attribute value is text</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getDStepInterval">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getDStepInterval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getDStepInterval" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets float interval step values of attribute</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>infos (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>tuple: interval step float values</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Returns ValueError if attribute value is text</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getDArray">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getDArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ky</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getDArray" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets array float values of attribute</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>infos (obj): HDF5 file object</p></li>
+<li><p>ky (str): attribute name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>list: attribute float values</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Returns ValueError if attribute value is text</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getAttribInfo">
@@ -416,7 +589,18 @@ List of available attributes is displayed</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.hdf5.getSurveyInfo">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.hdf5.</span></span><span class="sig-name descname"><span class="pre">getSurveyInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.hdf5.getSurveyInfo" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets survey information</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>filenm (str): file name</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>orderedDict: containing information on survey name, survey ranges (inline, crossline, x, y), transform</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 </section>
