@@ -25,16 +25,19 @@ ________________________________________________________________________
 #include "uiseparator.h"
 
 
-const char* uiWellMarkerSel::sKeyUdfLvl()
-		{ return "-"; }
-const char* uiWellMarkerSel::sKeyDataStart()
-		{ return Well::ExtractParams::sKeyDataStart(); }
-const char* uiWellMarkerSel::sKeyDataEnd()
-		{ return Well::ExtractParams::sKeyDataEnd(); }
+mDefineEnumUtils( uiWellMarkerSel, MarkerSelTyp, "Marker selection type" )
+{
+    "-",
+    Well::ExtractParams::sKeyDataStart(),
+    Well::ExtractParams::sKeyDataEnd(),
+    "Marker",
+    nullptr
+};
 
 
+// uiWellMarkerSel::Setup
 
-uiWellMarkerSel::Setup::Setup( bool issingle, const char* txt )
+uiWellMarkerSel::Setup::Setup( bool issingle, const uiString& txt )
     : seltxt_(txt)
     , single_(issingle)
     , allowsame_(true)
@@ -42,21 +45,22 @@ uiWellMarkerSel::Setup::Setup( bool issingle, const char* txt )
     , unordered_(false)
     , middef_(false)
 {
-    if ( !txt ) // txt may be an empty string!
+    if ( txt.isEmpty() )
     {
 	if ( single_ )
-	    seltxt_ = "Marker";
+	    seltxt_ = uiStrings::sMarker();
 	else
-	    seltxt_ = withudf_ ? "Selected zone" : "Top/bottom";
+	    seltxt_ = withudf_ ? tr("Selected zone") : tr("Top/bottom");
     }
 }
 
 
+// uiWellMarkerSel
+
 uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
-	: uiGroup(p,"Well Marker selection")
-	, setup_(su)
-	, botfld_(0)
-	, mrkSelDone(this)
+    : uiGroup(p,"Well Marker selection")
+    , setup_(su)
+    , mrkSelDone(this)
 {
     CallBack mrkselcb( mCB(this,uiWellMarkerSel,mrkSel) );
     uiLabeledComboBox* lcb = nullptr;
@@ -64,8 +68,7 @@ uiWellMarkerSel::uiWellMarkerSel( uiParent* p, const uiWellMarkerSel::Setup& su)
 	topfld_ = new uiComboBox( this, "Top marker" );
     else
     {
-	lcb = new uiLabeledComboBox( this, toUiString(setup_.seltxt_),
-				     "Top marker" );
+	lcb = new uiLabeledComboBox( this, setup_.seltxt_, "Top marker" );
 	topfld_ = lcb->box();
     }
 
@@ -105,10 +108,11 @@ void uiWellMarkerSel::setMarkers( const BufferStringSet& inpnms )
 {
     BufferStringSet nms;
     if ( setup_.withudf_ )
-	nms.add( setup_.single_ ? sKeyUdfLvl() : sKeyDataStart() );
+	nms.add( setup_.single_ ? MarkerSelTypDef().getKey( Undef )
+				: MarkerSelTypDef().getKey( Start ) );
     nms.add( inpnms, true );
     if ( !setup_.single_ && setup_.withudf_ )
-	nms.add( sKeyDataEnd() );
+	nms.add( MarkerSelTypDef().getKey( End ) );
     if ( nms.isEmpty() )
 	{ topfld_->setEmpty(); if ( botfld_ ) botfld_->setEmpty(); return; }
 
@@ -177,20 +181,46 @@ void uiWellMarkerSel::setInput( const char* nm, bool top )
 
 const char* uiWellMarkerSel::getText( bool top ) const
 {
-    if ( !top && !botfld_ ) return sKeyDataEnd();
+    if ( !top && !botfld_ ) return MarkerSelTypDef().getKey( End );
     uiComboBox& cb = top ? *topfld_ : *botfld_;
     return cb.text();
 }
 
 
-int uiWellMarkerSel::getType( bool top ) const
+BufferString uiWellMarkerSel::getMarkerName( bool top ) const
+{
+    return getMkType(top) == Marker ? getText( top ) : "";
+}
+
+
+uiWellMarkerSel::MarkerSelTyp uiWellMarkerSel::getMkType( bool top ) const
 {
     const BufferString txt( getText(top) );
-    if ( txt == sKeyUdfLvl() || txt == sKeyDataStart() )
+    if ( txt == MarkerSelTypDef().getKey(Undef) )
+	return Undef;
+    else if ( txt == MarkerSelTypDef().getKey(Start) )
+	return Start;
+    else if ( txt == MarkerSelTypDef().getKey(End) )
+	return End;
+
+    return Marker;
+}
+
+
+int uiWellMarkerSel::getType( bool top ) const
+{
+    const MarkerSelTyp typ = getMkType( top );
+    if ( typ == Undef || typ == Start )
 	return -1;
-    if ( txt == sKeyDataEnd() )
+    if ( typ == End )
 	return 1;
     return 0;
+}
+
+
+bool uiWellMarkerSel::isValidMarker( bool top ) const
+{
+    return getMkType( top ) == Marker;
 }
 
 
@@ -205,7 +235,7 @@ void uiWellMarkerSel::usePar( const IOPar& iop )
 {
     if ( !botfld_ )
     {
-	const char* res = iop.find( "Marker" );
+	const char* res = iop.find( sKey::Marker() );
 	if ( res && *res )
 	    setInput( res, true );
     }
@@ -221,15 +251,31 @@ void uiWellMarkerSel::usePar( const IOPar& iop )
 }
 
 
-void uiWellMarkerSel::fillPar( IOPar& iop ) const
+uiRetVal uiWellMarkerSel::isOK() const
+{
+    uiRetVal uirv;
+    if ( getMkType(true) == End || (botfld_ && getMkType(false) == Start) )
+	uirv.add( tr("Invalid markers selection") );
+    if ( !setup_.single_ && !setup_.allowsame_ &&
+	 FixedString(getText(true)) == FixedString(getText(false)) )
+	uirv.add( tr("Start and stop markers need to be different") );
+
+    return uirv;
+}
+
+
+void uiWellMarkerSel::fillPar( IOPar& iop, bool replacestartend ) const
 {
     if ( !botfld_ )
-	iop.set( "Marker", getText(true) );
+	iop.set( sKey::Marker(), replacestartend ? getMarkerName().buf()
+						 : getText() );
     else
     {
-	iop.set( Well::ExtractParams::sKeyTopMrk(), getText(true) );
+	iop.set( Well::ExtractParams::sKeyTopMrk(),
+		replacestartend ? getMarkerName(true).buf() : getText(true) );
 	if ( botfld_ )
-	    iop.set( Well::ExtractParams::sKeyBotMrk(), getText(false) );
+	    iop.set( Well::ExtractParams::sKeyBotMrk(),
+	      replacestartend ? getMarkerName(false).buf() : getText(false) );
     }
 }
 
