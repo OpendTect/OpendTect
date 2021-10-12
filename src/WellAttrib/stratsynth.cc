@@ -1218,7 +1218,8 @@ void StratSynth::adjustD2TModels( ObjectSet<TimeDepthModel>& d2tmodels ) const
 }
 
 
-void StratSynth::generateOtherQuantities()
+void StratSynth::generateOtherQuantities( double zstep,
+					  const BufferStringSet* proplistfilter)
 {
     for ( const auto* sd : synthetics_ )
     {
@@ -1229,7 +1230,7 @@ void StratSynth::generateOtherQuantities()
 	if ( !pssd )
 	    continue;
 
-	return generateOtherQuantities( *pssd, layMod() );
+	return generateOtherQuantities( *pssd, layMod(), zstep, proplistfilter);
     }
 }
 
@@ -1241,57 +1242,84 @@ public:
 StratPropSyntheticDataCreator( ObjectSet<SyntheticData>& synths,
 		    const PostStackSyntheticData& sd,
 		    const Strat::LayerModel& lm,
-		    int& lastsynthid, bool useed )
+		    int& lastsynthid, bool useed, double zstep,
+		    const BufferStringSet* proplistfilter )
     : ParallelTask( "Creating Synthetics for Properties" )
     , synthetics_(synths)
     , sd_(sd)
     , lm_(lm)
     , lastsyntheticid_(lastsynthid)
-    , isprepared_(false)
     , useed_(useed)
+    , zrg_(sd.postStackPack().posData().range(false))
 {
+    zrg_.step = zstep;
+    prs_.setEmpty();
+    for ( const auto* pr : lm_.propertyRefs() )
+    {
+	if ( pr->isThickness() ||
+	     (proplistfilter && !proplistfilter->isPresent(pr->name())) )
+	    continue;
+
+	prs_.add( pr );
+    }
 }
 
 
-od_int64 nrIterations() const
-{ return lm_.size(); }
-
-
-uiString uiMessage() const
+uiString uiMessage() const override
 {
-    return !isprepared_ ? tr("Preparing Models") : tr("Calculating");
+    return msg_;
 }
 
-uiString uiNrDoneText() const
+
+uiString uiNrDoneText() const override
 {
     return tr("Models done");
 }
 
 
-protected:
+private:
 
-bool doPrepare( int nrthreads )
+od_int64 nrIterations() const override
+{ return lm_.size(); }
+
+
+bool doPrepare( int /* nrthreads */ ) override
 {
-    const StepInterval<double>& zrg =
-	sd_.postStackPack().posData().range( false );
+    msg_ = tr("Preparing Models");
 
     layermodels_.setEmpty();
-    const int sz = zrg.nrSteps() + 1;
+    const int sz = zrg_.nrSteps() + 1;
     for ( int idz=0; idz<sz; idz++ )
 	layermodels_ += new Strat::LayerModel();
-    const PropertyRefSelection& props = lm_.propertyRefs();
-    for ( int iprop=1; iprop<props.size(); iprop++ )
+
+    const int nrprops = prs_.size();
+    ObjectSet<SeisTrcBuf> trcbufs;
+    for ( int iprop=0; iprop<nrprops; iprop++ )
+	trcbufs.add( new SeisTrcBuf( true ) );
+
+    const SeisTrcBuf& sdbuf = sd_.postStackPack().trcBuf();
+    for ( int itrc=0; itrc<sdbuf.size(); itrc++ )
     {
-	SeisTrcBuf* trcbuf = new SeisTrcBuf( sd_.postStackPack().trcBuf() );
-	SeisTrcBufDataPack* seisbuf =
-	    new SeisTrcBufDataPack( trcbuf, Seis::Line, SeisTrcInfo::TrcNr,
-				  PostStackSyntheticData::sDataPackCategory() );
-	seisbufdps_ += seisbuf;
+	const SeisTrc& inptrc = *sdbuf.get( itrc );
+	SeisTrc trc( sz );
+	trc.info() = inptrc.info();
+	trc.info().sampling.step = zrg_.step;
+	trc.zero();
+	for ( int iprop=0; iprop<nrprops; iprop++ )
+	    trcbufs[iprop]->add( new SeisTrc(trc) );
     }
 
-    for ( int iseq=0; iseq<lm_.size(); iseq++ )
+    for ( int iprop=0; iprop<nrprops; iprop++ )
     {
-	addToNrDone( 1 );
+	SeisTrcBuf* trcbuf = trcbufs[iprop];
+	auto* seisbuf =
+	    new SeisTrcBufDataPack( trcbuf, Seis::Line, SeisTrcInfo::TrcNr,
+				  PostStackSyntheticData::sDataPackCategory() );
+	seisbufdps_.add( seisbuf );
+    }
+
+    for ( int iseq=0; iseq<lm_.size(); iseq++, addToNrDone(1) )
+    {
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
 	const TimeDepthModel& t2d = *sd_.zerooffsd2tmodels_[iseq];
 	const Interval<float> seqdepthrg = seq.zRange();
@@ -1306,62 +1334,25 @@ bool doPrepare( int nrthreads )
 
 	    lmsamp->addSequence();
 	    Strat::LayerSequence& curseq = lmsamp->sequence( iseq );
-	    const float time = mCast( float, zrg.atIndex(idz) );
+	    const float time = mCast( float, zrg_.atIndex(idz) );
 	    if ( !seqtimerg.includes(time,false) )
 		continue;
 
-	    const float dptstart = t2d.getDepth( time - (float)zrg.step );
-	    const float dptstop = t2d.getDepth( time + (float)zrg.step );
+	    const float dptstart = t2d.getDepth( time - (float)zrg_.step );
+	    const float dptstop = t2d.getDepth( time + (float)zrg_.step );
 	    Interval<float> depthrg( dptstart, dptstop );
 	    seq.getSequencePart( depthrg, true, curseq );
 	}
     }
 
-    proplistfilter_.setEmpty();
-    filterprops_ = false;
-    BufferString proplistfilt( GetEnvVar("DTECT_SYNTHROCK_TIMEPROPS") );
-    if ( !proplistfilt.isEmpty() )
-    {
-	if ( proplistfilt != sKey::None() )
-	    proplistfilter_.unCat( proplistfilt.buf(), "|" );
-	filterprops_ = true;
-    }
-
-    isprepared_ = true;
     resetNrDone();
-    return true;
-}
-
-
-bool doFinish( bool success )
-{
-    const PropertyRefSelection& props = lm_.propertyRefs();
-    SynthGenParams sgp;
-    sd_.fillGenParams( sgp );
-    for ( int idx=0; idx<seisbufdps_.size(); idx++ )
-    {
-	SeisTrcBufDataPack* dp = seisbufdps_[idx];
-	BufferString propnm = props[idx+1]->name();
-	if ( useed_ )
-	    propnm += StratSynth::sKeyFRNameSuffix();
-	BufferString nm( "[", propnm, "]" );
-	dp->setName( nm );
-	auto* prsd = new StratPropSyntheticData( sgp, *dp, *props[idx+1] );
-	prsd->id_ = ++lastsyntheticid_;
-	prsd->setName( nm );
-
-	deepCopy( prsd->zerooffsd2tmodels_, sd_.zerooffsd2tmodels_ );
-	synthetics_ += prsd;
-    }
-
+    msg_ = tr("Calculating");
     return true;
 }
 
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    const StepInterval<double>& zrg =
-	sd_.postStackPack().posData().range( false );
     const int sz = layermodels_.size();
     const PropertyRefSelection& props = lm_.propertyRefs();
     for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++ )
@@ -1372,31 +1363,23 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	Interval<float> seqtimerg(  t2d.getTime(seq.zRange().start),
 				    t2d.getTime(seq.zRange().stop) );
 
-	for ( int iprop=1; iprop<props.size(); iprop++ )
+	for ( const auto* pr : prs_ )
 	{
-	    const PropertyRef& pr = *props[iprop];
-	    const OD::String& propnm = pr.name();
-	    const Mnemonic::StdType prtype = pr.stdType();
-	    const bool propisvel = prtype == Mnemonic::Vel;
-	    SeisTrcBufDataPack* dp = seisbufdps_[iprop-1];
+	    const int iprop = props.indexOf( pr );
+	    const bool propisvel = pr->hasType( Mnemonic::Vel );
+	    SeisTrcBufDataPack* dp = seisbufdps_[prs_.indexOf(pr)];
 	    SeisTrcBuf& trcbuf = dp->trcBuf();
 	    const int bufsz = trcbuf.size();
-	    SeisTrc* rawtrc = iseq < bufsz ? trcbuf.get( iseq ) : 0;
+	    SeisTrc* rawtrc = iseq < bufsz ? trcbuf.get( iseq ) : nullptr;
 	    if ( !rawtrc )
 		continue;
-
-	    if ( filterprops_ && !proplistfilter_.isPresent(propnm) )
-	    {
-		rawtrc->zero();
-		continue;
-	    }
 
 	    PointBasedMathFunction propvals( PointBasedMathFunction::Linear,
 					     PointBasedMathFunction::EndVal );
 
 	    for ( int idz=0; idz<sz; idz++ )
 	    {
-		const float time = mCast( float, zrg.atIndex(idz) );
+		const float time = mCast( float, zrg_.atIndex(idz) );
 		if ( !seqtimerg.includes(time,false) )
 		    continue;
 
@@ -1434,11 +1417,11 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    Array1DImpl<float> proptr( sz );
 	    for ( int idz=0; idz<sz; idz++ )
 	    {
-		const float time = mCast( float, zrg.atIndex(idz) );
+		const float time = mCast( float, zrg_.atIndex(idz) );
 		proptr.set( idz, propvals.getValue( time ) );
 	    }
 
-	    const float step = mCast( float, zrg.step );
+	    const float step = mCast( float, zrg_.step );
 	    ::FFTFilter filter( sz, step );
 	    const float f4 = 1.f / (2.f * step );
 	    filter.setLowPass( f4 );
@@ -1462,25 +1445,64 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 }
 
 
+bool doFinish( bool success )
+{
+    SynthGenParams sgp;
+    sd_.fillGenParams( sgp );
+    for ( int idx=0; idx<seisbufdps_.size(); idx++ )
+    {
+	const PropertyRef* pr = prs_[idx];
+	SeisTrcBufDataPack* dp = seisbufdps_[idx];
+	BufferString propnm = pr->name();
+	if ( useed_ )
+	    propnm += StratSynth::sKeyFRNameSuffix();
+	BufferString nm( "[", propnm, "]" );
+	dp->setName( nm );
+	auto* prsd = new StratPropSyntheticData( sgp, *dp, *pr );
+	prsd->id_ = ++lastsyntheticid_;
+	prsd->setName( nm );
+
+	deepCopy( prsd->zerooffsd2tmodels_, sd_.zerooffsd2tmodels_ );
+	synthetics_ += prsd;
+    }
+
+    return true;
+}
+
     const PostStackSyntheticData&	sd_;
     const Strat::LayerModel&		lm_;
+    PropertyRefSelection		prs_;
+    StepInterval<double>		zrg_;
     ManagedObjectSet<Strat::LayerModel> layermodels_;
     ObjectSet<SyntheticData>&		synthetics_;
     ObjectSet<SeisTrcBufDataPack>	seisbufdps_;
-    BufferStringSet			proplistfilter_;
-    bool				filterprops_;
     int&				lastsyntheticid_;
-    bool				isprepared_;
     bool				useed_;
+    uiString				msg_;
 
 };
 
 
 void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
-					  const Strat::LayerModel& lm )
+				      const Strat::LayerModel& lm,
+				      double zstep,
+				      const BufferStringSet* proplist )
 {
+    const BufferString propliststr(
+				GetEnvVar("DTECT_SYNTHROCK_TIMEPROPS") );
+    if ( !propliststr.isEmpty() && propliststr == sKey::None() )
+	return;
+
+    BufferStringSet proplistfilter;
+    if ( !propliststr.isEmpty() )
+	proplistfilter.unCat( propliststr.buf(), "|" );
+    else if ( proplist )
+	proplistfilter = *proplist;
+
+    const bool filterprops = !proplistfilter.isEmpty();
     StratPropSyntheticDataCreator propcreator( synthetics_, sd, lm,
-					       lastsyntheticid_, useed_ );
+			      lastsyntheticid_, useed_, zstep,
+			      filterprops ? &proplistfilter : nullptr );
     TaskRunner::execute( taskr_, propcreator );
 }
 
@@ -1825,7 +1847,117 @@ void StratSynth::fillPar( IOPar& par ) const
 
 bool StratSynth::usePar( const IOPar& par )
 {
+    ObjectSet<SynthGenParams> genparsset;
+    genparsset.setNullAllowed();
+    if ( !getAllGenPars(par,genparsset) || genparsset.isEmpty() )
+    {
+	deepErase( genparsset );
+	return false;
+    }
+
     uiRetVal uirv, infos;
+    int nrvalidpars = 0, nradded = 0;
+    for ( const auto* genpars : genparsset )
+    {
+	if ( !genpars )
+	    continue;
+
+	nrvalidpars++;
+	const SyntheticData* sd = addSynthetic( *genpars );
+	if ( sd )
+	{
+	    if ( ++nradded == 0 )
+		genparams_ = *genpars;
+	}
+	if ( !errmsg_.isOK() )
+	    uirv.add( errmsg_ );
+	if ( !infomsg_.isOK() )
+	    infos.add( infomsg_ );
+    }
+
+    deepErase( genparsset );
+    if ( !uirv.isOK() )
+	errmsg_ = uirv;
+    if ( !infos.isOK() )
+	infomsg_ = infos;
+
+    return nradded == nrvalidpars;
+}
+
+
+IOPar StratSynth::getSelection( const BufferStringSet& synthnms ) const
+{
+    IOPar ret;
+    fillPar( ret );
+
+    ObjectSet<SynthGenParams> genparsset;
+    genparsset.setNullAllowed();
+    if ( !getAllGenPars(ret,genparsset) || genparsset.isEmpty() )
+    {
+	deepErase( genparsset );
+	return ret;
+    }
+
+    BufferStringSet availablepsnms, requiredpsnms;
+    TypeSet<int> unusedsynthidxs;
+    for ( const auto* genpars : genparsset )
+    {
+	if ( !genpars )
+	    continue;
+
+	if ( genpars->isPreStack() )
+	    availablepsnms.add( genpars->name_ );
+	else
+	{
+	    if ( synthnms.isPresent(genpars->name_.buf()) )
+	    {
+		if ( genpars->isPSBased() )
+		    requiredpsnms.addIfNew( genpars->inpsynthnm_ );
+	    }
+	    else
+		unusedsynthidxs.addIfNew( genparsset.indexOf( genpars ) );
+	}
+    }
+
+    if ( !availablepsnms.isEmpty() )
+    {
+	BufferStringSet toremovepsnms( availablepsnms );
+	for ( const auto* requiredpsnm : requiredpsnms )
+	    toremovepsnms.remove( requiredpsnm->buf() );
+
+	for ( const auto* toremovepsnm : toremovepsnms )
+	{
+	    for ( const auto* genpars : genparsset )
+	    {
+		if ( !genpars || !genpars->isPreStack() )
+		    continue;
+
+		if ( genpars->name_ == toremovepsnm->buf() )
+		    unusedsynthidxs.addIfNew( genparsset.indexOf( genpars ) );
+	    }
+	}
+    }
+
+    if ( unusedsynthidxs.isEmpty() )
+	return ret;
+
+    PtrMan<IOPar> synthpar = ret.subselect( sKeySyntheticNr() );
+    if ( !synthpar )
+	return ret;
+
+    for ( const auto& idx : unusedsynthidxs )
+	synthpar->removeSubSelection( idx );
+
+    ret.removeSubSelection( sKeySyntheticNr() );
+    ret.mergeComp( *synthpar.ptr(), sKeySyntheticNr() );
+
+    return ret;
+}
+
+
+bool StratSynth::getAllGenPars( const IOPar& par,
+				ObjectSet<SynthGenParams>& genparsset )
+{
     int nrsynthetics = -1;
     if ( !par.get(sKeyNrSynthetics(),nrsynthetics) || nrsynthetics < 0 )
 	return false;
@@ -1834,46 +1966,28 @@ bool StratSynth::usePar( const IOPar& par )
     if ( !synthpar )
 	return false;
 
-    ManagedObjectSet<SynthGenParams> genparsset;
     for ( int idx=0; idx<nrsynthetics; idx++ )
     {
 	PtrMan<IOPar> iop = synthpar->subselect( idx );
 	if ( !iop )
+	{
+	    genparsset.add( nullptr );
 	    continue;
+	}
 
 	auto* genpars = new SynthGenParams;
 	genpars->usePar( *iop.ptr() );
 	if ( !genpars->isOK() )
 	{
 	    delete genpars;
+	    genparsset.add( nullptr );
 	    continue;
 	}
 
 	genparsset.add( genpars );
     }
 
-    if ( genparsset.isEmpty() )
-	return false;
-
-    int nradded = 0;
-    for ( const auto* genpars : genparsset )
-    {
-	const SyntheticData* sd = addSynthetic( *genpars );
-	if ( sd )
-	    nradded++;
-	if ( !errmsg_.isOK() )
-	    uirv.add( errmsg_ );
-	if ( !infomsg_.isOK() )
-	    infos.add( infomsg_ );
-    }
-
-    genparams_ = *genparsset.first();
-    if ( !uirv.isOK() )
-	errmsg_ = uirv;
-    if ( !infos.isOK() )
-	infomsg_ = infos;
-
-    return nradded == genparsset.size();
+    return true;
 }
 
 

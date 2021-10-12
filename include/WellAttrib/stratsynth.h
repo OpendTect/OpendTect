@@ -91,7 +91,14 @@ public:
     SyntheticData*	getSyntheticByIdx(int idx);
     const SyntheticData* getSyntheticByIdx(int idx) const;
     void		clearSynthetics(bool excludeprops=false);
-    void		generateOtherQuantities();
+    void		generateOtherQuantities(double zstep=0.001,
+				const BufferStringSet* proplistfilter=nullptr);
+			/*!< General all properties, or a subselection
+			     Can be overruled by the environment variable
+			     DTECT_SYNTHROCK_TIMEPROPS
+			  Example: export DTECT_SYNTHROCK_TIMEPROPS=Density|Phie
+			  Set to None to disable them all
+			 */
     bool		createElasticModels();
     void		clearElasticModels()
 					{ aimodels_.erase(); }
@@ -136,6 +143,8 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
+    IOPar		getSelection(const BufferStringSet& synthnms) const;
+
     static const char*	sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
     static const char*	sKeySyntheticNr()	{ return "Synthetics Nr"; }
     static const char*	sKeySynthetics()	{ return "Synthetics"; }
@@ -178,7 +187,9 @@ protected:
     void		createAngleData(PreStackSyntheticData&,
 					const ObjectSet<RayTracer1D>&);
     void		generateOtherQuantities(const PostStackSyntheticData&,
-						const Strat::LayerModel&);
+						const Strat::LayerModel&,
+						double zstep,
+						const BufferStringSet* nms);
 
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
     void		putD2TModelsInSD(SyntheticData&,
@@ -186,6 +197,9 @@ protected:
 
     const PreStack::GatherSetDataPack*	getRelevantAngleData(
 						const IOPar& raypar) const;
+
+    static bool		getAllGenPars(const IOPar&,ObjectSet<SynthGenParams>&);
+
 public:
     void		getLevelTimes(SeisTrcBuf&,
 				const ObjectSet<const TimeDepthModel>&,
