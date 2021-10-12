@@ -131,7 +131,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 		file( COPY ${COPYFROMLIBDIR}/${EXE}.exe
 		      DESTINATION ${COPYTOLIBDIR} )
 	    elseif( APPLE )
-execute_process( COMMAND ${OpendTect_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMEXEDIR}/${EXE} )
+		execute_process( COMMAND ${OpendTect_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMEXEDIR}/${EXE} )
 		file( COPY ${COPYFROMEXEDIR}/${EXE}
 		      DESTINATION ${COPYTOEXEDIR} )
 	    else()
