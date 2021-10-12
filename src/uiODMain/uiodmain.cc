@@ -217,16 +217,15 @@ int ODMain( uiMain& app )
 
     checkScreenRes();
 
-    PtrMan<uiPluginSel> dlg = new uiPluginSel( odmain );
-    if ( dlg )
+    const bool skippluginsel = GetEnvVarYN( "OD_SKIP_PLUGIN_SEL" );
+    if ( !skippluginsel )
     {
-	dlg->setPopupArea( uiMainWin::Auto );
-	dlg->setActivateOnFirstShow();
-	if ( dlg->go() == uiDialog::Rejected )
+	uiPluginSel dlg( odmain );
+	dlg.setPopupArea( uiMainWin::Auto );
+	dlg.setActivateOnFirstShow();
+	if ( dlg.go() == uiDialog::Rejected )
 	    return 1;
-
     }
-    dlg = nullptr;
 
     SetProgramRestarter( ODMainProgramRestarter );
     const uiPixmap pm( "../splash" );
