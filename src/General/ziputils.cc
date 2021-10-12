@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "dirlist.h"
+#include "envvars.h"
 #include "manobjectset.h"
 #include "file.h"
 #include "filepath.h"
@@ -213,6 +214,14 @@ int nextStep()
 {
     if ( archidx_ >= archives_.size() )
 	return Finished();
+
+    if ( __iswin__ )
+    {
+	//Hack to supress errors if packages contain same dlls/libraries
+	const float delay = GetEnvVarFVal("DTECT_UNZIP_ARCHIVE_DELAY", 3 );
+	if ( archidx_ != 0 )
+	    Threads::sleep( delay );
+    }
 
     ZipHandler zh;
     if ( !zh.initUnZipArchive(archives_.get(archidx_),dest_) )
