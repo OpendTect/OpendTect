@@ -77,6 +77,7 @@ namespace OD
 	static const char*	sKeyPythonSrc();
 	static const char*	sKeyEnviron();
 	static const char*	sKeyPythonPath();
+	static const char*	sKeyActivatePath();
 
 	Notifier<PythonAccess>	envChange;
 
@@ -109,7 +110,6 @@ namespace OD
 	static void	getPathToInternalEnv(File::Path&,bool userdef);
 	static void	GetPythonEnvPath(File::Path&);
 	static void	GetPythonEnvBinPath(File::Path&);
-
 
     private:
 
@@ -169,6 +169,7 @@ namespace OD
 
 	static void	initClass();
 	static void	setPythonActivator(const char*);
+	static const char* getPythonActivatorPath();
 	static bool	needCheckRunScript();
 
 	void		addBasePath(const File::Path&);
