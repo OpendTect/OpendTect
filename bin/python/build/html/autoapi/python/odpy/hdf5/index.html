@@ -92,6 +92,20 @@ for  independent workflow</p>
 </li>
 </ul>
 </section>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">odpy.hdf5</span> <span class="k">as</span> <span class="nn">odhdf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">file</span> <span class="o">=</span><span class="n">odhdf</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="n">filenm</span><span class="o">=</span><span class="s1">&#39;DTECT_DATA/F3_Demo_2020/NLAs/3D_seismic_energy.h5&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">file</span>
+<span class="go">    &lt;HDF5 file &quot;3D_seismic_energy.h5&quot; (mode r)&gt;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">odhdf</span><span class="o">.</span><span class="n">getInfoDataSet</span><span class="p">(</span><span class="n">h5file_or_grp</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info</span>
+<span class="go">    &lt;HDF5 dataset &quot;++info++&quot;: shape (1,), type &quot;|S1&quot;&gt;</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>

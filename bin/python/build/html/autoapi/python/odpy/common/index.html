@@ -103,6 +103,24 @@
 </li>
 </ul>
 </section>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">odpy.common</span> <span class="k">as</span> <span class="nn">odcommon</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odcommon</span><span class="o">.</span><span class="n">getODSoftwareDir</span><span class="p">()</span>
+<span class="go">    &#39;C:\PROGRA~1\OPENDT~1\new\6683E8~1.0&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">odcommon</span><span class="o">.</span><span class="n">getBinSubDir</span><span class="p">()</span>
+<span class="go">    &#39;Release&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">odcommon</span><span class="o">.</span><span class="n">getODArgs</span><span class="p">()</span>
+<span class="go">    {&#39;dtectexec&#39;: [&#39;C:\PROGRA~1\OPENDT~1\new\6683E8~1.0\bin\win64\Release&#39;],</span>
+<span class="go">     &#39;dtectdata&#39;: [&#39;C:\Users\OLAWALE IBRAHIM\DTECT_DATA&#39;],</span>
+<span class="go">     &#39;survey&#39;: [&#39;F3_Demo_2020&#39;]}</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
@@ -939,7 +957,7 @@ False if file isn’t created due to an error</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="python.odpy.common.Timer">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">python.odpy.common.</span></span><span class="sig-name descname"><span class="pre">Timer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.common.Timer" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Timer" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">threading.Timer</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">threading.Timer</span></code></p>
 <p>Repeated timer</p>
 <p>Timer that restarts automatically after each interval</p>
 <dl class="py method">

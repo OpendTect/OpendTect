@@ -71,6 +71,17 @@
              
   <section id="module-python.odpy.gpuinfo">
 <span id="python-odpy-gpuinfo"></span><h1><a class="reference internal" href="#module-python.odpy.gpuinfo" title="python.odpy.gpuinfo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.gpuinfo</span></code></a><a class="headerlink" href="#module-python.odpy.gpuinfo" title="Permalink to this headline"></a></h1>
+<dl class="simple">
+<dt>Copyright (C) dGB Beheer B.V.; (LICENSE) <a class="reference external" href="http://opendtect.org/OpendTect_license.txt">http://opendtect.org/OpendTect_license.txt</a></dt><dd><ul class="simple">
+<li><p>AUTHOR : A. Huck</p></li>
+<li><p>DATE   : Nov 2018</p></li>
+</ul>
+</dd>
+</dl>
+<section id="module-summary">
+<h2>Module Summary<a class="headerlink" href="#module-summary" title="Permalink to this headline"></a></h2>
+<p>Tools for gpu and cuda operations</p>
+</section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
 <section id="functions">
@@ -82,62 +93,143 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.gpuinfo.is_cuda_available" title="python.odpy.gpuinfo.is_cuda_available"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_cuda_available</span></code></a>()</p></td>
-<td><p></p></td>
+<td><p>Checks if cuda device is available</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.gpuinfo.detect_gpus" title="python.odpy.gpuinfo.detect_gpus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_gpus</span></code></a>(printfn=print)</p></td>
-<td><p></p></td>
+<td><p>Displays cuda devices available</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.gpuinfo.nr_gpus" title="python.odpy.gpuinfo.nr_gpus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nr_gpus</span></code></a>()</p></td>
-<td><p></p></td>
+<td><p>Counts number of gpu devices</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.gpuinfo.compute_capability" title="python.odpy.gpuinfo.compute_capability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_capability</span></code></a>(devnum=0)</p></td>
-<td><p></p></td>
+<td><p>Compute capacity of cuda device</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.gpuinfo.id" title="python.odpy.gpuinfo.id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span></code></a>(devnum=0)</p></td>
-<td><p></p></td>
+<td><p>Gets cuda device id</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.gpuinfo.name" title="python.odpy.gpuinfo.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a>(devnum=0)</p></td>
-<td><p></p></td>
+<td><p>Gets cuda device name</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.gpuinfo.get_memory_info" title="python.odpy.gpuinfo.get_memory_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_memory_info</span></code></a>(devnum=None)</p></td>
-<td><p></p></td>
+<td><p>Gets memory info of cuda device</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.gpuinfo.is_cuda_available">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.gpuinfo.</span></span><span class="sig-name descname"><span class="pre">is_cuda_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.gpuinfo.is_cuda_available" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Checks if cuda device is available</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>bool: True if cuda is available, False if otherwise</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.gpuinfo.detect_gpus">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.gpuinfo.</span></span><span class="sig-name descname"><span class="pre">detect_gpus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">printfn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">print</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.gpuinfo.detect_gpus" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Displays cuda devices available</p>
+<dl class="simple">
+<dt>Notes:</dt><dd><p>Information on device type, id, compute type and capacity are displayed</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">odpy.gpuinfo</span> <span class="k">as</span> <span class="nn">gpuinfo</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gpuinfo</span><span class="o">.</span><span class="n">detect_gpus</span><span class="p">()</span>
+<span class="go">    Found 1 CUDA devices</span>
+<span class="go">    id 0    b&#39;NVIDIA GeForce MX250&#39;                              [SUPPORTED]</span>
+<span class="go">                          compute capability: 6.1</span>
+<span class="go">                              pci device id: 0</span>
+<span class="go">                                  pci bus id: 2</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.gpuinfo.nr_gpus">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.gpuinfo.</span></span><span class="sig-name descname"><span class="pre">nr_gpus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.gpuinfo.nr_gpus" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Counts number of gpu devices</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>int: number of gpu devices available for computations</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.gpuinfo.compute_capability">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.gpuinfo.</span></span><span class="sig-name descname"><span class="pre">compute_capability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">devnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.gpuinfo.compute_capability" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Compute capacity of cuda device</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>devnum (int): cuda device id, defaults to 0</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>tuple: compute capacity level of cuda device</p></li>
+</ul>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">odpy.gpuinfo</span> <span class="k">as</span> <span class="nn">gpuinfo</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gpuinfo</span><span class="o">.</span><span class="n">compute_capability</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">    (6, 1)</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.gpuinfo.id">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.gpuinfo.</span></span><span class="sig-name descname"><span class="pre">id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">devnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.gpuinfo.id" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets cuda device id</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>devnum (int): cuda device number, defaults to 0</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>int: cuda device id</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.gpuinfo.name">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.gpuinfo.</span></span><span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">devnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.gpuinfo.name" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets cuda device name</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>devnum (int): cuda device number, defaults to 0</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: cuda device name</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.gpuinfo.get_memory_info">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.gpuinfo.</span></span><span class="sig-name descname"><span class="pre">get_memory_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">devnum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.gpuinfo.get_memory_info" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets memory info of cuda device</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>devnum (int): cuda device number, defaults to None</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>obj: Memory info</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">odpy.gpuinfo</span> <span class="k">as</span> <span class="nn">gpuinfo</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gpuinfo</span><span class="o">.</span><span class="n">get_memory_info</span><span class="p">()</span>
+<span class="go">    MemoryInfo(free=1742539571, total=2147483648)</span>
+</pre></div>
+</div>
+</dd></dl>
 
 </section>
 </section>

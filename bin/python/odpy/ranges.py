@@ -1,10 +1,23 @@
-#
-# (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
-# AUTHOR   : A. Huck
-# DATE     : Nov 2018
-#
-# ranges tools
-#
+"""
+Copyright (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+  * AUTHOR : A. Huck
+  * DATE   : Nov 2018
+
+Module Summary
+###############
+
+Tools for ranges operations
+
+KEY methods
+-------------
+
+* get_range()
+  * gets range for sample object (start, stop, step)
+
+* arrayFromRange()
+  * gets range definitions as array
+
+"""
 
 import collections
 import math
@@ -12,17 +25,45 @@ import odpy.common
 import numpy as np
 
 def get_range( samp ):
+  """ Creates range object from input
+
+  Parameters:
+    * samp (list, array, tuple): array object
+
+  Returns:
+    * range: (start, stop, step) object
+  """
+
   return range( samp[0], samp[1]+samp[2], samp[2] )
 
 def arrayFromRange( rg ):
+  """ Creates array from range object
+
+  Parameters:
+    * rg (obj): range object e.g. range(0, 10, 2)
+
+  Returns:
+    * numpy array: of elements defined by range
+  """
+
   if rg == None:
     return None
   return np.linspace( rg.start, rg.stop, len(rg), dtype=np.int32 )
 
 def get_range_steps( samp ):
+  """ Creates 
+  """
+
   return arrayFromRange( get_range(samp) )
 
 def getLineObj( obj ):
+  """ Gets inline from 
+
+  Parameters:
+    * obj (obj): 
+
+  """
+
   try:
     ret = obj['Inline']
   except (AttributeError, KeyError):

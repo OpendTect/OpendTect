@@ -22,6 +22,17 @@
 
      * opens any h5 or hdf5 files, ensures and optimize access to the file
 
+   Example
+   --------
+   >>> import odpy.hdf5 as odhdf
+   >>> file =odhdf.openFile(filenm='DTECT_DATA/F3_Demo_2020/NLAs/3D_seismic_energy.h5', mode='r')
+   >>> file
+       <HDF5 file "3D_seismic_energy.h5" (mode r)>
+
+   >>> info = odhdf.getInfoDataSet(h5file_or_grp=file)
+   >>> info
+       <HDF5 dataset "++info++": shape (1,), type "|S1">
+
 
 
 Module Contents

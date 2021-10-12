@@ -3,6 +3,27 @@
 
 .. py:module:: python.odpy.ranges
 
+.. autoapi-nested-parse::
+
+   Copyright (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+     * AUTHOR : A. Huck
+     * DATE   : Nov 2018
+
+   Module Summary
+   ###############
+
+   Tools for ranges operations
+
+   KEY methods
+   -------------
+
+   * get_range()
+     * gets range for sample object (start, stop, step)
+
+   * arrayFromRange()
+     * gets range definitions as array
+
+
 
 Module Contents
 ---------------
@@ -30,14 +51,39 @@ Functions
 
 .. py:function:: get_range(samp)
 
+   Creates range object from input
+
+   Parameters:
+     * samp (list, array, tuple): array object
+
+   Returns:
+     * range: (start, stop, step) object
+
 
 .. py:function:: arrayFromRange(rg)
+
+   Creates array from range object
+
+   Parameters:
+     * rg (obj): range object e.g. range(0, 10, 2)
+
+   Returns:
+     * numpy array: of elements defined by range
 
 
 .. py:function:: get_range_steps(samp)
 
+   Creates 
+     
+
 
 .. py:function:: getLineObj(obj)
+
+   Gets inline from 
+
+   Parameters:
+     * obj (obj): 
+
 
 
 .. py:function:: getTraceObj(obj)

@@ -71,6 +71,26 @@
              
   <section id="module-python.odpy.ranges">
 <span id="python-odpy-ranges"></span><h1><a class="reference internal" href="#module-python.odpy.ranges" title="python.odpy.ranges"><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.ranges</span></code></a><a class="headerlink" href="#module-python.odpy.ranges" title="Permalink to this headline"></a></h1>
+<dl class="simple">
+<dt>Copyright (C) dGB Beheer B.V.; (LICENSE) <a class="reference external" href="http://opendtect.org/OpendTect_license.txt">http://opendtect.org/OpendTect_license.txt</a></dt><dd><ul class="simple">
+<li><p>AUTHOR : A. Huck</p></li>
+<li><p>DATE   : Nov 2018</p></li>
+</ul>
+</dd>
+</dl>
+<section id="module-summary">
+<h2>Module Summary<a class="headerlink" href="#module-summary" title="Permalink to this headline"></a></h2>
+<p>Tools for ranges operations</p>
+<section id="key-methods">
+<h3>KEY methods<a class="headerlink" href="#key-methods" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>get_range()
+* gets range for sample object (start, stop, step)</p></li>
+<li><p>arrayFromRange()
+* gets range definitions as array</p></li>
+</ul>
+</section>
+</section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
 <section id="functions">
@@ -82,16 +102,16 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.ranges.get_range" title="python.odpy.ranges.get_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_range</span></code></a>(samp)</p></td>
-<td><p></p></td>
+<td><p>Creates range object from input</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.ranges.arrayFromRange" title="python.odpy.ranges.arrayFromRange"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arrayFromRange</span></code></a>(rg)</p></td>
-<td><p></p></td>
+<td><p>Creates array from range object</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.ranges.get_range_steps" title="python.odpy.ranges.get_range_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_range_steps</span></code></a>(samp)</p></td>
-<td><p></p></td>
+<td><p>Creates</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.ranges.getLineObj" title="python.odpy.ranges.getLineObj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getLineObj</span></code></a>(obj)</p></td>
-<td><p></p></td>
+<td><p>Gets inline from</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.ranges.getTraceObj" title="python.odpy.ranges.getTraceObj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getTraceObj</span></code></a>(obj)</p></td>
 <td><p></p></td>
@@ -122,22 +142,52 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.get_range">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">get_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.get_range" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Creates range object from input</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>samp (list, array, tuple): array object</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>range: (start, stop, step) object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.arrayFromRange">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">arrayFromRange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.arrayFromRange" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Creates array from range object</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>rg (obj): range object e.g. range(0, 10, 2)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>numpy array: of elements defined by range</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.get_range_steps">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">get_range_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.get_range_steps" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Creates</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.getLineObj">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">getLineObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.getLineObj" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets inline from</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>obj (obj):</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.getTraceObj">

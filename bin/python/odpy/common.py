@@ -23,6 +23,20 @@ KEY methods
 
   * get dict containing information about the Opendtect executable, project database path and current survey name
 
+Example
+--------
+>>> import odpy.common as odcommon
+>>> odcommon.getODSoftwareDir()
+    'C:\\PROGRA~1\\OPENDT~1\\new\\6683E8~1.0'
+
+>>> odcommon.getBinSubDir()
+    'Release'
+
+>>> odcommon.getODArgs()
+    {'dtectexec': ['C:\\PROGRA~1\\OPENDT~1\\new\\6683E8~1.0\\bin\\win64\\Release'],
+     'dtectdata': ['C:\\Users\\OLAWALE IBRAHIM\\DTECT_DATA'],
+     'survey': ['F3_Demo_2020']}
+
 """
 
 import sys

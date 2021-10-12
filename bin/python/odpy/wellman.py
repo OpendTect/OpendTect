@@ -1,3 +1,17 @@
+"""
+Copyright (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+  * AUTHOR : A. Huck
+  * DATE   : Nov 2018
+
+Module Summary
+###############
+
+Tools database access and connection to survey wells and logs
+
+Tutorial link can be found here: https://github.com/OpendTect/OpendTect-ML-Dev/blob/main/documentation/workflows/notebooks/odpy_wellman_tutorial.ipynb
+
+"""
+
 import numpy as np
 import json
 
