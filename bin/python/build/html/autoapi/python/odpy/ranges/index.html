@@ -84,10 +84,16 @@
 <section id="key-methods">
 <h3>KEY methods<a class="headerlink" href="#key-methods" title="Permalink to this headline"></a></h3>
 <ul class="simple">
-<li><p>get_range()
-* gets range for sample object (start, stop, step)</p></li>
-<li><p>arrayFromRange()
-* gets range definitions as array</p></li>
+<li><p>get_range()</p>
+<ul>
+<li><p>gets range for sample object (start, stop, step)</p></li>
+</ul>
+</li>
+<li><p>arrayFromRange()</p>
+<ul>
+<li><p>gets range definitions as array</p></li>
+</ul>
+</li>
 </ul>
 </section>
 </section>
@@ -108,25 +114,25 @@
 <td><p>Creates array from range object</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.ranges.get_range_steps" title="python.odpy.ranges.get_range_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_range_steps</span></code></a>(samp)</p></td>
-<td><p>Creates</p></td>
+<td><p>Gets range steps</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.ranges.getLineObj" title="python.odpy.ranges.getLineObj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getLineObj</span></code></a>(obj)</p></td>
-<td><p>Gets inline from</p></td>
+<td><p>Gets inline range from object (2D seismic line or 3D cube)</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.ranges.getTraceObj" title="python.odpy.ranges.getTraceObj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getTraceObj</span></code></a>(obj)</p></td>
-<td><p></p></td>
+<td><p>Gets trace range from object (2D seismic trace or 3D cube)</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.ranges.getZObj" title="python.odpy.ranges.getZObj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getZObj</span></code></a>(obj)</p></td>
-<td><p></p></td>
+<td><p>Gets depth range from object (2D seismic trace or 3D cube)</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.ranges.getAxesAsRanges" title="python.odpy.ranges.getAxesAsRanges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAxesAsRanges</span></code></a>(tkzs)</p></td>
-<td><p></p></td>
+<td><p>Gets ranges of seismic dataset axes</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.ranges.getAxesAsArrays" title="python.odpy.ranges.getAxesAsArrays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAxesAsArrays</span></code></a>(tkzs)</p></td>
-<td><p></p></td>
+<td><p>Gets aarray values of seismic dataset axes ranges</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.ranges.getIntervalStr" title="python.odpy.ranges.getIntervalStr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIntervalStr</span></code></a>(rg, label)</p></td>
-<td><p></p></td>
+<td><p>Converts and stores range along string as string</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.ranges.printSampling" title="python.odpy.ranges.printSampling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">printSampling</span></code></a>(tkzs)</p></td>
 <td><p></p></td>
@@ -145,11 +151,16 @@
 <dd><p>Creates range object from input</p>
 <dl class="simple">
 <dt>Parameters:</dt><dd><ul class="simple">
-<li><p>samp (list, array, tuple): array object</p></li>
+<li><p>samp (list, array, tuple): array object with three elements [start, stop, step]</p></li>
 </ul>
 </dd>
 <dt>Returns:</dt><dd><ul class="simple">
 <li><p>range: (start, stop, step) object</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>stop position is increased by addition with the step to allow for
+complete iteration over the range</p></li>
 </ul>
 </dd>
 </dl>
@@ -174,45 +185,143 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.get_range_steps">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">get_range_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.get_range_steps" title="Permalink to this definition"></a></dt>
-<dd><p>Creates</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="python.odpy.ranges.getLineObj">
-<span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">getLineObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.getLineObj" title="Permalink to this definition"></a></dt>
-<dd><p>Gets inline from</p>
+<dd><p>Gets range steps</p>
 <dl class="simple">
 <dt>Parameters:</dt><dd><ul class="simple">
-<li><p>obj (obj):</p></li>
+<li><p>samp (list, array, tuple): array object with three elements [start, stop, step]</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>array: stop and start of input</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="python.odpy.ranges.getLineObj">
+<span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">getLineObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.getLineObj" title="Permalink to this definition"></a></dt>
+<dd><p>Gets inline range from object (2D seismic line or 3D cube)</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>obj (dict): with crossline, inline, Z keys</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>array: inline range[start, stop, step]</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">odpy.ranges</span> <span class="k">as</span> <span class="nn">ranges</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tkzs</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">            &#39;Inline&#39;: [200,400,1],</span>
+<span class="go">            &#39;Crossline&#39;: [500,900,2],</span>
+<span class="go">            &#39;Z&#39;: [0,2000,4]</span>
+<span class="go">          }</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ranges</span><span class="o">.</span><span class="n">getLineObj</span><span class="p">(</span><span class="n">tkzs</span><span class="p">)</span>
+<span class="go">    [200, 400, 1]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.getTraceObj">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">getTraceObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.getTraceObj" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets trace range from object (2D seismic trace or 3D cube)</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>obj (dict): with crossline, inline, Z keys</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>array: crossline or trace range[start, stop, step]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.getZObj">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">getZObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.getZObj" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets depth range from object (2D seismic trace or 3D cube)</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>obj (dict): with crossline, inline, Z keys</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>array: depth or Z range[start, stop, step]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.getAxesAsRanges">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">getAxesAsRanges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tkzs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.getAxesAsRanges" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets ranges of seismic dataset axes</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>tkzs (dict): with crossline, inline, Z keys</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>dict: axes ranges as range object</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">odpy.ranges</span> <span class="k">as</span> <span class="nn">ranges</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="n">tkzs</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">             &#39;Inline&#39;: [200,400,1],</span>
+<span class="go">              &#39;Crossline&#39;: [500,900,2],</span>
+<span class="go">             &#39;Z&#39;: [0,2000,4]</span>
+<span class="go">            }</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ranges</span><span class="o">.</span><span class="n">getAxesAsRanges</span><span class="p">(</span><span class="n">tkzs</span><span class="p">)</span>
+<span class="go">    OrderedDict([(&#39;lines&#39;, range(200, 401)),</span>
+<span class="go">           (&#39;traces&#39;, range(500, 902, 2)),</span>
+<span class="go">           (&#39;zsamp&#39;, range(0, 2004, 4))])</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.getAxesAsArrays">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">getAxesAsArrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tkzs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.getAxesAsArrays" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets aarray values of seismic dataset axes ranges</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>tkzs (dict): with crossline, inline, Z keys</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>dict: axes ranges as arrays</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.getIntervalStr">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">getIntervalStr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.getIntervalStr" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Converts and stores range along string as string</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>rg (list, array, tuple): array object with three elements [start, stop, step]</p></li>
+<li><p>label (str): label to be concatenated with range info</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: concatenated label and range info</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.ranges.printSampling">
@@ -224,13 +333,14 @@
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">niceNumber</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.niceNumber" title="Permalink to this definition"></a></dt>
 <dd><p>Return a nicely rounded number.</p>
 <dl class="simple">
-<dt>value<span class="classifier">float</span></dt><dd><p>Input value.</p>
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>value : (float) Input value.</p></li>
+<li><p>round : (boolean, optional). If true returned number will be rounded otherwise returns the ceiling. The default is True.</p></li>
+</ul>
 </dd>
-<dt>round<span class="classifier">boolean, optional</span></dt><dd><p>If true returned number will be rounded otherwise returns the ceiling. The default is True.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>float</dt><dd><p>The nice number.</p>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>float: The nice number</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -239,22 +349,23 @@
 <dt class="sig sig-object py" id="python.odpy.ranges.niceRange">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.ranges.</span></span><span class="sig-name descname"><span class="pre">niceRange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.ranges.niceRange" title="Permalink to this definition"></a></dt>
 <dd><p>Return a nicely rounded range - good for axes.</p>
-<dl>
-<dt>min<span class="classifier">float</span></dt><dd><blockquote>
-<div><p>Range minimum.</p>
-</div></blockquote>
 <dl class="simple">
-<dt>max<span class="classifier">float</span></dt><dd><p>Range maximum.</p>
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>min (float): range minimum</p></li>
+<li><p>max (float): range maximum</p></li>
+<li><p>maxsteps (int, optional): maximum number of major tick steps desired in output range. Default is 10.</p></li>
+</ul>
 </dd>
-<dt>maxsteps<span class="classifier">int, optional</span></dt><dd><p>Maximum number of major tick steps desired in output range. The default is 10.</p>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>tuple(niceMin: float, niceMax: float)</dt><dd><ul>
+<li><p>niceMin: the nicely rounded minimum</p></li>
+<li><p>niceMax: the nicely rounded maximum</p></li>
+</ul>
 </dd>
 </dl>
-<dl class="simple">
-<dt>niceMin<span class="classifier">float</span></dt><dd><p>The nicely rounded minimum.</p>
-</dd>
-<dt>niceMax<span class="classifier">float</span></dt><dd><p>The nicely rounded maximum.</p>
-</dd>
-</dl>
+</li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

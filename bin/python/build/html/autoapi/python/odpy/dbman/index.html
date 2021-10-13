@@ -109,7 +109,7 @@
 <td><p>Gets full file path</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.dbman.getNewEntryFileName" title="python.odpy.dbman.getNewEntryFileName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNewEntryFileName</span></code></a>(objnm, dirid, trgrp, trl, ext, ftype=None, args=None)</p></td>
-<td><p></p></td>
+<td><p>Registers a new OpendTect dataset to database</p></td>
 </tr>
 </tbody>
 </table>
@@ -293,7 +293,21 @@ single element lists, and/or ‘dtectexec’ (see odpy.common.getODSoftwareDir)<
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getNewEntryFileName">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.dbman.</span></span><span class="sig-name descname"><span class="pre">getNewEntryFileName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objnm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trgrp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.dbman.getNewEntryFileName" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Registers a new OpendTect dataset to database</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>objnm (str): file name</p></li>
+<li><p>dirid  (internal: int)</p></li>
+<li><p>trgrp (str): TranslatorGroup e.g. Well, Seismic, etc</p></li>
+<li><p>ext (str): file extension</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>file path to the object created with write permission</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 </section>

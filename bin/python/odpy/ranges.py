@@ -81,12 +81,14 @@ def getLineObj( obj ):
     * array: inline range[start, stop, step]
 
   Example:
+
   >>> import odpy.ranges as ranges
   >>> tkzs = {
               'Inline': [200,400,1],
               'Crossline': [500,900,2],
               'Z': [0,2000,4]
             }
+            
   >>> ranges.getLineObj(tkzs)
       [200, 400, 1]
 
@@ -151,12 +153,14 @@ def getAxesAsRanges( tkzs ):
     * dict: axes ranges as range object
 
   Example:
+
   >>> import odpy.ranges as ranges
   >>>  tkzs = {
                'Inline': [200,400,1],
                 'Crossline': [500,900,2],
                'Z': [0,2000,4]
               } 
+
   >>> ranges.getAxesAsRanges(tkzs)
       OrderedDict([('lines', range(200, 401)),
              ('traces', range(500, 902, 2)),
@@ -213,19 +217,15 @@ def printSampling( tkzs ):
 def niceNumber(value, round=True):
   """Return a nicely rounded number.
     
-    Parameters
-    ----------
-    value : float
-      Input value.
-    round : boolean, optional
-      If true returned number will be rounded otherwise returns the ceiling. The default is True.
+    Parameters:
+      * value : (float) Input value.
+      * round : (boolean, optional). If true returned number will be rounded otherwise returns the ceiling. The default is True.
    
-    Returns
-    -------
-    float
-      The nice number.
+    Returns:
+      * float: The nice number
    
-    """
+  """
+
   if value > 0:
       signfact = 1
   else:
@@ -260,22 +260,18 @@ def niceNumber(value, round=True):
 def niceRange(min, max, maxsteps=10):
   """ Return a nicely rounded range - good for axes.
   
-   Parameters
-   ----------
-   min : float
-        Range minimum.
-    max : float
-        Range maximum.
-    maxsteps : int, optional
-        Maximum number of major tick steps desired in output range. The default is 10.
+  Parameters:
+      * min (float): range minimum
+      * max (float): range maximum
+      * maxsteps (int, optional): maximum number of major tick steps desired in output range. Default is 10.
 
-    Returns
-    -------
-    niceMin : float
-       The nicely rounded minimum.
-    niceMax : float
-        The nicely rounded maximum.
-    """
+  Returns:
+    * tuple(niceMin: float, niceMax: float)
+       * niceMin: the nicely rounded minimum
+       * niceMax: the nicely rounded maximum
+
+  """
+
   range = abs(max-min)
   if math.isclose(min, max, rel_tol=1e-5):
       range = 0.2 * abs(min)

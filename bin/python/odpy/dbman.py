@@ -140,6 +140,7 @@ def getByName( dblist, retname, keystr ):
     * str: database object value
 
   Example:
+  
   >>> import odpy.dbman as dbman
   >>> dbman.getByName(dblist, 'F03-4', 'IDs')
       '100050.4'
@@ -206,7 +207,7 @@ def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, ftype=None, args=None ):
 
   Returns:
     * file path to the object created with write permission
-    
+
   """
 
   cmd = getODCommand(dbmanexe,args)
