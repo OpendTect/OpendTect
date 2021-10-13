@@ -120,14 +120,17 @@ StepInterval<T> SamplingData<T>::interval( IT nrsamp ) const
 }
 
 
+template <>
+template <> inline
+float SamplingData<float>::getfIndex( float val ) const
+{ return mIsZero(step,mDefEps) ? 0.f : val/step - start/step; }
+
+
 template <class T>
 template <class FT> inline
 float SamplingData<T>::getfIndex( FT val ) const
-{
-    if ( !step )
-	return (float)0;
-    return (float)((((double)val) - start) / step);
-}
+{ return mIsZero(step,mDefEps) ? 0.f : sCast( float,
+						(double(val) - start)/step ); }
 
 
 template <class T>
