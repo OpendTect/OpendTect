@@ -114,6 +114,9 @@ void uiDockWin::setGroup( uiGroup* grp )
 
 void uiDockWin::setVisible( bool yn )
 {
+    if ( !finalised() )
+	display( yn );
+
     body_->setVisible( yn );
 }
 
