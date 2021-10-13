@@ -184,8 +184,8 @@ int mProgMainFnName( int argc, char** argv )
 	if ( !ePDD().hasWorkToDo(pythonpath,!isrem) )
 	{
 	    if ( isrem )
-		uiMSG().warning(
-			    "No executables for removal from Firewall rules");
+		uiMSG().warning( toUiString("No executables for "
+					"removal from Firewall rules") );
 	    else
 		uiMSG().warning(
 		    toUiString("No executables for adding to Firewall rules") );
