@@ -71,6 +71,20 @@
              
   <section id="module-python.odpy.test_ioserv">
 <span id="python-odpy-test-ioserv"></span><h1><a class="reference internal" href="#module-python.odpy.test_ioserv" title="python.odpy.test_ioserv"><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.test_ioserv</span></code></a><a class="headerlink" href="#module-python.odpy.test_ioserv" title="Permalink to this headline"></a></h1>
+<p>(C) dGB Beheer B.V.; (LICENSE) <a class="reference external" href="http://opendtect.org/OpendTect_license.txt">http://opendtect.org/OpendTect_license.txt</a>
+AUTHOR   : Bert
+DATE     : Jan 2019</p>
+<section id="module-summary">
+<h2>Module Summary<a class="headerlink" href="#module-summary" title="Permalink to this headline"></a></h2>
+<p>Provides a test server for binary data transfer via stdin and stdout</p>
+<p>The client has to put:
+- a 4-byte int holding the number of values
+- a block of floats
+Then the script will return:
+- the number of returned vals (always 2)
+- a block of floats (the avg and std of the values passed)
+This stops when the input nrvals &lt; 0</p>
+</section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
 <section id="functions">

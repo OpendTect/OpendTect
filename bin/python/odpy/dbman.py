@@ -186,6 +186,7 @@ def getFileLocation( dbkey, args=None ):
 
   Returns:
     str: full path to file
+
   """
 
   cmd = getODCommand(dbmanexe,args)
@@ -195,6 +196,19 @@ def getFileLocation( dbkey, args=None ):
   return retFileLoc( execCommand(cmd) )
 
 def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, ftype=None, args=None ):
+  """ Registers a new OpendTect dataset to database
+
+  Parameters:
+    * objnm (str): file name
+    * dirid  (internal: int)
+    * trgrp (str): TranslatorGroup e.g. Well, Seismic, etc
+    * ext (str): file extension
+
+  Returns:
+    * file path to the object created with write permission
+    
+  """
+
   cmd = getODCommand(dbmanexe,args)
   cmd.append( '--create' )
   cmd.append( objnm )

@@ -85,10 +85,10 @@
 <td><p>Gets information on survey database wells</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.dbman.getInfoFromDBListByNameOrKey" title="python.odpy.dbman.getInfoFromDBListByNameOrKey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInfoFromDBListByNameOrKey</span></code></a>(nm_or_key, dblist)</p></td>
-<td><p></p></td>
+<td><p>Gets info from database list with obj key or name</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.dbman.getInfoByName" title="python.odpy.dbman.getInfoByName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInfoByName</span></code></a>(objnm, translnm, exenm=dbmanexe, args=None)</p></td>
-<td><p></p></td>
+<td><p>Gets object info by name</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.dbman.getInfoByKey" title="python.odpy.dbman.getInfoByKey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInfoByKey</span></code></a>(objkey, exenm=dbmanexe, args=None)</p></td>
 <td><p>Gets datbase info on well</p></td>
@@ -97,10 +97,10 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.dbman.getByName" title="python.odpy.dbman.getByName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getByName</span></code></a>(dblist, retname, keystr)</p></td>
-<td><p></p></td>
+<td><p>Gets value of specified database list  key</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.dbman.getDBKeyForName" title="python.odpy.dbman.getDBKeyForName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDBKeyForName</span></code></a>(dblist, retname)</p></td>
-<td><p></p></td>
+<td><p>Gets object ID key from database info</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.dbman.retFileLoc" title="python.odpy.dbman.retFileLoc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">retFileLoc</span></code></a>(bstdout)</p></td>
 <td><p></p></td>
@@ -156,12 +156,53 @@ single element lists, and/or ‘dtectexec’ (see odpy.common.getODSoftwareDir)<
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getInfoFromDBListByNameOrKey">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.dbman.</span></span><span class="sig-name descname"><span class="pre">getInfoFromDBListByNameOrKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nm_or_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dblist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.dbman.getInfoFromDBListByNameOrKey" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets info from database list with obj key or name</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>nm_or_key (str): object key or name</p></li>
+<li><p>dblist (dict): survey database list, check odpy.getDBList for docs</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>dict: info on database object (Name,ID, Format, Type, TranslatorGroup iff available)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getInfoByName">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.dbman.</span></span><span class="sig-name descname"><span class="pre">getInfoByName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objnm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translnm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exenm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">dbmanexe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.dbman.getInfoByName" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets object info by name</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>objnm (str): database object to get info on</p></li>
+<li><p>translnm (str):</p></li>
+<li><p>exenm (str): executable file, defaults to dbmanexe=od_DBMan</p></li>
+<li><p>args (dict, optional):
+Dictionary with the members ‘dtectdata’ and ‘survey’ as
+single element lists, and/or ‘dtectexec’ (see odpy.common.getODSoftwareDir)</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>dict: information on object, dict keys include; ID, Name, file name, etc</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:
+&gt;&gt;&gt; import odpy.dbman as dbman
+&gt;&gt;&gt; dbman.getInfoByName(objnm=’F02-1’, translnm=’Well’)</p>
+<blockquote>
+<div><dl class="simple">
+<dt>{‘ID’: ‘100050.2’,</dt><dd><p>‘Name’: ‘F02-1’,
+‘Format’: ‘dGB’,
+‘TranslatorGroup’: ‘Well’,
+‘File_name’: ‘C:UsersOLAWALE IBRAHIMDTECT_DATAF3_Demo_2020WellInfoF02-1.well’,
+‘Status’: ‘OK’}</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getInfoByKey">
@@ -189,12 +230,43 @@ single element lists, and/or ‘dtectexec’ (see odpy.common.getODSoftwareDir)<
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getByName">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.dbman.</span></span><span class="sig-name descname"><span class="pre">getByName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dblist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keystr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.dbman.getByName" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets value of specified database list  key</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>dblist (dict): survey database list, check odpy.getDBList for docs</p></li>
+<li><p>retname (str): key to return from dblist</p></li>
+<li><p>keystr (str): value to return from retname</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: database object value</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:
+&gt;&gt;&gt; import odpy.dbman as dbman
+&gt;&gt;&gt; dbman.getByName(dblist, ‘F03-4’, ‘IDs’)</p>
+<blockquote>
+<div><p>‘100050.4’</p>
+</div></blockquote>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getDBKeyForName">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.dbman.</span></span><span class="sig-name descname"><span class="pre">getDBKeyForName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dblist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.dbman.getDBKeyForName" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets object ID key from database info</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>dblist (dict): survey database list, check odpy.getDBList for docs</p></li>
+<li><p>retname (str): key to return from dblist</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: ID of database object (well)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.retFileLoc">

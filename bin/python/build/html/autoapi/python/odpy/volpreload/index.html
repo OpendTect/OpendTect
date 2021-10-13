@@ -71,6 +71,21 @@
              
   <section id="module-python.odpy.volpreload">
 <span id="python-odpy-volpreload"></span><h1><a class="reference internal" href="#module-python.odpy.volpreload" title="python.odpy.volpreload"><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.volpreload</span></code></a><a class="headerlink" href="#module-python.odpy.volpreload" title="Permalink to this headline"></a></h1>
+<p>(C) dGB Beheer B.V.; (LICENSE) <a class="reference external" href="http://opendtect.org/OpendTect_license.txt">http://opendtect.org/OpendTect_license.txt</a>
+AUTHOR   : A. Huck
+DATE     : Nov 2018</p>
+<dl>
+<dt>Pre-loads (part of) an HDF5 seismic dataset created by OpendTect, with sampling as:</dt><dd><dl class="simple">
+<dt>sampling = {</dt><dd><p>‘Inline’: range(start,stop,step)
+‘Crossline’: range(start,stop,step)
+‘Z’: range(start,stop,step)</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>Mind that in python stop &gt;= start+step, otherwise the range is empty!
+The entire sampling can be retrieve with odhdf5.getAttribInfo( filenm )[‘range’]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
 <section id="functions">

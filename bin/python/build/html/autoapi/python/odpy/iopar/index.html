@@ -71,6 +71,12 @@
              
   <section id="module-python.odpy.iopar">
 <span id="python-odpy-iopar"></span><h1><a class="reference internal" href="#module-python.odpy.iopar" title="python.odpy.iopar"><code class="xref py py-mod docutils literal notranslate"><span class="pre">python.odpy.iopar</span></code></a><a class="headerlink" href="#module-python.odpy.iopar" title="Permalink to this headline"></a></h1>
+<p>(C) dGB Beheer B.V.; (LICENSE) <a class="reference external" href="http://opendtect.org/OpendTect_license.txt">http://opendtect.org/OpendTect_license.txt</a>
+AUTHOR   : Bert
+DATE     : August 2018</p>
+<section id="iopar-tools">
+<h2>IOPar tools<a class="headerlink" href="#iopar-tools" title="Permalink to this headline"></a></h2>
+</section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
 <section id="functions">
@@ -93,11 +99,17 @@
 <dt class="sig sig-object py" id="python.odpy.iopar.read_line">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.iopar.</span></span><span class="sig-name descname"><span class="pre">read_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">words</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.iopar.read_line" title="Permalink to this definition"></a></dt>
 <dd><p>Interprets one line from an IOPar (ascii) file</p>
-<ul class="simple">
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
 <li><p>words (string): One line as read from an open text file</p></li>
 </ul>
-<p>Tuple of two key,val strings interpreted from the input line
-Everything right of the first colon is part of the value string
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>tuple of two key,val strings interpreted from the input line</p></li>
+</ul>
+</dd>
+</dl>
+<p>Everything right of the first colon is part of the value string
 val can be an empty string</p>
 </dd></dl>
 
@@ -105,16 +117,19 @@ val can be an empty string</p>
 <dt class="sig sig-object py" id="python.odpy.iopar.read_from_iopar">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.iopar.</span></span><span class="sig-name descname"><span class="pre">read_from_iopar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fnm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">searchkey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.iopar.read_from_iopar" title="Permalink to this definition"></a></dt>
 <dd><p>Return the value of a key from an OpendTect IOPar text file</p>
-<blockquote>
-<div><ul class="simple">
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
 <li><p>fnm (string): Full path to an OpendTect IOPar (ascii) file</p></li>
 <li><p>searchkey (string): Key in the IOPar for which the value string
 is requested</p></li>
 </ul>
-</div></blockquote>
-<p>If the searchkey is present in the file, value string the corresponds
-to it. Can be an empty string.
-None or empty string otherwise.</p>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>str: If the searchkey is present in the file, value string the corresponds</p></li>
+</ul>
+</dd>
+</dl>
+<p>to it. Can be an empty string. None or empty string otherwise.</p>
 </dd></dl>
 
 </section>

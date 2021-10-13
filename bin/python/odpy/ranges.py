@@ -12,9 +12,11 @@ KEY methods
 -------------
 
 * get_range()
+  
   * gets range for sample object (start, stop, step)
 
 * arrayFromRange()
+  
   * gets range definitions as array
 
 """
@@ -28,10 +30,16 @@ def get_range( samp ):
   """ Creates range object from input
 
   Parameters:
-    * samp (list, array, tuple): array object
+    * samp (list, array, tuple): array object with three elements [start, stop, step]
 
   Returns:
     * range: (start, stop, step) object
+
+  Notes:
+    * stop position is increased by addition with the step to allow for 
+      complete iteration over the range
+
+
   """
 
   return range( samp[0], samp[1]+samp[2], samp[2] )
@@ -44,6 +52,7 @@ def arrayFromRange( rg ):
 
   Returns:
     * numpy array: of elements defined by range
+
   """
 
   if rg == None:
@@ -51,16 +60,35 @@ def arrayFromRange( rg ):
   return np.linspace( rg.start, rg.stop, len(rg), dtype=np.int32 )
 
 def get_range_steps( samp ):
-  """ Creates 
+  """ Gets range steps
+
+  Parameters:
+    * samp (list, array, tuple): array object with three elements [start, stop, step]
+
+  Returns:
+    * array: stop and start of input
   """
 
   return arrayFromRange( get_range(samp) )
 
 def getLineObj( obj ):
-  """ Gets inline from 
+  """ Gets inline range from object (2D seismic line or 3D cube)
 
   Parameters:
-    * obj (obj): 
+    * obj (dict): with crossline, inline, Z keys
+    
+  Returns:
+    * array: inline range[start, stop, step]
+
+  Example:
+  >>> import odpy.ranges as ranges
+  >>> tkzs = {
+              'Inline': [200,400,1],
+              'Crossline': [500,900,2],
+              'Z': [0,2000,4]
+            }
+  >>> ranges.getLineObj(tkzs)
+      [200, 400, 1]
 
   """
 
@@ -74,6 +102,16 @@ def getLineObj( obj ):
   return ret
 
 def getTraceObj( obj ):
+  """ Gets trace range from object (2D seismic trace or 3D cube)
+
+  Parameters:
+    * obj (dict): with crossline, inline, Z keys
+    
+  Returns:
+    * array: crossline or trace range[start, stop, step]
+
+  """
+
   try:
     ret = obj['Crossline']
   except (AttributeError, KeyError):
@@ -84,6 +122,16 @@ def getTraceObj( obj ):
   return ret
 
 def getZObj( obj ):
+  """ Gets depth range from object (2D seismic trace or 3D cube)
+
+  Parameters:
+    * obj (dict): with crossline, inline, Z keys
+    
+  Returns:
+    * array: depth or Z range[start, stop, step]
+
+  """
+
   try:
     ret = obj['Z']
   except (AttributeError, KeyError):
@@ -94,13 +142,45 @@ def getZObj( obj ):
   return ret
 
 def getAxesAsRanges( tkzs ):
-   return collections.OrderedDict ({
+  """ Gets ranges of seismic dataset axes
+
+  Parameters:
+    * tkzs (dict): with crossline, inline, Z keys
+
+  Returns:
+    * dict: axes ranges as range object
+
+  Example:
+  >>> import odpy.ranges as ranges
+  >>>  tkzs = {
+               'Inline': [200,400,1],
+                'Crossline': [500,900,2],
+               'Z': [0,2000,4]
+              } 
+  >>> ranges.getAxesAsRanges(tkzs)
+      OrderedDict([('lines', range(200, 401)),
+             ('traces', range(500, 902, 2)),
+             ('zsamp', range(0, 2004, 4))])
+
+  """ 
+
+  return collections.OrderedDict ({
     'lines': get_range( getLineObj(tkzs) ),
     'traces': get_range( getTraceObj(tkzs) ),
     'zsamp': get_range( getZObj(tkzs) )
    })
 
 def getAxesAsArrays( tkzs ):
+  """ Gets aarray values of seismic dataset axes ranges
+
+  Parameters:
+    * tkzs (dict): with crossline, inline, Z keys
+
+  Returns:
+    * dict: axes ranges as arrays
+
+  """ 
+
   return collections.OrderedDict ({
     'lines': get_range_steps( getLineObj(tkzs) ),
     'traces': get_range_steps( getTraceObj(tkzs) ),
@@ -108,6 +188,17 @@ def getAxesAsArrays( tkzs ):
   })
 
 def getIntervalStr( rg, label ):
+  """ Converts and stores range along string as string
+
+  Parameters:
+    * rg (list, array, tuple): array object with three elements [start, stop, step]
+    * label (str): label to be concatenated with range info
+
+  Returns:
+    * str: concatenated label and range info
+
+  """
+
   if len(rg) < 3:
     return
   str = label + " range: "+ repr(rg[0]) + "-" + repr(rg[1])

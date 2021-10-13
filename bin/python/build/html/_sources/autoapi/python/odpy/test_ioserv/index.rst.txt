@@ -3,6 +3,26 @@
 
 .. py:module:: python.odpy.test_ioserv
 
+.. autoapi-nested-parse::
+
+   (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+   AUTHOR   : Bert
+   DATE     : Jan 2019
+
+   Module Summary
+   ###############
+
+   Provides a test server for binary data transfer via stdin and stdout
+
+   The client has to put:
+   - a 4-byte int holding the number of values
+   - a block of floats
+   Then the script will return:
+   - the number of returned vals (always 2)
+   - a block of floats (the avg and std of the values passed)
+   This stops when the input nrvals < 0
+
+
 
 Module Contents
 ---------------
