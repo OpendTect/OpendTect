@@ -21,7 +21,7 @@ namespace Seis
 				//!< 1 us or 1 um
     mGlobal(Seis) inline float	cDefOffsetEps()		{ return 1e-3f; }
 				//!< 1 mm
-    mGlobal(Seis) inline float	cDefSampleSnapDist()	{ return 1e-3f; }
+    mGlobal(Seis) inline float	cDefSampleSnapDist()	{ return 1e-4f; }
 				//!< Default rel dist from actual sample for
 				//! which value will not be interpolated. 1e-4
 
