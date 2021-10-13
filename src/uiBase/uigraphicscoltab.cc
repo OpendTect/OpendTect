@@ -61,7 +61,7 @@ void uiColTabItem::adjustLabel()
 	al = Alignment( setup_.startal_.hPos(),
 			Alignment::opposite(setup_.startal_.vPos()) );
 	minvalitm_->setAlignment( al );
-	minvalitm_->setPos( mCast(float,rect.left()), mCast(float,starty) );
+	minvalitm_->setPos( sCast(float,rect.left()), sCast(float,starty) );
 
 	const int stopy =
 	    setup_.stopal_.vPos() == Alignment::VCenter ? rect.centre().y
@@ -70,7 +70,7 @@ void uiColTabItem::adjustLabel()
 	al = Alignment( setup_.stopal_.hPos(),
 			Alignment::opposite(setup_.stopal_.vPos()) );
 	maxvalitm_->setAlignment( al );
-	maxvalitm_->setPos( mCast(float,rect.right()), mCast(float,stopy) );
+	maxvalitm_->setPos( sCast(float,rect.right()), sCast(float,stopy) );
     }
     else
     {
@@ -86,12 +86,12 @@ void uiColTabItem::adjustLabel()
 	al = Alignment( Alignment::opposite(setup_.startal_.hPos()),
 			setup_.startal_.vPos() );
 	minvalitm_->setAlignment( al );
-	minvalitm_->setPos( mCast(float,startx), mCast(float,rect.top()) );
+	minvalitm_->setPos( sCast(float,startx), sCast(float,rect.top()) );
 
 	al = Alignment( Alignment::opposite(setup_.stopal_.hPos()),
 			setup_.stopal_.vPos() );
 	maxvalitm_->setAlignment( al );
-	maxvalitm_->setPos( mCast(float,stopx), mCast(float,rect.bottom()) );
+	maxvalitm_->setPos( sCast(float,stopx), sCast(float,rect.bottom()) );
     }
 }
 

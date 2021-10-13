@@ -534,7 +534,7 @@ void uiODMenuMgr::fillExportMenu()
     insertAction( expmute, sascii, mExpMuteDefAsciiMnuItm, ascic );
     insertAction( exppdf, m3Dots(tr("ASCII (RokDoc)")),
 			 mExpPDFAsciiMnuItm, ascic );
-    insertAction( expwell, m3Dots(tr("Logs")), mExpLogLAS, ascic );
+    insertAction( expwell, m3Dots(tr("Logs to LAS")), mExpLogLAS, ascic );
 
 // Fill expmenus_
     expmnus_.erase();
@@ -1125,6 +1125,11 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
     mnu->insertAction(
 	new uiAction(m3Dots(tr("Cross-plot Attribute vs Well Data")),
 		     mCB(appman,uiODApplMgr,doWellXPlot),"xplot_wells") );
+    mnu->insertAction(
+	new uiAction(m3Dots(tr("Open Saved Cross-plot")),
+		     mCB(this,uiODMenuMgr,handleClick),"open"),
+	mOpenXplotMnuItm );
+
     dtecttb_->setButtonMenu( xplotid, mnu, uiToolButton::InstantPopup );
 
     mAddTB(dtecttb_,"rockphys",tr("Create New Well Logs Using Rock Physics"),

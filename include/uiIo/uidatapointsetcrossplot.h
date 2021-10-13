@@ -1,11 +1,11 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Mar 2008
+ Author:	Bert
+ Date:		Mar 2008
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -56,8 +56,10 @@ public:
 	mDefSetupMemb(OD::LineStyle,xstyle)
 	mDefSetupMemb(OD::LineStyle,ystyle)
 	mDefSetupMemb(OD::LineStyle,y2style)
-	mDefSetupMemb(bool,showcc)		// corr coefficient
-	mDefSetupMemb(bool,showregrline)
+	mDefSetupMemb(bool,showy1cc)		// corr coefficient
+	mDefSetupMemb(bool,showy2cc)		// corr coefficient
+	mDefSetupMemb(bool,showy1regrline)
+	mDefSetupMemb(bool,showy2regrline)
 	mDefSetupMemb(bool,showy1userdefpolyline)
 	mDefSetupMemb(bool,showy2userdefpolyline)
     };
@@ -77,7 +79,7 @@ public:
 
     Notifier<uiDataPointSetCrossPlotter>	lineDrawn;
     Notifier<uiDataPointSetCrossPlotter>	mouseReleased;
-    Notifier<uiDataPointSetCrossPlotter>        dataChgd;
+    Notifier<uiDataPointSetCrossPlotter>	dataChgd;
     Notifier<uiDataPointSetCrossPlotter>	pointsSelected;
     Notifier<uiDataPointSetCrossPlotter>	removeRequest;
     Notifier<uiDataPointSetCrossPlotter>	selectionChanged;
@@ -103,8 +105,6 @@ public:
 	uiDataPointSetCrossPlotter& cp_;
 	DataPointSet::ColID	colid_;
     };
-
-
 
     AxisData			x_;
     AxisData			y_;
@@ -205,9 +205,9 @@ public:
     void			drawContent( bool withaxis = true );
     void			drawColTabItem(bool isy1);
     bool			isY2Shown() const;
-    bool                        isY1Selectable() const
+    bool			isY1Selectable() const
 				{ return isy1selectable_; }
-    bool                        isY2Selectable() const
+    bool			isY2Selectable() const
 				{ return isy2selectable_; }
     bool			showY3() const		{ return showy3_; }
     bool			showY4() const		{ return showy4_; }
@@ -242,7 +242,7 @@ public:
     void			getRandRowids();
     void			setMultiColMode(bool yn)
 				{ multclron_ = yn; }
-    bool                        isMultiColMode() const	{ return multclron_; }
+    bool			isMultiColMode() const	{ return multclron_; }
     void			setCellSize( int sz )	{ cellsize_ = sz; }
     int				cellSize() const	{ return cellsize_; }
     bool			isSelectionValid(uiDataPointSet::DRowID);
@@ -271,27 +271,28 @@ public:
 
 protected:
 
-    int				y3colid_;
-    int				y4colid_;
+    int				y3colid_		= mUdf(int);
+    int				y4colid_		= mUdf(int);
 
     uiDataPointSet&		uidps_;
     DataPointSet&		dps_;
     Setup			setup_;
-    Math::Expression*		mathobj_;
+    Math::Expression*		mathobj_		= nullptr;
     BufferString		mathobjstr_;
     uiString			trmsg_;
 
-    uiPolygonItem*		selectionpolygonitem_;
-    uiRectItem*			selectionrectitem_;
-    uiGraphicsItemGroup*	yptitems_;
-    uiGraphicsItemGroup*	y2ptitems_;
-    uiGraphicsItemGroup*	selrectitems_;
-    uiGraphicsItemGroup*	selpolyitems_;
-    uiLineItem*			regrlineitm_;
-    uiPolyLineItem*		y1userdefpolylineitm_;
-    uiPolyLineItem*		y2userdefpolylineitm_;
-    uiColTabItem*		y1overlayctitem_;
-    uiColTabItem*		y2overlayctitem_;
+    uiPolygonItem*		selectionpolygonitem_	= nullptr;
+    uiRectItem*			selectionrectitem_	= nullptr;
+    uiGraphicsItemGroup*	yptitems_		= nullptr;
+    uiGraphicsItemGroup*	y2ptitems_		= nullptr;
+    uiGraphicsItemGroup*	selrectitems_		= nullptr;
+    uiGraphicsItemGroup*	selpolyitems_		= nullptr;
+    uiLineItem*			y1regrlineitm_		= nullptr;
+    uiLineItem*			y2regrlineitm_		= nullptr;
+    uiPolyLineItem*		y1userdefpolylineitm_	= nullptr;
+    uiPolyLineItem*		y2userdefpolylineitm_	= nullptr;
+    uiColTabItem*		y1overlayctitem_	= nullptr;
+    uiColTabItem*		y2overlayctitem_	= nullptr;
 
     ColTab::Sequence		ctab_;
     ColTab::Mapper		ctmapper_;
@@ -302,42 +303,42 @@ protected:
     LinStats2D&			lsy1_;
     LinStats2D&			lsy2_;
     Timer&			timer_;
-    bool			showy3_;
-    bool			showy4_;
-    bool			selectable_;
-    bool			mousepressed_;
-    bool			rectangleselection_;
-    bool                        isdensityplot_;
-    bool                        drawuserdefline_;
-    bool			drawy1userdefpolyline_;
-    bool                        drawy2userdefpolyline_;
-    bool			drawy2_;
-    float			plotperc_;
-    int				curgrp_;
-    int				selyitems_;
-    int				sely2items_;
-    int				curselarea_;
-    int				curselgrp_;
-    int				cellsize_;
+    bool			showy3_			= false;
+    bool			showy4_			= false;
+    bool			selectable_		= false;
+    bool			mousepressed_		= false;
+    bool			rectangleselection_	= true;
+    bool			isdensityplot_		= false;
+    bool			drawuserdefline_	= false;
+    bool			drawy1userdefpolyline_	= false;
+    bool			drawy2userdefpolyline_	= false;
+    bool			drawy2_			= false;
+    float			plotperc_		= 1;
+    int				curgrp_			= 0;
+    int				selyitems_		= 0;
+    int				sely2items_		= 0;
+    int				curselarea_		= 0;
+    int				curselgrp_		= 0;
+    int				cellsize_		= 1;
     const DataPointSet::ColID	mincolid_;
-    DataPointSet::RowID		selrow_;
+    DataPointSet::RowID		selrow_			= -1;
     Interval<int>		usedxpixrg_;
     TypeSet<RowCol>		selrowcols_;
     TypeSet<OD::Color>		y1grpcols_;
     TypeSet<OD::Color>		y2grpcols_;
     TypeSet<uiWorldPoint>	y1userdefpts_;
     TypeSet<uiWorldPoint>	y2userdefpts_;
-    Array1D<char>*		yrowidxs_;
-    Array1D<char>*		y2rowidxs_;
+    Array1D<char>*		yrowidxs_		= nullptr;
+    Array1D<char>*		y2rowidxs_		= nullptr;
     TypeSet<uiDataPointSet::DColID> modcolidxs_;
-    bool			selrowisy2_;
+    bool			selrowisy2_		= false;
     uiPoint			startpos_;
 
     ObjectSet<SelectionArea>	selareaset_;
     ObjectSet<SelectionGrp>	selgrpset_;
-    bool                        isy1selectable_;
-    bool                        isy2selectable_;
-    bool                        multclron_;
+    bool			isy1selectable_		= true;
+    bool			isy2selectable_		= false;
+    bool			multclron_		= false;
 
     void			initDraw();
     void			setDraw();
@@ -352,8 +353,7 @@ protected:
     bool			selNearest(const MouseEvent&);
     void			reDrawCB(CallBacker*);
     void			reSizeDrawCB(CallBacker*);
-    void                        mouseClickedCB(CallBacker*);
-    void                        mouseMoveCB(CallBacker*);
-    void                        mouseReleasedCB(CallBacker*);
+    void			mouseClickedCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
+    void			mouseReleasedCB(CallBacker*);
 };
-

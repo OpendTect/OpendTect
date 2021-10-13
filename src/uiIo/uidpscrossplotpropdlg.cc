@@ -177,9 +177,11 @@ class uiDPSCPStatsTab : public uiDlgGroup
 { mODTextTranslationClass(uiDPSCPStatsTab)
 public:
 
-uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
-    : uiDlgGroup(p->tabParent(),uiStrings::sStatistics())
+uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p, bool y1 )
+    : uiDlgGroup(p->tabParent(),
+	toUiString("%1 %2").arg(y1 ? "Y1" : "Y2").arg(uiStrings::sStatistics()))
     , plotter_(p->plotter())
+    , y1_(y1)
 {
     uiLabel* ylbl = new uiLabel( this, toUiString("%1 =").arg(uiStrings::sY()));
     a0fld_ = new uiLineEdit( this, FloatInpSpec(0), "A0" );
@@ -213,31 +215,69 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
     d0fld_->setReadOnly( true );
     d1fld_->setReadOnly( true );
     ccfld_->setReadOnly( true );
+    a0fld_->setNrDecimals( 4 );
+    a1fld_->setNrDecimals( 4 );
+    d0fld_->setNrDecimals( 4 );
+    d1fld_->setNrDecimals( 4 );
+    ccfld_->setNrDecimals( 4 );
 
-    p->postFinalise().notify( mCB(this,uiDPSCPStatsTab,initFlds) );
+    mAttachCB( p->postFinalise(), uiDPSCPStatsTab::finalizeCB );
+    mAttachCB( plotter_.dataChgd, uiDPSCPStatsTab::dataChangedCB );
 }
 
-void initFlds( CallBacker* )
+
+~uiDPSCPStatsTab()
 {
-    const LinStats2D& ls = plotter_.linStats();
+    detachAllNotifiers();
+}
+
+
+void finalizeCB( CallBacker* )
+{
+    updateFields();
+}
+
+
+void dataChangedCB( CallBacker* )
+{
+    updateFields();
+}
+
+
+void updateFields()
+{
+    const LinStats2D& ls = plotter_.linStats( y1_ );
     a0fld_->setValue( ls.lp.a0 );
     a1fld_->setValue( ls.lp.ax );
     d0fld_->setValue( ls.sd.a0 );
     d1fld_->setValue( ls.sd.ax );
     ccfld_->setValue( ls.corrcoeff );
-    ccdispbut_->setChecked( plotter_.setup().showcc_ );
-    shwregrlnbut_->setChecked( plotter_.setup().showregrline_ );
+    const uiDataPointSetCrossPlotter::Setup& ps = plotter_.setup();
+    ccdispbut_->setChecked( y1_ ? ps.showy1cc_ : ps.showy2cc_ );
+    shwregrlnbut_->setChecked( y1_ ? ps.showy1regrline_ : ps.showy2regrline_ );
 }
+
 
 bool acceptOK()
 {
-    plotter_.setup().showcc( ccdispbut_->isChecked() );
-    plotter_.setup().showregrline( shwregrlnbut_->isChecked() );
+    uiDataPointSetCrossPlotter::Setup& ps = plotter_.setup();
+    if ( y1_ )
+    {
+	ps.showy1cc( ccdispbut_->isChecked() );
+	ps.showy1regrline( shwregrlnbut_->isChecked() );
+    }
+    else
+    {
+	ps.showy2cc( ccdispbut_->isChecked() );
+	ps.showy2regrline( shwregrlnbut_->isChecked() );
+    }
+
     return true;
 }
 
     uiDataPointSetCrossPlotter&		plotter_;
 
+    bool		y1_;
     uiLineEdit*		a0fld_;
     uiLineEdit*		a1fld_;
     uiLineEdit*		d0fld_;
@@ -319,7 +359,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     {
 	selaxisfld_ =
 	    new uiGenInput( this, uiString::emptyString(),
-                            BoolInpSpec( true,uiStrings::phrJoinStrings(
+			BoolInpSpec( true,uiStrings::phrJoinStrings(
 			    uiStrings::sDraw(),tr("Y1")),
 			    mJoinUiStrs(sDraw(), sY2())) );
 	selaxisfld_->attach( rightTo, drawlinefld_ );
@@ -697,7 +737,7 @@ bool acceptOK()
 }
 
     uiDataPointSetCrossPlotter&		plotter_;
-    const DataPointSet&                 dps_;
+    const DataPointSet&			dps_;
 
     bool				hasy2_;
     bool				exp1plotted_;
@@ -707,8 +747,8 @@ bool acceptOK()
     bool				err1bfrplot_;
     bool				err2bfrplot_;
     uiGraphicsView::ODDragMode		dragmode_;
-    uiGenInput*                         inpfld_;
-    uiGenInput*                         inpfld1_;
+    uiGenInput*				inpfld_;
+    uiGenInput*				inpfld1_;
     uiGenInput*				rmsfld_;
     uiGenInput*				rmsfld1_;
     uiGenInput*				selaxisfld_;
@@ -719,8 +759,8 @@ bool acceptOK()
     BufferString			mathexprstring1_;
     Math::Expression*			mathobj_;
     Math::Expression*			mathobj1_;
-    uiString		msg() const  { return msg_; }
-    mutable uiString	msg_;
+    uiString				msg() const  { return msg_; }
+    mutable uiString			msg_;
 };
 
 
@@ -928,8 +968,8 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
 	: uiTabStackDlg( p->parent(),
 			 uiDialog::Setup(uiStrings::sSettings(),
-			 uiStrings::sEmptyString(),
-                         mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
+			 mNoDlgTitle,
+			 mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
 			 .modal(false) )
 	, plotter_(*p)
 	, bdroptab_(0)
@@ -937,8 +977,11 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
     setDeleteOnClose( false );
     scaletab_ = new uiDPSCPScalingTab( this );
     addGroup( scaletab_ );
-    statstab_ = new uiDPSCPStatsTab( this );
+    statstab_ = new uiDPSCPStatsTab( this, true );
     addGroup( statstab_ );
+    if ( plotter_.axisHandler(2) )
+	addGroup( new uiDPSCPStatsTab(this,false) );
+
     userdeftab_ = new uiDPSUserDefTab( this );
     addGroup( userdeftab_ );
     dispproptab_ = new uiDPSCPDisplayPropTab( this );
@@ -953,15 +996,15 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 
 
 void uiDataPointSetCrossPlotterPropDlg::doApply( CallBacker* cb )
-{ acceptOK( cb ); }
+{
+    acceptOK( cb );
+}
+
 
 bool uiDataPointSetCrossPlotterPropDlg::acceptOK( CallBacker* )
 {
-    if ( scaletab_ ) scaletab_->acceptOK();
-    if ( statstab_ ) statstab_->acceptOK();
-    if ( userdeftab_ ) userdeftab_->acceptOK();
-    if ( dispproptab_ ) dispproptab_->acceptOK();
-    if ( densplottab_ ) densplottab_->acceptOK();
+    for ( int idx=0; idx<nrGroups(); idx++ )
+	getGroup(idx).acceptOK();
 
     plotter_.dataChanged();
     return true;
