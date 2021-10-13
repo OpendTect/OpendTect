@@ -153,7 +153,8 @@ float SeisTrc::getValue( float t, int icomp ) const
     if ( sampidx < 0 || sampidx >= sz )
 	return interpolator().udfval_;
 
-    const float pos = ( t - startPos() ) / info_.sampling.step;
+    const float step = info_.sampling.step;
+    const float pos = t/step - startPos()/step;
     if ( sampidx-pos > -snapdist && sampidx-pos < snapdist )
 	return get( sampidx, icomp );
 
