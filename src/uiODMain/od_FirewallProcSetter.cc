@@ -183,13 +183,9 @@ int mProgMainFnName( int argc, char** argv )
 	const bool isrem = PDE::Remove == opertype;
 	if ( !ePDD().hasWorkToDo(pythonpath,!isrem) )
 	{
-	    if ( isrem )
-		uiMSG().warning( toUiString("No executables for "
-					"removal from Firewall rules") );
-	    else
-		uiMSG().warning(
-		    toUiString("No executables for adding to Firewall rules") );
-
+	    const uiString msg = toUiString("No executables for "
+	    "%1 Firewall rules").arg(isrem ? "removal from" : "adding to" );
+	    uiMSG().warning( msg );
 	    return 0;
 	}
 
