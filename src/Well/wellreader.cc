@@ -590,7 +590,11 @@ Well::Log* Well::odReader::rdLogHdr( od_istream& strm, int& bintype, int ilog,
 	{
 	    newlog->addValue( astrm.getFValue(0), mUdf(float) );
 	    newlog->addValue( astrm.getFValue(1), mUdf(float) );
+	    newlog->dahRange().set( astrm.getFValue(0), astrm.getFValue(1) );
 	}
+	if ( astrm.hasKeyword(Log::sKeyLogRange()) )
+	    newlog->valueRange().set( astrm.getFValue(0), astrm.getFValue(1) );
+
 	if ( ky == Well::Log::sKeyStorage() )
 	    bintype = val[0] == 'B' ? 1
 		    : val[0] == 'S' ? -1 : 0;

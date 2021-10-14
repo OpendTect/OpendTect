@@ -271,6 +271,10 @@ bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
     astrm.put( Well::Log::sKeyStorage(), stortyp );
     astrm.put( Well::Log::sKeyDahRange(),
 	       wl.dahRange().start, wl.dahRange().stop );
+    const Interval<float>& logrange = wl.valueRange();
+    if ( !logrange.isUdf() )
+	astrm.put( Well::Log::sKeyLogRange(), logrange.start, logrange.stop );
+
     astrm.newParagraph();
     if ( havepars )
 	wl.pars().putTo( astrm );
