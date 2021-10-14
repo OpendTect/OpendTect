@@ -6,8 +6,10 @@
 
 
 #include "wellwriter.h"
-#include "wellodwriter.h"
+
 #include "wellioprov.h"
+#include "wellodwriter.h"
+#include "wellreader.h"
 #include "welltransl.h"
 
 #include "welldata.h"
@@ -285,6 +287,7 @@ bool Well::odWriter::putLogs() const
 			    databufset.validIdx(idy) ? databufset.get(idy++) :
 						       nullptr;
 	mGetOutStream( sExtLog(), idx+1, return false )
+
 	errmsg_.setEmpty();
 	if ( !writeLog(strm,wl,dbuf) )
 	    return false;
@@ -296,14 +299,30 @@ bool Well::odWriter::putLogs() const
 
 bool Well::odWriter::putLog( const Well::Log& wl ) const
 {
-    const int logidx = wd_.logs().indexOf( wl.name() );
-    if ( logidx<0 )
+    int logidx = -1;
+    //TODO: to be replaced by a proper well log identifier:
+    int nrlogs = -1;
+    if ( isFunctional() )
     {
-	pErrMsg( "First add Log to Well::Data" );
-	return false;
+	Reader rdr( wd_.multiID(), const_cast<Data&>( wd_ ) );
+	if ( rdr.isUsable() )
+	{
+	    BufferStringSet lognms;
+	    rdr.getLogInfo( lognms );
+	    logidx = lognms.indexOf( wl.name() );
+	    nrlogs = lognms.size();
+	}
     }
 
-    const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx+1 );
+    if ( logidx < 0 )
+    {
+	//Unsafe !!!
+	logidx = nrlogs < 0 ? 0 : nrlogs;
+    }
+
+    logidx++;
+
+    const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx );
     od_istream istrm( logfnm );
     const DataBuffer* dbuf = wl.isLoaded() ? nullptr : getLogBuffer(istrm);
     od_ostream strm( logfnm );
