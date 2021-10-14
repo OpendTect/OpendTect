@@ -193,11 +193,11 @@ mExternC(Basic) const char* GetProcFileName( const char* fname )
 }
 
 
-mExternC(Basic) const char* GetScriptsDir( const char* subdir )
+mExternC(Basic) const char* GetScriptsDir()
 {
     mDeclStaticString( ret );
     const char* envval = GetEnvVar( "DTECT_SCRIPTS_DIR" );
-    ret = envval && *envval ? envval : GetProcFileName( subdir );
+    ret = envval && *envval ? envval : GetSurveyScriptsDir();
     return ret.buf();
 }
 
@@ -206,7 +206,7 @@ mExternC(Basic) const char* GetShellScript( const char* nm )
 {
     mDeclStaticString( res );
     if ( !nm || !*nm )
-        return GetScriptDir();
+	return GetScriptDir();
 
     res = FilePath(GetScriptDir(),nm).fullPath();
     return res.buf();
@@ -675,13 +675,18 @@ mExternC(Basic) const char* GetSettingsFileName( const char* fnm )
 }
 
 
+static void getSurveySubDir( const char* subdir, BufferString& ret )
+{
+    ret = FilePath( GetDataDir(), subdir ).fullPath();
+    if ( !File::exists(ret) )
+	File::createDir( ret );
+}
+
+
 mExternC(Basic) const char* GetSurveyExportDir()
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetDataDir(), "Export" ).fullPath();
-    if ( !File::exists(ret) )
-	File::createDir( ret );
-
+    getSurveySubDir( "Export", ret );
     return ret.buf();
 }
 
@@ -689,10 +694,15 @@ mExternC(Basic) const char* GetSurveyExportDir()
 mExternC(Basic) const char* GetSurveyPicturesDir()
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetDataDir(), "Pictures" ).fullPath();
-    if ( !File::exists(ret) )
-	File::createDir( ret );
+    getSurveySubDir( "Pictures", ret );
+    return ret;
+}
 
+
+mExternC(Basic) const char* GetSurveyScriptsDir()
+{
+    mDeclStaticString( ret );
+    getSurveySubDir( "Scripts", ret );
     return ret;
 }
 
@@ -700,10 +710,7 @@ mExternC(Basic) const char* GetSurveyPicturesDir()
 mExternC(Basic) const char* GetSurveyTempDir()
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetDataDir(), "Temp" ).fullPath();
-    if ( !File::exists(ret) )
-	File::createDir( ret );
-
+    getSurveySubDir( "Temp", ret );
     return ret;
 }
 

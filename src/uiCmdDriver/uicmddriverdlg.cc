@@ -107,9 +107,9 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
     setCancelText( uiStrings::sHide() );
 
     cmdoptionfld_ = new uiLabeledComboBox( this, optstrs,
-						      tr("Select script to") );
-    cmdoptionfld_->box()->selectionChanged.notify(
-					  mCB(this,uiCmdDriverDlg,selChgCB) );
+					   tr("Select script to") );
+    mAttachCB( cmdoptionfld_->box()->selectionChanged,
+		uiCmdDriverDlg::selChgCB );
 
     tooltipfld_ = new uiCheckBox( this, tr("Show Tooltips"),
 				  mCB(this,uiCmdDriverDlg,toolTipChangeCB) );
@@ -122,16 +122,18 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
     inpfld_ = new uiFileInput( this,
 			uiStrings::phrInput(commandfile),
 			uiFileInput::Setup(uiFileDialog::Gen)
-			.filter("Script files (*.odcmd *.cmd)")
+			.filter("Script files (*.odcmd)")
 			.forread(true)
 			.withexamine(true)
 			.exameditable(true)
 			.displaylocalpath(true) );
     inpfld_->attach( alignedBelow, cmdoptionfld_ );
+    mAttachCB( inpfld_->valuechanged, uiCmdDriverDlg::inpSelCB );
 
     logfld_ = new uiFileInput( this,
 			uiStrings::phrOutput(uiStrings::sLogFile()),
 			uiFileInput::Setup()
+			.filter("Log files (*.log)")
 			.forread(false)
 			.withexamine(true)
 			.examstyle(File::Log)
@@ -172,19 +174,17 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
     uiLabel* cmddriverhackdummy mUnusedVar = new uiLabel( this,
 					     uiString::emptyString() );
 
-    drv_.interactRequest.notify( mCB(this,uiCmdDriverDlg,interactCB) );
+    mAttachCB( drv_.interactRequest, uiCmdDriverDlg::interactCB );
 
     setDefaultSelDirs();
     setDefaultLogFile();
-    const FilePath fp( drv_.outputDir(), drv_.logFileName() );
-    logfld_->setFileName( fp.fullPath() );
 
-    selChgCB(0);
+    selChgCB( nullptr );
 
-    mDynamicCastGet( const uiMainWin*, parentwin, p );
+    mDynamicCastGet(const uiMainWin*,parentwin,p);
     if ( parentwin )
     {
-	uiRect rect = parentwin->geometry( false );
+	const uiRect rect = parentwin->geometry( false );
 	setCornerPos( rect.get(uiRect::Left), rect.get(uiRect::Top) );
     }
 }
@@ -200,7 +200,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 
 uiCmdDriverDlg::~uiCmdDriverDlg()
 {
-    drv_.interactRequest.remove( mCB(this,uiCmdDriverDlg,interactCB) );
+    detachAllNotifiers();
     mDeleteInteractDlg();
 }
 
@@ -281,6 +281,12 @@ void uiCmdDriverDlg::selChgCB( CallBacker* )
 }
 
 
+void uiCmdDriverDlg::inpSelCB( CallBacker* )
+{
+    setDefaultLogFile();
+}
+
+
 static bool isRefToDataDir( uiFileInput& fld, bool base=false )
 {
     FilePath fp( fld.fileName() );
@@ -292,7 +298,8 @@ static bool isRefToDataDir( uiFileInput& fld, bool base=false )
 
 static bool passSurveyCheck( uiFileInput& fld, bool& surveycheck )
 {
-    if ( !surveycheck ) return true;
+    if ( !surveycheck )
+	return true;
 
     int res = 1;
     if ( isRefToDataDir(fld,true) && !isRefToDataDir(fld,false) )
@@ -314,10 +321,10 @@ static bool passSurveyCheck( uiFileInput& fld, bool& surveycheck )
 
 void uiCmdDriverDlg::selectGoCB( CallBacker* )
 {
-    if ( !passSurveyCheck(*inpfld_, inpfldsurveycheck_) )
+    if ( !passSurveyCheck(*inpfld_,inpfldsurveycheck_) )
 	return;
 
-    if ( !passSurveyCheck(*logfld_, logfldsurveycheck_) )
+    if ( !passSurveyCheck(*logfld_,logfldsurveycheck_) )
     {
 	if ( *logfld_->text() )
 	    return;
@@ -401,9 +408,10 @@ void uiCmdDriverDlg::interactCB( CallBacker* cb )
     {
 	pausebut_->setText( uiStrings::sPause() );
 	pausebut_->setSensitive( false );
-	interactdlg_->windowClosed.notify(
-				mCB(this,uiCmdDriverDlg,interactClosedCB) );
+	mAttachCB( interactdlg_->windowClosed,
+		   uiCmdDriverDlg::interactClosedCB );
     }
+
     button(CANCEL)->setSensitive( false );
     interactdlg_->go();
 }
@@ -492,7 +500,7 @@ void uiCmdDriverDlg::afterSurveyChg()
 
 void uiCmdDriverDlg::setDefaultSelDirs()
 {
-    const char* dir = defaultscriptsdir_.isEmpty() ? GetScriptsDir(0)
+    const char* dir = defaultscriptsdir_.isEmpty() ? GetScriptsDir()
 				: defaultscriptsdir_.buf();
     inpfld_->setDefaultSelectionDir( dir );
     outfld_->setDefaultSelectionDir( dir );
@@ -505,10 +513,17 @@ void uiCmdDriverDlg::setDefaultSelDirs()
 
 void uiCmdDriverDlg::setDefaultLogFile()
 {
-    const char* dir = defaultlogdir_.isEmpty() ? GetProcFileName(0)
+    const char* dir = defaultlogdir_.isEmpty() ? GetScriptsDir()
 					       : defaultlogdir_.buf();
 
-    logproposal_ = FilePath(dir, CmdDriver::defaultLogFilename()).fullPath();
+    BufferString deflogfnm = CmdDriver::defaultLogFilename();
+    const FilePath inpfp( inpfld_->fileName() );
+    if ( !inpfp.isEmpty() )
+	deflogfnm = inpfp.fileName();
+
+    FilePath logfp( dir, deflogfnm );
+    logfp.setExtension( "log" );
+    logproposal_ = logfp.fullPath();
     logfld_->setFileName( logproposal_ );
     logfldsurveycheck_ = false;
 }
@@ -534,5 +549,4 @@ void uiCmdDriverDlg::autoStartGo( const char* fnm )
 	drv_.executeFinished.trigger();
 }
 
-
-}; // namespace CmdDrive
+} // namespace CmdDrive

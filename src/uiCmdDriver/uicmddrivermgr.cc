@@ -170,7 +170,7 @@ void uiCmdDriverMgr::setLogFileName( const char* fnm )
 void uiCmdDriverMgr::addCmdLineScript( const char* fnm )
 {
     BufferString filenm( fnm );
-    mCheckFilePath( filenm, defaultscriptsdir_, GetScriptsDir(0) );
+    mCheckFilePath( filenm, defaultscriptsdir_, GetScriptsDir() );
 
     if ( !File::exists(filenm) )
     {

@@ -61,6 +61,7 @@ public:
 protected:
 
     void			selChgCB(CallBacker*);
+    void			inpSelCB(CallBacker*);
     void			selectGoCB(CallBacker*);
     void			selectAbortCB(CallBacker*);
     void			selectPauseCB(CallBacker*);
@@ -75,21 +76,21 @@ protected:
     void			setDefaultSelDirs();
     void			setDefaultLogFile();
 
-    uiFileInput*                inpfld_;
-    uiFileInput*                outfld_;
-    uiFileInput*                logfld_;
+    uiFileInput*		inpfld_;
+    uiFileInput*		outfld_;
+    uiFileInput*		logfld_;
 
     bool			inpfldsurveycheck_;
     bool			outfldsurveycheck_;
     bool			logfldsurveycheck_;
     BufferString		logproposal_;
 
-    uiLabeledComboBox*          cmdoptionfld_;
+    uiLabeledComboBox*		cmdoptionfld_;
     uiPushButton*		gobut_;
     uiPushButton*		abortbut_;
-    uiPushButton*               pausebut_;
-    uiPushButton*               startbut_;
-    uiPushButton*               stopbut_;
+    uiPushButton*		pausebut_;
+    uiPushButton*		startbut_;
+    uiPushButton*		stopbut_;
     uiCheckBox*			tooltipfld_;
     CmdDriver&			drv_;
     CmdRecorder&		rec_;
@@ -104,7 +105,4 @@ private:
     static uiString sInterrupting() { return tr("-Interrupting-"); }
 };
 
-
-}; // namespace CmdDrive
-
-
+} // namespace CmdDrive
