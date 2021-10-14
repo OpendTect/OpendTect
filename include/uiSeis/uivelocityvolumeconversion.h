@@ -31,7 +31,7 @@ mExpClass(uiSeis) uiBatchVolumeConversion : public uiDialog
 { mODTextTranslationClass(uiBatchVolumeConversion);
 public:
 			uiBatchVolumeConversion(uiParent*);
-
+			~uiBatchVolumeConversion();
 protected:
 
     void		inputChangeCB(CallBacker*);

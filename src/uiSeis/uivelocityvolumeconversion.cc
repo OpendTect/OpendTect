@@ -32,8 +32,8 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
     uiSeisSel::Setup velsetup( Seis::Vol );
     velsetup.seltxt( tr("Input velocity model") );
     input_ = new uiVelSel( this, velctxt, velsetup );
-    input_->selectionDone.notify(
-	    mCB(this,Vel::uiBatchVolumeConversion,inputChangeCB ) );
+    mAttachCB( input_->selectionDone,
+				Vel::uiBatchVolumeConversion::inputChangeCB );
 
     possubsel_ =  new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     possubsel_->attach( alignedBelow, input_ );
@@ -50,7 +50,12 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
 					     Batch::JobSpec::VelConv );
     batchfld_->attach( alignedBelow, outputsel_ );
 
-    inputChangeCB( 0 );
+    mAttachCB( postFinalise(), Vel::uiBatchVolumeConversion::inputChangeCB );
+}
+
+Vel::uiBatchVolumeConversion::~uiBatchVolumeConversion()
+{
+    detachAllNotifiers();
 }
 
 
