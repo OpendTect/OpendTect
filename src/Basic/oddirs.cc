@@ -193,11 +193,11 @@ mExternC(Basic) const char* GetProcFileName( const char* fname )
 }
 
 
-mExternC(Basic) const char* GetScriptsDir( const char* subdir )
+mExternC(Basic) const char* GetScriptsDir( const char* )
 {
     mDeclStaticString( ret );
     const char* envval = GetEnvVar( "DTECT_SCRIPTS_DIR" );
-    ret = envval && *envval ? envval : GetProcFileName( subdir );
+    ret = envval && *envval ? envval : GetSurveyScriptsDir();
     return ret.buf();
 }
 
@@ -698,6 +698,17 @@ mExternC(Basic) const char* GetSurveyPicturesDir()
 {
     mDeclStaticString( ret );
     ret = FilePath( GetDataDir(), "Pictures" ).fullPath();
+    if ( !File::exists(ret) )
+	File::createDir( ret );
+
+    return ret;
+}
+
+
+mExternC(Basic) const char* GetSurveyScriptsDir()
+{
+    mDeclStaticString( ret );
+    ret = FilePath( GetDataDir(), "Scripts" ).fullPath();
     if ( !File::exists(ret) )
 	File::createDir( ret );
 
