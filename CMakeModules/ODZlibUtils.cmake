@@ -5,7 +5,7 @@
 #_______________________________________________________________________________
 
 macro( OD_ADD_SYSZLIB )
-    find_package( Zlib QUIET )
+    find_package( ZLIB QUIET )
 endmacro()
 
 macro( OD_ADD_ZLIB )
@@ -37,7 +37,7 @@ macro( OD_SETUP_ZLIB )
 
 	if ( ZLIB_INCLUDE_DIR )
 	    list( APPEND OD_MODULE_INCLUDESYSPATH ${ZLIB_INCLUDE_DIR} )
-	    list( APPEND OD_MODULE_EXTERNAL_LIBS ${ZLIB_LIBRARY} )
+	    list( APPEND OD_MODULE_EXTERNAL_LIBS ${ZLIB_LIBRARY_RELEASE} )
 	    add_definitions( -DHAS_ZLIB )
 	endif()
     endif()
