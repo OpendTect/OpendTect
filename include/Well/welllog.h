@@ -42,14 +42,13 @@ mExpClass(Well) Log : public RefCount::Referenced
 {
 public:
 
-			Log(const char* nm=0);
+			Log(const char* nm=nullptr);
 			mDeclMonitorableAssignment(Log);
 			mDeclInstanceCreatedNotifierAccess(Log);
 
     void		setValue(PointID,ValueType);
     void		setValue(idx_type,ValueType);
-    inline void		addValue( ZType dh, ValueType val )
-			{ setValueAt( dh, val ); }
+    void		addValue(ZType,ValueType);
 
     void		getValues(ValueSetType&) const;
     virtual void	getData(ZSetType&,ValueSetType&) const;
@@ -77,6 +76,7 @@ public:
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();
     static const char*	sKeyDahRange();
+    static const char*	sKeyLogRange();
 
 protected:
 

@@ -18,6 +18,7 @@ const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
 const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
 const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
 const char* Well::Log::sKeyDahRange()	{ return "Dah range"; }
+const char* Well::Log::sKeyLogRange()	{ return "Log range"; }
 
 #define mUnitOfMeasure() UnitOfMeasure::getGuessed(unitmeaslbl_);
 
@@ -509,6 +510,7 @@ void Well::Log::copyClassData( const Log& oth )
 {
     vals_ = oth.vals_;
     unitmeaslbl_ = oth.unitmeaslbl_;
+    mnemlbl_ = oth.mnemlbl_;
     pars_ = oth.pars_;
     valrg_ = oth.valrg_;
     valsarecodes_ = oth.valsarecodes_;
@@ -577,7 +579,6 @@ void Well::Log::redoValStats()
 	for ( idx_type idx=0; idx<sz; idx++ )
 	    updValStats( vals_[idx] );
     }
-
 }
 
 
@@ -605,6 +606,13 @@ void Well::Log::setValue( idx_type idx, ValueType val )
 
     stVal( idx, val );
     mSendChgNotif( cValueChange(), ptids_[idx].getI() );
+}
+
+
+void Well::Log::addValue( ZType dh, ValueType val )
+{
+    setValueAt( dh, val );
+    updValStats( val );
 }
 
 
