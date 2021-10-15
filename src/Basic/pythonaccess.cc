@@ -31,9 +31,16 @@ ________________________________________________________________________
 #include "timer.h"
 #include "uistrings.h"
 
-const char* OD::PythonAccess::sKeyPythonSrc() { return "Python Source"; }
-const char* OD::PythonAccess::sKeyEnviron() { return "Environment"; }
-const char* OD::PythonAccess::sKeyPythonPath() { return "PythonPath"; }
+
+namespace OD
+{
+
+    const char* PythonAccess::sKeyPythonSrc()	{ return "Python Source"; }
+    const char* PythonAccess::sKeyEnviron()	{ return "Environment"; }
+    const char* PythonAccess::sKeyPythonPath()	{ return "PythonPath"; }
+    static const char* sKeyPythonPathEnvStr()	{ return "PYTHONPATH"; }
+
+} //namespace OD
 
 BufferStringSet OD::PythonAccess::pystartpath_{0}; //From user environment
 
@@ -95,6 +102,12 @@ const BufferStringSet& OD::PythonAccess::getBasePythonPath() const
 }
 
 
+BufferStringSet OD::PythonAccess::getUserPythonPath() const
+{
+    return pystartpath_;
+}
+
+
 void OD::PythonAccess::addBasePath( const FilePath& fp )
 {
     if ( fp.exists() )
@@ -133,14 +146,12 @@ void OD::PythonAccess::updatePythonPath() const
 
 	pythonpaths.add( settpathsadd, false );
     }
-
-    SetEnvVarDirList( "PYTHONPATH", pythonpaths, false );
 }
 
 
 void OD::PythonAccess::initClass()
 {
-    GetEnvVarDirList( "PYTHONPATH", pystartpath_, true );
+    GetEnvVarDirList( sKeyPythonPathEnvStr(), pystartpath_, true );
     FilePath pythonmodsfp( GetSoftwareDir(true), "bin", "python" );
     if ( pythonmodsfp.exists() )
 	PythA().addBasePath( pythonmodsfp );
@@ -834,10 +845,21 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 	return false;
     }
 
+    BufferStringSet origpythonpathdirs;
+    GetEnvVarDirList( sKeyPythonPathEnvStr(), origpythonpathdirs, false );
+    BufferStringSet pythonpathdirs( getBasePythonPath() );
+    pythonpathdirs.add( pystartpath_, false );
+    SetEnvVarDirList( sKeyPythonPathEnvStr(), pythonpathdirs, false );
+
     const bool res = execpars ? cl_->execute( *execpars )
 			      : cl_->execute( laststdout_, &laststderr_ );
     if ( pid )
 	*pid = cl_->processID();
+
+    if ( origpythonpathdirs.isEmpty() )
+	UnsetOSEnvVar( sKeyPythonPathEnvStr() );
+    else
+	SetEnvVarDirList( sKeyPythonPathEnvStr(), origpythonpathdirs, false );
 
     if ( !scriptfp.isEmpty() )
     {

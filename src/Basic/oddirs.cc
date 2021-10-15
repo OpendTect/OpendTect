@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "file.h"
 #include "filepath.h"
+#include "pythonaccess.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "thread.h"
@@ -214,29 +215,31 @@ mExternC(Basic) const char* GetShellScript( const char* nm )
 
 mExternC(Basic) const char* GetPythonScript( const char* nm )
 {
-    BufferStringSet pythondirs;
-    const BufferString fnm( nm );
-    if ( fnm.isEmpty() || !GetEnvVarDirList("PYTHONPATH",pythondirs,true) )
-	return 0;
+    const FixedString fnm( nm );
+    if ( fnm.isEmpty() )
+	return nullptr;
+
+    const BufferStringSet pythondirs( OD::PythA().getBasePythonPath() );
+    if ( pythondirs.isEmpty() )
+	return nullptr;
 
     mDeclStaticString( res );
     res.setEmpty();
-    BufferStringSet modulenms;
-    modulenms.add( "odpy" ).add( "dgbpy" );
-    for ( int idx=0; idx<modulenms.size(); idx++ )
+    const BufferStringSet modulenms( "odpy", "dgbpy" );
+    for ( const auto* modulenm : modulenms )
     {
-	for ( int idy=0; idy<pythondirs.size(); idy++ )
-	{
-	    const FilePath pythonfp( pythondirs.get(idy).str(),
-				     modulenms.get(idx).str(), fnm );
-	    const BufferString scriptfnm( pythonfp.fullPath() );
-	    if ( File::exists(scriptfnm) && File::isReadable(scriptfnm) &&
-		 File::isFile(scriptfnm) )
-	    {
-		res = scriptfnm;
-		return res.buf();
-	    }
-	}
+	for ( const auto* pythondir : pythondirs )
+        {
+	    const FilePath pythonfp( pythondir->buf(), modulenm->str(), nm );
+            const BufferString scriptfnm( pythonfp.fullPath() );
+	    const char* scriptfpstr = scriptfnm.buf();
+	    if ( File::exists(scriptfpstr) && File::isReadable(scriptfpstr) &&
+		 File::isFile(scriptfpstr) )
+            {
+                res = scriptfnm;
+                return res.buf();
+            }
+        }
     }
 
     return res.buf();
