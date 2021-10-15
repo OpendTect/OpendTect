@@ -163,16 +163,4 @@ public:
 };
 
 
-/*!\brief Selects sub-line. Default will be 1-udf and SI() z range */
-
-mExpClass(uiIo) uiSelSubline : public uiGroup
-{
-public:
-                        uiSelSubline(uiParent*,bool wstep);
-
-    uiSelNrRange*	nrfld_;
-    uiSelZRange*	zfld_;
-
-};
-
 
