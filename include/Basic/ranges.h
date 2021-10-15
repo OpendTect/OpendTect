@@ -551,7 +551,11 @@ bool BasicInterval<T>::overlaps( const BasicInterval<X>& t,
 template <class T> inline
 void BasicInterval<T>::include( T i, bool allowrev )
 {
-    if ( allowrev && isRev() )
+    if ( mIsUdf(i) )
+	return;
+    if ( mIsUdf(start) || mIsUdf(stop) )
+	start = stop =i;
+    else if ( allowrev && isRev() )
 	{ if ( stop>i ) stop=i; if ( start<i ) start=i; }
     else
 	{ if ( start>i ) start=i; if ( stop<i ) stop=i; }

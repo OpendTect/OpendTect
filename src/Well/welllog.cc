@@ -569,13 +569,13 @@ void Well::Log::setData( const ZSetType& zs, const ValueSetType& vals )
 void Well::Log::redoValStats()
 {
     valsarecodes_ = false;
-    valrg_.start = valrg_.stop = mUdf(ValueType);
+    valrg_.start = mUdf(ValueType);
+    valrg_.stop = -mUdf(ValueType);
 
     const int sz = vals_.size();
     if ( sz > 0 )
     {
 	valsarecodes_ = true;
-	valrg_.start = valrg_.stop = vals_[0];
 	for ( idx_type idx=0; idx<sz; idx++ )
 	    updValStats( vals_[idx] );
     }
@@ -702,11 +702,7 @@ void Well::Log::updValStats( ValueType val )
     if ( mIsUdf(val) )
 	return;
 
-    if ( val < valrg_.start )
-	valrg_.start = val;
-    if ( val > valrg_.stop )
-	valrg_.stop = val;
-
+    valrg_.include( val );
     const int intval = mRounded( int, val );
     const bool iscode = intval > -99 && intval < 100000
 		     && mIsEqual(val,intval,valsarecodeeps);
