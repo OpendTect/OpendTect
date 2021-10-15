@@ -13,6 +13,7 @@
 #include "dirlist.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "pythonaccess.h"
 
 static const char* sKeyProgramName = "Program.Name";
 static const char* sKeyClArgs = "Program.Args";
@@ -65,6 +66,35 @@ void Batch::JobSpec::fillPar( IOPar& iop ) const
     iop.set( sKeyProgramName, prognm_ );
     iop.set( sKeyClArgs, clargs_ );
     execpars_.fillPar( iop );
+}
+
+
+void Batch::JobSpec::setDefaultPythonArgs()
+{
+    OS::MachineCommand mc;
+    const BufferString isoseachky( "--",
+		    OS::MachineCommand::sKeyIsolationScript() );
+    if ( !clargs_.isPresent(isoseachky.str()) )
+    {
+	const char* isolatefnm = OS::MachineCommand::getIsolationScriptFnm();
+	if ( File::exists(isolatefnm) )
+	    mc.addKeyedArg( OS::MachineCommand::sKeyIsolationScript(),
+			    isolatefnm );
+    }
+
+    const BufferString pythseachky( "--",
+			OD::PythonAccess::sKeyActivatePath() );
+    if ( !clargs_.isPresent(pythseachky.str()) )
+    {
+	const char* activatefpath = OD::PythonAccess::getPythonActivatorPath();
+	if ( File::exists(activatefpath) )
+	    mc.addKeyedArg( OD::PythonAccess::sKeyActivatePath(),
+			    activatefpath );
+    }
+
+    const BufferStringSet& mcargs = mc.args();
+    if ( !mcargs.isEmpty() )
+	clargs_.append( mcargs );
 }
 
 
