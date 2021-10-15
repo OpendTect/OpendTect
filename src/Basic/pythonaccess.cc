@@ -38,6 +38,7 @@ namespace OD
     const char* PythonAccess::sKeyPythonSrc()	{ return "Python Source"; }
     const char* PythonAccess::sKeyEnviron()	{ return "Environment"; }
     const char* PythonAccess::sKeyPythonPath()	{ return "PythonPath"; }
+    const char* PythonAccess::sKeyActivatePath() { return "activatefnm"; }
     static const char* sKeyPythonPathEnvStr()	{ return "PYTHONPATH"; }
 
 } //namespace OD
@@ -364,6 +365,12 @@ void OD::PythonAccess::setPythonActivator( const char* fnm )
 {
     if ( !fnm || File::exists(fnm) )
 	GetPythonActivatorExe().set( fnm );
+}
+
+
+const char* OD::PythonAccess::getPythonActivatorPath()
+{
+    return GetPythonActivatorExe().buf();
 }
 
 

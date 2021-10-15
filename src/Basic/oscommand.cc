@@ -277,6 +277,12 @@ void OS::MachineCommand::setIsolationScript( const char* fnm )
 }
 
 
+const char* OS::MachineCommand::getIsolationScriptFnm()
+{
+    return GetIsolateScript().buf();
+}
+
+
 void OS::MachineCommand::setIsolated( const char* prognm )
 {
     const BufferString& isolatescript = GetIsolateScript();

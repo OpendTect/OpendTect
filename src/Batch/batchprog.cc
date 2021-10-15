@@ -26,6 +26,7 @@
 #include "odjson.h"
 #include "oscommand.h"
 #include "plugins.h"
+#include "pythonaccess.h"
 #include "sighndl.h"
 #include "od_ostream.h"
 #include "timer.h"
@@ -43,6 +44,10 @@ static const char* sKeyPrimaryPort()
 static const char* sKeyJobID()	{ return OS::MachineCommand::sKeyJobID(); }
 static const char* sKeyODServer()    { return ServiceMgrBase::sKeyODServer(); }
 static const char* sKeyPort()		{ return Network::Server::sKeyPort(); }
+static const char* sKeyIsolationScript()
+{ return OS::MachineCommand::sKeyIsolationScript(); }
+static const char* sKeyActivatePath()
+{ return OD::PythonAccess::sKeyActivatePath(); }
 
 mDefineEnumUtils(BatchProgram,Status,"Batch program status")
 {
@@ -140,8 +145,8 @@ bool BatchProgram::parseArguments()
     OD::ModDeps().ensureLoaded( "Batch" );
 
 #   define mGetKeyedVal(ky,val) \
-    clparser_->setKeyHasValue( ky() ); \
-    clparser_->getVal( ky(), val )
+	clparser_->setKeyHasValue( ky() ); \
+	clparser_->getVal( ky(), val )
 
     clparser_ = new CommandLineParser;
     clparser_->setKeyHasValue( sKeyDataDir() );
@@ -149,6 +154,8 @@ bool BatchProgram::parseArguments()
     clparser_->setKeyHasValue( OS::CommandExecPars::sKeyPriority() );
     clparser_->setKeyHasValue( sKeyODServer() );
     clparser_->setKeyHasValue( sKeyPort() );
+    clparser_->setKeyHasValue( sKeyIsolationScript() );
+    clparser_->setKeyHasValue( sKeyActivatePath() );
 
     BufferString primaryhost;
     int primaryport = -1;
@@ -157,6 +164,15 @@ bool BatchProgram::parseArguments()
     mGetKeyedVal( sKeyJobID, jobid_ );
     if ( primaryhost.size() && primaryport > 0 )  // both must be set.
 	comm_ = new JobCommunic( primaryhost, primaryport, jobid_ );
+
+    BufferString isolatescriptfnm, pythonactivatepath;
+    if ( clparser_->getVal(sKeyIsolationScript(),isolatescriptfnm) &&
+	 File::exists(isolatescriptfnm.buf()) )
+	OS::MachineCommand::setIsolationScript( isolatescriptfnm );
+
+    if ( clparser_->getVal(sKeyActivatePath(),pythonactivatepath) &&
+	 File::exists(pythonactivatepath.buf()) )
+	OD::PythonAccess::setPythonActivator( pythonactivatepath );
 
     BufferString parfilnm;
     BufferStringSet normalargs;
