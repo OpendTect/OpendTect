@@ -75,6 +75,7 @@ public:
     const char*		mnemLabel() const;
     const Mnemonic*	mnemonic() const;
     bool		haveMnemonic() const	{ return !mnemlbl_.isEmpty(); }
+    void		guessMnemonic();
     void		setMnemonic(const Mnemonic&);
     void		setMnemLabel(const char*);
 

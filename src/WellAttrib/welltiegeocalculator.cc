@@ -107,7 +107,10 @@ void GeoCalculator::son2Vel( Well::Log& log ) const
     }
 
     if ( outuom )
+    {
 	log.setUnitMeasLabel( outuomlbl );
+	log.guessMnemonic();
+    }
 }
 
 
@@ -224,7 +227,10 @@ void GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd ) const
     }
 
     if ( outuom )
+    {
 	log.setUnitMeasLabel( outuomlbl );
+	log.guessMnemonic();
+    }
 }
 
 
@@ -386,6 +392,7 @@ void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t,
 
     const Mnemonic::StdType tp = Mnemonic::Time;
     log.setUnitMeasLabel( UoMR().getInternalFor(tp)->symbol() );
+    log.guessMnemonic();
 }
 
 } // namespace WellTie

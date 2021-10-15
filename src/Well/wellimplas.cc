@@ -543,7 +543,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
 	}
 
 	issel[idx] = true;
-	Well::Log* newlog = new Well::Log( lognm );
+	auto* newlog = new Well::Log( lognm );
 	BufferString unlbl;
 	if ( convs_[colnr] )
 	{
@@ -551,7 +551,9 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
 		unlbl = "Converted to SI from ";
 	    unlbl += unitmeasstrs_.get( colnr );
 	}
+
 	newlog->setUnitMeasLabel( unlbl );
+	newlog->guessMnemonic();
 	wd_->logs().add( newlog );
     }
 

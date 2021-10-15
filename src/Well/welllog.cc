@@ -435,8 +435,8 @@ void Well::Log::removeTopBottomUdfs()
 
 const char* Well::Log::mnemLabel() const
 {
-    if ( mnemlbl_.isEmpty() && !mn_ )
-	mnemonic();
+    if ( mnemonic() )
+	return mnemonic()->name();
 
     return mnemlbl_.buf();
 }
@@ -467,6 +467,17 @@ const Mnemonic* Well::Log::mnemonic() const
     }
 
     return mn_;
+}
+
+
+void Well::Log::guessMnemonic()
+{
+    if ( mn_ )
+	return;
+
+    const Mnemonic* mn = mnemonic();
+    if ( mn )
+	setMnemonic( *mn );
 }
 
 
