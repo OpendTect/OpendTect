@@ -48,6 +48,7 @@ public:
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
+    void		setDefaultPythonArgs();
 
 };
 

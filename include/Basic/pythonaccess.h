@@ -78,6 +78,7 @@ namespace OD
 	static const char*	sKeyPythonSrc();
 	static const char*	sKeyEnviron();
 	static const char*	sKeyPythonPath(); //IOPar key only
+	static const char*	sKeyActivatePath();
 
 	Notifier<PythonAccess>	envChange;
 
@@ -174,6 +175,7 @@ namespace OD
 
 	static void	initClass();
 	static void	setPythonActivator(const char*);
+	static const char* getPythonActivatorPath();
 	static bool	needCheckRunScript();
 
 	void		addBasePath(const FilePath&);

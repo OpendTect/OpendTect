@@ -163,6 +163,7 @@ public:
     static const char*	sKeyPrimaryHost()	{ return "primaryhost"; }
     static const char*	sKeyPrimaryPort()	{ return "primaryport"; }
     static const char*	sKeyJobID()		{ return "jobid"; }
+    static const char*	sKeyIsolationScript()	{ return "isolatefnm"; }
 
     bool		execute(LaunchType lt=Wait4Finish,
 				const char* workdir=nullptr);
@@ -206,6 +207,7 @@ public:
 
     //Only for expert usage
     static void		setIsolationScript(const char*);
+    static const char*	getIsolationScriptFnm();
 
 };
 
