@@ -77,7 +77,7 @@ namespace OD
 	static const char*	sPythonExecNm(bool v3=false,bool v2=false);
 	static const char*	sKeyPythonSrc();
 	static const char*	sKeyEnviron();
-	static const char*	sKeyPythonPath();
+	static const char*	sKeyPythonPath(); //IOPar key only
 
 	Notifier<PythonAccess>	envChange;
 
@@ -98,9 +98,10 @@ namespace OD
 			/*<! Pass nullptr to auto-detect */
 
 	void		updatePythonPath() const;
-	const BufferStringSet& getBasePythonPath() const;
-			/*<! Merge of user environment with OpendTect
-			     python modules */
+	BufferStringSet getBasePythonPath() const;
+			//<! List of dirs containing OpendTect python modules
+	BufferStringSet getUserPythonPath() const;
+			//<! Initial value of PYTHONPATH before OD starts
 
 	uiRetVal	hasModule(const char* modname,
 				  const char* minversion=0) const;
@@ -125,7 +126,7 @@ namespace OD
 	mutable uiString	msg_;
 	BufferString	pythversion_;
 	static BufferStringSet pystartpath_;
-	ManagedObjectSet<ModuleInfo>			moduleinfos_;
+	ManagedObjectSet<ModuleInfo> moduleinfos_;
 
 	bool		isUsable_(bool force=false,
 				 const char* scriptstr=nullptr,
@@ -162,6 +163,7 @@ namespace OD
 	bool			retrievePythonVersionStr();
 	void			envChangeCB(CallBacker*);
 	void			pluginsLoaded(CallBacker*);
+	const BufferStringSet&	getBasePythonPath_() const;
 
 	void		    createFireWallExeList(ManagedObjectSet<FilePath>&);
 
