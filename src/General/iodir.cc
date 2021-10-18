@@ -370,7 +370,7 @@ bool IODir::ensureUniqueName( IOObj& ioobj )
     BufferString nm( ioobj.name() );
 
     int nr = 1;
-    while ( get(nm.buf(),ioobj.translator().buf()) )
+    while ( get(nm.buf(),ioobj.group().buf()) )
     {
 	nr++;
 	nm.set( ioobj.name() ).add( " (" ).add( nr ).add( ")" );
