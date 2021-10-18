@@ -286,7 +286,6 @@ HorizonDisplay::HorizonDisplay()
     , parcolrg_( -1, -1, -1 )
     , curtextureidx_( 0 )
     , usestexture_( true )
-    , translation_( 0 )
     , validtexture_( false )
     , resolution_( 0 )
     , allowshading_( true )
@@ -294,7 +293,7 @@ HorizonDisplay::HorizonDisplay()
     , displayintersectionlines_( true )
     , enabletextureinterp_( true )
     , displaysurfacegrid_( false )
-    , translationpos_( Coord3().udf() )
+    , translationpos_( Coord3::udf() )
     , parentline_( 0 )
     , selections_( 0 )
     , lockedpts_( 0 )
@@ -355,7 +354,7 @@ HorizonDisplay::~HorizonDisplay()
     if ( translation_ )
     {
 	translation_->unRef();
-	translation_ = 0;
+	translation_ = nullptr;
     }
 
     removeEMStuff();
@@ -1135,10 +1134,10 @@ bool HorizonDisplay::hasDepth( int channel ) const
 
 Coord3 HorizonDisplay::getTranslation() const
 {
-    if ( !translation_ ) return Coord3(0,0,0);
+    if ( !translation_ )
+	return Coord3(0,0,0);
 
     const Coord3 current = translation_->getTranslation();
-
     Coord3 origin( 0, 0, 0 );
     Coord3 shift( current );
     shift  *= -1;
@@ -1147,7 +1146,6 @@ Coord3 HorizonDisplay::getTranslation() const
     mVisTrans::transformBack( transformation_, shift );
 
     const Coord3 translation = origin - shift;
-
     return translation;
 }
 

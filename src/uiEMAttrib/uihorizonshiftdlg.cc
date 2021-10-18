@@ -38,21 +38,16 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    bool cancalcattrib )
     : uiDialog(p,uiDialog::Setup(tr("%1 shift").arg(uiStrings::sHorizon()),
 				mNoDlgTitle,
-                                mODHelpKey(mHorizonShiftDialogHelpID) )
+				mODHelpKey(mHorizonShiftDialogHelpID) )
 				.modal(false) )
-    , calcshiftrg_(mUdf(float),mUdf(float),mUdf(float))
-    , emhor3d_(0)
-    , emid_(emid)
-    , visid_(visid)
-    , storefld_(0)
-    , namefld_(0)
-    , calbut_(0)
-    , attrinpfld_(0)
     , calcAttribPushed(this)
     , horShifted(this)
+    , calcshiftrg_(mUdf(float),mUdf(float),mUdf(float))
+    , emid_(emid)
+    , visid_(visid)
 {
     const float curshift = initialshift*SI().zDomain().userFactor();
-    shiftrg_ = StepInterval<float> (curshift-100,curshift+100,10);
+    shiftrg_.set( curshift-100, curshift+100, 10 );
 
     uiString lbl = tr("Shift Range %1").arg(SI().getUiZUnitString());
     rangeinpfld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(shiftrg_) );
@@ -71,14 +66,12 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     slider_->valueChanged.notify( mCB(this,uiHorizonShiftDialog,shiftCB) );
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    mDynamicCastGet(EM::Horizon3D*,emhor3d,emobj)
-    emhor3d_ = emhor3d;
-
-    if ( emhor3d_ )
+    mDynamicCast(EM::Horizon*,horizon_,emobj)
+    if ( horizon_ )
     {
-	emhor3d_->ref();
+	horizon_->ref();
 	uiString title = toUiString("%1 - %2").arg(setup().wintitle_)
-					      .arg(emhor3d_->name());
+					      .arg(horizon_->name());
 	setCaption( title );
     }
 
@@ -110,7 +103,8 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 
 uiHorizonShiftDialog::~uiHorizonShiftDialog()
 {
-    emhor3d_->unRef();
+    if ( horizon_ )
+	horizon_->unRef();
 }
 
 

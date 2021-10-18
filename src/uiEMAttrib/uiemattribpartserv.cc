@@ -283,11 +283,14 @@ void uiEMAttribPartServer::fillHorShiftDPS( ObjectSet<DataPointSet>& dpsset,
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
-    StepInterval<float> intv = horshiftdlg_->shiftRg();
+    const EM::ObjectID& emid = horshiftdlg_->emID();
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid))
+    if ( !hor3d )
+	return;
 
+    const StepInterval<float> intv = horshiftdlg_->shiftRg();
     const int nrshifts = horshiftdlg_->nrSteps();
-    const EM::Horizon3DGeometry& hor3dgeom =
-	horshiftdlg_->horizon3D().geometry();
+    const EM::Horizon3DGeometry& hor3dgeom = hor3d->geometry();
     for ( int idx=0; idx<nrshifts; idx++ )
     {
 	TypeSet<DataPointSet::DataRow> drset;

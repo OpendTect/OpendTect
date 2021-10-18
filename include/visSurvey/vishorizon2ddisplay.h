@@ -65,6 +65,9 @@ public:
     void			updateSelectionsHor2D();
     void			clearSelectionsHor2D();
 
+    Coord3			getTranslation() const;
+    void			setTranslation(const Coord3&);
+
 protected:
     friend			class Horizon2DDisplayUpdater;
 				~Horizon2DDisplay();
@@ -97,7 +100,7 @@ protected:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
     bool			calcLine2DIntersections(
-						const TypeSet<Pos::GeomID>&, 
+						const TypeSet<Pos::GeomID>&,
 						    Line2DInterSectionSet&);
 
     void			calcLine2DInterSectionSet();
@@ -110,16 +113,18 @@ protected:
     bool			shouldDisplayIntersections(
 							const Seis2DDisplay&);
 
+    ObjectSet<visBase::PolyLine3D>	lines_;
+    ObjectSet<visBase::PointSet>	points_;
+    TypeSet<EM::SectionID>		sids_;
+    TypeSet<int>			volumeofinterestids_;
+    visBase::MarkerSet*			intersectmkset_;
+    bool				updateintsectmarkers_;
+    int					nr2dlines_;
+    Line2DInterSectionSet*		ln2dset_;
+    visBase::PointSet*			selections_;
 
-    ObjectSet<visBase::PolyLine3D>		lines_;
-    ObjectSet<visBase::PointSet>		points_;
-    TypeSet<EM::SectionID>			sids_;
-    TypeSet<int>				volumeofinterestids_;
-    visBase::MarkerSet*				intersectmkset_;
-    bool					updateintsectmarkers_;
-    int						nr2dlines_;
-    Line2DInterSectionSet*			ln2dset_;
-    visBase::PointSet*				selections_;
+    mVisTrans*				translation_;
+    Coord3				translationpos_		= Coord3::udf();
 };
 
 } // namespace visSurvey

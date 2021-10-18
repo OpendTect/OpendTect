@@ -37,7 +37,6 @@ ________________________________________________________________________
 namespace visSurvey
 {
 
-
 Horizon2DDisplay::Horizon2DDisplay()
     : intersectmkset_( visBase::MarkerSet::create() )
     , updateintsectmarkers_( true )
@@ -45,6 +44,10 @@ Horizon2DDisplay::Horizon2DDisplay()
     , ln2dset_( 0 )
     , selections_( 0 )
 {
+    translation_ = visBase::Transformation::create();
+    translation_->ref();
+    setGroupNode( (osg::Group*) translation_->osgNode() );
+
     points_.allowNull(true);
     EMObjectDisplay::setLineStyle( OD::LineStyle(OD::LineStyle::Solid,5 ) );
     intersectmkset_->ref();
@@ -71,6 +74,9 @@ Horizon2DDisplay::~Horizon2DDisplay()
     if ( selections_ )
 	selections_->unRef();
 
+    if ( translation_ )
+	translation_->unRef();
+
     emchangedata_.clearData();
 }
 
@@ -87,6 +93,9 @@ void Horizon2DDisplay::setDisplayTransformation( const mVisTrans* nt )
 	if( points_[idx] )
 	    points_[idx]->setDisplayTransformation(transformation_);
     }
+
+    if ( translationpos_.isDefined() )
+	setTranslation( translationpos_ );
 
     intersectmkset_->setDisplayTransformation( transformation_ );
 }
@@ -951,5 +960,42 @@ const OD::Color Horizon2DDisplay::getLineColor() const
     return OD::Color::Blue();
 }
 
+
+Coord3 Horizon2DDisplay::getTranslation() const
+{
+    if ( !translation_ )
+	return Coord3(0,0,0);
+
+    const Coord3 current = translation_->getTranslation();
+    Coord3 origin( 0, 0, 0 );
+    Coord3 shift( current );
+    shift  *= -1;
+
+    mVisTrans::transformBack( transformation_, origin );
+    mVisTrans::transformBack( transformation_, shift );
+
+    const Coord3 translation = origin - shift;
+    return translation;
+}
+
+
+void Horizon2DDisplay::setTranslation( const Coord3& nt )
+{
+     if ( !nt.isDefined() )
+	return;
+
+    Coord3 origin( 0, 0, 0 );
+    Coord3 aftershift( nt );
+    aftershift.z *= -1;
+
+    mVisTrans::transform( transformation_, origin );
+    mVisTrans::transform( transformation_, aftershift );
+
+    const Coord3 shift = origin - aftershift;
+
+    translation_->setTranslation( shift );
+    translationpos_ = nt;
+    setOnlyAtSectionsDisplay( displayonlyatsections_ );		/* retrigger */
+}
 
 } // namespace visSurvey
