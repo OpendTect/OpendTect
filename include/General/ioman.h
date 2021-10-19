@@ -218,6 +218,7 @@ public:
     IODir*		getDir(const char* trlgrpnm) const;
     IODir*		getDir(IOObjContext::StdSelType) const;
     IODir*		getDir(const MultiID&) const;
+    bool		ensureUniqueName(IOObj&);
 };
 
 

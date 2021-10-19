@@ -892,7 +892,10 @@ MultiWellReader::MultiWellReader( const TypeSet<MultiID>& keys,
     , nrwells_(keys.size())
     , nrdone_(0)
     , reqs_(reqs)
-{}
+{
+    if ( !keys_.isEmpty() )
+	IOM().to( keys_.first().parent() );
+}
 
 
 od_int64 MultiWellReader::totalNr() const

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiioobjinserter.h"
 #include "uiioobjselwritetransl.h"
 
+#include "ascstream.h"
 #include "ctxtioobj.h"
 #include "iodir.h"
 #include "iodirentry.h"
@@ -19,10 +20,10 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "iostrm.h"
 #include "linekey.h"
-#include "strmprov.h"
 #include "ioobjselectiontransl.h"
+#include "mousecursor.h"
 #include "od_iostream.h"
-#include "ascstream.h"
+#include "strmprov.h"
 
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -621,6 +622,7 @@ void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     const IODir iodir ( ctio_.ctxt_.getSelKey() );
     IODirEntryList del( iodir, ctio_.ctxt_ );
     BufferString nmflt = filtfld_->text();

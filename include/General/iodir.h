@@ -81,8 +81,9 @@ private:
     ObjectSet<IOObj>	objs_;
     BufferString	dirname_;
     MultiID		key_;
-    bool		isok_;
-    mutable int		curid_;
+    bool		isok_		= false;
+    mutable int		curid_		= 0;
+    mutable od_int64	lastmodtime_	= 0;
 
 			IODir();
     static bool		create(const char* dirnm,const MultiID&,IOObj* mainobj);
@@ -95,12 +96,16 @@ private:
     bool		wrOmf(od_ostream&) const;
     IOObj*		get( int idx )		{ return objs_[idx]; }
     IOObj*		get(const MultiID&);
+    void		addObjNoChecks(IOObj*);
 
     MultiID		newKey() const;
 
     friend class	IOMan;
     friend class	IOObj;
 
+public:
+
+    void		update();
 };
 
 
