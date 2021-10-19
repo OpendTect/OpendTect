@@ -210,6 +210,9 @@ def getIntervalStr( rg, label ):
   return str
 
 def printSampling( tkzs ):
+  """ Prints seismic dataset axes
+  """
+
   print( getIntervalStr(getLineObj(tkzs),"Inline") )
   print( getIntervalStr(getTraceObj(tkzs),"Crossline") )
   print( getIntervalStr(getZObj(tkzs),"Z") )

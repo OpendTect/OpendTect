@@ -192,6 +192,9 @@ Functions
 
 .. py:function:: printSampling(tkzs)
 
+   Prints seismic dataset axes
+     
+
 
 .. py:function:: niceNumber(value, round=True)
 

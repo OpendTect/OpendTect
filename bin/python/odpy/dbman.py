@@ -118,6 +118,13 @@ def getInfoByKey(objkey,exenm=dbmanexe,args=None ):
   return getDBDict( cmd )
 
 def getDBDict( cmd ):
+  """ Gets database dict with command
+
+  Parameters:
+    * cmd (str): command to be executed
+
+  """
+
   ret = execCommand( cmd )
   retstr = ret.decode('utf-8')
   if isWin():

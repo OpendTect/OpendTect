@@ -94,7 +94,7 @@
 <td><p>Gets datbase info on well</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#python.odpy.dbman.getDBDict" title="python.odpy.dbman.getDBDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDBDict</span></code></a>(cmd)</p></td>
-<td><p></p></td>
+<td><p>Gets database dict with command</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#python.odpy.dbman.getByName" title="python.odpy.dbman.getByName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getByName</span></code></a>(dblist, retname, keystr)</p></td>
 <td><p>Gets value of specified database list  key</p></td>
@@ -225,7 +225,14 @@ single element lists, and/or ‘dtectexec’ (see odpy.common.getODSoftwareDir)<
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getDBDict">
 <span class="sig-prename descclassname"><span class="pre">python.odpy.dbman.</span></span><span class="sig-name descname"><span class="pre">getDBDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#python.odpy.dbman.getDBDict" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Gets database dict with command</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>cmd (str): command to be executed</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="python.odpy.dbman.getByName">
@@ -243,12 +250,12 @@ single element lists, and/or ‘dtectexec’ (see odpy.common.getODSoftwareDir)<
 </ul>
 </dd>
 </dl>
-<p>Example:
-&gt;&gt;&gt; import odpy.dbman as dbman
-&gt;&gt;&gt; dbman.getByName(dblist, ‘F03-4’, ‘IDs’)</p>
-<blockquote>
-<div><p>‘100050.4’</p>
-</div></blockquote>
+<p>Example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">odpy.dbman</span> <span class="k">as</span> <span class="nn">dbman</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dbman</span><span class="o">.</span><span class="n">getByName</span><span class="p">(</span><span class="n">dblist</span><span class="p">,</span> <span class="s1">&#39;F03-4&#39;</span><span class="p">,</span> <span class="s1">&#39;IDs&#39;</span><span class="p">)</span>
+<span class="go">    &#39;100050.4&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">

@@ -111,6 +111,12 @@ Attributes
 
 .. py:function:: getDBDict(cmd)
 
+   Gets database dict with command
+
+   Parameters:
+     * cmd (str): command to be executed
+
+
 
 .. py:function:: getByName(dblist, retname, keystr)
 
@@ -125,6 +131,7 @@ Attributes
      * str: database object value
 
    Example:
+
    >>> import odpy.dbman as dbman
    >>> dbman.getByName(dblist, 'F03-4', 'IDs')
        '100050.4'
@@ -174,6 +181,6 @@ Attributes
 
    Returns:
      * file path to the object created with write permission
-     
+
 
 
