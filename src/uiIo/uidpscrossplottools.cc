@@ -22,13 +22,15 @@ static const char* sKeyPos = "Position";
 
 uiDataPointSetCrossPlotter::Setup::Setup()
     : noedit_(false)
+    , minborder_(10,20,20,5)
     , markerstyle_(MarkerStyle2D::Square)
     , xstyle_(OD::LineStyle::Solid,1,OD::Color::Black())
     , ystyle_(OD::LineStyle::Solid,1,OD::Color::stdDrawColor(0))
     , y2style_(OD::LineStyle::Dot,1,OD::Color::stdDrawColor(1))
-    , minborder_(10,20,20,5)
-    , showcc_(true)
-    , showregrline_(false)
+    , showy1cc_(true)
+    , showy2cc_(true)
+    , showy1regrline_(false)
+    , showy2regrline_(false)
     , showy1userdefpolyline_(false)
     , showy2userdefpolyline_(false)
 {
@@ -71,6 +73,12 @@ void uiDataPointSetCrossPlotter::AxisData::newColID()
 	       cp_.viewWidth(), cp_.viewHeight(), 0 );
     handleAutoScale( cp_.uidps_.getRunCalc( colid_ ) );
 }
+
+
+// SelectionArea
+SelectionArea::SelectionArea()
+    : axistype_(SelectionArea::Y1)
+{}
 
 
 SelectionArea::SelectionArea( const uiRect& rect )

@@ -11,20 +11,19 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
-#include "uiiomod.h"
 #include "uigeom.h"
 #include "polygon.h"
 
 
 mStruct(uiIo) SelectionArea
 {
-    enum SelAxisType	{ Y1, Y2, Both };
+   enum SelAxisType		{ Y1, Y2, Both };
 
-			    SelectionArea(const uiRect&);
-			    SelectionArea(const ODPolygon<int>&);
-			    SelectionArea(bool isrect);
-			    SelectionArea() : axistype_(SelectionArea::Y1) {}
-			    ~SelectionArea();
+				SelectionArea(const uiRect&);
+				SelectionArea(const ODPolygon<int>&);
+				SelectionArea(bool isrect);
+				SelectionArea();
+				~SelectionArea();
 
     bool			isrectangle_;
     bool			isInside(const uiPoint&) const;
@@ -64,33 +63,33 @@ protected:
 mExpClass(uiIo) SelectionGrp : public NamedObject
 {
 public:
-				SelectionGrp(
-					const char* nm,const OD::Color& col)
-				    : NamedObject(nm), col_(col)	{}
-				SelectionGrp()
-				    : NamedObject()			{}
-				~SelectionGrp()				{}
+			SelectionGrp(const char* nm,const OD::Color& col)
+			    : NamedObject(nm), col_(col)	{}
+			SelectionGrp()
+			    : NamedObject()			{}
+			~SelectionGrp()				{}
 
-	OD::Color		col_;
-	int			size() const;
-	bool			hasAltAxis() const;
-	bool			isValidIdx(int idx) const;
-	int			isInside(const uiPoint&) const;
-				// return selarea id || - 1 if not selected
-	int			validIdx(int selareaid) const;
-	void			addSelection(const SelectionArea&);
-	void			removeSelection(int);
-	void			removeAll();
+    OD::Color		col_;
+    int			size() const;
+    bool		hasAltAxis() const;
+    bool		isValidIdx(int idx) const;
+    int			isInside(const uiPoint&) const;
+			// return selarea id || - 1 if not selected
+    int			validIdx(int selareaid) const;
+    void		addSelection(const SelectionArea&);
+    void		removeSelection(int);
+    void		removeAll();
 
-	void			setSelectionArea(const SelectionArea&);
-	bool			getSelectionArea(SelectionArea&,int id) const;
-	SelectionArea&		getSelectionArea(int idx);
-	const SelectionArea&	getSelectionArea(int idx) const;
-	SelectionArea::SelAxisType getSelectionAxis(int selareaid) const;
-	void			usePar(const IOPar&);
-	void			fillPar(IOPar&) const;
-	void			getInfo(BufferString&) const;
+    void			setSelectionArea(const SelectionArea&);
+    bool			getSelectionArea(SelectionArea&,int id) const;
+    SelectionArea&		getSelectionArea(int idx);
+    const SelectionArea&	getSelectionArea(int idx) const;
+    SelectionArea::SelAxisType	getSelectionAxis(int selareaid) const;
+    void			usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
+    void			getInfo(BufferString&) const;
+
 protected:
-	TypeSet<SelectionArea> selareas_;
+    TypeSet<SelectionArea> selareas_;
 };
 

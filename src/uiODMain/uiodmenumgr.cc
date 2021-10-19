@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "ui3dviewer.h"
 #include "uicrdevenv.h"
+#include "uidatapackmon.h"
 #include "uifiledlg.h"
 #include "uifirewallprocsetterdlg.h"
 #include "uiglinfo.h"
@@ -533,7 +534,7 @@ void uiODMenuMgr::fillExportMenu()
     insertAction( expmute, sascii, mExpMuteDefAsciiMnuItm, ascic );
     insertAction( exppdf, m3Dots(tr("ASCII (RokDoc)")),
 			 mExpPDFAsciiMnuItm, ascic );
-    insertAction( expwell, m3Dots(tr("Logs")), mExpLogLAS, ascic );
+    insertAction( expwell, m3Dots(tr("Logs to LAS")), mExpLogLAS, ascic );
 
 // Fill expmenus_
     expmnus_.erase();
@@ -1032,7 +1033,7 @@ void uiODMenuMgr::fillUtilMenu()
 #endif
     if ( enabdpdump )
     {
-	insertAction( toolsmnu_, m3Dots(tr("DataPack Dump")),
+	insertAction( toolsmnu_, m3Dots(tr("Display DataPack Info")),
 		     mDumpDataPacksMnuItm);
 	insertAction( toolsmnu_, m3Dots(tr("Display Memory Info")),
 		     mDisplayMemoryMnuItm);
@@ -1124,6 +1125,11 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
     mnu->insertAction(
 	new uiAction(m3Dots(tr("Cross-plot Attribute vs Well Data")),
 		     mCB(appman,uiODApplMgr,doWellXPlot),"xplot_wells") );
+    mnu->insertAction(
+	new uiAction(m3Dots(tr("Open Saved Cross-plot")),
+		     mCB(this,uiODMenuMgr,handleClick),"open"),
+	mOpenXplotMnuItm );
+
     dtecttb_->setButtonMenu( xplotid, mnu, uiToolButton::InstantPopup );
 
     mAddTB(dtecttb_,"rockphys",tr("Create New Well Logs Using Rock Physics"),
@@ -1588,14 +1594,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     } break;
 
     case mDumpDataPacksMnuItm: {
-	uiFileDialog dlg( &appl_, false, "/tmp/dpacks.txt",
-			  "*.txt", tr("Data pack dump") );
-	if ( dlg.go() )
-	{
-	    od_ostream strm( dlg.fileName() );
-	    if ( strm.isOK() )
-		DataPackMgr::dumpDPMs( strm );
-	}
+	uiDataPackMonitor::launchFrom( &appl_, 10 );
     } break;
     case mDisplayMemoryMnuItm: {
 	IOPar iopar;
@@ -1604,9 +1603,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	iopar.dumpPretty( text );
 	uiDialog dlg( &appl_,
 	     uiDialog::Setup(tr("Memory Information"),mNoDlgTitle,mNoHelpKey) );
-	uiTextBrowser* browser = new uiTextBrowser( &dlg );
+	auto* browser = new uiTextBrowser( &dlg );
 	browser->setText( text.buf() );
-    dlg.setCancelText( uiString::emptyString() );
+	dlg.setCancelText( uiString::empty() );
 	dlg.go();
     } break;
     case mDisplayWellMgrMnuItm: {

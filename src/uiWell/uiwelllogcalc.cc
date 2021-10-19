@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimathexpressionvariable.h"
 #include "uimathformula.h"
+#include "uimnemonicsel.h"
 #include "uimsg.h"
 #include "uirockphysform.h"
 #include "uiseparator.h"
@@ -65,15 +66,16 @@ static Math::SpecVarSet& getSpecVars()
     mDefineStaticLocalObject( Math::SpecVarSet, svs, );
     svs.setEmpty();
 
-    svs.add( "MD", "Depth Along Hole", true, Mnemonic::Dist );
-    svs.add( "TVD", "Z coordinate", true, Mnemonic::Dist );
-    svs.add( "TVDSS", "TVD below SS", true, Mnemonic::Dist );
-    svs.add( "TVDSD", "TVD below SD", true, Mnemonic::Dist );
-    svs.add( "DZ", "Delta Z", true, Mnemonic::Dist );
+    const Mnemonic* distmn = &Mnemonic::distance();
+    svs.add( "MD", "Depth Along Hole", true, distmn );
+    svs.add( "TVD", "Z coordinate", true, distmn );
+    svs.add( "TVDSS", "TVD below SS", true, distmn );
+    svs.add( "TVDSD", "TVD below SD", true, distmn );
+    svs.add( "DZ", "Delta Z", true, distmn );
     if ( SI().zIsTime() )
     {
-	svs.add( "TWT", "Two-way traveltime", true, Mnemonic::Time );
-	svs.add( "VINT", "Interval velocity", true, Mnemonic::Vel );
+	svs.add( "TWT", "Two-way traveltime", true, &Mnemonic::defTime() );
+	svs.add( "VINT", "Interval velocity", true, &Mnemonic::defVEL() );
     }
     return svs;
 }
@@ -123,25 +125,22 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     }
 
     setOkCancelText( uiStrings::sCalculate(), uiStrings::sClose() );
-    const CallBack formsetcb( mCB(this,uiWellLogCalc,formSet) );
-    const CallBack formunitcb( mCB(this,uiWellLogCalc,formUnitSel) );
-    const CallBack inpselcb( mCB(this,uiWellLogCalc,inpSel) );
 
     uiMathFormula::Setup mfsu( tr("Formula (like 'den / son')") );
-    mfsu.stortype_ = "Log calculation";
+    mfsu.stortype( "Log calculation" );
     formfld_ = new uiMathFormula( this, form_, mfsu );
     formfld_->addInpViewIcon( "view_log", "Display this log",
 			      mCB(this,uiWellLogCalc,vwLog) );
-    formfld_->setNonSpecInputs( lognms_ );
-    formfld_->inpSet.notify( inpselcb );
-    formfld_->formSet.notify( formsetcb );
-    formfld_->formUnitSet.notify( formunitcb );
+    formfld_->setNonSpecInputs( lognms_, -1, &mnsel_ );
+    mAttachCB( formfld_->inpSet, uiWellLogCalc::inpSel );
+    mAttachCB( formfld_->formMnSet, uiWellLogCalc::formMnSet );
+    mAttachCB( formfld_->formUnitSet, uiWellLogCalc::formUnitSel );
     const CallBack rockphyscb( mCB(this,uiWellLogCalc,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", tr("Choose rockphysics formula"),
 			    rockphyscb, uiStrings::sRockPhy() );
     formfld_->addButton( tbsu );
 
-    uiSeparator* sep = new uiSeparator( this, "sep" );
+    auto* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, formfld_ );
 
     float defsr = SI().depthsInFeet() ? 0.5f : 0.1524f;
@@ -178,13 +177,20 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 
     uiUnitSel::Setup uussu( Mnemonic::Other,
 			    tr("New log's unit of measure") );
-    uussu.withnone( true );
+    uussu.mode( uiUnitSel::Setup::SymbolsOnly );
     outunfld_ = new uiUnitSel( this, uussu );
     outunfld_->attach( alignedBelow, lcb );
 
-    postFinalise().notify( formsetcb );
     if ( rockphysmode )
 	afterPopup.notify( rockphyscb );
+}
+
+
+uiWellLogCalc::~uiWellLogCalc()
+{
+    detachAllNotifiers();
+    delete &form_;
+    delete &superwls_;
 }
 
 
@@ -241,7 +247,9 @@ void uiWellLogCalc::getAllLogs()
 
 	if ( havenewlog )
 	{
-	    if ( wrdr && !wrdr->getLogs() ) continue;
+	    if ( wrdr && !wrdr->getLogs() )
+		continue;
+
 	    for ( int ilog=0; ilog<wd->logs().size(); ilog++ )
 	    {
 		const Well::Log& wl = wd->logs().getLog( ilog );
@@ -250,56 +258,17 @@ void uiWellLogCalc::getAllLogs()
 	    }
 	}
     }
-}
 
-
-uiWellLogCalc::~uiWellLogCalc()
-{
-    delete &form_;
-    delete &superwls_;
-}
-
-
-bool uiWellLogCalc::useForm( const TypeSet<Mnemonic::StdType>* inputtypes )
-{
-    if ( !formfld_ )
-	return false;
-
-    if ( inputtypes )
+    mnsel_.setEmpty();
+    for ( const auto* lognm : lognms_ )
     {
-	if ( !formfld_->useForm(inputtypes) )
-	    return false;
-
-	for ( int idx=0; idx<inputtypes->size(); idx++ )
-	{
-	    TypeSet<int> propidxs = superwls_.getSuitable( (*inputtypes)[idx] );
-	    BufferStringSet nms;
-	    for ( int ilog=0; ilog<propidxs.size(); ilog++ )
-		nms.add( superwls_.getLog(propidxs[ilog]).name() );
-	    formfld_->setNonSpecInputs( nms, idx );
-	}
-    }
-    else
-    {
-	BufferStringSet nms;
-	superwls_.getNames( nms, false );
-	formfld_->setNonSpecInputs( nms, -1 );
+	const Well::Log* wl = superwls_.getLog( lognm->str() );
+	if ( wl )
+	    mnsel_.add( wl->mnemonic() );
     }
 
-    const UnitOfMeasure* formun = formfld_->getUnit();
-    const Mnemonic::StdType prevtyp = outunfld_->propType();
-    const Mnemonic::StdType newtyp = formun ? formun->propType()
-					    : Mnemonic::Other;
-    if ( prevtyp != newtyp )
-    {
-	outunfld_->setPropType( newtyp );
-	outunfld_->setUnit( UoMR().getInternalFor(newtyp) );
-    }
-
-    for ( int iinp=0; iinp<form_.nrInputs(); iinp++ )
-	setUnits4Log( iinp );
-
-    return true;
+    if ( mnsel_.size() < lognms_.size() )
+	{ pErrMsg("Unexpected error"); }
 }
 
 
@@ -311,18 +280,23 @@ uiWellLogCalcRockPhys( uiParent* p )
     : uiDialog(p, uiDialog::Setup(uiStrings::sRockPhy(),
 				  tr("Use a rock physics formula"),
 				  mODHelpKey(mWellLogCalcRockPhysHelpID) ))
-{ formgrp_ = new uiRockPhysForm( this ); }
-
-bool acceptOK( CallBacker* )
 {
-    bool rv = formgrp_->isOK();
-    if ( !rv ) uiMSG().error( mToUiStringTodo(formgrp_->errMsg()) );
-    return rv;
+    formgrp_ = new uiRockPhysForm( this );
 }
 
-bool getFormulaInfo( Math::Formula& form,
-		     TypeSet<Mnemonic::StdType>& varstypes ) const
-{ return formgrp_->getFormulaInfo(form,&varstypes); }
+bool acceptOK( CallBacker* ) override
+{
+    const uiRetVal uirv = formgrp_->isOK();
+    if ( !uirv.isOK() )
+	uiMSG().error( uirv );
+
+    return uirv.isOK();
+}
+
+bool getFormulaInfo( Math::Formula& form ) const
+{
+    return formgrp_->getFormulaInfo( form );
+}
 
     uiRockPhysForm*	formgrp_;
 
@@ -332,15 +306,11 @@ bool getFormulaInfo( Math::Formula& form,
 void uiWellLogCalc::rockPhysReq( CallBacker* )
 {
     uiWellLogCalcRockPhys dlg( this );
-    TypeSet<Mnemonic::StdType> inputtypes;
-    if ( !dlg.go() || !dlg.getFormulaInfo(form_,inputtypes) )
+    if ( !dlg.go() || !dlg.getFormulaInfo(form_) )
 	return;
 
-    useForm( &inputtypes );
-
-    const UnitOfMeasure* formun = form_.outputUnit();
-    if ( formun )
-	outunfld_->setPropType( formun->propType() );
+    formfld_->setFixedFormUnits( true );
+    formfld_->useForm();
 }
 
 
@@ -355,50 +325,30 @@ void uiWellLogCalc::feetSel( CallBacker* )
 }
 
 
-void uiWellLogCalc::formSet( CallBacker* )
+Well::Log* uiWellLogCalc::getLog4InpIdx( Well::LogSet& wls, const char* lognm )
 {
-    useForm();
+    return wls.getLog( lognm );
 }
 
 
-void uiWellLogCalc::formUnitSel( CallBacker* )
+void uiWellLogCalc::setUnits4Log( const char* lognm,
+				  uiMathExpressionVariable& inpfld )
 {
-    const UnitOfMeasure* formun = formfld_->getUnit();
-    if ( !formun )
-	outunfld_->setPropType( Mnemonic::Other );
-    else
-	outunfld_->setUnit( formun );
-}
-
-
-Well::Log* uiWellLogCalc::getLog4InpIdx( Well::LogSet& wls, int varnr )
-{
-    return wls.getLog( formfld_->getInput(varnr) );
-}
-
-
-void uiWellLogCalc::setUnits4Log( int inpidx )
-{
-    if ( form_.isSpec(inpidx) || form_.isConst(inpidx) )
-	return;
-
-    const Well::Log* wl = getLog4InpIdx( superwls_, inpidx );
+    const Well::Log* wl = getLog4InpIdx( superwls_, lognm );
     if ( !wl )
 	{ pErrMsg("Huh"); return; }
 
-    uiMathExpressionVariable* inpfld = formfld_->inpFld( inpidx );
-    inpfld->setPropType( wl->propType() );
-    inpfld->setSelUnit( wl->unitOfMeasure() );
+    inpfld.setSelUnit( wl->unitOfMeasure() );
 }
 
 
-void uiWellLogCalc::fillSRFld( int inpidx )
+void uiWellLogCalc::fillSRFld( const char* lognm )
 {
     float sr = srfld_->getFValue();
     if ( !mIsUdf(sr) )
 	return;
 
-    const Well::Log* wl = getLog4InpIdx( superwls_, inpidx );
+    const Well::Log* wl = getLog4InpIdx( superwls_, lognm );
     if ( wl && !wl->isEmpty() )
 	sr = wl->dahStep( false );
     if ( !mIsUdf(sr) )
@@ -410,14 +360,46 @@ void uiWellLogCalc::fillSRFld( int inpidx )
 }
 
 
-void uiWellLogCalc::inpSel( CallBacker* )
+void uiWellLogCalc::inpSel( CallBacker* cb )
 {
-    const int inpidx = formfld_->inpSelNotifNr();
-    if ( inpidx >= form_.nrInputs() )
+    mDynamicCastGet(uiMathExpressionVariable*,inpfld,cb);
+    if ( !inpfld || !inpfld->isActive() ||
+	  inpfld->isConst() || inpfld->isSpec() )
 	return;
 
-    fillSRFld( inpidx );
-    setUnits4Log( inpidx );
+    const BufferString inpnm( inpfld->getInput() );
+
+    fillSRFld( inpnm.buf() );
+    setUnits4Log( inpnm.buf(), *inpfld );
+}
+
+
+void uiWellLogCalc::formMnSet( CallBacker* cb )
+{
+    mDynamicCastGet(uiMnemonicsSel*,uimnselfld,cb)
+    if ( !uimnselfld )
+	return;
+
+    const Mnemonic* mn = uimnselfld->mnemonic();
+    if ( !mn )
+	mn = &Mnemonic::undef();
+
+    const UnitOfMeasure* prevoutuom = outunfld_->getUnit();
+    const UnitOfMeasure* mnunit = mn->unit();
+    outunfld_->setPropType( mn->stdType() );
+    if ( (prevoutuom && mnunit && !prevoutuom->isCompatibleWith(*mnunit)) ||
+	  !uimnselfld->sensitive() )
+	outunfld_->setUnit( mnunit );
+}
+
+
+void uiWellLogCalc::formUnitSel( CallBacker* cb )
+{
+    mDynamicCastGet(uiUnitSel*,unitfld,cb);
+    if ( !unitfld )
+	return;
+
+    //TODO: Record and use last user preference?
 }
 
 
@@ -427,7 +409,7 @@ void uiWellLogCalc::vwLog( CallBacker* cb )
     if ( inpnr < 0 )
 	return;
 
-    const Well::Log* wl = getLog4InpIdx( superwls_, inpnr );
+    const Well::Log* wl = getLog4InpIdx( superwls_, lognms_.get(inpnr).buf() );
     if ( !wl )
 	return;
 
@@ -463,14 +445,23 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     if ( newnm.isEmpty() )
 	mErrRet(tr("Please provide a name for the new log"))
     if ( lognms_.isPresent(newnm) || superwls_.getLog(newnm) )
-	mErrRet(tr("A log with this name already exists."
-		"\nPlease enter a different name for the new log"))
+    {
+	const bool ret = uiMSG().askOverwrite(
+			tr("A log with this name already exists."
+			"\nDo you want to overwrite it?"));
+	if ( !ret )
+	    return false;
+    }
 
     zsampintv_ = srfld_->getFValue();
     if ( mIsUdf(zsampintv_) )
 	mErrRet(tr("Please provide the Z sample rate for the  output log"))
     if ( ftbox_->isChecked() )
 	zsampintv_ *= mFromFeetFactorF;
+
+    const Mnemonic* outmn = form_.outputMnemonic();
+    const UnitOfMeasure* outun = outunfld_->getUnit();
+    form_.setOutputValUnit( outun );
 
     bool successfulonce = false;
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
@@ -490,32 +481,16 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	Well::Log* newwl = new Well::Log( newnm );
-	wls.add( newwl );
+	auto* newwl = new Well::Log( newnm );
 	if ( !calcLog(*newwl,inpdatas,wd->track(),wd->d2TModel()) )
 	    mErrContinue( tr("Cannot compute log for %1").arg(wd->name()))
 
-	const UnitOfMeasure* outun = outunfld_->getUnit();
-	if ( outun )
-	{
-	    const UnitOfMeasure* logun = form_.outputUnit();
-	    for ( int idx=0; idx<newwl->size(); idx++ )
-	    {
-		const float initialval = newwl->value( idx );
-		const float valinsi = !logun ? initialval
-				    : logun->getSIValue( initialval );
-		const float convertedval = outun->getUserValueFromSI( valinsi );
-		newwl->valArr()[idx] = convertedval;
-	    }
-	}
+	if ( outmn && !outmn->isUdf() )
+	    newwl->setMnemonic( *outmn );
+	newwl->setUnitOfMeasure( outun );
 
-	if ( outun )
-	    newwl->setUnitMeasLabel( outun->name() );
-
-	Well::Writer wtr( wmid, *wd );
-	if ( !wtr.putLog(*newwl) )
-	    mErrContinue( tr("Cannot write new log for %1")
-			.arg(wd->name()) )
+	if ( !Well::MGR().writeAndRegister(wmid,*newwl) )
+	    mErrContinue( tr(Well::MGR().errMsg()) );
 
 	successfulonce = true;
 	deleteLog( inpdatas );
@@ -533,14 +508,14 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
 
 bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
-				TypeSet<uiWellLogCalc::InpData>& inpdatas )
+				 TypeSet<uiWellLogCalc::InpData>& inpdatas )
 {
     for ( int iinp=0; iinp<form_.nrInputs(); iinp++ )
     {
 	if ( form_.isConst(iinp) )
 	{
 	    InpData inpd; inpd.isconst_ = true;
-	    inpd.constval_ = (float)form_.getConstVal( iinp );
+	    inpd.constval_ = form_.getConstVal( iinp );
 	    if ( mIsUdf(inpd.constval_) )
 		mErrRet(tr("Please enter a value for %1")
 		      .arg(form_.variableName(iinp)))
@@ -556,7 +531,7 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 	    inpd.shift_ = reqshifts[ishft];
 	    if ( specidx < 0 )
 	    {
-		inpd.wl_ = getInpLog( wls, iinp, ishft==0 );
+		inpd.wl_ = getInpLog( wls, iinp );
 		if ( !inpd.wl_ )
 		    mErrRet(tr("%1: empty log").arg(toUiString(
 							 form_.inputDef(iinp))))
@@ -571,32 +546,18 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 }
 
 
-Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx,
-				     bool convtosi )
+Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx )
 {
-    Well::Log* inplog = getLog4InpIdx( wls, inpidx );
+    Well::Log* inplog = getLog4InpIdx( wls, lognms_.get(inpidx).buf() );
     if ( !inplog || inplog->isEmpty() )
 	return nullptr;
 
-    Well::Log* ret = new Well::Log( *inplog );
-    if ( convtosi )
-    {
-	const UnitOfMeasure* logun = ret->unitOfMeasure();
-	if ( logun )
-	{
-	    float* valarr = ret->valArr();
-	    const int sz = ret->size();
-	    for ( int idx=0; idx<sz; idx++ )
-		valarr[idx] = logun->getSIValue( valarr[idx] );
-	}
-    }
-
-    return ret;
+    return new Well::Log( *inplog );
 }
 
 
-static void selectInpVals( const TypeSet<float>& noudfinpvals,
-			int interppol, TypeSet<float>& inpvals )
+static void selectInpVals( const TypeSet<double>& noudfinpvals,
+			int interppol, TypeSet<double>& inpvals )
 {
     const int sz = inpvals.size();
     if ( sz == 0 || interppol == mInterpNone )
@@ -636,23 +597,24 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
     if ( dahrg.isUdf() )
 	dahrg = track.dahRange();
 
-    StepInterval<float> samprg( dahrg.start, dahrg.stop, zsampintv_ );
+    const StepInterval<float> samprg( dahrg.start, dahrg.stop, zsampintv_ );
     const int nrsamps = samprg.nrSteps() + 1;
     const int interppol = interppolfld_->currentItem();
-    TypeSet<float> inpvals( inpdatas.size(), 0 );
-    TypeSet<float> noudfinpvals( inpdatas.size(), 0 );
+    TypeSet<double> inpvals( inpdatas.size(), 0. );
+    TypeSet<double> noudfinpvals( inpdatas.size(), 0. );
     for ( int rgidx=0; rgidx<nrsamps; rgidx++ )
     {
 	const float dah = samprg.atIndex( rgidx );
-	inpvals.setAll( mUdf(float) );
-	noudfinpvals.setAll( mUdf(float) );
+	inpvals.setAll( mUdf(double) );
+	noudfinpvals.setAll( mUdf(double) );
 	for ( int iinp=0; iinp<inpdatas.size(); iinp++ )
 	{
 	    const uiWellLogCalc::InpData& inpd = inpdatas[iinp];
 	    const float curdah = dah + samprg.step * inpd.shift_;
 	    if ( inpd.wl_ )
 	    {
-		const float val = inpd.wl_->getValue( curdah, false );
+		form_.setInputValUnit( iinp, inpd.wl_->unitOfMeasure() );
+		const double val = inpd.wl_->getValue( curdah, false );
 		inpvals[iinp] = val;
 		noudfinpvals[iinp] = !mIsUdf(val) ? val
 				   : inpd.wl_->getValue( curdah, true );
@@ -661,7 +623,9 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 		inpvals[iinp] = noudfinpvals[iinp] = inpd.constval_;
 	    else
 	    {
-		float val = mUdf(float);
+		double val = mUdf(double);
+		form_.setInputValUnit( iinp,
+				       UnitOfMeasure::surveyDefDepthUnit() );
 		if ( inpd.specidx_ == mMDIdx )
 		    val = curdah;
 		else if ( inpd.specidx_ == mDZIdx )
@@ -670,39 +634,36 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 			  inpd.specidx_ == mTVDIdx ||
 			  inpd.specidx_ == mTVDSDIdx )
 		{
-		    val = mCast(float,track.getPos(curdah).z);
+		    val = track.getPos( curdah ).z;
 		    if ( inpd.specidx_ == mTVDIdx && !mIsUdf(val) )
 			val += track.getKbElev();
 		    else if ( inpd.specidx_ == mTVDSDIdx  && !mIsUdf(val) )
-			val += mCast(float, SI().seismicReferenceDatum());
+			val += SI().seismicReferenceDatum();
 		}
 		else if ( inpd.specidx_ == mTWTIdx && d2t )
 		{
 		    val = d2t->getTime( curdah, track );
-		    const UnitOfMeasure* uom =
-					UnitOfMeasure::surveyDefZUnit();
-		    if ( uom ) val = uom->userValue( val );
+		    form_.setInputValUnit( iinp,
+					   UnitOfMeasure::surveyDefZUnit() );
 
 		}
 		else if ( inpd.specidx_ == mVelIdx && d2t )
 		{
-		    val = mCast(float,d2t->getVelocityForDah( curdah, track ));
-		    const UnitOfMeasure* uom =
-					 UnitOfMeasure::surveyDefDepthUnit();
-		    if ( uom ) val = uom->userValue( val );
+		    val = d2t->getVelocityForDah( curdah, track );
+		    form_.setInputValUnit( iinp,
+					   UnitOfMeasure::surveyDefVelUnit() );
 		}
 
 		inpvals[iinp] = noudfinpvals[iinp] = val;
 	    }
 	}
 
-	float formval = mUdf(float);
 	selectInpVals( noudfinpvals, interppol, inpvals );
 	if ( inpvals.isEmpty() )
 	    return false;;
 
-	formval = form_.getValue( inpvals.arr(), false );
-	wlout.addValue( dah, formval );
+	const double formval = form_.getValue( inpvals.arr() );
+	wlout.addValue( dah, float(formval) );
     }
 
     wlout.removeTopBottomUdfs();

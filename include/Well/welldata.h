@@ -62,6 +62,7 @@ public:
     static const char*	sKeyTVD()	{ return "True Vertical Depth [TVD]"; }
     static const char*	sKeyMD()	{ return "Measured Depth [MD]"; }
 
+    bool		isLoaded() const;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 

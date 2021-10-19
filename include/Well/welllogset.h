@@ -62,6 +62,7 @@ public:
     bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();
 
+    TypeSet<int>	getSuitable(const Mnemonic&) const;
     TypeSet<int>	getSuitable(Mnemonic::StdType,
 				    const PropertyRef* altpr=nullptr,
 				    BoolTypeSet* isalt=nullptr) const;

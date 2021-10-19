@@ -21,7 +21,7 @@
 
 #define mTestVal(var,val) \
     if ( var != val ) mTestValErr(var,val) mTestValSucces(var,val)
-#define mTestValF(var,val) \
+#define mTestValD(var,val) \
     if ( !mIsEqual(var,val,0.001) ) mTestValErr(var,val) mTestValSucces(var,val)
 
 
@@ -54,22 +54,28 @@ static bool testSimpleFormula()
     form.recStartVals()[0] = 3;
     form.recStartVals()[1] = 4;
 
-    form.setInputUnit( 1, UoMR().get("ft") );
+    const UnitOfMeasure* muom = UoMR().get("Meter");
+    const UnitOfMeasure* ftuom = UoMR().get("Feet");
 
-    float inpvals[3];
+    form.setInputValUnit( 1, muom );
+    form.setInputFormUnit( 1, ftuom );
+
+    double inpvals[3];
     inpvals[0] = 1; inpvals[1] = 2; inpvals[2] = 3;
-    float val = form.getValue( inpvals, true );
-    mTestValF(val,6.56168);
+    double val = form.getValue( inpvals );
+    mTestValD(val,6.56168);
 
-    val = form.getValue( inpvals, true );
-    mTestValF(val,5.56168);
+    val = form.getValue( inpvals );
+    mTestValD(val,5.56168);
 
     form.startNewSeries();
-    form.setOutputUnit( UoMR().get("ms") );
-    val = form.getValue( inpvals, false );
-    mTestValF(val,6.56168);
-    val = form.getValue( inpvals, true );
-    mTestValF(val,0.00556168);
+    form.setOutputFormUnit( ftuom );
+    val = form.getValue( inpvals );
+    mTestValD(val,6.56168);
+    form.startNewSeries();
+    form.setOutputValUnit( muom );
+    val = form.getValue( inpvals );
+    mTestValD(val,2.);
 
     if ( !quiet_ )
     {
@@ -99,8 +105,8 @@ static bool testRepeatingVar()
 	od_cout() << "Expression: '" << expr << "'\n";
 
     Math::SpecVarSet svs;
-    svs += Math::SpecVar( "Aap", "Dit is aapje", true, Mnemonic::Dist );
-    svs += Math::SpecVar( "Noot", "Dit is nootje", false );
+    svs += Math::SpecVar( "Aap", "Dit is aapje", true, &Mnemonic::distance() );
+    svs += Math::SpecVar( "Noot", "Dit is nootje" );
     Math::Formula form( true, svs, expr );
 
     if ( !form.isOK() )
@@ -117,12 +123,12 @@ static bool testRepeatingVar()
     mTestVal(form.isSpec(0),false);
     mTestVal(form.isSpec(2),true);
 
-    float inpvals[4];
+    double inpvals[4];
     inpvals[0] = -3; inpvals[1] = 7; // values for x[-1] and x[1]
     inpvals[2] = 11; // value for y
     inpvals[3] = -10; // value for aap
-    float val = form.getValue( inpvals, true );
-    mTestValF(val,16);
+    const double val = form.getValue( inpvals );
+    mTestValD(val,16);
 
     return true;
 }

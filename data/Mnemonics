@@ -48,6 +48,7 @@ LR: LambdaRho`Pressure-Weight`Lin`5`80`5`80`GPa.g/cm3`100`150`255
 MR: MuRho`Pressure-Weight`Lin`5`60`5`60`GPa.g/cm3`100`255`150
 PP: Pressure`Pressure`lin`0`200`0`200`bar`0`0`255`PRES
 RSV: Reservoir`Classification`lin`0`1`0`1``255`0`255`
+TWT: Two-way traveltime`Time`lin`````ms````Time
+OWT: One-way traveltime`Time`lin`````ms````
 CONF: Confidence`Other`Lin`````````
-OTH: Other`Other`Lin`````````
 !

@@ -64,9 +64,11 @@ public:
     float		getValue(float,int icomp) const;
 
     bool		isNull(int icomp=-1) const;
+    bool		isUdf(int icomp=-1) const;
     bool		hasUndef(int icomp=-1) const;
     inline void		zero( int icomp=-1 )
 			{ data_.zero( icomp ); }
+    void		reverse( int icomp=-1 );
     void		setAll(float,int icomp=-1);
     void		setNrComponents(int,DataCharacteristics::UserType dt
 					=DataCharacteristics::Auto);
@@ -118,8 +120,6 @@ protected:
     TraceData						data_;
     SeisTrcInfo						info_;
     mutable PtrMan<ValueSeriesInterpolator<float> >	intpol_;
-
-    bool		chkForSpecVal(int icomp,bool isnull) const;
 
 private:
 

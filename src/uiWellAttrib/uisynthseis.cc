@@ -27,62 +27,57 @@ ________________________________________________________________________
 
 uiSynthSeisGrp::uiSynthSeisGrp( uiParent* p, const uiRayTracer1D::Setup& su )
     : uiGroup(p)
-    , internalmultiplebox_(0)
-    , surfreflcoeffld_(0)
     , parsChanged(this)
 {
     wvltfld_ = new uiSeisWaveletSel( this, "Wavelet", true, true, true );
-    wvltfld_->newSelection.notify( mCB(this,uiSynthSeisGrp,parsChangedCB) );
+    mAttachCB( wvltfld_->newSelection, uiSynthSeisGrp::parsChangedCB );
     wvltfld_->setFrame( false );
 
     rtsel_ = new uiRayTracerSel( this, su );
-    rtsel_->offsetChanged.notify( mCB(this,uiSynthSeisGrp,parsChangedCB) );
+    mAttachCB( rtsel_->parsChanged, uiSynthSeisGrp::parsChangedCB );
     rtsel_->attach( alignedBelow, wvltfld_ );
 
     if ( su.doreflectivity_ )
     {
 	internalmultiplebox_ = new uiCheckBox( this,
 				tr("Compute internal multiples") );
-	internalmultiplebox_->attach( alignedBelow, rtsel_ );
+	/* internalmultiplebox_->attach( alignedBelow, uisynthcorrgrp_ );
+	   At the moment this option is only available for Zero Offset,
+	   thus compressing the layout	 */
+	internalmultiplebox_->attach( alignedBelow, wvltfld_ );
+	mAttachCB( internalmultiplebox_->activated,
+		   uiSynthSeisGrp::parsChangedCB );
 	surfreflcoeffld_ = new uiLabeledSpinBox( this,
 				tr("Surface reflection coefficient"), 1 );
-	surfreflcoeffld_->box()->setInterval( (double)-1, (double)1, 0.1 );
-	surfreflcoeffld_->box()->setValue( 1 );
+	surfreflcoeffld_->box()->setInterval( -1., 1., 0.1 );
+	surfreflcoeffld_->box()->setValue( 1. );
 	surfreflcoeffld_->attach( alignedBelow, internalmultiplebox_ );
+	mAttachCB( surfreflcoeffld_->box()->valueChanged,
+		   uiSynthSeisGrp::parsChangedCB );
     }
 
     uisynthcorrgrp_ = new uiSynthCorrectionsGrp( this );
     uisynthcorrgrp_->attach( alignedBelow, rtsel_ );
 
-    uisynthcorrgrp_->nmoparsChanged_.notify(
-	    mCB(this,uiSynthSeisGrp,parsChangedCB) );
+    mAttachCB( uisynthcorrgrp_->nmoparsChanged, uiSynthSeisGrp::parsChangedCB);
     setHAlignObj( wvltfld_ );
+}
+
+
+uiSynthSeisGrp::~uiSynthSeisGrp()
+{
+    detachAllNotifiers();
 }
 
 
 void uiSynthSeisGrp::parsChangedCB( CallBacker* )
 {
-    updateFieldDisplay();
     parsChanged.trigger();
-}
-
-
-void uiSynthSeisGrp::updateDisplayForPSBased()
-{
-    wvltfld_->display( false );
-    if ( internalmultiplebox_ )
-    {
-	internalmultiplebox_->display( false );
-	surfreflcoeffld_->display( false );
-    }
-    uisynthcorrgrp_->display( false );
-    rtsel_->display( false );
 }
 
 
 void uiSynthSeisGrp::updateFieldDisplay()
 {
-    wvltfld_->display( true );
     const bool iszerooofset = rtsel_->current()->isZeroOffset();
     if ( !rtsel_->current()->hasZeroOffsetFld() )
     { // cannot set zerooffset from outside e.g uiSynthGenDlg
@@ -173,14 +168,14 @@ void uiSynthSeisGrp::fillPar( IOPar& iopar ) const
     }
     else
     {
-	bool donmo = !iszeroffset ? uisynthcorrgrp_->wantNMOCorr() : false;
+	const bool donmo = iszeroffset ? false
+				       : uisynthcorrgrp_->wantNMOCorr();
 	iopar.setYN( Seis::SynthGenBase::sKeyNMO(), donmo );
 	iopar.set( Seis::SynthGenBase::sKeyMuteLength(),
 	     uisynthcorrgrp_->getMuteLength() / ZDomain::Time().userFactor() );
 	iopar.set( Seis::SynthGenBase::sKeyStretchLimit(),
 		   mFromPercent( uisynthcorrgrp_->getStrechtMutePerc()) );
     }
-
 }
 
 
@@ -189,23 +184,23 @@ class uiSynthCorrAdvancedDlg : public uiDialog
     public:
 				uiSynthCorrAdvancedDlg(uiParent*);
 
-    uiGenInput*		stretchmutelimitfld_;
-    uiGenInput*		mutelenfld_;
+    uiGenInput*			stretchmutelimitfld_;
+    uiGenInput*			mutelenfld_;
 
     protected:
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
 };
 
 
 uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
     : uiGroup( p, "Synth corrections parameters" )
-    , nmoparsChanged_(this)
+    , nmoparsChanged(this)
 {
     nmofld_ = new uiGenInput( this, tr("Apply NMO corrections"),
 			      BoolInpSpec(true) );
-    mAttachCB( nmofld_->valuechanged, uiSynthCorrectionsGrp::parsChanged);
     nmofld_->setValue( true );
+    mAttachCB( nmofld_->valuechanged, uiSynthCorrectionsGrp::nmoSelCB );
 
     CallBack cbadv = mCB(this,uiSynthCorrectionsGrp,getAdvancedPush);
     advbut_ = new uiPushButton( this, uiStrings::sAdvanced(), cbadv, false );
@@ -213,6 +208,8 @@ uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
 
     uiscadvdlg_ = new uiSynthCorrAdvancedDlg( this );
     setHAlignObj( nmofld_ );
+
+    mAttachCB( postFinalise(), uiSynthCorrectionsGrp::initGrp );
 }
 
 
@@ -222,10 +219,22 @@ uiSynthCorrectionsGrp::~uiSynthCorrectionsGrp()
 }
 
 
-void uiSynthCorrectionsGrp::parsChanged( CallBacker* )
+void uiSynthCorrectionsGrp::initGrp( CallBacker* )
 {
     advbut_->display( wantNMOCorr() );
-    nmoparsChanged_.trigger();
+}
+
+
+void uiSynthCorrectionsGrp::nmoSelCB( CallBacker* )
+{
+    advbut_->display( wantNMOCorr() );
+    parsChanged( nullptr );
+}
+
+
+void uiSynthCorrectionsGrp::parsChanged( CallBacker* )
+{
+    nmoparsChanged.trigger();
 }
 
 
@@ -249,7 +258,16 @@ float uiSynthCorrectionsGrp::getMuteLength() const
 
 void uiSynthCorrectionsGrp::getAdvancedPush( CallBacker* )
 {
-    uiscadvdlg_->go();
+    const float strechmuteperc = getStrechtMutePerc();
+    const float mutelength = getMuteLength();
+    if ( uiscadvdlg_->go() != uiDialog::Accepted )
+	return;
+
+    if ( mIsEqual(strechmuteperc,getStrechtMutePerc(),1e-3f) &&
+	 mIsEqual(mutelength,getMuteLength(),1e-3f) )
+	return;
+
+    parsChanged( nullptr );
 }
 
 

@@ -27,6 +27,7 @@ namespace Well
 {
 
 class Data;
+class Log;
 
 /*\brief Tells the Well Manager what you need to be loaded.*/
 
@@ -112,6 +113,11 @@ public:
     static bool		getLogNamesByID(const MultiID&,BufferStringSet&,
 					bool onlyloaded=false);
     Coord		getMapLocation(const MultiID&) const;
+
+    bool		writeAndRegister(const MultiID&,const Log&);
+					//!< Log becomes mine
+    bool		writeAndRegister(const MultiID&,ObjectSet<Log>&);
+					//!< Returns empty set if all succeeded
     static void		dumpMgrInfo(IOPar&);
 
     static const UnitOfMeasure*	surveyDepthStorageUnit();

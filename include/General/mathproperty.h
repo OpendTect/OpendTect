@@ -40,7 +40,7 @@ public:
     Math::Formula&	getForm()		{ return form_; }
     const Math::Formula& getForm() const	{ return form_; }
 
-    Mnemonic::StdType	inputType(int) const;
+    const Mnemonic*	inputMnemonic(int) const;
     bool		haveInput( int idx ) const    { return inps_[idx]; }
     void		setInput(int,const Property*);
 			//!< Must be done for all inputs after each setDef()
@@ -56,6 +56,8 @@ public:
     const char*			formText(bool user_display=false) const;
     int				nrInputs() const;
     const char*			inputName(int) const;
+    mDeprecated("Use inputMnemonic")
+    Mnemonic::StdType		inputType(int) const;
     const UnitOfMeasure*	inputUnit(int) const;
     bool			isConst(int) const;
     void			setUnit(const UnitOfMeasure*);

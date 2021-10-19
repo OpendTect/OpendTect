@@ -56,6 +56,7 @@ public:
     bool		operator !=(const Mnemonic&) const;
     bool		matches(const char* nm,bool matchaliases) const;
     bool		isKnownAs(const char*) const;
+    bool		isCompatibleWith(const Mnemonic*) const;
 
     inline bool		isUdf() const	{ return *this == undef(); }
 
@@ -115,6 +116,8 @@ public:
     static const Mnemonic& defSW();
     static const Mnemonic& defAI();
     static const Mnemonic& defSI();
+    static const Mnemonic& defVEL(); //For Time-depth work
+    static const Mnemonic& defTime(); //TWT
 
     static const char*	sKeyMnemonic();
 

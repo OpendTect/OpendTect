@@ -127,28 +127,28 @@ public:
 
 protected:
 
-    int			longestaimdl_;
+    int			longestaimdl_ = 0;
     StratSynth*		stratsynth_;
     StratSynth*		edstratsynth_;
     const Strat::LayerModelProvider& lmp_;
     uiWorldRect		relzoomwr_;
     mutable uiWorldRect	savedzoomwr_;
-    int			selectedtrace_;
-    int			dispeach_;
-    float		dispskipz_;
-    bool		dispflattened_;
+    int			selectedtrace_ = -1;
+    int			dispeach_ = 1;
+    float		dispskipz_ = 0.f;
+    bool		dispflattened_ = false;
     /*mDeprecated*/ bool	isbrinefilled_;
-    bool		autoupdate_;
-    bool		forceupdate_;
-    bool		useed_;
+    bool		autoupdate_ = true;
+    bool		forceupdate_ = false;
+    bool		useed_ = false;
 
-    const ObjectSet<const TimeDepthModel>* d2tmodels_;
-    SyntheticData*	currentwvasynthetic_;
-    SyntheticData*	currentvdsynthetic_;
+    const ObjectSet<const TimeDepthModel>* d2tmodels_ = nullptr;
+    SyntheticData*	currentwvasynthetic_ = nullptr;
+    SyntheticData*	currentvdsynthetic_ = nullptr;
 
     uiMultiFlatViewControl* control_;
-    FlatView::AuxData*	selectedtraceaux_;
-    FlatView::AuxData*	levelaux_;
+    FlatView::AuxData*	selectedtraceaux_ = nullptr;
+    FlatView::AuxData*	levelaux_ = nullptr;
 
     uiGroup*		topgrp_;
     uiGroup*		datagrp_;
@@ -156,16 +156,16 @@ protected:
     uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
     uiPushButton*	scalebut_;
-    uiButton*		lasttool_;
+    uiButton*		lasttool_ = nullptr;
     uiToolButton*	prestackbut_;
     uiComboBox*		wvadatalist_;
     uiComboBox*		vddatalist_;
     uiComboBox*		levelsnapselfld_;
-    uiSynthGenDlg*	synthgendlg_;
+    uiSynthGenDlg*	synthgendlg_ = nullptr;
     uiSynthSlicePos*	offsetposfld_;
     uiTextItem*     frtxtitm_ = nullptr;
     PtrMan<TaskRunner>	taskrunner_;
-    PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_;
+    PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_ = nullptr;
 
     void		showInfoMsg(bool foralt);
     void		handleFlattenChange();
@@ -180,6 +180,7 @@ protected:
     void		updateFields();
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);
+    void		setCurSynthetic(SyntheticData*,bool wva);
     void		copySyntheticDispPars();
     void		setDefaultAppearance(FlatView::Appearance&);
     inline StratSynth&	altSS()
@@ -204,14 +205,15 @@ protected:
     void		layerPropsPush(CallBacker*);
     void		offsetChged(CallBacker*);
     void		scalePush(CallBacker*);
-    void		genNewSynthetic(CallBacker*);
     void		viewPreStackPush(CallBacker*);
     void		wvltChg(CallBacker*);
     void		viewChg(CallBacker*);
     void		parsChangedCB(CallBacker*);
+    void		syntheticAdded(CallBacker*);
+    void		syntheticChanged(CallBacker*);
     void		syntheticRemoved(CallBacker*);
     void		syntheticDisabled(CallBacker*);
-    void		syntheticChanged(CallBacker*);
+    void		syntheticDeleted(CallBacker*);
     void		selPreStackDataCB(CallBacker*);
     void		preStackWinClosedCB(CallBacker*);
     void		newModelsCB(CallBacker*);

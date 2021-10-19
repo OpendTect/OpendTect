@@ -722,7 +722,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     if ( isnew_ && sip && sip->hasSurveyImportDlg() )
     {
 	const bool ret = uiMSG().askGoOn(
-				tr("Proceed to import Survey data Object") );
+			    tr("Proceed to import all listed data?") );
 
 	if ( ret )
 	    sip->launchSurveyImportDlg( this->parent() )->go();

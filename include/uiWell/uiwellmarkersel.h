@@ -27,14 +27,17 @@ namespace Well { class Marker; class MarkerSet; }
 /*!\brief Select one or two markers (i.e. a range) */
 
 mExpClass(uiWell) uiWellMarkerSel : public uiGroup
-{ mODTextTranslationClass(uiWellMarkerSel);
+{ mODTextTranslationClass(uiWellMarkerSel)
 public:
 
     mExpClass(uiWell) Setup
-    {
+    { mODTextTranslationClass(Setup)
     public:
-			Setup(bool one,const char* sel_txt=0);
-				// Pass an empty string ("") to get no label
+			Setup(bool single,const uiString& =uiString::empty());
+				// Pass an empty string to get no label
+			mDeprecated("Use uiString")
+			Setup( bool single, const char* txt )
+			  : Setup(single,::toUiString(txt)) {}
 
 	mDefSetupMemb(bool,single);	//!< false => two levels (a zone)
 	mDefSetupMemb(bool,allowsame);	//!< [true]
@@ -42,7 +45,7 @@ public:
 	mDefSetupMemb(bool,unordered);	//!< [false] true if your markers are
 					//!< not ordered top to bottom
 	mDefSetupMemb(bool,middef);	//!< [false] set center markers(s) def
-	mDefSetupMemb(BufferString,seltxt);
+	mDefSetupMemb(uiString,seltxt);
     };
 
 			uiWellMarkerSel(uiParent*,const Setup&);
@@ -55,31 +58,45 @@ public:
     void		setInput(const char*,bool top=true);
 
     const char*		getText(bool top=true) const;
-    int			getType(bool top=true) const;
-				//!< -1=udf/before-first, 0=marker, 1=after-last
-				//!< only useful if setup.withudf
+    BufferString	getMarkerName(bool top=true) const;
+
+    enum		MarkerSelTyp { Undef, Start, End, Marker };
+			mDeclareEnumUtils(MarkerSelTyp);
+
+    MarkerSelTyp	getMkType(bool top=true) const;
+    bool		isValidMarker(bool top=true) const;
     void		reset(); //!Sets start to first marker, stop to last
 
+    uiRetVal		isOK() const;
+    void		fillPar(IOPar&,bool replacestartend=false) const;
     void		usePar(const IOPar&);
-    void		fillPar(IOPar&) const;
-
-    static const char*	sKeyUdfLvl();
-    static const char*	sKeyDataStart();
-    static const char*	sKeyDataEnd();
 
     uiComboBox*		getFld( bool top )
 			{ return top ? topfld_ : botfld_; }
 
     Notifier<uiWellMarkerSel> mrkSelDone;
-
+				//!< only useful if setup.withudf
 protected:
 
     const Setup		setup_;
     uiComboBox*		topfld_;
-    uiComboBox*		botfld_;
+    uiComboBox*		botfld_ = nullptr;
 
     void		setMarkers(uiComboBox&,const BufferStringSet&);
     void		mrkSel(CallBacker*);
+
+public:
+
+    mDeprecated("Use MarkerSelTyp")
+    int			getType(bool top=true) const;
+				//!< -1=udf/before-first, 0=marker, 1=after-last
+
+    mDeprecated("Use MarkerSelTyp")
+    static const char*	sKeyUdfLvl();
+    mDeprecated("Use MarkerSelTyp")
+    static const char*	sKeyDataStart();
+    mDeprecated("Use MarkerSelTyp")
+    static const char*	sKeyDataEnd();
 
 };
 

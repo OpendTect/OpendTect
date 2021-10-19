@@ -12,11 +12,13 @@ ________________________________________________________________________
 #include "rockphysics.h"
 #include "mathformula.h"
 #include "mathproperty.h"
+#include "mathspecvars.h"
 #include "unitofmeasure.h"
 
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimnemonicsel.h"
 #include "uimsg.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
@@ -33,17 +35,17 @@ public:
 uiRockPhysConstantFld( uiParent* p )
     : uiGroup(p,"Rock Physics Constant Field")
 {
-    nmlbl_ = new uiLabel( this, uiStrings::sEmptyString() );
+    nmlbl_ = new uiLabel( this, uiString::empty() );
     nmlbl_->setPrefWidthInChar( 30 );
     nmlbl_->setAlignment( Alignment::Right );
 
-    valfld_ = new uiGenInput( this, uiStrings::sEmptyString(), FloatInpSpec() );
+    valfld_ = new uiGenInput( this, uiString::empty(), FloatInpSpec() );
     valfld_->attach( rightOf, nmlbl_ );
 
     infofld_ = new uiOfferInfo( this, false );
     infofld_->attach( rightOf, valfld_ );
 
-    rangelbl_ = new uiLabel( this, uiStrings::sEmptyString() );
+    rangelbl_ = new uiLabel( this, uiString::empty() );
     rangelbl_->setPrefWidthInChar( 30 );
     rangelbl_->attach( rightOf, infofld_ );
 
@@ -97,48 +99,73 @@ void update( const RockPhysics::Formula::ConstDef* pcd )
 
 
 uiRockPhysForm::uiRockPhysForm( uiParent* p )
-    : uiGroup(p,"RockPhyics Formula Selector")
-    , fixedtype_(Mnemonic::Den)
+    : uiGroup(p,"RockPhysics Formula Selector")
 {
     BufferStringSet typnms( Mnemonic::StdTypeNames() );
-    for ( int idx=0; idx<typnms.size(); idx++ )
+    ManagedObjectSet<MnemonicSelection> mnsels;
+    for ( int idx=typnms.size()-1; idx>=0; idx-- )
     {
-	BufferStringSet nms;
 	const Mnemonic::StdType typ
 			= Mnemonic::parseEnumStdType( typnms.get(idx) );
-	ROCKPHYSFORMS().getRelevant( typ, nms );
-	if ( nms.isEmpty() )
-	    { typnms.removeSingle( idx ); idx--; }
+	auto* mnsel = new MnemonicSelection;
+	ROCKPHYSFORMS().getRelevant( typ, *mnsel );
+	if ( mnsel->isEmpty() )
+	{
+	    typnms.removeSingle( idx );
+	    delete mnsel;
+	}
+	else
+	    mnsels.insertAt( mnsel, 0 );
     }
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, typnms,
-						    tr("Property Type") );
+    const int defidx = typnms.indexOf(
+		    Mnemonic::StdTypeDef().getKeyForIndex( Mnemonic::Imp ) );
+
+    auto* lcb = new uiLabeledComboBox( this, typnms, tr("Property Type") );
     typfld_ = lcb->box();
     typfld_->setHSzPol( uiObject::MedMax );
-    typfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,typSel) );
+    if ( typnms.validIdx(defidx) )
+	typfld_->setCurrentItem( defidx );
+    mAttachCB( typfld_->selectionChanged, uiRockPhysForm::typSel );
 
-    createFlds( lcb );
+    for ( const auto* mnsel : mnsels )
+    {
+	uiMnemonicsSel::Setup umnselsu( mnsel );
+	auto* mnselfld = new uiMnemonicsSel( this, umnselsu );
+	mnselfld->attach( alignedBelow, lcb );
+	mnselflds_.add( mnselfld );
+	uiComboBox* mnselcbfld = mnselfld->box();
+	mAttachCB( mnselcbfld->selectionChanged, uiRockPhysForm::mnSel );
+    }
+
+    createFlds( mnselflds_.isEmpty()
+			? (uiObject*)lcb->attachObj()
+			: (uiObject*)mnselflds_.first()->attachObj() );
 }
 
 
-uiRockPhysForm::uiRockPhysForm( uiParent* p, Mnemonic::StdType typ )
+uiRockPhysForm::uiRockPhysForm( uiParent* p, const Mnemonic& mn )
     : uiGroup(p,"RockPhyics Formula Selector")
-    , fixedtype_(typ)
-    , typfld_(0)
+    , fixedmn_(&mn)
 {
-    createFlds( 0 );
+    createFlds( nullptr );
 }
 
 
-void uiRockPhysForm::createFlds( uiGroup* attobj )
+uiRockPhysForm::~uiRockPhysForm()
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Formula") );
-    lcb->box()->setHSzPol( uiObject::WideMax );
+    detachAllNotifiers();
+}
+
+
+void uiRockPhysForm::createFlds( uiObject* attobj )
+{
+    auto* lcb = new uiLabeledComboBox( this, tr("Formula") );
     lcb->label()->setPrefWidthInChar( 35 );
     lcb->label()->setAlignment( Alignment::Right );
-
     nmfld_ = lcb->box();
-    nmfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,nameSel) );
+    nmfld_->setHSzPol( uiObject::WideMax );
+    mAttachCB( nmfld_->selectionChanged, uiRockPhysForm::nameSel );
 
     formulafld_ = new uiTextEdit( this, "Formula", true );
     formulafld_->setPrefHeightInChar( 2 );
@@ -158,7 +185,7 @@ void uiRockPhysForm::createFlds( uiGroup* attobj )
 
     for ( int idx=0; idx<mMaxNrCsts; idx++ )
      {
-	uiRockPhysConstantFld* rpcfld = new uiRockPhysConstantFld( this );
+	auto* rpcfld = new uiRockPhysConstantFld( this );
 	if ( idx )
 	    rpcfld->attach( alignedBelow, cstflds_[idx-1] );
 	else
@@ -171,49 +198,77 @@ void uiRockPhysForm::createFlds( uiGroup* attobj )
     }
 
     setHAlignObj( lcb );
-    setType( fixedtype_ );
+    mAttachCB( postFinalise(), uiRockPhysForm::initGrp );
 }
 
 
-Mnemonic::StdType uiRockPhysForm::getType() const
-{
-    if ( !typfld_ )
-	return fixedtype_;
-
-    const char* txt = typfld_->text();
-    if ( !txt || !*txt )
-	return Mnemonic::Other;
-
-    return Mnemonic::parseEnumStdType(txt);
-}
-
-
-void uiRockPhysForm::setType( Mnemonic::StdType typ )
+void uiRockPhysForm::initGrp( CallBacker* )
 {
     if ( typfld_ )
-	typfld_->setText( Mnemonic::toString(typ) );
-
-    BufferStringSet nms;
-    ROCKPHYSFORMS().getRelevant( typ, nms );
-
-    NotifyStopper ns( nmfld_->selectionChanged );
-
-    nmfld_->setEmpty();
-    nmfld_->addItems( nms );
-    nmfld_->setCurrentItem( 0 );
-
-    nameSel( 0 );
+	typSel( nullptr );
+    else if ( fixedmn_ )
+	setType( *fixedmn_ );
 }
 
 
-void uiRockPhysForm::typSel( CallBacker* cb )
+void uiRockPhysForm::typSel( CallBacker* )
 {
-    if ( !typfld_ ) return;
+    const int typidx = typfld_->currentItem();
+    for ( int idx=0; idx<mnselflds_.size(); idx++ )
+	mnselflds_.get( idx )->display( idx == typidx );
 
-    const char* txt = typfld_->text();
-    if ( !txt || !*txt ) return;
+    mnSel( mnselflds_.get(typidx)->box() );
+}
 
-    setType( Mnemonic::parseEnumStdType(txt) );
+
+void uiRockPhysForm::mnSel( CallBacker* cb )
+{
+    mDynamicCastGet(uiComboBox*,mnselfldbox,cb)
+    if ( !mnselfldbox )
+	return;
+
+    for ( const auto mnselfld : mnselflds_ )
+    {
+	if ( mnselfld->box() != mnselfldbox )
+	    continue;
+
+	const Mnemonic* mn = mnselfld->mnemonic();
+	if ( mn )
+	    setType( *mn );
+    }
+}
+
+
+void uiRockPhysForm::setType( const Mnemonic& mn )
+{
+    BufferStringSet nms;
+    ROCKPHYSFORMS().getRelevant( mn, nms );
+    nmfld_->setEmpty();
+    nmfld_->addItems( nms );
+    if ( !nms.isEmpty() )
+	nmfld_->setCurrentItem( 0 );
+
+    nameSel( nullptr );
+}
+
+
+void uiRockPhysForm::nameSel( CallBacker* )
+{
+    const FixedString txt = nmfld_->text();
+    if ( txt.isEmpty() )
+	return;
+
+    const RockPhysics::Formula* fm = ROCKPHYSFORMS().getByName( txt );
+    if ( !fm )
+	{ uiMSG().error( tr("Internal: formula not found") ); return;}
+
+    const RockPhysics::Formula& rpfm = *fm;
+    const int nrconsts = rpfm.constdefs_.size();
+    for ( int idx=0; idx<cstflds_.size(); idx++ )
+	cstflds_[idx]->update( idx<nrconsts ? rpfm.constdefs_[idx] : 0 );
+
+    formulafld_->setText( getFormText(rpfm,true) );
+    descriptionfld_->setHtmlText( rpfm.desc_ );
 }
 
 
@@ -247,31 +302,13 @@ BufferString uiRockPhysForm::getFormText( const RockPhysics::Formula& rpfm,
 }
 
 
-void uiRockPhysForm::nameSel( CallBacker* cb )
-{
-    const char* txt = nmfld_->text();
-    if ( !txt || !*txt ) return;
-
-    const RockPhysics::Formula* fm = ROCKPHYSFORMS().getByName( txt );
-    if ( !fm )
-	{ uiMSG().error( tr("Internal: formula not found") ); return;}
-
-    const RockPhysics::Formula& rpfm = *fm;
-    const int nrconsts = rpfm.constdefs_.size();
-    for ( int idx=0; idx<cstflds_.size(); idx++ )
-	cstflds_[idx]->update( idx<nrconsts ? rpfm.constdefs_[idx] : 0 );
-
-    formulafld_->setText( getFormText(rpfm,true) );
-    descriptionfld_->setHtmlText( rpfm.desc_ );
-}
-
-
 const char* uiRockPhysForm::getText( bool replcst ) const
 {
     if ( !replcst )
 	return nmfld_->text();
 
-    Math::Formula form; getFormulaInfo( form );
+    Math::Formula form;
+    getFormulaInfo( form );
     mDeclStaticString(ret);
     ret = form.text();
     return ret;
@@ -281,11 +318,22 @@ const char* uiRockPhysForm::getText( bool replcst ) const
 bool uiRockPhysForm::getFormulaInfo( Math::Formula& form,
 			     TypeSet<Mnemonic::StdType>* sttypes ) const
 {
-    if ( sttypes )
+    const bool res = getFormulaInfo( form );
+    if ( res && sttypes )
+    {
 	sttypes->setEmpty();
+	for ( const auto& specvar : form.specVars() )
+	    sttypes->add( specvar.getMnemonic().stdType() );
+    }
 
-    const char* txt = nmfld_->text();
-    if ( !txt || !*txt )
+    return res;
+}
+
+
+bool uiRockPhysForm::getFormulaInfo( Math::Formula& form ) const
+{
+    const FixedString txt = nmfld_->text();
+    if ( txt.isEmpty() )
 	{ uiMSG().error( tr("No formula name selected") ); return false; }
 
     const RockPhysics::Formula* fm = ROCKPHYSFORMS().getByName( txt );
@@ -295,39 +343,40 @@ bool uiRockPhysForm::getFormulaInfo( Math::Formula& form,
 
     form.setText( getFormText(rpfm,false) );
 
-    int nrinps = form.nrInputs();
+    const int nrinps = form.nrInputs();
     if ( nrinps != fm->vardefs_.size() )
     {
 	BufferString msg; msg.set(nrinps).add("!=").add(fm->vardefs_.size());
 	pErrMsg( msg );
-	if ( nrinps > fm->vardefs_.size() )
-	    nrinps = fm->vardefs_.size();
     }
 
-    for ( int idx=0; idx<nrinps; idx++ )
+    for ( int idx=0; idx<fm->vardefs_.size(); idx++ )
     {
-	const RockPhysics::Formula::VarDef& vd = *fm->vardefs_[idx];
-	form.setInputUnit( idx, UoMR().get(vd.unit_) );
-	if ( sttypes )
-	    *sttypes += vd.type_;
+	const RockPhysics::Formula::VarDef& vardef = *fm->vardefs_.get( idx );
+	form.setInputDef( idx, vardef.desc_ );
+	form.setInputMnemonic( idx, vardef.mn_ );
+	form.setInputFormUnit( idx, UoMR().get( vardef.unit_ ) );
     }
 
-    form.setOutputUnit( UoMR().get(fm->unit_) );
+    form.setOutputMnemonic( fm->mn_ );
+    form.setOutputFormUnit( UoMR().get(fm->unit_) );
     return true;
 }
 
 
-bool uiRockPhysForm::isOK()
+uiRetVal uiRockPhysForm::isOK() const
 {
-    for ( int idx=0; idx<cstflds_.size(); idx++ )
+    uiRetVal ret;
+    for ( const auto* cstfld : cstflds_ )
     {
-	if ( cstflds_[idx]->attachObj()->isDisplayed()
-	     && mIsUdf( cstflds_[idx]->value() ) )
+	if ( cstfld->attachObj()->isDisplayed() && mIsUdf(cstfld->value()) )
 	{
-	    errmsg_ += "Please provide a value for constant '";
-	    errmsg_ += cstflds_[idx]->cstnm_; errmsg_ += "'\n";
-	    return false;
+	    const uiString errmsg =
+		    tr("Please provide a value for constant '%1'" )
+					.arg( cstfld->cstnm_ );
+	    ret.add( errmsg );
 	}
     }
-    return true;
+
+    return ret;
 }

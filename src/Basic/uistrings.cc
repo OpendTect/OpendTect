@@ -122,6 +122,9 @@ uiString uiStrings::phrCannotRemove( const char* string )
 uiString uiStrings::phrCannotWrite( const uiString& string )
 { return toUiString(joinstring).arg(sCannotWrite()).arg( string ); }
 
+uiString uiStrings::phrCannotWrite( const char* string )
+{ return toUiString(joinstring).arg(sCannotWrite()).arg( string ); }
+
 uiString uiStrings::phrCannotWriteDBEntry( const uiString& string )
 { return phrCannotWrite( tr("database entry for %1").arg(string) ); }
 

@@ -26,59 +26,51 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     , prs_(*new PropertyRefSelection(prs))
 {
     uiMathFormula::Setup umfsu( tr("Formula (like den * vel)") );
-    umfsu.proptype( prop_.ref().stdType() )
+    umfsu.mn( &prop_.mn() )
 	 .stortype( "Math Property" )
 	 .maxnrinps(8);
     formfld_ = new uiMathFormula( this, prop_.getForm(), umfsu );
-    formfld_->inpSet.notify( mCB(this,uiMathPropEdDlg,inpSel) );
-    formfld_->formSet.notify( mCB(this,uiMathPropEdDlg,formSet) );
+    mAttachCB( formfld_->inpSet, uiMathPropEdDlg::inpSel );
 
     BufferStringSet availpropnms;
+    MnemonicSelection mnsel;
     for ( int idx=0; idx<prs_.size(); idx++ )
     {
 	const PropertyRef* ref = prs_[idx];
 	if ( ref != &pr.ref() )
+	{
 	    availpropnms.add( ref->name() );
+	    mnsel.add( &ref->mn() );
+	}
     }
-    formfld_->setNonSpecInputs( availpropnms );
+
+    formfld_->setNonSpecInputs( availpropnms, -1, &mnsel );
 
     uiToolButtonSetup tbsu( "rockphys", tr("Choose RockPhysics Formula"),
-		    mCB(this,uiMathPropEdDlg,rockPhysReq),
-		    uiStrings::sRockPhy() );
+			    mCB(this,uiMathPropEdDlg,rockPhysReq),
+			    uiStrings::sRockPhy() );
     formfld_->addButton( tbsu );
 }
 
 
 uiMathPropEdDlg::~uiMathPropEdDlg()
 {
+    detachAllNotifiers();
     delete &prs_;
 }
 
 
-void uiMathPropEdDlg::formSet( CallBacker* )
+void uiMathPropEdDlg::inpSel( CallBacker* cb )
 {
-    const int nrinps = formfld_->nrInputs();
-    for ( int iinp=0; iinp<nrinps; iinp++ )
-	setPType4Inp( iinp );
-}
-
-
-void uiMathPropEdDlg::inpSel( CallBacker* )
-{
-    const int inpidx = formfld_->inpSelNotifNr();
-    if ( inpidx >= 0 && inpidx < formfld_->nrInputs() )
-	setPType4Inp( inpidx );
-}
-
-
-void uiMathPropEdDlg::setPType4Inp( int inpidx )
-{
-    if ( formfld_->isSpec(inpidx) || formfld_->isConst(inpidx) )
+    mDynamicCastGet(uiMathExpressionVariable*,inpfld,cb);
+    if ( !inpfld || !inpfld->isActive() ||
+	  inpfld->isConst() || inpfld->isSpec() )
 	return;
 
-    const PropertyRef* pr = prs_.getByName( formfld_->getInput(inpidx) );
-    Mnemonic::StdType ptyp = pr ? pr->stdType() : Mnemonic::Other;
-    formfld_->inpFld(inpidx)->setPropType( ptyp );
+    const BufferString inpnm( inpfld->getInput() );
+    const PropertyRef* pr = prs_.getByName( inpnm );
+    if ( pr )
+	inpfld->setSelUnit( pr->unit() );
 }
 
 
@@ -87,17 +79,16 @@ void uiMathPropEdDlg::rockPhysReq( CallBacker* )
     uiDialog dlg( this, uiDialog::Setup(uiStrings::sRockPhy(),
 		  tr("Use a rock physics formula"),
 		  mODHelpKey(mRockPhysFormHelpID)) );
-    uiRockPhysForm* rpffld = new uiRockPhysForm( &dlg, prop_.ref().stdType() );
-    TypeSet<Mnemonic::StdType> inputtypes;
-    if ( dlg.go() && rpffld->getFormulaInfo(prop_.getForm(),&inputtypes) )
-	formfld_->useForm( &inputtypes );
+    auto* rpffld = new uiRockPhysForm( &dlg, prop_.mn() );
+    if ( !dlg.go() || !rpffld->getFormulaInfo(prop_.getForm()) )
+	return;
+
+    formfld_->setFixedFormUnits( true );
+    formfld_->useForm();
 }
 
 
 bool uiMathPropEdDlg::acceptOK( CallBacker* )
 {
-    if ( formfld_->updateForm() )
-	return true;
-
-    return false;
+    return formfld_->updateForm();
 }

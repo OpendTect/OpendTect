@@ -107,7 +107,7 @@ bool IdentifierManager::findCurIdent( const char* name, bool followlinks,
 
     curlevel_ = identifiers_.size() - 1;
 
-    while ( true ) 
+    while ( true )
     {
 	mUnscope( name, unscopedname );
 	if ( name != unscopedname )
@@ -115,7 +115,7 @@ bool IdentifierManager::findCurIdent( const char* name, bool followlinks,
 
 	curident_ = 0;
 	for ( int idx=0; idx<identifiers_[curlevel_]->size(); idx++ )
-	{ 
+	{
 	    curident_ = (*identifiers_[curlevel_])[idx];
 
 	    if ( SearchKey(unscopedname,false).isMatching(curident_->name_) )
@@ -124,7 +124,7 @@ bool IdentifierManager::findCurIdent( const char* name, bool followlinks,
 		identifiers_[curlevel_]->removeSingle( idx+1 );
 
 		if ( !followlinks || !curident_->islink_ )
-		    return true; 
+		    return true;
 
 		name = curident_->val_.buf();
 
@@ -207,11 +207,11 @@ bool IdentifierManager::doesExist( const char* name ) const
     mRefreshPlaceholder( idm, name, "@PROCDIR", GetProcFileName(0) );
     mRefreshPlaceholder( idm, name, "@APPLDIR", GetSoftwareDir(0) );
     mRefreshPlaceholder( idm, name, "@USERDIR", GetPersonalDir() );
-    mRefreshPlaceholder( idm, name, "@SCRIPTSDIR", GetScriptsDir(0) );
+    mRefreshPlaceholder( idm, name, "@SCRIPTSDIR", GetScriptsDir() );
     mRefreshPlaceholder( idm, name, "@SNAPSHOTSDIR", getSnapshotsDir() );
     mRefreshPlaceholder( idm, name, "@IMPORTDIR", getImportDir() );
     mRefreshPlaceholder( idm, name, "@EXPORTDIR", getExportDir() );
-    
+
     return isdef;
 }
 

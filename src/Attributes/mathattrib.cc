@@ -193,7 +193,7 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 				       int nrsamples, int threadid ) const
 {
     PtrMan< ::Math::Formula > mathobj
-		= formula_ ? new ::Math::Formula(*formula_) : 0;
+		= formula_ ? new ::Math::Formula(*formula_) : nullptr;
     if ( !mathobj ) return false;
 
     mathobj->startNewSeries();
@@ -240,11 +240,11 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 	    }
 	}
 
-	float result = mCast( float, mathobj->getValue(inpvals.arr()) );
+	double result = mathobj->getValue( inpvals.arr() );
 	if ( !Math::IsNormalNumber(result) )
-	    result = mUdf(float);
+	    result = mUdf(double);
 
-	setOutputValue( output, 0, idx, z0, result );
+	setOutputValue( output, 0, idx, z0, float(result) );
     }
 
     return true;

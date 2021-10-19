@@ -237,17 +237,26 @@ float DataPackMgr::nrKBytes() const
 void DataPackMgr::dumpInfo( od_ostream& strm ) const
 {
     strm << "Manager.ID: " << id() << od_newline;
-    const od_int64 nrkb = mCast(od_int64,nrKBytes());
-    strm << "Total memory: " << File::getFileSizeString(nrkb)
-			     << od_newline;
+    if ( packs_.isEmpty() )
+    {
+	strm << "[Empty]" << od_newline;
+	return;
+    }
+    else
+    {
+	const od_int64 nrkb = mCast(od_int64,nrKBytes());
+	strm << "Total memory: " << File::getFileSizeString(nrkb)
+				 << od_newline;
+    }
+
     ascostream astrm( strm );
     astrm.newParagraph();
-    for ( int idx=0; idx<packs_.size(); idx++ )
+    for ( const auto* pack : packs_ )
     {
-	const DataPack& pack = *packs_[idx];
 	IOPar iop;
-	pack.dumpInfo( iop );
-	iop.putTo( astrm );
+	pack->dumpInfo( iop );
+	if ( !iop.isEmpty() )
+	    iop.putTo( astrm );
     }
 }
 

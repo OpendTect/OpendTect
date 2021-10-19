@@ -20,54 +20,58 @@ mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&,
 
 uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     : uiGroup( p, "Ray Tracer Selector" )
-    , raytracerselfld_(0)
-    , offsetChanged(this)
+    , parsChanged(this)
 {
     const uiStringSet& usernms = uiRayTracer1D::factory().getUserNames();
     const BufferStringSet& facnms = uiRayTracer1D::factory().getNames();
 
+    uiLabeledComboBox* raytracersel = nullptr;
     if ( facnms.size() > 1 )
     {
-	raytracerselfld_ = new uiLabeledComboBox( this, tr("Ray-Tracer") );
-	raytracerselfld_->box()->setHSzPol( uiObject::Wide );
-	raytracerselfld_->box()->selectionChanged.notify(
-				mCB( this, uiRayTracerSel, selRayTraceCB) );
-
+	raytracersel = new uiLabeledComboBox( this, tr("Ray-Tracer") );
+	raytracerselfld_ = raytracersel->box();
+	raytracerselfld_->setHSzPol( uiObject::Wide );
+	mAttachCB( raytracerselfld_->selectionChanged,
+		   uiRayTracerSel::selRayTraceCB );
     }
 
     for ( int idx=0; idx<facnms.size(); idx++ )
     {
-	const OD::String& facnm( facnms.get(idx) );
-	const uiString usernm( usernms.validIdx(idx) ? usernms[idx] : 
+	const OD::String& facnm = facnms.get( idx );
+	const uiString usernm( usernms.validIdx(idx) ? usernms[idx] :
 			       mToUiStringTodo(facnm) );
 
 	uiRayTracer1D* grp = uiRayTracer1D::factory().create(facnm,this,s,true);
-	if ( grp )
+	if ( !grp )
+	    continue;
+
+	grps_ += grp;
+	mAttachCB( grp->parsChanged, uiRayTracerSel::parsChangedCB );
+	if ( raytracerselfld_ )
 	{
-	    grps_ += grp;
-	    if ( grp->doOffsets() )
-		grp->offsetChanged.notify(
-			mCB(this,uiRayTracerSel,offsChangedCB) );
-	    if ( raytracerselfld_ )
-	    {
-		raytracerselfld_->box()->addItem( usernm );
-		grp->attach( alignedBelow, raytracerselfld_ );
-		grp->setName( facnm );
-	    }
+	    raytracerselfld_->addItem( usernm );
+	    grp->attach( alignedBelow, raytracersel );
+	    grp->setName( facnm );
 	}
     }
 
     if ( !grps_.isEmpty() )
-	setHAlignObj( grps_[0] );
+	setHAlignObj( grps_.first() );
 
-    setCurrent( grps_.size()-1 );
-    postFinalise().notify( mCB(this,uiRayTracerSel,selRayTraceCB) );
+    mAttachCB( postFinalise(), uiRayTracerSel::initGrp );
 }
 
 
-void uiRayTracerSel::offsChangedCB( CallBacker* )
+uiRayTracerSel::~uiRayTracerSel()
 {
-    offsetChanged.trigger();
+    detachAllNotifiers();
+}
+
+
+void uiRayTracerSel::initGrp( CallBacker* )
+{
+    setCurrent( grps_.size()-1 );
+    selRayTraceCB( nullptr );
 }
 
 
@@ -75,16 +79,25 @@ void uiRayTracerSel::selRayTraceCB( CallBacker* )
 {
     for ( int idx=0; idx<grps_.size(); idx++ )
 	grps_[idx]->display( grps_[idx] == current() );
+
+    parsChangedCB( nullptr );
+}
+
+
+void uiRayTracerSel::parsChangedCB( CallBacker* )
+{
+    parsChanged.trigger();
 }
 
 
 void uiRayTracerSel::usePar( const IOPar& par )
 {
-    BufferString type; par.get( sKey::Type(), type );
-    for ( int igrp=0; igrp<grps_.size(); igrp++ )
-	grps_[igrp]->usePar( par );
+    BufferString type;
+    par.get( sKey::Type(), type );
+    for ( auto* grp : grps_ )
+	grp->usePar( par );
+
     setCurrentType( type );
-    selRayTraceCB( 0 );
 }
 
 
@@ -107,8 +120,20 @@ const uiRayTracer1D* uiRayTracerSel::current() const
 uiRayTracer1D* uiRayTracerSel::current()
 {
     const int selidx =
-	raytracerselfld_ ? raytracerselfld_->box()->currentItem() : 0;
-    return grps_.validIdx( selidx ) ? grps_[selidx] : 0;
+	raytracerselfld_ ? raytracerselfld_->currentItem() : 0;
+    return grps_.validIdx( selidx ) ? grps_[selidx] : nullptr;
+}
+
+
+bool uiRayTracerSel::setCurrent( int selidx )
+{
+    if ( !grps_.validIdx(selidx) || !raytracerselfld_ )
+	return false;
+
+    raytracerselfld_->setCurrentItem( selidx );
+    selRayTraceCB( nullptr );
+
+    return true;
 }
 
 
@@ -121,7 +146,8 @@ bool uiRayTracerSel::setCurrentType( const char* typestr )
     {
 	if ( grps_[grpidx]->name() == typestr )
 	{
-	    raytracerselfld_->box()->setCurrentItem( grpidx );
+	    raytracerselfld_->setCurrentItem( grpidx );
+	    selRayTraceCB( nullptr );
 	    return true;
 	}
     }
@@ -130,77 +156,83 @@ bool uiRayTracerSel::setCurrentType( const char* typestr )
 }
 
 
-bool uiRayTracerSel::setCurrent( int selidx )
-{
-    if ( !grps_.validIdx(selidx) || !raytracerselfld_ )
-	return false;
-
-    raytracerselfld_->box()->setCurrentItem( selidx );
-    return true;
-}
-
 
 uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     : uiGroup( p )
     , doreflectivity_(s.doreflectivity_)
-    , downwavefld_( 0 )
-    , upwavefld_( 0 )
-    , offsetfld_( 0 )
-    , offsetstepfld_( 0 )
-    , iszerooffsetfld_( 0 )
-    , lastfld_( 0 )
-    , offsetChanged( this )
+    , parsChanged( this )
 {
     if ( s.dooffsets_ )
     {
 	uiString olb = tr( "Offset range (start/stop) %1" )
 			.arg( SI().getXYUnitString(true) );;
 	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
+	offsetfld_->setElemSzPol( uiObject::Small );
 	offsetfld_->setValue(
 			Interval<float>(s.offsetrg_.start,s.offsetrg_.stop));
-	offsetfld_->setElemSzPol( uiObject::Small );
-	offsetfld_->valuechanged.notify(
-		mCB(this,uiRayTracer1D,offsetChangedCB) );
+	mAttachCB( offsetfld_->valuechanged, uiRayTracer1D::offsetChangedCB );
 
 	offsetstepfld_ = new uiGenInput( this, uiStrings::sStep() );
 	offsetstepfld_->attach( rightOf, offsetfld_ );
 	offsetstepfld_->setElemSzPol( uiObject::Small );
 	offsetstepfld_->setValue( s.offsetrg_.step );
+	mAttachCB( offsetstepfld_->valuechanged,
+		   uiRayTracer1D::offsetChangedCB );
 	if ( s.showzerooffsetfld_ )
 	{
-	    iszerooffsetfld_ =
-		new uiCheckBox( this, tr("Zero Offset"),
+	    iszerooffsetfld_ = new uiCheckBox( this, tr("Zero Offset"),
 				mCB(this,uiRayTracer1D,zeroOffsetChecked) );
 	    iszerooffsetfld_->attach( rightTo, offsetstepfld_ );
 	}
-
-
 
 	lastfld_ = offsetfld_;
     }
 
     if ( s.convertedwaves_ )
     {
-	BoolInpSpec inpspec( true, tr("P"), tr("S") );
+	const BoolInpSpec inpspec( true, tr("P"), tr("S") );
 	downwavefld_ = new uiGenInput( this, tr("Downward wave-type"), inpspec);
 	downwavefld_->attach( alignedBelow, lastfld_ );
-	lastfld_ = downwavefld_;
+	mAttachCB( downwavefld_->valuechanged, uiRayTracer1D::parsChangedCB );
 
 	upwavefld_ = new uiGenInput( this, tr("Upward wave-type"), inpspec );
-	upwavefld_->attach( alignedBelow, lastfld_ );
+	upwavefld_->attach( alignedBelow, downwavefld_ );
+	mAttachCB( upwavefld_->valuechanged, uiRayTracer1D::parsChangedCB );
 	lastfld_ = upwavefld_;
     }
 
-    IOPar par; RayTracer1D::Setup defaultsetup; defaultsetup.fillPar( par );
-    usePar( par );
+    if ( lastfld_ )
+	setHAlignObj( lastfld_ );
 
-    if ( lastfld_ ) setHAlignObj( lastfld_ );
+    mAttachCB( postFinalise(), uiRayTracer1D::initGrp );
 }
 
 
-void uiRayTracer1D::offsetChangedCB( CallBacker* )
+uiRayTracer1D::~uiRayTracer1D()
 {
-    offsetChanged.trigger();
+    detachAllNotifiers();
+}
+
+
+void uiRayTracer1D::initGrp( CallBacker* )
+{
+    IOPar par;
+    RayTracer1D::Setup defaultsetup;
+    defaultsetup.fillPar( par );
+    usePar( par );
+}
+
+
+void uiRayTracer1D::offsetChangedCB( CallBacker* cb )
+{
+    doOffsetChanged();
+    parsChangedCB( nullptr );
+}
+
+
+void uiRayTracer1D::parsChangedCB( CallBacker* )
+{
+    parsChanged.trigger();
 }
 
 
@@ -215,9 +247,13 @@ bool uiRayTracer1D::isZeroOffset() const
 void uiRayTracer1D::zeroOffsetChecked( CallBacker* )
 {
     displayOffsetFlds( !iszerooffsetfld_->isChecked() );
-    if ( downwavefld_ ) downwavefld_->display( !isZeroOffset() );
-    if ( upwavefld_ ) upwavefld_->display( !isZeroOffset() );
-    offsetChanged.trigger();
+    if ( downwavefld_ )
+	downwavefld_->display( !isZeroOffset() );
+
+    if ( upwavefld_ )
+	upwavefld_->display( !isZeroOffset() );
+
+    parsChangedCB( nullptr );
 }
 
 #define mIsZeroOffset( offsets ) \
@@ -235,6 +271,7 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 {
     RayTracer1D::Setup tmpsetup;
     tmpsetup.usePar( par );
+    NotifyStopper ns( parsChanged );
 
     if ( downwavefld_ )
     {
@@ -242,7 +279,8 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 	upwavefld_->setValue( tmpsetup.pup_ );
     }
 
-    TypeSet<float> offsets; par.get( RayTracer1D::sKeyOffset(), offsets );
+    TypeSet<float> offsets;
+    par.get( RayTracer1D::sKeyOffset(), offsets );
     const bool isps = !mIsZeroOffset(offsets);
     displayOffsetFlds( isps );
     if ( isps )
@@ -261,6 +299,9 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 
     if ( iszerooffsetfld_ )
 	iszerooffsetfld_->setChecked( !isps );
+
+    ns.enableNotification();
+    parsChangedCB( nullptr );
 
     return true;
 }
@@ -299,8 +340,8 @@ void uiRayTracer1D::setOffsetRange( StepInterval<float> rg )
 {
     offsetfld_->setValue( rg );
     offsetstepfld_->setValue( rg.step );
+    offsetChangedCB( nullptr );
 }
-
 
 
 bool uiRayTracer1D::isOffsetFldsDisplayed() const
@@ -313,11 +354,12 @@ bool uiRayTracer1D::isOffsetFldsDisplayed() const
 
 void uiRayTracer1D::displayOffsetFlds( bool yn )
 {
-    if ( !offsetfld_ ) return;
+    if ( !offsetfld_ )
+	return;
 
     offsetfld_->display( yn );
     offsetstepfld_->display( yn );
-    offsetChanged.trigger();
+    offsetChangedCB( nullptr );
 }
 
 

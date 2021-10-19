@@ -6,6 +6,7 @@
 -*/
 
 
+#include "scaler.h"
 #include "seistrc.h"
 #include "seiscommon.h"
 #include "simpnumer.h"
@@ -77,24 +78,30 @@ void SeisTrc::setInterpolator( ValueSeriesInterpolator<float>* intpol )
 
 bool SeisTrc::isNull( int icomp ) const
 {
-    return chkForSpecVal( icomp, true );
-}
-
-
-bool SeisTrc::hasUndef( int icomp ) const
-{
-    return chkForSpecVal( icomp, false );
-}
-
-
-bool SeisTrc::chkForSpecVal( int icomp, bool isnull ) const
-{
     if ( icomp >= nrComponents() )
-	return isnull;
+	return true;
 
     Interval<int> comps( icomp, icomp );
     if ( icomp < 0 )
-	{ comps.start = 0; comps.stop = nrComponents()-1; }
+	comps.set( 0, nrComponents()-1 );
+
+    for ( icomp=comps.start; icomp<=comps.stop; icomp++ )
+    {
+	if ( !data_.isZero(icomp) )
+	    return false;
+    }
+    return true;
+}
+
+
+bool SeisTrc::isUdf( int icomp ) const
+{
+    if ( icomp >= nrComponents() )
+	return true;
+
+    Interval<int> comps( icomp, icomp );
+    if ( icomp < 0 )
+	comps.set( 0, nrComponents()-1 );
 
     const int sz = size();
     for ( icomp=comps.start; icomp<=comps.stop; icomp++ )
@@ -102,12 +109,34 @@ bool SeisTrc::chkForSpecVal( int icomp, bool isnull ) const
 	for ( int isamp=0; isamp<sz; isamp++ )
 	{
 	    const float val = get( isamp, icomp );
-	    if ( (isnull && val) || (!isnull && mIsUdf(val)) )
-		return !isnull;
+	    if ( !mIsUdf(val) )
+		return false;
 	}
     }
+    return true;
+}
 
-    return isnull;
+
+bool SeisTrc::hasUndef( int icomp ) const
+{
+    if ( icomp >= nrComponents() )
+	return true;
+
+    Interval<int> comps( icomp, icomp );
+    if ( icomp < 0 )
+	comps.set( 0, nrComponents()-1 );
+
+    const int sz = size();
+    for ( icomp=comps.start; icomp<=comps.stop; icomp++ )
+    {
+	for ( int isamp=0; isamp<sz; isamp++ )
+	{
+	    const float val = get( isamp, icomp );
+	    if ( mIsUdf(val) )
+		return true;
+	}
+    }
+    return false;
 }
 
 
@@ -118,7 +147,7 @@ float SeisTrc::getValue( float t, int icomp ) const
     if ( sampidx < 0 || sampidx >= sz )
 	return interpolator().udfval_;
 
-    const float pos = ( t - startPos() ) / info_.sampling.step;
+    const float pos = info_.sampling.getfIndex( t );
     if ( sampidx-pos > -snapdist && sampidx-pos < snapdist )
 	return get( sampidx, icomp );
 
@@ -277,6 +306,13 @@ void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
 		trc.data().getComponent(icomp)->data(),
 		sz * (int)dc.nrBytes() );
     }
+}
+
+
+void SeisTrc::reverse( int icomp )
+{
+     static const LinScaler revscale = LinScaler( 0., -1. );
+     data_.scale( revscale, icomp );
 }
 
 

@@ -107,7 +107,9 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 			     PATTERN lmtools* )
 	if ( WIN32 )
 	    file( COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/odExternal
-		  DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR} )
+		  DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}
+		  PATTERN "*dd.exe" EXCLUDE
+		  PATTERN "*rd.exe" EXCLUDE )
 	elseif( NOT APPLE )
 	    file( COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/libexec
 		  DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR} )
@@ -129,6 +131,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 		file( COPY ${COPYFROMLIBDIR}/${EXE}.exe
 		      DESTINATION ${COPYTOLIBDIR} )
 	    elseif( APPLE )
+		execute_process( COMMAND ${OpendTect_DIR}/data/install_files/macscripts/chfwscript ${COPYFROMEXEDIR}/${EXE} )
 		file( COPY ${COPYFROMEXEDIR}/${EXE}
 		      DESTINATION ${COPYTOEXEDIR} )
 	    else()

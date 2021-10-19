@@ -69,12 +69,12 @@ const UnitOfMeasure* uiEditProbDenFunc::guessUnit( const ProbDenFunc& pdf,
     const PropertyRef* pr = PROPS().getByName( varnm, false ); //Exact
     const Mnemonic* pdfmn = nullptr;
     if ( pr )
-	pdfmn = MNC().getByName( pr->mnName(), false );
+	pdfmn = &pr->mn();
     else
     {
 	pr = PROPS().getByName( varnm, true );
 	if ( pr )
-	    pdfmn = MNC().getByName( pr->mnName(), false );
+	    pdfmn = &pr->mn();
 	else
 	{
 	    const Mnemonic* mn = MNC().getByName( varnm, false ); //Exact

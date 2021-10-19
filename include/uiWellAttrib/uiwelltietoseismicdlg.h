@@ -78,6 +78,7 @@ protected:
     uiPushButton*		clearlastpicksbut_;
     uiPushButton*		matchhormrksbut_;
     uiToolBar*			toolbar_;
+    uiGenInput*			polarityfld_;
 
     uiControlView*		controlview_;
     uiInfoDlg*			infodlg_;
@@ -122,6 +123,7 @@ protected:
     void			cleanUp(CallBacker*);
     void			nrtrcsCB(CallBacker*);
     void			wvltSelCB(CallBacker*);
+    void			polarityChanged(CallBacker*);
 
 };
 

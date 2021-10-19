@@ -595,7 +595,10 @@ bool DataPlayer::copyDataToLogSet()
 	const UnitOfMeasure* denuomfrommodel =
 				UoMR().getInternalFor(Mnemonic::Den);
 	if ( denuomfrommodel )
+	{
 	    denlogfrommodel->setUnitMeasLabel( denuomfrommodel->symbol() );
+	    denlogfrommodel->setMnemonic( Mnemonic::defDEN() );
+	}
 
 	denlogfrommodel->convertTo( denuom );
     }
@@ -606,6 +609,7 @@ bool DataPlayer::copyDataToLogSet()
 	const Mnemonic::StdType& impprop = Mnemonic::Imp;
 	const UnitOfMeasure* aiuomfrommodel = UoMR().getInternalFor( impprop );
 	ailogfrommodel->setUnitMeasLabel( aiuomfrommodel->symbol() );
+	ailogfrommodel->setMnemonic( Mnemonic::defAI() );
 	float fact = mCast( float, denuom->scaler().factor );
 	if ( sonuom->isImperial() )
 	    fact *= mFromFeetFactorF;

@@ -594,13 +594,3 @@ void uiSelSubvol::setSampling( const TrcKeyZSampling& cs )
     hfld_->setSampling( cs.hsamp_ );
     zfld_->setRange( cs.zsamp_ );
 }
-
-
-uiSelSubline::uiSelSubline( uiParent* p, bool wstep )
-    : uiGroup(p,"Sub vol selection")
-    , nrfld_(new uiSelNrRange(this,uiSelNrRange::Gen,wstep))
-    , zfld_(new uiSelZRange(this,wstep))
-{
-    zfld_->attach( alignedBelow, nrfld_ );
-    setHAlignObj( nrfld_ );
-}

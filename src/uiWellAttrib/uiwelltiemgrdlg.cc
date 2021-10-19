@@ -220,7 +220,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 							    sData().toLower())))
 
     wd_->ref();
-    logsfld_->wellid_ = wellid;
+    logsfld_->setWellID( wellid );
     BufferStringSet notokpropnms;
     if ( !logsfld_->setAvailableLogs(wd_->logs(),notokpropnms) )
     {
@@ -386,24 +386,29 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 #define mPwaveIdx 1
 bool uiTieWinMGRDlg::getVelLogInSetup() const
 {
-    if ( !wtsetup_.vellognm_.isEmpty() )
-    {
-	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind(
-			    mJoinUiStrs(sWell().toLower(),sData().toLower())))
-	Well::Log* vp = wd_->logs().getLog( wtsetup_.vellognm_ );
-	if ( !vp )
-	{
-	    uiString errmsg = tr("Cannot retrieve the velocity log %1"
-				 " stored in the setup.")
-			    .arg(wtsetup_.vellognm_);
-	    mErrRet( errmsg );
-	}
+    if ( wtsetup_.vellognm_.isEmpty() )
+	return true;
 
-	const UnitOfMeasure* velpuom = vp->unitOfMeasure();
-	const Mnemonic::StdType tp = Mnemonic::Vel;
-	const bool reverted = wtsetup_.issonic_;
-	logsfld_->setLog( tp, wtsetup_.vellognm_, reverted, velpuom, mPwaveIdx);
+    if ( !wd_ )
+    {
+	mErrRet(uiStrings::phrCannotFind(
+		mJoinUiStrs(sWell().toLower(),sData().toLower())))
     }
+
+    const Well::Log* vp = wd_->logs().getLog( wtsetup_.vellognm_ );
+    if ( !vp )
+    {
+	uiString errmsg = tr("Cannot retrieve the velocity log %1"
+			     " stored in the setup.")
+			.arg(wtsetup_.vellognm_);
+	mErrRet( errmsg );
+    }
+
+    const Mnemonic* logmn = vp->mnemonic();
+    const UnitOfMeasure* velpuom = vp->unitOfMeasure();
+    const bool reverted = wtsetup_.issonic_;
+    logsfld_->setLog( logmn, wtsetup_.vellognm_, reverted, velpuom,
+		      mPwaveIdx );
 
     return true;
 }
@@ -412,24 +417,28 @@ bool uiTieWinMGRDlg::getVelLogInSetup() const
 #define mDensityIdx 0
 bool uiTieWinMGRDlg::getDenLogInSetup() const
 {
-    if ( !wtsetup_.denlognm_.isEmpty() )
-    {
-	if ( !wd_ ) mErrRet(uiStrings::phrCannotFind(
-			    mJoinUiStrs(sWell().toLower(),sData().toLower())))
-	Well::Log* den = wd_->logs().getLog( wtsetup_.denlognm_ );
-	if ( !den )
-	{
-	    uiString errmsg = tr("Cannot retrieve the density log %1"
-				 " stored in the setup.")
-			    .arg(toUiString(wtsetup_.denlognm_));
-	    mErrRet( errmsg );
-	}
+    if ( wtsetup_.denlognm_.isEmpty() )
+	return true;
 
-	const UnitOfMeasure* denuom = den->unitOfMeasure();
-	const Mnemonic::StdType tp = Mnemonic::Den;
-	const bool reverted = false;
-	logsfld_->setLog( tp, wtsetup_.denlognm_, reverted, denuom,mDensityIdx);
+    if ( !wd_ )
+    {
+	mErrRet(uiStrings::phrCannotFind(
+		mJoinUiStrs(sWell().toLower(),sData().toLower())))
     }
+
+    const Well::Log* den = wd_->logs().getLog( wtsetup_.denlognm_ );
+    if ( !den )
+    {
+	uiString errmsg = tr("Cannot retrieve the density log %1"
+			     " stored in the setup.")
+			.arg(toUiString(wtsetup_.denlognm_));
+	mErrRet( errmsg );
+    }
+
+    const Mnemonic* logmn = den->mnemonic();
+    const UnitOfMeasure* denuom = den->unitOfMeasure();
+    const bool reverted = false;
+    logsfld_->setLog( logmn, wtsetup_.denlognm_, reverted, denuom,mDensityIdx );
 
     return true;
 }
@@ -497,46 +506,52 @@ bool uiTieWinMGRDlg::initSetup()
 	wtsetup_.seisid_ = 0;
 	if ( is2d )
 	    wtsetup_.linenm_.setEmpty();
-
     }
 
     if ( !logsfld_->isOK() )
 	mErrRet( tr("Cannot select appropriate logs") )
 
-    uiWellSinglePropSel* psflden = logsfld_->
-				 getPropSelFromListByIndex( mDensityIdx );
-    if ( !psflden )
+    BufferString lognm;
+    bool isrev;
+    const UnitOfMeasure* uom;
+    const Mnemonic* mn = &elpropsel_.get( mDensityIdx )->mn();
+    if ( !logsfld_->getLog(*mn,lognm,isrev,uom,mDensityIdx) )
 	mErrRet( uiStrings::phrCannotFind(
 				tr("the density in the log selection list")) )
 
-    Well::Log* den = wd_->logs().getLog( psflden->logName() );
+    const Well::Log* den = wd_->logs().getLog( lognm );
     if ( !den )
 	mErrRet( uiStrings::phrCannotExtract(tr("this density log")) )
 
-    const UnitOfMeasure* uom = psflden->getUnit();
-    if ( !uom )
-	mErrRet( uiStrings::phrSelect(tr("a unit for the density log")) )
+    wtsetup_.denlognm_ = lognm;
+    if ( !den->unitOfMeasure() )
+    {
+	if ( !uom )
+	    mErrRet( uiStrings::phrSelect(tr("a unit for the density log")) )
 
-    den->setUnitMeasLabel( uom->symbol() );
-    wtsetup_.denlognm_ = psflden->logName();
+	const_cast<Well::Log*>( den )->setUnitOfMeasure( uom );
+	//TODO: Write to DB
+    }
 
-    uiWellSinglePropSel* psflvp = logsfld_->
-				getPropSelFromListByIndex( mPwaveIdx );
-    if ( !psflvp )
+    mn = &elpropsel_.get( mPwaveIdx )->mn();
+    if ( !logsfld_->getLog(*mn,lognm,isrev,uom,mPwaveIdx) )
 	mErrRet( uiStrings::phrCannotFind(
 				    tr("the Pwave in the log selection list")) )
 
-    Well::Log* vp = wd_->logs().getLog( psflvp->logName() );
+    const Well::Log* vp = wd_->logs().getLog( lognm );
     if ( !vp )
 	mErrRet( uiStrings::phrCannotExtract(tr("this velocity log")) )
 
-    uom = psflvp->getUnit();
-    if ( !uom )
-	mErrRet( uiStrings::phrSelect(tr("a unit for the velocity log")) )
+    wtsetup_.vellognm_ = lognm;
+    wtsetup_.issonic_  = isrev;
+    if ( !vp->unitOfMeasure() )
+    {
+	if ( !uom )
+	    mErrRet( uiStrings::phrSelect(tr("a unit for the velocity log")) )
 
-    vp->setUnitMeasLabel( uom->symbol() );
-    wtsetup_.vellognm_ = psflvp->logName();
-    wtsetup_.issonic_  = psflvp->altPropSelected();
+	const_cast<Well::Log*>( vp )->setUnitOfMeasure( uom );
+	//TODO: Write to DB
+    }
 
     wtsetup_.useexistingd2tm_ = used2tmbox_->isChecked();
     if ( wtsetup_.useexistingd2tm_ )

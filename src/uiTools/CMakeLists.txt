@@ -29,6 +29,7 @@ set( OD_MODULE_SOURCES
 	uicompparsel.cc
 	uiconstvel.cc
 	uicoordsystem.cc
+	uidatapackmon.cc
 	uidirectionalplot.cc
 	uidlggroup.cc
 	uifileinput.cc
@@ -49,6 +50,7 @@ set( OD_MODULE_SOURCES
 	uihistogramdisplay.cc
 	uihistogramsel.cc
 	uihostiddlg.cc
+	uiimagesize.cc
 	uiinterpollayermodel.cc
 	uiiosel.cc
 	uiissuereporter.cc

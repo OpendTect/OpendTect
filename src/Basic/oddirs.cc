@@ -14,6 +14,7 @@
 #include "debug.h"
 #include "file.h"
 #include "filepath.h"
+#include "pythonaccess.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "thread.h"
@@ -192,11 +193,11 @@ mExternC(Basic) const char* GetProcFileName( const char* fname )
 }
 
 
-mExternC(Basic) const char* GetScriptsDir( const char* subdir )
+mExternC(Basic) const char* GetScriptsDir()
 {
     mDeclStaticString( ret );
     const char* envval = GetEnvVar( "DTECT_SCRIPTS_DIR" );
-    ret = envval && *envval ? envval : GetProcFileName( subdir );
+    ret = envval && *envval ? envval : GetSurveyScriptsDir();
     return ret.buf();
 }
 
@@ -205,7 +206,7 @@ mExternC(Basic) const char* GetShellScript( const char* nm )
 {
     mDeclStaticString( res );
     if ( !nm || !*nm )
-        return GetScriptDir();
+	return GetScriptDir();
 
     res = FilePath(GetScriptDir(),nm).fullPath();
     return res.buf();
@@ -214,24 +215,26 @@ mExternC(Basic) const char* GetShellScript( const char* nm )
 
 mExternC(Basic) const char* GetPythonScript( const char* nm )
 {
-    BufferStringSet pythondirs;
-    const BufferString fnm( nm );
-    if ( fnm.isEmpty() || !GetEnvVarDirList("PYTHONPATH",pythondirs,true) )
-        return 0;
+    const FixedString fnm( nm );
+    if ( fnm.isEmpty() )
+	return nullptr;
+
+    const BufferStringSet pythondirs( OD::PythA().getBasePythonPath() );
+    if ( pythondirs.isEmpty() )
+	return nullptr;
 
     mDeclStaticString( res );
     res.setEmpty();
-    BufferStringSet modulenms;
-    modulenms.add( "odpy" ).add( "dgbpy" );
-    for ( int idx=0; idx<modulenms.size(); idx++ )
+    const BufferStringSet modulenms( "odpy", "dgbpy" );
+    for ( const auto* modulenm : modulenms )
     {
-	for ( int idy=0; idy<pythondirs.size(); idy++ )
+	for ( const auto* pythondir : pythondirs )
         {
-            const FilePath pythonfp( pythondirs.get(idy).str(),
-				     modulenms.get(idx).str(), fnm );
+	    const FilePath pythonfp( pythondir->buf(), modulenm->str(), nm );
             const BufferString scriptfnm( pythonfp.fullPath() );
-            if ( File::exists(scriptfnm) && File::isReadable(scriptfnm) &&
-                 File::isFile(scriptfnm) )
+	    const char* scriptfpstr = scriptfnm.buf();
+	    if ( File::exists(scriptfpstr) && File::isReadable(scriptfpstr) &&
+		 File::isFile(scriptfpstr) )
             {
                 res = scriptfnm;
                 return res.buf();
@@ -672,13 +675,18 @@ mExternC(Basic) const char* GetSettingsFileName( const char* fnm )
 }
 
 
+static void getSurveySubDir( const char* subdir, BufferString& ret )
+{
+    ret = FilePath( GetDataDir(), subdir ).fullPath();
+    if ( !File::exists(ret) )
+	File::createDir( ret );
+}
+
+
 mExternC(Basic) const char* GetSurveyExportDir()
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetDataDir(), "Export" ).fullPath();
-    if ( !File::exists(ret) )
-	File::createDir( ret );
-
+    getSurveySubDir( "Export", ret );
     return ret.buf();
 }
 
@@ -686,10 +694,15 @@ mExternC(Basic) const char* GetSurveyExportDir()
 mExternC(Basic) const char* GetSurveyPicturesDir()
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetDataDir(), "Pictures" ).fullPath();
-    if ( !File::exists(ret) )
-	File::createDir( ret );
+    getSurveySubDir( "Pictures", ret );
+    return ret;
+}
 
+
+mExternC(Basic) const char* GetSurveyScriptsDir()
+{
+    mDeclStaticString( ret );
+    getSurveySubDir( "Scripts", ret );
     return ret;
 }
 
@@ -697,10 +710,7 @@ mExternC(Basic) const char* GetSurveyPicturesDir()
 mExternC(Basic) const char* GetSurveyTempDir()
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetDataDir(), "Temp" ).fullPath();
-    if ( !File::exists(ret) )
-	File::createDir( ret );
-
+    getSurveySubDir( "Temp", ret );
     return ret;
 }
 
