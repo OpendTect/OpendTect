@@ -100,6 +100,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	.objtype( tr("SEG-Y") ).defseldir(sImportFromPath);
     inpfld_ = new uiFileInput( topgrp_, uiStrings::phrJoinStrings(
 			       uiStrings::sInputFile(),tr("*=wildcard")),fisu );
+    inpfld_->setStretch( 2, 0 );
     mAttachCB( inpfld_->valuechanged, uiSEGYReadStarter::inpChg );
     editbut_ = uiButton::getStd( topgrp_, OD::Edit,
 				 mCB(this,uiSEGYReadStarter,editFile), false );
