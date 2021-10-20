@@ -48,6 +48,7 @@ public:
     int			bytesOverheadPerTrace() const;
     void		close();
     BinID		nextBinID() const;	//! returns 0/0 at end
+    void		setSingleLineMode( bool yn=true );
 
     bool		goTo(const BinID&);
     bool		toStart();
@@ -68,6 +69,9 @@ public:
 			//!< If 'samps' is non-null, it should hold start
 			//!< and end sample to read. offs is an offset
 			//!< in the buffers.
+    bool		fetch(TraceData& buffers,const bool* comps,
+				const StepInterval<int>* samps,
+				int offs=0);
 
     static const char*	check(od_istream&);
 			//!< Determines whether a file is a CBVS file
@@ -107,6 +111,10 @@ private:
     TrcKeySampling		hs_;
     Interval<int>	samprg_;
     TypeSet<int>	posnrs_;
+
+    bool		singlelinemode_() const;
+    StepInterval<int>*	sampsi_();
+    TraceData*		worktrcdata_();
 
     bool		readInfo(bool,bool);
     od_int64		lastposfo_;
