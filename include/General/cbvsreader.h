@@ -47,6 +47,8 @@ public:
     int			bytesOverheadPerTrace() const;
     void		close();
     BinID		nextBinID() const;	//! returns 0/0 at end
+    void		setSingleLineMode( bool yn=true )
+						{ singlinemode_ = true; }
 
     bool		goTo(const BinID&);
     bool		toStart();
@@ -59,14 +61,17 @@ public:
     bool		fetch(void** buffers,const bool* comps=0,
 				const Interval<int>* samps=0,
 				int offs=0);
-    bool		fetch(TraceData& buffers,const bool* comps=0,
-				const Interval<int>* samps=0,
+    bool		fetch(TraceData& buffers,const bool* comps,
+				const Interval<int>* samps,
 				int offs=0);
 			//!< Gets the sample data.
 			//!< 'comps', if provided, selects the components.
 			//!< If 'samps' is non-null, it should hold start
 			//!< and end sample to read. offs is an offset
 			//!< in the buffers.
+    bool		fetch(TraceData& buffers,const bool* comps,
+				const StepInterval<int>* samps,
+				int offs=0);
 
     static const char*	check(od_istream&);
 			//!< Determines whether a file is a CBVS file
@@ -82,6 +87,7 @@ protected:
 
     od_istream&		strm_;
     CBVSInfo		info_;
+    bool		singlinemode_;
 
     void		getAuxInfoSel(const char*);
     bool		readComps();
@@ -103,9 +109,10 @@ private:
     DataInterpreter<int> iinterp_;
     DataInterpreter<float> finterp_;
     DataInterpreter<double> dinterp_;
-    TrcKeySampling		hs_;
-    Interval<int>	samprg_;
+    TrcKeySampling	hs_;
+    StepInterval<int>	samprg_;
     TypeSet<int>	posnrs_;
+    TraceData&		worktrcdata_;
 
     bool		readInfo(bool,bool);
     od_int64		lastposfo_;
