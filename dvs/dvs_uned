@@ -1,8 +1,0 @@
-#!/bin/csh -f
-
-if ( ! -d CVS ) then
-    svn unlock $*
-    exit $status
-endif
-
-dvs unedit $*
