@@ -102,12 +102,6 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	const MultiID& wmid = wellids[idx]->buf();
 	const Well::LoadReqs req( Well::Logs );
 	Well::Data& wd = *Well::MGR().get( wmid, req );
-	if ( !&wd )
-	{
-	    msgs += new BufferString( Well::MGR().errMsg() );
-	    continue;
-	}
-
 	auto* ldata = new uiWellLogToolWin::LogData( wd );
 	const Well::ExtractParams& params = welllogselfld_->params();
 	ldata->dahrg_ = params.calcFrom( wd, lognms, true );
