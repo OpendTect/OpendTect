@@ -101,8 +101,8 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     {
 	const MultiID& wmid = wellids[idx]->buf();
 	const Well::LoadReqs req( Well::Logs );
-	RefMan<Well::Data> wd = Well::MGR().get( wmid, req );
-	if ( !wd )
+	Well::Data& wd = *Well::MGR().get( wmid, req );
+	if ( !&wd )
 	{
 	    msgs += new BufferString( Well::MGR().errMsg() );
 	    continue;
@@ -110,7 +110,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 
 	auto* ldata = new uiWellLogToolWin::LogData( wd );
 	const Well::ExtractParams& params = welllogselfld_->params();
-	ldata->dahrg_ = params.calcFrom( *wd.ptr(), lognms, true );
+	ldata->dahrg_ = params.calcFrom( wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
 	const int nrinplogs = ldata->setSelectedLogs( lognms );
 	if ( !nrinplogs )
@@ -181,7 +181,7 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 
 
 
-uiWellLogToolWin::LogData::LogData( const RefMan<Well::Data> wd )
+uiWellLogToolWin::LogData::LogData( Well::Data& wd )
     : logs_(*new Well::LogSet)
     , wd_(wd)
 {}
@@ -196,33 +196,33 @@ uiWellLogToolWin::LogData::~LogData()
 
 const Well::D2TModel* uiWellLogToolWin::LogData::d2t()
 {
-    if ( !wd_->d2TModel() )
+    if ( !wd_.d2TModel() )
     {
-	Well::Reader rdr( wd_->multiID(), *wd_.ptr() );
+	Well::Reader rdr( wd_.multiID(), wd_ );
 	rdr.getD2T();
     }
 
-    return wd_->d2TModel();
+    return wd_.d2TModel();
 }
 
 
 const Well::Track* uiWellLogToolWin::LogData::track()
 {
-    if ( wd_->track().isEmpty() )
+    if ( wd_.track().isEmpty() )
     {
-	Well::Reader rdr( wd_->multiID(), *wd_.ptr() );
+	Well::Reader rdr( wd_.multiID(), wd_ );
 	rdr.getD2T();
     }
 
-    return &wd_->track();
+    return &wd_.track();
 }
 
 
 int uiWellLogToolWin::LogData::setSelectedLogs( BufferStringSet& lognms )
 {
     int nrsel = 0;
-    Well::MGR().reloadLogs( wd_->multiID() );
-    Well::LogSet& wls = wd_->logs();
+    Well::MGR().reloadLogs( wd_.multiID() );
+    Well::LogSet& wls = wd_.logs();
     for ( int idx=0; idx<wls.size(); idx++ )
     {
 	Well::Log& wl = wls.getLog( idx );
