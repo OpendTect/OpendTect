@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "ziparchiveinfo.h"
 #include "bufstring.h"
+#include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "dirlist.h"
@@ -174,6 +175,7 @@ ________________________________________________________________________
     errormsg_.set( pre ).add( mid ).add( post ); \
     return false; }
 
+BufferString ZipHandler::logmsg_;
 
 union FileAttr
 {
@@ -1426,10 +1428,32 @@ bool ZipHandler::openStreamToWrite()
 	    return false;
 	}
 
-	if ( File::isInUse(destfile_) )
+	if ( __iswin__ && File::isInUse(destfile_) )
 	{
-	    errormsg_.set( destfile_ ).add( " is in use." );
-	    return false;
+	    //Hack to supress errors if packages contain same dlls/libraries
+	    logmsg_.set( destfile_ ).add( " is in use." );
+
+	    const float timeout = GetEnvVarFVal("OD_UNZIP_TIMEOUT", 10 );
+	    int nrattempts = 0;
+	    while ( nrattempts<timeout && File::isInUse(destfile_) )
+	    {
+		Threads::sleep( 1 );
+		nrattempts++;
+	    }
+
+	    logmsg_.addNewLine().add( destfile_ )
+			    .add( " is available after '" )
+			    .add( nrattempts ).add( "' secs." );
+
+	    if ( nrattempts >= timeout )
+	    {
+		logmsg_.set( destfile_ )
+		       .add( " still in use after '" )
+		       .add( timeout ).add( "' secs." );
+
+		errormsg_.set( destfile_ ).add( " is in use." );
+		return false;
+	    }
 	}
 
 	if ( File::isLink(destfile_) && !File::remove(destfile_) )
