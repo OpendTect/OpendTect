@@ -41,7 +41,7 @@ public:
 
     mStruct(uiWell) LogData
     {
-				LogData(Well::Data&);
+				LogData(const RefMan<Well::Data>);
 				~LogData();
 
 	MultiID			wellid_;
@@ -57,7 +57,7 @@ public:
 
     protected:
 
-	Well::Data&			wd_;
+	RefMan<Well::Data>		wd_;
 	Well::LogSet&			logs_;
 	ObjectSet<const Well::Log>	inplogs_;
     };
