@@ -92,7 +92,8 @@ public:
     void			setBitValue(unsigned char& byte, int 
 						bitposition, bool value) const;
 
-
+    static BufferString		logMessage()
+				{ return logmsg_; }
 protected:
 
     bool			initUnZipArchive(const char*,const char*);
@@ -180,6 +181,8 @@ protected:
 
     od_ostream*			ostrm_;
     od_istream*			istrm_;
+
+    static BufferString		logmsg_;
     
 };
 
