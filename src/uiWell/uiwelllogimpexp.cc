@@ -99,7 +99,9 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
     }
 
     wellfld_ = new uiWellSel( this, true, tr("Add to Well"), false );
-    if ( ioobj ) wellfld_->setInput( *ioobj );
+    if ( ioobj )
+	wellfld_->setInput( *ioobj );
+
     wellfld_->attach( alignedBelow, attachobj );
 }
 
@@ -161,18 +163,9 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
 {
     const MultiID wmid = wellfld_->key();
     RefMan<Well::Data> wd = new Well::Data;
-    if ( Well::MGR().isLoaded(wmid) )
-    {
-	wd = Well::MGR().get( wmid );
-	if ( !wd )
-	    mErrRet( mToUiStringTodo(Well::MGR().errMsg()) )
-    }
-    else
-    {
-	Well::Reader rdr( wmid, *wd );
-	if ( !rdr.getLogs() )
-	    mErrRet( uiStrings::phrCannotRead(uiStrings::sWellLog(mPlural)) )
-    }
+    wd = Well::MGR().get( wmid, Well::LoadReqs(Well::LogInfos) );
+    if ( !wd )
+	mErrRet( mToUiStringTodo(Well::MGR().errMsg()) )
 
     const char* lasfnm = lasfld_->text();
     if ( !lasfnm || !*lasfnm )
@@ -222,6 +215,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
 	    lognms.removeSingle( idx );
 	}
     }
+
     const int nrexisting = existlogs.size();
     if ( nrexisting > 0 )
     {
@@ -230,6 +224,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
 			  "import.").arg(existlogs.getDispString());
 	if ( lognms.isEmpty() )
 	    mErrRet( msg )
+
 	uiMSG().warning( msg );
     }
 
@@ -239,9 +234,20 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( res )
 	mErrRet( mToUiStringTodo(res) )
 
+    uiString errmsg = tr("Cannot write following logs to disk");
+    bool failed = false;
     Well::Writer wtr( wmid, *wd );
-    if ( !wtr.putLogs() )
-	mErrRet( tr("Cannot write logs to disk") )
+    for ( const auto* lognm : lognms )
+    {
+	if ( !wtr.putLog(*wd->logs().getLog(*lognm)) )
+	{
+	    errmsg.addMoreInfo( tr("lognm"), true );
+	    failed = true;
+	}
+    }
+
+    if ( failed )
+	mErrRet( errmsg )
 
     uiString msg = tr("Well Log successfully imported."
 		      "\n\nDo you want to import more Well Logs?");

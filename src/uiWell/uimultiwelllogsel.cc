@@ -533,7 +533,8 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 	BufferStringSet lognms;
 	if ( Well::MGR().isLoaded(wmid) )
 	{
-	    wd = Well::MGR().get( wmid );
+	    Well::LoadReqs req( Well::Logs );
+	    wd = Well::MGR().get( wmid, req );
 	    if ( !wd ) continue;
 	    wd->logs().getNames( lognms );
 	}
@@ -576,9 +577,7 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 void uiMultiWellLogSel::getSelWellIDs( TypeSet<MultiID>& mids ) const
 {
     if ( singlewid_ && !wellobjs_.isEmpty() )
-    {
 	mids.add( wellobjs_[0]->key() );
-    }
     else if ( wellsfld_ )
     {
 	for ( int idx=0; idx<wellsfld_->size(); idx++ )
