@@ -185,13 +185,12 @@ bool SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
 #undef mErrRet
 #define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
 
-SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
-					    int ntps, const Seis::SelData& sd )
+SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, Pos::GeomID geomid,
+					    SeisTrcBuf& b, int ntps,
+					    const Seis::SelData& sd )
 	: Seis2DLineGetter(b,ntps,sd)
-	, curnr_(0)
-	, totnr_(0)
 	, fname_(fnm)
-	, trcstep_(1)
+	, geom2d_(Survey::GM().get2D(geomid))
 	, linenr_(CBVSIOMgr::getFileNr(fnm))
 	, trcsperstep_(ntps)
 {
@@ -229,6 +228,7 @@ void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
     }
 
     trc->info().nr = tnr;
+    geom2d_.getPosByTrcNr( tnr, trc->info().coord, trc->info().refnr );
     trc->info().binid = SI().transform( trc->info().coord );
     tbuf_.add( trc );
 }
@@ -340,7 +340,7 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOObj& obj,
 	usedsd = tmpsd;
     }
 
-    return new SeisCBVS2DLineGetter( fnm, tbuf, ntps, *usedsd );
+    return new SeisCBVS2DLineGetter( fnm, geomid, tbuf, ntps, *usedsd );
 }
 
 
