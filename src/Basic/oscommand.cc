@@ -705,7 +705,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     {
 	monitorfnm_ = pars.monitorfnm_;
 	if ( monitorfnm_.isEmpty() )
-	    monitorfnm_ = FilePath::getTempFullPath( "mon", "txt" );
+	    monitorfnm_ = File::Path::getTempFullPath( "mon", "txt" );
 
 	if ( File::exists(monitorfnm_) && !File::remove(monitorfnm_) )
 	    return false;
