@@ -177,9 +177,11 @@ class uiDPSCPStatsTab : public uiDlgGroup
 { mODTextTranslationClass(uiDPSCPStatsTab)
 public:
 
-uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
-    : uiDlgGroup(p->tabParent(),uiStrings::sStatistics())
+uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p, bool y1 )
+    : uiDlgGroup(p->tabParent(),
+	toUiString("%1 %2").arg(y1 ? "Y1" : "Y2").arg(uiStrings::sStatistics()))
     , plotter_(p->plotter())
+    , y1_(y1)
 {
     uiLabel* ylbl = new uiLabel( this, toUiString("%1 =").arg(uiStrings::sY()));
     a0fld_ = new uiLineEdit( this, FloatInpSpec(0), "A0" );
@@ -213,31 +215,57 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
     d0fld_->setReadOnly( true );
     d1fld_->setReadOnly( true );
     ccfld_->setReadOnly( true );
+    a0fld_->setNrDecimals( 4 );
+    a1fld_->setNrDecimals( 4 );
+    d0fld_->setNrDecimals( 4 );
+    d1fld_->setNrDecimals( 4 );
+    ccfld_->setNrDecimals( 4 );
 
-    p->postFinalise().notify( mCB(this,uiDPSCPStatsTab,initFlds) );
+    mAttachCB( p->postFinalise(), uiDPSCPStatsTab::finalizeCB );
+    mAttachCB( plotter_.dataChgd, uiDPSCPStatsTab::dataChangedCB );
 }
 
-void initFlds( CallBacker* )
+~uiDPSCPStatsTab()
 {
-    const LinStats2D& ls = plotter_.linStats();
+    detachAllNotifiers();
+}
+
+void finalizeCB( CallBacker* )
+{
+    updateFields();
+}
+
+
+void dataChangedCB( CallBacker* )
+{
+    updateFields();
+}
+
+
+void updateFields()
+{
+    const LinStats2D& ls = plotter_.linStats( y1_ );
     a0fld_->setValue( ls.lp.a0 );
     a1fld_->setValue( ls.lp.ax );
     d0fld_->setValue( ls.sd.a0 );
     d1fld_->setValue( ls.sd.ax );
     ccfld_->setValue( ls.corrcoeff );
-    ccdispbut_->setChecked( plotter_.setup().showcc_ );
-    shwregrlnbut_->setChecked( plotter_.setup().showregrline_ );
+
+    ccdispbut_->setChecked( plotter_.correlationCoeffShown(y1_) );
+    shwregrlnbut_->setChecked( plotter_.regressionLineShown(y1_) );
 }
+
 
 bool acceptOK()
 {
-    plotter_.setup().showcc( ccdispbut_->isChecked() );
-    plotter_.setup().showregrline( shwregrlnbut_->isChecked() );
+    plotter_.showRegressionLine( y1_, shwregrlnbut_->isChecked() );
+    plotter_.showCorrelationCoeff( y1_, ccdispbut_->isChecked() );
     return true;
 }
 
     uiDataPointSetCrossPlotter&		plotter_;
 
+    bool		y1_;
     uiLineEdit*		a0fld_;
     uiLineEdit*		a1fld_;
     uiLineEdit*		d0fld_;
@@ -782,7 +810,7 @@ bool acceptOK()
     mstyle.type_ = (MarkerStyle2D::Type)(shapefld_->currentItem()+1);
     plotter_.axisHandler(1)->setup().style_.color_ = ycolinpfld_->color();
     plotter_.axisHandler(1)->setup().gridlinestyle_.color_ =
-	ycolinpfld_->color();
+							ycolinpfld_->color();
     if ( hasy2_ )
     {
 	plotter_.axisHandler(2)->setup().style_.color_ = y2colinpfld_->color();
@@ -928,8 +956,8 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
 	: uiTabStackDlg( p->parent(),
 			 uiDialog::Setup(uiStrings::sSettings(),
-			 uiStrings::sEmptyString(),
-                         mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
+			 mNoDlgTitle,
+			 mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
 			 .modal(false) )
 	, plotter_(*p)
 	, bdroptab_(0)
@@ -937,8 +965,11 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
     setDeleteOnClose( false );
     scaletab_ = new uiDPSCPScalingTab( this );
     addGroup( scaletab_ );
-    statstab_ = new uiDPSCPStatsTab( this );
+    statstab_ = new uiDPSCPStatsTab( this, true );
     addGroup( statstab_ );
+    if ( plotter_.axisHandler(2) )
+	addGroup( new uiDPSCPStatsTab(this,false) );
+
     userdeftab_ = new uiDPSUserDefTab( this );
     addGroup( userdeftab_ );
     dispproptab_ = new uiDPSCPDisplayPropTab( this );
@@ -953,15 +984,15 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 
 
 void uiDataPointSetCrossPlotterPropDlg::doApply( CallBacker* cb )
-{ acceptOK( cb ); }
+{
+    acceptOK( cb );
+}
+
 
 bool uiDataPointSetCrossPlotterPropDlg::acceptOK( CallBacker* )
 {
-    if ( scaletab_ ) scaletab_->acceptOK();
-    if ( statstab_ ) statstab_->acceptOK();
-    if ( userdeftab_ ) userdeftab_->acceptOK();
-    if ( dispproptab_ ) dispproptab_->acceptOK();
-    if ( densplottab_ ) densplottab_->acceptOK();
+    for ( int idx=0; idx<nrGroups(); idx++ )
+	getGroup(idx).acceptOK();
 
     plotter_.dataChanged();
     return true;

@@ -1,12 +1,11 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert
- Date:          Mar 2008
- RCS:           $Id$
+ Author:	Bert
+ Date:		Mar 2008
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -78,7 +77,7 @@ public:
 
     Notifier<uiDataPointSetCrossPlotter>	lineDrawn;
     Notifier<uiDataPointSetCrossPlotter>	mouseReleased;
-    Notifier<uiDataPointSetCrossPlotter>        dataChgd;
+    Notifier<uiDataPointSetCrossPlotter>	dataChgd;
     Notifier<uiDataPointSetCrossPlotter>	pointsSelected;
     Notifier<uiDataPointSetCrossPlotter>	removeRequest;
     Notifier<uiDataPointSetCrossPlotter>	selectionChanged;
@@ -104,8 +103,6 @@ public:
 	uiDataPointSetCrossPlotter& cp_;
 	DataPointSet::ColID	colid_;
     };
-
-
 
     AxisData			x_;
     AxisData			y_;
@@ -206,9 +203,9 @@ public:
     void			drawContent( bool withaxis = true );
     void			drawColTabItem(bool isy1);
     bool			isY2Shown() const;
-    bool                        isY1Selectable() const
+    bool			isY1Selectable() const
 				{ return isy1selectable_; }
-    bool                        isY2Selectable() const
+    bool			isY2Selectable() const
 				{ return isy2selectable_; }
     bool			showY3() const		{ return showy3_; }
     bool			showY4() const		{ return showy4_; }
@@ -243,7 +240,7 @@ public:
     void			getRandRowids();
     void			setMultiColMode(bool yn)
 				{ multclron_ = yn; }
-    bool                        isMultiColMode() const	{ return multclron_; }
+    bool			isMultiColMode() const	{ return multclron_; }
     void			setCellSize( int sz )	{ cellsize_ = sz; }
     int				cellSize() const	{ return cellsize_; }
     bool			isSelectionValid(uiDataPointSet::DRowID);
@@ -269,6 +266,11 @@ public:
     const ColTab::Sequence&	y4CtSeq() const		{ return y4ctab_; }
 
     float			getVal(int colid,int rid) const;
+
+    void			showRegressionLine(bool y1,bool yn);
+    void			showCorrelationCoeff(bool y1,bool yn);
+    bool			regressionLineShown(bool y1) const;
+    bool			correlationCoeffShown(bool y1) const;
 
 protected:
 
@@ -308,10 +310,10 @@ protected:
     bool			selectable_;
     bool			mousepressed_;
     bool			rectangleselection_;
-    bool                        isdensityplot_;
-    bool                        drawuserdefline_;
+    bool			isdensityplot_;
+    bool			drawuserdefline_;
     bool			drawy1userdefpolyline_;
-    bool                        drawy2userdefpolyline_;
+    bool			drawy2userdefpolyline_;
     bool			drawy2_;
     float			plotperc_;
     int				curgrp_;
@@ -336,9 +338,9 @@ protected:
 
     ObjectSet<SelectionArea>	selareaset_;
     ObjectSet<SelectionGrp>	selgrpset_;
-    bool                        isy1selectable_;
-    bool                        isy2selectable_;
-    bool                        multclron_;
+    bool			isy1selectable_;
+    bool			isy2selectable_;
+    bool			multclron_;
 
     void			initDraw();
     void			setDraw();
@@ -353,8 +355,7 @@ protected:
     bool			selNearest(const MouseEvent&);
     void			reDrawCB(CallBacker*);
     void			reSizeDrawCB(CallBacker*);
-    void                        mouseClickedCB(CallBacker*);
-    void                        mouseMoveCB(CallBacker*);
-    void                        mouseReleasedCB(CallBacker*);
+    void			mouseClickedCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
+    void			mouseReleasedCB(CallBacker*);
 };
-

@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        Bert
- Date:          Mar 2008
+ Author:	Bert
+ Date:		Mar 2008
 ________________________________________________________________________
 
 -*/
@@ -20,11 +20,28 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "densitycalc.h"
+#include "hiddenparam.h"
 #include "linear.h"
 #include "statrand.h"
 #include "timer.h"
 
 
+class NewClassMembers
+{
+public:
+~NewClassMembers()
+{
+    delete y2regressionline_;
+}
+
+    bool		showy2corrcoeff_	= false;
+    bool		showy2regressionline_	= false;
+    uiLineItem*		y2regressionline_	= nullptr;
+
+};
+
+static HiddenParam<uiDataPointSetCrossPlotter,NewClassMembers*>
+						hp_newclassmembers(nullptr);
 
 uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 			    uiDataPointSet& uidp,
@@ -99,12 +116,18 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 
     enableImageSave();
     enableScrollZoom();
+
     x_.defaxsu_.style_ = setup_.xstyle_;
     y_.defaxsu_.style_ = setup_.ystyle_;
     y2_.defaxsu_.style_ = setup_.y2style_;
     x_.defaxsu_.gridlinestyle_ = setup_.xstyle_;
+    x_.defaxsu_.gridlinestyle_.color_ = Color(220,220,220);
     y_.defaxsu_.gridlinestyle_ = setup_.ystyle_;
+    y_.defaxsu_.gridlinestyle_.color_ = Color(220,110,110);
+    y_.defaxsu_.gridlinestyle_.type_ = OD::LineStyle::Dot;
     y2_.defaxsu_.gridlinestyle_ = setup_.y2style_;
+    y2_.defaxsu_.gridlinestyle_.color_ = Color(0,170,255);
+    y2_.defaxsu_.gridlinestyle_.type_ = OD::LineStyle::Dot;
     x_.defaxsu_.border_ = setup_.minborder_;
     y_.defaxsu_.border_ = setup_.minborder_;
     y2_.defaxsu_.border_ = setup_.minborder_;
@@ -112,16 +135,16 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     y3mapper_.setup_.cliprate_ = Interval<float>(0.0,0.0);
     y4mapper_.setup_.cliprate_ = Interval<float>(0.0,0.0);
 
-    reSize.notify( mCB(this,uiDataPointSetCrossPlotter,reSizeDrawCB) );
-    reDrawNeeded.notify( mCB(this,uiDataPointSetCrossPlotter,reDrawCB) );
-    getMouseEventHandler().buttonPressed.notify(
-	    mCB(this,uiDataPointSetCrossPlotter,mouseClickedCB) );
-    getMouseEventHandler().movement.notify(
-	    mCB(this,uiDataPointSetCrossPlotter,mouseMoveCB) );
-    getMouseEventHandler().buttonReleased.notify(
-	    mCB(this,uiDataPointSetCrossPlotter,mouseReleasedCB) );
+    mAttachCB( reSize, uiDataPointSetCrossPlotter::reSizeDrawCB );
+    mAttachCB( reDrawNeeded, uiDataPointSetCrossPlotter::reDrawCB );
+    mAttachCB( getMouseEventHandler().buttonPressed,
+		uiDataPointSetCrossPlotter::mouseClickedCB );
+    mAttachCB( getMouseEventHandler().movement,
+		uiDataPointSetCrossPlotter::mouseMoveCB );
+    mAttachCB( getMouseEventHandler().buttonReleased,
+		uiDataPointSetCrossPlotter::mouseReleasedCB );
 
-    timer_.tick.notify( mCB(this,uiDataPointSetCrossPlotter,reDrawCB) );
+    mAttachCB( timer_.tick, uiDataPointSetCrossPlotter::reDrawCB );
     setStretch( 2, 2 );
     setSceneBorder( 2 );
     setDragMode( uiGraphicsView::ScrollHandDrag );
@@ -131,12 +154,14 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     selgrpset_ += new SelectionGrp( "No 1", Color::DgbColor() );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
+
+    hp_newclassmembers.setParam( this, new NewClassMembers );
 }
 
 
 uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 {
-    timer_.tick.remove( mCB(this,uiDataPointSetCrossPlotter,reDrawCB) );
+    detachAllNotifiers();
 
     if ( yptitems_ ) scene().removeItem( yptitems_ );
     if ( y2ptitems_ ) scene().removeItem( y2ptitems_ );
@@ -145,7 +170,11 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 
     delete &lsy1_;
     delete &lsy2_;
+
+    scene().removeItem( hp_newclassmembers.getParam(this)->y2regressionline_ );
+    hp_newclassmembers.removeAndDeleteParam( this );
 }
+
 
 #define mHandleAxisAutoScale(axis) \
     axis.handleAutoScale( uidps_.getRunCalc( axis.colid_ ) );
@@ -242,14 +271,14 @@ void uiDataPointSetCrossPlotter::getRandRowids()
 	Array1D<char>* rowidxs = idx==0 ? yrowidxs_ : y2rowidxs_;
 	const bool highperc = plotperc_ > 50;
 	rowidxs->ArrayND<char>::setAll( highperc ? '1' : '0' );
-	const float nrrowneeded = mCast( float, highperc ?
-	                           dps_.nrActive() - totalrows : totalrows );
+	const float nrrowneeded =
+		sCast(float,highperc ? dps_.nrActive()-totalrows : totalrows);
 	while ( rowcount < nrrowneeded )
 	{
 	    int randrow = randgen.getIndex( dps_.size() );
 	    if ( ((!highperc && rowidxs->get(randrow) == '0') ||
-	          (highperc && rowidxs->get(randrow) == '1')) &&
-	         !dps_.isInactive(randrow) )
+		 (highperc && rowidxs->get(randrow) == '1')) &&
+		 !dps_.isInactive(randrow) )
 		rowidxs->set( randrow, highperc ? '0' : '1' );
 	    else
 		continue;
@@ -658,19 +687,23 @@ void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
 
     if ( (isy1 && !showy3_) || (!isy1 && !showy4_) )
     {
-	if ( y1overlayctitem_ ) y1overlayctitem_->setVisible( showy3_ );
+	if ( y1overlayctitem_ )
+	    y1overlayctitem_->setVisible( showy3_ );
+
 	if ( y2overlayctitem_ )
 	    y2overlayctitem_->setVisible( showy4_ && isY2Shown() );
+
 	if ( x_.axis_ && !showy3_ )
 	    x_.axis_->setup().border_ = setup_.minborder_;
+
 	return;
     }
 
     uiColTabItem* coltabitem = isy1 ? y1overlayctitem_ : y2overlayctitem_;
-    uiColTabItem::Setup ctsu( true );
 
     if ( !coltabitem )
     {
+	uiColTabItem::Setup ctsu( false );
 	coltabitem = new uiColTabItem( ctsu );
 	if ( isy1 )
 	    y1overlayctitem_ = coltabitem;
@@ -679,25 +712,29 @@ void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
 	scene().addItem( coltabitem );
     }
 
+    uiColTabItem::Setup& ctsu = coltabitem->setup();
+    ctsu.sz_.setHeight( viewHeight()/4 );
+
     uiBorder extraborder = setup_.minborder_;
-    extraborder.setBottom( extraborder.bottom() + ctsu.sz_.height() );
+    extraborder.setRight( extraborder.right() + ctsu.sz_.width()*2 );
     x_.axis_->setup().border_ = extraborder;
     y_.axis_->setup().border_ = extraborder;
     if ( y2_.axis_ )
 	y2_.axis_->setup().border_ = extraborder;
     setDraw();
 
-    const int xpos = isy1 ? x_.axis_->pixBefore()
-			: viewWidth() - x_.axis_->pixAfter() - ctsu.sz_.width();
-    const int ypos = viewHeight() - extraborder.bottom() - ctsu.sz_.height();
-    coltabitem->setPos( Geom::Point2D<float>(mCast(float,xpos),
-					     mCast(float,ypos)) );
+    const int xpos = viewWidth() - extraborder.right() + ctsu.sz_.width()/2;
+    const int ypos = isy1
+		? viewHeight() - y_.axis_->pixBefore() - ctsu.sz_.height()
+		: y_.axis_->pixBefore();
+    coltabitem->setPos( sCast(float,xpos), sCast(float,ypos) );
     ColTab::Sequence ctab = isy1 ? y3ctab_ : y4ctab_;
     coltabitem->setColTabSequence( ctab );
     const ColTab::MapperSetup& mappersetup = isy1 ? y3mapper_.setup_
 						  : y4mapper_.setup_;
     coltabitem->setColTabMapperSetup( mappersetup );
     coltabitem->setVisible( isy1 ? showy3_ : ( showy4_ && isY2Shown() ) );
+    coltabitem->setupChanged();
 }
 
 
@@ -717,22 +754,31 @@ void uiDataPointSetCrossPlotter::updateOverlayMapper( bool isy1 )
 
 
 void uiDataPointSetCrossPlotter::setOverlayY1AttMapr(
-				    const ColTab::MapperSetup& y3mpr )
-{ y3mapper_.setup_ = y3mpr; }
+				const ColTab::MapperSetup& y3mpr )
+{
+    y3mapper_.setup_ = y3mpr;
+}
 
 
 void uiDataPointSetCrossPlotter::setOverlayY2AttMapr(
-				    const ColTab::MapperSetup& y4mpr )
-{ y4mapper_.setup_ = y4mpr; }
+				const ColTab::MapperSetup& y4mpr )
+{
+    y4mapper_.setup_ = y4mpr;
+}
+
 
 void uiDataPointSetCrossPlotter::setOverlayY1AttSeq(
 					const ColTab::Sequence& y3ct )
-{ y3ctab_ = y3ct; }
+{
+    y3ctab_ = y3ct;
+}
 
 
 void uiDataPointSetCrossPlotter::setOverlayY2AttSeq(
 					const ColTab::Sequence& y4ct)
-{ y4ctab_ = y4ct; }
+{
+    y4ctab_ = y4ct;
+}
 
 
 int uiDataPointSetCrossPlotter::selAreaSize() const
@@ -759,6 +805,7 @@ void uiDataPointSetCrossPlotter::setSelArea( const SelectionArea& selarea,
 {
     if ( selgrpidx < 0 || selgrpidx >= selgrpset_.size() )
 	return;
+
     selgrpset_[selgrpidx]->setSelectionArea( selarea );
 }
 
@@ -1351,9 +1398,10 @@ void uiDataPointSetCrossPlotter::setItem( uiGraphicsItem* item, bool isy2,
 
 void uiDataPointSetCrossPlotter::setAnnotEndTxt( uiAxisHandler& yah )
 {
-    if ( setup_.showcc_ )
+    const bool isy1 = y_.axis_ == &yah;
+    if ( correlationCoeffShown(isy1) )
     {
-	float fr100 = (y_.axis_ == &yah ? lsy1_ : lsy2_).corrcoeff * 100;
+	const float fr100 = (isy1 ? lsy1_ : lsy2_).corrcoeff * 100;
 	int r100 = mNINT32(fr100);
 	BufferString txt( "r=" );
 	if ( r100 < 0 )
@@ -1428,7 +1476,7 @@ bool uiDataPointSetCrossPlotter::checkSelArea( const SelectionArea& area ) const
 
     return y_.axis_->range().includes(rg.start,true) &&
 	   y_.axis_->range().includes(rg.stop,true) &&
-           y2_.axis_->range().includes(altrg.start,true) &&
+	   y2_.axis_->range().includes(altrg.start,true) &&
 	   y2_.axis_->range().includes(altrg.stop,true);
 }
 
@@ -1838,10 +1886,8 @@ void uiDataPointSetCrossPlotter::drawData(
 	return;
 
     setAnnotEndTxt( yah );
-    if ( setup_.showregrline_ )
-	drawRegrLine( &yah, usedxpixrg_ );
-    else if ( regrlineitm_ )
-	regrlineitm_->setLine( 0, 0, 0, 0 );
+
+    drawRegrLine( &yah, usedxpixrg_ );
 
     drawUserDefPolyLine( true );
     drawUserDefPolyLine( false );
@@ -1851,21 +1897,81 @@ void uiDataPointSetCrossPlotter::drawData(
 void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler* yah,
 					       const Interval<int>& xpixrg )
 {
-    if ( !x_.axis_ || !yah ) return;
+    if ( !x_.axis_ || !yah )
+	return;
+
+    NewClassMembers* newmem = hp_newclassmembers.getParam(this);
+    const bool isy1 = y_.axis_ == yah;
+    if ( !regressionLineShown(isy1) )
+    {
+	if ( isy1 && regrlineitm_ )
+	    regrlineitm_->hide();
+	if ( !isy1 && newmem->y2regressionline_ )
+	    newmem->y2regressionline_->hide();
+	return;
+    }
 
     const uiAxisHandler* xah = x_.axis_;
-    const LinStats2D& ls = y_.axis_ == yah ? lsy1_ : lsy2_;
+    const LinStats2D& ls = isy1 ? lsy1_ : lsy2_;
     const Interval<int> ypixrg( yah->pixRange() );
     Interval<float> xvalrg( xah->getVal(xpixrg.start),
 			    xah->getVal(xpixrg.stop) );
     Interval<float> yvalrg( yah->getVal(ypixrg.start),
 			    yah->getVal(ypixrg.stop) );
-    if ( !regrlineitm_ )
+
+    uiLineItem* lineitm =
+	isy1 ? regrlineitm_ : newmem->y2regressionline_;
+    if ( lineitm )
     {
-	regrlineitm_ = new uiLineItem();
-	scene().addItem( regrlineitm_ );
-	regrlineitm_->setZValue( 4 );
+	setLine( lineitm, ls.lp, xah, yah, &xvalrg );
+	lineitm->show();
+	return;
     }
 
-    setLine( regrlineitm_, ls.lp, xah, yah, &xvalrg );
+    lineitm = new uiLineItem;
+    if ( isy1 )
+	regrlineitm_ = lineitm;
+    else
+	newmem->y2regressionline_ = lineitm;
+
+    scene().addItem( lineitm );
+    lineitm->setZValue( 4 );
+    const Color pencol = Color::stdDrawColor( isy1 ? 2 : 3 );
+    OD::LineStyle linestyle;
+    linestyle.color_ = pencol;
+    linestyle.width_ = 2;
+    lineitm->setPenStyle( linestyle );
+    setLine( lineitm, ls.lp, xah, yah, &xvalrg );
+}
+
+
+void uiDataPointSetCrossPlotter::showRegressionLine( bool y1, bool yn )
+{
+    if ( y1 )
+	setup().showregrline_ = yn;
+    else
+	hp_newclassmembers.getParam(this)->showy2regressionline_ = yn;
+}
+
+
+void uiDataPointSetCrossPlotter::showCorrelationCoeff( bool y1, bool yn )
+{
+    if ( y1 )
+	setup().showcc_ = yn;
+    else
+	hp_newclassmembers.getParam(this)->showy2corrcoeff_ = yn;
+}
+
+
+bool uiDataPointSetCrossPlotter::regressionLineShown( bool y1 ) const
+{
+    return y1 ? setup().showregrline_ :
+	hp_newclassmembers.getParam(this)->showy2regressionline_;
+}
+
+
+bool uiDataPointSetCrossPlotter::correlationCoeffShown( bool y1 ) const
+{
+    return y1 ? setup().showcc_ :
+	hp_newclassmembers.getParam(this)->showy2corrcoeff_;
 }
