@@ -751,10 +751,27 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 	    OS::MachineCommand cmdret( GetPythonActivatorExe() );
 	    const File::Path rootfp( *activatefp );
 	    const BufferString rootfnm = rootfp.dirUpTo( rootfp.nrLevels()-1 );
-	    cmdret.addKeyedArg( "envpath", rootfnm );
+	    cmdret.addArg( rootfnm );
 	    if ( envnm && *envnm )
 		cmdret.addKeyedArg( "envnm", envnm );
-	    cmdret.addFlag( "" ).addArg( mc.program() ).addArgs( mc.args() );
+
+	    const BufferString prognm( mc.program() );
+	    if ( __iswin__ )
+	    {
+		if ( background )
+		{
+		    scriptfp = new File::Path(
+			    File::Path::getTempFullPath("python", "txt" ) );
+
+		    cmdret.addKeyedArg( "pidbasenm", scriptfp->fullPath() );
+		}
+
+		if ( prognm.startsWith("cmd",CaseInsensitive) ||
+		     prognm.startsWith("powershell",CaseInsensitive) )
+		    cmdret.addFlag( "consoleuiprog" );
+	    }
+
+	    cmdret.addFlag( "" ).addArg( prognm ).addArgs( mc.args() );
 	    scriptcmd = OS::MachineCommand( cmdret, true );
 	}
     }
@@ -839,7 +856,8 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 	const BufferString pidfnm( getPIDFilePathStr(scriptfp) );
 	if ( res && background )
 	    getPIDFromFile( pidfnm, pid );
-	File::remove( scriptfp.fullPath() );
+	if ( scriptfp.exists() )
+	    File::remove( scriptfp.fullPath() );
     }
 
     if ( !res )
@@ -920,7 +938,7 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	{
 	    const BufferString envpath( dl.fullPath( idx ) );
 	    const DirList priorityfiles( envpath, File::FilesInDir,
-			    		 sKeyPriorityGlobExpr() );
+					 sKeyPriorityGlobExpr() );
 	    if ( !priorityfiles.isEmpty() )
 	    {
 		const File::Path priofp( priorityfiles.fullPath(0) );
@@ -982,8 +1000,8 @@ bool OD::PythonAccess::getCondaEnvsFromTxt( BufferStringSet& envnms )
 {
     ManagedObjectSet<File::Path> fps;
     getCondaEnvFromTxtPath( fps );
-    for ( const auto fp : fps )
-        envnms.add( fp->fullPath() );
+    for ( const auto* fp : fps )
+	envnms.add( fp->fullPath() );
 
     return !envnms.isEmpty();
 }
@@ -1446,14 +1464,10 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
 bool OD::PythonAccess::openTerminal() const
 {
     const BufferString termem = SettingsAccess().getTerminalEmulator();
-#ifdef __win__
-    OS::MachineCommand cmd( "start" );
-    cmd.addArg( termem );
-    OS::CommandExecPars pars( OS::Wait4Finish );
-#else
+
     OS::MachineCommand cmd( termem );
     OS::CommandExecPars pars( OS::RunInBG );
-#endif
+
     pars.workingdir( GetPersonalDir() );
     return execute( cmd, pars );
 }
