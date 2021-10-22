@@ -652,7 +652,6 @@ void OS::CommandLauncher::reset()
     errmsg_.setEmpty();
     monitorfnm_.setEmpty();
     progvwrcmd_.setEmpty();
-    redirectoutput_ = false;
 }
 
 
@@ -712,10 +711,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     {
 	monitorfnm_ = pars.monitorfnm_;
 	if ( monitorfnm_.isEmpty() )
-	{
 	    monitorfnm_ = FilePath::getTempFullPath( "mon", "txt" );
-	    redirectoutput_ = true;
-	}
 
 	if ( File::exists(monitorfnm_) && !File::remove(monitorfnm_) )
 	    return false;
@@ -744,11 +740,17 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 }
 
 
-bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
+bool OS::CommandLauncher::startServer( bool ispyth, const char* stdoutfnm,
+				       const char* stderrfnm, double waittm )
 {
     CommandExecPars execpars( RunInBG );
-    execpars.createstreams_ = true;
+    execpars.createstreams( true );
 	// this has to be done otherwise we cannot pick up any error messages
+    if ( stdoutfnm )
+	execpars.stdoutfnm( stdoutfnm );
+    if ( stderrfnm )
+	execpars.stderrfnm( stderrfnm );
+
     pid_ = -1;
     if ( ispyth )
     {
@@ -872,12 +874,32 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	{
 	    stdinputbuf_ = new qstreambuf( *process_, false, false );
 	    stdinput_ = new od_ostream( new oqstream( stdinputbuf_ ) );
+	}
 
+	if ( pars.stdoutfnm_.isEmpty() )
+	{
 	    stdoutputbuf_ = new qstreambuf( *process_, false, false  );
 	    stdoutput_ = new od_istream( new iqstream( stdoutputbuf_ ) );
+	}
+	else
+	{
+	    const QString filenm(
+		pars.stdoutfnm_ == od_ostream::nullStream().fileName()
+		? QProcess::nullDevice() : QString(pars.stdoutfnm_) );
+	    process_->setStandardOutputFile( filenm );
+	}
 
+	if ( pars.stderrfnm_.isEmpty() )
+	{
 	    stderrorbuf_ = new qstreambuf( *process_, true, false  );
 	    stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
+	}
+	else
+	{
+	    const QString filenm(
+		pars.stderrfnm_ == od_ostream::nullStream().fileName()
+		? QProcess::nullDevice() : QString(pars.stderrfnm_));
+	    process_->setStandardErrorFile( filenm );
 	}
     }
 

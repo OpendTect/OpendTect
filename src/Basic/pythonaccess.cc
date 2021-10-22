@@ -785,10 +785,27 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 	    OS::MachineCommand cmdret( GetPythonActivatorExe() );
 	    const FilePath rootfp( *activatefp );
 	    const BufferString rootfnm = rootfp.dirUpTo( rootfp.nrLevels()-1 );
-	    cmdret.addKeyedArg( "envpath", rootfnm );
+	    cmdret.addArg( rootfnm );
 	    if ( envnm && *envnm )
 		cmdret.addKeyedArg( "envnm", envnm );
-	    cmdret.addFlag( "" ).addArg( mc.program() ).addArgs( mc.args() );
+
+	    const BufferString prognm( mc.program() );
+	    if ( __iswin__ )
+	    {
+		if ( background )
+		{
+		    scriptfp = new FilePath(
+			    FilePath::getTempFullPath("python", "txt" ) );
+
+		    cmdret.addKeyedArg( "pidbasenm", scriptfp->fullPath() );
+		}
+
+		if ( prognm.startsWith("cmd",CaseInsensitive) ||
+		     prognm.startsWith("powershell",CaseInsensitive) )
+		    cmdret.addFlag( "consoleuiprog" );
+	    }
+
+	    cmdret.addFlag( "" ).addArg( prognm ).addArgs( mc.args() );
 	    scriptcmd = OS::MachineCommand( cmdret, true );
 	}
     }
@@ -873,7 +890,8 @@ bool OD::PythonAccess::doExecute( const OS::MachineCommand& cmd,
 	const BufferString pidfnm( getPIDFilePathStr(scriptfp) );
 	if ( res && background )
 	    getPIDFromFile( pidfnm, pid );
-	File::remove( scriptfp.fullPath() );
+	if ( scriptfp.exists() )
+	    File::remove( scriptfp.fullPath() );
     }
 
     if ( !res )
@@ -1016,8 +1034,8 @@ bool OD::PythonAccess::getCondaEnvsFromTxt( BufferStringSet& envnms )
 {
     ManagedObjectSet<FilePath> fps;
     getCondaEnvFromTxtPath( fps );
-    for ( const auto fp : fps )
-        envnms.add( fp->fullPath() );
+    for ( const auto* fp : fps )
+	envnms.add( fp->fullPath() );
 
     return !envnms.isEmpty();
 }
@@ -1493,14 +1511,8 @@ bool OD::PythonAccess::openTerminal( const char* cmdstr,
 	return false;
     }
 
-#ifdef __win__
-    OS::MachineCommand mc( "start" );
-    mc.addArg( cmdstr );
-    OS::CommandExecPars pars( OS::Wait4Finish );
-#else
     OS::MachineCommand mc( cmdstr );
     OS::CommandExecPars pars( OS::RunInBG );
-#endif
     if ( args )
 	mc.addArgs( *args );
 
