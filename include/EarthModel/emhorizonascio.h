@@ -42,6 +42,7 @@ public:
     bool			isXY() const;
     bool			isOK() const { return strm_.isOK(); }
     int				getNextLine(Coord&,TypeSet<float>&);
+    const UnitOfMeasure*	getSelZUnit() const;
 
     static const char*		sKeyFormatStr();
     static const char*		sKeyAttribFormatStr();

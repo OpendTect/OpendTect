@@ -60,6 +60,8 @@ CBVSReader::CBVSReader( od_istream* s, bool glob_info_only,
 	, datastartfo_(0)
 	, lastposfo_(0)
 	, hs_(false)
+	, singlinemode_(false)
+	, worktrcdata_(*new TraceData)
 {
     hs_.step_.inl() = hs_.step_.crl() = 1;
     if ( readInfo(!glob_info_only,forceusecbvsinfo) )
@@ -70,6 +72,7 @@ CBVSReader::CBVSReader( od_istream* s, bool glob_info_only,
 CBVSReader::~CBVSReader()
 {
     close();
+    delete &worktrcdata_;
 }
 
 
@@ -426,9 +429,15 @@ void CBVSReader::toOffs( od_int64 sp )
 }
 
 
-bool CBVSReader::goTo( const BinID& bid )
+bool CBVSReader::goTo( const BinID& inpbid )
 {
-    if ( strmclosed_ ) return false;
+    if ( strmclosed_ || lds_.isEmpty() )
+	return false;
+
+    BinID bid( inpbid );
+    if ( singlinemode_ )
+	bid.inl() = lds_[0]->linenr_;
+
     PosInfo::CubeDataPos cdp = lds_.cubeDataPos( bid );
     if ( !cdp.isValid() )
 	return false;
@@ -645,6 +654,19 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
 			const Interval<int>* samprg, int offs )
 {
+    if ( samprg )
+    {
+	const StepInterval<int> samprgint( *samprg );
+	return fetch( tdtofill, comps, &samprgint, offs );
+    }
+    else
+	return fetch( tdtofill, comps, (StepInterval<int>*)nullptr, offs );
+}
+
+
+bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
+			const StepInterval<int>* samprg, int offs )
+{
     if ( !hinfofetched_ && auxnrbytes_ )
     {
 	PosAuxInfo dum;
@@ -669,9 +691,18 @@ bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
 	tdtofill.setNrComponents( nrcompsselected, DataCharacteristics::Auto );
 
     tdtofill.convertTo( info_.compinfo_[0]->datachar );
-    const int outnrsamps = samprg->stop - samprg->start + 1;
+    const int outnrsamps = samprg->nrSteps() + 1;
     if ( tdtofill.size(0) < outnrsamps )
 	tdtofill.reSize( outnrsamps );
+
+    TraceData* td = &tdtofill;
+    if ( samprg->step > 1 )
+    {
+	worktrcdata_.setNrComponents( nrcompsselected,
+				      DataCharacteristics::Auto );
+	worktrcdata_.reSize( outnrsamps );
+	td = &worktrcdata_;
+    }
 
     const int nrsamps2skip = samprg->start;
     const int nrsamps2read = samprg->stop - samprg->start + 1;
@@ -686,7 +717,7 @@ bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
 	if ( nrsamps2skip > 0 )
 	    strm_.ignore( nrsamps2skip*bps );
 
-	char* bufptr = (char*)tdtofill.getComponent(iselc)->data();
+	char* bufptr = (char*)td->getComponent(iselc)->data();
 	if ( !strm_.getBin(bufptr+offs*bps,nrsamps2read*bps) )
 	    break;
 
@@ -694,6 +725,15 @@ bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
 	    strm_.ignore( nrsampsleftatend*bps );
     }
 
+    if ( td != &tdtofill )
+    {
+	for ( auto icomp=0; icomp<nrcomps_; icomp++ )
+	{
+	    for (auto isamp=0; isamp<outnrsamps; isamp++ )
+		tdtofill.setValue( isamp,
+			       td->getValue(isamp*samprg->step, icomp), icomp );
+	}
+    }
     hinfofetched_ = false;
     return !strm_.isBad();
 }

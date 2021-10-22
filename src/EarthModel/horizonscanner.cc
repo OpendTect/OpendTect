@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 #include "zaxistransform.h"
 #include "file.h"
 
@@ -34,6 +35,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , ascio_(0)
     , isxy_(false)
     , selxy_(false)
+    , doscale_(false)
     , bvalset_(0)
     , fileidx_(0)
     , curmsg_(tr("Scanning"))
@@ -56,7 +58,6 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , selxy_(false)
     , bvalset_(0)
     , fileidx_(0)
-    , curmsg_(tr("Scanning"))
     , nrdone_(0)
 {
     filenames_ = fnms;
@@ -153,22 +154,19 @@ void HorizonScanner::report( IOPar& iopar ) const
     str += "\n\n";
     iopar.setName( str.buf() );
 
-    if ( isxy_ != selxy_ )
-    {
-	iopar.add( IOPar::sKeyHdr(), "Warning" );
-	const char* selected = selxy_ ? "X/Y" : "Inl/Crl";
-	const char* actual = isxy_ ? "X/Y" : "Inl/Crl";
-	iopar.add( "You have selected positions in", selected );
-	iopar.add( "But the positions in input file appear to be in", actual );
-	BufferString msg = "OpendTect will use ";
-	msg += actual; msg += " for final import";
-        iopar.add( msg.buf(), "" );
-    }
-
     iopar.add( IOPar::sKeyHdr(), "Geometry" );
     dtctor_.report( iopar );
     if ( isgeom_ && valranges_.size() > 0 )
-	iopar.set( SI().zIsTime() ? "Time range (s)" : "Z Range",valranges_[0]);
+    {
+	BufferString zrgkey =
+		SI().zIsTime() ? sKey::TimeRange() : sKey::ZRange();
+	zrgkey.add( SI().getZUnitString() );
+	Interval<float> zrg = valranges_[0];
+	if ( SI().zIsTime() )
+	    zrg.scale( SI().showZ2UserFactor() );
+
+	iopar.set( zrgkey, zrg );
+    }
 
     if ( valranges_.size() > firstattribidx )
     {
@@ -248,14 +246,34 @@ void HorizonScanner::transformZIfNeeded( const BinID& bid, float& zval ) const
     }
 }
 
-#define mGetZFac SI().zIsTime() ? 0.001f : 1
+
+static const UnitOfMeasure* getSuggestedZUnit( const UnitOfMeasure* zunit,
+						float scalefac )
+{
+    if ( !zunit )
+	return nullptr;
+
+    ObjectSet<const UnitOfMeasure> zunits;
+    UoMR().getRelevant( Mnemonic::Time, zunits );
+    const double fac = zunit->scaler().factor * scalefac;
+    for ( int idx=0; idx<zunits.size(); idx++ )
+    {
+	if ( mIsEqual(zunits[idx]->scaler().factor,fac,fac/100) )
+	    return zunits[idx];
+    }
+
+    return nullptr;
+}
+
 
 bool HorizonScanner::analyzeData()
 {
     if ( !reInitAscIO( filenames_.get(0).buf() ) ) return false;
 
+    const bool hastransform = transform_ != nullptr;
     const bool zistime = SI().zIsTime();
-    const float fac = mGetZFac;
+    const bool tryscale = isgeom_ && zistime && !hastransform;
+    const float zscalefac = 0.001;
     Interval<float> validrg( SI().zRange(false) );
     const float zwidth = validrg.width();
     validrg.sort();
@@ -274,10 +292,7 @@ bool HorizonScanner::analyzeData()
 	if ( data.isEmpty() ) break;
 
 	if ( count > maxcount )
-	{
-	    if ( nrscale == nrnoscale ) maxcount *= 2;
-	    else break;
-	}
+	    break;
 
 	BinID bid( mNINT32(crd.x), mNINT32(crd.y) );
 
@@ -293,7 +308,7 @@ bool HorizonScanner::analyzeData()
 	    else if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
 	}
 
-	if ( !isgeom_ )
+	if ( !tryscale )
 	{
 	    if ( validplacement ) count++;
 	    continue;
@@ -305,17 +320,49 @@ bool HorizonScanner::analyzeData()
 	bool validvert = false;
 	if ( !mIsUdf(val) )
 	{
-	    if ( validrg.includes(val,false) ) { nrnoscale++; validvert=true; }
-	    else if ( zistime && validrg.includes(val*fac,false) )
-	    { nrscale++; validvert=true; }
+	    if ( validrg.includes(val,false) )
+	    {
+		nrnoscale++;
+		validvert = true;
+	    }
+	    else if ( validrg.includes(val*zscalefac,false) )
+	    {
+		nrscale++;
+		validvert = true;
+	    }
 	}
 
 	if ( validplacement && validvert )
 	    count++;
     }
 
-    isxy_ = nrxy > nrbid;
-    doscale_ = nrscale > nrnoscale;
+    const bool apparentisxy = nrxy > nrbid;
+    if ( apparentisxy != selxy_ )
+    {
+	curmsg_ = tr("You have selected positions in %1, "
+		     "but the positions in file appear to be in %2.")
+		     .arg( selxy_ ? "X/Y" : "Inl/Crl" )
+		     .arg( apparentisxy ? "X/Y" : "Inl/Crl" );
+    }
+
+    const UnitOfMeasure* selzunit = ascio_->getSelZUnit();
+    const UnitOfMeasure* suggestedzunit = nullptr;
+    if ( nrscale > nrnoscale )
+	suggestedzunit = getSuggestedZUnit( selzunit, zscalefac );
+
+    if ( suggestedzunit )
+    {
+	uiString zmsg = tr("You have selected Z in %1, "
+			   "but the Z values in file appear to be in %2." )
+			   .arg( selzunit->name() )
+			   .arg( suggestedzunit->name() );
+	if ( curmsg_.isEmpty() )
+	    curmsg_ = zmsg;
+	else
+	    curmsg_.appendPhrase( zmsg );
+    }
+
+    isxy_ = selxy_;
     delete ascio_;
     ascio_ = 0;
     return true;
@@ -397,10 +444,6 @@ int HorizonScanner::nextStep()
     if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
     bvalset_->allowDuplicateBinIDs(true);
 
-    float fac = 1;
-    if ( doscale_ )
-	fac = mGetZFac;
-
     BinID bid;
     if ( isxy_ )
 	bid = SI().transform( crd );
@@ -422,14 +465,14 @@ int HorizonScanner::nextStep()
 	    valranges_ += Interval<float>(mUdf(float),-mUdf(float));
 
 	const float val = data[validx];
-	if ( isgeom_ && validx==0 && !isInsideSurvey(bid,fac*val) )
+	if ( isgeom_ && validx==0 && !isInsideSurvey(bid,val) )
 	{
 	    validpos = false;
 	    break;
 	}
 
 	if ( !mIsUdf(val) )
-	    valranges_[validx].include( fac*val, false );
+	    valranges_[validx].include( val, false );
 	validx++;
     }
 

@@ -1,8 +1,0 @@
-#!/bin/csh -f
-
-if ( ! -d CVS ) then
-    svn delete $*
-    exit $status
-endif
-
-dvs remove -f $*

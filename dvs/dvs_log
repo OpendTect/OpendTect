@@ -1,9 +1,0 @@
-#!/bin/csh -f
-
-set filebrowser=$WORK/bin/$PLFSUBDIR/$DEBUG_SUBDIR/od_FileBrowser
-if ( -e $filebrowser ) then
-    dvs log $* > /tmp/svn_log.$$
-    $filebrowser /tmp/svn_log.$$
-else
-    dvs log $*
-endif

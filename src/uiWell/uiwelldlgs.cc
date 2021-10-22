@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uicolor.h"
+#include "uiconstvel.h"
 #include "uid2tmodelgrp.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
@@ -2132,14 +2133,15 @@ bool uiWellLogMnemDlg::acceptOK( CallBacker* )
 
 
 // uiSetD2TFromOtherWell
+
 uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
     : uiDialog(p,Setup(tr("Set Depth-Time Model"),mNoDlgTitle,mTODOHelpKey))
 {
     inpwellfld_ = new uiWellSel( this, true, tr("Use D2T model from"), false );
     mAttachCB( inpwellfld_->selectionDone, uiSetD2TFromOtherWell::inpSelCB );
 
-    replvelfld_ = new uiGenInput( this, tr("New replacement velocity"),
-				   FloatInpSpec() );
+    replvelfld_ = new uiConstantVel( this, Vel::getGUIDefaultVelocity(),
+	    			     tr("New replacement velocity") );
     replvelfld_->setWithCheck( true );
     replvelfld_->attach( alignedBelow, inpwellfld_ );
 
@@ -2169,7 +2171,9 @@ void uiSetD2TFromOtherWell::inpSelCB( CallBacker* )
     if ( !wd )
 	return;
 
-    replvelfld_->setValue( wd->info().replvel_ );
+    const float dispreplvel =
+	UnitOfMeasure::surveyDefVelUnit()->userValue( wd->info().replvel_ );
+    replvelfld_->setValue( dispreplvel );
 }
 
 
@@ -2211,7 +2215,8 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
     }
 
     const bool chgreplvel = replvelfld_->isChecked();
-    const float newreplvel = replvelfld_->getFValue();
+    const float newreplvel = UnitOfMeasure::surveyDefVelUnit()->internalValue(
+	    				replvelfld_->getFValue() );
 
     const int mdlsz = dtmodel.size();
     TypeSet<double> inputdepths( mdlsz, 0. );

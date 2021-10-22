@@ -144,6 +144,14 @@ bool CBVSReadMgr::addReader( od_istream* strm, const TrcKeyZSampling* cs,
 }
 
 
+
+void CBVSReadMgr::setSingleLineMode( bool yn )
+{
+    for ( int idx=0; idx<readers_.size(); idx++ )
+	readers_[idx]->setSingleLineMode( yn );
+}
+
+
 int CBVSReadMgr::pruneReaders( const TrcKeyZSampling& cs )
 {
     if ( cs.isEmpty() )
@@ -509,6 +517,19 @@ bool CBVSReadMgr::fetch( void** d, const bool* c,
 bool CBVSReadMgr::fetch( TraceData& bufs, const bool* c,
 			 const Interval<int>* ss )
 {
+    if ( ss )
+    {
+	const StepInterval<int> ssint( *ss );
+	return fetch( bufs, c, &ssint );
+    }
+    else
+	return fetch( bufs, c, (StepInterval<int>*)nullptr );
+}
+
+
+bool CBVSReadMgr::fetch( TraceData& bufs, const bool* c,
+			 const StepInterval<int>* ss )
+{
     if ( !vertical_ )
 	return readers_[curnr_]->fetch( bufs, c, ss );
 
@@ -522,14 +543,15 @@ bool CBVSReadMgr::fetch( TraceData& bufs, const bool* c,
     const int rdr0nrsamps = readers_[0]->info().nrsamples_;
     if ( selsamps.start < rdr0nrsamps )
     {
-	Interval<int> rdrsamps = selsamps;
+	StepInterval<int> rdrsamps = selsamps;
 	if ( selsamps.stop >= rdr0nrsamps ) rdrsamps.stop = rdr0nrsamps-1;
 
 	if ( !readers_[0]->fetch(bufs,c,&rdrsamps,0) )
 	    return false;
     }
 
-    Interval<int> cursamps( rdr1firstsampnr_, rdr1firstsampnr_-1 );
+    StepInterval<int> cursamps( rdr1firstsampnr_, rdr1firstsampnr_-1,
+				ss ? ss->step : 1 );
 
     for ( int idx=1; idx<readers_.size(); idx++ )
     {
@@ -540,15 +562,15 @@ bool CBVSReadMgr::fetch( TraceData& bufs, const bool* c,
 	if ( cursamps.stop >= selsamps.start )
 	{
 	    const int sampoffs = selsamps.start - cursamps.start;
-	    Interval<int> rdrsamps( sampoffs < 0 ? 0 : sampoffs,
-				   cursamps.stop - cursamps.start );
+	    StepInterval<int> rdrsamps( sampoffs < 0 ? 0 : sampoffs,
+				cursamps.stop - cursamps.start, cursamps.step );
 	    if ( !readers_[idx]->fetch( bufs, c, &rdrsamps,
 					sampoffs > 0 ? 0 : -sampoffs ) )
 		return false;
 	}
 
 	if ( islast ) break;
-	cursamps.start = cursamps.stop + 1;
+	cursamps.start = cursamps.stop + cursamps.step;
     }
 
     return true;

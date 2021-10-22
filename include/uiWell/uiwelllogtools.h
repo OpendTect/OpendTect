@@ -4,7 +4,7 @@ ________________________________________________________________________
 
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
-Date:          Jan 2011
+Date:	       Jan 2011
 ________________________________________________________________________
 
 -*/
@@ -41,9 +41,7 @@ public:
 
     mStruct(uiWell) LogData
     {
-				LogData(const Well::LogSet&,
-					const Well::D2TModel*,
-					const Well::Track*);
+				LogData(Well::Data&);
 				~LogData();
 
 	MultiID			wellid_;
@@ -51,26 +49,22 @@ public:
 	Interval<float>		dahrg_;
 
 	int			setSelectedLogs(BufferStringSet&);
-	void			getOutputLogs(Well::LogSet& ls) const;
+	Well::LogSet&		logs()			{ return logs_; }
+	const Well::D2TModel*	d2t();
+	const Well::Track*	track();
+
+	const ObjectSet<const Well::Log> inpLogs() const  { return inplogs_; }
 
     protected:
 
-	Well::LogSet&		logs_;
-
-	ObjectSet<const Well::Log> inplogs_;
-	ObjectSet<Well::Log>	outplogs_;
-
-	const Well::D2TModel*	d2t_;
-	const Well::Track*	track_;
-
-	friend class		uiWellLogToolWin;
+	Well::Data&			wd_;
+	Well::LogSet&			logs_;
+	ObjectSet<const Well::Log>	inplogs_;
     };
 
 				uiWellLogToolWin(uiParent*,ObjectSet<LogData>&,
 						 bool withedit=true);
 				~uiWellLogToolWin();
-
-    bool			needSave() const	{ return needsave_; }
 
     void			getLogDatas(ObjectSet<LogData>& lds) const
 				{ lds = logdatas_; }
@@ -93,7 +87,6 @@ protected:
 
     ObjectSet<LogData>		logdatas_;
     ObjectSet<uiWellLogDisplay> logdisps_;
-    bool			needsave_;
     bool			closeok_ = true;
 
     uiGroup*			createEditGroup();

@@ -205,7 +205,7 @@ BufferString::BufferString( const char* s1, const T& t, const char* s2 )
 { *this += s1; *this += t; *this += s2; }
 
 inline const char* BufferString::gtStr() const
-{ return buf_ && *buf_ ? const_cast<char*>( buf_ ) : nullptr; }
+{ return buf_ && *buf_ ? buf_ : nullptr; }
 
 inline bool BufferString::operator==( const BufferString& s ) const
 { return isEqual( s.buf_ ); }

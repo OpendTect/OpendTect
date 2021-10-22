@@ -41,6 +41,7 @@ public:
     const CBVSInfo&	info() const		{ return info_; }
     int			bytesOverheadPerTrace() const;
     void		close();
+    void		setSingleLineMode(bool yn=true);
 
     BinID		nextBinID() const;
     bool		goTo(const BinID&);
@@ -50,9 +51,11 @@ public:
     bool		getAuxInfo(PosAuxInfo&);
     bool		fetch(void**,const bool* comps=0,
 				const Interval<int>* samps=0);
-    bool		fetch(TraceData&,const bool* comps=0,
-				const Interval<int>* samps=0);
+    bool		fetch(TraceData&,const bool* comps,
+				const Interval<int>* samps);
 			//!< See CBVSReader::fetch comments
+    bool		fetch(TraceData&,const bool* comps=nullptr,
+				const StepInterval<int>* samps=nullptr);
 
     static const char*	check(const char*);
 			//!< Determines whether this is a CBVS file pack.

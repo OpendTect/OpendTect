@@ -1,8 +1,0 @@
-#!/bin/csh -f
-
-if ( -d CVS ) then
-    dvs editors $*  
-    exit 1
-endif
-
-dvs_showlocks $*
