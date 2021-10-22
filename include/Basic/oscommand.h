@@ -46,13 +46,15 @@ public:
 			    , needmonitor_(false)
 			    , prioritylevel_(lt>=Batch ? -1.0f : 0.0f)
 			    , isconsoleuiprog_(false)
-                , runasadmin_(false)     {}
+			    , runasadmin_(false)     {}
 
     mDefSetupClssMemb(CommandExecPars,LaunchType,launchtype);
     mDefSetupClssMemb(CommandExecPars,bool,createstreams);
     mDefSetupClssMemb(CommandExecPars,bool,needmonitor);
     mDefSetupClssMemb(CommandExecPars,BufferString,monitorfnm);
 			    //!< when empty, will be generated (if needed)
+    mDefSetupClssMemb(CommandExecPars,BufferString,stdoutfnm);
+    mDefSetupClssMemb(CommandExecPars,BufferString,stderrfnm);
 
     mDefSetupClssMemb(CommandExecPars,float,prioritylevel);
 			    //!< -1=lowest, 0=normal, 1=highest (administrator)
@@ -62,8 +64,8 @@ public:
 			    //!< if true, will ignore monitor settings
 
     mDefSetupClssMemb(CommandExecPars,bool,runasadmin);
-                //!< launch in a new session as admin
-                //!< Windows only.
+		//!< launch in a new session as admin
+		//!< Windows only.
 
     mDefSetupClssMemb(CommandExecPars,BufferString,workingdir);
 
@@ -216,6 +218,8 @@ public:
 				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars&);
     bool		startServer(bool inpythonenv=false,
+				    const char* stdoutfnm =nullptr,
+				    const char* stderrfnm =nullptr,
 				    double maxwaittm=20 /* seconds */);
 
     PID_Type		processID() const;
@@ -242,7 +246,6 @@ protected:
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
-    bool		redirectoutput_;
 
     BufferString	progvwrcmd_;
     uiString		errmsg_;
