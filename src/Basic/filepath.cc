@@ -49,11 +49,13 @@ FilePath::FilePath( const FilePath& fp, const char* p2, const char* p3,
 }
 
 
-FilePath& FilePath::operator =( const FilePath& fp )
+FilePath& FilePath::operator =( const FilePath& oth )
 {
-    lvls_ = fp.lvls_;
-    prefix_ = fp.prefix_;
-    isabs_ = fp.isabs_;
+    lvls_ = oth.lvls_;
+    prefix_ = oth.prefix_;
+    postfix_ = oth.postfix_;
+    domain_ = oth.domain_;
+    isabs_ = oth.isabs_;
     return *this;
 }
 
@@ -62,9 +64,11 @@ FilePath& FilePath::operator =( const char* fnm )
 { return (*this = FilePath(fnm)); }
 
 
-bool FilePath::operator ==( const FilePath& fp ) const
+bool FilePath::operator ==( const FilePath& oth ) const
 {
-    return lvls_ == fp.lvls_ && prefix_ == fp.prefix_ && isabs_ == fp.isabs_;
+    return lvls_ == oth.lvls_ &&
+	   prefix_ == oth.prefix_ && postfix_ == oth.postfix_ &&
+	   domain_ == oth.domain_ && isabs_ == oth.isabs_;
 }
 
 
@@ -72,8 +76,8 @@ bool FilePath::operator ==( const char* fnm ) const
 { return *this == FilePath(fnm); }
 
 
-bool FilePath::operator !=( const FilePath& fp ) const
-{ return !(*this == fp); }
+bool FilePath::operator !=( const FilePath& oth ) const
+{ return !(*this == oth); }
 
 
 bool FilePath::operator != ( const char* fnm ) const
@@ -107,45 +111,67 @@ FilePath& FilePath::set( const char* inpfnm )
 {
     lvls_.erase();
     prefix_.setEmpty();
+    postfix_.setEmpty();
+    domain_.setEmpty();
     isabs_ = false;
     if ( !inpfnm || !*inpfnm )
 	return *this;
 
-    BufferString fnmbs( inpfnm );
+    const BufferString fnmbs( inpfnm );
     const char* fnm = fnmbs.buf();
     mSkipBlanks( fnm );
     if ( !*fnm )
 	return *this;
 
-    const char* ptr = firstOcc( fnm, *sPrefSep );
-    if ( ptr )
+    if ( File::isURI(fnm) )
     {
-	const char* dsptr = firstOcc( fnm, *dirSep(Local) );
-	const char* otherdsptr = firstOcc( fnm, *dirSep(cOther) );
-	if ( otherdsptr && ( !dsptr || otherdsptr < dsptr ) )
-	    dsptr = otherdsptr;
+	BufferString fnmcopy( fnm );
+	char* sepptr = fnmcopy.find( uriProtocolSeparator() );
+	*sepptr = '\0';
+	prefix_ = fnmcopy;
+	char* domptr = sepptr + 3;
+	while ( *domptr && *domptr != '/' )
+	{
+	    domain_.add( *domptr );
+	    domptr++;
+	}
+	fnm = nullptr;
+	if ( *domptr == '/' )
+	    fnm = fnmbs.buf() + (domptr - fnmcopy.buf());
+	isabs_ = true;
+    }
+    else
+    {
+	const char* ptr = firstOcc( fnm, *sPrefSep );
+	if ( ptr )
+	{
+	    const char* dsptr = firstOcc( fnm, *dirSep(Local) );
+	    const char* otherdsptr = firstOcc( fnm, *dirSep(cOther) );
+	    if ( otherdsptr && ( !dsptr || otherdsptr < dsptr ) )
+		dsptr = otherdsptr;
 
-	if ( dsptr > ptr || (__iswin__ && !dsptr) )
+	    if ( dsptr > ptr || (__iswin__ && !dsptr) )
+	    {
+		prefix_ = fnm;
+		*firstOcc( prefix_.getCStr(), *sPrefSep ) = '\0';
+		fnm = ptr + 1;
+	    }
+	}
+	else if ( isServerPath(fnm) )
 	{
 	    prefix_ = fnm;
-	    *firstOcc( prefix_.getCStr(), *sPrefSep ) = '\0';
-	    fnm = ptr + 1;
+	    char* prefixptr = prefix_.getCStr();
+	    prefixptr += 2;
+	    char* endptr = firstOcc( prefixptr, '\\' );
+	    if ( endptr )
+		*endptr = '\0';
+	    fnm += prefix_.size();
 	}
-    }
-    else if ( isServerPath(fnm) )
-    {
-	prefix_ = fnm;
-	char* prefixptr = prefix_.getCStr();
-	prefixptr += 2;
-	char* endptr = firstOcc( prefixptr, '\\' );
-	if ( endptr )
-	    *endptr = '\0';
-	fnm += prefix_.size();
-    }
 
-    isabs_ = *fnm == '\\' || *fnm == '/' || (__iswin__ && !*fnm);
-    if ( isabs_ && *fnm )
-	fnm++;
+	isabs_ = *fnm == '\\' || *fnm == '/' || (__iswin__ && !*fnm);
+	if ( isabs_ && *fnm )
+	    fnm++;
+    }
 
     addPart( fnm );
     compress();
@@ -229,7 +255,7 @@ void FilePath::setExtension( const char* ext, bool replace )
 	    fname.add( "." ).add( ext );
     }
     else if ( *ext )
-	{ fname.add( "." ).add( ext ); }
+	fname.add( "." ).add( ext );
 }
 
 
@@ -240,35 +266,43 @@ bool FilePath::exists() const
 
 
 bool FilePath::isAbsolute() const
-{ return isabs_; }
-
-
-bool FilePath::isSubDirOf( const FilePath& b, FilePath* relpath ) const
 {
-    if ( b.isAbsolute()!=isAbsolute() )
+    return isabs_;
+}
+
+
+bool FilePath::isURI() const
+{
+    return !domain_.isEmpty();
+}
+
+
+
+bool FilePath::isSubDirOf( const FilePath& oth, FilePath* relpath ) const
+{
+    if ( oth.isabs_ != isabs_ || oth.prefix_ != prefix_ ||
+	 oth.domain_ != domain_ )
 	return false;
 
-    if ( FixedString(b.prefix())!=prefix() )
+    const int nrlvls = nrLevels();
+    const int othnrlvls = oth.nrLevels();
+    if ( othnrlvls >= nrlvls )
 	return false;
 
-    const int nrblevels = b.nrLevels();
-    if ( nrblevels>=nrLevels() )
-	return false;
-
-    for ( int idx=0; idx<nrblevels; idx++ )
+    for ( int idx=0; idx<othnrlvls; idx++ )
     {
-	if ( *lvls_[idx]!=*b.lvls_[idx] )
+	if ( *lvls_[idx] != *oth.lvls_[idx] )
 	    return false;
     }
 
     if ( relpath )
     {
 	BufferString rel;
-	for ( int idx=nrblevels; idx<nrLevels(); idx++ )
+	for ( int idx=othnrlvls; idx<nrlvls; idx++ )
 	{
-	    if ( idx>nrblevels )
-		rel += dirSep( Local );
-	    rel += dir( idx );
+	    if ( idx > othnrlvls )
+		rel.add( dirSep() );
+	    rel.add( dir(idx) );
 	}
 
 	relpath->set( rel.buf() );
@@ -292,14 +326,13 @@ bool FilePath::makeCanonical()
 }
 
 
-bool FilePath::makeRelativeTo( const FilePath&  b )
+bool FilePath::makeRelativeTo( const FilePath& oth )
 {
     const BufferString file = fullPath();
-    const BufferString path = b.fullPath();
+    const BufferString path = oth.fullPath();
     set( File::getRelativePath( path.buf(), file.buf() ) );
     return true;
 }
-
 
 
 BufferString FilePath::fullPath( Style f, bool cleanup ) const
@@ -309,6 +342,8 @@ BufferString FilePath::fullPath( Style f, bool cleanup ) const
 	res = mkCleanPath( res, f );
     if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 1 )
 	res.add( dirSep(Windows) );
+    if ( postfix_ )
+	res.add( postfix_ );
     return res;
 }
 
@@ -316,6 +351,11 @@ BufferString FilePath::fullPath( Style f, bool cleanup ) const
 const char* FilePath::prefix() const
 { return prefix_.buf(); }
 
+const char* FilePath::postfix() const
+{ return postfix_.buf(); }
+
+const char* FilePath::domain() const
+{ return domain_.buf(); }
 
 int FilePath::nrLevels() const
 { return lvls_.size(); }
@@ -327,13 +367,16 @@ const char* FilePath::extension() const
 	return 0;
 
     const char* ret = lastOcc( fileName().buf(), '.' );
-    if ( ret ) ret++;
+    if ( ret )
+	ret++;
     return ret;
 }
 
 
 const OD::String& FilePath::fileName() const
-{ return dir(-1); }
+{
+    return dir(-1);
+}
 
 
 BufferString FilePath::baseName() const
@@ -378,28 +421,30 @@ const OD::String& FilePath::dir( int nr ) const
 
 BufferString FilePath::dirUpTo( int lvl ) const
 {
-    if ( lvl >= lvls_.size() )
-	lvl = lvls_.size() - 1;
+    const int nrlvls = lvls_.size();
+    if ( lvl < 0 || lvl > nrlvls-1 )
+	lvl = nrlvls - 1;
 
+    const bool isuri = isURI();
     BufferString ret;
-    if ( *prefix_.buf() )
+    if ( !prefix_.isEmpty() )
     {
-	ret = prefix_;
-	ret += sPrefSep;
+	ret.set( prefix_ );
+	if ( isuri )
+	    ret.add( uriProtocolSeparator() ).add( domain_ );
+	else
+	    ret.add( sPrefSep );
     }
     if ( lvl < 0 )
 	return ret;
 
     if ( isabs_ )
-	ret += dirSep(Local);
-    if ( lvls_.size() )
-	ret += lvls_.get( 0 );
+	ret.add( dirSep() );
+    if ( nrlvls > 0 )
+	ret.add( lvls_.get( 0 ) );
 
     for ( int idx=1; idx<=lvl; idx++ )
-    {
-	ret += dirSep(Local);
-	ret += lvls_.get( idx );
-    }
+	ret.add( dirSep() ).add( lvls_.get(idx) );
 
     return ret;
 }
@@ -414,7 +459,7 @@ BufferString FilePath::fileFrom( int lvl ) const
     {
 	ret.add( lvls_.get( ilvl ) );
 	if ( ilvl != sz-1 )
-	    ret.add( dirSep(Local) );
+	    ret.add( dirSep() );
     }
 
     return ret;
@@ -426,12 +471,12 @@ BufferString FilePath::getTempDir()
     BufferString tmpdir = File::getTempPath();
     if ( !File::exists(tmpdir) )
     {
-	BufferString msg( "Temporary directory '", tmpdir, "'does not exist" );
+	BufferString msg( "Temporary folder '", tmpdir, "'does not exist" );
 	UsrMsg( msg );
     }
     else if ( !File::isWritable(tmpdir) )
     {
-	BufferString msg( "Temporary directory '", tmpdir, "'is read-only" );
+	BufferString msg( "Temporary folder '", tmpdir, "'is read-only" );
 	UsrMsg( msg );
     }
 
@@ -473,15 +518,21 @@ BufferString FilePath::mkCleanPath( const char* path, Style stl )
 }
 
 
+static const char* sWindowDirSep = "\\";
+static const char* sUnixDirSep = "/";
+
+const char* FilePath::dirSep() const
+{
+    return isURI() ? sUnixDirSep : dirSep( Local );
+
+}
+
 const char* FilePath::dirSep( Style stl )
 {
-    const char* wds = "\\";
-    const char* uds = "/";
-
     if ( stl == Local )
 	stl = __iswin__ ? Windows : Unix;
 
-    return stl == Windows ? wds : uds;
+    return stl == Windows ? sWindowDirSep : sUnixDirSep;
 }
 
 
@@ -523,6 +574,21 @@ void FilePath::addPart( const char* fnm )
     *bufptr = '\0';
     if ( buf[0] ) lvls_.add( buf );
     delete [] buf;
+    if ( lvls_.isEmpty() )
+	return;
+
+    if ( isURI() )
+    {
+	BufferString& lastlvl = *lvls_.last();
+	char* postfixptr = lastlvl.find( '?' );
+	if ( postfixptr )
+	{
+	    *postfixptr++ = '\0';
+	    if ( *postfixptr )
+		postfix_ = postfixptr;
+	}
+    }
+
     trueDirIfLink();
 }
 
@@ -531,7 +597,7 @@ void FilePath::compress( int startlvl )
 {
     for ( int idx=startlvl; idx<lvls_.size(); idx++ )
     {
-	const BufferString& bs = *lvls_[idx];
+	const BufferString& bs = lvls_.get( idx );
 	int remoffs = 99999;
 	if ( bs == "." )
 	    remoffs = 0;

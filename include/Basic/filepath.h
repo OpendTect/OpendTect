@@ -60,6 +60,7 @@ public:
     bool		exists() const;
 
     bool		isAbsolute() const;
+    bool		isURI() const;
     bool		isSubDirOf(const FilePath&,FilePath* reldir = 0) const;
 			/*!<If reldir is set, it will be filled with the
 			    relative path. */
@@ -68,6 +69,8 @@ public:
 
     BufferString	fullPath(Style s=Local,bool cleanup=true) const;
     const char*		prefix() const;
+    const char*		postfix() const;
+    const char*		domain() const;
     int			nrLevels() const;
     const char*		extension() const;	//!< may return null
 
@@ -93,6 +96,7 @@ public:
 			{ return getTempFullPath(0,ext); }
     static BufferString	mkCleanPath(const char* path,Style fmt);
 
+    const char*		dirSep() const;
     static const char*	dirSep(Style);
     static const char*	sPrefSep;
     static const char*	uriProtocolSeparator()		{ return "://"; }
@@ -103,6 +107,9 @@ protected:
 
     bool		isabs_;
     BufferString	prefix_;
+    BufferString	domain_;
+    BufferString	postfix_;	//!< after '?'
+
     BufferStringSet	lvls_;
 
     void		addPart(const char*);
@@ -111,12 +118,12 @@ protected:
 };
 
 
-mGlobal(Basic) inline const char* sSeismicSubDir()      { return "Seismics"; }
-mGlobal(Basic) inline const char* sWellSubDir()         { return "WellInfo"; }
-mGlobal(Basic) inline const char* sSurfaceSubDir()      { return "Surfaces"; }
+mGlobal(Basic) inline const char* sSeismicSubDir()	{ return "Seismics"; }
+mGlobal(Basic) inline const char* sWellSubDir()		{ return "WellInfo"; }
+mGlobal(Basic) inline const char* sSurfaceSubDir()	{ return "Surfaces"; }
 
-mGlobal(Basic) inline const char* sParFileExtension()   { return "par"; }
-mGlobal(Basic) inline const char* sInfoFileExtension()  { return "info"; }
-mGlobal(Basic) inline const char* sProcFileExtension()  { return "proc"; }
-mGlobal(Basic) inline const char* sStatsFileExtension() { return "stats"; }
+mGlobal(Basic) inline const char* sParFileExtension()	{ return "par"; }
+mGlobal(Basic) inline const char* sInfoFileExtension()	{ return "info"; }
+mGlobal(Basic) inline const char* sProcFileExtension()	{ return "proc"; }
+mGlobal(Basic) inline const char* sStatsFileExtension()	{ return "stats"; }
 
