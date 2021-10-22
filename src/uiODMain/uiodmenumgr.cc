@@ -1120,6 +1120,11 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
     mnu->insertAction(
 	new uiAction(m3Dots(tr("Cross-plot Attribute vs Well Data")),
 		     mCB(appman,uiODApplMgr,doWellXPlot),"xplot_wells") );
+    mnu->insertAction(
+	new uiAction(m3Dots(tr("Open Saved Cross-plot")),
+		     mCB(this,uiODMenuMgr,handleClick),"open"),
+	mOpenXplotMnuItm );
+
     dtecttb_->setButtonMenu( xplotid, mnu, uiToolButton::InstantPopup );
 
     mAddTB(dtecttb_,"rockphys",tr("Create New Well Logs Using Rock Physics"),

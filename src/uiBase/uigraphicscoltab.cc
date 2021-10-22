@@ -20,22 +20,17 @@ ________________________________________________________________________
 uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     : uiGraphicsItem()
     , setup_(su)
+    , borderitm_(nullptr)
 {
     ctseqitm_ = new uiPixmapItem();
-    borderitm_ = new uiRectItem();
     minvalitm_ = new uiAdvancedTextItem( toUiString("0") );
     maxvalitm_ = new uiAdvancedTextItem( toUiString("1") );
-    addChild( borderitm_ );
     addChild( ctseqitm_ );
     addChild( minvalitm_ );
     addChild( maxvalitm_ );
 
     setColTabSequence( ColTab::Sequence("") );
-
-    uiRect boundrec = ctseqitm_->boundingRect();
     ctseqitm_->setPos( 0.f, 0.f );
-    borderitm_->setRect( -1, -1, boundrec.width()+1, boundrec.height()+1 );
-
     adjustLabel();
 }
 
@@ -61,7 +56,7 @@ void uiColTabItem::adjustLabel()
 	al = Alignment( setup_.startal_.hPos(),
 			Alignment::opposite(setup_.startal_.vPos()) );
 	minvalitm_->setAlignment( al );
-	minvalitm_->setPos( mCast(float,rect.left()), mCast(float,starty) );
+	minvalitm_->setPos( sCast(float,rect.left()), sCast(float,starty) );
 
 	const int stopy =
 	    setup_.stopal_.vPos() == Alignment::VCenter ? rect.centre().y
@@ -70,7 +65,7 @@ void uiColTabItem::adjustLabel()
 	al = Alignment( setup_.stopal_.hPos(),
 			Alignment::opposite(setup_.stopal_.vPos()) );
 	maxvalitm_->setAlignment( al );
-	maxvalitm_->setPos( mCast(float,rect.right()), mCast(float,stopy) );
+	maxvalitm_->setPos( sCast(float,rect.right()), sCast(float,stopy) );
     }
     else
     {
@@ -86,12 +81,12 @@ void uiColTabItem::adjustLabel()
 	al = Alignment( Alignment::opposite(setup_.startal_.hPos()),
 			setup_.startal_.vPos() );
 	minvalitm_->setAlignment( al );
-	minvalitm_->setPos( mCast(float,startx), mCast(float,rect.top()) );
+	minvalitm_->setPos( sCast(float,startx), sCast(float,rect.top()) );
 
 	al = Alignment( Alignment::opposite(setup_.stopal_.hPos()),
 			setup_.stopal_.vPos() );
 	maxvalitm_->setAlignment( al );
-	maxvalitm_->setPos( mCast(float,stopx), mCast(float,rect.bottom()) );
+	maxvalitm_->setPos( sCast(float,stopx), sCast(float,rect.bottom()) );
     }
 }
 
@@ -115,10 +110,6 @@ void uiColTabItem::setPixmap()
     uiPixmap pm( setup_.sz_.hNrPics(), setup_.sz_.vNrPics() );
     pm.fill( ctseq_, setup_.hor_ );
     ctseqitm_->setPixmap( pm );
-
-    uiRect boundrec = ctseqitm_->boundingRect();
-    ctseqitm_->setPos( 0.f, 0.f );
-    borderitm_->setRect( -1, -1, boundrec.width()+1, boundrec.height()+1 );
 }
 
 

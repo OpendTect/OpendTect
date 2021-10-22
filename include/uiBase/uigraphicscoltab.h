@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "draw.h"
 
+class uiAdvancedTextItem;
 class uiPixmapItem;
 class uiRectItem;
-class uiAdvancedTextItem;
 namespace ColTab { class MapperSetup; }
 
 
@@ -40,12 +40,13 @@ public:
 	mDefSetupMemb(Alignment,stopal)
     };
 
-    			uiColTabItem(const Setup&);
+			uiColTabItem(const Setup&);
 			~uiColTabItem();
+
     Setup&		setup()		{ return setup_; }
     const Setup&	setup() const	{ return setup_; }
 
-    void		setColTab(const char* nm);
+    void		setColTab(const char* coltabnm);
     void		setColTabSequence(const ColTab::Sequence&);
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
 
@@ -64,4 +65,3 @@ protected:
     uiAdvancedTextItem* minvalitm_;
     uiAdvancedTextItem* maxvalitm_;
 };
-

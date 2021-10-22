@@ -12,17 +12,20 @@ ________________________________________________________________________
 #include "uidatapointsetcrossplot.h"
 
 #include "uibutton.h"
-#include "uicombobox.h"
 #include "uicolortable.h"
+#include "uicombobox.h"
+#include "uiseparator.h"
 #include "od_helpids.h"
 
 uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 					  uiDataPointSetCrossPlotter& pltr )
     : uiDialog(p,uiDialog::Setup(tr("Overlay Properties"),
-				 tr("Display Properties within points"),
-				 mODHelpKey(mDPSOverlayPropDlgHelpID) ))
+				 mNoDlgTitle,
+				 mODHelpKey(mDPSOverlayPropDlgHelpID)))
     , plotter_(pltr)
 {
+    setCtrlStyle( CloseOnly );
+
     const DataPointSet& dps = plotter_.dps();
     uiDataPointSet::DColID dcid = -dps.nrFixedCols()+1;
     colids_ += mUdf(int);
@@ -34,13 +37,9 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 	colnames.add( userName(dcid) );
     }
 
-    y3coltabfld_ =
-	new uiColorTableGroup( this, plotter_.y3CtSeq(), OD::Horizontal, false);
-    y3coltabfld_->enableManage( false );
-    y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
-    uiLabeledComboBox* y3lblcbx =
-	new uiLabeledComboBox( this, colnames, tr("Overlay Y1 Attribute"), "" );
-    y3lblcbx->attach( alignedBelow, y3coltabfld_ );
+    auto* grp = new uiGroup( this, "Group" );
+    auto* y3lblcbx = new uiLabeledComboBox( grp, colnames,
+					    tr("Overlay Y1 Attribute"), "" );
     y3propselfld_ = y3lblcbx->box();
     if ( !mIsUdf(plotter_.y3Colid()) )
     {
@@ -49,25 +48,27 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
     }
     else
 	y3propselfld_->setCurrentItem( 0 );
-    y3coltabfld_->scaleChanged.notify(
-	    mCB(this,uiDPSOverlayPropDlg,scaleChanged) );
     y3propselfld_->selectionChanged.notify(
 	    mCB(this,uiDPSOverlayPropDlg,attribChanged) );
 
+    y3coltabfld_ =
+	new uiColorTableGroup( grp, plotter_.y3CtSeq(), OD::Horizontal, false);
+    y3coltabfld_->enableManage( false );
+    y3coltabfld_->scaleChanged.notify(
+	    mCB(this,uiDPSOverlayPropDlg,scaleChanged) );
+    y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
+    y3coltabfld_->attach( alignedBelow, y3lblcbx );
 
-    uiLabeledComboBox* y4lblcbx = 0;
+    uiLabeledComboBox* y4lblcbx = nullptr;
     if ( plotter_.isY2Shown() )
     {
-	y4coltabfld_ = new uiColorTableGroup( this, plotter_.y4CtSeq(),
-					      OD::Horizontal, false );
-	y4coltabfld_->enableManage( false );
-	y4coltabfld_->attach( alignedBelow, y3lblcbx );
-	y4lblcbx =
-	    new uiLabeledComboBox( this, colnames,
-                                   tr("Overlay Y2 Attribute"), "");
-	y4lblcbx->attach( alignedBelow, y4coltabfld_ );
+	auto* sep = new uiSeparator( grp, "Separator" );
+	sep->attach( stretchedBelow, y3coltabfld_ );
+	y4lblcbx = new uiLabeledComboBox( grp, colnames,
+					  tr("Overlay Y2 Attribute"), "");
+	y4lblcbx->attach( ensureBelow, sep );
+	y4lblcbx->attach( alignedBelow, y3coltabfld_ );
 	y4propselfld_ = y4lblcbx->box();
-	y4coltabfld_->setInterval( plotter_.y4Mapper().range() );
 	if ( !mIsUdf(plotter_.y4Colid()) )
 	{
 	    if ( colids_.indexOf(plotter_.y4Colid()) > 0 )
@@ -77,16 +78,21 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 	else
 	    y4propselfld_->setCurrentItem( 0 );
 
-	y4coltabfld_->scaleChanged.notify(
-	    mCB(this,uiDPSOverlayPropDlg,scaleChanged) );
 	y4propselfld_->selectionChanged.notify(
 		mCB(this,uiDPSOverlayPropDlg,attribChanged) );
+
+	y4coltabfld_ = new uiColorTableGroup( grp, plotter_.y4CtSeq(),
+					      OD::Horizontal, false );
+	y4coltabfld_->enableManage( false );
+	y4coltabfld_->scaleChanged.notify(
+	    mCB(this,uiDPSOverlayPropDlg,scaleChanged) );
+	y4coltabfld_->setInterval( plotter_.y4Mapper().range() );
+	y4coltabfld_->attach( alignedBelow, y4lblcbx );
     }
 
     uiButton* applybut = uiButton::getStd( this, OD::Apply,
 	    mCB(this,uiDPSOverlayPropDlg,doApply), true );
-    applybut->attach( centeredBelow, plotter_.isY2Shown() ? y4lblcbx
-							  : y3lblcbx );
+    applybut->attach( centeredBelow, grp );
 }
 
 
