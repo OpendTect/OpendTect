@@ -100,14 +100,14 @@ bool testFilePath( const char* inputpath,
     mRunStandardTest( path.fileName()==filename,
 	    BufferString( inputpath, " detects filename" ) );
 
-/*    mRunStandardTest( FixedString(path.domain())==domain,
-	    BufferString( inputpath, " detects domain" ) ); */
+    mRunStandardTest( FixedString(path.domain())==domain,
+	    BufferString( inputpath, " detects domain" ) );
 
     mRunStandardTest( FixedString(path.extension())==extension,
 	    BufferString( inputpath, " detects extension" ) );
 
-/*    mRunStandardTest( FixedString(path.postfix())==postfix,
-	    BufferString( inputpath, " detects postfix" ) );*/
+    mRunStandardTest( FixedString(path.postfix())==postfix,
+	    BufferString( inputpath, " detects postfix" ) );
 
     mRunStandardTest( path.nrLevels()==nrlevels,
 	    BufferString( inputpath, " detects nrLevels" ) );
@@ -150,7 +150,7 @@ bool testFilePathParsing()
     {
 	return false;
     }
-/*
+
     if ( !testFilePath( "https://dgbes.com/surveys/aap/noot?x=y&&a=b",
 			"noot",		//filename
 			"dgbes.com",	//domain
@@ -172,7 +172,7 @@ bool testFilePathParsing()
     {
 	return false;
     }
-*/
+
     return true;
 }
 
