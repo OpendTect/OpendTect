@@ -22,6 +22,8 @@
 #include "settingsaccess.h"
 #include "uistrings.h"
 
+#include "hiddenparam.h"
+
 #ifndef OD_NO_QT
 # include "qstreambuf.h"
 # include <QProcess>
@@ -97,6 +99,8 @@ void OS::CommandLauncher::manageQProcess( QProcess* p )
 }
 
 
+HiddenParam<OS::CommandExecPars,const char*> oscmdparsstdoutfnmmgr_(nullptr);
+HiddenParam<OS::CommandExecPars, const char*> oscmdparsstderrfnmmgr_(nullptr);
 
 OS::CommandExecPars::CommandExecPars( bool isbatchprog )
     : CommandExecPars( isbatchprog ? RunInBG : Wait4Finish )
@@ -180,6 +184,35 @@ int OS::CommandExecPars::getMachinePriority( float priority, bool iswin )
     int machprio = mCast(int, mNINT32(scale * priority * machpriorg.width()) );
 
     return machprio += iswin ? machpriorg.stop : machpriorg.start;
+}
+
+
+void OS::CommandExecPars::setRedirection( const char* fnm, bool isstderr )
+{
+    HiddenParam<OS::CommandExecPars, const char*>& parsmgr =
+	    isstderr ? oscmdparsstderrfnmmgr_ : oscmdparsstdoutfnmmgr_;
+    parsmgr.setParam( this, fnm );
+}
+
+
+const char* OS::CommandExecPars::getRedirectionFnm( bool isstderr ) const
+{
+    const HiddenParam<OS::CommandExecPars, const char*>& parsmgr =
+	    isstderr ? oscmdparsstderrfnmmgr_ : oscmdparsstdoutfnmmgr_;
+    if ( parsmgr.hasParam(this) )
+	return parsmgr.getParam( this );
+
+    return nullptr;
+}
+
+
+void OS::CommandExecPars::unsetRedirections()
+{
+    if ( oscmdparsstdoutfnmmgr_.hasParam(this) )
+	oscmdparsstdoutfnmmgr_.removeParam( this );
+
+    if ( oscmdparsstderrfnmmgr_.hasParam(this) )
+	oscmdparsstderrfnmmgr_.removeParam( this );
 }
 
 
@@ -654,7 +687,6 @@ void OS::CommandLauncher::reset()
     errmsg_.setEmpty();
     monitorfnm_.setEmpty();
     progvwrcmd_.setEmpty();
-    redirectoutput_ = false;
 }
 
 
@@ -751,10 +783,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     {
 	monitorfnm_ = pars.monitorfnm_;
 	if ( monitorfnm_.isEmpty() )
-	{
 	    monitorfnm_ = FilePath::getTempFullPath( "mon", "txt" );
-	    redirectoutput_ = true;
-	}
 
 	if ( File::exists(monitorfnm_) && !File::remove(monitorfnm_) )
 	    return false;
@@ -785,9 +814,21 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 
 bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
 {
+    return startServer( ispyth, nullptr, nullptr, waittm );
+}
+
+
+bool OS::CommandLauncher::startServer( bool ispyth, const char* stdoutfnm,
+				       const char* stderrfnm, double waittm )
+{
     CommandExecPars execpars( RunInBG );
-    execpars.createstreams_ = true;
+    execpars.createstreams( true );
 	// this has to be done otherwise we cannot pick up any error messages
+    if ( stdoutfnm )
+	execpars.setRedirection( stdoutfnm, false );
+    if ( stderrfnm )
+	execpars.setRedirection( stderrfnm, true );
+
     pid_ = -1;
     if ( ispyth )
     {
@@ -799,6 +840,8 @@ bool OS::CommandLauncher::startServer( bool ispyth, double waittm )
 	if ( !execute(execpars) )
 	    pid_ = -1;
     }
+
+    execpars.unsetRedirections();
 
     if ( pid_ < 1 )
     {
@@ -911,12 +954,34 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 	{
 	    stdinputbuf_ = new qstreambuf( *process_, false, false );
 	    stdinput_ = new od_ostream( new oqstream( stdinputbuf_ ) );
+	}
 
+	const FixedString parsstdoutfnm = pars.getRedirectionFnm( false );
+	if ( parsstdoutfnm.isEmpty() )
+	{
 	    stdoutputbuf_ = new qstreambuf( *process_, false, false  );
 	    stdoutput_ = new od_istream( new iqstream( stdoutputbuf_ ) );
+	}
+	else
+	{
+	    const QString filenm(
+		parsstdoutfnm == od_ostream::nullStream().fileName()
+		? QProcess::nullDevice() : QString(parsstdoutfnm) );
+	    process_->setStandardOutputFile( filenm );
+	}
 
+	const FixedString parsstderrfnm = pars.getRedirectionFnm( true );
+	if ( parsstderrfnm.isEmpty() )
+	{
 	    stderrorbuf_ = new qstreambuf( *process_, true, false  );
 	    stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
+	}
+	else
+	{
+	    const QString filenm(
+		parsstderrfnm == od_ostream::nullStream().fileName()
+		? QProcess::nullDevice() : QString(parsstderrfnm) );
+	    process_->setStandardErrorFile( filenm );
 	}
     }
 

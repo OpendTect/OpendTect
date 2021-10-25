@@ -78,6 +78,14 @@ public:
 			  */
 
     static int		getMachinePriority(float priolevel,bool iswin);
+
+public:
+    // For API compatibility only:
+    void		setRedirection(const char*,bool isstderr);
+    const char*		getRedirectionFnm(bool isstderr) const;
+    void		unsetRedirections();
+			/*!< Must be called before the object is destructed
+			     if setRedirection was used */
 };
 
 
@@ -229,6 +237,10 @@ public:
 				const char* workdir=nullptr);
 				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars&);
+    bool		startServer(bool inpythonenv,const char* stdoutfnm,
+				    const char* stderrfnm,
+				    double maxwaittm=20 /* seconds */);
+    mDeprecatedDef
     bool		startServer(bool inpythonenv=false,
 				    double maxwaittm=20 /* seconds */);
 
