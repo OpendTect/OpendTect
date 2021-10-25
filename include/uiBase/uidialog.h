@@ -156,6 +156,8 @@ public:
     static TitlePos	titlePos();
     static void		setTitlePos(TitlePos);
 
+    uiGroup*		getDlgGroup();
+
     Notifier<uiDialog>	applyPushed;
 
 protected:
