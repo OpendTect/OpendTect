@@ -164,6 +164,17 @@ void VisualObjectImpl::setGroupNode( osg::Group* grpnode )
 }
 
 
+void VisualObjectImpl::setGroupNode( DataObject* dobj )
+{
+    if ( !dobj )
+	return;
+
+    osg::Node* node = dobj->osgNode();
+    mDynamicCastGet(osg::Group*,grp,node)
+    setGroupNode( grp );
+}
+
+
 int VisualObjectImpl::addChild( osg::Node* nn )
 {
     if ( !nn )
