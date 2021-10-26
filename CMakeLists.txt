@@ -104,32 +104,34 @@ set( OD_PLUGINS
 	Tut
 	VoxelConnectivityFilter
 	uiCEEMDAttrib
+	uiODHDF5
+	uiSEGYTools
+	uiMadagascarAttribs
+)
+
+if ( NOT OD_NO_OSG )
+    list( APPEND OD_PLUGINS
+	CmdDriver
 	uiCOLOP
+	uiCrashMe
 	uiDPSDemo
 	uiExpAttribs
 	uiGLCM
 	uiGMT
 	uiGoogleIO
-	uiODHDF5
 	uiHello
 	uiImpGPR
 	uiMadagascar
-	uiMadagascarAttribs
 	uiMATLABLink
 	uiMMPTest
 	uiPresentationMaker
+	uiPreStackViewer
 	uiQtApp
 	uiSEGY
-	uiSEGYTools
 	uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
-	CmdDriver
-	uiCrashMe
-)
-
-if ( NOT OD_NO_OSG )
-    list( APPEND OD_PLUGINS uiPreStackViewer )
+    )
 endif()
 
 set( OD_SPECPROGS ODSeis ODvisBase )
