@@ -302,8 +302,7 @@ HorizonDisplay::HorizonDisplay()
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
-
-    setGroupNode( (osg::Group*) translation_->osgNode() );
+    setGroupNode( translation_ );
 
     setLockable();
     maxintersectionlinethickness_ = 0.02f *

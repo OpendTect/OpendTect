@@ -46,7 +46,7 @@ Horizon2DDisplay::Horizon2DDisplay()
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
-    setGroupNode( (osg::Group*) translation_->osgNode() );
+    setGroupNode( translation_ );
 
     points_.allowNull(true);
     EMObjectDisplay::setLineStyle( OD::LineStyle(OD::LineStyle::Solid,5 ) );
