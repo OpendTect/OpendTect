@@ -159,19 +159,20 @@ void uiSEGYMgr::dTectMenuChanged()
 		   muiSEGYMgrCB(impClassicCB), "import") );
     impclassmnu->insertAction( new uiAction( uiStrings::sLink(),
 		   muiSEGYMgrCB(linkClassicCB), "link") );
+}
 
+
+void uiSEGYMgr::dTectToolbarChanged()
+{
+    auto& mnumgr = appl().menuMgr();
     int segyimp = mnumgr.dtectTB()->addButton( segyiconid_,
 						tr("SEG-Y import") );
-
     uiMenu* mnu = mnumgr.dtectTB()->addButtonMenu( segyimp,
 						uiToolButton::InstantPopup);
     mnu->insertAction(new uiAction(m3Dots(tr("Single-Vintage")),
 		    mCB(this,uiSEGYMgr,readStarterCB),"singlefile") );
     mnu->insertAction(new uiAction(m3Dots(tr("Multiple-Vintage")),
 		    mCB(this,uiSEGYMgr,bulkImport),"copyobj") );
-
-    deleteAndZeroPtr( impdlg_ );
-    deleteAndZeroPtr( expdlg_ );
 }
 
 
