@@ -1263,7 +1263,7 @@ bool SurveyDataTreePreparer::createDataTree()
 
     strm << GetProjectVersionName();
     strm << "\nObject Management file\n";
-    strm << Time::getDateTimeString();
+    strm << Time::getISODateTimeString();
     strm << "\n!\nID: " << dirdata_.selkey_ << "\n!\n"
 	      << dirdata_.desc_ << ": 1\n"
 	      << dirdata_.desc_ << " directory: Gen`Stream\n"

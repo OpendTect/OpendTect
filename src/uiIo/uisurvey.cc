@@ -1319,14 +1319,26 @@ static void sMakeLogParsPretty( IOPar& par, BufferString& txt, bool rmname )
     if ( rmname )
 	par.setName( "" );
 
-    int keyidx = par.indexOf( sKey::CrAt() );
-    if ( keyidx>=0 ) par.setKey( keyidx, "Created at" );
+    int keyidx = par.indexOf( sKey::Version() );
+    if ( keyidx>=0 ) par.setKey( keyidx, "OpendTect Version" );
+    keyidx = par.indexOf( sKey::CrAt() );
+    if ( keyidx>=0 )
+    {
+	par.setKey( keyidx, "Created at" );
+	const FixedString timestr = par.getValue( keyidx );
+	par.setValue( keyidx, Time::getLocalDateTimeFromString(timestr) );
+    }
     keyidx = par.indexOf( sKey::CrBy() );
     if ( keyidx>=0 ) par.setKey( keyidx, "Created by" );
     keyidx = par.indexOf( sKey::CrFrom() );
     if ( keyidx>=0 ) par.setKey( keyidx, "Created from" );
     keyidx = par.indexOf( sKey::ModAt() );
-    if ( keyidx>=0 ) par.setKey( keyidx, "Last Modified at" );
+    if ( keyidx>=0 )
+    {
+	par.setKey( keyidx, "Last Modified at" );
+	const FixedString timestr = par.getValue( keyidx );
+	par.setValue( keyidx, Time::getLocalDateTimeFromString(timestr) );
+    }
 
     par.dumpPretty( txt );
 }

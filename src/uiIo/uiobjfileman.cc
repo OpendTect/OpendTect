@@ -150,7 +150,7 @@ static BufferString getNotesFileName( const IOObj& ioobj )
 {
     BufferString fnm( ioobj.fullUserExpr() );
     FilePath fp( fnm );
-    if ( !fp.isAbsolute() )
+    if ( !fp.isAbsolute() || fp.isURI() )
     {
 	fnm.clean( BufferString::NoSpecialChars );
 	fp.set( IOM().rootDir() ); fp.add( ioobj.dirName() );
@@ -274,7 +274,7 @@ void uiObjFileMan::getTimeLastModified( const char* fname,
 					BufferString& timestamp )
 {
     const FixedString ftimestamp = File::timeLastModified( fname );
-    if ( timestamp.isEmpty() || Time::isEarlier( timestamp, ftimestamp ) )
+    if ( timestamp.isEmpty() || Time::isEarlier(timestamp,ftimestamp) )
 	timestamp = ftimestamp;
 
     if ( !File::isDirectory(fname) ) return;
@@ -346,7 +346,8 @@ BufferString uiObjFileMan::getFileInfo()
     crspec.setEmpty();
     curioobj_->pars().get( sKey::CrAt(), crspec );
     if ( !crspec.isEmpty() )
-	txt.add( "\nCreated at: " ).add( crspec );
+	txt.add( "\nCreated at: " )
+	   .add( Time::getLocalDateTimeFromString(crspec) );
 
     crspec.setEmpty();
     curioobj_->pars().get( sKey::CrFrom(), crspec );

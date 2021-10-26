@@ -71,7 +71,7 @@ bool ascostream::putHeader( const char* fltyp )
 {
     mChckStrm(return false)
     strm_ << GetProjectVersionName() << od_newline << fltyp << od_newline
-	     << Time::getDateTimeString() << od_newline;
+	     << Time::getISODateTimeString() << od_newline;
     newParagraph();
     return strm_.isOK();
 }

@@ -47,6 +47,8 @@ public:
     virtual bool	isDirectory(const char*) const	{ return false; }
     virtual od_int64	getFileSize(const char*,bool followlink) const;
 			//!< 0 for non-existing, -1 for unknown
+    virtual BufferString timeCreated(const char*) const		{ return ""; }
+    virtual BufferString timeLastModified(const char*) const	{ return ""; }
 
     virtual bool	remove(const char*,bool recursive=true) const
 			{ return false; }
@@ -93,11 +95,14 @@ public:
     virtual bool	queriesSupported() const	{ return true; }
     virtual bool	operationsSupported() const	{ return true; }
 
+    const BufferString& errMsg() const			{ return errmsg_; }
+
 protected:
 
     virtual				~FileSystemAccess() {}
     static const FileSystemAccess&	gtByProt(BufferString&);
 
+    mutable BufferString	errmsg_;
 };
 
 } // namespace OD
