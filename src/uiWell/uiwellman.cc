@@ -219,6 +219,9 @@ void uiWellMan::getCurrentWells()
 	Well::Data* wd = new Well::Data;
 	curwds_ += wd;
 	currdrs_ += new Well::Reader( *obj, *curwds_[idx] );
+	ConstRefMan<Well::Data> mwd = Well::MGR().get( obj->key(),
+						       Well::LoadReqs(false) );
+	mAttachCB( mwd->logschanged, uiWellMan::updateLogsFld );
 	getBasicInfo( currdrs_[idx] );
     }
 
@@ -665,7 +668,7 @@ void uiWellMan::editLogPush( CallBacker* )
     const bool res = uiMSG().askSave(
 			tr("One or more log values have been changed."
 			   "\n\nDo you want to save your changes?"), false );
-    if ( !res )	
+    if ( !res )
 	return;
 
     curlog->updateAfterValueChanges();

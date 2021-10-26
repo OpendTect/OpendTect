@@ -40,6 +40,7 @@ public:
     static const char*	sKeyHideEv()		{ return "hide"; }
     static const char*	sKeyRaiseEv()		{ return "raise"; }
     static const char*	sKeyStart()		{ return "start"; }
+    static const char*	sKeyLogsChanged()	{ return "logschanged"; }
 
 protected:
 			uiServiceServerMgr(const char* servicenm,uiMainWin&);

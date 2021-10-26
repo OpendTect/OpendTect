@@ -75,6 +75,7 @@ private:
     uiRetVal		doHandleAction(const char*) override;
     uiRetVal		doHandleRequest(const OD::JSON::Object&) override;
     uiRetVal		startWorkflow(const OD::JSON::Object&);
+    uiRetVal		logsChanged(const OD::JSON::Object&);
 
     void		doPyEnvChange(CallBacker*) override final;
     void		doSurveyChanged(CallBacker*) override final;
