@@ -80,34 +80,6 @@ public:
     void		limitToWithUdf(const TrcKeyZSampling&);
 			/*!< handles undef values + returns reference cube
 			     nearest limit if the 2 cubes do not intersect */
-    void		expand(int nrlines,int nrtrcs,int nrz);
-
-    void		snapToSurvey();
-			/*!< Checks if it is on valid bids and sample positions.
-			     If not, it will expand until it is */
-
-    bool		operator==(const TrcKeyZSampling&) const;
-    bool		operator!=(const TrcKeyZSampling&) const;
-    TrcKeyZSampling&	operator=(const TrcKeyZSampling&);
-
-    bool		usePar(const IOPar&);
-    void		fillPar(IOPar&) const;
-    static void		removeInfo(IOPar&);
-    void		fillJSON(OD::JSON::Object&) const;
-    bool		useJSON(const OD::JSON::Object&);
-
-//Legacy, don't use
-    inline int		inlIdx( int inl ) const { return lineIdx(inl); }
-    inline int		crlIdx( int crl ) const { return trcIdx(crl); }
-    void		include(const BinID& bid,float z);
-
-    inline int		nrInl() const		{ return nrLines(); }
-    inline int		nrCrl() const		{ return nrTrcs(); }
-
-
-    mDeprecated("Use hsamp_ instead")	TrcKeySampling&		hrg;
-    mDeprecated("Use zsamp_ instead")	StepInterval<float>&	zrg;
-
     void		shrinkTo(const TrcKeyZSampling& innertkzs,
 				 float releps=1e-4);
 			/*!< shrinks "this" tkzs up to but not across innertkzs
@@ -125,9 +97,36 @@ public:
     bool		makeCompatibleWith(const TrcKeyZSampling& othertkzs);
 			/*!< makes "this" tkzs compatible to othertkzs. Only
 			     keeps locations lying on the grid of othertkzs. */
+    void		expand(int nrlines,int nrtrcs,int nrz);
+
+    void		snapToSurvey();
+			/*!< Checks if it is on valid bids and sample positions.
+			     If not, it will expand until it is */
 
     bool		isEqual(const TrcKeyZSampling&,
 				float zeps=mUdf(float)) const;
+
+    bool		operator==(const TrcKeyZSampling&) const;
+    bool		operator!=(const TrcKeyZSampling&) const;
+    TrcKeyZSampling&	operator=(const TrcKeyZSampling&);
+
+    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    void		fillJSON(OD::JSON::Object&) const;
+    bool		useJSON(const OD::JSON::Object&);
+    static void		removeInfo(IOPar&);
+
+//Legacy, don't use
+    inline int		inlIdx( int inl ) const { return lineIdx(inl); }
+    inline int		crlIdx( int crl ) const { return trcIdx(crl); }
+    void		include(const BinID& bid,float z);
+
+    inline int		nrInl() const		{ return nrLines(); }
+    inline int		nrCrl() const		{ return nrTrcs(); }
+
+    mDeprecated("Use hsamp_ instead")	TrcKeySampling&		hrg;
+    mDeprecated("Use zsamp_ instead")	StepInterval<float>&	zrg;
+
 };
 
 

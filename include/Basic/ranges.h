@@ -18,11 +18,11 @@ ________________________________________________________________________
 
 
 
-/*!
-\brief Base class for Interval. Has no virtual functions and can hence be
-used in places where no virtual functions are allowed (e.g. large memcpy
-operations. Does not have sort, clone and scale functions. If you need then,
-use the Interval<T> instead.
+/*!\brief base class for Interval<T>
+
+Has no virtual functions and can therefore be used in places where virtual
+functions are not a good idea (e.g. large memcpy operations).
+Does not have sort, clone and scale functions, these are in Interval<T>.
 */
 
 template <class T>
@@ -60,7 +60,7 @@ public:
     inline int			indexOnOrAfter(X x,const T& step,
 					       float eps=1e-5) const;
     template <class X>
-    inline void			limitTo( const BasicInterval<X>& i )
+    inline void			limitTo_( const BasicInterval<X>& i )
 				{ start = i.limitValue(start);
 				  stop  = i.limitValue(stop); }
     template <class X>
@@ -99,30 +99,32 @@ public:
 /*!
 \brief Interval of values.
 
-  Note that start does not need to be lower than stop. That's why there is a
-  sort() method.
+  Note that start does not need be lower than stop. Because of that, some
+  parameters can be passed, and there is a sort() method.
 */
 
 template <class T>
 mClass(Basic) Interval : public BasicInterval<T>
 {
 public:
-    inline		Interval() : BasicInterval<T>()		{}
-    inline virtual	~Interval()					{}
+
+    inline		Interval() : BasicInterval<T>()	{}
+    inline virtual	~Interval()	{}
     inline		Interval(const T& start,const T& stop);
-    inline		Interval(const BasicInterval<T>& b );
+    inline		Interval(const BasicInterval<T>&);
     inline
     virtual Interval<T>* clone() const;
 
     virtual bool inline	isUdf() const;
     virtual void	setUdf();
 
+    inline virtual void limitTo(const Interval<T>&);
     inline virtual void	scale(const T&);
 
-    virtual void	sort( bool asc=true );
+    virtual void	sort(bool asc=true);
 
-    virtual bool	hasStep() const			{ return false; }
-    static Interval<T>	udf()      {return Interval<T>(mUdf(T),mUdf(T));}
+    virtual bool	hasStep() const	{ return false; }
+    static Interval<T>	udf()		{ return Interval<T>(mUdf(T),mUdf(T));}
 };
 
 
@@ -130,9 +132,7 @@ typedef Interval<int>	SampleGate;
 typedef Interval<float> ZGate;
 
 
-/*!
-\brief Interval with step.
-*/
+/*!\brief Interval with step. */
 
 template <class T>
 mClass(Basic) StepInterval : public Interval<T>
@@ -147,15 +147,14 @@ public:
 			: Interval<T>(si), step(si.step)	{}
     inline StepInterval<T>& operator=(const Interval<T>&);
 
-    virtual bool inline	isUdf() const;
-    virtual void	setUdf();
+    inline bool		isUdf() const override;
+    void		setUdf() override;
     static StepInterval<T> udf()
-			{return StepInterval<T>(mUdf(T),mUdf(T),mUdf(T));}
+			{ return StepInterval<T>(mUdf(T),mUdf(T),mUdf(T)); }
 
-    virtual bool	hasStep() const		{ return true; }
+    bool		hasStep() const override		{ return true; }
 
-    inline
-    virtual StepInterval<T>*	clone() const;
+    inline StepInterval<T>*	clone() const override;
     inline void		set(const T& start,const T& stop,const T& step);
 
     template <class X>
@@ -177,16 +176,16 @@ public:
     template <class X>
     inline int		nearestIndex(const X&) const;
     template <class X>
-    inline T		snap(const X&) const;
+    inline T		snap(const X&,OD::SnapDir dir=OD::SnapNearest) const;
     template <class X>
-    inline T		snap(const X&,int dir) const;
-			//!< dir=0: nearest; -1: downward, 1: upward
+    inline T		snapAndLimit(X,OD::SnapDir d=OD::SnapNearest) const;
 
     inline int		nrSteps() const;
     inline float	nrfSteps() const;
-    virtual inline void	sort(bool asc=true);
-    inline void		scale(const T&);
-    inline T		snappedCenter() const;
+    inline void		sort(bool asc=true) override;
+    inline void		scale(const T&) override;
+    inline void		limitTo(const Interval<T>&) override;
+    inline T		snappedCenter(OD::SnapDir sd=OD::SnapNearest) const;
 
     inline bool		isCompatible(const StepInterval<T>&,
 				     float eps=mDefEps) const;
@@ -196,7 +195,7 @@ public:
     inline T		snapStep(const T& inpstep) const;
 			/*!<Snaps inpstep to a positive multiple of step. */
 
-    StepInterval<T>	niceInterval(int, bool allowrev=true) const;
+    StepInterval<T>	niceInterval(int,bool allowrev=true) const;
 
      T			step;
 
@@ -204,11 +203,21 @@ public:
 
 
 typedef StepInterval<float> ZSampling;
+namespace Pos
+{
+    typedef Interval<Index_Type>	rg_type;
+    typedef StepInterval<Index_Type>	steprg_type;
+
+    mGlobal(Basic) void normalise(steprg_type&,Index_Type defstep);
+    mGlobal(Basic) bool intersect(const steprg_type&,const steprg_type&,
+				  steprg_type&);
+    mGlobal(Basic) void normaliseZ(ZSampling&);
+    mGlobal(Basic) bool intersectF(const ZSampling&,const ZSampling&,
+				   ZSampling&);
+};
 
 
-/*!
-\brief Class to store ranges in N dimensions.
-*/
+/*!\brief ranges in N dimensions. */
 
 template <class T>
 mClass(Basic) IntervalND
@@ -600,6 +609,11 @@ void Interval<T>::sort( bool asc )
 
 
 template <class T> inline
+void Interval<T>::limitTo( const Interval<T>& i )
+{ return BasicInterval<T>::limitTo_( i ); }
+
+
+template <class T> inline
 void Interval<T>::scale( const T& factor )
 { BasicInterval<T>::start *= factor; BasicInterval<T>::stop *= factor; }
 
@@ -732,19 +746,28 @@ int StepInterval<T>::nearestIndex( const X& x ) const
 
 
 template <class T> template <class X> inline
-T StepInterval<T>::snap( const X& t ) const
-{ return atIndex( nearestIndex(t) ); }
-
-
-template <class T> template <class X> inline
-T StepInterval<T>::snap( const X& t, int dir ) const
+T StepInterval<T>::snap( const X& t, OD::SnapDir dir ) const
 {
-    if ( dir==0 )
+    if ( dir==OD::SnapNearest )
 	return atIndex( nearestIndex(t) );
 
     const float fidx = getfIndex( t );
-    const int idx = mNINT32( dir==-1 ? Math::Floor(fidx) : Math::Ceil(fidx) );
+    const int snappedidx = mNINT32(fidx);
+    const float releps = mIsZero(fidx,1e-5f) ? 1e-5f
+					     : fidx < 0.f ? -fidx*1e-5f
+							  :  fidx*1e-5f;
+    const int idx = mIsEqual(fidx,snappedidx,releps) ? snappedidx
+			: mNINT32( dir==OD::SnapDownward ? Math::Floor(fidx)
+							 : Math::Ceil(fidx) );
     return atIndex( idx );
+}
+
+
+template <class T> template <class X> inline
+T StepInterval<T>::snapAndLimit( X t, OD::SnapDir dir ) const
+{
+    T ret = snap( t, dir );
+    return this->limitValue( ret );
 }
 
 
@@ -766,17 +789,18 @@ void StepInterval<T>::scale( const T& factor )
 
 
 template <class T> inline
-T StepInterval<T>::snappedCenter() const
-{ return snap( Interval<T>::center() ); }
+T StepInterval<T>::snappedCenter( OD::SnapDir dir ) const
+{ return snap( Interval<T>::center(), dir ); }
 
 
 template <class T> inline
 T StepInterval<T>::snapStep( const T& inputstep ) const
 {
-    const float relstep = (float) inputstep/step;
-    int nrsteps = mNINT32(relstep);
-    if ( nrsteps<1 ) nrsteps = 1;
-    return step*nrsteps;
+    const double relstep = ((double)inputstep) / step;
+    int nrsteps = mNINT32( relstep );
+    if ( nrsteps < 1 )
+	nrsteps = 1;
+    return step * nrsteps;
 }
 
 
@@ -850,6 +874,44 @@ inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 mDefFltisCompat(float,1e-5f)
 mDefFltisCompat(double,1e-10)
 // Do not change the above releps values as they originate from the types.
+
+
+template <class T> inline
+void StepInterval<T>::limitTo( const Interval<T>& oth )
+{
+    if ( !BasicInterval<T>::overlaps(oth) )
+	{ Interval<T>::start = Interval<T>::stop = oth.start; return; }
+    else if ( !oth.hasStep() )
+    {
+	const StepInterval<T> org( *this );
+	Interval<T>::limitTo_( oth );
+	Interval<T>::start = org.snap( Interval<T>::start, OD::SnapUpward );
+	Interval<T>::stop = org.snap( Interval<T>::stop, OD::SnapDownward );
+	return;
+    }
+
+    mDynamicCastGet(const StepInterval<T>*,othsi,&oth)
+    if ( !othsi || isCompatible(*othsi) )
+	{ limitTo( Interval<T>(oth) ); return; }
+
+    if ( BasicInterval<T>::includes(oth.start,true) )
+	Interval<T>::start = snap( oth.start, OD::SnapUpward );
+    if ( BasicInterval<T>::includes(oth.stop,true) )
+	Interval<T>::stop = snap( oth.stop, OD::SnapDownward );
+
+    if ( othsi->step <= step )
+	return;
+
+    double fidxstart = mCast(double,Interval<T>::start) / step;
+    fidxstart -= Math::Floor( fidxstart );
+    double othfidxstart = mCast(double,oth.start) / step;
+    othfidxstart -= Math::Floor( othfidxstart );
+    const double releps = mIsZero(fidxstart,1e-6) ? 1e-6
+					    : fidxstart < 0. ? -fidxstart*1e-6
+							      : fidxstart*1e-6;
+    if ( mIsEqual(fidxstart,othfidxstart,releps) )
+	step = othsi->step;
+}
 
 
 template <class T> inline

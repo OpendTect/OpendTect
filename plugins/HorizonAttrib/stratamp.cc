@@ -231,10 +231,12 @@ int StratAmpCalc::nextStep()
 
     const StepInterval<float> zrg = trc->zRange();
     z1 += tophorshift_;
-    const float snappedz1 = isclassification_ ? zrg.snap( z1, 1 ) : z1;
+    const float snappedz1 = isclassification_
+			  ? zrg.snap( z1, OD::SnapUpward ) : z1;
 
     z2 += bothorshift_;
-    const float snappedz2 = isclassification_ ? zrg.snap( z2, -1 ) : z2;
+    const float snappedz2 = isclassification_
+			  ? zrg.snap( z2, OD::SnapDownward ) : z2;
     StepInterval<float> sampintv( snappedz1, snappedz2, zrg.step );
     sampintv.sort();
     sampintv.limitTo( zrg );

@@ -79,6 +79,8 @@ public:
     void		limitToWithUdf(const TrcKeySampling&);
 			    /*!< handles undef values +returns reference HS
 				 nearest limit if HS's do not intersect */
+    void		shrinkTo(const TrcKeySampling& innertks);
+    void		growTo(const TrcKeySampling& outertks);
     void		expand(int nrlines,int nrtrcs);
 
     int			lineIdx(Pos::LineID) const;
@@ -114,6 +116,8 @@ public:
     void		normalise();
     void		getRandomSet(int nr,TypeSet<TrcKey>&) const;
 
+    bool		overlaps(const TrcKeySampling&,
+				 bool ignoresteps=false) const;
     bool		getInterSection(const TrcKeySampling&,
 					TrcKeySampling&) const;
 			    //!< Returns false if intersection is empty
@@ -171,12 +175,6 @@ public:
     mDeprecated("Use stop_ instead")  BinID&		stop;
     mDeprecated("Use step_ instead")  BinID&		step;
 
-    void		shrinkTo(const TrcKeySampling& innertks);
-    void		growTo(const TrcKeySampling& outertks);
-private:
-    bool		doLimitTo(StepInterval<int>&, const StepInterval<int>&,
-				  const bool ignoresteps,
-				  const bool nostephandling);
 };
 
 
