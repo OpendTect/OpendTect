@@ -246,6 +246,10 @@ macro( QT_DTECT_WEBENGINE )
     endif()
 endmacro(QT_DTECT_WEBENGINE)
 
+macro( QT_DTECT_CHARTS )
+    find_package( Qt5 QUIET COMPONENTS Charts )
+endmacro()
+
 macro( OD_ADD_XCBQPAMOD )
     if ( Qt5Core_VERSION_MINOR GREATER 12 )
 	list( APPEND GUIINSTMODS XcbQpa )
