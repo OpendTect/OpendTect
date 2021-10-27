@@ -311,12 +311,21 @@ bool Well::Man::reload( const MultiID& key, LoadReqs lreqs )
     RefMan<Data> wd = wells_[wdidx];
     if ( lreqs.isEmpty() )
 	lreqs = wd->loadState();
-    lreqs.exclude( LoadReqs( Logs, LogInfos ) );
-    if ( !readReqData(key,wd,lreqs) )
+    LoadReqs usereqs( lreqs );
+    usereqs.exclude( LoadReqs( Logs, LogInfos ) );
+    if ( !readReqData(key,wd,usereqs) )
 	return false;
 
-    reloadLogs( key );
+    if ( lreqs.includes(Logs) )
+	reloadLogs( key );
+    else if ( lreqs.includes(LogInfos) )
+    {
+	readReqData( key, wd, LoadReqs(LogInfos) );
+	wd->logschanged.trigger( -1 );
+    }
+
     wd->reloaded.trigger();
+
     return true;
 }
 

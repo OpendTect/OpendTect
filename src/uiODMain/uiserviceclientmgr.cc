@@ -19,6 +19,8 @@
 #include "oddirs.h"
 #include "odjson.h"
 #include "od_ostream.h"
+#include "welldata.h"
+#include "wellman.h"
 
 /*!\brief The OpendTect service manager */
 
@@ -80,6 +82,9 @@ bool uiServiceClientMgr::canParseRequest( const OD::JSON::Object& request,
     if ( request.isPresent(uiServiceServerMgr::sKeyStart()) )
 	return true;
 
+    if ( request.isPresent(uiServiceServerMgr::sKeyLogsChanged()) )
+	return true;
+
     return ServiceClientMgr::canParseRequest( request, uirv );
 }
 
@@ -95,6 +100,9 @@ uiRetVal uiServiceClientMgr::doHandleRequest( const OD::JSON::Object& request )
     if ( request.isPresent(uiServiceServerMgr::sKeyStart()) )
 	return startWorkflow(
 			*request.getObject(uiServiceServerMgr::sKeyStart()) );
+    else if ( request.isPresent(uiServiceServerMgr::sKeyLogsChanged()) )
+	return logsChanged(
+		    *request.getObject(uiServiceServerMgr::sKeyLogsChanged()) );
 
     return ServiceClientMgr::doHandleRequest( request );
 }
@@ -127,6 +135,31 @@ uiRetVal uiServiceClientMgr::startWorkflow( const OD::JSON::Object& jsonobj )
 }
 
 
+uiRetVal uiServiceClientMgr::logsChanged( const OD::JSON::Object& jsonobj )
+{
+    uiRetVal uirv;
+    if ( !jsonobj.isPresent(sKey::ID()) )
+    {
+	uirv = tr("No well ID to reload");
+	return uirv;
+    }
+
+    const MultiID wellid( jsonobj.getStringValue( sKey::ID() ) );
+    if ( Well::MGR().validID(wellid) )
+    {
+	if ( Well::MGR().isLoaded(wellid) )
+	    Well::MGR().reload( wellid, Well::LoadReqs(Well::LogInfos) );
+    }
+    else
+    {
+	uirv = tr("Invalid well ID");
+	return uirv;
+    }
+
+	return uiRetVal::OK();
+}
+
+
 bool uiServiceClientMgr::canClaimService( const Network::Service& service
 									) const
 {
@@ -152,9 +185,9 @@ void uiServiceClientMgr::doPyEnvChange( CallBacker* )
 {
     OD::JSON::Object sinfo;
     getPythEnvRequestInfo( sinfo );
-    for ( const auto service : services_ )
+    for ( const auto* service : services_ )
     {
-	const uiRetVal uirv = sendRequest( *service, sKeyPyEnvChangeEv(), sinfo );
+	const uiRetVal uirv = sendRequest(*service, sKeyPyEnvChangeEv(), sinfo);
 	if ( !uirv.isOK() )
 	    uiMSG().error( uirv );
     }

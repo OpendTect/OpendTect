@@ -200,6 +200,9 @@ void uiWellMan::getCurrentWells()
 	Well::Data* wd = new Well::Data;
 	curwds_ += wd;
 	currdrs_ += new Well::Reader( *obj, *curwds_[idx] );
+	ConstRefMan<Well::Data> mwd = Well::MGR().get( obj->key(),
+						       Well::LoadReqs(false) );
+	mAttachCB( mwd->logschanged, uiWellMan::updateLogsFld );
 	getBasicInfo( currdrs_[idx] );
     }
 
@@ -816,7 +819,7 @@ void uiWellMan::wellLogsChgd( const BufferStringSet& lognms )
 {
     for ( int idwell=0; idwell<curwds_.size(); idwell++ )
     {
-	Well::Data* wd = Well::MGR().get( curmultiids_[idwell],	
+	Well::Data* wd = Well::MGR().get( curmultiids_[idwell],
 					  Well::LoadReqs(Well::Logs) );
 	for ( const auto* lognm : lognms )
 	{
