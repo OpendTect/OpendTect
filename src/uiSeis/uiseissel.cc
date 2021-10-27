@@ -152,6 +152,12 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( !compfld_ )
 	return;
 
+    if ( selgrp_->getListField()->currentItem() < 0 )
+    {
+	compfld_->display( false );
+	return;
+    }
+
     const IOObjContext& ctxt = selgrp_->getCtxtIOObj().ctxt_;
     if ( !ctxt.forread_ )
 	return;
