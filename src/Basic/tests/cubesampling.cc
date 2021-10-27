@@ -76,7 +76,6 @@ static bool testIncludes()
 
 static bool testLimitTo()
 {
-    /*
     mDeclCubeSampling( cs1, 3, 63, 6,
 			10, 100, 1,
 			1.0, 3.0, 0.004 );
@@ -108,7 +107,7 @@ static bool testLimitTo()
 	 csvol != csvolexp || cswidevol != csvolexp ||
 	 csvol2 != csvolexp || csgeom != csgeomexp )
 	mRetResult( "testLimitTo" );
-    */
+
     return true;
 }
 

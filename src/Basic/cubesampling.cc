@@ -542,6 +542,13 @@ void CubeSampling::include( const CubeSampling& oth )
 }
 
 
+void CubeSampling::limitTo( const CubeSampling& oth )
+{
+    hsamp_.limitTo( oth.hsamp_ );
+    zsamp_.limitTo( oth.zsamp_ );
+}
+
+
 void CubeSampling::usePar( const IOPar& par )
 {
     hsamp_.usePar( par );

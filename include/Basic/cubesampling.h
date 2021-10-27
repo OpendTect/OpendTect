@@ -69,6 +69,7 @@ public:
 
     void		include(const BinID&,z_type);
     void		include(const CubeSampling&);
+    void		limitTo(const CubeSampling&);
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
