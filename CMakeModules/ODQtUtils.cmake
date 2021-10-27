@@ -247,7 +247,7 @@ macro( QT_DTECT_WEBENGINE )
 endmacro(QT_DTECT_WEBENGINE)
 
 macro( QT_DTECT_CHARTS )
-    find_package( Qt5 REQUIRED COMPONENTS Charts )
+    find_package( Qt5 QUIET COMPONENTS Charts )
 endmacro()
 
 macro( OD_ADD_XCBQPAMOD )
