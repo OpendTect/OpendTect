@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "uigraphicsview.h"
 
+#include "uiaction.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicssaveimagedlg.h"
 #include "uigraphicsscene.h"
@@ -100,12 +101,36 @@ uiCrossHairItem* uiGraphicsView::getCrossHairItem()
 { return crosshairitem_; }
 
 
+uiAction* uiGraphicsView::getSaveImageAction()
+{
+    if ( !enableimagesave_ )
+	return nullptr;
+
+    auto* action = new uiAction( uiStrings::sEmptyString(),
+				 mCB(this,uiGraphicsView,saveImageCB),
+				 "snapshot" );
+    action->setToolTip( tr("Save image") );
+    return action;
+}
+
+
 uiToolButton* uiGraphicsView::getSaveImageButton( uiParent* p )
 {
-    if ( !enableimagesave_ ) return 0;
+    if ( !enableimagesave_ )
+	return nullptr;
 
     return new uiToolButton( p, "snapshot", tr("Save image"),
 			mCB(this,uiGraphicsView,saveImageCB) );
+}
+
+
+uiAction* uiGraphicsView::getPrintImageAction()
+{
+    auto* action = new uiAction( uiStrings::sEmptyString(),
+				 mCB(this,uiGraphicsView,printImageCB),
+				 "printer" );
+    action->setToolTip( tr("Print image") );
+    return action;
 }
 
 
