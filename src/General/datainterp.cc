@@ -198,10 +198,10 @@ double DataCharacteristics::getLimitValue( bool max ) const
 
 static void doswap2( void* buf, od_int64 bufsz )
 {
-    register unsigned char c;
-    register unsigned char* p = (unsigned char*)buf;
-    register od_int64 idx2 = 0;
-    for ( register od_int64 idx=0; idx<bufsz; idx++ )
+    unsigned char c;
+    unsigned char* p = (unsigned char*)buf;
+    od_int64 idx2 = 0;
+    for ( od_int64 idx=0; idx<bufsz; idx++ )
     {
 	mSwapChars1( 1 );
 	idx2 += 2;
@@ -216,10 +216,10 @@ static void doswap2( void* buf, od_int64 bufsz )
 
 static void doswap4( void* buf, od_int64 bufsz )
 {
-    register unsigned char c;
-    register unsigned char* p = (unsigned char*)buf;
-    register od_int64 idx2 = 0;
-    for ( register od_int64 idx=0; idx<bufsz; idx++ )
+    unsigned char c;
+    unsigned char* p = (unsigned char*)buf;
+    od_int64 idx2 = 0;
+    for ( od_int64 idx=0; idx<bufsz; idx++ )
     {
 	mSwapChars1( 3 );
 	mSwapChars2( 1, 2 );
@@ -230,10 +230,10 @@ static void doswap4( void* buf, od_int64 bufsz )
 
 static void doswap8( void* buf, od_int64 bufsz )
 {
-    register unsigned char c;
-    register unsigned char* p = (unsigned char*)buf;
-    register od_int64 idx2 = 0;
-    for ( register od_int64 idx=0; idx<bufsz; idx++ )
+    unsigned char c;
+    unsigned char* p = (unsigned char*)buf;
+    od_int64 idx2 = 0;
+    for ( od_int64 idx=0; idx<bufsz; idx++ )
     {
 	mSwapChars1( 7 );
 	mSwapChars2( 1, 6 );

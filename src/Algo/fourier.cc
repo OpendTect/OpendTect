@@ -1139,8 +1139,8 @@ bool FFTCC1D::doFinish()
 
 
 #define mPFACCIMPL( nextsampleinc ) \
-    register mType *z=(mType*)cz; \
-    register int j00,j01,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15; \
+    mType *z=(mType*)cz; \
+    int j00,j01,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15; \
     int nleft,jfax,ifac,jfac,jinc,jmax,ndiv,m,mm=0,mu=0,l; \
     mType t1r,t1i,t2r,t2i,t3r,t3i,t4r,t4i,t5r,t5i, \
 	    t6r,t6i,t7r,t7i,t8r,t8i,t9r,t9i,t10r,t10i, \
@@ -2434,8 +2434,8 @@ bool FFTCC1D::doFinish()
 
 
 #define mPFACCND( istep, loopinit, loopstart, loopend ) \
-    register mType *z=(mType*)cz; \
-    register int j0,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15; \
+    mType *z=(mType*)cz; \
+    int j0,j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15; \
     int nleft,jfax,ifac,jfac,iinc,imax,ndiv,m,mm=0,mu=0,l, \
             jt,i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15; \
     mType t1r,t1i,t2r,t2i,t3r,t3i,t4r,t4i,t5r,t5i, \
