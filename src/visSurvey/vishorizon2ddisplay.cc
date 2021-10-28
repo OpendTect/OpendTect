@@ -11,32 +11,54 @@ ________________________________________________________________________
 #include "vishorizon2ddisplay.h"
 
 #include "bendpointfinder.h"
+#include "ctxtioobj.h"
 #include "emhorizon2d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
-#include "iopar.h"
-#include "ctxtioobj.h"
+#include "geom2dintersections.h"
+#include "hiddenparam.h"
 #include "iodir.h"
+#include "iopar.h"
 #include "keystrs.h"
 #include "rowcolsurface.h"
+#include "seisioobjinfo.h"
+#include "selector.h"
 #include "survinfo.h"
+#include "viscoord.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
-#include "vispolyline.h"
 #include "vispointset.h"
+#include "vispolyline.h"
 #include "visseis2ddisplay.h"
-#include "viscoord.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
-#include "seisioobjinfo.h"
-#include "geom2dintersections.h"
-#include "selector.h"
+
+class HP_Horizon2DDisplay
+{
+public:
+HP_Horizon2DDisplay()
+{
+    translation_ = visBase::Transformation::create();
+    translation_->ref();
+}
+
+~HP_Horizon2DDisplay()
+{
+    translation_->unRef();
+}
+
+    visBase::Transformation*	translation_ = nullptr;
+    Coord3			translationpos_ = Coord3::udf();
+
+};
+
+static HiddenParam<visSurvey::Horizon2DDisplay,HP_Horizon2DDisplay*>
+					hp_horizon2ddisplay(nullptr);
 
 namespace visSurvey
 {
-
 
 Horizon2DDisplay::Horizon2DDisplay()
     : intersectmkset_( visBase::MarkerSet::create() )
@@ -45,6 +67,10 @@ Horizon2DDisplay::Horizon2DDisplay()
     , ln2dset_( 0 )
     , selections_( 0 )
 {
+    auto* newmembers = new HP_Horizon2DDisplay;
+    hp_horizon2ddisplay.setParam( this, newmembers );
+    setGroupNode( newmembers->translation_ );
+
     points_.allowNull(true);
     EMObjectDisplay::setLineStyle( OD::LineStyle(OD::LineStyle::Solid,5 ) );
     intersectmkset_->ref();
@@ -71,6 +97,8 @@ Horizon2DDisplay::~Horizon2DDisplay()
     if ( selections_ )
 	selections_->unRef();
 
+    hp_horizon2ddisplay.removeAndDeleteParam( this );
+
     emchangedata_.clearData();
 }
 
@@ -87,6 +115,11 @@ void Horizon2DDisplay::setDisplayTransformation( const mVisTrans* nt )
 	if( points_[idx] )
 	    points_[idx]->setDisplayTransformation(transformation_);
     }
+
+    const Coord3 translationpos =
+		hp_horizon2ddisplay.getParam(this)->translationpos_;
+    if ( translationpos.isDefined() )
+	setTranslation( translationpos );
 
     intersectmkset_->setDisplayTransformation( transformation_ );
 }
@@ -951,5 +984,46 @@ const Color Horizon2DDisplay::getLineColor() const
     return Color::Blue();
 }
 
+
+Coord3 Horizon2DDisplay::getTranslation() const
+{
+    visBase::Transformation* tf =
+		hp_horizon2ddisplay.getParam(this)->translation_;
+    if ( !tf )
+	return Coord3(0,0,0);
+
+    const Coord3 current = tf->getTranslation();
+    Coord3 origin( 0, 0, 0 );
+    Coord3 shift( current );
+    shift  *= -1;
+
+    mVisTrans::transformBack( transformation_, origin );
+    mVisTrans::transformBack( transformation_, shift );
+
+    const Coord3 translation = origin - shift;
+    return translation;
+}
+
+
+void Horizon2DDisplay::setTranslation( const Coord3& nt )
+{
+    visBase::Transformation* tf =
+		hp_horizon2ddisplay.getParam(this)->translation_;
+     if ( !tf || !nt.isDefined() )
+	return;
+
+    Coord3 origin( 0, 0, 0 );
+    Coord3 aftershift( nt );
+    aftershift.z *= -1;
+
+    mVisTrans::transform( transformation_, origin );
+    mVisTrans::transform( transformation_, aftershift );
+
+    const Coord3 shift = origin - aftershift;
+
+    tf->setTranslation( shift );
+    hp_horizon2ddisplay.getParam(this)->translationpos_ = nt;
+    setOnlyAtSectionsDisplay( displayonlyatsections_ );		/* retrigger */
+}
 
 } // namespace visSurvey

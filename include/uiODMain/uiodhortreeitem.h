@@ -137,6 +137,7 @@ public:
 protected:
     void		initMenuItems();
     void		initNotify();
+    uiString		createDisplayName() const;
     void		dispChangeCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODHorizon2DParentTreeItem).name(); }

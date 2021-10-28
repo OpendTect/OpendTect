@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          May 2004
- RCS:           $Id$
+ Author:	Kristofer Tingdahl
+ Date:		May 2004
+ RCS:		$Id$
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ public:
 				Horizon2DDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,Horizon2DDisplay,
-				    "Horizon2DDisplay", 
+				    "Horizon2DDisplay",
 				    toUiString(sFactoryKeyword()));
 
     void			setDisplayTransformation(const mVisTrans*);
@@ -65,6 +65,9 @@ public:
     void			initSelectionDisplay(bool erase);
     void			updateSelectionsHor2D();
     void			clearSelectionsHor2D();
+
+    Coord3			getTranslation() const;
+    void			setTranslation(const Coord3&);
 
 protected:
     friend			class Horizon2DDisplayUpdater;

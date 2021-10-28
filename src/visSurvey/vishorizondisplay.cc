@@ -293,7 +293,7 @@ HorizonDisplay::HorizonDisplay()
     , displayintersectionlines_( true )
     , enabletextureinterp_( true )
     , displaysurfacegrid_( false )
-    , translationpos_( Coord3().udf() )
+    , translationpos_( Coord3::udf() )
     , parentline_( 0 )
     , selections_( 0 )
     , lockedpts_( 0 )
@@ -302,8 +302,7 @@ HorizonDisplay::HorizonDisplay()
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
-
-    setGroupNode( (osg::Group*) translation_->osgNode() );
+    setGroupNode( translation_ );
 
     setLockable();
     maxintersectionlinethickness_ = 0.02f *
@@ -354,7 +353,7 @@ HorizonDisplay::~HorizonDisplay()
     if ( translation_ )
     {
 	translation_->unRef();
-	translation_ = 0;
+	translation_ = nullptr;
     }
 
     removeEMStuff();
@@ -1134,10 +1133,10 @@ bool HorizonDisplay::hasDepth( int channel ) const
 
 Coord3 HorizonDisplay::getTranslation() const
 {
-    if ( !translation_ ) return Coord3(0,0,0);
+    if ( !translation_ )
+	return Coord3(0,0,0);
 
     const Coord3 current = translation_->getTranslation();
-
     Coord3 origin( 0, 0, 0 );
     Coord3 shift( current );
     shift  *= -1;
@@ -1146,7 +1145,6 @@ Coord3 HorizonDisplay::getTranslation() const
     mVisTrans::transformBack( transformation_, shift );
 
     const Coord3 translation = origin - shift;
-
     return translation;
 }
 
