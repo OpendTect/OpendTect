@@ -64,6 +64,8 @@ if( UNIX ) #Apple and Linux
 
 	if ( (GCC_VERSION VERSION_GREATER 4.2.1) OR (NOT DEFINED CMAKE_COMPILER_IS_GNUCC) )
 	    set ( CMAKE_CXX_FLAGS "-Wdelete-non-virtual-dtor ${CMAKE_CXX_FLAGS}" )
+	    # This flag is defined because API s frozen
+	    set ( CMAKE_CXX_FLAGS "-Wno-inconsistent-missing-override ${CMAKE_CXX_FLAGS}" )
 	endif()
 
     else() # Not Apple
