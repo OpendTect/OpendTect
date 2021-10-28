@@ -869,29 +869,30 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 
     const uiString actstr = restarting_ ? uiStrings::sRestart()
 					: uiStrings::sClose();
-    bool askedanything = false;
-    if ( withinteraction )
-    {
-	if ( !askStore(askedanything,
-	      uiStrings::phrJoinStrings(actstr,toUiString(programname_)) ) )
-	{
-	    uiMSG().message( restarting_ ? tr("Restart cancelled")
-					 : tr("Closing cancelled") );
-	    return false;
-	}
+     if ( doconfirm )
+     {
+	 if ( !uiMSG().askGoOn( tr("Do you want to %1 %2?")
+				.arg(restarting_?"restart":"close")
+				.arg(programname_),
+				actstr, uiStrings::sCancel() ) )
+	     return false;
+     }
+
+     //This bool is not required. Keeping to maintain API.
+     bool dummy = false;
+     if ( withinteraction )
+     {
+	 if ( !askStore(dummy,
+	      uiStrings::phrJoinStrings(actstr,toUiString(programname_))) )
+	 {
+	     uiMSG().message( restarting_ ? tr("Restart cancelled")
+					  : tr("Closing cancelled") );
+	     return false;
+	 }
     }
 
     if ( failed_ )
 	return true;
-
-    if ( !askedanything && doconfirm )
-    {
-	if ( !uiMSG().askGoOn( tr("Do you want to %1 %2?")
-			       .arg(restarting_?"restart":"close")
-				       .arg(programname_),
-			       actstr, uiStrings::sCancel()) )
-	    return false;
-    }
 
     return true;
 }

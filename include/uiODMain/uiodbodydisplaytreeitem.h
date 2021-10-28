@@ -66,6 +66,8 @@ protected:
     void		handleMenuCB(CallBacker*);
     void		keyPressedCB(CallBacker*);
     void		colorChCB(CallBacker*);
+    void		askSaveCB(CallBacker*);
+    void		saveCB(CallBacker*);
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
     bool		createUiVisObj();
 
