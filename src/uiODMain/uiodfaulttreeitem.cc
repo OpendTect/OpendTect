@@ -15,17 +15,19 @@ ___________________________________________________________________
 #include "emfaultauxdata.h"
 #include "emfaultstickset.h"
 #include "emmanager.h"
-#include "mpeengine.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mousecursor.h"
+#include "mpeengine.h"
 #include "randcolor.h"
+#include "threadwork.h"
 
 #include "uiempartserv.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
+#include "uinotsaveddlg.h"
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
@@ -213,6 +215,9 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
     mCommonInit
 {
     mCommonInit2
+
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODFaultTreeItem::askSaveCB );
 }
 
 
@@ -224,17 +229,53 @@ uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
 {
     displayid_ = id;
     mCommonInit2
+
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODFaultTreeItem::askSaveCB );
 }
 
 
 uiODFaultTreeItem::~uiODFaultTreeItem()
 {
+    detachAllNotifiers();
     if ( faultdisplay_ )
-    {
-	faultdisplay_->materialChange()->remove(
-	    mCB(this,uiODFaultTreeItem,colorChCB));
 	faultdisplay_->unRef();
+}
+
+
+void uiODFaultTreeItem::askSaveCB( CallBacker* )
+{
+    uiEMPartServer* ems = applMgr()->EMServer();
+    if ( !ems->isChanged(emid_) )
+	return;
+
+    bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+    if ( !savewithname )
+	savewithname = !IOM().implExists( EM::EMM().getMultiID(emid_) );
+
+    const uiString obj = toUiString("%1 \"%2\"")
+	.arg( ems->getType(emid_) ).arg( ems->getUiName(emid_) );
+    NotSavedPrompter::NSP().addObject( obj, mCB(this,uiODFaultTreeItem,saveCB),
+				       savewithname, 0 );
+
+    Threads::WorkManager::twm().addWork(
+	    Threads::Work( *new uiTreeItemRemover(parent_, this), true ), 0,
+	    NotSavedPrompter::NSP().queueID(), false );
+}
+
+
+void uiODFaultTreeItem::saveCB( CallBacker* cb )
+{
+    const bool issaved = applMgr()->EMServer()->storeObject( emid_, true );
+    if ( issaved && faultdisplay_ &&
+	 !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
+    {
+	faultdisplay_->setName( applMgr()->EMServer()->getName(emid_) );
+	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
+
+    if ( issaved && cb )
+	NotSavedPrompter::NSP().reportSuccessfullSave();
 }
 
 
@@ -276,8 +317,8 @@ bool uiODFaultTreeItem::init()
 
     ODMainWin()->menuMgr().createFaultToolMan();
 
-    faultdisplay_->materialChange()->notify(
-	    mCB(this,uiODFaultTreeItem,colorChCB));
+    mAttachCB( faultdisplay_->materialChange(),
+	       uiODFaultTreeItem::colorChCB );
 
     return uiODDisplayTreeItem::init();
 }
@@ -537,6 +578,9 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
     mCommonInit
 {
     mCommonInit2
+
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODFaultStickSetTreeItem::askSaveCB );
 }
 
 
@@ -547,17 +591,17 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( int id, bool dummy )
 {
     displayid_ = id;
     mCommonInit2
+
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODFaultStickSetTreeItem::askSaveCB );
 }
 
 
 uiODFaultStickSetTreeItem::~uiODFaultStickSetTreeItem()
 {
+    detachAllNotifiers();
     if ( faultsticksetdisplay_ )
-    {
-	faultsticksetdisplay_->materialChange()->remove(
-	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
 	faultsticksetdisplay_->unRef();
-    }
 }
 
 
@@ -588,8 +632,8 @@ bool uiODFaultStickSetTreeItem::init()
 
     ODMainWin()->menuMgr().createFaultToolMan();
 
-    faultsticksetdisplay_->materialChange()->notify(
-	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
+    mAttachCB( faultsticksetdisplay_->materialChange(),
+	       uiODFaultStickSetTreeItem::colorChCB );
 
     return uiODDisplayTreeItem::init();
 }
@@ -598,6 +642,43 @@ bool uiODFaultStickSetTreeItem::init()
 void uiODFaultStickSetTreeItem::colorChCB( CallBacker* )
 {
     updateColumnText( uiODSceneMgr::cColorColumn() );
+}
+
+
+void uiODFaultStickSetTreeItem::askSaveCB( CallBacker* )
+{
+    uiEMPartServer* ems = applMgr()->EMServer();
+    if ( !ems->isChanged(emid_) )
+	return;
+
+    bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+    if ( !savewithname )
+	savewithname = !IOM().implExists( EM::EMM().getMultiID(emid_) );
+
+    const uiString obj = toUiString("%1 \"%2\"")
+	.arg( ems->getType(emid_) ).arg( ems->getUiName(emid_) );
+    NotSavedPrompter::NSP().addObject( obj,
+				mCB(this,uiODFaultStickSetTreeItem,saveCB),
+				savewithname, 0 );
+
+    Threads::WorkManager::twm().addWork(
+	    Threads::Work( *new uiTreeItemRemover(parent_, this), true ), 0,
+	    NotSavedPrompter::NSP().queueID(), false );
+}
+
+
+void uiODFaultStickSetTreeItem::saveCB( CallBacker* cb )
+{
+    const bool issaved = applMgr()->EMServer()->storeObject( emid_, true );
+    if ( issaved && faultsticksetdisplay_ &&
+	 !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
+    {
+	faultsticksetdisplay_->setName( applMgr()->EMServer()->getName(emid_) );
+	updateColumnText( uiODSceneMgr::cNameColumn() );
+    }
+
+    if ( issaved && cb )
+	NotSavedPrompter::NSP().reportSuccessfullSave();
 }
 
 

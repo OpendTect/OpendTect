@@ -23,6 +23,7 @@ ___________________________________________________________________
 #include "marchingcubes.h"
 #include "mousecursor.h"
 #include "randcolor.h"
+#include "threadwork.h"
 
 #include "uimain.h"
 #include "uibodyoperatordlg.h"
@@ -31,6 +32,7 @@ ___________________________________________________________________
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
+#include "uinotsaveddlg.h"
 #include "uiodapplmgr.h"
 #include "uistrings.h"
 #include "uiodscenemgr.h"
@@ -239,6 +241,9 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     mCommonInit
 {
     mCommonInit2
+
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODBodyDisplayTreeItem::askSaveCB );
 }
 
 
@@ -249,6 +254,9 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
 {
     displayid_ = id;
     mCommonInit2
+
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODBodyDisplayTreeItem::askSaveCB );
 }
 
 
@@ -406,6 +414,44 @@ void uiODBodyDisplayTreeItem::keyPressedCB( CallBacker* )
 
     if ( update )
 	pbd->requestSingleRedraw();
+}
+
+
+void uiODBodyDisplayTreeItem::askSaveCB( CallBacker* )
+{
+    uiEMPartServer* ems = applMgr()->EMServer();
+    if ( !ems->isChanged(emid_) )
+	return;
+
+    bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+    if ( !savewithname )
+	savewithname = !IOM().implExists( EM::EMM().getMultiID(emid_) );
+
+    const uiString obj = toUiString("%1 \"%2\"")
+	.arg( ems->getType(emid_) ).arg( ems->getUiName(emid_) );
+    NotSavedPrompter::NSP().addObject( obj,
+		mCB(this,uiODBodyDisplayTreeItem,saveCB),
+		savewithname, 0 );
+
+    Threads::WorkManager::twm().addWork(
+	    Threads::Work( *new uiTreeItemRemover(parent_, this), true ), 0,
+	    NotSavedPrompter::NSP().queueID(), false );
+}
+
+
+void uiODBodyDisplayTreeItem::saveCB( CallBacker* cb )
+{
+    const bool issaved =
+	applMgr()->EMServer()->storeObject( emid_, true );
+
+    if ( issaved && !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
+    {
+	const uiEMPartServer* emps = applMgr()->EMServer();
+	applMgr()->visServer()->setUiObjectName( displayid_,
+						 emps->getUiName(emid_) );
+	updateColumnText( uiODSceneMgr::cNameColumn() );
+	NotSavedPrompter::NSP().reportSuccessfullSave();
+    }
 }
 
 
