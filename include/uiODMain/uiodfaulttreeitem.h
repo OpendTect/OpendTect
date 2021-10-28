@@ -69,6 +69,8 @@ protected:
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
+    void		askSaveCB(CallBacker*);
+    void		saveCB(CallBacker*);
 
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
 
@@ -127,6 +129,8 @@ protected:
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
+    void		askSaveCB(CallBacker*);
+    void		saveCB(CallBacker*);
 
     bool		init();
     const char*		parentType() const
