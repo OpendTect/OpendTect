@@ -137,12 +137,15 @@ bool uiIOSurface::fillFields( const MultiID& id, bool showerrmsg )
 	{
 	    if ( showerrmsg )
 		uiMSG().error( errmsg );
+
 	    return false;
 	}
     }
     else
     {
-	if ( id.isUdf() ) return false;
+	if ( id.isUdf() )
+	    return false;
+
 	const EM::ObjectID emid = EM::EMM().getObjectID( id );
 	mDynamicCastGet(EM::Surface*,emsurf,EM::EMM().getObject(emid));
 	if ( emsurf )
@@ -173,6 +176,7 @@ void uiIOSurface::fillFields( const EM::ObjectID& emid )
 	uiMSG().error( tr("Temporal surface not existing") );
 	    return;
     }
+
     fillAttribFld( sd.valnames );
     fillSectionFld( sd.sections );
     fillRangeFld( sd.rg );
@@ -273,13 +277,11 @@ const IOObj* uiIOSurface::selIOObj() const
 
 void uiIOSurface::objSel( CallBacker* )
 {
-    if ( !objfld_ ) return;
+    const IOObj* ioobj = objfld_ ? objfld_->ioobj( true ) : nullptr;
+    if ( !ioobj )
+	return;
 
-    objfld_->commitInput();
-    IOObj* ioobj = objfld_->ctxtIOObj().ioobj_;
-    if ( !ioobj ) return;
-
-    fillFields( ioobj->key() );
+    fillFields( ioobj->key(), false );
     inpChanged();
 }
 
@@ -431,7 +433,10 @@ int uiSurfaceWrite::getStratLevelID() const
 
 
 void uiSurfaceWrite::setColor( const Color& col )
-{ if ( colbut_ ) colbut_->setColor( col ); }
+{
+    if ( colbut_ )
+	colbut_->setColor( col );
+}
 
 
 Color uiSurfaceWrite::getColor() const

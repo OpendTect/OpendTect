@@ -113,6 +113,7 @@ protected:
 
     virtual void	setGroupNode(osg::Group*);
 			//!<Must be called during construction.
+    void		setGroupNode(DataObject*);
 
     Material*		material_;
     bool		righthandsystem_;
