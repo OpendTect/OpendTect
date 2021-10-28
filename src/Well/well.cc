@@ -442,8 +442,7 @@ bool Well::Info::isLoaded() const
     return surfacecoord != Coord() ||
 	   !uwid.isEmpty() || !oper.isEmpty() || !state.isEmpty() ||
 	   !county.isEmpty() || !source_.isEmpty() ||
-	   welltype_ != None || !mIsUdf(groundelev) ||
-	   !mIsEqual(replvel,getDefaultVelocity(),1e-1f);
+	   welltype_ != None || !mIsUdf(groundelev);
 }
 
 #define mName "Well name"
