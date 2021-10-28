@@ -59,6 +59,8 @@ public:
 						{ return assignTo(s.str()); }
     inline BufferString& operator=( const OD::String& s )
 						{ return assignTo(s.str()); }
+    inline BufferString& operator=( const std::string& s )
+						{ return assignTo(s.c_str()); }
     template <class T>
     inline BufferString& operator=(const T&);
 
