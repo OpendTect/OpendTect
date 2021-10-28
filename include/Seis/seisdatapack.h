@@ -183,7 +183,7 @@ protected:
 
     const SeisDataPack&		source_;
     int				comp_;
-    const StepInterval<float>&	zsamp_;
+    const StepInterval<float>	zsamp_;
 
     TypeSet<SeisTrcInfo::Fld>	tiflds_;
     int				rdlid_;
