@@ -145,6 +145,8 @@ public:
 
     IOPar		getSelection(const BufferStringSet& synthnms) const;
 
+    static bool		getAllGenPars(const IOPar&,ObjectSet<SynthGenParams>&);
+
     static const char*	sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
     static const char*	sKeySyntheticNr()	{ return "Synthetics Nr"; }
     static const char*	sKeySynthetics()	{ return "Synthetics"; }
@@ -197,8 +199,6 @@ protected:
 
     const PreStack::GatherSetDataPack*	getRelevantAngleData(
 						const IOPar& raypar) const;
-
-    static bool		getAllGenPars(const IOPar&,ObjectSet<SynthGenParams>&);
 
 public:
     void		getLevelTimes(SeisTrcBuf&,

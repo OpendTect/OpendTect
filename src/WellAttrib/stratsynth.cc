@@ -1940,6 +1940,8 @@ IOPar StratSynth::getSelection( const BufferStringSet& synthnms ) const
 
     if ( unusedsynthidxs.isEmpty() )
 	return ret;
+    else if ( unusedsynthidxs.size() == nrSynthetics() )
+	return IOPar();
 
     PtrMan<IOPar> synthpar = ret.subselect( sKeySyntheticNr() );
     if ( !synthpar )
