@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "fixedstring.h"
 #include "string2.h"
+
 class QString;
 
 /*!
@@ -59,8 +60,7 @@ public:
 						{ return assignTo(s.str()); }
     inline BufferString& operator=( const OD::String& s )
 						{ return assignTo(s.str()); }
-    inline BufferString& operator=( const std::string& s )
-						{ return assignTo(s.c_str()); }
+    BufferString&	operator=(const std::string&);
     template <class T>
     inline BufferString& operator=(const T&);
 

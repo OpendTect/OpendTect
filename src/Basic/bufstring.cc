@@ -21,6 +21,8 @@
 # include <QStringList>
 #endif
 
+#include <string>
+
 
 BufferString::BufferString( int sz, bool /*mknull*/ )
     : buf_(nullptr)
@@ -65,6 +67,12 @@ BufferString::BufferString( const QString& qstr )
 BufferString::~BufferString()
 {
     destroy();
+}
+
+
+BufferString& BufferString::operator= ( const std::string& str )
+{
+    return assignTo( str.c_str() );
 }
 
 
