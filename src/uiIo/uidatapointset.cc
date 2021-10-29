@@ -900,8 +900,9 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 
 void uiDataPointSet::showStatusMsg( CallBacker* )
 {
-    if ( !xplotwin_ || !&xplotwin_->plotter() )
+    if ( !xplotwin_ )
 	return;
+
     uiString msg = tr("Y Selected: %1%2")
 		 .arg(xplotwin_->plotter().nrYSels())
 		 .arg(xplotwin_->plotter().isY2Shown()
