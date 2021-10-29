@@ -11,5 +11,6 @@
 
 My_Class::My_Class()
 {
+    my_variable_ = 2;
     uiMSG().message( toUiString("Hello world!") );
 }

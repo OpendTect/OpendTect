@@ -37,17 +37,15 @@ static const char* sKeyLDLibPath =
 # endif
 #endif
 
+#ifdef __lux__
 static bool isLinuxSession( const char* sessnm )
 {
-#ifdef __lux__
     OS::MachineCommand mc( "pidof" );
     mc.addFlag( "s", OS::OldStyle ).addArg( sessnm );
 
     return mc.execute();
-#else
-    return false;
-#endif
 }
+#endif
 
 #define mQUrlCStr(qurl) qurl.toString().toUtf8().data()
 
