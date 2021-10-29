@@ -361,8 +361,7 @@ EM::FaultStickSet* FaultStickSetDisplay::emFaultStickSet()
 
 void FaultStickSetDisplay::updateSticks( bool activeonly )
 {
-    if ( !fault_ || !viseditor_ || !&viseditor_->sower() ||
-	viseditor_->sower().moreToSow() )
+    if ( !fault_ || !viseditor_ || viseditor_->sower().moreToSow() )
 	return;
 
     visBase::Lines* poly = activeonly ? activestick_ : sticks_;

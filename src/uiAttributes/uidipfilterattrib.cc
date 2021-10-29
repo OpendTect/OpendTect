@@ -59,8 +59,7 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
     inpfld_ = createInpFld( is2d );
 
     szfld_ = new uiLabeledSpinBox( this, tr("Filter size") );
-    szfld_->box()->setMinValue( cMinVal );
-    szfld_->box()->setStep( cStepVal, true );
+    szfld_->box()->setInterval( cMinVal, cMaxVal, cStepVal );
     szfld_->attach( alignedBelow, inpfld_ );
 
     uiString fltrlbl = tr("%1 to pass").arg(zIsTime() ? uiStrings::sVelocity()

@@ -700,9 +700,7 @@ void HorizonSectionTile::computeNormal( int nmidx,osg::Vec3& normal )
 
 const HorizonSectionTile* HorizonSectionTile::getNeighborTile( int idx ) const
 {
-    if ( neighbors_ && idx>=0 && idx < 9 )
-	return neighbors_[idx];
-    return 0;
+    return idx>=0 && idx < 9 ? neighbors_[idx] : nullptr;
 }
 
 

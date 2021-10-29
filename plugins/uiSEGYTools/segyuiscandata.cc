@@ -31,6 +31,17 @@ static const int cQuickScanMaxNrTrcs4LineChg = 10000;
 // plus these 10000 worst-case for survey setup
 
 
+SEGY::BasicFileInfo::BasicFileInfo()
+{
+    init();
+}
+
+
+SEGY::BasicFileInfo::~BasicFileInfo()
+{
+}
+
+
 void SEGY::BasicFileInfo::init()
 {
     revision_ = ns_ = binns_ = binsr_ -1;

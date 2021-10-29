@@ -44,7 +44,9 @@ mExpClass(uiSEGYTools) BasicFileInfo
 { mODTextTranslationClass(BasicFileInfo);
 public:
 
-			BasicFileInfo()			{ init(); }
+			BasicFileInfo();
+    virtual		~BasicFileInfo();
+
     void		init();
 
     int			revision_;
@@ -88,8 +90,9 @@ mExpClass(uiSEGYTools) LoadDef : public BasicFileInfo
 public:
 
 			LoadDef();
-			~LoadDef();
 			LoadDef(const LoadDef&);
+			~LoadDef();
+
     LoadDef&		operator =(const LoadDef&);
     void		reInit(bool alsohdef);
 

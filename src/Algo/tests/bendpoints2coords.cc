@@ -12,6 +12,7 @@
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "sorting.h"
 
 #include "od_iostream.h"
 

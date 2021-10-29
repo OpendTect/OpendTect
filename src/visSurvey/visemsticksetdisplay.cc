@@ -79,13 +79,14 @@ const mVisTrans* StickSetDisplay::getDisplayTransformation() const
 
 Geometry::FaultStickSet* StickSetDisplay::faultStickSetGeometry( int id )
 {
-    if ( !fault_ || !&fault_->geometry() ) return 0;
+    if ( !fault_ )
+	return nullptr;
 
     EM::FaultGeometry* fgeometry = &fault_->geometry();
     mDynamicCastGet( Geometry::FaultStickSet*,fss,
 	fgeometry->sectionGeometry((EM::SectionID)id) );
 
-    return fss ? fss : 0;
+    return fss ? fss : nullptr;
 }
 
 
