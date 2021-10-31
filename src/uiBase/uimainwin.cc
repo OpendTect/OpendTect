@@ -34,11 +34,11 @@ ________________________________________________________________________
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QPainter>
-#ifndef __mac__
-#include <QtPlatformHeaders/QWindowsWindowFunctions>
-#endif
 #include <QPrinter>
 #include <QScreen>
+#ifdef __win__
+# include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
 
 mUseQtnamespace
 
@@ -352,16 +352,14 @@ static OD::WindowActivationBehavior activateAct = OD::DefaultActivateWindow;
 void uiMainWin::setActivateBehaviour(
 		    OD::WindowActivationBehavior activateact )
 {
-#ifndef __win__
-	return;
-#else
+#ifdef __win__
     activateAct = activateact;
-#if QT_VERSION >= QT_VERSION_CHECK(5,7,0)
+# if QT_VERSION >= QT_VERSION_CHECK(5,7,0)
     const bool alwayshow = activateAct == OD::AlwaysActivateWindow;
     QWindowsWindowFunctions::setWindowActivationBehavior(
 	  alwayshow ? QWindowsWindowFunctions::AlwaysActivateWindow
 		    : QWindowsWindowFunctions::DefaultActivateWindow );
-#endif
+# endif
 #endif
 }
 
