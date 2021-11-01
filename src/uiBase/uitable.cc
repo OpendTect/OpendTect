@@ -535,7 +535,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , seliscols_(false)
     , cornerlabel_(nullptr)
 {
-    setGeometry.notify( mCB(this,uiTable,geometrySet_) );
+    mAttachCB( setGeometry, uiTable::geometrySet_ );
 
     setStretch( 2, 2 );
 
@@ -559,6 +559,7 @@ uiTableBody& uiTable::mkbody( uiParent* p, const char* nm, int nr, int nc )
 
 uiTable::~uiTable()
 {
+    detachAllNotifiers();
     deepErase( selranges_ );
 }
 
