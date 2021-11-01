@@ -39,6 +39,7 @@ public:
     virtual bool	putCSMdl() const		= 0; //!< Checkshot mdl
     virtual bool	putDispProps() const		= 0;
     virtual bool	putLog(const Log&) const	= 0;
+    virtual bool	swapLogs(const Log&,const Log&) const	=0;
 
     virtual const uiString& errMsg() const		= 0;
 

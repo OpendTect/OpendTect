@@ -45,6 +45,7 @@ public:
     virtual bool	putCSMdl() const;
     virtual bool	putDispProps() const;
     virtual bool	putLog(const Log&) const;
+    virtual bool	swapLogs(const Log&,const Log&) const;
 
     virtual const uiString& errMsg() const	{ return odIO::errMsg(); }
 
@@ -66,6 +67,7 @@ protected:
 
     bool		putLog(od_ostream&,const Log&,
 				  const DataBuffer* databuf = nullptr) const;
+    int			getLogIndex(const Log&) const;
     bool		wrLogHdr(od_ostream&,const Log&) const;
     bool		wrLogData(od_ostream&,const Log&,
 				  const DataBuffer* databuf = nullptr) const;

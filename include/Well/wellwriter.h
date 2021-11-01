@@ -48,6 +48,7 @@ public:
     bool		putCSMdl() const;	//!< Write Check shot model only
     bool		putDispProps() const;	//!< Write display pars only
     bool		putLog(const Log&) const;
+    bool		swapLogs(const Log&,const Log&) const;
 
     const uiString&	errMsg() const		{ return errmsg_; }
 

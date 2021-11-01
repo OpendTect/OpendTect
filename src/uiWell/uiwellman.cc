@@ -200,9 +200,6 @@ void uiWellMan::getCurrentWells()
 	Well::Data* wd = new Well::Data;
 	curwds_ += wd;
 	currdrs_ += new Well::Reader( *obj, *curwds_[idx] );
-	ConstRefMan<Well::Data> mwd = Well::MGR().get( obj->key(),
-						       Well::LoadReqs(false) );
-	mAttachCB( mwd->logschanged, uiWellMan::updateLogsFld );
 	getBasicInfo( currdrs_[idx] );
     }
 
@@ -762,11 +759,13 @@ void uiWellMan::editLogPush( CallBacker* )
 
 void uiWellMan::moveLogsPush( CallBacker* cb )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() )
+	return;
 
     mDynamicCastGet(uiToolButton*,toolbut,cb);
     if ( toolbut != logupbut_ && toolbut != logdownbut_ )
 	return;
+
     bool isup = toolbut == logupbut_;
     const int curlogidx = logsfld_->currentItem();
     const int newlogidx = curlogidx + ( isup ? -1 : 1 );
@@ -774,9 +773,13 @@ void uiWellMan::moveLogsPush( CallBacker* cb )
     currdrs_[0]->getLogs();
     if ( !wls.validIdx( curlogidx ) || !wls.validIdx( newlogidx ) )
 	return;
-    wls.swap( curlogidx, newlogidx );
 
-    writeLogs();
+    const Well::Log& log1 = wls.getLog( curlogidx );
+    const Well::Log& log2 = wls.getLog( newlogidx );
+    Well::Writer wwr( curmultiids_[0], *curwds_[0] );
+    wwr.swapLogs( log1, log2 );
+    const BufferStringSet lognms( log1.name(), log2.name() );
+    wellLogsChgd( lognms );
     logsfld_->setCurrentItem( newlogidx );
 }
 
@@ -819,6 +822,7 @@ void uiWellMan::wellLogsChgd( const BufferStringSet& lognms )
 {
     for ( int idwell=0; idwell<curwds_.size(); idwell++ )
     {
+	fillLogsFld();
 	Well::Data* wd = Well::MGR().get( curmultiids_[idwell],
 					  Well::LoadReqs(Well::Logs) );
 	for ( const auto* lognm : lognms )

@@ -104,6 +104,13 @@ mImplSimpleWWFn(isFunctional)
 mImplWWFn(bool,putLog,const Log&,wl,false)
 
 
+bool Well::Writer::swapLogs( const Well::Log& log1,
+			     const Well::Log& log2 ) const
+{
+    return wa_ ? wa_->swapLogs( log1, log2 ) : false;
+}
+
+
 #define mErrStrmOper(oper,todo) \
 { setStrmErrMsg(strm,oper); todo; }
 #define mErrRetStrmOper(oper) mErrStrmOper(oper,return false)
@@ -299,29 +306,7 @@ bool Well::odWriter::putLogs() const
 
 bool Well::odWriter::putLog( const Well::Log& wl ) const
 {
-    int logidx = -1;
-    //TODO: to be replaced by a proper well log identifier:
-    int nrlogs = -1;
-    if ( isFunctional() )
-    {
-	Reader rdr( wd_.multiID(), const_cast<Data&>( wd_ ) );
-	if ( rdr.isUsable() )
-	{
-	    BufferStringSet lognms;
-	    rdr.getLogInfo( lognms );
-	    logidx = lognms.indexOf( wl.name() );
-	    nrlogs = lognms.size();
-	}
-    }
-
-    if ( logidx < 0 )
-    {
-	//Unsafe !!!
-	logidx = nrlogs < 0 ? 0 : nrlogs;
-    }
-
-    logidx++;
-
+    const int logidx = getLogIndex( wl );
     const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx );
     od_istream istrm( logfnm );
     const DataBuffer* dbuf = wl.isLoaded() ? nullptr : getLogBuffer(istrm);
@@ -439,6 +424,49 @@ bool Well::odWriter::wrLogData( od_ostream& strm, const Well::Log& wl,
 	mErrRetStrmOper(tr("write log data"))
 
     return true;
+}
+
+
+bool Well::odWriter::swapLogs( const Well::Log& log1,
+			       const Well::Log& log2 ) const
+{
+    const int logidx1 = getLogIndex( log1 );
+    const BufferString logfnm1 = getFileName( Well::odIO::sExtLog(), logidx1 );
+    const int logidx2 = getLogIndex( log2 );
+    const BufferString logfnm2 = getFileName( Well::odIO::sExtLog(), logidx2 );
+    const BufferString tempfnm = getFileName( Well::odIO::sExtLog(), 0 );
+    File::rename( logfnm2, tempfnm );
+    File::rename( logfnm1, logfnm2 );
+    File::rename( tempfnm, logfnm1 );
+    return true;
+}
+
+
+int Well::odWriter::getLogIndex( const Well::Log& log ) const
+{
+    int logidx = -1;
+    //TODO: to be replaced by a proper well log identifier:
+    int nrlogs = -1;
+    if ( isFunctional() )
+    {
+	Reader rdr( wd_.multiID(), const_cast<Data&>( wd_ ) );
+	if ( rdr.isUsable() )
+	{
+	    BufferStringSet lognms;
+	    rdr.getLogInfo( lognms );
+	    logidx = lognms.indexOf( log.name() );
+	    nrlogs = lognms.size();
+	}
+    }
+
+    if ( logidx < 0 )
+    {
+	//Unsafe !!!
+	logidx = nrlogs < 0 ? 0 : nrlogs;
+    }
+
+    logidx++;
+    return logidx;
 }
 
 
