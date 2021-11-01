@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uigeom.h"
+#include "color.h"
 #include "polygon.h"
 
 
@@ -25,22 +26,22 @@ mStruct(uiIo) SelectionArea
 				SelectionArea();
 				~SelectionArea();
 
-    bool			isrectangle_;
+    bool			isrectangle_	= true;
     bool			isInside(const uiPoint&) const;
     bool			isValid() const;
     Interval<double>		getValueRange(bool forx,bool alt=false) const;
     BufferStringSet		getAxisNames() const;
     uiPoint			center() const;
-    float			selectedness(uiPoint) const;
+    float			selectedness(const uiPoint&) const;
 
 
     BufferString		xaxisnm_;
     BufferString		yaxisnm_;
     BufferString		altyaxisnm_;
-    int				id_;
+    int				id_		= -1;
     uiRect			rect_;
     ODPolygon<int>		poly_;
-    SelAxisType			axistype_;
+    SelAxisType			axistype_	= Y1;
     uiWorldRect			worldrect_;
     ODPolygon<double>		worldpoly_;
     uiWorldRect			altworldrect_;
@@ -53,7 +54,7 @@ mStruct(uiIo) SelectionArea
 
 protected:
 
-    mutable double		maxdistest_;
+    mutable double		maxdistest_	= mUdf(double);
     double			minDisToBorder(uiPoint) const;
 				// only for inside pts
     double			maxDisToBorder() const;

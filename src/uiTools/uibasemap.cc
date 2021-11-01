@@ -276,7 +276,7 @@ void uiBaseMapObject::update()
 
 		mDynamicCastGet(uiMarkerItem*,itm,graphitem_.getChild(itemnr));
 		itm->setMarkerStyle( *ms2d );
-		itm->setPenColor( ms2d->color_ );
+		itm->setPenColor( OD::Color::Black() );
 		itm->setFillColor( ms2d->color_ );
 		itm->setPos( crds[ptidx] );
 		itm->setAcceptHoverEvents( bmobject_->allowHoverEvent(idx) );

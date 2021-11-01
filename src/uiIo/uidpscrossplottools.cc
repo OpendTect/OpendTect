@@ -20,89 +20,27 @@ static const char* sKeyPoly = "Polygon";
 static const char* sKeyPos = "Position";
 
 
-uiDataPointSetCrossPlotter::Setup::Setup()
-    : noedit_(false)
-    , minborder_(10,20,20,5)
-    , markerstyle_(MarkerStyle2D::Square)
-    , xstyle_(OD::LineStyle::Solid,1,OD::Color::Black())
-    , ystyle_(OD::LineStyle::Solid,1,OD::Color::stdDrawColor(0))
-    , y2style_(OD::LineStyle::Dot,1,OD::Color::stdDrawColor(1))
-    , showy1cc_(true)
-    , showy2cc_(true)
-    , showy1regrline_(false)
-    , showy2regrline_(false)
-    , showy1userdefpolyline_(false)
-    , showy2userdefpolyline_(false)
-{
-}
-
-
-uiDataPointSetCrossPlotter::AxisData::AxisData( uiDataPointSetCrossPlotter& cp,
-						uiRect::Side s )
-    : uiAxisData( s )
-    , cp_( cp )
-{
-}
-
-
-void uiDataPointSetCrossPlotter::AxisData::stop()
-{
-    if ( isreset_ ) return;
-    colid_ = cp_.mincolid_ - 1;
-    uiAxisData::stop();
-}
-
-
-void uiDataPointSetCrossPlotter::AxisData::setCol( DataPointSet::ColID cid )
-{
-    if ( axis_ && cid == colid_ )
-	return;
-
-    stop();
-    colid_ = cid;
-    newColID();
-}
-
-
-void uiDataPointSetCrossPlotter::AxisData::newColID()
-{
-    if ( colid_ < cp_.mincolid_ )
-	return;
-
-    renewAxis( toUiString(cp_.uidps_.userName(colid_)), &cp_.scene(),
-	       cp_.viewWidth(), cp_.viewHeight(), 0 );
-    handleAutoScale( cp_.uidps_.getRunCalc( colid_ ) );
-}
-
-
 // SelectionArea
 SelectionArea::SelectionArea()
-    : axistype_(SelectionArea::Y1)
 {}
 
 
 SelectionArea::SelectionArea( const uiRect& rect )
-    : isrectangle_( true )
+    : isrectangle_(true)
     , rect_(rect)
-    , maxdistest_(mUdf(double))
-    , axistype_(SelectionArea::Y1)
 {
 }
 
 
 SelectionArea::SelectionArea( const ODPolygon<int>& poly )
-    : isrectangle_( false )
+    : isrectangle_(false)
     , poly_(poly)
-    , maxdistest_(mUdf(double))
-    , axistype_(SelectionArea::Y1)
 {
 }
 
 
 SelectionArea::SelectionArea( bool isrect )
-    : isrectangle_( isrect )
-    , maxdistest_(mUdf(double))
-    , axistype_(SelectionArea::Y1)
+    : isrectangle_(isrect)
 {
 }
 
@@ -111,19 +49,23 @@ SelectionArea::~SelectionArea()
 {
 }
 
+
 bool SelectionArea::operator==( const SelectionArea& selarea ) const
 {
-    if ( isrectangle_ != selarea.isrectangle_ ) return false;
+    if ( isrectangle_ != selarea.isrectangle_ )
+	return false;
+
     if ( isrectangle_ && (worldrect_ != selarea.worldrect_) )
 	return false;
-    else if ( !isrectangle_ && !(worldpoly_.data()==selarea.worldpoly_.data()) )
+
+    if ( !isrectangle_ && !(worldpoly_.data()==selarea.worldpoly_.data()) )
 	return false;
 
     return true;
 }
 
 
-float SelectionArea::selectedness( uiPoint pt ) const
+float SelectionArea::selectedness( const uiPoint& pt ) const
 {
     if ( !isInside(pt) )
 	return mUdf(float);
