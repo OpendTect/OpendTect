@@ -18,11 +18,11 @@ ________________________________________________________________________
 
 class uiSpinBox;
 
-mExpClass(uiTools) uiImageSize : public uiGroup
+mExpClass(uiTools) uiSizeSel : public uiGroup
 {
 public:
-			uiImageSize(uiParent*,const uiString& lbl,int maxnrdim);
-			~uiImageSize();
+			uiSizeSel(uiParent*,const uiString& lbl,int maxnrdim);
+			~uiSizeSel();
 
     int			maxNrDim() const;
     void		setNrDim(int);
@@ -43,7 +43,7 @@ public:
     std::array<int,2>	getImageSize2D() const;
     std::array<int,3>	getImageSize3D() const;
 
-    Notifier<uiImageSize> valueChanging;
+    Notifier<uiSizeSel> valueChanging;
 
 protected:
     ObjectSet<uiSpinBox>	sizeflds_;

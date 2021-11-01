@@ -9,14 +9,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiimagesize.h"
+#include "uisizesel.h"
 
 #include "uilabel.h"
 #include "uispinbox.h"
 #include "uistrings.h"
 
 
-uiImageSize::uiImageSize( uiParent* p, const uiString& lbl, int maxnrdim )
+uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim )
     : uiGroup(p,"Image Size Group")
     , valueChanging(this)
 {
@@ -27,7 +27,7 @@ uiImageSize::uiImageSize( uiParent* p, const uiString& lbl, int maxnrdim )
     for ( int idx=0; idx<maxnrdim; idx++ )
     {
 	auto* fld = new uiSpinBox( this, 0, BufferString("Dim",idx) );
-	mAttachCB( fld->valueChanging, uiImageSize::valueChangingCB );
+	mAttachCB( fld->valueChanging, uiSizeSel::valueChangingCB );
 	if ( idx==0 )
 	    fld->attach( rightTo, uilbl );
 	else
@@ -40,32 +40,32 @@ uiImageSize::uiImageSize( uiParent* p, const uiString& lbl, int maxnrdim )
 }
 
 
-uiImageSize::~uiImageSize()
+uiSizeSel::~uiSizeSel()
 {
     detachAllNotifiers();
 }
 
 
-void uiImageSize::valueChangingCB(CallBacker*)
+void uiSizeSel::valueChangingCB(CallBacker*)
 {
     valueChanging.trigger();
 }
 
 
-int uiImageSize::maxNrDim() const
+int uiSizeSel::maxNrDim() const
 {
     return sizeflds_.size();
 }
 
 
-void uiImageSize::setNrDim( int nrdim )
+void uiSizeSel::setNrDim( int nrdim )
 {
     for ( int idx=0; idx<sizeflds_.size(); idx++ )
 	sizeflds_[idx]->display( idx<nrdim );
 }
 
 
-int uiImageSize::currentNrDim() const
+int uiSizeSel::currentNrDim() const
 {
     int idx = 0;
     for ( auto* fld : sizeflds_ )
@@ -76,7 +76,7 @@ int uiImageSize::currentNrDim() const
 }
 
 
-void uiImageSize::setImageSize( int dim, int sz )
+void uiSizeSel::setImageSize( int dim, int sz )
 {
     if ( dim==-1 )
     {
@@ -90,13 +90,13 @@ void uiImageSize::setImageSize( int dim, int sz )
 }
 
 
-int uiImageSize::getImageSize( int dim ) const
+int uiSizeSel::getImageSize( int dim ) const
 {
     return sizeflds_.validIdx(dim) ? sizeflds_[dim]->getIntValue() : -1;
 }
 
 
-void uiImageSize::setSizeRange( int dim, const StepInterval<int>& rg )
+void uiSizeSel::setSizeRange( int dim, const StepInterval<int>& rg )
 {
     if ( dim==-1 )
     {
@@ -111,7 +111,7 @@ void uiImageSize::setSizeRange( int dim, const StepInterval<int>& rg )
 }
 
 
-void uiImageSize::setPrefix( int dim, const uiString& str )
+void uiSizeSel::setPrefix( int dim, const uiString& str )
 {
     if ( dim==-1 )
     {
@@ -125,7 +125,7 @@ void uiImageSize::setPrefix( int dim, const uiString& str )
 }
 
 
-void uiImageSize::setDefaultPrefixes()
+void uiSizeSel::setDefaultPrefixes()
 {
     const int nrdim = currentNrDim();
     if ( nrdim==1 )
@@ -146,7 +146,7 @@ void uiImageSize::setDefaultPrefixes()
 }
 
 
-void uiImageSize::setImageSize( std::array<int,2> sz )
+void uiSizeSel::setImageSize( std::array<int,2> sz )
 {
     const int nrflds = std::min( sizeflds_.size(), int(sz.size()) );
     for ( int idx=0; idx<nrflds; idx++ )
@@ -154,7 +154,7 @@ void uiImageSize::setImageSize( std::array<int,2> sz )
 }
 
 
-void uiImageSize::setImageSize( std::array<int,3> sz )
+void uiSizeSel::setImageSize( std::array<int,3> sz )
 {
     const int nrflds = std::min( sizeflds_.size(), int(sz.size()) );
     for ( int idx=0; idx<nrflds; idx++ )
@@ -162,7 +162,7 @@ void uiImageSize::setImageSize( std::array<int,3> sz )
 }
 
 
-std::array<int,2> uiImageSize::getImageSize2D() const
+std::array<int,2> uiSizeSel::getImageSize2D() const
 {
     std::array<int,2> sz;
     sz.fill( -1 );
@@ -174,7 +174,7 @@ std::array<int,2> uiImageSize::getImageSize2D() const
 }
 
 
-std::array<int,3> uiImageSize::getImageSize3D() const
+std::array<int,3> uiSizeSel::getImageSize3D() const
 {
     std::array<int,3> sz;
     sz.fill( -1 );
