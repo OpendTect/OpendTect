@@ -216,7 +216,7 @@ Always defined:
 #define mDeprecatedDef	mDeprecated("See header file for alternatives")
 #define mDeprecatedObs	mDeprecated("This is obsolete now")
 
-#if defined( __gnuc__ )
+#if defined( __gnuc__ ) || defined( __clang__ )
 #  define mStartAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic push" ) \
     _Pragma ( "GCC diagnostic ignored \"-Wdeprecated-declarations\"" )
@@ -224,10 +224,10 @@ Always defined:
     _Pragma ( "GCC diagnostic pop" )
 #elif defined( __msvc__ )
 #  define mStartAllowDeprecatedSection \
-    __pragma( warning( push ) ) \
-    __pragma( warning( disable : 4996 ) )
+    _Pragma ( "warning( push )" ) \
+    _Pragma ( "warning( disable : 4996 )" )
 #  define mStopAllowDeprecatedSection \
-    __pragma( warning( pop ) )
+    _Pragma ( "warning( pop )" )
 #else
 #  define mStartAllowDeprecatedSection
 #  define mStopAllowDeprecatedSection
