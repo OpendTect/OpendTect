@@ -1057,8 +1057,20 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    return nullptr;
     }
 
-    ObjectSet<SynthRayModel>* rms =
-			synthrmmgr_.getRayModelSet( synthgenpar.raypars_ );
+    ObjectSet<SynthRayModel>* rms = nullptr;
+    if ( ispsbased )
+    {
+	const SyntheticData* sd = getSynthetic( synthgenpar.inpsynthnm_ );
+	if ( sd )
+	{
+	    SynthGenParams pssynthgenpar;
+	    sd->fillGenParams( pssynthgenpar );
+	    rms = synthrmmgr_.getRayModelSet( pssynthgenpar.raypars_ );
+	}
+    }
+    else
+	rms = synthrmmgr_.getRayModelSet( synthgenpar.raypars_ );
+
     PtrMan<Seis::RaySynthGenerator> synthgen;
     if ( rms )
 	synthgen = new Seis::RaySynthGenerator( rms );

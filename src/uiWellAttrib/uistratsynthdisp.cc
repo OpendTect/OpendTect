@@ -112,14 +112,9 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     datagrp_->setFrame( true );
     datagrp_->setStretch( 2, 0 );
 
-    auto* layertb = new uiToolButton( datagrp_, "defraytraceprops",
-			tr("Specify input for synthetic creation"),
-			mCB(this,uiStratSynthDisp,layerPropsPush));
-
     wvltfld_ = new uiSeisWaveletSel( datagrp_, "", true, true, true );
     mAttachCB( wvltfld_->newSelection, uiStratSynthDisp::wvltChg );
     wvltfld_->setFrame( false );
-    wvltfld_->attach( rightOf, layertb );
     curSS().setWavelet( wvltfld_->getWavelet() );
 
     scalebut_ = new uiPushButton( datagrp_, tr("Scale"),
@@ -1331,6 +1326,8 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 		   uiStratSynthDisp::syntheticRemoved );
 	mAttachCB( uiparsgrp->synthDisabled,
 		   uiStratSynthDisp::syntheticDisabled );
+	mAttachCB( uiparsgrp->elPropSel,
+		   uiStratSynthDisp::layerPropsPush );
     }
 
     synthgendlg_->go();

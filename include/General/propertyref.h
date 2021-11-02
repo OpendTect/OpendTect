@@ -182,11 +182,19 @@ public:
 
     virtual bool	isElasticSel() const		{ return false; }
 
+    virtual void	fillPar(IOPar&) const;
+			//<! Only using the PropertyRef names
+    virtual bool	usePar(const IOPar&);
+			/*<! Only using the PropertyRef names. No erase
+			     True if all properties have been found */
+
     const PropertyRef*	getByName(const char*,bool matchaliases=true) const;
     const PropertyRef*	getByType(PropertyRef::StdType,int occ=0) const;
     const PropertyRef*	getByMnemonic(const Mnemonic&,int occ=0) const;
 
     PropertyRefSelection subselect(PropertyRef::StdType) const;
+
+    static const char*	sKeyModelProp();
 
 };
 

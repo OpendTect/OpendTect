@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 
 class uiRockPhysConstantFld : public uiGroup
-{
+{ mODTextTranslationClass(uiRockPhysConstantFld)
 public:
 
 
@@ -59,26 +59,27 @@ float value() const
 }
 
 
-void update( const RockPhysics::Formula::ConstDef* pcd )
+void update( const RockPhysics::Formula& form, int iinp )
 {
-    display( pcd );
-    if ( !pcd )
+    const bool validcst = iinp <= 0 && iinp < form.nrInputs();
+    display( validcst );
+    if ( !validcst )
 	{ cstnm_.setEmpty(); infofld_->setInfo( "" ); return; }
 
-    const RockPhysics::Formula::ConstDef& cd = *pcd;
-    cstnm_ = cd.name();
+    cstnm_ = form.inputConstantName( iinp );
 
-    nmlbl_->setText( od_static_tr("update",
-			      "Value for '%1'").arg(mToUiStringTodo(cstnm_)) );
-    infofld_->setInfo( cd.desc_, od_static_tr("update","Information on '%1'").
+    nmlbl_->setText( tr("Value for '%1'" ).arg( cstnm_) );
+    infofld_->setInfo( form.inputDescription( iinp ),
+		       od_static_tr("update","Information on '%1'").
 						      arg(toUiString(cstnm_)) );
-    valfld_->setValue( cd.defaultval_ );
+    const Interval<float> typicalrg = form.inputTypicalRange( iinp );
+    valfld_->setValue( typicalrg );
 
-    const bool haverg = !cd.typicalrg_.isUdf();
+    const bool haverg = !typicalrg.isUdf();
     if ( haverg )
     {
-	uiString rgstr = od_static_tr("update","Typical range: [%1,%2]").
-			 arg(cd.typicalrg_.start).arg(cd.typicalrg_.stop );
+	const uiString rgstr = tr("Typical range: [%1,%2]").
+			 arg(typicalrg.start).arg(typicalrg.stop );
 	rangelbl_->setText( rgstr );
     }
     rangelbl_->display( haverg );
@@ -241,8 +242,11 @@ void uiRockPhysForm::mnSel( CallBacker* cb )
 
 void uiRockPhysForm::setType( const Mnemonic& mn )
 {
+    ObjectSet<const Math::Formula> forms;
+    ROCKPHYSFORMS().getRelevant( mn, forms );
     BufferStringSet nms;
-    ROCKPHYSFORMS().getRelevant( mn, nms );
+    for ( const auto* fm : forms )
+	nms.add( fm->name() );
     nmfld_->setEmpty();
     nmfld_->addItems( nms );
     if ( !nms.isEmpty() )
@@ -252,50 +256,76 @@ void uiRockPhysForm::setType( const Mnemonic& mn )
 }
 
 
+const Mnemonic& uiRockPhysForm::getMnemonic() const
+{
+    if ( fixedmn_ )
+	return *fixedmn_;
+
+    for ( const auto* mnfld : mnselflds_ )
+    {
+	if ( !mnfld->isDisplayed() )
+	    continue;
+
+	const Mnemonic* mn = mnfld->mnemonic();
+	if ( mn )
+	    return *mn;
+	break;
+    }
+
+    return Mnemonic::undef();
+}
+
+
 void uiRockPhysForm::nameSel( CallBacker* )
 {
     const FixedString txt = nmfld_->text();
     if ( txt.isEmpty() )
 	return;
 
-    const RockPhysics::Formula* fm = ROCKPHYSFORMS().getByName( txt );
+    const RockPhysics::Formula* fm =
+				ROCKPHYSFORMS().getByName( getMnemonic(), txt );
     if ( !fm )
 	{ uiMSG().error( tr("Internal: formula not found") ); return;}
 
     const RockPhysics::Formula& rpfm = *fm;
-    const int nrconsts = rpfm.constdefs_.size();
-    for ( int idx=0; idx<cstflds_.size(); idx++ )
-	cstflds_[idx]->update( idx<nrconsts ? rpfm.constdefs_[idx] : 0 );
+    int icst = 0;
+    for ( int iinp=0; iinp<rpfm.nrInputs(); iinp++ )
+    {
+	if ( !rpfm.isConst(iinp) )
+	    continue;
+
+	uiRockPhysConstantFld* cstflds = cstflds_[icst++];
+	cstflds->update( rpfm, iinp );
+    }
+    for ( int idx=icst; idx<cstflds_.size(); idx++ )
+	cstflds_[idx]->update( rpfm, -1 );
 
     formulafld_->setText( getFormText(rpfm,true) );
-    descriptionfld_->setHtmlText( rpfm.desc_ );
+    descriptionfld_->setHtmlText( rpfm.description() );
 }
 
 
 BufferString uiRockPhysForm::getFormText( const RockPhysics::Formula& rpfm,
 					  bool fortxtdisp ) const
 {
-    BufferString formstr( rpfm.def_ );
-    Math::Formula form( true, formstr );
-    int ivardef = 0; int iconstdef = 0;
-    for ( int iinp=0; iinp<form.nrInputs(); iinp++ )
+    BufferString formstr( rpfm.text() );
+    int iconstdef = 0;
+    for ( int iinp=0; iinp<rpfm.nrInputs(); iinp++ )
     {
 	BufferString formval;
-	if ( form.isConst(iinp) )
+	if ( rpfm.isConst(iinp) )
 	{
 	    if ( fortxtdisp )
-		formval = rpfm.constdefs_[iconstdef]->name();
+		formval.set( rpfm.inputConstantName( iinp ) );
 	    else
-		formval.set( cstflds_[iconstdef]->value() );
-	    iconstdef++;
+		formval.set( cstflds_[iconstdef++]->value() );
 	}
 	else
 	{
-	    formval = rpfm.vardefs_[ivardef]->name();
+	    formval.set( rpfm.inputDef( iinp ) );
 	    formval.clean();
-	    ivardef++;
 	}
-	formstr.replace( form.variableName(iinp), formval );
+	formstr.replace( rpfm.variableName(iinp), formval );
     }
 
     return formstr;
@@ -336,30 +366,15 @@ bool uiRockPhysForm::getFormulaInfo( Math::Formula& form ) const
     if ( txt.isEmpty() )
 	{ uiMSG().error( tr("No formula name selected") ); return false; }
 
-    const RockPhysics::Formula* fm = ROCKPHYSFORMS().getByName( txt );
+    const RockPhysics::Formula* fm =
+				ROCKPHYSFORMS().getByName( getMnemonic(), txt );
     if ( !fm )
-	{ uiMSG().error( tr("Internal: formula not found") ); return false; }
-    const RockPhysics::Formula& rpfm = *fm;
-
-    form.setText( getFormText(rpfm,false) );
-
-    const int nrinps = form.nrInputs();
-    if ( nrinps != fm->vardefs_.size() )
     {
-	BufferString msg; msg.set(nrinps).add("!=").add(fm->vardefs_.size());
-	pErrMsg( msg );
+	uiMSG().error( tr("Internal: formula not found") );
+	return false;
     }
 
-    for ( int idx=0; idx<fm->vardefs_.size(); idx++ )
-    {
-	const RockPhysics::Formula::VarDef& vardef = *fm->vardefs_.get( idx );
-	form.setInputDef( idx, vardef.desc_ );
-	form.setInputMnemonic( idx, vardef.mn_ );
-	form.setInputFormUnit( idx, UoMR().get( vardef.unit_ ) );
-    }
-
-    form.setOutputMnemonic( fm->mn_ );
-    form.setOutputFormUnit( UoMR().get(fm->unit_) );
+    form = *fm;
     return true;
 }
 

@@ -11,15 +11,16 @@ ________________________________________________________________________
 
 -*/
 
+#include "mathformula.h"
 #include "mnemonics.h"
 #include "repos.h"
 
 class ascistream;
 class ascostream;
+class ElasticFormula;
 class MathProperty;
 class PropertyRef;
 class RockPhysicsFormulaMgr;
-
 
 
 namespace RockPhysics
@@ -27,71 +28,53 @@ namespace RockPhysics
 
 /*!\brief A Mathematics formula based on Mnemonics */
 
-mExpClass(General) Formula : public NamedObject
+mExpClass(General) Formula : public Math::Formula
 {
 public:
-			Formula( const Mnemonic& mn, const char* nm=nullptr )
-			    : NamedObject(nm)
-			    , mn_(&mn)			{}
+			Formula(const Mnemonic&,const char* nm=nullptr);
+			Formula(const Formula&);
 			~Formula();
+    bool		operator ==(const Formula&) const;
+			//!*< Does not use the source
+    bool		operator !=(const Formula&) const;
+			//!*< Does not use the source
 
-    inline bool		isCompatibleWith( const Mnemonic* mn ) const
-						{ return mn_ == mn; }
-
-    mExpClass(General) ConstDef : public NamedObject
-    {
-    public:
-			ConstDef( const char* nm )
-			    : NamedObject(nm)
-			    , typicalrg_(mUdf(float),mUdf(float))
-			    , defaultval_(mUdf(float))	{}
-	BufferString	desc_;
-	Interval<float>	typicalrg_;
-	float		defaultval_;
-    };
-    mExpClass(General) VarDef : public NamedObject
-    {
-    public:
-			VarDef( const char* nm, const Mnemonic& mn )
-			    : NamedObject(nm)
-			    , mn_(&mn)			{}
-	BufferString	desc_;
-	const Mnemonic* mn_;
-	BufferString	unit_;
-    };
-
-    BufferString	def_;
-    BufferString	desc_;
-    const Mnemonic*	mn_;
-    BufferString	unit_;
-    ObjectSet<ConstDef>	constdefs_;
-    ObjectSet<VarDef>	vardefs_;
-
-    void		setSource( Repos::Source src )	{ src_ = src; }
-
-    bool		setDef(const char*); // Will add var- and constdefs
-    MathProperty*	getProperty(const PropertyRef* pr=nullptr) const;
-
-private:
-
-			Formula( const Formula& f ) { *this = f; }
-
-    static Formula*	get(const IOPar&);	//!< returns null if bad IOPar
-
-    Formula&		operator =(const Formula&);
-    inline bool		operator ==( const Formula& pr ) const
-			{ return name() == pr.name(); }
-    inline bool		operator !=( const Formula& pr ) const
-			{ return name() != pr.name(); }
+    bool		hasSameForm(const Math::Formula&) const;
 
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
 
+    void		setSource( Repos::Source src )	{ src_ = src; }
+
+    MathProperty*	getProperty(const PropertyRef* =nullptr) const;
+
+    void		setConstantName(int,const char*);
+    void		setInputTypicalRange(int,const Interval<float>&);
+
+    const char*		inputConstantName(int) const;
+    Interval<float>	inputTypicalRange(int) const;
+
+    void		setText(const char*) override;
+
+private:
+
+    static Formula*	get(const IOPar&);	//!< returns null if bad IOPar
+
+    Formula&		operator =(const Formula&);
+
+			//Not  supported by the form:
+    BufferStringSet	constantnms_;
+    ObjectSet<Interval<float> > typicalrgs_;
+
     Repos::Source	src_;
 
     friend class FormulaSet;
+    friend class ::ElasticFormula;
 
 public:
+			mDeprecated("Use setText")
+    bool		setDef(const char*);
+
 			mDeprecated("Use Mnemonic")
     bool		hasPropType(Mnemonic::StdType) const;
 
@@ -109,15 +92,10 @@ public:
 
     int			getIndexOf(const char*) const;
     bool		hasType(PropType) const;
-    void		getRelevant(const Mnemonic&,
-				    BufferStringSet&) const;
+    const Formula*	getByName(const Mnemonic&,const char*) const;
     void		getRelevant(PropType,MnemonicSelection&) const;
-
-    const Formula*	getByName( const char* nm ) const
-			{
-			    const int idxof = getIndexOf( nm );
-			    return validIdx(idxof) ? get( idxof ) : nullptr;
-			}
+    bool		getRelevant(const Mnemonic&,
+				    ObjectSet<const Math::Formula>&) const;
 
 private:
 
@@ -127,6 +105,19 @@ private:
     bool		writeTo(ascostream&) const;
 
     friend class ::RockPhysicsFormulaMgr;
+
+public:
+
+    mDeprecated("Name may not be unique. Provide a mnemonic")
+    const Formula*	getByName( const char* nm ) const
+			{
+			    const int idxof = getIndexOf( nm );
+			    return validIdx(idxof) ? get( idxof ) : nullptr;
+			}
+
+    mDeprecated("Use ObjectSet<const Math::Formula>")
+    void		getRelevant(const Mnemonic&,
+				    BufferStringSet&) const;
 
 };
 

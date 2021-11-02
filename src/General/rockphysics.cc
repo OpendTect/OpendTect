@@ -14,6 +14,7 @@
 #include "mathproperty.h"
 #include "safefileio.h"
 #include "separstr.h"
+#include "unitofmeasure.h"
 
 static const char* filenamebase = "RockPhysics";
 static const char* sKeyDef = "Formula";
@@ -22,10 +23,63 @@ static const char* sKeyConst = "Constant";
 static const char* sKeyRg = "Typical Range";
 
 
+RockPhysics::Formula::Formula( const Mnemonic& mn, const char* nm )
+    : Math::Formula()
+{
+    setName( nm );
+    setOutputMnemonic( &mn );
+    typicalrgs_.setNullAllowed();
+}
+
+
+RockPhysics::Formula::Formula( const Formula& oth )
+    : Math::Formula(oth)
+{
+    typicalrgs_.setNullAllowed();
+    *this = oth;
+}
+
+
 RockPhysics::Formula::~Formula()
 {
-    deepErase(constdefs_);
-    deepErase(vardefs_);
+    deepErase( typicalrgs_ );
+}
+
+
+RockPhysics::Formula& RockPhysics::Formula::operator =( const Formula& oth )
+{
+    if ( this != &oth )
+    {
+	Math::Formula::operator=( oth );
+	src_ = oth.src_;
+	constantnms_ = oth.constantnms_;
+	deepCopy( typicalrgs_, oth.typicalrgs_ );
+    }
+
+    return *this;
+}
+
+
+bool RockPhysics::Formula::operator ==( const Formula& oth ) const
+{
+    if ( Math::Formula::operator !=(oth) ||
+	 constantnms_ != oth.constantnms_ ||
+	 typicalrgs_.size() != oth.typicalrgs_.size() )
+	return false;
+
+    return true;
+}
+
+
+bool RockPhysics::Formula::operator !=( const Formula& oth ) const
+{
+    return !(*this == oth);
+}
+
+
+bool RockPhysics::Formula::hasSameForm( const Math::Formula& form ) const
+{
+    return Math::Formula::operator ==( form );
 }
 
 
@@ -39,24 +93,6 @@ RockPhysics::Formula* RockPhysics::Formula::get( const IOPar& iop )
 }
 
 
-RockPhysics::Formula& RockPhysics::Formula::operator =(
-					const RockPhysics::Formula& fm )
-{
-    if ( this != &fm )
-    {
-	NamedObject::operator=( fm );
-	mn_ = fm.mn_;
-	def_ = fm.def_;
-	desc_ = fm.desc_;
-	src_ = fm.src_;
-	unit_ = fm.unit_;
-	deepCopy( vardefs_, fm.vardefs_ );
-	deepCopy( constdefs_, fm.constdefs_ );
-    }
-    return *this;
-}
-
-
 static BufferString getStrFromFMS( const char* inp )
 {
     SeparString fms( inp, '`' );
@@ -67,25 +103,27 @@ static BufferString getStrFromFMS( const char* inp )
 
 bool RockPhysics::Formula::usePar( const IOPar& iop )
 {
-    if ( iop.isEmpty() ) return false;
+    if ( iop.isEmpty() )
+	return false;
+
     BufferString nm( iop.getKey(0) );
-    if ( nm.isEmpty() ) return false;
+    if ( nm.isEmpty() )
+	return false;
 
     setName( nm );
-    const BufferString mnemonicnm( iop.getValue(0) );
-    mn_ = mnemonicnm.startsWith("Distance")
-	? &Mnemonic::distance()
-	: MNC().getByName( mnemonicnm, false );
-    if ( !mn_ )
-	{ pErrMsg("Incorrect RockPhysics input in repository"); }
+    BufferString desc;
+    iop.get( sKey::Desc(), desc );
+    desc = getStrFromFMS( desc );
+    setDescription( desc.buf() );
 
-    iop.get( sKeyDef, def_ );
-    iop.get( sKey::Unit(), unit_ );
-    iop.get( sKey::Desc(), desc_ );
-    desc_ = getStrFromFMS( desc_ );
+    BufferString expr, unit;
+    if ( iop.get(sKeyDef,expr) && !expr.isEmpty() )
+	setText( expr.buf() );
+    else
+	return false;
 
     PtrMan<IOPar> subpar;
-    deepErase( vardefs_ );
+    int iinp = 0;
     for ( int idx=0; ; idx++ )
     {
 	subpar = iop.subselect( IOPar::compKey(sKeyVar,idx) );
@@ -95,24 +133,37 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 	nm = subpar->find( sKey::Name() );
 	if ( !nm.isEmpty() )
 	{
+	    while ( isConst(iinp) && iinp < nrInputs() )
+		iinp++;
+
+	    setInputDef( iinp, nm );
+
+	    desc.setEmpty();
+	    unit.setEmpty();
 	    BufferString mninpnm;
+	    if ( subpar->get(sKey::Desc(),desc) )
+	    {
+		desc = getStrFromFMS( desc );
+		setInputDescription( iinp, desc );
+	    }
+	    if ( subpar->get(sKey::Unit(),unit) )
+	    {
+		const UnitOfMeasure* uom = UoMR().get( unit );
+		setInputFormUnit( iinp, uom );
+	    }
+
 	    subpar->get( sKey::Type(), mninpnm );
-	    const Mnemonic* mn = mninpnm.startsWith("Distance")
-			       ? &Mnemonic::distance()
-			       : MNC().getByName( mninpnm, false );
+	    const Mnemonic* mn = mninpnm.startsWith( "Distance" )
+					    ? &Mnemonic::distance()
+					    : MNC().getByName( mninpnm, false );
 	    if ( !mn )
 		{ pErrMsg("Incorrect RockPhysics input in repository"); }
-
-	    auto* vd = new VarDef( nm, mn ? *mn : Mnemonic::undef() );
-	    subpar->get( sKey::Unit(), vd->unit_ );
-	    subpar->get( sKey::Desc(), vd->desc_ );
-	    vd->desc_ = getStrFromFMS( vd->desc_ );
-
-	    vardefs_ += vd;
+	    setInputMnemonic( iinp, mn );
+	    iinp++;
 	}
     }
 
-    deepErase( constdefs_ );
+    iinp = 0;
     for ( int idx=0; ; idx++ )
     {
 	subpar = iop.subselect( IOPar::compKey(sKeyConst,idx) );
@@ -122,14 +173,39 @@ bool RockPhysics::Formula::usePar( const IOPar& iop )
 	nm = subpar->find( sKey::Name() );
 	if ( !nm.isEmpty() )
 	{
-	    auto* cd = new ConstDef( nm );
-	    subpar->get( sKey::Desc(), cd->desc_ );
-	    cd->desc_ = getStrFromFMS( cd->desc_ );
-	    subpar->get( sKeyRg, cd->typicalrg_ );
-	    subpar->get( sKey::Default(), cd->defaultval_ );
-	    constdefs_ += cd;
+	    while ( !isConst(iinp) && iinp < nrInputs() )
+		iinp++;
+
+	    constantnms_.get( iinp ).set( nm );
+	    desc.setEmpty();
+	    BufferString defval;
+	    subpar->get( sKey::Default(), defval );
+	    setInputDef( iinp, defval.buf() );
+	    if ( subpar->get(sKey::Desc(),desc) )
+	    {
+		desc = getStrFromFMS( desc );
+		setInputDescription( iinp, desc );
+	    }
+
+	    Interval<float> typicalrg;
+	    if ( subpar->get(sKeyRg,typicalrg) )
+		delete typicalrgs_.replace( iinp,
+					  new Interval<float>(typicalrg) );
+	    iinp++;
 	}
     }
+
+    unit.setEmpty();
+    iop.get( sKey::Unit(), unit );
+    const BufferString mnemonicnm( iop.getValue(0) );
+    const Mnemonic* mn = mnemonicnm.startsWith( "Distance" )
+		       ? &Mnemonic::distance()
+		       : MNC().getByName( mnemonicnm, false );
+    if ( !mn )
+	{ pErrMsg("Incorrect RockPhysics input in repository"); }
+
+    setOutputMnemonic( mn );
+    setOutputFormUnit( UoMR().get(unit) );
 
     return true;
 }
@@ -146,54 +222,60 @@ static void setIOPWithNLs( IOPar& iop, const char* ky, const char* val )
 void RockPhysics::Formula::fillPar( IOPar& iop ) const
 {
     iop.setEmpty();
-    iop.set( name(), mn_ ? mn_->name() : Mnemonic::undef().name() );
-    iop.set( sKeyDef, def_ );
-    setIOPWithNLs( iop, sKey::Desc(), desc_ );
-    iop.set( sKey::Unit(), unit_ );
-    for ( int idx=0; idx<vardefs_.size(); idx++ )
+    const Mnemonic* mn = outputMnemonic();
+    iop.set( name(), mn ? mn->name() : Mnemonic::undef().name() );
+    setIOPWithNLs( iop, sKey::Desc(), description() );
+    iop.set( sKeyDef, text() );
+    const UnitOfMeasure* uom = outputFormUnit();
+    iop.set( sKey::Unit(), uom ? uom->name() : BufferString::empty() );
+    int icst = 0, ivar = 0;
+    IOPar cstpar, varpar;
+    for ( int iinp=0; iinp<nrInputs(); iinp++ )
     {
-	const VarDef& vd = *vardefs_[idx];
-	const BufferString keybase( IOPar::compKey(sKeyVar,idx) );
-	const Mnemonic& mn = vd.mn_ ? *vd.mn_ : Mnemonic::undef();
-	iop.set( IOPar::compKey(keybase,sKey::Type()), mn.name() );
-	iop.set( IOPar::compKey(keybase,sKey::Name()), vd.name() );
-	iop.set( IOPar::compKey(keybase,sKey::Unit()), vd.unit_ );
-	setIOPWithNLs( iop, IOPar::compKey(keybase,sKey::Desc()), vd.desc_ );
+	const BufferString desc( inputDescription(iinp) );
+	const BufferString inpdef( inputDef(iinp) );
+	if ( isConst(iinp) )
+	{
+	    const BufferString keybase( IOPar::compKey(sKeyConst,icst++) );
+	    cstpar.set( IOPar::compKey(keybase,sKey::Name()),
+			constantnms_.get(iinp).buf() );
+	    if ( !desc.isEmpty() )
+		setIOPWithNLs( cstpar, IOPar::compKey(keybase,sKey::Desc()),
+			       desc.str() );
+	    cstpar.set( IOPar::compKey(keybase,sKey::Default()), inpdef );
+	    const Interval<float>* typrg = typicalrgs_.get( iinp );
+	    if ( typrg )
+		cstpar.set( IOPar::compKey(keybase,sKeyRg), *typrg );
+	}
+	else if ( !isSpec(iinp) )
+	{
+	    const BufferString keybase( IOPar::compKey(sKeyVar,ivar++) );
+	    mn = inputMnemonic( iinp );
+	    if ( !mn )
+		mn = &Mnemonic::undef();
+	    uom = inputFormUnit( iinp );
+	    varpar.set( IOPar::compKey(keybase,sKey::Type()), mn->name() );
+	    varpar.set( IOPar::compKey(keybase,sKey::Name()), inpdef );
+	    if ( !desc.isEmpty() )
+		setIOPWithNLs( varpar, IOPar::compKey(keybase,sKey::Desc()),
+			       desc.str() );
+	    varpar.set( IOPar::compKey(keybase,sKey::Unit()),
+				    uom ? uom->name() : BufferString::empty() );
+	}
     }
-    for ( int idx=0; idx<constdefs_.size(); idx++ )
-    {
-	const ConstDef& cd = *constdefs_[idx];
-	const BufferString keybase( IOPar::compKey(sKeyConst,idx) );
-	iop.set( IOPar::compKey(keybase,sKey::Name()), cd.name() );
-	iop.set( IOPar::compKey(keybase,sKeyRg), cd.typicalrg_ );
-	iop.set( IOPar::compKey(keybase,sKey::Default()), cd.defaultval_ );
-	setIOPWithNLs( iop, IOPar::compKey(keybase,sKey::Desc()), cd.desc_ );
-    }
+
+    iop.merge( varpar );
+    iop.merge( cstpar );
 }
 
 
 bool RockPhysics::Formula::setDef( const char* str )
 {
-    deepErase( vardefs_ ); deepErase( constdefs_ );
-    def_ = str;
-    MathProperty* mp = getProperty();
+    PtrMan<MathProperty> mp = getProperty();
     if ( !mp )
 	return false;
 
-    const int nrvars = mp->nrInputs();
-    for ( int idx=0; idx<nrvars; idx++ )
-    {
-	const char* inpnm = mp->inputName( idx );
-	if ( mp->isConst(idx) )
-	    constdefs_ += new ConstDef( inpnm );
-	else
-	{
-	    const Mnemonic* mn = mp->inputMnemonic( idx );
-	    vardefs_ += new VarDef( inpnm, mn ? *mn : Mnemonic::undef() );
-	}
-    }
-
-    delete mp;
+    Math::Formula::operator =( mp->getForm() );
     return true;
 }
 
@@ -202,13 +284,61 @@ MathProperty* RockPhysics::Formula::getProperty( const PropertyRef* pr ) const
 {
     if ( !pr )
     {
-	const PropertyRefSelection prs( mn_ ? *mn_ : Mnemonic::undef() );
+	const Mnemonic* mn = outputMnemonic();
+	const PropertyRefSelection prs( mn ? *mn : Mnemonic::undef() );
 	if ( prs.isEmpty() )
 	    return nullptr;
 	pr = prs.first();
     }
 
-    return new MathProperty( *pr, def_ );
+    auto* ret = new MathProperty( *pr );
+    ret->getForm() = *this;
+
+    return ret;
+}
+
+
+void RockPhysics::Formula::setText( const char* desc )
+{
+    constantnms_.setEmpty();
+    deepErase( typicalrgs_ );
+    Math::Formula::setText( desc );
+    for ( int iinp=0; iinp<nrInputs(); iinp++ )
+    {
+	constantnms_.add( new BufferString );
+	typicalrgs_.add( nullptr );
+    }
+}
+
+
+void RockPhysics::Formula::setConstantName( int iinp, const char* nm )
+{
+    if ( constantnms_.validIdx(iinp) && isConst(iinp) )
+	constantnms_.get( iinp ).set( nm );
+}
+
+
+void RockPhysics::Formula::setInputTypicalRange( int iinp,
+						 const Interval<float>& rg )
+{
+    if ( typicalrgs_.validIdx(iinp) && isConst(iinp) )
+	delete typicalrgs_.replace( iinp, new Interval<float>( rg ) );
+}
+
+
+const char* RockPhysics::Formula::inputConstantName( int iinp ) const
+{
+    return constantnms_.validIdx(iinp) && isConst(iinp)
+	? constantnms_.get( iinp ).buf() : nullptr;
+}
+
+
+Interval<float> RockPhysics::Formula::inputTypicalRange( int iinp ) const
+{
+    Interval<float> ret = Interval<float>::udf();
+    if ( typicalrgs_.validIdx(iinp) && isConst(iinp) && typicalrgs_.get(iinp) )
+	ret = *typicalrgs_.get( iinp );
+    return ret;
 }
 
 
@@ -298,21 +428,49 @@ int RockPhysics::FormulaSet::getIndexOf( const char* nm ) const
 }
 
 
+const RockPhysics::Formula* RockPhysics::FormulaSet::getByName(
+				const Mnemonic& mn, const char* nm ) const
+{
+    ObjectSet<const Math::Formula> rpforms;
+    if ( !getRelevant(mn,rpforms) )
+	return nullptr;
+
+    for ( const auto* fm : rpforms )
+    {
+	if ( fm->name() == nm )
+	    return sCast(const Formula*,fm);
+    }
+
+    return nullptr;
+}
+
+
+bool RockPhysics::FormulaSet::getRelevant( const Mnemonic& mn,
+				   ObjectSet<const Math::Formula>& forms ) const
+{
+    ObjectSet<const Math::Formula> rpforms;
+    for ( const auto* fm : *this )
+	rpforms.add( fm );
+
+    Math::getRelevant( mn, rpforms, forms );
+    return !forms.isEmpty();
+}
+
+
 void RockPhysics::FormulaSet::getRelevant( const Mnemonic& mn,
 					   BufferStringSet& nms ) const
 {
-    for ( const auto* fm : *this )
-    {
-	if ( fm->mn_ == &mn )
-	    nms.add( fm->name() );
-    }
+    ObjectSet<const Math::Formula> forms;
+    getRelevant( mn, forms );
+    for ( const auto* fm : forms )
+	nms.add( fm->name() );
 }
 
 
 bool RockPhysics::FormulaSet::hasType( PropType tp ) const
 {
     for ( const auto* fm : *this )
-	if ( fm->mn_ && fm->mn_->stdType() == tp )
+	if ( fm->outputMnemonic() && fm->outputMnemonic()->stdType() == tp )
 	    return true;
 
     return false;
@@ -324,8 +482,9 @@ void RockPhysics::FormulaSet::getRelevant( PropType tp,
 {
     for ( const auto* fm : *this )
     {
-	if ( fm->mn_ && fm->mn_->stdType() == tp )
-	    mnsel.addIfNew( fm->mn_ );
+	const Mnemonic* mn = fm->outputMnemonic();
+	if ( mn && mn->stdType() == tp )
+	    mnsel.addIfNew( mn );
     }
 }
 

@@ -400,6 +400,19 @@ Constant.0.Default: 0.8619
 Constant.1.Name: b
 Constant.1.Default: -1172
 !
+Castagna's equation from Sonic: SVEL
+Description: S-wave from Sonic
+Formula: c0/dt + c1
+Unit: Meter/second
+Variable.0.Type: DT
+Variable.0.Name: DT
+Variable.0.Description: Sonic
+Variable.0.Unit: Seconds/meter
+Constant.0.Name: a
+Constant.0.Default: 0.8619
+Constant.1.Name: b
+Constant.1.Default: -1172
+!
 Krief's equation: SVEL
 Description: S-wave from P-wave velocity.
 Formula: sqrt( c0*Vp^2 + c1 )
@@ -587,4 +600,56 @@ Variable.0.Type: RHOB
 Variable.0.Name: Mud Density
 Variable.0.Description: Mud Density / Mud Weight
 Variable.0.Unit: Pounds/gallon
+!
+Density from Acoustic Impedance and velocity: RHOB
+Description: Compute Density from Acoustic Impedance and P-wave velocity
+Formula: AI / Vp
+Unit: Kg/m3
+Variable.0.Type: AI
+Variable.0.Name: Ip
+Variable.0.Description: Acoustic Impedance
+Variable.0.Unit: Meter/second x Kg/m3
+Variable.1.Type: PVEL
+Variable.1.Name: Vp
+Variable.1.Description: P-wave velocity
+Variable.1.Unit: Meter/second
+!
+P-wave velocity from Acoustic Impedance: PVEL
+Description: Compute P-wave velocity from Acoustic Impedance and density
+Formula: AI / den
+Unit: Meter/second
+Variable.0.Type: AI
+Variable.0.Name: Ip
+Variable.0.Description: Acoustic Impedance
+Variable.0.Unit: Meter/second x Kg/m3
+Variable.1.Type: RHOB
+Variable.1.Name: Rhob
+Variable.1.Description: Density
+Variable.1.Unit: Kg/m3
+!
+Density from Shear Impedance and velocity: RHOB
+Description: Compute Density from Shear Impedance and S-wave velocity
+Formula: SI / Vs
+Unit: Kg/m3
+Variable.0.Type: SI
+Variable.0.Name: Is
+Variable.0.Description: Shear Impedance
+Variable.0.Unit: Meter/second x Kg/m3
+Variable.1.Type: SVEL
+Variable.1.Name: Vs
+Variable.1.Description: S-wave velocity
+Variable.1.Unit: Meter/second
+!
+S-wave velocity from Shear Impedance: SVEL
+Description: Compute S-wave velocity from Shear Impedance and density
+Formula: SI / den
+Unit: Meter/second
+Variable.0.Type: SI
+Variable.0.Name: Is
+Variable.0.Description: Shear Impedance
+Variable.0.Unit: Meter/second x Kg/m3
+Variable.1.Type: RHOB
+Variable.1.Name: Rhob
+Variable.1.Description: Density
+Variable.1.Unit: Kg/m3
 !

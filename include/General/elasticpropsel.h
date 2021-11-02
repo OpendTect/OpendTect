@@ -25,14 +25,18 @@ class IOObj;
 mExpClass(General) ElasticPropSelection : public PropertyRefSelection
 { mODTextTranslationClass(ElasticPropSelection)
 public:
-
+				ElasticPropSelection(bool withswave,
+					const PropertyRefSelection&);
+				/*<! Ensure the selection does not contain
+				     math-derived properties */
 				ElasticPropSelection(bool withswave=true);
+				/*<! Not directly usable until either
+				     usePar or setFor is called */
 				ElasticPropSelection(
 						const ElasticPropSelection&);
 				~ElasticPropSelection();
 
-    ElasticPropSelection&	operator =(
-					const ElasticPropSelection&);
+    ElasticPropSelection&	operator =(const ElasticPropSelection&);
 
     bool			isElasticSel() const override	{ return true; }
 
@@ -46,14 +50,20 @@ public:
     bool			ensureHasType(ElasticFormula::Type);
     bool			isValidInput(uiString* errmsg = nullptr) const;
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+    bool			setFor(const PropertyRefSelection&);
+				/*<! Ensure the selection does not contain
+				     math-derived properties */
 
     void			erase() override	{ deepErase(*this); }
 
+    bool			isOK() const;
     uiString			errMsg() { return errmsg_; }
 
     static const Mnemonic*	getByType(ElasticFormula::Type,const char* nm);
+
+    static const char*		sKeyElasticProp();
 
 private:
 
@@ -88,19 +98,24 @@ public:
 
 private:
 
-    const ElasticFormula*	denform_;
-    const ElasticFormula*	pvelform_;
-    const ElasticFormula*	svelform_;
-    ObjectSet<TypeSet<int> >	propidxsset_;
-    ObjectSet<ObjectSet<const UnitOfMeasure> > propuomsset_;
-    ObjectSet<Math::Expression> exprs_;
+    mClass(General) CalcData
+    {
+    public:
+			CalcData( const ElasticPropertyRef& epr )
+			    : epr_(epr)			{}
 
-    const ElasticFormula* init(const ElasticFormula&,
-			       const PropertyRefSelection&);
-    static float	getValue(const ElasticFormula&,const TypeSet<int>&,
-				 const ObjectSet<const UnitOfMeasure>&,
-				 const Math::Expression*,
-				 const float* proprefvals,int proprefsz);
+	const ElasticPropertyRef& epr_;
+	const UnitOfMeasure* pruom_ = nullptr;
+	TypeSet<int>	propidxs_;
+	mutable TypeSet<double> formvals_;
+    };
+
+    ObjectSet<CalcData> propcalcs_;
+
+    void		init(const PropertyRefSelection&,
+			     const ElasticPropertyRef*);
+    static float	getValue(const CalcData&,const float* proprefvals,
+				 int proprefsz);
 };
 
 
@@ -109,18 +124,23 @@ private:
 PropertyRefSelection.
 */
 
-mExpClass(General) ElasticPropGuess
+mClass(General) ElasticPropGuess
 {
 public:
 			ElasticPropGuess(const PropertyRefSelection&,
-						ElasticPropSelection&);
-protected:
+					 ElasticPropSelection&);
 
-    void		guessQuantity(const PropertyRefSelection&,
-					ElasticFormula::Type);
-    bool		guessQuantity(const PropertyRef&,ElasticFormula::Type);
+    bool		isOK() const	{ return isok_; }
 
-    ElasticPropSelection& elasticprops_;
+private:
+
+    bool		guessQuantity(const PropertyRefSelection&,
+				      ElasticPropertyRef&);
+    static MnemonicSelection* selection(const PropertyRef*,
+					const PropertyRef* pr2=nullptr,
+					const PropertyRef* pr3=nullptr);
+
+    bool		isok_ = true;
 };
 
 

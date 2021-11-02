@@ -1023,28 +1023,24 @@ void uiStratLayerModel::setElasticProps()
 {
     if ( !elpropsel_ )
     {
-	elpropsel_ = new ElasticPropSelection;
-	if ( !elpropsel_->usePar(desc_.getWorkBenchParams()) )
-	{
-	    uiMSG().warning( elpropsel_->errMsg() );
-	    deleteAndZeroPtr( elpropsel_ );
-	}
-	else if ( elpropsel_->size() < 3 )
-	    ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
-    }
+	const MultiID descky = desc_.elasticPropSel();
+	if ( IOM().isUsable(descky ) && IOM().implExists(descky) )
+	    elpropsel_ = ElasticPropSelection::getByDBKey( descky );
 
-    if ( !elpropsel_ )
-    {
-	elpropsel_ = ElasticPropSelection::getByDBKey( desc_.elasticPropSel() );
-	if ( elpropsel_ )
+	bool haserrors = !elpropsel_;
+	if ( !elpropsel_ )
 	{
-	    if ( elpropsel_->size() < 3 )
-		ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
+	    elpropsel_ = new ElasticPropSelection( true, desc_.propSelection());
+	    haserrors = !elpropsel_->usePar( desc_.getWorkBenchParams() );
 	}
-	else
+
+	haserrors = haserrors || (elpropsel_ && !elpropsel_->isOK());
+	if ( haserrors )
 	{
-	    elpropsel_ = new ElasticPropSelection;
-	    ElasticPropGuess( desc_.propSelection(), *elpropsel_ );
+	    if ( elpropsel_ )
+		uiMSG().warning( elpropsel_->errMsg() );
+	    deleteAndZeroPtr( elpropsel_ );
+	    return;
 	}
     }
 

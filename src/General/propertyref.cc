@@ -26,6 +26,9 @@ static const char* sKeyAliases = "Aliases";
 static const char* sKeyDefaultValue = "DefaultValue";
 static const char* sKeyDefinition = "Definition";
 
+const char* PropertyRefSelection::sKeyModelProp()
+{ return "Model Properties"; }
+
 static bool thickness_proprefman_is_deleting_thickness = false;
 
 class ThicknessPropertyRef : public PropertyRef
@@ -746,6 +749,44 @@ PropertyRefSelection::PropertyRefSelection( PropertyRef::StdType type )
     for ( const auto* pr : props )
 	if ( pr->stdType() == type )
 	    add( pr );
+}
+
+
+void PropertyRefSelection::fillPar( IOPar& par ) const
+{
+    BufferStringSet names;
+    for ( const auto* pr : *this )
+	names.add( pr->name().buf() );
+
+    IOPar modelpar;
+    modelpar.set( sKey::Names(), names );
+    par.mergeComp( modelpar, sKeyModelProp() );
+}
+
+
+bool PropertyRefSelection::usePar( const IOPar& par )
+{
+    PtrMan<IOPar> modelpar = par.subselect( sKeyModelProp() );
+    if ( !modelpar )
+	return false;
+
+    PropertyRefSelection newprs( false );
+    BufferStringSet names;
+    if ( !modelpar->get(sKey::Names(),names) )
+	return false;
+
+    for ( const auto* nm : names )
+    {
+	const PropertyRef* pr = PROPS().getByName( nm->buf(), false );
+	if ( !pr )
+	    return false;
+	newprs.add( pr );
+    }
+
+    for ( const auto* pr : newprs )
+	addIfNew( pr );
+
+    return true;
 }
 
 

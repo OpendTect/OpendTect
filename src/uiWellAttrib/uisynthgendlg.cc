@@ -45,9 +45,14 @@ uiSynthParsGrp::uiSynthParsGrp( uiParent* p, StratSynth& gp )
     , synthChanged(this)
     , synthRemoved(this)
     , synthDisabled(this)
+    , elPropSel(this)
 {
     auto* leftgrp = new uiGroup( this, "left group" );
     auto* butgrp = new uiButtonGroup( leftgrp, "actions", OD::Horizontal );
+
+    new uiToolButton( butgrp, "defraytraceprops",
+		      tr("Specify inputs for synthetic creation"),
+		      mCB(this,uiSynthParsGrp,elPropSelCB) );
     new uiToolButton( butgrp, "new", uiStrings::sNew(),
 				     mCB(this,uiSynthParsGrp,newCB) );
     new uiToolButton( butgrp, "open", uiStrings::sOpen(),
@@ -425,6 +430,12 @@ bool uiSynthParsGrp::confirmSave()
     else if ( dosave == 1 )
 	saveCB( nullptr );
     return true;
+}
+
+
+void uiSynthParsGrp::elPropSelCB( CallBacker* )
+{
+    elPropSel.trigger();
 }
 
 

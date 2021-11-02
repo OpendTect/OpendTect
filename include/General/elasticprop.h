@@ -10,60 +10,62 @@ ________________________________________________________________________
 
 -*/
 
+#include "mathformula.h"
 #include "propertyref.h"
-#include "repos.h"
+
+namespace RockPhysics { class Formula; }
+
 
 /*!
 \brief Elastic formula def to generate elastic layers.
 */
 
-mExpClass(General) ElasticFormula : public NamedObject
+mExpClass(General) ElasticFormula : public Math::Formula
 {
 public:
 
-			enum Type	{ Den, PVel, SVel };
+			enum Type	{ Den, PVel, SVel, Undef };
 			mDeclareEnumUtils(Type)
 
-			ElasticFormula(const char* nm,const char* expr,Type tp)
-				: NamedObject( nm )
-				, expression_(expr ? expr : "")
-				, type_(tp)		{}
+			ElasticFormula(const char* nm,const char* expr,Type);
+			~ElasticFormula();
 
-			ElasticFormula( const ElasticFormula& fm )
-							{ *this = fm; }
+    static ElasticFormula* getFrom(const RockPhysics::Formula&);
 
-    ElasticFormula&	operator =(const ElasticFormula&);
-    inline bool operator ==( const ElasticFormula& pr ) const
-			{ return name() == pr.name(); }
-    inline bool		operator !=( const ElasticFormula& pr ) const
-			{ return name() != pr.name(); }
-
-    void		setExpression( const char* expr) { expression_ = expr; }
-    const char*		expression() const	{ return expression_.str();}
-
-    inline Type		type() const		{ return type_; }
-    inline bool		hasType( Type t ) const { return type_ == t;}
-
-    const BufferStringSet& variables() const	{ return variables_; }
-    BufferStringSet&	variables()		{ return variables_; }
-    const BufferStringSet& units() const	{ return units_; }
-    BufferStringSet&	units()			{ return units_; }
-    const char*		parseVariable(int idx,float&) const;
+    Type		type() const;
+    bool		hasType(Type) const;
+    void		setType(Type);
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-protected:
+    static const Mnemonic& getMnemonic(Type);
+    static Type		getType(const Mnemonic&);
+    static Mnemonic::StdType getStdType(Type);
 
-
-    BufferString	expression_;
-    BufferStringSet	variables_;
-    BufferStringSet	units_;
-
-    Type		type_;
+private:
 
     friend class ElasticFormulaRepository;
     friend class ElasticPropGuess;
+
+public:
+
+    mDeprecated("Use setText")
+    void		setExpression(const char*);
+    mDeprecated("Use text")
+    const char*		expression() const;
+
+    mDeprecatedObs
+    const BufferStringSet variables() const;
+    mDeprecatedObs
+    BufferStringSet	variables();
+    mDeprecatedObs
+    const BufferStringSet units() const;
+    mDeprecatedObs
+    BufferStringSet	units();
+
+    mDeprecatedObs
+    const char*		parseVariable(int idx,float&) const;
 };
 
 
@@ -74,25 +76,18 @@ protected:
 mExpClass(General) ElasticFormulaRepository
 {
 public:
-
-    void			addFormula(const ElasticFormula&);
-    void			addFormula(const char* nm, const char* expr,
-					ElasticFormula::Type,
-					const BufferStringSet& vars);
+				~ElasticFormulaRepository();
 
     void			getByType(ElasticFormula::Type,
-					  TypeSet<ElasticFormula>&) const;
-
-    void			clear()  { formulas_.erase(); }
+				      ObjectSet<const Math::Formula>&) const;
 
     bool			write(Repos::Source) const;
 
 protected:
 
-    TypeSet<ElasticFormula>	formulas_;
+    ObjectSet<ElasticFormula>	formulas_;
 
     void			addRockPhysicsFormulas();
-    void			addPreDefinedFormulas();
 
     mGlobal(General) friend ElasticFormulaRepository& ElFR();
 };
@@ -101,31 +96,47 @@ mGlobal(General) ElasticFormulaRepository& ElFR();
 
 
 /*!
-\brief Elastic property reference data.
+\brief Elastic property reference data. Either a link to an existing
+	PropertyRef, or an ElasticFormula
 */
 
 mExpClass(General) ElasticPropertyRef : public PropertyRef
 {
 public:
-			ElasticPropertyRef(const Mnemonic&,const char*,
-					   const ElasticFormula&);
+			ElasticPropertyRef(const Mnemonic&,const char*);
+			ElasticPropertyRef(const ElasticPropertyRef&);
+			~ElasticPropertyRef();
+    ElasticPropertyRef& operator =(const ElasticPropertyRef&);
 
     ElasticPropertyRef* clone() const override;
 
+    bool		isOK() const;
     bool		isElasticForm() const override	{ return true; }
 
-    static const Mnemonic& elasticToMnemonic(ElasticFormula::Type);
-    static Mnemonic::StdType elasticToStdType(ElasticFormula::Type);
+			//<! Direct: not formula based
+    const PropertyRef*	ref() const			{ return pr_; }
+    void		setRef(const PropertyRef*);
 
-    ElasticFormula&	formula()		{ return formula_; }
-    const ElasticFormula& formula() const	{ return formula_; }
+			//<! Formula based
+    const ElasticFormula* formula() const		{ return formula_; }
+    void		setFormula(const ElasticFormula&);
 
-    ElasticFormula::Type elasticType()		{ return formula_.type(); }
-    ElasticFormula::Type elasticType() const	{ return formula_.type(); }
+    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+
+    ElasticFormula::Type elasticType() const;
 
 private:
 
-    ElasticFormula	formula_;
+    const PropertyRef*	pr_ = nullptr;
+    ElasticFormula*	formula_ = nullptr;
+
+public:
+
+    mDeprecated("Use ElasticFormula::getMnemonic")
+    static const Mnemonic& elasticToMnemonic(ElasticFormula::Type);
+    mDeprecated("Use ElasticFormula::getStdType")
+    static Mnemonic::StdType elasticToStdType(ElasticFormula::Type);
 
 };
 

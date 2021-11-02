@@ -40,6 +40,7 @@ public:
     CNotifier<uiSynthParsGrp,BufferString> synthChanged;
     CNotifier<uiSynthParsGrp,BufferString> synthRemoved;
     CNotifier<uiSynthParsGrp,BufferString> synthDisabled;
+    Notifier<uiSynthParsGrp>	elPropSel;
 
 protected:
 
@@ -48,6 +49,7 @@ protected:
     void			newSynthSelCB(CallBacker*);
     void			updateSyntheticsCB(CallBacker*);
     void			removeSyntheticsCB(CallBacker*);
+    void			elPropSelCB(CallBacker*);
     void			newCB(CallBacker*);
     void			openCB(CallBacker*);
     void			saveCB(CallBacker*);

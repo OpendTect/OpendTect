@@ -19,7 +19,6 @@ ________________________________________________________________________
 class CtxtIOObj;
 class IOObj;
 class PropertyRefSelection;
-namespace Math { class Expression; }
 
 class uiLabeledComboBox;
 class uiComboBox;
@@ -32,9 +31,9 @@ mExpClass(uiSeis) uiElasticPropSelGrp : public uiGroup
 { mODTextTranslationClass(uiElasticPropSelGrp);
 public:
 				uiElasticPropSelGrp(uiParent*,
-					 const BufferStringSet&,
-					 ElasticPropertyRef&,
-					 const TypeSet<ElasticFormula>&);
+				     const BufferStringSet&,
+				     ElasticPropertyRef&,
+				     const ObjectSet<const ElasticFormula>&);
 				~uiElasticPropSelGrp();
 
     void			setPropRef( const ElasticPropertyRef& pr )
@@ -55,10 +54,7 @@ protected:
     const BufferStringSet&	propnms_;
 
     ElasticPropertyRef&		elpropref_;
-    ElasticFormula&		elformsel_;
-    const TypeSet<ElasticFormula> availableformulas_;
-
-    Math::Expression*		expr_ = nullptr;
+    const ObjectSet<const ElasticFormula> availableformulas_;
 
     mExpClass(uiSeis) uiSelInpGrp : public uiGroup
     { mODTextTranslationClass(uiSelInpGrp);
@@ -68,10 +64,11 @@ protected:
 				~uiSelInpGrp();
 
 	const char*		textOfVariable() const;
-	void			setVariable(const char*,float val);
+	void			setConstant(double val);
+	void			setVariable(const char*);
 
 	bool			isActive()	{ return isactive_; }
-	void			use(Math::Expression*);
+	void			use(const Math::Formula&);
 
 	void			fillList();
     protected:
@@ -93,7 +90,6 @@ protected:
     uiGenInput*			storenamefld_;
     uiSeparator*		storenamesep_;
 
-    void			getMathExpr();
     void			selFormulaChgCB(CallBacker*);
     void			selComputeFldChgCB(CallBacker*);
 };
@@ -121,7 +117,7 @@ protected:
     CtxtIOObj&			ctio_;
 
     ElasticPropSelection&	elpropsel_;
-    ElasticPropSelection&	orgelpropsel_;
+    ElasticPropSelection	orgelpropsel_;
     MultiID			storedmid_;
     bool			propsaved_;
 

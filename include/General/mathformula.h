@@ -11,11 +11,14 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
+#include "namedobj.h"
 #include "ranges.h"
 #include "threadlock.h"
 #include "typeset.h"
 
 class Mnemonic;
+class MnemonicSelection;
 class UnitOfMeasure;
 
 namespace Math
@@ -23,6 +26,16 @@ namespace Math
 
 class Expression;
 class SpecVarSet;
+
+class Formula;
+
+mGlobal(General) bool getRelevant(const Mnemonic& rettp,
+				  const ObjectSet<const Formula>&,
+				  ObjectSet<const Formula>&,
+				  const MnemonicSelection* inpmns=nullptr);
+mGlobal(General) const Formula* getRelevant(const Mnemonic&,
+				      const ObjectSet<const Formula>&,
+				      const MnemonicSelection* inpmns=nullptr);
 
 
 
@@ -65,7 +78,7 @@ in IOPar, but this is aso required if there are constants in the expression.
 */
 
 
-mExpClass(General) Formula
+mExpClass(General) Formula : public NamedObject
 {
 public:
 
@@ -74,12 +87,21 @@ public:
 			Formula(bool inputsareseries,const SpecVarSet&,
 				const char* txt=nullptr);
 			Formula(const Formula&);
+
 			~Formula();
+    bool		operator ==(const Formula&) const;
+			//!*< Does not use the description
+    bool		operator !=(const Formula&) const;
+			//!*< Does not use the description
     Formula&		operator =(const Formula&);
+
+    void		setDescription( const char* descstr )
+						{ desc_.set( descstr ); }
+			//!< Optional description of the formula output
 
 		// 0. Specify the formula text. Will construct a new Expression
 
-    void		setText(const char*);
+    virtual void	setText(const char*);
 
 		// 1. Things known after construction or setText()
 
@@ -89,24 +111,28 @@ public:
     const char*		errMsg() const		{ return errmsg_; }
 
     const char*		text() const		{ return text_; }
-    int			nrInputs() const	{ return inps_.size(); }
+    int			nrInputs() const    { return inps_.size(); }
     const char*		variableName( int iinp ) const
-						{ return inps_[iinp].varname_; }
+					    { return inps_[iinp]->varname_; }
     bool		isConst( int iinp ) const
-						{ return inps_[iinp].isConst();}
+					    { return inps_[iinp]->isConst();}
     bool		isSpec( int iinp ) const
-						{ return inps_[iinp].isSpec(); }
+					    { return inps_[iinp]->isSpec(); }
     int			specIdx(int) const;
     const TypeSet<int>&	getShifts( int iinp ) const
-						{ return inps_[iinp].shifts_; }
+					    { return inps_[iinp]->shifts_; }
     Interval<int>	shiftRange( int iinp ) const
-						{ return inps_[iinp].shftRg(); }
+					    { return inps_[iinp]->shftRg(); }
     bool		isRecursive() const	{ return maxRecShift() > 0; }
     int			maxRecShift() const	{ return recstartvals_.size(); }
 
 		// 2. Things to set before calculation or store
 
     void		setInputDef(int,const char*);
+			/*!< The variable name (replacing c*), or a string
+			     carrying a constant/special value */
+    void		setInputDescription(int,const char*);
+			//!< Optional description of an input
     void		setInputMnemonic(int,const Mnemonic*);
     void		setInputFormUnit(int,const UnitOfMeasure*);
 			//!< The input unit within the expression
@@ -128,12 +154,15 @@ public:
 
 		// 3. Things you have set yourself or that were retrieved
 
+    const char*		description() const { return desc_.buf(); }
     const char*		inputDef( int iinp ) const
-					{ return inps_[iinp].inpdef_.buf(); }
+					{ return inps_[iinp]->inpdef_.buf(); }
+    const char*		inputDescription( int iinp ) const
+					{ return inps_[iinp]->inpdesc_.buf(); }
     const Mnemonic*	inputMnemonic( int iinp ) const
-						{ return inps_[iinp].formmn_; }
+					{ return inps_[iinp]->formmn_; }
     const UnitOfMeasure* inputFormUnit( int iinp ) const
-						{ return inps_[iinp].formunit_;}
+					{ return inps_[iinp]->formunit_;}
     const Mnemonic*	outputMnemonic() const	{ return outputformmn_; }
     const UnitOfMeasure* outputFormUnit() const { return outputformunit_; }
     double		getConstVal(int) const;
@@ -160,6 +189,9 @@ public:
     const char*		userDispText() const;
     int			nrExternalInputs() const;
 
+    bool		isCompatibleWith(const Mnemonic&,
+				 const MnemonicSelection* inps=nullptr) const;
+
     static const char*	sKeyExpression()	{ return "Expression"; }
     static const char*	sKeyRecStartVals()	{ return "Recursion start"; }
     static const char*	sKeyFileType()		{ return "Math Formula"; }
@@ -174,13 +206,18 @@ protected:
 
 				InpDef( const char* nm, Type t )
 				    : varname_(nm), type_(t)	{}
-	bool			operator==( const InpDef& id ) const
-				{ return varname_ == id.varname_; }
+				InpDef( const InpDef& oth )
+						    { *this = oth; }
+	InpDef&			operator=(const InpDef&);
+	bool			operator==(const InpDef&) const;
+	bool			operator!=( const InpDef& oth ) const
+				{ return !(*this == oth); }
 
 	BufferString		varname_;	// from Expression
 	Type			type_;		// from Expression
 	TypeSet<int>		shifts_;	// from Expression
 	BufferString		inpdef_;	// filled by class user
+	BufferString		inpdesc_;	// filled by class user
 	const Mnemonic*		formmn_ = nullptr; // filled by class user
 	const UnitOfMeasure*	formunit_ = nullptr; // filled by class user
 	const UnitOfMeasure*	valunit_ = nullptr; // filled by class user
@@ -192,7 +229,8 @@ protected:
     };
 
     BufferString	text_;
-    TypeSet<InpDef>	inps_;
+    ObjectSet<InpDef>	inps_;
+    BufferString	desc_;
     const Mnemonic*	outputformmn_ = nullptr;
     const UnitOfMeasure* outputformunit_ = nullptr;
     const UnitOfMeasure* outputvalunit_ = nullptr;
