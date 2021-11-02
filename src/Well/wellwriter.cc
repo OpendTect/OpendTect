@@ -107,7 +107,7 @@ mImplWWFn(bool,putLog,const Log&,wl,false)
 bool Well::Writer::swapLogs( const Well::Log& log1,
 			     const Well::Log& log2 ) const
 {
-    return wa_ ? wa_->swapLogs( log1, log2 ) : false;
+    return wa_->canSwapLogs() ? wa_->swapLogs( log1, log2 ) : false;
 }
 
 

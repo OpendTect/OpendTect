@@ -49,6 +49,7 @@ public:
     bool		putDispProps() const;	//!< Write display pars only
     bool		putLog(const Log&) const;
     bool		swapLogs(const Log&,const Log&) const;
+    bool		canSwapLogs()		{ return true; }
 
     const uiString&	errMsg() const		{ return errmsg_; }
 
