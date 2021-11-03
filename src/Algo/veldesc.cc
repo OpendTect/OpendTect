@@ -21,6 +21,7 @@ ________________________________________________________________________
 const char* VelocityDesc::sKeyVelocityType()	{ return "Velocity Type"; }
 const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
 const char* VelocityDesc::sKeyVelocityVolume()	{ return "Velocity volume"; }
+const char* VelocityDesc::sKeyVelocityUnit()	{ return "Velocity Unit"; }
 
 mDefineEnumUtils(VelocityDesc,Type,"Velocity Types")
 { "Unknown", "Vint", "Vrms", "Vavg", "Delta", "Epsilon", "Eta", 0 };
@@ -113,6 +114,7 @@ bool VelocityDesc::usePar( const IOPar& par )
 	return true;
     }
 
+    par.get( sKeyVelocityUnit(), velunit_ );
     if ( !parseEnumType( typestr, type_ ) )
 	return false;
 

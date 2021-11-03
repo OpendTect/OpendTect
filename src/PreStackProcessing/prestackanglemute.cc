@@ -20,6 +20,7 @@
 #include "raytrace1d.h"
 #include "raytracerrunner.h"
 #include "timedepthconv.h"
+#include "unitofmeasure.h"
 #include "velocityfunctionvolume.h"
 #include "windowfunction.h"
 
@@ -136,7 +137,8 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
 	 ArrayValueSeries<float,float> depthvals(depths.arr(), false, nrlayers);
 	 const VelocityDesc& veldesc = velfun->getDesc();
 	 TimeDepthConverter tdc;
-	 tdc.setVelocityModel( velvals, nrlayers, sd, veldesc, true );
+	 tdc.setVelocityModel( velvals, nrlayers, sd, veldesc, true,
+				&UnitOfMeasure::surveyDefVelUnit()->scaler() );
 	 if ( !tdc.calcDepths(depthvals,nrlayers,sd) )
 	     return false;
 

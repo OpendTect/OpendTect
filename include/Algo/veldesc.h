@@ -37,14 +37,14 @@ mExpClass(Algo) VelocityDesc
 { mODTextTranslationClass(VelocityDesc);
 public:
     enum Type		{ Unknown, Interval, RMS, Avg, Delta, Epsilon, Eta };
-    			mDeclareEnumUtils(Type);
+			mDeclareEnumUtils(Type);
     
 			VelocityDesc();
 			VelocityDesc(Type);
 
     Type		type_;
     StaticsDesc		statics_;
-
+    BufferString	velunit_;
     bool		operator==(const VelocityDesc&) const;
     bool		operator!=(const VelocityDesc&) const;
 
@@ -65,6 +65,7 @@ public:
     static const char*	sKeyIsFeetPerSecond();
     static const char*	sKeyIsVelocity();
     static const char*	sKeyVelocityVolume();
+    static const char*	sKeyVelocityUnit();
 
     static uiString	getVelUnit(bool withparens=true);
     static uiString	getVelVolumeLabel();

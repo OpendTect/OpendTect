@@ -11,12 +11,14 @@
 #include "genericnumer.h"
 #include "idxable.h"
 #include "interpol1d.h"
+#include "limits.h"
 #include "math2.h"
+#include "scaler.h"
 #include "survinfo.h"
 #include "valseriesimpl.h"
 #include "varlenarray.h"
 #include "veldesc.h"
-#include "limits.h"
+
 #include "uistrings.h"
 
 mImplFactory( Vrms2Vint, Vrms2Vint::factory );
@@ -237,8 +239,8 @@ bool TimeDepthConverter::isVelocityDescUseable(const VelocityDesc& vd,
 
 
 bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
-				  int sz, const SamplingData<double>& sd,
-				  const VelocityDesc& vd, bool istime )
+		    int sz, const SamplingData<double>& sd,
+		    const VelocityDesc& vd, bool istime, const Scaler* scaler )
 {
     deleteAndZeroArrPtr( times_ );
     deleteAndZeroArrPtr( depths_ );
@@ -302,13 +304,13 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 	    if ( istime )
 	    {
 		mTryAlloc( depths_, float[sz] );
-		if ( !depths_ || !calcDepths(*vint,sz,sd,depths_) )
+		if ( !depths_ || !calcDepths(*vint,sz,sd,depths_,scaler) )
 		    { deleteAndZeroArrPtr( depths_ ); break; }
 	    }
 	    else
 	    {
 		mTryAlloc( times_, float[sz] );
-		if ( !times_ || !calcTimes(*vint,sz,sd,times_) )
+		if ( !times_ || !calcTimes(*vint,sz,sd,times_,scaler) )
 		    { deleteAndZeroArrPtr( times_ ); break; }
 	    }
 
@@ -322,6 +324,11 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 	    }
 
 	    lastvel_ = vint->value(sz-1);
+	    if ( scaler )
+	    {
+		firstvel_ =  scaler->scale( firstvel_ );
+		lastvel_ = scaler->scale( lastvel_ );
+	    }
 
 	    sz_ = sz;
 	    sd_ = sd;
@@ -395,19 +402,23 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 }
 
 
-bool TimeDepthConverter::calcDepths(ValueSeries<float>& res, int outputsz,
-				    const SamplingData<double>& timesamp ) const
+bool TimeDepthConverter::calcDepths( ValueSeries<float>& res, int outputsz,
+				const SamplingData<double>& timesamp ) const
 {
-    if ( !isOK() ) return false;
+    if ( !isOK() )
+	return false;
+
     calcZ( times_, sz_, res, outputsz, timesamp, false );
     return true;
 }
 
 
-bool TimeDepthConverter::calcTimes(ValueSeries<float>& res, int outputsz,
+bool TimeDepthConverter::calcTimes( ValueSeries<float>& res, int outputsz,
 				const SamplingData<double>& depthsamp ) const
 {
-    if ( !isOK() ) return false;
+    if ( !isOK() )
+	return false;
+
     calcZ( depths_, sz_, res, outputsz, depthsamp, true );
     return true;
 }
@@ -437,7 +448,8 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 	for ( int idx=0; idx<outputsz; idx++ )
 	{
 	    double z = zsamp.atIndex( idx );
-	    if ( time ) z += seisrefdatum;
+	    if ( time )
+		z += seisrefdatum;
 
 	    float zrev;
 	    if ( z <= zrg.start )
@@ -471,7 +483,9 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 		zrev = IdxAble::interpolateReg( zrevvals, inpsz, zsample );
 	    }
 
-	    if ( !time ) zrev -= seisrefdatum;
+	    if ( !time )
+		zrev -= seisrefdatum;
+
 	    res.setValue( idx, zrev );
 	}
     }
@@ -481,7 +495,8 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 	for ( int idx=0; idx<outputsz; idx++ )
 	{
 	    double z = zsamp.atIndex( idx );
-	    if ( time ) z += seisrefdatum;
+	    if ( time )
+		z += seisrefdatum;
 
 	    float zrev;
 	    if ( z<=zvals[0] )
@@ -532,16 +547,18 @@ Time(ms) Vel(m/s) Samplespan (ms)	Depth (m)
 
 bool TimeDepthConverter::calcDepths( const ValueSeries<float>& vels, int velsz,
 				     const SamplingData<double>& sd,
-				     float* depths )
+				     float* depths, const Scaler* scaler )
 {
     mAllocVarLenArr( double, zvals, velsz );
-    if ( !mIsVarLenArrOK(zvals) ) return false;
+    if ( !mIsVarLenArrOK(zvals) )
+	return false;
+
     ArrayValueSeries<double,double> times( velsz );
     double* timesptr = times.arr();
     for ( int idx=0; idx<velsz; idx++, timesptr++ )
 	*timesptr = sd.atIndex( idx );
 
-    if ( !calcDepths(vels,velsz,times,zvals) )
+    if ( !calcDepths(vels,velsz,times,zvals,scaler) )
 	return false;
 
     for ( int idx=0; idx<velsz; idx++ )
@@ -557,7 +574,9 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 {
     mAllocVarLenArr( double, tvals, velsz );
     mAllocVarLenArr( double, zvals, velsz );
-    if ( !mIsVarLenArrOK(tvals) || !mIsVarLenArrOK(zvals) ) return false;
+    if ( !mIsVarLenArrOK(tvals) || !mIsVarLenArrOK(zvals) )
+	return false;
+
     for ( int idx=0; idx<velsz; idx++ )
 	tvals[idx] = times.value( idx );
 
@@ -565,7 +584,7 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
     const ArrayValueSeries<double,double> tinser(
 					const_cast<double*>(tvalsptr), false );
 
-    if ( !calcDepths(vels,velsz,tinser,zvals) )
+    if ( !calcDepths(vels,velsz,tinser,zvals,nullptr) )
 	return false;
 
     for ( int idx=0; idx<velsz; idx++ )
@@ -577,7 +596,7 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 
 bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 				    const ValueSeries<double>& times,
-				    double* depths )
+				    double* depths, const Scaler* scaler )
 {
     if ( !depths )
     {
@@ -585,7 +604,8 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 	return false;
     }
 
-    if ( !velsz ) return true;
+    if ( !velsz )
+	return true;
 
     double prevvel = mUdf(double);
     int startidx = -1;
@@ -596,6 +616,9 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 
 	startidx = idx;
 	prevvel = vels.value(idx);
+	if ( scaler )
+	    prevvel = scaler->scale( prevvel );
+
 	break;
     }
 
@@ -610,6 +633,9 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
     for ( int idx=startidx+1; idx<velsz; idx++ )
     {
 	double curvel = vels.value( idx );
+	if ( scaler )
+	    curvel = scaler->scale( curvel );
+
 	if ( mIsValidVel(curvel) )
 	    curvel /= 2.;
 	else
@@ -642,20 +668,20 @@ Depth(m) Vel(m/s) Samplespan (m)	Time (s)
 
 bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 				    const SamplingData<double>& sd,
-				    float* times )
+				    float* times, const Scaler* scaler )
 {
     ArrayValueSeries<float,float> depths( velsz );
     float* depthsptr = depths.arr();
     for ( int idx=0; idx<velsz; idx++, depthsptr++ )
 	*depthsptr = (float) sd.atIndex( idx );
 
-    return calcTimes( vels, velsz, depths, times );
+    return calcTimes( vels, velsz, depths, times, scaler );
 }
 
 
 bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 				    const ValueSeries<float>& depths,
-				    float* times )
+				    float* times, const Scaler* scaler )
 {
     if ( !times )
     {
@@ -663,7 +689,8 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 	return false;
     }
 
-    if ( !velsz ) return true;
+    if ( !velsz )
+	return true;
 
     float prevvel = 0;
     int startidx = -1;
@@ -680,6 +707,8 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
     if ( startidx==-1 )
 	return false;
 
+    if ( scaler )
+	prevvel = scaler->scale( prevvel );
 
     for ( int idx=0; idx<startidx; idx++ )
     {
@@ -692,6 +721,9 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
     for ( int idx=startidx+1; idx<velsz; idx++ )
     {
 	float curvel = vels.value( idx );
+	if ( scaler )
+	    curvel = scaler->scale( curvel );
+
 	const double depth = depths.value(idx) - depths.value(idx-1);
 	if ( !mIsValidVel(curvel) )
 	{

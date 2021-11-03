@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "survgeom.h"
 
 class BinIDValue;
+class Scaler;
 class TrcKeyZSampling;
 class TaskRunner;
 
@@ -79,6 +80,9 @@ public:
 				    implementation gives the same step as in
 				    SI() (i.e. non transformed domain) */
 
+    void			setVelUnitOfMeasure(const Scaler*);
+    const Scaler*		getVelUnitOfMeasure() const;
+
     ZDomain::Info&		fromZDomainInfo() { return fromzdomaininfo_; }
     ZDomain::Info&		toZDomainInfo()	  { return tozdomaininfo_; }
     const ZDomain::Info&	fromZDomainInfo() const;
@@ -91,7 +95,7 @@ public:
     virtual float		zScale() const { return toZScale(); }
 				/*!<Old name, use toZScale instead. */
 
-    virtual NotifierAccess*	changeNotifier()		{ return 0; }
+    virtual NotifierAccess*	changeNotifier()	{ return 0; }
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
@@ -102,6 +106,9 @@ protected:
     ZDomain::Info&		tozdomaininfo_;
     ZDomain::Info&		fromzdomaininfo_;
     mutable uiString		errmsg_;
+
+private:
+    const Scaler*		scaler_		= nullptr;
 
 public: //Legacy stuff
 

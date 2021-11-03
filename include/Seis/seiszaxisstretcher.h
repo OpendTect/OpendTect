@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "paralleltask.h"
 #include "thread.h"
+#include "unitofmeasure.h"
 
 class IOObj;
 class SeisTrc;
@@ -72,9 +73,9 @@ protected:
     int					nrthreads_;
 
     TrcKeyZSampling			outcs_;
-    TrcKeySampling				curhrg_;
+    TrcKeySampling			curhrg_;
     ZAxisTransform*			ztransform_;
-    int				voiid_;
+    int					voiid_;
     bool				ist2d_;
     bool				is2d_;
     bool				stretchz_;

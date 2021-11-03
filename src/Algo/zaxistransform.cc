@@ -9,6 +9,7 @@
 
 #include "iopar.h"
 #include "keystrs.h"
+#include "scaler.h"
 #include "survinfo.h"
 #include "binidvalue.h"
 #include "zdomain.h"
@@ -191,6 +192,19 @@ const char* ZAxisTransform::toZDomainKey() const
 void ZAxisTransform::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), factoryKeyword() );
+}
+
+
+void ZAxisTransform::setVelUnitOfMeasure( const Scaler* scaler )
+{
+    delete scaler_;
+    scaler_ = scaler && !scaler->isEmpty() ? scaler->clone() : nullptr;
+}
+
+
+const Scaler* ZAxisTransform::getVelUnitOfMeasure() const
+{
+    return scaler_;
 }
 
 

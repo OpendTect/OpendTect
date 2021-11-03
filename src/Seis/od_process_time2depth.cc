@@ -19,6 +19,7 @@
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "moddepmgr.h"
+#include "unitofmeasure.h"
 
 #include "prog.h"
 
@@ -113,6 +114,14 @@ bool BatchProgram::doWork( od_ostream& strm )
 	}
     }
 
+    const UnitOfMeasure* uom = nullptr;
+    if ( !veldesc.velunit_.isEmpty() )
+	uom = UoMR().get( veldesc.velunit_ );
+
+    if ( !uom )
+	uom = UnitOfMeasure::surveyDefVelUnit();
+
+    ztransform->setVelUnitOfMeasure( &uom->scaler() );
     TaskGroup taskgrp;
     const SeisIOObjInfo seisinfo( inputmid );
     const bool is2d = seisinfo.is2D();

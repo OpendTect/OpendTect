@@ -12,12 +12,14 @@ ________________________________________________________________________
 
 
 #include "algomod.h"
-#include "samplingdata.h"
-#include "veldesc.h"
-#include "keystrs.h"
 #include "factory.h"
+#include "keystrs.h"
+#include "veldesc.h"
+#include "samplingdata.h"
+
 #include "uistring.h"
 
+class Scaler;
 template <class T> class ValueSeries;
 
 /*!
@@ -73,6 +75,8 @@ protected:
 
 /*!
 \brief Converts between time and depth given a model.
+It expects a valueseries, where unit of value should be SI unit.
+Scaler provides factor value in case the valueseries in non SI unit.
 */
 
 mExpClass(Algo) TimeDepthConverter : public TimeDepthModel
@@ -87,7 +91,8 @@ public:
 
     bool		setVelocityModel(const ValueSeries<float>& vels, int sz,
 					 const SamplingData<double>& sd,
-					 const VelocityDesc&,bool istime);
+					 const VelocityDesc&,bool istime,
+					 const Scaler* scaler=nullptr);
 
     bool		calcDepths(ValueSeries<float>&, int sz,
 				   const SamplingData<double>& timesamp) const;
@@ -95,14 +100,15 @@ public:
 				   const SamplingData<double>& depthsamp) const;
 
     static bool		calcDepths(const ValueSeries<float>& vels,int velsz,
-				   const SamplingData<double>&,float* depths);
+				   const SamplingData<double>&,float* depths,
+				   const Scaler* scaler=nullptr);
 			/*!<\param vels Velocity as Vint in time
 			  \param velsz,depths
 			 */
 
     static bool		calcDepths(const ValueSeries<float>& vels,int velsz,
 				   const ValueSeries<double>& times,
-				   double* depths);
+				   double* depths,const Scaler* scaler=nullptr);
 			 /*!<\param vels Velocity as Vint in time
 			   \param velsz,times,depths
 			  */
@@ -113,13 +119,15 @@ public:
 				   float* depths);
 
     static bool		calcTimes(const ValueSeries<float>& vels,int velsz,
-				  const ValueSeries<float>& depth,float* times);
+				  const ValueSeries<float>& depth,float* times,
+				  const Scaler* scaler=nullptr);
 			 /*!<\param vels Velocity as Vint in depth
 			   \param velsz,times,depth
 			  */
 
     static bool		calcTimes(const ValueSeries<float>& vels, int velsz,
-				   const SamplingData<double>&, float* times);
+				   const SamplingData<double>&, float* times,
+				   const Scaler* scaler=nullptr);
 			 /*!<\param vels Velocity as Vint in depth
 			   \param velsz,times
 			  */
@@ -148,7 +156,7 @@ public:
     virtual		~MoveoutComputer()		{}
 
     virtual int		nrVariables() const				= 0;
-    virtual const char*	variableName(int) const				= 0;
+    virtual const char* variableName(int) const				= 0;
 
     virtual bool	computeMoveout(const float* variables,
 					     int nroffsets,
@@ -171,7 +179,7 @@ mExpClass(Algo) RMOComputer : public MoveoutComputer
 { mODTextTranslationClass(RMOComputer)
 public:
     int nrVariables() const	{ return 3; }
-    const char*	variableName(int idx) const
+    const char* variableName(int idx) const
 		{
 		    switch ( idx )
 		    {
@@ -183,7 +191,7 @@ public:
 		    return 0;
 		}
     bool	computeMoveout(const float*,int,const float*,float*) const;
-    static bool	computeMoveout(float d0, float rmo, float refoffset,
+    static bool computeMoveout(float d0, float rmo, float refoffset,
 			       int,const float*,float*);
 };
 
@@ -197,7 +205,7 @@ mExpClass(Algo) NormalMoveout : public MoveoutComputer
 { mODTextTranslationClass(NormalMoveout)
 public:
     int nrVariables() const	{ return 3; }
-    const char*	variableName( int idx ) const
+    const char* variableName( int idx ) const
 		{
 		    switch ( idx )
 		    {
@@ -209,7 +217,7 @@ public:
 		    return 0;
 		}
     bool	computeMoveout(const float*,int,const float*,float*) const;
-    static bool	computeMoveout(float t0, float Vrms, float effectiveanisotropy,
+    static bool computeMoveout(float t0, float Vrms, float effectiveanisotropy,
 			       int,const float*,float*);
 };
 

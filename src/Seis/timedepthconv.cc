@@ -27,6 +27,7 @@
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "velocitycalc.h"
 #include "zdomain.h"
 
@@ -192,17 +193,19 @@ public:
 				    const VelocityDesc& vd,
 				    const SamplingData<double>& voisd,
 				    bool velintime,
-				    bool voiintime )
-		    : arr_( arr )
-		    , reader_( reader )
-		    , readcs_( readcs )
-		    , hiter_( readcs.hsamp_ )
-		    , voisd_( voisd )
-		    , veldesc_( vd )
-		    , velintime_( velintime )
-		    , voiintime_( voiintime )
-		    , nrdone_( 0 )
-		    , seisdatapack_(0)
+				    bool voiintime,
+				    const Scaler* scaler )
+		    : arr_(arr)
+		    , reader_(reader)
+		    , readcs_(readcs)
+		    , hiter_(readcs.hsamp_)
+		    , voisd_(voisd)
+		    , veldesc_(vd)
+		    , velintime_(velintime)
+		    , voiintime_(voiintime)
+		    , nrdone_(0)
+		    , seisdatapack_(nullptr)
+		    , scaler_(scaler)
 		{
 		    mDynamicCast( const RegularSeisDataPack*,
 			seisdatapack_,Seis::PLDM().get(reader.ioObj()->key()) );
@@ -229,7 +232,9 @@ protected:
 
     SamplingData<double>	voisd_;
 
-    TrcKeySamplingIterator		hiter_;
+    TrcKeySamplingIterator	hiter_;
+
+    const Scaler*		scaler_ = nullptr;
 };
 
 
@@ -269,7 +274,7 @@ int TimeDepthDataLoader::nextStep()
 	const SeisTrcValueSeries trcvs( velocitytrc, 0 );
 	tdc_.setVelocityModel( trcvs, velocitytrc.size(),
 				velocitytrc.info().sampling, veldesc_,
-				velintime_ );
+				velintime_, scaler_ );
     }
     else
     {
@@ -280,7 +285,7 @@ int TimeDepthDataLoader::nextStep()
 	const SamplingData<float> sd = seisdatapack_->sampling().zsamp_;
 	tdc_.setVelocityModel( dptrcvs,
 			       seisdatapack_->sampling().zsamp_.nrSteps()+1,
-			       sd, veldesc_, velintime_ );
+			       sd, veldesc_, velintime_, scaler_ );
     }
 
     nrdone_++;
@@ -367,7 +372,8 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* taskr )
     }
 
     TimeDepthDataLoader loader( *arr, *velreader_, readcs, veldesc_,
-	    SamplingData<double>(voi.zsamp_), velintime_, voiintime_[idx] );
+	    SamplingData<double>(voi.zsamp_), velintime_, voiintime_[idx],
+	    getVelUnitOfMeasure() );
     if ( !TaskRunner::execute( taskr, loader ) )
 	return false;
 
@@ -676,7 +682,8 @@ void Time2DepthStretcher::releaseData()
 Depth2TimeStretcher::Depth2TimeStretcher()
     : VelocityStretcher(ZDomain::Depth(),ZDomain::Time())
     , stretcher_( new Time2DepthStretcher )
-{}
+{
+}
 
 
 bool Depth2TimeStretcher::setVelData( const MultiID& mid )
@@ -718,7 +725,10 @@ void Depth2TimeStretcher::removeVolumeOfInterest( int id )
 
 
 bool Depth2TimeStretcher::loadDataIfMissing( int id, TaskRunner* trans )
-{ return stretcher_->loadDataIfMissing( id, trans ); }
+{
+    stretcher_->setVelUnitOfMeasure( getVelUnitOfMeasure() );
+    return stretcher_->loadDataIfMissing( id, trans );
+}
 
 
 void Depth2TimeStretcher::transformTrc(const TrcKey& trckey,
@@ -827,19 +837,19 @@ int VelocityModelScanner::nextStep()
     const SamplingData<double> sd = veltrace.info().sampling;
 
     TimeDepthConverter tdconverter;
-    if ( !tdconverter.setVelocityModel( trcvs, sz, sd, vd_, zistime_ ) )
+    if ( !tdconverter.setVelocityModel(trcvs,sz,sd,vd_,zistime_,
+			    &UnitOfMeasure::surveyDefVelUnit()->scaler()) )
 	return MoreToDo();
 
     ArrayValueSeries<float,float> resvs( sz );
-
     if ( zistime_ )
     {
-	if ( !tdconverter.calcDepths( resvs, sz, sd ) )
+	if ( !tdconverter.calcDepths(resvs,sz,sd) )
 	    return MoreToDo();
     }
     else
     {
-	if ( !tdconverter.calcTimes( resvs, sz, sd ) )
+	if ( !tdconverter.calcTimes(resvs,sz,sd) )
 	    return MoreToDo();
     }
 
