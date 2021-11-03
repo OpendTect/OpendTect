@@ -20,24 +20,47 @@ ________________________________________________________________________
 
 #include <math.h>
 
-#define mOutAmplitude		0
-#define mOutPhase		1
-#define mOutFrequency		2
-#define mOutHilbert		3
-#define mOutAmplitude1Der	4
-#define mOutAmplitude2Der	5
-#define mOutCosPhase		6
-#define mOutEnvWPhase		7
-#define mOutEnvWFreq		8
-#define mOutPhaseAccel		9
-#define mOutThinBed		10
-#define mOutBandwidth		11
-#define mOutQFactor		12
-#define mOutRotatePhase		13
 
+template<>
+void EnumDefImpl<Attrib::Instantaneous::OutType>::init()
+{
+    uistrings_ += uiStrings::sAmplitude();
+    uistrings_ += uiStrings::sPhase();
+    uistrings_ += uiStrings::sFrequency();
+    uistrings_ += tr("Hilbert");
+    uistrings_ += tr("Amplitude 1st derivative");
+    uistrings_ += tr("Amplitude 2nd derivative");
+    uistrings_ += tr("Cosine phase");
+    uistrings_ += tr("Envelope weighted phase");
+    uistrings_ += tr("Envelope weighted frequency");
+    uistrings_ += tr("Phase acceleration");
+    uistrings_ += tr("Thin bed indicator");
+    uistrings_ += tr("Bandwidth");
+    uistrings_ += tr("Q factor");
+    uistrings_ += tr("Rotate phase");
+}
 
 namespace Attrib
 {
+mDefineEnumUtils(Instantaneous,OutType,"Instantaneous Attribute")
+{
+    "Amplitude",
+    "Phase",
+    "Frequency",
+    "Hilbert",
+    "Amplitude 1st derivative",
+    "Amplitude 2nd derivative",
+    "Cosine phase",
+    "Envelope weighted phase",
+    "Envelope weighted frequency",
+    "Phase acceleration",
+    "Thin bed indicator",
+    "Bandwidth",
+    "Q factor",
+    "Rotate phase",
+    nullptr
+};
+
 
 mAttrDefCreateInstance(Instantaneous)
 
@@ -64,7 +87,7 @@ void Instantaneous::initClass()
 void Instantaneous::updateDesc( Desc& desc )
 {
     int outputidx = desc.selectedOutput();
-    desc.setParamEnabled( rotateAngle(), outputidx == mOutRotatePhase );
+    desc.setParamEnabled( rotateAngle(), outputidx == RotatePhase );
 }
 
 
@@ -100,6 +123,33 @@ bool Instantaneous::getInputData( const BinID& relpos, int zintv )
 #define mGetIVal(sidx) getInputValue( *imagdata_, imagidx_, sidx, z0 )
 
 
+bool Instantaneous::areAllOutputsEnabled() const
+{
+    for (int idx=0; idx<nrOutputs(); idx++)
+	if (!outputinterest_[idx])
+	    return false;
+    return true;
+}
+
+
+void Instantaneous::getCompNames( BufferStringSet& nms ) const
+{
+    nms.erase();
+    const char* basestr = "Inst_";
+    for ( const auto* attrib : OutTypeDef().keys() )
+    {
+	BufferString tmpstr = basestr; tmpstr += *attrib;
+	nms.add( tmpstr.buf() );
+    }
+}
+
+
+bool Instantaneous::prepPriorToOutputSetup()
+{
+    return areAllOutputsEnabled();
+}
+
+
 bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
 				 int z0, int nrsamples, int threadid ) const
 {
@@ -107,43 +157,43 @@ bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	if ( isOutputEnabled(mOutAmplitude) )
-	    setOutputValue( output, mOutAmplitude, idx, z0,
+	if ( isOutputEnabled(Amplitude) )
+	    setOutputValue( output, Amplitude, idx, z0,
 			    calcAmplitude(idx,z0) );
-	if ( isOutputEnabled(mOutPhase) )
-	    setOutputValue( output, mOutPhase, idx, z0, calcPhase(idx,z0) );
-	if ( isOutputEnabled(mOutFrequency) )
-	    setOutputValue( output, mOutFrequency, idx, z0,
+	if ( isOutputEnabled(Phase) )
+	    setOutputValue( output, Phase, idx, z0, calcPhase(idx,z0) );
+	if ( isOutputEnabled(Frequency) )
+	    setOutputValue( output, Frequency, idx, z0,
 			    calcFrequency(idx,z0) );
-	if ( isOutputEnabled(mOutHilbert) )
-	    setOutputValue( output, mOutHilbert, idx, z0, mGetIVal(idx) );
-	if ( isOutputEnabled(mOutAmplitude1Der) )
-	    setOutputValue( output, mOutAmplitude1Der, idx, z0,
+	if ( isOutputEnabled(Hilbert) )
+	    setOutputValue( output, Hilbert, idx, z0, mGetIVal(idx) );
+	if ( isOutputEnabled(Amp1Deriv) )
+	    setOutputValue( output, Amp1Deriv, idx, z0,
 			    calcAmplitude1Der(idx,z0) );
-	if ( isOutputEnabled(mOutAmplitude2Der) )
-	    setOutputValue( output, mOutAmplitude2Der, idx, z0,
+	if ( isOutputEnabled(Amp2Deriv) )
+	    setOutputValue( output, Amp2Deriv, idx, z0,
 			    calcAmplitude2Der(idx,z0) );
-	if ( isOutputEnabled(mOutCosPhase) )
-	    setOutputValue( output, mOutCosPhase, idx, z0,
+	if ( isOutputEnabled(CosPhase) )
+	    setOutputValue( output, CosPhase, idx, z0,
 			    cos(calcPhase(idx,z0)) );
-	if ( isOutputEnabled(mOutEnvWPhase) )
-	    setOutputValue( output, mOutEnvWPhase, idx, z0,
+	if ( isOutputEnabled(EnvWPhase) )
+	    setOutputValue( output, EnvWPhase, idx, z0,
 			    calcEnvWPhase(idx,z0) );
-	if ( isOutputEnabled(mOutEnvWFreq) )
-	    setOutputValue( output, mOutEnvWFreq, idx, z0,
+	if ( isOutputEnabled(EnvWFreq) )
+	    setOutputValue( output, EnvWFreq, idx, z0,
 			    calcEnvWFreq(idx,z0) );
-	if ( isOutputEnabled(mOutPhaseAccel) )
-	    setOutputValue( output, mOutPhaseAccel, idx, z0,
+	if ( isOutputEnabled(PhaseAccel) )
+	    setOutputValue( output, PhaseAccel, idx, z0,
 			    calcPhaseAccel(idx,z0) );
-	if ( isOutputEnabled(mOutThinBed) )
-	    setOutputValue( output, mOutThinBed, idx, z0, calcThinBed(idx,z0) );
-	if ( isOutputEnabled(mOutBandwidth) )
-	    setOutputValue( output, mOutBandwidth, idx, z0,
+	if ( isOutputEnabled(ThinBed) )
+	    setOutputValue( output, ThinBed, idx, z0, calcThinBed(idx,z0) );
+	if ( isOutputEnabled(Bandwidth) )
+	    setOutputValue( output, Bandwidth, idx, z0,
 			    calcBandWidth(idx,z0) );
-	if ( isOutputEnabled(mOutQFactor) )
-	    setOutputValue( output, mOutQFactor, idx, z0, calcQFactor(idx,z0) );
-	if ( isOutputEnabled(mOutRotatePhase) )
-	    setOutputValue(output, mOutRotatePhase, idx, z0,
+	if ( isOutputEnabled(QFactor) )
+	    setOutputValue( output, QFactor, idx, z0, calcQFactor(idx,z0) );
+	if ( isOutputEnabled(RotatePhase) )
+	    setOutputValue(output, RotatePhase, idx, z0,
 			    calcRotPhase(idx,z0,rotangle_));
     }
 
