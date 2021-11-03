@@ -282,6 +282,8 @@ void uiODDisplayTreeItem::keyPressCB( CallBacker* cb )
 	if ( cbcaps )
 	    cbcaps->data.setKey( 0 );
     }
+    if ( kd.key()==OD::KB_H && kd.state()==OD::NoButton )
+	visserv_->sendVisEvent( uiVisPartServer::evShowMPESetupDlg() );
 }
 
 
