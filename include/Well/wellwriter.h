@@ -50,6 +50,7 @@ public:
     bool		putLog(const Log&) const;
     bool		swapLogs(const Log&,const Log&) const;
     bool		canSwapLogs()		{ return true; }
+    bool		renameLog(const char* oldnm,const char* newnm);
 
     const uiString&	errMsg() const		{ return errmsg_; }
 

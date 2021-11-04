@@ -900,14 +900,8 @@ void uiWellMan::renameLogPush( CallBacker* )
     if ( logsfld_->isPresent(newnm) )
 	mErrRet(tr("Name already in use"))
 
-    for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
-    {
-	currdrs_[idwell]->getLogs();
-	Well::Log* log = curwds_[idwell]->logs().getLog(lognm);
-	if ( log )
-	    log->setName( newnm );
-    }
-    writeLogs();
+    Well::MGR().renameLog( curmultiids_, lognm, newnm );
+    fillLogsFld();
 }
 
 

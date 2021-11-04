@@ -111,6 +111,12 @@ bool Well::Writer::swapLogs( const Well::Log& log1,
 }
 
 
+bool Well::Writer::renameLog( const char* oldnm, const char* newnm )
+{
+    return wa_ ? wa_->renameLog( oldnm, newnm ) : false;
+}
+
+
 #define mErrStrmOper(oper,todo) \
 { setStrmErrMsg(strm,oper); todo; }
 #define mErrRetStrmOper(oper) mErrStrmOper(oper,return false)
@@ -306,7 +312,7 @@ bool Well::odWriter::putLogs() const
 
 bool Well::odWriter::putLog( const Well::Log& wl ) const
 {
-    const int logidx = getLogIndex( wl );
+    const int logidx = getLogIndex( wl.name() );
     const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx );
     od_istream istrm( logfnm );
     const DataBuffer* dbuf = wl.isLoaded() ? nullptr : getLogBuffer(istrm);
@@ -430,9 +436,9 @@ bool Well::odWriter::wrLogData( od_ostream& strm, const Well::Log& wl,
 bool Well::odWriter::swapLogs( const Well::Log& log1,
 			       const Well::Log& log2 ) const
 {
-    const int logidx1 = getLogIndex( log1 );
+    const int logidx1 = getLogIndex( log1.name() );
     const BufferString logfnm1 = getFileName( Well::odIO::sExtLog(), logidx1 );
-    const int logidx2 = getLogIndex( log2 );
+    const int logidx2 = getLogIndex( log2.name() );
     const BufferString logfnm2 = getFileName( Well::odIO::sExtLog(), logidx2 );
     const BufferString tempfnm = getFileName( Well::odIO::sExtLog(), 0 );
     File::rename( logfnm2, tempfnm );
@@ -442,7 +448,33 @@ bool Well::odWriter::swapLogs( const Well::Log& log1,
 }
 
 
-int Well::odWriter::getLogIndex( const Well::Log& log ) const
+bool Well::odWriter::renameLog( const char* oldnm, const char* newnm )
+{
+    const int logidx = getLogIndex( oldnm );
+    const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx );
+    od_istream istrm( logfnm );
+    Reader rdr( wd_.multiID(), const_cast<Data&>( wd_ ) );
+    if ( rdr.isUsable() )
+	rdr.getLog( oldnm );
+
+    Well::Log* wl = const_cast<Well::Log*>( wd_.logs().getLog(oldnm) );
+    if ( wl )
+	wl->setName( newnm );
+
+    const DataBuffer* dbuf = wl->isLoaded() ? nullptr : getLogBuffer(istrm);
+    od_ostream strm( logfnm );
+    if ( !putLog(strm,*wl,dbuf) )
+    {
+	delete dbuf;
+	return false;
+    }
+
+    delete dbuf;
+    return true;
+}
+
+
+int Well::odWriter::getLogIndex( const char* lognm ) const
 {
     int logidx = -1;
     //TODO: to be replaced by a proper well log identifier:
@@ -454,7 +486,7 @@ int Well::odWriter::getLogIndex( const Well::Log& log ) const
 	{
 	    BufferStringSet lognms;
 	    rdr.getLogInfo( lognms );
-	    logidx = lognms.indexOf( log.name() );
+	    logidx = lognms.indexOf( lognm );
 	    nrlogs = lognms.size();
 	}
     }

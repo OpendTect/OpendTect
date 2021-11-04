@@ -41,6 +41,8 @@ public:
     virtual bool	putLog(const Log&) const	= 0;
     virtual bool	swapLogs(const Log&,const Log&) const
 			{ return false; }
+    virtual bool	renameLog(const char* oldnm,const char* newnm)
+			{ return false; }
 
     virtual const uiString& errMsg() const		= 0;
 

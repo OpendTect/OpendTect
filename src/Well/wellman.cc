@@ -511,6 +511,25 @@ bool Well::Man::getAllLogNames( BufferStringSet& lognms, bool onlyloaded )
 }
 
 
+bool Well::Man::renameLog( const TypeSet<MultiID>& keys, const char* oldnm,
+		  				  	 const char* newnm )
+{
+    if ( keys.isEmpty() )
+	return false;
+
+    for ( int idx=0; idx<keys.size(); idx++ )
+    {
+	const MultiID& key = keys.get( idx );
+	RefMan<Data> wd = MGR().get( key, LoadReqs(LogInfos) );
+	Writer wwr( wd->multiID(), *wd );
+	if ( !wwr.renameLog(oldnm,newnm) )
+	    return false;
+    }
+
+    return true;
+}
+
+
 bool Well::Man::getMarkersByID( const MultiID& mid, BufferStringSet& nms )
 {
     nms.setEmpty();

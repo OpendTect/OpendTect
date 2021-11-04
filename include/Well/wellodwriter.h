@@ -37,18 +37,19 @@ public:
 
     bool		put() const;
 
-    bool		putInfoAndTrack() const override;
+    virtual bool	putInfoAndTrack() const;
     virtual bool	putTrack() const;
-    bool		putLogs() const override;
-    bool		putMarkers() const override;
-    bool		putD2T() const override;
-    bool		putCSMdl() const override;
-    bool		putDispProps() const override;
-    bool		putLog(const Log&) const override;
-    bool		swapLogs(const Log&,const Log&) const override;
-    bool		canSwapLogs() override	{ return true; }
+    virtual bool	putLogs() const;
+    virtual bool	putMarkers() const;
+    virtual bool	putD2T() const;
+    virtual bool	putCSMdl() const;
+    virtual bool	putDispProps() const;
+    virtual bool	putLog(const Log&) const;
+    virtual bool	swapLogs(const Log&,const Log&) const;
+    virtual bool	renameLog(const char* oldnm, 
+	    			  const char* newnm) override;
 
-    const uiString&	errMsg() const override { return odIO::errMsg(); }
+    virtual const uiString& errMsg() const	{ return odIO::errMsg(); }
 
     bool		putInfoAndTrack(od_ostream&) const;
     bool		putMarkers(od_ostream&) const;
@@ -68,7 +69,7 @@ protected:
 
     bool		putLog(od_ostream&,const Log&,
 				  const DataBuffer* databuf = nullptr) const;
-    int			getLogIndex(const Log&) const;
+    int			getLogIndex(const char* lognm ) const;
     bool		wrLogHdr(od_ostream&,const Log&) const;
     bool		wrLogData(od_ostream&,const Log&,
 				  const DataBuffer* databuf = nullptr) const;
