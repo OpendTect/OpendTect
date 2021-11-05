@@ -136,7 +136,7 @@ def getDBDict( cmd ):
   return ret
 
 def getByName( dblist, retname, keystr ):
-  """ Gets value of specified database list  key
+  """ Gets value of specified database lists key
 
   Parameters:
     * dblist (dict): survey database list, check odpy.getDBList for docs

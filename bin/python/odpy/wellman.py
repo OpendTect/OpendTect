@@ -254,7 +254,7 @@ def getTrack( wllnm, reload=False, args=None ):
           Default to None.
 
     Returns:
-      tuple: contains lists of track depths (MDs, TVDs, x cord., y cord.)
+      tuple: contains lists of track depths (MDs, TVDs, x coord., y coord.)
 
   """
 

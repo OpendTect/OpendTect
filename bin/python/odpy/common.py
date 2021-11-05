@@ -7,7 +7,7 @@ Copyright (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.
 Module Summary
 ###############
 
-odpy.common is the main important module in odpy. Allows for basic interactions with the OpendTect softwre and database
+odpy.common is the main important module in odpy. Allows for basic interactions with the OpendTect software and database
 
 KEY methods
 -------------
@@ -844,7 +844,7 @@ def writeFile( fnm, content ):
 
   Parameters:
     fnm (str): name of file to be created/written to
-    content (str): content to be addedto the file
+    content (str): content to be added to the file
 
   Returns:
     * bool:
