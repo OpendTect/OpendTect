@@ -6,6 +6,13 @@
 
 macro( OD_FIND_QTDIR )
     if ( NOT DEFINED QTDIR )
+	if ( NOT DEFINED QT_VERSION_MAJOR )
+	    if ( Qt6_DIR AND EXISTS "${Qt6_DIR}" )
+		set( QT_VERSION_MAJOR 6 )
+	    elseif ( Qt5_DIR AND EXISTS "${Qt5_DIR}" )
+		set( QT_VERSION_MAJOR 5 )
+	    endif()
+	endif()
 	if ( Qt${QT_VERSION_MAJOR}_DIR )
 	    get_filename_component( QTDIR ${Qt${QT_VERSION_MAJOR}_DIR} DIRECTORY )
 	    get_filename_component( QTDIR ${QTDIR} DIRECTORY )
