@@ -46,12 +46,14 @@ namespace Time
     mGlobal(Basic) const char*	defDateFmt();
     mGlobal(Basic) const char*	defTimeFmt();
 
+    mGlobal(Basic) const char*	getISODateTimeString(bool local=false);
     mGlobal(Basic) const char*	getDateTimeString(const char* fmt
 					    =defDateTimeFmt(),bool local=true);
     mGlobal(Basic) const char*	getDateString(const char* fmt=defDateFmt(),
 					      bool local=true);
     mGlobal(Basic) const char*	getTimeString(const char* fmt=defTimeFmt(),
 					      bool local=true);
+    mGlobal(Basic) const char*	getLocalDateTimeFromString(const char*);
 
     mGlobal(Basic) bool isEarlier(const char* first, const char* second,
 			   const char* fmt=defDateTimeFmt());
@@ -66,5 +68,3 @@ namespace Time
 
 
 } // namespace Time
-
-
