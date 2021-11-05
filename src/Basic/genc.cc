@@ -560,7 +560,7 @@ mExtern(Basic) const char* GetOSEnvVar( const char* env )
 
     mDeclStaticString( resbuf );
     resbuf = res;
-    return resbuf.buf();
+    return resbuf.str();
 }
 
 
@@ -610,7 +610,11 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
 {
     Threads::Locker lock( getEnvVarLock() );
     if ( !env || !*env )
-	{ pFreeFnErrMsg( "Asked for empty env var" ); return nullptr; }
+    {
+	pFreeFnErrMsg( "Asked for empty env var" );
+	return nullptr;
+    }
+
     if ( insysadmmode_ )
 	return GetOSEnvVar( env );
 

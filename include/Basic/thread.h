@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 mFDQtclass(QThread)
 mFDQtclass(QMutex)
+mFDQtclass(QRecursiveMutex)
 mFDQtclass(QWaitCondition)
 
 class CallBack;
@@ -43,12 +44,12 @@ typedef void* ThreadID;
 mExpClass(Basic) Mutex
 {
 public:
-		Mutex( bool recursive=false );
+		Mutex(bool recursive=false);
 		/*\If recursive, mutex can be locked
 		   multiple times from the same thread without deadlock.
 		   It will be unlock when unLock has been called the same
 		   number of times as lock(). */
-		Mutex(const Mutex&);
+		Mutex(const Mutex&)	= delete;
     virtual	~Mutex();
 
     void	lock();
@@ -61,13 +62,17 @@ public:
 		     carry on with your life.
 		*/
 
+    bool	isRecursive() const
+		{ return qrecursivemutex_; }
+
 protected:
 
-    mQtclass(QMutex*)		qmutex_;
+    mQtclass(QMutex*)		qmutex_			= nullptr;
+    mQtclass(QRecursiveMutex*)	qrecursivemutex_	= nullptr;
 
-    ThreadID			lockingthread_;
+    ThreadID			lockingthread_	= 0;
 				//!<Only set in debug-mode
-    int				count_;
+    int				count_		= 0;
 				//!<Only set in debug-mode
 public:
     int				getCount() const { return count_; }

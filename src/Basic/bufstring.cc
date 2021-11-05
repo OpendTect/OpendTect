@@ -988,7 +988,7 @@ void BufferStringSet::use( const uiStringSet& from )
 }
 
 
-void BufferStringSet::fill( mQtclass(QStringList)& res ) const
+void BufferStringSet::fill( QList<QString>& res ) const
 {
 #ifndef OD_NO_QT
     res.clear();
@@ -999,12 +999,12 @@ void BufferStringSet::fill( mQtclass(QStringList)& res ) const
 }
 
 
-void BufferStringSet::use( const mQtclass(QStringList)& from )
+void BufferStringSet::use( const QList<QString>& from )
 {
 #ifndef OD_NO_QT
     setEmpty();
 
-    for ( mQtclass(QStringList)::const_iterator iter = from.constBegin();
+    for ( QList<QString>::const_iterator iter = from.constBegin();
 				      iter != from.constEnd(); ++iter )
 	add( (*iter).toLocal8Bit().constData() );
 #endif

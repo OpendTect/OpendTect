@@ -631,10 +631,10 @@ mExternC(Basic) const char* GetSettingsDir()
     {
 	const char* ptr = 0;
 #ifdef __win__
-	ptr = GetEnvVar( "DTECT_WINSETTINGS" );
+	ptr = GetOSEnvVar( "DTECT_WINSETTINGS" );
 	if( !ptr ) ptr = getCleanWinPath( GetEnvVar("DTECT_SETTINGS") );
 #else
-	ptr = GetEnvVar( "DTECT_SETTINGS" );
+	ptr = GetOSEnvVar( "DTECT_SETTINGS" );
 #endif
 
 	if ( ptr )

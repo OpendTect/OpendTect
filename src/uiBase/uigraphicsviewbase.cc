@@ -103,8 +103,8 @@ KeyboardEventHandler& keyboardEventHandler()
 GestureEventHandler& gestureEventHandler()
 { return gestureeventhandler_; }
 
-void setMouseWheelReversal(bool yn) { reversemousewheel_ = yn; }
-bool getMouseWheelReversal() const { return reversemousewheel_; }
+void setMouseWheelReversal(bool yn)	{ reversemousewheel_ = yn; }
+bool getMouseWheelReversal() const	{ return reversemousewheel_; }
 
 void setMidMouseButtonForDrag( bool yn ) { midmousebutfordrag_ = yn; }
 bool hasMidMouseButtonForDrag() const	{ return midmousebutfordrag_; }
@@ -146,7 +146,7 @@ protected:
 
 void uiGraphicsViewBody::mouseMoveEvent( QMouseEvent* ev )
 {
-    MouseEvent me( buttonstate_, ev->x(), ev->y() );
+    MouseEvent me( buttonstate_, ev->pos().x(), ev->pos().y() );
     mousehandler_.triggerMovement( me );
     QGraphicsView::mouseMoveEvent( ev );
 }
@@ -175,10 +175,10 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
     const bool leftrightbut = qtmbs&Qt::RightButton && qtmbs&Qt::LeftButton;
     if ( leftrightbut || ev->button() == Qt::MiddleButton )
     {
-	uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
+	uiPoint viewpt = handle_.getScenePos( ev->pos().x(), ev->pos().y() );
 	startpos_ = uiPoint( viewpt.x, viewpt.y );
 	buttonstate_ = OD::MidButton;
-	MouseEvent me( buttonstate_, ev->x(), ev->y() );
+	MouseEvent me( buttonstate_, ev->pos().x(), ev->pos().y() );
 	mousehandler_.triggerButtonPressed( me );
 
 	if ( midmousebutfordrag_ )
@@ -195,7 +195,7 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
 	setDragMode( QGraphicsView::NoDrag );
 
 	buttonstate_ = OD::RightButton;
-	MouseEvent me( buttonstate_, ev->x(), ev->y() );
+	MouseEvent me( buttonstate_, ev->pos().x(), ev->pos().y() );
 	const int refnr = handle_.beginCmdRecEvent( "rightButtonPressed" );
 	mousehandler_.triggerButtonPressed( me );
 	QGraphicsView::mousePressEvent( ev );
@@ -205,10 +205,10 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
     }
     else if ( ev->button() == Qt::LeftButton )
     {
-	uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
+	uiPoint viewpt = handle_.getScenePos( ev->pos().x(), ev->pos().y() );
 	startpos_ = uiPoint( viewpt.x, viewpt.y );
 	buttonstate_ = OD::LeftButton;
-	MouseEvent me( buttonstate_, ev->x(), ev->y() );
+	MouseEvent me( buttonstate_, ev->pos().x(), ev->pos().y() );
 	mousehandler_.triggerButtonPressed( me );
     }
     else
@@ -225,7 +225,7 @@ void uiGraphicsViewBody::mouseDoubleClickEvent( QMouseEvent* ev )
 
     if ( ev->button() == Qt::LeftButton )
     {
-	MouseEvent me( OD::LeftButton, ev->x(), ev->y() );
+	MouseEvent me( OD::LeftButton, ev->pos().x(), ev->pos().y() );
 	mousehandler_.triggerDoubleClick( me );
     }
     QGraphicsView::mouseDoubleClickEvent( ev );
@@ -237,11 +237,11 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* ev )
     if ( ev->button() == Qt::LeftButton )
     {
 	buttonstate_ = OD::LeftButton;
-	MouseEvent me( buttonstate_, ev->x(), ev->y() );
+	MouseEvent me( buttonstate_, ev->pos().x(), ev->pos().y() );
 	mousehandler_.triggerButtonReleased( me );
 	if ( handle_.isRubberBandingOn() )
 	{
-	    uiPoint viewpt = handle_.getScenePos( ev->x(), ev->y() );
+	    uiPoint viewpt = handle_.getScenePos( ev->pos().x(), ev->pos().y());
 	    uiPoint stoppos( viewpt.x, viewpt.y );
 	    uiRect selrect( startpos_, stoppos );
 	    handle_.scene().setSelectionArea( selrect );
@@ -250,7 +250,7 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* ev )
     else if ( ev->button() == Qt::MiddleButton )
     {
 	buttonstate_ = OD::MidButton;
-	MouseEvent me( buttonstate_, ev->x(), ev->y() );
+	MouseEvent me( buttonstate_, ev->pos().x(), ev->pos().y() );
 	mousehandler_.triggerButtonReleased( me );
 
 	if ( midmousebutfordrag_ )

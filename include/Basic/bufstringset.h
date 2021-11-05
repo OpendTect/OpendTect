@@ -17,8 +17,8 @@ ________________________________________________________________________
 class GlobExpr;
 class uiString;
 class uiStringSet;
-mFDQtclass( QString )
-mFDQtclass( QStringList )
+class QString;
+template <class T> class QList;
 
 /*!\brief Set of BufferString objects. */
 
@@ -107,8 +107,8 @@ public:
 
     void		fill(uiStringSet&) const;
     void		use(const uiStringSet&);
-    void		fill(mQtclass(QStringList)&) const;
-    void		use(const mQtclass(QStringList)&);
+    void		fill(QList<QString>&) const;
+    void		use(const QList<QString>&);
 
     BufferString	cat(const char* sepstr="\n") const;
     void		unCat(const char*,const char* sepstr="\n");

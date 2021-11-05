@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "q_uiimpl.h"
 
 #include <limits.h>
+#include <QMenu>
 
 mUseQtnamespace
 

@@ -19,55 +19,68 @@
 
 Threads::Lock::Lock( bool sp )
     : mutex_(sp ? 0 : new Mutex(true))
-    , splock_(sp ? new SpinLock(true) : 0)
-    , rwlock_(0)
+    , splock_(sp ? new SpinLock(true) : nullptr)
+    , rwlock_(nullptr)
 {
 }
 
 
 Threads::Lock::Lock( Threads::Lock::Type lt )
-    : mutex_(lt == BigWork ? new Mutex(true) : 0)
-    , splock_(lt == SmallWork ? new SpinLock(true) : 0)
-    , rwlock_(lt == MultiRead ? new ReadWriteLock : 0)
+    : mutex_(lt == BigWork ? new Mutex(true) : nullptr)
+    , splock_(lt == SmallWork ? new SpinLock(true) : nullptr)
+    , rwlock_(lt == MultiRead ? new ReadWriteLock : nullptr)
 {
 }
 
 
 Threads::Lock::Lock( const Threads::Lock& oth )
-    : mutex_(oth.mutex_ ? new Mutex(*oth.mutex_) : 0)
-    , splock_(oth.splock_ ? new SpinLock(*oth.splock_) : 0)
-    , rwlock_(oth.rwlock_ ? new ReadWriteLock(*oth.rwlock_) : 0)
+    : mutex_(oth.mutex_ ? new Mutex(oth.mutex_->isRecursive()) : nullptr)
+    , splock_(oth.splock_ ? new SpinLock(*oth.splock_) : nullptr)
+    , rwlock_(oth.rwlock_ ? new ReadWriteLock(*oth.rwlock_) : nullptr)
 {
 }
 
 
 Threads::Lock& Threads::Lock::operator =( const Threads::Lock& oth )
 {
-    if ( this == &oth ) return *this;
+    if ( this == &oth )
+	return *this;
 
     // Hopefully we can stay the same type:
     if ( mutex_ )
     {
 	if ( oth.mutex_ )
-	    { *mutex_ = *oth.mutex_; return *this; }
+	{
+	    *mutex_ = *oth.mutex_;
+	    return *this;
+	}
+
 	deleteAndZeroPtr( mutex_ );
     }
     else if ( splock_ )
     {
 	if ( oth.splock_ )
-	    { *splock_ = *oth.splock_; return *this; }
+	{
+	    *splock_ = *oth.splock_;
+	    return *this;
+	}
+
 	deleteAndZeroPtr( splock_ );
     }
     else
     {
 	if ( oth.rwlock_ )
-	    { *rwlock_ = *oth.rwlock_; return *this; }
+	{
+	    *rwlock_ = *oth.rwlock_;
+	    return *this;
+	}
+
 	deleteAndZeroPtr( rwlock_ );
     }
 
-    mutex_ = oth.mutex_ ? new Mutex(*oth.mutex_) : 0;
-    splock_ = oth.splock_ ? new SpinLock(*oth.splock_) : 0;
-    rwlock_ = oth.rwlock_ ? new ReadWriteLock(*oth.rwlock_) : 0;
+    mutex_ = oth.mutex_ ? new Mutex(oth.mutex_->isRecursive()) : nullptr;
+    splock_ = oth.splock_ ? new SpinLock(*oth.splock_) : nullptr;
+    rwlock_ = oth.rwlock_ ? new ReadWriteLock(*oth.rwlock_) : nullptr;
 
     return *this;
 }
@@ -227,12 +240,11 @@ bool Threads::lockSimpleSpinLock( volatile int& lock,
 #endif
 
 
-#ifndef OD_NO_QT
-# include "qatomic.h"
-# include <QThread>
-# include <QMutex>
-# include <QWaitCondition>
-#endif
+#include "qatomic.h"
+#include <QMutex>
+#include <QRecursiveMutex>
+#include <QThread>
+#include <QWaitCondition>
 
 #ifdef __msvc__
 # include "windows.h"
@@ -241,27 +253,11 @@ bool Threads::lockSimpleSpinLock( volatile int& lock,
 mUseQtnamespace
 
 Threads::Mutex::Mutex( bool recursive )
-#ifndef OD_NO_QT
-    : qmutex_( new QMutex( recursive
-		? QMutex::Recursive : QMutex::NonRecursive) )
-#else
-    : qmutex_( 0 )
-#endif
-    , lockingthread_( 0 )
-    , count_( 0 )
-{}
-
-
-//!Implemented since standard copy constuctor will hang the system
-Threads::Mutex::Mutex( const Mutex& m )
-#ifndef OD_NO_QT
-    : qmutex_( new QMutex )
-#else
-    : qmutex_( 0 )
-#endif
 {
-    lockingthread_ = 0;
-    count_ = 0;
+    if ( !recursive )
+	qmutex_ = new QMutex;
+    else
+	qrecursivemutex_ = new QRecursiveMutex;
 }
 
 
@@ -274,9 +270,8 @@ Threads::Mutex::Mutex( const Mutex& m )
 
 Threads::Mutex::~Mutex()
 {
-#ifndef OD_NO_QT
     deleteAndZeroPtr( qmutex_ );
-#endif
+    deleteAndZeroPtr( qrecursivemutex_ );
 
 #ifdef __debug__
     if ( lockingthread_ )
@@ -287,9 +282,10 @@ Threads::Mutex::~Mutex()
 
 void Threads::Mutex::lock()
 {
-#ifndef OD_NO_QT
-    qmutex_->lock();
-#endif
+    if ( qmutex_ )
+	qmutex_->lock();
+    else if ( qrecursivemutex_ )
+	qrecursivemutex_->lock();
 
 #ifdef __debug__
     count_++;
@@ -300,8 +296,7 @@ void Threads::Mutex::lock()
 
 void Threads::Mutex::unLock()
 {
-#ifndef OD_NO_QT
-# ifdef __debug__
+#ifdef __debug__
     count_--;
     if ( lockingthread_ !=currentThread() )
 	mErrMsg("Unlocked from the wrong thead")
@@ -310,33 +305,32 @@ void Threads::Mutex::unLock()
 	lockingthread_ = 0;
     else if ( count_ < 0 )
 	mErrMsg("Negative lock count")
-# endif
-    qmutex_->unlock();
 #endif
+    if ( qmutex_ )
+	qmutex_->unlock();
+    else if ( qrecursivemutex_ )
+	qrecursivemutex_->unlock();
 }
 
 
 bool Threads::Mutex::tryLock()
 {
-#ifndef OD_NO_QT
-    if ( qmutex_->tryLock() )
+    const bool obtained = qmutex_ ? qmutex_->tryLock()
+	: (qrecursivemutex_ ? qrecursivemutex_->tryLock() : false);
+    if ( obtained )
     {
-# ifdef __debug__
+#ifdef __debug__
 	count_++;
 	lockingthread_ = currentThread();
-# endif
+#endif
 	return true;
     }
+
     return false;
-#else
-# ifdef __debug__
-    count_++;
-    lockingthread_ = currentThread();
-# endif
-    return true;
-#endif
 }
 
+
+// Threads::SpinLock
 Threads::SpinLock::SpinLock( bool recursive )
     : count_( 0 )
     , recursive_( recursive )
@@ -344,6 +338,7 @@ Threads::SpinLock::SpinLock( bool recursive )
 {
     mSetupIttNotify( lockingthread_, "Threads::SpinLock" );
 }
+
 
 Threads::SpinLock::SpinLock( const Threads::SpinLock& oth )
     : count_( 0 )
@@ -358,6 +353,7 @@ Threads::SpinLock::~SpinLock()
 {
     mDestroyIttNotify( lockingthread_ );
 }
+
 
 void Threads::SpinLock::lock()
 {

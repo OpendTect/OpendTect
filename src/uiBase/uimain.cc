@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "thread.h"
 
 #include <QApplication>
+#include <QFile>
 #include <QIcon>
 #include <QKeyEvent>
 #include <QMenu>
@@ -133,14 +134,24 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 #else
 	ti.device_ = (TabletInfo::TabletDevice) qtabev->device();
 #endif
+
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+	ti.globalpos_.x = qtabev->globalPosition().x();
+	ti.globalpos_.y = qtabev->globalPosition().y();
+	ti.pos_.x = qtabev->position().x();
+	ti.pos_.y = qtabev->position().y();
+	if ( qtabev->pointingDevice() )
+	    ti.uniqueid_ = qtabev->pointingDevice()->uniqueId().numericId();
+#else
 	ti.globalpos_.x = qtabev->globalX();
 	ti.globalpos_.y = qtabev->globalY();
 	ti.pos_.x = qtabev->x();
 	ti.pos_.y = qtabev->y();
+	ti.uniqueid_ = qtabev->uniqueId();
+#endif
 	ti.pressure_ = qtabev->pressure();
 	ti.rotation_ = qtabev->rotation();
 	ti.tangentialpressure_ = qtabev->tangentialPressure();
-	ti.uniqueid_ = qtabev->uniqueId();
 	ti.xtilt_ = qtabev->xTilt();
 	ti.ytilt_ = qtabev->yTilt();
 	ti.z_ = qtabev->z();
@@ -159,12 +170,21 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
     if ( mousepressed_ && !lostreleasefixevent_ && ti && !ti->pressure_ &&
 	 qme->type()!=QEvent::MouseButtonRelease )
     {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+	lostreleasefixevent_ = new QMouseEvent(
+					QEvent::MouseButtonRelease,
+					qme->position(), qme->globalPosition(),
+					mousebutton_,
+					qme->buttons() & ~mousebutton_,
+					qme->modifiers() );
+#else
 	lostreleasefixevent_ = new QMouseEvent(
 					QEvent::MouseButtonRelease,
 					qme->pos(), qme->globalPos(),
 					mousebutton_,
 					qme->buttons() & ~mousebutton_,
 					qme->modifiers() );
+#endif
 	QApplication::postEvent( obj, lostreleasefixevent_ );
     }
 
@@ -195,7 +215,12 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 
     if ( qme->type()==QEvent::MouseMove && mousepressed_ )
     {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+	const Geom::Point2D<int> curpos( qme->globalPosition().x(),
+					 qme->globalPosition().y() );
+#else
 	const Geom::Point2D<int> curpos( qme->globalX(), qme->globalY() );
+#endif
 	if ( !lastdragpos_.isDefined() )
 	    lastdragpos_ = curpos;
 	else if ( lastdragpos_ != curpos )
@@ -230,7 +255,12 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 				   QApplication::focusWidget(), qev );
 	}
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+	QWidget* tlw = QApplication::topLevelAt(
+					qme->globalPosition().toPoint() );
+#else
 	QWidget* tlw = QApplication::topLevelAt( qme->globalPos() );
+#endif
 	if ( dynamic_cast<QMenu*>(tlw) )
 	    return true;
 
@@ -388,7 +418,10 @@ void uiMain::cleanQtOSEnv()
 void uiMain::preInit()
 {
     QApplication::setDesktopSettingsAware( true );
+#if QT_VERSION >= 0x050600 && QT_VERSION < 0x060000
     QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
+#endif
+
 #if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
     // Attributes added with Qt5.3 and Qt5.4
     QApplication::setAttribute( Qt::AA_ShareOpenGLContexts );

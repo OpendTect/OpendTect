@@ -13,7 +13,8 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "objectset.h"
 
-mFDQtclass( QStringList );
+class QString;
+template <class T> class QList;
 class uiRetVal;
 
 
@@ -34,7 +35,7 @@ public:
 			uiStringSet(const uiString&,const uiString&,
 				    const uiString&);
 			uiStringSet( const uiStringSet& oth )	{ *this = oth; }
-			uiStringSet(const mQtclass(QStringList)&);
+			uiStringSet(const QList<QString>&);
 			~uiStringSet();
     uiStringSet&	operator =(const uiStringSet&);
 
@@ -74,7 +75,7 @@ public:
     uiStringSet&	addKeyValue( const uiWord& ky,const T& val )
 			{ return addKeyValue( ky, toUiString(val) ); }
 
-    void		fill(mQtclass(QStringList)&) const;
+    void		fill(QList<QString>&) const;
     void		sort(const bool caseinsens=true,bool asc=true);
     void		useIndexes( const idx_type* idxs );
     idx_type*		getSortIndexes(bool caseinsens,bool asc) const;

@@ -23,7 +23,7 @@ uiRubberBand::~uiRubberBand()
 
 void uiRubberBand::start( QMouseEvent* event )
 {
-    origin_ = uiPoint( event->x(), event->y() );
+    origin_ = uiPoint( event->pos().x(), event->pos().y() );
     if ( !qrubberband_ )
 	qrubberband_ = new QRubberBand( QRubberBand::Rectangle, parent_ );
 

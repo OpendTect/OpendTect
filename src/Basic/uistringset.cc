@@ -10,11 +10,9 @@ ________________________________________________________________________
 
 #include "uistringset.h"
 #include "uistrings.h"
-#ifndef OD_NO_QT
-# include <QStringList>
-#endif
 
-
+#include <QList>
+#include <QString>
 
 uiStringSet::uiStringSet( const uiString& s )
 {
@@ -35,7 +33,7 @@ uiStringSet::uiStringSet( const uiString& s1, const uiString& s2,
 }
 
 
-uiStringSet::uiStringSet( const QStringList& qsl )
+uiStringSet::uiStringSet( const QList<QString>& qsl )
 {
     for ( auto qstr : qsl )
 	add( toUiString(qstr) );
@@ -143,7 +141,7 @@ void uiStringSet::removeSingle( idx_type idx, bool kporder )
 }
 
 
-void uiStringSet::fill( QStringList& qlist ) const
+void uiStringSet::fill( QList<QString>& qlist ) const
 {
     QString qstr;
     for ( idx_type idx=0; idx<size(); idx++ )

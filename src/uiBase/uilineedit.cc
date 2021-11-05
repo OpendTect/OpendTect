@@ -103,7 +103,7 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
     else if ( rep == DataType::intTp )
 	body_->setValidator( new QIntValidator );
     else if ( rep == DataType::stringTp )
-	body_->setValidator( new QRegExpValidator );
+	body_->setValidator( new QRegularExpressionValidator );
 }
 
 
