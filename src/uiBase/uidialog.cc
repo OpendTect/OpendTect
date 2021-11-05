@@ -122,3 +122,8 @@ bool uiDialog::hasSaveButton() const
 uiDialog::TitlePos uiDialog::titlepos_ = CenterWin;
 uiDialog::TitlePos uiDialog::titlePos()			{ return titlepos_; }
 void uiDialog::setTitlePos( TitlePos p )		{ titlepos_ = p; }
+
+uiGroup* uiDialog::getDlgGroup()
+{
+    return mBody->getDlgGrp();
+}

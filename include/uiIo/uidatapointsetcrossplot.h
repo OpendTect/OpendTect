@@ -11,30 +11,33 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+
+#include "coltabmapper.h"
+#include "coltabsequence.h"
+#include "datapointset.h"
+#include "linear.h"
+#include "odpair.h"
+#include "rowcol.h"
+
+#include "uiaxisdata.h"
 #include "uiaxishandler.h"
 #include "uidatapointset.h"
-#include "coltabsequence.h"
-#include "coltabmapper.h"
-#include "datapointset.h"
-#include "uirgbarraycanvas.h"
-#include "uiaxisdata.h"
-#include "rowcol.h"
-#include "linear.h"
 #include "uidpscrossplottools.h"
+#include "uirgbarraycanvas.h"
 
-class RowCol;
-class MouseEvent;
 class LinStats2D;
-class Timer;
+class MouseEvent;
+class RowCol;
+
+class uiColTabItem;
 class uiDataPointSet;
-class uiPolygonItem;
+class uiGraphicsItem;
+class uiGraphicsItemGroup;
 class uiLineItem;
 class uiPolyLineItem;
-class uiRectItem;
-class uiGraphicsItemGroup;
-class uiGraphicsItem;
-class uiColTabItem;
+class uiPolygonItem;
 class uiRect;
+class uiRectItem;
 template <class T> class Array1D;
 namespace Math { class Expression; }
 
@@ -62,6 +65,8 @@ public:
 	mDefSetupMemb(bool,showy2regrline)
 	mDefSetupMemb(bool,showy1userdefpolyline)
 	mDefSetupMemb(bool,showy2userdefpolyline)
+	mDefSetupMemb(OD::LineStyle,y1userdeflinestyle)
+	mDefSetupMemb(OD::LineStyle,y2userdeflinestyle)
     };
 
 			uiDataPointSetCrossPlotter(uiParent*,uiDataPointSet&,
@@ -121,15 +126,7 @@ public:
 					uiDataPointSet::DRowID,bool);
     void			setItem(uiGraphicsItem*,bool y2,const uiPoint&);
     void			setAnnotEndTxt(uiAxisHandler&);
-    int				calcDensity(Array2D<float>*,bool chgdps=false,
-					    bool removesel=false,
-					    bool isy2=false, int areatyp=0,
-					    Interval<int>* cellsz = 0,
-					    Array2D<float>* freqdata = 0);
-    int				calculateDensity(Array2D<float>*,
-						 bool chgdps=false,
-						 bool removesel=false);
-    void			drawDensityPlot(bool removesel=false);
+    void			drawDensityPlot();
     bool			drawPoints(uiGraphicsItemGroup*,
 					   const AxisData&,bool y2,
 					   MarkerStyle2D&,bool rempt = false);
@@ -236,16 +233,15 @@ public:
     int				getNewSelAreaID() const;
     bool			isSelAreaValid(int id) const;
     int				getSelGrpIdx(int selareaid) const;
-    void			setTRMsg( const uiString& msg )
-				{ trmsg_ = msg; }
     int				totalNrItems() const;
     void			getRandRowids();
     void			setMultiColMode(bool yn)
 				{ multclron_ = yn; }
     bool			isMultiColMode() const	{ return multclron_; }
-    void			setCellSize( int sz )	{ cellsize_ = sz; }
-    int				cellSize() const	{ return cellsize_; }
     bool			isSelectionValid(uiDataPointSet::DRowID);
+
+    void			setNrBins(OD::Pair<int,int>);
+    OD::Pair<int,int>		nrBins() const;
 
     void			setOverlayY1AttMapr(const ColTab::MapperSetup&);
     void			setOverlayY2AttMapr(const ColTab::MapperSetup&);
@@ -279,7 +275,6 @@ protected:
     Setup			setup_;
     Math::Expression*		mathobj_		= nullptr;
     BufferString		mathobjstr_;
-    uiString			trmsg_;
 
     uiPolygonItem*		selectionpolygonitem_	= nullptr;
     uiRectItem*			selectionrectitem_	= nullptr;
@@ -302,7 +297,6 @@ protected:
     ColTab::Mapper		y4mapper_;
     LinStats2D&			lsy1_;
     LinStats2D&			lsy2_;
-    Timer&			timer_;
     bool			showy3_			= false;
     bool			showy4_			= false;
     bool			selectable_		= false;
@@ -319,7 +313,7 @@ protected:
     int				sely2items_		= 0;
     int				curselarea_		= 0;
     int				curselgrp_		= 0;
-    int				cellsize_		= 1;
+    OD::Pair<int,int>		nrbins_;
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_			= -1;
     Interval<int>		usedxpixrg_;

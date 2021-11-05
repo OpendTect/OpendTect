@@ -51,6 +51,8 @@ public:
     mDefSetupClssMemb(CommandExecPars,bool,needmonitor);
     mDefSetupClssMemb(CommandExecPars,BufferString,monitorfnm);
 			    //!< when empty, will be generated (if needed)
+    mDefSetupClssMemb(CommandExecPars,BufferString,stdoutfnm);
+    mDefSetupClssMemb(CommandExecPars,BufferString,stderrfnm);
 
     mDefSetupClssMemb(CommandExecPars,float,prioritylevel);
 			    //!< -1=lowest, 0=normal, 1=highest (administrator)
@@ -219,6 +221,8 @@ public:
 				//!< run &, wait until finished, catch output
     bool		execute(const CommandExecPars&);
     bool		startServer(bool inpythonenv=false,
+				    const char* stdoutfnm =nullptr,
+				    const char* stderrfnm =nullptr,
 				    double maxwaittm=20 /* seconds */);
 
     PID_Type		processID() const;
@@ -249,7 +253,6 @@ protected:
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
-    bool		redirectoutput_;
 
     BufferString	progvwrcmd_;
     uiString		errmsg_;

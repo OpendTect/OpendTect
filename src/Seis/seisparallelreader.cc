@@ -1128,9 +1128,11 @@ bool Seis::SequentialReader::init()
     if ( needresampling_ )
     {
 	if ( dpzsamp_.start < seissummary_->zRange().start )
-	    dpzsamp_.start = dpzsamp_.snap( seissummary_->zRange().start, 1 );
+	    dpzsamp_.start =
+		dpzsamp_.snap( seissummary_->zRange().start, OD::SnapUpward );
 	if ( dpzsamp_.stop > seissummary_->zRange().stop )
-	    dpzsamp_.stop = dpzsamp_.snap( seissummary_->zRange().stop, -1 );
+	    dpzsamp_.stop =
+		dpzsamp_.snap( seissummary_->zRange().stop, OD::SnapDownward );
     }
     else
     {

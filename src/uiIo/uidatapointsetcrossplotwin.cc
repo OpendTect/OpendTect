@@ -115,7 +115,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     seltb_.addObject( selfld_ );
 
     setselecttbid_ = seltb_.addButton( "altview", tr("Set selectable"),
-		  mCB(this,uiDataPointSetCrossPlotWin,setSelectable), true );
+		mCB(this,uiDataPointSetCrossPlotWin,setSelectable), true );
     seltb_.turnOn( setselecttbid_, true );
 
     if ( uidps_.displayMgr() )
@@ -123,41 +123,40 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	BufferString fnm, tooltip;
 	uidps_.displayMgr()->getIconInfo( fnm, tooltip );
 	showselptswstbid_ = seltb_.addButton( fnm, mToUiStringTodo(tooltip),
-		      mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace) );
+		mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace) );
     }
 
     seltb_.turnOn( setselecttbid_, false );
 
     selmodechgtbid_ = seltb_.addButton( "rectangleselect", tr("Selection mode"),
-	   mCB(this,uiDataPointSetCrossPlotWin,setSelectionMode) );
+		mCB(this,uiDataPointSetCrossPlotWin,setSelectionMode) );
     seltb_.turnOn( selmodechgtbid_, plotter_.isRubberBandingOn() );
 
     clearseltbid_ = seltb_.addButton( "clear", tr("Clear all selections"),
-	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections) );
+		mCB(this,uiDataPointSetCrossPlotWin,removeSelections) );
 
     seldeltbid_ = seltb_.addButton( "clearselection", tr("Remove all selected"),
-	    mCB(this,uiDataPointSetCrossPlotWin,deleteSelections) );
+		mCB(this,uiDataPointSetCrossPlotWin,deleteSelections) );
 
     seltabletbid_ = seltb_.addButton( "seltable",tr("Show selections in table"),
-	    mCB(this,uiDataPointSetCrossPlotWin,showTableSel) );
+		mCB(this,uiDataPointSetCrossPlotWin,showTableSel) );
 
     manseltbid_ = seltb_.addButton( "selsettings",
-           uiStrings::phrManage( uiStrings::sSelection(mPlural).toLower()),
-	    mCB(this,uiDataPointSetCrossPlotWin,manageSel) );
+		uiStrings::phrManage( uiStrings::sSelection(mPlural).toLower()),
+		mCB(this,uiDataPointSetCrossPlotWin,manageSel) );
 
     refineseltbid_ = seltb_.addButton( "refinesel", tr("Refine selection"),
-	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain) );
+		mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain) );
 
-
-    maniptb_.addObject( plotter_.getSaveImageButton(&maniptb_) );
+    maniptb_.insertAction( plotter_.getSaveImageAction() );
 
     maniptb_.addButton( "xplotprop", uiStrings::sProperties(),
 			mCB(this,uiDataPointSetCrossPlotWin,editProps) );
     maniptb_.addButton( "prdfs", uiStrings::sCreateProbDesFunc(),
 			mCB(this,uiDataPointSetCrossPlotWin,exportPDF) );
     overlayproptbid_ = maniptb_.addButton( "overlayattr",
-	    tr("Select Overlay Attribute"), mCB(this,uiDataPointSetCrossPlotWin,
-					    overlayAttrCB) );
+			tr("Select Overlay Attribute"),
+			mCB(this,uiDataPointSetCrossPlotWin,overlayAttrCB) );
     const int nrgrps = uidps_.groupNames().size();
     if ( nrgrps > 1 )
     {
@@ -296,20 +295,6 @@ void uiDataPointSetCrossPlotWin::removeSelections( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::showTableSel( CallBacker* )
 {
-    if ( plotter_.isADensityPlot() )
-    {
-	if ( !plotter_.selAreaSize() ) return;
-
-	MouseCursorChanger cursorlock( MouseCursor::Wait );
-	Array2D<float>* data =
-	    new Array2DImpl<float>( plotter_.arrArea().width()+1,
-				    plotter_.arrArea().height()+1 );
-	data->setAll( 0.f );
-
-	plotter_.setTRMsg( tr("Showing selected points in table") );
-	plotter_.calculateDensity( data, true );
-    }
-
     uidps_.notifySelectedCell();
 }
 
@@ -318,6 +303,7 @@ void uiDataPointSetCrossPlotWin::deleteSelections( CallBacker* )
 {
     plotter_.deleteSelections();
     plotter_.removeSelections();
+    plotter_.dataChanged();
 }
 
 
@@ -451,22 +437,6 @@ void uiDataPointSetCrossPlotWin::showY2( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::showPtsInWorkSpace( CallBacker* )
 {
-    if ( plotter_.isADensityPlot() )
-    {
-	if ( !plotter_.selAreaSize() )
-	{
-	    uidps_.selPtsToBeShown.trigger();
-	    return;
-	}
-
-	Array2D<float>* data =
-	    new Array2DImpl<float>( plotter_.arrArea().width()+1,
-				    plotter_.arrArea().height()+1 );
-	data->setAll( 0.f );
-
-	plotter_.setTRMsg( tr("Showing selected points in workspace") );
-	plotter_.calculateDensity( data, true );
-    }
     uidps_.selPtsToBeShown.trigger();
 }
 
@@ -562,8 +532,7 @@ void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
 {
     if ( !grpfld_ ) return;
     plotter_.curgrp_ = grpfld_->currentItem();
-    plotter_.calcStats();
-    plotter_.drawContent();
+    plotter_.dataChanged();
 }
 
 

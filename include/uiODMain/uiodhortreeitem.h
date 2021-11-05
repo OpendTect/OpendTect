@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uiodemsurftreeitem.h"
 
-class uEMHorizonShiftDialog;
-
 mExpClass(uiODMain) uiODHorizonParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODHorizonParentTreeItem)
 public:
@@ -74,7 +72,6 @@ protected:
 
     bool		askContinueAndSaveIfNeeded(bool withcancel);
 
-    uEMHorizonShiftDialog* horshiftdlg_;
     MenuItem		hordatamnuitem_;
     MenuItem		algomnuitem_;
     MenuItem		workflowsmnuitem_;
@@ -91,8 +88,8 @@ protected:
     MenuItem		delchildrenmnuitem_;
     MenuItem		lockmnuitem_;
     MenuItem		unlockmnuitem_;
-    MenuItem        addinlitm_;
-    MenuItem        addcrlitm_;
+    MenuItem		addinlitm_;
+    MenuItem		addcrlitm_;
 
     bool		rgba_;
     bool		atsections_;
@@ -136,6 +133,7 @@ public:
 protected:
     void		initMenuItems();
     void		initNotify();
+    uiString		createDisplayName() const;
     void		dispChangeCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODHorizon2DParentTreeItem).name(); }
@@ -145,6 +143,7 @@ protected:
 
     bool		askContinueAndSaveIfNeeded(bool withcancel);
 
+    MenuItem		shiftmnuitem_;
     MenuItem		algomnuitem_;
     MenuItem		workflowsmnuitem_;
     MenuItem		derive3dhormnuitem_;

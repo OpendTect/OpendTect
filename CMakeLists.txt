@@ -91,50 +91,11 @@ if ( NOT OD_NO_OSG )
     )
 endif()
 
-set( OD_PLUGINS
-	CEEMDAttrib
-	ExpAttribs
-	GLCM
-	GMT
-	ODHDF5
-	Hello
-	HorizonAttrib
-	Madagascar
-	MadagascarAttribs
-	MATLABLink
-	Tut
-	uiCEEMDAttrib
-	uiDPSDemo
-	uiExpAttribs
-	uiGLCM
-	uiGMT
-	uiGoogleIO
-	uiSEGYTools
-	uiSEGY
-	uiHello
-	uiHorizonAttrib
-	uiImpGPR
-	uiMadagascar
-	uiMadagascarAttribs
-	uiMATLABLink
-	uiPresentationMaker
-	uiQtApp
-	uiTut
-	uiTutMadagascar
-	CmdDriver
-	uiCOLOP
-	uiCrashMe
-)
-
-if ( NOT OD_NO_OSG )
-    list( APPEND OD_PLUGINS uiPreStackViewer )
-endif()
-
 set( OD_SPECPROGS ODSeis ODvisBase )
 
 OD_ADD_EXTERNALS() # Once, in main scope
 OD_ADD_MODULES( src ${OD_MODULES} )
-OD_ADD_MODULES( plugins ${OD_PLUGINS} )
+include( plugins/CMakeLists.txt )
 OD_ADD_MODULES( spec ${OD_SPECPROGS} )
 OD_CREATE_PACKAGE_DEFINITION()
 

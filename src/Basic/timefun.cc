@@ -10,10 +10,8 @@
 #include "bufstring.h"
 #include "perthreadrepos.h"
 
-#ifndef OD_NO_QT
-# include <QDateTime>
-# include <QElapsedTimer>
-#endif
+#include <QDateTime>
+#include <QElapsedTimer>
 
 mUseQtnamespace
 
@@ -21,52 +19,34 @@ namespace Time
 {
 
 Counter::Counter()
-#ifndef OD_NO_QT
     : qelapstimer_(new QElapsedTimer)
-#endif
 {}
 
 Counter::~Counter()
 {
-#ifndef OD_NO_QT
     delete qelapstimer_;
-#endif
 }
 
 void Counter::start()
 {
-#ifndef OD_NO_QT
     qelapstimer_->start();
-#endif
 }
 
 int Counter::restart()
 {
-#ifndef OD_NO_QT
     return qelapstimer_->restart();
-#else
-    return mUdf(int);
-#endif
 }
 
 int Counter::elapsed() const
 {
-#ifndef OD_NO_QT
     return qelapstimer_->elapsed();
-#else
-    return mUdf(int);
-#endif
 }
 
 
 int getMilliSeconds()
 {
-#ifndef OD_NO_QT
     QTime daystart(0,0,0,0);
     return daystart.msecsTo( QTime::currentTime() );
-#else
-    return mUdf(int);
-#endif
 }
 
 
@@ -85,20 +65,33 @@ const char* defDateTimeTzFmt()	{ return "ddd dd MMM yyyy, hh:mm:ss, t"; }
 const char* defDateFmt()	{ return "ddd dd MMM yyyy"; }
 const char* defTimeFmt()	{ return "hh:mm:ss"; }
 
+
+const char* getISODateTimeString( bool local )
+{
+    mDeclStaticString( ret );
+    const QDateTime qdt = local ? QDateTime::currentDateTime()
+				: QDateTime::currentDateTimeUtc();
+    ret = qdt.toString( Qt::ISODate );
+    return ret.buf();
+}
+
+
 const char* getDateTimeString( const char* fmt, bool local )
 {
     mDeclStaticString( ret );
 
-#ifndef OD_NO_QT
     QDateTime qdt = QDateTime::currentDateTime();
-    if ( !local ) qdt = qdt.toUTC();
+    if ( !local )
+	qdt = qdt.toUTC();
+
     if ( !fmt || !*fmt )
 	ret = qdt.toString( Qt::ISODate );
     else
 	ret = qdt.toString( fmt );
-#endif
+
     return ret.buf();
 }
+
 
 const char* getDateString( const char* fmt, bool local )
 {
@@ -124,9 +117,31 @@ const char* getTimeString( const char* fmt, bool local )
 }
 
 
+const char* getLocalDateTimeFromString( const char* str )
+{
+    mDeclStaticString( ret );
+    QDateTime qdt = QDateTime::fromString( str, Qt::ISODate );
+    if ( qdt.isValid() )
+    {
+	qdt = qdt.toLocalTime();
+	ret = qdt.toString( defDateTimeFmt() );
+	return ret.buf();
+    }
+
+    qdt = QDateTime::fromString( str );
+    if ( qdt.isValid() )
+    {
+	ret = qdt.toString( defDateTimeFmt() );
+	return ret.buf();
+    }
+
+    ret = str;
+    return ret.buf();
+}
+
+
 bool isEarlier(const char* first, const char* second, const char* fmt )
 {
-#ifndef OD_NO_QT
     QDateTime qdt1, qdt2;
     if ( !fmt || !*fmt )
     {
@@ -139,9 +154,6 @@ bool isEarlier(const char* first, const char* second, const char* fmt )
 	qdt2 = QDateTime::fromString( second, fmt );
     }
     return qdt1 < qdt2;
-#else
-    return false;
-#endif
 }
 
 
@@ -186,18 +198,6 @@ const char* getTimeString( od_int64 sec, int precision )
 	ret.add(sec).add("s");
 
     return ret;
-}
-
-
-const char* getUsrStringFromISO( const char* isostr,
-				 const char* fmt, bool local )
-{
-    mDeclStaticString( ret );
-    QDateTime qdt = QDateTime::fromString( QString(isostr), Qt::ISODate );
-    if ( local )
-	qdt = qdt.toLocalTime();
-    ret = qdt.toString( fmt );
-    return ret.buf();
 }
 
 } // namespace Time

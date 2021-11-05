@@ -208,6 +208,12 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     selPtsToBeShown.notify( mCB(this,uiDataPointSet,showSelPts) );
     setPrefWidth( 800 ); setPrefHeight( 600 );
 
+    auto* xplotbut = new uiPushButton( topGroup(), tr("Show Cross-plot"),
+		mCB(this,uiDataPointSet,showCrossPlot), true );
+    xplotbut->setIcon( "xplot" );
+    xplotbut->attach( centeredBelow, getDlgGroup() );
+    xplotbut->attach( bottomBorder );
+
     postFinalise().notify( mCB(this,uiDataPointSet,initWin) );
     mTriggerInstanceCreatedNotifier();
 }
@@ -865,6 +871,13 @@ void uiDataPointSet::toggleXYZ( CallBacker* )
 
 void uiDataPointSet::showCrossPlot( CallBacker* )
 {
+    if ( xcol_<0 || ycol_<0 )
+    {
+	uiMSG().error( tr("Please select a column for %1")
+		.arg(xcol_<0 ? "X" : "Y") );
+	return;
+    }
+
     if ( xplotwin_ )
 	xplotwin_->plotter().dataChanged();
     else
@@ -887,8 +900,9 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 
 void uiDataPointSet::showStatusMsg( CallBacker* )
 {
-    if ( !xplotwin_ || !&xplotwin_->plotter() )
+    if ( !xplotwin_ )
 	return;
+
     uiString msg = tr("Y Selected: %1%2")
 		 .arg(xplotwin_->plotter().nrYSels())
 		 .arg(xplotwin_->plotter().isY2Shown()

@@ -23,26 +23,6 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-static const char* rotphase = "Rotate phase";
-const char* uiInstantaneousAttrib::outstrs[] =
-{
-	"Amplitude",
-	"Phase",
-	"Frequency",
-    	"Hilbert",
-	"Amplitude 1st derivative",
-	"Amplitude 2nd derivative",
-	"Cosine phase",
-	"Envelope weighted phase",
-	"Envelope weighted frequency",
-	"Phase acceleration",
-	"Thin bed indicator",
-	"Bandwidth",
-	"Q factor",
-	rotphase,
-	0
-};
-
 
 mInitAttribUI(uiInstantaneousAttrib,Instantaneous,"Instantaneous",
               sKeyBasicGrp())
@@ -54,8 +34,8 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
 {
     inpfld = createImagInpFld( is2d );
 
-    outpfld = new uiGenInput( this, uiStrings::sOutput(), 
-        StringListInpSpec(outstrs) );
+    outpfld = new uiGenInput( this, uiStrings::sOutput(),
+	StringListInpSpec(Instantaneous::OutTypeDef().strings()) );
     outpfld->setElemSzPol( uiObject::MedVar );
     outpfld->attach( alignedBelow, inpfld );
     outpfld->valuechanged.notify( mCB(this,uiInstantaneousAttrib,outputSelCB) );
@@ -73,7 +53,7 @@ bool uiInstantaneousAttrib::setParameters( const Desc& desc )
     if ( desc.attribName() != Instantaneous::attribName() )
 	return false;
 
-    mIfGetFloat( Instantaneous::rotateAngle(), rotangle_, 
+    mIfGetFloat( Instantaneous::rotateAngle(), rotangle_,
 	    	 phaserotfld->box()->setValue( rotangle_ ) );
 
     return true;
@@ -122,13 +102,14 @@ bool uiInstantaneousAttrib::getOutput( Desc& desc )
 
 void uiInstantaneousAttrib::outputSelCB( CallBacker* )
 {
-    const bool isrot = FixedString(rotphase) == outstrs[outpfld->getIntValue()];
+    const bool isrot = Instantaneous::RotatePhase ==
+	    Instantaneous::OutTypeDef().getEnumForIndex(outpfld->getIntValue());
     phaserotfld->display( isrot );
 }
 
 
 void uiInstantaneousAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
-{                                                                               
+{
     params += EvalParam( Instantaneous::rotateAngle(),
-	    		 Instantaneous::rotateAngle() );   
+			 Instantaneous::rotateAngle() );
 }

@@ -21,7 +21,7 @@ class uiCheckBox;
 class uiGenInput;
 class uiSlider;
 class uiPushButton;
-namespace EM { class Horizon3D; }
+namespace EM { class Horizon; }
 namespace Attrib { class DescSet; }
 
 mClass(uiEMAttrib) uiHorizonShiftDialog : public uiDialog
@@ -34,8 +34,7 @@ public:
 					     bool cancalcattrib);
 			~uiHorizonShiftDialog();
 
-    const EM::Horizon3D&	horizon3D()		{ return *emhor3d_; }
-    StepInterval<float>	shiftRg() const;
+    StepInterval<float>		shiftRg() const;
     int				nrSteps() const;
     Attrib::DescID		attribID() const;
     float			getShift() const;
@@ -60,16 +59,16 @@ protected:
     void			shiftCB(CallBacker*);
     bool			acceptOK(CallBacker*);
 
-    uiAttrSel*			attrinpfld_;
+    uiAttrSel*			attrinpfld_		= nullptr;
     uiGenInput*			rangeinpfld_;
     uiSlider*			slider_;
-    uiPushButton*		calbut_;
-    uiCheckBox*			storefld_;
-    uiGenInput*			namefld_;
+    uiPushButton*		calbut_			= nullptr;
+    uiCheckBox*			storefld_		= nullptr;
+    uiGenInput*			namefld_		= nullptr;
 
     StepInterval<float>		shiftrg_;
     StepInterval<float>		calcshiftrg_;
-    EM::Horizon3D*		emhor3d_;
+    EM::Horizon*		horizon_		= nullptr;
     EM::ObjectID		emid_;
     int				visid_;
 };

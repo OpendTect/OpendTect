@@ -1,5 +1,4 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
@@ -29,11 +28,11 @@ public:
 			NotifierAccess();
     virtual		~NotifierAccess();
 
-    inline bool		isEmpty() const	      { return cbs_.isEmpty(); }
-    inline void		setEmpty()	      { cbs_.setEmpty(); }
+    inline bool		isEmpty() const		{ return cbs_.isEmpty(); }
+    inline void		setEmpty()		{ cbs_.setEmpty(); }
     inline bool		isEnabled() const     { return !cbs_.hasAnyDisabled(); }
-    inline void		enable( bool yn=true ){ cbs_.disableAll(!yn); }
-    inline void		disable()	      { cbs_.disableAll(true); }
+    inline void		enable( bool yn=true )	{ cbs_.disableAll(!yn); }
+    inline void		disable()		{ cbs_.disableAll(true); }
 
     bool		willCall(const CallBacker*) const;
 			/*!<\returns true if the callback list contains
@@ -129,11 +128,20 @@ public:
 			Notifier( T* c )			{ cber_ = c; }
 
     inline void		trigger()
-			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, cber_ ); }
+			{
+			    if ( !cbs_.isEmpty() )
+				doTrigger( cbs_, cber_ );
+			}
     inline void		trigger( T& t )
-			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, &t ); }
+			{
+			    if ( !cbs_.isEmpty() )
+				doTrigger( cbs_, &t );
+			}
     inline void		trigger( CallBacker* c )
-			{ if ( !cbs_.isEmpty() ) doTrigger( cbs_, c ); }
+			{
+			    if ( !cbs_.isEmpty() )
+				doTrigger( cbs_, c );
+			}
 
 };
 
@@ -173,23 +181,27 @@ public:
 
     inline void		trigger( PayLoad pl )
 			{
-			    CBCapsule<PayLoad> caps( pl, cber_ );
-			    doTrigger( cbs_, &caps );
+			    if ( !cbs_.isEmpty() )
+			    {
+				CBCapsule<PayLoad> caps( pl, cber_ );
+				doTrigger( cbs_, &caps );
+			    }
 			}
 
     inline void		trigger( PayLoad pl, CallBacker* cb )
 			{
 			    if ( !cb )
 				trigger( pl );
-			    else
+			    else if ( !cbs_.isEmpty() )
 			    {
 				CBCapsule<PayLoad> caps( pl, cb );
 				doTrigger( cbs_, &caps );
 			    }
 			}
     inline void		trigger( PayLoad pl, T& t )
-			{ trigger(pl,&t); }
-
+			{
+			    trigger(pl,&t);
+			}
 };
 
 
@@ -215,11 +227,12 @@ public:
 mExpClass(Basic) NotifyStopper
 {
 public:
-		NotifyStopper(NotifierAccess&,const CallBacker* only_for=0);
-		~NotifyStopper();
+			NotifyStopper(NotifierAccess&,
+				      const CallBacker* only_for=nullptr);
+			~NotifyStopper();
 
-    void        enableNotification();
-    void        disableNotification();
+    void		enableNotification();
+    void		disableNotification();
 
 protected:
 

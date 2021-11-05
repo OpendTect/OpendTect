@@ -47,8 +47,8 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
 				 mODHelpKey(mWriteSurfaceDlgHelpID) ))
     , surface_(surf)
 {
-    mDynamicCastGet(const EM::Horizon3D*,hor,&surface_);
-    const bool hasshift = hor && !mIsZero(shift,SI().zRange(true).step*1e-3);
+    mDynamicCastGet(const EM::Horizon*,hor,&surface_);
+    const bool hasshift = hor && !mIsZero(shift,SI().zRange(true).step*1e-3f);
     mDynamicCastGet(const EM::PolygonBody*,plgbody,&surface_);
     const bool usesubsel = !plgbody;
 
@@ -56,6 +56,13 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
 			     uiSurfaceWrite::Setup(surface_.getTypeStr(),
 						   surface_.getUserTypeStr())
 			     .withdisplayfld(!hasshift).withsubsel(usesubsel) );
+    if ( hasshift )
+    {
+	BufferString newnm = hor->name();
+	const float usrshift = shift * SI().zDomain().userFactor();
+	newnm.add(" (").add(usrshift,SI().nrZDecimals()).add(")");
+	iogrp_->getObjSel()->setInputText( newnm.buf() );
+    }
 }
 
 

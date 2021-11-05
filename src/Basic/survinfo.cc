@@ -536,10 +536,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
 	logpars.read( fplog.fullPath(), sKeySurvLog, true );
 	logpars.setName( sKeySurvLog );
 	if ( logpars.isEmpty() )
-	{
 	    logpars.set( sKey::Version(), astream.version() );
-	    logpars.set( sKey::ModAt(), astream.timeStamp() );
-	}
+	logpars.set( sKey::ModAt(), astream.timeStamp() );
     }
 
     BufferString keyw = astream.keyWord();
@@ -821,12 +819,19 @@ Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
 void SurveyInfo::setRange( const TrcKeyZSampling& cs, bool work )
 {
     if ( work )
+    {
 	wcs_ = cs;
+	return;
+    }
     else
 	tkzs_ = cs;
 
     tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
-    wcs_.limitTo( tkzs_ );
+    if ( wcs_.isDefined() )
+	wcs_.limitTo( tkzs_ );
+    else
+	wcs_ = tkzs_;
+
     wcs_.hsamp_.step_ = tkzs_.hsamp_.step_;
     wcs_.zsamp_.step = tkzs_.zsamp_.step;
 }

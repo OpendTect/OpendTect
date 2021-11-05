@@ -192,6 +192,7 @@ public:
     void		removeVideo(int);
 
     void		setDlgGrp( uiGroup* cw )	{ dlggrp_=cw; }
+    uiGroup*		getDlgGrp()			{ return dlggrp_; }
 
     void		setHSpacing( int spc )	{ dlggrp_->setHSpacing(spc); }
     void		setVSpacing( int spc )	{ dlggrp_->setVSpacing(spc); }

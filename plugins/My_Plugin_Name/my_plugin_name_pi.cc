@@ -7,24 +7,27 @@
 
 #include "my_first_separate_source.h"
 #include "odplugin.h"
-#include <iostream>
+#include "ptrman.h"
 
 
 mDefODPluginInfo(My_Plugin_Name)
 {
-    static PluginInfo retpi = {
-	"My plugin",
+    mDefineStaticLocalObject( PluginInfo, retpi, (
+	"My plugin (GUI)",
+	"My Product",
 	"You!",
 	"My version",
-    	"My description ..."
+	"My description ..."
 	    "\n ... which can span many lines."
-    	    "\nDon't put commas between those lines though ..." };
+	    "\nDon't put commas between those lines though ...") );
     return &retpi;
 }
 
 
 mDefODInitPlugin(My_Plugin_Name)
 {
-    My_Class* myclss = new My_Class;
-    return 0;
+    mDefineStaticLocalObject( PtrMan<My_Class>, theinst_,
+	    = new My_Class() );
+
+    return nullptr;
 }

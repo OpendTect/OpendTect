@@ -311,12 +311,21 @@ bool Well::Man::reload( const MultiID& key, LoadReqs lreqs )
     RefMan<Data> wd = wells_[wdidx];
     if ( lreqs.isEmpty() )
 	lreqs = wd->loadState();
-    lreqs.exclude( LoadReqs( Logs, LogInfos ) );
-    if ( !readReqData(key,wd,lreqs) )
+    LoadReqs usereqs( lreqs );
+    usereqs.exclude( LoadReqs( Logs, LogInfos ) );
+    if ( !readReqData(key,wd,usereqs) )
 	return false;
 
-    reloadLogs( key );
+    if ( lreqs.includes(Logs) )
+	reloadLogs( key );
+    else if ( lreqs.includes(LogInfos) )
+    {
+	readReqData( key, wd, LoadReqs(LogInfos) );
+	wd->logschanged.trigger( -1 );
+    }
+
     wd->reloaded.trigger();
+
     return true;
 }
 
@@ -499,6 +508,25 @@ bool Well::Man::getAllLogNames( BufferStringSet& lognms, bool onlyloaded )
 	lognms.add( logs, false );
     }
     return !lognms.isEmpty();
+}
+
+
+bool Well::Man::renameLog( const TypeSet<MultiID>& keys, const char* oldnm,
+		  				  	 const char* newnm )
+{
+    if ( keys.isEmpty() )
+	return false;
+
+    for ( int idx=0; idx<keys.size(); idx++ )
+    {
+	const MultiID& key = keys.get( idx );
+	RefMan<Data> wd = MGR().get( key, LoadReqs(LogInfos) );
+	Writer wwr( wd->multiID(), *wd );
+	if ( !wwr.renameLog(oldnm,newnm) )
+	    return false;
+    }
+
+    return true;
 }
 
 

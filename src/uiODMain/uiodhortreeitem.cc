@@ -334,10 +334,10 @@ void uiODHorizonTreeItem::initMenuItems()
     lockmnuitem_.text = uiStrings::sLock();
     unlockmnuitem_.text = uiStrings::sUnlock();
 
-	addinlitm_.text = tr("Add In-line");
-	addinlitm_.placement = 10003;
-	addcrlitm_.text = tr("Add Cross-line");
-	addcrlitm_.placement = 10002;
+    addinlitm_.text = tr("Add In-line");
+    addinlitm_.placement = 10003;
+    addcrlitm_.text = tr("Add Cross-line");
+    addcrlitm_.placement = 10002;
 }
 
 
@@ -673,8 +673,9 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<nrattrib; idx++ )
 	    isenabled += visserv_->isAttribEnabled( visid, idx );
 
-	float curshift = (float) visserv_->getTranslation( visid ).z;
-	if ( mIsUdf( curshift ) ) curshift = 0;
+	float curshift = sCast(float,visserv_->getTranslation( visid ).z);
+	if ( mIsUdf(curshift) )
+	    curshift = 0;
 
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
 	emattrserv->showHorShiftDlg( emid_, visid, isenabled, curshift,
@@ -936,6 +937,7 @@ void uiODHorizon2DTreeItem::initMenuItems()
 {
     algomnuitem_.text = uiStrings::sTools();
     workflowsmnuitem_.text = tr("Workflows");
+    shiftmnuitem_.text = m3Dots(uiStrings::sShift());
     derive3dhormnuitem_.text = m3Dots(tr("Derive 3D horizon"));
     snapeventmnuitem_.text = m3Dots(tr("Snapping"));
     interpolatemnuitem_.text = m3Dots(tr("Interpolate"));
@@ -948,6 +950,20 @@ void uiODHorizon2DTreeItem::initNotify()
 		    emd,visserv_->getObject(displayid_));
     if ( emd )
 	emd->changedisplay.notify(mCB(this,uiODHorizon2DTreeItem,dispChangeCB));
+}
+
+
+uiString uiODHorizon2DTreeItem::createDisplayName() const
+{
+    uiString res = visserv_->getUiObjectName( displayid_ );
+    const float curshift =
+		sCast(float,visserv_->getTranslation( displayid_ ).z);
+
+    if ( !mIsZero(curshift,1e-6) )
+	res.append( toUiString("(%1)").arg(
+		curshift * SI().zDomain().userFactor()) );
+
+    return res;
 }
 
 
@@ -968,27 +984,31 @@ void uiODHorizon2DTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiODEarthModelSurfaceTreeItem::createMenu( menu, istb );
     if ( istb ) return;
 
-    if ( !menu || menu->menuID()!=displayID() )
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
+    const bool hastransform = scene && scene->getZAxisTransform();
+
+    if ( hastransform || !menu || menu->menuID()!=displayID() )
     {
 	mResetMenuItem( &derive3dhormnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );
 	mResetMenuItem( &snapeventmnuitem_ );
 	mResetMenuItem( &interpolatemnuitem_ );
+	mResetMenuItem( &shiftmnuitem_ );
+	return;
     }
-    else
-    {
-	const bool islocked = visserv_->isLocked( displayID() );
-	const bool isempty = applMgr()->EMServer()->isEmpty( emid_ );
-	const bool enab = !islocked && !isempty;
-	mAddMenuItem(
-	    menu, &algomnuitem_, !MPE::engine().trackingInProgress(), false );
-	mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, enab, false );
-	mAddMenuItem( &algomnuitem_, &interpolatemnuitem_, enab, false );
 
-	mAddMenuItem( menu, &workflowsmnuitem_, true, false );
-	mAddMenuItem( &workflowsmnuitem_, &derive3dhormnuitem_, enab, false );
-	mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_, enab,false);
-    }
+    const bool islocked = visserv_->isLocked( displayID() );
+    const bool isempty = applMgr()->EMServer()->isEmpty( emid_ );
+    const bool enab = !islocked && !isempty;
+    mAddMenuItem(
+	menu, &algomnuitem_, !MPE::engine().trackingInProgress(), false );
+    mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, enab, false );
+    mAddMenuItem( &algomnuitem_, &interpolatemnuitem_, enab, false );
+    mAddMenuItem( &algomnuitem_, &shiftmnuitem_, !islocked, false )
+
+    mAddMenuItem( menu, &workflowsmnuitem_, true, false );
+    mAddMenuItem( &workflowsmnuitem_, &derive3dhormnuitem_, enab, false );
+    mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_, enab,false);
 }
 
 
@@ -1000,13 +1020,13 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 
+    const int visid = displayID();
     bool handled = true;
     if ( mnuid==interpolatemnuitem_.id )
     {
 	if ( !askSave() )
 	    return;
 
-	const int visid = displayID();
 	const bool isoverwrite = applMgr()->EMServer()->fillHoles( emid_, true);
 	mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
 			visserv_->getObject(visid));
@@ -1019,6 +1039,16 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->EMServer()->deriveHor3DFrom2D( emid_ );
     else if ( mnuid==snapeventmnuitem_.id )
 	applMgr()->EMAttribServer()->snapHorizon( emid_,true );
+    else if ( mnuid==shiftmnuitem_.id )
+    {
+	BoolTypeSet isenabled;
+	float curshift = sCast(float,visserv_->getTranslation( visid ).z);
+	if ( mIsUdf(curshift) )
+	    curshift = 0;
+
+	applMgr()->EMAttribServer()->showHorShiftDlg(
+				emid_, visid, isenabled, curshift, false );
+    }
     else
 	handled = false;
 

@@ -10,18 +10,19 @@
 #include "ascstream.h"
 #include "bufstring.h"
 #include "compoundkey.h"
-#include "file.h"
 #include "filepath.h"
-#include "fixedstring.h"
+#include "filesystemaccess.h"
 #include "fixedstreambuf.h"
+#include "fixedstring.h"
 #include "iopar.h"
 #include "perthreadrepos.h"
 #include "separstr.h"
-#include "strmprov.h"
 #include "strmoper.h"
+#include "strmprov.h"
 #include "uistrings.h"
-#include <iostream>
+
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string.h>
 
@@ -44,6 +45,7 @@ od_istream& od_istream::nullStream()
     }
     return *ret;
 }
+
 
 od_ostream& od_ostream::nullStream()
 {
@@ -116,10 +118,11 @@ od_stream::od_stream( const char* fnm, bool forwrite, bool useexist )
 	return;
     }
 
+    const OD::FileSystemAccess& fsa = OD::FileSystemAccess::get( fnm );
     if ( forwrite )
-	sd_ = StreamProvider::createOStream( fnm, true, useexist );
+	sd_ = fsa.createOStream( fnm, true, useexist );
     else
-	sd_ = StreamProvider::createIStream( fnm );
+	sd_ = fsa.createIStream( fnm );
 }
 
 
@@ -427,7 +430,7 @@ od_istream& od_cin()
 
 bool od_istream::open( const char* fnm )
 {
-    sd_ = StreamProvider::createIStream( fnm );
+    sd_ = OD::FileSystemAccess::get( fnm ).createIStream( fnm );
     return isOK();
 }
 
@@ -444,7 +447,7 @@ bool od_istream::reOpen()
 
 bool od_ostream::open( const char* fnm, bool useexist )
 {
-    sd_ = StreamProvider::createOStream( fnm, true, useexist );
+    sd_ = OD::FileSystemAccess::get( fnm ).createOStream( fnm, true, useexist );
     return isOK();
 }
 

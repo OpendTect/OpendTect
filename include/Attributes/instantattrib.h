@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "attributesmod.h"
 #include "attribprovider.h"
+#include "enums.h"
 
 namespace Attrib
 {
@@ -23,11 +24,19 @@ namespace Attrib
 mExpClass(Attributes) Instantaneous : public Provider
 {
 public:
+    enum OutType { Amplitude, Phase, Frequency, Hilbert, Amp1Deriv, Amp2Deriv,
+		   CosPhase, EnvWPhase, EnvWFreq, PhaseAccel, ThinBed,
+		   Bandwidth, QFactor, RotatePhase };
+		   mDeclareEnumUtils(OutType);
+
     static void			initClass();
 				Instantaneous(Desc&);
 
     static const char*		attribName()	{ return "Instantaneous"; }
     static const char*		rotateAngle()	{ return "rotationangle"; }
+
+    void			getCompNames(BufferStringSet&) const;
+    bool			prepPriorToOutputSetup();
 
 protected:
 				~Instantaneous() {}
@@ -44,6 +53,9 @@ protected:
 
     bool			allowParallelComputation() const
 				{ return true; }
+
+    bool			areAllOutputsEnabled() const;
+
 
     Interval<int>		sampgate1_;
     Interval<int>		sampgate2_;

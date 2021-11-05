@@ -563,7 +563,8 @@ RowCol BinIDSurface::getNearestKnotRowCol( Coord pos ) const
     const StepInterval<int> rrg = rowRange();
     const StepInterval<int> crg = colRange();
 
-    return RowCol( rrg.snap( spos.x, -1 ), crg.snap( spos.y, -1 ) );
+    return RowCol( rrg.snap( spos.x, OD::SnapDownward ),
+		   crg.snap( spos.y, OD::SnapDownward ) );
 }
 
 

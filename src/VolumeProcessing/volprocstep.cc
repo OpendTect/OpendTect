@@ -316,9 +316,10 @@ TrcKeyZSampling VolProc::Step::getInputSampling(
 	    const float geomzstart = geom->sampling().zsamp_.start;
 	    const float geomzstop = geom->sampling().zsamp_.stop;
 	    if ( res.zsamp_.includes(geomzstart,true) )
-		res.zsamp_.start = res.zsamp_.snap( geomzstart, -1 );
+		res.zsamp_.start =
+		    res.zsamp_.snap( geomzstart, OD::SnapDownward );
 	    if ( res.zsamp_.includes(geomzstop,true) )
-		res.zsamp_.stop = res.zsamp_.snap( geomzstop, 1 );
+		res.zsamp_.stop = res.zsamp_.snap( geomzstop, OD::SnapUpward );
 	}
     }
 

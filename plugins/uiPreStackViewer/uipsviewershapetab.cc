@@ -135,9 +135,6 @@ void uiViewer3DShapeTab::switchPushCB( CallBacker* )
 
 bool uiViewer3DShapeTab::acceptOK( )
 {
-    if ( !&viewer_ )
-	return false;
-
     if ( applyToAll() )
     {
 	for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )

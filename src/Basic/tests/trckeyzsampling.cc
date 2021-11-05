@@ -7,9 +7,10 @@
 
 
 #include "testprog.h"
+
 #include "odjson.h"
-#include "trckeyzsampling.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 
 #define mEps 0.0001
 
@@ -25,11 +26,11 @@
 
 #define mRetResult( funcname ) \
     { \
-	errStream() << funcname << " failed" << od_endl; \
+	handleTestResult( false, funcname ); \
 	return false; \
     } \
     else \
-	logStream() << funcname << " succeeded" << od_endl; \
+	handleTestResult( true, funcname ); \
     return true;
 
 
@@ -62,14 +63,14 @@ static bool testInclude()
 static bool testIncludes()
 {
     mDeclTrcKeyZSampling( cs1, 2, 50, 6,
-			    10, 100, 9,
-			    1.0, 3.0, 0.004 );
+			10, 100, 9,
+			1.0, 3.0, 0.004 );
     mDeclTrcKeyZSampling( cs2, 1, 101, 4,
-			    4, 100, 3,
-			    -1, 4.0, 0.005 );
+			4, 100, 3,
+			-1, 4.0, 0.005 );
     mDeclTrcKeyZSampling( cs3, 1, 101, 1,
-			      4, 100, 3,
-			      -1, 4, 0.004 );
+			4, 100, 3,
+			-1, 4, 0.004 );
     if ( cs2.includes(cs1) || !cs3.includes(cs1) )
 	mRetResult( "testIncludes" );
 }
@@ -78,21 +79,38 @@ static bool testIncludes()
 static bool testLimitTo()
 {
     mDeclTrcKeyZSampling( cs1, 3, 63, 6,
-			    10, 100, 1,
-			    1.0, 3.0, 0.004 );
+			10, 100, 1,
+			1.0, 3.0, 0.004 );
     mDeclTrcKeyZSampling( cs2, 13, 69, 4,
-			    4, 100, 1,
-			    -1, 2.0, 0.005 );
-    mDeclTrcKeyZSampling( csexp, 21, 57, 12,
-			    10, 100, 1,
-			    1, 2.0, 0.005 );
+			4, 100, 1,
+			-1.0, 2.0, 0.005 );
     mDeclTrcKeyZSampling( cs3, 2, 56, 2,
-			    10, 100, 1,
-			    1, 2.0, 0.004 );
+			10, 100, 1,
+			1.0, 2.0, 0.004 );
+    mDeclTrcKeyZSampling( cs1exp, 15, 63, 6,
+			10, 100, 1,
+			1.0, 2.0, 0.004 );
+    mDeclTrcKeyZSampling( cs2exp, 13, 53, 4,
+			10, 100, 1,
+			1.0, 2.0, 0.005 );
+    mDeclTrcKeyZSampling( csgeom, 1, 1, 1, 1, 1, 1, 0.006f, 4.994f, 0.004f );
+    mDeclTrcKeyZSampling( csvol, 1, 1, 1, 1, 1, 1, 0.008f, 4.992f, 0.004f );
+    mDeclTrcKeyZSampling( cswidevol, 1, 1, 1, 1, 1, 1, -0.116f, 5.116f,0.004f );
+    TrcKeyZSampling csvol2( csvol );
+    const TrcKeyZSampling csgeomexp( csgeom ), csvolexp( csvol );
+
     cs1.limitTo( cs2 );
     cs2.limitTo( cs3 );
-    if ( cs1 != csexp || !cs2.isEmpty() )
+    csvol.limitTo( csgeomexp );
+    cswidevol.limitTo( csgeomexp );
+    csgeom.limitTo( csgeomexp );
+    csvol2.limitTo( csvolexp );
+    if ( cs1 != cs1exp || cs2 != cs2exp ||
+	 csvol != csvolexp || cswidevol != csvolexp ||
+	 csvol2 != csvolexp || csgeom != csgeomexp )
 	mRetResult( "testLimitTo" );
+
+    return true;
 }
 
 
@@ -142,21 +160,31 @@ bool testIterator()
 	     StepInterval<int>( 300, 306, 3 ) );
 
     TrcKeySamplingIterator iter( hrg );
-    BinID curbid;
+    TypeSet<BinID> bids;
+    bids += BinID(100,300);
+    bids += BinID(100,303);
+    bids += BinID(100,306);
+    bids += BinID(102,300);
+    bids += BinID(102,303);
+    bids += BinID(102,306);
 
-    mRunStandardTest( iter.next(curbid)&&curbid==BinID(100,300),"Initial call");
-    mRunStandardTest( iter.next(curbid)&&curbid==BinID(100,303),"Second call");
-    mRunStandardTest( iter.next(curbid)&&curbid==BinID(100,306), "Third call");
-    mRunStandardTest( iter.next(curbid)&&curbid==BinID(102,300), "Forth call");
-    mRunStandardTest( iter.next(curbid)&&curbid==BinID(102,303), "Fifth call");
-    mRunStandardTest( iter.next(curbid)&&curbid==BinID(102,306), "Sixth call");
-    mRunStandardTest( !iter.next(curbid) , "Final call");
+    int idx=0;
+    BinID curbid;
+    while ( iter.next(curbid) )
+	mRunStandardTest( curbid == bids[idx++], "While loop calls" );
+    mRunStandardTest( idx == bids.size(),
+		      "All positions processed once using iterato" );
+
+    iter.reset(); iter.next( curbid );
+    for ( int idy=0; idy<bids.size(); idy++, iter.next(curbid) )
+	mRunStandardTest( curbid == bids[idy], "For loop calls" );
 
     iter.reset();
-    mRunStandardTest( iter.next(curbid)&&curbid==BinID(100,300), "Reset");
+    mRunStandardTest( iter.next(curbid)&&curbid==bids.first(), "Reset" );
 
-    iter.setNextPos( BinID(102,300) );
-    mRunStandardTest( iter.next(curbid)&&curbid==BinID(102,300), "setNextPos");
+    iter.setNextPos( hrg.trcKeyAt(hrg.globalIdx(bids[4])) );
+    curbid = iter.curTrcKey().position();
+    mRunStandardTest( curbid==bids[4], "setCurrentPos" );
 
     return true;
 }
@@ -184,6 +212,9 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
+    const TrcKeyZSampling initcs = SI().sampling( false );
+    const TrcKeyZSampling initworkcs = SI().sampling( true );
+
     mDeclTrcKeyZSampling( survcs, 1, 501, 2,
 			    10, 100, 2,
 			    1.0, 10.0, 0.004 );
@@ -191,13 +222,16 @@ int mTestMainFnName( int argc, char** argv )
     eSI().setRange( survcs, true ); //For the sanity of SI().
 
     if ( !testInclude()
-	|| !testIncludes()
-	|| !testEmpty()
-	|| !testLimitTo()
-	|| !testIsCompatible()
-	|| !testIterator()
-	|| !testJSON() )
+      || !testIncludes()
+      || !testEmpty()
+      || !testLimitTo()
+      || !testIsCompatible()
+      || !testIterator()
+      || !testJSON() )
 	return 1;
+
+    eSI().setRange( initcs, false );
+    eSI().setRange( initworkcs, true );
 
     return 0;
 }

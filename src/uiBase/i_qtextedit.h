@@ -64,8 +64,8 @@ public:
 	: sender_(sndr)
 	, receiver_(receiver)
     {
-	connect( sndr, SIGNAL(sliderPressed()), this, SLOT(sliderPressed()) );
-	connect( sndr, SIGNAL(sliderReleased()), this, SLOT(sliderReleased()) );
+	connect(sender_,SIGNAL(sliderPressed()), this, SLOT(sliderPressed()) );
+	connect(sender_,SIGNAL(sliderReleased()), this, SLOT(sliderReleased()));
     }
 
 private:

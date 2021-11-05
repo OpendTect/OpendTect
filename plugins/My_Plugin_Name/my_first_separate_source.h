@@ -13,11 +13,11 @@ mExpClass(My_Plugin_Name) My_Class
 {
 public:
 
-    			My_Class();
-			   		    
-protected:
+			My_Class();
 
-    int			my_variable_;
+private:
+
+    int			my_variable_ = 0;
 
 };
 

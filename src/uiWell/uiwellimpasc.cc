@@ -42,8 +42,7 @@ ________________________________________________________________________
 
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(mJoinUiStrs(sWell(),
-			   sTrack())),mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Import Well Track"),mNoDlgTitle,
 			   mODHelpKey(mWellImportAscHelpID)).modal(false))
     , fd_(*Well::TrackAscIO::getDesc())
     , dirfd_(*Well::DirectionalAscIO::getDesc())
@@ -206,11 +205,10 @@ class uiWellImportAscOptDlg : public uiDialog
 { mODTextTranslationClass(uiWellImportAscOptDlg)
 public:
 
-uiWellImportAscOptDlg( uiWellImportAsc* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import well: Advanced/Optional"),
-				 tr("Advanced and Optional"),
-				 mODHelpKey(mWellImpPptDlgHelpID)))
-    , uwia_(p)
+uiWellImportAscOptDlg( uiWellImportAsc* impasc )
+    : uiDialog(impasc,uiDialog::Setup(tr("Import well: Advanced/Optional"),
+				mNoDlgTitle,mODHelpKey(mWellImpPptDlgHelpID)))
+    , uwia_(impasc)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
 {
     const Well::Info& info = uwia_->wd_.info();
@@ -218,10 +216,10 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     PositionInpSpec::Setup possu( true );
     if ( !mIsZero(info.surfacecoord_.x,0.1) )
 	possu.coord_ = info.surfacecoord_;
-    coordfld = new uiGenInput( this,
+    coordfld_ = new uiGenInput( this,
 	tr("Surface Coordinate (if different from first "
 	   "coordinate in track file)"),
-	PositionInpSpec(possu).setName( "X", 0 ).setName( "Y", 1 ) );
+	PositionInpSpec(possu).setName("X",0).setName("Y",1) );
 
     const bool zinfeet = SI().depthsInFeet();
 
@@ -232,8 +230,8 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     uiString lbl = toUiString("%1 %2")
 		.arg( Well::Info::sReplVel() )
 		.arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
-    replvelfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
-    replvelfld->attach( alignedBelow, coordfld );
+    replvelfld_ = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
+    replvelfld_->attach( alignedBelow, coordfld_ );
 
     dispval = info.groundelev_;
     if ( zinfeet && zun_ )
@@ -241,28 +239,51 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     lbl = toUiString("%1 %2")
 		.arg( Well::Info::sGroundElev() )
 		.arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
-    gdelevfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
-    gdelevfld->attach( alignedBelow, replvelfld );
+    gdelevfld_ = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
+    gdelevfld_->attach( alignedBelow, replvelfld_ );
+
+    idfld_ = new uiGenInput( this, Well::Info::sUwid(),
+			     StringInpSpec(info.uwid_) );
+    idfld_->attach( alignedBelow, gdelevfld_ );
 
     uiSeparator* horsep = new uiSeparator( this );
-    horsep->attach( stretchedBelow, gdelevfld );
+    horsep->attach( stretchedBelow, idfld_ );
 
-    idfld = new uiGenInput( this, toUiString(Well::Info::sKeyUwid()),
-			    StringInpSpec(info.uwid_) );
-    idfld->attach( alignedBelow, gdelevfld );
-    idfld->attach( ensureBelow, horsep );
+    fieldfld_ = new uiGenInput( this, Well::Info::sField(),
+				StringInpSpec(info.field_) );
+    fieldfld_->attach( ensureBelow, horsep );
 
-    operfld = new uiGenInput( this, toUiString(Well::Info::sKeyOper()),
-			      StringInpSpec(info.oper_) );
-    operfld->attach( rightTo, idfld );
+    operfld_ = new uiGenInput( this, Well::Info::sOper(),
+			       StringInpSpec(info.oper_) );
+    operfld_->attach( alignedBelow, idfld_ );
+    operfld_->attach( rightTo, fieldfld_ );
 
-    statefld = new uiGenInput( this, toUiString(Well::Info::sKeyState()),
-			       StringInpSpec(info.state_) );
-    statefld->attach( alignedBelow, idfld );
+    countyfld_ = new uiGenInput( this, Well::Info::sCounty(),
+				 StringInpSpec(info.county_) );
+    countyfld_->attach( alignedBelow, fieldfld_ );
 
-    countyfld = new uiGenInput( this, toUiString(Well::Info::sKeyCounty()),
-				StringInpSpec(info.county_) );
-    countyfld->attach( rightTo, statefld );
+    statefld_ = new uiGenInput( this, Well::Info::sState(),
+				StringInpSpec(info.state_) );
+    statefld_->attach( alignedBelow, operfld_ );
+
+    provfld_ = new uiGenInput( this, Well::Info::sProvince(),
+				StringInpSpec(info.province_) );
+    provfld_->attach( alignedBelow, countyfld_ );
+
+    countryfld_ = new uiGenInput( this, Well::Info::sCountry(),
+				StringInpSpec(info.country_) );
+    countryfld_->attach( alignedBelow, statefld_ );
+
+    countyfld_->attach( ensureLeftOf, statefld_ );
+    provfld_->attach( ensureLeftOf, countryfld_ );
+}
+
+
+static void setWellInfo( BufferString& infostr, const char* fldtxt )
+{
+    const FixedString fldstr = fldtxt;
+    if ( !fldstr.isEmpty() )
+	infostr = fldstr;
 }
 
 
@@ -270,42 +291,47 @@ bool acceptOK( CallBacker* )
 {
     Well::Info& info = uwia_->wd_.info();
 
-    if ( *coordfld->text() )
-	info.surfacecoord_ = coordfld->getCoord();
+    if ( *coordfld_->text() )
+	info.surfacecoord_ = coordfld_->getCoord();
 
-    if ( *replvelfld->text() )
+    if ( *replvelfld_->text() )
     {
-	const float replvel = replvelfld->getFValue();
+	const float replvel = replvelfld_->getFValue();
 	if ( !mIsUdf(replvel) && zun_ )
 	    info.replvel_ = zun_->internalValue( replvel );
     }
 
-    if ( *gdelevfld->text() )
+    if ( *gdelevfld_->text() )
     {
-	const float gdevel = gdelevfld->getFValue();
+	const float gdevel = gdelevfld_->getFValue();
 	if ( !mIsUdf(gdevel)  && zun_ )
 	    info.groundelev_ = zun_->internalValue( gdevel );
     }
 
-    info.uwid_ = idfld->text();
-    info.oper_ = operfld->text();
-    info.state_ = statefld->text();
-    info.county_ = countyfld->text();
+    setWellInfo( info.uwid_, idfld_->text() );
+    setWellInfo( info.field_, fieldfld_->text() );
+    setWellInfo( info.oper_, operfld_->text() );
+    setWellInfo( info.state_, statefld_->text() );
+    setWellInfo( info.county_, countyfld_->text() );
+    setWellInfo( info.province_, provfld_->text() );
+    setWellInfo( info.country_, countryfld_->text() );
 
     return true;
 }
 
     const UnitOfMeasure* zun_;
     uiWellImportAsc*	uwia_;
-    uiGenInput*		coordfld;
-    uiGenInput*		elevfld;
-    uiGenInput*		replvelfld;
-    uiGenInput*		gdelevfld;
-    uiGenInput*		idfld;
-    uiGenInput*		operfld;
-    uiGenInput*		statefld;
-    uiGenInput*		countyfld;
-    uiCheckBox*		zinftbox;
+    uiGenInput*		coordfld_;
+    uiGenInput*		elevfld_;
+    uiGenInput*		replvelfld_;
+    uiGenInput*		gdelevfld_;
+    uiGenInput*		idfld_;
+    uiGenInput*		fieldfld_;
+    uiGenInput*		operfld_;
+    uiGenInput*		countyfld_;
+    uiGenInput*		statefld_;
+    uiGenInput*		provfld_;
+    uiGenInput*		countryfld_;
 };
 
 

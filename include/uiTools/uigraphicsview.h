@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigraphicsviewbase.h"
 
+class uiAction;
 class uiGraphicsItemGroup;
 class uiLineItem;
 class uiToolButton;
@@ -52,6 +53,8 @@ public:
 				uiGraphicsView(uiParent*,const char* nm);
 				~uiGraphicsView();
 
+    uiAction*			getSaveImageAction();
+    uiAction*			getPrintImageAction();
     uiToolButton*		getSaveImageButton(uiParent*);
     uiToolButton*		getPrintImageButton(uiParent*);
 

@@ -193,7 +193,7 @@ protected:
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import 2D Horizon"),mNoDlgTitle,
 		mODHelpKey(mImportHorizon2DHelpID) ).modal(false))
-    , scanner_(0)
+    , scanner_(nullptr)
     , linesetnms_(*new BufferStringSet)
     , fd_(*EM::Horizon2DAscIO::getDesc())
     , readyForDisplay(this)
@@ -204,7 +204,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    inpfld_->valuechanged.notify( mCB(this,uiImportHorizon2D,formatSel) );
+    mAttachCB(inpfld_->valuechanged,uiImportHorizon2D::formatSel);
 
     BufferStringSet hornms;
     uiEMPartServer::getAllSurfaceInfo( horinfos_, true );
@@ -216,7 +216,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     horselfld_->addItems( hornms );
     horselfld_->attach( alignedBelow, inpfld_ );
     horselfld_->setAllowDuplicates( false );
-    horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
+    mAttachCB(horselfld_->selectionChanged,uiImportHorizon2D::formatSel);
 
     uiPushButton* addbut = new uiPushButton( horselfld_, tr("Add new"),
 				mCB(this,uiImportHorizon2D,addHor), false );
@@ -225,7 +225,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 			mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
     dataselfld_->attach( alignedBelow, horselfld_ );
-    dataselfld_->descChanged.notify( mCB(this,uiImportHorizon2D,descChg) );
+    mAttachCB(dataselfld_->descChanged,uiImportHorizon2D::descChg);
 
     scanbut_ = new uiPushButton( this, tr("Scan Input Files"),
 				 mCB(this,uiImportHorizon2D,scanPush), false );
@@ -241,12 +241,13 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     udftreatfld_->attach( alignedBelow, scanbut_ );
     udftreatfld_->attach( ensureBelow, sep );
 
-    postFinalise().notify( mCB(this,uiImportHorizon2D,formatSel) );
+    mAttachCB(postFinalise(),uiImportHorizon2D::formatSel);
 }
 
 
 uiImportHorizon2D::~uiImportHorizon2D()
 {
+    detachAllNotifiers();
     delete &linesetnms_;
     deepErase( horinfos_ );
 }
@@ -255,7 +256,7 @@ uiImportHorizon2D::~uiImportHorizon2D()
 void uiImportHorizon2D::descChg( CallBacker* )
 {
     delete scanner_;
-    scanner_ = 0;
+    scanner_ = nullptr;
 }
 
 
@@ -339,8 +340,9 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
 
 bool uiImportHorizon2D::doImport()
 {
-    scanPush(0);
-    if ( !scanner_ ) return false;
+    scanPush( nullptr );
+    if ( !scanner_ )
+	return false;
 
     const BinIDValueSet* valset = scanner_->getVals();
     if ( !valset || valset->totalSize() == 0 )
@@ -452,10 +454,12 @@ bool uiImportHorizon2D::doImport()
 
 bool uiImportHorizon2D::acceptOK( CallBacker* )
 {
-    if ( !checkInpFlds() ) return false;
+    if ( !checkInpFlds() )
+	return false;
 
     const bool res = doImport();
-    if ( !res ) return false;
+    if ( !res )
+	return false;
 
     if ( saveButtonChecked() )
 	readyForDisplay.trigger();

@@ -10,8 +10,8 @@ set( OD_MODULE_SOURCES
 	annotbuffill.cc
 	uiamplspectrum.cc
 	uiapplserv.cc
-	uiarray2dchg.cc
 	uiarray1dinterpol.cc
+	uiarray2dchg.cc
 	uiarray2dinterpol.cc
 	uiaxisdata.cc
 	uiaxishandler.cc
@@ -29,6 +29,7 @@ set( OD_MODULE_SOURCES
 	uicompparsel.cc
 	uiconstvel.cc
 	uicoordsystem.cc
+	uicrssystem.cc
 	uidatapackmon.cc
 	uidirectionalplot.cc
 	uidlggroup.cc
@@ -40,8 +41,8 @@ set( OD_MODULE_SOURCES
 	uigeninput.cc
 	uigeninput_impl.cc
 	uigeninputdlg.cc
-	uigraphicsscalebar.cc
 	uigraphicssaveimagedlg.cc
+	uigraphicsscalebar.cc
 	uigraphicssceneaxismgr.cc
 	uigraphicsview.cc
 	uigridder2d.cc
@@ -50,10 +51,10 @@ set( OD_MODULE_SOURCES
 	uihistogramdisplay.cc
 	uihistogramsel.cc
 	uihostiddlg.cc
-	uiimagesize.cc
 	uiinterpollayermodel.cc
 	uiiosel.cc
 	uiissuereporter.cc
+	uilatlong.cc
 	uilistboxfilter.cc
 	uilocalhostgrp.cc
 	uimapperrangeeditor.cc
@@ -71,10 +72,10 @@ set( OD_MODULE_SOURCES
 	uipathsel.cc
 	uipluginman.cc
 	uipluginsel.cc
+	uipolardiagram.cc
 	uipositiontable.cc
 	uipropvalfld.cc
 	uiproxydlg.cc
-	uiserviceservermgr.cc
 	uiraytrace1d.cc
 	uirgbarraycanvas.cc
 	uirockphysform.cc
@@ -82,15 +83,17 @@ set( OD_MODULE_SOURCES
 	uiscaler.cc
 	uisellinest.cc
 	uiselsimple.cc
+	uiserviceservermgr.cc
 	uisettings.cc
 	uishortcuts.cc
+	uisizesel.cc
 	uislicepos.cc
 	uislicesel.cc
 	uistatsdisplay.cc
 	uistepoutsel.cc
 	uistratlvlsel.cc
-	uitblimpexpdatasel.cc
 	uitaskrunner.cc
+	uitblimpexpdatasel.cc
 	uitextfile.cc
 	uitime2depthzaxistrans.cc
 	uitoolbarcmded.cc
@@ -99,16 +102,13 @@ set( OD_MODULE_SOURCES
 	uivalseriestracker.cc
 	uivariogram.cc
 	uivarwizard.cc
-	uiwindowfunctionsel.cc
 	uiwindowfuncseldlg.cc
+	uiwindowfunctionsel.cc
 	uiwindowgrabber.cc
 	uiwizard.cc
 	uiworld2ui.cc
 	uizaxistransform.cc
 	uizrangeinput.cc
-	uipolardiagram.cc
-	uilatlong.cc
-	uicrssystem.cc
 )
 
 set( OD_MODULE_GUI_PROGS

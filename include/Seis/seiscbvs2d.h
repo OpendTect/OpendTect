@@ -18,6 +18,7 @@ class SeisTrc;
 class CBVSSeisTrcTranslator;
 
 namespace PosInfo { class Line2DData; }
+namespace Survey { class Geometry2D; }
 
 
 mExpClass(Seis) SeisCBVS2DLineIOProvider : public Seis2DLineIOProvider
@@ -77,8 +78,8 @@ public:
 class SeisCBVS2DLineGetter : public Seis2DLineGetter
 {
 public:
-			SeisCBVS2DLineGetter(const char* fnm,SeisTrcBuf&,
-					     int trcsperstep,
+			SeisCBVS2DLineGetter(const char* fnm,Pos::GeomID,
+					     SeisTrcBuf&,int trcsperstep,
 					     const Seis::SelData&);
 			~SeisCBVS2DLineGetter();
 
@@ -92,11 +93,12 @@ protected:
     void		addTrc(SeisTrc*);
     int			nextStep();
 
-    int				curnr_;
-    int				totnr_;
+    int				curnr_		= 0;
+    int				totnr_		= 0;
     BufferString		fname_;
     CBVSSeisTrcTranslator*	tr_;
-    int				trcstep_;
+    const Survey::Geometry2D&	geom2d_;
+    int				trcstep_	= 1;
     const int			linenr_;
     const int			trcsperstep_;
 

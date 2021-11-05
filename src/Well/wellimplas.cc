@@ -428,6 +428,16 @@ void Well::LASImporter::parseLocation( const char* startptr1,
 	ret = pos;
 }
 
+static void update( const BufferString& filestr, BufferString& wellstr,
+		    bool& changed )
+{
+    if ( wellstr.isEmpty() && !filestr.isEmpty() )
+    {
+	wellstr = filestr;
+	changed = true;
+    }
+}
+
 
 void Well::LASImporter::copyInfo( const FileInfo& inf, bool& changed )
 {
@@ -435,21 +445,14 @@ void Well::LASImporter::copyInfo( const FileInfo& inf, bool& changed )
 	return;
 
     Well::Info& winf = wd_->info();
-    if ( !inf.state_.isEmpty() && winf.state_.isEmpty() )
-    {
-	winf.state_ = inf.state_;
-	changed = true;
-    }
-    if ( !inf.county_.isEmpty() && winf.county_.isEmpty() )
-    {
-	winf.county_ = inf.county_;
-	changed = true;
-    }
-    if ( !inf.srvc_.isEmpty() && winf.oper_.isEmpty() )
-    {
-	winf.oper_ = inf.srvc_;
-	changed = true;
-    }
+    update( inf.uwi_, winf.uwid_, changed );
+    update( inf.field_, winf.field_, changed );
+    update( inf.county_, winf.county_, changed );
+    update( inf.state_, winf.state_, changed );
+    update( inf.province_, winf.province_, changed );
+    update( inf.country_, winf.country_, changed );
+    update( inf.srvc_, winf.oper_, changed );
+
     if ( !mIsUdf(inf.glelev_) && !mIsZero(inf.glelev_,1e-2f) &&
 	  mIsUdf(winf.groundelev_) )
     {

@@ -2022,7 +2022,7 @@ bool dgbSurfaceWriter::writeRow( od_ostream& strm )
     const int nrcols =
 	(writecolrange_ ? writecolrange_->nrSteps() : colrange.nrSteps()) + 1;
 
-    mDynamicCastGet(const Horizon3D*,hor3d,&surface_)
+    mDynamicCastGet(const Horizon*,hor,&surface_)
     for ( int colindex=0; colindex<nrcols; colindex++ )
     {
 	const int col = writecolrange_ ? writecolrange_->atIndex(colindex) :
@@ -2031,7 +2031,7 @@ bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 	const PosID posid(  surface_.id(), sectionid,
 				RowCol(row,col).toInt64() );
 	Coord3 pos = surface_.getPos( posid );
-	if ( hor3d && pos.isDefined() )
+	if ( hor && pos.isDefined() )
 	    pos.z += shift_;
 
 	if ( colcoords.isEmpty() && !pos.isDefined() )

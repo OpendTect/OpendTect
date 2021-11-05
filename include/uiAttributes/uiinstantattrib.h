@@ -33,8 +33,6 @@ protected:
     uiGenInput*		outpfld;
     uiLabeledSpinBox*	phaserotfld;
 
-    static const char*	outstrs[];
-
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
     bool		setOutput(const Attrib::Desc&);

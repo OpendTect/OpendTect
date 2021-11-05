@@ -369,67 +369,25 @@ bool TrcKeySampling::isEmpty() const
 { return nrLines() < 1 || nrTrcs() < 1; }
 
 
-bool TrcKeySampling::doLimitTo( StepInterval<int>& inp,
-				const StepInterval<int>& oth,
-				const bool ignoresteps,
-				const bool nostephandling )
+void TrcKeySampling::limitTo( const TrcKeySampling& tks, bool ignoresteps )
 {
-    const bool invalidstep = inp.step == 0 || mIsUdf(inp.step)
-			    || oth.step == 0 || mIsUdf(oth.step);
-    if ( ignoresteps || invalidstep || nostephandling )
+    if ( !overlaps(tks,true) )
     {
-	if ( oth.start > inp.start ) inp.start = oth.start;
-	if ( oth.stop < inp.stop ) inp.stop = oth.stop;
+	init( false );
+	return;
+    }
+
+    StepInterval<int> inlrg( lineRange() );
+    StepInterval<int> crlrg( trcRange() );
+    if ( ignoresteps )
+    {
+	((SampleGate&)inlrg).limitTo( tks.lineRange() );
+	((SampleGate&)crlrg).limitTo( tks.trcRange() );
     }
     else
     {
-	const int start_diff = inp.start - oth.start;
-	const int minstop = mMIN( inp.stop, oth.stop );
-	int common = inp.start;
-	if ( start_diff < 0 )
-	    common += inp.step * ((inp.step-start_diff-1)/inp.step);
-	while ( common <= minstop && (common-oth.start)%oth.step )
-	    common += inp.step;
-	if ( common > minstop )
-	    return false;
-
-	inp.start = common;
-	inp.step = Math::LCMOf( inp.step, oth.step );
-	inp.stop = common + inp.step * ((minstop-common)/inp.step);
-    }
-
-    return true;
-}
-
-
-void TrcKeySampling::limitTo( const TrcKeySampling& h, bool ignoresteps )
-{
-    TrcKeySampling tks( h ); tks.normalise();
-    normalise();
-
-    if ( tks.start_.lineNr()>stop_.lineNr() ||
-	 tks.stop_.lineNr()<start_.lineNr() ||
-	 tks.start_.trcNr()>stop_.trcNr() ||
-	 tks.stop_.trcNr() < start_.trcNr() )
-    {
-	init( false );
-	return;
-    }
-
-    StepInterval<int> inlrg = lineRange();
-    StepInterval<int> crlrg = trcRange();
-    const bool inlstephandling = inlrg.step == h.lineRange().step &&
-				 ( tks.lineOK(tks.lineRange().start) ||
-				   tks.lineOK(inlrg.start) );
-    const bool crlstephandling = crlrg.step == h.trcRange().step &&
-				 ( tks.trcOK(tks.trcRange().start) ||
-				   tks.trcOK(crlrg.start) );
-
-    if ( !doLimitTo( inlrg, tks.lineRange(), ignoresteps, inlstephandling ) ||
-	 !doLimitTo( crlrg, tks.trcRange(), ignoresteps, crlstephandling ) )
-    {
-	init( false );
-	return;
+	inlrg.limitTo( tks.lineRange() );
+	crlrg.limitTo( tks.trcRange() );
     }
 
     setLineRange( inlrg );
@@ -844,30 +802,43 @@ static bool intersectF( float start_1, float stop_1, float step_1,
 }
 
 
+bool TrcKeySampling::overlaps( const TrcKeySampling& oth,
+			       bool ignoresteps ) const
+{
+    if ( ignoresteps )
+    {
+	const StepInterval<int> othlinerg( oth.lineRange() ),
+				othtrcrg( oth.trcRange() );
+	return othlinerg.overlaps( lineRange() ) &&
+	       othtrcrg.overlaps( trcRange() );
+    }
+
+    TrcKeySampling intertks;
+    return getInterSection( oth, intertks );
+}
+
+
 bool TrcKeySampling::getInterSection( const TrcKeySampling& tks,
 				   TrcKeySampling& out ) const
 {
     TrcKeySampling tks1( tks ); tks1.normalise();
-    TrcKeySampling tks2( *this );	tks2.normalise();
+    TrcKeySampling tks2( *this ); tks2.normalise();
 
-    return intersect( tks1.start_.lineNr(),
-		      tks1.stop_.lineNr(),
-		      tks1.step_.lineNr(),
-		      tks2.start_.lineNr(),
-		      tks2.stop_.lineNr(),
-		      tks2.step_.lineNr(),
-		      out.start_.lineNr(),
-		      out.stop_.lineNr(),
-		      out.step_.lineNr())
-	&& intersect( tks1.start_.trcNr(),
-		      tks1.stop_.trcNr(),
-		      tks1.step_.trcNr(),
-		      tks2.start_.trcNr(),
-		      tks2.stop_.trcNr(),
-		      tks2.step_.trcNr(),
-		      out.start_.trcNr(),
-		      out.stop_.trcNr(),
-		      out.step_.trcNr());
+    const Pos::steprg_type linerg1( tks1.lineRange() );
+    const Pos::steprg_type linerg2( tks2.lineRange() );
+    const Pos::steprg_type trcrg1( tks1.trcRange() );
+    const Pos::steprg_type trcrg2( tks2.trcRange() );
+    Pos::steprg_type linergout, trcrgout;
+
+    const bool success = Pos::intersect( linerg1, linerg2, linergout ) &&
+			 Pos::intersect( linerg2, trcrg2, trcrgout );
+    if ( success )
+    {
+	out.setLineRange( linergout );
+	out.setTrcRange( trcrgout );
+    }
+
+    return success;
 }
 
 
@@ -1271,22 +1242,20 @@ bool TrcKeyZSampling::isDefined() const
 }
 
 
-void TrcKeyZSampling::limitTo( const TrcKeyZSampling& c, bool ignoresteps )
+void TrcKeyZSampling::limitTo( const TrcKeyZSampling& tkzs, bool ignoresteps )
 {
-    TrcKeyZSampling tkzs( c ); tkzs.normalise();
-    normalise();
     hsamp_.limitTo( tkzs.hsamp_, ignoresteps );
-    if ( hsamp_.isEmpty() || tkzs.zsamp_.start>zsamp_.stop ||
-	 tkzs.zsamp_.stop<zsamp_.start )
+    if ( hsamp_.isEmpty() )
     {
 	init( false );
 	return;
     }
 
-    if ( zsamp_.start < tkzs.zsamp_.start ) zsamp_.start = tkzs.zsamp_.start;
-    if ( zsamp_.stop > tkzs.zsamp_.stop) zsamp_.stop = tkzs.zsamp_.stop;
-    if ( !ignoresteps )
-	if ( zsamp_.step < tkzs.zsamp_.step ) zsamp_.step = tkzs.zsamp_.step;
+    if ( ignoresteps )
+	((ZGate&)zsamp_).limitTo( tkzs.zsamp_ );
+    else
+	zsamp_.limitTo( tkzs.zsamp_ );
+
 }
 
 

@@ -967,27 +967,24 @@ BufferString getFileSizeString( const char* fnm )
 { return getFileSizeString( getKbSize(fnm) ); }
 
 
-#define mRetUnknown { ret.set( "<unknown>" ); return ret.buf(); }
-
 const char* timeCreated( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
-    if ( !isLocal(fnm) )
-	mRetUnknown
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    ret = fsa.timeCreated( fnm );
 
-    const QFileInfo qfi( fnm );
-    if ( !fmt || !*fmt )
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-	ret = qfi.birthTime().toString( Qt::ISODate );
-#else
-	ret = qfi.created().toString( Qt::ISODate );
-#endif
-    else
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-	ret = qfi.birthTime().toString( fmt );
-#else
-	ret = qfi.created().toString( fmt );
-#endif
+    const FixedString fmtstr = fmt;
+    if ( !fmtstr.isEmpty() )
+    {
+
+	QDateTime qdt =
+		QDateTime::fromString( ret.buf(), Qt::ISODate ).toLocalTime();
+	ret = qdt.toString( fmt );
+    }
+
+    if ( ret.isEmpty() )
+	ret.set( "-" );
+
     return ret.buf();
 }
 
@@ -995,14 +992,20 @@ const char* timeCreated( const char* fnm, const char* fmt )
 const char* timeLastModified( const char* fnm, const char* fmt )
 {
     mDeclStaticString( ret );
-    if ( !isLocal(fnm) )
-	mRetUnknown
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    ret = fsa.timeLastModified( fnm );
 
-    const QFileInfo qfi( fnm );
-    if ( !fmt || !*fmt )
-	ret = qfi.lastModified().toString( Qt::ISODate );
-    else
-	ret = qfi.lastModified().toString( fmt );
+    const FixedString fmtstr = fmt;
+    if ( !fmtstr.isEmpty() )
+    {
+	QDateTime qdt =
+		QDateTime::fromString( ret.buf(), Qt::ISODate ).toLocalTime();
+	ret = qdt.toString( fmt );
+    }
+
+    if ( ret.isEmpty() )
+	ret.set( "-" );
+
     return ret.buf();
 }
 

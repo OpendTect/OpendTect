@@ -500,6 +500,7 @@ public:
     static uiString sPause()		{ return tr("Pause"); }
     static uiString sPercentageDone()	{ return tr("Percentage done"); }
     static uiString sPetrelAlut()	{ return tr("Petrel *.alut"); }
+    static uiString sPhase()		{ return tr("Phase"); }
     static uiString sPickSet(int num=1)	{ return tr("PickSet",0,num); }
     static uiString sPlatform()		{ return tr("Platform"); }
     static uiString sPoint(int n=1)	{ return tr("Point",0,n); }

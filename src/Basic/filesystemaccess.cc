@@ -66,6 +66,8 @@ public:
     virtual bool	isFile(const char*) const;
     virtual bool	isDirectory(const char*) const;
     virtual bool	isWritable(const char*) const;
+    virtual BufferString timeCreated(const char*) const;
+    virtual BufferString timeLastModified(const char*) const;
 
     virtual bool	remove(const char*,bool recursive=true) const;
     virtual bool	setWritable(const char*,bool yn,bool recursive) const;
@@ -337,6 +339,25 @@ od_int64 LocalFileSystemAccess::getFileSize( const char* uri,
 
     QFileInfo qfi( fnm.buf() );
     return qfi.size();
+}
+
+
+
+BufferString LocalFileSystemAccess::timeCreated( const char* uri ) const
+{
+    const QFileInfo qfi( uri );
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+    return qfi.birthTime().toString( Qt::ISODate );
+#else
+    return qfi.created().toString( Qt::ISODate );
+#endif
+}
+
+
+BufferString LocalFileSystemAccess::timeLastModified( const char* uri ) const
+{
+    const QFileInfo qfi( uri );
+    return qfi.lastModified().toString( Qt::ISODate );
 }
 
 

@@ -12,7 +12,9 @@
 #include "envvars.h"
 #include "iopar.h"
 #include "ptrman.h"
+
 #include <iostream>
+#include <typeinfo>
 
 namespace visBase
 {
@@ -134,10 +136,12 @@ void DataManager::getIDs( const std::type_info& ti,
 {
     res.erase();
 
-    for ( int idx=0; idx<objects_.size(); idx++ )
+    const std::size_t tihash = ti.hash_code();
+    for ( const auto* obj : objects_ )
     {
-	if ( typeid(*objects_[idx]) == ti )
-	    res += objects_[idx]->id();
+	const std::type_info& objinfo = typeid(*obj);
+	if ( objinfo.hash_code() == tihash )
+	    res += obj->id();
     }
 }
 
