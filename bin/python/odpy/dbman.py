@@ -6,6 +6,20 @@ from odpy.oscommand import getODCommand, execCommand
 dbmanexe = 'od_DBMan'
 
 def getDBList(translnm,alltrlsgrps=False,exenm=dbmanexe,args=None):
+  """ Gets information on survey database wells
+
+  Parameters:
+    * translnm (string): default value='Well'
+    * alltrlsgrps (bool): if True, returns information on TranslatorGroups for available wells
+    * exenm (string): database executable file
+    * args (dict, optional):
+      Dictionary with the members 'dtectdata' and 'survey' as 
+      single element lists, and/or 'dtectexec' (see odpy.common.getODSoftwareDir)
+
+  Returns:
+    * dict: Dictionary containing database survey well information (size, IDs, Names, Formats, Status)
+  """
+
   cmd = getODCommand(exenm,args)
   cmd.append( '--json' )
   if alltrlsgrps:
@@ -15,6 +29,16 @@ def getDBList(translnm,alltrlsgrps=False,exenm=dbmanexe,args=None):
   return getDBDict( cmd )
 
 def getInfoFromDBListByNameOrKey(nm_or_key,dblist):
+  """ Gets info from database list with obj key or name
+
+  Parameters:
+    * nm_or_key (str): object key or name
+    * dblist (dict): survey database list, check odpy.getDBList for docs
+
+  Returns:
+    * dict: info on database object (Name,ID, Format, Type, TranslatorGroup iff available)
+  """
+
   for i in range(len(dblist['Names'])):
     dbobjnm = dblist['Names'][i]
     objid = dblist['IDs'][i]
@@ -37,6 +61,31 @@ def getInfoFromDBListByNameOrKey(nm_or_key,dblist):
     return ret
 
 def getInfoByName(objnm,translnm,exenm=dbmanexe,args=None ):
+  """ Gets object info by name
+
+  Parameters:
+    * objnm (str): database object to get info on
+    * translnm (str):
+    * exenm (str): executable file, defaults to dbmanexe=od_DBMan
+    * args (dict, optional):
+      Dictionary with the members 'dtectdata' and 'survey' as 
+      single element lists, and/or 'dtectexec' (see odpy.common.getODSoftwareDir)
+
+  Returns:
+    * dict: information on object, dict keys include; ID, Name, file name, etc
+
+  Example:
+  >>> import odpy.dbman as dbman
+  >>> dbman.getInfoByName(objnm='F02-1', translnm='Well')
+      {'ID': '100050.2',
+       'Name': 'F02-1',
+       'Format': 'dGB',
+       'TranslatorGroup': 'Well',
+       'File_name': 'C:\\Users\\OLAWALE IBRAHIM\\DTECT_DATA\\F3_Demo_2020\\WellInfo\\F02-1.well',
+       'Status': 'OK'}
+
+  """
+
   cmd = getODCommand(exenm,args)
   cmd.append( '--json' )
   cmd.append( '--exists' )
@@ -49,6 +98,19 @@ def getInfoByName(objnm,translnm,exenm=dbmanexe,args=None ):
   return ret
 
 def getInfoByKey(objkey,exenm=dbmanexe,args=None ):
+  """ Gets datbase info on well
+
+  Parameters:
+    * objkey (str): well ID key
+    * exenm (str): executable file name
+    * args (dict, optional):
+      Dictionary with the members 'dtectdata' and 'survey' as 
+      single element lists, and/or 'dtectexec' (see odpy.common.getODSoftwareDir)
+
+  Returns:
+    dict: file info (ID, Name, Format, File name, etc)
+  """
+
   cmd = getODCommand(exenm,args)
   cmd.append( '--json' )
   cmd.append( '--info' )
@@ -56,6 +118,13 @@ def getInfoByKey(objkey,exenm=dbmanexe,args=None ):
   return getDBDict( cmd )
 
 def getDBDict( cmd ):
+  """ Gets database dict with command
+
+  Parameters:
+    * cmd (str): command to be executed
+
+  """
+
   ret = execCommand( cmd )
   retstr = ret.decode('utf-8')
   if isWin():
@@ -67,10 +136,39 @@ def getDBDict( cmd ):
   return ret
 
 def getByName( dblist, retname, keystr ):
+  """ Gets value of specified database list key
+
+  Parameters:
+    * dblist (dict): survey database list, check odpy.getDBList for docs
+    * retname (str): key to return from dblist
+    * keystr (str): value to return from retname
+
+  Returns:
+    * str: database object value
+
+  Example:
+  
+  >>> import odpy.dbman as dbman
+  >>> dbman.getByName(dblist, 'F03-4', 'IDs')
+      '100050.4'
+
+  """
+
   curentryidx = dblist['Names'].index( retname )
   return dblist[keystr][curentryidx]
 
 def getDBKeyForName( dblist, retname ):
+  """ Gets object ID key from database info
+
+  Parameters:
+    * dblist (dict): survey database list, check odpy.getDBList for docs
+    * retname (str): key to return from dblist
+
+  Returns:
+    * str: ID of database object (well)
+
+  """
+
   return getByName( dblist, retname, 'IDs' )
 
 def retFileLoc( bstdout ):
@@ -86,6 +184,19 @@ def retFileLoc( bstdout ):
   return fileloc['File_name']
 
 def getFileLocation( dbkey, args=None ):
+  """  Gets full file path
+
+  Parameters:
+    * dbkey (str): object database key
+    * args (dict, optional):
+      Dictionary with the members 'dtectdata' and 'survey' as 
+      single element lists, and/or 'dtectexec' (see odpy.common.getODSoftwareDir)
+
+  Returns:
+    str: full path to file
+
+  """
+
   cmd = getODCommand(dbmanexe,args)
   cmd.append( '--json' )
   cmd.append( '--info' )
@@ -93,6 +204,19 @@ def getFileLocation( dbkey, args=None ):
   return retFileLoc( execCommand(cmd) )
 
 def getNewEntryFileName( objnm, dirid, trgrp, trl, ext, ftype=None, args=None ):
+  """ Registers a new OpendTect dataset to database
+
+  Parameters:
+    * objnm (str): file name
+    * dirid  (internal: int)
+    * trgrp (str): TranslatorGroup e.g. Well, Seismic, etc
+    * ext (str): file extension
+
+  Returns:
+    * file path to the object created with write permission
+
+  """
+
   cmd = getODCommand(dbmanexe,args)
   cmd.append( '--create' )
   cmd.append( objnm )

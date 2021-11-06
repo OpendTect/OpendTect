@@ -4,6 +4,39 @@ Copyright (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.
   * AUTHOR : A. Huck
   * DATE   : July 2018
 
+Module Summary
+###############
+
+odpy.common is the main important module in odpy. Allows for basic interactions with the OpendTect software and database
+
+KEY methods
+-------------
+
+* getODsoftwareDir()
+
+  * gets the root directory of the Opendtect installation
+* getBinSubDir()
+
+  * binary sub directory for executables in an OpendTect installation
+  * returns information on the release type
+* getODargs()
+
+  * get dict containing information about the Opendtect executable, project database path and current survey name
+
+Example
+--------
+>>> import odpy.common as odcommon
+>>> odcommon.getODSoftwareDir()
+    'C:\\PROGRA~1\\OPENDT~1\\new\\6683E8~1.0'
+
+>>> odcommon.getBinSubDir()
+    'Release'
+
+>>> odcommon.getODArgs()
+    {'dtectexec': ['C:\\PROGRA~1\\OPENDT~1\\new\\6683E8~1.0\\bin\\win64\\Release'],
+     'dtectdata': ['C:\\Users\\OLAWALE IBRAHIM\\DTECT_DATA'],
+     'survey': ['F3_Demo_2020']}
+
 """
 
 import sys
@@ -80,6 +113,18 @@ def initLogging(args):
   set_log_file( args['sysout'].name, syslog_logger )
 
 def set_log_file( filenm, logger ):
+  """Sets log file with the handler based on the filename
+
+  Parameters:
+    * filenm (str): log file name
+    * logger (object): log object
+
+  Returns:
+    Nothing. 
+    Removes past handlers if any and sets new log handler type based on file name
+  
+  """
+
   for handler in logger.handlers:
     logger.removeHandler( handler )
   if filenm == '<stdout>':
@@ -98,12 +143,32 @@ def set_log_file( filenm, logger ):
   logger.propagate = False
 
 def get_log_logger():
+  """ Returns logger
+  
+  """
   return proclog_logger
 
 def get_std_logger():
+  """ Returns module logger
+  
+  """
   return syslog_logger
 
 def mergeArgs(a,b=None,c=None,d=None,e=None,f=None):
+  """Concatenates input strings and objects if more than one as single string
+  
+  Parameters:
+    * a (object or string): Message to be printed
+    * b-f (object or string, optional): Message to be printed
+
+  Returns:
+    * str: Concatenated string
+
+  Notes:
+    * All objects are formatted to strings using the str() function
+    * All outputs are automatically separated by spaces.
+  """
+  
   msg = str(a)
   if b != None:
     msg = msg+' '+str(b)
@@ -124,7 +189,7 @@ def std_msg(a,b=None,c=None,d=None,e=None,f=None):
     * a (object or string): Message to be printed
     * b-f (object or string, optional): Message to be printed
 
-  Returns:
+  Prints:
     * str: Concatenated string
 
   Notes:
@@ -158,18 +223,48 @@ def log_msg(a,b=None,c=None,d=None,e=None,f=None):
   get_log_logger().debug(msg)
 
 def has_file_handlers(logger):
+  """To check if a log file has a file handler
+
+  Parameters:
+    * logger (object): Logger file object
+  
+  Returns:
+    * bool: True if logger is a file handler logger
+  """
+
   for handler in logger.handlers:
     if isinstance( handler, logging.FileHandler ):
       return True
   return False
 
 def has_stdlog_file():
+  """ Checks if module log has a file handler
+
+  Returns
+    * bool: True if module log file has a File handler and False if otherwise
+  """
+
   return has_file_handlers( get_std_logger() )
 
 def has_log_file():
+  """ Checks if log (odproclog) has a file handler
+  
+  Returns:
+  * bool: True if log file (odproclog) has a File handler and False if otherwise
+  """
+
   return has_file_handlers( get_log_logger() )
 
 def get_handler_stream(logger):
+  """ Gets log handler stream
+  
+  Parameters:
+    * logger (object): log file object
+
+  Returns:
+      * str: where log info streams to if log handler exist, 
+      returns None if handler level is not set
+  """
   for handler in logger.handlers:
     if isinstance( handler, logging.StreamHandler ) and handler.level != logging.NOTSET:
       return handler.stream
@@ -178,21 +273,56 @@ def get_handler_stream(logger):
   return None
 
 def get_handler_filename(logger):
+  """Gets logger filename
+
+  Parameters:
+    * logger (object): log file object
+
+  Returns:
+    * str: Log file name if any, None if not
+  
+  """
   for handler in logger.handlers:
     if isinstance( handler, logging.FileHandler ):
       return handler.baseFilename
   return None
 
 def get_std_stream():
+  """ Gets current module stream handler
+
+  Returns:
+    * str: log stream handler name
+  
+  """
+
   return get_handler_stream( get_std_logger() )
 
 def get_log_stream():
+  """Gets odpy.commom log stream handler
+
+  Returns:
+    * str: log stream handler name
+  
+  """
+  
   return get_handler_stream( get_log_logger() )
 
 def get_stdlog_file():
+  """ Full log file path for current module
+
+  Returs:
+    * str: Path to log file for current module
+  """
+
   return get_handler_filename( get_std_logger() )
 
 def get_log_file():
+  """ Full log file path for odpy.common
+
+  Returs:
+    * str: Path to log file for odpy.common
+  """
+
   return get_handler_filename( get_log_logger() )
 
 def reset_log_file( keeplines=0 ):
@@ -657,6 +787,15 @@ def getIconFp(nm,args=None):
   return None
 
 def tail(fp,lines=1,strip_empty=False,_buffer=4098):
+  """ Returns the last line(s) from a file
+
+  Parameters:
+    * fp (object): opened log file
+    * lines (int): number of last lines in a file to be printed
+    strip_empty (bool): removes empty new lines if True
+    buffer (int): 
+  """
+  
   lines_found = []
   block_counter = -1
   while len(lines_found) < lines:
@@ -701,6 +840,18 @@ def batchIsFinished( logfile ):
   return len(ret) > 0 and 'Finished batch processing' in ret[-1]
 
 def writeFile( fnm, content ):
+  """ Creates a new file with contents
+
+  Parameters:
+    fnm (str): name of file to be created/written to
+    content (str): content to be added to the file
+
+  Returns:
+    * bool:
+      True if file has been successfully created
+      False if file isn't created due to an error
+  
+  """
   try:
     f = open( fnm, 'w' )
     f.write( content )
