@@ -4,6 +4,22 @@ Copyright (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.
   * AUTHOR : A. Huck
   * DATE   : Apr 2019
 
+General Example:
+  How to launch the OpendTect software from python terminal
+
+  >>> execnm = 'od_main' #execnm is executable name=od_main for the OpendTect software
+  >>> cmds = getODCommand(execnm)  
+    ['C:\\PROGRA~1\\OPENDT~1\\6683E8~1.0\\bin\\win64\\Release\\od_main']
+  >>> execpath = cmd[0]
+
+  >>> odproc = execCommand(execpath, background=True) # exeCommand executes the command in background mode and launches software
+
+  getODCommand and execCommand wrapped into a function
+
+  >>> def launchApp(execnm, args=None):
+        return execCommand(getODCommand(execnm))
+  >>> launchApp(od_DBMain.exe)          #od_DBMain is executable used by odpy.dbman
+
 """
 
 import sys
@@ -24,9 +40,9 @@ def getODCommand(execnm,args=None):
 
   Parameters:
     * execnm (list): [Executable name]
-    * arg (dict, optional):
+    * args (dict, optional):
       Dictionary with the members 'dtectdata' and 'survey' as 
-      single element lists, and/or 'dtectexec' (see odpy.getODSoftwareDir)
+      single element lists, and/or 'dtectexec' (see odpy.common.getODSoftwareDir)
 
   Returns:
     * list: OpendTect command line
@@ -41,7 +57,7 @@ def getODCommand(execnm,args=None):
       'survey': ['F3_Demo']
     }
 
-    >>> getODCommand()
+    >>> getODCommand(od_process_attrib)
     ['C:\\Program Files\\OpendTect\\6.6.0\\bin\win64\Release\\od_process_attrib',
     '--dataroot',
     'D:\\ODData',
