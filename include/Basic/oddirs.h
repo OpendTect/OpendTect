@@ -46,6 +46,10 @@ mGlobal(Basic) const char* GetSoftwareDir(bool acceptnone);
  If acceptnone is false, program will terminate if none is found.
 */
 
+mGlobal(Basic) bool isDeveloperBuild();
+/*!< Thus is running from a developers build. Checks the presence of
+     CMakeCache.txt file at the location of GetSoftwareDir */
+
 
 mGlobal(Basic) const char* GetBinSubDir(void);
 /*!< Directory for the release-type, i.e. Debug, Release, ... */

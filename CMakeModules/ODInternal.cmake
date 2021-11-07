@@ -143,14 +143,16 @@ else()
 endif()
 
 #Install python module
-if ( APPLE )
-    install ( DIRECTORY "bin/python"
-	      DESTINATION Contents/Resources/bin
-	      PATTERN ".swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
-else()
-    install ( DIRECTORY "bin/python"
-	      DESTINATION "bin"
-	      PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
+if ( EXISTS "${CMAKE_SOURCE_DIR}/external/odpy" )
+    if ( APPLE )
+	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy/odpy"
+		  DESTINATION Contents/Resources/bin/python
+		  PATTERN ".swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
+    else()
+	install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/odpy/odpy"
+		  DESTINATION "bin/python"
+		  PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
+    endif()
 endif()
 
 install( FILES CMakeLists.txt DESTINATION ${MISC_INSTALL_PREFIX} )
