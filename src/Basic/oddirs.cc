@@ -248,7 +248,7 @@ mExternC(Basic) const char* GetPythonScript( const char* nm )
 
 mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 {
-     mDeclStaticString( res );
+    mDeclStaticString( res );
 
     if ( res.isEmpty() )
     {
@@ -284,6 +284,14 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
     }
 
     return res.buf();
+}
+
+
+mExternC(Basic) bool isDeveloperBuild()
+{
+    const FilePath licfp( BufferString( GetSoftwareDir(false) ),
+			  "CMakeCache.txt" );
+    return licfp.exists();
 }
 
 

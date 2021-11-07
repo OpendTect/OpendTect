@@ -1,8 +1,0 @@
-Copyright (C) 2002-2021 dGB Beheer B.V. All rights reserved.
-
-This software is part of OpendTect and may be used either under the terms of
-the GNU General Public License version 3 or higher, as published by
-the Free Software Foundation
-
-This software is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
