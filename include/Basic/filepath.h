@@ -53,9 +53,10 @@ public:
     FilePath&		set(const char* fullinp);
     FilePath&		add(const char*);	//!< at end
     FilePath&		insert(const char*);	//!< after prefix at start
-    void		setFileName(const char*); //!< pass null to remove level
-    void		setPath(const char*);	//!< including prefix
-    void		setExtension(const char*,bool replace=true);
+    FilePath&		setFileName(const char*);
+			//!< pass null to remove level
+    FilePath&		setPath(const char*);	//!< including prefix
+    FilePath&		setExtension(const char*,bool replace=true);
 						//!< !replace => add
     bool		exists() const;
 

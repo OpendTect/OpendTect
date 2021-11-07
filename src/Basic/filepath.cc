@@ -205,7 +205,7 @@ FilePath& FilePath::insert( const char* fnm )
 }
 
 
-void FilePath::setFileName( const char* fnm )
+FilePath& FilePath::setFileName( const char* fnm )
 {
     if ( !fnm || !*fnm )
     {
@@ -219,20 +219,24 @@ void FilePath::setFileName( const char* fnm )
 	*lvls_[lvls_.size()-1] = fnm;
 	compress( lvls_.size()-1 );
     }
+
+    return *this;
 }
 
 
-void FilePath::setPath( const char* pth )
+FilePath& FilePath::setPath( const char* pth )
 {
     BufferString fnm( lvls_.size() ?
 	    lvls_.get(lvls_.size()-1).buf() : (const char*) 0 );
     set( pth );
     if ( !fnm.isEmpty() )
 	add( fnm );
+
+    return *this;
 }
 
 
-void FilePath::setExtension( const char* ext, bool replace )
+FilePath& FilePath::setExtension( const char* ext, bool replace )
 {
     if ( !ext ) ext = "";
     mSkipBlanks( ext );
@@ -243,7 +247,7 @@ void FilePath::setExtension( const char* ext, bool replace )
     {
 	if ( *ext )
 	    add( ext );
-	return;
+	return *this;
     }
 
     BufferString& fname = *lvls_[lvls_.size()-1];
@@ -256,6 +260,8 @@ void FilePath::setExtension( const char* ext, bool replace )
     }
     else if ( *ext )
 	fname.add( "." ).add( ext );
+
+    return *this;
 }
 
 
