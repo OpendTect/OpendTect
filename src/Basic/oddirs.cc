@@ -234,6 +234,14 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 }
 
 
+mExternC(Basic) bool isDeveloperBuild()
+{
+    const File::Path licfp( BufferString( GetSoftwareDir(false) ),
+			  "CMakeCache.txt" );
+    return licfp.exists();
+}
+
+
 mExternC(Basic) const char* GetApplSetupDir()
 {
     mDeclStaticString( bs );

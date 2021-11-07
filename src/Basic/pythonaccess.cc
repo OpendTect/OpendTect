@@ -158,19 +158,20 @@ void OD::PythonAccess::updatePythonPath() const
 }
 
 namespace OD {
-	static File::Path getBasePythonDir()
+    static File::Path getBasePythonDir()
+    {
+	File::Path ret;
+	if ( isDeveloperBuild() )
 	{
-		const File::Path licfp(BufferString(GetSoftwareDir(false)),
-						"LICENSE.txt");
-		const File::Path ret(BufferString(GetScriptDir()), "python");
-		if ( licfp.exists() )
-			return ret;
-
-		File::Path fp(__FILE__);
-		fp.set(fp.dirUpTo(fp.nrLevels() - 4))
-		  .add("bin").add("python");
-		return fp.exists() ? fp : ret;
+	    ret.set( __FILE__ );
+	    ret.set( ret.dirUpTo( ret.nrLevels() - 4 ) )
+		.add( "external" ).add( "odpy" );
 	}
+	else
+	    ret.set( GetSoftwareDir( true ) ).add( "bin" ).add( "python" );
+
+	return ret;
+    }
 }
 
 
