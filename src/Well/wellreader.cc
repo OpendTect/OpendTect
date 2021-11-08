@@ -48,6 +48,7 @@ const char* Well::odIO::sExtMarkers()	{ return ".wlm"; }
 const char* Well::odIO::sExtD2T()	{ return ".wlt"; }
 const char* Well::odIO::sExtCSMdl()	{ return ".csmdl"; }
 const char* Well::odIO::sExtDispProps()	{ return ".disp"; }
+const char* Well::odIO::sExtDefaults() 	{ return ".defs"; }
 const char* Well::odIO::sExtWellTieSetup() { return ".tie"; }
 
 

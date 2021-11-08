@@ -43,6 +43,7 @@ public:
     static const char*	sExtD2T();
     static const char*	sExtCSMdl();
     static const char*	sExtDispProps();
+    static const char*	sExtDefaults();
     static const char*	sExtWellTieSetup();
 
     static const char*	getMainFileName(const IOObj&);
