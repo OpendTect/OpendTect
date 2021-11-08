@@ -27,6 +27,7 @@ data/dgbAttribs/
 data/localizations/*.qm
 data/localizations/generated
 data/Python_envs.txt
+data/Python/machine_learning_requirements.txt
 doc/Videos.dgb
 doc/od_userdoc
 test/

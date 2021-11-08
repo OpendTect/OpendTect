@@ -74,7 +74,6 @@ OD_ADD_SOURCE_FILES( ${CMAKE_FILES} )
 install ( FILES ${CMAKE_BINARY_DIR}/CMakeModules/FindOpendTect.cmake
 	  DESTINATION ${MISC_INSTALL_PREFIX}/CMakeModules )
 install ( DIRECTORY CMakeModules DESTINATION ${MISC_INSTALL_PREFIX}
-	  PATTERN ".svn" EXCLUDE
 	  PATTERN "*.swp" EXCLUDE
 	  PATTERN "*.cmake~" EXCLUDE
 	  PATTERN "sourcefiles*.txt*" EXCLUDE)
@@ -86,8 +85,7 @@ set( TUTFILES ${TUTHFILES} ${TUTCCFILES} plugins/Tut/CMakeLists.txt )
 install( FILES ${TUTFILES} DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/pluginexample/plugins/Tut )
 install( FILES doc/Videos.od DESTINATION ${MISC_INSTALL_PREFIX}/doc )
 install( DIRECTORY dtect
-	 DESTINATION ${MISC_INSTALL_PREFIX}
-	 PATTERN ".svn" EXCLUDE )
+	 DESTINATION ${MISC_INSTALL_PREFIX} )
 
 file( GLOB UITUTHFILES plugins/uiTut/*.h )
 file( GLOB UITUTCCFILES plugins/uiTut/*.cc )
@@ -97,8 +95,7 @@ install( FILES doc/Programmer/pluginexample/CMakeLists.txt
 	 DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/pluginexample )
 
 install( DIRECTORY doc/Programmer/batchprogexample
-	 DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer
-	 PATTERN ".svn" EXCLUDE )
+	 DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer )
 
 OD_CURRENT_MONTH( MONTH )
 OD_CURRENT_YEAR( YEAR )
@@ -112,8 +109,7 @@ foreach( FLEXNETFILE ${FLEXNETFILES} )
 endforeach()
 
 install( DIRECTORY doc/Scripts
-	 DESTINATION ${MISC_INSTALL_PREFIX}/doc
-	 PATTERN ".svn" EXCLUDE )
+	 DESTINATION ${MISC_INSTALL_PREFIX}/doc )
 
 #Install data
 if ( APPLE )
@@ -121,13 +117,13 @@ if ( APPLE )
 	    USE_SOURCE_PERMISSIONS
 	  PATTERN "install_files" EXCLUDE
 	  PATTERN "icons.Classic" EXCLUDE
-	  PATTERN ".svn" EXCLUDE )
+	  PATTERN ".gitignore" EXCLUDE )
 else()
     install ( DIRECTORY "${CMAKE_BINARY_DIR}/data" DESTINATION .
 	    USE_SOURCE_PERMISSIONS
 	  PATTERN "install_files" EXCLUDE
 	  PATTERN "icons.Classic" EXCLUDE
-	  PATTERN ".svn" EXCLUDE )
+	  PATTERN ".gitignore" EXCLUDE )
 endif()
 
 file( GLOB RELINFOFILES ${CMAKE_SOURCE_DIR}/relinfo/*.txt )
@@ -154,15 +150,12 @@ install( FILES CMakeLists.txt DESTINATION ${MISC_INSTALL_PREFIX} )
 
 if( WIN32 )
     install( DIRECTORY bin/win32/rsm
-	     DESTINATION ${MISC_INSTALL_PREFIX}
-	     PATTERN ".svn" EXCLUDE )
+	     DESTINATION ${MISC_INSTALL_PREFIX} )
 endif()
 
 file( GLOB TEXTFILES ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/*.txt )
 if( UNIX OR APPLE )
     file( GLOB PROGRAMS ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/* )
-    list( REMOVE_ITEM PROGRAMS
-	  ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/.svn )
     list( REMOVE_ITEM PROGRAMS
 	  ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/makeself )
     foreach( TEXTFILE ${TEXTFILES} )
@@ -175,8 +168,7 @@ install ( FILES ${TEXTFILES} DESTINATION ${MISC_INSTALL_PREFIX} )
 
 if( APPLE )
     install( DIRECTORY data/install_files/macscripts/Contents
-	     DESTINATION .
-	     PATTERN ".svn" EXCLUDE )
+	     DESTINATION . )
     OD_CURRENT_YEAR( YEAR )
     set( BUNDLEEXEC od_main )
     set( BUNDLEICON "od.icns" )
@@ -272,7 +264,7 @@ if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
 	     FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 	     FILES_MATCHING PATTERN "*.h" PATTERN "*.c" PATTERN "*.cc" PATTERN "*.xpm"
 			    PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
-			    PATTERN ".svn" EXCLUDE PATTERN CMakeFiles EXCLUDE )
+			    EXCLUDE PATTERN CMakeFiles EXCLUDE )
 
     #Installing cmake genetated files from CMAKE_BINARY_DIR directory
     if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
@@ -282,7 +274,7 @@ if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
 		 FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 		 FILES_MATCHING PATTERN "*.h" PATTERN "*.c" PATTERN "*.cc" PATTERN "*.xpm"
 				PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
-				PATTERN ".svn" EXCLUDE PATTERN CMakeFiles EXCLUDE )
+				EXCLUDE PATTERN CMakeFiles EXCLUDE )
     endif()
 endif()
 
