@@ -207,6 +207,49 @@ TypeSet<int> Well::LogSet::getSuitable( Mnemonic::StdType ptype,
 }
 
 
+bool Well::LogSet::hasDefault( const Mnemonic& mnem ) const
+{
+/*    for ( const auto* deflog : defaultlogs_ )
+    {
+	if ( deflog->first() == mnem )
+	{
+	    if ( !deflog->isUdf() )
+		return true;
+	}
+    }*/
+
+    return false;
+}
+
+
+const Well::Log& Well::LogSet::getDefLog( const Mnemonic& mnem ) const
+{
+    for ( int idx=0; idx<defaultlogs_.size(); idx++ )
+    {
+	if ( defaultlogs_.get(idx)->first() == mnem )
+	    return defaultlogs_.get(idx)->second();
+    }
+    // To-Do: robustness with regards to missing default
+}
+
+
+void Well::LogSet::defaultLogUsePar( const IOPar& iop )
+{}
+
+
+void Well::LogSet::defaultLogFillPar( IOPar& iop ) const
+{
+    for ( int idx=0; idx<defaultlogs_.size(); idx++ )
+    {
+	const OD::Pair<const Mnemonic&,const Well::Log&>* deflog = 
+	    						defaultlogs_.get( idx );
+	iop.setKey( idx, deflog->first().name() );
+	iop.setKey( idx, deflog->second().name() );
+	// To-Do: need to be made more robust
+    }
+}
+
+
 // ---- Well::Log
 
 

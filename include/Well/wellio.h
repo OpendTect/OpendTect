@@ -33,6 +33,7 @@ public:
     static const char*	sKeyWell();
     static const char*	sKeyTrack();
     static const char*	sKeyLog();
+    static const char*	sKeyDefaultLog();
     static const char*	sKeyMarkers();
     static const char*	sKeyD2T();
     static const char*	sKeyDispProps();

@@ -505,6 +505,23 @@ int Well::odWriter::getLogIndex( const char* lognm ) const
 
 bool Well::odWriter::putDefLogs() const
 {
+    mGetOutStream( sExtDefaults(), 0, return false )
+    return putDefLogs( strm );
+}
+
+
+bool Well::odWriter::putDefLogs( od_ostream& strm ) const
+{
+    if ( !wrHdr(strm,sKeyDefaultLog()) )
+        mErrRetStrmOper(tr("write header (default logs)"))
+
+    ascostream astrm( strm );
+    IOPar iop;
+    wd_.logs().defaultLogFillPar( iop );
+    iop.putTo( astrm );
+    if ( !strm.isOK() )
+        mErrRetStrmOper(tr("write well display parameters"))
+
     return true;
 }
 

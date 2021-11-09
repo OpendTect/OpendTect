@@ -38,6 +38,7 @@
 const char* Well::odIO::sKeyWell()	{ return "Well"; }
 const char* Well::odIO::sKeyTrack()	{ return "Track"; }
 const char* Well::odIO::sKeyLog()	{ return "Well Log"; }
+const char* Well::odIO::sKeyDefaultLog(){ return "Default Logs"; }
 const char* Well::odIO::sKeyMarkers()	{ return "Well Markers"; }
 const char* Well::odIO::sKeyD2T()	{ return "Depth2Time Model"; }
 const char* Well::odIO::sKeyDispProps()	{ return "Display Properties"; }

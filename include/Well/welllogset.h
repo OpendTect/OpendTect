@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "wellmod.h"
 
 #include "mnemonics.h"
+#include "odpair.h"
 #include "position.h"
 #include "ranges.h"
 
@@ -44,8 +45,10 @@ public:
     int			indexOf(const char*) const;
     bool		isLoaded(const char*) const;
     bool		isPresent(const char*) const;
+    bool 		hasDefault(const Mnemonic&) const;
     const Log*		getLog( const char* nm ) const	{ return gtLog(nm); }
     Log*		getLog( const char* nm )	{ return gtLog(nm); }
+    const Log&		getDefLog(const Mnemonic&) const;
 
     Interval<float>	dahInterval() const	{ return dahintv_; }
 						//!< not def if start == undef
@@ -61,11 +64,14 @@ public:
 
     bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();
+    void		defaultLogUsePar(const IOPar&);
+    void		defaultLogFillPar(IOPar&) const;
 
     TypeSet<int>	getSuitable(const Mnemonic&) const;
     TypeSet<int>	getSuitable(Mnemonic::StdType,
 				    const PropertyRef* altpr=nullptr,
 				    BoolTypeSet* isalt=nullptr) const;
+
 
     Notifier<LogSet>	logAdded;
     Notifier<LogSet>	logRemoved;
@@ -74,6 +80,8 @@ protected:
 
     ObjectSet<Log>	logs_;
     Interval<float>	dahintv_;
+
+    ObjectSet<OD::Pair<const Mnemonic&,const Log&>>	defaultlogs_;
 
     void		init()
 			{ dahintv_.start = mSetUdf(dahintv_.stop); }
