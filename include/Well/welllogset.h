@@ -45,7 +45,7 @@ public:
     int			indexOf(const char*) const;
     bool		isLoaded(const char*) const;
     bool		isPresent(const char*) const;
-    bool 		hasDefault(const Mnemonic&) const;
+    bool		hasDefault(const Mnemonic&) const;
     const Log*		getLog( const char* nm ) const	{ return gtLog(nm); }
     Log*		getLog( const char* nm )	{ return gtLog(nm); }
     const Log&		getDefLog(const Mnemonic&) const;
@@ -81,7 +81,7 @@ protected:
     ObjectSet<Log>	logs_;
     Interval<float>	dahintv_;
 
-    ObjectSet<OD::Pair<const Mnemonic&,const Log&>>	defaultlogs_;
+    ObjectSet<OD::Pair<Mnemonic,Log>>	defaultlogs_;
 
     void		init()
 			{ dahintv_.start = mSetUdf(dahintv_.stop); }

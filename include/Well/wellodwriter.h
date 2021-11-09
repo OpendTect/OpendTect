@@ -45,16 +45,16 @@ public:
     virtual bool	putCSMdl() const;
     virtual bool	putDispProps() const;
     virtual bool	putLog(const Log&) const;
-    bool                putDefLogs() const override;
+    bool		putDefLogs() const override;
     virtual bool	swapLogs(const Log&,const Log&) const;
     virtual bool	renameLog(const char* oldnm, 
-	    			  const char* newnm) override;
+				  const char* newnm) override;
 
     virtual const uiString& errMsg() const	{ return odIO::errMsg(); }
 
     bool		putInfoAndTrack(od_ostream&) const;
     bool		putMarkers(od_ostream&) const;
-    bool                putDefLogs(od_ostream&) const;
+    bool		putDefLogs(od_ostream&) const;
     bool		putD2T(od_ostream&) const;
     bool		putCSMdl(od_ostream&) const;
     bool		putDispProps(od_ostream&) const;

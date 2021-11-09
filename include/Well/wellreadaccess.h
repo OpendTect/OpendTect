@@ -42,7 +42,7 @@ public:
     virtual bool	getDispProps() const		= 0;
     virtual bool	getLog(const char* lognm) const	= 0;
     virtual void	getLogInfo(BufferStringSet& lognms) const = 0;
-    virtual bool	getDefLogs() const		= 0;			
+    virtual bool	getDefLogs() const		= 0;
 
     virtual const uiString& errMsg() const		= 0;
 

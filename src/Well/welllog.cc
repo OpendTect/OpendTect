@@ -240,9 +240,10 @@ void Well::LogSet::defaultLogUsePar( const IOPar& iop )
 
     for ( int idx=0; idx<iop.size(); idx++ )
     {
-	auto* defaultlog = new OD::Pair<const Mnemonic&,const Well::Log&>; 
-	defaultlog->set( *MNC().getByName(iop.getKey(idx).str()),
-	       	         *getLog(iop.getValue(idx).str()) );
+	auto* defaultlog = new OD::Pair<Mnemonic,Well::Log>;
+	const Mnemonic& currmnem = *MNC().getByName(iop.getKey(idx).str());
+	const Log& deflog = *getLog(iop.getValue(idx).str());
+	defaultlog->set( currmnem, deflog );
 	defaultlogs_.add( defaultlog );
     }
 }
@@ -252,8 +253,7 @@ void Well::LogSet::defaultLogFillPar( IOPar& iop ) const
 {
     for ( int idx=0; idx<defaultlogs_.size(); idx++ )
     {
-	const OD::Pair<const Mnemonic&,const Well::Log&>* deflog = 
-	    						defaultlogs_.get( idx );
+	const OD::Pair<Mnemonic,Well::Log>* deflog = defaultlogs_.get( idx );
 	iop.setKey( idx, deflog->first().name() );
 	iop.setKey( idx, deflog->second().name() );
 	// To-Do: need to be made more robust

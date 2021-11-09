@@ -49,7 +49,7 @@ const char* Well::odIO::sExtMarkers()	{ return ".wlm"; }
 const char* Well::odIO::sExtD2T()	{ return ".wlt"; }
 const char* Well::odIO::sExtCSMdl()	{ return ".csmdl"; }
 const char* Well::odIO::sExtDispProps()	{ return ".disp"; }
-const char* Well::odIO::sExtDefaults() 	{ return ".defs"; }
+const char* Well::odIO::sExtDefaults()	{ return ".defs"; }
 const char* Well::odIO::sExtWellTieSetup() { return ".tie"; }
 
 
@@ -763,7 +763,7 @@ bool Well::odReader::getDefLogs( od_istream& strm ) const
 {
     double version = 0.0;
     if ( !rdHdr(strm,sKeyDefaultLog(),version) )
-        mErrRetStrmOper( sCannotReadFileHeader() )
+	mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );
     IOPar iop; iop.getFrom( astrm );
