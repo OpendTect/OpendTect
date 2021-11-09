@@ -272,6 +272,12 @@ public:
     bool			regressionLineShown(bool y1) const;
     bool			correlationCoeffShown(bool y1) const;
 
+    void			setNrBins(int x,int y);
+    int				nrBins(bool forx) const;
+
+    void			setUserDefLineColor(const Color&,bool y1);
+    Color			getUserDefLineColor(bool y1) const;
+
 protected:
 
     int				y3colid_;

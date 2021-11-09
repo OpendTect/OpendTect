@@ -1,6 +1,4 @@
-#ifndef densitycalc_h
-#define densitycalc_h
-
+#pragma once
 /*+
 ________________________________________________________________________
 
@@ -13,15 +11,12 @@ ________________________________________________________________________
 
 #include "uidatapointsetcrossplot.h"
 
-#include "arraynd.h"
-#include "mathexpression.h"
-#include "polygon.h"
-#include "rowcol.h"
+#include "arrayndimpl.h"
 #include "task.h"
 #include "threadlock.h"
 
 #include "uidatapointset.h"
-#include "uiworld2ui.h"
+#include "uirgbarray.h"
 
 
 //!\brief calculates densities for teh density display of a crossplot
@@ -29,301 +24,175 @@ ________________________________________________________________________
 mClass(uiIo) DensityCalc : public ParallelTask
 { mODTextTranslationClass(DensityCalc);
 public:
-			DensityCalc(uiDataPointSet&,Array2D<float>* data,
-				    uiDataPointSetCrossPlotter::AxisData& x,
-				    uiDataPointSetCrossPlotter::AxisData& y,
-				    const ObjectSet<SelectionGrp>&,
-				    const char* header);
+			DensityCalc(const uiDataPointSet&,
+				const uiDataPointSetCrossPlotter::AxisData& x,
+				const uiDataPointSetCrossPlotter::AxisData& y,
+				int nrbinsx,int nrbinsy,
+				const char* header);
+			~DensityCalc();
 
-    od_int64		nrDone() const;
-    uiString		uiNrDoneText() const;
-    od_int64		nrIterations() const;
+    od_int64		nrDone() const		{ return nrdone_; }
+    uiString		uiNrDoneText() const	{ return tr("Points done"); }
+    od_int64		nrIterations() const	{ return totalnr_; }
     bool		doWork(od_int64 start,od_int64 stop,int);
 
-    bool		isSelectionValid(uiDataPointSet::DRowID);
-    void		setNrBins(int nrbinx,int nrbiny);
-    void		setWorld2Ui(const uiWorld2Ui&);
-    void		setMathObj(Math::Expression*);
-    void		setModifiedColIds(
-				const TypeSet<uiDataPointSet::DColID>&);
-
-    void		setDPSChangeable(bool yn);
-    void		setRemSelected(bool yn);
-    void		setCurGroup(int curgrp);
-
-    void		setCellXSize(float sz);
-    void		setCellYSize(float sz);
-    void		setCellSize(float sz);
-    int			indexSize() const;
-
-    void		setAreaType(int areatype);
-    int			areaType() const;
-
-    void		getFreqData(Array2D<float>&) const;
-
-    const TypeSet<RowCol>&	selRCs() const;
-    const Interval<int>&	usedXPixRg() const;
-
+    int			maxValue() const	{ return maxval_; }
+    const Array2D<int>& getDensityData() const	{ return *densitydata_; }
 
 protected:
-    uiDataPointSet&			uidps_;
-    DataPointSet&			dps_;
-    Math::Expression*			mathobj_;
-    const ObjectSet<SelectionGrp>&	selgrpset_;
-    uiWorld2Ui				w2ui_;
-    TypeSet<RowCol>			selrowcols_;
-    TypeSet<uiDataPointSet::DColID>	modcolidxs_;
-    Array2D<float>*			data_;
-    Array2D<float>*			freqdata_;
-    uiDataPointSetCrossPlotter::AxisData& x_;
-    uiDataPointSetCrossPlotter::AxisData& y_;
-    Interval<int>			xpixrg_;
-    Interval<int>			usedxpixrg_;
-    Interval<int>			ypixrg_;
-    Threads::Lock			lock_;
-    bool				changedps_;
-    bool				removesel_;
-    int					curgrp_;
-    int					indexsz_;
-    int					nrdone_;
-    float				cellxsize_;
-    float				cellysize_;
-    int					areatype_;
+    const uiDataPointSet&		uidps_;
+    const DataPointSet&			dps_;
+    Array2DImpl<int>*			densitydata_	= nullptr;
+    int					maxval_		= 1;
+    double				binsizex_;
+    double				binsizey_;
+    const uiDataPointSetCrossPlotter::AxisData& x_;
+    const uiDataPointSetCrossPlotter::AxisData& y_;
+
+    od_int64				nrdone_		= 0;
+    od_int64				totalnr_;
+    Threads::Mutex			mutex_;
 };
 
 
-DensityCalc::DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,
-		uiDataPointSetCrossPlotter::AxisData& x,
-		uiDataPointSetCrossPlotter::AxisData& y,
-		const ObjectSet<SelectionGrp>& grps,
+DensityCalc::DensityCalc( const uiDataPointSet& uidps,
+		const uiDataPointSetCrossPlotter::AxisData& x,
+		const uiDataPointSetCrossPlotter::AxisData& y,
+		int nrbinsx, int nrbinsy,
 		const char* header )
-    : ParallelTask( header )
-    , uidps_( uidps )
-    , dps_( uidps.pointSet() )
-    , selgrpset_( grps )
-    , data_( data )
-    , freqdata_( 0 )
-    , x_( x )
-    , y_( y )
-    , mathobj_( 0 )
-    , xpixrg_( x_.axis_->pixRange() )
-    , ypixrg_( y_.axis_->pixRange() )
-    , usedxpixrg_( Interval<int> (0,0) )
-    , changedps_( false )
-    , removesel_( false )
-    , curgrp_( 0 )
-    , nrdone_( 0 )
-    , indexsz_( 0 )
-    , cellxsize_( 1.0 )
-    , cellysize_( 1.0 )
-    , areatype_( 0 )
+    : ParallelTask(header)
+    , uidps_(uidps)
+    , dps_(uidps.pointSet())
+    , x_(x)
+    , y_(y)
 {
-    if ( data_ )
-    {
-	const int celldatawdth = data_->info().getSize(0)%mNINT32(cellxsize_)
-			    ? data_->info().getSize(0)/mNINT32(cellxsize_) + 1
-			    : data_->info().getSize(0)/mNINT32(cellxsize_);
-	const int celldataheight = data_->info().getSize(1)%mNINT32(cellysize_)
-			    ? data_->info().getSize(1)/mNINT32(cellysize_) + 1
-			    : data_->info().getSize(1)/mNINT32(cellysize_);
-	freqdata_ = new Array2DImpl<float>( celldatawdth, celldataheight );
-	freqdata_->setAll( (float)0 );
-    }
-}
+    totalnr_ = dps_.size();
 
-inline od_int64 DensityCalc::nrDone() const
-{ return nrdone_; }
+    densitydata_ = new Array2DImpl<int>( nrbinsx, nrbinsy );
+    densitydata_->setAll( 0 );
 
-inline uiString DensityCalc::uiNrDoneText() const
-{ return tr("Points done");}
-
-inline od_int64 DensityCalc::nrIterations() const
-{ return dps_.size(); }
-
-inline void DensityCalc::setWorld2Ui( const uiWorld2Ui& w2ui )
-{ w2ui_ = w2ui; }
-
-inline void DensityCalc::setMathObj( Math::Expression* mobj )
-{ mathobj_ = mobj; }
-
-inline void DensityCalc::setModifiedColIds(
-	const TypeSet<uiDataPointSet::DColID>& ids )
-{ modcolidxs_ = ids; }
-
-inline void DensityCalc::setDPSChangeable( bool yn )
-{ changedps_ = yn; }
-
-inline void DensityCalc::setRemSelected( bool yn )
-{ removesel_ = yn; }
-
-inline void DensityCalc::setCurGroup( int curgrp )
-{ curgrp_ = curgrp; }
-
-inline void DensityCalc::setCellXSize( float sz )
-{ cellxsize_ = sz; }
-
-inline void DensityCalc::setCellYSize( float sz )
-{ cellysize_ = sz; }
-
-inline void DensityCalc::setCellSize( float sz)
-{ cellxsize_ = cellysize_ = sz; }
-
-inline int DensityCalc::indexSize() const
-{ return indexsz_; }
-
-inline const TypeSet<RowCol>& DensityCalc::selRCs() const
-{ return selrowcols_; }
-
-inline const Interval<int>& DensityCalc::usedXPixRg() const
-{ return usedxpixrg_; }
-
-inline void DensityCalc::setAreaType(int areatype)
-{ areatype_ = areatype; }
-
-inline int DensityCalc::areaType() const
-{ return areatype_; }
-
-bool DensityCalc::isSelectionValid( uiDataPointSet::DRowID rid )
-{
-    if ( modcolidxs_.size() && mathobj_ )
-    {
-	for ( int idx=0; idx<modcolidxs_.size(); idx++ )
-	{
-	    const float yval = uidps_.getValue( modcolidxs_[idx], rid, true );
-	    mathobj_->setVariableValue( idx, yval );
-	}
-
-	const float result = mCast(float,mathobj_->getValue());
-	if ( mIsZero(result,mDefEps) || mIsUdf(result) )
-	    return false;
-    }
-    return true;
+    binsizex_ = x_.axis_->range().width(false) / nrbinsx;
+    binsizey_ = y_.axis_->range().width(false) / nrbinsy;
 }
 
 
-void DensityCalc::setNrBins( int nrbinx, int nrbiny )
+DensityCalc::~DensityCalc()
 {
-    if ( !freqdata_ )
-	freqdata_ = new Array2DImpl<float>( nrbinx, nrbiny );
-    else
-    {
-	mDynamicCastGet(Array2DImpl<float>*,arrimpl,freqdata_)
-	arrimpl->setSize( nrbinx, nrbiny );
-    }
-
-    freqdata_->setAll( (float)0 );
+    delete densitydata_;
 }
 
 
 bool DensityCalc::doWork( od_int64 start, od_int64 stop, int )
 {
-    DataPointSet::RowID rid = mCast(DataPointSet::RowID,start);
+    DataPointSet::RowID rid = sCast(DataPointSet::RowID,start);
     for ( ; rid<=stop; rid++ )
     {
 	nrdone_++;
-	if ( dps_.isInactive(rid) || (curgrp_>0 && dps_.group(rid)!=curgrp_) )
+	if ( dps_.isInactive(rid) )
 	    continue;
 
 	const float xval = uidps_.getValue( x_.colid_, rid, true );
 	const float yval = uidps_.getValue( y_.colid_, rid, true );
-	if ( mIsUdf(xval) || mIsUdf(yval) ) continue;
-
-	uiWorldPoint wpt( (double)x_.axis_->getPix(xval),
-			  (double)y_.axis_->getPix(yval) );
-	uiPoint pos( x_.axis_->getPix(xval), y_.axis_->getPix(yval) );
-	uiPoint datapt = w2ui_.transform( wpt );
-
-	if ( !xpixrg_.includes(pos.x,true) || !ypixrg_.includes(pos.y,true) )
+	if ( mIsUdf(xval) || mIsUdf(yval) )
 	    continue;
 
-	if ( usedxpixrg_.width() == 0 && usedxpixrg_.start == 0 )
-	    usedxpixrg_ = Interval<int>( pos.x, pos.x );
-	else
-	    usedxpixrg_.include( pos.x );
-
-	bool ptselected = false;
-	bool ptremoved = false;
-	if ( selgrpset_.size() && (changedps_ || removesel_) )
-	{
-	    for ( int idx=0; idx<selgrpset_.size(); idx++ )
-	    {
-		const SelectionGrp* selgrp = selgrpset_[idx];
-		for ( int selidx=0; selidx<selgrp->size(); selidx++ )
-		{
-		    if ( !selgrp->isValidIdx(selidx) ) continue;
-		    const SelectionArea& selarea =
-			    selgrp->getSelectionArea( selidx );
-
-		    if ( selarea.isInside(pos) )
-		    {
-			Threads::Locker lckr( lock_ );
-			if ( !isSelectionValid(rid) )
-			    continue;
-			if ( removesel_ )
-			{
-			    dps_.setInactive( rid, true );
-			    ptremoved = true;
-			}
-			else
-			{
-			    ptselected = true;
-			    dps_.setSelected( rid, uidps_.getSelectionGroupIdx(
-					      selarea.id_) );
-			    RowCol rcol( uidps_.tRowID(rid),
-					 uidps_.tColID(y_.colid_) );
-			    selrowcols_ += rcol;
-			}
-		    }
-		}
-	    }
-	}
-
-	if ( !ptselected )
-	    dps_.setSelected( rid, -1 );
-	if ( !data_->info().validPos(datapt.x,datapt.y) )
+	const float relx = xval - x_.axis_->range().start;
+	const float rely = yval - y_.axis_->range().start;
+	const int freqx = int(relx/binsizex_);
+	const int freqy = int(rely/binsizey_);
+	if ( !densitydata_->info().validPos(freqx,freqy) )
 	    continue;
-	const int freqx = mNINT32(datapt.x/cellxsize_);
-	const int freqy = mNINT32(datapt.y/cellysize_);
-	if ( !areatype_ )
-	    freqdata_->set( freqx, freqy,
-		    ptremoved ? 0 : freqdata_->get(freqx,freqy) + (float)1 );
-	else if ( areatype_==1 && ptselected )
-	    freqdata_->set( freqx, freqy,
-		    ptremoved ? 0 : freqdata_->get(freqx,freqy) + (float)1 );
-	else if ( areatype_==2 && !ptselected )
-	    freqdata_->set( freqx, freqy,
-		    ptremoved ? 0 : freqdata_->get(freqx,freqy) + (float)1 );
 
-	if ( data_ )
+	ValueSeries<int>* stor = densitydata_->getStorage();
+	int* storptr = stor ? stor->arr() : nullptr;
+	const od_int64 offset = densitydata_->info().getOffset( freqx, freqy );
+	mutex_.lock();
+	if ( storptr )
 	{
-	    for ( int idx=0; idx<mNINT32(cellxsize_); idx++ )
-	    {
-		for ( int idy=0; idy<mNINT32(cellysize_); idy++ )
-		    data_->set( freqx*mNINT32(cellxsize_)+idx,
-				freqy*mNINT32(cellysize_)+idy,
-				ptremoved ? 0 : freqdata_->get(freqx,freqy) );
-	    }
-	    if ( indexsz_ < mNINT32(data_->get(datapt.x,datapt.y)) )
-		indexsz_ = mNINT32(data_->get(datapt.x,datapt.y));
+	    storptr[offset]++;
+	    maxval_ = mMAX( storptr[offset], maxval_ );
 	}
+	else if ( stor )
+	{
+	    const int newval = stor->value(offset)+1;
+	    stor->setValue( offset, newval );
+	    maxval_ = mMAX( newval, maxval_ );
+	}
+
+	mutex_.unLock();
     }
 
     return true;
 }
 
 
-void DensityCalc::getFreqData( Array2D<float>& freqdata ) const
+mClass(uiIo) Density2RGBArray : public ParallelTask
 {
-    mDynamicCastGet(Array2DImpl<float>*,freqdataimpl,&freqdata)
-    if ( !freqdataimpl ) return;
-    freqdataimpl->setSize( freqdata_->info().getSize(0),
-			   freqdata_->info().getSize(1) );
-    for ( int idx=0; idx<freqdata_->info().getSize(0); idx++ )
-    {
-	for ( int idy=0; idy<freqdata_->info().getSize(1); idy++ )
-	    freqdata.set( idx, idy, freqdata_->get(idx,idy) );
-    }
+public:
+Density2RGBArray( const Array2D<int>& datain, uiRGBArray& rgbarr,
+		  const ColTab::Sequence& seq, ColTab::Mapper& mp )
+    : ParallelTask()
+    , datain_(datain)
+    , rgbarr_(rgbarr)
+    , seq_(seq)
+    , mapper_(mp)
+{
+    datainsz_[0] = datain.getSize( 0 );
+    datainsz_[1] = datain.getSize( 1 );
+    rgbsz_[0] = rgbarr.getSize( true );
+    rgbsz_[1] = rgbarr.getSize( false );
+    cellsz_[0] = float(rgbsz_[0]) / datainsz_[0];
+    cellsz_[1] = float(rgbsz_[1]) / datainsz_[1];
 }
 
 
-#endif
+void setUndefColor( const Color& col )
+{
+    undefcolor_ = col;
+}
+
+
+od_int64 nrIterations() const override
+{
+    return rgbsz_[0] * rgbsz_[1];
+}
+
+
+bool doPrepare( int ) override
+{
+    rgbarr_.clear( undefcolor_ );
+    return true;
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	const int row = int( idx / rgbsz_[1] );
+	const int col = int( idx % rgbsz_[1] );
+
+	const int binx = int( float(row) / cellsz_[0] );
+	const int biny = int( float(col) / cellsz_[1] );
+
+	const int val = datain_.get( binx, biny );
+	const float mappedval = mapper_.position( float(val) );
+	const Color color = val == 0 ? undefcolor_ : seq_.color( mappedval );
+	if ( color.isVisible() )
+	    rgbarr_.set( row, rgbsz_[1]-col-1, color );
+    }
+
+    return true;
+}
+
+    const Array2D<int>&		datain_;
+    uiRGBArray&			rgbarr_;
+    const ColTab::Sequence&	seq_;
+    const ColTab::Mapper&	mapper_;
+
+    int			datainsz_[2];
+    int			rgbsz_[2];
+    float		cellsz_[2];
+    Color		undefcolor_	= Color::White();
+
+};

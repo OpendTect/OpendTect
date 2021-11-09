@@ -677,13 +677,14 @@ void uiAxisHandler::updateName()
     if ( setup_.noaxisannot_ || setup_.caption_.isEmpty() )
 	{ mRemoveFromScene( nameitm_ ); return; }
 
+    uiString caption = toUiString( "  %1  " ).arg( setup_.caption_ );
     if ( !nameitm_ )
     {
-	nameitm_ = scene_->addItem( new uiTextItem( setup_.caption_ ) );
+	nameitm_ = scene_->addItem( new uiTextItem(caption) );
 	ynmtxtvertical_ = false;
     }
     else
-	nameitm_->setText( setup_.caption_ );
+	nameitm_->setText( caption );
 
     Alignment al( Alignment::HCenter, Alignment::VCenter );
     uiPoint pt;
