@@ -43,8 +43,44 @@ public:
 };
 
 
-mExpClass(WellAttrib) PSBasedPostStackSyntheticData
+mExpClass(WellAttrib) PostStackSyntheticDataWithInput
 				: public PostStackSyntheticData
+{
+public:
+				PostStackSyntheticDataWithInput(
+				    const SynthGenParams&,SeisTrcBufDataPack&);
+				~PostStackSyntheticDataWithInput();
+
+    void			useGenParams(const SynthGenParams&);
+    void			fillGenParams(SynthGenParams&) const;
+
+protected:
+    BufferString		inpsynthnm_;
+};
+
+
+mExpClass(WellAttrib) InstAttributeSyntheticData
+		: public PostStackSyntheticDataWithInput
+{
+public:
+				InstAttributeSyntheticData(
+				    const SynthGenParams& sgp,
+				    SeisTrcBufDataPack& sbufdp );
+
+    bool			isAttribute() const override	{ return true; }
+    SynthGenParams::SynthType	synthType() const override
+				{ return SynthGenParams::InstAttrib; }
+
+    void			useGenParams(const SynthGenParams&);
+    void			fillGenParams(SynthGenParams&) const;
+
+protected:
+    Attrib::Instantaneous::OutType	attribtype_;
+};
+
+
+mExpClass(WellAttrib) PSBasedPostStackSyntheticData
+				: public PostStackSyntheticDataWithInput
 {
 public:
 				PSBasedPostStackSyntheticData(
@@ -55,7 +91,6 @@ public:
     void			fillGenParams(SynthGenParams&) const;
 
 protected:
-    BufferString		inpsynthnm_;
     Interval<float>		anglerg_;
 };
 

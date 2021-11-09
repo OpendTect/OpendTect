@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "file.h"
+#include "instantattrib.h"
 #include "od_helpids.h"
 #include "seistrctr.h"
 #include "stratsynth.h"
@@ -92,6 +93,20 @@ uiSynthParsGrp::uiSynthParsGrp( uiParent* p, StratSynth& gp )
 
     psselfld_ = new uiLabeledComboBox( toppargrp, tr("Input Prestack") );
     psselfld_->attach( alignedBelow, lblcbx );
+
+    inpselfld_ = new uiLabeledComboBox( toppargrp, uiStrings::sInput() );
+    inpselfld_->attach( alignedBelow, lblcbx );
+    mAttachCB(inpselfld_->box()->selectionChanged, uiSynthParsGrp::parsChanged);
+
+
+    EnumDef attribs = Attrib::Instantaneous::OutTypeDef();
+    attribs.remove( attribs.getKeyForIndex(Attrib::Instantaneous::RotatePhase));
+    instattribfld_ = new uiLabeledListBox( toppargrp, uiStrings::sAttribute(),
+					    OD::ChooseAtLeastOne );
+    instattribfld_->box()->addItems( attribs.strings() );
+    instattribfld_->attach( alignedBelow, inpselfld_ );
+    mAttachCB(instattribfld_->box()->selectionChanged,
+						  uiSynthParsGrp::parsChanged);
 
     FloatInpIntervalSpec finpspec(false);
     finpspec.setLimits( Interval<float>(0,90) );
@@ -175,6 +190,22 @@ void uiSynthParsGrp::getPSNames( BufferStringSet& synthnms )
 }
 
 
+void uiSynthParsGrp::getInpNames( BufferStringSet& synthnms )
+{
+    synthnms.erase();
+
+    for ( int synthidx=0; synthidx<stratsynth_.nrSynthetics(); synthidx++ )
+    {
+	SynthGenParams genparams;
+	SyntheticData* synth = stratsynth_.getSyntheticByIdx( synthidx );
+	if ( !synth ) continue;
+	synth->fillGenParams( genparams );
+	if ( !genparams.canBeAttributeInput()  ) continue;
+	synthnms.add( genparams.name_ );
+    }
+}
+
+
 void uiSynthParsGrp::parsChanged( CallBacker* )
 {
     if ( !getFromScreen() )
@@ -215,7 +246,7 @@ bool uiSynthParsGrp::prepareSyntheticToBeChanged( bool toberemoved )
     const SynthGenParams& sgptorem = stratsynth_.genParams();
     for ( const auto* sd : stratsynth_.synthetics() )
     {
-	if ( !sd->isAngleStack() && !sd->isAVOGradient() )
+	if ( !sd->isAngleStack() && !sd->isAVOGradient() && !sd->isAttribute() )
 	    continue;
 
 	SynthGenParams sgp;
@@ -228,7 +259,7 @@ bool uiSynthParsGrp::prepareSyntheticToBeChanged( bool toberemoved )
     if ( !synthstobedisabled.isEmpty() )
     {
 	uiString chgstr = toberemoved ? tr( "remove" ) : tr( "change" );
-	uiString msg = tr("%1 will become undetiable as it is dependent on "
+	uiString msg = tr("%1 will become uneditable as it is dependent on "
 			  "'%2'.\n\nDo you want to %3 the synthetics?")
 			  .arg(synthstobedisabled.getDispString())
 			  .arg(sgptorem.name_.buf()).arg(chgstr);
@@ -329,7 +360,8 @@ void uiSynthParsGrp::updateSyntheticsCB( CallBacker* )
     for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
     {
 	SyntheticData* sd = stratsynth_.getSyntheticByIdx( idx );
-	if ( !sd || (!sd->isAngleStack() && !sd->isAVOGradient() ) )
+	if ( !sd || (!sd->isAngleStack() && !sd->isAVOGradient() &&
+		     !sd->isAttribute()) )
 	    continue;
 
 	SynthGenParams genpars;
@@ -364,14 +396,38 @@ void uiSynthParsGrp::removeSyntheticsCB( CallBacker* )
 
 void uiSynthParsGrp::addSyntheticsCB( CallBacker* )
 {
-    if ( !getFromScreen() || !doAddSynthetic() )
+    if ( !getFromScreen() )
 	return;
 
-    const BufferString& newsynthnm = stratsynth_.genParams().name_;
-    synthAdded.trigger( newsynthnm );
+    SynthGenParams& gp = stratsynth_.genParams();
+    if ( gp.isAttribute() )
+    {
+	BufferStringSet attribs;
+	instattribfld_->box()->getChosen( attribs );
+	for ( const auto* attrib : attribs )
+	{
+	    Attrib::Instantaneous::parseEnum( *attrib, gp.attribtype_ );
+	    gp.createName( gp.name_ );
+	    if ( !doAddSynthetic() )
+		return;
 
-    NotifyStopper ns( synthnmlb_->selectionChanged );
-    synthnmlb_->addItem( newsynthnm );
+	    synthAdded.trigger( gp.name_ );
+	    NotifyStopper ns( synthnmlb_->selectionChanged );
+	    synthnmlb_->addItem( gp.name_ );
+	}
+	synthnmlb_->selectionChanged.trigger();
+    }
+    else
+    {
+	if ( !doAddSynthetic() )
+	    return;
+
+	const BufferString& newsynthnm = gp.name_;
+	synthAdded.trigger( newsynthnm );
+	NotifyStopper ns( synthnmlb_->selectionChanged );
+	synthnmlb_->addItem( newsynthnm );
+    }
+
     updatefld_->setSensitive( false );
     removefld_->setSensitive( synthnmlb_->size() > 1 );
     addnewfld_->setSensitive( false );
@@ -384,8 +440,11 @@ void uiSynthParsGrp::updateFieldDisplay()
 		SynthGenParams::parseEnumSynthType( typefld_->text() );
     const bool psbased = synthtype == SynthGenParams::AngleStack ||
 			 synthtype == SynthGenParams::AVOGradient;
-    synthseis_->display( !psbased );
+    const bool attrib = synthtype == SynthGenParams::InstAttrib;
+    synthseis_->display( !psbased && !attrib );
     psselfld_->display( psbased );
+    instattribfld_->display( attrib );
+    inpselfld_->display( attrib );
     angleinpfld_->display( psbased );
 }
 
@@ -573,6 +632,36 @@ void uiSynthParsGrp::putToScreen()
 
 	angleinpfld_->setValue( genparams.anglerg_ );
     }
+    else if ( genparams.isAttribute() )
+    {
+	NotifyStopper ns_inpsel( inpselfld_->box()->selectionChanged );
+	NotifyStopper ns_instattrib( instattribfld_->box()->selectionChanged );
+	BufferStringSet inpnms;
+	getInpNames( inpnms );
+	inpselfld_->box()->setEmpty();
+	if ( inpnms.isPresent(genparams.inpsynthnm_) ||
+	     genparams.inpsynthnm_.isEmpty() )
+	{
+	    inpselfld_->box()->addItems( inpnms );
+	    inpselfld_->box()->setCurrentItem( genparams.inpsynthnm_ );
+	    inpselfld_->box()->setSensitive( true );
+	    if ( genparams.inpsynthnm_.isEmpty() )
+	    {
+		SynthGenParams& gp = stratsynth_.genParams();
+		gp.inpsynthnm_.set(inpselfld_->box()->text());
+		BufferString nm;
+		gp.createName( nm );
+		gp.name_.set( nm );
+	    }
+	}
+	else
+	{
+	    inpselfld_->box()->addItem( toUiString(genparams.inpsynthnm_) );
+	    inpselfld_->box()->setSensitive( false );
+	}
+	instattribfld_->box()->chooseAll( false );
+	instattribfld_->box()->setChosen( genparams.attribtype_ );
+    }
     else
 	synthseis_->usePar( genparams.raypars_ );
 
@@ -616,6 +705,31 @@ bool uiSynthParsGrp::getFromScreen()
 	genparams.synthtype_ = synthtype;
 	genparams.inpsynthnm_ = inppssd->name();
 	genparams.anglerg_ = angleinpfld_->getFInterval();
+	return true;
+    }
+    else if ( genparams.isAttribute() )
+    {
+	SynthGenParams::SynthType synthtype = genparams.synthtype_;
+	if ( inpselfld_->box()->isEmpty() )
+	    mErrRet( tr("Cannot generate attributes without "
+			"any post stack synthetics."), return false );
+
+	if ( !inpselfld_->box()->sensitive() )
+	    mErrRet( tr("Cannot change synthetic data as the dependent "
+			"poststack synthetic data has already been removed"),
+			return false );
+
+	SyntheticData* inpsd = stratsynth_.getSynthetic(
+	    inpselfld_->box()->textOfItem(inpselfld_->box()->currentItem()) );
+	if ( !inpsd )
+	    mErrRet( tr("Problem with Input synthetic data"), return false);
+
+	inpsd->fillGenParams( genparams );
+	genparams.name_ = nm;
+	genparams.synthtype_ = synthtype;
+	genparams.inpsynthnm_ = inpsd->name();
+	genparams.attribtype_ =
+	(Attrib::Instantaneous::OutType) instattribfld_->box()->firstChosen();
 	return true;
     }
 

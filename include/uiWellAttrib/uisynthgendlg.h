@@ -22,6 +22,7 @@ class uiComboBox;
 class uiGenInput;
 class uiListBox;
 class uiLabeledComboBox;
+class uiLabeledListBox;
 class uiPushButton;
 class uiSynthSeisGrp;
 
@@ -65,6 +66,7 @@ protected:
     bool			doSave(const char* fnm);
     void			updateFieldDisplay();
     void			getPSNames(BufferStringSet&);
+    void			getInpNames(BufferStringSet&);
     bool			prepareSyntheticToBeChanged(bool toberemoved);
     bool			doAddSynthetic(bool isupdate=false);
 
@@ -75,6 +77,8 @@ protected:
 
     uiComboBox*			typefld_;
     uiLabeledComboBox*		psselfld_;
+    uiLabeledListBox*		instattribfld_;
+    uiLabeledComboBox*		inpselfld_;
     uiGenInput*			angleinpfld_;
     uiSynthSeisGrp*		synthseis_;
     uiGenInput*			namefld_;

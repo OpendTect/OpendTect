@@ -13,12 +13,13 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 #include "iopar.h"
 #include "enums.h"
+#include "instantattrib.h"
 
 
 mStruct(WellAttrib) SynthGenParams
 {
     enum SynthType	{ PreStack, ZeroOffset, StratProp, AngleStack,
-			  AVOGradient };
+			  AVOGradient, InstAttrib };
 			mDeclareEnumUtils(SynthType);
 
 			SynthGenParams( SynthType tp=ZeroOffset );
@@ -34,12 +35,22 @@ mStruct(WellAttrib) SynthGenParams
     IOPar		raypars_;
     BufferString	wvltnm_;
     Interval<float>	anglerg_;
+    Attrib::Instantaneous::OutType attribtype_;
 
     bool		hasOffsets() const;
+    bool		canBeAttributeInput() const
+			{ return synthtype_==ZeroOffset ||
+				 synthtype_==AngleStack ||
+				 synthtype_==AVOGradient; }
     bool		isPreStack() const	{ return synthtype_==PreStack; }
     bool		isPSBased() const
 			{ return synthtype_==AngleStack ||
 				 synthtype_==AVOGradient; }
+    bool		isAttribute() const   { return synthtype_==InstAttrib; }
+    bool		needsInput() const
+			{ return synthtype_==AngleStack ||
+				 synthtype_==AVOGradient ||
+				 synthtype_==InstAttrib; }
     void		createName(BufferString&) const;
 			//!<Create name from wvlt and raypars
     void		fillPar(IOPar&) const;

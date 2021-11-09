@@ -180,6 +180,8 @@ protected:
     SyntheticData*	generateSD( const SynthGenParams&);
     bool		runSynthGen(Seis::RaySynthGenerator&,
 				    const SynthGenParams&);
+    SyntheticData*	createAttribute(const SyntheticData&,
+					 const SynthGenParams&);
     SyntheticData*	createAngleStack(const SyntheticData&,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);

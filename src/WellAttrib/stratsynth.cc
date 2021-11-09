@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "fourier.h"
 #include "fftfilter.h"
 #include "flatposdata.h"
+#include "hilbertattrib.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mathfunc.h"
@@ -76,6 +77,7 @@ mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
   "Strat Property",
   "Angle Stack",
   "AVO Gradient",
+  "Attribute",
   nullptr
 };
 
@@ -91,14 +93,21 @@ bool SynthGenParams::operator== ( const SynthGenParams& oth ) const
 {
     bool hassameanglerg = true;
     bool hassameinput = true;
+    bool hassameattrib = true;
     if ( oth.isPSBased() )
     {
 	hassameanglerg = anglerg_ == oth.anglerg_;
 	hassameinput = inpsynthnm_ == oth.inpsynthnm_;
     }
+    else if ( oth.isAttribute() )
+    {
+	hassameinput = inpsynthnm_ == oth.inpsynthnm_;
+	hassameattrib = attribtype_ == oth.attribtype_;
+    }
 
     return isPreStack() == oth.isPreStack() && wvltnm_ == oth.wvltnm_ &&
-	   raypars_ == oth.raypars_ && hassameanglerg && hassameinput;
+	   raypars_ == oth.raypars_ && hassameanglerg && hassameinput &&
+	   hassameattrib;
 }
 
 
@@ -114,6 +123,8 @@ bool SynthGenParams::isOK() const
 	return !wvltnm_.isEmpty();
     else if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
 	return !inpsynthnm_.isEmpty() && !anglerg_.isUdf();
+    else if ( synthtype_ == InstAttrib )
+	return !inpsynthnm_.isEmpty();
 
     return true;
 }
@@ -179,10 +190,14 @@ void SynthGenParams::fillPar( IOPar& par ) const
 	raypar.mergeComp( raypars_, sKeyRayPar() );
 	par.merge( raypar );
     }
-    else if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
+    else if ( needsInput() )
     {
 	par.set( sKeyInput(), inpsynthnm_ );
-	par.set( sKeyAngleRange(), anglerg_ );
+	if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
+	    par.set( sKeyAngleRange(), anglerg_ );
+	else if ( synthtype_ == InstAttrib )
+	    par.set( sKey::Attribute(),
+			     Attrib::Instantaneous::toString( attribtype_) );
     }
 }
 
@@ -217,10 +232,17 @@ void SynthGenParams::usePar( const IOPar& par )
 	inpsynthnm_.setEmpty();
 	anglerg_ = Interval<float>::udf();
     }
-    else if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
+    else if ( needsInput() )
     {
 	par.get( sKeyInput(), inpsynthnm_ );
-	par.get( sKeyAngleRange(), anglerg_ );
+	if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
+	    par.get( sKeyAngleRange(), anglerg_ );
+	else if ( synthtype_ == InstAttrib )
+	{
+	    BufferString attribstr;
+	    par.get( sKey::Attribute(), attribstr );
+	    Attrib::Instantaneous::parseEnum( attribstr, attribtype_ );
+	}
     }
 }
 
@@ -232,6 +254,12 @@ void SynthGenParams::createName( BufferString& nm ) const
 	nm = toString( synthtype_ );
 	nm += " ["; nm += anglerg_.start; nm += ",";
 	nm += anglerg_.stop; nm += "] degrees";
+	return;
+    }
+    else if ( isAttribute() )
+    {
+	nm = Attrib::Instantaneous::toString( attribtype_ );
+	nm += " ["; nm += inpsynthnm_; nm += "]";
 	return;
     }
     else if ( synthtype_ != ZeroOffset && synthtype_ != PreStack )
@@ -691,7 +719,7 @@ if ( !psattr ) \
     mErrRet( proc->uiMessage(), return 0 ) ;
 
 
-#define mCreateSeisBuf() \
+#define mCreateSeisBuf( dpname ) \
 if ( !TaskRunner::execute(taskr_,*proc) ) \
     mErrRet( proc->uiMessage(), return 0 ) ; \
 const int crlstep = SI().crlStep(); \
@@ -704,10 +732,71 @@ for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
     trcinfo.coord = SI().transform( bid ); \
     trcinfo.nr = trcidx+1; \
 } \
-SeisTrcBufDataPack* angledp = \
+SeisTrcBufDataPack* dpname = \
     new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
 			    SeisTrcInfo::TrcNr, \
 			    PostStackSyntheticData::sDataPackCategory() ); \
+
+SyntheticData* StratSynth::createAttribute( const SyntheticData& sd,
+					     const SynthGenParams& synthgenpar )
+{
+    if ( sd.isPS() )
+	return nullptr;
+
+    mDynamicCastGet(const PostStackSyntheticData&,pssd,sd);
+    const SeisTrcBufDataPack& indp = pssd.postStackPack();
+    TrcKeyZSampling tkzs;
+    indp.getTrcKeyZSampling( tkzs );
+
+    PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false );
+    BufferString dpidstr( "#", sd.datapackid_.buf() );
+    Attrib::DescID did = descset->getStoredID( dpidstr.buf(), 0, true );
+
+    Attrib::Desc* imagdesc = Attrib::PF().createDescCopy(
+						Attrib::Hilbert::attribName() );
+    imagdesc->selectOutput( 0 );
+    imagdesc->setInput(0, descset->getDesc(did) );
+    imagdesc->setHidden( true );
+    BufferString usrref( dpidstr.buf(), "_imag" );
+    imagdesc->setUserRef( usrref );
+    descset->addDesc( imagdesc );
+
+    Attrib::Desc* psdesc = Attrib::PF().createDescCopy(
+					 Attrib::Instantaneous::attribName());
+    psdesc->selectOutput( synthgenpar.attribtype_ );
+    psdesc->setInput( 0, descset->getDesc(did) );
+    psdesc->setInput( 1, imagdesc );
+    psdesc->setUserRef( synthgenpar.name_ );
+    Attrib::DescID attribid = descset->addDesc( psdesc );
+    descset->updateInputs();
+
+    PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
+    TypeSet<Attrib::SelSpec> attribspecs;
+    Attrib::SelSpec sp( 0, attribid );
+    sp.set( *psdesc );
+    attribspecs += sp;
+    aem->setAttribSet( descset );
+    aem->setAttribSpecs( attribspecs );
+    aem->setTrcKeyZSampling( tkzs );
+    BinIDValueSet bidvals( 0, false );
+    const SeisTrcBuf& trcs = indp.trcBuf();
+    for ( int idx=0; idx<trcs.size(); idx++ )
+	bidvals.add( trcs.get(idx)->info().binID() );
+
+    SeisTrcBuf* dptrcbufs = new SeisTrcBuf( true );
+    Interval<float> zrg( tkzs.zsamp_ );
+    uiString errmsg;
+    PtrMan<Attrib::Processor> proc = aem->createTrcSelOutput( errmsg, bidvals,
+							  *dptrcbufs, 0, &zrg);
+    if ( !proc || !proc->getProvider() )
+	mErrRet( errmsg, return 0 ) ;
+    proc->getProvider()->setDesiredVolume( tkzs );
+    proc->getProvider()->setPossibleVolume( tkzs );
+
+    mCreateSeisBuf( instattribdp );
+    return new InstAttributeSyntheticData( synthgenpar, *instattribdp );
+}
+
 
 SyntheticData* StratSynth::createAVOGradient( const SyntheticData& sd,
 					     const TrcKeyZSampling& cs,
@@ -719,7 +808,7 @@ SyntheticData* StratSynth::createAVOGradient( const SyntheticData& sd,
     mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::Coeff );
 
     mSetProc();
-    mCreateSeisBuf();
+    mCreateSeisBuf( angledp );
     return new AVOGradSyntheticData( synthgenpar, *angledp );
 }
 
@@ -733,7 +822,7 @@ SyntheticData* StratSynth::createAngleStack( const SyntheticData& sd,
     mSetEnum(Attrib::PSAttrib::stattypeStr(), Stats::Average );
 
     mSetProc();
-    mCreateSeisBuf();
+    mCreateSeisBuf( angledp );
     return new AngleStackSyntheticData( synthgenpar, *angledp );
 }
 
@@ -1149,6 +1238,15 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
 				PostStackSyntheticData::sDataPackCategory() );
 	sd = new PostStackSyntheticData( synthgenpar, *dp );
+    }
+    else if ( synthgenpar.synthtype_ == SynthGenParams::InstAttrib )
+    {
+	BufferString inputsdnm( synthgenpar.inpsynthnm_ );
+	const SyntheticData* inpsd = getSynthetic( inputsdnm );
+	if ( !inpsd )
+	    mErrRet( tr(" input synthetic data not found."), return nullptr )
+
+	sd = createAttribute( *inpsd, synthgenpar );
     }
 
     if ( !sd )
@@ -2204,9 +2302,57 @@ SeisTrcBuf* PreStackSyntheticData::getTrcBuf( float offset,
 }
 
 
+PostStackSyntheticDataWithInput::PostStackSyntheticDataWithInput(
+	const SynthGenParams& sgp, SeisTrcBufDataPack& sdp )
+    : PostStackSyntheticData(sgp, sdp)
+{
+    useGenParams( sgp );
+}
+
+
+PostStackSyntheticDataWithInput::~PostStackSyntheticDataWithInput()
+{}
+
+
+void PostStackSyntheticDataWithInput::fillGenParams( SynthGenParams& sgp ) const
+{
+    SyntheticData::fillGenParams( sgp );
+    sgp.inpsynthnm_ = inpsynthnm_;
+}
+
+
+void PostStackSyntheticDataWithInput::useGenParams( const SynthGenParams& sgp )
+{
+    SyntheticData::useGenParams( sgp );
+    inpsynthnm_ = sgp.inpsynthnm_;
+}
+
+
+InstAttributeSyntheticData::InstAttributeSyntheticData(
+	const SynthGenParams& sgp, SeisTrcBufDataPack& sdp )
+    : PostStackSyntheticDataWithInput(sgp,sdp)
+{
+    useGenParams( sgp );
+}
+
+
+void InstAttributeSyntheticData::fillGenParams( SynthGenParams& sgp ) const
+{
+    PostStackSyntheticDataWithInput::fillGenParams( sgp );
+    sgp.attribtype_ = attribtype_;
+}
+
+
+void InstAttributeSyntheticData::useGenParams( const SynthGenParams& sgp )
+{
+    PostStackSyntheticDataWithInput::useGenParams( sgp );
+    attribtype_ = sgp.attribtype_;
+}
+
+
 PSBasedPostStackSyntheticData::PSBasedPostStackSyntheticData(
 	const SynthGenParams& sgp, SeisTrcBufDataPack& sdp )
-    : PostStackSyntheticData(sgp,sdp)
+    : PostStackSyntheticDataWithInput(sgp,sdp)
 {
     useGenParams( sgp );
 }
@@ -2218,16 +2364,14 @@ PSBasedPostStackSyntheticData::~PSBasedPostStackSyntheticData()
 
 void PSBasedPostStackSyntheticData::fillGenParams( SynthGenParams& sgp ) const
 {
-    SyntheticData::fillGenParams( sgp );
-    sgp.inpsynthnm_ = inpsynthnm_;
+    PostStackSyntheticDataWithInput::fillGenParams( sgp );
     sgp.anglerg_ = anglerg_;
 }
 
 
 void PSBasedPostStackSyntheticData::useGenParams( const SynthGenParams& sgp )
 {
-    SyntheticData::useGenParams( sgp );
-    inpsynthnm_ = sgp.inpsynthnm_;
+    PostStackSyntheticDataWithInput::useGenParams( sgp );
     anglerg_ = sgp.anglerg_;
 }
 
