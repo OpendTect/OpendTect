@@ -825,8 +825,8 @@ void Scene::mouseCB( CallBacker* cb )
 		    mouseposval_, mouseposstr_) )
 	{
 	    if ( !xytmousepos_.isUdf() )
-		mousetrckey_ = SI().transform(
-				    Coord(xytmousepos_.x,xytmousepos_.y) );
+		mousetrckey_ = TrcKey( SI().transform(
+				    Coord(xytmousepos_.x,xytmousepos_.y) ) );
 
 	    mouseposchange.trigger();
 	    return;
@@ -872,8 +872,8 @@ void Scene::mouseCB( CallBacker* cb )
 		break;
 	    }
 	    if ( mousetrckey_.isUdf() )
-		mousetrckey_ =
-		SI().transform( Coord(xytmousepos_.x,xytmousepos_.y) );
+		mousetrckey_ = TrcKey( SI().transform(
+			Coord(xytmousepos_.x,xytmousepos_.y) ) );
 	}
     }
 

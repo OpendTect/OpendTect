@@ -77,7 +77,7 @@ bool Array2DFromXYConverter::doWork( od_int64 start, od_int64 stop, int )
     const SamplingData<double> sdy( origin_.y, step_.y );
     for ( auto idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
-	const TrcKey tk = tks_.atIndex( idx );
+	const TrcKey tk = tks_.trcKeyAt( idx );
 	const Coord crd = SI().transform( tk.binID() );
 
 	const float xidxf = sdx.getfIndex( crd.x );
@@ -108,6 +108,6 @@ bool Array2DFromXYConverter::doWork( od_int64 start, od_int64 stop, int )
 						      z10, z11, dy, dx );
 	arrout_->set( tks_.inlIdx(tk.inl()), tks_.crlIdx(tk.crl()), zval );
     }
-    
+
     return true;
 }

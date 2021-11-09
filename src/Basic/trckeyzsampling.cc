@@ -982,7 +982,7 @@ void TrcKeySampling::neighbors( const TrcKey& tk, TypeSet<TrcKey>& nbs ) const
 {
     TypeSet<od_int64> idxs; neighbors( globalIdx(tk), idxs );
     for ( int idx=0; idx<idxs.size(); idx++ )
-	nbs += atIndex( idxs[idx] );
+	nbs += trcKeyAt( idxs[idx] );
 }
 
 
@@ -1467,7 +1467,7 @@ bool TrcKeySamplingIterator::next( TrcKey& tk ) const
     if ( mypos<0 || mypos>=totalnr_ )
 	return false;
 
-    tk = tks_.atIndex( mypos );
+    tk = tks_.trcKeyAt( mypos );
     return true;
 }
 

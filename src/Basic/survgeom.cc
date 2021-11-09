@@ -22,11 +22,13 @@ namespace Survey
 {
 
 static Pos::GeomID cSIGeomID = -1;
+static Pos::GeomID cSynthGeomID = -2;
 
 mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
 const TrcKey::SurvID GeometryManager::surv2did_ = 0;
 const TrcKey::SurvID GeometryManager::surv3did_ = cSIGeomID;
+const TrcKey::SurvID GeometryManager::survsynthid_ = cSynthGeomID;
 
 static PtrMan<GeometryManager>* thegeommgr = nullptr;
 
@@ -63,10 +65,10 @@ bool is2DGeom( Pos::GeomID geomid )
 { return geomid >= 0; }
 
 bool is3DGeom( Pos::GeomID geomid )
-{ return geomid == -1; }
+{ return geomid == cSIGeomID; }
 
 bool isSynthetic( Pos::GeomID geomid )
-{ return geomid == -2; }
+{ return geomid == cSynthGeomID; }
 
 Pos::GeomID default3DGeomID()
 { return cSIGeomID; }

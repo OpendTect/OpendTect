@@ -237,13 +237,13 @@ int TimeDepthDataLoader::nextStep()
 {
     const int nrz = arr_.info().getSize( 2 );
 
-    BinID curbid;
-    if ( !hiter_.next( curbid ) )
+    TrcKey tk;
+    if ( !hiter_.next(tk) )
 	return Finished();
 
     const od_int64 offset =
-	arr_.info().getOffset(readcs_.hsamp_.inlIdx(curbid.inl()),
-				readcs_.hsamp_.crlIdx(curbid.crl()), 0 );
+	arr_.info().getOffset(readcs_.hsamp_.inlIdx(tk.inl()),
+				readcs_.hsamp_.crlIdx(tk.crl()), 0 );
 
     OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset, nrz );
 
@@ -255,7 +255,7 @@ int TimeDepthDataLoader::nextStep()
 	SeisTrc velocitytrc;
 	bool res = true;
 	if ( veltranslator->supportsGoTo() )
-	    res = veltranslator->goTo( curbid );
+	    res = veltranslator->goTo( tk.position() );
 
 	if ( res )
 	    res = reader_.get( velocitytrc );
@@ -273,7 +273,7 @@ int TimeDepthDataLoader::nextStep()
     }
     else
     {
-	const int globidx = seisdatapack_->getGlobalIdx( curbid );
+	const int globidx = seisdatapack_->getGlobalIdx( tk );
 	const OffsetValueSeries<float>& dptrcvs =
 	    seisdatapack_->getTrcStorage( 0, globidx );
 

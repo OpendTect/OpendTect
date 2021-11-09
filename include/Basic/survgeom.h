@@ -136,6 +136,7 @@ public:
 
     static TrcKey::SurvID	get2DSurvID()	{ return surv2did_; }
     static TrcKey::SurvID	get3DSurvID()	{ return surv3did_; }
+    static TrcKey::SurvID	getSynthSurvID() { return survsynthid_; }
     static Pos::GeomID		cUndefGeomID()	{ return mUdf(Pos::GeomID); }
 
     mDeprecated("Use get3DSurvID()")
@@ -153,6 +154,7 @@ protected:
     ObjectSet<Geometry>		geometries_;
     static const TrcKey::SurvID	surv2did_;
     static const TrcKey::SurvID	surv3did_;
+    static const TrcKey::SurvID survsynthid_;
 
     bool			hasduplnms_;
 

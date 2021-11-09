@@ -190,17 +190,19 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
 
 Coord RandomLine::getNormal( const TrcKeyPath& knots, const TrcKey& trcpos )
 {
-    const Coord poscrd = SI().transform( trcpos.pos() );
+    const Coord poscrd = SI().transform( trcpos.position() );
     double minsqdist = mUdf(double);
     Coord linestart, linestop;
     for ( int idx=0; idx<knots.size()-1; idx++ )
     {
-	const BinID firstbid = knots[idx].pos();
-	const BinID secondbid = knots[idx+1].pos();
+	const TrcKey& firstk = knots[idx];
+	const TrcKey& secondtk = knots[idx+1];
+	const BinID& firstbid = firstk.position();
+	const BinID& secondbid = secondtk.position();
 	Interval<int> inlrg( firstbid.inl(), secondbid.inl() );
 	Interval<int> crlrg( firstbid.crl(), secondbid.crl() );
-	if ( !inlrg.includes(trcpos.pos().inl(),true) ||
-	     !crlrg.includes(trcpos.pos().crl(),true) )
+	if ( !inlrg.includes(trcpos.lineNr(),true) ||
+	     !crlrg.includes(trcpos.trcNr(),true) )
 	    continue;
 
 	const Coord firstcrd = SI().transform( firstbid );
@@ -229,7 +231,7 @@ int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
     if ( posidx>=0 )
 	return posidx;
 
-    const Coord poscrd = SI().transform( trcpos.pos() );
+    const Coord poscrd = SI().transform( trcpos.position() );
     double minsqdist = mUdf(double);
     BinID linestart, linestop;
     int linestartidx, linestopidx;
@@ -238,12 +240,14 @@ int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
     Line2 closestlineseg;
     for ( int idx=0; idx<knots.size()-1; idx++ )
     {
-	const BinID firstbid = knots[idx].pos();
-	const BinID secondbid = knots[idx+1].pos();
+	const TrcKey& firsttk = knots[idx];
+	const TrcKey& secondtk = knots[idx+1];
+	const BinID& firstbid = firsttk.position();
+	const BinID& secondbid = secondtk.position();
 	Interval<int> inlrg( firstbid.inl(), secondbid.inl() );
 	Interval<int> crlrg( firstbid.crl(), secondbid.crl() );
-	if ( !inlrg.includes(trcpos.pos().inl(),true) ||
-	     !crlrg.includes(trcpos.pos().crl(),true) )
+	if ( !inlrg.includes(trcpos.lineNr(),true) ||
+	     !crlrg.includes(trcpos.trcNr(),true) )
 	    continue;
 
 	const Coord firstcrd = SI().transform( firstbid );
@@ -255,8 +259,8 @@ int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
 	{
 	    linestart = firstbid;
 	    linestop = secondbid;
-	    linestartidx = path.indexOf( firstbid );
-	    linestopidx = path.indexOf( secondbid );
+	    linestartidx = path.indexOf( firsttk );
+	    linestopidx = path.indexOf( secondtk );
 	    minsqdist = sqdist;
 	    intsecpos = TrcKey( SI().transform(closestcrd) );
 	    closestlineseg = linesegment;
@@ -266,11 +270,11 @@ int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
     if ( linestopidx<0 )
 	return -1;
 
-    BinID intsecbid = intsecpos.pos();
-    posidx = path.indexOf( intsecbid );
+    posidx = path.indexOf( intsecpos );
     if ( posidx>=0 )
 	return posidx;
 
+    const BinID& intsecbid = intsecpos.position();
     const float disttointsec = Math::Sqrt((float)linestart.sqDistTo(intsecbid));
     const float disttostop = Math::Sqrt( (float)linestart.sqDistTo(linestop) );
     const int nearestpathidx =
@@ -283,7 +287,7 @@ int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
     int nearestposidx = -1;
     for ( int ipath=linesegrg.start; ipath<=linesegrg.stop; ipath++ )
     {
-	const BinID rdlpos = path[ipath].pos();
+	const BinID rdlpos = path[ipath].position();
 	const double sqdist = mCast(double,rdlpos.sqDistTo( intsecbid ));
 	if ( minsqdist > sqdist )
 	{

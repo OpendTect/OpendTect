@@ -689,17 +689,17 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==parentsrdlmnuitem_.id )
     {
-	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
+	const TrcKey tk( SI().transform( uimenu->getPickedPos() ) );
 	applMgr()->addMPEParentPath( hd->id(), tk );
     }
     else if ( mnuid==parentsmnuitem_.id )
     {
-	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
+	const TrcKey tk( SI().transform( uimenu->getPickedPos() ) );
 	hd->selectParent( tk );
     }
     else if ( mnuid==childrenmnuitem_.id )
     {
-	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
+	const TrcKey tk( SI().transform( uimenu->getPickedPos() ) );
 	hor3d->selectChildren( tk );
     }
     else if ( mnuid==delchildrenmnuitem_.id )

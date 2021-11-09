@@ -242,7 +242,7 @@ void HorizonScanner::transformZIfNeeded( const BinID& bid, float& zval ) const
 	if ( SI().zIsTime() && SI().depthsInFeet() )
 	    zval *= mToFeetFactorF;
 
-	zval = transform_->transformTrc( bid, zval );
+	zval = transform_->transformTrc( TrcKey(bid), zval );
     }
 }
 

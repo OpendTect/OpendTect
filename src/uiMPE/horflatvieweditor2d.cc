@@ -267,7 +267,7 @@ void HorizonFlatViewEditor2D::mouseMoveCB( CallBacker* )
 	if ( !seedpicker )
 	    return;
 
-	const TrcKeyValue tkv( SI().transform(coord), (float)coord.z );
+	const TrcKeyValue tkv( TrcKey(SI().transform(coord)), (float)coord.z );
 	pickedpos_ = seedpicker->replaceSeed( pickedpos_, tkv );
 	return;
     }
@@ -326,7 +326,7 @@ void HorizonFlatViewEditor2D::mousePressCB( CallBacker* )
 
 	const uiWorldPoint wp =
 	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
-	pickedpos_ = SI().transform( vwr->getCoord(wp) );
+	pickedpos_ = TrcKey( SI().transform( vwr->getCoord(wp) ) );
 	return;
     }
 

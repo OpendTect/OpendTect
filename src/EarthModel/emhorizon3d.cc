@@ -1052,7 +1052,7 @@ TrcKey Horizon3D::getParent( const TrcKey& node ) const
     if ( parentidx==-1 )
 	return TrcKey::udf();
 
-    return trackingsamp_.atIndex( parentidx );
+    return trackingsamp_.trcKeyAt( parentidx );
 }
 
 
@@ -1070,7 +1070,7 @@ void Horizon3D::getParents( const TrcKey& node, TypeSet<TrcKey>& parents ) const
 	if ( gidx==-1 || gidx>=parents_->info().getTotalSz() )
 	    break;
 
-	const TrcKey tk = trackingsamp_.atIndex( gidx );
+	const TrcKey tk = trackingsamp_.trcKeyAt( gidx );
 	if ( parents.isPresent(tk) )
 	    break;
 
@@ -1203,7 +1203,7 @@ void Horizon3D::deleteChildren()
 	if ( children_->getData()[idx] == '0' )
 	    continue;
 
-	const TrcKey& tk = trackingsamp_.atIndex( idx );
+	const TrcKey& tk = trackingsamp_.trcKeyAt( idx );
 	setZ( tk, mUdf(float), true );
     }
     if ( ge ) ge->blockCallBacks( false, true );
@@ -1274,7 +1274,7 @@ void Horizon3D::lockAll()
 	const Coord3 crd = getPos( pid );
 	if ( !crd.isDefined() ) continue;
 
-	const TrcKey tk = BinID::fromInt64( pid.subID() );
+	const TrcKey tk( BinID::fromInt64( pid.subID() ) );
 	setNodeLocked( tk, true );
     }
 

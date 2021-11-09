@@ -2274,8 +2274,8 @@ void HorizonDisplay::selectChildren()
 	if ( children->getData()[gidx] == '0' )
 	    continue;
 
-	const TrcKey tk = tks.atIndex( gidx );
-	const Coord3 pos = hor3d->getPos( sid, tk.pos().toInt64() );
+	const TrcKey tk = tks.trcKeyAt( gidx );
+	const Coord3 pos = hor3d->getPos( sid, tk.position().toInt64() );
 	if ( pos.isUdf() )
 	    continue;
 
@@ -2356,8 +2356,8 @@ void HorizonDisplay::calculateLockedPoints()
 	if ( locked->getData()[gidx] == '0' )
 	    continue;
 
-	const TrcKey tk = tks.atIndex( gidx );
-	const Coord3 pos = hor3d->getPos( sid, tk.binID().toInt64() );
+	const TrcKey tk = tks.trcKeyAt( gidx );
+	const Coord3 pos = hor3d->getPos( sid, tk.position().toInt64() );
 	const int pidx = lockedpts_->addPoint( pos );
 	pidxs += pidx;
     }

@@ -337,13 +337,13 @@ bool uiExportFault::writeAscii()
 			ostrm << "\""<< objnm <<"\"" << "\t";
 
 		    const TrcKey tk( bbox.hsamp_.toTrcKey(crd) );
-		    const BinID& bid = tk.position();
 
 		    if ( zatf )
-			crd.z = double(zatf->transformTrc( bid, float(crd.z) ));
+			crd.z = double(zatf->transformTrc( tk, float(crd.z) ));
 
 		    if ( !doxy )
 		    {
+			const BinID& bid = tk.position();
 			ostrm << bid.inl() << '\t' << bid.crl();
 		    }
 		    else

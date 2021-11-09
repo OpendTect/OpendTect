@@ -33,14 +33,21 @@ public:
 			TrcKey()			{ *this = udf(); }
 
 			//3D
-			TrcKey(const BinID&); // default 3D surv ID
-			TrcKey(SurvID,const BinID&);
+    explicit		TrcKey(const BinID&); // default 3D surv ID
+    explicit		TrcKey(SurvID,const BinID&);
 
 			//2D
 			TrcKey(Pos::GeomID,Pos::TraceID);
 
+    static TrcKey	getSynth(Pos::TraceID);
+
     bool		is2D() const { return is2D(survid_); }
+    bool		is3D() const { return is3D(survid_); }
+    bool		isSynthetic() const { return isSynthetic(survid_); }
+
     static bool		is2D(SurvID);
+    static bool		is3D(SurvID);
+    static bool		isSynthetic(SurvID);
 
     Pos::GeomID&	geomID();
     Pos::GeomID		geomID() const;
@@ -57,6 +64,7 @@ public:
     void		setUdf();
     static SurvID	std2DSurvID();
     static SurvID	std3DSurvID();
+    static SurvID	stdSynthSurvID();
     static SurvID	cUndefSurvID();
 
     double		distTo(const TrcKey&) const;

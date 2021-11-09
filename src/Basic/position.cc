@@ -339,8 +339,24 @@ TrcKey::TrcKey( const BinID& bid )
 }
 
 
+TrcKey TrcKey::getSynth( Pos::TraceID tid )
+{
+    TrcKey ret;
+    ret.setSurvID( stdSynthSurvID() ).setLineNr( -1 ).setTrcNr( tid );
+    return ret;
+}
+
+
 bool TrcKey::is2D( SurvID sid )
 { return sid==std2DSurvID(); }
+
+
+bool TrcKey::is3D( SurvID sid )
+{ return sid==std3DSurvID(); }
+
+
+bool TrcKey::isSynthetic( SurvID sid )
+{ return sid==stdSynthSurvID(); }
 
 
 int& TrcKey::trcNr()
@@ -410,6 +426,12 @@ TrcKey::SurvID TrcKey::std2DSurvID()
 TrcKey::SurvID TrcKey::std3DSurvID()
 {
     return Survey::GeometryManager::get3DSurvID();
+}
+
+
+TrcKey::SurvID TrcKey::stdSynthSurvID()
+{
+    return Survey::GeometryManager::getSynthSurvID();
 }
 
 

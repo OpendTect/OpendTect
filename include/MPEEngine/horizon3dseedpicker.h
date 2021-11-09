@@ -48,7 +48,7 @@ public:
     bool		updatePatchLine(bool);
 
 protected:
-    bool		retrackOnActiveLine(const BinID& startbid,
+    bool		retrackOnActiveLine(const TrcKey& starttk,
 					    bool startwasdefined,
 					    bool eraseonly=false);
     bool		retrackFromSeedList();
@@ -69,8 +69,8 @@ protected:
 
 private:
     void		extendSeedListEraseInBetween(
-			    bool wholeline,const BinID& startbid,
-			    bool startwasdefined,const BinID& dir );
+			    bool wholeline,const TrcKey& starttk,
+			    bool startwasdefined,const BinID& dir);
 };
 
 } // namespace MPE

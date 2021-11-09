@@ -193,7 +193,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val )
 void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val,
 				    bool onlynewpos )
 {
-    const TrcKey tk = BinID::fromInt64( posid.subID() );
+    const TrcKey tk = TrcKey( BinID::fromInt64( posid.subID() ) );
     if ( !auxdatanames_.validIdx(dataidx) ||
 	tk.isUdf() ||
 	horizon_.isNodeLocked(tk) )
@@ -495,7 +495,7 @@ void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
     PosID posid( horizon_.id(), sid );
     for ( od_int64 gidx=0; gidx<tks.totalNr(); gidx++ )
     {
-	const TrcKey tk = tks.atIndex( gidx );
+	const TrcKey tk = tks.trcKeyAt( gidx );
 	float val = mUdf(float);
 	if ( arr2d.getData() )
 	    val = arr2d.getData()[gidx];

@@ -89,7 +89,7 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts, bool ispoly )
 	    inl = bid.inl();
 	    crl = bid.crl();
 	    z = pts[idx].z;
-	    bbox.hsamp_.init( bid );
+	    bbox.hsamp_.init( TrcKey(bid) );
 	    bbox.zsamp_.set( pts[idx].z, pts[idx].z, SI().zStep() );
 	}
 	else

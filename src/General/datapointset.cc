@@ -1003,7 +1003,10 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
 	    bid = sampling_->hsamp_.getNearest( bid );
 	}
 
-	const int gidx = sdp_.getGlobalIdx( bid );
+	const TrcKey tk = sdp_.is2D()
+			? TrcKey( sampling_->hsamp_.getGeomID(), bid.trcNr() )
+			: TrcKey( bid );
+	const int gidx = sdp_.getGlobalIdx( tk );
 	if ( gidx<0 || gidx>nrtrcs ) continue;
 
 	float* vals = dps_.getValues( rid );

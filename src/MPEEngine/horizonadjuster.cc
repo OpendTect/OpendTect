@@ -192,7 +192,9 @@ int HorizonAdjuster::nextStep()
 	    const float winsz = SI().zStep() * 50; // should be sufficient
 	    setSearchWindow( Interval<float>(-winsz,winsz) );
 
-	    res = track( BinID(-1,-1), target, targetz );
+	    const TrcKey tk = target.is3D() ? TrcKey( BinID(-1,-1) )
+					    : TrcKey( target.geomID(), -1 );
+	    res = track( tk, target, targetz );
 
 	    evtracker_.useSimilarity( wasusingsim );
 	    evtracker_.setCompareMethod( curmethod );

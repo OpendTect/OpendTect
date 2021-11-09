@@ -67,22 +67,19 @@ void BaseHorizon3DExtender::preallocExtArea()
 
 int BaseHorizon3DExtender::nextStep()
 {
+    if ( startpos_.isEmpty() );
+	return Finished();
+
     const bool fourdirs = direction_.lineNr()==0 && direction_.trcNr()==0;
     const bool eightdirs = direction_.lineNr()==1 && direction_.trcNr()==1;
 
-    TypeSet<BinID> sourcenodes;
-
-    for ( int idx=0; idx<startpos_.size(); idx++ )
-	sourcenodes += startpos_[idx].pos();
-
-    if ( sourcenodes.size() == 0 )
-	return 0;
+    TypeSet<TrcKey> sourcenodes( startpos_ );
 
     bool change = true;
     while ( change )
     {
 	change = false;
-	for ( int idx=0; idx<sourcenodes.size(); idx++ )
+	for ( const auto& sourcenode : sourcenodes )
 	{
 	    TypeSet<RowCol> directions;
 	    if ( fourdirs || eightdirs )
@@ -101,13 +98,13 @@ int BaseHorizon3DExtender::nextStep()
 	    }
 	    else
 	    {
-		directions += RowCol( direction_.tk_.pos() );
+		directions += RowCol( direction_.tk_.position() );
 		directions += RowCol( direction_.lineNr()*-1,
 				      direction_.trcNr()*-1 );
 	    }
 
-	    const BinID& srcbid = sourcenodes[idx];
-	    const EM::PosID pid( horizon_.id(), sid_, srcbid.toInt64() );
+	    const EM::PosID pid( horizon_.id(), sid_,
+				 sourcenode.position().toInt64() );
 	    for ( int idy=0; idy<directions.size(); idy++ )
 	    {
 		const EM::PosID neighbor =
@@ -116,8 +113,8 @@ int BaseHorizon3DExtender::nextStep()
 		if ( neighbor.sectionID() != sid_ )
 		    continue;
 
-		const BinID neighbbid = BinID::fromInt64( neighbor.subID() );
-		if ( !getExtBoundary().hsamp_.includes(neighbbid) )
+		const TrcKey neighbtk( BinID::fromInt64( neighbor.subID() ) );
+		if ( !getExtBoundary().hsamp_.includes(neighbtk) )
 		    continue;
 
 		//If this is a better route to a node that is already
@@ -146,14 +143,14 @@ int BaseHorizon3DExtender::nextStep()
 		if ( horizon_.isDefined(neighbor) )
 		    continue;
 
-		if ( !isExcludedPos(neighbbid) )
+		if ( !isExcludedPos(neighbtk) )
 		{
-		    const float depth = getDepth( srcbid, neighbbid );
+		    const float depth = getDepth( sourcenode, neighbtk );
 		    if ( !mIsUdf(depth) &&
 			 horizon_.setZAndNodeSourceType(
-			 neighbbid,depth,setundo_,EM::EMObject::Auto) )
+			 neighbtk,depth,setundo_,EM::EMObject::Auto) )
 		    {
-			addTarget( neighbbid, srcbid );
+			addTarget( neighbtk, sourcenode );
 			change = true;
 		    }
 		}

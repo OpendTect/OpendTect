@@ -996,7 +996,7 @@ bool EMRegion3DProvider::includes( const Coord& c, float z ) const
 
 bool EMRegion3DProvider::includes( const BinID& bid, float z ) const
 {
-    return region_.isInside( bid, z, false );
+    return region_.isInside( TrcKey(bid), z, false );
 }
 
 

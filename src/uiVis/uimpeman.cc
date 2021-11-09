@@ -352,7 +352,7 @@ void uiMPEMan::handleAction( int res )
     if ( !scene ) return;
 
     const Coord3& clickedpos = scene->getMousePos( true );
-    const TrcKey tk = SI().transform( clickedpos.coord() );
+    const TrcKey tk( SI().transform( clickedpos.coord() ) );
 
     visSurvey::HorizonDisplay* hd3d = getSelectedDisplay();
     switch ( res )
@@ -615,7 +615,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
     const Pos::GeomID geomid = clickcatcher_->info().getGeomID();
     const bool undefgeomid = geomid == Survey::GM().cUndefGeomID();
-    TrcKeyValue seedpos( undefgeomid ? SI().transform(seedcrd) : node,
+    TrcKeyValue seedpos( undefgeomid ? TrcKey(SI().transform(seedcrd)) : node,
 			 (float)seedcrd.z );
 
     OD::Color clr = OD::Color::Green();

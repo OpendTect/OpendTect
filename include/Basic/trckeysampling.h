@@ -209,7 +209,7 @@ public:
     bool	next(BinID&) const;
 
     od_int64	curIdx() const		     { return curpos_; }
-    TrcKey	curTrcKey() const	     { return tks_.atIndex( curIdx() );}
+    TrcKey	curTrcKey() const	     { return tks_.trcKeyAt( curIdx());}
 
 protected:
 

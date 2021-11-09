@@ -209,7 +209,7 @@ int Write3DHorASCII::nextStep()
     Coord3 crd = hor_->getPos( posid );
     const BinID bid = SI().transform( crd.coord() );
     if ( zatf_ )
-	crd.z = zatf_->transformTrc( bid, (float)crd.z );
+	crd.z = zatf_->transformTrc( TrcKey(bid), (float)crd.z );
 
     if ( zatf_ && SI().depthsInFeet() )
     {

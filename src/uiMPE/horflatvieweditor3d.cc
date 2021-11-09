@@ -252,7 +252,7 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 	if ( !seedpicker )
 	    return;
 
-	const TrcKeyValue tkv( SI().transform(coord), (float)coord.z );
+	const TrcKeyValue tkv( TrcKey(SI().transform(coord)), (float)coord.z );
 	pickedpos_ = seedpicker->replaceSeed( pickedpos_, tkv );
 	return;
     }
@@ -330,7 +330,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 
 	const uiWorldPoint wp =
 	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
-	pickedpos_ = SI().transform( vwr->getCoord(wp) );
+	pickedpos_ = TrcKey( SI().transform( vwr->getCoord(wp) ) );
 	return;
     }
 
@@ -726,7 +726,7 @@ bool HorizonFlatViewEditor3D::getPosID( const Coord3& crd,
 bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 					 const MouseEvent& mev )
 {
-    const TrcKeyValue tkv( SI().transform(crd), (float)crd.z );
+    const TrcKeyValue tkv( TrcKey(SI().transform(crd)), (float)crd.z );
     const bool ismarker = editor_->markerPosAt( mev.pos() );
     if ( !ismarker )
     {
@@ -737,7 +737,8 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	    dodropnext_ = false;
 	}
 
-	const TrcKeyValue tkv2( SI().transform(Coord(mev.x(),mev.y())), 0.f );
+	const TrcKeyValue tkv2( TrcKey(SI().transform(Coord(mev.x(),mev.y()))),
+				0.f );
 	const MouseEvent& mouseevent = mehandler_->event();
 
 	const bool doerase =
@@ -836,9 +837,9 @@ void HorizonFlatViewEditor3D::updatePatchDisplay()
 	    x = flatposdata.position( true, bidindex );
 	}
 	else if ( curcs_.nrInl()==1 )
-	    x = tkzs.tk_.pos().crl();
+	    x = tkzs.tk_.trcNr();
 	else if ( curcs_.nrCrl()==1 )
-	    x = tkzs.tk_.pos().inl();
+	    x = tkzs.tk_.lineNr();
 
 	MarkerStyle2D markerstyle(
 	    MarkerStyle2D::Square, 4, emobj->preferredColor() );
@@ -991,7 +992,7 @@ void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )
 	{
 	    const TrcKeyPath& rdlpath = randfdp->getPath();
 	    IndexInfo ix = randfdp->posData().indexInfo( true, posx );
-	    bid = rdlpath[ix.nearest_].pos();
+	    bid = rdlpath[ix.nearest_].position();
 	}
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );
