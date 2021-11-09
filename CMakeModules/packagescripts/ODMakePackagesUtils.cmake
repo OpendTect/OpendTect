@@ -86,12 +86,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	file( COPY ${COPYFROMDATADIR}/bin/python/${PYDIR}
 	      DESTINATION ${COPYTODATADIR}/bin/python )
     endforeach()
-    foreach( PYFILE ${PYTHONFILES} )
-	file( COPY ${COPYFROMDATADIR}/bin/python/${PYFILE}
-	      DESTINATION ${COPYTODATADIR}/bin/python )
-    endforeach()
     unset( PYTHONDIR )
-    unset( PYTHONFILES )
 
     if( ${PACKAGE_NAME} STREQUAL "dgbbase" )
 #Install lm 

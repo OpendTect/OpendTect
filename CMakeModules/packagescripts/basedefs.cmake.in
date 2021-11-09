@@ -38,6 +38,5 @@ if ( APPLE )
     set( OPENSSLLIBS libcrypto.1.1.dylib libssl.1.1.dylib )
 endif()
 
-set( PYTHONFILES __init__.py )
 set( PYTHONDIR odpy )
 set( PACK "base" )
