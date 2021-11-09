@@ -234,7 +234,18 @@ const Well::Log& Well::LogSet::getDefLog( const Mnemonic& mnem ) const
 
 
 void Well::LogSet::defaultLogUsePar( const IOPar& iop )
-{}
+{
+    if ( iop.isEmpty() )
+	return;
+
+    for ( int idx=0; idx<iop.size(); idx++ )
+    {
+	auto* defaultlog = new OD::Pair<const Mnemonic&,const Well::Log&>; 
+	defaultlog->set( *MNC().getByName(iop.getKey(idx).str()),
+	       	         *getLog(iop.getValue(idx).str()) );
+	defaultlogs_.add( defaultlog );
+    }
+}
 
 
 void Well::LogSet::defaultLogFillPar( IOPar& iop ) const
