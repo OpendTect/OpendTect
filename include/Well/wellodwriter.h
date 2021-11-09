@@ -45,6 +45,7 @@ public:
     virtual bool	putCSMdl() const;
     virtual bool	putDispProps() const;
     virtual bool	putLog(const Log&) const;
+    bool                putDefLogs() const override;
     virtual bool	swapLogs(const Log&,const Log&) const;
     virtual bool	renameLog(const char* oldnm, 
 	    			  const char* newnm) override;

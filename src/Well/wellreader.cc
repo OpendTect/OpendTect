@@ -230,6 +230,8 @@ bool Well::Reader::getCSMdl() const
 mImplWRFn(bool,getLog,const char*,lognm,false)
 void Well::Reader::getLogInfo( BufferStringSet& logname ) const
 { if ( ra_ ) ra_->getLogInfo( logname ); }
+void Well::Reader::getDefLogs() const
+{ if ( ra_ ) ra_->getDefLogs(); }
 Well::Data* Well::Reader::data()
 { return ra_ ? &ra_->data() : nullptr; }
 
@@ -746,6 +748,10 @@ void Well::odReader::readLogData( Log& wl, od_istream& strm, int bintype ) const
 	wl.addValue( v[0], v[1] );
     }
 }
+
+
+void Well::odReader::getDefLogs() const
+{}
 
 
 bool Well::odReader::getMarkers() const

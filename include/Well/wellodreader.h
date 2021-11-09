@@ -47,6 +47,7 @@ public:
     virtual bool	getDispProps() const;
     virtual bool	getLog(const char* lognm) const;
     virtual void	getLogInfo(BufferStringSet& lognms) const;
+    void 	        getDefLogs() const override;
 
     virtual const uiString& errMsg() const	{ return odIO::errMsg(); }
 

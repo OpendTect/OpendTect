@@ -99,6 +99,7 @@ mImplSimpleWWFn(putMarkers)
 mImplSimpleWWFn(putD2T)
 mImplSimpleWWFn(putCSMdl)
 mImplSimpleWWFn(putDispProps)
+mImplSimpleWWFn(putDefLogs)
 mImplSimpleWWFn(isFunctional)
 
 mImplWWFn(bool,putLog,const Log&,wl,false)
@@ -499,6 +500,12 @@ int Well::odWriter::getLogIndex( const char* lognm ) const
 
     logidx++;
     return logidx;
+}
+
+
+bool Well::odWriter::putDefLogs() const
+{
+    return true;
 }
 
 
