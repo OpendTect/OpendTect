@@ -103,12 +103,16 @@ SelectionArea::~SelectionArea()
 {
 }
 
+
 bool SelectionArea::operator==( const SelectionArea& selarea ) const
 {
-    if ( isrectangle_ != selarea.isrectangle_ ) return false;
+    if ( isrectangle_ != selarea.isrectangle_ )
+	return false;
+
     if ( isrectangle_ && (worldrect_ != selarea.worldrect_) )
 	return false;
-    else if ( !isrectangle_ && !(worldpoly_.data()==selarea.worldpoly_.data()) )
+
+    if ( !isrectangle_ && !(worldpoly_.data()==selarea.worldpoly_.data()) )
 	return false;
 
     return true;
