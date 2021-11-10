@@ -38,7 +38,8 @@ public:
 	NoSelection,	//!< No cell can be selected by the user.
 	Single,		//!< a single range of cells.
 	Multi,		//!< multiple ranges of cells.
-	SingleRow
+	SingleRow,
+	SingleColumn
     };
 
     enum SelectionBehavior
