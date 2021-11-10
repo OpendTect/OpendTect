@@ -101,20 +101,19 @@ bool DensityCalc::doWork( od_int64 start, od_int64 stop, int )
 	if ( !densitydata_->info().validPos(freqx,freqy) )
 	    continue;
 
-	mutex_.lock();
 	ValueSeries<int>* stor = densitydata_->getStorage();
 	int* storptr = stor ? stor->arr() : nullptr;
+	const od_int64 offset = densitydata_->info().getOffset( freqx, freqy );
+	mutex_.lock();
 	if ( storptr )
 	{
-	    const od_int64 offset =
-		    densitydata_->info().getOffset( freqx, freqy );
 	    storptr[offset]++;
 	    maxval_ = mMAX( storptr[offset], maxval_ );
 	}
-	else
+	else if ( stor )
 	{
-	    const int newval = densitydata_->get(freqx,freqy)+1;
-	    densitydata_->set( freqx, freqy, newval );
+	    const int newval = stor->value(offset)+1;
+	    stor->setValue( offset, newval );
 	    maxval_ = mMAX( newval, maxval_ );
 	}
 
