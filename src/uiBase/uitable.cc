@@ -1269,6 +1269,9 @@ void uiTable::setSelectionMode( SelectionMode m )
 	case SingleRow:
 	    setSelectionBehavior( uiTable::SelectRows );
 	    break;
+	case SingleColumn:
+	    setSelectionBehavior( uiTable::SelectColumns );
+	    break;
 	default:
 	    body_->setSelectionMode( QAbstractItemView::NoSelection );
 	    break;
