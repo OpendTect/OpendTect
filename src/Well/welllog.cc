@@ -23,6 +23,8 @@ const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
 const char* Well::Log::sKeyDahRange()	{ return "Dah range"; }
 const char* Well::Log::sKeyLogRange()	{ return "Log range"; }
 
+static const char* sKeyDefMnem()	{ return "Default Mnemonic"; }
+
 // ---- Well::LogSet
 
 
@@ -211,35 +213,35 @@ bool Well::LogSet::hasDefaultMnemLog( const Mnemonic* mnem ) const
 {
     for ( const auto* deflog : defaultlogs_ )
     {
-        if ( &deflog->first == mnem )
-        {
-            if ( !deflog->second.isEmpty() )
-                return true;
-        }
+	if ( &deflog->first == mnem )
+	{
+	    if ( !deflog->second.isEmpty() )
+		return true;
+	}
     }
 
     return false;
 }
 
 
-void Well::LogSet::setDefaultMnemLog( const Mnemonic* mnem, 
-                                      const BufferString& lognm )
+void Well::LogSet::setDefaultMnemLog( const Mnemonic* mnem,
+				      const BufferString& lognm )
 {
     if ( !hasDefaultMnemLog( mnem ) )
     {
-        auto* defaultlog = 
-                    new std::pair<Mnemonic,BufferString>( *mnem,lognm );
-        defaultlogs_.add( defaultlog );
-        return;
+	auto* defaultlog = 
+		    new std::pair<Mnemonic,BufferString>( *mnem,lognm );
+	defaultlogs_.add( defaultlog );
+	return;
     }
 
     for ( auto* deflog : defaultlogs_ )
     {
-        if ( &deflog->first == mnem )   
-        {
-            deflog->second = lognm;
-            break;
-        }
+	if ( &deflog->first == mnem )	
+	{
+	    deflog->second = lognm;
+	    break;
+	}
     }
 }
 
@@ -248,8 +250,8 @@ const Well::Log* Well::LogSet::getLog( const Mnemonic* mnem ) const
 {
     for ( const auto* deflog : defaultlogs_ )
     {
-        if ( &deflog->first == mnem )
-            return getLog( deflog->second );
+	if ( &deflog->first == mnem )
+	    return getLog( deflog->second );
     }
 
     return nullptr;
@@ -258,15 +260,19 @@ const Well::Log* Well::LogSet::getLog( const Mnemonic* mnem ) const
 
 void Well::LogSet::defaultLogUsePar( const IOPar& iop )
 {
+    PtrMan<IOPar> defpar = iop.subselect( sKeyDefMnem() );
+    if ( !defpar )
+	return;
+
     for ( int idx=0; idx<iop.size(); idx++ )
     {
-        const Mnemonic* currmnem = MNC().getByName( iop.getKey(idx).str()
-                                                    ,false);
-        const BufferString deflognm( iop.getValue(idx).str() );
-        if ( deflognm.isEmpty() )
-            continue;
+	const Mnemonic* currmnem = MNC().getByName( defpar->getKey(idx).str()
+						    ,false);
+	const BufferString deflognm( defpar->getValue(idx).str() );
+	if ( deflognm.isEmpty() )
+	    continue;
 
-        setDefaultMnemLog( currmnem, deflognm );
+	setDefaultMnemLog( currmnem, deflognm );
     }
 }
 
@@ -275,11 +281,12 @@ void Well::LogSet::defaultLogFillPar( IOPar& iop ) const
 {
     for ( int idx=0; idx<defaultlogs_.size(); idx++ )
     {
-        const std::pair<Mnemonic,BufferString>* deflog = 
-                                                defaultlogs_.get( idx );
-        iop.setKey( idx, deflog->first.name() );
-        iop.setValue( idx, deflog->second );
-        // To-Do: need to be made more robust
+	const std::pair<Mnemonic,BufferString>* deflog = 
+						defaultlogs_.get( idx );
+	iop.setKey( idx, 
+		    IOPar::compKey(sKeyDefMnem(),deflog->first.name()) );
+	iop.setValue( idx, deflog->second );
+	// To-Do: need to be made more robust
     }
 }
 

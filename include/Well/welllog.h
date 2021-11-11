@@ -101,6 +101,7 @@ public:
     static const char*	sKeyStorage();
     static const char*	sKeyDahRange();
     static const char*	sKeyLogRange();
+    static const char*	sKeyDefMnemLbl();
 
     float*		valArr()			{ return vals_.arr(); }
     const float*	valArr() const			{ return vals_.arr(); }

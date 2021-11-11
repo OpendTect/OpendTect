@@ -40,7 +40,7 @@ public:
     virtual bool	putDispProps() const		= 0;
     virtual bool	putLog(const Log&) const	= 0;
     virtual bool	putDefLogs() const
-                    { return false; }
+		    { return false; }
     virtual bool	swapLogs(const Log&,const Log&) const
 			{ return false; }
     virtual bool	renameLog(const char* oldnm,const char* newnm)

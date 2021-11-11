@@ -52,7 +52,7 @@ public:
     bool		getDispProps() const;	//!< Read display props only
     bool		getLog(const char* lognm) const; //!< Read this one only
     void		getLogInfo(BufferStringSet& lognms) const;
-    bool		getDefLogs() const;	//!< Read list of default logs 
+    bool		getDefLogs() const;	//!< Read list of default logs
 						//!< for a particular mnemonic
 
     const uiString&	errMsg() const		{ return errmsg_; }
