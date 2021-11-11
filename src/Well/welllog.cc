@@ -207,44 +207,66 @@ TypeSet<int> Well::LogSet::getSuitable( Mnemonic::StdType ptype,
 }
 
 
-bool Well::LogSet::hasDefault( const Mnemonic& mnem ) const
+bool Well::LogSet::hasDefaultMnemLog( const Mnemonic* mnem ) const
 {
-/*    for ( const auto* deflog : defaultlogs_ )
+    for ( const auto* deflog : defaultlogs_ )
     {
-	if ( deflog->first() == mnem )
-	{
-	    if ( !deflog->isUdf() )
-		return true;
-	}
-    }*/
+        if ( &deflog->first == mnem )
+        {
+            if ( !deflog->second.isEmpty() )
+                return true;
+        }
+    }
 
     return false;
 }
 
 
-const Well::Log& Well::LogSet::getDefLog( const Mnemonic& mnem ) const
+void Well::LogSet::setDefaultMnemLog( const Mnemonic* mnem, 
+                                      const BufferString& lognm )
 {
-    for ( int idx=0; idx<defaultlogs_.size(); idx++ )
+    if ( !hasDefaultMnemLog( mnem ) )
     {
-	if ( defaultlogs_.get(idx)->first() == mnem )
-	    return defaultlogs_.get(idx)->second();
+        auto* defaultlog = 
+                    new std::pair<Mnemonic,BufferString>( *mnem,lognm );
+        defaultlogs_.add( defaultlog );
+        return;
     }
-    // To-Do: robustness with regards to missing default
+
+    for ( auto* deflog : defaultlogs_ )
+    {
+        if ( &deflog->first == mnem )   
+        {
+            deflog->second = lognm;
+            break;
+        }
+    }
+}
+
+
+const Well::Log* Well::LogSet::getLog( const Mnemonic* mnem ) const
+{
+    for ( const auto* deflog : defaultlogs_ )
+    {
+        if ( &deflog->first == mnem )
+            return getLog( deflog->second );
+    }
+
+    return nullptr;
 }
 
 
 void Well::LogSet::defaultLogUsePar( const IOPar& iop )
 {
-    if ( iop.isEmpty() )
-	return;
-
     for ( int idx=0; idx<iop.size(); idx++ )
     {
-	auto* defaultlog = new OD::Pair<Mnemonic,Well::Log>;
-	const Mnemonic& currmnem = *MNC().getByName(iop.getKey(idx).str());
-	const Log& deflog = *getLog(iop.getValue(idx).str());
-	defaultlog->set( currmnem, deflog );
-	defaultlogs_.add( defaultlog );
+        const Mnemonic* currmnem = MNC().getByName( iop.getKey(idx).str()
+                                                    ,false);
+        const BufferString deflognm( iop.getValue(idx).str() );
+        if ( deflognm.isEmpty() )
+            continue;
+
+        setDefaultMnemLog( currmnem, deflognm );
     }
 }
 
@@ -253,10 +275,11 @@ void Well::LogSet::defaultLogFillPar( IOPar& iop ) const
 {
     for ( int idx=0; idx<defaultlogs_.size(); idx++ )
     {
-	const OD::Pair<Mnemonic,Well::Log>* deflog = defaultlogs_.get( idx );
-	iop.setKey( idx, deflog->first().name() );
-	iop.setKey( idx, deflog->second().name() );
-	// To-Do: need to be made more robust
+        const std::pair<Mnemonic,BufferString>* deflog = 
+                                                defaultlogs_.get( idx );
+        iop.setKey( idx, deflog->first.name() );
+        iop.setValue( idx, deflog->second );
+        // To-Do: need to be made more robust
     }
 }
 

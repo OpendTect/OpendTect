@@ -512,15 +512,15 @@ bool Well::odWriter::putDefLogs() const
 
 bool Well::odWriter::putDefLogs( od_ostream& strm ) const
 {
-    if ( !wrHdr(strm,sKeyDefaultLog()) )
-	mErrRetStrmOper(tr("write header (default logs)"))
+    if ( !wrHdr(strm,sKeyDefaults()) )
+        mErrRetStrmOper(tr("write header (default logs)"))
 
     ascostream astrm( strm );
     IOPar iop;
     wd_.logs().defaultLogFillPar( iop );
     iop.putTo( astrm );
     if ( !strm.isOK() )
-	mErrRetStrmOper(tr("write well display parameters"))
+        mErrRetStrmOper(tr("write well display parameters"))
 
     return true;
 }

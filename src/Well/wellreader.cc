@@ -38,7 +38,7 @@
 const char* Well::odIO::sKeyWell()	{ return "Well"; }
 const char* Well::odIO::sKeyTrack()	{ return "Track"; }
 const char* Well::odIO::sKeyLog()	{ return "Well Log"; }
-const char* Well::odIO::sKeyDefaultLog(){ return "Default Logs"; }
+const char* Well::odIO::sKeyDefaults(){ return "Default Logs"; }
 const char* Well::odIO::sKeyMarkers()	{ return "Well Markers"; }
 const char* Well::odIO::sKeyD2T()	{ return "Depth2Time Model"; }
 const char* Well::odIO::sKeyDispProps()	{ return "Display Properties"; }
@@ -49,7 +49,7 @@ const char* Well::odIO::sExtMarkers()	{ return ".wlm"; }
 const char* Well::odIO::sExtD2T()	{ return ".wlt"; }
 const char* Well::odIO::sExtCSMdl()	{ return ".csmdl"; }
 const char* Well::odIO::sExtDispProps()	{ return ".disp"; }
-const char* Well::odIO::sExtDefaults()	{ return ".defs"; }
+const char* Well::odIO::sExtDefaults() 	{ return ".defs"; }
 const char* Well::odIO::sExtWellTieSetup() { return ".tie"; }
 
 
@@ -762,8 +762,8 @@ bool Well::odReader::getDefLogs() const
 bool Well::odReader::getDefLogs( od_istream& strm ) const
 {
     double version = 0.0;
-    if ( !rdHdr(strm,sKeyDefaultLog(),version) )
-	mErrRetStrmOper( sCannotReadFileHeader() )
+    if ( !rdHdr(strm,sKeyDefaults(),version) )
+        mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );
     IOPar iop; iop.getFrom( astrm );
