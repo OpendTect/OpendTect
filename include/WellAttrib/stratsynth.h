@@ -67,6 +67,8 @@ public:
 
     int			nrSynthetics() const;
     SyntheticData*	addSynthetic(const SynthGenParams&);
+    bool		addInstAttribSynthetics(const BufferStringSet&,
+						const SynthGenParams&);
     bool		removeSynthetic(const char*);
     bool		disableSynthetic(const char*);
     SyntheticData*	replaceSynthetic(SynthID);

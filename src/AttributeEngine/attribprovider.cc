@@ -1085,7 +1085,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	outdata->extrazfromsamppos_ = getExtraZFromSampInterval( z0, nrsamples);
 
     bool success = false;
-    if ( !allowParallelComputation() )
+    if ( !parallel_ || !allowParallelComputation() )
     {
 	setNrThreads( 1 );
 	success = computeData( *outdata, relpos, z0, nrsamples, 0 );

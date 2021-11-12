@@ -737,64 +737,244 @@ SeisTrcBufDataPack* dpname = \
 			    SeisTrcInfo::TrcNr, \
 			    PostStackSyntheticData::sDataPackCategory() ); \
 
-SyntheticData* StratSynth::createAttribute( const SyntheticData& sd,
-					     const SynthGenParams& synthgenpar )
+
+mClass(WellAttrib) AttributeSyntheticCreator : public ParallelTask
+{ mODTextTranslationClass(AttributeSyntheticCreator);
+
+public:
+AttributeSyntheticCreator( const PostStackSyntheticData& sd,
+			   const BufferStringSet& attribs,
+			   ObjectSet<SeisTrcBuf>& seisbufs )
+    : ParallelTask( "Creating Attribute Synthetics" )
+    , seistrcbufs_(seisbufs)
+    , sd_(sd)
+    , attribs_(attribs)
+    , descset_(nullptr)
 {
-    if ( sd.isPS() )
-	return nullptr;
+}
 
-    mDynamicCastGet(const PostStackSyntheticData&,pssd,sd);
-    const SeisTrcBufDataPack& indp = pssd.postStackPack();
-    TrcKeyZSampling tkzs;
-    indp.getTrcKeyZSampling( tkzs );
 
-    PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false );
-    BufferString dpidstr( "#", sd.datapackid_.buf() );
-    Attrib::DescID did = descset->getStoredID( dpidstr.buf(), 0, true );
+uiString uiMessage() const override
+{
+    return msg_;
+}
+
+
+uiString uiNrDoneText() const override
+{
+    return tr("Attributes done");
+}
+
+
+private:
+
+void createInstAttributeSet()
+{
+    descset_ = new Attrib::DescSet( false );
+    BufferString dpidstr( "#", sd_.datapackid_.buf() );
+    Attrib::DescID did = descset_->getStoredID( dpidstr.buf(), 0, true );
 
     Attrib::Desc* imagdesc = Attrib::PF().createDescCopy(
 						Attrib::Hilbert::attribName() );
     imagdesc->selectOutput( 0 );
-    imagdesc->setInput(0, descset->getDesc(did) );
+    imagdesc->setInput(0, descset_->getDesc(did) );
     imagdesc->setHidden( true );
     BufferString usrref( dpidstr.buf(), "_imag" );
     imagdesc->setUserRef( usrref );
-    descset->addDesc( imagdesc );
+    descset_->addDesc( imagdesc );
 
     Attrib::Desc* psdesc = Attrib::PF().createDescCopy(
 					 Attrib::Instantaneous::attribName());
-    psdesc->selectOutput( synthgenpar.attribtype_ );
-    psdesc->setInput( 0, descset->getDesc(did) );
+    psdesc->setInput( 0, descset_->getDesc(did) );
     psdesc->setInput( 1, imagdesc );
-    psdesc->setUserRef( synthgenpar.name_ );
-    Attrib::DescID attribid = descset->addDesc( psdesc );
-    descset->updateInputs();
+    psdesc->setUserRef( "synthetic attributes" );
+    descset_->addDesc( psdesc );
+    descset_->updateInputs();
+}
 
+
+od_int64 nrIterations() const override
+{ return sd_.postStackPack().trcBuf().size(); }
+
+
+bool doPrepare( int /* nrthreads */ ) override
+{
+    msg_ = tr("Preparing Attributes");
+
+    createInstAttributeSet();
+    sd_.postStackPack().getTrcKeyZSampling( tkzs_ );
+
+    seistrcbufs_.setEmpty();
+    comps_.setEmpty();
+    const SeisTrcBuf& trcs = sd_.postStackPack().trcBuf();
+    int order = 1;
+    for ( const auto* attrib : attribs_ )
+    {
+	auto* stb = new SeisTrcBuf( true );
+	for ( int idx=0; idx<trcs.size(); idx++ )
+	    stb->add( new SeisTrc );
+
+	seistrcbufs_ += stb;
+	if ( Attrib::Instantaneous::parseEnumOutType(attrib->buf())==
+					    Attrib::Instantaneous::Amplitude )
+	    comps_ += 0;
+	else
+	{
+	    comps_ += order;
+	    order++;
+	}
+    }
+
+    resetNrDone();
+    msg_ = tr("Calculating");
+    return true;
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    const Attrib::Desc& psdesc = *descset_->desc( descset_->size()-1 );
     PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
     TypeSet<Attrib::SelSpec> attribspecs;
-    Attrib::SelSpec sp( 0, attribid );
-    sp.set( *psdesc );
+    Attrib::DescID attribid = descset_->getID( descset_->size()-1 );
+    Attrib::SelSpec sp( nullptr, attribid );
+    sp.set( psdesc );
     attribspecs += sp;
-    aem->setAttribSet( descset );
+    aem->setAttribSet( descset_ );
     aem->setAttribSpecs( attribspecs );
-    aem->setTrcKeyZSampling( tkzs );
+    aem->setTrcKeyZSampling( tkzs_ );
     BinIDValueSet bidvals( 0, false );
-    const SeisTrcBuf& trcs = indp.trcBuf();
-    for ( int idx=0; idx<trcs.size(); idx++ )
+    const SeisTrcBuf& trcs = sd_.postStackPack().trcBuf();
+    for ( int idx=start; idx<=stop; idx++ )
 	bidvals.add( trcs.get(idx)->info().binID() );
 
-    SeisTrcBuf* dptrcbufs = new SeisTrcBuf( true );
-    Interval<float> zrg( tkzs.zsamp_ );
-    uiString errmsg;
-    PtrMan<Attrib::Processor> proc = aem->createTrcSelOutput( errmsg, bidvals,
+    PtrMan<SeisTrcBuf> dptrcbufs = new SeisTrcBuf( true );
+    Interval<float> zrg( tkzs_.zsamp_ );
+    PtrMan<Attrib::Processor> proc = aem->createTrcSelOutput( msg_, bidvals,
 							  *dptrcbufs, 0, &zrg);
     if ( !proc || !proc->getProvider() )
-	mErrRet( errmsg, return 0 ) ;
-    proc->getProvider()->setDesiredVolume( tkzs );
-    proc->getProvider()->setPossibleVolume( tkzs );
+	return false;
 
-    mCreateSeisBuf( instattribdp );
-    return new InstAttributeSyntheticData( synthgenpar, *instattribdp );
+    Attrib::Provider* prov = proc->getProvider();
+    for ( const auto* attrib : attribs_ )
+    {
+	int icomp = Attrib::Instantaneous::parseEnumOutType( attrib->buf() );
+	proc->addOutputInterest( icomp );
+    }
+    prov->setDesiredVolume( tkzs_ );
+    prov->setPossibleVolume( tkzs_ );
+    prov->doParallel( false );
+
+    if ( !proc->execute() )
+	return false;
+
+    for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ )
+    {
+	const SeisTrc& intrc = *dptrcbufs->get( trcidx );
+	SeisTrcInfo trcinfo = intrc.info();
+	const BinID bid = trcinfo.binid;
+	trcinfo.coord = SI().transform( bid );
+	trcinfo.nr = trcidx + start + 1;
+	const int sz = intrc.size();
+	for ( int idx=0; idx<seistrcbufs_.size(); idx++ )
+	{
+	    SeisTrcBuf* stb = seistrcbufs_[idx];
+	    SeisTrc*	outtrc = stb->get( trcidx+start );
+	    outtrc->reSize( sz, false );
+	    for ( int is=0; is<sz; is++ )
+		outtrc->set( is, intrc.get(is, comps_[idx]), 0 );
+	    outtrc->info() = trcinfo;
+	}
+    }
+    addToNrDone( stop-start+1 );
+    return true;
+}
+
+
+bool doFinish( bool success )
+{
+    return true;
+}
+
+    const PostStackSyntheticData&	sd_;
+    const BufferStringSet&		attribs_;
+    ObjectSet<SeisTrcBuf>&		seistrcbufs_;
+    TypeSet<int>			comps_;
+    PtrMan<Attrib::DescSet>		descset_;
+    TrcKeyZSampling			tkzs_;
+    TaskRunner*				taskr_;
+    uiString				msg_;
+};
+
+
+SyntheticData* StratSynth::createAttribute( const SyntheticData& sd,
+					     const SynthGenParams& synthgenpar )
+{
+    ObjectSet<SeisTrcBuf> seistrcbufs;
+    BufferStringSet attribs( Attrib::Instantaneous::toString(
+						    synthgenpar.attribtype_) );
+    mDynamicCastGet(const PostStackSyntheticData&,pssd,sd);
+
+    AttributeSyntheticCreator asc( pssd, attribs, seistrcbufs );
+    if ( !TaskRunner::execute(taskr_,asc) )
+	return nullptr;
+
+    SeisTrcBufDataPack* dpname = new SeisTrcBufDataPack( seistrcbufs[0],
+				 Seis::Line, SeisTrcInfo::TrcNr,
+				 PostStackSyntheticData::sDataPackCategory() );
+
+    return new InstAttributeSyntheticData( synthgenpar, *dpname );
+}
+
+
+bool StratSynth::addInstAttribSynthetics( const BufferStringSet& attribs,
+					  const SynthGenParams& synthgenpar )
+{
+    if ( !synthgenpar.isAttribute() )
+	mErrRet( tr(" not an attribute."), return false )
+
+    ObjectSet<SeisTrcBuf> seistrcbufs;
+    BufferString inputsdnm( synthgenpar.inpsynthnm_ );
+    const SyntheticData* insd = getSynthetic( inputsdnm );
+    if ( !insd )
+	mErrRet( tr(" input synthetic data not found."), return false )
+
+    mDynamicCastGet(const PostStackSyntheticData*,pssd,insd);
+    if ( !pssd )
+	mErrRet( tr(" input synthetic data not found."), return false )
+
+    AttributeSyntheticCreator asc( *pssd, attribs, seistrcbufs );
+    if ( !TaskRunner::execute(taskr_,asc) )
+	return false;
+
+    SynthGenParams pars( synthgenpar );
+    int propidx = 0;
+    while ( propidx<synthetics_.size() )
+    {
+	if ( synthetics_[propidx]->isStratProp() )
+	    break;
+	propidx++;
+    }
+
+    for ( int idx=0; idx<seistrcbufs.size(); idx++ )
+    {
+	SeisTrcBufDataPack* dpname = new SeisTrcBufDataPack( seistrcbufs[idx],
+				 Seis::Line, SeisTrcInfo::TrcNr,
+				 PostStackSyntheticData::sDataPackCategory() );
+	Attrib::Instantaneous::parseEnum(attribs[idx]->buf(), pars.attribtype_);
+	pars.createName( pars.name_ );
+
+	SyntheticData* sd = new InstAttributeSyntheticData( pars, *dpname );
+	if ( sd )
+	{
+	    synthetics_.insertAt( sd, propidx );
+	    propidx++;
+	}
+	else
+	    mErrRet( tr(" synthetic data not created."), return false )
+    }
+
+    return true;
 }
 
 

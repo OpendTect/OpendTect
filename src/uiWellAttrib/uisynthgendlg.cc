@@ -277,18 +277,29 @@ bool uiSynthParsGrp::prepareSyntheticToBeChanged( bool toberemoved )
 }
 
 
-bool uiSynthParsGrp::doAddSynthetic( bool isupdate )
+bool uiSynthParsGrp::checkSyntheticName( bool isupdate )
 {
-    if ( stratsynth_.genParams().name_ == SynthGenParams::sKeyInvalidInputPS())
+    const SynthGenParams& gp = stratsynth_.genParams();
+
+    if ( gp.name_ == SynthGenParams::sKeyInvalidInputPS() )
 	mErrRet( tr("Please enter a different name"), return false);
 
-    if ( !isupdate && synthnmlb_->isPresent(stratsynth_.genParams().name_) )
+    if ( !isupdate && synthnmlb_->isPresent(gp.name_) )
     {
 	uiString msg = tr("Synthetic data of name '%1' is already present. "
 			  "Please choose a different name" )
-		     .arg(stratsynth_.genParams().name_);
+		     .arg(gp.name_);
 	mErrRet( msg, return false );
     }
+
+    return true;
+}
+
+
+bool uiSynthParsGrp::doAddSynthetic( bool isupdate )
+{
+
+    checkSyntheticName( isupdate );
 
     MouseCursorChanger mcchger( MouseCursor::Wait );
     SyntheticData* sd = stratsynth_.addSynthetic( stratsynth_.genParams() );
@@ -408,9 +419,17 @@ void uiSynthParsGrp::addSyntheticsCB( CallBacker* )
 	{
 	    Attrib::Instantaneous::parseEnum( *attrib, gp.attribtype_ );
 	    gp.createName( gp.name_ );
-	    if ( !doAddSynthetic() )
+	    if ( !checkSyntheticName() )
 		return;
+	}
+	MouseCursorChanger mcchger( MouseCursor::Wait );
+	if ( !stratsynth_.addInstAttribSynthetics( attribs, gp ) )
+	    mErrRet( stratsynth_.errMsg(), return );
 
+	for ( const auto* attrib : attribs )
+	{
+	    Attrib::Instantaneous::parseEnum( *attrib, gp.attribtype_ );
+	    gp.createName( gp.name_ );
 	    synthAdded.trigger( gp.name_ );
 	    NotifyStopper ns( synthnmlb_->selectionChanged );
 	    synthnmlb_->addItem( gp.name_ );

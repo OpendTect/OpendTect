@@ -21,7 +21,7 @@ namespace Attrib
 {
 
 mAttrDefCreateInstance(Hilbert)
-    
+
 void Hilbert::initClass()
 {
     mAttrStartInitClass

@@ -69,6 +69,7 @@ protected:
     void			getInpNames(BufferStringSet&);
     bool			prepareSyntheticToBeChanged(bool toberemoved);
     bool			doAddSynthetic(bool isupdate=false);
+    bool			checkSyntheticName(bool isupdate=false);
 
     StratSynth&			stratsynth_;
     uiListBox*			synthnmlb_;

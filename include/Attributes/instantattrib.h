@@ -56,7 +56,6 @@ protected:
 
     bool			areAllOutputsEnabled() const;
 
-
     Interval<int>		sampgate1_;
     Interval<int>		sampgate2_;
     const DataHolder*		realdata_;

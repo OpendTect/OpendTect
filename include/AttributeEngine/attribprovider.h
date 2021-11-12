@@ -52,6 +52,7 @@ public:
 				     inputs, and so on */
     virtual bool		isOK() const;
     bool			is2D() const;
+    void			doParallel(bool yn)	{ parallel_= yn; }
 
     const Desc&			getDesc() const;
     Desc&			getDesc();
@@ -387,6 +388,7 @@ protected:
     const SeisTrcInfo*		curtrcinfo_;
     BinID			trcinfobid_;
     bool			useshortcuts_;
+    bool			parallel_ = true;
 
     float			refz0_;
     float			refstep_;
