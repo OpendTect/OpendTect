@@ -67,7 +67,7 @@ void BaseHorizon3DExtender::preallocExtArea()
 
 int BaseHorizon3DExtender::nextStep()
 {
-    if ( startpos_.isEmpty() );
+    if ( startpos_.isEmpty() )
 	return Finished();
 
     const bool fourdirs = direction_.lineNr()==0 && direction_.trcNr()==0;
