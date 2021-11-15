@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "keyboardevent.h"
 #include "emsurfacetr.h"
 #include "mouseevent.h"
+#include "seisioobjinfo.h"
 #include "seisread.h"
 #include "welltiepickset.h"
 #include "welltiedata.h"
@@ -62,14 +63,19 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
     toolbar_->addSeparator();
 
     parsbut_ = mDefBut("2ddisppars",parsCB,tr("Set display parameters"),false);
-    rubbandzoombut_ = mDefBut("rubbandzoom",dragModeCB,tr("Rubberband zoom"), true );
-    vertzoominbut_ = mDefBut("vertzoomin",zoomCB,tr("Vertical zoom in"), false );
-    vertzoomoutbut_ = mDefBut("vertzoomout",zoomCB,tr("Vertical zoom out"), false );
-    cancelzoombut_ = mDefBut("cancelzoom",cancelZoomCB,tr("Cancel zoom"), false );
+    rubbandzoombut_ =
+	mDefBut("rubbandzoom",dragModeCB,tr("Rubberband zoom"), true );
+    vertzoominbut_ =
+	mDefBut("vertzoomin",zoomCB,tr("Vertical zoom in"), false );
+    vertzoomoutbut_ =
+	mDefBut("vertzoomout",zoomCB,tr("Vertical zoom out"), false );
+    cancelzoombut_ =
+	mDefBut("cancelzoom",cancelZoomCB,tr("Cancel zoom"), false );
     editbut_ = mDefBut("seedpickmode",dragModeCB,tr("Pick mode (P)"), true );
 
     tb->addSeparator();
-    horbut_ = mDefBut("loadhoronseis",loadHorizons,tr("Load Horizon(s)"), false );
+    horbut_ =
+	mDefBut("loadhoronseis",loadHorizons,tr("Load Horizon(s)"), false );
     hormrkdispbut_ = mDefBut("drawhoronseis",dispHorMrks,
 		    tr("Marker display properties"), false );
     tb->addSeparator();
@@ -272,10 +278,11 @@ void uiControlView::reDrawNeeded( CallBacker* )
 
 void uiControlView::loadHorizons( CallBacker* )
 {
-    PtrMan<IOObj> ioobj = IOM().get( server_.data().setup().seisid_ );
-    SeisTrcReader rdr( ioobj );
-    const bool is2d = rdr.is2D();
+    const SeisIOObjInfo seisinfo( server_.data().setup().seisid_ );
+    if ( !seisinfo.isOK() )
+	return;
 
+    const bool is2d = seisinfo.is2D();
     const IOObjContext horctxt = is2d ? mIOObjContext( EMHorizon2D )
 				      : mIOObjContext( EMHorizon3D );
     if ( !selhordlg_ )

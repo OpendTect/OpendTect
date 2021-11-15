@@ -60,12 +60,12 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
     if ( ztransform_ )
 	ztransform_->ref();
 
-    seisreader_ = new SeisTrcReader( &in );
+    const Seis::GeomType gt = info.geomType();
+    seisreader_ = new SeisTrcReader( in, &gt );
     if ( !seisreader_->prepareWork(Seis::Scan) ||
 	 !seisreader_->seisTranslator())
     {
-	delete seisreader_;
-	seisreader_ = 0;
+	deleteAndZeroPtr( seisreader_ );
 	return;
     }
 
@@ -97,7 +97,7 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
 	totalnr_ = mCast( int, cs.hsamp_.totalNr() );
     }
 
-    seiswriter_ = new SeisTrcWriter( &out );
+    seiswriter_ = new SeisTrcWriter( out, &gt );
     sequentialwriter_ = new SeisSequentialWriter( seiswriter_ );
 }
 
@@ -412,10 +412,9 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 		outtrc->set( idx, outputptr[idx], 0 );
 	}
 
-	outtrc->info().nr = intrc.info().nr;
-	outtrc->info().binid = intrc.info().binid;
+	outtrc->info().setTrcKey( intrc.info().trcKey() );
 	outtrc->info().coord = intrc.info().coord;
-	if ( !sequentialwriter_->submitTrace( outtrc, true ) )
+	if ( !sequentialwriter_->submitTrace(outtrc,true) )
 	    return false;
 
 	addToNrDone( 1 );
@@ -447,21 +446,12 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
     {
 	if ( !seisreader_->get(trc) )
 	{
-	    delete seisreader_;
-	    seisreader_ = 0;
+	    deleteAndZeroPtr( seisreader_ );
 	    return false;
 	}
 
-	if ( is2d_ )
-	{
-	    trckey = TrcKey( seisreader_->selData()->geomID(), trc.info().nr );
-	}
-	else
-	{
-	    trckey = TrcKey( seisreader_->selData()->geomID(),trc.info().binid);
-	}
-
-	if ( !outcs_.hsamp_.includes( trckey ) )
+	trckey = trc.info().trcKey();
+	if ( !outcs_.hsamp_.includes(trckey) )
 	    continue;
 
 	if ( curhrg_.isEmpty() || !curhrg_.includes(trckey) )
@@ -476,11 +466,11 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
 	    if ( !shouldContinue() )
 		return false;
 
-	    if ( !loadTransformChunk( trckey.pos().inl() ) )
+	    if ( !loadTransformChunk( trckey.inl() ) )
 		continue;
 	}
 
-	sequentialwriter_->announceTrace( trckey.pos() );
+	sequentialwriter_->announceTrace( trckey.position() );
 
 	return true;
     }
@@ -511,23 +501,11 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, TrcKey& trckey )
     {
 	if ( !seisreadertdmodel_->get(trc) )
 	{
-	    delete seisreadertdmodel_;
-	    seisreadertdmodel_ = 0;
+	    deleteAndZeroPtr( seisreadertdmodel_ );
 	    return false;
 	}
 
-	if ( is2d_ )
-	{
-	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
-					    trc.info().nr );
-	}
-	else
-	{
-	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
-					   trc.info().binid.inl(),
-					   trc.info().binid.crl() );
-	}
-
+	trckey = trc.info().trcKey();
 	if ( curhrg_.isEmpty() || !curhrg_.includes(trckey) )
 	{
 	    waitforall_ = true;
@@ -540,7 +518,7 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, TrcKey& trckey )
 	    if ( !shouldContinue() )
 		return false;
 
-	    if ( !loadTransformChunk( trckey.pos().inl() ) )
+	    if ( !loadTransformChunk( trckey.inl() ) )
 		continue;
 	}
 

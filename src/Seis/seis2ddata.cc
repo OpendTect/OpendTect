@@ -54,7 +54,7 @@ void Seis2DDataSet::init()
     readonly_ = false;
     const BufferString typestr = ioobj_.translator();
 
-    liop_ = 0;
+    liop_ = nullptr;
     geomids_.erase();
     const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOPs();
     for ( int idx=0; idx<liops.size(); idx++ )
@@ -132,20 +132,26 @@ Executor* Seis2DDataSet::lineFetcher( Pos::GeomID geomid, SeisTrcBuf& tbuf,
     if ( !liop_ )
     {
 	ErrMsg("No suitable 2D line extraction object found");
-	return 0;
+	return nullptr;
     }
 
     if ( !isPresent(geomid) )
     {
 	ErrMsg("Requested line not found in Dataset");
-	return 0;
+	return nullptr;
     }
 
     Executor* fetcher = liop_->getFetcher( ioobj_, geomid, tbuf, ntps, sd );
     auto* getter = dynamic_cast<Seis2DLineGetter*>(fetcher);
     const SeisTrcTranslator* trl = getter ? getter->translator() : nullptr;
     if ( trl )
-	const_cast<SeisTrcTranslator*>(trl)->setCurGeomID( geomid );
+    {
+	if ( trl->curGeomID() != geomid )
+	{
+	    pErrMsg("Should not happen");
+	    const_cast<SeisTrcTranslator*>(trl)->setCurGeomID( geomid );
+	}
+    }
 
     return fetcher;
 }

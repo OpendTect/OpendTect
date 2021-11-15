@@ -6,7 +6,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H.Bril
  Date:		Jul 2002
- Contents:	PAuxiliary info on position
+ Contents:	Auxiliary info on position
 ________________________________________________________________________
 
 -*/
@@ -15,28 +15,31 @@ ________________________________________________________________________
 #include "position.h"
 
 
-/*!\brief Auxiliray data possibly needed at location. Mostly a seismic thing. */
+/*!\brief Auxiliary data possibly needed at location. Mostly a seismic thing. */
 
 mExpClass(General) PosAuxInfo
 {
 public:
 
-		PosAuxInfo()		{ clear(); }
+		PosAuxInfo(bool for2d);
 
-    void	clear()
-		{
-		    binid.inl() = binid.crl() = 0; coord.x = coord.y = 0;
-		    startpos = offset = azimuth = 0;
-		    pick = refnr = mUdf(float);
-		}
+    mDeprecated("Provide 2D info")
+		PosAuxInfo();
 
-    BinID	binid;
+    void	clear();
+    void	set2D(bool yn);
+
+    bool	is2D() const	{ return trckey_.is2D(); }
+
+    TrcKey	trckey_;
     Coord	coord;
-    float	startpos;
-    float	offset;
-    float	azimuth;
-    float	pick;
-    float	refnr;
+    float	startpos = 0.f;
+    float	offset = 0.f;
+    float	azimuth = 0.f;
+    float	pick = mUdf(float);
+    float	refnr = mUdf(float);
+
+    mDeprecated("Use TrcKey") BinID&	binid;
 
 };
 

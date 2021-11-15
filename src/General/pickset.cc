@@ -472,7 +472,7 @@ class PickSetBulkUndoEvent: public UndoEvent
 public:
     enum  UnDoType	    { Insert, Remove };
     PickSetBulkUndoEvent( UnDoType type, const MultiID& mid,
-	    		  const TypeSet<int>& idxs,
+			  const TypeSet<int>& idxs,
 			  const TypeSet<Pick::Location>& pos )
     { init( type, mid, idxs, pos ); }
 
@@ -504,8 +504,8 @@ public:
 	if ( !set ) return false;
 
 	Pick::SetMgr::BulkChangeData::Ev ev = type_ == Remove
-	    			? Pick::SetMgr::BulkChangeData::Added
-	    			: Pick::SetMgr::BulkChangeData::ToBeRemoved;
+				? Pick::SetMgr::BulkChangeData::Added
+				: Pick::SetMgr::BulkChangeData::ToBeRemoved;
 
 	Pick::SetMgr::BulkChangeData cd( ev, set, indexes_ );
 
@@ -537,8 +537,8 @@ public:
 	if ( !set ) return false;
 
 	Pick::SetMgr::BulkChangeData::Ev ev = type_ == Remove
-	    			? Pick::SetMgr::BulkChangeData::ToBeRemoved
-	    			: Pick::SetMgr::BulkChangeData::Added;
+				? Pick::SetMgr::BulkChangeData::ToBeRemoved
+				: Pick::SetMgr::BulkChangeData::Added;
 
 	Pick::SetMgr::BulkChangeData cd( ev, set, indexes_ );
 
@@ -563,9 +563,9 @@ public:
 protected:
 
     TypeSet<Pick::Location>	pos_;
-    MultiID	    		mid_;
-    TypeSet<int>	    	indexes_;
-    UnDoType	    		type_;
+    MultiID			mid_;
+    TypeSet<int>		indexes_;
+    UnDoType			type_;
 };
 
 
@@ -651,9 +651,9 @@ Set& Set::operator=( const Set& s )
 
 Pos::SurvID Set::getSurvID() const
 {
-    Pos::SurvID survid( TrcKey::cUndefSurvID() );
+    Pos::SurvID survid;
     return pars_.get(sKey::SurveyID(),survid) ? survid
-	 : Pick::getSurvID( *this );
+					      : Pick::getSurvID( *this );
 }
 
 
@@ -942,10 +942,10 @@ void Set::addBulkUndoEvent( EventType type, const TypeSet<int>& indexes,
     {
 	PickSetBulkUndoEvent::UnDoType undotype =
 	    type == Insert ? PickSetBulkUndoEvent::Insert
-	    		   : PickSetBulkUndoEvent::Remove;
+			   : PickSetBulkUndoEvent::Remove;
 
 	PickSetBulkUndoEvent* undo =
-	    	new PickSetBulkUndoEvent( undotype, mid, indexes, locs );
+		new PickSetBulkUndoEvent( undotype, mid, indexes, locs );
 	Pick::Mgr().undo().addEvent( undo, 0 );
     }
 }

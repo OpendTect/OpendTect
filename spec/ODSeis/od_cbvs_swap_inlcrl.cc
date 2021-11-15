@@ -77,8 +77,8 @@ int mProgMainFnName( int argc, char** argv )
 		{ std::cerr << "Cannot read " << linenr << '/' << trcnr
 		       << std::endl; return 1; }
 
-	    Swap( trc.info().binid.inl, trc.info().binid.crl );
-	    trc.info().coord = SI().transform( trc.info().binid );
+	    Swap( trc.info().inl(), trc.info().crl() );
+	    trc.info().calcCoord();
 
 	    if ( !nrwr
 		    && !tro->initWrite(new StreamConn(fname,Conn::Write),trc) )

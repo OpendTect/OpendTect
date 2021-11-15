@@ -27,15 +27,15 @@ namespace WellTie
 {
 
 SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
-	: Executor("Extracting Seismic positions")
-	, rdr_(new SeisTrcReader( &ioobj ))
-	, trcbuf_(new SeisTrcBuf(false))
-	, nrdone_(0)
-	, outtrc_(0)
-	, tkzs_(new TrcKeyZSampling(false))
-	, extrintv_(SI().zRange(false))
-	, linenm_(*new BufferString)
-	, radius_(1)
+    : Executor("Extracting Seismic positions")
+    , rdr_(new SeisTrcReader(ioobj ))
+    , trcbuf_(new SeisTrcBuf(false))
+    , nrdone_(0)
+    , outtrc_(0)
+    , tkzs_(new TrcKeyZSampling(false))
+    , extrintv_(SI().zRange(false))
+    , linenm_(*new BufferString)
+    , radius_(1)
 {}
 
 
@@ -138,7 +138,7 @@ int SeismicExtractor::nextStep()
     for ( int idx=0; idx<trcbuf_->size(); idx++ )
     {
 	const SeisTrc* trc = trcbuf_->get(idx);
-	BinID b = trc->info().binid;
+	BinID b = trc->info().binID();
 
 	const SamplingData<float>& sd = trc->info().sampling;
 	const int trcidx = sd.nearestIndex( zval );

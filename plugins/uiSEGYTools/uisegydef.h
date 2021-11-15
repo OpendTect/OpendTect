@@ -62,7 +62,7 @@ public:
 			    : forread_(true)
 			    , canbe3d_(true)
 			    , needmultifile_(needmulti)
-			    , pars_(0)		{}
+			    , pars_(nullptr)		{}
 
 	mDefSetupMemb(bool,forread)
 	mDefSetupMemb(bool,canbe3d)

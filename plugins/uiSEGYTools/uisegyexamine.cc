@@ -45,9 +45,10 @@ ________________________________________________________________________
 const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
 
 
-uiSEGYExamine::Setup::Setup( int nrtraces )
+uiSEGYExamine::Setup::Setup( Seis::GeomType gt, int nrtraces )
     : uiDialog::Setup(tr("SEG-Y Examiner"),mNoDlgTitle,
                       mODHelpKey(mSEGYExamineHelpID) )
+    , geomtype_(gt)
     , nrtrcs_(nrtraces)
     , fp_(true)
 {
@@ -57,16 +58,29 @@ uiSEGYExamine::Setup::Setup( int nrtraces )
 
 void uiSEGYExamine::Setup::usePar( const IOPar& iop )
 {
-    fp_.usePar( iop ); fs_.usePar( iop );
+    Seis::getFromPar( iop, geomtype_ );
+    fp_.usePar( iop );
+    fs_.usePar( iop );
     iop.get( sKeyNrTrcs, nrtrcs_ );
 }
 
 
+void uiSEGYExamine::Setup::setFileName( const char* fnm )
+{
+    BufferString filenm( fnm );
+#ifdef __win__
+    if ( File::isLink(filenm) )
+	filenm = File::linkTarget( filenm.str() );
+#endif
+    fs_.setFileName( fnm );
+}
+
+
+
 uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
-	: uiDialog(p,su)
-	, setup_(su)
-	, tbuf_(*new SeisTrcBuf(true))
-	, rdr_(0)
+    : uiDialog(p,su)
+    , setup_(su)
+    , tbuf_(*new SeisTrcBuf(true))
 {
     setCtrlStyle( CloseOnly );
 
@@ -273,24 +287,24 @@ void uiSEGYExamine::setRow( int irow )
 SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
 					 BufferString& emsg )
 {
-    IOObj* ioobj = su.fs_.getIOObj( true );
+    PtrMan<IOObj> ioobj = su.fs_.getIOObj( true );
     if ( !ioobj )
-	return 0;
+	return nullptr;
 
     IOM().commitChanges( *ioobj );
     su.fp_.fillPar( ioobj->pars() );
+    SeisStoreAccess::Setup ssasu( *ioobj.ptr(), &su.geomtype_ );
+    if ( su.fp_.getCoordSys() )
+	ssasu.coordsys( *su.fp_.getCoordSys().ptr() );
 
-    SeisTrcReader* rdr = new SeisTrcReader( ioobj );
-    delete ioobj;
-    if ( !rdr->errMsg().isEmpty() || !rdr->prepareWork(Seis::PreScan) )
-	{ emsg = rdr->errMsg().getFullString(); delete rdr; return 0; }
+    PtrMan<SeisTrcReader> rdr = new SeisTrcReader( ssasu );
+    if ( !rdr->prepareWork(Seis::PreScan) )
+    {
+	emsg = rdr->errMsg().getFullString();
+	return nullptr;
+    }
 
-    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr->translator())
-    if ( !trans )
-	{ emsg = "Internal: cannot obtain SEG-Y Translator";
-		delete rdr; return 0; }
-
-    return rdr;
+    return rdr.release();
 }
 
 
@@ -321,6 +335,7 @@ int uiSEGYExamine::getRev( const SeisTrcReader& rdr )
 bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 {
     OS::MachineCommand cmd( "od_SEGYExaminer" );
+    Seis::putInMC( su.geomtype_, cmd );
     cmd.addKeyedArg( "nrtrcs", su.nrtrcs_ );
     if ( su.fp_.ns_ > 0 ) cmd.addKeyedArg( "ns", su.fp_.ns_ );
     if ( su.fp_.fmt_ > 0 ) cmd.addKeyedArg( "fmt", su.fp_.fmt_ );
@@ -440,7 +455,7 @@ void uiSEGYExamine::updateInp()
 			    OD::Color::Red() );
 
 	nrdone++;
-	trc.info().nr = nrdone;
+	trc.info().seqnr_ = nrdone;
 	tbuf_.add( new SeisTrc(trc) );
     }
     tbl_->setNrCols( nrdone > 0 ? nrdone : 1 );

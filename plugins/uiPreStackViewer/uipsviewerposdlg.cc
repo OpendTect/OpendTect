@@ -206,7 +206,7 @@ void uiViewer3DPositionDlg::applyCB( CallBacker* )
 	    }
 	}
 
-	viewer_.setPosition( newpos );
+	viewer_.setPosition( TrcKey(newpos) );
 
 	const BinID bid = viewer_.getPosition();
 	posfld_->setValue( isInl() ? bid.crl() : bid.inl() );

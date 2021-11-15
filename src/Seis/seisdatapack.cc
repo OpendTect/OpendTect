@@ -255,7 +255,7 @@ TrcKey RegularSeisDataPack::getTrcKey( int globaltrcidx ) const
 { return sampling_.hsamp_.trcKeyAt( globaltrcidx ); }
 
 bool RegularSeisDataPack::is2D() const
-{ return sampling_.hsamp_.survid_ == Survey::GM().get2DSurvID(); }
+{ return sampling_.is2D(); }
 
 
 int RegularSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
@@ -460,13 +460,8 @@ DataPack::ID RandomSeisDataPack::createDataPackFrom(
     if ( regsdp.getScaler() )
 	randsdp->setScaler( *regsdp.getScaler() );
 
-    TypeSet<BinID> knots, bidpath;
+    TrcKeyPath knots, tkpath;
     rdmline->allNodePositions( knots );
-    Geometry::RandomLine::getPathBids( knots, bidpath );
-    TrcKeyPath tkpath;
-    tkpath.setSize( bidpath.size(), TrcKey::udf() );
-    for ( int idx=0; idx<tkpath.size(); idx++ )
-	tkpath[idx] = TrcKey( bidpath[idx] );
     randsdp->setPath( tkpath );
 
     TrcKeyPath& path = randsdp->getPath();
@@ -648,7 +643,8 @@ void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     if ( is2D() )
     {
 	const int trcidx = nrTrcs()==1 ? 0 : i0;
-	iop.set( mKeyTrcNr, getTrcKey(trcidx).trcNr() );
+	const TrcKey tk = getTrcKey( trcidx );
+	iop.set( mKeyTrcNr, tk.trcNr() );
 	iop.set( mKeyRefNr, source_.getRefNr(trcidx) );
     }
     else

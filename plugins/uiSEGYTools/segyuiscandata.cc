@@ -31,9 +31,9 @@ static const int cQuickScanMaxNrTrcs4LineChg = 10000;
 // plus these 10000 worst-case for survey setup
 
 
-SEGY::BasicFileInfo::BasicFileInfo()
+SEGY::BasicFileInfo::BasicFileInfo( bool is2d )
 {
-    init();
+    init( is2d );
 }
 
 
@@ -42,8 +42,9 @@ SEGY::BasicFileInfo::~BasicFileInfo()
 }
 
 
-void SEGY::BasicFileInfo::init()
+void SEGY::BasicFileInfo::init( bool is2d )
 {
+    is2d_ = is2d;
     revision_ = ns_ = binns_ = binsr_ -1;
     format_ = 5;
     sampling_.start = 1.0f;
@@ -178,7 +179,11 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
     if ( ns_ == 0 )
 	ns_ = binns_;
 
-    SeisTrcInfo ti; thdr->fill( ti, 1.0f );
+    SeisTrcInfo ti;
+    if ( thdr->is2D() != is2d_ )
+	thdr->geomtype_ = is2d_ ? Seis::Line : Seis::Vol;
+
+    thdr->fill( ti, 1.0f );
     sampling_ = ti.sampling;
     if ( mIsZero(sampling_.step,1.e-8) )
 	sampling_.step = binhdr.sampleRate( false );
@@ -188,17 +193,25 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 
 
 
-SEGY::LoadDef::LoadDef()
-    : hdrdef_(0)
+SEGY::LoadDef::LoadDef( bool is2d )
+    : BasicFileInfo(is2d)
     , coordsys_(SI().getCoordSystem() )
 {
-    reInit(true);
+    reInit( is2d, true );
 }
 
 
-void SEGY::LoadDef::reInit( bool alsohdef )
+SEGY::LoadDef::LoadDef( const LoadDef& oth )
+    : BasicFileInfo(oth)
+    , hdrdef_(new TrcHeaderDef)
 {
-    init();
+    *this = oth;
+}
+
+
+void SEGY::LoadDef::reInit( bool is2d, bool alsohdef )
+{
+    init( is2d );
 
     coordscale_ = mUdf(float);
     icvsxytype_ = FileReadOpts::ICOnly;
@@ -218,13 +231,6 @@ void SEGY::LoadDef::reInit( bool alsohdef )
 }
 
 
-SEGY::LoadDef::LoadDef( const LoadDef& oth )
-    : hdrdef_(new TrcHeaderDef)
-{
-    *this = oth;
-}
-
-
 SEGY::LoadDef::~LoadDef()
 {
     delete hdrdef_;
@@ -235,7 +241,7 @@ SEGY::LoadDef& SEGY::LoadDef::operator =( const SEGY::LoadDef& oth )
 {
     if ( this != &oth )
     {
-	((BasicFileInfo&)(*this)) = ((const BasicFileInfo&)oth);
+	BasicFileInfo::operator =( oth );
 	coordscale_ = oth.coordscale_;
 	icvsxytype_ = oth.icvsxytype_;
 	havetrcnrs_ = oth.havetrcnrs_;
@@ -272,15 +278,18 @@ SEGY::LoadDef SEGY::LoadDef::getPrepared( od_istream& strm ) const
 void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
 				const SEGY::OffsetCalculator& offscalc ) const
 {
+    if ( thdr.is2D() != is2d_ )
+	thdr.geomtype_ = is2d_ ? Seis::Line : Seis::Vol;
+
     thdr.fill( ti, coordscale_ );
     offscalc.setOffset( ti, thdr );
     if ( icvsxytype_ == FileReadOpts::ICOnly )
-	ti.coord = SI().transform( ti.binid );
-    else if ( icvsxytype_ == FileReadOpts::XYOnly )
+	ti.calcCoord();
+    else if ( !is2d_ && icvsxytype_ == FileReadOpts::XYOnly )
     {
 	if ( coordsys_ && !(*SI().getCoordSystem() == *coordsys_) )
 	    ti.coord = SI().getCoordSystem()->convertFrom(ti.coord,*coordsys_);
-	ti.binid = SI().transform( ti.coord );
+	ti.setPos( SI().transform( ti.coord ) );
     }
 }
 
@@ -439,7 +448,7 @@ void SEGY::ScanRangeInfo::merge( const SEGY::ScanRangeInfo& si )
 SEGY::ScanInfo::ScanInfo( const char* fnm, bool is2d )
     : filenm_(fnm)
     , keydata_(*new HdrEntryKeyData)
-    , pidetector_(0)
+    , basicinfo_(is2d)
 {
     init( is2d );
 }
@@ -606,11 +615,11 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
 
     const bool isfirst = nrinfile == idxfirstlive_;
     if ( !def.havetrcnrs_ )
-	ti.nr = def.trcnrdef_.atIndex( nrinfile - idxfirstlive_ );
+	ti.setTrcNr( def.trcnrdef_.atIndex( nrinfile - idxfirstlive_ ) );
 
     if ( !full_ )
 	keydata_.add( thdr, def.hdrsswapped_, isfirst );
-    pidetector_->add( ti.coord, ti.binid, ti.nr, ti.offset, ti.azimuth );
+    pidetector_->add( ti.coord, ti.binID(), ti.trcNr(), ti.offset, ti.azimuth );
     addValues( clipsampler, vals, def.ns_ );
 
     if ( isfirst )
@@ -766,7 +775,7 @@ void SEGY::ScanInfoSet::finish()
 }
 
 
-static const SEGY::BasicFileInfo dummyfileinfo;
+static const SEGY::BasicFileInfo dummyfileinfo( false );
 
 const SEGY::BasicFileInfo& SEGY::ScanInfoSet::basicInfo() const
 {

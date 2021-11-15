@@ -732,10 +732,10 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
 DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 					       DataPack::ID cacheid )
 {
-    if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    if ( tkzs.is2D() )
     {
 	uiTaskRunner taskrunner( parent() );
-	const Pos::GeomID& geomid = tkzs.hsamp_.trcKeyAt(0).geomID();
+	const Pos::GeomID geomid = tkzs.hsamp_.getGeomID();
 	return create2DOutput( tkzs, geomid, taskrunner );
     }
 
@@ -1059,8 +1059,8 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 }
 
 
-DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
-	const Interval<float>& zrg, int rdlid )
+DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
+						      int rdlid )
 {
     RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
     if ( !rdmline )
@@ -1086,30 +1086,25 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 	}
     }
 
-    TypeSet<BinID> knots, path;
+    TrcKeyPath knots, trckeys;
     rdmline->allNodePositions( knots );
-    rdmline->getPathBids( knots, path );
+    rdmline->getPathBids( knots, trckeys );
 
-    if ( path.isEmpty() )
+    if ( trckeys.isEmpty() )
 	return DataPack::cNoID();
 
-    snapToValidRandomTraces( path, targetdesc );
-
-    TrcKeyPath trckeys;
-    for ( int idx=0; idx<path.size(); idx++ )
-	trckeys += Survey::GM().traceKey(Survey::GeometryManager::get3DSurvID(),
-					 path[idx].inl(), path[idx].crl() );
+    snapToValidRandomTraces( trckeys, targetdesc );
 
     BinIDValueSet bidset( 2, false );
-    for ( int idx = 0; idx<path.size(); idx++ )
-	bidset.add( path[idx],zrg.start,zrg.stop );
+    for ( const auto& tk : trckeys )
+	bidset.add( tk.position(), zrg.start, zrg.stop );
 
     SeisTrcBuf output( true );
-    if ( !createOutput(bidset,output,&knots,&path) || output.isEmpty() )
+    if ( !createOutput(bidset,output,knots,trckeys) || output.isEmpty() )
 	return DataPack::cNoID();
 
-    RandomSeisDataPack* newpack = new RandomSeisDataPack(
-				SeisDataPack::categoryStr(true,false) );
+    auto* newpack =
+		new RandomSeisDataPack( SeisDataPack::categoryStr(true,false) );
     newpack->setRandomLineID( rdlid );
     newpack->setPath( trckeys );
     newpack->setZRange( output.get(0)->zRange() );
@@ -1120,8 +1115,8 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
 	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
 	{
-	    const int trcidx = output.find( path[idy] );
-	    const SeisTrc* trc = trcidx<0 ? 0 : output.get( trcidx );
+	    const int trcidx = output.find( trckeys[idy].position() );
+	    const SeisTrc* trc = trcidx<0 ? nullptr : output.get( trcidx );
 	    if ( !trc ) continue;
 	    for ( int idz=0; idz<newpack->data(idx).info().getSize(2);idz++)
 		newpack->data(idx).set( 0, idy, idz, trc->get(idz,idx) );
@@ -1136,7 +1131,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 }
 
 
-void uiAttribPartServer::snapToValidRandomTraces( TypeSet<BinID>& path,
+void uiAttribPartServer::snapToValidRandomTraces( TrcKeyPath& path,
 						  const Desc* targetdesc )
 {
     if ( !targetdesc )
@@ -1153,37 +1148,45 @@ void uiAttribPartServer::snapToValidRandomTraces( TypeSet<BinID>& path,
     if ( tkzs.hsamp_.step_.lineNr()==1 && tkzs.hsamp_.step_.trcNr()==1 )
 	return;
 
-    for ( int idx=0; idx<path.size(); idx++ )
+    for ( auto& tk : path )
     {
-	if ( tkzs.hsamp_.lineRange().includes(path[idx].lineNr(),true) &&
-	     tkzs.hsamp_.trcRange().includes(path[idx].trcNr(),true) )
+	const TrcKey::IdxType linenr = const_cast<const TrcKey&>(tk).lineNr();
+	const TrcKey::IdxType trcnr = const_cast<const TrcKey&>(tk).trcNr();
+	if ( tkzs.hsamp_.lineRange().includes(linenr,true) &&
+	     tkzs.hsamp_.trcRange().includes(trcnr,true) )
 	{
-	    const int shiftedtogetnearestinl = path[idx].lineNr() +
+	    const int shiftedtogetnearestinl = linenr +
 					       tkzs.hsamp_.step_.lineNr()/2;
 	    const int inlidx = tkzs.hsamp_.lineIdx( shiftedtogetnearestinl );
-	    const int shiftedtogetnearestcrl = path[idx].trcNr() +
+	    const int shiftedtogetnearestcrl = trcnr +
 					       tkzs.hsamp_.step_.trcNr()/2;
 	    const int crlidx = tkzs.hsamp_.trcIdx( shiftedtogetnearestcrl );
-	    path[idx] = tkzs.hsamp_.atIndex( inlidx, crlidx );
+	    tk.setPosition( tkzs.hsamp_.atIndex( inlidx, crlidx ) );
 	}
     }
 }
 
 
-DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
-				const Interval<float>& zrg,
-				TypeSet<BinID>* path,
-				TypeSet<BinID>* trueknotspos )
+DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
+			    TypeSet<BinID>& path, TypeSet<BinID>& trueknotspos )
+{
+    TrcKeyPath tkpath, tktrueknotspos;
+    for ( const auto& bid : path )
+	tkpath += TrcKey( bid );
+    for ( const auto& bid : trueknotspos )
+	tktrueknotspos += TrcKey( bid );
+
+    return createRdmTrcsOutput( zrg, tkpath, tktrueknotspos );
+}
+
+
+DataPack::ID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
+				TrcKeyPath& trckeys, TrcKeyPath& trueknotspos )
 {
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
-    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
-	: attrds->getDesc(targetspecs_[0].id());
-
-    TrcKeyPath trckeys;
-    for ( int idx=0; idx<path->size(); idx++ )
-	trckeys += Survey::GM().traceKey(Survey::GeometryManager::get3DSurvID(),
-				       (*path)[idx].inl(), (*path)[idx].crl() );
+    const Desc* targetdesc = !attrds || attrds->isEmpty() ? nullptr
+			   : attrds->getDesc(targetspecs_[0].id());
 
     const MultiID mid( targetdesc->getStoredID() );
     mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
@@ -1198,11 +1201,11 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     }
 
     BinIDValueSet bidset( 2, false );
-    for ( int idx = 0; idx<path->size(); idx++ )
-	bidset.add( ( *path )[idx],zrg.start,zrg.stop );
+    for ( const auto& tk : trckeys )
+	bidset.add( tk.position(), zrg.start, zrg.stop );
 
     SeisTrcBuf output( true );
-    if ( !createOutput(bidset,output,trueknotspos,path) )
+    if ( !createOutput(bidset,output,trueknotspos,trckeys) )
 	return DataPack::cNoID();
 
     RandomSeisDataPack* newpack = new RandomSeisDataPack(
@@ -1216,8 +1219,8 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
 	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
 	{
-	    const int trcidx = output.find( (*path)[idy] );
-	    const SeisTrc* trc = trcidx<0 ? 0 : output.get( trcidx );
+	    const int trcidx = output.find( trckeys[idy].position() );
+	    const SeisTrc* trc = trcidx<0 ? nullptr : output.get( trcidx );
 	    if ( !trc ) continue;
 	    for ( int idz=0; idz<newpack->data(idx).info().getSize(2);idz++)
 		newpack->data(idx).set( 0, idy, idz, trc->get(idz,idx) );
@@ -1234,17 +1237,32 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
 bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 				       SeisTrcBuf& output,
-				       TypeSet<BinID>* trueknotspos,
-				       TypeSet<BinID>* snappedpos )
+				       const TrcKeyPath& tktrueknotspos,
+				       const TrcKeyPath& tksnappedpos )
+{
+    TypeSet<BinID> trueknotspos, snappedpos;
+    for ( const auto& tk : tktrueknotspos )
+	trueknotspos += tk.position();
+    for ( const auto& tk : tksnappedpos )
+	snappedpos += tk.position();
+
+    return createOutput( bidset, output, trueknotspos, snappedpos );
+}
+
+
+bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
+				       SeisTrcBuf& output,
+				       const TypeSet<BinID>& trueknotspos,
+				       const TypeSet<BinID>& snappedpos )
 {
     PtrMan<EngineMan> aem = createEngMan();
-    if ( !aem ) return 0;
+    if ( !aem )
+	return false;
 
     uiString errmsg;
-    PtrMan<Processor> process = aem->createTrcSelOutput( errmsg, bidset,
-							 output, mUdf(float), 0,
-							 trueknotspos,
-							 snappedpos );
+    PtrMan<Processor> process =
+	aem->createTrcSelOutput( errmsg, bidset, output, mUdf(float), nullptr,
+				 &trueknotspos, &snappedpos );
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
@@ -1296,8 +1314,7 @@ od_int64 nrIterations() const		{ return input_.trcinfoset_.size(); }
 
 bool doPrepare( int nrthreads )
 {
-    if ( input_.trcinfoset_.isEmpty() ||
-	    sampling_.hsamp_.survid_!=Survey::GM().get2DSurvID() )
+    if ( input_.trcinfoset_.isEmpty() || !sampling_.is2D() )
 	return false;
 
     outputdp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true) );
@@ -1328,7 +1345,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const ObjectSet<SeisTrcInfo>& trcinfoset = input_.trcinfoset_;
 	for ( int tidx=mCast(int,start); tidx<=mCast(int,stop); tidx++ )
 	{
-	    const int trcidx = sampling_.hsamp_.trcIdx( trcinfoset[tidx]->nr );
+	    const int trcidx =
+			sampling_.hsamp_.trcIdx( trcinfoset[tidx]->trcNr() );
 	    if ( trcidx<0 || trcidx>sampling_.hsamp_.nrTrcs()-1 )
 		continue;
 

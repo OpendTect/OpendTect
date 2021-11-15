@@ -132,10 +132,10 @@ bool SeisImpCBVSFromOtherSurvey::createTranslators( const char* fulluserexp )
 int SeisImpCBVSFromOtherSurvey::nextStep()
 {
     if ( !data_.hsit_->next(data_.curbid_) )
-	return Executor::Finished();
+	return Finished();
 
     if ( !tr_ || !tr_->readMgr() )
-	return Executor::ErrorOccurred();
+	return ErrorOccurred();
 
     const Coord curcoord = SI().transform( data_.curbid_ );
     const Pos::IdxPair2Coord& b2c = tr_->getTransform();
@@ -160,7 +160,7 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 	if ( needgathertrcs )
 	{
 	    if ( !findSquareTracesAroundCurbid( trcsset_ ) )
-		{ nrdone_++; return Executor::MoreToDo(); }
+		{ nrdone_++; return MoreToDo(); }
 	    sincInterpol( trcsset_ );
 	}
 	float mindist = mUdf( float );
@@ -176,21 +176,31 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 	}
 	outtrc = new SeisTrc( *trcsset_[outtrcidx] );
     }
-    outtrc->info().binid = data_.curbid_;
+    outtrc->info().setPos( data_.curbid_ );
 
     if ( !wrr_ )
-	wrr_ = new SeisTrcWriter(outioobj_);
-    if ( !wrr_->put( *outtrc ) )
+    {
+	if ( !outioobj_ )
+	{
+	    errmsg_ = uiStrings::phrCannotOpenOutpFile();
+	    return ErrorOccurred();
+	}
+
+	const Seis::GeomType gt = Seis::Vol;
+	wrr_ = new SeisTrcWriter(*outioobj_,&gt);
+    }
+
+    if ( !wrr_->put(*outtrc) )
     {
 	errmsg_ = wrr_->errMsg();
 	delete outtrc;
-	return Executor::ErrorOccurred();
+	return ErrorOccurred();
     }
 
     delete outtrc;
 
     nrdone_ ++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
@@ -200,7 +210,7 @@ SeisTrc* SeisImpCBVSFromOtherSurvey::readTrc( const BinID& bid ) const
     if ( tr_->goTo( bid )  )
     {
 	trc = new SeisTrc;
-	trc->info().binid = bid;
+	trc->info().setPos( bid );
 	tr_->readInfo( trc->info() );
 	tr_->read( *trc );
     }

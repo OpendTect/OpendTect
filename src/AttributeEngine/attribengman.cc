@@ -603,12 +603,11 @@ protected:
 const RegularSeisDataPack* EngineMan::getDataPackOutput(
 			const ObjectSet<const RegularSeisDataPack>& packset )
 {
-    if ( packset.isEmpty() ) return 0;
+    if ( packset.isEmpty() ) return nullptr;
     const char* category = SeisDataPack::categoryStr(
 			tkzs_.defaultDir()!=TrcKeyZSampling::Z,
-			tkzs_.hsamp_.survid_==Survey::GM().get2DSurvID() );
-    RegularSeisDataPack* output =
-	new RegularSeisDataPack( category, &packset[0]->getDataDesc() );
+			tkzs_.is2D() );
+    auto* output = new RegularSeisDataPack(category,&packset[0]->getDataDesc());
     if ( packset[0]->getScaler() )
 	output->setScaler( *packset[0]->getScaler() );
 
@@ -981,7 +980,7 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 				    tkzs_.hsamp_.step_.inl()*idx,
 				    tkzs_.hsamp_.start_.crl() );
 
-	proc->setRdmPaths( &positions, &positions );
+	proc->setRdmPaths( positions, positions );
     }
 
     return proc;
@@ -1321,22 +1320,24 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 Processor* EngineMan::createTrcSelOutput( uiString& errmsg,
 					  const BinIDValueSet& bidvalset,
 					  SeisTrcBuf& output, float outval,
-					  Interval<float>* cubezbounds,
-					  TypeSet<BinID>* trueknotspos,
-					  TypeSet<BinID>* snappedpos )
+					  const Interval<float>* cubezbounds,
+					  const TypeSet<BinID>* trueknotspos,
+					  const TypeSet<BinID>* snappedpos )
 {
     Processor* proc = getProcessor(errmsg);
     if ( !proc )
-	return 0;
+	return nullptr;
 
-    TrcSelectionOutput* attrout	= new TrcSelectionOutput( bidvalset, outval );
+    auto* attrout = new TrcSelectionOutput( bidvalset, outval );
     attrout->setOutput( &output );
     if ( cubezbounds )
 	attrout->setTrcsBounds( *cubezbounds );
+
     attrout->setGeomID( geomid_ );
 
     proc->addOutput( attrout );
-    proc->setRdmPaths( trueknotspos, snappedpos );
+    if ( trueknotspos && snappedpos )
+	proc->setRdmPaths( *trueknotspos, *snappedpos );
 
     return proc;
 }
@@ -1346,13 +1347,13 @@ Processor* EngineMan::create2DVarZOutput( uiString& errmsg,
 					  const IOPar& pars,
 					  DataPointSet* datapointset,
 					  float outval,
-					  Interval<float>* cubezbounds )
+					  const Interval<float>* cubezbounds )
 {
     Processor* proc = getProcessor( errmsg );
-    if ( !proc ) return 0;
+    if ( !proc )
+	return nullptr;
 
-    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( geomid_,
-							datapointset, outval );
+    auto* attrout = new Trc2DVarZStorOutput( geomid_, datapointset, outval );
     attrout->doUsePar( pars );
     if ( cubezbounds )
 	attrout->setTrcsBounds( *cubezbounds );

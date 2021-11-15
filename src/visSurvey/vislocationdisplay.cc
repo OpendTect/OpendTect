@@ -550,9 +550,9 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
     if ( !datatransform_ ) return true;
 
     float newdepth = mUdf(float);
-    if ( datatransform_->canTransformSurv(TrcKey::std3DSurvID()) )
+    if ( datatransform_->canTransformSurv(OD::Geom3D) )
 	newdepth = datatransform_->transformTrc( loc.trcKey(), loc.z() );
-    else if ( datatransform_->canTransformSurv(TrcKey::std2DSurvID()) )
+    else if ( datatransform_->canTransformSurv(OD::Geom2D) )
     {
 	if ( loc.trcKey().is2D() )
 	    newdepth = datatransform_->transformTrc( loc.trcKey(), loc.z() );

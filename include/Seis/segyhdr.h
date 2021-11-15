@@ -171,6 +171,7 @@ public:
 
     static void		fillRev1Def(TrcHeaderDef&);
 
+    bool		is2D() const;
     unsigned short	nrSamples() const;
     void		putSampling(SamplingData<float>,unsigned short);
 

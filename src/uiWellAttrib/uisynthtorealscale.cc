@@ -164,7 +164,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 			      sssu );
 
     const IOObjContext horctxt( is2d_ ? mIOObjContext(EMHorizon2D)
-	    			      : mIOObjContext(EMHorizon3D) );
+				      : mIOObjContext(EMHorizon3D) );
     uiIOObjSel::Setup horsu( tr("Horizon for '%1'").arg(lvlnm));
     horfld_ = new uiIOObjSel( this, horctxt, horsu );
     horfld_->attach( alignedBelow, seisfld_ );
@@ -422,7 +422,7 @@ int getTrc2D()
     mDynamicCastGet(const EM::Horizon2D*,hor2d,dlg_.horizon_)
     if ( !hor2d )
 	return ErrorOccurred();
-    TrcKey tk( rdr_.geomID(), trc_.info().nr );
+    TrcKey tk( rdr_.geomID(), trc_.info().trcNr() );
     EM::PosID pid = hor2d->geometry().getPosID( tk );
     const Coord3 crd = dlg_.horizon_->getPos( pid );
     if ( mIsUdf(crd.z) )
@@ -491,7 +491,8 @@ void uiSynthToRealScale::updRealStats()
 	    mErrRet(tr("No common line names found in horizon & seismic data"))
     }
 
-    SeisTrcReader rdr( seisfld_->ioobj() );
+    const Seis::GeomType gt = Seis::geomTypeOf( is2d_, false );
+    SeisTrcReader rdr( *seisfld_->ioobj(), &gt );
     if ( !rdr.prepareWork() )
 	mErrRet( tr("Error opening input seismic data") );
 

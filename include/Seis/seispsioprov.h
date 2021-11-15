@@ -132,6 +132,12 @@ public:
 
     // Convenience functions
     const SeisPSIOProvider*	provider(const char* typ) const;
+    SeisPSReader*		getReader(const MultiID&,const TrcKey&) const;
+    SeisPSReader*		getReader(const IOObj&,const TrcKey&) const;
+    SeisPSWriter*		getWriter(const MultiID&,const TrcKey&) const;
+    SeisPSWriter*		getWriter(const IOObj&,const TrcKey&) const;
+
+				//! For 3D
     SeisPS3DReader*		get3DReader(const IOObj&,int i=mUdf(int)) const;
     SeisPSWriter*		get3DWriter(const IOObj&) const;
     void			mk3DPostStackProxy(IOObj&);

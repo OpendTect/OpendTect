@@ -122,23 +122,16 @@ FileDataSet::TrcIdx findOcc( const Seis::PosKey& pk,
 }
 
 
-#define mDefMembInitList \
-    : fds_(0) \
-    , myfds_(0) \
-    , keylist_( 0 ) \
-    , cubedata_( *new PosInfo::CubeData ) \
-    , linedata_( *new PosInfo::Line2DData ) \
-    , indexer_( 0 ) \
-    , outstream_( 0 )
 
 SEGY::DirectDef::DirectDef()
-    mDefMembInitList
+    : cubedata_(*new PosInfo::CubeData)
+    , linedata_(*new PosInfo::Line2DData)
 {
 }
 
 
 SEGY::DirectDef::DirectDef( const char* fnm )
-    mDefMembInitList
+    : DirectDef()
 {
     readFromFile( fnm );
 }
@@ -151,8 +144,7 @@ SEGY::DirectDef::~DirectDef()
     delete myfds_;
     delete keylist_;
     delete indexer_;
-    if ( outstream_ )
-	delete outstream_;
+    delete outstream_;
 }
 
 
@@ -334,7 +326,7 @@ FixedString SEGY::DirectDef::fileName( int idx ) const
 
 const IOPar* SEGY::DirectDef::segyPars() const
 {
-    return fds_ ? &fds_->segyPars() : 0;
+    return fds_ ? &fds_->segyPars() : nullptr;
 }
 
 #define mSetDc( par, type, string ) \
@@ -572,31 +564,36 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
 					const FileSpec& sgyfile, bool is2d,
 				        const IOPar& segypar )
     : Executor( "SEGY Indexer" )
-    , directdef_( 0 )
     , ioobj_( IOM().get( mid ) )
     , isvol_(isvol)
     , is2d_(is2d)
     , geomid_(mUdfGeomID)
-    , scanner_(0)
 {
     if ( !ioobj_ )
-    { msg_ = tr("Cannot find output object"); return; }
-    if ( is2d && !segypar.get(sKey::GeomID(),geomid_) )
     {
-	const FixedString linename = segypar.find( sKey::LineName() );
+	msg_ = tr("Cannot find output object");
+	return;
+    }
+
+    IOPar iop = segypar;
+    FileSpec::makePathsRelative( iop );
+    if ( is2d && !iop.get(sKey::GeomID(),geomid_) )
+    {
+	const FixedString linename = iop.find( sKey::LineName() );
 	if ( linename )
 	    geomid_ = Survey::GM().getGeomID( linename );
     }
 
-    if ( is2d && mIsUdfGeomID(geomid_) )
+    if ( is2d && !Survey::is2DGeom(geomid_) )
     {
-	delete ioobj_; ioobj_ = 0; msg_ = tr("2D Line ID not specified");
+	deleteAndZeroPtr( ioobj_ );
+	msg_ = tr("2D Line ID not specified");
 	return;
     }
 
     scanner_ = new SEGY::Scanner( sgyfile,
 			is2d_ ? (isvol_ ? Seis::Line : Seis::LinePS) :
-				(isvol_ ? Seis::Vol : Seis::VolPS), segypar );
+				(isvol_ ? Seis::Vol : Seis::VolPS), iop );
 }
 
 SEGY::FileIndexer::~FileIndexer()
@@ -651,7 +648,7 @@ int SEGY::FileIndexer::nextStep()
 	if ( is2d_ )
 	    scanner_->fileDataSet().save2DCoords( true );
 
-	if ( !directdef_->writeHeadersToFile( outfile ) )
+	if ( !directdef_->writeHeadersToFile(outfile) )
 	{
 	    msg_ = tr( "Cannot write to file %1" ).arg( outfile );
 	    return ErrorOccurred();

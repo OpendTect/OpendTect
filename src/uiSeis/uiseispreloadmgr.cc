@@ -621,7 +621,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 
     sort( gidxs );
     SeisTrcBuf seisbuf( true );
-    SeisTrcReader rdr( ioobj );
+    SeisTrcReader rdr( *ioobj );
     rdr.prepareWork();
     mDynamicCastGet(SeisTrcTranslator*,trl,rdr.translator())
     if ( !trl ) return;
@@ -635,7 +635,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 
 	if ( !res ) continue;
 
-	SeisTrc* trc = new SeisTrc;
+	auto* trc = new SeisTrc;
 	res = rdr.get( *trc );
 	if ( !res ) continue;
 

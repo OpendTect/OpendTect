@@ -338,11 +338,13 @@ Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
     , ioobj_( ioobj.clone() )
 {
     const SeisIOObjInfo seisinfo( ioobj );
-    const int nrcomponents = seisinfo.nrComponents();
+    const Pos::GeomID gid = tkzs.hsamp_.getGeomID();
+    const int nrcomponents = seisinfo.nrComponents( gid );
     for ( int idx=0; idx<nrcomponents; idx++ )
 	components_ += idx;
 
-    SeisTrcReader rdr( &ioobj );
+    const Seis::GeomType gt = seisinfo.geomType();
+    SeisTrcReader rdr( ioobj, gid, &gt );
     rdr.setSelData( new Seis::RangeSelData(tkzs) );
     if ( rdr.prepareWork() )
     {
@@ -351,7 +353,7 @@ Seis::ParallelReader::ParallelReader( const IOObj& ioobj,
 	{
 	    cubedata.limitTo( tkzs.hsamp_ );
 	    totalnr_ = cubedata.totalSize();
-        trcssampling_ = new PosInfo::SortedCubeData( cubedata );
+	    trcssampling_ = new PosInfo::SortedCubeData( cubedata );
 	}
 	else
 	    totalnr_ = tkzs.hsamp_.totalNr();
@@ -386,12 +388,6 @@ Seis::ParallelReader::~ParallelReader()
 
     deepErase( tks_ );
     delete trcssampling_;
-}
-
-
-bool Seis::ParallelReader::setOutputComponents( const TypeSet<int>& )
-{
-    return setOutputComponents();
 }
 
 
@@ -444,7 +440,7 @@ uiString Seis::ParallelReader::uiMessage() const
 
 void Seis::ParallelReader::submitUdfWriterTasks()
 {
-    if ( !trcssampling_ || trcssampling_->totalSize() >= tkzs_.hsamp_.totalNr() )
+    if ( !trcssampling_ || trcssampling_->totalSize() >= tkzs_.hsamp_.totalNr())
 	return;
 
     TaskGroup* udfwriters = new TaskGroup;
@@ -525,8 +521,10 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64, int threadid )
 	return false;
 
     const TrcKeySampling& tks = *tks_[threadid];
+    const Pos::GeomID gid = tks.getGeomID();
+    const Seis::GeomType gt = Seis::geomTypeOf( tks.is2D(), false );
 
-    SeisTrcReader rdr( ioobj_ );
+    SeisTrcReader rdr( *ioobj_, gid, &gt );
     rdr.setSelData( new Seis::RangeSelData(tks) );
     if ( !rdr.prepareWork() )
 	{ errmsg_ = rdr.errMsg(); return false; }
@@ -574,7 +572,7 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64, int threadid )
     do
     {
 	res = rdr.get( trcinfo );
-	const BinID bid = trcinfo.binid;
+	const BinID bid = trcinfo.binID();
 	if ( bid.lineNr() > currentinl || res == 0 )
 	{
 	    addToNrDone( nrdone ); nrdone = 0;
@@ -665,6 +663,7 @@ bool Seis::ParallelReader2D::init()
     const SeisIOObjInfo info( *ioobj_ );
     if ( !info.isOK() ) return false;
 
+    const Seis::GeomType gt = info.geomType();
     const Pos::GeomID geomid = tkzs_.hsamp_.getGeomID();
 
     if ( dc_.userType() == DataCharacteristics::Auto )
@@ -683,7 +682,7 @@ bool Seis::ParallelReader2D::init()
 	tkzs_.hsamp_.setTrcRange( trcrg );
     }
 
-    SeisTrcReader rdr( ioobj_ );
+    SeisTrcReader rdr( *ioobj_, geomid, &gt );
     rdr.setSelData( new Seis::RangeSelData(tkzs_.hsamp_) );
     if ( !rdr.prepareWork() )
 	{ msg_ = rdr.errMsg(); return false; }
@@ -701,7 +700,7 @@ bool Seis::ParallelReader2D::init()
 	else if ( res == 2 )
 	    continue;
 
-    trcnrs_.addIfNew( trcinfo.nr );
+    trcnrs_.addIfNew( trcinfo.trcNr() );
     } while ( res==1 );
 
     dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true), &dc_ );
@@ -758,15 +757,18 @@ bool Seis::ParallelReader2D::doWork( od_int64 start,od_int64 stop, int )
     Interval<int> trcrg(trcnrs_[0], trcnrs_[trcnrs_.size()-1] );
     trcrg.sort();
 
-    SeisTrcReader rdr( ioobj_ );
+    const Seis::GeomType gt = Seis::Line;
     const TrcKeySampling& tks = tkzs_.hsamp_;
+    const Pos::GeomID geomid = tks.getGeomID();
+
+    SeisTrcReader rdr( *ioobj_, geomid, &gt );
     TrcKeySampling tkschunk( tks );
     tkschunk.setTrcRange( trcrg );
     rdr.setSelData( new Seis::RangeSelData(tkschunk) );
     if ( !rdr.prepareWork() )
 	{ msg_.append( rdr.errMsg(), true ); return false; }
 
-    const Seis::ObjectSummary seissummary( *ioobj_, tks.getGeomID() );
+    const Seis::ObjectSummary seissummary( *ioobj_, geomid );
     auto* databuf = new RawTrcsSequence( seissummary, 1 );
     if ( !databuf ) return false;
 
@@ -797,7 +799,7 @@ bool Seis::ParallelReader2D::doWork( od_int64 start,od_int64 stop, int )
     do
     {
 	res = rdr.get( trcinfo );
-	const int trcnr = trcinfo.nr;
+	const int trcnr = trcinfo.trcNr();
 	if ( res == -1 )
 	    { msg_ = rdr.errMsg(); return false; }
 	else if ( res == 0 )
@@ -844,7 +846,7 @@ Seis::SequentialReader::SequentialReader( const IOObj& ioobj,
     , ioobj_(ioobj.clone())
     , dp_(0)
     , scaler_(0)
-    , rdr_(*new SeisTrcReader(ioobj_))
+    , rdr_(*new SeisTrcReader(ioobj))
     , dc_(DataCharacteristics::Auto)
     , initialized_(false)
     , trcssampling_(0)
@@ -911,7 +913,8 @@ Seis::SequentialReader::~SequentialReader()
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 
     DPM( DataPackMgr::SeisID() ).release( dp_ );
-    delete &rdr_; delete ioobj_;
+    delete &rdr_;
+    delete ioobj_;
     delete scaler_;
     delete seissummary_;
     delete trcssampling_;
@@ -936,12 +939,6 @@ bool Seis::SequentialReader::goImpl( od_ostream* strm, bool first, bool last,
     deleteAndZeroPtr( seissummary_ );
 
     return success;
-}
-
-
-bool Seis::SequentialReader::setOutputComponents( const TypeSet<int>& )
-{
-    return setOutputComponents();
 }
 
 
@@ -1216,11 +1213,11 @@ static bool fillTrcsBuffer( SeisTrcReader& rdr, TypeSet<TrcKey>& tks,
 	TrcKey& tk = tks[ipos];
 	if ( tk.is2D() )
 	{
-	    tk.setTrcNr( trcinfo.nr );
+	    tk.setTrcNr( trcinfo.trcNr() );
 	    refnrs[ipos] = trcinfo.refnr;
 	}
 	else
-	    tk.setPosition( trcinfo.binid );
+	    tk.setPosition( trcinfo.binID() );
 
 	trcscalers += (Scaler*)rdr.getTraceScaler();
 	if ( !rdr.getData(databuf.getTraceData(ipos)) )
@@ -1305,7 +1302,7 @@ bool Seis::SequentialReader::getTrcsPosForRead( int& desirednrpos,
 	if ( !trcsiterator3d_->next(bid) )
 	    break;
 
-	tks += TrcKey( tkzs_.hsamp_.survid_, bid );
+	tks += TrcKey( tkzs_.hsamp_.survid_, (const Pos::IdxPair&)bid );
     }
 
     desirednrpos = tks.size();

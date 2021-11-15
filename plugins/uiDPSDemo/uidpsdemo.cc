@@ -187,8 +187,8 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 			     TaskRunner& taskrunner )
 {
-    SeisTrcReader rdr( &ioobj );
-    Seis::TableSelData* tsd = new Seis::TableSelData( dps.bivSet() );
+    SeisTrcReader rdr( ioobj );
+    auto* tsd = new Seis::TableSelData( dps.bivSet() );
     rdr.setSelData( tsd );
     if ( !rdr.prepareWork() )
 	mErrRet(rdr.errMsg())
@@ -202,7 +202,7 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
     for ( int idx=0; idx<tbuf.size(); idx++ )
     {
 	const SeisTrc& trc = *tbuf.get( idx );
-	DataPointSet::RowID rid = dps.findFirst( trc.info().binid );
+	DataPointSet::RowID rid = dps.findFirst( trc.info().binID() );
 	if ( rid < 0 )
 	    { pErrMsg("Huh?"); continue; }
 

@@ -642,10 +642,9 @@ bool Seis::Blocks::Reader::doGoTo( const BinID& bid, uiRetVal& uirv ) const
 
 void Seis::Blocks::Reader::fillInfo( const BinID& bid, SeisTrcInfo& ti ) const
 {
+    ti.setGeomID( hgeom_.getID() ).setPos( bid ).calcCoord();
     ti.sampling.start = zrgintrace_.start;
     ti.sampling.step = zgeom_.step;
-    ti.setBinID( bid );
-    ti.coord = hgeom_.transform( bid );
 }
 
 

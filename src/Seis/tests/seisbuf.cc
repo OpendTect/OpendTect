@@ -12,7 +12,7 @@
 
 #define mAddTrc(i,c) \
     trc = new SeisTrc( 10 ); \
-    trc->info().binid = BinID(i,c); \
+    trc->info().setPos( BinID(i,c) ); \
     tbuf.add( trc )
 
 static bool testSorting()
@@ -29,8 +29,8 @@ static bool testSorting()
     mAddTrc(502,598);
 
     tbuf.sortForWrite( false );
-    if ( tbuf.get(4)->info().binid != BinID(501,600)
-      || tbuf.get(7)->info().binid != BinID(503,597) )
+    if ( tbuf.get(4)->info().binID() != BinID(501,600)
+      || tbuf.get(7)->info().binID() != BinID(503,597) )
     {
 	od_cout() << "Sorting fails." <<  od_endl;
 	return false;

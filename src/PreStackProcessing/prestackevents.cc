@@ -17,6 +17,7 @@
 #include "prestackeventio.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seistrctr.h"
 #include "seistrc.h"
@@ -718,11 +719,9 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 
 	if ( !reader || !reader->ioObj() || reader->ioObj()->key()!=ds.mid_ )
 	{
-	    delete reader;
-	    reader = 0;
-	    PtrMan<IOObj> ioobj = IOM().get( ds.mid_ );
-	    if ( !ioobj ) return false;
-	    reader = new SeisTrcReader( ioobj );
+	    const SeisIOObjInfo seisinfo( ds.mid_ );
+	    deleteAndZeroPtr( reader );
+	    reader = new SeisTrcReader( ds.mid_, seisinfo.geomType() );
 	    if ( !reader->prepareWork() )
 		return false;
 	}

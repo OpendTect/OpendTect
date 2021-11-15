@@ -86,9 +86,18 @@ od_int64 Tut::SeisTools::totalNr() const
 
 bool Tut::SeisTools::createReader()
 {
-    rdr_ = new SeisTrcReader( inioobj_ );
-    Seis::RangeSelData* sd = new Seis::RangeSelData( tkzs_ );
-    rdr_->setSelData( sd );
+    if ( !inioobj_ )
+    {
+	errmsg_ = uiStrings::phrCannotFindObjInDB();
+	return false;
+    }
+
+    const Seis::GeomType gt = Seis::geomTypeOf( tkzs_.is2D(), false );
+    const Pos::GeomID gid = tkzs_.hsamp_.getGeomID();
+    rdr_ = new SeisTrcReader( *inioobj_, gid, &gt );
+    PtrMan<Seis::SelData> sd = new Seis::RangeSelData( tkzs_ );
+    if ( sd && !sd->isAll() )
+	rdr_->setSelData( sd.release() );
 
     rdr_->forceFloatData( action_ != Smooth );
     if ( !rdr_->prepareWork() )
@@ -96,18 +105,28 @@ bool Tut::SeisTools::createReader()
 	errmsg_ = rdr_->errMsg();
 	return false;
     }
+
     return true;
 }
 
 
 bool Tut::SeisTools::createWriter()
 {
-    wrr_ = new SeisTrcWriter( outioobj_ );
+    if ( !outioobj_ )
+    {
+	errmsg_ = uiStrings::phrCannotFindObjInDB();
+	return false;
+    }
+
+    const Seis::GeomType gt = rdr_->geomType();
+    const Pos::GeomID gid = tkzs_.hsamp_.getGeomID();
+    wrr_ = new SeisTrcWriter( *outioobj_, gid, &gt );
     if ( !wrr_->prepareWork(trcout_) )
     {
 	errmsg_ = wrr_->errMsg();
 	return false;
     }
+
     return true;
 }
 
@@ -115,35 +134,35 @@ bool Tut::SeisTools::createWriter()
 int Tut::SeisTools::nextStep()
 {
     if ( !rdr_ )
-	return createReader() ? Executor::MoreToDo()
-			      : Executor::ErrorOccurred();
+	return createReader() ? MoreToDo()
+			      : ErrorOccurred();
 
     int rv = rdr_->get( trcin_.info() );
     if ( rv < 0 )
     {
 	errmsg_ = rdr_->errMsg();
-	return Executor::ErrorOccurred();
+	return ErrorOccurred();
     }
     else if ( rv == 0 )
-	return Executor::Finished();
+	return Finished();
     else if ( rv == 1 )
     {
 	if ( !rdr_->get(trcin_) )
 	{
 	    errmsg_ = rdr_->errMsg();
-	    return Executor::ErrorOccurred();
+	    return ErrorOccurred();
 	}
 
 	trcout_ = trcin_;
 	handleTrace();
 
 	if ( !wrr_ && !createWriter() )
-	    return Executor::ErrorOccurred();
+	    return ErrorOccurred();
 	if ( !wrr_->put(trcout_) )
-	    { errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred(); }
+	    { errmsg_ = wrr_->errMsg(); return ErrorOccurred(); }
     }
 
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 

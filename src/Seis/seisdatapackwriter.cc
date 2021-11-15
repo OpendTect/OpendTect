@@ -62,7 +62,7 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     cubezrgidx_ = zrg_; cubezrgidx_.step = 1;
 
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
-    writer_ = ioobj ? new SeisTrcWriter( ioobj ) : 0;
+    writer_ = ioobj ? new SeisTrcWriter( *ioobj ) : nullptr;
     is2d_ = writer_->is2D();
 }
 
@@ -270,7 +270,7 @@ int SeisDataPackWriter::nextStep()
 	return ErrorOccurred();
 
     const od_int64 posidx = iterator_.curIdx();
-    BinID currentpos;
+    TrcKey currentpos;
     if ( !iterator_.next(currentpos) )
 	return Finished();
 
@@ -278,10 +278,7 @@ int SeisDataPackWriter::nextStep()
     if ( posinfo_ && !posinfo_->isValid(posidx,hs) )
 	return MoreToDo();
 
-    trc_->info().setBinID( currentpos );
-    trc_->info().nr = is2d_ ? currentpos.trcNr() : 0;
-    trc_->info().binid = currentpos;
-    trc_->info().coord = hs.toCoord( currentpos );
+    trc_->info().setTrcKey( currentpos ).calcCoord();
     const int inlpos = hs.lineIdx( currentpos.inl() );
     const int crlpos = hs.trcIdx( currentpos.crl() );
     const int trcsz = trc_->size();

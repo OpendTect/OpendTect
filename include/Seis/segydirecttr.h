@@ -35,8 +35,7 @@ mExpClass(Seis) DirectReader
 { mODTextTranslationClass(DirectReader);
 public:
 
-					DirectReader()
-					    : tr_(0), curfilenr_(-1)	{}
+					DirectReader()		{}
     virtual				~DirectReader();
 
     virtual DirectDef*			getDef()		= 0;
@@ -46,8 +45,8 @@ public:
 
 protected:
 
-    mutable SEGYSeisTrcTranslator* tr_;
-    mutable int			curfilenr_;
+    mutable SEGYSeisTrcTranslator* tr_ = nullptr;
+    mutable int			curfilenr_ = -1;
 
 };
 
@@ -159,7 +158,7 @@ public:
     virtual bool	read(SeisTrc&);
     virtual bool	skip(int);
     virtual bool	supportsGoTo() const		{ return true; }
-    virtual bool	isUserSelectable( bool fr ) const { return true; }
+    virtual bool	isUserSelectable(bool) const	{ return true; }
     virtual Conn*	curConn();
     virtual BinID	curBinID() const;
     virtual bool	forRead() const			{ return forread_; }
@@ -189,13 +188,12 @@ protected:
     virtual bool	initRead_();
     virtual bool	initWrite_(const SeisTrc&);
 
-    SEGY::DirectDef*	def_;
-    SEGY::FileDataSet*	fds_;
-    bool		headerread_; //Will be removed after 6.2
+    SEGY::DirectDef*	def_ = nullptr;
+    SEGY::FileDataSet*	fds_ = nullptr;
     int			ild_;
     int			iseg_;
     int			itrc_;
-    bool		forread_;
+    bool		forread_ = true;
     IOPar		segypars_;
     BufferString	segyfilename_;
     BufferString	segydeffilename_;

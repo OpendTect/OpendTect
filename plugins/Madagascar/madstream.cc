@@ -187,9 +187,9 @@ void MadStream::initRead( IOPar* par )
 	return;
     }
 
-    Seis::GeomType gt = Seis::geomTypeOf( inptyp );
-    is2d_ = gt == Seis::Line || gt == Seis::LinePS;
-    isps_ = gt == Seis::VolPS || gt == Seis::LinePS;
+    const Seis::GeomType gt = Seis::geomTypeOf( inptyp );
+    is2d_ = Seis::is2D( gt );
+    isps_ = Seis::isPS( gt );
     MultiID inpid;
     if (!par->get(sKey::ID(), inpid)) mErrRet(tr("Input ID missing"));
 
@@ -197,17 +197,20 @@ void MadStream::initRead( IOPar* par )
     if (!ioobj) mErrRet(tr("Cannot find input data"));
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
-    Seis::SelData* seldata = Seis::SelData::get( *subpar );
+    PtrMan<Seis::SelData> seldata = Seis::SelData::get( *subpar );
+    const Pos::GeomID geomid = seldata->geomID();
     if ( !isps_ )
     {
-	seisrdr_ = new SeisTrcReader( ioobj );
-	seisrdr_->setSelData( seldata );
-	seisrdr_->prepareWork();
+	seisrdr_ = new SeisTrcReader( *ioobj, geomid, &gt );
+	if ( seldata && !seldata->isAll() )
+	    seisrdr_->setSelData( seldata.release() );
+
+	if ( !seisrdr_->prepareWork() )
+	    mErrRet(seisrdr_->errMsg());
 	fillHeaderParsFromSeis();
     }
     else
     {
-	const Pos::GeomID geomid = seldata->geomID();
 	if ( is2d_ )
 	    psrdr_ = SPSIOPF().get2DReader( *ioobj,
 					     Survey::GM().getName(geomid) );
@@ -224,38 +227,40 @@ void MadStream::initRead( IOPar* par )
 void MadStream::initWrite( IOPar* par )
 {
     BufferString outptyp( par->find(sKey::Type()) );
-    Seis::GeomType gt = Seis::geomTypeOf( outptyp );
+    const Seis::GeomType gt = Seis::geomTypeOf( outptyp );
+    is2d_ = Seis::is2D( gt );
+    isps_ = Seis::isPS( gt );
 
-    is2d_ = gt == Seis::Line || gt == Seis::LinePS;
-    isps_ = gt == Seis::VolPS || gt == Seis::LinePS;
     istrm_ = new od_istream( od_stream::sStdIO() );
     MultiID outpid;
     if (!par->get(sKey::ID(), outpid))
 	mErrRet(uiStrings::phrCannotRead( tr("paramter file")) );
 
     PtrMan<IOObj> ioobj = IOM().get( outpid );
-    if (!ioobj) mErrRet( uiStrings::phrCannotFindDBEntry(toUiString(outpid)) );
+    if ( !ioobj )
+	mErrRet( uiStrings::phrCannotFindDBEntry(toUiString(outpid)) );
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
-    Seis::SelData* seldata = subpar ? Seis::SelData::get(*subpar) : 0;
+    PtrMan<Seis::SelData> seldata = subpar ? Seis::SelData::get(*subpar)
+					   : nullptr;
+    const Pos::GeomID geomid = seldata ? seldata->geomID() : mUdfGeomID;
     if ( !isps_ )
     {
-	seiswrr_ = new SeisTrcWriter( ioobj );
-	if ( !seiswrr_ ) mErrRet(toUiString("Internal: Cannot create writer"))
+	seiswrr_ = new SeisTrcWriter( *ioobj, geomid, &gt );
+	if ( !seiswrr_ )
+	    mErrRet(toUiString("Internal: Cannot create writer"))
+
+	if ( seldata && !seldata->isAll() )
+	    seiswrr_->setSelData( seldata.release() );
     }
     else
     {
-	const Pos::GeomID geomid = seldata ? seldata->geomID() :
-						    Survey::GM().cUndefGeomID();
 	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj,
 						Survey::GM().getName(geomid))
 		       : SPSIOPF().get3DWriter(*ioobj);
 	if (!pswrr_) mErrRet(tr("Cannot write to output object"));
 	if ( !is2d_ ) SPSIOPF().mk3DPostStackProxy( *ioobj );
     }
-
-    if ( is2d_ && !isps_ )
-	seiswrr_->setSelData(seldata);
 
     fillHeaderParsFromStream();
 }
@@ -759,14 +764,13 @@ bool MadStream::writeTraces( bool writetofile )
 		for ( int trcidx=1; trcidx<=nrtrcsperbinid; trcidx++ )
 		{
 		    readRSFTrace( buf, nrsamps );
-		    SeisTrc* trc = new SeisTrc( nrsamps );
+		    auto* trc = new SeisTrc( nrsamps );
 		    trc->info().sampling = sd;
-		    trc->info().binid = BinID( inl, crl );
+		    trc->info().seqnr_ = trcidx;
+		    trc->info().setPos( BinID(inl,crl) );
+		    trc->info().calcCoord();
 		    if ( isps_ )
-		    {
-			trc->info().nr = trcidx;
 			trc->info().offset = offsetsd.atIndex( trcidx - 1 );
-		    }
 
 		    for ( int isamp=0; isamp<nrsamps; isamp++ )
 			trc->set( isamp, buf[isamp], 0 );
@@ -805,6 +809,8 @@ bool MadStream::write2DTraces( bool writetofile )
     mReadFromPosFile ( geom );
     if (!haspos) mErrBoolRet(tr("Position data not available"));
 
+    const Pos::GeomID gid = Survey::GM().getGeomID( geom.lineName() );
+
     int nrtrcs=0, nrsamps=0, nroffsets=1;
     SamplingData<float> offsetsd( 0, 1 );
     SamplingData<float> sd;
@@ -834,11 +840,11 @@ bool MadStream::write2DTraces( bool writetofile )
 	for ( int offidx=0; offidx<nroffsets; offidx++ )
 	{
 	    readRSFTrace( buf, nrsamps );
-	    SeisTrc* trc = new SeisTrc( nrsamps );
+	    auto* trc = new SeisTrc( nrsamps );
 	    trc->info().sampling = sd;
+	    trc->info().seqnr_ = trcnr;
+	    trc->info().setGeomID( gid ).setTrcNr( trcnr );
 	    trc->info().coord = posns[idx].coord_;
-	    trc->info().binid.crl() = trcnr;
-	    trc->info().nr = trcnr;
 	    if ( isps_ )
 		trc->info().offset = offsetsd.atIndex( offidx );
 

@@ -70,7 +70,7 @@ float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
 
 
 SeisEventSnapper3D::SeisEventSnapper3D( const IOObj& ioobj, BinIDValueSet& bvs,
-       				    const Interval<float>& gate	)
+				    const Interval<float>& gate )
     : SeisEventSnapper(gate)
     , positions_(bvs)
 {
@@ -100,7 +100,7 @@ int SeisEventSnapper3D::nextStep()
 	case SeisMSCProvider::NewPosition:
 	{
 	    SeisTrc* trc = mscprov_->get(0,0);
-	    BinIDValueSet::SPos pos = positions_.find( trc->info().binid );
+	    BinIDValueSet::SPos pos = positions_.find( trc->info().binID() );
 	    if ( pos.isValid() )
 	    {
 		BinID dummy; float zval;

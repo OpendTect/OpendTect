@@ -180,7 +180,7 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
     bool loading = true;
     int nriter = 0;
     int nrdone = 0;
-    SeisTrcWriter* writer( nullptr );
+    PtrMan<SeisTrcWriter> writer;
 
     TextStreamProgressMeter progressmeter(strm);
     while ( 1 )
@@ -196,7 +196,10 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 	    if ( !useoutwfunc && tbuf )
 	    {
 		PtrMan<IOObj> ioseisout = IOM().get( outid );
-		writer = new SeisTrcWriter( ioseisout );
+		if ( !ioseisout )
+		    mErrRet("Cannot find database entry")
+
+		writer = new SeisTrcWriter( *ioseisout );
 		writer->setComponentNames( refs );
 		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
 		{
@@ -246,7 +249,6 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
     if ( nriter && useoutwfunc )
 	proc->outputs_[0]->finishWrite();
 
-    delete writer;
     progressmeter.setFinished();
     mPIDMsg( "Processing done." );
 

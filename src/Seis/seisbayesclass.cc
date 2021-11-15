@@ -34,7 +34,7 @@ const char* SeisBayesClass::sKeySeisOutID()	{ return "Seismics.Output.ID"; }
 
 
 SeisBayesClass::SeisBayesClass( const IOPar& iop )
-    	: Executor( "Bayesian classification" )
+	: Executor( "Bayesian classification" )
 	, pars_(*new IOPar(iop))
 	, needclass_(false)
 	, nrdone_(0)
@@ -181,15 +181,16 @@ SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
 	    msg_ = tr( "Cannot find a priori scaling cube for %1"
 		      "\nID found is %2").arg( pdf0.name() ).arg( id );
 
-	return 0;
+	return nullptr;
     }
 
-    SeisTrcReader* rdr = new SeisTrcReader( ioobj );
+    const Seis::GeomType gt = Seis::geomTypeOf( is2d_, false );
+    auto* rdr = new SeisTrcReader( *ioobj, &gt );
     rdr->usePar( pars_ );
     if ( !rdr->prepareWork() )
     {
 	msg_ = tr( "For %1:\n%2" ).arg( ioobj->name() ).arg( rdr->errMsg() );
-	delete rdr; return 0;
+	delete rdr; return nullptr;
     }
 
     return rdr;
@@ -227,6 +228,7 @@ bool SeisBayesClass::getWriters()
 {
     if ( nrpdfs_ < 1 ) return false;
 
+    const Seis::GeomType gt = Seis::geomTypeOf( is2d_, false );
     wrrs_.allowNull( true ); bool haveoutput = false;
     for ( int ipdf=0; ipdf<nrpdfs_+3; ipdf++ )
     {
@@ -248,7 +250,7 @@ bool SeisBayesClass::getWriters()
 	    return false;
 	}
 
-	wrrs_ += new SeisTrcWriter( ioobj );
+	wrrs_ += new SeisTrcWriter( *ioobj, &gt );
     }
 
     if ( !haveoutput )
@@ -302,7 +304,7 @@ int SeisBayesClass::nextStep()
     if ( initstep_ )
 	return (initstep_ == 1 ? getPDFs()
 	     : (initstep_ == 2 ? getReaders()
-		 	       : getWriters()))
+			       : getWriters()))
 	     ? MoreToDo() : ErrorOccurred();
 
     int ret = readInpTrcs();
@@ -334,7 +336,7 @@ int SeisBayesClass::readInpTrcs()
 
     for ( int idx=0; idx<rdrs_.size(); idx++ )
     {
-	if ( idx && !rdrs_[idx]->seisTranslator()->goTo( ti0.binid ) )
+	if ( idx && !rdrs_[idx]->seisTranslator()->goTo( ti0.binID() ) )
 	    return 2;
 	if ( !rdrs_[idx]->get(*inptrcs_.get(idx)) )
 	{
@@ -348,7 +350,7 @@ int SeisBayesClass::readInpTrcs()
 	SeisTrcReader* rdr = aprdrs_[idx];
 	if ( !rdr ) continue;
 
-	if ( !rdr->seisTranslator()->goTo( ti0.binid ) )
+	if ( !rdr->seisTranslator()->goTo( ti0.binID() ) )
 	    return 2;
 	if ( !rdr->get(*aptrcs_.get(idx)) )
 	{
@@ -362,7 +364,7 @@ int SeisBayesClass::readInpTrcs()
 
 
 #define mWrTrc(nr) { \
-    	wrr = wrrs_[nr]; \
+	wrr = wrrs_[nr]; \
 	if ( wrr && !wrr->put(*outtrcs_.get(nr)) ) \
 	    { msg_ = wrr->errMsg(); return ErrorOccurred(); } }
 

@@ -542,11 +542,11 @@ void Geom2DImpHandler::setGeomEmpty( Pos::GeomID geomid )
 
 Pos::GeomID Geom2DImpHandler::createNewGeom( const char* nm )
 {
-    PosInfo::Line2DData* l2d = new PosInfo::Line2DData( nm );
-    Survey::Geometry2D* newgeom = new Survey::Geometry2D( l2d );
+    auto* l2d = new PosInfo::Line2DData( nm );
+    auto* newgeom = new Survey::Geometry2D( l2d );
     uiString msg;
     Pos::GeomID geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
-    if ( geomid == mUdfGeomID )
+    if ( !Survey::is2DGeom(geomid) )
 	uiMSG().error( msg );
 
     return geomid;

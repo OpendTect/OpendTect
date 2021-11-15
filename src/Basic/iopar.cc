@@ -940,22 +940,49 @@ void IOPar::set( const char* keyw, const BinID& binid )
 { set( keyw, binid.inl(), binid.crl() ); }
 
 
-bool IOPar::get( const char* keyw, TrcKey& tk ) const
+bool IOPar::get( const char* keyw, Pos::SurvID& survid ) const
 {
-    TrcKey::SurvID sid;
-    int trcnr;
-    int linenr;
-
-    if ( !get( keyw, sid, linenr, trcnr ) )
+    int sidnr;
+    if ( !get(keyw,sidnr) )
 	return false;
 
-    tk.setSurvID( sid );
-    tk.trcNr() = trcnr;
-    tk.lineNr() = linenr;
+    survid = mIsUdf(sidnr) ?  OD::Geom3D
+			   : (sidnr >= (int)OD::Geom2D
+				? OD::Geom2D
+				: (sidnr < int(OD::GeomSynth)
+					? OD::Geom3D
+					: OD::GeomSystem(sidnr) ));
     return true;
 }
+
+
+bool IOPar::get( const char* keyw, TrcKey& tk ) const
+{
+    Pos::SurvID gs;
+    int sidnr, linenr, trcnr;
+    if ( !get(keyw,gs) || !get(keyw,sidnr,linenr,trcnr) )
+	return false;
+
+    tk.setSurvID( gs );
+    if ( tk.is2D() )
+	tk.setGeomID( linenr ).setTrcNr( trcnr );
+    else if ( tk.is3D() )
+	tk.setLineNr( linenr ).setTrcNr( trcnr );
+    else
+	tk.setTrcNr( trcnr );
+
+    return true;
+}
+
+
 void IOPar::set( const char* keyw, const TrcKey& tk )
-{ set( keyw, tk.survID(), tk.lineNr(), tk.trcNr() ); }
+{ set( keyw, int(tk.survID()), tk.lineNr(), tk.trcNr() ); }
+
+
+void IOPar::set( const char* keyw, const Pos::SurvID& gs )
+{
+    set( keyw, int(gs) );
+}
 
 
 bool IOPar::get( const char* keyw, SeparString& ss ) const

@@ -280,15 +280,15 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
 	return;
     }
 
-    TypeSet<BinID> knots;
-    rtd->getAllNodePos( knots );
+    TrcKeyPath nodes;
+    rtd->getAllNodePos( nodes );
 
     if ( !mEnsureTransformOK(&appl_,0) )
 	return;
 
     TypeSet<Coord> crds;
-    for ( int idx=0; idx<knots.size(); idx++ )
-	crds += SI().transform( knots[idx] );
+    for ( const auto& node : nodes )
+	crds += node.getCoord();
 
     uiGISExportRandomLine dlg( &appl_, &crds, rtd->name() );
     dlg.go();

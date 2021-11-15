@@ -49,7 +49,7 @@ SeisCubeCopier::SeisCubeCopier( const IOObj& inobj, const IOObj& outobj,
     , stp_(new SeisSingleTraceProc(inobj,outobj,"Cube copier",&par))
     , compnr_(compnr)
 {
-    init();
+    mAttachCB( stp_->proctobedone_, SeisCubeCopier::doProc );
 }
 
 
@@ -58,36 +58,60 @@ SeisCubeCopier::SeisCubeCopier( SeisSingleTraceProc* tp, int compnr )
     , stp_(tp)
     , compnr_(compnr)
 {
-    init();
-}
-
-
-void SeisCubeCopier::init()
-{
-    veltype_ = mNoVelocity;
     if ( !stp_ )
-	return;
-
-    const SeisTrcWriter& wrr = stp_->writer();
-    if ( wrr.ioObj() )
-	veltype_ = getVelType( wrr.ioObj()->pars() );
-
-    if ( !stp_->reader(0) )
     {
-	errmsg_ = stp_->uiMessage();
-	if ( errmsg_.isEmpty() )
-	    errmsg_ = uiStrings::phrCannotRead( uiStrings::sInput() );
-	delete stp_; stp_ = 0;
+	pErrMsg("Should not provide a null SeisSingleTraceProc");
+	return;
     }
 
-    if ( stp_ && (compnr_>=0 || veltype_>0) )
-	stp_->proctobedone_.notify( mCB(this,SeisCubeCopier,doProc) );
+    mAttachCB( stp_->proctobedone_, SeisCubeCopier::doProc );
 }
 
 
 SeisCubeCopier::~SeisCubeCopier()
 {
+    detachAllNotifiers();
     delete stp_;
+}
+
+
+bool SeisCubeCopier::goImpl( od_ostream* strm, bool first, bool last,
+			     int delay )
+{
+    if ( !stp_ )
+	return false;
+
+    inited_ = false;
+    const bool res = stp_->goImpl( strm, first, last, delay );
+    return res;
+}
+
+
+bool SeisCubeCopier::init()
+{
+    veltype_ = mNoVelocity;
+    if ( !stp_ )
+	return false;
+
+    const SeisTrcWriter* wrr = stp_->writer();
+    if ( !stp_->reader(0) || !wrr )
+    {
+	errmsg_ = stp_->uiMessage();
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = uiStrings::phrCannotRead( uiStrings::sInput() );
+	deleteAndZeroPtr( stp_ );
+    }
+
+    if ( wrr->ioObj() )
+	veltype_ = getVelType( wrr->ioObj()->pars() );
+
+    if ( compnr_<0 && veltype_<=0 )
+    {
+	mDetachCB( stp_->proctobedone_, SeisCubeCopier::doProc );
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -123,6 +147,12 @@ int SeisCubeCopier::nextStep()
 
 void SeisCubeCopier::doProc( CallBacker* )
 {
+    if ( !inited_ )
+    {
+	if ( !init() )
+	    return;
+    }
+
     SeisTrc& trc = stp_->getTrace();
     const int trcsz = trc.size();
 
@@ -187,18 +217,17 @@ Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
     : Executor("Copying 2D Seismic Data")
     , inioobj_(*inobj.clone())
     , outioobj_(*outobj.clone())
-    , rdr_(0)
-    , wrr_(0)
-    , seldata_(*new Seis::RangeSelData)
-    , lineidx_(-1)
-    , scaler_(0)
-    , totalnr_(0)
-    , nrdone_(0)
     , msg_(tr("Copying traces"))
 {
-    PtrMan<IOPar> lspar = par.subselect( sKey::Line() );
+    PtrMan<IOPar> outpars = par.subselect( sKey::Output() );
+    PtrMan<IOPar> lspar = outpars ? outpars->subselect( sKey::Line() )
+				  : nullptr;
     if ( !lspar || lspar->isEmpty() )
-	{ msg_ = toUiString("Internal: Required data missing"); return; }
+    {
+	lspar = par.subselect( sKey::Line() );
+	if ( !lspar || lspar->isEmpty() )
+	    { msg_ = toUiString("Internal: Required data missing"); return; }
+    }
 
     for ( int idx=0; ; idx++ )
     {
@@ -206,44 +235,27 @@ Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
 	if ( !linepar || linepar->isEmpty() )
 	    break;
 
-	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
-	if ( !linepar->get(sKey::GeomID(),geomid) )
+	Pos::GeomID geomid = mUdfGeomID;
+	if ( !linepar->get(sKey::GeomID(),geomid) || !Survey::is2DGeom(geomid) )
 	    continue;
 
-	selgeomids_ += geomid;
+	auto* sd = new Seis::RangeSelData( false );
+	sd->setGeomID( geomid );
 	StepInterval<int> trcrg;
-	StepInterval<float> zrg;
-	if ( !linepar->get(sKey::TrcRange(),trcrg) ||
-		!linepar->get(sKey::ZRange(),zrg))
-	    continue;
+	if ( linepar->get(sKey::TrcRange(),trcrg) )
+	    sd->setCrlRange( trcrg );
 
-	trcrgs_ += trcrg;
-	zrgs_ += zrg;
+	ZSampling zrg;
+	if ( linepar->get(sKey::ZRange(),zrg) )
+	    sd->setZRange( zrg );
+
+	totalnr_ += sd->cubeSampling().hsamp_.totalNr();
+	seldatas_.add( sd );
     }
-
-    if ( trcrgs_.size() != selgeomids_.size() ) trcrgs_.erase();
-    if ( zrgs_.size() != selgeomids_.size() ) zrgs_.erase();
 
     FixedString scalestr = par.find( sKey::Scale() );
     if ( !scalestr.isEmpty() )
 	scaler_ = Scaler::get( scalestr );
-
-    if ( trcrgs_.isEmpty() )
-    {
-	Seis2DDataSet dset( inobj );
-	StepInterval<int> trcrg;
-	StepInterval<float> zrg;
-	for ( int idx=0; idx<selgeomids_.size(); idx++ )
-	{
-	    if ( dset.getRanges(selgeomids_[idx],trcrg,zrg) )
-		totalnr_ += ( trcrg.nrSteps() + 1 );
-	}
-    }
-    else
-    {
-	for ( int idx=0; idx<trcrgs_.size(); idx++ )
-	    totalnr_ += ( trcrgs_[idx].nrSteps() + 1 );
-    }
 
     if ( totalnr_ < 1 )
 	msg_ = tr("No traces to copy");
@@ -252,34 +264,29 @@ Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
 
 Seis2DCopier::~Seis2DCopier()
 {
-    delete rdr_; delete wrr_;
+    delete rdr_;
+    delete wrr_;
     delete scaler_;
-    delete &seldata_;
-    delete (IOObj*)(&inioobj_);
-    delete (IOObj*)(&outioobj_);
+    deepErase( seldatas_ );
 }
 
 
 bool Seis2DCopier::initNextLine()
 {
-    delete rdr_; rdr_ = new SeisTrcReader( &inioobj_ );
-    delete wrr_; wrr_ = new SeisTrcWriter( &outioobj_ );
-
-    lineidx_++;
-    if ( lineidx_ >= selgeomids_.size() )
+    if ( !seldatas_.validIdx(++lineidx_) )
 	return false;
 
-    if ( trcrgs_.isEmpty() )
-	seldata_.setIsAll( true );
-    else
+    const Seis::GeomType gt = Seis::Line;
+    const Seis::SelData* sd = seldatas_.get( lineidx_ );
+    const Pos::GeomID geomid = sd->geomID();
+    delete rdr_; rdr_ = new SeisTrcReader( inioobj_, geomid, &gt  );
+    delete wrr_; wrr_ = new SeisTrcWriter( outioobj_, geomid, &gt );
+    if ( !sd->isAll() )
     {
-	seldata_.cubeSampling().hsamp_.setCrlRange( trcrgs_[lineidx_] );
-	seldata_.cubeSampling().zsamp_ = zrgs_[lineidx_];
+	rdr_->setSelData( sd->clone() );
+	wrr_->setSelData( sd->clone() );
     }
 
-    seldata_.setGeomID( selgeomids_[lineidx_] );
-    rdr_->setSelData( seldata_.clone() );
-    wrr_->setSelData( seldata_.clone() );
     if ( !rdr_->prepareWork() )
 	{ msg_ = rdr_->errMsg(); return false; }
 
@@ -293,9 +300,24 @@ uiString Seis2DCopier::uiNrDoneText() const
 }
 
 
+bool Seis2DCopier::goImpl( od_ostream* strm, bool first, bool last, int delay )
+{
+    lineidx_ = -1;
+    if ( !initNextLine() )
+	return false;
+
+    const bool res = Executor::goImpl( strm, first, last, delay );
+
+    deleteAndZeroPtr( rdr_ );
+    deleteAndZeroPtr( wrr_ );
+
+    return res;
+}
+
+
 int Seis2DCopier::nextStep()
 {
-    if ( lineidx_ < 0 && !initNextLine() )
+    if ( !rdr_ || !wrr_ )
 	return ErrorOccurred();
 
     SeisTrc trc;

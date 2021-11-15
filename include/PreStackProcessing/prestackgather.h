@@ -39,17 +39,24 @@ public:
 				Gather(const FlatPosData&);
 				~Gather();
 
-    bool			is3D() const { return linename_.isEmpty(); }
+    bool			is3D() const { return tk_.is3D(); }
+    bool			is2D() const { return tk_.is2D(); }
+    bool			isSynthetic() const { return tk_.isSynthetic();}
 
-    bool			readFrom(const MultiID&,const BinID&,
+    bool			readFrom(const MultiID&,const TrcKey&,
 					 int component=0,
-					 uiString* errmsg=0);
-    bool			readFrom(const IOObj&,const BinID&,
+					 uiString* errmsg=nullptr);
+    bool			readFrom(const IOObj&,const TrcKey&,
 					 int component=0,
-					 uiString* errmsg=0);
+					 uiString* errmsg=nullptr);
+    bool			readFrom(const IOObj&,SeisPSReader& rdr,
+					 const TrcKey&,int component=0,
+					 uiString* errmsg=nullptr);
+    mDeprecated("Use TrcKey")
     bool			readFrom(const IOObj&,SeisPSReader& rdr,
 					 const BinID&,int component=0,
-					 uiString* errmsg=0);
+					 uiString* errmsg=nullptr);
+				//!< Will use the reader geomID
 
     const Coord&		getCoord() const	{ return coord_; }
     virtual Coord3		getCoord(int,int) const
@@ -64,23 +71,19 @@ public:
 	                        /*<!For each trace, try to detect the first
 				   inner-mute affected value. */
 
+    const TrcKey&		getTrcKey() const	{ return tk_; }
+    Gather&			setTrcKey( const TrcKey& tk )
+				{ tk_ = tk; return *this; }
+
 				//for 3d only
-    const BinID&		getBinID() const	{ return binid_; }
-    void			setBinID( const BinID& bid )
-				{ binid_ = bid; }
+    const BinID&		getBinID() const;
+    void			setBinID(const BinID&);
     const MultiID&		getStoredID() const	{ return storagemid_; }
     const StepInterval<float>&	zRange() const		{ return zrg_; }
-    void			setZRange( const StepInterval<float>& zrg )
-				{ zrg_ = zrg; }
+    Gather&			setZRange( const StepInterval<float>& zrg )
+				{ zrg_ = zrg; return *this; }
 
-				//for 2D only.
-    bool			readFrom(const MultiID&, const int tracenr,
-					 const char* linename,int comp,
-					 uiString* errmsg=0);
-    bool			readFrom(const IOObj&, const int tracenr,
-					 const char* linename,int comp,
-					 uiString* errmsg=0);
-    int				getSeis2DTraceNr() const { return binid_.crl();}
+    int				getSeis2DTraceNr() const;
     const char*			getSeis2DName() const;
 
     bool			isLoaded() const	{ return arr2d_; }
@@ -130,16 +133,33 @@ protected:
     bool			iscorr_;
 
     bool			zit_;
-    BinID			binid_;
+    TrcKey			tk_;
     Coord			coord_;
     TypeSet<float>		azimuths_;
     StepInterval<float>		zrg_;
 
-    BufferString		linename_;
-
 public:
     bool			setFromTrcBuf(SeisTrcBuf&,int comp,
 					    bool snapzrangetosi=false);
+
+    mDeprecated("Use TrcKey")
+    bool			readFrom(const MultiID&,const BinID&,
+					 int component=0,
+					 uiString* errmsg=nullptr);
+    mDeprecated("Use TrcKey")
+    bool			readFrom(const IOObj&,const BinID&,
+					 int component=0,
+					 uiString* errmsg=nullptr);
+
+    mDeprecated("Use TrcKey")
+    bool			readFrom(const MultiID&, const int tracenr,
+					 const char* linename,int comp,
+					 uiString* errmsg=nullptr);
+
+    mDeprecated("Use TrcKey")
+    bool			readFrom(const IOObj&, const int tracenr,
+					 const char* linename,int comp,
+					 uiString* errmsg=nullptr);
 };
 
 

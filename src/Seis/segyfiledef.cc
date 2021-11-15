@@ -26,7 +26,7 @@ const char* FilePars::sKeyNrSamples()	   { return "Nr samples overrule"; }
 const char* FilePars::sKeyNumberFormat()   { return "Number format"; }
 const char* FilePars::sKeyByteSwap()	   { return "Byte swapping"; }
 const char* FileReadOpts::sKeyCoordScale() { return "Coordinate scaling "
-    						    "overrule"; }
+						    "overrule"; }
 const char* FileReadOpts::sKeyTimeShift()  { return "Start time overrule"; }
 const char* FileReadOpts::sKeySampleIntv() { return "Sample rate overrule"; }
 const char* FileReadOpts::sKeyICOpt()	   { return "IC -> XY"; }
@@ -356,9 +356,9 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool isrev0 ) const
     if ( Seis::isPS(geom_) )
     {
 	iop.set( "Offsets",
-	    	   psdef_ == UsrDef	? "User defined"
-		: (psdef_ == InFile 	? "In file"
-		    			: "Source/Receiver coordinates") );
+		   psdef_ == UsrDef	? "User defined"
+		: (psdef_ == InFile	? "In file"
+					: "Source/Receiver coordinates") );
 	if ( psdef_ == UsrDef )
 	    iop.set( sKeyOffsDef(), offsdef_ );
 	else if ( psdef_ != SrcRcvCoords )
@@ -404,11 +404,11 @@ void SEGY::OffsetCalculator::setOffset( SeisTrcInfo& ti,
     bool diffcrl = false;
     bool diffinl = false;
     if ( is2d_ )
-	diffcrl = mIsUdf(prevbid_.crl()) || prevbid_.crl() != ti.nr;
+	diffcrl = mIsUdf(prevbid_.trcNr()) || prevbid_.trcNr() != ti.trcNr();
     else
     {
-	diffinl = mIsUdf(prevbid_.inl()) || prevbid_.inl() != ti.binid.inl();
-	diffcrl = mIsUdf(prevbid_.crl()) || prevbid_.crl() != ti.binid.crl();
+	diffinl = mIsUdf(prevbid_.inl()) || prevbid_.inl() != ti.inl();
+	diffcrl = mIsUdf(prevbid_.crl()) || prevbid_.crl() != ti.crl();
     }
 
     if ( diffcrl || diffinl )
@@ -418,7 +418,7 @@ void SEGY::OffsetCalculator::setOffset( SeisTrcInfo& ti,
 
     ti.offset = curoffs_;
     if ( is2d_ )
-	prevbid_.crl() = ti.nr;
+	prevbid_.trcNr() = ti.trcNr();
     else
-	prevbid_ = ti.binid;
+	prevbid_ = ti.binID();
 }

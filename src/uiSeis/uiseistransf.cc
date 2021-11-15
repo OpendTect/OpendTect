@@ -15,24 +15,26 @@ ________________________________________________________________________
 #include "uiscaler.h"
 #include "uimainwin.h"
 #include "uimsg.h"
-#include "seissingtrcproc.h"
-#include "seiscbvs.h"
-#include "seistrc.h"
-#include "seisselection.h"
-#include "seisresampler.h"
-#include "trckeyzsampling.h"
-#include "survinfo.h"
-#include "ptrman.h"
-#include "iopar.h"
-#include "ioobj.h"
+
 #include "conn.h"
+#include "coordsystem.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "ptrman.h"
+#include "seiscbvs.h"
+#include "seisresampler.h"
+#include "seisselection.h"
+#include "seissingtrcproc.h"
+#include "seisstor.h"
+#include "seistrc.h"
+#include "seiswrite.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
 
 
 uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
-	: uiGroup(p,"Seis transfer pars")
-	, setup_(s)
-	, trcgrowfld_(0)
-	, issteer_(false)
+    : uiGroup(p,"Seis transfer pars")
+    , setup_(s)
 {
     selfld = uiSeisSubSel::get( this, setup_ );
 
@@ -59,7 +61,13 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     }
 
     setHAlignObj( remnullfld );
-    postFinalise().notify( mCB(this,uiSeisTransfer,updSteer) );
+    mAttachCB( postFinalise(), uiSeisTransfer::updSteer );
+}
+
+
+uiSeisTransfer::~uiSeisTransfer()
+{
+    detachAllNotifiers();
 }
 
 
@@ -138,7 +146,7 @@ bool uiSeisTransfer::extendTrcsToSI() const
 void uiSeisTransfer::setSteering( bool yn )
 {
     issteer_ = yn;
-    updSteer( 0 );
+    updSteer( nullptr );
 }
 
 
@@ -149,19 +157,39 @@ void uiSeisTransfer::updSteer( CallBacker* )
 }
 
 
+void uiSeisTransfer::setOutputHeader( const char* hdrtxt )
+{
+    outheader_.set( hdrtxt );
+}
+
+
+void uiSeisTransfer::setCoordSystem( const Coords::CoordSystem& crs, bool inp )
+{
+    if ( inp )
+	inpcrs_ = &crs;
+    else
+	outpcrs_ = &crs;
+}
+
+
 Seis::SelData* uiSeisTransfer::getSelData() const
 {
     IOPar iop;
-    if ( !selfld || !selfld->isDisplayed() || !selfld->fillPar( iop ) )
-	return 0;
+    if ( !selfld || !selfld->isDisplayed() || !selfld->fillPar(iop) )
+	return nullptr;
 
-    return Seis::SelData::get( iop );
+    auto* sd = Seis::SelData::get( iop );
+    if ( setup_.is2d_ && sd->geomID() != curGeomID() )
+	sd->setGeomID( curGeomID() );
+
+    return sd;
 }
 
 
 SeisResampler* uiSeisTransfer::getResampler() const
 {
-    if ( selfld->isAll() ) return 0;
+    if ( selfld->isAll() )
+	return nullptr;
 
     TrcKeyZSampling cs;
     selfld->getSampling( cs.hsamp_ );
@@ -170,29 +198,69 @@ SeisResampler* uiSeisTransfer::getResampler() const
 }
 
 
-Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
-				      const IOObj& outobj,
-				      const char* extxt,
-				      const uiString& worktxt,
+Pos::GeomID uiSeisTransfer::curGeomID() const
+{
+    Pos::GeomID geomid = mUdfGeomID;
+    if ( setup_.is2d_ )
+    {
+	uiSeis2DSubSel* sel2d = const_cast<uiSeisTransfer*>( this )->selFld2D();
+	const BufferString linenm2d( sel2d->selectedLine() );
+	geomid = Survey::GM().getGeomID( linenm2d );
+    }
+    else if ( !setup_.is2d_ )
+	geomid = Survey::default3DGeomID();
+
+    return geomid;
+}
+
+
+Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj, const IOObj& outobj,
+				      const char* extxt,const uiString& worktxt,
 				      const char* linenm2d ) const
 {
-    PtrMan<Seis::SelData> seldata = getSelData();
-    IOPar iop;
-    iop.set( "ID", inobj.key() );
-    if ( seldata )
+    if ( linenm2d && *linenm2d )
     {
-	if ( linenm2d && *linenm2d )
-	    seldata->setGeomID( Survey::GM().getGeomID(linenm2d) );
-	seldata->fillPar( iop );
-    }
-    else if ( setup_.is2d_ )
-    {
-	Pos::GeomID geomid = Survey::GM().getGeomID( linenm2d );
-	iop.set( sKey::GeomID(), geomid );
+	uiSeis2DSubSel* sel2d = const_cast<uiSeisTransfer*>( this )->selFld2D();
+	if ( sel2d && sel2d->isSingLine() )
+	    sel2d->setSelectedLine( linenm2d );
     }
 
-    PtrMan<SeisSingleTraceProc> stp =
-	    new SeisSingleTraceProc( inobj, outobj, extxt, &iop, worktxt );
+    return getTrcProc( inobj, outobj, extxt, worktxt );
+}
+
+
+Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj, const IOObj& outobj,
+				      const char* extxt,
+				      const uiString& worktxt,
+				      int compnr ) const
+{
+    const Seis::GeomType gt = setup_.geomType();
+    const Pos::GeomID geomid = curGeomID();
+    SeisStoreAccess::Setup inpsu( inobj, geomid, &gt );
+    SeisStoreAccess::Setup outsu( outobj, geomid, &gt );
+    inpsu.compnr( compnr );
+    outsu.compnr( compnr ).hdrtxt( outheader_ );
+
+    PtrMan<Seis::SelData> seldata = getSelData();
+    if ( seldata && seldata->geomID() != geomid )
+    {
+	pErrMsg("Incompatible geomid");
+	seldata->setGeomID( geomid );
+    }
+
+    if ( seldata && !seldata->isAll() )
+    {
+	inpsu.seldata( seldata );
+	outsu.seldata( seldata );
+    }
+
+    if ( inpcrs_ )
+	inpsu.coordsys( *inpcrs_.ptr() );
+    if ( outpcrs_ )
+	outsu.coordsys( *outpcrs_.ptr() );
+
+    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( inpsu, outsu,
+							       extxt, worktxt );
     if ( !stp->isOK() )
     {
 	uiMSG().error( stp->errMsg() );
@@ -211,9 +279,16 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 
 void uiSeisTransfer::fillPar( IOPar& iop ) const
 {
+    SeisTrcTranslator::setType( setup_.geomType(), iop );
+    SeisTrcTranslator::setGeomID( curGeomID(), iop );
     selfld->fillPar( iop );
     scalefld_->fillPar( iop );
 
     iop.setYN( SeisTrc::sKeyExtTrcToSI(), extendTrcsToSI() );
     iop.set( sKeyNullTrcPol(), nullTrcPolicy() );
+    if ( !outheader_.isEmpty() )
+	iop.set( SeisStoreAccess::sKeyHeader(), outheader_ );
+
+    if ( outpcrs_ )
+	outpcrs_->fillPar( iop );
 }

@@ -87,9 +87,7 @@ void ZAxisTransform::transform( const BinID& bid,
 				const SamplingData<float>& sd,
 				int sz,float* res) const
 {
-    transformTrc( Survey::GM().traceKey(Survey::GeometryManager::get3DSurvID(),
-					bid.inl(), bid.crl()),
-		  sd, sz, res );
+    transformTrc( TrcKey(bid), sd, sz, res );
 }
 
 
@@ -97,10 +95,7 @@ void ZAxisTransform::transformBack( const BinID& bid,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    transformTrcBack( Survey::GM().traceKey(
-				Survey::GeometryManager::get3DSurvID(),
-				bid.inl(),bid.crl()),
-		      sd, sz, res );
+    transformTrcBack( TrcKey(bid), sd, sz, res );
 }
 
 
@@ -132,7 +127,7 @@ void ZAxisTransform::transform2D( const char* linenm, int trcnr,
 		const SamplingData<float>& sd, int sz, float* res ) const
 {
     const Pos::GeomID gid = Survey::GM().getGeomID( linenm );
-    const TrcKey trckey = Survey::GM().traceKey( gid, trcnr );
+    const TrcKey trckey( gid, trcnr );
     transformTrc( trckey, sd, sz, res );
 }
 
@@ -150,7 +145,7 @@ void ZAxisTransform::transformBack2D( const char* linenm, int trcnr,
 		const SamplingData<float>& sd, int sz, float* res ) const
 {
     const Pos::GeomID gid = Survey::GM().getGeomID( linenm );
-    const TrcKey trckey = Survey::GM().traceKey( gid, trcnr );
+    const TrcKey trckey( gid, trcnr );
     transformTrcBack( trckey, sd, sz, res );
 }
 
@@ -233,10 +228,10 @@ bool ZAxisTransform::usePar( const IOPar& par )
 ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
 					      bool b,
 					      const SamplingData<double>& nsd,
-       					      bool is2d	)
+					      bool is2d )
     : transform_(trans)
     , back_(b)
-    , trckey_(0,BinID(0,0))
+    , trckey_(Pos::IdxPair(0,0),is2d)
     , sd_(nsd)
     , is2d_(is2d)
 { transform_.ref(); }
@@ -251,16 +246,21 @@ void ZAxisTransformSampler::setLineName( const char* lnm )
     if ( !is2d_ )
 	return;
 
-    trckey_ = Survey::GM().traceKey( Survey::GM().getGeomID( lnm ), 0 );
+    trckey_.setGeomID( Survey::GM().getGeomID( lnm ) );
 }
 
 
 void ZAxisTransformSampler::setTrcNr( int trcnr )
-{ trckey_.trcNr() = trcnr; }
+{ trckey_.setTrcNr(trcnr ); }
 
 
 void ZAxisTransformSampler::setBinID( const BinID& bid )
-{ trckey_ = TrcKey( bid ); }
+{
+    if ( is2d_ )
+	{ pErrMsg("Incorrect usage"); }
+
+    trckey_ = TrcKey( bid );
+}
 
 
 float ZAxisTransformSampler::operator[](int idx) const

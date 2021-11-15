@@ -54,15 +54,13 @@ mExpClass(Seis) FilePars
 {
 public:
 			FilePars( bool forread=true )
-			    : ns_(0)
-			    , fmt_(forread?0:1)
-			    , byteswap_(0)
+			    : fmt_(forread?0:1)
 			    , forread_(forread)
 			    , coordsys_(SI().getCoordSystem()) {}
 
-    int			ns_;
+    int			ns_ = 0;
     int			fmt_;
-    int			byteswap_;	//!, 0=no 1=data only 2=all 3=only hdrs
+    int			byteswap_ = 0;	//!, 0=no 1=data only 2=all 3=only hdrs
 
     bool		swapHdrs() const	{ return byteswap_ > 1; }
     bool		swapData() const

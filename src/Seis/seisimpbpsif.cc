@@ -200,7 +200,7 @@ int SeisImpBPSIF::readAscii()
 	float val; strm >> val;
 	tmpltrc.set( idx, val, 0 );
 	if ( idx == 0 )
-	    tmpltrc.info().nr = mNINT32(val);
+	    tmpltrc.info().seqnr_ = mNINT32(val);
     }
 
     BufferString rcvdata;
@@ -235,7 +235,7 @@ int SeisImpBPSIF::readBinary()
     tmpltrc.info().coord.x = vbuf[0]; tmpltrc.info().coord.y = vbuf[1];
     for ( int idx=0; idx<nrshotattrs; idx++ )
 	tmpltrc.set( idx, vbuf[2+idx], 0 );
-    tmpltrc.info().nr = mNINT32(vbuf[0]);
+    tmpltrc.info().seqnr_ = mNINT32(vbuf[0]);
 
     if ( !addTrcsBinary(tmpltrc) )
 	return fileEnded();
@@ -280,7 +280,7 @@ int SeisImpBPSIF::addTrcsAscii( const SeisTrc& tmpltrc, char* data )
 	}
 
 	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord, true );
-	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binid) )
+	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binID()) )
 	    datamgr_.add( newtrc );
 	else
 	{
@@ -314,7 +314,7 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
 	    newtrc->set( nrshotattrs+iattr, vbuf[2+iattr], 0 );
 
 	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord, true );
-	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binid) )
+	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binID()) )
 	    datamgr_.add( newtrc );
 	else
 	{

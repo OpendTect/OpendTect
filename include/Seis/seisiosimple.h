@@ -40,27 +40,27 @@ public:
 	BufferString	fname_;
 	MultiID		seiskey_;
 
-	bool		isasc_;
+	bool		isasc_ = true;
 	Seis::GeomType	geom_;
+	Pos::GeomID	geomid_;
 
-	bool		havepos_;
-	bool		isxy_;
+	bool		havepos_ = true;
+	bool		isxy_ = false;
 
-	bool		havenr_;
+	bool		havenr_ = false;
+	bool		haverefnr_ = false;
 	SamplingData<int> nrdef_;
 
-	bool		haverefnr_;
-
-	bool		havesd_;
+	bool		havesd_ = false;
 	SamplingData<float> sd_;
 	int		nrsamples_;
-	int		compidx_;
+	int		compidx_ = 0;
 
 			// PS only
-	bool		haveoffs_;
+	bool		haveoffs_ = false;
 	SamplingData<float> offsdef_;
 	int		nroffsperpos_;
-	bool		haveazim_;
+	bool		haveazim_ = false;
 
 			// 3D only
 	SamplingData<int> inldef_;
@@ -72,9 +72,9 @@ public:
 	Coord		steppos_;
 	LineKey&	linekey_;
 
-	Scaler*		scaler_;
-	SeisResampler*	resampler_;
-	bool		remnull_;
+	Scaler*		scaler_ = nullptr;
+	SeisResampler*	resampler_ = nullptr;
+	bool		remnull_ = false;
 	IOPar&		subselpars_;
 
 	void		clear(bool survchanged);
@@ -106,13 +106,13 @@ protected:
     bool		isps_;
 
     SeisTrc&		trc_;
-    od_stream*		strm_;
-    SeisTrcReader*	rdr_;
-    SeisTrcWriter*	wrr_;
-    SeisImporter*	importer_;
-    bool		firsttrc_;
-    int			nrdone_;
-    int			offsnr_;
+    od_stream*		strm_ = nullptr;
+    SeisTrcReader*	rdr_ = nullptr;
+    SeisTrcWriter*	wrr_ = nullptr;
+    SeisImporter*	importer_ = nullptr;
+    bool		firsttrc_ = true;
+    int			nrdone_ = 0;
+    int			offsnr_ = 0;
     int			prevnr_;
     BinID		prevbid_;
     uiString		errmsg_;

@@ -23,23 +23,26 @@ ________________________________________________________________________
 #include "syntheticdataimpl.h"
 #include "posinfo2d.h"
 #include "survinfo.h"
-#include "survgeom.h"
+#include "survgeom2d.h"
 #include "separstr.h"
 #include "transl.h"
 
 StratSynthExporter::StratSynthExporter(
-	const ObjectSet<const SyntheticData>& sds,
-	PosInfo::Line2DData* newgeom, const SeparString& prepostfix )
+			const ObjectSet<const SyntheticData>& sds,
+			Pos::GeomID geomid, const SeparString& prepostfix )
     : Executor( "Exporting syntheic data" )
     , sds_(sds)
-    , linegeom_(newgeom)
-    , cursdidx_(0)
-    , posdone_(0)
-    , postobedone_(0)
+    , geomid_(geomid)
     , prefixstr_(prepostfix[0].str())
     , postfixstr_(prepostfix[1].str())
-    , writer_(0)
 {
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
+    const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
+    if ( geom2d )
+	linepos_ = &geom2d->data().positions();
+    else
+	return;
+
     int synthmodelsz = 0;
     mDynamicCastGet(const PreStackSyntheticData*,presd,sds_[0]);
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sds_[0]);
@@ -48,8 +51,8 @@ StratSynthExporter::StratSynthExporter(
     else
 	synthmodelsz = postsd->postStackPack().trcBuf().size();
 
-    postobedone_ = linegeom_->positions().size() < synthmodelsz
-			    ? linegeom_->positions().size() : synthmodelsz;
+    postobedone_ = linepos_->size() < synthmodelsz
+		 ? linepos_->size() : synthmodelsz;
 }
 
 
@@ -57,8 +60,6 @@ StratSynthExporter::~StratSynthExporter()
 {
     delete writer_;
 }
-
-
 
 
 od_int64 StratSynthExporter::nrDone() const
@@ -115,13 +116,12 @@ bool StratSynthExporter::prepareWriter()
     ctxt->setName( synthnm.buf() );
     NotifyStopper stopaddentrynot( IOM().entryAdded );
     IOM().getEntry( *ctxt, false );
+    if ( !ctxt->ioobj_ )
+	return false;
+
+    const Seis::GeomType gt = Seis::Line;
     delete writer_;
-    writer_ = new SeisTrcWriter( ctxt->ioobj_ );
-    Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
-    Pos::GeomID newgeomid =
-	Survey::GM().getGeomID( linegeom_->lineName() );
-    seldata->setGeomID( newgeomid );
-    writer_->setSelData( seldata );
+    writer_ = new SeisTrcWriter( *ctxt->ioobj_, geomid_, &gt );
     writer_->setAttrib( synthnm );
     return true;
 }
@@ -130,19 +130,19 @@ bool StratSynthExporter::prepareWriter()
 int StratSynthExporter::nextStep()
 {
     if ( !sds_.validIdx(cursdidx_) )
-	return Executor::Finished();
+	return Finished();
 
     const bool isps = sds_[cursdidx_]->isPS();
     if ( !posdone_ && !prepareWriter() )
 	return ErrorOccurred();
 
-    return !isps ? writePostStackTrace() : writePreStackTraces();
+    return isps ? writePreStackTraces() : writePostStackTrace();
 }
 
 
 uiString StratSynthExporter::uiMessage() const
 {
-    return errmsg_.isEmpty() ? tr("Exporting syntheic data") : errmsg_;
+    return errmsg_.isEmpty() ? tr("Exporting synthetic data") : errmsg_;
 }
 
 #define mErrRetPErr( msg ) \
@@ -156,31 +156,29 @@ int StratSynthExporter::writePostStackTrace()
 	mErrRetPErr( "Wrong type (not PostStackSyntheticData)" )
 
     const SeisTrcBuf& seisbuf = postsd->postStackPack().trcBuf();
-    const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();
     if ( posdone_ >= postobedone_ )
     {
 	cursdidx_++;
 	posdone_ = 0;
-	return Executor::MoreToDo();
+	return MoreToDo();
     }
 
-    const PosInfo::Line2DPos& linepos = positions[posdone_];
     const SeisTrc* synthrc = seisbuf.get( posdone_ );
     if ( !synthrc )
 	mErrRetPErr( "Cannot find the trace in the required position" )
 
+    const PosInfo::Line2DPos& linepos = (*linepos_)[posdone_];
     SeisTrc trc( *synthrc );
-    trc.info().nr = linepos.nr_;
-    trc.info().binid = SI().transform( linepos.coord_ );
-    trc.info().coord = linepos.coord_;
+    SeisTrcInfo& trcinfo = trc.info();
+    trcinfo.setGeomID( geomid_ ).setTrcNr( linepos.nr_ ).calcCoord();
+    trcinfo.seqnr_ = ++posdone_;
     if ( !writer_->put(trc) )
     {
 	errmsg_ = writer_->errMsg();
 	return ErrorOccurred();
     }
 
-    posdone_++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
@@ -190,29 +188,29 @@ int StratSynthExporter::writePreStackTraces()
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     if ( !presd )
 	mErrRetPErr( "Wrong type (not PreStackSyntheticData)" )
+
     const PreStack::GatherSetDataPack& gsdp = presd->preStackPack();
     const ObjectSet<PreStack::Gather>& gathers = gsdp.getGathers();
-    const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();
-    if ( posdone_ >= postobedone_ ) 
+    if ( posdone_ >= postobedone_ )
     {
 	cursdidx_++;
 	posdone_ = 0;
-	return Executor::MoreToDo();
+	return MoreToDo();
     }
-
-    const PosInfo::Line2DPos& linepos = positions[posdone_];
 
     if ( !gathers.validIdx(posdone_) )
 	mErrRetPErr( "Cannot find the gather in the required position" );
+
+    const PosInfo::Line2DPos& linepos = (*linepos_)[posdone_];
     const PreStack::Gather* gather = gathers[posdone_];
     for ( int offsidx=0; offsidx<gather->size(true); offsidx++ )
     {
 	const float offset = gather->getOffset( offsidx );
 	SeisTrc trc( *gsdp.getTrace(posdone_,offsidx) );
-	trc.info().nr = linepos.nr_;
-	trc.info().binid = SI().transform( linepos.coord_ );
-	trc.info().coord = linepos.coord_;
-	trc.info().offset = offset;
+	SeisTrcInfo& trcinfo = trc.info();
+	trcinfo.setGeomID( geomid_ ).setTrcNr( linepos.nr_ ).calcCoord();
+	trcinfo.seqnr_ = posdone_+1;
+	trcinfo.offset = offset;
 	if ( !writer_->put(trc) )
 	{
 	    errmsg_ = writer_->errMsg();
@@ -221,5 +219,5 @@ int StratSynthExporter::writePreStackTraces()
     }
 
     posdone_++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }

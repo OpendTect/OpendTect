@@ -7,30 +7,33 @@
 
 
 #include "seistrctr.h"
+
+#include "bufstringset.h"
+#include "coordsystem.h"
+#include "envvars.h"
+#include "file.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "iostrm.h"
 #include "keystrs.h"
-#include "seistrc.h"
+#include "od_stream.h"
+#include "ptrman.h"
+#include "scaler.h"
+#include "seisbuf.h"
 #include "seisinfo.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
-#include "seisbuf.h"
-#include "iopar.h"
-#include "ioobj.h"
-#include "iostrm.h"
-#include "ioman.h"
-#include "sorting.h"
+#include "seistrc.h"
 #include "separstr.h"
-#include "scaler.h"
-#include "ptrman.h"
+#include "sorting.h"
 #include "survinfo.h"
-#include "bufstringset.h"
 #include "tracedata.h"
 #include "trckeyzsampling.h"
-#include "envvars.h"
-#include "file.h"
-#include "od_stream.h"
 #include <math.h>
 
 
+const char* SeisTrcTranslator::sKeySeisTrPars() { return "SeisTranslator"; }
 const char* SeisTrcTranslator::sKeyIs2D()	{ return "Is2D"; }
 const char* SeisTrcTranslator::sKeyIsPS()	{ return "IsPS"; }
 const char* SeisTrcTranslator::sKeyRegWrite()
@@ -62,28 +65,12 @@ SeisTrcTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
 
 SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     : Translator(nm,unm)
-    , conn_(0)
-    , inpfor_(0)
-    , nrout_(0)
-    , inpcds_(0)
-    , outcds_(0)
-    , seldata_(0)
-    , prevnr_(mUdf(int))
     , pinfo_(*new SeisPacketInfo)
     , trcblock_(*new SeisTrcBuf(false))
     , lastinlwritten_(SI().sampling(false).hsamp_.start_.inl())
-    , read_mode(Seis::Prod)
-    , is_prestack(false)
-    , is_2d(false)
+    , geomid_(mUdfGeomID)
     , enforce_regular_write( !GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION") )
     , enforce_survinfo_write( GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE") )
-    , geomid_(mUdfGeomID)
-    , headerdonenew_(false)
-    , datareaddone_(false)
-    , storbuf_(0)
-    , trcscalebase_(0)
-    , curtrcscalebase_(0)
-    , compnms_(0)
     , warnings_(*new BufferStringSet)
 {
 }
@@ -107,9 +94,11 @@ bool SeisTrcTranslator::is2D( const IOObj& ioobj, bool internal_only )
 }
 
 
-bool SeisTrcTranslator::isPS( const IOObj& ioobj )
+bool SeisTrcTranslator::isPS( const IOObj& ioobj, bool internal_only )
 {
-    return *ioobj.group() == 'P' || *(ioobj.group()+3) == 'P';
+    const bool trok = *ioobj.group() == 'P' || *(ioobj.group()+3) == 'P';
+    return trok || internal_only ? trok
+	: ioobj.pars().isTrue( sKeyIsPS() ) || Seis::isPSGeom( ioobj.pars() );
 }
 
 
@@ -132,7 +121,7 @@ void SeisTrcTranslator::cleanUp()
     deleteAndZeroArrPtr( inpcds_ );
     deleteAndZeroArrPtr( outcds_ );
     deleteAndZeroPtr( trcscalebase_ );
-    curtrcscalebase_ = 0;
+    curtrcscalebase_ = nullptr;
     nrout_ = 0;
     errmsg_.setEmpty();
 }
@@ -154,7 +143,7 @@ bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
     read_mode = rm;
     if ( !initConn(c) || !initRead_() )
     {
-	delete conn_; conn_ = 0;
+	deleteAndZeroPtr( conn_ );
 	return false;
     }
 
@@ -319,9 +308,9 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 
     const bool haveprev = !mIsUdf( prevnr_ );
     const bool wrblk = haveprev && (is_2d ? prevnr_ > 99
-				: prevnr_ != trc.info().binid.inl());
+				: prevnr_ != trc.info().inl());
     if ( !is_2d )
-	prevnr_ = trc.info().binid.inl();
+	prevnr_ = trc.info().inl();
     else if ( wrblk || !haveprev )
 	prevnr_ = 1;
     else
@@ -342,9 +331,9 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 bool SeisTrcTranslator::writeBlock()
 {
     int sz = trcblock_.size();
-    SeisTrc* firsttrc = sz ? trcblock_.get(0) : 0;
+    SeisTrc* firsttrc = sz ? trcblock_.get(0) : nullptr;
     if ( firsttrc )
-	lastinlwritten_ = firsttrc->info().binid.inl();
+	lastinlwritten_ = firsttrc->info().inl();
 
     if ( sz && enforce_regular_write )
     {
@@ -352,19 +341,18 @@ bool SeisTrcTranslator::writeBlock()
 					: SeisTrcInfo::BinIDCrl;
 	bool sort_asc = true;
 	if ( is_2d )
-	    sort_asc = trcblock_.get(0)->info().nr
-		     < trcblock_.get(trcblock_.size()-1)->info().nr;
+	    sort_asc = trcblock_.get(0)->info().trcNr()
+		     < trcblock_.get(trcblock_.size()-1)->info().trcNr();
 	    // for 2D we're buffering only 100 traces, not an entire line
 	trcblock_.sort( sort_asc, keyfld );
 	firsttrc = trcblock_.get( 0 );
-	const int firstnr = is_2d ? firsttrc->info().nr
-				 : firsttrc->info().binid.crl();
+	const int firstnr = firsttrc->info().trcNr();
 	int nrperpos = 1;
 	if ( !is_2d )
 	{
 	    for ( int idx=1; idx<sz; idx++ )
 	    {
-		if ( trcblock_.get(idx)->info().binid.crl() != firstnr )
+		if ( trcblock_.get(idx)->info().crl() != firstnr )
 		    break;
 		nrperpos++;
 	    }
@@ -389,7 +377,7 @@ bool SeisTrcTranslator::writeBlock()
     int nrwritten = 0;
     for ( ; binid.crl() != firstafter; binid.crl() += stp )
     {
-	while ( trc && trc->info().binid.crl() < binid.crl() )
+	while ( trc && trc->info().crl() < binid.crl() )
 	{
 	    bufidx++;
 	    trc = bufidx < sz ? trcblock_.get(bufidx) : 0;
@@ -405,8 +393,13 @@ bool SeisTrcTranslator::writeBlock()
 		filltrc = getFilled( binid );
 	    else
 	    {
-		filltrc->info().binid = binid;
-		filltrc->info().coord = SI().transform(binid);
+		if ( is_2d )
+		    filltrc->info().setGeomID( binid.row() )
+				   .setTrcNr( binid.trcNr() );
+		else
+		    filltrc->info().setPos( binid );
+
+		filltrc->info().calcCoord();
 	    }
 	    if ( !writeTrc_(*filltrc) )
 		return false;
@@ -595,11 +588,15 @@ bool SeisTrcTranslator::copyDataToTrace( SeisTrc& trc )
 SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 {
     if ( !outcds_ )
-	return 0;
+	return nullptr;
 
-    SeisTrc* newtrc = new SeisTrc;
-    newtrc->info().binid = binid;
-    newtrc->info().coord = SI().transform( binid );
+    auto* newtrc = new SeisTrc;
+    if ( is_2d )
+	newtrc->info().setGeomID( binid.row() ).setTrcNr( binid.trcNr() );
+    else
+	newtrc->info().setPos( binid );
+
+    newtrc->info().calcCoord();
 
     newtrc->data().delComponent(0);
     for ( int idx=0; idx<nrout_; idx++ )
@@ -626,8 +623,10 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
 {
     PtrMan<Translator> transl = ioobj.createTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
-    if ( !tr ) return false;
-    PtrMan<Seis::SelData> sd = 0;
+    if ( !tr )
+	return false;
+
+    PtrMan<Seis::SelData> sd;
     if ( lnm && *lnm )
     {
 	sd = Seis::SelData::get( Seis::Range );
@@ -673,10 +672,34 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
 
 void SeisTrcTranslator::usePar( const IOPar& iop )
 {
-    iop.getYN( sKeyIs2D(), is_2d );
-    iop.getYN( sKeyIsPS(), is_prestack );
     iop.getYN( sKeyRegWrite(), enforce_regular_write );
     iop.getYN( sKeySIWrite(), enforce_survinfo_write );
+
+    PtrMan<IOPar> seistrpar = iop.subselect( sKeySeisTrPars() );
+    if ( !seistrpar )
+	seistrpar = new IOPar( iop );
+
+    if ( seistrpar && !seistrpar->getYN(sKeyIsPS(),is_prestack) )
+	is_prestack = Seis::isPSGeom( *seistrpar );
+
+    if ( !seistrpar->getYN(sKeyIs2D(),is_2d) )
+	is_2d = Seis::is2DGeom( *seistrpar );
+
+    Pos::GeomID gid = mUdfGeomID;;
+    if ( seistrpar->get(sKey::GeomID(),gid) && Survey::isValidGeomID(gid) )
+	setCurGeomID( gid );
+
+    RefMan<Coords::CoordSystem> crs =
+			Coords::CoordSystem::createSystem( *seistrpar.ptr() );
+    if ( crs )
+	setCoordSys( *crs.ptr() );
+}
+
+
+void SeisTrcTranslator::setCurGeomID( Pos::GeomID gid )
+{
+    geomid_ = gid;
+    is_2d = Survey::is2DGeom( geomid_ );
 }
 
 
@@ -691,4 +714,30 @@ void SeisTrcTranslator::addWarn( int nr, const char* msg )
     if ( !msg || !*msg || warnnrs_.isPresent(nr) ) return;
     warnnrs_ += nr;
     warnings_.add( msg );
+}
+
+
+void SeisTrcTranslator::setCoordSys( const Coords::CoordSystem& crs )
+{
+    coordsys_ = &crs;
+}
+
+
+void SeisTrcTranslator::setType( Seis::GeomType geom, IOPar& iop )
+{
+    iop.setYN( sKeyIs2D(), Seis::is2D(geom) );
+    iop.setYN( sKeyIsPS(), Seis::isPS(geom) );
+}
+
+
+void SeisTrcTranslator::setGeomID( Pos::GeomID gid, IOPar& iop )
+{
+    iop.set( sKey::GeomID(), gid );
+}
+
+
+void SeisTrcTranslator::setCoordSys( const Coords::CoordSystem& crs,
+				     IOPar& iop )
+{
+    crs.fillPar( iop );
 }

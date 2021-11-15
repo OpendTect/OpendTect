@@ -36,8 +36,8 @@ Seis2DFrom3DExtractor::Seis2DFrom3DExtractor(
 			const IOObj& cubein, const IOObj& dsout,
 			const TypeSet<Pos::GeomID>& geomids )
     : Executor("Extract 3D data into 2D lines")
-    , rdr_(*new SeisTrcReader(&cubein))
-    , wrr_(*new SeisTrcWriter(&dsout))
+    , rdr_(*new SeisTrcReader(cubein))
+    , wrr_(*new SeisTrcWriter(dsout))
     , geomids_(geomids)
     , nrdone_(0)
     , totalnr_(0)
@@ -114,9 +114,13 @@ int Seis2DFrom3DExtractor::handleTrace()
     if ( !rdr_.get(trc) )
 	return MoreToDo();
 
-    trc.info().nr = curpos.nr_;
-    trc.info().refnr = sCast(float,curpos.nr_);
-    trc.info().coord = curpos.coord_;
+    const TrcKey tk( curgeom2d_->getID(), curpos.nr_ );
+
+    SeisTrcInfo& trcinfo = trc.info();
+    trcinfo.setTrcKey( tk );
+    trcinfo.coord = curpos.coord_;
+    trcinfo.seqnr_ = curgeom2d_->data().positions().indexOf( curpos );
+    trcinfo.refnr = curgeom2d_->spnrs()[curtrcidx_-1];
     if ( !wrr_.put(trc) )
 	mErrRet( wrr_.errMsg() )
 

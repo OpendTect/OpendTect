@@ -205,13 +205,21 @@ DataPack::ID PreStackDisplay::preProcess()
 	    if ( !preprocmgr_.wantsInput(relbid) )
 		continue;
 
-	    const BinID inputbid =
-		is3DSeis() ? bid_ + relbid*BinID(SI().inlStep(),SI().crlStep())
-			   : BinID(0,trcnr_) + relbid;
-	    PreStack::Gather* gather = new PreStack::Gather;
-	    if ( (is3DSeis() && !gather->readFrom(*ioobj_,*reader_,inputbid)) ||
-		 (!is3DSeis() && !gather->readFrom(ioobj_->key(),inputbid.crl(),
-						   seis2d_->getLineName(),0)) )
+	    TrcKey tk;
+	    if ( is3DSeis() )
+	    {
+		const BinID inputbid = bid_ +
+				relbid * BinID(SI().inlStep(),SI().crlStep());
+		tk.setPosition( inputbid );
+	    }
+	    else
+	    {
+		const int trcnr = trcnr_ + relbid.trcNr();
+		tk.setGeomID( seis2d_->getGeomID() ).setTrcNr( trcnr );
+	    }
+
+	    auto* gather = new PreStack::Gather;
+	    if ( !gather->readFrom(*ioobj_,*reader_,tk) )
 	    {
 		delete gather;
 		continue;
@@ -232,13 +240,23 @@ DataPack::ID PreStackDisplay::preProcess()
 
 bool PreStackDisplay::setPosition( const BinID& nb )
 {
-    if ( bid_==nb )
+    const TrcKey tk( nb );
+    return setPosition( tk );
+}
+
+
+bool PreStackDisplay::setPosition( const TrcKey& tk )
+{
+    if ( !tk.is3D() )
+	{ pErrMsg("Incorrect TrcKey type"); }
+
+    if ( bid_ == tk.position() )
 	return true;
 
-    bid_ = nb;
+    bid_ = tk.position();
 
     PtrMan<PreStack::Gather> gather = new PreStack::Gather;
-    if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,nb) )
+    if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,tk) )
     {
 	mDefineStaticLocalObject( bool, shown3d, = false );
 	mDefineStaticLocalObject( bool, resetpos, = true );
@@ -251,10 +269,10 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 	bool hasdata = false;
 	if ( resetpos )
 	{
-	    BinID nearbid = getNearBinID( nb );
+	    BinID nearbid = getNearBinID( bid_ );
 	    if ( nearbid.inl()==-1 || nearbid.crl()==-1 )
 	    {
-		const StepInterval<int> rg = getTraceRange( nb, false );
+		const StepInterval<int> rg = getTraceRange( bid_, false );
 		BufferString msg( "No gather data at the whole section.\n" );
 		msg.add( "Data available at: ").add( rg.start ).add( " - " )
 		    .add( rg.stop ).add( " - " ).add( rg.step );
@@ -279,7 +297,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 
     draggerpos_ = bid_;
     draggermoving.trigger();
-    dataChangedCB( 0 );
+    dataChangedCB( nullptr );
     return updateData();
 }
 
@@ -294,7 +312,7 @@ bool PreStackDisplay::updateData()
     }
 
     const bool haddata = flatviewer_->hasPack( false );
-    PreStack::Gather* gather = new PreStack::Gather;
+    auto* gather = new PreStack::Gather;
 
 	DataPack::ID displayid = DataPack::cNoID();
 	if ( preprocmgr_.nrProcessors() )
@@ -304,15 +322,19 @@ bool PreStackDisplay::updateData()
 	}
 	else
 	{
-	if ( (is3DSeis() && !gather->readFrom(*ioobj_,*reader_,bid_)) ||
-	     (!is3DSeis() && !gather->readFrom(*ioobj_,*reader_,
-					       BinID(0,trcnr_))) )
-		delete gather;
+	    TrcKey tk;
+	    if ( is3DSeis() )
+		tk.setPosition( bid_ );
 	    else
+		tk.setGeomID( seis2d_->getGeomID() ).setTrcNr( trcnr_ );
+
+	    if ( gather->readFrom(*ioobj_,*reader_,tk) )
 	    {
 		DPM(DataPackMgr::FlatID()).add( gather );
 		displayid = gather->id();
 	    }
+	    else
+		delete gather;
 	}
 
 	if ( displayid==DataPack::cNoID() )
@@ -669,7 +691,7 @@ void PreStackDisplay::sectionMovedCB( CallBacker* )
 	    return;
     }
 
-    if ( !setPosition(newpos) )
+    if ( !setPosition(TrcKey(newpos)) )
 	return;
 }
 
@@ -692,13 +714,11 @@ bool PreStackDisplay::is3DSeis() const
 
 void PreStackDisplay::setTraceNr( int trcnr )
 {
-    if ( !seis2d_ )
-	trcnr_ = trcnr;
-    else
+    if ( seis2d_ )
     {
 	PtrMan<PreStack::Gather> gather = new PreStack::Gather;
-	if ( !ioobj_ || !reader_ ||
-	     !gather->readFrom(*ioobj_,*reader_,BinID(0,trcnr)) )
+	const TrcKey tk( seis2d_->getGeomID(), trcnr );
+	if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,tk) )
 	{
 	    mDefineStaticLocalObject( bool, show2d, = false );
 	    mDefineStaticLocalObject( bool, resettrace, = true );
@@ -723,9 +743,11 @@ void PreStackDisplay::setTraceNr( int trcnr )
 	else
 	    trcnr_ = trcnr;
     }
+    else
+	trcnr_ = trcnr;
 
     draggermoving.trigger();
-    seis2DMovedCB( 0 );
+    seis2DMovedCB( nullptr );
     updateData();
     turnOn( true );
 }
@@ -733,7 +755,8 @@ void PreStackDisplay::setTraceNr( int trcnr )
 
 bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 {
-    if ( !s2d ) return false;
+    if ( !s2d )
+	return false;
 
     if ( seis2d_ )
     {
@@ -757,13 +780,14 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 	 reader_ = SPSIOPF().get2DReader( *ioobj_, seis2d_->getGeomID() );
 
     setTraceNr( trcnr );
-    if ( trcnr_<0 ) return false;
+    if ( trcnr_ < 0 )
+	return false;
 
     const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
     basedirection_ = SI().binID2Coord().transformBackNoSnap(
-	    seis2d_->getNormal(trcnr_) ) - orig;
+			seis2d_->getNormal(trcnr_) ) - orig;
     seis2dpos_ = SI().binID2Coord().transformBackNoSnap(
-	    seis2d_->getCoord(trcnr_) );
+			seis2d_->getCoord(trcnr_) );
 
     mAttachCB( seis2d_->getMovementNotifier(), PreStackDisplay::seis2DMovedCB );
     planedragger_->showDraggerBorder( false );
@@ -782,7 +806,7 @@ void PreStackDisplay::seis2DMovedCB( CallBacker* )
 	    seis2d_->getNormal(trcnr_) ) - orig;
     seis2dpos_ = SI().binID2Coord().transformBackNoSnap(
 	    seis2d_->getCoord(trcnr_) );
-    dataChangedCB(0);
+    dataChangedCB( nullptr );
 }
 
 
@@ -894,7 +918,7 @@ void PreStackDisplay::finishedCB( CallBacker* )
 	else if ( section_->getOrientation() == OD::CrosslineSlice )
 	    newcrl = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.crl();
 
-	setPosition( BinID(newinl,newcrl) );
+	setPosition( TrcKey(BinID(newinl,newcrl)) );
     }
     else if ( seis2d_ )
     {
@@ -1049,7 +1073,7 @@ bool PreStackDisplay::usePar( const IOPar& par )
 		return false;
 	}
 
-	if ( !setPosition( bid ) )
+	if ( !setPosition( TrcKey(bid) ) )
 	    return false;
     }
 

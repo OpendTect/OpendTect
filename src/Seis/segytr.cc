@@ -22,6 +22,7 @@
 #include "seistrc.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
+#include "seiswrite.h"
 #include "separstr.h"
 #include "settings.h"
 #include "survinfo.h"
@@ -56,26 +57,10 @@ static const od_int64 cTraceHeaderBytes = 240;
 
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
-	: SeisTrcTranslator(nm,unm)
-	, trchead_(*new SEGY::TrcHeader(headerbuf_,fileopts_.thdef_,false))
-	, txthead_(0)
-	, binhead_(*new SEGY::BinHeader)
-	, trcscale_(0)	  // Will be removed
-	, curtrcscale_(0)  // Will be removed
-	, forcedrev_(-1)
-	, storinterp_(0) // Will be removed
-	, blockbuf_(0)	 // Will be removed
-	, headerdone_(false) // Will be removed
-	, useinpsd_(false)
-	, inpcd_(0)
-	, outcd_(0)
-	, estnrtrcs_(-1)
-	, curoffs_(-1)
-	, curcoord_(mUdf(float),0)
-	, prevoffs_(0)
-	, othdomain_(false)
-	, bp2c_(0)
-	, coordsys_(0)
+    : SeisTrcTranslator(nm,unm)
+    , trchead_(*new SEGY::TrcHeader(headerbuf_,fileopts_.thdef_,false))
+    , binhead_(*new SEGY::BinHeader)
+    , curcoord_(mUdf(float),0)
 {
     if ( maxnrconsecutivebadtrcs < 0 )
     {
@@ -100,13 +85,29 @@ void SEGYSeisTrcTranslator::cleanUp()
 {
     SeisTrcTranslator::cleanUp();
 
-    deleteAndZeroPtr( storinterp_ );
-    deleteAndZeroArrPtr( blockbuf_ );
     deleteAndZeroPtr( bp2c_ );
 
     mSetUdf(curbid_.inl()); mSetUdf(prevbid_.inl());
     curtrcnr_ = prevtrcnr_ = -1;
     prevoffs_ = curoffs_ = -1.f; mSetUdf(curcoord_.x);
+}
+
+
+void SEGYSeisTrcTranslator::setIs2D( bool yn )
+{
+    SeisTrcTranslator::setIs2D( yn );
+    fileopts_.setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
+    if ( txthead_ )
+	txthead_->setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
+}
+
+
+void SEGYSeisTrcTranslator::setIsPS( bool yn )
+{
+    SeisTrcTranslator::setIsPS( yn );
+    fileopts_.setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
+    if ( txthead_ )
+	txthead_->setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
 }
 
 
@@ -274,6 +275,7 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 void SEGYSeisTrcTranslator::updateCDFromBuf()
 {
     SeisTrcInfo info;
+    trchead_.geomtype_ = Seis::geomTypeOf( is_2d, is_prestack );
     trchead_.fill( info, fileopts_.coordscale_ );
     if ( othdomain_ )
 	info.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
@@ -315,6 +317,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 
 void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 {
+    trchead_.geomtype_ = Seis::geomTypeOf( is_2d, is_prestack );
     trchead_.fill( ti, fileopts_.coordscale_ );
     if ( othdomain_ )
 	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
@@ -380,7 +383,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 		return;
 	    }
 	}
-	ti.coord = bp2c_->coordAt( mCast(float,ti.nr) );
+	ti.coord = bp2c_->coordAt( mCast(float,ti.trcNr()) );
     }
 
     if ( ti.coord.x > 1e9 || ti.coord.y > 1e9 )
@@ -470,6 +473,17 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
     if ( iopar.isTrue(SEGY::FilePars::sKeyForceRev0()) )
 	forcedrev_ = 0;
 
+    BufferString hdrtxt;
+    PtrMan<IOPar> seistrpars =
+	iopar.subselect( SeisTrcTranslator::sKeySeisTrPars() );
+    if ( seistrpars && seistrpars->get(SeisStoreAccess::sKeyHeader(),hdrtxt) &&
+	 !hdrtxt.isEmpty() )
+    {
+	auto* txthdr = new SEGY::TxtHeader( rev0Forced() ? 0 : 1 );
+	txthdr->setText( hdrtxt );
+	setTxtHeader( txthdr );
+    }
+
     othdomain_ = !ZDomain::isSI( iopar );
 }
 
@@ -477,6 +491,14 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
 bool SEGYSeisTrcTranslator::isRev0() const
 {
     return trchead_.isrev0_;
+}
+
+
+int SEGYSeisTrcTranslator::estimatedNrTraces() const
+{
+    if ( estnrtrcs_ < 0 )
+	const_cast<SEGYSeisTrcTranslator*>(this)->readTapeHeader();
+    return estnrtrcs_;
 }
 
 
@@ -656,7 +678,7 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 #define mBadCoord(ti) \
 	(ti.coord.x < 0.01 && ti.coord.y < 0.01)
 #define mBadBid(ti) \
-	(ti.binid.inl() <= 0 && ti.binid.crl() <= 0)
+	(ti.inl() <= 0 && ti.crl() <= 0)
 #define mSkipThisTrace() { if ( !skipThisTrace(ti,nrbadtrcs) ) return false; }
 
 
@@ -680,7 +702,8 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    curtrcnr_ = fileopts_.trcnrdef_.start;
 	else
 	    curtrcnr_ = prevtrcnr_ + fileopts_.trcnrdef_.step;
-	ti.nr = curtrcnr_;
+
+	ti.setGeomID( curGeomID() ).setTrcNr( curtrcnr_ );
     }
 
     bool goodpos = true;
@@ -697,7 +720,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    while ( mBadCoord(ti) )
 		mSkipThisTrace()
 	}
-	ti.binid = SI().transform( ti.coord );
+	ti.setPos( SI().transform( ti.coord ) );
     }
     else if ( fileopts_.icdef_ == SEGY::FileReadOpts::ICOnly )
     {
@@ -708,7 +731,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    while ( mBadBid(ti) )
 		mSkipThisTrace()
 	}
-	ti.coord = SI().transform( ti.binid );
+	ti.calcCoord();
     }
     else
     {
@@ -718,16 +741,22 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	{
 	    while ( mBadBid(ti) && mBadCoord(ti) )
 		mSkipThisTrace()
-	    if ( mBadBid(ti) )
-		ti.binid = SI().transform( ti.coord );
-	    else if ( mBadCoord(ti) )
-		ti.coord = SI().transform( ti.binid );
+	    if ( !is_2d )
+	    {
+		if ( mBadBid(ti) )
+		    ti.setPos( SI().transform( ti.coord ) );
+		else if ( mBadCoord(ti) )
+		    ti.calcCoord();
+	    }
 	}
     }
 
     trchead_.initRead();
     if ( trchead_.isusable )
 	trchead_.isusable = goodpos;
+
+    if ( is_2d )
+	ti.setGeomID( curGeomID() );
 
     if ( !useinpsd_ ) ti.sampling = outsd_;
 
@@ -738,8 +767,8 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     if ( goodpos )
     {
-	prevtrcnr_ = curtrcnr_; curtrcnr_ = ti.nr;
-	prevbid_ = curbid_; curbid_ = ti.binid;
+	prevtrcnr_ = curtrcnr_; curtrcnr_ = ti.trcNr();
+	prevbid_ = curbid_; curbid_ = ti.binID();
 	prevoffs_ = curoffs_; curoffs_ = ti.offset;
     }
 
@@ -753,12 +782,6 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	addWarn(cSEGYWarnNonrectCoord,getTrcPosStr());
 
     return (headerdonenew_ = true);
-}
-
-
-bool SEGYSeisTrcTranslator::read( SeisTrc& trc )
-{
-    return SeisTrcTranslator::read( trc );
 }
 
 
@@ -890,4 +913,29 @@ void SEGYSeisTrcTranslator::fillErrMsg( const uiString& s, bool withpos )
 bool SEGYSeisTrcTranslator::noErrMsg()
 {
     errmsg_.setEmpty(); return false;
+}
+
+
+bool SEGYSeisTrcTranslator::writeSEGYHeader( const SeisStoreAccess& ssa,
+					     const char* outfnm )
+{
+    if ( !ssa.isOK() || !ssa.isPrepared() )
+	return false;
+
+    mDynamicCastGet(const SEGYSeisTrcTranslator*,segytr,
+		    ssa.seisTranslator())
+    if ( !segytr || !segytr->txtHeader() )
+	return false;
+
+    BufferString hdr;
+    segytr->txtHeader()->getText( hdr );
+
+    FilePath sgyhdr( outfnm );
+    sgyhdr.setExtension( "sgyhdr" );
+    od_ostream strm( sgyhdr.fullPath() );
+    if ( !strm.isOK() )
+	return false;
+
+    strm << hdr << od_endl;
+    return true;
 }

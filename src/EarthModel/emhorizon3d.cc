@@ -301,7 +301,7 @@ Horizon3D::Horizon3D( EMManager& man )
     , parents_(nullptr)
     , children_(nullptr)
     , parentcolor_(OD::Color::Yellow())
-    , survgeomid_(Survey::GeometryManager::get3DSurvID())
+    , survgeomid_(OD::Geom3D)
     , nodesource_(nullptr)
     , arrayinited_(false)
 
@@ -437,7 +437,7 @@ bool Horizon3D::setZ( const TrcKey& tk, float z, bool addtohist )
 
 
 float Horizon3D::getZ( const TrcKey& tk ) const
-{ return (float) getPos( sectionID(0), tk.pos().toInt64() ).z; }
+{ return (float) getPos( sectionID(0), tk.position().toInt64() ).z; }
 
 bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 {
@@ -475,22 +475,22 @@ float Horizon3D::getZ( const BinID& bid ) const
 { return (float) getPos( sectionID(0), bid.toInt64() ).z; }
 
 bool Horizon3D::hasZ( const TrcKey& tk ) const
-{ return isDefined( sectionID(0), tk.pos().toInt64() ); }
+{ return isDefined( sectionID(0), tk.position().toInt64() ); }
 
 Coord3 Horizon3D::getCoord( const TrcKey& tk ) const
-{ return getPos( sectionID(0), tk.pos().toInt64() ); }
+{ return getPos( sectionID(0), tk.position().toInt64() ); }
 
 
 void Horizon3D::setAttrib( const TrcKey& tk, int attr, int yn, bool addtohist )
 {
-    const PosID pid( id(), sectionID(0), tk.pos().toInt64() );
+    const PosID pid( id(), sectionID(0), tk.position().toInt64() );
     setPosAttrib( pid, attr, yn, addtohist );
 }
 
 
 bool Horizon3D::isAttrib( const TrcKey& tk, int attr ) const
 {
-    const PosID pid( id(), sectionID(0), tk.pos().toInt64() );
+    const PosID pid( id(), sectionID(0), tk.position().toInt64() );
     return isPosAttrib( pid, attr );
 }
 
@@ -1455,7 +1455,7 @@ PosID Horizon3DGeometry::getPosID( const TrcKey& trckey ) const
     if ( trckey.survID()!=hor->getSurveyID() )
 	return PosID::udf();
 
-    return PosID( surface_.id(), sectionID(0), trckey.pos().toInt64() );
+    return PosID( surface_.id(), sectionID(0), trckey.position().toInt64() );
 }
 
 

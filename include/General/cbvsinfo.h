@@ -33,19 +33,19 @@ mExpClass(General) CBVSInfo
 {
 public:
 
-				CBVSInfo()
-				: seqnr_(0), nrtrcsperposn_(1)	{}
+				CBVSInfo()			{}
 				~CBVSInfo()	{ deepErase(compinfo_); }
-				CBVSInfo( const CBVSInfo& ci )
-				{ *this = ci; }
+				CBVSInfo( const CBVSInfo& oth )
+				{ *this = oth; }
     CBVSInfo&			operator =(const CBVSInfo&);
+
+    int				estimatedNrTraces() const;
 
     mStruct(General) SurvGeom
     {
-				SurvGeom()
-				: fullyrectandreg(false)	{}
+				SurvGeom()			{}
 
-	bool			fullyrectandreg;
+	bool			fullyrectandreg = false;
 	BinID			start, stop, step;	//!< step can be < 0
 	Pos::IdxPair2Coord	b2c;
 	PosInfo::SortedCubeData	cubedata;
@@ -58,7 +58,7 @@ public:
 				{ return !excludes(bid); }
 	bool			includesInline(int) const;
 	void			clean()
-	    			{ fullyrectandreg = false; deepErase(cubedata);}
+				{ fullyrectandreg = false; deepErase(cubedata);}
 
 	bool			moveToNextPos(BinID&) const;
 	bool			moveToNextInline(BinID&) const;
@@ -71,8 +71,8 @@ protected:
 
     };
 
-    int				seqnr_;
-    int				nrtrcsperposn_;
+    int				seqnr_ = 0;
+    int				nrtrcsperposn_ = 1;
 
     PosAuxInfoSelection		auxinfosel_;
     ObjectSet<BasicComponentInfo> compinfo_;
@@ -89,5 +89,4 @@ protected:
 				  usertext_ = ""; }
 
 };
-
 

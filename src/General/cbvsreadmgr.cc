@@ -88,8 +88,14 @@ CBVSReadMgr::~CBVSReadMgr()
 
 int CBVSReadMgr::bytesOverheadPerTrace() const
 {
-    return readers_.size() ? readers_[curnr_]->bytesOverheadPerTrace()
-			   : CBVSReader::defHeaderSize();
+    return readers_.isEmpty() ? CBVSReader::defHeaderSize()
+			      : readers_[curnr_]->bytesOverheadPerTrace();
+}
+
+
+int CBVSReadMgr::estimatedNrTraces() const
+{
+    return readers_.isEmpty() ? -1 : readers_[curnr_]->estimatedNrTraces();
 }
 
 
@@ -450,7 +456,7 @@ void CBVSReadMgr::getPositions( TypeSet<Coord>& posns ) const
     else
     {
 	CBVSReadMgr* ncthis = const_cast<CBVSReadMgr*>( this );
-	ncthis->toStart(); PosAuxInfo pai;
+	ncthis->toStart(); PosAuxInfo pai( false );
 	ncthis->getAuxInfo( pai ); posns += pai.coord;
 	while ( ncthis->toNext() )
 	    { ncthis->getAuxInfo( pai ); posns += pai.coord; }

@@ -28,40 +28,67 @@
 #include "uistrings.h"
 
 
-#define mCurGeomID (gidp_ \
-    ? gidp_->geomID() \
-    : (seldata_ ? seldata_->geomID():Survey::GM().cUndefGeomID()))
-
-
-SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const GeomIDProvider* l )
-	: SeisStoreAccess(ioob)
-	, auxpars_(*new IOPar)
-	, gidp_(l)
-	, worktrc_(*new SeisTrc)
-	, linedata_(0)
+SeisTrcWriter::SeisTrcWriter( const MultiID& dbkey, Seis::GeomType gt,
+			      const GeomIDProvider* lprov )
+    : SeisStoreAccess(dbkey,gt)
+    , auxpars_(*new IOPar)
+    , worktrc_(*new SeisTrc)
+    , firstsampling_(mUdf(float),1.f)
+    , gidp_(lprov)
+    , prevgeomid_(mUdfGeomID)
 {
-    init();
+}
+
+
+SeisTrcWriter::SeisTrcWriter( const IOObj& ioobj, const Seis::GeomType* gt,
+			      const GeomIDProvider* lprov )
+    : SeisStoreAccess(&ioobj,gt)
+    , auxpars_(*new IOPar)
+    , worktrc_(*new SeisTrc)
+    , firstsampling_(mUdf(float),1.f)
+    , gidp_(lprov)
+    , prevgeomid_(mUdfGeomID)
+{
+}
+
+
+SeisTrcWriter::SeisTrcWriter( const IOObj& ioobj, Pos::GeomID gid,
+			      const Seis::GeomType* gt,
+			      const GeomIDProvider* lprov )
+    : SeisStoreAccess(&ioobj,gid,gt)
+    , auxpars_(*new IOPar)
+    , worktrc_(*new SeisTrc)
+    , firstsampling_(mUdf(float),1.f)
+    , gidp_(lprov)
+    , prevgeomid_(mUdfGeomID)
+{
+}
+
+
+SeisTrcWriter::SeisTrcWriter( const SeisStoreAccess::Setup& ssasu )
+    : SeisStoreAccess(ssasu)
+    , auxpars_(*new IOPar)
+    , worktrc_(*new SeisTrc)
+    , firstsampling_(mUdf(float),1.f)
+    , prevgeomid_(mUdfGeomID)
+{
+}
+
+
+SeisTrcWriter::SeisTrcWriter( const IOObj* ioobj, const GeomIDProvider* lprov )
+    : SeisStoreAccess(ioobj,nullptr)
+    , auxpars_(*new IOPar)
+    , worktrc_(*new SeisTrc)
+    , firstsampling_(mUdf(float),1.f)
+    , gidp_(lprov)
+    , prevgeomid_(mUdfGeomID)
+{
 }
 
 
 SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is2d, bool isps )
-	: SeisStoreAccess(fnm,is2d,isps)
-	, auxpars_(*new IOPar)
-	, gidp_(0)
-	, worktrc_(*new SeisTrc)
-	, linedata_(0)
+    : SeisTrcWriter(SeisStoreAccess::getTmp(fnm,is2d,isps))
 {
-    init();
-}
-
-
-void SeisTrcWriter::init()
-{
-    putter_ = 0; pswriter_ = 0;
-    nrtrcs_ = nrwritten_ = 0;
-    prepared_ = false;
-    firstns_ = mUdf(int);
-    firstsampling_.start = mUdf(float);
 }
 
 
@@ -76,13 +103,14 @@ SeisTrcWriter::~SeisTrcWriter()
 
 bool SeisTrcWriter::close()
 {
+    deleteAndZeroPtr( gidp_ );
     bool ret = true;
     if ( putter_ )
 	{ ret = putter_->close(); if ( !ret ) errmsg_ = putter_->errMsg(); }
 
     if ( is2D() )
     {
-	Pos::GeomID geomid = mCurGeomID;
+	const Pos::GeomID geomid = geomID();;
 	Survey::Geometry* geom = Survey::GMAdmin().getGeometry( geomid );
 	mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 
@@ -105,31 +133,45 @@ bool SeisTrcWriter::close()
 }
 
 
+void SeisTrcWriter::updateLineData()
+{
+    const Pos::GeomID gid = geomID();
+    deleteAndZeroPtr( linedata_ );
+    spnrs_.setEmpty();
+
+    if ( is2D() || Survey::is2DGeom(gid) )
+	linedata_ = new PosInfo::Line2DData( Survey::GM().getName(gid) );
+}
+
+
 void SeisTrcWriter::setGeomIDProvider( const GeomIDProvider* prov )
 {
     gidp_ = prov;
-    delete linedata_;
-    linedata_ = new PosInfo::Line2DData( Survey::GM().getName(mCurGeomID) );
-    spnrs_.erase();
+    updateLineData();
 }
 
 
 void SeisTrcWriter::setSelData( Seis::SelData* tsel )
 {
     SeisStoreAccess::setSelData( tsel );
-    delete linedata_;
-    spnrs_.erase();
+    updateLineData();
+}
 
-    if ( !is2D() )
-	return;
 
-    linedata_ = new PosInfo::Line2DData( Survey::GM().getName(mCurGeomID) );
+Pos::GeomID SeisTrcWriter::geomID() const
+{
+    if ( geomIDProvider() )
+	return geomIDProvider()->geomID();
+
+    return SeisStoreAccess::geomID();
 }
 
 
 bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 {
-    if ( !ioobj_ )
+    if ( !isOK() )
+	return false;
+    else if ( !ioobj_ )
     {
 	errmsg_ = tr("Info for output seismic data "
 		     "not found in Object Manager");
@@ -142,11 +184,21 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 		.arg( ioobj_->name() );
 	return false;
     }
-    if ( is2d_ && !gidp_ && ( !seldata_ || (seldata_->geomID() < 0) ) )
+    if ( is2d_ )
     {
-	errmsg_ = tr("Internal: 2D seismic can only "
-		     "be stored if line key known");
-	return false;
+	const Pos::GeomID gid = geomID();
+	if ( Survey::is2DGeom(gid) )
+	{
+	    if ( gid != trc.info().geomID() )
+		{ pErrMsg("Incompatible geomID"); }
+	    updateLineData();
+	}
+	else
+	{
+	    errmsg_ = tr("Internal: 2D seismic can only "
+			 "be stored if line key known");
+	    return false;
+	}
     }
 
     if ( is2d_ && !psioprov_ )
@@ -167,12 +219,13 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	    pswriter_ = SPSIOPF().get3DWriter( *ioobj_ );
 	else
 	{
-	    const Pos::GeomID geomid = mCurGeomID;
-	    const char* lnm = is2d_ ? Survey::GM().getName(geomid) : 0;
+	    const Pos::GeomID geomid = geomID();
+	    const char* lnm = is2d_ ? Survey::GM().getName(geomid) : nullptr;
 	    pswriter_ = SPSIOPF().get2DWriter( *ioobj_, lnm );
 	    SamplingData<float> sd = trc.info().sampling;
 	    StepInterval<float> zrg( sd.start, 0, sd.step );
-	    if ( linedata_ ) linedata_->setZRange( zrg );
+	    if ( linedata_ )
+		linedata_->setZRange( zrg );
 	}
 	if ( !pswriter_ )
 	{
@@ -193,17 +246,18 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	    return false;
     }
 
-    prepared_ = true;
-
     if ( !ioobj_->isTmp() && !ioobj_->isProcTmp() )
     {
-	ioobj_->pars().update( sKey::CrFrom(), crfrom_ );
-	ioobj_->pars().update( sKey::CrInfo(), crusrinfo_ );
-	ioobj_->updateCreationPars();
-	IOM().commitChanges( *ioobj_ );
+	PtrMan<IOObj> writeobj = ioobj_->clone();
+	IOPar& objpars = writeobj->pars();
+	objpars.update( sKey::CrFrom(), crfrom_ );
+	objpars.update( sKey::CrInfo(), crusrinfo_ );
+	objpars.removeSubSelection( SeisTrcTranslator::sKeySeisTrPars() );
+	writeobj->updateCreationPars();
+	IOM().commitChanges( *writeobj.ptr() );
     }
 
-    return prepared_;
+    return (prepared_ = true);
 }
 
 
@@ -254,14 +308,14 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 	mDynamicCastGet(IOStream*,iostrm,ioobj_)
 	if ( iostrm->fileSpec().isRangeMulti() && trc.info().new_packet )
 	{
-	    const int connidx = iostrm->connIdxFor( trc.info().binid.inl() );
+	    const int connidx = iostrm->connIdxFor( trc.info().inl() );
 	    neednewconn = connidx != iostrm->curConnIdx();
 	}
     }
 
     if ( neednewconn )
     {
-	Conn* conn = crConn( trc.info().binid.inl(), first );
+	Conn* conn = crConn( trc.info().inl(), first );
 	if ( !conn )
 	{
 	    errmsg_ = tr("Cannot create output stream");
@@ -279,8 +333,8 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 
 bool SeisTrcWriter::next2DLine()
 {
-    Pos::GeomID geomid = mCurGeomID;
-    BufferString lnm = Survey::GM().getName( geomid );
+    const Pos::GeomID geomid = geomID();
+    const BufferString lnm = Survey::GM().getName( geomid );
     if ( lnm.isEmpty() )
     {
 	errmsg_ = tr("Invalid 2D Geometry");
@@ -289,7 +343,6 @@ bool SeisTrcWriter::next2DLine()
 
     prevgeomid_ = geomid;
     delete putter_;
-
     putter_ = dataset_->linePutter( geomid );
 
     if ( !putter_ )
@@ -306,19 +359,20 @@ bool SeisTrcWriter::next2DLine()
 
 bool SeisTrcWriter::put2D( const SeisTrc& trc )
 {
-    if ( !putter_ || !linedata_ ) return false;
+    if ( !putter_ || !linedata_ )
+	return false;
 
-    if ( mCurGeomID != prevgeomid_ )
+    if ( geomID() != prevgeomid_ )
     {
 	if ( !next2DLine() )
 	    return false;
     }
 
-    bool res = putter_->put( trc );
+    const bool res = putter_->put( trc );
     if ( !res )
 	errmsg_ = putter_->errMsg();
 
-    PosInfo::Line2DPos pos( trc.info().nr );
+    PosInfo::Line2DPos pos( trc.info().trcNr() );
     pos.coord_ = trc.info().coord;
     linedata_->add( pos );
     spnrs_ += trc.info().refnr;
@@ -333,15 +387,8 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	return false;
 
     nrtrcs_++;
-    if ( seldata_ )
-    {
-	BinID selbid = trc.info().binid;
-	if ( is2d_ )
-	    selbid = BinID( seldata_->inlRange().start, trc.info().nr );
-
-	if ( seldata_->selRes(selbid) )
-	    return true;
-    }
+    if ( seldata_ && !seldata_->isOK(trc.info().trcKey()) )
+	return true;
 
     if ( psioprov_ )
     {
@@ -353,9 +400,9 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	    return false;
 	}
 
-	if ( is2d_ && linedata_ && linedata_->indexOf(trc.info().nr) < 0 )
+	if ( is2d_ && linedata_ && linedata_->indexOf(trc.info().trcNr()) < 0 )
 	{
-	    PosInfo::Line2DPos pos( trc.info().nr );
+	    PosInfo::Line2DPos pos( trc.info().trcNr() );
 	    pos.coord_ = trc.info().coord;
 	    linedata_->add( pos );
 	    spnrs_ += trc.info().refnr;
@@ -373,7 +420,8 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	else if ( !strl()->write(trc) )
 	{
 	    errmsg_ = strl()->errMsg();
-	    strl()->close(); delete trl_; trl_ = 0;
+	    strl()->close();
+	    deleteAndZeroPtr( trl_ );
 	    return false;
 	}
     }
@@ -534,8 +582,8 @@ bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
 	    for ( int idy=0; idy<outputs_.size(); idy++ )
 	    {
 		const bool samepos = writer_->is2D()
-		    ? bid.crl() == outputs_[idy]->info().nr
-		    : outputs_[idy]->info().binid == bid;
+		    ? bid.trcNr() == outputs_[idy]->info().trcNr()
+		    : outputs_[idy]->info().binID() == bid;
 		if ( samepos )
 		{
 		    trcs += outputs_.removeSingle( idy );

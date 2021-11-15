@@ -751,13 +751,11 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 	c1 = center - halfsize;
     }
 
+    res.init( s3dgeom_->getID() );
     res.hsamp_.start_ = res.hsamp_.stop_ = BinID(mNINT32(c0.x),mNINT32(c0.y) );
-    res.zsamp_.start = res.zsamp_.stop = (float) c0.z;
     res.hsamp_.include( BinID(mNINT32(c1.x),mNINT32(c1.y)) );
+    res.zsamp_.start = res.zsamp_.stop = (float) c0.z;
     res.zsamp_.include( (float) c1.z );
-    res.hsamp_.step_ = BinID( s3dgeom_->inlStep(), s3dgeom_->crlStep() );
-    res.zsamp_.step = s3dgeom_->zRange().step;
-    res.hsamp_.survid_ = Survey::GeometryManager::get3DSurvID();
 
     if ( manippos )
 	res = snapPosition( res );

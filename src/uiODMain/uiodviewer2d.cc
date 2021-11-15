@@ -168,8 +168,8 @@ int uiODViewer2D::getSyncSceneID() const
 
 Pos::GeomID uiODViewer2D::geomID() const
 {
-    if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
-	return tkzs_.hsamp_.trcKeyAt(0).geomID();
+    if ( tkzs_.is2D() )
+	return tkzs_.hsamp_.getGeomID();
 
     return Survey::GM().cUndefGeomID();
 }
@@ -907,7 +907,7 @@ uiString uiODViewer2D::getInfoTitle() const
 		    Geometry::RLM().get( rdmlineid_ );
 	if ( rdmline ) info = toUiString( rdmline->name() );
     }
-    else if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    else if ( tkzs_.is2D() )
     {
 	info.arg( tr("Line") )
 	    .arg( toUiString( Survey::GM().getName(geomID()) ) );

@@ -11,10 +11,18 @@ ________________________________________________________________________
 */
 
 #include "seismod.h"
+
 #include "gendefs.h"
+#include "ptrman.h"
 #include "uistring.h"
 
+class CommandLineParser;
+class IOObj;
 class IOObjContext;
+class IOPar;
+namespace Coords { class CoordSystem; }
+namespace OS { class MachineCommand; }
+namespace Seis	{ class SelData; }
 
 /*!\brief Seismics */
 
@@ -44,7 +52,9 @@ namespace Seis
     mGlobal(Seis) uiString dataName(GeomType,bool both_pre_post=false);
     mGlobal(Seis) const char**	geomTypeNames();
     mGlobal(Seis) void		putInPar(GeomType,IOPar&);
+    mGlobal(Seis) void		putInMC(GeomType,OS::MachineCommand&);
     mGlobal(Seis) bool		getFromPar(const IOPar&,GeomType&);
+    mGlobal(Seis) bool		getFromCLP(const CommandLineParser&,GeomType&);
     mGlobal(Seis) bool		is2DGeom(const IOPar&);
     mGlobal(Seis) bool		isPSGeom(const IOPar&);
     mGlobal(Seis) IOObjContext*	getIOObjContext(Seis::GeomType,bool forread);
@@ -61,6 +71,6 @@ namespace Seis
     mGlobal(Seis) WaveType		waveTypeOf(const char*);
     mGlobal(Seis) const char**	waveTypeNames();
 
-} // namespace Seis
 
+} // namespace Seis
 

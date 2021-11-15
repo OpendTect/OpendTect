@@ -254,7 +254,7 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	if ( hor3d )
 	{
 	    const Pos::GeomID horgid =
-		TrcKey(horizon_->getSurveyID(),BinID(-1,-1)).geomID();
+				TrcKey::gtGeomID( horizon_->getSurveyID() );
 	    ConstRefMan<Survey::Geometry> horsurv =
 					    Survey::GM().getGeometry( horgid );
 	    hortrckey = horsurv->getTrace( crd, horsurv->averageTrcDist() * 3 );
@@ -294,7 +294,7 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	float depth = (float) horizon_->getPos( pid ).z;
 	if ( mIsUdf( depth ) && hor3d )
 	{
-	    const BinID bid = hortrckey.pos();
+	    const BinID bid = hortrckey.position();
 	    const Geometry::BinIDSurface* geom =
 		hor3d->geometry().sectionGeometry(sid);
 	    depth = (float)geom->computePosition(Coord(bid.inl(),bid.crl()) ).z;

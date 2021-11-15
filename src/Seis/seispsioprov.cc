@@ -28,6 +28,11 @@
 const char* SeisPSIOProvider::sKeyCubeID = "=Cube.ID";
 
 
+Pos::GeomID SeisPS3DReader::geomID() const
+{
+    return Survey::default3DGeomID();
+}
+
 SeisPS3DReader*	SeisPSIOProvider::get3DReader( const IOObj& ioobj,
 						int inl ) const
 { return make3DReader( ioobj.fullUserExpr(true), inl ); }
@@ -72,6 +77,42 @@ const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
 	    return provs_[idx];
 
     return nullptr;
+}
+
+
+SeisPSReader* SeisPSIOProviderFactory::getReader( const MultiID& dbkey,
+						  const TrcKey& tk ) const
+{
+    PtrMan<IOObj> psseisobj = IOM().get( dbkey );
+    return psseisobj ? getReader( *psseisobj.ptr(), tk ) : nullptr;
+}
+
+
+SeisPSReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj,
+						  const TrcKey& tk ) const
+{
+    return tk.is3D() ? (SeisPSReader*)get3DReader( ioobj, tk.inl() )
+		     : (tk.is2D()
+			? (SeisPSReader*)get2DReader(ioobj,tk.geomID())
+			: nullptr);
+}
+
+
+SeisPSWriter* SeisPSIOProviderFactory::getWriter( const MultiID& dbkey,
+						  const TrcKey& tk ) const
+{
+    PtrMan<IOObj> psseisobj = IOM().get( dbkey );
+    return psseisobj ? getWriter( *psseisobj.ptr(), tk ) : nullptr;
+}
+
+
+SeisPSWriter* SeisPSIOProviderFactory::getWriter( const IOObj& ioobj,
+						  const TrcKey& tk ) const
+{
+    return tk.is3D() ? (SeisPSWriter*)get3DWriter( ioobj )
+		     : (tk.is2D()
+			? (SeisPSWriter*)get2DWriter(ioobj,tk.geomID())
+			: nullptr);
 }
 
 

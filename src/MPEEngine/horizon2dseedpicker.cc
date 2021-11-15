@@ -344,10 +344,11 @@ TrcKey Horizon2DSeedPicker::replaceSeed( const TrcKey& oldseed,
 
     TrcKeyValue newseed = newseedin;
     TrcKey& newtk = newseed.tk_;
-    if ( !mIsUdf(prevseedpos) && newtk.trcNr()<=prevseedpos )
-	newtk.trcNr() = prevseedpos + colrg.step;
-    else if ( !mIsUdf(nextseedpos) && newtk.trcNr()>=nextseedpos )
-	newtk.trcNr() = nextseedpos - colrg.step;
+    const TrcKey& cstnewtk = const_cast<TrcKey&>( newtk );
+    if ( !mIsUdf(prevseedpos) && cstnewtk.trcNr() <= prevseedpos )
+	newtk.setTrcNr( prevseedpos + colrg.step );
+    else if ( !mIsUdf(nextseedpos) && cstnewtk.trcNr() >= nextseedpos )
+	newtk.setTrcNr( nextseedpos - colrg.step );
 
     removeSeed( oldseed, true, false );
     addSeed( newseed, false, newseed );
@@ -402,6 +403,7 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
     eraselist_.erase();
 
     TrcKey curtk( geomid_, startcol );
+    const TrcKey& cstcurtk = const_cast<const TrcKey&>( curtk );
 
     bool seedwasadded = hor2d->hasZ( curtk ) && !wholeline;
     bool curdefined = startwasdefined;
@@ -411,10 +413,10 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 	const TrcKey prevtk = curtk;
 	const bool prevdefined = curdefined;
 
-	curtk.trcNr() += step;
+	curtk.setTrcNr( cstcurtk.trcNr() + step );
 
 	// reaching end of line
-	if ( !colrg.includes(curtk.trcNr(),false) )
+	if ( !colrg.includes(cstcurtk.trcNr(),false) )
 	{
 	    if	( trackmode_ == TrackFromSeeds )
 		trackbounds_ += prevtk;
@@ -425,20 +427,20 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 	    break;
 	}
 
-	if ( !hor2d->hasZ(curtk) )
+	if ( !hor2d->hasZ(cstcurtk) )
 	    continue;
 
 	curdefined = true;
 
 	// running into a seed point
-	if ( hor2d->isAttrib(curtk,EM::EMObject::sSeedNode()) )
+	if ( hor2d->isAttrib(cstcurtk,EM::EMObject::sSeedNode()) )
 	{
 	    const bool onewaytracking = seedwasadded && !prevdefined &&
 					trackmode_==TrackFromSeeds;
 	    if ( onewaytracking )
-		trackbounds_ += curtk;
+		trackbounds_ += cstcurtk;
 	    else
-		seedlist_ += curtk;
+		seedlist_ += cstcurtk;
 
 	    if ( wholeline )
 		continue;
@@ -554,7 +556,7 @@ bool Horizon2DSeedPicker::interpolateSeeds( bool manualnode )
 	if ( seedlist_[idx].geomID() != geomid_ )
 	    continue;
 
-	sortval += seedlist_[idx].trcNr();
+	sortval += const_cast<const TrcKey&>( seedlist_[idx] ).trcNr();
 	sortidx += idx;
     }
 
@@ -563,6 +565,7 @@ bool Horizon2DSeedPicker::interpolateSeeds( bool manualnode )
 
     TypeSet<TrcKey> snaplist;
     TrcKey tk( geomid_, -1 );
+    const TrcKey& csttk = const_cast<const TrcKey&>( tk );
     for ( int vtx=0; vtx<nrvalidseeds-1; vtx++ )
     {
 	const Coord3 startpos = hor->getCoord( seedlist_[ sortidx[vtx] ] );
@@ -570,11 +573,11 @@ bool Horizon2DSeedPicker::interpolateSeeds( bool manualnode )
 
 	double totarclen = 0.0;
 	Coord prevpos = startpos;
-	tk.trcNr() = sortval[vtx];
-	while ( tk.trcNr()<sortval[vtx+1] )
+	tk.setTrcNr( sortval[vtx] );
+	while ( csttk.trcNr()<sortval[vtx+1] )
 	{
-	    tk.trcNr() += colrg.step;
-	    const Coord curpos = hor->getCoord( tk );
+	    tk.setTrcNr( csttk.trcNr() + colrg.step );
+	    const Coord curpos = hor->getCoord( csttk );
 	    if ( !curpos.isDefined() )
 		continue;
 
@@ -584,10 +587,11 @@ bool Horizon2DSeedPicker::interpolateSeeds( bool manualnode )
 
 	double arclen = 0.0;
 	prevpos = startpos;
-	tk.trcNr() = sortval[vtx] + colrg.step;
-	for ( ; tk.trcNr()<sortval[vtx+1]; tk.trcNr() += colrg.step  )
+	for ( TrcKey::IdxType tnr=sortval[vtx] + colrg.step;
+		tnr<sortval[vtx+1]; tnr += colrg.step  )
 	{
-	    const Coord curpos = hor->getCoord( tk );
+	    tk.setTrcNr( tnr );
+	    const Coord curpos = hor->getCoord( csttk );
 	    if ( !curpos.isDefined() )
 		continue;
 
@@ -598,11 +602,11 @@ bool Horizon2DSeedPicker::interpolateSeeds( bool manualnode )
 	    const double curz = (1-frac) * startpos.z + frac * endpos.z;
 	    const EM::EMObject::NodeSourceType type = manualnode ?
 		EM::EMObject::Manual : EM::EMObject::Auto;
-	    hor->setZAndNodeSourceType( tk, (float)curz, true, type );
-	    hor->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
+	    hor->setZAndNodeSourceType( csttk, (float)curz, true, type );
+	    hor->setAttrib( csttk, EM::EMObject::sSeedNode(), false, true );
 
 	    if ( trackmode_ != DrawBetweenSeeds )
-		snaplist += tk;
+		snaplist += csttk;
 	}
     }
 

@@ -237,11 +237,11 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 	    tk = survgeom->nearestTrace( coord );
 	else
 	{
-	    tk.lineNr() = (Pos::LineID)(coord.x + 0.5);
-	    tk.trcNr() = (Pos::TraceID)(coord.y + 0.5);
+	    tk.setLineNr( (Pos::LineID)(coord.x + 0.5) );
+	    tk.setTrcNr( (Pos::TraceID)(coord.y + 0.5) );
 	}
 
-	float* vals = getVals( add(tk.pos()) );
+	float* vals = getVals( add(tk.position()) );
 	if ( !vals ) continue;
 	for ( int idx=0; idx<nrVals(); idx++ )
 	{

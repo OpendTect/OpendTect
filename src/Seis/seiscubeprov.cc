@@ -22,27 +22,37 @@
 #include "survinfo.h"
 #include "uistrings.h"
 
-static const IOObj* nullioobj = 0;
 
-SeisMSCProvider::SeisMSCProvider( const MultiID& id )
-	: rdr_(*new SeisTrcReader(nullioobj))
+static Seis::GeomType getType( const MultiID& mid )
 {
-    IOObj* ioobj = IOM().get( id );
-    rdr_.setIOObj( ioobj );
-    delete ioobj;
+    const SeisIOObjInfo seisinfo( mid );
+    return seisinfo.isOK() ? Seis::Vol : seisinfo.geomType();
+}
+
+
+SeisMSCProvider::SeisMSCProvider( const MultiID& mid, Seis::GeomType gt )
+    : rdr_(*new SeisTrcReader(mid,gt))
+{
+    init();
+}
+
+
+SeisMSCProvider::SeisMSCProvider( const MultiID& mid )
+    : rdr_(*new SeisTrcReader(mid,getType(mid)))
+{
     init();
 }
 
 
 SeisMSCProvider::SeisMSCProvider( const IOObj& ioobj )
-	: rdr_(*new SeisTrcReader(&ioobj))
+    : rdr_(*new SeisTrcReader(ioobj))
 {
     init();
 }
 
 
 SeisMSCProvider::SeisMSCProvider( const char* fnm )
-	: rdr_(*new SeisTrcReader(fnm))
+    : rdr_(*new SeisTrcReader(fnm))
 {
     init();
 }
@@ -157,7 +167,7 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
     if ( is2D() && trc->info().new_packet )
 	addbuf = 0;
     if ( !is2D() && addbuf &&
-	 addbuf->get(0)->info().binid.inl() != trc->info().binid.inl() )
+	 addbuf->get(0)->info().inl() != trc->info().inl() )
 	addbuf = 0;
 
     if ( !addbuf )
@@ -177,14 +187,15 @@ int SeisMSCProvider::comparePos( const SeisMSCProvider& mscp ) const
     if ( &mscp == this )
 	return 0;
 
-    int startval = tbufs_[bufidx_]->get(0)->info().nr;
-    int stopval = tbufs_[bufidx_]->get(tbufs_[bufidx_]->size()-1)->info().nr;
+    int startval = tbufs_[bufidx_]->get(0)->info().trcNr();
+    int stopval =
+	tbufs_[bufidx_]->get(tbufs_[bufidx_]->size()-1)->info().trcNr();
 
     int bufidx = mscp.bufidx_;
 
-    int startmscpval = mscp.tbufs_[bufidx]->get(0)->info().nr;
+    int startmscpval = mscp.tbufs_[bufidx]->get(0)->info().trcNr();
     int stopmscpval = mscp.tbufs_[bufidx]->
-				get(mscp.tbufs_[bufidx]->size()-1)->info().nr;
+			    get(mscp.tbufs_[bufidx]->size()-1)->info().trcNr();
 
     bool arebothreversed = (startval > stopval) &&
 					(startmscpval > stopmscpval);
@@ -297,9 +308,9 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 	{
 	case 1:		break;
 	case -1:	errmsg_ = rdr_.errMsg();		return -1;
-	case 0: 						 return 0;
+	case 0:							return 0;
 	case 2:
-	default:						 return 2;
+	default:						return 2;
 	}
 
 	if ( rdr_.get(trc) )
@@ -308,9 +319,9 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 	{
 	    BufferString msg( "Trace " );
 	    if ( is2D() )
-		msg += trc.info().nr;
+		msg += trc.info().trcNr();
 	    else
-		msg += trc.info().binid.toString();
+		msg += trc.info().binID().toString();
 	    msg.add( ": " ).add( rdr_.errMsg().getFullString() );
 	    ErrMsg( msg );
 	}
@@ -321,14 +332,14 @@ int SeisMSCProvider::readTrace( SeisTrc& trc )
 BinID SeisMSCProvider::getPos() const
 {
     return bufidx_==-1
-	? BinID(-1,-1) : tbufs_[bufidx_]->get(trcidx_)->info().binid;
+	? BinID(-1,-1) : tbufs_[bufidx_]->get(trcidx_)->info().binID();
 }
 
 
 int SeisMSCProvider::getTrcNr() const
 {
     return !is2D() || bufidx_==-1
-	? -1 : tbufs_[bufidx_]->get(trcidx_)->info().nr;
+	? -1 : tbufs_[bufidx_]->get(trcidx_)->info().trcNr();
 }
 
 
@@ -340,14 +351,14 @@ SeisTrc* SeisMSCProvider::get( int deltainl, int deltacrl )
 	return 0;
 
     BinID bidtofind( deltainl*stepoutstep_.row(), deltacrl*stepoutstep_.col() );
-    bidtofind += !is2D() ? tbufs_[bufidx_]->get(trcidx_)->info().binid :
-		 BinID( bufidx_, tbufs_[bufidx_]->get(trcidx_)->info().nr );
+    bidtofind += !is2D() ? tbufs_[bufidx_]->get(trcidx_)->info().binID() :
+	     BinID( bufidx_, tbufs_[bufidx_]->get(trcidx_)->info().trcNr() );
 
     int idx = mMIN( mMAX(0,bufidx_+deltainl), tbufs_.size()-1 );
     while ( !is2D() )
     {
 	const int inldif =
-	    tbufs_[idx]->get(0)->info().binid.inl()-bidtofind.inl();
+	    tbufs_[idx]->get(0)->info().inl()-bidtofind.inl();
 	if ( !inldif )
 	    break;
 	if ( deltainl*inldif < 0 )
@@ -366,7 +377,7 @@ SeisTrc* SeisMSCProvider::get( const BinID& bid )
 	return 0;
 
     RowCol biddif( bid );
-    biddif -= tbufs_[bufidx_]->get(trcidx_)->info().binid;
+    biddif -= tbufs_[bufidx_]->get(trcidx_)->info().binID();
 
     RowCol delta( biddif ); delta /= stepoutstep_;
     RowCol check( delta  ); check *= stepoutstep_;
@@ -381,11 +392,11 @@ SeisTrc* SeisMSCProvider::get( const BinID& bid )
 // Distances to box borders: 0 on border, >0 outside, <0 inside.
 #define mCalcBoxDistances(idx,idy,stepout) \
     const BinID curbid = is2D() ? \
-	    BinID( idx, tbufs_[idx]->get(idy)->info().nr ) : \
-	    tbufs_[idx]->get(idy)->info().binid; \
+	    BinID( idx, tbufs_[idx]->get(idy)->info().trcNr() ) : \
+	    tbufs_[idx]->get(idy)->info().binID(); \
     const BinID pivotbid = is2D() ? \
-	    BinID( pivotidx_, tbufs_[pivotidx_]->get(pivotidy_)->info().nr ) : \
-	    tbufs_[pivotidx_]->get(pivotidy_)->info().binid; \
+      BinID( pivotidx_, tbufs_[pivotidx_]->get(pivotidy_)->info().trcNr() ) : \
+	    tbufs_[pivotidx_]->get(pivotidy_)->info().binID(); \
     RowCol bidstepout( stepout ); bidstepout *= stepoutstep_; \
     const int bottomdist mUnusedVar = \
 	pivotbid.inl()-curbid.inl()-bidstepout.row(); \
@@ -512,9 +523,8 @@ int nextStep()
     if ( res == 2 ) { delete trc; return MoreToDo(); }
     else if ( rdr_.get(*trc) )
     {
-	const BinID bid = trc->info().binid;
-	const int inlidx = is2d_ ? 0 : hs_.inlIdx( bid.inl() );
-	const int crlidx = hs_.crlIdx( is2d_ ? trc->info().nr : bid.crl() );
+	const int inlidx = is2d_ ? 0 : hs_.inlIdx( trc->info().inl() );
+	const int crlidx = hs_.crlIdx( trc->info().trcNr() );
 	arr_.set( inlidx, crlidx, trc );
     }
     else
@@ -614,20 +624,21 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     if ( !ioobj_ )
 	mErrRet( uiStrings::phrCannotFindDBEntry( uiStrings::sInput() ) )
 
-    PtrMan<SeisTrcReader> seisrdr = new SeisTrcReader( ioobj_ );
+    const bool is2d = Survey::is2DGeom( geomid );
+    if ( geomid != cs.hsamp_.getGeomID() )
+	{ pErrMsg("Mistmatching Pos::GeomID" ); }
+
+    const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
+    PtrMan<SeisTrcReader> seisrdr = new SeisTrcReader( *ioobj_, geomid, &gt );
     seisrdr->prepareWork();
 
     tkzs_ = cs;
-    bool is2d = geomid != Survey::GM().cUndefGeomID();
-    Seis::RangeSelData* sd = new Seis::RangeSelData( tkzs_ );
-    if ( is2d )
-    {
-	sd->setGeomID( geomid );
-	if ( !calcTrcDist(geomid) )
-	    return false;
-    }
+    PtrMan<Seis::SelData> sd = new Seis::RangeSelData( tkzs_ );
+    if ( sd && !sd->isAll() )
+	seisrdr->setSelData( sd.release() );
 
-    seisrdr->setSelData( sd );
+    if ( is2d && !calcTrcDist(geomid) )
+	return false;
 
     clear();
     data_ = new Array2DImpl<SeisTrc*>( tkzs_.hsamp_.nrInl(),

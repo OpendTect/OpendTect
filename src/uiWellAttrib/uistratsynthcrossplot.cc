@@ -302,7 +302,7 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
 	uiMSG().error( tr("No valid step provided for data extraction"));
 
     const float halfstep = step / 2.f;
-    const int trcnr = trcinfo.nr;
+    const int trcnr = trcinfo.trcNr();
     const Coord trcpos = trcinfo.coord;
     const int depthidx = dps.indexOf( sKey::Depth() );
     const int nrcols = dps.nrCols();
@@ -352,7 +352,7 @@ void uiStratSynthCrossplot::fillPosFromLayerSampling( DataPointSet& dps,
     if ( subseq.isEmpty() )
 	return;
 
-    const int trcnr = trcinfo.nr;
+    const int trcnr = trcinfo.trcNr();
     const Coord trcpos = trcinfo.coord;
     const int depthidx = dps.indexOf( sKey::Depth() );
     const int nrcols = dps.nrCols();

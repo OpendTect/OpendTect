@@ -64,7 +64,7 @@ public:
     bool		put(const SeisTrc&);
     bool		close();
 
-    int					nrwr_;
+    int					nrwr_ = 0;
     BufferString			fname_;
     uiString				errmsg_;
     SEGYSeisTrcTranslator*		tr_;
@@ -92,8 +92,8 @@ protected:
     void		addTrc(SeisTrc*);
     int			nextStep();
 
-    int				curnr_;
-    int				totnr_;
+    int				curnr_ = 0;
+    int				totnr_ = 0;
     BufferString		fname_;
     SEGYSeisTrcTranslator*	tr_;
     const int			trcsperstep_;

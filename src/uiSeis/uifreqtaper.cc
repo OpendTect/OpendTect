@@ -196,9 +196,13 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
     if ( posdlg_ &&  posdlg_->go() )
     {
 	const TrcKeyZSampling cs = posdlg_->getTrcKeyZSampling();
-	SeisTrcReader rdr( objinfo.ioObj() );
+	if ( cs.hsamp_.getGeomID() != geomid )
+	    { pErrMsg("Should not happen"); }
 
-	Seis::RangeSelData* sd = new Seis::RangeSelData( cs );
+	const Seis::GeomType gt = objinfo.geomType();
+	SeisTrcReader rdr( *objinfo.ioObj(), geomid, &gt );
+
+	auto* sd = new Seis::RangeSelData( cs );
 	sd->setGeomID( geomid );
 	rdr.setSelData( sd );
 	rdr.prepareWork();

@@ -605,7 +605,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 
     BinIDValueSet bidvals( 0, false );
     for ( int idx=0; idx<trckeys.size(); idx++ )
-       bidvals.add( trckeys[idx].pos() );
+       bidvals.add( trckeys[idx].position() );
 
     uiString errmsg;
     SeisTrcBuf bufs( true );

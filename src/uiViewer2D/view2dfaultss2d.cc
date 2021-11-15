@@ -95,7 +95,8 @@ void VW2DFaultSS2D::draw()
 	    trcnrs.erase(); dists.erase();
 	    for ( int idx=0; idx<regfdp->nrTrcs(); idx++ )
 	    {
-		trcnrs += regfdp->getTrcKey(idx).trcNr();
+		const TrcKey tk = regfdp->getTrcKey(idx);
+		trcnrs += tk.trcNr();
 		dists += mCast(float,regfdp->posData().position(true,idx));
 	    }
 

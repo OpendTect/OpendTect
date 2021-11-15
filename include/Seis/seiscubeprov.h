@@ -11,11 +11,11 @@ ________________________________________________________________________
 */
 
 
-#include "seismod.h"
 #include "arraynd.h"
-#include "trckeyzsampling.h"
-#include "rowcol.h"
 #include "objectset.h"
+#include "rowcol.h"
+#include "seistype.h"
+#include "trckeyzsampling.h"
 #include "uistring.h"
 
 template <class T> class Array2D;
@@ -55,7 +55,7 @@ mExpClass(Seis) SeisMSCProvider
 { mODTextTranslationClass(SeisMSCProvider);
 public:
 
-			SeisMSCProvider(const MultiID&);
+			SeisMSCProvider(const MultiID&,Seis::GeomType);
 				//!< Use any real user entry from '.omf' file
 			SeisMSCProvider(const IOObj&);
 				//!< Use any real user entry from '.omf' file
@@ -65,23 +65,23 @@ public:
 
     bool		is2D() const;
     bool		prepareWork();
-    			//!< Opens the input data. Can still set stepouts etc.
+			//!< Opens the input data. Can still set stepouts etc.
 
-    			// use the following after prepareWork
-    			// but before the first next()
+			// use the following after prepareWork
+			// but before the first next()
     void		forceFloatData( bool yn )
-    			{ intofloats_ = yn; }
+			{ intofloats_ = yn; }
     void		setStepout(int,int,bool required);
     void		setStepout(Array2D<bool>* mask);
 			/*!< mask has 2m+1 * 2n+1 entries and becomes mine. */
     void		setStepoutStep( int i, int c )
 			{ stepoutstep_.row() = i; stepoutstep_.col() = c; }
     int			inlStepout( bool req ) const
-    			{ return req ? reqstepout_.row() : desstepout_.row(); }
+			{ return req ? reqstepout_.row() : desstepout_.row(); }
     int			crlStepout( bool req ) const
-    			{ return req ? reqstepout_.col() : desstepout_.col(); }
+			{ return req ? reqstepout_.col() : desstepout_.col(); }
     void		setSelData(Seis::SelData*);
-    			//!< seldata becomes mine
+			//!< seldata becomes mine
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };
     AdvanceState	advance();
@@ -97,7 +97,7 @@ public:
 			{ return const_cast<SeisMSCProvider*>(this)->get(bid); }
 
     int			comparePos(const SeisMSCProvider&) const;
-    			//!< 0 = equal; -1 means I need to next(), 1 the other
+			//!< 0 = equal; -1 means I need to next(), 1 the other
     int			estimatedNrTraces() const; //!< returns -1 when unknown
 
     SeisTrcReader&	reader()		{ return rdr_; }
@@ -119,18 +119,22 @@ protected:
     uiString		errmsg_;
     mutable int		estnrtrcs_;
 
-    			// Indexes of new pos ready, equals -1 while buffering.
+			// Indexes of new pos ready, equals -1 while buffering.
     int			bufidx_;
     int			trcidx_;
-    			// Indexes of next position to be examined.
+			// Indexes of next position to be examined.
     int			pivotidx_;
     int			pivotidy_;
 
     void		init();
     bool		startWork();
     int			readTrace(SeisTrc&);
-    bool 		isReqBoxFilled() const;
-    bool 		doAdvance();
+    bool		isReqBoxFilled() const;
+    bool		doAdvance();
+
+public:
+    mDeprecated("Provide Seis::GeomType")
+			SeisMSCProvider(const MultiID&);
 };
 
 

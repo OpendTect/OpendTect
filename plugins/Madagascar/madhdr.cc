@@ -284,8 +284,8 @@ TrcHeader::TrcHeader( bool is2d, const TrcHdrDef& def )
 		(*this)[trchdrdef_.StdIdx##fld()]
 bool TrcHeader::fillTrcInfo( SeisTrcInfo& ti ) const
 {
-    mGetIntFld( Inline, ti.binid.inl );
-    mGetIntFld( Crossline, ti.binid.crl );
+    mGetIntFld( Inline, ti.inl );
+    mGetIntFld( Crossline, ti.crl );
     mGetIntFld( TrcNr, ti.nr );
 
     getFld( trchdrdef_.StdIdxXcdp(), ti.coord.x );
@@ -319,9 +319,9 @@ bool TrcHeader::useTrcInfo( const SeisTrcInfo& ti )
 {
     mPutFld( ti.coord.x, Xcdp );
     mPutFld( ti.coord.y, Ycdp );
-    mPutFld( ti.binid.inl, Inline );
-    mPutFld( ti.binid.crl, Crossline );
-    mPutFld( ti.nr, TrcNr );
+    mPutFld( ti.inl(), Inline );
+    mPutFld( ti.crl(), Crossline );
+    mPutFld( ti.seqnr_, TrcNr );
     mPutFld( ti.offset, Offset );
     mPutFld( ti.refnr, SP );
     mPutFld( ti.sampling.start, DelRt );

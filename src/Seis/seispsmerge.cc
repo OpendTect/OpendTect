@@ -43,14 +43,14 @@ ObjectSet<const IOObj>& SeisPSCopier::mkObjs( const IOObj& in )
 SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
 			    const IOObj& out, bool dostack,
 			    const Seis::SelData* sd )
-	: Executor("Merging Prestack data")
-	, writer_(0)
-	, dostack_(dostack)
-	, sd_(sd && !sd->isAll() ? sd->clone() : 0)
-	, offsrg_(0,mUdf(float))
-	, msg_(tr("Handling gathers"))
-	, totnr_(-1)
-	, nrdone_(0)
+    : Executor("Merging Prestack data")
+    , writer_(0)
+    , dostack_(dostack)
+    , sd_(sd && !sd->isAll() ? sd->clone() : 0)
+    , offsrg_(0,mUdf(float))
+    , msg_(tr("Handling gathers"))
+    , totnr_(-1)
+    , nrdone_(0)
 {
     TrcKeyZSampling cs; bool havecs = false;
     if ( sd_ )
@@ -94,7 +94,8 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
     iter_ = new TrcKeySamplingIterator( cs.hsamp_ );
     resampler_ = new SeisResampler( cs );
 
-    writer_ = new SeisTrcWriter( &out );
+    const Seis::GeomType gt = Seis::VolPS;
+    writer_ = new SeisTrcWriter( out, &gt );
     if ( !writer_ )
     {
 	deepErase(readers_);

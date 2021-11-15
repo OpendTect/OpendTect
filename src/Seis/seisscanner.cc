@@ -24,17 +24,17 @@
 #include "uistrings.h"
 
 SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
-	: Executor( "Scan seismic data" )
-	, rdr_(*new SeisTrcReader(&ioobj))
-	, trc_(*new SeisTrc)
-	, dtctor_(*new PosInfo::Detector(
-		    PosInfo::Detector::Setup(Seis::is2D(gt))
-			    .isps(Seis::isPS(gt)).reqsorting(true) ) )
-	, curmsg_(uiStrings::sScanning())
-	, totalnr_(mtr < 0 ? -2 : mtr)
-	, maxnrtrcs_(mtr)
-	, nrnulltraces_(0)
-	, invalidsamplenr_(-1)
+    : Executor( "Scan seismic data" )
+    , rdr_(*new SeisTrcReader(ioobj,&gt))
+    , trc_(*new SeisTrc)
+    , dtctor_(*new PosInfo::Detector(
+		PosInfo::Detector::Setup(Seis::is2D(gt))
+			.isps(Seis::isPS(gt)).reqsorting(true) ) )
+    , curmsg_(uiStrings::sScanning())
+    , totalnr_(mtr < 0 ? -2 : mtr)
+    , maxnrtrcs_(mtr)
+    , nrnulltraces_(0)
+    , invalidsamplenr_(-1)
 {
     dtctor_.reInit();
     valrg_.start = mUdf(float);
@@ -250,7 +250,7 @@ int SeisScanner::nextStep()
     {
 	dtctor_.finish();
 
-	const BinID& bid( trc_.info().binid );
+	const BinID bid = trc_.info().binID();
 	uiString posmsg;
 	if ( dtctor_.is2D() )
 	{ posmsg = tr("trace number %1").arg(toString(bid.crl())); }
@@ -310,7 +310,7 @@ bool SeisScanner::doValueWork()
 	    if ( invalidsamplenr_ < 0 )
 	    {
 		invalidsamplenr_ = idx;
-		invalidsamplebid_ = trc_.info().binid;
+		invalidsamplebid_ = trc_.info().binID();
 	    }
 	    continue;
 	}
@@ -343,8 +343,8 @@ bool SeisScanner::addTrc()
 	sampling_ = trc_.info().sampling;
     }
 
-    if ( !dtctor_.add(trc_.info().coord,trc_.info().binid,
-		      trc_.info().nr,trc_.info().offset) )
+    if ( !dtctor_.add(trc_.info().coord, trc_.info().binID(),
+		      trc_.info().trcNr(), trc_.info().offset) )
     {
 	curmsg_ = dtctor_.errMsg();
 	return false;

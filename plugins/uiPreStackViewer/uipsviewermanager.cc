@@ -328,7 +328,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	}
 	else bid = SI().transform( pickedpos );
 
-	settingok = viewer->setPosition( bid );
+	settingok = viewer->setPosition( TrcKey(bid) );
     }
     else if ( s2d )
     {
@@ -653,11 +653,18 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	if ( !ioobj )
 	    continue;
 
-	PreStack::Gather* gather = new PreStack::Gather;
+	auto* gather = new PreStack::Gather;
 	int dpid;
-	if ( is3d && gather->readFrom(mid,bid,0) )
-	    dpid = gather->id();
-	else if ( gather->readFrom( *ioobj, trcnr, name2d,0 ) )
+	TrcKey tk;
+	if ( is3d )
+	    tk.setPosition( bid );
+	else
+	{
+	    const Pos::GeomID gid = Survey::GM().getGeomID( name2d );
+	    tk.setGeomID( gid ).setTrcNr( trcnr );
+	}
+
+	if ( gather->readFrom(*ioobj,tk) )
 	    dpid = gather->id();
 	else
 	{

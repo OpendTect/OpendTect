@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "binid.h"
 #include "uistring.h"
 
-
+class IOObj;
 class SeisTrc;
 class SeisTrcBuf;
 class BufferStringSet;
@@ -34,7 +34,9 @@ mExpClass(Seis) SeisPSReader
 public:
 
     virtual		~SeisPSReader()					{}
+    virtual bool	is3D() const					= 0;
     virtual bool	is2D() const					= 0;
+    virtual Pos::GeomID geomID() const					= 0;
 
     virtual void	usePar(const IOPar&)				{}
 
@@ -55,7 +57,9 @@ mExpClass(Seis) SeisPS3DReader : public SeisPSReader
 {
 public:
 
-    bool		is2D() const		{ return false; }
+    bool		is3D() const override	{ return true; }
+    bool		is2D() const override	{ return false; }
+    Pos::GeomID		geomID() const override;
 
     virtual const PosInfo::CubeData&	posData() const			= 0;
 
@@ -69,15 +73,14 @@ mExpClass(Seis) SeisPS2DReader : public SeisPSReader
 public:
 			SeisPS2DReader(const char* lnm);
 			SeisPS2DReader(Pos::GeomID);
-    bool		is2D() const		{ return true; }
-    const char*		lineName() const	{ return lnm_.buf(); }
-    Pos::GeomID		geomID() const		{ return geomid_; }
 
-			// Cannot use name overloading: seems gcc prob
-    SeisTrc*		getTrc( int trcnr, int nr=0 ) const
-			{ return getTrace( BinID(0,trcnr), nr ); }
-    bool		getGath( int trcnr, SeisTrcBuf& b ) const
-			{ return getGather( BinID(0,trcnr), b ); }
+    bool		is3D() const override	{ return false; }
+    bool		is2D() const override	{ return true; }
+    const char*		lineName() const	{ return lnm_.buf(); }
+    Pos::GeomID		geomID() const override { return geomid_; }
+
+    SeisTrc*		getTrc(int trcnr,int nr=0) const;
+    bool		getGath(int trcnr,SeisTrcBuf&) const;
 
     virtual const PosInfo::Line2DData&	posData() const		= 0;
 

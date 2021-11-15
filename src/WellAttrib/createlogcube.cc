@@ -76,7 +76,8 @@ bool LogCubeCreator::LogCube::doWrite( const SeisTrcBuf& trcs ) const
     if ( !seisioobj_ )
 	mErrRet( tr( "Internal: no ioobj specified" ), true, return false )
 
-    SeisTrcWriter writer( seisioobj_ );
+    const Seis::GeomType gt = Seis::Vol;
+    SeisTrcWriter writer( *seisioobj_, &gt );
     for ( int itrc=0; itrc<trcs.size(); itrc++ )
     {
 	if ( !writer.put(*trcs.get(itrc)) )
@@ -484,7 +485,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 		    if ( trcpos < 0 )
 		    {
 			trcsbufout.add( new SeisTrc(undeftrc) );
-			trcsbufout.last()->info().binid = bid;
+			trcsbufout.last()->info().setPos( bid );
 			trcpos = trcsbufout.size() - 1;
 		    }
 
@@ -514,7 +515,7 @@ void LogCubeCreator::getLogNames( BufferStringSet& lognms ) const
 void LogCubeCreator::addUniqueTrace( const SeisTrc& trc,
 				     SeisTrcBuf& trcs ) const
 {
-    const BinID& bid = trc.info().binid;
+    const BinID bid = trc.info().binID();
     const int pos = trcs.find( bid );
     if ( pos < 0 )
     {

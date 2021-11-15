@@ -31,21 +31,17 @@
 
 SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
 			    Seis::GeomType gt )
-	: Executor("Importing seismic data")
-	, rdr_(r)
-	, wrr_(w)
-	, geomtype_(gt)
-	, buf_(*new SeisTrcBuf(false))
-	, trc_(*new SeisTrc)
-	, state_( Seis::isPS(gt) ? ReadWrite : ReadBuf )
-	, nrread_(0)
-	, nrwritten_(0)
-	, nrskipped_(0)
-	, sortanal_(new BinIDSortingAnalyser(Seis::is2D(gt)))
-	, sorting_(0)
-	, prevbid_(*new BinID(mUdf(int),mUdf(int)))
-        , lock_(*new Threads::ConditionVar)
-        , maxqueuesize_( Threads::getNrProcessors()*100 )
+    : Executor("Importing seismic data")
+    , rdr_(r)
+    , wrr_(w)
+    , geomtype_(gt)
+    , buf_(*new SeisTrcBuf(false))
+    , trc_(*new SeisTrc)
+    , state_( Seis::isPS(gt) ? ReadWrite : ReadBuf )
+    , sortanal_(new BinIDSortingAnalyser(Seis::is2D(gt)))
+    , prevbid_(*new BinID(mUdf(int),mUdf(int)))
+    , lock_(*new Threads::ConditionVar)
+    , maxqueuesize_( Threads::getNrProcessors()*100 )
 {
     queueid_ = Threads::WorkManager::twm().addQueue(
 					Threads::WorkManager::SingleThread,
@@ -101,6 +97,13 @@ od_int64 SeisImporter::totalNr() const
 }
 
 
+bool SeisImporter::goImpl( od_ostream* strm, bool first, bool last, int delay )
+{
+    const bool res = Executor::goImpl( strm, first, last, delay );
+    return res;
+}
+
+
 #define mDoRead(trc) \
     bool atend = false; \
     if ( rdr_->fetch(trc) ) \
@@ -109,7 +112,7 @@ od_int64 SeisImporter::totalNr() const
     { \
 	errmsg_ = rdr_->errmsg_; \
 	if ( !errmsg_.isEmpty() ) \
-	    return Executor::ErrorOccurred(); \
+	    return ErrorOccurred(); \
 	atend = true; \
     }
 
@@ -120,7 +123,7 @@ int SeisImporter::nextStep()
     {
 	Threads::MutexLocker lock( lock_ );
 	if ( !errmsg_.isEmpty() )
-	    return Executor::ErrorOccurred();
+	    return ErrorOccurred();
 
 	lock.unLock();
 
@@ -137,20 +140,20 @@ int SeisImporter::nextStep()
     {
 	Threads::MutexLocker lock( lock_ );
 	if ( !errmsg_.isEmpty() )
-	    return Executor::ErrorOccurred();
+	    return ErrorOccurred();
 	lock.unLock();
 
 	mDoRead( trc_ );
 	if ( !atend )
 	{
 	    const bool is2d = Seis::is2D(geomtype_);
-	    if ( !is2d && !SI().isReasonable(trc_.info().binid) )
+	    if ( !is2d && !SI().isReasonable(trc_.info().binID()) )
 	    {
 		nrskipped_++;
-		return Executor::MoreToDo();
+		return MoreToDo();
 	    }
 
-	    return sortingOk(trc_) ? doWrite(trc_) : Executor::ErrorOccurred();
+	    return sortingOk(trc_) ? doWrite(trc_) : ErrorOccurred();
 	}
 
 	//Wait for queue to finish writing
@@ -159,10 +162,10 @@ int SeisImporter::nextStep()
 	//Check for errors
 	lock.lock();
 	if ( !errmsg_.isEmpty() )
-	    return Executor::ErrorOccurred();
+	    return ErrorOccurred();
 	lock.unLock();
 
-	return Executor::Finished();
+	return Finished();
     }
 
     return readIntoBuf();
@@ -230,20 +233,20 @@ int SeisImporter::doWrite( SeisTrc& trc )
 	lock_.wait();
 
     if ( !errmsg_.isEmpty() )
-	return Executor::ErrorOccurred();
+	return ErrorOccurred();
 
     lock.unLock();
 
     Task* task = new SeisImporterWriterTask( *this, wrr_, trc );
     Threads::WorkManager::twm().addWork(Threads::Work(*task,true), 0, queueid_,
 				       false );
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
 int SeisImporter::readIntoBuf()
 {
-    SeisTrc* trc = new SeisTrc;
+    auto* trc = new SeisTrc;
     mDoRead( *trc )
     if ( atend )
     {
@@ -251,15 +254,15 @@ int SeisImporter::readIntoBuf()
 	if ( nrread_ == 0 )
 	{
 	    errmsg_ = tr("No valid traces in input");
-	    return Executor::ErrorOccurred();
+	    return ErrorOccurred();
 	}
 
 	state_ = buf_.isEmpty() ? ReadWrite : WriteBuf;
-	return Executor::MoreToDo();
+	return MoreToDo();
     }
 
     const bool is2d = Seis::is2D(geomtype_);
-    if ( !is2d && !SI().isReasonable(trc->info().binid) )
+    if ( !is2d && !SI().isReasonable(trc->info().binID()) )
     {
 	delete trc;
 	nrskipped_++;
@@ -268,7 +271,7 @@ int SeisImporter::readIntoBuf()
     {
 	buf_.add( trc );
 	if ( !sortingOk(*trc) )
-	    return Executor::ErrorOccurred();
+	    return ErrorOccurred();
 	if ( !sortanal_ )
 	    state_ = WriteBuf;
 
@@ -276,14 +279,14 @@ int SeisImporter::readIntoBuf()
 	if ( !Seis::isPS(geomtype_) && buf_.size() > 1000 )
 	{
 	    SeisTrc* btrc = buf_.get( buf_.size() - 1 );
-	    const BinID trcbid( btrc->info().binid );
-	    const int trcnr = btrc->info().nr;
+	    const BinID trcbid( btrc->info().binID() );
+	    const int trcnr = btrc->info().trcNr();
 	    int nreq = 0;
 	    for ( int idx=buf_.size()-2; idx!=-1; idx-- )
 	    {
 		btrc = buf_.get( idx );
-		if ( (!is2d && btrc->info().binid == trcbid)
-		  || (is2d && btrc->info().nr == trcnr) )
+		if ( (!is2d && btrc->info().binID() == trcbid)
+		  || (is2d && btrc->info().trcNr() == trcnr) )
 		    nreq++;
 		else
 		    break;
@@ -292,22 +295,21 @@ int SeisImporter::readIntoBuf()
 	    {
 		errmsg_ = tr("Input contains too many (1000+) "
 			     "identical positions");
-		return Executor::ErrorOccurred();
+		return ErrorOccurred();
 	    }
 	}
     }
 
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
 bool SeisImporter::sortingOk( const SeisTrc& trc )
 {
     const bool is2d = Seis::is2D(geomtype_);
-    BinID bid( trc.info().binid );
+    BinID bid( trc.info().binID() );
     if ( is2d )
     {
-	bid.crl() = trc.info().nr;
 	bid.inl() = prevbid_.inl();
 	if ( mIsUdf(bid.inl()) )
 	    bid.inl() = 0;
@@ -324,7 +326,7 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	    {
 		errmsg_ = tr("Importing stopped at trace number: %1"
 			     "\nbecause before this trace, the rule was:\n%2")
-		        .arg( toString(trc.info().nr) )
+			.arg( toString(trc.info().trcNr()) )
                         .arg( sorting_->description() );
 	    }
 	    else
@@ -368,14 +370,20 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 }
 
 
+// SeisStdImporterReader
+
+SeisStdImporterReader::SeisStdImporterReader( const SeisStoreAccess::Setup& su,
+					      const char* nm )
+    : rdr_(*new SeisTrcReader(su))
+    , name_(nm)
+{
+    totalnr_ = rdr_.expectedNrTraces();
+}
+
 
 SeisStdImporterReader::SeisStdImporterReader( const IOObj& ioobj,
 					      const char* nm )
-    : rdr_(*new SeisTrcReader(&ioobj))
-    , name_(nm)
-    , remnull_(false)
-    , resampler_(0)
-    , scaler_(0)
+    : SeisStdImporterReader(SeisStoreAccess::Setup(ioobj,nullptr),nm)
 {
 }
 
@@ -396,7 +404,7 @@ const char* SeisStdImporterReader::implName() const
 
 int SeisStdImporterReader::totalNr() const
 {
-    return rdr_.selData() ? rdr_.selData()->expectedNrTraces() : -1;
+    return totalnr_;
 }
 
 

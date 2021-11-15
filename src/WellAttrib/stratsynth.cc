@@ -701,11 +701,13 @@ attribspecs += sp; \
 aem->setAttribSet( descset ); \
 aem->setAttribSpecs( attribspecs ); \
 aem->setTrcKeyZSampling( cs ); \
+aem->setGeomID( cs.hsamp_.getGeomID() ); \
 BinIDValueSet bidvals( 0, false ); \
+bidvals.setIs2D( true ); \
 const ObjectSet<PreStack::Gather>& gathers = gdp.getGathers(); \
 for ( int idx=0; idx<gathers.size(); idx++ ) \
     bidvals.add( gathers[idx]->getBinID() ); \
-SeisTrcBuf* dptrcbufs = new SeisTrcBuf( true ); \
+auto* dptrcbufs = new SeisTrcBuf( true ); \
 Interval<float> zrg( cs.zsamp_ ); \
 uiString errmsg; \
 PtrMan<Attrib::Processor> proc = \
@@ -716,22 +718,12 @@ proc->getProvider()->setDesiredVolume( cs ); \
 proc->getProvider()->setPossibleVolume( cs ); \
 mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider()); \
 if ( !psattr ) \
-    mErrRet( proc->uiMessage(), return 0 ) ;
+    mErrRet( proc->uiMessage(), return nullptr ) ;
 
 
 #define mCreateSeisBuf( dpname ) \
 if ( !TaskRunner::execute(taskr_,*proc) ) \
-    mErrRet( proc->uiMessage(), return 0 ) ; \
-const int crlstep = SI().crlStep(); \
-const BinID bid0( SI().inlRange(false).stop + SI().inlStep(), \
-		  SI().crlRange(false).stop + crlstep ); \
-for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
-{ \
-    const BinID bid = dptrcbufs->get( trcidx )->info().binid; \
-    SeisTrcInfo& trcinfo = dptrcbufs->get( trcidx )->info(); \
-    trcinfo.coord = SI().transform( bid ); \
-    trcinfo.nr = trcidx+1; \
-} \
+    mErrRet( proc->uiMessage(), return nullptr ) ; \
 SeisTrcBufDataPack* dpname = \
     new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
 			    SeisTrcInfo::TrcNr, \
@@ -812,7 +804,11 @@ bool doPrepare( int /* nrthreads */ ) override
     {
 	auto* stb = new SeisTrcBuf( true );
 	for ( int idx=0; idx<trcs.size(); idx++ )
-	    stb->add( new SeisTrc );
+	{
+	    auto* trc = new SeisTrc;
+	    trc->info() = trcs.get( idx )->info();
+	    stb->add( trc );
+	}
 
 	seistrcbufs_ += stb;
 	if ( Attrib::Instantaneous::parseEnumOutType(attrib->buf())==
@@ -831,7 +827,7 @@ bool doPrepare( int /* nrthreads */ ) override
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )
+bool doWork( od_int64 start, od_int64 stop, int /* threadid */ )
 {
     const Attrib::Desc& psdesc = *descset_->desc( descset_->size()-1 );
     PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan;
@@ -843,13 +839,15 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     aem->setAttribSet( descset_ );
     aem->setAttribSpecs( attribspecs );
     aem->setTrcKeyZSampling( tkzs_ );
+    aem->setGeomID( tkzs_.hsamp_.getGeomID() );
     BinIDValueSet bidvals( 0, false );
+    bidvals.setIs2D( true );
     const SeisTrcBuf& trcs = sd_.postStackPack().trcBuf();
     for ( int idx=start; idx<=stop; idx++ )
 	bidvals.add( trcs.get(idx)->info().binID() );
 
     PtrMan<SeisTrcBuf> dptrcbufs = new SeisTrcBuf( true );
-    Interval<float> zrg( tkzs_.zsamp_ );
+    const Interval<float> zrg( tkzs_.zsamp_ );
     PtrMan<Attrib::Processor> proc = aem->createTrcSelOutput( msg_, bidvals,
 							  *dptrcbufs, 0, &zrg);
     if ( !proc || !proc->getProvider() )
@@ -871,10 +869,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ )
     {
 	const SeisTrc& intrc = *dptrcbufs->get( trcidx );
-	SeisTrcInfo trcinfo = intrc.info();
-	const BinID bid = trcinfo.binid;
-	trcinfo.coord = SI().transform( bid );
-	trcinfo.nr = trcidx + start + 1;
 	const int sz = intrc.size();
 	for ( int idx=0; idx<seistrcbufs_.size(); idx++ )
 	{
@@ -883,7 +877,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    outtrc->reSize( sz, false );
 	    for ( int is=0; is<sz; is++ )
 		outtrc->set( is, intrc.get(is, comps_[idx]), 0 );
-	    outtrc->info() = trcinfo;
 	}
     }
     addToNrDone( stop-start+1 );
@@ -1003,6 +996,8 @@ SyntheticData* StratSynth::createAngleStack( const SyntheticData& sd,
 
     mSetProc();
     mCreateSeisBuf( angledp );
+    TrcKeyZSampling tkzs;
+    angledp->getTrcKeyZSampling( tkzs );
     return new AngleStackSyntheticData( synthgenpar, *angledp );
 }
 
@@ -1245,8 +1240,7 @@ int nextStep()
     const PreStack::Gather* gather = gathers_[(int)nrdone_];
     anglecomputer_->setOutputSampling( gather->posData() );
     anglecomputer_->setGatherIsNMOCorrected( gather->isCorrected() );
-    const TrcKey trckey( gather->getBinID() );
-    anglecomputer_->setRayTracer( rts_[(int)nrdone_], trckey );
+    anglecomputer_->setRayTracer( rts_[(int)nrdone_], gather->getTrcKey() );
     PreStack::Gather* anglegather = anglecomputer_->computeAngles();
     convertAngleDataToDegrees( anglegather );
     TypeSet<float> azimuths;
@@ -1254,7 +1248,6 @@ int nextStep()
     anglegather->setAzimuths( azimuths );
     const BufferString angledpnm( pssd_.name(), "(Angle Gather)" );
     anglegather->setName( angledpnm );
-    anglegather->setBinID( gather->getBinID() );
     anglegathers_ += anglegather;
     nrdone_++;
     return MoreToDo();
@@ -1341,12 +1334,13 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	rms = synthrmmgr_.getRayModelSet( synthgenpar.raypars_ );
 
     PtrMan<Seis::RaySynthGenerator> synthgen;
-    if ( rms )
-	synthgen = new Seis::RaySynthGenerator( rms );
-    else
-	synthgen = new Seis::RaySynthGenerator( &aimodels_, false );
     if ( !ispsbased )
     {
+	if ( rms )
+	    synthgen = new Seis::RaySynthGenerator( rms );
+	else
+	    synthgen = new Seis::RaySynthGenerator( &aimodels_, false );
+
 	if ( !runSynthGen(*synthgen,synthgenpar) )
 	    return nullptr;
     }
@@ -1362,8 +1356,8 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    while ( tbufs.size() )
 	    {
 		PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
-		PreStack::Gather* gather = new PreStack::Gather();
-		if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
+		auto* gather = new PreStack::Gather();
+		if ( !gather->setFromTrcBuf(*tbuf,0) )
 		    { delete gather; continue; }
 
 		bool iscorrected = true;

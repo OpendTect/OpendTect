@@ -49,9 +49,9 @@ public:
     Interval<int>	inlRange() const;
     Interval<int>	crlRange() const;
     Interval<float>	zRange() const;
-    bool		setInlRange(Interval<int>);
-    bool		setCrlRange(Interval<int>);
-    bool		setZRange(Interval<float>);
+    bool		setInlRange(const Interval<int>&) override;
+    bool		setCrlRange(const Interval<int>&) override;
+    bool		setZRange(const Interval<float>&) override;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -59,14 +59,17 @@ public:
     void		extendZ(const Interval<float>&);
     void		include(const SelData&);
 
-    int			selRes(const BinID&) const;
     int			expectedNrTraces(bool for2d,const BinID*) const;
+    void		setGeomID(Pos::GeomID) override;
 
 protected:
 
     TrcKeyZSampling&	tkzs_;
 
     void		doExtendH(BinID,BinID);
+    int			selRes3D(const BinID&) const override;
+    int			selRes2D(Pos::GeomID,int trcnr) const override;
+    void		testIsAll2D();
 };
 
 
@@ -94,11 +97,9 @@ public:
     virtual void	copyFrom(const SelData&);
 
     Interval<int>	inlRange() const;
-    bool		setInlRange(Interval<int>)	{ return false; }
     Interval<int>	crlRange() const;
-    bool		setCrlRange(Interval<int>)	{ return false; }
     Interval<float>	zRange() const;
-    bool		setZRange(Interval<float>);
+    bool		setZRange(const Interval<float>&) override;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -106,7 +107,6 @@ public:
     void		extendZ(const Interval<float>&);
     void		include(const SelData&);
 
-    int			selRes(const BinID&) const;
     int			expectedNrTraces(bool for2d,const BinID*) const;
 
 protected:
@@ -116,6 +116,9 @@ protected:
     Interval<float>	fixedzrange_; // used only if no z vals in bidvalset
 
     void		doExtendH(BinID,BinID);
+    int			selRes3D(const BinID&) const override;
+    int			selRes2D(Pos::GeomID,int trcnr) const override;
+			//<! false (not implemented)
 };
 
 
@@ -146,11 +149,9 @@ public:
     virtual void	copyFrom(const SelData&);
 
     Interval<int>	inlRange() const;
-    bool		setInlRange(Interval<int>)	{ return false; }
     Interval<int>	crlRange() const;
-    bool		setCrlRange(Interval<int>)	{ return false; }
     Interval<float>	zRange() const;
-    bool		setZRange( Interval<float> zrg )
+    bool		setZRange( const Interval<float>& zrg ) override
 			{ zrg_ = zrg; return true; }
 
     void		fillPar(IOPar&) const;
@@ -159,7 +160,6 @@ public:
     void		extendZ(const Interval<float>&);
     void		include(const SelData&);
 
-    int			selRes(const BinID&) const;
     int			expectedNrTraces(bool for2d,const BinID*) const;
 
 protected:
@@ -174,6 +174,7 @@ protected:
     BinID		stepoutreach_;
 
     void		doExtendH(BinID,BinID);
+    int			selRes3D(const BinID&) const override;
 };
 
 

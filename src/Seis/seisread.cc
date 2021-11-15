@@ -37,91 +37,108 @@
 #include "uistrings.h"
 
 
-static TrcKeySampling* udftks_ = new TrcKeySampling( false );
-
-
-SeisTrcReader::SeisTrcReader( const IOObj* ioob )
-	: SeisStoreAccess(ioob)
-	, outer(udftks_)
-	, fetcher(0)
-	, psrdr2d_(0)
-	, psrdr3d_(0)
-	, tbuf_(0)
-	, pscditer_(0)
-	, pslditer_(0)
-	, selcomp_(-1)
+TrcKeySampling& getUdfTks()
 {
-    init();
-    if ( ioobj_ )
-	entryis2d = SeisTrcTranslator::is2D( *ioob, false );
+    static PtrMan<TrcKeySampling> udftks = new TrcKeySampling( false );
+    return *udftks.ptr();
 }
 
+
+SeisTrcReader::SeisTrcReader( const MultiID& dbkey, Seis::GeomType gt )
+    : SeisStoreAccess(dbkey,gt)
+    , outer(&getUdfTks())
+{
+    init();
+}
+
+
+SeisTrcReader::SeisTrcReader( const IOObj& ioobj, const Seis::GeomType* gt )
+    : SeisStoreAccess(&ioobj,gt)
+    , outer(&getUdfTks())
+{
+    init();
+}
+
+
+SeisTrcReader::SeisTrcReader( const IOObj& ioobj, Pos::GeomID geomid,
+			      const Seis::GeomType* gt )
+    : SeisStoreAccess(&ioobj,geomid,gt)
+    , outer(&getUdfTks())
+{
+    init();
+}
+
+
+SeisTrcReader::SeisTrcReader( const SeisStoreAccess::Setup& su )
+    : SeisStoreAccess(su)
+    , outer(&getUdfTks())
+{
+    init();
+}
+
+
+SeisTrcReader::SeisTrcReader( const IOObj* ioobj )
+    : SeisStoreAccess(ioobj,nullptr)
+    , outer(&getUdfTks())
+{
+    init();
+}
 
 
 SeisTrcReader::SeisTrcReader( const char* fname )
-	: SeisStoreAccess(fname,false,false)
-	, outer(udftks_)
-	, fetcher(0)
-	, psrdr2d_(0)
-	, psrdr3d_(0)
-	, pscditer_(0)
-	, pslditer_(0)
-	, tbuf_(0)
-	, selcomp_(-1)
+    : SeisTrcReader(SeisStoreAccess::getTmp(fname,false,false))
 {
-    init();
 }
 
 
-#define mDelOuter if ( outer != udftks_ ) delete outer
-
 SeisTrcReader::~SeisTrcReader()
 {
-    mDelOuter; outer = 0;
-    init();
+    if ( outer != &getUdfTks() )
+	delete outer;
+
+    if ( tbuf_ )
+	tbuf_->deepErase();
+
     delete tbuf_;
+    delete fetcher;
+    delete psrdr2d_;
+    delete psrdr3d_;
+    delete pscditer_;
+    delete pslditer_;
 }
 
 
 void SeisTrcReader::init()
 {
-    foundvalidinl = foundvalidcrl = entryis2d =
-    new_packet = inforead = needskip = prepared = forcefloats = false;
-    prev_inl = mUdf(int);
-    readmode = Seis::Prod;
-    if ( tbuf_ ) tbuf_->deepErase();
-    mDelOuter; outer = udftks_;
-    delete fetcher; fetcher = 0;
-    delete psrdr2d_; psrdr2d_ = 0;
-    delete psrdr3d_; psrdr3d_ = 0;
-    delete pscditer_; pscditer_ = 0;
-    delete pslditer_; pslditer_ = 0;
-    nrfetchers = 0; curlineidx = -1;
-    curpsbid_ = BinID( 0, 0 );
+    if ( ioobj_ )
+	entryis2d = SeisTrcTranslator::is2D( *ioobj_ );
 }
 
 
 bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 {
-    if ( !ioobj_ )
+    if ( !isOK() )
+	return false;
+    else if ( !ioobj_ )
     {
 	errmsg_ = tr("Info for input seismic data not found in Object Manager");
 	return false;
     }
     else if ( psioprov_ )
     {
-	if ( !is2d_ )
-	    psrdr3d_ = psioprov_->get3DReader( *ioobj_ );
-	else
+	if ( is2d_ )
 	{
-	    if ( !seldata_ )
+	    const Pos::GeomID geomid = SeisStoreAccess::geomID();
+	    if ( !Survey::is2DGeom(geomid) )
 		{ errmsg_ = tr("No line geometry ID set"); return false; }
-	    psrdr2d_ = psioprov_->get2DReader( *ioobj_, seldata_->geomID() );
+	    psrdr2d_ = psioprov_->get2DReader( *ioobj_, geomid );
 	}
+	else
+	    psrdr3d_ = psioprov_->get3DReader( *ioobj_ );
     }
 
-    const bool is3dfail = !is2d_ && !trl_;
-    const bool is2dfail = is2d_ && !psioprov_ && !dataset_;
+    const bool is3dfail = !is2d_ && !entryis2d && !trl_;
+    const bool is2dfail = (is2d_ || entryis2d) && !psioprov_ && !dataset_;
     const bool ispsfail = psioprov_ && !psrdr2d_ && !psrdr3d_;
     if ( is3dfail && is2dfail && ispsfail )
     {
@@ -133,7 +150,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 
     readmode = rm;
     if ( is2d_ || psioprov_ )
-	return (prepared = true);
+	return (prepared_ = true);
 
     Conn* conn = openFirst();
     if ( !conn )
@@ -146,14 +163,69 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     if ( !initRead(conn) )
 	return false;
 
-    return (prepared = true);
+    return (prepared_ = true);
 }
 
+
+int SeisTrcReader::expectedNrTraces() const
+{
+    if ( !isPrepared() &&
+	    !const_cast<SeisTrcReader*>(this)->prepareWork(Seis::Prod) )
+	return -1;
+
+    int totnr = 0;
+    const Seis::SelData* sd = selData();
+    if ( sd && !sd->isAll() )
+    {
+	totnr += sd->expectedNrTraces( entryis2d  );
+	if ( isPS() )
+	{
+	    const int nroffsets = getNrOffsets();
+	    if ( !mIsUdf(nroffsets) )
+		totnr *= nroffsets;
+	}
+
+	return totnr;
+    }
+
+    const SeisTrcTranslator* strl = SeisStoreAccess::strl();
+    if ( strl && entryis2d )
+    {
+	const SeisTrcTranslator* strl2d =
+			const_cast<SeisTrcReader*>( this )->seis2Dtranslator();
+	if ( strl2d )
+	    strl = strl2d;
+    }
+
+    if ( strl )
+	totnr += strl->estimatedNrTraces();
+    else if ( isPS() )
+    {
+	TrcKeySampling tks( true );
+	if ( entryis2d )
+	    tks.init( geomID() );
+
+	totnr = tks.totalNr();
+	if ( isPS() )
+	{
+	    const int nroffsets = getNrOffsets();
+	    if ( !mIsUdf(nroffsets) )
+		totnr *= nroffsets;
+	}
+    }
+    else
+	totnr = -1;
+
+    return totnr;
+}
 
 
 bool SeisTrcReader::startWork()
 {
-    outer = 0;
+    if ( outer && outer != &getUdfTks() )
+	delete outer;
+
+    outer = nullptr;
     if ( psioprov_ )
     {
 	if ( !psrdr2d_ && !psrdr3d_ && !prepareWork(Seis::Prod) )
@@ -256,7 +328,7 @@ bool SeisTrcReader::initRead( Conn* conn )
     if ( !trl_ )
 	{ pErrMsg("Should be a translator there"); return false; }
 
-    mDynamicCastGet(SeisTrcTranslator*,sttrl,trl_)
+    SeisTrcTranslator* sttrl = strl();
     if ( !sttrl )
     {
 	errmsg_ = tr("%1 found where seismic cube was expected")
@@ -307,9 +379,9 @@ bool SeisTrcReader::initRead( Conn* conn )
 
 int SeisTrcReader::get( SeisTrcInfo& ti )
 {
-    if ( !prepared && !prepareWork(readmode) )
+    if ( !prepared_ && !prepareWork(readmode) )
 	return -1;
-    else if ( outer == udftks_ && !startWork() )
+    else if ( outer == &getUdfTks() && !startWork() )
 	return -1;
 
     if ( psioprov_ )
@@ -336,11 +408,11 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     ti.new_packet = false;
 
     if ( mIsUdf(prev_inl) )
-	prev_inl = ti.binid.inl();
-    else if ( prev_inl != ti.binid.inl() )
+	prev_inl = ti.inl();
+    else if ( prev_inl != ti.inl() )
     {
 	foundvalidcrl = false;
-	prev_inl = ti.binid.inl();
+	prev_inl = ti.inl();
 	if ( !entryis2d )
 	    ti.new_packet = true;
     }
@@ -348,13 +420,10 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     int selres = 0;
     if ( seldata_ )
     {
-	if ( !entryis2d )
-	    selres = seldata_->selRes(ti.binid);
+	if ( entryis2d )
+	    selres = seldata_->selRes( ti.geomID(), ti.trcNr() );
 	else
-	{
-	    BinID bid( seldata_->inlRange().start, ti.nr );
-	    selres = seldata_->selRes( bid );
-	}
+	    selres = seldata_->selRes( ti.binID() );
     }
 
     if ( selres / 256 == 0 )
@@ -366,7 +435,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     {
 	if ( !entryis2d && sttrl.inlCrlSorted() )
 	{
-	    bool neednewinl = outer && !outer->includes(ti.binid);
+	    bool neednewinl = outer && !outer->includes(ti.binID());
 	    if ( neednewinl )
 	    {
 		mDynamicCastGet(IOStream*,iostrm,ioobj_)
@@ -407,9 +476,9 @@ static void reduceComps( SeisTrc& trc, int selcomp )
 bool SeisTrcReader::getData( TraceData& data )
 {
     needskip = false;
-    if ( !prepared && !prepareWork(readmode) )
+    if ( !prepared_ && !prepareWork(readmode) )
 	return false;
-    else if ( outer == udftks_ && !startWork() )
+    else if ( outer == &getUdfTks() && !startWork() )
 	return false;
 
     if ( psioprov_ )
@@ -431,9 +500,9 @@ bool SeisTrcReader::getData( TraceData& data )
 bool SeisTrcReader::get( SeisTrc& trc )
 {
     needskip = false;
-    if ( !prepared && !prepareWork(readmode) )
+    if ( !prepared_ && !prepareWork(readmode) )
 	return false;
-    else if ( outer == udftks_ && !startWork() )
+    else if ( outer == &getUdfTks() && !startWork() )
 	return false;
 
     if ( psioprov_ )
@@ -455,7 +524,8 @@ bool SeisTrcReader::get( SeisTrc& trc )
 
 int SeisTrcReader::getPS( SeisTrcInfo& ti )
 {
-    if ( !psrdr2d_ && !psrdr3d_ ) return 0;
+    if ( !psrdr2d_ && !psrdr3d_ )
+	return 0;
 
     if ( !tbuf_ )
 	tbuf_ = new SeisTrcBuf( false );
@@ -469,7 +539,7 @@ int SeisTrcReader::getPS( SeisTrcInfo& ti )
 	    {
 		if ( !pscditer_->next(curpsbid_) )
 		{
-		    delete psrdr3d_; psrdr3d_ = 0;
+		    deleteAndZeroPtr( psrdr3d_ );
 		    return 0;
 		}
 		selres = seldata_ ? seldata_->selRes( curpsbid_ ) : 0;
@@ -484,16 +554,18 @@ int SeisTrcReader::getPS( SeisTrcInfo& ti )
 	else
 	{
 	    bool isok = false;
+	    const Pos::GeomID gid = geomID();
 	    int trcnr = 0;
 	    while ( !isok )
 	    {
 		if ( !pslditer_->next() )
 		{
-		    delete psrdr2d_; psrdr2d_ = 0;
+		    deleteAndZeroPtr( psrdr2d_ );
 		    return 0;
 		}
+
 		trcnr = pslditer_->trcNr();
-		isok = !seldata_ || seldata_->isOK( BinID(0,trcnr) );
+		isok = !seldata_ || seldata_->isOK(gid,trcnr);
 	    }
 
 	    if ( !psrdr2d_->getGath(trcnr,*tbuf_) )
@@ -542,9 +614,9 @@ bool SeisTrcReader::getPS( SeisTrc& trc )
 const Scaler* SeisTrcReader::getTraceScaler() const
 {
     if ( psioprov_ || is2d_ )
-	return 0;
+	return nullptr;
 
-    return strl() ? strl()->curtrcscalebase_ : 0;
+    return strl() ? strl()->curtrcscalebase_ : nullptr;
 }
 
 
@@ -556,12 +628,7 @@ Pos::GeomID SeisTrcReader::geomID() const
 	    return dataset_->geomID( curlineidx );
     }
 
-    if ( seldata_ )
-	return seldata_->geomID();
-    else if ( ioobj_ )
-	return Survey::GM().getGeomID( ioobj_->name() );
-
-    return Survey::GM().cUndefGeomID();
+    return SeisStoreAccess::geomID();
 }
 
 
@@ -584,10 +651,11 @@ GeomIDProvider* SeisTrcReader::geomIDProvider() const
 bool SeisTrcReader::mkNextFetcher()
 {
     curlineidx++;
-    if ( tbuf_ ) tbuf_->deepErase();
-    Pos::GeomID geomid( seldata_ ? seldata_->geomID()
-				 : Survey::GM().cUndefGeomID() );
-    const bool islinesel = geomid != Survey::GM().cUndefGeomID();
+    if ( tbuf_ )
+	tbuf_->deepErase();
+
+    const Pos::GeomID geomid = SeisStoreAccess::geomID();
+    const bool islinesel = Survey::is2DGeom( geomid );
     const bool istable = seldata_ && seldata_->type() == Seis::Table;
     const int nrlines = dataset_->nrLines();
 
@@ -635,7 +703,11 @@ bool SeisTrcReader::mkNextFetcher()
 	    curtrcnrrg.stop = seldata_->crlRange().stop;
     }
 
+    if ( !tbuf_ && !startWork() )
+	return false;
+
     prev_inl = mUdf(int);
+    delete fetcher;
     fetcher = dataset_->lineFetcher( dataset_->geomID(curlineidx),
 				     *tbuf_, 1, seldata_ );
     nrfetchers++;
@@ -645,11 +717,11 @@ bool SeisTrcReader::mkNextFetcher()
 
 bool SeisTrcReader::readNext2D()
 {
-    if ( tbuf_->size() )
+    if ( !tbuf_->isEmpty() )
 	tbuf_->deepErase();
 
-    int res = fetcher->doStep();
-    if ( res == Executor::ErrorOccurred() )
+    const int res = fetcher->doStep();
+    if ( res == SequentialTask::ErrorOccurred() )
     {
 	errmsg_ = fetcher->uiMessage();
 	return false;
@@ -671,11 +743,11 @@ bool SeisTrcReader::readNext2D()
 const SeisTrcTranslator* SeisTrcReader::seis2Dtranslator()
 {
     if ( !fetcher && !mkNextFetcher() )
-	return 0;
+	return nullptr;
 
     mDynamicCastGet(const Seis2DLineGetter*,getter2d,fetcher)
     if ( !getter2d )
-	return 0;
+	return nullptr;
 
     return getter2d->translator();
 }
@@ -702,7 +774,7 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
 	    // Not handled by fetcher
 	{
 	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata_)
-	    isincl = tsd->binidValueSet().includes(trcti.binid);
+	    isincl = tsd->binidValueSet().includes(trcti.binID());
 	}
     }
     return isincl ? 1 : 2;
@@ -753,7 +825,8 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     if ( !isMultiConn() ) return 0;
 
     // Multiconn is only used for multi-machine data collection nowadays
-    strl()->cleanUp(); setSelData( 0 );
+    strl()->cleanUp();
+    setSelData( nullptr );
     IOStream* iostrm = (IOStream*)ioobj_;
     if ( !iostrm->toNextConnIdx() )
 	return 0;
@@ -878,12 +951,12 @@ Seis::Bounds* SeisTrcReader::getBounds() const
     if ( isPS() )
     {
 	if ( !ioobj_ || is2D() ) // TODO PS 2D
-	    return 0;
+	    return nullptr;
 
 	SeisPSReader* psrdr = SPSIOPF().get3DReader( *ioobj_ );
 	mDynamicCastGet(SeisPS3DReader*,rdr3d,psrdr)
 	if ( !rdr3d )
-	    return 0;
+	    return nullptr;
 
 	const PosInfo::CubeData& cd = rdr3d->posData();
 	StepInterval<int> inlrg, crlrg;
@@ -893,10 +966,10 @@ Seis::Bounds* SeisTrcReader::getBounds() const
     else if ( !is2D() )
     {
 	if ( !trl_ )
-	    return 0;
+	    return nullptr;
 	if ( !isPrepared() &&
 		!const_cast<SeisTrcReader*>(this)->prepareWork(Seis::Prod) )
-	    return 0;
+	    return nullptr;
 	return get3DBounds( strl()->packetInfo().inlrg,
 			strl()->packetInfo().crlrg, strl()->packetInfo().zrg );
     }
@@ -904,16 +977,14 @@ Seis::Bounds* SeisTrcReader::getBounds() const
     // From here post-stack 2D
 
     if ( !dataset_ || dataset_->nrLines() < 1 )
-	return 0;
+	return nullptr;
 
-    Seis::Bounds2D* b2d = new Seis::Bounds2D;
-
+    auto* b2d = new Seis::Bounds2D;
     for ( int iiter=0; iiter<2; iiter++ ) // iiter == 0 is initialisation
     {
 	for ( int iln=0; iln<dataset_->nrLines(); iln++ )
 	{
-	    const Pos::GeomID selgeomid =
-			seldata_ ? seldata_->geomID() : mUdfGeomID;
+	    const Pos::GeomID selgeomid = SeisStoreAccess::geomID();
 	    if ( !mIsUdfGeomID(selgeomid) && selgeomid != dataset_->geomID(iln))
 		continue;
 

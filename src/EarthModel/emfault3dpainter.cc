@@ -286,8 +286,7 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
     {
 	const Coord3 pos = fss.getKnot( rc );
 	bid = SI().transform( pos.coord() );
-	const TrcKey trckey = Survey::GM().traceKey(
-		Survey::GeometryManager::get3DSurvID(), bid.inl(), bid.crl() );
+	const TrcKey trckey( bid );
 	TrcKeyPath knots;
 	rlgeom->allNodePositions( knots );
 	Coord3 editnormal( Geometry::RandomLine::getNormal(knots,trckey), 0 );
@@ -477,9 +476,7 @@ FlatView::Point Fault3DPainter::getFVAuxPoint( const Coord3& pos ) const
     ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
     if ( path_ )
     {
-	const TrcKey trckey = Survey::GM().traceKey(
-		Survey::GeometryManager::get3DSurvID(),
-		posbid.inl(),posbid.crl() );
+	const TrcKey trckey( posbid );
 	const int trcidx = path_->indexOf( trckey );
 	if ( trcidx == -1 )
 	    return FlatView::Point::udf();

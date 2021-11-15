@@ -106,7 +106,7 @@ void Seis::ObjectSummary::init()
     ioobjinfo_.getRanges( tkzs );
     zsamp_ = tkzs.zsamp_;
 
-    SeisTrcReader rdr( ioobjinfo_.ioObj() );
+    SeisTrcReader rdr( *ioobjinfo_.ioObj(), &geomtype_ );
     if ( !rdr.prepareWork(Seis::PreScan) || !rdr.seisTranslator() )
 	{ pErrMsg("Translator not SeisTrcTranslator!"); bad_ = true; return; }
 
@@ -123,11 +123,7 @@ void Seis::ObjectSummary::init2D( Pos::GeomID geomid )
     StepInterval<int> trcrg;
     ioobjinfo_.getRanges( geomid, trcrg, zsamp_ );
 
-    SeisTrcReader rdr( ioobjinfo_.ioObj() );
-    TrcKeySampling tks( geomid );
-    tks.setTrcRange( trcrg );
-    Seis::RangeSelData* sd = new Seis::RangeSelData( tks );
-    rdr.setSelData( sd );
+    SeisTrcReader rdr( *ioobjinfo_.ioObj(), geomid, &geomtype_ );
     if ( !rdr.prepareWork(Seis::PreScan) || !rdr.seis2Dtranslator() )
 	{ pErrMsg("Translator not SeisTrcTranslator!"); bad_ = true; return; }
 
@@ -283,7 +279,7 @@ void SeisIOObjInfo::setType()
 	    ioobj_->group()!=mTranslGroupName(SeisTrc2D) )
 	{ bad_ = true; return; }
 
-    const bool is2d = SeisTrcTranslator::is2D( *ioobj_, false );
+    const bool is2d = SeisTrcTranslator::is2D( *ioobj_ );
     geomtype_ = isps ? (is2d ? Seis::LinePS : Seis::VolPS)
 		     : (is2d ? Seis::Line : Seis::Vol);
 }
@@ -351,7 +347,7 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 	return false;
 
     PosInfo::CubeData cd;
-    SeisTrcReader rdr( ioobj_ );
+    SeisTrcReader rdr( *ioobj_, &geomtype_ );
     if ( rdr.prepareWork(Seis::Prod) && rdr.seisTranslator() &&
 	 rdr.get3DGeometryInfo(cd) )
     {
@@ -557,10 +553,13 @@ bool SeisIOObjInfo::getStats( IOPar& iop ) const
 
 bool SeisIOObjInfo::isAvailableIn( const TrcKeySampling& tks ) const
 {
+    if ( !isOK() )
+	return false;
+
     PosInfo::CubeData cd;
-    SeisTrcReader rdr( ioobj_ );
+    SeisTrcReader rdr( *ioobj_, &geomtype_ );
     return rdr.prepareWork(Seis::Prod) && rdr.seisTranslator() &&
-	 rdr.get3DGeometryInfo(cd) && cd.totalSizeInside(tks) > 0;
+	   rdr.get3DGeometryInfo(cd) && cd.totalSizeInside(tks) > 0;
 }
 
 
@@ -582,7 +581,7 @@ RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
     }
 
     // No .stats file. Extract stats right now
-    SeisTrcReader rdr( ioobj_ );
+    SeisTrcReader rdr( *ioobj_ );
     rdr.prepareWork();
     SeisTrcTranslator* trl = rdr.seisTranslator();
     if ( !trl )

@@ -78,7 +78,7 @@ protected:
 /*!\brief reads from a CBVS prestack seismic data store. */
 
 mExpClass(Seis) SeisCBVSPS3DReader : public SeisPS3DReader
-		         , public SeisCBVSPSIO
+				   , public SeisCBVSPSIO
 { mODTextTranslationClass(SeisCBVSPS3DReader);
 public:
 
@@ -86,8 +86,8 @@ public:
 			~SeisCBVSPS3DReader();
     uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
-    SeisTrc*		getTrace(const BinID&,int) const;
-    bool		getGather(const BinID&,SeisTrcBuf&) const;
+    SeisTrc*		getTrace(const BinID&,int) const override;
+    bool		getGather(const BinID&,SeisTrcBuf&) const override;
 
     const PosInfo::CubeData& posData() const	{ return posdata_; }
     StepInterval<float>	getZRange() const;
@@ -112,8 +112,8 @@ protected:
 
 /*!\brief reads from a CBVS prestack seismic data store. */
 
-mExpClass(Seis) SeisCBVSPS2DReader : public SeisPS2DReader,
-				     public SeisCBVSPSIO
+mExpClass(Seis) SeisCBVSPS2DReader : public SeisPS2DReader
+				   , public SeisCBVSPSIO
 { mODTextTranslationClass(SeisCBVSPS2DReader);
 public:
 
@@ -122,8 +122,8 @@ public:
 			~SeisCBVSPS2DReader();
     uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
-    SeisTrc*		getTrace(const BinID&,int) const;
-    bool		getGather(const BinID&,SeisTrcBuf&) const;
+    SeisTrc*		getTrace(const BinID&,int) const override;
+    bool		getGather(const BinID&,SeisTrcBuf&) const override;
 
     const PosInfo::Line2DData& posData() const	{ return posdata_; }
     bool		getSampleNames( BufferStringSet& bss ) const

@@ -72,13 +72,6 @@ bool SEGYDirect2DLineIOProvider::isEmpty( const IOObj& obj,
 }
 
 
-static SEGYSeisTrcTranslator* gtTransl( const char* fnm )
-{
-    SEGY::DirectDef sgydef( fnm );
-    return SEGYDirectSeisTrcTranslator::createTranslator( sgydef, 0 );
-}
-
-
 bool SEGYDirect2DLineIOProvider::getTxtInfo( const IOObj& obj,
 					     Pos::GeomID geomid,
 					     BufferString& uinf,
@@ -88,8 +81,11 @@ bool SEGYDirect2DLineIOProvider::getTxtInfo( const IOObj& obj,
     if ( fnm.isEmpty() )
 	return false;
 
-    PtrMan<SEGYSeisTrcTranslator> trans = gtTransl( fnm );
-    if ( !trans ) return false;
+    SEGY::DirectDef sgydef( fnm );
+    PtrMan<SEGYSeisTrcTranslator> trans =
+		    SEGYDirectSeisTrcTranslator::createTranslator( sgydef, 0 );
+    if ( !trans )
+	return false;
 
     const SeisPacketInfo& pinf = trans->packetInfo();
     uinf = pinf.usrinfo;
@@ -174,14 +170,14 @@ bool SEGYDirect2DLineIOProvider::getGeomIDs( const IOObj& obj,
 
 SEGYDirect2DLineGetter::SEGYDirect2DLineGetter( const char* fnm, SeisTrcBuf& b,
 					    int ntps, const Seis::SelData& sd )
-	: Seis2DLineGetter(b,ntps,sd)
-	, curnr_(0)
-	, totnr_(0)
-	, fname_(fnm)
-	, trcsperstep_(ntps)
+    : Seis2DLineGetter(b,ntps,sd)
+    , fname_(fnm)
+    , trcsperstep_(ntps)
 {
-    tr_ = gtTransl( fname_ );
-    if ( !tr_ ) return;
+    SEGY::DirectDef sgydef( fname_ );
+    tr_ = SEGYDirectSeisTrcTranslator::createTranslator( sgydef, 0 );
+    if ( !tr_ )
+	return;
 
     if ( !sd.isAll() && sd.type() == Seis::Range )
 	tr_->setSelData( seldata_ );
@@ -200,13 +196,11 @@ const SeisTrcTranslator* SEGYDirect2DLineGetter::translator() const
 
 void SEGYDirect2DLineGetter::addTrc( SeisTrc* trc )
 {
-    const int tnr = trc->info().nr;
     if ( !isEmpty(seldata_) )
     {
 	if ( seldata_->type() == Seis::Range )
 	{
-	    const BinID bid( seldata_->inlRange().start, tnr );
-	    if ( !seldata_->isOK(bid) )
+	    if ( !seldata_->isOK(trc->info().geomID(),trc->info().trcNr()) )
 		{ delete trc; return; }
 	}
     }
@@ -217,7 +211,8 @@ void SEGYDirect2DLineGetter::addTrc( SeisTrc* trc )
 
 int SEGYDirect2DLineGetter::nextStep()
 {
-    if ( !tr_ ) return -1;
+    if ( !tr_ )
+	return ErrorOccurred();
 
     if ( curnr_ == 0 )
     {
@@ -232,25 +227,24 @@ int SEGYDirect2DLineGetter::nextStep()
     int lastnr = curnr_ + trcsperstep_;
     for ( ; curnr_<lastnr; curnr_++ )
     {
-	SeisTrc* trc = new SeisTrc;
+	auto* trc = new SeisTrc;
 	if ( !tr_->read(*trc) )
 	{
 	    delete trc;
 	    const uiString emsg = tr_->errMsg();
 	    if ( emsg.isSet() )
 		mErrRet(emsg)
-	    return 0;
+	    return Finished();
 	}
 
 	addTrc( trc );
     }
 
-    return 1;
+    return MoreToDo();
 }
 
 
 #undef mErrRet
-#define mErrRet(s) { errmsg = s; return 0; }
 
 
 bool SEGYDirect2DLineIOProvider::getGeometry( const IOObj& obj,
@@ -297,8 +291,6 @@ Executor* SEGYDirect2DLineIOProvider::getFetcher( const IOObj& obj,
 }
 
 
-#undef mErrRet
-#define mErrRet(s) { pErrMsg( s ); return 0; }
 
 Seis2DLinePutter* SEGYDirect2DLineIOProvider::getPutter( const IOObj& obj,
 						       Pos::GeomID geomid )
@@ -309,11 +301,10 @@ Seis2DLinePutter* SEGYDirect2DLineIOProvider::getPutter( const IOObj& obj,
 
 SEGYDirect2DLinePutter::SEGYDirect2DLinePutter( const IOObj& obj,
 					    Pos::GeomID geomid )
-	: nrwr_(0)
-	, preseldt_(DataCharacteristics::Auto)
-	, fname_(SEGYDirect2DLineIOProvider::getFileName(obj,geomid))
+    : preseldt_(DataCharacteristics::Auto)
+    , fname_(SEGYDirect2DLineIOProvider::getFileName(obj,geomid))
 {
-    bid_.inl() = geomid;
+    bid_.row() = geomid;
     FilePath fp( fname_ );
     if ( !File::exists(fp.pathOnly()) )
 	File::createDir( fp.pathOnly() );
@@ -332,9 +323,9 @@ SEGYDirect2DLinePutter::~SEGYDirect2DLinePutter()
 bool SEGYDirect2DLinePutter::put( const SeisTrc& trc )
 {
     SeisTrcInfo& info = const_cast<SeisTrcInfo&>( trc.info() );
-    bid_.crl() = info.nr;
-    const BinID oldbid = info.binid;
-    info.binid = bid_;
+    bid_.trcNr() = info.trcNr();
+    const SeisTrcInfo::IdxType oldtrcnr = info.trcNr();
+    info.setTrcNr( bid_.trcNr() );
 
     if ( nrwr_ == 0 )
     {
@@ -342,7 +333,7 @@ bool SEGYDirect2DLinePutter::put( const SeisTrc& trc )
 	bool res = tr_->initWrite(new StreamConn(fname_.buf(),Conn::Write),trc);
 	if ( !res )
 	{
-	    info.binid = oldbid;
+	    info.setTrcNr( oldtrcnr );
 	    errmsg_ = tr("Cannot open 2D line file:\n%1").arg(tr_->errMsg());
 	    return false;
 	}
@@ -361,7 +352,7 @@ bool SEGYDirect2DLinePutter::put( const SeisTrc& trc )
 
     tr_->setIs2D( true );
     bool res = tr_->write(trc);
-    info.binid = oldbid;
+    info.setTrcNr( oldtrcnr );
     if ( res )
 	nrwr_++;
     else
@@ -373,6 +364,7 @@ bool SEGYDirect2DLinePutter::put( const SeisTrc& trc )
     }
     return true;
 }
+
 
 bool SEGYDirect2DLinePutter::close()
 {
@@ -392,11 +384,11 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
 {
     MultiID segydirectid;
     if ( !ioobj.pars().get(sKeySEGYDirectID(),segydirectid) )
-	return 0;
+	return nullptr;
 
     PtrMan<IOObj> segydirectobj = IOM().get( segydirectid );
     if ( !segydirectobj )
-	return 0;
+	return nullptr;
 
     const Pos::GeomID geomid = ioobj.key().ID( 1 );
     const OD::String& segydeffnm =
@@ -404,11 +396,11 @@ Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
     SEGY::DirectDef sgydef( segydeffnm );
     const PosInfo::Line2DData& ld = sgydef.lineData();
     if ( ld.isEmpty() )
-	return 0;
+	return nullptr;
 
-    PosInfo::Line2DData* data = new PosInfo::Line2DData( ld );
+    auto* data = new PosInfo::Line2DData( ld );
     data->setLineName( ioobj.name() );
-    Survey::Geometry2D* geom = new Survey::Geometry2D( data );
+    auto* geom = new Survey::Geometry2D( data );
     geom->setID( geomid );
     geom->touch();
     return geom;

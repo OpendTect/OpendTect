@@ -173,47 +173,34 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
     BinID curbid = provider_->getCurrentPosition();
     const Pos::GeomID geomid = provider_->getGeomID();
+    const bool issynth = Survey::isSynthetic( geomid );
     if ( is2d_ && curtrcinfo )
     {
 	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );
 	if ( locoutp || taboutp )
-	    curbid = curtrcinfo->binid;
+	    curbid = curtrcinfo->binID();
 	else
 	{
-	    curbid.inl() = geomid==mUdfGeomID ? 0 : geomid;
-	    curbid.crl() = curtrcinfo->nr;
+	    curbid.row() = Survey::is2DGeom(geomid) ? geomid : 0;
+	    curbid.trcNr() = curtrcinfo->trcNr();
 	}
     }
 
-    TrcKey tracekey;
     SeisTrcInfo mytrcinfo;
     if ( !curtrcinfo )
-	mytrcinfo.binid = curbid;
-
-    if ( is2d_ )
     {
-	if ( !curtrcinfo )
-	    mytrcinfo.nr = curbid.crl();
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			 Survey::GM().getGeometry(geomid) );
-	PosInfo::Line2DPos pos2d;
-	const int trcnr = curtrcinfo ? curtrcinfo->nr : mytrcinfo.nr;
-	if ( geom2d && geom2d->data().getPos(trcnr,pos2d) )
-	{
-	    if ( !curtrcinfo )
-		mytrcinfo.coord = pos2d.coord_;
+	if ( is2d_ || issynth )
+	    mytrcinfo.setGeomID( geomid ).setTrcNr( curbid.trcNr() );
+	else
+	    mytrcinfo.setPos( curbid );
 
-	    if ( taboutp )
-		tracekey = TrcKey( geomid, trcnr );
-	}
-	else if ( !curtrcinfo )
-	    mytrcinfo.coord = SI().transform( mytrcinfo.binid );
-	    //for synthetic data. synth data = 2D without geomid
+	mytrcinfo.calcCoord();
     }
 
     if ( !curtrcinfo )
 	curtrcinfo = &mytrcinfo;
 
+    const TrcKey& tracekey = curtrcinfo->trcKey();
     TypeSet< Interval<int> > localintervals;
     bool isset = setZIntervalsSpecial60( localintervals, curbid,
 					 curtrcinfo->coord, tracekey );
@@ -228,7 +215,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	    outz0shifthack = (nrsteps-inrsteps) * trcsd.step;
 
 	const DataHolder* data = isset ?
-				provider_->getData( BinID(0,0), idi ) : 0;
+				provider_->getData( BinID(0,0), idi ) : nullptr;
 	if ( data )
 	{
 	    for ( int idx=0; idx<outputs_.size(); idx++ )
@@ -583,8 +570,8 @@ const char* Processor::getAttribUserRef() const
 }
 
 
-void Processor::setRdmPaths( TypeSet<BinID>* truepath,
-			     TypeSet<BinID>* snappedpath )
+void Processor::setRdmPaths( const TypeSet<BinID>& truepath,
+			     const TypeSet<BinID>& snappedpath )
 {
     if ( !provider_ ) return;
 

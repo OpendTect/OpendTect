@@ -21,14 +21,12 @@ ________________________________________________________________________
 namespace Survey
 {
 
+static Pos::GeomID cFirst2DGeomID = 0;
 static Pos::GeomID cSIGeomID = -1;
 static Pos::GeomID cSynthGeomID = -2;
 
 mImplFactory(GeometryReader,GeometryReader::factory);
 mImplFactory(GeometryWriter,GeometryWriter::factory);
-const TrcKey::SurvID GeometryManager::surv2did_ = 0;
-const TrcKey::SurvID GeometryManager::surv3did_ = cSIGeomID;
-const TrcKey::SurvID GeometryManager::survsynthid_ = cSynthGeomID;
 
 static PtrMan<GeometryManager>* thegeommgr = nullptr;
 
@@ -62,7 +60,7 @@ const GeometryManager& GM()
 
 
 bool is2DGeom( Pos::GeomID geomid )
-{ return geomid >= 0; }
+{ return geomid >= cFirst2DGeomID && isValidGeomID( geomid ); }
 
 bool is3DGeom( Pos::GeomID geomid )
 { return geomid == cSIGeomID; }
@@ -72,6 +70,9 @@ bool isSynthetic( Pos::GeomID geomid )
 
 Pos::GeomID default3DGeomID()
 { return cSIGeomID; }
+
+Pos::GeomID getDefault2DGeomID()
+{ return Survey::GM().default2DGeomID(); }
 
 bool isValidGeomID( Pos::GeomID geomid )
 { return geomid != -999 && !mIsUdf(geomid); }
@@ -90,7 +91,7 @@ Geometry::~Geometry()
 
 const Geometry& Geometry::default3D()
 {
-    return *GM().getGeometry( GeometryManager::get3DSurvID() );
+    return *GM().getGeometry( OD::Geom3D );
 }
 
 
@@ -112,22 +113,20 @@ bool Geometry::includes( const TrcKey& tk ) const
 Coord Geometry::toCoord( const TrcKey& tk )
 {
     const Geometry* geom = GM().getGeometry( tk.geomID() );
-    return geom ? geom->toCoord( tk.pos() ) : Coord::udf();
+    return geom ? geom->toCoord( tk.position() ) : Coord::udf();
 }
 
 
 bool Geometry::exists( const TrcKey& tk )
 {
     const Geometry* geom = GM().getGeometry( tk.geomID() );
-    return geom && geom->includes( tk.pos() );
+    return geom && geom->includes( tk.position() );
 }
 
 
 Pos::SurvID Geometry::getSurvID() const
 {
-    return is2D()
-	? Survey::GeometryManager::get2DSurvID()
-	: Pos::SurvID( getID() );
+    return geomSystemOf( getID() );
 }
 
 
@@ -189,16 +188,6 @@ void GeometryManager::ensureSIPresent() const
 }
 
 
-TrcKey::SurvID GeometryManager::default3DSurvID() const
-{
-    for ( int idx=0; idx<geometries_.size(); idx++ )
-	if ( !geometries_[idx]->is2D() )
-	    return geometries_[idx]->getID();
-
-    return cSIGeomID;
-}
-
-
 const Geometry* GeometryManager::getGeometry( Pos::GeomID geomid ) const
 {
     if ( IsExiting() )
@@ -219,9 +208,9 @@ Geometry* GeometryManager::getGeometry( Pos::GeomID geomid )
 }
 
 
-const Geometry3D* GeometryManager::getGeometry3D( Pos::SurvID sid ) const
+const Geometry3D* GeometryManager::getGeometry3D( Pos::SurvID /* gs */ ) const
 {
-    const TrcKey tk( sid, BinID(0,0) );
+    const TrcKey tk( BinID(0,0) );
     const Geometry* geom = getGeometry( tk.geomID() );
     return geom ? geom->as3D() : nullptr;
 }
@@ -308,6 +297,18 @@ const char* GeometryManager::getName( Pos::GeomID geomid ) const
 }
 
 
+Pos::GeomID Survey::GeometryManager::default2DGeomID() const
+{
+    for ( const auto* geometry : geometries_ )
+    {
+	if ( geometry->is2D() )
+	    return geometry->getID();
+    }
+
+    return cFirst2DGeomID;
+}
+
+
 StepInterval<float> GeometryManager::zRange( Pos::GeomID geomid ) const
 {
     const Survey::Geometry* geom = getGeometry( geomid );
@@ -338,7 +339,7 @@ TrcKey GeometryManager::traceKey( Pos::GeomID geomid, Pos::LineID lid,
     if ( geom->is2D() )
 	return TrcKey( geomid,	tid );
 
-    return TrcKey( geomid, BinID(lid, tid) );
+    return TrcKey( BinID(lid, tid) );
 }
 
 
@@ -507,7 +508,7 @@ Pos::GeomID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
 	return cUndefGeomID();
 
     if ( !geom->is2D() )
-	return get3DSurvID();
+	return Survey::default3DGeomID();
 
     Pos::GeomID geomid = getGeomID( geom->getName() );
     if ( geomid != cUndefGeomID() )

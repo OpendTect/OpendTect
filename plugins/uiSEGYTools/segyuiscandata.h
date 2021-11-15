@@ -44,10 +44,10 @@ mExpClass(uiSEGYTools) BasicFileInfo
 { mODTextTranslationClass(BasicFileInfo);
 public:
 
-			BasicFileInfo();
+			BasicFileInfo(bool is2d);
     virtual		~BasicFileInfo();
 
-    void		init();
+    void		init(bool is2d);
 
     int			revision_;
     int			binns_;		// nr samples binary header
@@ -57,6 +57,7 @@ public:
     SamplingData<float>	sampling_;
     bool		hdrsswapped_;
     bool		dataswapped_;
+    bool		is2d_;
 
     bool		isValid() const			{ return ns_ > 0; }
     bool		isRev0() const			{ return revision_ < 1;}
@@ -89,12 +90,12 @@ mExpClass(uiSEGYTools) LoadDef : public BasicFileInfo
 {
 public:
 
-			LoadDef();
+			LoadDef(bool is2d);
 			LoadDef(const LoadDef&);
 			~LoadDef();
 
     LoadDef&		operator =(const LoadDef&);
-    void		reInit(bool alsohdef);
+    void		reInit(bool is2d,bool alsohdef);
 
     float		coordscale_;
     FileReadOpts::ICvsXYType icvsxytype_;
@@ -106,7 +107,7 @@ public:
     bool		usezsamplinginfile_;
     bool		useformatinfile_;
 
-    TrcHeaderDef*	hdrdef_;
+    TrcHeaderDef*	hdrdef_ = nullptr;
 
     LoadDef		getPrepared(od_istream&) const;
     bool		getData(od_istream&,char*,float* vals=0) const;
@@ -185,7 +186,7 @@ public:
 protected:
 
     BufferString	filenm_;
-    PosInfo::Detector*	pidetector_;
+    PosInfo::Detector*	pidetector_ = nullptr;
     HdrEntryKeyData&	keydata_;
     BasicFileInfo	basicinfo_;
     ScanRangeInfo	rgs_;

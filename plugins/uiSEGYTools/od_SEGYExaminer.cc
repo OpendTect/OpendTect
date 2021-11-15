@@ -10,14 +10,28 @@ ________________________________________________________________________
 
 #include "uisegyexamine.h"
 
-#include "uimain.h"
-#include "prog.h"
-#include "moddepmgr.h"
-#include "texttranslator.h"
-
-#ifdef __win__
+#include "commandlineparser.h"
 #include "file.h"
-#endif
+#include "moddepmgr.h"
+#include "prog.h"
+#include "seistype.h"
+#include "texttranslator.h"
+#include "uimain.h"
+
+
+static int printUsage( const char* cmd )
+{
+    od_cout() << "Usage: " << cmd
+	      << "\n\t[--geomtype #Seis::nameOf(Seis::GeomType), mandatory]"
+		 "\n\t[--ns #samples]"
+		 "\n\t[--nrtrcs #traces]"
+		 "\n\t[--fmt segy_format_number]"
+		 "\n\t[--filenrs start`stop`step[`nrzeropad]]"
+		 "\n\t[--swapbytes 0_1_or_2]"
+		 "\n\tfilename\n"
+	      << "Note: filename must be with FULL path." << od_endl;
+    return 1;
+}
 
 
 int mProgMainFnName( int argc, char** argv )
@@ -28,40 +42,38 @@ int mProgMainFnName( int argc, char** argv )
 
     TextTranslateMgr::loadTranslations();
 
-    uiSEGYExamine::Setup su;
-    int argidx = 1;
-    while ( argc > argidx
-	 && *argv[argidx] == '-' && *(argv[argidx]+1) == '-' )
-    {
-	const FixedString arg( argv[argidx]+2 );
-#define mArgIs(s) arg == s
-	if ( mArgIs("ns") )
-	    { argidx++; su.fp_.ns_ = toInt( argv[argidx] ); }
-	else if ( mArgIs("fmt") )
-	    { argidx++; su.fp_.fmt_ = toInt( argv[argidx] ); }
-	else if ( mArgIs("nrtrcs") )
-	    { argidx++; su.nrtrcs_ = toInt( argv[argidx] ); }
-	else if ( mArgIs("filenrs") )
-	    { argidx++; su.fs_.getMultiFromString( argv[argidx] ); }
-	else if ( mArgIs("swapbytes") )
-	    { argidx++; su.fp_.byteswap_ = toInt( argv[argidx] ); }
-	else
-	    { od_cout() << "Ignoring option: " << argv[argidx] << od_endl; }
+    CommandLineParser clp;
+    clp.setKeyHasValue( "geomtype" );
+    clp.setKeyHasValue( "nrtrcs" );
+    clp.setKeyHasValue( "ns" );
+    clp.setKeyHasValue( "fmt" );
+    clp.setKeyHasValue( "swapbytes" );
+    clp.setKeyHasValue( "filenrs" );
 
-	argidx++;
-    }
+    BufferStringSet normargs;
+    clp.getNormalArguments( normargs );
+    if ( normargs.size() < 1 || !File::exists(normargs.first()->buf()) )
+	return printUsage( clp.getExecutable() );
 
-    if ( argc <= argidx )
-    {
-	od_cout() << "Usage: " << argv[0]
-		  << "\n\t[--ns #samples]""\n\t[--nrtrcs #traces]"
-		     "\n\t[--fmt segy_format_number]"
-		     "\n\t[--filenrs start`stop`step[`nrzeropad]]"
-		     "\n\t[--swapbytes 0_1_or_2]"
-		     "\n\tfilename\n"
-		  << "Note: filename must be with FULL path." << od_endl;
-	return 1;
-    }
+    Seis::GeomType gt;
+    getFromCLP( clp, gt );
+
+    uiSEGYExamine::Setup su( gt );
+    BufferString tmpstr;
+    if ( clp.getVal("nrtrcs",tmpstr) && !tmpstr.isEmpty() )
+	su.nrtrcs( tmpstr.toInt() );
+
+    if ( clp.getVal("ns",tmpstr) && !tmpstr.isEmpty() )
+	su.fp_.ns_ = tmpstr.toInt();
+
+    if ( clp.getVal("fmt",tmpstr) && !tmpstr.isEmpty() )
+	su.fp_.fmt_ = tmpstr.toInt();
+
+    if ( clp.getVal("filenrs",tmpstr) && !tmpstr.isEmpty() )
+	su.fs_.getMultiFromString( tmpstr.str() );
+
+    if ( clp.getVal("swapbytes",tmpstr) && !tmpstr.isEmpty() )
+	su.fp_.byteswap_ = tmpstr.toInt();
 
 #ifdef __debug__
     od_cout() << argv[0] << " started with args:";
@@ -70,16 +82,11 @@ int mProgMainFnName( int argc, char** argv )
     od_cout() << od_endl;
 #endif
 
-    BufferString fnm( argv[argidx] );
+    BufferString& fnm = *normargs.first();
     fnm.replace( "+x+", "*" );
-    su.fs_.setFileName( fnm );
+    su.setFileName( fnm );
 
     uiMain app( argc, argv );
-
-#ifdef __win__
-    if ( File::isLink( su.fs_.fileName(0) ) )
-	su.fs_.setFileName( File::linkTarget( su.fs_.fileName(0) ) );
-#endif
 
     PtrMan<uiDialog> sgyex = new uiSEGYExamine( nullptr, su );
     app.setTopLevel( sgyex );

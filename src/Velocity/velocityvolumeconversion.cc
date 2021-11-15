@@ -43,11 +43,10 @@ VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
     , writer_( 0 )
     , sequentialwriter_(0)
 {
-    reader_ = new SeisTrcReader( input_ );
+    reader_ = new SeisTrcReader( input );
     if ( !reader_->prepareWork() )
     {
-	delete reader_;
-	reader_ = 0;
+	deleteAndZeroPtr( reader_ );
 	errmsg_ = uiStrings::sCantReadInp();
 	return;
     }
@@ -143,20 +142,18 @@ bool VolumeConverter::doPrepare( int nrthreads )
 
     if ( !reader_ )
     {
-	reader_ = new SeisTrcReader( input_ );
+	reader_ = new SeisTrcReader( *input_ );
 	if ( !reader_->prepareWork() )
 	{
-	    delete reader_;
-	    reader_ = 0;
+	    deleteAndZeroPtr( reader_ );
 	    errmsg_ = uiStrings::sCantReadInp();
 	    return false;
 	}
 
-	Seis::SelData* seldata = new Seis::RangeSelData( tks_ );
-	reader_->setSelData( seldata );
+	reader_->setSelData( new Seis::RangeSelData(tks_) );
     }
 
-    writer_ = new SeisTrcWriter( output_ );
+    writer_ = new SeisTrcWriter( *output_ );
     sequentialwriter_ = new SeisSequentialWriter( writer_ );
 
     return true;
@@ -255,7 +252,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 	return 0;
 
     int res = 2;
-    while ( res==2 || !tks_.includes( trc.info().binid ) )
+    while ( res==2 || !tks_.includes( trc.info().binID() ) )
 	res = reader_->get( trc.info() );
 
     if ( res==1 )
@@ -263,7 +260,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 	if ( !reader_->get( trc ) )
 	    return -1;
 
-	sequentialwriter_->announceTrace( trc.info().binid );
+	sequentialwriter_->announceTrace( trc.info().binID() );
 	return 1;
     }
 

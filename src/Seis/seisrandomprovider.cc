@@ -1,11 +1,11 @@
 /*+
  ________________________________________________________________________
- 
+
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Kristofer
  Date:          June 2012
  ________________________________________________________________________
- 
+
  -*/
 
 #include "seisrandomprovider.h"
@@ -25,8 +25,8 @@ SeisRandomProvider::SeisRandomProvider( const MultiID& mid )
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
 	return;
-    
-    reader_ = new SeisTrcReader( ioobj );
+
+    reader_ = new SeisTrcReader( *ioobj.ptr() );
     translator_ = reader_->seisTranslator();
 }
 
@@ -41,7 +41,7 @@ SeisRandomProvider::~SeisRandomProvider()
     {
 	lock_.wait();
     }
-    
+
     delete reader_;
 }
 
@@ -53,11 +53,11 @@ void SeisRandomProvider::requestTrace( const BinID& bid )
     const BinIDValueSet::SPos pos = wantedbids_.find( bid );
     if ( pos.isValid() )
 	return;
-    
+
     wantedbids_.add( bid );
-    
+
     lock.unLock();
-    
+
     triggerWork();
 }
 
@@ -66,7 +66,7 @@ void SeisRandomProvider::requestTrace( const BinID& bid )
 bool SeisRandomProvider::readTraces()
 {
     Threads::MutexLocker lock( lock_ );
-    
+
     isreading_ = true;
 
     BinIDValueSet::SPos pos;
@@ -75,20 +75,20 @@ bool SeisRandomProvider::readTraces()
 	isreading_ = false;
 	return true;
     }
-    
-    
+
+
     bool docontinue = true;
     while ( docontinue )
     {
 	const BinID curbid = wantedbids_.getBinID( pos );
 
 	lock.unLock();
-	
+
 	if ( translator_->goTo( curbid ) && reader_->get( curtrace_ ) )
 	    traceAvailable.trigger();
-	
+
 	lock.lock();
-	
+
 	const BinIDValueSet::SPos oldpos = wantedbids_.find( curbid );
 	if ( !oldpos.isValid() )
 	{
@@ -96,13 +96,13 @@ bool SeisRandomProvider::readTraces()
 	    isreading_ = false;
 	    return false;
 	}
-	
+
 	pos = oldpos;
 	docontinue = wantedbids_.next( pos );
-	
+
 	wantedbids_.remove( oldpos );
     }
-    
+
     isreading_ = false;
     lock_.signal( true );
     return true;
@@ -121,14 +121,14 @@ void SeisRandomProvider::triggerWork()
 
     if ( isreading_ )
 	return;
-    
+
     if ( wantedbids_.isEmpty() )
 	return;
 
     lock.unLock();
-    
+
     CallBack cb( mCB( this, SeisRandomProvider, readFinished ) );
-    
+
     Threads::WorkManager::twm().addWork(
 			    mWMT( this, SeisRandomProvider, readTraces),
 			    &cb, -1, false, true );

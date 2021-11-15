@@ -70,6 +70,7 @@ inline DataRepType GetDataRepType( bool isfp, bool issigned, int nbytes )
     else
 	return nbytes<2 ? UI8 : (nbytes>4 ? SI64 : (nbytes==2 ? UI16 : UI32));
 }
+
 } // namespace OD
 
 
@@ -80,7 +81,7 @@ class IdxPair;
 
 typedef ::Index_Type	Index_Type;
 typedef ::Index_Type	Index_Delta_Type;
-typedef Index_Type	SurvID;
+typedef OD::GeomSystem	SurvID;
 typedef Index_Type	LineID;
 typedef Index_Type	TraceID;
 typedef Index_Type	GeomID;
@@ -89,5 +90,15 @@ typedef TypeSet<GeomID>	GeomIDSet;
 typedef double		Ordinate_Type;
 typedef double		Distance_Type;
 
-}
+} // namespace Pos
+
+
+// Not just convenience, these keep the logic in one place:
+
+inline bool is2D( OD::GeomSystem gs )	{ return gs==OD::Geom2D; }
+inline bool is3D( OD::GeomSystem gs )	{ return gs==OD::Geom3D; }
+inline bool isSynthetic( OD::GeomSystem gs )   { return gs==OD::GeomSynth; }
+inline void set2D( OD::GeomSystem& gs ) { gs = OD::Geom2D; }
+inline void set3D( OD::GeomSystem& gs ) { gs = OD::Geom3D; }
+inline void setSynthetic( OD::GeomSystem& gs ) { gs = OD::GeomSynth; }
 

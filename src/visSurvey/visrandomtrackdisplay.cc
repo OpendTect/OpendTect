@@ -223,8 +223,12 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
     rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB) );
 
     setName( rl_->name() );
+    TrcKeyPath nodes;
+    rl_->allNodePositions( nodes );
     TypeSet<BinID> bids;
-    rl_->allNodePositions( bids );
+    for ( const auto& tk : nodes )
+	bids += tk.position();
+
     setNodePositions( bids, true );
     setDepthInterval( rl_->zRange() );
 }
@@ -270,14 +274,16 @@ float RandomTrackDisplay::appliedZRangeStep() const
 TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
 {
     TrcKeyZSampling cs( false );
-    TypeSet<BinID> nodes;
+    TrcKeyPath nodes;
     getAllNodePos( nodes );
-    for ( int idx=0; idx<nodes.size(); idx++ )
-	cs.hsamp_.include( nodes[idx] );
+    if ( nodes.isEmpty() )
+	cs.hsamp_.survid_ = OD::Geom3D;
+
+    for ( const auto& node : nodes )
+	cs.hsamp_.include( node );
 
     cs.zsamp_.setFrom( getDepthInterval() );
     cs.zsamp_.step = appliedZRangeStep();
-    cs.hsamp_.survid_ = Survey::GeometryManager::get3DSurvID();
     return cs;
 }
 
@@ -396,9 +402,18 @@ BinID RandomTrackDisplay::getManipNodePos( int nodeidx ) const
 
 void RandomTrackDisplay::getAllNodePos( TypeSet<BinID>& nodes ) const
 {
+    TrcKeyPath tknodes;
+    getAllNodePos( tknodes );
+    for ( const auto& tk : tknodes )
+	nodes += tk.position();
+}
+
+
+void RandomTrackDisplay::getAllNodePos( TrcKeyPath& nodes ) const
+{
     const int nrnodes = nrNodes();
     for ( int idx=0; idx<nrnodes; idx++ )
-	nodes += getManipNodePos( idx );
+	nodes += TrcKey( getManipNodePos(idx) );
 }
 
 
@@ -538,21 +553,21 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
 {
     if ( crds ) crds->erase();
 
-    TypeSet<BinID> nodes;
+    TrcKeyPath nodes;
     getAllNodePos( nodes );
 
-    TypeSet<BinID> bids;
+    TrcKeyPath tkpath;
     TypeSet<int> segments;
-    const Pos::SurvID survid = s3dgeom_->getSurvID();
-    Geometry::RandomLine::getPathBids( nodes, survid, bids,
+    Geometry::RandomLine::getPathBids( nodes, tkpath,
 			Geometry::RandomLine::NoConsecutiveDups, &segments );
 
     path.erase();
     int curlinesegment = -1;
     Line2 curline;
-    for ( int idx=0; idx<bids.size(); idx++ )
+    for ( int idx=0; idx<tkpath.size(); idx++ )
     {
-	path += TrcKey( survid, bids[idx] );
+	const TrcKey& tk = tkpath[idx];
+	path += tk;
         if ( !crds )
             continue;
 
@@ -563,13 +578,13 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
             const int cursegment = segments[idx];
             if ( cursegment<nodes.size()-1 )
             {
-                const BinID startnode = nodes[segments[idx]];
-                const BinID stopnode = nodes[segments[idx]+1];
-                const Coord startpos = s3dgeom_->transform ( startnode );
-                const Coord stoppos = s3dgeom_->transform( stopnode );
+		const TrcKey& startnode = nodes[segments[idx]];
+		const TrcKey& stopnode = nodes[segments[idx]+1];
+		const Coord startpos = startnode.getCoord();
+		const Coord stoppos = stopnode.getCoord();
 
                 if ( startpos.isDefined() && stoppos.isDefined() &&
-                     startpos.sqDistTo( stoppos )>1e-3 )
+		     startpos.sqDistTo(stoppos) > 1e-3 )
                 {
                     curline = Line2( startpos, stoppos );
                     curlinesegment = cursegment;
@@ -577,7 +592,7 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
             }
         }
 
-        Coord pathpos = s3dgeom_->transform(bids[idx]);
+	Coord pathpos = tk.getCoord();
         if ( curlinesegment>=0 )
             pathpos = curline.closestPoint( pathpos );
 
@@ -587,26 +602,36 @@ void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
 
 
 void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
-{ getDataTraceBids( bids, 0 ); }
+{
+    TrcKeyPath tkpath;
+    getDataTraceBids( tkpath );
+    for ( const auto& tk : tkpath )
+	bids += tk.position();
+}
 
 
-void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
+void RandomTrackDisplay::getDataTraceBids( TrcKeyPath& tkpath ) const
+{
+    getDataTraceBids( tkpath, nullptr );
+}
+
+
+void RandomTrackDisplay::getDataTraceBids( TrcKeyPath& tkpath,
 					   TypeSet<int>* segments ) const
 {
     const_cast<RandomTrackDisplay*>(this)->trcspath_.erase();
     const_cast<RandomTrackDisplay*>(this)->trckeypath_.erase();
-    TypeSet<BinID> nodes;
+    TrcKeyPath nodes;
     getAllNodePos( nodes );
-    const Pos::SurvID survid = s3dgeom_->getSurvID();
-    Geometry::RandomLine::getPathBids( nodes, survid, bids,
+    Geometry::RandomLine::getPathBids( nodes, tkpath,
 				Geometry::RandomLine::AllDups, segments );
-    for ( int idx=0; idx<bids.size(); idx++ )
+    for ( int idx=0; idx<tkpath.size(); idx++ )
     {
-	if ( !idx || bids[idx]!=trcspath_.last() )
+	const TrcKey& tk = tkpath[idx];
+	if ( !idx || tk != trckeypath_.last() )
 	{
-	    const_cast<RandomTrackDisplay*>(this)->trcspath_.add( bids[idx] );
-	    const_cast<RandomTrackDisplay*>(this)->trckeypath_.add(
-							TrcKey(bids[idx]) );
+	    const_cast<RandomTrackDisplay*>(this)->trcspath_.add(tk.position());
+	    const_cast<RandomTrackDisplay*>(this)->trckeypath_.add( tk );
 	}
     }
 }
@@ -768,11 +793,11 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 
     int idx0 = 0;
     while ( idx0<trcspath_.size() &&
-	    !isMappingTraceOfBid(path.first().pos(),idx0,true) )
+	    !isMappingTraceOfBid(path.first().position(),idx0,true) )
 	idx0++;
 
     int idx1 = trcspath_.size()-1;
-    while ( idx1>=0 && !isMappingTraceOfBid(path.last().pos(),idx1,false) )
+    while ( idx1>=0 && !isMappingTraceOfBid(path.last().position(),idx1,false) )
 	idx1--;
 
     if ( idx0 >= idx1 )
@@ -864,7 +889,7 @@ void RandomTrackDisplay::createTransformedDataPack(
 	    const TrcKeyPath& path = randsdp->getPath();
 	    TrcKeyZSampling tkzs( false );
 	    for ( int idx=0; idx<path.size(); idx++ )
-		tkzs.hsamp_.include( path[idx].pos() );
+		tkzs.hsamp_.include( path[idx] );
 	    tkzs.zsamp_ = panelstrip_->getZRange();
 	    tkzs.zsamp_.step = scene_ ? scene_->getTrcKeyZSampling().zsamp_.step
 				      : datatransform_->getGoodZStep();
@@ -893,8 +918,8 @@ void RandomTrackDisplay::updatePanelStripPath()
     if ( nodes_.size()<2 || getUpdateStageNr() )
 	return;
 
-    TypeSet<BinID> trcbids;
-    getDataTraceBids( trcbids );	// Will update trcspath_
+    TrcKeyPath trctks;
+    getDataTraceBids( trctks ); // Will update trcspath_
 
     TypeSet<Coord> pathcrds;
     TypeSet<float> mapping;
@@ -1311,10 +1336,14 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
     utm2display->transformBack( pos, xytpos );
     BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
 
-    TypeSet<BinID> bids;
+    TrcKeyPath tkpath;
     TypeSet<int> segments;
-    getDataTraceBids( bids, &segments );
-    int idx = bids.indexOf(binid);
+    getDataTraceBids( tkpath, &segments );
+    TypeSet<BinID> bids;
+    for ( const auto& tk : tkpath )
+	bids += tk.position();
+
+    int idx = bids.indexOf( binid );
     if ( idx==-1 )
     {
 	const BinID step( SI().inlStep(), SI().crlStep() );
@@ -1414,7 +1443,7 @@ bool RandomTrackDisplay::isGeometryLocked() const
 
 SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 {
-    RandomTrackDisplay* rtd = new RandomTrackDisplay;
+    auto* rtd = new RandomTrackDisplay;
     rtd->setDepthInterval( getDataTraceRange() );
     TypeSet<BinID> positions;
     for ( int idx=0; idx<nrNodes(); idx++ )
@@ -1551,9 +1580,7 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 	return false;
 
     const BinID bid( SI().transform(pos) );
-    const TrcKey trckey = Survey::GM().traceKey(
-	Survey::GeometryManager::get3DSurvID(),
-	bid.inl(), bid.crl() );
+    const TrcKey trckey( bid );
     const int trcidx = randsdp->getNearestGlobalIdx( trckey );
     const int sampidx = randsdp->zRange().nearestIndex( pos.z );
     const Array3DImpl<float>& array = randsdp->data( version );

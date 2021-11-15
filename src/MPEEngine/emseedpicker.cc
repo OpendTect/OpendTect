@@ -93,7 +93,8 @@ EM::PosID Patch::seedNode( int idx ) const
 
     const TrcKey tck = seeds_[idx].tk_;
 
-    return EM::PosID( emobj->id(), emobj->sectionID(0), tck.pos().toInt64() );
+    return EM::PosID( emobj->id(), emobj->sectionID(0),
+		      tck.position().toInt64() );
 }
 
 
@@ -111,14 +112,15 @@ Coord3 Patch::seedCoord( int idx ) const
     {
 	const TrcKey tck = seeds_[idx].tk_;
 	const EM::PosID pid =
-	    EM::PosID( emobj->id(),emobj->sectionID(0),tck.pos().toInt64() );
+	    EM::PosID( emobj->id(), emobj->sectionID(0),
+		       tck.position().toInt64() );
 	pos = emobj->getPos( pid );
     }
     else
     {
 	if ( hor2d )
 	{
-	    TrcKey tck = seeds_[idx].tk_;
+	    const TrcKey tck = seeds_[idx].tk_;
 	    pos = hor2d->getPos(emobj->sectionID(0), tck.geomID(), tck.trcNr());
 	}
     }
@@ -178,7 +180,7 @@ int Patch::addSeed( const TrcKeyValue& tckv, bool sort )
     if ( !is2d )
     {
 	const EM::PosID pid = EM::PosID( emobj->id(), emobj->sectionID(0),
-					 seedtckv.tk_.pos().toInt64() );
+					 seedtckv.tk_.position().toInt64() );
 	if ( !seedpicker_->lineTrackDirection(dir) )
 	{
 	    idx = findClosestSeedRdmIdx( pid );

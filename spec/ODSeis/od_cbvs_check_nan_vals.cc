@@ -76,14 +76,14 @@ int mProgMainFnName( int argc, char** argv )
 	    {
 		if ( trc.get(isamp,icomp) > 10000 )
 		{
-		    od_cout() trc.info().binid.inl << ' '
-			     << trc.info().binid.crl << ' '
+		    od_cout() trc.info().inl() << ' '
+			     << trc.info().crl() << ' '
 			     << trc.get(isamp,icomp) << ' '<<'\n'<< od_endl;
 		}
 		else if (trc.get(isamp,icomp) < -10000 )
 		{
-		    od_cout() << trc.info().binid.inl << ' '
-			     << trc.info().binid.crl << ' '
+		    od_cout() << trc.info().inl() << ' '
+			     << trc.info().crl() << ' '
 			     << trc.get(isamp,icomp) << ' '<<'\n'<< od_endl;
 		}
 		nrlwr++;

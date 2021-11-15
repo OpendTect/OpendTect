@@ -90,6 +90,7 @@ public:
     TypeSet<BinID>*		getPath()		{ return &trcspath_; }
 				//!<BinID-based coding: inner nodes single
     void			getDataTraceBids(TypeSet<BinID>&) const;
+    void			getDataTraceBids(TrcKeyPath&) const;
 				//!<Segment-based coding: inner nodes doubled
 
     void			getTraceKeyPath(TrcKeyPath&,
@@ -120,7 +121,7 @@ public:
     void			setNodePos(int,const BinID&);
     BinID			getNodePos(int) const;
     BinID			getManipNodePos(int) const;
-    void			getAllNodePos(TypeSet<BinID>&) const;
+    void			getAllNodePos(TrcKeyPath&) const;
     TypeSet<BinID>*		getNodes()		{ return &nodes_; }
     void			removeNode(int);
     void			removeAllNodes();
@@ -196,7 +197,7 @@ protected:
     void			emptyCache(int);
     bool			hasCache(int) const;
 
-    void			getDataTraceBids(TypeSet<BinID>&,
+    void			getDataTraceBids(TrcKeyPath&,
 						 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int node) const;
     void			updateChannels(int attrib,TaskRunner*);
@@ -283,6 +284,8 @@ public:
 						   Coord3&, BufferString&,
 						   BufferString&) const;
     const TypeSet<BinID>*	getPath() const		{ return &trcspath_; }
+    mDeprecated("Use TrcKey")
+    void			getAllNodePos(TypeSet<BinID>&) const;
 
 protected:
     int				getClosestPanelIdx(const Coord&,

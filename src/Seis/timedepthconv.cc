@@ -59,7 +59,7 @@ bool Time2DepthStretcher::setVelData( const MultiID& mid )
     if ( !velioobj )
 	return false;
 
-    velreader_ = new SeisTrcReader( velioobj );
+    velreader_ = new SeisTrcReader( *velioobj );
     if ( !velreader_->prepareWork() )
     {
 	releaseData();
@@ -353,12 +353,17 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* taskr )
 
     if ( velreader_->is2D() ) // Now geomid is known. Have to recreate reader.
     {
-	Seis::SelData* sd = new Seis::RangeSelData( readcs );
+	const Seis::GeomType gt = Seis::Line;
+	const Pos::GeomID gid = readcs.hsamp_.getGeomID();
+	PtrMan<Seis::SelData> sd = new Seis::RangeSelData( readcs );
+
 	sd->setGeomID( readcs.hsamp_.start_.lineNr() );
 	PtrMan<IOObj> ioobj = velreader_->ioObj()->clone();
-	delete velreader_; velreader_ = new SeisTrcReader( ioobj );
+	delete velreader_;
+	velreader_ = new SeisTrcReader( *ioobj, gid, &gt );
 	velreader_->prepareWork();
-	velreader_->setSelData( sd );
+	if ( sd && !sd->isAll() )
+	    velreader_->setSelData( sd.release() );
     }
 
     TimeDepthDataLoader loader( *arr, *velreader_, readcs, veldesc_,
@@ -419,7 +424,7 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
 				    const SamplingData<float>& sd,
 				    int sz, float* res ) const
 {
-    const BinID bid = trckey.pos();
+    const BinID bid = trckey.position();
 
     if ( bid.isUdf() )
 	return;
@@ -491,7 +496,7 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
 					const SamplingData<float>& sd,
 					int sz, float* res ) const
 {
-    const BinID bid = trckey.pos();
+    const BinID bid = trckey.position();
 
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;
@@ -757,7 +762,7 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
     , startavgvel_( -1, -1 )
     , stopavgvel_( -1, -1 )
     , subsel_( true )
-    , reader_( new SeisTrcReader(&obj_) )
+    , reader_( new SeisTrcReader(obj_) )
     , definedv0_( false )
     , definedv1_( false )
     , zistime_ ( SI().zIsTime() )

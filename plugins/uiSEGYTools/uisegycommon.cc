@@ -53,10 +53,10 @@ void SEGY::FullSpec::fillPar( IOPar& iop ) const
     iop.setYN( FilePars::sKeyForceRev0(), rev_ == 0 );
     iop.setYN( sKeyIsVSP, isvsp_ );
     iop.setYN( sKeyZInFeet, zinfeet_ );
-    if ( !isVSP() )
-	iop.set( sKey::Geometry(), Seis::nameOf(geomType()) );
-    else
+    if ( isVSP() )
 	iop.removeWithKey( sKey::Geometry() );
+    else
+	Seis::putInPar( geomType(), iop );
 }
 
 

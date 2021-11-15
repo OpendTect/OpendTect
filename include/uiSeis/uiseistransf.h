@@ -23,7 +23,8 @@ class uiSeisSubSel;
 class SeisResampler;
 class uiSeis2DSubSel;
 class uiSeis3DSubSel;
-namespace Seis { class SelData; }
+namespace Coords	{ class CoordSystem; }
+namespace Seis		{ class SelData; }
 
 
 mExpClass(uiSeis) uiSeisTransfer : public uiGroup
@@ -48,20 +49,27 @@ public:
     };
 
 			uiSeisTransfer(uiParent*,const Setup&);
+			~uiSeisTransfer();
+
     void		updateFrom(const IOObj&);
 
     Executor*		getTrcProc(const IOObj& from,const IOObj& to,
 				   const char* executor_txt,
 				   const uiString& work_txt,
-				   const char* linenm2d_overrule=0) const;
+				   int compnr=-1) const;
 
     uiSeisSubSel*	selfld;
     uiScaler*		scalefld_;
     uiGenInput*		remnullfld;
-    uiGenInput*		trcgrowfld_;
+    uiGenInput*		trcgrowfld_ = nullptr;
 
     uiSeis2DSubSel*	selFld2D(); //!< null when not 2D
     uiSeis3DSubSel*	selFld3D(); //!< null when not 3D
+
+    void		setOutputHeader(const char*);
+			//!< Only for the write translators which supports it
+    void		setCoordSystem(const Coords::CoordSystem&,bool inp);
+			//!< Only for the translators which supports it
 
     void		setSteering(bool);
     void		setInput(const IOObj&);
@@ -83,11 +91,23 @@ public:
 protected:
 
     Setup		setup_;
-    bool		issteer_;
+    bool		issteer_ = false;
+    BufferString	outheader_;
+    ConstRefMan<Coords::CoordSystem> inpcrs_;
+    ConstRefMan<Coords::CoordSystem> outpcrs_;
 
     void		updSteer(CallBacker*);
+    Pos::GeomID		curGeomID() const;
+
 public:
     void		showSubselFld(bool showselfld);
+
+    mDeprecated("Use SeisTrcTranslator::setGeomID on 'to'")
+    Executor*		getTrcProc(const IOObj& from,const IOObj& to,
+				   const char* executor_txt,
+				   const uiString& work_txt,
+				   const char* linenm2d_overrule) const;
+
 
 };
 

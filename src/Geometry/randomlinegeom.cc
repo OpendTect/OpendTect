@@ -131,14 +131,14 @@ void RandomLine::allNodePositions( TypeSet<BinID>& bids ) const
 
 void RandomLine::allNodePositions( TrcKeyPath& tks ) const
 {
-    tks.setSize( nodes_.size(), TrcKey::udf() );
-    for ( int idx=0; idx<nodes_.size(); idx++ )
-	tks[idx] = TrcKey( nodes_[idx] );
+    tks.setEmpty();
+    for ( const auto& node : nodes_ )
+	tks += TrcKey( node );
 }
 
 void RandomLine::limitTo( const TrcKeyZSampling& cs )
 {
-    const Pos::SurvID survid = Survey::GeometryManager::get3DSurvID();
+    const Pos::SurvID survid = OD::Geom3D;
     if ( cs.hsamp_.survid_ != survid )
 	{ pErrMsg( "Limiting go range in different survey"); }
 
@@ -299,49 +299,82 @@ int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
     return nearestposidx;
 }
 
-void RandomLine::getPathBids( const TypeSet<BinID>& knots,
-			    TypeSet<BinID>& bids,
-			    bool allowduplicate,
-			    TypeSet<int>* segments )
-{
-    getPathBids( knots, Survey::GeometryManager::get3DSurvID(), bids,
-		 allowduplicate, segments );
-}
 
-void RandomLine::getPathBids( const TypeSet<BinID>& knots,
-			     Pos::SurvID survid,
-			    TypeSet<BinID>& bids,
-			    bool allowduplicate,
-			    TypeSet<int>* segments )
+void RandomLine::getPathBids( const TypeSet<BinID>& knots, TypeSet<BinID>& bids,
+			      bool allowduplicate, TypeSet<int>* segments )
 {
+    TrcKeyPath tkknots;
+    for ( const auto& knot : knots )
+	tkknots += TrcKey( knot );
+
+    TrcKeyPath tks;
     const DuplicateMode dupmode = allowduplicate ? AllDups : NoConsecutiveDups;
-    getPathBids( knots, survid, bids, dupmode, segments );
+    getPathBids( tkknots, tks, dupmode, segments );
+    for ( const auto& tk : tks )
+	bids += tk.position();
 }
 
-void RandomLine::getPathBids( const TypeSet<BinID>& knots,
-			     Pos::SurvID survid,
-			    TypeSet<BinID>& bids,
-			    DuplicateMode duplicatemode,
-			    TypeSet<int>* segments )
+
+void RandomLine::getPathBids( const TypeSet<BinID>& knots, Pos::SurvID survid,
+			      TypeSet<BinID>& bids, bool allowduplicate,
+			      TypeSet<int>* segments )
 {
-    ConstRefMan<Survey::Geometry3D> geom = Survey::GM().getGeometry3D( survid );
+    TrcKeyPath tkknots;
+    for ( const auto& knot : knots )
+	tkknots += TrcKey( survid, (const Pos::IdxPair&)knot );
+
+    TrcKeyPath tks;
+    const DuplicateMode dupmode = allowduplicate ? AllDups : NoConsecutiveDups;
+    getPathBids( tkknots, tks, dupmode, segments );
+    for ( const auto& tk : tks )
+	bids += tk.position();
+}
+
+
+void RandomLine::getPathBids( const TypeSet<BinID>& knots, Pos::SurvID survid,
+			      TypeSet<BinID>& bids, DuplicateMode duplicatemode,
+			      TypeSet<int>* segments )
+{
+    TrcKeyPath tkknots;
+    for ( const auto& knot : knots )
+	tkknots += TrcKey( survid, (const Pos::IdxPair&)knot );
+
+    TrcKeyPath tks;
+    getPathBids( tkknots, tks, duplicatemode, segments );
+    for ( const auto& tk : tks )
+	bids += tk.position();
+}
+
+
+void RandomLine::getPathBids( const TrcKeyPath& knots, TrcKeyPath& tkpath,
+			    DuplicateMode duplicatemode, TypeSet<int>* segments)
+{
+    if ( knots.isEmpty() )
+	return;
+
+    const TrcKey& firsttk = knots.first();
+    const Survey::Geometry3D* geom3d = firsttk.geometry().as3D();
+    if ( !geom3d )
+	return;
+
+    const TrcKeySampling& tks = geom3d->sampling().hsamp_;
+    TypeSet<BinID> bids;
     for ( int idx=1; idx<knots.size(); idx++ )
     {
-	BinID start = knots[idx-1];
-	BinID stop = knots[idx];
+	BinID start = knots[idx-1].position();
+	BinID stop = knots[idx].position();
 	if ( start == stop ) continue;
-	const int nrinl = int(abs(stop.inl()-start.inl()) / geom->inlStep() +1);
-	const int nrcrl = int(abs(stop.crl()-start.crl()) / geom->crlStep() +1);
+	const int nrinl = int(abs(stop.inl()-start.inl()) / tks.step_.inl() +1);
+	const int nrcrl = int(abs(stop.crl()-start.crl()) / tks.step_.crl() +1);
 	bool inlwise = nrinl > nrcrl;
 	int nrlines = inlwise ? nrinl : nrcrl;
 	const char fastdim = inlwise ? 0 : 1;
 	const char slowdim = inlwise ? 1 : 0;
 
 	bool reverse = stop[fastdim] - start[fastdim] < 0;
-	int step = geom->sampling().hsamp_.step_[fastdim];
-	StepInterval<int> slowdimrg =
-		    inlwise ? geom->sampling().hsamp_.trcRange()
-			    : geom->sampling().hsamp_.lineRange();
+	int step = geom3d->sampling().hsamp_.step_[fastdim];
+	StepInterval<int> slowdimrg = inlwise ? tks.trcRange()
+					      : tks.lineRange();
 	if ( reverse ) step *= -1;
 
 	for ( int idi=0; idi<nrlines; idi++ )
@@ -370,6 +403,9 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots,
 	    }
 	}
     }
+
+    for ( const auto& bid : bids )
+	tkpath += TrcKey( bid );
 }
 
 
@@ -389,12 +425,10 @@ RandomLineSet::RandomLineSet( const RandomLine& baserandln, double dist,
     if ( baserandln.nrNodes() != 2 )
 	return;
 
-    const Pos::SurvID survid = Survey::GeometryManager::get3DSurvID();
-    ConstRefMan<Survey::Geometry3D> geom =
-	    Survey::GM().getGeometry3D( survid );
-
-    const Coord startpt = geom->transform( baserandln.nodePosition(0) );
-    const Coord stoppt = geom->transform( baserandln.nodePosition(1) );
+    const TrcKey starttk( baserandln.nodePosition(0) );
+    const TrcKey stoptk( baserandln.nodePosition(1) );
+    const Coord startpt = starttk.getCoord();
+    const Coord stoppt = stoptk.getCoord();
     Line2 rline( startpt, stoppt );
     rline.start_ = Coord::udf();
     rline.stop_ = Coord::udf();			// removing limits.
@@ -455,15 +489,13 @@ void RandomLineSet::insertLine( RandomLine& rl, int idx )
 void RandomLineSet::createParallelLines( const Line2& baseline,
 					 double dist )
 {
-    const Pos::SurvID survid = Survey::GeometryManager::get3DSurvID();
-    ConstRefMan<Survey::Geometry3D> geom =
-	Survey::GM().getGeometry3D( survid );
-    const TrcKeySampling hs( geom->sampling().hsamp_ );
+    const Survey::Geometry3D& geom = *Survey::Geometry::default3D().as3D();
+    const TrcKeySampling hs( geom.sampling().hsamp_ );
     Coord svert[4];
-    svert[0] = geom->transform( hs.start_ );
-    svert[1] = geom->transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
-    svert[2] = geom->transform( hs.stop_ );
-    svert[3] = geom->transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
+    svert[0] = geom.transform( hs.start_ );
+    svert[1] = geom.transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
+    svert[2] = geom.transform( hs.stop_ );
+    svert[3] = geom.transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
 
     Line2 sbound[4];			// Survey boundaries
     for ( int idx=0; idx<4; idx++ )
@@ -510,9 +542,9 @@ void RandomLineSet::createParallelLines( const Line2& baseline,
 	    posfinished = true;
 	else
 	{
-	    RandomLine* rln = new RandomLine;
-	    rln->addNode( geom->transform(endsposline[0]) );
-	    rln->addNode( geom->transform(endsposline[1]) );
+	    auto* rln = new RandomLine;
+	    rln->addNode( geom.transform(endsposline[0]) );
+	    rln->addNode( geom.transform(endsposline[1]) );
 	    addLine( *rln );
 	}
 
@@ -521,9 +553,9 @@ void RandomLineSet::createParallelLines( const Line2& baseline,
 	    negfinished = true;
 	else
 	{
-	    RandomLine* rln = new RandomLine;
-	    rln->addNode( geom->transform(endsnegline[0]) );
-	    rln->addNode( geom->transform(endsnegline[1]) );
+	    auto* rln = new RandomLine;
+	    rln->addNode( geom.transform(endsnegline[0]) );
+	    rln->addNode( geom.transform(endsnegline[1]) );
 	    insertLine( *rln, 0 );
 	}
     }
@@ -543,6 +575,16 @@ void RandomLineSet::limitTo( const TrcKeyZSampling& cs )
 void RandomLineSet::getGeometry( const MultiID& rdlsid, TypeSet<BinID>& knots,
 				 StepInterval<float>* zrg )
 {
+    TrcKeyPath tkpath;
+    getGeometry( rdlsid, tkpath, zrg );
+    for ( const auto& tk : tkpath )
+	knots += tk.position();
+}
+
+
+void RandomLineSet::getGeometry( const MultiID& rdlsid, TrcKeyPath& knots,
+				 StepInterval<float>* zrg )
+{
     Geometry::RandomLineSet rls; BufferString errmsg;
     const PtrMan<IOObj> rdmline = IOM().get( rdlsid );
     RandomLineSetTranslator::retrieve( rls, rdmline, errmsg );
@@ -552,10 +594,10 @@ void RandomLineSet::getGeometry( const MultiID& rdlsid, TypeSet<BinID>& knots,
     if ( zrg )
 	*zrg = Interval<float>(mUdf(float),-mUdf(float));
 
-    TypeSet<BinID> rdmlsknots;
+    TrcKeyPath rdmlsknots;
     for ( int lidx=0; lidx<rls.size(); lidx++ )
     {
-	TypeSet<BinID> rdmlknots;
+	TrcKeyPath rdmlknots;
 	rls.lines()[lidx]->allNodePositions( rdmlknots );
 	knots.append( rdmlknots );
 	if ( zrg )

@@ -361,12 +361,29 @@ bool PSAttrib::getAngleInputData()
 }
 
 
+static bool getTrcKey( const SeisPSReader& rdr, const BinID& bid, TrcKey& tk  )
+{
+    if ( rdr.is3D() )
+	tk.setPosition( bid );
+    else if ( rdr.is2D() )
+    {
+	const Pos::GeomID gid = rdr.geomID();
+	if ( Survey::is2DGeom(gid) )
+	    tk.setGeomID( rdr.geomID() ).setTrcNr( bid.trcNr() );
+	else
+	    pFreeFnErrMsg("Invalid geomID for 2D");
+    }
+
+    return !tk.isUdf();
+}
+
+
 bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 			      DataPack::ID& curanglegatherid )
 {
     if ( gatherset_.size() )
     {
-	const PreStack::GatherSetDataPack* anglegsdp = 0;
+	const PreStack::GatherSetDataPack* anglegsdp = nullptr;
 	if ( anglegsdpid_>= 0 )
 	{
 	    ConstDataPackRef<DataPack> angledp =
@@ -375,15 +392,15 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 			  angledp.ptr() );
 	}
 
-	const PreStack::Gather* curgather = 0;
-	const PreStack::Gather* curanglegather = 0;
+	const PreStack::Gather* curgather = nullptr;
+	const PreStack::Gather* curanglegather = nullptr;
 	for ( int idx=0; idx<gatherset_.size(); idx++ )
 	{
 	    const bool hasanglegather =
 		anglegsdp && anglegsdp->getGathers().validIdx( idx );
 	    const int trcnr = idx+1;
-	    //TODO full support for 2d : idx is not really my nymber of traces
-	    if ( (is2D() && trcnr == bid.crl()) ||
+	    //TODO full support for 2d : idx is not really my number of traces
+	    if ( (is2D() && trcnr == bid.trcNr()) ||
 		 (gatherset_[idx]->getBinID() == bid) )
 	    {
 	       curgather = gatherset_[idx];
@@ -405,8 +422,13 @@ bool PSAttrib::getGatherData( const BinID& bid, DataPack::ID& curgatherid,
 	if ( !gather )
 	    return false;
 
-	if ( !gather->readFrom( *psioobj_, *psrdr_, bid, component_ ) )
+	TrcKey tk;
+	getTrcKey( *psrdr_, bid, tk );
+	if ( !gather->readFrom(*psioobj_,*psrdr_,tk,component_) )
+	{
+	    delete gather;
 	    return false;
+	}
 
 	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
 	setGatherIsAngle( *gather );
@@ -438,12 +460,18 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
 		continue;
 
 	    const BinID bid = currentbid_+relpos+relbid*sistep;
-	    PreStack::Gather* gather = 0;
+	    PreStack::Gather* gather = nullptr;
 	    if ( gatherset_.isEmpty() )
 	    {
 		gather = new PreStack::Gather;
-		if (!gather->readFrom(*psioobj_,*psrdr_,bid,component_) )
+		TrcKey tk;
+		getTrcKey( *psrdr_, bid, tk );
+		if (!gather->readFrom(*psioobj_,*psrdr_,tk,component_) )
+		{
+		    delete gather;
 		    continue;
+		}
+
 		DPM(DataPackMgr::FlatID()).addAndObtain( gather );
 		gatheridstoberemoved += gather->id();
 	    }
@@ -463,7 +491,7 @@ DataPack::ID PSAttrib::getPreProcessedID( const BinID& relpos )
 	    }
 
 	    preprocessor_->setInput( relbid, gather->id() );
-	    gather = 0;
+	    gather = nullptr;
 	}
     }
 

@@ -78,6 +78,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 {
     deepErase( rdrs_ ); offs_.erase(); comps_.erase(); errmsg_.setEmpty();
     posdata_ = PosInfo::CubeData();
+    const Seis::GeomType gt = Seis::Vol;
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
@@ -101,7 +102,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 	const float offs = fms.getFValue( 0 );
 	const int comp = fmssz > 1 ? fms.getIValue( 1 ) : 0;
 
-	SeisTrcReader* rdr = new SeisTrcReader( ioobj );
+	auto* rdr = new SeisTrcReader( *ioobj, &gt );
 	rdr->setComponent( comp );
 	if ( !rdr->ioObj() || !rdr->prepareWork() )
 	{

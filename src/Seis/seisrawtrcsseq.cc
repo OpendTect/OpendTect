@@ -231,7 +231,7 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 	{
 	    for ( int idx=0; idx<nrpos_; idx++ )
 	    {
-		if ( (is2d && trc.info().nr != (*tks_)[idx].trcNr() ) ||
+		if ( (is2d && trc.info().trcNr() != (*tks_)[idx].trcNr() ) ||
 		    (!is2d && trc.info().binID() != (*tks_)[idx].position() ) )
 		{
 		    pErrMsg("wrong position");
@@ -245,7 +245,7 @@ void Seis::RawTrcsSequence::copyFrom( const SeisTrc& trc, int* ipos )
 #ifdef __debug__
 	else
 	{
-	    if ( (is2d && trc.info().nr != (*tks_)[*ipos].trcNr() )
+	    if ( (is2d && trc.info().trcNr() != (*tks_)[*ipos].trcNr() )
 	     || (!is2d && trc.info().binID() != (*tks_)[*ipos].position() ) )
 		pErrMsg("wrong position");
 	}

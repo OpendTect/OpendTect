@@ -37,11 +37,11 @@ bool SeisTrcReaderSet::getSingle( int irdr, SeisTrcInfo& ti, int& res )
 
 BinID SeisTrcReaderSet::getBinID( int irdr, const SeisTrcInfo& ti ) const
 {
-    BinID bid( ti.binid );
+    BinID bid( ti.binID() );
     if ( is2D() )
     {
 	bid.inl() = (*this)[irdr]->curLineIdx();
-	bid.crl() = ti.nr;
+	bid.crl() = ti.trcNr();
     }
     return bid;
 }

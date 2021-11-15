@@ -61,7 +61,7 @@ void selPush( CallBacker* )
 {
     uiSEGYDefDlg::Setup su; su.defgeom_ = Seis::Line;
     su.geoms_ += su.defgeom_;
-    uiSEGYDefDlg* defdlg = new uiSEGYDefDlg( &imp_, su, imp_.sgypars_ );
+    auto* defdlg = new uiSEGYDefDlg( &imp_, su, imp_.sgypars_ );
     defdlg->setModal( true );
     defdlg->readParsReq.notify( mCB(this,uiSEGYVSPBasicPars,readParsReq) );
     const bool dlgok = defdlg->go();
@@ -71,8 +71,8 @@ void selPush( CallBacker* )
 
     FilePath fp( imp_.sgypars_.find(sKey::FileName()) );
     fnm_ = fp.fileName();
-    uiSEGYExamine::Setup exsu( nrexam );
-    exsu.modal( false ); exsu.usePar( imp_.sgypars_ );
+    uiSEGYExamine::Setup exsu( su.defgeom_, nrexam );
+    exsu.usePar( imp_.sgypars_ );
     if ( nrexam > 0 )
 	uiSEGYExamine::launch( exsu );
 

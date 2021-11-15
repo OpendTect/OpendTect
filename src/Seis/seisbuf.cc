@@ -53,7 +53,7 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     const int sz = size();
     if ( sz < 1 ) return;
     const SeisTrc* trc = first();
-    BinID bid = trc->info().binid;
+    BinID bid = trc->info().binID();
     const BinID pbid = bid;
     spi.inlrg.set( mUdf(int), -mUdf(int), 1 );
     spi.crlrg.set( mUdf(int), -mUdf(int), 1 );
@@ -62,7 +62,7 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     bool doneinl = false, donecrl = false;
     for ( int idx=0; idx<sz; idx++ )
     {
-	trc = get( idx ); bid = trc->info().binid;
+	trc = get( idx ); bid = trc->info().binID();
 	spi.inlrg.include( bid.inl(), false );
 	spi.crlrg.include( bid.crl(), false);
 	const SamplingData<float> trcsd = trc->info().sampling;
@@ -174,8 +174,8 @@ void SeisTrcBuf::sortForWrite( bool is2d )
     for ( int idx=1; idx<sz; idx++ )
     {
 	SeisTrc* trc = get( idx );
-	const bool issameinl = trc->info().binid.inl()
-				== singinlbuf.get(0)->info().binid.inl();
+	const bool issameinl = trc->info().inl()
+				== singinlbuf.get(0)->info().inl();
 	if ( issameinl )
 	    singinlbuf.add( trc );
 	else
@@ -264,10 +264,10 @@ int SeisTrcBuf::find( const BinID& binid, bool is2d ) const
     int idx = startidx, pos = 0;
     while ( idx<sz && idx>=0 )
     {
-	if ( !is2d && ((SeisTrcBuf*)this)->get(idx)->info().binid == binid )
+	if ( !is2d && ((SeisTrcBuf*)this)->get(idx)->info().binID() == binid )
 	    return idx;
 	else if ( is2d &&
-		  ((SeisTrcBuf*)this)->get(idx)->info().nr == binid.crl() )
+	      ((SeisTrcBuf*)this)->get(idx)->info().trcNr() == binid.trcNr() )
 	    return idx;
 	if ( pos < 0 ) pos = -pos;
 	else	       pos = -pos-1;
@@ -283,7 +283,7 @@ int SeisTrcBuf::find( const SeisTrc* trc, bool is2d ) const
 {
     if ( !trc ) return -1;
 
-    int tryidx = probableIdx( trc->info().binid, is2d );
+    int tryidx = probableIdx( trc->info().binID(), is2d );
     if ( trcs_[tryidx] == trc ) return tryidx;
 
     // Bugger. brute force then
@@ -300,13 +300,13 @@ int SeisTrcBuf::find( const SeisTrc* trc, bool is2d ) const
 int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
 {
     int sz = size(); if ( sz < 2 ) return 0;
-    BinID start = trcs_[0]->info().binid;
-    BinID stop = trcs_[sz-1]->info().binid;
+    BinID start = trcs_[0]->info().binID();
+    BinID stop = trcs_[sz-1]->info().binID();
     if ( is2d )
     {
-	start.inl() = stop.inl() = 0;
-	start.crl() = trcs_[0]->info().nr;
-	stop.crl() = trcs_[sz-1]->info().nr;
+	start.row() = stop.row() = 0;
+	start.trcNr() = trcs_[0]->info().trcNr();
+	stop.trcNr() = trcs_[sz-1]->info().trcNr();
     }
 
     BinID dist( start.inl() - stop.inl(), start.crl() - stop.crl() );
@@ -316,7 +316,7 @@ int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
     int n1  = dist.inl() ? start.inl() : start.crl();
     int n2  = dist.inl() ? stop.inl()  : stop.crl();
     int pos = dist.inl() ? bid.inl()   : bid.crl();
- 
+
     float fidx = ((sz-1.f) * (pos - n1)) / (n2-n1);
     int idx = mNINT32(fidx);
     if ( idx < 0 ) idx = 0;
@@ -343,11 +343,11 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 	strm << od_newline;
 	const SeisTrc& trc = *get( itrc );
 	if ( !is2d )
-	    strm << trc.info().binid.inl() << ' ' << trc.info().binid.crl();
+	    strm << trc.info().inl() << ' ' << trc.info().crl();
 	else
 	{
 	    BufferString postxt;
-	    postxt += trc.info().nr; postxt += " ";
+	    postxt += trc.info().trcNr(); postxt += " ";
 	    postxt += trc.info().coord.x; postxt += " ";
 	    postxt += trc.info().coord.y;
 	    strm << postxt;
@@ -503,7 +503,7 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
     setBuffer( buf, b.gt_, b.posfld_, b.trcBufArr2D().getComp(), bufisours );
     setName( b.name() );
 }
-    
+
 
 void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 				    SeisTrcInfo::Fld fld, int icomp, bool mine )
@@ -583,23 +583,30 @@ Coord3 SeisTrcBufDataPack::getCoord( int itrc, int isamp ) const
 }
 
 
-bool SeisTrcBufDataPack::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
+bool SeisTrcBufDataPack::getTrcKeyZSampling( TrcKeyZSampling& tkzs ) const
 {
     const SeisTrcBuf& buf = trcBuf();
     if ( buf.isEmpty() )
 	return false;
 
-    cs.hsamp_.start_.inl() = cs.hsamp_.stop_.inl() =
-	buf.first()->info().binid.inl();
-    cs.hsamp_.start_.crl() = cs.hsamp_.stop_.crl() =
-	buf.first()->info().binid.crl();
-    cs.hsamp_.step_.inl() = SI().inlStep();
-    cs.hsamp_.step_.crl() = SI().crlStep();
+    const SeisTrcInfo& seisinfo = buf.first()->info();
+    const bool is3d = seisinfo.is3D();
+
+    TrcKeySampling& tks = tkzs.hsamp_;
+    tks.survid_ = seisinfo.geomSystem();
+
+    tks.start_.inl() = tks.stop_.inl() = seisinfo.inl();
+    tks.start_.crl() = tks.stop_.crl() = seisinfo.crl();
+    tks.step_.inl() = is3d ? SI().inlStep() : 0;
+    if ( is3d || buf.size() == 1 )
+	tks.step_.crl() = SI().crlStep();
+    else
+	tks.step_.trcNr() = buf.get(1)->info().trcNr() - seisinfo.trcNr();
 
     for ( int idx=1; idx<buf.size(); idx++ )
-	cs.hsamp_.include( buf.get( idx )->info().binid );
+	tks.include( buf.get(idx)->info().trcKey() );
 
-    cs.zsamp_.setFrom( posData().range(false) );
+    tkzs.zsamp_.setFrom( posData().range(false) );
 
     return true;
 }

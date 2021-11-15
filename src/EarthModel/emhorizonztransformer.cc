@@ -61,10 +61,9 @@ int HorizonZTransformer::nextStep()
     if ( !isforward_ && !mIsUdf(z) )
 	z -= refz_;
 
+    const Pos::IdxPair bid = BinID::fromInt64( posid.subID() );
     mDynamicCastGet(const EM::Horizon2D*,hor2d,&tarhor_)
-    TrcKey tk( tarhor_.getSurveyID(), BinID::fromInt64(posid.subID()) );
-    if ( hor2d )
-	tk.lineNr() = hor2d->geometry().geomID( tk.lineNr() );
+    const TrcKey tk( bid, hor2d );
 
     float newz = zat_.transformTrc( tk, z );
     if ( isforward_ && !mIsUdf(newz) )
@@ -76,4 +75,4 @@ int HorizonZTransformer::nextStep()
     return Executor::MoreToDo();
 }
 
-} // namespace EM 
+} // namespace EM

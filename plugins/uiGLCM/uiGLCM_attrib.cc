@@ -407,7 +407,7 @@ bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     cs.hsamp_.getRandomSet( nrtrcs, trckeys );
     BinIDValueSet bidvals( 0, false );
     for ( int idx=0; idx<trckeys.size(); idx++ )
-	bidvals.add( trckeys[idx].pos() );
+	bidvals.add( trckeys[idx].position() );
 
     uiString errmsg;
     Interval<float> zrg( cs.zsamp_ );

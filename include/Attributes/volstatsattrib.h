@@ -54,12 +54,12 @@ protected:
     virtual bool		getInputData(const BinID&,int zintv);
 
     virtual bool		computeData(const DataHolder&,
-	    				    const BinID& relpos,
+					    const BinID& relpos,
 					    int z0,int nrsamples,
 					    int threadid) const = 0;
 
     const BinID*		desStepout(int input,int output) const;
-    const Interval<float>* 	desZMargin( int inp, int ) const;
+    const Interval<float>*	desZMargin( int inp, int ) const;
     virtual const Interval<float>* reqZMargin(int input,int output) const;
 
     BinID			stepout_;
@@ -68,7 +68,7 @@ protected:
     Interval<float>             desgate_;
     int				minnrtrcs_;
 
-    TypeSet<BinID>      	positions_;
+    TypeSet<BinID>	positions_;
     int				dataidx_;
 
     ObjectSet<const DataHolder>	inputdata_;
@@ -81,19 +81,19 @@ protected:
 
   VolumeStatistics collects all samples within the timegate from all traces
   within the stepout.
-  
+
   If steering is enabled, the timegate is taken relative to the steering.
-  
-  If the OpticalStack shape is chosen, the positions used are defined by a step 
+
+  If the OpticalStack shape is chosen, the positions used are defined by a step
   and a direction: the line direction or its normal.
- 
-<pre> 
+
+<pre>
   VolumeStatistics stepout=1,1 shape=Rectangle|Ellipse|OpticalStack gate=[0,0]
-  		   steering=
+		   steering=
   Inputs:
   0-(nrvolumes-1)         The data
   nrvolumes  -            Steerings (only if steering is enabled)
-  
+
   Outputs:
   0       Avg
   1       Med
@@ -104,8 +104,8 @@ protected:
   6       Normalized Variance
   7       Most Frequent
   8       RMS
-  9       Extreme  
-</pre> 
+  9	  Extreme
+</pre>
 */
 
 mExpClass(Attributes) VolStats : public VolStatsBase
@@ -121,14 +121,9 @@ public:
     static const char*          optStackDirTypeStr(int);
 
     void			prepPriorToBoundsCalc();
-    void			setRdmPaths( TypeSet<BinID>* truepos,
-	    				     TypeSet<BinID>* snappedpos )
-			        { linetruepos_ = truepos
-					    ? new TypeSet<BinID>(*truepos)
-					    : new TypeSet<BinID>();
-				  linepath_ = snappedpos
-					    ? new TypeSet<BinID>(*snappedpos)
-					    : new TypeSet<BinID>(); }
+    void			setRdmPaths(const TypeSet<BinID>& truepos,
+					    const TypeSet<BinID>& snappedpos)
+					    override;
 
 protected:
 				~VolStats();
@@ -140,14 +135,14 @@ protected:
     virtual bool		getInputOutput(int,TypeSet<int>& res) const;
 
     virtual bool		computeData(const DataHolder&,
-	    				    const BinID& relpos,
+					    const BinID& relpos,
 					    int z0,int nrsamples,
 					    int threadid) const;
 
     void			getStackPositions(TypeSet<BinID>&) const;
     void			getIdealStackPos(
-	    				const BinID&,const BinID&,const BinID&,
-				  	TypeSet< Geom::Point2D<float> >&) const;
+					const BinID&,const BinID&,const BinID&,
+					TypeSet< Geom::Point2D<float> >&) const;
     void			reInitPosAndSteerIdxes();
 
     const Interval<float>*	reqZMargin(int input,int output) const;
@@ -156,8 +151,8 @@ protected:
     bool			allowedgeeffects_;
 
     TypeSet<int>		steerindexes_;
-    TypeSet<BinID>*		linepath_;
-    TypeSet<BinID>*		linetruepos_;
+    TypeSet<BinID>		linepath_;
+    TypeSet<BinID>		linetruepos_;
     int				optstackdir_;
     int				optstackstep_;
 };

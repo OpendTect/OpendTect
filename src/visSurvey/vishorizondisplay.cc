@@ -2220,7 +2220,7 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
     for ( int idx=0; idx<parents.size(); idx++ )
     {
 	const TrcKey& curnode = parents[idx];
-	const Coord3 crd( SI().transform(curnode.pos()), hor3d->getZ(curnode) );
+	const Coord3 crd( curnode.getCoord(), hor3d->getZ(curnode) );
 	parentline_->getCoordinates()->addPos( crd );
 	idxps.add( cii++ );
     }

@@ -29,7 +29,7 @@ namespace Geometry { class RandomLine; }
 mExpClass(Seis) SeisRandLineTo2D : public Executor
 { mODTextTranslationClass(SeisRandLineTo2D)
 public:
-    			SeisRandLineTo2D(const IOObj&,const IOObj&,
+			SeisRandLineTo2D(const IOObj&,const IOObj&,
 					 const Pos::GeomID, int trcinit,
 					 const Geometry::RandomLine&);
 			~SeisRandLineTo2D();
@@ -42,9 +42,10 @@ public:
 
 protected:
 
-    SeisTrcReader*	rdr_;
-    SeisTrcWriter*	wrr_;
-    int			nrdone_;
+    SeisTrcReader*	rdr_ = nullptr;
+    SeisTrcWriter*	wrr_ = nullptr;
+    Pos::GeomID		geomid_;
+    int			nrdone_ = 0;
     int			totnr_;
 
     BinIDValueSet::SPos	pos_;

@@ -406,7 +406,7 @@ bool Seis2DLineMerger::nextFetcher()
 { \
     if ( !s.isEmpty() ) \
 	msg_ = s; \
-    return Executor::ErrorOccurred(); \
+    return ErrorOccurred(); \
 }
 
 int Seis2DLineMerger::nextStep()
@@ -418,21 +418,20 @@ int Seis2DLineMerger::nextStep()
 int Seis2DLineMerger::doWork()
 {
     if ( !currentlyreading_ && !nextAttr() )
-	    return Executor ::Finished();
+	    return Finished();
 
     if ( fetcher_ || !currentlyreading_ )
     {
 	if ( !currentlyreading_ )
-	    return nextFetcher() ? Executor::MoreToDo()
-				 : Executor::ErrorOccurred();
+	    return nextFetcher() ? MoreToDo() : ErrorOccurred();
+
 	const int res = fetcher_->doStep();
 	if ( res < 0 )
 	    { msg_ = fetcher_->uiMessage(); return res; }
 	else if ( res == 1 )
-	    { nrdone_++; return Executor::MoreToDo(); }
+	    { nrdone_++; return MoreToDo(); }
 
-	return nextFetcher() ? Executor::MoreToDo()
-			     : Executor::ErrorOccurred();
+	return nextFetcher() ? MoreToDo() : ErrorOccurred();
     }
     else if ( putter_ )
     {
@@ -441,14 +440,15 @@ int Seis2DLineMerger::doWork()
 	    outbuf_.deepErase();
 	    if ( !putter_->close() )
 		mErrRet(putter_->errMsg())
-	    delete putter_; putter_ = 0;
+	    deleteAndZeroPtr( putter_ );
 	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry(outgeomid_);
 	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 	    if ( !geom2d || !Survey::GMAdmin().write(*geom2d, msg_) )
-		return Executor::ErrorOccurred();
+		return ErrorOccurred();
+
 	    geom2d->touch();
 	    currentlyreading_ = 0;
-	    return Executor::MoreToDo();
+	    return MoreToDo();
 	}
 
 	const SeisTrc& trc = *outbuf_.get( mCast(int,nrdone_) );
@@ -457,7 +457,7 @@ int Seis2DLineMerger::doWork()
 
 	if ( !curattridx_ )
 	{
-	    PosInfo::Line2DPos pos( trc.info().nr );
+	    PosInfo::Line2DPos pos( trc.info().trcNr() );
 	    pos.coord_ = trc.info().coord;
 	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry( outgeomid_);
 	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
@@ -468,7 +468,7 @@ int Seis2DLineMerger::doWork()
 	    outl2dd.add( pos );
 	}
 	nrdone_++;
-	return Executor::MoreToDo();
+	return MoreToDo();
     }
 
     if ( tbuf1_.isEmpty() && tbuf2_.isEmpty() )
@@ -510,7 +510,7 @@ void Seis2DLineMerger::mergeBufs()
     if ( renumber_ )
     {
 	for ( int idx=0; idx<outbuf_.size(); idx++ )
-	    outbuf_.get( idx )->info().nr = numbering_.atIndex( idx );
+	    outbuf_.get( idx )->info().setTrcNr( numbering_.atIndex( idx ) );
     }
 }
 

@@ -30,7 +30,7 @@ static const char* sKeyBinIDSel = "BinID selection";
 
 Seis::SelData::SelData()
     : isall_(false)
-    , geomid_(Survey::GeometryManager::get3DSurvID())
+    , geomid_(Survey::default3DGeomID())
 {
 }
 
@@ -108,9 +108,9 @@ Seis::SelData* Seis::SelData::get( const IOPar& iop )
 Seis::SelData* Seis::SelData::get( const Pos::Provider& prov )
 {
     if ( prov.is2D() )
-	return 0;
+	return nullptr;
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -168,6 +168,37 @@ int Seis::SelData::tracesInSI() const
 }
 
 
+bool Seis::SelData::isOK( const TrcKey& tk ) const
+{
+    return tk.is2D() ? isOK( tk.geomID(), tk.trcNr() )
+		     : isOK( tk.position() );
+}
+
+
+bool Seis::SelData::isOK( const Pos::IdxPair& pos ) const
+{
+    return Survey::is2DGeom( geomID() )
+		    ? isOK( Pos::GeomID(pos.row()), pos.trcNr() )
+		    : isOK( BinID(pos) );
+}
+
+
+int Seis::SelData::selRes2D( Pos::GeomID gid, int trcnr ) const
+{
+    if ( isAll() )
+	return 0;
+
+    if ( geomID() != gid || !Survey::isValidGeomID(gid) )
+	return 256+2;
+
+    const Survey::Geometry* geom = Survey::GM().getGeometry( gid );
+    if ( !geom || !geom->is2D() )
+	return 256+2;
+
+    return geom->as2D()->data().isPresent(trcnr) ? 0 : 256;
+}
+
+
 //--- Range ---
 
 
@@ -183,9 +214,10 @@ Seis::RangeSelData::RangeSelData( const TrcKeySampling& hs )
     : tkzs_(*new TrcKeyZSampling(false))
 {
     tkzs_.hsamp_ = hs;
-    tkzs_.zsamp_ = SI().zRange(false);
-    if ( tkzs_.is2D() )
-	setGeomID( tkzs_.hsamp_.start_.lineNr() );
+    if ( hs.is2D() )
+	setGeomID( hs.getGeomID() );
+    else
+	tkzs_.zsamp_ = SI().zRange(false);
 }
 
 
@@ -193,7 +225,7 @@ Seis::RangeSelData::RangeSelData( const TrcKeyZSampling& cs )
     : tkzs_(*new TrcKeyZSampling(cs))
 {
     if ( tkzs_.is2D() )
-	setGeomID( tkzs_.hsamp_.start_.lineNr() );
+	setGeomID( tkzs_.hsamp_.getGeomID() );
 }
 
 
@@ -235,42 +267,71 @@ void Seis::RangeSelData::copyFrom( const Seis::SelData& sd )
 
 Interval<int> Seis::RangeSelData::inlRange() const
 {
-    return isall_ ? Seis::SelData::inlRange() : tkzs_.hsamp_.inlRange();
+    return isall_ && !tkzs_.is2D() ? Seis::SelData::inlRange()
+				   : tkzs_.hsamp_.inlRange();
 }
 
 
 Interval<int> Seis::RangeSelData::crlRange() const
 {
-    return isall_ ? Seis::SelData::crlRange() : tkzs_.hsamp_.crlRange();
+    return isall_ && !tkzs_.is2D() ? Seis::SelData::crlRange()
+				   : tkzs_.hsamp_.crlRange();
 }
 
 
 Interval<float> Seis::RangeSelData::zRange() const
 {
-    return isall_ ? Seis::SelData::zRange() : tkzs_.zsamp_;
+    return isall_ && !tkzs_.is2D() ? Seis::SelData::zRange()
+				   : tkzs_.zsamp_;
 }
 
 
-bool Seis::RangeSelData::setInlRange( Interval<int> rg )
+bool Seis::RangeSelData::setInlRange( const Interval<int>& rg )
 {
+    if ( tkzs_.is2D() )
+	{ pErrMsg("Should not be called for 2D. Use setGeomID"); }
+
     tkzs_.hsamp_.start_.inl() = rg.start;
     tkzs_.hsamp_.stop_.inl() = rg.stop;
+    if ( rg.hasStep() )
+    {
+	mDynamicCastGet(const StepInterval<int>*,inlrg,&rg);
+	if ( inlrg )
+	    tkzs_.hsamp_.step_.inl() = inlrg->step;
+    }
+
     return true;
 }
 
 
-bool Seis::RangeSelData::setCrlRange( Interval<int> rg )
+bool Seis::RangeSelData::setCrlRange( const Interval<int>& rg )
 {
     tkzs_.hsamp_.start_.crl() = rg.start;
     tkzs_.hsamp_.stop_.crl() = rg.stop;
+    if ( rg.hasStep() )
+    {
+	mDynamicCastGet(const StepInterval<int>*,crlrg,&rg);
+	if ( crlrg )
+	    tkzs_.hsamp_.step_.crl() = crlrg->step;
+    }
+
+    testIsAll2D();
     return true;
 }
 
 
-bool Seis::RangeSelData::setZRange( Interval<float> rg )
+bool Seis::RangeSelData::setZRange( const Interval<float>& rg )
 {
     tkzs_.zsamp_.start = rg.start;
     tkzs_.zsamp_.stop = rg.stop;
+    if ( rg.hasStep() )
+    {
+	mDynamicCastGet(const StepInterval<int>*,zrg,&rg);
+	if ( zrg )
+	    tkzs_.zsamp_.step = zrg->step;
+    }
+
+    testIsAll2D();
     return true;
 }
 
@@ -292,11 +353,21 @@ void Seis::RangeSelData::usePar( const IOPar& iop )
     StepInterval<int> trcrg;
     if ( iop.get(IOPar::compKey(sKey::TrcRange(),0),trcrg) )
     {
-	tkzs_.hsamp_.survid_ = TrcKey::std2DSurvID();
-	tkzs_.hsamp_.setLineRange( StepInterval<int>(0,mUdf(int),1) );
+	BufferString linenm;
+	Pos::GeomID gid = mUdfGeomID;
+	if ( iop.get(sKey::LineKey(),linenm) && !linenm.isEmpty() )
+	    gid = Survey::GM().getGeomID( linenm );
+
+	if ( Survey::is2DGeom(gid) )
+	    tkzs_.hsamp_.init( gid );
+	else
+	    tkzs_.hsamp_.set2DDef();
+
 	tkzs_.hsamp_.setTrcRange( trcrg );
 	iop.get( IOPar::compKey(sKey::ZRange(),0), tkzs_.zsamp_ );
     }
+
+    testIsAll2D();
 }
 
 
@@ -348,9 +419,10 @@ void Seis::RangeSelData::include( const Seis::SelData& sd )
 }
 
 
-int Seis::RangeSelData::selRes( const BinID& bid ) const
+int Seis::RangeSelData::selRes3D( const BinID& bid ) const
 {
-    if ( isall_ ) return 0;
+    if ( isAll() )
+	return 0;
 
     int inlres = tkzs_.hsamp_.start_.inl() > bid.inl() ||
 		 tkzs_.hsamp_.stop_.inl() < bid.inl()
@@ -370,15 +442,60 @@ int Seis::RangeSelData::selRes( const BinID& bid ) const
 }
 
 
+int Seis::RangeSelData::selRes2D( Pos::GeomID gid, int trcnr ) const
+{
+    if ( isAll() )
+	return 0;
+
+    const int res = SelData::selRes2D( gid, trcnr );
+    if ( res != 0 )
+	return res;
+
+    return crlRange().includes(trcnr,false) ? 0 : 256;
+}
+
+
 int Seis::RangeSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
-    if ( isall_ && !for2d ) return tracesInSI();
+    if ( isall_ && !for2d )
+	return tracesInSI();
 
     TrcKeySampling hs( tkzs_.hsamp_ );
     if ( step ) hs.step_ = *step;
     const int nrinl = for2d ? 1 : hs.nrInl();
     const int nrcrl = hs.nrCrl();
     return nrinl * nrcrl;
+}
+
+
+void Seis::RangeSelData::setGeomID( Pos::GeomID gid )
+{
+    SelData::setGeomID( gid );
+    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry( gid );
+    if ( tkzs_.hsamp_.getGeomID() == gid )
+    {
+	testIsAll2D();
+	return;
+    }
+
+    tkzs_.hsamp_.init( gid );
+    tkzs_.zsamp_ = geom ? geom->sampling().zsamp_ : SI().zRange(false);
+    if ( geom )
+	setIsAll( true );
+}
+
+
+void Seis::RangeSelData::testIsAll2D()
+{
+    if ( !tkzs_.is2D() )
+	return;
+
+    ConstRefMan<Survey::Geometry> geom =
+			Survey::GM().getGeometry( tkzs_.hsamp_.getGeomID() );
+    if ( !geom )
+	return;
+
+    setIsAll( tkzs_ == geom->sampling() );
 }
 
 
@@ -465,7 +582,7 @@ Interval<float> Seis::TableSelData::zRange() const
 }
 
 
-bool Seis::TableSelData::setZRange( Interval<float> rg )
+bool Seis::TableSelData::setZRange( const Interval<float>& rg )
 {
     fixedzrange_ = rg;
     return true;
@@ -530,7 +647,7 @@ void Seis::TableSelData::include( const Seis::SelData& sd )
 }
 
 
-int Seis::TableSelData::selRes( const BinID& bid ) const
+int Seis::TableSelData::selRes3D( const BinID& bid ) const
 {
     if ( isall_ ) return 0;
 
@@ -540,6 +657,13 @@ int Seis::TableSelData::selRes( const BinID& bid ) const
     const int inlres = pos.i < 0 ? 2 : 0;
     const int crlres = 1; // Maybe not true, but safe
     return inlres + 256 * crlres;
+}
+
+
+int Seis::TableSelData::selRes2D( Pos::GeomID /* gid */, int /*trcnr */ ) const
+{
+    //TODO: impl
+    return 256+2;
 }
 
 
@@ -809,7 +933,7 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 }
 
 
-int Seis::PolySelData::selRes( const BinID& bid ) const
+int Seis::PolySelData::selRes3D( const BinID& bid ) const
 {
     if ( isall_ ) return 0;
 

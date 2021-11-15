@@ -40,13 +40,20 @@ mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
 { mODTextTranslationClass(SeisTrcWriter)
 public:
 
-			SeisTrcWriter(const IOObj*,
-				      const GeomIDProvider* r=0);
+			SeisTrcWriter(const MultiID&,Seis::GeomType,
+				      const GeomIDProvider* =nullptr);
 				//!< Write to real user entries from '.omf' file
 				//!< Can be anything: SEGY - CBVS - database
-			SeisTrcWriter(const char*,bool is_2d,bool is_ps);
-				//!< Write 'loose' CBVS files
-				//!< (or prestack: directories) only.
+			SeisTrcWriter(const IOObj&,
+				      const Seis::GeomType* =nullptr,
+				      const GeomIDProvider* =nullptr);
+				//!< Write to real user entries from '.omf' file
+				//!< Can be anything: SEGY - CBVS - database
+			SeisTrcWriter(const IOObj&,Pos::GeomID,
+				      const Seis::GeomType* =nullptr,
+				      const GeomIDProvider* =nullptr);
+				//!< Restricted to a given Pos::GeomID
+			SeisTrcWriter(const SeisStoreAccess::Setup&);
 			~SeisTrcWriter();
     virtual bool	close();
 
@@ -66,6 +73,7 @@ public:
 
 			// 2D only
     const GeomIDProvider* geomIDProvider() const	{ return gidp_; }
+    Pos::GeomID		geomID() const override;
     void		setGeomIDProvider(const GeomIDProvider*);
     void		setSelData(Seis::SelData*);
 				//!< If no GeomIDProvider set,
@@ -80,19 +88,17 @@ public:
 
 protected:
 
-    bool		prepared_;
-    int			nrtrcs_;
-    int			nrwritten_;
+    int			nrtrcs_ = 0;
+    int			nrwritten_ = 0;
     SeisTrc&		worktrc_;
-    int			firstns_;
+    int			firstns_ = mUdf(int);
     SamplingData<float>	firstsampling_;
     IOPar&		auxpars_;
 
-    void		init();
     void		startWork();
 
     // PS only
-    SeisPSWriter*	pswriter_;
+    SeisPSWriter*	pswriter_ = nullptr;
 
     // 3D only
     Conn*		crConn(int,bool);
@@ -101,18 +107,31 @@ protected:
 
     // 2D only
     BufferString	attribnm_;
-    Seis2DLinePutter*	putter_;
-    PosInfo::Line2DData* linedata_;
+    Seis2DLinePutter*	putter_ = nullptr;
+    PosInfo::Line2DData* linedata_ = nullptr;
     TypeSet<float>	spnrs_;
     Pos::GeomID		prevgeomid_;
-    const GeomIDProvider* gidp_;
+    const GeomIDProvider* gidp_ = nullptr;
     BufferString	datatype_;
+    void		updateLineData();
     bool		next2DLine();
     bool		put2D(const SeisTrc&);
 
     BufferString	crfrom_;
     BufferString	crusrinfo_;
     BufferStringSet	compnames_;
+
+			SeisTrcWriter(const MultiID&)		= delete;
+
+public:
+    mDeprecated("Provide an existing IOObj")
+			SeisTrcWriter(const IOObj*,
+				      const GeomIDProvider* =nullptr);
+
+    mDeprecated("Make a temporary IOObj")
+			SeisTrcWriter(const char* fnm,bool is_2d,bool is_ps);
+				//!< Write 'loose' CBVS files
+				//!< (or prestack: directories) only.
 
 };
 

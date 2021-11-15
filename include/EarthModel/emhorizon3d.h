@@ -109,7 +109,7 @@ public:
     virtual bool		isNodeSourceType(const TrcKey&,
 						 NodeSourceType) const;
     virtual bool		isNodeLocked(const PosID&)const;
-    
+
     bool			hasNodeSourceType(const PosID&) const;
 
     virtual bool		hasZ(const TrcKey&) const;
@@ -238,7 +238,7 @@ protected:
 
     Pos::GeomID			survgeomid_;
     Array2D<char>*		nodesource_;
-				/*!< '0'- non interpreted, '1'- manual 
+				/*!< '0'- non interpreted, '1'- manual
 				interpreted,'2' - auto interpreted.
 				'3'-Gridding. see enum NodeSourceType*/
     bool			arrayinited_;
@@ -250,7 +250,8 @@ public:
 				//!< Fast: writes to the first section
     Array2D<char>*		getChildren(const TrcKey&) const
 				{ return getChildren(); }
-    TrcKey::SurvID		getSurveyID() const { return getSurveyGeomID();}
+    Pos::SurvID			getSurveyID() const
+				{ return geomSystemOf(getSurveyGeomID()); }
 
     static OD::Color		sDefaultSelectionColor();
     static OD::Color		sDefaultLockColor();

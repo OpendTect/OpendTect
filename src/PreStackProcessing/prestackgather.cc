@@ -45,7 +45,6 @@ Gather::Gather()
     : FlatDataPack( sDataPackCategory(), new Array2DImpl<float>(1,1) )
     , offsetisangle_( false )
     , iscorr_( true )
-    , binid_( -1, -1 )
     , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
 {}
@@ -60,11 +59,10 @@ Gather::Gather( const Gather& gather )
     , offsetisangle_( gather.offsetisangle_ )
     , iscorr_( gather.iscorr_ )
     , zit_( gather.zit_ )
-    , binid_( gather.binid_ )
+    , tk_( gather.tk_ )
     , coord_( gather.coord_ )
     , azimuths_( gather.azimuths_ )
     , zrg_(gather.zrg_)
-    , linename_( gather.linename_ )
 {}
 
 
@@ -73,7 +71,6 @@ Gather::Gather( const FlatPosData& fposdata )
         new Array2DImpl<float>(fposdata.nrPts(true),fposdata.nrPts(false)) )
     , offsetisangle_( false )
     , iscorr_( true )
-    , binid_( -1, -1 )
     , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
 {
@@ -91,79 +88,100 @@ Gather::~Gather()
 bool Gather::readFrom( const MultiID& mid, const BinID& bid, int comp,
 		       uiString* errmsg )
 {
+    const TrcKey tk( bid );
+    return readFrom( mid, tk, comp, errmsg );
+}
+
+
+bool Gather::readFrom( const MultiID& mid, const TrcKey& tk, int comp,
+		       uiString* errmsg )
+{
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
     {
 	if ( errmsg ) (*errmsg) = tr("No valid gather selected.");
-	delete arr2d_; arr2d_ = 0;
+	deleteAndZeroPtr( arr2d_ );
 	return false;
     }
 
-    return readFrom( *ioobj, bid, comp, errmsg );
+    return readFrom( *ioobj, tk, comp, errmsg );
 }
 
 
 bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
 		       uiString* errmsg )
 {
-    PtrMan<SeisPSReader> rdr = SPSIOPF().get3DReader( ioobj, bid.inl() );
+    const TrcKey tk( bid );
+    return readFrom( ioobj, tk, comp, errmsg );
+}
+
+
+bool Gather::readFrom( const IOObj& ioobj, const TrcKey& tk, int comp,
+		       uiString* errmsg )
+{
+    PtrMan<SeisPSReader> rdr = SPSIOPF().getReader( ioobj, tk );
     if ( !rdr )
     {
 	if ( errmsg )
 	    (*errmsg) = tr("This Prestack data store cannot be handled.");
-	delete arr2d_; arr2d_ = 0;
+	deleteAndZeroPtr( arr2d_ );
 	return false;
     }
 
-    linename_.setEmpty();
-    return readFrom( ioobj, *rdr, bid, comp, errmsg );
+    return readFrom( ioobj, *rdr, tk, comp, errmsg );
 }
 
 
 bool Gather::readFrom( const MultiID& mid, const int trcnr,
 		       const char* linename, int comp, uiString* errmsg )
 {
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj )
-    {
-	if ( errmsg ) (*errmsg) = tr("No valid gather selected.");
-	delete arr2d_; arr2d_ = 0;
-	return false;
-    }
-
-    return readFrom( *ioobj, trcnr, linename, comp, errmsg );
+    const TrcKey tk( Survey::GM().getGeomID( linename ), trcnr );
+    return readFrom( mid, tk, comp, errmsg );
 }
 
 
-bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
+bool Gather::readFrom( const IOObj& ioobj, const int trcnr,
 		       const char* linename, int comp, uiString* errmsg )
 {
-    PtrMan<SeisPSReader> rdr = SPSIOPF().get2DReader( ioobj, linename );
-    if ( !rdr )
-    {
-	if ( errmsg )
-	    (*errmsg) = tr("This Prestack data store cannot be handled.");
-	delete arr2d_; arr2d_ = 0;
-	return false;
-    }
-
-    linename_ = linename;
-
-    return readFrom( ioobj, *rdr, BinID(0,tracenr), comp, errmsg );
+    const TrcKey tk( Survey::GM().getGeomID( linename ), trcnr );
+    return readFrom( ioobj, tk, comp, errmsg );
 }
 
 
 bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 		       int comp, uiString* errmsg )
 {
+    TrcKey tk;
+    if ( rdr.is3D() )
+	tk.setPosition( bid );
+    else if ( rdr.is2D() )
+    {
+	const Pos::GeomID gid = rdr.geomID();
+	if ( Survey::is2DGeom(gid) )
+	    tk.setGeomID( rdr.geomID() ).setTrcNr( bid.trcNr() );
+	else
+	    { pErrMsg("Invalid geomID for 2D"); }
+    }
+
+    return readFrom( ioobj, rdr, tk, comp, errmsg );
+}
+
+
+bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
+		       int comp, uiString* errmsg )
+{
+    if ( tk.isUdf() )
+	return false;
+
     PtrMan<SeisTrcBuf> tbuf = new SeisTrcBuf( true );
-    if ( !rdr.getGather(bid,*tbuf) )
+    if ( !rdr.getGather(tk.position(),*tbuf) )
     {
 	if ( errmsg ) (*errmsg) = rdr.errMsg();
-	delete arr2d_; arr2d_ = 0;
+	deleteAndZeroPtr( arr2d_ );
 	return false;
     }
-    if ( !setFromTrcBuf( *tbuf, comp, true ) )
+
+    if ( !setFromTrcBuf(*tbuf,comp,true) )
        return false;
 
     ioobj.pars().getYN(sKeyZisTime(),zit_);
@@ -180,7 +198,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
     if ( !ioobj.pars().getYN(sKeyIsCorr(),iscorr_) )
 	ioobj.pars().getYN( "Is NMO Corrected", iscorr_ );
 
-    binid_ = bid;
+    tk_ = tk;
     setName( ioobj.name() );
 
     storagemid_ = ioobj.key();
@@ -219,7 +237,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 
     if ( !isset )
     {
-	delete arr2d_; arr2d_ = 0;
+	deleteAndZeroPtr( arr2d_ );
 	return false;
     }
 
@@ -241,7 +259,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
 	arr2d_ = new Array2DImpl<float>( newinfo );
 	if ( !arr2d_ || !arr2d_->isOK() )
 	{
-	    delete arr2d_; arr2d_ = 0;
+	    deleteAndZeroPtr( arr2d_ );
 	    return false;
 	}
     }
@@ -264,13 +282,17 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool snapzrgtosi )
     float* offsets = tbuf.getHdrVals(SeisTrcInfo::Offset, offset);
     if ( !offsets )
 	return false;
+
     posData().setX1Pos( offsets, tbuf.size(), offset );
     StepInterval<double> pzrg(zrg.start, zrg.stop, zrg.step);
     posData().setRange( false, pzrg );
 
     zit_ = SI().zIsTime();
     coord_ = crd;
-    binid_ = SI().transform( coord_ );
+    if ( tbuf.isEmpty() )
+	tk_.setPosition( SI().transform(coord_) );
+    else
+	tk_ = tbuf.first()->info().trcKey();
 
     return true;
 }
@@ -294,16 +316,20 @@ void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
     if ( azimuths_.validIdx(idim0) )
 	par.set( sKey::Azimuth(), getAzimuth(idim0) );
     if ( !is3D() )
-	par.set( sKey::TraceNr(), binid_.crl() );
+	par.set( sKey::TraceNr(), tk_.trcNr() );
     else
-	par.set( sKey::Position(), binid_.toString() );
+	par.set( sKey::Position(), tk_.position().toString() );
 }
 
 
+int Gather::getSeis2DTraceNr() const
+{
+    return tk_.trcNr();
+}
 
 const char* Gather::getSeis2DName() const
 {
-    return linename_.isEmpty() ? 0 : linename_.buf();
+    return is2D() ? Survey::GM().getName( tk_.geomID() ) : nullptr;
 }
 
 
@@ -334,6 +360,17 @@ bool Gather::getVelocityID(const MultiID& stor, MultiID& vid )
 {
     PtrMan<IOObj> ioobj = IOM().get( stor );
     return ioobj && GetVelocityVolumeTag( *ioobj, vid );
+}
+
+
+const BinID& Gather::getBinID() const
+{
+    return tk_.position();
+}
+
+void Gather::setBinID( const BinID& bid )
+{
+    tk_.setPosition( bid );
 }
 
 #define mIfNonZero \
@@ -417,16 +454,15 @@ void GatherSetDataPack::fill( Array2D<float>& inp, int offsetidx ) const
 
 void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
 {
-    for ( int idx=0; idx<gathers_.size(); idx++ )
+    for ( const auto* gather : gathers_ )
     {
-	const int gathersz = gathers_[idx]->size(false);
-	SeisTrc* trc = new SeisTrc( gathersz );
-	trc->info().binid = gathers_[idx]->getBinID();
-	trc->info().coord = SI().transform( gathers_[idx]->getBinID() );
-	trc->info().nr = idx+1;
-	const SamplingData<double>& sd = gathers_[idx]->posData().range( false);
+	const int gathersz = gather->size(false);
+	auto* trc = new SeisTrc( gathersz );
+	const TrcKey tk( gather->getBinID(), !gather->is3D() );
+	trc->info().setTrcKey( tk ).calcCoord();
+	const SamplingData<double>& sd = gather->posData().range( false);
 	trc->info().sampling.set((float) sd.start, (float) sd.step );
-	const Array2D<float>& data = gathers_[idx]->data();
+	const Array2D<float>& data = gather->data();
 	for ( int idz=0; idz<gathersz; idz++ )
 	    trc->set( idz, data.get( offsetidx, idz ), 0 );
 
@@ -490,9 +526,8 @@ SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
     const int nrsamples = data.info().getSize( 1 );
 
     rettrc.reSize( nrsamples, false );
-    rettrc.info().setBinID( gather.getBinID() );
-    rettrc.info().coord = SI().transform( gather.getBinID() );
-    rettrc.info().nr = gatheridx + 1;
+    const TrcKey tk( gather.getBinID(), !gather.is3D() );
+    rettrc.info().setTrcKey( tk ).calcCoord();
     const SamplingData<double>& sd = gather.posData().range( false );
     rettrc.info().sampling.set( (float)sd.start, (float)sd.step );
     for ( int isamp=0; isamp<nrsamples; isamp++ )

@@ -16,10 +16,10 @@ ________________________________________________________________________
 
 class IOObj;
 class Scaler;
+class SeisSingleTraceProc;
 class SeisTrcReader;
 class SeisTrcWriter;
-class SeisSingleTraceProc;
-namespace Seis { class RangeSelData; }
+namespace Seis { class SelData; }
 
 
 /*!\brief Copies cubes. The IOPar constructor wants an IOPar as you would pass
@@ -41,9 +41,11 @@ public:
     od_int64			nrDone() const;
     uiString			uiMessage() const;
     uiString			uiNrDoneText() const;
-    int				nextStep();
 
 protected:
+
+    bool			goImpl(od_ostream*,bool,bool,int) override;
+    int				nextStep() override;
 
     SeisSingleTraceProc*	stp_;
     uiString			errmsg_;
@@ -54,7 +56,8 @@ protected:
 
 private:
 
-    void			init();
+    bool			inited_ = false;
+    bool			init();
 
 };
 
@@ -83,26 +86,25 @@ public:
     od_int64		nrDone() const		{ return nrdone_; }
     uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const;
-    int			nextStep();
 
 protected:
 
+    int				nextStep() override;
+    bool			goImpl(od_ostream*,bool,bool,int) override;
+    bool			initNextLine();
+
     const IOObj&		inioobj_;
     const IOObj&		outioobj_;
-    SeisTrcReader*		rdr_;
-    SeisTrcWriter*		wrr_;
+    SeisTrcReader*		rdr_ = nullptr;
+    SeisTrcWriter*		wrr_ = nullptr;
     uiString			msg_;
-    Seis::RangeSelData&		seldata_;
+    ObjectSet<Seis::SelData>	seldatas_;
 
-    TypeSet<Pos::GeomID>	selgeomids_;
-    TypeSet<StepInterval<int> > trcrgs_;
-    TypeSet<StepInterval<float> > zrgs_;
-    Scaler*			scaler_;
-    int				lineidx_;
-    od_int64			nrdone_;
-    od_int64			totalnr_;
+    Scaler*			scaler_ = nullptr;
+    int				lineidx_ = -1;
+    od_int64			nrdone_ = 0;
+    od_int64			totalnr_ = 0;
 
-    bool			initNextLine();
 
 };
 

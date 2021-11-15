@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seiswrite.h"
+#include "survgeom3d.h"
 #include "survinfo.h"
 
 
@@ -147,55 +148,74 @@ bool Seis2DTo3D::checkParameters()
 
 bool Seis2DTo3D::read()
 {
-    if ( !inioobj_ ) return false;
+    const SeisIOObjInfo seisinfo( inioobj_ );
+    if ( !seisinfo.isOK() || !seisinfo.is2D() )
+	return false;
 
-    Seis2DDataSet ds( *inioobj_ );
-    if ( ds.isEmpty() )
+    TypeSet<Pos::GeomID> gids;
+    seisinfo.getGeomIDs( gids );
+    if ( gids.isEmpty() )
 	mErrRet( tr("Input dataset has no lines") )
 
-    Interval<int> inlrg( tkzs_.hsamp_.inlRange().start - inlstep_,
-			 tkzs_.hsamp_.inlRange().stop + inlstep_ );
-    Interval<int> crlrg( tkzs_.hsamp_.crlRange().start - crlstep_,
-			 tkzs_.hsamp_.crlRange().stop + crlstep_ );
-    SeisTrcBuf tmpbuf(false);
+    const TrcKeySampling& tks = tkzs_.hsamp_;
+    const Interval<int> inlrg( tks.inlRange().start - inlstep_,
+			       tks.inlRange().stop + inlstep_ );
+    const Interval<int> crlrg( tks.crlRange().start - crlstep_,
+			       tks.crlRange().stop + crlstep_ );
+    const int ns = tkzs_.zsamp_.nrSteps() + 1;
+    const Survey::Geometry* geom = Survey::GM().getGeometry( tks.getGeomID() );
+    const Survey::Geometry3D* geom3d = geom ? geom->as3D() : nullptr;
+    if ( !geom3d )
+	return false;
+
     seisbuf_.erase();
     seisbuftks_.init( false );
-    for ( int iline=0; iline<ds.nrLines(); iline++)
+    const Seis::GeomType gt = seisinfo.geomType();
+    for ( const auto& geomid : gids )
     {
-	PtrMan<Executor> lf = ds.lineFetcher( ds.geomID(iline), tmpbuf );
-	if ( !lf || !lf->execute() )
+	SeisTrcReader rdr( *inioobj_, geomid, &gt );
+	if ( !rdr.prepareWork() )
 	    continue;
 
-	for ( int idx=tmpbuf.size()-1; idx>=0; idx-- )
+	int readres;
+	do
 	{
-	    const SeisTrc& intrc = *tmpbuf.get( idx );
-	    const BinID bid = intrc.info().binid;
-	    if ( !inlrg.includes(bid.inl(),false) ||
-		 !crlrg.includes(bid.crl(),false) )
+	    SeisTrc inptrc;
+	    readres = rdr.get( inptrc.info() );
+	    if ( readres == -1 )
+		return false;
+	    else if ( readres == 0 )
+		break;
+	    else if ( readres == 2 )
 		continue;
 
-	    SeisTrc* trc = new SeisTrc( intrc );
-	    const int ns = tkzs_.zsamp_.nrSteps() + 1;
+	    const BinID bid = geom3d->transform( inptrc.info().coord );
+	    if ( !inlrg.includes(bid.inl(),false) ||
+		 !crlrg.includes(bid.crl(),false) ||
+		 !rdr.get(inptrc) )
+		continue;
+
+	    auto* trc = new SeisTrc( inptrc );
 	    trc->reSize( ns, false );
+	    trc->info().setPos( bid );
+	    trc->info().calcCoord();
 	    trc->info().sampling.start = tkzs_.zsamp_.start;
 	    trc->info().sampling.step = tkzs_.zsamp_.step;
 	    for ( int isamp=0; isamp<ns; isamp++ )
 	    {
 		const float z = tkzs_.zsamp_.atIndex( isamp );
-		for ( int icomp=0; icomp<intrc.nrComponents(); icomp++ )
-		    trc->set( isamp, intrc.getValue(z,icomp), icomp );
+		for ( int icomp=0; icomp<inptrc.nrComponents(); icomp++ )
+		    trc->set( isamp, inptrc.getValue(z,icomp), icomp );
 	    }
 	    seisbuf_.add( trc );
 	    seisbuftks_.include( bid );
-	}
-
-	tmpbuf.erase();
+	} while( readres > 0 );
     }
 
     if ( seisbuf_.isEmpty() )
 	return false;
 
-    hsit_.setSampling( tkzs_.hsamp_ );
+    hsit_.setSampling( tks );
 
     if ( !nearesttrace_ )
 	sc_ = new SeisScaler( seisbuf_ );
@@ -249,7 +269,7 @@ void Seis2DTo3D::doWorkNearest()
     for( int idx=0; idx<seisbuf_.size(); idx++ )
     {
 	const SeisTrc* trc = seisbuf_.get( idx );
-	const BinID bid = trc->info().binid;
+	const BinID bid = trc->info().binID();
 
 	if ( bid == curbid_ )
 	{
@@ -268,8 +288,8 @@ void Seis2DTo3D::doWorkNearest()
     }
 
     if ( !nearesttrc ) return;
-    SeisTrc* newtrc = new SeisTrc( *nearesttrc );
-    newtrc->info().binid = curbid_;
+    auto* newtrc = new SeisTrc( *nearesttrc );
+    newtrc->info().setPos( curbid_ );
     tmpseisbuf_.add( newtrc );
 }
 
@@ -292,11 +312,11 @@ bool Seis2DTo3D::doWorkFFT()
     SeisTrcBuf outtrcbuf(false);
     if ( reusetrcs_ )
     {
-	SeisTrcReader rdr( outioobj_ );
+	const Seis::GeomType gt = Seis::Vol;
+	SeisTrcReader rdr( *outioobj_, &gt );
 	SeisBufReader sbrdr( rdr, outtrcbuf );
 	sbrdr.execute();
     }
-
 
     while ( localhsit.next(binid) )
     {
@@ -341,9 +361,9 @@ bool Seis2DTo3D::doWorkFFT()
 	TrcKeySamplingIterator hsit( winhrg );
 	while ( hsit.next(bid) && seisbuf_.get(0) )
 	{
-	    SeisTrc* trc = new SeisTrc( seisbuf_.get(0)->size() );
+	    auto* trc = new SeisTrc( seisbuf_.get(0)->size() );
 	    trc->info().sampling = seisbuf_.get(0)->info().sampling;
-	    trc->info().binid = bid;
+	    trc->info().setPos( bid );
 	    outtrcs += trc;
 	}
     }
@@ -361,17 +381,20 @@ bool Seis2DTo3D::writeTmpTrcs()
 	return true;
 
     if ( !wrr_ )
-	wrr_ = new SeisTrcWriter( outioobj_ );
+    {
+	const Seis::GeomType gt = Seis::Vol;
+	wrr_ = new SeisTrcWriter( *outioobj_, &gt );
+    }
 
     tmpseisbuf_.sort( true, SeisTrcInfo::BinIDInl );
-    int curinl = tmpseisbuf_.get( 0 )->info().binid.inl();
+    int curinl = tmpseisbuf_.get( 0 )->info().inl();
     int previnl = curinl;
     SeisTrcBuf tmpbuf(true);
     bool isbufempty = false;
     while ( !tmpseisbuf_.isEmpty() )
     {
 	SeisTrc* trc = tmpseisbuf_.remove(0);
-	curinl = trc->info().binid.inl();
+	curinl = trc->info().inl();
 	isbufempty = tmpseisbuf_.isEmpty();
 	if ( previnl != curinl || isbufempty )
 	{
@@ -380,7 +403,7 @@ bool Seis2DTo3D::writeTmpTrcs()
 	    while( !tmpbuf.isEmpty() )
 	    {
 		const SeisTrc* crltrc = tmpbuf.remove(0);
-		const int curcrl = crltrc->info().binid.crl();
+		const int curcrl = crltrc->info().crl();
 		if ( curcrl != prevcrl )
 		{
 		    if ( !wrr_->put( *crltrc ) )
@@ -593,7 +616,7 @@ int SeisInterpol::getTrcInSet( const BinID& bin ) const
     for ( int idx=0; idx<inptrcs_->size(); idx++ )
     {
 	const SeisTrc* trc = (*inptrcs_)[idx];
-	if ( trc->info().binid == bin )
+	if ( trc->info().binID() == bin )
 	   return idx;
     }
     return -1;
@@ -617,9 +640,9 @@ void SeisInterpol::getOutTrcs( ObjectSet<SeisTrc>& trcs,
 	convertToPos( bid, idx, idy );
 	if ( idx < 0 || idy < 0 || szx_ <= idx || szy_ <= idy) continue;
 
-	SeisTrc* trc = new SeisTrc( szz_ );
+	auto* trc = new SeisTrc( szz_ );
 	trc->info().sampling = (*inptrcs_)[0]->info().sampling;
-	trc->info().binid = bid;
+	trc->info().setPos( bid );
 	for ( int idz=0; idz<szz_; idz++ )
 	{
 	    float val = trcarr_->get( idx, idy, idz ).real();

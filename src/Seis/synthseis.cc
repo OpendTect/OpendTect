@@ -844,7 +844,7 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 		    rm.outtrcs_[idoff]->set( idz, mUdf(float), 0 );
 	    }
 	    rm.outtrcs_[idoff]->info().offset = offsets_[idoff];
-	    rm.outtrcs_[idoff]->info().nr = idx+1;
+	    rm.outtrcs_[idoff]->info().seqnr_ = idx+1;
 	}
     }
 
@@ -1022,17 +1022,14 @@ void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
 
     for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
     {
-	const int crlstep = SI().crlStep();
-	const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
-			  SI().crlRange(false).stop + crlstep );
-	SeisTrcBuf* tbuf = new SeisTrcBuf( true );
+	auto* tbuf = new SeisTrcBuf( true );
 	ObjectSet<SeisTrc> trcs; (*raymodels_)[imdl]->getTraces( trcs, true );
 	for ( int idx=0; idx<trcs.size(); idx++ )
 	{
 	    SeisTrc* trc = trcs[idx];
-	    trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl*crlstep );
-	    trc->info().nr = imdl+1;
-	    trc->info().coord = SI().transform( trc->info().binid );
+	    trc->info().setTrcKey( TrcKey::getSynth(imdl+1) );
+	    trc->info().seqnr_ = imdl+1;
+	    trc->info().calcCoord();
 	    tbuf->add( trc );
 	}
 	seisbufs += tbuf;
@@ -1045,15 +1042,12 @@ void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )
     if ( !raymodels_ || raymodels_->isEmpty() ) return;
 
     seisbuf.erase();
-    const int crlstep = SI().crlStep();
-    const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
-		      SI().crlRange(false).stop + crlstep );
     for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
     {
 	SeisTrc* trc = const_cast<SeisTrc*> ((*raymodels_)[imdl]->stackedTrc());
-	trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl*crlstep );
-	trc->info().nr = imdl+1;
-	trc->info().coord = SI().transform( trc->info().binid );
+	trc->info().setTrcKey( TrcKey::getSynth(imdl+1) );
+	trc->info().seqnr_ = imdl+1;
+	trc->info().calcCoord();
 	seisbuf.add( trc );
     }
 }

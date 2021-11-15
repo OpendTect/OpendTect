@@ -29,21 +29,17 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 				    const Pos::GeomID geomid, int trcinit,
 				    const Geometry::RandomLine& rln )
     : Executor("Saving 2D Line")
-    , rdr_(0)
-    , wrr_(0)
-    , nrdone_(0)
     , seldata_(*new Seis::TableSelData)
+    , geomid_(geomid)
 {
-    rdr_ = new SeisTrcReader( &inobj );
-    wrr_ = new SeisTrcWriter( &outobj );
-    Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
-    if ( seldata )
-    {
-	seldata->setGeomID( geomid );
-	wrr_->setSelData( seldata );
-    }
+    if ( rln.nrNodes() < 2 )
+	return;
 
-    if ( rln.nrNodes() < 2 ) return;
+    const Seis::GeomType gt3d = Seis::Vol;
+    rdr_ = new SeisTrcReader( inobj, &gt3d );
+
+    const Seis::GeomType gt2d = Seis::Line;
+    wrr_ = new SeisTrcWriter( outobj, geomid, &gt2d );
 
     SeisIOObjInfo inpsi( inobj );
     TrcKeyZSampling inpcs;
@@ -105,8 +101,10 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
 
 SeisRandLineTo2D::~SeisRandLineTo2D()
 {
-    delete rdr_; delete wrr_;
-    delete &seldata_; delete buf_;
+    delete rdr_;
+    delete wrr_;
+    delete &seldata_;
+    delete buf_;
 }
 
 
@@ -117,7 +115,7 @@ static void addTrcToBuffer( SeisTrc* trc, SeisTrcBuf* buf )
     for ( int idx=0; idx<buf->size(); idx++ )
     {
 	const SeisTrc* buftrc = buf->get( idx );
-	if ( buftrc->info().nr > trc->info().nr )
+	if ( buftrc->info().trcNr() > trc->info().trcNr() )
 	{
 	    buf->insert( trc, idx );
 	    return;
@@ -130,7 +128,8 @@ static void addTrcToBuffer( SeisTrc* trc, SeisTrcBuf* buf )
 
 bool SeisRandLineTo2D::writeTraces()
 {
-    if ( !buf_ || !wrr_ ) return false;
+    if ( !buf_ || !wrr_ )
+	return false;
 
     bool res = true;
     for ( int idx=0; idx<buf_->size(); idx++ )
@@ -147,17 +146,19 @@ bool SeisRandLineTo2D::writeTraces()
 int SeisRandLineTo2D::nextStep()
 {
     if ( !rdr_ || !wrr_ || !totnr_ )
-	return Executor::ErrorOccurred();
+	return ErrorOccurred();
 
-    SeisTrc* trc = new SeisTrc;
+    PtrMan<SeisTrc> trc = new SeisTrc;
     const int rv = rdr_->get( trc->info() );
-    if ( rv == 0 ) return writeTraces() ? Executor::Finished()
-					: Executor::ErrorOccurred();
-    else if ( rv !=1 ) return Executor::ErrorOccurred();
+    if ( rv == 0 )
+	return writeTraces() ? Finished() : ErrorOccurred();
+    else if ( rv !=1 )
+	return ErrorOccurred();
 
-    if ( !rdr_->get(*trc) ) return Executor::ErrorOccurred();
+    if ( !rdr_->get(*trc) )
+	return ErrorOccurred();
 
-    BinID bid = trc->info().binid;
+    BinID bid = trc->info().binID();
     bool geommatching = false;
     do
     {
@@ -168,18 +169,20 @@ int SeisRandLineTo2D::nextStep()
 	}
     } while ( seldata_.binidValueSet().next(pos_) );
 
-    if ( !geommatching ) return Executor::ErrorOccurred();
+    if ( !geommatching )
+	return ErrorOccurred();
 
     float vals[4];
     seldata_.binidValueSet().get( pos_, bid, vals );
     const Coord coord( vals[1], vals[2] );
     const int trcnr = mNINT32( vals[3] );
-    trc->info().nr = trcnr;
-    trc->info().refnr = trcnr;
-    trc->info().coord = coord;
-    addTrcToBuffer( trc, buf_ );
+    SeisTrcInfo& trcinfo = trc->info();
+    trcinfo.setGeomID( geomid_ ).setTrcNr( trcnr );
+    trcinfo.refnr = trcnr;
+    trcinfo.coord = coord;
+    trcinfo.seqnr_ = ++nrdone_;
+    addTrcToBuffer( trc.ptr(), buf_ );
 
-    nrdone_++;
     while ( seldata_.binidValueSet().next(pos_) )
     {
 	const BinID nextbid = seldata_.binidValueSet().getBinID( pos_ );
@@ -188,16 +191,19 @@ int SeisRandLineTo2D::nextStep()
 
 	seldata_.binidValueSet().get( pos_, bid, vals );
 	const Coord nextcoord( vals[1], vals[2] );
-	SeisTrc* nexttrc = new SeisTrc( *trc );
 	const int nexttrcnr = mNINT32( vals[3] );
-	nexttrc->info().nr = nexttrcnr;
-	nexttrc->info().refnr = nexttrcnr;
-	nexttrc->info().coord = nextcoord;
+	auto* nexttrc = new SeisTrc( *trc );
+	SeisTrcInfo& nexttrcinfo = nexttrc->info();
+	nexttrcinfo.setTrcNr( nexttrcnr );
+	nexttrcinfo.refnr = nexttrcnr;
+	nexttrcinfo.coord = nextcoord;
+	nexttrcinfo.seqnr_ = ++nrdone_;
 	addTrcToBuffer( nexttrc, buf_ );
-	nrdone_++;
     }
 
-    return Executor::MoreToDo();
+    trc.release();
+
+    return MoreToDo();
 }
 
 

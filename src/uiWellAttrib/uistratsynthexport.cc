@@ -31,6 +31,7 @@ _______________________________________________________________________
 #include "randomlinetr.h"
 #include "randomlinegeom.h"
 #include "seisbufadapters.h"
+#include "seistrc.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
@@ -211,12 +212,8 @@ void uiStratSynthExport::fillGeomGroup()
     geomsel_->valuechanged.notify( mCB(this,uiStratSynthExport,geomSel) );
     geomgrp_->setHAlignObj( geomsel_ );
 
-    BinID startbid( SI().inlRange(true).snappedCenter(),
-		    SI().crlRange(true).start );
-    Coord startcoord = SI().transform( startbid );
-    BinID stopbid( SI().inlRange(true).snappedCenter(),
-		   SI().crlRange(true).stop );
-    Coord stopcoord = SI().transform( stopbid );
+    Coord startcoord, stopcoord;
+    getCornerPoints( startcoord, stopcoord );
     coord0fld_ = new uiGenInput( geomgrp_, tr("Coordinates: from"),
 					DoubleInpSpec(), DoubleInpSpec() );
     coord0fld_->attach( alignedBelow, geomsel_ );
@@ -292,10 +289,50 @@ void uiStratSynthExport::geomSel( CallBacker* )
 }
 
 
-void uiStratSynthExport::create2DGeometry( const TypeSet<Coord>& ptlist,
-					   PosInfo::Line2DData& geom )
+void uiStratSynthExport::getCornerPoints( Coord& start,Coord& stop )
 {
-    geom.setEmpty();
+    for ( int idx=0; idx<ss_.nrSynthetics(); idx++ )
+    {
+	const SyntheticData* sd = ss_.getSyntheticByIdx( idx );
+	if ( !idx )
+	    continue;
+
+	mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
+	if ( postsd )
+	{
+	    const SeisTrcBuf& trcbuf = postsd->postStackPack().trcBuf();
+	    if ( trcbuf.size() > 1 )
+	    {
+		start = trcbuf.get(0)->info().coord;
+		stop = trcbuf.get( trcbuf.size()-1 )->info().coord;
+		return;
+	    }
+	}
+
+	mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+	if ( !presd )
+	    continue;
+
+	const int nrgathers = presd->preStackPack().getGathers().size();
+	if ( nrgathers < 1 )
+	    continue;
+
+	start = presd->getTrace( 0 )->info().coord;
+	stop = presd->getTrace( nrgathers-1 )->info().coord;
+	return;
+    }
+}
+
+
+bool uiStratSynthExport::createAndWrite2DGeometry( const TypeSet<Coord>& ptlist,
+						   Pos::GeomID geomid ) const
+{
+    Survey::Geometry* geom = Survey::GMAdmin().getGeometry( geomid );
+    Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
+    if ( !geom2d )
+	return false;
+
+    RefMan<Survey::Geometry2D> newgeom = geom2d;
     int synthmodelsz = mUdf(int);
     if ( postsds_.isEmpty() )
     {
@@ -314,8 +351,8 @@ void uiStratSynthExport::create2DGeometry( const TypeSet<Coord>& ptlist,
     int trcnr = 0;
     for ( int idx=0; idx<ptlist.size()-1; idx++ )
     {
-	Coord startpos = ptlist[idx];
-	Coord stoppos = ptlist[idx+1];
+	const Coord startpos = ptlist[idx];
+	const Coord stoppos = ptlist[idx+1];
 	const double dist = startpos.distTo( stoppos );
 	const double unitdist = mMAX( SI().inlStep() * SI().inlDistance(),
 				      SI().crlStep() * SI().crlDistance() );
@@ -324,24 +361,33 @@ void uiStratSynthExport::create2DGeometry( const TypeSet<Coord>& ptlist,
 	const double unity = ( stoppos.y - startpos.y ) / nrsegs;
 	for ( int nidx=0; nidx<nrsegs; nidx++ )
 	{
-	    const double curx = startpos.x + nidx * unitx;
-	    const double cury = startpos.y + nidx * unity;
-	    Coord curpos( curx, cury );
+	    const Coord curpos( startpos.x + nidx * unitx,
+				startpos.y + nidx * unity );
 	    trcnr++;
-	    PosInfo::Line2DPos pos( trcnr );
-	    pos.coord_ = curpos;
-	    geom.add( pos );
+	    newgeom->add( curpos, trcnr, -1.f );
 	    if ( synthmodelsz <= trcnr )
-		return;
+		break;
 	}
 
 	trcnr++;
-	PosInfo::Line2DPos stop2dpos( trcnr );
-	stop2dpos.coord_ = stoppos;
-	geom.add( stop2dpos );
+	newgeom->add( stoppos, trcnr, -1.f );
 	if ( synthmodelsz <= trcnr )
-	    return;
+	    break;
     }
+
+    const ZSampling zrg = postsds_.isEmpty()
+	      ? (presds_.isEmpty() ? SI().zRange()
+				   : presds_.first()->getTrace(0)->zRange())
+	      : postsds_.first()->getTrace(0)->zRange();
+    newgeom->dataAdmin().setZRange( zrg );
+    newgeom->touch();
+
+    uiString errmsg;
+    const bool res = Survey::GMAdmin().write( *newgeom.ptr(), errmsg );
+    if ( !res )
+	uiMSG().error( errmsg );
+
+    return res;
 }
 
 
@@ -353,7 +399,7 @@ uiStratSynthExport::GeomSel uiStratSynthExport::selType() const
 }
 
 
-bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
+bool uiStratSynthExport::getGeometry( const char* linenm )
 {
     uiStratSynthExport::GeomSel selgeom = selType();
     TypeSet<Coord> ptlist;
@@ -361,13 +407,10 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
     {
 	case Existing:
 	{
-	    const Survey::Geometry* geom =
-		Survey::GM().getGeometry( linegeom.lineName() );
-	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
-	    if ( !geom2d )
+	    const Survey::Geometry* geom = Survey::GM().getGeometry( linenm );
+	    if ( !geom || !geom->is2D() )
 		mErrRet(tr("Could not find the geometry of specified line"),
 			false)
-	    linegeom = geom2d->data();
 	    return true;
 	}
 	case StraightLine:
@@ -425,13 +468,11 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	}
     }
 
-    Pos::GeomID newgeomid =
-		Geom2DImpHandler::getGeomID( linegeom.lineName() );
-    if ( newgeomid == mUdfGeomID )
+    const Pos::GeomID newgeomid = Geom2DImpHandler::getGeomID( linenm );
+    if ( !Survey::is2DGeom(newgeomid) )
 	return false;
 
-    create2DGeometry( ptlist, linegeom );
-    return true;
+    return createAndWrite2DGeometry( ptlist, newgeomid );
 }
 
 
@@ -460,18 +501,18 @@ bool uiStratSynthExport::createHor2Ds()
 	mErrRet(tr("Cannot create horizon without a geometry. Select any "
 		   "synthetic data to create a new geometry or use existing "
 		   "2D line"), false);
-    const char* linenm = createnew ? newlinenmfld_->text()
-				   : existlinenmsel_->getInput();
+    const BufferString linenm( createnew ? newlinenmfld_->text()
+					 : existlinenmsel_->getInput() );
     const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+    if ( !Survey::is2DGeom(geomid) )
 	return false;
 
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
     const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
-    if ( !geom2d )
+    if ( !geom2d || geom2d->isEmpty() )
 	return false;
 
-    StepInterval<Pos::TraceID> trcnrrg = geom2d->data().trcNrRange();
+    const StepInterval<Pos::TraceID> trcnrrg = geom2d->data().trcNrRange();
     for ( int horidx=0; horidx<sslvls_.size(); horidx++ )
     {
 	const StratSynthLevel* stratlvl = sslvls_[horidx];
@@ -554,27 +595,30 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     {
 	getExpObjs();
 	mErrRet(tr("No post stack selected. Since a new geometry will be "
-		   "created you need to select atleast one post stack data to "
+		   "created you need to select at least one post stack data to "
 		   "create a 2D line geometry."), false);
     }
 
-    BufferString linenm =
-	crnewfld_->getBoolValue() ? newlinenmfld_->text()
-				  : existlinenmsel_->getInput();
+    const BufferString linenm =
+		    crnewfld_->getBoolValue() ? newlinenmfld_->text()
+					      : existlinenmsel_->getInput();
     if ( linenm.isEmpty() )
     {
 	getExpObjs();
 	mErrRet( tr("No line name specified"), false );
     }
 
-    PtrMan<PosInfo::Line2DData> linegeom = new PosInfo::Line2DData( linenm );
-    if ( !getGeometry(*linegeom) )
+    if ( !getGeometry(linenm) )
     {
 	getExpObjs();
 	return false;
     }
 
-    int synthmodelsz = linegeom->positions().size();
+    const Pos::GeomID gid = Survey::GM().getGeomID( linenm );
+    const Survey::Geometry2D& geom2d = Survey::GM().get2D( gid );
+    const int nrgeompos = geom2d.data().positions().size();
+
+    int synthmodelsz = nrgeompos;
     if ( !postsds_.isEmpty() )
     {
 	mDynamicCastGet(const PostStackSyntheticData*,postsd,postsds_[0]);
@@ -586,8 +630,8 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
 	synthmodelsz = presd->preStackPack().getGathers().size();
     }
 
-    if ( linegeom->positions().size() < synthmodelsz )
-	uiMSG().warning(tr("The geometry of the line could not accomodate \n"
+    if ( nrgeompos < synthmodelsz )
+	uiMSG().warning(tr("The geometry of the line could not accommodate \n"
 			   "all the traces from the synthetics. Some of the \n"
 			   "end traces will be clipped"));
     SeparString prepostfix;
@@ -597,7 +641,7 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     sds.append( presds_ );
     if ( !sds.isEmpty() )
     {
-	StratSynthExporter synthexp( sds, linegeom, prepostfix );
+	StratSynthExporter synthexp( sds, gid, prepostfix );
 	uiTaskRunner taskrunner( this );
 	const bool res = TaskRunner::execute( &taskrunner, synthexp );
 	if ( !res )

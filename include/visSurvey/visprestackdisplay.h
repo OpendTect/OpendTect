@@ -65,7 +65,7 @@ public:
     PreStack::ProcessManager&	procMgr()	{ return preprocmgr_; }
 
 				//3D case
-    bool			setPosition(const BinID&);
+    bool			setPosition(const TrcKey&);
     const BinID&		getPosition() const;
     void			setSectionDisplay(PlaneDataDisplay*);
     const PlaneDataDisplay*	getSectionDisplay() const;
@@ -160,6 +160,11 @@ protected:
     SeisPSReader*		reader_;
     IOObj*			ioobj_;
     Notifier<PreStackDisplay>	movefinished_;
+
+public:
+
+    mDeprecated("Use TrcKey")
+    bool			setPosition(const BinID&);
 };
 
 } // namespace visSurvey

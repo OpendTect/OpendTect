@@ -69,12 +69,12 @@ Seis2DTo3DInterPol::Seis2DTo3DInterPol()
 
 void Seis2DTo3DInterPol::setTaskRunner(TaskRunner* taskr)
 {
-	taskrun_ = taskr;
+    taskrun_ = taskr;
 }
 
 void Seis2DTo3DInterPol::setStream(od_ostream& strm)
 {
-	strm_ = &strm;
+    strm_ = &strm;
 }
 
 Seis2DTo3DInterPol::~Seis2DTo3DInterPol()
@@ -156,44 +156,64 @@ bool Seis2DTo3DInterPol::readData()
 
 bool Seis2DTo3DInterPol::read()
 {
-    if ( !inioobj_ ) return false;
+    const SeisIOObjInfo seisinfo( inioobj_ );
+    if ( !seisinfo.isOK() || !seisinfo.is2D() )
+	return false;
 
-    Seis2DDataSet ds( *inioobj_ );
-    if ( ds.isEmpty() )
+    TypeSet<Pos::GeomID> gids;
+    seisinfo.getGeomIDs( gids );
+    if ( gids.isEmpty() )
 	mErrRet( "Input dataset has no lines" )
 
-    SeisTrcBuf tmpbuf(false);
+    const TrcKeySampling& tks = tkzs_.hsamp_;
+    const int ns = tkzs_.zsamp_.nrSteps() + 1;
+    const Survey::Geometry* geom = Survey::GM().getGeometry( tks.getGeomID() );
+    const Survey::Geometry3D* geom3d = geom ? geom->as3D() : nullptr;
+    if ( !geom3d )
+	return false;
+
     seisbuf_.erase();
     seisbuftks_.init( false );
-    for ( int iline=0; iline<ds.nrLines(); iline++)
+    const Seis::GeomType gt = seisinfo.geomType();
+    for ( const auto& geomid : gids )
     {
-	PtrMan<Executor> lf = ds.lineFetcher( ds.geomID(iline), tmpbuf );
-	if ( !lf || !lf->execute() )
+	SeisTrcReader rdr( *inioobj_, geomid, &gt );
+	if ( !rdr.prepareWork() )
 	    continue;
 
-	for ( int idx=tmpbuf.size()-1; idx>=0; idx-- )
+	int readres;
+	do
 	{
-	    const SeisTrc& intrc = *tmpbuf.get( idx );
-	    if ( !tkzs_.hsamp_.includes(intrc.info().binID()) )
+	    SeisTrc inptrc;
+	    readres = rdr.get( inptrc.info() );
+	    if ( readres == -1 )
+		return false;
+	    else if ( readres == 0 )
+		break;
+	    else if ( readres == 2 )
 		continue;
 
-	    const BinID bid = intrc.info().binID();
-	    SeisTrc* trc = new SeisTrc( intrc );
-	    const int ns = tkzs_.zsamp_.nrSteps() + 1;
+	    const BinID bid = geom3d->transform( inptrc.info().coord );
+	    if ( !tks.includes(bid) || !rdr.get(inptrc) )
+		continue;
+
+	    auto* trc = new SeisTrc( inptrc );
 	    trc->reSize( ns, false );
+	    trc->info().setPos( bid );
+	    trc->info().calcCoord();
 	    trc->info().sampling.start = tkzs_.zsamp_.start;
 	    trc->info().sampling.step = tkzs_.zsamp_.step;
 	    for ( int isamp=0; isamp<ns; isamp++ )
 	    {
 		const float z = tkzs_.zsamp_.atIndex( isamp );
-		for ( int icomp=0; icomp<intrc.nrComponents(); icomp++ )
-		    trc->set( isamp, intrc.getValue(z,icomp), icomp );
+		for ( int icomp=0; icomp<inptrc.nrComponents(); icomp++ )
+		    trc->set( isamp, inptrc.getValue(z,icomp), icomp );
 	    }
 	    seisbuf_.add( trc );
 	    seisbuftks_.include( bid );
-	}
-	tmpbuf.erase();
+	} while( readres > 0 );
     }
+
     if ( seisbuf_.isEmpty() )
 	return false;
 
@@ -272,14 +292,16 @@ public:
 	n1_ = info.getSize( 0 );
 	n2_ = info.getSize( 1 );
 	n3_ = info.getSize( 2 );
-
     }
 
-    od_int64	nrIterations() const	{return n1_*n2_;}
-    const char* message() const   {return "Constructing Operator"; }
-    const char* nrDoneText() const	{return "Position finished"; }
+    od_int64	nrIterations() const	{ return n1_*n2_;}
 
-    bool doPrepare( int )
+    uiString uiMessage() const override
+    { return tr("Constructing Operator"); }
+    uiString uiNrDoneText() const override
+    { return sTrcFinished(); }
+
+    bool doPrepare( int ) override
     {
 	//corner points of reference binids
 	TypeSet<BinID> refbid;
@@ -314,7 +336,7 @@ public:
 	return true;
     }
 
-    bool doWork ( od_int64 start, od_int64 stop, int )
+    bool doWork( od_int64 start, od_int64 stop, int ) override
     {
 	const float taperangle =  taperangle_ / 180.0f * M_PIf;
 	const float mindist = SI().crlDistance();
@@ -520,18 +542,19 @@ void Seis2DTo3DInterPol::smartScale()
 bool Seis2DTo3DInterPol::writeOutput()
 {
     delete wrr_;
-    wrr_ = new SeisTrcWriter( outioobj_ );
+    const Seis::GeomType gt = Seis::Vol;
+    wrr_ = new SeisTrcWriter( *outioobj_, &gt );
 
     if ( nrdone_ != 0 )
     {
 	delete rdr_;
-	rdr_ = new SeisTrcReader( outioobj_ );
+	rdr_ = new SeisTrcReader( *outioobj_, &gt );
     }
 
     const TrcKeySampling& hrg = tkzs_.hsamp_;
     TrcKeySamplingIterator iter( hrg );
     SeisTrc& trc( *seisbuf_.get(0) );
-    trc.info().setBinID( hrg.start_ );
+    trc.info().setPos( hrg.start_ );
     trc.info().sampling = tkzs_.zsamp_;
     const int nrz = tkzs_.nrZ();
     BinID bid;
@@ -544,7 +567,7 @@ bool Seis2DTo3DInterPol::writeOutput()
 	if ( nrdone_ != 0 )
 	    rdr_->get(trc);
 
-	trc.info().setBinID( trk.position() );
+	trc.info().setPos( trk.position() );
 	for ( int idz=0; idz<nrz; idz++ )
 	{
 	    const float val = trcarr_->get(inlpos,crlpos,idz).real();

@@ -496,7 +496,8 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
     const int outputinlidx = outputinlrg_.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg_.nearestIndex( bid.crl() );
     const Coord gridpoint( hs.toCoord(bid) );
-    const TrcKey tk( hs.survid_, bid );
+    TrcKey tk = hs.trcKeyAt( 0 );
+    tk.setPosition( bid );
     Gridder2D* gridder = gridder_->clone();
     Gridder2D* invdistgridder = invdistgridder_->clone();
     TypeSet<Coord> points;

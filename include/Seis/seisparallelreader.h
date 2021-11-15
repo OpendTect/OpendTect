@@ -59,8 +59,6 @@ public:
 
     void		setComponents( const TypeSet<int>& compnrs )
 			{ components_ = compnrs; }
-    mDeprecatedDef bool setOutputComponents(const TypeSet<int>&);
-			/*!< Will be removed after 6.2 */
 
     void		 setDataPack(RegularSeisDataPack*);
     RegularSeisDataPack* getDataPack();
@@ -96,6 +94,12 @@ protected:
 private:
 
     void		submitUdfWriterTasks();
+
+public:
+
+    mDeprecated("Use without arguments")
+    bool		setOutputComponents(const TypeSet<int>&)
+			{ return setOutputComponents(); }
 };
 
 
@@ -165,8 +169,6 @@ public:
 
     void		setComponents( const TypeSet<int>& compnrs )
 			{ components_ = compnrs; }
-    mDeprecatedDef bool setOutputComponents(const TypeSet<int>&);
-			/*!< Will be removed after 6.2 */
 
     void		setComponentScaler(const Scaler&,int compidx);
 			/*!< Will force the datapack to float */
@@ -228,6 +230,12 @@ private:
     bool			initialized_;
     TypeSet<int>		outcomponents_;
     ObjectSet<Scaler>		compscalers_;
+
+public:
+
+    mDeprecated("Use without arguments")
+    bool		setOutputComponents(const TypeSet<int>&)
+			{ return setOutputComponents(); }
 };
 
 } // namespace Seis

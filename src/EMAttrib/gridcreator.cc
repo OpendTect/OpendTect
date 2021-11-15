@@ -57,7 +57,7 @@ public:
 			Seis2DLineCreator(const IOObj& input,
 					  const TrcKeyZSampling&,
 					  const IOObj& output,
-					  Pos::GeomID gepmid);
+					  Pos::GeomID geomid);
 			~Seis2DLineCreator();
 
     uiString		uiMessage() const	{ return msg_; }
@@ -71,7 +71,9 @@ protected:
     uiString		msg_;
 
     SeisTrcReader*	rdr_;
+
     SeisTrcWriter*	wrr_;
+    Pos::GeomID		geomid_; //For write
 };
 
 
@@ -80,18 +82,15 @@ Seis2DLineCreator::Seis2DLineCreator( const IOObj& input,
     : Executor("Creating 2D line")
     , nrdone_(0)
     , totalnr_(cs.hsamp_.totalNr())
+    , geomid_(geomid)
 {
-    rdr_ = new SeisTrcReader( &input );
-    rdr_->prepareWork();
+    const Seis::GeomType gt3d = Seis::Vol;
+    rdr_ = new SeisTrcReader( input, &gt3d );
     rdr_->setSelData( new Seis::RangeSelData(cs) );
+    rdr_->prepareWork();
 
-    wrr_ = new SeisTrcWriter( &output );
-    Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
-    if ( seldata )
-    {
-	seldata->setGeomID( geomid );
-	wrr_->setSelData( seldata );
-    }
+    const Seis::GeomType gt2d = Seis::Line;
+    wrr_ = new SeisTrcWriter( output, geomid, &gt2d );
 }
 
 
@@ -120,8 +119,12 @@ int Seis2DLineCreator::nextStep()
 	return ErrorOccurred();
     }
 
-    trc.info().nr = sCast(int,nrdone_+1);
-    trc.info().refnr = sCast(float,nrdone_+1);
+    const int trcnr = sCast(int,nrdone_+1);
+
+    SeisTrcInfo& trcinfo = trc.info();
+    trcinfo.setGeomID( geomid_ ).setTrcNr( trcnr );
+    trcinfo.refnr = trcnr;
+    trcinfo.seqnr_ = trcnr;
     if ( !wrr_->put(trc) )
     {
 	msg_ = tr("Error writing output trace\n");
@@ -182,7 +185,7 @@ Pos::GeomID Seis2DGridCreator::getGeomID( const char* linenm )
 	return geomid;
     }
 
-    PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linenm );
+    auto* l2d = new PosInfo::Line2DData( linenm );
     auto* newgeom2d = new Survey::Geometry2D( l2d );
     newgeom2d->ref();
     uiString errmsg;
@@ -279,14 +282,14 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	return false;
 
     BinID start, stop;
-    if ( !baselinepar->get(sKeyStartBinID(),start)
-	    || !baselinepar->get(sKeyStopBinID(),stop) )
+    if ( !baselinepar->get(sKeyStartBinID(),start) ||
+	 !baselinepar->get(sKeyStopBinID(),stop) )
 	return false;
 
     Grid2D::Line baseline( start, stop );
     double pardist, perdist;
-    if ( !par.get(sKeyInlSpacing(),pardist)
-	    || !par.get(sKeyCrlSpacing(),perdist) )
+    if ( !par.get(sKeyInlSpacing(),pardist) ||
+	 !par.get(sKeyCrlSpacing(),perdist) )
 	return false;
 
     Grid2D grid;

@@ -74,13 +74,6 @@ bool SeisCBVS2DLineIOProvider::isEmpty( const IOObj& obj,
 }
 
 
-static CBVSSeisTrcTranslator* gtTransl( const char* fnm, bool infoonly,
-					uiString* msg=0 )
-{
-    return CBVSSeisTrcTranslator::make( fnm, infoonly, true, msg );
-}
-
-
 bool SeisCBVS2DLineIOProvider::getTxtInfo( const IOObj& obj, Pos::GeomID geomid,
 		BufferString& uinf, BufferString& stdinf ) const
 {
@@ -88,7 +81,8 @@ bool SeisCBVS2DLineIOProvider::getTxtInfo( const IOObj& obj, Pos::GeomID geomid,
     if ( fnm.isEmpty() )
 	return false;
 
-    PtrMan<CBVSSeisTrcTranslator> trans = gtTransl( fnm, true );
+    PtrMan<CBVSSeisTrcTranslator> trans =
+				 CBVSSeisTrcTranslator::make( fnm, true, true );
     if ( !trans ) return false;
 
     const SeisPacketInfo& pinf = trans->packetInfo();
@@ -104,7 +98,8 @@ bool SeisCBVS2DLineIOProvider::getRanges( const IOObj& obj, Pos::GeomID geomid,
     if ( fnm.isEmpty() )
 	return false;
 
-    PtrMan<CBVSSeisTrcTranslator> trans = gtTransl( fnm, true );
+    PtrMan<CBVSSeisTrcTranslator> trans =
+				CBVSSeisTrcTranslator::make( fnm, true, true );
     if ( !trans ) return false;
 
     const SeisPacketInfo& pinf = trans->packetInfo();
@@ -188,13 +183,13 @@ bool SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
 SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, Pos::GeomID geomid,
 					    SeisTrcBuf& b, int ntps,
 					    const Seis::SelData& sd )
-	: Seis2DLineGetter(b,ntps,sd)
-	, fname_(fnm)
-	, geom2d_(Survey::GM().get2D(geomid))
-	, linenr_(CBVSIOMgr::getFileNr(fnm))
-	, trcsperstep_(ntps)
+    : Seis2DLineGetter(b,ntps,sd)
+    , fname_(fnm)
+    , geom2d_(Survey::GM().get2D(geomid))
+    , linenr_(CBVSIOMgr::getFileNr(fnm))
+    , trcsperstep_(ntps)
 {
-    tr_ = gtTransl( fname_, false, &msg_ );
+    tr_ = CBVSSeisTrcTranslator::make( fname_, false, true, &msg_ );
     if ( !tr_ ) return;
 
     if ( !sd.isAll() && sd.type() == Seis::Range )
@@ -216,27 +211,24 @@ const SeisTrcTranslator* SeisCBVS2DLineGetter::translator() const
 
 void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
 {
-    const int tnr = trc->info().binid.crl();
     if ( !isEmpty(seldata_) )
     {
 	if ( seldata_->type() == Seis::Range )
 	{
-	    const BinID bid( seldata_->inlRange().start, tnr );
-	    if ( !seldata_->isOK(bid) )
+	    if ( !seldata_->isOK(trc->info().trcKey()) )
 		{ delete trc; return; }
 	}
     }
 
-    trc->info().nr = tnr;
-    geom2d_.getPosByTrcNr( tnr, trc->info().coord, trc->info().refnr );
-    trc->info().binid = SI().transform( trc->info().coord );
+    trc->info().seqnr_ = curnr_;
     tbuf_.add( trc );
 }
 
 
 int SeisCBVS2DLineGetter::nextStep()
 {
-    if ( !tr_ ) return -1;
+    if ( !tr_ )
+	return ErrorOccurred();
 
     if ( curnr_ == 0 )
     {
@@ -251,25 +243,25 @@ int SeisCBVS2DLineGetter::nextStep()
     int lastnr = curnr_ + trcsperstep_;
     for ( ; curnr_<lastnr; curnr_++ )
     {
-	SeisTrc* trc = new SeisTrc;
+	auto* trc = new SeisTrc;
 	if ( !tr_->read(*trc) )
 	{
 	    delete trc;
 	    const uiString emsg = tr_->errMsg();
 	    if ( emsg.isSet() )
 		mErrRet(emsg)
-	    return 0;
+	    return Finished();
 	}
 
 	addTrc( trc );
 	for ( int idx=1; idx<trcstep_; idx++ )
 	{
 	    if ( !tr_->skip() )
-		return 0;
+		return Finished();
 	}
     }
 
-    return 1;
+    return MoreToDo();
 }
 
 
@@ -291,7 +283,8 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOObj& obj,
     }
 
     uiString errmsg;
-    PtrMan<CBVSSeisTrcTranslator> trans = gtTransl( fnm, false, &errmsg );
+    PtrMan<CBVSSeisTrcTranslator> trans =
+		CBVSSeisTrcTranslator::make( fnm, false, true, &errmsg );
     if ( !trans )
     {
 	ErrMsg( errmsg.getFullString() );
@@ -329,14 +322,15 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOObj& obj,
 	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
 	errmsg += "' does not exist";
 	ErrMsg( errmsg );
-	return 0;
+	return nullptr;
     }
 
     const Seis::SelData* usedsd = sd;
-    PtrMan<Seis::SelData> tmpsd = 0;
+    PtrMan<Seis::SelData> tmpsd;
     if ( !usedsd )
     {
-	tmpsd = Seis::SelData::get(Seis::Range);
+	tmpsd = Seis::SelData::get( Seis::Range );
+	tmpsd->setGeomID( geomid );
 	usedsd = tmpsd;
     }
 
@@ -356,10 +350,10 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getPutter( const IOObj& obj,
 
 SeisCBVS2DLinePutter::SeisCBVS2DLinePutter( const IOObj& obj,
 					    Pos::GeomID geomid )
-	: nrwr_(0)
-	, fname_(SeisCBVS2DLineIOProvider::getFileName(obj,geomid))
-	, tr_(CBVSSeisTrcTranslator::getInstance())
-	, preseldt_(DataCharacteristics::Auto)
+    : nrwr_(0)
+    , fname_(SeisCBVS2DLineIOProvider::getFileName(obj,geomid))
+    , tr_(CBVSSeisTrcTranslator::getInstance())
+    , preseldt_(DataCharacteristics::Auto)
 {
     tr_->set2D( true );
     bid_.inl() = geomid;
@@ -382,18 +376,12 @@ SeisCBVS2DLinePutter::~SeisCBVS2DLinePutter()
 
 bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 {
-    SeisTrcInfo& info = const_cast<SeisTrcInfo&>( trc.info() );
-    bid_.crl() = info.nr;
-    const BinID oldbid = info.binid;
-    info.binid = bid_;
-
     if ( nrwr_ == 0 )
     {
 	tr_->setIs2D( true );
 	bool res = tr_->initWrite(new StreamConn(fname_.buf(),Conn::Write),trc);
 	if ( !res )
 	{
-	    info.binid = oldbid;
 	    errmsg_ = tr("Cannot open 2D line file:\n%1").arg(tr_->errMsg());
 	    return false;
 	}
@@ -412,7 +400,6 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 
     tr_->setIs2D( true );
     bool res = tr_->write(trc);
-    info.binid = oldbid;
     if ( res )
 	nrwr_++;
     else

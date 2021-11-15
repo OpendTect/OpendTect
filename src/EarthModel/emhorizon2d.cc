@@ -51,7 +51,7 @@ const Geometry::Horizon2DLine*
 
 
 TrcKey::SurvID Horizon2D::getSurveyID() const
-{ return TrcKey::std2DSurvID(); }
+{ return OD::Geom2D; }
 
 
 int Horizon2DGeometry::nrLines() const
@@ -122,7 +122,7 @@ PosID Horizon2DGeometry::getPosID( const TrcKey& trckey ) const
 TrcKey Horizon2DGeometry::getTrcKey( const PosID& pid ) const
 {
     const RowCol rc = pid.getRowCol();
-    return Survey::GM().traceKey(geomID(rc.row()), rc.col() );
+    return TrcKey( geomID(rc.row()), rc.col() );
 }
 
 

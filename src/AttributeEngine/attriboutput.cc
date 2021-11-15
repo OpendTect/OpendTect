@@ -165,7 +165,7 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
     }
 
     const TrcKeyZSampling& tkzs = output_->sampling();
-    if ( !tkzs.hsamp_.includes(info.binid) )
+    if ( !tkzs.hsamp_.includes(info.trcKey()) )
 	return;
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
@@ -195,8 +195,8 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 
     const Interval<int> transrg( mMAX(inputrg.start, outrg.start),
 				 mMIN(inputrg.stop, outrg.stop ) );
-    const int lineidx = tkzs.hsamp_.lineRange().nearestIndex( info.binid.inl());
-    const int trcidx = tkzs.hsamp_.trcRange().nearestIndex( info.binid.crl() );
+    const int lineidx = tkzs.hsamp_.lineRange().nearestIndex( info.inl());
+    const int trcidx = tkzs.hsamp_.trcRange().nearestIndex( info.crl() );
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
@@ -361,17 +361,16 @@ bool SeisTrcStorOutput::doInit()
 	    return false;
 	}
 
-	writer_ = new SeisTrcWriter( ioseisout );
+	writer_ = new SeisTrcWriter( *ioseisout );
 	is2d_ = writer_->is2D();
 
 	if ( is2d_ && !datatype_.isEmpty() )
 	    writer_->setDataType( datatype_.buf() );
 
-
 	if ( auxpars_ )
 	{
 	    writer_->auxPars().merge( *auxpars_ );
-	    delete auxpars_; auxpars_ = 0;
+	    deleteAndZeroPtr( auxpars_ );
 	}
     }
 
@@ -421,7 +420,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	for ( int idx=1; idx<desoutputs_.size(); idx++)
 	    trc_->data().addComponent( sz, dc, false );
     }
-    else if ( trc_->info().binid != info.binid )
+    else if ( trc_->info().trcKey() != info.trcKey() )
     {
 	errmsg_ = tr("merge components of two different traces!");
 	return;
@@ -603,13 +602,10 @@ void TwoDOutput::setGeometry( const Interval<int>& trg,
 
 bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& tkzs ) const
 {
-    const StepInterval<int> rg( seldata_->crlRange() );
-    tkzs.hsamp_.setTrcRange( rg );
+    tkzs.hsamp_.init( seldata_->geomID() );
+    tkzs.hsamp_.setTrcRange( seldata_->crlRange() );
     const Interval<float> zrg( seldata_->zRange() );
     tkzs.zsamp_ = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
-    const Pos::GeomID geomid = seldata_->geomID();
-    tkzs.hsamp_.setLineRange( StepInterval<int>(geomid,geomid,1) );
-    tkzs.hsamp_.survid_ = Survey::GM().get2DSurvID();
     return true;
 }
 
@@ -680,7 +676,7 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
 void LocationOutput::collectData( const DataHolder& data, float refstep,
 				  const SeisTrcInfo& info )
 {
-    BinIDValueSet::SPos pos = bidvalset_.find( info.binid );
+    BinIDValueSet::SPos pos = bidvalset_.find( info.binID() );
     if ( !pos.isValid() ) return;
 
     const int desnrvals = desoutputs_.size()+1;
@@ -709,7 +705,7 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
 	    computeAndSetVals( data, refstep, vals );
 
 	bidvalset_.next( pos );
-	if ( info.binid != bidvalset_.getBinID(pos) )
+	if ( info.binID() != bidvalset_.getBinID(pos) )
 	    break;
     }
 }
@@ -825,7 +821,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
     const int trcsz = mNINT32(stdtrcsz_/refstep) + 1;
     const float trcstarttime = mNINT32(stdstarttime_/refstep) * refstep;
     const int startidx = data.z0_ - mNINT32(trcstarttime/refstep);
-    const int index = outpbuf_->find( info.binid );
+    const int index = outpbuf_->find( info.binID() );
 
     SeisTrc* trc;
     if ( index == -1 )
@@ -992,7 +988,7 @@ bool Trc2DVarZStorOutput::doInit()
 	    return false;
 	}
 
-	writer_ = new SeisTrcWriter( ioseisout );
+	writer_ = new SeisTrcWriter( *ioseisout );
 	if ( !writer_->is2D() )
 	{
 	    errmsg_ = tr( "Seismic data with ID: %1 is not 2D\n"
@@ -1003,7 +999,7 @@ bool Trc2DVarZStorOutput::doInit()
 	if ( auxpars_ )
 	{
 	    writer_->auxPars().merge( *auxpars_ );
-	    delete auxpars_; auxpars_ = 0;
+	    deleteAndZeroPtr( auxpars_ );
 	}
     }
 
@@ -1033,7 +1029,7 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 	for ( int idx=1; idx<desoutputs_.size(); idx++)
 	    trc_->data().addComponent( trcsz, dc, false );
     }
-    else if ( trc_->info().binid != info.binid )
+    else if ( trc_->info().trcKey() != info.trcKey() )
     {
 	errmsg_ = tr("merge components of two different traces!");
 	return;
@@ -1170,8 +1166,8 @@ void TableOutput::initPairsTable()
 
     for ( int idx=0; idx<datapointset_.size(); idx++ )
     {
-	TypeSet<TrcKey> tksclosestline; //TypeSet to store equivalent solutions
-	TypeSet<TrcKey> tksclosesttrc;	 //ie intersections, duplicated lines...
+	TrcKeyPath tksclosestline;	//TypeSet to store equivalent solutions
+	TrcKeyPath tksclosesttrc;	//ie intersections, duplicated lines...
 	double disttoline = mUdf(double);
 	double disttotrc = mUdf(double);
 	Coord pointcoord = datapointset_.coord(idx);
@@ -1236,22 +1232,26 @@ void TableOutput::initPairsTable()
 
 	if ( disttotrc <= mediandisttrcs_/2 )
 	{
-	    for ( int idtk=0; idtk<tksclosesttrc.size(); idtk++ )
+	    const TrcKeyPath& tkpath =
+			  const_cast<const TrcKeyPath&>( tksclosesttrc );
+	    for ( const auto& tkclosesttrc : tkpath )
 	    {
 		PosAndRowIDPair paridp( mUdfGeomID, -1, -1 );
-		paridp.gid_ = tksclosesttrc[idtk].geomID();
-		paridp.tid_ = tksclosesttrc[idtk].trcNr();
+		paridp.gid_ = tkclosesttrc.geomID();
+		paridp.tid_ = tkclosesttrc.trcNr();
 		paridp.rid_ = idx;
 		parpset_ += paridp;
 	    }
 	}
 	else if ( disttoline <= mediandisttrcs_/2 )
 	{
-	    for ( int idtk=0; idtk<tksclosestline.size(); idtk++ )
+	    const TrcKeyPath& tkpath =
+			  const_cast<const TrcKeyPath&>( tksclosestline );
+	    for ( const auto& tkclosestline : tkpath )
 	    {
 		PosAndRowIDPair paridp( mUdfGeomID, -1, -1 );
-		paridp.gid_ = tksclosestline[idtk].geomID();
-		paridp.tid_ = tksclosestline[idtk].trcNr();
+		paridp.gid_ = tkclosestline.geomID();
+		paridp.tid_ = tkclosestline.trcNr();
 		paridp.rid_ = idx;
 		parpset_ += paridp;
 	    }
@@ -1303,7 +1303,7 @@ void TableOutput::collectDataSpecial60( const DataHolder& data,
     {
 	const Coord coord = info.coord;
 	rid = useCoords() ? datapointset_.findFirst(coord)
-			  : datapointset_.findFirst(info.binid);
+			  : datapointset_.findFirst(info.binID());
 	if ( rid< 0 && datapointset_.is2D() )
 	{
 	    for ( int idx=0; idx<datapointset_.size()-1; idx++ )
@@ -1354,7 +1354,7 @@ void TableOutput::collectDataSpecial60( const DataHolder& data,
 			break;
 		}
 	    }
-	    else if ( info.binid != datapointset_.binID(idx) ) break;
+	    else if ( info.binID() != datapointset_.binID(idx) ) break;
 	}
 
 	const float zval = datapointset_.z(idx);
@@ -1377,7 +1377,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 {
     const Coord coord = info.coord;
     DataPointSet::RowID rid = useCoords() ? datapointset_.findFirst(coord)
-					  : datapointset_.findFirst(info.binid);
+				      : datapointset_.findFirst(info.binID());
     if ( rid< 0 && datapointset_.is2D() )
     {
 	//TODO remove when datapointset is snaped
@@ -1412,7 +1412,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
     for ( int idx=rid; idx<datapointset_.size(); idx++ )
     {
-	if ( info.binid != datapointset_.binID(idx) ) break;
+	if ( info.binID() != datapointset_.binID(idx) ) break;
 
 	const float zval = datapointset_.z(idx);
 	float* vals = datapointset_.getValues( idx );

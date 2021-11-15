@@ -580,12 +580,12 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	const bool hasztf = scene && scene->getZAxisTransform();
 
-	TypeSet<BinID> bids; rtd->getAllNodePos( bids );
+	TrcKeyPath nodes; rtd->getAllNodePos( nodes );
 	RefMan<Geometry::RandomLine> rln = new Geometry::RandomLine;
 	const Interval<float> rtdzrg = rtd->getDepthInterval();
 	rln->setZRange( hasztf ? SI().zRange(false) : rtdzrg );
-	for ( int idx=0; idx<bids.size(); idx++ )
-	    rln->addNode( bids[idx] );
+	for ( const auto& node : nodes )
+	    rln->addNode( node.position() );
 
 	if ( mnuid == saveasmnuitem_.id )
 	{
@@ -633,8 +633,12 @@ void uiODRandomLineTreeItem::editNodes()
     if ( !rtd || !rtd->getRandomLine() )
 	return;
 
+    TrcKeyPath nodes;
+    rtd->getRandomLine()->allNodePositions( nodes );
     TypeSet<BinID> bids;
-    rtd->getRandomLine()->allNodePositions( bids );
+    for ( const auto& tk : nodes )
+	bids += tk.position();
+
     uiDialog dlg( getUiParent(),
 	  uiDialog::Setup(uiStrings::sRandomLine(mPlural),
 	      tr("Specify node positions"),

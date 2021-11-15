@@ -20,29 +20,20 @@
 #include "seistrc.h"
 #include "separstr.h"
 #include "strmprov.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
 #include "uistrings.h"
 
 const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
 
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
-	: SeisTrcTranslator(nm,unm)
-	, headerdone_(false)	// Will be removed
-	, donext_(false)
-	, forread_(true)
-	, storinterps_(0)	// Will be removed
-	, blockbufs_(0)		// Will be removed
-	, compsel_(0)
-	, preseldatatype_(0)
-	, rdmgr_(0)
-	, wrmgr_(0)
-	, nrdone_(0)
-	, brickspec_(*new VBrickSpec)
-	, single_file_(false)
-	, forceusecbvsinfo_(false)
-	, is2d_(false)
-	, coordpol_((int)CBVSIO::NotStored)
+    : SeisTrcTranslator(nm,unm)
+    , auxinf_(false)
+    , brickspec_(*new VBrickSpec)
+    , coordpol_((int)CBVSIO::NotStored)
 {
+    if ( Survey::isValidGeomID(geomid_) )
+	auxinf_.trckey_.setGeomID( geomid_ );
 }
 
 
@@ -57,7 +48,7 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
 	bool infoonly, bool is2d, uiString* msg, bool forceusecbvsinf )
 {
     if ( !fnm || !*fnm )
-	{ if ( msg ) *msg = tr("Empty file name"); return 0; }
+	{ if ( msg ) *msg = tr("Empty file name"); return nullptr; }
 
     CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
     tr->set2D( is2d );
@@ -67,8 +58,15 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
 			infoonly ? Seis::PreScan : Seis::Prod) )
     {
 	if ( msg ) *msg = tr->errMsg();
-	delete tr; tr = 0;
+	delete tr; tr = nullptr;
     }
+    else if ( tr && tr->is2D() )
+    {
+	const Pos::GeomID gid = CBVSIOMgr::getFileNr( fnm );
+	if ( Survey::is2DGeom(gid) )
+	    tr->setCurGeomID( gid );
+    }
+
     return tr;
 }
 
@@ -109,15 +107,29 @@ void CBVSSeisTrcTranslator::setCoordPol( bool dowrite, bool intrailer )
 }
 
 
+bool CBVSSeisTrcTranslator::is2D() const
+{
+    return auxinf_.is2D();
+}
+
+
 void CBVSSeisTrcTranslator::set2D( bool yn )
 {
     setIs2D( yn );
-    is2d_ = yn;
-    if ( is2d_ )
+    auxinf_.set2D( yn );
+    if ( is2D() )
     {
 	single_file_ = true;
 	coordpol_ = (int)CBVSIO::InTrailer;
     }
+}
+
+
+void CBVSSeisTrcTranslator::setCurGeomID( Pos::GeomID gid )
+{
+    SeisTrcTranslator::setCurGeomID( gid );
+    if ( Survey::isValidGeomID(curGeomID()) )
+	auxinf_.trckey_.setGeomID( curGeomID() );
 }
 
 
@@ -161,6 +173,13 @@ int CBVSSeisTrcTranslator::bytesOverheadPerTrace() const
 }
 
 
+int CBVSSeisTrcTranslator::estimatedNrTraces() const
+{
+    return rdmgr_ ? rdmgr_->estimatedNrTraces()
+		  : SeisTrcTranslator::estimatedNrTraces();
+}
+
+
 bool CBVSSeisTrcTranslator::initRead_()
 {
     forread_ = true;
@@ -171,7 +190,7 @@ bool CBVSSeisTrcTranslator::initRead_()
     if ( rdmgr_->failed() )
 	{ errmsg_ = mToUiStringTodo(rdmgr_->errMsg()); return false; }
 
-    if ( is2d_ )
+    if ( is2D() )
 	rdmgr_->setSingleLineMode( true );
 
     const int nrcomp = rdmgr_->nrComponents();
@@ -224,14 +243,24 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
-    if ( forread_ && !is2d_ && seldata_ && !seldata_->isAll() )
+    if ( forread_ && seldata_ && !seldata_->isAll() )
     {
+	const Interval<int> inlrg = seldata_->inlRange();
+	const Interval<int> crlrg = seldata_->crlRange();
 	TrcKeyZSampling tkzs;
-	Interval<int> inlrg = seldata_->inlRange();
-	Interval<int> crlrg = seldata_->crlRange();
-	tkzs.hsamp_.start_.inl() = inlrg.start;
+	if ( is2D() )
+	{
+	    tkzs.hsamp_.start_.inl() = rdmgr_->info().geom_.start.inl();
+	    tkzs.hsamp_.stop_.inl() = rdmgr_->info().geom_.start.inl();
+	    // CBVSInfo does not know about 2D
+	}
+	else
+	{
+	    tkzs.hsamp_.start_.inl() = inlrg.start;
+	    tkzs.hsamp_.stop_.inl() = inlrg.stop;
+	}
+
 	tkzs.hsamp_.start_.crl() = crlrg.start;
-	tkzs.hsamp_.stop_.inl() = inlrg.stop;
 	tkzs.hsamp_.stop_.crl() = crlrg.stop;
 	tkzs.zsamp_.start = outsd_.start;
 	tkzs.zsamp_.step = outsd_.step;
@@ -252,14 +281,6 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     if ( !forread_ )
 	return startWrite();
 
-    if ( is2d_ && seldata_ && seldata_->type() == Seis::Range )
-    {
-	// For 2D, inline is just an index number
-	Seis::SelData& sd = *const_cast<Seis::SelData*>( seldata_ );
-	sd.setInlRange(
-		Interval<int>(rdmgr_->binID().inl(),rdmgr_->binID().inl()) );
-    }
-
     if ( selRes(rdmgr_->binID()) )
 	return toNext();
 
@@ -279,10 +300,11 @@ int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
 	return 0;
 
     // Table for 2D: can't select because inl/crl in file is not 'true'
-    if ( is2d_ && seldata_->type() == Seis::Table )
+    if ( is2D() && seldata_->type() == Seis::Table )
 	return 0;
 
-    return seldata_->selRes(bid);
+    return is2D() ? seldata_->selRes( curGeomID(), bid.trcNr() )
+		  : seldata_->selRes( bid );
 }
 
 
@@ -361,12 +383,21 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
 
     ti.getFrom( auxinf_ );
+    if ( ti.is2D() && !forceusecbvsinfo_ &&
+	 (ti.refnr == ti.trcNr() || ti.refnr == 0 || mIsUdf(ti.refnr)) )
+    {
+	Coord crd; float spnr = mUdf(float);
+	if ( ti.trcKey().geometry().as2D()->getPosByTrcNr(ti.trcNr(),crd,spnr)
+	     && !mIsUdf(spnr) )
+	    ti.refnr = spnr;
+    }
+
     ti.sampling.start = outsd_.start;
     ti.sampling.step = outsd_.step;
-    ti.nr = ++nrdone_;
+    ti.seqnr_ = ++nrdone_;
 
-    if ( ti.binid.inl() == 0 && ti.binid.crl() == 0 )
-	ti.binid = SI().transform( ti.coord );
+    if ( ti.lineNr() == 0 && ti.trcNr() == 0 )
+	ti.setPos( SI().transform(ti.coord) );
 
     return (headerdonenew_ = true);
 }
@@ -386,12 +417,6 @@ bool CBVSSeisTrcTranslator::readData( TraceData* extbuf )
     headerdonenew_ = false;
 
     return (datareaddone_ = true );
-}
-
-
-bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
-{
-    return SeisTrcTranslator::read( trc );
 }
 
 
@@ -439,7 +464,7 @@ bool CBVSSeisTrcTranslator::startWrite()
     if ( wrmgr_->failed() )
 	{ errmsg_ = mToUiStringTodo(wrmgr_->errMsg()); return false; }
 
-    if ( is2d_ )
+    if ( is2D() )
 	wrmgr_->setForceTrailers( true );
     return true;
 }

@@ -30,6 +30,7 @@ class SeisTrcInfo;
 class TraceData;
 class TrcKeyZSampling;
 
+namespace Coords	{ class CoordSystem; }
 namespace PosInfo	{ class CubeData; }
 namespace Seis		{ class SelData; }
 
@@ -207,20 +208,22 @@ public:
 			//!< Prepare for new initialisation.
 
     static bool		getRanges(const MultiID&,TrcKeyZSampling&,
-				  const char* linekey=0);
+				  const char* linekey=nullptr);
     static bool		getRanges(const IOObj&,TrcKeyZSampling&,
-				  const char* linekey=0);
+				  const char* linekey=nullptr);
 
     virtual bool	getGeometryInfo(PosInfo::CubeData&) const
 							{ return false; }
 
     static bool		is2D(const IOObj&,bool only_internal=false);
-    static bool		isPS(const IOObj&);
+    static bool		isPS(const IOObj&,bool only_internal=false);
+    bool		is2D() const			{ return is_2d; }
     bool		isPS() const			{ return is_prestack; }
     static bool		isLineSet(const IOObj&);
 			/*!< Should only be used to filter out
 			     old LineSet entries in .omf */
 
+    static const char*	sKeySeisTrPars();
     static const char*	sKeyIs2D();
     static const char*	sKeyIsPS();
     static const char*	sKeyRegWrite();
@@ -236,7 +239,7 @@ public:
     const char*		dataName() const	{ return dataname_.buf(); }
     void		setDataName( const char* nm )	{ dataname_ = nm; }
     Pos::GeomID		curGeomID() const		{ return geomid_; }
-    void		setCurGeomID( Pos::GeomID gid )	{ geomid_ = gid; }
+    virtual void	setCurGeomID(Pos::GeomID);
 
     virtual bool	isUserSelectable(bool) const	{ return false; }
     virtual int		estimatedNrTraces() const	{ return -1; }
@@ -251,14 +254,14 @@ public:
 
 protected:
 
-    Conn*		conn_;
+    Conn*		conn_ = nullptr;
     SeisPacketInfo&	pinfo_;
     uiString		errmsg_;
-    BufferStringSet*	compnms_;
+    BufferStringSet*	compnms_ = nullptr;
 
-    Seis::ReadMode	read_mode;
-    bool		is_2d;
-    bool		is_prestack;
+    Seis::ReadMode	read_mode = Seis::Prod;
+    bool		is_2d = false;
+    bool		is_prestack = false;
     bool		enforce_regular_write;
     bool		enforce_survinfo_write;
 
@@ -266,17 +269,18 @@ protected:
     int					innrsamples_;
     ObjectSet<ComponentData>		cds_;
     ObjectSet<TargetComponentData>	tarcds_;
-    const Seis::SelData*		seldata_;
+    const Seis::SelData*		seldata_ = nullptr;
     SamplingData<float>			outsd_;
     int					outnrsamples_;
     Interval<int>			samprg_;
     Pos::GeomID				geomid_;
+    ConstRefMan<Coords::CoordSystem>	coordsys_;
     BufferString			dataname_;
-    bool				headerdonenew_;
-    bool				datareaddone_;
-    TraceData*				storbuf_;
-    LinScaler*				trcscalebase_;
-    const LinScaler*			curtrcscalebase_;
+    bool				headerdonenew_ = false;
+    bool				datareaddone_ = false;
+    TraceData*				storbuf_ = nullptr;
+    LinScaler*				trcscalebase_ = nullptr;
+    const LinScaler*			curtrcscalebase_ = nullptr;
 
     virtual bool	forRead() const;
     void		addComp(const DataCharacteristics&,
@@ -303,8 +307,8 @@ protected:
     void		prepareComponents(SeisTrc&,int actualsz) const;
 
 			// Quick access to selected, like selComp() etc.
-    ComponentData**	inpcds_;
-    TargetComponentData** outcds_;
+    ComponentData**	inpcds_ = nullptr;
+    TargetComponentData** outcds_ = nullptr;
 
     TypeSet<int>	warnnrs_;
     BufferStringSet&	warnings_;
@@ -312,9 +316,9 @@ protected:
 
 private:
 
-    int*		inpfor_;
-    int			nrout_;
-    int			prevnr_;
+    int*		inpfor_ = nullptr;
+    int			nrout_ = 0;
+    int			prevnr_ = mUdf(int);
     int			lastinlwritten_;
 
     bool		initConn(Conn*);
@@ -326,8 +330,14 @@ private:
 
 public:
 
-    void		setIs2D( bool yn )	{ is_2d = yn; }
-    void		setIsPS( bool yn )	{ is_prestack = yn; }
+    static void		setType(Seis::GeomType,IOPar&);
+    static void		setGeomID(Pos::GeomID,IOPar&);
+    static void		setCoordSys(const Coords::CoordSystem&,IOPar&);
+
+    virtual void	setIs2D( bool yn )	{ is_2d = yn; }
+    virtual void	setIsPS( bool yn )	{ is_prestack = yn; }
+    virtual void	setCoordSys(const Coords::CoordSystem&);
+
     bool		readTraceData( TraceData* td=nullptr )
 			{ return readData(td); }
 };

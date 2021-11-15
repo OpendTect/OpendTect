@@ -476,21 +476,22 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     if ( is2D() )
     {
 	BufferString linenm;
-	if ( !lnmfld_ )
-	    linenm = static_cast<uiSeis2DSubSel*>(subselfld_)->selectedLine();
-	else
+	if ( lnmfld_ )
 	    linenm = lnmfld_->getInput();
+	else
+	    linenm = static_cast<uiSeis2DSubSel*>(subselfld_)->selectedLine();
+
 	if ( linenm.isEmpty() )
 	    mErrRet( tr("Please enter a line name") )
-	if ( isimp_ )
-	{
-	    Pos::GeomID geomid = Geom2DImpHandler::getGeomID( linenm );
-	    if ( geomid == mUdfGeomID )
-		return false;
-	}
+
+	data().geomid_ = Geom2DImpHandler::getGeomID( linenm );
+	if ( isimp_ && !Survey::is2DGeom(data().geomid_) )
+	    return false;
 
 	data().linekey_.setLineName( linenm );
     }
+    else
+	data().geomid_ = Survey::default3DGeomID();
 
     data().seiskey_ = ioobj->key();
     data().fname_ = fnm;

@@ -26,45 +26,42 @@ mExpClass(Seis) SeisTrcInfo
 {
 public:
 
-    typedef Index_Type	IdxType;
+    typedef IdxPair::IdxType	IdxType;
 
-			SeisTrcInfo()
-			: sampling(0,defaultSampleInterval()), nr(0)
-			, refnr(mUdf(float)), pick(mUdf(float))
-			, offset(0), azimuth(0), zref(0), new_packet(false)
-			{}
+			SeisTrcInfo();
+			~SeisTrcInfo();
+			SeisTrcInfo(const SeisTrcInfo&);
+    SeisTrcInfo&	operator =(const SeisTrcInfo&);
 
-    SamplingData<float>	sampling;
-    int			nr;
-    BinID		binid;			/* mDeprecated */
     Coord		coord;
-    float		offset;
-    float		azimuth;
-    float		refnr;
-    float		pick;
+    SamplingData<float> sampling;
+    float		offset		= 0.f;
+    float		azimuth		= 0.f;
+    float		refnr		= mUdf(float);
+    float		pick		= mUdf(float);
+    int			seqnr_		= 0;
 
-			// New functions that will be used more and more.
-			// Try to avoid using binid directly!
-    inline const BinID& binID() const		{ return binid; }
-    inline IdxType	inl() const		{ return binid.inl(); }
-    inline IdxType	crl() const		{ return binid.crl(); }
-    inline IdxType	lineNr() const		{ return inl(); }
-    inline IdxType	trcNr() const		{ return nr>0 ? nr : crl(); }
-    TrcKey		trcKey() const
-			{
-			    return nr>0 ? TrcKey(lineNr(),nr)
-					: TrcKey(binid);
-			}
-    void		setTrcKey(const TrcKey&);
+    bool		is2D() const;
+    bool		is3D() const;
+    bool		isSynthetic() const;
+    Pos::SurvID		geomSystem() const;
+    BinID		binID() const;
+    Pos::IdxPair	idxPair() const;
+    IdxType		inl() const;
+    IdxType		crl() const;
+    IdxType		lineNr() const;
+    IdxType		trcNr() const;
+    Pos::GeomID		geomID() const;
+    const TrcKey&	trcKey() const		{ return trckey_; }
 
-    inline SeisTrcInfo& setBinID( const BinID& bid )
-			{ binid = bid; return *this; }
-    inline SeisTrcInfo& setInl( IdxType inr )
-			{ binid.inl() = inr; return *this; }
-    inline SeisTrcInfo& setCrl( IdxType inr )
-			{ binid.crl() = inr; return *this; }
-    inline void		setLineNr( int inr )	{ binid.inl() = inr; }
-    inline void		setTrcNr( int inr )	{ binid.crl() = nr = inr; }
+    SeisTrcInfo&	setGeomSystem(Pos::SurvID);
+    SeisTrcInfo&	setPos(const BinID&); //3D
+    SeisTrcInfo&	setPos(Pos::GeomID,IdxType); //2D
+    SeisTrcInfo&	setGeomID(Pos::GeomID);
+    SeisTrcInfo&	setLineNr(IdxType);
+    SeisTrcInfo&	setTrcNr(IdxType);
+    SeisTrcInfo&	setTrcKey(const TrcKey&);
+    SeisTrcInfo&	calcCoord(); //!< from current TrcKey position
 
     int			nearestSample(float pos) const;
     float		samplePos( int idx ) const
@@ -74,7 +71,7 @@ public:
 
     enum Fld		{ TrcNr=0, Pick, RefNr,
 			  CoordX, CoordY, BinIDInl, BinIDCrl,
-			  Offset, Azimuth };
+			  Offset, Azimuth, SeqNr, GeomID };
 			mDeclareEnumUtils(Fld)
     double		getValue(Fld) const;
     static void		getAxisCandidates(Seis::GeomType,TypeSet<Fld>&);
@@ -95,8 +92,27 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    float		zref;		// not stored
-    bool		new_packet;	// not stored
+    float		zref		= 0.f; // not stored
+    bool		new_packet	= false; // not stored
+
+private:
+
+    TrcKey&		trckey_;
+
+public:
+
+    mDeprecated("Use setPos")
+    SeisTrcInfo&	setBinID( const BinID& bid )
+						{ return setPos(bid); }
+    mDeprecated("Use setLineNr")
+    SeisTrcInfo&	setInl( IdxType inl )	{ return setLineNr(inl); }
+    mDeprecated("Use setTrcNr")
+    SeisTrcInfo&	setCrl( IdxType crl )	{ return setTrcNr(crl); }
+
+    mDeprecated("Use setPos")
+    BinID&		binid;
+    mDeprecated("Use seqnr_ or setTrcNr")
+    int&		nr;
 
 };
 

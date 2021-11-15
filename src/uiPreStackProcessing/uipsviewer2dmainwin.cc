@@ -807,14 +807,21 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	DataPackRef<PreStack::Gather> gather =
 	    DPM(DataPackMgr::FlatID()).addAndObtain( new PreStack::Gather );
 	mDynamicCastGet(const uiStoredViewer2DMainWin*,storedpsmw,this);
-	if ( !storedpsmw ) return;
-	BufferString linename = storedpsmw->lineName();
-	if (
-	   (is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_.crl(),linename,0))
-	    || (!is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_)) )
+	if ( !storedpsmw )
+	    return;
+
+	TrcKey tk;
+	if ( is2D() )
 	{
-	    preprocmgr_->setInput( relbid, gather->id() );
+	    const BufferString linename = storedpsmw->lineName();
+	    const Pos::GeomID gid = Survey::GM().getGeomID( linename );
+	    tk.setGeomID( gid ).setTrcNr( ginfo.bid_.trcNr() );
 	}
+	else
+	    tk.setPosition( ginfo.bid_ );
+
+	if ( gather->readFrom(ginfo.mid_,tk) )
+	    preprocmgr_->setInput( relbid, gather->id() );
     }
     else
     {
@@ -1202,13 +1209,20 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
     if ( !gatherinfo.isselected_ ) return;
 
     Interval<float> zrg( mUdf(float), 0 );
-    uiGatherDisplay* gd = new uiGatherDisplay( 0 );
+    auto* gd = new uiGatherDisplay( 0 );
     DataPackRef<PreStack::Gather> gather =
 	DPM(DataPackMgr::FlatID()).addAndObtain( new PreStack::Gather );
-    MultiID mid = gatherinfo.mid_;
-    BinID bid = gatherinfo.bid_;
-    if ( (is2d_ && gather->readFrom(mid,bid.crl(),linename_,0))
-	|| (!is2d_ && gather->readFrom(mid,bid)) )
+    const MultiID& mid = gatherinfo.mid_;
+    TrcKey tk;
+    if ( is2D() )
+    {
+	const Pos::GeomID gid = Survey::GM().getGeomID( linename_ );
+	tk.setGeomID( gid ).setTrcNr( gatherinfo.bid_.trcNr() );
+    }
+    else
+	tk.setPosition( gatherinfo.bid_ );
+
+    if ( gather->readFrom(mid,tk) )
     {
 	DataPack::ID ppgatherid = -1;
 	if ( preprocmgr_ && preprocmgr_->nrProcessors() )

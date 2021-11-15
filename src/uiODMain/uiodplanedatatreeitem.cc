@@ -437,9 +437,10 @@ void uiODPlaneDataTreeItem::createMenu( MenuHandler* mh, bool istb )
     float zposf = mCast( float, pickedpos.z );
     snapToTkzs( pdd->getTrcKeyZSampling(), tk, zposf );
     const int zpos = mNINT32( zposf * SI().zDomain().userFactor() );
+    const TrcKey& csttk = const_cast<const TrcKey&>( tk );
 
-    addinlitem_.text = tr("Add In-line %1").arg( tk.lineNr() );
-    addcrlitem_.text = tr("Add Cross-line %1").arg( tk.trcNr() );
+    addinlitem_.text = tr("Add In-line %1").arg( csttk.lineNr() );
+    addcrlitem_.text = tr("Add Cross-line %1").arg( csttk.trcNr() );
     addzitem_.text = tr("Add Z-slice %1").arg( zpos );
 
     if ( orient_ == OD::InlineSlice )
@@ -507,18 +508,21 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     TrcKey tk( SI().transform(pickedpos) );
     float zpos = mCast( float, pickedpos.z );
     snapToTkzs( pdd->getTrcKeyZSampling(), tk, zpos );
+    const TrcKey& csttk = const_cast<const TrcKey&>( tk );
 
     TrcKeyZSampling newtkzs( true );
     uiODPlaneDataTreeItem* itm = 0;
     if ( mnuid == addinlitem_.id )
     {
 	itm = new uiODInlineTreeItem( -1, Empty );
-	newtkzs.hsamp_.setLineRange( Interval<int>(tk.lineNr(),tk.lineNr()) );
+	newtkzs.hsamp_.setLineRange(
+			Interval<int>(csttk.lineNr(),csttk.lineNr()) );
     }
     else if ( mnuid == addcrlitem_.id )
     {
 	itm = new uiODCrosslineTreeItem( -1, Empty );
-	newtkzs.hsamp_.setTrcRange( Interval<int>(tk.trcNr(),tk.trcNr()) );
+	newtkzs.hsamp_.setTrcRange(
+			Interval<int>(csttk.trcNr(),csttk.trcNr()) );
     }
     else if ( mnuid == addzitem_.id )
     {

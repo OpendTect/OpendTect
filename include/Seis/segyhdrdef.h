@@ -43,8 +43,8 @@ public:
 				  DataType dt=SInt )
 			    : bytepos_(bp), issmall_(issmall), type_(dt)
 			    , desc_(desc), name_(nm)	{}
-			HdrEntry( const HdrEntry& he )
-							{ *this = he; }
+			HdrEntry( const HdrEntry& oth )
+							{ *this = oth; }
     HdrEntry&		operator =(const HdrEntry&);
 
     const char*		description() const;
@@ -66,7 +66,8 @@ public:
     int			getValue(const void* buf,bool swapped=false) const;
     void		putValue(void* buf,int) const;
 
-    void		usePar(const IOPar&,const char* ky,const HdrDef* hd=0);
+    void		usePar(const IOPar&,const char* ky,
+			       const HdrDef* =nullptr);
     void		fillPar(IOPar&,const char* ky) const;
     void		removeFromPar(IOPar&,const char* ky) const;
 

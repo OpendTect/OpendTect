@@ -86,8 +86,8 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
 
     outputveltype_->box()->setCurrentItem( oldoutputtype );
 
-    SeisTrcReader reader( velioobj );
-    if ( !reader.prepareWork( Seis::PreScan ) )
+    SeisTrcReader reader( *velioobj );
+    if ( !reader.prepareWork(Seis::PreScan) )
 	return;
 
     PtrMan<Seis::Bounds> bounds = reader.getBounds();

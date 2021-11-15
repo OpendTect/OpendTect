@@ -230,15 +230,20 @@ TrcKey Horizon3DSeedPicker::replaceSeed( const TrcKey& oldseed,
 
     TrcKeyValue newseed = newseedin;
     TrcKey& newtk = newseed.tk_;
+    const TrcKey& cstnewtk = const_cast<const TrcKey&>( newtk );
     const bool inltracking = dir.lineNr()==0;
-    const int dirlength = inltracking ? dir.trcNr() : dir.lineNr();
-    int& adjustednewpos = inltracking ? newtk.trcNr() : newtk.lineNr();
-    const int prevseedpos = inltracking ? prevseed.trcNr() : prevseed.lineNr();
-    const int nextseedpos = inltracking ? nextseed.trcNr() : nextseed.lineNr();
+    const int dirlength = inltracking ? dir.crl() : dir.inl();
+    int adjustednewpos = inltracking ? cstnewtk.crl() : cstnewtk.crl();
+    const int prevseedpos = inltracking ? prevseed.crl() : prevseed.inl();
+    const int nextseedpos = inltracking ? nextseed.crl() : nextseed.inl();
     if ( !mIsUdf(prevseedpos) && adjustednewpos<=prevseedpos )
 	adjustednewpos = prevseedpos + dirlength;
     else if ( !mIsUdf(nextseedpos) && adjustednewpos>=nextseedpos )
 	adjustednewpos = nextseedpos - dirlength;
+    if ( inltracking )
+	newtk.setCrl( adjustednewpos );
+    else
+	newtk.setInl( adjustednewpos );
 
     removeSeed( oldseed, true, false );
     addSeed( newseed, false, newseed );

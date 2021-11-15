@@ -31,14 +31,14 @@ public:
 					bool forceusecbvsinfo=false);
 			~CBVSSeisTrcTranslator();
 
-    bool		readInfo(SeisTrcInfo&);
-    bool		read(SeisTrc&);
+    bool		readInfo(SeisTrcInfo&) override;
     bool		skip(int nrtrcs=1);
 
     bool		supportsGoTo() const		{ return true; }
     bool		goTo(const BinID&);
     bool		toStart();
     virtual int		bytesOverheadPerTrace() const;
+    int			estimatedNrTraces() const override;
     virtual bool	forRead() const;
 
     virtual void	usePar(const IOPar&);
@@ -55,8 +55,9 @@ public:
     const char*	defExtension() const	{ return sKeyDefExtension(); }
     static const char*	sKeyDefExtension();
 
-    bool		is2D() const			{ return is2d_; }
+    bool		is2D() const;
     void		set2D(bool yn=true);
+    void		setCurGeomID(Pos::GeomID) override;
     bool		singleFile() const		{ return single_file_; }
     void		setSingleFile( bool yn=true )	{ single_file_ = yn; }
     void		setForceUseCBVSInfo(bool yn)	{ forceusecbvsinfo_=yn;}
@@ -70,25 +71,21 @@ public:
 
 protected:
 
-    bool		forread_;
-    bool		headerdone_; // Will be in base class after 6.2
-    bool		donext_;
-    int			nrdone_;
+    bool		forread_ = true;
+    bool		donext_ = false;
+    int			nrdone_ = 0;
     int			coordpol_;
 
     // Following variables are inited by commitSelections_
-    bool*		compsel_;
-    unsigned char**	blockbufs_; // Will be removed after 6.2
-    TraceDataInterpreter** storinterps_; // Will be removed after 6.2
-    int			preseldatatype_;
+    bool*		compsel_ = nullptr;
+    int			preseldatatype_ = 0;
     VBrickSpec&		brickspec_;
 
-    CBVSReadMgr*	rdmgr_;
-    CBVSWriteMgr*	wrmgr_;
+    CBVSReadMgr*	rdmgr_ = nullptr;
+    CBVSWriteMgr*	wrmgr_ = nullptr;
     PosAuxInfo		auxinf_;
-    bool		is2d_;
-    bool		single_file_;
-    bool		forceusecbvsinfo_;
+    bool		single_file_ = false;
+    bool		forceusecbvsinfo_ = false;
 
     virtual void	cleanUp();
     virtual bool	initRead_();

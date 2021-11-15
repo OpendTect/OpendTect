@@ -48,8 +48,8 @@ static const float maxtwttime = 100.0f;
 AngleComputer::AngleComputer()
     : thresholdparam_(0.01)
     , needsraytracing_(true)
-    , raytracer_(0)
-    , trckey_(TrcKey::std3DSurvID(),BinID(0,0))
+    , raytracer_(nullptr)
+    , trckey_(BinID(0,0))
     , maxthickness_(25.f)
 {
 }
@@ -389,6 +389,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 Gather* AngleComputer::computeAngleData()
 {
     PtrMan<Gather> gather = new Gather( outputsampling_ );
+    gather->setTrcKey( trckey_ );
     Array2D<float>& angledata = gather->data();
 
     if ( needsraytracing_ )
@@ -461,7 +462,7 @@ bool VelocityBasedAngleComputer::setMultiID( const MultiID& mid )
 Gather* VelocityBasedAngleComputer::computeAngles()
 {
     ConstRefMan<Survey::Geometry> geom =
-	Survey::GM().getGeometry( trckey_.geomID() );
+	Survey::GM().getGeometry( const_cast<const TrcKey&>(trckey_).geomID() );
 
     if ( geom && geom->is2D() )
 	{ pErrMsg( "Only 3D is supported at this time" ); return 0; }

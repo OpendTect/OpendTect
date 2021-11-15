@@ -40,14 +40,14 @@ mLoad1Module("PreStackProcessing")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
-    PtrMan<SeisPSWriter> writer = 0;
-    ProcessManager* procman = 0;
+    PtrMan<SeisPSWriter> writer;
+    ProcessManager* procman = nullptr;
 
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
     { mRetError("\nCannot execute pre-3.2 par files"); }
 
-    double startup_wait = 0;
+    double startup_wait = 0.;
     pars().get( "Startup delay time", startup_wait );
     sleepSeconds( startup_wait );
 
@@ -100,7 +100,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	mRetError("\nNo linekey set" );
     }
 
-    PtrMan<IOObj> inputioobj = 0;
+    PtrMan<IOObj> inputioobj;
     if ( procman->needsPreStackInput() )
     {
 	MultiID inputmid;
@@ -128,9 +128,9 @@ bool BatchProgram::doWork( od_ostream& strm )
 	mRetError("\nCannot create output object");
     }
 
-    SeisPSReader* reader = 0;
-    PtrMan<SeisPS3DReader> reader3d = 0;
-    PtrMan<SeisPS2DReader> reader2d = 0;
+    SeisPSReader* reader = nullptr;
+    PtrMan<SeisPS3DReader> reader3d;
+    PtrMan<SeisPS2DReader> reader2d;
     StepInterval<int> cdprange(0,0,1);
     const bool needpsinput = procman->needsPreStackInput();
     if ( needpsinput )
@@ -190,8 +190,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 
     writer = geomtype==Seis::VolPS
-	? SPSIOPF().get3DWriter( *outputioobj )
-	: SPSIOPF().get2DWriter( *outputioobj, linekey.buf() );
+	    ? SPSIOPF().get3DWriter( *outputioobj )
+	    : SPSIOPF().get2DWriter( *outputioobj, linekey.buf() );
 
     if ( !writer )
     {
@@ -254,7 +254,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	const BinID stepout = procman->getInputStepout();
 
 	int nrfound = 0;
-	Gather* sparegather = 0;
+	Gather* sparegather = nullptr;
 	for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
 					   relbid.inl()++ )
 	{
@@ -267,7 +267,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		const BinID inputbid( curbid.inl()+relbid.inl()*step.inl(),
 				      curbid.crl()+relbid.crl()*step.crl() );
 
-		Gather* gather = 0;
+		Gather* gather = nullptr;
 		const int bufidx = bids.indexOf( inputbid );
 		if ( bufidx!=-1 )
 		{
@@ -278,18 +278,27 @@ bool BatchProgram::doWork( od_ostream& strm )
 		    if ( sparegather )
 		    {
 			gather = sparegather;
-			sparegather = 0;
+			sparegather = nullptr;
 		    }
 		    else
 		    {
 			gather = new Gather;
 		    }
 
+		    TrcKey tk;
+		    if ( reader3d )
+			tk.setPosition( inputbid );
+		    else if ( reader2d )
+		    {
+			tk.setGeomID( reader2d->geomID() )
+			  .setTrcNr( inputbid.trcNr() );
+		    }
+
 		    if ( procman->needsPreStackInput() &&
-			 !gather->readFrom(*inputioobj,*reader,inputbid,0) )
+			 !gather->readFrom(*inputioobj,*reader,tk) )
 		    {
 			sparegather = gather;
-			gather = 0;
+			gather = nullptr;
 		    }
 
 		    bids += inputbid;
@@ -330,16 +339,13 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 		if ( reader2d )
 		{
-		    trc.info().nr = curbid.crl();
-		    PosInfo::Line2DPos linepos;
-		    if ( reader2d->posData().getPos(curbid.crl(),linepos) )
-			trc.info().coord = linepos.coord_;
+		    trc.info().setGeomID( reader2d->geomID() )
+			      .setTrcNr( curbid.trcNr() );
 		}
 		else
-		{
-		    trc.info().binid = curbid;
-		    trc.info().coord = SI().transform( curbid );
-		}
+		    trc.info().setPos( curbid );
+
+		trc.info().calcCoord();
 
 		for ( int idx=0; idx<nrtraces; idx++ )
 		{

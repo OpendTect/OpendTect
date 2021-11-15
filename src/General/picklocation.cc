@@ -100,7 +100,7 @@ void Pick::Location::operator=( const Location& oth )
 bool Pick::Location::hasTrcKey() const
 {
     return !mIsUdf(trckey_.inl()) && !mIsUdf(trckey_.crl())
-	&& !mIsUdf(trckey_.survID());
+	&& !trckey_.isSynthetic();
 }
 
 
@@ -116,7 +116,7 @@ const TrcKey& Pick::Location::trcKey() const
 	return trckey_;
 
     mDefineStaticLocalObject( TrcKey, rettk, );
-    rettk.setSurvID( Survey::GeometryManager::get3DSurvID() );
+    rettk.setSurvID( OD::Geom3D );
     rettk.setPosition( SI().transform(pos_) );
     return rettk;
 }
@@ -390,8 +390,8 @@ bool Pick::Location::fromString( const char* s )
 
     // Sometimes, we have a stored GeomID. We always want to set the TrcKey.
     mSkipBlanks(str);
-    const Pos::SurvID geomid = getNextInt( str );
-    const Survey::Geometry* geom = 0;
+    const Pos::GeomID geomid = getNextInt( str );
+    const Survey::Geometry* geom = nullptr;
     if ( !mIsUdf(geomid) )
 	geom = Survey::GM().getGeometry( geomid );
     if ( !geom )

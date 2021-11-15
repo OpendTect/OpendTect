@@ -26,7 +26,7 @@ Survey::Geometry2D::Geometry2D( const char* lnm )
     , trcdist_(mUdf(float))
     , linelength_(mUdf(float))
 {
-    sampling_.hsamp_.survid_ = TrcKey::std2DSurvID();
+    sampling_.hsamp_.survid_ = OD::Geom2D;
     mSetSampling;
 }
 
@@ -36,7 +36,7 @@ Survey::Geometry2D::Geometry2D( PosInfo::Line2DData* l2d )
     , trcdist_(mUdf(float))
     , linelength_(mUdf(float))
 {
-    sampling_.hsamp_.survid_ = TrcKey::std2DSurvID();
+    sampling_.hsamp_.survid_ = OD::Geom2D;
     mSetSampling;
 }
 
@@ -152,7 +152,7 @@ TrcKey Survey::Geometry2D::nearestTrace( const Coord& crd, float* dist ) const
     if ( !data_.getPos(crd,pos,dist) )
 	return TrcKey::udf();
 
-    return Survey::GM().traceKey( getID(), pos.nr_ );
+    return TrcKey( getID(), pos.nr_ );
 }
 
 

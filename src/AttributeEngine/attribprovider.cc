@@ -1772,8 +1772,8 @@ bool Provider::needStoredInput() const
 }
 
 
-void Provider::setRdmPaths( TypeSet<BinID>* truepath,
-			    TypeSet<BinID>* snappedpath )
+void Provider::setRdmPaths( const TypeSet<BinID>& truepath,
+			    const TypeSet<BinID>& snappedpath )
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {

@@ -375,7 +375,7 @@ void Pos::Provider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 
 
 Pos::Provider3D::Provider3D()
-    : survid_( Survey::GeometryManager::get3DSurvID() )
+    : survid_( OD::Geom3D )
 {}
 
 
@@ -395,7 +395,7 @@ Coord Pos::Provider3D::curCoord() const
 
 Pos::SurvID Pos::Provider2D::survID() const
 {
-    return Survey::GeometryManager::get2DSurvID();
+    return OD::Geom2D;
 }
 
 

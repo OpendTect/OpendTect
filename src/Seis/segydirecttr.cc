@@ -165,13 +165,13 @@ SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx,
     if ( !errmsg_.isEmpty() || !goTo(filenr,trcidx) )
 	return 0;
 
-    SeisTrc* trc = new SeisTrc;
-    if ( !tr_->readInfo(trc->info()) || trc->info().binid != bid )
-	{ delete trc; return 0; }
+    auto* trc = new SeisTrc;
+    if ( !tr_->readInfo(trc->info()) || trc->info().binID() != bid )
+	{ delete trc; return nullptr; }
     if ( tr_->read(*trc) )
 	return trc;
 
-    delete trc; return 0;
+    delete trc; return nullptr;
 }
 
 
@@ -252,14 +252,17 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx,
 					 int trcnr ) const
 {
     if ( !goTo(filenr,trcidx) )
-	return 0;
-    SeisTrc* trc = new SeisTrc;
-    if ( !tr_->readInfo(trc->info()) || trc->info().nr != trcnr )
-	{ delete trc; return 0; }
+	return nullptr;
+    auto* trc = new SeisTrc;
+    if ( !tr_->readInfo(trc->info()) || trc->info().trcNr() != trcnr )
+	{ delete trc; return nullptr; }
     if ( tr_->read(*trc) )
+    {
+	trc->info().setGeomID( geomid_ );
 	return trc;
+    }
 
-    delete trc; return 0;
+    delete trc; return nullptr;
 }
 
 
@@ -267,7 +270,7 @@ SeisTrc* SEGYDirect2DPSReader::getTrace( const BinID& bid, int nr ) const
 {
     SEGY::FileDataSet::TrcIdx ti = def_.findOcc( Seis::PosKey(bid.crl()), nr );
     return ti.isValid() ?
-	getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid.crl() ) : 0;
+	getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid.crl() ) : nullptr;
 }
 
 
@@ -275,7 +278,7 @@ bool SEGYDirect2DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
 {
     SEGY::FileDataSet::TrcIdx ti = def_.find( Seis::PosKey(bid.crl()), false );
     if ( !ti.isValid() )
-	return 0;
+	return false;
 
     SeisTrc* trc = getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid.crl() );
     if ( !trc ) return false;
@@ -293,9 +296,6 @@ bool SEGYDirect2DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
 SEGYDirectSeisTrcTranslator::SEGYDirectSeisTrcTranslator( const char* s1,
 							  const char* s2 )
     : SeisTrcTranslator(s1,s2)
-    , def_(0)
-    , fds_(0)
-    , forread_(true)
 {
     cleanUp();
 }
@@ -336,7 +336,6 @@ void SEGYDirectSeisTrcTranslator::initVars( bool fr )
     forread_ = fr;
     ild_ = -1; iseg_ = itrc_ = 0;
     curfilenr_ = -1;
-    headerread_ = false;
     headerdonenew_ = false;
 }
 
@@ -503,7 +502,7 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     else if ( !positionTranslator() )
 	return false;
 
-    if ( !tr_->readInfo(ti) || ti.binid != curBinID() )
+    if ( !tr_->readInfo(ti) || ti.binID() != curBinID() )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
     ti.sampling.start = outsd_.start;

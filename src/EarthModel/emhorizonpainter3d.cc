@@ -153,7 +153,7 @@ bool HorizonPainter3D::addPolyLine()
 	{
 	    for ( int idx = 0; idx<path_->size(); idx++ )
 	    {
-		bid = (*path_)[idx].pos();
+		bid = (*path_)[idx].position();
 		const Coord3 crd = hor3d->getPos( sid, bid.toInt64() );
 		EM::PosID posid( id_, sid, bid.toInt64() );
 
@@ -331,9 +331,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		    return;
 
 		const BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
-		const TrcKey tk = Survey::GM().traceKey(
-			Survey::GeometryManager::get3DSurvID(),
-			bid.inl(), bid.crl() );
+		const TrcKey tk( bid );
 		if ( tkzs_.hsamp_.includes(bid) ||
 		    (path_&&path_->isPresent(tk)) )
 		{
@@ -396,10 +394,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
     if ( id_ != pid.objectID() ) return;
 
     const BinID binid = BinID::fromInt64( pid.subID() );
-    const TrcKey trckey = Survey::GM().traceKey(
-		Survey::GeometryManager::get3DSurvID(),
-		binid.inl(), binid.crl() );
-
+    const TrcKey trckey( binid );
     for ( int idx=0; idx<hor3d->nrSections(); idx++ )
     {
 	if ( hor3d->sectionID(idx) != pid.sectionID() )

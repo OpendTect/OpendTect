@@ -97,9 +97,9 @@ public:
 					const Pick::Location&);
 
     void		bulkAppendWithUndo(const TypeSet<Pick::Location>&,
-	    				   const TypeSet<int>& indexes);
+					   const TypeSet<int>& indexes);
     void		bulkRemoveWithUndo(const TypeSet<Pick::Location>&,
-	    				   const TypeSet<int>& indexes);
+					   const TypeSet<int>& indexes);
 
     Location&		get(LocID);
     const Location&	get(LocID) const;
@@ -125,7 +125,7 @@ private:
     enum EventType	{ Insert, PolygonClose, Remove, Move };
     void		addUndoEvent(EventType,LocID,const Pick::Location&);
     void		addBulkUndoEvent(EventType,const TypeSet<int>&,
-	    				 const TypeSet<Pick::Location>&);
+					 const TypeSet<Pick::Location>&);
 
     TypeSet<int>	startidxs_;
     bool		readonly_;
@@ -161,13 +161,13 @@ public:
 template <class PicksType>
 inline bool is2D( const PicksType& picks )
 {
-    return TrcKey::is2D( picks.getSurvID() );
+    return ::is2D( picks.getSurvID() );
 }
 
 template <class PicksType>
-inline bool getSurvID( const PicksType& picks )
+inline Pos::SurvID getSurvID( const PicksType& picks )
 {
-    return picks.isEmpty() ? false : picks.get(0).trcKey().survID();
+    return picks.isEmpty() ? OD::GeomSynth : picks.get(0).trcKey().survID();
 }
 /*
 inline bool Pick::List::is2D() const		{ return Pick::is2D( *this ); }

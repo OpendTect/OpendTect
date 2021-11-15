@@ -46,18 +46,7 @@ public:
     int			nodeIndex(const BinID&) const;
     int			nrNodes() const;
     const BinID&	nodePosition(int) const;
-    void		allNodePositions(TypeSet<BinID>&) const;
-    static void		getPathBids(const TypeSet<BinID>& knots,
-				    Pos::SurvID,
-				    TypeSet<BinID>& path,
-				    bool allowduplicate=false,
-				    TypeSet<int>* segments=0);
-			//!<Deprecated in coming versions of OD
-    static void		getPathBids(const TypeSet<BinID>& knots,
-				    TypeSet<BinID>& path,
-				    bool allowduplicate=false,
-				    TypeSet<int>* segments=0);
-			//!<Deprecated in coming versions of OD
+    void		allNodePositions(TrcKeyPath&) const;
 
     void		setZRange( const Interval<float>& rg )
 			{ zrange_ = rg; zrangeChanged.trigger(); }
@@ -103,17 +92,35 @@ private:
     int			id_;
 
 public:
-    void		allNodePositions(TrcKeyPath&) const;
+    mDeprecated("Use TrcKey")
+    void		allNodePositions(TypeSet<BinID>&) const;
     static Coord	getNormal(const TrcKeyPath& knots,const TrcKey& pos);
     static int		getNearestPathPosIdx(const TrcKeyPath&,
 					     const TrcKeyPath&,const TrcKey&);
 
     enum		DuplicateMode { NoDups=0, NoConsecutiveDups, AllDups };
+    static void		getPathBids(const TrcKeyPath& knots,TrcKeyPath& path,
+				    DuplicateMode dupmode=NoConsecutiveDups,
+				    TypeSet<int>* segments=nullptr);
+
+    mDeprecated("Use TrcKey")
     static void		getPathBids(const TypeSet<BinID>& knots,
 				    Pos::SurvID,
 				    TypeSet<BinID>& path,
 				    DuplicateMode dupmode=NoConsecutiveDups,
-				    TypeSet<int>* segments=0);
+				    TypeSet<int>* segments=nullptr);
+
+    mDeprecated("Use TrcKey and DuplicateMode enum")
+    static void		getPathBids(const TypeSet<BinID>& knots,
+				    Pos::SurvID,
+				    TypeSet<BinID>& path,
+				    bool allowduplicate=false,
+				    TypeSet<int>* segments=nullptr);
+    mDeprecated("Use TrcKey and DuplicateMode enum")
+    static void		getPathBids(const TypeSet<BinID>& knots,
+				    TypeSet<BinID>& path,
+				    bool allowduplicate=false,
+				    TypeSet<int>* segments=nullptr);
 };
 
 
@@ -150,8 +157,11 @@ protected:
     void		createParallelLines(const Line2& baseline,double dist);
 
 public:
+    static void		getGeometry(const MultiID&,TrcKeyPath& knots,
+				    StepInterval<float>* zrg=nullptr);
+    mDeprecated("Use TrcKeyPath")
     static void		getGeometry(const MultiID&,TypeSet<BinID>& knots,
-				    StepInterval<float>* zrg=0);
+				    StepInterval<float>* zrg=nullptr);
 };
 
 

@@ -33,13 +33,27 @@
 #include "seiswrite.h"
 #include "seisread.h"
 
-static void splitIOPars( const IOPar& base, ObjectSet<IOPar>& pars, bool is2d )
+static IOPar* cleanInputPar( const IOPar& iop )
 {
-    if ( !is2d ) // Splitting only needed for multi 2D line I/O
-    {
-	pars += new IOPar( base );
-	return;
-    }
+    auto* ret = new IOPar( iop );
+    ret->removeSubSelection( sKey::Output() );
+    OS::CommandExecPars execpars;
+    execpars.usePar( *ret );
+    execpars.removeFromPar( *ret );
+    ret->removeWithKey( sKey::LogFile() );
+    ret->removeWithKeyPattern( "Program.*");
+    ret->removeWithKey( sKey::DataRoot() );
+    ret->removeWithKey( sKey::Survey() );
+
+    return ret;
+}
+
+
+static void splitIOPars( const IOPar& base, ObjectSet<IOPar>& pars )
+{
+    PtrMan<IOPar> inppar = base.subselect( sKey::Input() );
+    if ( !inppar )
+	inppar = cleanInputPar( base );
 
     BufferStringSet fnms;
     TypeSet<Pos::GeomID> geomids;
@@ -49,8 +63,8 @@ static void splitIOPars( const IOPar& base, ObjectSet<IOPar>& pars, bool is2d )
     {
 	const BufferString key = idx==0 ? "" : toString(idx);
 	const bool res =
-		base.get( IOPar::compKey(sKey::FileName(),key), fnm ) &&
-		base.get( IOPar::compKey( sKey::GeomID(),key), geomid );
+		inppar->get( IOPar::compKey(sKey::FileName(),key), fnm ) &&
+		inppar->get( IOPar::compKey( sKey::GeomID(),key), geomid );
 	if ( !res )
 	    break;
 
@@ -58,38 +72,40 @@ static void splitIOPars( const IOPar& base, ObjectSet<IOPar>& pars, bool is2d )
 	geomids.add( geomid );
     }
 
+    PtrMan<IOPar> outpar = base.subselect( sKey::Output() );
+
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
-	IOPar* par = new IOPar( base );
-	par->removeSubSelection( sKey::FileName() );
-	par->removeSubSelection( sKey::GeomID() );
-	par->set( sKey::FileName(), fnms.get(idx) );
-	par->set( sKey::GeomID(), geomids[idx] );
+	IOPar inpiop( *inppar.ptr() );
+	inpiop.removeSubSelection( sKey::FileName() );
+	inpiop.removeSubSelection( sKey::GeomID() );
+	inpiop.set( sKey::FileName(), fnms.get(idx) );
+	inpiop.set( sKey::GeomID(), geomids[idx] );
+
+	auto* par = new IOPar( base.name() );
+	par->mergeComp( inpiop, sKey::Input() );
+	if ( outpar && !outpar->isEmpty() )
+	    par->mergeComp( *outpar.ptr(), sKey::Output() );
 	pars += par;
     }
 }
 
 
-static void writeSEGYHeader( const char* hdr, const IOObj& outioobj )
+static bool doImport( od_ostream& strm, const IOPar& iop, Seis::GeomType gt )
 {
-    FilePath sgyhdr = outioobj.fullUserExpr();
-    sgyhdr.setExtension( "sgyhdr" );
-    od_ostream strm( sgyhdr.fullPath() );
-    if ( strm.isOK() )
-	strm << hdr << od_endl;
-}
+    PtrMan<IOPar> inppar = iop.subselect( sKey::Input() );
+    if ( !inppar )
+	inppar = cleanInputPar( iop );
 
-
-static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
-{
     PtrMan<IOPar> outpar = iop.subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )
     {
-	strm << "Batch parameters 'Ouput' empty" << od_endl;
+	strm << "Batch parameters 'Output' empty" << od_endl;
 	return false;
     }
 
-    SEGY::FileSpec fs; fs.usePar( iop );
+    SEGY::FileSpec fs;
+    fs.usePar( *inppar.ptr() );
     PtrMan<IOObj> inioobj = fs.getIOObj( true );
     if ( !inioobj )
     {
@@ -104,60 +120,58 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
 	return false;
     }
 
-    outpar->removeWithKey( sKey::ID() );
-	// important! otherwise reader will try to read output ID ...
+    Pos::GeomID gid = Seis::is3D(gt) ? Survey::default3DGeomID()
+				     : mUdfGeomID;
+    if ( Seis::is2D(gt) )
+	inppar->get( sKey::GeomID(), gid );
 
-    RefMan<Coords::CoordSystem> crs = Coords::CoordSystem::createSystem(
-								    *outpar );
+    SeisStoreAccess::Setup ssasuin( *inioobj, gid, &gt );
+    ssasuin.usePar( *inppar );
+    SeisStoreAccess::Setup ssasuout( *outioobj, gid, &gt );
+    ssasuout.usePar( *outpar );
+    if ( ssasuout.seldata_ )
+	ssasuin.seldata( ssasuout.seldata_ );
 
-    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( *inioobj,
-				*outioobj, "SEG-Y importer", &iop,
-				toUiString("Importing traces") );
+    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( ssasuin,
+					ssasuout, "SEG-Y importer",
+					toUiString("Importing traces") );
     if ( !stp->isOK() )
     {
 	strm.add( stp->errMsg() );
 	return false;
     }
 
+    const bool is2d = Seis::is2D( gt );
     stp->setProcPars( *outpar, is2d );
     const bool res = stp->go( strm );
+    if ( !res )
+	strm << stp->errMsg() << od_endl;
 
-    const SeisTrcReader* rdr = stp->reader();
-    SeisTrcTranslator* transl =
-		    const_cast<SeisTrcTranslator*>(rdr->seisTranslator());
-    if ( !transl )
-	return false;
+    if ( gt != Seis::Vol )
+	return res;
 
-    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
-    if ( !segytr )
-	return false;
+    //Reader is gone after stp->go, need a new one
+    SeisTrcReader rdr( ssasuin );
+    if ( !rdr.prepareWork(Seis::PreScan) )
+	return res;
 
-    segytr->setCoordSys( crs );
-    if ( res && !is2d )
-    {
-	const SEGY::TxtHeader& th = *segytr->txtHeader();
-	BufferString buf;
-	th.getText( buf );
-	writeSEGYHeader( buf, *outioobj );
-    }
-
+    SEGYSeisTrcTranslator::writeSEGYHeader( rdr,
+			   outioobj->fullUserExpr() );
     return res;
 }
 
 
-static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
+static bool doExport( od_ostream& strm, const IOPar& iop,
+		      Seis::GeomType gt )
 {
     PtrMan<IOPar> inppar = iop.subselect( sKey::Input() );
-    if ( !inppar || inppar->isEmpty() )
-    {
-	strm << "Batch parameters 'Input' empty" << od_endl;
-	return false;
-    }
+    if ( !inppar )
+	inppar = cleanInputPar( iop );
 
     PtrMan<IOPar> outpar = iop.subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )
     {
-	strm << "Batch parameters 'Ouput' empty" << od_endl;
+	strm << "Batch parameters 'Output' empty" << od_endl;
 	return false;
     }
 
@@ -168,7 +182,8 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
 	return false;
     }
 
-    SEGY::FileSpec fs; fs.usePar( *outpar );
+    SEGY::FileSpec fs;
+    fs.usePar( *outpar );
     PtrMan<IOObj> outioobj = fs.getIOObj( true );
     if ( !outioobj )
     {
@@ -177,66 +192,75 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
     }
 
     int compnr;
-    if ( !inppar->get( sKey::Component(), compnr ) )
+    if ( !inppar->get(sKey::Component(),compnr) )
 	compnr = 0;
 
     if ( !ZDomain::isSI(inioobj->pars()) )
 	ZDomain::Def::get(inioobj->pars()).set( outioobj->pars() );
 
-    SEGY::FilePars fp; fp.usePar( *outpar );
-    fp.fillPar( outioobj->pars() );
+    Pos::GeomID gid = Seis::is3D(gt) ? Survey::default3DGeomID()
+				     : mUdfGeomID;
+    if ( Seis::is2D(gt) )
+	inppar->get( sKey::GeomID(), gid );
 
-    RefMan<Coords::CoordSystem> crs = Coords::CoordSystem::createSystem(
-								    *outpar );
-    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( *inioobj,
-			    *outioobj, "SEG-Y exporter", outpar,
-			    toUiString("Exporting traces"), compnr );
+    SeisStoreAccess::Setup ssasuin( *inioobj, gid, &gt );
+    ssasuin.usePar( *inppar );
+    ssasuin.compnr( compnr );
+    SeisStoreAccess::Setup ssasuout( *outioobj, gid, &gt );
+    ssasuout.usePar( *outpar );
+    ssasuout.compnr( compnr );
+    if ( ssasuout.seldata_ )
+	ssasuin.seldata( ssasuout.seldata_ );
+
+    PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( ssasuin,
+			    ssasuout, "SEG-Y exporter",
+			    toUiString("Exporting traces") );
     if ( !stp->isOK() )
     {
 	strm.add( stp->errMsg() );
 	return false;
     }
 
-    const SeisTrcWriter& wrr = stp->writer();
-    SeisTrcTranslator* transl =
-		    const_cast<SeisTrcTranslator*>(wrr.seisTranslator());
-    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
-    if ( !segytr )
-	return false;
+    stp->setProcPars( *outpar, Seis::is2D(gt) );
+    const bool res = stp->go( strm );
+    if ( !res )
+	strm << stp->errMsg() << od_endl;
 
-    segytr->setCoordSys( crs );
-    stp->setProcPars( *outpar, is2d );
-    return stp->go( strm );
+    return res;
 }
 
 
-static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
+static bool doScan( od_ostream& strm, const IOPar& iop, bool isps,
+		    Seis::GeomType gt )
 {
+    PtrMan<IOPar> inppar = iop.subselect( sKey::Input() );
+    if ( !inppar )
+	inppar = cleanInputPar( iop );
+
     MultiID mid;
-    iop.get( sKey::Output(), mid );
+    PtrMan<IOPar> outpar = iop.subselect( sKey::Output() );
+    if ( !outpar || outpar->isEmpty() )
+	iop.get( sKey::Output(), mid );
+    else
+	outpar->get( sKey::ID(), mid );
+
     if ( mid.isEmpty() )
     {
-	iop.get( IOPar::compKey(sKey::Output(),sKey::ID()), mid );
-	if ( mid.isEmpty() )
-	{
-	    strm << "Parameter file lacks key 'Output[.ID]'" << od_endl;
-	    return false;
-	}
+	strm << "Parameter file lacks key 'Output[.ID]'" << od_endl;
+	return false;
     }
 
     SEGY::FileSpec filespec;
-    if ( !filespec.usePar(iop) )
+    if ( !filespec.usePar(*inppar) )
     {
 	strm << "Missing or invalid file name in parameter file\n";
 	return false;
     }
 
-    SEGY::FileSpec::makePathsRelative( iop );
-
-    SEGY::FileIndexer indexer( mid, !isps, filespec, is2d, iop );
+    SEGY::FileIndexer indexer( mid, !isps, filespec, Seis::is2D(gt), *inppar );
     if ( !indexer.go(strm) )
     {
-	strm << indexer.uiMessage().getFullString();
+	strm << indexer.uiMessage() << od_endl;
 	IOM().permRemove( mid );
 	return false;
     }
@@ -266,25 +290,40 @@ mLoad1Module("Seis")
 
 bool BatchProgram::doWork( od_ostream& strm )
 {
-    const FixedString task = pars().find( SEGY::IO::sKeyTask() );
+    const IOPar& iop = pars();
+    const FixedString task = iop.find( SEGY::IO::sKeyTask() );
     const bool isimport = task == SEGY::IO::sKeyImport();
     const bool isexport = task == SEGY::IO::sKeyExport();
     const bool ispsindex = task == SEGY::IO::sKeyIndexPS();
     const bool isvolindex = task == SEGY::IO::sKeyIndex3DVol();
-    bool is2d = false; pars().getYN( SEGY::IO::sKeyIs2D(), is2d );
+
+    Seis::GeomType gt;
+    if ( !Seis::getFromPar(iop,gt) )
+    {
+	bool is2d = false;
+	if ( iop.getYN(SEGY::IO::sKeyIs2D(),is2d) )
+	    gt = Seis::geomTypeOf( is2d, ispsindex );
+	else
+	{
+	    strm << "Cannot determine geometry type" << od_endl;
+	    return false;
+	}
+    }
 
     ManagedObjectSet<IOPar> allpars;
-    splitIOPars( pars(), allpars, is2d );
+    if ( Seis::is2D(gt) ) // Splitting only needed for multi 2D line I/O
+	splitIOPars( iop, allpars );
+    else
+	allpars += new IOPar( iop );
 
-    for ( int idx=0; idx<allpars.size(); idx++ )
+    for ( const auto* curpars : allpars )
     {
-	IOPar& curpars = *allpars[idx];
 	if ( isimport )
-	    doImport( strm, curpars, is2d );
+	    doImport( strm, *curpars, gt );
 	else if ( isexport )
-	    doExport( strm, curpars, is2d );
+	    doExport( strm, *curpars, gt );
 	else if ( ispsindex || isvolindex )
-	    doScan( strm, curpars, ispsindex, is2d );
+	    doScan( strm, *curpars, ispsindex, gt );
 	else
 	    strm << "Unknown task: " << (task.isEmpty() ? "<empty>" : task)
 		 << od_newline;

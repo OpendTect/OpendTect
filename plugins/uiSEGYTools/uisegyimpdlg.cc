@@ -274,7 +274,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 
     const bool is2d = Seis::is2D( setup_.geom_ );
     BufferString lnm = is2d && transffld_->selFld2D() ?
-		       transffld_->selFld2D()->selectedLine() : 0;
+		       transffld_->selFld2D()->selectedLine() : nullptr;
     if ( is2d && lnm.isEmpty() )
     {
 	uiMSG().error( tr("Linename is empty. Please enter a line name") );
@@ -294,7 +294,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     if ( !morebut_ || !morebut_->isChecked() )
     {
 	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-	if ( is2d && geomid != Survey::GeometryManager::cUndefGeomID() )
+	if ( is2d && Survey::is2DGeom(geomid) )
 	{
 	    const bool overwrite =
 		uiMSG().askGoOn( tr("Geometry of Line '%1' is already present."
@@ -303,9 +303,9 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 	    {
 		Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
 		mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
-		if ( geom2d ) geom2d->dataAdmin().setEmpty();
+		if ( geom2d )
+		    geom2d->dataAdmin().setEmpty();
 	    }
-
 	}
 
 	retval = impFile( *useinioobj, *outioobj, lnm );
@@ -352,30 +352,35 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	return batchfld_->start();
     }
 
+    Pos::GeomID geomid;
     if ( is2d )
     {
-	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-	if ( geomid == mUdfGeomID )
+	geomid = Survey::GM().getGeomID( linenm );
+	if ( !Survey::isValidGeomID(geomid) )
 	    geomid = Geom2DImpHandler::getGeomID( linenm );
-	if ( geomid == mUdfGeomID )
+	if ( !Survey::isValidGeomID(geomid) )
 	    return false;
     }
+    else
+	geomid = Survey::default3DGeomID();
 
-    PtrMan<SeisTrcWriter> wrr = new SeisTrcWriter( &outioobj );
-    SeisStdImporterReader* rdr = new SeisStdImporterReader( inioobj, "SEG-Y" );
+    PtrMan<SeisTrcWriter> wrr = new SeisTrcWriter( outioobj, geomid,
+						   &setup_.geom_ );
+    SeisStoreAccess::Setup ssasu( inioobj, &setup_.geom_ );
+    ssasu.geomid( geomid );
+    auto* rdr = new SeisStdImporterReader( ssasu, "SEG-Y" );
     rdr->removeNull( transffld_->removeNull() );
     rdr->setResampler( transffld_->getResampler() );
     rdr->setScaler( transffld_->getScaler() );
-    Seis::SelData* sd = transffld_->getSelData();
-    if ( !sd ) return false;
-    if ( is2d )
-    {
-	if ( linenm && *linenm )
-	    sd->setGeomID( Survey::GM().getGeomID(linenm)  );
-	wrr->setSelData( sd->clone() );
-    }
+    PtrMan<Seis::SelData> sd = transffld_->getSelData();
+    if ( !sd )
+	return false;
 
-    rdr->setSelData( sd );
+    if ( !sd->isAll() )
+    {
+	rdr->setSelData( sd->clone() );
+	wrr->setSelData( sd.release() );
+    }
 
     PtrMan<SeisImporter> imp = new SeisImporter( rdr, *wrr, setup_.geom_ );
     bool rv = false;
@@ -392,7 +397,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     if ( imp && imp->nrSkipped() > 0 )
 	warns += new BufferString("[9] During import, ", imp->nrSkipped(),
 				  " traces were rejected" );
-    SeisTrcTranslator* transl = rdr->reader().seisTranslator();
+    const SeisTrcTranslator* transl = rdr->reader().seisTranslator();
     if ( transl && transl->haveWarnings() )
 	warns.add( transl->warnings(), false );
     imp.erase(); wrr.erase(); // closes output cube

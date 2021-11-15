@@ -285,8 +285,10 @@ bool RegionFaultBoundary::onRightSide( const TrcKey& tk, float z ) const
     if ( !inltrc && !crltrc )
 	return false;
 
-    const bool onposcrl = inltrc ? inltrc->isOnPosSide( tk.pos(), z ) : false;
-    const bool onposinl = crltrc ? crltrc->isOnPosSide( tk.pos(), z ) : false;
+    const bool onposcrl =
+		inltrc ? inltrc->isOnPosSide( tk.position(), z ) : false;
+    const bool onposinl =
+		crltrc ? crltrc->isOnPosSide( tk.position(), z ) : false;
 
     if ( side_==0 && onposinl ) return true;
     if ( side_==1 && onposcrl ) return true;
@@ -503,8 +505,8 @@ bool Region3D::usePar( const IOPar& par )
     par.get( "Nr Boundaries", nrbd );
     for ( int idx=0; idx<nrbd; idx++ )
     {
- 	PtrMan<IOPar> bdpar = par.subselect( IOPar::compKey("Boundary",idx) );
- 	if ( !bdpar ) continue;
+	PtrMan<IOPar> bdpar = par.subselect( IOPar::compKey("Boundary",idx) );
+	if ( !bdpar ) continue;
 
 	BufferString type; bdpar->get( sKey::Type(), type );
 	RegionBoundary* bd = !type.isEmpty() ? createBoundary( type ) : 0;

@@ -628,7 +628,7 @@ bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
     if ( !ioobj )
 	return true;
 
-    const bool is2D = SeisTrcTranslator::is2D(*ioobj,true);
+    const bool is2D = SeisTrcTranslator::is2D( *ioobj, true );
     const bool islineset = SeisTrcTranslator::isLineSet(*ioobj);
 
     return !is2D && !islineset;

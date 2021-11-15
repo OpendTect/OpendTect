@@ -80,7 +80,6 @@ public:
     const Geometry3D*		as3D() const;
 
 protected:
-
 				Geometry();
 
     TrcKeyZSampling		sampling_;
@@ -113,15 +112,11 @@ public:
 
     Pos::GeomID			getGeomID(const char* linenm) const;
     const char*			getName(Pos::GeomID) const;
+    Pos::GeomID			default2DGeomID() const;
     StepInterval<float>		zRange(Pos::GeomID) const;
 
     Coord			toCoord(const TrcKey&) const;
 
-    TrcKey			traceKey(Pos::GeomID,Pos::LineID,
-					 Pos::TraceID) const;
-				//!<For 3D
-    TrcKey			traceKey(Pos::GeomID,Pos::TraceID) const;
-				//!<For 2D
     TrcKey			nearestTrace(const Coord&,bool is2d,
 					     float* dist=nullptr) const;
 
@@ -134,13 +129,7 @@ public:
 					    bool usezrg) const;
 				//!<Returns cUndefGeomID() if none found
 
-    static TrcKey::SurvID	get2DSurvID()	{ return surv2did_; }
-    static TrcKey::SurvID	get3DSurvID()	{ return surv3did_; }
-    static TrcKey::SurvID	getSynthSurvID() { return survsynthid_; }
     static Pos::GeomID		cUndefGeomID()	{ return mUdf(Pos::GeomID); }
-
-    mDeprecated("Use get3DSurvID()")
-    TrcKey::SurvID		default3DSurvID() const;
 
 protected:
 
@@ -152,9 +141,6 @@ protected:
 
     Threads::Lock		lock_;
     ObjectSet<Geometry>		geometries_;
-    static const TrcKey::SurvID	surv2did_;
-    static const TrcKey::SurvID	surv3did_;
-    static const TrcKey::SurvID survsynthid_;
 
     bool			hasduplnms_;
 
@@ -164,7 +150,7 @@ public:
       Use the following functions only when you know what you are doing. */
 
     Geometry*			getGeometry(Pos::GeomID);
-    Geometry2D&			get2D(Pos::SurvID);
+    Geometry2D&			get2D(Pos::GeomID);
     bool			write(Geometry&,uiString&);
     Pos::GeomID			addNewEntry(Geometry*,uiString&);
 				/*! Returns new GeomID. */
@@ -177,6 +163,26 @@ public:
     bool			fetchFrom2DGeom(uiString& errmsg);
 				//converts od4 geometries to od5 geometries.
     bool			updateGeometries(TaskRunner*);
+
+public:
+
+    mDeprecated("Use TrcKey class")
+    TrcKey			traceKey(Pos::GeomID,Pos::LineID,
+					 Pos::TraceID) const;
+				//!<For 3D
+    mDeprecated("Use TrcKey class")
+    TrcKey			traceKey(Pos::GeomID,Pos::TraceID) const;
+				//!<For 2D
+
+    mDeprecated("Use OD::Geom2D")
+    static TrcKey::SurvID	get2DSurvID()	{ return OD::Geom2D; }
+    mDeprecated("Use OD::Geom3D")
+    static TrcKey::SurvID	get3DSurvID()	{ return OD::Geom3D; }
+
+    mDeprecated("Use OD::Geom3D")
+    TrcKey::SurvID		default3DSurvID() const
+						{ return OD::Geom3D; }
+
 };
 
 
@@ -188,6 +194,7 @@ mGlobal(Basic) bool is2DGeom(Pos::GeomID);
 mGlobal(Basic) bool is3DGeom(Pos::GeomID);
 mGlobal(Basic) bool isSynthetic(Pos::GeomID);
 mGlobal(Basic) Pos::GeomID default3DGeomID();
+mGlobal(Basic) Pos::GeomID getDefault2DGeomID();
 mGlobal(Basic) bool isValidGeomID(Pos::GeomID);
 
 

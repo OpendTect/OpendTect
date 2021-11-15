@@ -42,6 +42,42 @@ SeisPS2DReader::SeisPS2DReader( Pos::GeomID geomid )
 {}
 
 
+SeisTrc* SeisPS2DReader::getTrc( int trcnr, int nr ) const
+{
+    SeisTrc* ret = getTrace( BinID(0,trcnr), nr );
+    if ( !ret )
+	return nullptr;
+
+    if ( ret->info().geomID() != geomid_ )
+    {
+	pErrMsg("Incorrect geomID");
+	ret->info().setGeomID( geomid_ );
+    }
+
+    return ret;
+}
+
+
+bool SeisPS2DReader::getGath( int trcnr, SeisTrcBuf& tbuf ) const
+{
+    const bool res = getGather( BinID(0,trcnr), tbuf );
+    bool showwarning = false;
+    for ( int idx=0; idx<tbuf.size(); idx++ )
+    {
+	if ( tbuf.get(idx)->info().geomID() != geomid_ )
+	{
+	    tbuf.get(idx)->info().setGeomID( geomid_ );
+	    showwarning = true;
+	}
+    }
+
+    if ( showwarning )
+	{ pErrMsg("Incorrect geomID"); }
+
+    return res;
+}
+
+
 class CBVSSeisPSIOProvider : public SeisPSIOProvider
 {
 public:
@@ -279,11 +315,11 @@ bool SeisCBVSPSIO::dirNmOK( bool forread ) const
 
 SeisTrc* SeisCBVSPSIO::readNewTrace( int crlnr ) const
 {
-    SeisTrc* trc = new SeisTrc;
+    auto* trc = new SeisTrc;
     if ( !tr_->read(*trc) )
-	{ delete trc; return 0; }
-    if ( trc->info().binid.inl() != crlnr )
-	{ delete trc; return 0; }
+	{ delete trc; return nullptr; }
+    if ( trc->info().inl() != crlnr )
+	{ delete trc; return nullptr; }
 
     return trc;
 }
@@ -476,9 +512,9 @@ SeisTrc* SeisCBVSPS3DReader::getNextTrace( const BinID& bid,
 					   const Coord& coord ) const
 {
     SeisTrc* trc = readNewTrace( bid.crl() );
-    if ( !trc ) return 0;
-    trc->info().nr = trc->info().binid.crl();
-    trc->info().binid = bid; trc->info().coord = coord;
+    if ( !trc ) return nullptr;
+    trc->info().setPos( bid );
+    trc->info().coord = coord;
     return trc;
 }
 
@@ -506,7 +542,7 @@ bool SeisCBVSPS3DReader::getGather( int crl, SeisTrcBuf& gath ) const
 SeisTrc* SeisCBVSPS3DReader::getTrace( const BinID& bid, int nr ) const
 {
     return mkTr(bid.inl()) && goTo(bid.crl(),nr)
-	 ? getNextTrace( bid, SI().transform(bid) ) : 0;
+	 ? getNextTrace( bid, SI().transform(bid) ) : nullptr;
 }
 
 
@@ -562,8 +598,7 @@ void SeisCBVSPS3DWriter::close()
 
 bool SeisCBVSPS3DWriter::newInl( const SeisTrc& trc )
 {
-    const BinID& trcbid = trc.info().binid;
-    BufferString fnm( "", trcbid.inl(), ext() );
+    BufferString fnm( "", trc.info().inl(), ext() );
     FilePath fp( dirnm_, fnm );
     fnm = fp.fullPath();
 
@@ -576,7 +611,7 @@ bool SeisCBVSPS3DWriter::newInl( const SeisTrc& trc )
 bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
 {
     SeisTrcInfo& ti = const_cast<SeisTrcInfo&>( trc.info() );
-    const BinID trcbid = ti.binid;
+    const BinID trcbid = ti.binID();
     if ( trcbid.inl() != prevbid_.inl() )
     {
 	if ( !newInl(trc) )
@@ -589,9 +624,9 @@ bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
 	nringather_ = 1;
     prevbid_ = trcbid;
 
-    ti.binid = BinID( trcbid.crl(), nringather_ );
+    ti.setPos( BinID( trcbid.crl(), nringather_ ) );
     bool res = tr_->write( trc );
-    ti.binid = trcbid;
+    ti.setPos( trcbid );
     if ( !res )
 	errmsg_ = tr_->errMsg();
     else
@@ -665,34 +700,36 @@ SeisCBVSPS2DReader::~SeisCBVSPS2DReader()
 
 SeisTrc* SeisCBVSPS2DReader::getTrace( const BinID& bid, int nr ) const
 {
-    if ( !tr_ ) return 0;
+    if ( !tr_ )
+	return nullptr;
 
     if ( !goTo(bid.crl(),nr) )
-	return 0;
+	return nullptr;
 
-    SeisTrc* trc = readNewTrace( bid.crl() );
-    if ( !trc ) return 0;
-    trc->info().nr = trc->info().binid.inl();
-    trc->info().binid = SI().transform( trc->info().coord );
+    SeisTrc* trc = readNewTrace( bid.trcNr() );
+    if ( !trc ) return nullptr;
+
+    trc->info().setGeomID( geomid_ ).setTrcNr( trc->info().inl() );
     return trc;
 }
 
 
 bool SeisCBVSPS2DReader::getGather( const BinID& bid, SeisTrcBuf& tbuf ) const
 {
-    if ( !prepGather(bid.crl(),tbuf) )
+    const int trcnr = bid.trcNr();
+    if ( !prepGather(trcnr,tbuf) )
 	return false;
 
-    SeisTrc* trc = readNewTrace( bid.crl() );
-    if ( !trc ) return false;
+    SeisTrc* trc = readNewTrace( trcnr );
+    if ( !trc )
+	return false;
 
     while ( trc )
     {
-	trc->info().nr = bid.crl();
-	trc->info().binid = SI().transform( trc->info().coord );
+	trc->info().setGeomID( geomid_ ).setTrcNr( trcnr );
 	tbuf.add( trc );
 
-	trc = readNewTrace( bid.crl() );
+	trc = readNewTrace( trcnr );
     }
 
     return true;
@@ -743,14 +780,14 @@ bool SeisCBVSPS2DWriter::put( const SeisTrc& trc )
     if ( !ensureTr(trc) ) return false;
 
     SeisTrcInfo& ti = const_cast<SeisTrcInfo&>( trc.info() );
-    if ( ti.nr != prevnr_ )
+    if ( ti.trcNr() != prevnr_ )
 	nringather_ = 1;
-    prevnr_ = ti.nr;
+    prevnr_ = ti.trcNr();
 
-    const BinID trcbid( ti.binid );
-    ti.binid = BinID( ti.nr, nringather_ );
+    const TrcKey tk = ti.trcKey();
+    ti.setPos( BinID( tk.trcNr(), nringather_ ) );
     bool res = tr_->write( trc );
-    ti.binid = trcbid;
+    ti.setTrcKey( tk );
     if ( !res )
 	errmsg_ = tr_->errMsg();
     else

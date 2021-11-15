@@ -160,8 +160,7 @@ mExpClass(Seis) SeisTrc2DTranslator : public SeisTrcTranslator
 { mODTextTranslationClass(SeisTrc2DTranslator);
 public:
 			SeisTrc2DTranslator(const char* s1,const char* s2)
-			    : SeisTrcTranslator(s1,s2)
-			    , dataset_(0)			{}
+			    : SeisTrcTranslator(s1,s2)		{}
 
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }
@@ -169,8 +168,8 @@ public:
     bool		isUserSelectable(bool) const	{ return true; }
 
     bool		implRemove(const IOObj*) const;
-    bool		implRename( const IOObj*,const char*,
-				    const CallBack* cb=0) const;
+    bool		implRename(const IOObj*,const char*,
+				   const CallBack* =nullptr) const;
 
     virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
 
@@ -178,7 +177,7 @@ public:
 
 protected:
 
-    const Seis2DDataSet*	dataset_;
+    const Seis2DDataSet*	dataset_ = nullptr;
 
 };
 
@@ -189,7 +188,7 @@ mExpClass(Seis) CBVSSeisTrc2DTranslator : public SeisTrc2DTranslator
   isTranslator(CBVS,SeisTrc2D)
 public:
 			CBVSSeisTrc2DTranslator(const char* s1,const char* s2)
-			: SeisTrc2DTranslator(s1,s2)	{}
+			: SeisTrc2DTranslator(s1,s2)	{ setIs2D(true); }
 
     bool		isUserSelectable(bool) const	{ return true; }
 };
@@ -201,7 +200,7 @@ mExpClass(Seis) SEGYDirectSeisTrc2DTranslator : public SeisTrc2DTranslator
 public:
 			SEGYDirectSeisTrc2DTranslator(const char* s1,
 						      const char* s2)
-			: SeisTrc2DTranslator(s1,s2)	{}
+			: SeisTrc2DTranslator(s1,s2)	{ setIs2D(true); }
 
     virtual bool	isUserSelectable(bool fr) const { return fr; }
     virtual const char* iconName() const		{ return "segy"; }

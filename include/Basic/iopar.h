@@ -165,6 +165,7 @@ public:
     bool		get(const char*,TypeSet<MultiID>&) const;
     bool		get(const char*,DBKeySet&) const;
 
+    bool		get(const char*,Pos::SurvID&) const;
     bool		get(const char*,BinID&) const;
     bool		get(const char*,TrcKey&) const;
     bool		get(const char*,Coord&) const;
@@ -207,7 +208,7 @@ public:
     void		add( const char* ky, const OD::String& val )
 			{ add( ky, val.str() ); }
     void		addVal(const char* ky,const char* valtoadd);
-    			/*!< Append valtoadd to existing vals:
+			/*!< Append valtoadd to existing vals:
 			     ky: \<existing vals\>`valtoadd */
     void		update(const char* ky,const char* val);
 			/*!< removes if val is empty or null */
@@ -251,6 +252,7 @@ public:
 
     void		set(const char*,const char*,const char*);
     void		set(const char*,const char*,const char*,const char*);
+    void		set(const char*,const Pos::SurvID&);
     void		set(const char*,const BinID&);
     void		set(const char*,const TrcKey&);
     void		set(const char*,const Coord&);

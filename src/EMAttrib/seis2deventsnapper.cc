@@ -22,12 +22,14 @@ Seis2DLineEventSnapper::Seis2DLineEventSnapper( const EM::Horizon2D& orghor,
     : SeisEventSnapper(su.gate_)
     , orghor_(orghor)
     , newhor_(newhor)
+    , geomid_(su.geomid_)
+    , seisrdr_(nullptr)
 {
-    geomid_ = su.geomid_;
-    Seis::RangeSelData* seldata = new Seis::RangeSelData( true );
-    seldata->setGeomID( su.geomid_ );
-    seisrdr_ = new SeisTrcReader( su.ioobj_ );
-    seisrdr_->setSelData( seldata );
+    if ( !su.ioobj_ )
+	return;
+
+    const Seis::GeomType gt = Seis::Line;
+    seisrdr_ = new SeisTrcReader( *su.ioobj_, geomid_, &gt );
     seisrdr_->prepareWork();
 }
 
@@ -40,6 +42,8 @@ Seis2DLineEventSnapper::~Seis2DLineEventSnapper()
 
 int Seis2DLineEventSnapper::nextStep()
 {
+    if ( !seisrdr_ )
+	return ErrorOccurred();
     //TODO: Support multiple sections
 
     const int res = seisrdr_->get( trc_.info() );
@@ -52,9 +56,9 @@ int Seis2DLineEventSnapper::nextStep()
 	return MoreToDo();
 
     EM::SectionID sid(0);
-    Coord3 coord = orghor_.getPos( sid, geomid_, trc_.info().nr );
-    newhor_.setPos( sid, geomid_, trc_.info().nr,
-	    	    findNearestEvent(trc_,(float) coord.z), false );
+    Coord3 coord = orghor_.getPos( sid, geomid_, trc_.info().trcNr() );
+    newhor_.setPos( sid, geomid_, trc_.info().trcNr(),
+		    findNearestEvent(trc_,(float) coord.z), false );
     nrdone_ ++;
 
     return MoreToDo();

@@ -382,9 +382,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     eventman_->getLocations( locations );
 
     TrcKeySampling evntrg( false );
+    evntrg.survid_ = OD::Geom3D;
     evntrg.setInlRange( locations.inlRange() );
     evntrg.setCrlRange( locations.crlRange() );
-    evntrg.survid_ = TrcKey::std3DSurvID();
 
 
     if ( displaymode_==ZeroOffset )

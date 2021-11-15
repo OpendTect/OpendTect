@@ -137,11 +137,15 @@ int StratAmpCalc::init( const IOPar& pars )
 	const MultiID key( lk.lineName() );
 	const BufferString attrnm = lk.attrName();
 	PtrMan<IOObj> seisobj = IOM().get( key );
-	rdr_ = new SeisTrcReader( seisobj );
+	if ( !seisobj )
+	    return -1;
+
 	TrcKeyZSampling cs;
 	cs.hsamp_ = hs_;
+	rdr_ = new SeisTrcReader( *seisobj, cs.hsamp_.getGeomID() );
 	rdr_->setSelData( new Seis::RangeSelData(cs) );
-	rdr_->prepareWork();
+	if ( !rdr_->prepareWork() )
+	    return -1;
     }
     else
     {
@@ -221,7 +225,7 @@ int StratAmpCalc::nextStep()
 	}
     }
 
-    const BinID bid = trc->info().binid;
+    const BinID bid = trc->info().binID();
     const EM::SubID subid = bid.toInt64();
     float z1 = (float) tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
     float z2 = !bothorizon_ ? z1

@@ -724,6 +724,12 @@ void SEGY::TrcHeader::initRead()
 }
 
 
+bool SEGY::TrcHeader::is2D() const
+{
+    return Seis::is2D( geomtype_ );
+}
+
+
 unsigned short SEGY::TrcHeader::nrSamples() const
 {
     return (unsigned short)entryVal( EntryNs() );
@@ -756,19 +762,19 @@ void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
     setEntryVal( EntryXcdp(), icx );
     setEntryVal( EntryYcdp(), icy );
 
-    int tnr = ti.nr; mPIEPAdj(TrcNr,tnr,false);
-    if ( Seis::is2D(geomtype_) )
+    if ( ti.is2D() )
     {
 	if ( !mIsUdf(ti.refnr) )
 	{
-	    tnr = mNINT32(ti.refnr*100);
+	    const int tnr = mNINT32(ti.refnr*100);
+	    setEntryVal( EntrySP(), tnr );
 	    setEntryVal( EntrySPscale(), -100 );
 	}
-	setEntryVal( EntrySP(), tnr );
     }
     else
     {
-	BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
+	BinID bid( ti.binID() );
+	mPIEPAdj(BinID,bid,false);
 	setEntryVal( EntryInline(), bid.inl() );
 	setEntryVal( EntryCrossline(), bid.crl() );
     }
@@ -784,19 +790,20 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     setEntryVal( EntryDUse(), 1 );
     setEntryVal( EntryCoUnit(), 1 );
 
-    const bool is2d = Seis::is2D( geomtype_ );
-    if ( !is2d && ti.binid.inl() != previnl_ )
+    const bool is2d = is2D();
+    if ( !is2d && ti.inl() != previnl_ )
 	lineseqnr_ = 1;
 
-    previnl_ = ti.binid.inl();
+    previnl_ = ti.inl();
     int nr2put = is2d ? seqnr_ : lineseqnr_;
     setEntryVal( EntryTracl(), nr2put );
     setEntryVal( EntryTracr(), seqnr_ );
     seqnr_++; lineseqnr_++;
+    nr2put = ti.trcNr();
     if ( is2d )
-	{ nr2put = ti.nr; mPIEPAdj(TrcNr,nr2put,false); }
+	{ mPIEPAdj(TrcNr,nr2put,false); }
     else
-	{ nr2put = ti.binid.crl(); mPIEPAdj(Inl,nr2put,false); }
+	{ mPIEPAdj(Crl,nr2put,false); }
 
     setEntryVal( EntryCdp(), nr2put );
 
@@ -816,15 +823,15 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
 
     if ( is2d )
     {
-	int intval = ti.nr; mPIEPAdj(TrcNr,intval,false);
+	int intval = ti.trcNr(); mPIEPAdj(TrcNr,intval,false);
 	hdef_.trnr_.putValue( buf_, intval );
 	setEntryVal( EntryOldSP(), int(ti.refnr) );
     }
     else
     {
-	BinID bid( ti.binid ); mPIEPAdj(BinID,bid,false);
-	hdef_.inl_.putValue( buf_, ti.binid.inl() );
-	hdef_.crl_.putValue( buf_, ti.binid.crl() );
+	BinID bid( ti.binID() ); mPIEPAdj(BinID,bid,false);
+	hdef_.inl_.putValue( buf_, ti.inl() );
+	hdef_.crl_.putValue( buf_, ti.crl() );
     }
 
     float tioffs = ti.offset; mPIEPAdj(Offset,tioffs,false);
@@ -877,21 +884,16 @@ void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
 {
     ti.coord.x = entryVal( EntryXcdp() );
     ti.coord.y = entryVal( EntryYcdp() );
-    ti.binid.inl() = entryVal( EntryInline() );
-    ti.binid.crl() = entryVal( EntryCrossline() );
+    if ( !is2D() )
+	ti.setPos( BinID(entryVal(EntryInline()), entryVal(EntryCrossline()) ));
+
     ti.refnr = sCast( float, entryVal(EntrySP()) );
     if ( !isrev0_ )
     {
 	const short scalnr = sCast( short, entryVal(EntrySPscale()) );
 	if ( scalnr )
-	{
 	    ti.refnr *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
-	    ti.nr = mNINT32(ti.refnr);
-	}
     }
-    mPIEPAdj(Coord,ti.coord,true);
-    mPIEPAdj(BinID,ti.binid,true);
-    mPIEPAdj(TrcNr,ti.nr,true);
 }
 
 
@@ -931,7 +933,13 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     mPIEPAdj(Z,ti.sampling.step,true);
 
     ti.pick = ti.refnr = mUdf(float);
-    ti.nr = entryVal( EntryTracl() );
+    ti.seqnr_ = entryVal( EntryTracl() );
+    const bool is2d = is2D();
+    if ( is2d )
+    {
+	ti.setGeomID( Pos::GeomID(0) );
+	ti.setTrcNr( ti.seqnr_ ); //Only a default
+    }
 
     if ( !hdef_.pick_.isUdf() )
     {
@@ -956,39 +964,47 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	}
     }
 
-    ti.coord.x = ti.coord.y = 0;
+    ti.coord.x = ti.coord.y = 0.;
     ti.coord.x = hdef_.xcoord_.getValue(buf_,needswap_);
     ti.coord.y = hdef_.ycoord_.getValue(buf_,needswap_);
-    ti.binid.inl() = ti.binid.crl() = 0;
-    ti.binid.inl() = hdef_.inl_.getValue(buf_,needswap_);
-    ti.binid.crl() = hdef_.crl_.getValue(buf_,needswap_);
-    mPIEPAdj(BinID,ti.binid,true);
-
     ti.offset = sCast( float, hdef_.offs_.getValue(buf_,needswap_) );
     if ( ti.offset < 0 ) ti.offset = -ti.offset;
     ti.azimuth = sCast( float, hdef_.azim_.getValue(buf_,needswap_) );
     ti.azimuth *= M_PI / 360;
-    if ( hdef_.trnr_.bytepos_ >= 0 )
-	ti.nr = hdef_.trnr_.getValue(buf_,needswap_);
+
+    if ( is2d )
+    {
+	SeisTrcInfo::IdxType trcnr;
+	if ( hdef_.trnr_.bytepos_ >= 0 )
+	    trcnr = hdef_.trnr_.getValue(buf_,needswap_);
+	else
+	{
+	    //Trick to set trace number to sequence number when no trnr_ defined
+	    mDefineStaticLocalObject( Threads::Atomic<int>, seqnr, (0) );
+	    if ( hdef_.trnr_.bytepos_ == -5 )
+		seqnr++;
+	    else
+	    {
+		seqnr = 1;
+		const_cast<SEGY::TrcHeaderDef&>(hdef_).trnr_.bytepos_ = -5;
+	    }
+
+	    trcnr = seqnr;
+	}
+
+	mPIEPAdj(TrcNr,trcnr,true);
+	ti.setTrcNr( trcnr );
+    }
     else
     {
-	// Trick to set trace number to sequence number when no trnr_ defined
-	mDefineStaticLocalObject( Threads::Atomic<int>, seqnr, (0) );
-	if ( hdef_.trnr_.bytepos_ == -5 )
-	    seqnr++;
-	else
-	    { seqnr = 1;
-		const_cast<SEGY::TrcHeaderDef&>(hdef_).trnr_.bytepos_ = -5; }
-	ti.nr = seqnr;
+	BinID tibid( hdef_.inl_.getValue(buf_,needswap_),
+		     hdef_.crl_.getValue(buf_,needswap_) );
+	mPIEPAdj(BinID,tibid,true);
+	ti.setPos( tibid );
     }
-    mPIEPAdj(TrcNr,ti.nr,true);
 
     if ( !isrev0_ )
-    {
-	const int oldnr = ti.nr;
 	getRev1Flds( ti ); // if >= rev 1, then those fields are holy
-	if ( oldnr ) ti.nr = oldnr;
-    }
 
     const double scale = getCoordScale( extcoordsc );
     ti.coord.x *= scale; ti.coord.y *= scale;

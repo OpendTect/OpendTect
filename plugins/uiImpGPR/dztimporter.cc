@@ -93,7 +93,7 @@ bool DZT::FileHeader::getFrom( od_istream& strm, uiString& emsg )
 
 void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, int trcidx ) const
 {
-    ti.nr = traceNr( trcidx );
+    ti.setTrcNr( traceNr( trcidx ) );
     ti.sampling.start = position;
     ti.sampling.step = ((float)range) / (nsamp-1);
     ti.sampling.scale( cNanoFac );
@@ -133,12 +133,9 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
     for ( int ichan=1; ichan<fh_.nchan; ichan++ )
 	trc_.data().addComponent( fh_.nsamp, DataCharacteristics() );
 
-    wrr_ = new SeisTrcWriter( &ioobj );
-    Seis::RangeSelData* rsd = new Seis::RangeSelData;
-    rsd->setIsAll( true );
-    rsd->setGeomID( Survey::GM().getGeomID(lk.lineName()));
-    wrr_ = new SeisTrcWriter( &ioobj );
-    wrr_->setSelData( rsd );
+    const Seis::GeomType gt = Seis::Line;
+    const Pos::GeomID gid = Survey::GM().getGeomID( lk.lineName() );
+    wrr_ = new SeisTrcWriter( ioobj, gid, &gt );
 
     databuf_ = new char [ fh_.nrBytesPerTrace() ];
     msg_ = tr("Handling traces");

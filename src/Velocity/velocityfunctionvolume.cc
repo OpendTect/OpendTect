@@ -205,13 +205,13 @@ SeisTrcReader* VolumeFunctionSource::getReader()
 
     PtrMan<IOObj> velioobj = IOM().get( mid_ );
     if ( !velioobj )
-	return 0;
+	return nullptr;
 
-    SeisTrcReader* velreader = new SeisTrcReader( velioobj );
+    auto* velreader = new SeisTrcReader( *velioobj );
     if ( !velreader->prepareWork() )
     {
 	delete velreader;
-	return 0;
+	return nullptr;
     }
 
     velreader_ += velreader;

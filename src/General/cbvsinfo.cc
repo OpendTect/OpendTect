@@ -30,6 +30,12 @@ CBVSInfo& CBVSInfo::operator =( const CBVSInfo& ci )
 }
 
 
+int CBVSInfo::estimatedNrTraces() const
+{
+    return geom_.cubedata.totalSize() * nrtrcsperposn_;
+}
+
+
 int CBVSInfo::SurvGeom::outOfRange( const BinID& bid ) const
 {
     int res = 0;

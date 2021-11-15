@@ -182,7 +182,6 @@ void uiSEGYReadFinisher::crSeisFields()
     batchfld_ = new uiBatchJobDispatcherSel( this, true,
 					     Batch::JobSpec::SEGY );
     batchfld_->setJobName( "Read SEG-Y" );
-    batchfld_->jobSpec().pars_.setYN( SEGY::IO::sKeyIs2D(), is2d );
     batchfld_->attach( alignedBelow, outimpfld_ );
 }
 
@@ -410,70 +409,54 @@ void uiSEGYReadFinisher::setCoordSystem( Coords::CoordSystem* crs )
     coordsys_ = crs;
 }
 
+
 SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
 			    SeisTrcWriter& wrr, Pos::GeomID geomid )
 {
-    SeisStdImporterReader* rdr = new SeisStdImporterReader( ioobj, "SEG-Y" );
-    SeisTrcTranslator* transl =
-	      const_cast<SeisTrcTranslator*>(rdr->reader().seisTranslator());
-    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
-    if ( segytr && coordsys_)
-	segytr->setCoordSys( coordsys_ );
+    const Seis::GeomType gt = wrr.geomType();
+    SeisStoreAccess::Setup ssasu( ioobj, geomid, &gt );
+    if ( coordsys_ )
+	ssasu.coordsys( *coordsys_ );
 
+    auto* rdr = new SeisStdImporterReader( ssasu, "SEG-Y" );
     rdr->removeNull( transffld_->removeNull() );
     rdr->setResampler( transffld_->getResampler() );
     rdr->setScaler( transffld_->getScaler() );
-    Seis::SelData* sd = transffld_->getSelData();
-    if ( sd )
+    PtrMan<Seis::SelData> sd = transffld_->getSelData();
+    if ( sd && !sd->isAll() )
     {
-	sd->setGeomID( geomid );
-	rdr->setSelData( sd );
-	wrr.setSelData( sd->clone() );
+	rdr->setSelData( sd->clone() );
+	wrr.setSelData( sd.release() );
     }
+
     return rdr;
 }
 
 
-static void writeSEGYHeader( const IOObj& inioobj, const IOObj& outioobj )
-{
-    FilePath sgyhdr = outioobj.fullUserExpr();
-    sgyhdr.setExtension( "sgyhdr" );
-    od_ostream strm( sgyhdr.fullPath() );
-    if ( !strm.isOK() )
-	return;
-
-    SeisTrcReader rdr( &inioobj );
-    if ( !rdr.prepareWork(Seis::PreScan) )
-	return;
-
-    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr.translator())
-    if ( !trans )
-	return;
-
-    const SEGY::TxtHeader& th = *trans->txtHeader();
-    BufferString buf; th.getText( buf );
-    strm << buf << od_endl;
-}
-
-
 bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
-				bool doimp )
+			       bool doimp )
 {
     Executor* exec;
     const Seis::GeomType gt = fs_.geomType();
-    PtrMan<SeisTrcWriter> wrr; PtrMan<SeisImporter> imp;
+    PtrMan<SeisImporter> imp;
+    PtrMan<SeisTrcWriter> wrr;
     PtrMan<SEGY::FileIndexer> indexer;
     if ( doimp )
     {
-	wrr = new SeisTrcWriter( &outioobj );
-	imp = new SeisImporter( getImpReader(inioobj,*wrr,mUdfGeomID),
-				*wrr, gt );
+	wrr = new SeisTrcWriter( outioobj, &gt );
+	imp = new SeisImporter(
+			getImpReader(inioobj,*wrr,Survey::default3DGeomID()),
+			*wrr, gt );
 	exec = imp.ptr();
     }
     else
     {
+	IOPar segypars = inioobj.pars();
+	if ( coordsys_ )
+	    coordsys_->fillPar( segypars );
+
 	indexer = new SEGY::FileIndexer( outioobj.key(), !Seis::isPS(gt),
-			fs_.spec_, false, inioobj.pars() );
+			fs_.spec_, false, segypars );
 	const bool discardnull =
 		remnullfld_ ? remnullfld_->getBoolValue() : false;
 	indexer->scanner()->fileDataSet().setDiscardNull( discardnull );
@@ -481,11 +464,18 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
     }
 
     uiTaskRunner dlg( this );
-    if ( !dlg.execute( *exec ) )
+    if ( !dlg.execute(*exec) )
 	return false;
 
-    if ( wrr )
-	wrr.erase(); // closes output
+    if ( imp )
+    {
+	mDynamicCastGet(const SeisStdImporterReader*,stdimprdr,&imp->reader())
+	if ( stdimprdr )
+	    SEGYSeisTrcTranslator::writeSEGYHeader( stdimprdr->reader(),
+						    outioobj.fullUserExpr() );
+    }
+
+    wrr = nullptr;  // closes output
     if ( !handleWarnings(!doimp,indexer,imp) )
 	{ IOM().permRemove( outioobj.key() ); return false; }
 
@@ -496,9 +486,6 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 	indexer->scanner()->getReport( rep, &inpiop );
 	uiSEGY::displayReport( parent(), rep );
     }
-
-    if ( doimp )
-	writeSEGYHeader( inioobj, outioobj );
 
     uiSeisIOObjInfo oinf( outioobj, true );
     return oinf.provideUserInfo();
@@ -539,7 +526,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 				bool doimp, const char* inplnm )
 {
     const int nrlines = fs_.spec_.nrFiles();
-    bool overwr_warn = true; bool overwr = false;
+    bool overwr_warn = true, overwr = false, needupdate = false;
     TypeSet<Pos::GeomID> geomids;
     for ( int iln=0; iln<nrlines; iln++ )
     {
@@ -561,9 +548,13 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 	    return false;
 
 	geomids += geomid;
+	if ( isnew || overwr )
+	    needupdate = true;
     }
 
-    Survey::GMAdmin().updateGeometries( 0 );
+    if ( needupdate )
+	Survey::GMAdmin().updateGeometries( nullptr );
+
     uiSeisIOObjInfo oinf( outioobj, true );
     return oinf.provideUserInfo2D( &geomids );
 }
@@ -571,18 +562,23 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 
 bool uiSEGYReadFinisher::doBatch( bool doimp )
 {
+    const Seis::GeomType gt = fs_.geomType();
     const BufferString jobname( doimp ? "Import_SEG-Y_" : "Scan_SEG-Y_",
 				outFld(doimp)->getInput() );
     batchfld_->setJobName( jobname );
     IOPar& jobpars = batchfld_->jobSpec().pars_;
-    const bool isps = Seis::isPS( fs_.geomType() );
+    jobpars.setEmpty();
+    Seis::putInPar( gt, jobpars );
     jobpars.set( SEGY::IO::sKeyTask(), doimp ? SEGY::IO::sKeyImport()
-	    : (isps ? SEGY::IO::sKeyIndexPS() : SEGY::IO::sKeyIndex3DVol()) );
-    fs_.fillPar( jobpars );
+			   : (Seis::isPS(gt) ? SEGY::IO::sKeyIndexPS()
+					     : SEGY::IO::sKeyIndex3DVol()) );
+    IOPar inpars;
+    fs_.fillPar( inpars );
+    if ( coordsys_ )
+	coordsys_->fillPar( inpars );
+    jobpars.mergeComp( inpars, sKey::Input() );
 
     IOPar outpars;
-    if ( coordsys_ )
-	coordsys_->fillPar( outpars );
     if ( transffld_ )
 	transffld_->fillPar( outpars );
 
@@ -598,17 +594,25 @@ bool uiSEGYReadFinisher::doBatch( bool doimp )
 
 bool uiSEGYReadFinisher::doBatch2D( bool doimp, const char* inplnm )
 {
+    const Seis::GeomType gt = fs_.geomType();
+    uiSeisSel* seisselfld = outFld(doimp);
     const int nrlines = fs_.spec_.nrFiles();
-    const BufferString infostr( nrlines ? "multi" : inplnm, "_",
-				outFld(doimp)->getInput() );
+    const BufferString infostr( nrlines > 1 ? "multi" : inplnm, "_",
+				seisselfld->getInput() );
     const BufferString jobname( doimp ? "Import_SEG-Y_" : "Scan_SEG-Y_",
 				infostr );
     batchfld_->setJobName( jobname );
     IOPar& jobpars = batchfld_->jobSpec().pars_;
-    const bool isps = Seis::isPS( fs_.geomType() );
+    jobpars.setEmpty();
+    Seis::putInPar( gt, jobpars );
     jobpars.set( SEGY::IO::sKeyTask(), doimp ? SEGY::IO::sKeyImport()
-	    : (isps ? SEGY::IO::sKeyIndexPS() : SEGY::IO::sKeyIndex3DVol()) );
-    fs_.fillPar( jobpars );
+			   : (Seis::isPS(gt) ? SEGY::IO::sKeyIndexPS()
+					     : SEGY::IO::sKeyIndex3DVol()) );
+
+    IOPar inpars;
+    fs_.fillPar( inpars );
+    if ( coordsys_ )
+	coordsys_->fillPar( inpars );
 
     bool overwr_warn = true; bool overwr = false;
     for ( int iln=0; iln<nrlines; iln++ )
@@ -627,15 +631,18 @@ bool uiSEGYReadFinisher::doBatch2D( bool doimp, const char* inplnm )
 	    return false;
 
 	if ( iln==0 )
-	    jobpars.set( sKey::GeomID(), geomid );
+	    inpars.set( sKey::GeomID(), geomid );
 	else
-	    jobpars.set( IOPar::compKey(sKey::GeomID(),iln), geomid );
+	    inpars.set( IOPar::compKey(sKey::GeomID(),iln), geomid );
     }
 
+    jobpars.mergeComp( inpars, sKey::Input() );
+
     IOPar outpars;
-    if ( coordsys_ )
-	coordsys_->fillPar( outpars );
-    outFld(doimp)->fillPar( outpars );
+    if ( transffld_ )
+	transffld_->fillPar( outpars );
+
+    seisselfld->fillPar( outpars );
     jobpars.mergeComp( outpars, sKey::Output() );
 
     return batchfld_->start();
@@ -656,7 +663,7 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
     {
 	iniostrm = static_cast<IOStream*>( fspec.getIOObj( true ) );
 	updateInIOObjPars( *iniostrm, outioobj );
-	wrr = new SeisTrcWriter( &outioobj );
+	wrr = new SeisTrcWriter( outioobj, geomid, &gt );
 	imp = new SeisImporter( getImpReader(*iniostrm,*wrr,geomid), *wrr, gt );
 	BufferString nm( imp->name() ); nm.add( " (" ).add( lnm ).add( ")" );
 	imp->setName( nm );
@@ -664,16 +671,18 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
     }
     else
     {
-	IOPar pars = inioobj.pars();
-	pars.set( sKey::GeomID(), geomid );
+	IOPar segypars = inioobj.pars();
+	segypars.set( sKey::GeomID(), geomid );
+	if ( coordsys_ )
+	    coordsys_->fillPar( segypars );
+
 	indexer = new SEGY::FileIndexer( outioobj.key(), !Seis::isPS(gt),
-					 fspec, true, pars );
+					 fspec, true, segypars );
 	exec = indexer.ptr();
     }
 
-
     uiTaskRunner dlg( this );
-    if ( !dlg.execute( *exec ) )
+    if ( !dlg.execute(*exec) )
 	return false;
 
     wrr.erase(); // closes output
@@ -853,6 +862,8 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     PtrMan<IOObj> inioobj = fs_.spec_.getIOObj( true );
     updateInIOObjPars( *inioobj, *outioobj );
 
-    return is2d ? do2D( *inioobj, *outioobj, doimp, lnm )
-		: do3D( *inioobj, *outioobj, doimp );
+    const bool res = is2d ? do2D( *inioobj, *outioobj, doimp, lnm )
+			  : do3D( *inioobj, *outioobj, doimp );
+    IOM().permRemove( inioobj->key() );
+    return res;
 }

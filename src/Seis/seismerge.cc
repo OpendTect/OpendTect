@@ -26,29 +26,34 @@
 
 
 SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
-		      bool is2d )
-	: Executor(is2d?"Merging line parts":"Merging cubes")
-	, is2d_(is2d)
-	, wrr_(0)
-	, currdridx_(-1)
-	, nrpos_(0)
-	, totnrpos_(-1)
-	, curbid_(SI().sampling(false).hsamp_.start_)
-	, trcbuf_(*new SeisTrcBuf(false))
-	, stacktrcs_(true)
-        , scaler_(0)
-	, nrsamps_(-1)
+			bool is2d )
+    : Executor(is2d?"Merging line parts":"Merging cubes")
+    , is2d_(is2d)
+    , wrr_(0)
+    , currdridx_(-1)
+    , nrpos_(0)
+    , totnrpos_(-1)
+    , curbid_(SI().sampling(false).hsamp_.start_)
+    , trcbuf_(*new SeisTrcBuf(false))
+    , stacktrcs_(true)
+    , scaler_(0)
+    , nrsamps_(-1)
 {
     if ( iops.isEmpty() )
     { errmsg_ = tr("Nothing to merge"); return; }
     if (iops.size() == 1)
     { errmsg_ = tr("One single entry to merge: Please use copy"); return; }
 
+    const Seis::GeomType gt = Seis::geomTypeOf( is2d_, false );
     StepInterval<float> zrg( mUdf(float), -mUdf(float), SI().zStep() );
-    for ( int idx=0; idx<iops.size(); idx++ )
+    for ( const auto* iop : iops )
     {
-	SeisTrcReader* newrdr = new SeisTrcReader;
-	newrdr->usePar( *iops[idx] );
+	PtrMan<IOObj> newobj = SeisStoreAccess::getFromPar( *iop );
+	if ( !newobj )
+	    continue;
+
+	auto* newrdr = new SeisTrcReader( *newobj, &gt );
+	newrdr->usePar( *iop );
 	if ( !newrdr->prepareWork() )
 	{
 	    errmsg_ = newrdr->errMsg();
@@ -67,12 +72,20 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 	nrsamps_ = zrg.nrSteps() + 1;
     }
 
-    wrr_ = new SeisTrcWriter( 0 );
+    PtrMan<IOObj> newobj = SeisStoreAccess::getFromPar( outiop );
+    if ( !newobj )
+    {
+	deepErase( rdrs_ );
+	return;
+    }
+
+    wrr_ = new SeisTrcWriter( *newobj.ptr(), &gt );
     wrr_->usePar( outiop );
     if ( !wrr_->errMsg().isEmpty() )
     {
 	errmsg_ = wrr_->errMsg();
 	deepErase( rdrs_ );
+	deleteAndZeroPtr( wrr_ );
 	return;
     }
 
@@ -83,16 +96,16 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 
 
 SeisMerger::SeisMerger( const IOPar& iop )
-	: Executor("Merging cubes")
-	, is2d_(false)
-	, wrr_(0)
-	, currdridx_(-1)
-	, nrpos_(0)
-	, totnrpos_(-1)
-	, curbid_(SI().sampling(false).hsamp_.start_)
-	, trcbuf_(*new SeisTrcBuf(false))
-	, stacktrcs_(true)
-	, nrsamps_(-1)
+    : Executor("Merging cubes")
+    , is2d_(false)
+    , wrr_(0)
+    , currdridx_(-1)
+    , nrpos_(0)
+    , totnrpos_(-1)
+    , curbid_(SI().sampling(false).hsamp_.start_)
+    , trcbuf_(*new SeisTrcBuf(false))
+    , stacktrcs_(true)
+    , nrsamps_(-1)
 {
     if ( iop.isEmpty() )
     { errmsg_ = tr("Nothing to merge"); return; }
@@ -100,9 +113,10 @@ SeisMerger::SeisMerger( const IOPar& iop )
     FilePath fp( iop.find(sKey::TmpStor()) );
     DirList dlist( fp.fullPath(), File::FilesInDir );
     StepInterval<float> zrg( mUdf(float), -mUdf(float), SI().zStep() );
+    const Seis::GeomType gt = Seis::geomTypeOf( is2d_, false );
     for ( int idx=0; idx<dlist.size(); idx++ )
     {
-	SeisTrcReader* newrdr = new SeisTrcReader( dlist.fullPath(idx) );
+	auto* newrdr = new SeisTrcReader( dlist.fullPath(idx) );
 	if ( !newrdr->prepareWork() )
 	{
 	    errmsg_ = newrdr->errMsg();
@@ -123,16 +137,25 @@ SeisMerger::SeisMerger( const IOPar& iop )
 
     PtrMan<IOPar> outiop = iop.subselect( sKey::Output() );
     if ( !outiop )
+    {
+	deepErase( rdrs_ );
 	return;
+    }
 
-    wrr_ = new SeisTrcWriter( 0 );
+    PtrMan<IOObj> newobj = SeisStoreAccess::getFromPar( *outiop.ptr() );
+    if ( !newobj )
+    {
+	deepErase( rdrs_ );
+	return;
+    }
+
+    wrr_ = new SeisTrcWriter( *newobj.ptr(), &gt );
     wrr_->usePar( *outiop );
     if ( !wrr_->errMsg().isEmpty() )
     {
 	errmsg_ = wrr_->errMsg();
 	deepErase( rdrs_ );
-	delete wrr_;
-	wrr_ = 0;
+	deleteAndZeroPtr( wrr_ );
 	return;
     }
 
@@ -167,7 +190,7 @@ void SeisMerger::setScaler( Scaler* scaler )
 int SeisMerger::nextStep()
 {
     if ( currdridx_ < 0 )
-	return Executor::ErrorOccurred();
+	return ErrorOccurred();
 
     if ( is2d_ && rdrs_.isEmpty() )
 	return writeFromBuf();
@@ -177,20 +200,20 @@ int SeisMerger::nextStep()
     {
 	deepErase( rdrs_ );
 	if ( !errmsg_.isEmpty() )
-	    return Executor::ErrorOccurred();
+	    return ErrorOccurred();
 
 	if ( is2d_ )
 	{
 	    trcbuf_.sort( true, SeisTrcInfo::TrcNr );
-	    return Executor::MoreToDo();
+	    return MoreToDo();
 	}
 
 	wrr_->close();
-	return Executor::Finished();
+	return Finished();
     }
 
     if ( is2d_ )
-	{ trcbuf_.add( newtrc ); return Executor::MoreToDo(); }
+	{ trcbuf_.add( newtrc ); return MoreToDo(); }
 
     return writeTrc( newtrc );
 }
@@ -340,11 +363,11 @@ int SeisMerger::writeTrc( SeisTrc* trc )
     {
 	delete trc;
 	errmsg_ = wrr_->errMsg();
-	return Executor::ErrorOccurred();
+	return ErrorOccurred();
     }
 
     delete trc;
-    return Executor::MoreToDo();
+    return MoreToDo();
 
 }
 
@@ -354,17 +377,17 @@ int SeisMerger::writeFromBuf()
     if ( trcbuf_.isEmpty() )
     {
 	wrr_->close();
-	return Executor::Finished();
+	return Finished();
     }
 
     SeisTrcBuf tmp( false );
     SeisTrc* trc0 = trcbuf_.remove( 0 );
-    const int tnr = trc0->info().nr;
+    const int tnr = trc0->info().trcNr();
     tmp.add( trc0 );
 
     while ( !trcbuf_.isEmpty() )
     {
-	if ( trcbuf_.get(0)->info().nr != tnr )
+	if ( trcbuf_.get(0)->info().trcNr() != tnr )
 	    break;
 	tmp.add( trcbuf_.remove(0) );
     }

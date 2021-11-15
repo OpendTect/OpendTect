@@ -46,6 +46,46 @@ The next 8 bytes are reserved for 2 integers:
 
 #define mAuxSetting(ptr,n) (*ptr & (unsigned char)n)
 
+mStartAllowDeprecatedSection
+
+PosAuxInfo::PosAuxInfo( bool is2d )
+    : PosAuxInfo()
+{
+    set2D( is2d );
+}
+
+
+PosAuxInfo::PosAuxInfo()
+    : trckey_(OD::GeomSynth,Pos::IdxPair(0,0))
+    , coord(0.,0.)
+    , binid(const_cast<BinID&>(trckey_.position()))
+{
+}
+
+mStopAllowDeprecatedSection
+
+
+void PosAuxInfo::clear()
+{
+    if ( trckey_.is3D() )
+	trckey_.setPosition( BinID(0,0) );
+    else
+	trckey_.setTrcNr( 0 );
+
+    coord.x = coord.y = 0.;
+    startpos = offset = azimuth = 0.f;
+    pick = refnr = mUdf(float);
+}
+
+
+void PosAuxInfo::set2D( bool yn )
+{
+    if ( !trckey_.is2D() && yn )
+	trckey_.setGeomID( Survey::getDefault2DGeomID() ).setTrcNr( 0 );
+    else if ( !trckey_.is3D() && !yn )
+	trckey_.setSurvID( OD::Geom3D ).setPosition( BinID(0,0) );
+}
+
 
 
 CBVSReader::CBVSReader( od_istream* s, bool glob_info_only,
@@ -531,6 +571,12 @@ int CBVSReader::bytesOverheadPerTrace() const
 }
 
 
+int CBVSReader::estimatedNrTraces() const
+{
+    return info_.estimatedNrTraces();
+}
+
+
 #define mCondGetAux(memb) \
     if ( info_.auxinfosel_.memb ) \
 	{ mGetAuxFromStrm(auxinf,buf,memb,strm_); }
@@ -544,7 +590,10 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
     od_stream::Pos curfo mUnusedVar = strm_.position();
 #endif
 
-    auxinf.binid = curbinid_;
+    if ( auxinf.trckey_.is3D() )
+	auxinf.trckey_.setLineNr( curbinid_.inl() );
+
+    auxinf.trckey_.setTrcNr( curbinid_.crl() );
     auxinf.coord = info_.geom_.b2c.transform( curbinid_ );
     auxinf.startpos = info_.sd_.start;
     auxinf.offset = auxinf.azimuth = 0;
@@ -561,7 +610,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
     if ( coordpol_ == InAux && info_.auxinfosel_.coord )
 	{ mGetCoordAuxFromStrm(auxinf,buf,strm_); }
     else if ( coordpol_ == InTrailer )
-	auxinf.coord = getTrailerCoord( auxinf.binid );
+	auxinf.coord = getTrailerCoord( curbinid_ );
     mCondGetAux(offset)
     mCondGetAux(pick)
     mCondGetAux(refnr)
@@ -618,7 +667,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 {
     if ( !hinfofetched_ && auxnrbytes_ )
     {
-	PosAuxInfo dum;
+	PosAuxInfo dum( false );
 	if ( !getAuxInfo(dum) ) return false;
     }
 
@@ -669,7 +718,7 @@ bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
 {
     if ( !hinfofetched_ && auxnrbytes_ )
     {
-	PosAuxInfo dum;
+	PosAuxInfo dum( false );
 	if ( !getAuxInfo(dum) ) return false;
     }
 

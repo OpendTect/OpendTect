@@ -804,8 +804,8 @@ void HorizonFlatViewEditor2D::updatePatchDisplay()
 	const TrcKeyValue tkzs = path[idx];
 	if ( tkzs.isUdf() )
 	    continue;
-	const BinID bid = tkzs.tk_.pos();
-	const int pidx = horpainter_->getTrcNos().indexOf(bid.crl());
+	const TrcKey tk = tkzs.tk_;
+	const int pidx = horpainter_->getTrcNos().indexOf(tk.crl());
 	if ( pidx == -1 )
 	    continue;
 	const double x = horpainter_->getDistances()[pidx];

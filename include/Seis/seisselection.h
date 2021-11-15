@@ -96,17 +96,22 @@ public:
 
     bool		isAll() const		{ return isall_; }
     void		setIsAll( bool yn=true ) { isall_ = yn; }
-    inline bool		isOK( const BinID& b ) const	{ return !selRes(b); }
-    virtual int		selRes(const BinID&) const	= 0; //!< see class doc
+    inline bool		isOK( const BinID& bid ) const	{ return !selRes(bid); }
+    inline bool		isOK( Pos::GeomID gid, int trcnr ) const
+			{ return !selRes(gid,trcnr); }
+    bool		isOK(const TrcKey&) const;
+			//!< will work in trckey's domain
+    bool		isOK(const Pos::IdxPair&) const;
+			//!< will convert to either BinID or GeomID/trcnr
 
     virtual Interval<float> zRange() const;
-    virtual bool	setZRange(Interval<float>) { return false; }
+    virtual bool	setZRange(const Interval<float>&) { return false; }
     virtual Interval<int> inlRange() const;
-    virtual bool	setInlRange(Interval<int>) { return false; }
+    virtual bool	setInlRange(const Interval<int>&) { return false; }
     virtual Interval<int> crlRange() const;
-    virtual bool	setCrlRange(Interval<int>) { return false; }
+    virtual bool	setCrlRange(const Interval<int>&) { return false; }
     virtual int		expectedNrTraces(bool for2d=false,
-					 const BinID* step=0) const = 0;
+					 const BinID* step=nullptr) const = 0;
 
     virtual void	fillPar(IOPar&) const		= 0;
     virtual void	usePar(const IOPar&)		= 0;
@@ -119,7 +124,7 @@ public:
 
 			// Interesting in some 2D situations:
     inline Pos::GeomID  geomID() const	{ return geomid_; }
-    inline void		setGeomID(Pos::GeomID geomid) { geomid_ = geomid; }
+    virtual void	setGeomID(Pos::GeomID geomid) { geomid_ = geomid; }
 
 protected:
 
@@ -130,6 +135,15 @@ protected:
 
     int			tracesInSI() const;
     virtual void	doExtendH(BinID stepout,BinID stepoutstep) = 0;
+    virtual int		selRes3D(const BinID&) const	= 0; //!< see class doc
+    virtual int		selRes2D(Pos::GeomID,int trcnr) const;
+
+public:
+    inline int		selRes( const BinID& bid ) const
+			{ return selRes3D(bid); }
+    inline int		selRes( Pos::GeomID gid, int trcnr ) const
+			{ return selRes2D( gid, trcnr ); }
+
 };
 
 

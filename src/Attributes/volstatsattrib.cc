@@ -103,10 +103,10 @@ const char* VolStatsBase::shapeTypeStr( int type )
 {
     return type==mShapeRectangle ? "Rectangle"
 				 : type==mShapeEllipse ? "Ellipse"
-				 		       : "OpticalStack";
+						       : "OpticalStack";
 }
 
-   
+
 VolStatsBase::VolStatsBase( Desc& ds )
     : Provider( ds )
     , positions_(0,BinID(0,0))
@@ -115,7 +115,7 @@ VolStatsBase::VolStatsBase( Desc& ds )
     if ( !isOK() ) return;
 
     inputdata_.allowNull(true);
-    
+
     mGetBinID( stepout_, stepoutStr() );
     mGetInt( minnrtrcs_, nrtrcsStr() );
     mGetEnum( shape_, shapeStr() );
@@ -149,7 +149,7 @@ bool VolStatsBase::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool VolStatsBase::getInputData( const BinID& relpos, int zintv ) 
+bool VolStatsBase::getInputData( const BinID& relpos, int zintv )
 {
     return Provider::getInputData( relpos, zintv );
 }
@@ -168,7 +168,7 @@ const BinID* VolStatsBase::desStepout( int inp, int out ) const
 	gatebound = (minbound+incvar) * refstep_;\
     }\
 }
-    
+
 void VolStatsBase::prepPriorToBoundsCalc()
 {
     const int truestep = mNINT32( refstep_*zFactor() );
@@ -190,15 +190,15 @@ void VolStatsBase::prepPriorToBoundsCalc()
 
 
 const Interval<float>* VolStatsBase::reqZMargin( int inp, int ) const
-{ 
-    return &gate_; 
+{
+    return &gate_;
 }
 
 
 const Interval<float>* VolStatsBase::desZMargin( int inp, int ) const
-{     
+{
     if ( !desgate_.start && !desgate_.stop  ) return 0;
-    
+
     return &desgate_;
 }
 
@@ -211,7 +211,7 @@ void VolStats::initClass()
 {
     mAttrStartInitClassWithDescAndDefaultsUpdate
     initDesc( *desc );
-        
+
     BoolParam* edgeeffect = new BoolParam( allowEdgeEffStr() );
     edgeeffect->setDefaultValue( true );
     edgeeffect->setRequired( false );
@@ -239,8 +239,6 @@ void VolStats::initClass()
 
 VolStats::VolStats( Desc& ds )
     : VolStatsBase( ds )
-    , linepath_(0)
-    , linetruepos_(0)
     , allowedgeeffects_( true )
 {
     mGetBool( allowedgeeffects_, allowEdgeEffStr() );
@@ -270,8 +268,6 @@ VolStats::VolStats( Desc& ds )
 
 VolStats::~VolStats()
 {
-    if ( linetruepos_ ) delete linetruepos_;
-    if ( linepath_ ) delete linepath_;
 }
 
 
@@ -283,7 +279,7 @@ const char* VolStats::optStackDirTypeStr( int type )
 
 bool VolStats::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    if ( !dosteer_ || input<inputs_.size()-1 ) 
+    if ( !dosteer_ || input<inputs_.size()-1 )
 	return Provider::getInputOutput( input, res );
 
     for ( int idx=0; idx<positions_.size(); idx++ )
@@ -351,7 +347,8 @@ bool VolStats::getInputData( const BinID& relpos, int zintv )
 
 void VolStats::prepPriorToBoundsCalc()
 {
-    if ( shape_ == mShapeOpticalStack && (!linepath_ || !linetruepos_) )
+    if ( shape_ == mShapeOpticalStack &&
+	(linepath_.isEmpty() || linetruepos_.isEmpty()) )
     {
 	errmsg_ = tr("Optical Stack only works on elements\n"
 		     "which define an horizontal direction:\n"
@@ -360,6 +357,14 @@ void VolStats::prepPriorToBoundsCalc()
     }
 
     VolStatsBase::prepPriorToBoundsCalc();
+}
+
+
+void VolStats::setRdmPaths( const TypeSet<BinID>& truepos,
+			    const TypeSet<BinID>& snappedpos )
+{
+    linetruepos_ = truepos;
+    linepath_ = snappedpos;
 }
 
 
@@ -389,7 +394,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
     const int nrpos = positions_.size();
-    const Interval<int> samplegate( mNINT32(gate_.start/refstep_), 
+    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
 				    mNINT32(gate_.stop/refstep_) );
     const int gatesz = samplegate.width() + 1;
     const float extrasamp = output.extrazfromsamppos_/refstep_;
@@ -451,7 +456,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		continue;
 
 	    const float outval = (float) wcalc.getValue(
-		    			(Stats::Type)outputtypes[outidx] );
+					(Stats::Type)outputtypes[outidx] );
 	    setOutputValue( output, outidx, isamp, z0, outval );
 	}
     }
@@ -479,14 +484,14 @@ void VolStats::reInitPosAndSteerIdxes()
 
 void VolStats::getStackPositions( TypeSet<BinID>& pos ) const
 {
-    int curbididx = linepath_->indexOf( currentbid_ );
+    int curbididx = linepath_.indexOf( currentbid_ );
     if ( curbididx < 0 ) return;
 
     int trueposidx = -1;
-    for ( int idx=1; idx<linetruepos_->size(); idx++ )
+    for ( int idx=1; idx<linetruepos_.size(); idx++ )
     {
-	const int prevtrueposidx = linepath_->indexOf( (*linetruepos_)[idx-1] );
-	const int nexttrueposidx = linepath_->indexOf( (*linetruepos_)[idx] );
+	const int prevtrueposidx = linepath_.indexOf( linetruepos_[idx-1] );
+	const int nexttrueposidx = linepath_.indexOf( linetruepos_[idx] );
 	if ( curbididx>=prevtrueposidx && curbididx<=nexttrueposidx )
 	{
 	    trueposidx = idx;
@@ -496,8 +501,8 @@ void VolStats::getStackPositions( TypeSet<BinID>& pos ) const
 
     if ( trueposidx < 0 ) return;
 
-    const BinID prevpos = (*linetruepos_)[trueposidx-1];
-    const BinID nextpos = (*linetruepos_)[trueposidx];
+    const BinID prevpos = linetruepos_[trueposidx-1];
+    const BinID nextpos = linetruepos_[trueposidx];
     TypeSet< Geom::Point2D<float> > idealpos;
     getIdealStackPos( currentbid_, prevpos, nextpos, idealpos );
 
@@ -509,12 +514,12 @@ void VolStats::getStackPositions( TypeSet<BinID>& pos ) const
 }
 
 
-void VolStats::getIdealStackPos( 
+void VolStats::getIdealStackPos(
 			const BinID& cpos, const BinID& ppos, const BinID& npos,
 			TypeSet< Geom::Point2D<float> >& idealpos ) const
 {
     //compute equation (type y=ax+b) of line formed by next and previous pos
-    float coeffa = mIsZero(npos.inl()-ppos.inl(), 1e-3) 
+    float coeffa = mIsZero(npos.inl()-ppos.inl(), 1e-3)
 	? 0
 	: (float)(npos.crl()-ppos.crl()) / (float)(npos.inl()-ppos.inl());
 
@@ -536,17 +541,17 @@ void VolStats::getIdealStackPos(
     if ( (isinline && optstackdir_ == mDirLine)
 	|| (iscrossline && optstackdir_ == mDirNorm) )
     {
-	pointa = Geom::Point2D<float>( mCast(float,cpos.inl()) , 
+	pointa = Geom::Point2D<float>( mCast(float,cpos.inl()) ,
 				       mCast(float,cpos.crl()-optstackstep_) );
-	pointb = Geom::Point2D<float>( mCast(float,cpos.inl()), 
+	pointb = Geom::Point2D<float>( mCast(float,cpos.inl()),
 				       mCast(float,cpos.crl()+optstackstep_) );
     }
     else if ( (isinline && optstackdir_ == mDirNorm)
 	    || (iscrossline && optstackdir_ == mDirLine) )
     {
-	pointa = Geom::Point2D<float>( mCast(float,cpos.inl()-optstackstep_), 
+	pointa = Geom::Point2D<float>( mCast(float,cpos.inl()-optstackstep_),
 				       mCast(float,cpos.crl()) );
-	pointb = Geom::Point2D<float>( mCast(float,cpos.inl()+optstackstep_), 
+	pointb = Geom::Point2D<float>( mCast(float,cpos.inl()+optstackstep_),
 				       mCast(float,cpos.crl()) );
     }
     else
@@ -562,11 +567,11 @@ void VolStats::getIdealStackPos(
 			    (cpos.inl()+optstackstep_)*coeffa + coeffb );
 	const float interx3 = mIsZero(coeffa,1e-6) ? cpos.inl()
 				    : (cpos.crl()-optstackstep_-coeffb)/coeffa;
-	const Geom::Point2D<float> inter3( interx3, 
+	const Geom::Point2D<float> inter3( interx3,
 				       mCast(float,cpos.crl() - optstackstep_));
 	const float interx4 = mIsZero(coeffa,1e-6) ? cpos.inl()
 				    : (cpos.crl()+optstackstep_-coeffb)/coeffa;
-	const Geom::Point2D<float> inter4( interx4, 
+	const Geom::Point2D<float> inter4( interx4,
 				       mCast(float,cpos.crl() + optstackstep_));
 
 	//keep 2 points that cross the 'stepout box'

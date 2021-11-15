@@ -49,18 +49,28 @@ mExpClass(Seis) SeisTrcReader : public SeisStoreAccess
 { mODTextTranslationClass(SeisTrcReader);
 public:
 
-			SeisTrcReader(const IOObj* =0);
+			SeisTrcReader(const MultiID&,Seis::GeomType);
 				//!< Open 'real user entries from '.omf' file
 				//!< Can be anything: SEGY - CBVS - database
-			SeisTrcReader(const char* fnm);
-				//!< Open 'loose' CBVS files only.
+			SeisTrcReader(const IOObj&,
+				      const Seis::GeomType* =nullptr);
+				//!< Open 'real user entries from '.omf' file
+				//!< Can be anything: SEGY - CBVS - database
+			SeisTrcReader(const IOObj&,Pos::GeomID,
+				      const Seis::GeomType* =nullptr);
+				//!< Restricted to a given Pos::GeomID
+			SeisTrcReader(const SeisStoreAccess::Setup&);
 			~SeisTrcReader();
 
     void		forceFloatData( bool yn=true )	{ forcefloats = yn; }
 			//!< Only effective if called before prepareWork()
-    bool		prepareWork(Seis::ReadMode rm=Seis::Prod);
+    bool		prepareWork(Seis::ReadMode =Seis::Prod);
 			//!< After this, you can set stuff on the translator
 			//!< If not called, will be done automatically
+
+    int			expectedNrTraces() const;
+			/*!< Not the number of positions, as Pre-Stack
+			     datasets have many traces per position */
 
     int			get(SeisTrcInfo&);
 			/*!< -1 = Error. errMsg() will return a message.
@@ -81,7 +91,6 @@ public:
 
     void		fillPar(IOPar&) const;
 
-    bool		isPrepared() const		{ return prepared; }
     Seis::Bounds*	getBounds() const;
 			//!< use after prepareWork(). If not avail: survinfo
     bool		get3DGeometryInfo(PosInfo::CubeData&) const;
@@ -102,26 +111,27 @@ public:
 
 protected:
 
-    bool		foundvalidinl, foundvalidcrl;
-    bool		new_packet, needskip;
-    bool		forcefloats;
-    bool		prepared;
-    bool		inforead;
-    int			prev_inl;
-    int			curlineidx;
-    int			nrfetchers;
+    bool		foundvalidinl = false;
+    bool		foundvalidcrl = false;
+    bool		new_packet = false;
+    bool		needskip = false;
+    bool		forcefloats = false;
+    bool		inforead = false;
+    int			prev_inl = mUdf(int);
+    int			curlineidx = -1;
+    int			nrfetchers = 0;
     TrcKeySampling*	outer;
-    SeisTrcBuf*		tbuf_;
-    Executor*		fetcher;
-    Seis::ReadMode	readmode;
-    bool		entryis2d;
+    SeisTrcBuf*		tbuf_ = nullptr;
+    Executor*		fetcher = nullptr;
+    Seis::ReadMode	readmode = Seis::Prod;
+    bool		entryis2d = false;
     StepInterval<int>	curtrcnrrg;
-    SeisPS2DReader*	psrdr2d_;
-    SeisPS3DReader*	psrdr3d_;
-    PosInfo::CubeDataIterator* pscditer_;
-    PosInfo::Line2DDataIterator* pslditer_;
-    BinID		curpsbid_;
-    int			selcomp_;
+    SeisPS2DReader*	psrdr2d_ = nullptr;
+    SeisPS3DReader*	psrdr3d_ = nullptr;
+    PosInfo::CubeDataIterator* pscditer_ = nullptr;
+    PosInfo::Line2DDataIterator* pslditer_ = nullptr;
+    BinID		curpsbid_ = BinID(0,0);
+    int			selcomp_ = -1;
 
     void		init();
     Conn*		openFirst();
@@ -147,6 +157,15 @@ protected:
 				    const StepInterval<float>&) const;
     bool		initBounds2D(const PosInfo::Line2DData&,
 				     Seis::Bounds2D&) const;
+
+			SeisTrcReader(const MultiID&)		= delete;
+
+public:
+    mDeprecated("Provide an existing IOObj")
+			SeisTrcReader(const IOObj* =nullptr);
+
+    explicit		SeisTrcReader(const char* fnm);
+				//!< Open 'loose' CBVS files only.
 };
 
 

@@ -18,10 +18,9 @@ Translators for SEGY files traces.
 #include "tracedata.h"
 #include "strmdata.h"
 #include "uistring.h"
-#include "coordsystem.h"
 
-class LinScaler;
 class BendPoints2Coords;
+class SeisStoreAccess;
 namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
 
 #define mSEGYTraceHeaderBytes	240
@@ -35,8 +34,7 @@ public:
 			~SEGYSeisTrcTranslator();
     virtual const char*	defExtension() const	{ return "sgy"; }
 
-    virtual bool	readInfo(SeisTrcInfo&);
-    virtual bool	read(SeisTrc&);
+    bool		readInfo(SeisTrcInfo&) override;
     virtual bool	skip(int);
     bool		goToTrace(int);
     int			traceSizeOnDisk() const;
@@ -44,7 +42,7 @@ public:
 
     bool		isRev0() const;
     int			numberFormat() const	{ return filepars_.fmt_; }
-    int			estimatedNrTraces() const { return estnrtrcs_; }
+    int			estimatedNrTraces() const override;
 
     void		toSupported(DataCharacteristics&) const;
     void		usePar(const IOPar&);
@@ -61,36 +59,33 @@ public:
     bool		rev0Forced() const	{ return forcedrev_ == 0; }
     SEGY::FilePars&	filePars()		{ return filepars_; }
     SEGY::FileReadOpts&	fileReadOpts()		{ return fileopts_; }
-    const unsigned char* blockBuf() const	{ return blockbuf_; }
 
     bool		implRemove( const IOObj* ) const	{ return true; }
     virtual bool	implManagesObjects( const IOObj* ) const
 						{ return true; }
     void		cleanUp();
 
-    void		setCoordSys(Coords::CoordSystem* crs)
-						    { coordsys_.set( crs ); }
+    void		setIs2D(bool yn) override;
+    void		setIsPS(bool yn) override;
+
+    static bool		writeSEGYHeader(const SeisStoreAccess&,const char* fnm);
+			//<! Will enforce sgyhdr extension
 
 protected:
 
     SEGY::FilePars	filepars_;
     SEGY::FileReadOpts	fileopts_;
-    SEGY::TxtHeader*	txthead_;
+    SEGY::TxtHeader*	txthead_ = nullptr;
     SEGY::BinHeader&	binhead_;
     SEGY::TrcHeader&	trchead_; // must be *after* fileopts_
-    LinScaler*		trcscale_;
-    const LinScaler*	curtrcscale_;
-    int			forcedrev_;
+    int			forcedrev_ = -1;
 
-    bool		useinpsd_;
-    TraceDataInterpreter* storinterp_; //Will be removed after 6.2
+    bool		useinpsd_ = false;
     unsigned char	headerbuf_[mSEGYTraceHeaderBytes];
-    bool		headerdone_; //Will be in base class after 6.2
 
     // Following variables are inited by commitSelections
-    unsigned char*	blockbuf_; //Will be removed after 6.2
-    ComponentData*	inpcd_;
-    TargetComponentData* outcd_;
+    ComponentData*	inpcd_ = nullptr;
+    TargetComponentData* outcd_ = nullptr;
 
     inline StreamConn&	sConn()		{ return *(StreamConn*)conn_; }
 
@@ -121,19 +116,24 @@ protected:
 
     int			curtrcnr_, prevtrcnr_;
     BinID		curbid_, prevbid_;
-    float		curoffs_, prevoffs_;
+    float		curoffs_ = -1.f;
+    float		prevoffs_ = 0.f;
     SEGY::OffsetCalculator offsetcalc_;
     Coord		curcoord_;
-    BendPoints2Coords*	bp2c_;
-    int			estnrtrcs_;
-    bool		othdomain_;
-    RefMan<Coords::CoordSystem>     coordsys_;
+    BendPoints2Coords*	bp2c_ = nullptr;
+    int			estnrtrcs_ = -1;
+    bool		othdomain_ = false;
 
 private:
 
     friend class SEGYDirectSeisTrcTranslator;
 
     virtual bool	readData(TraceData* externalbuf);
+
+public:
+
+    mDeprecatedObs
+    const unsigned char* blockBuf() const	{ return nullptr; }
 
 };
 

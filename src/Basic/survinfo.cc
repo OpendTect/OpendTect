@@ -71,18 +71,18 @@ Coord Survey::Geometry3D::toCoord( int linenr, int tracenr ) const
 
 TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
 {
-    TrcKey tk( getSurvID(), transform(crd) );
+    TrcKey tk( transform(crd) );
     if ( dist )
     {
-	if ( sampling_.hsamp_.includes(tk.pos()) )
+	if ( sampling_.hsamp_.includes(tk.position()) )
 	{
-	    const Coord projcoord( transform(tk.pos()) );
+	    const Coord projcoord( transform(tk.position()) );
 	    *dist = (float)projcoord.distTo( crd );
 	}
 	else
 	{
-	    TrcKey nearbid( sampling_.hsamp_.getNearest(tk.pos()) );
-	    const Coord nearcoord( transform(nearbid.pos()) );
+	    TrcKey nearbid( sampling_.hsamp_.getNearest(tk.position()) );
+	    const Coord nearcoord( transform(nearbid.position()) );
 	    *dist = (float)nearcoord.distTo( crd );
 	}
     }
@@ -139,7 +139,7 @@ const Survey::Geometry3D* Survey::Geometry::as3D() const
 Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
     : name_( nm )
     , zdomain_( zd )
-{ sampling_.hsamp_.survid_ = getID(); }
+{ sampling_.hsamp_.survid_ = OD::Geom3D; }
 
 
 StepInterval<int> Survey::Geometry3D::inlRange() const
@@ -407,7 +407,7 @@ SurveyInfo::SurveyInfo()
     xtr.b = 1000; xtr.c = 0;
     ytr.b = 0; ytr.c = 1000;
     b2c_.setTransforms( xtr, ytr );
-    tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
+    tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = OD::Geom3D;
 
     mTriggerInstanceCreatedNotifier();
 }
@@ -826,7 +826,7 @@ void SurveyInfo::setRange( const TrcKeyZSampling& cs, bool work )
     else
 	tkzs_ = cs;
 
-    tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = TrcKey::std3DSurvID();
+    tkzs_.hsamp_.survid_ = wcs_.hsamp_.survid_ = OD::Geom3D;
     if ( wcs_.isDefined() )
 	wcs_.limitTo( tkzs_ );
     else
@@ -1356,7 +1356,7 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
     {
 	RefMan<Survey::Geometry3D> newsgeom
 			= new Survey::Geometry3D( name(), zdef_ );
-	newsgeom->setID( Survey::GeometryManager::get3DSurvID() );
+	newsgeom->setID( Survey::default3DGeomID() );
 	newsgeom->setGeomData( b2c_, sampling(work), zScale() );
 	if ( sgeom.setIfEqual(0,newsgeom) )
 	    newsgeom.release();

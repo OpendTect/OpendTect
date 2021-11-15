@@ -787,11 +787,9 @@ TrcKeyZSampling Seis2DDisplay::getTrcKeyZSampling( bool displayspace,
 						   int attrib ) const
 {
     TrcKeyZSampling tkzs;
-    tkzs.hsamp_.start_.inl() = tkzs.hsamp_.stop_.inl() = getGeomID();
-    tkzs.hsamp_.start_.crl() = getTraceNrRange().start;
-    tkzs.hsamp_.stop_.crl() = getTraceNrRange().stop;
-    tkzs.hsamp_.step_.inl() = tkzs.hsamp_.step_.crl() = 1;
-    tkzs.hsamp_.survid_ = Survey::GM().get2DSurvID();
+    tkzs.hsamp_.init( getGeomID() );
+    const StepInterval<int> trcrg( getTraceNrRange() );
+    tkzs.hsamp_.setTrcRange( trcrg );
     tkzs.zsamp_.setFrom( getZRange(displayspace,attrib) );
     return tkzs;
 }
@@ -905,7 +903,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 	return false;
 
     const int trcnr = geometry_.positions()[traceidx].nr_;
-    const TrcKey trckey = Survey::GM().traceKey( geomid_, trcnr );
+    const TrcKey trckey( geomid_, trcnr );
     const int trcidx = regsdp->getNearestGlobalIdx( trckey );
     const int sampidx =  regsdp->zRange().nearestIndex( pos.z );
     const Array3DImpl<float>& array = regsdp->data( version );

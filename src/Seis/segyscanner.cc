@@ -80,7 +80,7 @@ void SEGY::Scanner::closeTr()
 {
     if ( !tr_ ) return;
     trwarns_.add( tr_->warnings(), true );
-    delete tr_; tr_ = 0;
+    deleteAndZeroPtr( tr_ );
 }
 
 
@@ -182,22 +182,22 @@ int SEGY::Scanner::readNext()
 	    scanerrmsgs_.add( emsg );
 	}
 	closeTr();
-	return Executor::MoreToDo();
+	return MoreToDo();
     }
 
     const SeisTrcInfo& ti = trc_.info();
-    dtctor_.add( ti.coord, ti.binid, ti.nr, ti.offset );
+    dtctor_.add( ti.coord, ti.binID(), ti.trcNr(), ti.offset );
     clipsmplr_.add( (const float*)trc_.data().getComponent(0)->data(),
 		    trc_.size() );
     nrdone_++;
 
     if ( notrcinfo_ )
-	return Executor::MoreToDo();
+	return MoreToDo();
 
     fds_.addTrace( curfidx_, ti.posKey( geom_ ), ti.coord,
 		   tr_->trcHeader().isusable );
 
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
@@ -227,7 +227,7 @@ int SEGY::Scanner::openNext()
     od_istream* strm = new od_istream( abspath );
     if ( !strm || !strm->isOK() )
 	{ delete strm; addFailed( tr("Cannot open this file") );
-		return Executor::MoreToDo(); }
+		return MoreToDo(); }
 
     tr_ = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
     tr_->usePar( pars_ );
@@ -235,21 +235,21 @@ int SEGY::Scanner::openNext()
     if ( !tr_->initRead(new StreamConn(strm),Seis::Scan) )
     {
 	addFailed( tr_->errMsg() );
-	return Executor::MoreToDo();
+	return MoreToDo();
     }
     for ( int idx=0; idx<tr_->componentInfo().size(); idx++ )
 	tr_->componentInfo()[idx]->datachar
 	    = DataCharacteristics( DataCharacteristics::F32 );
 
     initFileData();
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
 int SEGY::Scanner::finish( bool allok )
 {
     dtctor_.finish();
-    return allok ? Executor::Finished() : Executor::ErrorOccurred();
+    return allok ? Finished() : ErrorOccurred();
 }
 
 

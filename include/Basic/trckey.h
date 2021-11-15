@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "binid.h"
 
+namespace Survey { class Geometry; }
+
 /*!
 \brief Represents a unique trace position in one of the surveys that OpendTect
 is managing.
@@ -34,80 +36,119 @@ public:
 
 			//3D
     explicit		TrcKey(const BinID&); // default 3D surv ID
-    explicit		TrcKey(SurvID,const BinID&);
-
 			//2D
 			TrcKey(Pos::GeomID,Pos::TraceID);
-
+			//2D or 3D (not synthetic)
+			TrcKey(const Pos::IdxPair&,bool is2d);
+			//Any type
+			TrcKey(SurvID,const Pos::IdxPair&);
     static TrcKey	getSynth(Pos::TraceID);
-
-    bool		is2D() const { return is2D(survid_); }
-    bool		is3D() const { return is3D(survid_); }
-    bool		isSynthetic() const { return isSynthetic(survid_); }
-
-    static bool		is2D(SurvID);
-    static bool		is3D(SurvID);
-    static bool		isSynthetic(SurvID);
-
-    Pos::GeomID&	geomID();
-    Pos::GeomID		geomID() const;
-    static Pos::GeomID	geomID(SurvID,const BinID&);
-    TrcKey&		setGeomID(Pos::GeomID);
 
     bool		operator==(const TrcKey&) const;
     bool		operator!=( const TrcKey& oth ) const
 			{ return !(*this==oth); }
 
-    bool		exists() const; //!< check in geometry
-    inline bool		isUdf() const			{ return *this==udf(); }
-    static const TrcKey& udf();
-    void		setUdf();
-    static SurvID	std2DSurvID();
-    static SurvID	std3DSurvID();
-    static SurvID	stdSynthSurvID();
-    static SurvID	cUndefSurvID();
+    SurvID		survID() const		{ return geomsystem_; }
+    bool		is2D() const		{ return ::is2D(geomsystem_); }
+    bool		is3D() const		{ return ::is3D(geomsystem_); }
+    bool		isSynthetic() const
+					{ return ::isSynthetic(geomsystem_); }
 
-    double		distTo(const TrcKey&) const;
-    SurvID		survID() const			{ return survid_; }
-    inline TrcKey&	setSurvID( SurvID id )
-			{ survid_ = id; return *this; }
+    inline bool		isUdf() const			{ return pos_.isUdf(); }
+    bool		exists() const; //!< checks in geometry
 
     const BinID&	position() const		{ return pos_; }
-    IdxType		lineNr() const;		//	{ return pos_.row(); }
-    IdxType		trcNr() const;		//	{ return pos_.col(); }
-    const BinID&	binID() const			{ return position(); }
-    IdxType		inl() const			{ return lineNr(); }
-    IdxType		crl() const			{ return trcNr(); }
-    inline TrcKey&	setPosition( const BinID& bid )
-			{ pos_ = bid; return *this; }
+    Pos::GeomID		geomID() const;
+    IdxType		lineNr() const			{ return pos_.row(); }
+    IdxType		trcNr() const			{ return pos_.col(); }
+    const BinID&	binID() const			{ return pos_; }
+    Pos::IdxPair	idxPair() const;
+    IdxType		inl() const			{ return pos_.inl(); }
+    IdxType		crl() const			{ return pos_.crl(); }
+
+    TrcKey&		setGeomID(Pos::GeomID);
+    TrcKey&		setSurvID(SurvID);
+    TrcKey&		setPosition(const BinID&); //3D only
+    TrcKey&		setPosition(const Pos::IdxPair&,bool is2d);
+    inline TrcKey&	setPosition( Pos::GeomID gid, IdxType trcnr )
+			{ return setGeomID( gid ).setTrcNr( trcnr ); }
+    inline TrcKey&	setIs3D()	{ return setSurvID( OD::Geom3D ); }
+    inline TrcKey&	setIs2D()	{ return setSurvID( OD::Geom2D ); }
+    inline TrcKey&	setIs2D( bool yn )
+			{ return yn ? setIs2D() : setIs3D(); }
+    inline TrcKey&	setIsSynthetic() { return setSurvID( OD::GeomSynth ); }
+    inline TrcKey&	setUdf()	 { *this = udf(); return *this; }
+
+			// These do not change the SurvID of the TrcKey:
     inline TrcKey&	setLineNr( IdxType nr )
 			{ pos_.row() = nr; return *this; }
-    inline TrcKey&	setTrcNr( IdxType nr )
-			{ pos_.col() = nr; return *this; }
-    inline TrcKey&	setBinID( const BinID& bid )
-			{ return setPosition(bid); }
+    inline TrcKey&	setTrcNr( IdxType tnr )
+			{ pos_.col() = tnr; return *this; }
     inline TrcKey&	setInl( IdxType nr )
-			{ return setLineNr(nr); }
+			{ return setLineNr(nr); return *this; }
     inline TrcKey&	setCrl( IdxType nr )
-			{ return setTrcNr(nr); }
+			{ return setTrcNr(nr); return *this; }
 
-    TrcKey&		setFrom(const Coord&);	//!< Uses survID
-    Coord		getCoord() const;	//!< Uses survID
+    TrcKey&		setFrom(const Coord&);	//!< Uses SurvID
+    Coord		getCoord() const;	//!< Uses SurvID
+    double		sqDistTo(const TrcKey&) const;
+    double		distTo(const TrcKey&) const;
+    const Survey::Geometry& geometry() const;
 
-    /* mDeprecated */ const BinID& pos() const	{ return pos_; }
-			//!< Will go after 6.0. Use position() or binID()
-    /* mDeprecated */ void setPos( const BinID& bid )	{ pos_ = bid; }
-			//!< Will go after 6.0. Use setPosition()
-    /* mDeprecated */ IdxType& lineNr();	//	{ return pos_.row(); }
-			//!< Will go after 6.0. Use a set function
-    /* mDeprecated */ IdxType& trcNr();		//	{ return pos_.col(); }
-			//!< Will go after 6.0. Use a set function
+    TrcKey		getFor(Pos::GeomID) const;
+    TrcKey		getFor3D() const;
+    TrcKey		getFor2D( IdxType lnr ) const;
+
+    BufferString	usrDispStr() const;
+
+    static const TrcKey& udf();
 
 private:
 
-    SurvID		survid_;
+    SurvID		geomsystem_;
     BinID		pos_;
+
+public:
+
+    static Pos::GeomID	gtGeomID(SurvID,IdxType linenr=-1);
+
+public:
+
+    mDeprecated("Use Pos::IdxPair")
+    explicit		TrcKey(SurvID,const BinID&);
+
+    mDeprecated("Use setPosition")
+    inline TrcKey&	setBinID( const BinID& bid )
+			{ return setPosition(bid); }
+
+    mDeprecated("Use position()")
+    const BinID& pos() const	{ return pos_; }
+    mDeprecated("Use setPosition")
+    void		setPos( const BinID& bid )	{ setPosition(bid); }
+    mDeprecated("Use a set function")
+    IdxType&		lineNr();
+    mDeprecated("Use a set function")
+    IdxType&		trcNr();
+
+    mDeprecated("Use OD::GeomSystem")
+    static SurvID	std2DSurvID()	{ return OD::Geom2D; }
+    mDeprecated("Use OD::GeomSystem")
+    static SurvID	std3DSurvID()	{ return OD::Geom3D; }
+    mDeprecated("Use OD::GeomSystem")
+    static SurvID	cUndefSurvID()	{ return OD::GeomSynth; }
+
+    mDeprecated("Use global function")
+    static bool		is2D( SurvID gs )	{ return ::is2D( gs ); }
+
+    mDeprecated("Use the geometry manager")
+    static Pos::GeomID	geomID(SurvID,const BinID&);
 
 };
 
 
+inline OD::GeomSystem geomSystemOf( Pos::GeomID gid )
+{
+    return gid >= (Pos::GeomID)OD::Geom2D
+	 ? OD::Geom2D
+	 : (gid == (Pos::GeomID)OD::GeomSynth ? OD::GeomSynth : OD::Geom3D);
+}

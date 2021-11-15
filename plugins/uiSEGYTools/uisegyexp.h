@@ -37,7 +37,7 @@ public:
 
 protected:
 
-    Seis::GeomType	geom_;
+    const Seis::GeomType geom_;
     bool		autogentxthead_;
     BufferString	hdrtxt_;
     IOPar		pars_;
@@ -61,7 +61,7 @@ protected:
 
     friend class	uiSEGYExpMore;
     friend class	uiSEGYExpTxtHeader;
-    bool		doWork(const IOObj&,const IOObj&,const char*);
+    bool		doWork(const IOObj&,const IOObj&);
 
     void		showSubselCB(CallBacker*);
 

@@ -123,10 +123,14 @@ public:
     bool		createOutput(ObjectSet<DataPointSet>&,
 				     int firstcol =0);
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
-				     TypeSet<BinID>*,TypeSet<BinID>*);
+				     const TrcKeyPath& trueknotspos,
+				     const TrcKeyPath& snappedpos);
+    bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
+				     const TypeSet<BinID>& trueknotspos,
+				     const TypeSet<BinID>& snappedpos);
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
-					    TypeSet<BinID>* path,
-					    TypeSet<BinID>* trueknotspos);
+					    TrcKeyPath& path,
+					    TrcKeyPath& trueknotspos);
     static DataPack::ID createDataPackFor2D(const Attrib::Data2DHolder& input,
 					    const TrcKeyZSampling& outputsamp,
 					    const ZDomain::Def& zdef,
@@ -283,7 +287,13 @@ public:
 					  int geomid, bool isstored,
 					  int steerpol );
 protected:
-    void		snapToValidRandomTraces(TypeSet<BinID>& path,
+    void		snapToValidRandomTraces(TrcKeyPath& path,
 						const Attrib::Desc*);
+
+public:
+    mDeprecated("Use TrcKeyPath")
+    DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
+					    TypeSet<BinID>& path,
+					    TypeSet<BinID>& trueknotspos);
 };
 

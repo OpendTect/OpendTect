@@ -96,16 +96,16 @@ public:
 					     ObjectSet<BinIDValueSet>&);
 
     Processor*		createTrcSelOutput(uiString& errmsg,
-					   const BinIDValueSet& bidvalset,
-					   SeisTrcBuf&, float outval=0,
-					   Interval<float>* cubezbounds=0,
-					   TypeSet<BinID>* trueknotspos=0,
-					   TypeSet<BinID>* path=0);
+				   const BinIDValueSet& bidvalset,
+				   SeisTrcBuf&, float outval=0.f,
+				   const Interval<float>* cubezbounds=nullptr,
+				   const TypeSet<BinID>* trueknotspos=nullptr,
+				   const TypeSet<BinID>* path=nullptr);
     Processor*		create2DVarZOutput(uiString& errmsg,
-					   const IOPar& pars,
-					   DataPointSet* bidvalset,
-					   float outval=0,
-					   Interval<float>* cubezbounds = 0);
+				   const IOPar& pars,
+				   DataPointSet* bidvalset,
+				   float outval=0.f,
+				   const Interval<float>* cubezbounds =nullptr);
     Processor*		getTableOutExecutor(DataPointSet& datapointset,
 					    uiString& errmsg,
 					    int firstcol);

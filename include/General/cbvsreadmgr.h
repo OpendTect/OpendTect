@@ -30,7 +30,7 @@ mExpClass(General) CBVSReadMgr : public CBVSIOMgr
 {
 public:
 
-			CBVSReadMgr(const char*,const TrcKeyZSampling* cs=0,
+			CBVSReadMgr(const char*,const TrcKeyZSampling* =nullptr,
 				    bool single_file=false,
 				    bool glob_info_only=false,
 				    bool forceusecbvsinfo=false);
@@ -40,6 +40,7 @@ public:
 
     const CBVSInfo&	info() const		{ return info_; }
     int			bytesOverheadPerTrace() const;
+    int			estimatedNrTraces() const;
     void		close();
     void		setSingleLineMode(bool yn=true);
 

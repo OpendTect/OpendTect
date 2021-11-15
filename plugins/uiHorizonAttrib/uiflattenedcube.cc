@@ -153,9 +153,7 @@ int nextStep()
     }
 
     const float horz = pp_.adjustedZ( intrc_.info().coord, zval_ );
-    outtrc_.info().binid = intrc_.info().binid;
-    outtrc_.info().coord = intrc_.info().coord;
-    outtrc_.info().nr = intrc_.info().nr;
+    outtrc_.info() = intrc_.info();
     outtrc_.info().pick = horz;
     for ( int icomp=0; icomp<outtrc_.nrComponents(); icomp++ )
     {
@@ -197,10 +195,10 @@ bool uiWriteFlattenedCube::doWork( const IOObj& inioobj, const IOObj& outioobj,
 
     const float zwdth = SI().zRange(false).width();
     const Interval<float> maxzrg( -zwdth, zwdth );
-    Seis::TableSelData* tsd = new Seis::TableSelData( dps.bivSet(), &maxzrg );
-    SeisTrcReader rdr( &inioobj );
+    auto* tsd = new Seis::TableSelData( dps.bivSet(), &maxzrg );
+    SeisTrcReader rdr( inioobj );
     rdr.setSelData( tsd );
-    SeisTrcWriter wrr( &outioobj );
+    SeisTrcWriter wrr( outioobj );
     uiWriteFlattenedCubeMaker cm( rdr, wrr, pp_, horzrg_, zval );
     MouseCursorManager::restoreOverride();
     return TaskRunner::execute( &taskrunner, cm );

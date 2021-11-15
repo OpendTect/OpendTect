@@ -43,8 +43,7 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     fft_->setInputInfo( Array1DInfoImpl(wvltsize_) );
     fft_->setDir( true );
 
-    initWavelet( ioobj );
-    seisrdr_ = new SeisTrcReader( &ioobj );
+    initWavelet( iobj_ );
 }
 
 
@@ -71,7 +70,12 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
 
 void WaveletExtractor::init3D()
 {
-    seisrdr_->setSelData( sd_->clone() );
+    const Seis::GeomType gt = Seis::Vol;
+    delete seisrdr_;
+    seisrdr_ = new SeisTrcReader( iobj_, &gt );
+    if ( !sd_->isAll() )
+	seisrdr_->setSelData( sd_->clone() );
+
     seisrdr_->prepareWork();
     isbetweenhor_ = false;
 
@@ -122,9 +126,14 @@ bool WaveletExtractor::getNextLine()
     if ( lineidx_ >= sdset_.size() )
 	return false;
 
-    delete seisrdr_; // TODO: find a better way to reset the reader
-    seisrdr_ = new SeisTrcReader( &iobj_ );
-    seisrdr_->setSelData( sdset_[lineidx_]->clone() );
+    const Seis::SelData* sd = sdset_[lineidx_];
+    const Seis::GeomType gt = Seis::Line;
+    const Pos::GeomID gid = sd->geomID();
+    delete seisrdr_;
+    seisrdr_ = new SeisTrcReader( iobj_, gid, &gt );
+    if ( !sd->isAll() )
+	seisrdr_->setSelData( sd->clone() );
+
     seisrdr_->prepareWork();
 
     return true;
@@ -197,7 +206,7 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
 
     const BinIDValueSet& bvis = tsd->binidValueSet();
     Interval<float> extz = tsd->extraZ();
-    BinID bid = trc.info().binid;
+    BinID bid = trc.info().binID();
     float z1(mUdf(float)), z2(mUdf(float));
     BinID duplicatebid;
     BinIDValueSet::SPos pos = bvis.find( bid );

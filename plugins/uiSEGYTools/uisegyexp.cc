@@ -222,14 +222,14 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     txtheadfld_ = new uiSEGYExpTxtHeader( this );
     txtheadfld_->attach( alignedBelow, fpfld_ );
 
-    const bool is2d = Seis::is2D(geom_);
-    const bool is2dline = geom_ == Seis::Line;
-    uiSEGYFileSpec::Setup su( !is2dline );
+    const bool is2d = Seis::is2D( geom_ );
+    const bool issingle2dline = geom_ == Seis::Line;
+    uiSEGYFileSpec::Setup su( !issingle2dline );
     su.forread( false ).canbe3d( !is2d );
     fsfld_ = new uiSEGYFileSpec( this, su );
     fsfld_->attach( alignedBelow, txtheadfld_ );
 
-    if ( is2dline )
+    if ( issingle2dline )
     {
 	morebox_ = new uiCheckBox( this, uiStrings::phrExport(
 				tr("more lines from the same dataset")),
@@ -245,11 +245,8 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	batchfld_ = new uiBatchJobDispatcherSel( this, true,
 						 Batch::JobSpec::SEGY );
 	mAttachCB( batchfld_->checked, uiSEGYExp::batchChg );
-	Batch::JobSpec& js = batchfld_->jobSpec();
-	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyExport() );
-	js.pars_.setYN( SEGY::IO::sKeyIs2D(), is2d );
 	batchfld_->attach( alignedBelow,
-		manipbox_ ?  manipbox_ : fsfld_->attachObj() );
+			   manipbox_ ?	manipbox_ : fsfld_->attachObj() );
     }
 
     mAttachCB( postFinalise(), uiSEGYExp::inpSel );
@@ -298,7 +295,6 @@ void uiSEGYExp::batchChg( CallBacker* )
 	return;
 
     manipbox_->setSensitive( !batchfld_->wantBatch() );
-    txtheadfld_->setSensitive( !batchfld_->wantBatch() );
 }
 
 
@@ -308,9 +304,9 @@ class uiSEGYExpMore : public uiDialog
 public:
 
 uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
-	: uiDialog(p,uiDialog::Setup(tr("2D SEG-Y multi-export"),
-				     tr("Specify file details"),
-				     mODHelpKey(mSEGYExpMoreHelpID) ))
+    : uiDialog(p,uiDialog::Setup(tr("2D SEG-Y multi-export"),
+				 tr("Specify file details"),
+				 mODHelpKey(mSEGYExpMoreHelpID) ))
     , segyexp_(p)
     , inioobj_(ii)
     , outioobj_(oi)
@@ -335,7 +331,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
     newfnm += "_"; newfnm += inioobj_.name();
     newfnm += "."; newfnm += ext;
     fp.setFileName( newfnm );
-     uiString txt( tr("Output (Line name replaces '%1'")
+    const uiString txt( tr("Output (Line name replaces '%1'")
 			.arg(uiSEGYFileSpec::sKeyLineNmToken()) );
 
     uiFileInput::Setup fisu( fp.fullPath() );
@@ -352,11 +348,13 @@ bool acceptOK( CallBacker* )
     BufferString dirnm( fp.pathOnly() );
     if ( !File::isDirectory(dirnm) )
 	File::createDir( dirnm );
+
     if ( !File::isDirectory(dirnm) || !File::isWritable(dirnm) )
     {
 	uiMSG().error( tr("Directory provided not usable") );
 	return false;
     }
+
     fnm = fp.fullPath();
     if ( !fnm.contains(uiSEGYFileSpec::sKeyLineNmToken()) )
     {
@@ -382,10 +380,10 @@ IOObj* getSubstIOObj( const char* fullfnm )
 }
 
 
-bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
+bool doWork( IOObj* newioobj, bool islast, bool& nofails )
 {
     const IOObj& in = inioobj_; const IOObj& out = *newioobj;
-    bool res = segyexp_->doWork( in, out, lnm );
+    bool res = segyexp_->doWork( in, out );
     delete newioobj;
     if ( !res )
     {
@@ -417,7 +415,12 @@ bool doExp( const FilePath& fp )
 	BufferString filenm( fp.fullPath() );
 	filenm.replace( uiSEGYFileSpec::sKeyLineNmToken(), lnm );
 	IOObj* newioobj = getSubstIOObj( filenm );
-	if ( !doWork( newioobj, lnm, idx > lnms.size()-2, nofails ) )
+
+	uiSeis2DSubSel* seissel2d = segyexp_->transffld_->selFld2D();
+	if ( seissel2d && seissel2d->isSingLine() )
+	    seissel2d->setSelectedLine( lnm );
+
+	if ( !doWork(newioobj,idx>lnms.size()-2,nofails) )
 	    return false;
     }
 
@@ -442,51 +445,56 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     const IOObj* inioobj = seissel_->ioobj(true);
     if ( !inioobj )
 	mErrRet( uiStrings::phrSelect(tr("the data to export")) )
+
     const SEGY::FileSpec sfs( fsfld_->getSpec() );
     if ( sfs.isEmpty() )
 	mErrRet( uiStrings::phrSelect(uiStrings::sOutputFile().toLower()) )
 
-    PtrMan<IOObj> outioobj = sfs.getIOObj( true );
+    if ( !autogentxthead_ && !hdrtxt_.isEmpty() )
+	transffld_->setOutputHeader( hdrtxt_ );
 
-    const bool usecrs = othercrsfld_ && othercrsfld_->getBoolValue();
-    if ( usecrs )
+    if ( othercrsfld_ && othercrsfld_->getBoolValue() )
     {
-	SEGY::FilePars filepars = fpfld_->getPars();
-	filepars.setCoordSys( coordsysselfld_->getCoordSystem() );
-	fpfld_->setPars( filepars );
+	ConstRefMan<Coords::CoordSystem> crs =
+					 coordsysselfld_->getCoordSystem();
+	if ( crs )
+	{
+	    transffld_->setCoordSystem( *crs.ptr(), false );
+	    SEGY::FilePars filepars = fpfld_->getPars();
+	    filepars.setCoordSys( crs );
+	    fpfld_->setPars( filepars );
+	}
     }
-
-    fpfld_->fillPar( outioobj->pars() );
-    const bool is2d = Seis::is2D( geom_ );
-    outioobj->pars().setYN( SeisTrcTranslator::sKeyIs2D(), is2d );
-    outioobj->pars().setYN( SeisTrcTranslator::sKeyIsPS(), Seis::isPS(geom_) );
 
     if ( batchfld_ && batchfld_->wantBatch() )
     {
-	batchfld_->setJobName( fsfld_->getJobNameFromFileName() );
-	Batch::JobSpec& js = batchfld_->jobSpec();
+	const BufferString jobname( "Export_SEG-Y_",
+				    fsfld_->getJobNameFromFileName() );
+	batchfld_->setJobName( jobname );
+	IOPar& jobpars = batchfld_->jobSpec().pars_;
+	jobpars.setEmpty();
+	Seis::putInPar( geom_, jobpars );
+	jobpars.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyExport() );
+
 	IOPar inpars;
 	seissel_->fillPar( inpars );
-	js.pars_.mergeComp( inpars, sKey::Input() );
+	jobpars.mergeComp( inpars, sKey::Input() );
 
 	IOPar outpars;
 	transffld_->fillPar( outpars );
 	fpfld_->fillPar( outpars );
 	fsfld_->fillPar( outpars );
-	if ( usecrs )
-	    coordsysselfld_->getCoordSystem()->fillPar( outpars );
 
-// TODO: Support header text
-	js.pars_.mergeComp( outpars, sKey::Output() );
+	jobpars.mergeComp( outpars, sKey::Output() );
 	batchfld_->start();
 	return false;
     }
 
-    const bool multilinesel = morebox_ && morebox_->isChecked();
-    const char* lnm = is2d && !multilinesel && transffld_->selFld2D()
-			   && transffld_->selFld2D()->isSingLine()
-		    ? transffld_->selFld2D()->selectedLine() : nullptr;
+    PtrMan<IOObj> outioobj = sfs.getIOObj( true );
+    fpfld_->fillPar( outioobj->pars() );
+
     bool needmsgallok = false;
+    const bool multilinesel = morebox_ && morebox_->isChecked();
     if ( multilinesel )
     {
 	uiSEGYExpMore dlg( this, *inioobj, *outioobj );
@@ -494,7 +502,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     }
     else
     {
-	bool result = doWork( *inioobj, *outioobj, lnm );
+	const bool result = doWork( *inioobj, *outioobj );
 	if ( !result || !manipbox_ || !manipbox_->isChecked() )
 	    needmsgallok = result;
 	else
@@ -511,8 +519,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 }
 
 
-bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
-			const char* linenm )
+bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj )
 {
     PtrMan<uiSeisIOObjInfo> ioobjinfo = new uiSeisIOObjInfo( outioobj, true );
     if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
@@ -531,49 +538,21 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 #   define mRet(yn) \
     { delete tmpioobj; return yn; }
 
+    BufferString execnm( "Output seismic data" );
+    if ( transffld_->selFld2D() && transffld_->selFld2D()->isSingLine() )
+    {
+	execnm.add( " (" ).add( transffld_->selFld2D()->selectedLine() )
+	      .add( ")" );
+    }
+
     PtrMan<Executor> exec = transffld_->getTrcProc( inioobj, *useoutioobj,
-				    "Output seismic data", tr("Writing traces"),
-				    linenm );
+			    execnm, tr("Writing traces"),
+			    seissel_->compNr() );
     if ( !exec )
 	mRet( false )
 
-    mDynamicCastGet(SeisSingleTraceProc*,sstp,exec.ptr())
-    if ( sstp )
-    {
-	if ( !sstp->reader(0) )
-	    mRet( false )
-
-	SeisTrcReader& rdr = const_cast<SeisTrcReader&>( *sstp->reader(0) );
-	SeisIOObjInfo oinf( rdr.ioObj() );
-	rdr.setComponent( seissel_->compNr() );
-
-	const SeisTrcWriter& wrr = sstp->writer();
-	SeisTrcTranslator* transl =
-			const_cast<SeisTrcTranslator*>(wrr.seisTranslator());
-	mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
-	const bool usecrs = othercrsfld_ && othercrsfld_->getBoolValue();
-	if ( segytr && usecrs )
-	    segytr->setCoordSys( coordsysselfld_->getCoordSystem() );
-
-	if ( !autogentxthead_ && !hdrtxt_.isEmpty() && segytr )
-	{
-	    auto* th = new SEGY::TxtHeader;
-	    th->setGeomType( geom_ );
-	    th->setText( hdrtxt_ );
-	    segytr->setTxtHeader( th );
-	}
-    }
-
-    bool rv = false;
-    if ( linenm && *linenm )
-    {
-	BufferString nm( exec->name() );
-	nm += " ("; nm += linenm; nm += ")";
-	exec->setName( nm );
-    }
-
     uiTaskRunner dlg( this );
-    rv = TaskRunner::execute( &dlg, *exec );
+    const bool rv = TaskRunner::execute( &dlg, *exec );
     if ( tmpioobj )
 	IOM().commitChanges( *tmpioobj );
 

@@ -389,8 +389,8 @@ void uiSEGYRead::basicOptsGot()
     mHandleVWCancel(defdlg_,cCancelled());
     geom_ = defdlg_->geomType();
 
-    uiSEGYExamine::Setup exsu( defdlg_->nrTrcExamine() );
-    exsu.modal( false ); exsu.usePar( pars_ );
+    uiSEGYExamine::Setup exsu( geom_, defdlg_->nrTrcExamine() );
+    exsu.usePar( pars_ );
     BufferString emsg;
     const int exrev = uiSEGYExamine::getRev( exsu, emsg );
     if ( exrev < 0 )

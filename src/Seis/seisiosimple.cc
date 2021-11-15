@@ -42,32 +42,22 @@
 
 
 SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
-	: scaler_(0)
-	, resampler_(0)
-	, subselpars_(*new IOPar("subsel"))
-	, linekey_(*new LineKey)
-	, geom_(gt)
-	, compidx_(0)
-	, coordsys_(0)
+    : subselpars_(*new IOPar("subsel"))
+    , linekey_(*new LineKey)
+    , geom_(gt)
+    , geomid_(mUdfGeomID)
 {
     clear(true);
-    isasc_ = havepos_ = true;
-    havenr_ = haverefnr_ = havesd_ = haveoffs_ = haveazim_
-	    = isxy_ = remnull_ = false;
-
     if ( filenm && *filenm )
 	fname_ = filenm;
 }
 
 
-SeisIOSimple::Data::Data( const SeisIOSimple::Data& d )
-	: scaler_(0)
-	, resampler_(0)
-	, subselpars_(*new IOPar("subsel"))
-	, linekey_(*new LineKey)
-	, coordsys_(0)
+SeisIOSimple::Data::Data( const SeisIOSimple::Data& oth )
+    : subselpars_(*new IOPar("subsel"))
+    , linekey_(*new LineKey)
 {
-    *this = d;
+    *this = oth;
 }
 
 
@@ -76,7 +66,8 @@ SeisIOSimple::Data& SeisIOSimple::Data::operator=( const SeisIOSimple::Data& d )
     if ( this == &d ) return *this;
 
     fname_ = d.fname_; seiskey_ = d.seiskey_;
-    geom_ = d.geom_; isasc_ = d.isasc_;
+    geom_ = d.geom_; geomid_ = d.geomid_;
+    isasc_ = d.isasc_;
     havesd_ = d.havesd_; sd_ = d.sd_;
     nrsamples_ = d.nrsamples_;
     havepos_ = d.havepos_; isxy_ = d.isxy_;
@@ -103,27 +94,26 @@ SeisIOSimple::Data::~Data()
     delete resampler_;
     delete &linekey_;
     delete &subselpars_;
-    coordsys_ = 0;
 }
 
 
 void SeisIOSimple::Data::setScaler( Scaler* s )
 {
     delete scaler_;
-    scaler_ = s ? s->clone() : 0;
+    scaler_ = s ? s->clone() : nullptr;
 }
 
 
 void SeisIOSimple::Data::setResampler( SeisResampler* r )
 {
     delete resampler_;
-    resampler_ = r ? new SeisResampler( *r ) : 0;
+    resampler_ = r ? new SeisResampler( *r ) : nullptr;
 }
 
 
 void SeisIOSimple::Data::clear( bool survchg )
 {
-    delete resampler_; resampler_ = 0;
+    deleteAndZeroPtr( resampler_ );
     nrdef_.start = 1; nrdef_.step = 1;
     if ( !survchg )
 	return;
@@ -152,43 +142,37 @@ void SeisIOSimple::Data::clear( bool survchg )
 
 
 SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
-	: Executor( imp ? "Import Seismics from simple file"
-			: "Export Seismics to simple file" )
-	, data_(d)
-	, trc_(*new SeisTrc)
-	, isimp_(imp)
-	, strm_(0)
-	, rdr_(0)
-	, wrr_(0)
-	, importer_(0)
-	, nrdone_(0)
-	, firsttrc_(true)
-	, offsnr_(0)
-	, prevbid_(mUdf(int),0)
-	, prevnr_(mUdf(int))
-	, zistm_(SI().zIsTime())
+    : Executor( imp ? "Import Seismics from simple file"
+		    : "Export Seismics to simple file" )
+    , data_(d)
+    , trc_(*new SeisTrc)
+    , isimp_(imp)
+    , prevbid_(mUdf(int),0)
+    , prevnr_(mUdf(int))
+    , zistm_(SI().zIsTime())
 {
     PtrMan<IOObj> ioobj = IOM().get( data_.seiskey_ );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
+
     const_cast<bool&>(zistm_) = ZDomain::isTime( ioobj->pars() );
 
+    const Pos::GeomID geomid = data_.geomid_;
     SeisStoreAccess* sa;
     if ( isimp_ )
-	sa = wrr_ = new SeisTrcWriter( ioobj );
+	sa = wrr_ = new SeisTrcWriter( *ioobj, geomid, &data_.geom_ );
     else
-	sa = rdr_ = new SeisTrcReader( ioobj );
+	sa = rdr_ = new SeisTrcReader( *ioobj, geomid, &data_.geom_ );
+
     errmsg_ = sa->errMsg();
     if ( !errmsg_.isEmpty() )
 	return;
 
-    Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
-    if ( !data_.linekey_.isEmpty() )
-    {
-	Pos::GeomID geomid  =
-	    Survey::GM().getGeomID( data_.linekey_.lineName() );
+    PtrMan<Seis::SelData> seldata = Seis::SelData::get( data_.subselpars_ );
+    if ( seldata && Survey::is2DGeom(geomid) )
 	seldata->setGeomID( geomid );
-    }
-    sa->setSelData( seldata );
+    if ( seldata && !seldata->isAll() )
+	sa->setSelData( seldata.release() );
 
     uiString errmsg;
     strm_ = od_stream::create( data_.fname_, isimp_, errmsg );
@@ -323,38 +307,24 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	return Finished();
 
     mGetIBinStrm;
-    BinID bid; Coord coord; int nr = 1; float offs = 0, azim = 0, refnr = 0;
+    TrcKey tk;
+    tk.setGeomID( data_.geomid_ );
+
+    int nr = 1; float offs = 0, azim = 0, refnr = 0;
+    Coord coord;
     const bool is2d = Seis::is2D(data_.geom_);
     const bool isps = Seis::isPS(data_.geom_);
 
-    if ( !data_.havenr_ )
-	nr = data_.nrdef_.start + nrdone_ * data_.nrdef_.step;
-    else
+    if ( data_.havenr_ )
     {
 	binstrm.get( nr );
 	if ( data_.haverefnr_ )
 	    binstrm.get( refnr );
     }
-
-    if ( !data_.havepos_ )
-    {
-	const int nrposdone = isps ? nrdone_ / data_.nroffsperpos_ : nrdone_;
-	if ( is2d )
-	{
-	    coord.x = data_.startpos_.x + nrposdone * data_.steppos_.x;
-	    coord.y = data_.startpos_.y + nrposdone * data_.steppos_.y;
-	    bid = SI().transform( coord );
-	}
-	else
-	{
-	    const int nrinl = nrposdone / data_.nrcrlperinl_;
-	    const int nrcrl = nrposdone % data_.nrcrlperinl_;
-	    bid.inl() = data_.inldef_.start + nrinl * data_.inldef_.step;
-	    bid.crl() = data_.crldef_.start + nrcrl * data_.crldef_.step;
-	    coord = SI().transform( bid );
-	}
-    }
     else
+	nr = data_.nrdef_.start + nrdone_ * data_.nrdef_.step;
+
+    if ( data_.havepos_ )
     {
 	if ( data_.isxy_ )
 	{
@@ -364,15 +334,58 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    if ( sicrs && datacrs && !(*sicrs == *datacrs) )
 		coord = sicrs->convertFrom( coord, *datacrs );
 
-	    bid = SI().transform( coord );
+	    if ( is2d )
+	    {
+		if ( data_.havenr_ )
+		    tk.setTrcNr( nr );
+		else
+		{
+		    const Survey::Geometry* geom =
+				Survey::GM().getGeometry( data_.geomid_ );
+		    if ( geom && geom->as2D() )
+			tk = geom->nearestTrace( coord );
+		    else
+			tk = Survey::GM().nearestTrace( coord, true );
+		}
+	    }
+	    else
+		tk.setPosition( SI().transform(coord) );
 	}
 	else
 	{
-	    binstrm.get( bid.inl() ).get( bid.crl() );
-	    coord = SI().transform( bid );
+	    int linenr, trcnr;
+	    binstrm.get( linenr ).get( trcnr );
+	    if ( is2d )
+		tk.setTrcNr( trcnr ); //Should not be hit, always with X/Y
+	    else
+		tk.setPosition( BinID(linenr,trcnr) );
+	}
+    }
+    else
+    {
+	const int nrposdone = isps ? nrdone_ / data_.nroffsperpos_ : nrdone_;
+	if ( is2d )
+	{
+	    coord.x = data_.startpos_.x + nrposdone * data_.steppos_.x;
+	    coord.y = data_.startpos_.y + nrposdone * data_.steppos_.y;
+	    const Survey::Geometry* geom =
+				Survey::GM().getGeometry( data_.geomid_ );
+	    if ( geom && geom->as2D() )
+		tk = geom->nearestTrace( coord );
+	    else
+		tk = Survey::GM().nearestTrace( coord, true );
+	}
+	else
+	{
+	    const int nrinl = nrposdone / data_.nrcrlperinl_;
+	    const int nrcrl = nrposdone % data_.nrcrlperinl_;
+	    const int inlnr = data_.inldef_.start + nrinl * data_.inldef_.step;
+	    const int crlnr = data_.crldef_.start + nrcrl * data_.crldef_.step;
+	    tk.setPosition( BinID(inlnr,crlnr) );
 	}
     }
 
+    const TrcKey& csttk = const_cast<const TrcKey&>( tk );
     if ( isps )
     {
 	if ( !data_.haveoffs_ )
@@ -381,7 +394,8 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    binstrm.get( offs );
 	if ( data_.haveazim_ )
 	    binstrm.get( azim );
-	if ( (is2d && nr != prevnr_) || (!is2d && bid != prevbid_) )
+	if (  (is2d && csttk.trcNr() != prevnr_) ||
+	     (!is2d && csttk.position() != prevbid_) )
 	    offsnr_ = 0;
 	else
 	    offsnr_++;
@@ -391,17 +405,33 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     if ( !strm_->isOK() || !trc.reSize(data_.nrsamples_,0) )
 	return Finished();
 
-    mPIEPAdj(BinID,bid,true); mPIEPAdj(Coord,coord,true);
-    mPIEPAdj(TrcNr,nr,true); mPIEPAdj(Offset,offs,true);
+    if ( is2d )
+    {
+	int trcnr = csttk.trcNr();
+	mPIEPAdj(TrcNr,trcnr,true);
+	tk.setTrcNr( trcnr );
+    }
+    else
+    {
+	BinID bid = csttk.position();
+	mPIEPAdj(BinID,bid,true);
+	tk.setPosition( bid );
+    }
 
-    trc.info().binid = bid;
-    prevbid_ = bid;
-    trc.info().coord = coord;
+    trc.info().setTrcKey( csttk );
+    trc.info().calcCoord();
+    if ( trc.info().coord.isUdf() && !coord.isUdf() )
+	trc.info().coord = coord;
+
+    mPIEPAdj(Coord,trc.info().coord,true);
+    mPIEPAdj(Offset,offs,true);
     trc.info().offset = offs;
     trc.info().azimuth = azim;
-    trc.info().nr = nr;
+    trc.info().seqnr_ = nrDone();
     trc.info().refnr = refnr;
-    prevnr_ = nr;
+
+    prevbid_ = csttk.position();
+    prevnr_ = csttk.trcNr();
 #   define mApplyScalerAndSetTrcVal \
 	if ( data_.scaler_ ) \
 	    val = (float) data_.scaler_->scale( val ); \
@@ -492,7 +522,7 @@ int SeisIOSimple::writeExpTrc()
 
     if ( data_.havenr_ )
     {
-	int nr = trc_.info().nr;
+	int nr = trc_.info().trcNr();
 	const float refnr = trc_.info().refnr;
 	mPIEPAdj(TrcNr,nr,false);
 	binstrm.add( nr );
@@ -515,7 +545,7 @@ int SeisIOSimple::writeExpTrc()
 	}
 	else
 	{
-	    BinID bid = trc_.info().binid;
+	    BinID bid = trc_.info().binID();
 	    mPIEPAdj(BinID,bid,false);
 	    binstrm.add( bid.inl() ).add( bid.crl() );
 	}

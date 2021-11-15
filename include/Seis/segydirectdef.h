@@ -87,14 +87,14 @@ protected:
     PosInfo::CubeData&	 cubedata_;
     PosInfo::Line2DData& linedata_;
 
-    const FileDataSet*	fds_;
-    FileDataSet*	myfds_;
-    SEGY::PosKeyList*	keylist_;
-    Seis::PosIndexer*	indexer_;
+    const FileDataSet*	fds_ = nullptr;
+    FileDataSet*	myfds_ = nullptr;
+    SEGY::PosKeyList*	keylist_ = nullptr;
+    Seis::PosIndexer*	indexer_ = nullptr;
 
     mutable uiString	errmsg_;
 
-    od_ostream*		outstream_;
+    od_ostream*		outstream_ = nullptr;
     od_stream_Pos	offsetstart_;
     od_stream_Pos	datastart_;
     od_stream_Pos	cubedatastart_;
@@ -126,9 +126,9 @@ protected:
     IOObj*		ioobj_;
     Pos::GeomID		geomid_;
 
-    Scanner*		scanner_;
+    Scanner*		scanner_ = nullptr;
     mutable uiString	msg_;
-    DirectDef*		directdef_;
+    DirectDef*		directdef_ = nullptr;
     bool		is2d_;
     bool		isvol_;
 

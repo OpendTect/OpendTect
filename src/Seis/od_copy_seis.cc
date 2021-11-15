@@ -63,21 +63,25 @@ bool BatchProgram::doWork( od_ostream& strm )
 	return false;
     }
 
+    const bool newformat = pars().isPresent( sKey::Geometry() );
+    const IOPar& procpars = newformat ? *outpar.ptr() : pars();
+
     if ( ioobjinfo.is2D() )
     {
-	Seis2DCopier copier( *inioobj, *outioobj, pars() );
+	Seis2DCopier copier( *inioobj, *outioobj, procpars );
 	return copier.go( &strm, false, true );
     }
 
     PtrMan<SeisSingleTraceProc> stp = new SeisSingleTraceProc( *inioobj,
-			*outioobj, "", &pars(), uiString::emptyString() );
+			*outioobj, "Copying 3D Cube", nullptr,
+			uiString::emptyString() );
     if ( !stp->isOK() )
     {
 	strm << stp->errMsg();
 	return false;
     }
 
-    stp->setProcPars( pars(), false );
+    stp->setProcPars( procpars, false );
     int compnr = -1; // all components
     inpar->get( sKey::Component(), compnr );
     SeisCubeCopier copier( stp.release(), compnr );

@@ -1552,7 +1552,7 @@ void uiODApplMgr::addMPEParentPath( int visid, const TrcKey& tk )
     rl->setName( rlnm );
     Geometry::RLM().add( rl );
     for ( int idx=0; idx<bends.size(); idx++ )
-	rl->addNode( trcs[bends[idx]].pos() );
+	rl->addNode( trcs[bends[idx]].position() );
 
     const int rlvisid =
 	sceneMgr().addRandomLineItem( rl->ID(), hd->getSceneID() );

@@ -82,7 +82,8 @@ bool uiSeisExpCubePositionsDlg::getPositions( const MultiID& key,
 	mErrRet( msg )
     }
 
-    const SeisTrcReader rdr( ioobj );
+    const Seis::GeomType gt = Seis::Vol;
+    const SeisTrcReader rdr( *ioobj, &gt );
     if ( !rdr.get3DGeometryInfo(cd) )
 	mErrRet( rdr.errMsg() )
 

@@ -54,7 +54,7 @@ void Horizon2DExtender::setDirection( const TrcKeyValue& dir )
 {
     direction_ = dir;
     xydirection_ =
-	SI().transform( BinID(0,0) ) - SI().transform( dir.tk_.pos() );
+	SI().transform( BinID(0,0) ) - SI().transform( dir.tk_.position() );
     const double abs = xydirection_.abs();
     alldirs_ = mIsZero( abs, 1e-3 );
     if ( !alldirs_ )
@@ -89,24 +89,25 @@ void Horizon2DExtender::addNeighbor( bool upwards, const TrcKey& src )
     const StepInterval<int> colrange =
 	hor2d_.geometry().colRange( sid_, geomid_ );
     TrcKey neighbor = src;
-    neighbor.trcNr() += upwards ? colrange.step : -colrange.step;
-    if ( !colrange.includes(neighbor.trcNr(),false) )
+    const TrcKey& cstneighbor = const_cast<const TrcKey&>( neighbor );
+    neighbor.setTrcNr( cstneighbor.trcNr() +
+		       upwards ? colrange.step : -colrange.step );
+    if ( !colrange.includes(cstneighbor.trcNr(),false) )
 	return;
 
     const TrcKeyZSampling& boundary = getExtBoundary();
-    if ( !boundary.isEmpty() &&
-	    !boundary.hsamp_.includes(neighbor.pos()) )
+    if ( !boundary.isEmpty() && !boundary.hsamp_.includes(cstneighbor) )
 	return;
 
-    const bool hasz = hor2d_.hasZ( neighbor );
+    const bool hasz = hor2d_.hasZ( cstneighbor );
     const bool isintersection = hor2d_.isAttrib(
-			neighbor, EM::EMObject::sIntersectionNode() );
+			cstneighbor, EM::EMObject::sIntersectionNode() );
     if ( hasz && !isintersection )
 	return;
 
-    hor2d_.setZAndNodeSourceType( 
-	neighbor, hor2d_.getZ(src), true, EM::EMObject::Auto );
-    addTarget( neighbor, src );
+    hor2d_.setZAndNodeSourceType(
+	cstneighbor, hor2d_.getZ(src), true, EM::EMObject::Auto );
+    addTarget( cstneighbor, src );
 }
 
 

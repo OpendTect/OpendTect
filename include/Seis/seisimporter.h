@@ -11,9 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "seistype.h"
-#include "executor.h"
+
 #include "bufstring.h"
+#include "executor.h"
+#include "seisstor.h"
+
 class IOObj;
 class Scaler;
 class SeisTrc;
@@ -52,20 +54,20 @@ public:
 	uiString		errmsg_;
     };
 
-
 			SeisImporter(Reader*,SeisTrcWriter&,Seis::GeomType);
 				//!< Reader becomes mine. Has to be non-null.
     virtual		~SeisImporter();
 
-    uiString		uiMessage() const;
-    od_int64		nrDone() const;
-    uiString		uiNrDoneText() const;
-    od_int64		totalNr() const;
-    int			nextStep();
+    uiString		uiMessage() const override;
+    od_int64		nrDone() const override;
+    uiString		uiNrDoneText() const override;
+    od_int64		totalNr() const override;
 
     int			nrSkipped() const	{ return nrskipped_; }
     Reader&		reader()		{ return *rdr_; }
     SeisTrcWriter&	writer()		{ return wrr_; }
+
+    int			nextStep() override;
 
 protected:
 
@@ -73,6 +75,7 @@ protected:
 
     Reader*			rdr_;
     SeisTrcWriter&		wrr_;
+    bool			writerismine_;
     int				queueid_;
     int				maxqueuesize_;
     Threads::ConditionVar&	lock_;
@@ -80,13 +83,15 @@ protected:
     SeisTrc&			trc_;
     BinID&			prevbid_;
     int				sort2ddir_;
-    BinIDSorting*		sorting_;
+    BinIDSorting*		sorting_ = nullptr;
     BinIDSortingAnalyser*	sortanal_;
     Seis::GeomType		geomtype_;
     State			state_;
-    int				nrread_;
-    int				nrwritten_;
-    int				nrskipped_;
+    int				nrread_ = 0;
+    int				nrwritten_ = 0;
+    int				nrskipped_ = 0;
+
+    bool			goImpl(od_ostream*,bool,bool,int) override;
 
     bool			sortingOk(const SeisTrc&);
     int				doWrite(SeisTrc&);
@@ -97,15 +102,20 @@ protected:
 
     mutable uiString		errmsg_;
     mutable uiString	        hndlmsg_;
+
+public:
+
 };
 
 
 mExpClass(Seis) SeisStdImporterReader : public SeisImporter::Reader
 { mODTextTranslationClass(SeisStdImporterReader);
 public:
-			SeisStdImporterReader(const IOObj&,const char* nm);
+			SeisStdImporterReader(const SeisStoreAccess::Setup&,
+					      const char* nm);
 			~SeisStdImporterReader();
 
+    const SeisTrcReader& reader() const		{ return rdr_; }
     SeisTrcReader&	reader()		{ return rdr_; }
 
     const char*		name() const		{ return name_; }
@@ -123,9 +133,15 @@ protected:
 
     const BufferString	name_;
     SeisTrcReader&	rdr_;
-    bool		remnull_;
-    SeisResampler*	resampler_;
-    Scaler*		scaler_;
+    int			totalnr_ = -1;
+    bool		remnull_ = false;
+    SeisResampler*	resampler_ = nullptr;
+    Scaler*		scaler_ = nullptr;
+
+public:
+
+    mDeprecated("Use SeisStoreAccess::Setup")
+			SeisStdImporterReader(const IOObj&,const char* nm);
 
 };
 

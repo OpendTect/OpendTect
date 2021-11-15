@@ -71,8 +71,11 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 
     const MultiID key( linenm );
     PtrMan<IOObj> ioobj = IOM().get( key );
-    SeisTrcReader rdr( ioobj );
-    if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) || rdr.psIOProv() )
+    if ( !ioobj )
+	return;
+
+    SeisTrcReader rdr( *ioobj );
+    if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) || rdr.isPS() )
     {
 //	TODO desc.setErrMsg( rdr.errMsg() );
 	return;
@@ -214,7 +217,9 @@ bool StorageProvider::checkInpAndParsAtStart()
     const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
     const MultiID mid( lk.lineName() );
     if ( !isOK() ) return false;
-    mscprov_ = new SeisMSCProvider( mid );
+
+    const SeisIOObjInfo seisinfo( mid );
+    mscprov_ = new SeisMSCProvider( mid, seisinfo.geomType() );
 
     if ( !initMSCProvider() )
 	mErrRet( mscprov_->errMsg() )
@@ -286,7 +291,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    prevtrcnr_ = currentbid_.crl();
 
 	bool validstartpos = startpos != BinID(-1,-1);
-	if ( validstartpos && curtrcinfo_ && curtrcinfo_->binid == startpos )
+	if ( validstartpos && curtrcinfo_ && curtrcinfo_->binID() == startpos )
 	{
 	    alreadymoved_ = true;
 	    return 1;
@@ -352,10 +357,10 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 
     curtrcinfo_ = 0;
     const SeisTrcInfo& newti = trc->info();
-    currentbid_ = desc_.is2D()? BinID( 0, newti.nr ) : newti.binid;
-    trcinfobid_ = newti.binid;
+    currentbid_ = desc_.is2D()? BinID( 0, newti.trcNr() ) : newti.binID();
+    trcinfobid_ = newti.binID();
     if ( firstcheck || startpos == BinID(-1,-1) || currentbid_ == startpos
-	    || newti.binid == startpos )
+	    || newti.binID() == startpos )
     {
 	advancefurther = false;
 	curtrcinfo_ = &trc->info();
@@ -554,7 +559,8 @@ bool StorageProvider::setTableSelData()
 
 bool StorageProvider::set2DRangeSelData()
 {
-    if ( !isondisc_ ) return false;
+    if ( !isondisc_ )
+	return false;
 
     mDynamicCastGet(const Seis::RangeSelData*,rsd,seldata_)
     Seis::RangeSelData* seldata = rsd ? (Seis::RangeSelData*)rsd->clone()
@@ -563,11 +569,12 @@ bool StorageProvider::set2DRangeSelData()
     Seis2DDataSet* dset = reader.dataSet();
     if ( !dset )
     {
-	if ( !rsd && seldata ) delete seldata;
+	if ( !rsd && seldata )
+	    delete seldata;
 	return false;
     }
 
-    if ( geomid_ != Survey::GeometryManager::cUndefGeomID() )
+    if ( Survey::is2DGeom(geomid_) )
     {
 	seldata->setGeomID( geomid_ );
 	StepInterval<float> dszrg; StepInterval<int> trcrg;
@@ -575,8 +582,8 @@ bool StorageProvider::set2DRangeSelData()
 	{
 	    if ( !checkDesiredTrcRgOK(trcrg,dszrg) )
 		return false;
-	    StepInterval<int> rg( 0, 0, 1 );
-	    seldata->setInlRange( rg );
+
+	    StepInterval<int> rg;
 	    rg.start = desiredvolume_->hsamp_.start_.crl() < trcrg.start?
 			trcrg.start : desiredvolume_->hsamp_.start_.crl();
 	    rg.stop = desiredvolume_->hsamp_.stop_.crl() > trcrg.stop ?
@@ -874,7 +881,7 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
 
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());
     trcrange.widen( 0.001f * trc->info().sampling.step );
-    const BinID bid = trc->info().binid;
+    const BinID bid = trc->info().binID();
     if ( !dc->sampling().hsamp_.includes(bid) )
 	return;
 

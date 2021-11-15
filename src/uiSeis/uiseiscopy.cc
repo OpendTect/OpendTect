@@ -37,8 +37,9 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
 {
     setCtrlStyle( RunAndClose );
 
-    IOObjContext inctxt( uiSeisSel::ioContext(Seis::Vol,true) );
-    uiSeisSel::Setup sssu( Seis::Vol );
+    const Seis::GeomType gt = Seis::Vol;
+    IOObjContext inctxt( uiSeisSel::ioContext(gt,true) );
+    uiSeisSel::Setup sssu( gt );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
 
     inpfld_ = new uiSeisSel( this, inctxt, sssu );
@@ -47,7 +48,7 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     compfld_ = new uiLabeledComboBox( this, tr("Component(s)") );
     compfld_->attach( alignedBelow, inpfld_ );
 
-    uiSeisTransfer::Setup sts( Seis::Vol );
+    uiSeisTransfer::Setup sts( gt );
     if ( startobj )
     {
 	inpfld_->setInput( startobj->key() );
@@ -60,11 +61,12 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     transffld_ = new uiSeisTransfer( this, sts );
     transffld_->attach( alignedBelow, compfld_ );
 
-    IOObjContext outctxt( uiSeisSel::ioContext(Seis::Vol,false) );
+    IOObjContext outctxt( uiSeisSel::ioContext(gt,false) );
     outfld_ = new uiSeisSel( this, outctxt, sssu );
     outfld_->attach( alignedBelow, transffld_ );
 
-    Batch::JobSpec js( sProgName ); js.execpars_.needmonitor_ = true;
+    Batch::JobSpec js( sProgName );
+    js.execpars_.needmonitor_ = true;
     batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
     batchfld_->attach( alignedBelow, outfld_ );
 
@@ -114,19 +116,30 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     const int compnr = ismc_ ? compfld_->box()->currentItem()-1 : -1;
     if ( issteer && compnr>-1 )
 	outpars.set( sKey::Type(), sKey::Attribute() );
-    IOM().commitChanges( *outioobj );
 
+    IOM().commitChanges( *outioobj );
 
     if ( batchfld_->wantBatch() )
     {
-	Batch::JobSpec& js = batchfld_->jobSpec();
-	IOPar inppar; inpfld_->fillPar( inppar );
-	inppar.set( sKey::Component(), compnr );
-	js.pars_.mergeComp( inppar, sKey::Input() );
-	transffld_->fillPar( js.pars_ );
-	IOPar outpar; outfld_->fillPar( outpar );
-	js.pars_.mergeComp( outpar, sKey::Output() );
-	batchfld_->setJobName( outioobj->name() );
+	const BufferString jobname( "Copy_", outioobj->name() );
+	batchfld_->setJobName( jobname );
+	IOPar& jobpars = batchfld_->jobSpec().pars_;
+	jobpars.setEmpty();
+	const Seis::GeomType gt = inpfld_->geomType();
+	Seis::putInPar( gt, jobpars );
+	jobpars.set( "Task", "Copy" );
+
+	IOPar inppar;
+	inpfld_->fillPar( inppar );
+	if ( compnr > 0 )
+	    inppar.set( sKey::Component(), compnr );
+	jobpars.mergeComp( inppar, sKey::Input() );
+
+	IOPar outpar;
+	transffld_->fillPar( outpar );
+	outfld_->fillPar( outpar );
+	jobpars.mergeComp( outpar, sKey::Output() );
+
 	batchfld_->saveProcPars( *outioobj );
 	if ( !batchfld_->start() )
 	    uiMSG().error( uiStrings::sBatchProgramFailedStart() );
@@ -134,8 +147,10 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 	return false;
     }
 
-    PtrMan<Executor> exec = transffld_->getTrcProc( *inioobj, *outioobj, "",
-						uiStrings::sEmptyString() );
+    PtrMan<Executor> exec = transffld_->getTrcProc( *inioobj, *outioobj,
+						"Copying 3D Cube",
+						uiStrings::sEmptyString(),
+						compnr );
     mDynamicCastGet(SeisSingleTraceProc*,stp,exec.ptr())
     if ( !stp )
 	return false;
@@ -175,8 +190,10 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 {
     setCtrlStyle( RunAndClose );
 
-    IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
-    uiSeisSel::Setup sssu( Seis::Line );
+    const Seis::GeomType gt = Seis::Line;
+
+    IOObjContext ioctxt = uiSeisSel::ioContext( gt, true );
+    uiSeisSel::Setup sssu( gt );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
     inpfld_ = new uiSeisSel( this, ioctxt, sssu );
     inpfld_->selectionDone.notify( mCB(this,uiSeisCopy2DDataSet,inpSel) );
@@ -250,14 +267,22 @@ bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
 
     if ( batchfld_->wantBatch() )
     {
-	Batch::JobSpec& js = batchfld_->jobSpec();
-	js.pars_.merge( procpars );
-	IOPar inppar; inpfld_->fillPar( inppar );
-	js.pars_.mergeComp( inppar, sKey::Input() );
-	IOPar outpar; outpfld_->fillPar( outpar );
-	js.pars_.mergeComp( outpar, sKey::Output() );
+	const BufferString jobname( "Copy_", outioobj->name() );
+	batchfld_->setJobName( jobname );
+	IOPar& jobpars = batchfld_->jobSpec().pars_;
+	jobpars.setEmpty();
+	const Seis::GeomType gt = inpfld_->geomType();
+	Seis::putInPar( gt, jobpars );
+	jobpars.set( "Task", "Copy" );
 
-	batchfld_->setJobName( outioobj->name() );
+	IOPar inppar;
+	inpfld_->fillPar( inppar );
+	jobpars.mergeComp( inppar, sKey::Input() );
+
+	IOPar outpar( procpars );
+	outpfld_->fillPar( outpar );
+	jobpars.mergeComp( outpar, sKey::Output() );
+
 	if ( !batchfld_->start() )
 	    uiMSG().error( uiStrings::sBatchProgramFailedStart() );
 

@@ -18,7 +18,7 @@
 			       cstart, cstop, cstep, \
 			       zstart, zstop, zstep) \
     TrcKeyZSampling cs( false ); \
-    cs.hsamp_.survid_ = TrcKey::std3DSurvID(); \
+    cs.hsamp_.survid_ = OD::Geom3D; \
     cs.hsamp_.set( StepInterval<int>(istart,istop,istep), \
 	        StepInterval<int>(cstart,cstop,cstep) ); \
     cs.zsamp_.set( zstart, zstop, zstep );
@@ -155,7 +155,7 @@ static bool testIsCompatible()
 bool testIterator()
 {
     TrcKeySampling hrg;
-    hrg.survid_ = TrcKey::std3DSurvID();
+    hrg.survid_ = OD::Geom3D;
     hrg.set( StepInterval<int>( 100, 102, 2 ),
 	     StepInterval<int>( 300, 306, 3 ) );
 

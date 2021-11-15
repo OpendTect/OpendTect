@@ -7,6 +7,7 @@
 
 #include "seissingtrcproc.h"
 
+#include "coordsystem.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -29,209 +30,152 @@
 
 #include "uistrings.h"
 
-#define mInitMembers \
-	Executor(nm) \
-	, wrr_(*new SeisTrcWriter(&out)) \
-	, nrskipped_(0) \
-	, intrc_(*new SeisTrc) \
-	, nrwr_(0) \
-	, wrrkey_(*new MultiID) \
-	, trcsperstep_(10) \
-	, scaler_(0) \
-	, skipnull_(false) \
-	, fillnull_(false) \
-	, fillhs_(true) \
-	, filltrc_(0) \
-	, resampler_(0) \
-	, extendtrctosi_( false ) \
-	, is3d_(true) \
-	, traceselected_(this) \
-	, proctobedone_(this) \
-	, allszsfound_(true) \
-	, totnr_(-1) \
-	, currdridx_(-1) \
 
-#define mInitVars() \
-    wrrkey_ = out.key(); \
-    worktrc_ = &intrc_; \
-    curmsg_ = msg; \
-    worktrc_ = &intrc_
-
-#define mHandlePastLastReader(to_do) \
-    if ( !rdrs_.validIdx(currdridx_) ) \
-	{ wrapUp(); to_do; }
-
-
-SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& out, const char* nm,
-					  const uiString& msg )
-    : mInitMembers
+SeisSingleTraceProc::SeisSingleTraceProc( const SeisStoreAccess::Setup& inpsu,
+					  const SeisStoreAccess::Setup& outsu,
+					  const char* nm, const uiString& msg )
+    : Executor(nm)
+    , execnm_(nm)
+    , initmsg_(msg)
+    , inpsetup_(inpsu)
+    , outsetup_(outsu)
+    , intrc_(*new SeisTrc)
+    , wrrkey_(*new MultiID)
+    , fillhs_(true)
+    , traceselected_(this)
+    , proctobedone_(this)
 {
-    mInitVars();
+    if ( outsu.ioobj_ )
+	wrrkey_ = outsu.ioobj_->key();
+
+    worktrc_ = &intrc_;
 }
 
 
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& in, const IOObj& out,
 					  const char* nm, const IOPar* iop,
 					  const uiString& msg, int compnr )
-    : mInitMembers
+    : SeisSingleTraceProc(SeisStoreAccess::Setup(in,nullptr),
+			  SeisStoreAccess::Setup(out,nullptr), nm, msg)
 {
-    mInitVars();
-    compnr_ = compnr;
-
-    setInput( in, out, nm, iop, msg );
-}
-
-
-SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
-					  const IOObj& out, const char* nm,
-					  ObjectSet<IOPar>* iopset,
-					  const uiString& msg, int compnr )
-    : mInitMembers
-{
-    mInitVars();
-    compnr_ = compnr;
-
-    if ( objset.isEmpty() )
+    if ( iop )
     {
-	errmsg_ = tr("No input specified");
-	return;
+	inpsetup_.usePar( *iop );
+	outsetup_.usePar( *iop );
     }
 
-    for ( int idx=0; idx<objset.size(); idx++ )
-    {
-	IOPar* iop = iopset && iopset->size() > idx ? (*iopset)[idx] : 0;
-	addReader( *objset[idx], iop );
-    }
+    inpsetup_.compnr( compnr );
+    outsetup_.compnr( compnr );
 }
 
 
 SeisSingleTraceProc::~SeisSingleTraceProc()
 {
+    wrapUp();
     delete resampler_;
-    deepErase( rdrs_ );
-    delete &wrr_;
     delete &intrc_;
     delete &wrrkey_;
     delete scaler_;
 }
 
 
-bool SeisSingleTraceProc::setInput( const IOObj& in, const IOObj& out,
-			const char* nm, const IOPar* iop, const uiString& msg )
+bool SeisSingleTraceProc::is3D() const
 {
-    wrr_.setIOObj( &out );
-    deepErase( rdrs_ );
-    curmsg_ = msg;
-    setName( nm );
-    return addReader( in, iop );
+    return Seis::is3D( inpsetup_.geomtype_ );
 }
 
 
-bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
+bool SeisSingleTraceProc::is2D() const
 {
-    PtrMan<SeisTrcReader> rdr = new SeisTrcReader( &ioobj );
+    return Seis::is2D( inpsetup_.geomtype_ );
+}
+
+
+bool SeisSingleTraceProc::isPS() const
+{
+    return Seis::isPS( inpsetup_.geomtype_ );
+}
+
+
+bool SeisSingleTraceProc::goImpl( od_ostream* strm, bool first, bool last,
+				  int delay )
+{
+    wrapUp();
+    const bool res = setInput() &&
+		     Executor::goImpl( strm, first, last, delay );
+    wrapUp();
+    return res;
+}
+
+
+bool SeisSingleTraceProc::setInput()
+{
+    if ( is3D() && areEqual(inpsetup_.ioobj_,outsetup_.ioobj_) )
+    {
+	errmsg_ = tr("Input equals output");
+	return false;
+    }
+
+    if ( !addReader() )
+	return false;
+
+    delete wrr_;
+    wrr_ = new SeisTrcWriter( outsetup_ );
+    wrr_->auxPars() = outsetup_.ioobj_->pars();
+    wrr_->setCrFrom( reader(currdridx_)->ioObj()->fullUserExpr() );
+    wrr_->setGeomIDProvider( reader(currdridx_)->geomIDProvider() );
+
+    curmsg_ = initmsg_;
+    setName( execnm_ );
+    return true;
+}
+
+
+bool SeisSingleTraceProc::addReader()
+{
+    PtrMan<SeisTrcReader> rdr = new SeisTrcReader( inpsetup_ );
     if ( !rdr->ioObj() )
     {
 	errmsg_ = tr("Cannot find read object");
 	return false;
     }
 
-    const bool is3d = !rdr->is2D() && !wrr_.is2D();
-    if ( is3d && wrr_.ioObj()->key() == rdr->ioObj()->key() )
-    {
-	errmsg_ = tr("Input equals output");
-	return false;
-    }
-
-    bool szdone = false;
     if ( totnr_ < 0 )
 	totnr_ = 0;
 
-    if ( iop )
+    if ( !rdr->prepareWork() )
     {
-	rdr->usePar( *iop );
-	if ( rdr->selData() )
-	{
-	    totnr_ += rdr->selData()->expectedNrTraces( !is3d );
-	    if ( rdr->isPS() )
-	    {
-		const int nroffsets = rdr->getNrOffsets();
-		if ( !mIsUdf(nroffsets) )
-		    totnr_ *= nroffsets;
-	    }
-
-	    szdone = true;
-	    if ( is3d && rdrs_.isEmpty() )
-		wrr_.setSelData( rdr->selData()->clone() );
-	}
-	else if ( !is3d )
-	{
-	    // 2D, so let's make sure the line key is set
-	    Seis::SelData* sd = Seis::SelData::get(Seis::Range);
-	    sd->usePar( *iop );
-	    rdr->setSelData( sd );
-	}
+	errmsg_ = rdr->errMsg();
+	return false;
     }
 
-    if ( is3d && !wrr_.isPS() && !szdone )
-    {
-	TrcKeyZSampling cs( false );
-	mDynamicCastGet(const IOStream*,iostrm,&ioobj)
-	if ( iostrm )
-	    iostrm->resetConnIdx();
+    totnr_ = rdr->expectedNrTraces();
+    if ( totnr_ <= 0 )
+	allszsfound_ = false;
 
-	if ( SeisTrcTranslator::getRanges(ioobj,cs) )
-	{
-	    totnr_ += cs.nrInl() * cs.nrCrl();
-	    szdone = true;
-	}
-    }
-
-    if ( !szdone )
-    {
-	SeisTrcTranslator* str = rdr->seisTranslator();
-	if ( str )
-	{
-	    int estnr = str->estimatedNrTraces();
-	    if ( estnr > 0 )
-		{ szdone = true; totnr_ += estnr; }
-	}
-
-	if ( !szdone )
-	    allszsfound_ = false;
-    }
-
-    rdr->setComponent( compnr_ );
-
+    rdr->setComponent( inpsetup_.compnr_ );
     rdrs_.add( rdr.release() );
-
-    if ( rdrs_.size() == 1 )
-    {
-	is3d_ = !rdrs_[0]->is2D() && !wrr_.is2D();
-	wrr_.setCrFrom( rdrs_[0]->ioObj()->fullUserExpr() );
-	if ( iop )
-	    wrr_.auxPars() = *iop;
-
-	return nextReader();
-    }
+    currdridx_++;
 
     return true;
 }
 
+
+#define mHandlePastLastReader(to_do) \
+    if ( !rdrs_.validIdx(currdridx_) ) \
+	{ to_do; }
 
 bool SeisSingleTraceProc::nextReader()
 {
     currdridx_++;
     mHandlePastLastReader( return false );
 
-    SeisTrcReader* currdr = rdrs_[currdridx_];
+    SeisTrcReader* currdr = rdrs_.get( currdridx_ );
     if ( !currdr->prepareWork() )
     {
 	errmsg_ = currdr->errMsg();
 	return false;
     }
-
-    wrr_.setGeomIDProvider( currdr->geomIDProvider() );
 
     return true;
 }
@@ -243,8 +187,8 @@ void SeisSingleTraceProc::setScaler( Scaler* newsclr )
 	return;
 
     delete scaler_; scaler_ = newsclr;
-    for ( int idx=0; idx<rdrs_.size(); idx++ )
-	rdrs_[idx]->forceFloatData( scaler_ ? true : false );
+    for ( auto* rdr : rdrs_ )
+	rdr->forceFloatData( scaler_ ? true : false );
 }
 
 
@@ -252,7 +196,7 @@ void SeisSingleTraceProc::setResampler( SeisResampler* r )
 {
     delete resampler_; resampler_ = r;
     if ( resampler_ )
-	resampler_->set2D( !is3d_ );
+	resampler_->set2D( is2D() );
 }
 
 
@@ -261,10 +205,10 @@ void SeisSingleTraceProc::setProcPars( const IOPar& iop, bool is2d )
     Scaler* sclr = Scaler::get( iop.find(sKey::Scale()) );
     const int nulltrcpol = toInt( iop.find("Null trace policy") );
     const bool exttrcs = iop.isTrue( "Extend Traces To Survey Z Range" );
-    TrcKeyZSampling cs;
-    if ( cs.usePar( iop ) )
+    TrcKeyZSampling tks;
+    if ( tks.usePar(iop) )
     {
-	SeisResampler* resmplr = new SeisResampler( cs, is2d );
+	auto* resmplr = new SeisResampler( tks, is2d );
 	setResampler( resmplr );
     }
 
@@ -282,19 +226,12 @@ uiString SeisSingleTraceProc::uiMessage() const
 
     if ( currdridx_ < rdrs_.size() )
     {
-	const SeisTrcReader* currdr = rdrs_[currdridx_];
-
 	uiString ret;
-	if ( !currdr->is2D() )
-	    ret  = uiStrings::sData();
+	const Pos::GeomID geomid = inpsetup_.geomid_;
+	if ( Survey::is2DGeom(geomid) )
+	    { ret = tr("'%1'").arg( toString(geomid) ); }
 	else
-	{
-	    Pos::GeomID geomid = currdr->geomID();
-	    if ( geomid < 0 )
-		ret = uiStrings::sData();
-	    else
-		{ ret = tr("'%1'").arg( toString(geomid) ); }
-	}
+	    ret = uiStrings::sTrace(mPlural);
 
 	return tr("Handling %1").arg(ret);
     }
@@ -327,16 +264,13 @@ od_int64 SeisSingleTraceProc::totalNr() const
 int SeisSingleTraceProc::getNextTrc()
 {
     mHandlePastLastReader( return Finished() );
-    SeisTrcReader& currdr = *rdrs_[currdridx_];
+    SeisTrcReader& currdr = *rdrs_.get( currdridx_ );
 
-    int rv = currdr.get( intrc_.info() );
+    const int rv = currdr.get( intrc_.info() );
     if ( rv == 0 )
     {
 	if ( !nextReader() )
-	{
-	    wrapUp();
 	    return Finished();
-	}
 
 	return MoreToDo();
     }
@@ -346,10 +280,11 @@ int SeisSingleTraceProc::getNextTrc()
 	if ( currdridx_ == rdrs_.size()-1 )
 	    return ErrorOccurred();
 
-	 currdridx_++; return MoreToDo();
+	 currdridx_++;
+	 return MoreToDo();
     }
     else if ( rv == 2 )
-	return 2;
+	return WarningAvailable();
 
     worktrc_ = &intrc_;
     skipcurtrc_ = false;
@@ -357,7 +292,7 @@ int SeisSingleTraceProc::getNextTrc()
     if ( skipcurtrc_ )
     {
 	nrskipped_++;
-	return 2;
+	return WarningAvailable();
     }
 
     if ( !currdr.get(intrc_) )
@@ -373,13 +308,13 @@ int SeisSingleTraceProc::getNextTrc()
 
 void SeisSingleTraceProc::prepareNullFilling()
 {
-    if ( rdrs_.isEmpty() || !is3d_ || wrr_.isPS() )
+    if ( rdrs_.isEmpty() || is2D() || isPS() )
     {
 	fillnull_ = false;
 	return;
     }
 
-    const SeisTrcReader& rdr = *rdrs_[0];
+    const SeisTrcReader& rdr = *rdrs_.first();
     const Seis::SelData* sd = rdr.selData();
     if ( sd && !sd->isAll() )
     {
@@ -418,17 +353,14 @@ int SeisSingleTraceProc::getFillTrc()
 	filltrc_ = new SeisTrc( *worktrc_ );
 	filltrc_->setNrComponents( intrc_.nrComponents() );
 	filltrc_->zero();
-	filltrc_->info().nr = 0;
+	filltrc_->info().seqnr_ = 0;
 	filltrc_->info().offset = 0;
 	filltrc_->info().azimuth = 0;
 	filltrc_->info().refnr = filltrc_->info().pick = mUdf(float);
     }
 
     if ( fillbid_.inl() > fillhs_.stop_.inl() )
-    {
-	wrapUp();
 	return Finished();
-    }
 
     SeisTrcReader& currdr = *rdrs_[currdridx_];
     const bool wantbid = !currdr.selData() || currdr.selData()->isOK(fillbid_);
@@ -444,7 +376,7 @@ int SeisSingleTraceProc::getFillTrc()
     {
 	worktrc_ = &intrc_;
 	*worktrc_ = *filltrc_;
-	worktrc_->info().binid = fillbid_;
+	worktrc_->info().setPos( fillbid_ );
 	worktrc_->info().coord = SI().transform( fillbid_ );
     }
 
@@ -455,7 +387,7 @@ int SeisSingleTraceProc::getFillTrc()
 	fillbid_.crl() = fillhs_.start_.crl();
     }
 
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
@@ -499,12 +431,11 @@ bool SeisSingleTraceProc::prepareTrc()
 
 bool SeisSingleTraceProc::writeTrc()
 {
-    if ( nrwr_ < 1 && wrr_.seisTranslator() )
+    if ( nrwr_ < 1 && wrr_->seisTranslator() )
     {
 	mHandlePastLastReader( currdridx_-- );
 	const SeisTrcReader& currdr = *rdrs_[currdridx_];
-	SeisTrcTranslator& wrtr = *wrr_.seisTranslator();
-	wrtr.setCurGeomID( currdr.geomID() );
+	SeisTrcTranslator& wrtr = *wrr_->seisTranslator();
 	if ( currdr.ioObj() )
 	{
 	    StringPair datanm( currdr.ioObj()->name() );
@@ -519,7 +450,7 @@ bool SeisSingleTraceProc::writeTrc()
 	    wrtr.setDataName( datanm.getCompString() );
 	}
 
-	if ( currdr.is2D() )
+	if ( is2D() )
 	{
 	    wrtr.packetInfo().inlrg.set( currdr.geomID(), currdr.geomID(), 1 );
 	    if ( currdr.selData() )
@@ -529,9 +460,9 @@ bool SeisSingleTraceProc::writeTrc()
 	}
 	else
 	{
-	    if ( !wrr_.prepareWork(*worktrc_) )
+	    if ( !wrr_->prepareWork(*worktrc_) )
 	    {
-		errmsg_ = wrr_.errMsg();
+		errmsg_ = wrr_->errMsg();
 		return false;
 	    }
 
@@ -546,9 +477,9 @@ bool SeisSingleTraceProc::writeTrc()
 	}
     }
 
-    if ( !wrr_.put(*worktrc_) )
+    if ( !wrr_->put(*worktrc_) )
     {
-	errmsg_ = wrr_.errMsg();
+	errmsg_ = wrr_->errMsg();
 	return false;
     }
 
@@ -563,7 +494,7 @@ int SeisSingleTraceProc::nextStep()
 
     for ( int idx=0; idx<trcsperstep_; idx++ )
     {
-	int rv = fillnull_ ? getFillTrc() : getNextTrc();
+	const int rv = fillnull_ ? getFillTrc() : getNextTrc();
 	if ( rv < 1 )
 	    return rv;
 	else if ( rv > 1 )
@@ -573,14 +504,83 @@ int SeisSingleTraceProc::nextStep()
 	    continue;
 
 	if ( !writeTrc() )
-	    return Executor::ErrorOccurred();
+	    return ErrorOccurred();
     }
 
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
 void SeisSingleTraceProc::wrapUp()
 {
-    wrr_.close();
+    currdridx_ = -1;
+    if ( wrr_ )
+	wrr_->setGeomIDProvider( nullptr ); //Before the readers are deleted
+
+    deepErase( rdrs_ );
+    if ( wrr_ )
+	wrr_->close();
+
+    deleteAndZeroPtr( wrr_ );
+}
+
+
+//Deprecated implementations:
+
+SeisSingleTraceProc::SeisSingleTraceProc( const IOObj& out, const char* nm,
+					  const uiString& msg )
+    : SeisSingleTraceProc(out,out,nm,nullptr,msg)
+{
+}
+
+
+SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
+					  const IOObj& out, const char* nm,
+					  ObjectSet<IOPar>* iopset,
+					  const uiString& msg, int compnr )
+    : SeisSingleTraceProc(out,out,nm,nullptr,msg,compnr)
+{
+    if ( objset.isEmpty() )
+    {
+	errmsg_ = tr("No input specified");
+	return;
+    }
+
+    for ( int idx=0; idx<objset.size(); idx++ )
+    {
+	IOPar* iop = iopset && iopset->size() > idx ? (*iopset)[idx] : nullptr;
+	inpsetup_.ioobj( *objset[idx] );
+	if ( iop )
+	    inpsetup_.usePar( *iop );
+
+	addReader();
+    }
+}
+
+
+bool SeisSingleTraceProc::setInput( const IOObj& in, const IOObj& out,
+			const char* nm, const IOPar* iop, const uiString& msg )
+{
+    inpsetup_.ioobj( in );
+    outsetup_.ioobj( out );
+    initmsg_ = msg;
+    execnm_.set( nm );
+    setName( execnm_ );
+    if ( iop )
+    {
+	inpsetup_.usePar( *iop );
+	outsetup_.usePar( *iop );
+    }
+
+    return setInput();
+}
+
+
+bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
+{
+    inpsetup_.ioobj( ioobj );
+    if ( iop )
+	inpsetup_.usePar( *iop );
+
+    return addReader();
 }

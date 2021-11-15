@@ -23,7 +23,7 @@ class SeisPSImpLineBuf
 {
 public:
 
-    				SeisPSImpLineBuf( int inl )
+				SeisPSImpLineBuf( int inl )
 				    : inl_(inl)		{}
 				~SeisPSImpLineBuf()	{ deepErase(gathers_); }
 
@@ -37,12 +37,12 @@ public:
 
 void SeisPSImpLineBuf::add( SeisTrc* trc )
 {
-    const int crl = trc->info().binid.crl();
+    const int crl = trc->info().crl();
     int bufidx = -1;
     for ( int idx=0; idx<gathers_.size(); idx++ )
     {
 	SeisTrcBuf& tbuf = *gathers_[idx];
-	const int bufcrl = tbuf.get(0)->info().binid.crl();
+	const int bufcrl = tbuf.get(0)->info().crl();
 	if ( bufcrl == crl )
 	    { tbuf.add( trc ); return; }
 	else if ( bufcrl > crl )
@@ -83,7 +83,7 @@ void SeisPSImpDataMgr::endReached()
 
 void SeisPSImpDataMgr::add( SeisTrc* trc )
 {
-    const int inl = trc->info().binid.inl();
+    const int inl = trc->info().inl();
     int bufidx = -1;
     for ( int idx=0; idx<lines_.size(); idx++ )
     {
@@ -141,7 +141,8 @@ bool SeisPSImpDataMgr::writeGather()
 	    errmsg_ = tr("Output data store not in object mgr");
 	    return false;
 	}
-	wrr_ = new SeisTrcWriter( ioobj );
+
+	wrr_ = new SeisTrcWriter( *ioobj );
 	delete ioobj;
 	if ( !wrr_ )
 	{

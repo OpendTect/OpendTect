@@ -22,8 +22,8 @@ namespace Pos
 
 /*!
 \brief Provides a series of positions; can also be used for subselection.
-  
-  toNextPos() will ignore any Z settings and go to the first Z on the next 
+
+  toNextPos() will ignore any Z settings and go to the first Z on the next
   position. toNextZ() is the normal 'iterator increment'. After initialization,
   you need to do toNextZ() or toNextPos() for a valid position.
 */
@@ -63,7 +63,7 @@ public:
     virtual bool	is2D() const		{ return false; }
 
     virtual BinID	curBinID() const				= 0;
-    virtual TrcKey	curTrcKey() const { return TrcKey(survID(),curBinID());}
+    virtual TrcKey	curTrcKey() const { return TrcKey(curBinID()); }
     virtual Coord	curCoord() const;
 
     virtual bool	includes(const BinID&,float z=mUdf(float)) const = 0;

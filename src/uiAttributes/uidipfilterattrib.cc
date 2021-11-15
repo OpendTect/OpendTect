@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
+#include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "survinfo.h"
@@ -124,16 +125,16 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
     if ( !dlg->go() )
 	return;
 
-    const Desc* inpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : 0;
+    const Desc* inpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : nullptr;
     if ( !inpdesc ) return;
 
     const MultiID mid( inpdesc->getStoredID() );
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) return;
-
-    SeisTrcReader rdr( ioobj );
+    const SeisIOObjInfo seisinfo( mid );
+    SeisTrcReader rdr( mid, seisinfo.geomType() );
     rdr.setSelData( new Seis::RangeSelData(dlg->getTrcKeyZSampling()) );
-    rdr.prepareWork();
+    if ( !rdr.prepareWork() )
+	return;
+
     SeisTrcBuf tbuf( true );
     SeisBufReader bufrdr( rdr, tbuf );
     if ( !bufrdr.execute() ) return;

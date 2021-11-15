@@ -318,22 +318,29 @@ const Coord3& Coord3::udf()
 }
 
 
-TrcKey::TrcKey( TrcKey::SurvID id, const BinID& bid )
-    : survid_( id )
+TrcKey::TrcKey( const BinID& bid )
+    : geomsystem_( OD::Geom3D )
     , pos_( bid )
 {
 }
 
 
 TrcKey::TrcKey( Pos::GeomID id, Pos::TraceID tid )
-    : survid_( std2DSurvID() )
+    : geomsystem_( OD::Geom2D )
     , pos_( id, tid )
 {
 }
 
 
-TrcKey::TrcKey( const BinID& bid )
-    : survid_( std3DSurvID() )
+TrcKey::TrcKey( const Pos::IdxPair& pos, bool is2d )
+    : geomsystem_( is2d ? OD::Geom2D : OD::Geom3D )
+    , pos_( pos )
+{
+}
+
+
+TrcKey::TrcKey( SurvID id, const Pos::IdxPair& bid )
+    : geomsystem_( id )
     , pos_( bid )
 {
 }
@@ -341,150 +348,236 @@ TrcKey::TrcKey( const BinID& bid )
 
 TrcKey TrcKey::getSynth( Pos::TraceID tid )
 {
-    TrcKey ret;
-    ret.setSurvID( stdSynthSurvID() ).setLineNr( -1 ).setTrcNr( tid );
-    return ret;
+    return TrcKey( OD::GeomSynth,
+		   Pos::IdxPair( gtGeomID(OD::GeomSynth), tid ) );
 }
 
 
-bool TrcKey::is2D( SurvID sid )
-{ return sid==std2DSurvID(); }
-
-
-bool TrcKey::is3D( SurvID sid )
-{ return sid==std3DSurvID(); }
-
-
-bool TrcKey::isSynthetic( SurvID sid )
-{ return sid==stdSynthSurvID(); }
-
-
-int& TrcKey::trcNr()
-{ return pos_.trcNr(); }
-
-
-int TrcKey::trcNr() const
-{ return pos_.trcNr(); }
-
-
-Pos::LineID& TrcKey::lineNr()
-{ return pos_.lineNr(); }
-
-
-int TrcKey::lineNr() const
-{ return pos_.lineNr(); }
-
-
-
-#define mGetGeomID( sid, pos ) return is2D(sid) ? pos.lineNr() : sid;
-
-Pos::GeomID& TrcKey::geomID()
-{ mGetGeomID( survid_, pos_ ); }
-
-
-Pos::GeomID TrcKey::geomID() const
-{ mGetGeomID( survid_, pos_ ); }
-
-Pos::GeomID TrcKey::geomID( SurvID survid, const BinID& bid )
-{ mGetGeomID( survid, bid ); }
+bool TrcKey::operator==( const TrcKey& oth ) const
+{ return oth.geomsystem_==geomsystem_ && oth.pos_==pos_; }
 
 
 bool TrcKey::exists() const
 {
     if ( isUdf() )
 	return false;
+    else if ( is3D() )
+	return geometry().includes( pos_ );
+    else if ( isSynthetic() )
+	return geomID() == gtGeomID( OD::GeomSynth ) && !mIsUdf(trcNr());
 
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomID() );
-    return geom ? geom->includes( *this ) : false;
+    const Survey::Geometry2D& geom2d = Survey::GM().get2D( geomID() );
+    return geom2d.isEmpty() ? false : geom2d.includes( lineNr(), trcNr() );
 }
 
 
-const TrcKey& TrcKey::udf()
+Pos::GeomID TrcKey::geomID() const
 {
-    mDefineStaticLocalObject( const TrcKey, udfkey,
-	    (mUdf(SurvID), BinID::udf() ));
-    return udfkey;
+    return gtGeomID( geomsystem_, pos_.row() );
 }
 
 
-void TrcKey::setUdf()
+Pos::GeomID TrcKey::gtGeomID( SurvID survid, IdxType lnr )
 {
-    *this = udf();
+    return survid < OD::Geom2D ? Pos::GeomID( survid )
+			       : Pos::GeomID( lnr );
 }
 
 
-bool TrcKey::operator==( const TrcKey& oth ) const
-{ return oth.survid_==survid_ && oth.pos_==pos_; }
-
-
-TrcKey::SurvID TrcKey::std2DSurvID()
+Pos::IdxPair TrcKey::idxPair() const
 {
-    return Survey::GeometryManager::get2DSurvID();
-}
-
-
-TrcKey::SurvID TrcKey::std3DSurvID()
-{
-    return Survey::GeometryManager::get3DSurvID();
-}
-
-
-TrcKey::SurvID TrcKey::stdSynthSurvID()
-{
-    return Survey::GeometryManager::getSynthSurvID();
-}
-
-
-TrcKey::SurvID TrcKey::cUndefSurvID()
-{
-    return Survey::GeometryManager::cUndefGeomID();
-}
-
-
-double TrcKey::distTo( const TrcKey& trckey ) const
-{
-    const Coord from = Survey::GM().toCoord( *this );
-    const Coord to = Survey::GM().toCoord( trckey );
-    return from.isUdf() || to.isUdf() ? mUdf(double) : from.distTo(to);
+    return Pos::IdxPair( pos_.row(), pos_.col() );
 }
 
 
 TrcKey& TrcKey::setGeomID( Pos::GeomID geomid )
 {
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
-    if ( !geom || !geom->is2D() )
-	survid_ = geomid;
-    else
-    {
-	survid_ = Survey::GeometryManager::get2DSurvID();
-	pos_.inl() = geomid;
-    }
+    geomsystem_ = geomSystemOf( geomid );
+    if ( !is3D() ) //Also for synthetic
+	setLineNr( geomid );
+
+    return *this;
+}
+
+
+TrcKey& TrcKey::setSurvID( SurvID gs )
+{
+    geomsystem_ = gs;
+    if ( isSynthetic() )
+	setGeomID( OD::GeomSynth );
+
+    return *this;
+}
+
+
+TrcKey& TrcKey::setPosition( const BinID& bid )
+{
+    setSurvID( OD::Geom3D );
+    pos_ = bid;
+    return *this;
+}
+
+
+TrcKey& TrcKey::setPosition( const Pos::IdxPair& pos, bool is2d )
+{
+    setSurvID( is2D() ? OD::Geom2D : OD::Geom3D );
+    pos_ = pos;
     return *this;
 }
 
 
 TrcKey& TrcKey::setFrom( const Coord& crd )
 {
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomID() );
-    if ( !geom )
+    if ( is3D() )
+	setPosition( geometry().as3D()->transform( crd ) );
+    else if ( isSynthetic() )
     {
-	geom = Survey::GM().getGeometry( std3DSurvID() );
-	if ( !geom )
+	setGeomID( gtGeomID(OD::GeomSynth) );
+	const BinID bid = geometry().as3D()->transform( crd );
+	setTrcNr( bid.trcNr() - SI().crlRange().stop - SI().crlRange().step );
+    }
+    else
+    {
+	const Pos::GeomID gid = const_cast<const TrcKey&>(*this).geomID();
+	const Survey::Geometry2D& geom2d = Survey::GM().get2D( gid );
+	if ( !geom2d.isEmpty() )
 	{
-	    pErrMsg( "No default Survey ID" );
-	    pos_ = SI().transform( crd );
-	    return *this;
+	    int trcnr = const_cast<const TrcKey&>(*this).trcNr();
+	    float sp = mUdf(float);
+	    geom2d.getPosByCoord( crd, trcnr, sp );
+	    setTrcNr( trcnr );
 	}
     }
 
-    *this = geom->getTrace( crd, mUdf(float) );
     return *this;
 }
 
 
 Coord TrcKey::getCoord() const
 {
-    return Survey::Geometry::toCoord( *this );
+    if ( is3D() )
+	return geometry().as3D()->transform( pos_ );
+    else if ( isSynthetic() )
+    { //To ensure it never falls within SI()
+	const BinID pos( SI().inlRange().stop + SI().inlRange().step,
+			 SI().crlRange().stop +
+			 SI().crlRange().step * (trcNr()+1) );
+	return geometry().as3D()->transform( pos );
+    }
+
+    const Survey::Geometry2D& geom2d = Survey::GM().get2D( geomID() );
+    return geom2d.isEmpty() ? Coord::udf() : geom2d.toCoord( trcNr() );
+}
+
+
+double TrcKey::sqDistTo( const TrcKey& oth ) const
+{
+    const Coord from = getCoord();
+    const Coord to = oth.getCoord();
+    return from.isUdf() || to.isUdf() ? mUdf(double)
+				      : from.sqDistTo( to );
+}
+
+
+double TrcKey::distTo( const TrcKey& oth ) const
+{
+    const double sqdist = sqDistTo( oth );
+    return mIsUdf(sqdist) ? sqdist : Math::Sqrt( sqdist );
+}
+
+
+const Survey::Geometry& TrcKey::geometry() const
+{
+    return is2D() ? Survey::GM().get2D( geomID() )
+		  : Survey::Geometry::default3D();
+}
+
+
+TrcKey TrcKey::getFor( Pos::GeomID gid ) const
+{
+    const SurvID gs = geomSystemOf( gid );
+    if ( gs == geomsystem_ )
+	return *this;
+    else if ( isUdf() )
+	return TrcKey( gs, Pos::IdxPair::udf() );
+
+    TrcKey tk( geomsystem_, Pos::IdxPair(gid,0) );
+    tk.setFrom( getCoord() );
+    return tk;
+}
+
+
+TrcKey TrcKey::getFor3D() const
+{
+    return getFor( Survey::default3DGeomID() );
+}
+
+
+TrcKey TrcKey::getFor2D( IdxType linenr ) const
+{
+    return getFor( Pos::GeomID(linenr) );
+}
+
+
+BufferString TrcKey::usrDispStr() const
+{
+    if ( isUdf() )
+	return BufferString( sKey::Undef() );
+
+    BufferString ret;
+    switch ( geomsystem_ )
+    {
+	case OD::Geom3D:
+	    ret.set( pos_.usrDispStr() );
+	break;
+	case OD::Geom2D:
+	    ret.set( trcNr() ).add( "@'" )
+	       .add( Survey::GM().getName(geomID()) ).add( "'" );
+	break;
+	case OD::GeomSynth:
+	    ret.set( "[Synth]@" ).add( trcNr() );
+	break;
+	default:
+	    ret.set( udf().usrDispStr() );
+	break;
+    }
+
+    return ret;
+}
+
+
+const TrcKey& TrcKey::udf()
+{
+    static const TrcKey udf( OD::GeomSynth, Pos::IdxPair::udf() );
+    return udf;
+}
+
+
+// Deprecated implementations of TrcKey:
+
+TrcKey::TrcKey( SurvID gs, const BinID& bid )
+    : geomsystem_( gs )
+    , pos_( bid )
+{
+}
+
+
+Pos::GeomID TrcKey::geomID( SurvID gs, const BinID& bid )
+{
+    const TrcKey tk( gs, (const Pos::IdxPair&)(bid) );
+    return tk.geomID();
+}
+
+
+TrcKey::IdxType& TrcKey::lineNr()
+{
+    return pos_.lineNr();
+}
+
+
+TrcKey::IdxType& TrcKey::trcNr()
+{
+    return pos_.trcNr();
 }
 
 

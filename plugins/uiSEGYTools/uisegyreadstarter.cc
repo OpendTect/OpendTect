@@ -76,6 +76,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , detectrev0flds_(true)
     , userfilename_("_") // any non-empty non-existing
     , scaninfos_(nullptr)
+    , loaddef_(imptyp ? imptyp->is2D() : false)
     , clipsampler_(*new DataClipSampler(100000))
     , lastscanwasfull_(false)
     , survinfo_(nullptr)
@@ -138,7 +139,6 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     coordsysselfld_->attach( alignedBelow, attachobj );
 
     mAttachCB( coordsysselfld_->butPush, uiSEGYReadStarter::coordSysChangedCB );
-    coordsysselfld_->display( impType().is2D() );
 
     uiSeparator* sep = new uiSeparator( this, "Top sep" );
     sep->attach( stretchedBelow, topgrp_ );
@@ -460,20 +460,8 @@ void uiSEGYReadStarter::setToolStates()
     if ( coordscalefld_ )
 	coordscalefld_->display( loaddef_.needXY() );
 
-    bool coordisprojection = SI().getCoordSystem() &&
-		SI().getCoordSystem()->isProjection();
-
-    if ( impType().is2D() )
-    {
-	const bool shoulddisplay = coordisprojection;
-	coordsysselfld_->display( shoulddisplay );
-    }
-    else
-    {
-	const bool isxybutused = usexybut_ && usexybut_->isChecked();
-	const bool shoulddisplay = coordisprojection && isxybutused;
-	coordsysselfld_->display( shoulddisplay );
-    }
+    //Must be specified for all types, for scanned SEG-Y as well
+    coordsysselfld_->display( SI().hasProjection() );
 
     editbut_->setSensitive( nrfiles==1 && File::exists(filespec_.fileName(0)) );
 }
@@ -539,6 +527,7 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 {
     const SEGY::ImpType& imptyp = impType();
 
+    loaddef_.is2d_ = imptyp.is2D();
     if ( imptyp.is2D() )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::XYOnly;
 
@@ -653,9 +642,9 @@ void uiSEGYReadStarter::examineCB( CallBacker* )
 	return;
 
     MouseCursorChanger chgr( MouseCursor::Wait );
-    uiSEGYExamine::Setup su( examineNrTraces() );
-    su.fs_ = filespec_; su.fp_ = filepars_;
-    uiSEGYExamine* dlg = new uiSEGYExamine( this, su );
+    uiSEGYExamine::Setup su( impType().geomType(), examineNrTraces() );
+    su.fs( filespec_ ).fp( filepars_ );
+    auto* dlg = new uiSEGYExamine( this, su );
     dlg->setDeleteOnClose( true );
     dlg->go();
 }
@@ -667,7 +656,7 @@ void uiSEGYReadStarter::usePar( const IOPar& iop )
 	typfld_->usePar( iop );
 
     if ( coordsysselfld_->isDisplayed() )
-      coordsysselfld_->getCoordSystem()->usePar( iop );
+	coordsysselfld_->getCoordSystem()->usePar( iop );
 
     int nrtrcs = examineNrTraces();
     iop.get( uiSEGYExamine::Setup::sKeyNrTrcs, nrtrcs );
@@ -698,8 +687,8 @@ void uiSEGYReadStarter::fillPar( IOPar& iop ) const
     const FullSpec fullspec = fullSpec();
     fullspec.fillPar( iop );
 
-    if ( SI().getCoordSystem().ptr() && SI().getCoordSystem()->isProjection() )
-      coordsysselfld_->getCoordSystem()->fillPar( iop );
+    if ( SI().hasProjection() )
+	coordsysselfld_->getCoordSystem()->fillPar( iop );
 
     iop.set( FilePars::sKeyRevision(), loaddef_.revision_ );
     impType().fillPar( iop );
@@ -1104,7 +1093,10 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 
     if ( mIsUdf(bfi.sampling_.step) )
     {
-	SeisTrcInfo ti; thdr->fill( ti, 1.0f );
+	SeisTrcInfo ti;
+	if ( thdr->is2D() != loaddef_.is2d_ )
+	    thdr->geomtype_ = loaddef_.is2d_ ? Seis::Line : Seis::Vol;
+	thdr->fill( ti, 1.f );
 	bfi.sampling_ = ti.sampling;
     }
 
@@ -1180,7 +1172,9 @@ bool uiSEGYReadStarter::acceptOK( CallBacker* )
 
     const FullSpec fullspec = fullSpec();
     uiSEGYReadFinisher dlg( this, fullspec, userfilename_ );
-    dlg.setCoordSystem( coordsysselfld_->getCoordSystem() );
+    if ( coordsysselfld_->isDisplayed() )
+	dlg.setCoordSystem( coordsysselfld_->getCoordSystem() );
+
     dlg.go();
 
     return false;

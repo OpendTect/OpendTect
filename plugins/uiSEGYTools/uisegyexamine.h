@@ -32,11 +32,14 @@ public:
 
     mStruct(uiSEGYTools) Setup : public uiDialog::Setup
     {
-				Setup(int nrtraces=100);
+				Setup(Seis::GeomType,int nrtraces=100);
+
+	void			setFileName(const char*);
 
 	mDefSetupMemb(int,nrtrcs)
 	mDefSetupMemb(SEGY::FileSpec,fs)
 	mDefSetupMemb(FilePars,fp)
+	mDefSetupMemb(Seis::GeomType,geomtype)
 
 	void			usePar(const IOPar&);
 	static const char*	sKeyNrTrcs;

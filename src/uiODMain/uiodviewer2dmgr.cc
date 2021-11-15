@@ -474,8 +474,8 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
     if ( !tkzs.isFlat() || !auxannot.validIdx(selannotidx) )
 	return;
 
-    uiODViewer2D* clickedvwr2d = 0;
-    if ( TrcKey::is2D(tkzs.hsamp_.survid_) )
+    uiODViewer2D* clickedvwr2d = nullptr;
+    if ( tkzs.is2D() )
     {
 	if ( auxannot[selannotidx].isNormal() )
 	    return;
@@ -591,7 +591,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
 					  mUdf(int), mUdf(int) );
     const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
-    if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    if ( tkzs.is2D() )
     {
 	if ( x1auxposidx>=0 &&
 	     curvwr.appearance().annot_.x1_.auxannot_[x1auxposidx].isNormal() )
