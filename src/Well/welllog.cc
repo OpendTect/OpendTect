@@ -236,7 +236,8 @@ bool Well::LogSet::setDefaultMnemLog( const Mnemonic& mnem,
         }
     }
 
-    auto* defaultlog = new std::pair<Mnemonic,BufferString>( mnem,lognm );
+    auto* defaultlog = 
+                new std::pair<const Mnemonic&,BufferString>( mnem,lognm );
     if ( !defaultlog )
         return false;
 

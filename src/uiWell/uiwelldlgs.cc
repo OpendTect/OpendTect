@@ -2199,7 +2199,26 @@ void uiWellDefMnemLogDlg::fillTable( const MultiID& key )
 void uiWellDefMnemLogDlg::fillLogRow( const Well::LogSet& logset,
                                 const ObjectSet<const Mnemonic>& availmnem )
 {
+    IOPar iop;
+    ObjectSet<BufferStringSet> suitablelogsallmnems;
+    ObjectSet<uiGenInput> deflogsflds;
+    getSuitableLogNamesForMnems( logset, availmnem, suitablelogsallmnems );
+    for ( const auto* suitablelogs : suitablelogsallmnems )
+    {
+        auto* deflogfld = 
+            new uiGenInput( this, tr(""), StringListInpSpec(*suitablelogs) );
+        if ( deflogfld )
+            deflogsflds += deflogfld;
+    }
 
+    int row = 0;
+    for ( auto* deflogfld : deflogsflds )
+    {
+        table_->setCellGroup( RowCol(row,cLogCol), deflogfld );
+        row++;
+    }
+
+    logset.defaultLogFillPar( iop );
 }
 
 
@@ -2216,6 +2235,22 @@ uiTable* uiWellDefMnemLogDlg::createLogTable()
     ret->setColumnResizeMode( uiTable::ResizeToContents );
 
     return ret;
+}
+
+
+void uiWellDefMnemLogDlg::getSuitableLogNamesForMnems( const Well::LogSet& logs,
+                            const ObjectSet<const Mnemonic>& availmnem,
+                            ObjectSet<BufferStringSet>& suitlogsforallmnems )
+{
+    for ( const auto* mnem : availmnem )
+    {
+        auto* suitablelogs = new BufferStringSet();
+        TypeSet<int> suitlogsidxs = logs.getSuitable( *mnem );
+        for ( const auto idx : suitlogsidxs )
+            suitablelogs->add( logs.getLog(idx).name() );
+
+        suitlogsforallmnems.add( suitablelogs );
+    }
 }
 
 

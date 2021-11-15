@@ -255,12 +255,18 @@ protected:
     uiListBox*              welllist_ = nullptr;
     ObjectSet<Well::Data>   wds_;
 
-    uiTable*        createLogTable();
-    void			fillTable(const MultiID&);
-    void            fillLogRow(const Well::LogSet&,
-                               const ObjectSet<const Mnemonic>&);
+    uiTable*    createLogTable();
+    void		fillTable(const MultiID&);
+    void        fillLogRow(const Well::LogSet&,
+                           const ObjectSet<const Mnemonic>&);
 
-    void            wellChangedCB(CallBacker*);
+    void        wellChangedCB(CallBacker*);
+
+private:
+
+    void        getSuitableLogNamesForMnems(const Well::LogSet&,
+                                            const ObjectSet<const Mnemonic>&,
+                                            ObjectSet<BufferStringSet>&);
 };
 
 /* brief Dialog to set Depth-to-Time model to selected wells */

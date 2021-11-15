@@ -82,7 +82,7 @@ protected:
     ObjectSet<Log>	logs_;
     Interval<float>	dahintv_;
 
-    ObjectSet<std::pair<Mnemonic,BufferString>> defaultlogs_;
+    ObjectSet<std::pair<const Mnemonic&,BufferString>> defaultlogs_;
 
     void		init()
 			{ dahintv_.start = mSetUdf(dahintv_.stop); }
