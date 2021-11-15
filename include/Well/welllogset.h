@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "wellmod.h"
 
 #include "mnemonics.h"
-#include "odpair.h"
 #include "position.h"
 #include "ranges.h"
 
@@ -45,11 +44,12 @@ public:
     int			indexOf(const char*) const;
     bool		isLoaded(const char*) const;
     bool		isPresent(const char*) const;
-    bool		hasDefaultMnemLog(const Mnemonic*) const;
-    void	setDefaultMnemLog(const Mnemonic*, const BufferString& lognm);
+    bool		hasDefaultFor(const Mnemonic&) const;
+    bool	    setDefaultMnemLog(const Mnemonic&, const BufferString& lognm);
+    bool        removeDefault(const Mnemonic&);
     const Log*		getLog( const char* nm ) const	{ return gtLog(nm); }
     Log*		getLog( const char* nm )	{ return gtLog(nm); }
-    const Log*		getLog(const Mnemonic*) const;
+    const Log*		getLog(const Mnemonic&) const;
 
     Interval<float>	dahInterval() const	{ return dahintv_; }
 						//!< not def if start == undef

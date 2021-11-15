@@ -32,6 +32,7 @@ class uiUnitSel;
 class uiMnemonicsSel;
 class uiWellSel;
 class BufferStringSet;
+class Mnemonic;
 
 namespace Table { class FormatDesc; }
 namespace Well { class Data; class Track; class D2TModel; class Log;
@@ -256,7 +257,8 @@ protected:
 
     uiTable*        createLogTable();
     void			fillTable(const MultiID&);
-    void            fillLogRow(const Well::LogSet&,ObjectSet<const Mnemonic>&);
+    void            fillLogRow(const Well::LogSet&,
+                               const ObjectSet<const Mnemonic>&);
 
     void            wellChangedCB(CallBacker*);
 };

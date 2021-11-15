@@ -2177,7 +2177,7 @@ void uiWellDefMnemLogDlg::wellChangedCB( CallBacker* )
 
 void uiWellDefMnemLogDlg::fillTable( const MultiID& key )
 {
-    Well::LogSet& logset = 
+    const Well::LogSet& logset = 
                 Well::MGR().get(key,Well::LoadReqs(Well::LogInfos))->logs();
     ObjectSet<const Mnemonic> allavailmnem;
     for ( int idx=0; idx<logset.size(); idx++ )
@@ -2198,7 +2198,9 @@ void uiWellDefMnemLogDlg::fillTable( const MultiID& key )
 
 void uiWellDefMnemLogDlg::fillLogRow( const Well::LogSet& logset,
                                 const ObjectSet<const Mnemonic>& availmnem )
-{}
+{
+
+}
 
 
 uiTable* uiWellDefMnemLogDlg::createLogTable()
