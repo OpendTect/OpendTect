@@ -55,6 +55,7 @@ protected:
     uiToolButton*		logexpbut_;
     uiToolButton*		loguombut_;
     uiToolButton*		logmnembut_;
+    uiToolButton*		defmnemlogbut_;
     uiToolButton*		logedbut_;
     uiToolButton*		logupbut_;
     uiToolButton*		logdownbut_;
@@ -90,6 +91,7 @@ protected:
     void			logSel(CallBacker*);
     void			logUOMPush(CallBacker*);
     void			logMnemPush(CallBacker*);
+    void			defMnemLogPush(CallBacker*);
 
     void			edMarkers(CallBacker*);
     void			edWellTrack(CallBacker*);

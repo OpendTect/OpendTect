@@ -239,6 +239,28 @@ protected:
 };
 
 
+/* brief Dialog for setting/editing default logs for mnemonics */
+
+mExpClass(uiWell) uiWellDefMnemLogDlg : public uiDialog
+{ mODTextTranslationClass(uiWellDefMnemLogDlg);
+public:
+            uiWellDefMnemLogDlg(uiParent*,
+                                const TypeSet<MultiID>& keys);
+            ~uiWellDefMnemLogDlg();
+
+protected:
+
+    uiTable*                table_ = nullptr;
+    uiListBox*              welllist_ = nullptr;
+    ObjectSet<Well::Data>   wds_;
+
+    uiTable*        createLogTable();
+    void			fillTable(const MultiID&);
+    void            fillLogRow(const Well::LogSet&,ObjectSet<const Mnemonic>&);
+
+    void            wellChangedCB(CallBacker*);
+};
+
 /* brief Dialog to set Depth-to-Time model to selected wells */
 
 mExpClass(uiWell) uiSetD2TFromOtherWell : public uiDialog

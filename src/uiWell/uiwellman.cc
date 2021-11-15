@@ -112,6 +112,9 @@ uiWellMan::uiWellMan( uiParent* p )
     logmnembut_= butgrp->addButton( "mnemonics",
 					tr("View/edit mnemonic"),
 					mCB(this,uiWellMan,logMnemPush) );
+    defmnemlogbut_ = butgrp->addButton( "mnemonics",
+					tr("Set/edit Default log for Mnemonic"),
+					mCB(this,uiWellMan,defMnemLogPush) );
     logedbut_ = butgrp->addButton( "edit", uiStrings::sEdit(),
 			mCB(this,uiWellMan,editLogPush) );
     logupbut_ = butgrp->addButton( "uparrow", uiStrings::sMoveUp(),
@@ -724,6 +727,17 @@ void uiWellMan::logMnemPush( CallBacker* )
 
     deepErase( wls );
     wellLogsChgd( editedlognms );
+}
+
+
+void uiWellMan::defMnemLogPush( CallBacker* )
+{
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() )
+        return;
+
+    uiWellDefMnemLogDlg dlg( this, curmultiids_ );
+    if ( !dlg.go() )
+        return;
 }
 
 

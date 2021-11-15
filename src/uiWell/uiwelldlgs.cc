@@ -2132,6 +2132,91 @@ bool uiWellLogMnemDlg::acceptOK( CallBacker* )
 }
 
 
+//============================================================================
+
+static const int cMnemCol   = 0;
+static const int cLogCol    = 1;
+
+uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
+                                          const TypeSet<MultiID>& keys )
+    : uiDialog(p,uiDialog::Setup(tr("Set/Edit default Logs for a mnemonic"),
+				 mNoDlgTitle,mTODOHelpKey))
+{
+    Well::LoadReqs loadreqs( Well::LogInfos );
+    MultiWellReader wtrdr( keys, wds_, loadreqs );
+    TaskRunner::execute( nullptr, wtrdr );
+    if ( !wtrdr.allWellsRead() )
+	    uiMSG().errorWithDetails( wtrdr.errMsg(),
+			    tr("Some wells could not be read") );
+
+    BufferStringSet wellnms;
+    for ( const auto* wd : wds_ )
+        wellnms.addIfNew( wd->name() );
+
+    welllist_ = new uiListBox( this, "Wells" );
+    welllist_->addLabel( tr("Select Well"),
+                         uiListBox::AboveMid );
+    welllist_->setFieldWidth( 5 ); 
+    welllist_->addItems( wellnms );
+
+    table_ = createLogTable();
+    table_->attach( rightOf, welllist_ );
+    fillTable( keys.get(0) );
+    mAttachCB( welllist_->selectionChanged, 
+               uiWellDefMnemLogDlg::wellChangedCB );
+}
+
+
+uiWellDefMnemLogDlg::~uiWellDefMnemLogDlg()
+{}
+
+
+void uiWellDefMnemLogDlg::wellChangedCB( CallBacker* )
+{}
+
+
+void uiWellDefMnemLogDlg::fillTable( const MultiID& key )
+{
+    Well::LogSet& logset = 
+                Well::MGR().get(key,Well::LoadReqs(Well::LogInfos))->logs();
+    ObjectSet<const Mnemonic> allavailmnem;
+    for ( int idx=0; idx<logset.size(); idx++ )
+        allavailmnem.addIfNew( logset.getLog(idx).mnemonic() );
+
+    BufferStringSet mnemlblset;
+    for ( const auto* mnem : allavailmnem )
+        mnemlblset.add( mnem->name() );
+
+    const int nrrows = mnemlblset.size();
+    table_->setNrRows( nrrows );
+    for ( int idx=0; idx<nrrows; idx++ )
+        table_->setText( RowCol(idx,cMnemCol), mnemlblset.get(idx) );   
+
+    fillLogRow( logset, allavailmnem );
+}
+
+
+void uiWellDefMnemLogDlg::fillLogRow( const Well::LogSet& logset,
+                                const ObjectSet<const Mnemonic>& availmnem )
+{}
+
+
+uiTable* uiWellDefMnemLogDlg::createLogTable()
+{
+    auto* ret = new uiTable( this, uiTable::Setup().defrowlbl("")
+						   .selmode(uiTable::Multi),
+                           "Set/Edit Default Well Logs" );
+    uiStringSet lbls;
+    lbls.add( tr("Mnemonic") ).add( tr("Default Log") );
+    ret->setPrefWidth( 250 );
+    ret->setColumnLabels( lbls );
+    ret->setColumnReadOnly( cMnemCol, false );
+    ret->setColumnResizeMode( uiTable::ResizeToContents );
+
+    return ret;
+}
+
+
 // uiSetD2TFromOtherWell
 
 uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
