@@ -2161,7 +2161,14 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 
     table_ = createLogTable();
     table_->attach( rightOf, welllist_ );
-    fillTable( keys.get(0) );
+    for ( const auto* wd : wds_ )
+    {
+        const int curridx = wds_.indexOf( wd );
+        createMnemRows( curridx );
+        createLogRows( curridx );
+    }
+
+    fillTable( 0 );
     mAttachCB( welllist_->selectionChanged, 
                uiWellDefMnemLogDlg::wellChangedCB );
 }
@@ -2172,61 +2179,81 @@ uiWellDefMnemLogDlg::~uiWellDefMnemLogDlg()
 
 
 void uiWellDefMnemLogDlg::wellChangedCB( CallBacker* )
-{}
-
-
-void uiWellDefMnemLogDlg::fillTable( const MultiID& key )
 {
-    const Well::LogSet& logset = 
-                Well::MGR().get(key,Well::LoadReqs(Well::LogInfos))->logs();
-    ObjectSet<const Mnemonic> allavailmnem;
-    for ( int idx=0; idx<logset.size(); idx++ )
-        allavailmnem.addIfNew( logset.getLog(idx).mnemonic() );
+    const int curridx = welllist_->currentItem();
+    fillTable( curridx );
+}
 
+
+void uiWellDefMnemLogDlg::fillTable( const int wellidx )
+{
+    fillMnemRow( wellidx );
+    fillLogRow( wellidx );
+}
+
+
+void uiWellDefMnemLogDlg::fillMnemRow( const int wellidx )
+{
     BufferStringSet mnemlblset;
-    for ( const auto* mnem : allavailmnem )
+    for ( const auto* mnem : *allwellsavailmnems_.get(wellidx) )
         mnemlblset.add( mnem->name() );
 
     const int nrrows = mnemlblset.size();
     table_->setNrRows( nrrows );
     for ( int idx=0; idx<nrrows; idx++ )
-        table_->setText( RowCol(idx,cMnemCol), mnemlblset.get(idx) );   
-
-    fillLogRow( logset, allavailmnem );
+        table_->setText( RowCol(idx,cMnemCol), mnemlblset.get(idx) );
 }
 
 
-void uiWellDefMnemLogDlg::fillLogRow( const Well::LogSet& logset,
-                                const ObjectSet<const Mnemonic>& availmnem )
+void uiWellDefMnemLogDlg::fillLogRow( const int wellidx )
 {
     IOPar iop;
+    int row = 0;
+    for ( auto* deflogfld : *allwellsdeflogsflds_.get(wellidx) )
+    {
+        table_->setCellGroup( RowCol(row,cLogCol), deflogfld );
+        row++;
+    }
+}
+
+
+void uiWellDefMnemLogDlg::createLogRows( const int wellidx )
+{
+    auto* deflogsflds = new ObjectSet<uiGenInput>;
     ObjectSet<BufferStringSet> suitablelogsallmnems;
-    ObjectSet<uiGenInput> deflogsflds;
-    getSuitableLogNamesForMnems( logset, availmnem, suitablelogsallmnems );
+    const Well::LogSet& currset = wds_.get(wellidx)->logs();
+    getSuitableLogNamesForMnems( currset, 
+                                 *allwellsavailmnems_.get(wellidx),
+                                 suitablelogsallmnems );
     for ( const auto* suitablelogs : suitablelogsallmnems )
     {
         auto* deflogfld = 
             new uiGenInput( this, tr(""), StringListInpSpec(*suitablelogs) );
         if ( deflogfld )
-            deflogsflds += deflogfld;
+            deflogsflds->addIfNew( deflogfld );
     }
 
-    int row = 0;
-    for ( auto* deflogfld : deflogsflds )
-    {
-        table_->setCellGroup( RowCol(row,cLogCol), deflogfld );
-        row++;
-    }
+    allwellsdeflogsflds_ += deflogsflds;
+}
 
-    logset.defaultLogFillPar( iop );
+
+void uiWellDefMnemLogDlg::createMnemRows( const int wellidx )
+{
+    const Well::LogSet& logset = 
+                    Well::MGR().get(wds_.get(wellidx)->multiID(),
+                                    Well::LoadReqs(Well::LogInfos))->logs();
+    auto* allavailmnem = new ObjectSet<const Mnemonic>;
+    for ( int idx=0; idx<logset.size(); idx++ )
+        allavailmnem->addIfNew( logset.getLog(idx).mnemonic() );
+
+    allwellsavailmnems_ += allavailmnem;
 }
 
 
 uiTable* uiWellDefMnemLogDlg::createLogTable()
 {
-    auto* ret = new uiTable( this, uiTable::Setup().defrowlbl("")
-						   .selmode(uiTable::Multi),
-                           "Set/Edit Default Well Logs" );
+    auto* ret = new uiTable( this, uiTable::Setup().selmode(uiTable::Multi),
+                             "Set/Edit Default Well Logs" );
     uiStringSet lbls;
     lbls.add( tr("Mnemonic") ).add( tr("Default Log") );
     ret->setPrefWidth( 250 );

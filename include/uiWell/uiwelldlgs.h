@@ -251,16 +251,20 @@ public:
 
 protected:
 
-    uiTable*                table_ = nullptr;
-    uiListBox*              welllist_ = nullptr;
-    ObjectSet<Well::Data>   wds_;
-
+    
     uiTable*    createLogTable();
-    void		fillTable(const MultiID&);
-    void        fillLogRow(const Well::LogSet&,
-                           const ObjectSet<const Mnemonic>&);
-
+    void		fillTable(const int wellidx);
+    void        fillLogRow(const int wellidx);
+    void        fillMnemRow(const int wellidx);
+    void        createLogRows(const int wellidx);
+    void        createMnemRows(const int wellidx);
     void        wellChangedCB(CallBacker*);
+
+    uiTable*                                table_ = nullptr;
+    uiListBox*                              welllist_ = nullptr;
+    ObjectSet<Well::Data>                   wds_;
+    ObjectSet<ObjectSet<uiGenInput>>        allwellsdeflogsflds_;
+    ObjectSet<ObjectSet<const Mnemonic>>    allwellsavailmnems_;
 
 private:
 
