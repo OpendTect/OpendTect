@@ -52,10 +52,11 @@ endif()
 
 INCLUDE ( ODdGBPlugins.cmake OPTIONAL )
 
+list( APPEND PLUGINS ${OD_PLUGINS} )
 OD_ADD_MODULES( plugins ${PLUGINS} )
-OD_ADD_MODULES( plugins ${OD_PLUGINS} )
 
 QT_DTECT_CHARTS()
 if ( Qt5Charts_FOUND )
     OD_ADD_MODULES( external/ODCharts/plugins uiCharts uiWellCharts )
+    list( APPEND PLUGINS uiCharts;uiWellCharts )
 endif()
