@@ -16,17 +16,12 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "executor.h"
 #include "hor2dfrom3dcreator.h"
-#include "ptrman.h"
-#include "posinfo.h"
-#include "ioobj.h"
-#include "seisioobjinfo.h"
-#include "survinfo.h"
+#include "ioman.h"
 
-#include "uiioobjsel.h"
+#include "uigeninput.h"
 #include "uiiosurface.h"
 #include "uimsg.h"
 #include "uiseislinesel.h"
-#include "uiseispartserv.h"
 #include "uitaskrunner.h"
 #include "uibutton.h"
 #include "od_helpids.h"
@@ -39,84 +34,68 @@ uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
 			  .arg(uiStrings::s3D())), mNoDlgTitle,
 			  mODHelpKey(mHor2DFrom3DDlgHelpID)))
 {
-    uiSurfaceRead::Setup srsu( "Horizon" );
-    srsu.withattribfld( false );
-    srsu.withsectionfld( false );
-    hor3dsel_ = new uiSurfaceRead( this, srsu );
+    hor3dselfld_ = new uiHorizonParSel( this, false, true );
 
     linesetinpsel_ = new uiSeis2DMultiLineSel( this );
-    linesetinpsel_->attach( alignedBelow, hor3dsel_ );
+    linesetinpsel_->attach( alignedBelow, hor3dselfld_ );
 
-    out2dfld_ = new uiSurfaceWrite( this,
-			uiSurfaceWrite::Setup(EM::Horizon2D::typeStr(),
-					      EM::Horizon2D::userTypeStr() ) );
-
-    out2dfld_->attach( alignedBelow, linesetinpsel_ );
+    hor2dnmfld_ = new uiGenInput( this, tr("%1 name prefix")
+				     .arg(mJoinUiStrs(sHorizon(),s2D())) );
+    hor2dnmfld_->attach( alignedBelow, linesetinpsel_ );
 
     displayfld_ = new uiCheckBox( this, tr("Display on OK") );
     displayfld_->setChecked( true );
-    displayfld_->attach( alignedBelow,out2dfld_ );
+    displayfld_->attach( alignedBelow,hor2dnmfld_ );
 }
 
 
 bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
 {
-    if ( !checkFlds() )
+    BufferStringSet outnms;
+    if ( !checkFlds() || !checkOutNames(outnms) )
 	return false;
 
-    const MultiID mid = hor3dsel_->selIOObj()->key();
-    const EM::ObjectID oid = EM::EMM().getObjectID( mid );
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject( oid );
-    if ( !emobj || !emobj->isFullyLoaded() )
+    uiTaskRunner uitr( this );
+
+    TypeSet<Pos::GeomID> geomids;
+    linesetinpsel_->getSelGeomIDs( geomids );
+    const TypeSet<MultiID>& horids = hor3dselfld_->getSelected();
+
+    EM::EMManager& em = EM::EMM();
+    emobjids_.setEmpty();
+    for ( int idx=0; idx<horids.size(); idx++ )
     {
-	emobj = EM::EMM().createTempObject( hor3dsel_->selIOObj()->group() );
-	if ( !emobj )
-	{
-	    uiMSG().error( tr("Cannot read or create 3D horizon") );
-	    return false;
-	}
+	const MultiID mid = horids[idx];
+	RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( mid, &uitr );
+	mDynamicCastGet(EM::Horizon3D*,hor3d, emobj.ptr());
+	if ( !hor3d )
+	    continue;
+	hor3d->ref();
 
-	emobj->setMultiID( mid );
-	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
-	uiTaskRunner taskrunner( this );
-	if ( !TaskRunner::execute( &taskrunner, *loader ) )
-	    return false;
+	EM::ObjectID emid = em.createObject( EM::Horizon2D::typeStr(),
+					     outnms[idx]->buf() );
+	EM::EMObject* em2dobj = em.getObject(emid);
+	mDynamicCastGet(EM::Horizon2D*,hor2d,em2dobj);
+	if ( !hor2d )
+	    continue;
+	hor2d->ref();
+
+	PtrMan<Hor2DFrom3DCreatorGrp> creator = new Hor2DFrom3DCreatorGrp(
+							    *hor3d, *hor2d );
+	hor2d->setPreferredColor( hor3d->preferredColor() );
+	hor2d->setPreferredLineStyle( hor3d->preferredLineStyle() );
+	creator->init( geomids );
+	creator->add( hor2d->saver() );
+	TaskRunner::execute( &uitr, *creator );
+
+	if ( doDisplay() )
+	    emobjids_ += emid;
+	else
+	    hor2d->unRef();
+	hor3d->unRef();
     }
-
-    const char* horizonnm = out2dfld_->getObjSel()->getInput();
-    EM::Horizon2D* horizon2d = create2dHorizon( horizonnm );
-    if ( !horizon2d )
-	return false;
-
-    horizon2d->ref();
-    set2DHorizon( *horizon2d );
-
-    PtrMan<Executor> saver = horizon2d->saver();
-    uiTaskRunner writedlg( this );
-    TaskRunner::execute( &writedlg, *saver );
-
-    EM::EMObjectCallbackData cbdata;
-    cbdata.event = EM::EMObjectCallbackData::PositionChange;
-    saver = 0;
-    if ( doDisplay() )
-    {
-	horizon2d->change.trigger( cbdata );
-	horizon2d->unRefNoDelete();
-    }
-    else
-	horizon2d->unRef();
 
     return true;
-}
-
-
-EM::Horizon2D* uiHor2DFrom3DDlg::create2dHorizon( const char* horizonnm )
-{
-    EM::EMManager& em = EM::EMM();
-    emobjid_ = em.createObject( EM::Horizon2D::typeStr(), horizonnm );
-    mDynamicCastGet( EM::Horizon2D*, horizon, em.getObject(emobjid_) );
-    horizon->setMultiID( out2dfld_->selIOObj()->key() );
-    return horizon;
 }
 
 
@@ -124,28 +103,44 @@ EM::Horizon2D* uiHor2DFrom3DDlg::create2dHorizon( const char* horizonnm )
 
 bool uiHor2DFrom3DDlg::checkFlds()
 {
-    if ( !hor3dsel_->getObjSel()->commitInput() )
-	mErrRet( tr("Please select a valid 3D Horizon. ") )
+    if ( !hor3dselfld_->getSelected().size() )
+	mErrRet( tr("Please select at least one 3D Horizon. ") )
     if ( !linesetinpsel_->nrSelected() )
 	mErrRet( tr("Please select at least one 2D line") )
-    if ( !out2dfld_->getObjSel()->commitInput() )
-	mErrRet( tr("Enter the output Horizon where you want to write. ") )
+
     return true;
 }
 
 
-void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
+bool uiHor2DFrom3DDlg::checkOutNames( BufferStringSet& outnms ) const
 {
-    TypeSet<Pos::GeomID> geomids;
-    linesetinpsel_->getSelGeomIDs( geomids );
-    EM::EMManager& em = EM::EMM();
-    EM::ObjectID objid = em.getObjectID( hor3dsel_->selIOObj()->key() );
-    mDynamicCastGet(EM::Horizon3D*,horizon3d,em.getObject(objid));
-    Hor2DFrom3DCreatorGrp creator( *horizon3d, horizon2d );
-    creator.init( geomids );
+    outnms.setEmpty();
+    const TypeSet<MultiID>& horids = hor3dselfld_->getSelected();
+    BufferStringSet existinghornms;
+    for ( const auto& mid : horids )
+    {
+	BufferString hornm( hor2dnmfld_->text(), EM::EMM().objectName(mid) );
+	IOM().to( MultiID(IOObjContext::getStdDirData(
+						    IOObjContext::Surf)->id_) );
+	if ( IOM().getLocal(hornm,0) )
+	    existinghornms.add( hornm );
 
-    uiTaskRunner taskrunner( this );
-    TaskRunner::execute( &taskrunner, creator );
+	outnms.add( hornm );
+    }
+
+    if ( !existinghornms.isEmpty() )
+    {
+	const bool ret = uiMSG().askGoOn(tr("Horizons %1 already exist. "
+					    "Do You want to overwrite them.")
+	    .arg(toUiString(existinghornms.getDispString(10))));
+	if ( !ret )
+	{
+	    outnms.setEmpty();
+	    return false;
+	}
+    }
+
+    return true;
 }
 
 

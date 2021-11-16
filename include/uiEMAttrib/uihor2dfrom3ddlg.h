@@ -15,8 +15,8 @@ ________________________________________________________________________
 
 namespace EM { class Horizon2D; }
 class uiSeis2DMultiLineSel;
-class uiSurfaceRead;
-class uiSurfaceWrite;
+class uiHorizonParSel;
+class uiGenInput;
 class uiCheckBox;
 
 mExpClass(uiEMAttrib) uiHor2DFrom3DDlg : public uiDialog
@@ -25,19 +25,18 @@ public:
     				uiHor2DFrom3DDlg(uiParent*);
 
     bool			doDisplay() const;
-    EM::ObjectID		getEMObjID() const	    { return emobjid_; }
+    const TypeSet<EM::ObjectID>& getEMObjIDs() const	  { return emobjids_; }
 
 protected:
     uiSeis2DMultiLineSel*	linesetinpsel_;
-    uiSurfaceRead*		hor3dsel_;
-    uiSurfaceWrite*		out2dfld_;
+    uiHorizonParSel*		hor3dselfld_;
+    uiGenInput*			hor2dnmfld_;
     uiCheckBox*			displayfld_;
-    EM::ObjectID		emobjid_;
+    TypeSet<EM::ObjectID>	emobjids_;
 
-    void 			set2DHorizon(EM::Horizon2D&);
+    bool			checkOutNames(BufferStringSet&) const;
     bool			checkFlds();
-    EM::Horizon2D* 		create2dHorizon( const char* );
     bool			acceptOK( CallBacker* );
-   
+
 };
 
