@@ -49,6 +49,8 @@ unset( RELEASE_RELPATH )
 
 #List of all modules
 set( OD_CORE_MODULE_NAMES_od @OD_CORE_MODULE_NAMES_od@ )
+#List of all OD plugins
+set( OD_PLUGINS_NAMES_od @PLUGINS@ )
 
 #Includes of all modules
 @MODULE_INCLUDES@
