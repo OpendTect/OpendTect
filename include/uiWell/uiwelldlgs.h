@@ -251,26 +251,47 @@ public:
 
 protected:
 
-    
     uiTable*    createLogTable();
-    void		fillTable(const int wellidx);
-    void        fillLogRow(const int wellidx);
-    void        fillMnemRow(const int wellidx);
-    void        createLogRows(const int wellidx);
-    void        createMnemRows(const int wellidx);
+    void		fillTable(const char* wellnm);
+
+    bool        acceptOK(CallBacker*);
+    void        initDlg(CallBacker*);
     void        wellChangedCB(CallBacker*);
 
-    uiTable*                                table_ = nullptr;
-    uiListBox*                              welllist_ = nullptr;
-    ObjectSet<Well::Data>                   wds_;
-    ObjectSet<ObjectSet<uiGenInput>>        allwellsdeflogsflds_;
-    ObjectSet<ObjectSet<const Mnemonic>>    allwellsavailmnems_;
+    mExpStruct(uiWell) Tables
+    {
+                    Tables(Well::Data&,uiTable*);
+	    virtual		~Tables();
 
-private:
+        uiTable*                            getTable();      
+        Well::Data&                         wellData() const     { return wd_; }
+        const ObjectSet<const Mnemonic>     availMnems() const   
+                                            { return availmnems_; }
+	
+    protected:
 
-    void        getSuitableLogNamesForMnems(const Well::LogSet&,
+        void                        createMnemRows();
+        void                        createLogRows();
+        void                        fillMnemRows();
+        void                        fillLogRows();
+        void                        fillTable();
+
+        uiTable*                    table_ = nullptr;
+        Well::Data&                 wd_;
+        ObjectSet<uiGenInput>       deflogsflds_;
+        ObjectSet<const Mnemonic>   availmnems_;
+
+    private:
+
+        void        getSuitableLogNamesForMnems(const Well::LogSet&,
                                             const ObjectSet<const Mnemonic>&,
                                             ObjectSet<BufferStringSet>&);
+        void        setSavedDefaults();
+    };
+
+    uiListBox*          welllist_ = nullptr;
+    uiTable*            table_ = nullptr;
+    ObjectSet<Tables>   tables_;
 };
 
 /* brief Dialog to set Depth-to-Time model to selected wells */
