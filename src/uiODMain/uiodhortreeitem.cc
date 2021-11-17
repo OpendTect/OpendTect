@@ -834,7 +834,10 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     {
 	uiHor2DFrom3DDlg dlg( getUiParent() );
 	if ( dlg.go() && dlg.doDisplay() )
-	    addChld( new uiODHorizon2DTreeItem(dlg.getEMObjID()), true, false);
+	{
+	    for ( const auto& objid : dlg.getEMObjIDs() )
+		addChld( new uiODHorizon2DTreeItem(objid), true, false);
+	}
     }
     else if ( mnuid == 3 || mnuid == 4 )
     {
