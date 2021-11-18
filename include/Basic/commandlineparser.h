@@ -68,8 +68,12 @@ public:
 				    key-values. */
 
     bool			hasKey(const char*) const;
+    // Extract "valnr"ed string after last occurrence of "key" in commandline
     bool			getVal(const char* key,BufferString&,
 				       bool acceptnone=false,int valnr=1) const;
+    // Extract all string arguments after all occurrences of "key"
+    bool			getVal(const char* key,BufferStringSet&,
+				       bool acceptnone=false) const;
     bool			getVal(const char* key,DBKey&,
 				       bool acceptnone=false,int valnr=1) const;
     template <class T> bool	getVal(const char* key,T&,
@@ -78,6 +82,9 @@ public:
 				    If acceptnone is true, it will only give
 				    error if key is found, but no value can be
 				    parsed. */
+    // Extract all type <T> arguments after all occurrences of "key"
+    template <class T> bool	getVal(const char* key,TypeSet<T>&,
+				       bool acceptnone=false) const;
 
 				// following return empty string, invalid DBKey
 				// or Udf if the key is not present or
@@ -126,7 +133,8 @@ public:
 
 private:
 
-    int				indexOf(const char*) const;
+    int				indexOf(const char*,
+					TypeSet<int>* idxs=nullptr) const;
     void			init(int,char**);
     void			init(const char*);
 
@@ -155,6 +163,30 @@ bool CommandLineParser::getVal( const char* key, T& val,
     val = Conv::to<T>( argv_[validx]->buf() );
 
     return !mIsUdf(val);
+}
+
+
+template <class T> inline
+bool CommandLineParser::getVal( const char* key, TypeSet<T>& vals,
+				bool acceptnone ) const
+{
+    vals.setEmpty();
+    TypeSet<int> keyidxs;
+    const int keyidx = indexOf( key, &keyidxs );
+    if ( keyidx<0 )
+	return acceptnone;
+
+    for ( int kidx=0; kidx<keyidxs.size(); kidx++ )
+    {
+	int validx = keyidxs[kidx] + 1;
+	while ( argv_.validIdx( validx ) && !isKey(validx) )
+	{
+	    vals += Conv::to<T>( argv_[validx]->buf() );
+	    validx++;
+	}
+    }
+
+    return acceptnone ? true : !vals.isEmpty();
 }
 
 

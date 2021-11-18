@@ -8,7 +8,7 @@
 
 #include "testprog.h"
 #include "typeset.h"
-
+#include <iostream>
 bool testStringParsing()
 {
     {
@@ -52,6 +52,12 @@ bool testNormalOperation( const CommandLineParser& clparser )
     const char* dummystr = "dummy";
     const char* nonestr = "none";
     const char* fivestr = "5";
+    const char* multikeystr = "--multi";
+    const char* multistr = multikeystr+2;
+    const char* sixstr = "6";
+    const char* sevenstr = "7";
+    const char* multivalkeystr = "--multival";
+    const char* multivalstr = multivalkeystr+2;
 
     TypeSet<const char*> argv1;
     argv1 += clparser.getExecutable();
@@ -66,6 +72,16 @@ bool testNormalOperation( const CommandLineParser& clparser )
     argv1 += "-.5"; //not a key
     argv1 += inbgkeystr;
     argv1 += "not_a_number";
+    argv1 += multikeystr;
+    argv1 += sixstr;
+    argv1 += multikeystr;
+    argv1 += fivestr;
+    argv1 += sixstr;
+    argv1 += multivalkeystr;
+    argv1 += fivestr;
+    argv1 += sixstr;
+    argv1 += sevenstr;
+
 
     CommandLineParser testparser( argv1.size(), (char**)argv1.arr() );
 
@@ -93,6 +109,9 @@ bool testNormalOperation( const CommandLineParser& clparser )
     float createfloat;
     double createdouble;
     BufferString flagfile;
+    BufferString valstr;
+    BufferStringSet keyvals;
+    TypeSet<int> vals;
 
     mRunStandardTest( testparser.getVal(createstr,createint) && createint==5,
 		 "Int value" );
@@ -109,18 +128,41 @@ bool testNormalOperation( const CommandLineParser& clparser )
 		"Non-existing value - accept none" );
     mRunStandardTest( testparser.getVal(inbgstr, createint)==false,
 		"Non existing integer" );
+    mRunStandardTest( testparser.getVal("nonexistingkey", keyvals)==false,
+		"Non-existing key in multi-key reader" );
+    mRunStandardTest( testparser.getVal(createstr, keyvals) &&
+		      keyvals.size()==2 && keyvals.get(0)==fivestr,
+		"Single key-value read in multi-key reader" );
+    mRunStandardTest( testparser.getVal(multistr, keyvals) &&
+		      keyvals.size()==3 && keyvals.get(0)==fivestr &&
+		      keyvals.get(1)==sixstr && keyvals.get(2)==sixstr,
+		"Multiple key-value read in multi-key reader" );
+    testparser.getVal(multivalstr, vals);
+    mRunStandardTest( testparser.getVal(multivalstr, vals) &&
+		      vals.size()==3 && vals[0]==5 &&
+		      vals[1]==6 && vals[2]==7,
+		"Single key-multivalue read" );
 
     BufferStringSet normalargs;
     testparser.getNormalArguments(normalargs);
-    mRunStandardTest( normalargs.size()==8, "getNormalArguments()" );
+    mRunStandardTest( normalargs.size()==14, "getNormalArguments()" );
 
     testparser.setKeyHasValue( createstr );
     mRunStandardTest( testparser.isKeyValue(1), "setKeyHasValue" );
 
     testparser.getNormalArguments(normalargs);
-    mRunStandardTest( normalargs.size()==7,
+    mRunStandardTest( normalargs.size()==13,
 	    "getNormalArguments() with 1 key with value" );
 
+    testparser.setKeyHasValue( multistr );
+    testparser.getNormalArguments(normalargs);
+    mRunStandardTest( normalargs.size()==11,
+	    "getNormalArguments() with multi-key" );
+
+    testparser.setKeyHasValue( multivalstr, 3 );
+    testparser.getNormalArguments(normalargs);
+    mRunStandardTest( normalargs.size()==8,
+	    "getNormalArguments() with multi-value key" );
     return true;
 }
 
