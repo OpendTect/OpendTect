@@ -10,10 +10,6 @@ src/*/launch-*.cmd
 plugins/*/launch-*.cmd
 spec/*/launch-*.cmd
 external/*
-external/proj4
-external/osgGeo
-external/MikePlugins
-external/shapelib
 .arcconfig
 CMakeModules/FindOpendTect.cmake
 CMakeModules/Info.plist
@@ -83,7 +79,7 @@ dtect/backend-server-upload.sh
 CMakeDoxy*
 
 
-#CMakes stuff
+#CMake stuff
 *.ninja
 .ninja_log
 .ninja_deps
@@ -97,6 +93,7 @@ CMakeScripts
 Makefile
 CMakeCache.txt
 CMakeLists.txt.user*
+CMakeUserPresets.json
 CTestCustom.cmake
 *.vcxproj.filters
 *.vcxproj
