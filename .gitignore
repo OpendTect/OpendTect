@@ -93,8 +93,8 @@ CMakeScripts
 Makefile
 CMakeCache.txt
 CMakeLists.txt.user*
-CTestCustom.cmake
 CMakeUserPresets.json
+CTestCustom.cmake
 *.vcxproj.filters
 *.vcxproj
 *.vcxproj.user
