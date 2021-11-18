@@ -2154,9 +2154,9 @@ uiWellDefMnemLogDlg::Tables::Tables( Well::Data& wd, uiTable* table )
 
 uiWellDefMnemLogDlg::Tables::~Tables()
 {
-    delete table_;
     deepErase( deflogsflds_ );
     availmnems_.setEmpty();
+    delete table_;
 }
 
 
@@ -2185,7 +2185,7 @@ void uiWellDefMnemLogDlg::Tables::createLogRows()
     for ( const auto* suitablelogs : suitablelogsallmnems )
     {
         auto* deflogfld = 
-            new uiGenInput( nullptr, tr(""), StringListInpSpec(*suitablelogs) );
+            new uiComboBox( nullptr, *suitablelogs, "Suitable Logs" );
         if ( deflogfld )
             deflogsflds_.addIfNew( deflogfld );
     }
@@ -2210,7 +2210,7 @@ void uiWellDefMnemLogDlg::Tables::fillLogRows()
     int row = 0;
     for ( auto* deflogfld : deflogsflds_ )
     {
-        table_->setCellGroup( RowCol(row,cLogCol), deflogfld );
+        table_->setCellObject( RowCol(row,cLogCol), deflogfld );
         row++;
     }
 
@@ -2224,13 +2224,14 @@ void uiWellDefMnemLogDlg::Tables::setSavedDefaults()
     for ( const auto* mn : availmnems_ )
     {
         const Well::Log* deflog = wd_.logs().getLog( *mn );
-        uiString deflognm;
+        BufferString deflognm;
         if ( deflog )
-            deflognm.set( deflog->name() );
+            deflognm = deflog->name();
         else
-            deflognm.set( sNone() );
+            deflognm = sNone();
 
-        deflogsflds_.get(row)->setToolTip( deflognm );
+        deflogsflds_.get(row)->setCurrentItem( deflognm );
+        row++;
     }
 }
 
@@ -2297,7 +2298,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 uiWellDefMnemLogDlg::~uiWellDefMnemLogDlg()
 {
     detachAllNotifiers();
-    deepErase( tables_ );
+//    deepErase( tables_ );
 }
 
 
@@ -2340,13 +2341,17 @@ bool uiWellDefMnemLogDlg::acceptOK( CallBacker* )
         Well::Data& wd = table->wellData();
         for ( const auto* mn : table->availMnems() )
         {
-            mDynamicCastGet(uiGenInput*,currgen,
-                    table->getTable()->getCellGroup(RowCol(row,cLogCol)))
+            mDynamicCastGet(uiComboBox*,currgen,
+                    table->getTable()->getCellObject(RowCol(row,cLogCol)))
             const BufferString deflognm = currgen->text();
             if ( deflognm == sNone() )
+            {
+                row++;
                 continue;
+            }
 
             wd.logs().setDefaultMnemLog( *mn, deflognm );
+            row++;
         }
 
         Well::Writer wwr( wd.multiID(), wd );

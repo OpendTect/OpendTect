@@ -738,6 +738,8 @@ void uiWellMan::defMnemLogPush( CallBacker* )
     uiWellDefMnemLogDlg dlg( this, curmultiids_ );
     if ( !dlg.go() )
         return;
+
+    wellsChgd();
 }
 
 

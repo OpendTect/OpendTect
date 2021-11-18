@@ -285,10 +285,13 @@ void Well::LogSet::defaultLogUsePar( const IOPar& iop )
     if ( !defpar )
         return;
 
-    for ( int idx=0; idx<iop.size(); idx++ )
+    for ( int idx=0; idx<defpar->size(); idx++ )
     {
         const Mnemonic* currmnem = 
                     MNC().getByName( defpar->getKey(idx).str(), false );
+        if ( !currmnem )
+            continue;
+
         const BufferString deflognm( defpar->getValue(idx).str() );
         setDefaultMnemLog( *currmnem, deflognm );
     }
@@ -300,9 +303,8 @@ void Well::LogSet::defaultLogFillPar( IOPar& iop ) const
     int idx = 0;
     for ( const auto* deflog : defaultlogs_ )
     {
-        iop.setKey( idx, 
-                IOPar::compKey(sKeyDefMnem(),deflog->first.name()) );
-        iop.setValue( idx, deflog->second );
+        iop.set( IOPar::compKey(sKeyDefMnem(),deflog->first.name()),
+                 deflog->second );
         idx++;
         // To-Do: need to be made more robust
     }

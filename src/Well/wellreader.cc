@@ -166,8 +166,13 @@ bool Well::Reader::fnnm() const { return ra_ ? ra_->fnnm() : false; }
 mImplSimpleWRFn(getInfo)
 mImplSimpleWRFn(getMarkers)
 mImplSimpleWRFn(getDispProps)
-mImplSimpleWRFn(getDefLogs)
 mImplWRFn(bool,getLogs,bool,needjustinfo,false)
+
+
+bool Well::Reader::getDefLogs() const
+{
+    return ra_ ? ra_->getDefLogs() : false;
+}
 
 
 bool Well::Reader::getTrack() const
@@ -232,8 +237,6 @@ bool Well::Reader::getCSMdl() const
 mImplWRFn(bool,getLog,const char*,lognm,false)
 void Well::Reader::getLogInfo( BufferStringSet& logname ) const
 { if ( ra_ ) ra_->getLogInfo( logname ); }
-/*void Well::Reader::getDefLogs() const
-{ if ( ra_ ) ra_->getDefLogs(); }*/
 Well::Data* Well::Reader::data()
 { return ra_ ? &ra_->data() : nullptr; }
 
@@ -635,6 +638,7 @@ bool Well::odReader::getLogs( bool needjustinfo ) const
 	}
     }
 
+    getDefLogs();
     if ( rv )
 	adjustTrackIfNecessary();
 
@@ -766,7 +770,8 @@ bool Well::odReader::getDefLogs( od_istream& strm ) const
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );
-    IOPar iop; iop.getFrom( astrm );
+    IOPar iop; 
+    iop.getFrom( astrm );
     wd_.logs().defaultLogUsePar( iop );
     return true;
 }

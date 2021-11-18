@@ -99,10 +99,15 @@ mImplSimpleWWFn(putMarkers)
 mImplSimpleWWFn(putD2T)
 mImplSimpleWWFn(putCSMdl)
 mImplSimpleWWFn(putDispProps)
-mImplSimpleWWFn(putDefLogs)
 mImplSimpleWWFn(isFunctional)
 
 mImplWWFn(bool,putLog,const Log&,wl,false)
+
+
+bool Well::Writer::putDefLogs() const
+{
+    return wa_ ? wa_->putDefLogs() : false;
+}
 
 
 bool Well::Writer::swapLogs( const Well::Log& log1,

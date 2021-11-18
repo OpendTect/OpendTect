@@ -22,6 +22,7 @@ class uiCheckBox;
 class uiD2TModelGroup;
 class uiFileInput;
 class uiGenInput;
+class uiComboBox;
 class uiLabel;
 class uiMultiWellSel;
 class uiPushButton;
@@ -278,7 +279,7 @@ protected:
 
         uiTable*                    table_ = nullptr;
         Well::Data&                 wd_;
-        ObjectSet<uiGenInput>       deflogsflds_;
+        ObjectSet<uiComboBox>       deflogsflds_;
         ObjectSet<const Mnemonic>   availmnems_;
 
     private:
