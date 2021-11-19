@@ -70,6 +70,12 @@ void WellT2DTransform::doTransform( const SamplingData<float>& sd,
 
     for ( int idx=0; idx<ressz; idx++ )
     {
+	if ( sd.isUdf() )
+	{
+	    res[idx] = mUdf(float);
+	    continue;
+	}
+
 	float inp = sd.atIndex( idx );
 	if ( back )
 	{

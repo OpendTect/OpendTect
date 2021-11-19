@@ -947,7 +947,8 @@ void LinearVelTransform::transformT2D( const SamplingData<float>& sd,
     if ( SI().zIsTime() && SI().depthsInFeet() )
 	seisrefdatum *= mToFeetFactorF;
 
-    if ( !computeLinearT2D( startvel_, dv_, -seisrefdatum, sd, sz, res ) )
+    if ( sd.isUdf() ||
+	    !computeLinearT2D( startvel_, dv_, -seisrefdatum, sd, sz, res ) )
     {
 	for ( int idx=0; idx<sz; idx++ )
 	    res[idx] = mUdf(float);
@@ -962,7 +963,8 @@ void LinearVelTransform::transformD2T(const SamplingData<float>& sd,
     if ( SI().zIsTime() && SI().depthsInFeet() )
 	seisrefdatum *= mToFeetFactorF;
 
-    if ( !computeLinearD2T( startvel_, dv_, -seisrefdatum, sd, sz, res ) )
+    if ( sd.isUdf() ||
+	    !computeLinearD2T( startvel_, dv_, -seisrefdatum, sd, sz, res ) )
     {
 	for ( int idx=0; idx<sz; idx++ )
 	    res[idx] = mUdf(float);
