@@ -733,11 +733,11 @@ void uiWellMan::logMnemPush( CallBacker* )
 void uiWellMan::defMnemLogPush( CallBacker* )
 {
     if ( curwds_.isEmpty() || currdrs_.isEmpty() )
-        return;
+	return;
 
     uiWellDefMnemLogDlg dlg( this, curmultiids_ );
     if ( !dlg.go() )
-        return;
+	return;
 
     wellsChgd();
 }

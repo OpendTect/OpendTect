@@ -2170,7 +2170,7 @@ void uiWellDefMnemLogDlg::Tables::createMnemRows()
 {
     const Well::LogSet& logset = wd_.logs();
     for ( int idx=0; idx<logset.size(); idx++ )
-        availmnems_.addIfNew( logset.getLog(idx).mnemonic() );
+	availmnems_.addIfNew( logset.getLog(idx).mnemonic() );
 }
 
 
@@ -2179,15 +2179,15 @@ void uiWellDefMnemLogDlg::Tables::createLogRows()
     ObjectSet<BufferStringSet> suitablelogsallmnems;
     const Well::LogSet& currset = wd_.logs();
     getSuitableLogNamesForMnems( currset,
-                                 availmnems_,                            
-                                 suitablelogsallmnems );
-                                 
+				 availmnems_,				 
+				 suitablelogsallmnems );
+
     for ( const auto* suitablelogs : suitablelogsallmnems )
     {
-        auto* deflogfld = 
-            new uiComboBox( nullptr, *suitablelogs, "Suitable Logs" );
-        if ( deflogfld )
-            deflogsflds_.addIfNew( deflogfld );
+	auto* deflogfld = 
+	    new uiComboBox( nullptr, *suitablelogs, "Suitable Logs" );
+	if ( deflogfld )
+	    deflogsflds_.addIfNew( deflogfld );
     }
 }
 
@@ -2196,12 +2196,12 @@ void uiWellDefMnemLogDlg::Tables::fillMnemRows()
 {
     BufferStringSet mnemlblset;
     for ( const auto* mnem : availmnems_ )
-        mnemlblset.add( mnem->name() );
+	mnemlblset.add( mnem->name() );
 
     const int nrrows = mnemlblset.size();
     table_->setNrRows( nrrows );
     for ( int idx=0; idx<nrrows; idx++ )
-        table_->setText( RowCol(idx,cMnemCol), mnemlblset.get(idx) );
+	table_->setText( RowCol(idx,cMnemCol), mnemlblset.get(idx) );
 }
 
 
@@ -2210,8 +2210,8 @@ void uiWellDefMnemLogDlg::Tables::fillLogRows()
     int row = 0;
     for ( auto* deflogfld : deflogsflds_ )
     {
-        table_->setCellObject( RowCol(row,cLogCol), deflogfld );
-        row++;
+	table_->setCellObject( RowCol(row,cLogCol), deflogfld );
+	row++;
     }
 
     setSavedDefaults();
@@ -2223,15 +2223,15 @@ void uiWellDefMnemLogDlg::Tables::setSavedDefaults()
     int row = 0;
     for ( const auto* mn : availmnems_ )
     {
-        const Well::Log* deflog = wd_.logs().getLog( *mn );
-        BufferString deflognm;
-        if ( deflog )
-            deflognm = deflog->name();
-        else
-            deflognm = sNone();
+	const Well::Log* deflog = wd_.logs().getLog( *mn );
+	BufferString deflognm;
+	if ( deflog )
+	    deflognm = deflog->name();
+	else
+	    deflognm = sNone();
 
-        deflogsflds_.get(row)->setCurrentItem( deflognm );
-        row++;
+	deflogsflds_.get(row)->setCurrentItem( deflognm );
+	row++;
     }
 }
 
@@ -2243,25 +2243,25 @@ void uiWellDefMnemLogDlg::Tables::fillTable()
 }
 
 
-void uiWellDefMnemLogDlg::Tables::getSuitableLogNamesForMnems( 
-                            const Well::LogSet& logs,
-                            const ObjectSet<const Mnemonic>& availmnem,
-                            ObjectSet<BufferStringSet>& suitlogsforallmnems )
+void uiWellDefMnemLogDlg::Tables::getSuitableLogNamesForMnems(
+			    const Well::LogSet& logs,
+			    const ObjectSet<const Mnemonic>& availmnem,
+			    ObjectSet<BufferStringSet>& suitlogsforallmnems )
 {
     for ( const auto* mnem : availmnem )
     {
-        auto* suitablelogs = new BufferStringSet( sNone() );
-        TypeSet<int> suitlogsidxs = logs.getSuitable( *mnem );
-        for ( const auto idx : suitlogsidxs )
-            suitablelogs->add( logs.getLog(idx).name() );
+	auto* suitablelogs = new BufferStringSet( sNone() );
+	TypeSet<int> suitlogsidxs = logs.getSuitable( *mnem );
+	for ( const auto idx : suitlogsidxs )
+	    suitablelogs->add( logs.getLog(idx).name() );
 
-        suitlogsforallmnems.add( suitablelogs );
+	suitlogsforallmnems.add( suitablelogs );
     }
 }
 
 
 uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
-                                          const TypeSet<MultiID>& keys )
+					  const TypeSet<MultiID>& keys )
     : uiDialog(p,uiDialog::Setup(tr("Set/Edit default Logs for a mnemonic"),
 				 mNoDlgTitle,mTODOHelpKey))
 {
@@ -2275,22 +2275,25 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 
     BufferStringSet wellnms;
     for ( const auto* wd : wds )
-        wellnms.addIfNew( wd->name() );
+	wellnms.addIfNew( wd->name() );
 
     welllist_ = new uiListBox( this, "Wells" );
     welllist_->addLabel( tr("Select Well"),
-                         uiListBox::AboveMid );
-    welllist_->setFieldWidth( 5 ); 
+			 uiListBox::AboveMid );
+    welllist_->setFieldWidth( 4 );
     welllist_->addItems( wellnms );
+
+    tablegrp_ = new uiGroup( this, "Table Group" );
+    tablegrp_->attach( centeredRightOf, welllist_ );
     for ( auto* wd : wds )
     {
-        uiTable* curtable = createLogTable();
-        curtable->attach( rightOf, welllist_ );
-        tables_ += new Tables( *wd, curtable );
+	uiTable* curtable = createLogTable();
+	curtable->display( false );
+	tables_ += new Tables( *wd, curtable );
     }
 
-    mAttachCB( welllist_->selectionChanged, 
-               uiWellDefMnemLogDlg::wellChangedCB );
+    mAttachCB( welllist_->selectionChanged,
+	       uiWellDefMnemLogDlg::wellChangedCB );
     mAttachCB( postFinalise(), uiWellDefMnemLogDlg::initDlg );
 }
 
@@ -2298,33 +2301,51 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 uiWellDefMnemLogDlg::~uiWellDefMnemLogDlg()
 {
     detachAllNotifiers();
-//    deepErase( tables_ );
 }
 
 
 void uiWellDefMnemLogDlg::initDlg( CallBacker* )
 {
-    table_ = tables_.get(0)->getTable();
+    displayTable( 0 );
 }
 
 
 void uiWellDefMnemLogDlg::wellChangedCB( CallBacker* )
 {
     const int curridx = welllist_->currentItem();
-    table_ = tables_.get(curridx)->getTable();
+    displayTable( curridx );
+}
+
+
+void uiWellDefMnemLogDlg::displayTable( const int currwellidx )
+{
+    int idx = 0;
+    for ( auto* table : tables_ )
+    {
+	bool shoulddisplay = false;
+	if ( idx == currwellidx )
+	    shoulddisplay = true;
+
+	table->getTable()->display( shoulddisplay );
+	table->getTable()->shallowRedraw();
+	idx++;
+    }
 }
 
 
 uiTable* uiWellDefMnemLogDlg::createLogTable()
 {
-    auto* ret = new uiTable( this, uiTable::Setup().selmode(uiTable::Multi),
-                             "Set/Edit Default Well Logs" );
+    auto* ret = new uiTable( tablegrp_,uiTable::Setup().selmode(uiTable::Multi)
+						       .manualresize(true),
+			     "Set/Edit Default Well Logs" );
     uiStringSet lbls;
     lbls.add( tr("Mnemonic") ).add( tr("Default Log") );
-    ret->setPrefWidth( 250 );
+    ret->setPrefWidth( 350 );
     ret->setColumnLabels( lbls );
     ret->setColumnReadOnly( cMnemCol, false );
     ret->setColumnResizeMode( uiTable::ResizeToContents );
+    ret->setRowResizeMode( uiTable::ResizeToContents );
+    ret->setVSzPol( uiObject::MedVar );
 
     return ret;
 }
@@ -2333,32 +2354,41 @@ uiTable* uiWellDefMnemLogDlg::createLogTable()
 bool uiWellDefMnemLogDlg::acceptOK( CallBacker* )
 {
     if ( tables_.isEmpty() )
-        return false;
+	return false;
 
     for ( auto* table : tables_ )
     {
-        int row = 0;
-        Well::Data& wd = table->wellData();
-        for ( const auto* mn : table->availMnems() )
-        {
-            mDynamicCastGet(uiComboBox*,currgen,
-                    table->getTable()->getCellObject(RowCol(row,cLogCol)))
-            const BufferString deflognm = currgen->text();
-            if ( deflognm == sNone() )
-            {
-                row++;
-                continue;
-            }
+	int row = 0;
+	Well::Data& wd = table->wellData();
+	for ( const auto* mn : table->availMnems() )
+	{
+	    mDynamicCastGet(uiComboBox*,currgen,
+		    table->getTable()->getCellObject(RowCol(row,cLogCol)))
+	    const BufferString deflognm = currgen->text();
+	    if ( deflognm == sNone() )
+	    {
+		row++;
+		continue;
+	    }
 
-            wd.logs().setDefaultMnemLog( *mn, deflognm );
-            row++;
-        }
+	    wd.logs().setDefaultMnemLog( *mn, deflognm );
+	    row++;
+	}
 
-        Well::Writer wwr( wd.multiID(), wd );
-        if ( !wwr.putDefLogs() )
-            uiMSG().error( wwr.errMsg() );
+	Well::Writer wwr( wd.multiID(), wd );
+	if ( !wwr.putDefLogs() )
+	    uiMSG().error( wwr.errMsg() );
     }
-    
+
+    return true;
+}
+
+
+bool uiWellDefMnemLogDlg::rejectOK( CallBacker* )
+{
+    for ( auto* table : tables_ )
+	Well::MGR().reloadLogs( table->wellData().multiID() );
+
     return true;
 }
 

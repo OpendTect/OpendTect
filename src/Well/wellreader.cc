@@ -770,7 +770,7 @@ bool Well::odReader::getDefLogs( od_istream& strm ) const
 	mErrRetStrmOper( sCannotReadFileHeader() )
 
     ascistream astrm( strm, false );
-    IOPar iop; 
+    IOPar iop;
     iop.getFrom( astrm );
     wd_.logs().defaultLogUsePar( iop );
     return true;

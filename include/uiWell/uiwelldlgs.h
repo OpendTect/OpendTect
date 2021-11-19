@@ -246,53 +246,54 @@ protected:
 mExpClass(uiWell) uiWellDefMnemLogDlg : public uiDialog
 { mODTextTranslationClass(uiWellDefMnemLogDlg);
 public:
-            uiWellDefMnemLogDlg(uiParent*,
-                                const TypeSet<MultiID>& keys);
-            ~uiWellDefMnemLogDlg();
+	    uiWellDefMnemLogDlg(uiParent*,
+				const TypeSet<MultiID>& keys);
+	    ~uiWellDefMnemLogDlg();
 
 protected:
 
-    uiTable*    createLogTable();
-    void		fillTable(const char* wellnm);
+    uiTable*	createLogTable();
+    void		displayTable(const int currwellidx);
 
-    bool        acceptOK(CallBacker*);
-    void        initDlg(CallBacker*);
-    void        wellChangedCB(CallBacker*);
+    bool	acceptOK(CallBacker*);
+    bool	rejectOK(CallBacker*);
+    void	initDlg(CallBacker*);
+    void	wellChangedCB(CallBacker*);
 
     mExpStruct(uiWell) Tables
     {
-                    Tables(Well::Data&,uiTable*);
+		    Tables(Well::Data&,uiTable*);
 	    virtual		~Tables();
 
-        uiTable*                            getTable();      
-        Well::Data&                         wellData() const     { return wd_; }
-        const ObjectSet<const Mnemonic>     availMnems() const   
-                                            { return availmnems_; }
-	
+	uiTable*			    getTable();      
+	Well::Data&			    wellData() const	 { return wd_; }
+	const ObjectSet<const Mnemonic>     availMnems() const	 
+					    { return availmnems_; }
+
     protected:
 
-        void                        createMnemRows();
-        void                        createLogRows();
-        void                        fillMnemRows();
-        void                        fillLogRows();
-        void                        fillTable();
+	void			    createMnemRows();
+	void			    createLogRows();
+	void			    fillMnemRows();
+	void			    fillLogRows();
+	void			    fillTable();
 
-        uiTable*                    table_ = nullptr;
-        Well::Data&                 wd_;
-        ObjectSet<uiComboBox>       deflogsflds_;
-        ObjectSet<const Mnemonic>   availmnems_;
+	uiTable*		    table_ = nullptr;
+	Well::Data&		    wd_;
+	ObjectSet<uiComboBox>	    deflogsflds_;
+	ObjectSet<const Mnemonic>   availmnems_;
 
     private:
 
-        void        getSuitableLogNamesForMnems(const Well::LogSet&,
-                                            const ObjectSet<const Mnemonic>&,
-                                            ObjectSet<BufferStringSet>&);
-        void        setSavedDefaults();
+	void	    getSuitableLogNamesForMnems(const Well::LogSet&,
+					    const ObjectSet<const Mnemonic>&,
+					    ObjectSet<BufferStringSet>&);
+	void	    setSavedDefaults();
     };
 
-    uiListBox*          welllist_ = nullptr;
-    uiTable*            table_ = nullptr;
-    ObjectSet<Tables>   tables_;
+    uiListBox*		welllist_ = nullptr;
+    uiGroup*		tablegrp_ = nullptr;
+    ObjectSet<Tables>	tables_;
 };
 
 /* brief Dialog to set Depth-to-Time model to selected wells */
