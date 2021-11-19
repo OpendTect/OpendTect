@@ -338,10 +338,12 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop, int )
 		    : Coord3::udf();
 
 		if ( pos.isDefined() )
+		{
 		    hasdata = true;
+		    if ( zaxistransform_ )
+			pos.z = zaxistransform_->transform( pos );
+		}
 
-		if ( zaxistransform_ )
-		    pos.z = zaxistransform_->transform( pos );
 		positions += pos;
 	    }
 	}
