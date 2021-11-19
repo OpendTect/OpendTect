@@ -174,6 +174,12 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
     endforeach()
     set( EXTERNALLIBS "")
 
+    foreach( DATADIR ${DATADIRLIST} )
+	file( COPY ${COPYFROMDATADIR}/data/${DATADIR}
+	      DESTINATION ${COPYTODATADIR}/data )
+    endforeach()
+    set( DATADIRLIST "" )
+
     ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
 endmacro( CREATE_PACKAGE )
 
@@ -329,6 +335,7 @@ macro( CREATE_BASEPACKAGES PACKAGE_NAME )
 	file( COPY ${COPYFROMDATADIR}/data/${DATADIR}
 	      DESTINATION ${COPYTODATADIR}/data )
     endforeach()
+    set( DATADIRLIST "" )
 
     ZIPPACKAGE( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
 endmacro( CREATE_BASEPACKAGES )
