@@ -24,6 +24,7 @@ set( OD_PLUGINS
         uiCEEMDAttrib
         uiSEGYTools
         uiMadagascarAttribs
+	VoxelConnectivityFilter
 )
 
 if ( NOT OD_NO_OSG )
@@ -47,6 +48,7 @@ if ( NOT OD_NO_OSG )
         uiSEGY
         uiTut
         uiTutMadagascar
+	uiVoxelConnectivityFilter
     )
 endif()
 
