@@ -947,7 +947,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		newannot.linetype_ = PlotAnnotation::Bold;
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
-	    newannot.pos_ = mCast(float,posdata->position(true,posidx));
+	    newannot.pos_ = sCast(float,posdata->position(true,posidx));
 	    newannot.txt_ = mToUiStringTodo( Survey::GM().getName(intpos.line));
 	    x1auxannot += newannot;
 	}

@@ -109,8 +109,8 @@ IndexInfo FlatPosData::indexInfo( bool isx1, double x ) const
 
 double FlatPosData::position( bool isx1, int idx ) const
 {
-    return !isx1 || !x1pos_ || idx >= nrPts(true) ? range(isx1).atIndex(idx)
-						  : x1pos_[idx] + x1offs_;
+    return !isx1 || !x1pos_ || idx<0 || idx>=nrPts(true) ?
+		range(isx1).atIndex(idx) : sCast(double,x1pos_[idx]) + x1offs_;
 }
 
 
