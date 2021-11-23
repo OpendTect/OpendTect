@@ -1016,6 +1016,13 @@ bool IOMan::implReloc( const MultiID& key,
 		       const char* newdir, const CallBack* cb )
 {
     PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj )
+    {
+	msg_ = "Cannot create an object for";
+	msg_ += key;
+	return false;
+    }
+
     PtrMan<Translator> trans = ioobj->createTranslator();
     mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
     BufferString oldfnm( iostrm->fullUserExpr() );
@@ -1164,7 +1171,21 @@ bool IOMan::permRemove( const MultiID& ky )
 {
     const bool issurvdefault = IOObj::isSurveyDefault( ky );
     PtrMan<IOObj> ioobj = IOM().get( ky );
+    if ( !ioobj )
+    {
+	msg_ = "Cannot create an object for";
+	msg_ += ky;
+	return false;
+    }
+
     PtrMan<Translator> trl = ioobj->createTranslator();
+    if ( !trl )
+    {
+	msg_ = "Could not retrieve translator of object with key: ";
+	msg_ += ky;
+	return false;
+    }
+
     const CompoundKey defaultkey( trl->group()->getSurveyDefaultKey(ioobj) );
     Threads::Locker lock( lock_ );
     if ( !dirptr_ || !dirptr_->permRemove(ky) )
