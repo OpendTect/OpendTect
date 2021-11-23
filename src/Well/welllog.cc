@@ -226,7 +226,7 @@ bool Well::LogSet::setDefaultMnemLog( const Mnemonic& mnem,
 {
     for ( auto* deflog : defaultlogs_ )
     {
-	if ( &deflog->first == &mnem )	
+	if ( &deflog->first == &mnem )
 	{
 	    deflog->second = lognm;
 	    return true;
@@ -281,7 +281,7 @@ void Well::LogSet::defaultLogUsePar( const IOPar& iop )
 
     for ( int idx=0; idx<defpar->size(); idx++ )
     {
-	const Mnemonic* currmnem = 
+	const Mnemonic* currmnem =
 		    MNC().getByName( defpar->getKey(idx).str(), false );
 	if ( !currmnem )
 	    continue;

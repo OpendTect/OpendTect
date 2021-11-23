@@ -254,7 +254,6 @@ public:
 
 protected:
 
-    uiTable*	createLogTable();
     void	displayTable(const int currwellidx);
 
     bool	acceptOK(CallBacker*);
@@ -265,35 +264,36 @@ protected:
     mExpStruct(uiWell) Tables
     {
 
-		    	Tables(RefMan<Well::Data>&,uiTable&);
-	        	~Tables();
+			Tables(Well::Data&,uiGroup*);
+			~Tables();
 
-	uiTable&			getTable();      
-	RefMan<Well::Data>&		wellData() const	 
+	uiTable&			getTable();	 
+	RefMan<Well::Data>		wellData() const
 					{ return wd_; }
-	const MnemonicSelection&	availMnems() const	 
+	const MnemonicSelection&	availMnems() const
 					{ return availmnems_; }
 	void				restoreDefsBackup();
 
     protected:
 
+	uiTable*		    createLogTable(uiGroup*);
 	void			    createMnemRows();
 	void			    createLogRows();
 	void			    fillMnemRows();
 	void			    fillLogRows();
 	void			    fillTable();
 
-	uiTable&		    table_;
-	RefMan<Well::Data>&	    wd_;
-	IOPar			    saveddefaults_;	
+	uiTable*		    table_ = nullptr;
+	RefMan<Well::Data>	    wd_;
+	IOPar			    saveddefaults_;
 	ObjectSet<uiComboBox>	    deflogsflds_;
 	MnemonicSelection	    availmnems_;
 
     private:
 
 	void	    getSuitableLogNamesForMnems(const Well::LogSet&,
-					    	const MnemonicSelection&,
-					    	ObjectSet<BufferStringSet>&);
+						const MnemonicSelection&,
+						ObjectSet<BufferStringSet>&);
 	void	    setSavedDefaults();
 
     };
@@ -301,7 +301,6 @@ protected:
     uiListBox*			welllist_ = nullptr;
     uiGroup*			tablegrp_ = nullptr;
     ObjectSet<Tables>		tables_;
-    ObjectSet<Well::Data> 	wds_;
 
 };
 
