@@ -267,7 +267,7 @@ protected:
 			Tables(Well::Data&,uiGroup*);
 			~Tables();
 
-	uiTable&			getTable();	 
+	uiTable&			getTable();
 	RefMan<Well::Data>		wellData() const
 					{ return wd_; }
 	const MnemonicSelection&	availMnems() const
