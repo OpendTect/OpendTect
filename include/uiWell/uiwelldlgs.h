@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uiselsimple.h"
 #include "multiid.h"
+#include "mnemonics.h"
 #include "ranges.h"
 #include "position.h"
 #include "uistring.h"
@@ -33,7 +34,8 @@ class uiUnitSel;
 class uiMnemonicsSel;
 class uiWellSel;
 class BufferStringSet;
-class Mnemonic;
+//class Mnemonic;
+//class MnemonicSelection;
 
 namespace Table { class FormatDesc; }
 namespace Well { class Data; class Track; class D2TModel; class Log;
@@ -253,7 +255,7 @@ public:
 protected:
 
     uiTable*	createLogTable();
-    void		displayTable(const int currwellidx);
+    void	displayTable(const int currwellidx);
 
     bool	acceptOK(CallBacker*);
     bool	rejectOK(CallBacker*);
@@ -262,13 +264,16 @@ protected:
 
     mExpStruct(uiWell) Tables
     {
-		    Tables(Well::Data&,uiTable*);
-	    virtual		~Tables();
 
-	uiTable*			    getTable();      
-	Well::Data&			    wellData() const	 { return wd_; }
-	const ObjectSet<const Mnemonic>     availMnems() const	 
-					    { return availmnems_; }
+		    	Tables(RefMan<Well::Data>&,uiTable&);
+	        	~Tables();
+
+	uiTable&			getTable();      
+	RefMan<Well::Data>&		wellData() const	 
+					{ return wd_; }
+	const MnemonicSelection&	availMnems() const	 
+					{ return availmnems_; }
+	void				restoreDefsBackup();
 
     protected:
 
@@ -278,22 +283,26 @@ protected:
 	void			    fillLogRows();
 	void			    fillTable();
 
-	uiTable*		    table_ = nullptr;
-	Well::Data&		    wd_;
+	uiTable&		    table_;
+	RefMan<Well::Data>&	    wd_;
+	IOPar			    saveddefaults_;	
 	ObjectSet<uiComboBox>	    deflogsflds_;
-	ObjectSet<const Mnemonic>   availmnems_;
+	MnemonicSelection	    availmnems_;
 
     private:
 
 	void	    getSuitableLogNamesForMnems(const Well::LogSet&,
-					    const ObjectSet<const Mnemonic>&,
-					    ObjectSet<BufferStringSet>&);
+					    	const MnemonicSelection&,
+					    	ObjectSet<BufferStringSet>&);
 	void	    setSavedDefaults();
+
     };
 
-    uiListBox*		welllist_ = nullptr;
-    uiGroup*		tablegrp_ = nullptr;
-    ObjectSet<Tables>	tables_;
+    uiListBox*			welllist_ = nullptr;
+    uiGroup*			tablegrp_ = nullptr;
+    ObjectSet<Tables>		tables_;
+    ObjectSet<Well::Data> 	wds_;
+
 };
 
 /* brief Dialog to set Depth-to-Time model to selected wells */

@@ -45,8 +45,8 @@ public:
     bool		isLoaded(const char*) const;
     bool		isPresent(const char*) const;
     bool		hasDefaultFor(const Mnemonic&) const;
-    bool	    setDefaultMnemLog(const Mnemonic&, const BufferString& lognm);
-    bool        removeDefault(const Mnemonic&);
+    bool	    	setDefaultMnemLog(const Mnemonic&,const char* lognm);
+    bool        	removeDefault(const Mnemonic&);
     const Log*		getLog( const char* nm ) const	{ return gtLog(nm); }
     Log*		getLog( const char* nm )	{ return gtLog(nm); }
     const Log*		getLog(const Mnemonic&) const;

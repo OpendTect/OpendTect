@@ -222,11 +222,8 @@ bool Well::LogSet::hasDefaultFor( const Mnemonic& mnem ) const
 
 
 bool Well::LogSet::setDefaultMnemLog( const Mnemonic& mnem,
-				      const BufferString& lognm )
+				      const char* lognm )
 {
-    if ( lognm.isEmpty() )
-	return false;
-
     for ( auto* deflog : defaultlogs_ )
     {
 	if ( &deflog->first == &mnem )	
@@ -248,9 +245,6 @@ bool Well::LogSet::setDefaultMnemLog( const Mnemonic& mnem,
 
 bool Well::LogSet::removeDefault( const Mnemonic& mnem )
 {
-    if ( !hasDefaultFor(mnem) )
-	return false;
-
     for ( int idx=defaultlogs_.size()-1; idx>=0; idx-- )
     {
 	if ( &defaultlogs_.get(idx)->first == &mnem )
@@ -260,7 +254,7 @@ bool Well::LogSet::removeDefault( const Mnemonic& mnem )
 	}
     }
 
-    return true;
+    return false;
 }
 
 
