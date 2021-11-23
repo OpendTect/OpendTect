@@ -254,7 +254,7 @@ public:
 
 protected:
 
-    void	displayTable(const int currwellidx);
+    void	displayTable(int currwellidx);
 
     bool	acceptOK(CallBacker*);
     bool	rejectOK(CallBacker*);
@@ -283,7 +283,7 @@ protected:
 	void			    fillLogRows();
 	void			    fillTable();
 
-	uiTable*		    table_ = nullptr;
+	uiTable*		    table_;
 	RefMan<Well::Data>	    wd_;
 	IOPar			    saveddefaults_;
 	ObjectSet<uiComboBox>	    deflogsflds_;
@@ -298,8 +298,8 @@ protected:
 
     };
 
-    uiListBox*			welllist_ = nullptr;
-    uiGroup*			tablegrp_ = nullptr;
+    uiListBox*			welllist_;
+    uiGroup*			tablegrp_;
     ObjectSet<Tables>		tables_;
 
 };

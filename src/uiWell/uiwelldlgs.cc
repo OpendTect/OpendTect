@@ -2336,7 +2336,7 @@ void uiWellDefMnemLogDlg::wellChangedCB( CallBacker* )
 }
 
 
-void uiWellDefMnemLogDlg::displayTable( const int currwellidx )
+void uiWellDefMnemLogDlg::displayTable( int currwellidx )
 {
     int idx = 0;
     for ( auto* table : tables_ )
