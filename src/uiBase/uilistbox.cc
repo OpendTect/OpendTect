@@ -26,11 +26,38 @@ ________________________________________________________________________
 
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QStyledItemDelegate>
 
 static const int cIconSz = 16;
 int uiListBox::cDefNrLines()	{ return 7; }
 
 mUseQtnamespace
+
+
+class ListBoxPixmapDelegate : public QStyledItemDelegate
+{
+public:
+ListBoxPixmapDelegate( QObject* qobj )
+    : QStyledItemDelegate(qobj)
+{}
+
+void paint( QPainter* painter, const QStyleOptionViewItem& option,
+            const QModelIndex& index) const
+{
+    QStyleOptionViewItem myOpt(option);
+    myOpt.decorationPosition = QStyleOptionViewItem::Right;
+    QStyledItemDelegate::paint(painter, myOpt, index);
+}
+
+};
+
+
+/*static ListBoxPixmapDelegate* getPixmapDelegate()
+{
+    mDefineStaticLocalObject( PtrMan<ListBoxPixmapDelegate>, del,
+                              = new ListBoxPixmapDelegate )
+    return del;
+}*/
 
 
 class uiListBoxItem : public QListWidgetItem
@@ -85,6 +112,8 @@ public:
     int			getItemID(int idx) const;
     int			getItemIdx(int id) const;
 
+    void		setPixmap(int idx,const uiPixmap&,
+    				  bool placeright=false);
     void		setItemAlignment(int idx,Alignment::HPos);
 
     void		setNrLines( int prefNrLines )
@@ -118,7 +147,7 @@ protected:
 private:
 
     i_listMessenger&	messenger_;
-    uiStringSet	itemstrings_;
+    uiStringSet		itemstrings_;
     Interval<int>	sliderg_;
     uiListBox*		lb_;
 
@@ -151,6 +180,7 @@ uiListBoxBody::uiListBoxBody( uiListBoxObj& hndle, uiParent* p,
     setHSzPol( uiObject::Medium );
 
     setMouseTracking( true );
+//    setItemDelegate( new ListBoxPixmapDelegate(this) );
 }
 
 
@@ -235,6 +265,15 @@ int uiListBoxBody::getItemIdx( int id ) const
 int uiListBoxBody::indexOf( uiListBoxItem* itm ) const
 {
     return items_.indexOf( itm );
+}
+
+
+void uiListBoxBody::setPixmap( int idx, const uiPixmap& pm, bool placeright )
+{
+    if ( placeright )
+	setItemDelegateForRow( idx, new ListBoxPixmapDelegate(this) );
+
+    item(idx)->setIcon( *pm.qpixmap() );
 }
 
 
@@ -975,7 +1014,8 @@ void uiListBox::setItemSelectable( int index, bool yn )
 }
 
 
-void uiListBox::setPixmap( int index, const OD::Color& col )
+void uiListBox::setPixmap( int index, const OD::Color& col,
+			   bool placeright )
 {
     if ( index<0 || index>=size() || !lb_->body().item(index) )
 	return;
@@ -983,16 +1023,17 @@ void uiListBox::setPixmap( int index, const OD::Color& col )
     const QSize sz = lb_->body().iconSize();
     uiPixmap pm( sz.width(), sz.height() );
     pm.fill( col );
-    setPixmap( index, pm );
+    setPixmap( index, pm, placeright );
 }
 
 
-void uiListBox::setPixmap( int index, const uiPixmap& pm )
+void uiListBox::setPixmap( int index, const uiPixmap& pm,
+			   bool placeright )
 {
     if ( index<0 || index>=size() ||
 	 !lb_->body().item(index) || !pm.qpixmap() ) return;
 
-    lb_->body().item(index)->setIcon( *pm.qpixmap() );
+    lb_->body().setPixmap( index, pm, placeright );
 }
 
 

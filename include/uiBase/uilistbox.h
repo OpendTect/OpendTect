@@ -154,8 +154,8 @@ public:
 				   int idx=-1,int id=-1);
     void		insertItem(const uiString&,const OD::Color&,
 				   int idx=-1,int id=-1);
-    void		setPixmap(int,const OD::Color&);
-    void		setPixmap(int,const uiPixmap&);
+    void		setPixmap(int,const OD::Color&,bool placeright=false);
+    void		setPixmap(int,const uiPixmap&,bool placeright=false);
     void		setIcon(int,const char* icon_identifier);
     void		setColor(int,const OD::Color&);
     OD::Color		getColor(int) const;

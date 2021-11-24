@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uistrings.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
@@ -240,19 +241,33 @@ void uiWellMan::fillLogsFld()
 	return;
 
     availablelognms_.erase();
+    defaultlognms_.erase();
     currdrs_[0]->getLogInfo( availablelognms_ );
+    currdrs_[0]->getDefLogs();
+    curwds_[0]->logs().getDefaultLogs( defaultlognms_ );
     if ( currdrs_.size() > 1 )
     {
 	for ( int idx=1; idx<currdrs_.size(); idx++ )
 	{
-	    BufferStringSet lognms;
+	    BufferStringSet lognms, deflognms;
 	    currdrs_[idx]->getLogInfo( lognms );
+	    currdrs_[idx]->getDefLogs();
+	    curwds_[idx]->logs().getDefaultLogs( deflognms );
 	    for ( int idy=0; idy<availablelognms_.size(); )
 	    {
 		if ( !lognms.isPresent(availablelognms_.get(idy)) )
 		    availablelognms_.removeSingle( idy );
 		else
 		    idy++;
+	    }
+
+	    int index = 0;
+	    for ( auto* deflognm : defaultlognms_ )
+	    {
+		if ( !deflognms.isPresent(*deflognm) )    
+		    defaultlognms_.removeSingle( index );
+		else
+		    index++;    
 	    }
 	}
     }
@@ -261,10 +276,21 @@ void uiWellMan::fillLogsFld()
     logsfld_->chooseAll( false );
     addlogsbut_->setSensitive( iswritable_ && curwds_.size() == 1 );
     calclogsbut_->setSensitive( iswritable_ );
+    setDefaultPixmaps();
 
     logSel(0);
 }
 
+
+void uiWellMan::setDefaultPixmaps()
+{
+    for ( auto* deflognm : defaultlognms_ )
+    {
+	const int idx = logsfld_->indexOf( *deflognm );
+	uiPixmap pm( "star" );
+	logsfld_->setPixmap( idx, pm, true );
+    }
+}
 
 
 void uiWellMan::setButToolTip( uiButton* but, const uiString& oper,

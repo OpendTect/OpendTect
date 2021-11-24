@@ -48,6 +48,7 @@ protected:
     TypeSet<MultiID>		curmultiids_;
     BufferStringSet		curfnms_;
     BufferStringSet		availablelognms_;
+    BufferStringSet		defaultlognms_;
 
     uiToolButton*		logvwbut_;
     uiToolButton*		logrenamebut_;
@@ -103,6 +104,9 @@ protected:
     void			logTools(CallBacker*);
 
     void			defD2T(bool);
+    void 			getDefaultLogsList(const IOPar&,
+    						   BufferStringSet&);
+    void			setDefaultPixmaps();	
 
 };
 
