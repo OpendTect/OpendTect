@@ -188,7 +188,7 @@ mExternC(Basic) const char* GetDataDir()
 mExternC(Basic) const char* GetProcFileName( const char* fname )
 {
     mDeclStaticString( ret );
-    ret = FilePath( GetDataDir(), "Proc", fname ).fullPath();
+    ret = FilePath( GetSurveyProcDir(), fname ).fullPath();
     return ret.buf();
 }
 
@@ -719,6 +719,14 @@ mExternC(Basic) const char* GetSurveyTempDir()
 {
     mDeclStaticString( ret );
     getSurveySubDir( "Temp", ret );
+    return ret;
+}
+
+
+mExternC(Basic) const char* GetSurveyProcDir()
+{
+    mDeclStaticString( ret );
+    getSurveySubDir( "Proc", ret );
     return ret;
 }
 

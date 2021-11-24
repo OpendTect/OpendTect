@@ -199,6 +199,7 @@ mGlobal(Basic) const char* GetSurveyExportDir();
 mGlobal(Basic) const char* GetSurveyPicturesDir();
 mGlobal(Basic) const char* GetSurveyScriptsDir();
 mGlobal(Basic) const char* GetSurveyTempDir();
+mGlobal(Basic) const char* GetSurveyProcDir();
 
 mGlobal(Basic) const char* GetImportFromDir();
 mGlobal(Basic) void SetImportFromDir(const char*);
