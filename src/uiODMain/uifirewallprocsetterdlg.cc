@@ -78,7 +78,6 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
     setEmpty(); \
     PDE::ActionType acttyp = toadd_ ? PDE::Add : PDE::Remove; \
     ePDD().getProcData( odv6procnms_, odprocdescs_, PDE::ODv6, acttyp ); \
-    ePDD().getProcData( odv7procnms_, odprocdescs_, PDE::ODv7, acttyp ); \
     pyprocdescs_ = getPythonExecList(); \
 
 
@@ -304,18 +303,6 @@ void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
 	exefp.add( procnm );
 	procfp = exefp.fullPath();
     }
-    else if ( !odv7procnms_.isEmpty() )
-    {
-	selidx -= v6procsz;
-
-	FilePath odv7fp( exefp.dirUpTo(exefp.nrLevels()-4) );
-	odv7fp.add( "v7" ).add( "bin" ).add( GetPlfSubDir() )
-	      .add( GetBinSubDir() );
-	procnm = *odv7procnms_[selidx];
-	procnm.add( ".exe" );
-	odv7fp.add( procnm );
-	procfp = odv7fp.fullPath();
-    }
 
     statusBar()->message( sStatusBarMsg().arg(procfp), 0 );
 }
@@ -391,14 +378,13 @@ BufferStringSet uiFirewallProcSetter::getProcList(
 					    PDE::Type type )
 {
     BufferStringSet proclist;
+    if ( type == PDE::ODv7 )
+	return proclist;
+
     TypeSet<int> selidxs;
-
-    const bool isodproc = type == PDE::ODv6 ||
-				type == PDE::ODv7;
-
-    const BufferStringSet& procnms = isodproc && type == PDE::ODv6 ?
-		odv6procnms_ : isodproc && type == PDE::ODv7 ? odv7procnms_ :
-								pyprocnms_;
+    const bool isodproc = type == PDE::ODv6;
+    const BufferStringSet& procnms = isodproc ?
+					odv6procnms_ : pyprocnms_;
     if ( isodproc )
     {
 	odproclistbox_->getChosen( selidxs );
@@ -449,14 +435,6 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	    continue;
 
 	FilePath exefp( exepath_ );
-
-	if ( idx == PDE::ODv7 )
-	{
-	    FilePath odv7fp( exefp.dirUpTo(exefp.nrLevels()-4) );
-	    odv7fp.add( "v7" ).add( "bin" ).add( GetPlfSubDir() )
-							.add( GetBinSubDir() );
-	    exefp = odv7fp;
-	}
 
 	OS::MachineCommand mc( exepath.fullPath() );
 
