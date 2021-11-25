@@ -137,8 +137,6 @@ bool ProcDesc::Data::hasWorkToDo( const BufferString& pypath, bool toadd )
     BufferStringSet odv7procnms;
     ePDD().getProcData( odv6procnms, odprocdescs, ProcDesc::DataEntry::ODv6,
 								    acttyp );
-    ePDD().getProcData( odv7procnms, odprocdescs, ProcDesc::DataEntry::ODv7,
-								    acttyp );
     if ( odprocdescs.isEmpty() && pyprocdescs.isEmpty() )
 	return false;
 
@@ -196,11 +194,8 @@ IOPar& ProcDesc::Data::readPars()
 
     setEmpty();
     pars_.get( ProcDesc::DataEntry::sKeyODv6(), addedodv6procs_ );
-    pars_.get( ProcDesc::DataEntry::sKeyODv7(), addedodv7procs_ );
-    pars_.get( ProcDesc::DataEntry::sKeyPython(), addedpyprocs_ );
-
     addedprocnms_.add( addedodv6procs_, true );
-    addedprocnms_.add( addedodv7procs_, true );
+    pars_.get( ProcDesc::DataEntry::sKeyPython(), addedpyprocs_ );
     addedprocnms_.add( addedpyprocs_, true );
 
     return pars_;
@@ -227,25 +222,21 @@ bool ProcDesc::Data::writePars( const IOPar& pars, bool toadd )
     BufferStringSet pyprocs;
 
     pars.get( ProcDesc::DataEntry::sKeyODv6(), v6procs );
-    pars.get( ProcDesc::DataEntry::sKeyODv7(), v7procs );
     pars.get( ProcDesc::DataEntry::sKeyPython(), pyprocs );
 
     if ( toadd )
     {
 	v6procs.append( addedodv6procs_ );
-	v7procs.append( addedodv7procs_ );
 	pyprocs.append( addedpyprocs_ );
     }
     else
     {
 	mRemoveProcsNUpdateList( v6procs, addedodv6procs_ )
-	mRemoveProcsNUpdateList( v7procs, addedodv7procs_ )
 	mRemoveProcsNUpdateList( pyprocs, addedpyprocs_ )
     }
 
     IOPar wrpars;
     wrpars.set( ProcDesc::DataEntry::sKeyODv6(), v6procs );
-    wrpars.set( ProcDesc::DataEntry::sKeyODv7(), v7procs );
     wrpars.set( ProcDesc::DataEntry::sKeyPython(), pyprocs );
     return wrpars.write( exceptionfp.fullPath(), 0 );
 }
@@ -254,6 +245,9 @@ bool ProcDesc::Data::writePars( const IOPar& pars, bool toadd )
 void ProcDesc::Data::getProcData( BufferStringSet& nms, uiStringSet& descs,
 			DataEntry::Type type, DataEntry::ActionType acttyp )
 {
+    if ( type == DataEntry::ODv7 ) //v7 folder is no longer available
+	return;
+
     if ( acttyp == DataEntry::Add )
 	getProcsToBeAdded( nms, descs, type );
     else if ( acttyp == DataEntry::Remove )
@@ -292,7 +286,7 @@ void ProcDesc::Data::getProcsToBeAdded( BufferStringSet& nms,
     else
     {
 	BufferStringSet targetset = type == DataEntry::ODv6 ? addedodv6procs_ :
-	type == DataEntry::ODv7 ? addedodv7procs_ : addedpyprocs_;
+							    addedpyprocs_;
 	for ( int idx=0; idx<ePDD().size(); idx++ )
 	{
 	    ProcDesc::DataEntry* pdde = ePDD()[idx];
@@ -315,7 +309,7 @@ void ProcDesc::Data::getProcsToBeRemoved( BufferStringSet& nms,
 	return; // no process are added already hence none to be removed
 
     BufferStringSet targetset = type == DataEntry::ODv6 ? addedodv6procs_ :
-	type == DataEntry::ODv7 ? addedodv7procs_ : addedpyprocs_;
+							 addedpyprocs_;
 
     for ( int idx=0; idx<ePDD().size(); idx++ )
     {
@@ -338,6 +332,7 @@ ProcDesc::DataEntry::ActionType ProcDesc::Data::getActionType()
 
     for ( int idx=0; idx<ePDD().size(); idx++ )
     {
+	ProcDesc::DataEntry* desc = ePDD()[idx];
 	const BufferString requiredexecnm = ePDD()[idx]->execnm_;
 
 	if ( addedprocnms_.indexOf(requiredexecnm,CaseInsensitive) < 0 )
