@@ -278,7 +278,7 @@ void Well::LogSet::getDefaultLogs( BufferStringSet& deflognms,
 {
     for ( auto* deflog : defaultlogs_ )
     {
-	BufferString deflognm( deflog->second );
+	const BufferString& deflognm = deflog->second;
 	if ( !onlyloaded )
 	{
 	    deflognms.addIfNew( deflognm );
