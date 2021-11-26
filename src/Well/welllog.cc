@@ -273,6 +273,24 @@ const Well::Log* Well::LogSet::getLog( const Mnemonic& mnem ) const
 }
 
 
+void Well::LogSet::getDefaultLogs( BufferStringSet& deflognms,
+				   bool onlyloaded ) const
+{
+    for ( auto* deflog : defaultlogs_ )
+    {
+	BufferString deflognm( deflog->second );
+	if ( !onlyloaded )
+	{
+	    deflognms.addIfNew( deflognm );
+	    continue;
+	}
+
+	if ( isLoaded(deflognm) )
+	    deflognms.addIfNew( deflognm );
+    }
+}
+
+
 void Well::LogSet::defaultLogUsePar( const IOPar& iop )
 {
     PtrMan<IOPar> defpar = iop.subselect( sKeyDefMnem() );
