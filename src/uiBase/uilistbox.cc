@@ -1125,11 +1125,17 @@ bool uiListBox::isPresent( const char* txt ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	BufferString itmtxt( lb_->body().item(idx)->text() );
+	BufferString itmtxt;
+	if ( isMarked(idx) ) 
+	    getMarkedText( idx, itmtxt );
+	else
+	    itmtxt = lb_->body().item(idx)->text();
+
 	itmtxt.trimBlanks();
 	if ( itmtxt == txt )
 	    return true;
     }
+
     return false;
 }
 
@@ -1138,6 +1144,12 @@ const char* uiListBox::textOfItem( int idx ) const
 {
     if ( !validIdx(idx) )
 	return "";
+
+    if ( isMarked(idx) )
+    {
+	getMarkedText( idx, rettxt_ );
+	return rettxt_;
+    }
 
     rettxt_ = lb_->body().getItemText(idx).getFullString();
     return rettxt_;
