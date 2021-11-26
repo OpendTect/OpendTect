@@ -75,9 +75,11 @@ mExpClass(uiBase) uiListBox : public uiGroup
 friend class i_listMessenger;
 friend class uiListBoxBody;
 public:
-   enum LblPos		{ LeftTop, RightTop, LeftMid, RightMid,
+    enum LblPos		{ LeftTop, RightTop, LeftMid, RightMid,
 			  AboveLeft, AboveMid, AboveRight,
 			  BelowLeft, BelowMid, BelowRight };
+
+    enum Decorations	{ Pixmap, Star, Legacy, None };
 
     mExpClass(uiBase) Setup
     {
@@ -194,7 +196,9 @@ public:
     void		displayItem(int, bool);
 
     bool		isMarked(int) const;
-    void		setMarked(int,bool);
+    void		setMarked(int,bool,
+			    uiListBox::Decorations markingop=uiListBox::None,
+			    uiPixmap* pm=nullptr);
 
     void		setItemID(int idx,int id);
     int			currentItemID() const;
@@ -267,6 +271,9 @@ private:
     void		setCheckedItems(const TypeSet<int>&);
     void		getCheckedItems(BufferStringSet&) const;
     void		getCheckedItems(TypeSet<int>&) const;
+    void		doMarked(int,bool);
+    void		getMarkedText(int,BufferString&) const;
+    void 		removePixmap(int);
 
 protected:
     uiListBoxObj*	lb_;

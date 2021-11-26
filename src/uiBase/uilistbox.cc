@@ -52,14 +52,6 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 };
 
 
-/*static ListBoxPixmapDelegate* getPixmapDelegate()
-{
-    mDefineStaticLocalObject( PtrMan<ListBoxPixmapDelegate>, del,
-                              = new ListBoxPixmapDelegate )
-    return del;
-}*/
-
-
 class uiListBoxItem : public QListWidgetItem
 {
 public:
@@ -114,6 +106,7 @@ public:
 
     void		setPixmap(int idx,const uiPixmap&,
     				  bool placeright=false);
+    void 		removePixmap(int idx);
     void		setItemAlignment(int idx,Alignment::HPos);
 
     void		setNrLines( int prefNrLines )
@@ -180,7 +173,6 @@ uiListBoxBody::uiListBoxBody( uiListBoxObj& hndle, uiParent* p,
     setHSzPol( uiObject::Medium );
 
     setMouseTracking( true );
-//    setItemDelegate( new ListBoxPixmapDelegate(this) );
 }
 
 
@@ -274,6 +266,12 @@ void uiListBoxBody::setPixmap( int idx, const uiPixmap& pm, bool placeright )
 	setItemDelegateForRow( idx, new ListBoxPixmapDelegate(this) );
 
     item(idx)->setIcon( *pm.qpixmap() );
+}
+
+
+void uiListBoxBody::removePixmap( int idx )
+{
+    item(idx)->setIcon( QIcon() );
 }
 
 
@@ -1152,13 +1150,72 @@ bool uiListBox::isMarked( int idx ) const
 }
 
 
-void uiListBox::setMarked( int idx, bool yn )
+void uiListBox::setMarked( int idx, bool yn, 
+			   uiListBox::Decorations markdec, uiPixmap* pm )
 {
-    if ( isMarked(idx) == yn )
+    BufferString texttobemarked;
+    getMarkedText( idx, texttobemarked );
+    if ( markdec == uiListBox::None )
+    {
+	removePixmap( idx );
+	doMarked( idx, yn );
 	return;
+    }
+    else if ( markdec == uiListBox::Pixmap )
+    {
+	setPixmap( idx, *pm, true );
+    }
+    else if ( markdec == uiListBox::Star )
+    {
+	removePixmap( idx );
+	texttobemarked += " *";
+	setItemText( idx, texttobemarked );
+    }
+    else if ( markdec == uiListBox::Legacy )
+    {
+	removePixmap( idx );
+	BufferString text = "> ";
+	text += textOfItem( idx );
+	text += " <";
+	setItemText( idx, text );
+    }
 
+    doMarked( idx, yn );
+}
+
+
+void uiListBox::doMarked( int idx, bool yn )
+{
     lb_->body().getItemMark( idx ) = yn;
     lb_->body().updateText( idx );
+}
+
+
+void uiListBox::getMarkedText( int idx, BufferString& text ) const
+{
+    BufferString starchar = "*";
+    BufferString legacychar = "><";
+    BufferString markedtext = textOfItem( idx );
+    if ( markedtext.last() == starchar.last() )
+    {
+	markedtext.remove( starchar[0] );
+	markedtext.trimBlanks();
+    }
+    else if ( markedtext.last() == legacychar.last() 
+    	      && markedtext.first() == legacychar.first() )
+    {
+	markedtext.remove( legacychar.first() );
+	markedtext.remove( legacychar.last() );
+	markedtext.trimBlanks();
+    }
+
+    text = markedtext;
+}
+
+
+void uiListBox::removePixmap( int idx )
+{
+    lb_->body().removePixmap( idx );
 }
 
 
