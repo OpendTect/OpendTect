@@ -607,6 +607,20 @@ bool Well::Man::getLogNamesByID( const MultiID& ky, BufferStringSet& nms,
 }
 
 
+void Well::Man::getLogIDs( const MultiID& ky, const BufferStringSet& lognms,
+			   TypeSet<int>& ids)
+{
+    ids.setEmpty();
+    BufferStringSet all_lognms;
+    getLogNamesByID( ky, all_lognms, false );
+    for ( const auto* lognm : lognms )
+    {
+	const int lidx = all_lognms.indexOf( lognm->buf() );
+	if ( lidx!=-1 )
+	    ids += lidx;
+    }
+}
+
 bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms,
 			     bool forceLoad )
 {

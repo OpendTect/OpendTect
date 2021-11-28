@@ -41,6 +41,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
+#include "uiwelldisplayserver.h"
 #include "uiwelldlgs.h"
 #include "uiwelllogimpexp.h"
 #include "uiwelllogcalc.h"
@@ -365,7 +366,7 @@ void uiWellMan::setLogToolButtonProperties()
 		  uiStrings::sEmptyString() );
 
     const int nrlogs2vw = nrchosenwells * nrchosenlogs ;
-    const bool canview = nrlogs2vw == 1 || nrlogs2vw == 2;
+    const bool canview = nrlogs2vw >= 1;
     logvwbut_->setSensitive( canview );
 
     if ( !canview )
@@ -866,39 +867,16 @@ void uiWellMan::wellLogsChgd( const BufferStringSet& lognms )
 void uiWellMan::viewLogPush( CallBacker* )
 {
     mEnsureLogSelected(uiStrings::sNoLogSel())
-    const int nrchosen = curwds_.size()*nrsellogs;
-    if ( nrchosen < 1 || nrchosen > 2 )
-	return;
-
-    const Well::Log* wl1 = nullptr;
-    const Well::Log* wl2 = nullptr;
+    DBKeySet wellkeys;
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );
-    if ( curwds_[0] )
-    {
-	if ( currdrs_[0]->getLog(lognms.get(0)) )
-	    wl1 = curwds_[0]->logs().getLog( lognms.get(0) );
+    BufferString logstr = lognms.cat( "," );
+    lognms.setEmpty();
+    lognms.add( logstr );
+    for ( const auto* wd : curwds_ )
+	wellkeys.add( DBKey(wd->multiID()) );
 
-	if ( lognms.size() == 2 )
-	{
-	    if ( currdrs_[0]->getLog(lognms.get(1)) )
-		wl2 = curwds_[0]->logs().getLog( lognms.get(1) );
-	}
-    }
-
-    if ( curwds_.size() > 1 && curwds_[1] )
-    {
-	if ( currdrs_[1]->getLog(lognms.get(0)) )
-	    wl2 = curwds_[1]->logs().getLog( lognms.get(0) );
-    }
-
-    if ( !wl1 || (nrchosen==2 && !wl2) )
-	mErrRet( uiStrings::phrCannotRead(uiStrings::sWellLog()) )
-
-    BufferStringSet wnms;
-    selGroup()->getChosen( wnms );
-    uiWellLogDispDlg::popupNonModal( this, wl1, wl2, wnms.get(0),
-				     wnms.size() > 1 ? wnms.get(1) : nullptr );
+    GetWellDisplayServer().createMultiWellDisplay( this, wellkeys, lognms );
 }
 
 

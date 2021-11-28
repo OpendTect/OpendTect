@@ -114,6 +114,8 @@ public:
 				       TypeSet<OD::Color>&, TypeSet<float>&);
     static bool		getLogNamesByID(const MultiID&,BufferStringSet&,
 					bool onlyloaded=false);
+    static void		getLogIDs(const MultiID&,const BufferStringSet&,
+				  TypeSet<int>&);
     Coord		getMapLocation(const MultiID&) const;
 
     bool		writeAndRegister(const MultiID&,const Log&);

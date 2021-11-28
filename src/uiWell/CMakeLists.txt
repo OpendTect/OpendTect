@@ -17,6 +17,7 @@ set(OD_MODULE_SOURCES
 	uiwelldispprop.cc
 	uiwelldisppropdlg.cc
 	uiwelldisplay.cc
+	uiwelldisplayserver.cc
 	uiwelldisplaycontrol.cc
 	uiwelldisplaymarkeredit.cc
 	uiwelldlgs.cc
