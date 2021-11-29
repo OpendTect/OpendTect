@@ -59,9 +59,8 @@ protected:
 
 private:
 
-    bool		bgopaque_;
-
     uiGraphicsScene&	uiscene_;
+    bool		bgopaque_;
 };
 
 
@@ -78,8 +77,9 @@ void ODGraphicsScene::drawBackground( QPainter* painter, const QRectF& rect )
 
 void ODGraphicsScene::keyPressEvent( QKeyEvent* qkeyevent )
 {
-    OD::KeyboardKey key = OD::KeyboardKey( qkeyevent->key() );
-    OD::ButtonState modifier = OD::ButtonState( (int)qkeyevent->modifiers() );
+    const OD::KeyboardKey key = OD::KeyboardKey( qkeyevent->key() );
+    const OD::ButtonState modifier =
+		OD::ButtonState( sCast(int,qkeyevent->modifiers()) );
     if ( key == OD::KB_P && modifier == OD::ControlButton )
 	uiscene_.ctrlPPressed.trigger();
     else if ( key == OD::KB_C && modifier == OD::ControlButton )
@@ -503,14 +503,16 @@ void uiGraphicsScene::saveAsImage( const char* fnm, int w, int h, int res )
     QImage* image = new QImage( QSize(w,h), QImage::Format_ARGB32 );
     QColor qcol( 255, 255, 255 );
     image->fill( qcol.rgb() );
-    image->setDotsPerMeterX( (int)(res/0.0254) );
-    image->setDotsPerMeterY( (int)(res/0.0254) );
+    image->setDotsPerMeterX( sCast(int,(res/0.0254)) );
+    image->setDotsPerMeterY( sCast(int,(res/0.0254)) );
     imagepainter->begin( image );
 
     QGraphicsView* view = qGraphicsScene()->views()[0];
+    const int viewwidth = view->viewport()->width();
+    const int viewheight = view->viewport()->height();
     QRectF sourcerect( view->mapToScene(0,0),
-		       view->mapToScene(view->width(),view->height()) );
-    qGraphicsScene()->render( imagepainter,QRectF(0,0,w,h),sourcerect);
+		       view->mapToScene(viewwidth-1,viewheight-1) );
+    qGraphicsScene()->render( imagepainter, QRectF(0,0,w,h), sourcerect );
     imagepainter->end();
     image->save( fname );
     delete imagepainter;
