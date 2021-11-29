@@ -21,10 +21,11 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
+#include "uimenu.h"
 #include "uimsg.h"
 #include "uitable.h"
-#include "uitoolbutton.h"
 #include "uitblimpexpdatasel.h"
+#include "uitoolbutton.h"
 #include "uizrangeinput.h"
 
 
@@ -142,7 +143,7 @@ void openCB( CallBacker* )
 	return;
 
     SimpleTimeDepthModel mdl( dlg.chosenID() );
-    fillTable( mdl ); 
+    fillTable( mdl );
 }
 
 void readCB( CallBacker* )
@@ -153,7 +154,7 @@ void readCB( CallBacker* )
 	fillTable( mdl );
 }
 
-void removeCB( CallBacker* cb )
+void removeCB( CallBacker* )
 {
     if ( tbl_->nrRows() < 2 )
 	return;
@@ -162,7 +163,7 @@ void removeCB( CallBacker* cb )
     rembut_->setSensitive( tbl_->nrRows() > 1 );
 }
 
-void addCB( CallBacker* cb )
+void addCB( CallBacker* )
 {
     tbl_->setNrRows( tbl_->nrRows() + 1 );
     rembut_->setSensitive( tbl_->nrRows() > 1 );
@@ -212,18 +213,21 @@ uiSimpleTimeDepthTransform::uiSimpleTimeDepthTransform( uiParent* p, bool t2d )
     : uiTime2DepthZTransformBase(p,t2d)
     , transform_(nullptr)
 {
-    selfld_ = new uiIOObjSel( this, mIOObjContext(SimpleTimeDepthModel), 
-			   uiString::emptyString() );
+    selfld_ = new uiIOObjSel( this, mIOObjContext(SimpleTimeDepthModel),
+			      uiString::emptyString() );
     mAttachCB( selfld_->selectionDone,
-				    uiSimpleTimeDepthTransform::setZRangeCB );
+	       uiSimpleTimeDepthTransform::setZRangeCB );
 
-    auto* createbut = new uiPushButton( this, uiStrings::sCreate(), false );
-    createbut->attach( rightOf, selfld_ );
-    mAttachCB( createbut->activated, uiSimpleTimeDepthTransform::createCB );
+    auto* editcreatebut = new uiPushButton( this,
+			tr("Create/Edit"), false );
+    editcreatebut->attach( rightOf, selfld_ );
+    auto* mnu = new uiMenu;
+    mnu->insertAction( new uiAction(uiStrings::sCreate(),
+		mCB(this,uiSimpleTimeDepthTransform,createCB),"create") );
+    mnu->insertAction( new uiAction(uiStrings::sEdit(),
+		mCB(this,uiSimpleTimeDepthTransform,editCB),"edit") );
+    editcreatebut->setMenu( mnu );
 
-    auto* editbut = new uiPushButton( this, uiStrings::sEdit(), false );
-    editbut->attach( rightOf, createbut );
-    mAttachCB( editbut->activated, uiSimpleTimeDepthTransform::editCB );
     setHAlignObj( selfld_ );
 }
 
@@ -263,7 +267,7 @@ void uiSimpleTimeDepthTransform::createCB( CallBacker* )
     uiSimpleTimeDepthTable dlg( this, MultiID::udf() );
     if ( !dlg.go() )
 	return;
-    
+
     selfld_->setInput( dlg.getKey() );
     setZRangeCB( nullptr );
 }
