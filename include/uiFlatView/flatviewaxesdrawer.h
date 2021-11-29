@@ -40,11 +40,7 @@ protected:
 
     uiFlatViewer&	vwr_;
     uiRectItem*		rectitem_;
-    uiTextItem*		axis1nm_;
-    uiTextItem*		axis2nm_;
     uiTextItem*		titletxt_;
-    uiArrowItem*	arrowitem1_;
-    uiArrowItem*	arrowitem2_;
     uiScaleBarItem*	scalebaritem_;
     uiColTabItem*	colorbaritem_;
     uiBorder		extraborder_;

@@ -43,11 +43,7 @@ AxesDrawer::AxesDrawer( uiFlatViewer& vwr )
     : uiGraphicsSceneAxisMgr(vwr.rgbCanvas())
     , vwr_(vwr)
     , rectitem_(nullptr)
-    , axis1nm_(nullptr)
-    , axis2nm_(nullptr)
     , titletxt_(nullptr)
-    , arrowitem1_(nullptr)
-    , arrowitem2_(nullptr)
     , scalebaritem_(nullptr)
     , colorbaritem_(nullptr)
 {}
@@ -59,10 +55,6 @@ AxesDrawer::AxesDrawer( uiFlatViewer& vwr )
 AxesDrawer::~AxesDrawer()
 {
     mRemoveAnnotItem( rectitem_ );
-    mRemoveAnnotItem( arrowitem1_ );
-    mRemoveAnnotItem( axis1nm_ );
-    mRemoveAnnotItem( arrowitem2_ );
-    mRemoveAnnotItem( axis2nm_ );
     mRemoveAnnotItem( titletxt_ );
     mRemoveAnnotItem( scalebaritem_ );
     mRemoveAnnotItem( colorbaritem_ );
@@ -98,10 +90,6 @@ void AxesDrawer::setZValue( int z )
 {
     uiGraphicsSceneAxisMgr::setZValue( z );
     if ( rectitem_ ) rectitem_->setZValue( z+1 );
-    if ( axis1nm_ ) axis1nm_->setZValue( z+1 );
-    if ( arrowitem1_ ) arrowitem1_->setZValue( z+1 );
-    if ( axis2nm_ ) axis2nm_->setZValue( z+1 );
-    if ( arrowitem2_ ) arrowitem2_->setZValue( z+1 );
     if ( titletxt_ ) titletxt_->setZValue( z+1 );
     if ( scalebaritem_ ) scalebaritem_->setZValue( z+1 );
     if ( colorbaritem_ ) colorbaritem_->setZValue( z+1 );
@@ -165,10 +153,6 @@ void AxesDrawer::updateViewRect()
     if ( !showx1annot && !showx2annot && annot.title_.isEmpty() )
     {
 	mRemoveAnnotItem( rectitem_ );
-	mRemoveAnnotItem( arrowitem1_ );
-	mRemoveAnnotItem( axis1nm_ );
-	mRemoveAnnotItem( arrowitem2_ );
-	mRemoveAnnotItem( axis2nm_ );
 	mRemoveAnnotItem( titletxt_ );
 	return;
     }
@@ -186,11 +170,12 @@ void AxesDrawer::updateViewRect()
 
     if ( !annot.title_.isEmpty() && annot.title_ != " " )
     {
+	// Add some spaces to avoid text truncations
+	const uiString titlestr = toUiString( "   %1   " ).arg( annot.title_ );
 	if ( !titletxt_ )
 	{
 	    titletxt_ = view_.scene().addItem(
-		    new uiTextItem(toUiString(annot.title_),
-				   mAlignment(HCenter,Top)) );
+		    new uiTextItem(titlestr,mAlignment(HCenter,Top)) );
 	    titletxt_->setTextColor( annot.color_ );
 	    FontData fd = FontList().get( FontData::Graphics2D ).fontData();
 	    fd.setPointSize( fd.pointSize()+2 );
@@ -198,7 +183,7 @@ void AxesDrawer::updateViewRect()
 	    titletxt_->setFontData( fd );
 	}
 	else
-	    titletxt_->setText(toUiString(annot.title_) );
+	    titletxt_->setText( titlestr );
 
 	titletxt_->setVisible( true );
 	const uiRect scenerect = view_.getViewArea();

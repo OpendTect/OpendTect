@@ -677,7 +677,8 @@ void uiAxisHandler::updateName()
     if ( setup_.noaxisannot_ || setup_.caption_.isEmpty() )
 	{ mRemoveFromScene( nameitm_ ); return; }
 
-    uiString caption = toUiString( "  %1  " ).arg( setup_.caption_ );
+    // Add some spaces to avoid text truncations
+    const uiString caption = toUiString( "   %1   " ).arg( setup_.caption_ );
     if ( !nameitm_ )
     {
 	nameitm_ = scene_->addItem( new uiTextItem(caption) );
