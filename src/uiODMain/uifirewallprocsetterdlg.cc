@@ -165,7 +165,6 @@ void uiFirewallProcSetter::updateCB( CallBacker* )
     setEmpty(); \
     PDE::ActionType acttyp = toadd_ ? PDE::Add : PDE::Remove; \
     ePDD().getProcData( odv6procnms_, odprocdescs_, PDE::ODv6, acttyp ); \
-    ePDD().getProcData( odv7procnms_, odprocdescs_, PDE::ODv7, acttyp ); \
     pyprocdescs_ = getPythonExecList(); \
 
 
@@ -174,7 +173,6 @@ void uiFirewallProcSetter::setEmpty()
     pyprocnms_.setEmpty();
     pyprocdescs_.setEmpty();
     odv6procnms_.setEmpty();
-    odv7procnms_.setEmpty();
     odprocdescs_.setEmpty();
 }
 
@@ -228,31 +226,14 @@ void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
     if ( selidx < 0 )
 	return;
 
-    const int v6procsz = odv6procnms_.size();
     BufferString procfp;
     FilePath exefp( exepath_ );
     const BufferString str = exefp.fullPath();
     BufferString procnm;
-    if ( selidx < v6procsz )
-    {
-	procnm = *odv6procnms_[selidx];
-	procnm.add( ".exe" );
-	exefp.add( procnm );
-	procfp = exefp.fullPath();
-    }
-    else
-    {
-	selidx -= v6procsz;
-
-	FilePath odv7fp( exefp.dirUpTo(exefp.nrLevels()-4) );
-	odv7fp.add( "v7" ).add( "bin" ).add( GetPlfSubDir() )
-	      .add( GetBinSubDir() );
-	procnm = *odv7procnms_[selidx];
-	procnm.add( ".exe" );
-	odv7fp.add( procnm );
-	procfp = odv7fp.fullPath();
-    }
-
+    procnm = *odv6procnms_[selidx];
+    procnm.add( ".exe" );
+    exefp.add( procnm );
+    procfp = exefp.fullPath();
     statusBar()->message( sStatusBarMsg().arg(procfp), 0 );
 }
 
@@ -329,12 +310,8 @@ BufferStringSet uiFirewallProcSetter::getProcList(
     BufferStringSet proclist;
     TypeSet<int> selidxs;
 
-    const bool isodproc = type == PDE::ODv6 ||
-				type == PDE::ODv7;
-
-    const BufferStringSet& procnms = isodproc && type == PDE::ODv6 ?
-		odv6procnms_ : isodproc && type == PDE::ODv7 ? odv7procnms_ :
-								pyprocnms_;
+    const bool isodproc = type == PDE::ODv6;
+    const BufferStringSet& procnms = isodproc ? odv6procnms_ : pyprocnms_;
     if ( isodproc )
     {
 	odproclistbox_->getChosen( selidxs );
@@ -345,16 +322,6 @@ BufferStringSet uiFirewallProcSetter::getProcList(
     for ( int idx=0; idx<selidxs.size(); idx++ )
     {
 	int selidx = selidxs[idx];
-	const int v6procsz = odv6procnms_.size();
-	if ( type == PDE::ODv6 && selidx >= v6procsz )
-	    continue;
-	else if ( type == PDE::ODv7 )
-	{
-	    selidx -= v6procsz;
-	    if ( selidx < 0 )
-		continue;
-	}
-
 	proclist.add( procnms.get(selidx) );
     }
 
@@ -385,19 +352,8 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	    continue;
 
 	FilePath exefp( exepath_ );
-
-	if ( idx == PDE::ODv7 )
-	{
-	    FilePath odv7fp( exefp.dirUpTo(exefp.nrLevels()-4) );
-	    odv7fp.add( "v7" ).add( "bin" ).add( GetPlfSubDir() )
-							.add( GetBinSubDir() );
-	    exefp = odv7fp;
-	}
-
 	OS::MachineCommand mc( exepath.fullPath() );
-
 	mc.addFlag( toadd_ ? "add" : "remove" );
-
 	if ( idx != PDE::Python )
 	    mc.addKeyedArg( "od", exefp.fullPath() );
 	else

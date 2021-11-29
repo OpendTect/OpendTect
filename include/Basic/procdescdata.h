@@ -22,20 +22,17 @@ namespace ProcDesc
     mExpClass(Basic) DataEntry
     {
     public:
-	enum Type	    { ODv6, ODv7, Python };
+	enum Type	    { ODv6, Python };
 				mDeclareEnumUtils(Type)
 	enum ActionType     { Add, Remove, AddNRemove };
 				mDeclareEnumUtils(ActionType)
 
-				DataEntry() {}
-				~DataEntry()
-				{
-				}
+				DataEntry();
+				~DataEntry();
 	BufferString		execnm_;
 	uiString		desc_;
 	Type			type_;
 	static const char*	sKeyODv6()	    { return "ODv6"; }
-	static const char*	sKeyODv7()	    { return "ODv7"; }
 	static const char*	sKeyPython()	    { return "Python"; }
 	static const char*	sKeyActionTaken()   { return "ActionTaken"; }
 	static const char*	getCMDActionKey(const ActionType);
@@ -67,7 +64,6 @@ namespace ProcDesc
 	IOPar			pars_;
 	BufferString		path_;
 	BufferStringSet		addedodv6procs_;
-	BufferStringSet		addedodv7procs_;
 	BufferStringSet		addedpyprocs_;
 	BufferStringSet		addedprocnms_;
 

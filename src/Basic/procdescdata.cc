@@ -12,14 +12,12 @@
 
 
 mDefineEnumUtils(ProcDesc::DataEntry,Type,"Type")
-{ ProcDesc::DataEntry::sKeyODv6(),
-    ProcDesc::DataEntry::sKeyODv7(), ProcDesc::DataEntry::sKeyPython(), 0 };
+{ ProcDesc::DataEntry::sKeyODv6(), ProcDesc::DataEntry::sKeyPython(), 0 };
 
 template <>
 void EnumDefImpl<ProcDesc::DataEntry::Type>::init()
  {
      uistrings_ += ::toUiString( "ODv6" );
-     uistrings_ += ::toUiString( "ODv7" );
      uistrings_ += ::toUiString( "Python" );
  }
 
@@ -42,6 +40,13 @@ mDefineEnumUtils(ProcDesc::DataEntry,ActionType,"ActionType")
      uistrings_ += tr("Not sure");
  }
 
+
+ ProcDesc::DataEntry::DataEntry()
+ {}
+
+
+ ProcDesc::DataEntry::~DataEntry()
+ {}
 
 
 const char* ProcDesc::DataEntry::getCMDActionKey( const ActionType acttype )
@@ -116,7 +121,6 @@ ProcDesc::Data& ProcDesc::Data::add( ProcDesc::DataEntry* pdde )
 void ProcDesc::Data::setEmpty()
 {
     addedodv6procs_.setEmpty();
-    addedodv7procs_.setEmpty();
     addedpyprocs_.setEmpty();
     addedprocnms_.setEmpty();
 }
@@ -151,11 +155,9 @@ IOPar& ProcDesc::Data::readPars()
 
     setEmpty();
     pars_.get( ProcDesc::DataEntry::sKeyODv6(), addedodv6procs_ );
-    pars_.get( ProcDesc::DataEntry::sKeyODv7(), addedodv7procs_ );
     pars_.get( ProcDesc::DataEntry::sKeyPython(), addedpyprocs_ );
 
     addedprocnms_.add( addedodv6procs_, true );
-    addedprocnms_.add( addedodv7procs_, true );
     addedprocnms_.add( addedpyprocs_, true );
 
     return pars_;
@@ -182,25 +184,21 @@ bool ProcDesc::Data::writePars( const IOPar& pars, bool toadd )
     BufferStringSet pyprocs;
 
     pars.get( ProcDesc::DataEntry::sKeyODv6(), v6procs );
-    pars.get( ProcDesc::DataEntry::sKeyODv7(), v7procs );
     pars.get( ProcDesc::DataEntry::sKeyPython(), pyprocs );
 
     if ( toadd )
     {
 	v6procs.append( addedodv6procs_ );
-	v7procs.append( addedodv7procs_ );
 	pyprocs.append( addedpyprocs_ );
     }
     else
     {
 	mRemoveProcsNUpdateList( v6procs, addedodv6procs_ )
-	mRemoveProcsNUpdateList( v7procs, addedodv7procs_ )
 	mRemoveProcsNUpdateList( pyprocs, addedpyprocs_ )
     }
 
     IOPar wrpars;
     wrpars.set( ProcDesc::DataEntry::sKeyODv6(), v6procs );
-    wrpars.set( ProcDesc::DataEntry::sKeyODv7(), v7procs );
     wrpars.set( ProcDesc::DataEntry::sKeyPython(), pyprocs );
     return wrpars.write( exceptionfp.fullPath(), 0 );
 }
@@ -247,7 +245,7 @@ void ProcDesc::Data::getProcsToBeAdded( BufferStringSet& nms,
     else
     {
 	BufferStringSet targetset = type == DataEntry::ODv6 ? addedodv6procs_ :
-	type == DataEntry::ODv7 ? addedodv7procs_ : addedpyprocs_;
+							 addedpyprocs_;
 	for ( int idx=0; idx<ePDD().size(); idx++ )
 	{
 	    ProcDesc::DataEntry* pdde = ePDD()[idx];
@@ -270,7 +268,7 @@ void ProcDesc::Data::getProcsToBeRemoved( BufferStringSet& nms,
 	return; // no process are added already hence none to be removed
 
     BufferStringSet targetset = type == DataEntry::ODv6 ? addedodv6procs_ :
-	type == DataEntry::ODv7 ? addedodv7procs_ : addedpyprocs_;
+								addedpyprocs_;
 
     for ( int idx=0; idx<ePDD().size(); idx++ )
     {
