@@ -332,7 +332,6 @@ ProcDesc::DataEntry::ActionType ProcDesc::Data::getActionType()
 
     for ( int idx=0; idx<ePDD().size(); idx++ )
     {
-	ProcDesc::DataEntry* desc = ePDD()[idx];
 	const BufferString requiredexecnm = ePDD()[idx]->execnm_;
 
 	if ( addedprocnms_.indexOf(requiredexecnm,CaseInsensitive) < 0 )
