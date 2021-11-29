@@ -78,6 +78,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     , objtype_(setup.objtype_)
     , defaultext_("dat")
 {
+    setStretch( 2, 0 );
     setFileName( setup.fnm );
     setWithSelect( true );
     if ( setup.withexamine_ )
@@ -115,6 +116,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     , displaylocalpath_(false)
     , defaultext_("dat")
 {
+    setStretch( 2, 0 );
     setFileName( fnm );
     setWithSelect( true );
     valuechanged.notify( mCB(this,uiFileInput,fnmEntered) );
