@@ -85,6 +85,7 @@ void EnumDefImpl<OD::PythonSource>::init()
 OD::PythonAccess::PythonAccess()
     : envChange(this)
 {
+    updatePythonPath();
 }
 
 
@@ -120,15 +121,11 @@ void OD::PythonAccess::addBasePath( const FilePath& fp )
 	    const_cast<BufferStringSet&>( getBasePythonPath() );
 	bpythonpath.addIfNew( cleanfp.fullPath() );
     }
-
-    updatePythonPath();
 }
 
 
 void OD::PythonAccess::updatePythonPath() const
 {
-    BufferStringSet pythonpaths = getBasePythonPath();
-
     BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     PtrMan<IOPar> pathpar = pythonsetts.subselect( sKeyPythonPath() );
@@ -136,16 +133,13 @@ void OD::PythonAccess::updatePythonPath() const
     {
 	BufferStringSet settpaths, settpathsadd;
 	settpaths.usePar( *pathpar );
-	for ( auto settpathstr : settpaths )
+	for ( const auto* settpathstr : settpaths )
 	{
-	    FilePath fp( settpathstr->buf() );
+	    const FilePath fp( settpathstr->buf() );
 	    if ( !fp.exists() )
 		continue;
-	    fp.makeCanonical();
-	    settpathsadd.addIfNew( fp.fullPath() );
+	    const_cast<OD::PythonAccess&>(*this).addBasePath(fp);
 	}
-
-	pythonpaths.add( settpathsadd, false );
     }
 }
 
