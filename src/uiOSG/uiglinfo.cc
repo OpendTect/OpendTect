@@ -120,8 +120,16 @@ uiString uiGLInfo::getMessage( bool* warning )
     {
 	msg.append( "\n", true );
 	msg.append( tr(
-	    "Intel card found. If your computer has multiple graphics cards,"
-	    " consider switching from the integrated graphics.") );
+	    "Intel card found. If your computer has multiple graphics cards,\n"
+	    "consider switching from the integrated graphics.") );
+    }
+    else if ( stringStartsWithCI("microsoft",allinfo[0]->buf()) ||
+	      stringStartsWithCI("gdi",allinfo[1]->buf()) )
+    {
+	msg.append( "\n", true );
+	msg.append( tr(
+	    "No graphics card found or no drivers have been installed.\n"
+	    "Please check our system requirements.") );
     }
     else if ( *allinfo[2] == "?" )
     {
