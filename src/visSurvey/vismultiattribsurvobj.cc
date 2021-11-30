@@ -286,7 +286,7 @@ void MultiTextureSurveyObject::setSelSpecs( int attrib,
     delete userrefs_.replace( attrib, attrnms );
 
     channels_->setNrVersions( attrib, as.size() );
-    if ( FixedString(as[0].userRef()).isEmpty() )
+    if ( !as.isEmpty() && FixedString(as[0].userRef()).isEmpty() )
 	channels_->getChannels2RGBA()->setEnabled( attrib, true );
 }
 
