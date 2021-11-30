@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "wellman.h"
 #include "uimsg.h"
 #include "uiwelllogdisplay.h"
+#include "uiwelllogtoolsgrp.h"
 
 
 mExternC(uiWell) uiWellDisplayServer& GetWellDisplayServer( bool set,
@@ -90,4 +91,11 @@ uiDialog* uiODWellDisplayServer::createMultiWellDisplay( uiParent* p,
 
     return uiWellLogDispDlg::popupNonModal( p, wl1, wl2, wnms.get(0),
 				     wnms.size() > 1 ? wnms.get(1) : nullptr );
+}
+
+
+uiWellLogToolWinGrp* uiODWellDisplayServer::createWellLogToolGrp(uiParent* p,
+			    const ObjectSet<uiWellLogToolWin::LogData>& logs)
+{
+    return new uiODWellLogToolWinGrp( p, logs );
 }

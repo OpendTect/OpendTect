@@ -34,6 +34,7 @@ class uiWellLogDisplay;
 namespace Well
 { class Data; class Log; class LogSet; class D2TModel; class Track; }
 
+class uiWellLogToolWinGrp;
 
 mExpClass(uiWell) uiWellLogToolWin : public uiMainWin
 { mODTextTranslationClass(uiWellLogToolWin)
@@ -49,7 +50,7 @@ public:
 	Interval<float>		dahrg_;
 
 	int			setSelectedLogs(BufferStringSet&);
-	Well::LogSet&		logs()			{ return logs_; }
+	Well::LogSet&		logs() const		{ return logs_; }
 	const Well::D2TModel*	d2t();
 	const Well::Track*	track();
 
@@ -84,9 +85,9 @@ protected:
     uiButton*			okbut_;
     uiButton*			cancelbut_;
     Interval<float>		zdisplayrg_;
+    uiWellLogToolWinGrp*	logdisp_;
 
     ObjectSet<LogData>		logdatas_;
-    ObjectSet<uiWellLogDisplay> logdisps_;
     bool			closeok_ = true;
 
     uiGroup*			createEditGroup();

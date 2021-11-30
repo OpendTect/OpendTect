@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "wellman.h"
 #include "wellmarker.h"
 #include "wellreader.h"
+#include "welltrack.h"
 #include "welltransl.h"
 #include "wellwriter.h"
 
@@ -38,19 +39,15 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uimsg.h"
 #include "uimultiwelllogsel.h"
-#include "uiscrollarea.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
-#include "uiwelllogdisplay.h"
+#include "uiwelldisplayserver.h"
+#include "uiwelllogtoolsgrp.h"
 
 
 static const int cPrefWidth = 150;
-static const int cPrefHeight = 450;
-static const int cPrefVSpacing = 2;
-static const int cWellSep = 5;
-static const int cDefNrLogs = 6;
 
 uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 					  const BufferStringSet* welllnms,
@@ -167,7 +164,7 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
     if ( !win )
     {
 	pErrMsg( "cb null or not uiWellLogToolWin" );
-	return;	
+	return;
     }
 
     welllogselfld_->update();
@@ -188,7 +185,7 @@ uiWellLogToolWin::LogData::~LogData()
 }
 
 
-const Well::D2TModel* uiWellLogToolWin::LogData::d2t() 
+const Well::D2TModel* uiWellLogToolWin::LogData::d2t()
 {
     if ( !wd_.d2TModel() )
     {
@@ -200,7 +197,7 @@ const Well::D2TModel* uiWellLogToolWin::LogData::d2t()
 }
 
 
-const Well::Track* uiWellLogToolWin::LogData::track() 
+const Well::Track* uiWellLogToolWin::LogData::track()
 {
     if ( wd_.track().isEmpty() )
     {
@@ -246,68 +243,18 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
     , savefld_(nullptr)
     , logdatas_(logs)
 {
-    auto* sa = new uiScrollArea( this );
-    sa->limitHeight(true);
-    uiGroup* displaygrp = new uiGroup( nullptr, "Well display group" );
-    displaygrp->setHSpacing( cWellSep );
+    logdisp_ = GetWellDisplayServer().createWellLogToolGrp( this, logdatas_ );
 
-    zdisplayrg_ = logdatas_[0]->dahrg_;
-    uiGroup* prevgrp = new uiGroup( displaygrp, "Empty group" );
-    int initialwidth = cWellSep;
-    int totalwidth = cWellSep;
-    int initialheight = cPrefHeight;
-    for ( int idx=0; idx<logdatas_.size(); idx++ )
-    {
-	LogData& logdata = *logdatas_[idx];
-	auto* wellgrp  = new uiGroup( displaygrp, "Well group" );
-	if ( prevgrp )
-	    wellgrp->attach( rightOf, prevgrp );
-
-	wellgrp->setHSpacing( 1 );
-	wellgrp->setVSpacing( cPrefVSpacing );
-	wellgrp->setStretch( 0, 2 );
-	auto* wellnm = new uiLabel( wellgrp, toUiString(logdata.wellname_) );
-	wellnm->setVSzPol( uiObject::Small );
-	totalwidth += cWellSep;
-	if ( logdisps_.size() <= cDefNrLogs )
-	    initialwidth += cWellSep;
-
-	if ( idx == 0 )
-	    initialheight += wellnm->height() + 2*cPrefVSpacing;
-
-	for ( int idlog=0; idlog<logdata.inpLogs().size(); idlog++ )
-	{
-	    uiWellLogDisplay::Setup su;	
-	    su.samexaxisrange_ = true;
-	    auto* ld = new uiWellLogDisplay( wellgrp, su );
-	    ld->setPrefWidth( cPrefWidth );
-	    ld->setPrefHeight( cPrefHeight );
-	    ld->setStretch( 0, 2 );
-	    zdisplayrg_.include( logdata.dahrg_ );
-	    if ( idlog )
-		ld->attach( rightOf, logdisps_[logdisps_.size()-1] );
-
-	    ld->attach( ensureBelow, wellnm );
-	    logdisps_ += ld;
-	    totalwidth += cPrefWidth + 1;
-	    if ( logdisps_.size() <= cDefNrLogs )
-		initialwidth += cPrefWidth + 1;
-	}
-
-	prevgrp = wellgrp;
-    }
-
-    zdisplayrg_.sort();
-    displaygrp->attachObj()->setMinimumWidth( totalwidth );
-    sa->setObject( displaygrp->attachObj() );
-    sa->setMinimumHeight( initialheight );
-    sa->setObjectResizable( true );
     uiGroup* editgrp = withedit ? createEditGroup() : nullptr;
     if ( editgrp )
-	editgrp->attach( ensureBelow, sa );
+	editgrp->attach( ensureBelow, logdisp_ );
 
     uiSeparator* horSepar = new uiSeparator( this );
-    horSepar->attach( stretchedBelow, editgrp ? editgrp->attachObj() : sa );
+    if ( editgrp )
+	horSepar->attach( stretchedBelow, editgrp->attachObj() );
+    else
+	horSepar->attach( stretchedBelow, logdisp_ );
+
 
     okbut_ = uiButton::getStd( this, OD::Ok,
 				mCB(this,uiWellLogToolWin,acceptOK), true );
@@ -320,8 +267,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs,
     cancelbut->attach( rightBorder, 20 );
     cancelbut->attach( ensureBelow, horSepar );
 
-    displayLogs();
-    sa->setPrefWidth( initialwidth );
+    logdisp_->displayLogs();
 }
 
 
@@ -673,44 +619,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
     if ( !emsg.isEmpty() )
 	uiMSG().error( mToUiStringTodo(emsg) );
 
-    displayLogs();
-}
-
-
-void uiWellLogToolWin::displayLogs()
-{
-    int nrdisp = 0;
-    for ( int idx=0; idx<logdatas_.size(); idx++ )
-    {
-	const ObjectSet<const Well::Log>& inplogs = 
-				    logdatas_.get(idx)->inpLogs();
-	ObjectSet<Well::Log> outplogs;
-	BufferStringSet lognms;
-	for ( const auto* log : logdatas_.get(idx)->inpLogs() )
-	    lognms.add( log->name() );
-
-	for ( const auto* lognm : lognms )
-	    outplogs += logdatas_[idx]->logs().getLog( *lognm );
-
-	for ( int idlog=0; idlog<inplogs.size(); idlog++ )
-	{
-	    uiWellLogDisplay* ld = logdisps_[nrdisp];
-	    uiWellLogDisplay::LogData* wld = &ld->logData( true );
-	    wld->setLog( inplogs[idlog] );
-	    wld->disp_.setColor( OD::Color::stdDrawColor( 1 ) );
-	    wld->zoverlayval_ = 1;
-
-	    wld = &ld->logData( false );
-	    wld->setLog( outplogs.validIdx( idlog ) ? outplogs[idlog] : 0 );
-	    wld->xrev_ = false;
-	    wld->zoverlayval_ = 2;
-	    wld->disp_.setColor( OD::Color::stdDrawColor( 0 ) );
-
-	    ld->setZRange( zdisplayrg_ );
-	    ld->reDraw();
-	    nrdisp ++;
-	}
-    }
+    logdisp_->displayLogs();
 }
 
 
