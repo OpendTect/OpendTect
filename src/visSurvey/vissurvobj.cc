@@ -409,10 +409,10 @@ void SurveyObject::setSelSpec( int attrib, const Attrib::SelSpec& newselspec )
 void SurveyObject::setSelSpecs(
 	int attrib, const TypeSet<Attrib::SelSpec>& newselspecs )
 {
+    const bool hasnewspecs = !newselspecs.isEmpty();
     const Attrib::SelSpec* oldselspec = getSelSpec( attrib, 0 );
-    if ( !oldselspec || (*oldselspec)!=newselspecs[0] )
+    if ( !oldselspec || !hasnewspecs || (*oldselspec)!=newselspecs[0] )
 	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
 }
-
 
 } // namespace visSurvey
