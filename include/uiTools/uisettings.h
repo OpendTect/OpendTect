@@ -38,7 +38,10 @@ public:
 			     const BufferStringSet* args=nullptr,
 			     const char* workingdir=nullptr);
 
+    uiToolBar*	getToolBar()		{ return usercmdtb_; }
+
     Notifier<uiSettingsMgr> terminalRequested;
+    NotifierAccess*	toolbarUpdated();
 
 private:
 

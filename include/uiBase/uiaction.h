@@ -205,6 +205,9 @@ public:
     void			removeAllActions();
     void			reloadIcons();
 
+    void			shareActionsFrom(const uiActionContainer*);
+    bool			hasSharedActions() const;
+
 protected:
 			uiActionContainer();
 
