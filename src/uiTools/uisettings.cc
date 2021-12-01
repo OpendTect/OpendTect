@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "keyboardevent.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -101,6 +102,11 @@ private:
 };
 
 
+// uiSettingsMgr
+
+static HiddenParam<uiSettingsMgr,Notifier<uiSettingsMgr>*>
+						hp_tbupdated(nullptr);
+
 uiSettingsMgr& uiSettsMgr()
 {
     mDefineStaticLocalObject( PtrMan<uiSettingsMgr>, theinst, = nullptr );
@@ -113,12 +119,15 @@ uiSettingsMgr::uiSettingsMgr()
 {
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 		uiSettingsMgr::keyPressedCB );
+
+    hp_tbupdated.setParam( this, new Notifier<uiSettingsMgr>(this) );
 }
 
 
 uiSettingsMgr::~uiSettingsMgr()
 {
     detachAllNotifiers();
+    hp_tbupdated.removeAndDeleteParam( this );
 }
 
 
@@ -359,6 +368,16 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	    usercmdmnu_->insertAction( newitm, id );
 	}
     }
+
+    mDynamicCastGet(Notifier<uiSettingsMgr>*,notif,toolbarUpdated())
+    if ( notif )
+	notif->trigger();
+}
+
+
+NotifierAccess* uiSettingsMgr::toolbarUpdated()
+{
+    return hp_tbupdated.getParam( this );
 }
 
 
