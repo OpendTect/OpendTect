@@ -233,13 +233,17 @@ void uiAction::setMenu( uiMenu* menu )
 }
 
 
-void uiAction::setParentContainer( const uiActionContainer* parentcontainer )
+void uiAction::setParentContainer( const uiActionContainer* parentcontainerin )
 {
-    if ( parentcontainer_ ) //Sanity check
+    if ( parentcontainer_ )
     {
+	if ( parentcontainerin->hasSharedActions() )
+	    return;
+
 	pErrMsg("Hmm, Perhaps already added somewhere" );
     }
-    parentcontainer_ = parentcontainer;
+
+    parentcontainer_ = parentcontainerin;
 }
 
 
@@ -272,7 +276,7 @@ void uiAction::reloadIcon()
 }
 
 
-void uiAction::translateCB( CallBacker* cb )
+void uiAction::translateCB( CallBacker* )
 {
     qaction_->setText( toQString(text_) );
     qaction_->setIconText( toQString(icontext_) );
@@ -364,6 +368,8 @@ void uiAction::addCmdRecorder( const CallBack& cb )
 }
 
 
+// uiActionContainer
+
 uiActionContainer::uiActionContainer()
 {
 }
@@ -371,7 +377,27 @@ uiActionContainer::uiActionContainer()
 
 uiActionContainer::~uiActionContainer()
 {
-    deepErase( actions_ );
+    if ( hasSharedActions() )
+	actions_.erase();
+    else
+	deepErase( actions_ );
+}
+
+
+void uiActionContainer::shareActionsFrom( const uiActionContainer* container )
+{
+    if ( !container || container->isEmpty() )
+	return;
+
+    hassharedactions_ = true;
+    for ( const auto* action : container->actions() )
+	insertAction( cCast(uiAction*,action) );
+}
+
+
+bool uiActionContainer::hasSharedActions() const
+{
+    return hassharedactions_;
 }
 
 
@@ -398,7 +424,8 @@ const uiAction* uiActionContainer::findAction( int mnuid ) const
 	{
 	    const uiAction* mnuitm =
 		   actions_[idx]->getMenu()->findAction( mnuid );
-	    if ( mnuitm ) return mnuitm;
+	    if ( mnuitm )
+		return mnuitm;
 	}
     }
 
@@ -420,7 +447,8 @@ const uiAction* uiActionContainer::findAction( const uiMenu* menu ) const
 	{
 	    const uiAction* mnuitm =
 		actions_[idx]->getMenu()->findAction( menu );
-	    if ( mnuitm ) return mnuitm;
+	    if ( mnuitm )
+		return mnuitm;
 	}
     }
 
@@ -434,10 +462,13 @@ const uiAction* uiActionContainer::findAction(
     const uiActionContainer* curcontainer = this;
     for ( int idx=0; idx<str.size(); idx++ )
     {
-	if ( !curcontainer ) return nullptr;
+	if ( !curcontainer )
+	    return nullptr;
 
 	const uiAction* itm = curcontainer->findAction( str[idx] );
-	if ( !itm ) return nullptr;
+	if ( !itm )
+	    return nullptr;
+
 	if ( idx == str.size()-1 )
 	    return itm;
 
@@ -626,9 +657,12 @@ uiAction* uiActionContainer::insertSeparator()
 
 void uiActionContainer::removeAllActions()
 {
-    deepErase( actions_ );
-    ids_.erase();
+    if ( hasSharedActions() )
+	actions_.erase();
+    else
+	deepErase( actions_ );
 
+    ids_.erase();
     doClear();
 }
 
@@ -636,13 +670,16 @@ void uiActionContainer::removeAllActions()
 void uiActionContainer::removeAction( uiAction* action )
 {
     const int idx = actions_.indexOf( action );
-    if ( actions_.validIdx(idx) )
-    {
-	doRemoveAction( actions_[idx]->qaction() );
+    if ( !actions_.validIdx(idx) )
+	return;
 
-	delete actions_.removeSingle( idx );
-	ids_.removeSingle( idx );
-    }
+    doRemoveAction( actions_[idx]->qaction() );
+
+    uiAction* curaction = actions_.removeSingle( idx );
+    if ( !hasSharedActions() )
+	delete curaction;
+
+    ids_.removeSingle( idx );
 }
 
 
