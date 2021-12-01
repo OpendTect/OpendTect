@@ -430,8 +430,9 @@ void FaultStickPainter::fssChangedCB( CallBacker* cb )
 
 FlatView::AuxData* FaultStickPainter::getAuxData( const EM::PosID* pid )
 {
-    if ( pid->objectID() != emid_ )
-	return 0;
+    if ( pid->objectID() != emid_ || sectionmarkerlines_.isEmpty() ||
+	 !sectionmarkerlines_[0]->validIdx(activestickid_) )
+	return nullptr;
 
     return (*sectionmarkerlines_[0])[activestickid_]->marker_;
 }
@@ -440,7 +441,8 @@ FlatView::AuxData* FaultStickPainter::getAuxData( const EM::PosID* pid )
 void FaultStickPainter::getDisplayedSticks(
 					ObjectSet<StkMarkerInfo>& dispstkinfo )
 {
-    if ( !sectionmarkerlines_.size() ) return;
+    if ( sectionmarkerlines_.isEmpty() )
+	return;
 
     dispstkinfo = *sectionmarkerlines_[0];
 }
@@ -458,22 +460,24 @@ bool FaultStickPainter::hasDiffActiveStick( const EM::PosID* pid )
 
 void FaultStickPainter::setActiveStick( EM::PosID& pid )
 {
-    if ( pid.objectID() != emid_ ) return;
-
-    if ( pid.getRowCol().row() == activestickid_ ) return;
+    if ( pid.objectID() != emid_ ||
+	 pid.getRowCol().row() == activestickid_ ||
+         sectionmarkerlines_.isEmpty() )
+	return;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid_ );
-    if ( !emobject ) return;
+    if ( !emobject )
+	return;
 
     const OD::LineStyle& emls = emobject->preferredLineStyle();
-    for ( int stkidx=0; stkidx<sectionmarkerlines_[0]->size(); stkidx++ )
+
+    auto* line = sectionmarkerlines_[0];
+    for ( int stkidx=0; stkidx<line->size(); stkidx++ )
     {
-	OD::LineStyle& linestyle =
-	    (*sectionmarkerlines_[0])[stkidx]->marker_->linestyle_;
-	if ( (*sectionmarkerlines_[0])[stkidx]->stickid_==activestickid_ )
+	OD::LineStyle& linestyle = (*line)[stkidx]->marker_->linestyle_;
+	if ( (*line)[stkidx]->stickid_==activestickid_ )
 	    linestyle.width_ = emls.width_;
-	else if ( (*sectionmarkerlines_[0])[stkidx]->stickid_==
-		  pid.getRowCol().row() )
+	else if ( (*line)[stkidx]->stickid_== pid.getRowCol().row() )
 	    linestyle.width_ = emls.width_ * 2;
     }
 
