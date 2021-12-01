@@ -110,6 +110,7 @@ uiSettingsMgr& uiSettsMgr()
 
 uiSettingsMgr::uiSettingsMgr()
     : terminalRequested(this)
+    , toolbarUpdated(this)
 {
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 		uiSettingsMgr::keyPressedCB );
@@ -356,6 +357,8 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	    usercmdmnu_->insertAction( newitm, id );
 	}
     }
+
+    toolbarUpdated.trigger();
 }
 
 
@@ -1164,7 +1167,7 @@ void uiPythonSettings::sourceChgCB( CallBacker* )
 {
     const int sourceidx = pythonsrcfld_->getIntValue();
     const OD::PythonSource source =
-		OD::PythonSourceDef().getEnumForIndex(sourceidx);
+		OD::PythonSourceDef().getEnumForIndex( sourceidx );
 
     if ( internalloc_ )
 	internalloc_->display( source == OD::Internal );
