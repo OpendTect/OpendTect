@@ -464,16 +464,15 @@ void Well::Log::addValue( float dh, float val )
 
 void Well::Log::updateAfterValueChanges()
 {
+    iscode_ = true;
+    range_.setUdf();
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( !valIsCode(vals_[idx],1e-3f) )
-	{
+	const float val = vals_[idx];
+	range_.include( val );
+	if ( !valIsCode(val,1e-3f) )
 	    iscode_ = false;;
-	    return;
-	}
     }
-
-    iscode_ = true;
 }
 
 #define mDefZStep 0.1524f

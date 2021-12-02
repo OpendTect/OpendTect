@@ -533,7 +533,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		const int size = ls.nrZSamples();
 		Array1DImpl<float> logvals( size );
 		for ( int idz=0; idz<size; idz++ )
-		    logvals.set( idz, ls.getLogVal( idlog, idz ) );
+		    logvals.set( idz, ls.getLogVal( 0, idz ) );
 
 		const Interval<float>& freqrg = freqfld_->freqRange();
 		FFTFilter filter( size, deftimestep );
@@ -612,6 +612,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		Well::Log* cleanudflog = inplog.cleanUdfs();
 		*outplog = *cleanudflog;
 	    }
+	    outplog->updateAfterValueChanges();
 	}
     }
 
