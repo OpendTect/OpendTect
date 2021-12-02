@@ -130,8 +130,11 @@ bool CommandLineParser::isKey( int idx ) const
 }
 
 
-int CommandLineParser::indexOf( const char* key ) const
+int CommandLineParser::indexOf( const char* key, TypeSet<int>* idxs ) const
 {
+    if ( idxs )
+	idxs->setEmpty();
+
     const BufferString searchkey1( "--", key );
     const BufferString searchkey2( "-", key );
 
@@ -141,13 +144,23 @@ int CommandLineParser::indexOf( const char* key ) const
 	     searchkey2==(*argv_[idx]) )
 	{
 	    if ( isKey(idx) )
-		return idx;
+	    {
+		if ( idxs )
+		    idxs->add( idx );
+		else
+		    return idx;
+	    }
 	}
     }
 
-    return -1;
+    return idxs && !idxs->isEmpty() ? idxs->first() : -1;
 }
 
+
+int CommandLineParser::indexOf( const char* key ) const
+{
+    return indexOf( key, nullptr );
+}
 
 
 void CommandLineParser::init( int argc, char** argv )
@@ -253,6 +266,29 @@ bool CommandLineParser::getVal( const char* key, BufferString& val,
 
     val.set( argv_[validx]->buf() );
     return true;
+}
+
+
+bool CommandLineParser::getVal( const char* key, BufferStringSet& vals,
+				bool acceptnone ) const
+{
+    vals.setEmpty();
+    TypeSet<int> keyidxs;
+    const int keyidx = indexOf( key, &keyidxs );
+    if ( keyidx<0 )
+	return acceptnone;
+
+    for ( int kidx=0; kidx<keyidxs.size(); kidx++ )
+    {
+	int validx = keyidxs[kidx] + 1;
+	while ( argv_.validIdx( validx ) && !isKey(validx) )
+	{
+	    vals.add( argv_[validx]->buf() );
+	    validx++;
+	}
+    }
+
+    return acceptnone ? true : !vals.isEmpty();
 }
 
 
