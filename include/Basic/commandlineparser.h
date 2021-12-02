@@ -71,6 +71,9 @@ public:
     bool			hasKey(const char*) const;
     bool			getVal(const char* key,BufferString&,
 				       bool acceptnone=false,int valnr=1) const;
+    // Extract all string arguments after all occurrences of "key"
+    bool			getVal(const char* key,BufferStringSet&,
+				       bool acceptnone=false) const;
     bool			getVal(const char* key,DBKey&,
 				       bool acceptnone=false,int valnr=1) const;
     template <class T> bool	getVal(const char* key,T&,
@@ -128,6 +131,7 @@ public:
 private:
 
     int				indexOf(const char*) const;
+    int				indexOf(const char*,TypeSet<int>* idxs) const;
     void			init(int,char**);
     void			init(const char*);
 
