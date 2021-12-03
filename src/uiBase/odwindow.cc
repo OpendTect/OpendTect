@@ -187,8 +187,12 @@ void uiMainWinBody::setModal( bool yn )
 
 void uiMainWinBody::doShow( bool minimized )
 {
+    bool domove = false;
     if ( !finalised() || force_finalise_ )
+    {
 	finalise( true );
+	domove = true;
+    }
 
     handle_.updateCaption();
     eventrefnr_ = handle_.beginCmdRecEvent("WinPopUp");
@@ -201,8 +205,12 @@ void uiMainWinBody::doShow( bool minimized )
     }
     else
     {
-	if ( isMinimized() ) showNormal();
-	raise();
+	if ( isMinimized() )
+	    showNormal();
+
+	if ( isHidden() )
+	    raise();
+
 	handle_.windowShown.trigger( handle_ );
 	QMainWindow::show();
     }
@@ -262,7 +270,9 @@ void uiMainWinBody::doShow( bool minimized )
 	handle_.afterpopuptimer_->start( 50, true );
     }
 
-    move( handle_.popuparea_ );
+    if ( domove )
+	move( handle_.popuparea_ );
+
     raise();
     if ( uiMainWin::getActivateBehaviour() == OD::AlwaysActivateWindow )
     {
