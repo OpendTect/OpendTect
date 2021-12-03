@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "envvars.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"

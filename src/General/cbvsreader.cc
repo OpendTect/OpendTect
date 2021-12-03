@@ -83,7 +83,7 @@ void PosAuxInfo::set2D( bool yn )
     if ( !trckey_.is2D() && yn )
 	trckey_.setGeomID( Survey::getDefault2DGeomID() ).setTrcNr( 0 );
     else if ( !trckey_.is3D() && !yn )
-	trckey_.setSurvID( OD::Geom3D ).setPosition( BinID(0,0) );
+	trckey_.setPosition( BinID(0,0) );
 }
 
 

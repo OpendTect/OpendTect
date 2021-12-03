@@ -30,7 +30,7 @@ class Geometry3D;
 For 3D, a geometry is an Inl/Crl System.
 For 2D, each line has its own Geometry.
 
-Beware, the Pos::GeomID != Pos::SurvID for 2D geometries. The GeomID
+Beware, the Pos::GeomID != OD::GeomSytem for 2D geometries. The GeomID
 will end up in the lineNr() of the TrcKey.
 */
 
@@ -43,7 +43,7 @@ public:
 			  transform but neither includes the other. */
 
     virtual bool	is2D() const			= 0;
-    Pos::SurvID		getSurvID() const;
+    OD::GeomSystem	geomSystem() const;
     static const Geometry& default3D();
 
     Pos::GeomID		getID() const			{ return id_; }
@@ -87,6 +87,11 @@ private:
 
     Pos::GeomID			id_;
 
+public:
+
+    mDeprecated("use geomSystem")
+    OD::GeomSystem	getSurvID() const;
+
 };
 
 
@@ -103,7 +108,7 @@ public:
     const Geometry*		getGeometry(const char*) const;
     const Geometry*		getGeometry(const MultiID&) const;
 
-    const Geometry3D*		getGeometry3D(Pos::SurvID) const;
+    const Geometry3D*		getGeometry3D(OD::GeomSystem) const;
 
     const Geometry2D&		get2D(Pos::GeomID) const;
 
@@ -133,6 +138,7 @@ public:
 
 protected:
 
+    const Geometry*		getGeometry(OD::GeomSystem) const  = delete;
     void			ensureSIPresent() const;
     void			addGeometry(Geometry&);
 

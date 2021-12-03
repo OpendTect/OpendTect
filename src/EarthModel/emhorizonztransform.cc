@@ -238,7 +238,7 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
     mDynamicCastGet(const Horizon2D*,hor2d,horizon_)
     TypeSet<float> depths;
     TrcKey hortrckey;
-    if ( trckey.survID()==horizon_->getSurveyID() )
+    if ( trckey.geomSystem() == horizon_->getSurveyID() )
 	hortrckey = trckey;
     else
     {

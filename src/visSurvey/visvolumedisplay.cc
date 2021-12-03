@@ -1087,7 +1087,7 @@ void VolumeDisplay::setSelSpecs( int attrib, const TypeSet<Attrib::SelSpec>& as)
     attribs_[attrib]->cache_ = nullptr;
 
     TrcKeyZSampling emptytkzs( false );
-    emptytkzs.hsamp_.survid_ = s3dgeom_->getSurvID();
+    emptytkzs.hsamp_.survid_ = s3dgeom_->geomSystem();
     scalarfield_->setScalarField( attrib, nullptr, true, emptytkzs, 0 );
 
     updateAttribEnabling();
@@ -1164,7 +1164,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 	arrayismine = false;
     }
 
-    tkzs.hsamp_.survid_ = s3dgeom_->getSurvID();
+    tkzs.hsamp_.survid_ = s3dgeom_->geomSystem();
     scalarfield_->setScalarField( attrib, usedarray, !arrayismine, tkzs, taskr);
 
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );

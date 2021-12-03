@@ -44,7 +44,7 @@ public:
     bool		is2D() const;
     bool		is3D() const;
     bool		isSynthetic() const;
-    Pos::SurvID		geomSystem() const;
+    OD::GeomSystem	geomSystem() const;
     BinID		binID() const;
     Pos::IdxPair	idxPair() const;
     IdxType		inl() const;
@@ -54,7 +54,7 @@ public:
     Pos::GeomID		geomID() const;
     const TrcKey&	trcKey() const		{ return trckey_; }
 
-    SeisTrcInfo&	setGeomSystem(Pos::SurvID);
+    SeisTrcInfo&	setGeomSystem(OD::GeomSystem);
     SeisTrcInfo&	setPos(const BinID&); //3D
     SeisTrcInfo&	setPos(Pos::GeomID,IdxType); //2D
     SeisTrcInfo&	setGeomID(Pos::GeomID);

@@ -116,7 +116,6 @@ const TrcKey& Pick::Location::trcKey() const
 	return trckey_;
 
     mDefineStaticLocalObject( TrcKey, rettk, );
-    rettk.setSurvID( OD::Geom3D );
     rettk.setPosition( SI().transform(pos_) );
     return rettk;
 }
@@ -128,9 +127,15 @@ bool Pick::Location::is2D() const
 }
 
 
-Pos::SurvID Pick::Location::survID() const
+OD::GeomSystem Pick::Location::survID() const
 {
-    return trcKey().survID();
+    return geomSystem();
+}
+
+
+OD::GeomSystem Pick::Location::geomSystem() const
+{
+    return trcKey().geomSystem();
 }
 
 
@@ -206,9 +211,15 @@ Pick::Location& Pick::Location::setBinID( const BinID& bid, bool updcoord )
 }
 
 
-Pick::Location& Pick::Location::setSurvID( Pos::SurvID survid, bool updpos )
+Pick::Location& Pick::Location::setSurvID( OD::GeomSystem gs, bool updpos )
 {
-    trckey_.setSurvID( survid );
+    return setGeomSystem( gs, updpos );
+}
+
+
+Pick::Location& Pick::Location::setGeomSystem( OD::GeomSystem gs, bool updpos )
+{
+    trckey_.setGeomSystem( gs );
     if ( updpos )
 	trckey_.setFrom( pos_ );
     return *this;

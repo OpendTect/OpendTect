@@ -940,7 +940,7 @@ void IOPar::set( const char* keyw, const BinID& binid )
 { set( keyw, binid.inl(), binid.crl() ); }
 
 
-bool IOPar::get( const char* keyw, Pos::SurvID& survid ) const
+bool IOPar::get( const char* keyw, OD::GeomSystem& survid ) const
 {
     int sidnr;
     if ( !get(keyw,sidnr) )
@@ -958,12 +958,12 @@ bool IOPar::get( const char* keyw, Pos::SurvID& survid ) const
 
 bool IOPar::get( const char* keyw, TrcKey& tk ) const
 {
-    Pos::SurvID gs;
+    OD::GeomSystem gs;
     int sidnr, linenr, trcnr;
     if ( !get(keyw,gs) || !get(keyw,sidnr,linenr,trcnr) )
 	return false;
 
-    tk.setSurvID( gs );
+    tk.setGeomSystem( gs );
     if ( tk.is2D() )
 	tk.setGeomID( linenr ).setTrcNr( trcnr );
     else if ( tk.is3D() )
@@ -976,10 +976,10 @@ bool IOPar::get( const char* keyw, TrcKey& tk ) const
 
 
 void IOPar::set( const char* keyw, const TrcKey& tk )
-{ set( keyw, int(tk.survID()), tk.lineNr(), tk.trcNr() ); }
+{ set( keyw, int(tk.geomSystem()), tk.lineNr(), tk.trcNr() ); }
 
 
-void IOPar::set( const char* keyw, const Pos::SurvID& gs )
+void IOPar::set( const char* keyw, const OD::GeomSystem& gs )
 {
     set( keyw, int(gs) );
 }

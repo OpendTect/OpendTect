@@ -30,8 +30,9 @@ mExpClass(uiSEGYTools) uiSEGYExamine : public uiDialog
 { mODTextTranslationClass(uiSEGYExamine);
 public:
 
-    mStruct(uiSEGYTools) Setup : public uiDialog::Setup
+    mExpClass(uiSEGYTools) Setup : public uiDialog::Setup
     {
+    public:
 				Setup(Seis::GeomType,int nrtraces=100);
 
 	void			setFileName(const char*);

@@ -339,8 +339,8 @@ TrcKey::TrcKey( const Pos::IdxPair& pos, bool is2d )
 }
 
 
-TrcKey::TrcKey( SurvID id, const Pos::IdxPair& bid )
-    : geomsystem_( id )
+TrcKey::TrcKey( OD::GeomSystem gs, const Pos::IdxPair& bid )
+    : geomsystem_( gs )
     , pos_( bid )
 {
 }
@@ -377,10 +377,9 @@ Pos::GeomID TrcKey::geomID() const
 }
 
 
-Pos::GeomID TrcKey::gtGeomID( SurvID survid, IdxType lnr )
+Pos::GeomID TrcKey::gtGeomID( OD::GeomSystem gs, IdxType lnr )
 {
-    return survid < OD::Geom2D ? Pos::GeomID( survid )
-			       : Pos::GeomID( lnr );
+    return gs < OD::Geom2D ? Pos::GeomID( gs ) : Pos::GeomID( lnr );
 }
 
 
@@ -400,7 +399,13 @@ TrcKey& TrcKey::setGeomID( Pos::GeomID geomid )
 }
 
 
-TrcKey& TrcKey::setSurvID( SurvID gs )
+TrcKey& TrcKey::setSurvID( OD::GeomSystem gs )
+{
+    return setGeomSystem( gs );
+}
+
+
+TrcKey& TrcKey::setGeomSystem( OD::GeomSystem gs )
 {
     geomsystem_ = gs;
     if ( isSynthetic() )
@@ -412,7 +417,7 @@ TrcKey& TrcKey::setSurvID( SurvID gs )
 
 TrcKey& TrcKey::setPosition( const BinID& bid )
 {
-    setSurvID( OD::Geom3D );
+    setGeomSystem( OD::Geom3D );
     pos_ = bid;
     return *this;
 }
@@ -420,7 +425,7 @@ TrcKey& TrcKey::setPosition( const BinID& bid )
 
 TrcKey& TrcKey::setPosition( const Pos::IdxPair& pos, bool is2d )
 {
-    setSurvID( is2D() ? OD::Geom2D : OD::Geom3D );
+    setGeomSystem( is2D() ? OD::Geom2D : OD::Geom3D );
     pos_ = pos;
     return *this;
 }
@@ -495,7 +500,7 @@ const Survey::Geometry& TrcKey::geometry() const
 
 TrcKey TrcKey::getFor( Pos::GeomID gid ) const
 {
-    const SurvID gs = geomSystemOf( gid );
+    const OD::GeomSystem gs = geomSystemOf( gid );
     if ( gs == geomsystem_ )
 	return *this;
     else if ( isUdf() )
@@ -555,14 +560,14 @@ const TrcKey& TrcKey::udf()
 
 // Deprecated implementations of TrcKey:
 
-TrcKey::TrcKey( SurvID gs, const BinID& bid )
+TrcKey::TrcKey( OD::GeomSystem gs, const BinID& bid )
     : geomsystem_( gs )
     , pos_( bid )
 {
 }
 
 
-Pos::GeomID TrcKey::geomID( SurvID gs, const BinID& bid )
+Pos::GeomID TrcKey::geomID( OD::GeomSystem gs, const BinID& bid )
 {
     const TrcKey tk( gs, (const Pos::IdxPair&)(bid) );
     return tk.geomID();

@@ -138,8 +138,7 @@ void RandomLine::allNodePositions( TrcKeyPath& tks ) const
 
 void RandomLine::limitTo( const TrcKeyZSampling& cs )
 {
-    const Pos::SurvID survid = OD::Geom3D;
-    if ( cs.hsamp_.survid_ != survid )
+    if ( !is3D(cs.hsamp_.survid_) )
 	{ pErrMsg( "Limiting go range in different survey"); }
 
     if ( nrNodes() != 2 )
@@ -152,7 +151,8 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
     if ( startin && stopin )
 	return;
 
-    ConstRefMan<Survey::Geometry3D> geom = Survey::GM().getGeometry3D(survid);
+    ConstRefMan<Survey::Geometry3D> geom =
+				Survey::GM().getGeometry3D( OD::Geom3D );
 
     Coord svert[4];
     svert[0] = geom->transform( hs.start_ );
@@ -315,13 +315,14 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots, TypeSet<BinID>& bids,
 }
 
 
-void RandomLine::getPathBids( const TypeSet<BinID>& knots, Pos::SurvID survid,
+void RandomLine::getPathBids( const TypeSet<BinID>& knots,
+			      OD::GeomSystem gs,
 			      TypeSet<BinID>& bids, bool allowduplicate,
 			      TypeSet<int>* segments )
 {
     TrcKeyPath tkknots;
     for ( const auto& knot : knots )
-	tkknots += TrcKey( survid, (const Pos::IdxPair&)knot );
+	tkknots += TrcKey( gs, (const Pos::IdxPair&)knot );
 
     TrcKeyPath tks;
     const DuplicateMode dupmode = allowduplicate ? AllDups : NoConsecutiveDups;
@@ -331,13 +332,13 @@ void RandomLine::getPathBids( const TypeSet<BinID>& knots, Pos::SurvID survid,
 }
 
 
-void RandomLine::getPathBids( const TypeSet<BinID>& knots, Pos::SurvID survid,
+void RandomLine::getPathBids( const TypeSet<BinID>& knots, OD::GeomSystem gs,
 			      TypeSet<BinID>& bids, DuplicateMode duplicatemode,
 			      TypeSet<int>* segments )
 {
     TrcKeyPath tkknots;
     for ( const auto& knot : knots )
-	tkknots += TrcKey( survid, (const Pos::IdxPair&)knot );
+	tkknots += TrcKey( gs, (const Pos::IdxPair&)knot );
 
     TrcKeyPath tks;
     getPathBids( tkknots, tks, duplicatemode, segments );

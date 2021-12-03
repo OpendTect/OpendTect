@@ -250,7 +250,7 @@ public:
 				//!< Fast: writes to the first section
     Array2D<char>*		getChildren(const TrcKey&) const
 				{ return getChildren(); }
-    Pos::SurvID			getSurveyID() const
+    OD::GeomSystem		getSurveyID() const
 				{ return geomSystemOf(getSurveyGeomID()); }
 
     static OD::Color		sDefaultSelectionColor();

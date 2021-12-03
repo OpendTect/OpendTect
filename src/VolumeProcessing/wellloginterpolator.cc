@@ -114,14 +114,14 @@ bool getTrackSampling( const Well::D2TModel* d2tmodel )
 	return false;
 
     TrcKeySampling& tks = bbox_.hsamp_;
-    const Pos::SurvID survid = tks.survid_;
+    const OD::GeomSystem gs = tks.survid_;
     tks.init( false );
     TypeSet<BinID> trackpos;
     wts.getBIDs( trackpos );
     for ( int idx=0; idx<trackpos.size(); idx++ )
 	tks.include( trackpos[idx] );
 
-    tks.survid_ = survid;
+    tks.survid_ = gs;
 
     return tks.isDefined();
 }

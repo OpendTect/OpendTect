@@ -649,11 +649,10 @@ Set& Set::operator=( const Set& s )
 }
 
 
-Pos::SurvID Set::getSurvID() const
+OD::GeomSystem Set::geomSystem() const
 {
-    Pos::SurvID survid;
-    return pars_.get(sKey::SurveyID(),survid) ? survid
-					      : Pick::getSurvID( *this );
+    OD::GeomSystem gs;
+    return pars_.get(sKey::SurveyID(),gs) ? gs : Pick::geomSystem( *this );
 }
 
 

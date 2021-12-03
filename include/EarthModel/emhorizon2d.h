@@ -171,7 +171,7 @@ public:
 					      Pos::GeomID geomid,
 					      const ZAxisTransform* =0) const;
 
-    TrcKey::SurvID		getSurveyID() const;
+    OD::GeomSystem		getSurveyID() const;
     uiString			getUserTypeStr() const { return userTypeStr(); }
     static uiString		userTypeStr() { return tr("2D Horizon"); }
 

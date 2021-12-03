@@ -36,12 +36,12 @@ public:
 
     bool			isOK() const;
     void			transformTrc(const TrcKey&,
-	    				  const SamplingData<float>&,
+					  const SamplingData<float>&,
 					  int sz,float* res) const;
     void			transformTrcBack(const TrcKey&,
-	    				      const SamplingData<float>&,
+					      const SamplingData<float>&,
 					      int sz,float* res) const;
-    bool			canTransformSurv(Pos::SurvID) const
+    bool			canTransformSurv(OD::GeomSystem) const
 				{ return true; }
 
     float			getGoodZStep() const;

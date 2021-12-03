@@ -105,14 +105,14 @@ public:
 
     mDeprecated("Use TrcKey")
     static void		getPathBids(const TypeSet<BinID>& knots,
-				    Pos::SurvID,
+				    OD::GeomSystem,
 				    TypeSet<BinID>& path,
 				    DuplicateMode dupmode=NoConsecutiveDups,
 				    TypeSet<int>* segments=nullptr);
 
     mDeprecated("Use TrcKey and DuplicateMode enum")
     static void		getPathBids(const TypeSet<BinID>& knots,
-				    Pos::SurvID,
+				    OD::GeomSystem,
 				    TypeSet<BinID>& path,
 				    bool allowduplicate=false,
 				    TypeSet<int>* segments=nullptr);

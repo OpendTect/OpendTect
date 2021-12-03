@@ -73,7 +73,7 @@ bool TrcKeySampling::init( Pos::GeomID gid )
     if ( !geom )
 	return false;
 
-    survid_ = geom->getSurvID();
+    survid_ = geom->geomSystem();
     (*this) = geom->sampling().hsamp_;
 
     return true;
@@ -82,7 +82,7 @@ bool TrcKeySampling::init( Pos::GeomID gid )
 
 void TrcKeySampling::init( const TrcKey& tk )
 {
-    survid_ = tk.survID();
+    survid_ = tk.geomSystem();
     start_.lineNr() = stop_.lineNr() = tk.lineNr();
     start_.trcNr() = stop_.trcNr() = tk.trcNr();
 }
@@ -894,7 +894,7 @@ BinID TrcKeySampling::getNearest( const BinID& bid ) const
 
 TrcKey TrcKeySampling::getNearest( const TrcKey& trckey ) const
 {
-    if ( trckey.survID() != survid_ )
+    if ( trckey.geomSystem() != survid_ )
 	return TrcKey::udf();
 
     const BinID bid = getNearest(trckey.position());
@@ -993,10 +993,10 @@ void TrcKeySampling::neighbors( const TrcKey& tk, TypeSet<TrcKey>& nbs ) const
 void TrcKeySampling::include( const TrcKey& trckey )
 {
     if ( survid_ == OD::GeomSynth )
-	survid_ = trckey.survID();
+	survid_ = trckey.geomSystem();
 #ifdef __debug__
-    else if ( survid_ != trckey.survID() )
-	pErrMsg("SurvID should be the same");
+    else if ( survid_ != trckey.geomSystem() )
+	pErrMsg("OD::GeomSystem should be the same");
 #endif
     includeLine( trckey.lineNr() );
     includeTrc( trckey.trcNr() );
@@ -1005,7 +1005,7 @@ void TrcKeySampling::include( const TrcKey& trckey )
 
 od_int64 TrcKeySampling::globalIdx( const TrcKey& trk ) const
 {
-    if ( trk.survID()!=survid_ )
+    if ( trk.geomSystem() != survid_ )
 	return -1;
 
     return globalIdx( trk.position() );
@@ -1055,8 +1055,8 @@ bool TrcKeySampling::includes( const TrcKey& tk ) const
 
 bool TrcKeySampling::includes( const TrcKey& tk, bool ignoresteps ) const
 {
-    return survid_==tk.survID() && lineOK(tk.lineNr(),ignoresteps)
-				&& trcOK(tk.trcNr(),ignoresteps);
+    return survid_==tk.geomSystem() && lineOK(tk.lineNr(),ignoresteps)
+				    && trcOK(tk.trcNr(),ignoresteps);
 }
 
 

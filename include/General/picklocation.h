@@ -67,7 +67,7 @@ public:
     inline const Coord3& pos() const		{ return pos_; }
     inline float	z() const		{ return (float)pos_.z; }
     bool		is2D() const;
-    Pos::SurvID		survID() const;
+    OD::GeomSystem	geomSystem() const;
     Pos::GeomID		geomID() const;
     const TrcKey&	trcKey() const;
     Pos::LineID		lineNr() const;
@@ -95,7 +95,7 @@ public:
     Location&		setTrcNr(Pos::LineID);
     Location&		setGeomID(Pos::GeomID);
     Location&		setBinID(const BinID&,bool updcoord=false);
-    Location&		setSurvID(Pos::SurvID,bool updfromcoord=true);
+    Location&		setGeomSystem(OD::GeomSystem,bool updfromcoord=true);
 
     bool		hasTextKey(const char* key) const;
     bool		getKeyedText(const char* key,BufferString&) const;
@@ -128,6 +128,13 @@ protected:
 
     bool		fndKeyTxt(const char*,BufferString*) const;
 
+public:
+
+    mDeprecated("Use setGeomSystem")
+    Location&		setSurvID(OD::GeomSystem,bool updfromcoord=true);
+
+    mDeprecated("Use geomSystem")
+    OD::GeomSystem	survID() const;
 };
 
 } // namespace Pick

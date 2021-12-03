@@ -1452,7 +1452,7 @@ PosID Horizon3DGeometry::getPosID( const TrcKey& trckey ) const
 {
     mDynamicCastGet(const EM::Horizon*, hor, &surface_ );
 
-    if ( trckey.survID()!=hor->getSurveyID() )
+    if ( trckey.geomSystem() != hor->getSurveyID() )
 	return PosID::udf();
 
     return PosID( surface_.id(), sectionID(0), trckey.position().toInt64() );

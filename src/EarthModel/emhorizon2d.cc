@@ -50,7 +50,7 @@ const Geometry::Horizon2DLine*
 }
 
 
-TrcKey::SurvID Horizon2D::getSurveyID() const
+OD::GeomSystem Horizon2D::getSurveyID() const
 { return OD::Geom2D; }
 
 
@@ -107,7 +107,7 @@ PosID Horizon2DGeometry::getPosID( const TrcKey& trckey ) const
 {
     mDynamicCastGet(const EM::Horizon*, hor, &surface_ );
 
-    if ( trckey.survID()!=hor->getSurveyID() )
+    if ( trckey.geomSystem() != hor->getSurveyID() )
 	return PosID::udf();
 
     const int lineidx = lineIndex( trckey.geomID() );

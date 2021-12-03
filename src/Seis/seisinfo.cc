@@ -301,8 +301,8 @@ bool SeisTrcInfo::is3D() const
 { return trckey_.is3D(); }
 bool SeisTrcInfo::isSynthetic() const
 { return trckey_.isSynthetic();}
-Pos::SurvID SeisTrcInfo::geomSystem() const
-{ return trckey_.survID(); }
+OD::GeomSystem SeisTrcInfo::geomSystem() const
+{ return trckey_.geomSystem(); }
 BinID SeisTrcInfo::binID() const
 { return trckey_.position(); }
 Pos::IdxPair SeisTrcInfo::idxPair() const
@@ -318,8 +318,8 @@ SeisTrcInfo::IdxType SeisTrcInfo::trcNr() const
 Pos::GeomID SeisTrcInfo::geomID() const
 { return trckey_.geomID(); }
 
-SeisTrcInfo& SeisTrcInfo::setGeomSystem( Pos::SurvID gs )
-{ trckey_.setSurvID( gs ); return *this; }
+SeisTrcInfo& SeisTrcInfo::setGeomSystem( OD::GeomSystem gs )
+{ trckey_.setGeomSystem( gs ); return *this; }
 SeisTrcInfo& SeisTrcInfo::setPos( const BinID& bid )
 { trckey_.setPosition( bid ); return *this; }
 SeisTrcInfo& SeisTrcInfo::setPos( Pos::GeomID gid, IdxType tnr )

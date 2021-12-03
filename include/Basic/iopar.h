@@ -165,7 +165,7 @@ public:
     bool		get(const char*,TypeSet<MultiID>&) const;
     bool		get(const char*,DBKeySet&) const;
 
-    bool		get(const char*,Pos::SurvID&) const;
+    bool		get(const char*,OD::GeomSystem&) const;
     bool		get(const char*,BinID&) const;
     bool		get(const char*,TrcKey&) const;
     bool		get(const char*,Coord&) const;
@@ -252,7 +252,7 @@ public:
 
     void		set(const char*,const char*,const char*);
     void		set(const char*,const char*,const char*,const char*);
-    void		set(const char*,const Pos::SurvID&);
+    void		set(const char*,const OD::GeomSystem&);
     void		set(const char*,const BinID&);
     void		set(const char*,const TrcKey&);
     void		set(const char*,const Coord&);

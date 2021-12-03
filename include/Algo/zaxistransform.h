@@ -38,7 +38,7 @@ public:
 				mDefineFactoryInClass(ZAxisTransform,factory);
 
     static ZAxisTransform*	create(const IOPar&);
-    				/*!< Result will be reffed once. It is
+				/*!< Result will be reffed once. It is
 				          caller's responsibility to unref. */
 
     virtual bool		isOK() const		{ return true; }
@@ -46,16 +46,16 @@ public:
 
     virtual bool		needsVolumeOfInterest() const	{ return true; }
     virtual int			addVolumeOfInterest(const TrcKeyZSampling&,
-	    					    bool zistrans=false);
+						    bool zistrans=false);
 				/*!<\returns id of new Volume of Interest.*/
     virtual void		setVolumeOfInterest(int volid,
 						    const TrcKeyZSampling&,
-	    					    bool zistrans=false);
+						    bool zistrans=false);
     virtual void		removeVolumeOfInterest(int volid);
 
     virtual bool		loadDataIfMissing(int volid,TaskRunner* =0);
 
-    virtual bool		canTransformSurv(Pos::SurvID) const =	0;
+    virtual bool		canTransformSurv(OD::GeomSystem) const	= 0;
 
 				//Generic 2D and 3D
     virtual void		transformTrc(const TrcKey&,
@@ -68,13 +68,13 @@ public:
     float			transformTrcBack(const TrcKey&,float z) const;
 
     virtual Interval<float>	getZInterval(bool from) const		= 0;
-    				/*!\return the z interval in either to
+				/*!\return the z interval in either to
 				     or from domain. */
     virtual float		getZIntervalCenter(bool from) const;
-    				/*!\return a position within the
+				/*!\return a position within the
 				    z-range that is a logical 'center' */
     virtual float		getGoodZStep() const;
-    				/*!\return a reasonable step in the
+				/*!\return a reasonable step in the
 				    transformed domain. Default
 				    implementation gives the same step as in
 				    SI() (i.e. non transformed domain) */
@@ -137,7 +137,7 @@ public: //Legacy stuff
 mExpClass(Algo) ZAxisTransformSampler
 {
 public:
-    				ZAxisTransformSampler(const ZAxisTransform&,
+				ZAxisTransformSampler(const ZAxisTransform&,
 				   bool back,const SamplingData<double>&,
 				   bool is2d);
     virtual			~ZAxisTransformSampler();

@@ -32,7 +32,7 @@ public:
     virtual		~SimpleTimeDepthModel()	{}
 
     void		setRawData(const TypeSet<float>& times,
-	    			   const TypeSet<float>& depths);
+				   const TypeSet<float>& depths);
 
     bool		save(const MultiID&) const;
 
@@ -69,7 +69,7 @@ public:
 
     bool			isOK() const;
     bool			setID(const MultiID&);
-    bool			canTransformSurv(Pos::SurvID) const
+    bool			canTransformSurv(OD::GeomSystem) const
 				{ return true; }
 
     bool			needsVolumeOfInterest() const { return false; }
@@ -99,10 +99,10 @@ public:
 				SimpleT2DTransform(const MultiID&);
 
     void			transformTrc(const TrcKey&,
-	    				  const SamplingData<float>&,
+					  const SamplingData<float>&,
 					  int sz,float* res) const;
     void			transformTrcBack(const TrcKey&,
-	    				      const SamplingData<float>&,
+					      const SamplingData<float>&,
 					      int sz,float* res) const;
 
     float			getGoodZStep() const;
@@ -125,10 +125,10 @@ public:
 				SimpleD2TTransform(const MultiID&);
 
     void			transformTrc(const TrcKey&,
-	    				  const SamplingData<float>&,
+					  const SamplingData<float>&,
 					  int sz,float* res) const;
     void			transformTrcBack(const TrcKey&,
-	    				      const SamplingData<float>&,
+					      const SamplingData<float>&,
 					      int sz,float* res) const;
 
     float			getGoodZStep() const;

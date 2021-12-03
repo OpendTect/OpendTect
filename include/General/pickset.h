@@ -65,7 +65,7 @@ public:
     IOPar&		pars_;
     bool		is2D() const;
 			//!< default is 3D
-    Pos::SurvID		getSurvID() const;
+    OD::GeomSystem	geomSystem() const;
 			//!< pre-6.0.1 sets will return the survID of first loc
 
     bool		isPolygon() const;
@@ -130,6 +130,11 @@ private:
     TypeSet<int>	startidxs_;
     bool		readonly_;
 
+public:
+
+    mDeprecated("use geomSystem")
+    OD::GeomSystem	getSurvID() const	{ return geomSystem(); }
+
 };
 /*!\brief ObjectSet of Pick::Location's. Does not manage. */
 
@@ -147,7 +152,7 @@ public:
 			{ const_cast<Pick::Set&>(ps).getLocations(*this); }
 
     inline bool		is2D() const;
-    inline Pos::SurvID	getSurvID() const;
+    inline OD::GeomSystem geomSystem() const;
     LocID		find(const TrcKey&) const;
     LocID		nearestLocation(const Coord&) const;
     LocID		nearestLocation(const Coord3&,bool ignorez=false) const;
@@ -161,18 +166,27 @@ public:
 template <class PicksType>
 inline bool is2D( const PicksType& picks )
 {
-    return ::is2D( picks.getSurvID() );
+    return ::is2D( picks.geomSystem() );
 }
 
 template <class PicksType>
-inline Pos::SurvID getSurvID( const PicksType& picks )
+mDeprecated("use geomSystem")
+inline OD::GeomSystem getSurvID( const PicksType& picks )
 {
-    return picks.isEmpty() ? OD::GeomSynth : picks.get(0).trcKey().survID();
+    return geomSystem( picks );
+}
+
+
+template <class PicksType>
+inline OD::GeomSystem geomSystem( const PicksType& picks )
+{
+    return picks.isEmpty() ? OD::GeomSynth
+			   : picks.get(0).trcKey().geomSystem();
 }
 /*
 inline bool Pick::List::is2D() const		{ return Pick::is2D( *this ); }
-inline Pos::SurvID Pick::List::getSurvID() const
-{ return Pick::getSurvID( *this ); }
+inline OD::GeomSystem Pick::List::geomSystem() const
+{ return Pick::geomSystem( *this ); }
 */
 
 } // namespace Pick

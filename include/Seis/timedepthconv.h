@@ -32,7 +32,7 @@ mExpClass(Seis) VelocityStretcher : public ZAxisTransform
 public:
     virtual bool		setVelData(const MultiID&)		= 0;
 
-    bool			canTransformSurv(Pos::SurvID sid) const
+    bool			canTransformSurv(OD::GeomSystem) const
 				{ return true; }
 
     static const char*		sKeyTopVavg()	{ return "Top Vavg"; }
@@ -190,7 +190,7 @@ public:
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
-    bool			canTransformSurv(Pos::SurvID) const
+    bool			canTransformSurv(OD::GeomSystem) const
 				{ return true; }
 
 protected:

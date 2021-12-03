@@ -141,7 +141,7 @@ public:
     bool		useJSON(const OD::JSON::Object&);
     void		toString(BufferString&) const; //!< Nice text for info
 
-    Pos::SurvID		survid_;
+    OD::GeomSystem	survid_;
     BinID		start_;
     BinID		stop_;
     BinID		step_;

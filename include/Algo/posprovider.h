@@ -39,7 +39,7 @@ public:
     virtual Coord	curCoord() const			= 0;
     virtual float	curZ() const				= 0;
     virtual TrcKey	curTrcKey() const			= 0;
-    virtual Pos::SurvID survID() const				= 0;
+    virtual OD::GeomSystem survID() const			= 0;
 
     virtual od_int64	estNrPos() const			= 0;
     virtual int		estNrZPerPos() const			{ return 1; }
@@ -71,8 +71,7 @@ public:
 
     virtual void	getExtent(BinID& start,BinID& stop) const	= 0;
     virtual void	getZRange(Interval<float>&) const	= 0;
-    virtual Pos::SurvID survID() const			{ return survid_; }
-    virtual void	setSurvID(Pos::SurvID sid)	{ survid_ = sid; }
+    virtual OD::GeomSystem survID() const		{ return gs_; }
 
     mDefineFactoryInClass(Provider3D,factory);
     static Provider3D*	make(const IOPar&);
@@ -81,7 +80,12 @@ protected:
 			Provider3D();
 
 private:
-    Pos::SurvID		survid_;
+    OD::GeomSystem	gs_;
+
+public:
+
+    mDeprecatedObs
+    virtual void	setSurvID( OD::GeomSystem gs )	{ gs_ = gs; }
 
 };
 
@@ -91,7 +95,7 @@ private:
 */
 
 mExpClass(Algo) Provider2D : public Filter2D
-		 , public Provider
+			   , public Provider
 {
 public:
 
@@ -104,7 +108,7 @@ public:
     virtual void	getExtent(Interval<int>&,int lidx) const = 0;
     virtual void	getZRange(Interval<float>&,int lidx) const = 0;
 
-    virtual Pos::SurvID survID() const;
+    virtual OD::GeomSystem survID() const;
 
     mDefineFactoryInClass(Provider2D,factory);
     static Provider2D*	make(const IOPar&);

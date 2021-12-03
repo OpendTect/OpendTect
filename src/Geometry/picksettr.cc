@@ -142,13 +142,13 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
     {
 	IOPar iopar; iopar.getFrom( astrm );
 	ps.usePar( iopar );
-	const Pos::SurvID survid( ps.getSurvID() );
+	const OD::GeomSystem gs( ps.geomSystem() );
 
 	astrm.next();
 	while ( !atEndOfSection(astrm) )
 	{
 	    Pick::Location loc;
-	    loc.setSurvID( survid );
+	    loc.setGeomSystem( gs );
 	    if ( loc.fromString(astrm.keyWord()) )
 		ps += loc;
 

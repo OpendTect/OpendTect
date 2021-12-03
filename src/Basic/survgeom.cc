@@ -91,7 +91,7 @@ Geometry::~Geometry()
 
 const Geometry& Geometry::default3D()
 {
-    return *GM().getGeometry( OD::Geom3D );
+    return *GM().getGeometry( default3DGeomID() );
 }
 
 
@@ -124,7 +124,13 @@ bool Geometry::exists( const TrcKey& tk )
 }
 
 
-Pos::SurvID Geometry::getSurvID() const
+OD::GeomSystem Geometry::getSurvID() const
+{
+    return geomSystem();
+}
+
+
+OD::GeomSystem Geometry::geomSystem() const
 {
     return geomSystemOf( getID() );
 }
@@ -208,7 +214,7 @@ Geometry* GeometryManager::getGeometry( Pos::GeomID geomid )
 }
 
 
-const Geometry3D* GeometryManager::getGeometry3D( Pos::SurvID /* gs */ ) const
+const Geometry3D* GeometryManager::getGeometry3D( OD::GeomSystem /*gs*/ ) const
 {
     const TrcKey tk( BinID(0,0) );
     const Geometry* geom = getGeometry( tk.geomID() );
@@ -508,7 +514,7 @@ Pos::GeomID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
 	return cUndefGeomID();
 
     if ( !geom->is2D() )
-	return Survey::default3DGeomID();
+	return default3DGeomID();
 
     Pos::GeomID geomid = getGeomID( geom->getName() );
     if ( geomid != cUndefGeomID() )

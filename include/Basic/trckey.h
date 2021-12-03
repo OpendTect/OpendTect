@@ -29,7 +29,6 @@ mExpClass(Basic) TrcKey
 {
 public:
 
-    typedef Pos::SurvID		SurvID;
     typedef IdxPair::IdxType	IdxType;
 
 			TrcKey()			{ *this = udf(); }
@@ -41,14 +40,14 @@ public:
 			//2D or 3D (not synthetic)
 			TrcKey(const Pos::IdxPair&,bool is2d);
 			//Any type
-			TrcKey(SurvID,const Pos::IdxPair&);
+			TrcKey(OD::GeomSystem,const Pos::IdxPair&);
     static TrcKey	getSynth(Pos::TraceID);
 
     bool		operator==(const TrcKey&) const;
     bool		operator!=( const TrcKey& oth ) const
 			{ return !(*this==oth); }
 
-    SurvID		survID() const		{ return geomsystem_; }
+    OD::GeomSystem	geomSystem() const	{ return geomsystem_; }
     bool		is2D() const		{ return ::is2D(geomsystem_); }
     bool		is3D() const		{ return ::is3D(geomsystem_); }
     bool		isSynthetic() const
@@ -67,19 +66,19 @@ public:
     IdxType		crl() const			{ return pos_.crl(); }
 
     TrcKey&		setGeomID(Pos::GeomID);
-    TrcKey&		setSurvID(SurvID);
+    TrcKey&		setGeomSystem(OD::GeomSystem);
     TrcKey&		setPosition(const BinID&); //3D only
     TrcKey&		setPosition(const Pos::IdxPair&,bool is2d);
     inline TrcKey&	setPosition( Pos::GeomID gid, IdxType trcnr )
 			{ return setGeomID( gid ).setTrcNr( trcnr ); }
-    inline TrcKey&	setIs3D()	{ return setSurvID( OD::Geom3D ); }
-    inline TrcKey&	setIs2D()	{ return setSurvID( OD::Geom2D ); }
+    inline TrcKey&	setIs3D()	{ return setGeomSystem( OD::Geom3D ); }
+    inline TrcKey&	setIs2D()	{ return setGeomSystem( OD::Geom2D ); }
     inline TrcKey&	setIs2D( bool yn )
 			{ return yn ? setIs2D() : setIs3D(); }
-    inline TrcKey&	setIsSynthetic() { return setSurvID( OD::GeomSynth ); }
+    inline TrcKey&	setIsSynthetic() { return setGeomSystem(OD::GeomSynth);}
     inline TrcKey&	setUdf()	 { *this = udf(); return *this; }
 
-			// These do not change the SurvID of the TrcKey:
+			// These do not change the GeomSystem of the TrcKey:
     inline TrcKey&	setLineNr( IdxType nr )
 			{ pos_.row() = nr; return *this; }
     inline TrcKey&	setTrcNr( IdxType tnr )
@@ -89,8 +88,8 @@ public:
     inline TrcKey&	setCrl( IdxType nr )
 			{ return setTrcNr(nr); }
 
-    TrcKey&		setFrom(const Coord&);	//!< Uses SurvID
-    Coord		getCoord() const;	//!< Uses SurvID
+    TrcKey&		setFrom(const Coord&);	//!< Uses OD::GeomSystem
+    Coord		getCoord() const;	//!< Uses OD::GeomSystem
     double		sqDistTo(const TrcKey&) const;
     double		distTo(const TrcKey&) const;
     const Survey::Geometry& geometry() const;
@@ -105,17 +104,25 @@ public:
 
 private:
 
-    SurvID		geomsystem_;
+    OD::GeomSystem	geomsystem_;
     BinID		pos_;
 
 public:
 
-    static Pos::GeomID	gtGeomID(SurvID,IdxType linenr=-1);
+    static Pos::GeomID	gtGeomID(OD::GeomSystem,IdxType linenr=-1);
 
 public:
 
-    mDeprecated("Use Pos::IdxPair")
-    explicit		TrcKey(SurvID,const BinID&);
+    typedef OD::GeomSystem	SurvID;
+
+    mDeprecated("Use setGeomSystem")
+    OD::GeomSystem	survID() const		{ return geomSystem(); }
+
+    mDeprecated("Use setGeomSystem")
+    TrcKey&		setSurvID(OD::GeomSystem);
+
+    mDeprecated("Use OD::GeomSystem and Pos::IdxPair")
+    explicit		TrcKey(OD::GeomSystem,const BinID&);
 
     mDeprecated("Use setPosition")
     inline TrcKey&	setBinID( const BinID& bid )
@@ -131,17 +138,18 @@ public:
     IdxType&		trcNr();
 
     mDeprecated("Use OD::GeomSystem")
-    static SurvID	std2DSurvID()	{ return OD::Geom2D; }
+    static OD::GeomSystem std2DSurvID()	{ return OD::Geom2D; }
     mDeprecated("Use OD::GeomSystem")
-    static SurvID	std3DSurvID()	{ return OD::Geom3D; }
+    static OD::GeomSystem std3DSurvID()	{ return OD::Geom3D; }
     mDeprecated("Use OD::GeomSystem")
-    static SurvID	cUndefSurvID()	{ return OD::GeomSynth; }
+    static OD::GeomSystem cUndefSurvID()	{ return OD::GeomSynth; }
 
     mDeprecated("Use global function")
-    static bool		is2D( SurvID gs )	{ return ::is2D( gs ); }
+    static bool		is2D(  OD::GeomSystem gs ) { return ::is2D( gs ); }
 
-    mDeprecated("Use the geometry manager")
-    static Pos::GeomID	geomID(SurvID,const BinID&);
+    mDeprecated("Use OD::GeomSystem and the geometry manager")
+    static Pos::GeomID	geomID(OD::GeomSystem,const BinID&);
+
 
 };
 

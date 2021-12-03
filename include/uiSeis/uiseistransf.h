@@ -10,7 +10,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
+
 #include "uigroup.h"
+#include "coordsystem.h"
 #include "seisioobjinfo.h"
 #include "seisselection.h"
 
@@ -23,7 +25,6 @@ class uiSeisSubSel;
 class SeisResampler;
 class uiSeis2DSubSel;
 class uiSeis3DSubSel;
-namespace Coords	{ class CoordSystem; }
 namespace Seis		{ class SelData; }
 
 

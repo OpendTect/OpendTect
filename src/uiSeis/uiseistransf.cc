@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 #include "conn.h"
-#include "coordsystem.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"

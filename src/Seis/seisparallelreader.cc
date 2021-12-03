@@ -540,7 +540,7 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64, int threadid )
     const TrcKey tkstart = tks.trcKeyAt( 0 );
     for ( int idx=0; idx<nrcrl; idx++ )
     {
-	*tkss += tkstart; // Only for SurvID
+	*tkss += tkstart; // Only for OD::GeomSystem
 	(*trcscalers) += 0;
     }
     databuf->setPositions( *tkss );
