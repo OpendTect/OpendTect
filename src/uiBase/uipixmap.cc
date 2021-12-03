@@ -141,11 +141,13 @@ void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
     else // vertical colorbar
     {
 	ColTab::IndexedLookUpTable table( seq, height() );
-	for ( int idx1=0; idx1<rgbarr.getSize(false); idx1++ )
+	const int rgbheight = rgbarr.getHeight();
+	for ( int idx1=0; idx1<rgbheight; idx1++ )
 	{
+	    const int arridx = rgbheight - idx1 - 1;
 	    const OD::Color color = table.colorForIndex( idx1 );
-	    for ( int idx2=0; idx2<rgbarr.getSize(true); idx2++ )
-		rgbarr.set( idx2, idx1, color );
+	    for ( int idx2=0; idx2<rgbarr.getWidth(); idx2++ )
+		rgbarr.set( idx2, arridx, color );
 	}
     }
 
@@ -158,7 +160,7 @@ void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
 
 
 void uiPixmap::fillGradient( const OD::Color& col1, const OD::Color& col2,
-								bool hor )
+			      bool hor )
 {
     srcname_ = "[Gradient]";
 

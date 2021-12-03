@@ -52,7 +52,7 @@ public:
     void		fill(const OD::Color&);
     void		fill(const ColTab::Sequence&,bool hor);
     void		fillGradient(const OD::Color& col1,
-						const OD::Color& col2,bool hor);
+				     const OD::Color& col2,bool hor);
 
     int			width() const;
     int			height() const;
