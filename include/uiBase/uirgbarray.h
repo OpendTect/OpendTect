@@ -34,6 +34,8 @@ public:
     virtual char	nrComponents() const	{ return withalpha_ ? 4 : 3; }
     virtual int		getSize(bool xdir) const;
     virtual bool	setSize(int,int);	//!< destroys whatever is there
+    int			getWidth() const	{ return getSize(true); }
+    int			getHeight() const	{ return getSize(false); }
 
     bool		reSize(int,int);	//!< inter/extrapolates
     void		clear(const OD::Color&);
