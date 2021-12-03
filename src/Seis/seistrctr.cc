@@ -9,7 +9,6 @@
 #include "seistrctr.h"
 
 #include "bufstringset.h"
-#include "coordsystem.h"
 #include "envvars.h"
 #include "file.h"
 #include "ioman.h"

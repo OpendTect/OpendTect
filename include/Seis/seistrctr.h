@@ -16,6 +16,7 @@ Translators for seismic traces.
 
 #include "basiccompinfo.h"
 #include "ctxtioobj.h"
+#include "coordsystem.h"
 #include "samplingdata.h"
 #include "seisinfo.h"
 #include "seistype.h"
@@ -30,7 +31,6 @@ class SeisTrcInfo;
 class TraceData;
 class TrcKeyZSampling;
 
-namespace Coords	{ class CoordSystem; }
 namespace PosInfo	{ class CubeData; }
 namespace Seis		{ class SelData; }
 

@@ -85,9 +85,9 @@ public:
     inline TrcKey&	setTrcNr( IdxType tnr )
 			{ pos_.col() = tnr; return *this; }
     inline TrcKey&	setInl( IdxType nr )
-			{ return setLineNr(nr); return *this; }
+			{ return setLineNr(nr); }
     inline TrcKey&	setCrl( IdxType nr )
-			{ return setTrcNr(nr); return *this; }
+			{ return setTrcNr(nr); }
 
     TrcKey&		setFrom(const Coord&);	//!< Uses SurvID
     Coord		getCoord() const;	//!< Uses SurvID
