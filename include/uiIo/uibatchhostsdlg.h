@@ -24,12 +24,14 @@ mExpClass(uiIo) uiBatchHostsDlg : public uiDialog
 { mODTextTranslationClass(uiBatchHostsDlg)
 public:
 			enum HostLookupMode { StaticIP, NameDNS };
-			mDeclareEnumUtils(HostLookupMode);
+			mDeclareEnumUtils(HostLookupMode)
+
 			uiBatchHostsDlg(uiParent*);
 			~uiBatchHostsDlg();
 
 protected:
     uiTable*		table_;
+    uiToolButton*	removebut_;
     uiToolButton*	upbut_;
     uiToolButton*	downbut_;
     uiCheckBox*		autobox_;
