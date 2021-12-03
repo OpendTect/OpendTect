@@ -317,11 +317,11 @@ const char* prefix::enm##Keys_[] =
 
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
-ConstPtrMan<EnumDefImpl<clss::enm> > clss::enm##Definition_ = 0; \
+ConstPtrMan<EnumDefImpl<clss::enm> > clss::enm##Definition_ = nullptr; \
 _DefineEnumNames( clss, enm, deflen, prettynm )
 
 #define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
-static ConstPtrMan<EnumDefImpl<nmspc::enm> > enm##Definition_ = 0; \
+static ConstPtrMan<EnumDefImpl<nmspc::enm> > enm##Definition_ = nullptr; \
 _DefineEnumNames( nmspc, enm, deflen, prettynm )
 
 //New Defs
