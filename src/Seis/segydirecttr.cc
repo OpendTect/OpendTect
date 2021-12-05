@@ -107,17 +107,26 @@ SEGYSeisTrcTranslator* SEGYDirectSeisTrcTranslator::createTranslator(
 {
     const FixedString filename = def.fileName( filenr );
     if ( !filename )
-	return 0;
+	return nullptr;
 
     SEGY::FileSpec fs( filename );
     PtrMan<IOObj> ioobj = fs.getIOObj( true );
-    if ( !ioobj ) return 0;
-    ioobj->pars() = *def.segyPars();
+    if ( !ioobj )
+	return nullptr;
+
+    const IOPar* segypars = def.segyPars();
+    if ( !segypars )
+	return nullptr;
+
+    ioobj->pars() = *segypars;
 
     SEGYSeisTrcTranslator* ret = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
-    ret->usePar( *def.segyPars() );
+    ret->usePar( *segypars );
     if ( !ret->initRead(ioobj->getConn(Conn::Read)) )
-	{ delete ret; return 0; }
+    {
+	delete ret;
+	return nullptr;
+    }
 
     return ret;
 }
