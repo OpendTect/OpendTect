@@ -492,23 +492,26 @@ TrcKeyValue EMSeedPicker::getAddedSeed() const
 
 int EMSeedPicker::nrSeeds() const
 {
-    EM::EMObject* emobj = tracker_.emObject();
-    if ( !emobj ) return 0;
+    const EM::EMObject* emobj = tracker_.emObject();
+    if ( !emobj )
+	return 0;
 
     const TypeSet<EM::PosID>* seednodelist =
-		emobj->getPosAttribList( EM::EMObject::sSeedNode() );
+			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
     return seednodelist ? seednodelist->size() : 0;
 }
 
 
 void EMSeedPicker::getSeeds( TypeSet<TrcKey>& seeds ) const
 {
-    EM::EMObject* emobj = tracker_.emObject();
-    if ( !emobj ) return;
+    const EM::EMObject* emobj = tracker_.emObject();
+    if ( !emobj )
+	return;
 
     const TypeSet<EM::PosID>* seednodelist =
 			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
-    if ( !seednodelist ) return;
+    if ( !seednodelist )
+	return;
 
     for ( int idx=0; idx<seednodelist->size(); idx++ )
     {
@@ -520,7 +523,8 @@ void EMSeedPicker::getSeeds( TypeSet<TrcKey>& seeds ) const
 
 int EMSeedPicker::indexOf( const TrcKey& tk ) const
 {
-    TypeSet<TrcKey> seeds; getSeeds( seeds );
+    TypeSet<TrcKey> seeds;
+    getSeeds( seeds );
     return seeds.indexOf( tk );
 }
 

@@ -96,15 +96,18 @@ bool Horizon2DSeedPicker::startSeedPick()
     const int oldnrlines = geom.nrLines();
     if ( geom.includeLine(geomid_) && oldnrlines==geom.nrLines() )
     {
-	const TypeSet<EM::PosID>& pids =
-			    *hor->getPosAttribList(EM::EMObject::sSeedNode() );
-
-	for ( int idx=pids.size()-1; idx>=0; idx-- )
+	const TypeSet<EM::PosID>* pids =
+			hor->getPosAttribList( EM::EMObject::sSeedNode() );
+	if ( pids )
 	{
-	    if ( Coord( hor->getPos(pids[idx]) ).isDefined() )
-		continue;
+	    for ( int idx=pids->size()-1; idx>=0; idx-- )
+	    {
+		if ( Coord( hor->getPos((*pids)[idx]) ).isDefined() )
+		    continue;
 
-	    hor->setPosAttrib(pids[idx],EM::EMObject::sSeedNode(),false,false);
+		hor->setPosAttrib( (*pids)[idx], EM::EMObject::sSeedNode(),
+				   false, false );
+	    }
 	}
     }
 
