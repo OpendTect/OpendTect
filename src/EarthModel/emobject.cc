@@ -138,16 +138,22 @@ bool EMObject::setSectionName( const SectionID&, const char*, bool )
 { return false; }
 
 
-const Geometry::Element* EMObject::sectionGeometry( const SectionID& sec ) const
-{ return const_cast<EMObject*>(this)->sectionGeometryInternal(sec); }
+const Geometry::Element* EMObject::sectionGeometry( const SectionID& sid ) const
+{
+    return const_cast<EMObject*>(this)->sectionGeometryInternal( sid );
+}
 
 
-Geometry::Element* EMObject::sectionGeometry( const SectionID& sec )
-{ return sectionGeometryInternal(sec); }
+Geometry::Element* EMObject::sectionGeometry( const SectionID& sid )
+{
+    return sectionGeometryInternal( sid );
+}
 
 
-Geometry::Element* EMObject::sectionGeometryInternal( const SectionID& sec )
-{ return 0; }
+Geometry::Element* EMObject::sectionGeometryInternal( const SectionID& )
+{
+    return nullptr;
+}
 
 
 Coord3 EMObject::getPos( const PosID& pid ) const
@@ -172,7 +178,7 @@ Coord3 EMObject::getPos( const EM::SectionID& sid,
 bool EMObject::setPos( const PosID& pid, const Coord3& newpos, bool addtoundo )
 {
     if ( pid.objectID()!=id() )
-	mRetErr(uiString::emptyString());
+	mRetErr( uiString::emptyString() );
 
     return setPos( pid.sectionID(), pid.subID(), newpos, addtoundo );
 }
@@ -202,7 +208,7 @@ bool EMObject::setPos( const SectionID& sid, const SubID& subid,
 	    if ( !posattribs_[idx] )
 		continue;
 
-	    TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
+	    const TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
 	    if ( nodes.isPresent(pid) )
 		setPosAttrib( pid, attribs_[idx], false, addtoundo );
 	}
@@ -211,7 +217,7 @@ bool EMObject::setPos( const SectionID& sid, const SubID& subid,
     if ( addtoundo )
     {
 	UndoEvent* undo = new SetPosUndoEvent( oldpos, pid );
-	EMM().undo(id()).addEvent( undo, 0 );
+	EMM().undo(id()).addEvent( undo, nullptr );
     }
 
     if ( burstalertcount_==0 )
@@ -247,6 +253,7 @@ void EMObject::setPreferredLineStyle( const OD::LineStyle& lnst )
 {
     if ( preferredlinestyle_ == lnst )
 	return;
+
     preferredlinestyle_ = lnst;
 
     EMObjectCallbackData cbdata;
@@ -258,7 +265,9 @@ void EMObject::setPreferredLineStyle( const OD::LineStyle& lnst )
 
 
 const Color& EMObject::preferredColor() const
-{ return preferredcolor_; }
+{
+    return preferredcolor_;
+}
 
 
 void EMObject::setPreferredColor( const Color& col, bool addtoundo )
@@ -291,7 +300,9 @@ void EMObject::setSelectionColor( const Color& clr )
 
 
 const Color& EMObject::getSelectionColor() const
-{ return selectioncolor_; }
+{
+    return selectioncolor_;
+}
 
 
 void EMObject::setLockColor( const Color& col )
@@ -304,7 +315,9 @@ void EMObject::setLockColor( const Color& col )
 
 
 const Color& EMObject::getLockColor() const
-{ return lockcolor_; }
+{
+    return lockcolor_;
+}
 
 
 void EMObject::setBurstAlert( bool yn )
@@ -329,7 +342,9 @@ void EMObject::setBurstAlert( bool yn )
 
 
 bool EMObject::hasBurstAlert() const
-{ return burstalertcount_>0; }
+{
+    return burstalertcount_ > 0;
+}
 
 
 bool EMObject::unSetPos(const PosID& pid, bool addtoundo )
@@ -421,12 +436,11 @@ void EMObject::addPosAttrib( int attr )
 
 void EMObject::removePosAttribList( int attr, bool addtoundo )
 {
-    const int idx=attribs_.indexOf( attr );
-    if ( idx==-1 )
+    const int idx = attribs_.indexOf( attr );
+    if ( !posattribs_.validIdx(idx) )
 	return;
 
     const TypeSet<PosID>& attrlist = posattribs_[idx]->posids_;
-
     while ( attrlist.size() )
 	setPosAttrib( attrlist[0], attr, false, addtoundo );
 }
@@ -443,13 +457,12 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     if ( yn )
 	addPosAttrib( attr );
 
-    const int idx = attribs_.indexOf(attr);
-    if ( idx == -1 )
+    const int idx = attribs_.indexOf( attr );
+    if ( !posattribs_.validIdx(idx) )
 	return;
 
     TypeSet<PosID>& posids = posattribs_[idx]->posids_;
-    const int idy=posids.indexOf( pid );
-
+    const int idy = posids.indexOf( pid );
     if ( idy==-1 && yn )
 	posids += pid;
     else if ( idy!=-1 && !yn )
@@ -472,40 +485,53 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
 bool EMObject::isPosAttrib( const PosID& pid, int attr ) const
 {
     const int idx = attribs_.indexOf( attr );
-    return idx != -1 && posattribs_[idx]->posids_.isPresent( pid );
+    return posattribs_.validIdx(idx) &&
+	   posattribs_[idx]->posids_.isPresent( pid );
 }
 
 
 const char* EMObject::posAttribName( int idx ) const
-{ return 0; }
+{
+    return nullptr;
+}
+
 
 int EMObject::nrPosAttribs() const
-{ return attribs_.size(); }
-
-int EMObject::posAttrib(int idx) const
-{ return attribs_[idx]; }
-
-int EMObject::addPosAttribName( const char* nm )
-{ return -1; }
-
-bool EMObject::hasPosAttrib(int attr) const
 {
-    const int idx=attribs_.indexOf( attr );
-    return idx!=-1 ? !posattribs_[idx]->posids_.isEmpty() : false;
+    return attribs_.size();
+}
+
+
+int EMObject::posAttrib( int idx ) const
+{
+    return attribs_[idx];
+}
+
+
+int EMObject::addPosAttribName( const char* )
+{
+    return -1;
+}
+
+
+bool EMObject::hasPosAttrib( int attr ) const
+{
+    const int idx = attribs_.indexOf( attr );
+    return posattribs_.validIdx(idx) && !posattribs_[idx]->posids_.isEmpty();
 }
 
 
 const TypeSet<PosID>* EMObject::getPosAttribList( int attr ) const
 {
-    const int idx=attribs_.indexOf( attr );
-    return idx!=-1 ? &posattribs_[idx]->posids_ : 0;
+    const int idx = attribs_.indexOf( attr );
+    return posattribs_.validIdx(idx) ? &posattribs_[idx]->posids_ : nullptr;
 }
 
 
 const MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr ) const
 {
-    return attr == sSeedNode() ? preferredMarkerStyle3D()
-				: posattribmarkerstyle_;
+    return attr == sSeedNode() ?
+	preferredMarkerStyle3D() : posattribmarkerstyle_;
 }
 
 
@@ -543,20 +569,21 @@ void EMObject::setPreferredMarkerStyle3D( const MarkerStyle3D& mkst )
 void EMObject::lockPosAttrib( int attr, bool yn )
 {
     addPosAttrib( attr );
-    const int idx=attribs_.indexOf( attr );
-    posattribs_[idx]->locked_ = yn;
+    const int idx = attribs_.indexOf( attr );
+    if ( posattribs_.validIdx(idx) )
+	posattribs_[idx]->locked_ = yn;
 }
 
 
 bool EMObject::isPosAttribLocked( int attr ) const
 {
-    const int idx=attribs_.indexOf( attr );
-    return idx!=-1 ? posattribs_[idx]->locked_ : false;
+    const int idx = attribs_.indexOf( attr );
+    return posattribs_.validIdx(idx) && posattribs_[idx]->locked_;
 }
 
 
 void EMObject::removeSelected( const Selector<Coord3>& selector,
-			       TaskRunner* tr )
+			       TaskRunner* taskr )
 {
     if ( !selector.isOK() )
 	return;
@@ -569,7 +596,8 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	ObjectSet<const Selector<Coord3> > selectors;
 	selectors += &selector;
 	EMObjectPosSelector posselector( *this, sectionID(idx), selectors );
-	posselector.executeParallel( tr );
+	if ( !TaskRunner::execute(taskr,posselector) )
+	    continue;
 
 	const TypeSet<EM::SubID>& list = posselector.getSelected();
 	removeSelected( list );
@@ -603,19 +631,21 @@ void EMObject::removeSelected( const TypeSet<EM::SubID>& subids )
 		removebypolyposbox_.hsamp_.start_ =
 		    removebypolyposbox_.hsamp_.stop_ = bid;
 		removebypolyposbox_.zsamp_.start =
-		    removebypolyposbox_.zsamp_.stop = (float) pos.z;
+		    removebypolyposbox_.zsamp_.stop = sCast(float,pos.z);
 	    }
 	    else
 	    {
 		removebypolyposbox_.hsamp_.include(bid);
-		removebypolyposbox_.zsamp_.include((float) pos.z);
+		removebypolyposbox_.zsamp_.include( sCast(float,pos.z) );
 	    }
+
 	    if ( ++poscount >= 10000 )
 	    {
 		ge->blockCallBacks(true,true);
 		poscount = 0;
 	    }
 	}
+
 	ge->blockCallBacks( false, true );
 	setBurstAlert(false);
     }
@@ -629,6 +659,7 @@ void EMObject::removeListOfSubIDs( const TypeSet<EM::SubID>& subids,
     {
 	if ( sididx == 0 )
 	    setBurstAlert( true );
+
 	unSetPos( sectionid, subids[sididx], true );
 	if ( sididx == subids.size()-1 )
 	    setBurstAlert( false );
@@ -844,7 +875,7 @@ void EMObject::saveDisplayPars() const
 }
 
 
-void EMObject::posIDChangeCB(CallBacker* cb)
+void EMObject::posIDChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const EMObjectCallbackData&,cbdata,cb);
     if ( cbdata.event != EMObjectCallbackData::PosIDChange )

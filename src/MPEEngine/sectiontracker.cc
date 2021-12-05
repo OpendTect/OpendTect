@@ -81,8 +81,10 @@ void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds )
 
     const TypeSet<EM::PosID>* seedlist =
 	emobject_.getPosAttribList( EM::EMObject::sSeedNode() );
-    const int nrseeds = seedlist ? seedlist->size() : 0;
+    if ( !seedlist )
+	return;
 
+    const int nrseeds = seedlist->size();
     for ( int idx=0; idx<nrseeds; idx++ )
     {
 	const Coord3 seedpos = emobject_.getPos( (*seedlist)[idx] );

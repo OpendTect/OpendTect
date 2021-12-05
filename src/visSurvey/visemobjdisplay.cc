@@ -569,7 +569,6 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 
 	    triggermovement = true;
 	}
-
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
@@ -578,23 +577,24 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 	    for ( int idx=0; idx<posattribs_.size(); idx++ )
 	    {
 		const TypeSet<EM::PosID>* pids =
-			emobject_->getPosAttribList(posattribs_[idx]);
+			emobject_->getPosAttribList( posattribs_[idx] );
 		if ( !pids || !pids->isPresent(cbdata.pid0) )
 		    continue;
 
 		updatePosAttrib(posattribs_[idx]);
 	    }
+
 	    triggermovement = true;
 	}
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
     {
 	if ( !burstalertison_ && posattribs_.isPresent(cbdata.attrib) )
-	    updatePosAttrib(cbdata.attrib);
+	    updatePosAttrib( cbdata.attrib );
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::LockChange )
     {
-	mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
+	mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
 	if ( hor3d )
 	{
 	    for ( int idx = 0; idx<posattribs_.size(); idx++ )
@@ -605,6 +605,7 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
     {
 	updateLockedSeedsColor();
     }
+
     if ( displayonlyatsections_ )
 	setOnlyAtSectionsDisplay( true );
     else if ( triggermovement )
@@ -734,32 +735,34 @@ void EMObjectDisplay::lock( bool yn )
 void EMObjectDisplay::updatePosAttrib( int attrib )
 {
     const int attribindex = posattribs_.indexOf( attrib );
-    if ( attribindex==-1 ) return;
+    if ( attribindex==-1 )
+	return;
 
     const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList( attrib );
-    if ( !pids ) return;
+    if ( !pids )
+	return;
 
     visBase::MarkerSet* markerset = posattribmarkers_[attribindex];
-
     markerset->clearMarkers();
     markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
     markerset->setDisplayTransformation(transformation_);
 
-    mDynamicCastGet( EM::Horizon3D*, hor3d, emobject_ );
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
     for ( int idx=0; idx<pids->size(); idx++ )
     {
 	const Coord3 pos = emobject_->getPos( (*pids)[idx] );
 	if ( !pos.isDefined() )
 	    continue;
+
 	const int mkpos = markerset->addPos( pos, false );
 	Color clr = emobject_->getPosAttrMarkerStyle(attrib).color_;
-
 	if ( hor3d )
 	{
 	    const BinID pickedbid = SI().transform( pos );
 	    if ( hor3d->isNodeLocked(TrcKey(pickedbid)) )
 		 clr = hor3d->getLockColor();
 	}
+
 	markerset->getMaterial()->setColor( clr, mkpos );
     }
 
@@ -776,7 +779,7 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
     const TypeSet<int>& path, const Coord3& clickeddisplaypos ) const
 {
     EM::PosID res(-1,-1,-1);
-    const int attribidx = posattribs_.indexOf(attrib);
+    const int attribidx = posattribs_.indexOf( attrib );
     if ( attribidx<0 )
 	return res;
 
@@ -784,10 +787,12 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
     if ( !path.isPresent(markerset->id()) )
 	return res;
 
-    double minsqdist = mUdf(float);
-    int minidx = -1;
-
     const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList( attrib );
+    if ( !pids )
+	return res;
+
+    double minsqdist = mUdf(double);
+    int minidx = -1;
 
     for ( int idx=0; idx<pids->size(); idx++ )
     {

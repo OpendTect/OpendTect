@@ -276,7 +276,9 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
     for ( int attr=0; attr<surface_.nrPosAttribs(); attr++ )
     {
 	const TypeSet<PosID>* attrset = surface_.getPosAttribList( attr );
-	if ( !attrset ) continue;
+	if ( !attrset )
+	    continue;
+
 	for ( int idy=0; idy<attrset->size(); idy++ )
 	{
 	    const PosID& posid = (*attrset)[idy];
