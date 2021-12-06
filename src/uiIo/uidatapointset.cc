@@ -1119,19 +1119,17 @@ void uiDataPointSet::showStatsWin( CallBacker* )
 
 void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 {
-    int newcol = tColID( dcid );
-    if ( newcol < 0 ) return;
-    statscol_ = newcol;
+    const int newcol = tColID( dcid );
+    if ( newcol < 0 )
+	return;
 
-    BufferString txt( "Column: " );
-    txt += userName( dcid );
+    statscol_ = newcol;
+    BufferString txt( "Column: ", userName(dcid) );
     if ( statscol_ >= 0 )
     {
 	const DataColDef& dcd = dps_.colDef( dcid );
-	if ( dcd.unit_ )
-	    { txt += " ("; txt += dcd.unit_->name(); txt += ")"; }
-	if ( dcd.ref_ != dcd.name_ )
-	    { txt += "\n"; txt += dcd.ref_; }
+	if ( !dcd.ref_.startsWith("Storage id") && dcd.ref_ != dcd.name_ )
+	    txt.addNewLine().add( dcd.ref_ );
     }
 
     const Stats::RunCalc<float>& rc = getRunCalc( dcid );
