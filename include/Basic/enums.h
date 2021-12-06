@@ -299,7 +299,7 @@ const char** prefix::enm##Names() \
 bool prefix::parseEnum##enm(const char* txt, prefix::enm& res ) \
 { \
     const bool isok = prefix::parseEnum( txt, res ); \
-    if ( !isok ) res = (prefix::enm) 0; \
+    if ( !isok ) res = sCast(prefix::enm,0); \
     return isok; \
 } \
 bool prefix::parseEnum(const char* txt, prefix::enm& res ) \
@@ -318,11 +318,11 @@ const char* prefix::enm##Keys_[] =
 
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
-ConstPtrMan<EnumDefImpl<clss::enm> > clss::enm##Definition_ = 0; \
+ConstPtrMan<EnumDefImpl<clss::enm> > clss::enm##Definition_ = nullptr; \
 _DefineEnumNames( clss, enm, deflen, prettynm )
 
 #define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
-static ConstPtrMan<EnumDefImpl<nmspc::enm> > enm##Definition_ = 0; \
+static ConstPtrMan<EnumDefImpl<nmspc::enm> > enm##Definition_ = nullptr; \
 _DefineEnumNames( nmspc, enm, deflen, prettynm )
 
 //New Defs
