@@ -951,7 +951,7 @@ bool StratSynth::addInstAttribSynthetics( const BufferStringSet& attribs,
 
     for ( int idx=0; idx<seistrcbufs.size(); idx++ )
     {
-	SeisTrcBufDataPack* dpname = new SeisTrcBufDataPack( seistrcbufs[idx],
+	auto* dpname = new SeisTrcBufDataPack( seistrcbufs[idx],
 				 Seis::Line, SeisTrcInfo::TrcNr,
 				 PostStackSyntheticData::sDataPackCategory() );
 	Attrib::Instantaneous::parseEnum(attribs[idx]->buf(), pars.attribtype_);
@@ -960,6 +960,13 @@ bool StratSynth::addInstAttribSynthetics( const BufferStringSet& attribs,
 	SyntheticData* sd = new InstAttributeSyntheticData( pars, *dpname );
 	if ( sd )
 	{
+	    SynthGenParams inpsynthgenpar;
+	    insd->fillGenParams( inpsynthgenpar );
+	    ObjectSet<SynthRayModel>* rms =
+			synthrmmgr_.getRayModelSet( inpsynthgenpar.raypars_ );
+	    if ( rms )
+		putD2TModelsInSD( *sd, *rms );
+
 	    synthetics_.insertAt( sd, propidx );
 	    propidx++;
 	}
