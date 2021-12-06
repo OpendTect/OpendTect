@@ -52,7 +52,7 @@ public:
     void		fill(const Color&);
     void		fill(const ColTab::Sequence&,bool hor);
     void		fillGradient(const Color& col1,const Color& col2,
-	    			     bool hor);
+				     bool hor);
 
     int			width() const;
     int			height() const;

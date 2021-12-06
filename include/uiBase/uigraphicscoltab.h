@@ -32,8 +32,8 @@ public:
 			Setup( bool h ) //!< horizontal?
 			    : hor_(h)
 			    , sz_(h?100:25,h?25:100)
-			    , startal_(Alignment::HCenter,Alignment::Bottom)
-			    , stopal_(Alignment::HCenter,Alignment::Top) {}
+			    , startal_(Alignment::HCenter,Alignment::Top)
+			    , stopal_(Alignment::HCenter,Alignment::Bottom) {}
 	mDefSetupMemb(bool,hor)
 	mDefSetupMemb(uiSize,sz)
 	mDefSetupMemb(Alignment,startal)
