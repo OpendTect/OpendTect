@@ -51,6 +51,7 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 	if ( setup_.withname_ )
 	{
 	    namefld_ = new uiLabel( this, tr("Data Name") );
+	    namefld_->setStretch( 2, 0 );
 	    if ( setup_.withplot_ )
 		histgramdisp_->attach( alignedBelow, namefld_ );
 	    else
@@ -105,11 +106,11 @@ void uiStatsDisplay::finalizeCB( CallBacker* )
 
 void uiStatsDisplay::setDataName( const char* nm )
 {
-    if ( namefld_ )
-    {
-	namefld_->setText( mToUiStringTodo(nm) );
-	namefld_->setAlignment( Alignment::HCenter );
-    }
+    if ( !namefld_ )
+	return;
+
+    namefld_->setText( toUiString(nm) );
+    namefld_->setAlignment( Alignment::HCenter );
 }
 
 
@@ -409,15 +410,18 @@ void uiStatsDisplayWin::setData( const float* medvals, int medsz, int dispidx )
 
 
 void uiStatsDisplayWin::addDataNames( const BufferStringSet& nms )
-{ if ( statnmcb_ ) statnmcb_->addItems( nms ); }
+{
+    if ( statnmcb_ )
+	statnmcb_->addItems( nms );
+}
 
 
 void uiStatsDisplayWin::setDataName( const char* nm, int idx )
 {
     if ( statnmcb_ )
     {
-	idx > statnmcb_->size()-1 ? statnmcb_->addItem(mToUiStringTodo(nm))
-			 : statnmcb_->setItemText(idx,mToUiStringTodo(nm));
+	idx>statnmcb_->size()-1 ? statnmcb_->addItem( toUiString(nm) )
+				: statnmcb_->setItemText( idx, toUiString(nm) );
 	return;
     }
 
