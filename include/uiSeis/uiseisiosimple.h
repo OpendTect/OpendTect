@@ -28,8 +28,8 @@ class uiSeis2DLineNameSel;
 mExpClass(uiSeis) uiSeisIOSimple : public uiDialog
 { mODTextTranslationClass(uiSeisIOSimple);
 public:
-
 			uiSeisIOSimple(uiParent*,Seis::GeomType,bool isimp);
+			~uiSeisIOSimple();
 
 protected:
 
@@ -59,7 +59,7 @@ protected:
     uiSeisSel*		seisfld_;
     uiSeisSubSel*	subselfld_;
     uiSeis2DLineNameSel* lnmfld_;
-    Coords::uiCoordSystemSel*	     coordsysselfld_;
+    Coords::uiCoordSystemSel*	coordsysselfld_;
 
     IOObjContext&	ctxt_;
     Seis::GeomType	geom_;
@@ -67,6 +67,7 @@ protected:
 
     void		isascSel(CallBacker*);
     void		inpSeisSel(CallBacker*);
+    void		inpFileSel(CallBacker*);
     void		lsSel(CallBacker*);
     void		haveposSel(CallBacker*);
     void		havenrSel(CallBacker*);
@@ -80,9 +81,9 @@ protected:
     static SeisIOSimple::Data&	data3d();
     static SeisIOSimple::Data&	dataps();
     SeisIOSimple::Data&	data()
-			{ return  geom_ == Seis::Line ? data2d()
-			       : (geom_ == Seis::Vol  ? data3d()
-						      : dataps()); }
+			{ return geom_ == Seis::Line ? data2d()
+			      : (geom_ == Seis::Vol  ? data3d()
+						     : dataps()); }
 
     bool		is2D() const	{ return Seis::is2D(geom_); }
     bool		isPS() const	{ return Seis::isPS(geom_); }
@@ -91,7 +92,4 @@ private:
 
     void		mkIsAscFld();
     uiSeparator*	mkDataManipFlds();
-
 };
-
-
