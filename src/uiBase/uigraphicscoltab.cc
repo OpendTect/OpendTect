@@ -81,12 +81,12 @@ void uiColTabItem::adjustLabel()
 	al = Alignment( Alignment::opposite(setup_.startal_.hPos()),
 			setup_.startal_.vPos() );
 	minvalitm_->setAlignment( al );
-	minvalitm_->setPos( sCast(float,startx), sCast(float,rect.top()) );
+	minvalitm_->setPos( sCast(float,startx), sCast(float,rect.bottom()) );
 
 	al = Alignment( Alignment::opposite(setup_.stopal_.hPos()),
 			setup_.stopal_.vPos() );
 	maxvalitm_->setAlignment( al );
-	maxvalitm_->setPos( sCast(float,stopx), sCast(float,rect.bottom()) );
+	maxvalitm_->setPos( sCast(float,stopx), sCast(float,rect.top()) );
     }
 }
 
