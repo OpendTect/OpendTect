@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "file.h"
+#include "hiddenparam.h"
 #include "hostdata.h"
 #include "oddirs.h"
 #include "od_helpids.h"
@@ -31,6 +32,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
+static HiddenParam<uiBatchHostsDlg,uiToolButton*> hp_rmbut( nullptr );
 
 static const int sMode		= 0;
 static const int sIPCol		= 1;
@@ -64,14 +66,13 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     else
 	setCtrlStyle( CloseOnly );
 
-    uiGenInput* filefld = new uiGenInput( this, tr("BatchHosts file") );
+    auto* filefld = new uiGenInput( this, tr("BatchHosts file") );
     filefld->setElemSzPol( uiObject::WideMax );
-    filefld->setText( bhfnm );
+    filefld->setText( FilePath::getFullLongPath(bhfnm.buf()) );
     filefld->setReadOnly();
 
-    uiPushButton* advbut =
-	new uiPushButton( this, tr("Advanced Settings"), false );
-    advbut->activated.notify( mCB(this,uiBatchHostsDlg,advbutCB) );
+    auto* advbut = new uiPushButton( this, tr("Advanced Settings"), false );
+    mAttachCB( advbut->activated, uiBatchHostsDlg::advbutCB );
     advbut->setIcon( "settings" );
     advbut->attach( rightTo, filefld );
     advbut->attach( rightBorder );
@@ -88,8 +89,8 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     table_->resizeHeaderToContents( true );
     table_->setTableReadOnly( !writeallowed );
     table_->setSelectionMode( uiTable::NoSelection );
-    table_->valueChanged.notify( mCB(this,uiBatchHostsDlg,changedCB) );
-    table_->rowClicked.notify( mCB(this,uiBatchHostsDlg,hostSelCB) );
+    mAttachCB( table_->valueChanged, uiBatchHostsDlg::changedCB );
+    mAttachCB( table_->rowClicked, uiBatchHostsDlg::hostSelCB );
     table_->attach( leftAlignedBelow, filefld );
 
     autobox_ = new uiCheckBox( this,
@@ -97,20 +98,21 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     autobox_->setChecked( true );
     autobox_->attach( alignedBelow, table_ );
 
-    uiButtonGroup* buttons = new uiButtonGroup( this, "", OD::Vertical );
-    uiToolButton* addbut = new uiToolButton( buttons, "addnew",
+    auto* buttons = new uiButtonGroup( this, "", OD::Vertical );
+    auto* addbut = new uiToolButton( buttons, "addnew",
 			    uiStrings::phrAdd(tr("Host")),
 			    mCB(this,uiBatchHostsDlg,addHostCB) );
-    uiToolButton::getStd( buttons, OD::Remove,
-			  mCB(this,uiBatchHostsDlg,rmHostCB),
-			  uiStrings::phrRemove(tr("Host")) );
+    auto* removebut = new uiToolButton( buttons, "remove",
+			  uiStrings::phrRemove(tr("Host")),
+			  mCB(this,uiBatchHostsDlg,rmHostCB) );
+    hp_rmbut.setParam( this, removebut );
     upbut_ = new uiToolButton( buttons, uiToolButton::UpArrow,
 			uiStrings::sMoveUp(),
 			mCB(this,uiBatchHostsDlg,moveUpCB) );
     downbut_ = new uiToolButton( buttons, uiToolButton::DownArrow,
 			uiStrings::sMoveDown(),
 			mCB(this,uiBatchHostsDlg,moveDownCB) );
-    uiToolButton* testbut = new uiToolButton( buttons, "checkgreen",
+    auto* testbut = new uiToolButton( buttons, "checkgreen",
 			tr("Test Hosts"),
 			mCB(this,uiBatchHostsDlg,testHostsCB) );
     buttons->attach( rightTo, table_ );
@@ -120,44 +122,49 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     if ( !writeallowed )
     {
 	addbut->setSensitive( false );
+	removebut->setSensitive( false );
 	uiString errmsg = tr("Selected Batch Host %1 is not writable.")
 	    .arg(diriswritable ? uiStrings::sFile() : uiStrings::sFolder());
 
-#ifdef __win__
-	uiString details;
-	if ( !diriswritable )
+	if ( __iswin__ )
 	{
-	    errmsg.append( tr("\nIt is advised to launch this process with "
-						    "administrator rights") );
+	    uiString details;
+	    if ( !diriswritable )
+	    {
+		errmsg.append( tr("\nIt is advised to launch this process with "
+				  "administrator rights") );
 
-	    FilePath fp( GetLibPlfDir() );
-	    fp.add( "od_BatchHosts.exe" );
-	    BufferString fpbuf = fp.fullPath();
-	    details = tr("You can launch the process %1")
-					    .arg(fp.fullPath());
-	}
-	else if ( fileexists && !fileiswritable )
-	{
-	    details = tr("Please change the read-write permissions of %1 "
-		"or move batchhost entry file to new editable location")
+		FilePath fp( GetLibPlfDir() );
+		fp.add( "od_BatchHosts.exe" );
+		BufferString fpbuf = fp.fullPath();
+		details = tr("You can launch the process %1")
+						.arg(fp.fullPath());
+	    }
+	    else if ( fileexists && !fileiswritable )
+	    {
+		details = tr("Please change the read-write permissions of %1 "
+		    "or move batchhost entry file to new editable location")
 								.arg(bhfnm);
+	    }
+
+	    uiStringSet detailedmsg ( errmsg );
+	    detailedmsg.add( details );
+
+	    uiMSG().errorWithDetails( detailedmsg );
 	}
-
-	uiStringSet detailedmsg ( errmsg );
-	detailedmsg.add( details );
-
-	uiMSG().errorWithDetails( detailedmsg );
-#else
-	uiMSG().error( errmsg );
-#endif
+	else
+	    uiMSG().error( errmsg );
     }
 
     fillTable();
+    hostSelCB( nullptr );
 }
 
 
 uiBatchHostsDlg::~uiBatchHostsDlg()
 {
+    detachAllNotifiers();
+    hp_rmbut.removeParam( this );
     delete &hostdatalist_;
 }
 
@@ -216,10 +223,12 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     windrfld->setElemSzPol( uiObject::Wide );
     windrfld->attach( alignedBelow, unixdrfld );
 
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
-    const int cmdres = (int)(!remoteshellfld->getBoolValue());
-    hostdatalist_.setLoginCmd( mFromUiStringTodo(cmds[cmdres]) );
+    const bool remoteshell = remoteshellfld->getBoolValue();
+    const int cmdres = remoteshell ? 0 : 1;
+    hostdatalist_.setLoginCmd( cmds[cmdres].getString() );
     hostdatalist_.setNiceLevel( nicelvlfld->getIntValue() );
     hostdatalist_.setFirstPort( portnrfld->getIntValue() );
     hostdatalist_.setUnixDataRoot( unixdrfld->text() );
@@ -254,7 +263,7 @@ static void setPlatform( uiTable& tbl, int row, const HostData& hd )
     mDynamicCastGet(uiComboBox*,cb,cellobj)
     if ( !cb )
     {
-	cb = new uiComboBox( 0, OD::Platform::TypeNames(), "Platforms" );
+	cb = new uiComboBox( nullptr, OD::Platform::TypeNames(), "Platforms" );
 	tbl.setCellObject( RowCol(row,sPlfCol), cb );
     }
 
@@ -273,9 +282,9 @@ static void updateDisplayName( uiTable& tbl, int row, HostData& hd )
 {
     BufferString dispnm = tbl.text( RowCol(row,sDispNameCol) );
     if ( dispnm.isEmpty() )
-		dispnm = tbl.text( RowCol(row,sHostNameCol) );
+	dispnm = tbl.text( RowCol(row,sHostNameCol) );
     if ( dispnm.isEmpty() )
-		dispnm = tbl.rowLabel( row );
+	dispnm = tbl.rowLabel( row );
 
     hd.setAlias( dispnm );
     setDisplayName( tbl, row, hd );
@@ -289,7 +298,7 @@ void uiBatchHostsDlg::fillTable()
     const int nrhosts = hostdatalist_.size();
     table_->setNrRows( nrhosts );
     if ( nrhosts<4 )
-		table_->setPrefHeightInRows( 4 );
+	table_->setPrefHeightInRows( 4 );
 
     for ( int idx=0; idx<nrhosts; idx++ )
     {
@@ -325,30 +334,32 @@ void uiBatchHostsDlg::fillTable()
 
 void uiBatchHostsDlg::addHostCB( CallBacker* )
 {
-    HostData* hd = new HostData( 0 );
+    auto* hd = new HostData( nullptr );
     hostdatalist_ += hd;
     fillTable();
     table_->selectRow( hostdatalist_.size()-1 );
     table_->setSelectionMode( uiTable::NoSelection );
-    hostSelCB( 0 );
+    hostSelCB( nullptr );
 }
 
 
 void uiBatchHostsDlg::rmHostCB( CallBacker* )
 {
-    if ( hostdatalist_.isEmpty() ) return;
+    if ( hostdatalist_.isEmpty() )
+	return;
 
     const int row = table_->currentRow();
     const BufferString hostname = table_->text( RowCol(row,1) );
     uiString msgtxt;
     if ( !hostname.isEmpty() )
-		msgtxt = tr( "Host %1" ).arg( hostname );
+	msgtxt = tr( "Host %1" ).arg( hostname );
     else
-		msgtxt = ( ::toUiString(table_->rowLabel(row)) );
+	msgtxt = ( ::toUiString(table_->rowLabel(row)) );
 
     const uiString msg(tr("%1 will be removed from this list").arg(msgtxt));
     const bool res = uiMSG().askContinue( msg );
-    if ( !res ) return;
+    if ( !res )
+	return;
 
     table_->removeRow( row );
     delete hostdatalist_.removeSingle( row );
@@ -361,7 +372,8 @@ void uiBatchHostsDlg::rmHostCB( CallBacker* )
 void uiBatchHostsDlg::moveUpCB( CallBacker* )
 {
     const int row = table_->currentRow();
-    if ( row==0 || !hostdatalist_.validIdx(row) ) return;
+    if ( row==0 || !hostdatalist_.validIdx(row) )
+	return;
 
     hostdatalist_.swap( row, row-1 );
     fillTable();
@@ -372,8 +384,8 @@ void uiBatchHostsDlg::moveUpCB( CallBacker* )
 void uiBatchHostsDlg::moveDownCB( CallBacker* )
 {
     const int row = table_->currentRow();
-    if ( row==hostdatalist_.size()-1 ||
-	 !hostdatalist_.validIdx(row) ) return;
+    if ( row==hostdatalist_.size()-1 || !hostdatalist_.validIdx(row) )
+	return;
 
     hostdatalist_.swap( row, row+1 );
     fillTable();
@@ -386,15 +398,15 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
     BufferStringSet msgs;
     for ( int idx=0; idx<hostdatalist_.size(); idx++ )
     {
-		const char* hostname = hostdatalist_[idx]->getHostName();
-		BufferString msg;
-		System::lookupHost( hostname, &msg );
-		msgs.add( msg );
+	const char* hostname = hostdatalist_[idx]->getHostName();
+	BufferString msg;
+	System::lookupHost( hostname, &msg );
+	msgs.add( msg );
     }
 
     const BufferString endmsg = msgs.cat();
     if ( !endmsg.isEmpty() )
-		uiMSG().message( mToUiStringTodo(endmsg) );
+	uiMSG().message( mToUiStringTodo(endmsg) );
 }
 
 
@@ -411,9 +423,10 @@ void uiBatchHostsDlg::hostSelCB( CallBacker* )
     const int row = table_->currentRow();
     upbut_->setSensitive( row>0 );
     downbut_->setSensitive( row!=hostdatalist_.size()-1 );
+    hp_rmbut.getParam(this)->setSensitive( hostdatalist_.validIdx(row) );
 
     for ( int idx=0; idx<table_->nrRows(); idx++ )
-		table_->setHeaderBackground( idx, getColor(idx==row), true );
+	table_->setHeaderBackground( idx, getColor(idx==row), true );
 }
 
 
@@ -423,7 +436,7 @@ void uiBatchHostsDlg::changedCB( CallBacker* )
     const int row = rc.row();
     const int col = rc.col();
     if ( !hostdatalist_.validIdx(row) )
-		return;
+	return;
 
     NotifyStopper ns( table_->valueChanged );
 
@@ -461,12 +474,12 @@ void uiBatchHostsDlg::checkHostData( int row )
     uiString errmsg;
     const bool isok = hd.isOK( errmsg );
     const bool isstaticip = hd.isStaticIP();
-    table_->setCellReadOnly( RowCol(row, sIPCol), !isstaticip );
-    table_->setCellReadOnly( RowCol(row, sHostNameCol), isstaticip );
+    table_->setCellReadOnly( RowCol(row,sIPCol), !isstaticip );
+    table_->setCellReadOnly( RowCol(row,sHostNameCol), isstaticip );
 
-    table_->setColor( RowCol(row, sIPCol), getCellColor(isok, !isstaticip) );
-    table_->setColor( RowCol(row, sHostNameCol),
-					       getCellColor(isok, isstaticip) );
+    table_->setColor( RowCol(row,sIPCol), getCellColor(isok,!isstaticip) );
+    table_->setColor( RowCol(row,sHostNameCol),
+			getCellColor(isok,isstaticip) );
 }
 
 
@@ -477,7 +490,7 @@ void uiBatchHostsDlg::ipAddressChanged( int row )
     const BufferString ipaddress = table_->text( curcell );
     if ( !HostData::isValidIPAddress(ipaddress) )
     {
-	uiMSG().error(tr("Invalid IP address"));
+	uiMSG().error( tr("Invalid IP address") );
 	return;
     }
 
@@ -518,11 +531,11 @@ void uiBatchHostsDlg::displayNameChanged( int row )
     if ( dispnm.isEmpty() )
 	dispnm = table_->text( RowCol(row,sHostNameCol) );
     if ( dispnm.isEmpty() )
-		dispnm = table_->rowLabel( row );
+	dispnm = table_->rowLabel( row );
 
     hd.setAlias( dispnm );
     if ( oldnm != dispnm )
-		setDisplayName( *table_, row, hd );
+	setDisplayName( *table_, row, hd );
 }
 
 
@@ -531,9 +544,10 @@ void uiBatchHostsDlg::platformChanged( int row )
     HostData& hd = *hostdatalist_[row];
     uiObject* cellobj = table_->getCellObject( RowCol(row,sPlfCol) );
     mDynamicCastGet(uiComboBox*,cb,cellobj)
-    if ( !cb ) return;
+    if ( !cb )
+	return;
 
-    OD::Platform plf( (OD::Platform::Type)cb->getIntValue() );
+    OD::Platform plf( sCast(OD::Platform::Type,cb->getIntValue()) );
     hd.setPlatform( plf );
 }
 
@@ -557,13 +571,14 @@ void uiBatchHostsDlg::lookupModeChanged( int row )
     checkHostData( row );
 }
 
+
 bool uiBatchHostsDlg::acceptOK( CallBacker* )
 {
     uiStringSet errmsg;
     if ( !hostdatalist_.isOK(errmsg) )
     {
-		uiMSG().errorWithDetails( errmsg );
-		return false;
+	uiMSG().errorWithDetails( errmsg );
+	return false;
     }
 
     // TODO: Support BatchHosts file selection?
@@ -571,9 +586,9 @@ bool uiBatchHostsDlg::acceptOK( CallBacker* )
 	hostdatalist_.writeHostFile( hostdatalist_.getBatchHostsFilename() );
     if ( !res )
     {
-	    uiMSG().error(tr("Could not write BatchHosts file. "
-				    "Please check file permissions."));
-	    return false;
+	uiMSG().error( tr("Could not write BatchHosts file. "
+			  "Please check file permissions."));
+	return false;
     }
 
     return true;
