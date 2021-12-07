@@ -335,6 +335,7 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
     if ( sepstr[2] && *sepstr[2] && isDataType(sepstr[2]) )
 	datatype_ += sepstr[2];
 
+    outppar->get( sKey::Names(), outpnames_ );
     const char* res = outppar->find( scalekey() );
     if ( res )
     {

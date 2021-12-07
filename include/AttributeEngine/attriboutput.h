@@ -167,6 +167,7 @@ public:
     void			setTrcGrow( bool yn )	{ growtrctosi_ = yn; }
     void			setOutpTypes(const TypeSet<Seis::DataType>& typ)
 				{ outptypes_ = typ; }
+    const BufferStringSet&	getOutpNames() const	{ return outpnames_; }
     void			setOutpNames( const BufferStringSet& nms )
 				{ outpnames_ = nms; }
 

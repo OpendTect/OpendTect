@@ -171,14 +171,19 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 		      exttrctosi) )
 	storeoutp->setTrcGrow( exttrctosi );
 
-    BufferStringSet outnms;
-    for ( int idx=0; idx<ids.size(); idx++ )
+    if ( storeoutp->getOutpNames().isEmpty() )
     {
-	const LineKey lk( attribset.getDesc(ids[idx])->userRef() );
-	outnms.add( !lk.attrName().isEmpty() ? lk.attrName().buf() : lk.buf() );
+	BufferStringSet outnms;
+	for ( int idx=0; idx<ids.size(); idx++ )
+	{
+	    const LineKey lk( attribset.getDesc(ids[idx])->userRef() );
+	    outnms.add( !lk.attrName().isEmpty() ? lk.attrName().buf()
+						 : lk.buf() );
+	}
+
+	storeoutp->setOutpNames( outnms );
     }
 
-    storeoutp->setOutpNames( outnms );
     proc->addOutput( storeoutp );
     return proc;
 }
