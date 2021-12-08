@@ -3,8 +3,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:           2003
+ Author:	Nanne Hemstra
+ Date:		 2003
 ________________________________________________________________________
 
 -*/
@@ -104,9 +104,9 @@ protected:
     void			logTools(CallBacker*);
 
     void			defD2T(bool);
-    void 			getDefaultLogsList(const IOPar&,
-    						   BufferStringSet&);
-    void			setDefaultPixmaps();	
+    void			getDefaultLogsList(const IOPar&,
+						   BufferStringSet&);
+    void			setDefaultPixmaps();
 
 };
 

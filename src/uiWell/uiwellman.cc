@@ -264,10 +264,10 @@ void uiWellMan::fillLogsFld()
 	    int index = 0;
 	    for ( auto* deflognm : defaultlognms_ )
 	    {
-		if ( !deflognms.isPresent(*deflognm) )    
+		if ( !deflognms.isPresent(*deflognm) )	  
 		    defaultlognms_.removeSingle( index );
 		else
-		    index++;    
+		    index++;	
 	    }
 	}
     }
@@ -288,7 +288,8 @@ void uiWellMan::setDefaultPixmaps()
     {
 	const int idx = logsfld_->indexOf( *deflognm );
 	uiPixmap pm( "star" );
-	logsfld_->setPixmap( idx, pm, true );
+	logsfld_->setMarked( idx, true, uiListBox::Pixmap, &pm );
+//	logsfld_->setPixmap( idx, pm, true );
     }
 }
 

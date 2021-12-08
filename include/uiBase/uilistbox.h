@@ -273,7 +273,9 @@ private:
     void		getCheckedItems(TypeSet<int>&) const;
     void		doMarked(int,bool);
     void		getMarkedText(int,BufferString&) const;
-    void 		removePixmap(int);
+    void		getDecorationType(int,
+					  uiListBox::Decorations& dec) const;
+    void		removePixmap(int);
 
 protected:
     uiListBoxObj*	lb_;
