@@ -52,14 +52,24 @@ bool CommandLineParser::hasKey( const char* key ) const
 
 void CommandLineParser::setKeyHasValue( const char* key, int nrvals )
 {
+    ensureNrArgs( key, nrvals );
+}
+
+
+void CommandLineParser::ensureNrArgs( const char* key, int nrvals ) const
+{
     const int nrvalsidx = keyswithvalue_.indexOf( key );
-    if ( nrvalsidx<0 )
+    if ( nrvalsidx >= 0 )
     {
-	keyswithvalue_.add( key );
-	nrvalues_.add( nrvals );
+	const int curnrvals = nrvalues_[nrvalsidx];
+	if ( curnrvals < nrvals )
+	    mSelf().nrvalues_[nrvalsidx] = nrvals;
     }
     else
-	nrvalues_[nrvalsidx] = nrvals;
+    {
+	mSelf().keyswithvalue_.add( key );
+	mSelf().nrvalues_.add( nrvals );
+    }
 }
 
 

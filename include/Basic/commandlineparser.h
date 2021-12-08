@@ -69,6 +69,7 @@ public:
 				    key-values. */
 
     bool			hasKey(const char*) const;
+    // Extract "valnr"ed string after last occurrence of "key" in commandline
     bool			getVal(const char* key,BufferString&,
 				       bool acceptnone=false,int valnr=1) const;
     // Extract all string arguments after all occurrences of "key"
@@ -82,6 +83,9 @@ public:
 				    If acceptnone is true, it will only give
 				    error if key is found, but no value can be
 				    parsed. */
+    // Extract all type <T> arguments after all occurrences of "key"
+    template <class T> bool	getVal(const char* key,TypeSet<T>&,
+				       bool acceptnone=false) const;
 
 				// following return empty string, invalid DBKey
 				// or Udf if the key is not present or
@@ -134,6 +138,7 @@ private:
     int				indexOf(const char*,TypeSet<int>* idxs) const;
     void			init(int,char**);
     void			init(const char*);
+    void			ensureNrArgs(const char*,int) const;
 
     BufferString		progname_;
     BufferString		executable_;
@@ -163,9 +168,34 @@ bool CommandLineParser::getVal( const char* key, T& val,
 }
 
 
+template <class T> inline
+bool CommandLineParser::getVal( const char* key, TypeSet<T>& vals,
+				bool acceptnone ) const
+{
+    vals.setEmpty();
+    TypeSet<int> keyidxs;
+    const int keyidx = indexOf( key, &keyidxs );
+    if ( keyidx<0 )
+	return acceptnone;
+
+    for ( int kidx=0; kidx<keyidxs.size(); kidx++ )
+    {
+	int validx = keyidxs[kidx] + 1;
+	while ( argv_.validIdx( validx ) && !isKey(validx) )
+	{
+	    vals += Conv::to<T>( argv_[validx]->buf() );
+	    validx++;
+	}
+    }
+
+    return acceptnone ? true : !vals.isEmpty();
+}
+
+
 inline BufferString CommandLineParser::keyedString( const char* ky,
 						    int argnr ) const
 {
+    ensureNrArgs( ky, argnr+1 );
     BufferString ret;
     getVal( ky, ret, false, argnr );
     return ret;
@@ -175,6 +205,7 @@ inline BufferString CommandLineParser::keyedString( const char* ky,
 template <class T> inline
 T CommandLineParser::keyedValue( const char* ky, int argnr ) const
 {
+    ensureNrArgs( ky, argnr+1 );
     T ret = mUdf(T);
     getVal( ky, ret, false, argnr );
     return ret;
