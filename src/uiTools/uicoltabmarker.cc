@@ -48,11 +48,12 @@ uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
 						.manualresize(true)
 						.removeselallowed(false),
 			  "Marker table");
-    uiStringSet columnlables;
-    columnlables.add( uiStrings::sPosition() )
+    uiStringSet columnlabels;
+    columnlabels.add( uiStrings::sPosition() )
 		.add( uiStrings::sColor() );
-    table_->setColumnLabels( columnlables );
+    table_->setColumnLabels( columnlabels );
     table_->setColumnReadOnly( cColorCol, true );
+    table_->setSelectionMode( uiTable::SingleRow );
     fillTable();
 
     table_->leftClicked.notify( mCB(this,uiColTabMarkerDlg,mouseClick) );
@@ -64,22 +65,11 @@ uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
 
 void uiColTabMarkerDlg::fillTable()
 {
-    for ( int idx=0; idx<table_->nrCols(); idx++ )
+    for ( int cidx=0; cidx<ctab_.size(); cidx++ )
     {
-	for ( int idy=0; idy<ctab_.size(); idy++ )
-	{
-	    RowCol rc;
-	    rc.row() = idy;
-	    rc.col() = idx;
-	    const float position = ctab_.position( idy );
-	    if ( rc.col() == 0 )
-		table_->setValue( rc, position );
-	    if ( rc.col() == 1 )
-	    {
-		Color color( ctab_.color(position) );
-		table_->setColor( rc, color );
-	    }
-	}
+	const float position = ctab_.position( cidx );
+	table_->setValue( RowCol(cidx,0), position );
+	table_->setColor( RowCol(cidx,1), ctab_.color(position) );
     }
 }
 
@@ -143,6 +133,7 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
 	return;
     }
 
+    ctab_.removeColor( rc.row() );
     fillTable();
     markersChanged.trigger();
 }
