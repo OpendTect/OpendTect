@@ -57,7 +57,8 @@ public:
 				/*!<Actual command line is used, i.e. the one
 				    set by SetProgramArgs */
 
-    void			setKeyHasValue(const char* key,int nrvals=1);
+    void			setKeyHasValue(const char* key,
+					       int nrvals=1) const;
 				/*!<Tell the parser that the nrvals arguments
 				    after key are values. nrvals<1 denotes a
 				    variable number of values, running up to
@@ -137,6 +138,7 @@ private:
 					TypeSet<int>* idxs=nullptr) const;
     void			init(int,char**);
     void			init(const char*);
+    void			ensureNrArgs(const char*,int) const;
 
     BufferString		progname_;
     BufferString		executable_;
@@ -193,6 +195,7 @@ bool CommandLineParser::getVal( const char* key, TypeSet<T>& vals,
 inline BufferString CommandLineParser::keyedString( const char* ky,
 						    int argnr ) const
 {
+    ensureNrArgs( ky, argnr+1 );
     BufferString ret;
     getVal( ky, ret, false, argnr );
     return ret;
@@ -202,6 +205,7 @@ inline BufferString CommandLineParser::keyedString( const char* ky,
 template <class T> inline
 T CommandLineParser::keyedValue( const char* ky, int argnr ) const
 {
+    ensureNrArgs( ky, argnr+1 );
     T ret = mUdf(T);
     getVal( ky, ret, false, argnr );
     return ret;
