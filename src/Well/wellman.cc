@@ -524,6 +524,13 @@ bool Well::Man::renameLog( const TypeSet<MultiID>& keys, const char* oldnm,
 	Writer wwr( wd->multiID(), *wd );
 	if ( !wwr.renameLog(oldnm,newnm) )
 	    return false;
+
+	wd->logs().renameDefaultLog( oldnm, newnm );
+	if ( !wwr.putDefLogs() )
+	{
+	    Well::Log* log = wd->logs().getLog( newnm );
+	    wd->logs().removeDefault( *log->mnemonic() );
+	}
     }
 
     return true;

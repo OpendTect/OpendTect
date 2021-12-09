@@ -40,7 +40,7 @@ public:
 
     int			size() const		{ return logs_.size(); }
     Log&		getLog( int idx )	{ return *logs_[idx]; }
-    const Log&		getLog( int idx ) const	{ return *logs_[idx]; }
+    const Log&		getLog( int idx ) const { return *logs_[idx]; }
     int			indexOf(const char*) const;
     bool		isLoaded(const char*) const;
     bool		isPresent(const char*) const;
@@ -48,7 +48,9 @@ public:
     bool		setDefaultMnemLog(const Mnemonic&,const char* lognm);
     bool		removeDefault(const Mnemonic&);
     void		getDefaultLogs(BufferStringSet&,
-				       bool onlyloaded=false)const;
+				       bool onlyloaded=false) const;
+    bool		isDefaultLog(const char* lognm) const;
+    void		renameDefaultLog(const char* oldnm, const char* newnm);
     const Log*		getLog( const char* nm ) const	{ return gtLog(nm); }
     Log*		getLog( const char* nm )	{ return gtLog(nm); }
     const Log*		getLog(const Mnemonic&) const;
@@ -62,8 +64,8 @@ public:
     void		add(Log*);		//!< becomes mine
     void		add(const LogSet&);	//!< copies all logs
     Log*		remove(int);		//!< becomes yours
-    void		swap(int idx0,int idx1)	{ logs_.swap( idx0, idx1 ); }
-    bool		validIdx(int idx) const	{ return logs_.validIdx(idx); }
+    void		swap(int idx0,int idx1) { logs_.swap( idx0, idx1 ); }
+    bool		validIdx(int idx) const { return logs_.validIdx(idx); }
 
     bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();

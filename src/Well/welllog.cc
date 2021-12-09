@@ -258,6 +258,33 @@ bool Well::LogSet::removeDefault( const Mnemonic& mnem )
 }
 
 
+bool Well::LogSet::isDefaultLog( const char* lognm ) const
+{
+    BufferStringSet alldeflognms;
+    getDefaultLogs( alldeflognms );
+    if ( !alldeflognms.isPresent(lognm) )
+	return false;
+
+    return true;
+}
+
+
+void Well::LogSet::renameDefaultLog( const char* oldnm,
+				     const char* newnm )
+{
+    if ( !isDefaultLog(oldnm) )
+	return;
+
+    for ( auto* defaultlog : defaultlogs_ )
+    {
+	if ( !defaultlog->second.isEqual(oldnm) )
+	    continue;
+
+	defaultlog->second = newnm;
+    }
+}
+
+
 const Well::Log* Well::LogSet::getLog( const Mnemonic& mnem ) const
 {
     if ( !hasDefaultFor(mnem) )
