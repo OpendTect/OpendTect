@@ -51,6 +51,7 @@ public:
 				       bool onlyloaded=false) const;
     bool		isDefaultLog(const char* lognm) const;
     void		renameDefaultLog(const char* oldnm, const char* newnm);
+			// -> make sure the log is renamed first
     const Log*		getLog( const char* nm ) const	{ return gtLog(nm); }
     Log*		getLog( const char* nm )	{ return gtLog(nm); }
     const Log*		getLog(const Mnemonic&) const;
@@ -70,7 +71,11 @@ public:
     bool		isEmpty() const		{ return size() == 0; }
     void		setEmpty();
     void		defaultLogUsePar(const IOPar&);
+			//-> to be used only in Well::Reader/Writer class. 
+			//-> Use access functions above instead.
     void		defaultLogFillPar(IOPar&) const;
+			//-> to be used only in Well::Reader/Writer class. 
+			//-> Use access functions above instead.
 
     TypeSet<int>	getSuitable(const Mnemonic&) const;
     TypeSet<int>	getSuitable(Mnemonic::StdType,
