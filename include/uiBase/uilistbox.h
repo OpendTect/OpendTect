@@ -197,8 +197,8 @@ public:
 
     bool		isMarked(int) const;
     void		setMarked(int,bool,
-			    uiListBox::Decorations markingop=uiListBox::None,
-			    uiPixmap* pm=nullptr);
+			    	  Decorations markingop=None,
+			    	  uiPixmap* pm=nullptr);
 
     void		setItemID(int idx,int id);
     int			currentItemID() const;
@@ -273,8 +273,7 @@ private:
     void		getCheckedItems(TypeSet<int>&) const;
     void		doMarked(int,bool);
     void		getMarkedText(int,BufferString&) const;
-    void		getDecorationType(int,
-					  uiListBox::Decorations& dec) const;
+    void		getDecorationType(int,Decorations&) const;
     void		removePixmap(int);
 
 protected:

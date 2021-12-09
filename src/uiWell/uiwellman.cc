@@ -289,7 +289,6 @@ void uiWellMan::setDefaultPixmaps()
 	const int idx = logsfld_->indexOf( *deflognm );
 	uiPixmap pm( "star" );
 	logsfld_->setMarked( idx, true, uiListBox::Pixmap, &pm );
-//	logsfld_->setPixmap( idx, pm, true );
     }
 }
 
