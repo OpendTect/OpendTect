@@ -461,29 +461,31 @@ int Strat::LayerSequence::indexOf( const Strat::Level& lvl, int startat ) const
 }
 
 
-float Strat::LayerSequence::depthOf( const Strat::Level& lvl ) const
+float Strat::LayerSequence::depthOf( const Level& lvl ) const
 {
     const int sz = size();
     if ( sz < 1 )
-	return 0;
+	return 0.f;
+
     const int idx = indexOf( lvl, 0 );
     return idx < 0 ? layers_[sz-1]->zBot() : layers_[idx]->zTop();
 }
 
 
-int Strat::LayerSequence::positionOf( const Strat::Level& lvl ) const
+int Strat::LayerSequence::positionOf( const Level& lvl ) const
 {
     const RefTree& rt = refTree();
-    Strat::UnitRefIter it( rt, Strat::UnitRefIter::LeavedNodes );
-    ObjectSet<const Strat::UnitRef> unlist; BoolTypeSet isabove;
+    UnitRefIter it( rt, UnitRefIter::LeavedNodes );
+    ObjectSet<const UnitRef> unlist; BoolTypeSet isabove;
     bool foundlvl = false;
     while ( it.next() )
 	// gather all units below level into unlist
     {
-	const Strat::LeavedUnitRef* un
-		= static_cast<const Strat::LeavedUnitRef*>( it.unit() );
+	const auto* un = static_cast<const LeavedUnitRef*>( it.unit() );
 	if ( un->levelID() == lvl.id() )
 	    { foundlvl = true; unlist += un; }
+	else if ( foundlvl )
+	    unlist += un;
     }
     if ( !foundlvl )
 	return -1;
