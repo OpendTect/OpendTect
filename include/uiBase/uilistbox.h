@@ -76,9 +76,11 @@ mExpClass(uiBase) uiListBox : public uiGroup
 friend class i_listMessenger;
 friend class uiListBoxBody;
 public:
-   enum LblPos		{ LeftTop, RightTop, LeftMid, RightMid,
+    enum LblPos		{ LeftTop, RightTop, LeftMid, RightMid,
 			  AboveLeft, AboveMid, AboveRight,
 			  BelowLeft, BelowMid, BelowRight };
+
+    enum Decorations	{ Pixmap, Star, Legacy, None };
 
     mExpClass(uiBase) Setup
     {
@@ -155,8 +157,10 @@ public:
 				   int idx=-1,int id=-1);
     void		insertItem(const uiString&,const Color&,
 				   int idx=-1,int id=-1);
-    void		setPixmap(int,const Color&);
-    void		setPixmap(int,const uiPixmap&);
+    void		setPixmap(int,const Color&);	//!< Don't use this
+    void		setPixmap(int,const Color&,bool placeright);
+    void		setPixmap(int,const uiPixmap&); //!< Don't use this
+    void		setPixmap(int,const uiPixmap&,bool placeright);
     void		setIcon(int,const char* icon_identifier);
     void		setColor(int,const Color&);
     Color		getColor(int) const;
@@ -195,7 +199,8 @@ public:
     void		displayItem(int, bool);
 
     bool		isMarked(int) const;
-    void		setMarked(int,bool);
+    void		setMarked(int,bool);	//!< Don't use this
+    void		setMarked(int,bool,Decorations,uiPixmap*);
 
     void		setItemID(int idx,int id);
     int			currentItemID() const;
@@ -262,6 +267,10 @@ private:
     void		setCheckedItems(const TypeSet<int>&);
     void		getCheckedItems(BufferStringSet&) const;
     void		getCheckedItems(TypeSet<int>&) const;
+    void		doMarked(int,bool);
+    void		getMarkedText(int,BufferString&) const;
+    void		getDecorationType(int,Decorations&) const;
+    void		removePixmap(int);
 
 protected:
     uiListBoxObj*	lb_;
