@@ -2351,6 +2351,12 @@ const SeisTrc* PostStackSyntheticData::getTrace( int seqnr ) const
 { return postStackPack().trcBuf().get( seqnr ); }
 
 
+int PostStackSyntheticData::nrPositions() const
+{
+    return postStackPack().trcBuf().size();
+}
+
+
 SeisTrcBufDataPack& PostStackSyntheticData::postStackPack()
 {
     return static_cast<SeisTrcBufDataPack&>( datapack_ );
@@ -2395,6 +2401,12 @@ PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack()
 const PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack() const
 {
     return static_cast<const PreStack::GatherSetDataPack&>( datapack_ );
+}
+
+
+int PreStackSyntheticData::nrPositions() const
+{
+    return preStackPack().getGathers().size();
 }
 
 

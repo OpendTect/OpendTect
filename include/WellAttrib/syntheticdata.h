@@ -42,7 +42,8 @@ public:
 
     void				setName(const char*);
 
-    virtual const SeisTrc*		getTrace(int seqnr) const = 0;
+    virtual const SeisTrc*		getTrace(int seqnr) const	= 0;
+    virtual int				nrPositions() const		= 0;
 
     float				getTime(float dpt,int seqnr) const;
     float				getDepth(float time,int seqnr) const;

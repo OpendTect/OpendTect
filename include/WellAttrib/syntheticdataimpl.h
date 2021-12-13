@@ -33,7 +33,8 @@ public:
     SynthGenParams::SynthType	synthType() const override
 				{ return SynthGenParams::ZeroOffset; }
 
-    const SeisTrc*		getTrace(int seqnr) const;
+    const SeisTrc*		getTrace(int seqnr) const override;
+    int				nrPositions() const override;
 
     SeisTrcBufDataPack& postStackPack();
     const SeisTrcBufDataPack&	postStackPack() const;
@@ -143,6 +144,7 @@ public:
     float				offsetRangeStep() const;
     SynthGenParams::SynthType		synthType() const override
 					{ return SynthGenParams::PreStack; }
+    int					nrPositions() const override;
 
     void				setAngleData(
 					    const ObjectSet<PreStack::Gather>&);
