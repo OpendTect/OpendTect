@@ -27,6 +27,7 @@ ________________________________________________________________________
 
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QStyledItemDelegate>
 
 static HiddenParam<uiListBox,char> bulkchg('0');
 
@@ -34,6 +35,25 @@ static const int cIconSz = 16;
 int uiListBox::cDefNrLines()	{ return 7; }
 
 mUseQtnamespace
+
+
+class ListBoxPixmapDelegate : public QStyledItemDelegate
+{
+public:
+ListBoxPixmapDelegate( QObject* qobj )
+    : QStyledItemDelegate(qobj)
+{}
+
+
+void paint( QPainter* painter, const QStyleOptionViewItem& option,
+	    const QModelIndex& index ) const
+{
+    QStyleOptionViewItem myOpt(option);
+    myOpt.decorationPosition = QStyleOptionViewItem::Right;
+    QStyledItemDelegate::paint(painter, myOpt, index);
+}
+
+};
 
 
 class uiListBoxItem : public QListWidgetItem
@@ -88,6 +108,9 @@ public:
     int			getItemID(int idx) const;
     int			getItemIdx(int id) const;
 
+    void		setPixmap(int idx,const uiPixmap&,
+				  bool placeright=false);
+    void		removePixmap(int idx);
     void		setItemAlignment(int idx,Alignment::HPos);
 
     void		setNrLines( int prefNrLines )
@@ -121,7 +144,7 @@ protected:
 private:
 
     i_listMessenger&	messenger_;
-    uiStringSet	itemstrings_;
+    uiStringSet		itemstrings_;
     Interval<int>	sliderg_;
     uiListBox*		lb_;
 
@@ -157,24 +180,9 @@ uiListBoxBody::uiListBoxBody( uiListBoxObj& hndle, uiParent* p,
 }
 
 
-static void createQString( QString& qs, const uiString& str, bool mark )
-{
-    if ( !mark )
-	qs = toQString(str);
-    else
-    {
-	const char* markstr = ":";
-	qs = markstr;
-	qs += toQString(str);
-	qs += markstr;
-    }
-}
-
-
 void uiListBoxBody::addItem( const uiString& txt, bool mark, int id )
 {
-    QString qs;
-    createQString( qs, txt, mark );
+    QString qs = toQString( txt );
     uiListBoxItem* itm = new uiListBoxItem( qs );
     itm->id_ = id;
     items_ += itm;
@@ -186,8 +194,7 @@ void uiListBoxBody::addItem( const uiString& txt, bool mark, int id )
 
 void uiListBoxBody::insertItem( int idx, const uiString& txt, bool mark, int id)
 {
-    QString qs;
-    createQString( qs, txt, mark );
+    QString qs = toQString( txt );
     uiListBoxItem* itm = new uiListBoxItem( qs );
     itm->id_ = id;
     items_.insertAt( itm, idx );
@@ -199,8 +206,7 @@ void uiListBoxBody::insertItem( int idx, const uiString& txt, bool mark, int id)
 
 void uiListBoxBody::updateText( int idx )
 {
-    QString qs;
-    createQString( qs, itemstrings_[idx], itemmarked_[idx] );
+    QString qs = toQString( itemstrings_[idx] );
     item(idx)->setText( qs );
 }
 
@@ -238,6 +244,21 @@ int uiListBoxBody::getItemIdx( int id ) const
 int uiListBoxBody::indexOf( uiListBoxItem* itm ) const
 {
     return items_.indexOf( itm );
+}
+
+
+void uiListBoxBody::setPixmap( int idx, const uiPixmap& pm, bool placeright )
+{
+    if ( placeright )
+	setItemDelegateForRow( idx, new ListBoxPixmapDelegate(this) );
+
+    item(idx)->setIcon( *pm.qpixmap() );
+}
+
+
+void uiListBoxBody::removePixmap( int idx )
+{
+    item(idx)->setIcon( QIcon() );
 }
 
 
@@ -840,6 +861,7 @@ void uiListBox::addItem( const uiString& text, bool mark, int id )
     mListBoxBlockCmdRec;
     lb_->body().addItem( text, mark, id );
     const int newidx = size() - 1;
+    setMarked( newidx, mark );
     lb_->body().setCurrentRow( newidx );
     initNewItem( newidx );
 }
@@ -867,6 +889,7 @@ void uiListBox::addItemNoUpdate( const uiString& text, bool mark, int id )
     lb_->body().addItem( text, mark, id );
     const int newidx = size() - 1;
     initNewItem( newidx );
+    setMarked( newidx, mark );
 }
 
 
@@ -917,6 +940,7 @@ void uiListBox::insertItem( const uiString& text, int index, bool mark, int id )
 
 	lb_->body().insertItem( index, text, mark, id );
 	initNewItem( index<0 ? 0 : index );
+	setMarked( index, mark );
     }
 }
 
@@ -973,21 +997,35 @@ void uiListBox::setItemSelectable( int index, bool yn )
 
 void uiListBox::setPixmap( int index, const Color& col )
 {
-    if ( index<0 || index>=size() || !lb_->body().item(index) )
-	return;
-
-    const QSize sz = lb_->body().iconSize();
-    uiPixmap pm( sz.width(), sz.height() ); pm.fill( col );
-    setPixmap( index, pm );
+    setPixmap( index, col, false );
 }
 
 
 void uiListBox::setPixmap( int index, const uiPixmap& pm )
 {
+    setPixmap( index, pm, false );
+}
+
+
+void uiListBox::setPixmap( int index, const Color& col,
+			   bool placeright )
+{
+    if ( index<0 || index>=size() || !lb_->body().item(index) )
+	return;
+
+    const QSize sz = lb_->body().iconSize();
+    uiPixmap pm( sz.width(), sz.height() ); pm.fill( col );
+    setPixmap( index, pm, placeright );
+}
+
+
+void uiListBox::setPixmap( int index, const uiPixmap& pm,
+			   bool placeright )
+{
     if ( index<0 || index>=size() ||
 	 !lb_->body().item(index) || !pm.qpixmap() ) return;
 
-    lb_->body().item(index)->setIcon( *pm.qpixmap() );
+    lb_->body().setPixmap( index, pm, placeright );
 }
 
 
@@ -1080,11 +1118,17 @@ bool uiListBox::isPresent( const char* txt ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	BufferString itmtxt( lb_->body().item(idx)->text() );
+	BufferString itmtxt;
+	if ( isMarked(idx) )
+	    getMarkedText( idx, itmtxt );
+	else
+	    itmtxt = lb_->body().item(idx)->text();
+
 	itmtxt.trimBlanks();
 	if ( itmtxt == txt )
 	    return true;
     }
+
     return false;
 }
 
@@ -1093,6 +1137,12 @@ const char* uiListBox::textOfItem( int idx ) const
 {
     if ( !validIdx(idx) )
 	return "";
+
+    if ( isMarked(idx) )
+    {
+	getMarkedText( idx, rettxt_ );
+	return rettxt_;
+    }
 
     rettxt_ = lb_->body().getItemText(idx).getFullString();
     return rettxt_;
@@ -1107,11 +1157,112 @@ bool uiListBox::isMarked( int idx ) const
 
 void uiListBox::setMarked( int idx, bool yn )
 {
-    if ( isMarked(idx) == yn )
+    setMarked( idx, yn, None, nullptr );
+}
+
+
+
+void uiListBox::setMarked( int idx, bool yn, Decorations markdec, uiPixmap* pm )
+{
+    if ( !validIdx(idx) )
 	return;
 
+    BufferString texttobemarked;
+    getMarkedText( idx, texttobemarked );
+    if ( !yn )
+    {
+	removePixmap( idx );
+	doMarked( idx, yn );
+	setItemText( idx, texttobemarked );
+	return;
+    }
+
+    if ( markdec == uiListBox::None )
+    {
+	removePixmap( idx );
+	doMarked( idx, yn );
+	return;
+    }
+    else if ( markdec == uiListBox::Pixmap )
+    {
+	setPixmap( idx, *pm, true );
+    }
+    else if ( markdec == uiListBox::Star )
+    {
+	removePixmap( idx );
+	texttobemarked += " *";
+	setItemText( idx, texttobemarked );
+    }
+    else if ( markdec == uiListBox::Legacy )
+    {
+	removePixmap( idx );
+	BufferString text = "> ";
+	text += textOfItem( idx );
+	text += " <";
+	setItemText( idx, text );
+    }
+
+    doMarked( idx, yn );
+}
+
+
+void uiListBox::doMarked( int idx, bool yn )
+{
     lb_->body().getItemMark( idx ) = yn;
     lb_->body().updateText( idx );
+}
+
+
+void uiListBox::getMarkedText( int idx, BufferString& text ) const
+{
+    if ( !validIdx(idx) )
+    {
+	text = "";
+	return;
+    }
+
+    BufferString starchar = "*";
+    BufferString legacychar = "><";
+    BufferString markedtext = lb_->body().getItemText(idx).getFullString();
+    if ( markedtext.isEmpty() )
+	return;
+
+    if ( markedtext.last() == starchar.last() )
+    {
+	markedtext.remove( starchar[0] );
+	markedtext.trimBlanks();
+    }
+    else if ( markedtext.last() == legacychar.last()
+	      && markedtext.first() == legacychar.first() )
+    {
+	markedtext.remove( legacychar.first() );
+	markedtext.remove( legacychar.last() );
+	markedtext.trimBlanks();
+    }
+
+    text = markedtext;
+}
+
+
+void uiListBox::getDecorationType( int idx, uiListBox::Decorations& dec ) const
+{
+    if ( !isMarked(idx) )
+	return;
+
+    BufferString starchar = "*";
+    BufferString legacychar = "><";
+    BufferString markedtext = lb_->body().getItemText(idx).getFullString();
+    if ( markedtext.last() == starchar.last() )
+	dec = uiListBox::Star;
+    else if( markedtext.last() == legacychar.last()
+	     && markedtext.first() == legacychar.first() )
+	dec = uiListBox::Legacy;
+}
+
+
+void uiListBox::removePixmap( int idx )
+{
+    lb_->body().removePixmap( idx );
 }
 
 
@@ -1198,10 +1349,17 @@ int uiListBox::getItemIdx( int id ) const
 
 void uiListBox::setItemText( int idx, const uiString& txt )
 {
-    if ( !validIdx(idx) ) return;
+    if ( !validIdx(idx) )
+	return;
 
     lb_->body().getItemText( idx ) = txt;
     lb_->body().updateText( idx );
+    if ( !isMarked(idx) )
+	return;
+
+    uiListBox::Decorations dec = uiListBox::None;
+    getDecorationType( idx, dec );
+    setMarked( idx, true, dec, nullptr );
 }
 
 
