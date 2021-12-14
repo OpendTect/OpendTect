@@ -26,7 +26,6 @@
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "od_helpids.h"
 #include "oddirs.h"
 #include "seisioobjinfo.h"
@@ -51,7 +50,7 @@ static bool survChanged()
 #define mDefData(nm,geom) \
 SeisIOSimple::Data& uiSeisIOSimple::data##nm() \
 { \
-    static SeisIOSimple::Data* d = 0; \
+    static SeisIOSimple::Data* d = nullptr; \
     if ( !d ) d = new SeisIOSimple::Data( GetDataDir(), Seis::geom ); \
     return *d; \
 }
@@ -62,54 +61,42 @@ mDefData(ps,VolPS)
 
 
 uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
-	: uiDialog( p, Setup( imp ? tr("Import seismics from simple flat file")
-				  : tr("Export seismics to simple flat file"),
-			      mNoDlgTitle,
-			      imp ? mODHelpKey(mSeisIOSimpleImpHelpID)
-				  : mODHelpKey(mSeisIOSimpleExpHelpID) )
-			.modal(false))
-	, ctxt_(*new IOObjContext(uiSeisSel::ioContext(gt,!imp)))
-	, sdfld_(0)
-	, havenrfld_(0)
-	, haverefnrfld_(0)
-	, nrdeffld_(0)
-	, inldeffld_(0)
-	, subselfld_(0)
-	, isxyfld_(0)
-	, lnmfld_(0)
-	, isascfld_(0)
-	, coordsysselfld_(0)
-	, haveoffsbut_(0)
-	, haveazimbut_(0)
-	, pspposlbl_(0)
-	, offsdeffld_(0)
-	, isimp_(imp)
-	, geom_(gt)
+    : uiDialog( p, Setup(uiStrings::sEmptyString(), mNoDlgTitle,
+			  imp ? mODHelpKey(mSeisIOSimpleImpHelpID)
+			      : mODHelpKey(mSeisIOSimpleExpHelpID) )
+		    .modal(false))
+    , geom_(gt)
+    , isimp_(imp)
 {
+    const bool is2d = is2D();
+    const bool isps = isPS();
+    setCaption( tr("%1 %2 %3 ASCII/binary File")
+	.arg(isimp_?"Import":"Export").arg( uiStrings::sSeismics(is2d,isps,1) )
+	.arg(isimp_?"from":"to") );
     setOkCancelText( imp ? uiStrings::sImport() : uiStrings::sExport(),
 		     uiStrings::sClose() );
 
     data().clear( survChanged() );
-    const bool is2d = is2D();
-    const bool isps = isPS();
 
     coordsysselfld_ = new Coords::uiCoordSystemSel( this );
     coordsysselfld_->display( SI().hasProjection() );
 
     uiSeisSel::Setup ssu( geom_ );
-    uiSeparator* sep = 0;
+    uiSeparator* sep = nullptr;
     if ( isimp_ )
     {
 	mkIsAscFld();
 	fnmfld_ = new uiASCIIFileInput( this,
 		uiStrings::phrInput(uiStrings::sFile().toLower()), true );
+	mAttachCB( fnmfld_->valuechanged, uiSeisIOSimple::inpFileSel );
 	fnmfld_->attach( alignedBelow, isascfld_ );
     }
     else
     {
+	const IOObjContext ctxt = uiSeisSel::ioContext( gt, !imp );
 	ssu.steerpol(uiSeisSel::Setup::InclSteer);
-	seisfld_ = new uiSeisSel( this, ctxt_, ssu );
-	seisfld_->selectionDone.notify( mCB(this,uiSeisIOSimple,inpSeisSel) );
+	seisfld_ = new uiSeisSel( this, ctxt, ssu );
+	mAttachCB( seisfld_->selectionDone, uiSeisIOSimple::inpSeisSel );
 	sep = mkDataManipFlds();
     }
 
@@ -121,7 +108,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 			       : tr("Output a position for every trace"),
 			BoolInpSpec(true) );
     haveposfld_->setValue( data().havepos_ );
-    haveposfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,haveposSel) );
+    mAttachCB( haveposfld_->valuechanged, uiSeisIOSimple::haveposSel );
     if ( isimp_ && is2d )
 	haveposfld_->attach( alignedBelow, coordsysselfld_ );
     else
@@ -139,25 +126,25 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	havenrfld_ = new uiGenInput( this, txt, BoolInpSpec(true) );
 	havenrfld_->setValue( data().havenr_ );
 	havenrfld_->attach( alignedBelow, attachobj );
-	havenrfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havenrSel) );
+	mAttachCB( havenrfld_->valuechanged, uiSeisIOSimple::havenrSel );
 	txt = tr("%1 (after trace number)").arg(isimp_ ?
 	      tr("Ref/SP number included") : tr("Include Ref/SP number"));
 	haverefnrfld_ = new uiGenInput( this, txt, BoolInpSpec(false) );
 	haverefnrfld_->setValue( data().haverefnr_ );
 	haverefnrfld_->attach( alignedBelow, havenrfld_ );
-	havenrfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havenrSel) );
+	mAttachCB( havenrfld_->valuechanged, uiSeisIOSimple::havenrSel );
 	attachobj = haverefnrfld_->attachObj();
     }
     else
     {
 	isxyfld_ = new uiGenInput( this, isimp_
 		? tr("Position in file is") : tr("Position in file will be"),
-		BoolInpSpec(true,tr("X Y"),tr("Inl Crl")) );
+		BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
 	isxyfld_->setValue( data().isxy_ );
-	isxyfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,
-						    positionInFileSelChg) );
+	mAttachCB( isxyfld_->valuechanged,
+		   uiSeisIOSimple::positionInFileSelChg );
 	isxyfld_->attach( alignedBelow, attachobj );
-	coordsysselfld_->attach( alignedBelow, isxyfld_);
+	coordsysselfld_->attach( alignedBelow, isxyfld_ );
 	coordsysselfld_->display( isxyfld_->getBoolValue() );
 
 	attachobj = coordsysselfld_->attachObj();
@@ -185,7 +172,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 						.setName("Inl def start"),
 				IntInpSpec(data().inldef_.step)
 						.setName("Inl def step") );
-	    inldeffld_->attach( alignedBelow, attachobj );
+	    inldeffld_->attach( alignedBelow, haveposfld_ );
 	    crldeffld_ = new uiGenInput( this,
 			tr("Cross-line definition: start, step, # per inline"),
 			   IntInpSpec(data().crldef_.start)
@@ -206,12 +193,12 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 		    IntInpSpec(data().nrdef_.step).setName("Trc def step") );
 	    nrdeffld_->attach( alignedBelow, havenrfld_ );
 	    startposfld_ = new uiGenInput( this,
-			    tr("Start position (X, Y, %1)")
-				.arg(uiStrings::sTraceNumber() ),
-					  PositionInpSpec(data().startpos_) );
+				tr("Start position (X, Y, Trace number)"),
+				PositionInpSpec(data().startpos_) );
 	    startposfld_->attach( alignedBelow, haveposfld_ );
-	    stepposfld_ = new uiGenInput( this, tr("Step in X/Y/Number"),
-					 PositionInpSpec(data().steppos_) );
+	    stepposfld_ = new uiGenInput( this,
+				tr("Increment (X, Y, Trace number)"),
+				PositionInpSpec(data().steppos_) );
 	    stepposfld_->attach( alignedBelow, startposfld_ );
 	    startnrfld_ = new uiGenInput( this, uiString::emptyString(),
 					 IntInpSpec(data().nrdef_.start) );
@@ -223,6 +210,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    stepnrfld_->attach( rightOf, stepposfld_ );
 	    attachobj = stepposfld_->attachObj();
 	}
+
 	if ( isps )
 	{
 	    haveoffsbut_ = new uiCheckBox( this, uiStrings::sOffset(),
@@ -254,7 +242,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 			.setName("Info in file start No",1) );
     havesdfld_->setValue( data().havesd_ );
     havesdfld_->attach( alignedBelow, attachobj );
-    havesdfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havesdSel) );
+    mAttachCB( havesdfld_->valuechanged, uiSeisIOSimple::havesdSel );
 
     if ( isimp_ )
     {
@@ -269,8 +257,11 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 			IntInpSpec(data().nrsamples_).setName("Nr samples") );
 	sdfld_->attach( alignedBelow, havesdfld_ );
 	sep = mkDataManipFlds();
-	if ( !isps ) ssu.enabotherdomain( true );
-	seisfld_ = new uiSeisSel( this, ctxt_, ssu );
+	if ( !isps )
+	    ssu.enabotherdomain( true );
+
+	const IOObjContext ctxt = uiSeisSel::ioContext( gt, !imp );
+	seisfld_ = new uiSeisSel( this, ctxt, ssu );
 	seisfld_->attach( alignedBelow, remnullfld_ );
 	if ( is2d )
 	{
@@ -287,8 +278,13 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	fnmfld_->attach( alignedBelow, isascfld_ );
     }
 
-    fnmfld_->setDefaultSelectionDir( data().fname_ );
-    postFinalise().notify( mCB(this,uiSeisIOSimple,initFlds) );
+    mAttachCB( postFinalise(), uiSeisIOSimple::initFlds );
+}
+
+
+uiSeisIOSimple::~uiSeisIOSimple()
+{
+    detachAllNotifiers();
 }
 
 
@@ -297,7 +293,7 @@ void uiSeisIOSimple::mkIsAscFld()
     isascfld_ = new uiGenInput( this, tr("File type"),
 				BoolInpSpec(true,uiStrings::sASCII(),
 					    tr("Binary")) );
-    isascfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,isascSel) );
+    mAttachCB( isascfld_->valuechanged, uiSeisIOSimple::isascSel );
     isascfld_->setValue( data().isasc_ );
 }
 
@@ -352,6 +348,18 @@ void uiSeisIOSimple::initFlds( CallBacker* cb )
     haveoffsSel( cb );
     if ( !isimp_ )
 	inpSeisSel( cb );
+
+    if ( startposfld_ )
+    {
+	startposfld_->setNrDecimals( 2, 0 );
+	startposfld_->setNrDecimals( 2, 1 );
+    }
+
+    if ( stepposfld_ )
+    {
+	stepposfld_->setNrDecimals( 2, 0 );
+	stepposfld_->setNrDecimals( 2, 1 );
+    }
 }
 
 
@@ -365,21 +373,35 @@ void uiSeisIOSimple::havesdSel( CallBacker* )
 void uiSeisIOSimple::inpSeisSel( CallBacker* )
 {
     const IOObj* ioobj = seisfld_->ioobj( true );
-    if ( ioobj )
-    {
-	subselfld_->setInput( *ioobj );
-	BufferStringSet compnms;
-	SeisIOObjInfo::getCompNames( ioobj->key(), compnms );
-	multcompfld_->newSpec( StringListInpSpec(compnms), 0 );
-	multcompfld_->display( compnms.size()>1 );
-	multcompfld_->setSensitive( compnms.size()>1 );
-    }
+    if ( !ioobj )
+	return;
+
+    subselfld_->setInput( *ioobj );
+    BufferStringSet compnms;
+    SeisIOObjInfo::getCompNames( ioobj->key(), compnms );
+    multcompfld_->newSpec( StringListInpSpec(compnms), 0 );
+    multcompfld_->display( compnms.size()>1 );
+    multcompfld_->setSensitive( compnms.size()>1 );
+
+    const FilePath fp = ioobj->fullUserExpr();
+    FilePath fnm( GetSurveyExportDir(), fp.baseName() );
+    fnm.setExtension( "dat" );
+    fnmfld_->setFileName( fnm.fullPath() );
+}
+
+
+void uiSeisIOSimple::inpFileSel( CallBacker* )
+{
+    FilePath fnmfp( fnmfld_->fileName() );
+    seisfld_->setInputText( fnmfp.baseName() );
 }
 
 
 void uiSeisIOSimple::lsSel( CallBacker* )
 {
-    if ( !lnmfld_ ) return;
+    if ( !lnmfld_ )
+	return;
+
     const IOObj* ioobj = seisfld_->ioobj( true );
     if ( ioobj )
 	lnmfld_->setDataSet( ioobj->key() );
@@ -396,15 +418,15 @@ void uiSeisIOSimple::isascSel( CallBacker* )
 void uiSeisIOSimple::haveposSel( CallBacker* cb )
 {
     const bool havenopos = !haveposfld_->getBoolValue();
+    if ( havenrfld_ )
+	havenrfld_->display( !havenopos );
 
-    if ( havenrfld_ ) havenrfld_->display( !havenopos );
     if ( isxyfld_ )
     {
 	isxyfld_->display( !havenopos );
 	coordsysselfld_->display(
 		isxyfld_->getBoolValue() && isxyfld_->isDisplayed() );
     }
-
 
     if ( isimp_ )
     {
@@ -427,22 +449,26 @@ void uiSeisIOSimple::haveposSel( CallBacker* cb )
 }
 
 
-void uiSeisIOSimple::havenrSel( CallBacker* cb )
+void uiSeisIOSimple::havenrSel( CallBacker* )
 {
-    if ( !havenrfld_ ) return;
+    if ( !havenrfld_ )
+	return;
 
     const bool havepos = haveposfld_->getBoolValue();
     const bool havenr = havenrfld_->getBoolValue();
     if ( nrdeffld_ )
 	nrdeffld_->display( havepos && !havenr );
+
     if ( haverefnrfld_ )
 	haverefnrfld_->display( havepos && havenr );
 }
 
 
-void uiSeisIOSimple::haveoffsSel( CallBacker* cb )
+void uiSeisIOSimple::haveoffsSel( CallBacker* )
 {
-    if ( !pspposlbl_ || !haveoffsbut_ ) return;
+    if ( !pspposlbl_ || !haveoffsbut_ )
+	return;
+
     const bool havepos = haveposfld_->getBoolValue();
     const bool haveoffs = haveoffsbut_->isChecked();
     haveoffsbut_->display( havepos );
@@ -463,11 +489,13 @@ void uiSeisIOSimple::positionInFileSelChg( CallBacker* )
 
 bool uiSeisIOSimple::acceptOK( CallBacker* )
 {
-    if ( !isascfld_ ) return true;
+    if ( !isascfld_ )
+	return true;
 
-    BufferString fnm( fnmfld_->fileName() );
+    const BufferString fnm( fnmfld_->fileName() );
     if ( isimp_ && !File::exists(fnm) )
 	mErrRet(tr("Input file does not exist or is unreadable"))
+
     const IOObj* ioobj = seisfld_->ioobj( true );
     if ( !ioobj )
 	return false;
@@ -488,7 +516,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	if ( isimp_ && !Survey::is2DGeom(data().geomid_) )
 	    return false;
 
-	data().linekey_.setLineName( linenm );
+	data().linename_ = linenm;
     }
     else
 	data().geomid_ = Survey::default3DGeomID();
@@ -516,6 +544,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     data().havenr_ = data().haverefnr_ = false;
     if ( coordsysselfld_ && coordsysselfld_->isDisplayed() )
 	data().setCoordSys( coordsysselfld_->getCoordSystem() );
+
     if ( data().havepos_ )
     {
 	data().isxy_ = is2D() || isxyfld_->getBoolValue();
@@ -566,8 +595,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	data().offsdef_.start = offsdeffld_->getFValue( 0 );
 	data().offsdef_.step = offsdeffld_->getFValue( 2 );
 	const float offsstop = offsdeffld_->getFValue( 1 );
-	data().nroffsperpos_ =
-			data().offsdef_.nearestIndex( offsstop ) + 1;
+	data().nroffsperpos_ = data().offsdef_.nearestIndex( offsstop ) + 1;
     }
 
     if ( subselfld_ )

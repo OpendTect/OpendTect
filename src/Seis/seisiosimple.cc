@@ -43,7 +43,6 @@
 
 SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
     : subselpars_(*new IOPar("subsel"))
-    , linekey_(*new LineKey)
     , geom_(gt)
     , geomid_(mUdfGeomID)
 {
@@ -55,7 +54,6 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
 
 SeisIOSimple::Data::Data( const SeisIOSimple::Data& oth )
     : subselpars_(*new IOPar("subsel"))
-    , linekey_(*new LineKey)
 {
     *this = oth;
 }
@@ -79,7 +77,7 @@ SeisIOSimple::Data& SeisIOSimple::Data::operator=( const SeisIOSimple::Data& d )
     remnull_ = d.remnull_;
     setScaler( d.scaler_ );
     setResampler( d.resampler_ );
-    linekey_ = d.linekey_;
+    linename_ = d.linename_;
     subselpars_ = d.subselpars_;
     compidx_ = d.compidx_;
     coordsys_ = d.coordsys_;
@@ -92,7 +90,6 @@ SeisIOSimple::Data::~Data()
 {
     delete scaler_;
     delete resampler_;
-    delete &linekey_;
     delete &subselpars_;
 }
 
@@ -119,7 +116,9 @@ void SeisIOSimple::Data::clear( bool survchg )
 	return;
 
     subselpars_.setEmpty();
-    fname_ = GetDataDir(); seiskey_ = ""; linekey_ = "";
+    fname_ = GetDataDir();
+    seiskey_.setUdf();
+    linename_.setEmpty();
     sd_.start = (float)SI().zRange(false).start;
     sd_.step = (float)SI().zRange(false).step;
     nrsamples_ = SI().zRange(false).nrSteps() + 1;

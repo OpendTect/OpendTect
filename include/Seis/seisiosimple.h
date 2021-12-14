@@ -70,7 +70,7 @@ public:
 			// 2D only
 	Coord		startpos_;
 	Coord		steppos_;
-	LineKey&	linekey_;
+	BufferString	linename_;
 
 	Scaler*		scaler_ = nullptr;
 	SeisResampler*	resampler_ = nullptr;
