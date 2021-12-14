@@ -62,6 +62,12 @@ void SurfaceAuxData::removeAll()
 }
 
 
+bool SurfaceAuxData::validIdx( int idx ) const
+{
+    return auxdatanames_.validIdx( idx );
+}
+
+
 int SurfaceAuxData::nrAuxData() const
 { return auxdatanames_.size(); }
 
