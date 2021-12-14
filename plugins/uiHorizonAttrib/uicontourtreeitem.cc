@@ -149,7 +149,7 @@ private:
 
     bool generateContours(int contouridx,const IsoContourTracer*,
 			     uiContourTreeItemContourData&,double& area) const;
-    bool addDisplayCoord(const ODPolygon<float>& inputcountour, int vrtxidx,
+    bool addDisplayCoord(const ODPolygon<float>& inputcontour, int vrtxidx,
 			 uiContourTreeItemContourData&,int& lastvrtxidx) const;
     void makeContourClose(uiContourTreeItemContourData&,
 			  Interval<int>& coordsrg) const;
@@ -1061,7 +1061,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 	TypeSet<float> zvals, areas;
 	getZVSAreaValues( zvals, areas );
 
-	uiDialog dlg( ODMainWin(), uiDialog::Setup(tr("Countour areas"),
+	uiDialog dlg( ODMainWin(), uiDialog::Setup(tr("Contour areas"),
 						   mNoDlgTitle,mNoHelpKey ) );
 	dlg.setCancelText( uiString::emptyString() );
 

@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
+#include "hiddenparam.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -889,9 +890,9 @@ public:
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
     : uiCompoundParSel(p,toUiString("***************"))
       //Hack So that textfld_ label is correctly updated
+    , selChange(this)
     , is2d_(is2d)
     , isfltset_(false)
-    , selChange(this)
     , useoptions_(useoptions)
     , defaultoptidx_(0)
 {
@@ -1112,6 +1113,8 @@ void uiAuxDataGrp::selChg( CallBacker* )
 
 
 // uiAuxDataSel
+static HiddenParam<uiAuxDataSel,char> hp_forread( false );
+
 uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel )
     : uiGroup(p,"AuxDataSel")
     , objfld_(nullptr)
@@ -1122,7 +1125,7 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel )
     {
 	const IOObjContext ctxt = mIOObjContext( EMHorizon3D );
 	objfld_ = new uiIOObjSel( this, ctxt );
-	objfld_->selectionDone.notify( mCB(this,uiAuxDataSel,objSelCB) );
+	mAttachCB( objfld_->selectionDone, uiAuxDataSel::objSelCB );
     }
 
     uiString seltxt = uiStrings::sOutput();
@@ -1133,13 +1136,26 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel )
 	auxdatafld_->attach( alignedBelow, objfld_ );
     setHAlignObj( auxdatafld_ );
 
+    hp_forread.setParam( this, false );
+
     mAttachCB( postFinalise(), uiAuxDataSel::finalizeCB );
+}
+
+
+uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* type, bool withobjsel,
+			    bool forread )
+    : uiAuxDataSel(p,type,withobjsel)
+{
+    hp_forread.setParam( this, forread );
+    if ( forread )
+	auxdatafld_->setLabelText( uiStrings::sHorizonData() );
 }
 
 
 uiAuxDataSel::~uiAuxDataSel()
 {
     detachAllNotifiers();
+    hp_forread.removeParam( this );
 }
 
 
@@ -1149,13 +1165,18 @@ void uiAuxDataSel::finalizeCB( CallBacker* )
     if ( !ioobj )
 	return;
 
-    key_ = ioobj->key();
+    setKey( ioobj->key() );
 }
 
 
 void uiAuxDataSel::setKey( const MultiID& key )
 {
     key_ = key;
+
+    EM::IOObjInfo info( key );
+    BufferStringSet nms;
+    info.getAttribNames( nms );
+    auxdatafld_->setEntries( nms, nms );
 }
 
 
@@ -1187,7 +1208,7 @@ void uiAuxDataSel::auxSelCB( CallBacker* )
 {
     uiDialog dlg( this,
 	uiDialog::Setup(tr("Select Horizon Data"),mNoDlgTitle,mTODOHelpKey) );
-    uiAuxDataGrp* grp = new uiAuxDataGrp( &dlg, false );
+    auto* grp = new uiAuxDataGrp( &dlg, hp_forread.getParam(this) );
     grp->setKey( key_ );
     BufferString datanm = auxdatafld_->getInput();
     grp->setDataName( datanm );

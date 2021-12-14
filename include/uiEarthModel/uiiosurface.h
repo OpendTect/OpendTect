@@ -272,6 +272,8 @@ mExpClass(uiEarthModel) uiAuxDataSel : public uiGroup
 public:
 				uiAuxDataSel(uiParent*,const char* type,
 					     bool withobjsel);
+				uiAuxDataSel(uiParent*,const char* type,
+					     bool withobjsel,bool forread);
 				~uiAuxDataSel();
 
     void			setKey(const MultiID&);
