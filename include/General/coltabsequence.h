@@ -35,7 +35,6 @@ namespace ColTab
 mExpClass(General) Sequence : public NamedCallBacker
 {
 public:
-
 			Sequence();
 			Sequence(const char*);	//!< Find by name in SeqMgr
 			Sequence(const Sequence&);
@@ -47,13 +46,14 @@ public:
     bool		operator==(const Sequence&) const;
     bool		operator!=(const Sequence&) const;
 
-    bool		isSys() const
-			{ return type_==System; }
+    bool		isSys() const		{ return type_==System; }
     Type		type() const		{ return type_; }
     void		setType( Type tp )	{ type_ = tp; }
 
     OD::Color		color(float pos) const; //!< 0 <= pos <= 1
 
+    inline bool		validIdx(int idx) const	{ return x_.validIdx(idx); }
+    bool		canChangePosition(int idx) const;
     inline bool		isEmpty() const		{ return x_.isEmpty(); }
     inline int		size() const		{ return x_.size(); }
     inline float	position( int idx ) const { return x_[idx]; }
@@ -80,9 +80,11 @@ public:
 
     bool		isSegmentized() const		{ return nrsegments_; }
 
+    void		changeColor(int idx,const OD::Color&);
     void		changeColor(int,
 				    unsigned char,unsigned char,unsigned char);
     void		changePos(int,float);
+    int			setColor(float pos,const OD::Color&);
     int			setColor(float pos,
 				 unsigned char,unsigned char,unsigned char);
 			//!<Inserts or changes color
@@ -170,7 +172,6 @@ protected:
 
 			SeqMgr();
 
-
     ObjectSet<Sequence>	seqs_;
 
     friend mGlobal(General) SeqMgr&	SM();
@@ -183,7 +184,4 @@ protected:
 
 mGlobal(General) SeqMgr& SM();
 
-
 } // namespace ColTab
-
-

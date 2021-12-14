@@ -31,55 +31,53 @@ ________________________________________________________________________
 #include <math.h>
 
 
-static const int cColorCol = 1;
+static const int sPosCol = 0;
+static const int sColorCol = 1;
+
 #define mEps 0.00001
 
 uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( uiStrings::sMarker() ),
-                                 tr("Add, remove, change Markers"),
+				tr("Add, Remove, Change Anchors"),
 				 mODHelpKey(mColTabMarkerDlgHelpID) ))
-    , ctab_(ctab)
     , markersChanged(this)
+    , ctab_(ctab)
 {
     table_ = new uiTable( this, uiTable::Setup(ctab_.size(),2)
 						.rowgrow(true)
-						.rowdesc(uiStrings::sMarker())
+						.rowdesc(tr("Anchor"))
 						.defrowlbl(true)
 						.manualresize(true)
 						.removeselallowed(false),
 			  "Marker table");
-    uiStringSet columnlables;
-    columnlables.add( uiStrings::sPosition() )
+    uiStringSet columnlabels;
+    columnlabels.add( uiStrings::sPosition() )
 		.add( uiStrings::sColor() );
-    table_->setColumnLabels( columnlables );
-    table_->setColumnReadOnly( cColorCol, true );
+    table_->setColumnLabels( columnlabels );
+    table_->setColumnReadOnly( sColorCol, true );
+    table_->setSelectionMode( uiTable::SingleRow );
     fillTable();
 
-    table_->leftClicked.notify( mCB(this,uiColTabMarkerDlg,mouseClick) );
-    table_->rowInserted.notify( mCB(this,uiColTabMarkerDlg,markerInserted) );
-    table_->rowDeleted.notify( mCB(this,uiColTabMarkerDlg,markerDeleted) );
-    table_->valueChanged.notify( mCB(this,uiColTabMarkerDlg,markerPosChgd) );
+    mAttachCB( table_->leftClicked, uiColTabMarkerDlg::mouseClick );
+    mAttachCB( table_->rowInserted, uiColTabMarkerDlg::markerInserted );
+    mAttachCB( table_->rowDeleted, uiColTabMarkerDlg::markerDeleted );
+    mAttachCB( table_->valueChanged, uiColTabMarkerDlg::markerPosChgd );
+}
+
+
+uiColTabMarkerDlg::~uiColTabMarkerDlg()
+{
+    detachAllNotifiers();
 }
 
 
 void uiColTabMarkerDlg::fillTable()
 {
-    for ( int idx=0; idx<table_->nrCols(); idx++ )
+    for ( int cidx=0; cidx<ctab_.size(); cidx++ )
     {
-	for ( int idy=0; idy<ctab_.size(); idy++ )
-	{
-	    RowCol rc;
-	    rc.row() = idy;
-	    rc.col() = idx;
-	    const float position = ctab_.position( idy );
-	    if ( rc.col() == 0 )
-		table_->setValue( rc, position );
-	    if ( rc.col() == 1 )
-	    {
-		OD::Color color( ctab_.color(position) );
-		table_->setColor( rc, color );
-	    }
-	}
+	const float position = ctab_.position( cidx );
+	table_->setValue( RowCol(cidx,sPosCol), position );
+	table_->setColor( RowCol(cidx,sColorCol), ctab_.color(position) );
     }
 }
 
@@ -87,17 +85,17 @@ void uiColTabMarkerDlg::fillTable()
 void uiColTabMarkerDlg::mouseClick( CallBacker* )
 {
     NotifyStopper notifstop( table_->valueChanged );
-    RowCol rc = table_->notifiedCell();
-    if ( rc.col() != cColorCol )
+    const RowCol rc = table_->notifiedCell();
+    if ( rc.col() != sColorCol )
 	return;
 
     OD::Color newcol = table_->getColor( rc );
-    if ( selectColor(newcol,this,tr("Marker color")) )
+    if ( selectColor(newcol,this,tr("Anchor color")) )
     {
 	ColTab::Sequence orgctab = ctab_;
 	table_->setColor( rc, newcol );
-	table_->setCurrentCell( RowCol(rc.row(),0) );
-	orgctab.changeColor( rc.row(), newcol.r(), newcol.g(), newcol.b() );
+	table_->setCurrentCell( RowCol(rc.row(),sPosCol) );
+	orgctab.changeColor( rc.row(), newcol );
 	ctab_ = orgctab;
     }
 
@@ -108,22 +106,22 @@ void uiColTabMarkerDlg::mouseClick( CallBacker* )
 void uiColTabMarkerDlg::markerInserted( CallBacker* )
 {
     NotifyStopper notifstop( table_->valueChanged );
-    RowCol rcvalue = table_->newCell();
-    if ( rcvalue.row()-1 < 0 || rcvalue.row() >= ctab_.size() )
+    RowCol rcpos = table_->newCell();
+    if ( rcpos.row()-1<0 || rcpos.row()>=ctab_.size() )
     {
-	table_->removeRow( rcvalue );
-	uiMSG().error( tr("Cannot insert markers at extreme positions") );
+	table_->removeRow( rcpos );
+	uiMSG().error( tr("Cannot insert achors at extreme positions") );
 	return;
     }
 
-    RowCol rccolor( rcvalue.row(), 1 );
-    const float newpos = ctab_.position(rcvalue.row()-1) +
-			 ( ctab_.position(rcvalue.row()) -
-			   ctab_.position(rcvalue.row()-1) ) / 2;
-    OD::Color col( ctab_.color(newpos) );
+    const RowCol rccolor( rcpos.row(), sColorCol );
+    const float newpos = ctab_.position(rcpos.row()-1) +
+			 ( ctab_.position(rcpos.row()) -
+			   ctab_.position(rcpos.row()-1) ) / 2;
+    const OD::Color col( ctab_.color(newpos) );
     table_->setColor( rccolor, col );
-    table_->setCurrentCell( RowCol(rcvalue.row(),0) );
-    ctab_.setColor( newpos, col.r(), col.g(), col.b() );
+    table_->setCurrentCell( RowCol(rcpos.row(),sPosCol) );
+    ctab_.setColor( newpos, col );
     fillTable();
     markersChanged.trigger();
 }
@@ -133,17 +131,18 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
 {
     NotifyStopper notifstop( table_->valueChanged );
     const RowCol rc = table_->notifiedCell();
-    if ( rc.row() == 0 || rc.row() == ctab_.size()-1 )
+    if ( rc.row()==0 || rc.row()==ctab_.size()-1 )
     {
 	table_->insertRows( rc, 1 );
-	const float pos = ctab_.position(rc.row());
-	table_->setValue( RowCol(rc.row(),0), pos );
-	table_->setColor( RowCol(rc.row(),1), ctab_.color(pos) );
-	table_->setCurrentCell( RowCol(rc.row(),0) );
+	const float pos = ctab_.position( rc.row() );
+	table_->setValue( RowCol(rc.row(),sPosCol), pos );
+	table_->setColor( RowCol(rc.row(),sColorCol), ctab_.color(pos) );
+	table_->setCurrentCell( RowCol(rc.row(),sPosCol) );
 	uiMSG().error( tr("Cannot remove markers at extreme positions") );
 	return;
     }
 
+    ctab_.removeColor( rc.row() );
     fillTable();
     markersChanged.trigger();
 }
@@ -151,14 +150,15 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
 
 void uiColTabMarkerDlg::markerPosChgd( CallBacker* )
 {
-    RowCol rc = table_->currentCell();
+    const RowCol rc = table_->currentCell();
     const float newpos = table_->getFValue( rc );
     if (ctab_.position(rc.row()-1)>newpos || ctab_.position(rc.row()+1)<newpos)
     {
-	uiMSG().error( tr("Please enter position between 0 & 1 for Markers ") );
+	uiMSG().error( tr("Please enter position between 0 and 1") );
 	table_->setValue( rc, ctab_.position(rc.row()) );
 	return;
     }
+
     ctab_.changePos( rc.row(), newpos );
     markersChanged.trigger();
 }
@@ -170,24 +170,27 @@ void uiColTabMarkerDlg::rebuildColTab()
     ctab_.removeAllColors();
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
-	RowCol newtable( idx, 0 );
-	RowCol coltable( idx, 1 );
-	const float newpos = table_->getFValue( newtable );
-	OD::Color col( orgctab.color(newpos) );
-	table_->setColor( coltable, col );
-	ctab_.setColor( newpos, col.r(), col.g(), col.b() );
+	const RowCol posrc( idx, sPosCol );
+	const RowCol colrc( idx, sColorCol );
+	const float newpos = table_->getFValue( posrc );
+	const OD::Color col( orgctab.color(newpos) );
+	table_->setColor( colrc, col );
+	ctab_.setColor( newpos, col );
     }
 }
 
 
 bool uiColTabMarkerDlg::acceptOK( CallBacker* )
 {
+    NotifyStopper ns( ctab_.colorChanged );
     for ( int idx=0; idx<table_->nrRows(); idx++ )
     {
-	OD::Color col( table_->getColor( RowCol(idx,1) ) );
-	ctab_.changeColor( idx, col.r(), col.g(), col.b() );
+	const RowCol colrc( idx, sColorCol );
+	const OD::Color col( table_->getColor(colrc) );
+	ctab_.changeColor( idx, col );
     }
 
+    ctab_.colorChanged.trigger();
     return true;
 }
 
@@ -224,7 +227,8 @@ uiColTabMarkerCanvas::~uiColTabMarkerCanvas()
 
 void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 {
-    const int w = viewWidth(); const int h = viewHeight();
+    const int w = viewWidth();
+    const int h = viewHeight();
     scene().setSceneRect( 0, 0, sCast(float,w), sCast(float,h) );
     w2ui_->set( uiRect(0,0,w-5,h-5), uiWorldRect(0,255,1,0) );
 
@@ -239,9 +243,9 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
     for ( int idx=0; idx<ctab_.size(); idx++ )
     {
 	const float val = ctab_.position(idx);
-	uiWorldPoint wpt = uiWorldPoint( val, 0 );
-	uiPoint pt( w2ui_->transform(wpt) );
-	uiLineItem* lineitem = new uiLineItem();
+	uiWorldPoint wpt( val, 0 );
+	const uiPoint pt( w2ui_->transform(wpt) );
+	auto* lineitem = new uiLineItem();
 	lineitem->setLine( pt.x, 0, pt.x, 15 );
 	lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,3) );
 	markerlineitmgrp_->add( lineitem );
@@ -249,7 +253,7 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 }
 
 
-void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
+void uiColTabMarkerCanvas::mouseClk( CallBacker* )
 {
     if ( meh_.isHandled() )
 	return;
@@ -284,7 +288,7 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
 	mnu.insertAction( new uiAction(m3Dots(tr("Change color"))), 1 );
     }
 
-    mnu.insertAction( new uiAction(m3Dots(tr("Edit Markers"))), 2 );
+    mnu.insertAction( new uiAction(m3Dots(tr("Edit Anchors"))), 2 );
 
     const int res = mnu.exec();
     if ( res==0 )
@@ -351,14 +355,14 @@ bool uiColTabMarkerCanvas::changeColor( int markeridx )
 }
 
 
-void uiColTabMarkerCanvas::mouse2Clk( CallBacker* cb )
+void uiColTabMarkerCanvas::mouse2Clk( CallBacker* )
 {
     if ( meh_.isHandled() )
-    return;
+	return;
 
     const MouseEvent& ev = meh_.event();
-    uiWorldPoint wpt = w2ui_->transform( ev.pos() );
-    addMarker( (float) (wpt.x), true );
+    const uiWorldPoint wpt = w2ui_->transform( ev.pos() );
+    addMarker( sCast(float,wpt.x), true );
     selidx_ = -1;
     meh_.setHandled( true );
 }
@@ -375,19 +379,22 @@ void uiColTabMarkerCanvas::mouseRelease( CallBacker* )
 }
 
 
-void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
+void uiColTabMarkerCanvas::mouseMove( CallBacker* )
 {
     NotifyStopper notifstop( meh_.buttonPressed );
     if ( meh_.isHandled() )
 	return;
-    if ( selidx_<=0 || selidx_==ctab_.size()-1 ) return;
+
+    if ( selidx_<=0 || selidx_==ctab_.size()-1 )
+	return;
 
     const MouseEvent& ev = meh_.event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
     float changepos = (float) ( wpt.x );
 
     const int sz = ctab_.size();
-    if ( selidx_<0 || selidx_>=sz ) return;
+    if ( selidx_<0 || selidx_>=sz )
+	return;
 
     if ( changepos > 1 ) changepos = 1;
     if ( changepos < 0 ) changepos = 0;

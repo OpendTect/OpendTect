@@ -26,6 +26,7 @@ mExpClass(uiTools) uiColTabMarkerDlg : public uiDialog
 { mODTextTranslationClass(uiColTabMarkerDlg);
 public:
 				uiColTabMarkerDlg(uiParent*,ColTab::Sequence&);
+				~uiColTabMarkerDlg();
 
     Notifier<uiColTabMarkerDlg>	markersChanged;
 
