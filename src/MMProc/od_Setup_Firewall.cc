@@ -36,7 +36,8 @@ public:
 			{ createDirPaths(); }
     bool		handleProcess(BufferString&, bool);
     bool		ispyproc_;
-    void		updateDirPath(FilePath*);
+    void		updateDirPath(const char*);
+
 protected:
     void		createDirPaths();
 
@@ -68,18 +69,18 @@ void SetUpFirewallServerTool::createDirPaths()
 }
 
 
-void SetUpFirewallServerTool::updateDirPath( FilePath* fp )
+void SetUpFirewallServerTool::updateDirPath( const char* dirnm )
 {
     if ( !fp )
 	return;
 
     if ( ispyproc_ )
     {
-	pypath_ = FilePath::getFullLongPath( *fp );
+	pypath_ = FilePath::getLongPath( dirnm );
 	pypath_.add( "envs" );
     }
     else
-	odpath_ = FilePath::getFullLongPath( *fp );
+	odpath_ = FilePath::getLongPath( dirnm );
 }
 
 
@@ -137,7 +138,7 @@ int mProgMainFnName( int argc, char** argv )
     {
 	if ( procidx==0 ) // index 0 stores path
 	{
-	    progtool.updateDirPath( new FilePath(procnms.get(procidx)) );
+	    progtool.updateDirPath( procnms.get(procidx) );
 	    continue;
 	}
 
