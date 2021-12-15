@@ -17,11 +17,8 @@
 
 #include "prog.h"
 
-static const int cProtocolNr = 1;
-
 static const char* sAddStr	= "add";
 static const char* sRemoveStr	= "remove";
-static const char* sPythonStr	= "py";
 static const char* sODStr	= "od";
 
 /*
@@ -71,9 +68,6 @@ void SetUpFirewallServerTool::createDirPaths()
 
 void SetUpFirewallServerTool::updateDirPath( const char* dirnm )
 {
-    if ( !fp )
-	return;
-
     if ( ispyproc_ )
     {
 	pypath_ = FilePath::getLongPath( dirnm );
@@ -104,9 +98,8 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
     mc.addArg( toadd ? "add" : "delete" )
        .addArg( "rule" )
        .addArg( BufferString("name=\"",procnm,"\"") );
-    char shortpath[1024];
-    GetShortPathName( fp.fullPath().buf(), shortpath, 1024 );
-    mc.addArg( BufferString("program=\"",shortpath,"\"") );
+    const BufferString shortpath = FilePath::getShortPath( fp.fullPath().buf());
+    mc.addArg( BufferString("program=\"",shortpath.buf(),"\"") );
     if ( toadd )
     {
 	mc.addArg( "enable=yes" );
@@ -115,7 +108,9 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
     }
 
     OS::CommandExecPars pars( OS::RunInBG );
+#ifdef __win__
     pars.runasadmin( !WinUtils::IsUserAnAdmin() );
+#endif
     return mc.execute( pars );
 }
 
