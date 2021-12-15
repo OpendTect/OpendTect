@@ -19,7 +19,7 @@ namespace ColTab
 static Interval<float> defcliprate_ = Interval<float>(mUdf(float),mUdf(float));
 static const char* sKeyDefClipPerc = "dTect.Disp.Default clip perc";
 static float defsymmidval_ = mUdf(float);
-static bool defautosymm_ = false;
+static bool defautosymm_ = true;
 static bool defhisteq_ = false;
 static const char* sKeyDefSymmZero = "dTect.Disp.Default symmetry zero";
 static const char* sKeyDefAutoSymm = "dTect.Disp.Default auto symmetry";
@@ -52,7 +52,7 @@ Interval<float> ColTab::defClipRate()
 	Settings::common().get( sKeyDefClipPerc, clipperc );
 
 	if ( mIsUdf(clipperc.start) )
-	    clipperc.start = 2.5;
+	    clipperc.start = 0.5;
 	if ( mIsUdf(clipperc.stop) )
 	    clipperc.stop = clipperc.start;
 	clipperc.scale( 0.01 );
