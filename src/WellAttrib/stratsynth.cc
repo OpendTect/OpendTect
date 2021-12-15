@@ -1154,14 +1154,21 @@ ObjectSet<ElasticPropGen>	elpgens_;
 
 bool StratSynth::createElasticModels()
 {
+    errmsg_.setEmpty();
     clearElasticModels();
 
     if ( layMod().isEmpty() )
+    {
+	errmsg_ = tr("Empty layer model");
 	return false;
+    }
 
     ElasticModelCreator emcr( layMod(), aimodels_ );
     if ( !TaskRunner::execute(taskr_,emcr) )
+    {
+	errmsg_ = emcr.uiMessage();
 	return false;
+    }
 
     bool modelsvalid = false;
     for ( int idx=0; idx<aimodels_.size(); idx++ )
@@ -1173,9 +1180,11 @@ bool StratSynth::createElasticModels()
 	}
     }
 
-    errmsg_.setEmpty();
     if ( !modelsvalid )
+    {
+	errmsg_ = tr("Some pseudowells have no layers");
 	return false;
+    }
 
     return adjustElasticModel( layMod(), aimodels_, useed_ );
 }
