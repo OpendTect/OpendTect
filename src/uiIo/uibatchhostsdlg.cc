@@ -65,7 +65,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 
     auto* filefld = new uiGenInput( this, tr("BatchHosts file") );
     filefld->setElemSzPol( uiObject::WideMax );
-    filefld->setText( FilePath::getFullLongPath(bhfnm.buf()) );
+    filefld->setText( FilePath::getLongPath(bhfnm.buf()) );
     filefld->setReadOnly();
 
     auto* advbut = new uiPushButton( this, tr("Advanced Settings"), false );

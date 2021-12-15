@@ -93,17 +93,51 @@ static bool isServerPath( const char* path )
 
 BufferString FilePath::getFullLongPath( const FilePath& fp )
 {
+    return getLongPath( fp.fullPath().buf(), nullptr );
+}
+
+
+BufferString FilePath::getLongPath( const char* shortpath,
+				    BufferString* error )
+{
+    BufferString res;
 #ifndef  __win__
-    return fp.fullPath();
+    res = shortpath;
 #else
-    mDeclStaticString( longpath );
-    longpath.setMinBufSize( 1025 );
-    GetLongPathName(fp.fullPath(), longpath.getCStr(), longpath.minBufSize()-1);
-    BufferString fpstr = longpath;
-    if ( fpstr.isEmpty() )
-	fpstr = fp.fullPath();
-    return fpstr;
-#endif // ! __win__
+    res.setMinBufSize( MAX_PATH );
+    const int len = GetLongPathName( shortpath, res.getCStr(), MAX_PATH );
+    if ( len==0 || len>MAX_PATH )
+    {
+	DWORD errorcode = GetLastError();
+	if ( error )
+	    error->set("Could not convert path: ").add( sCast(int,errorcode) );
+//	Implement FormatMessage for a better error message
+	res = shortpath;
+    }
+#endif
+    return res;
+}
+
+
+BufferString FilePath::getShortPath( const char* longpath,
+				     BufferString* error )
+{
+    BufferString res;
+#ifndef  __win__
+    res = longpath;
+#else
+    res.setMinBufSize( MAX_PATH );
+    const int len = GetShortPathName( longpath, res.getCStr(), MAX_PATH );
+    if ( len==0 || len>MAX_PATH )
+    {
+	DWORD errorcode = GetLastError();
+	if ( error )
+	    error->set("Could not convert path: ").add( sCast(int,errorcode) );
+//	Implement FormatMessage for a better error message
+	res = longpath;
+    }
+#endif
+    return res;
 }
 
 

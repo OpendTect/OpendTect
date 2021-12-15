@@ -53,8 +53,7 @@ public:
     FilePath&		set(const char* fullinp);
     FilePath&		add(const char*);	//!< at end
     FilePath&		insert(const char*);	//!< after prefix at start
-    FilePath&		setFileName(const char*);
-			//!< pass null to remove level
+    FilePath&		setFileName(const char*); //!< pass null to remove level
     FilePath&		setPath(const char*);	//!< including prefix
     FilePath&		setExtension(const char*,bool replace=true);
 						//!< !replace => add
@@ -102,7 +101,10 @@ public:
     static const char*	sPrefSep;
     static const char*	uriProtocolSeparator()		{ return "://"; }
 
-    static BufferString getFullLongPath(const FilePath&);
+    static BufferString getLongPath(const char* shortpath,
+				    BufferString* error=nullptr);
+    static BufferString getShortPath(const char* longpath,
+				    BufferString* error=nullptr);
 
 protected:
 
@@ -116,6 +118,10 @@ protected:
     void		addPart(const char*);
     void		compress(int sl=0);
     void		trueDirIfLink();
+
+public:
+    mDeprecated("Use getLongPath")
+    static BufferString getFullLongPath(const FilePath&);
 };
 
 
