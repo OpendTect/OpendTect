@@ -89,17 +89,22 @@ static bool isServerPath( const char* path )
 
 BufferString FilePath::getFullLongPath( const FilePath& fp )
 {
+    BufferString res;
 #ifndef  __win__
-    return fp.fullPath();
+    res = fp.fullPath();
 #else
-    mDeclStaticString( longpath );
-    longpath.setMinBufSize( 1025 );
-    GetLongPathName(fp.fullPath(), longpath.getCStr(), longpath.minBufSize()-1);
-    BufferString fpstr = longpath;
-    if ( fpstr.isEmpty() )
-	fpstr = fp.fullPath();
-    return fpstr;
-#endif // ! __win__
+    res.setMinBufSize( MAX_PATH );
+    const int len = GetLongPathName( fp.fullPath(), res.getCStr(), MAX_PATH );
+    if ( len==0 || len>MAX_PATH )
+    {
+	DWORD errorcode = GetLastError();
+	BufferString errmsg( "Could not convert path. Error code: " );
+	errmsg.add( sCast(int,errorcode) );
+	ErrMsg( errmsg.buf() );
+	res = fp.fullPath();
+    }
+#endif
+    return res;
 }
 
 
