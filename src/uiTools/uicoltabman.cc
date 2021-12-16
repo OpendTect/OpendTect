@@ -62,10 +62,9 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     coltablistfld_ = new uiTreeView( leftgrp, "Color Table List" );
     BufferStringSet labels;
-    labels.add( "Color table" ).add( "Status" );
+    labels.add( "Color table" ).add( "Source" );
     coltablistfld_->addColumns( labels );
     coltablistfld_->setRootDecorated( false );
-    coltablistfld_->setHScrollBarMode( uiTreeView::AlwaysOff );
     coltablistfld_->setStretch( 2, 2 );
     coltablistfld_->setSelectionBehavior( uiTreeView::SelectRows );
     coltablistfld_->selectionChanged.notify( mCB(this,uiColorTableMan,selChg) );
@@ -176,7 +175,7 @@ uiColorTableMan::~uiColorTableMan()
 
 
 uiString uiColorTableMan::sKeyDefault()
-{ return tr("Default"); }
+{ return tr("System"); }
 uiString uiColorTableMan::sKeyEdited()
 { return tr("Edited"); }
 uiString uiColorTableMan::sKeyOwn()
@@ -251,6 +250,8 @@ void uiColorTableMan::selChg( CallBacker* )
 
     selstatus_ = itm->text( 1 );
     removebut_->setSensitive( selstatus_ != sKeyDefault().getFullString() );
+    removebut_->setText( selstatus_==sKeyEdited().getFullString()
+				? tr("Revert") : uiStrings::sRemove() );
 
     markercanvas_->reDrawNeeded.trigger();
     undefcolfld_->setColor( ctab_.undefColor() );
@@ -260,7 +261,8 @@ void uiColorTableMan::selChg( CallBacker* )
 	updateTransparencyGraph();
 
     delete orgctab_;
-    orgctab_ = new ColTab::Sequence( ctab_ );
+    orgctab_ = new ColTab::Sequence;
+    *orgctab_ = ctab_;
     issaved_ = true;
     updateSegmentFields();
     tableChanged.trigger();
@@ -271,20 +273,20 @@ void uiColorTableMan::removeCB( CallBacker* )
 {
     if ( selstatus_ == sKeyDefault().getFullString() )
     {
-	uiMSG().error( tr("This is a default colortable"
-                          " and connot be removed") );
+	uiMSG().error(
+		tr("This is a default colortable and connot be removed") );
 	return;
     }
 
     const char* ctnm = ctab_.name();
-    uiString msg(tr("%1 '%2' will be removed\n%3.\n Do you wish to continue?")
-	     .arg(selstatus_ == sKeyEdited().getFullString() ? 
+    uiString msg(tr("%1 '%2' will be removed.\n%3\nDo you wish to continue?")
+	     .arg(selstatus_ == sKeyEdited().getFullString() ?
 	     uiStrings::phrJoinStrings(sKeyEdited(),uiStrings::sColorTable()):
 	     uiStrings::phrJoinStrings(tr("Own made"),uiStrings::sColorTable()))
 	     .arg(ctnm).arg(selstatus_ == sKeyEdited().getFullString()
-					 ? tr("and replaced by the default\n")
+					 ? tr("and replaced by the default.\n")
 					 : uiString::emptyString()));
-    if ( !uiMSG().askRemove( msg ) )
+    if ( !uiMSG().askRemove(msg) )
 	return;
 
     BufferStringSet allctnms;
@@ -332,7 +334,8 @@ bool uiColorTableMan::saveColTab( bool saveas )
 	newname = dlg.text();
     }
 
-    ColTab::Sequence newctab( ctab_ );
+    ColTab::Sequence newctab;
+    newctab = ctab_;
     newctab.setName( newname );
 
     const int newidx = ColTab::SM().indexOf( newname );
@@ -405,7 +408,9 @@ bool uiColorTableMan::acceptOK( CallBacker* )
 
 bool uiColorTableMan::rejectOK( CallBacker* )
 {
-    if ( orgctab_ ) ctab_ = *orgctab_;
+    if ( orgctab_ )
+	ctab_ = *orgctab_;
+
     tableChanged.trigger();
     return true;
 }
