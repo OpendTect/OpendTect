@@ -503,7 +503,7 @@ static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
     }
 
     const char* ret = (*fn)( argc, argv );
-    if ( ret )
+    if ( ret && *ret )
     {
 	const BufferString libnmonly = FilePath(libnm).fileName();
 	BufferString msg( "Message from " );
