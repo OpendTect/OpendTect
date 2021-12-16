@@ -79,7 +79,9 @@ public:
 			  AboveLeft, AboveMid, AboveRight,
 			  BelowLeft, BelowMid, BelowRight };
 
-    enum Decorations	{ Pixmap, Star, Legacy, None };
+    enum DecorationType	{ Pixmap, Star, Legacy, None };
+
+    enum DecorationPos	{ Left, Right };
 
     mExpClass(uiBase) Setup
     {
@@ -156,8 +158,8 @@ public:
 				   int idx=-1,int id=-1);
     void		insertItem(const uiString&,const OD::Color&,
 				   int idx=-1,int id=-1);
-    void		setPixmap(int,const OD::Color&,bool placeright=false);
-    void		setPixmap(int,const uiPixmap&,bool placeright=false);
+    void		setPixmap(int,const OD::Color&,DecorationPos=Left);
+    void		setPixmap(int,const uiPixmap&,DecorationPos=Left);
     void		setIcon(int,const char* icon_identifier);
     void		setColor(int,const OD::Color&);
     OD::Color		getColor(int) const;
@@ -196,9 +198,7 @@ public:
     void		displayItem(int, bool);
 
     bool		isMarked(int) const;
-    void		setMarked(int,bool,
-			    	  Decorations markingop=None,
-			    	  uiPixmap* pm=nullptr);
+    void		setMarked(int,DecorationType markingop=Legacy);
 
     void		setItemID(int idx,int id);
     int			currentItemID() const;
@@ -271,9 +271,10 @@ private:
     void		setCheckedItems(const TypeSet<int>&);
     void		getCheckedItems(BufferStringSet&) const;
     void		getCheckedItems(TypeSet<int>&) const;
-    void		doMarked(int,bool);
+    void		setMarked(int,bool);
     void		getMarkedText(int,BufferString&) const;
-    void		getDecorationType(int,Decorations&) const;
+    			//> gives clean text of object marked(usually legacy and star)
+    DecorationType	getDecorationType(int) const;
     void		removePixmap(int);
 
 protected:
