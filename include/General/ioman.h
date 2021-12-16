@@ -107,6 +107,7 @@ public:
 				 int translidxingroup=-1);
 				//!< will create a new entry if necessary
     bool		commitChanges(const IOObj&);
+    bool		commitChanges(IOObj&,bool changename);
     bool		permRemove(const MultiID&);
 				//!< Removes only entry in IODir
 
@@ -178,6 +179,9 @@ private:
     bool		doReloc(const MultiID&,Translator*,IOStream&,IOStream&,
 				const CallBack* cb=nullptr);
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
+
+    int			getSuffixForName(const BufferString& orgnm,
+				    const BufferString& trgrpnm, int idx=0);
 
     friend class	IOMManager;
     friend class	SurveyDataTreePreparer;

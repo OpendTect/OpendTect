@@ -1158,6 +1158,40 @@ int IOMan::levelOf( const char* dirnm ) const
 }
 
 
+int IOMan::getSuffixForName( const BufferString& orgnm,
+			const BufferString& trgrpnm, int suffidx )
+{
+    PtrMan<IOObj> ioobj = get( orgnm, trgrpnm );
+    if ( !ioobj )
+	return suffidx;
+
+    int ret = 0;
+    do
+    {
+	ret = getSuffixForName( BufferString(orgnm,"_",toString(suffidx+1)),
+				trgrpnm, suffidx+1 );
+    } while ( ret != suffidx+1 );
+
+    return ret;
+}
+
+
+bool IOMan::commitChanges( IOObj& ioobj, bool changenm )
+{
+    if ( changenm )
+    {
+	const int suff = getSuffixForName( ioobj.name(), ioobj.group() );
+	if ( suff > 0 )
+	{
+	    const BufferString newnm( ioobj.name(), "_", toString(suff) );
+	    ioobj.setName( newnm );
+	}
+    }
+
+    return commitChanges( ioobj );
+}
+
+
 bool IOMan::commitChanges( const IOObj& ioobj )
 {
     Threads::Locker lock( lock_ );
