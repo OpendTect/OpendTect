@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "draw.h"
 
 class BufferStringSet;
+class uiButtonGroup;
 class uiCheckBox;
 class uiLabel;
 class uiListBoxBody;
@@ -94,6 +95,7 @@ public:
 			    , prefnrlines_(0)
 			    , prefwidth_(0)
 			    , lblpos_(lp)
+			    , readwritesel_(false)
 			    {}
 
 	mDefSetupMemb(uiString,lbl)
@@ -101,6 +103,7 @@ public:
 	mDefSetupMemb(int,prefnrlines)
 	mDefSetupMemb(int,prefwidth)
 	mDefSetupMemb(uiListBox::LblPos,lblpos)
+	mDefSetupMemb(bool,readwritesel)
 
     };
 
@@ -250,6 +253,8 @@ private:
 
     void		menuCB(CallBacker*);
     void		checkAllClickedCB(CallBacker*);
+    void		retrieveCB(CallBacker*);
+    void		saveCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));
     void		usrChooseAll(bool yn=true);
 
@@ -281,10 +286,12 @@ protected:
     uiListBoxObj*	lb_;
     ObjectSet<uiLabel>	lbls_;
     uiGroup*		checkgrp_;
+    uiButtonGroup*	rsbutgrp_;
     uiCheckBox*		cb_;
 
     void		mkLabel(const uiString&,LblPos);
     void		mkCheckGroup();
+    void		mkReadSaveButGroup();
     void		checkCB(CallBacker*);
     void		updateCheckState();
     void		addItemNoUpdate(const uiString&,bool marked=false,

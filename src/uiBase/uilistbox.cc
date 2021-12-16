@@ -11,13 +11,14 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "i_qlistbox.h"
 
-#include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uifont.h"
 #include "uiicon.h"
 #include "uilabel.h"
 #include "uimenu.h"
 #include "uiobjbodyimpl.h"
 #include "uipixmap.h"
+#include "uitoolbutton.h"
 
 #include "bufstringset.h"
 #include "color.h"
@@ -455,6 +456,7 @@ uiListBox::uiListBox( uiParent* p, const char* nm, OD::ChoiceMode cm )
 {
     lb_ = new uiListBoxObj( this, nm, choicemode_ );
     mkCheckGroup();
+    mkReadSaveButGroup();
     setHAlignObj( lb_ );
 
     mStdConstrEnd;
@@ -470,6 +472,9 @@ uiListBox::uiListBox( uiParent* p, const Setup& setup, const char* nm )
     lb_->body().fieldwidth_ = setup.prefwidth_;
 
     mkCheckGroup();
+    if ( setup.readwritesel_ )
+	mkReadSaveButGroup();
+
     mkLabel( setup.lbl_, setup.lblpos_ );
     setHAlignObj( lb_ );
 
@@ -521,6 +526,36 @@ void uiListBox::mkCheckGroup()
     cb_->setMaximumWidth( 20 );
     mAttachCB(cb_->activated,uiListBox::checkAllClickedCB);
     checkgrp_->display( isMultiChoice(), true );
+}
+
+
+void uiListBox::mkReadSaveButGroup()
+{
+    rsbutgrp_ = new uiButtonGroup( this, "Read/Save Group", OD::Horizontal );
+    rsbutgrp_->attach( rightOf, checkgrp_ );
+    rsbutgrp_->displayFrame( true );
+    auto* readbut = new uiToolButton( rsbutgrp_, "open", 
+    				      uiStrings::sRead(),
+				      mCB(this,uiListBox,retrieveCB) ); 
+    auto* savebut = new uiToolButton( rsbutgrp_, "save",
+    				      uiStrings::sSave(),
+				      mCB(this,uiListBox,saveCB) );
+}
+
+
+void uiListBox::retrieveCB( CallBacker* )
+{
+    const bool needretrieve = retrievecb_.willCall();
+    if ( needretrieve )
+	retrievecb_.doCall( this );
+}
+
+
+void uiListBox::saveCB( CallBacker* )
+{
+    const bool needsave = savecb_.willCall();// && nrchecked > 0;
+    if ( needsave )
+	savecb_.doCall( this );
 }
 
 
@@ -723,7 +758,7 @@ void uiListBox::menuCB( CallBacker* )
 	    rightclickmnu_.insertAction(new uiAction(tr("Show all")), 6);
     }
 
-    const bool needretrieve = retrievecb_.willCall();
+/*    const bool needretrieve = retrievecb_.willCall();
     const bool needsave = savecb_.willCall() && nrchecked > 0;
     if ( needretrieve || needsave )
     {
@@ -732,7 +767,7 @@ void uiListBox::menuCB( CallBacker* )
 	    rightclickmnu_.insertAction( new uiAction(tr("Read selection")), 3);
 	if ( needsave )
 	    rightclickmnu_.insertAction( new uiAction(tr("Save selection")), 4);
-    }
+    }*/
 
     const int res = rightclickmnu_.exec();
     if ( res==0 || res==1 )
@@ -748,10 +783,10 @@ void uiListBox::menuCB( CallBacker* )
 	bulkcheckchg_ = false;
 	setCurrentItem( selidx );
     }
-    else if ( res == 3 )
+/*    else if ( res == 3 )
 	retrievecb_.doCall( this );
     else if ( res == 4 )
-	savecb_.doCall( this );
+	savecb_.doCall( this );*/
     else if ( res == 5 || res == 6 )
     {
 	allshown_ = !allshown_;

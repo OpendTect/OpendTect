@@ -523,6 +523,7 @@ public:
     static uiString sProperty()		{ return tr("Property"); }
     static uiString sRandomLine(int num=1) { return tr("Random Line",0,num); }
     static uiString sRange(int num=1)	{ return tr("Range",0,num); }
+    static uiString sRead()		{ return tr("Read"); }
     static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sRed()		{ return tr("Red"); }
     static uiString sRedo()		{ return tr("Redo"); }

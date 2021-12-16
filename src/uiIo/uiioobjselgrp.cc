@@ -159,12 +159,15 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 {
     iconnms_.allowNull( true );
     ctio_.ctxt_.fillTrGroup();
-    nmfld_ = 0; wrtrselfld_ = 0;
-    manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;
+    nmfld_ = nullptr; 
+    wrtrselfld_ = nullptr;
+    manipgrpsubj = nullptr; 
+    mkdefbut_ = nullptr; 
+    asked2overwrite_ = false;
     if ( !ctio_.ctxt_.forread_ )
 	setup_.choicemode( OD::ChooseOnlyOne );
-    IOM().to( ctio_.ctxt_.getSelKey() );
 
+    IOM().to( ctio_.ctxt_.getSelKey() );
     mkTopFlds( seltxt );
     if ( !ctio_.ctxt_.forread_ )
 	mkWriteFlds();
@@ -186,11 +189,13 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     topgrp_ = new uiGroup( this, "Top group" );
 
     uiListBox::Setup su( setup_.choicemode_, seltxt );
+    su.readwritesel( true );
     listfld_ = new uiListBox( topgrp_, su, "Objects" );
 
-    filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter(), "*" );
+    filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
     filtfld_->setElemSzPol( uiObject::SmallVar );
     filtfld_->updateRequested.notify( mCB(this,uiIOObjSelGrp,filtChg) );
+    filtfld_->attach( centeredAbove, topgrp_ );
     const BufferString withctxtfilter( setup_.withctxtfilter_ );
     if ( !withctxtfilter.isEmpty() )
     {
