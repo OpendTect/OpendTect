@@ -662,11 +662,11 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 
 	    ioobjnm = ioobj->name();
 	    dispnm.setEmpty();
-	    if ( isdef ) dispnm += "> ";
 	    if ( ispl ) dispnm += "/ ";
 	    dispnm += ioobj->name();
 	    if ( ispl ) dispnm += " \\";
-	    if ( isdef ) dispnm += " <";
+	    if ( isdef )
+	    	defaultidxs_.addIfNew( idx );
 
 	    if ( curidx < 0 )
 	    {
@@ -706,9 +706,14 @@ void uiIOObjSelGrp::fillListBox()
     for ( int idx=0; idx<iconnms_.size(); idx++ )
     {
 	const char* icnm = iconnms_[idx];
-	if ( !icnm ) icnm = "empty";
+	if ( !icnm ) 
+	    icnm = "empty";
+
 	listfld_->setIcon( idx, icnm );
     }
+
+    for ( int idx : defaultidxs_ )
+	listfld_->setMarked( idx, true, uiListBox::Decorations::Legacy );
 
     selectionChanged.trigger();
 }

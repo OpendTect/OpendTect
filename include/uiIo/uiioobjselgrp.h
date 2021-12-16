@@ -143,6 +143,7 @@ protected:
     Setup		setup_;
     ObjectSet<MultiID>	ioobjids_;
     BufferStringSet	ioobjnms_;
+    TypeSet<int>	defaultidxs_;
     BufferStringSet	dispnms_;
     BufferString	surveydefaultsubsel_;
     bool		asked2overwrite_;

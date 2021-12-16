@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 #define mCtioObjTypeName() ctio_.ctxt_.objectTypeName()
 
+static const char* sDefault()		{ return "Default"; }
 
 uiListBoxChoiceIO::uiListBoxChoiceIO( uiListBox& lb, const char* omftypekey )
     : ctio_(*mMkCtxtIOObj(IOObjSelection))
@@ -51,12 +52,16 @@ void uiListBoxChoiceIO::setChosen( const BufferStringSet& itemnms )
 
 void uiListBoxChoiceIO::readReqCB( CallBacker* )
 {
+    BufferStringSet defkeys;
     chosennames_.setEmpty(); keys_.setEmpty();
     ctio_.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( lb_.parent(), ctio_ );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() ) 
+    	return;
+
     const IOObj* ioobj = dlg.ioObj();
-    if ( !ioobj ) return;
+    if ( !ioobj ) 
+    	return;
 
     const BufferString fnm( ioobj->fullUserExpr(true) );
     od_istream strm( fnm );
@@ -90,9 +95,12 @@ void uiListBoxChoiceIO::storeReqCB( CallBacker* )
 {
     ctio_.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( lb_.parent(), ctio_ );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() ) 
+    	return;
+
     const IOObj* ioobj = dlg.ioObj();
-    if ( !ioobj ) return;
+    if ( !ioobj ) 
+    	return;
 
     const BufferString fnm( ioobj->fullUserExpr(false) );
     od_ostream strm( fnm );
@@ -118,5 +126,16 @@ void uiListBoxChoiceIO::storeReqCB( CallBacker* )
 		astrm.put( itmnm, idx < nrkeys ? keys_.get(idx).buf() : "-" );
 	}
     }
+
+    astrm.newParagraph();
+    for ( int idx=0; idx<lb_.size(); idx++ )
+    {
+	if ( nrkeys<1 )
+	    break;
+
+	if ( lb_.isMarked(idx) )
+	    astrm.put( sDefault(), keys_.get(idx).buf() );
+    }
+
     astrm.newParagraph();
 }

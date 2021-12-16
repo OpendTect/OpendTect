@@ -456,7 +456,6 @@ uiListBox::uiListBox( uiParent* p, const char* nm, OD::ChoiceMode cm )
 {
     lb_ = new uiListBoxObj( this, nm, choicemode_ );
     mkCheckGroup();
-    mkReadSaveButGroup();
     setHAlignObj( lb_ );
 
     mStdConstrEnd;
