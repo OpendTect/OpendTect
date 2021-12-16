@@ -671,10 +671,6 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 }
 
 
-#define mGetZDomainGE \
-    const GlobExpr zdomge( o2d.zdomky_.isEmpty() ? ZDomain::SI().key() \
-						 : o2d.zdomky_.buf() )
-
 void SeisIOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 {
     if ( !isOK() )
@@ -725,7 +721,6 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 	= new Seis2DDataSet( *ioobj_ );
     if ( dset->nrLines() == 0 )
 	return;
-    mGetZDomainGE;
 
     BufferStringSet rejected;
     for ( int idx=0; idx<dset->nrLines(); idx++ )
