@@ -1024,7 +1024,7 @@ void uiListBox::setPixmap( int index, const uiPixmap& pm,
     if ( index<0 || index>=size() ||
 	 !lb_->body().item(index) || !pm.qpixmap() ) return;
 
-    lb_->body().setPixmap( index, pm, decpos==DecorationPos::Right );
+    lb_->body().setPixmap( index, pm, decpos==Right );
 }
 
 
@@ -1157,7 +1157,7 @@ bool uiListBox::isMarked( int idx ) const
 }
 
 
-void uiListBox::setMarked( int idx, uiListBox::DecorationType markdec )
+void uiListBox::setMarked( int idx, DecorationType markdec )
 {
     if ( !validIdx(idx) )
 	return;
@@ -1171,18 +1171,18 @@ void uiListBox::setMarked( int idx, uiListBox::DecorationType markdec )
 	setItemText( idx, texttobemarked );
 	return;
     }
-    else if ( markdec == uiListBox::Pixmap )
+    else if ( markdec == Pixmap )
     {
-	uiPixmap pm( "star" );	
-	setPixmap( idx, pm, DecorationPos::Right );
+	uiPixmap pm( "star" );
+	setPixmap( idx, pm, Right );
     }
-    else if ( markdec == uiListBox::Star )
+    else if ( markdec == Star )
     {
 	removePixmap( idx );
 	texttobemarked += " *";
 	setItemText( idx, texttobemarked );
     }
-    else if ( markdec == uiListBox::Legacy )
+    else if ( markdec == Legacy )
     {
 	removePixmap( idx );
 	BufferString text = "> ";
@@ -1233,17 +1233,17 @@ void uiListBox::getMarkedText( int idx, BufferString& text ) const
 uiListBox::DecorationType uiListBox::getDecorationType( int idx ) const
 {
     if ( !isMarked(idx) )
-	return uiListBox::None;
+	return None;
 
-    DecorationType dec = uiListBox::Pixmap;
+    DecorationType dec = Pixmap;
     BufferString starchar = "*";
     BufferString legacychar = "><";
     BufferString markedtext = lb_->body().getItemText(idx).getFullString();
     if ( markedtext.last() == starchar.last() )
-	dec = uiListBox::Star;
+	dec = Star;
     else if( markedtext.last() == legacychar.last()
 	     && markedtext.first() == legacychar.first() )
-	dec = uiListBox::Legacy;
+	dec = Legacy;
 
     return dec;
 }
