@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "uiseparator.h"
 #include "settings.h"
 #include "od_helpids.h"
 #include "uilabel.h"
@@ -159,10 +160,10 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 {
     iconnms_.allowNull( true );
     ctio_.ctxt_.fillTrGroup();
-    nmfld_ = nullptr; 
+    nmfld_ = nullptr;
     wrtrselfld_ = nullptr;
-    manipgrpsubj = nullptr; 
-    mkdefbut_ = nullptr; 
+    manipgrpsubj = nullptr;
+    mkdefbut_ = nullptr;
     asked2overwrite_ = false;
     if ( !ctio_.ctxt_.forread_ )
 	setup_.choicemode( OD::ChooseOnlyOne );
@@ -192,10 +193,13 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     su.readwritesel( true );
     listfld_ = new uiListBox( topgrp_, su, "Objects" );
 
-    filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
+    filtfld_ = new uiGenInput( topgrp_, uiStrings::sFilter(), "*" );
     filtfld_->setElemSzPol( uiObject::SmallVar );
     filtfld_->updateRequested.notify( mCB(this,uiIOObjSelGrp,filtChg) );
-    filtfld_->attach( centeredAbove, topgrp_ );
+    filtfld_->attach( centeredAbove, listfld_ );
+    auto* sep1 = new uiSeparator( topgrp_, "Filter Separator" );
+    sep1->attach( stretchedBelow, filtfld_ );
+    listfld_->attach( ensureBelow, sep1 );
     const BufferString withctxtfilter( setup_.withctxtfilter_ );
     if ( !withctxtfilter.isEmpty() )
     {
@@ -666,7 +670,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	    dispnm += ioobj->name();
 	    if ( ispl ) dispnm += " \\";
 	    if ( isdef )
-	    	defaultidxs_.addIfNew( idx );
+		defaultidxs_.addIfNew( idx );
 
 	    if ( curidx < 0 )
 	    {
@@ -706,7 +710,7 @@ void uiIOObjSelGrp::fillListBox()
     for ( int idx=0; idx<iconnms_.size(); idx++ )
     {
 	const char* icnm = iconnms_[idx];
-	if ( !icnm ) 
+	if ( !icnm )
 	    icnm = "empty";
 
 	listfld_->setIcon( idx, icnm );

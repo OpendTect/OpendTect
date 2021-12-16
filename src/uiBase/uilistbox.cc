@@ -533,11 +533,11 @@ void uiListBox::mkReadSaveButGroup()
     rsbutgrp_ = new uiButtonGroup( this, "Read/Save Group", OD::Horizontal );
     rsbutgrp_->attach( rightOf, checkgrp_ );
     rsbutgrp_->displayFrame( true );
-    auto* readbut = new uiToolButton( rsbutgrp_, "open", 
-    				      uiStrings::sRead(),
-				      mCB(this,uiListBox,retrieveCB) ); 
+    auto* readbut = new uiToolButton( rsbutgrp_, "open",
+				      uiStrings::sRead(),
+				      mCB(this,uiListBox,retrieveCB) );	
     auto* savebut = new uiToolButton( rsbutgrp_, "save",
-    				      uiStrings::sSave(),
+				      uiStrings::sSave(),
 				      mCB(this,uiListBox,saveCB) );
 }
 

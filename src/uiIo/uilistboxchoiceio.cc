@@ -56,12 +56,12 @@ void uiListBoxChoiceIO::readReqCB( CallBacker* )
     chosennames_.setEmpty(); keys_.setEmpty();
     ctio_.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( lb_.parent(), ctio_ );
-    if ( !dlg.go() ) 
-    	return;
+    if ( !dlg.go() )
+	return;
 
     const IOObj* ioobj = dlg.ioObj();
-    if ( !ioobj ) 
-    	return;
+    if ( !ioobj )
+	return;
 
     const BufferString fnm( ioobj->fullUserExpr(true) );
     od_istream strm( fnm );
@@ -95,12 +95,12 @@ void uiListBoxChoiceIO::storeReqCB( CallBacker* )
 {
     ctio_.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( lb_.parent(), ctio_ );
-    if ( !dlg.go() ) 
-    	return;
+    if ( !dlg.go() )
+	return;
 
     const IOObj* ioobj = dlg.ioObj();
-    if ( !ioobj ) 
-    	return;
+    if ( !ioobj )
+	return;
 
     const BufferString fnm( ioobj->fullUserExpr(false) );
     od_ostream strm( fnm );
