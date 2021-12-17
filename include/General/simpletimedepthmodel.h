@@ -81,7 +81,7 @@ protected:
 
 				~SimpleTimeDepthTransform();
 
-    SimpleTimeDepthModel*	tdmodel_;
+    SimpleTimeDepthModel*	tdmodel_ = nullptr;
 
     void			doTransform(const SamplingData<float>&,
 					    int sz,float*,bool) const;

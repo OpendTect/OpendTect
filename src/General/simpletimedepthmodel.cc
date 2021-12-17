@@ -29,8 +29,8 @@ SimpleTimeDepthModel::SimpleTimeDepthModel( const MultiID& id )
     : TimeDepthModel()
 {
     PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( ioobj && readFromFile(ioobj->fullUserExpr(true)) )
-	setModel( rawdepths_.arr(), rawtimes_.arr(), rawtimes_.size() );
+    if ( ioobj )
+	readFromFile( ioobj->fullUserExpr(true) );
 }
 
 
@@ -101,7 +101,6 @@ bool SimpleTimeDepthModel::writeToFile( const char* fnm ) const
 SimpleTimeDepthTransform::SimpleTimeDepthTransform( const ZDomain::Def& from,
 						    const ZDomain::Def& to )
     : ZAxisTransform(from,to)
-    , tdmodel_(0)
 {
 }
 
@@ -110,7 +109,6 @@ SimpleTimeDepthTransform::SimpleTimeDepthTransform( const ZDomain::Def& from,
 						    const ZDomain::Def& to,
 						    const MultiID& id )
     : ZAxisTransform(from,to)
-    , tdmodel_(0)
 {
     setID( id );
 }

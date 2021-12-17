@@ -14,12 +14,13 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "factory.h"
 #include "keystrs.h"
-#include "veldesc.h"
 #include "samplingdata.h"
-
+#include "veldesc.h"
 #include "uistring.h"
 
+class ElasticModel;
 class Scaler;
+class TimeDepthModelSet;
 template <class T> class ValueSeries;
 
 /*!
@@ -61,15 +62,78 @@ public:
 
 protected:
 
+    uiString		errmsg_;
+
+    const float*	getTimes() const	{ return times_; }
+    const float*	getDepths() const	{ return depths_; }
+    float*		getTimes()		{ return times_; }
+    float*		getDepths()		{ return depths_; }
+
+    void		setEmpty();
+    void		setAllVals(float* dpths,float* times,int sz);
+			//<! Both arrays become mine
+    void		setVals(float*,bool isdepth,bool becomesmine=true);
+    void		setSize( int sz )	{ sz_ = sz; }
+
     static float	convertTo(const float* dpths,const float* times,int sz,
 				    float z,bool targetistime);
 
-    int		sz_;
+private:
 
-    float*		times_;
-    float*		depths_;
+    int			sz_ = 0;
+    float*		times_ = nullptr;
+    float*		depths_ = nullptr;
+    bool		owndepths_ = true;
 
-    uiString		errmsg_;
+    friend class TimeDepthModelSet;
+
+};
+
+
+/*!
+\brief Data holder for all TimeDepthModels that share the same
+       depths distributions. There will always be at least one model in the set.
+       Models may be annotated by a given value, typically offset or angle
+*/
+
+mExpClass(Algo) TimeDepthModelSet
+{
+public:
+			TimeDepthModelSet(const ElasticModel&,
+				const TypeSet<float>* axisvals = nullptr,
+				bool pup=true,bool pdown=true,
+				float* velmax=nullptr);
+			TimeDepthModelSet(const TimeDepthModel&,
+				const TypeSet<float>* axisvals = nullptr);
+			~TimeDepthModelSet();
+
+    bool		isOK() const;
+    int			nrModels() const;
+    int			size() const		{ return nrModels(); }
+    int			modelSize() const;
+
+    const TimeDepthModel& getDefaultModel() const;
+    const TimeDepthModel* get(int) const;
+    const TypeSet<float>* axisVals() const	{ return axisvals_; }
+
+    void		setDepth(int idz,float);
+    void		setDefTWT(int idz,float);
+    void		setTWT(int imdl,int idz,float);
+
+private:
+			TimeDepthModelSet(int modelsz,
+				const TypeSet<float>* axisvals = nullptr);
+
+    void		init(int modelsz);
+    void		setFrom(const ElasticModel&,bool up,bool pdown,
+				float* velmax);
+
+    ObjectSet<TimeDepthModel> tdmodels_;
+    TimeDepthModel*	defmodel_ = nullptr;
+    TypeSet<float>*	axisvals_ = nullptr; //Offsets or Angles
+
+			TimeDepthModelSet(const TimeDepthModelSet&) = delete;
+   TimeDepthModelSet&	operator =(const TimeDepthModelSet&) = delete;
 };
 
 
@@ -84,7 +148,7 @@ mExpClass(Algo) TimeDepthConverter : public TimeDepthModel
 public:
 			TimeDepthConverter();
 
-    bool		isOK() const;
+    bool		isOK() const override;
     static bool		isVelocityDescUseable(const VelocityDesc&,
 					      bool velintime,
 					      uiString* errmsg = 0);
@@ -131,17 +195,15 @@ public:
 			 /*!<\param vels Velocity as Vint in depth
 			   \param velsz,times
 			  */
-protected:
+private:
 
-    void		calcZ(const float*,int inpsz,
-				ValueSeries<float>&,int outpsz,
-				const SamplingData<double>&,bool istime) const;
+    void		calcZ(ValueSeries<float>&,int outpsz,
+			      const SamplingData<double>&,bool istime) const;
 
     float		firstvel_;
     float		lastvel_;
 
-    bool		regularinput_;
-    int			sz_;
+    bool		regularinput_ = true;
     SamplingData<double> sd_;
 };
 

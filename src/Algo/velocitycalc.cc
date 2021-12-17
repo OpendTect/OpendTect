@@ -7,6 +7,7 @@
 
 #include "velocitycalc.h"
 
+#include "ailayer.h"
 #include "bendpointfinder.h"
 #include "genericnumer.h"
 #include "idxable.h"
@@ -25,34 +26,67 @@ mImplFactory( Vrms2Vint, Vrms2Vint::factory );
 
 
 TimeDepthModel::TimeDepthModel()
-    : errmsg_(uiString::emptyString())
-    , times_(0)
-    , depths_(0)
-    , sz_(0)
 {}
 
 
-TimeDepthModel::TimeDepthModel( const TimeDepthModel& td )
-    : errmsg_(uiString::emptyString())
-    , times_(0)
-    , depths_(0)
+TimeDepthModel::TimeDepthModel( const TimeDepthModel& oth )
 {
-    setModel( td.depths_, td.times_, td.sz_ );
+    *this = oth;
 }
-
 
 
 TimeDepthModel::~TimeDepthModel()
 {
-    delete [] times_;
-    delete [] depths_;
+    setEmpty();
 }
 
 
-TimeDepthModel& TimeDepthModel::operator=( const TimeDepthModel& td )
+TimeDepthModel& TimeDepthModel::operator=( const TimeDepthModel& oth )
 {
-    setModel( td.depths_, td.times_, td.sz_ );
+    errmsg_.setEmpty();
+    setEmpty();
+
+    const int sz = oth.sz_;
+    const int nrbytes = sz*sizeof(float);
+
+    mTryAlloc( times_, float[sz] );
+    if ( times_ )
+	OD::sysMemCopy( times_, oth.times_, nrbytes );
+    else
+    {
+	errmsg_ = uiStrings::phrCannotAllocateMemory( nrbytes );
+	return *this;
+    }
+
+    if ( oth.owndepths_ )
+    {
+	mTryAlloc( depths_, float[sz] );
+	if ( depths_ )
+	    OD::sysMemCopy( depths_, oth.depths_, nrbytes );
+	else
+	{
+	    deleteAndZeroArrPtr( times_ );
+	    errmsg_ = uiStrings::phrCannotAllocateMemory( nrbytes );
+	    return *this;
+	}
+    }
+    else
+	depths_ = oth.depths_;
+
+    sz_ = sz;
+    owndepths_ = oth.owndepths_;
+
     return *this;
+}
+
+
+void TimeDepthModel::setEmpty()
+{
+    sz_ = 0;
+    deleteAndZeroArrPtr( times_ );
+    if ( owndepths_ )
+	delete [] depths_;
+    depths_ = nullptr;
 }
 
 
@@ -166,8 +200,10 @@ float TimeDepthModel::convertTo( const float* dpths, const float* times,
 
 bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
 {
-    deleteAndZeroArrPtr( depths_ ) ;
-    deleteAndZeroArrPtr( times_ ) ;
+    if ( !owndepths_ )
+	return false;
+
+    setEmpty();
 
     PointBasedMathFunction func;
     for ( int idx=0; idx<sz; idx++ )
@@ -197,16 +233,254 @@ bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
 }
 
 
+void TimeDepthModel::setAllVals( float* dpths, float* times, int sz )
+{
+    setVals( dpths, true );
+    setVals( times, false );
+    setSize( sz );
+}
 
+
+void TimeDepthModel::setVals( float* arr, bool isdepth, bool becomesmine )
+{
+    if ( isdepth )
+    {
+	if ( owndepths_ )
+	    delete [] depths_;
+	depths_ = arr;
+	owndepths_ = becomesmine;
+    }
+    else
+    {
+	delete [] times_;
+	times_ = arr;
+    }
+}
+
+
+// TimeDepthModelSet
+
+TimeDepthModelSet::TimeDepthModelSet( const ElasticModel& emodel,
+				      const TypeSet<float>* axisvals,
+				      bool pup, bool pdown, float* velmax )
+    : TimeDepthModelSet(emodel.size()+1,axisvals)
+{
+    if ( !isOK() )
+	return;
+
+    setFrom( emodel, pup, pdown, velmax );
+}
+
+
+TimeDepthModelSet::TimeDepthModelSet( const TimeDepthModel& tdmodel,
+				      const TypeSet<float>* axisvals )
+    : TimeDepthModelSet(tdmodel.size(),axisvals)
+{
+    if ( !isOK() || !tdmodel.isOK() )
+	return;
+
+    const int nrbytes = defmodel_->size() * sizeof(float);
+    const float* twtvals = tdmodel.getTimes();
+    OD::sysMemCopy( defmodel_->getDepths(), tdmodel.getDepths(), nrbytes );
+    OD::sysMemCopy( defmodel_->getTimes(), twtvals, nrbytes );
+    for ( auto* model : tdmodels_ )
+    {
+	if ( model != defmodel_ )
+	    OD::sysMemCopy( model->getTimes(), twtvals, nrbytes );
+    }
+}
+
+
+TimeDepthModelSet::TimeDepthModelSet( int modelsz,
+				      const TypeSet<float>* axisvals )
+{
+    if ( axisvals &&
+	 (axisvals->size() > 1 ||
+	  (axisvals->size() == 1 && (!mIsZero(axisvals->first(),1e-4f)))) )
+	axisvals_ = new TypeSet<float>( *axisvals );
+
+    init( modelsz );
+}
+
+
+TimeDepthModelSet::~TimeDepthModelSet()
+{
+    if ( !axisvals_ || !tdmodels_.isPresent(defmodel_) )
+	delete defmodel_;
+
+    deepErase( tdmodels_ );
+    delete axisvals_;
+}
+
+
+bool TimeDepthModelSet::isOK() const
+{
+    return defmodel_ && defmodel_->isOK() &&
+	   (!axisvals_ || tdmodels_.size() == axisvals_->size() );
+}
+
+
+int TimeDepthModelSet::nrModels() const
+{
+    return axisvals_ ? tdmodels_.size() : 1;
+}
+
+
+int TimeDepthModelSet::modelSize() const
+{
+    return defmodel_->size();
+}
+
+
+const TimeDepthModel& TimeDepthModelSet::getDefaultModel() const
+{
+    return *defmodel_;
+}
+
+
+const TimeDepthModel* TimeDepthModelSet::get( int idx ) const
+{
+    return axisvals_ ? (tdmodels_.validIdx( idx ) ? tdmodels_.get( idx )
+						  : nullptr)
+		     : defmodel_;
+}
+
+
+void TimeDepthModelSet::init( int modelsz )
+{
+    mDeclareAndTryAlloc( float*, depths, float[modelsz] );
+    if ( !depths )
+	return;
+
+    mDeclareAndTryAlloc( float*, times, float[modelsz] );
+    if ( !times )
+    {
+	delete [] depths;
+	return;
+    }
+
+    defmodel_ = new TimeDepthModel;
+    defmodel_->setAllVals( depths, times, modelsz );
+    if ( !axisvals_ )
+	return;
+
+    for ( const auto& xval : *axisvals_ )
+    {
+	if ( mIsZero(xval,1e-4f) )
+	{
+	    tdmodels_.add( defmodel_ );
+	    continue;
+	}
+
+	mTryAlloc( times, float[modelsz] );
+	if ( !times )
+	    break;
+
+	auto* tdmodel = new TimeDepthModel;
+	tdmodel->setVals( defmodel_->getDepths(), true, false );
+	tdmodel->setVals( times, false );
+	tdmodel->setSize( modelsz );
+	tdmodels_.add( tdmodel );
+    }
+}
+
+
+void TimeDepthModelSet::setFrom( const ElasticModel& emodel, bool pup,
+				 bool pdown, float* velmax )
+{
+    float* deptharr = defmodel_->getDepths();
+    float* twtarr = defmodel_->getTimes();
+    int idz = 0;
+    deptharr[idz] = 0.f;
+    twtarr[idz++] = 0.f;
+
+    const bool zinfeet = SI().zInFeet();
+    float dnmotime, dvrmssum, unmotime, uvrmssum;
+    float prevdnmotime, prevdvrmssum, prevunmotime, prevuvrmssum;
+    prevdnmotime = prevdvrmssum = prevunmotime = prevuvrmssum = 0;
+    for ( const auto& layer : emodel )
+    {
+	const float dz = layer.thickness_;
+	const float thickness = zinfeet ? dz * mToFeetFactorF : dz;
+	deptharr[idz] = idz>1 ? deptharr[idz-1] + thickness : thickness;
+
+	const float dvel = pdown ? layer.vel_ : layer.svel_;
+	const float uvel = pup ? layer.vel_ : layer.svel_;
+	dnmotime = dvrmssum = unmotime = uvrmssum = 0;
+
+	dnmotime = dz / dvel;
+	dvrmssum = dz * dvel;
+	unmotime = dz / uvel;
+	uvrmssum = dz * uvel;
+
+	dvrmssum += prevdvrmssum;
+	uvrmssum += prevuvrmssum;
+	dnmotime += prevdnmotime;
+	unmotime += prevunmotime;
+
+	prevdvrmssum = dvrmssum;
+	prevuvrmssum = uvrmssum;
+	prevdnmotime = dnmotime;
+	prevunmotime = unmotime;
+
+	const float vrmssum = dvrmssum + uvrmssum;
+	const float twt = unmotime + dnmotime;
+	if ( velmax )
+	    velmax[idz-1] = Math::Sqrt( vrmssum / twt );
+
+	twtarr[idz++] = twt;
+    }
+
+    const int sz = modelSize();
+    for ( auto* model : tdmodels_ )
+    {
+	if ( model != defmodel_ )
+	    OD::sysMemValueSet( model->getTimes(), mUdf(float), sz );
+    }
+}
+
+
+void TimeDepthModelSet::setDepth( int idz, float zval )
+{
+#ifdef __debug__
+    if ( !defmodel_ || idz < 0 || idz >= defmodel_->sz_ )
+	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
+#endif
+    defmodel_->depths_[idz] = zval;
+}
+
+
+void TimeDepthModelSet::setDefTWT( int idz, float twt )
+{
+#ifdef __debug__
+    if ( !defmodel_ || idz < 0 || idz >= defmodel_->sz_ )
+	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
+#endif
+    defmodel_->times_[idz] = twt;
+}
+
+
+void TimeDepthModelSet::setTWT( int imdl, int idz, float twt )
+{
+#ifdef __debug__
+    if ( !get(imdl) || idz < 0 || idz >= get(imdl)->sz_ )
+	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
+#endif
+    get( imdl )->times_[idz] = twt;
+}
+
+
+// TimeDepthConverter
 
 TimeDepthConverter::TimeDepthConverter()
     : TimeDepthModel()
-    , regularinput_(true)
 {}
 
 
 bool TimeDepthConverter::isOK() const
-{ return times_ || depths_; }
+{
+    return size() > 0 && (getTimes() || getDepths());
+}
 
 
 bool TimeDepthConverter::isVelocityDescUseable(const VelocityDesc& vd,
@@ -242,10 +516,9 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 		    int sz, const SamplingData<double>& sd,
 		    const VelocityDesc& vd, bool istime, const Scaler* scaler )
 {
-    deleteAndZeroArrPtr( times_ );
-    deleteAndZeroArrPtr( depths_ );
+    setEmpty();
 
-    PtrMan<ValueSeries<float> > ownvint = 0;
+    PtrMan<ValueSeries<float> > ownvint;
     const ValueSeries<float>* vint = &vel;
 
     switch ( vd.type_ )
@@ -261,19 +534,19 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 	    mDeclareAndTryAlloc( float*, ptr, float[sz] );
 	    if ( !ptr )
 	    {
-		errmsg_ = tr("Out of memory");
+		errmsg_ = uiStrings::phrCannotAllocateMemory( sz*sizeof(float));
 		break;
 	    }
 
 	    ownvint = new ArrayValueSeries<float,float>( ptr, true, sz );
 	    if ( !ownvint || !ownvint->isOK() )
 	    {
-		errmsg_ = tr("Out of memory");
+		errmsg_ = uiStrings::phrCannotAllocateMemory( sz*sizeof(float));
 		break;
 	    }
 
 	    const float* vrms = vel.arr();
-	    ArrPtrMan<float> ownvrms = 0;
+	    ArrPtrMan<float> ownvrms;
 	    if ( !vrms )
 	    {
 		mTryAlloc( ownvrms, float[sz] );
@@ -288,11 +561,11 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 
 	    if ( !vrms )
 	    {
-		errmsg_ = tr("Out of memory");
+		errmsg_ = uiStrings::phrCannotAllocateMemory( sz*sizeof(float));
 		break;
 	    }
 
-	    if ( !computeDix( vrms, sd, sz, ownvint->arr() ) )
+	    if ( !computeDix(vrms,sd,sz,ownvint->arr()) )
 		break;
 
 	    vint = ownvint.ptr();
@@ -303,15 +576,19 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 	{
 	    if ( istime )
 	    {
-		mTryAlloc( depths_, float[sz] );
-		if ( !depths_ || !calcDepths(*vint,sz,sd,depths_,scaler) )
-		    { deleteAndZeroArrPtr( depths_ ); break; }
+		mDeclareAndTryAlloc(float*,depths,float[sz])
+		if ( depths && calcDepths(*vint,sz,sd,depths,scaler) )
+		    setVals( depths, true );
+		else
+		    { delete [] depths; break; }
 	    }
 	    else
 	    {
-		mTryAlloc( times_, float[sz] );
-		if ( !times_ || !calcTimes(*vint,sz,sd,times_,scaler) )
-		    { deleteAndZeroArrPtr( times_ ); break; }
+		mDeclareAndTryAlloc(float*,times,float[sz])
+		if ( times && calcTimes(*vint,sz,sd,times,scaler) )
+		    setVals( times, false );
+		else
+		    { delete [] times; break; }
 	    }
 
 	    for ( int idx=0; idx<sz; idx++ )
@@ -330,7 +607,7 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 		lastvel_ = scaler->scale( lastvel_ );
 	    }
 
-	    sz_ = sz;
+	    setSize( sz );
 	    sd_ = sd;
 	    break;
 	}
@@ -371,26 +648,28 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 
 	    if ( istime )
 	    {
-		mTryAlloc( depths_, float[sz] );
-		if ( !depths_ )
+		mDeclareAndTryAlloc(float*,depths,float[sz])
+		if ( !depths )
 		    break;
 
 		for ( int idx=0; idx<sz; idx++ )
-		    depths_[idx] = (float) ( sd.atIndex(idx) * vavg[idx]/2 );
+		    depths[idx] = (float) ( sd.atIndex(idx) * vavg[idx]/2 );
+		setVals( depths, true );
 	    }
 	    else
 	    {
-		mTryAlloc( times_, float[sz] );
-		if ( !times_ )
+		mDeclareAndTryAlloc(float*,times,float[sz])
+		if ( !times )
 		    break;
 
 		for ( int idx=0; idx<sz; idx++ )
-		    times_[idx] = (float) ( sd.atIndex(idx) * 2 / vavg[idx] );
+		    times[idx] = (float) ( sd.atIndex(idx) * 2 / vavg[idx] );
+		setVals( times, false );
 	    }
 
 	    firstvel_ = vavg[0];
 	    lastvel_ = vavg[sz-1];
-	    sz_ = sz;
+	    setSize( sz );
 	    sd_ = sd;
 	    break;
 	}
@@ -408,7 +687,7 @@ bool TimeDepthConverter::calcDepths( ValueSeries<float>& res, int outputsz,
     if ( !isOK() )
 	return false;
 
-    calcZ( times_, sz_, res, outputsz, timesamp, false );
+    calcZ( res, outputsz, timesamp, false );
     return true;
 }
 
@@ -419,20 +698,22 @@ bool TimeDepthConverter::calcTimes( ValueSeries<float>& res, int outputsz,
     if ( !isOK() )
 	return false;
 
-    calcZ( depths_, sz_, res, outputsz, depthsamp, true );
+    calcZ( res, outputsz, depthsamp, true );
     return true;
 }
 
 
-void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
-			      ValueSeries<float>& res, int outputsz,
-			      const SamplingData<double>& zsamp, bool time)const
+void TimeDepthConverter::calcZ( ValueSeries<float>& res, int outputsz,
+				const SamplingData<double>& zsamp,
+				bool time ) const
 {
+    const float* zvals = time ? getDepths() : getTimes();
+    const int inpsz = size();
     float seisrefdatum = SI().seismicReferenceDatum();
     if ( SI().zIsTime() && SI().depthsInFeet() )
 	seisrefdatum *= mToFeetFactorF;
 
-    float* zrevvals = time ? times_ : depths_;
+    const float* zrevvals = time ? getTimes() : getDepths();
     if ( zrevvals )
     {
 	StepInterval<double> zrg;

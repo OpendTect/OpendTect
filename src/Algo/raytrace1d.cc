@@ -217,7 +217,6 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	float thickness = model_[idx].thickness_;
 	if ( zinfeet ) thickness *= mToFeetFactorF;
 	depths_[idx] = idx ? depths_[idx-1] + thickness : thickness;
-	velmax_[idx] = model_[idx].vel_;
     }
 
     const int offsetsz = offsets_.size();
