@@ -824,7 +824,7 @@ void Threads::ConditionVar::signal(bool all)
 }
 
 
-typedef void (*ThreadFunc)(void*);
+using ThreadFunc = void(*)(void*);
 
 #ifndef OD_NO_QT
 class ThreadBody : public QThread

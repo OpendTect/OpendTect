@@ -23,7 +23,7 @@ namespace Pos
 {
 
 class IdxPairDataSet;
-typedef void (*EntryCreatedFn)(IdxPairDataSet&,int spos_i,int spos_j);
+using EntryCreatedFn = void(*)(IdxPairDataSet&,int spos_i,int spos_j);
 
 /*!\brief A sorted set of IdxPairs and associated data buffer.
 

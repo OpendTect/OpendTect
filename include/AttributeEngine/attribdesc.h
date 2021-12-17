@@ -27,8 +27,8 @@ class Param;
 class DescSet;
 class ValParam;
 
-typedef void(*DescStatusUpdater)(Desc&);
-typedef void(*DescDefaultsUpdater)(Desc&);
+using DescStatusUpdater = void(*)(Desc&);
+using DescDefaultsUpdater = void(*)(Desc&);
 
 /*!
 \brief Setup class for Attrib::Desc.

@@ -60,12 +60,12 @@ mGlobal(Basic) int ExitProgram( int ret );
 		     Unix: uses exit(ret).
 		     Return value is convenience only, so you can use like:
 		     return exitProgram( retval );
-                */
+		*/
 
 mGlobal(Basic) bool IsExiting();
 		/*!<Returns if ExitProgram is called */
 
-typedef void (*PtrAllVoidFn)(void);
+using PtrAllVoidFn = void(*)(void);
 mGlobal(Basic) void NotifyExitProgram(PtrAllVoidFn);
 		/*!< Function will be called on 'ExitProgram' */
 
@@ -73,7 +73,7 @@ mGlobal(Basic) bool StartProgramCopy();
 		/*!< Starts another instance with original arguments. If it
 		     returns false, there is no new program; deal with it. */
 
-typedef void (*ProgramRestartFn)();
+using ProgramRestartFn = void(*)(void);
 /*!< The default function restart starts a copy, notifies and exits.
    od_main sets a new one to do user interaction if needed.
    Code after this call should handle the case that the restart failed. */

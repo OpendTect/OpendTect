@@ -168,7 +168,8 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 
 	BufferString fnnm( "od_" );
 	fnnm.add( modnm ).add( "_initStdClasses" );
-	typedef void (*ModuleInitFn)(void);
+
+	using ModuleInitFn = void(*)(void);
 	ModuleInitFn fn = (ModuleInitFn)sla->getFunction( fnnm );
 	if ( fn )
 	    (*fn)();
