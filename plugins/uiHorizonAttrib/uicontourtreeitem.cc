@@ -149,7 +149,7 @@ private:
 
     bool generateContours(int contouridx,const IsoContourTracer*,
 			     uiContourTreeItemContourData&,double& area) const;
-    bool addDisplayCoord(const ODPolygon<float>& inputcountour, int vrtxidx,
+    bool addDisplayCoord(const ODPolygon<float>& inputcontour, int vrtxidx,
 			 uiContourTreeItemContourData&,int& lastvrtxidx) const;
     void makeContourClose(uiContourTreeItemContourData&,
 			  Interval<int>& coordsrg) const;
@@ -541,7 +541,6 @@ class uiContourParsDlg : public uiDialog
 
 static const int defelevval = 0;
 public:
-
 uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 		  const StepInterval<float>& intv, const OD::LineStyle& ls,
 		  int sceneid )
@@ -711,7 +710,7 @@ int getLabelAlignment() const
 
 void disableLabelElevation()
 {
-    elevationfld_->box()->setValue( defelevval	);
+    elevationfld_->box()->setValue( defelevval );
 }
 
 
@@ -876,7 +875,7 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     , linewidth_(1)
     , contoursteprange_(mUdf(float),-mUdf(float))
     , zshift_(mUdf(float))
-    , color_(OD::Color(0,0,0))
+    , color_(0,0,0)
     , showlabels_(true)
     , labels_(nullptr)
     , propdlg_(nullptr)
@@ -1062,7 +1061,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 	TypeSet<float> zvals, areas;
 	getZVSAreaValues( zvals, areas );
 
-	uiDialog dlg( ODMainWin(), uiDialog::Setup(tr("Countour areas"),
+	uiDialog dlg( ODMainWin(), uiDialog::Setup(tr("Contour areas"),
 						   mNoDlgTitle,mNoHelpKey ) );
 	dlg.setCancelText( uiString::emptyString() );
 
@@ -1278,6 +1277,7 @@ void uiContourTreeItem::startCreateUICContours()
 	lines_->turnOn( showcontours );
 	if ( labels_ )
 	    labels_->turnOn( showlabels );
+
 	areas_ = ctrgtr.getAreas();
 
 	bool validfound = false;

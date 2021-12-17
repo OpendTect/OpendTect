@@ -889,9 +889,9 @@ public:
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
     : uiCompoundParSel(p,toUiString("***************"))
       //Hack So that textfld_ label is correctly updated
+    , selChange(this)
     , is2d_(is2d)
     , isfltset_(false)
-    , selChange(this)
     , useoptions_(useoptions)
     , defaultoptidx_(0)
 {
@@ -1124,7 +1124,7 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel,
     {
 	const IOObjContext ctxt = mIOObjContext( EMHorizon3D );
 	objfld_ = new uiIOObjSel( this, ctxt );
-	objfld_->selectionDone.notify( mCB(this,uiAuxDataSel,objSelCB) );
+	mAttachCB( objfld_->selectionDone, uiAuxDataSel::objSelCB );
     }
 
     uiString seltxt = forread ? uiStrings::sInput() : uiStrings::sOutput();
@@ -1151,13 +1151,18 @@ void uiAuxDataSel::finalizeCB( CallBacker* )
     if ( !ioobj )
 	return;
 
-    key_ = ioobj->key();
+    setKey( ioobj->key() );
 }
 
 
 void uiAuxDataSel::setKey( const MultiID& key )
 {
     key_ = key;
+
+    EM::IOObjInfo info( key );
+    BufferStringSet nms;
+    info.getAttribNames( nms );
+    auxdatafld_->setEntries( nms, nms );
 }
 
 
@@ -1189,7 +1194,7 @@ void uiAuxDataSel::auxSelCB( CallBacker* )
 {
     uiDialog dlg( this,
 	uiDialog::Setup(tr("Select Horizon Data"),mNoDlgTitle,mTODOHelpKey) );
-    uiAuxDataGrp* grp = new uiAuxDataGrp( &dlg, forread_ );
+    auto* grp = new uiAuxDataGrp( &dlg, forread_ );
     grp->setKey( key_ );
     BufferString datanm = auxdatafld_->getInput();
     grp->setDataName( datanm );

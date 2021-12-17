@@ -49,6 +49,7 @@ public:
     void		removeAll();
     void		removeSection(const SectionID&);
 
+    bool		validIdx(int idx) const;
     int			nrAuxData() const;
 			/*!<\return	The number of data per node.
 			    \note	Some of the data might have been
