@@ -34,7 +34,6 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uistrings.h"
-#include "uiseparator.h"
 #include "settings.h"
 #include "od_helpids.h"
 #include "uilabel.h"
@@ -160,11 +159,6 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 {
     iconnms_.allowNull( true );
     ctio_.ctxt_.fillTrGroup();
-    nmfld_ = nullptr;
-    wrtrselfld_ = nullptr;
-    manipgrpsubj = nullptr;
-    mkdefbut_ = nullptr;
-    asked2overwrite_ = false;
     if ( !ctio_.ctxt_.forread_ )
 	setup_.choicemode( OD::ChooseOnlyOne );
 
@@ -193,13 +187,13 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     su.readwritesel( true );
     listfld_ = new uiListBox( topgrp_, su, "Objects" );
 
-    filtfld_ = new uiGenInput( topgrp_, uiStrings::sFilter(), "*" );
+    filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter(), "*" );
     filtfld_->setElemSzPol( uiObject::SmallVar );
     filtfld_->updateRequested.notify( mCB(this,uiIOObjSelGrp,filtChg) );
-    filtfld_->attach( centeredAbove, listfld_ );
-    auto* sep1 = new uiSeparator( topgrp_, "Filter Separator" );
-    sep1->attach( stretchedBelow, filtfld_ );
-    listfld_->attach( ensureBelow, sep1 );
+//    filtfld_->attach( leftAlignedAbove, listfld_->box() );
+//    auto* sep1 = new uiSeparator( topgrp_, "Filter Separator" );
+//    sep1->attach( stretchedBelow, filtfld_ );
+//    listfld_->attach( ensureBelow, sep1 );
     const BufferString withctxtfilter( setup_.withctxtfilter_ );
     if ( !withctxtfilter.isEmpty() )
     {
@@ -225,7 +219,8 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 		       uiIOObjSelGrp::ctxtChgCB );
 	}
     }
-    listfld_->box()->attach( centeredBelow, getFilterFieldAttachObj() );
+
+    listfld_->box()->attach( rightAlignedBelow, getFilterFieldAttachObj() );
     topgrp_->setHAlignObj( listfld_ );
 
     listfld_->setName( "Objects list" );
@@ -716,8 +711,8 @@ void uiIOObjSelGrp::fillListBox()
 	listfld_->setIcon( idx, icnm );
     }
 
-    for ( int idx : defaultidxs_ )
-	listfld_->setMarked( idx, true, uiListBox::Decorations::Legacy );
+    for ( const auto& idx : defaultidxs_ )
+	listfld_->setMarked( idx );
 
     selectionChanged.trigger();
 }

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uiobjbodyimpl.h"
 #include "uipixmap.h"
+#include "uiseparator.h"
 #include "uitoolbutton.h"
 
 #include "bufstringset.h"
@@ -531,7 +532,7 @@ void uiListBox::mkCheckGroup()
 void uiListBox::mkReadSaveButGroup()
 {
     rsbutgrp_ = new uiButtonGroup( this, "Read/Save Group", OD::Horizontal );
-    rsbutgrp_->attach( rightOf, checkgrp_ );
+    rsbutgrp_->attach( alignedAbove, checkgrp_ );
     rsbutgrp_->displayFrame( true );
     auto* readbut = new uiToolButton( rsbutgrp_, "open",
 				      uiStrings::sRead(),
@@ -539,6 +540,8 @@ void uiListBox::mkReadSaveButGroup()
     auto* savebut = new uiToolButton( rsbutgrp_, "save",
 				      uiStrings::sSave(),
 				      mCB(this,uiListBox,saveCB) );
+    auto* sep1 = new uiSeparator( this, "Filter Separator" );
+    sep1->attach( stretchedBelow, rsbutgrp_ );
 }
 
 
@@ -757,6 +760,17 @@ void uiListBox::menuCB( CallBacker* )
 	    rightclickmnu_.insertAction(new uiAction(tr("Show all")), 6);
     }
 
+    const bool needretrieve = retrievecb_.willCall();
+    const bool needsave = savecb_.willCall() && nrchecked > 0;
+    if ( needretrieve || needsave )
+    {
+	rightclickmnu_.insertSeparator();
+	if ( needretrieve )
+	    rightclickmnu_.insertAction( new uiAction(tr("Read selection")), 3);
+	if ( needsave )
+	    rightclickmnu_.insertAction( new uiAction(tr("Save selection")), 4);
+    }
+
     const int res = rightclickmnu_.exec();
     if ( res==0 || res==1 )
 	usrChooseAll( res==0 );
@@ -771,6 +785,10 @@ void uiListBox::menuCB( CallBacker* )
 	bulkcheckchg_ = false;
 	setCurrentItem( selidx );
     }
+    else if ( res == 3 )
+	retrievecb_.doCall( this );
+    else if ( res == 4 )
+	savecb_.doCall( this );
     else if ( res == 5 || res == 6 )
     {
 	allshown_ = !allshown_;

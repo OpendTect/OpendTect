@@ -146,15 +146,15 @@ protected:
     TypeSet<int>	defaultidxs_;
     BufferStringSet	dispnms_;
     BufferString	surveydefaultsubsel_;
-    bool		asked2overwrite_;
+    bool		asked2overwrite_ = false;
     ObjectSet<const char> iconnms_;
 
     uiListBox*		listfld_;
-    uiGenInput*		nmfld_;
+    uiGenInput*		nmfld_ = nullptr;
     uiGenInput*		filtfld_;
-    uiIOObjSelGrpManipSubj* manipgrpsubj;
-    uiIOObjSelWriteTranslator* wrtrselfld_;
-    uiToolButton*	mkdefbut_;
+    uiIOObjSelGrpManipSubj* manipgrpsubj = nullptr;
+    uiIOObjSelWriteTranslator* wrtrselfld_ = nullptr;
+    uiToolButton*	mkdefbut_ = nullptr;
     uiListBoxChoiceIO*	lbchoiceio_;
     ObjectSet<uiButton>	insertbuts_;
     ObjectSet<uiIOObjInserter> inserters_;

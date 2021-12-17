@@ -70,9 +70,9 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
 
     auto* refreshbut =
-	new uiToolButton( selgrp_->getTopGroup(), "refresh", tr("Refresh"),
+	new uiToolButton( selgrp_->getListField(), "refresh", tr("Refresh"),
 			  mCB(this,uiObjFileMan,updateCB) );
-    refreshbut->attach( rightBorder, selgrp_->getFilterFieldAttachObj() );
+    refreshbut->attach( rightOf, selgrp_->getFilterFieldAttachObj() );
 
     extrabutgrp_ = new uiButtonGroup( listgrp_, "Extra Buttons",
 				      OD::Horizontal );
