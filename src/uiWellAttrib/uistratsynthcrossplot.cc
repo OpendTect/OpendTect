@@ -45,7 +45,7 @@ ________________________________________________________________________
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "survinfo.h"
-#include "velocitycalc.h"
+#include "timedepthmodel.h"
 #include "valseriesevent.h"
 #include "od_helpids.h"
 

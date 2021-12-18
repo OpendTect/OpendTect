@@ -20,6 +20,7 @@
 #include "raytrace1d.h"
 #include "raytracerrunner.h"
 #include "timedepthconv.h"
+#include "timedepthmodel.h"
 #include "unitofmeasure.h"
 #include "velocityfunctionvolume.h"
 #include "windowfunction.h"

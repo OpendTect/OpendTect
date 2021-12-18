@@ -71,6 +71,7 @@ set( OD_MODULE_SOURCES
 	spectrogram.cc
 	staticsdesc.cc
 	stats.cc
+	timedepthmodel.cc
 	timeser.cc
 	transform.cc
 	trigonometry.cc

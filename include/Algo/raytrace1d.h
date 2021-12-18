@@ -9,17 +9,12 @@ ________________________________________________________________________
 
 */
 
-#include "algomod.h"
 #include "ailayer.h"
-#include "factory.h"
-#include "odcomplex.h"
 #include "reflectivitymodel.h"
-#include "survinfo.h"
 #include "paralleltask.h"
-#include "velocitycalc.h"
 
-template <class T> class Array2DImpl;
 template <class T> class Array1D;
+template <class T> class Array2DImpl;
 class TimeDepthModel;
 
 

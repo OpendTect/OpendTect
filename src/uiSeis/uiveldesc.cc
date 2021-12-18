@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
+#include "timedepthmodel.h"
 #include "unitofmeasure.h"
-#include "velocitycalc.h"
 #include "zdomain.h"
 
 #include "uibutton.h"

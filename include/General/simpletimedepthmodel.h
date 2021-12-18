@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "factory.h"
 #include "tableascio.h"
 #include "tabledef.h"
+#include "timedepthmodel.h"
 #include "transl.h"
-#include "velocitycalc.h"
 #include "zaxistransform.h"
 
 

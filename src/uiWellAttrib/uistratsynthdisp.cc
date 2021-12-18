@@ -46,7 +46,7 @@ ________________________________________________________________________
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
-#include "velocitycalc.h"
+#include "timedepthmodel.h"
 #include "waveletio.h"
 
 #include <stdio.h>

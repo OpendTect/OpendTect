@@ -15,8 +15,8 @@
 #include "statruncalc.h"
 #include "stratlevel.h"
 #include "tabledef.h"
+#include "timedepthmodel.h"
 #include "unitofmeasure.h"
-#include "velocitycalc.h"
 #include "welldata.h"
 #include "welltrack.h"
 

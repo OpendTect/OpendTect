@@ -40,6 +40,7 @@ _______________________________________________________________________
 #include "stratsynthlevel.h"
 #include "stratlevel.h"
 #include "syntheticdataimpl.h"
+#include "timedepthmodel.h"
 #include "velocitycalc.h"
 #include "zdomain.h"
 #include "od_helpids.h"

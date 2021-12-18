@@ -27,6 +27,7 @@
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "timedepthmodel.h"
 #include "unitofmeasure.h"
 #include "velocitycalc.h"
 #include "zdomain.h"

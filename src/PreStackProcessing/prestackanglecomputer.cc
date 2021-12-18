@@ -19,6 +19,7 @@
 #include "raytrace1d.h"
 #include "smoother1d.h"
 #include "survinfo.h"
+#include "timedepthmodel.h"
 #include "velocitycalc.h"
 #include "velocityfunction.h"
 

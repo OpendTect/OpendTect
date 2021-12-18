@@ -26,7 +26,7 @@
 #include "seistrcprop.h"
 #include "sorting.h"
 #include "survinfo.h"
-#include "velocitycalc.h"
+#include "timedepthmodel.h"
 #include "wavelet.h"
 #include "ioobj.h"
 

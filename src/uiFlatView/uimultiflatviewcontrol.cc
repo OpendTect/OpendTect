@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 #include "scaler.h"
 #include "survinfo.h"
+#include "timedepthmodel.h"
 
 
 MFVCViewManager::~MFVCViewManager()

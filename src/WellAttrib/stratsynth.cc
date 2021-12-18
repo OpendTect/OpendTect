@@ -51,6 +51,7 @@ ________________________________________________________________________
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "unitofmeasure.h"
+#include "timedepthmodel.h"
 #include "timeser.h"
 #include "transl.h"
 #include "wavelet.h"

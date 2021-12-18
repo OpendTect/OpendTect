@@ -12,7 +12,8 @@ ________________________________________________________________________
 #include "uiflatviewmod.h"
 #include "uiflatviewstdcontrol.h"
 #include "flatview.h"
-#include "velocitycalc.h"
+
+class TimeDepthModel;
 
 /*!
 \brief A control for flatviewers with different zoom properties and settings.

@@ -15,9 +15,8 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
-#include "iopar.h"
 #include "sorting.h"
-#include "velocitycalc.h"
+#include "timedepthmodel.h"
 #include "zoeppritzcoeff.h"
 
 mImplFactory(RayTracer1D,RayTracer1D::factory)

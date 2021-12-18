@@ -9,7 +9,7 @@
 
 #include "idxable.h"
 #include "survinfo.h"
-#include "velocitycalc.h"
+#include "timedepthmodel.h"
 #include "welldata.h"
 #include "trigonometry.h"
 

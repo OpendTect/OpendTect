@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "uiwellpartserv.h"
 
-#include "velocitycalc.h"
 #include "welltransl.h"
 #include "wellman.h"
 #include "welldata.h"
@@ -51,6 +50,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "timedepthmodel.h"
 
 
 namespace Well {

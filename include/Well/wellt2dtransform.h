@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "wellmod.h"
 
 #include "callback.h"
-#include "velocitycalc.h"
+#include "timedepthmodel.h"
 #include "zaxistransform.h"
 
 
