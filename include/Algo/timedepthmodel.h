@@ -145,6 +145,7 @@ mExpClass(Algo) TimeDepthConverter : public TimeDepthModel
 { mODTextTranslationClass(TimeDepthConverter)
 public:
 			TimeDepthConverter();
+			~TimeDepthConverter();
 
     bool		isOK() const override;
     static bool		isVelocityDescUseable(const VelocityDesc&,
@@ -202,5 +203,5 @@ private:
     float		lastvel_;
 
     bool		regularinput_ = true;
-    SamplingData<double> sd_;
+    SamplingData<double>& sd_;
 };

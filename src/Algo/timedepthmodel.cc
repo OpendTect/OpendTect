@@ -466,7 +466,14 @@ void TimeDepthModelSet::setTWT( int imdl, int idz, float twt )
 
 TimeDepthConverter::TimeDepthConverter()
     : TimeDepthModel()
+    , sd_(*new SamplingData<double>)
 {}
+
+
+TimeDepthConverter::~TimeDepthConverter()
+{
+    delete &sd_;
+}
 
 
 bool TimeDepthConverter::isOK() const
