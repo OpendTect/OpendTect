@@ -535,11 +535,11 @@ void uiListBox::mkReadSaveButGroup()
     rsbutgrp_->attach( alignedAbove, checkgrp_ );
     rsbutgrp_->displayFrame( true );
     new uiToolButton( rsbutgrp_, "open",
-				      uiStrings::sRead(),
-				      mCB(this,uiListBox,retrieveCB) );
+			uiStrings::sRead(),
+			mCB(this,uiListBox,retrieveCB) );
     new uiToolButton( rsbutgrp_, "save",
-				      uiStrings::sSave(),
-				      mCB(this,uiListBox,saveCB) );
+			uiStrings::sSave(),
+			mCB(this,uiListBox,saveCB) );
     auto* sep1 = new uiSeparator( this, "Filter Separator" );
     sep1->attach( stretchedBelow, rsbutgrp_ );
 }
