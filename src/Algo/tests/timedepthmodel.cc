@@ -5,9 +5,12 @@
 -*/
 
 
+#include "testprog.h"
+
+#include "ailayer.h"
 #include "timedepthmodel.h"
 #include "raytrace1d.h"
-#include "testprog.h"
+#include "reflectivitymodel.h"
 
 #define mDefTimeEps 1e-6f
 #define mDefDepthEps 1e-2f
@@ -41,12 +44,9 @@ static TypeSet<float> getOffsets()
 }
 
 
-static bool testRayTracer()
+static bool testRayTracer( const RayTracer1D::Setup& rtsu )
 {
     const ElasticModel emdl = getEModel();
-
-    RayTracer1D::Setup rtsu;
-    rtsu.doreflectivity( false );
 
     VrmsRayTracer1D raytracer;
     raytracer.setup() = rtsu;
@@ -76,10 +76,47 @@ static bool testRayTracer()
     mTestVal(tdmodel.getTime(3),0.668f,mDefTimeEps);
     mTestVal(tdmodel.getTime(4),0.843f,mDefTimeEps);
 
+    ConstRefMan<TimeDepthModelSet> retmodels = raytracer.getTDModels();
+    mRunStandardTest( retmodels, "Retrieve output model from raytracer" );
+
+    const TimeDepthModelSet& tdmodelset = *retmodels.ptr();
+    const TimeDepthModel& tdmodelz0 = tdmodelset.getDefaultModel();
+    mTestVal(tdmodelz0.getDepth(1),48.f,mDefDepthEps);
+    mTestVal(tdmodelz0.getDepth(2),568.f,mDefDepthEps);
+    mTestVal(tdmodelz0.getDepth(3),953.f,mDefDepthEps);
+    mTestVal(tdmodelz0.getDepth(4),1303.f,mDefDepthEps);
+    mTestVal(tdmodelz0.getTime(1),0.048f,mDefTimeEps);
+    mTestVal(tdmodelz0.getTime(2),0.448f,mDefTimeEps);
+    mTestVal(tdmodelz0.getTime(3),0.668f,mDefTimeEps);
+    mTestVal(tdmodel.getTime(4),0.843f,mDefTimeEps);
+
+    const TimeDepthModel* tdmodeloff2 = tdmodelset.get( 1 );
+    mRunStandardTest( retmodels, "Retrieve offset trace from raytracer" );
+
+    mTestVal(tdmodeloff2->getDepth(1),48.f,mDefDepthEps);
+    mTestVal(tdmodeloff2->getDepth(2),568.f,mDefDepthEps);
+    mTestVal(tdmodeloff2->getDepth(3),953.f,mDefDepthEps);
+    mTestVal(tdmodeloff2->getDepth(4),1303.f,mDefDepthEps);
 
     mRunStandardTest( true, "RayTracer values" );
 
     return true;
+}
+
+
+static bool testBaseRayTracer()
+{
+    RayTracer1D::Setup rtsu;
+    rtsu.doreflectivity( false );
+    return testRayTracer( rtsu );
+}
+
+
+static bool testRefRayTracer()
+{
+    RayTracer1D::Setup rtsu;
+    rtsu.doreflectivity( true );
+    return testRayTracer( rtsu );
 }
 
 
@@ -150,7 +187,7 @@ static bool testOffRefModelSet()
     const ElasticModel emdl = getEModel();
     const int nrlayers = emdl.size();
 
-    const ReflectivityModelSet::Setup refmssu( true );
+    const OffsetReflectivityModelSet::Setup refmssu;
 
     ConstRefMan<OffsetReflectivityModelSet> simple =
 	new OffsetReflectivityModelSet( emdl, refmssu );
@@ -265,7 +302,7 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testRayTracer() ||
+    if ( !testBaseRayTracer() || !testRefRayTracer() ||
 	 !testTDModelSet() ||
 	 !testOffRefModelSet() ||
 	 !testAngRefModelSet() )

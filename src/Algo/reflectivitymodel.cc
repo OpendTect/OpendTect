@@ -13,21 +13,15 @@
 
 // ReflectivityModelTrace
 
-ReflectivityModelTrace::ReflectivityModelTrace( int nrspikes, bool withtwt )
+ReflectivityModelTrace::ReflectivityModelTrace( int nrspikes )
 {
     mTryAlloc( reflectivities_, float_complex[nrspikes] );
-    if ( withtwt )
-    {
-	mTryAlloc( twt_, float[nrspikes] );
-	if ( !twt_ )
-	    deleteAndZeroArrPtr( reflectivities_ );
-    }
 }
+
 
 ReflectivityModelTrace::~ReflectivityModelTrace()
 {
     delete [] reflectivities_;
-    delete [] twt_;
 }
 
 
@@ -76,8 +70,7 @@ ReflectivityModelSet::ReflectivityModelSet( const ElasticModel& emodel,
 		       : axisvals->size();
     for ( int idx=0; idx<nrmodels; idx++ )
     {
-	auto* refmodel = new ReflectivityModelTrace( modelSize() - 1,
-						     rmsu.offsetdomain_ );
+	auto* refmodel = new ReflectivityModelTrace( modelSize() - 2 );
 	if ( !refmodel || !refmodel->isOK() )
 	{
 	    delete refmodel;
@@ -113,12 +106,19 @@ int ReflectivityModelSet::nrRefModels() const
 }
 
 
+float_complex* ReflectivityModelSet::getRefs( int imodel )
+{
+    return reflectivities_.get( imodel )->getReflectivities();
+}
+
+
 bool ReflectivityModelSet::isDefined( int imdl, int idz ) const
 {
     const ReflectivityModelTrace* rm = reflectivities_.get( imdl );
+    const TimeDepthModel& defd2t = getDefaultModel();
     const TimeDepthModel* t2d = get( imdl );
     return !mIsUdf(rm->getReflectivities()[idz]) &&
-	   !mIsUdf(rm->getTwtArr()[idz]) &&
+	   !mIsUdf(defd2t.getTimes()[idz+1]) &&
 	   !mIsUdf(t2d->getTimes()[idz+1]) &&
 	   !mIsUdf(t2d->getDepths()[idz+1] );
 }
@@ -128,7 +128,7 @@ bool ReflectivityModelSet::isDefined( int imdl, int idz ) const
 
 OffsetReflectivityModelSet::OffsetReflectivityModelSet(
 				const ElasticModel& emodel,
-				const ReflectivityModelSet::Setup& rmsu,
+				const OffsetReflectivityModelSet::Setup& rmsu,
 				const TypeSet<float>* axisvals, float* velmax )
     : ReflectivityModelSet( emodel, rmsu, axisvals, velmax )
 {

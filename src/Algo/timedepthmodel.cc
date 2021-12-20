@@ -344,7 +344,19 @@ const TimeDepthModel& TimeDepthModelSet::getDefaultModel() const
 }
 
 
+TimeDepthModel& TimeDepthModelSet::getDefaultModel()
+{
+    return *defmodel_;
+}
+
+
 const TimeDepthModel* TimeDepthModelSet::get( int idx ) const
+{
+    return mSelf().get( idx );
+}
+
+
+TimeDepthModel* TimeDepthModelSet::get( int idx )
 {
     return singleton_ ? defmodel_
 		      : (tdmodels_.validIdx( idx ) ? tdmodels_.get( idx )

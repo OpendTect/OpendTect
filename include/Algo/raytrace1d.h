@@ -9,13 +9,17 @@ ________________________________________________________________________
 
 */
 
-#include "ailayer.h"
-#include "reflectivitymodel.h"
+#include "algomod.h"
+
+#include "factory.h"
+#include "odcomplex.h"
 #include "paralleltask.h"
 
-template <class T> class Array1D;
-template <class T> class Array2DImpl;
+class ElasticModel;
+class ReflectivitySpike;
+typedef class TypeSet<ReflectivitySpike> ReflectivityModel;
 class TimeDepthModel;
+class TimeDepthModelSet;
 
 
 /*!
@@ -61,16 +65,12 @@ public:
 
     void		setOffsets(const TypeSet<float>& offsets);
     void		getOffsets(TypeSet<float>& offsets) const;
-    bool		isPSWithoutZeroOffset() const;
-			// If PreStack & Offset Range do not have zero offset
 
     uiString		errMsg() const { return errmsg_; }
 
 			//Available after execution
+    ConstRefMan<TimeDepthModelSet>	getTDModels() const;
     float		getSinAngle(int layeridx,int offsetidx) const;
-    bool                getReflectivity(int offset,ReflectivityModel&) const;
-    bool		getTDModel(int offset,TimeDepthModel&) const;
-    bool		getZeroOffsTDModel(TimeDepthModel&) const;
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -91,31 +91,39 @@ protected:
 			RayTracer1D();
 
     od_int64		nrIterations() const;
-    virtual bool	doPrepare(int);
-    virtual bool	compute(int,int,float);
-    bool		getTDM(const Array1D<float>&,TimeDepthModel&) const;
-    void		setZeroOffsetTWT();
+    bool		doPrepare(int) override;
+    bool		doFinish(bool) override;
+    virtual bool	compute(int layer,int offidx,float rayparam);
+
+    bool		getTDM(const float*,TimeDepthModel&) const;
 
 			//Setup variables
-    ElasticModel	model_; // model top depth must be TWT = 0ms
+    ElasticModel&	model_; // model top depth must be TWT = 0ms
     TypeSet<float>	offsets_;
     uiString		errmsg_;
 
 			//Runtime variables
     TypeSet<int>	offsetpermutation_;
-    TypeSet<float>	velmax_;
-    TypeSet<float>	depths_;
+    float*		velmax_ = nullptr;
+    float*		depths_ = nullptr;
+    float*		zerooffstwt_ = nullptr;
+    float**		twt_ = nullptr;
+    float_complex**	reflectivities_ = nullptr;
+    float**		sinarr_ = nullptr;
 
 				//Results
-    Array2DImpl<float>*		sini_;
-    Array2DImpl<float>*		twt_;
-    Array1D<float>*		zerooffstwt_;
-    Array2DImpl<float_complex>* reflectivity_;
+    RefMan<TimeDepthModelSet>	tdmodels_;
+    float*		sini_ = nullptr;
 
 public:
 
     float		getDepth(int layer) const;
     float		getTime(int layer,int offset) const;
+
+    //TODO mark as deprecated:
+    bool                getReflectivity(int offset,ReflectivityModel&) const;
+    bool		getTDModel(int offset,TimeDepthModel&) const;
+    bool		getZeroOffsTDModel(TimeDepthModel&) const;
 };
 
 
@@ -131,11 +139,11 @@ public:
 				  "VrmsRayTracer",
 				  tr("Simple RayTracer") );
 
-    RayTracer1D::Setup&		setup()	{ return setup_; }
-    const RayTracer1D::Setup&	setup() const	{ return setup_; }
+    RayTracer1D::Setup&		setup() override	{ return setup_; }
+    const RayTracer1D::Setup&	setup() const override	{ return setup_; }
 
 protected:
-    bool			doWork(od_int64,od_int64,int);
+    bool			doWork(od_int64,od_int64,int) override;
 
     bool			compute(int,int,float);
 

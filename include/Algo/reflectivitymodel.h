@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "odcomplex.h"
 #include "timedepthmodel.h"
 
+class RayTracer1D;
 class ReflectivityModelSet;
 
 
@@ -25,21 +26,17 @@ class ReflectivityModelSet;
 mClass(Algo) ReflectivityModelTrace
 {
 public:
-			ReflectivityModelTrace(int nrspikes,bool withtwt);
+			ReflectivityModelTrace(int nrspikes);
 			~ReflectivityModelTrace();
 
     bool		isOK() const;
 
     const float_complex* getReflectivities() const  { return reflectivities_; }
-    const float* getTwtArr() const		    { return twt_; }
 
 private:
 
     float_complex*	reflectivities_;
-    float*		twt_ = nullptr; //Uncorrected for NMO
-
     float_complex*	getReflectivities() { return reflectivities_; }
-    float*		getTwtArr()	    { return twt_; }
 
     friend class ReflectivityModelSet;
 
@@ -56,6 +53,12 @@ private:
 mExpClass(Algo) ReflectivityModelSet : public TimeDepthModelSet
 {
 public:
+
+    int			nrRefModels() const;
+    bool		isDefined(int imdl,int idz) const;
+
+protected:
+
     mExpClass(Algo) Setup : public TimeDepthModelSet::Setup
     {
     public:
@@ -70,11 +73,6 @@ public:
 	bool		usePar(const IOPar&) override;
     };
 
-    int			nrRefModels() const;
-    bool		isDefined(int imdl,int idz) const;
-
-protected:
-
 			ReflectivityModelSet(const ElasticModel&,
 				const ReflectivityModelSet::Setup&,
 				const TypeSet<float>* axisvals =nullptr,
@@ -83,12 +81,16 @@ protected:
 				const TypeSet<float>& anglevals,
 			        const ReflectivityModelSet::Setup&);
 			//!< Angle-based models only
-			
+
+    float_complex*	getRefs(int imdl);
+
 			~ReflectivityModelSet();
 
 private:
 
     ObjectSet<ReflectivityModelTrace>  reflectivities_;
+
+    friend class RayTracer1D;
 };
 
 
@@ -99,8 +101,16 @@ private:
 mExpClass(Algo) OffsetReflectivityModelSet : public ReflectivityModelSet
 {
 public:
+    mExpClass(Algo) Setup : public ReflectivityModelSet::Setup
+    {
+    public:
+			Setup()
+			    : ReflectivityModelSet::Setup(true)
+			{}
+    };
+
 			OffsetReflectivityModelSet(const ElasticModel&,
-				const ReflectivityModelSet::Setup&,
+				const OffsetReflectivityModelSet::Setup&,
 				const TypeSet<float>* axisvals =nullptr,
 				float* velmax =nullptr );
 };

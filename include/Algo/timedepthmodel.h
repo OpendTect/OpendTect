@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class ElasticModel;
+class RayTracer1D;
 class Scaler;
 class TimeDepthModelSet;
 class VelocityDesc;
@@ -82,6 +83,7 @@ private:
     float*		depths_ = nullptr;
     bool		owndepths_ = true;
 
+    friend class RayTracer1D;
     friend class TimeDepthModelSet;
 
 public:
@@ -154,12 +156,17 @@ private:
     void		setFrom(const ElasticModel&,const Setup&,
 				float* velmax);
 
+    TimeDepthModel&	getDefaultModel();
+    TimeDepthModel*	get(int);
+
     ObjectSet<TimeDepthModel> tdmodels_;
     TimeDepthModel*	defmodel_ = nullptr;
     bool		singleton_ = true;
 
 			TimeDepthModelSet(const TimeDepthModelSet&) = delete;
    TimeDepthModelSet&	operator =(const TimeDepthModelSet&) = delete;
+
+   friend class RayTracer1D;
 };
 
 

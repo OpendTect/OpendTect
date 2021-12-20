@@ -21,6 +21,7 @@
 #include "uitaskrunner.h"
 #include "uiveldesc.h"
 #include "od_helpids.h"
+#include "survinfo.h"
 
 
 namespace PreStack
@@ -28,10 +29,10 @@ namespace PreStack
 
 uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     : uiDialog( p, uiDialog::Setup(tr("Angle Mute Computer"),
-				    mNoDlgTitle, 
+				    mNoDlgTitle,
                                     mODHelpKey(mAngleMuteComputerHelpID) ) )
     , outctio_( *mMkCtxtIOObj(MuteDef) )
-    , processor_(new AngleMuteComputer) 
+    , processor_(new AngleMuteComputer)
 {
     anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(), true );
 
@@ -73,7 +74,7 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
 	subsel_->getSampling( hrg );
 
     processor_->params().tks_ = hrg;
-    processor_->params().outputmutemid_ = mutedeffld_->key(true); 
+    processor_->params().outputmutemid_ = mutedeffld_->key(true);
 
     uiTaskRunner taskrunner(this);
     if ( !TaskRunner::execute( &taskrunner, *processor_ ) )
