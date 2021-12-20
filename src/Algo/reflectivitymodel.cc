@@ -7,6 +7,9 @@
 
 #include "reflectivitymodel.h"
 
+#include "ptrman.h"
+#include "typeset.h"
+
 
 // ReflectivityModelTrace
 
