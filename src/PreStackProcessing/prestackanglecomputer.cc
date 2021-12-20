@@ -47,11 +47,7 @@ static const float maxtwttime = 100.0f;
 
 
 AngleComputer::AngleComputer()
-    : thresholdparam_(0.01)
-    , needsraytracing_(true)
-    , raytracer_(nullptr)
-    , trckey_(BinID(0,0))
-    , maxthickness_(25.f)
+    : trckey_(BinID(0,0))
 {
 }
 
@@ -63,12 +59,15 @@ AngleComputer::~AngleComputer()
 
 
 void AngleComputer::setOutputSampling( const FlatPosData& os )
-{ outputsampling_  = os; }
+{
+    outputsampling_  = os;
+}
 
 
 void AngleComputer::setRayTracer( const IOPar& raypar )
 {
     uiString errormsg;
+    delete raytracer_;
     raytracer_ = RayTracer1D::createInstance( raypar, errormsg );
 }
 
@@ -82,7 +81,7 @@ RayTracer1D* AngleComputer::curRayTracer()
     const AngleComputer* thiscomputer =
 		const_cast<const AngleComputer*>( this );
     const RayTracer1D* rt = thiscomputer->curRayTracer();
-	return const_cast<RayTracer1D*>( rt );
+    return const_cast<RayTracer1D*>( rt );
 }
 
 
@@ -153,6 +152,10 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
     if ( !rt )
 	return;
 
+    ConstRefMan<TimeDepthModelSet> rtmodel = rt->getTDModels();
+    if ( !rtmodel )
+	return;
+
     float* arr1doutput = angledata.getData();
     if ( !arr1doutput )
 	return;
@@ -161,11 +164,10 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
     const int zsize = zrange.nrSteps() + 1;
     const int offsetsize = outputsampling_.nrPts( true );
 
-    TimeDepthModel td;
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
-	rt->getTDModel( ofsidx, td );
-	if ( !td.isOK() )
+	const TimeDepthModel* td = rtmodel->get( ofsidx );
+	if ( !td || !td->isOK() )
 	{
 	    arr1doutput = arr1doutput + zsize;
 	    continue;
@@ -178,7 +180,7 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
 	    const float depth = mCast( float, zrange.atIndex(zidx) );
-	    layertwt = td.getTime( depth );
+	    layertwt = td->getTime( depth );
 	    if ( mIsEqual(layertwt,prevlayertwt,1e-3) )
 		continue;
 
@@ -206,7 +208,7 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 	for ( int zidx=0; zidx<zsizeintime; zidx++ )
 	{
 	    const float time = zidx * deftimestep;
-	    layerdepth = td.getDepth( time );
+	    layerdepth = td->getDepth( time );
 	    if ( mIsEqual(layerdepth,prevlayerdepth,1e-3) )
 		continue;
 
@@ -314,31 +316,24 @@ void AngleComputer::averageSmooth( Array2D<float>& angledata )
 bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 {
     const RayTracer1D* rt = curRayTracer();
-    if ( !rt ) return false;
+    if ( !rt )
+	return false;
 
-    const int nrlayers = rt->getModel().size();
-    mAllocVarLenArr( float, depths, nrlayers );
-    mAllocVarLenArr( float, times, nrlayers );
-    if ( !mIsVarLenArrOK(depths) || !mIsVarLenArrOK(times) ) return false;
-    const bool zistime = SI().zIsTime();
-    if ( !zistime || gatheriscorrected_ )
-    {
-	for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
-	    depths[layeridx] = rt->getDepth( layeridx );
+    ConstRefMan<TimeDepthModelSet> rtmodel = rt->getTDModels();
+    if ( !rtmodel )
+	return false;
 
-	if (gatheriscorrected_)
-	{
-	    TimeDepthModel tdmodel; rt->getZeroOffsTDModel( tdmodel );
-	    for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
-		times[layeridx] = tdmodel.getTime( depths[layeridx] );
-	}
-    }
+    const TimeDepthModel& corrd2t = rtmodel->getDefaultModel();
+    const float* depths = corrd2t.getDepths()+1;
+    const float* times = corrd2t.getTimes()+1;
+    const int nrlayers = rtmodel->modelSize()-1;
 
     TypeSet<float> offsets;
     outputsampling_.getPositions( true, offsets );
     const int offsetsize = outputsampling_.nrPts( true );
     const int zsize = outputsampling_.nrPts( false );
     const StepInterval<double> outputzrg = outputsampling_.range( false );
+    const bool zistime = SI().zIsTime();
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
 	const float offset = offsets[ofsidx];
@@ -352,6 +347,14 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 
 	sinanglevals.add( 0.f, zerooffset ? 0.f : 1.f );
 	anglevals.add( 0.f, zerooffset ? 0.f : M_PI_2f );
+	if ( !gatheriscorrected_ )
+	{
+	    const TimeDepthModel* d2t = rtmodel->get( ofsidx );
+	    if ( !d2t || !d2t->isOK() )
+		return false;
+
+	    times = d2t->getTimes()+1;
+	}
 
 	for ( int layeridx=0; layeridx<nrlayers; layeridx++ )
 	{
@@ -362,10 +365,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	    if ( fabs(sinangle) > 1.0f )
 		sinangle = sinangle > 0.f ? 1.0f : -1.0f;
 
-	    const float zval = zistime
-		  ? (gatheriscorrected_ ? times[layeridx]
-				  : rt->getTime(layeridx,ofsidx))
-		  : depths[layeridx];
+	    const float zval = zistime ? times[layeridx] : depths[layeridx];
 	    sinanglevals.add( zval, sinangle );
 	    anglevals.add( zval, Math::ASin(sinangle) );
 	}
@@ -404,6 +404,7 @@ Gather* AngleComputer::computeAngleData()
 		    ? RayTracer1D::factory().getNames().get( lastitem ).str()
 		    : VrmsRayTracer1D::sFactoryKeyword() );
 	    uiString errormsg;
+	    delete raytracer_;
 	    raytracer_ = RayTracer1D::createInstance( iopar, errormsg );
 	    raytracer = raytracer_;
 	    if ( !errormsg.isEmpty() )
@@ -440,21 +441,20 @@ Gather* AngleComputer::computeAngleData()
 // VelocityBasedAngleComputer
 VelocityBasedAngleComputer::VelocityBasedAngleComputer()
     : AngleComputer()
-    , velsource_( 0 )
 {}
 
 
 VelocityBasedAngleComputer::~VelocityBasedAngleComputer()
 {
-    if ( velsource_ ) velsource_->unRef();
+    unRefPtr( velsource_ );
 }
 
 
 bool VelocityBasedAngleComputer::setMultiID( const MultiID& mid )
 {
-    if ( velsource_ ) velsource_->unRef();
+    unRefPtr( velsource_ );
     velsource_ = Vel::FunctionSource::factory().create( 0, mid, false );
-    if ( velsource_ ) velsource_->ref();
+    refPtr( velsource_ );
 
     return velsource_;
 }
@@ -470,15 +470,15 @@ Gather* VelocityBasedAngleComputer::computeAngles()
 
     RefMan<Vel::FunctionSource> source = velsource_;
     if ( !source )
-	return 0;
+	return nullptr;
 
     ConstRefMan<Vel::Function> func = source->getFunction( trckey_.position() );
     if ( !func )
-	return 0;
+	return nullptr;
 
     VelocityDesc veldesc = func->getDesc();
     if ( !veldesc.isVelocity() )
-	return 0;
+	return nullptr;
 
     const StepInterval<float> desiredzrange = func->getDesiredZ();
     StepInterval<float> zrange = func->getAvailableZ();
@@ -488,14 +488,14 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     mAllocVarLenArr( float, velsrc, zsize );
     mAllocVarLenArr( float, vel, zsize );
     if ( !mIsVarLenArrOK(velsrc) || !mIsVarLenArrOK(vel) )
-	return 0;
+	return nullptr;
 
     for( int idx=0; idx<zsize; idx++ )
 	velsrc[idx] = func->getVelocity( zrange.atIndex(idx) );
 
     if ( !convertToVintIfNeeded(velsrc,veldesc,zrange,vel) ||
 	 !elasticmodel_.createFromVel(zrange,vel) )
-	return 0;
+	return nullptr;
 
     elasticmodel_.setMaxThickness( maxthickness_ );
 
@@ -648,7 +648,9 @@ RayTracer1D* ModelBasedAngleComputer::curRayTracer()
 
 const RayTracer1D* ModelBasedAngleComputer::curRayTracer() const
 {
-    if ( raytracer_ ) return raytracer_;
+    if ( raytracer_ )
+	return raytracer_;
+
     return curModelTool() ? curModelTool()->rayTracer() : nullptr;
 }
 

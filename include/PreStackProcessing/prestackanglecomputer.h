@@ -40,17 +40,15 @@ mExpClass(PreStackProcessing) AngleComputer
 {
     mRefCountImpl(AngleComputer)
 public:
-    AngleComputer();
+				AngleComputer();
 
     enum smoothingType { None, MovingAverage, FFTFilter };
     mDeclareEnumUtils(smoothingType)
 
     virtual Gather* computeAngles() = 0;
     virtual bool		isOK() const = 0;
-    void			setTrcKey(const TrcKey & tk)
-    {
-        trckey_ = tk;
-    }
+    void			setTrcKey( const TrcKey & tk )
+				{ trckey_ = tk; }
 
     void			setOutputSampling(const FlatPosData&);
     void			setRayTracer(const IOPar & raypar);
@@ -92,13 +90,13 @@ protected:
 
     IOPar			iopar_;
     FlatPosData			outputsampling_;
-    RayTracer1D*		raytracer_;
+    RayTracer1D*		raytracer_ = nullptr;
     ElasticModel		elasticmodel_;
-    float			thresholdparam_;
-    float			maxthickness_;
-    bool			needsraytracing_;
+    float			thresholdparam_ = 0.01f;
+    float			maxthickness_ = 25.f;
+    bool			needsraytracing_ = true;
     TrcKey			trckey_;
-    bool            gatheriscorrected_ = true;
+    bool			gatheriscorrected_ = true;
 };
 
 
@@ -123,7 +121,7 @@ protected:
     const ElasticModel&		curElasticModel() const	{ return elasticmodel_;}
     const RayTracer1D*		curRayTracer() const	{ return raytracer_; }
 
-    Vel::FunctionSource*	velsource_;
+    Vel::FunctionSource*	velsource_ = nullptr;
 };
 
 
@@ -151,7 +149,7 @@ public:
     protected:
 	ElasticModel*		em_ = nullptr;
 	RayTracer1D*		rt_ = nullptr;
-	bool ownrt_;
+	bool			ownrt_;
 	TrcKey			trckey_;
 
     private:
