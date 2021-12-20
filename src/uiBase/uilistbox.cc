@@ -534,10 +534,10 @@ void uiListBox::mkReadSaveButGroup()
     rsbutgrp_ = new uiButtonGroup( this, "Read/Save Group", OD::Horizontal );
     rsbutgrp_->attach( alignedAbove, checkgrp_ );
     rsbutgrp_->displayFrame( true );
-    auto* readbut = new uiToolButton( rsbutgrp_, "open",
+    new uiToolButton( rsbutgrp_, "open",
 				      uiStrings::sRead(),
 				      mCB(this,uiListBox,retrieveCB) );
-    auto* savebut = new uiToolButton( rsbutgrp_, "save",
+    new uiToolButton( rsbutgrp_, "save",
 				      uiStrings::sSave(),
 				      mCB(this,uiListBox,saveCB) );
     auto* sep1 = new uiSeparator( this, "Filter Separator" );
