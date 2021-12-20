@@ -997,35 +997,35 @@ void uiListBox::setItemSelectable( int index, bool yn )
 
 void uiListBox::setPixmap( int index, const Color& col )
 {
-    setPixmap( index, col, false );
+    setPixmap( index, col, Left );
 }
 
 
 void uiListBox::setPixmap( int index, const uiPixmap& pm )
 {
-    setPixmap( index, pm, false );
+    setPixmap( index, pm, Left );
 }
 
 
 void uiListBox::setPixmap( int index, const Color& col,
-			   bool placeright )
+			   DecorationPos decpos )
 {
     if ( index<0 || index>=size() || !lb_->body().item(index) )
 	return;
 
     const QSize sz = lb_->body().iconSize();
     uiPixmap pm( sz.width(), sz.height() ); pm.fill( col );
-    setPixmap( index, pm, placeright );
+    setPixmap( index, pm, decpos );
 }
 
 
 void uiListBox::setPixmap( int index, const uiPixmap& pm,
-			   bool placeright )
+			   DecorationPos decpos )
 {
     if ( index<0 || index>=size() ||
 	 !lb_->body().item(index) || !pm.qpixmap() ) return;
 
-    lb_->body().setPixmap( index, pm, placeright );
+    lb_->body().setPixmap( index, pm, decpos == Right );
 }
 
 
@@ -1157,35 +1157,29 @@ bool uiListBox::isMarked( int idx ) const
 
 void uiListBox::setMarked( int idx, bool yn )
 {
-    setMarked( idx, yn, None, nullptr );
+    setMarked( idx, None );
 }
 
 
 
-void uiListBox::setMarked( int idx, bool yn, Decorations markdec, uiPixmap* pm )
+void uiListBox::setMarked( int idx, DecorationType markdec )
 {
     if ( !validIdx(idx) )
 	return;
 
     BufferString texttobemarked;
     getMarkedText( idx, texttobemarked );
-    if ( !yn )
-    {
-	removePixmap( idx );
-	doMarked( idx, yn );
-	setItemText( idx, texttobemarked );
-	return;
-    }
-
     if ( markdec == uiListBox::None )
     {
 	removePixmap( idx );
-	doMarked( idx, yn );
+	setItemMarked( idx, false );
+	setItemText( idx, texttobemarked );
 	return;
     }
     else if ( markdec == uiListBox::Pixmap )
     {
-	setPixmap( idx, *pm, true );
+	uiPixmap pm( "star" );
+	setPixmap( idx, pm, DecorationPos::Right );
     }
     else if ( markdec == uiListBox::Star )
     {
@@ -1202,11 +1196,11 @@ void uiListBox::setMarked( int idx, bool yn, Decorations markdec, uiPixmap* pm )
 	setItemText( idx, text );
     }
 
-    doMarked( idx, yn );
+    setItemMarked( idx, yn );
 }
 
 
-void uiListBox::doMarked( int idx, bool yn )
+void uiListBox::setItemMarked( int idx, bool yn )
 {
     lb_->body().getItemMark( idx ) = yn;
     lb_->body().updateText( idx );
@@ -1244,19 +1238,22 @@ void uiListBox::getMarkedText( int idx, BufferString& text ) const
 }
 
 
-void uiListBox::getDecorationType( int idx, uiListBox::Decorations& dec ) const
+uiListBox::DecorationType uiListBox::getDecorationType( int idx ) const
 {
     if ( !isMarked(idx) )
-	return;
+	return None;
 
+    DecorationType dec = Pixmap;
     BufferString starchar = "*";
     BufferString legacychar = "><";
     BufferString markedtext = lb_->body().getItemText(idx).getFullString();
     if ( markedtext.last() == starchar.last() )
-	dec = uiListBox::Star;
+	dec = Star;
     else if( markedtext.last() == legacychar.last()
 	     && markedtext.first() == legacychar.first() )
-	dec = uiListBox::Legacy;
+	dec = Legacy;
+
+    return dec;
 }
 
 
@@ -1357,9 +1354,7 @@ void uiListBox::setItemText( int idx, const uiString& txt )
     if ( !isMarked(idx) )
 	return;
 
-    uiListBox::Decorations dec = uiListBox::None;
-    getDecorationType( idx, dec );
-    setMarked( idx, true, dec, nullptr );
+    setMarked( idx, getDecorationType(idx) );
 }
 
 
