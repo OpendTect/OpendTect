@@ -190,10 +190,6 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter(), "*" );
     filtfld_->setElemSzPol( uiObject::SmallVar );
     filtfld_->updateRequested.notify( mCB(this,uiIOObjSelGrp,filtChg) );
-//    filtfld_->attach( leftAlignedAbove, listfld_->box() );
-//    auto* sep1 = new uiSeparator( topgrp_, "Filter Separator" );
-//    sep1->attach( stretchedBelow, filtfld_ );
-//    listfld_->attach( ensureBelow, sep1 );
     const BufferString withctxtfilter( setup_.withctxtfilter_ );
     if ( !withctxtfilter.isEmpty() )
     {
