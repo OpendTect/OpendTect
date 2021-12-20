@@ -106,8 +106,8 @@ bool testNormalOperation( const CommandLineParser& clparser )
     mRunStandardTest( testparser.isKeyValue(3)==false, "Is keyvalue 3" );
 
     int createint;
-    float createfloat;
-    double createdouble;
+    float createfloat = 0.f;
+    double createdouble = 0.f;
     BufferString flagfile;
     BufferString valstr;
     BufferStringSet keyvals;
@@ -116,10 +116,10 @@ bool testNormalOperation( const CommandLineParser& clparser )
     mRunStandardTest( testparser.getVal(createstr,createint) && createint==5,
 		 "Int value" );
     mRunStandardTest( testparser.getVal(createstr,createfloat) &&
-		createfloat==5,
+		createfloat==5.f,
 		"Float value");
     mRunStandardTest( testparser.getVal(createstr,createdouble) &&
-		      createdouble==5, "Double value");
+		      createdouble==5., "Double value");
     mRunStandardTest( testparser.getVal("flag", flagfile) && flagfile==file2str,
 		"String value");
     mRunStandardTest( testparser.getVal("nonexistingkey", flagfile)==false,
