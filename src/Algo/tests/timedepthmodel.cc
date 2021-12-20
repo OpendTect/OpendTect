@@ -8,9 +8,7 @@
 #include "testprog.h"
 
 #include "ailayer.h"
-#include "timedepthmodel.h"
 #include "raytrace1d.h"
-#include "reflectivitymodel.h"
 
 #define mDefTimeEps 1e-6f
 #define mDefDepthEps 1e-2f

@@ -14,9 +14,7 @@ ________________________________________________________________________
 #include "raytrace1d.h"
 
 #include "ailayer.h"
-#include "reflectivitymodel.h"
 #include "sorting.h"
-#include "timedepthmodel.h"
 #include "uistrings.h"
 #include "zoeppritzcoeff.h"
 

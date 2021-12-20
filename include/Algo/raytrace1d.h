@@ -14,12 +14,9 @@ ________________________________________________________________________
 #include "factory.h"
 #include "odcomplex.h"
 #include "paralleltask.h"
+#include "reflectivitymodel.h"
 
 class ElasticModel;
-class ReflectivitySpike;
-typedef class TypeSet<ReflectivitySpike> ReflectivityModel;
-class TimeDepthModel;
-class TimeDepthModelSet;
 
 
 /*!
