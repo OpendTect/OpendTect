@@ -14,6 +14,7 @@ set( OD_TEST_PROGS
 	gaussianprobdenfunc.cc
 	simpnumer.cc
 	sorting.cc
+	timedepthmodel.cc
 	velocitycalc.cc
 )
 
@@ -64,6 +65,7 @@ set( OD_MODULE_SOURCES
 	positionlist.cc
 	probdenfunc.cc
 	raytrace1d.cc
+	reflectivitymodel.cc
 	reflectivitysampler.cc
 	resizeimage.cc
 	scaler.cc

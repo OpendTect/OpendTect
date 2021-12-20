@@ -250,17 +250,33 @@ void TimeDepthModel::setVals( float* arr, bool isdepth, bool becomesmine )
 }
 
 
+// TimeDepthModelSet::Setup
+
+void TimeDepthModelSet::Setup::fillPar( IOPar& iop ) const
+{
+    //TODO
+}
+
+
+bool TimeDepthModelSet::Setup::usePar( const IOPar& iop )
+{
+    //TODO
+    return true;
+}
+
+
 // TimeDepthModelSet
 
 TimeDepthModelSet::TimeDepthModelSet( const ElasticModel& emodel,
+				      const Setup& tdmsu,
 				      const TypeSet<float>* axisvals,
-				      bool pup, bool pdown, float* velmax )
+				      float* velmax )
     : TimeDepthModelSet(emodel.size()+1,axisvals)
 {
     if ( !isOK() )
 	return;
 
-    setFrom( emodel, pup, pdown, velmax );
+    setFrom( emodel, tdmsu, velmax );
 }
 
 
@@ -287,34 +303,32 @@ TimeDepthModelSet::TimeDepthModelSet( int modelsz,
 				      const TypeSet<float>* axisvals )
 {
     if ( axisvals &&
-	 (axisvals->size() > 1 ||
-	  (axisvals->size() == 1 && (!mIsZero(axisvals->first(),1e-4f)))) )
-	axisvals_ = new TypeSet<float>( *axisvals );
+	(axisvals->size() > 1 ||
+	(axisvals->size() == 1 && (!mIsZero( axisvals->first(), 1e-4f )))) )
+	singleton_ = false;
 
-    init( modelsz );
+    init( modelsz, axisvals );
 }
 
 
 TimeDepthModelSet::~TimeDepthModelSet()
 {
-    if ( !axisvals_ || !tdmodels_.isPresent(defmodel_) )
+    if ( singleton_ || !tdmodels_.isPresent(defmodel_) )
 	delete defmodel_;
 
     deepErase( tdmodels_ );
-    delete axisvals_;
 }
 
 
 bool TimeDepthModelSet::isOK() const
 {
-    return defmodel_ && defmodel_->isOK() &&
-	   (!axisvals_ || tdmodels_.size() == axisvals_->size() );
+    return !isbad_ && defmodel_ && defmodel_->isOK();
 }
 
 
 int TimeDepthModelSet::nrModels() const
 {
-    return axisvals_ ? tdmodels_.size() : 1;
+    return singleton_ ? 1 : tdmodels_.size();
 }
 
 
@@ -332,31 +346,35 @@ const TimeDepthModel& TimeDepthModelSet::getDefaultModel() const
 
 const TimeDepthModel* TimeDepthModelSet::get( int idx ) const
 {
-    return axisvals_ ? (tdmodels_.validIdx( idx ) ? tdmodels_.get( idx )
-						  : nullptr)
-		     : defmodel_;
+    return singleton_ ? defmodel_
+		      : (tdmodels_.validIdx( idx ) ? tdmodels_.get( idx )
+						   : nullptr);
 }
 
 
-void TimeDepthModelSet::init( int modelsz )
+void TimeDepthModelSet::init( int modelsz, const TypeSet<float>* axisvals )
 {
     mDeclareAndTryAlloc( float*, depths, float[modelsz] );
     if ( !depths )
+    {
+	isbad_ = true;
 	return;
+    }
 
     mDeclareAndTryAlloc( float*, times, float[modelsz] );
     if ( !times )
     {
 	delete [] depths;
+	isbad_ = true;
 	return;
     }
 
     defmodel_ = new TimeDepthModel;
     defmodel_->setAllVals( depths, times, modelsz );
-    if ( !axisvals_ )
+    if ( singleton_ )
 	return;
 
-    for ( const auto& xval : *axisvals_ )
+    for ( const auto& xval : *axisvals )
     {
 	if ( mIsZero(xval,1e-4f) )
 	{
@@ -366,7 +384,10 @@ void TimeDepthModelSet::init( int modelsz )
 
 	mTryAlloc( times, float[modelsz] );
 	if ( !times )
+	{
+	    isbad_ = true;
 	    break;
+	}
 
 	auto* tdmodel = new TimeDepthModel;
 	tdmodel->setVals( defmodel_->getDepths(), true, false );
@@ -377,14 +398,14 @@ void TimeDepthModelSet::init( int modelsz )
 }
 
 
-void TimeDepthModelSet::setFrom( const ElasticModel& emodel, bool pup,
-				 bool pdown, float* velmax )
+void TimeDepthModelSet::setFrom( const ElasticModel& emodel,
+				 const Setup& tdmsu, float* velmax )
 {
-    float* deptharr = defmodel_->getDepths();
     float* twtarr = defmodel_->getTimes();
+    float* deptharr = defmodel_->getDepths();
     int idz = 0;
-    deptharr[idz] = 0.f;
-    twtarr[idz++] = 0.f;
+    twtarr[idz] = tdmsu.starttime_;
+    deptharr[idz++] = tdmsu.startdepth_;
 
     const bool zinfeet = SI().zInFeet();
     float dnmotime, dvrmssum, unmotime, uvrmssum;
@@ -396,8 +417,8 @@ void TimeDepthModelSet::setFrom( const ElasticModel& emodel, bool pup,
 	const float thickness = zinfeet ? dz * mToFeetFactorF : dz;
 	deptharr[idz] = idz>1 ? deptharr[idz-1] + thickness : thickness;
 
-	const float dvel = pdown ? layer.vel_ : layer.svel_;
-	const float uvel = pup ? layer.vel_ : layer.svel_;
+	const float dvel = tdmsu.pdown_ ? layer.vel_ : layer.svel_;
+	const float uvel = tdmsu.pup_ ? layer.vel_ : layer.svel_;
 	dnmotime = dvrmssum = unmotime = uvrmssum = 0;
 
 	dnmotime = dz / dvel;

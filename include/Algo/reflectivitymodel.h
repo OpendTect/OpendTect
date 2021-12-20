@@ -12,7 +12,141 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "odcomplex.h"
-#include "sets.h"
+#include "timedepthmodel.h"
+
+class ReflectivityModelSet;
+
+
+/*!
+\brief A data container for reflection coefficients and optionally
+	uncorrected nmo times
+*/
+
+mClass(Algo) ReflectivityModelTrace
+{
+public:
+			ReflectivityModelTrace(int nrspikes,bool withtwt);
+			~ReflectivityModelTrace();
+
+    bool		isOK() const;
+
+    const float_complex* getReflectivities() const  { return reflectivities_; }
+    const float* getTwtArr() const		    { return twt_; }
+
+private:
+
+    float_complex*	reflectivities_;
+    float*		twt_ = nullptr; //Uncorrected for NMO
+
+    float_complex*	getReflectivities() { return reflectivities_; }
+    float*		getTwtArr()	    { return twt_; }
+
+    friend class ReflectivityModelSet;
+
+	    ReflectivityModelTrace(const ReflectivityModelTrace&) = delete;
+    void		operator= (const ReflectivityModelTrace&) = delete;
+};
+
+
+/*!
+\brief A TimeDepth model set that includes reflectivities.
+       Base class for offset and angle based reflectivity models
+*/
+
+mExpClass(Algo) ReflectivityModelSet : public TimeDepthModelSet
+{
+public:
+    mExpClass(Algo) Setup : public TimeDepthModelSet::Setup
+    {
+    public:
+			Setup( bool offsetdomain )
+			    : TimeDepthModelSet::Setup()
+			    , offsetdomain_(offsetdomain)   {}
+			~Setup()			    {}
+
+	mDefSetupMemb(bool,offsetdomain);
+
+	void		fillPar(IOPar&) const override;
+	bool		usePar(const IOPar&) override;
+    };
+
+    int			nrRefModels() const;
+    bool		isDefined(int imdl,int idz) const;
+
+protected:
+
+			ReflectivityModelSet(const ElasticModel&,
+				const ReflectivityModelSet::Setup&,
+				const TypeSet<float>* axisvals =nullptr,
+				float* velmax=nullptr);
+			ReflectivityModelSet(const ElasticModel&,
+				const TypeSet<float>& anglevals,
+			        const ReflectivityModelSet::Setup&);
+			//!< Angle-based models only
+			
+			~ReflectivityModelSet();
+
+private:
+
+    ObjectSet<ReflectivityModelTrace>  reflectivities_;
+};
+
+
+/*!
+\brief An offset-based TimeDepth model set that includes reflectivities.
+*/
+
+mExpClass(Algo) OffsetReflectivityModelSet : public ReflectivityModelSet
+{
+public:
+			OffsetReflectivityModelSet(const ElasticModel&,
+				const ReflectivityModelSet::Setup&,
+				const TypeSet<float>* axisvals =nullptr,
+				float* velmax =nullptr );
+};
+
+
+/*!
+\brief An angle-based TimeDepth model set that includes reflectivities,
+       for a given azimuth and angle distributions
+*/
+
+mExpClass(Algo) AngleReflectivityModelSet : public ReflectivityModelSet
+{
+public:
+    mExpClass(Algo) Setup : public ReflectivityModelSet::Setup
+    {
+    public:
+			Setup( double azimuth=0. )
+			    : ReflectivityModelSet::Setup(false)
+			    , azimuth_(azimuth)
+			    , a0_(2500.)
+			    , d0_(2000.)
+			    , b0_(1500.)	{}
+			~Setup() {}
+
+	mDefSetupMemb(double,azimuth);
+	mDefSetupMemb(double,a0);	    //<! Average Vp (m/s)
+	mDefSetupMemb(double,d0);	    //<! Average Rhob (m/s)
+	mDefSetupMemb(double,b0);	    //<! Average Vs (m/s)
+
+	void		fillPar(IOPar&) const override;
+	bool		usePar(const IOPar&) override;
+    };
+
+			AngleReflectivityModelSet(const ElasticModel&,
+				const TypeSet<float>& anglevals,
+				const AngleReflectivityModelSet::Setup& =
+				      AngleReflectivityModelSet::Setup());
+			AngleReflectivityModelSet(const ElasticModel&,
+				const TypeSet<float>& anglevals,double azi);
+
+private:
+    double		azimuth_;
+    double		a0_;
+    double		d0_;
+    double		b0_;
+};
 
 
 /*!

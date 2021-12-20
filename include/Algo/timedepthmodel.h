@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 
 #include "algomod.h"
+#include "refcount.h"
 #include "uistring.h"
 
 class ElasticModel;
@@ -62,8 +63,6 @@ protected:
 
     uiString		errmsg_;
 
-    const float*	getTimes() const	{ return times_; }
-    const float*	getDepths() const	{ return depths_; }
     float*		getTimes()		{ return times_; }
     float*		getDepths()		{ return depths_; }
 
@@ -85,6 +84,11 @@ private:
 
     friend class TimeDepthModelSet;
 
+public:
+
+    const float*	getTimes() const	{ return times_; }
+    const float*	getDepths() const	{ return depths_; }
+
 };
 
 
@@ -94,41 +98,65 @@ private:
        Models may be annotated by a given value, typically offset or angle
 */
 
-mExpClass(Algo) TimeDepthModelSet
-{
+mExpClass(Algo) TimeDepthModelSet : public RefCount::Referenced
+{ mODTextTranslationClass(TimeDepthModelSet)
 public:
+
+    mExpClass(Algo) Setup
+    {
+    public:
+			Setup()
+			    : pdown_(true)
+			    , pup_(true)
+			    , starttime_(0.f)
+			    , startdepth_(0.f)	    {}
+	virtual		~Setup() {}
+
+	mDefSetupMemb(bool,pdown);
+	mDefSetupMemb(bool,pup);
+	mDefSetupMemb(float,starttime);
+	mDefSetupMemb(float,startdepth);
+
+	virtual void	fillPar(IOPar&) const;
+	virtual bool	usePar(const IOPar&);
+    };
+
 			TimeDepthModelSet(const ElasticModel&,
-				const TypeSet<float>* axisvals = nullptr,
-				bool pup=true,bool pdown=true,
+				const Setup& =Setup(),
+				const TypeSet<float>* axisvals =nullptr,
 				float* velmax=nullptr);
 			TimeDepthModelSet(const TimeDepthModel&,
-				const TypeSet<float>* axisvals = nullptr);
-			~TimeDepthModelSet();
+				const TypeSet<float>* axisvals =nullptr);
 
-    bool		isOK() const;
+    virtual bool	isOK() const;
     int			nrModels() const;
     int			size() const		{ return nrModels(); }
     int			modelSize() const;
 
     const TimeDepthModel& getDefaultModel() const;
     const TimeDepthModel* get(int) const;
-    const TypeSet<float>* axisVals() const	{ return axisvals_; }
 
     void		setDepth(int idz,float);
     void		setDefTWT(int idz,float);
     void		setTWT(int imdl,int idz,float);
 
+protected:
+
+    virtual		~TimeDepthModelSet();
+
+    bool		isbad_ = false;
+
 private:
 			TimeDepthModelSet(int modelsz,
-				const TypeSet<float>* axisvals = nullptr);
+				const TypeSet<float>* axisvals =nullptr);
 
-    void		init(int modelsz);
-    void		setFrom(const ElasticModel&,bool up,bool pdown,
+    void		init(int modelsz,const TypeSet<float>* axisvals);
+    void		setFrom(const ElasticModel&,const Setup&,
 				float* velmax);
 
     ObjectSet<TimeDepthModel> tdmodels_;
     TimeDepthModel*	defmodel_ = nullptr;
-    TypeSet<float>*	axisvals_ = nullptr; //Offsets or Angles
+    bool		singleton_ = true;
 
 			TimeDepthModelSet(const TimeDepthModelSet&) = delete;
    TimeDepthModelSet&	operator =(const TimeDepthModelSet&) = delete;
