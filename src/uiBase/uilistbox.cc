@@ -111,6 +111,7 @@ public:
     void		setPixmap(int idx,const uiPixmap&,
 				  bool placeright=false);
     void		removePixmap(int idx);
+    bool		hasPixmap(int idx);
     void		setItemAlignment(int idx,Alignment::HPos);
 
     void		setNrLines( int prefNrLines )
@@ -259,6 +260,12 @@ void uiListBoxBody::setPixmap( int idx, const uiPixmap& pm, bool placeright )
 void uiListBoxBody::removePixmap( int idx )
 {
     item(idx)->setIcon( QIcon() );
+}
+
+
+bool uiListBoxBody::hasPixmap( int idx )
+{
+    return item(idx)->icon().isNull();
 }
 
 
@@ -1195,8 +1202,10 @@ void uiListBox::setMarked( int idx, DecorationType markdec )
 	text += " <";
 	setItemText( idx, text );
     }
+    else if ( markdec == Invisible )
+	setItemText( idx, texttobemarked );
 
-    setItemMarked( idx, yn );
+    setItemMarked( idx, true );
 }
 
 
@@ -1249,9 +1258,11 @@ uiListBox::DecorationType uiListBox::getDecorationType( int idx ) const
     BufferString markedtext = lb_->body().getItemText(idx).getFullString();
     if ( markedtext.last() == starchar.last() )
 	dec = Star;
-    else if( markedtext.last() == legacychar.last()
+    else if ( markedtext.last() == legacychar.last()
 	     && markedtext.first() == legacychar.first() )
 	dec = Legacy;
+    else if ( lb_->body().hasPixmap(idx) )
+	dec = Invisible;
 
     return dec;
 }
