@@ -80,7 +80,7 @@ public:
 			  AboveLeft, AboveMid, AboveRight,
 			  BelowLeft, BelowMid, BelowRight };
 
-    enum DecorationType	{ Pixmap, Star, Legacy, None };
+    enum DecorationType	{ Pixmap, Star, Legacy, Invisible, None };
 
     enum DecorationPos	{ Left, Right };
 
