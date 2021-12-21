@@ -176,7 +176,9 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 
     foreach( DATADIR ${DATADIRLIST} )
 	file( COPY ${COPYFROMDATADIR}/data/${DATADIR}
-	      DESTINATION ${COPYTODATADIR}/data )
+	      DESTINATION ${COPYTODATADIR}/data
+	      PATTERN "basic_requirements.txt" EXCLUDE
+	      PATTERN "presentation_maker_requirements.txt" EXCLUDE )
     endforeach()
     set( DATADIRLIST "" )
 
@@ -333,7 +335,8 @@ macro( CREATE_BASEPACKAGES PACKAGE_NAME )
 
     foreach( DATADIR ${DATADIRLIST} )
 	file( COPY ${COPYFROMDATADIR}/data/${DATADIR}
-	      DESTINATION ${COPYTODATADIR}/data )
+	      DESTINATION ${COPYTODATADIR}/data
+	      PATTERN "machine_learning*.txt" EXCLUDE )
     endforeach()
     set( DATADIRLIST "" )
 
