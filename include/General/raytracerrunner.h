@@ -11,44 +11,59 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "ailayer.h"
-#include "iopar.h"
-#include "task.h"
-#include "ranges.h"
+
 #include "raytrace1d.h"
+
+class ElasticModel;
+class IOPar;
 
 mExpClass(General) RayTracerRunner : public ParallelTask
 { mODTextTranslationClass(RayTracerRunner);
 public:
+				RayTracerRunner(const char* rt1dfactkeywd=
+					VrmsRayTracer1D::sFactoryKeyword());
+				RayTracerRunner(const IOPar& raypar);
 				RayTracerRunner(const TypeSet<ElasticModel>&,
 						const IOPar& raypar);
-				RayTracerRunner(const IOPar& raypar);
 				~RayTracerRunner();
 
-    uiString			errMsg() const	{ return errmsg_; }
+    //before execution only
+    void			setModel(const TypeSet<ElasticModel>&);
+				//<! No copy: Must stay valid during execution
+    void			setOffsets(const TypeSet<float>&);
 
-    //before exectution only
-    void			setOffsets(TypeSet<float> offsets);
-    void			addModel(const ElasticModel&,bool dosingle);
-
-    //available after excution
+    //available after execution
     ObjectSet<RayTracer1D>&	rayTracers()	{ return raytracers_; }
-    od_int64			nrDone() const;
-    bool			executeParallel(bool);
 
-protected:
+    uiString			uiMessage() const override { return msg_; }
+    uiString			uiNrDoneText() const override;
+    od_int64			nrDone() const override;
 
-    IOPar			raypar_;
+private:
 
-    bool	doWork(od_int64,od_int64,int);
-    od_int64                    nrIterations() const;
-    int			modelIdx(od_int64,bool&) const;
-    bool                        prepareRayTracers();
+    IOPar&			raypar_;
 
-    uiString			errmsg_;
+    od_int64                    nrIterations() const override;
 
-    TypeSet<ElasticModel>	aimodels_;
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64,od_int64,int) override;
+    bool			doFinish(bool) override;
+
+    int				modelIdx(od_int64,bool&) const;
+    void			computeTotalNr();
+
+    uiString			msg_;
+
+    const TypeSet<ElasticModel>* aimodels_ = nullptr;
     ObjectSet<RayTracer1D>	raytracers_;
     od_int64			totalnr_;
+
+public:
+
+    mDeprecated("use uiMessage")
+    uiString			errMsg() const	{ return uiMessage(); }
+
+    mDeprecated("use setModel")
+    void			addModel(const ElasticModel&,bool dosingle)					{}
 };
 

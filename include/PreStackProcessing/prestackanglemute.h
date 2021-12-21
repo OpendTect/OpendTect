@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "prestackprocessor.h"
-#include "samplingdata.h"
 
 class ElasticLayer;
 class ElasticModel;
@@ -35,20 +34,20 @@ mExpClass(PreStackProcessing) AngleCompParams
 {
 public:
 				AngleCompParams();
-					
-    float 			mutecutoff_;
+
+    float			mutecutoff_ = 30.f;
     Interval<int>		anglerange_;
-    MultiID			velvolmid_;   
+    MultiID			velvolmid_;
     IOPar			raypar_;
     IOPar			smoothingpar_;
 };
 
 
-mExpClass(PreStackProcessing) AngleMuteBase 
+mExpClass(PreStackProcessing) AngleMuteBase
 {
 public:
 
-    static const char*	sKeyRayTracer()		{ return "Raytracer"; }	
+    static const char*	sKeyRayTracer()		{ return "Raytracer"; }
     static const char*	sKeyVelVolumeID()	{ return "Velocity vol-mid"; }
     static const char*  sKeyMuteCutoff()	{ return "Mute cutoff"; }
 
@@ -56,16 +55,16 @@ public:
     virtual bool	usePar(const IOPar&);
 
 protected:
-    			AngleMuteBase();
-    			~AngleMuteBase();
+			AngleMuteBase();
+			~AngleMuteBase();
 
     bool		setVelocityFunction();
     bool		getLayers(const BinID&,ElasticModel&,
-	    			SamplingData<float>&,int resamplesz=-1);
+				SamplingData<float>&,int resamplesz=-1);
     float		getOffsetMuteLayer(const RayTracer1D&,int,int,bool,
 				int startlayer=0,bool belowcutoff=true) const;
 
-    AngleCompParams*	params_;
+    AngleCompParams*	params_ = nullptr;
     Vel::VolumeFunctionSource*	velsource_;
     ObjectSet<RayTracerRunner>	rtrunners_;
 };
@@ -78,7 +77,7 @@ protected:
 mExpClass(PreStackProcessing) AngleMute : public Processor, public AngleMuteBase
 { mODTextTranslationClass(AngleMute);
 public:
-    			mDefaultFactoryInstantiation(Processor,
+			mDefaultFactoryInstantiation(Processor,
 				AngleMute,"AngleMute", tr("Angle Mute") )
 
 			AngleMute();
@@ -88,11 +87,11 @@ public:
     {
 			AngleMutePars()
 			    : tail_(false)
-			    , taperlen_(10) 
+			    , taperlen_(10)
 			    {}
 
-	bool 		tail_;
-	float 		taperlen_;			    
+	bool		tail_;
+	float		taperlen_;
     };
 
     bool		doPrepare(int nrthreads);
@@ -110,7 +109,7 @@ public:
 
 protected:
 
-    od_int64 		nrIterations() const	{ return outputs_.size(); }
+    od_int64		nrIterations() const	{ return outputs_.size(); }
     virtual bool	doWork(od_int64,od_int64,int);
 
     uiString		errmsg_;

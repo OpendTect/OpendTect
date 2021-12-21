@@ -29,6 +29,8 @@ public:
     mDefineFactoryInClass( RayTracer1D, factory );
 
     static RayTracer1D* createInstance(const IOPar&,uiString&);
+    static RayTracer1D* createInstance(const IOPar&,const ElasticModel*,
+				       uiString&);
 
 			~RayTracer1D();
 
@@ -63,7 +65,7 @@ public:
     void		setOffsets(const TypeSet<float>& offsets);
     void		getOffsets(TypeSet<float>& offsets) const;
 
-    uiString		errMsg() const { return errmsg_; }
+    uiString		uiMessage() const override	{ return msg_; }
 
 			//Available after execution
     ConstRefMan<TimeDepthModelSet>	getTDModels() const;
@@ -97,7 +99,7 @@ protected:
 			//Setup variables
     ElasticModel&	model_; // model top depth must be TWT = 0ms
     TypeSet<float>	offsets_;
-    uiString		errmsg_;
+    uiString		msg_;
 
 			//Runtime variables
     TypeSet<int>	offsetpermutation_;

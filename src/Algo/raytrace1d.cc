@@ -67,23 +67,44 @@ RayTracer1D::~RayTracer1D()
 
 RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
 {
+    return createInstance( par, nullptr, errm );
+}
+
+
+RayTracer1D* RayTracer1D::createInstance( const IOPar& par,
+					  const ElasticModel* model,
+					  uiString& errm )
+{
     BufferString typekey;
     par.get( sKey::Type(), typekey );
 
-    RayTracer1D* raytracer = factory().create( typekey );
-    if ( !raytracer && !factory().isEmpty() )
-	raytracer = factory().create( factory().getNames().get(0) );
+    const Factory<RayTracer1D>& rt1dfact = factory();
+    if ( !rt1dfact.hasName(typekey) && !rt1dfact.isEmpty() )
+    {
+	const FixedString defnm = rt1dfact.getDefaultName();
+	typekey.set( defnm.isEmpty() ? rt1dfact.getNames().first()->buf()
+				     : defnm.buf() );
+    }
+
+    RayTracer1D* raytracer = rt1dfact.create( typekey );
     if ( !raytracer )
     {
 	errm = tr("Raytracer not found. Perhaps all plugins are not loaded");
-	return 0;
+	return nullptr;
     }
 
     if ( !raytracer->usePar(par) )
     {
-	errm = raytracer->errMsg();
+	errm = raytracer->uiMessage();
 	delete raytracer;
-	return 0;
+	return nullptr;
+    }
+
+    if ( model && !raytracer->setModel(*model) )
+    {
+	errm = raytracer->uiMessage();
+	delete raytracer;
+	return nullptr;
     }
 
     return raytracer;
@@ -173,10 +194,11 @@ void RayTracer1D::getOffsets( TypeSet<float>& offsets ) const
 
 bool RayTracer1D::setModel( const ElasticModel& lys )
 {
+    msg_.setEmpty();
     if ( offsets_.isEmpty() )
     {
-	errmsg_ = tr("Internal: Offsets must be set before the model");
-	errmsg_.append( tr("Cannot do raytracing." ), true );
+	msg_ = tr("Internal: Offsets must be set before the model");
+	msg_.append( tr("Cannot do raytracing." ), true );
 	return false;
     }
 
@@ -189,9 +211,9 @@ bool RayTracer1D::setModel( const ElasticModel& lys )
     model_.checkAndClean( firsterror, setup().doreflectivity_, !zerooffsetonly);
 
     if ( model_.isEmpty() )
-	errmsg_ = tr( "Model is empty" );
+	msg_ = tr( "Model is empty" );
     else if ( firsterror != -1 )
-	errmsg_ = tr( "Model has invalid values on layer: %1" )
+	msg_ = tr( "Model has invalid values on layer: %1" )
 		      .arg( firsterror+1 );
 
     return !model_.isEmpty();
@@ -204,12 +226,15 @@ od_int64 RayTracer1D::nrIterations() const
 
 bool RayTracer1D::doPrepare( int nrthreads )
 {
+    if ( !msg_.isEmpty() )
+	return false;
+
     const int layersize = mCast( int, nrIterations() );
     delete [] velmax_;
     mTryAlloc( velmax_, float[layersize] );
     if ( !velmax_ )
     {
-	errmsg_ = uiStrings::phrCannotAllocateMemory( layersize*sizeof(float) );
+	msg_ = uiStrings::phrCannotAllocateMemory( layersize*sizeof(float) );
 	return false;
     }
 
@@ -275,6 +300,9 @@ bool RayTracer1D::doPrepare( int nrthreads )
 bool RayTracer1D::doFinish( bool success )
 {
     deleteAndZeroArrPtr( velmax_ );
+    if ( success )
+	msg_.setEmpty();
+
     return success;
 }
 
@@ -472,7 +500,7 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 	    if ( !compute(layer,osidx,rayparam) )
 	    {
-		errmsg_ = tr( "Can not compute layer %1"
+		msg_ = tr( "Can not compute layer %1"
 			      "\n most probably the velocity is not correct" )
 			.arg( layer );
 		return false;

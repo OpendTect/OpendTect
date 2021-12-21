@@ -11,21 +11,54 @@ ________________________________________________________________________
 
 #include "raytracerrunner.h"
 
-RayTracerRunner::RayTracerRunner( const TypeSet<ElasticModel>& aims,
-				  const IOPar& raypars )
-    : aimodels_(aims)
-    , raypar_(raypars)
+#include "ailayer.h"
+#include "iopar.h"
+
+
+RayTracerRunner::RayTracerRunner( const char* rt1dfactkeywd )
+    : ParallelTask("Raytracing")
+    , raypar_(*new IOPar())
 {
+    const Factory<RayTracer1D>& rt1dfact = RayTracer1D::factory();
+    if ( rt1dfact.isEmpty() )
+	return;
+
+    if ( rt1dfact.hasName(rt1dfactkeywd) )
+    {
+	raypar_.set( sKey::Type(), rt1dfactkeywd );
+	return;
+    }
+
+    const BufferStringSet& factnms = rt1dfact.getNames();
+    if ( !factnms.isEmpty() )
+    {
+	const FixedString defnm( rt1dfact.getDefaultName() );
+	if ( !defnm.isEmpty() )
+	    raypar_.set( sKey::Type(), defnm.str() );
+    }
 }
 
 
 RayTracerRunner::RayTracerRunner( const IOPar& raypars )
-    : raypar_(raypars)
-{}
+    : ParallelTask("Raytracing")
+    , raypar_(*new IOPar(raypars))
+{
+}
+
+
+RayTracerRunner::RayTracerRunner( const TypeSet<ElasticModel>& aims,
+				  const IOPar& raypars )
+    : RayTracerRunner(raypars)
+{
+    setModel( aims );
+}
 
 
 RayTracerRunner::~RayTracerRunner()
-{ deepErase( raytracers_ );}
+{
+    deepErase( raytracers_ );
+    delete &raypar_;
+}
 
 
 od_int64 RayTracerRunner::nrIterations() const
@@ -34,54 +67,72 @@ od_int64 RayTracerRunner::nrIterations() const
 }
 
 
-void RayTracerRunner::setOffsets( TypeSet<float> offsets )
-{ raypar_.set( RayTracer1D::sKeyOffset(), offsets ); }
-
-
-void RayTracerRunner::addModel( const ElasticModel& aim, bool dosingle )
+uiString RayTracerRunner::uiNrDoneText() const
 {
-    if ( dosingle )
-	aimodels_.erase();
-
-    aimodels_ += aim;
+    return tr("Layers done");
 }
 
-#define mErrRet(msg) { errmsg_ = msg; return false; }
 
-bool RayTracerRunner::prepareRayTracers()
+od_int64 RayTracerRunner::nrDone() const
 {
-    deepErase( raytracers_ );
+    od_int64 nrdone = 0;
+    for ( const auto* rt1d : raytracers_ )
+	nrdone += rt1d->nrDone();
+    return nrdone;
+}
 
-    if ( aimodels_.isEmpty() )
-	mErrRet( toUiString("No AI model set") );
 
-    if ( RayTracer1D::factory().getNames().isEmpty() )
-	return false;
+void RayTracerRunner::setOffsets( const TypeSet<float>& offsets )
+{
+    raypar_.set( RayTracer1D::sKeyOffset(), offsets );
+}
+
+
+void RayTracerRunner::setModel( const TypeSet<ElasticModel>& aimodels )
+{
+    aimodels_ = &aimodels;
+    computeTotalNr();
+}
+
+
+void RayTracerRunner::computeTotalNr()
+{
+    if ( !aimodels_ )
+	return;
 
     totalnr_ = 0;
+    for ( const auto& aimodel : *aimodels_ )
+	totalnr_ += aimodel.size();
+}
+
+
+#define mErrRet(msg) { msg_ = msg; return false; }
+
+bool RayTracerRunner::doPrepare( int /* nrthreads */ )
+{
+    msg_ = tr("Preparing Reflectivity Model");
+    deepErase( raytracers_ );
+
+    if ( !aimodels_ || aimodels_->isEmpty() )
+	mErrRet( tr("No Elastic models set") );
+
+    if ( RayTracer1D::factory().getNames().isEmpty() )
+	mErrRet( tr("RayTracer factory is empty") )
+
+    computeTotalNr();
     uiString errmsg;
-    for ( int idx=0; idx<aimodels_.size(); idx++ )
+    for ( const auto& aimodel : *aimodels_ )
     {
-	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, errmsg );
+	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, &aimodel,
+							 errmsg );
 	if ( !rt1d )
 	{
-	    deepErase( raytracers_ );
-	    mErrRet( errmsg );
+	    uiString msg = tr( "Wrong input for raytracing on model: %1" )
+				.arg(aimodels_->indexOf(aimodel)+1);
+	    msg.append( errmsg, true );
+	    mErrRet( msg );
 	}
 
-	rt1d->usePar( raypar_ );
-
-	if ( !rt1d->setModel(aimodels_[idx]) )
-	{
-	    errmsg = tr( "Wrong input for raytracing on model: %1" ).arg(idx+1);
-	    errmsg.append( rt1d->errMsg(), true );
-
-	    deepErase( raytracers_ );
-	    delete rt1d;
-	    mErrRet( errmsg );
-	}
-
-	totalnr_ += rt1d->totalNr();
 	raytracers_ += rt1d;
     }
 
@@ -89,12 +140,36 @@ bool RayTracerRunner::prepareRayTracers()
 }
 
 
-od_int64 RayTracerRunner::nrDone() const
+bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int threadidx )
 {
-    od_int64 nrdone = 0;
-    for ( int modelidx=0; modelidx<raytracers_.size(); modelidx++ )
-	nrdone += raytracers_[modelidx]->nrDone();
-    return nrdone;
+    const bool parallel = start == 0 && threadidx == 0 &&
+		(stop == nrIterations()-1);
+
+    const TypeSet<ElasticModel>& models = *aimodels_;
+
+    bool startlayer = false;
+    int startmdlidx = modelIdx( start, startlayer );
+    if ( !startlayer ) startmdlidx++;
+    const int stopmdlidx = modelIdx( stop, startlayer );
+    for ( int idx=startmdlidx; idx<=stopmdlidx; idx++ )
+    {
+	if ( models[idx].isEmpty() )
+	    continue;
+
+	ParallelTask* rt1d = raytracers_[idx];
+	if ( !rt1d->executeParallel(!parallel) )
+	    mErrRet( rt1d->uiMessage() );
+    }
+    return true;
+}
+
+
+bool RayTracerRunner::doFinish( bool success )
+{
+    if ( !success )
+	deepErase( raytracers_ );
+
+    return success;
 }
 
 
@@ -115,31 +190,3 @@ int RayTracerRunner::modelIdx( od_int64 idx, bool& startlayer ) const
     return -1;
 }
 
-
-bool RayTracerRunner::executeParallel( bool parallel )
-{
-    if ( !prepareRayTracers() )
-	return false;
-    return ParallelTask::executeParallel( parallel );
-}
-
-
-bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int thread )
-{
-    bool startlayer = false;
-    int startmdlidx = modelIdx( start, startlayer );
-    if ( !startlayer ) startmdlidx++;
-    const int stopmdlidx = modelIdx( stop, startlayer );
-    for ( int idx=startmdlidx; idx<=stopmdlidx; idx++ )
-    {
-	const ElasticModel& aim = aimodels_[idx];
-	if ( aim.isEmpty() )
-	    continue;
-
-	RayTracer1D* rt1d = raytracers_[idx];
-	const bool parallel = maxNrThreads() > 1;
-	if ( !rt1d->executeParallel( parallel ) )
-	    mErrRet( rt1d->errMsg() );
-    }
-    return true;
-}

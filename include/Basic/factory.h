@@ -30,7 +30,8 @@ public:
     int				size() const;
     bool			isEmpty() const;
 
-    bool			hasName(const char* n) {return indexOf(n)>=0;}
+    bool			hasName( const char* nm ) const
+				{ return indexOf(nm)>=0; }
     const BufferStringSet&	getNames() const;
     const uiStringSet&		getUserNames() const;
     void			setDefaultName(int idx);
@@ -278,7 +279,7 @@ protected:
 #define mDefaultFactoryInstanciationBase( keywrd, usernm ) \
     mDefaultFactoryStringImpl \
     static const char*	sFactoryKeyword() { return keywrd; } \
-    static uiString 	sFactoryDisplayName() { return usernm; } \
+    static uiString	sFactoryDisplayName() { return usernm; } \
     static void		initClass()
 
 #define mDefaultFactoryCreatorImpl( baseclss, clss ) \

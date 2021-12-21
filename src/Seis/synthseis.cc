@@ -760,7 +760,7 @@ bool RaySynthGenerator::doPrepare( int )
 	rtr_ = new RayTracerRunner( *aimodels_, raysetup_ );
 	message_ = tr("Raytracing");
 	if ( !rtr_->execute() )
-	    mErrRet( rtr_->errMsg(), false );
+	    mErrRet( rtr_->uiMessage(), false );
 
 	raytracingdone_ = true;
 

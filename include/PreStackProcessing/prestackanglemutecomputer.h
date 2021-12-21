@@ -14,9 +14,6 @@ ________________________________________________________________________
 
 #include "paralleltask.h"
 #include "prestackanglemute.h"
-#include "ranges.h"
-#include "trckeysampling.h"
-#include "threadlock.h"
 
 class TrcKeySampling;
 

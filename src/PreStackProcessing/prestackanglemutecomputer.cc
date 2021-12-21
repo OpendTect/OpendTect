@@ -14,7 +14,6 @@
 #include "prestackmute.h"
 #include "prestackmutedef.h"
 #include "prestackmutedeftransl.h"
-#include "raytrace1d.h"
 #include "raytracerrunner.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
@@ -87,21 +86,23 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
     TypeSet<BinID> bids;
 
     RayTracerRunner* rtrunner = rtrunners_[thread];
+    TypeSet<ElasticModel> emodels;
+    ElasticModel layers;
+    emodels += layers;
+    rtrunner->setModel( emodels );
+
     BinID curbid;
     for ( od_int64 pidx=start; pidx<=stop && shouldContinue(); pidx++ )
     {
 	curbid = hrg.atIndex( pidx );
-	ElasticModel layers;
 	SamplingData<float> sd;
-	if ( !getLayers( curbid, layers, sd ) )
+	if ( !getLayers(curbid,layers,sd) )
 	    continue;
 
-	rtrunner->addModel( layers, true );
+	if ( !rtrunner->executeParallel(false) )
+	    { errmsg_ = rtrunner->uiMessage(); continue; }
 
-	if ( !rtrunner->executeParallel( false ) )
-	    { errmsg_ = rtrunner->errMsg(); continue; }
-
-	PointBasedMathFunction* mutefunc = new PointBasedMathFunction();
+	auto* mutefunc = new PointBasedMathFunction();
 
 	const int nrlayers = layers.size();
 	TypeSet<float> offsets;
@@ -111,8 +112,8 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	float lastvalidmutelayer = 0;
 	for ( int ioff=0; ioff<offsets.size(); ioff++ )
 	{
-	    const float mutelayer = 
-		getOffsetMuteLayer( *rtrunner->rayTracers()[0], 
+	    const float mutelayer =
+		getOffsetMuteLayer( *rtrunner->rayTracers()[0],
 				    nrlayers, ioff, true );
 	    if ( !mIsUdf( mutelayer ) )
 	    {
@@ -136,7 +137,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
 	    float thk = lastdepth - zdpt;
 	    const float lastzpos = sd.start + sd.step*(nrlayers-1);
-	    const float lastsinangle = 
+	    const float lastsinangle =
 		rtrunner->rayTracers()[0]->getSinAngle(nrlayers-1,lastioff);
 
 	    const float cosangle = Math::Sqrt(1-lastsinangle*lastsinangle);
@@ -163,14 +164,14 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
 bool AngleMuteComputer::doFinish( bool sucess )
 {
-    if ( !sucess ) 
+    if ( !sucess )
 	return false;
 
     PtrMan<IOObj> obj = IOM().get( params().outputmutemid_ );
     PtrMan<MuteDefTranslator> mdtrl = obj
-    	? (MuteDefTranslator*)obj->createTranslator()
-    	: 0;
-    
+	? (MuteDefTranslator*)obj->createTranslator()
+	: nullptr;
+
     uiString msg;
     return mdtrl ? mdtrl->store( outputmute_, obj, msg ) : false;
 }

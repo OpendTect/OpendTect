@@ -14,6 +14,7 @@ list ( APPEND OD_TEST_PROGS
 	mathformula.cc
 	mnemonics.cc
 	posidxpairvalset.cc
+	raytracerrunner.cc
 )
 set( OD_NIGHTLY_TEST_PROGS zip.cc )
 

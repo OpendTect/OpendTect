@@ -7,31 +7,22 @@
 
 #include "prestackanglemute.h"
 
-#include "ailayer.h"
 #include "arrayndslice.h"
-#include "flatposdata.h"
 #include "ioman.h"
-#include "ioobj.h"
-#include "math.h"
 #include "muter.h"
 #include "prestackanglecomputer.h"
 #include "prestackgather.h"
 #include "prestackmute.h"
-#include "raytrace1d.h"
 #include "raytracerrunner.h"
-#include "timedepthconv.h"
-#include "timedepthmodel.h"
 #include "unitofmeasure.h"
 #include "velocityfunctionvolume.h"
-#include "windowfunction.h"
 
 
 namespace PreStack
 {
 
 AngleCompParams::AngleCompParams()
-    : mutecutoff_(30)
-    , anglerange_(0,30)
+    : anglerange_(0,30)
     , velvolmid_(MultiID::udf())
 {
     smoothingpar_.set( AngleComputer::sKeySmoothType(),
@@ -59,10 +50,9 @@ AngleCompParams::AngleCompParams()
 
 
 AngleMuteBase::AngleMuteBase()
-    : params_(0)
 {
     velsource_ = new Vel::VolumeFunctionSource();
-    velsource_->ref();
+    refPtr( velsource_ );
 }
 
 
@@ -70,7 +60,7 @@ AngleMuteBase::~AngleMuteBase()
 {
     delete params_;
     deepErase( rtrunners_ );
-    velsource_->unRef();
+    unRefPtr( velsource_ );
 }
 
 
@@ -290,6 +280,10 @@ void AngleMute::fillPar( IOPar& par ) const
 
 bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 {
+    TypeSet<ElasticModel> emodels;
+    ElasticModel layers;
+    emodels += layers;
+    rtrunners_[thread]->setModel( emodels );
     for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	Gather* output = outputs_[idx];
@@ -300,8 +294,9 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	const BinID bid = input->getBinID();
 
 	int nrlayers = input->data().info().getSize( Gather::zDim() );
-	ElasticModel layers; SamplingData<float> sd;
-	if ( !getLayers( bid, layers, sd, nrlayers ) )
+	layers.setEmpty();
+	SamplingData<float> sd;
+	if ( !getLayers(bid,layers,sd,nrlayers) )
 	    continue;
 
 	const int nrblockedlayers = layers.size();
@@ -311,9 +306,8 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	    offsets += input->getOffset( ioffset );
 
 	rtrunners_[thread]->setOffsets( offsets );
-	rtrunners_[thread]->addModel( layers, true );
 	if ( !rtrunners_[thread]->executeParallel(raytraceparallel_) )
-	    { errmsg_ = rtrunners_[thread]->errMsg(); continue; }
+	    { errmsg_ = rtrunners_[thread]->uiMessage(); continue; }
 
 	Array1DSlice<float> trace( output->data() );
 	trace.setDimMap( 0, Gather::zDim() );
@@ -326,7 +320,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 	    float mutelayer =
 		    getOffsetMuteLayer( *rtrunners_[thread]->rayTracers()[0],
-	    nrblockedlayers, ioffs, params().tail_ );
+				    nrblockedlayers, ioffs, params().tail_ );
 	    if ( mIsUdf( mutelayer ) )
 		continue;
 
