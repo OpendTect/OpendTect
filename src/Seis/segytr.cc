@@ -659,7 +659,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( headerdonenew_ ) return true;
 
     const int oldcurinl = curbid_.inl();
-    const int oldcurtrcnr = curtrcnr_;
+    int oldcurtrcnr = curtrcnr_;
     if ( read_mode != Seis::Scan )
 	{ mSetUdf(curbid_.inl()); mSetUdf(curtrcnr_); }
 
@@ -670,11 +670,13 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     if ( !fileopts_.havetrcnrs_ )
     {
-	if ( prevtrcnr_ < 0 )
-	    curtrcnr_ = fileopts_.trcnrdef_.start;
+	int defnr = 0;
+	if ( oldcurtrcnr < 0 )
+	    defnr = fileopts_.trcnrdef_.start;
 	else
-	    curtrcnr_ = prevtrcnr_ + fileopts_.trcnrdef_.step;
-	ti.nr = curtrcnr_;
+	    defnr = oldcurtrcnr + fileopts_.trcnrdef_.step;
+
+	ti.nr = defnr;
     }
 
     bool goodpos = true;
@@ -732,9 +734,12 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     if ( goodpos )
     {
-	prevtrcnr_ = curtrcnr_; curtrcnr_ = ti.nr;
-	prevbid_ = curbid_; curbid_ = ti.binid;
-	prevoffs_ = curoffs_; curoffs_ = ti.offset;
+	prevtrcnr_ = curtrcnr_;
+	curtrcnr_ = ti.nr;
+	prevbid_ = curbid_;
+	curbid_ = ti.binid;
+	prevoffs_ = curoffs_;
+	curoffs_ = ti.offset;
     }
 
     if ( mIsZero(ti.sampling.step,mDefEps) )
