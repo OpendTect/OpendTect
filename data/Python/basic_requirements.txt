@@ -1,2 +1,3 @@
 humanfriendly==
-psutil==5.7.0
+psutil==5.8.0
+safety==1.10.3
