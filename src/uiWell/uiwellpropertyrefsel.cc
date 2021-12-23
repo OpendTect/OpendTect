@@ -130,10 +130,13 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
 
     lognmfld->setEmpty();
     lognmfld->addItems( normnms );
-    if ( !prevlognm.isEmpty() && normnms.isPresent(prevlognm.str()) )
-	lognmfld->setCurrentItem( normnms.indexOf(prevlognm.str()) );
-    else if ( normnms.size() > 1 )
-	lognmfld->setCurrentItem( 1 );
+    if ( !setDefaultLog(wls, normMn()) )
+    {
+	if ( !prevlognm.isEmpty() && normnms.isPresent(prevlognm.str()) )
+		lognmfld->setCurrentItem( normnms.indexOf(prevlognm.str()) );
+	else if ( normnms.size() > 1 )
+		lognmfld->setCurrentItem( 1 );
+    }
 
     switchPropCB( lognmfld );
     if ( !altMn() )
@@ -157,8 +160,11 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
     uiComboBox* altlognmfld = altlognmfld_->box();
     altlognmfld->setEmpty();
     altlognmfld->addItems( altnms );
-    if ( altnms.size() > 1 )
-	altlognmfld->setCurrentItem( 1 );
+    if ( !setDefaultLog(wls, *altMn()) )
+    {
+	if ( altnms.size() > 1 )
+	    altlognmfld->setCurrentItem( 1 );
+    }
 
     switchPropCB( altlognmfld );
 
@@ -166,6 +172,18 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
     updateSelCB( nullptr );
 
     return normnms.size() + altnms.size() > 2;
+}
+
+
+bool uiWellSinglePropSel::setDefaultLog( const Well::LogSet& wls,
+					 const Mnemonic& mnem )
+{
+    const Well::Log* deflog = wls.getLog( mnem );
+    if ( !deflog )
+	return false;
+
+    setCurrent( deflog->name() );
+    return true;
 }
 
 
@@ -435,11 +453,18 @@ void uiWellPropSel::setLog( const Mnemonic* mn, const char* nm, bool usealt,
 			    const UnitOfMeasure* uom, int idx )
 {
     if ( !propflds_.validIdx(idx) )
-	{ pErrMsg("Idx failure"); return; }
+    {
+	pErrMsg("Idx failure");	
+	return;	
+    }
+
     const Mnemonic* propmn = usealt ? propflds_[idx]->altMn()
 				    : &propflds_[idx]->normMn();
     if ( propmn != mn )
-	{ pErrMsg("Type failure"); return; }
+    {
+	pErrMsg("Type failure");
+	return;	
+    }
 
     propflds_[idx]->set( nm, usealt, uom );
 }

@@ -41,6 +41,7 @@ public:
     bool		isOK() const;
 
     bool		setAvailableLogs(const Well::LogSet&);
+    bool		setDefaultLog(const Well::LogSet&,const Mnemonic&);
 
     void                set(const char* txt,bool alt,
 			    const UnitOfMeasure* =nullptr);
@@ -117,6 +118,7 @@ public:
     void		setWellID( const MultiID& wid ) { wellid_ = wid; }
     bool		setAvailableLogs(const Well::LogSet&,
 					 BufferStringSet& notokpropnms);
+    void		setDefaultLog();
     void		setLog(const Mnemonic*,const char* lognm,
 			       bool check,const UnitOfMeasure*,int idx);
 
