@@ -154,6 +154,48 @@ double Well::D2TModel::getVelocityForTwt( float twt, const Track& track ) const
 }
 
 
+mDefParallelCalc6Pars(Dah2Twt,
+		  od_static_tr("Dah2Twt", "Dah to TWT conversion"),
+		      const float*, daharr, const Well::Track&, track,
+		      const Well::D2TModel&, d2t, const UnitOfMeasure*, dah_uom,
+		      float*, twtarr, const UnitOfMeasure*, twt_uom)
+mDefParallelCalcBody(
+const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+const UnitOfMeasure* tsuom = nullptr;
+,
+const float dah =  getConvertedValue( daharr_[idx], dah_uom_, zsuom );
+const float twt = mIsUdf(dah) ? mUdf(float) : d2t_.getTime( dah, track_ );
+twtarr_[idx] = getConvertedValue( twt, tsuom, twt_uom_ );
+,
+)
+
+
+void Well::D2TModel::getAllTime( int sz, const float* dah, const Track& track,
+				 const UnitOfMeasure* in, float* twt,
+				 const UnitOfMeasure* out ) const
+{
+    Dah2Twt converter( sz, dah, track, *this, in, twt, out );
+    converter.execute();
+}
+
+
+Interval<float> Well::D2TModel::getTimeRange( const Interval<float>& dahrg,
+					      const Track& track,
+					      const UnitOfMeasure* in_uom,
+					 const UnitOfMeasure* out_uom ) const
+{
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    const UnitOfMeasure* ztsuom = nullptr;
+    const float start = getConvertedValue( dahrg.start, in_uom, zsuom );
+    const float stop = getConvertedValue( dahrg.stop, in_uom, zsuom );
+    const float twtbeg = getConvertedValue( getTime(start, track), ztsuom,
+					    out_uom );
+    const float twtend = getConvertedValue( getTime(stop, track), ztsuom,
+					    out_uom );
+    return Interval<float>( twtbeg, twtend );
+}
+
+
 bool Well::D2TModel::getVelocityBoundsForDah( float dh, const Track& track,
 					Interval<double>& depths,
 					Interval<float>& times ) const

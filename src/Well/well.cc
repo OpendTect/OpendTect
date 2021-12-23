@@ -67,14 +67,15 @@ mDefineEnumUtils( Well::Info, WellType, "Well Type" )
   "canceledlocation", "injectiondisposalwell", 0 };
 
 mDefineEnumUtils(Well::Info, DepthType, "Depth type")
-{ Well::Info::sKeyMD(), Well::Info::sKeyTVD(), Well::Info::sKeyTVDSS(),
+{ Well::Info::sKeyMD(), Well::Info::sKeyTVD(), Well::Info::sKeyTVDSS(), "TVDSD",
   sKey::TWT(), nullptr };
  template <>
  void EnumDefImpl<Well::Info::DepthType>::init()
  {
-     uistrings_ += ::toUiString( "MD" );
-     uistrings_ += ::toUiString( "TVD" );
-     uistrings_ += ::toUiString( "TVDSS" );
+     uistrings_ += uiStrings::sMD();
+     uistrings_ += uiStrings::sTVD();
+     uistrings_ += uiStrings::sTVDSS();
+     uistrings_ += ::toUiString( "TVDSD");
      uistrings_ += uiStrings::sTWT();
  }
 

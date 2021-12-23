@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class TimeDepthModel;
 class uiString;
+class UnitOfMeasure;
 
 namespace Well
 {
@@ -49,6 +50,14 @@ public:
     double		getVelocityForTwt(float twt,const Track&) const;
     bool		getTimeDepthModel(const Well::Data&,
 					  TimeDepthModel&) const;
+
+    void		getAllTime(int sz,const float* dah,const Track&,
+				   const UnitOfMeasure* in,float* twt,
+				   const UnitOfMeasure* out) const;
+			// twt and dah must both have size sz
+    Interval<float>	getTimeRange(const Interval<float>& dahrg,const Track&,
+				     const UnitOfMeasure* in,
+				     const UnitOfMeasure* out) const;
 
     inline float	t( int idx ) const	{ return t_[idx]; }
     float		value( int idx ) const	{ return t(idx); }

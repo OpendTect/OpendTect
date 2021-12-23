@@ -9,6 +9,8 @@
 
 #include "idxable.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
+#include "velocitycalc.h"
 #include "timedepthmodel.h"
 #include "welldata.h"
 #include "trigonometry.h"
@@ -356,6 +358,57 @@ Coord3 Well::Track::getPos( float dh ) const
     }
 
     return ret;
+}
+
+
+mDefParallelCalc6Pars(Dah2Tvd,
+		  od_static_tr("Dah2Tvd", "Dah to TVD conversion"),
+		      const float*, daharr, const Well::Track&, track,
+		      const UnitOfMeasure*, dah_uom, float*, tvdsarr,
+		      float, zshft, const UnitOfMeasure*, tvd_uom)
+mDefParallelCalcBody(
+const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+,
+const float dah =  getConvertedValue( daharr_[idx], dah_uom_, zsuom );
+const float tvd = mIsUdf(dah) ? mUdf(float) : track_.getPos(dah).z + zshft_;
+tvdsarr_[idx] = getConvertedValue( tvd, zsuom, tvd_uom_ );
+,
+)
+
+
+void Well::Track::getAllTVD( int sz, const float* daharr,
+			     const UnitOfMeasure* dah_uom, float* tvdsarr,
+			     const UnitOfMeasure* tvd_uom,
+			     Well::Info::DepthType dtype ) const
+{
+    const float zshft = dtype==Well::Info::TVD ? getKbElev() :
+			dtype==Well::Info::TVDSS ? 0.f :
+			dtype==Well::Info::TVDSD ?
+					    SI().seismicReferenceDatum() : 0.f;
+
+    Dah2Tvd converter( sz, daharr, *this, dah_uom, tvdsarr, zshft, tvd_uom );
+    converter.execute();
+}
+
+
+Interval<float> Well::Track::getTVDRange( const Interval<float>& dahrg,
+					  const UnitOfMeasure* in_uom,
+					  const UnitOfMeasure* out_uom,
+					  Well::Info::DepthType dtype ) const
+{
+    const float zshft = dtype==Well::Info::TVD ? getKbElev() :
+			dtype==Well::Info::TVDSS ? 0.f :
+			dtype==Well::Info::TVDSD ?
+					    SI().seismicReferenceDatum() : 0.f;
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+
+    const float start = getConvertedValue( dahrg.start, in_uom, zsuom );
+    const float stop = getConvertedValue( dahrg.stop, in_uom, zsuom );
+    const float tvdbeg = getConvertedValue( getPos(start).z+zshft, zsuom,
+					    out_uom );
+    const float tvdend = getConvertedValue( getPos(stop).z+zshft, zsuom,
+					    out_uom );
+    return Interval<float>( tvdbeg, tvdend );
 }
 
 

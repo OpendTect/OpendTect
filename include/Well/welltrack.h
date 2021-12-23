@@ -14,11 +14,12 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "welldahobj.h"
 #include "position.h"
+#include "welldata.h"
+
+class UnitOfMeasure;
 
 namespace Well
 {
-
-class Data;
 
 /*!
 \brief Well track
@@ -64,6 +65,16 @@ public:
 
     Coord3		getPos(float d_ah) const;
     const TypeSet<Coord3>& getAllPos() const { return pos_; }
+
+    void		getAllTVD(int sz,const float* md,
+				  const UnitOfMeasure* in,float* tvd,
+				  const UnitOfMeasure* out,
+				  Info::DepthType dtype=Info::TVDSS) const;
+			// tvd and dah must both have size sz
+    Interval<float>	getTVDRange(const Interval<float>& dahrg,
+				    const UnitOfMeasure* in,
+				    const UnitOfMeasure* out,
+				    Info::DepthType dtype=Info::TVDSS)	const;
 
     float		getDahForTVD(double,float prevdah=mUdf(float)) const;
     float		getDahForTVD(float,float prevdah=mUdf(float)) const;
