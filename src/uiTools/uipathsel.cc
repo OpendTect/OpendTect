@@ -84,6 +84,7 @@ uiPathSel::uiPathSel( uiParent* p, const uiString& caption )
     txtfld_->setElemSzPol( uiObject::WideVar );
     txtfld_->setTitleText( caption );
     cbox_->attach( leftBorder );
+    setSelIcon( "edit" );
     setChecked( false );
     setHAlignObj( txtfld_ );
     mAttachCB(postFinalise(), uiPathSel::initGrp);
