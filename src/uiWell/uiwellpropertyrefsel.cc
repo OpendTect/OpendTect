@@ -130,7 +130,7 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
 
     lognmfld->setEmpty();
     lognmfld->addItems( normnms );
-    if ( !setDefaultLog(wls, normMn()) )
+    if ( !setDefaultLog(wls,normMn()) )
     {
 	if ( !prevlognm.isEmpty() && normnms.isPresent(prevlognm.str()) )
 		lognmfld->setCurrentItem( normnms.indexOf(prevlognm.str()) );
@@ -454,8 +454,8 @@ void uiWellPropSel::setLog( const Mnemonic* mn, const char* nm, bool usealt,
 {
     if ( !propflds_.validIdx(idx) )
     {
-	pErrMsg("Idx failure");	
-	return;	
+	pErrMsg("Idx failure");
+	return;
     }
 
     const Mnemonic* propmn = usealt ? propflds_[idx]->altMn()
@@ -463,7 +463,7 @@ void uiWellPropSel::setLog( const Mnemonic* mn, const char* nm, bool usealt,
     if ( propmn != mn )
     {
 	pErrMsg("Type failure");
-	return;	
+	return;
     }
 
     propflds_[idx]->set( nm, usealt, uom );

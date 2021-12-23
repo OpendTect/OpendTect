@@ -118,7 +118,6 @@ public:
     void		setWellID( const MultiID& wid ) { wellid_ = wid; }
     bool		setAvailableLogs(const Well::LogSet&,
 					 BufferStringSet& notokpropnms);
-    void		setDefaultLog();
     void		setLog(const Mnemonic*,const char* lognm,
 			       bool check,const UnitOfMeasure*,int idx);
 
