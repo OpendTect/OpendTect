@@ -775,6 +775,19 @@ bool IOMan::setDir( const char* dirname )
 
 void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 {
+    getObjEntry( ctio, false, mktmp, translidx );
+}
+
+
+void IOMan::getNewEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
+{
+    getObjEntry( ctio, true, mktmp, translidx );
+}
+
+
+void IOMan::getObjEntry( CtxtIOObj& ctio, bool isnew, bool mktmp,
+								int translidx )
+{
     ctio.setObj( nullptr );
     if ( ctio.ctxt_.name().isEmpty() )
 	return;
@@ -790,7 +803,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 	ioobj = nullptr;
 
     bool needstrigger = false;
-    if ( !ioobj )
+    if ( !ioobj || (isnew && !mktmp) )
     {
 	MultiID newkey( mktmp ? ctio.ctxt_.getSelKey() : dirptr_->newKey() );
 	if ( mktmp )
@@ -802,6 +815,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 	    ioobj->pars().merge( ctio.ctxt_.toselect_.require_ );
 	    if ( !dirptr_->addObj((IOObj*)ioobj) )
 		return;
+
 	    needstrigger = true;
 	}
     }
@@ -1152,6 +1166,7 @@ bool IOMan::commitChanges( const IOObj& ioobj )
     Threads::Locker lock( lock_ );
     PtrMan<IOObj> clone = ioobj.clone();
     to( clone->key() );
+
     return dirptr_ ? dirptr_->commitChanges( clone ) : false;
 }
 

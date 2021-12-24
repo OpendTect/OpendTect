@@ -105,6 +105,9 @@ public:
     void		getEntry(CtxtIOObj&,bool newistmp=false,
 				 int translidxingroup=-1);
 				//!< will create a new entry if necessary
+    void		getNewEntry(CtxtIOObj&,bool newistmp=false,
+				 int translidxingroup=-1);
+				//!< will create a new entry if necessary
     bool		commitChanges(const IOObj&);
     bool		permRemove(const MultiID&);
 				//!< Removes only entry in IODir
@@ -179,6 +182,8 @@ private:
     IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
 
     void		applClosing() { applicationClosing.trigger(); }
+    void		getObjEntry(CtxtIOObj&,bool isnew, bool newistmp=false,
+				 int translidxingroup=-1);
 
     friend class	SurveyDataTreePreparer;
     friend class	BatchProgram;
