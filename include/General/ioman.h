@@ -106,8 +106,10 @@ public:
     void		getEntry(CtxtIOObj&,bool newistmp=false,
 				 int translidxingroup=-1);
 				//!< will create a new entry if necessary
+    void		getNewEntry(CtxtIOObj&,bool newistmp=false,
+				 int translidxingroup=-1);
+				//!< will create a new entry if necessary
     bool		commitChanges(const IOObj&);
-    bool		commitChanges(IOObj&,bool changename);
     bool		permRemove(const MultiID&);
 				//!< Removes only entry in IODir
 
@@ -182,6 +184,8 @@ private:
 
     int			getSuffixForName(const BufferString& orgnm,
 				    const BufferString& trgrpnm, int idx=0);
+    void		getObjEntry(CtxtIOObj&,bool isnew, bool newistmp=false,
+				 int translidxingroup=-1);
 
     friend class	IOMManager;
     friend class	SurveyDataTreePreparer;
