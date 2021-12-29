@@ -44,6 +44,7 @@ ________________________________________________________________________
 #include "uishortcutsmgr.h"
 #include "uistrings.h"
 #include "uitable.h"
+#include "uitextedit.h"
 #include "uitoolbar.h"
 #include "uitoolbarcmded.h"
 #include "uivirtualkeyboard.h"
@@ -82,6 +83,7 @@ private:
     void		testPythonModules();
     void		testCB(CallBacker*);
     void		promptCB(CallBacker*);
+    void		safetycheckCB(CallBacker*);
     bool		getPythonEnvBinPath(BufferString&) const;
     void		updateIDEfld();
     bool		useScreen();
@@ -1002,6 +1004,11 @@ uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
     cmdwinbut->setIcon( "terminal" );
     cmdwinbut->attach( rightOf, testbut );
 
+    auto* safetychkbut = new uiPushButton( this, tr("Safety Check"),
+			mCB(this,uiPythonSettings,safetycheckCB), true );
+    safetychkbut->setIcon( "safety" );
+    safetychkbut->attach( rightOf, cmdwinbut );
+
     mAttachCB( postFinalise(), uiPythonSettings::initDlg );
 }
 
@@ -1308,6 +1315,34 @@ void uiPythonSettings::promptCB( CallBacker* )
 	uirv.add( tr("Python environment not usable") );
 	uiMSG().error( uirv );
     }
+}
+
+
+void uiPythonSettings::safetycheckCB( CallBacker* )
+{
+    if ( !useScreen() )
+	return;
+
+    OS::MachineCommand cmd( "safety" );
+    cmd.addArg( "check");
+    BufferString stdoutstr;
+    uiString errmsg;
+    uiUserShowWait usw( this, tr("Checking Python environment") );
+    if ( !OD::PythA().execute(cmd, stdoutstr, nullptr, &errmsg) ||
+							stdoutstr.isEmpty() )
+    {
+	uiMSG().error( errmsg );
+	return;
+    }
+
+    uiDialog dlg( this, uiDialog::Setup(tr("Safety Check"), mNoDlgTitle,
+					mNoHelpKey) );
+    auto* browser = new uiTextBrowser( &dlg );
+    browser->setPrefWidthInChar( 100 );
+    browser->setText( stdoutstr.buf() );
+    dlg.setCancelText( uiString::empty() );
+    usw.readyNow();
+    dlg.go();
 }
 
 
