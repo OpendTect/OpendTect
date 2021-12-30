@@ -1344,27 +1344,27 @@ BufferString OD::PythonAccess::getPacmanExecNm() const
     if ( activatefp_ )
     {
 	FilePath packmanexe( *activatefp_ );
-#ifdef __win__
-	if ( !GetPythonActivatorExe().isEmpty() )
-	    packmanexe.add( "condabin" )
-		      .add( "activate" );
-#endif
-	packmanexe.setFileName( "conda" );
-#ifdef __win__
-	packmanexe.setExtension( "exe" );
-#endif
-	if ( packmanexe.exists() )
-	    return packmanexe.baseName();
+	if ( __iswin__ && !GetPythonActivatorExe().isEmpty() )
+	    packmanexe.add( "condabin" ).add( "activate" );
 
-#ifdef __win__
-	packmanexe.setFileName( nullptr );
-	packmanexe.setFileName( nullptr );
-	packmanexe.add( "Scripts" );
-#endif
+	packmanexe.setFileName( "conda" );
+	if ( __iswin__ )
+	    packmanexe.setExtension( "bat" );
+
+	if ( packmanexe.exists() )
+	    return packmanexe.fileName();
+
+	if ( __iswin__ )
+	{
+	    packmanexe.setFileName( nullptr );
+	    packmanexe.setFileName( nullptr );
+	    packmanexe.add( "Scripts" );
+	}
+
 	packmanexe.setFileName( "pip" );
-#ifdef __win__
-	packmanexe.setExtension( "exe" );
-#endif
+	if ( __iswin__ )
+	    packmanexe.setExtension( "exe" );
+
 	if ( packmanexe.exists() )
 	    return packmanexe.baseName();
 
@@ -1375,11 +1375,7 @@ BufferString OD::PythonAccess::getPacmanExecNm() const
 	return BufferString( "pip" ); //Fallback
     }
 
-#ifdef __win__
-    return BufferString( "pip" );
-#else
-    return BufferString( "pip3" );
-#endif
+    return BufferString( __iswin__ ? "pip" : "pip3" );
 }
 
 
