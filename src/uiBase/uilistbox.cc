@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QStyledItemDelegate>
+#include <QAbstractButton>
 
 static const int cIconSz = 16;
 int uiListBox::cDefNrLines()	{ return 7; }
@@ -539,16 +540,18 @@ void uiListBox::mkCheckGroup()
 void uiListBox::mkReadSaveButGroup()
 {
     rsbutgrp_ = new uiButtonGroup( this, "Read/Save Group", OD::Horizontal );
-    rsbutgrp_->attach( alignedAbove, checkgrp_ );
+    rsbutgrp_->attach( rightOf, checkgrp_ );
     rsbutgrp_->displayFrame( true );
-    new uiToolButton( rsbutgrp_, "open",
+    auto* readbut = new uiToolButton( rsbutgrp_, "open",
 			uiStrings::sRead(),
 			mCB(this,uiListBox,retrieveCB) );
-    new uiToolButton( rsbutgrp_, "save",
+    readbut->setPrefWidth( cIconSz );
+    readbut->setStyleSheet( "border: 0" );
+    auto* savebut = new uiToolButton( rsbutgrp_, "save",
 			uiStrings::sSave(),
 			mCB(this,uiListBox,saveCB) );
-    auto* sep1 = new uiSeparator( this, "Filter Separator" );
-    sep1->attach( stretchedBelow, rsbutgrp_ );
+    savebut->setPrefWidth( cIconSz );
+    savebut->setStyleSheet( "border: 0" );
 }
 
 
