@@ -216,6 +216,7 @@ protected:
     void		selPreStackDataCB(CallBacker*);
     void		preStackWinClosedCB(CallBacker*);
     void		newModelsCB(CallBacker*);
+    void		uiTaskRunDeletedCB(CallBacker*);
 
 public:
 
