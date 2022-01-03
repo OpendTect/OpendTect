@@ -91,7 +91,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , currentvdsynthetic_(0)
     , autoupdate_(true)
     , forceupdate_(false)
-    , taskrunner_(nullptr)
     , relzoomwr_(0,0,1,1)
     , savedzoomwr_(mUdf(double),0,0,0)
 {
@@ -189,6 +188,7 @@ uiStratSynthDisp::~uiStratSynthDisp()
     detachAllNotifiers();
     delete stratsynth_;
     delete edstratsynth_;
+    taskrunner_.release();
     delete d2tmodels_;
 }
 
@@ -1617,9 +1617,34 @@ bool uiStratSynthDisp::prepareElasticModel()
 	return false;
 
     if ( !curSS().hasTaskRunner() )
-	curSS().setTaskRunner( new uiTaskRunner(this) );
+    {
+	if ( !taskrunner_ )
+	{
+	    auto* uitaskrunner = new uiTaskRunner( this );
+	    taskrunner_ = uitaskrunner;
+	    mAttachCB( uitaskrunner->objectToBeDeleted(),
+		       uiStratSynthDisp::uiTaskRunDeletedCB );
+	}
+
+	curSS().setTaskRunner( taskrunner_.ptr() );
+    }
 
     return curSS().createElasticModels();
+}
+
+
+void uiStratSynthDisp::uiTaskRunDeletedCB( CallBacker* cb )
+{
+    if( !cb || !taskrunner_ )
+	return;
+
+    mDynamicCastGet(uiBaseObject*,uitaskrunnerdlg,cb);
+    if ( !uitaskrunnerdlg )
+	return;
+
+    const_cast<StratSynth&>( normalSS() ).setTaskRunner( nullptr );
+    const_cast<StratSynth&>( editSS() ).setTaskRunner( nullptr );
+    taskrunner_.release();
 }
 
 
