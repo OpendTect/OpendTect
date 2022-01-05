@@ -177,10 +177,11 @@ protected:
 class ODGraphicsAdvancedTextItem : public QGraphicsTextItem
 {
 public:
-				ODGraphicsAdvancedTextItem(bool);
+			ODGraphicsAdvancedTextItem(bool);
 
 protected:
-    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    virtual void	mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    virtual void	contextMenuEvent(QGraphicsSceneContextMenuEvent*);
 };
 
 
