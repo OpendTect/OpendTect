@@ -989,6 +989,7 @@ bool uiSEGYReadStarter::getFileSpec()
 	return false;
 
     filespec_.setEmpty();
+    linenames_.setEmpty();
     if ( !userfilename_.find('*') )
     {
 	if ( !getExistingFileName(userfilename_) )
@@ -1173,9 +1174,12 @@ bool uiSEGYReadStarter::acceptOK( CallBacker* )
 	}
 	return true;
     }
-    else if ( impType().is2D() && filespec_.nrFiles() > 1 &&
-	      linenames_.isEmpty() && !reviewAndEditLineNames() )
-	return false;
+    else if ( impType().is2D() && filespec_.nrFiles() > 1 )
+    {
+	if ( linenames_.size() != filespec_.nrFiles() &&
+		!reviewAndEditLineNames() )
+	    return false;
+    }
 
     const FullSpec fullspec = fullSpec();
     uiSEGYReadFinisher dlg( this, fullspec, userfilename_ );
