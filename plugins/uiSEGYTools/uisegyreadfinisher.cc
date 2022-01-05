@@ -532,7 +532,12 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
     {
 	BufferString lnm( inplnm );
 	if ( nrlines > 1 )
+	{
+	    if ( iln >= fs_.linenames_.size() )
+		break;
+
 	    lnm = fs_.linenames_.get( iln );
+	}
 
 	const bool morelines = iln < nrlines-1;
 	bool isnew = true;
