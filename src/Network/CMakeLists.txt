@@ -15,7 +15,7 @@ set ( OD_USECRYPTO Yes )
 set ( OD_MODULE_DEPS General )
 
 set ( QT_MOC_HEADERS
-	qnetworkaccessconn.h
+	i_odhttpconn.h
 	qtcpservercomm.h
 	qtcpsocketcomm.h)
 set ( OD_MODULE_SOURCES
@@ -25,22 +25,24 @@ set ( OD_MODULE_SOURCES
 	initnetwork.cc
 	issuereporter.cc
 	jobcommunic.cc
+	netfilecache.cc
 	netreqconnection.cc
 	netreqpacket.cc
 	netserver.cc
 	netservice.cc
 	netsocket.cc
 	oddlsite.cc
+	odhttp.cc
 	odnetworkaccess.cc
-	odnetworkreply.cc
 	servicemgrbase.cc
 	serverservicebase.cc
 	svnaccess.cc
 	systeminfo.cc
+	webfileaccess.cc
 )
 set ( OD_MODULE_TESTPROGS test_netreqechoserver.cc test_netsocketechoserver.cc )
 set ( OD_TEST_PROGS networkaccess.cc systeminfo.cc )
-set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc )
+set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc webstreamsource.cc )
 OD_INIT_MODULE()
 
 # The test programs are independant, but it is handy to compile the server app

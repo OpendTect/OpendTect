@@ -372,8 +372,8 @@ BufferString findExecutable( const char* exenm, const BufferStringSet& paths,
     if ( !paths.isEmpty() )
     {
 	QStringList qpaths;
-	for ( int idx=0; idx<paths.size(); idx++ )
-	    qpaths.append( paths.get(idx).buf() );
+	for ( const auto* path : paths )
+	    qpaths.append( path->buf() );
 
 	const BufferString tmp = QStandardPaths::findExecutable( exenm,
 								 qpaths );
@@ -565,146 +565,15 @@ bool listDir( const char* dirnm, DirListType dlt, BufferStringSet& fnames,
 
 bool rename( const char* oldname, const char* newname, uiString* errmsg )
 {
-/* TODO: move the rename implementation to LocalFileSystemAccess::rename
     if ( !isSane(oldname) || !isSane(newname) )
 	return false;
 
-    if ( SystemAccess::getProtocol(oldname) !=
-	 SystemAccess::getProtocol(newname) )
+    if ( OD::FileSystemAccess::getProtocol(oldname) !=
+	 OD::FileSystemAccess::getProtocol(newname) )
 	return false;
 
-    const SystemAccess& fsa = SystemAccess::get( newname );
+    const auto& fsa = OD::FileSystemAccess::get( newname );
     return fsa.rename( oldname, newname );
-*/
-
-    if ( !File::exists(oldname) )
-    {
-	if ( errmsg )
-	    errmsg->append( uiStrings::phrDoesntExist(::toUiString(oldname)) );
-	return false;
-    }
-
-    const FilePath destpath( newname );
-    if ( destpath.exists() )
-    {
-	if ( errmsg )
-	{
-	    BufferString errstr( "Destination '" );
-	    errstr.add( destpath.fullPath() )
-		.add( "' already exists." )
-		.add( "Please remove or rename manually." );
-	    errmsg->append( errstr );
-	}
-	return false;
-    }
-
-    const FilePath destdir( destpath.pathOnly() );
-    const BufferString targetbasedir( destdir.fullPath() );
-    if ( !File::exists(targetbasedir) )
-    {
-	if ( !File::createDir(targetbasedir) )
-	{
-	    if ( errmsg )
-		errmsg->append( uiStrings::phrCannotCreateDirectory(
-						toUiString(targetbasedir)) );
-	    return false;
-	}
-    }
-#ifdef __unix__
-    else if ( !File::isWritable(targetbasedir) )
-    {
-	if ( errmsg )
-	    errmsg->append( uiStrings::phrCannotWrite(
-						toUiString(targetbasedir)) );
-	return false;
-    }
-#endif
-
-    int itatr=0;
-    int nritatr = 10;
-    bool res=false;
-    while ( ++itatr < nritatr )
-    {
-	res = QFile::rename( oldname, newname );
-	if ( res )
-	    return true;
-	else if ( !File::exists(oldname) && File::exists(newname) )
-	{// False negative detection.
-	    return true;
-	}
-
-	if ( !res && File::isDirectory(oldname) )
-	{
-	    QDir dir;
-	    res = dir.rename( oldname, newname );
-	    if ( res )
-		return true;
-	    else if ( !File::exists(oldname) && File::exists(newname) )
-		return true;
-	    else
-	    {
-		const FilePath sourcefp( oldname );
-		dir.setCurrent( QString(sourcefp.pathOnly()) );
-		const QString newnm = dir.relativeFilePath( newname );
-		res = dir.rename( QString(sourcefp.fileName()), newnm );
-		if ( res )
-		    return true;
-		else if ( !File::exists(oldname) && File::exists(newname) )
-		    return true;
-	    }
-	}
-
-	Threads::sleep( 0.1 );
-    }
-
-    if ( !res )
-    { //Trying c rename function
-	rename( oldname, newname );
-	if ( !File::exists(oldname) && File::exists(newname) )
-	    return true;
-    }
-
-    OS::MachineCommand mc;
-    if ( !__iswin__ )
-	mc.setProgram( "mv" );
-    else
-    {
-	const BufferString destdrive = destdir.rootPath();
-	const FilePath sourcefp( oldname );
-	const BufferString sourcedrive = sourcefp.rootPath();
-	if ( destdrive != sourcedrive )
-	{
-	    BufferString msgstr;
-	    res = File::copyDir( oldname, newname, &msgstr );
-	    if ( !res )
-	    {
-		if ( errmsg && !msgstr.isEmpty() )
-		    errmsg->append( msgstr );
-		return false;
-	    }
-
-	    res = File::removeDir( oldname );
-	    return res;
-	}
-
-	mc.setProgram( "move" );
-    }
-
-    mc.addArg( oldname ).addArg( newname );
-    BufferString stdoutput, stderror;
-    res = mc.execute( stdoutput, &stderror );
-    if ( !res && errmsg )
-    {
-	if ( !stderror.isEmpty() )
-	    errmsg->append( stderror, true );
-
-	if ( !stdoutput.isEmpty() )
-	    errmsg->append( stdoutput, true );
-
-	errmsg->append( "Failed to rename using system command." );
-    }
-
-    return res;
 }
 
 
@@ -746,26 +615,23 @@ bool saveCopy( const char* from, const char* to )
 
 bool copy( const char* from, const char* to, BufferString* errmsg )
 {
-    if ( isDirectory(from) || isDirectory(to)  )
+    if ( !isSane(from) || !isSane(to) )
+	return false;
+
+    if ( OD::FileSystemAccess::getProtocol(from) !=
+	 OD::FileSystemAccess::getProtocol(to) )
+	return false;
+
+    const auto& fsa = OD::FileSystemAccess::get( from );
+
+    if ( fsa.isDirectory(from) || fsa.isDirectory(to) )
 	return copyDir( from, to, errmsg );
 
-    if ( exists(to) && !isDirectory(to) )
-	File::remove( to );
-
-    QFile qfile( from );
-    bool ret = qfile.copy( to );
-    if ( !ret && errmsg )
-	errmsg->add( qfile.errorString() );
-
-#ifdef __unix__
-    const QFileInfo qfi( qfile );
-    utimbuf timestamp;
-    timestamp.actime = qfi.lastRead().toSecsSinceEpoch();
-    timestamp.modtime = qfi.lastModified().toSecsSinceEpoch();
-    utime( to, &timestamp );
-#endif
-
-    return ret;
+    uiString uimsg;
+    const bool res = fsa.copy( from, to, errmsg ? &uimsg : nullptr );
+    if ( errmsg )
+	errmsg->set( uimsg );
+    return res;
 }
 
 

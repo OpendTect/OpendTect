@@ -12,12 +12,15 @@ ________________________________________________________________________
 
 #include "systeminfo.h"
 
-typedef const char* (*constcharFromBoolFn)(bool);
+using constcharFromBoolFn = const char*(*)(bool);
 mGlobal(Basic) void setGlobal_Basic_Fns(constcharFromBoolFn);
+
+void NetworkHttpFileSystemAccessinitClass();
 
 mDefModInitFn(Network)
 {
-    mIfNotFirstTime( return );
+    mIfNotFirstTime(return);
 
+    NetworkHttpFileSystemAccessinitClass();
     setGlobal_Basic_Fns( System::localAddress );
 }

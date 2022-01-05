@@ -65,7 +65,7 @@ bool testDownloadToBuffer()
     DataBuffer db( 1000, 4 );
     uiString err;
 
-    mRunStandardTestWithError( Network::downloadToBuffer( url, &db, err ),
+    mRunStandardTestWithError( Network::downloadToBuffer( url, db, err ),
 	    BufferString( prefix_, "Download to buffer"), toString(err) );
 
     mRunStandardTest( db.size()==54,
@@ -94,8 +94,8 @@ bool testFileUpload()
     uiString err;
     IOPar postvars;
     mRunStandardTestWithError(
-	    Network::uploadFile(url.buf(), tempfile.fullPath(), remotefn, "dumpfile",
-				postvars, err ),
+    Network::uploadFile( url.buf(), tempfile.fullPath(), remotefn,
+			"dumpfile", postvars, err ),
 	    BufferString( prefix_, "Upload file "), toString(err) );
 
     return true;

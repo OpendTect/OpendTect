@@ -415,15 +415,12 @@ BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
         ret.set( val->str() );
 #ifdef __debug__
 # ifdef __win__
-        if ( File::exists(ret.buf()) )
-        {
-	    const FilePath fp( ret );
-	    if ( fp.isAbsolute() )
-	    {
-		pErrMsg( "Should not use getStringValue for a filepath" );
-		DBG::forceCrash( false );
-	    }
-        }
+	const FilePath fp( ret );
+	if ( !fp.isURI() && fp.exists() && fp.isAbsolute() )
+	{
+	    pErrMsg( "Should not use getStringValue for a filepath" );
+	    DBG::forceCrash( false );
+	}
 # endif
 #endif
         break;
@@ -1248,14 +1245,11 @@ BufferString OD::JSON::Object::getStringValue( const char* ky ) const
     const BufferString ret = ValueSet::getStringValue( indexOf(ky) );
 #ifdef __debug__
 # ifdef __win__
-    if ( File::exists(ret.buf()) )
+    const FilePath fp( ret );
+    if ( !fp.isURI() && fp.exists() && fp.isAbsolute() )
     {
-	const FilePath fp( ret );
-	if ( fp.isAbsolute() )
-	{
-	    pErrMsg( "Should not use getStringValue for a filepath" );
-	    DBG::forceCrash( false );
-	}
+	pErrMsg( "Should not use getStringValue for a filepath" );
+	DBG::forceCrash( false );
     }
 # endif
 #endif

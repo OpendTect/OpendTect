@@ -14,20 +14,16 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "odnetworkreply.h"
 #include "oscommand.h"
-#include "od_ostream.h"
-#include "od_istream.h"
+#include "od_iostream.h"
+#include "oddirs.h"
 #include "perthreadrepos.h"
 #include "separstr.h"
 #include "settings.h"
 #include "sharedlibs.h"
 #include "uistrings.h"
 
-# include "qnetworkaccessconn.h"
-
 # include <QByteArray>
-# include <QEventLoop>
 # include <QNetworkProxy>
 
 
@@ -153,7 +149,7 @@ od_int64 Network::getFileSize( const char* url )
 bool Network::getContent( const char* url, BufferString& bs )
 {
     uiString msg; DataBuffer dbuf(0,1);
-    if ( !downloadToBuffer(url,&dbuf,msg) || !dbuf.fitsInString() )
+    if ( !downloadToBuffer(url,dbuf,msg) || !dbuf.fitsInString() )
 	return false;
     bs = dbuf.getString();
     return true;
@@ -202,11 +198,11 @@ bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths,
 }
 
 
-bool Network::downloadToBuffer( const char* url, DataBuffer* databuffer,
+bool Network::downloadToBuffer( const char* url, DataBuffer& databuffer,
 				uiString& errmsg, TaskRunner* taskr )
 {
-    databuffer->reSize( 0, false );
-    databuffer->reByte( 1, false );
+    databuffer.reSize( 0, false );
+    databuffer.reByte( 1, false );
     FileDownloader dl( url, databuffer );
     const bool res = taskr ? taskr->execute( dl ) : dl.execute();
     if ( !res ) errmsg = dl.uiMessage();
@@ -242,14 +238,7 @@ bool Network::ping( const char* url, uiString& msg )
 FileDownloader::FileDownloader( const BufferStringSet& urls,
 				const BufferStringSet& outputpaths )
     : SequentialTask("Downloading files")
-    , qeventloop_(0)
-    , odnr_(0)
-    , initneeded_(true)
-    , msg_(uiString::empty())
-    , nrdone_(0)
-    , nrfilesdownloaded_(0)
     , osd_(new od_ostream())
-    , databuffer_(0)
     , saveaspaths_( outputpaths )
     , urls_( urls )
 {
@@ -258,16 +247,9 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
 }
 
 
-FileDownloader::FileDownloader( const char* url, DataBuffer* db )
+FileDownloader::FileDownloader( const char* url, DataBuffer& db )
     : SequentialTask("Downloading file")
-    , qeventloop_(0)
-    , odnr_(0)
-    , initneeded_(true)
-    , msg_(uiString::empty())
-    , nrdone_(0)
-    , nrfilesdownloaded_(0)
-    , osd_(0)
-    , databuffer_(db)
+    , databuffer_(&db)
 {
     Network::loadOpenSSL(); //Keep at the first line
     urls_.add(url);
@@ -277,15 +259,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer* db )
 
 FileDownloader::FileDownloader( const char* url )
     : SequentialTask("Downloading file")
-    , qeventloop_(0)
-    , odnr_(0)
-    , initneeded_(true)
-    , msg_(uiString::empty())
-    , nrdone_(0)
-    , nrfilesdownloaded_(0)
-    , totalnr_(0)
     , osd_(new od_ostream())
-    , databuffer_(0)
 {
     Network::loadOpenSSL(); //Keep at the first line
     urls_.add(url);
@@ -294,10 +268,7 @@ FileDownloader::FileDownloader( const char* url )
 
 FileDownloader::~FileDownloader()
 {
-    delete qeventloop_;
-    delete odnr_;
-    if ( osd_ )
-	delete osd_;
+    delete osd_;
 }
 
 
@@ -312,22 +283,17 @@ int FileDownloader::nextStep()
 	if ( !urls_.validIdx( nrfilesdownloaded_ ) )
 	    return Finished();
 
-	delete odnr_;
-	if ( !qeventloop_ )
-	    qeventloop_ = new QEventLoop();
-
-	odnr_ = new ODNetworkReply( ODNA().get(QNetworkRequest(QUrl(urls_.get
-				   (nrfilesdownloaded_).buf()))), qeventloop_ );
+	const char* url = urls_.get(nrfilesdownloaded_).buf();
+	odnr_ = Network::HttpRequestManager::instance().get( url );
     }
 
-    qeventloop_->exec();
-    if ( odnr_->qNetworkReply()->error() )
+    if ( odnr_->isError() )
 	return errorOccured();
 
-    if ( odnr_->qNetworkReply()->bytesAvailable() && !writeData() )
+    if ( odnr_->downloadBytesAvailable() && !writeData() )
 	return ErrorOccurred();
 
-    if ( odnr_->qNetworkReply()->isFinished() )
+    if ( odnr_->isFinished() )
     {
 	initneeded_ = true;
 	nrfilesdownloaded_++;
@@ -344,32 +310,28 @@ od_int64 FileDownloader::getDownloadSize()
     od_int64 totalbytes = 0;
     for ( int idx=0; idx<urls_.size(); idx++ )
     {
-	QNetworkReply* qnr = ODNA().head( QNetworkRequest
-						(QUrl(urls_.get(idx).buf())) );
-	delete odnr_;
-	QEventLoop qeventloop;
-	odnr_ = new ODNetworkReply( qnr, &qeventloop );
-	qeventloop.exec();
-	if ( odnr_->qNetworkReply()->error() )
+	const char* url = urls_.get(idx).buf();
+	odnr_ = Network::HttpRequestManager::instance().head( url );
+	odnr_->waitForFinish();
+
+	if ( odnr_->isError() )
 	    return errorOccured();
 
-	od_int64 filesize = odnr_->qNetworkReply()->header
-	    		( QNetworkRequest::ContentLengthHeader ).toLongLong();
+
+	od_int64 filesize = odnr_->getContentLengthHeader();
 	totalbytes += filesize;
-	while( !odnr_->qNetworkReply()->isFinished() )
-	    qeventloop.exec();
     }
 
-    delete odnr_; odnr_ = 0;
+    odnr_ = nullptr;
     return totalbytes;
 }
 
 
 bool FileDownloader::writeData()
 {
-    od_int64 bytes = odnr_->qNetworkReply()->bytesAvailable();
-    PtrMan<char> buffer = new char[bytes];
-    odnr_->qNetworkReply()->read( buffer, bytes );
+    od_int64 bytes = odnr_->downloadBytesAvailable();
+    mAllocLargeVarLenArr( char, buffer, bytes );
+    bytes = odnr_->read( buffer, bytes );
     nrdone_ += bytes;
     if ( databuffer_ )
 	return writeDataToBuffer( buffer, bytes );
@@ -392,8 +354,8 @@ bool FileDownloader::writeDataToFile(const char* buffer, int size)
 	osd_->open( saveaspaths_.get(nrfilesdownloaded_) );
 	if ( osd_->isBad() )
 	{
-	    msg_ = tr("Didn't have permission to write to: %1")
-		  .arg(fp.fullPath());
+	    msg_ = tr("%1 Didn't have permission to write to: %2")
+		 .arg(osd_->isBad()).arg(fp.fullPath());
 	    return false;
 	}
     }
@@ -419,8 +381,7 @@ int FileDownloader::errorOccured()
 {
     msg_ = tr("Oops! Something went wrong.\n");
     if (odnr_)
-	msg_ = tr("Details: %1")
-	     .arg(qPrintable(odnr_->qNetworkReply()->errorString()));
+	msg_ = tr("Details: %1").arg( odnr_->errMsg() );
     return ErrorOccurred();
 }
 
@@ -441,21 +402,33 @@ od_int64 FileDownloader::totalNr() const
 { return totalnr_/1024; }
 
 
-#define mBoundary "---------------------------193971182219750"
+// upload
 
+static const char* sFullContentBoundary = "-------742f683860774f225764f172";
+static const char* sContentBoundary = sFullContentBoundary + 2;
+static const char* sHttpEndStrNewline = "\"\r\n";
+static const char* sHttpNewline = sHttpEndStrNewline + 1;
 
-void addPars( BufferString& data, const IOPar& postvars )
+static void addContentStart( BufferString& httpstr, const char* contnm )
+{
+    httpstr.add( sFullContentBoundary ).add( sHttpNewline )
+	   .add( "Content-Disposition: form-data; name=\"" )
+	   .add( contnm ).add( "\"" );
+}
+static void addContentStop( BufferString& httpstr )
+{
+    httpstr.add( sFullContentBoundary );
+}
+static void addPars( BufferString& httpstr, const IOPar& postvars )
 {
     for ( int idx=0; idx<postvars.size(); idx++ )
     {
-	data.add( "--" ).add( mBoundary );
-	data.add( "\r\nContent-Disposition: form-data; name=\"");
-	data.add( postvars.getKey(idx).str() ).add( "\"\r\n\r\n" );
-	data.add( postvars.getValue(idx).str() ).add( "\r\n" );
+	addContentStart( httpstr, postvars.getKey(idx) );
+	httpstr.add( sHttpNewline )
+		.add( postvars.getValue(idx).str() )
+		.add( sHttpNewline );
     }
-
-    data.add( "--" ).add( mBoundary );
-    return;
+    addContentStop( httpstr );
 }
 
 
@@ -470,30 +443,42 @@ bool Network::uploadFile( const char* url, const char* localfname,
 			       .arg( localfname );
 	return false;
     }
+    const od_int64 filesize = File::getFileSize( localfname );
+    if ( filesize > INT_MAX )
+    {
+	errmsg = od_static_tr( "uploadFile", "%1\nFile too large for upload" )
+			       .arg( localfname );
+	return false;
+    }
 
-    BufferString bsdata;
-    bsdata.add( "--" ).add( mBoundary );
-    bsdata.add( "\r\nContent-Disposition: form-data; name=\"").add( ftype );
-    bsdata.add( "\"; filename=\"").add( remotefname ).add( "\"\r\n" );
-    bsdata.add( "Content-Type: application/octet-stream\r\n\r\n" );
+    BufferString startstr;
+    addContentStart( startstr, ftype );
+    startstr.add( "; filename=\"").add( remotefname ).add( sHttpEndStrNewline )
+	  .add( "Content-Type: application/octet-stream\r\n\r\n" );
+    BufferString stopstr( sHttpNewline );
+    addContentStart( stopstr, "upload" );
+    stopstr.add( "\r\n\r\nOpendTect\r\n" );
+    addPars( stopstr, postvars );
 
-    od_istream isd( localfname );
-    int size = File::getFileSize( localfname );
+    const int startsize = startstr.size();
+    const int stopsize = stopstr.size();
+    const od_int64 totalsize = startsize + filesize + stopsize;
+    if ( totalsize > INT_MAX )
+    {
+	errmsg = od_static_tr( "uploadFile",
+		    "%1\nFile just too large for upload" ).arg( localfname );
+	return false;
+    }
 
-    PtrMan<DataBuffer> databuffer = new DataBuffer( size+bsdata.size(),1 );
-    OD::memCopy( databuffer->data(), bsdata.buf(), bsdata.size() );
-    isd.getBin( databuffer->data() + bsdata.size(), size );
-    isd.close();
-    bsdata = ( "\r\n--" );
-    bsdata.add( mBoundary );
-    bsdata.add( "\r\nContent-Disposition: form-data; name=\"upload\"\r\n\r\n" );
-    bsdata.add( "Uploader\r\n" );
+    PtrMan<DataBuffer> databuffer = new DataBuffer( (int)totalsize, 1 );
+    unsigned char* buf = databuffer->data();
+    OD::memCopy( buf, startstr.str(), startsize );
+    od_istream inpstrm( localfname );
+    inpstrm.getBin( buf + startsize, filesize );
+    inpstrm.close();
+    OD::memCopy( buf + startsize + filesize, stopstr.str(), stopsize );
 
-    addPars( bsdata, postvars);
-    const int prev_size = databuffer->size();
-    databuffer->reSize( prev_size + bsdata.size() );
-    OD::memCopy( databuffer->data()+prev_size, bsdata.buf(), bsdata.size() );
-    BufferString header( "multipart/form-data; boundary=", mBoundary );
+    BufferString header( "multipart/form-data; boundary=", sContentBoundary );
     DataUploader up( url, *databuffer, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
     if ( !res )
@@ -512,7 +497,7 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
     addPars( data, querypars );
     DataBuffer db( data.size(), 1 );
     OD::memCopy( db.data(), data.buf(), data.size() );
-    BufferString header( "multipart/form-data; boundary=", mBoundary );
+    BufferString header( "multipart/form-data; boundary=", sContentBoundary );
     DataUploader up( url, db, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
     if ( !res )
@@ -525,15 +510,9 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
 
 DataUploader::DataUploader( const char* url, const DataBuffer& data,
 			    BufferString& header )
-    : data_(new QByteArray(mCast(const char*,data.data()),data.size()))
-    , qeventloop_(new QEventLoop())
-    , nrdone_(0)
-    , totalnr_(0)
-    , odnr_(0)
-    , msg_(uiString::empty())
+    : data_( data )
     , url_(url)
     , header_(header)
-    , init_(true)
 {
     Network::loadOpenSSL(); //Keep at the first line
 }
@@ -541,9 +520,6 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
 
 DataUploader::~DataUploader()
 {
-    delete qeventloop_;
-    delete data_;
-    delete odnr_;
 }
 
 
@@ -551,28 +527,25 @@ int DataUploader::nextStep()
 {
     if ( init_ )
     {
-	QNetworkRequest qrequest( QUrl(url_.buf()) );
-	qrequest.setHeader( QNetworkRequest::ContentTypeHeader, header_.buf() );
-	qrequest.setHeader( QNetworkRequest::ContentLengthHeader,data_->size());
-	delete odnr_;
-	odnr_ = new ODNetworkReply( ODNA().post(qrequest,*data_), qeventloop_ );
+	RefMan<Network::HttpRequest> req = new Network::HttpRequest( url_,
+					       Network::HttpRequest::Post );
+	req->contentType( header_ );
+	req->payloadData( data_ );
+
+	odnr_ = Network::HttpRequestManager::instance().request(req);
 	init_ = false;
     }
 
-    qeventloop_->exec();
-
-    if ( odnr_->qNetworkReply()->error() )
+    if ( odnr_->isError() )
 	return errorOccured();
-    else if ( odnr_->qNetworkReply()->isFinished() )
+    else if ( odnr_->isFinished() )
     {
-	if ( odnr_->qNetworkReply() )
-	{
-	    odnr_->qNetworkReply()->waitForReadyRead( 500 );
-	    msg_.setFrom( QString( odnr_->qNetworkReply()->readAll() ) );
-	}
+	odnr_->waitForDownloadData( 500 );
+	msg_ = toUiString( odnr_->readAll() );
+
 	return Finished();
     }
-    else if ( odnr_->qNetworkReply()->isRunning() )
+    else if ( odnr_->isRunning() )
     {
 	nrdone_ = odnr_->getBytesUploaded();
 	totalnr_ = odnr_->getTotalBytesToUpload();
@@ -587,7 +560,7 @@ int DataUploader::errorOccured()
     msg_ = tr("Oops! Something went wrong.\n");
     if (odnr_)
 	msg_ = tr("Details: %1")
-	     .arg(qPrintable(odnr_->qNetworkReply()->errorString()));
+	     .arg( odnr_->errMsg() );
     return ErrorOccurred();
 }
 
@@ -711,7 +684,7 @@ void Network::setHttpProxy( const char* hostname, int port, bool auth,
 }
 
 
-NetworkUserQuery* NetworkUserQuery::inst_ = 0;
+NetworkUserQuery* NetworkUserQuery::inst_ = nullptr;
 
 void NetworkUserQuery::setNetworkUserQuery( NetworkUserQuery* newinst )
 {
@@ -721,18 +694,4 @@ void NetworkUserQuery::setNetworkUserQuery( NetworkUserQuery* newinst )
 NetworkUserQuery* NetworkUserQuery::getNetworkUserQuery()
 {
     return inst_;
-}
-
-
-QNetworkAccessManager& ODNA()
-{
-    mDefineStaticLocalObject(PerThreadObjectRepository<QNetworkAccessManager>*,
-			     odnarepos, = 0);
-    if ( !odnarepos )
-    {
-	odnarepos = new PerThreadObjectRepository<QNetworkAccessManager>;
-	Network::setHttpProxyFromSettings();
-    }
-
-    return odnarepos->getObject();
 }

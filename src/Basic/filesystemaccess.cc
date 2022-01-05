@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "od_ostream.h"
 #include "oscommand.h"
-
+#include "uistrings.h"
 
 #ifdef __win__
 # include <iostream>
@@ -48,7 +48,7 @@ static const int cProtSepLen = FixedString(sProtSep).size();
 #define mLocalFileSystemIniting		1
 #define mLocalFileSystemInited		2
 static Threads::Atomic<int> lfsinitstate_ = mLocalFileSystemNotInited;
-static const OD::FileSystemAccess* lfsinst_ = 0;
+static const OD::FileSystemAccess* lfsinst_ = nullptr;
 static ObjectSet<const OD::FileSystemAccess> systemaccesses_;
 
 
@@ -264,13 +264,142 @@ bool LocalFileSystemAccess::isWritable( const char* uri ) const
 bool LocalFileSystemAccess::rename( const char* fromuri,
 				    const char* touri, uiString* errmsg ) const
 {
-// TODO: get implementation from File::rename
     const BufferString from = withoutProtocol( fromuri );
     const BufferString to = withoutProtocol( touri );
     if ( from.isEmpty() || to.isEmpty() )
 	return false;
 
-    return QFile::rename( from.buf(), to.buf() );
+    const char* oldname = from.buf();
+    const char* newname = to.buf();
+
+    if ( !exists(oldname) )
+    {
+	if ( errmsg )
+	    errmsg->append(uiStrings::phrDoesntExist(::toUiString(oldname)));
+	return false;
+    }
+
+    const FilePath destpath( newname );
+    if ( destpath.exists() )
+    {
+	if ( errmsg )
+	{
+	    BufferString errstr("Destination '");
+	    errstr.add(destpath.fullPath())
+		.add("' already exists.")
+		.add("Please remove or rename manually.");
+	    errmsg->append(errstr);
+	}
+	return false;
+    }
+
+    const FilePath destdir(destpath.pathOnly());
+    const BufferString targetbasedir(destdir.fullPath());
+    if ( !exists(targetbasedir) )
+    {
+	if ( !File::createDir(targetbasedir) )
+	{
+	    if ( errmsg )
+		errmsg->append(uiStrings::phrCannotCreateDirectory(
+		    toUiString(targetbasedir)));
+	    return false;
+	}
+    }
+#ifdef __unix__
+    else if ( !isWritable(targetbasedir) )
+    {
+	if ( errmsg )
+	    errmsg->append(uiStrings::phrCannotWrite(
+		toUiString(targetbasedir)));
+	return false;
+    }
+#endif
+
+    int itatr=0;
+    int nritatr = 10;
+    bool res=false;
+    while ( ++itatr < nritatr )
+    {
+	res = QFile::rename(oldname, newname);
+	if ( res )
+	    return true;
+	else if ( !exists(oldname) && exists(newname) )
+	{// False negative detection.
+	    return true;
+	}
+
+	if ( !res && isDirectory(oldname) )
+	{
+	    QDir dir;
+	    res = dir.rename(oldname, newname);
+	    if ( res )
+		return true;
+	    else if ( !exists(oldname) && exists(newname) )
+		return true;
+	    else
+	    {
+		const FilePath sourcefp(oldname);
+		dir.setCurrent(QString(sourcefp.pathOnly()));
+		const QString newnm = dir.relativeFilePath(newname);
+		res = dir.rename(QString(sourcefp.fileName()), newnm);
+		if ( res )
+		    return true;
+		else if ( !exists(oldname) && exists(newname) )
+		    return true;
+	    }
+	}
+
+	Threads::sleep(0.1);
+    }
+
+    if ( !res )
+    { //Trying c rename function
+	rename(oldname, newname);
+	if ( !exists(oldname) && exists(newname) )
+	    return true;
+    }
+
+    OS::MachineCommand mc;
+    if ( !__iswin__ )
+	mc.setProgram("mv");
+    else
+    {
+	const BufferString destdrive = destdir.rootPath();
+	const FilePath sourcefp(oldname);
+	const BufferString sourcedrive = sourcefp.rootPath();
+	if ( destdrive != sourcedrive )
+	{
+	    BufferString msgstr;
+	    res = File::copyDir(oldname, newname, &msgstr);
+	    if ( !res )
+	    {
+		if ( errmsg && !msgstr.isEmpty() )
+		    errmsg->append(msgstr);
+		return false;
+	    }
+
+	    res = File::removeDir(oldname);
+	    return res;
+	}
+
+	mc.setProgram("move");
+    }
+
+    mc.addArg(oldname).addArg(newname);
+    BufferString stdoutput, stderror;
+    res = mc.execute(stdoutput, &stderror);
+    if ( !res && errmsg )
+    {
+	if ( !stderror.isEmpty() )
+	    errmsg->append(stderror, true);
+
+	if ( !stdoutput.isEmpty() )
+	    errmsg->append(stdoutput, true);
+
+	errmsg->append("Failed to rename using system command.");
+    }
+
+    return res;
 }
 
 
@@ -282,7 +411,7 @@ bool LocalFileSystemAccess::copy( const char* fromuri, const char* touri,
     if ( from.isEmpty() || to.isEmpty() )
 	return false;
 
-    if ( isDirectory(from) || isDirectory(to)  )
+    if ( isDirectory(from) || isDirectory(to) )
     {
 	BufferString errstr;
 	const bool res = File::copyDir( from, to, &errstr );
@@ -369,7 +498,7 @@ StreamData LocalFileSystemAccess::createOStream( const char* uri,
 	return StreamData();
 
     StreamData res;
-    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
+    auto* impl = new StreamData::StreamDataImpl;
     impl->fname_ = uri;
     std::ios_base::openmode openmode = std::ios_base::out;
     if ( binary )
@@ -404,7 +533,7 @@ StreamData LocalFileSystemAccess::createIStream( const char* uri,
 	return StreamData();
 
     StreamData res;
-    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
+    auto* impl = new StreamData::StreamDataImpl;
     impl->fname_ = uri;
 
     if ( !exists(fnm) )

@@ -20,8 +20,8 @@ ________________________________________________________________________
 #include "task.h"
 #include "uistring.h"
 
-typedef bool (*StaticTaskFunction)();
-typedef bool (CallBacker::*TaskFunction)();
+using StaticTaskFunction = bool(*)(void);
+typedef bool (CallBacker::*TaskFunction)(void);
 
 namespace Threads
 {

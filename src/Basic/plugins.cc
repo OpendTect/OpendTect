@@ -39,9 +39,9 @@ static const char* sKeyNoDispName = "??";
 
 extern "C" {
 
-    typedef int (*VoidIntRetFn)(void);
-    typedef const char* (*ArgcArgvCCRetFn)(int,char**);
-    typedef PluginInfo* (*PluginInfoRetFn)(void);
+    using VoidIntRetFn = int(*)(void);
+    using ArgcArgvCCRetFn = const char*(*)(int,char**);
+    using PluginInfoRetFn = PluginInfo*(*)(void);
 
     mExternC(Basic) void LoadAutoPlugins( int inittype )
     {

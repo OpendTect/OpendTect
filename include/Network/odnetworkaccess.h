@@ -11,49 +11,53 @@ ________________________________________________________________________
 -*/
 
 #include "networkmod.h"
+
 #include "bufstringset.h"
 #include "executor.h"
+#include "odhttp.h"
+#include "ptrman.h"
 #include "uistring.h"
 
 class QByteArray;
 class QEventLoop;
 class QFile;
 class QNetworkAccessManager;
-class ODNetworkReply;
+class ODNetworkProcess;
 class DataBuffer;
 class od_ostream;
 
 namespace Network
 {
+    class HttpRequestProcess;
 
 /*!< Functions to download/upload one or more files/data using HTTP protocol*/
 
     mGlobal(Network) bool   downloadFile(const char* url,const char* outpath,
-					 uiString& errmsg,TaskRunner* taskr=0);
+					uiString& errmsg,TaskRunner* =nullptr);
 
     mGlobal(Network) bool   downloadFiles(BufferStringSet& urls,
 					  const char* outpath,
 					  uiString& errmsg,
-					  TaskRunner* taskr=0);
+					  TaskRunner* =nullptr);
 
     mGlobal(Network) bool   downloadFiles(BufferStringSet& urls,
 					  BufferStringSet& outpaths,
 					  uiString& errmsg,
-					  TaskRunner* taskr=0);
+					  TaskRunner* =nullptr);
 
-    mGlobal(Network) bool   downloadToBuffer(const char* url,DataBuffer*,
+    mGlobal(Network) bool   downloadToBuffer(const char* url,DataBuffer&,
 					     uiString& errmsg,
-					     TaskRunner* taskr=0);
+					     TaskRunner* =nullptr);
 
     mGlobal(Network) bool   uploadFile(const char* url,const char* localfname,
 				       const char* remotefname,
 				       const char* ftype,const IOPar& postvars,
-				       uiString& errmsg,TaskRunner* taskr=0,
-				       uiString* returnedmessage = 0);
+				       uiString& errmsg,TaskRunner* =nullptr,
+				       uiString* returnedmessage =nullptr);
 
     mGlobal(Network) bool   uploadQuery(const char* url,const IOPar& querypars,
-					uiString& errmsg,TaskRunner* taskr=0,
-					uiString* returnedmessage = 0);
+					uiString& errmsg,TaskRunner* =nullptr,
+					uiString* returnedmessage =nullptr);
 
     mGlobal(Network) bool   getRemoteFileSize(const char* url,od_int64& size,
 					      uiString& errmsg);
@@ -62,8 +66,8 @@ namespace Network
 
     mGlobal(Network) void   setHttpProxy(const char* hostname,int port,
 					 bool auth=false,
-					 const char* username=0,
-					 const char* password=0);
+					 const char* username=nullptr,
+					 const char* password=nullptr);
 
     mGlobal(Network) void   setHttpProxyFromSettings();
     mGlobal(Network) void   setHttpProxyFromIOPar(const IOPar&);
@@ -95,7 +99,7 @@ mExpClass(Network) FileDownloader : public SequentialTask
 { mODTextTranslationClass(FileDownloader);
 public:
 			FileDownloader(const char* url);
-			FileDownloader(const char* url,DataBuffer* db);
+			FileDownloader(const char* url,DataBuffer&);
 			FileDownloader(const BufferStringSet& urls,
 				       const BufferStringSet& outputpaths);
 			~FileDownloader();
@@ -114,21 +118,20 @@ protected:
     int			errorOccured();
 
     bool		writeData();
-    bool		writeDataToFile(const char* buffer, int size);
-    bool		writeDataToBuffer(const char* buffer, int size);
+    bool		writeDataToFile(const char* buffer,int size);
+    bool		writeDataToBuffer(const char* buffer,int size);
 
-    bool		initneeded_;
+    bool		initneeded_ = true;
     BufferStringSet	urls_;
     BufferStringSet	saveaspaths_;
-    int			nrfilesdownloaded_;
-    DataBuffer*		databuffer_;
-    od_ostream*		osd_;
+    int			nrfilesdownloaded_ = 0;
+    DataBuffer*		databuffer_ = nullptr;
+    od_ostream*		osd_ = nullptr;
 
-    QEventLoop*		qeventloop_;
-    ODNetworkReply*	odnr_;
+    RefMan<Network::HttpRequestProcess> odnr_;
 
-    od_int64		nrdone_;
-    od_int64		totalnr_;
+    od_int64		nrdone_ = 0;
+    od_int64		totalnr_ = 0;
     uiString		msg_;
 };
 
@@ -151,16 +154,15 @@ protected:
 
     int			errorOccured();
 
-    bool		init_;
+    bool		init_ = true;
     BufferString	url_;
     BufferString	header_;
 
-    QByteArray*		data_;
-    QEventLoop*		qeventloop_;
-    ODNetworkReply*	odnr_;
+    const DataBuffer&			data_;
+    RefMan<Network::HttpRequestProcess> odnr_;
 
-    od_int64		nrdone_;
-    od_int64		totalnr_;
+    od_int64		nrdone_ = 0;
+    od_int64		totalnr_ = 0;
     uiString		msg_;
 };
 
@@ -176,6 +178,3 @@ protected:
 
     static NetworkUserQuery*	inst_;
 };
-
-mGlobal(Network) QNetworkAccessManager&  ODNA();
-

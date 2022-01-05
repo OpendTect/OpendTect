@@ -656,6 +656,7 @@ public:
     static uiString sWarning()		{ return tr("Warning"); }
     static uiString sWavelet(int num=1)	{ return tr("Wavelet", 0, num ); }
     static uiString sWaveNumber(int num=1);
+    static uiString sWeb()		{ return tr("Web"); }
     static uiString sWell(int num=1)	{ return tr("Well", 0, num ); }
     static uiString sWells()		{ return sWell(mPlural); }
     static uiString sWellsHandled()	{ return tr("Wells handled"); }

@@ -322,7 +322,7 @@ const char* GetLocalHostName()
 }
 
 static const char* noAddrFn( bool )	{ return nullptr; }
-typedef const char* (*constcharFromBoolFn)(bool);
+using constcharFromBoolFn = const char*(*)(bool);
 static constcharFromBoolFn localaddrfn_ = noAddrFn;
 
 mGlobal(Basic) void setGlobal_Basic_Fns(constcharFromBoolFn);
