@@ -383,13 +383,12 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
 
     ti.getFrom( auxinf_ );
-    if ( ti.is2D() && !forceusecbvsinfo_ &&
-	 (ti.refnr == ti.trcNr() || ti.refnr == 0 || mIsUdf(ti.refnr)) )
+    if ( ti.is2D() && !forceusecbvsinfo_ )
     {
-	Coord crd; float spnr = mUdf(float);
-	if ( ti.trcKey().geometry().as2D()->getPosByTrcNr(ti.trcNr(),crd,spnr)
-	     && !mIsUdf(spnr) )
-	    ti.refnr = spnr;
+	float sp = mUdf(float);
+	if ( ti.trcKey().geometry().as2D()->getPosByTrcNr(ti.trcNr(),ti.crd,sp)
+	     && !mIsUdf(sp) )
+	    ti.refnr = sp;
     }
 
     ti.sampling.start = outsd_.start;
