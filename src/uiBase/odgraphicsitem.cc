@@ -538,6 +538,15 @@ void ODGraphicsAdvancedTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* ev )
     snapToSceneRect( this );
 }
 
+void ODGraphicsAdvancedTextItem::contextMenuEvent(
+				QGraphicsSceneContextMenuEvent* ev )
+{
+    if ( textInteractionFlags().testFlag(Qt::TextEditorInteraction) )
+	return;
+
+    QGraphicsTextItem::contextMenuEvent( ev );
+}
+
 
 // ODGraphicsPixmapItem
 ODGraphicsPixmapItem::ODGraphicsPixmapItem()
