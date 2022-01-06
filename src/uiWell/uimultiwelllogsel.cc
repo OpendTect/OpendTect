@@ -631,7 +631,16 @@ void uiMultiWellLogSel::getSelWellNames( BufferStringSet& wellnms ) const
 
 
 void uiMultiWellLogSel::setSelWellNames( const BufferStringSet& nms )
-{ if ( wellsfld_ ) wellsfld_->setChosen( nms ); }
+{
+    if ( wellsfld_ )
+    {
+	NotifyStopper ns1( wellsfld_->selectionChanged );
+	NotifyStopper ns2( wellsfld_->itemChosen );
+	wellsfld_->setChosen( nms );
+    }
+    updateLogsFldCB( nullptr );
+}
+
 
 void uiMultiWellLogSel::getSelLogNames( BufferStringSet& nms ) const
 { logsfld_->getChosen( nms ); }
