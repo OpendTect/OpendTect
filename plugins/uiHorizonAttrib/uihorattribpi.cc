@@ -9,28 +9,31 @@ ________________________________________________________________________
 -*/
 
 #include "uihorizonattrib.h"
+
+#include "uicalcpoly2horvol.h"
 #include "uicontourtreeitem.h"
 #include "uidatapointsetpickdlg.h"
 #include "uiempartserv.h"
-#include "uistratamp.h"
 #include "uiflattenedcube.h"
 #include "uiisopachmaker.h"
-#include "uicalcpoly2horvol.h"
+#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uiodhortreeitem.h"
 #include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
-#include "uiodhortreeitem.h"
-#include "vishorizondisplay.h"
-#include "vispicksetdisplay.h"
+#include "uipickpartserv.h"
+#include "uistratamp.h"
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
-#include "uipickpartserv.h"
+#include "vishorizondisplay.h"
+#include "vispicksetdisplay.h"
+
 #include "attribsel.h"
-#include "emmanager.h"
-#include "emioobjinfo.h"
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
+#include "emmanager.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "odplugin.h"
@@ -211,45 +214,66 @@ void uiHorAttribPIMgr::doIsochronThruMenu( CallBacker* )
 
 
 class uiSelContourAttribDlg : public uiDialog
-{ mODTextTranslationClass(uiSelContourAttribDlg);
+{ mODTextTranslationClass(uiSelContourAttribDlg)
 public:
 
-uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
+uiSelContourAttribDlg( uiParent* p, const EM::ObjectID id )
     : uiDialog(p,uiDialog::Setup(tr("Select Attribute to contour"),
 				mNoDlgTitle,mNoHelpKey))
 {
     const MultiID mid = EM::EMM().getMultiID( id );
-    PtrMan<IOObj> emioobj = IOM().get( mid );
-    EM::IOObjInfo eminfo( mid );
+    const EM::IOObjInfo eminfo( mid );
+
     BufferStringSet attrnms;
     attrnms.add( uiContourTreeItem::sKeyZValue() );
     eminfo.getAttribNames( attrnms );
 
-    const uiString lbl = toUiString( emioobj->name() );
+    const uiString lbl = toUiString( eminfo.name() );
     uiListBox::Setup su( OD::ChooseOnlyOne, lbl, uiListBox::AboveMid );
     attrlb_ = new uiListBox( this, su );
     attrlb_->addItems( attrnms );
 }
 
-int nrAttribs() const { return attrlb_->size(); }
+int nrAttribs() const
+{
+    return attrlb_->size();
+}
 
 const char* getAttribName() const
-{ return attrlb_->getText(); }
+{
+    return attrlb_->getText();
+}
 
-uiListBox*	attrlb_;
+    uiListBox*	attrlb_;
 };
 
 
-void uiHorAttribPIMgr::doContours( CallBacker* cb )
+void uiHorAttribPIMgr::doContours( CallBacker* )
 {
     const int displayid = contourmnuitemhndlr_.getDisplayID();
     uiVisPartServer* visserv = appl().applMgr().visServer();
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
-    if ( !hd ) return;
+    if ( !hd )
+	return;
 
-    EM::EMObject* emobj = EM::EMM().getObject( hd->getObjectID() );
-    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    if ( !hor ) { uiMSG().error(tr("Internal: cannot find horizon")); return; }
+    const EM::EMObject* emobj = EM::EMM().getObject( hd->getObjectID() );
+    mDynamicCastGet(const EM::Horizon3D*,hor,emobj)
+    if ( !hor )
+    {
+	uiMSG().error( tr("Internal: cannot find horizon") );
+	return;
+    }
+
+    const MultiID mid = EM::EMM().getMultiID( emobj->id() );
+    const EM::IOObjInfo eminfo( mid );
+    if ( !eminfo.isOK() )
+    {
+	uiMSG().error(
+		tr("Cannot find this horizon in project's database.\n"
+		"If this is a newly tracked horizon, please save first\n"
+		"before contouring.") );
+	return;
+    }
 
     uiSelContourAttribDlg dlg( &appl(), emobj->id() );
     if ( dlg.nrAttribs()>1 && !dlg.go() )
