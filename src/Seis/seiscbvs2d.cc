@@ -5,23 +5,24 @@
 -*/
 
 
-#include "seiscbvs2d.h"
-#include "seiscbvs.h"
-#include "cbvsreadmgr.h"
-#include "seistrc.h"
-#include "seispacketinfo.h"
-#include "seisselection.h"
-#include "seisbuf.h"
-#include "posinfo2d.h"
 #include "cbvsio.h"
+#include "cbvsreadmgr.h"
 #include "dirlist.h"
 #include "executor.h"
-#include "survgeom2d.h"
-#include "survinfo.h"
-#include "keystrs.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
+#include "keystrs.h"
+#include "posinfo2d.h"
 #include "ptrman.h"
+#include "seisbuf.h"
+#include "seiscbvs.h"
+#include "seiscbvs2d.h"
+#include "seispacketinfo.h"
+#include "seisselection.h"
+#include "seistrc.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
 
 #define mCapChar '^'
 static const char* sExtCBVS = "cbvs";
@@ -185,6 +186,10 @@ bool SeisCBVS2DLineIOProvider::getGeomIDs( const IOObj& obj,
 #undef mErrRet
 #define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
 
+
+static HiddenParam<SeisCBVS2DLineGetter,const Survey::Geometry2D*>
+							hp_geom2d( nullptr );
+
 SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
 					    int ntps, const Seis::SelData& sd )
 	: Seis2DLineGetter(b,ntps,sd)
@@ -195,8 +200,10 @@ SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
 	, linenr_(CBVSIOMgr::getFileNr(fnm))
 	, trcsperstep_(ntps)
 {
+    hp_geom2d.setParam( this, nullptr );
     tr_ = gtTransl( fname_, false, &msg_ );
-    if ( !tr_ ) return;
+    if ( !tr_ )
+	return;
 
     if ( !sd.isAll() && sd.type() == Seis::Range )
 	tr_->setSelData( seldata_ );
@@ -207,9 +214,19 @@ SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
 }
 
 
+SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, Pos::GeomID geomid,
+					    SeisTrcBuf& b, int ntps,
+					    const Seis::SelData& sd )
+	: SeisCBVS2DLineGetter(fnm,b,ntps,sd)
+{
+    hp_geom2d.setParam( this, &Survey::GM().get2D(geomid) );
+}
+
+
 SeisCBVS2DLineGetter::~SeisCBVS2DLineGetter()
 {
     delete tr_;
+    hp_geom2d.removeParam( this );
 }
 
 const SeisTrcTranslator* SeisCBVS2DLineGetter::translator() const
@@ -229,6 +246,10 @@ void SeisCBVS2DLineGetter::addTrc( SeisTrc* trc )
     }
 
     trc->info().nr = tnr;
+    const Survey::Geometry2D* geom2d = hp_geom2d.getParam( this );
+    if ( geom2d )
+	geom2d->getPosByTrcNr( tnr, trc->info().coord, trc->info().refnr );
+
     trc->info().binid = SI().transform( trc->info().coord );
     tbuf_.add( trc );
 }
@@ -340,7 +361,7 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOObj& obj,
 	usedsd = tmpsd;
     }
 
-    return new SeisCBVS2DLineGetter( fnm, tbuf, ntps, *usedsd );
+    return new SeisCBVS2DLineGetter( fnm, geomid, tbuf, ntps, *usedsd );
 }
 
 

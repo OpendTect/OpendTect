@@ -81,6 +81,9 @@ public:
 			SeisCBVS2DLineGetter(const char* fnm,SeisTrcBuf&,
 					     int trcsperstep,
 					     const Seis::SelData&);
+			SeisCBVS2DLineGetter(const char* fnm,Pos::GeomID,
+					     SeisTrcBuf&,int trcsperstep,
+					     const Seis::SelData&);
 			~SeisCBVS2DLineGetter();
 
     od_int64		nrDone() const		{ return curnr_; }
