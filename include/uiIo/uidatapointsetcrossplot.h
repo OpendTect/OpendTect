@@ -188,7 +188,9 @@ public:
     const uiDataPointSet&	uidps() const		{ return uidps_; }
     uiDataPointSet&		uidps()			{ return uidps_; }
 
+    mDeprecatedObs
     const TypeSet<RowCol>&	getSelectedCells()	{ return selrowcols_; }
+    const TypeSet<RowCol>&	getDPSSelectedCells();
 
     int				nrYSels() const		{ return selyitems_; }
     int				nrY2Sels() const	{ return sely2items_; }
