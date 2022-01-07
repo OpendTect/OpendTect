@@ -50,6 +50,7 @@ public:
     Color		y1userdeflinecolor_	= Color::stdDrawColor( 4 );
     Color		y2userdeflinecolor_	= Color::stdDrawColor( 5 );
 
+    TypeSet<RowCol>	dps_selrowcols_;
 };
 
 static HiddenParam<uiDataPointSetCrossPlotter,NewClassMembers*>
@@ -428,6 +429,7 @@ void uiDataPointSetCrossPlotter::removeSelections( bool remfrmselgrp )
 {
     removeSelectionItems();
     selrowcols_.erase();
+    hp_newclassmembers.getParam( this )->dps_selrowcols_.erase();
     selyitems_ = 0;
     sely2items_ = 0;
 
@@ -1595,6 +1597,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
     }
 
     bool ptselected = false;
+    auto hp = hp_newclassmembers.getParam( this );
     for ( int idx=0; idx<selgrpset_.size(); idx++ )
     {
 	const SelectionGrp* selgrp = selgrpset_[idx];
@@ -1623,6 +1626,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    }
 
 		    dps_.setSelected( rid, getSelGrpIdx(selarea.id_) );
+		    hp->dps_selrowcols_ += RowCol( rid, yad.colid_);
 		    selrowcols_ += RowCol( uidps_.tRowID(rid),
 					   uidps_.tColID(yad.colid_) );
 
@@ -1657,6 +1661,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 			item->setPenColor( selgrp->col_ );
 
 		    dps_.setSelected( rid, getSelGrpIdx(selarea.id_) );
+		    hp->dps_selrowcols_ += RowCol( rid, yad.colid_);
 		    selrowcols_ += RowCol( uidps_.tRowID(rid),
 					   uidps_.tColID(yad.colid_) );
 
@@ -1968,4 +1973,10 @@ Color uiDataPointSetCrossPlotter::getUserDefLineColor( bool y1 ) const
 {
     const auto* hp = hp_newclassmembers.getParam(this);
     return y1 ? hp->y1userdeflinecolor_ : hp->y2userdeflinecolor_;
+}
+
+
+const TypeSet<RowCol>& uiDataPointSetCrossPlotter::getDPSSelectedCells()
+{
+    return hp_newclassmembers.getParam( this )->dps_selrowcols_;
 }

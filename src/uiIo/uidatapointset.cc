@@ -429,7 +429,8 @@ void uiDataPointSet::calcIdxs()
     for ( int did=0; did<dpssz; did++ )
     {
 	const bool inact = dps_.isInactive(did);
-	if ( inact || (dcountidx < mNINT32(calcidx * eachrow_)) )
+	const bool issel = dps_.isSelected(did);
+	if ( inact || (dcountidx < mNINT32(calcidx * eachrow_) && !issel) )
 	{
 	    if ( !inact )
 		dcountidx++;
@@ -915,14 +916,32 @@ void uiDataPointSet::showStatusMsg( CallBacker* )
 void uiDataPointSet::notifySelectedCell()
 {
     if ( !xplotwin_ ) return;
-    TypeSet<RowCol> selectedrowcols( xplotwin_->plotter().getSelectedCells() );
+    TypeSet<RowCol> selectedrowcols(xplotwin_->plotter().getDPSSelectedCells());
     if ( selectedrowcols.isEmpty() )
     {
 	tbl_->removeAllSelections();
 	return;
     }
 
+    uiUserShowWait usw( this, tr("Processing selection") );
+    reDoTable();
+    for ( auto& rowcol : selectedrowcols )
+    {
+	rowcol.row() = tRowID( rowcol.row() );
+	rowcol.col() = tColID( rowcol.col() );
+    }
+
     tbl_->selectItems( selectedrowcols, true );
+
+    for ( const auto& rowcol : selectedrowcols )
+    {
+	if ( rowcol.row()>=0 )
+	{
+	    tbl_->ensureCellVisible( rowcol );
+	    break;
+	}
+    }
+    usw.readyNow();
 }
 
 
