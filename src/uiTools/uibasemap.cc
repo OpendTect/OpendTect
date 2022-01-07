@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uirgbarray.h"
 #include "uiworld2ui.h"
 
+#include "fontdata.h"
 #include "survinfo.h"
 
 uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
@@ -309,9 +310,14 @@ void uiBaseMapObject::update()
 		}
 	    }
 
-	    itm->setPos( txtpos );
+	    const Coord offset = bmobject_->getTextOffset( idx );
+	    itm->setPos( txtpos+offset );
+
 	    const Alignment al = bmobject_->getAlignment( idx );
 	    itm->setAlignment( al );
+
+	    const FontData fontdata = bmobject_->getFont( idx );
+	    itm->setFontData( fontdata );
 
 	    const float angle = Math::toDegrees( bmobject_->getTextRotation() );
 	    itm->setRotation( angle );

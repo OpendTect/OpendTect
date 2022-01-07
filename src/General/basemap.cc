@@ -53,6 +53,12 @@ bool BaseMapObject::getBoundingBox( BoundingBox& ) const
 Alignment BaseMapObject::getAlignment( int ) const
 { return Alignment(); }
 
+FontData BaseMapObject::getFont( int ) const
+{ return FontData(); }
+
+Coord BaseMapObject::getTextOffset( int ) const
+{ return Coord(0., 0.); }
+
 Coord BaseMapObject::getTextPos(int shapeidx) const
 { return Coord::udf(); }
 

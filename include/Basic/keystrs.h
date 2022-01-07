@@ -31,6 +31,7 @@ namespace sKey
 {
     inline FixedString All()		{ return "All"; }
     inline FixedString Ascii()		{ return "Ascii"; }
+    inline FixedString Alignment()	{ return "Alignment"; }
     inline FixedString Attribute()	{ return "Attribute"; }
     inline FixedString Attribute2D()	{ return "Attribute2D"; }
     inline FixedString Attributes()	{ return "Attributes"; }
@@ -71,6 +72,7 @@ namespace sKey
     inline FixedString FirstTrc()	{ return "First Trace"; }
     inline FixedString FirstZ()		{ return "First Z"; }
     inline FixedString FloatUdf()	{ return "1e30"; }
+    inline FixedString Font()		{ return "Font"; }
     inline FixedString Format(int n=1)	{ return n<2 ? "Format" : "Formats"; }
     inline FixedString GeomID()		{ return "GeomID"; }
     inline FixedString GeomIDs()	{ return "GeomIDs"; }

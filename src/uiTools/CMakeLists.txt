@@ -36,6 +36,7 @@ set( OD_MODULE_SOURCES
 	uifileinput.cc
 	uifillpattern.cc
 	uifontsel.cc
+	uifontselgrp.cc
 	uifreqfilter.cc
 	uifunctiondisplay.cc
 	uigeninput.cc

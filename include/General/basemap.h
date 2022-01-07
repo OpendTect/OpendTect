@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "draw.h"
+#include "fontdata.h"
 #include "namedobj.h"
 #include "threadlock.h"
 
@@ -55,6 +56,8 @@ public:
     virtual bool		getBoundingBox(BoundingBox&) const;
     virtual Coord		getTextPos(int shapeidx) const;
     virtual Alignment		getAlignment(int shapeidx) const;
+    virtual FontData		getFont(int) const;
+    virtual Coord		getTextOffset(int) const;
     virtual float		getTextRotation() const { return 0; }
     virtual OD::Color		getColor() const;
 
