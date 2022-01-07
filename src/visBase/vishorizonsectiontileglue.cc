@@ -244,7 +244,7 @@ void HorizonSectionTileGlue::setDisplayTransformation( const mVisTrans* nt )
     gluevtexarr_->setDisplayTransformation( nt );
     gluenormalarr_->setDisplayTransformation( nt );
     gluegeom_->dirtyBound();
-    gluegeom_->dirtyDisplayList();
+    gluegeom_->dirtyGLObjects();
 }
 
 } // namespace visBase

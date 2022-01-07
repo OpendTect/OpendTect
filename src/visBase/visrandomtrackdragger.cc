@@ -446,7 +446,7 @@ void PlaneDragCBHandler::initDragControl()
 {
     const Coord pos = Conv::to<Coord>( planedragger_->getPositionOnScreen() );
     const float scalefactor = mMIN( SI().inlStep(), SI().crlStep() );
-    const Coord3 diagonal = initialtopleft_ - initialbotright_;	
+    const Coord3 diagonal = initialtopleft_ - initialbotright_;
     const Coord3 dragdir = diagonal.cross( Coord3(0.0,0.0,1.0) );
     dragcontroller_.init( pos, scalefactor, dragdir );
     maxdragdist_ = mUdf(double);
@@ -1154,12 +1154,12 @@ void RandomTrackDragger::updatePanels()
 
 	    verts->dirty();
 	    norms->dirty();
-	    curpanel->dirtyDisplayList();
+	    curpanel->dirtyGLObjects();
 	    curpanel->dirtyBound();
 
 	    osg::ref_ptr<osg::Geometry> curpoles =
 		    dynamic_cast<osg::Geometry*>( curgeode->getDrawable(1) );
-	    curpoles->dirtyDisplayList();
+	    curpoles->dirtyGLObjects();
 	    curpoles->dirtyBound();
 	}
     }

@@ -144,7 +144,7 @@ void TileResolutionData::dirtyGeometry( int type )
     if ( geode )
     {
 	mGetOsgGeometry( geode )->dirtyBound();
-	mGetOsgGeometry( geode )->dirtyDisplayList();
+	mGetOsgGeometry( geode )->dirtyGLObjects();
     }
 }
 

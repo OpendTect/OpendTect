@@ -201,7 +201,7 @@ void Material::setTransparency( float n, int idx, bool update )
 	if ( update )
 	{
 	    for ( int idy=0; idy<attachedgeoms_.size(); idy++ )
-		attachedgeoms_[idy]->dirtyDisplayList();
+		attachedgeoms_[idy]->dirtyGLObjects();
 	}
     }
 

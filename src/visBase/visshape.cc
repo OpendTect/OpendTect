@@ -451,7 +451,7 @@ void VertexShape::dirtyCoordinates()
 {
     if ( !osggeom_ ) return;
 
-    osggeom_->dirtyDisplayList();
+    osggeom_->dirtyGLObjects();
     osggeom_->dirtyBound();
     if ( useosgsmoothnormal_ )
     {
@@ -550,7 +550,7 @@ void VertexShape::setDisplayTransformation( const mVisTrans* tr )
 {
     coords_->setDisplayTransformation( tr );
     if ( osggeom_)
-	osggeom_->dirtyDisplayList();
+	osggeom_->dirtyGLObjects();
 
 }
 
@@ -588,13 +588,13 @@ void VertexShape::setTextureChannels( TextureChannels* channels )
 }
 
 
-const unsigned char* VertexShape::getTextureData( int& width, int& height, 
+const unsigned char* VertexShape::getTextureData( int& width, int& height,
     int& pixelsz ) const
 {
-    const osgGeo::LayeredTexture* laytex = 
+    const osgGeo::LayeredTexture* laytex =
 	channels_ ? channels_->getOsgTexture() : 0;
 
-    osgGeo::LayeredTexture* laytexture =  
+    osgGeo::LayeredTexture* laytexture =
 	const_cast<osgGeo::LayeredTexture*>( laytex );
 
     if ( !laytexture ) return 0;
@@ -604,8 +604,8 @@ const unsigned char* VertexShape::getTextureData( int& width, int& height,
     width = img->s();
     height = img->t();
     pixelsz = img->getPixelSizeInBits();
-   
-    return img->data(); 
+
+    return img->data();
 }
 
 
