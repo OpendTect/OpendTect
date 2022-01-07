@@ -105,6 +105,9 @@ uiWellMan::uiWellMan( uiParent* p )
     logrmbut_ = butgrp->addButton( uiManipButGrp::Remove,
 		uiStrings::phrRemove(uiStrings::sSelectedLog(mPlural).toLower())
 		, mCB(this,uiWellMan,removeLogPush) );
+    logcopybut_ = butgrp->addButton( "copyobj",
+			uiStrings::phrCopy( uiStrings::sWellLog(mPlural) ),
+			mCB(this,uiWellMan,copyLogPush) );
     logexpbut_ = butgrp->addButton( "export",
 			uiStrings::phrExport( uiStrings::sWellLog(mPlural) ),
 			mCB(this,uiWellMan,exportLogs) );
@@ -264,10 +267,10 @@ void uiWellMan::fillLogsFld()
 	    int index = 0;
 	    for ( auto* deflognm : defaultlognms_ )
 	    {
-		if ( !deflognms.isPresent(*deflognm) )	  
+		if ( !deflognms.isPresent(*deflognm) )
 		    defaultlognms_.removeSingle( index );
 		else
-		    index++;	
+		    index++;
 	    }
 	}
     }
@@ -363,6 +366,7 @@ void uiWellMan::setLogToolButtonProperties()
 
     logrenamebut_->setSensitive( iswritable_ && nrlogs > 0 );
     logrmbut_->setSensitive( iswritable_ && oneormorelog );
+    logcopybut_->setSensitive( iswritable_ && nrlogs>0 );
     logexpbut_->setSensitive( oneormorelog );
     loguombut_->setSensitive( iswritable_ && nrlogs > 0 );
     logedbut_->setSensitive( iswritable_ && nrlogs > 0 );
@@ -385,6 +389,10 @@ void uiWellMan::setLogToolButtonProperties()
     setButToolTip(logrmbut_, uiStrings::sRemove(),
 		  toUiString(lognms.getDispString(3)), curwellnm,
 		  uiStrings::sEmptyString());
+    setButToolTip(logcopybut_, uiStrings::sCopy(),
+		  toUiString(lognms.getDispString(3)),
+		  nrchosenwells==1 ? curwellnm : uiStrings::sEmptyString(),
+		  uiStrings::sEmptyString() );
     setButToolTip(logexpbut_, uiStrings::sExport(),
 		  toUiString(lognms.getDispString(3)),
 		  nrchosenwells==1 ? curwellnm : uiStrings::sEmptyString(),
@@ -949,6 +957,39 @@ void uiWellMan::removeLogPush( CallBacker* )
 	}
     }
     writeLogs();
+}
+
+
+void uiWellMan::copyLogPush( CallBacker* )
+{
+    mEnsureLogSelected(uiStrings::sNoLogSel());
+    BufferStringSet sellogs; logsfld_->getChosen( sellogs );
+    for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
+    {
+	currdrs_[idwell]->getLogs();
+	Well::LogSet& wls = curwds_[idwell]->logs();
+	for ( const auto* logname : sellogs )
+	{
+	    const Well::Log* log = wls.getLog( logname->buf() );
+	    if ( log )
+	    {
+		BufferString baselognm( "Copy of ", logname->buf() );
+		BufferString copylognm( baselognm );
+		int count = 0;
+		while ( wls.isPresent(copylognm) )
+		{
+		    count++;
+		    copylognm = baselognm;
+		    copylognm.add( "(" ).add( count ).add( ")" );
+		}
+
+		PtrMan<Well::Log> copylog = new Well::Log( *log );
+		copylog->setName( copylognm );
+		writeLog( curmultiids_[idwell], *curwds_[idwell], *copylog );
+	    }
+	}
+    }
+    fillLogsFld();
 }
 
 

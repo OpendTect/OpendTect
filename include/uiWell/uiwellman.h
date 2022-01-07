@@ -53,6 +53,7 @@ protected:
     uiToolButton*		logvwbut_;
     uiToolButton*		logrenamebut_;
     uiToolButton*		logrmbut_;
+    uiToolButton*		logcopybut_;
     uiToolButton*		logexpbut_;
     uiToolButton*		loguombut_;
     uiToolButton*		logmnembut_;
@@ -87,6 +88,7 @@ protected:
     void			viewLogPush(CallBacker*);
     void			renameLogPush(CallBacker*);
     void			removeLogPush(CallBacker*);
+    void			copyLogPush(CallBacker*);
     void			editLogPush(CallBacker*);
     void			moveLogsPush(CallBacker*);
     void			logSel(CallBacker*);
