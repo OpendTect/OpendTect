@@ -988,6 +988,9 @@ void uiWellMan::copyLogPush( CallBacker* )
 		writeLog( curmultiids_[idwell], *curwds_[idwell], *copylog );
 	    }
 	}
+	RefMan<Well::Data> wd = Well::MGR().get( curmultiids_[idwell],
+						 Well::LoadReqs(Well::Inf) );
+	wd->logschanged.trigger( -1 );
     }
     fillLogsFld();
 }
