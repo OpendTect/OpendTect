@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 #ifdef __win__
-#include "winutils.h"
+# include "winutils.h"
 # include <direct.h>
 #else
 # include "sys/stat.h"

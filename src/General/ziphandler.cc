@@ -24,20 +24,20 @@ ________________________________________________________________________
 #include "od_iostream.h"
 
 #ifndef OD_NO_QT
-#include <QFileInfo>
-#include <QDate>
+# include <QFileInfo>
+# include <QDate>
 #endif
 
 #ifdef HAS_ZLIB
-#include "zlib.h"
+# include "zlib.h"
 #endif
 
 #ifdef __win__
-#include "sys/utime.h"
-#include "Windows.h"
+# include "sys/utime.h"
+# include "Windows.h"
 #else
-#include "sys/stat.h"
-#include "utime.h"
+# include "sys/stat.h"
+# include "utime.h"
 #endif
 
 #include <iostream>

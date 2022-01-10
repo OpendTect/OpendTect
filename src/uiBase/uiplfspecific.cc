@@ -15,17 +15,17 @@ ________________________________________________________________________
 
 #ifdef __win__
 
-#include <minmax.h>
-#include <stdio.h>
-#include <Windows.h>
-#include <gdiplus.h>
-#include <string>
-#include <string.h>
-#include <tchar.h>
-#include <comdef.h>
-#include <algorithm>
-#pragma comment (lib,"Gdiplus.lib")
-#include "errmsg.h"
+# include <minmax.h>
+# include <stdio.h>
+# include <Windows.h>
+# include <gdiplus.h>
+# include <string>
+# include <string.h>
+# include <tchar.h>
+# include <comdef.h>
+# include <algorithm>
+# pragma comment (lib,"Gdiplus.lib")
+# include "errmsg.h"
 
 using namespace Gdiplus;
 
@@ -146,11 +146,11 @@ std::string OD_Win_GetSnapShotFile( const std::string& reqfnm )
 
 #ifdef __mac__
 
-#include "errmsg.h"
-#include "uiprocessinit.h"
+# include "errmsg.h"
+# include "uiprocessinit.h"
 
-#include <CoreServices/CoreServices.h>
-#include <ApplicationServices/ApplicationServices.h>
+# include <CoreServices/CoreServices.h>
+# include <ApplicationServices/ApplicationServices.h>
 
 extern "C"
 {

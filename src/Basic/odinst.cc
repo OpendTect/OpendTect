@@ -32,9 +32,9 @@ ________________________________________________________________________
 #endif
 
 #ifdef __win__
-#include <Windows.h>
-#include <direct.h>
-#include "winutils.h"
+# include <Windows.h>
+# include <direct.h>
+# include "winutils.h"
 #else
 # include "unistd.h"
 # ifndef OD_NO_QT

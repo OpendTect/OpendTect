@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "perthreadrepos.h"
 #ifndef OD_NO_QT
-#include "qglobal.h"
+# include "qglobal.h"
 #endif
 #include <string.h>
 

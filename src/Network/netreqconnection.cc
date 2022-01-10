@@ -22,8 +22,8 @@ ________________________________________________________________________
 using namespace Network;
 
 #ifdef __win__
-#include <iphlpapi.h>
-#pragma comment( lib, "iphlpapi" )
+# include <iphlpapi.h>
+# pragma comment( lib, "iphlpapi" )
 #endif
 
 namespace Network

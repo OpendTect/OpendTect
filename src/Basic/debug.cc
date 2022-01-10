@@ -40,15 +40,15 @@ ________________________________________________________________________
 #include <QString>
 
 #ifdef __win__
-#include "client/windows/handler/exception_handler.h"
+# include "client/windows/handler/exception_handler.h"
 #endif
 
 #ifdef __lux__
-#include "client/linux/handler/exception_handler.h"
+# include "client/linux/handler/exception_handler.h"
 #endif
 
 #ifdef __mac__
-#include "client/mac/handler/exception_handler.h"
+# include "client/mac/handler/exception_handler.h"
 #endif
 
 #endif
