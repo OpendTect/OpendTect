@@ -169,7 +169,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 }
 
-
+mStartAllowDeprecatedSection
 uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 {
     detachAllNotifiers();
@@ -193,7 +193,7 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
     delete y2rowidxs_;
     deepErase( selgrpset_ );
 }
-
+mStopAllowDeprecatedSection
 
 #define mHandleAxisAutoScale(axis) \
     axis.handleAutoScale( uidps_.getRunCalc( axis.colid_ ) );
@@ -418,7 +418,7 @@ void uiDataPointSetCrossPlotter::reDrawSelections()
     }
 }
 
-
+mStartAllowDeprecatedSection
 void uiDataPointSetCrossPlotter::removeSelections( bool remfrmselgrp )
 {
     removeSelectionItems();
@@ -436,7 +436,7 @@ void uiDataPointSetCrossPlotter::removeSelections( bool remfrmselgrp )
     for ( int idx=0; idx<dps_.size(); idx++ )
 	dps_.setSelected( idx, -1 );
 }
-
+mStopAllowDeprecatedSection
 
 void uiDataPointSetCrossPlotter::setUserDefDrawType( bool dodrw, bool isy2,
 							bool drwln )
@@ -1543,7 +1543,7 @@ float uiDataPointSetCrossPlotter::getSelectedness( uiDataPointSet::DRowID rid,
     return mUdf(float);
 }
 
-
+mStartAllowDeprecatedSection
 void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	     uiGraphicsItem* item, bool isy2,
 	     const uiDataPointSetCrossPlotter::AxisData& yad, bool removesel )
@@ -1671,7 +1671,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	dps_.setSelected( rid, -1 );
     }
 }
-
+mStopAllowDeprecatedSection
 
 void uiDataPointSetCrossPlotter::setNrBins( OD::Pair<int,int> nrbins )
 {
@@ -1892,3 +1892,10 @@ void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler* yah,
     lineitm->setPenStyle( linestyle );
     setLine( lineitm, ls.lp, xah, yah, &xvalrg );
 }
+
+mStartAllowDeprecatedSection
+const TypeSet<RowCol>& uiDataPointSetCrossPlotter::getSelectedCells()
+{
+    return selrowcols_;
+}
+mStopAllowDeprecatedSection

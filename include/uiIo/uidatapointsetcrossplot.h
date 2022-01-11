@@ -188,7 +188,7 @@ public:
     uiDataPointSet&		uidps()			{ return uidps_; }
 
     mDeprecatedObs
-    const TypeSet<RowCol>&	getSelectedCells()	{ return selrowcols_; }
+    const TypeSet<RowCol>&	getSelectedCells();
     const TypeSet<RowCol>&	getDPSSelectedCells()
 				{ return dpsselrowcols_; }
 
