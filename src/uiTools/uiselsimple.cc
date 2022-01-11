@@ -164,6 +164,12 @@ void uiGetChoice::setDefaultChoice( int nr )
 }
 
 
+uiCheckList* uiGetChoice::checkList()
+{
+    return inpfld_;
+}
+
+
 uiGroup* uiGetChoice::bottomFld()
 {
     return inpfld_;
