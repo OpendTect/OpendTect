@@ -4,7 +4,7 @@
 # (C) dGB Beheer B.V.
 # $Id$
 #
-# Sets up the python environments (version 1.2.7)
+# Sets up the python environments (version 1.4.0)
 #_______________________________________________________________________________
 
 if ( "$1" == "--help" ) then
@@ -15,14 +15,13 @@ if ( "$1" == "--help" ) then
 endif
 
 # this fetches the original dir from shebang
-set origcondapos=`cat bin/conda | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/miniconda3/")}' | bc`
-set origcondalen=`echo $origcondapos+10`
+set origcondapos=`cat bin/conda | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/Python_1.4.0/")}' | bc`
+set origcondalen=`echo $origcondapos+12`
 if ( $origcondapos == 0 ) then
         set origcondapos=`cat bin/conda | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/Python/")}' | bc`
         set origcondalen=`echo $origcondapos+6`
 endif
 set origdir=`cat bin/conda | head -n 1 | awk '{print substr($0, 3, '$origcondalen')}'`
-
 
 # at this point current directory is installation directory.
 set findspace = `pwd | grep -e '^\s[^\s]' -e '[^\s]\s$' -e '[^\s]\s[^\s]' | wc | awk '{print $1}'`
@@ -59,8 +58,8 @@ endif
 
 # gets environment dirs and sets which dirs to walk through
 set envdirs=`ls $condainstdir/envs/`
-set envrepldirs='bin conda-meta etc/dbus-1 etc/fonts include include/libxslt lib lib/cmake/libxml2 lib/cmake/ZeroMQ lib/gstreamer-1.0 lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.2.0 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu lib/python3.7/site-packages lib/python3.7/site-packages/nbconvert/tests/exporter_entrypoint lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/scipy lib/python3.7/site-packages/zmq/utils lib/tdbc1.1.1 mkspecs mkspecs/features/data mkspecs/modules share/dbus-1 share/doc/dbus/examples share/jupyter/kernels/python3 ssl/misc'
-set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d include/libxslt lib lib/cmake/libxml2 lib/icu lib/icu/58.2 lib/icu/current lib/icu/current.c~ lib/itcl4.2.0 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/xontrib lib/tdbc1.1.1 shell/condabin ssl/misc'
+set envrepldirs='bin conda-meta etc/dbus-1 etc/fonts include include/libxslt lib lib/cairo lib/cmake/libxml2 lib/cmake/ZeroMQ lib/graphviz lib/gstreamer-1.0 lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.2.0 lib/itcl4.2.1 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-x86_64-linux-gnu lib/python3.7/site-packages lib/python3.7/site-packages/nbconvert/tests/exporter_entrypoint lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/scipy lib/python3.7/site-packages/zmq/utils lib/python3.8 lib/python3.8/config-3.8-x86_64-linux-gnu lib/python3.8/site-packages lib/python3.8/site-packages/numexpr lib/python3.8/site-packages/numpy lib/python3.8/site-packages/numpy/distutils lib/python3.8/site-packages/scipy lib/python3.8/site-packages/zmq/utils lib/tdbc1.1.1 lib/tdbc1.1.2 mkspecs mkspecs/features/data mkspecs/modules share/bash-completion share/dbus-1 share/doc/dbus/examples share/jupyter/kernels/python3 share/man/man5 share/man/man7 share/man/man8 ssl/misc'
+set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d include/libxslt lib lib/icu lib/icu/58.2 lib/icu/current lib/icu/current.c~ lib/itcl4.2.1 lib/pkgconfig lib/python3.8 lib/python3.8/config-3.8-x86_64-linux-gnu lib/python3.8/site-packages/numexpr lib/python3.8/site-packages/numpy python3.8/site-packages/numpy/distutils lib/python3.8/site-packages/xontrib lib/tdbc1.1.2 shell/condabin ssl/misc'
 set filtypes='text JSON'
 
 #set origdir="forced orig dir"
@@ -96,8 +95,8 @@ end
 if ("$envdirs" != "") then
         foreach envdir ( $envdirs )
                 echo "Setting up environment $envdir..."
-		set origcondapos=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/miniconda3/")}' | bc`
-                set origcondalen=`echo $origcondapos+10`
+                set origcondapos=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/Python_1.4.0/")}' | bc`
+                set origcondalen=`echo $origcondapos+12`
                 if ( $origcondapos == 0 ) then
                         set origcondapos=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/Python/")}' | bc`
                         set origcondalen=`echo $origcondapos+6`
