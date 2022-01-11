@@ -187,7 +187,10 @@ public:
     const uiDataPointSet&	uidps() const		{ return uidps_; }
     uiDataPointSet&		uidps()			{ return uidps_; }
 
+    mDeprecatedObs
     const TypeSet<RowCol>&	getSelectedCells()	{ return selrowcols_; }
+    const TypeSet<RowCol>&	getDPSSelectedCells()
+				{ return dpsselrowcols_; }
 
     int				nrYSels() const		{ return selyitems_; }
     int				nrY2Sels() const	{ return sely2items_; }
@@ -317,7 +320,8 @@ protected:
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_			= -1;
     Interval<int>		usedxpixrg_;
-    TypeSet<RowCol>		selrowcols_;
+    mDeprecatedDef TypeSet<RowCol>	selrowcols_;
+    TypeSet<RowCol>		dpsselrowcols_;
     TypeSet<OD::Color>		y1grpcols_;
     TypeSet<OD::Color>		y2grpcols_;
     TypeSet<uiWorldPoint>	y1userdefpts_;

@@ -423,6 +423,7 @@ void uiDataPointSetCrossPlotter::removeSelections( bool remfrmselgrp )
 {
     removeSelectionItems();
     selrowcols_.erase();
+    dpsselrowcols_.erase();
     selyitems_ = 0;
     sely2items_ = 0;
 
@@ -1616,6 +1617,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		    }
 
 		    dps_.setSelected( rid, getSelGrpIdx(selarea.id_) );
+		    dpsselrowcols_ += RowCol( rid, yad.colid_ );
 		    selrowcols_ += RowCol( uidps_.tRowID(rid),
 					   uidps_.tColID(yad.colid_) );
 
@@ -1650,6 +1652,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 			item->setPenColor( selgrp->col_ );
 
 		    dps_.setSelected( rid, getSelGrpIdx(selarea.id_) );
+		    dpsselrowcols_ += RowCol( rid, yad.colid_ );
 		    selrowcols_ += RowCol( uidps_.tRowID(rid),
 					   uidps_.tColID(yad.colid_) );
 
