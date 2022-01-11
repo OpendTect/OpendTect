@@ -90,6 +90,7 @@ void uiDataPointSetCrossPlotter::AxisData::newColID()
 
 
 // uiDataPointSetCrossPlotter
+mStartAllowDeprecatedSection
 uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 			    uiDataPointSet& uidp,
 			    const uiDataPointSetCrossPlotter::Setup& su )
@@ -169,7 +170,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 }
 
-mStartAllowDeprecatedSection
+
 uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 {
     detachAllNotifiers();
