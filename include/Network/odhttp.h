@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 
 #include "networkmod.h"
+#include "sharedobject.h"
 
 #include "notify.h"
 #include "iopar.h"
@@ -38,7 +39,7 @@ class HttpRequestManager;
 
 /*!Description of an HTTP request, including headers and post-data */
 
-mExpClass(Network) HttpRequest : public RefCount::Referenced
+mExpClass(Network) HttpRequest : public ReferencedObject
 {
 public:
     enum AccessType		{ Get, Put, Delete, Post, Head };
@@ -113,8 +114,7 @@ private:
 
 /*!The upload or download process. Can be queried for progress, data and
   errors*/
-mExpClass(Network) HttpRequestProcess : public RefCount::Referenced,
-					public CallBacker
+mExpClass(Network) HttpRequestProcess : public SharedObject
 {
 public:
 				 //General purpose callbacks

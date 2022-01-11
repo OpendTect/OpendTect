@@ -116,6 +116,7 @@ set( OD_MODULE_SOURCES
 	separstr.cc
 	settings.cc
 	settingsaccess.cc
+	sharedobject.cc
 	sighndl.cc
 	string2.cc
 	stringbuilder.cc

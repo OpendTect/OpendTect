@@ -48,7 +48,7 @@ class PacketInterpreter;
 
   */
 
-mExpClass(Network) RequestPacket : public RefCount::Referenced
+mExpClass(Network) RequestPacket : public ReferencedObject
 { mODTextTranslationClass(RequestPacket)
 public:
 			RequestPacket(od_int32 payloadsize=0);

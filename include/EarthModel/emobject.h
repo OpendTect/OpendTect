@@ -12,14 +12,15 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+#include "sharedobject.h"
+
 #include "bufstring.h"
-#include "notify.h"
-#include "trckeyzsampling.h"
+#include "coord.h"
 #include "draw.h"
 #include "emposid.h"
 #include "multiid.h"
-#include "coord.h"
-#include "refcount.h"
+#include "notify.h"
+#include "trckeyzsampling.h"
 #include "uistring.h"
 
 class TrcKeyZSampling;
@@ -153,8 +154,7 @@ public:
 \brief Base class for all EarthModel objects.
 */
 
-mExpClass(EarthModel) EMObject : public NamedCallBacker
-			       , public RefCount::Referenced
+mExpClass(EarthModel) EMObject : public SharedObject
 {
 public:
     enum NodeSourceType		{ None = (int)'0', Manual=(int)'1',
@@ -320,8 +320,6 @@ public:
     static int			sIntersectionNode();
 
     virtual const IOObjContext&	getIOObjContext() const = 0;
-
-				mDeclInstanceCreatedNotifierAccess(EMObject);
 
 protected:
 				~EMObject();

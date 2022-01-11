@@ -11,9 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+#include "namedmonitoredobject.h"
+#include "refcount.h"
+
 #include "typeset.h"
 #include "samplingdata.h"
-#include "sharedobject.h"
 
 template <class VT> class DataDistributionChanger;
 template <class VT> class DataDistributionInfoExtracter;
@@ -39,7 +41,8 @@ template <class VT> class DataDistributionIter;
 
 
 template <class VT>
-mClass(Algo) DataDistribution : public SharedObject
+mClass(Algo) DataDistribution : public NamedMonitoredObject
+			      , public ReferencedObject
 {
 public:
     inline			DataDistribution()
@@ -113,7 +116,7 @@ typedef DataDistribution<float> FloatDistrib;
 
 template <class VT> inline
 DataDistribution<VT>::DataDistribution( const DataDistribution<VT>& oth )
-    : SharedObject(oth)
+    : NamedMonitoredObject(oth)
     , data_(oth.data_)
     , cumdata_(oth.cumdata_)
     , sampling_(oth.sampling_)
@@ -168,7 +171,7 @@ DataDistribution<VT>::~DataDistribution()
 
 
 mGenImplMonitorableAssignment(template <class VT> inline,DataDistribution<VT>,
-			      SharedObject);
+			      NamedMonitoredObject);
 
 
 template <class VT> inline

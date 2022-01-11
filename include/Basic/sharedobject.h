@@ -10,23 +10,22 @@ ________________________________________________________________________
 
 -*/
 
-#include "namedmonitoredobject.h"
+#include "refcount.h"
+#include "namedobj.h"
 
 
-/*\!brief MonitoredObject with a name, sharable through ref counting. */
+/*\!brief SharedObject with a name, sharable through ref counting. */
 
-mExpClass(Basic) SharedObject :	public RefCount::Referenced
-			      , public NamedMonitoredObject
+mExpClass(Basic) SharedObject : public NamedCallBacker
+			      , public ReferencedObject
 {
 public:
+				SharedObject(const char* nm=nullptr);
+				SharedObject(const SharedObject&);
 
-			SharedObject(const char* nm=0);
-			mDeclAbstractMonitorableAssignment(SharedObject);
-
-    mDeclInstanceCreatedNotifierAccess(SharedObject);
+    static Notifier<SharedObject>&	instanceCreated();
 
 protected:
 
     virtual		~SharedObject();
-
 };

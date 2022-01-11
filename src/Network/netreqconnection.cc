@@ -29,13 +29,14 @@ using namespace Network;
 namespace Network
 {
 
-struct PacketSendData : public RefCount::Referenced
+struct PacketSendData : public ReferencedObject
 {
-    PacketSendData(const RequestPacket&,bool wait);
-    ConstRefMan<RequestPacket>  packet_;
-    bool                        waitforfinish_;
+				PacketSendData(const RequestPacket&,bool wait);
 
-    enum SendStatus             { NotAttempted, Sent, Failed };
+    ConstRefMan<RequestPacket>	packet_;
+    bool			waitforfinish_;
+
+    enum SendStatus		{ NotAttempted, Sent, Failed };
     SendStatus			sendstatus_;
 				//Protected by connections' lock_
 };

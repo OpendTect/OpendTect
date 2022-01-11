@@ -14,8 +14,6 @@ static bool lockingactive_ = false;
 
 
 mDefineInstanceCreatedNotifierAccess(MonitoredObject)
-mDefineInstanceCreatedNotifierAccess(SharedObject)
-
 
 void MonitoredObject::AccessLocker::enableLocking( bool yn )
 {
@@ -23,7 +21,8 @@ void MonitoredObject::AccessLocker::enableLocking( bool yn )
 }
 
 
-MonitoredObject::AccessLocker::AccessLocker( const MonitoredObject& obj, bool forread )
+MonitoredObject::AccessLocker::AccessLocker( const MonitoredObject& obj,
+					     bool forread )
 {
     if ( lockingactive_ )
 	thelock_ = new Locker( obj.accesslock_,
@@ -43,8 +42,8 @@ MonitoredObject::AccessLocker::~AccessLocker()
 }
 
 
-MonitoredObject::AccessLocker& MonitoredObject::AccessLocker::operator =(
-					const AccessLocker& oth )
+MonitoredObject::AccessLocker&
+	MonitoredObject::AccessLocker::operator =( const AccessLocker& oth )
 {
     if ( &oth != this )
 	{ delete thelock_; thelock_ = nullptr; }
@@ -85,8 +84,8 @@ MonitoredObject::ChangeData::ChangeData( const ChangeData& oth )
 }
 
 
-MonitoredObject::ChangeData& MonitoredObject::ChangeData::operator =(
-						const ChangeData& oth )
+MonitoredObject::ChangeData&
+	MonitoredObject::ChangeData::operator =( const ChangeData& oth )
 {
     if ( this != &oth )
     {
@@ -140,7 +139,8 @@ bool MonitoredObject::operator ==( const MonitoredObject& oth ) const
 }
 
 
-MonitoredObject::ChangeType MonitoredObject::compareWith( const MonitoredObject& oth ) const
+MonitoredObject::ChangeType
+	MonitoredObject::compareWith( const MonitoredObject& oth ) const
 {
     return cNoChange();
 }
@@ -203,7 +203,8 @@ void MonitoredObject::sendDelNotif() const
 }
 
 
-MonitoredObject::ChangeType MonitoredObject::changeNotificationTypeOf( CallBacker* cb )
+MonitoredObject::ChangeType
+	MonitoredObject::changeNotificationTypeOf( CallBacker* cb )
 {
     mCBCapsuleUnpack( ChangeData, chgdata, cb );
     return chgdata.changeType();
@@ -464,27 +465,3 @@ void ChangeRecorder::objChg( CallBacker* cb )
 	handleObjChange( chgdata );
     }
 }
-
-
-SharedObject::SharedObject( const char* nm )
-    : NamedMonitoredObject(nm)
-{
-    mTriggerInstanceCreatedNotifier();
-}
-
-
-SharedObject::SharedObject( const SharedObject& oth )
-    : NamedMonitoredObject(oth)
-{
-    copyClassData( oth );
-    mTriggerInstanceCreatedNotifier();
-}
-
-
-SharedObject::~SharedObject()
-{
-    sendDelNotif();
-}
-
-
-mImplMonitorableAssignmentWithNoMembers( SharedObject, NamedMonitoredObject )

@@ -41,8 +41,6 @@ static const char* sLockColor()			{ return "Lock Color"; }
 static const char* sSelectionColor()		{ return "Selection Color"; }
 
 
-mDefineInstanceCreatedNotifierAccess(EMObject);
-
 EMObject::EMObject( EMManager& emm )
     : manager_(emm)
     , change(this)
@@ -69,7 +67,6 @@ EMObject::EMObject( EMManager& emm )
     removebypolyposbox_.setEmpty();
 
     mAttachCB(change,EMObject::posIDChangeCB);
-    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -78,8 +75,7 @@ EMObject::~EMObject()
     detachAllNotifiers();
     //TODO: replace:
     prepareForDelete();
-    //And replace by :
-    sendDelNotif(); // when connected with the manager
+    //And replace by sendDelNotif(), which called from ~SharedObject
     deepErase( posattribs_ );
     delete &preferredcolor_;
     delete &preferredlinestyle_;
@@ -103,7 +99,10 @@ void EMObject::prepareForDelete()
 
 
 void EMObject::setNewName()
-{ setName("<New EM Object>"); }
+{
+    setName("<New EM Object>");
+}
+
 
 void EMObject::setMultiID( const MultiID& mid )
 {

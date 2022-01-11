@@ -100,7 +100,7 @@ public:
        Models may be annotated by a given value, typically offset or angle
 */
 
-mExpClass(Algo) TimeDepthModelSet : public RefCount::Referenced
+mExpClass(Algo) TimeDepthModelSet : public ReferencedObject
 { mODTextTranslationClass(TimeDepthModelSet)
 public:
 

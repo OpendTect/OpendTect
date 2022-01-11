@@ -63,7 +63,7 @@ static const QString emptyqstring;
 #endif
 
 
-class uiStringData : public RefCount::Referenced
+class uiStringData : public ReferencedObject
 {
   friend class uiString;
 public:

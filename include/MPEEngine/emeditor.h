@@ -12,6 +12,8 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
+#include "sharedobject.h"
+
 #include "notify.h"
 #include "emposid.h"
 #include "factory.h"
@@ -41,8 +43,7 @@ be moved, and in what manner.
    which are listed by getAlongMovingStyleNames().
 */
 
-mExpClass(MPEEngine) ObjectEditor : public RefCount::Referenced
-				  , public CallBacker
+mExpClass(MPEEngine) ObjectEditor : public SharedObject
 {
 public:
 			ObjectEditor(EM::EMObject&);

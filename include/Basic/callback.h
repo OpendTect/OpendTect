@@ -146,7 +146,7 @@ CallBack::callInMainThread( CallBack( this, mCBFn(func) ), 0)
 
 /*!\brief TypeSet of CallBacks with a few extras.  */
 
-mExpClass(Basic) CallBackSet : public RefCount::Referenced
+mExpClass(Basic) CallBackSet : public ReferencedObject
 			     , public TypeSet<CallBack>
 {
 public:

@@ -1,5 +1,4 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
@@ -18,7 +17,6 @@ ________________________________________________________________________
 template <class T> class WeakPtr;
 template <class T> class RefMan;
 template <class T> class ConstRefMan;
-
 
 #define mInvalidRefCount (-1)
 
@@ -111,7 +109,7 @@ namespace RefCount
 class WeakPtrBase;
 
 /*! Actual implementation of the reference counting. Normally not used by
-    application developers.  */
+    application developers. */
 
 mExpClass(Basic) Counter
 {
@@ -138,7 +136,7 @@ public:
     void		removeObserver(WeakPtrBase* obj);
 
 			Counter();
-                        Counter(const Counter& a);
+			Counter(const Counter& a);
 
     static od_int32	cInvalidRefCount();
     static od_int32	cStartRefCount();
@@ -193,7 +191,7 @@ public:
 				//!<Not for normal use. May become private
     void		removeObserver(WeakPtrBase* obs);
 				//!<Not for normal use. May become private
-    static bool	        isSane(const Referenced*);
+    static bool		isSane(const Referenced*);
 				/*Returns true if this really is a referenced
 				  (i.e. has magicnumber set ) */
 
@@ -265,10 +263,10 @@ public:
     mExpClass(Basic) CleanupBlocker
     {
     public:
-                        CleanupBlocker( WeakPtrSetBase& base )
-                            : base_( base )	{ base_.blockCleanup(); }
+			CleanupBlocker( WeakPtrSetBase& base )
+			    : base_( base )	{ base_.blockCleanup(); }
 
-                        ~CleanupBlocker()	{ base_.unblockCleanup(); }
+			~CleanupBlocker()	{ base_.unblockCleanup(); }
     private:
 
         WeakPtrSetBase&	base_;
@@ -287,8 +285,9 @@ private:
 
 };
 
+} // namespace RefCount
 
-}; //RefCount namespace end
+using ReferencedObject = RefCount::Referenced;
 
 
 /*!Observes a refereence counted object. If you wish to use the pointer,
@@ -300,8 +299,8 @@ mClass(Basic) WeakPtr : public RefCount::WeakPtrBase
 public:
 
 			WeakPtr(RefCount::Referenced* p = 0) { set(p); }
-                        WeakPtr(const WeakPtr<T>& p) : WeakPtr<T>( p.ptr_ ) {}
-                        WeakPtr(RefMan<T>& p) : WeakPtr<T>(p.ptr()) {}
+			WeakPtr(const WeakPtr<T>& p) : WeakPtr<T>( p.ptr_ ) {}
+			WeakPtr(RefMan<T>& p) : WeakPtr<T>(p.ptr()) {}
 			~WeakPtr() { set( 0 ); }
 
     inline WeakPtr<T>&	operator=(const WeakPtr<T>& p);
@@ -645,6 +644,7 @@ bool WeakPtrSet<T>::operator+=( RefMan<T>& toadd )
     return WeakPtrSet<T>::operator+=( WeakPtr<T>(ptr) );
 }
 
+
 template <class T> inline
 bool WeakPtrSet<T>::operator+=( const WeakPtr<T>& toadd )
 {
@@ -693,7 +693,6 @@ RefMan<T> WeakPtrSet<T>::operator[]( int idx )
     lock_.unLock();
     return res;
 }
-
 
 
 template <class T> inline
