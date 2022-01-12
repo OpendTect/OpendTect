@@ -107,6 +107,10 @@ namespace OD
 	uiRetVal	hasModule(const char* modname,
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
+	void		setForScript(const char* scriptnm,
+				     OS::MachineCommand&) const;
+			/*<! MachineCommand for scripts installed using pip
+			     within a conda environment */
 	mDeprecated("Provide cmd and args")
 	bool		openTerminal() const;
 	bool		openTerminal(const char* cmd,
@@ -115,7 +119,6 @@ namespace OD
 	static void	getPathToInternalEnv(FilePath&,bool userdef);
 	static void	GetPythonEnvPath(FilePath&);
 	static void	GetPythonEnvBinPath(FilePath&);
-
 
     private:
 
