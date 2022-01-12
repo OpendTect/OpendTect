@@ -1323,13 +1323,14 @@ void uiPythonSettings::safetycheckCB( CallBacker* )
     if ( !useScreen() )
 	return;
 
-    OS::MachineCommand cmd( "safety" );
-    cmd.addArg( "check");
+    OS::MachineCommand mc;
+    OD::PythA().setForScript( "safety", mc );
+    mc.addArg( "check" );
     BufferString stdoutstr;
     uiString errmsg;
     uiUserShowWait usw( this, tr("Checking Python environment") );
-    if ( !OD::PythA().execute(cmd, stdoutstr, nullptr, &errmsg) ||
-							stdoutstr.isEmpty() )
+    if ( !OD::PythA().execute(mc,stdoutstr,nullptr,&errmsg) ||
+	 stdoutstr.isEmpty() )
     {
 	uiMSG().error( errmsg );
 	return;
