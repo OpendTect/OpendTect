@@ -107,6 +107,10 @@ namespace OD
 	uiRetVal	hasModule(const char* modname,
 				  const char* minversion=0) const;
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
+	void		setForScript(const char* scriptnm,
+				     OS::MachineCommand&) const;
+			/*<! MachineCommand for scripts installed using pip
+			     within a conda environment */
 	bool		openTerminal(const char* cmd,
 				     const BufferStringSet* args=nullptr,
 				     const char* workdir=nullptr) const;

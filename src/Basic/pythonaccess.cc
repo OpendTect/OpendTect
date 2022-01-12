@@ -1498,6 +1498,25 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
 }
 
 
+void OD::PythonAccess::setForScript( const char* scriptnm,
+				     OS::MachineCommand& mc ) const
+{
+    FilePath scriptfp;
+    GetPythonEnvPath( scriptfp );
+    if ( scriptfp.exists() && scriptfp.isAbsolute() )
+	scriptfp.add( __iswin__ ? "Scripts" : "bin" );
+
+    scriptfp.add( scriptnm );
+    if ( __iswin__ )
+	scriptfp.setExtension( "exe" );
+
+    if ( scriptfp.exists() && scriptfp.isAbsolute() )
+	mc.setProgram( sPythonExecNm() ).addArg( scriptfp.fullPath() );
+    else
+	mc.setProgram( scriptfp.fileName() );
+}
+
+
 bool OD::PythonAccess::openTerminal( const char* cmdstr,
 				     const BufferStringSet* args,
 				     const char* workingdirstr ) const
