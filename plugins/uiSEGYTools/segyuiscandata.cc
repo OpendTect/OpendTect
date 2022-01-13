@@ -45,11 +45,13 @@ SEGY::BasicFileInfo::~BasicFileInfo()
 void SEGY::BasicFileInfo::init( bool is2d )
 {
     is2d_ = is2d;
-    revision_ = ns_ = binns_ = binsr_ -1;
+    revision_ = ns_ = thdrns_ = binsr_ -1;
     format_ = 5;
     sampling_.start = 1.0f;
     sampling_.step = mUdf(float);
     hdrsswapped_ = dataswapped_ = false;
+    usenrsampsinfile_ = true;
+    useformatinfile_ = true;
 }
 
 
@@ -162,12 +164,18 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
     inft = binhdr.isInFeet();
 
     binsr_ = binhdr.rawSampleRate();
-    binns_ = binhdr.nrSamples();
+    if ( usenrsampsinfile_ )
+	ns_ = binhdr.nrSamples();
+
     revision_ = binhdr.revision();
-    short fmt = binhdr.format();
-    if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
-	fmt = 1;
-    format_ = fmt;
+    if ( useformatinfile_ )
+    {
+	short fmt = binhdr.format();
+	if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
+	    fmt = 1;
+
+	format_ = fmt;
+    }
 
     od_stream_Pos firsttrcpos = strm.position();
     PtrMan<SEGY::TrcHeader> thdr = getTrcHdr( strm );
@@ -175,9 +183,9 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
     if ( !thdr )
 	mErrRetWithFileName( "No traces found" )
 
-    ns_ = int(thdr->nrSamples());
+    thdrns_ = int(thdr->nrSamples());
     if ( ns_ == 0 )
-	ns_ = binns_;
+	ns_ = thdrns_;
 
     SeisTrcInfo ti;
     if ( thdr->is2D() != is2d_ )
@@ -219,9 +227,7 @@ void SEGY::LoadDef::reInit( bool is2d, bool alsohdef )
     trcnrdef_ = SamplingData<int>( 1000, 1 );
     psoffssrc_ = FileReadOpts::InFile;
     psoffsdef_ = SamplingData<float>( 0.f, 1.f );
-    usenrsampsinfile_ = true;
     usezsamplinginfile_ = true;
-    useformatinfile_ = true;
     coordsys_ = SI().getCoordSystem();
     if ( alsohdef )
     {
@@ -248,9 +254,7 @@ SEGY::LoadDef& SEGY::LoadDef::operator =( const SEGY::LoadDef& oth )
 	trcnrdef_ = oth.trcnrdef_;
 	psoffssrc_ = oth.psoffssrc_;
 	psoffsdef_ = oth.psoffsdef_;
-	usenrsampsinfile_ = oth.usenrsampsinfile_;
 	usezsamplinginfile_ = oth.usezsamplinginfile_;
-	useformatinfile_ = oth.useformatinfile_;
 	hdrdef_ = new TrcHeaderDef( *oth.hdrdef_ );
 	coordsys_ = oth.coordsys_;
     }

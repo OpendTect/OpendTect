@@ -65,23 +65,9 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	    mODHelpKey(mSEGYReadStarterHelpID)).nrstatusflds(1)
 					       .modal(forsurvsetup))
     , forsurvsetup_(forsurvsetup)
-    , filereadopts_(nullptr)
-    , typfld_(nullptr)
-    , multilinebut_(nullptr)
-    , useicbut_(nullptr)
-    , usexybut_(nullptr)
-    , coordscalefld_(nullptr)
-    , ampldisp_(nullptr)
-    , survmap_(nullptr)
-    , detectrev0flds_(true)
     , userfilename_("_") // any non-empty non-existing
-    , scaninfos_(nullptr)
     , loaddef_(imptyp ? imptyp->is2D() : false)
     , clipsampler_(*new DataClipSampler(100000))
-    , lastscanwasfull_(false)
-    , survinfo_(nullptr)
-    , survinfook_(false)
-    , timer_(nullptr)
 {
     if ( forsurvsetup )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
@@ -556,6 +542,7 @@ void uiSEGYReadStarter::inpChg( CallBacker* )
 {
     detectrev0flds_ = true;
     linenames_.setEmpty();
+    nrsampmsgshown_ = false;
     handleNewInputSpec( KeepNone );
     setToolStates();
 }
@@ -629,6 +616,17 @@ void uiSEGYReadStarter::handleNewInputSpec( LoadDefChgType ct, bool fullscan )
     {
 	userfilename_ = newusrfnm;
 	execNewScan( ct, fullscan );
+	if ( !nrsampmsgshown_ && loaddef_.usenrsampsinfile_ &&
+		loaddef_.ns_ != loaddef_.thdrns_ && loaddef_.thdrns_ > 0 )
+	{
+	    uiMSG().warning( tr("Nr samples in binary header is %1, but the "
+			"trace header shows %2 nr samples. OpendTect uses the "
+			"value from binary header by default. To use a "
+			"different value, change the 'Source' from "
+			"'From header' to 'User defined'.").arg(loaddef_.ns_)
+			.arg(loaddef_.thdrns_) );
+	    nrsampmsgshown_ = true;
+	}
     }
 
     FilePath fp( newusrfnm );
