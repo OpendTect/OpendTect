@@ -108,6 +108,7 @@ protected:
     void		setScanInfoTexts(const SEGY::ScanInfoSet&);
     void		updateCellTexts();
     void		setByteFldContents(const SEGY::HdrEntryKeyData&);
+    bool		hasRev1Value(const uiSEGYByteNr*) const;
     void		parChanged(bool);
 
     void		clearTable();

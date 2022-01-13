@@ -50,13 +50,16 @@ public:
     void		init();
 
     int			revision_;
-    int			binns_;		// nr samples binary header
     int			binsr_;		// sample rate (us or mm)
-    int			ns_;		// nr samples trace header
+    int			ns_;		// nr samples binary header
+    int			thdrns_;	// nr samples trace header
     short		format_;
     SamplingData<float>	sampling_;
     bool		hdrsswapped_;
     bool		dataswapped_;
+
+    bool		usenrsampsinfile_	= true;
+    bool		useformatinfile_	= true;
 
     bool		isValid() const			{ return ns_ > 0; }
     bool		isRev0() const			{ return revision_ < 1;}
@@ -102,9 +105,7 @@ public:
     SamplingData<int>	trcnrdef_;
     FileReadOpts::PSDefType psoffssrc_;
     SamplingData<float>	psoffsdef_;
-    bool		usenrsampsinfile_;
     bool		usezsamplinginfile_;
-    bool		useformatinfile_;
 
     TrcHeaderDef*	hdrdef_;
 

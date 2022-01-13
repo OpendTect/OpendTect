@@ -92,7 +92,7 @@ void changeCB( CallBacker* cb )
 	}
     }
 
-    changed.trigger( cb );
+    changed.trigger();
 }
 
 SEGY::HdrEntry hdrEntry() const
@@ -106,6 +106,17 @@ SEGY::HdrEntry hdrEntry() const
 	ret.issmall_ = szfld_->currentItem()==0;
     }
     return ret;
+}
+
+bool hasEntry( const SEGY::HdrEntry& entry ) const
+{
+    const int selidx = nonefound_ ? -1 : bytenrfld_->currentItem();
+    if ( selidx < 0 )
+	return false;
+
+    const SEGY::HdrEntry& curentry = *hdef_[ heidxs_[selidx] ];
+    const bool issmall = szfld_->currentItem()==0;
+    return curentry.bytepos_ == entry.bytepos_ && issmall == entry.issmall_;
 }
 
 void setHdrEntry( const SEGY::HdrEntry& entry )
@@ -679,7 +690,36 @@ void uiSEGYReadStartInfo::parChg( CallBacker* cb )
 	showZSamplingSetting( !fromheader );
     }
 
+    if ( revfld_->currentItem() > 0 )
+    {
+	mDynamicCastGet(uiSEGYByteNr*,bytenrfld,cb)
+	if ( bytenrfld && !hasRev1Value(bytenrfld) )
+	    revfld_->setCurrentItem( 0 );
+    }
+
     parChanged( false );
+}
+
+
+bool uiSEGYReadStartInfo::hasRev1Value( const uiSEGYByteNr* fld ) const
+{
+    const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
+    if ( fld == xcoordbytefld_ )
+	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryXcdp()] );
+    if ( fld == ycoordbytefld_ )
+	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryYcdp()] );
+    if ( fld == inlbytefld_ )
+	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryInline()] );
+    if ( fld == crlbytefld_ )
+	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryCrossline()] );
+    if ( fld == trcnrbytefld_ )
+	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryCdp()] );
+    if ( fld == refnrbytefld_ )
+	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntrySP()] );
+    if ( fld == offsetbytefld_ )
+	return fld->hasEntry( *hdef[SEGY::TrcHeader::EntryOffset()] );
+
+    return true;
 }
 
 
