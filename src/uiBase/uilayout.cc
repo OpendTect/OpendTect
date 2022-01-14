@@ -13,8 +13,8 @@ ________________________________________________________________________
 
 
 uiConstraint::uiConstraint( constraintType tp, i_LayoutItem* o, int marg )
-    : other_(o)
-    , type_(tp)
+    : type_(tp)
+    , other_(o)
     , margin_(marg)
     , enabled_(true)
 {
@@ -31,7 +31,18 @@ bool uiConstraint::operator==( const uiConstraint& oth ) const
 
 
 bool uiConstraint::operator!=( const uiConstraint& oth ) const
-{ return !(*this == oth); }
+{
+    return !(*this == oth);
+}
 
-bool uiConstraint::enabled() const		{ return enabled_ ; }
-void uiConstraint::disable( bool yn=true )	{ enabled_ = !yn; }
+
+bool uiConstraint::enabled() const
+{
+    return enabled_ ;
+}
+
+
+void uiConstraint::disable( bool yn )
+{
+    enabled_ = !yn;
+}

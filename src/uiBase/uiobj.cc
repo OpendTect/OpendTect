@@ -43,8 +43,12 @@ CmdRecStopper::CmdRecStopper( const uiBaseObject* obj )
 	cmdrecstopperlist_ += obj;
 }
 
+
 CmdRecStopper::~CmdRecStopper()
-{ cmdrecstopperstack_.pop(); }
+{
+    cmdrecstopperstack_.pop();
+}
+
 
 void CmdRecStopper::clearStopperList( const CallBacker* cmdrec )
 {
@@ -57,16 +61,18 @@ void CmdRecStopper::clearStopperList( const CallBacker* cmdrec )
     }
 }
 
+
 bool CmdRecStopper::isInStopperList( const uiBaseObject* obj )
-{ return cmdrecstopperlist_.isPresent(obj); }
+{
+    return cmdrecstopperlist_.isPresent(obj);
+}
 
 
-mDefineEnumUtils(uiRect,Side,"Side") { "Left", "Top", "Right", "Bottom", 0 };
+mDefineEnumUtils( uiRect, Side, "Side" )
+{ "Left", "Top", "Right", "Bottom", nullptr };
 
-#define mBody_( imp_ )	dynamic_cast<uiObjectBody*>( imp_ )
-#define mBody()		mBody_( body() )
-#define mConstBody()	mBody_(const_cast<uiObject*>(this)->body())
 
+// uiBaseObject
 uiBaseObject::uiBaseObject( const char* nm, uiBody* b )
     : NamedCallBacker(nm)
     , finaliseStart(this)
@@ -77,21 +83,35 @@ uiBaseObject::uiBaseObject( const char* nm, uiBody* b )
 
 
 uiBaseObject::~uiBaseObject()
-{ sendDelNotif(); }
+{
+    sendDelNotif();
+}
 
 
 void uiBaseObject::finalise()
-{ if ( body() ) body()->finalise(); }
+{
+    if ( body() )
+	body()->finalise();
+}
+
 
 void uiBaseObject::clear()
-{ if ( body() ) body()->clear(); }
+{
+    if ( body() )
+	body()->clear();
+}
+
 
 bool uiBaseObject::finalised() const
-{ return body() ? body()->finalised() : false; }
+{
+    return body() ? body()->finalised() : false;
+}
 
 
 int uiBaseObject::beginCmdRecEvent( const char* msg )
-{ return beginCmdRecEvent( (od_uint64) 0, msg ); }
+{
+    return beginCmdRecEvent( od_uint64(0), msg );
+}
 
 
 int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
@@ -115,11 +135,15 @@ int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
 
 
 const QWidget* uiBaseObject::getWidget() const
-{ return const_cast<uiBaseObject*>(this)->getWidget(); }
+{
+    return const_cast<uiBaseObject*>(this)->getWidget();
+}
 
 
 void uiBaseObject::endCmdRecEvent( int refnr, const char* msg )
-{ endCmdRecEvent( (od_uint64) 0, refnr, msg ); }
+{
+    endCmdRecEvent( od_uint64(0), refnr, msg );
+}
 
 
 void uiBaseObject::endCmdRecEvent( od_uint64 id, int refnr, const char* msg )
@@ -153,6 +177,7 @@ void uiBaseObject::addCmdRecorder( const CallBack& cb )
 }
 
 
+// uiParent
 uiParent::uiParent( const char* nm, uiParentBody* b )
     : uiBaseObject( nm, b )
 {}
@@ -161,38 +186,51 @@ uiParent::uiParent( const char* nm, uiParentBody* b )
 void uiParent::addChild( uiBaseObject& child )
 {
     mDynamicCastGet(uiBaseObject*,thisuiobj,this);
-    if ( thisuiobj && &child == thisuiobj ) return;
+    if ( thisuiobj && &child == thisuiobj )
+	return;
+
     if ( !body() )
 	{ pErrMsg("uiParent has no body!"); return; }
 
-    uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
-    if ( !b )
+    uiParentBody* pb = dynamic_cast<uiParentBody*>( body() );
+    if ( !pb )
 	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; }
 
-    b->addChild( child );
+    pb->addChild( child );
 }
 
 
 void uiParent::manageChld( uiBaseObject& child, uiObjectBody& bdy )
 {
-    if ( &child == static_cast<uiBaseObject*>(this) ) return;
+    if ( &child == static_cast<uiBaseObject*>(this) )
+	return;
 
-    uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
-    if ( !b )	return;
+    uiParentBody* pb = dynamic_cast<uiParentBody*>( body() );
+    if ( !pb )
+	return;
 
-    b->manageChld( child, bdy );
+    pb->manageChld( child, bdy );
 }
 
 
 void uiParent::attachChild ( constraintType tp, uiObject* child,
 			     uiObject* other, int margin, bool reciprocal )
 {
-    if ( child == static_cast<uiBaseObject*>(this) ) return;
-    if ( !body() )		{ pErrMsg("uiParent has no body!"); return; }
+    if ( child == static_cast<uiBaseObject*>(this) )
+	return;
+
+    if ( !body() )
+    {
+	pErrMsg("uiParent has no body!");
+	return;
+    }
 
     uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
     if ( !b )
-	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; }
+    {
+	pErrMsg("uiParent has a body, but it's no uiParentBody");
+	return;
+    }
 
     b->attachChild ( tp, child, other, margin, reciprocal );
 }
@@ -202,7 +240,7 @@ const ObjectSet<uiBaseObject>* uiParent::childList() const
 {
     uiParentBody* uipb =
 	    dynamic_cast<uiParentBody*>( const_cast<uiParent*>(this)->body() );
-    return uipb ? uipb->childList(): 0;
+    return uipb ? uipb->childList(): nullptr;
 }
 
 
@@ -251,7 +289,7 @@ void uiParentBody::finaliseChildren()
 {
     if ( !finalised_ )
     {
-	finalised_= true;
+	finalised_ = true;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	    children_[idx]->finalise();
     }
@@ -338,6 +376,9 @@ bool uiObjEventFilter::eventFilter( QObject* obj, QEvent* ev )
 }
 
 
+
+// uiObject
+
 static ObjectSet<uiObject> uiobjectlist_;
 
 
@@ -349,17 +390,18 @@ static BufferString getCleanName( const char* nm )
 }
 
 
-
 static int iconsz_ = -1;
 static int fldsz_ = -1;
 
 uiObject::uiObject( uiParent* p, const char* nm )
-    : uiBaseObject( getCleanName(nm), 0 )
-    , setGeometry(this)
+    : uiBaseObject(getCleanName(nm),nullptr)
     , closed(this)
-    , parent_( p )
+    , setGeometry(this)
+    , parent_(p)
 {
-    if ( p ) p->addChild( *this );
+    if ( p )
+	p->addChild( *this );
+
     uiobjectlist_ += this;
     updateToolTip();
 
@@ -370,12 +412,14 @@ uiObject::uiObject( uiParent* p, const char* nm )
 
 
 uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
-    : uiBaseObject( getCleanName(nm), &b )
-    , setGeometry(this)
+    : uiBaseObject(getCleanName(nm),&b)
     , closed(this)
-    , parent_( p )
+    , setGeometry(this)
+    , parent_(p)
 {
-    if ( p ) p->manageChld( *this, b );
+    if ( p )
+	p->manageChld( *this, b );
+
     uiobjectlist_ += this;
     updateToolTip();
 
@@ -394,14 +438,34 @@ uiObject::~uiObject()
 }
 
 
+uiObjectBody* uiObject::objBody()
+{
+    return dynamic_cast<uiObjectBody*>(body());
+}
+
+
+const uiObjectBody* uiObject::objBody() const
+{
+    return dynamic_cast<const uiObjectBody*>(body());
+}
+
+
 void uiObject::setHSzPol( SzPolicy p )
-    { mBody()->setHSzPol(p); }
+{
+    objBody()->setHSzPol( p );
+}
+
 
 void uiObject::setVSzPol( SzPolicy p )
-    { mBody()->setVSzPol(p); }
+{
+    objBody()->setVSzPol( p );
+}
 
-uiObject::SzPolicy uiObject::szPol(bool hor) const
-    { return mConstBody()->szPol(hor); }
+
+uiObject::SzPolicy uiObject::szPol( bool hor ) const
+{
+    return objBody()->szPol( hor );
+}
 
 
 void uiObject::setName( const char* nm )
@@ -424,10 +488,11 @@ void uiObject::setToolTip( const uiString& txt )
 }
 
 
-void uiObject::updateToolTip(CallBacker*)
+void uiObject::updateToolTip( CallBacker* )
 {
     mEnsureExecutedInMainThread( uiObject::updateToolTip );
-    if ( !qwidget() ) return;
+    if ( !qwidget() )
+	return;
 
     if ( uiMain::isNameToolTipUsed() && !name().isEmpty() )
     {
@@ -450,14 +515,21 @@ void uiObject::translateText()
 void uiObject::display( bool yn, bool shrink, bool maximize )
 {
     finalise();
-    mBody()->display(yn,shrink,maximize);
+    objBody()->display( yn, shrink, maximize );
 }
 
+
 void uiObject::setFocus()
-{ mBody()->uisetFocus(); }
+{
+    objBody()->uisetFocus();
+}
+
 
 bool uiObject::hasFocus() const
-{ return mConstBody()->uihasFocus(); }
+{
+    return objBody()->uihasFocus();
+}
+
 
 void uiObject::disabFocus()
 {
@@ -477,7 +549,7 @@ void uiObject::setCursor( const MouseCursor& cursor )
 bool uiObject::isCursorInside() const
 {
     const uiPoint cursorpos = uiCursorManager::cursorPos();
-    const QPoint objpos = mConstBody()->qwidget()->mapToGlobal( QPoint(0,0) );
+    const QPoint objpos = objBody()->qwidget()->mapToGlobal( QPoint(0,0) );
     return cursorpos.x>=objpos.x() && cursorpos.x<objpos.x()+width() &&
 	   cursorpos.y>=objpos.y() && cursorpos.y<objpos.y()+height();
 }
@@ -490,88 +562,162 @@ void uiObject::setStyleSheet( const char* qss )
 
 
 OD::Color uiObject::backgroundColor() const
-    { return mConstBody()->uibackgroundColor(); }
+{
+    return objBody()->uibackgroundColor();
+}
 
 
-void uiObject::setBackgroundColor(const OD::Color& col)
-    { mBody()->uisetBackgroundColor(col); }
+void uiObject::setBackgroundColor( const OD::Color& col )
+{
+    objBody()->uisetBackgroundColor( col );
+}
 
 
 void uiObject::setBackgroundPixmap( const uiPixmap& pm )
-    { mBody()->uisetBackgroundPixmap( pm ); }
+{
+    objBody()->uisetBackgroundPixmap( pm );
+}
 
 
-void uiObject::setTextColor(const OD::Color& col)
-    { mBody()->uisetTextColor(col); }
+void uiObject::setTextColor( const OD::Color& col )
+{
+    objBody()->uisetTextColor( col );
+}
 
 
-void uiObject::setSensitive(bool yn)
-    { mBody()->uisetSensitive(yn); }
+void uiObject::setSensitive( bool yn )
+{
+    objBody()->uisetSensitive( yn );
+}
+
 
 bool uiObject::sensitive() const
-    { return mConstBody()->uisensitive(); }
+{
+    return objBody()->uisensitive();
+}
 
 
 bool uiObject::visible() const
-    { return mConstBody()->uivisible(); }
+{
+    return objBody()->uivisible();
+}
+
 
 bool uiObject::isDisplayed() const
-    { return mConstBody()->isDisplayed(); }
+{
+    return objBody()->isDisplayed();
+}
+
 
 int uiObject::prefHNrPics() const
-    { return mConstBody()->prefHNrPics(); }
+{
+    return objBody()->prefHNrPics();
+}
 
 
 void uiObject::setPrefWidth( int w )
-    { mBody()->setPrefWidth(w); }
+{
+    objBody()->setPrefWidth( w );
+}
 
 
 void uiObject::setPrefWidthInChar( int w )
-    { mBody()->setPrefWidthInChar( (float)w ); }
+{
+    setPrefWidthInChar( float(w) );
+}
+
 
 void uiObject::setPrefWidthInChar( float w )
-     { mBody()->setPrefWidthInChar(w); }
+{
+    objBody()->setPrefWidthInChar( w );
+}
+
 
 void uiObject::setMinimumWidth( int w )
-    { mBody()->setMinimumWidth(w); }
+{
+    objBody()->setMinimumWidth( w );
+}
+
 
 void uiObject::setMinimumHeight( int h )
-    { mBody()->setMinimumHeight(h); }
+{
+    objBody()->setMinimumHeight( h );
+}
+
 
 void uiObject::setMaximumWidth( int w )
-    { mBody()->setMaximumWidth(w); }
+{
+    if ( objBody()->prefHNrPics() > w )
+	objBody()->setPrefWidth( w );
+
+    objBody()->setMaximumWidth( w );
+}
+
 
 void uiObject::setMaximumHeight( int h )
-    { mBody()->setMaximumHeight(h); }
+{
+    if ( objBody()->prefVNrPics() > h )
+	objBody()->setPrefHeight( h );
+
+    objBody()->setMaximumHeight( h );
+}
+
 
 int uiObject::prefVNrPics() const
-    { return mConstBody()->prefVNrPics(); }
+{
+    return objBody()->prefVNrPics();
+}
+
 
 void uiObject::setPrefHeight( int h )
-    { mBody()->setPrefHeight(h); }
+{
+    objBody()->setPrefHeight( h );
+}
+
 
 void uiObject::setPrefHeightInChar( int h )
-    { mBody()->setPrefHeightInChar( (float)h ); }
+{
+    setPrefHeightInChar( float(h) );
+}
+
 
 void uiObject::setPrefHeightInChar( float h )
-     {mBody()->setPrefHeightInChar(h);}
+{
+    objBody()->setPrefHeightInChar( h );
+}
+
 
 void uiObject::setStretch( int hor, int ver )
-     {mBody()->setStretch(hor,ver); }
+{
+    objBody()->setStretch( hor, ver );
+}
+
 
 int uiObject::stretch( bool hor ) const
-    { return mConstBody()->stretch(hor,false); }
+{
+    return objBody()->stretch( hor, false );
+}
+
 
 void uiObject::attach( constraintType tp, int margin )
-    { mBody()->attach(tp, (uiObject*)0, margin); }
+{
+    objBody()->attach( tp, sCast(uiObject*,nullptr), margin );
+}
+
 
 void uiObject::attach( constraintType tp, uiObject* other, int margin,
 			bool reciprocal )
-    { mBody()->attach(tp, other, margin, reciprocal); }
+{
+    objBody()->attach(tp, other, margin, reciprocal);
+}
+
 
 void uiObject::attach( constraintType tp, uiParent* other, int margin,
 			bool reciprocal )
-    { mBody()->attach(tp, other, margin, reciprocal); }
+{
+    objBody()->attach( tp, other, margin, reciprocal );
+}
+
 
 /*!
     Moves the \a second widget around the ring of focus widgets so
@@ -600,53 +746,65 @@ void uiObject::attach( constraintType tp, uiParent* other, int margin,
 */
 void uiObject::setTabOrder( uiObject* first, uiObject* second )
 {
+    if ( !first || !second )
+	return;
+
     QWidget::setTabOrder( first->body()->qwidget(), second->body()->qwidget() );
 }
 
 
-
 void uiObject::setFont( const uiFont& f )
-    { mBody()->uisetFont(f); }
+{
+    objBody()->uisetFont( f );
+}
 
 
 const uiFont* uiObject::font() const
-    { return mConstBody()->uifont(); }
+{
+    return objBody()->uifont();
+}
 
 
 uiSize uiObject::actualSize( bool include_border ) const
-    { return mConstBody()->actualSize( include_border ); }
-
-
-void uiObject::setCaption( const uiString& c )
-    { mBody()->uisetCaption(c); }
-
-
-void uiObject::triggerSetGeometry( const i_LayoutItem* mylayout, uiRect& geom )
 {
-    if ( mBody() && mylayout == mBody()->layoutItem() )
-	setGeometry.trigger(geom);
+    return objBody()->actualSize( include_border );
+}
+
+
+void uiObject::setCaption( const uiString& capt )
+{
+    objBody()->setCaption( capt );
+}
+
+
+void uiObject::triggerSetGeometry( const i_LayoutItem* mylayout,
+				   uiRect& geom )
+{
+    if ( objBody() && mylayout == objBody()->layoutItem() )
+	setGeometry.trigger( geom );
 }
 
 
 void uiObject::reDraw( bool deep )
-    { mBody()->reDraw( deep ); }
+{
+    objBody()->reDraw( deep );
+}
 
 
 uiMainWin* uiObject::mainwin()
 {
     uiParent* par = parent();
     if ( !par )
-    {
-	mDynamicCastGet(uiMainWin*,mw,this)
-	return mw;
-    }
+	return dCast(uiMainWin*,this);
 
     return par->mainwin();
 }
 
 
 QWidget* uiObject::qwidget()
-{ return body() ? body()->qwidget() : 0 ; }
+{
+    return body() ? body()->qwidget() : nullptr;
+}
 
 
 void uiObject::close()
@@ -673,7 +831,7 @@ int uiObject::iconSize()
     if ( iconsz_ < 0 )
     {
 	const BufferString key =
-	    IOPar::compKey( SettingsAccess::sKeyIcons(), "size" );
+		IOPar::compKey( SettingsAccess::sKeyIcons(), "size" );
 	iconsz_ = 24;
 	Settings::common().get( key, iconsz_ );
     }
@@ -703,12 +861,16 @@ void uiObject::updateToolTips()
 
 void uiObject::reParent( uiParent* p )
 {
-    if ( !p || !p->pbody() ) return;
+    if ( !p || !p->pbody() )
+	return;
+
     qwidget()->setParent( p->pbody()->managewidg() );
-    uiParentBody* b = dynamic_cast<uiParentBody*>( p->body() );
-    if ( !b ) return;
-    mBody()->reParent( b );
-    p->manageChld( *this, *mBody() );
+    uiParentBody* pb = dynamic_cast<uiParentBody*>( p->body() );
+    if ( !pb )
+	return;
+
+    objBody()->reParent( pb );
+    p->manageChld( *this, *objBody() );
 }
 
 

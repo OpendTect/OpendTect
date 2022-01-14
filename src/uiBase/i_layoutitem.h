@@ -57,8 +57,8 @@ public:
 
 protected:
 
-    bool			preferred_pos_inited_;
-    bool			minimum_pos_inited_;
+    bool			preferred_pos_inited_		= false;
+    bool			minimum_pos_inited_		= false;
 
     uiRect			layoutpos_[nLayoutMode];
 
@@ -99,10 +99,10 @@ private:
 #ifdef __debug__
     int				isPosOk(uiConstraint*,int,bool);
 #endif
-    bool			prefszdone_;
+    bool			prefszdone_		= false;
     uiSize			prefsz_;
-    bool			hsameas_;
-    bool			vsameas_;
+    bool			hsameas_		= false;
+    bool			vsameas_		= false;
 };
 
 

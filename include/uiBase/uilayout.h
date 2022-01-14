@@ -14,8 +14,8 @@ ________________________________________________________________________
 
 class i_LayoutItem;
 
-enum constraintType 
-{ 
+enum constraintType
+{
     leftOf, rightOf, //!< LeftOf/RightOf atach widgets tightly together
     leftTo, rightTo, //!< LeftTo/RightTo allow extra horizonal distance
     leftAlignedBelow, leftAlignedAbove,
@@ -28,7 +28,7 @@ enum constraintType
     leftBorder, rightBorder, topBorder, bottomBorder,
     hCentered,				//!< Centers with respect to parent
     heightSameAs, widthSameAs,
-    stretchedBelow, stretchedAbove,   //!< stretches widget to horiz. borders 
+    stretchedBelow, stretchedAbove,   //!< stretches widget to horiz. borders
     stretchedLeftTo, stretchedRightTo, //!< stretches widget to vertical borders
     atSamePosition
 };
@@ -44,12 +44,12 @@ public:
     bool		operator!=(const uiConstraint&) const;
 
     bool		enabled() const;
-    void		disable(bool yn);
+    void		disable(bool yn=true);
 
 protected:
-    constraintType      type_;
-    i_LayoutItem*       other_;
-    int                 margin_;
+    constraintType	type_;
+    i_LayoutItem*	other_;
+    int			margin_;
     bool		enabled_;
 };
 

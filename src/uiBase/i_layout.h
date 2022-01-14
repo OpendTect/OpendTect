@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include <QRect>
 
 
-class resizeItem;
+class ResizeItem;
 class Timer;
 
 //! internal enum used to determine in which direction a widget
@@ -118,20 +118,21 @@ public:
 
 private:
 
-    void		setGeometry( const mQtclass(QRect&) );
+    void		setGeometry(const mQtclass(QRect&));
 
     inline void		doLayout( LayoutMode m, const mQtclass(QRect&) r ) const
 			{ const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
     void		doLayout(LayoutMode,const mQtclass(QRect&));
 
-    void		itemDel( CallBacker* );
+    void		itemDel(CallBacker*);
 
-    void		moveChildrenTo( int , int, LayoutMode );
-    void		fillResizeList( ObjectSet<resizeItem>&, bool );
-    bool		tryToGrowItem( resizeItem&, const int, const int,
-				       int, int, const mQtclass(QRect&), int);
-    void		resizeTo( const mQtclass(QRect&) );
+    void		moveChildrenTo(int,int,LayoutMode);
+    void		fillResizeList( ObjectSet<ResizeItem>&, bool );
+    bool		tryToGrowItem(ResizeItem&,int,int,
+				      int,int,const mQtclass(QRect&),int);
+    void		resizeTo(const mQtclass(QRect&));
     void		childrenCommitGeometrySet(bool);
+    bool		isMainWinFinalized() const;
 
     uiRect		childrenRect(LayoutMode);
 
@@ -140,23 +141,22 @@ private:
     uiRect		layoutpos_[nLayoutMode];
     mQtclass(QRect)	prefgeometry_;
 
-    bool		minimumdone_;
-    bool		preferreddone_;
-    bool		prefposstored_;
-    bool		ismain_;
+    bool		minimumdone_		= false;
+    bool		preferreddone_		= false;
+    bool		prefposstored_		= false;
+    bool		ismain_			= false;
 
-    int			hspacing_;
-    int			vspacing_;
-    int			borderspc_;
+    int			hspacing_		= -1;
+    int			vspacing_		= 2;
+    int			borderspc_		= 0;
 
     uiObjectBody&	managedbody_;
 
     void		startPoptimer();
     void		popTimTick(CallBacker*);
     Timer&		poptimer_;
-    bool		poppedup_;
-    bool		timerrunning_;
+    bool		poppedup_		= false;
+    bool		timerrunning_		= false;
 
     friend class i_LayoutItem;
-
 };

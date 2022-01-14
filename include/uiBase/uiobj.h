@@ -123,15 +123,15 @@ public:
     void		attach(constraintType,uiParent*,int margin=-1,
 				bool reciprocal=true);
 
-    static void		setTabOrder(uiObject* first, uiObject* second);
+    static void		setTabOrder(uiObject* first,uiObject* second);
 
     void		setFont(const uiFont&);
     const uiFont*	font() const;
     void		setCaption(const uiString&);
 
 
-    void		shallowRedraw(CallBacker* =0)	{ reDraw( false ); }
-    void		deepRedraw(CallBacker* =0)	{ reDraw( true ); }
+    void		shallowRedraw()		{ reDraw( false ); }
+    void		deepRedraw()		{ reDraw( true ); }
     void		reDraw(bool deep);
 
     uiSize		actualSize(bool include_border=true) const;
@@ -146,11 +146,11 @@ public:
     mQtclass(QWidget*)	getWidget() override { return qwidget(); }
     mQtclass(QWidget*)	qwidget();
     const mQtclass(QWidget*)	qwidget() const
-			      { return const_cast<uiObject*>(this)->qwidget(); }
+			{ return const_cast<uiObject*>(this)->qwidget(); }
 
     virtual bool	handleLongTabletPress();
 
-    virtual const ObjectSet<uiBaseObject>* childList() const	{ return 0; }
+    virtual const ObjectSet<uiBaseObject>* childList() const { return nullptr; }
 
     Notifier<uiObject>	closed;
 			//!< Triggered when object closes.
@@ -171,13 +171,16 @@ protected:
 			uiObject(uiParent*,const char* nm);
 			uiObject(uiParent*,const char* nm,uiObjectBody&);
 
+    uiObjectBody*	objBody();
+    const uiObjectBody* objBody() const;
+
 			//! hook. Accepts/denies closing of window.
     virtual bool	closeOK()	{ closed.trigger(); return true; }
 
 			//! setGeometry should be triggered by this's layoutItem
-    void		triggerSetGeometry(const i_LayoutItem*, uiRect&);
+    void		triggerSetGeometry(const i_LayoutItem*,uiRect&);
 
-    void		updateToolTip(CallBacker* = 0);
+    void		updateToolTip(CallBacker* = nullptr);
 
     uiString		tooltip_;
 

@@ -30,17 +30,12 @@ static bool lyoutdbg = false;
 
 mUseQtnamespace
 
-#define mFinalised() ( managedbody_.uiObjHandle().mainwin()  ? \
-		     managedbody_.uiObjHandle().mainwin()->finalised() : true )
-
 i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm,
 			    uiObjectBody& mngbdy )
     : QLayout(parnt)
     , NamedCallBacker(nm)
-    , minimumdone_(false), preferreddone_(false), ismain_(false)
-    , prefposstored_(false)
-    , managedbody_(mngbdy), hspacing_(-1), borderspc_(0)
-    , poptimer_(*new Timer), poppedup_(false), timerrunning_(false)
+    , managedbody_(mngbdy)
+    , poptimer_(*new Timer)
 {
 #ifdef __debug__
     mDefineStaticLocalObject( bool, lyoutdbg_loc,
@@ -62,13 +57,22 @@ i_LayoutMngr::~i_LayoutMngr()
     detachAllNotifiers();
     for ( auto* children : childrenlist_ )
 	children->mngr_ = nullptr;
+
     delete &poptimer_;
+}
+
+
+bool i_LayoutMngr::isMainWinFinalized() const
+{
+    return managedbody_.uiObjHandle().mainwin() ?
+	managedbody_.uiObjHandle().mainwin()->finalised() : true;
 }
 
 
 void i_LayoutMngr::addItem( i_LayoutItem* itm )
 {
-    if ( !itm ) return;
+    if ( !itm )
+	return;
 
     mAttachCB( itm->objectToBeDeleted(), i_LayoutMngr::itemDel );
     childrenlist_ += itm;
@@ -81,7 +85,7 @@ void i_LayoutMngr::addItem( i_LayoutItem* itm )
     parent's manager using i_LayoutMngr::addItem( i_LayoutItem* itm )
 
 */
-void i_LayoutMngr::addItem( QLayoutItem *qItem )
+void i_LayoutMngr::addItem( QLayoutItem* qItem )
 {
     if ( qItem )
 	addItem( new i_LayoutItem(*this,*qItem) );
@@ -103,7 +107,7 @@ void i_LayoutMngr::itemDel( CallBacker* cb )
 
 QSize i_LayoutMngr::minimumSize() const
 {
-    if ( !mFinalised() )
+    if ( !isMainWinFinalized() )
 	return QSize(0,0);
 
     if ( !minimumdone_ )
@@ -155,7 +159,7 @@ QSize i_LayoutMngr::minimumSize() const
 
 QSize i_LayoutMngr::sizeHint() const
 {
-    if ( !mFinalised() )
+    if ( !isMainWinFinalized() )
 	return QSize(0, 0);
 
     if ( !preferreddone_ )
@@ -197,7 +201,7 @@ QSize i_LayoutMngr::sizeHint() const
 }
 
 
-const uiRect& i_LayoutMngr::curpos(LayoutMode lom) const
+const uiRect& i_LayoutMngr::curpos( LayoutMode lom ) const
 {
     i_LayoutItem* managedItem =
 	    const_cast<i_LayoutItem*>( managedbody_.layoutItem() );
@@ -206,7 +210,7 @@ const uiRect& i_LayoutMngr::curpos(LayoutMode lom) const
 }
 
 
-uiRect& i_LayoutMngr::curpos(LayoutMode lom)
+uiRect& i_LayoutMngr::curpos( LayoutMode lom )
 {
     i_LayoutItem* managedItem =
 	    const_cast<i_LayoutItem*>(managedbody_.layoutItem());
@@ -236,11 +240,11 @@ uiRect i_LayoutMngr::winpos( LayoutMode lom ) const
 
 
 //! \internal class used when resizing a window
-class resizeItem
+class ResizeItem
 {
 #define NR_RES_IT	3
 public:
-			resizeItem( i_LayoutItem* it, int hStre, int vStre )
+			ResizeItem( i_LayoutItem* it, int hStre, int vStre )
 			    : item( it ), hStr( hStre ), vStr( vStre )
 			    , hDelta( 0 ), vDelta( 0 )
 			    , nhiter( hStre ? NR_RES_IT : 0 )
@@ -313,7 +317,7 @@ void i_LayoutMngr::forceChildrenRedraw( uiObjectBody* cb, bool deep )
 }
 
 
-void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
+void i_LayoutMngr::fillResizeList( ObjectSet<ResizeItem>& resizeList,
 				   bool isPrefSz )
 {
     for ( int idx=0; idx<childrenlist_.size(); idx++ )
@@ -321,17 +325,22 @@ void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
 	int hs = childrenlist_[idx]->stretch(true);
 	int vs = childrenlist_[idx]->stretch(false);
 	if ( hs || vs )
-        {
+	{
 	    bool add=false;
 
-	    if ( (hs>1) || (hs==1 && !isPrefSz) )	add = true;
-	    else					hs=0;
+	    if ( (hs>1) || (hs==1 && !isPrefSz) )
+		add = true;
+	    else
+		hs=0;
 
-	    if ( (vs>1) || (vs==1 && !isPrefSz) )	add = true;
-	    else					vs=0;
+	    if ( (vs>1) || (vs==1 && !isPrefSz) )
+		add = true;
+	    else
+		vs=0;
 
-	    if ( add ) resizeList += new resizeItem( childrenlist_[idx], hs, vs);
-        }
+	    if ( add )
+		resizeList += new ResizeItem( childrenlist_[idx], hs, vs );
+	}
     }
 }
 
@@ -347,8 +356,8 @@ void i_LayoutMngr::moveChildrenTo(int rTop, int rLeft, LayoutMode lom )
 }
 
 
-bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
-				  const int maxhdelt, const int maxvdelt,
+bool i_LayoutMngr::tryToGrowItem( ResizeItem& itm,
+				  int maxhdelt, int maxvdelt,
 				  int hdir, int vdir,
 				  const QRect& targetRect, int iternr )
 {
@@ -529,7 +538,7 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
     }
 #endif
 
-    ObjectSet<resizeItem> resizeList;
+    ObjectSet<ResizeItem> resizeList;
     fillResizeList( resizeList, isprefsz );
 
     int iternr = MAX_ITER;
@@ -539,7 +548,7 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 	go_on = false;
 	for( int idx=0; idx<resizeList.size(); idx++ )
 	{
-	    resizeItem* cur = resizeList[idx];
+	    ResizeItem* cur = resizeList[idx];
 	    if ( cur && (cur->nhiter || cur->nviter))
 	    {
 		if ( tryToGrowItem( *cur, hgrow, vgrow,
@@ -559,7 +568,8 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 
 void i_LayoutMngr::setGeometry( const QRect &extRect )
 {
-    if ( !mFinalised() ) return;
+    if ( !isMainWinFinalized() )
+	return;
 
 #ifdef __debug__
     if ( lyoutdbg )
@@ -648,7 +658,8 @@ void i_LayoutMngr::layoutChildren( LayoutMode lom, bool finalLoop )
         bool child_updated = false;
 	for ( int idx=0; idx<childrenlist_.size(); idx++ )
 	{
-	   child_updated |= childrenlist_[idx]->layout( lom, iternr, finalLoop );
+	    child_updated |=
+		childrenlist_[idx]->layout( lom, iternr, finalLoop );
 	}
 
 	if ( !child_updated )		break;

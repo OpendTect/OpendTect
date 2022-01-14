@@ -35,68 +35,44 @@ mUseQtnamespace
 
 uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     : uiBody()
-    , NamedCallBacker( nm )
-    , layoutItem_( 0 )
+    , NamedCallBacker(nm)
     , parent_( parnt ? mParntBody(parnt) : 0  )
-    , font_( 0 )
-    , hStretch( mUdf(int)  )
-    , vStretch(  mUdf(int) )
-    , allowshrnk( false )
-    , is_hidden( false )
-    , finalised_( false )
-    , display_( true )
-    , display_maximized( false )
-    , pref_width_( 0 )
-    , pref_height_( 0 )
-    , pref_width_set( - 1 )
-    , pref_char_width( -1 )
-    , pref_height_set( -1 )
-    , pref_char_height( -1 )
-    , pref_width_hint( 0 )
-    , pref_height_hint( 0 )
-    , fnt_hgt( 0 )
-    , fnt_wdt( 0 )
-    , fnt_maxwdt( 0 )
-    , hszpol( uiObject::Undef )
-    , vszpol( uiObject::Undef )
-#ifdef USE_DISPLAY_TIMER
-    , displaytimer( *new Timer("Display timer"))
 {
-    displaytimer.tick.notify( mCB(this,uiObjectBody,doDisplay) );
-}
-#else
-{}
+#ifdef USE_DISPLAY_TIMER
+    displaytimer_ = new Timer( "Display timer" );
+    mAttachCB( displaytimer_->tick, uiObjectBody::doDisplay );
 #endif
+}
 
 
 uiObjectBody::~uiObjectBody()
 {
-#ifdef USE_DISPLAY_TIMER
-    delete &displaytimer;
-#endif
-    delete layoutItem_;
+    detachAllNotifiers();
+    delete layoutitem_;
 }
 
 
 void uiObjectBody::display( bool yn, bool shrink, bool maximized )
 {
     display_ = yn;
-    display_maximized = maximized;
+    display_maximized_ = maximized;
 
     if ( !display_ && shrink )
     {
 	pref_width_  = 0;
 	pref_height_ = 0;
-	is_hidden = true;
+	is_hidden_ = true;
 	qwidget()->hide();
     }
     else
     {
 #ifdef USE_DISPLAY_TIMER
-	if ( displaytimer.isActive() ) displaytimer.stop();
-	displaytimer.start( 0, true );
+	if ( displaytimer_->isActive() )
+	    displaytimer_->stop();
+
+	displaytimer_->start( 0, true );
 #else
-	doDisplay(0);
+	doDisplay( nullptr );
 #endif
     }
 }
@@ -104,21 +80,22 @@ void uiObjectBody::display( bool yn, bool shrink, bool maximized )
 
 void uiObjectBody::doDisplay( CallBacker* )
 {
-    if ( !finalised_ ) finalise();
+    if ( !finalised_ )
+	finalise();
 
     if ( display_ )
     {
-	is_hidden = false;
-	if ( display_maximized )
+	is_hidden_ = false;
+	if ( display_maximized_ )
 	    qwidget()->showMaximized();
 	else
 	    qwidget()->show();
     }
     else
     {
-	if ( !is_hidden )
+	if ( !is_hidden_ )
 	{
-	    is_hidden = true;
+	    is_hidden_ = true;
 	    qwidget()->hide();
 	}
     }
@@ -126,21 +103,33 @@ void uiObjectBody::doDisplay( CallBacker* )
 
 
 void uiObjectBody::uisetFocus()
-{ qwidget()->setFocus(); }
+{
+    qwidget()->setFocus();
+}
+
 
 bool uiObjectBody::uihasFocus() const
-{ return qwidget() ? qwidget()->hasFocus() : false; }
+{
+    return qwidget() ? qwidget()->hasFocus() : false;
+}
 
 
 void uiObjectBody::uisetSensitive( bool yn )
-{ qwidget()->setEnabled( yn ); }
+{
+    qwidget()->setEnabled( yn );
+}
+
 
 bool uiObjectBody::uisensitive() const
-{ return qwidget() ? qwidget()->isEnabled() : false; }
+{
+    return qwidget() ? qwidget()->isEnabled() : false;
+}
 
 
 bool uiObjectBody::uivisible() const
-{ return qwidget() ? qwidget()->isVisible() : false; }
+{
+    return qwidget() ? qwidget()->isVisible() : false;
+}
 
 
 void uiObjectBody::reDraw( bool deep )
@@ -151,17 +140,18 @@ void uiObjectBody::reDraw( bool deep )
 
 i_LayoutItem* uiObjectBody::mkLayoutItem( i_LayoutMngr& mngr )
 {
-    if( layoutItem_ )
-	{ pErrMsg("Already have layout itm"); return layoutItem_ ; }
+    if ( layoutitem_ )
+	{ pErrMsg("Already have layout itm"); return layoutitem_ ; }
 
-    layoutItem_ = mkLayoutItem_( mngr );
-    return layoutItem_;
+    layoutitem_ = mkLayoutItem_( mngr );
+    return layoutitem_;
 }
 
 
 void uiObjectBody::finalise()
 {
-    if ( finalised_ ) return;
+    if ( finalised_ )
+	return;
 
     uiObjHandle().preFinalise().trigger( uiObjHandle() );
     finalise_();
@@ -174,43 +164,45 @@ void uiObjectBody::finalise()
 
 void uiObjectBody::fontchanged()
 {
-    fnt_hgt = 0; fnt_wdt = 0; fnt_maxwdt = 0;
-    pref_width_hint=0;
-    pref_height_hint=0;
+    fnt_hgt_ = 0;
+    fnt_wdt_ = 0;
+    fnt_maxwdt_ = 0;
+    pref_width_hint_ = 0;
+    pref_height_hint_ = 0;
 }
 
 
 int uiObjectBody::fontHeight() const
 {
     gtFntWdtHgt();
-    return fnt_hgt;
+    return fnt_hgt_;
 }
 
 
 int uiObjectBody::fontWidth( bool max ) const
 {
     gtFntWdtHgt();
-    return max ? fnt_maxwdt : fnt_wdt;
+    return max ? fnt_maxwdt_ : fnt_wdt_;
 }
 
 
 void uiObjectBody::setHSzPol( uiObject::SzPolicy pol )
 {
-    hszpol = pol;
-    if ( pol >= uiObject::SmallMax && pol <= uiObject::WideMax )
+    hszpol_ = pol;
+    if ( pol>=uiObject::SmallMax && pol<=uiObject::WideMax )
     {
-	int vs = stretch( false, true );
-	setStretch( 2, vs);
+	const int vs = stretch( false, true );
+	setStretch( 2, vs );
     }
 }
 
 
 void uiObjectBody::setVSzPol( uiObject::SzPolicy pol )
 {
-    vszpol = pol;
-    if ( pol >= uiObject::SmallMax && pol <= uiObject::WideMax )
+    vszpol_ = pol;
+    if ( pol>=uiObject::SmallMax && pol<=uiObject::WideMax )
     {
-	int hs = stretch( true, true );
+	const int hs = stretch( true, true );
 	setStretch( hs, 2 );
     }
 }
@@ -249,78 +241,82 @@ void uiObjectBody::uisetTextColor( const OD::Color& col )
     qwidget()->setPalette( qpal );
 }
 
-#define mChkLayoutItm() if ( !layoutItem_ ) { return 0; }
 
 void uiObjectBody::getSzHint()
 {
-    if ( pref_width_hint && pref_height_hint ) return;
-    if ( pref_width_hint || pref_height_hint )
+    if ( pref_width_hint_ && pref_height_hint_ ) return;
+    if ( pref_width_hint_ || pref_height_hint_ )
 	{ pErrMsg("Only 1 defined size.."); }
 
-    uiSize sh = layoutItem_->prefSize();
+    uiSize sh = layoutitem_->prefSize();
 
-    pref_width_hint = sh.hNrPics();
-    pref_height_hint = sh.vNrPics();
+    pref_width_hint_ = sh.hNrPics();
+    pref_height_hint_ = sh.vNrPics();
 }
 
 
 int uiObjectBody::prefHNrPics() const
 {
-    if ( pref_width_ <= 0 )
+    if ( pref_width_ > 0 )
+	return pref_width_;
+
+    if ( !layoutitem_ )
+	return 0;
+
+    if ( is_hidden_ )
+	return pref_width_;
+
+    if ( pref_width_set_ >= 0 )
     {
-	if ( is_hidden )		{ return pref_width_; }
-	mChkLayoutItm();
+	const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_set_;
+    }
+    else if ( pref_char_width_ >= 0 )
+    {
+	const int fw = fontWidth();
+	if ( !fw )
+	    { pErrMsg("Font has 0 width."); return 0; }
 
-	if ( pref_width_set >= 0 )
-	    { const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_set; }
-	else if ( pref_char_width >= 0 )
+	const_cast<uiObjectBody*>(this)->pref_width_ =
+					 mNINT32( pref_char_width_ * fw );
+    }
+    else
+    {
+	const_cast<uiObjectBody*>(this)->getSzHint();
+	const int baseFldSz = uiObject::baseFldSize();
+
+	int pwc=0;
+	bool var=false;
+	switch( szPol(true) )
 	{
-	    int fw = fontWidth();
-	    if ( !fw )
-		{ pErrMsg("Font has 0 width."); return 0; }
+	    case uiObject::Small:    pwc=baseFldSz;	break;
+	    case uiObject::Medium:   pwc=2*baseFldSz+1; break;
+	    case uiObject::Wide:     pwc=4*baseFldSz+3; break;
 
-	    const_cast<uiObjectBody*>(this)->pref_width_ =
-					     mNINT32( pref_char_width * fw );
+	    case uiObject::SmallMax:
+	    case uiObject::SmallVar: pwc=baseFldSz;	var=true; break;
+
+	    case uiObject::MedMax:
+	    case uiObject::MedVar:   pwc=2*baseFldSz+1; var=true; break;
+
+	    case uiObject::WideMax:
+	    case uiObject::WideVar:  pwc=4*baseFldSz+3; var=true; break;
+	    default:
+		break;
 	}
+
+	if ( !pwc )
+	    const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_hint_;
 	else
 	{
-	    const_cast<uiObjectBody*>(this)->getSzHint();
+	    const int fw = fontWidth();
+	    if ( !fw )
+		{ pErrMsg("Font has 0 width."); }
 
-	    const int baseFldSz = uiObject::baseFldSize();
-
-	    int pwc=0;
-	    bool var=false;
-	    switch( szPol(true) )
-	    {
-		case uiObject::Small:    pwc=baseFldSz;     break;
-		case uiObject::Medium:   pwc=2*baseFldSz+1; break;
-		case uiObject::Wide:     pwc=4*baseFldSz+3; break;
-
-		case uiObject::SmallMax:
-		case uiObject::SmallVar: pwc=baseFldSz;     var=true; break;
-
-		case uiObject::MedMax:
-		case uiObject::MedVar:   pwc=2*baseFldSz+1; var=true; break;
-
-		case uiObject::WideMax:
-		case uiObject::WideVar:  pwc=4*baseFldSz+3; var=true; break;
-		default:
-		    break;
-	    }
-
-	    if ( !pwc )
-		const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_hint;
-	    else
-	    {
-		int fw = fontWidth();
-		if ( !fw )
-		    { pErrMsg("Font has 0 width."); }
-
-		int pw = var ? mMAX(pref_width_hint, fw*pwc ) : fw*pwc ;
-		const_cast<uiObjectBody*>(this)->pref_width_ = pw;
-            }
+	    const int pw = var ? (mMAX(pref_width_hint_,fw*pwc)) : fw*pwc;
+	    const_cast<uiObjectBody*>(this)->pref_width_ = pw;
 	}
     }
+
     return pref_width_;
 }
 
@@ -329,29 +325,35 @@ void uiObjectBody::setPrefWidth( int w )
 {
     if ( itemInited() )
     {
-	if( pref_width_set > 0 && pref_width_set != w )
+	if ( pref_width_set_ > 0 && pref_width_set_ != w )
 	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
 
-    pref_char_width = -1;
-    pref_width_set = w;
+    pref_char_width_ = -1;
+    pref_width_set_ = w;
     pref_width_  = 0;
     pref_height_ = 0;
 }
 
 
+float uiObjectBody::prefWidthInCharSet() const
+{
+    return pref_char_width_;
+}
+
+
 void uiObjectBody::setPrefWidthInChar( float w )
 {
-    if( itemInited() )
+    if ( itemInited() )
     {
-	if( pref_char_width != w )
+	if ( pref_char_width_ != w )
 	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
 
-    pref_width_set = -1;
-    pref_char_width = w;
+    pref_width_set_ = -1;
+    pref_char_width_ = w;
     pref_width_  = 0;
     pref_height_ = 0;
 }
@@ -372,67 +374,72 @@ void uiObjectBody::setMaximumHeight( int h )
 
 int uiObjectBody::prefVNrPics() const
 {
-    if ( pref_height_ <= 0 )
-    {
-	if ( is_hidden )		{ return pref_height_; }
-	mChkLayoutItm();
+    if ( pref_height_ > 0 )
+	return pref_height_;
 
-	if ( pref_height_set >= 0 )
-	    { const_cast<uiObjectBody*>(this)->pref_height_= pref_height_set;}
-	else if ( pref_char_height >= 0 )
+    if ( !layoutitem_ )
+	return 0;
+
+    if ( is_hidden_ )
+	return pref_height_;
+
+    if ( pref_height_set_ >= 0 )
+    {
+	const_cast<uiObjectBody*>(this)->pref_height_ = pref_height_set_;
+    }
+    else if ( pref_char_height_ >= 0 )
+    {
+	const int fh = fontHeight();
+	if ( !fh )
+	    { pErrMsg("Font has 0 height."); return 0; }
+
+	const_cast<uiObjectBody*>(this)->pref_height_ =
+					mNINT32( pref_char_height_ * fh );
+    }
+    else
+    {
+	const_cast<uiObjectBody*>(this)->getSzHint();
+
+	if ( nrTxtLines() < 0 && szPol(false) == uiObject::Undef  )
+	    const_cast<uiObjectBody*>(this)->pref_height_= pref_height_hint_;
+	else
 	{
-	    int fh = fontHeight();
+	    float lines = 1.51;
+	    if ( nrTxtLines() == 0 )
+		lines = 7;
+	    else if ( nrTxtLines() > 1 )
+		lines = nrTxtLines();
+
+	    const int baseFldSz = 1;
+	    bool var = false;
+	    switch( szPol(false) )
+	    {
+		case uiObject::Small:	 lines=baseFldSz;     break;
+		case uiObject::Medium:	 lines=2*baseFldSz+1; break;
+		case uiObject::Wide:	 lines=4*baseFldSz+3; break;
+
+		case uiObject::SmallMax:
+		case uiObject::SmallVar:
+			lines=baseFldSz; var=true; break;
+
+		case uiObject::MedMax:
+		case uiObject::MedVar:
+			lines=2*baseFldSz+1; var=true; break;
+
+		case uiObject::WideMax:
+		case uiObject::WideVar:
+			lines=4*baseFldSz+3; var=true; break;
+		default:
+		    break;
+	    }
+
+	    const int fh = fontHeight();
 	    if ( !fh )
 		{ pErrMsg("Font has 0 height."); return 0; }
 
-	    const_cast<uiObjectBody*>(this)->pref_height_ =
-					    mNINT32( pref_char_height * fh );
-	}
-	else
-	{
-	    const_cast<uiObjectBody*>(this)->getSzHint();
-
-	    if ( nrTxtLines() < 0 && szPol(false) == uiObject::Undef  )
-		const_cast<uiObjectBody*>(this)->pref_height_= pref_height_hint;
-	    else
-	    {
-		float lines = 1.51;
-		if ( nrTxtLines() == 0 )	lines = 7;
-		else if ( nrTxtLines() > 1 )	lines = nrTxtLines();
-
-		const int baseFldSz = 1;
-
-		bool var=false;
-		switch( szPol(false) )
-		{
-		    case uiObject::Small:    lines=baseFldSz;     break;
-		    case uiObject::Medium:   lines=2*baseFldSz+1; break;
-		    case uiObject::Wide:     lines=4*baseFldSz+3; break;
-
-		    case uiObject::SmallMax:
-		    case uiObject::SmallVar:
-			    lines=baseFldSz; var=true; break;
-
-		    case uiObject::MedMax:
-		    case uiObject::MedVar:
-			    lines=2*baseFldSz+1; var=true; break;
-
-		    case uiObject::WideMax:
-		    case uiObject::WideVar:
-			    lines=4*baseFldSz+3; var=true; break;
-		    default:
-			break;
-		}
-
-
-		int fh = fontHeight();
-		if ( !fh )
-		    { pErrMsg("Font has 0 height."); return 0; }
-
-		int phc = mNINT32( lines * fh);
-		const_cast<uiObjectBody*>(this)->pref_height_=
-				var ? mMAX(pref_height_hint, phc ) : phc ;
-	    }
+	    const int phc = mNINT32( lines * fh);
+	    const int ph = var ? (mMAX(pref_height_hint_,phc)) : phc;
+	    const_cast<uiObjectBody*>(this)->pref_height_ = ph;
 	}
     }
 
@@ -442,31 +449,41 @@ int uiObjectBody::prefVNrPics() const
 
 void uiObjectBody::setPrefHeight( int h )
 {
-    if( itemInited() )
+    if ( itemInited() )
     {
-	if( pref_height_set != h )
-	    { pErrMsg("Not allowed when finalized."); }
+	if ( pref_height_set_ != h )
+	{
+	    pErrMsg("Not allowed when finalized.");
+	}
 	return;
     }
 
-    pref_char_height = -1;
-    pref_height_set = h;
+    pref_char_height_ = -1;
+    pref_height_set_ = h;
     pref_width_  = 0;
     pref_height_ = 0;
 }
 
 
+float uiObjectBody::prefHeightInCharSet() const
+{
+    return pref_char_height_;
+}
+
+
 void uiObjectBody::setPrefHeightInChar( float h )
 {
-    if( itemInited() )
+    if ( itemInited() )
     {
-	if( pref_char_height != h )
-	    { pErrMsg("Not allowed when finalized."); }
+	if ( pref_char_height_ != h )
+	{
+	    pErrMsg("Not allowed when finalized.");
+	}
 	return;
     }
 
-    pref_height_set = -1;
-    pref_char_height = h;
+    pref_height_set_ = -1;
+    pref_char_height_ = h;
     pref_width_  = 0;
     pref_height_ = 0;
 }
@@ -474,30 +491,31 @@ void uiObjectBody::setPrefHeightInChar( float h )
 
 void uiObjectBody::setStretch( int hor, int ver )
 {
-    if( itemInited() )
+    if ( itemInited() )
     {
-	if( hStretch != hor || vStretch != ver )
+	if ( hstretch != hor || vstretch != ver )
 	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
 
-    hStretch = hor;
-    vStretch = ver;
+    hstretch = hor;
+    vstretch = ver;
 }
 
 
-int uiObjectBody::stretch( bool hor, bool retUndef ) const
+int uiObjectBody::stretch( bool hor, bool retundef ) const
 {
-    int s = hor ? hStretch : vStretch;
-    if ( retUndef ) return s;
+    const int str = hor ? hstretch : vstretch;
+    if ( retundef )
+	return str;
 
-    return mIsUdf(s) ? 0 : s;
+    return mIsUdf(str) ? 0 : str;
 }
 
 
 uiSize uiObjectBody::actualSize( bool include_border ) const
 {
-    return layoutItem_->actualSize( include_border );
+    return layoutitem_->actualSize( include_border );
 }
 
 
@@ -507,16 +525,20 @@ void uiObjectBody::setToolTip( const uiString& txt )
 }
 
 
-void uiObjectBody::uisetCaption( const uiString& str )
-    { qwidget()->setWindowTitle( toQString(str) ); }
+void uiObjectBody::setCaption( const uiString& str )
+{
+    qwidget()->setWindowTitle( toQString(str) );
+}
+
 
 i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
-    { return new i_uiLayoutItem( mngr , *this ); }
-
+{
+    return new i_uiLayoutItem( mngr , *this );
+}
 
 
 /*!
-    attaches to parent if other=0
+    attaches to parent if other=nullptr
 */
 void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin,
 			    bool reciprocal )
@@ -524,6 +546,14 @@ void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin,
 //    parent_->attachChild( tp, this, other, margin );
     parent_->attachChild( tp, &uiObjHandle(), other, margin, reciprocal );
 }
+
+
+void uiObjectBody::attach( constraintType tp, uiParent* other, int margin,
+			   bool reciprocal )
+{
+    attach( tp, other->mainObject(), margin, reciprocal );
+}
+
 
 const uiFont* uiObjectBody::uifont() const
 {
@@ -553,7 +583,7 @@ int uiObjectBody::fontWidthFor( const uiString& str ) const
 	gtFntWdtHgt();
 	QString qstr;
 	str.fillQString( qstr );
-	return qstr.size() * fnt_wdt;
+	return qstr.size() * fnt_wdt_;
     }
 
     return mGetTextWidth(qw->fontMetrics(),toQString(str));
@@ -564,7 +594,7 @@ int uiObjectBody::fontWidthFor( const char* str ) const
 {
     const QWidget* qw = qwidget();
     if ( !qw )
-	{ gtFntWdtHgt(); return strlen(str) * fnt_wdt; }
+	{ gtFntWdtHgt(); return strlen(str) * fnt_wdt_; }
 
     return mGetTextWidth(qw->fontMetrics(),QString(str));
 }
@@ -572,29 +602,37 @@ int uiObjectBody::fontWidthFor( const char* str ) const
 
 bool uiObjectBody::itemInited() const
 {
-    return layoutItem_ ? layoutItem_->inited() : false;
+    return layoutitem_ ? layoutitem_->inited() : false;
 }
 
 
 void uiObjectBody::gtFntWdtHgt() const
 {
-    if ( fnt_hgt && fnt_wdt && fnt_maxwdt )
+    if ( fnt_hgt_!=0 && fnt_wdt_!=0 && fnt_maxwdt_!=0 )
 	return;
 
     uiObjectBody& self = *const_cast<uiObjectBody*>(this);
 
     QFont qft = QFont();
     QFontMetrics qfm( qft );
-    self.fnt_hgt = qfm.lineSpacing() + 2;
-    self.fnt_wdt = mGetTextWidth(qfm,QChar('x'));
+    self.fnt_hgt_ = qfm.lineSpacing() + 2;
+    self.fnt_wdt_ = mGetTextWidth(qfm,QChar('x'));
 
-    self.fnt_maxwdt = qfm.maxWidth();
+    self.fnt_maxwdt_ = qfm.maxWidth();
 
-    if ( fnt_hgt<=0 || fnt_hgt>100 )
-	{ pErrMsg( "Font heigt no good. Taking 15." ); self.fnt_hgt = 15; }
-    if ( fnt_wdt<=0 || fnt_wdt>100 )
-	{ pErrMsg( "Font width no good. Taking 10." ); self.fnt_wdt = 10; }
-    if ( fnt_maxwdt<=0 || fnt_maxwdt>100 )
+    if ( fnt_hgt_<=0 || fnt_hgt_>100 )
+    {
+	pErrMsg( "Font height not good. Taking 15." );
+	self.fnt_hgt_ = 15;
+    }
+
+    if ( fnt_wdt_<=0 || fnt_wdt_>100 )
+    {
+	pErrMsg( "Font width not good. Taking 10." );
+	self.fnt_wdt_ = 10;
+    }
+
+    if ( fnt_maxwdt_<=0 || fnt_maxwdt_>100 )
     {
 	for ( char idx=32; idx<127; idx++ )
 	{
@@ -602,12 +640,15 @@ void uiObjectBody::gtFntWdtHgt() const
 	    if ( ch.isPrint() )
 	    {
 		const int width = mGetTextWidth(qfm,ch);
-		if ( width>self.fnt_maxwdt )
-		    self.fnt_maxwdt = width;
+		if ( width>self.fnt_maxwdt_ )
+		    self.fnt_maxwdt_ = width;
 	    }
 	}
 
-	if ( fnt_maxwdt<=0 )
-	    { pErrMsg( "Font maxwidth no good -> 15." ); self.fnt_maxwdt = 15; }
+	if ( fnt_maxwdt_<=0 )
+	{
+	    pErrMsg( "Font maxwidth not good -> 15." );
+	    self.fnt_maxwdt_ = 15;
+	}
     }
 }

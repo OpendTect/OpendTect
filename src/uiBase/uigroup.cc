@@ -63,13 +63,13 @@ public:
 
     virtual const QWidget*	qwidget_() const { return this; }
 
-    virtual void		reDraw( bool deep );
+    virtual void		reDraw(bool deep);
     void			setPrntBody( uiGroupParentBody* pb )
 				{ prntbody_ = pb; }
 
-    virtual int			stretch( bool hor, bool ) const;
+    virtual int			stretch(bool hor,bool) const;
 
-    uiGroupParentBody*		prntbody_;
+    uiGroupParentBody*		prntbody_		= nullptr;
 
     // Hack: Prevents scenewindow movements while trying to rotate
     virtual void		mouseMoveEvent(QMouseEvent*)	{}
@@ -103,8 +103,8 @@ public:
 
     virtual		~uiGroupParentBody()
 			{
-			    handle_.body_ = 0;
-			    if( lomngr_) { delete lomngr_; lomngr_=0; }
+			    handle_.body_ = nullptr;
+			    delete lomngr_;
 			}
 
     void		setHSpacing( int space )
@@ -121,14 +121,14 @@ public:
 
 
     void		setIsMain( bool yn )
-			    { if( lomngr_ ) lomngr_->setIsMain( yn ); }
+			    { if ( lomngr_ ) lomngr_->setIsMain( yn ); }
 
     void		updatedAlignment(LayoutMode m )
-			    { if( lomngr_ ) lomngr_->updatedAlignment(m); }
+			    { if ( lomngr_ ) lomngr_->updatedAlignment(m); }
 
 
     void		layoutChildren(LayoutMode m )
-			    { if( lomngr_ ) lomngr_->layoutChildren(m); }
+			    { if ( lomngr_ ) lomngr_->layoutChildren(m); }
 
     uiGroup&		handle_;
 
@@ -164,7 +164,7 @@ protected:
 
     void		mngrDel( CallBacker* cb )
 			{
-			    if( cb == lomngr_ )
+			    if ( cb == lomngr_ )
 				lomngr_ = 0;
 			    else
 				{ pErrMsg("huh?"); }
@@ -192,10 +192,14 @@ uiGroupParentBody::uiGroupParentBody( uiGroup& hndle, uiGroupObjBody& objbdy,
 
 void uiGroupParentBody::setHCenterObj( uiObject* obj )
 {
-    if( !obj ||( lomngr_ && lomngr_->isChild(obj)) ) { hcenterobj_ = obj; return; }
+    if ( !obj ||( lomngr_ && lomngr_->isChild(obj)) )
+    {
+	hcenterobj_ = obj;
+	return;
+    }
 
 #ifdef __debug__
-    if( objbody_.layoutItem() && objbody_.layoutItem()->isAligned() )
+    if ( objbody_.layoutItem() && objbody_.layoutItem()->isAligned() )
     {
 	BufferString msg;
 	msg = "Set ";
@@ -216,12 +220,12 @@ void uiGroupParentBody::setHCenterObj( uiObject* obj )
 */
 
     uiGroup* objpar = dynamic_cast<uiGroup*>(obj->parent());
-    if( objpar && lomngr_ && lomngr_->isChild(objpar->mainObject()) )
+    if ( objpar && lomngr_ && lomngr_->isChild(objpar->mainObject()) )
     { // good. the object's parent is a child of this group ;-))
-	if( !objpar->hCenterObj() )
+	if ( !objpar->hCenterObj() )
 	    objpar->setHCenterObj(obj);
 
-	if( obj == objpar->hCenterObj() )
+	if ( obj == objpar->hCenterObj() )
 	{
 	    hcenterobj_ = objpar->mainObject();
 	    return;
@@ -240,10 +244,14 @@ void uiGroupParentBody::setHCenterObj( uiObject* obj )
 
 void uiGroupParentBody::setHAlignObj( uiObject* obj )
 {
-    if( !obj || (lomngr_ && lomngr_->isChild(obj)) ) { halignobj_ = obj; return; }
+    if ( !obj || (lomngr_ && lomngr_->isChild(obj)) )
+    {
+	halignobj_ = obj;
+	return;
+    }
 
 #ifdef __debug__
-    if( objbody_.layoutItem() && objbody_.layoutItem()->isAligned() )
+    if ( objbody_.layoutItem() && objbody_.layoutItem()->isAligned() )
     {
 	BufferString msg;
 	msg = "Set ";
@@ -257,12 +265,12 @@ void uiGroupParentBody::setHAlignObj( uiObject* obj )
 #endif
 
     uiGroup* objpar = dynamic_cast<uiGroup*>(obj->parent());
-    if( objpar && lomngr_ && lomngr_->isChild(objpar->mainObject()) )
+    if ( objpar && lomngr_ && lomngr_->isChild(objpar->mainObject()) )
     { // good. the object's parent is a child of this group ;-))
-	if( !objpar->hAlignObj() )
+	if ( !objpar->hAlignObj() )
 	    objpar->setHAlignObj(obj);
 
-	if( obj == objpar->hAlignObj() )
+	if ( obj == objpar->hAlignObj() )
 	{
 	    halignobj_ = objpar->mainObject();
 	    return;
@@ -297,14 +305,14 @@ uiGroupObjBody::uiGroupObjBody( uiGroupObj& hndle, uiParent* parnt,
 				    const char* nm )
     : uiObjectBody( parnt, nm )
     , QFrame( parnt && parnt->pbody() ?  parnt->pbody()->managewidg() : 0 )
-    , handle_( hndle )
     , prntbody_( 0 )
+    , handle_( hndle )
 {}
 
 
 void uiGroupObjBody::reDraw( bool deep )
 {
-    prntbody_->handle_.reDraw_(deep);
+    prntbody_->handle_.reDraw_( deep );
     prntbody_->lomngr_->forceChildrenRedraw( this, deep );
     uiObjectBody::reDraw( deep ); // calls qWidget().update()
 }
@@ -312,27 +320,32 @@ void uiGroupObjBody::reDraw( bool deep )
 
 int uiGroupObjBody::stretch( bool hor, bool ) const
 {
-    int s = uiObjectBody::stretch( hor, true ); // true: can be undefined
-    if( !mIsUdf(s) ) return s;
+    int strtch = uiObjectBody::stretch( hor, true ); // true: can be undefined
+    if ( !mIsUdf(strtch) )
+	return strtch;
 
-    if( prntbody_->lomngr_ )
+    if ( !prntbody_->lomngr_ )
+	return 0;
+
+    strtch = prntbody_->lomngr_->childStretch( hor );
+    if ( strtch>=0 && strtch<=2  )
     {
-	s = prntbody_->lomngr_->childStretch( hor );
-	if( s>=0 && s<=2  )
-	{
-	    if( hor )	const_cast<uiGroupObjBody*>(this)->hStretch = s;
-	    else	const_cast<uiGroupObjBody*>(this)->vStretch = s;
+	if ( hor )
+	    const_cast<uiGroupObjBody*>(this)->hstretch = strtch;
+	else
+	    const_cast<uiGroupObjBody*>(this)->vstretch = strtch;
 
-	    return s;
-	}
+	return strtch;
     }
+
     return 0;
 }
+
 
 i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mgr )
 {
 #ifdef __debug__
-    if( !prntbody_ )
+    if ( !prntbody_ )
 	{ pErrMsg("Duh. No parentbody yet."); return 0; }
 #endif
     i_uiGroupLayoutItem* loitm =
@@ -392,35 +405,40 @@ void i_uiGroupLayoutItem::updatedAlignment( LayoutMode m )
 
 void i_uiGroupLayoutItem::initChildLayout( LayoutMode m )
 {
-     if( loMngr() ) loMngr()->initChildLayout(m);
+     if ( loMngr() )
+	loMngr()->initChildLayout(m);
 }
 
 
 i_LayoutMngr* i_uiGroupLayoutItem::loMngr()
-    { return grpprntbody.lomngr_; }
+{
+    return grpprntbody.lomngr_;
+}
+
 
 int i_uiGroupLayoutItem::horAlign( LayoutMode m ) const
 {
-    int myleft = curpos(m).left();
+    const int myleft = curpos(m).left();
 
-    if( grpprntbody.halignobj_ )
+    if ( grpprntbody.halignobj_ )
     {
 	const i_LayoutItem* halignitm = 0;
-	mDynamicCastGet(uiObjectBody*,halobjbody,grpprntbody.halignobj_->body());
+	mDynamicCastGet(uiObjectBody*,halobjbody,
+			grpprntbody.halignobj_->body());
 
-	if( halobjbody ) halignitm = halobjbody->layoutItem();
+	if ( halobjbody )
+	    halignitm = halobjbody->layoutItem();
 
-	if( halignitm )
+	if ( halignitm )
 	{
-	    if( horalign[m] < 0 )
+	    if ( horalign[m] < 0 )
 	    {
 		const_cast<i_uiGroupLayoutItem*>(this)->updatedAlignment(m);
-
 		grpprntbody.layoutChildren(m);
-
 		const_cast<i_uiGroupLayoutItem*>(this)->horalign[m] =
 						halignitm->horAlign( m );
 	    }
+
 	    return horalign[m] + myleft;
 	}
     }
@@ -431,22 +449,26 @@ int i_uiGroupLayoutItem::horAlign( LayoutMode m ) const
 
 int i_uiGroupLayoutItem::center(LayoutMode m, bool hor) const
 {
-    if( !hor ) return ( curpos(m).top() + curpos(m).bottom() ) / 2;
+    if ( !hor )
+	return ( curpos(m).top() + curpos(m).bottom() ) / 2;
 
-    if( grpprntbody.hcenterobj_ )
+    if ( grpprntbody.hcenterobj_ )
     {
 	const i_LayoutItem* hcenteritm = 0;
-	mDynamicCastGet(uiObjectBody*,hcobjbody,grpprntbody.hcenterobj_->body());
+	mDynamicCastGet(uiObjectBody*,hcobjbody,grpprntbody.hcenterobj_->body())
 
-	if( hcobjbody ) hcenteritm = hcobjbody->layoutItem();
+	if ( hcobjbody )
+	    hcenteritm = hcobjbody->layoutItem();
 
-	if( hcenteritm ) return hcenteritm->center(m);
+	if ( hcenteritm )
+	    return hcenteritm->center(m);
     }
 
     return ( curpos(m).left() + curpos(m).right() ) / 2;
 }
 
 
+// uiGroup
 uiGroup::uiGroup( uiParent* parnt, const char* nm, bool manage )
     : uiParent( nm, 0 )
     , grpobj_( 0 )
@@ -456,7 +478,7 @@ uiGroup::uiGroup( uiParent* parnt, const char* nm, bool manage )
     uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
 
 #ifdef __debug__
-    if( !grpbdy )
+    if ( !grpbdy )
 	{ pErrMsg("Huh"); return; }
 #endif
 
@@ -483,8 +505,8 @@ uiGroup::uiGroup( uiParent* parnt, const char* nm, bool manage )
 
 uiGroup::~uiGroup()
 {
-    if( grpobj_ ) { grpobj_->uigrp_ = 0; delete grpobj_; }
-    if( body_ )
+    if ( grpobj_ ) { grpobj_->uigrp_ = 0; delete grpobj_; }
+    if ( body_ )
     {
 	uiGroupParentBody* bd = body_;
 	body_ = 0;
@@ -496,7 +518,7 @@ uiGroup::~uiGroup()
 
 void uiGroup::bodyDel( CallBacker* cb )
 {
-    if( body_ == cb )
+    if ( body_ == cb )
 	body_ = 0;
     else
         { pErrMsg("huh?"); }
@@ -505,7 +527,7 @@ void uiGroup::bodyDel( CallBacker* cb )
 
 void uiGroup::uiobjDel( CallBacker* cb )
 {
-    if( cb == grpobj_ )
+    if ( cb == grpobj_ )
 	grpobj_ = 0;
     else
         { pErrMsg("huh?"); }
@@ -515,7 +537,7 @@ void uiGroup::uiobjDel( CallBacker* cb )
 void uiGroup::setShrinkAllowed( bool yn )
 {
     uiObjectBody* bdy = dynamic_cast<uiObjectBody*>(mainObject()->body());
-    if( bdy ) bdy->setShrinkAllowed(yn);
+    if ( bdy ) bdy->setShrinkAllowed(yn);
 }
 
 
@@ -529,7 +551,7 @@ bool uiGroup::shrinkAllowed()
 void uiGroup::attach_( constraintType c, uiObject *other, int margin,
 		       bool reciprocal )
 {
-    if( (c == heightSameAs ) || (c == widthSameAs ) )
+    if ( (c == heightSameAs ) || (c == widthSameAs ) )
     {
 	BufferString msg((c == heightSameAs ) ? "heightSameAs":"widthSameAs" );
 	msg += " not allowed for group ";
@@ -559,7 +581,7 @@ uiObject* uiGroup::hAlignObj()
 
 void uiGroup::setFrame( bool yn )
 {
-    if( !yn )
+    if ( !yn )
 	setFrameStyle( QFrame::NoFrame );
     else
     {
@@ -598,6 +620,7 @@ void uiGroup::setSize( const uiSize& sz )
 {
     if ( sz.width() <= 0 || sz.height() <= 0 )
 	return;
+
     const int oldwidth = mainObject()->width();
     const int oldheight = mainObject()->height();
     if ( !oldwidth || !oldheight )
@@ -641,7 +664,8 @@ void uiGroup::reSizeChildren( const uiObject* obj, float wfac, float hfac )
 uiGroup* uiGroup::gtDynamicCastToGrp( QWidget* widg )
 {
     uiGroupObjBody* body = dynamic_cast<uiGroupObjBody*>( widg );
-    if ( !body || !body->prntbody_ ) return 0;
+    if ( !body || !body->prntbody_ )
+	return nullptr;
 
     return &body->prntbody_->handle_;
 }
@@ -664,20 +688,25 @@ uiGroupObj::uiGroupObj( uiGroup* bud, uiParent* parnt , const char* nm,
 
 uiGroupObj::~uiGroupObj()
 {
-    if ( uigrp_ )
-	{ uigrp_->grpobj_ = 0; delete uigrp_; }
     detachAllNotifiers();
+    if ( uigrp_ )
+    {
+	uigrp_->grpobj_ = nullptr;
+	delete uigrp_;
+    }
 }
 
 
 const ObjectSet<uiBaseObject>* uiGroupObj::childList() const
-{ return uigrp_ ? uigrp_->childList() : 0; }
+{
+    return uigrp_ ? uigrp_->childList() : nullptr;
+}
 
 
 void uiGroupObj::bodyDel( CallBacker* cb )
 {
     if ( body_ == cb )
-	body_ = 0;
+	body_ = nullptr;
     else
 	{ pErrMsg("huh?"); }
 }
@@ -686,7 +715,7 @@ void uiGroupObj::bodyDel( CallBacker* cb )
 void uiGroupObj::grpDel( CallBacker* cb )
 {
     if ( cb == uigrp_ )
-	uigrp_ = 0;
+	uigrp_ = nullptr;
     else
 	{ pErrMsg("huh?"); }
 }

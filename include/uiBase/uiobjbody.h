@@ -59,14 +59,14 @@ public:
 
     int			prefHNrPics() const;
     void		setPrefWidth(int);
-    float		prefWidthInCharSet() const  { return pref_char_width; }
+    float		prefWidthInCharSet() const;
     void		setPrefWidthInChar(float);
     void		setMinimumWidth(int);
     void		setMaximumWidth(int);
 
     int			prefVNrPics() const;
     void		setPrefHeight(int);
-    float		prefHeightInCharSet() const { return pref_char_height; }
+    float		prefHeightInCharSet() const;
     void		setPrefHeightInChar(float);
     void		setMinimumHeight(int);
     void		setMaximumHeight(int);
@@ -76,11 +76,10 @@ public:
 
     virtual int		nrTxtLines() const	{ return -1; }
 
-    void		attach(constraintType,uiObject* other=0,
+    void		attach(constraintType,uiObject* other=nullptr,
 			       int margin=-1,bool reciprocal=true);
-    void		attach(constraintType t,uiParent* other=0,
-			       int m=-1,bool r=true)
-			{ attach(t,other->mainObject(),m,r ); }
+    void		attach(constraintType,uiParent* other=nullptr,
+			       int margin=-1,bool reciprocal=true);
 
     void		uisetFont(const uiFont&);
     const uiFont*	uifont() const;
@@ -92,13 +91,16 @@ public:
     virtual uiSize	minimumSize() const
 			{ return uiSize(mUdf(int),mUdf(int)); }
 
-    void		uisetCaption(const uiString&);
+    mDeprecated("Use setCaption")
+    void		uisetCaption( const uiString& capt )
+			{ setCaption( capt ); }
+    void		setCaption(const uiString&);
 
     virtual void	reDraw(bool);
 
-    virtual uiObject&	uiObjHandle()		=0;
+    virtual uiObject&	uiObjHandle()		= 0;
 
-    const i_LayoutItem*	layoutItem()		{ return layoutItem_; }
+    const i_LayoutItem* layoutItem() const	{ return layoutitem_; }
     i_LayoutItem*	mkLayoutItem(i_LayoutMngr&);
 
     virtual void	finalise();
@@ -114,68 +116,67 @@ public:
     void		setHSzPol(uiObject::SzPolicy);
     void		setVSzPol(uiObject::SzPolicy);
     uiObject::SzPolicy	szPol(bool hor=true) const
-			{ return hor ? hszpol: vszpol ; }
+			{ return hor ? hszpol_: vszpol_ ; }
 
-    void		setShrinkAllowed(bool yn) { allowshrnk = yn; }
-    bool		shrinkAllowed()		{ return allowshrnk; }
+    void		setShrinkAllowed( bool yn )	{ allowshrnk_ = yn; }
+    bool		shrinkAllowed()			{ return allowshrnk_; }
 
-    bool		isHidden()		{ return is_hidden; }
+    bool		isHidden()			{ return is_hidden_; }
     bool		itemInited() const;
 
-    void		reParent(uiParentBody* pb)
+    void		reParent( uiParentBody* pb )
 			{ if ( pb ) parent_ = pb; }
 
 protected:
 
-    int			hStretch;
-    int			vStretch;
+    int			hstretch		= mUdf(int);
+    int			vstretch		= mUdf(int);
 
     virtual const mQtclass(QWidget*) managewidg_() const { return qwidget_(); }
 
     virtual i_LayoutItem* mkLayoutItem_(i_LayoutMngr& mngr);
 
-    virtual void	finalise_()             {}
+    virtual void	finalise_()		{}
 
     void		doDisplay(CallBacker*);
 
-    void		loitemDeleted()		{ layoutItem_ = 0; }
+    void		loitemDeleted()		{ layoutitem_ = nullptr; }
 
 private:
 
-    i_LayoutItem*	layoutItem_;
+    i_LayoutItem*	layoutitem_		= nullptr;
     uiParentBody*	parent_;
-    const uiFont*	font_;
+    const uiFont*	font_			= nullptr;
 
-    bool		allowshrnk;
+    bool		allowshrnk_		= false;
 
-    bool		is_hidden;
-    bool		finalised_;
-    bool		display_;
-    bool		display_maximized;
+    bool		is_hidden_		= false;
+    bool		finalised_		= false;
+    bool		display_		= true;
+    bool		display_maximized_	= false;
 
-    int			pref_width_;
-    int			pref_height_;
+    int			pref_width_		= 0;
+    int			pref_height_		= 0;
 
-    int			pref_width_set;
-    float		pref_char_width;
-    int			pref_height_set;
-    float		pref_char_height;
-    int			pref_width_hint;
-    int			pref_height_hint;
+    int			pref_width_set_		= -1;
+    float		pref_char_width_	= -1.f;
+    int			pref_height_set_	= -1;
+    float		pref_char_height_	= -1.f;
+    int			pref_width_hint_	= 0;
+    int			pref_height_hint_	= 0;
 
-    int			fnt_hgt;
-    int			fnt_wdt;
-    int			fnt_maxwdt;
-    mQtclass(QFontMetrics*)	fm;
+    int			fnt_hgt_		= 0;
+    int			fnt_wdt_		= 0;
+    int			fnt_maxwdt_		= 0;
 
-    uiObject::SzPolicy	hszpol;
-    uiObject::SzPolicy	vszpol;
+    uiObject::SzPolicy	hszpol_			= uiObject::Undef;
+    uiObject::SzPolicy	vszpol_			= uiObject::Undef;
 
     void		gtFntWdtHgt() const;
     void		getSzHint();
 
 #ifdef USE_DISPLAY_TIMER
-    Timer&		displaytimer;
+    Timer*		displaytimer_		= nullptr;
 #endif
 };
 
