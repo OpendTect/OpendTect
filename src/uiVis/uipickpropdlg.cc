@@ -206,7 +206,10 @@ uiSeedPainterDlg::uiSeedPainterDlg( uiParent* p,
 
 
 uiSeedPainterDlg::~uiSeedPainterDlg()
-{ seedpainter_->unRef(); }
+{
+    seedpainter_->unRef();
+}
+
 
 void uiSeedPainterDlg::sizeCB( CallBacker* )
 {
