@@ -58,6 +58,8 @@ public:
 				const char*& errmsg_if_expression_is_incorrect,
 				bool caseinsens);
 
+    static void		validateFilterString(BufferString&);
+
 protected:
 
     BufferString	expr_;

@@ -191,3 +191,15 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
 
     return matched;
 }
+
+
+void GlobExpr::validateFilterString( BufferString& filt )
+{
+    if ( filt.isEmpty() )
+	filt = "*";
+    else if ( !filt.contains("*") )
+    {
+	filt.insertAt( 0, "*" );
+	filt.add( "*" );
+    }
+}

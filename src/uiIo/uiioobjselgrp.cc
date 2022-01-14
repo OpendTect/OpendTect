@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "ascstream.h"
 #include "ctxtioobj.h"
+#include "globexpr.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -172,6 +173,7 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     postFinalise().notify( mCB(this,uiIOObjSelGrp,setInitial) );
 }
 
+
 uiObject* uiIOObjSelGrp::getFilterFieldAttachObj()
 {
     return ctxtfiltfld_ ? ctxtfiltfld_ : filtfld_->attachObj();
@@ -185,7 +187,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     uiListBox::Setup su( setup_.choicemode_, seltxt );
     listfld_ = new uiListBox( topgrp_, su, "Objects" );
 
-    filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter(), "*" );
+    filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter() );
     filtfld_->setElemSzPol( uiObject::SmallVar );
     filtfld_->updateRequested.notify( mCB(this,uiIOObjSelGrp,filtChg) );
     const BufferString withctxtfilter( setup_.withctxtfilter_ );
@@ -624,8 +626,8 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     const IODir iodir ( ctio_.ctxt_.getSelKey() );
     IODirEntryList del( iodir, ctio_.ctxt_ );
     BufferString nmflt = filtfld_->text();
-    if ( !nmflt.isEmpty() && nmflt != "*" )
-	del.fill( iodir, nmflt );
+    GlobExpr::validateFilterString( nmflt );
+    del.fill( iodir, nmflt );
 
     mDefineStaticLocalObject( const bool, icsel_,
 			      = Settings::common().isTrue("Ui.Icons.ObjSel") );

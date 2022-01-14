@@ -323,7 +323,10 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
     const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
     const IODir iodir( mid );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    GlobExpr* ge = filter && *filter ? new GlobExpr( filter ) : 0;
+
+    BufferString filterstr = filter;
+    GlobExpr::validateFilterString( filterstr );
+    GlobExpr ge( filterstr );
 
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
@@ -348,7 +351,7 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	    continue;
 
 	const char* ioobjnm = ioobj.name().buf();
-	if ( ge && !ge->matches(ioobjnm) )
+	if ( !ge.matches(ioobjnm) )
 	    continue;
 
 	if ( onlymulticomp_ )

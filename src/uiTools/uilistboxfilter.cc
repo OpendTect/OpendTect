@@ -14,9 +14,9 @@ ________________________________________________________________________
 
 
 uiListBoxFilter::uiListBoxFilter( uiListBox& lb, bool above )
-    : uiGenInput(&lb,uiStrings::sFilter(),StringInpSpec("*"))
-    , lb_(lb)
+    : uiGenInput(&lb,uiStrings::sFilter(),StringInpSpec(""))
     , newFilter(this)
+    , lb_(lb)
 {
     if ( lb_.isMultiChoice() && above )
 	attach( rightOf, lb_.checkGroup() );
@@ -46,8 +46,9 @@ void uiListBoxFilter::setItems( const BufferStringSet& nms )
     getChosen( chosennms );
     lb_.setEmpty();
 
-    const char* filt = text();
-    GlobExpr ge( filt && *filt ? filt : "*" );
+    BufferString filt = text();
+    GlobExpr::validateFilterString( filt );
+    GlobExpr ge( filt.buf() );
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	const char* itm = nms.get(idx).buf();

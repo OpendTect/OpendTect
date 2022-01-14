@@ -341,9 +341,10 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->attach( rightOf, selgrp_ );
     setPreloadIcon( steeroutfld_, attrinf_->steerids_ );
 
-    filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
+    filtfld_ = new uiGenInput( this, uiStrings::sFilter() );
     filtfld_->attach( centeredAbove, storoutfld_ );
     filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
+
     compfld_ = new uiLabeledComboBox( this, tr("Component"), "Compfld" );
     compfld_->box()->setStretch( 2, 0 );
     compfld_->attach( alignedBelow, storoutfld_ );
@@ -424,9 +425,10 @@ void uiAttrSelDlg::selDone( CallBacker* c )
 }
 
 
-void uiAttrSelDlg::filtChg( CallBacker* c )
+void uiAttrSelDlg::filtChg( CallBacker* cb )
 {
-    if ( !storoutfld_ || !filtfld_ ) return;
+    if ( !storoutfld_ || !filtfld_ )
+	return;
 
     const bool issteersel = selType() == 1;
     uiListBox* outfld = issteersel ? steeroutfld_ : storoutfld_;
@@ -438,11 +440,11 @@ void uiAttrSelDlg::filtChg( CallBacker* c )
 
     outfld->addItems( nms );
     outfld->setCurrentItem( 0 );
-    cubeSel( c );
+    cubeSel( cb );
 }
 
 
-void uiAttrSelDlg::cubeSel( CallBacker* c )
+void uiAttrSelDlg::cubeSel( CallBacker* )
 {
     if ( !storoutfld_ ) return;
 
