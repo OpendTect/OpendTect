@@ -11,14 +11,12 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "i_qlistbox.h"
 
-#include "uibuttongroup.h"
 #include "uifont.h"
 #include "uiicon.h"
 #include "uilabel.h"
 #include "uimenu.h"
 #include "uiobjbodyimpl.h"
 #include "uipixmap.h"
-#include "uiseparator.h"
 #include "uitoolbutton.h"
 
 #include "bufstringset.h"
@@ -29,7 +27,6 @@ ________________________________________________________________________
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QStyledItemDelegate>
-#include <QAbstractButton>
 
 static const int cIconSz = 16;
 int uiListBox::cDefNrLines()	{ return 7; }
@@ -43,6 +40,7 @@ public:
 ListBoxPixmapDelegate( QObject* qobj )
     : QStyledItemDelegate(qobj)
 {}
+
 
 void paint( QPainter* painter, const QStyleOptionViewItem& option,
 	    const QModelIndex& index) const
@@ -74,7 +72,6 @@ uiListBoxItem( const QString& txt )
 class uiListBoxBody : public uiObjBodyImpl<uiListBoxObj,QListWidget>
 {
 public:
-
 			uiListBoxBody(uiListBoxObj&,uiParent*,
 			      const char* nm,OD::ChoiceMode cm,
 			      int prefnrlines=0,int preffieldwidth=0);
@@ -96,7 +93,9 @@ public:
 			    itemmarked_.removeSingle( idx );
 			}
     uiString&		getItemText(int idx) { return itemstrings_[idx]; }
-    BoolTypeSetType&	getItemMark(int idx) { return itemmarked_[idx]; }
+    bool		isItemMarked(int idx) const { return itemmarked_[idx]; }
+    void		setItemMarked( int idx, bool yn )
+			{ itemmarked_[idx] = yn; }
     bool		validItemIndex(int idx)
 			{ return itemstrings_.validIdx( idx ); }
 
@@ -115,9 +114,10 @@ public:
 
     void		setNrLines( int prefNrLines )
 			{
-			    if( prefNrLines >= 0 )
-				prefnrlines_=prefNrLines;
-			    int hs = stretch(true,true);
+			    if ( prefNrLines >= 0 )
+				prefnrlines_ = prefNrLines;
+
+			    const int hs = stretch(true,true);
 			    setStretch( hs, (nrTxtLines()== 1) ? 0 : 2 );
 			}
 
@@ -147,7 +147,6 @@ private:
     uiStringSet		itemstrings_;
     Interval<int>	sliderg_;
     uiListBox*		lb_;
-
 };
 
 
@@ -438,21 +437,15 @@ uiListBoxBody& uiListBoxObj::mkbody( uiParent* p, const char* nm,
 // uiListBox
 
 #define mStdInit(cm) \
-    , choicemode_(cm) \
-    , buttonstate_(OD::NoButton) \
     , selectionChanged(this) \
+    , itemChosen(this) \
     , doubleClicked(this) \
     , rightButtonClicked(this) \
     , leftButtonClicked(this) \
     , deleteButtonPressed(this) \
-    , itemChosen(this) \
     , checkAllClicked(this) \
-    , rightclickmnu_(*new uiMenu(p)) \
-    , alignment_(Alignment::Left) \
-    , scrollingblocked_(false) \
-    , allowduplicates_(true) \
-    , allshown_(true) \
-    , bulkcheckchg_(false)
+    , choicemode_(cm) \
+    , rightclickmnu_(*new uiMenu(p))
 
 #define mStdConstrEnd \
     lb_->setBackgroundColor( lb_->roBackgroundColor() ); \
@@ -480,9 +473,6 @@ uiListBox::uiListBox( uiParent* p, const Setup& setup, const char* nm )
     lb_->body().fieldwidth_ = setup.prefwidth_;
 
     mkCheckGroup();
-    if ( setup.readwritesel_ )
-	mkReadSaveButGroup();
-
     mkLabel( setup.lbl_, setup.lblpos_ );
     setHAlignObj( lb_ );
 
@@ -521,6 +511,7 @@ void uiListBox::mkCheckGroup()
 					 mCB(this,uiListBox,menuCB), true );
     pb->setName( "Selection menu" );
     pb->setIcon( "menu-arrow" );
+    pb->setPrefWidth( 40 );
     pb->setMaximumWidth( 40 );
     pb->setFlat( true );
 #ifdef __win__
@@ -529,37 +520,52 @@ void uiListBox::mkCheckGroup()
     pb->setStyleSheet( ":pressed { border: 0; background: transparent }" );
 #endif
     cb_ = new uiCheckBox( checkgrp_, uiStrings::sEmptyString(),
-						mCB(this,uiListBox,checkCB) );
+			  mCB(this,uiListBox,checkCB) );
     cb_->setName( "Check-all box" );
     cb_->setMaximumWidth( 20 );
-    mAttachCB(cb_->activated,uiListBox::checkAllClickedCB);
+    mAttachCB( cb_->activated, uiListBox::checkAllClickedCB );
+
+    openbut_ = new uiToolButton( checkgrp_, "open",
+			tr("Read selection"), mCB(this,uiListBox,retrieveCB) );
+    openbut_->setPrefHeight( cIconSz );
+    openbut_->setPrefWidth( cIconSz );
+    openbut_->attach( centeredRightOf, pb, 1 );
+    openbut_->display( false );
+
+    savebut_ = new uiToolButton( checkgrp_, "save",
+			tr("Save selection"), mCB(this,uiListBox,saveCB) );
+    savebut_->setPrefHeight( cIconSz );
+    savebut_->setPrefWidth( cIconSz );
+    savebut_->attach( rightTo, openbut_, 2 );
+    savebut_->display( false );
+
     checkgrp_->display( isMultiChoice(), true );
 }
 
 
-void uiListBox::mkReadSaveButGroup()
+void uiListBox::updateReadWriteButtonState()
 {
-    rsbutgrp_ = new uiButtonGroup( this, "Read/Save Group", OD::Horizontal );
-    rsbutgrp_->attach( rightOf, checkgrp_ );
-    rsbutgrp_->displayFrame( true );
-    auto* readbut = new uiToolButton( rsbutgrp_, "open",
-			uiStrings::sRead(),
-			mCB(this,uiListBox,retrieveCB) );
-    readbut->setPrefWidth( cIconSz );
-    readbut->setStyleSheet( "border: 0" );
-    auto* savebut = new uiToolButton( rsbutgrp_, "save",
-			uiStrings::sSave(),
-			mCB(this,uiListBox,saveCB) );
-    savebut->setPrefWidth( cIconSz );
-    savebut->setStyleSheet( "border: 0" );
+    openbut_->setSensitive( !isEmpty() );
+    savebut_->setSensitive( nrChecked() > 0 );
+}
+
+
+void uiListBox::offerReadWriteSelection( const CallBack& rcb,
+					 const CallBack& wcb )
+{
+    opencb_ = rcb;
+    savecb_ = wcb;
+    openbut_->display( opencb_.willCall() );
+    savebut_->display( savecb_.willCall() );
+    updateReadWriteButtonState();
 }
 
 
 void uiListBox::retrieveCB( CallBacker* )
 {
-    const bool needretrieve = retrievecb_.willCall();
+    const bool needretrieve = opencb_.willCall();
     if ( needretrieve )
-	retrievecb_.doCall( this );
+	opencb_.doCall( this );
 }
 
 
@@ -575,6 +581,7 @@ void uiListBox::checkCB( CallBacker* )
 {
     const bool checkall = cb_->getCheckState()==OD::Checked;
     setAllItemsChecked( checkall );
+    updateReadWriteButtonState();
 }
 
 
@@ -596,6 +603,8 @@ void uiListBox::updateCheckState()
 	cb_->setCheckState( OD::Checked );
     else
 	cb_->setCheckState( OD::PartiallyChecked );
+
+    updateReadWriteButtonState();
 }
 
 
@@ -770,7 +779,7 @@ void uiListBox::menuCB( CallBacker* )
 	    rightclickmnu_.insertAction(new uiAction(tr("Show all")), 6);
     }
 
-    const bool needretrieve = retrievecb_.willCall();
+    const bool needretrieve = opencb_.willCall();
     const bool needsave = savecb_.willCall() && nrchecked > 0;
     if ( needretrieve || needsave )
     {
@@ -796,7 +805,7 @@ void uiListBox::menuCB( CallBacker* )
 	setCurrentItem( selidx );
     }
     else if ( res == 3 )
-	retrievecb_.doCall( this );
+	opencb_.doCall( this );
     else if ( res == 4 )
 	savecb_.doCall( this );
     else if ( res == 5 || res == 6 )
@@ -930,6 +939,7 @@ void uiListBox::addItem( const uiString& text, const OD::Color& col, int id )
     addItem( text, pm, id );
 }
 
+
 void uiListBox::addItemNoUpdate( const uiString& text, bool mark, int id )
 {
     if ( !allowduplicates_ && isPresent(text.getFullString()) )
@@ -954,6 +964,7 @@ void uiListBox::addItems( const char** textList )
 	curidx = 0;
 
     setCurrentItem( curidx );
+    updateReadWriteButtonState();
 }
 
 
@@ -967,6 +978,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
 	curidx = 0;
 
     setCurrentItem( curidx );
+    updateReadWriteButtonState();
 }
 
 
@@ -980,6 +992,7 @@ void uiListBox::addItems( const uiStringSet& strs )
 	curidx = 0;
 
     setCurrentItem( curidx );
+    updateReadWriteButtonState();
 }
 
 
@@ -1095,6 +1108,14 @@ void uiListBox::setColor( int index, const OD::Color& col )
 }
 
 
+void uiListBox::setDefaultColor( int index )
+{
+    QListWidgetItem* itm = lb_->body().item( index );
+    if ( itm )
+	itm->setBackground( QBrush() );
+}
+
+
 OD::Color uiListBox::getColor( int index ) const
 {
     QListWidgetItem* itm = lb_->body().item( index );
@@ -1169,7 +1190,7 @@ bool uiListBox::isPresent( const char* txt ) const
     {
 	BufferString itmtxt;
 	if ( isMarked(idx) )
-	    getMarkedText( idx, itmtxt );
+	    itmtxt = getUnmarkedText( idx );
 	else
 	    itmtxt = lb_->body().item(idx)->text();
 
@@ -1189,7 +1210,7 @@ const char* uiListBox::textOfItem( int idx ) const
 
     if ( isMarked(idx) )
     {
-	getMarkedText( idx, rettxt_ );
+	rettxt_ = getUnmarkedText( idx );
 	return rettxt_;
     }
 
@@ -1200,7 +1221,7 @@ const char* uiListBox::textOfItem( int idx ) const
 
 bool uiListBox::isMarked( int idx ) const
 {
-    return lb_->body().getItemMark( idx );
+    return lb_->body().isItemMarked( idx );
 }
 
 
@@ -1209,8 +1230,7 @@ void uiListBox::setMarked( int idx, DecorationType markdec )
     if ( !validIdx(idx) )
 	return;
 
-    BufferString texttobemarked;
-    getMarkedText( idx, texttobemarked );
+    BufferString texttobemarked = getUnmarkedText( idx );
     if ( markdec == uiListBox::None )
     {
 	removePixmap( idx );
@@ -1246,36 +1266,33 @@ void uiListBox::setMarked( int idx, DecorationType markdec )
 
 void uiListBox::setMarked( int idx, bool yn )
 {
-    lb_->body().getItemMark( idx ) = yn;
+    lb_->body().setItemMarked( idx, yn );
     lb_->body().updateText( idx );
 }
 
 
-void uiListBox::getMarkedText( int idx, BufferString& text ) const
+BufferString uiListBox::getUnmarkedText( int idx ) const
 {
     if ( !validIdx(idx) )
-    {
-	text = "";
-	return;
-    }
+	return "";
 
     BufferString starchar = "*";
     BufferString legacychar = "><";
-    BufferString markedtext = lb_->body().getItemText(idx).getFullString();
-    if ( markedtext.last() == starchar.last() )
+    BufferString text = lb_->body().getItemText(idx).getFullString();
+    if ( text.last() == starchar.last() )
     {
-	markedtext.remove( starchar[0] );
-	markedtext.trimBlanks();
+	text.remove( starchar[0] );
+	text.trimBlanks();
     }
-    else if ( markedtext.last() == legacychar.last()
-	      && markedtext.first() == legacychar.first() )
+    else if ( text.last() == legacychar.last()
+	      && text.first() == legacychar.first() )
     {
-	markedtext.remove( legacychar.first() );
-	markedtext.remove( legacychar.last() );
-	markedtext.trimBlanks();
+	text.remove( legacychar.first() );
+	text.remove( legacychar.last() );
+	text.trimBlanks();
     }
 
-    text = markedtext;
+    return text;
 }
 
 
@@ -1285,13 +1302,13 @@ uiListBox::DecorationType uiListBox::getDecorationType( int idx ) const
 	return None;
 
     DecorationType dec = Pixmap;
-    BufferString starchar = "*";
-    BufferString legacychar = "><";
+    const char starchar = '*';
+    const char defchar0 = '>';
+    const char defchar1 = '<';
     BufferString markedtext = lb_->body().getItemText(idx).getFullString();
-    if ( markedtext.last() == starchar.last() )
+    if ( markedtext.last() == starchar )
 	dec = Star;
-    else if ( markedtext.last() == legacychar.last()
-	     && markedtext.first() == legacychar.first() )
+    else if ( markedtext.last()==defchar0 && markedtext.first()==defchar1 )
 	dec = Legacy;
     else if ( lb_->body().hasPixmap(idx) )
 	dec = Invisible;
@@ -1314,7 +1331,8 @@ int uiListBox::currentItem() const
 
 void uiListBox::setCurrentItem( const char* txt )
 {
-    if ( !txt ) return;
+    if ( !txt )
+	return;
 
     const int sz = lb_->body().count();
     for ( int idx=0; idx<sz; idx++ )

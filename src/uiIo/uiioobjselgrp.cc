@@ -33,14 +33,13 @@ ________________________________________________________________________
 #include "uilistboxchoiceio.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uistrings.h"
 #include "settings.h"
 #include "od_helpids.h"
 #include "uilabel.h"
 
 #define mObjTypeName ctio_.ctxt_.objectTypeName()
-
-static const MultiID udfmid( "-1" );
 
 static const char* dGBToDispStorageStr()    { return "OpendTect";  }
 
@@ -184,7 +183,6 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     topgrp_ = new uiGroup( this, "Top group" );
 
     uiListBox::Setup su( setup_.choicemode_, seltxt );
-    su.readwritesel( true );
     listfld_ = new uiListBox( topgrp_, su, "Objects" );
 
     filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter(), "*" );
@@ -373,7 +371,7 @@ const MultiID& uiIOObjSelGrp::chosenID( int objnr ) const
     BufferString msg( "Should not reach. objnr=" );
     msg += objnr; msg += " nrChosen()="; msg += nrChosen();
     pErrMsg( msg );
-    return udfmid;
+    return MultiID::udf();
 }
 
 
@@ -635,6 +633,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     dispnms_.erase();
     iconnms_.erase();
     deepErase( ioobjids_ );
+    defaultidxs_.erase();
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* ioobj = del[idx]->ioobj_;
@@ -642,7 +641,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	// 'uiIOObjEntryInfo'
 	BufferString dispnm( del[idx]->name() );
 	BufferString ioobjnm;
-	MultiID objid( udfmid );
+	MultiID objid = MultiID::udf();
 	const char* icnm = 0;
 
 	if ( !ioobj )
@@ -653,20 +652,17 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	    const bool issel = ctio_.ioobj_ && ctio_.ioobj_->key() == objid;
 	    const bool isdef = setup_.allowsetdefault_
 			? IOObj::isSurveyDefault( objid ) : false;
-	    const bool ispl = StreamProvider::isPreLoaded( objid.buf(), true );
 
 	    ioobjnm = ioobj->name();
 	    dispnm.setEmpty();
-	    if ( ispl ) dispnm += "/ ";
 	    dispnm += ioobj->name();
-	    if ( ispl ) dispnm += " \\";
 	    if ( isdef )
-		defaultidxs_.addIfNew( idx );
+		defaultidxs_ += idx;
 
 	    if ( curidx < 0 )
 	    {
 		if ( issel || (isdef && !ctio_.ioobj_ && ctio_.ctxt_.forread_) )
-		curidx = idx;
+		    curidx = idx;
 	    }
 
 	    if ( icsel_ )
@@ -705,10 +701,11 @@ void uiIOObjSelGrp::fillListBox()
 	    icnm = "empty";
 
 	listfld_->setIcon( idx, icnm );
+	listfld_->setDefaultColor( idx );
     }
 
     for ( const auto& idx : defaultidxs_ )
-	listfld_->setMarked( idx );
+	listfld_->setColor( idx, OD::Color(240,240,200) );
 
     selectionChanged.trigger();
 }

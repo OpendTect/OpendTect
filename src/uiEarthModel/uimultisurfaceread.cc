@@ -79,7 +79,7 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ )
     , singleSurfaceSelected(this)
 {
     ioobjselgrp_ = new uiIOObjSelGrp( this, *ctio_,
-			uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+	uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne).allowsetdefault(true) );
     ioobjselgrp_->selectionChanged.notify( mCB(this,uiMultiSurfaceRead,selCB) );
     ioobjselgrp_->getListField()->doubleClicked.notify(
 					mCB(this,uiMultiSurfaceRead,dClck) );

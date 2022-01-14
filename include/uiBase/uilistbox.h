@@ -17,12 +17,12 @@ ________________________________________________________________________
 #include "draw.h"
 
 class BufferStringSet;
-class uiButtonGroup;
 class uiCheckBox;
 class uiLabel;
 class uiListBoxBody;
 class uiMenu;
 class uiString;
+class uiToolButton;
 
 mFDQtclass(QListWidgetItem)
 
@@ -95,7 +95,6 @@ public:
 			    , prefnrlines_(0)
 			    , prefwidth_(0)
 			    , lblpos_(lp)
-			    , readwritesel_(false)
 			    {}
 
 	mDefSetupMemb(uiString,lbl)
@@ -103,8 +102,6 @@ public:
 	mDefSetupMemb(int,prefnrlines)
 	mDefSetupMemb(int,prefwidth)
 	mDefSetupMemb(uiListBox::LblPos,lblpos)
-	mDefSetupMemb(bool,readwritesel)
-
     };
 
 			uiListBox(uiParent*,const char* nm=0,
@@ -165,6 +162,7 @@ public:
     void		setPixmap(int,const uiPixmap&,DecorationPos=Left);
     void		setIcon(int,const char* icon_identifier);
     void		setColor(int,const OD::Color&);
+    void		setDefaultColor(int);
     OD::Color		getColor(int) const;
 
     void		sortItems(bool asc=true);
@@ -226,9 +224,8 @@ public:
     Notifier<uiListBox> deleteButtonPressed;
     Notifier<uiListBox> checkAllClicked;
 
-    void		offerReadWriteSelection( const CallBack& rcb,
-						 const CallBack& wcb )
-			{ retrievecb_ = rcb; savecb_ = wcb; }
+    void		offerReadWriteSelection(const CallBack& readcb,
+						const CallBack& writecb);
 
     void		resizeToContents(int minw=-1,int maxw=-1,
 					 int minh=-1,int maxh=-1);
@@ -240,17 +237,20 @@ private:
     void		translateText();
 
     OD::ChoiceMode	choicemode_;
-    Alignment::HPos	alignment_;
-    bool		allowduplicates_;
+    Alignment::HPos	alignment_		= Alignment::Left;
+    bool		allowduplicates_	= true;
     uiMenu&		rightclickmnu_;
     mutable BufferString rettxt_;
-    OD::ButtonState	buttonstate_;
+    OD::ButtonState	buttonstate_		= OD::NoButton;
+    uiToolButton*	openbut_		= nullptr;
+    uiToolButton*	savebut_		= nullptr;
+    CallBack		opencb_;
     CallBack		savecb_;
-    CallBack		retrievecb_;
-    bool		scrollingblocked_;
-    bool		allshown_;
-    bool		bulkcheckchg_;
+    bool		scrollingblocked_	= false;
+    bool		allshown_		= true;
+    bool		bulkcheckchg_		= false;
 
+    void		updateReadWriteButtonState();
     void		menuCB(CallBacker*);
     void		checkAllClickedCB(CallBacker*);
     void		retrieveCB(CallBacker*);
@@ -277,8 +277,8 @@ private:
     void		getCheckedItems(BufferStringSet&) const;
     void		getCheckedItems(TypeSet<int>&) const;
     void		setMarked(int,bool);
-    void		getMarkedText(int,BufferString&) const;
-    			//> gives clean text of object marked(usually legacy and star)
+    BufferString	getUnmarkedText(int) const;
+			//!> Gives clean text of marked object
     DecorationType	getDecorationType(int) const;
     void		removePixmap(int);
 
@@ -286,12 +286,10 @@ protected:
     uiListBoxObj*	lb_;
     ObjectSet<uiLabel>	lbls_;
     uiGroup*		checkgrp_;
-    uiButtonGroup*	rsbutgrp_;
     uiCheckBox*		cb_;
 
     void		mkLabel(const uiString&,LblPos);
     void		mkCheckGroup();
-    void		mkReadSaveButGroup();
     void		checkCB(CallBacker*);
     void		updateCheckState();
     void		addItemNoUpdate(const uiString&,bool marked=false,
