@@ -264,7 +264,7 @@ bool uiStartNewSurveySetup::isOK()
 {
     BufferString survnm = survName();
     if ( survnm.isEmpty() )
-	mErrRet(tr("Please enter a new survey name"))
+	mErrRet( tr("Please enter a name for this new survey") )
 
     survnm.clean( BufferString::AllowDots );
     const BufferString storagedir = FilePath(dataroot_).add(survnm).fullPath();
