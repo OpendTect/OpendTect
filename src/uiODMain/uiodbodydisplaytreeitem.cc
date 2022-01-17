@@ -68,7 +68,7 @@ ___________________________________________________________________
 
 
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
-    : uiODParentTreeItem( uiStrings::sBody() )
+    : uiODParentTreeItem( uiStrings::sGeobody() )
 {}
 
 
@@ -86,13 +86,13 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     if ( scene && scene->getZAxisTransform() )
     {
-	uiMSG().message( tr("Cannot add Bodies to this scene") );
+	uiMSG().message( tr("Cannot add Geobodies to this scene") );
 	return false;
     }
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), 0 );
-    mnu.insertAction( new uiAction(tr("New Polygon Body")), 1 );
+    mnu.insertAction( new uiAction(tr("New polygon based Geobody")), 1 );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
@@ -216,7 +216,7 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
     , savemnuitem_(uiStrings::sSave()) \
     , saveasmnuitem_(uiStrings::sSaveAs()) \
     , volcalmnuitem_(m3Dots(uiODBodyDisplayTreeItem::sCalcVolume())) \
-    , displaybodymnuitem_(uiStrings::sBody()) \
+    , displaybodymnuitem_(uiStrings::sGeobody()) \
     , displaypolygonmnuitem_(uiODBodyDisplayTreeItem::sPickedPolygons()) \
     , displayintersectionmnuitem_(uiStrings::sOnlyAtSections()) \
     , singlecolormnuitem_(uiStrings::sUseSingleColor()) \

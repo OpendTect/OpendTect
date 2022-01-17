@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uicompoundparsel.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "uiioobjsel.h"
 
 #include "bufstringset.h"
 #include "faulttrace.h"
@@ -29,7 +30,6 @@ class uiCheckBox;
 class uiColorInput;
 class uiFaultOptSel;
 class uiGenInput;
-class uiIOObjSel;
 class uiIOSelect;
 class uiListBox;
 class uiPosSubSel;
@@ -292,3 +292,12 @@ protected:
     bool			forread_;
 };
 
+
+mExpClass(uiEarthModel) uiBodySel : public uiIOObjSel
+{ mODTextTranslationClass(uiWaveletSel)
+public:
+			uiBodySel(uiParent*,bool forread,
+				     const uiIOObjSel::Setup&);
+			uiBodySel(uiParent*,bool forread);
+			~uiBodySel();
+};

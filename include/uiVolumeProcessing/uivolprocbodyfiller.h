@@ -14,8 +14,7 @@ ________________________________________________________________________
 #include "uivolprocstepdlg.h"
 #include "volprocbodyfiller.h"
 
-class uiIOObjSel;
-
+class uiBodySel;
 
 namespace VolProc
 {
@@ -27,6 +26,8 @@ public:
 		VolProc::BodyFiller::sFactoryKeyword(),
 		VolProc::BodyFiller::sFactoryDisplayName());
 
+				~uiBodyFiller();
+
 protected:
 				uiBodyFiller(uiParent*,BodyFiller*,bool is2d);
     static uiStepDialog*	createInstance(uiParent*,Step*,bool is2d);
@@ -37,7 +38,7 @@ protected:
 
     BodyFiller*			bodyfiller_;
 
-    uiIOObjSel*			bodyfld_;
+    uiBodySel*			bodyfld_;
     uiGenInput*			insidetypfld_;
     uiGenInput*			insidevaluefld_;
     uiGenInput*			outsidetypfld_;
@@ -45,4 +46,3 @@ protected:
 };
 
 } // namespace VolProc
-

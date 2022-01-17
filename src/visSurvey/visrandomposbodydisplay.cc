@@ -120,9 +120,12 @@ bool RandomPosBodyDisplay::setEMID( const EM::ObjectID& emid )
 
 bool RandomPosBodyDisplay::updateVisFromEM()
 {
-    if ( !embody_ ) return false;
+    if ( !embody_ )
+	return false;
+
     getMaterial()->setColor( embody_->preferredColor() );
-    setName( embody_->name().isEmpty() ? "<New body>" : embody_->name().str() );
+    setName( embody_->name().isEmpty() ? "<New Geobody>"
+				       : embody_->name().str() );
 
     if ( !displaybody_ )
     {

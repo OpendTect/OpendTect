@@ -52,7 +52,7 @@ public:
     {
 	if ( !conn_ || !conn_->forRead() )
 	{
-	    errmsg_ = uiStrings::phrCannotOpen( uiStrings::sBody() );
+	    errmsg_ = uiStrings::phrCannotOpen( uiStrings::sGeobody() );
 	    return;
 	}
 
@@ -153,7 +153,7 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
 {
     if ( !conn_ || !conn_->forWrite() )
     {
-	errmsg_ = uiStrings::phrCannotOpen( uiStrings::sBody() );
+	errmsg_ = uiStrings::phrCannotOpen( uiStrings::sGeobody() );
 	return;
     }
 
@@ -249,7 +249,7 @@ const char* MarchingCubesSurface::getTypeStr() const
 void MarchingCubesSurface::setNewName()
 {
     mDefineStaticLocalObject( int, objnr, = 1 );
-    BufferString nm( "<New Body " );
+    BufferString nm( "<New Geobody " );
     nm.add( objnr++ ).add( ">" );
     setName( nm );
 }

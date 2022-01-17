@@ -1204,3 +1204,31 @@ void uiAuxDataSel::auxSelCB( CallBacker* )
     datanm = grp->getDataName();
     setDataName( datanm );
 }
+
+
+
+// uiBodySel
+uiBodySel::uiBodySel( uiParent* p, bool forread,
+			    const uiIOObjSel::Setup& setup )
+    : uiIOObjSel(p,mRWIOObjContext(EMBody,forread),setup)
+{
+    if ( setup.seltxt_.isEmpty() )
+	setLabelText( forread
+		     ? uiStrings::phrInput( uiStrings::sGeobody() )
+		     : uiStrings::phrOutput( uiStrings::sGeobody() ) );
+    fillEntries();
+}
+
+
+uiBodySel::uiBodySel( uiParent* p, bool forread )
+    : uiIOObjSel(p,mRWIOObjContext(EMBody,forread),Setup())
+{
+    setLabelText( forread
+		 ? uiStrings::phrInput( uiStrings::sGeobody() )
+		 : uiStrings::phrOutput( uiStrings::sGeobody() ) );
+    fillEntries();
+}
+
+
+uiBodySel::~uiBodySel()
+{}

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "multiid.h"
 
 class IOObj;
-class uiIOObjSel;
+class uiBodySel;
 class uiGenInput;
 class uiPosSubSel;
 class uiPushButton;
@@ -42,7 +42,7 @@ protected:
 
     TypeSet<MultiID>		surfacelist_;
 
-    uiIOObjSel*			outputfld_;
+    uiBodySel*			outputfld_;
     uiPosSubSel*		subvolfld_;
 
     uiTable*			table_;

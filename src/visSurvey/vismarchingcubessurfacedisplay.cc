@@ -463,7 +463,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 			    BufferString& info) const
 {
     val = sKey::EmptyString();
-    info = "Body: ";
+    info = "Geobody: ";
     info += name();
 
     int valididx = -1;
@@ -545,7 +545,8 @@ bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* runner )
 	getMaterial()->setColor( emsurface_->preferredColor() );
 	if ( !emsurface_->name().isEmpty() )
 	    setName( emsurface_->name() );
-	else setName( "<New body>" );
+	else
+	    setName( "<New Geobody>" );
 
 	if ( !displaysurface_ )
 	{

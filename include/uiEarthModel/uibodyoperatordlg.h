@@ -14,14 +14,15 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 #include "multiid.h"
 #include "uidialog.h"
-#include "uiioobjsel.h"
 
+class IOObj;
+class uiBodySel;
 class uiGenInput;
 class uiLabeledComboBox;
-class uiTreeView;
-class uiTreeViewItem;
 class uiPushButton;
 class uiToolButton;
+class uiTreeView;
+class uiTreeViewItem;
 
 namespace EM { class BodyOperator; }
 
@@ -32,7 +33,7 @@ public:
     			uiBodyOperatorDlg(uiParent*);
  			~uiBodyOperatorDlg();
 
-    MultiID		getBodyMid() const { return outputfld_->key(); }
+    MultiID		getBodyMid() const;
 
 protected:
 
@@ -45,7 +46,7 @@ protected:
     void		turnOffAll();
     void		deleteAllChildInfo(uiTreeViewItem*);
     void		setOperator(uiTreeViewItem* lv,EM::BodyOperator& opt);
-    void                displayAction(char item,int curidx);
+    void		displayAction(char item,int curidx);
 
     static char		sKeyUnion()	{ return 0; }
     static char		sKeyIntSect()	{ return 1; }
@@ -74,7 +75,7 @@ protected:
     TypeSet<BodyOperand>	listinfo_;
     ObjectSet<uiTreeViewItem>	listsaved_;
 
-    uiIOObjSel*			outputfld_;
+    uiBodySel*			outputfld_;
 };
 
 
@@ -82,8 +83,9 @@ mExpClass(uiEarthModel) uiImplicitBodyValueSwitchDlg : public uiDialog
 { mODTextTranslationClass(uiImplicitBodyValueSwitchDlg);
 public:
     			uiImplicitBodyValueSwitchDlg(uiParent*,const IOObj*);
+			~uiImplicitBodyValueSwitchDlg();
 
-    MultiID		getBodyMid() const	{ return outputfld_->key(); }
+    MultiID		getBodyMid() const;
 
 protected:
 
@@ -92,8 +94,6 @@ protected:
 			/* For bodies made in older version
 			   Translator group name : MarchingCubesSurface */
 
-    uiIOObjSel*		inputfld_;
-    uiIOObjSel*		outputfld_;
+    uiBodySel*		inputfld_;
+    uiBodySel*		outputfld_;
 };
-
-

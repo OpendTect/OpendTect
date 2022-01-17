@@ -562,8 +562,6 @@ void uiODMenuMgr::fillManMenu()
     manmnu_->clear();
     add2D3DMenuItem( *manmnu_, "man_attrs", tr("Attribute Sets"),
 			mManAttr2DMnuItm, mManAttr3DMnuItm );
-    insertAction( manmnu_, m3Dots(tr("Bodies")),
-		  mManBodyMnuItm, "man_body" );
     insertAction( manmnu_, m3Dots(tr("Color Tables")),
 		  mManColTabMnuItm, "empty" );
     insertAction( manmnu_, m3Dots(tr("Cross-plot Data")),
@@ -576,6 +574,8 @@ void uiODMenuMgr::fillManMenu()
 	insertAction( manmnu_, m3Dots(uiStrings::sFaultSet(mPlural)),
 		      mManFaultSetMnuItm, "man_fltset" );
 
+    insertAction( manmnu_, m3Dots(uiStrings::sGeobody(mPlural)),
+		  mManBodyMnuItm, "man_body" );
     insertAction( manmnu_, m3Dots(tr("Geometry 2D")), mManGeomItm, "man2dgeom");
     if ( SI().survDataType() == SurveyInfo::No2D )
 	insertAction( manmnu_, m3Dots(uiStrings::sHorizon(mPlural)),
@@ -1174,7 +1174,7 @@ void uiODMenuMgr::fillManTB()
 	toUiString("%1/%2").arg(uiStrings::sPointSet(mPlural))
 			   .arg(uiStrings::sPolygon(mPlural))),false,manPick);
     manids_.bodyid_ = mAddTB(mantb_,"man_body",
-	uiStrings::phrManage(tr("Bodies/Regions")),false,manBody);
+	uiStrings::phrManage(tr("Geobodies/Regions")),false,manBody);
     manids_.wvltid_ = mAddTB(mantb_,"man_wvlt",
 	uiStrings::phrManage(uiStrings::sWavelet(mPlural)),false,manWvlt);
     manids_.stratid_ = mAddTB(mantb_,"man_strat",

@@ -76,7 +76,7 @@ public:
     void			fillBodyPar(IOPar&) const;
 
     uiString			getUserTypeStr() const
-				{ return tr("Marching Cubes Body"); }
+				{ return tr("Marching Cubes Geobody"); }
 
 protected:
 

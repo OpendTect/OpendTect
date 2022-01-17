@@ -143,7 +143,7 @@ public:
 	ascostream astream( ((StreamConn*)conn_)->oStream() );
 	astream.putHeader( RandomPosBody::typeStr() );
 	if ( !astream.isOK() )
-	    mRetErr( "Cannot write to output Body file" );
+	    mRetErr( "Cannot write to output file" );
 
 	IOPar pars;
 	rdposbody.fillPar( pars );

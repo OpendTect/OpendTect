@@ -39,7 +39,7 @@ uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
     : DataPointSetDisplayMgr()
     , visserv_( serv )
     , vismenu_( visserv_.getMenuHandler() )
-    , createbodymnuitem_( tr("Create Body") )
+    , createbodymnuitem_( tr("Create Geobody") )
     , storepsmnuitem_( m3Dots(tr("Save as PointSet")) )
     , removemnuitem_( tr("Remove points inside polygon") )
     , propmenuitem_( m3Dots(uiStrings::sProperties()) )
@@ -138,15 +138,14 @@ class uiCreateBodyDlg : public uiDialog
 { mODTextTranslationClass(uiCreateBodyDlg)
 public:
 uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
-    : uiDialog(p,uiDialog::Setup(tr("Body Creation"),tr("Create new Body"),
+    : uiDialog(p,uiDialog::Setup(tr("Create New Geobody"),mNoDlgTitle,
 				 mNoHelpKey))
     , selfld_( 0 )
     , rgfld_( 0 )
 {
     if ( dispprop.showSelected() )
     {
-	uiLabeledComboBox* cbx = new uiLabeledComboBox(this,
-						       tr("Selection Group"));
+	auto* cbx = new uiLabeledComboBox( this, tr("Selection Group") );
 	selfld_ = cbx->box();
 	BufferStringSet selgrpnms = dispprop.selGrpNames();
 	TypeSet<OD::Color> selgrpcols = dispprop.selGrpColors();
@@ -161,7 +160,7 @@ uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
     }
     else
     {
-	rgfld_ = new uiGenInput( this, tr("Create body from value range"),
+	rgfld_ = new uiGenInput( this, tr("Create geobody from value range"),
 				 FloatInpIntervalSpec(false) );
 	rgfld_->setValue( dispprop.colMapperSetUp().range_ );
     }
@@ -192,8 +191,7 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 {
     if ( dispprop.showSelected() )
     {
-	uiLabeledComboBox* cbx = new uiLabeledComboBox(this,
-						       tr("Selection Group"));
+	auto* cbx = new uiLabeledComboBox( this, tr("Selection Group") );
 	selfld_ = cbx->box();
 	BufferStringSet selgrpnms = dispprop.selGrpNames();
 	TypeSet<OD::Color> selgrpcols = dispprop.selGrpColors();
@@ -210,7 +208,7 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
     }
     else
     {
-	rgfld_ = new uiGenInput( this, tr("Create body from value range"),
+	rgfld_ = new uiGenInput( this, tr("Create geobody from value range"),
 				 FloatInpIntervalSpec(false) );
 	rgfld_->setValue( dispprop.colMapperSetUp().range_ );
 	addStdFields( rgfld_->attachObj() );

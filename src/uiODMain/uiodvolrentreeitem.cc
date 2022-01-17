@@ -294,7 +294,7 @@ uiODVolrenAttribTreeItem::uiODVolrenAttribTreeItem( const char* ptype )
     , addmnuitem_(uiStrings::sAdd())
     , statisticsmnuitem_(m3Dots(uiStrings::sHistogram()))
     , amplspectrummnuitem_(m3Dots(tr("Amplitude Spectrum")))
-    , addisosurfacemnuitem_(m3Dots(tr("Create Iso Surface Body")))
+    , addisosurfacemnuitem_(m3Dots(tr("Create Iso Surface Geobody")))
 {
     statisticsmnuitem_.iconfnm = "histogram";
     amplspectrummnuitem_.iconfnm = "amplspectrum";
@@ -417,7 +417,7 @@ bool uiODVolrenAttribTreeItem::hasTransparencyMenu() const
 
 uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
     : resetisosurfacemnuitem_(uiStrings::sSettings())
-    , convertisotobodymnuitem_(tr("Convert to Body"))
+    , convertisotobodymnuitem_(tr("Convert to Geobody"))
 { displayid_ = displayid; }
 
 

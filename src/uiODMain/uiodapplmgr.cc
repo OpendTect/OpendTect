@@ -270,7 +270,7 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
     if ( !status )
 	return true;
 
-    uiString msg( tr("OpendTect has a new geo-body format. "
+    uiString msg( tr("OpendTect has a new geobody format. "
 		"All the old geo-bodies of survey '%1' will now be converted. "
 		"Note that after the conversion, you will still be able to use "
 		"those geo-bodies in OpendTect 4.6.0, but only in patch p or "

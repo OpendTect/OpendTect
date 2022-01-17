@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 uiString EMBodyTranslatorGroup::sTypeName( int num )
-{ return uiStrings::sBody( num ); }
+{ return uiStrings::sGeobody( num ); }
 
 
 int EMBodyTranslatorGroup::selector( const char* s )

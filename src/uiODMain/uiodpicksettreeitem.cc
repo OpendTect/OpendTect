@@ -229,7 +229,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(m3Dots(uiStrings::sProperties() ) )
     , paintingmnuitem_(m3Dots(tr("Start Painting")))
-    , convertbodymnuitem_( tr("Convert to Body") )
+    , convertbodymnuitem_( tr("Convert to Geobody") )
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
@@ -410,7 +410,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 
 	emps->copyFrom( set_ );
 	emps->setPreferredColor( set_.disp_.color_ );
-	emps->setName( BufferString("Body from ",set_.name()) );
+	emps->setName( BufferString("Geobody from ",set_.name()) );
 	emps->setChangedFlag();
 
 	RefMan<visSurvey::RandomPosBodyDisplay> npsd =

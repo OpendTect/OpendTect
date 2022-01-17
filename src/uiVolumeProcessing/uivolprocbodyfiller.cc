@@ -10,12 +10,13 @@
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uivolprocchain.h"
 
-#include "embodytr.h"
-#include "separstr.h"
+#include "ioobj.h"
 #include "od_helpids.h"
+#include "separstr.h"
 
 
 namespace VolProc
@@ -46,9 +47,7 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* bf, bool is2d )
 {
     setHelpKey( mODHelpKey(mBodyFillerHelpID) );
 
-    IOObjContext ctxt = mIOObjContext( EMBody );
-    ctxt.forread_ = true;
-    bodyfld_ = new uiIOObjSel( this, ctxt, tr("Input body") );
+    bodyfld_ = new uiBodySel( this, true );
     bodyfld_->selectionDone.notify( mCB(this,uiBodyFiller,bodySel) );
     if ( bf )
 	bodyfld_->setInput( bf->getSurfaceID() );
@@ -84,6 +83,10 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* bf, bool is2d )
     outsidetypfld_->setValue( bf ? (int)bf->getOutsideValueType() : 0 );
     typeSel( outsidetypfld_ );
 }
+
+
+uiBodyFiller::~uiBodyFiller()
+{}
 
 
 void uiBodyFiller::bodySel( CallBacker* )

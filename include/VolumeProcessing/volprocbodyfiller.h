@@ -32,7 +32,7 @@ mExpClass(VolumeProcessing) BodyFiller : public Step
 public:
 	mDefaultFactoryCreatorImpl( VolProc::Step, BodyFiller );
 	mDefaultFactoryInstanciationBase( "BodyFiller",
-					tr("Body shape painter") );
+					tr("Geobody shape painter") );
 
 				BodyFiller();
 				~BodyFiller();

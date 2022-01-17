@@ -99,26 +99,31 @@ static uiString getActStr( uiSurfaceMan::Type typ, const uiString& act )
 {
     switch ( typ )
     {
-        mCaseRetStr(Hor2D, EMHorizon2DTranslatorGroup::sTypeName() );
-	mCaseRetStr(Hor3D, EMHorizon3DTranslatorGroup::sTypeName());
-	mCaseRetStr(StickSet, uiStrings::sFaultStickSet());
-	mCaseRetStr(Flt3D, uiStrings::sFault());
-	mCaseRetStr(FltSet, uiStrings::sFaultSet());
-	mCaseRetStr(Body, od_static_tr("getActStr","Bodies"));
+	mCaseRetStr( Hor2D, EMHorizon2DTranslatorGroup::sTypeName() );
+	mCaseRetStr( Hor3D, EMHorizon3DTranslatorGroup::sTypeName() );
+	mCaseRetStr( StickSet, uiStrings::sFaultStickSet() );
+	mCaseRetStr( Flt3D, uiStrings::sFault() );
+	mCaseRetStr( FltSet, uiStrings::sFaultSet() );
+	mCaseRetStr( Body, uiStrings::sGeobody() );
 	default:
-	mCaseRetStr(AnyHor, uiStrings::sHorizon(1));
+	mCaseRetStr( AnyHor, uiStrings::sHorizon(1) );
     }
 }
+
 
 static HelpKey getHelpID( uiSurfaceMan::Type typ )
 {
     switch ( typ )
     {
-case uiSurfaceMan::Hor2D:	return mODHelpKey(mSurface2DManHelpID);
-case uiSurfaceMan::StickSet:	return mODHelpKey(mFaultStickSetsManageHelpID);
-case uiSurfaceMan::Flt3D:	return mODHelpKey(mFaultsManageHelpID);
-case uiSurfaceMan::Body:	return mODHelpKey(mBodyManHelpID);
-default:			return mODHelpKey(mSurfaceManHelpID);
+	case uiSurfaceMan::Hor2D:
+			return mODHelpKey(mSurface2DManHelpID);
+	case uiSurfaceMan::StickSet:
+			return mODHelpKey(mFaultStickSetsManageHelpID);
+	case uiSurfaceMan::Flt3D:
+			return mODHelpKey(mFaultsManageHelpID);
+	case uiSurfaceMan::Body:
+			return mODHelpKey(mBodyManHelpID);
+	default:	return mODHelpKey(mSurfaceManHelpID);
     }
 }
 
@@ -202,10 +207,10 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     if ( type_==Body )
     {
 	applybodybut_ = manipgrp->addButton( "set_union",
-					     tr("Apply Body operations"),
+					     tr("Apply Geobody operations"),
 					   mCB(this,uiSurfaceMan,mergeBodyCB) );
 	createregbodybut_ = manipgrp->addButton( "set_implicit",
-						 tr("Create region Body"),
+						 tr("Create geobody/region"),
 				mCB(this,uiSurfaceMan,createBodyRegionCB) );
 	volestimatebut_ = manipgrp->addButton( "bodyvolume",
 					     tr("Volume estimate"),
@@ -401,13 +406,13 @@ void uiSurfaceMan::calcVolCB( CallBacker* )
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
     if ( !emb )
     {
-	uiString msg = tr( "Body '%1' is empty" ).arg( curioobj_->uiName() );
+	uiString msg = tr( "Geobody '%1' is empty" ).arg( curioobj_->uiName() );
 	uiMSG().error(msg);
 	return;
     }
 
     uiImplBodyCalDlg dlg( this, *emb );
-    uiString dlgtitle = tr( "Body volume estimation for '%1'" )
+    uiString dlgtitle = tr( "Geobody volume estimation for '%1'" )
 			  .arg(curioobj_->uiName() );
     dlg.setTitleText( dlgtitle );
     dlg.go();

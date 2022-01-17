@@ -12,9 +12,9 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uiposprovgroup.h"
-class CtxtIOObj;
+
+class uiBodySel;
 class uiGenInput;
-class uiIOObjSel;
 class uiPosSubSel;
 
 
@@ -25,6 +25,7 @@ public:
 				uiBodyPosProvGroup(uiParent*,
 					   const uiPosProvGroup::Setup&);
 				~uiBodyPosProvGroup();
+
     static void			initClass();
     static uiPosProvGroup*	create(uiParent*,const uiPosProvGroup::Setup&);
 
@@ -37,10 +38,9 @@ public:
 protected:
 
     void			ioChg(CallBacker*);
-    CtxtIOObj&			ctio_;
 
-    uiIOObjSel*			bodyfld_;
+    uiBodySel*			bodyfld_;
     uiGenInput*			inoutbut_;
-    uiPosSubSel*                outsidergfld_;
+    uiPosSubSel*		outsidergfld_;
 };
 

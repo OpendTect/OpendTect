@@ -14,30 +14,32 @@
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
 #include "emsurfacetr.h"
+#include "executor.h"
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
-#include "executor.h"
 #include "ioman.h"
 #include "marchingcubes.h"
+#include "od_helpids.h"
 #include "polygon.h"
 #include "polyposprovider.h"
 #include "positionlist.h"
 #include "sorting.h"
 #include "survinfo.h"
+#include "varlenarray.h"
+
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
-#include "uispinbox.h"
 #include "uipossubsel.h"
+#include "uispinbox.h"
 #include "uistepoutsel.h"
 #include "uistrings.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
-#include "varlenarray.h"
-#include "od_helpids.h"
 
 
 #define mBelow 0
@@ -674,7 +676,7 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     removebutton_->attach( alignedBelow, addfltbutton_ );
     removebutton_->setSensitive( false );
 
-    outputfld_ = new uiIOObjSel( this, mWriteIOObjContext(EMBody) );
+    outputfld_ = new uiBodySel( this, false );
     outputfld_->attach( alignedBelow, tblgrp );
 }
 

@@ -386,6 +386,7 @@ public:
     static uiString sGeneral()		{ return tr("General"); }
     static uiString sGenerate()		{ return tr("Generate"); }
     static uiString sGenerating()	{ return tr("Generating"); }
+    static uiString sGeobody(int num=1) { return tr("Geobody",0,num); }
     static uiString sGeometry(int num=1) { return tr("Geometry",0,num); }
     static uiString sGo()		{ return tr("Go"); }
     static uiString sGreen()		{ return tr("Green"); }

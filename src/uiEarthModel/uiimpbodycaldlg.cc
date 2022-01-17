@@ -24,8 +24,8 @@ ________________________________________________________________________
 
 
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
-    : uiDialog(p,Setup(tr("Calculate volume"),tr("Body volume estimation"),
-                        mODHelpKey(mImplBodyCalDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Calculate Volume"),tr("Geobody volume estimation"),
+		       mODHelpKey(mImplBodyCalDlgHelpID) ))
     , embody_(eb)
     , velfld_(0)
     , volfld_(0)
@@ -93,8 +93,8 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
     if ( !impbody_ )
     {
 	getImpBody();
-    	if ( !impbody_ || !impbody_->arr_ )
-    	    mErrRet(tr("Checking body failed"));
+	if ( !impbody_ || !impbody_->arr_ )
+	    mErrRet(tr("Checking geobody failed"));
     }
 
     float vel = 1;
@@ -109,7 +109,7 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
 
     uiTaskRunner taskrunner(this);
     BodyVolumeCalculator bc( impbody_->tkzs_, *impbody_->arr_,
-	    impbody_->threshold_, vel );
+			     impbody_->threshold_, vel );
     TaskRunner::execute( &taskrunner, bc );
 
     const float m3 = bc.getVolume();

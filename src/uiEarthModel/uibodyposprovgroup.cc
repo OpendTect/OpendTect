@@ -10,14 +10,17 @@ ________________________________________________________________________
 
 
 #include "uibodyposprovgroup.h"
+
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
-#include "keystrs.h"
-#include "embodytr.h"
-#include "emsurfaceposprov.h"
 #include "uipossubsel.h"
 #include "uistrings.h"
+
+#include "embodytr.h"
+#include "emsurfaceposprov.h"
+#include "keystrs.h"
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
@@ -25,13 +28,12 @@ ________________________________________________________________________
 uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
-    , ctio_(*mMkCtxtIOObj(EMBody))
 {
-    inoutbut_ = new uiGenInput(this, uiString::emptyString(),
-                               BoolInpSpec(true,tr("Inside"),
-                                tr("Outside")) );
+    inoutbut_ = new uiGenInput( this, uiString::emptyString(),
+				BoolInpSpec(true,tr("Inside"),
+				tr("Outside")) );
     inoutbut_->valuechanged.notify( mCB(this,uiBodyPosProvGroup,ioChg) );
-    bodyfld_ = new uiIOObjSel( this, ctio_, uiStrings::sBody() );
+    bodyfld_ = new uiBodySel( this, true );
     bodyfld_->attach( alignedBelow, inoutbut_ );
 
     outsidergfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,true)
@@ -45,7 +47,6 @@ uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
 
 uiBodyPosProvGroup::~uiBodyPosProvGroup()
 {
-    delete ctio_.ioobj_; delete &ctio_;
 }
 
 
@@ -57,7 +58,9 @@ void uiBodyPosProvGroup::ioChg( CallBacker* )
 
 uiPosProvGroup* uiBodyPosProvGroup::create( uiParent* p,
 					    const uiPosProvGroup::Setup& su )
-{ return new uiBodyPosProvGroup(p,su); }
+{
+    return new uiBodyPosProvGroup(p,su);
+}
 
 
 void uiBodyPosProvGroup::usePar( const IOPar& iop )
@@ -90,7 +93,7 @@ bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Body() );
     if ( !bodyfld_->commitInput() || !bodyfld_->fillPar(iop,sKey::Body()) )
-	mErrRet(tr("Please select the body"));
+	mErrRet(tr("Please select the geobody"));
 
     iop.setYN( Pos::EMImplicitBodyProvider::sKeyUseInside(),
 	    inoutbut_->getBoolValue() );
@@ -109,16 +112,16 @@ bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
 
 void uiBodyPosProvGroup::getSummary( BufferString& txt ) const
 {
-    txt += inoutbut_->getBoolValue() ? "Inside geo-body" : "Outside geo-body";
+    txt += inoutbut_->getBoolValue() ? "Inside geobody" : "Outside geobody";
 }
 
 
 bool uiBodyPosProvGroup::getID( MultiID& ky ) const
 {
-    if ( !bodyfld_->commitInput() || !ctio_.ioobj_ )
+    if ( !bodyfld_->ioobj() )
 	return false;
 
-    ky = ctio_.ioobj_->key();
+    ky = bodyfld_->key();
     return true;
 }
 

@@ -804,7 +804,7 @@ void EMImplicitBodyProvider::getSummary( BufferString& txt ) const
 {
     if ( !embody_ )
     {
-	txt += "Empty body";
+	txt += "Empty geobody";
 	return;
     }
 

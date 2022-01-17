@@ -699,7 +699,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
     if ( mids.isEmpty() )
 	return;
 
-    ExecutorGroup loaders( "Loading Bodies" );
+    ExecutorGroup loaders( "Loading Geobodies" );
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mids[idx] );

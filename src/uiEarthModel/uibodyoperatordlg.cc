@@ -27,6 +27,7 @@ ___________________________________________________________________
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
+#include "uiiosurface.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -38,8 +39,8 @@ ___________________________________________________________________
 
 
 uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Apply Body Operations"),mNoDlgTitle,
-                                 mODHelpKey(mBodyOperatorDlgHelpID) ) )
+    : uiDialog(p,uiDialog::Setup(tr("Apply Geobody Operations"),mNoDlgTitle,
+				mODHelpKey(mBodyOperatorDlgHelpID) ) )
 {
     setCtrlStyle( RunAndClose );
 
@@ -78,7 +79,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
 
     uiGroup* rgrp = new uiGroup( this, "Right Group" );
     BufferStringSet btype;
-    btype.add( "Stored body" );
+    btype.add( "Stored geobody" );
     btype.add( "Operator" );
     typefld_ = new uiLabeledComboBox( rgrp, btype, tr("Input type") );
     typefld_->box()->selectionChanged.notify(
@@ -95,7 +96,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     BufferStringSet operators;
     operators.add( "Union" ).add( "Intersection" ).add( "Difference" );
     oprselfld_ = new uiLabeledComboBox( rgrp, operators,
-                                        uiStrings::sOperator() );
+					uiStrings::sOperator() );
     oprselfld_->box()->setIcon( 0, "set_union" );
     oprselfld_->box()->setIcon( 1, "set_intersect" );
     oprselfld_->box()->setIcon( 2, "set_minus" );
@@ -103,7 +104,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     oprselfld_->box()->selectionChanged.notify(
 	    mCB(this,uiBodyOperatorDlg,oprSel) );
 
-    outputfld_ = new uiIOObjSel( lgrp, mWriteIOObjContext(EMBody) );
+    outputfld_ = new uiBodySel( lgrp, false );
     outputfld_->setHSzPol( uiObject::MedVar );
     outputfld_->attach( leftAlignedBelow, tree_ );
 
@@ -117,7 +118,15 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
 
 
 uiBodyOperatorDlg::~uiBodyOperatorDlg()
-{ listinfo_.erase(); }
+{
+    listinfo_.erase();
+}
+
+
+MultiID uiBodyOperatorDlg::getBodyMid() const
+{
+    return outputfld_->key();
+}
 
 
 void uiBodyOperatorDlg::finaliseCB( CallBacker* )
@@ -302,7 +311,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     for ( int idx=0; idx<listinfo_.size(); idx++ )
     {
 	if ( !listinfo_[idx].isOK() )
-	    mRetErr(tr("Do not forget to pick Action/Body"))
+	    mRetErr(tr("Do not forget to pick action"))
     }
 
     if ( outputfld_->isEmpty() )
@@ -323,7 +332,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     MouseCursorChanger bodyopration( MouseCursor::Wait );
     uiTaskRunner taskrunner( this );
     if ( !emcs->regenerateMCBody( &taskrunner ) )
-	mRetErr(tr("Generating body failed"))
+	mRetErr(tr("Generating geobody failed"))
 
     emcs->setMultiID( outputfld_->key() );
     emcs->setName( outputfld_->getInput() );
@@ -346,7 +355,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 
     TaskRunner::execute( &taskrunner, *exec );
 
-    uiString msg = tr("The body %1 created successfully")
+    uiString msg = tr("The geobody %1 created successfully")
                  .arg(outputfld_->getInput());
     uiMSG().message( msg );
 
@@ -408,18 +417,28 @@ bool uiBodyOperatorDlg::BodyOperand::isOK() const
 //uiImplicitBodyValueSwitchDlg
 uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p,
 	const IOObj* ioobj )
-    : uiDialog(p,uiDialog::Setup(tr("Body conversion - inside-out"),
+    : uiDialog(p,uiDialog::Setup(tr("Geobody conversion - inside-out"),
 		mNoDlgTitle, mODHelpKey(mImplicitBodyValueSwitchDlgHelpID) ) )
 {
     setCtrlStyle( RunAndClose );
 
-    inputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), 
-				uiStrings::phrInput(uiStrings::sBody()));
+    inputfld_ = new uiBodySel( this, true );
     if ( ioobj )
 	inputfld_->setInput( *ioobj );
 
-    outputfld_ = new uiIOObjSel( this, mWriteIOObjContext(EMBody) );
+    outputfld_ = new uiBodySel( this, false );
     outputfld_->attach( alignedBelow, inputfld_ );
+}
+
+
+uiImplicitBodyValueSwitchDlg::~uiImplicitBodyValueSwitchDlg()
+{}
+
+
+
+MultiID uiImplicitBodyValueSwitchDlg::getBodyMid() const
+{
+    return outputfld_->key();
 }
 
 
@@ -437,12 +456,12 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 	EM::EMM().loadIfNotFullyLoaded( inpiobj->key(), &taskrunner );
     mDynamicCastGet(EM::Body*,emb,emo.ptr());
     if ( !emb )
-	mRetErr( uiStrings::phrCannotRead( uiStrings::sBody()) );
+	mRetErr( uiStrings::phrCannotRead( uiStrings::sGeobody()) );
 
     PtrMan<EM::ImplicitBody> impbd =
 				emb->createImplicitBody( &taskrunner, false );
     if ( !impbd || !impbd->arr_ )
-	mRetErr( tr("Creating implicit body failed") );
+	mRetErr( tr("Creating geobody failed") );
 
     float* data = impbd->arr_->getData();
     if ( data )
