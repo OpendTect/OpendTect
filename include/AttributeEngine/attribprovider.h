@@ -39,9 +39,9 @@ class ProviderTask;
 \brief Provides the actual output to ...
 */
 
-mExpClass(AttributeEngine) Provider
-{ mRefCountImpl(Provider);
-  mODTextTranslationClass(Attrib::Provider)
+mExpClass(AttributeEngine) Provider : public ReferencedObject
+{
+mODTextTranslationClass(Attrib::Provider)
 
     friend class		ProviderTask;
 
@@ -182,8 +182,9 @@ public:
     BinID			getElementStepout() const;
 
 protected:
-
 				Provider(Desc&);
+    virtual			~Provider();
+
     virtual bool		checkInpAndParsAtStart();
 				/*!< Should be used for check _after_ inputs
 				  are set, for extra checks at other time
@@ -408,9 +409,8 @@ public:
 mGlobal(AttributeEngine) int getSteeringIndex( const BinID& );
 //!< For every position there is a single steering index ...?
 
-
-
 }; // namespace Attrib
+
 
 #define mAttrDefCreateInstance(clss) \
 Attrib::Provider* clss::createInstance( Attrib::Desc& desc ) \

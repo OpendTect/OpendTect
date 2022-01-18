@@ -12,24 +12,23 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
-#include "prestackprocessingmod.h"
+#include "sharedobject.h"
+
 #include "bufstringset.h"
-#include "callback.h"
 #include "color.h"
-#include "multiid.h"
-#include "threadlock.h"
 #include "multidimstorage.h"
+#include "multiid.h"
 #include "offsetazimuth.h"
 #include "position.h"
-#include "refcount.h"
+#include "threadlock.h"
 #include "undo.h"
 #include "valseriesevent.h"
 
-class Executor;
 class BinIDValueSet;
+class Executor;
 class OffsetAzimuth;
-class TrcKeySampling;
 class SeisTrcReader;
+class TrcKeySampling;
 
 namespace EM { class Horizon3D; }
 
@@ -50,6 +49,7 @@ public:
 			Event(int sz,bool quality);
 			Event(const Event& b);
 			~Event();
+
     Event&		operator=(const Event&);
     void		setSize(int sz,bool quality);
     void		removePick(int);
@@ -58,7 +58,7 @@ public:
     int			indexOf(const OffsetAzimuth&) const;
 
     int			sz_;
-    float*		pick_;	
+    float*		pick_;
     OffsetAzimuth*	offsetazimuth_;
 
     static unsigned char cBestQuality()		{ return 254; }
@@ -78,8 +78,8 @@ public:
 \brief A EventSet is a set of Events on a single PreStack gather.
 */
 
-mExpClass(PreStackProcessing) EventSet
-{ mRefCountImpl(EventSet);
+mExpClass(PreStackProcessing) EventSet : public ReferencedObject
+{
 public:
 			EventSet();
 			EventSet(const EventSet&);
@@ -89,6 +89,9 @@ public:
 
     ObjectSet<Event>	events_;
     bool		ischanged_;
+
+protected:
+    virtual		~EventSet();
 };
 
 
@@ -97,8 +100,8 @@ public:
 are identified under the same MultiID.
 */
 
-mExpClass(PreStackProcessing) EventManager : public CallBacker
-{ mRefCountImpl(EventManager);
+mExpClass(PreStackProcessing) EventManager : public SharedObject
+{
 public:
     mStruct(PreStackProcessing) DipSource
     {
@@ -170,43 +173,43 @@ public:
 
     MultiDimStorage<EventSet*>& getStorage() { return events_; }
 
-    Notifier<EventManager>		change;
-					/*!<\note Dont enable/disable,
-						  use blockChange if needed. */
-    const BinID&			changeBid() const  { return changebid_;}
-					/*!<Can be -1 if general
-					   (name/color/horid) change. */
-    void				blockChange(bool yn,bool sendall);
-					/*!<Turns off notification, but
-					    class will record changes. If
-					    sendall is on when turning off the
-					    block, all recorded changes will
-					    be triggered. */
+    Notifier<EventManager>	change;
+				/*!<\note Dont enable/disable,
+					  use blockChange if needed. */
+    const BinID&		changeBid() const  { return changebid_;}
+				/*!<Can be -1 if general
+				   (name/color/horid) change. */
+    void			blockChange(bool yn,bool sendall);
+				/*!<Turns off notification, but
+				    class will record changes. If
+				    sendall is on when turning off the
+				    block, all recorded changes will
+				    be triggered. */
 
-    Notifier<EventManager>		forceReload;
-					/*!<When triggered, all
-					    EventSets must be
-					    unreffed. Eventual load requirements
-					    should be added. */
-    void				addReloadPositions(
-							const BinIDValueSet&);
-    void				addReloadPosition(const BinID&);
+    Notifier<EventManager>	forceReload;
+				/*!<When triggered, all
+				    EventSets must be
+				    unreffed. Eventual load requirements
+				    should be added. */
+    void			addReloadPositions(
+						const BinIDValueSet&);
+    void			addReloadPosition(const BinID&);
 
-    void				reportChange(const BinID&);
+    void			reportChange(const BinID&);
 
-    void				fillPar(IOPar&) const;
-    bool				usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
 
-    bool				getDip(const BinIDValue&,int horid,
-					       float& inldip, float& crldip );
+    bool			getDip(const BinIDValue&,int horid,
+				       float& inldip, float& crldip );
 
 protected:
+    virtual			~EventManager();
 
-    static const char*			sKeyStorageID() { return "PS Picks"; }
-    bool				getDip(const BinIDValue&,int horid,
-						bool primary,
-						float& inldip, float& crldip );
+    static const char*		sKeyStorageID() { return "PS Picks"; }
+    bool			getDip(const BinIDValue&,int horid,bool primary,
+				       float& inldip,float& crldip);
 
     MultiDimStorage<EventSet*>	events_;
     Threads::Lock		eventlock_;
@@ -255,7 +258,7 @@ public:
 
 protected:
 
-    bool		doWork( float, unsigned char );
+    bool		doWork(float,unsigned char);
 
     EventManager&	manager_;
     const BinID		bid_;
@@ -301,6 +304,4 @@ protected:
     bool		isremove_;
 };
 
-
-}; //namespace
-
+} // namespace PreStack

@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 Vw2DDataObject::Vw2DDataObject()
     : id_( -1 )
-    , name_( 0 )
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vw2dobjid, (0) );
     id_ = vw2dobjid++;
@@ -28,28 +27,13 @@ Vw2DDataObject::Vw2DDataObject()
 
 
 Vw2DDataObject::~Vw2DDataObject()
-{ delete name_; }
-
-
-const char* Vw2DDataObject::name() const
-{
-    return !name_ || name_->isEmpty() ? 0 : name_->buf();
-}
-
-
-void Vw2DDataObject::setName( const char* nm )
-{
-    if ( !name_ ) name_ = new BufferString;
-    (*name_) = nm;
-}
+{}
 
 
 bool Vw2DDataObject::fillPar( IOPar& par ) const
 {
     par.set( sKey::Type(), getClassName() );
-    const char* nm = name();
-    if ( nm )
-	par.set( sKey::Name(), nm );
+    par.set( sKey::Name(), name() );
     par.set( sKeyMID(), toString(-1) );
     return true;
 }
@@ -57,9 +41,10 @@ bool Vw2DDataObject::fillPar( IOPar& par ) const
 
 bool Vw2DDataObject::usePar( const IOPar& par )
 {
-    const char* nm = par.find( sKey::Name() );
-    if ( nm )
+    const FixedString nm = par.find( sKey::Name() );
+    if ( !nm.isEmpty() )
 	setName( nm );
+
     return true;
 }
 

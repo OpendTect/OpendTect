@@ -12,20 +12,21 @@ ________________________________________________________________________
 -*/
 
 #include "velocitymod.h"
+#include "sharedobject.h"
+
 #include "enums.h"
 #include "factory.h"
 #include "multiid.h"
 #include "position.h"
 #include "ranges.h"
-#include "refcount.h"
 #include "samplingdata.h"
 #include "threadlock.h"
 #include "veldesc.h"
 
-namespace Attrib { class DataHolder; };
+
+namespace Attrib { class DataHolder; }
 
 class BinIDValueSet;
-
 
 namespace Vel
 {
@@ -80,8 +81,8 @@ private:
 /*!A source of Velocity functions of a certain sort. The FunctionSource
    can create Functions at certian BinID locations. */
 
-mExpClass(Velocity) FunctionSource : public CallBacker
-{ mRefCountImplNoDestructor(FunctionSource)
+mExpClass(Velocity) FunctionSource : public SharedObject
+{
 public:
 				mDefineFactory1ParamInClass(
 					FunctionSource,const MultiID&,factory)
@@ -124,4 +125,3 @@ protected:
 };
 
 } // namespace Vel
-

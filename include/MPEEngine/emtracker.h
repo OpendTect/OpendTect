@@ -11,12 +11,13 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-#include "factory.h"
-#include "emposid.h"
 #include "refcount.h"
+
+#include "emposid.h"
+#include "factory.h"
 #include "sets.h"
-#include "trckeyzsampling.h"
 #include "trckeyvalue.h"
+#include "trckeyzsampling.h"
 #include "uistring.h"
 
 class Executor;
@@ -35,12 +36,10 @@ class SectionTracker;
 \brief Tracks EM objects.
 */
 
-mExpClass(MPEEngine) EMTracker
-{ mRefCountImpl(EMTracker)
+mExpClass(MPEEngine) EMTracker : public ReferencedObject
+{
 mODTextTranslationClass(EMTracker)
 public:
-				EMTracker(EM::EMObject*);
-
     BufferString		objectName() const;
     EM::EMObject*		emObject()		{ return emobject_; }
     EM::ObjectID		objectID() const;
@@ -74,6 +73,8 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
+				EMTracker(EM::EMObject*);
+    virtual			~EMTracker();
 
     bool			isenabled_;
     ObjectSet<SectionTracker>	sectiontrackers_;
@@ -89,9 +90,6 @@ private:
     EM::EMObject*		emobject_;
 };
 
-
 mDefineFactory1Param( MPEEngine, EMTracker, EM::EMObject*, TrackerFactory );
 
-
 } // namespace MPE
-

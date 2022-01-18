@@ -11,11 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
+#include "sharedobject.h"
+
 #include "binid.h"
 #include "multiid.h"
-#include "namedobj.h"
 #include "ranges.h"
-#include "refcount.h"
 #include "trckeysampling.h"
 
 class TrcKeyZSampling;
@@ -26,8 +26,8 @@ namespace Geometry
 
 class RandomLineSet;
 
-mExpClass(Geometry) RandomLine : public NamedCallBacker
-{ mRefCountImpl(RandomLine)
+mExpClass(Geometry) RandomLine : public SharedObject
+{
 public:
 			RandomLine(const char* nm=0);
 
@@ -79,6 +79,7 @@ public:
     const RandomLineSet* lineSet() const	{ return lset_; }
 
 protected:
+    virtual		~RandomLine();
 
     TypeSet<BinID>	nodes_;
     Interval<float>	zrange_;
@@ -127,7 +128,6 @@ public:
 mExpClass(Geometry) RandomLineSet
 {
 public:
-
 			RandomLineSet();
 			RandomLineSet(const RandomLine&,double dist,
 				      bool parallel);
@@ -194,6 +194,4 @@ protected:
 
 mGlobal(Geometry) RandomLineManager& RLM();
 
-
 } // namespace Geometry
-

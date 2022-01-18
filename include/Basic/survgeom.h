@@ -10,12 +10,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "factory.h"
-#include "coord.h"
+#include "basicmod.h"
 #include "refcount.h"
-#include "threadlock.h"
+
+#include "coord.h"
+#include "factory.h"
 #include "trckey.h"
 #include "trckeyzsampling.h"
+#include "threadlock.h"
 
 class TaskRunner;
 class IOObj;
@@ -34,8 +36,8 @@ Beware, the Pos::GeomID != OD::GeomSytem for 2D geometries. The GeomID
 will end up in the lineNr() of the TrcKey.
 */
 
-mExpClass(Basic) Geometry
-{ mRefCountImpl(Geometry)
+mExpClass(Basic) Geometry : public ReferencedObject
+{
 public:
 
     enum RelationType	{ UnRelated=0, Related, SubSet, SuperSet, Identical };
@@ -81,8 +83,10 @@ public:
 
 protected:
 				Geometry();
+    virtual			~Geometry();
 
     TrcKeyZSampling		sampling_;
+
 private:
 
     Pos::GeomID			id_;
@@ -98,7 +102,8 @@ public:
 /*!\brief Makes geometries accessible from a geometry ID, or a MultiID.  */
 
 mExpClass(Basic) GeometryManager
-{ mODTextTranslationClass(GeometryManager)
+{
+mODTextTranslationClass(GeometryManager)
 public:
 
 				GeometryManager();
@@ -207,7 +212,6 @@ mGlobal(Basic) bool isValidGeomID(Pos::GeomID);
 mExpClass(Basic) GeometryReader
 {
 public:
-
     virtual		~GeometryReader()		{}
 			mDefineFactoryInClass(GeometryReader,factory)
 
@@ -222,7 +226,6 @@ public:
 mExpClass(Basic) GeometryWriter
 {
 public:
-
     virtual		~GeometryWriter()		{}
 			mDefineFactoryInClass(GeometryWriter,factory)
 

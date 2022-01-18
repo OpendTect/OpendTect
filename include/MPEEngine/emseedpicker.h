@@ -30,32 +30,33 @@ namespace MPE
 class EMTracker;
 class EMSeedPicker;
 
-mExpClass(MPEEngine) Patch
-{ mRefCountImpl(Patch);
+mExpClass(MPEEngine) Patch : public ReferencedObject
+{
 public:
-			    Patch(const EMSeedPicker*);
+				Patch(const EMSeedPicker*);
 
-    const TypeSet<TrcKeyValue>&  getPath() const;
-    void		    getTrcKeySampling(TrcKeySampling&) const;
-    int			    nrSeeds();
-    Coord3		    seedCoord(int) const;
-    int			    addSeed(const TrcKeyValue&,bool sort);
-    void		    removeSeed(int);
-    void		    clear();
-    
+    const TypeSet<TrcKeyValue>& getPath() const;
+    void			getTrcKeySampling(TrcKeySampling&) const;
+    int				nrSeeds();
+    Coord3			seedCoord(int) const;
+    int				addSeed(const TrcKeyValue&,bool sort);
+    void			removeSeed(int);
+    void			clear();
+
 protected:
-    EM::PosID		    seedNode(int) const;
-    int			    findClosedSeed3d(const EM::PosID&);
-    int			    findClosedSeed2d(const TrcKeyValue&);
-    int			    findClosestSeedRdmIdx(const EM::PosID&);
-    const EMSeedPicker*     seedpicker_;
+    virtual			~Patch();
+    EM::PosID			seedNode(int) const;
+    int				findClosedSeed3d(const EM::PosID&);
+    int				findClosedSeed2d(const TrcKeyValue&);
+    int				findClosestSeedRdmIdx(const EM::PosID&);
+    const EMSeedPicker*		seedpicker_;
 
 private:
-    TypeSet<TrcKeyValue>    seeds_;
+    TypeSet<TrcKeyValue>	seeds_;
 
 public:
     mDeprecatedDef
-    int			    addSeed(const TrcKeyValue&);
+    int				addSeed(const TrcKeyValue&);
 };
 
 
@@ -65,10 +66,10 @@ instance of the class is usually available from each EMTracker.
 */
 
 mExpClass(MPEEngine) EMSeedPicker: public CallBacker
-{ mODTextTranslationClass(EMSeedPicker)
+{
+mODTextTranslationClass(EMSeedPicker)
 public:
     virtual		~EMSeedPicker();
-
 
     virtual void	setSectionID(EM::SectionID);
     virtual EM::SectionID getSectionID() const;
@@ -76,7 +77,7 @@ public:
     virtual bool	startSeedPick();
 			/*!<Should be set when seedpicking is about to start. */
 
-    const Patch*	getPatch() const { return patch_; }
+    const Patch*	getPatch() const	{ return patch_; }
     virtual void	endPatch(bool);
     bool		stopSeedPick();
 
@@ -118,7 +119,7 @@ public:
     void		setSeedPickArea(const TrcKeySampling&);
     const TrcKeySampling& getSeedPickArea() const;
     EMTracker&		emTracker() const { return tracker_; }
-    bool		lineTrackDirection( BinID& dir,	
+    bool		lineTrackDirection( BinID& dir,
 					    bool perptotrackdir = false ) const;
     virtual bool	updatePatchLine(bool) { return false; }
     Undo&		horPatchUndo();
@@ -162,4 +163,3 @@ public:
 };
 
 } // namespace MPE
-

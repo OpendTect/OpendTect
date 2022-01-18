@@ -21,7 +21,6 @@
 namespace Attrib
 {
 
-
 DataHolder::DataHolder( int z0, int nrsamples )
     : z0_(z0), nrsamples_(nrsamples), extrazfromsamppos_(0)
 { data_.allowNull(true); }

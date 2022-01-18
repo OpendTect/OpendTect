@@ -111,8 +111,8 @@ private:
     bool			checkAndSplit(od_int64 usage,od_int64& freemem,
 					      int& nrchunks) const;
 
-    Epoch*			curepoch_;
-    bool			isok_;
+    Epoch*			curepoch_		= nullptr;
+    bool			isok_			= false;
     Chain&			chain_;
     TrcKeySampling		outputhrg_; // deprecated
     StepInterval<int>		outputzrg_; // deprecated
@@ -120,15 +120,13 @@ private:
     ObjectSet<Step>		scheduledsteps_;
     ObjectSet<Epoch>		epochs_;
     Chain::Web			web_;
-    int				totalnrepochs_;
+    int				totalnrepochs_		= 1;
     ObjectSet<TrcKeyZSampling>	stepstkzs_;
 
-    const RegularSeisDataPack*	outputdp_;
-    JobCommunic*		jobcomm_;
+    const RegularSeisDataPack*	outputdp_		= nullptr;
+    JobCommunic*		jobcomm_		= nullptr;
 
     friend class ChainOutput;
-
 };
 
 } // namespace VolProc
-

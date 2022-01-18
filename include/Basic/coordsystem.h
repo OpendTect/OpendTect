@@ -10,13 +10,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "factory.h"
+#include "basicmod.h"
+#include "sharedobject.h"
 
 #include "bufstring.h"
-#include "callback.h"
 #include "coord.h"
+#include "factory.h"
 #include "latlong.h"
-#include "refcount.h"
 
 namespace Coords
 {
@@ -27,8 +27,8 @@ namespace Coords
     either the WGS84 datum or its own datum if applicable.
  */
 
-mExpClass(Basic) CoordSystem : CallBacker
-{ mRefCountImpl(CoordSystem);
+mExpClass(Basic) CoordSystem : public SharedObject
+{
 public:
 
     bool			operator==(const CoordSystem&) const;
@@ -48,7 +48,7 @@ public:
 				   corresponding IOPars to create them.
 				   IOPars become yours! */
 
-    static RefMan<CoordSystem> createSystem(const IOPar&);
+    static RefMan<CoordSystem>	createSystem(const IOPar&);
 				//!<Creates subclass with settings
     virtual CoordSystem*	clone() const				= 0;
 
@@ -86,6 +86,7 @@ public:
     static const char*		sKeyUiName();
 
 protected:
+    virtual			~CoordSystem();
 
     virtual LatLong		toGeographic(const Coord&,
 					     bool wgs84) const		= 0;
@@ -101,7 +102,8 @@ private:
 
 
 mExpClass(Basic) UnlocatedXY : public CoordSystem
-{ mODTextTranslationClass(UnlocatedXY);
+{
+mODTextTranslationClass(UnlocatedXY)
 public:
     mDefaultFactoryInstantiation( CoordSystem,UnlocatedXY,"Unlocated XY",
 				 tr("Unlocated XY") );
@@ -135,7 +137,8 @@ private:
 
 
 mExpClass(Basic) AnchorBasedXY : public CoordSystem
-{ mODTextTranslationClass(AnchorBasedXY);
+{
+mODTextTranslationClass(AnchorBasedXY)
 public:
     mDefaultFactoryInstantiation( CoordSystem,AnchorBasedXY,"AnchorBased XY",
 				 tr("Anchor Point Based XY") );
@@ -181,4 +184,3 @@ private:
 };
 
 } // namespace Coords
-

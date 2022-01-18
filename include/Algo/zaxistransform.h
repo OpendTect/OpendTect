@@ -10,13 +10,15 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+#include "sharedobject.h"
+
 #include "enums.h"
 #include "factory.h"
 #include "binid.h"
 #include "ranges.h"
-#include "refcount.h"
 #include "samplingdata.h"
 #include "survgeom.h"
+
 
 class BinIDValue;
 class Scaler;
@@ -33,8 +35,8 @@ namespace ZDomain { class Def; class Info; }
   The various transforms can be retrieved from factory ZATF().
 */
 
-mExpClass(Algo) ZAxisTransform
-{ mRefCountImpl(ZAxisTransform);
+mExpClass(Algo) ZAxisTransform : public SharedObject
+{
 public:
 				mDefineFactoryInClass(ZAxisTransform,factory);
 
@@ -102,6 +104,7 @@ public:
 protected:
 				ZAxisTransform(const ZDomain::Def& from,
 					       const ZDomain::Def& to);
+    virtual			~ZAxisTransform();
 
     ZDomain::Info&		tozdomaininfo_;
     ZDomain::Info&		fromzdomaininfo_;

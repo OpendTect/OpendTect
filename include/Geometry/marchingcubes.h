@@ -1,5 +1,4 @@
 #pragma once
-
 /*+
 ________________________________________________________________________
 
@@ -11,11 +10,11 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
-#include "task.h"
-#include "callback.h"
+#include "sharedobject.h"
+
 #include "multidimstorage.h"
 #include "ranges.h"
-#include "refcount.h"
+#include "task.h"
 #include "threadlock.h"
 
 #include "od_iosfwd.h"
@@ -72,15 +71,14 @@ public:
     static const unsigned char	cAxisSpacing;
 
     unsigned char	model_;		//Don't change the order of these
-    unsigned char	submodel_;	//since they are written to 
+    unsigned char	submodel_;	//since they are written to
     unsigned char	axispos_[3];	//the stream in this order
 };
 
 
-mExpClass(Geometry) MarchingCubesSurface : public CallBacker
-{ mRefCountImpl(MarchingCubesSurface);
+mExpClass(Geometry) MarchingCubesSurface : public SharedObject
+{
 public:
-
 			MarchingCubesSurface();
 
     bool		setVolumeData(int xorigin,int yorigin,int zorigin,
@@ -89,7 +87,7 @@ public:
 			/*!<Replaces the surface within the array3d's volume
 			    with an isosurface from the array and its
 			    threshold. Make sure inside body value is less than
-			    the threshold, outside value is bigger than the 
+			    the threshold, outside value is bigger than the
 			    threshold */
 
     void		removeAll();
@@ -110,11 +108,15 @@ public:
 						//!<set when change is trig.
     Interval<int>				changepos_[3];
 						//!<set when change is trig.
+
+protected:
+    virtual		~MarchingCubesSurface();
 };
 
 
 mExpClass(Geometry) Implicit2MarchingCubes : public ParallelTask
-{ mODTextTranslationClass(Implicit2MarchingCubes);
+{
+mODTextTranslationClass(Implicit2MarchingCubes)
 public:
 		Implicit2MarchingCubes(int posx, int posy, int posz,
 				const Array3D<float>&, float threshold,
@@ -146,13 +148,14 @@ protected:
 */
 
 mExpClass(Geometry) MarchingCubes2Implicit : public ParallelTask
-{ mODTextTranslationClass(MarchingCubes2Implicit);
+{
+mODTextTranslationClass(MarchingCubes2Implicit)
 public:
 		MarchingCubes2Implicit(const MarchingCubesSurface&,
 					Array3D<int>&,
 					int originx,int originy,int originz,
 					bool nodistance);
-		/*!<originx .. originz gives the surface location of the 
+		/*!<originx .. originz gives the surface location of the
 		    array's origin.
 		    \param originx,originy,originz
 		    \param nodistance enables faster processing, but the
@@ -172,8 +175,8 @@ protected:
     bool	doWork(od_int64,od_int64,int);
     bool	processSeeds( const od_int64*, int nr );
 
-    friend	class MarchingCubes2ImplicitDistGen; 
-    
+    friend	class MarchingCubes2ImplicitDistGen;
+
     bool	shouldSetValue(od_int64 offset, int newval );
     void	setValue(od_int64 offset,int newval,bool checkval);
 
@@ -193,5 +196,3 @@ protected:
     bool*					newfloodfillers_;
     TypeSet<od_int64>				activefloodfillers_;
 };
-
-

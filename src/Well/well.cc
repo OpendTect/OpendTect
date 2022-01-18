@@ -253,14 +253,15 @@ Well::Data::Data( const char* nm )
     , reloaded(this)
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
-    lvlset.levelToBeRemoved.notify( mCB(this, Well::Data, levelToBeRemoved ) );
-    mAttachCB(logschanged, Data::reloadLogNames);
+    mAttachCB( lvlset.levelToBeRemoved, Data::levelToBeRemoved );
+    mAttachCB( logschanged, Data::reloadLogNames );
 }
 
 
 Well::Data::~Data()
 {
     detachAllNotifiers();
+
     delete &track_;
     delete &logs_;
     delete &disp2d_;
@@ -268,13 +269,10 @@ Well::Data::~Data()
     delete d2tmodel_;
     delete csmodel_;
     delete &markers_;
-
-    Strat::eLVLS().levelToBeRemoved.remove(
-				mCB(this, Well::Data, levelToBeRemoved ) );
 }
 
 
-void Well::Data::prepareForDelete() const
+void Well::Data::prepareForDelete()
 {
     Well::MGR().removeObject( this );
 }

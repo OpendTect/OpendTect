@@ -8,10 +8,6 @@
 #include "positionlist.h"
 
 
-FloatVertexAttribList::~FloatVertexAttribList()
-{}
-
-
 Coord Coord2List::center() const
 {
     int id = -1;

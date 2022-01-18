@@ -11,25 +11,21 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "callback.h"
-#include "refcount.h"
+#include "sharedobject.h"
 
 #include "view2ddataman.h"
 
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
-mExpClass(uiViewer2D) Vw2DDataObject : public CallBacker
-{ mRefCountImpl(Vw2DDataObject)
+mExpClass(uiViewer2D) Vw2DDataObject : public SharedObject
+{
 public:
 
-    virtual const char*         getClassName() const    { return "Not impl"; }
+    virtual const char*		getClassName() const	{ return "Not impl"; }
 
     int				id() const		{ return id_; }
     void			setID(int nid)		{ id_ = nid; }
-
-    const char*			name() const;
-    virtual void		setName(const char*);
 
     virtual NotifierAccess*	deSelection()		{ return 0; }
 
@@ -40,13 +36,13 @@ public:
 
 protected:
 				Vw2DDataObject();
+    virtual			~Vw2DDataObject();
 
-    virtual void	triggerDeSel()			{}
+    virtual void		triggerDeSel()			{}
 
-    int			id_;
-    BufferString*	name_;
+    int				id_;
 
-    friend class	Vw2DDataManager;
+    friend class		Vw2DDataManager;
 };
 
 
@@ -57,7 +53,7 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
-    const EM::ObjectID& emID() const                    { return emid_; }
+    const EM::ObjectID& emID() const			{ return emid_; }
 
 protected:
 			Vw2DEMDataObject(const EM::ObjectID&,uiFlatViewWin*,

@@ -11,13 +11,13 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
+#include "sharedobject.h"
 
 #include "callback.h"
 #include "enums.h"
 #include "multiid.h"
 #include "namedobj.h"
 #include "position.h"
-#include "refcount.h"
 #include "sets.h"
 #include "uistring.h"
 #include "welld2tmodel.h"
@@ -125,11 +125,9 @@ public:
   when more well tracks share an upper part.
 */
 
-mExpClass(Well) Data : public NamedCallBacker
-{ mRefCountImplWithDestructor(Data, virtual ~Data(),
-{prepareForDelete(); delete this; } );
+mExpClass(Well) Data : public SharedObject
+{
 public:
-
 				Data(const char* nm=0);
 
     const MultiID&		multiID() const		{ return mid_; }
@@ -182,19 +180,20 @@ public:
     Notifier<Well::Data>	reloaded;
 
 protected:
-    void		prepareForDelete() const;
+    virtual			~Data();
 
-    Info		info_;
-    mutable MultiID	mid_;
-    Track&		track_;
-    LogSet&		logs_;
-    D2TModel*		d2tmodel_;
-    D2TModel*		csmodel_;
-    MarkerSet&		markers_;
-    DisplayProperties&	disp2d_;
-    DisplayProperties&	disp3d_;
+    void			prepareForDelete() override;
+
+    Info			info_;
+    mutable MultiID		mid_;
+    Track&			track_;
+    LogSet&			logs_;
+    D2TModel*			d2tmodel_;
+    D2TModel*			csmodel_;
+    MarkerSet&			markers_;
+    DisplayProperties&		disp2d_;
+    DisplayProperties&		disp3d_;
     mutable BufferStringSet	lognms_;
 };
 
 } // namespace Well
-

@@ -23,7 +23,8 @@ class ui3DViewer;
 
 
 mExpClass(uiODMain) uiODTreeItem : public uiTreeItem
-{ mODTextTranslationClass(uiODTreeItem)
+{
+mODTextTranslationClass(uiODTreeItem)
 public:
     virtual		~uiODTreeItem();
     bool		anyButtonClick(uiTreeViewItem*);
@@ -48,7 +49,8 @@ protected:
 
 
 mExpClass(uiODMain) uiODTreeTop : public uiTreeTopItem
-{ mODTextTranslationClass(uiODTreeTop)
+{
+mODTextTranslationClass(uiODTreeTop)
 public:
 			uiODTreeTop(ui3DViewer*,uiTreeView*,
 				    uiODApplMgr*,uiTreeFactorySet*);
@@ -77,7 +79,8 @@ protected:
 
 
 mExpClass(uiODMain) uiODParentTreeItem : public uiODTreeItem
-{ mODTextTranslationClass(uiODParentTreeItem)
+{
+mODTextTranslationClass(uiODParentTreeItem)
 public:
     virtual		~uiODParentTreeItem();
 
@@ -97,11 +100,11 @@ protected:
 
 
 mExpClass(uiODMain) uiODTreeItemFactory : public uiTreeItemFactory
-{ mODTextTranslationClass(uiODTreeItemFactory)
+{
+mODTextTranslationClass(uiODTreeItemFactory)
 public:
 
     virtual uiTreeItem* createForVis(int visid,uiTreeItem*) const
 				{ return 0; }
 
 };
-

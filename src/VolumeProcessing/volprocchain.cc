@@ -472,14 +472,9 @@ bool VolProc::Chain::usePar( const IOPar& par )
 void VolProc::Chain::setStorageID( const MultiID& mid )
 {
     storageid_ = mid;
-}
 
-
-uiString VolProc::Chain::name() const
-{
-    PtrMan<IOObj>  ioobj = IOM().get( storageid_ );
-    return !ioobj ? uiString::emptyString() :
-	tr("Executing volume builder chain \'%1\'").arg(ioobj->uiName());
+    PtrMan<IOObj> ioobj = IOM().get( storageid_ );
+    setName( ioobj ? ioobj->name() : "" );
 }
 
 

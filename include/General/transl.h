@@ -19,13 +19,15 @@ object of that type.
 */
 
 #include "generalmod.h"
-#include "refcount.h"
-#include "objectset.h"
 #include "callback.h"
+#include "refcount.h"
+
 #include "bufstring.h"
-#include "streamconn.h"
 #include "ctxtioobj.h"
+#include "objectset.h"
+#include "streamconn.h"
 #include "uistring.h"
+
 class Translator;
 
 #define mDGBKey "dGB"
@@ -51,12 +53,9 @@ mGlobal(General) int defaultSelector(const char*,const char*);
 
  */
 
-mExpClass(General) TranslatorGroup
-{ mRefCountImpl(TranslatorGroup);
+mExpClass(General) TranslatorGroup : public ReferencedObject
+{
 public:
-
-				TranslatorGroup( const char* clssnm );
-
     virtual FixedString		groupName() const = 0;
     virtual uiString		typeName(int num=1) const = 0;
     virtual Translator*		make(const char*,bool usrnm) const;
@@ -90,6 +89,8 @@ public:
     virtual const char*		translationApplication() const;
 
 protected:
+				TranslatorGroup(const char* clssnm);
+    virtual			~TranslatorGroup();
 
     const OD::String&		clssName() const	{ return clssname_; }
 

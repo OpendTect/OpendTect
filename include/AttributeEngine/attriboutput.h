@@ -11,12 +11,13 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
+#include "refcount.h"
+
 #include "bufstringset.h"
 #include "datapointset.h"
-#include "trckeyzsampling.h"
 #include "ranges.h"
-#include "refcount.h"
 #include "seistype.h"
+#include "trckeyzsampling.h"
 #include "uistring.h"
 
 class BinDataDesc;
@@ -39,8 +40,8 @@ class Processor;
 \brief Base class for attribute Output.
 */
 
-mExpClass(AttributeEngine) Output
-{ mRefCountImpl(Output);
+mExpClass(AttributeEngine) Output : public ReferencedObject
+{
 public:
 				Output();
 
@@ -82,6 +83,7 @@ public:
     virtual const char*		errMsg() const	{ return ""; }
 
 protected:
+    virtual			~Output();
 
     Seis::SelData*		seldata_;
     TypeSet<int>		desoutputs_;

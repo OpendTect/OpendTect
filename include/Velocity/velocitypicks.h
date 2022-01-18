@@ -12,14 +12,14 @@ ________________________________________________________________________
 -*/
 
 #include "velocitymod.h"
-#include "multidimstorage.h"
-#include "callback.h"
+#include "sharedobject.h"
+
 #include "color.h"
 #include "emposid.h"
 #include "enums.h"
+#include "multidimstorage.h"
 #include "multiid.h"
 #include "ranges.h"
-#include "refcount.h"
 #include "rowcol.h"
 
 class Undo;
@@ -38,7 +38,7 @@ class PicksMgr;
 mExpClass(Velocity) Pick
 {
 public:
-    			Pick(float depth=mUdf(float),
+			Pick(float depth=mUdf(float),
 			     float vel=mUdf(float),
 			     float offset=mUdf(float),EM::ObjectID=-1);
     bool		operator==(const Pick& b) const;
@@ -52,11 +52,11 @@ public:
 
 /*!Holds picks that the user has done, typically in a semblance plot. */
 
-mExpClass(Velocity) Picks : public CallBacker
-{ mRefCountImpl(Picks)
+mExpClass(Velocity) Picks : public SharedObject
+{
 public:
-    			Picks();
-    			Picks(bool zit);
+			Picks();
+			Picks(bool zit);
 
     enum PickType	{ RMO, RMS, Delta, Epsilon, Eta };
      			mDeclareEnumUtils(PickType)
@@ -162,6 +162,8 @@ public:
     static const char*		sKeyPickType();
 
 protected:
+    virtual			~Picks();
+
     void			getColorKey(BufferString&) const;
     void			removeHorizons();
     friend			class PicksMgr;
@@ -222,4 +224,3 @@ protected:
 mGlobal(Velocity) PicksMgr& VPM();
 
 } // namespace Vel
-

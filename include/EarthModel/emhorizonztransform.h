@@ -25,8 +25,8 @@ patches will not be included.
 */
 
 mExpClass(EarthModel) HorizonZTransform : public ZAxisTransform
-			 , public CallBacker
-{ mODTextTranslationClass(HorizonZTransform);
+{
+mODTextTranslationClass(HorizonZTransform)
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, HorizonZTransform,
 				  "HorizonZTransform",
@@ -67,4 +67,3 @@ protected:
 };
 
 } // namespace EM
-

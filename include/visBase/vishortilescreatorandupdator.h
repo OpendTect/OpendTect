@@ -7,57 +7,54 @@ ________________________________________________________________________
  Date:		March 2009
 ________________________________________________________________________
 -*/
-// this header file only be used in the classes related to Horzonsection . 
+// this header file only be used in the classes related to Horzonsection .
 // don't include it in somewhere else !!!
 
-#include "typeset.h"
+#include "visbasemod.h"
+#include "refcount.h"
+
 #include "geomelement.h"
 #include "rowcol.h"
-#include "refcount.h"
 #include "thread.h"
-
+#include "typeset.h"
 
 class TaskRunner;
 
-namespace osg
-{ class CullStack; }
-
+namespace osg { class CullStack; }
 namespace osgGeo { class LayeredTexture; }
 
 namespace visBase
 {
-    class HorizonSection;
-    class HorizonSectionTile;
+class HorizonSection;
+class HorizonSectionTile;
 
 
-class HorTilesCreatorAndUpdator
-{mRefCountImpl(HorTilesCreatorAndUpdator)
-public: 
-    HorTilesCreatorAndUpdator( HorizonSection*);
+class HorTilesCreatorAndUpdator : public ReferencedObject
+{
+public:
+			HorTilesCreatorAndUpdator(HorizonSection*);
 
-    void    updateTiles(const TypeSet<GeomPosID>*,TaskRunner*);
-    void    createAllTiles(TaskRunner* tr);
-    void    updateTilesAutoResolution(const osg::CullStack* cs);
-    void    updateTilesPrimitiveSets();
-    void    setFixedResolution(char res, TaskRunner* tr);
+    void		updateTiles(const TypeSet<GeomPosID>*,TaskRunner*);
+    void		createAllTiles(TaskRunner*);
+    void		updateTilesAutoResolution(const osg::CullStack*);
+    void		updateTilesPrimitiveSets();
+    void		setFixedResolution(char res,TaskRunner*);
 
 
 protected:
-    void    updateTileArray(const StepInterval<int>& rrg,
-			    const StepInterval<int>& crg);
+    virtual		~HorTilesCreatorAndUpdator();
+
+private:
+    void		updateTileArray(const StepInterval<int>& rrg,
+					const StepInterval<int>& crg);
     HorizonSectionTile* createOneTile(int tilerowidx, int tilecolidx);
-    void    setNeighbors(HorizonSectionTile* tile, int tilerowidx,
-			 int tilecolidx);
+    void		setNeighbors(HorizonSectionTile* tile, int tilerowidx,
+				     int tilecolidx);
 
 
     HorizonSection*	horsection_;
     Threads::SpinLock	spinlock_;
     Threads::Mutex	updatelock_;
-
-
-private:
 };
 
-
-
-}
+} // namespace visBase

@@ -12,10 +12,11 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "volprocstep.h"
+#include "sharedobject.h"
+
 #include "multiid.h"
-#include "refcount.h"
 #include "threadlock.h"
+#include "volprocstep.h"
 
 class Scaler;
 
@@ -24,8 +25,9 @@ namespace VolProc
 
 /*!\brief A chain of Steps that can be applied to a volume of scalars.	*/
 
-mExpClass(VolumeProcessing) Chain
-{ mRefCountImpl(Chain); mODTextTranslationClass(Chain);
+mExpClass(VolumeProcessing) Chain : public SharedObject
+{
+mODTextTranslationClass(Chain)
 public:
 				Chain();
 
@@ -106,13 +108,15 @@ public:
 
     void			setStorageID(const MultiID& mid);
     const MultiID&		storageID() const { return storageid_; }
-    uiString			name() const;
 
     bool			areSamplesIndependent() const;
     bool			needsFullVolume() const;
     uiString			errMsg() const;
 
     Step::ID			getNewStepID() { return freeid_++; }
+
+protected:
+    virtual			~Chain();
 
 private:
 
@@ -138,10 +142,6 @@ private:
     uiString			errmsg_;
     Threads::Atomic<int>	freeid_;
     ObjectSet<Scaler>		outcompscalers_;
-
 };
 
 } // namespace VolProc
-
-#include "volprocchainexec.h" // this include will go after 6.0
-

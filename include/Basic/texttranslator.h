@@ -76,13 +76,12 @@ public: //Speicalized stuff
 
 /*!Holds the translation for one language. Each language has its own locale
    code, (such as en-us) */
-mExpClass(Basic) TextTranslatorLanguage
+mExpClass(Basic) TextTranslatorLanguage : public ReferencedObject
 {
-    mRefCountImpl(TextTranslatorLanguage);
-    mODTextTranslationClass(TextTranslatorLanguage);
+mODTextTranslationClass(TextTranslatorLanguage);
 public:
 					TextTranslatorLanguage(
-					    const char*vlocalename);
+					    const char* vlocalename);
 
     const mQtclass(QString)&		getLanguageName() const;
     const mQtclass(QLocale)&		getLanguageLocale() const;
@@ -95,6 +94,7 @@ public:
     const mQtclass(QTranslator)*	getTranslator(const char* appl) const;
 
 protected:
+    virtual				~TextTranslatorLanguage();
 
     bool				loaded_;
     BufferString			localename_;

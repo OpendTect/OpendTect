@@ -11,11 +11,12 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "refcount.h"
+#include "sharedobject.h"
+
+#include "attribdescid.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "seistype.h"
-#include "attribdescid.h"
 #include "typeset.h"
 
 
@@ -23,8 +24,8 @@ namespace Attrib
 {
 
 class Desc;
-class Param;
 class DescSet;
+class Param;
 class ValParam;
 
 using DescStatusUpdater = void(*)(Desc&);
@@ -84,8 +85,8 @@ a definition string that defines what the attribute calculates.
 Each Desc has DescID that is unique within it's DescSet.
 */
 
-mExpClass(AttributeEngine) Desc
-{ mRefCountImpl(Desc)
+mExpClass(AttributeEngine) Desc : public SharedObject
+{
 public:
 
     enum Locality		{ SingleTrace, PossiblyMultiTrace, MultiTrace };
@@ -219,6 +220,7 @@ public:
     static const char* sKeyLineDipComp();
 
 protected:
+    virtual			~Desc();
 
     bool			setInput_(int,Desc*);
     Param*			findParam(const char* key);

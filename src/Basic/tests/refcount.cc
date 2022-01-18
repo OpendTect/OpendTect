@@ -14,11 +14,11 @@
 
 
 class MacroReferencedClass
-{ mRefCountImpl(MacroReferencedClass);
+{ mRefCountImpl(MacroReferencedClass)
 public:
-    MacroReferencedClass( bool* delflag )
-	: deleteflag_( delflag )
-    {}
+MacroReferencedClass( bool* delflag )
+    : deleteflag_( delflag )
+{}
 
     bool*		deleteflag_;
 };
@@ -33,16 +33,19 @@ MacroReferencedClass::~MacroReferencedClass()
 class ReferencedClass : public RefCount::Referenced
 {
 public:
-    ReferencedClass(bool* delflag )
-        : deleteflag_( delflag )
-    {}
+ReferencedClass( bool* delflag )
+    : deleteflag_(delflag)
+{}
 
 protected:
-    ~ReferencedClass() { *deleteflag_ = true; }
+~ReferencedClass()
+{
+    *deleteflag_ = true;
+}
 
 private:
 
-    bool*               deleteflag_;
+    bool*	deleteflag_;
 };
 
 
@@ -72,11 +75,14 @@ bool testRefCountMacro()
     mRunTest( refclass->unRef(), true, false, 1 );
     mRunTest( refclass->unRefNoDelete(), true, false, 0 );
     mRunTest( refclass->ref(), true, false, 1 );
-    mRunTest( unRefAndZeroPtr( refclass ), refclass==0, true, mInvalidRefCount);
+    mRunTest( unRefAndZeroPtr( refclass ), refclass==0, true,
+	      RefCount::Counter::cInvalidRefCount() );
 
     //Test null pointers
-    mRunTest( refPtr(refclass), true, false, mInvalidRefCount );
-    mRunTest( unRefPtr(refclass), true, false, mInvalidRefCount );
+    mRunTest( refPtr(refclass), true, false,
+	      RefCount::Counter::cInvalidRefCount() );
+    mRunTest( unRefPtr(refclass), true, false,
+	      RefCount::Counter::cInvalidRefCount() );
 
     refclass = new MacroReferencedClass( &deleted );
     RefMan<MacroReferencedClass> rptr = refclass;

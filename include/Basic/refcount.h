@@ -18,8 +18,6 @@ template <class T> class WeakPtr;
 template <class T> class RefMan;
 template <class T> class ConstRefMan;
 
-#define mInvalidRefCount (-1)
-
 /*!\ingroup Basic
 \page refcount Reference Counting
    Reference counter is an integer that tracks how many references have been
@@ -493,6 +491,9 @@ public:
     inline bool		refIfReffed();
 			//!<Don't use in production, for debugging
 
+    static od_int32	cInvalidRefCount()
+			{ return RefCount::Counter::cInvalidRefCount(); }
+
 private:
 
     Threads::Atomic<od_int32>	count_;
@@ -511,7 +512,7 @@ inline void ReferenceCounter::ref()
 
     do
     {
-	if ( oldcount==mInvalidRefCount )
+	if ( oldcount==cInvalidRefCount() )
 	{
 	    pErrMsg("Invalid ref");
 #ifdef __debug__
@@ -536,7 +537,7 @@ inline bool ReferenceCounter::unRef()
 
     do
     {
-	if ( oldcount==mInvalidRefCount )
+	if ( oldcount==cInvalidRefCount() )
 	{
 	    pErrMsg("Invalid reference.");
 #ifdef __debug__
@@ -547,13 +548,13 @@ inline bool ReferenceCounter::unRef()
 #endif
 	}
 	else if ( oldcount==1 )
-	    newcount = mInvalidRefCount;
+	    newcount = cInvalidRefCount();
 	else
 	    newcount = oldcount-1;
 
     } while ( !count_.setIfValueIs(oldcount,newcount, &oldcount ) );
 
-    return newcount==mInvalidRefCount;
+    return newcount==cInvalidRefCount();
 }
 
 
@@ -563,7 +564,7 @@ inline bool ReferenceCounter::refIfReffed()
 
     do
     {
-	if ( oldcount==mInvalidRefCount )
+	if ( oldcount==cInvalidRefCount() )
 	{
 	    pErrMsg("Invalid ref");
 #ifdef __debug__
@@ -589,7 +590,7 @@ inline void ReferenceCounter::unRefDontInvalidate()
 
     do
     {
-	if ( oldcount==mInvalidRefCount )
+	if ( oldcount==cInvalidRefCount() )
 	{
 	    pErrMsg("Invalid reference.");
 #ifdef __debug__

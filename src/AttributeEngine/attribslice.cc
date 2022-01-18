@@ -35,6 +35,7 @@ void Slice::setUndefValue( float udfval, bool initdata )
 }
 
 
+// SliceSet
 SliceSet::SliceSet()
 {
     allowNull( true );
@@ -42,7 +43,9 @@ SliceSet::SliceSet()
 
 
 SliceSet::~SliceSet()
-{ deepUnRef( *this ); }
+{
+    deepUnRef( *this );
+}
 
 
 #define mInlIdx ((inl-sampling_.hsamp_.start_.inl()) / \
@@ -52,7 +55,7 @@ SliceSet::~SliceSet()
 #define mZIdx (sampling_.zsamp_.nearestIndex(z))
 
 void SliceSet::getIdxs( int inl, int crl, float z,
-			 int& i0, int& i1, int& i2 ) const
+			int& i0, int& i1, int& i2 ) const
 {
     if ( direction_ == TrcKeyZSampling::Z )
 	{ i0 = mZIdx; i1 = mInlIdx; i2 = mCrlIdx; }
@@ -187,17 +190,17 @@ float SliceSet::getValue( int inl, int crl, float z ) const
     int idx0, idx1, idx2;
     getIdxs( inl, crl, z, idx0, idx1, idx2 );
 
-    const int sz0 = size();
-    if ( !mIsValid(idx0,sz0) ) return mUdf(float);
+    if ( !validIdx(idx0) )
+	return mUdf(float);
 
     const Slice* slice = (*this)[idx0];
-    if ( !slice ) return mUdf(float);
+    if ( !slice )
+	return mUdf(float);
 
-    const int sz1 = slice->info().getSize(0);
-    const int sz2 = slice->info().getSize(1);
-    if ( !mIsValid(idx1,sz1) || !mIsValid(idx2,sz2) ) return mUdf(float);
+    if ( !slice->info().validPos(idx1,idx2) )
+	return mUdf(float);
 
     return slice->get( idx1, idx2 );
 }
 
-}; //namespacer
+} // namespace Attrib

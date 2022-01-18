@@ -61,7 +61,6 @@ mClass(uiOSG) ui3DViewerBody : public uiObjectBody
     friend class TrackBallManipulatorMessenger;
 
 public:
-				ui3DViewerBody(ui3DViewer&,uiParent*);
     virtual			~ui3DViewerBody();
 
     void			viewAll(bool animate);
@@ -152,6 +151,8 @@ public:
     void			removeSwapCallback(CallBacker*);
 
 protected:
+					ui3DViewerBody(ui3DViewer&,uiParent*);
+
     void				enableDragging( bool yn );
 
     enum ViewModeCursor			{ RotateCursor, PanCursor, ZoomCursor,

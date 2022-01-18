@@ -25,17 +25,17 @@ namespace Attrib
 
 /*!
 \brief Holds the attribute data.
-  
+
   Basically, this is a set of ValueSeries<float> objects, the size of
   each of these, and the start Z in the AE Z-Axis definition:
   N = N times the Z step. z0_ is therefore the amount of steps away from 0.
-  
+
   The AE will work with any type of ValueSeries<float>. Internally,
   ArrayValueSeries<float,float> objects are always allocated.
-  
-  The class variable extrazfromsamppos_ is to keep track of an eventual 
-  exact position which would not be exactly on a sample ( in the case of 
-  horizons, picksets... )  
+
+  The class variable extrazfromsamppos_ is to keep track of an eventual
+  exact position which would not be exactly on a sample ( in the case of
+  horizons, picksets... )
 */
 
 mExpClass(AttributeEngine) DataHolder
@@ -77,8 +77,8 @@ protected:
 \brief Class that holds 2d seismic data or attribute data.
 */
 
-mExpClass(AttributeEngine) Data2DHolder
-{ mRefCountImpl(Data2DHolder);
+mExpClass(AttributeEngine) Data2DHolder : public ReferencedObject
+{
 public:
 
     inline int			size() const	{ return dataset_.size(); }
@@ -92,6 +92,9 @@ public:
 					  for all traces. */
 
     inline bool			isEmpty() const	{ return size() == 0; }
+
+protected:
+    virtual			~Data2DHolder();
 };
 
 
@@ -99,8 +102,8 @@ public:
 \brief Class that holds 2d seismic data or attribute data in an array.
 */
 
-mExpClass(AttributeEngine) Data2DArray
-{ mRefCountImpl(Data2DArray);
+mExpClass(AttributeEngine) Data2DArray : public ReferencedObject
+{
 public:
     				Data2DArray(const Data2DHolder&);
 
@@ -114,9 +117,9 @@ public:
     Array3DImpl<float>*		dataset_;
     ObjectSet<SeisTrcInfo>	trcinfoset_;
     TrcKeyZSampling		cubesampling_;
+
+protected:
+    virtual			~Data2DArray();
 };
 
-
-}; //Namespace
-
-
+} // namespace Attrib

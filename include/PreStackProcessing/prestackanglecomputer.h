@@ -11,13 +11,15 @@ ________________________________________________________________________
 
 -*/
 
+#include "prestackprocessingmod.h"
+#include "refcount.h"
+
 #include "ailayer.h"
 #include "enums.h"
 #include "flatposdata.h"
 #include "iopar.h"
 #include "position.h"
 #include "prestackprocessingmod.h"
-#include "refcount.h"
 #include "windowfunction.h"
 
 template <class T> class Array2D;
@@ -36,16 +38,13 @@ class Gather;
 \brief Computes angles for PreStack::Gather.
 */
 
-mExpClass(PreStackProcessing) AngleComputer
+mExpClass(PreStackProcessing) AngleComputer : public ReferencedObject
 {
-    mRefCountImpl(AngleComputer)
 public:
-				AngleComputer();
-
     enum smoothingType { None, MovingAverage, FFTFilter };
     mDeclareEnumUtils(smoothingType)
 
-    virtual Gather* computeAngles() = 0;
+    virtual Gather*		computeAngles() = 0;
     virtual bool		isOK() const = 0;
     void			setTrcKey( const TrcKey & tk )
 				{ trckey_ = tk; }
@@ -74,6 +73,8 @@ public:
     static const char*		sKeyFreqF4();
 
 protected:
+				AngleComputer();
+    virtual			~AngleComputer();
 
     bool			fillandInterpArray(Array2D<float>& angledata);
     Gather*			computeAngleData();
@@ -182,4 +183,3 @@ protected:
 };
 
 } // namespace PreStack
-

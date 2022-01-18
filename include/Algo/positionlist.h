@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "refcount.h"
+
 #include "position.h"
 #include "typeset.h"
 
@@ -19,10 +20,9 @@ ________________________________________________________________________
 \brief Base class for vertex attribute list.
 */
 
-mExpClass(Algo) FloatVertexAttribList
-{ mRefCountImpl(FloatVertexAttribList)
+mExpClass(Algo) FloatVertexAttribList : public ReferencedObject
+{
 public:
-
 
     virtual int		size() const				= 0;
     virtual bool	setSize(int,bool cpdata)		= 0;
@@ -35,15 +35,13 @@ public:
 
     virtual void	setTCoord(int,const float*)		= 0;
     virtual void	getTCoord(int,float*) const		= 0;
-
-protected:
 };
 
 
 /*!\brief Interface for a list of Coords with automatically maintained IDs. */
 
-mExpClass(Algo) Coord2List
-{ mRefCountImplNoDestructor(Coord2List);
+mExpClass(Algo) Coord2List : public ReferencedObject
+{
 public:
 
     virtual int		nextID(int previd) const			= 0;
@@ -67,8 +65,8 @@ class Coord3;
 
 /*!\brief Interface for a list of Coord3 with automatically maintained IDs. */
 
-mExpClass(Algo) Coord3List
-{ mRefCountImplNoDestructor(Coord3List);
+mExpClass(Algo) Coord3List : public ReferencedObject
+{
 public:
 
     virtual int		nextID(int previd) const			= 0;
@@ -97,7 +95,6 @@ public:
 mExpClass(Algo) Coord2ListImpl : public Coord2List
 {
 public:
-
 			Coord2ListImpl();
 
     virtual int		nextID(int previd) const;
@@ -139,8 +136,6 @@ public:
 
 protected:
 
-    TypeSet<int>        removedids_;
-    TypeSet<Coord3>     coords_;
+    TypeSet<int>	removedids_;
+    TypeSet<Coord3>	coords_;
 };
-
-

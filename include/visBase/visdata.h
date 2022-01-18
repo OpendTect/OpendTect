@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "visdataman.h"
-#include "namedobj.h"
+#include "sharedobject.h"
 #include "uistring.h"
 
 class SoNode;
@@ -58,8 +58,8 @@ objects and is thus the only one that is allowed to delete it. The destructors
 on the inherited classes should thus be protected.
 */
 
-mExpClass(visBase) DataObject : public NamedCallBacker
-{ mRefCountImpl(DataObject);
+mExpClass(visBase) DataObject : public SharedObject
+{
 public:
 
     virtual const char*		getClassName() const	{ return "Not impl"; }
@@ -167,6 +167,7 @@ public:
     static osgViewer::CompositeViewer* getCommonViewer();
 
 protected:
+    virtual			~DataObject();
 
     virtual osg::StateSet*	getStateSet();
     void			doAddNodeState(NodeState* ns);

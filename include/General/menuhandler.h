@@ -183,10 +183,9 @@ inserted into the menu.
 */
 
 mExpClass(General) MenuHandler : public MenuItemHolder
-{				mRefCountImpl(MenuHandler);
+			       , public ReferencedObject
+{
 public:
-				MenuHandler( int id );
-
     virtual bool		executeMenu()				= 0;
 
     int				menuID() const { return id_; }
@@ -215,6 +214,9 @@ public:
 				    execute a queue, identified by this id. */
 
 protected:
+				MenuHandler( int id );
+    virtual			~MenuHandler();
+
     void			assignItemID(MenuItem&);
     void			executeQueue();
 

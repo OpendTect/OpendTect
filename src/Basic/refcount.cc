@@ -14,8 +14,8 @@ ________________________________________________________________________
 namespace RefCount
 {
 
-#define mInvalidRefCount (-1)
-#define mStartRefCount (-2)
+static od_int32 sStartRefCount()	{ return -2; }
+static od_int32 sInvalidRefCount()	{ return -1; }
 
 
 bool Referenced::isSane( const Referenced* ptr )
@@ -39,7 +39,7 @@ Referenced& Referenced::operator =( const Referenced& oth )
 Referenced::~Referenced()
 {
     const od_int32 count = refcount_.count();
-    if ( count!=mStartRefCount && refcount_.count()!=mInvalidRefCount )
+    if ( count!=sStartRefCount() && refcount_.count()!=sInvalidRefCount() )
     {
 	pErrMsg("It seems I'm deleted without an unref on an object "
 		"that has been referenced." );
@@ -97,17 +97,25 @@ void Referenced::unRefNoDelete() const
 }
 
 
-int Referenced::nrRefs() const { return refcount_.count(); }
+int Referenced::nrRefs() const
+{
+    return refcount_.count();
+}
 
 
 bool Referenced::tryRef() const
 {
-    if ( refcount_.tryRef() ) { refNotify(); return true; }
+    if ( refcount_.tryRef() )
+    {
+	refNotify();
+	return true;
+    }
+
     return false;
 }
 
 
-void Referenced::addObserver(WeakPtrBase* obs)
+void Referenced::addObserver( WeakPtrBase* obs )
 {
     refcount_.addObserver( obs );
 }
@@ -127,21 +135,21 @@ void Referenced::removeObserver(WeakPtrBase* obs)
 
 // Counter
 Counter::Counter()
-    : count_( mStartRefCount )
+    : count_( sStartRefCount() )
 {}
 
 
-Counter::Counter(const Counter& a)
-    : count_( mStartRefCount )
+Counter::Counter( const Counter& a )
+    : count_( sStartRefCount() )
 {}
 
 
 od_int32 Counter::cInvalidRefCount()
-{ return mInvalidRefCount; }
+{ return sInvalidRefCount(); }
 
 
 od_int32 Counter::cStartRefCount()
-{ return mStartRefCount; }
+{ return sStartRefCount(); }
 
 
 void Counter::ref()
@@ -150,7 +158,7 @@ void Counter::ref()
 
     do
     {
-	if ( oldcount==mInvalidRefCount )
+	if ( oldcount==sInvalidRefCount() )
 	{
 	    pErrMsg("Invalid ref");
 #ifdef __debug__
@@ -159,7 +167,7 @@ void Counter::ref()
 	    newcount = 1; //Hoping for the best
 	}
 	else
-	    newcount = oldcount==mStartRefCount ? 1 : oldcount+1;
+	    newcount = oldcount==sStartRefCount() ? 1 : oldcount+1;
 
     } while ( !count_.setIfValueIs( oldcount, newcount, &oldcount ) );
 }
@@ -171,11 +179,11 @@ bool Counter::tryRef()
 
     do
     {
-	if ( oldcount==mInvalidRefCount )
+	if ( oldcount==sInvalidRefCount() )
 	{
 	    return false;
 	}
-	else if ( oldcount==mStartRefCount )
+	else if ( oldcount==sStartRefCount() )
 	{
 	    newcount = 1;
 	}
@@ -196,7 +204,7 @@ bool Counter::unRef()
 
     do
     {
-	if ( oldcount==mInvalidRefCount )
+	if ( oldcount==sInvalidRefCount() )
 	{
 	    pErrMsg("Invalid reference.");
 #ifdef __debug__
@@ -207,13 +215,13 @@ bool Counter::unRef()
 #endif
 	}
 	else if ( oldcount==1 )
-	    newcount = mInvalidRefCount;
+	    newcount = sInvalidRefCount();
 	else
 	    newcount = oldcount-1;
 
     } while ( !count_.setIfValueIs(oldcount,newcount, &oldcount ) );
 
-    return newcount==mInvalidRefCount;
+    return newcount==sInvalidRefCount();
 }
 
 
@@ -223,7 +231,7 @@ bool Counter::refIfReffed()
 
     do
     {
-	if ( oldcount==mInvalidRefCount )
+	if ( oldcount==sInvalidRefCount() )
 	{
 	    pErrMsg("Invalid ref");
 #ifdef __debug__
@@ -232,7 +240,7 @@ bool Counter::refIfReffed()
 	    return false; //Hoping for the best
 #endif
 	}
-	else if ( oldcount==mStartRefCount || !oldcount)
+	else if ( oldcount==sStartRefCount() || !oldcount)
 	    //It can be zero only if unRefDontInvalidate has been called
 	{
 	    return false;
@@ -252,7 +260,7 @@ void Counter::unRefDontInvalidate()
 
     do
     {
-	if ( oldcount==mInvalidRefCount )
+	if ( oldcount==sInvalidRefCount() )
 	{
 	    pErrMsg("Invalid reference.");
 #ifdef __debug__

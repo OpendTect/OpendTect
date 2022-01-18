@@ -322,9 +322,9 @@ uiChain::~uiChain()
 
 void uiChain::setChain( Chain& chn )
 {
-    chain_.unRef();
-    chain_ = chn;
-    chain_.ref();
+    IOPar par;
+    chn.fillPar( par );
+    chain_.usePar( par );
 
     updateList();
     updateButtons();

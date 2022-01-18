@@ -24,9 +24,8 @@ class TaskRunner;
 namespace Geometry
 {
 
-mExpClass(Geometry) PrimitiveSet
-{ mRefCountImplNoDestructor(PrimitiveSet);
-
+mExpClass(Geometry) PrimitiveSet : public ReferencedObject
+{
 public:
     enum	PrimitiveType{Points,Lines,Triangles,
 			      LineStrips,TriangleStrip,TriangleFan,Other};

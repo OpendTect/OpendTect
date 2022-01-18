@@ -24,17 +24,16 @@ uiString VolProc::ChainExecutor::sGetStepErrMsg()
 
 
 
-VolProc::ChainExecutor::ChainExecutor( Chain& vr )
-    : ::Executor( "Volume processing" )
-    , chain_( vr )
-    , isok_( false )
-    , outputdp_( 0 )
+VolProc::ChainExecutor::ChainExecutor( Chain& chain )
+    : Executor( "Volume processing" )
+    , chain_( chain )
     , outputhrg_(false)
-    , totalnrepochs_( 1 )
-    , curepoch_( 0 )
-    , jobcomm_( 0 )
 {
-    setName( vr.name().getFullString() );
+    BufferString execnm( "Executing volume builder chain" );
+    const name_type& chainnm = chain.name();
+    if ( !chainnm.isEmpty() )
+	execnm.add( "'" ).add( chainnm ).add( "'" );
+
     web_ = chain_.getWeb();
     //TODO Optimize connections, check for identical steps using same inputs
 }

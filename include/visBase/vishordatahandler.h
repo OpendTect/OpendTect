@@ -9,42 +9,44 @@ ________________________________________________________________________
 
 -*/
 
-// this header file only be used in the classes related to Horzonsection . 
+// this header file only be used in the classes related to Horzonsection .
 // don't include it in somewhere else !!!
 
+#include "visbasemod.h"
 #include "refcount.h"
 
-class ZAxisTransform;
 class DataPointSet;
+class ZAxisTransform;
 
 namespace visBase
 {
-    class HorizonSectionTile;
-    class Coordinates;
-    class HorizonSection;
+class Coordinates;
+class HorizonSection;
+class HorizonSectionTile;
 
-class HorizonSectionDataHandler
-{ mRefCountImpl(HorizonSectionDataHandler)
+class HorizonSectionDataHandler : public ReferencedObject
+{
 public:
+			HorizonSectionDataHandler(const HorizonSection*);
 
-    HorizonSectionDataHandler( const HorizonSection* );
+    void		updateZAxisVOI();
+    void		setZAxisTransform(ZAxisTransform*);
+    ZAxisTransform*	getZAxistransform()	{ return zaxistransform_; }
+    void		generatePositionData(DataPointSet&,double zshift,
+					     int sectionid ) const;
 
-    void updateZAxisVOI();
-    void setZAxisTransform( ZAxisTransform* );
-    ZAxisTransform* getZAxistransform() { return zaxistransform_; }
-    void generatePositionData( DataPointSet& dtpntset, double zshift,
-			       int sectionid ) const;
-
+protected:
+    virtual		~HorizonSectionDataHandler();
 
 private:
-      void removeZTransform();
+    void		removeZTransform();
 
-      ZAxisTransform*   zaxistransform_;
-      int		zaxistransformvoi_; 
-      //-1 not needed by zaxistransform, -2 not set
-      const HorizonSection*	horsection_;
+    ZAxisTransform*	zaxistransform_;
+    int			zaxistransformvoi_;
+    //-1 not needed by zaxistransform, -2 not set
+    const HorizonSection*	horsection_;
 
-      friend class HorizonSection;
-
+    friend class HorizonSection;
 };
-}
+
+} // namespace visBase

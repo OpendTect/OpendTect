@@ -23,7 +23,7 @@ namespace Geometry
 {
 
 RandomLine::RandomLine( const char* nm )
-    : NamedCallBacker(nm)
+    : SharedObject(nm)
     , nameChanged(this)
     , nodeChanged(this)
     , zrangeChanged(this)

@@ -12,9 +12,8 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 
-#include "callback.h"
-#include "timedepthmodel.h"
 #include "zaxistransform.h"
+#include "timedepthmodel.h"
 
 
 namespace Well { class Data; }
@@ -24,8 +23,8 @@ namespace Well { class Data; }
 */
 
 mExpClass(Well) WellT2DTransform : public ZAxisTransform
-				 , public CallBacker
-{ mODTextTranslationClass(WellT2DTransform);
+{
+mODTextTranslationClass(WellT2DTransform)
 public:
 
     mDefaultFactoryInstantiation( ZAxisTransform, WellT2DTransform,
@@ -66,4 +65,3 @@ protected:
     void			doTransform(const SamplingData<float>&,
 					    int sz,float*,bool) const;
 };
-
