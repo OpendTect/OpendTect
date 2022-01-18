@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "uiwindowfuncseldlg.h"
 #include "uiaxishandler.h"
+#include "uifunctiondisplayserver.h"
 #include "uigeninput.h"
 #include "uigraphicsview.h"
 #include "uigraphicsscene.h"
@@ -29,14 +30,14 @@ ________________________________________________________________________
 #define mTransWidth     500
 
 uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
-    : uiGraphicsView( p, "" )
+    : uiFuncDrawerBase(su)
+    , uiGraphicsView( p, "" )
     , transform_(new uiWorld2Ui())
     , polyitemgrp_(0)
     , borderrectitem_(0)
-    , funcrg_(su.funcrg_)
 {
-    setPrefHeight( mTransHeight );
-    setPrefWidth( mTransWidth );
+    setPrefHeight( su.canvasheight_ );
+    setPrefWidth( su.canvaswidth_ );
     setStretch( 2, 2 );
 
     transform_->set( uiRect( 35, 5, mTransWidth-5 , mTransHeight-25 ),
@@ -44,48 +45,64 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
 				  su.xaxrg_.stop, su.yaxrg_.start ) );
 
     uiAxisHandler::Setup asu( uiRect::Bottom,viewWidth(), viewHeight() );
-    asu.style( OD::LineStyle::None );
     asu.maxnrchars_ = 8;
     asu.border_ = uiBorder(10,10,10,10);
 
     float annotstart = -1;
-    xax_ = new uiAxisHandler( &scene(), asu );
-    xax_->setRange( su.xaxrg_, &annotstart );
+    auto* xax = new uiAxisHandler( &scene(), asu );
+    xax->setRange( su.xaxrg_, &annotstart );
 
     asu.side( uiRect::Left ); asu.islog_ = false;
-    yax_ = new uiAxisHandler( &scene(), asu );
-    yax_->setRange( StepInterval<float>(0,1,0.25),0 );
+    auto* yax = new uiAxisHandler( &scene(), asu );
+    yax->setRange( su.yaxrg_ );
 
-    xax_->setBegin( yax_ );		yax_->setBegin( xax_ );
-    xax_->setBounds( su.xaxrg_ );	yax_->setBounds( su.yaxrg_ );
-    xax_->setCaption( su.xaxcaption_ ); yax_->setCaption( su.yaxcaption_ );
+    xax->setBegin( yax );		yax->setBegin( xax );
+    xax->setBounds( su.xaxrg_ );	yax->setBounds( su.yaxrg_ );
+    xax->setCaption( su.xaxcaption_ ); yax->setCaption( su.yaxcaption_ );
+    xax_ = xax;				yax_ = yax;
 
     reSize.notify( mCB( this, uiFunctionDrawer, draw ) );
-}
-
-
-void uiFunctionDrawer::setUpAxis()
-{
-    xax_->updateDevSize();
-    yax_->updateDevSize();
-    xax_->updateScene();
-    yax_->updateScene();
 }
 
 
 uiFunctionDrawer::~uiFunctionDrawer()
 {
     delete transform_;
-    clearFunctions();
+    delete xax_; delete yax_;
+}
+
+
+uiAxisHandler* uiFunctionDrawer::xAxis() const
+{
+    mDynamicCastGet(uiAxisHandler*, xax, xax_);
+    return xax;
+}
+
+
+uiAxisHandler* uiFunctionDrawer::yAxis() const
+{
+    mDynamicCastGet(uiAxisHandler*, yax, yax_);
+    return yax;
+}
+
+
+void uiFunctionDrawer::setUpAxis()
+{
+    xAxis()->updateDevSize();
+    yAxis()->updateDevSize();
+    xAxis()->updateScene();
+    yAxis()->updateScene();
 }
 
 
 void uiFunctionDrawer::setFrame()
 {
-    uiRect borderrect( xax_->getPix( xax_->range().start ),
-		       yax_->getPix( yax_->range().stop ),
-		       xax_->getPix( xax_->range().stop ),
-		       yax_->getPix( yax_->range().start ) );
+    uiAxisHandler* xax = xAxis();
+    uiAxisHandler* yax = yAxis();
+    uiRect borderrect( xax->getPix( xax->range().start ),
+		       yax->getPix( yax->range().stop ),
+		       xax->getPix( xax->range().stop ),
+		       yax->getPix( yax->range().start ) );
     if ( !borderrectitem_ )
 	borderrectitem_ = scene().addRect(
 	    mCast(float,borderrect.left()), mCast(float,borderrect.top()),
@@ -96,12 +113,6 @@ void uiFunctionDrawer::setFrame()
     borderrectitem_->setPenStyle( OD::LineStyle() );
     borderrect.setTop( borderrect.top() + 3 );
     transform_->resetUiRect( borderrect );
-}
-
-
-void uiFunctionDrawer::clearFunction( int idx )
-{
-    delete functions_.removeSingle(idx);
 }
 
 
@@ -132,7 +143,7 @@ void uiFunctionDrawer::draw( CallBacker* )
 	uiPolyLineItem* polyitem = new uiPolyLineItem();
 	polyitem->setPolyLine( func->pointlist_ );
 	OD::LineStyle ls;
-	ls.width_ = 2;
+	ls.width_ = setup().width_;
 	ls.color_ = func->color_;
 	polyitem->setPenStyle( ls );
 	polyitemgrp_->add( polyitem );
@@ -162,7 +173,7 @@ void uiFunctionDrawer::createLine( DrawFunction* func )
 
 
 
-uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFunctionDrawer::Setup& su )
+uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFuncDrawerBase::Setup& su )
     : uiGroup(p)
     , funclistselChged(this)
 {
@@ -172,8 +183,8 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFunctionDrawer::Setup& su )
     funclistfld_->selectionChanged.notify( mCB(this,uiFuncSelDraw,funcSelChg) );
     funclistfld_->itemChosen.notify( mCB(this,uiFuncSelDraw,funcCheckChg) );
 
-    view_ = new uiFunctionDrawer( this, su );
-    view_->attach( rightOf, funclistfld_ );
+    view_ = GetFunctionDisplayServer().createFunctionDrawer( this, su );
+    view_->uiobj()->attach( rightOf, funclistfld_ );
 }
 
 
@@ -248,8 +259,8 @@ void uiFuncSelDraw::addFunction( const char* fcname, FloatMathFunction* mfunc,
     colors_ += col;
     funclistfld_->addItem( mToUiStringTodo(fcname), col );
 
-    uiFunctionDrawer::DrawFunction* drawfunction =
-			new uiFunctionDrawer::DrawFunction( mfunc );
+    uiFuncDrawerBase::DrawFunction* drawfunction =
+			new uiFuncDrawerBase::DrawFunction( mfunc );
     drawfunction->color_ = colors_[curidx];
     view_->addFunction( drawfunction );
 }
@@ -297,7 +308,11 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
 {
     setCtrlStyle( CloseOnly );
 
-    uiFunctionDrawer::Setup su;
+    uiFuncDrawerBase::Setup su;
+    su.canvasheight( mTransHeight ).canvaswidth( mTransWidth );
+    su.xaxrg( StepInterval<float>(-1.2f,1.2f,0.25f) );
+    su.yaxrg( StepInterval<float>(0.f,1.2f,0.25f) );
+    su.funcrg( Interval<float>(-1.2, 1.2) );
     funcdrawer_ = new uiFuncSelDraw( this, su );
     funcnames_ = WINFUNCS().getNames();
 

@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uifunctiondisplayserver.h"
 
 #include "uifunctiondisplay.h"
+#include "uiwindowfuncseldlg.h"
 #include "uimsg.h"
 
 
@@ -49,4 +50,11 @@ uiFuncDispBase* uiODFunctionDisplayServer::createFunctionDisplay( uiParent* p,
 					     const uiFuncDispBase::Setup& su )
 {
     return new uiFunctionDisplay( p, su );
+}
+
+
+uiFuncDrawerBase* uiODFunctionDisplayServer::createFunctionDrawer( uiParent* p,
+					     const uiFuncDrawerBase::Setup& su )
+{
+    return new uiFunctionDrawer( p, su );
 }

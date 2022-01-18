@@ -14,7 +14,8 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uitoolsmod.h"
 #include "uidialog.h"
-#include "uifunctiondisplay.h"
+#include "uifuncdrawerbase.h"
+#include "uigraphicsview.h"
 #include "uigroup.h"
 #include "uibutton.h"
 #include "bufstringset.h"
@@ -39,62 +40,26 @@ class WindowFunction;
 
 /*!brief Displays a mathfunction. */
 
-mExpClass(uiTools) uiFunctionDrawer : public uiGraphicsView
+mExpClass(uiTools) uiFunctionDrawer :	public uiFuncDrawerBase,
+					public uiGraphicsView
 { mODTextTranslationClass(uiFunctionDrawer);
-
 public:
-    mStruct(uiTools) Setup
-    {
-			Setup()
-			    : xaxrg_(-1.2,1.2,0.25)
-			    , yaxrg_(0,1,0.25)
-			    , funcrg_(-1.2,1.2)
-			{}
-
-	mDefSetupMemb(StepInterval<float>,xaxrg)
-	mDefSetupMemb(StepInterval<float>,yaxrg)
-	mDefSetupMemb(const char*,name)
-	mDefSetupMemb(uiString,xaxcaption)
-	mDefSetupMemb(uiString,yaxcaption)
-	mDefSetupMemb(Interval<float>,funcrg)
-    };
-
-    mStruct(uiTools) DrawFunction
-    {
-		DrawFunction( const FloatMathFunction* f )
-		    : color_(OD::Color::DgbColor())
-		    , mathfunc_(f)
-		    {}
-
-	const FloatMathFunction*    mathfunc_;
-	TypeSet<uiPoint>	    pointlist_;
-	OD::Color		    color_;
-    };
 
 			uiFunctionDrawer(uiParent*,const Setup&);
 			~uiFunctionDrawer();
 
-    void		addFunction(DrawFunction* f) { functions_ += f; }
-    void		clearFunctions(){ deepErase( functions_ ); }
-    void		clearFunction(int idx);
-    void		draw(CallBacker*);
-    Interval<float>& 	getFunctionRange() { return funcrg_; }
-    void 		setSelItems(TypeSet<int> s) { selitemsidx_ = s; }
-    void 		setFunctionRange(Interval<float>& rg) {funcrg_ = rg;}
+    void		draw(CallBacker*) override;
     void 		setUpAxis();
+    uiObject*		uiobj() override	{ return this; }
 
+    uiAxisHandler*	xAxis() const;
+    uiAxisHandler*	yAxis() const;
 
 protected:
 
-    Interval<float>  	funcrg_;
-    float		variable_;
     uiWorld2Ui*		transform_;
     uiRectItem*		borderrectitem_;
-    uiAxisHandler*	xax_;
-    uiAxisHandler*	yax_;
     uiGraphicsItemGroup* polyitemgrp_;
-    ObjectSet<DrawFunction> functions_;
-    TypeSet<int> 	selitemsidx_;
 
     void		createLine(DrawFunction*);
     void		setFrame();
@@ -105,7 +70,7 @@ mExpClass(uiTools) uiFuncSelDraw : public uiGroup
 { mODTextTranslationClass(uiFuncSelDraw);
 public:
 
-			uiFuncSelDraw(uiParent*,const uiFunctionDrawer::Setup&);
+			uiFuncSelDraw(uiParent*,const uiFuncDrawerBase::Setup&);
 
     Notifier<uiFuncSelDraw> funclistselChged;
 
@@ -129,7 +94,7 @@ public:
 
 protected:
 
-    uiFunctionDrawer*	view_;
+    uiFuncDrawerBase*	view_;
     uiListBox*		funclistfld_;
     TypeSet<OD::Color>	colors_;
     ObjectSet<FloatMathFunction> mathfunc_;
