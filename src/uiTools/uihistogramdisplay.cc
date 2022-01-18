@@ -248,7 +248,10 @@ void uiHistogramDisplay::drawData()
     if ( nrpts < 2 )
 	return;
 
-    const float basepix = yax_->getPix( yax_->range().start );
+    const uiAxisHandler* xax = xAxis();
+    const uiAxisHandler* yax = yAxis( false );
+
+    const float basepix = yax->getPix( yax->range().start );
     float xwidth = xvals_[1] - xvals_[0];
     for ( int idx=0; idx<nrpts; idx++ )
     {
@@ -257,9 +260,9 @@ void uiHistogramDisplay::drawData()
 				: xvals_[idx] - xwidth/2;
 	const float xright = idx==nrpts-1 ? xvals_[idx] + xwidth/2
 					  : (xvals_[idx] + xvals_[idx+1])/2;
-	const float origxpix = xax_->getPix( xleft );
-	const float barwidth = xax_->getPix( xright ) - origxpix;
-	const float barheight = yax_->getPix( yvals_[idx] ) - basepix;
+	const float origxpix = xax->getPix( xleft );
+	const float barwidth = xax->getPix( xright ) - origxpix;
+	const float barheight = yax->getPix( yvals_[idx] ) - basepix;
 	if ( baritem )
 	{
 	    baritem->setRect( origxpix, basepix, barwidth, barheight );

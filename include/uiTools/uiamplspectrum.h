@@ -18,7 +18,7 @@ ______________________________________________________________________
 
 class uiCheckBox;
 class uiGenInput;
-class uiFunctionDisplay;
+class uiFuncDispBase;
 class uiLabeledSpinBox;
 class uiPushButton;
 namespace Fourier { class CC; }
@@ -62,7 +62,7 @@ public:
 
 protected:
 
-    uiFunctionDisplay*		disp_;
+    uiFuncDispBase*		disp_;
     uiGenInput*			rangefld_;
     uiLabeledSpinBox*		stepfld_;
     uiGenInput*			valfld_;

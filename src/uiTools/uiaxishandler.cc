@@ -294,10 +294,10 @@ void uiAHPlotAnnotSet::addAnnotationAt( int pix, const uiAHPlotAnnot& pah )
 
 
 uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
-			      const uiAxisHandler::Setup& su )
-    : annots_(*new uiAHPlotAnnotSet(*this))
+			      const Setup& su )
+    : uiAxisHandlerBase(su)
+    , annots_(*new uiAHPlotAnnotSet(*this))
     , scene_(scene)
-    , setup_(su)
     , height_(su.height_)
     , width_(su.width_)
     , ticsz_(su.ticsz_)
@@ -363,6 +363,28 @@ void uiAxisHandler::setIsLog( bool yn )
 {
     setup_.islog_ = yn;
     updateScene();
+}
+
+
+void uiAxisHandler::setBegin( const uiAxisHandler* ah )
+{
+    mDynamicCastGet( const uiAxisHandler*, beghndlr, ah );
+    if ( beghndlr )
+    {
+	beghndlr_ = beghndlr;
+	newDevSize();
+    }
+}
+
+
+void uiAxisHandler::setEnd( const uiAxisHandler* ah )
+{
+    mDynamicCastGet( const uiAxisHandler*, endhndlr, ah );
+    if ( endhndlr )
+    {
+	endhndlr_ = endhndlr;
+	newDevSize();
+    }
 }
 
 

@@ -13,7 +13,8 @@ _______________________________________________________________________
 #include "uiaxishandler.h"
 #include "uibutton.h"
 #include "uifiledlg.h"
-#include "uifunctiondisplay.h"
+#include "uifuncdispbase.h"
+#include "uifunctiondisplayserver.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uispinbox.h"
@@ -43,31 +44,35 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     if ( !setup_.caption_.isEmpty() )
 	setCaption( setup_.caption_ );
 
-    uiFunctionDisplay::Setup su;
+    uiFuncDispBase::Setup su;
     su.fillbelow(false).canvaswidth(300).canvasheight(300);
     su.noy2axis(true).noy2gridline(true).curvzvaly(8);
-    disp_ = new uiFunctionDisplay( this, su );
-    disp_->xAxis()->setCaption( SI().zIsTime() ? !setup_.iscepstrum_
-						    ? tr("Frequency (Hz)")
-						    : tr("Quefrency (ms)")
-					    : tr("Wavenumber (/m)") );
+    disp_ = GetFunctionDisplayServer().createFunctionDisplay( this, su );
+    uiString rangestr = SI().zIsTime()	? !setup_.iscepstrum_ ?
+					    tr("Frequency (Hz)") :
+					    tr("Quefrency (sec)")
+					: !setup_.iscepstrum_ ?
+					    SI().zInMeter() ?
+						tr("Wavenumber (cycles/km)") :
+						tr("Wavenumber (cycles/kft)")
+					    : SI().zInMeter() ?
+						tr("Navewumber (km)") :
+						tr("Navewumber (kft)");
+    disp_->xAxis()->setCaption( rangestr );
     disp_->yAxis(false)->setCaption( tr("Power (dB)") );
-    disp_->getMouseEventHandler().movement.notify(
-				  mCB(this,uiAmplSpectrum,valChgd) );
+    mAttachCB(disp_->mouseMove(), uiAmplSpectrum::valChgd);
 
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
-    dispparamgrp_->attach( alignedBelow, disp_ );
-    uiString disptitle = tr("%1 range").arg(SI().zIsTime() ?
-	      uiStrings::sFrequency() : uiStrings::sWaveNumber(true));
+    dispparamgrp_->attach( alignedBelow, disp_->uiobj() );
+    uiString disptitle = tr("%1 range").arg(rangestr);
     rangefld_ = new uiGenInput( dispparamgrp_, disptitle, FloatInpIntervalSpec()
 			.setName(BufferString("range start"),0)
 			.setName(BufferString("range stop"),1) );
-    rangefld_->valuechanged.notify( mCB(this,uiAmplSpectrum,dispRangeChgd ) );
+    mAttachCB(rangefld_->valuechanged, uiAmplSpectrum::dispRangeChgd);
     stepfld_ = new uiLabeledSpinBox( dispparamgrp_, tr("Gridline step"));
-    stepfld_->box()->setNrDecimals( SI().zIsTime() ? 0 : 5 );
+    stepfld_->box()->setNrDecimals( 0 );
     stepfld_->attach( rightOf, rangefld_ );
-    stepfld_->box()->valueChanging.notify(
-	    mCB(this,uiAmplSpectrum,dispRangeChgd) );
+    mAttachCB(stepfld_->box()->valueChanging, uiAmplSpectrum::dispRangeChgd);
 
     uiString lbl =  SI().zIsTime() ?
 		    uiStrings::phrJoinStrings(uiStrings::sValue(),
@@ -86,19 +91,19 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     powerdbfld_->attach( rightOf, normfld_ );
     powerdbfld_->setChecked( true );
 
-    normfld_->activated.notify( mCB(this,uiAmplSpectrum,putDispData) );
-    powerdbfld_->activated.notify( mCB(this,uiAmplSpectrum,putDispData) );
+    mAttachCB(normfld_->activated, uiAmplSpectrum::putDispData);
+    mAttachCB(powerdbfld_->activated, uiAmplSpectrum::putDispData);
 
     exportfld_ = new uiPushButton( this, uiStrings::sExport(), false );
-    exportfld_->activated.notify( mCB(this,uiAmplSpectrum,exportCB) );
-    exportfld_->attach( rightAlignedBelow, disp_ );
+    mAttachCB(exportfld_->activated, uiAmplSpectrum::exportCB);
+    exportfld_->attach( rightAlignedBelow, disp_->uiobj() );
     exportfld_->attach( ensureBelow, dispparamgrp_ );
 
     if ( !setup_.iscepstrum_ )
     {
 	uiPushButton* cepbut = new uiPushButton( this, tr("Display cepstrum"),
 						 false );
-	cepbut->activated.notify( mCB(this,uiAmplSpectrum,ceptrumCB) );
+	mAttachCB(cepbut->activated, uiAmplSpectrum::ceptrumCB);
 	cepbut->attach( leftOf, exportfld_ );
     }
 }
@@ -106,6 +111,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 
 uiAmplSpectrum::~uiAmplSpectrum()
 {
+    detachAllNotifiers();
     delete fft_;
     delete data_;
     delete timedomain_;
@@ -271,7 +277,10 @@ void uiAmplSpectrum::putDispData( CallBacker* cb )
 	dbspecvals.set( idx, val );
     }
 
-    const float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ );
+    const float freqfact = SI().zIsTime() ?
+				    setup_.iscepstrum_ ? 1000.f : 1.f
+				    : 1000.f;
+    const float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ ) * freqfact;
     posrange_.set( 0, maxfreq );
     rangefld_->setValue( posrange_ );
     const float step = (posrange_.stop-posrange_.start)/25.f;
@@ -280,6 +289,7 @@ void uiAmplSpectrum::putDispData( CallBacker* cb )
     disp_->yAxis(false)->setCaption( dbscale ? tr("Power (dB)")
 					     : tr("Amplitude") );
     disp_->setVals( posrange_, dbspecvals.arr(), fftsz );
+    dispRangeChgd( nullptr );
 }
 
 
@@ -348,9 +358,10 @@ void uiAmplSpectrum::valChgd( CallBacker* )
 {
     if ( !specvals_ ) return;
 
-    const Geom::Point2D<int>& pos = disp_->getMouseEventHandler().event().pos();
-    const float xpos = disp_->xAxis()->getVal( pos.x );
-    const float ypos = disp_->yAxis(false)->getVal( pos.y );
+    const Geom::Point2D<int>& pos = disp_->mousePos();
+    const Geom::PointF fpos = disp_->mapToValue( pos );
+    const float xpos = fpos.x;
+    const float ypos = fpos.y;
     const bool disp = disp_->xAxis()->range().includes(xpos,true) &&
 		      disp_->yAxis(false)->range().includes(ypos,true);
     if ( !disp )

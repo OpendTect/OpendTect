@@ -38,7 +38,9 @@ set( OD_MODULE_SOURCES
 	uifontsel.cc
 	uifontselgrp.cc
 	uifreqfilter.cc
+	uifuncdispbase.cc
 	uifunctiondisplay.cc
+	uifunctiondisplayserver.cc
 	uigeninput.cc
 	uigeninput_impl.cc
 	uigeninputdlg.cc

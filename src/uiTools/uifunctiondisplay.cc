@@ -15,20 +15,11 @@ ________________________________________________________________________
 #include "uigraphicssaveimagedlg.h"
 #include "mouseevent.h"
 #include "axislayout.h"
-#include "od_iostream.h"
 
 uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				      const uiFunctionDisplay::Setup& su )
-    : uiGraphicsView(p,"Function display viewer")
-    , setup_(su)
-    , xax_(0)
-    , yax_(0)
-    , y2ax_(0)
-    , xmarklineval_(mUdf(float))
-    , ymarklineval_(mUdf(float))
-    , xmarkline2val_(mUdf(float))
-    , ymarkline2val_(mUdf(float))
-    , selpt_(0)
+    : uiFuncDispBase(su)
+    , uiGraphicsView(p,"Function display viewer")
     , ypolyitem_(0)
     , y2polyitem_(0)
     , ypolygonitem_(0)
@@ -43,9 +34,9 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , ymarkline2item_(0)
     , borderrectitem_(0)
     , titleitem_(0)
-    , pointSelected(this)
-    , pointChanged(this)
     , mousedown_(false)
+    , pointChanged(this)
+    , pointSelected(this)
 {
     disableScrollZoom();
     setPrefWidth( setup_.canvaswidth_ );
@@ -69,7 +60,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     asu.noaxisline( setup_.noy2axis_ );
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annoty2_ );
     asu.nogridline( setup_.noy2gridline_ );
-    xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
+    xAxis()->setBegin( yAxis(false) ); yAxis(false)->setBegin( xAxis() );
     asu.side( uiRect::Right );
     y2ax_ = new uiAxisHandler( &scene(), asu );
 
@@ -137,101 +128,6 @@ void uiFunctionDisplay::setTitle( const uiString& title )
 }
 
 
-void uiFunctionDisplay::setVals( const float* xvals, const float* yvals,
-				 int sz )
-{
-    xvals_.erase(); yvals_.erase();
-    if ( sz > 0 )
-    {
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    xvals_ += xvals[idx];
-	    yvals_ += yvals[idx];
-	}
-    }
-
-    gatherInfo( false ); draw();
-}
-
-
-void uiFunctionDisplay::setVals( const Interval<float>& xrg, const float* yvals,
-				 int sz )
-{
-    xvals_.erase(); yvals_.erase();
-    if ( sz > 0 )
-    {
-	const float dx = (xrg.stop-xrg.start) / (sz-1);
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    xvals_ += xrg.start + idx * dx;
-	    yvals_ += yvals[idx];
-	}
-    }
-
-    gatherInfo( false ); draw();
-}
-
-
-void uiFunctionDisplay::setY2Vals( const float* xvals, const float* yvals,
-				   int sz )
-{
-    y2xvals_.erase(); y2yvals_.erase();
-    if ( sz > 0 )
-    {
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    y2xvals_ += xvals[idx];
-	    y2yvals_ += yvals[idx];
-	}
-    }
-
-    gatherInfo( true ); draw();
-}
-
-
-void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
-				   const float* yvals,
-				   int sz )
-{
-    y2xvals_.erase(); y2yvals_.erase();
-    if ( sz > 0 )
-    {
-	const float dx = (xrg.stop-xrg.start) / (sz-1);
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    y2xvals_ += xrg.start + idx * dx;
-	    y2yvals_ += yvals[idx];
-	}
-    }
-
-    gatherInfo( true ); draw();
-}
-
-
-void uiFunctionDisplay::setMarkValue( float val, bool is_x )
-{
-    (is_x ? xmarklineval_ : ymarklineval_) = val;
-    drawMarkLines();
-}
-
-
-void uiFunctionDisplay::setMark2Value( float val, bool is_x )
-{
-    (is_x ? xmarkline2val_ : ymarkline2val_) = val;
-    drawMarkLines();
-}
-
-
-void uiFunctionDisplay::setEmpty()
-{
-    xmarklineval_ = ymarklineval_ =
-    xmarkline2val_ = ymarkline2val_ = mUdf(float);
-    setVals( 0, 0, 0 );
-    setY2Vals( 0, 0, 0 );
-    cleanUp();
-}
-
-
 Geom::Point2D<float> uiFunctionDisplay::getFuncXY( int xpix, bool y2 ) const
 {
     const uiAxisHandler* axis = xAxis();
@@ -274,96 +170,64 @@ Geom::Point2D<float> uiFunctionDisplay::getXYFromPix(
 
 void uiFunctionDisplay::gatherInfo( bool fory2 )
 {
+    uiFuncDispBase::gatherInfo( fory2 );
     const bool usey2 = fory2 && !setup_.useyscalefory2_;
-    if ( !xax_ || ( !usey2 && !yax_ ) || ( usey2 && !y2ax_ ) )
-	return;
-
-    Interval<float> xrg, yrg;
-    if ( xvals_.isEmpty() )
+    if ( usey2 )
     {
-	xrg.start = mUdf(float); xrg.stop = -mUdf(float);
-	yrg = xrg;
+	xAxis()->setEnd( yAxis(true) );
+	yAxis( true )->setBegin( xAxis() );
     }
-    else
-    {
-	getAxisRanges( xvals_, setup_.xrg_, xrg );
-	getAxisRanges( usey2 ? y2yvals_ : yvals_,
-		       usey2 ? setup_.y2rg_ : setup_.yrg_, yrg );
-    }
-
-    uiAxisHandler* yaxis = usey2 ? y2ax_ : yax_;
-    xax_->setBounds( xrg );
-    yaxis->setBounds( yrg );
-
-    if ( xax_ && y2ax_ )
-    {
-	xax_->setEnd( y2ax_ );
-	y2ax_->setBegin( xax_ );
-    }
-}
-
-
-void uiFunctionDisplay::getAxisRanges( const TypeSet<float>& vals,
-				       const Interval<float>& setuprg,
-				       Interval<float>& rg ) const
-{
-    rg.set( mUdf(float), -mUdf(float) );
-    for ( int idx=0; idx<vals.size(); idx++ )
-    {
-	if ( mIsUdf(vals[idx]) )
-	    continue;
-
-	rg.include( vals[idx], false );
-    }
-
-    if ( !setup_.fixdrawrg_ )
-	return;
-
-    if ( !mIsUdf(setuprg.start) ) rg.start = setuprg.start;
-    if ( !mIsUdf(setuprg.stop) ) rg.stop = setuprg.stop;
 }
 
 
 void uiFunctionDisplay::setUpAxis( bool havey2 )
 {
-    xax_->updateDevSize();
-    yax_->updateDevSize();
+    uiAxisHandler* xaxis = xAxis();
+    uiAxisHandler* yaxis = yAxis( false );
+    uiAxisHandler* y2axis = yAxis( true );
+    if ( !xaxis || !yaxis )
+	return;
 
-    xax_->updateScene();
-    yax_->updateScene();
-    if ( y2ax_ )
+    xaxis->updateDevSize();
+    yaxis->updateDevSize();
+
+    xaxis->updateScene();
+    yaxis->updateScene();
+    if ( y2axis )
     {
 	if ( !havey2 )
-	    y2ax_->setup().noannot( true );
+	    y2axis->setup().noannot( true );
 	else
 	{
 	    const bool noy2axis = setup_.noy2axis_;
-	    y2ax_->setup().noaxisline(noy2axis).noaxisannot(noy2axis)
+	    y2axis->setup().noaxisline(noy2axis).noaxisannot(noy2axis)
 			  .nogridline(setup_.noy2gridline_);
 	}
 
-	y2ax_->updateDevSize(); y2ax_->updateScene();
+	y2axis->updateDevSize(); y2axis->updateScene();
     }
 }
 
 
 void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 {
-    const uiAxisHandler* yax = y2 ? y2ax_ : yax_;
-    if ( !yax ) return;
+    const uiAxisHandler* xaxis = xAxis();
+    const uiAxisHandler* yaxis = yAxis( y2 );
+    if ( !xaxis ||!yaxis )
+	return;
 
-    const StepInterval<float>& yrg = yax->range();
+    const StepInterval<float>& yrg = yaxis->range();
     const int nrpts = y2 ? y2xvals_.size() : xvals_.size();
-    const uiPoint closept( xax_->getPix(xax_->range().start),
-			   yax->getPix(yrg.start) );
+    const uiPoint closept( xaxis->getPix(xaxis->range().start),
+			   yaxis->getPix(yrg.start) );
     const bool fillbelow = y2 ? setup_.fillbelowy2_ : setup_.fillbelow_;
     if ( fillbelow )
 	ptlist += closept;
 
-    const Interval<int> xpixintv( xax_->getPix(xax_->range().start),
-				  xax_->getPix(xax_->range().stop) );
-    const Interval<int> ypixintv( yax->getPix(yrg.start),
-				  yax->getPix(yrg.stop) );
+    const Interval<int> xpixintv( xaxis->getPix(xaxis->range().start),
+				  xaxis->getPix(xaxis->range().stop) );
+    const Interval<int> ypixintv( yaxis->getPix(yrg.start),
+				  yaxis->getPix(yrg.stop) );
     uiPoint pt = closept;
     for ( int idx=0; idx<nrpts; idx++ )
     {
@@ -375,8 +239,8 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 	    continue;
 	}
 
-	const int xpix = xax_->getPix( xval );
-	const int ypix = yax->getPix( yval );
+	const int xpix = xaxis->getPix( xval );
+	const int ypix = yaxis->getPix( yval );
 	if ( xpixintv.includes(xpix,true) && ypixintv.includes(ypix,true) )
 	{
 	    pt.x = xpix;
@@ -595,9 +459,12 @@ void uiFunctionDisplay::drawData()
 
 void uiFunctionDisplay::drawMarkLines()
 {
+    uiAxisHandler* xax = xAxis();
+    uiAxisHandler* yax = yAxis( false );
+
 #define mDrawMarkLine(xy,nr,colnr) \
     if ( !mIsUdf(xy##markline##nr##val_) ) \
-	drawMarkLine( xy##ax_, xy##markline##nr##val_, \
+	drawMarkLine( xy##ax, xy##markline##nr##val_, \
 		     OD::Color::stdDrawColor(colnr), xy##markline##nr##item_)
     mDrawMarkLine(x,,0);
     mDrawMarkLine(y,,0);
@@ -633,14 +500,16 @@ void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val,
 bool uiFunctionDisplay::setSelPt()
 {
     const MouseEvent& ev = getMouseEventHandler().event();
+    const uiAxisHandler* xax = xAxis();
+    const uiAxisHandler* yax = yAxis( false );
 
     int newsel = -1; float mindistsq = 1e30;
-    const float xpix = xax_->getRelPos( xax_->getVal(ev.pos().x) );
-    const float ypix = yax_->getRelPos( yax_->getVal(ev.pos().y) );
+    const float xpix = xax->getRelPos( xax->getVal(ev.pos().x) );
+    const float ypix = yax->getRelPos( yax->getVal(ev.pos().y) );
     for ( int idx=0; idx<xvals_.size(); idx++ )
     {
-	const float x = xax_->getRelPos( xvals_[idx] );
-	const float y = yax_->getRelPos( yvals_[idx] );
+	const float x = xax->getRelPos( xvals_[idx] );
+	const float y = yax->getRelPos( yvals_[idx] );
 	const float distsq = (x-xpix)*(x-xpix) + (y-ypix)*(y-ypix);
 	if ( distsq < mindistsq )
 	    { newsel = idx; mindistsq = distsq; }
@@ -700,26 +569,28 @@ void uiFunctionDisplay::mouseMove( CallBacker* )
 {
     if ( !mousedown_ ) return;
 
+    const uiAxisHandler* xax = xAxis();
+    const uiAxisHandler* yax = yAxis( false );
     mGetMousePos();
     if ( !isnorm || selpt_<0 ) return;
 
-    float xval = xax_->getVal( ev.pos().x );
-    float yval = yax_->getVal( ev.pos().y );
+    float xval = xax->getVal( ev.pos().x );
+    float yval = yax->getVal( ev.pos().y );
 
     if ( selpt_>0 && xvals_[selpt_-1]>=xval )
         xval = xvals_[selpt_-1];
     else if ( selpt_<xvals_.size()-1 && xvals_[selpt_+1]<=xval )
         xval = xvals_[selpt_+1];
 
-    if ( xval > xax_->range().stop )
-	xval = xax_->range().stop;
-    else if ( xval < xax_->range().start )
-	xval = xax_->range().start;
+    if ( xval > xax->range().stop )
+	xval = xax->range().stop;
+    else if ( xval < xax->range().start )
+	xval = xax->range().start;
 
-    if ( yval > yax_->range().stop )
-	yval = yax_->range().stop;
-    else if ( yval < yax_->range().start )
-	yval = yax_->range().start;
+    if ( yval > yax->range().stop )
+	yval = yax->range().stop;
+    else if ( yval < yax->range().start )
+	yval = yax->range().start;
 
     xvals_[selpt_] = xval; yvals_[selpt_] = yval;
 
@@ -735,18 +606,21 @@ void uiFunctionDisplay::mouseDClick( CallBacker* )
 
 void uiFunctionDisplay::addPoint( const uiPoint& pt )
 {
-    float xval = xax_->getVal( pt.x );
-    float yval = yax_->getVal( pt.y );
+    const uiAxisHandler* xax = xAxis();
+    const uiAxisHandler* yax = yAxis( false );
 
-    if ( xval > xax_->range().stop )
-	xval = xax_->range().stop;
-    else if ( xval < xax_->range().start )
-	xval = xax_->range().start;
+    float xval = xax->getVal( pt.x );
+    float yval = yax->getVal( pt.y );
 
-    if ( yval > yax_->range().stop )
-	yval = yax_->range().stop;
-    else if ( yval < yax_->range().start )
-	yval = yax_->range().start;
+    if ( xval > xax->range().stop )
+	xval = xax->range().stop;
+    else if ( xval < xax->range().start )
+	xval = xax->range().start;
+
+    if ( yval > yax->range().stop )
+	yval = yax->range().stop;
+    else if ( yval < yax->range().start )
+	yval = yax->range().start;
 
     if ( !xvals_.isEmpty() && xval > xvals_.last() )
     {
@@ -778,12 +652,59 @@ void uiFunctionDisplay::addPoint( const uiPoint& pt )
 }
 
 
-void uiFunctionDisplay::dump( od_ostream& strm, bool y2 ) const
+Geom::PointI uiFunctionDisplay::mapToPosition( const Geom::PointF& pt, bool y2 )
 {
-    const TypeSet<float>& xvals = y2 ? y2xvals_ : xvals_;
-    const TypeSet<float>& yvals = y2 ? y2yvals_ : yvals_;
+    uiAxisHandler* xax = xAxis();
+    uiAxisHandler* yax = yAxis( y2 );
 
-    strm.stdStream() << std::fixed;
-    for ( int idx=0; idx<xvals.size(); idx++ )
-	strm << xvals[idx] << od_tab << yvals[idx] << od_endl;
+    if ( !xax || !yax )
+	return Geom::PointI::udf();
+
+    return Geom::PointI( xax->getPix(pt.x), yax->getPix(pt.y) );
+}
+
+
+Geom::PointF uiFunctionDisplay::mapToValue( const Geom::PointI& pt, bool y2 )
+{
+    uiAxisHandler* xax = xAxis();
+    uiAxisHandler* yax = yAxis( y2 );
+
+    if ( !xax || !yax )
+	return Geom::PointF::udf();
+
+    return Geom::PointF( xax->getVal(pt.x), yax->getVal(pt.y) );
+}
+
+
+const NotifierAccess& uiFunctionDisplay::mouseMove()
+{
+    return getMouseEventHandler().movement;
+}
+
+
+const Geom::Point2D<int>& uiFunctionDisplay::mousePos()
+{
+    return getMouseEventHandler().event().pos();
+}
+
+
+uiAxisHandler* uiFunctionDisplay::xAxis() const
+{
+    mDynamicCastGet(uiAxisHandler*, xax, xax_);
+    return xax;
+}
+
+
+uiAxisHandler* uiFunctionDisplay::yAxis( bool y2 ) const
+{
+    if ( y2 )
+    {
+	mDynamicCastGet(uiAxisHandler*, yax, y2ax_);
+	return yax;
+    }
+    else
+    {
+	mDynamicCastGet(uiAxisHandler*, yax, yax_);
+	return yax;
+    }
 }

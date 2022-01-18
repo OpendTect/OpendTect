@@ -11,6 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+#include "uiaxishandlerbase.h"
 #include "draw.h"
 #include "bufstringset.h"
 #include "namedobj.h"
@@ -46,83 +47,22 @@ template <class T> class LineParameters;
   ahndlr.setRange( StepInterval<float>(al.sd.start,al.stop,al.sd.step) );
 */
 
-mExpClass(uiTools) uiAxisHandler
+mExpClass(uiTools) uiAxisHandler : public uiAxisHandlerBase
 {
 public:
-
-    struct Setup
-    {
-	Setup( uiRect::Side s, int w=0, int h=0 )
-	    : side_(s)
-	    , width_(w)
-	    , height_(h)
-	    , islog_(false)
-	    , noaxisline_(false)
-	    , noaxisannot_(false)
-	    , nogridline_(false)
-	    , annotinside_(false)
-	    , annotinint_(false)
-	    , fixedborder_(false)
-	    , showauxannot_(false)
-	    , ticsz_(2)
-	    , maxnrchars_(0)
-	    , specialvalue_(0.0f)
-	    , zval_(0)
-	    , nmcolor_(OD::Color::NoColor())
-	    , fontdata_(FontData(10))
-	{
-	    gridlinestyle_.color_ = OD::Color(200,200,200);
-	    auxlinestyle_.type_ = OD::LineStyle::Dot;
-	}
-
-	mDefSetupMemb(uiRect::Side,side)
-	mDefSetupMemb(int,width)
-	mDefSetupMemb(int,height)
-	mDefSetupMemb(bool,islog)
-	mDefSetupMemb(bool,noaxisline)
-	mDefSetupMemb(bool,noaxisannot)
-	mDefSetupMemb(bool,nogridline)
-	mDefSetupMemb(bool,annotinside)
-	mDefSetupMemb(bool,annotinint)
-	mDefSetupMemb(bool,fixedborder)
-	mDefSetupMemb(bool,showauxannot)
-	mDefSetupMemb(int,ticsz)
-	mDefSetupMemb(uiBorder,border)
-	mDefSetupMemb(OD::LineStyle,style)
-	mDefSetupMemb(OD::LineStyle,gridlinestyle)
-	mDefSetupMemb(OD::LineStyle,auxlinestyle)
-	mDefSetupMemb(OD::LineStyle,auxhllinestyle)
-	mDefSetupMemb(uiString,caption)
-	mDefSetupMemb(int,maxnrchars)
-	mDefSetupMemb(float,specialvalue) //!< Will be gridlined and annotated.
-	mDefSetupMemb(int,zval)
-	mDefSetupMemb(OD::Color,nmcolor)
-	mDefSetupMemb(FontData,fontdata)
-
-	Setup&		noannot( bool yn )
-			{ noaxisline_ = noaxisannot_ = nogridline_ = yn;
-			  return *this; }
-
-	void		setShowSpecialValue( bool yn, float newval=0.0f )
-			{ specialvalue_ = yn ? newval : mUdf(float); }
-	bool		showSpecialValue() const
-			{ return !mIsUdf(specialvalue_); }
-    };
-
 			uiAxisHandler(uiGraphicsScene*,const Setup&);
 			~uiAxisHandler();
 
-    void		setCaption(const uiString&);
+    void		setCaption(const uiString&) override;
     uiString		getCaption() const	{ return setup_.caption_; }
-    void		setBorder(const uiBorder&);
-    void		setIsLog(bool yn);
-    void		setBegin( const uiAxisHandler* ah )
-						{ beghndlr_ = ah; newDevSize();}
-    void		setEnd( const uiAxisHandler* ah )
-						{ endhndlr_ = ah; newDevSize();}
+    void		setBorder(const uiBorder&) override;
+    void		setIsLog(bool) override;
+    void		setBegin(const uiAxisHandler*);
+    void		setEnd(const uiAxisHandler*);
 
-    void		setRange(const StepInterval<float>&,float* axstart=0);
-    void		setBounds(Interval<float>); //!< makes annot 'nice'
+    void		setRange(const StepInterval<float>&,
+				 float* axst=nullptr) override;
+    void		setBounds(Interval<float>) override;
 
     float		getVal(int pix) const;
     float		getRelPos(float absval) const;
@@ -130,14 +70,11 @@ public:
     int			getPix(double abvsval) const;
     int			getPix(int) const;
     int			getRelPosPix(float relpos) const;
-    void		setAuxAnnot( const TypeSet<PlotAnnotation>& pos )
+    void		setAuxAnnot(const TypeSet<PlotAnnotation>& pos)
 						{ auxannots_ = pos; }
 
-    const Setup&	setup() const		{ return setup_; }
-    Setup&		setup()			{ return setup_; }
     StepInterval<float> range() const		{ return datarg_; }
     float		annotStart() const	{ return annotstart_; }
-    bool		isHor() const	{ return uiRect::isHor(setup_.side_); }
     int			pixToEdge(bool withborder=true) const;
     int			pixBefore() const;
     int			pixAfter() const;
@@ -149,8 +86,8 @@ public:
     void		setNewDevSize(int,int); //!< resized by yourself
     void		updateScene();
 
-    uiLineItem*		getTickLine(int pix);
-    uiLineItem*		getGridLine(int pix);
+    uiLineItem*		getTickLine(int);
+    uiLineItem*		getGridLine(int);
     int			getNrAnnotCharsForDisp() const;
     void		setVisible(bool);
     void		annotAtEnd(const uiString&);
@@ -162,8 +99,6 @@ protected:
     uiTextItem*		endannotitm_;
     uiLineItem*		axislineitm_;
 
-    Setup		setup_;
-    bool		islog_;
     StepInterval<float> datarg_;
     float		annotstart_;
     uiBorder		border_;
@@ -189,7 +124,7 @@ protected:
 
     int			ticSz() const
 				{ return setup_.noaxisannot_ ? 0 : ticsz_; }
-    int			tickEndPix(bool farend) const;
+    int			tickEndPix(bool) const;
     void		updateAxisLine();
     bool		reCalcAnnotation();
     void		updateName();
@@ -200,7 +135,7 @@ protected:
 
 //! draws line not outside box defined by X and Y value ranges
 mGlobal(uiTools) void setLine(uiLineItem*,const LineParameters<float>&,
-			const uiAxisHandler* xah,const uiAxisHandler* yah,
-			const Interval<float>* xvalrg = 0);
+			const uiAxisHandler*,const uiAxisHandler*,
+			const Interval<float>* xvalrg=0);
 
 
