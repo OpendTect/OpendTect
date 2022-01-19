@@ -114,8 +114,8 @@ void uiGatherDisplay::setPosition( const BinID& bid,
 void uiGatherDisplay::displayAnnotation( bool yn )
 {
     displayannotation_ = yn;
-    viewer_->appearance().annot_.x1_.showannot_ = yn;
-    viewer_->appearance().annot_.x2_.showannot_ = yn;
+    viewer_->appearance().annot_.x1_.hasannot_ = yn;
+    viewer_->appearance().annot_.x2_.hasannot_ = yn;
     viewer_->handleChange( FlatView::Viewer::Annot );
 }
 
