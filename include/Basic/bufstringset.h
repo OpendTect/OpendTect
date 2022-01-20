@@ -144,8 +144,10 @@ public:
 
 public:
 
-    mDeprecated("Use a set") BufferStringSet& operator=(const char* arr[]);
-    mDeprecated("Use equal") BufferStringSet& copy(const BufferStringSet&);
+    mDeprecated("Use a set")
+    BufferStringSet&	operator=(const char* arr[]);
+    mDeprecated("Use equal")
+    BufferStringSet&	copy(const BufferStringSet&);
 
     inline void		allowNull(bool yn=true)	{ strs_.setNullAllowed(yn); }
 
@@ -157,9 +159,11 @@ inline BufferString toString( const BufferStringSet& bss )
 { return bss.cat( " " ); }
 
 
-mGlobal(Basic) mDeprecated("Use setEmpty") void deepErase(BufferStringSet&);
-mGlobal(Basic) mDeprecated("Use equal") void deepCopy(BufferStringSet&,
-						      const BufferStringSet&);
-mGlobal(Basic) mDeprecated("Use sort") void sort(BufferStringSet&);
-mGlobal(Basic) mDeprecated("Use getStringSet()") const BufferString*
-				    find(const BufferStringSet&,const char*);
+mDeprecated("Use setEmpty")
+mGlobal(Basic) void deepErase(BufferStringSet&);
+mDeprecated("Use equal")
+mGlobal(Basic) void deepCopy(BufferStringSet&,const BufferStringSet&);
+mDeprecated("Use sort")
+mGlobal(Basic) void sort(BufferStringSet&);
+mDeprecated("Use getStringSet()")
+mGlobal(Basic) const BufferString* find(const BufferStringSet&,const char*);
