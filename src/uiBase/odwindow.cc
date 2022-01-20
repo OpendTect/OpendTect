@@ -1262,10 +1262,10 @@ void uiDialogBody::showVideo( CallBacker* cb )
 }
 
 
-void uiDialogBody::applyCB( CallBacker* cb )
+void uiDialogBody::applyCB( CallBacker* )
 {
     mDynamicCastGet(uiDialog&,dlg,handle_);
-    dlg.applyPushed.trigger( cb );
+    dlg.applyPushed.trigger( &handle_ );
 }
 
 

@@ -41,8 +41,11 @@ uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
 
 void uiODViewer2DPosDlg::zoomLevelCB( CallBacker* )
 {
-    uiFlatViewZoomLevelDlg zoomlvldlg(
-	    this, initialx1pospercm_, initialx2pospercm_, true );
+    const Viewer2DPosDataSel& pds = posgrp_->posDataSel();
+    const TrcKeyZSampling tkzs = pds.tkzs_;
+    uiFlatViewZoomLevelDlg zoomlvldlg( this,
+		pds.tkzs_.hsamp_.start_.inl(), pds.tkzs_.hsamp_.start_.crl(),
+		initialx1pospercm_, initialx2pospercm_, true );
     zoomlvldlg.go();
 }
 

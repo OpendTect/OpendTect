@@ -19,28 +19,40 @@ class uiCheckBox;
 class uiMenuHandler;
 class uiFlatViewColTabEd;
 class uiGenInput;
+class uiPushButton;
 class uiToolBar;
 
 
 mExpClass(uiFlatView) uiFlatViewZoomLevelDlg : public uiDialog
 { mODTextTranslationClass(uiFlatViewZoomLevelDlg)
 public:
-			uiFlatViewZoomLevelDlg(uiParent*,float& x1pospercm,
-					float& x2pospercm,bool isvertical);
+			uiFlatViewZoomLevelDlg(uiParent*,
+					float x1start,float x2start,
+					float x1pospercm,float x2pospercm,
+					bool isvertical);
 			~uiFlatViewZoomLevelDlg();
+
+    void		getNrPosPerCm(float& x1,float& x2) const;
+    void		getStartPos(float&x1,float& x2) const;
 
 protected:
 
-    float&		x1pospercm_;
-    float&		x2pospercm_;
+    float		x1pospercm_;
+    float		x2pospercm_;
+    bool		isvertical_;
 
+    uiGenInput*		x1startfld_		= nullptr;
+    uiGenInput*		x2startfld_		= nullptr;
     uiGenInput*		x1fld_;
-    uiGenInput*		x2fld_ = nullptr;
-    uiGenInput*     unitflds_;
+    uiGenInput*		x2fld_			= nullptr;
+    uiGenInput*		unitflds_;
     uiCheckBox*		saveglobalfld_;
 
+    uiString		getFieldLabel(bool x1,bool incm) const;
+    void		computeZoomValues();
     void		finalizeDoneCB(CallBacker*);
     void		unitChgCB(CallBacker*);
+    void		applyCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 };
 
@@ -106,9 +118,9 @@ public:
     void		setEditMode(bool yn);
     float		getCurrentPosPerCM(bool forx1) const;
 
-    static void		setGlobalZoomLevel(float x1pospercm, float x2pospercm,
+    static void		setGlobalZoomLevel(float x1pospercm,float x2pospercm,
 					   bool isvertical);
-    static void		getGlobalZoomLevel(float& x1pospercm, float& x2pospercm,
+    static void		getGlobalZoomLevel(float& x1pospercm,float& x2pospercm,
 					   bool isvertical);
     bool		isEditModeOn() const;
     bool		isRubberBandOn() const;
@@ -116,39 +128,44 @@ public:
 
 protected:
 
-    bool		mousepressed_;
+    bool		mousepressed_		= false;
     uiPoint		mousedownpt_;
 
-    float		defx1pospercm_;
-    float		defx2pospercm_;
+    float		x1start_		= mUdf(float);
+    float		x2start_		= mUdf(float);
+    float		defx1pospercm_		= mUdf(float);
+    float		defx2pospercm_		= mUdf(float);
 
     uiToolBar*		tb_;
-    uiToolBar*		edittb_ = nullptr;
-    int			rubbandzoombut_ = -1;
-    int			zoominbut_ = -1;
-    int			zoomoutbut_ = -1;
-    int			vertzoominbut_ = -1;
-    int			vertzoomoutbut_ = -1;
-    int			cancelzoombut_ = -1;
-    int			sethomezoombut_ = -1;
-    int			gotohomezoombut_ = -1;
-    int			scalebarbut_ = -1;
-    int			coltabbut_ = -1;
-    int			fittoscrnbut_ = -1;
-    int			parsbut_ = -1;
-    int			editbut_ = -1;
+    uiToolBar*		edittb_			= nullptr;
+    int			rubbandzoombut_		= -1;
+    int			zoominbut_		= -1;
+    int			zoomoutbut_		= -1;
+    int			vertzoominbut_		= -1;
+    int			vertzoomoutbut_		= -1;
+    int			cancelzoombut_		= -1;
+    int			sethomezoombut_		= -1;
+    int			gotohomezoombut_	= -1;
+    int			scalebarbut_		= -1;
+    int			coltabbut_		= -1;
+    int			fittoscrnbut_		= -1;
+    int			parsbut_		= -1;
+    int			editbut_		= -1;
 
     uiFlatViewer&	vwr_;
-    uiFlatViewColTabEd* ctabed_ = nullptr;
+    uiFlatViewColTabEd* ctabed_			= nullptr;
 
     const Setup		setup_;
 
     virtual void	finalPrepare();
     void		clearToolBar();
     void		updatePosButtonStates();
+    void		updateZoomLevel(float x1start,float x2start,
+					float x1pospercm,float x2pospercm);
     void		updateZoomLevel(float x1pospercm,float x2pospercm);
     void		doZoom(bool zoomin,bool onlyvertzoom,uiFlatViewer&);
     void		setViewToCustomZoomLevel(uiFlatViewer&);
+    void		zoomApplyCB(CallBacker*);
 
     virtual void	coltabChg(CallBacker*);
     virtual void	dispChgCB(CallBacker*);

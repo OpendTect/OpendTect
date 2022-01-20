@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uigeom.h"
 #include "color.h"
 #include "notify.h"
+#include "odpair.h"
 
 mFDQtclass(QApplication)
 mFDQtclass(QWidget)
@@ -77,7 +78,7 @@ public:
     static void		processEvents(int msec=3000);
 
     static KeyboardEventHandler& keyboardEventHandler();
-    static IdxPair	getDPI(int screennr=-1);
+    static OD::Pair<int,int> getDPI(int screennr=-1);
     static int		getMinDPI();
     static double	getDefZoomLevel();
 

@@ -710,21 +710,21 @@ void uiMain::repaint()
 }
 
 
-IdxPair uiMain::getDPI( int screennr )
+OD::Pair<int,int> uiMain::getDPI( int screennr )
 {
     const QScreen* screen = getScreen( screennr );
     if ( !screen )
-	return IdxPair(-1,-1);
+	return OD::Pair<int,int>(-1,-1);
 
-    return IdxPair( screen->physicalDotsPerInchX(),
-		    screen->physicalDotsPerInchY() );
+    return OD::Pair<int,int>( screen->physicalDotsPerInchX(),
+			      screen->physicalDotsPerInchY() );
 }
 
 
 int uiMain::getMinDPI()
 {
-    const IdxPair dpi = getDPI();
-    return dpi.first < dpi.second ? dpi.first : dpi.second;
+    const OD::Pair<int,int> dpi = getDPI();
+    return dpi.first() < dpi.second() ? dpi.first() : dpi.second();
 }
 
 

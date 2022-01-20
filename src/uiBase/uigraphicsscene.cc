@@ -477,9 +477,9 @@ void uiGraphicsScene::copyToClipBoard()
 				QImage::Format_ARGB32 );
     QColor qcol( 255, 255, 255 );
     image->fill( qcol.rgb() );
-    const IdxPair dpi = uiMain::getDPI();
-    image->setDotsPerMeterX( mNINT32(dpi.first/0.0254) );
-    image->setDotsPerMeterY( mNINT32(dpi.second/0.0254) );
+    const OD::Pair<int,int> dpi = uiMain::getDPI();
+    image->setDotsPerMeterX( mNINT32(dpi.first()/0.0254) );
+    image->setDotsPerMeterY( mNINT32(dpi.second()/0.0254) );
     imagepainter->begin( image );
 
     QGraphicsView* view = qGraphicsScene()->views()[0];

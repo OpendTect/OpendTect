@@ -116,7 +116,7 @@ void uiFlatViewControl::onFinalise( CallBacker* )
 }
 
 
-void uiFlatViewControl::dataChangeCB( CallBacker* cb )
+void uiFlatViewControl::dataChangeCB( CallBacker* )
 {
     zoommgr_.reInit( getBoundingBoxes() );
     zoomChanged.trigger();
@@ -212,7 +212,7 @@ void uiFlatViewControl::flip( bool hor )
 }
 
 
-void uiFlatViewControl::rubBandCB( CallBacker* cb )
+void uiFlatViewControl::rubBandCB( CallBacker* )
 {
     uiFlatViewer* vwr = vwrs_[0];
     const uiRect* selarea = vwr->rgbCanvas().getSelectedArea();

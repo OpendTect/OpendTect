@@ -93,10 +93,10 @@ float SlideLayout::availableHeigth() const
 
 // SlideContent
 SlideContent::SlideContent( const char* title, const char* imgfnm )
-    : imagesz_(0,0)
-    , imagepos_(0,0)
-    , title_(title)
+    : title_(title)
     , imagefnm_(imgfnm)
+    , imagesz_(0,0)
+    , imagepos_(0,0)
 {
 }
 
@@ -117,9 +117,9 @@ bool SlideContent::setImageSizePos( const SlideLayout& layout )
     uiPixmap pm( imagefnm_ );
     const int widthpix = pm.width();
     const int heightpix = pm.height();
-    const IdxPair dpi = uiMain::getDPI();
-    const float width = (float)widthpix / dpi.first;
-    const float height = (float)heightpix / dpi.second;
+    const OD::Pair<int,int> dpi = uiMain::getDPI();
+    const float width = float(widthpix) / dpi.first();
+    const float height = float(heightpix) / dpi.second();
 
     const float avwidth = layout.availableWidth();
     const float avheight = layout.availableHeigth();
