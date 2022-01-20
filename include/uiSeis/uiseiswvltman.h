@@ -16,7 +16,7 @@ class uiWaveletExtraction;
 class uiWaveletDispPropDlg;
 class uiSeisSingleTraceDisplay;
 class uiToolButton;
-class uiFunctionDisplay;
+class uiFuncDispBase;
 class uiLabel;
 class Wavelet;
 
@@ -38,7 +38,7 @@ protected:
     uiToolButton*		revpolbut_;
     uiToolButton*		rotatephbut_;
     uiToolButton*		taperbut_;
-    uiFunctionDisplay*		waveletdisplay_;
+    uiFuncDispBase*		waveletdisplay_;
     uiLabel*			wvnamdisp_;
     void			addButtons();
     void			mkFileInfo();

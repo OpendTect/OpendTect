@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 #include "arrayndalgo.h"
 #include "fftfilter.h"
+#include "uifunctiondisplayserver.h"
 #include "survinfo.h"
 #include "wavelet.h"
 #include "waveletattrib.h"
@@ -93,10 +94,9 @@ void uiSeisWvltRotDlg::act( CallBacker* )
 
 static float getFreqXAxisScaler()
 {
-    return SI().zIsTime() ? 1.f
-			  : SI().depthsInFeet() ? 5280.f : 1000.f;
+    return SI().zIsTime() ? 1.f : 1000.f;
     /*		Hz unchanged
-		/ft are converted to /miles
+		/ft are converted to /kft
 		/m are converted to /km
      */
 }
@@ -284,7 +284,7 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
 {
     timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop);
     timerange_.scale( SI().showZ2UserFactor() );
-    const float maxfreq = 1.f / wvlt.sampleRate();
+    const float maxfreq = 1.f / (2.f * wvlt.sampleRate());
     const float zfac = getFreqXAxisScaler();
     freqrange_.set( 0.f, Math::Ceil( maxfreq*zfac ) );
 
@@ -304,15 +304,16 @@ uiWaveletDispProp::~uiWaveletDispProp()
 
 void uiWaveletDispProp::addAttrDisp( int attridx )
 {
-    uiFunctionDisplay::Setup fdsu;
+    uiFuncDispBase::Setup fdsu;
     attrarrays_ += new Array1DImpl<float>( wvltsz_ );
-    fdsu.ywidth_ = 2;
+    fdsu.ywidth( 2 ).noy2axis(true).noy2gridline(true);
+    fdsu.canvaswidth(400).canvasheight(300);
 
     const uiString xname = attridx==0
 			 ? SI().zDomain().getLabel()
 			 : SI().zIsTime() ? tr("Frequency (Hz)")
 					  : SI().depthsInFeet()
-						 ? tr("Wavenumber (/miles)")
+						 ? tr("Wavenumber (/kft)")
 						 : tr("Wavenumber (/km)");
 
     const uiString yname = attridx == 0 || attridx == 1
@@ -325,9 +326,11 @@ void uiWaveletDispProp::addAttrDisp( int attridx )
 	attrarrays_[attridx]->setSize( mPadSz );
     }
 
-    attrdisps_ += new uiFunctionDisplay( this, fdsu );
+    attrdisps_ += GetFunctionDisplayServer().createFunctionDisplay( this,
+								    fdsu );
     if ( attridx )
-	attrdisps_[attridx]->attach( alignedBelow, attrdisps_[attridx-1] );
+	attrdisps_[attridx]->uiobj()->attach( alignedBelow,
+					      attrdisps_[attridx-1]->uiobj() );
 
     attrdisps_[attridx]->xAxis()->setCaption( xname );
     attrdisps_[attridx]->yAxis(false)->setCaption( yname );
@@ -348,10 +351,10 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
 	    maxval = attrarrays_[1]->get(idx);
     }
     int idxnoamp = mUdf(int);
-    maxval /= 1000.f; // noise detection threshold
+    const float noisefloor = maxval / 1000.f; // noise detection threshold
     for ( int idx=attrarrays_[1]->info().getSize(0)/2; idx>=0; idx-- )
     {
-	if ( attrarrays_[1]->get(idx) > maxval )
+	if ( attrarrays_[1]->get(idx) > noisefloor )
 	{
 	    idxnoamp = idx;
 	    break;
@@ -359,7 +362,7 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
     }
 
     const float maxfreq = freqrange_.stop * mCast(float,idxnoamp) /
-			  mCast(float,attrarrays_[1]->info().getSize(0));
+			  mCast(float,attrarrays_[1]->info().getSize(0)/2);
     if ( maxfreq > 1e6 )
     {
 	uiMSG().error( tr("Invalid Nyquist frequency: %1\n"
@@ -370,17 +373,18 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
 
     for ( int idx=0; idx<attrarrays_.size(); idx++ )
     {
-	const int sz =	attrarrays_[idx]->info().getSize(0);
+	const int sz =	idx==0 ?	attrarrays_[idx]->info().getSize(0) :
+					attrarrays_[idx]->info().getSize(0)/2;
 	attrdisps_[idx]->setVals( idx==0 ? timerange_ : freqrange_,
 				  attrarrays_[idx]->arr(), sz );
     }
 
-    const float freqstep = SI().zIsTime() ? 10.f
-					  : SI().depthsInFeet() ? 5.f : 10.f;
-    const StepInterval<float> freqrg( 0.f, maxfreq, freqstep );
-    attrdisps_[1]->xAxis()->setRange( freqrg );
-    attrdisps_[2]->xAxis()->setRange( freqrg );
+    const StepInterval<float> freqrg( 0.f, maxfreq, 1.f );
+    attrdisps_[1]->xAxis()->setRange( freqrg.niceInterval(7) );
+    attrdisps_[2]->xAxis()->setRange( freqrg.niceInterval(7) );
 
+    const StepInterval<float> amprg( 0.f, maxval, 1.f );
+    attrdisps_[1]->yAxis(false)->setRange( amprg.niceInterval(7) );
     const StepInterval<float> phaserg( -180.f, 180.f, 45.f );
     attrdisps_[2]->yAxis(false)->setRange( phaserg );
 }

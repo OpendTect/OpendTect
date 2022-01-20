@@ -259,10 +259,11 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
     const StepInterval<float> yaxrg( minhght, maxhght, (maxhght-minhght)/8);
 
     uiFunctionDrawer::Setup su; su.name_ = "Wavelet Stacking";
+    xaxrg = xaxrg.niceInterval( 5 );
     su.funcrg_ = xaxrg;
     xaxrg.scale( float(SI().zDomain().userFactor()) );
     su.xaxrg_ = xaxrg;
-    su.yaxrg_ = yaxrg;
+    su.yaxrg_ = yaxrg.niceInterval( 5 );
 
     su.xaxcaption_ = tr("Time %1").arg(SI().getUiZUnitString());
     su.yaxcaption_ = tr("Amplitude");
@@ -338,7 +339,7 @@ void uiSeisWvltMerge::reloadWvlts()
     namelist_.add( wvltname );
     stackedwvlt_->reSize( maxwvltsize_ );
     stackedwvlt_->setSampleRate( wvltsampling_.step );
-    stackedwvlt_->setCenterSample( maxwvltsize_/2 );
+    stackedwvlt_->setCenterSample( wvltsampling_.nearestIndex(0.f) );
     for ( int idx=0; idx<maxwvltsize_; idx++ )
 	stackedwvlt_->samples()[idx] = 0;
 }

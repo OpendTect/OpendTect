@@ -20,7 +20,8 @@ ________________________________________________________________________
 
 #include "uiaxishandler.h"
 #include "uitoolbutton.h"
-#include "uifunctiondisplay.h"
+#include "uifuncdispbase.h"
+#include "uifunctiondisplayserver.h"
 #include "uilabel.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjmanip.h"
@@ -73,17 +74,18 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     uiGroup* wvltdispgrp = new uiGroup( listgrp_,"Wavelet Display" );
     wvltdispgrp->attach( rightOf, selgrp_ );
 
-    uiFunctionDisplay::Setup fdsu;
+    uiFuncDispBase::Setup fdsu;
     fdsu.noy2axis(true).noy2gridline(true);
 
-    waveletdisplay_ = new uiFunctionDisplay( wvltdispgrp, fdsu );
+    waveletdisplay_ = GetFunctionDisplayServer().createFunctionDisplay(
+							    wvltdispgrp, fdsu );
     const uiString ztxt = toUiString("%1 %2").arg(SI().zIsTime() ?
 	 uiStrings::sTime() : uiStrings::sDepth()).arg(SI().getUiZUnitString());
     waveletdisplay_->xAxis()->setCaption( ztxt );
     waveletdisplay_->yAxis(false)->setCaption( uiStrings::sAmplitude() );
 
     wvnamdisp_ = new uiLabel( wvltdispgrp, uiStrings::sWavelet() );
-    wvnamdisp_->attach(centeredAbove, waveletdisplay_);
+    wvnamdisp_->attach(centeredAbove, waveletdisplay_->uiobj());
     wvnamdisp_->setAlignment( Alignment::HCenter );
 
     selChg( this );

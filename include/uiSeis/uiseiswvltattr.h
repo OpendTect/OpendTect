@@ -18,7 +18,7 @@ class ArrayNDWindow;
 class Wavelet;
 class uiCheckBox;
 class uiFuncTaperDisp;
-class uiFunctionDisplay;
+class uiFuncDispBase;
 class uiFreqTaperGrp;
 class uiGenInput;
 class uiWaveletDispProp;
@@ -103,7 +103,7 @@ public:
 private:
 
     int                         wvltsz_;
-    ObjectSet<uiFunctionDisplay>  attrdisps_;
+    ObjectSet<uiFuncDispBase>	attrdisps_;
     ObjectSet< Array1DImpl<float> > attrarrays_;
 
     WaveletAttrib*		wvltattr_;
@@ -112,7 +112,7 @@ private:
     Interval<float>		freqrange_;
 
     void			addAttrDisp(int);
-    
+
 };
 
 
