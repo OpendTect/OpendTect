@@ -31,7 +31,8 @@ namespace ODInst
 
     mGlobal(Basic) bool		updatesAvailable(int inited=-1);
     mGlobal(Basic) void		checkUpdatesAvailable();
-    mGlobal(Basic) mDeprecated("Use updatesAvailable") bool runInstMgrForUpdt();
+    mDeprecated("Use updatesAvailable")
+    mGlobal(Basic) bool		runInstMgrForUpdt();
     mGlobal(Basic) const char*	getPkgVersion(const char* file_pkg_basenm);
 				//!< For example, the Base pkg has "base"
     inline bool			isErrPkgVersion( const char* s )
