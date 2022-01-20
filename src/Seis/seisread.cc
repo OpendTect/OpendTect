@@ -584,6 +584,8 @@ GeomIDProvider* SeisTrcReader::geomIDProvider() const
 bool SeisTrcReader::mkNextFetcher()
 {
     curlineidx++;
+    delete fetcher;
+    fetcher = nullptr;
     if ( tbuf_ ) tbuf_->deepErase();
     Pos::GeomID geomid( seldata_ ? seldata_->geomID()
 				 : Survey::GM().cUndefGeomID() );
