@@ -11,13 +11,15 @@ set(OD_USEOSG Yes)
 SET(OD_MODULE_SOURCES
 	inituiosg.cc
 	keybindings.cc
+	od3dviewer.cc
 	odfontimplementation.cc
 	odgraphicswindow.cc
+	odopenglwidget.cc
+	ui3dindirectviewer.cc
+	ui3dviewer.cc
 	uiglinfo.cc
 	uiosgfont.cc
 	uiprintscenedlg.cc
-	ui3dviewer.cc 
-	ui3dindirectviewer.cc 
 	uistereodlg.cc 
 )
 
