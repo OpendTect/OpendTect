@@ -143,7 +143,6 @@ public:
 			    //!< Protection against assignment.
     };
 
-			SeisTrcTranslator(const char*,const char*);
     virtual		~SeisTrcTranslator();
 
 			/*! Init functions must be called, because
@@ -181,6 +180,7 @@ public:
 
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
     virtual bool	read(SeisTrc&);
+    virtual bool	readData(TraceData* extbuf=nullptr) { return false; }
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     virtual bool	write(const SeisTrc&);
 			// overrule if you don't need sorting/buffering
@@ -253,6 +253,7 @@ public:
     const LinScaler*	traceScaler() const	{ return curtrcscalebase_; }
 
 protected:
+			SeisTrcTranslator(const char*,const char*);
 
     Conn*		conn_ = nullptr;
     SeisPacketInfo&	pinfo_;
@@ -293,7 +294,6 @@ protected:
     virtual bool	initRead_()			{ return true; }
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
-    virtual bool	readData(TraceData* extbuf=0)	{ return false; }
 
 			// These are called from the default write()
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)

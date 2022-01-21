@@ -230,7 +230,7 @@ mImplTranslatorGroupTheInst( clss )
   //! In the class definition of a Translator class
 #define isTranslatorBody(spec,clss) \
 public: \
-    Translator* getNew() const \
+    Translator* getNew() const override \
     { \
 	Translator* trans = new spec##clss##Translator(typeName().buf(), \
 						    userName().buf()); \
