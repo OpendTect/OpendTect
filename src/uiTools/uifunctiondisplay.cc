@@ -652,19 +652,19 @@ void uiFunctionDisplay::addPoint( const uiPoint& pt )
 }
 
 
-Geom::PointI uiFunctionDisplay::mapToPosition( const Geom::PointF& pt, bool y2 )
+Geom::PointF uiFunctionDisplay::mapToPosition( const Geom::PointF& pt, bool y2 )
 {
     uiAxisHandler* xax = xAxis();
     uiAxisHandler* yax = yAxis( y2 );
 
     if ( !xax || !yax )
-	return Geom::PointI::udf();
+	return Geom::PointF::udf();
 
-    return Geom::PointI( xax->getPix(pt.x), yax->getPix(pt.y) );
+    return Geom::PointF( xax->getPix(pt.x), yax->getPix(pt.y) );
 }
 
 
-Geom::PointF uiFunctionDisplay::mapToValue( const Geom::PointI& pt, bool y2 )
+Geom::PointF uiFunctionDisplay::mapToValue( const Geom::PointF& pt, bool y2 )
 {
     uiAxisHandler* xax = xAxis();
     uiAxisHandler* yax = yAxis( y2 );
@@ -682,9 +682,10 @@ const NotifierAccess& uiFunctionDisplay::mouseMove()
 }
 
 
-const Geom::Point2D<int>& uiFunctionDisplay::mousePos()
+Geom::PointF uiFunctionDisplay::mousePos()
 {
-    return getMouseEventHandler().event().pos();
+    auto pos = getMouseEventHandler().event().pos();
+    return Geom::PointF( pos.x, pos.y );
 }
 
 

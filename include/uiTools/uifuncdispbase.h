@@ -174,9 +174,9 @@ public:
     const uiAxisHandlerBase*	yAxis( bool y2) const
 						{ return  y2 ? y2ax_ : yax_; }
 
-    virtual Geom::PointI	mapToPosition(const Geom::PointF&,
+    virtual Geom::PointF	mapToPosition(const Geom::PointF&,
 					      bool y2=false) = 0;
-    virtual Geom::PointF	mapToValue(const Geom::PointI&,
+    virtual Geom::PointF	mapToValue(const Geom::PointF&,
 					   bool y2=false) = 0;
 
     void			dump(od_ostream&,bool y2) const;
@@ -187,7 +187,7 @@ public:
     virtual void		draw() = 0;
     virtual uiObject*		uiobj() = 0;
     virtual const NotifierAccess&	mouseMove() = 0;
-    virtual const Geom::Point2D<int>&	mousePos() = 0;
+    virtual Geom::PointF		mousePos() = 0;
 
 protected:
 

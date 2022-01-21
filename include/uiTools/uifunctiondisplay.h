@@ -48,9 +48,9 @@ public:
     Geom::Point2D<float>	getXYFromPix(const Geom::Point2D<int>& pix,
 					     bool y2) const;
 
-    Geom::PointI		mapToPosition(const Geom::PointF&,
+    Geom::PointF		mapToPosition(const Geom::PointF&,
 					      bool y2=false) override;
-    Geom::PointF		mapToValue(const Geom::PointI&,
+    Geom::PointF		mapToValue(const Geom::PointF&,
 					   bool y2=false) override;
 
     void			gatherInfo(bool y2=false) override;
@@ -58,7 +58,7 @@ public:
 
     uiObject*			uiobj()		{ return this; }
     const NotifierAccess&	mouseMove() override;
-    const Geom::Point2D<int>&	mousePos() override;
+    Geom::PointF		mousePos() override;
 
     Notifier<uiFunctionDisplay>	pointSelected;
     Notifier<uiFunctionDisplay>	pointChanged;

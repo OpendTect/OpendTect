@@ -358,10 +358,9 @@ void uiAmplSpectrum::valChgd( CallBacker* )
 {
     if ( !specvals_ ) return;
 
-    const Geom::Point2D<int>& pos = disp_->mousePos();
-    const Geom::PointF fpos = disp_->mapToValue( pos );
-    const float xpos = fpos.x;
-    const float ypos = fpos.y;
+    const Geom::PointF pos = disp_->mapToValue( disp_->mousePos() );
+    const float xpos = pos.x;
+    const float ypos = pos.y;
     const bool disp = disp_->xAxis()->range().includes(xpos,true) &&
 		      disp_->yAxis(false)->range().includes(ypos,true);
     if ( !disp )
