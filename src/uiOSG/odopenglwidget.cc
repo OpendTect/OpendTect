@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include <osgGA/TrackballManipulator>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QInputEvent>
+#include <QMouseEvent>
+#include <QWheelEvent>
 
 // ODGraphicsWindow
 ODGraphicsWindow2::ODGraphicsWindow2()
@@ -79,6 +82,96 @@ void ODOpenGLWidget::resizeGL( int w, int h )
     osg::Camera* camera = viewer_->getCamera();
     camera->setViewport( 0, 0, this->width()*scalex_, this->height()*scaley_ );
     QOpenGLWidget::resizeGL( w, h );
+}
+
+
+void ODOpenGLWidget::setKeyboardModifiers( QInputEvent* ev )
+{
+    unsigned int modkey = ev ->modifiers() &
+		 (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
+    unsigned int modkeymask = 0;
+    if ( modkey & Qt::ShiftModifier )
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
+    if ( modkey & Qt::ControlModifier )
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
+    if ( modkey & Qt::AltModifier )
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+
+    getEventQueue()->getCurrentEventState()->setModKeyMask( modkeymask );
+}
+
+
+void ODOpenGLWidget::mousePressEvent( QMouseEvent* ev  )
+{
+    unsigned int button = 0;
+    switch ( ev ->button() )
+    {
+	case Qt::LeftButton: button = 1; break;
+	case Qt::MidButton: button = 2; break;
+	case Qt::RightButton: button = 3; break;
+	case Qt::NoButton: button = 0; break;
+	default: button = 0; break;
+    }
+
+    setKeyboardModifiers( ev  );
+    getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
+	    			       button );
+}
+
+
+void ODOpenGLWidget::mouseReleaseEvent( QMouseEvent* ev  )
+{
+    unsigned int button = 0;
+    switch ( ev ->button() )
+    {
+	case Qt::LeftButton: button = 1; break;
+	case Qt::MidButton: button = 2; break;
+	case Qt::RightButton: button = 3; break;
+	case Qt::NoButton: button = 0; break;
+	default: button = 0; break;
+    }
+
+    setKeyboardModifiers( ev  );
+    getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
+	    			       button );
+}
+
+
+void ODOpenGLWidget::mouseDoubleClickEvent( QMouseEvent* ev  )
+{
+    unsigned int button = 0;
+    switch ( ev ->button() )
+    {
+	case Qt::LeftButton: button = 1; break;
+	case Qt::MidButton: button = 2; break;
+	case Qt::RightButton: button = 3; break;
+	case Qt::NoButton: button = 0; break;
+	default: button = 0; break;
+    }
+
+    setKeyboardModifiers( ev  );
+    getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
+	    			       button );
+}
+
+
+void ODOpenGLWidget::mouseMoveEvent( QMouseEvent* ev  )
+{
+    setKeyboardModifiers( ev  );
+    getEventQueue()->mouseMotion( ev->x()*scalex_, ev->y()*scaley_ );
+}
+
+
+void ODOpenGLWidget::wheelEvent( QWheelEvent* ev  )
+{
+    setKeyboardModifiers( ev  );
+    const QPoint delta = ev->angleDelta();
+    const bool isvertical = abs(delta.y()) > abs(delta.x());
+    getEventQueue()->mouseScroll(
+	isvertical ? (delta.y()>0 ? osgGA::GUIEventAdapter::SCROLL_UP
+				  : osgGA::GUIEventAdapter::SCROLL_DOWN)
+		   : (delta.x()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT
+				  : osgGA::GUIEventAdapter::SCROLL_RIGHT) );
 }
 
 

@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 namespace osgViewer { class Viewer; }
 namespace osgGA { class EventQueue; }
+class QInputEvent;
 
 
 mClass(uiOSG) ODGraphicsWindow2 : public osgViewer::GraphicsWindow
@@ -38,11 +39,20 @@ public:
 			ODOpenGLWidget(QWidget* parent=nullptr,
 				       Qt::WindowFlags f=Qt::WindowFlags());
 			~ODOpenGLWidget();
+
 protected:
 
     void		initializeGL() override;
     void		paintGL() override;
     void		resizeGL(int w,int h) override;
+
+    void		setKeyboardModifiers(QInputEvent*);
+
+    void		mousePressEvent(QMouseEvent*) override;
+    void		mouseReleaseEvent(QMouseEvent*) override;
+    void		mouseDoubleClickEvent(QMouseEvent*) override;
+    void		mouseMoveEvent(QMouseEvent*) override;
+    void		wheelEvent(QWheelEvent*) override;
 
     osgGA::EventQueue*	getEventQueue() const;
 
