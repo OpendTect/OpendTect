@@ -37,15 +37,11 @@ class FunctionSource;
    different for each subclass, but is typically user-picks, wells
    or velocity volumes. */
 
-mExpClass(Velocity) Function
+mExpClass(Velocity) Function : public ReferencedObject
 {
 public:
-    void			ref() const;
-    void			unRef() const;
-    void			unRefNoDelete() const;
-
 				Function(FunctionSource&);
-    const FunctionSource&	getSource() const 	{ return source_; }
+    const FunctionSource&	getSource() const	{ return source_; }
 
     virtual const VelocityDesc&	getDesc() const;
 
@@ -60,7 +56,7 @@ public:
     const StepInterval<float>&	getDesiredZ() const;
 
 protected:
-    virtual 			~Function();
+    virtual			~Function();
 
     virtual bool		computeVelocity(float z0, float dz, int nr,
 						float* res ) const	= 0;
@@ -73,7 +69,7 @@ private:
     friend			class FunctionSource;
 
     mutable Threads::Lock	cachelock_;
-    mutable TypeSet<float>*	cache_;
+    mutable TypeSet<float>*	cache_ = nullptr;
     mutable SamplingData<double> cachesd_;
 };
 
@@ -109,18 +105,16 @@ public:
 protected:
 
     friend			class Function;
-    void			refFunction(const Function* v);
-    bool			unRefFunction(const Function* v);
+    void			removeFunction(const Function*);
 
     int				findFunction(const BinID&) const;
-    				//!<Caller must readlock before calling
+				//!<Caller must readlock before calling
 
 
     MultiID				mid_;
     BufferString			errmsg_;
 
     ObjectSet<Function>			functions_;
-    TypeSet<int>			refcounts_;
     Threads::Lock			lock_;
 };
 

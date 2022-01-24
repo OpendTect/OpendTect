@@ -499,33 +499,21 @@ void RefMan<T>::setNoDelete( bool yn )
 template <class T> inline
 void RefMan<T>::ref( T* p )
 {
-    mDynamicCastGet(ReferencedObject*,refcp,p)
-    if ( refcp )
-	refPtr( refcp );
-    else if ( p )
-	p->ref();
+    refPtr( static_cast<RefCount::Referenced*>( p ) );
 }
 
 
 template <class T> inline
 void RefMan<T>::unRef( T* p )
 {
-    mDynamicCastGet(ReferencedObject*,refcp,p)
-    if ( refcp )
-	unRefPtr( refcp );
-    else if ( p )
-	p->unRef();
+    unRefPtr( static_cast<RefCount::Referenced*>( p ) );
 }
 
 
 template <class T> inline
 void RefMan<T>::unRefNoDelete( T* p )
 {
-    mDynamicCastGet(ReferencedObject*,refcp,p)
-    if ( refcp )
-	unRefNoDeletePtr( refcp );
-    else if ( p )
-	p->unRefNoDelete();
+    unRefNoDeletePtr( static_cast<RefCount::Referenced*>( p ) );
 }
 
 
@@ -600,31 +588,19 @@ void ConstRefMan<T>::setNoDelete( bool yn )
 template <class T> inline
 void ConstRefMan<T>::ref(T* p)
 {
-    mDynamicCastGet(ReferencedObject*,refcp,p)
-    if ( refcp )
-	refPtr( refcp );
-    else if ( p )
-	p->ref();
+    refPtr( static_cast<RefCount::Referenced*>( p ) );
 }
 
 
 template <class T> inline
 void ConstRefMan<T>::unRef( T* p )
 {
-    mDynamicCastGet(ReferencedObject*,refcp,p)
-    if ( refcp )
-	unRefPtr( refcp );
-    else if ( p )
-	p->unRef();
+    unRefPtr( static_cast<RefCount::Referenced*>( p ) );
 }
 
 
 template <class T> inline
 void ConstRefMan<T>::unRefNoDelete( T* p )
 {
-    mDynamicCastGet(ReferencedObject*,refcp,p)
-    if ( refcp )
-	unRefNoDeletePtr( refcp );
-    else if ( p )
-	p->unRefNoDelete();
+    unRefNoDeletePtr( static_cast<RefCount::Referenced*>( p ) );
 }

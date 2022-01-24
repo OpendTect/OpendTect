@@ -373,6 +373,25 @@ public: \
 		    refcount_.unRefDontInvalidate(); \
 		} \
     int		nrRefs() const { return refcount_.count(); } \
+ \
+    static void refPtr( ClassName* ptr ) \
+		{ \
+		    if ( ptr ) \
+			ptr->ref(); \
+		} \
+    static void unRefPtr( ClassName* ptr ) \
+		{ \
+		    if ( ptr ) \
+			ptr->unRef(); \
+		} \
+    static void unRefAndZeroPtr( ClassName*& ptr ) \
+		{ \
+		    if ( ptr ) \
+			ptr->unRef(); \
+		    else \
+			return; \
+		    ptr = nullptr; \
+		} \
 private: \
     virtual void		refNotify() const {} \
     virtual void		unRefNotify() const {} \
@@ -417,60 +436,31 @@ inline void unRefNoDeletePtr( const RefCount::Referenced* ptr )
 template <class T> inline
 void unRefAndZeroPtr( T*& ptr )
 {
-    mDynamicCastGet(RefCount::Referenced*,refptr,ptr)
-    if ( refptr )
-	unRefPtr( refptr );
-    else if ( !ptr )
-	return;
-    else
-	ptr->unRef();
-    ptr = 0;
+    unRefPtr( static_cast<RefCount::Referenced*>( ptr ) );
+    ptr = nullptr;
 }
 
 template <class T> inline
 void unRefAndZeroPtr( const T*& ptr )
 {
-    mDynamicCastGet(const RefCount::Referenced*,refptr,ptr)
-    if ( refptr )
-	unRefPtr( refptr );
-    else if ( !ptr )
-	return;
-    else
-	ptr->unRef();
-    ptr = 0;
+    unRefPtr( static_cast<const RefCount::Referenced*>( ptr ) );
+    ptr = nullptr;
 }
 
 
-/*! Un-reference class pointer. Works for null pointers. */
-template <class T> inline
-void unRefPtr( const T* ptr )
-{
-    if ( !ptr ) return;
-    ptr->unRef();
+#define mDefineRefUnrefObjectSetFn( fn, op, extra ) \
+template <class T> \
+inline void fn( ObjectSet<T>& os ) \
+{ \
+    for ( auto* obj : os ) \
+	op( obj ); \
+    extra; \
 }
 
-
-/*! Un-reference class pointer without delete. Works for null pointers. */
-template <class T> inline
-void unRefNoDeletePtr( const T* ptr )
-{
-    if ( !ptr ) return;
-    ptr->unRefNoDelete();
-}
-
-
-//! Reference class pointer. Works for null pointers.
-template <class T> inline
-void refPtr( const T* ptr )
-{
-    if ( !ptr ) return;
-    ptr->ref();
-}
-
-mObjectSetApplyToAllFunc( deepUnRef, unRefPtr( os[idx] ), os.plainErase() )
-mObjectSetApplyToAllFunc( deepUnRefNoDelete, unRefNoDeletePtr( os[idx] ),
-			  os.plainErase() )
-mObjectSetApplyToAllFunc( deepRef, refPtr( os[idx] ), )
+mDefineRefUnrefObjectSetFn( deepUnRef, unRefPtr, os.plainErase() )
+mDefineRefUnrefObjectSetFn( deepUnRefNoDelete, unRefNoDeletePtr,
+			    os.plainErase() )
+mDefineRefUnrefObjectSetFn( deepRef, refPtr, )
 
 
 /*! Actual implementation of the reference counting. Normally not used by

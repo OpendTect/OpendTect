@@ -446,16 +446,12 @@ VelocityBasedAngleComputer::VelocityBasedAngleComputer()
 
 VelocityBasedAngleComputer::~VelocityBasedAngleComputer()
 {
-    unRefPtr( velsource_ );
 }
 
 
 bool VelocityBasedAngleComputer::setMultiID( const MultiID& mid )
 {
-    unRefPtr( velsource_ );
     velsource_ = Vel::FunctionSource::factory().create( 0, mid, false );
-    refPtr( velsource_ );
-
     return velsource_;
 }
 
@@ -468,11 +464,11 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     if ( geom && geom->is2D() )
 	{ pErrMsg( "Only 3D is supported at this time" ); return 0; }
 
-    RefMan<Vel::FunctionSource> source = velsource_;
-    if ( !source )
+    if ( !velsource_ )
 	return nullptr;
 
-    ConstRefMan<Vel::Function> func = source->getFunction( trckey_.position() );
+    ConstRefMan<Vel::Function> func =
+			velsource_->getFunction( trckey_.position() );
     if ( !func )
 	return nullptr;
 

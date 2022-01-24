@@ -122,7 +122,7 @@ protected:
     const ElasticModel&		curElasticModel() const	{ return elasticmodel_;}
     const RayTracer1D*		curRayTracer() const	{ return raytracer_; }
 
-    Vel::FunctionSource*	velsource_ = nullptr;
+    RefMan<Vel::FunctionSource> velsource_;
 };
 
 
