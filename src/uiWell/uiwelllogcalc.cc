@@ -498,6 +498,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     bool successfulonce = false;
     uiRetVal errormsg;
     uiString errorstr;
+    uiUserShowWait usw( this, tr("Processing wells") );
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
     {
 	TypeSet<InpData> inpdatas;
