@@ -84,7 +84,7 @@ protected:
 				     uiMathExpressionVariable&);
     void		fillSRFld(const char* lognm);
 
-    bool		getInpDatas(Well::LogSet&,TypeSet<InpData>&);
+    bool		getInpDatas(Well::LogSet&,TypeSet<InpData>&,uiString&);
     Well::Log*		getInpLog(Well::LogSet&,int);
     bool		calcLog(Well::Log&,const TypeSet<InpData>&,
 				Well::Track&,Well::D2TModel*);

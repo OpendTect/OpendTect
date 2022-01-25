@@ -158,7 +158,10 @@ public:
     const char*		inputDef( int iinp ) const
 					{ return inps_[iinp]->inpdef_.buf(); }
     const char*		inputDescription( int iinp ) const
-					{ return inps_[iinp]->inpdesc_.buf(); }
+					{ return inps_.validIdx(iinp) ?
+						    inps_[iinp]->inpdesc_.buf():
+						    nullptr;
+					}
     const Mnemonic*	inputMnemonic( int iinp ) const
 					{ return inps_[iinp]->formmn_; }
     const UnitOfMeasure* inputFormUnit( int iinp ) const

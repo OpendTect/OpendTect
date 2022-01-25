@@ -409,7 +409,7 @@ void uiWellLogCalc::vwLog( CallBacker* cb )
     if ( inpnr < 0 )
 	return;
 
-    const Well::Log* wl = getLog4InpIdx( superwls_, lognms_.get(inpnr).buf() );
+    const Well::Log* wl = getLog4InpIdx( superwls_, formfld_->getInput(inpnr) );
     if ( !wl )
 	return;
 
@@ -464,42 +464,66 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     form_.setOutputValUnit( outun );
 
     bool successfulonce = false;
+    uiRetVal errormsg;
+    uiString errorstr;
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
     {
 	TypeSet<InpData> inpdatas;
 	const MultiID wmid = wellids_[iwell];
 	RefMan<Well::Data> wd = Well::MGR().get( wmid );
 	if ( !wd )
-	    mErrContinue( tr("%1").arg(Well::MGR().errMsg()) )
+	{
+	    deleteLog( inpdatas );
+	    errormsg.add( tr("%1").arg(Well::MGR().errMsg()) );
+	    continue;
+	}
 
 	Well::LogSet& wls = wd->logs();
 	// TODO: Change to an ObjectSet. Can not do proper memory management
 	// with a TypeSet. Hence the addition of deleteLog.
-	if ( !getInpDatas(wls,inpdatas) )
+	if ( !getInpDatas(wls,inpdatas,errorstr) )
 	{
+	    errormsg.add( tr("%1: %2").arg(wd->name()).arg(errorstr) );
 	    deleteLog( inpdatas );
 	    continue;
 	}
 
 	auto* newwl = new Well::Log( newnm );
 	if ( !calcLog(*newwl,inpdatas,wd->track(),wd->d2TModel()) )
-	    mErrContinue( tr("Cannot compute log for %1").arg(wd->name()))
+	{
+	    deleteLog( inpdatas );
+	    errormsg.add( tr("Cannot compute log for %1").arg(wd->name()) );
+	    continue;
+	}
 
 	if ( outmn && !outmn->isUdf() )
 	    newwl->setMnemonic( *outmn );
 	newwl->setUnitOfMeasure( outun );
 
 	if ( !Well::MGR().writeAndRegister(wmid,*newwl) )
-	    mErrContinue( tr(Well::MGR().errMsg()) );
+	{
+	    deleteLog( inpdatas );
+	    errormsg.add( tr(Well::MGR().errMsg()) );
+	    continue;
+	}
 
 	successfulonce = true;
 	deleteLog( inpdatas );
     }
 
     if ( !successfulonce )
+    {
+	if ( errormsg.isError() )
+	    uiMSG().errorWithDetails( errormsg.messages(),
+				      tr("Adding log failed for all wells") );
 	return false;
+    }
+    if ( errormsg.isError() )
+	uiMSG().errorWithDetails( errormsg.messages(),
+				  tr("Adding log failed for some wells") );
+    else
+	uiMSG().message( tr("Successfully added this log to all wells") );
 
-    uiMSG().message( tr("Successfully added this log") );
     havenew_ = true;
     viewlogbut_->setSensitive( true );
     logschanged.trigger();
@@ -508,7 +532,8 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
 
 bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
-				 TypeSet<uiWellLogCalc::InpData>& inpdatas )
+				 TypeSet<uiWellLogCalc::InpData>& inpdatas,
+				 uiString& errorstr )
 {
     for ( int iinp=0; iinp<form_.nrInputs(); iinp++ )
     {
@@ -517,8 +542,11 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 	    InpData inpd; inpd.isconst_ = true;
 	    inpd.constval_ = form_.getConstVal( iinp );
 	    if ( mIsUdf(inpd.constval_) )
-		mErrRet(tr("Please enter a value for %1")
-		      .arg(form_.variableName(iinp)))
+	    {
+		errorstr = tr("Please enter a value for %1")
+						.arg(form_.variableName(iinp));
+		return false;
+	    }
 	    inpdatas += inpd;
 	    continue;
 	}
@@ -533,8 +561,11 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 	    {
 		inpd.wl_ = getInpLog( wls, iinp );
 		if ( !inpd.wl_ )
-		    mErrRet(tr("%1: empty log").arg(toUiString(
-							 form_.inputDef(iinp))))
+		{
+		    errorstr = tr("%1: empty log").arg(toUiString(
+						     form_.inputDef(iinp)));
+		    return false;
+		}
 	    }
 
 	    inpd.specidx_ = specidx;
@@ -548,7 +579,7 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 
 Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx )
 {
-    Well::Log* inplog = getLog4InpIdx( wls, lognms_.get(inpidx).buf() );
+    Well::Log* inplog = getLog4InpIdx( wls, formfld_->getInput(inpidx) );
     if ( !inplog || inplog->isEmpty() )
 	return nullptr;
 

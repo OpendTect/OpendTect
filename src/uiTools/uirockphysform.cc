@@ -61,7 +61,7 @@ float value() const
 
 void update( const RockPhysics::Formula& form, int iinp )
 {
-    const bool validcst = iinp <= 0 && iinp < form.nrInputs();
+    const bool validcst = iinp >= 0 && iinp < form.nrInputs();
     display( validcst );
     if ( !validcst )
 	{ cstnm_.setEmpty(); infofld_->setInfo( "" ); return; }
