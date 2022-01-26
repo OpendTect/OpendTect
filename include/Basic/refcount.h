@@ -29,7 +29,7 @@ template <class T> class ConstRefMan;
 \section example Example usage
   A refcount class is set up by:
   \code
-  class A : public RefCount::Referenced
+  class A : public ReferencedObject
   {
      public:
         //Your class stuff

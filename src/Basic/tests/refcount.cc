@@ -30,7 +30,7 @@ MacroReferencedClass::~MacroReferencedClass()
 }
 
 
-class ReferencedClass : public RefCount::Referenced
+class ReferencedClass : public ReferencedObject
 {
 public:
 ReferencedClass( bool* delflag )

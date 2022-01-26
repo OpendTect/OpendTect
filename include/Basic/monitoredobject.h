@@ -138,7 +138,7 @@ public:
 	static inline ChangeData AllChanged()	{ return ChangeData(-1,-1); }
 	static inline ChangeData NoChange()	{ return ChangeData(0,-1); }
 
-	mExpClass(Basic) AuxData : public RefCount::Referenced
+	mExpClass(Basic) AuxData : public ReferencedObject
 	{
 	    protected:
 		virtual	~AuxData()			{}
