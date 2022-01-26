@@ -53,33 +53,30 @@ static bool doRun( const TypeSet<ElasticModel>& emodels, bool parallel )
     const bool singlemod = emodels.size() == 1;
     const TypeSet<float> offsets = getOffsets();
 
-    RayTracerRunner rtrunner;
-    rtrunner.setModel( emodels );
-    rtrunner.setOffsets( offsets );
+    IOPar raypar;
+    raypar.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
+    raypar.set( RayTracer1D::sKeyOffset(), offsets );
+    raypar.setYN( RayTracerRunner::sKeyParallel(), parallel );
 
-    mRunStandardTestWithError( rtrunner.executeParallel(parallel),
-			       "Execute raytracer runner",
-			       toString(rtrunner.uiMessage()) );
+    uiString msg;
+    ConstRefMan<ReflectivityModelSet> refmodels =
+			RayTracerRunner::getRefModels( emodels, raypar, msg );
+    mRunStandardTestWithError( refmodels.ptr(), "Execute raytracer runner",
+			       toString(msg) );
 
-    const RayTracer1D& rt = singlemod ? *rtrunner.rayTracers().first()
-				      : *rtrunner.rayTracers().get(cNrModels-1);
-
-    TypeSet<float> retoffsets;
-    rt.getOffsets( retoffsets );
-    mRunStandardTest( retoffsets == offsets, "Offset distribution" );
+    const int modidx = singlemod ? 0 : cNrModels-1;
+    const ReflectivityModelBase* refmodel = refmodels->get( modidx );
+    mRunStandardTest( refmodel, "Has reflectivity model" );
 
     const ElasticModel& emdl = singlemod ? emodels.first()
 					 : emodels[cNrModels-1];
     const int nrlayers = emdl.size();
-
-    ConstRefMan<TimeDepthModelSet> retmodel = rt.getTDModels();
-
     const int modsz = nrlayers + 1;
-    mRunStandardTest( retmodel->isOK() && retmodel->modelSize() == modsz &&
-	retmodel->size() == 6 && retmodel->get( 5 ),
-	"Test raytracerrunner output" );
+    mRunStandardTest( refmodel->isOK() && refmodel->modelSize() == modsz &&
+		      refmodel->size() == 6 && refmodel->get( 5 ),
+		      "Test raytracerrunner output" );
 
-    const TimeDepthModel& tdmodel = retmodel->getDefaultModel();
+    const TimeDepthModel& tdmodel = refmodel->getDefaultModel();
     mTestVal( tdmodel.getDepth( 1 ), 48.f, mDefDepthEps );
     mTestVal( tdmodel.getDepth( 2 ), 568.f, mDefDepthEps );
     mTestVal( tdmodel.getDepth( 3 ), 953.f, mDefDepthEps );
@@ -89,12 +86,17 @@ static bool doRun( const TypeSet<ElasticModel>& emodels, bool parallel )
     mTestVal( tdmodel.getTime( 3 ), 0.668f, mDefTimeEps );
     mTestVal( tdmodel.getTime( 4 ), 0.843f, mDefTimeEps );
 
-    mDynamicCastGet(const ReflectivityModelSet*,refmodel,retmodel.ptr())
-    mRunStandardTest( refmodel && refmodel->nrRefModels() == 6 &&
-		      refmodel->isDefined(5,3),
+    mRunStandardTest( refmodel->nrRefModels() == 6 &&
+		      refmodel->isSpikeDefined(5,3),
 		      "Has defined reflectivities" );
 
-    mRunStandardTest( true, "Offset-based ReflectivityModelSet values" );
+    Interval<float> twtrg;
+    refmodels->getTWTrange( twtrg, true );
+    const Interval<float> exptwtrg( 0.048f, 0.843f );
+    mRunStandardTest( twtrg.isEqual(exptwtrg,mDefTimeEps),
+			"TWT range is correct" );
+
+    mRunStandardTest( true, "Offset-based ReflectivityModel values" );
 
     return true;
 }
@@ -105,6 +107,19 @@ static bool runRayTracerRunner( int nr, bool parallel )
     TypeSet<ElasticModel> emodels;
     for ( int idx=0; idx<nr; idx++ )
 	emodels += getEModel();
+
+    if ( nr > 1 )
+    {
+	ElasticModel emdl;
+	emdl += AILayer( 48.f, 2000.f, 2500.f );
+	// Single layer model
+
+	emodels += emdl;
+	emdl += AILayer( 48.f, 2000.f, 2500.f );
+	emdl += AILayer( 48.f, 2000.f, 2500.f );
+	// Model with the identical layers: May get merged
+	emodels += emdl;
+    }
 
     return doRun( emodels, parallel );
 }

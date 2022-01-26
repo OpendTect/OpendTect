@@ -44,5 +44,14 @@ mDefModInitFn(Algo)
     VrmsRayTracer1D::initClass();
     ZSliceInterpolationModel::initClass();
 
+    FactoryBase& rtfact = RayTracer1D::factory();
+    const BufferString defnm = rtfact.getDefaultName();
+    if ( defnm.isEmpty() )
+    {
+	const int defidx = rtfact.getNames().indexOf(
+			   VrmsRayTracer1D::sFactoryKeyword() );
+	rtfact.setDefaultName( defidx );
+    }
+
     initChecksum();
 }

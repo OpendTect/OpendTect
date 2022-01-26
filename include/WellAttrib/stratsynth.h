@@ -11,10 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
-#include "syntheticdata.h"
+
 #include "ailayer.h"
 #include "elasticpropsel.h"
 #include "synthseis.h"
+#include "syntheticdata.h"
 #include "valseriesevent.h"
 #include "uistring.h"
 
@@ -33,26 +34,6 @@ namespace Strat
     class LayerModel; class LayerModelProvider; class LayerSequence;
     class Level;
 }
-namespace Seis { class RaySynthGenerator; }
-
-typedef Seis::RaySynthGenerator::RayModel SynthRayModel;
-typedef ObjectSet<SynthRayModel> RayModelSet;
-
-mExpClass(WellAttrib) SynthRayModelManager
-{ mODTextTranslationClass(SynthRayModelManager);
-public:
-    ObjectSet<SynthRayModel>*	getRayModelSet(const IOPar&);
-    void			addRayModelSet(ObjectSet<SynthRayModel>*,
-					       const SyntheticData*);
-    void			removeRayModelSet(const IOPar&);
-    void			clearRayModels();
-    bool			haveSameRM(const IOPar& par1,
-					   const IOPar& par2) const;
-protected:
-    ObjectSet<RayModelSet>	raymodels_;
-    TypeSet<IOPar>		synthraypars_;
-};
-
 
 
 mExpClass(WellAttrib) StratSynth
@@ -119,22 +100,21 @@ public:
     void		setLevel(const StratSynthLevel*);
     const StratSynthLevel* getLevel() const { return level_; }
 
-    void		getLevelDepths(const Strat::Level&,
-					TypeSet<float>&) const;
-    void		getLevelTimes(const Strat::Level&,
-				const ObjectSet<const TimeDepthModel>&,
-				TypeSet<float>&) const;
-    void		getLevelTimes(SeisTrcBuf&,
-				const ObjectSet<const TimeDepthModel>&) const;
-    bool		setLevelTimes(const char* sdnm);
+    void		getLevelDepths(const Strat::Level&,int each,
+				       TypeSet<float>&) const;
+    void		getLevelTimes(const Strat::Level&,int each,
+				      const ReflectivityModelSet&,
+				      TypeSet<float>&,int offsetidx=-1) const;
+    void		getLevelTimes(const ReflectivityModelSet&,int each,
+				      SeisTrcBuf&,int offsetidx=-1) const;
+    bool		setLevelTimes(const char* sdnm,int each,
+				      int offsetidx=-1);
 
     void		flattenTraces(SeisTrcBuf&) const;
     void		trimTraces(SeisTrcBuf&,
 				   const ObjectSet<const TimeDepthModel>&,
 				   float zskip) const;
     void		decimateTraces(SeisTrcBuf&,int fac) const;
-    void		clearRayModels()
-			{ synthrmmgr_.clearRayModels(); }
 
     void		setTaskRunner( TaskRunner* t )	{ taskr_ = t; }
     bool		hasTaskRunner() const		{ return taskr_; }
@@ -159,22 +139,20 @@ protected:
 
     const Strat::LayerModelProvider& lmp_;
     const bool			useed_;
-    const StratSynthLevel*	level_;
+    const StratSynthLevel*	level_ = nullptr;
     SynthGenParams		genparams_;
     PropertyRefSelection	props_;
     ObjectSet<SyntheticData>	synthetics_;
     TypeSet<ElasticModel>	aimodels_;
-    SynthID			lastsyntheticid_;
-    bool			swaveinfomsgshown_;
-    const Wavelet*		wvlt_;
+    SynthID			lastsyntheticid_ = 0;
+    bool			swaveinfomsgshown_ = false;
+    const Wavelet*		wvlt_ = nullptr;
 
     uiRetVal			errmsg_;
     uiRetVal			infomsg_;
-    TaskRunner*			taskr_;
-    SynthRayModelManager	synthrmmgr_;
+    TaskRunner*			taskr_ = nullptr;
 
     const Strat::LayerModel&	layMod() const;
-    bool		canRayModelsBeRemoved(const IOPar& raypar) const;
     bool		fillElasticModel(const Strat::LayerModel&,
 					 ElasticModel&,int seqidx);
     bool		adjustElasticModel(const Strat::LayerModel&,
@@ -190,23 +168,16 @@ protected:
     SyntheticData*	createAVOGradient(const SyntheticData&,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
-    void		createAngleData(PreStackSyntheticData&,
-					const ObjectSet<RayTracer1D>&);
+    void		createAngleData(PreStackSyntheticData&);
     void		generateOtherQuantities(const PostStackSyntheticData&,
 						const Strat::LayerModel&,
 						double zstep,
 						const BufferStringSet* nms);
 
-    void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
-    void		putD2TModelsInSD(SyntheticData&,
-					 ObjectSet<SynthRayModel>&);
-
+    const ReflectivityModelSet* getRefModels(const SynthGenParams&);
+    const Seis::SynthGenDataPack* getSynthGenRes(const SynthGenParams&);
     const PreStack::GatherSetDataPack*	getRelevantAngleData(
-						const IOPar& raypar) const;
+					  const Seis::SynthGenDataPack&) const;
 
-public:
-    void		getLevelTimes(SeisTrcBuf&,
-				const ObjectSet<const TimeDepthModel>&,
-				int dispeach) const;
 };
 

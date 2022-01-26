@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "arrayndalgo.h"
 #include "envvars.h"
 #include "raytrace1d.h"
+#include "stratsynthgenparams.h"
 #include "synthseis.h"
+#include "syntheticdata.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
 #include "statruncalc.h"
@@ -32,7 +34,6 @@ ________________________________________________________________________
 #include "welltiegeocalculator.h"
 #include "welltrack.h"
 
-static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
 
 namespace WellTie
 {
@@ -106,8 +107,8 @@ bool DataPlayer::extractSeismics()
 
     TrcKeyZSampling cs;
     oinf.getRanges( cs );
-    const StepInterval<float> tracerg = data_.getTraceRange();
-    StepInterval<float> seisrg( tracerg.start, tracerg.stop, cs.zsamp_.step );
+    const ZSampling tracerg = data_.getTraceRange();
+    ZSampling seisrg( tracerg.start, tracerg.stop, cs.zsamp_.step );
 
     Well::SimpleTrackSampler wtextr( data_.wd_->track(), data_.wd_->d2TModel(),
 				     true, false );
@@ -125,16 +126,19 @@ bool DataPlayer::extractSeismics()
     if ( !TaskRunner::execute(data_.trunner_,seisextr) )
 	mErrRet( tr( "Can not extract seismic: %1" ).arg( seisextr.errMsg() ) )
 
-    SeisTrc rawseis = SeisTrc( seisextr.result() );
+    const SeisTrc rawseis = seisextr.result();
     const int newsz = tracerg.nrSteps()+1;
-    data_.seistrc_ = SeisTrc( newsz );
-    data_.seistrc_.info().sampling = tracerg;
+    auto* newtrc = new SeisTrc( newsz );
+    newtrc->info() = rawseis.info();
+    newtrc->info().sampling = tracerg;
     for ( int idx=0; idx<newsz; idx++ )
     {
 	const float twt = tracerg.atIndex(idx);
 	const float outval = rawseis.getValue( twt, 0 );
-	data_.seistrc_.set( idx, outval, 0 );
+	newtrc->set( idx, outval, 0 );
     }
+
+    data_.setRealTrc( newtrc );
 
     return true;
 }
@@ -144,16 +148,28 @@ bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
 {
     errmsg_.setEmpty();
 
-    Seis::SynthGenerator gen;
-    gen.setModel( refmodel_ );
-    gen.setWavelet( &wvlt, OD::UsePtr );
-    gen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
-    gen.setOutSampling( data_.getTraceRange() );
+    const SyntheticData* synthetics = data_.getSynthetics();
+    if ( !synthetics )
+	mErrRet( tr( "Cannot update synthetics without previous" ) );
 
-    if ( !gen.doWork() )
-	mErrRet( tr( "Cannot update synthetics: %1" ).arg( gen.errMsg() ) )
+    const Seis::SynthGenDataPack& synthgendp = synthetics->synthGenDP();
 
-    data_.synthtrc_ = *new SeisTrc( gen.result() );
+    Seis::RaySynthGenerator synthgen( synthgendp );
+    synthgen.setWavelet( &wvlt, OD::UsePtr );
+    synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
+    synthgen.setOutSampling( data_.getTraceRange() );
+
+    if ( !TaskRunner::execute(data_.trunner_,synthgen) )
+	mErrRet( tr("Cannot update synthetics: %1").arg(synthgen.uiMessage()) )
+
+    SynthGenParams sgp = synthetics->getGenParams();
+    sgp.setWavelet( wvlt );
+    sgp.createName( sgp.name_ );
+    ConstPtrMan<SyntheticData> newsynthdp = SyntheticData::get( sgp, synthgen );
+    if ( !newsynthdp )
+	return false;
+
+    data_.setSynthetics( newsynthdp.release() );
 
     return true;
 }
@@ -179,20 +195,25 @@ bool DataPlayer::checkCrossCorrInps()
     if ( zrg_.isUdf() )
 	mErrRet( tr( "Cross-correlation window not set" ) )
 
-    if ( !data_.seistrc_.zRange().isEqual(data_.synthtrc_.zRange(), 1e-2f) )
+    const Data& data = data_;
+    const SeisTrc* realtrc = data.getRealTrc();
+    const SeisTrc* synthtrc = data.getSynthTrc();
+    if ( !realtrc || !synthtrc )
+	return false;
+
+    if ( !realtrc->zRange().isEqual(synthtrc->zRange(), 1e-2f) )
 	mErrRet( tr( "Synthetic and seismic traces do not have same length" ) )
 
     if ( !isOKSynthetic() && !isOKSeismic() )
 	mErrRet( tr( "Seismic/Synthetic data too short" ) )
 
-    const int istartseis = data_.seistrc_.nearestSample( zrg_.start );
-    const int istopseis = data_.seistrc_.nearestSample( zrg_.stop );
+    const int istartseis = realtrc->nearestSample( zrg_.start );
+    const int istopseis = realtrc->nearestSample( zrg_.stop );
     const int nrsamps = istopseis - istartseis + 1;
     if ( nrsamps < 2 )
 	mErrRet( tr( "Cross-correlation too short" ) )
 
-    if ( zrg_.start < data_.seistrc_.startPos() ||
-	 zrg_.stop > data_.seistrc_.endPos() )
+    if ( zrg_.start < realtrc->startPos() || zrg_.stop > realtrc->endPos() )
     {
 	const uiString msg = tr( "The cross-correlation window must be smaller "
 				 "than the synthetic/seismic traces" );
@@ -200,8 +221,8 @@ bool DataPlayer::checkCrossCorrInps()
     }
 
     // clip to nearest sample
-    zrg_.start = data_.seistrc_.samplePos( istartseis );
-    zrg_.stop = data_.seistrc_.samplePos( istopseis );
+    zrg_.start = realtrc->samplePos( istartseis );
+    zrg_.stop = realtrc->samplePos( istopseis );
 
     return true;
 }
@@ -225,7 +246,10 @@ bool DataPlayer::computeCrossCorrelation()
 
     Data::CorrelData& cd = data_.correl_;
     cd.vals_.erase();
-    const float step = data_.seistrc_.info().sampling.step;
+    const float step = data_.getZStep();
+    if ( mIsUdf(step) )
+	return false;
+
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
     cd.vals_.setSize( nrsamps, 0 );
     GeoCalculator gccc;
@@ -251,7 +275,10 @@ bool DataPlayer::computeEstimatedWavelet( int wvltsz )
     if ( !extractWvf(false) )
 	mErrRet( tr( "Cannot extract seismic for wavelet estimation" ) )
 
-    const float step = data_.seistrc_.info().sampling.step;
+    const float step = data_.getZStep();
+    if ( mIsUdf(step) )
+	return false;
+
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
     mDeclareAndTryAlloc( float*, wvltarrfull, float[nrsamps] );
     if ( !wvltarrfull )
@@ -288,9 +315,13 @@ bool DataPlayer::extractWvf( bool issynt )
     if ( zrg_.isUdf() )
 	mErrRet( tr( "Waveform extraction window not set" ) )
 
-    const SeisTrc& trace = issynt ? data_.synthtrc_ : data_.seistrc_;
-    const int istartseis = trace.nearestSample( zrg_.start );
-    const int istopseis = trace.nearestSample( zrg_.stop );
+    const Data& data = data_;
+    const SeisTrc* trace = data.getTrc( issynt );
+    if ( !trace )
+	return false;
+
+    const int istartseis = trace->nearestSample( zrg_.start );
+    const int istopseis = trace->nearestSample( zrg_.stop );
     const int nrsamps = istopseis - istartseis + 1;
     mDeclareAndTryAlloc( float*, valarr, float[nrsamps] );
     if ( !valarr )
@@ -302,7 +333,7 @@ bool DataPlayer::extractWvf( bool issynt )
     Stats::RunCalc<double> stats( scalercalc );
     for ( int idseis=istartseis; idseis<=istopseis; idseis++ )
     {
-	const float val = trace.get( idseis, 0 );
+	const float val = trace->get( idseis, 0 );
 	valarr[idy] = val;
 	stats += val;
 	idy++;
@@ -337,18 +368,30 @@ bool DataPlayer::extractReflectivity()
     if ( zrg_.isUdf() )
 	mErrRet( tr( "Extraction window not set for reflectivity computation") )
 
-    const float step = data_.seistrc_.info().sampling.step;
+    const float step = data_.getZStep();
+    if ( mIsUdf(step) )
+	return false;
+
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
-    const int totnrspikes = refmodel_.size();
+    const ReflectivityModelBase* refmodel = data_.getRefModel();
+    const int totnrspikes = refmodel->nrSpikes();
     if ( totnrspikes < nrsamps )
 	mErrRet( tr( "Reflectivity series too short" ) )
 
+    const int ioff = 0;
+    const ReflectivityModelTrace* reflectivities =
+				  refmodel->getReflectivities( ioff );
+    const float_complex* refarr = reflectivities
+				? reflectivities->arr() : nullptr;
+    const float* times = refmodel->getReflTimes();
+    if ( !refarr || !times )
+	return false;
+
     int firstspike = 0;
     int lastspike = 0;
-    while ( lastspike<refmodel_.size() )
+    while ( lastspike<totnrspikes )
     {
-	const ReflectivitySpike spike = refmodel_[lastspike];
-	const float spiketwt = spike.correctedtime_;
+	const float spiketwt = times[lastspike];
 	if ( mIsEqual(spiketwt,zrg_.stop,1e-5f) )
 	    break;
 
@@ -359,19 +402,19 @@ bool DataPlayer::extractReflectivity()
     }
 
     uiString msg;
-    if ( refmodel_[firstspike].correctedtime_ - zrg_.start < -1e-5f )
+    if ( times[firstspike] - zrg_.start < -1e-5f )
     {
 	msg = tr( "The wavelet estimation window must start "
 		  "above the first spike at %1 ms" )
-			.arg( toString(refmodel_[firstspike].correctedtime_) );
+			.arg( toString(times[firstspike]) );
 	mErrRet( msg )
     }
 
-    if ( refmodel_[lastspike].correctedtime_ - zrg_.stop > 1e-5f )
+    if ( times[lastspike] - zrg_.stop > 1e-5f )
     {
 	msg = tr( "The wavelet estimation window must stop "
 		  "before the last spike at %1 ms" )
-			.arg( toString(refmodel_[lastspike].correctedtime_) );
+			.arg( toString(times[lastspike]) );
 	mErrRet( msg )
     }
 
@@ -389,16 +432,15 @@ bool DataPlayer::extractReflectivity()
     int nrspikefound = 0;
     for ( int idsp=firstspike; idsp<=lastspike; idsp++ )
     {
-	const ReflectivitySpike spike = refmodel_[idsp];
-	const float twtspike = spike.correctedtime_;
+	const float twtspike = times[idsp];
 	if ( !mIsEqual(twtspike,zrg_.atIndex(nrspikefound,step),1e-5f) )
 	{
 	    delete [] valarr;
 	    mErrRet( tr( "Mismatch between spike twt and seismic twt" ) )
 	}
 
-	valarr[nrspikefound] = spike.isDefined()
-			     ? spike.reflectivity_ : float_complex( 0., 0. );
+	const float_complex refval = refarr[idsp];
+	valarr[nrspikefound] = mIsUdf(refval) ? float_complex(0.f,0.f) : refval;
 	nrspikefound++;
     }
 
@@ -412,13 +454,17 @@ bool DataPlayer::extractReflectivity()
 
 bool DataPlayer::isOKSynthetic() const
 {
-    return data_.synthtrc_.size();
+    const Data& data = data_;
+    const SeisTrc* synthtrc = data.getSynthTrc();
+    return synthtrc && synthtrc->size() != 0;
 }
 
 
 bool DataPlayer::isOKSeismic() const
 {
-    return data_.seistrc_.size();
+    const Data& data = data_;
+    const SeisTrc* realtrc = data.getRealTrc();
+    return realtrc && realtrc->size() != 0;
 }
 
 
@@ -464,45 +510,71 @@ bool DataPlayer::setAIModel()
 }
 
 
+bool DataPlayer::setTargetModel( TimeDepthModel& tdmodel ) const
+{
+    const ZSampling& reflzrg = data_.getReflRange();
+    const int nrlayers = aimodel_.size();
+    TypeSet<float> refldepths( nrlayers, mUdf(float) );
+    TypeSet<float> refltimes( nrlayers, mUdf(float) );
+    float* refldepthsarr = refldepths.arr();
+    float* refltimesarr = refltimes.arr();
+    refldepthsarr[0] = aimodel_[0].thickness_;
+    refltimesarr[0] = reflzrg.start;
+    for ( int idz=1; idz<nrlayers; idz++ )
+    {
+	refldepthsarr[idz] = refldepthsarr[idz-1] + aimodel_[idz].thickness_;
+	refltimesarr[idz] = reflzrg.atIndex( idz );
+    }
+
+    tdmodel.setModel( refldepthsarr, refltimesarr, nrlayers );
+    return tdmodel.isOK();
+}
+
+
 bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 {
     errmsg_.setEmpty();
     uiString msg;
-
-    refmodel_.erase();
+    TaskRunner* taskrunner = data_.trunner_;
     TypeSet<ElasticModel> aimodels;
     aimodels += aimodel_;
-    Seis::RaySynthGenerator gen( &aimodels );
-    gen.forceReflTimes( data_.getReflRange() );
-    gen.setWavelet( &wvlt, OD::UsePtr );
-    gen.setOutSampling( data_.getTraceRange() );
-    gen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
-    IOPar par;
-    FixedString defrayparstr = sKeyAdvancedRayTracer();
-    const BufferStringSet& facnms = RayTracer1D::factory().getNames();
-    if ( !facnms.isEmpty() )
-    {
-	const int typeidx = facnms.indexOf( defrayparstr );
-	FixedString facnm( typeidx>=0 ? facnms.get(typeidx) : facnms.get(0) );
-	par.set( sKey::Type(), facnm );
-    }
 
-    gen.usePar( par );
-    TaskRunner* taskrunner = data_.trunner_;
-    if ( !TaskRunner::execute(taskrunner,gen) )
+    TypeSet<float> offsets; offsets += 0.f;
+    SynthGenParams sgp( SynthGenParams::ZeroOffset );
+    sgp.raypars_.set( RayTracer1D::sKeyOffset(), offsets );
+    sgp.setWavelet( wvlt );
+    sgp.createName( sgp.name_ );
+
+    ObjectSet<const TimeDepthModel> forcedtdmodels;
+    TimeDepthModel tdmodel;
+    if ( setTargetModel(tdmodel) )
+	forcedtdmodels.add( &tdmodel );
+
+    ConstRefMan<ReflectivityModelSet> refmodels =
+	Seis::RaySynthGenerator::getRefModels( aimodels, sgp.raypars_,
+		       msg, taskrunner,
+		       forcedtdmodels.isEmpty() ? nullptr : &forcedtdmodels );
+    if ( !refmodels )
+	mErrRet( uiStrings::phrCannotCreate(tr("synthetic: %1").arg(msg)) );
+
+    Seis::RaySynthGenerator synthgen( *refmodels.ptr() );
+    synthgen.setWavelet( &wvlt, OD::UsePtr );
+    synthgen.setOutSampling( data_.getTraceRange() );
+    synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
+    if ( !TaskRunner::execute(taskrunner,synthgen) )
 	mErrRet( uiStrings::phrCannotCreate(
-		tr("synthetic: %1").arg(gen.errMsg())) )
+		tr("synthetic: %1").arg(synthgen.uiMessage())) )
 
-    Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
-    ObjectSet<const ReflectivityModel> refmodels;
-    rm.getRefs( refmodels, true );
-    if ( refmodels.isEmpty() )
-	mErrRet( tr("Could not retrieve the reflectivities after ray-tracing") )
+    ConstPtrMan<SyntheticData> synthdp = SyntheticData::get( sgp, synthgen );
+    if ( !synthdp )
+	mErrRet( uiStrings::phrCannotCreate(tr("synthetic")) );
 
-    refmodel_ = *refmodels[0];
-    data_.synthtrc_ = *rm.stackedTrc();
-    data_.setTraceRange( data_.synthtrc_.zRange() );
-    //requested range was too small
+    data_.setSynthetics( synthdp.release() );
+    const Data& data = data_;
+    const SeisTrc* firstrc = data.getSynthTrc();
+    if ( firstrc )
+	data_.setTraceRange( firstrc->zRange() );
+	//requested range was too small
 
     return true;
 }
@@ -516,14 +588,15 @@ bool DataPlayer::copyDataToLogSet()
 	mErrRet( tr("Internal: No data found") )
 
     data_.logset_.setEmpty();
-    const StepInterval<float> dahrg = data_.getDahRange();
+    const Data& data = data_;
+    const ZSampling dahrg = data.getDahRange();
 
     TypeSet<float> dahlog, son, den, ai;
     for ( int idx=0; idx<aimodel_.size(); idx++ )
     {
-	const float twt = data_.getModelRange().atIndex(idx);
-	const float dah = data_.wd_->d2TModel()->getDah( twt,
-							 data_.wd_->track() );
+	const float twt = data.getModelRange().atIndex(idx);
+	const float dah = data.wd_->d2TModel()->getDah( twt,
+							data.wd_->track() );
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
@@ -534,52 +607,69 @@ bool DataPlayer::copyDataToLogSet()
 	ai += layer.getAI();
     }
 
-    createLog( data_.sKeySonic(), dahlog.arr(), son.arr(), son.size() );
-    createLog( data_.sKeyDensity(), dahlog.arr(), den.arr(), den.size() );
-    createLog( data_.sKeyAI(), dahlog.arr(), ai.arr(), ai.size() );
+    createLog( data.sKeySonic(), dahlog.arr(), son.arr(), son.size() );
+    createLog( data.sKeyDensity(), dahlog.arr(), den.arr(), den.size() );
+    createLog( data.sKeyAI(), dahlog.arr(), ai.arr(), ai.size() );
 
     TypeSet<float> dahref, refs;
-    for ( int idx=0; idx<refmodel_.size(); idx++ )
+    const ReflectivityModelBase* refmodel = data.getRefModel();
+    if ( !refmodel || !refmodel->isOK() )
+	return false;
+
+    const int nrspikes = refmodel->nrSpikes();
+    const int ioff = 0;
+    const ReflectivityModelTrace* reflectivities =
+				  refmodel->getReflectivities( ioff );
+    const float_complex* refarr = reflectivities
+				? reflectivities->arr() : nullptr;
+    const float* times = refmodel->getReflTimes();
+    if ( !refarr || !times )
+	return false;
+
+    for ( int idz=0; idz<nrspikes; idz++ )
     {
-	const ReflectivitySpike spike = refmodel_[idx];
-	if ( !spike.isDefined() )
+	const float refval = refarr[idz].real();
+	const float twt = times[idz];
+	if ( mIsUdf(refval) || mIsUdf(twt) )
 	    continue;
 
-	const float twt = spike.correctedtime_;
-	const float dah = data_.wd_->d2TModel()->getDah( twt,
-							 data_.wd_->track() );
+	const float dah = data.wd_->d2TModel()->getDah( twt,
+							data.wd_->track() );
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
 	dahref += dah;
-	refs += spike.reflectivity_.real();
+	refs += refval;
     }
 
-    createLog( data_.sKeyReflectivity(), dahref.arr(), refs.arr(),
-	       refs.size() );
+    createLog( data.sKeyReflectivity(), dahref.arr(), refs.arr(), refs.size() );
+
+    const SeisTrc* synthtrc = data.getSynthTrc();
+    if ( !synthtrc )
+	return false;
 
     TypeSet<float> dahsynth, synth;
-    const StepInterval<float> tracerg = data_.getTraceRange();
-    for ( int idx=0; idx<=data_.synthtrc_.size(); idx++ )
+    const ZSampling tracerg = data.getTraceRange();
+    for ( int idx=0; idx<=synthtrc->size(); idx++ )
     {
 	const float twt = tracerg.atIndex( idx );
-	const float dah = data_.wd_->d2TModel()->getDah( twt,
-							 data_.wd_->track() );
+	const float dah = data.wd_->d2TModel()->getDah( twt,
+							data.wd_->track() );
 	if ( !dahrg.includes(dah,true) )
 	    continue;
 
 	dahsynth += dah;
-	synth += data_.synthtrc_.get( idx, 0 );
+	synth += synthtrc->get( idx, 0 );
     }
 
-    createLog( data_.sKeySynthetic(), dahsynth.arr(), synth.arr(),synth.size());
+    createLog( data.sKeySynthetic(), dahsynth.arr(), synth.arr(),synth.size());
 
-    const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sKeySonic() );
+    const Well::Log* sonlog = data.wd_->logs().getLog( data.sKeySonic() );
     const UnitOfMeasure* sonuom = sonlog ? sonlog->unitOfMeasure() : 0;
-    Well::Log* vellogfrommodel = data_.logset_.getLog( data_.sKeySonic() );
+    Well::Log* vellogfrommodel = data.logset_.getLog( data.sKeySonic() );
     if ( vellogfrommodel && sonlog )
     {
-	if ( data_.isSonic() )
+	if ( data.isSonic() )
 	{
 	    GeoCalculator gc;
 	    gc.son2Vel( *vellogfrommodel );
@@ -587,9 +677,9 @@ bool DataPlayer::copyDataToLogSet()
 	vellogfrommodel->convertTo( sonuom );
     }
 
-    const Well::Log* denlog = data_.wd_->logs().getLog( data_.sKeyDensity());
+    const Well::Log* denlog = data.wd_->logs().getLog( data.sKeyDensity());
     const UnitOfMeasure* denuom = denlog ? denlog->unitOfMeasure() : 0;
-    Well::Log* denlogfrommodel = data_.logset_.getLog( data_.sKeyDensity() );
+    Well::Log* denlogfrommodel = data.logset_.getLog( data.sKeyDensity() );
     if ( denlogfrommodel && denlog )
     {
 	const UnitOfMeasure* denuomfrommodel =
@@ -603,7 +693,7 @@ bool DataPlayer::copyDataToLogSet()
 	denlogfrommodel->convertTo( denuom );
     }
 
-    Well::Log* ailogfrommodel = data_.logset_.getLog( data_.sKeyAI() );
+    Well::Log* ailogfrommodel = data.logset_.getLog( data.sKeyAI() );
     if ( ailogfrommodel && sonuom && denuom )
     {
 	const Mnemonic::StdType& impprop = Mnemonic::Imp;

@@ -40,7 +40,6 @@ _______________________________________________________________________
 #include "stratsynthlevel.h"
 #include "stratlevel.h"
 #include "syntheticdataimpl.h"
-#include "timedepthmodel.h"
 #include "velocitycalc.h"
 #include "zdomain.h"
 #include "od_helpids.h"
@@ -253,16 +252,20 @@ void uiStratSynthExport::getExpObjs()
     if ( postsds_.isEmpty() )
 	return;
 
-    const SyntheticData* sd = postsds_[0];
-    const ObjectSet<const TimeDepthModel>& d2t = sd->zerooffsd2tmodels_;
+    const SyntheticData* sd = postsds_.first();
     const Strat::LevelSet& lvls = Strat::LVLS();
     for ( int idx=0; idx<lvls.size(); idx++ )
     {
 	const Strat::Level& lvl = lvls.getLevel( idx );
-	StratSynthLevel* ssl = new StratSynthLevel( lvl.name(), lvl.color() );
-	ss_.getLevelDepths( lvl, ssl->zvals_ );
+	auto* ssl = new StratSynthLevel( lvl.name(), lvl.color() );
+	ss_.getLevelDepths( lvl, 1, ssl->zvals_ );
 	for ( int trcidx=0; trcidx<ssl->zvals_.size(); trcidx++ )
-	    ssl->zvals_[trcidx] = d2t[trcidx]->getTime( ssl->zvals_[trcidx] );
+	{
+	    const TimeDepthModel* tdmodel = sd->getTDModel( trcidx );
+	    ssl->zvals_[trcidx] = tdmodel
+			? tdmodel->getTime( ssl->zvals_[trcidx] )
+			: mUdf(float);
+	}
 	sslvls_ += ssl;
     }
 }

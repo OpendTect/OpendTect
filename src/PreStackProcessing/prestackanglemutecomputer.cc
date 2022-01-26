@@ -102,6 +102,12 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !rtrunner->executeParallel(false) )
 	    { errmsg_ = rtrunner->uiMessage(); continue; }
 
+	ConstRefMan<ReflectivityModelSet> refmodels = rtrunner->getRefModels();
+	const ReflectivityModelBase* refmodel = refmodels ? refmodels->get(0)
+							  : nullptr;
+	if ( !refmodel || !refmodel->hasAngles() )
+	    return false;
+
 	auto* mutefunc = new PointBasedMathFunction();
 
 	const int nrlayers = layers.size();
@@ -113,8 +119,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	for ( int ioff=0; ioff<offsets.size(); ioff++ )
 	{
 	    const float mutelayer =
-		getOffsetMuteLayer( *rtrunner->rayTracers()[0],
-				    nrlayers, ioff, true );
+			getOffsetMuteLayer( *refmodel, nrlayers, ioff, true );
 	    if ( !mIsUdf( mutelayer ) )
 	    {
 		zpos = offsets[ioff] == 0 ? 0 : sd.start + sd.step*mutelayer;
@@ -123,6 +128,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 		lastioff = ioff;
 	    }
 	}
+
 	if ( lastioff != offsets.size()-1 )
 	{
 	    float zdpt = 0;
@@ -138,7 +144,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	    float thk = lastdepth - zdpt;
 	    const float lastzpos = sd.start + sd.step*(nrlayers-1);
 	    const float lastsinangle =
-		rtrunner->rayTracers()[0]->getSinAngle(nrlayers-1,lastioff);
+				refmodel->getSinAngle( lastioff, nrlayers-1 );
 
 	    const float cosangle = Math::Sqrt(1-lastsinangle*lastsinangle);
 	    if ( cosangle > 0 )

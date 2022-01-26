@@ -15,6 +15,7 @@ list ( APPEND OD_TEST_PROGS
 	mnemonics.cc
 	posidxpairvalset.cc
 	raytracerrunner.cc
+	reflectivitysampler.cc
 )
 set( OD_NIGHTLY_TEST_PROGS zip.cc )
 

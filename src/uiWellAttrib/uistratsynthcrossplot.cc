@@ -209,34 +209,39 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	pvds.add( new DataColDef(seqattr->name(),toString(iattr++),uom) );
     }
 
-    for ( int isynth=0; isynth<synthdatas_.size(); isynth++ )
+    bool first = true;
+    for ( const auto* sd : synthdatas_ )
     {
-	const SyntheticData& sd = *synthdatas_[isynth];
-	const ObjectSet<const TimeDepthModel>& d2tmodels =
-	    sd.zerooffsd2tmodels_;
-	const int nrmdls = d2tmodels.size();
+	if ( sd->isPS() )
+	    continue;
 
-	mDynamicCastGet(const SeisTrcBufDataPack*,tbpack,&sd.getPack());
-	if ( !tbpack ) continue;
+	mDynamicCastGet(const PostStackSyntheticData*,postsd,sd)
+	if ( !postsd )
+	    continue;
 
-	const SeisTrcBuf& tbuf = tbpack->trcBuf();
+	const SeisTrcBufDataPack& tbpack = postsd->postStackPack();
+	const SeisTrcBuf& tbuf = tbpack.trcBuf();
+	const int nrmdls = sd->nrPositions();
 	if ( tbuf.size() != nrmdls )
 	    mpErrRet( "DataPack nr of traces != nr of d2t models" )
 
-	if ( isynth > 0 )
+	if ( first )
+	    first = false;
+	else
 	    continue;
 
 	const Strat::SeisEvent& ssev = evfld_->event();
 	for ( int imod=0; imod<nrmdls; imod++ )
 	{
-	    SeisTrc& trc = const_cast<SeisTrc&>( *tbuf.get( imod ) );
-	    if ( !d2tmodels[imod] )
+	    const TimeDepthModel* tdmodel = sd->getTDModel( imod );
+	    if ( !tdmodel )
 		mpErrRet( "DataPack does not have a TD model" )
 
+	    SeisTrc& trc = const_cast<SeisTrc&>( *tbuf.get( imod ) );
 	    float dpth = lm_.sequence(imod).depthPositionOf( lvl );
-	    trc.info().pick = d2tmodels[imod]->getTime( dpth );
+	    trc.info().pick = tdmodel->getTime( dpth );
 	    const float twt = ssev.snappedTime( trc );
-	    dpth = d2tmodels[imod]->getDepth( twt );
+	    dpth = tdmodel->getDepth( twt );
 
 	    Interval<float> timerg;
 	    if ( !extrwin.isUdf() )
@@ -251,15 +256,15 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	    if ( stoplvl )
 	    {
 		maxdepth = lm_.sequence(imod).depthPositionOf( *stoplvl );
-		maxtwt = d2tmodels[imod]->getTime( maxdepth );
+		maxtwt = tdmodel->getTime( maxdepth );
 	    }
 
 	    if ( evfld_->doAllLayers() )
 	    {
 		Interval<float> depthrg( dpth, mUdf(float) );
 		depthrg.stop = extrwin.isUdf() ? maxdepth
-			     : d2tmodels[imod]->getDepth( timerg.stop );
-		fillPosFromLayerSampling( *dps, *d2tmodels[imod],
+			     : tdmodel->getDepth( timerg.stop );
+		fillPosFromLayerSampling( *dps, *tdmodel,
 					  trc.info(), depthrg, imod );
 	    }
 	    else
@@ -268,7 +273,7 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 		    timerg.stop = twt + zstep *
 			    mCast(float, mNINT32((maxtwt-twt)/zstep) );
 
-		fillPosFromZSampling( *dps, *d2tmodels[imod], trc.info(),
+		fillPosFromZSampling( *dps, *tdmodel, trc.info(),
 				      zstep, maxtwt, timerg );
 	    }
 	}

@@ -10,13 +10,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "flatview.h"
 #include "wellattribmod.h"
+
 #include "datapack.h"
+#include "flatview.h"
 #include "stratsynthgenparams.h"
 
+class ReflectivityModelBase;
+class ReflectivityModelSet;
 class SeisTrc;
 class TimeDepthModel;
+namespace Seis { class RaySynthGenerator; class SynthGenDataPack; }
 
 
 mStruct(WellAttrib) SynthFVSpecificDispPars
@@ -40,6 +44,9 @@ public:
     typedef int SynthID;
 					~SyntheticData();
 
+    static SyntheticData*		get(const SynthGenParams&,
+					    Seis::RaySynthGenerator&);
+
     void				setName(const char*);
 
     virtual const SeisTrc*		getTrace(int seqnr) const	= 0;
@@ -51,12 +58,15 @@ public:
     const DataPack&			getPack() const {return datapack_;}
     DataPack&				getPack()	{return datapack_;}
 
-    ObjectSet<const TimeDepthModel>	d2tmodels_;
-    ObjectSet<const TimeDepthModel>	zerooffsd2tmodels_;
+    const Seis::SynthGenDataPack&	synthGenDP() const;
+    const ReflectivityModelSet&		getRefModels() const;
+    const ReflectivityModelBase*	getRefModel(int imdl) const;
+    const TimeDepthModel*		getTDModel(int imdl) const;
+    const TimeDepthModel*		getTDModel(int imdl,int ioff) const;
 
     DataPack::FullID			datapackid_;
 
-    SynthID				id_;
+    SynthID				id_ = -1;
     virtual bool			isPS() const		= 0;
     virtual bool			hasOffset() const	= 0;
     virtual bool			isAngleStack() const  { return false; }
@@ -65,28 +75,27 @@ public:
     virtual bool			isAttribute() const   { return false; }
     virtual SynthGenParams::SynthType	synthType() const	= 0;
 
-    virtual void			useGenParams(const SynthGenParams&);
-    virtual void			fillGenParams(SynthGenParams&) const;
+    const SynthGenParams&		getGenParams() const	{ return sgp_; }
+    void				useGenParams(const SynthGenParams&);
     void				useDispPar(const IOPar&);
     void				fillDispPar(IOPar&) const;
-    const char*				waveletName() const { return wvltnm_; }
-    void				setWavelet( const char* wvltnm )
-					{ wvltnm_ = wvltnm; }
+    const char*				waveletName() const;
     SynthFVSpecificDispPars&		dispPars()	{ return disppars_; }
     const SynthFVSpecificDispPars&	dispPars() const
 							{ return disppars_; }
 
 protected:
 					SyntheticData(const SynthGenParams&,
-						      DataPack&);
+						  const Seis::SynthGenDataPack&,
+						  DataPack&);
 
-    BufferString			wvltnm_;
-    IOPar				raypars_;
     SynthFVSpecificDispPars		disppars_;
 
     void				removePack();
 
+    SynthGenParams			sgp_;
     DataPack&				datapack_;
+    ConstRefMan<Seis::SynthGenDataPack> synthgendp_;
 };
 
 

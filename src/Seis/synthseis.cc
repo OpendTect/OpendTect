@@ -8,31 +8,118 @@
 
 #include "synthseis.h"
 
-#include "arraynd.h"
-#include "arrayndimpl.h"
+#include "ailayer.h"
+#include "arrayndalgo.h"
 #include "arrayndstacker.h"
-#include "factory.h"
 #include "fourier.h"
-#include "genericnumer.h"
 #include "ioman.h"
 #include "muter.h"
-#include "reflectivitysampler.h"
-#include "raytrace1d.h"
 #include "raytracerrunner.h"
-#include "reflectivitymodel.h"
+#include "reflectivitysampler.h"
 #include "samplfunc.h"
-#include "seistrc.h"
 #include "seisbuf.h"
+#include "seistrc.h"
 #include "seistrcprop.h"
-#include "sorting.h"
-#include "survinfo.h"
-#include "timedepthmodel.h"
 #include "wavelet.h"
-#include "ioobj.h"
 
 
 namespace Seis
 {
+
+// SynthGenDataPack
+
+SynthGenDataPack::SynthGenDataPack( const ReflectivityModelSet& refmodels,
+				    GeomType gt, const TypeSet<float>& offsets,
+				    const ZSampling& zrg )
+    : refmodels_(&refmodels)
+    , gt_(gt)
+    , offsets_(offsets)
+    , outputsampling_(zrg)
+    , synthgenpars_(*new IOPar)
+{
+}
+
+
+SynthGenDataPack::~SynthGenDataPack()
+{
+    delete &synthgenpars_;
+    if ( freqsampledrefset_ )
+	deepErase( *freqsampledrefset_ );
+    delete freqsampledrefset_;
+
+    if ( timesampledrefset_ )
+	deepErase( *timesampledrefset_ );
+    delete timesampledrefset_;
+}
+
+
+const ReflectivityModelSet& SynthGenDataPack::getModels() const
+{
+    return *refmodels_.ptr();
+}
+
+
+bool SynthGenDataPack::hasSameParams( const SynthGenDataPack& oth ) const
+{
+    return refmodels_->hasSameParams( *oth.refmodels_.ptr() ) &&
+	   offsets_ == oth.offsets_ &&
+	   outputsampling_.isEqual(oth.outputsampling_,1e-8f) &&
+	   ( (freqsampledrefset_ && oth.freqsampledrefset_) ||
+	     (!freqsampledrefset_ && !oth.freqsampledrefset_) ) &&
+	   ( (timesampledrefset_ && oth.timesampledrefset_) ||
+	     (!timesampledrefset_ && !oth.timesampledrefset_) );
+}
+
+
+bool SynthGenDataPack::hasSameParams( const IOPar& reflpars,
+				      const IOPar& synthgenpars ) const
+{
+    return refmodels_->hasSameParams( reflpars ) &&
+	   SynthGenerator::areEquivalent( synthgenpars, synthgenpars_ );
+}
+
+
+const ReflecSet* SynthGenDataPack::getSampledReflectivitySet( int imdl,
+							     bool isfreq ) const
+{
+    if ( isfreq )
+	return freqsampledrefset_ && freqsampledrefset_->validIdx( imdl )
+	       ? freqsampledrefset_->get( imdl ) : nullptr;
+
+    return timesampledrefset_ && timesampledrefset_->validIdx( imdl )
+	   ? timesampledrefset_->get( imdl ) : nullptr;
+}
+
+
+bool SynthGenDataPack::isStack() const
+{
+    return !Seis::isPS( gt_ );
+}
+
+
+bool SynthGenDataPack::isPS() const
+{
+    return Seis::isPS( gt_ );
+}
+
+
+bool SynthGenDataPack::isCorrected() const
+{
+    bool corrected = true;
+    synthgenpars_.getYN( SynthGenBase::sKeyNMO(), corrected );
+
+    return corrected;
+}
+
+
+int SynthGenDataPack::getOffsetIdx( float offset ) const
+{
+    if ( offset <= 0.f )
+	return -1;
+
+    return offsets_.indexOf( offset );
+}
+
 
 #define mErrRet(msg, retval) { errmsg_ = msg; return retval; }
 #define mpErrRet(msg, retval) { pErrMsg(msg); return retval; }
@@ -40,16 +127,9 @@ namespace Seis
 mImplFactory( SynthGenerator, SynthGenerator::factory );
 
 SynthGenBase::SynthGenBase()
-    : wavelet_(0)
-    , isfourier_(true)
-    , stretchlimit_( cStdStretchLimit() ) //20%
+    : stretchlimit_( cStdStretchLimit() ) //20%
     , mutelength_( cStdMuteLength() )  //20ms
-    , waveletismine_(false)
-    , applynmo_(false)
     , outputsampling_(mUdf(float),-mUdf(float),mUdf(float))
-    , dointernalmultiples_(false)
-    , dosampledreflectivities_(false)
-    , surfreflcoeff_(1)
 {}
 
 
@@ -63,7 +143,7 @@ SynthGenBase::~SynthGenBase()
 bool SynthGenBase::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 {
     if ( waveletismine_ )
-	{ delete wavelet_; wavelet_ = 0; }
+	{ deleteAndZeroPtr( wavelet_ ); }
     if ( !wvlt )
 	mErrRet(tr("No valid wavelet given"), false);
     if ( pol != OD::CopyPtr )
@@ -86,11 +166,13 @@ void SynthGenBase::fillPar( IOPar& par ) const
     }
 
     par.setYN( sKeyFourier(), isfourier_ );
+    par.setYN( sKeyTimeRefs(), dosampledtimereflectivities_ );
     par.setYN( sKeyNMO(), applynmo_ );
-    par.setYN( sKeyInternal(), dointernalmultiples_ );
-    par.set( sKeySurfRefl(), surfreflcoeff_ );
-    par.set( sKeyMuteLength(), mutelength_ );
-    par.set( sKeyStretchLimit(), stretchlimit_ );
+    if ( applynmo_ )
+    {
+	par.set( sKeyMuteLength(), mutelength_ );
+	par.set( sKeyStretchLimit(), stretchlimit_ );
+    }
 }
 
 
@@ -104,20 +186,20 @@ bool SynthGenBase::usePar( const IOPar& par )
 	wavelet_ = Wavelet::get( ioobj );
     }
 
-    const bool doint = par.getYN( sKeyInternal(), dointernalmultiples_ );
-    if ( doint )
-	dosampledreflectivities_ = dointernalmultiples_;
+    par.getYN( sKeyTimeRefs(), dosampledtimereflectivities_ );
+    par.getYN( sKeyNMO(), applynmo_ );
+    par.getYN( sKeyFourier(), isfourier_ );
+    if ( applynmo_ )
+    {
+	par.get( sKeyStretchLimit(), stretchlimit_ );
+	par.get( sKeyMuteLength(), mutelength_ );
+    }
 
-    return par.getYN( sKeyNMO(), applynmo_ )
-	&& par.getYN( sKeyFourier(), isfourier_ )
-	&& doint
-	&& par.get( sKeySurfRefl(), surfreflcoeff_ )
-	&& par.get( sKeyStretchLimit(), stretchlimit_)
-	&& par.get( sKeyMuteLength(), mutelength_ );
+    return true;
 }
 
 
-bool SynthGenBase::setOutSampling( const StepInterval<float>& si )
+bool SynthGenBase::setOutSampling( const ZSampling& si )
 {
     outputsampling_ = si;
     return true;
@@ -146,83 +228,35 @@ bool SynthGenBase::isInputOK()
 }
 
 
-bool SynthGenBase::getOutSamplingFromModel(
-			     const ObjectSet<const ReflectivityModel>& models,
-			     StepInterval<float>& sampling,
-			     bool usenmo )
-{
-    const float outputsr = mIsUdf(outputsampling_.step) ? wavelet_->sampleRate()
-							: outputsampling_.step;
-    sampling.set( mUdf(float), -mUdf(float), outputsr );
-    for ( int imod=0; imod<models.size(); imod++ )
-    {
-	const ReflectivityModel& model = *models[imod];
-	for ( int idz=0; idz<model.size(); idz++ )
-	{
-	    const ReflectivitySpike& spike = model[idz];
-	    if ( !spike.isDefined() )
-		continue;
-
-	    const float twt = spike.time( usenmo );
-	    sampling.include( twt, false );
-	    if ( usenmo )
-		break;
-	}
-	if ( !usenmo )
-	    continue;
-
-	for ( int idz=model.size()-1; idz>=0; idz-- )
-	{
-	    const ReflectivitySpike& spike = model[idz];
-	    if ( !spike.isDefined() )
-		continue;
-
-	    const float twt = spike.time( usenmo );
-	    sampling.include( twt, false );
-	    break;
-	}
-    }
-
-    if ( sampling.isUdf() )
-	mErrRet(tr("Cannot determine trace size from model(s)"), false)
-
-    sampling.scale( 1.f / outputsr );
-    sampling.start = mIsEqual( (float)mNINT32(sampling.start), sampling.start,
-				1e-2f )
-		      ? mNINT32(sampling.start) : Math::Floor( sampling.start);
-    sampling.stop = mIsEqual( (float)mNINT32(sampling.stop), sampling.stop,
-			       1e-2f )
-		     ? mNINT32(sampling.stop) : Math::Ceil( sampling.stop );
-    sampling.scale( outputsr );
-    sampling.start += wavelet_->samplePositions().start;
-    sampling.stop += wavelet_->samplePositions().stop;
-    sampling.step = outputsr;
-
-    return true;
-}
-
-
+// SynthGenerator
 
 SynthGenerator::SynthGenerator()
-    : outtrc_(*new SeisTrc)
-    , refmodel_(0)
-    , progress_(-1)
-    , convolvesize_(0)
+    : SynthGenBase()
 {}
 
 
 SynthGenerator::~SynthGenerator()
 {
-    freqwavelet_.erase();
-    freqreflectivities_.erase();
+    delete uncorrsampling_;
+}
 
-    delete &outtrc_;
+
+bool SynthGenerator::areEquivalent( const IOPar& iop, const IOPar& othiop )
+{
+    PtrMan<SynthGenerator> synthgen1 = create( true );
+    PtrMan<SynthGenerator> synthgen2 = create( true );
+    if ( !synthgen1 || !synthgen2 )
+	return false;
+
+    synthgen1->usePar( iop );
+    synthgen2->usePar( othiop );
+    return synthgen1->isEquivalent( *synthgen2.ptr() );
 }
 
 
 SynthGenerator* SynthGenerator::create( bool advanced )
 {
-    SynthGenerator* sg = 0;
+    SynthGenerator* sg = nullptr;
     const BufferStringSet& fnms = SynthGenerator::factory().getNames();
 
     if ( !fnms.isEmpty() && advanced )
@@ -235,35 +269,124 @@ SynthGenerator* SynthGenerator::create( bool advanced )
 }
 
 
-bool SynthGenerator::setModel( const ReflectivityModel& refmodel )
+bool SynthGenerator::isEquivalent( const SynthGenerator& oth ) const
 {
-    refmodel_ = &refmodel;
+    if ( isfourier_ != oth.isfourier_ || applynmo_ != oth.applynmo_ )
+	return false;
 
-    freqreflectivities_.erase();
-    convolvesize_ = 0;
+    if ( applynmo_ &&
+	 ( !mIsEqual(stretchlimit_,oth.stretchlimit_,1e-5f) ||
+	   !mIsEqual(mutelength_,oth.mutelength_,1e-5f)) )
+	 return false;
 
     return true;
+}
+
+
+void SynthGenerator::cleanup()
+{
+    refmodel_ = nullptr;
+    spikestwt_ = nullptr;
+    spikescorrectedtwt_ = nullptr;
+    outtrc_ = nullptr;
+    sampledfreqreflectivities_ = nullptr;
+    sampledtimereflectivities_ = nullptr;
+    csampledfreqreflectivities_ = nullptr;
+    csampledtimereflectivities_ = nullptr;
+}
+
+
+bool SynthGenerator::needSampledReflectivities() const
+{
+    return outputSampledFreqReflectivities() ||
+	   outputSampledTimeReflectivities();
+}
+
+
+bool SynthGenerator::outputSampledFreqReflectivities() const
+{
+    return isfourier_;
+}
+
+
+bool SynthGenerator::outputSampledTimeReflectivities() const
+{
+    return !outputSampledFreqReflectivities() &&
+	   needSampledTimeReflectivities();
+}
+
+
+bool SynthGenerator::needSampledTimeReflectivities() const
+{
+    return dosampledtimereflectivities_;
+}
+
+
+void SynthGenerator::setModel( const ReflectivityModelTrace& refmodel,
+			       const float* spikestwt,
+			       const float* spikescorrectedtwt,
+			       SeisTrc& outtrc )
+{
+    refmodel_ = &refmodel;
+    spikestwt_ = spikestwt;
+    spikescorrectedtwt_ = spikescorrectedtwt;
+    outtrc_ = &outtrc;
+}
+
+
+void SynthGenerator::setSampledFreqReflectivities(
+			       ReflectivityModelTrace* reflectivities )
+{
+    if ( !outputSampledFreqReflectivities() )
+	return;
+
+    sampledfreqreflectivities_ = reflectivities;
+    csampledfreqreflectivities_ = nullptr;
+    useexistingrefs_ = false;
+}
+
+
+void SynthGenerator::setSampledTimeReflectivities(
+			       ReflectivityModelTrace* reflectivities )
+{
+    if ( !needSampledTimeReflectivities() )
+	return;
+
+    sampledtimereflectivities_ = reflectivities;
+    csampledtimereflectivities_ = nullptr;
+    useexistingrefs_ = false;
+}
+
+
+void SynthGenerator::useSampledFreqReflectivities(
+				const ReflectivityModelTrace* reflectivities )
+{
+    if ( !outputSampledFreqReflectivities() )
+	return;
+
+    csampledfreqreflectivities_ = reflectivities;
+    sampledfreqreflectivities_ = nullptr;
+    useexistingrefs_ = true;
+}
+
+
+void SynthGenerator::useSampledTimeReflectivities(
+				const ReflectivityModelTrace* reflectivities )
+{
+    if ( !needSampledTimeReflectivities() )
+	return;
+
+    csampledtimereflectivities_ = reflectivities;
+    sampledtimereflectivities_ = nullptr;
+    useexistingrefs_ = true;
 }
 
 
 bool SynthGenerator::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 {
-    freqwavelet_.erase();
+    freqwavelet_ = nullptr;
 
     return SynthGenBase::setWavelet( wvlt, pol );
-}
-
-
-bool SynthGenerator::setOutSampling( const StepInterval<float>& si )
-{
-    SynthGenBase::setOutSampling( si );
-    outtrc_.reSize( si.nrSteps()+1, false );
-    outtrc_.info().sampling = si;
-
-    convolvesize_ = 0;
-    freqwavelet_.erase();
-
-    return true;
 }
 
 
@@ -282,81 +405,122 @@ int SynthGenerator::nextStep()
     // Sanity checks
     if ( !wavelet_ )
 	mErrRet(tr("Cannot make synthetics without wavelet"), mErrOccRet);
+
     const int wvltsz = wavelet_->size();
-    if (wvltsz < 2)
+    if ( wvltsz < 2 )
 	mErrRet(tr("Wavelet is too short - at minimum 3 samples are required"),
 	mErrOccRet);
 
-    if (!refmodel_)
+    if ( !refmodel_ )
 	mErrRet(tr("Cannot make synthetics without reflectivity model"),
 	mErrOccRet);
 
-    if ( convolvesize_ == 0 )
+    if ( !spikestwt_ || (applynmo_ && !spikescorrectedtwt_) || !outtrc_ )
+	mErrRet(tr("Cannot make synthetics without appropriate data"),
+	mErrOccRet);
+
+    const bool dosampledrefs = needSampledReflectivities();
+    if ( convolvesize_ == 0 && dosampledrefs )
 	return setConvolveSize();
 
-    if ( isfourier_ && freqwavelet_.isEmpty() )
-	return genFreqWavelet();
+    if ( isfourier_ && !freqwavelet_ )
+	return genFreqWavelet() ? mMoreToDoRet : mErrOccRet;
 
-    if ( freqreflectivities_.isEmpty() )
+    if ( dosampledrefs && !reflectivitiesdone_ )
 	return computeReflectivities() ? mMoreToDoRet : mErrOccRet;
 
-    return computeTrace( outtrc_ ) ? mFinishedRet : mErrOccRet;
+    return computeTrace() ? mFinishedRet : mErrOccRet;
 }
 
 
-void SynthGenerator::getSampledRM( ReflectivityModel& sampledrefmodel ) const
+const ReflectivityModelTrace* SynthGenerator::getSampledFreqReflectivities()
+									  const
 {
-    sampledrefmodel = sampledrefmodel_;
+    return hasExistingReflectivities() ? csampledfreqreflectivities_.ptr()
+				       : sampledfreqreflectivities_.ptr();
+}
+
+
+ReflectivityModelTrace* SynthGenerator::getSampledFreqReflectivities()
+{
+    return hasExistingReflectivities() ? nullptr
+				       : sampledfreqreflectivities_.ptr();
+}
+
+
+const ReflectivityModelTrace* SynthGenerator::getSampledTimeReflectivities()
+									  const
+{
+    return hasExistingReflectivities() ? csampledtimereflectivities_.ptr()
+				       : sampledtimereflectivities_.ptr();
+}
+
+
+ReflectivityModelTrace* SynthGenerator::getSampledTimeReflectivities()
+{
+    return hasExistingReflectivities() ? nullptr
+				       : sampledtimereflectivities_.ptr();
+}
+
+
+const ReflectivitySampler* SynthGenerator::refSampler() const
+{
+    return refsampler_.ptr();
+}
+
+
+void SynthGenerator::setUnCorrSampling( const ZSampling* uncorrzrg )
+{
+    delete uncorrsampling_;
+    uncorrsampling_ = uncorrzrg ? new ZSampling(*uncorrzrg) : nullptr;
 }
 
 
 int SynthGenerator::setConvolveSize()
 {
-    StepInterval<float> cursampling( outputsampling_ );
-    if ( cursampling.isUdf() || applynmo_ )
-    {
-	ObjectSet<const ReflectivityModel> mod;
-	mod += refmodel_;
-	if ( mod.isEmpty() )
-	    mpErrRet( "No models given to make synthetics", false );
-
-	if ( !SynthGenBase::isInputOK() )
-	    return mErrOccRet;
-
-	if ( !SynthGenBase::getOutSamplingFromModel(mod,cursampling) )
-	    mErrRet(tr("Cannot determine trace size from model"), mErrOccRet)
-
-	cursampling.start = outputsampling_.start;
-    }
-    else
-    {
-	cursampling.include( outputsampling_ );
-	outputsampling_ = cursampling;
-    }
-
-    const int oldconvsize = applynmo_ ? cursampling.nrSteps() + 1
-				      : outputsampling_.nrSteps() + 1;
-    if ( isfourier_ )
-    {
-	PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
-	convolvesize_ = fft->getFastSize( oldconvsize );
-    }
-    else
-	convolvesize_ = oldconvsize;
-
-
-    if ( convolvesize_ < oldconvsize || convolvesize_ < 1 )
+    const SynthGenerator& cgen = const_cast<const SynthGenerator&>( *this );
+    const ReflectivityModelTrace* freqreftrc =
+				  cgen.getSampledFreqReflectivities();
+    const ReflectivityModelTrace* timereftrc =
+				  cgen.getSampledTimeReflectivities();
+    if ( (outputSampledFreqReflectivities() && !freqreftrc) ||
+	 (outputSampledTimeReflectivities() && !timereftrc) )
 	mpErrRet( "Cannot determine convolution size", mErrOccRet );
+
+    convolvesize_ = freqreftrc ? freqreftrc->size() : timereftrc->size();
+    creflectivities_ = new ReflectivityModelTrace( convolvesize_ );
+    if ( !creflectivities_ || !creflectivities_->isOK() )
+	mErrRet(tr("Cannot allocate memory for FFT"), mErrOccRet);
+
+    temprefs_ = creflectivities_->arr();
+    refsampler_ = new ReflectivitySampler();
+
+    if ( freqwavelet_ && convolvesize_ != freqwavelet_->size() )
+	freqwavelet_ = nullptr;
 
     return mMoreToDoRet;
 }
 
 
-int SynthGenerator::genFreqWavelet()
+bool SynthGenerator::genFreqWavelet()
 {
     PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
+    if ( !fft )
+	mErrRet(tr("Cannot allocate memory for FFT"), false);
 
-    freqwavelet_.setSize( convolvesize_, float_complex(0,0) );
+    if ( convolvesize_ == 0 )
+    {
+	const ZSampling& zrg = uncorrsampling_ ? *uncorrsampling_
+					       : outputsampling_;
+	convolvesize_ = fft->getFastSize( zrg.nrSteps()+1 );
+    }
+
+    freqwavelet_ = new ReflectivityModelTrace( convolvesize_ );
+    if ( !freqwavelet_ || !freqwavelet_->isOK() )
+	mErrRet(tr("Cannot allocate memory for FFT"), false);
+
+    float_complex* freqwavarr = freqwavelet_->arr();
+
     //TODO add taper if wavelet length less than output trace size
     for ( int idx=0; idx<wavelet_->size(); idx++ )
     {
@@ -364,112 +528,93 @@ int SynthGenerator::genFreqWavelet()
 	if ( arrpos < 0 )
 	    arrpos += convolvesize_;
 
-	freqwavelet_[arrpos] = wavelet_->samples()[idx];
+	freqwavarr[arrpos] = wavelet_->samples()[idx];
     }
 
-    mPrepFFT( fft, freqwavelet_.arr(), true, convolvesize_ );
+    mPrepFFT( fft, freqwavarr, true, convolvesize_ );
     if ( !fft->run(true) )
     {
-	freqwavelet_.erase();
-	mErrRet(tr("Error running FFT for the wavelet spectrum"), mErrOccRet);
-    }
-
-    return mMoreToDoRet;
-}
-
-
-bool SynthGenerator::computeTrace( SeisTrc& res )
-{
-    res.zero();
-
-    PtrMan<ValueSeries<float> > tmpvs = applynmo_
-	? new ArrayValueSeries<float, float>( convolvesize_ )
-	: 0;
-
-    SeisTrcValueSeries trcvs( res, 0 );
-    ValueSeries<float>& vs = tmpvs ? *tmpvs : trcvs;
-
-    if ( isfourier_ )
-    {
-	if ( !doFFTConvolve( vs, tmpvs ? convolvesize_ : outtrc_.size() ) )
-	    return false;
-    }
-    else if ( !doTimeConvolve( vs, tmpvs ? convolvesize_ : outtrc_.size() ) )
-	return false;
-
-    if ( applynmo_ )
-    {
-	if ( !doNMOStretch( vs, convolvesize_, trcvs, outtrc_.size() ))
-	    return false;
+	freqwavelet_ = nullptr;
+	mErrRet(tr("Error running FFT for the wavelet spectrum"), false);
     }
 
     return true;
 }
 
 
-bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
-				  ValueSeries<float>& out, int outsz ) const
+bool SynthGenerator::computeReflectivities()
 {
-    out.setAll( 0 );
+    if ( hasExistingReflectivities() )
+    {
+	if ( outputSampledFreqReflectivities() && !csampledfreqreflectivities_ )
+	    mpErrRet( "Missing frequency reflectivities cache", false );
 
-    if ( !refmodel_->size() )
+	if ( outputSampledTimeReflectivities() && !csampledtimereflectivities_ )
+	    mpErrRet( "Missing time reflectivities cache", false );
+
+	reflectivitiesdone_ = true;
 	return true;
-
-    float mutelevel = outputsampling_.start;
-    float firsttime = mUdf(float);
-
-    PointBasedMathFunction stretchfunc( PointBasedMathFunction::Linear,
-				      PointBasedMathFunction::ExtraPolGradient);
-
-    for ( int idx=0; idx<refmodel_->size(); idx++ )
-    {
-	const ReflectivitySpike& spike = (*refmodel_)[idx];
-
-	if ( idx>0 )
-	{
-	    //check for crossing events
-	    const ReflectivitySpike& spikeabove = (*refmodel_)[idx-1];
-	    if ( spike.time_ < spikeabove.time_ )
-	    {
-		mutelevel = mMAX(spike.correctedtime_, mutelevel );
-	    }
-	}
-
-	firsttime = mMIN( firsttime, spike.correctedtime_ );
-	stretchfunc.add( spike.correctedtime_, spike.time_ );
     }
 
-    if ( firsttime > 0.f )
-	stretchfunc.add( 0.f, 0.f );
+    if ( outputSampledFreqReflectivities() && !sampledfreqreflectivities_ )
+	mpErrRet( "Missing frequency reflectivities data", false );
+    if ( outputSampledTimeReflectivities() && !sampledtimereflectivities_ )
+	mpErrRet( "Missing time reflectivities data", false );
 
-    outtrc_.info().sampling.indexOnOrAfter( mutelevel );
+    if ( !refsampler_ )
+	refsampler_ = new ReflectivitySampler();
 
-    SampledFunctionImpl<float,ValueSeries<float> > samplfunc( input,
-	    insz, outputsampling_.start,
-	    outputsampling_.step );
+    const SamplingData<float>& outputsampling = outtrc_->info().sampling;
+    const ZSampling sampling = outputsampling.interval( convolvesize_ );
+    ReflectivityModelTrace* temprefs = needSampledTimeReflectivities()
+				     ? creflectivities_.ptr() : nullptr;
 
-    for ( int idx=0; idx<outsz; idx++ )
+    refsampler_->setInput( *refmodel_.ptr(), spikestwt_, sampling );
+    if ( outputSampledFreqReflectivities() )
+	refsampler_->setFreqOutput( *sampledfreqreflectivities_.ptr() );
+    if ( needSampledTimeReflectivities() )
+	refsampler_->setTimeOutput( *sampledtimereflectivities_.ptr(),
+				    temprefs->arr(), temprefs->size() );
+
+    const bool isok = refsampler_->executeParallel( false );
+    if ( !isok )
+	mErrRet( refsampler_->uiMessage(), false );
+
+    if ( outputSampledFreqReflectivities() )
+	csampledfreqreflectivities_ = sampledfreqreflectivities_.ptr();
+    else if ( outputSampledTimeReflectivities() )
+	csampledtimereflectivities_ = sampledtimereflectivities_.ptr();
+
+    reflectivitiesdone_ = true;
+
+    return true;
+}
+
+
+bool SynthGenerator::computeTrace()
+{
+    SeisTrc& res = *outtrc_;
+    res.zero();
+
+    PtrMan<ValueSeries<float> > tmpvs = applynmo_
+			? new ArrayValueSeries<float, float>( convolvesize_ )
+			: nullptr;
+
+    SeisTrcValueSeries trcvs( res, 0 );
+    ValueSeries<float>& vs = tmpvs ? *tmpvs : trcvs;
+
+    if ( isfourier_ )
     {
-	const float corrtime = outtrc_.info().sampling.atIndex( idx );
-	const float uncorrtime = stretchfunc.getValue( corrtime );
-
-	const float stretch = corrtime>0
-	    ? uncorrtime/corrtime -1
-	    : 0;
-
-	if ( stretch>stretchlimit_ )
-	    mutelevel = mMAX( corrtime, mutelevel );
-
-	const float outval = samplfunc.getValue( uncorrtime );
-	out.setValue( idx, mIsUdf(outval) ? 0 : outval );
+	if ( !doFFTConvolve(vs,tmpvs ? convolvesize_ : res.size()) )
+	    return false;
     }
+    else if ( !doTimeConvolve(vs,tmpvs ? convolvesize_ : res.size()) )
+	return false;
 
-
-    if ( mutelevel>outputsampling_.start )
+    if ( applynmo_ )
     {
-	Muter muter( mutelength_/outputsampling_.step, false );
-	muter.mute( out, outtrc_.size(),
-		    outputsampling_.getfIndex( mutelevel ) );
+	if ( !doNMOStretch(vs,convolvesize_,trcvs,res.size()) )
+	    return false;
     }
 
     return true;
@@ -478,24 +623,58 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
 
 bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res, int outsz )
 {
+    float_complex* temprefs = getTempRefs();
+    if ( !csampledfreqreflectivities_ || !freqwavelet_ || !temprefs )
+	mErrRet(tr("Cannot find data for Frequency convolution"), false)
+
     PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
     if ( !fft )
 	mErrRet(tr("Cannot allocate memory for FFT"), false)
 
-	mAllocLargeVarLenArr(float_complex, cres, convolvesize_);
-    if ( !cres )
-	mErrRet(tr("Cannot allocate memory for FFT"), false)
+    ArrayMath::ProdExec<float_complex> prodex( convolvesize_,
+					   csampledfreqreflectivities_->arr(),
+					   freqwavelet_->arr(),
+					   temprefs, true );
+    prodex.executeParallel( false );
 
-	for (int idx = 0; idx<convolvesize_; idx++)
-	    cres[idx] = freqreflectivities_[idx] * freqwavelet_[idx];
-
-    mPrepFFT(fft, cres, false, convolvesize_);
+    mPrepFFT( fft, temprefs, false, convolvesize_ );
     if ( !fft->run(true) )
 	mErrRet(tr("Cannot run FFT for convolution"), false)
 
-    sortOutput( cres, res, outsz );
+    sortOutput( getTempRefs(), res, outsz );
 
     return true;
+}
+
+
+void SynthGenerator::sortOutput( const float_complex* cres,
+				 ValueSeries<float>& res, int outsz ) const
+{
+    const SamplingData<float>& trcsampling = outtrc_->info().sampling;
+    const ZSampling twtrg = trcsampling.interval( outsz );
+    const float step = trcsampling.step;
+    float start = mCast( float, mCast( int, trcsampling.start/step ) ) * step;
+    if ( start < trcsampling.start - 1e-4f )
+	start += step;
+
+    const float width = step * convolvesize_;
+    const int nperiods = mCast( int, Math::Floor( start/width ) ) + 1;
+    const SamplingData<float> fftsampling( start, step );
+
+    const float stoptwt = start + width;
+    float twt = width * nperiods - step;
+    for ( int idx=0; idx<convolvesize_; idx++ )
+    {
+	twt += step;
+	if ( twt > stoptwt - 1e-4f )
+	    twt -= width;
+
+	const int idy = trcsampling.nearestIndex( twt );
+	if ( idy<0 || idy>outsz-1 )
+	    continue;
+
+	res.setValue( idy, cres[idx].real() );
+    }
 }
 
 
@@ -503,18 +682,26 @@ bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res, int outsz )
 {
     ObjectSet<Array1D<float> > wavelettrcs;
     int nrspikes = 0;
-    const ReflectivityModel& rm =
-	!sampledrefmodel_.isEmpty() ? sampledrefmodel_ : *refmodel_;
-    for ( int iref=0; iref<rm.size(); iref++ )
+    const bool issampled = outputSampledTimeReflectivities();
+    const ReflectivityModelTrace* rm = issampled
+				  ? csampledtimereflectivities_.ptr()
+				  : refmodel_.ptr();
+    const float_complex* refsarr = rm ? rm->arr() : nullptr;
+    const float* twtarr = spikestwt_;
+    if ( !refsarr || (issampled && !outtrc_) || (!issampled && !twtarr) )
+	mErrRet(tr("Cannot find data for Time convolution"), false)
+
+    const SamplingData<float>& trcsampling = outtrc_->info().sampling;
+    for ( int iref=0; iref<rm->size(); iref++ )
     {
-	const ReflectivitySpike& spike = rm[iref];
-	if ( !spike.isDefined() )
+	const float_complex ref = refsarr[iref];
+	const float twt = issampled ? trcsampling.atIndex( iref )
+				    : twtarr[iref];
+	if ( mIsUdf(ref) || mIsUdf(twt) )
 	    continue;
 
 	wavelettrcs += new Array1DImpl<float> ( outsz );
-	getWaveletTrace( *wavelettrcs[nrspikes], spike.time_,
-			 spike.reflectivity_.real(), outtrc_.info().sampling );
-	nrspikes++;
+	getWaveletTrace( trcsampling, twt, ref.real(),*wavelettrcs[nrspikes++]);
     }
 
     Array1DImpl<float> output( outsz );
@@ -527,9 +714,9 @@ bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res, int outsz )
 }
 
 
-void SynthGenerator::getWaveletTrace( Array1D<float>& trc, float z,
-				      float scal,
-				      SamplingData<float>& sampling ) const
+void SynthGenerator::getWaveletTrace( const SamplingData<float>& sampling,
+				      float z, float scal,
+				      Array1D<float>& trc ) const
 {
     const int sz = trc.info().getSize(0);
     for ( int idx=0; idx<sz; idx++ )
@@ -540,56 +727,61 @@ void SynthGenerator::getWaveletTrace( Array1D<float>& trc, float z,
 }
 
 
-void SynthGenerator::sortOutput( float_complex* cres, ValueSeries<float>& res,
-				 int outsz ) const
+bool SynthGenerator::doNMOStretch( const ValueSeries<float>& input, int insz,
+				   ValueSeries<float>& out, int outsz ) const
 {
-    const float step = outtrc_.info().sampling.step;
-    float start = mCast( float, mCast( int, outtrc_.startPos()/step ) ) * step;
-    if ( start < outtrc_.startPos() - 1e-4f )
-	start += step;
+    if ( refmodel_->size() < 1 )
+	return true;
 
-    const float width = step * convolvesize_;
-    const int nperiods = mCast( int, Math::Floor( start/width ) ) + 1;
-    const SamplingData<float> fftsampling( start, step );
-    SeisTrc fftout( convolvesize_ );
-    fftout.info().sampling = fftsampling;
-    fftout.zero();
+    const SamplingData<float>& trcsampling = outtrc_->info().sampling;
+    const ZSampling outputsampling = trcsampling.interval( outsz );
 
-    const float stoptwt = start + width;
-    float twt = width * nperiods - step;
-    for ( int idx=0; idx<convolvesize_; idx++ )
+    float mutelevel = trcsampling.start;
+    float firsttime = mUdf(float);
+
+    PointBasedMathFunction stretchfunc( PointBasedMathFunction::Linear,
+				      PointBasedMathFunction::ExtraPolGradient);
+
+    for ( int idx=0; idx<refmodel_->size(); idx++ )
     {
-	twt += step;
-	if ( twt > stoptwt - 1e-4f )
-	    twt -= width;
+	const float spikecorrectedtime = spikescorrectedtwt_[idx];
+	const float spiketime = spikestwt_[idx];
+	if ( idx>0 )
+	{
+	    //check for crossing events
+	    if ( spiketime < spikestwt_[idx-1] )
+		mutelevel = mMAX(spikecorrectedtime, mutelevel );
+	}
 
-	const int idy = fftsampling.nearestIndex( twt );
-	if ( idy<0 || idy>convolvesize_-1 )
-	    continue;
-
-	fftout.set( idy, cres[idx].real(), 0 );
+	firsttime = mMIN( firsttime, spikecorrectedtime );
+	stretchfunc.add( spikecorrectedtime, spiketime );
     }
+
+    if ( firsttime > 0.f )
+	stretchfunc.add( 0.f, 0.f );
+
+    SampledFunctionImpl<float,ValueSeries<float> > samplfunc( input,
+					    insz, trcsampling.start,
+					    trcsampling.step );
 
     for ( int idx=0; idx<outsz; idx++ )
     {
-	twt = outtrc_.samplePos( idx );
-	res.setValue( idx, fftout.getValue( twt, 0 ) );
+	const float corrtime = trcsampling.atIndex( idx );
+	const float uncorrtime = stretchfunc.getValue( corrtime );
+	const float stretch = corrtime>0 ? uncorrtime/corrtime -1.f : 0.f;
+	if ( stretch>stretchlimit_ )
+	    mutelevel = mMAX( corrtime, mutelevel );
+
+	const float outval = samplfunc.getValue( uncorrtime );
+	out.setValue( idx, mIsUdf(outval) ? 0.f : outval );
     }
-}
 
-
-bool SynthGenerator::computeReflectivities()
-{
-    const StepInterval<float> sampling( outputsampling_.start,
-	    outputsampling_.atIndex( convolvesize_-1 ), outputsampling_.step );
-
-    ReflectivitySampler sampler( *refmodel_, sampling, freqreflectivities_ );
-    bool isok = sampler.execute();
-    if ( !isok )
-	mErrRet( sampler.uiMessage(), false );
-
-    if ( dosampledreflectivities_ )
-	sampler.getReflectivities( sampledrefmodel_ );
+    if ( mutelevel>outputsampling.start )
+    {
+	Muter muter( mutelength_/outputsampling.step, false );
+	muter.mute( out, outtrc_->size(),
+		    outputsampling.getfIndex( mutelevel ) );
+    }
 
     return true;
 }
@@ -597,18 +789,29 @@ bool SynthGenerator::computeReflectivities()
 
 bool SynthGenerator::doWork()
 {
+    reflectivitiesdone_ = false;
     int res = mMoreToDoRet;
     while ( res == mMoreToDoRet )
 	res = nextStep();
 
+    cleanup();
     return res == mFinishedRet;
 }
 
 
+#undef mErrRet
+#define mErrRet(msg, retval) { msg_ = msg; return retval; }
 
+// MultiTraceSynthGenerator
 
-MultiTraceSynthGenerator::MultiTraceSynthGenerator()
-    : totalnr_( -1 )
+MultiTraceSynthGenerator::MultiTraceSynthGenerator(
+					const SynthGenerator& synthgen,
+					const ReflectivityModelBase& refmodel,
+					SeisTrcBuf& trcs )
+    : defsynthgen_(synthgen)
+    , refmodel_(refmodel)
+    , trcs_(trcs)
+    , totalnr_(trcs.size())
 {
 }
 
@@ -616,439 +819,680 @@ MultiTraceSynthGenerator::MultiTraceSynthGenerator()
 MultiTraceSynthGenerator::~MultiTraceSynthGenerator()
 {
     deepErase( synthgens_ );
-    deepErase( trcs_ );
-    deepErase( sampledrefmodels_ );
 }
 
 
-bool MultiTraceSynthGenerator::doPrepare( int nrthreads )
+void MultiTraceSynthGenerator::setSampledReflectivitySet(
+						ReflecSet* freqreflectivityset,
+						ReflecSet* timereflectivityset )
 {
-    for ( int idx=0; idx<nrthreads; idx++ )
-    {
-	SynthGenerator* synthgen = SynthGenerator::create( true );
-	synthgens_ += synthgen;
-    }
-
-    return true;
+    freqreflectivityset_ = freqreflectivityset;
+    timereflectivityset_ = timereflectivityset;
+    cfreqreflectivityset_ = nullptr;
+    ctimereflectivityset_ = nullptr;
 }
 
 
-void MultiTraceSynthGenerator::setModels(
-			const ObjectSet<const ReflectivityModel>& refmodels )
+void MultiTraceSynthGenerator::useSampledReflectivitySet(
+				    const ReflecSet* freqreflectivityset,
+				    const ReflecSet* timereflectivityset )
 {
-    totalnr_ = 0;
-    models_ = &refmodels;
-    for ( int idx=0; idx<refmodels.size(); idx++ )
-	totalnr_ += refmodels[idx]->size();
+    cfreqreflectivityset_ = freqreflectivityset;
+    ctimereflectivityset_ = timereflectivityset;
+    freqreflectivityset_ = nullptr;
+    timereflectivityset_ = nullptr;
+}
+
+
+uiString MultiTraceSynthGenerator::uiMessage() const
+{
+    return msg_;
 }
 
 
 od_int64 MultiTraceSynthGenerator::nrIterations() const
-{ return models_->size(); }
+{ return totalnr_; }
+
+
+bool MultiTraceSynthGenerator::doPrepare( int nrthreads )
+{
+    deepErase( synthgens_ );
+    IOPar iop;
+    defsynthgen_.fillPar( iop );
+    for ( int idx=0; idx<nrthreads; idx++ )
+    {
+	auto* synthgen = SynthGenerator::create( true );
+	if ( !synthgen )
+	    return false;
+
+	synthgen->usePar( iop );
+	if ( defsynthgen_.wavelet_ )
+	    synthgen->setWavelet( defsynthgen_.wavelet_, OD::UsePtr );
+	if ( defsynthgen_.freqwavelet_.ptr() )
+	{
+	    auto* freqwvlt =
+		const_cast<ReflectivityModelTrace*>(
+					defsynthgen_.freqwavelet_.ptr() );
+	    synthgen->freqwavelet_ = freqwvlt;;
+	}
+
+	synthgen->setUnCorrSampling( defsynthgen_.uncorrsampling_ );
+	synthgens_.add( synthgen );
+    }
+
+    return true;
+}
 
 
 bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 {
     SynthGenerator& synthgen = *synthgens_[thread];
-    for ( int idx=mCast(int,start); idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
-	synthgen.setModel( *(*models_)[idx] );
+	const ReflectivityModelTrace* refmodel =
+					refmodel_.getReflectivities(idx);
+	const float* timesarr_ = refmodel_.getReflTimes( idx );
+	const float* correctedtimesarr = refmodel_.getReflTimes();
+	if ( !refmodel || !timesarr_ || !correctedtimesarr ||
+	     idx >= trcs_.size() )
+	    return false;
 
-	IOPar par; fillPar( par ); synthgen.usePar( par );
-	if ( wavelet_ )
-	    synthgen.setWavelet( wavelet_, OD::UsePtr );
-	synthgen.setOutSampling( outputsampling_ );
+	synthgen.setModel( *refmodel, timesarr_, correctedtimesarr,
+			   *trcs_.get(idx) );
+	if ( cfreqreflectivityset_ )
+	    synthgen.useSampledFreqReflectivities(
+					cfreqreflectivityset_->get(idx) );
+	else if ( freqreflectivityset_ )
+	    synthgen.setSampledFreqReflectivities(
+					freqreflectivityset_->get(idx) );
+
+	if ( ctimereflectivityset_ )
+	    synthgen.useSampledTimeReflectivities(
+					ctimereflectivityset_->get(idx) );
+	else if ( timereflectivityset_ )
+	    synthgen.setSampledTimeReflectivities(
+					timereflectivityset_->get(idx) );
+
 	if ( !synthgen.doWork() )
 	    mErrRet( synthgen.errMsg(), false );
-
-	Threads::Locker lckr( lock_ );
-	trcs_ += new SeisTrc( synthgen.result() );
-	ReflectivityModel* sampledrefmodel = new ReflectivityModel();
-	synthgen.getSampledRM( *sampledrefmodel );
-	sampledrefmodels_ += sampledrefmodel;
-	trcidxs_ += idx;
-	lckr.unlockNow();
-
-	addToNrDone( mCast(int,synthgen.currentProgress()) );
     }
+
     return true;
 }
 
 
-void MultiTraceSynthGenerator::getResult( ObjectSet<SeisTrc>& trcs )
+bool MultiTraceSynthGenerator::doFinish( bool success )
 {
-    TypeSet<int> sortidxs;
-    for ( int idtrc=0; idtrc<trcs_.size(); idtrc++ )
-	sortidxs += idtrc;
-    sort_coupled( trcidxs_.arr(), sortidxs.arr(), trcidxs_.size() );
-    for ( int idtrc=0; idtrc<trcs_.size(); idtrc++ )
-	trcs += trcs_[ sortidxs[idtrc] ];
-
-    trcs_.erase();
-}
-
-
-void MultiTraceSynthGenerator::getSampledRMs(
-	ObjectSet<const ReflectivityModel>& sampledrms )
-{
-    TypeSet<int> sortidxs;
-    for ( int idtrc=0; idtrc<sampledrefmodels_.size(); idtrc++ )
-	sortidxs += idtrc;
-    sort_coupled( trcidxs_.arr(), sortidxs.arr(), trcidxs_.size() );
-    for ( int irm=0; irm<sampledrefmodels_.size(); irm++ )
-	sampledrms += sampledrefmodels_[ sortidxs[irm] ];
-    sampledrefmodels_.erase();
+    deepErase( synthgens_ );
+    return success;
 }
 
 
 
-RaySynthGenerator::RaySynthGenerator( const TypeSet<ElasticModel>* ems,
-				      bool ownrms )
-    : raytracingdone_( false )
-    , ownraymodels_( ownrms )
-    , aimodels_( ems )
-    , raymodels_( nullptr )
-{}
-
-
-RaySynthGenerator::RaySynthGenerator( ObjectSet<RayModel>* rms )
-    : raytracingdone_( true )
-    , ownraymodels_( false )
-    , aimodels_( nullptr )
-    , raymodels_( rms )
-{}
-
-
-void RaySynthGenerator::reset()
+ConstRefMan<ReflectivityModelSet>
+RaySynthGenerator::getRefModels( const TypeSet<ElasticModel>& emodels,
+				 const IOPar& raypars, uiString& msg,
+				 TaskRunner* taskrun,
+			 const ObjectSet<const TimeDepthModel>* forcedtdmodels )
 {
-    resetNrDone();
-    message_ = uiString::emptyString();
+    return RayTracerRunner::getRefModels( emodels, raypars, msg, taskrun,
+					  forcedtdmodels );
+}
+
+
+
+RaySynthGenerator::RaySynthGenerator( const ReflectivityModelSet& refmodels )
+    : ParallelTask("Synthetics generation")
+    , synthgen_(SynthGenerator::create(true))
+    , refmodels_(&refmodels)
+{
+    msg_ = tr("Generating synthetics");
+    refmodels_->getOffsets( offsets_ );
+}
+
+
+RaySynthGenerator::RaySynthGenerator( const SynthGenDataPack& synthresdp )
+    : ParallelTask("Synthetics generation")
+    , synthgen_(SynthGenerator::create(true))
+    , synthresdp_(&synthresdp)
+    , refmodels_(&synthresdp.getModels())
+{
+    msg_ = tr( "Generating synthetics" );
+    synthresdp_->getModels().getOffsets( offsets_ );
+    if ( synthgen_ )
+    {
+	synthgen_->setOutSampling( synthresdp.outputsampling_ );
+	synthgen_->usePar( synthresdp.synthgenpars_ );
+    }
 }
 
 
 RaySynthGenerator::~RaySynthGenerator()
 {
-    delete rtr_;
-    if ( ownraymodels_ && raymodels_ )
-	deepErase( *raymodels_ );
-}
-
-
-od_int64 RaySynthGenerator::nrIterations() const
-{
-    return aimodels_ ? aimodels_->size() : raymodels_->size();
-}
-
-
-const ObjectSet<RayTracer1D>& RaySynthGenerator::rayTracers() const
-{ return  rtr_->rayTracers(); }
-
-
-bool RaySynthGenerator::doPrepare( int )
-{
-    if ( ownraymodels_ && raymodels_ )
-	deepErase( *raymodels_ );
-
-    if ( aimodels_ && aimodels_->isEmpty() )
-	mErrRet(tr("No AI model found"), false);
-
-    if ( offsets_.isEmpty() )
-	offsets_ += 0;
-
-    if ( !raymodels_ )
-    {
-	rtr_ = new RayTracerRunner( *aimodels_, raysetup_ );
-	message_ = tr("Raytracing");
-	if ( !rtr_->execute() )
-	    mErrRet( rtr_->uiMessage(), false );
-
-	raytracingdone_ = true;
-
-	message_ = tr("Preparing Reflectivity Model");
-	raymodels_ = new ObjectSet<RayModel>();
-	const ObjectSet<RayTracer1D>& rt1ds = rtr_->rayTracers();
-	resetNrDone();
-	for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
-	{
-	    const RayTracer1D* rt1d = rt1ds[idx];
-	    RayModel* rm = new RayModel( *rt1d, offsets_.size() );
-	    raymodels_->insertAt( rm, 0 );
-
-	    if ( forcerefltimes_ )
-		rm->forceReflTimes( forcedrefltimes_ );
-	    addToNrDone( 1 );
-	}
-    }
-
-    resetNrDone();
-    ObjectSet<const ReflectivityModel> models;
-    getAllRefls( models );
-    const bool zerooffset = offsets_.size() == 1 && mIsZero(offsets_[0],1e-1f);
-    StepInterval<float> cursampling( outputsampling_ );
-    if ( models.isEmpty() )
-	mErrRet( tr("No models given to make synthetics"), false );
-
-    if ( !SynthGenBase::isInputOK() )
-	return mErrOccRet;
-
-    if ( !SynthGenBase::getOutSamplingFromModel(models,cursampling,
-						applynmo_ || zerooffset) &&
-	  aimodels_ )
-    {
-	Interval<float> modelsampling;
-	ElasticModel::getTimeSampling( *aimodels_, modelsampling );
-	cursampling.include( modelsampling, false );
-    }
-
-    outputsampling_.include( cursampling, false );
-    outputsampling_.step = cursampling.step;
-
-    message_ = tr("Generating synthetics");
-
-    return true;
-}
-
-
-bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
-{
-    if ( !raymodels_ ) return false;
-    IOPar par; fillPar( par );
-    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
-    {
-	if ( !shouldContinue() )
-	    return false;
-
-	RayModel& rm = *(*raymodels_)[idx];
-	deepErase( rm.outtrcs_ );
-	deepErase( rm.sampledrefmodels_ );
-
-	MultiTraceSynthGenerator multitracegen;
-	multitracegen.setModels( rm.refmodels_ );
-	multitracegen.setOutSampling( outputsampling_ );
-	multitracegen.usePar( par );
-	if ( wavelet_ )
-	    multitracegen.setWavelet( wavelet_, OD::UsePtr );
-
-	if ( !multitracegen.execute() )
-	    mErrRet( multitracegen.errMsg(), false )
-
-	multitracegen.getResult( rm.outtrcs_ );
-	multitracegen.getSampledRMs( rm.sampledrefmodels_ );
-	for ( int idoff=0; idoff<offsets_.size(); idoff++ )
-	{
-	    if ( !rm.outtrcs_.validIdx( idoff ) )
-	    {
-		rm.outtrcs_ += new SeisTrc( outputsampling_.nrSteps() + 1 );
-		rm.outtrcs_[idoff]->info().sampling = outputsampling_;
-		for ( int idz=0; idz<rm.outtrcs_[idoff]->size(); idz++ )
-		    rm.outtrcs_[idoff]->set( idz, mUdf(float), 0 );
-	    }
-	    rm.outtrcs_[idoff]->info().offset = offsets_[idoff];
-	    rm.outtrcs_[idoff]->info().seqnr_ = idx+1;
-	}
-    }
-
-    return true;
-}
-
-
-od_int64 RaySynthGenerator::totalNr() const
-{
-    return !raytracingdone_ && rtr_ ? rtr_->totalNr() : nrIterations();
-}
-
-
-od_int64 RaySynthGenerator::nrDone() const
-{
-    return !raytracingdone_ && rtr_ ? rtr_->nrDone() : ParallelTask::nrDone();
-}
-
-
-
-uiString RaySynthGenerator::uiNrDoneText() const
-{
-    return !raytracingdone_ && rtr_ ? tr("Layers done") : tr("Models done");
-}
-
-
-RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
-    : zerooffset2dmodel_(0)
-{
-    for ( int idx=0; idx<nroffsets; idx++ )
-    {
-	ReflectivityModel* refmodel = new ReflectivityModel();
-	rt1d.getReflectivity( idx, *refmodel );
-
-	TimeDepthModel* t2dm = new TimeDepthModel();
-	rt1d.getTDModel( idx, *t2dm );
-
-	refmodels_ += refmodel;
-	t2dmodels_ += t2dm;
-	if ( !idx )
-	{
-	    zerooffset2dmodel_ = new TimeDepthModel();
-	    rt1d.getZeroOffsTDModel( *zerooffset2dmodel_ );
-	}
-    }
-}
-
-
-RaySynthGenerator::RayModel::~RayModel()
-{
-    deepErase( outtrcs_ );
-    deepErase( t2dmodels_ );
-    deepErase( refmodels_ );
-    deepErase( sampledrefmodels_ );
-    delete zerooffset2dmodel_;
+    delete synthgen_;
+    deepErase( results_ );
 }
 
 
 bool RaySynthGenerator::usePar( const IOPar& par )
 {
-    SynthGenBase::usePar( par );
-    raysetup_.merge( par );
-    raysetup_.get( RayTracer1D::sKeyOffset(), offsets_ );
-    if ( offsets_.isEmpty() )
-	offsets_ += 0;
+    if ( !synthgen_ )
+	return false;
+
+    synthgen_->usePar( par );
 
     return true;
 }
 
 
-void RaySynthGenerator::fillPar( IOPar& par ) const
+bool RaySynthGenerator::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 {
-    SynthGenBase::fillPar( par );
-    par.merge( raysetup_ );
+    return synthgen_ && synthgen_->setWavelet( wvlt, pol );
 }
 
 
-void RaySynthGenerator::forceReflTimes( const StepInterval<float>& si)
+bool RaySynthGenerator::setOutSampling( const ZSampling& zrg )
 {
-    forcedrefltimes_ = si; forcerefltimes_ = true;
+    return synthgen_ && synthgen_->setOutSampling( zrg );
 }
 
 
-void RaySynthGenerator::getAllRefls( ObjectSet<const ReflectivityModel>& refs )
+void RaySynthGenerator::setMuteLength( float val )
 {
-    if ( !raymodels_ || raymodels_->isEmpty() ) return;
+    if ( synthgen_ )
+	synthgen_->setMuteLength( val );
+}
 
-    refs.setEmpty();
-    for ( int imod=0; imod<raymodels_->size(); imod++ )
+
+void RaySynthGenerator::setStretchLimit( float val )
+{
+    if ( synthgen_ )
+	synthgen_->setStretchLimit( val );
+}
+
+
+void RaySynthGenerator::enableFourierDomain( bool yn )
+{
+    if ( synthgen_ )
+	synthgen_->enableFourierDomain( yn );
+}
+
+
+void RaySynthGenerator::doSampledTimeReflectivity( bool yn )
+{
+    if ( synthgen_ )
+	synthgen_->doSampledTimeReflectivity( yn );
+}
+
+
+od_int64 RaySynthGenerator::nrIterations() const
+{
+    return refmodels_ ? refmodels_->nrModels() : -1;
+}
+
+
+uiString RaySynthGenerator::uiMessage() const
+{
+    return msg_;
+}
+
+
+uiString RaySynthGenerator::uiNrDoneText() const
+{
+    return tr("Models done");
+}
+
+
+bool RaySynthGenerator::doPrepare( int /* nrthreads */ )
+{
+    msg_ = tr("Generating synthetics");
+    const int nrmodels = refmodels_ ? refmodels_->nrModels() : 0;
+    if ( nrmodels < 1 )
+	mErrRet( tr("No models given to make synthetics"), false );
+
+    const int nrtrcsperpos = refmodels_->get(0)->nrRefModels();
+    if ( nrtrcsperpos < 1 )
+	mErrRet( tr("No reflectivity models given to make synthetics"), false );
+
+    const bool singletrcperpos = nrtrcsperpos == 1;
+    if ( offsets_.isEmpty() && singletrcperpos )
+	{ pErrMsg("Should not happen"); offsets_ += 0.f; }
+    else if ( offsets_.size() != nrtrcsperpos )
+	mErrRet( tr("Inconsistent offset/angle distribution"), false );
+
+    const bool zerooffset = singletrcperpos && mIsZero(offsets_[0],1e-1f);
+    const bool isoffsetdomain = refmodels_->get(0)->isOffsetDomain();
+    rettype_ = isoffsetdomain &&
+		(!singletrcperpos || (singletrcperpos && !zerooffset))
+	     ? LinePS : Line;
+
+    if ( !synthgen_ || !synthgen_->isInputOK() )
+	mErrRet( tr("Incorrect parameters for synthetic generation"), false );
+
+    const bool skipnmo = !Seis::isPS(rettype_) ||
+			(Seis::isPS(rettype_) && singletrcperpos && zerooffset);
+
+    ZSampling outputzrg = synthgen_->outputsampling_;
+    PtrMan<ZSampling> uncorrsampling;
+    if ( !synthresdp_ || outputzrg.isUdf() )
     {
-	if ( !(*raymodels_)[imod] )
+	ZSampling cursampling( outputzrg );
+	if ( !skipnmo )
+	    uncorrsampling = new ZSampling;
+
+	ZSampling cursamplingtmp( outputzrg );
+	getOutSamplingFromModel( cursamplingtmp, nullptr );
+
+	getOutSamplingFromModel( cursampling, uncorrsampling.ptr() );
+	outputzrg.include( cursampling, false );
+	outputzrg.step = cursampling.step;
+	if ( !skipnmo && !synthgen_->applynmo_ )
+	    outputzrg = *uncorrsampling.ptr();
+
+	synthgen_->setOutSampling( outputzrg );
+	synthgen_->setUnCorrSampling( uncorrsampling.ptr() );
+    }
+
+    if ( synthgen_->isfourier_ && !synthgen_->genFreqWavelet() )
+    {
+	msg_ = synthgen_->errMsg();
+	mErrRet(msg_, mErrOccRet);
+    }
+
+    deepErase( results_ );
+    const ZSampling& uncorrzrg = uncorrsampling ? *uncorrsampling.ptr()
+						: outputzrg;
+    const bool dosampledfreqrefs = !synthresdp_ &&
+				synthgen_->outputSampledFreqReflectivities();
+    const bool dosampledtimerefs = !synthresdp_ &&
+				synthgen_->needSampledTimeReflectivities();
+    for ( int imdl=0; imdl<nrmodels; imdl++ )
+    {
+	auto* newres = new SynthRes( outputzrg, uncorrzrg, offsets_,
+				     imdl, dosampledfreqrefs,dosampledtimerefs);
+	if ( !newres || !newres->isOK() )
+	{
+	    delete newres;
+	    return false;
+	}
+
+	results_.add( newres );
+    }
+
+    return true;
+}
+
+
+bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop,
+				int /* threadidx*/ )
+{
+    if ( !synthgen_ || !refmodels_ ||
+	 !results_.validIdx(start) || !results_.validIdx(stop) )
+	return false;
+
+    for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
+    {
+	if ( !shouldContinue() || !refmodels_->get(idx) )
+	    return false;
+
+	SynthRes& res = *results_.get( idx );
+	MultiTraceSynthGenerator multitracegen( *synthgen_,
+						*refmodels_->get( idx ),
+						res.outtrcs_ );
+	if ( synthresdp_ )
+	{
+	    multitracegen.useSampledReflectivitySet(
+			    synthresdp_->getSampledReflectivitySet(idx,true),
+			    synthresdp_->getSampledReflectivitySet(idx,false) );
+	}
+	else
+	{
+	    multitracegen.setSampledReflectivitySet(
+				   res.freqsampledreflectivityset_,
+				   res.timesampledreflectivityset_ );
+	}
+
+	if ( !multitracegen.execute() )
+	    mErrRet( multitracegen.uiMessage(), false )
+    }
+
+    return true;
+}
+
+
+bool RaySynthGenerator::doFinish( bool success )
+{
+    if ( !success )
+	deepErase( results_ );
+
+    return success;
+}
+
+
+bool RaySynthGenerator::getOutSamplingFromModel( ZSampling& nmozrg,
+						 ZSampling* uncorrzrg ) const
+{
+    const ZSampling wvltzrg = synthgen_->wavelet_->samplePositions();
+    const float outputsr = mIsUdf(nmozrg.step) ? wvltzrg.step : nmozrg.step;
+    nmozrg.set( mUdf(float), -mUdf(float), outputsr );
+    if ( uncorrzrg )
+	*uncorrzrg = nmozrg;
+
+    const int nrmodels = refmodels_->nrModels();
+    for ( int imdl=0; imdl<nrmodels; imdl++ )
+    {
+	const ReflectivityModelBase& model = *refmodels_->get( imdl );
+	const int nrspikes = model.nrSpikes();
+	const float* twtarr = model.getReflTimes();
+	for ( int idz=0; idz<nrspikes; idz++ )
+	{
+	    if ( !model.isSpikeDefined(0,idz) )
+		continue;
+
+	    const float twt = twtarr[idz];
+	    nmozrg.include( twt, false );
+	    break;
+	}
+
+	for ( int idz=nrspikes-1; idz>=0; idz-- )
+	{
+	    if ( !model.isSpikeDefined(0,idz) )
+		continue;
+
+	    const float twt = twtarr[idz];
+	    nmozrg.include( twt, false );
+	    break;
+	}
+
+	if ( !uncorrzrg )
 	    continue;
 
-	ObjectSet<const ReflectivityModel> curraymodel;
-	(*raymodels_)[imod]->getRefs( curraymodel, false );
-	refs.append( curraymodel  );
-    }
-}
-
-#define mGet( inpset, outpset, steal )\
-{\
-    outpset.copy( inpset );\
-    if ( steal )\
-	inpset.erase();\
-}
-
-void RaySynthGenerator::RayModel::getTraces(
-		    ObjectSet<SeisTrc>& trcs, bool steal )
-{
-    mGet( outtrcs_, trcs, steal );
-}
-
-
-void RaySynthGenerator::RayModel::getRefs(
-			ObjectSet<const ReflectivityModel>& refmodels,
-			bool steal, bool sampled )
-{
-    ObjectSet<const ReflectivityModel>& rms =
-	sampled ? sampledrefmodels_ : refmodels_;
-    mGet( rms, refmodels, steal );
-}
-
-
-void RaySynthGenerator::RayModel::getZeroOffsetD2T( TimeDepthModel& tdms )
-{
-    tdms = *zerooffset2dmodel_;
-}
-
-
-void RaySynthGenerator::RayModel::getD2T(
-			ObjectSet<TimeDepthModel>& tdmodels, bool steal )
-{
-    mGet( t2dmodels_, tdmodels, steal );
-}
-
-
-void RaySynthGenerator::RayModel::forceReflTimes( const StepInterval<float>& si)
-{
-    for ( int idx=0; idx<refmodels_.size(); idx++ )
-    {
-	ReflectivityModel& refmodel
-			= const_cast<ReflectivityModel&>(*refmodels_[idx]);
-	for ( int iref=0; iref<refmodel.size(); iref++ )
+	for ( int ioff=0; ioff<model.nrRefModels(); ioff++ )
 	{
-	    refmodel[iref].time_ = si.atIndex(iref);
-	    refmodel[iref].correctedtime_ = si.atIndex(iref);
+	    const float* uncorrarr = model.getReflTimes( ioff );
+	    for ( int idz=0; idz<nrspikes; idz++ )
+	    {
+		if ( model.isSpikeDefined(ioff,idz) )
+		    uncorrzrg->include( uncorrarr[idz], false );
+	    }
 	}
     }
+
+    const bool hassampling = !nmozrg.isUdf();
+    if ( !hassampling )
+    {
+	for ( int imdl=0; imdl<nrmodels; imdl++ )
+	{
+	    const ReflectivityModelBase& model = *refmodels_->get( imdl );
+	    const TimeDepthModel& tdmodel = model.getDefaultModel();
+	    nmozrg.include( tdmodel.getFirstTime() );
+	    nmozrg.include( tdmodel.getLastTime() );
+	    if ( !uncorrzrg )
+		continue;
+
+	    for ( int ioff=0; ioff<model.nrRefModels(); ioff++ )
+	    {
+		const TimeDepthModel* t2dmodel = model.get( ioff );
+		if ( !t2dmodel )
+		    continue;
+
+		uncorrzrg->include( t2dmodel->getFirstTime() );
+		uncorrzrg->include( t2dmodel->getLastTime() );
+	    }
+	}
+
+	if ( nmozrg.isUdf() )
+	    mErrRet( tr("Cannot determine trace size from model(s)"), false );
+    }
+
+    ObjectSet<ZSampling> zrgs( &nmozrg );
+    if ( uncorrzrg )
+    {
+	uncorrzrg->start = nmozrg.start;
+	zrgs.add( uncorrzrg );
+    }
+
+    for ( auto* obj : zrgs )
+    {
+	ZSampling& zrg = *obj;
+	zrg.scale( 1.f / outputsr );
+	zrg.start = mIsEqual( (float)mNINT32(zrg.start), zrg.start,
+				1e-2f )
+		      ? mNINT32(zrg.start) : Math::Floor( zrg.start);
+	zrg.stop = mIsEqual( (float)mNINT32(zrg.stop), zrg.stop,
+			       1e-2f )
+		     ? mNINT32(zrg.stop) : Math::Ceil( zrg.stop );
+	zrg.scale( outputsr );
+	if ( hassampling )
+	{
+	    zrg.start += wvltzrg.start;
+	    zrg.stop += wvltzrg.stop;
+	}
+
+	zrg.step = outputsr;
+    }
+
+    return true;
 }
 
 
-const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
+SeisTrc* RaySynthGenerator::stackedTrc( int imdl, bool cansteal ) const
 {
-    if ( outtrcs_.isEmpty() )
-	return 0;
+    if ( !results_.validIdx(imdl) )
+	return nullptr;
 
-    SeisTrc* trc = new SeisTrc( *outtrcs_[0] );
+    const SynthRes& result = *results_.get( imdl );
+    const SeisTrcBuf& outtrcs = result.outtrcs_;
+    if ( outtrcs.isEmpty() )
+	return nullptr;
+
+    if ( cansteal && outtrcs.size() == 1 )
+	return const_cast<SeisTrcBuf&>( outtrcs ).remove(0);
+
+    auto* trc = new SeisTrc( *outtrcs.first() );
     SeisTrcPropChg stckr( *trc );
-    for ( int idx=1; idx<outtrcs_.size(); idx++ )
+    for ( int idx=1; idx<outtrcs.size(); idx++ )
     {
-	const SeisTrc* outtrc = outtrcs_[idx];
+	const SeisTrc* outtrc = outtrcs.get( idx );
 	if ( !outtrc || outtrc->isNull() )
 	    continue;
 
-	stckr.stack( *outtrcs_[idx], false, mCast(float,idx) );
+	stckr.stack( *outtrc, false, mCast(float,idx) );
     }
 
     return trc;
 }
 
 
-void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
+bool RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf,
+					  bool steal ) const
 {
-    if ( !raymodels_ || raymodels_->isEmpty() ) return;
+    if ( results_.size() != totalNr() )
+	return false;
 
-    for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
-    {
-	auto* tbuf = new SeisTrcBuf( true );
-	ObjectSet<SeisTrc> trcs; (*raymodels_)[imdl]->getTraces( trcs, true );
-	for ( int idx=0; idx<trcs.size(); idx++ )
-	{
-	    SeisTrc* trc = trcs[idx];
-	    trc->info().setTrcKey( TrcKey::getSynth(imdl+1) );
-	    trc->info().seqnr_ = imdl+1;
-	    trc->info().calcCoord();
-	    tbuf->add( trc );
-	}
-	seisbufs += tbuf;
-    }
-}
-
-
-void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )
-{
-    if ( !raymodels_ || raymodels_->isEmpty() ) return;
+#ifdef __debug__
+    if ( !seisbuf.isOwner() )
+	{ pErrMsg("Should own the traces"); DBG::forceCrash(true); }
+#endif
 
     seisbuf.erase();
-    for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
+    for ( int idx=0; idx<results_.size(); idx++ )
     {
-	SeisTrc* trc = const_cast<SeisTrc*> ((*raymodels_)[imdl]->stackedTrc());
-	trc->info().setTrcKey( TrcKey::getSynth(imdl+1) );
-	trc->info().seqnr_ = imdl+1;
-	trc->info().calcCoord();
+	SeisTrc* trc = stackedTrc( idx, steal );
+	if ( !trc )
+	    return false;
+
 	seisbuf.add( trc );
     }
+
+    return true;
 }
+
+
+bool RaySynthGenerator::getTraces( SeisTrcBuf& seisbuf, int imdl,
+				   bool steal ) const
+{
+    if ( !results_.validIdx(imdl) )
+	return false;
+
+    const SynthRes& result = *results_.get( imdl );
+    if ( steal )
+	seisbuf.stealTracesFrom( result.outtrcs_ );
+    else
+	result.outtrcs_.copyInto( seisbuf );
+
+    return true;
+}
+
+
+bool RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs,
+				   bool steal ) const
+{
+    for ( int idx=0; idx<totalNr(); idx++ )
+    {
+	auto* tbuf = new SeisTrcBuf( true );
+	if ( !getTraces(*tbuf,idx,steal) )
+	    return false;
+
+	seisbufs += tbuf;
+    }
+
+    return true;
+}
+
+
+const SynthGenDataPack* RaySynthGenerator::getAllResults()
+{
+    if ( synthresdp_ )
+	return synthresdp_.ptr();
+
+    auto* ret = new SynthGenDataPack( *refmodels_.ptr(), rettype_, offsets_,
+				      synthgen_->outputsampling_ );
+    synthgen_->fillPar( ret->synthgenpars_ );
+    if ( !synthgen_->needSampledReflectivities() )
+	return ret;
+
+    if ( synthgen_->outputSampledFreqReflectivities() )
+	ret->freqsampledrefset_ = new ObjectSet<const ReflecSet>;
+    if ( synthgen_->outputSampledTimeReflectivities() )
+	ret->timesampledrefset_ = new ObjectSet<const ReflecSet>;
+
+    for ( int imdl=0; imdl<refmodels_->nrModels(); imdl++ )
+    {
+	SynthRes& res = *results_.get( imdl );
+	if ( ret->freqsampledrefset_ && res.freqsampledreflectivityset_ )
+	{
+	    ret->freqsampledrefset_->add( res.freqsampledreflectivityset_ );
+	    res.freqsampledreflectivityset_ = nullptr;
+	}
+
+	if ( ret->timesampledrefset_ && res.timesampledreflectivityset_ )
+	{
+	    ret->timesampledrefset_->add( res.timesampledreflectivityset_ );
+	    res.timesampledreflectivityset_ = nullptr;
+	}
+    }
+
+    return ret;
+}
+
+
+RaySynthGenerator::SynthRes::SynthRes( const ZSampling& outputzrg,
+				       const ZSampling& uncorrzrg,
+				       const TypeSet<float>& offsets,
+				       int seqnr,
+				       bool dosampledfreqrefs,
+				       bool dosampledtimerefs )
+    : outtrcs_(*new SeisTrcBuf(true))
+{
+    const int nrtrcs = offsets.size();
+    setTraces( outputzrg, offsets, seqnr );
+
+    if ( !dosampledfreqrefs && !dosampledtimerefs )
+	return;
+
+    PtrMan<Fourier::CC> fft = new Fourier::CC;
+    if ( !fft )
+    {
+	pErrMsg("Cannot determine convolution size without FFT transform");
+	return;
+    }
+
+    const int fftsz = fft->getFastSize( uncorrzrg.nrSteps()+1 );
+    if ( dosampledfreqrefs )
+    {
+	delete freqsampledreflectivityset_;
+	freqsampledreflectivityset_ = new ReflecSet;
+	for ( int itrc=0; itrc<nrtrcs; itrc++ )
+	    freqsampledreflectivityset_->add(new ReflectivityModelTrace(fftsz));
+    }
+
+    if ( dosampledtimerefs )
+    {
+	delete timesampledreflectivityset_;
+	timesampledreflectivityset_ = new ReflecSet;
+	for ( int itrc=0; itrc<nrtrcs; itrc++ )
+	    timesampledreflectivityset_->add(new ReflectivityModelTrace(fftsz));
+    }
+}
+
+
+RaySynthGenerator::SynthRes::~SynthRes()
+{
+    delete &outtrcs_;
+    delete freqsampledreflectivityset_;
+    delete timesampledreflectivityset_;
+}
+
+
+bool RaySynthGenerator::SynthRes::isOK() const
+{
+    if ( outtrcs_.size() < 1 )
+	return false;
+
+    if ( freqsampledreflectivityset_ )
+    {
+	if ( freqsampledreflectivityset_->size() != outtrcs_.size() )
+	    return false;
+
+	for ( const auto* reflectivities : *freqsampledreflectivityset_ )
+	{
+	    if ( !reflectivities->isOK() )
+		return false;
+	}
+    }
+
+    if ( timesampledreflectivityset_ )
+    {
+	if ( timesampledreflectivityset_->size() != outtrcs_.size() )
+	    return false;
+
+	for ( const auto* reflectivities : *timesampledreflectivityset_ )
+	{
+	    if ( !reflectivities->isOK() )
+		return false;
+	}
+    }
+
+    return true;
+}
+
+
+void RaySynthGenerator::SynthRes::setTraces( const ZSampling& zrg,
+				const TypeSet<float>& offsets, int seqnr )
+{
+    const int nrtrcs = offsets.size();
+    const int trcsz = zrg.nrSteps()+1;
+    for ( int itrc=0; itrc<nrtrcs; itrc++ )
+    {
+	auto* newtrc = new SeisTrc( trcsz );
+	SeisTrcInfo& info = newtrc->info();
+	info.setGeomSystem( OD::GeomSynth ).setTrcNr( seqnr+1 ).calcCoord();
+	info.sampling = zrg;
+	info.offset = offsets[itrc];
+	info.seqnr_ = seqnr+1;
+	outtrcs_.add( newtrc );
+    }
+}
+
 } // namespace Seis

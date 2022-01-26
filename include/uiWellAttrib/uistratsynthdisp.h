@@ -173,10 +173,11 @@ protected:
     void		fillPar(IOPar&,const StratSynth*) const;
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
-    void		getCurD2TModel(const SyntheticData*,
+    int			getOffsetIdx(const SyntheticData&) const;
+    void		getCurD2TModel(const SyntheticData&,
 				    ObjectSet<const TimeDepthModel>&,
-				    float offset = 0.0f) const;
-    void		reSampleTraces(const SyntheticData*,SeisTrcBuf&) const;
+				    int offsidx) const;
+    void		reSampleTraces(const SyntheticData&,SeisTrcBuf&) const;
     void		updateFields();
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);

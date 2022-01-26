@@ -10,10 +10,12 @@ ________________________________________________________________________
 
 #include "ioman.h"
 #include "iostrm.h"
-#include "strmprov.h"
-#include "survinfo.h"
+#include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
+#include "strmprov.h"
+#include "syntheticdataimpl.h"
+#include "survinfo.h"
 
 #include "createlogcube.h"
 #include "emhorizon2d.h"
@@ -95,6 +97,7 @@ float Data::cDefSeisSr()
     return 0.001;
 }
 
+static const int welltieseqnr = 0;
 
 Data::Data( const Setup& wts, Well::Data& wdata )
     : logset_(*new Well::LogSet)
@@ -102,9 +105,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     , setup_(wts)
     , initwvlt_(*Wavelet::get(IOM().get( wts.wvltid_)))
     , estimatedwvlt_(*new Wavelet("Deterministic wavelet"))
-    , seistrc_(*new SeisTrc)
-    , synthtrc_(*new SeisTrc)
-    , trunner_(0)
+    , seistrcs_(*new SeisTrcBuf(true))
 {
     const Well::Track& track = wdata.track();
     const Well::D2TModel* d2t = wdata.d2TModel();
@@ -143,8 +144,96 @@ Data::~Data()
     delete &logset_;
     delete &initwvlt_;
     delete &estimatedwvlt_;
-    delete &seistrc_;
-    delete &synthtrc_;
+    delete &seistrcs_;
+}
+
+
+const SeisTrc* Data::getTrc( bool synth, int ioff ) const
+{
+    return mSelf().getTrc( synth, ioff );
+}
+
+
+const SeisTrc* Data::getRealTrc( int ioff ) const
+{
+    return mSelf().getRealTrc( ioff );
+}
+
+
+SeisTrc* Data::getRealTrc( int ioff )
+{
+    return seistrcs_.validIdx(ioff) ? seistrcs_.get( ioff ) : nullptr;
+}
+
+
+const SeisTrc* Data::getSynthTrc( int ioff ) const
+{
+    const int seqnr = 0;
+    if ( postsd_ )
+	return postsd_->getTrace( seqnr );
+    if ( presd_ )
+	return presd_->getTrace( seqnr, &ioff );
+
+    return nullptr;
+}
+
+
+SeisTrc* Data::getTrc( bool synth, int ioff )
+{
+    return synth ? getSynthTrc( ioff ) : getRealTrc( ioff );
+}
+
+
+SeisTrc* Data::getSynthTrc( int ioff )
+{
+    const SeisTrc* trc = const_cast<const Data&>( *this ).getSynthTrc( ioff );
+    return const_cast<SeisTrc*>( trc );
+}
+
+
+const SyntheticData* Data::getSynthetics() const
+{
+    return synthdp_.ptr();
+}
+
+
+const ReflectivityModelBase* Data::getRefModel() const
+{
+    const int seqnr = 0;
+    const SyntheticData* sd = getSynthetics();
+    return sd ? sd->getRefModel( seqnr ) : nullptr;
+}
+
+
+float Data::getZStep() const
+{
+    const SeisTrc* trc = getRealTrc();
+    return trc ? trc->info().sampling.step : mUdf(float);
+}
+
+
+void Data::setRealTrc( const SeisTrc* trc, int ioff )
+{
+    if ( seistrcs_.validIdx(ioff) )
+	delete seistrcs_.replace( ioff, const_cast<SeisTrc*>( trc ) );
+    else
+	seistrcs_.insert( const_cast<SeisTrc*>( trc ), ioff );
+}
+
+
+void Data::setSynthetics( const SyntheticData* sd )
+{
+    synthdp_ = sd;
+    mDynamicCast(const PostStackSyntheticData*,postsd_,sd);
+    mDynamicCast(const PreStackSyntheticData*,presd_,sd);
+}
+
+
+void Data::reverseTrc( bool synth, int ioff )
+{
+    SeisTrc* trc = getTrc( synth, ioff );
+    if ( trc )
+	trc->reverse();
 }
 
 
@@ -165,7 +254,7 @@ void Data::computeExtractionRange()
     float twtstop = d2t->getTime( dahrg_.stop, track );
     twtstart = Math::Ceil( twtstart / cDefSeisSr() ) * cDefSeisSr();
     twtstop = Math::Floor( twtstop / cDefSeisSr() ) * cDefSeisSr();
-    modelrg_ = StepInterval<float>( twtstart, twtstop, cDefSeisSr() );
+    modelrg_ = ZSampling( twtstart, twtstop, cDefSeisSr() );
 
     dahrg_.start = d2t->getDah( twtstart, track );
     dahrg_.stop = d2t->getDah( twtstop, track );
@@ -177,12 +266,19 @@ void Data::computeExtractionRange()
 
 
 
+HorizonMgr::HorizonMgr( TypeSet<Marker>& hor )
+    : horizons_(hor)
+{
+}
+
 
 void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 				uiString& errms, TaskRunner& taskr )
 {
     horizons_.erase();
-    if ( !wd_ ) return;
+    if ( !wd_ )
+	return;
+
     EM::EMManager& em = EM::EMM();
     for ( int idx=0; idx<horids.size(); idx++ )
     {
@@ -240,7 +336,7 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 					bool bynames ) const
 {
-    const Well::D2TModel* dtm = wd_ ? wd_->d2TModel() : 0;
+    const Well::D2TModel* dtm = wd_ ? wd_->d2TModel() : nullptr;
     if ( !dtm ) return;
     for ( int idmrk=0; idmrk<wd_->markers().size(); idmrk++ )
     {
@@ -266,38 +362,37 @@ void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 
 WellDataMgr::WellDataMgr( const MultiID& wellid )
     : wellid_(wellid)
-    , wd_(0)
     , datadeleted_(this)
 {}
 
 
 WellDataMgr::~WellDataMgr()
 {
-    if( wd_ )
-	wd_->unRef();
 }
 
 
 void WellDataMgr::wellDataDelNotify( CallBacker* )
-{ wd_ = 0; datadeleted_.trigger(); }
+{ wd_ = nullptr; datadeleted_.trigger(); }
 
 
-Well::Data* WellDataMgr::wellData() const
+const Well::Data* WellDataMgr::wellData() const
+{
+    return mSelf().wd();
+}
+
+
+Well::Data* WellDataMgr::wd()
 {
     if ( !wd_ )
-    {
-	WellDataMgr* self = const_cast<WellDataMgr*>( this );
-	self->wd_ = Well::MGR().get( wellid_ );
-	wd_->ref();
-    }
+	wd_ = Well::MGR().get( wellid_ );
+
     return wd_;
 }
 
 
 
 DataWriter::DataWriter( Well::Data& wd, const MultiID& wellid )
-    : wtr_(0)
-    , wd_(&wd)
+    : wd_(&wd)
     , wellid_(wellid)
 {
     setWellWriter();
@@ -312,7 +407,7 @@ DataWriter::~DataWriter()
 
 void DataWriter::setWellWriter()
 {
-    delete wtr_; wtr_ = 0;
+    deleteAndZeroPtr( wtr_ );
     IOObj* ioobj = IOM().get( wellid_ );
     if ( ioobj && wd_ )
     {
@@ -330,7 +425,9 @@ bool DataWriter::writeD2TM() const
 
 bool DataWriter::writeLogs( const Well::LogSet& logset, bool todisk ) const
 {
-    if ( !wd_ || !wtr_ ) return false;
+    if ( !wd_ || !wtr_ )
+	return false;
+
     Well::LogSet& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
     for ( int idx=0; idx<logset.size(); idx++ )
     {
@@ -348,7 +445,9 @@ bool DataWriter::writeLogs( const Well::LogSet& logset, bool todisk ) const
 
 bool DataWriter::removeLogs( const Well::LogSet& logset ) const
 {
-    if ( !wd_ ) return false;
+    if ( !wd_ )
+	return false;
+
     Well::LogSet& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
     int nrlogs = wdlogset.size();
     for ( int idx=0; idx<logset.size(); idx++ )
@@ -364,7 +463,6 @@ bool DataWriter::removeLogs( const Well::LogSet& logset ) const
 
 Server::Server( const WellTie::Setup& wts )
     : wellid_(wts.wellid_)
-    , data_(0)
 {
     wdmgr_ = new WellDataMgr( wts.wellid_  );
     mAttachCB( wdmgr_->datadeleted_, Server::wellDataDel );
@@ -408,7 +506,8 @@ void Server::wellDataDel( CallBacker* )
 
 bool Server::setNewWavelet( const MultiID& mid )
 {
-    if ( !data_ ) return false;
+    if ( !data_ )
+	return false;
 
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) return false;

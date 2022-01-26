@@ -54,6 +54,7 @@ public:
 protected:
 
     bool		setAIModel();
+    bool		setTargetModel(TimeDepthModel&) const;
     bool		doFullSynthetics(const Wavelet&);
     bool		copyDataToLogSet();
     bool		processLog(const Well::Log*,Well::Log&,const char*);
@@ -64,7 +65,6 @@ protected:
     bool		extractReflectivity();
 
     ElasticModel	aimodel_;
-    ReflectivityModel	refmodel_;
     Data&		data_;
     const MultiID&	seisid_;
     const BufferString& linenm_;

@@ -250,6 +250,13 @@ void TimeDepthModel::setVals( float* arr, bool isdepth, bool becomesmine )
 }
 
 
+void TimeDepthModel::forceTimes( const TimeDepthModel& oth )
+{
+    for ( int idx=0; idx<sz_; idx++ )
+	times_[idx] = oth.getTime( depths_[idx] );
+}
+
+
 // TimeDepthModelSet::Setup
 
 void TimeDepthModelSet::Setup::fillPar( IOPar& iop ) const
@@ -492,6 +499,21 @@ void TimeDepthModelSet::setTWT( int imdl, int idz, float twt )
 	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
 #endif
     get( imdl )->times_[idz] = twt;
+}
+
+
+void TimeDepthModelSet::forceTimes( const TimeDepthModel& tdmodel, bool defonly)
+{
+    TimeDepthModel& defmodel = getDefaultModel();
+    defmodel.forceTimes( tdmodel );
+    if ( defonly )
+	return;
+
+    for ( auto* model : tdmodels_ )
+    {
+	if ( model != &defmodel )
+	    model->forceTimes( tdmodel );
+    }
 }
 
 

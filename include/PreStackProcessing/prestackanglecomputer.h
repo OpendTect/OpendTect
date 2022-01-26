@@ -20,11 +20,11 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "position.h"
 #include "prestackprocessingmod.h"
+#include "reflectivitymodel.h"
 #include "windowfunction.h"
 
 template <class T> class Array2D;
 class FFTFilter;
-class RayTracer1D;
 class VelocityDesc;
 
 namespace Vel { class FunctionSource; }
@@ -50,7 +50,7 @@ public:
 				{ trckey_ = tk; }
 
     void			setOutputSampling(const FlatPosData&);
-    void			setRayTracer(const IOPar & raypar);
+    void			setRayTracerPars(const IOPar&);
     void			setGatherIsNMOCorrected( bool yn )
 				{ gatheriscorrected_ = yn; }
     void			setNoSmoother();
@@ -85,17 +85,17 @@ protected:
     void			fftDepthSmooth(::FFTFilter& fftfilter,
 					       Array2D<float>& angledata);
 
-    virtual const ElasticModel&	curElasticModel() const = 0;
-    virtual const RayTracer1D*	curRayTracer() const = 0;
-    RayTracer1D*		curRayTracer();
+    virtual const ElasticModel* curElasticModel() const = 0;
+    virtual const OffsetReflectivityModel* curRefModel() const = 0;
+    virtual void		setRefModel(const OffsetReflectivityModel&) = 0;
 
     IOPar			iopar_;
+    IOPar			raypars_;
     FlatPosData			outputsampling_;
-    RayTracer1D*		raytracer_ = nullptr;
     ElasticModel		elasticmodel_;
+    ConstRefMan<OffsetReflectivityModel> refmodel_;
     float			thresholdparam_ = 0.01f;
     float			maxthickness_ = 25.f;
-    bool			needsraytracing_ = true;
     TrcKey			trckey_;
     bool			gatheriscorrected_ = true;
 };
@@ -119,8 +119,11 @@ public:
 
 protected:
 
-    const ElasticModel&		curElasticModel() const	{ return elasticmodel_;}
-    const RayTracer1D*		curRayTracer() const	{ return raytracer_; }
+    const ElasticModel*		curElasticModel() const override
+				{ return &elasticmodel_; }
+    const OffsetReflectivityModel* curRefModel() const override;
+    void			setRefModel(const OffsetReflectivityModel&)
+								      override;
 
     RefMan<Vel::FunctionSource> velsource_;
 };
@@ -138,24 +141,27 @@ public:
     {
     public:
 				ModelTool(const ElasticModel&,const TrcKey&);
-				ModelTool(const RayTracer1D*,const TrcKey&);
+				ModelTool(const OffsetReflectivityModel&,
+					  const TrcKey&);
 				~ModelTool();
 
-	const RayTracer1D*	rayTracer() const { return rt_; }
-	const ElasticModel&	elasticModel() const;
+	const ElasticModel*	elasticModel() const	{ return em_; }
+	const OffsetReflectivityModel* curRefModel() const;
 	const TrcKey&		trcKey() const	{ return trckey_; }
 	bool			operator ==( const ModelTool& oth ) const
 				{ return oth.trcKey() == trckey_; }
 
+	void			setRefModel(const OffsetReflectivityModel&);
+	void			splitModelIfNeeded(float maxthickness);
+
     protected:
 	ElasticModel*		em_ = nullptr;
-	RayTracer1D*		rt_ = nullptr;
-	bool			ownrt_;
+	ConstRefMan<OffsetReflectivityModel> refmodel_;
 	TrcKey			trckey_;
 
     private:
 				ModelTool(const ModelTool&) = delete;
-	ModelTool&			operator=(const ModelTool&) = delete;
+	ModelTool&		operator=(const ModelTool&) = delete;
     };
 
 				ModelBasedAngleComputer();
@@ -163,21 +169,22 @@ public:
 
     void			setElasticModel(const TrcKey&,bool doblock,
 						bool pvelonly,ElasticModel&);
-    void			setRayTracer(const RayTracer1D*,
-					     const TrcKey&);
+    void			setRefModel(const OffsetReflectivityModel&,
+					    const TrcKey&);
 
-    bool			isOK() const
-				{ return curElasticModel().size(); }
+    bool			isOK() const;
 
     Gather*			computeAngles();
-    RayTracer1D*		curRayTracer();
 
-protected:
+private:
+
+    const ElasticModel*		curElasticModel() const override;
+    const OffsetReflectivityModel* curRefModel() const override;
+    void			setRefModel(const OffsetReflectivityModel&)
+								      override;
 
     const ModelTool*		curModelTool() const;
-    const ElasticModel&		curElasticModel() const;
-    const RayTracer1D*		curRayTracer() const;
-    void			splitModelIfNeeded();
+    ModelTool*			curModelTool();
 
     ObjectSet<ModelTool>	tools_;
 };

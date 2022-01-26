@@ -229,7 +229,7 @@ PSAttrib::PSAttrib( Desc& ds )
 	    mGetString( raytracerparam, rayTracerParamStr() );
 	    IOPar raypar;
 	    raypar.getParsFrom( raytracerparam );
-	    anglecomp_->setRayTracer( raypar );
+	    anglecomp_->setRayTracerPars( raypar );
 	    setSmootheningPar();
 	}
     }

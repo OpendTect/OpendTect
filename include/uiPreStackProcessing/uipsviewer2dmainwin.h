@@ -47,7 +47,7 @@ public:
 mExpClass(uiPreStackProcessing) uiViewer2DMainWin : public uiObjectItemViewWin
 						  , public uiFlatViewWin
 { mODTextTranslationClass(uiViewer2DMainWin);
-public:    
+public:
 			uiViewer2DMainWin(uiParent*,const char* title);
 			~uiViewer2DMainWin();
 
@@ -92,7 +92,7 @@ protected:
     void		reSizeItems();
     virtual void	setGatherInfo(uiGatherDisplayInfoHeader* info,
 				      const GatherInfo&)	{}
-    virtual void	setGather(const GatherInfo& pos)	{} 
+    virtual void	setGather(const GatherInfo& pos)	{}
     void		setGatherView(uiGatherDisplay*,
 				      uiGatherDisplayInfoHeader*);
     PreStack::Gather*	getAngleGather(const PreStack::Gather& gather,
@@ -109,7 +109,7 @@ protected:
     void		displayInfo(CallBacker*);
     void		doHelp(CallBacker*);
     virtual void	posDlgChgCB(CallBacker*)			=0;
-    void		posDlgPushed(CallBacker*);		
+    void		posDlgPushed(CallBacker*);
     void		posDlgClosed(CallBacker*);
     void		dataDlgPushed(CallBacker*);
     void		showZAxis(CallBacker*);
@@ -141,7 +141,7 @@ public:
     const char*		lineName() const	{ return linename_; }
     void		angleGatherCB(CallBacker*);
     void		angleDataCB(CallBacker*);
-    
+
 protected:
     TypeSet<MultiID>	mids_;
 
@@ -155,13 +155,12 @@ protected:
     bool		getAngleParams();
     void		setGatherInfo(uiGatherDisplayInfoHeader* info,
 				      const GatherInfo&);
-    void		setGather(const GatherInfo&); 
+    void		setGather(const GatherInfo&);
     void		setUpNewPositions(bool isinl,const BinID& posbid,
 				       const StepInterval<int>& trcrg);
     void		setUpNewSlicePositions();
     void		setUpNewIDs();
-    void		convAngleDataToDegrees(
-				PreStack::Gather* angledata) const;
+    void		convAngleDataToDegrees(PreStack::Gather&) const;
     DataPack::ID	getAngleData(DataPack::ID gatherid);
     void		posDlgChgCB(CallBacker*);
     void		posSlcChgCB(CallBacker*);

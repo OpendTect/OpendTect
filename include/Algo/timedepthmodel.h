@@ -70,6 +70,7 @@ protected:
     void		setEmpty();
     void		setAllVals(float* dpths,float* times,int sz);
 			//<! Both arrays become mine
+    void		forceTimes(const TimeDepthModel&);
     void		setVals(float*,bool isdepth,bool becomesmine=true);
     void		setSize( int sz )	{ sz_ = sz; }
 
@@ -141,6 +142,7 @@ public:
     void		setDepth(int idz,float);
     void		setDefTWT(int idz,float);
     void		setTWT(int imdl,int idz,float);
+    void		forceTimes(const TimeDepthModel&,bool defonly);
 
 protected:
 

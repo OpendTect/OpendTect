@@ -94,10 +94,13 @@ bool uiControlView::handleUserClick( int vwridx )
     {
 	vwr_.getAuxInfo( wp, infopars_ );
 	const uiWorldRect& bbox = vwr_.boundingBox();
-	bool synth = ( wp.x < (bbox.right()-bbox.left())/2 );
-	const SeisTrc& trc = synth ? server_.data().synthtrc_
-				   : server_.data().seistrc_;
-	server_.pickMgr().addPick( (float) wp.y, synth, &trc );
+	const bool synth = ( wp.x < (bbox.right()-bbox.left())/2 );
+	const SeisTrc* trc = synth ? server_.data().getSynthTrc()
+				   : server_.data().getRealTrc();
+	if ( !trc )
+	    return false;
+
+	server_.pickMgr().addPick( (float) wp.y, synth, trc );
 	redrawAnnotNeeded.trigger();
 	return true;
     }

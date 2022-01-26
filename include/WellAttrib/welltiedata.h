@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
+
 #include "callback.h"
 #include "color.h"
 #include "iopar.h"
@@ -23,7 +24,12 @@ ________________________________________________________________________
 
 
 class CtxtIOObj;
+class PostStackSyntheticData;
+class PreStackSyntheticData;
+class ReflectivityModelBase;
 class SeisTrc;
+class SeisTrcBuf;
+class SyntheticData;
 class TaskRunner;
 class Wavelet;
 
@@ -106,20 +112,29 @@ public :
 				Data(const Setup&,Well::Data& wd);
 				~Data();
 
-    Well::Data*			wd_;
+    RefMan<Well::Data>		wd_;
 
+    void			setRealTrc(const SeisTrc*,int ioff=0);
+    void			setSynthetics(const SyntheticData*);
+				//<! becomes mine
+    void			reverseTrc(bool synth,int ioff=0);
     Well::LogSet&		logset_;
-    SeisTrc&			synthtrc_;
-    SeisTrc&			seistrc_;
     Wavelet&			initwvlt_;
     Wavelet&			estimatedwvlt_;
     const Well::Log*		cslog_;
 
-    const StepInterval<float>&	getTraceRange() const	{ return tracerg_; }
+    const SeisTrc*		getTrc(bool synth,int ioff=0) const;
+    const SeisTrc*		getRealTrc(int ioff=0) const;
+    const SeisTrc*		getSynthTrc(int ioff=0) const;
+    const SyntheticData*	getSynthetics() const;
+    const ReflectivityModelBase* getRefModel() const;
+    float			getZStep() const;
+
+    const ZSampling&		getTraceRange() const	{ return tracerg_; }
     const Interval<float>&	getDahRange() const	{ return dahrg_; }
-    const StepInterval<float>&	getModelRange() const	{ return modelrg_; }
-    const StepInterval<float>&	getReflRange() const	{ return reflrg_; }
-    void			setTraceRange( const StepInterval<float>& zrg )
+    const ZSampling&		getModelRange() const	{ return modelrg_; }
+    const ZSampling&		getReflRange() const	{ return reflrg_; }
+    void			setTraceRange( const ZSampling& zrg )
 				{ tracerg_ = zrg; }
     void			computeExtractionRange();
 
@@ -137,7 +152,7 @@ public :
     TypeSet<Marker>		horizons_;
     PickData			pickdata_;
     DispParams			dispparams_;
-    TaskRunner*			trunner_;
+    TaskRunner*			trunner_ = nullptr;
 
     mStruct(WellAttrib) CorrelData
     {
@@ -150,12 +165,21 @@ public :
     };
     CorrelData			correl_;
 
-protected:
+private:
 
-    StepInterval<float>		tracerg_;
+    SeisTrc*			getTrc(bool synth,int ioff=0);
+    SeisTrc*			getRealTrc(int ioff=0);
+    SeisTrc*			getSynthTrc(int ioff=0);
+
+    SeisTrcBuf&			seistrcs_;
+    PtrMan<const SyntheticData> synthdp_;
+    const PostStackSyntheticData* postsd_ = nullptr;
+    const PreStackSyntheticData* presd_ = nullptr;
+
+    ZSampling			tracerg_;
     Interval<float>		dahrg_;
-    StepInterval<float>		modelrg_;
-    StepInterval<float>		reflrg_;
+    ZSampling			modelrg_;
+    ZSampling			reflrg_;
     const Setup			setup_;
 };
 
@@ -166,14 +190,14 @@ public:
 				WellDataMgr(const MultiID&);
 				~WellDataMgr();
 
-    Well::Data*			wd()		{ return wellData(); }
+    Well::Data*			wd();
     Notifier<WellDataMgr>	datadeleted_;
 
 protected:
 
-    Well::Data*			wellData() const;
+    const Well::Data*		wellData() const;
 
-    Well::Data*			wd_;
+    RefMan<Well::Data>		wd_;
     const MultiID		wellid_;
     void			wellDataDelNotify(CallBacker*);
 };
@@ -195,8 +219,8 @@ public:
 
 protected:
 
-    Well::Writer*		wtr_;
-    Well::Data*			wd_;
+    Well::Writer*		wtr_ = nullptr;
+    RefMan<Well::Data>		wd_;
     const MultiID&		wellid_;
 
     void			setWellWriter();
@@ -206,10 +230,7 @@ protected:
 mExpClass(WellAttrib) HorizonMgr
 { mODTextTranslationClass(HorizonMgr);
 public:
-				HorizonMgr(TypeSet<Marker>& hor)
-				   : wd_(0)
-				   , horizons_(hor)
-				   {}
+				HorizonMgr(TypeSet<Marker>&);
 
     mStruct(WellAttrib) PosCouple
     {
@@ -222,13 +243,13 @@ public:
 							bool bynames) const;
     void			setUpHorizons(const TypeSet<MultiID>&,
 						  uiString&,TaskRunner&);
-    void			setWD( const Well::Data* wd)
+    void			setWD( const Well::Data* wd )
 				{ wd_ = wd; }
 
 protected:
 
-    const Well::Data*		wd_;
     TypeSet<Marker>&		horizons_;
+    ConstRefMan<Well::Data>	wd_;
 };
 
 
@@ -276,13 +297,13 @@ protected :
     HorizonMgr*			hormgr_;
     D2TModelMgr*		d2tmgr_;
     DataWriter*			datawriter_;
-    Data*			data_;
+    Data*			data_ = nullptr;
     MultiID			wellid_;
 
     uiString			errmsg_;
     mutable uiString		warnmsg_;
 
-    void			wellDataDel( CallBacker* );
+    void			wellDataDel(CallBacker*);
     void			handleDataPlayerWarning() const;
 };
 

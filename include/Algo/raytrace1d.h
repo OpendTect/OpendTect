@@ -68,8 +68,7 @@ public:
     uiString		uiMessage() const override	{ return msg_; }
 
 			//Available after execution
-    ConstRefMan<TimeDepthModelSet>	getTDModels() const;
-    float		getSinAngle(int layeridx,int offsetidx) const;
+    ConstRefMan<OffsetReflectivityModel> getRefModel() const;
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -79,12 +78,12 @@ public:
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
     static const char*  sKeyBlock()	   { return "Block model"; }
     static const char*  sKeyBlockRatio()   { return "Blocking ratio threshold";}
-    static const char*	sKeyOffsetInFeet() { return "Offset in Feet";}
+    static const char*	sKeyOffsetInFeet() { return "Offset in Feet"; }
     static float	cDefaultBlockRatio();
 
     static StepInterval<float>	sDefOffsetRange();
 
-    static void		setIOParsToZeroOffset(IOPar& iop);
+    static void		setIOParsToZeroOffset(IOPar&);
 
 protected:
 			RayTracer1D();
@@ -93,8 +92,6 @@ protected:
     bool		doPrepare(int) override;
     bool		doFinish(bool) override;
     virtual bool	compute(int layer,int offidx,float rayparam);
-
-    bool		getTDM(const float*,TimeDepthModel&) const;
 
 			//Setup variables
     ElasticModel&	model_; // model top depth must be TWT = 0ms
@@ -111,18 +108,13 @@ protected:
     float**		sinarr_ = nullptr;
 
 				//Results
-    RefMan<TimeDepthModelSet>	tdmodels_;
-    float*		sini_ = nullptr;
+    RefMan<OffsetReflectivityModel>	refmodel_;
 
 public:
 
     float		getDepth(int layer) const;
     float		getTime(int layer,int offset) const;
 
-    //TODO mark as deprecated:
-    bool                getReflectivity(int offset,ReflectivityModel&) const;
-    bool		getTDModel(int offset,TimeDepthModel&) const;
-    bool		getZeroOffsTDModel(TimeDepthModel&) const;
 };
 
 

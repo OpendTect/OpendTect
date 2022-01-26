@@ -62,19 +62,7 @@ static bool testRayTracer( const RayTracer1D::Setup& rtsu )
     mTestVal(raytracer.getTime(2,1),0.671567619f,mDefTimeEps);
     mTestVal(raytracer.getTime(3,1),0.845380187f,mDefTimeEps);
 
-    TimeDepthModel tdmodel;
-    mRunStandardTest( raytracer.getZeroOffsTDModel(tdmodel),
-		      "Retrieve zero-offset TD model from raytracer" );
-    mTestVal(tdmodel.getDepth(1),48.f,mDefDepthEps);
-    mTestVal(tdmodel.getDepth(2),568.f,mDefDepthEps);
-    mTestVal(tdmodel.getDepth(3),953.f,mDefDepthEps);
-    mTestVal(tdmodel.getDepth(4),1303.f,mDefDepthEps);
-    mTestVal(tdmodel.getTime(1),0.048f,mDefTimeEps);
-    mTestVal(tdmodel.getTime(2),0.448f,mDefTimeEps);
-    mTestVal(tdmodel.getTime(3),0.668f,mDefTimeEps);
-    mTestVal(tdmodel.getTime(4),0.843f,mDefTimeEps);
-
-    ConstRefMan<TimeDepthModelSet> retmodels = raytracer.getTDModels();
+    ConstRefMan<OffsetReflectivityModel> retmodels = raytracer.getRefModel();
     mRunStandardTest( retmodels, "Retrieve output model from raytracer" );
 
     const TimeDepthModelSet& tdmodelset = *retmodels.ptr();
@@ -86,7 +74,7 @@ static bool testRayTracer( const RayTracer1D::Setup& rtsu )
     mTestVal(tdmodelz0.getTime(1),0.048f,mDefTimeEps);
     mTestVal(tdmodelz0.getTime(2),0.448f,mDefTimeEps);
     mTestVal(tdmodelz0.getTime(3),0.668f,mDefTimeEps);
-    mTestVal(tdmodel.getTime(4),0.843f,mDefTimeEps);
+    mTestVal(tdmodelz0.getTime(4),0.843f,mDefTimeEps);
 
     const TimeDepthModel* tdmodeloff2 = tdmodelset.get( 1 );
     mRunStandardTest( retmodels, "Retrieve offset trace from raytracer" );
@@ -180,30 +168,34 @@ static bool testTDModelSet()
 }
 
 
-static bool testOffRefModelSet()
+static bool testOffRefModelSet( bool withangles, bool withrefs )
 {
     const ElasticModel emdl = getEModel();
     const int nrlayers = emdl.size();
 
-    const OffsetReflectivityModelSet::Setup refmssu;
+    const OffsetReflectivityModel::Setup refmssu( withangles, withrefs );
 
-    ConstRefMan<OffsetReflectivityModelSet> simple =
-	new OffsetReflectivityModelSet( emdl, refmssu );
+    ConstRefMan<OffsetReflectivityModel> simple =
+	new OffsetReflectivityModel( emdl, refmssu );
     TypeSet<float> offsets;
-    ConstRefMan<OffsetReflectivityModelSet> emptyts =
-	new OffsetReflectivityModelSet( emdl, refmssu, &offsets );
+    ConstRefMan<OffsetReflectivityModel> emptyts =
+	new OffsetReflectivityModel( emdl, refmssu, &offsets );
     offsets += 0.f;
-    ConstRefMan<OffsetReflectivityModelSet> zeroff =
-	new OffsetReflectivityModelSet( emdl, refmssu, &offsets );
+    ConstRefMan<OffsetReflectivityModel> zeroff =
+	new OffsetReflectivityModel( emdl, refmssu, &offsets );
     offsets.append( getOffsets() );
 
     TypeSet<float> velmax( nrlayers, mUdf( float ) );
-    ConstRefMan<OffsetReflectivityModelSet> psmodel =
-	new OffsetReflectivityModelSet( emdl, refmssu, &offsets, velmax.arr());
+    ConstRefMan<OffsetReflectivityModel> psmodel =
+	new OffsetReflectivityModel( emdl, refmssu, &offsets, velmax.arr());
     offsets = getOffsets();
     velmax.setAll( mUdf( float ) );
-    ConstRefMan<OffsetReflectivityModelSet> psmodel2 =
-	new OffsetReflectivityModelSet( emdl, refmssu, &offsets, velmax.arr());
+    ConstRefMan<OffsetReflectivityModel> psmodel2 =
+	new OffsetReflectivityModel( emdl, refmssu, &offsets, velmax.arr());
+
+    mRunStandardTest( psmodel2->hasAngles() == withangles &&
+		      psmodel2->hasReflectivities() == withrefs,
+		      "Test content" );
 
     const int modsz = nrlayers + 1;
     mRunStandardTest( simple->isOK() && simple->modelSize() == modsz &&
@@ -249,20 +241,20 @@ static bool testAngRefModelSet()
     const int nrlayers = emdl.size();
 
     TypeSet<float> angles;
-    ConstRefMan<AngleReflectivityModelSet> emptyts =
-	new AngleReflectivityModelSet( emdl, angles );
+    ConstRefMan<AngleReflectivityModel> emptyts =
+	new AngleReflectivityModel( emdl, angles );
     angles += 0.f;
-    ConstRefMan<AngleReflectivityModelSet> zeroff =
-	new AngleReflectivityModelSet( emdl, angles, 20.f );
+    ConstRefMan<AngleReflectivityModel> zeroff =
+	new AngleReflectivityModel( emdl, angles, 20.f );
     angles += 10.f;
     angles += 20.f;
 
-    ConstRefMan<AngleReflectivityModelSet> psmodel =
-	new AngleReflectivityModelSet( emdl, angles, 30.f );
+    ConstRefMan<AngleReflectivityModel> psmodel =
+	new AngleReflectivityModel( emdl, angles, 30.f );
 
     angles -= 0.f;
-    ConstRefMan<AngleReflectivityModelSet> psmodel2 =
-	new AngleReflectivityModelSet( emdl, angles, 40.f );
+    ConstRefMan<AngleReflectivityModel> psmodel2 =
+	new AngleReflectivityModel( emdl, angles, 40.f );
 
     const int modsz = nrlayers + 1;
     mRunStandardTest( emptyts->isOK() && emptyts->modelSize() == modsz &&
@@ -302,7 +294,10 @@ int mTestMainFnName( int argc, char** argv )
 
     if ( !testBaseRayTracer() || !testRefRayTracer() ||
 	 !testTDModelSet() ||
-	 !testOffRefModelSet() ||
+	 !testOffRefModelSet(false,false) ||
+	 !testOffRefModelSet(false,true) ||
+	 !testOffRefModelSet(true,false) ||
+	 !testOffRefModelSet(true,true) ||
 	 !testAngRefModelSet() )
 	return 1;
 

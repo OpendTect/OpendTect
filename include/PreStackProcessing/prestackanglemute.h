@@ -16,11 +16,10 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "prestackprocessor.h"
 
-class ElasticLayer;
 class ElasticModel;
 class Muter;
-class RayTracer1D;
 class RayTracerRunner;
+class ReflectivityModelBase;
 namespace Vel { class VolumeFunctionSource; }
 
 namespace PreStack
@@ -60,12 +59,14 @@ protected:
 
     bool		setVelocityFunction();
     bool		getLayers(const BinID&,ElasticModel&,
-				SamplingData<float>&,int resamplesz=-1);
-    float		getOffsetMuteLayer(const RayTracer1D&,int,int,bool,
-				int startlayer=0,bool belowcutoff=true) const;
+				  SamplingData<float>&,int resamplesz=-1);
+    float		getOffsetMuteLayer(const ReflectivityModelBase&,
+					   int nrlayer,int ioff,bool tail,
+					   int startlayer=0,
+					   bool belowcutoff=true) const;
 
     AngleCompParams*	params_ = nullptr;
-    Vel::VolumeFunctionSource*	velsource_;
+    RefMan<Vel::VolumeFunctionSource>	velsource_;
     ObjectSet<RayTracerRunner>	rtrunners_;
 };
 

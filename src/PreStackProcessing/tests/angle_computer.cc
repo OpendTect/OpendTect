@@ -174,11 +174,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 				    new PreStack::VelocityBasedAngleComputer;
 
     PtrMan<IOObj> velobj = IOM().get( MultiID("100010.8") );
-    if ( !velobj )
-    {
-	od_cout() << " Input data is not available.\n";
-	return false;
-    }
+    mRunStandardTest( velobj.ptr(), "Input data is available" );
 
     computer->setMultiID( velobj->key() );
     const StepInterval<double> zrange(0,1.1,0.004), offsetrange(0,2500,500);
@@ -187,46 +183,24 @@ bool BatchProgram::doWork( od_ostream& strm )
     fp.setRange( false, zrange );
     computer->setOutputSampling( fp );
     computer->setTrcKey( TrcKey(BinID(426,800)) );
-    if ( !computer->isOK() )
-    {
-	od_cout() << " Angle computer is not OK.\n";
-	return false;
-    }
+    mRunStandardTest( computer->isOK(), "Angle computer is OK" );
 
     PtrMan<PreStack::Gather> angles = computer->computeAngles();
-    if ( !angles )
-    {
-	od_cout() << "Computer did not succeed in making angle data\n";
-	return false;
-    }
-
-    if ( !isRawAngleOK(*angles) )
-    {
-	od_cout() << "Angle computer computed wrong raw values\n";
-	return false;
-    }
+    mRunStandardTest( angles.ptr(), "Created angle data" );
+    mRunStandardTest( isRawAngleOK(*angles), "Test raw angle values" );
 
     computer->setMovingAverageSmoother( 0.1f, HanningWindow::sName() );
     angles = computer->computeAngles();
-    if ( !angles || !isMovingAverageAngleOK(*angles) )
-    {
-	od_cout() << "Angle computer computed wrong values after AVG filter\n";
-	return false;
-    }
+    mRunStandardTest( angles && isMovingAverageAngleOK(*angles),
+		      "Angle values after AVG filter" )
 
     computer->setFFTSmoother( 10.f, 15.f );
     angles = computer->computeAngles();
-    if ( !angles || !isFFTAngleOK(*angles) )
-    {
-	od_cout() << "Angle computer computed wrong values after FFT filter\n";
-	return false;
-    }
+    mRunStandardTest( angles && isFFTAngleOK(*angles),
+		      "Angle values after FFT Filter" )
 
-    if ( !testAnglesForDifferentSurveys() )
-    {
-	od_cout() << "Failed while comparing values in different surveys\n";
-	return false;
-    }
+    mRunStandardTest( testAnglesForDifferentSurveys(),
+		      "Compared angle values in different surveys" );
 
     return true;
 }

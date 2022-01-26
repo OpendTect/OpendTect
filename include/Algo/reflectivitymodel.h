@@ -15,30 +15,34 @@ ________________________________________________________________________
 #include "timedepthmodel.h"
 
 class RayTracer1D;
-class ReflectivityModelSet;
+class ReflectivityModelBase;
+template <class T> class RefObjectSet;
 
 
 /*!
-\brief A data container for reflection coefficients and optionally
-	uncorrected nmo times
+\brief A data container for reflection coefficients
 */
 
-mClass(Algo) ReflectivityModelTrace
+mClass(Algo) ReflectivityModelTrace : public ReferencedObject
 {
 public:
 			ReflectivityModelTrace(int nrspikes);
-			~ReflectivityModelTrace();
 
     bool		isOK() const;
+    int			size() const { return sz_; }
 
-    const float_complex* getReflectivities() const  { return reflectivities_; }
+    bool		setSize(int sz,bool settonull=true);
+
+    const float_complex* arr() const		{ return reflectivities_; }
+    float_complex*	arr()			{ return reflectivities_; }
 
 private:
+			~ReflectivityModelTrace();
 
-    float_complex*	reflectivities_;
-    float_complex*	getReflectivities() { return reflectivities_; }
+    int			sz_;
+    float_complex*	reflectivities_ = nullptr;
 
-    friend class ReflectivityModelSet;
+    friend class ReflectivityModelBase;
 
 	    ReflectivityModelTrace(const ReflectivityModelTrace&) = delete;
     void		operator= (const ReflectivityModelTrace&) = delete;
@@ -50,69 +54,97 @@ private:
        Base class for offset and angle based reflectivity models
 */
 
-mExpClass(Algo) ReflectivityModelSet : public TimeDepthModelSet
+mExpClass(Algo) ReflectivityModelBase : public TimeDepthModelSet
 {
 public:
 
     int			nrRefModels() const;
-    bool		isDefined(int imdl,int idz) const;
+    int			nrLayers() const;
+    int			nrSpikes() const;
+    bool		hasAngles() const;
+    bool		hasReflectivities() const;
+    bool		isSpikeDefined(int ioff,int idz) const;
+
+    float		getSinAngle(int ioff,int idz) const;
+    const ReflectivityModelTrace* getReflectivities(int ioff) const;
+    const float*	getReflTimes(int ioff=-1) const;
+			//!< ioff=-1 for default TD model
+    const float*	getReflDepths() const;
+
+    virtual bool	isOffsetDomain() const		{ return false; }
+    virtual bool	isAngleDomain() const		{ return false; }
 
 protected:
 
     mExpClass(Algo) Setup : public TimeDepthModelSet::Setup
     {
     public:
-			Setup( bool offsetdomain )
+			Setup( bool offsetdomain, bool withangles,
+			       bool withreflectivity )
 			    : TimeDepthModelSet::Setup()
-			    , offsetdomain_(offsetdomain)   {}
-			~Setup()			    {}
+			    , offsetdomain_(offsetdomain)
+			    , withangles_(withangles)
+			    , withreflectivity_(withreflectivity) {}
+			~Setup()				  {}
 
 	mDefSetupMemb(bool,offsetdomain);
+	mDefSetupMemb(bool,withangles);
+	mDefSetupMemb(bool,withreflectivity);
 
 	void		fillPar(IOPar&) const override;
 	bool		usePar(const IOPar&) override;
     };
 
-			ReflectivityModelSet(const ElasticModel&,
-				const ReflectivityModelSet::Setup&,
+			ReflectivityModelBase(const ElasticModel&,
+				const ReflectivityModelBase::Setup&,
 				const TypeSet<float>* axisvals =nullptr,
 				float* velmax=nullptr);
-			ReflectivityModelSet(const ElasticModel&,
+			ReflectivityModelBase(const ElasticModel&,
 				const TypeSet<float>& anglevals,
-			        const ReflectivityModelSet::Setup&);
+				const ReflectivityModelBase::Setup&);
 			//!< Angle-based models only
 
-    float_complex*	getRefs(int imdl);
+    float*		getAngles(int ioff);
+    ReflectivityModelTrace* getReflectivities(int ioff);
+    float_complex*	getRefs(int ioff);
 
-			~ReflectivityModelSet();
+			~ReflectivityModelBase();
 
 private:
 
-    ObjectSet<ReflectivityModelTrace>  reflectivities_;
+    RefObjectSet<ReflectivityModelTrace>* reflectivities_ = nullptr;
+    float*		sini_ = nullptr;
+    float**		sinarr_ = nullptr;
+    int			nroffs_;
 
     friend class RayTracer1D;
+
 };
 
 
 /*!
-\brief An offset-based TimeDepth model set that includes reflectivities.
+\brief An offset-based TimeDepth model set that may include
+       reflectivities and incidence angles
 */
 
-mExpClass(Algo) OffsetReflectivityModelSet : public ReflectivityModelSet
+mExpClass(Algo) OffsetReflectivityModel : public ReflectivityModelBase
 {
 public:
-    mExpClass(Algo) Setup : public ReflectivityModelSet::Setup
+    mExpClass(Algo) Setup : public ReflectivityModelBase::Setup
     {
     public:
-			Setup()
-			    : ReflectivityModelSet::Setup(true)
+			Setup(bool withangles,bool withreflectivity)
+			    : ReflectivityModelBase::Setup(true,withangles,
+							   withreflectivity)
 			{}
     };
 
-			OffsetReflectivityModelSet(const ElasticModel&,
-				const OffsetReflectivityModelSet::Setup&,
+			OffsetReflectivityModel(const ElasticModel&,
+				const OffsetReflectivityModel::Setup&,
 				const TypeSet<float>* axisvals =nullptr,
 				float* velmax =nullptr );
+
+    bool		isOffsetDomain() const override { return true; }
 };
 
 
@@ -121,14 +153,14 @@ public:
        for a given azimuth and angle distributions
 */
 
-mExpClass(Algo) AngleReflectivityModelSet : public ReflectivityModelSet
+mExpClass(Algo) AngleReflectivityModel : public ReflectivityModelBase
 {
 public:
-    mExpClass(Algo) Setup : public ReflectivityModelSet::Setup
+    mExpClass(Algo) Setup : public ReflectivityModelBase::Setup
     {
     public:
 			Setup( double azimuth=0. )
-			    : ReflectivityModelSet::Setup(false)
+			    : ReflectivityModelBase::Setup(false,false,true)
 			    , azimuth_(azimuth)
 			    , a0_(2500.)
 			    , d0_(2000.)
@@ -144,12 +176,14 @@ public:
 	bool		usePar(const IOPar&) override;
     };
 
-			AngleReflectivityModelSet(const ElasticModel&,
+			AngleReflectivityModel(const ElasticModel&,
 				const TypeSet<float>& anglevals,
-				const AngleReflectivityModelSet::Setup& =
-				      AngleReflectivityModelSet::Setup());
-			AngleReflectivityModelSet(const ElasticModel&,
+				const AngleReflectivityModel::Setup& =
+				      AngleReflectivityModel::Setup());
+			AngleReflectivityModel(const ElasticModel&,
 				const TypeSet<float>& anglevals,double azi);
+
+    bool		isAngleDomain() const override	{ return true; }
 
 private:
     double		azimuth_;
@@ -159,62 +193,31 @@ private:
 };
 
 
-/*!
-\brief A reflectivity spike.
-*/
-
-mClass(Algo) ReflectivitySpike
+mExpClass(Algo) ReflectivityModelSet : public ReferencedObject
 {
 public:
-			ReflectivitySpike()
-			    : reflectivity_( mUdf(float), mUdf(float) )
-			    , time_( mUdf(float) )
-			    , correctedtime_( mUdf(float) )
-			    , depth_( mUdf(float) )
-			{}
+			ReflectivityModelSet(const IOPar&);
 
-    inline bool		isDefined() const;
-    inline float	time(bool isnmo=true) const;
+    bool		hasSameParams(const ReflectivityModelSet&) const;
+    bool		hasSameParams(const IOPar&) const;
+    bool		validIdx(int modlidx) const;
+    int			nrModels() const;
+    const ReflectivityModelBase* get(int modlidx) const;
+    void		getOffsets(TypeSet<float>&) const;
+    void		getTWTrange(Interval<float>&,bool zeroff=true) const;
 
-    inline bool		operator==(const ReflectivitySpike& s) const;
-    inline bool		operator!=(const ReflectivitySpike& s) const;
+    void		add(const ReflectivityModelBase&);
+    void		use(const ObjectSet<const TimeDepthModel>&,
+			    bool defonly=false);
+    void		use(const TimeDepthModel&,int imdl,bool defonly=false);
 
-    float_complex	reflectivity_;
-    float		time_;
-    float		correctedtime_; //!<Corrected for normal moveout
-    float		depth_;
+private:
+			~ReflectivityModelSet();
+
+    IOPar&		createpars_;
+    RefObjectSet<const ReflectivityModelBase>& refmodels_;
+
+		    ReflectivityModelSet(const ReflectivityModelSet&) = delete;
+    void		operator =( const ReflectivityModelSet&) = delete;
 };
-
-
-/*!\brief A table of reflectivies vs time and/or depth */
-
-typedef TypeSet<ReflectivitySpike> ReflectivityModel;
-
-
-//Implementations
-
-inline bool ReflectivitySpike::operator==(const ReflectivitySpike& s) const
-{
-    return mIsEqualWithUdf( reflectivity_.real(),s.reflectivity_.real(),1e-5) &&
-	   mIsEqualWithUdf( reflectivity_.imag(),s.reflectivity_.imag(),1e-5) &&
-	   mIsEqualWithUdf( time_, s.time_, 1e-5 ) &&
-	   mIsEqualWithUdf( correctedtime_, s.correctedtime_, 1e-5 ) &&
-	   mIsEqualWithUdf( depth_, s.depth_, 1e-5 );
-}
-
-inline bool ReflectivitySpike::operator!=(const ReflectivitySpike& s) const
-{ return !(*this==s); }
-
-
-inline bool ReflectivitySpike::isDefined() const
-{
-    return !mIsUdf(reflectivity_) && !mIsUdf(time_) &&
-	   !mIsUdf(correctedtime_) && !mIsUdf(depth_);
-}
-
-
-inline float ReflectivitySpike::time( bool isnmo ) const
-{
-    return isnmo ? correctedtime_ : time_;
-}
 

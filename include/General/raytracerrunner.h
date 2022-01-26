@@ -28,17 +28,25 @@ public:
 				~RayTracerRunner();
 
     //before execution only
-    void			setModel(const TypeSet<ElasticModel>&);
+    bool			setModel(const TypeSet<ElasticModel>&);
 				//<! No copy: Must stay valid during execution
     void			setOffsets(const TypeSet<float>&);
 
-    //available after execution
-    ObjectSet<RayTracer1D>&	rayTracers()	{ return raytracers_; }
 
     uiString			uiMessage() const override { return msg_; }
     uiString			uiNrDoneText() const override;
     od_int64			nrDone() const override;
 
+    static const char*		sKeyParallel();
+
+    //available after execution
+    ConstRefMan<ReflectivityModelSet> getRefModels() const;
+
+    static ConstRefMan<ReflectivityModelSet> getRefModels(
+				    const TypeSet<ElasticModel>&,
+				    const IOPar& raypar,uiString& msg,
+				    TaskRunner* =nullptr,
+			    const ObjectSet<const TimeDepthModel>* =nullptr);
 private:
 
     IOPar&			raypar_;
@@ -49,21 +57,15 @@ private:
     bool			doWork(od_int64,od_int64,int) override;
     bool			doFinish(bool) override;
 
-    int				modelIdx(od_int64,bool&) const;
+    int				modelIdx(od_int64,bool& startlayer) const;
     void			computeTotalNr();
+
+    bool			getResults(ReflectivityModelSet&) const;
 
     uiString			msg_;
 
-    const TypeSet<ElasticModel>* aimodels_ = nullptr;
     ObjectSet<RayTracer1D>	raytracers_;
     od_int64			totalnr_;
 
-public:
-
-    mDeprecated("use uiMessage")
-    uiString			errMsg() const	{ return uiMessage(); }
-
-    mDeprecated("use setModel")
-    void			addModel(const ElasticModel&,bool dosingle)					{}
 };
 

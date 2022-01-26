@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "arrayndalgo.h"
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "flatposdata.h"
@@ -399,17 +400,11 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
 
 
 void uiStoredViewer2DMainWin::convAngleDataToDegrees(
-	PreStack::Gather* angledata ) const
+					PreStack::Gather& angledata ) const
 {
-    if ( !angledata || !angledata->data().getData() )
-	return;
-
-    Array2D<float>& data = angledata->data();
-    float* ptr = data.getData();
-    const int size = mCast(int,data.info().getTotalSz());
-
-    for( int idx = 0; idx<size; idx++ )
-	ptr[idx] = Math::toDegrees( ptr[idx] );
+    const auto& agdata = const_cast<const Array2D<float>&>( angledata.data() );
+    ArrayMath::getScaledArray<float>( agdata, nullptr, mRad2DegD, 0.,
+				      false, true );
 }
 
 
@@ -1052,23 +1047,29 @@ void uiStoredViewer2DMainWin::posSlcChgCB( CallBacker* )
 
 DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
 {
-    if ( !hasangledata_ || !angleparams_ ) return -1;
+    if ( !hasangledata_ || !angleparams_ )
+	return -1;
+
     DataPack* dp = DPM( DataPackMgr::FlatID() ).obtain( gatherid );
     mDynamicCastGet(PreStack::Gather*,gather,dp);
-    if ( !gather ) return -1;
+    if ( !gather )
+	return -1;
+
     PreStack::VelocityBasedAngleComputer velangcomp;
     velangcomp.setMultiID( angleparams_->velvolmid_ );
-    velangcomp.setRayTracer( angleparams_->raypar_ );
+    velangcomp.setRayTracerPars( angleparams_->raypar_ );
     velangcomp.setSmoothingPars( angleparams_->smoothingpar_ );
     const FlatPosData& fp = gather->posData();
     velangcomp.setOutputSampling( fp );
     velangcomp.setGatherIsNMOCorrected( gather->isCorrected() );
     velangcomp.setTrcKey( TrcKey(gather->getBinID()) );
-    PreStack::Gather* angledata = velangcomp.computeAngles();
-    if ( !angledata ) return -1;
+    auto* angledata = velangcomp.computeAngles();
+    if ( !angledata )
+	return -1;
+
     BufferString angledpnm( gather->name(), " Incidence Angle" );
     angledata->setName( angledpnm );
-    convAngleDataToDegrees( angledata );
+    convAngleDataToDegrees( *angledata );
     DPM( DataPackMgr::FlatID() ).addAndObtain( angledata );
     if ( doanglegather_ )
     {
@@ -1078,6 +1079,7 @@ DataPack::ID uiStoredViewer2DMainWin::getAngleData( DataPack::ID gatherid )
 	DPM( DataPackMgr::FlatID() ).release( angledata->id() );
 	return anglegather->id();
     }
+
     return angledata->id();
 }
 

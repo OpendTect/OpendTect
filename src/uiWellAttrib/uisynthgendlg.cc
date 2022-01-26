@@ -174,18 +174,15 @@ void uiSynthParsGrp::initGrp( CallBacker* )
 void uiSynthParsGrp::getPSNames( BufferStringSet& synthnms )
 {
     synthnms.erase();
-
-    for ( int synthidx=0; synthidx<stratsynth_.nrSynthetics(); synthidx++ )
+    stratsynth_.getSyntheticNames( synthnms, SynthGenParams::PreStack );
+    for ( int idx=synthnms.size(); idx>=0; idx-- )
     {
-	SynthGenParams genparams;
-	SyntheticData* synth = stratsynth_.getSyntheticByIdx( synthidx );
-	if ( !synth ) continue;
-	synth->fillGenParams( genparams );
-	if ( !genparams.isPreStack() ) continue;
-	bool donmo = false;
-	genparams.raypars_.getYN( Seis::SynthGenBase::sKeyNMO(),donmo );
-	if ( !donmo ) continue;
-	synthnms.add( genparams.name_ );
+	SyntheticData* sd = stratsynth_.getSynthetic( synthnms.get(idx) );
+	bool donmo = true;
+	if ( sd &&
+	     sd->getGenParams().raypars_.getYN(Seis::SynthGenBase::sKeyNMO(),
+					       donmo) && donmo )
+	    synthnms.add( sd->name() );
     }
 }
 
@@ -196,12 +193,9 @@ void uiSynthParsGrp::getInpNames( BufferStringSet& synthnms )
 
     for ( int synthidx=0; synthidx<stratsynth_.nrSynthetics(); synthidx++ )
     {
-	SynthGenParams genparams;
-	SyntheticData* synth = stratsynth_.getSyntheticByIdx( synthidx );
-	if ( !synth ) continue;
-	synth->fillGenParams( genparams );
-	if ( !genparams.canBeAttributeInput()  ) continue;
-	synthnms.add( genparams.name_ );
+	SyntheticData* sd = stratsynth_.getSyntheticByIdx( synthidx );
+	if ( sd && sd->getGenParams().canBeAttributeInput() )
+	    synthnms.add( sd->name() );
     }
 }
 
@@ -249,8 +243,7 @@ bool uiSynthParsGrp::prepareSyntheticToBeChanged( bool toberemoved )
 	if ( !sd->isAngleStack() && !sd->isAVOGradient() && !sd->isAttribute() )
 	    continue;
 
-	SynthGenParams sgp;
-	sd->fillGenParams( sgp );
+	const SynthGenParams& sgp = sd->getGenParams();
 	if ( sgptorem.isPreStack() && sgp.isPSBased() &&
 	     sgp.inpsynthnm_ == sgptorem.name_ )
 	    synthstobedisabled.add( sgp.name_ );
@@ -313,17 +306,17 @@ bool uiSynthParsGrp::doAddSynthetic( bool isupdate )
 void uiSynthParsGrp::newSynthSelCB( CallBacker* )
 {
     const BufferString synthnm( synthnmlb_->getText() );
-    SynthGenParams& genpars = stratsynth_.genParams();
+    SynthGenParams& sgp = stratsynth_.genParams();
     if ( synthnm.isEmpty() )
     {
-	genpars.wvltnm_.set( synthseis_->getWaveletName() );
-	genpars.createName( genpars.name_ );
+	sgp.setWavelet( synthseis_->getWaveletName() );
+	sgp.createName( sgp.name_ );
     }
     else
     {
 	SyntheticData* sd = stratsynth_.getSynthetic( synthnm.buf() );
 	if ( sd )
-	    sd->fillGenParams( genpars );
+	    sgp = sd->getGenParams();
     }
 
     putToScreen();
@@ -342,10 +335,9 @@ void uiSynthParsGrp::updateSyntheticsCB( CallBacker* )
     if ( !prepareSyntheticToBeChanged(false) )
 	return;
 
-    SynthGenParams sdtochgsgp;
     const BufferString synthtochgnm( synthnmlb_->getText() );
     const SyntheticData* sdtochg = stratsynth_.getSynthetic( synthtochgnm );
-    sdtochg->fillGenParams( sdtochgsgp );
+    const SynthGenParams& sdtochgsgp = sdtochg->getGenParams();
     const SynthGenParams& cursgp = stratsynth_.genParams();
     if ( cursgp == sdtochgsgp )
     {
@@ -375,13 +367,13 @@ void uiSynthParsGrp::updateSyntheticsCB( CallBacker* )
 		     !sd->isAttribute()) )
 	    continue;
 
-	SynthGenParams genpars;
-	sd->fillGenParams( genpars );
-	if ( genpars.inpsynthnm_ != synthname )
+	const SynthGenParams& sgp = sd->getGenParams();
+	if ( sgp.inpsynthnm_ != synthname )
 	    continue;
 
-	genpars.inpsynthnm_.set( newsynthnm );
-	sd->useGenParams( genpars );
+	SynthGenParams newsgp( sgp );
+	newsgp.inpsynthnm_.set( newsynthnm );
+	sd->useGenParams( newsgp );
     }
 
     synthnmlb_->setItemText( selidx, newsynthnm );
@@ -608,13 +600,13 @@ void uiSynthParsGrp::typeChg( CallBacker* )
 {
     const SynthGenParams::SynthType synthtype =
 			SynthGenParams::parseEnumSynthType( typefld_->text() );
-    SynthGenParams& genpars = stratsynth_.genParams();
-    const BufferString wvltnm( genpars.wvltnm_ );
-    genpars = SynthGenParams( synthtype );
+    SynthGenParams& sgp = stratsynth_.genParams();
+    const BufferString wvltnm( sgp.getWaveletNm() );
+    sgp = SynthGenParams( synthtype );
     if ( !wvltnm.isEmpty() )
     {
-	genpars.wvltnm_.set( wvltnm );
-	genpars.createName( genpars.name_ );
+	sgp.setWavelet( wvltnm );
+	sgp.createName( sgp.name_ );
     }
 
     putToScreen();
@@ -629,7 +621,7 @@ void uiSynthParsGrp::putToScreen()
     NotifyStopper angparschgstopper( angleinpfld_->valuechanged );
     const SynthGenParams& genparams = stratsynth_.genParams();
     typefld_->setCurrentItem( SynthGenParams::toString(genparams.synthtype_) );
-    synthseis_->setWavelet( genparams.wvltnm_ );
+    synthseis_->setWavelet( genparams.getWaveletNm() );
 
     if ( genparams.isPSBased() )
     {
@@ -695,15 +687,13 @@ bool uiSynthParsGrp::getFromScreen()
     if ( nm.isEmpty() )
 	mErrRet(tr("Please specify a valid name"),return false);
 
-    stratsynth_.genParams().raypars_.setEmpty();
+    SynthGenParams& sgp = stratsynth_.genParams();
+    const SynthGenParams::SynthType synthtype =
+			SynthGenParams::parseEnumSynthType(typefld_->text() );
+    const SynthGenParams sgptype( synthtype );
 
-    SynthGenParams& genparams = stratsynth_.genParams();
-    genparams.synthtype_ =
-	    SynthGenParams::parseEnumSynthType(typefld_->text() );
-
-    if ( genparams.isPSBased() )
+    if ( sgptype.isPSBased() )
     {
-	SynthGenParams::SynthType synthtype = genparams.synthtype_;
 	if ( psselfld_->box()->isEmpty() )
 	    mErrRet( tr("Cannot generate an angle stack synthetics without "
 			"any NMO corrected Prestack."), return false );
@@ -719,16 +709,14 @@ bool uiSynthParsGrp::getFromScreen()
 	    mErrRet( tr("Problem with Input Prestack synthetic data"),
 		     return false);
 
-	inppssd->fillGenParams( genparams );
-	genparams.name_ = nm;
-	genparams.synthtype_ = synthtype;
-	genparams.inpsynthnm_ = inppssd->name();
-	genparams.anglerg_ = angleinpfld_->getFInterval();
+	sgp = SynthGenParams( synthtype );
+	sgp.name_.set( nm );
+	sgp.inpsynthnm_.set( inppssd->name() );
+	sgp.anglerg_ = angleinpfld_->getFInterval();
 	return true;
     }
-    else if ( genparams.isAttribute() )
+    else if ( sgptype.isAttribute() )
     {
-	SynthGenParams::SynthType synthtype = genparams.synthtype_;
 	if ( inpselfld_->box()->isEmpty() )
 	    mErrRet( tr("Cannot generate attributes without "
 			"any post stack synthetics."), return false );
@@ -743,18 +731,19 @@ bool uiSynthParsGrp::getFromScreen()
 	if ( !inpsd )
 	    mErrRet( tr("Problem with Input synthetic data"), return false);
 
-	inpsd->fillGenParams( genparams );
-	genparams.name_ = nm;
-	genparams.synthtype_ = synthtype;
-	genparams.inpsynthnm_ = inpsd->name();
-	genparams.attribtype_ =
+	sgp = SynthGenParams( synthtype );
+	sgp.name_.set( nm );
+	sgp.inpsynthnm_.set( inpsd->name() );
+	sgp.attribtype_ =
 	(Attrib::Instantaneous::OutType) instattribfld_->box()->firstChosen();
 	return true;
     }
 
-    synthseis_->fillPar( genparams.raypars_ );
-    genparams.wvltnm_ = synthseis_->getWaveletName();
-    genparams.name_.set( nm );
+    IOPar iop;
+    synthseis_->fillPar( iop );
+    sgp.usePar( iop );
+    sgp.setWavelet( synthseis_->getWaveletName() );
+    sgp.name_.set( nm );
 
     return true;
 }
@@ -762,7 +751,7 @@ bool uiSynthParsGrp::getFromScreen()
 
 void uiSynthParsGrp::updateWaveletName()
 {
-    synthseis_->setWavelet( stratsynth_.genParams().wvltnm_ );
+    synthseis_->setWavelet( stratsynth_.genParams().getWaveletNm() );
     BufferString nm;
     stratsynth_.genParams().createName( nm );
     namefld_->setText( nm );

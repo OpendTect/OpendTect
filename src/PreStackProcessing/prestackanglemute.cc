@@ -52,7 +52,6 @@ AngleCompParams::AngleCompParams()
 AngleMuteBase::AngleMuteBase()
 {
     velsource_ = new Vel::VolumeFunctionSource();
-    refPtr( velsource_ );
 }
 
 
@@ -60,7 +59,6 @@ AngleMuteBase::~AngleMuteBase()
 {
     delete params_;
     deepErase( rtrunners_ );
-    unRefPtr( velsource_ );
 }
 
 
@@ -159,9 +157,9 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
 }
 
 
-float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
-					 int ioff, bool tail, int startlayer,
-					 bool belowcutoff ) const
+float AngleMuteBase::getOffsetMuteLayer( const ReflectivityModelBase& refmodel,
+					 int nrlayers, int ioff, bool tail,
+					 int startlayer,bool belowcutoff ) const
 {
     float mutelayer = mUdf(float);
     const float cutoffsin = (float) sin( params_->mutecutoff_ * M_PI / 180 );
@@ -171,7 +169,7 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 	int previdx = -1;
 	for ( int il=startlayer; il<nrlayers; il++ )
 	{
-	    const float sini = rt.getSinAngle(il,ioff);
+	    const float sini = refmodel.getSinAngle( ioff, il );
 	    if ( mIsUdf(sini) || (mIsZero(sini,1e-8) && il<nrlayers/2) )
 		continue; //Ordered down, get rid of edge 0.
 
@@ -199,7 +197,7 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 	int previdx = -1;
 	for ( int il=nrlayers-1; il>=startlayer; il-- )
 	{
-	    const float sini = rt.getSinAngle(il,ioff);
+	    const float sini = refmodel.getSinAngle( ioff, il );
 	    if ( mIsUdf(sini) )
 		continue;
 
@@ -280,10 +278,15 @@ void AngleMute::fillPar( IOPar& par ) const
 
 bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 {
+    if ( !rtrunners_.validIdx(thread) )
+	return false;
+
+    RayTracerRunner* rtrunner = rtrunners_[thread];
+
     TypeSet<ElasticModel> emodels;
     ElasticModel layers;
     emodels += layers;
-    rtrunners_[thread]->setModel( emodels );
+    rtrunner->setModel( emodels );
     for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	Gather* output = outputs_[idx];
@@ -305,9 +308,15 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
 	    offsets += input->getOffset( ioffset );
 
-	rtrunners_[thread]->setOffsets( offsets );
-	if ( !rtrunners_[thread]->executeParallel(raytraceparallel_) )
-	    { errmsg_ = rtrunners_[thread]->uiMessage(); continue; }
+	rtrunner->setOffsets( offsets );
+	if ( !rtrunner->executeParallel(raytraceparallel_) )
+	    { errmsg_ = rtrunner->uiMessage(); continue; }
+
+	ConstRefMan<ReflectivityModelSet> refmodels = rtrunner->getRefModels();
+	const ReflectivityModelBase* refmodel = refmodels ? refmodels->get(0)
+							  : nullptr;
+	if ( !refmodel || !refmodel->hasAngles() )
+	    return false;
 
 	Array1DSlice<float> trace( output->data() );
 	trace.setDimMap( 0, Gather::zDim() );
@@ -318,9 +327,8 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	    if ( !trace.init() )
 		continue;
 
-	    float mutelayer =
-		    getOffsetMuteLayer( *rtrunners_[thread]->rayTracers()[0],
-				    nrblockedlayers, ioffs, params().tail_ );
+	    float mutelayer = getOffsetMuteLayer( *refmodel, nrblockedlayers,
+						  ioffs, params().tail_ );
 	    if ( mIsUdf( mutelayer ) )
 		continue;
 

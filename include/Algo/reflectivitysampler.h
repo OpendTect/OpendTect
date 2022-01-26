@@ -23,42 +23,62 @@ namespace Fourier { class CC; };
 \brief Takes a ReflectivityModel and samples it in the frequency domain
 Applies inverse FFT if a second output is provided
 The time sampling determines the frequency distribution
-  outsampling_.start should be a multiple of outsampling_.step
+  timesampling_.start should be a multiple of timesampling_.step
 */
 
 mExpClass(Algo) ReflectivitySampler : public ParallelTask
 {
 public:
-			ReflectivitySampler(const ReflectivityModel&,
-				const StepInterval<float>& timesampling,
-				TypeSet<float_complex>& freqreflectivities,
-				bool usenmotime=false);
 
+			ReflectivitySampler();
 			~ReflectivitySampler();
 
-				/*<! Available after execution */
-    void			getReflectivities(ReflectivityModel&);
+    void		setInput(const ReflectivityModelTrace&,
+			    const float* spikestwt,
+			    const ZSampling& timesampling);
+    void		setFreqOutput(ReflectivityModelTrace&);
+    void		setTimeOutput(ReflectivityModelTrace&,
+				  float_complex* tempvals =nullptr,
+				  int bufsz=-1);
 
-protected:
-    od_int64			nrIterations() const	{return model_.size();}
+    bool		unSort(const float_complex*,int inbufsz,
+			       float_complex*,int outbufsz) const;
+			/*<! Sets the time coefficients back to the same
+			     FFT-compatible order */
 
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
-    bool			doFinish(bool);
+private:
 
-    void			removeBuffers();
-    bool			applyInvFFT(TypeSet<float_complex>&);
-    void			getRefModelInterpolator(PointBasedMathFunction&,
-							bool valueistime,
-							bool isnmo) const;
+    od_int64		nrIterations() const override { return totalnr_; }
 
-    const ReflectivityModel&	model_;
-    const StepInterval<float>	outsampling_;
-    TypeSet<float_complex>&	freqreflectivities_;
-    TypeSet<float_complex>*	creflectivities_;
-    bool			usenmotime_;
+    bool		doPrepare(int) override;
+    bool		doWork(od_int64,od_int64,int) override;
+    bool		doFinish(bool) override;
 
-    ObjectSet<float_complex>	buffers_;
+    void		removeBuffers();
+    bool		applyInvFFT();
+    bool		computeSampledTimeReflectivities();
+    void		updateTimeSamplingCache();
+
+    ConstRefMan<ReflectivityModelTrace> model_;
+    const float*	spikestwt_;
+    ZSampling		outsampling_;
+    RefMan<ReflectivityModelTrace> sampledfreqreflectivities_;
+    RefMan<ReflectivityModelTrace> sampledtimereflectivities_;
+
+    RefMan<ReflectivityModelTrace> creflectivities_;
+    float_complex*		tempreflectivities_ = nullptr;
+
+    ObjectSet<float_complex> buffers_;
+    od_int64		totalnr_;
+
+    bool		newsampling_ = false;
+    SamplingData<float> fftsampling_;
+    float		firsttwt_;
+    float		stoptwt_;
+    float		width_;
+    int			startidx_;
+    int			stopidx_;
+
 };
 
 

@@ -59,8 +59,6 @@ RayTracer1D::~RayTracer1D()
     delete [] velmax_;
     delete [] twt_;
     delete [] reflectivities_;
-    delete [] sinarr_;
-    delete [] sini_;
     delete &model_;
 }
 
@@ -238,51 +236,29 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	return false;
     }
 
-    if ( setup().doreflectivity_ )
-    {
-	OffsetReflectivityModelSet::Setup rmsu;
-	rmsu.pdown( setup().pdown_ ).pup( setup().pup_ );
-	tdmodels_ = new OffsetReflectivityModelSet( getModel(), rmsu,
-						    &offsets_, velmax_ );
-    }
-    else
-    {
-	TimeDepthModelSet::Setup tdmsu;
-	tdmsu.pdown( setup().pdown_ ).pup( setup().pup_ );
-	tdmodels_ = new TimeDepthModelSet( getModel(), tdmsu,
-					   &offsets_, velmax_ );
-    }
-
-    if ( !tdmodels_ || !tdmodels_->isOK() )
+    OffsetReflectivityModel::Setup rmsu( true, setup().doreflectivity_ );
+    rmsu.pdown( setup().pdown_ ).pup( setup().pup_ );
+    refmodel_ = new OffsetReflectivityModel( getModel(), rmsu,
+					     &offsets_, velmax_ );
+    if ( !refmodel_ || !refmodel_->isOK() )
 	return false;
 
-    depths_ = tdmodels_->getDefaultModel().getDepths()+1;
-    const int nrmodels = tdmodels_->nrModels();
+    depths_ = refmodel_->getDefaultModel().getDepths()+1;
+    const int nrmodels = refmodel_->nrModels();
     delete [] twt_;
     mTryAlloc( twt_, float*[nrmodels] );
     if ( !twt_ )
 	return false;
 
     for ( int idx=0; idx<nrmodels; idx++ )
-	twt_[idx] = tdmodels_->get(idx)->getTimes()+1;
-    zerooffstwt_ = tdmodels_->getDefaultModel().getTimes()+1;
+	twt_[idx] = refmodel_->get(idx)->getTimes()+1;
+    zerooffstwt_ = refmodel_->getDefaultModel().getTimes()+1;
 
-    delete [] sini_;
-    mTryAlloc( sini_, float[nrmodels*layersize] );
-    if ( !sini_ )
-	return false;
-
-    float* sinarr = sini_;
-    delete [] sinarr_;
-    mTryAlloc( sinarr_, float*[nrmodels] );
-    for ( int idx=0; idx<nrmodels; idx++, sinarr+=layersize )
-	sinarr_[idx] = sinarr;
-
+    sinarr_ = refmodel_->sinarr_;
     deleteAndZeroArrPtr( reflectivities_ );
-    if ( setup().doreflectivity_ )
+    if ( refmodel_->hasReflectivities() )
     {
-	mDynamicCastGet(ReflectivityModelSet*,refmodelset,tdmodels_.ptr())
-	if ( !refmodelset || refmodelset->nrRefModels() != nrmodels )
+	if ( refmodel_->nrRefModels() != nrmodels )
 	    return false;
 
 	mTryAlloc( reflectivities_, float_complex*[nrmodels] );
@@ -290,7 +266,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	    return false;
 
 	for ( int idx=0; idx<nrmodels; idx++ )
-	    reflectivities_[idx] = refmodelset->getRefs( idx );
+	    reflectivities_[idx] = refmodel_->getRefs( idx );
     }
 
     return true;
@@ -375,98 +351,9 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 }
 
 
-ConstRefMan<TimeDepthModelSet> RayTracer1D::getTDModels() const
+ConstRefMan<OffsetReflectivityModel> RayTracer1D::getRefModel() const
 {
-    return tdmodels_;
-}
-
-
-float RayTracer1D::getSinAngle( int layer, int offset ) const
-{
-    if ( !offsetpermutation_.validIdx(offset) )
-	return mUdf(float);
-
-    const int offsetidx = offsetpermutation_[offset];
-
-    if ( !sinarr_ || !offsets_.validIdx(offsetidx) ||
-		     layer<0 || layer>=getModel().size() )
-	return mUdf(float);
-
-    return sinarr_[offsetidx][layer];
-}
-
-
-
-bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
-{
-    if ( !reflectivities_ || !offsetpermutation_.validIdx(offset) )
-	return false;
-
-    const int offsetidx = offsetpermutation_[offset];
-
-    if ( offsetidx<0 || offsetidx>=tdmodels_->nrModels() )
-	return false;
-
-    const int nrinterfaces = tdmodels_->modelSize()-2;
-
-    model.erase();
-    model.setCapacity( nrinterfaces, false );
-    ReflectivitySpike spike;
-
-    for ( int iidx=0; iidx<nrinterfaces; iidx++ )
-    {
-	spike.reflectivity_ = reflectivities_[offsetidx][iidx];
-	spike.depth_ = depths_[iidx];
-	spike.time_ = twt_[offsetidx][iidx];
-	spike.correctedtime_ = zerooffstwt_[iidx];
-	if ( !spike.isDefined()	)
-	    continue;
-
-	model += spike;
-    }
-    return true;
-}
-
-
-bool RayTracer1D::getZeroOffsTDModel( TimeDepthModel& d2tm ) const
-{
-    return getTDM( zerooffstwt_, d2tm );
-}
-
-
-bool RayTracer1D::getTDModel( int offset, TimeDepthModel& d2tm ) const
-{
-    if ( !offsetpermutation_.validIdx(offset) )
-	return false;
-
-    const int offsetidx = offsetpermutation_[offset];
-
-    if ( !twt_ || offsetidx<0 || offsetidx>=tdmodels_->nrModels() )
-	return false;
-
-    return getTDM( twt_[offsetidx], d2tm );
-}
-
-
-bool RayTracer1D::getTDM( const float* twt, TimeDepthModel& d2tm ) const
-{
-    const int layersize = mCast( int, nrIterations() );
-
-    TypeSet<float> times, depths;
-    depths += 0;
-    times += 0;
-    for ( int lidx=0; lidx<layersize; lidx++ )
-    {
-	float time = twt[lidx];
-	if ( mIsUdf( time ) ) time = times[times.size()-1];
-	if ( time < times[times.size()-1] )
-	    continue;
-
-	depths += depths_[lidx];
-	times += time;
-    }
-
-    return d2tm.setModel( depths.arr(), times.arr(), times.size() );
+    return refmodel_;
 }
 
 

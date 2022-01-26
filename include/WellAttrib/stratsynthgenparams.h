@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "enums.h"
 #include "instantattrib.h"
 
+class Wavelet;
+
 
 mStruct(WellAttrib) SynthGenParams
 {
@@ -33,26 +35,32 @@ mStruct(WellAttrib) SynthGenParams
     BufferString	name_;
     BufferString	inpsynthnm_;
     IOPar		raypars_;
-    BufferString	wvltnm_;
+    IOPar		synthpars_;
     Interval<float>	anglerg_;
     Attrib::Instantaneous::OutType attribtype_;
 
+    const char*		getWaveletNm() const;
+
     bool		hasOffsets() const;
-    bool		canBeAttributeInput() const
-			{ return synthtype_==ZeroOffset ||
-				 synthtype_==AngleStack ||
-				 synthtype_==AVOGradient; }
+    bool		isZeroOffset() const { return synthtype_==ZeroOffset; }
     bool		isPreStack() const	{ return synthtype_==PreStack; }
     bool		isPSBased() const
 			{ return synthtype_==AngleStack ||
 				 synthtype_==AVOGradient; }
+    bool		canBeAttributeInput() const
+			{ return isZeroOffset() || isPSBased(); }
+    bool		isStratProp() const   { return synthtype_==StratProp; }
     bool		isAttribute() const   { return synthtype_==InstAttrib; }
     bool		needsInput() const
-			{ return synthtype_==AngleStack ||
-				 synthtype_==AVOGradient ||
-				 synthtype_==InstAttrib; }
+			{ return isPSBased() || isAttribute(); }
+    bool		isRawOutput() const
+			{ return !needsInput() && !isStratProp(); }
+			/*!<Any type that can be created using
+			    Seis::RaySynthGenerator */
     void		createName(BufferString&) const;
 			//!<Create name from wvlt and raypars
+    void		setWavelet(const char*);
+    void		setWavelet(const Wavelet&);
     void		fillPar(IOPar&) const;
 
     void		usePar(const IOPar&);
@@ -62,6 +70,10 @@ mStruct(WellAttrib) SynthGenParams
 private:
 
     void		setDefaultValues();
+    static void		cleanRayPar(const IOPar&,IOPar&);
+    static void		setSynthGenPar(const IOPar&,IOPar&);
+
+    BufferString	wvltnm_;
 
 };
 

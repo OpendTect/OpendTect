@@ -42,11 +42,9 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
-#include "synthseis.h"
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
-#include "timedepthmodel.h"
 #include "waveletio.h"
 
 #include <stdio.h>
@@ -558,19 +556,18 @@ void uiStratSynthDisp::drawLevel()
     if ( !synthseis )
 	return;
 
-    delete vwr_->removeAuxData( levelaux_ ); levelaux_ = 0;
+    delete vwr_->removeAuxData( levelaux_ ); levelaux_ = nullptr;
 
+    const Seis::SynthGenDataPack& synthgendp = synthseis->synthGenDP();
+    const int offsidx = prestackgrp_->sensitive()
+		      ? synthgendp.getOffsetIdx( offsetposfld_->getValue() )
+		      : -1;
     const StratSynthLevel* lvl = curSS().getLevel();
-    const float offset =
-	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
-				  : 0.0f;
-    ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( synthseis, curd2tmodels, offset );
-    if ( !curd2tmodels.isEmpty() && lvl )
+    if ( lvl )
     {
 	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
 	FlatView::AuxData* auxd = vwr_->createAuxData("Level markers");
-	curSS().getLevelTimes( tbuf, curd2tmodels, dispeach_ );
+	curSS().getLevelTimes( synthgendp.getModels(), dispeach_, tbuf,offsidx);
 
 	auxd->linestyle_.type_ = OD::LineStyle::None;
 	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
@@ -578,7 +575,7 @@ void uiStratSynthDisp::drawLevel()
 	    if ( tbuf.get(imdl)->isNull() )
 		continue;
 	    const float tval =
-		dispflattened_ ? 0 :  tbuf.get(imdl)->info().pick;
+		dispflattened_ ? 0.f :	tbuf.get(imdl)->info().pick;
 
 	    auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
 						  cMarkerSize, lvl->col_ );
@@ -612,11 +609,11 @@ void uiStratSynthDisp::setCurrentWavelet()
 
     if ( wvasd )
     {
-	wvasd->setWavelet( wvltfld_->getWaveletName() );
 	setCurSynthetic( wvasd, true );
 	if ( synthgendlg_ )
 	    synthgendlg_->grp()->updateWaveletName();
-	wvasd->fillGenParams( curSS().genParams() );
+	curSS().genParams() = wvasd->getGenParams();
+	curSS().genParams().setWavelet( wvltfld_->getWaveletName() );
 	wvltChanged.trigger();
 	updateSynthetic( wvasynthnm, true );
     }
@@ -629,11 +626,11 @@ void uiStratSynthDisp::setCurrentWavelet()
 
     if ( vdsd && !vdsd->isStratProp() )
     {
-	vdsd->setWavelet( wvltfld_->getWaveletName() );
 	setCurSynthetic( vdsd, false );
 	if ( vdsynthnm != wvasynthnm )
 	{
-	    vdsd->fillGenParams( curSS().genParams() );
+	    curSS().genParams() = vdsd->getGenParams();
+	    curSS().genParams().setWavelet( wvltfld_->getWaveletName() );
 	    updateSynthetic( vdsynthnm, false );
 	}
     }
@@ -729,8 +726,9 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 
     bool rv = false;
     PtrMan<SeisTrcBuf> scaletbuf = tbuf.clone();
-    curSS().getLevelTimes( *scaletbuf,
-			   currentwvasynthetic_->zerooffsd2tmodels_ );
+    const int dispeach = 1;
+    curSS().getLevelTimes( currentwvasynthetic_->synthGenDP().getModels(),
+			   dispeach, *scaletbuf );
     uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->getID(),levelname);
     if ( dlg.go() )
     {
@@ -812,14 +810,14 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 
     mDefineStaticLocalObject( uiWorldRect, timewr, );
     timewr = vwr_->curView();
-    if ( !indpth )
+    if ( !indpth || !currentwvasynthetic_ )
 	return timewr;
 
     mDefineStaticLocalObject( uiWorldRect, depthwr, );
     depthwr.setLeft( timewr.left() );
     depthwr.setRight( timewr.right() );
     ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( currentwvasynthetic_, curd2tmodels, 0.0f );
+    getCurD2TModel( *currentwvasynthetic_, curd2tmodels, -1 );
     if ( !curd2tmodels.isEmpty() )
     {
 	Interval<float> twtrg( mCast(float,timewr.top()),
@@ -888,46 +886,49 @@ void uiStratSynthDisp::displaySynthetic( const SyntheticData* sd )
     displayPreStackSynthetic( sd );
 }
 
-void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
-		ObjectSet<const TimeDepthModel>& d2tmodels, float offset ) const
+
+int uiStratSynthDisp::getOffsetIdx( const SyntheticData& sd ) const
 {
-    if ( !sd )
-	return;
+    const Seis::SynthGenDataPack& synthgendp = sd.synthGenDP();
+    const float offset = prestackgrp_->sensitive()
+		       ? mCast( float, offsetposfld_->getValue() )
+		       : 0.f;
+    return prestackgrp_->sensitive() ? synthgendp.getOffsetIdx( offset ) : -1;
+}
 
+
+void uiStratSynthDisp::getCurD2TModel( const SyntheticData& sd,
+		ObjectSet<const TimeDepthModel>& d2tmodels, int offsidx ) const
+{
     d2tmodels.erase();
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
-    if ( !presd || presd->isNMOCorrected() || mIsZero(offset,mDefEps) )
+    const ReflectivityModelSet& refmodels = sd.getRefModels();
+    const int nrmodels = refmodels.nrModels();
+    const PreStackSyntheticData* presd = nullptr;
+    if ( sd.isPS() )
+	mDynamicCast(const PreStackSyntheticData*,presd,&sd);
+
+    if ( !sd.isPS() || (presd && presd->isNMOCorrected()) || offsidx < 0 )
     {
-	d2tmodels = sd->zerooffsd2tmodels_;
+	for ( int imdl=0; imdl<nrmodels; imdl++ )
+	{
+	    const ReflectivityModelBase* refmodel = refmodels.get( imdl );
+	    d2tmodels.add( &refmodel->getDefaultModel() );
+	}
+
 	return;
     }
 
-    StepInterval<float> offsetrg( presd->offsetRange() );
-    offsetrg.step = presd->offsetRangeStep();
-    int offsidx = offsetrg.getIndex( offset );
-    if ( offsidx<0 )
+    for ( int imdl=0; imdl<nrmodels; imdl++ )
     {
-	d2tmodels = sd->zerooffsd2tmodels_;
-	return;
-    }
-
-    const int nroffsets = offsetrg.nrSteps()+1;
-    const SeisTrcBuf* tbuf = presd->getTrcBuf( offset );
-    if ( !tbuf ) return;
-    for ( int trcidx=0; trcidx<tbuf->size(); trcidx++ )
-    {
-	int d2tmodelidx = ( trcidx*nroffsets ) + offsidx;
-	if ( !sd->d2tmodels_.validIdx(d2tmodelidx) )
+	const ReflectivityModelBase* refmodel = refmodels.get( imdl );
+	const TimeDepthModel* tdmodel = refmodel->get( offsidx );
+	if ( !tdmodel )
 	{
 	    pErrMsg("Cannot find D2T Model for corresponding offset" );
-	    d2tmodelidx = trcidx;
-	}
-	if ( !sd->d2tmodels_.validIdx(d2tmodelidx) )
-	{
-	    pErrMsg( "huh?" );
 	    return;
 	}
-	d2tmodels += sd->d2tmodels_[d2tmodelidx];
+
+	d2tmodels.add( tdmodel );
     }
 }
 
@@ -950,19 +951,22 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
 
-    const float offset =
-	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
-				  : 0.0f;
+    const Seis::SynthGenDataPack& synthgendp = sd->synthGenDP();
+    const float offset = prestackgrp_->sensitive()
+		       ? mCast( float, offsetposfld_->getValue() )
+		       : 0.f;
+    const int offsidx = getOffsetIdx( *sd );
     const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, 0 )
 				   : &postsd->postStackPack().trcBuf();
-    if ( !tbuf ) return;
+    if ( !tbuf )
+	return;
 
     auto* disptbuf = new SeisTrcBuf( true );
     tbuf->copyInto( *disptbuf );
     ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( sd, curd2tmodels, offset );
+    getCurD2TModel( *sd, curd2tmodels, offsidx );
     auto* zerooffsd2tmodels = new ObjectSet<const TimeDepthModel>;
-    getCurD2TModel( sd, *zerooffsd2tmodels, 0.0f );
+    getCurD2TModel( *sd, *zerooffsd2tmodels, -1 );
     d2tmodels_ = zerooffsd2tmodels;
     float lasttime =  -mUdf(float);
     for ( int idx=0; idx<curd2tmodels.size(); idx++ )
@@ -972,10 +976,11 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     }
 
     curSS().decimateTraces( *disptbuf, dispeach_ );
-    reSampleTraces( sd, *disptbuf );
+    reSampleTraces( *sd, *disptbuf );
     if ( dispflattened_ )
     {
-	curSS().getLevelTimes( *disptbuf, curd2tmodels, dispeach_ );
+	curSS().getLevelTimes( synthgendp.getModels(), dispeach_, *disptbuf,
+			       offsidx );
 	curSS().flattenTraces( *disptbuf );
     }
     else
@@ -1043,20 +1048,21 @@ void uiStratSynthDisp::setSavedViewRect()
 }
 
 
-void uiStratSynthDisp::reSampleTraces( const SyntheticData* sd,
+void uiStratSynthDisp::reSampleTraces( const SyntheticData& sd,
 				       SeisTrcBuf& tbuf ) const
 {
     if ( longestaimdl_>=layerModel().size() || longestaimdl_<0 )
 	return;
+
     Interval<float> depthrg = layerModel().sequence(longestaimdl_).zRange();
-    const float offset =
-	prestackgrp_->sensitive() ? mCast( float, offsetposfld_->getValue() )
-				  : 0.0f;
+
+    const int offsidx = getOffsetIdx( sd );
     ObjectSet<const TimeDepthModel> curd2tmodels;
-    const bool isstratprop = sd->isStratProp();
-    getCurD2TModel( sd, curd2tmodels, offset );
+    const bool isstratprop = sd.isStratProp();
+    getCurD2TModel( sd, curd2tmodels, offsidx );
     if ( !curd2tmodels.validIdx(longestaimdl_) )
 	return;
+
     const TimeDepthModel& d2t = *curd2tmodels[longestaimdl_];
     const float reqlastzval =
 	d2t.getTime( layerModel().sequence(longestaimdl_).zRange().stop );
@@ -1564,10 +1570,9 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
 	    continue;
 
 	nr_nonproprefsynths++;
-	SynthGenParams genparams;
-	sd->fillGenParams( genparams );
+	const SynthGenParams& sgd = sd->getGenParams();
 	IOPar synthpar;
-	genparams.fillPar( synthpar );
+	sgd.fillPar( synthpar );
 	sd->fillDispPar( synthpar );
 	stratsynthpar.mergeComp( synthpar,
 		IOPar::compKey(StratSynth::sKeySyntheticNr(),

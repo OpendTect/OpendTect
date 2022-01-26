@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 #include "od_helpids.h"
 #include "synthseis.h"
+#include "zdomain.h"
 
 
 #define mErrRet(s,act) \
@@ -124,9 +125,9 @@ void uiSynthSeisGrp::usePar( const IOPar& iopar )
 
     if ( iszerooofset )
     {
-	bool dointernalmultiples = false; float surfreflcoeff =1;
-	iopar.getYN( Seis::SynthGenBase::sKeyInternal(), dointernalmultiples );
-	iopar.get( Seis::SynthGenBase::sKeySurfRefl(), surfreflcoeff );
+	bool dointernalmultiples = false; float surfreflcoeff = 1.f;
+/*	iopar.getYN( Seis::SynthGenBase::sKeyInternal(), dointernalmultiples );
+	iopar.get( Seis::SynthGenBase::sKeySurfRefl(), surfreflcoeff );*/
 	internalmultiplebox_->setChecked( dointernalmultiples );
 	surfreflcoeffld_->box()->setValue( surfreflcoeff );
     }
@@ -161,10 +162,10 @@ void uiSynthSeisGrp::fillPar( IOPar& iopar ) const
     if ( iszeroffset )
     {
 	RayTracer1D::setIOParsToZeroOffset( iopar );
-	const bool dointernal = internalmultiplebox_->isChecked();
+/*	const bool dointernal = internalmultiplebox_->isChecked();
 	const float coeff = surfreflcoeffld_->box()->getFValue();
 	iopar.setYN( Seis::SynthGenBase::sKeyInternal(), dointernal );
-	iopar.set( Seis::SynthGenBase::sKeySurfRefl(), coeff );
+	iopar.set( Seis::SynthGenBase::sKeySurfRefl(), coeff );*/
     }
     else
     {

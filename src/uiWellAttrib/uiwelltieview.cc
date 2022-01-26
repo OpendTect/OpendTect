@@ -90,7 +90,7 @@ void uiTieView::setSEGPositivePolarity( bool yn )
 	return;
 
     segpospolarity_ = yn;
-    data_.synthtrc_.reverse();
+    const_cast<Data&>( data_ ).reverseTrc( true );
     redrawViewer();
 }
 
@@ -236,8 +236,12 @@ void uiTieView::drawTraces()
     {
 	const int midtrc = nrtrcs/2-1;
 	const bool issynth = idx < midtrc;
-	SeisTrc* trc = new SeisTrc;
-	trc->copyDataFrom( issynth ? data_.synthtrc_ : data_.seistrc_ );
+	const SeisTrc* inptrc = data_.getTrc( issynth );
+	if ( !inptrc )
+	    return;
+
+	auto* trc = new SeisTrc;
+	trc->copyDataFrom( *inptrc );
 	trc->info().sampling = data_.getTraceRange();
 	trcbuf_.add( trc );
 	bool udf = idx == 0 || idx == midtrc || idx == midtrc+1 || idx>nrtrcs-2;
