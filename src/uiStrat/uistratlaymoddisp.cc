@@ -29,11 +29,11 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "envvars.h"
 #include "flatposdata.h"
+#include "flatviewaxesdrawer.h"
 #include "keystrs.h"
-#include "oddirs.h"
 #include "od_helpids.h"
 #include "od_iostream.h"
-#include "unitofmeasure.h"
+#include "oddirs.h"
 #include "property.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
@@ -41,18 +41,18 @@ ________________________________________________________________________
 #include "stratreftree.h"
 #include "strattransl.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 
-#include <stdio.h>
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
+
 #define mGetRealZ(var) mGetConvZ(var,mFromFeetFactorF)
 #define mGetDispZ(var) mGetConvZ(var,mToFeetFactorF)
 #define mGetDispZrg(src,target) \
     Interval<float> target( src ); \
     if ( SI().depthsInFeet() ) \
 	target.scale( mToFeetFactorF )
-
 
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
@@ -77,6 +77,10 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     vwr_.setStretch( 2, 2 );
     vwr_.disableStatusBarUpdate();
     vwr_.setZDomain( ZDomain::Depth() );
+
+    const int fontheight = vwr_.getAxesDrawer().getNeededHeight();
+    vwr_.setExtraBorders( uiSize(0,-fontheight), uiSize(0,-fontheight) );
+
     FlatView::Appearance& app = vwr_.appearance();
     app.setGeoDefaults( true );
     app.setDarkBG( false );
@@ -188,10 +192,8 @@ void uiStratLayerModelDisp::displayFRText( bool yn, bool isbrine )
 {
     if ( !frtxtitm_ )
     {
-	const uiPoint pos( mNINT32( scene().width()/2 ),
-			   mNINT32( scene().height()-10 ) );
-	frtxtitm_ = scene().addItem( new uiTextItem(pos,uiString::emptyString(),
-						mAlignment(HCenter,VCenter)) );
+	frtxtitm_ = scene().addItem( new uiTextItem );
+	frtxtitm_->setAlignment( mAlignment(Left,VCenter) );
 	frtxtitm_->setPenColor( Color::Black() );
 	frtxtitm_->setZValue( 999999 );
 	frtxtitm_->setMovable( true );
@@ -202,6 +204,7 @@ void uiStratLayerModelDisp::displayFRText( bool yn, bool isbrine )
     {
 	frtxtitm_->setText( isbrine ? tr("Brine filled")
 				    : tr("Hydrocarbon filled") );
+	updateTextPosCB( nullptr );
     }
 }
 
@@ -211,9 +214,7 @@ void uiStratLayerModelDisp::updateTextPosCB( CallBacker* )
     if ( !frtxtitm_ )
 	return;
 
-    const uiPoint pos( mNINT32( scene().width()/2 ),
-		       mNINT32( scene().height()-10 ) );
-    frtxtitm_->setPos( pos );
+    frtxtitm_->setPos( 20, 10 );
 }
 
 
@@ -847,7 +848,7 @@ void uiStratSimpleLayerModelDisp::reDrawLevels()
     else
 	getBounds();
     updateLevelAuxData();
-    vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+    vwr_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -855,7 +856,7 @@ void uiStratSimpleLayerModelDisp::reDrawSeq()
 {
     getBounds();
     updateLayerAuxData();
-    vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+    vwr_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -1197,7 +1198,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     updateLayerAuxData();
     updateLevelAuxData();
     updateSelSeqAuxData();
-    vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+    vwr_.handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -1213,5 +1214,5 @@ void uiStratSimpleLayerModelDisp::doLevelChg()
 void uiStratSimpleLayerModelDisp::drawSelectedSequence()
 {
     updateSelSeqAuxData();
-    vwr_.handleChange( mCast(unsigned int, FlatView::Viewer::Auxdata) );
+    vwr_.handleChange( FlatView::Viewer::Auxdata );
 }

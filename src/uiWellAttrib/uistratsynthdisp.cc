@@ -9,10 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uistratsynthdisp.h"
-#include "uisynthgendlg.h"
-#include "uistratsynthexport.h"
-#include "uiseiswvltsel.h"
-#include "uisynthtorealscale.h"
+
 #include "uicombobox.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
@@ -23,32 +20,35 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
 #include "uipsviewer2dmainwin.h"
+#include "uiseiswvltsel.h"
 #include "uispinbox.h"
 #include "uistratlayermodel.h"
+#include "uistratsynthexport.h"
+#include "uisynthgendlg.h"
+#include "uisynthtorealscale.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
 #include "envvars.h"
-#include "stratsynth.h"
-#include "stratsynthlevel.h"
-#include "stratlith.h"
-#include "syntheticdataimpl.h"
-#include "flatviewzoommgr.h"
 #include "flatposdata.h"
-#include "ptrman.h"
-#include "propertyref.h"
+#include "flatviewaxesdrawer.h"
+#include "flatviewzoommgr.h"
 #include "prestackgather.h"
-#include "survinfo.h"
+#include "propertyref.h"
+#include "ptrman.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
-#include "synthseis.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
+#include "stratlith.h"
+#include "stratsynth.h"
+#include "stratsynthlevel.h"
+#include "survinfo.h"
+#include "syntheticdataimpl.h"
+#include "synthseis.h"
 #include "velocitycalc.h"
 #include "waveletio.h"
-
-#include <stdio.h>
 
 static const int cMarkerSize = 6;
 
@@ -168,6 +168,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vwr_ = new uiFlatViewer( this );
     vwr_->rgbCanvas().disableImageSave();
     vwr_->setInitialSize( uiSize(800,300) ); //TODO get hor sz from laymod disp
+
+    const int fontheight = vwr_->getAxesDrawer().getNeededHeight();
+    vwr_->setExtraBorders( uiSize(0,-fontheight), uiSize(0,-fontheight) );
+
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
     mAttachCB( vwr_->dispPropChanged, uiStratSynthDisp::parsChangedCB );
@@ -402,7 +406,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     selectedtraceaux_->linestyle_ =
 	OD::LineStyle( OD::LineStyle::Dot, 2, Color::DgbColor() );
 
-    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+    vwr_->handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -513,7 +517,7 @@ void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
     }
     const Interval<double> xrg = vwr_->getDataPackRange( true );
     vwr_->setSelDataRanges( xrg, newzrg );
-    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+    vwr_->handleChange( FlatView::Viewer::All );
 }
 
 
@@ -546,21 +550,19 @@ void uiStratSynthDisp::displayFRText( bool yn, bool isbrine )
     if ( !frtxtitm_ )
     {
 	uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
-	const uiPoint pos( mNINT32( scene.width()/2 ),
-			   mNINT32( scene.height()-10 ) );
-    frtxtitm_ = scene.addItem(
-				new uiTextItem(pos,uiString::emptyString(),
-					       mAlignment(HCenter,VCenter)) );
-    frtxtitm_->setPenColor( Color::Black() );
-    frtxtitm_->setZValue( 999999 );
-    frtxtitm_->setMovable( true );
+	frtxtitm_ = scene.addItem( new uiTextItem );
+	frtxtitm_->setAlignment( mAlignment(Left,VCenter) );
+	frtxtitm_->setPenColor( Color::Black() );
+	frtxtitm_->setZValue( 999999 );
+	frtxtitm_->setMovable( true );
     }
 
     frtxtitm_->setVisible( yn );
     if ( yn )
     {
-        frtxtitm_->setText( isbrine ? tr("Brine filled")
-				   : tr("Hydrocarbon filled") );
+	frtxtitm_->setText( isbrine ? tr("Brine filled")
+				    : tr("Hydrocarbon filled") );
+	updateTextPosCB( nullptr );
     }
 }
 
@@ -570,10 +572,7 @@ void uiStratSynthDisp::updateTextPosCB( CallBacker* )
     if ( !frtxtitm_)
 	return;
 
-    const uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
-    const uiPoint pos( mNINT32( scene.width()/2 ),
-		       mNINT32( scene.height()-10 ) );
-    frtxtitm_->setPos( pos );
+    frtxtitm_->setPos( 20, 10 );
 }
 
 
@@ -620,7 +619,7 @@ void uiStratSynthDisp::drawLevel()
 	}
     }
 
-    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+    vwr_->handleChange( FlatView::Viewer::Auxdata );
 }
 
 
@@ -737,7 +736,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	    rv = true;
 	    wvltfld_->setInput( mid );
 	}
-	vwr_->handleChange( sCast(unsigned int,FlatView::Viewer::All) );
+	vwr_->handleChange( FlatView::Viewer::All );
     }
     return rv;
 }
@@ -778,20 +777,26 @@ void uiStratSynthDisp::setSnapLevelSensitive( bool yn )
 
 float uiStratSynthDisp::centralTrcShift() const
 {
-    if ( !dispflattened_ ) return 0.0;
+    if ( !dispflattened_ )
+	return 0.0f;
+
     bool forward = false;
     int forwardidx = mNINT32( vwr_->curView().centre().x );
     int backwardidx = forwardidx-1;
     const SeisTrcBuf& trcbuf = curTrcBuf();
-    if ( !trcbuf.size() ) return 0.0f;
+    if ( !trcbuf.size() )
+	return 0.0f;
+
     while ( true )
     {
 	if ( backwardidx<0 || forwardidx>=trcbuf.size() )
 	    return 0.0f;
+
 	const int centrcidx = forward ? forwardidx : backwardidx;
 	const SeisTrc* centtrc = trcbuf.size() ? trcbuf.get( centrcidx ) :  0;
 	if ( centtrc && !mIsUdf(centtrc->info().pick) )
 	    return centtrc->info().pick;
+
 	forward ? forwardidx++ : backwardidx--;
 	forward = !forward;
     }
@@ -936,7 +941,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 
     if ( !sd )
     {
-	vwr_->handleChange( sCast(unsigned int,FlatView::Viewer::All) );
+	vwr_->handleChange( FlatView::Viewer::All );
 	return;
     }
 
@@ -1131,7 +1136,7 @@ void uiStratSynthDisp::setPreStackMapper()
 	wvamapper.cliprate_ = Interval<float>(0.0,0.0);
 	wvamapper.autosym0_ = true;
 	wvamapper.symmidval_ = 0.0f;
-	vwr.handleChange( mCast(unsigned int,FlatView::Viewer::DisplayPars) );
+	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }
 }
 

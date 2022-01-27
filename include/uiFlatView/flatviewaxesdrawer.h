@@ -37,6 +37,8 @@ public:
     void		setExtraBorder(const uiBorder&);
     uiBorder		getAnnotBorder(bool withextraborders=true) const;
 
+    void		setTitleFont(const FontData&);
+
 protected:
 
     uiFlatViewer&	vwr_;
