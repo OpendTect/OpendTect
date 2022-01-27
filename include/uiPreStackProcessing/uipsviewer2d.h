@@ -30,51 +30,51 @@ possibility.
 mExpClass(uiPreStackProcessing) uiGatherDisplay : public uiGroup
 {
 public:
-    				uiGatherDisplay(uiParent*);
-    				~uiGatherDisplay();
+				uiGatherDisplay(uiParent*);
+				~uiGatherDisplay();
 
-    virtual void                setPosition(const BinID&,
+    virtual void		setPosition(const BinID&,
 					    const Interval<double>* zrg=0);
     void			setVDGather(int);
     void			setWVAGather(int);
 
-    void                        displayAnnotation(bool yn);
-    bool                        displaysAnnotation() const;
+    void			displayAnnotation(bool yn);
+    bool			displaysAnnotation() const;
 
-    void                        setFixedOffsetRange(bool yn,
-				    const Interval<float>&);
-    bool                        getFixedOffsetRange() const;
-    const Interval<float>&      getOffsetRange() const;
-    const Interval<double>*     getZRange() const	{ return zrg_; }
-    const Interval<float>&      getZDataRange() const	{ return zdatarange_; }
+    void			setFixedOffsetRange(bool yn,
+						    const Interval<float>&);
+    bool			getFixedOffsetRange() const;
+    const Interval<float>&	getOffsetRange() const;
+    const Interval<double>*	getZRange() const	{ return zrg_; }
+    const Interval<float>&	getZDataRange() const	{ return zdatarange_; }
 
-    uiFlatViewer*               getUiFlatViewer() 	{ return viewer_; }
+    uiFlatViewer*		getUiFlatViewer() 	{ return viewer_; }
     BinID			getBinID() const;
 
     void			setInitialSize(const uiSize&);
     void			setWidth(int);
-    void                        updateViewRange();
+    void			updateViewRange();
 
 protected:
 
-    uiFlatViewer*               viewer_;
+    uiFlatViewer*		viewer_;
     Viewer2DGatherPainter* 	gatherpainter_;
 
-    bool                        fixedoffset_;
-    Interval<float>             offsetrange_;
-    Interval<float>           	zdatarange_;
-    Interval<double>*           zrg_;
+    bool			fixedoffset_;
+    Interval<float>		offsetrange_;
+    Interval<float>		zdatarange_;
+    Interval<double>*		zrg_;
     BinID			bid_;
-    bool                        displayannotation_;
+    bool			displayannotation_;
 
-    void                        updateViewRange(const uiWorldRect&);
+    void			updateViewRange(const uiWorldRect&);
 };
 
 
 
 mExpClass(uiPreStackProcessing) uiViewer2D : public uiObjectItemView
 {
-public: 
+public:
 				uiViewer2D(uiParent*);
 				~uiViewer2D();
 
@@ -95,6 +95,4 @@ public:
     void			reSized(CallBacker*);
 };
 
-
-}; //namespace
-
+} // namespace PreStackView

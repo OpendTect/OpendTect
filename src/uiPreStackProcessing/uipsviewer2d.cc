@@ -50,7 +50,8 @@ uiGatherDisplay::uiGatherDisplay( uiParent* p  )
 
 void uiGatherDisplay::setInitialSize( const uiSize& sz )
 {
-    setPrefWidth( sz.width() ); setPrefHeight( sz.height() );
+    setPrefWidth( sz.width() );
+    setPrefHeight( sz.height() );
     viewer_->setInitialSize( sz );
 }
 
@@ -68,11 +69,14 @@ uiGatherDisplay::~uiGatherDisplay()
     delete gatherpainter_;
 }
 
+
 void uiGatherDisplay::setVDGather( int vdid )
 {
     gatherpainter_->setVDGather( vdid );
     ConstDataPackRef<FlatDataPack> dp = viewer_->obtainPack( false );
-    if ( !dp ) return;
+    if ( !dp )
+	return;
+
     const FlatPosData& pd = dp->posData();
     offsetrange_.set( (float)pd.range(true).start,
 		      (float)pd.range(true).stop );
@@ -85,7 +89,9 @@ void uiGatherDisplay::setWVAGather( int wvaid )
 {
     gatherpainter_->setWVAGather( wvaid );
     ConstDataPackRef<FlatDataPack> dp = viewer_->obtainPack( true );
-    if ( !dp ) return;
+    if ( !dp )
+	return;
+
     const FlatPosData& pd = dp->posData();
     offsetrange_.set( (float)pd.range(true).start,
 		      (float)pd.range(true).stop );
@@ -95,7 +101,9 @@ void uiGatherDisplay::setWVAGather( int wvaid )
 
 
 BinID uiGatherDisplay::getBinID() const
-{ return gatherpainter_->getBinID(); }
+{
+    return gatherpainter_->getBinID();
+}
 
 
 void uiGatherDisplay::setPosition( const BinID& bid,
@@ -107,7 +115,8 @@ void uiGatherDisplay::setPosition( const BinID& bid,
 	if ( !zrg_ ) zrg_ = new Interval<double>( *zrg );
 	else *zrg_ = *zrg;
     }
-    else if ( zrg_ ) { delete zrg_; zrg_ = 0; }
+    else if ( zrg_ )
+	deleteAndZeroPtr( zrg_ );
 }
 
 
@@ -116,19 +125,23 @@ void uiGatherDisplay::displayAnnotation( bool yn )
     displayannotation_ = yn;
     viewer_->appearance().annot_.x1_.hasannot_ = yn;
     viewer_->appearance().annot_.x2_.hasannot_ = yn;
+    viewer_->appearance().annot_.x1_.showannot_ = yn;
+    viewer_->appearance().annot_.x2_.showannot_ = yn;
     viewer_->handleChange( FlatView::Viewer::Annot );
 }
 
 
 bool uiGatherDisplay::displaysAnnotation() const
-{ return displayannotation_; }
+{
+    return displayannotation_;
+}
 
 
 void uiGatherDisplay::setFixedOffsetRange( bool yn, const Interval<float>& rg )
 {
     if ( yn==fixedoffset_ &&
-	mIsEqual(offsetrange_.start,rg.start,1e-3) &&
-	mIsEqual(offsetrange_.stop,rg.stop,1e-3) )
+		mIsEqual(offsetrange_.start,rg.start,1e-3) &&
+		mIsEqual(offsetrange_.stop,rg.stop,1e-3) )
 	return;
 
     fixedoffset_ = yn;
@@ -137,7 +150,8 @@ void uiGatherDisplay::setFixedOffsetRange( bool yn, const Interval<float>& rg )
     if ( viewer_->control() )
 	viewer_->control()->zoomMgr().toStart();
 
-    Interval<double> offrg( rg.start, rg.stop );
+    Interval<double> offrg;
+    offrg.setFrom( rg );
     const uiWorldRect& bbox = viewer_->boundingBox();
     Interval<double> zrg( bbox.top(), bbox.bottom() );
     viewer_->setSelDataRanges( offrg, zrg );
@@ -153,11 +167,15 @@ void uiGatherDisplay::setFixedOffsetRange( bool yn, const Interval<float>& rg )
 
 
 bool uiGatherDisplay::getFixedOffsetRange() const
-{ return fixedoffset_; }
+{
+    return fixedoffset_;
+}
 
 
 const Interval<float>& uiGatherDisplay::getOffsetRange() const
-{ return offsetrange_; }
+{
+    return offsetrange_;
+}
 
 
 void uiGatherDisplay::updateViewRange()
@@ -185,8 +203,7 @@ void uiGatherDisplay::updateViewRange( const uiWorldRect& cur )
 }
 
 
-
-
+// uiViewer2D
 uiViewer2D::uiViewer2D( uiParent* p )
     : uiObjectItemView(p)
     , resizedraw_(false)
@@ -222,7 +239,7 @@ void uiViewer2D::enableScrollBars( bool yn )
 
 uiGatherDisplay* uiViewer2D::addGatherDisplay( int vdid, int wvaid )
 {
-    uiGatherDisplay* gatherdisp = new uiGatherDisplay( 0 );
+    auto* gatherdisp = new uiGatherDisplay( nullptr );
     gatherdisp->setVDGather( vdid );
     gatherdisp->setWVAGather( wvaid );
     addGatherDisplay( gatherdisp );
@@ -254,9 +271,7 @@ void uiViewer2D::removeGatherDisplay( const uiGatherDisplay* disp )
 void uiViewer2D::removeAllGatherDisplays()
 {
     for ( int idx=objectitems_.size()-1; idx>=0; idx-- )
-    {
 	removeItem( objectitems_[idx] );
-    }
 }
 
 
@@ -268,12 +283,15 @@ uiGatherDisplay* uiViewer2D::getGatherDisplay( const BinID& bid )
 	if ( gdisp.getBinID() == bid )
 	    return &gdisp;
     }
-    return 0;
+
+    return nullptr;
 }
 
 
 uiGatherDisplay& uiViewer2D::getGatherDisplay( int idx )
-{ return (uiGatherDisplay&)(*getItem( idx )->getGroup()); }
+{
+    return sCast(uiGatherDisplay&,*getItem(idx)->getGroup());
+}
 
 
 void uiViewer2D::reSized( CallBacker* )
@@ -284,15 +302,17 @@ void uiViewer2D::reSized( CallBacker* )
 
 void uiViewer2D::doReSize( const uiSize& sz )
 {
-    if ( !objectitems_.size() ) return;
-    uiSize objsz = uiSize( sz.width() / objectitems_.size() , sz.height() );
+    if ( objectitems_.isEmpty() )
+	return;
+
+    const uiSize objsz( sz.width() / objectitems_.size(), sz.height() );
     for ( int idx=0; idx<objectitems_.size() ; idx++ )
     {
 	reSizeItem( idx, objsz );
 	getGatherDisplay( idx ).setWidth( objsz.width() );
     }
-    resetViewArea(0);
+
+    resetViewArea( nullptr );
 }
 
-
-}; //namespace
+} // namespace PreStackView

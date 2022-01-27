@@ -76,18 +76,28 @@ void AxesDrawer::updateScene()
     setAnnotInInt( false, annot.x2_.annotinint_ );
     axis(OD::Top)->setup().noannot( !annot.x1_.showannot_ );
     axis(OD::Left)->setup().noannot( !annot.x2_.showannot_ );
-    axis(OD::Bottom)->setup().noannot( !annot.x1_.showannot_ );
     axis(OD::Right)->setup().noannot( !annot.x2_.showannot_ );
     axis(OD::Top)->setup().nogridline( !annot.x1_.showgridlines_ );
     axis(OD::Left)->setup().nogridline( !annot.x2_.showgridlines_ );
-    axis(OD::Bottom)->setup().nogridline( !annot.x1_.showgridlines_ );
     axis(OD::Right)->setup().nogridline( !annot.x2_.showgridlines_ );
 
     uiString x2axisstr( toUiString(annot.x2_.name_) );
     if ( isVertical(vwr_) )
 	x2axisstr.addSpace().append( vwr_.zDomain().uiUnitStr(true) );
     axis(OD::Left)->setup().caption( x2axisstr );
-    axis(OD::Bottom)->setup().caption( toUiString(annot.x1_.name_) );
+
+    if ( annot.x1_.name_.isEmpty() )
+    {
+// Hack
+	axis(OD::Bottom)->setup().noannot( true );
+	axis(OD::Bottom)->setup().nogridline( true );
+    }
+    else
+    {
+	axis(OD::Bottom)->setup().caption( toUiString(annot.x1_.name_) );
+	axis(OD::Bottom)->setup().noannot( !annot.x1_.showannot_ );
+	axis(OD::Bottom)->setup().nogridline( !annot.x1_.showgridlines_ );
+    }
 
     updateViewRect();
     uiGraphicsSceneAxisMgr::updateScene();
@@ -126,8 +136,10 @@ uiBorder AxesDrawer::getAnnotBorder( bool withextraborders ) const
 
     if ( annot.x1_.hasannot_ )
     {
-	b += axisheight*3; // Should be enough space for axis caption
 	t += axisheight*3; // Should be enough space for title
+
+	if ( !annot.x1_.name_.isEmpty() )
+	    b += axisheight*3;
     }
 
     uiBorder annotborder(l,t,r,b);
@@ -148,6 +160,13 @@ uiRect AxesDrawer::getViewRect( bool withextraborders ) const
 void AxesDrawer::setExtraBorder( const uiBorder& border )
 {
     extraborder_ = border;
+}
+
+
+void AxesDrawer::setTitleFont( const FontData& fd )
+{
+    if ( titletxt_ )
+	titletxt_->setFontData( fd );
 }
 
 
