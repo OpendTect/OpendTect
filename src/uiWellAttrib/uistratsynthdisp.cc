@@ -406,7 +406,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     selectedtraceaux_->linestyle_ =
 	OD::LineStyle( OD::LineStyle::Dot, 2, Color::DgbColor() );
 
-    vwr_->handleChange( FlatView::Viewer::Auxdata );
+    vwr_->handleChange( sCast(od_uint32,FlatView::Viewer::Auxdata) );
 }
 
 
@@ -517,7 +517,7 @@ void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
     }
     const Interval<double> xrg = vwr_->getDataPackRange( true );
     vwr_->setSelDataRanges( xrg, newzrg );
-    vwr_->handleChange( FlatView::Viewer::All );
+    vwr_->handleChange( sCast(od_uint32,FlatView::Viewer::All) );
 }
 
 
@@ -619,7 +619,7 @@ void uiStratSynthDisp::drawLevel()
 	}
     }
 
-    vwr_->handleChange( FlatView::Viewer::Auxdata );
+    vwr_->handleChange( sCast(od_uint32,FlatView::Viewer::Auxdata) );
 }
 
 
@@ -736,7 +736,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	    rv = true;
 	    wvltfld_->setInput( mid );
 	}
-	vwr_->handleChange( FlatView::Viewer::All );
+	vwr_->handleChange( sCast(od_uint32,FlatView::Viewer::All) );
     }
     return rv;
 }
@@ -941,7 +941,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 
     if ( !sd )
     {
-	vwr_->handleChange( FlatView::Viewer::All );
+	vwr_->handleChange( sCast(od_uint32,FlatView::Viewer::All) );
 	return;
     }
 
@@ -1136,7 +1136,7 @@ void uiStratSynthDisp::setPreStackMapper()
 	wvamapper.cliprate_ = Interval<float>(0.0,0.0);
 	wvamapper.autosym0_ = true;
 	wvamapper.symmidval_ = 0.0f;
-	vwr.handleChange( FlatView::Viewer::DisplayPars );
+	vwr.handleChange( sCast(od_uint32,FlatView::Viewer::DisplayPars) );
     }
 }
 
