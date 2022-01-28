@@ -210,25 +210,28 @@ void uiColTabImport::getFromSettingsPar( const IOPar& par )
     int nrinvalididx = 0;
     for ( int idx=0; ; idx++ )
     {
-	IOPar* subpar = par.subselect( idx );
+	PtrMan<IOPar> subpar = par.subselect( idx );
 	if ( !subpar || !subpar->size() )
 	{
-	    delete subpar;
 	    nrinvalididx++;
-	    if ( nrinvalididx>1000 ) break;
+	    if ( nrinvalididx>1000 )
+		break;
 	    else
 		continue;
 	}
-	const char* nm = subpar->find( sKey::Name() );
-	if ( !nm )
-	    { delete subpar; nrinvalididx++; continue; }
 
 	ColTab::Sequence* seq = new ColTab::Sequence;
-	seq->usePar( *subpar );
+	if ( !seq->usePar(*subpar) )
+	{
+	    delete seq;
+	    nrinvalididx++;
+	    continue;
+	}
+
 	seqs_ += seq;
 	uiPixmap coltabpix( 16, 10 );
 	coltabpix.fill( *seq, true );
-	listfld_->addItem( ::toUiString(nm), coltabpix );
+	listfld_->addItem( ::toUiString(seq->name()), coltabpix );
     }
 
     if ( listfld_->isEmpty() )
