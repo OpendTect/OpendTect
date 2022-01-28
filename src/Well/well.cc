@@ -274,7 +274,7 @@ Well::Data::~Data()
 
 void Well::Data::prepareForDelete()
 {
-    Well::MGR().removeObject( this );
+//    Well::MGR().removeObject( this );
 }
 
 
