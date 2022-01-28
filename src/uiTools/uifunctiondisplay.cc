@@ -34,9 +34,9 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , ymarkline2item_(0)
     , borderrectitem_(0)
     , titleitem_(0)
-    , mousedown_(false)
     , pointChanged(this)
     , pointSelected(this)
+    , mouseMove(this)
 {
     disableScrollZoom();
     setPrefWidth( setup_.canvaswidth_ );
@@ -64,25 +64,25 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     asu.side( uiRect::Right );
     y2ax_ = new uiAxisHandler( &scene(), asu );
 
+    mAttachCB(getMouseEventHandler().movement,uiFunctionDisplay::mouseMoveCB);
     if ( setup_.editable_ )
     {
-	getMouseEventHandler().buttonPressed.notify(
-				mCB(this,uiFunctionDisplay,mousePress) );
-	getMouseEventHandler().buttonReleased.notify(
-				mCB(this,uiFunctionDisplay,mouseRelease) );
-	getMouseEventHandler().movement.notify(
-				mCB(this,uiFunctionDisplay,mouseMove) );
-	getMouseEventHandler().doubleClick.notify(
-				mCB(this,uiFunctionDisplay,mouseDClick) );
+	mAttachCB(getMouseEventHandler().buttonPressed,
+		  uiFunctionDisplay::mousePressCB);
+	mAttachCB(getMouseEventHandler().buttonReleased,
+		  uiFunctionDisplay::mouseReleaseCB);
+	mAttachCB(getMouseEventHandler().doubleClick,
+		  uiFunctionDisplay::mouseDClick);
     }
 
     setToolTip( tr("Press Ctrl-P to save as image") );
-    reSize.notify( mCB(this,uiFunctionDisplay,reSized) );
+    mAttachCB(reSize,uiFunctionDisplay::reSized);
 }
 
 
 uiFunctionDisplay::~uiFunctionDisplay()
 {
+    detachAllNotifiers();
     cleanUp();
     delete xax_; delete yax_; delete y2ax_;
 }
@@ -527,7 +527,7 @@ bool uiFunctionDisplay::setSelPt()
 }
 
 
-void uiFunctionDisplay::mousePress( CallBacker* )
+void uiFunctionDisplay::mousePressCB( CallBacker* )
 {
     if ( mousedown_ ) return;
 
@@ -540,7 +540,7 @@ void uiFunctionDisplay::mousePress( CallBacker* )
 }
 
 
-void uiFunctionDisplay::mouseRelease( CallBacker* )
+void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
 {
     if ( !mousedown_ ) return;
 
@@ -549,7 +549,9 @@ void uiFunctionDisplay::mouseRelease( CallBacker* )
 
     if ( isnorm && selpt_<=0 )
     {
-	addPoint( ev.pos() );
+	addPoint( Geom::PointF(ev.pos().x, ev.pos().y) );
+	pointSelected.trigger();
+	draw();
 	return;
     }
 
@@ -565,8 +567,13 @@ void uiFunctionDisplay::mouseRelease( CallBacker* )
 }
 
 
-void uiFunctionDisplay::mouseMove( CallBacker* )
+void uiFunctionDisplay::mouseMoveCB( CallBacker* )
 {
+    {
+	const MouseEvent& ev = getMouseEventHandler().event();
+	mouseMove.trigger( Geom::PointF(ev.pos().x, ev.pos().y) );
+	if ( !setup_.editable_ ) return;
+    }
     if ( !mousedown_ ) return;
 
     const uiAxisHandler* xax = xAxis();
@@ -604,54 +611,6 @@ void uiFunctionDisplay::mouseDClick( CallBacker* )
 }
 
 
-void uiFunctionDisplay::addPoint( const uiPoint& pt )
-{
-    const uiAxisHandler* xax = xAxis();
-    const uiAxisHandler* yax = yAxis( false );
-
-    float xval = xax->getVal( pt.x );
-    float yval = yax->getVal( pt.y );
-
-    if ( xval > xax->range().stop )
-	xval = xax->range().stop;
-    else if ( xval < xax->range().start )
-	xval = xax->range().start;
-
-    if ( yval > yax->range().stop )
-	yval = yax->range().stop;
-    else if ( yval < yax->range().start )
-	yval = yax->range().start;
-
-    if ( !xvals_.isEmpty() && xval > xvals_.last() )
-    {
-	xvals_ += xval; yvals_ += yval;
-	selpt_ = xvals_.size()-1;
-    }
-    else
-    {
-	for ( int idx=0; idx<xvals_.size(); idx++ )
-	{
-	    if ( xval > xvals_[idx] )
-		continue;
-
-	    if ( xval == xvals_[idx] )
-		yvals_[idx] = yval;
-	    else
-	    {
-		xvals_.insert( idx, xval );
-		yvals_.insert( idx, yval );
-	    }
-
-	    selpt_ = idx;
-	    break;
-	}
-    }
-
-    pointSelected.trigger();
-    draw();
-}
-
-
 Geom::PointF uiFunctionDisplay::mapToPosition( const Geom::PointF& pt, bool y2 )
 {
     uiAxisHandler* xax = xAxis();
@@ -673,19 +632,6 @@ Geom::PointF uiFunctionDisplay::mapToValue( const Geom::PointF& pt, bool y2 )
 	return Geom::PointF::udf();
 
     return Geom::PointF( xax->getVal(pt.x), yax->getVal(pt.y) );
-}
-
-
-const NotifierAccess& uiFunctionDisplay::mouseMove()
-{
-    return getMouseEventHandler().movement;
-}
-
-
-Geom::PointF uiFunctionDisplay::mousePos()
-{
-    auto pos = getMouseEventHandler().event().pos();
-    return Geom::PointF( pos.x, pos.y );
 }
 
 

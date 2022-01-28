@@ -57,11 +57,12 @@ public:
     void			draw() override;
 
     uiObject*			uiobj()		{ return this; }
-    const NotifierAccess&	mouseMove() override;
-    Geom::PointF		mousePos() override;
+    const NotifierAccess&	mouseMoveNotifier() override
+				{ return mouseMove; }
 
     Notifier<uiFunctionDisplay>	pointSelected;
     Notifier<uiFunctionDisplay>	pointChanged;
+    CNotifier<uiFunctionDisplay,const Geom::PointF&> mouseMove;
 
     uiAxisHandler*		xAxis() const;
     uiAxisHandler*		yAxis(bool y2) const;
@@ -83,14 +84,10 @@ protected:
     uiLineItem*			ymarkline2item_;
     uiTextItem*			titleitem_;
 
-    int				selpt_;
-    bool			mousedown_;
-
-    void			mousePress(CallBacker*);
-    void			mouseRelease(CallBacker*);
-    void			mouseMove(CallBacker*);
+    void			mousePressCB(CallBacker*) override;
+    void			mouseReleaseCB(CallBacker*) override;
+    void			mouseMoveCB(CallBacker*) override;
     void			mouseDClick(CallBacker*);
-    void			addPoint(const uiPoint&);
 
     void			cleanUp() override;
     void			setUpAxis(bool y2);

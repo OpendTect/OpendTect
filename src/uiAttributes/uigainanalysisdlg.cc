@@ -11,7 +11,8 @@ ________________________________________________________________________
 #include "uigainanalysisdlg.h"
 
 #include "uiaxishandler.h"
-#include "uifunctiondisplay.h"
+#include "uifuncdispbase.h"
+#include "uifunctiondisplayserver.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uispinbox.h"
@@ -28,7 +29,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
     , scalefactors_(scalefac)
     , trcbuf_(traces)
 {
-    convertZTo( false );
+    convertZtoDisplay();
 
     Interval<float> scalerg( mUdf(float), -mUdf(float) );
     for ( int idx=0; idx<scalefac.size(); idx++ )
@@ -42,20 +43,21 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
 
     SamplingData<float> zsd = trcbuf_.get(0)->info().sampling;
     Interval<float> zrg( zsd.start, zsd.atIndex(trcbuf_.get(0)->size()-1) );
+    zrg.scale( SI().zDomain().userFactor() );
 
-    uiFunctionDisplay::Setup su;
-    su.fillbelow(true).canvaswidth(600).canvasheight(400).drawborder(true)
+    uiFuncDispBase::Setup fdsu;
+    fdsu.canvaswidth(600).canvasheight(400).drawborder(true)
       .drawliney2(true).editable(true).fillbelow(false).fillbelowy2(true)
       .curvzvaly(5).curvzvaly2(0).drawscattery1(true).yrg(scalerg)
       .xrg(zrg).ycol(OD::Color(255,0,0));
 
-    funcdisp_ = new uiFunctionDisplay( this, su );
-    funcdisp_->xAxis()->setCaption( tr("Z") );
+    funcdisp_ = GetFunctionDisplayServer().createFunctionDisplay( this, fdsu );
+    funcdisp_->xAxis()->setCaption( SI().zDomain().getLabel() );
     funcdisp_->yAxis(true)->setCaption( tr("RMS Amplitude") );
     funcdisp_->yAxis(false)->setCaption( tr("Scale Factor") );
 
     uiGroup* mandispgrp = new uiGroup( this );
-    mandispgrp->attach( alignedBelow, funcdisp_ );
+    mandispgrp->attach( alignedBelow, funcdisp_->uiobj() );
 
     rangefld_ = new uiGenInput( mandispgrp, tr("Scale Range"),
 	    			FloatInpIntervalSpec() );
@@ -85,10 +87,21 @@ uiGainAnalysisDlg::~uiGainAnalysisDlg()
 }
 
 
-void uiGainAnalysisDlg::convertZTo( bool milisec )
+void uiGainAnalysisDlg::convertZtoDisplay()
 {
-    const float factor = milisec ? 1000.00f : 1.0f/1000.00f;
-    if ( zvals_.size() && SI().zIsTime() )
+    const float factor = SI().zDomain().userFactor();
+    if ( zvals_.size() )
+    {
+	for ( int idx=0; idx<zvals_.size(); idx++ )
+	    zvals_[idx] *= factor;
+    }
+}
+
+
+void uiGainAnalysisDlg::convertZfromDisplay()
+{
+    const float factor = 1.f / SI().zDomain().userFactor();
+    if ( zvals_.size() )
     {
 	for ( int idx=0; idx<zvals_.size(); idx++ )
 	    zvals_[idx] *= factor;
@@ -104,6 +117,7 @@ void uiGainAnalysisDlg::setData( bool sety )
     SamplingData<float> zsd = trcbuf_.get(0)->info().sampling;
     StepInterval<float> zrg( zsd.start, zsd.atIndex(trcbuf_.get(0)->size()-1),
 	    		     zsd.step );
+    zrg.scale( SI().zDomain().userFactor() );
 
     const TypeSet<float> yvals = funcdisp_->yVals();
     if ( !yvals.size() && !scalefactors_.size() )
@@ -209,13 +223,13 @@ bool uiGainAnalysisDlg::acceptOK( CallBacker* )
     while ( scalefactors_.isPresent(mUdf(float)) )
 	scalefactors_ -= mUdf(float);
     zvals_ = funcdisp_->xVals();
-    convertZTo( true );
+    convertZfromDisplay();
     return true;
 }
 
 
 bool uiGainAnalysisDlg::rejectOK( CallBacker* )
 {
-    convertZTo( true );
+    convertZfromDisplay();
     return true;
 }

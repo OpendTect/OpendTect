@@ -137,7 +137,7 @@ public:
 				    , ymarklineval_(mUdf(float))
 				    , xmarkline2val_(mUdf(float))
 				    , ymarkline2val_(mUdf(float))
-				    , selpt_(0) {}
+				    {}
 
     virtual			~uiFuncDispBase();
 
@@ -186,8 +186,7 @@ public:
     virtual void		gatherInfo(bool y2=false);
     virtual void		draw() = 0;
     virtual uiObject*		uiobj() = 0;
-    virtual const NotifierAccess&	mouseMove() = 0;
-    virtual Geom::PointF		mousePos() = 0;
+    virtual const NotifierAccess&	mouseMoveNotifier() = 0;
 
 protected:
 
@@ -202,7 +201,8 @@ protected:
     float			xmarkline2val_;
     float			ymarkline2val_;
 
-    int				selpt_;
+    int				selpt_ = -1;
+    bool			mousedown_ = false;
 
     TypeSet<float>		xvals_;
     TypeSet<float>		yvals_;
@@ -212,7 +212,11 @@ protected:
     virtual void		cleanUp() = 0;
     virtual void		drawMarkLines() = 0;
 
+    virtual void		mouseMoveCB(CallBacker*) = 0;
+    virtual void		mousePressCB(CallBacker*) = 0;
+    virtual void		mouseReleaseCB(CallBacker*) = 0;
 
+    virtual void		addPoint(const Geom::PointF&);
 };
 
 

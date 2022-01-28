@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class SeisTrcBuf;
 
-class uiFunctionDisplay;
+class uiFuncDispBase;
 class uiGenInput;
 class uiLabeledSpinBox;
 
@@ -33,21 +33,22 @@ public:
     const TypeSet<float>&	scaleFactors() const	{ return scalefactors_;}
 protected:
 
-    uiFunctionDisplay*		funcdisp_;
+    uiFuncDispBase*		funcdisp_;
     uiGenInput*			rangefld_;
     uiGenInput*			ampscaletypefld_;
     uiLabeledSpinBox*		stepfld_;
 
     TypeSet<float>&		zvals_;
     TypeSet<float>&		scalefactors_;
-    
+
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			dispRangeChgd(CallBacker*);
     void			amplScaleTypeChanged(CallBacker*);
     void			setData(bool sety=false);
-    void			convertZTo(bool msec);
-    
+    void			convertZtoDisplay();
+    void			convertZfromDisplay();
+
     const SeisTrcBuf&		trcbuf_;
 
 };

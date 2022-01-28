@@ -60,7 +60,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 						tr("Navewumber (kft)");
     disp_->xAxis()->setCaption( rangestr );
     disp_->yAxis(false)->setCaption( tr("Power (dB)") );
-    mAttachCB(disp_->mouseMove(), uiAmplSpectrum::valChgd);
+    mAttachCB(disp_->mouseMoveNotifier(), uiAmplSpectrum::valChgd);
 
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
     dispparamgrp_->attach( alignedBelow, disp_->uiobj() );
@@ -354,11 +354,12 @@ void uiAmplSpectrum::exportCB( CallBacker* )
 }
 
 
-void uiAmplSpectrum::valChgd( CallBacker* )
+void uiAmplSpectrum::valChgd( CallBacker* cb )
 {
     if ( !specvals_ ) return;
 
-    const Geom::PointF pos = disp_->mapToValue( disp_->mousePos() );
+    mCBCapsuleUnpack(const Geom::PointF&,mousepos,cb);
+    const Geom::PointF pos = disp_->mapToValue( mousepos );
     const float xpos = pos.x;
     const float ypos = pos.y;
     const bool disp = disp_->xAxis()->range().includes(xpos,true) &&
