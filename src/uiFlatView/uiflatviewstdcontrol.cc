@@ -109,8 +109,6 @@ uiString uiFlatViewZoomLevelDlg::getFieldLabel(bool x1, bool incm) const
 	.arg( x1 ? "Traces per" : "Z Samples per" )
 	.arg( incm ? "cm" : "inch" );
     return lbl;
-
-    x1fld_->setTitleText( tr("Traces per %1").arg(incm?"cm":"inch") );
 }
 
 
