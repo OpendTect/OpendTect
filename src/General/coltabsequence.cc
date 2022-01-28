@@ -457,19 +457,14 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 
 bool ColTab::Sequence::usePar( const IOPar& iopar )
 {
-    ColTab::Sequence backup = *this;
     FixedString res = iopar.find( sKey::Name() );
     if ( !res )
 	return false;
 
     setName( res );
 
-    if ( !getfromPar( iopar, markcolor_, sKeyMarkColor(), 0 ) ||
-	 !getfromPar( iopar, undefcolor_, sKeyUdfColor(), 0 ) )
-    {
-	*this = backup;
-	return false;
-    }
+    getfromPar( iopar, markcolor_, sKeyMarkColor(), 0 );
+    getfromPar( iopar, undefcolor_, sKeyUdfColor(), 0 );
 
     nrsegments_ = 0;
     const bool hadnrsegments = iopar.get( sKeyNrSegments(), nrsegments_ );
