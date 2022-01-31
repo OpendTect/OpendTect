@@ -178,7 +178,6 @@ void uiSynthParsGrp::getPSNames( BufferStringSet& synthnms )
     for ( int idx=synthnms.size(); idx>=0; idx-- )
     {
 	SyntheticData* sd = stratsynth_.getSynthetic( synthnms.get(idx) );
-	bool donmo = true;
 	if ( sd && sd->synthGenDP().isCorrected() )
 	    synthnms.add( sd->name() );
     }
