@@ -155,6 +155,8 @@ bool uiTabBar::isTabVisible( int idx ) const
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
     return body_->isTabVisible( idx );
+#else
+    return false;
 #endif
 }
 
