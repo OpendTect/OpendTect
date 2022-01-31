@@ -15,12 +15,7 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "flatview.h"
 #include "stratsynthgenparams.h"
-
-class ReflectivityModelBase;
-class ReflectivityModelSet;
-class SeisTrc;
-class TimeDepthModel;
-namespace Seis { class RaySynthGenerator; class SynthGenDataPack; }
+#include "synthseis.h"
 
 
 mStruct(WellAttrib) SynthFVSpecificDispPars

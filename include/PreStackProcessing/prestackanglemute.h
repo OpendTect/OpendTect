@@ -15,12 +15,12 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "prestackprocessor.h"
+#include "velocityfunctionvolume.h"
 
 class ElasticModel;
 class Muter;
 class RayTracerRunner;
 class ReflectivityModelBase;
-namespace Vel { class VolumeFunctionSource; }
 
 namespace PreStack
 {

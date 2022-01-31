@@ -90,7 +90,7 @@ private:
 */
 
 
-mClass(Seis) SynthGenBase
+mExpClass(Seis) SynthGenBase
 { mODTextTranslationClass(SynthGenBase);
 public:
 
@@ -144,7 +144,7 @@ protected:
 
 
 
-mClass(Seis) SynthGenerator : public SynthGenBase
+mExpClass(Seis) SynthGenerator : public SynthGenBase
 { mODTextTranslationClass(SynthGenerator);
 public:
     mDefineFactoryInClass( SynthGenerator, factory );

@@ -23,7 +23,7 @@ template <class T> class RefObjectSet;
 \brief A data container for reflection coefficients
 */
 
-mClass(Algo) ReflectivityModelTrace : public ReferencedObject
+mExpClass(Algo) ReflectivityModelTrace : public ReferencedObject
 {
 public:
 			ReflectivityModelTrace(int nrspikes);
@@ -220,4 +220,3 @@ private:
 		    ReflectivityModelSet(const ReflectivityModelSet&) = delete;
     void		operator =( const ReflectivityModelSet&) = delete;
 };
-

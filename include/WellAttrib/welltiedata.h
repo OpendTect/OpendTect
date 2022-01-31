@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "uistring.h"
 #include "welldisp.h"
+#include "welldata.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiesetup.h"
 
@@ -33,7 +34,7 @@ class SyntheticData;
 class TaskRunner;
 class Wavelet;
 
-namespace Well { class Data; class Log; class LogSet; class Writer; }
+namespace Well { class Log; class LogSet; class Writer; }
 
 namespace WellTie
 {

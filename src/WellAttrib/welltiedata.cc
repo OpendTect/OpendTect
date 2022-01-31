@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 
 #include "wavelet.h"
-#include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellextractdata.h"
 #include "wellhorpos.h"

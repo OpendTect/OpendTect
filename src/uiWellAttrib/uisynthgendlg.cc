@@ -179,9 +179,7 @@ void uiSynthParsGrp::getPSNames( BufferStringSet& synthnms )
     {
 	SyntheticData* sd = stratsynth_.getSynthetic( synthnms.get(idx) );
 	bool donmo = true;
-	if ( sd &&
-	     sd->getGenParams().raypars_.getYN(Seis::SynthGenBase::sKeyNMO(),
-					       donmo) && donmo )
+	if ( sd && sd->synthGenDP().isCorrected() )
 	    synthnms.add( sd->name() );
     }
 }

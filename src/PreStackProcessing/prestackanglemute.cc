@@ -15,7 +15,6 @@
 #include "prestackmute.h"
 #include "raytracerrunner.h"
 #include "unitofmeasure.h"
-#include "velocityfunctionvolume.h"
 
 
 namespace PreStack

@@ -2620,9 +2620,7 @@ bool PreStackSyntheticData::hasOffset() const
 
 bool PreStackSyntheticData::isNMOCorrected() const
 {
-    bool isnmo = true;
-    sgp_.raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), isnmo );
-    return isnmo;
+    return synthgendp_->isCorrected();
 }
 
 
