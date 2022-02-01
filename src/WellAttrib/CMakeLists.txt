@@ -12,6 +12,8 @@ SET(OD_MODULE_SOURCES
 		stratseisevent.cc
 		stratsynth.cc
 		stratsynthexp.cc
+		stratsynthgenparams.cc
+		syntheticdata.cc
 		wellhorpos.cc
 		welllogattrib.cc
 		welltiecshot.cc

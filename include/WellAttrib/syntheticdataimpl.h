@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 #include "syntheticdata.h"
 
-class RayTracer1D;
-class ElasticModel;
 class SeisTrcBufDataPack;
 class PropertyRef;
 
