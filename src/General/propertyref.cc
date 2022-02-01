@@ -358,7 +358,7 @@ void PropertyRef::usePar( const IOPar& iop )
     }
 
     NotifyStopper ns( unitChanged );
-    setUnit( sz > 2 ? fms[2] : disp_.getUnitLbl() );
+    setUnit( sz > 2 ? fms[2].buf() : disp_.getUnitLbl() );
     disp_.typicalrange_ = typicalrange;
 
     deleteAndZeroPtr( disp_.defval_ );
