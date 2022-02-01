@@ -1504,7 +1504,8 @@ void OD::PythonAccess::setForScript( const char* scriptnm,
 	{
 	    FilePath pyscriptfp( scriptfp );
 	    const BufferString pyscriptfnm( scriptnm, "-script" );
-	    pyscriptfp.setFileName( pyscriptfnm ).setExtension( "py" );
+	    pyscriptfp.setFileName( pyscriptfnm );
+	    pyscriptfp.setExtension( "py" );
 	    /* Such script exists only for a conda installation, where
 	       executing using python.exe is not required */
 	    if ( pyscriptfp.exists() )
