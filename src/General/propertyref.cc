@@ -356,12 +356,10 @@ void PropertyRef::usePar( const IOPar& iop )
 	typicalrange.start = fms.getFValue( 0 );
 	typicalrange.stop = fms.getFValue( 1 );
     }
-    if ( sz > 2 )
-    {
-	NotifyStopper ns( unitChanged );
-	setUnit( fms[2] );
-	disp_.typicalrange_ = typicalrange;
-    }
+
+    NotifyStopper ns( unitChanged );
+    setUnit( sz > 2 ? fms[2] : disp_.getUnitLbl() );
+    disp_.typicalrange_ = typicalrange;
 
     deleteAndZeroPtr( disp_.defval_ );
     deleteAndZeroPtr( mathdef_ );

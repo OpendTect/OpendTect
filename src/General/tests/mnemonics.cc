@@ -116,8 +116,15 @@ static bool testPropertyRefSelection()
 
     const PropertyRefSelection volumeprs =
 			thicknessnopvelprs.subselect( Mnemonic::Volum );
-    mRunStandardTest( volumeprs.size() == 3,
+    mRunStandardTest( volumeprs.size() == 4,
 			"PropertyRefSelection sub-selection" );
+
+    const PropertyRef* fracrhopr =
+		       PROPS().getByMnemonic( Mnemonic::defFracDensity() );
+    const PropertyRef* fracphipr =
+		       PROPS().getByMnemonic( Mnemonic::defFracOrientation() );
+    mRunStandardTest( fracrhopr && fracphipr,
+		      "Has fracture strike and orientation" );
 
     return true;
 }

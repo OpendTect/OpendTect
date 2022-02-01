@@ -1,6 +1,6 @@
 dTect V6.8.0
 Units of measure
-Tue Sep 07 11:36:14 2021
+Tue Feb 01 11:29:44 2022
 !
 Seconds: Time`s`1
 Milliseconds: Time`ms`0.001
@@ -75,4 +75,6 @@ Barrels: Volume`barrels`6.2898107704
 Thousand Barrels: Volume`Mbbl`6.2898107704e-3
 Million Barrels: Volume`MMbbl`6.2898107704e-6
 Billion Cubic Feet: Volume`bcf`35.314666721e-9
+Radians: Angle`rad`1
+Degrees: Angle`deg`0.01745329251994
 !

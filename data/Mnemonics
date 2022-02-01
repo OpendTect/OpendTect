@@ -1,6 +1,6 @@
 dTect V6.8.0
 Mnemonic
-Tue Sep 07 11:36:14 2021
+Tue Feb 01 11:29:44 2022
 !
 GR: Gamma ray`Gamma Ray`Lin`0`250`0`150`API`255`0`0`CGR`GRS`SGR`KTH
 POTA: Spectral Gamma Ray`Volumetrics`Lin`0`100`0`100`%`255`0`0`
@@ -24,6 +24,8 @@ PHIN: Neutron Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`
 NPHI: Compensated Neutron`Volumetrics`Lin`45`-15`30`0`%`200`200`0`CNL
 SW: Water Saturation`Volumetrics`Lin`0`100`0`100`%`0`200`255`SAT`SWE
 VCL: Vclay`Volumetrics`Lin`0`100`0`100`%`100`200`100`VCLU`VCLC`VCLF`VSH
+FRACRHO: Fracture Density`Volumetrics`Lin`0`10`0`2`Fraction`169`172`148`
+FRACSTRIKE: Fracture Orientation`Angle`Lin`0`360`0`360`Degrees`93`72`200`
 VSVP: Vs/Vp`Elastic Ratio`Lin`0.1`0.67`0.1`0.5``200`150`200`
 VPVS: Vp/Vs`Elastic Ratio`Lin`1.5`10`2`10``200`150`150`
 IMP: Impedance`Impedance`Lin`2e6`2.3e7`2.2e6`2.2e7`m/s x kg/m3`255`150`0`

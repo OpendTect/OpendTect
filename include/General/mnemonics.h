@@ -37,9 +37,10 @@ mExpClass(General) Mnemonic : public NamedObject
 public:
 
     enum StdType	{
-			    Anis, Area, Class, Comp, Den, Dist, ElaRa, ElPot,
-			    Fluid, GR, Imp, Perm, Pres, PresGrad, PresWt, Res,
-			    Son, Temp, Time, Vel, Volum, Vol, Other
+			    Ang, Anis, Area, Class, Comp, Den, Dist, ElaRa,
+			    ElPot, Fluid, GR, Imp, Perm, Pres, PresGrad,
+			    PresWt, Res, Son, Temp, Time, Vel, Volum, Vol,
+			    Other
 			};
 			mDeclareEnumUtils(StdType)
     static StdType	surveyZType(const SurveyInfo* =nullptr);
@@ -114,6 +115,8 @@ public:
     static const Mnemonic& defDTS();
     static const Mnemonic& defPHI();
     static const Mnemonic& defSW();
+    static const Mnemonic& defFracDensity();
+    static const Mnemonic& defFracOrientation();
     static const Mnemonic& defAI();
     static const Mnemonic& defSI();
     static const Mnemonic& defVEL(); //For Time-depth work

@@ -85,6 +85,7 @@ float Mnemonic::DispDefs::commonValue() const
 
 mDefineEnumUtils(Mnemonic,StdType,"Standard Property")
 {
+	"Angle",
 	"Anisotropy",
 	"Area",
 	"Classification",
@@ -358,6 +359,10 @@ const Mnemonic& Mnemonic::defAI() { return *MNC().getByName("AI",false); }
 const Mnemonic& Mnemonic::defSI() { return *MNC().getByName("SI",false); }
 const Mnemonic& Mnemonic::defVEL() { return *MNC().getByName("VEL",false); }
 const Mnemonic& Mnemonic::defTime() { return *MNC().getByName("TWT",false); }
+const Mnemonic& Mnemonic::defFracDensity()
+{ return *MNC().getByName( "FRACRHO", false ); }
+const Mnemonic& Mnemonic::defFracOrientation()
+{ return *MNC().getByName( "FRACSTRIKE", false ); }
 
 
 //------- MnemonicSetMgr ----------

@@ -1,6 +1,6 @@
-dTect V6.8
+dTect V6.8.0
 Properties
-Mon Aug 16 03:02:44 2021
+Tue Feb 01 11:29:44 2022
 !
 Density: Density
 Color: 0`0`200
@@ -136,4 +136,10 @@ Litho: Classification
 Color: 0`255`255
 Range: 1`5
 DefaultValue: Value`1
+!
+Fracture Density: Volumetrics
+DefaultValue: Value`0
+!
+Fracture Orientation: Angle
+DefaultValue: Value`0`deg
 !
