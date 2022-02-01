@@ -116,13 +116,6 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 
     MouseCursorChanger mcc( MouseCursor::Wait );
     getAllLogs();
-    if ( superwls_.isEmpty() || lognms_.isEmpty() )
-    {
-	new uiLabel( this, tr("Selected wells have no logs.\n"
-			   "Please import at least one.") );
-	setCtrlStyle( CloseOnly );
-	return;
-    }
 
     setOkCancelText( uiStrings::sCalculate(), uiStrings::sClose() );
 
@@ -204,12 +197,6 @@ bool uiWellLogCalc::updateWells( const TypeSet<MultiID>& wellids )
     }
     setTitleText( tr("%1").arg(getDlgTitle(wellids_)) );
     getAllLogs();
-    if ( superwls_.isEmpty() || lognms_.isEmpty() )
-    {
-	uiMSG().error( tr("Selected wells have no logs.\n"
-			   "Please import at least one.") );
-	return false;
-    }
     return true;
 }
 
