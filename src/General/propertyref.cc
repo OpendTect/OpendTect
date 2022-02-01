@@ -51,7 +51,8 @@ mDefineEnumUtils(PropertyRef,StdType,"Standard Property")
 	"Volumetrics", // ratios: relative
 	"Volume", // absolute
 	"Other",
-	0
+	"Angle",
+	nullptr
 };
 
 static bool thickness_proprefman_is_deleting_thickness = false;

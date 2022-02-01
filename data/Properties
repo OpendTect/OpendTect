@@ -1,6 +1,6 @@
-dTect V4.3
+dTect V6.6.6
 Properties
-Fri Apr 13 16:46:39 2012
+Tue Feb 01 11:29:44 2022
 !
 Density: Density
 Aliases: Den`Rho`RhoB`RhoZ
@@ -154,4 +154,16 @@ Litho: Classification
 Color: 0`255`255
 Range: 1`5
 DefaultValue: Value`1
+!
+Fracture Density: Volumetrics
+Mnemonic: FRACRHO
+Color: 169`172`148
+Range: 0`2
+DefaultValue: Value`0
+!
+Fracture Orientation: Angle
+Mnemonic: FRACSTRIKE
+Color: 93`72`200
+Range: 0`360`deg
+DefaultValue: Value`0
 !
