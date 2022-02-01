@@ -1511,7 +1511,23 @@ void OD::PythonAccess::setForScript( const char* scriptnm,
 	scriptfp.setExtension( "exe" );
 
     if ( scriptfp.exists() && scriptfp.isAbsolute() )
+    {
+	if ( __iswin__ )
+	{
+	    FilePath pyscriptfp( scriptfp );
+	    const BufferString pyscriptfnm( scriptnm, "-script" );
+	    pyscriptfp.setFileName( pyscriptfnm ).setExtension( "py" );
+	    /* Such script exists only for a conda installation, where
+	       executing using python.exe is not required */
+	    if ( pyscriptfp.exists() )
+	    {
+		mc.setProgram( scriptfp.fileName() );
+		return;
+	    }
+	}
+
 	mc.setProgram( sPythonExecNm() ).addArg( scriptfp.fullPath() );
+    }
     else
 	mc.setProgram( scriptfp.fileName() );
 }
