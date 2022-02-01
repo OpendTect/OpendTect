@@ -597,8 +597,8 @@ void uiWellMan::importLogs( CallBacker* )
 
 void uiWellMan::calcLogs( CallBacker* )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty()
-	|| availablelognms_.isEmpty() || curmultiids_.isEmpty() ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() || curmultiids_.isEmpty() )
+	return;
 
     currdrs_[0]->getLogs();
 
