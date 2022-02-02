@@ -84,11 +84,11 @@ void StratSynth::clearSynthetics( bool excludeprops )
 	for ( int idx=synthetics_.size()-1; idx>=0; idx-- )
 	{
 	    if ( !synthetics_.get(idx)->isStratProp() )
-		delete synthetics_.removeSingle( idx );
+		synthetics_.removeSingle( idx );
 	}
     }
     else
-	deepErase( synthetics_ );
+	synthetics_.setEmpty();
 }
 
 
@@ -170,11 +170,70 @@ const PreStack::GatherSetDataPack* StratSynth::getRelevantAngleData(
 }
 
 
+const SyntheticData* StratSynth::addDefaultSynthetic()
+{
+    genparams_ = SynthGenParams();
+    const SyntheticData* sd = addSynthetic( genparams_ );
+    return sd;
+}
+
+
+const SyntheticData* StratSynth::addSynthetic( const SynthGenParams& synthgen )
+{
+    ConstRefMan<SyntheticData> sd = generateSD( synthgen );
+    if ( !sd )
+	return nullptr;
+
+    int propidx = 0;
+    while ( propidx<synthetics_.size() )
+    {
+	if ( synthetics_[propidx]->isStratProp() )
+	    break;
+	propidx++;
+    }
+
+    synthetics_.insertAt( sd.ptr(), propidx );
+
+    return sd.ptr();
+}
+
+
+const SyntheticData* StratSynth::replaceSynthetic( SynthID id )
+{
+    const int idx = syntheticIdx( id );
+    if ( !synthetics_.validIdx(idx) )
+	return nullptr;
+
+    const SyntheticData* sd = synthetics_[idx];
+    const SynthGenParams synthgen( sd->getGenParams() );
+    ConstRefMan<SyntheticData> newsd = generateSD( synthgen );
+    if ( newsd )
+    {
+	synthetics_.replace( idx, newsd );
+	return newsd;
+    }
+
+    return nullptr;
+}
+
+
+bool StratSynth::removeSynthetic( const char* nm )
+{
+    const int idx = syntheticIdx( nm );
+    if ( synthetics_.validIdx(idx) )
+    {
+	synthetics_.removeSingle( idx );
+	return true;
+    }
+
+    return false;
+}
+
+
 bool StratSynth::disableSynthetic( const char* nm )
 {
-    for ( int idx=0; idx<synthetics_.size(); idx++ )
+    for ( const auto* sd : synthetics_ )
     {
-	SyntheticData* sd = synthetics_[idx];
 	if ( sd->name() != nm )
 	    continue;
 
@@ -182,7 +241,7 @@ bool StratSynth::disableSynthetic( const char* nm )
 	if ( sgp.isPSBased() )
 	{
 	    sgp.inpsynthnm_.set( SynthGenParams::sKeyInvalidInputPS() );
-	    sd->useGenParams( sgp );
+	    const_cast<SyntheticData*>( sd )->useGenParams( sgp );
 	    return true;
 	}
     }
@@ -191,64 +250,47 @@ bool StratSynth::disableSynthetic( const char* nm )
 }
 
 
-bool StratSynth::removeSynthetic( const char* nm )
+const SynthFVSpecificDispPars* StratSynth::dispPars( const char* synthnm ) const
 {
-    for ( int idx=0; idx<synthetics_.size(); idx++ )
-    {
-	if ( synthetics_[idx]->name() == nm )
-	{
-	    delete synthetics_.removeSingle( idx );
-	    return true;
-	}
-    }
-
-    return false;
+    return mSelf().dispPars( synthnm );
 }
 
 
-SyntheticData* StratSynth::addSynthetic( const SynthGenParams& synthgen )
+SynthFVSpecificDispPars* StratSynth::dispPars( const char* synthnm )
 {
-    SyntheticData* sd = generateSD( synthgen );
-    if ( sd )
-    {
-	int propidx = 0;
-	while ( propidx<synthetics_.size() )
-	{
-	    if ( synthetics_[propidx]->isStratProp() )
-		break;
-	    propidx++;
-	}
-	synthetics_.insertAt( sd, propidx );
-    }
-
-    return sd;
-}
-
-
-
-SyntheticData* StratSynth::replaceSynthetic( SynthID id )
-{
-    const SyntheticData* sd = getSynthetic( id );
-    if ( !sd )
+    const int idx = syntheticIdx( synthnm );
+    if ( !synthetics_.validIdx(idx) )
 	return nullptr;
 
-    const SynthGenParams synthgen( sd->getGenParams() );
-    SyntheticData* newsd = generateSD( synthgen );
-    if ( newsd )
-    {
-	const int sdidx = synthetics_.indexOf( sd );
-	delete synthetics_.replace( sdidx, newsd );
-    }
-
-    return newsd;
+    auto* sd = const_cast<SyntheticData*>( synthetics_[idx] );
+    return &sd->dispPars();
 }
 
 
-SyntheticData* StratSynth::addDefaultSynthetic()
+const SyntheticData* StratSynth::getSyntheticByIdx( int idx ) const
 {
-    genparams_ = SynthGenParams();
-    SyntheticData* sd = addSynthetic( genparams_ );
-    return sd;
+    return synthetics_.validIdx( idx ) ?  synthetics_[idx] : nullptr;
+}
+
+
+const SyntheticData* StratSynth::getSynthetic( const char* nm ) const
+{
+    const int idx = syntheticIdx( nm );
+    return synthetics_.validIdx(idx) ? synthetics_[idx] : nullptr;
+}
+
+
+const SyntheticData* StratSynth::getSynthetic( SynthID id ) const
+{
+    const int idx = syntheticIdx( id );
+    return synthetics_.validIdx(idx) ? synthetics_[idx] : nullptr;
+}
+
+
+const SyntheticData* StratSynth::getSynthetic( const PropertyRef& pr ) const
+{
+    const int idx = syntheticIdx( pr );
+    return synthetics_.validIdx(idx) ? synthetics_[idx] :  nullptr;
 }
 
 
@@ -256,7 +298,7 @@ int StratSynth::syntheticIdx( const char* nm ) const
 {
     for ( int idx=0; idx<synthetics().size(); idx++ )
     {
-	if( synthetics_[idx]->name() == nm )
+	if ( synthetics_[idx]->name() == nm )
 	    return idx;
     }
 
@@ -264,38 +306,15 @@ int StratSynth::syntheticIdx( const char* nm ) const
 }
 
 
-SyntheticData* StratSynth::getSynthetic( const char* nm )
+int StratSynth::syntheticIdx( SynthID id ) const
 {
-    for ( int idx=0; idx<synthetics().size(); idx ++ )
+    for ( int idx=0; idx<synthetics().size(); idx++ )
     {
-	if ( synthetics_[idx]->name() == nm )
-	    return synthetics_[idx];
-    }
-    return nullptr;
-}
-
-
-SyntheticData* StratSynth::getSynthetic( SynthID id )
-{
-    for ( auto* sd : synthetics() )
-    {
-	if ( sd->id_ == id )
-	    return sd;
+	if ( synthetics_[idx]->id_ == id )
+	    return idx;
     }
 
-    return nullptr;
-}
-
-
-SyntheticData* StratSynth::getSyntheticByIdx( int idx )
-{
-    return synthetics_.validIdx( idx ) ?  synthetics_[idx] : nullptr;
-}
-
-
-const SyntheticData* StratSynth::getSyntheticByIdx( int idx ) const
-{
-    return synthetics_.validIdx( idx ) ?  synthetics_[idx] : nullptr;
+    return -1;
 }
 
 
@@ -317,6 +336,13 @@ int StratSynth::syntheticIdx( const PropertyRef& pr ) const
     }
 
     return -1;
+}
+
+
+const char* StratSynth::getSyntheticName( int idx ) const
+{
+    return synthetics_.validIdx(idx) ? synthetics_.get(idx)->name().buf()
+				     : nullptr;
 }
 
 
@@ -347,22 +373,6 @@ void StratSynth::getSyntheticNames( BufferStringSet& nms,
 	if ( synthetic->synthType() == synthtype )
 	    nms.add( synthetic->name() );
     }
-}
-
-
-SyntheticData* StratSynth::getSynthetic( const	PropertyRef& pr )
-{
-    for ( auto* sd : synthetics_ )
-    {
-	if ( !sd->isStratProp() )
-	    continue;
-
-	mDynamicCastGet(StratPropSyntheticData*,pssd,sd);
-	if ( !pssd ) continue;
-	if ( &pr == &pssd->propRef() )
-	    return sd;
-    }
-    return nullptr;
 }
 
 
@@ -471,8 +481,13 @@ AttributeSyntheticCreator( const PostStackSyntheticData& sd,
     , seistrcbufs_(seisbufs)
     , sd_(sd)
     , attribs_(attribs)
-    , descset_(nullptr)
 {
+}
+
+
+~AttributeSyntheticCreator()
+{
+    delete descset_;
 }
 
 
@@ -492,6 +507,7 @@ private:
 
 void createInstAttributeSet()
 {
+    delete descset_;
     descset_ = new Attrib::DescSet( false );
     BufferString dpidstr( "#", sd_.datapackid_.buf() );
     Attrib::DescID did = descset_->getStoredID( dpidstr.buf(), 0, true );
@@ -623,14 +639,14 @@ bool doFinish( bool success )
     const BufferStringSet&		attribs_;
     ObjectSet<SeisTrcBuf>&		seistrcbufs_;
     TypeSet<int>			comps_;
-    PtrMan<Attrib::DescSet>		descset_;
+    Attrib::DescSet*			descset_ = nullptr;
     TrcKeyZSampling			tkzs_;
-    TaskRunner*				taskr_;
+    TaskRunner*				taskr_ = nullptr;
     uiString				msg_;
 };
 
 
-SyntheticData* StratSynth::createAttribute( const SyntheticData& sd,
+ConstRefMan<SyntheticData> StratSynth::createAttribute( const SyntheticData& sd,
 					    const SynthGenParams& synthgenpar )
 {
     ObjectSet<SeisTrcBuf> seistrcbufs;
@@ -646,8 +662,9 @@ SyntheticData* StratSynth::createAttribute( const SyntheticData& sd,
 				 Seis::Line, SeisTrcInfo::TrcNr,
 				 PostStackSyntheticData::sDataPackCategory() );
 
-    return new InstAttributeSyntheticData( synthgenpar, sd.synthGenDP(),
-					   *dpname );
+    ConstRefMan<SyntheticData> ret =
+	new InstAttributeSyntheticData( synthgenpar, sd.synthGenDP(), *dpname );
+    return ret;
 }
 
 
@@ -688,10 +705,13 @@ bool StratSynth::addInstAttribSynthetics( const BufferStringSet& attribs,
 	Attrib::Instantaneous::parseEnum(attribs[idx]->buf(), pars.attribtype_);
 	pars.createName( pars.name_ );
 
-	auto* sd = new InstAttributeSyntheticData( pars, insd->synthGenDP(),
-						   *dpname );
+	ConstRefMan<SyntheticData> sd =
+	    new InstAttributeSyntheticData( pars, insd->synthGenDP(), *dpname );
 	if ( sd )
+	{
+	    const_cast<SyntheticData*>( sd.ptr() )->id_ = ++lastsyntheticid_;
 	    synthetics_.insertAt( sd, propidx++ );
+	}
 	else
 	    mErrRet( tr(" synthetic data not created."), return false )
     }
@@ -700,7 +720,8 @@ bool StratSynth::addInstAttribSynthetics( const BufferStringSet& attribs,
 }
 
 
-SyntheticData* StratSynth::createAVOGradient( const SyntheticData& sd,
+ConstRefMan<SyntheticData> StratSynth::createAVOGradient(
+					      const SyntheticData& sd,
 					      const TrcKeyZSampling& tkzs,
 					      const SynthGenParams& sgp )
 {
@@ -711,11 +732,14 @@ SyntheticData* StratSynth::createAVOGradient( const SyntheticData& sd,
 
     mSetProc();
     mCreateSeisBuf( angledp );
-    return new AVOGradSyntheticData( sgp, sd.synthGenDP(), *angledp );
+    ConstRefMan<SyntheticData> ret =
+		new AVOGradSyntheticData( sgp, sd.synthGenDP(), *angledp );
+    return ret;
 }
 
 
-SyntheticData* StratSynth::createAngleStack( const SyntheticData& sd,
+ConstRefMan<SyntheticData> StratSynth::createAngleStack(
+					     const SyntheticData& sd,
 					     const TrcKeyZSampling& tkzs,
 					     const SynthGenParams& sgp )
 {
@@ -725,7 +749,9 @@ SyntheticData* StratSynth::createAngleStack( const SyntheticData& sd,
 
     mSetProc();
     mCreateSeisBuf( angledp );
-    return new AngleStackSyntheticData( sgp, sd.synthGenDP(), *angledp);
+    ConstRefMan<SyntheticData> ret =
+		new AngleStackSyntheticData( sgp, sd.synthGenDP(), *angledp );
+    return ret;
 }
 
 
@@ -1044,7 +1070,7 @@ bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
 }
 
 
-SyntheticData* StratSynth::generateSD( const SynthGenParams& sgp )
+ConstRefMan<SyntheticData> StratSynth::generateSD( const SynthGenParams& sgp )
 {
     errmsg_.setEmpty();
 
@@ -1061,7 +1087,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& sgp )
 	    return nullptr;
     }
 
-    SyntheticData* sd = nullptr;
+    ConstRefMan<SyntheticData> sd;
     if ( sgp.isRawOutput() )
     {
 	PtrMan<Seis::RaySynthGenerator> synthgen;
@@ -1087,9 +1113,10 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& sgp )
 	sd = SyntheticData::get( sgp, *synthgen.ptr() );
 	if ( sd && sd->isPS() )
 	{
-	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
 	    const PreStack::GatherSetDataPack* anglegather =
 				getRelevantAngleData( sd->synthGenDP() );
+	    mDynamicCastGet(const PreStackSyntheticData*,presdc,sd.ptr());
+	    auto* presd = const_cast<PreStackSyntheticData*>( presdc );
 	    if ( anglegather )
 		presd->setAngleData( anglegather->getGathers() );
 	    else
@@ -1137,10 +1164,10 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& sgp )
     {
 	BufferString sdnm = sd->name();
 	sdnm += sKeyFRNameSuffix();
-	sd->setName( sdnm );
+	const_cast<SyntheticData*>( sd.ptr() )->setName( sdnm );
     }
 
-    sd->id_ = ++lastsyntheticid_;
+    const_cast<SyntheticData*>( sd.ptr() )->id_ = ++lastsyntheticid_;
     return sd;
 }
 
@@ -1262,7 +1289,7 @@ mClass(WellAttrib) StratPropSyntheticDataCreator : public ParallelTask
 { mODTextTranslationClass(StratPropSyntheticDataCreator);
 
 public:
-StratPropSyntheticDataCreator( ObjectSet<SyntheticData>& synths,
+StratPropSyntheticDataCreator( RefObjectSet<const SyntheticData>& synths,
 		    const PostStackSyntheticData& sd,
 		    const Strat::LayerModel& lm,
 		    const ObjectSet<Strat::LayerModel>& layermodels,
@@ -1447,10 +1474,10 @@ bool doFinish( bool success ) override
 	BufferString nm( "[", propnm, "]" );
 	sgp.name_.set( nm );
 	dp->setName( nm );
-	auto* prsd = new StratPropSyntheticData( sgp, sd_.synthGenDP(),
-						 *dp, *pr );
-	prsd->id_ = ++lastsyntheticid_;
-	synthetics_ += prsd;
+	ConstRefMan<SyntheticData> prsd =
+		new StratPropSyntheticData( sgp, sd_.synthGenDP(), *dp, *pr );
+	const_cast<SyntheticData*>( prsd.ptr() )->id_ = ++lastsyntheticid_;
+	synthetics_ += prsd.ptr();
     }
 
     return true;
@@ -1461,7 +1488,7 @@ bool doFinish( bool success ) override
     PropertyRefSelection		prs_;
     StepInterval<double>		zrg_;
     const ObjectSet<Strat::LayerModel>& layermodels_;
-    ObjectSet<SyntheticData>&		synthetics_;
+    RefObjectSet<const SyntheticData>&	synthetics_;
     ObjectSet<SeisTrcBufDataPack>	seisbufdps_;
     int&				lastsyntheticid_;
     bool				useed_;
@@ -1692,16 +1719,16 @@ static void convD2T( const ReflectivityModelSet& refmodels, int dispeach,
 
 bool StratSynth::setLevelTimes( const char* sdnm, int dispeach, int offsetidx )
 {
-    SyntheticData* sd = getSynthetic( sdnm );
+    const SyntheticData* sd = getSynthetic( sdnm );
     if ( !sd || sd->isPS() )
 	return false;
 
-    mDynamicCastGet(PostStackSyntheticData*,postsd,sd);
+    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
     if ( !postsd )
 	return false;
 
-    getLevelTimes( sd->synthGenDP().getModels(), dispeach,
-		   postsd->postStackPack().trcBuf(), offsetidx );
+    auto& trcs = const_cast<SeisTrcBuf&>( postsd->postStackPack().trcBuf() );
+    getLevelTimes( sd->synthGenDP().getModels(), dispeach, trcs, offsetidx );
     return true;
 }
 

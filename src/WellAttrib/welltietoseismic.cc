@@ -165,11 +165,11 @@ bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
     SynthGenParams sgp = synthetics->getGenParams();
     sgp.setWavelet( wvlt );
     sgp.createName( sgp.name_ );
-    ConstPtrMan<SyntheticData> newsynthdp = SyntheticData::get( sgp, synthgen );
+    ConstRefMan<SyntheticData> newsynthdp = SyntheticData::get( sgp, synthgen );
     if ( !newsynthdp )
-	return false;
+	mErrRet( uiStrings::phrCannotCreate(tr("synthetic")) );
 
-    data_.setSynthetics( newsynthdp.release() );
+    data_.setSynthetics( newsynthdp.ptr() );
 
     return true;
 }
@@ -565,11 +565,11 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 	mErrRet( uiStrings::phrCannotCreate(
 		tr("synthetic: %1").arg(synthgen.uiMessage())) )
 
-    ConstPtrMan<SyntheticData> synthdp = SyntheticData::get( sgp, synthgen );
+    ConstRefMan<SyntheticData> synthdp = SyntheticData::get( sgp, synthgen );
     if ( !synthdp )
 	mErrRet( uiStrings::phrCannotCreate(tr("synthetic")) );
 
-    data_.setSynthetics( synthdp.release() );
+    data_.setSynthetics( synthdp.ptr() );
     const Data& data = data_;
     const SeisTrc* firstrc = data.getSynthTrc();
     if ( firstrc )

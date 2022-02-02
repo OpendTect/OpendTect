@@ -36,18 +36,18 @@ mExpClass(uiWellAttrib) uiStratSynthCrossplot : public uiDialog
 public:
 				uiStratSynthCrossplot(uiParent*,
 				    const Strat::LayerModel&,
-				    const ObjectSet<SyntheticData>&);
+				    const ObjectSet<const SyntheticData>&);
 				~uiStratSynthCrossplot();
 
     void			setRefLevel(const char*);
-    uiString	 		errMsg() const
+    uiString			errMsg() const
 				{ return errmsg_; }
 
 protected:
 
     const Strat::LayerModel&	lm_;
 
-    const ObjectSet<SyntheticData>& synthdatas_;
+    const ObjectSet<const SyntheticData>& synthdatas_;
     ObjectSet<TypeSet<Interval<float> > > extrgates_;
 
     uiAttribDescSetBuild*	seisattrfld_;

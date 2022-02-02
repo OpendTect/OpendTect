@@ -175,9 +175,9 @@ void uiSynthParsGrp::getPSNames( BufferStringSet& synthnms )
 {
     synthnms.erase();
     stratsynth_.getSyntheticNames( synthnms, SynthGenParams::PreStack );
-    for ( int idx=synthnms.size(); idx>=0; idx-- )
+    for ( int idx=synthnms.size()-1; idx>=0; idx-- )
     {
-	SyntheticData* sd = stratsynth_.getSynthetic( synthnms.get(idx) );
+	const SyntheticData* sd = stratsynth_.getSynthetic( synthnms.get(idx) );
 	if ( sd && sd->synthGenDP().isCorrected() )
 	    synthnms.add( sd->name() );
     }
@@ -190,7 +190,7 @@ void uiSynthParsGrp::getInpNames( BufferStringSet& synthnms )
 
     for ( int synthidx=0; synthidx<stratsynth_.nrSynthetics(); synthidx++ )
     {
-	SyntheticData* sd = stratsynth_.getSyntheticByIdx( synthidx );
+	const SyntheticData* sd = stratsynth_.getSyntheticByIdx( synthidx );
 	if ( sd && sd->getGenParams().canBeAttributeInput() )
 	    synthnms.add( sd->name() );
     }
@@ -288,11 +288,10 @@ bool uiSynthParsGrp::checkSyntheticName( bool isupdate )
 
 bool uiSynthParsGrp::doAddSynthetic( bool isupdate )
 {
-
     checkSyntheticName( isupdate );
 
     MouseCursorChanger mcchger( MouseCursor::Wait );
-    SyntheticData* sd = stratsynth_.addSynthetic( stratsynth_.genParams() );
+    const SyntheticData* sd = stratsynth_.addSynthetic(stratsynth_.genParams());
     if ( !sd )
 	mErrRet( stratsynth_.errMsg(), return false )
 
@@ -311,7 +310,7 @@ void uiSynthParsGrp::newSynthSelCB( CallBacker* )
     }
     else
     {
-	SyntheticData* sd = stratsynth_.getSynthetic( synthnm.buf() );
+	const SyntheticData* sd = stratsynth_.getSynthetic( synthnm.buf() );
 	if ( sd )
 	    sgp = sd->getGenParams();
     }
@@ -359,7 +358,7 @@ void uiSynthParsGrp::updateSyntheticsCB( CallBacker* )
     const BufferString& newsynthnm = stratsynth_.genParams().name_;
     for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
     {
-	SyntheticData* sd = stratsynth_.getSyntheticByIdx( idx );
+	const SyntheticData* sd = stratsynth_.getSyntheticByIdx( idx );
 	if ( !sd || (!sd->isAngleStack() && !sd->isAVOGradient() &&
 		     !sd->isAttribute()) )
 	    continue;
@@ -370,7 +369,7 @@ void uiSynthParsGrp::updateSyntheticsCB( CallBacker* )
 
 	SynthGenParams newsgp( sgp );
 	newsgp.inpsynthnm_.set( newsynthnm );
-	sd->useGenParams( newsgp );
+	const_cast<SyntheticData*>( sd )->useGenParams( newsgp );
     }
 
     synthnmlb_->setItemText( selidx, newsynthnm );
@@ -700,7 +699,7 @@ bool uiSynthParsGrp::getFromScreen()
 			"prestack synthetic data has already been removed"),
 			return false );
 
-	SyntheticData* inppssd = stratsynth_.getSynthetic(
+	const SyntheticData* inppssd = stratsynth_.getSynthetic(
 		psselfld_->box()->textOfItem(psselfld_->box()->currentItem()));
 	if ( !inppssd )
 	    mErrRet( tr("Problem with Input Prestack synthetic data"),
@@ -723,7 +722,7 @@ bool uiSynthParsGrp::getFromScreen()
 			"poststack synthetic data has already been removed"),
 			return false );
 
-	SyntheticData* inpsd = stratsynth_.getSynthetic(
+	const SyntheticData* inpsd = stratsynth_.getSynthetic(
 	    inpselfld_->box()->textOfItem(inpselfld_->box()->currentItem()) );
 	if ( !inpsd )
 	    mErrRet( tr("Problem with Input synthetic data"), return false);

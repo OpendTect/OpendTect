@@ -15,14 +15,16 @@ ________________________________________________________________________
 #include "uiflatviewslicepos.h"
 #include "uistring.h"
 
-class TimeDepthModel;
+class PropertyRef;
+class PropertyRefSelection;
 class SeisTrcBuf;
 class StratSynth;
 class SyntheticData;
-class PropertyRef;
-class PropertyRefSelection;
+class SynthFVSpecificDispPars;
 class TaskRunner;
+class TimeDepthModel;
 class Wavelet;
+
 class uiButton;
 class uiComboBox;
 class uiFlatViewer;
@@ -61,11 +63,15 @@ public:
     const StratSynth&	normalSS() const	{ return *stratsynth_; }
     const StratSynth&	editSS() const		{ return *edstratsynth_; }
 
-    const ObjectSet<SyntheticData>& getSynthetics() const;
-    SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
-    SyntheticData*	getSyntheticData(const char* nm);
+    const ObjectSet<const SyntheticData>& getSynthetics() const;
+
+    RefMan<SyntheticData> getSyntheticData(const char* nm);
+    ConstRefMan<SyntheticData> getSyntheticData(const char* nm) const;
+    ConstRefMan<SyntheticData> getCurrentSyntheticData(bool wva=true) const;
     const PropertyRefSelection& modelPropertyRefs() const;
 
+    const SynthFVSpecificDispPars* dispPars(const char* synthnm) const;
+    SynthFVSpecificDispPars* dispPars(const char* synthnm);
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
 
     void		setFlattened(bool flattened,bool trigger=true);
@@ -143,8 +149,8 @@ protected:
     bool		useed_ = false;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_ = nullptr;
-    SyntheticData*	currentwvasynthetic_ = nullptr;
-    SyntheticData*	currentvdsynthetic_ = nullptr;
+    WeakPtr<SyntheticData> currentwvasynthetic_;
+    WeakPtr<SyntheticData> currentvdsynthetic_;
 
     uiMultiFlatViewControl* control_;
     FlatView::AuxData*	selectedtraceaux_ = nullptr;
@@ -181,7 +187,7 @@ protected:
     void		updateFields();
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);
-    void		setCurSynthetic(SyntheticData*,bool wva);
+    void		setCurSynthetic(const SyntheticData*,bool wva);
     void		copySyntheticDispPars();
     void		setDefaultAppearance(FlatView::Appearance&);
     inline StratSynth&	altSS()
@@ -214,7 +220,6 @@ protected:
     void		syntheticChanged(CallBacker*);
     void		syntheticRemoved(CallBacker*);
     void		syntheticDisabled(CallBacker*);
-    void		syntheticDeleted(CallBacker*);
     void		selPreStackDataCB(CallBacker*);
     void		preStackWinClosedCB(CallBacker*);
     void		newModelsCB(CallBacker*);

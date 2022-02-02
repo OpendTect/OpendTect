@@ -47,32 +47,32 @@ public:
 				~StratSynth();
 
     int			nrSynthetics() const;
-    SyntheticData*	addSynthetic(const SynthGenParams&);
-    bool		addInstAttribSynthetics(const BufferStringSet&,
-						const SynthGenParams&);
+
+    const SyntheticData* addDefaultSynthetic();
+    const SyntheticData* addSynthetic(const SynthGenParams&);
+    const SyntheticData* replaceSynthetic(SynthID);
     bool		removeSynthetic(const char*);
     bool		disableSynthetic(const char*);
-    SyntheticData*	replaceSynthetic(SynthID);
-    SyntheticData*	addDefaultSynthetic();
+    bool		addInstAttribSynthetics(const BufferStringSet&,
+						const SynthGenParams&);
+
+    const SynthFVSpecificDispPars* dispPars(const char* synthnm) const;
+    SynthFVSpecificDispPars* dispPars(const char* synthnm);
+
+    const SyntheticData* getSyntheticByIdx(int idx) const;
+    const SyntheticData* getSynthetic(const char* nm) const;
+    const SyntheticData* getSynthetic(SynthID) const;
+    const SyntheticData* getSynthetic(const PropertyRef&) const;
+
     int			syntheticIdx(const char* nm) const;
+    int			syntheticIdx(SynthID) const;
     int			syntheticIdx(const PropertyRef&) const;
-    SyntheticData*	getSynthetic(const char* nm);
-    inline const SyntheticData* getSynthetic( const char* nm ) const
-			{ const int idx = syntheticIdx( nm );
-			  return synthetics_.validIdx(idx) ? synthetics_[idx]
-							   : nullptr; }
+
+    const char*		getSyntheticName(int idx) const;
     void		getSyntheticNames(BufferStringSet&) const;
     void		getSyntheticNames(BufferStringSet&,
 					  SynthGenParams::SynthType) const;
     void		getSyntheticNames(BufferStringSet&,bool wantpres) const;
-    SyntheticData*	getSynthetic(SynthID);
-    SyntheticData*	getSynthetic(const PropertyRef&);
-    inline const SyntheticData* getSynthetic( const PropertyRef& prf ) const
-			{ const int idx = syntheticIdx( prf );
-			  return synthetics_.validIdx(idx) ? synthetics_[idx]
-							   : nullptr; }
-    SyntheticData*	getSyntheticByIdx(int idx);
-    const SyntheticData* getSyntheticByIdx(int idx) const;
     void		clearSynthetics(bool excludeprops=false);
     void		generateOtherQuantities(double zstep=0.001,
 				const BufferStringSet* proplistfilter=nullptr);
@@ -88,7 +88,7 @@ public:
     bool		hasElasticModels() const
 					{ return !aimodels_.isEmpty(); }
 
-    const ObjectSet<SyntheticData>& synthetics() const
+    const ObjectSet<const SyntheticData>& synthetics() const
 					{ return synthetics_; }
 
     void		setWavelet(const Wavelet*);
@@ -142,7 +142,7 @@ protected:
     const StratSynthLevel*	level_ = nullptr;
     SynthGenParams		genparams_;
     PropertyRefSelection	props_;
-    ObjectSet<SyntheticData>	synthetics_;
+    RefObjectSet<const SyntheticData>	synthetics_;
     TypeSet<ElasticModel>	aimodels_;
     SynthID			lastsyntheticid_ = 0;
     bool			swaveinfomsgshown_ = false;
@@ -157,15 +157,15 @@ protected:
 					 ElasticModel&,int seqidx);
     bool		adjustElasticModel(const Strat::LayerModel&,
 					   TypeSet<ElasticModel>&,bool chksvel);
-    SyntheticData*	generateSD( const SynthGenParams&);
     bool		runSynthGen(Seis::RaySynthGenerator&,
 				    const SynthGenParams&);
-    SyntheticData*	createAttribute(const SyntheticData&,
+    ConstRefMan<SyntheticData> generateSD( const SynthGenParams&);
+    ConstRefMan<SyntheticData> createAttribute(const SyntheticData&,
 					 const SynthGenParams&);
-    SyntheticData*	createAngleStack(const SyntheticData&,
+    ConstRefMan<SyntheticData> createAngleStack(const SyntheticData&,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
-    SyntheticData*	createAVOGradient(const SyntheticData&,
+    ConstRefMan<SyntheticData> createAVOGradient(const SyntheticData&,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
     void		createAngleData(PreStackSyntheticData&);

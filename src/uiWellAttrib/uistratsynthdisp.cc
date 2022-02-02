@@ -339,8 +339,10 @@ void uiStratSynthDisp::setDisplayZSkip( float zskip, bool withmodchg )
 void uiStratSynthDisp::setDispEach( int de )
 {
     dispeach_ = de;
-    displayPostStackSynthetic( currentwvasynthetic_, true );
-    displayPostStackSynthetic( currentvdsynthetic_, false );
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    displayPostStackSynthetic( currentwvasynthetic, true );
+    displayPostStackSynthetic( currentvdsynthetic, false );
 }
 
 
@@ -349,7 +351,7 @@ void uiStratSynthDisp::setSelectedTrace( int st )
     selectedtrace_ = st;
 
     delete vwr_->removeAuxData( selectedtraceaux_ );
-    selectedtraceaux_ = 0;
+    selectedtraceaux_ = nullptr;
 
     const StepInterval<double> xrg = vwr_->getDataPackRange(true);
     const StepInterval<double> zrg = vwr_->getDataPackRange(false);
@@ -492,12 +494,17 @@ void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
 void uiStratSynthDisp::levelSnapChanged( CallBacker* )
 {
     const StratSynthLevel* lvl = curSS().getLevel();
-    if ( !lvl )  return;
-    StratSynthLevel* edlvl = const_cast<StratSynthLevel*>( lvl );
+    if ( !lvl )
+	return;
+
+    auto* edlvl = const_cast<StratSynthLevel*>( lvl );
     VSEvent::Type tp;
     VSEvent::parseEnumType( levelsnapselfld_->text(), tp );
     edlvl->snapev_ = tp;
-    if ( currentwvasynthetic_ || currentvdsynthetic_ )
+
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    if ( currentwvasynthetic || currentvdsynthetic )
 	drawLevel();
 }
 
@@ -551,8 +558,10 @@ void uiStratSynthDisp::updateTextPosCB( CallBacker* )
 
 void uiStratSynthDisp::drawLevel()
 {
-    const SyntheticData* synthseis = currentwvasynthetic_ ? currentwvasynthetic_
-							  : currentvdsynthetic_;
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    const SyntheticData* synthseis = currentwvasynthetic ? currentwvasynthetic
+							 : currentvdsynthetic;
     if ( !synthseis )
 	return;
 
@@ -599,8 +608,10 @@ void uiStratSynthDisp::setCurrentWavelet()
 {
     setCurSynthetic( nullptr, true );
     curSS().setWavelet( wvltfld_->getWavelet() );
-    SyntheticData* wvasd = curSS().getSynthetic( wvadatalist_->text() );
-    SyntheticData* vdsd = curSS().getSynthetic( vddatalist_->text() );
+    ConstRefMan<SyntheticData> wvasd =
+			       curSS().getSynthetic( wvadatalist_->text() );
+    ConstRefMan<SyntheticData> vdsd =
+			       curSS().getSynthetic( vddatalist_->text() );
     if ( !vdsd && !wvasd )
 	return;
 
@@ -637,41 +648,21 @@ void uiStratSynthDisp::setCurrentWavelet()
 }
 
 
-void uiStratSynthDisp::setCurSynthetic( SyntheticData* sd, bool wva )
+void uiStratSynthDisp::setCurSynthetic( const SyntheticData* sd, bool wva )
 {
-    SyntheticData*& cursynth = wva ? currentwvasynthetic_
-				   : currentvdsynthetic_;
-    if ( cursynth )
-    {
-	mDetachCB( cursynth->objectToBeDeleted(),
-		   uiStratSynthDisp::syntheticDeleted );
-    }
-
-    cursynth = nullptr;
-
-    if ( sd )
-    {
-	cursynth = sd;
-	mAttachCB( cursynth->objectToBeDeleted(),
-		   uiStratSynthDisp::syntheticDeleted );
-    }
-}
-
-
-void uiStratSynthDisp::syntheticDeleted( CallBacker* cb )
-{
-    if ( cb == currentwvasynthetic_ )
-	setCurSynthetic( nullptr, true );
-    if ( cb == currentvdsynthetic_ )
-	setCurSynthetic( nullptr, false );
+    WeakPtr<SyntheticData>& cursynth = wva ? currentwvasynthetic_
+					   : currentvdsynthetic_;
+    cursynth = const_cast<SyntheticData*>( sd );
 }
 
 
 void uiStratSynthDisp::wvltChg( CallBacker* )
 {
     setCurrentWavelet();
-    displaySynthetic( currentwvasynthetic_ );
-    displayPostStackSynthetic( currentvdsynthetic_, false );
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    displaySynthetic( currentwvasynthetic );
+    displayPostStackSynthetic( currentvdsynthetic, false );
 }
 
 
@@ -685,7 +676,8 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 {
     uiMsgMainWinSetter mws( mainwin() );
 
-    if ( !currentwvasynthetic_ || currentwvasynthetic_->isPS() )
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    if ( !currentwvasynthetic || currentwvasynthetic->isPS() )
     {
 	uiMSG().error(tr("Please select a post-stack synthetic in wiggle view. "
 			 "The scaling tool compares the amplitudes of the "
@@ -694,7 +686,8 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	return false;
     }
 
-    mDynamicCastGet(const PostStackSyntheticData*,pssd,currentwvasynthetic_);
+    mDynamicCastGet(const PostStackSyntheticData*,pssd,
+		    currentwvasynthetic.ptr());
     const SeisTrcBuf& tbuf = pssd->postStackPack().trcBuf();
     if ( tbuf.isEmpty() )
     {
@@ -727,7 +720,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     bool rv = false;
     PtrMan<SeisTrcBuf> scaletbuf = tbuf.clone();
     const int dispeach = 1;
-    curSS().getLevelTimes( currentwvasynthetic_->synthGenDP().getModels(),
+    curSS().getLevelTimes( currentwvasynthetic->synthGenDP().getModels(),
 			   dispeach, *scaletbuf );
     uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->getID(),levelname);
     if ( dlg.go() )
@@ -742,22 +735,27 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	}
 	vwr_->handleChange( sCast(unsigned int,FlatView::Viewer::All) );
     }
+
     return rv;
 }
 
 
 void uiStratSynthDisp::parsChangedCB( CallBacker* )
 {
-    if ( currentvdsynthetic_ )
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    if ( currentvdsynthetic )
     {
-	SynthFVSpecificDispPars& disppars = currentvdsynthetic_->dispPars();
+	auto& disppars = const_cast<SynthFVSpecificDispPars&>(
+					currentvdsynthetic->dispPars() );
 	disppars.ctab_ = vwr_->appearance().ddpars_.vd_.ctab_;
 	disppars.vdmapper_ = vwr_->appearance().ddpars_.vd_.mappersetup_;
     }
 
-    if ( currentwvasynthetic_ )
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    if ( currentwvasynthetic )
     {
-	SynthFVSpecificDispPars& disppars = currentwvasynthetic_->dispPars();
+	auto& disppars = const_cast<SynthFVSpecificDispPars&>(
+					currentwvasynthetic->dispPars() );
 	disppars.wvamapper_ = vwr_->appearance().ddpars_.wva_.mappersetup_;
 	disppars.overlap_ = vwr_->appearance().ddpars_.wva_.overlap_;
     }
@@ -810,14 +808,15 @@ const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
 
     mDefineStaticLocalObject( uiWorldRect, timewr, );
     timewr = vwr_->curView();
-    if ( !indpth || !currentwvasynthetic_ )
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    if ( !indpth || !currentwvasynthetic )
 	return timewr;
 
     mDefineStaticLocalObject( uiWorldRect, depthwr, );
     depthwr.setLeft( timewr.left() );
     depthwr.setRight( timewr.right() );
     ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( *currentwvasynthetic_, curd2tmodels, -1 );
+    getCurD2TModel( *currentwvasynthetic.ptr(), curd2tmodels, -1 );
     if ( !curd2tmodels.isEmpty() )
     {
 	Interval<float> twtrg( mCast(float,timewr.top()),
@@ -875,8 +874,10 @@ void uiStratSynthDisp::modelChanged()
 
 void uiStratSynthDisp::reDisplayPostStackSynthetic( bool wva )
 {
-    displayPostStackSynthetic( wva ? currentwvasynthetic_ : currentvdsynthetic_,
-			       wva );
+    WeakPtr<SyntheticData>& synthview = wva ? currentwvasynthetic_
+					    : currentvdsynthetic_;
+    ConstRefMan<SyntheticData> currentsynthetic = synthview.get();
+    displayPostStackSynthetic( currentsynthetic.ptr() );
 }
 
 
@@ -1209,8 +1210,10 @@ void uiStratSynthDisp::preStackWinClosedCB( CallBacker* )
 
 void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
 {
-    if ( !currentwvasynthetic_ || !currentwvasynthetic_->isPS() )
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    if ( !currentwvasynthetic || !currentwvasynthetic->isPS() )
 	return;
+
     if ( !prestackwin_ )
     {
 	prestackwin_ =
@@ -1221,14 +1224,15 @@ void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
 		   uiStratSynthDisp::preStackWinClosedCB );
     }
 
-    displayPreStackSynthetic( currentwvasynthetic_ );
+    displayPreStackSynthetic( currentwvasynthetic.ptr() );
     prestackwin_->show();
 }
 
 
 void uiStratSynthDisp::setCurrentSynthetic( bool wva )
 {
-    SyntheticData* sd = curSS().getSynthetic( wva ? wvadatalist_->text()
+    ConstRefMan<SyntheticData> sd =
+			curSS().getSynthetic( wva ? wvadatalist_->text()
 						  : vddatalist_->text() );
     setCurSynthetic( sd, wva );
     if ( !sd )
@@ -1245,7 +1249,9 @@ void uiStratSynthDisp::setCurrentSynthetic( bool wva )
 
 void uiStratSynthDisp::updateFields()
 {
-    mDynamicCastGet(const PreStackSyntheticData*,pssd,currentwvasynthetic_);
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    mDynamicCastGet(const PreStackSyntheticData*,pssd,
+		    currentwvasynthetic.ptr());
     if ( pssd )
     {
 	StepInterval<float> limits( pssd->offsetRange() );
@@ -1255,7 +1261,7 @@ void uiStratSynthDisp::updateFields()
     }
 
     prestackgrp_->setSensitive( pssd && pssd->hasOffset() );
-    datagrp_->setSensitive( currentwvasynthetic_ );
+    datagrp_->setSensitive( currentwvasynthetic );
     scalebut_->setSensitive( !pssd );
 }
 
@@ -1264,16 +1270,19 @@ void uiStratSynthDisp::copySyntheticDispPars()
 {
     for ( int sidx=0; sidx<curSS().nrSynthetics(); sidx++ )
     {
-	SyntheticData* cursd = curSS().getSyntheticByIdx( sidx );
+	const SyntheticData* cursd = curSS().getSyntheticByIdx( sidx );
 	BufferString sdnm( cursd->name() );
 	if ( useed_ )
 	    sdnm.remove( StratSynth::sKeyFRNameSuffix() );
 	else
 	    sdnm += StratSynth::sKeyFRNameSuffix();
 
-	const SyntheticData* altsd = altSS().getSynthetic( sdnm );
-	if ( !altsd ) continue;
-	cursd->dispPars() = altsd->dispPars();
+	SynthFVSpecificDispPars* sddisp = curSS().dispPars( cursd->name() );
+	const SynthFVSpecificDispPars* altdisp = altSS().dispPars( sdnm );
+	if ( !sddisp || !altdisp )
+	    continue;
+
+	*sddisp = *altdisp;
     }
 }
 
@@ -1291,8 +1300,10 @@ void uiStratSynthDisp::showFRResults()
     vddatalist_->setCurrentItem( vdcuritm );
     setCurrentSynthetic( true );
     setCurrentSynthetic( false );
-    displaySynthetic( currentwvasynthetic_ );
-    displayPostStackSynthetic( currentvdsynthetic_, false );
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    displaySynthetic( currentwvasynthetic );
+    displayPostStackSynthetic( currentvdsynthetic, false );
 }
 
 
@@ -1315,8 +1326,10 @@ void uiStratSynthDisp::doModelChange()
     setCurrentSynthetic( false );
 
     updateFields();
-    displaySynthetic( currentwvasynthetic_ );
-    displayPostStackSynthetic( currentvdsynthetic_, false );
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    displaySynthetic( currentwvasynthetic );
+    displayPostStackSynthetic( currentvdsynthetic, false );
 }
 
 
@@ -1343,10 +1356,12 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 
 void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 {
-    const BufferString curwvasdnm( currentwvasynthetic_ ?
-			currentwvasynthetic_->name().buf() : "" );
-    const BufferString curvdsdnm( currentvdsynthetic_ ?
-			currentvdsynthetic_->name().buf() : "" );
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    const BufferString curwvasdnm( currentwvasynthetic ?
+			currentwvasynthetic->name().buf() : "" );
+    const BufferString curvdsdnm( currentvdsynthetic ?
+			currentvdsynthetic->name().buf() : "" );
     const FixedString syntheticnm( synthnm );
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
     if ( !datalist->isPresent(syntheticnm) || syntheticnm == sKeyNone() )
@@ -1363,7 +1378,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
     {
 	altSS().removeSynthetic( syntheticnm );
 	altSS().genParams() = curSS().genParams();
-	SyntheticData* altsd = altSS().addSynthetic( altSS().genParams() );
+	const SyntheticData* altsd = altSS().addSynthetic( altSS().genParams());
 	if ( !altsd )
 	    mErrRet(altSS().errMsg(), return );
 
@@ -1387,7 +1402,7 @@ void uiStratSynthDisp::syntheticAdded( CallBacker* )
     if ( altSS().hasElasticModels() )
     {
 	altSS().genParams() = curSS().genParams();
-	SyntheticData* altsd = altSS().addSynthetic( altSS().genParams() );
+	const SyntheticData* altsd = altSS().addSynthetic( altSS().genParams());
 	if ( !altsd )
 	    mErrRet(altSS().errMsg(), return )
 
@@ -1426,8 +1441,10 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
     updateSynthetic( syntheticnm, false );
 
     updateFields();
-    displaySynthetic( currentwvasynthetic_ );
-    displayPostStackSynthetic( currentvdsynthetic_, false );
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    displaySynthetic( currentwvasynthetic );
+    displayPostStackSynthetic( currentvdsynthetic, false );
 }
 
 
@@ -1435,11 +1452,6 @@ void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 {
     const BufferString curwvasdnm( wvadatalist_->text() );
     const BufferString curvdsdnm( vddatalist_->text() );
-
-    /*const BufferString curwvasdnm( currentwvasynthetic_ ?
-			currentwvasynthetic_->name().buf() : "" );
-    const BufferString curvdsdnm( currentvdsynthetic_ ?
-			currentvdsynthetic_->name().buf() : "" );*/
 
     mCBCapsuleUnpack(BufferString,synthname,cb);
 
@@ -1459,8 +1471,10 @@ void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
     vddatalist_->setCurrentItem( 1 );
     setCurrentSynthetic( true );
     setCurrentSynthetic( false );
-    displayPostStackSynthetic( currentwvasynthetic_, true );
-    displayPostStackSynthetic( currentvdsynthetic_, false );
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    displayPostStackSynthetic( currentwvasynthetic, true );
+    displayPostStackSynthetic( currentvdsynthetic, false );
 }
 
 
@@ -1483,16 +1497,25 @@ void uiStratSynthDisp::exportSynth( CallBacker* )
 
 void uiStratSynthDisp::offsetChged( CallBacker* )
 {
-    displayPostStackSynthetic( currentwvasynthetic_, true );
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    displayPostStackSynthetic( currentwvasynthetic, true );
     if ( FixedString(wvadatalist_->text())==vddatalist_->text() &&
-	 currentwvasynthetic_ && currentwvasynthetic_->isPS() )
-	displayPostStackSynthetic( currentvdsynthetic_, false );
+	 currentwvasynthetic && currentwvasynthetic->isPS() )
+	displayPostStackSynthetic( currentvdsynthetic, false );
 }
 
 
 const PropertyRefSelection& uiStratSynthDisp::modelPropertyRefs() const
 {
     return layerModel().propertyRefs();
+}
+
+
+SynthFVSpecificDispPars* uiStratSynthDisp::dispPars( const char* synthnm )
+{
+    RefMan<SyntheticData> sd = getSyntheticData( synthnm );
+    return sd ? &sd->dispPars() : nullptr;
 }
 
 
@@ -1505,7 +1528,8 @@ const ObjectSet<const TimeDepthModel>* uiStratSynthDisp::d2TModels() const
 void uiStratSynthDisp::vdDataSetSel( CallBacker* )
 {
     setCurrentSynthetic( false );
-    displayPostStackSynthetic( currentvdsynthetic_, false );
+    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
+    displayPostStackSynthetic( currentvdsynthetic, false );
 }
 
 
@@ -1513,11 +1537,12 @@ void uiStratSynthDisp::wvDataSetSel( CallBacker* )
 {
     setCurrentSynthetic( true );
     updateFields();
-    displayPostStackSynthetic( currentwvasynthetic_, true );
+    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
+    displayPostStackSynthetic( currentwvasynthetic, true );
 }
 
 
-const ObjectSet<SyntheticData>& uiStratSynthDisp::getSynthetics() const
+const ObjectSet<const SyntheticData>& uiStratSynthDisp::getSynthetics() const
 {
     return curSS().synthetics();
 }
@@ -1547,15 +1572,29 @@ void uiStratSynthDisp::showInfoMsg( bool foralt )
 }
 
 
-SyntheticData* uiStratSynthDisp::getSyntheticData( const char* nm )
+RefMan<SyntheticData> uiStratSynthDisp::getSyntheticData( const char* nm )
 {
-    return curSS().getSynthetic( nm );
+    const SyntheticData* sd = curSS().getSynthetic( nm );
+    RefMan<SyntheticData> ret = const_cast<SyntheticData*>( sd );
+    return ret;
 }
 
 
-SyntheticData* uiStratSynthDisp::getCurrentSyntheticData( bool wva ) const
+ConstRefMan<SyntheticData> uiStratSynthDisp::getSyntheticData(
+							const char* nm ) const
 {
-    return wva ? currentwvasynthetic_ : currentvdsynthetic_;
+    ConstRefMan<SyntheticData> ret = curSS().getSynthetic( nm );
+    return ret;
+}
+
+
+ConstRefMan<SyntheticData> uiStratSynthDisp::getCurrentSyntheticData(
+							bool wva ) const
+{
+    const WeakPtr<SyntheticData>& synthview = wva ? currentwvasynthetic_
+						  : currentvdsynthetic_;
+    ConstRefMan<SyntheticData> ret = synthview.get();
+    return ret;
 }
 
 
@@ -1660,9 +1699,10 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 		       : curSS().usePar( *stratsynthpar.ptr() );
 	if ( res )
 	{
-	    const ObjectSet<SyntheticData>& synthetics = curSS().synthetics();
-	    for ( const auto* sd : synthetics )
+	    const int nrsynths = curSS().nrSynthetics();
+	    for ( int idx=0; idx<nrsynths; idx++ )
 	    {
+		ConstRefMan<SyntheticData> sd = curSS().getSyntheticByIdx(idx);
 		const BufferString wvltnm( sd->waveletName() );
 		if ( wvltnm.isEmpty() )
 		{
@@ -1670,18 +1710,22 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 		    break;
 		}
 	    }
+
 	    if ( &curSS() == &editSS() )
 	    {
-		for ( auto* sd : synthetics )
+		for ( int idx=0; idx<nrsynths; idx++ )
 		{
-		    const BufferString synthnm( sd->name() );
-		    const SyntheticData* cursd =
-					normalSS().getSynthetic( synthnm );
-		    if ( !cursd )
+		    const BufferString synthnm( curSS().getSyntheticName(idx) );
+		    const SynthFVSpecificDispPars* curdisp =
+						normalSS().dispPars( synthnm );
+		    SynthFVSpecificDispPars* sddisp =
+						curSS().dispPars( synthnm );
+		    if ( !curdisp || !sddisp )
 			continue;
+
 		    IOPar synthdisppar;
-		    cursd->fillDispPar( synthdisppar );
-		    sd->useDispPar( synthdisppar );
+		    curdisp->fillPar( synthdisppar );
+		    sddisp->usePar( synthdisppar );
 		}
 	    }
 	    else
@@ -1690,12 +1734,18 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 		    stratsynthpar->subselect( StratSynth::sKeySyntheticNr() );
 		if ( synthpar )
 		{
-		    int idx = 0;
-		    for ( auto* sd : synthetics )
+		    for ( int idx=0; idx<nrsynths; idx++ )
 		    {
-			PtrMan<IOPar> iop = synthpar->subselect( idx++ );
-			if ( iop )
-			    sd->useDispPar( *iop.ptr() );
+			ConstPtrMan<IOPar> iop = synthpar->subselect( idx );
+			if ( !iop )
+			    continue;
+
+			const BufferString synthnm(
+						curSS().getSyntheticName(idx) );
+			SynthFVSpecificDispPars* sddisp =
+						curSS().dispPars( synthnm );
+			if ( sddisp )
+			    sddisp->usePar( *iop.ptr() );
 		    }
 		}
 	    }
@@ -1750,13 +1800,16 @@ void uiStratSynthDisp::setDiffData()
 {
     for ( int idx=0; idx<curSS().nrSynthetics(); idx++ )
     {
-	SyntheticData* frsd = curSS().getSyntheticByIdx( idx );
-	const SyntheticData* sd = altSS().getSyntheticByIdx( idx );
-	if ( !frsd || !sd ) continue;
+	ConstRefMan<SyntheticData> frsdc = curSS().getSyntheticByIdx( idx );
+	ConstRefMan<SyntheticData> sd = altSS().getSyntheticByIdx( idx );
+	if ( !frsdc || !sd )
+	    continue;
+
+	auto* frsd = const_cast<SyntheticData*>( frsdc.ptr() );
 	if ( !sd->isPS() )
 	{
 	    mDynamicCastGet(PostStackSyntheticData*,frpostsd,frsd)
-	    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd)
+	    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd.ptr())
 	    SeisTrcBuf& frsdbuf = frpostsd->postStackPack().trcBuf();
 	    const SeisTrcBuf& sdbuf = postsd->postStackPack().trcBuf();
 	    for ( int itrc=0; itrc<frsdbuf.size(); itrc++ )
@@ -1775,7 +1828,7 @@ void uiStratSynthDisp::setDiffData()
 	else
 	{
 	    mDynamicCastGet(PreStackSyntheticData*,frpresd,frsd)
-	    mDynamicCastGet(const PreStackSyntheticData*,presd,sd)
+	    mDynamicCastGet(const PreStackSyntheticData*,presd,sd.ptr())
 	    PreStack::GatherSetDataPack& frgdp =frpresd->preStackPack();
 	    ObjectSet<PreStack::Gather>& frgathers = frgdp.getGathers();
 	    StepInterval<float> offrg( frpresd->offsetRange() );

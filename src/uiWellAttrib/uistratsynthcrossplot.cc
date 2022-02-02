@@ -105,7 +105,7 @@ uiStratSynthAttribSetBuild( uiParent* p, uiAttribDescSetBuild::Setup& setup )
 
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 			const Strat::LayerModel& lm,
-			const ObjectSet<SyntheticData>& synths )
+			const ObjectSet<const SyntheticData>& synths )
     : uiDialog(p,Setup(tr("Layer model/synthetics cross-plotting"),
 			mNoDlgTitle, mODHelpKey(mStratSynthCrossplotHelpID) ))
     , lm_(lm)

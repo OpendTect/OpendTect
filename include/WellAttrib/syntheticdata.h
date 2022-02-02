@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "datapack.h"
 #include "flatview.h"
+#include "sharedobject.h"
 #include "stratsynthgenparams.h"
 #include "synthseis.h"
 
@@ -32,17 +33,16 @@ mStruct(WellAttrib) SynthFVSpecificDispPars
 
 
 /*! brief the basic synthetic dataset. contains the data cubes*/
-mExpClass(WellAttrib) SyntheticData : public NamedCallBacker
+mExpClass(WellAttrib) SyntheticData : public SharedObject
 {
 public:
 
     typedef int SynthID;
-					~SyntheticData();
 
-    static SyntheticData*		get(const SynthGenParams&,
+    static ConstRefMan<SyntheticData>	get(const SynthGenParams&,
 					    Seis::RaySynthGenerator&);
 
-    void				setName(const char*);
+    virtual void			setName(const char*) override;
 
     virtual const SeisTrc*		getTrace(int seqnr) const	= 0;
     virtual int				nrPositions() const		= 0;
@@ -83,6 +83,7 @@ protected:
 					SyntheticData(const SynthGenParams&,
 						  const Seis::SynthGenDataPack&,
 						  DataPack&);
+					~SyntheticData();
 
     SynthFVSpecificDispPars		disppars_;
 

@@ -8,7 +8,6 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "syntheticdataimpl.h"
 
 #include "arrayndalgo.h"
@@ -74,7 +73,7 @@ void SynthFVSpecificDispPars::usePar( const IOPar& par )
 SyntheticData::SyntheticData( const SynthGenParams& sgp,
 			      const Seis::SynthGenDataPack& synthgendp,
 			      DataPack& dp )
-    : NamedCallBacker(sgp.name_)
+    : SharedObject(sgp.name_)
     , sgp_(sgp)
     , datapack_(dp)
     , synthgendp_(&synthgendp)
@@ -84,14 +83,13 @@ SyntheticData::SyntheticData( const SynthGenParams& sgp,
 
 SyntheticData::~SyntheticData()
 {
-    sendDelNotif();
     removePack();
 }
 
 
 void SyntheticData::setName( const char* nm )
 {
-    NamedCallBacker::setName( nm );
+    SharedObject::setName( nm );
     datapack_.setName( nm );
 }
 
@@ -184,8 +182,8 @@ const TimeDepthModel* SyntheticData::getTDModel( int imdl, int ioff ) const
 }
 
 
-SyntheticData* SyntheticData::get( const SynthGenParams& sgp,
-				   Seis::RaySynthGenerator& synthgen )
+ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
+					     Seis::RaySynthGenerator& synthgen )
 {
     if ( !sgp.isRawOutput() )
 	return nullptr;
@@ -194,6 +192,7 @@ SyntheticData* SyntheticData::get( const SynthGenParams& sgp,
     if ( !genres )
 	return nullptr;
 
+    ConstRefMan<SyntheticData> ret;
     if ( genres->isStack() )
     {
 	auto* dptrcbuf = new SeisTrcBuf( true );
@@ -201,10 +200,9 @@ SyntheticData* SyntheticData::get( const SynthGenParams& sgp,
 	auto* dp =
 	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
 				PostStackSyntheticData::sDataPackCategory() );
-	return new PostStackSyntheticData( sgp, *genres.ptr(), *dp );
+	ret = new PostStackSyntheticData( sgp, *genres.ptr(), *dp );
     }
-
-    if ( genres->isPS() )
+    else if ( genres->isPS() )
     {
 	ObjectSet<SeisTrcBuf> tbufs;
 	if ( !synthgen.getTraces(tbufs) )
@@ -224,10 +222,10 @@ SyntheticData* SyntheticData::get( const SynthGenParams& sgp,
 	}
 
 	auto* dp = new PreStack::GatherSetDataPack( nullptr, gatherset );
-	return new PreStackSyntheticData( sgp, *genres.ptr(), *dp );
+	ret = new PreStackSyntheticData( sgp, *genres.ptr(), *dp );
     }
 
-    return nullptr;
+    return ret;
 }
 
 

@@ -117,7 +117,6 @@ public :
 
     void			setRealTrc(const SeisTrc*,int ioff=0);
     void			setSynthetics(const SyntheticData*);
-				//<! becomes mine
     void			reverseTrc(bool synth,int ioff=0);
     Well::LogSet&		logset_;
     Wavelet&			initwvlt_;
@@ -173,7 +172,7 @@ private:
     SeisTrc*			getSynthTrc(int ioff=0);
 
     SeisTrcBuf&			seistrcs_;
-    PtrMan<const SyntheticData> synthdp_;
+    ConstRefMan<SyntheticData> synthdp_;
     const PostStackSyntheticData* postsd_ = nullptr;
     const PreStackSyntheticData* presd_ = nullptr;
 

@@ -814,14 +814,19 @@ void uiStratLayerModel::lmDispParsChangedCB( CallBacker* )
     BufferString lmpropsdnm( lmpropdp.propnm_.buf() );
     if ( isEditUsed() )
 	lmpropsdnm += StratSynth::sKeyFRNameSuffix();
+
     const BufferString propnm( "[", lmpropsdnm.buf(), "]" );
-    SyntheticData* sd = synthdisp_->getSyntheticData( propnm );
-    if ( !sd ) return;
-    sd->dispPars().vdmapper_ = lmpropdp.mapper_;
-    sd->dispPars().ctab_ = lmpropdp.ctab_;
-    sd->dispPars().overlap_ = lmpropdp.overlap_;
-    SyntheticData* vdsd = synthdisp_->getCurrentSyntheticData( false );
-    SyntheticData* wvasd = synthdisp_->getCurrentSyntheticData( true );
+    SynthFVSpecificDispPars* sddisp = synthdisp_->dispPars( propnm );
+    if ( !sddisp )
+	return;
+
+    sddisp->vdmapper_ = lmpropdp.mapper_;
+    sddisp->ctab_ = lmpropdp.ctab_;
+    sddisp->overlap_ = lmpropdp.overlap_;
+    ConstRefMan<SyntheticData> vdsd =
+			synthdisp_->getCurrentSyntheticData( false );
+    ConstRefMan<SyntheticData> wvasd =
+			synthdisp_->getCurrentSyntheticData( true );
     if ( (vdsd && propnm == vdsd->name()) ||
 	 (wvasd && propnm == wvasd->name()) )
 	synthdisp_->reDisplayPostStackSynthetic( false );
@@ -846,8 +851,10 @@ static bool getCleanSyntheticName( BufferString& sdnm )
 
 void uiStratLayerModel::synthDispParsChangedCB( CallBacker* )
 {
-    SyntheticData* vdsd = synthdisp_->getCurrentSyntheticData( false );
-    if ( !vdsd ) return;
+    ConstRefMan<SyntheticData> vdsd =
+				synthdisp_->getCurrentSyntheticData( false );
+    if ( !vdsd )
+	return;
 
     BufferString sdnm( vdsd->name() );
     if ( !getCleanSyntheticName(sdnm) )
