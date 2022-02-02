@@ -457,11 +457,11 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 
 bool ColTab::Sequence::usePar( const IOPar& iopar )
 {
-    FixedString res = iopar.find( sKey::Name() );
-    if ( !res )
+    FixedString seqnm = iopar.find( sKey::Name() );
+    if ( !seqnm )
 	return false;
 
-    setName( res );
+    setName( seqnm );
 
     getfromPar( iopar, markcolor_, sKeyMarkColor(), 0 );
     getfromPar( iopar, undefcolor_, sKeyUdfColor(), 0 );
@@ -515,6 +515,9 @@ bool ColTab::Sequence::usePar( const IOPar& iopar )
 	    nrsegments_ = -1;
 	}
     }
+
+    if ( isEmpty() && !SM().get(seqnm,*this) )
+	return false;
 
     triggerAll();
     return true;
