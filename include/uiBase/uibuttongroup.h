@@ -35,7 +35,7 @@ public:
     void		selectButton(int id);
     int			selectedId() const;
     int			nrButtons() const;
-    void		setSensitive(int id,bool yn=true);
+    void		setSensitive(int id,bool yn);
 
     void		displayFrame(bool);
     bool		isFrameDisplayed() const;

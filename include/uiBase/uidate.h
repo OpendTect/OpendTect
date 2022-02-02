@@ -20,20 +20,24 @@ class uiComboBox;
 class uiLineEdit;
 class uiLabel;
 class uiPushButton;
+class uiSpinBox;
 
 /* Displays a calendar where the uses can select a date. */
 mExpClass(uiBase) uiCalendar : public uiObject
 { mODTextTranslationClass(uiCalendar);
 public:
-                        uiCalendar(uiParent*);
+			uiCalendar(uiParent*);
+			~uiCalendar();
+
     void		setDate(const DateInfo&);
     DateInfo		getDate() const;
+    void		setMinimumDate(const DateInfo&);
+    void		setMaximumDate(const DateInfo&);
 
 private:
 
     uiCalendarBody*	body_;
     uiCalendarBody&	mkbody(uiParent*);
-
 };
 
 
@@ -48,19 +52,29 @@ public:
 
     void		setDate(const DateInfo&);
     bool		getDate(DateInfo&,bool doui) const;
+    void		setMinimumDate(const DateInfo&);
+    void		setMaximumDate(const DateInfo&);
+
+    int			getDay() const;
+    int			getMonth() const;
+    int			getYear() const;
 
     Notifier<uiDateSel>	changed;
 
 protected:
     void		showCalendarCB(CallBacker*);
-    void		changeCB(CallBacker*);
+
+    void		dayChgCB(CallBacker*);
+    void		monthChgCB(CallBacker*);
+    void		yearChgCB(CallBacker*);
+    void		updateNrDays();
 
     uiLabel*		label_;
-    uiComboBox*		dayfld_;
+    uiSpinBox*		dayfld_;
     uiComboBox*		monthfld_;
-    uiLineEdit*		yearfld_;
+    uiSpinBox*		yearfld_;
     uiPushButton*	showcalendarbut_;
+
+    DateInfo*		mindate_	= nullptr;
+    DateInfo*		maxdate_	= nullptr;
 };
-
-
-
