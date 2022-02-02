@@ -389,19 +389,20 @@ bool OD::PythonAccess::needCheckRunScript()
 FilePath* OD::PythonAccess::getActivateScript( const FilePath& rootfp )
 {
     FilePath ret( rootfp.fullPath(), "bin" );
-	ret.add( "activate" );
-#ifdef __win__
+    ret.add( "activate" );
+    if ( __iswin__ )
 	ret.setExtension( "bat" );
-#endif
+
     if ( !ret.exists() )
     {
 	ret.set( rootfp.fullPath() ).add( "condabin" );
-	ret.add("activate");
-#ifdef __win__
-	ret.setExtension("bat");
-#endif
-	}
-    return ret.exists() ? new FilePath( ret ) : nullptr;
+	ret.add( "activate" );
+	if ( __iswin__ )
+	    ret.setExtension("bat");
+    }
+
+    return ret.exists() || !GetPythonActivatorExe().isEmpty()
+	    ? new FilePath( ret ) : nullptr;
 }
 
 
@@ -417,9 +418,7 @@ bool OD::PythonAccess::isEnvUsable( const FilePath* pythonenvfp,
 	if ( !pythonenvfp->exists() )
 	    return false;
 
-	activatefp = GetPythonActivatorExe().isEmpty()
-		   ? getActivateScript( FilePath( pythonenvfp->fullPath() ) )
-		   : new FilePath( *pythonenvfp );
+	activatefp = getActivateScript( FilePath( pythonenvfp->fullPath() ) );
 	if ( !activatefp )
 	    return false;
     }
@@ -517,7 +516,7 @@ bool OD::PythonAccess::execute( const OS::MachineCommand& cmd,
     if ( !const_cast<PythonAccess&>(*this).isUsable_(!istested_) )
 	return false;
 
-    const bool res = doExecute( cmd, &pars, pid, activatefp_, virtenvnm_.buf());
+    const bool res = doExecute( cmd, &pars, pid, activatefp_,virtenvnm_.buf());
     if ( errmsg )
 	*errmsg = msg_;
 
@@ -786,7 +785,7 @@ OS::CommandLauncher* OD::PythonAccess::getLauncher(
 	{
 	    OS::MachineCommand cmdret( GetPythonActivatorExe() );
 	    const FilePath rootfp( *activatefp );
-	    const BufferString rootfnm = rootfp.dirUpTo( rootfp.nrLevels()-1 );
+	    const BufferString rootfnm = rootfp.dirUpTo( rootfp.nrLevels()-3 );
 	    cmdret.addArg( rootfnm );
 	    if ( envnm && *envnm )
 		cmdret.addKeyedArg( "envnm", envnm );
@@ -1357,9 +1356,6 @@ BufferString OD::PythonAccess::getPacmanExecNm() const
     if ( activatefp_ )
     {
 	FilePath packmanexe( *activatefp_ );
-	if ( __iswin__ && !GetPythonActivatorExe().isEmpty() )
-	    packmanexe.add( "condabin" ).add( "activate" );
-
 	packmanexe.setFileName( "conda" );
 	if ( __iswin__ )
 	    packmanexe.setExtension( "bat" );
@@ -1461,7 +1457,7 @@ uiRetVal OD::PythonAccess::updateModuleInfo( const char* defprog,
 			    .arg(laststderr) );
     }
 
-    for ( auto modstr : modstrs )
+    for ( auto* modstr : modstrs )
     {
 	if ( modstr->startsWith("#") ||
 	     modstr->startsWith("Package") || modstr->startsWith("----") )
@@ -1487,9 +1483,9 @@ uiRetVal OD::PythonAccess::getModules( ManagedObjectSet<ModuleInfo>& mods )
     }
 
     mods.setEmpty();
-    for ( auto module : moduleinfos_ )
+    for ( const auto* module : moduleinfos_ )
     {
-	ModuleInfo* minfo = new ModuleInfo( module->name() );
+	auto* minfo = new ModuleInfo( module->name() );
 	minfo->versionstr_ = module->versionstr_;
 	mods.add( minfo );
     }
