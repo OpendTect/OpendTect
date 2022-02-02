@@ -10,7 +10,7 @@
 
 #include "commandlineparser.h"
 #include "file.h"
-#include "odgraphicswindow.h"
+//#include "odgraphicswindow.h"
 
 #include <QApplication>
 #include <QFileDialog>
@@ -56,6 +56,7 @@ int mProgMainFnName( int argc, char** argv )
     osg::ref_ptr<osgViewer::Viewer> viewer = new osgViewer::Viewer;
     viewer->setSceneData( root );
     viewer->setCameraManipulator( new osgGA::TrackballManipulator );
+    /*
     setViewer( viewer.get() );
 
     PtrMan<ODGLWidget> glw = new ODGLWidget;
@@ -66,6 +67,7 @@ int mProgMainFnName( int argc, char** argv )
     viewer->getCamera()->setGraphicsContext( graphicswin );
 
     glw->show();
+    */
 
     return app.exec();
 }

@@ -13,6 +13,10 @@ ________________________________________________________________________
 #include "uiosgmod.h"
 
 class NotifierAccess;
+class QOpenGLWidget;
+namespace osgViewer { class ViewerBase; }
 
-void mGlobal(uiOSG) setOSGTimerCallbacks( const NotifierAccess&,
-					  const NotifierAccess&  );
+void mGlobal(uiOSG) setOSGTimerCallbacks(const NotifierAccess&,
+					 const NotifierAccess&);
+void mGlobal(uiOSG) setOSGViewer(osgViewer::ViewerBase*);
+void mGlobal(uiOSG) setOpenGLWidget(QOpenGLWidget*);

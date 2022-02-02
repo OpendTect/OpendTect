@@ -9,15 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "ui3dviewer.h"
-
-#include "uicursor.h"
-#include "ui3dviewerbody.h"
-#include "ui3dindirectviewer.h"
-#include "uirgbarray.h"
-#include "uimain.h"
-#include "uimouseeventblockerbygesture.h"
-#include "swapbuffercallback.h"
-#include "odgraphicswindow.h"
+#include "odopenglwidget.h"
+#include "odosgviewer.h"
 
 #include <osgViewer/View>
 #include <osgViewer/CompositeViewer>
@@ -26,6 +19,8 @@ ________________________________________________________________________
 #include <osg/MatrixTransform>
 #include <osgGeo/ThumbWheel>
 #include <osg/Version>
+
+#include <QKeyEvent>
 
 #include "envvars.h"
 #include "filepath.h"
@@ -38,34 +33,27 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
-#include "visaxes.h"
-#include "visscenecoltab.h"
+#include "swapbuffercallback.h"
 
+#include "ui3dviewerbody.h"
+#include "uicursor.h"
+#include "uimain.h"
+#include "uimouseeventblockerbygesture.h"
 #include "uiobjbody.h"
+#include "uirgbarray.h"
+#include "visaxes.h"
 #include "viscamera.h"
 #include "visdatagroup.h"
 #include "visdataman.h"
 #include "vispolygonselection.h"
+#include "visscenecoltab.h"
 #include "vissurvscene.h"
-#include "vistransform.h"
 #include "vistext.h"
 #include "visthumbwheel.h"
+#include "vistransform.h"
 
 #include <iostream>
 #include <math.h>
-
-#include <QTabletEvent>
-#include <QGestureEvent>
-#include <QGesture>
-#include <QPainter>
-
-#include "uiobjbody.h"
-#include "keystrs.h"
-
-#include "survinfo.h"
-#include "viscamera.h"
-#include "vissurvscene.h"
-#include "visdatagroup.h"
 
 static const char* sKeydTectScene()	{ return "dTect.Scene."; }
 static const char* sKeyManipCenter()	{ return "Manipulator Center"; }
@@ -136,54 +124,7 @@ void TrackBallManipulatorMessenger::operator()( osg::Node* node,
 }
 
 
-class uiDirectViewBody : public ui3DViewerBody
-{
-public:
-				uiDirectViewBody(ui3DViewer&,uiParent*);
-
-    const mQtclass(QWidget)*	qwidget_() const;
-
-
-    virtual uiSize		minimumSize() const
-				{ return uiSize(200,200); }
-
-protected:
-
-    osgViewer::GraphicsWindow&	getGraphicsWindow(){return *graphicswin_.get();}
-    osg::GraphicsContext*	getGraphicsContext(){return graphicswin_.get();}
-
-    osg::ref_ptr<ODGraphicsWindow>	graphicswin_;
-};
-
-
-uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
-    : ui3DViewerBody( hndl, parnt )
-{
-    ODGLWidget* glw = new ODGLWidget( parnt->pbody()->managewidg() );
-
-    mouseeventblocker_.attachToQObj( glw );
-    eventfilter_.attachToQObj( glw );
-
-    graphicswin_ = new ODGraphicsWindow( glw );
-
-    swapcallback_ = new SwapCallback( this );
-    swapcallback_->ref();
-    graphicswin_->setSwapCallback( swapcallback_ );
-
-    setStretch(2,2);
-
-    setupHUD();
-    setupView();
-    setupTouch();
-}
-
-
-const mQtclass(QWidget)* uiDirectViewBody::qwidget_() const
-{ return graphicswin_->getGLWidget(); }
-
-
-//--------------------------------------------------------------------------
-
+// ui3DViewerBody
 
 ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     : uiObjectBody(parnt,0)
@@ -191,20 +132,10 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , printpar_(*new IOPar)
     , wheeldisplaymode_((int)ui3DViewer::OnHover)
     , offscreenrenderswitch_(new osg::Switch)
-    , compositeviewer_(nullptr)
-    , view_(nullptr)
     , viewport_(new osg::Viewport)
-    , stereotype_(None)
-    , stereooffset_(0)
-    , hudview_(0)
     , offscreenrenderhudswitch_(new osg::Switch)
-    , hudscene_(0)
     , mouseeventblocker_(*new uiMouseEventBlockerByGestures(500))
-    , axes_(0)
-    , polygonselection_(0)
     , manipmessenger_(new TrackBallManipulatorMessenger(this))
-    , swapcallback_( 0 )
-    , visscenecoltab_(0)
     , keybindman_(*new KeyBindMan)
     , mapview_(false)
 {
@@ -216,6 +147,20 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     eventfilter_.addEventType( uiEventFilter::Resize );
     eventfilter_.addEventType( uiEventFilter::Show );
     eventfilter_.addEventType( uiEventFilter::Gesture );
+
+    glwidget_ = new ODOpenGLWidget( parnt->pbody()->managewidg() );
+    mouseeventblocker_.attachToQObj( glwidget_ );
+    eventfilter_.attachToQObj( glwidget_ );
+
+    swapcallback_ = new SwapCallback( this );
+    swapcallback_->ref();
+    glwidget_->getGraphicsWindow()->setSwapCallback( swapcallback_ );
+
+    setupHUD();
+    setupView();
+    setupTouch();
+
+    setStretch( 2, 2 );
 
     mAttachCB( eventfilter_.eventhappened, ui3DViewerBody::qtEventCB );
 
@@ -240,10 +185,12 @@ ui3DViewerBody::~ui3DViewerBody()
 	compositeviewer_->removeView( hudview_ );
 	compositeviewer_->unref();
     }
+
     viewport_->unref();
     offscreenrenderswitch_->unref();
     offscreenrenderhudswitch_->unref();
-    if ( swapcallback_ ) swapcallback_->unref();
+    if ( swapcallback_ )
+	swapcallback_->unref();
 }
 
 
@@ -284,8 +231,11 @@ void ui3DViewerBody::setupHUD()
 
     hudscene_ = visBase::DataObjectGroup::create();
 
-    hudview_ = new osgViewer::View;
+    auto* osgviewer = new ODOSGViewer( glwidget_ );
+    hudview_ = osgviewer;
     hudview_->setCamera( hudcamera );
+    osgviewer->doInit();
+//    hudview_->init();
     offscreenrenderhudswitch_->removeChild(
 	0, offscreenrenderhudswitch_->getNumChildren() );
     offscreenrenderhudswitch_->addChild( hudscene_->osgNode() );
@@ -295,6 +245,7 @@ void ui3DViewerBody::setupHUD()
     {
 	compositeviewer_ = getCompositeViewer();
 	compositeviewer_->ref();
+	glwidget_->setViewer( compositeviewer_ );
     }
 
     compositeviewer_->addView( hudview_ );
@@ -310,7 +261,7 @@ void ui3DViewerBody::setupHUD()
     distancethumbwheel_ = visBase::ThumbWheel::create();
     hudscene_->addObject( distancethumbwheel_ );
     mAttachCB( distancethumbwheel_->rotation,
-               ui3DViewerBody::thumbWheelRotationCB);
+	       ui3DViewerBody::thumbWheelRotationCB);
 
     FontData annotfontdata;
     annotfontdata.setPointSize( 18 );
@@ -349,7 +300,7 @@ void ui3DViewerBody::setupTouch()
     if ( getGraphicsWindow().getEventQueue() )
 	getGraphicsWindow().getEventQueue()->setFirstTouchEmulatesMouse(false);
 
-    qwidget()->grabGesture(Qt::PinchGesture);
+    qwidget()->grabGesture( Qt::PinchGesture );
 
 }
 
@@ -417,6 +368,8 @@ void ui3DViewerBody::setupView()
     if ( scene_ )
         scene_->setCamera( camera_ );
 
+    viewport_->setViewport( 0, 0, glwidget_->width(), glwidget_->height() );
+
     mDynamicCastGet(osg::Camera*, osgcamera, camera_->osgNode(true) );
     osgcamera->setGraphicsContext( getGraphicsContext() );
     osgcamera->setClearColor( osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f) );
@@ -424,14 +377,18 @@ void ui3DViewerBody::setupView()
     osgcamera->setRenderOrder(osg::Camera::POST_RENDER, mMainCameraOrder );
     osgcamera->setNearFarRatio( 0.002 );	// default is 0.0005
 
-    view_ = new osgViewer::View;
+    auto* osgviewer = new ODOSGViewer( glwidget_ );
+//    view_ = new osgViewer::Viewer;
+    view_ = osgviewer;
     view_->setCamera( osgcamera );
+    osgviewer->doInit();
     view_->setSceneData( offscreenrenderswitch_ );
     osgViewer::StatsHandler* statshandler = new osgViewer::StatsHandler;
     statshandler->setKeyEventTogglesOnScreenStats( 'g' );
     statshandler->setKeyEventPrintsOutStats( 'G' );
     statshandler->getCamera()->setAllowEventFocus( false );
     view_->addEventHandler( statshandler );
+//    view_->setThreadingModel( osgViewer::ViewerBase::SingleThreaded );
 
     // Unlike Coin, default OSG headlight has zero ambiance
     view_->getLight()->setAmbient( osg::Vec4(0.6f,0.6f,0.6f,1.0f) );
@@ -442,6 +399,7 @@ void ui3DViewerBody::setupView()
 
     keybindman_.setTrackballManipulator( manip );
 
+    manip->setAllowThrow( true );
     manip->useLeftMouseButtonForAllMovement( true, true );
     manip->enableKeyHandling( false );	// No space key to restore home view
     manip->addMovementCallback( manipmessenger_ );
@@ -459,6 +417,7 @@ void ui3DViewerBody::setupView()
     {
 	compositeviewer_ = getCompositeViewer();
 	compositeviewer_->ref();
+	glwidget_->setViewer( compositeviewer_ );
     }
 
     compositeviewer_->addView( view_ );
@@ -478,8 +437,10 @@ void ui3DViewerBody::setupView()
 
     setReversedMouseWheelDirection( reversezoom );
 
+//    view_->realize();
+
     // Camera projection must be initialized before computing home position
-    reSizeEvent( 0 );
+    reSizeEvent( nullptr );
 }
 
 
@@ -488,9 +449,12 @@ void ui3DViewerBody::enableThumbWheelHandling( bool yn,
 {
     if ( !tw )	// set all
     {
-	enableThumbWheelHandling( yn, horthumbwheel_ );
-	enableThumbWheelHandling( yn, verthumbwheel_ );
-	enableThumbWheelHandling( yn, distancethumbwheel_ );
+	if ( horthumbwheel_ )
+	    enableThumbWheelHandling( yn, horthumbwheel_ );
+	if ( verthumbwheel_ )
+	    enableThumbWheelHandling( yn, verthumbwheel_ );
+	if ( distancethumbwheel_ )
+	    enableThumbWheelHandling( yn, distancethumbwheel_ );
     }
     else if ( view_ && view_->getSceneData() )
     {
@@ -518,7 +482,27 @@ void ui3DViewerBody::enableThumbWheelHandling( bool yn,
 
 
 uiObject& ui3DViewerBody::uiObjHandle()
-{ return handle_; }
+{
+    return handle_;
+}
+
+
+const QWidget* ui3DViewerBody::qwidget_() const
+{
+    return glwidget_;
+}
+
+
+osgViewer::GraphicsWindow& ui3DViewerBody::getGraphicsWindow()
+{
+    return *glwidget_->getGraphicsWindow();
+}
+
+
+osg::GraphicsContext* ui3DViewerBody::getGraphicsContext()
+{
+    return glwidget_->getGraphicsWindow();
+}
 
 
 osgViewer::CompositeViewer* ui3DViewerBody::getCompositeViewer()
@@ -545,7 +529,7 @@ osgViewer::CompositeViewer* ui3DViewerBody::getCompositeViewer()
 	if ( !viewer )
 	{
 	    viewer = updatedviewer;
-	    setViewer( viewer.get() );
+//	    setViewer( viewer.get() );
 	    visBase::DataObject::setCommonViewer( viewer );
 	}
 
@@ -566,86 +550,6 @@ const osg::Camera* ui3DViewerBody::getOsgCamera() const
     return const_cast<ui3DViewerBody*>( this )->getOsgCamera();
 }
 
-#if OSG_VERSION_LESS_THAN(3,3,0)
-
-osgGA::GUIEventAdapter::TouchPhase
-    translateQtGestureState( Qt::GestureState state )
-{
-    osgGA::GUIEventAdapter::TouchPhase touchPhase;
-    switch ( state )
-    {
-	case Qt::GestureStarted:
-	    touchPhase = osgGA::GUIEventAdapter::TOUCH_BEGAN;
-	    break;
-	case Qt::GestureUpdated:
-	    touchPhase = osgGA::GUIEventAdapter::TOUCH_MOVED;
-	    break;
-	case Qt::GestureFinished:
-	case Qt::GestureCanceled:
-	    touchPhase = osgGA::GUIEventAdapter::TOUCH_ENDED;
-	    break;
-	default:
-	    touchPhase = osgGA::GUIEventAdapter::TOUCH_UNKNOWN;
-    };
-
-    return touchPhase;
-}
-
-
-
-void ui3DViewerBody::handleGestureEvent( QGestureEvent* qevent )
-{
-    bool accept = false;
-
-    if ( QPinchGesture* pinch =
-	    static_cast<QPinchGesture *>(qevent->gesture(Qt::PinchGesture) ) )
-    {
-	const QPointF qcenterf = pinch->centerPoint();
-	const QPoint pinchcenter = qwidget()->mapFromGlobal(qcenterf.toPoint());
-	const osg::Vec2 osgcenter( pinchcenter.x(),
-	    qwidget()->height() - pinchcenter.y() );
-	const float angle = pinch->totalRotationAngle();
-	const float scale = pinch->totalScaleFactor();
-
-	//We don't have absolute positions of the two touches, only a scale and
-	//rotation. Hence we create pseudo-coordinates which are reasonable, and
-	//centered around the real position
-	const float radius = (qwidget()->width()+qwidget()->height())/4;
-	const osg::Vec2 vector(scale*cos(angle)*radius,scale*sin(angle)*radius);
-	const osg::Vec2 p0 = osgcenter+vector;
-	const osg::Vec2 p1 = osgcenter-vector;
-
-	osg::ref_ptr<osgGA::GUIEventAdapter> event = 0;
-	const osgGA::GUIEventAdapter::TouchPhase touchPhase =
-		translateQtGestureState( pinch->state() );
-	if ( touchPhase==osgGA::GUIEventAdapter::TOUCH_BEGAN )
-	{
-	    event = getGraphicsWindow().getEventQueue()->touchBegan(0 ,
-					    touchPhase, p0[0], p0[1] );
-	}
-	else if ( touchPhase==osgGA::GUIEventAdapter::TOUCH_MOVED )
-	{
-	    event = getGraphicsWindow().getEventQueue()->touchMoved( 0,
-					    touchPhase, p0[0], p0[1] );
-	}
-	else
-	{
-	    event = getGraphicsWindow().getEventQueue()->touchEnded( 0,
-					    touchPhase, p0[0], p0[1], 1 );
-	}
-
-	if ( event )
-	{
-	    event->addTouchPoint( 1, touchPhase, p1[0], p1[1] );
-	    accept = true;
-	}
-    }
-
-    if ( accept )
-	qevent->accept();
-}
-
-#endif // Qtgesture
 
 #define mLongSideDistance	15
 #define mShortSideDistance	40
@@ -670,22 +574,29 @@ void ui3DViewerBody::reSizeEvent(CallBacker*)
     if ( !osgcamera )
 	return;
 
-    hudview_->getCamera()->setProjectionMatrix(
-	osg::Matrix::ortho2D(0,widget->width(),0,widget->height() ));
+    if ( hudview_ )
+	hudview_->getCamera()->setProjectionMatrix(
+		osg::Matrix::ortho2D(0,widget->width(),0,widget->height() ));
 
     const float longsideoffset = mLongSideDistance+mThumbWheelWidth/2.0;
     const float shortsideoffset = mShortSideDistance+mThumbWheelLen/2.0;
 
-    horthumbwheel_->setPosition( true, shortsideoffset, longsideoffset,
-                                 mThumbWheelLen, mThumbWheelWidth, mZCoord );
-     verthumbwheel_->setPosition( false, longsideoffset, shortsideoffset,
-                                 mThumbWheelLen, mThumbWheelWidth, mZCoord );
-     distancethumbwheel_->setPosition( false, longsideoffset,
+    if ( horthumbwheel_ )
+	horthumbwheel_->setPosition( true, shortsideoffset, longsideoffset,
+				 mThumbWheelLen, mThumbWheelWidth, mZCoord );
+    if ( verthumbwheel_ )
+	verthumbwheel_->setPosition( false, longsideoffset, shortsideoffset,
+				 mThumbWheelLen, mThumbWheelWidth, mZCoord );
+    if ( distancethumbwheel_ )
+	distancethumbwheel_->setPosition( false, longsideoffset,
 			mMAX(widget->height()-shortsideoffset,shortsideoffset),
 			mThumbWheelLen, mThumbWheelWidth, mZCoord );
 
-    const float offset = axes_->getLength() + 10;
-    axes_->setPosition( widget->width()-offset, offset );
+    if ( axes_ )
+    {
+	const float offset = axes_->getLength() + 10;
+	axes_->setPosition( widget->width()-offset, offset );
+    }
 
     if ( visscenecoltab_ )
 	visscenecoltab_->setWindowSize( widget->width(), widget->height() );
@@ -724,28 +635,35 @@ void ui3DViewerBody::toggleViewMode(CallBacker* cb )
 
 void ui3DViewerBody::showRotAxis( bool yn )
 {
-    axes_->turnOn( yn );
+    if ( axes_ )
+	axes_->turnOn( yn );
 }
 
 
 bool ui3DViewerBody::isAxisShown() const
 {
-    return axes_->isOn();
+    return axes_ && axes_->isOn();
 }
 
 
 void ui3DViewerBody::setWheelDisplayMode( WheelMode mode )
 {
     const bool doshow = mode != Never;
-    horthumbwheel_->turnOn( doshow );
-    verthumbwheel_->turnOn( doshow );
-    distancethumbwheel_->turnOn( doshow );
+    if ( horthumbwheel_ )
+	horthumbwheel_->turnOn( doshow );
+    if ( verthumbwheel_ )
+	verthumbwheel_->turnOn( doshow );
+    if ( distancethumbwheel_ )
+	distancethumbwheel_->turnOn( doshow );
     enableThumbWheelHandling( doshow );
 
     const bool enablefadeinout = mode==OnHover;
-    horthumbwheel_->enableFadeInOut( enablefadeinout );
-    verthumbwheel_->enableFadeInOut( enablefadeinout );
-    distancethumbwheel_->enableFadeInOut( enablefadeinout );
+    if ( horthumbwheel_ )
+	horthumbwheel_->enableFadeInOut( enablefadeinout );
+    if ( verthumbwheel_ )
+	verthumbwheel_->enableFadeInOut( enablefadeinout );
+    if ( distancethumbwheel_ )
+	distancethumbwheel_->enableFadeInOut( enablefadeinout );
 }
 
 
@@ -763,18 +681,24 @@ ui3DViewerBody::WheelMode ui3DViewerBody::getWheelDisplayMode() const
 
 void ui3DViewerBody::setAnnotColor( const OD::Color& col )
 {
-    axes_->setAnnotationColor( col );
+    if ( axes_ )
+	axes_->setAnnotationColor( col );
 
-    horthumbwheel_->setAnnotationColor( col );
-    verthumbwheel_->setAnnotationColor( col );
-    distancethumbwheel_->setAnnotationColor( col );
+    if ( horthumbwheel_ )
+	horthumbwheel_->setAnnotationColor( col );
+    if ( verthumbwheel_ )
+	verthumbwheel_->setAnnotationColor( col );
+    if ( distancethumbwheel_ )
+	distancethumbwheel_->setAnnotationColor( col );
 }
 
 
 void ui3DViewerBody::setAnnotationFont( const FontData& fd )
 {
-    visscenecoltab_->setAnnotFont( fd );
-    axes_->setAnnotationFont( fd );
+    if ( visscenecoltab_ )
+	visscenecoltab_->setAnnotFont( fd );
+    if ( axes_ )
+	axes_->setAnnotationFont( fd );
 }
 
 
@@ -1311,6 +1235,18 @@ bool ui3DViewerBody::useCameraPos( const IOPar& par )
 }
 
 
+const osgViewer::View* ui3DViewerBody::getOsgViewerMainView() const
+{
+    return static_cast<osgViewer::View*>(view_);
+}
+
+
+const osgViewer::View* ui3DViewerBody::getOsgViewerHudView() const
+{
+    return static_cast<osgViewer::View*>(hudview_);
+}
+
+
 class HomePosManager
 {
 public:
@@ -1401,7 +1337,9 @@ void ui3DViewerBody::resetToHomePosition()
 
 
 void ui3DViewerBody::toHomePos()
-{ useCameraPos( homepos_ ); }
+{
+    useCameraPos( homepos_ );
+}
 
 
 void ui3DViewerBody::saveHomePos()
@@ -1473,7 +1411,9 @@ bool ui3DViewerBody::setStereoType( ui3DViewerBody::StereoType st )
 
 
 ui3DViewerBody::StereoType ui3DViewerBody::getStereoType() const
-{ return stereotype_; }
+{
+    return stereotype_;
+}
 
 
 void ui3DViewerBody::setStereoOffset( float offset )
@@ -1486,7 +1426,9 @@ void ui3DViewerBody::setStereoOffset( float offset )
 
 
 float ui3DViewerBody::getStereoOffset() const
-{ return stereooffset_; }
+{
+    return stereooffset_;
+}
 
 
 void ui3DViewerBody::setMapView( bool yn )
@@ -1533,8 +1475,8 @@ void ui3DViewerBody::enableDragging( bool yn )
 
 //------------------------------------------------------------------------------
 
-ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
-    : uiObject(parnt,nm,mkBody(parnt,direct,nm))
+ui3DViewer::ui3DViewer( uiParent* parnt, const char* nm )
+    : uiObject(parnt,nm,mkBody(parnt,nm))
     , destroyed(this)
     , viewmodechanged(this)
     , pageupdown(this)
@@ -1578,25 +1520,27 @@ ui3DViewer::~ui3DViewer()
 }
 
 
-uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, bool direct, const char* nm )
+uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, const char* nm )
 {
 #if OSG_VERSION_LESS_THAN( 3, 5, 0 )
     initQtWindowingSystem();
 #endif
 
-    osgbody_ = direct
-	? (ui3DViewerBody*) new uiDirectViewBody( *this, parnt )
-	: (ui3DViewerBody*) new ui3DIndirectViewBody( *this, parnt );
-
+    osgbody_ = new ui3DViewerBody( *this, parnt );
     return *osgbody_;
 }
 
 
 void ui3DViewer::setMapView( bool yn )
-{ osgbody_->setMapView( yn ); }
+{
+    osgbody_->setMapView( yn );
+}
+
 
 bool ui3DViewer::isMapView() const
-{ return osgbody_->isMapView(); }
+{
+    return osgbody_->isMapView();
+}
 
 
 void ui3DViewer::viewAll( bool animate )

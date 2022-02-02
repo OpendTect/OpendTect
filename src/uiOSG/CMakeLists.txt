@@ -13,14 +13,14 @@ SET(OD_MODULE_SOURCES
 	keybindings.cc
 	od3dviewer.cc
 	odfontimplementation.cc
-	odgraphicswindow.cc
 	odopenglwidget.cc
-	ui3dindirectviewer.cc
+	odosgviewer.cc
+	osgheartbeat.cc
 	ui3dviewer.cc
 	uiglinfo.cc
 	uiosgfont.cc
 	uiprintscenedlg.cc
-	uistereodlg.cc 
+	uistereodlg.cc
 )
 
 SET(OD_MODULE_PROGS od_osgfileviewer.cc )

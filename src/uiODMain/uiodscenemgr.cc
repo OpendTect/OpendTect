@@ -1547,7 +1547,7 @@ uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
 
     mdiwin_ = new uiMdiAreaWindow( *mdiarea, toUiString("MDI Area Window") );
     mdiwin_->setIcon( scene_xpm_data );
-    vwr3d_ = new ui3DViewer( mdiwin_, true );
+    vwr3d_ = new ui3DViewer( mdiwin_ );
     vwr3d_->setPrefWidth( 400 );
     vwr3d_->setPrefHeight( 400 );
     mdiarea->addWindow( mdiwin_ );

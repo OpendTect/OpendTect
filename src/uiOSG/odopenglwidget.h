@@ -15,26 +15,17 @@ ________________________________________________________________________
 #include "commondefs.h"
 
 #include <osgViewer/GraphicsWindow>
+#include <OpenThreads/ReadWriteMutex>
 #include <QOpenGLWidget>
 
-namespace osgViewer { class Viewer; }
+namespace osgViewer { class ViewerBase; }
 namespace osgGA { class EventQueue; }
 class QInputEvent;
 
 
-mClass(uiOSG) ODGraphicsWindow2 : public osgViewer::GraphicsWindow
-{
-public:
-			ODGraphicsWindow2();
-			~ODGraphicsWindow2();
-
-protected:
-};
-
-
-
 mClass(uiOSG) ODOpenGLWidget : public QOpenGLWidget
 {
+friend class ui3DViewerBody;
 public:
 			ODOpenGLWidget(QWidget* parent=nullptr,
 				       Qt::WindowFlags f=Qt::WindowFlags());
@@ -48,6 +39,8 @@ protected:
 
     void		setKeyboardModifiers(QInputEvent*);
 
+    void		keyPressEvent(QKeyEvent*) override;
+    void		keyReleaseEvent(QKeyEvent*) override;
     void		mousePressEvent(QMouseEvent*) override;
     void		mouseReleaseEvent(QMouseEvent*) override;
     void		mouseDoubleClickEvent(QMouseEvent*) override;
@@ -55,11 +48,18 @@ protected:
     void		wheelEvent(QWheelEvent*) override;
 
     osgGA::EventQueue*	getEventQueue() const;
+    osgViewer::GraphicsWindowEmbedded*
+			getGraphicsWindow()	{ return graphicswindow_; }
+    void		setViewer(osgViewer::ViewerBase*);
 
-    ODGraphicsWindow2*	graphicswindow_;
-    osgViewer::Viewer*	viewer_;
+private:
+    osgViewer::GraphicsWindowEmbedded*
+				graphicswindow_;
+    osgViewer::ViewerBase*	viewer_		= nullptr;
+    OpenThreads::ReadWriteMutex mutex_;
 
-    double		scalex_		= 1;
-    double		scaley_		= 1;
+    bool			isfirstframe_	= true;
+    double			scalex_		= 1;
+    double			scaley_		= 1;
 };
 

@@ -32,10 +32,18 @@ namespace visBase
 }
 
 
-namespace osgViewer { class CompositeViewer; class View; class GraphicsWindow; }
+namespace osgViewer
+{
+    class CompositeViewer;
+    class GraphicsWindow;
+    class View;
+    class Viewer;
+}
+
 namespace osgGeo { class TrackballManipulator; }
 
 class ui3DViewer;
+class ODOpenGLWidget;
 class TrackBallManipulatorMessenger;
 class KeyBindMan;
 class uiMouseEventBlockerByGestures;
@@ -61,6 +69,7 @@ mClass(uiOSG) ui3DViewerBody : public uiObjectBody
     friend class TrackBallManipulatorMessenger;
 
 public:
+				ui3DViewerBody(ui3DViewer&,uiParent*);
     virtual			~ui3DViewerBody();
 
     void			viewAll(bool animate);
@@ -132,8 +141,8 @@ public:
     bool			isHomePosEmpty() { return homepos_.isEmpty(); }
     void			fillCameraPos(IOPar&) const;
     bool			useCameraPos(const IOPar&);
-    const osgViewer::View*	getOsgViewerMainView() const { return view_; }
-    const osgViewer::View*	getOsgViewerHudView() const { return hudview_; }
+    const osgViewer::View*	getOsgViewerMainView() const;
+    const osgViewer::View*	getOsgViewerHudView() const;
     void			setScenesPixelDensity(float dpi);
 
     enum StereoType		{ None, RedCyan, QuadBuffer };
@@ -151,8 +160,6 @@ public:
     void			removeSwapCallback(CallBacker*);
 
 protected:
-					ui3DViewerBody(ui3DViewer&,uiParent*);
-
     void				enableDragging( bool yn );
 
     enum ViewModeCursor			{ RotateCursor, PanCursor, ZoomCursor,
@@ -171,14 +178,14 @@ protected:
     void				qtEventCB(CallBacker*);
     void				setFocusCB(CallBacker*);
     void				handleGestureEvent(QGestureEvent*);
-    static osgViewer::CompositeViewer*	getCompositeViewer();
+    osgViewer::CompositeViewer*		getCompositeViewer();
     osgGeo::TrackballManipulator*	getCameraManipulator() const;
 
-
-    virtual osgViewer::GraphicsWindow&	getGraphicsWindow()	= 0;
-    virtual osg::GraphicsContext*	getGraphicsContext()	= 0;
+    osgViewer::GraphicsWindow&		getGraphicsWindow();
+    osg::GraphicsContext*		getGraphicsContext();
 
     uiObject&				uiObjHandle();
+    const QWidget*			qwidget_() const;
 
     void				requestRedraw();
 
@@ -194,34 +201,35 @@ protected:
     ui3DViewer&				handle_;
     IOPar&				printpar_;
 
+    ODOpenGLWidget*			glwidget_;
     RefMan<visBase::Camera>		camera_;
     RefMan<visBase::Scene>		scene_;
-    RefMan<visBase::ThumbWheel>		horthumbwheel_;
-    RefMan<visBase::ThumbWheel>		verthumbwheel_;
-    RefMan<visBase::ThumbWheel>		distancethumbwheel_;
+    RefMan<visBase::ThumbWheel>		horthumbwheel_		= nullptr;
+    RefMan<visBase::ThumbWheel>		verthumbwheel_		= nullptr;
+    RefMan<visBase::ThumbWheel>		distancethumbwheel_	= nullptr;
     int					wheeldisplaymode_;
 
     osg::Switch*			offscreenrenderswitch_;
-    osgViewer::CompositeViewer*		compositeviewer_;
-    osgViewer::View*			view_;
+    osgViewer::CompositeViewer*		compositeviewer_	= nullptr;
+    osgViewer::Viewer*			view_			= nullptr;
     osg::Viewport*			viewport_;
-    StereoType				stereotype_;
-    float				stereooffset_;
+    StereoType				stereotype_		= None;
+    float				stereooffset_		= 0.f;
 
-    osgViewer::View*			hudview_;
+    osgViewer::Viewer*			hudview_		= nullptr;
     osg::Switch*			offscreenrenderhudswitch_;
-    RefMan<visBase::DataObjectGroup>	hudscene_;
+    RefMan<visBase::DataObjectGroup>	hudscene_		= nullptr;
 
     uiEventFilter			eventfilter_;
     uiMouseEventBlockerByGestures&	mouseeventblocker_;
-    RefMan<visBase::Axes>		axes_;
-    RefMan<visBase::PolygonSelection>	polygonselection_;
+    RefMan<visBase::Axes>		axes_			= nullptr;
+    RefMan<visBase::PolygonSelection>	polygonselection_	= nullptr;
     TrackBallManipulatorMessenger*	manipmessenger_;
 
-    SwapCallback*			swapcallback_;
+    SwapCallback*			swapcallback_		= nullptr;
 
     IOPar				homepos_;
-    RefMan<visBase::SceneColTab>	visscenecoltab_;
+    RefMan<visBase::SceneColTab>	visscenecoltab_		= nullptr;
 
     KeyBindMan&				keybindman_;
 

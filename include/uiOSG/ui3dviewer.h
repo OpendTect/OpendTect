@@ -30,7 +30,6 @@ friend class		ui3DViewerBody;
 
 public:
 			ui3DViewer(uiParent*,
-				bool direct,
 				const char* nm="ui3DViewer");
 			~ui3DViewer();
 
@@ -130,7 +129,5 @@ private:
 
     ui3DViewerBody*	osgbody_;
 
-    uiObjectBody&	mkBody(uiParent*,bool direct,const char*);
-
+    uiObjectBody&	mkBody(uiParent*,const char*);
 };
-
