@@ -614,7 +614,8 @@ void uiObjectBody::gtFntWdtHgt() const
     uiObjectBody& self = *const_cast<uiObjectBody*>(this);
 
     QFont qft = QFont();
-    QFontMetrics qfm( qft );
+    const QFont& qfonttouse = font_ ? font_->qFont() : qft;
+    QFontMetrics qfm( qfonttouse );
     self.fnt_hgt_ = qfm.lineSpacing() + 2;
     self.fnt_wdt_ = mGetTextWidth(qfm,QChar('x'));
 
