@@ -330,17 +330,16 @@ const char* productName()
     mDeclStaticString( str );
     if ( str.isEmpty() )
     {
-	if ( __iswin__ )
-	{
-	    str.set( OD::Platform().osName() ).addSpace()
-	       .add( getWinVersion() ).add( " Version " );
-	    BufferString vernm( getWinDisplayName() );
-	    if ( vernm.isEmpty() )
-		vernm.set( getWinEdition() );
-	    str.add( vernm );
-	}
-	else
-	    str = QSysInfo::prettyProductName();
+#ifdef __win__
+	str.set( OD::Platform().osName() ).addSpace()
+	   .add( getWinVersion() ).add( " Version " );
+	BufferString vernm( getWinDisplayName() );
+	if ( vernm.isEmpty() )
+	    vernm.set( getWinEdition() );
+	str.add( vernm );
+#else
+	str = QSysInfo::prettyProductName();
+#endif
     }
 
     return str.buf();
