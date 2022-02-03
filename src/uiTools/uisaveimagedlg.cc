@@ -36,11 +36,9 @@ static const char* sKeySnapshot = "snapshot";
 BufferString uiSaveImageDlg::dirname_;
 
 static int sPDFfmtIdx = 6;
-static int sPSfmtIdx = 7;
-static int sEPSfmtIdx = 8;
 
 static const char* imageformats[] =
-{ "jpg", "png", "tiff", "webp", "bmp", "xpm", "pdf", "ps", "eps", 0 };
+{ "jpg", "png", "tiff", "webp", "bmp", "xpm", "pdf", nullptr };
 
 static const char* imageformatdescs[] =
 {
@@ -51,9 +49,7 @@ static const char* imageformatdescs[] =
     "Windows Bitmap (*.bmp)",
     "XPM (*.xpm)",
     "Portable Doc Format (*.pdf)",
-    "Postscript (*.ps)",
-    "EPS (*.eps)",
-    0
+    nullptr
 };
 
 
@@ -538,10 +534,6 @@ void uiSaveImageDlg::addPrintFmtFilters( BufferString& filters )
 {
     filters += ";;";
     filters += imageformatdescs[sPDFfmtIdx];
-    filters += ";;";
-    filters += imageformatdescs[sPSfmtIdx];
-    filters += ";;";
-    filters += imageformatdescs[sEPSfmtIdx];
 }
 
 
@@ -608,7 +600,8 @@ bool uiSaveWinImageDlg::acceptOK( CallBacker* )
 	return true;
     }
 
-    if ( !filenameOK() ) return false;
+    if ( !filenameOK() )
+	return false;
 
     BufferString ext( getExtension() );
     if ( ext == "pdf" )

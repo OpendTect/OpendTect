@@ -17,15 +17,16 @@ ________________________________________________________________________
 #include "uipixmap.h"
 
 #include <QColor>
+#include <QGraphicsScene>
+#include <QMetaObject>
 #include <QPainter>
 #include <QPen>
 #include <QPoint>
+#include <QPrinter>
 #include <QRectF>
 #include <QRgb>
 #include <QStyleOption>
 #include <QTextDocument>
-#include <QMetaObject>
-#include <QGraphicsScene>
 
 mUseQtnamespace
 
@@ -1012,11 +1013,13 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 {
     if ( updateResolution( painter ) )
     {
-	mDynamicCastGet( QImage*, paintimage, painter->device() );
+	QPaintDevice* qdevice = painter->device();
+	mDynamicCastGet(QImage*,qimage,qdevice)
+	mDynamicCastGet(QPrinter*,qprinter,qdevice)
 
 	imagelock_.lock();
 
-	issnapshot_ = paintimage;
+	issnapshot_ = qimage || qprinter;
 	wantsData.trigger();
 
 	if ( issnapshot_ )

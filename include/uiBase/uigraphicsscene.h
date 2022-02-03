@@ -77,11 +77,10 @@ public:
     double			width() const;
     double			height() const;
 
-    void			saveAsImage(const char*,int,int,int);
-    void			saveAsPDF(const char*,int w,int h,int r);
-    void			saveAsPS(const char*,int w,int h,int r);
-    void			saveAsPDF_PS(const char*,bool pdf_or_ps,int w,
-					     int h,int r);
+    void			saveAsImage(const char* fnm,int width,
+					    int height,int res);
+    void			saveAsPDF(const char* fnm,int width,
+					  int height,int res);
     void			setSceneRect(float x,float y,float w,float h);
     uiRect			sceneRect();
 

@@ -89,8 +89,6 @@ bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
     BufferString ext( getExtension() );
     if ( ext == "pdf" )
 	scene_->saveAsPDF( fnm, pixw, pixh, dpi );
-    else if ( ext == "ps" || ext == "eps" )
-	scene_->saveAsPS( fnm, pixw, pixh, dpi );
     else
 	scene_->saveAsImage( fnm, pixw, pixh, dpi );
 

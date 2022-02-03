@@ -520,22 +520,16 @@ void uiGraphicsScene::saveAsImage( const char* fnm, int w, int h, int res )
 }
 
 
-void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
-				    int w, int h, int res )
+void uiGraphicsScene::saveAsPDF( const char* filename,
+				 int w, int h, int res )
 {
-    QString fileName( filename );
-    auto* pdfprinter = new QPrinter();
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+    auto* pdfprinter = new QPrinter( QPrinter::HighResolution );
     pdfprinter->setOutputFormat( QPrinter::PdfFormat );
-#else
-    pdfprinter->setOutputFormat( aspdf ? QPrinter::PdfFormat
-				       : QPrinter::PostScriptFormat );
-#endif
     const QPageSize pgsz( QSizeF(w,h), QPageSize::Point );
     pdfprinter->setPageSize( pgsz );
     pdfprinter->setFullPage( false );
     pdfprinter->setOutputFileName( filename );
-    pdfprinter->setResolution( res );
+    pdfprinter->setCreator( QStringLiteral("OpendTect") );
 
     auto* pdfpainter = new QPainter();
     pdfpainter->begin( pdfprinter );
@@ -543,19 +537,11 @@ void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
     QRectF sourcerect( view->mapToScene(0,0),
 		       view->mapToScene(view->width(),view->height()) );
     qGraphicsScene()->render( pdfpainter,
-	    QRectF(0,0,pdfprinter->width(),pdfprinter->height()) ,sourcerect );
+	    QRectF(0,0,pdfprinter->width(),pdfprinter->height()), sourcerect );
     pdfpainter->end();
     delete pdfpainter;
     delete pdfprinter;
 }
-
-
-void uiGraphicsScene::saveAsPDF( const char* filename, int w, int h, int res )
-{ saveAsPDF_PS( filename, true, w, h, res ); }
-
-
-void uiGraphicsScene::saveAsPS( const char* filename, int w, int h, int res )
-{ saveAsPDF_PS( filename, false, w, h, res ); }
 
 
 int uiGraphicsScene::indexOf( int id ) const

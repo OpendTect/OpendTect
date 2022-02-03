@@ -31,7 +31,7 @@ mUseQtnamespace
 
 
 uiPixmap::uiPixmap()
-    : qpixmap_(0)
+    : qpixmap_(nullptr)
 {}
 
 
@@ -72,14 +72,14 @@ uiPixmap::uiPixmap( const QPixmap& pm )
 
 
 uiPixmap::uiPixmap( const char* icnm )
-    : qpixmap_(0)
+    : qpixmap_(nullptr)
     , srcname_(icnm)
 {
     OD::IconFile icfile( icnm );
     if ( !icfile.haveData() )
 	{ qpixmap_ = new QPixmap; return; }
 
-    qpixmap_ = new QPixmap( icfile.fileNames().get(0).str(), 0 );
+    qpixmap_ = new QPixmap( icfile.fileNames().get(0).str(), nullptr );
 }
 
 
@@ -212,11 +212,9 @@ bool uiPixmap::isPresent( const char* icnm )
 }
 
 static int sPDFfmtIdx = 6;
-static int sPSfmtIdx = 7;
-static int sEPSfmtIdx = 8;
 
 static const char* sImageFormats[] =
-{ "jpg", "png", "tiff", "webp", "bmp", "xpm", "pdf", "ps", "eps", 0 };
+{ "jpg", "png", "tiff", "webp", "bmp", "xpm", "pdf", nullptr };
 
 static const char* sImageFormatDescs[] =
 {
@@ -227,9 +225,7 @@ static const char* sImageFormatDescs[] =
     "Windows Bitmap (*.bmp)",
     "XPM (*.xpm)",
     "Portable Doc Format (*.pdf)",
-    "Postscript (*.ps)",
-    "EPS (*.eps)",
-    0
+    nullptr
 };
 
 
@@ -244,13 +240,7 @@ void supportedImageFormats( BufferStringSet& formats, bool forread,
 	formats.add( imgfrmts[idx].data() );
 
     if ( withprintformats )
-    {
 	formats.add( sImageFormats[sPDFfmtIdx] );
-#if QT_VERSION < 0x050000
-	formats.add( sImageFormats[sPSfmtIdx] );
-	formats.add( sImageFormats[sEPSfmtIdx] );
-#endif
-    }
 }
 
 
@@ -268,11 +258,7 @@ void getImageFormatDescs( BufferStringSet& descs, bool forread,
     }
 
     if ( withprintformats )
-    {
 	descs.add( sImageFormatDescs[sPDFfmtIdx] );
-	descs.add( sImageFormatDescs[sPSfmtIdx] );
-	descs.add( sImageFormatDescs[sEPSfmtIdx] );
-    }
 }
 
 
