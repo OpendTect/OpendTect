@@ -230,12 +230,11 @@ int initWinSock()
 
 const char* GetOSIdentifier()
 {
-    mDefineStaticLocalObject( PtrMan<BufferString>, ret, (0) )
-
+    mDefineStaticLocalObject( PtrMan<BufferString>, ret, )
     if ( ret )
 	return ret->buf();
 
-    BufferString* tmp = new BufferString;
+    auto* tmp = new BufferString;
 
 #ifdef __win__
     const char* dot = ".";

@@ -22,7 +22,9 @@ ________________________________________________________________________
 #include "generalinfo.h"
 #include "iostrm.h"
 #include "oddirs.h"
+#include "odplatform.h"
 #include "perthreadrepos.h"
+#include "winutils.h"
 
 #include <QHostAddress>
 #include <QHostInfo>
@@ -326,7 +328,21 @@ bool getHostIDs( BufferStringSet& hostids, BufferString& errmsg )
 const char* productName()
 {
     mDeclStaticString( str );
-    str = QSysInfo::prettyProductName();
+    if ( str.isEmpty() )
+    {
+	if ( __iswin__ )
+	{
+	    str.set( OD::Platform().osName() ).addSpace()
+	       .add( getWinVersion() ).add( " Version " );
+	    BufferString vernm( getWinDisplayName() );
+	    if ( vernm.isEmpty() )
+		vernm.set( getWinEdition() );
+	    str.add( vernm );
+	}
+	else
+	    str = QSysInfo::prettyProductName();
+    }
+
     return str.buf();
 }
 
