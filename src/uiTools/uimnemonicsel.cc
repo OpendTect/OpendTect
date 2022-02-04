@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A. Huck
- Date:          Aug 2021
+ Author:	A. Huck
+ Date:		Aug 2021
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uimnemonicsel.h"
 
 #include "uilabel.h"
+#include "uilistbox.h"
 
 
 uiMnemonicsSel::uiMnemonicsSel( uiParent* p, const Setup& set )
@@ -126,4 +127,45 @@ void uiMnemonicsSel::setMnemonic( const Mnemonic& mn )
 	return;
 
     cb_->setCurrentItem( mn.name() );
+}
+
+
+// -- uiMulitMnemonicSel --
+
+uiMultiMnemonicsSel::uiMultiMnemonicsSel( uiParent* p,
+					  MnemonicSelection& mns,
+					  const MnemonicSelection* mnsel )
+    : uiDialog( p, uiDialog::Setup(tr("Multi-Mnemonic Selection"),
+		mNoDlgTitle,mTODOHelpKey) )
+    , mns_(mns)
+{
+    mnemlist_ = new uiListBox( this, "mnemonics", OD::ChooseZeroOrMore );
+    BufferStringSet mnemnms;
+    if ( mnsel )
+    {
+	for ( const auto* mn : *mnsel )
+	    mnemnms.addIfNew( mn->name() );
+    }
+    else
+	MNC().getNames( mnemnms );
+
+    mnemlist_->addItems( mnemnms );
+}
+
+
+uiMultiMnemonicsSel::~uiMultiMnemonicsSel()
+{}
+
+
+bool uiMultiMnemonicsSel::acceptOK( CallBacker* )
+{
+    BufferStringSet selmnems;
+    mnemlist_->getChosen( selmnems );
+    for ( const auto* mnnm : selmnems )
+    {
+	const Mnemonic* mn = MNC().getByName( *mnnm, false );
+	mns_.add( mn );
+    }
+
+    return true;
 }

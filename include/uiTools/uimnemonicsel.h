@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A. Huck
- Date:          Aug 2021
+ Author:	A. Huck
+ Date:		Aug 2021
 ________________________________________________________________________
 
 -*/
@@ -14,9 +14,12 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 
 #include "uicombobox.h"
+#include "uidialog.h"
 #include "uistrings.h"
 
 #include "mnemonics.h"
+
+class uiListBox;
 
 
 /*!\brief Selector for Mnemonics */
@@ -29,14 +32,14 @@ public:
     {
     public:
 
-                                Setup( Mnemonic::StdType typ,
+				Setup( Mnemonic::StdType typ,
 				       const uiString labeltxt=defLabel() )
-                                    : lbltxt_(labeltxt)
+				    : lbltxt_(labeltxt)
 				    , mnsel_(typ)
 				{}
-                                Setup( const MnemonicSelection* mns = nullptr,
+				Setup( const MnemonicSelection* mns = nullptr,
 				       const uiString labeltxt=defLabel() )
-                                    : lbltxt_(labeltxt)
+				    : lbltxt_(labeltxt)
 				    , mnsel_(nullptr)
 				{
 				    if ( mns )
@@ -45,8 +48,8 @@ public:
 
 	static uiString		defLabel()	{ return tr("Mnemonic"); };
 
-        mDefSetupMemb(MnemonicSelection,mnsel)
-        mDefSetupMemb(uiString,lbltxt)
+	mDefSetupMemb(MnemonicSelection,mnsel)
+	mDefSetupMemb(uiString,lbltxt)
     };
 
 				uiMnemonicsSel(uiParent*,const Setup&);
@@ -80,3 +83,19 @@ private:
 };
 
 
+mExpClass(uiTools) uiMultiMnemonicsSel : public uiDialog
+{ mODTextTranslationClass(uiMultiMnemonicsSel);
+public:
+				uiMultiMnemonicsSel(uiParent*,
+					MnemonicSelection&,
+					const MnemonicSelection* mnsel=nullptr);
+				~uiMultiMnemonicsSel();
+
+protected:
+
+    uiListBox*			mnemlist_;
+    MnemonicSelection&		mns_;
+
+    bool			acceptOK(CallBacker*);
+
+};
