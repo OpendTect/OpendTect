@@ -339,6 +339,7 @@ void uiWellMarkersDispProperties::markerFldsChged( CallBacker* )
 void uiWellMarkersDispProperties::doPutToScreen()
 {
     NotifyStopper ns1( cylinderheightfld_->box()->valueChanging );
+    NotifyStopper ns2( samecolasmarkerfld_->activated );
 
     shapefld_->box()->setCurrentItem( mrkprops().shapeint_ );
     cylinderheightfld_->box()->setValue( mrkprops().cylinderheight_ );

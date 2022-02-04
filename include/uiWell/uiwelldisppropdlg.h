@@ -56,6 +56,9 @@ public:
     void			setNeedsSave(bool yn);
 
 protected:
+				uiWellDispPropDlg(uiParent*,Well::Data*,
+						  bool is2ddisplay,
+						  Color bgcolor);
 
     Well::Data*			wd_;
     uiTabStack*			ts_;
@@ -64,6 +67,7 @@ protected:
     Color&			backGroundColor();
     const Color&		backGroundColor() const;
 
+    void			initDlg(Color);
     virtual void		getFromScreen();
     virtual void		putToScreen();
 
