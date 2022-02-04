@@ -14,10 +14,7 @@ ________________________________________________________________________
 
 #include "mousecursor.h"
 #include "refcount.h"
-#include "visosg.h"
 #include "uieventfilter.h"
-
-class QGestureEvent;
 
 namespace visBase
 {
@@ -26,11 +23,18 @@ namespace visBase
     class PolygonSelection;
     class Scene;
     class SceneColTab;
-    class Transformation;
     class ThumbWheel;
     class DataObjectGroup;
 }
 
+namespace osg
+{
+    class Camera;
+    class GraphicsContext;
+    class Switch;
+    class Vec3f;
+    class Viewport;
+}
 
 namespace osgViewer
 {
@@ -40,29 +44,20 @@ namespace osgViewer
     class Viewer;
 }
 
-namespace osgGeo { class TrackballManipulator; }
+namespace osgGeo
+{
+    class TrackballManipulator;
+}
+
+class QGestureEvent;
 
 class ui3DViewer;
+class ODOSGViewer;
 class ODOpenGLWidget;
 class TrackBallManipulatorMessenger;
 class KeyBindMan;
 class uiMouseEventBlockerByGestures;
 class SwapCallback;
-
-namespace osg
-{
-    class Group;
-    class GraphicsContext;
-    class Camera;
-    class MatrixTransform;
-    class Projection;
-    class Vec3f;
-    class Viewport;
-}
-
-namespace osgViewer { class View; }
-
-//!Baseclass for different body implementation (direct & indirect) of OSG
 
 mClass(uiOSG) ui3DViewerBody : public uiObjectBody
 {
@@ -178,7 +173,7 @@ protected:
     void				qtEventCB(CallBacker*);
     void				setFocusCB(CallBacker*);
     void				handleGestureEvent(QGestureEvent*);
-    osgViewer::CompositeViewer*		getCompositeViewer();
+    static osgViewer::CompositeViewer*	getCompositeViewer();
     osgGeo::TrackballManipulator*	getCameraManipulator() const;
 
     osgViewer::GraphicsWindow&		getGraphicsWindow();
@@ -196,7 +191,7 @@ protected:
 
     void				thumbWheelRotationCB(CallBacker*);
     void				enableThumbWheelHandling(bool yn,
-					    const visBase::ThumbWheel* tw=0);
+					    visBase::ThumbWheel* tw=nullptr);
 
     ui3DViewer&				handle_;
     IOPar&				printpar_;
@@ -207,16 +202,16 @@ protected:
     RefMan<visBase::ThumbWheel>		horthumbwheel_		= nullptr;
     RefMan<visBase::ThumbWheel>		verthumbwheel_		= nullptr;
     RefMan<visBase::ThumbWheel>		distancethumbwheel_	= nullptr;
-    int					wheeldisplaymode_;
+    WheelMode				wheeldisplaymode_	= OnHover;
 
     osg::Switch*			offscreenrenderswitch_;
-    osgViewer::CompositeViewer*		compositeviewer_	= nullptr;
-    osgViewer::Viewer*			view_			= nullptr;
+    osgViewer::CompositeViewer*		compositeviewer_;
+    ODOSGViewer*			view_			= nullptr;
     osg::Viewport*			viewport_;
     StereoType				stereotype_		= None;
     float				stereooffset_		= 0.f;
 
-    osgViewer::Viewer*			hudview_		= nullptr;
+    ODOSGViewer*			hudview_		= nullptr;
     osg::Switch*			offscreenrenderhudswitch_;
     RefMan<visBase::DataObjectGroup>	hudscene_		= nullptr;
 
@@ -233,6 +228,6 @@ protected:
 
     KeyBindMan&				keybindman_;
 
-    bool				mapview_;
+    bool				mapview_		= false;
 };
 

@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uiosgmod.h"
 #include "uiobj.h"
-#include "uigroup.h"
 #include "color.h"
 #include "position.h"
 #include "enums.h"

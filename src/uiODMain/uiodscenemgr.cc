@@ -146,7 +146,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 
     mAttachCB( appl_.windowShown, uiODSceneMgr::showIfMinimized );
     mAttachCB( appl_.windowShown, uiODSceneMgr::mdiAreaChanged );
-    setOSGTimerCallbacks( scenesShown, scenesHidden );
+//    setOSGTimerCallbacks( scenesShown, scenesHidden );
 }
 
 

@@ -35,8 +35,16 @@ ODOSGViewer::~ODOSGViewer()
 
 void ODOSGViewer::update()
 {
-    ODOpenGLWidget* glwidget = dynamic_cast<ODOpenGLWidget*>(parent());
-    glwidget->update();
+    auto* glwidget = dynamic_cast<ODOpenGLWidget*>(parent());
+    if ( glwidget )
+    {
+	glwidget->update();
+	return;
+    }
+
+    auto* glwindow = dynamic_cast<ODOpenGLWindow*>(parent());
+    if ( glwindow )
+	glwindow->update();
 }
 
 
@@ -44,6 +52,10 @@ void ODOSGViewer::doInit()
 {
     setKeyEventSetsDone( 0 );
     setReleaseContextAtEndOfFrameHint( false );
+    setThreadingModel( osgViewer::Viewer::SingleThreaded );
+
+    osgViewer::Viewer::Windows windows;
+    getWindows( windows );
 
     timerid_ = startTimer( 10, Qt::PreciseTimer );
     lastframestarttime_.setStartTick( 0 );

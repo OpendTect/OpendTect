@@ -11,12 +11,11 @@ set(OD_USEOSG Yes)
 SET(OD_MODULE_SOURCES
 	inituiosg.cc
 	keybindings.cc
-	od3dviewer.cc
 	odfontimplementation.cc
 	odopenglwidget.cc
 	odosgviewer.cc
-	osgheartbeat.cc
 	ui3dviewer.cc
+	ui3dviewerbody.cc
 	uiglinfo.cc
 	uiosgfont.cc
 	uiprintscenedlg.cc

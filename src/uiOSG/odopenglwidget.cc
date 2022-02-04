@@ -108,6 +108,7 @@ ODOpenGLWidget::ODOpenGLWidget( QWidget* parent, Qt::WindowFlags flags )
 {
     setAttribute( Qt::WA_NativeWindow );
     setMouseTracking( true );
+    setFocusPolicy( Qt::WheelFocus );
 
     graphicswindow_->setWindowRectangle( x(), y(), width(), height() );
     getEventQueue()->syncWindowRectangleWithGraphicsContext();
@@ -136,14 +137,17 @@ void ODOpenGLWidget::paintGL()
     {
 	isfirstframe_ = false;
 
+/*
 	std::vector<osg::Camera*> cameras;
 	viewer_->getCameras( cameras );
 	for ( auto* cam : cameras )
 	    cam->getGraphicsContext()->setDefaultFboId(
 						defaultFramebufferObject() );
+*/
     }
 
-    viewer_->frame();
+    if ( viewer_ )
+	viewer_->frame();
 }
 
 
@@ -153,10 +157,12 @@ void ODOpenGLWidget::resizeGL( int w, int h )
 				   w*scalex_, h*scaley_ );
     graphicswindow_->resized( x()*scalex_, y()*scaley_, w*scalex_, h*scaley_ );
 
+/*
     std::vector<osg::Camera*> cameras;
     viewer_->getCameras( cameras );
     for ( auto* cam : cameras )
 	cam->setViewport( 0, 0, this->width(), this->height() );
+*/
 
     update();
 }
@@ -284,6 +290,194 @@ osgGA::EventQueue* ODOpenGLWidget::getEventQueue() const
 
 
 void ODOpenGLWidget::setViewer( osgViewer::ViewerBase* vwr )
+{
+    viewer_ = vwr;
+}
+
+
+// ODOpenGLWindow
+ODOpenGLWindow::ODOpenGLWindow( QWidget* )
+    : QOpenGLWindow(QOpenGLWindow::NoPartialUpdate,nullptr)
+    , graphicswindow_(new osgViewer::GraphicsWindowEmbedded(this->x(),this->y(),
+				this->width(),this->height()))
+{
+    qwidget_ = QWidget::createWindowContainer( this );
+
+    graphicswindow_->setWindowRectangle( x(), y(), width(), height() );
+    getEventQueue()->syncWindowRectangleWithGraphicsContext();
+    scalex_ = scaley_ = QApplication::desktop()->devicePixelRatio();
+}
+
+
+ODOpenGLWindow::~ODOpenGLWindow()
+{
+}
+
+
+void ODOpenGLWindow::initializeGL()
+{
+    osg::DisplaySettings* ds = osg::DisplaySettings::instance().get();
+    ds->setNvOptimusEnablement( 1 );
+    ds->setStereo( false );
+}
+
+
+void ODOpenGLWindow::paintGL()
+{
+    OpenThreads::ScopedReadLock locker( mutex_ );
+
+    if ( isfirstframe_ )
+    {
+	isfirstframe_ = false;
+
+	std::vector<osg::Camera*> cameras;
+	viewer_->getCameras( cameras );
+	for ( auto* cam : cameras )
+	    cam->getGraphicsContext()->setDefaultFboId(
+						defaultFramebufferObject() );
+    }
+
+    viewer_->frame();
+}
+
+
+void ODOpenGLWindow::resizeGL( int w, int h )
+{
+    getEventQueue()->windowResize( x()*scalex_, y()*scaley_,
+				   w*scalex_, h*scaley_ );
+    graphicswindow_->resized( x()*scalex_, y()*scaley_, w*scalex_, h*scaley_ );
+
+    std::vector<osg::Camera*> cameras;
+    viewer_->getCameras( cameras );
+    for ( auto* cam : cameras )
+	cam->setViewport( 0, 0, this->width(), this->height() );
+
+    update();
+}
+
+
+void ODOpenGLWindow::setKeyboardModifiers( QInputEvent* ev )
+{
+    unsigned int modkey = ev ->modifiers() &
+		 (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
+    unsigned int modkeymask = 0;
+    if ( modkey & Qt::ShiftModifier )
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
+    if ( modkey & Qt::ControlModifier )
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
+    if ( modkey & Qt::AltModifier )
+	modkeymask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+
+    getEventQueue()->getCurrentEventState()->setModKeyMask( modkeymask );
+}
+
+
+void ODOpenGLWindow::keyPressEvent( QKeyEvent* event )
+{
+    setKeyboardModifiers( event );
+    const int value = sKeyboardMap.remapKey( event );
+    getEventQueue()->keyPress( value );
+}
+
+
+void ODOpenGLWindow::keyReleaseEvent( QKeyEvent* event )
+{
+    if ( event->isAutoRepeat() )
+	event->ignore();
+    else
+    {
+	setKeyboardModifiers( event );
+	const int value = sKeyboardMap.remapKey( event );
+	getEventQueue()->keyRelease( value );
+    }
+}
+
+
+void ODOpenGLWindow::mousePressEvent( QMouseEvent* ev  )
+{
+    unsigned int button = 0;
+    switch ( ev ->button() )
+    {
+	case Qt::LeftButton: button = 1; break;
+	case Qt::MidButton: button = 2; break;
+	case Qt::RightButton: button = 3; break;
+	case Qt::NoButton: button = 0; break;
+	default: button = 0; break;
+    }
+
+    setKeyboardModifiers( ev  );
+    getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
+	    			       button );
+}
+
+
+void ODOpenGLWindow::mouseReleaseEvent( QMouseEvent* ev  )
+{
+    unsigned int button = 0;
+    switch ( ev ->button() )
+    {
+	case Qt::LeftButton: button = 1; break;
+	case Qt::MidButton: button = 2; break;
+	case Qt::RightButton: button = 3; break;
+	case Qt::NoButton: button = 0; break;
+	default: button = 0; break;
+    }
+
+    setKeyboardModifiers( ev  );
+    getEventQueue()->mouseButtonRelease(
+			ev->x()*scalex_, ev->y()*scaley_, button );
+}
+
+
+void ODOpenGLWindow::mouseDoubleClickEvent( QMouseEvent* ev  )
+{
+    unsigned int button = 0;
+    switch ( ev ->button() )
+    {
+	case Qt::LeftButton: button = 1; break;
+	case Qt::MidButton: button = 2; break;
+	case Qt::RightButton: button = 3; break;
+	case Qt::NoButton: button = 0; break;
+	default: button = 0; break;
+    }
+
+    setKeyboardModifiers( ev  );
+    getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
+				       button );
+}
+
+
+void ODOpenGLWindow::mouseMoveEvent( QMouseEvent* ev  )
+{
+    setKeyboardModifiers( ev  );
+    getEventQueue()->mouseMotion( ev->x()*scalex_, ev->y()*scaley_ );
+}
+
+
+void ODOpenGLWindow::wheelEvent( QWheelEvent* ev  )
+{
+    setKeyboardModifiers( ev  );
+
+    getEventQueue()->mouseMotion( ev->position().x()*scalex_,
+				  ev->position().y()*scaley_ );
+
+    const QPoint delta = ev->angleDelta();
+    const bool isvertical = abs(delta.y()) > abs(delta.x());
+    getEventQueue()->mouseScroll(
+	isvertical ? (delta.y()>0 ? osgGA::GUIEventAdapter::SCROLL_UP
+				  : osgGA::GUIEventAdapter::SCROLL_DOWN)
+		   : (delta.x()>0 ? osgGA::GUIEventAdapter::SCROLL_LEFT
+				  : osgGA::GUIEventAdapter::SCROLL_RIGHT) );
+}
+
+
+osgGA::EventQueue* ODOpenGLWindow::getEventQueue() const
+{
+    return graphicswindow_->getEventQueue();
+}
+
+
+void ODOpenGLWindow::setViewer( osgViewer::ViewerBase* vwr )
 {
     viewer_ = vwr;
 }
