@@ -4,6 +4,7 @@ HorizonCube`dgbhc
 Sequence Stratigraphic Interpretation System`dgbssis
 Faults and Fractures`dgbflt
 Machine Learning`dgbml
+Neural Networks`dgbnn
 Fluid Contact Finder`dgbccb
 Well Correlation Panel`dgbwcp
 SynthRock`dgbstrat
