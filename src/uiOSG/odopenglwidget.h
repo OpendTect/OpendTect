@@ -25,11 +25,14 @@ class QInputEvent;
 
 mClass(uiOSG) ODOpenGLWidget : public QOpenGLWidget
 {
-friend class ui3DViewerBody;
 public:
 			ODOpenGLWidget(QWidget* parent=nullptr,
 				       Qt::WindowFlags f=Qt::WindowFlags());
 			~ODOpenGLWidget();
+
+    osgViewer::GraphicsWindowEmbedded*
+			getGraphicsWindow()	{ return graphicswindow_; }
+    void		setViewer(osgViewer::ViewerBase*);
 
 protected:
 
@@ -48,9 +51,6 @@ protected:
     void		wheelEvent(QWheelEvent*) override;
 
     osgGA::EventQueue*	getEventQueue() const;
-    osgViewer::GraphicsWindowEmbedded*
-			getGraphicsWindow()	{ return graphicswindow_; }
-    void		setViewer(osgViewer::ViewerBase*);
 
 private:
     osgViewer::GraphicsWindowEmbedded*

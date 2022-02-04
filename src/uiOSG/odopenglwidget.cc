@@ -106,12 +106,12 @@ ODOpenGLWidget::ODOpenGLWidget( QWidget* parent, Qt::WindowFlags flags )
     , graphicswindow_(new osgViewer::GraphicsWindowEmbedded(this->x(),this->y(),
 				this->width(),this->height()))
 {
+    setAttribute( Qt::WA_NativeWindow );
+    setMouseTracking( true );
+
     graphicswindow_->setWindowRectangle( x(), y(), width(), height() );
     getEventQueue()->syncWindowRectangleWithGraphicsContext();
-
     scalex_ = scaley_ = QApplication::desktop()->devicePixelRatio();
-
-    setMouseTracking( true );
 }
 
 
@@ -144,13 +144,6 @@ void ODOpenGLWidget::paintGL()
     }
 
     viewer_->frame();
-
-/*
-    std::vector<osgViewer::View*> views;
-    viewer_->getViews( views );
-    for ( auto* view : views )
-	dynamic_cast<osgViewer::Viewer*>(view)->frame();
-*/
 }
 
 
@@ -256,7 +249,7 @@ void ODOpenGLWidget::mouseDoubleClickEvent( QMouseEvent* ev  )
 
     setKeyboardModifiers( ev  );
     getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
-	    			       button );
+				       button );
 }
 
 
@@ -286,14 +279,11 @@ void ODOpenGLWidget::wheelEvent( QWheelEvent* ev  )
 
 osgGA::EventQueue* ODOpenGLWidget::getEventQueue() const
 {
-    osgGA::EventQueue* eventQueue = graphicswindow_->getEventQueue();
-    return eventQueue;
+    return graphicswindow_->getEventQueue();
 }
 
 
 void ODOpenGLWidget::setViewer( osgViewer::ViewerBase* vwr )
 {
     viewer_ = vwr;
-//    setOSGViewer( vwr );
-//    setOpenGLWidget( this );
 }

@@ -15,6 +15,10 @@ ________________________________________________________________________
 
 #include <QThread>
 
+/*
+   This class is a slightly modified version of the OSGRenderer class
+   available at: https://github.com/openscenegraph/osgQt
+*/
 
 // ODOSGViewer
 ODOSGViewer::ODOSGViewer( QObject* parent )
@@ -40,10 +44,6 @@ void ODOSGViewer::doInit()
 {
     setKeyEventSetsDone( 0 );
     setReleaseContextAtEndOfFrameHint( false );
-//    setThreadingModel( osgViewer::Viewer::SingleThreaded );
-
-//    osgViewer::Viewer::Windows windows;
-//    getWindows( windows );
 
     timerid_ = startTimer( 10, Qt::PreciseTimer );
     lastframestarttime_.setStartTick( 0 );
