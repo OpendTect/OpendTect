@@ -56,12 +56,15 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
 			    new uiLocalHostGrp( this, tr("Computer/Host") ) );
     localhostgrp()->attach( alignedBelow, hostidfld_ );
     osfld_ = new uiGenInput( this, tr("Operating System") );
+    osfld_->setStretch( 2, 1 );
     osfld_->setReadOnly();
     osfld_->attach( alignedBelow, localhostgrp() );
     productnmfld_ = new uiGenInput( this, tr("OS Product name") );
+    productnmfld_->setStretch( 2, 1 );
     productnmfld_->setReadOnly();
     productnmfld_->attach( alignedBelow, osfld_ );
     usernmfld_ = new uiGenInput( this, tr("User name") );
+    usernmfld_->setStretch( 2, 1 );
     usernmfld_->setReadOnly();
     usernmfld_->attach( alignedBelow, productnmfld_ );
 
@@ -90,8 +93,8 @@ void uiHostIDDlg::copyCB( CallBacker* )
 {
     BufferString txt;
     txt.add( "HostIDs: " ).add( hostidfld_->text() ).addNewLine()
-       .add("Host name: " ).add( localhostgrp()->hostname() ).addNewLine()
-       .add("IP Address: " ).add( localhostgrp()->address() ).addNewLine()
+       .add( "Host name: " ).add( localhostgrp()->hostname() ).addNewLine()
+       .add( "IP Address: " ).add( localhostgrp()->address() ).addNewLine()
        .add( "Operating System: " ).add( osfld_->text() ).addNewLine()
        .add( "Product name: " ).add( productnmfld_->text() ).addNewLine()
        .add( "User name: " ).add( usernmfld_->text() ).addNewLine();
