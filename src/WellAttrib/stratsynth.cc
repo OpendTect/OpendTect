@@ -1162,6 +1162,102 @@ void StratSynth::generateOtherQuantities( double zstep,
 }
 
 
+mClass(WellAttrib) StratSeqSplitter : public ParallelTask
+{ mODTextTranslationClass(StratSeqSplitter);
+
+public:
+StratSeqSplitter( const Strat::LayerModel& lm, const PostStackSyntheticData& sd,
+		  double zstep, ObjectSet<Strat::LayerModel>& layermodels )
+    : ParallelTask("Splitting layermodel")
+    , lm_(lm)
+    , sd_(sd)
+    , layermodels_(layermodels)
+    , zrg_(sd.postStackPack().posData().range(false))
+    , totalnr_(lm.size())
+{
+    zrg_.step = zstep;
+    msg_ = tr("Preparing Models");
+}
+
+
+uiString uiMessage() const override
+{
+    return msg_;
+}
+
+
+uiString uiNrDoneText() const
+{
+    return tr("Models done");
+}
+
+private:
+
+od_int64 nrIterations() const override
+{ return totalnr_; }
+
+bool doPrepare( int /* nrthreads */ ) override
+{
+    const int nrlm = zrg_.nrSteps() + 1;
+    const int nrmodels = lm_.size();
+
+    layermodels_.setEmpty();
+    for ( int idz=0; idz<nrlm; idz++ )
+    {
+	auto* layermodel = new Strat::LayerModel;
+	for ( int iseq=0; iseq<nrmodels; iseq++ )
+	    layermodel->addSequence();
+
+	layermodels_.add( layermodel );
+    }
+
+    return true;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int /* threadidx */ ) override
+{
+    const int nrlm = zrg_.nrSteps()+1;
+
+    for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++,
+							    addToNrDone(1) )
+    {
+	const Strat::LayerSequence& seq = lm_.sequence( iseq );
+	const TimeDepthModel* t2d = sd_.getTDModel( iseq );
+	if ( !t2d )
+	    return false;
+
+	const Interval<float> seqdepthrg = seq.zRange();
+	const float seqstarttime = t2d->getTime( seqdepthrg.start );
+	const float seqstoptime = t2d->getTime( seqdepthrg.stop );
+	const Interval<float> seqtimerg( seqstarttime, seqstoptime );
+	for ( int idz=0; idz<nrlm; idz++ )
+	{
+	    Strat::LayerSequence& curseq =
+				  layermodels_.get( idz )->sequence( iseq );
+	    const float time = mCast( float, zrg_.atIndex(idz) );
+	    if ( !seqtimerg.includes(time,false) )
+		continue;
+
+	    const float dptstart = t2d->getDepth( time - (float)zrg_.step );
+	    const float dptstop = t2d->getDepth( time + (float)zrg_.step );
+	    const Interval<float> depthrg( dptstart, dptstop );
+	    seq.getSequencePart( depthrg, true, curseq );
+	}
+    }
+
+    return true;
+}
+
+    const Strat::LayerModel&	lm_;
+    const PostStackSyntheticData& sd_;
+    ObjectSet<Strat::LayerModel>& layermodels_;
+    StepInterval<double>	zrg_;
+    const od_int64		totalnr_;
+    uiString			msg_;
+
+};
+
+
 mClass(WellAttrib) StratPropSyntheticDataCreator : public ParallelTask
 { mODTextTranslationClass(StratPropSyntheticDataCreator);
 
@@ -1169,15 +1265,18 @@ public:
 StratPropSyntheticDataCreator( ObjectSet<SyntheticData>& synths,
 		    const PostStackSyntheticData& sd,
 		    const Strat::LayerModel& lm,
+		    const ObjectSet<Strat::LayerModel>& layermodels,
 		    int& lastsynthid, bool useed, double zstep,
 		    const BufferStringSet* proplistfilter )
     : ParallelTask( "Creating Synthetics for Properties" )
     , synthetics_(synths)
-    , sd_(sd)
     , lm_(lm)
+    , sd_(sd)
+    , layermodels_(layermodels)
     , lastsyntheticid_(lastsynthid)
     , useed_(useed)
     , zrg_(sd.postStackPack().posData().range(false))
+    , totalnr_(lm.size())
 {
     zrg_.step = zstep;
     prs_.setEmpty();
@@ -1189,6 +1288,8 @@ StratPropSyntheticDataCreator( ObjectSet<SyntheticData>& synths,
 
 	prs_.add( pr );
     }
+
+    msg_ = tr("Converting depth layer model to time traces");
 }
 
 
@@ -1207,18 +1308,12 @@ uiString uiNrDoneText() const override
 private:
 
 od_int64 nrIterations() const override
-{ return lm_.size(); }
+{ return totalnr_; }
 
 
 bool doPrepare( int /* nrthreads */ ) override
 {
-    msg_ = tr("Preparing Models");
-
-    layermodels_.setEmpty();
-    const int sz = zrg_.nrSteps() + 1;
-    for ( int idz=0; idz<sz; idz++ )
-	layermodels_ += new Strat::LayerModel();
-
+    const int sz = zrg_.nrSteps()+1;
     const int nrprops = prs_.size();
     ObjectSet<SeisTrcBuf> trcbufs;
     for ( int iprop=0; iprop<nrprops; iprop++ )
@@ -1245,52 +1340,20 @@ bool doPrepare( int /* nrthreads */ ) override
 	seisbufdps_.add( seisbuf );
     }
 
-    for ( int iseq=0; iseq<lm_.size(); iseq++, addToNrDone(1) )
-    {
-	const Strat::LayerSequence& seq = lm_.sequence( iseq );
-	const TimeDepthModel* t2d = sd_.getTDModel( iseq );
-	if ( !t2d )
-	    return false;
-
-	const Interval<float> seqdepthrg = seq.zRange();
-	const float seqstarttime = t2d->getTime( seqdepthrg.start );
-	const float seqstoptime = t2d->getTime( seqdepthrg.stop );
-	Interval<float> seqtimerg( seqstarttime, seqstoptime );
-	for ( int idz=0; idz<sz; idz++ )
-	{
-	    Strat::LayerModel* lmsamp = layermodels_[idz];
-	    if ( !lmsamp )
-		continue;
-
-	    lmsamp->addSequence();
-	    Strat::LayerSequence& curseq = lmsamp->sequence( iseq );
-	    const float time = mCast( float, zrg_.atIndex(idz) );
-	    if ( !seqtimerg.includes(time,false) )
-		continue;
-
-	    const float dptstart = t2d->getDepth( time - (float)zrg_.step );
-	    const float dptstop = t2d->getDepth( time + (float)zrg_.step );
-	    Interval<float> depthrg( dptstart, dptstop );
-	    seq.getSequencePart( depthrg, true, curseq );
-	}
-    }
-
-    resetNrDone();
-    msg_ = tr("Calculating");
     return true;
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )
+bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 {
     const int sz = layermodels_.size();
     const PropertyRefSelection& props = lm_.propertyRefs();
-    for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++ )
+    for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++,
+							    addToNrDone(1) )
     {
-	addToNrDone( 1 );
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
-	Interval<float> seqtimerg(  sd_.getTime(seq.zRange().start,iseq),
-				    sd_.getTime(seq.zRange().stop,iseq) );
+	const Interval<float> seqtimerg(  sd_.getTime(seq.zRange().start,iseq),
+					  sd_.getTime(seq.zRange().stop,iseq) );
 	if ( seqtimerg.isUdf() )
 	    return false;
 
@@ -1362,22 +1425,17 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    for ( int idz=0; idz<sz; idz++ )
 		rawtrc->set( idz, proptr.get( idz ), 0 );
 	}
-
-	for ( int idz=0; idz<sz; idz++ )
-	{
-	    if ( !layermodels_.validIdx(idz) || !layermodels_[idz] )
-		continue;
-
-	    layermodels_[idz]->sequence(iseq).setEmpty();
-	}
     }
 
     return true;
 }
 
 
-bool doFinish( bool success )
+bool doFinish( bool success ) override
 {
+    if ( !success )
+	return false;
+
     SynthGenParams sgp( SynthGenParams::StratProp );
     for ( int idx=0; idx<seisbufdps_.size(); idx++ )
     {
@@ -1398,15 +1456,16 @@ bool doFinish( bool success )
     return true;
 }
 
-    const PostStackSyntheticData&	sd_;
     const Strat::LayerModel&		lm_;
+    const PostStackSyntheticData&	sd_;
     PropertyRefSelection		prs_;
     StepInterval<double>		zrg_;
-    ManagedObjectSet<Strat::LayerModel> layermodels_;
+    const ObjectSet<Strat::LayerModel>& layermodels_;
     ObjectSet<SyntheticData>&		synthetics_;
     ObjectSet<SeisTrcBufDataPack>	seisbufdps_;
     int&				lastsyntheticid_;
     bool				useed_;
+    const od_int64			totalnr_;
     uiString				msg_;
 
 };
@@ -1429,9 +1488,15 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 	proplistfilter = *proplist;
 
     const bool filterprops = !proplistfilter.isEmpty();
+
+    ManagedObjectSet<Strat::LayerModel> layermodels;
+    StratSeqSplitter splitter( lm, sd, zstep, layermodels );
+    if ( !TaskRunner::execute(taskr_,splitter) )
+	return;
+
     StratPropSyntheticDataCreator propcreator( synthetics_, sd, lm,
-			      lastsyntheticid_, useed_, zstep,
-			      filterprops ? &proplistfilter : nullptr );
+				layermodels, lastsyntheticid_, useed_, zstep,
+				filterprops ? &proplistfilter : nullptr );
     TaskRunner::execute( taskr_, propcreator );
 }
 
