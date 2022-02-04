@@ -48,6 +48,23 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd, bool is2d )
 {}
 
 
+uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* wd,
+				      bool is2d, Color bkCol )
+    : uiDialog(p,uiDialog::Setup(
+			tr("Display properties of: %1").arg(wd->name()),
+			mNoDlgTitle, mODHelpKey(mWellDispPropDlgHelpID) )
+			    .savebutton(true).savechecked(false)
+			    .applybutton(true).modal(false)
+			    .applytext(uiStrings::sReset()))
+    , wd_(wd)
+    , savedefault_(false)
+    , is2ddisplay_(is2d)
+    , applyAllReq(this)
+{
+    initDlg( bkCol );
+}
+
+
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
 				      bool is2d, Color bkCol )
     : uiDialog(p,uiDialog::Setup(
@@ -60,6 +77,30 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
     , is2ddisplay_(is2d)
     , applyAllReq(this)
 {
+     wd_ = Well::MGR().get( wid, Well::LoadReqs( Well::LogInfos,
+						 Well::Mrkrs,
+						 is2d ? Well::DispProps2D :
+							Well::DispProps3D ) );
+     initDlg( bkCol );
+}
+
+
+uiWellDispPropDlg::~uiWellDispPropDlg()
+{
+    detachAllNotifiers();
+    wlldisppropcolmgr_.removeAndDeleteParam( this );
+    wlldispsavereqmgr_.removeAndDeleteParam( this );
+    wlldispapplytabreqmgr_.removeAndDeleteParam( this );
+    wlldispresetallreqmgr_.removeAndDeleteParam( this );
+    hp_applycurrenttoall_.removeParam( this );
+    hp_resetall_.removeParam( this );
+    hp_save_.removeParam( this );
+    wd_->unRef();
+}
+
+
+void uiWellDispPropDlg::initDlg( Color bkCol )
+{
     wlldisppropcolmgr_.setParam( this, new Color( bkCol ) );
     wlldispsavereqmgr_.setParam( this,
 	new Notifier<uiWellDispPropDlg>( this ) );
@@ -68,10 +109,6 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
     wlldispresetallreqmgr_.setParam( this,
 	new Notifier<uiWellDispPropDlg>( this ) );
 
-    wd_ = Well::MGR().get( wid, Well::LoadReqs( Well::LogInfos,
-						Well::Mrkrs,
-						is2d ? Well::DispProps2D :
-						       Well::DispProps3D ) );
     wd_->ref();
 
     setCtrlStyle( CloseOnly );
@@ -84,19 +121,19 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
     tgs += new uiGroup( ts_->tabGroup(),"Center log properties" );
     tgs += new uiGroup( ts_->tabGroup(),"Right log properties" );
     tgs += new uiGroup( ts_->tabGroup(), "Marker properties" );
-    if ( !is2d )
+    if ( !is2ddisplay_ )
 	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
 
     Well::DisplayProperties::LogCouple& lc = *props.logs_[0];
     auto* wlp1 = new uiWellLogDispProperties( tgs[LeftLog],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2d), lc.left_, wd_ );
+	.onlyfor2ddisplay(is2ddisplay_), lc.left_, wd_ );
     auto* wlp2 = new uiWellLogDispProperties( tgs[CenterLog],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2d), lc.center(), wd_ );
+	.onlyfor2ddisplay(is2ddisplay_), lc.center(), wd_ );
     auto* wlp3 = new uiWellLogDispProperties( tgs[RightLog],
 	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
-	.onlyfor2ddisplay(is2d), lc.right_, wd_ );
+	.onlyfor2ddisplay(is2ddisplay_), lc.right_, wd_ );
 
     propflds_ += wlp1;
     propflds_ += wlp2;
@@ -111,13 +148,13 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
 
     uiWellDispProperties::Setup propsu =
 	uiWellDispProperties::Setup(tr("Marker size"),tr("Marker color"))
-	.onlyfor2ddisplay(is2d);
+	.onlyfor2ddisplay(is2ddisplay_);
     auto* wellprops = new uiWellMarkersDispProperties(
 		tgs[Marker], propsu, props.markers_, markernms );
     wellprops->setAllMarkerNames( markernms, markercols );
     propflds_ += wellprops;
 
-    if ( !is2d )
+    if ( !is2ddisplay_ )
 	propflds_ += new uiWellTrackDispProperties( tgs[Track],
 			    uiWellDispProperties::Setup(), props.track_ );
 
@@ -127,13 +164,13 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
 	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
 	{
 	    if ( idx==LeftLog )
-		ts_->addTab( tgs[idx], is2d ? tr("Log 1")
-					    : tr("Left Log") );
+		ts_->addTab( tgs[idx], is2ddisplay_ ? tr("Log 1")
+						    : tr("Left Log") );
 	    else if ( idx==CenterLog )
 		ts_->addTab( tgs[idx], tr("Center Log") );
 	    else if ( idx==RightLog )
-		ts_->addTab( tgs[idx], is2d ? tr("Log 2")
-					    : tr("Right Log") );
+		ts_->addTab( tgs[idx], is2ddisplay_ ? tr("Log 2")
+						    : tr("Right Log") );
 	}
 	else
 	    ts_->addTab( tgs[idx], toUiString(
@@ -164,20 +201,6 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, const MultiID& wid,
     mAttachCB( applyPushed, uiWellDispPropDlg::resetCB );
     mAttachCB( windowClosed, uiWellDispPropDlg::onClose );
     mAttachCB( postFinalise(), uiWellDispPropDlg::postFinaliseCB );
-}
-
-
-uiWellDispPropDlg::~uiWellDispPropDlg()
-{
-    detachAllNotifiers();
-    wlldisppropcolmgr_.removeAndDeleteParam( this );
-    wlldispsavereqmgr_.removeAndDeleteParam( this );
-    wlldispapplytabreqmgr_.removeAndDeleteParam( this );
-    wlldispresetallreqmgr_.removeAndDeleteParam( this );
-    hp_applycurrenttoall_.removeParam( this );
-    hp_resetall_.removeParam( this );
-    hp_save_.removeParam( this );
-    wd_->unRef();
 }
 
 
@@ -450,6 +473,7 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 	    saveReq().trigger();
 	else if ( res == -1 )
 	    return false;
+	setNeedsSave( false );
     }
 
     return true;
@@ -493,7 +517,7 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 					const ObjectSet<Well::Data>& wds,
 					bool is2ddisplay, Color bkcol )
-    : uiWellDispPropDlg(p,wds[0]->multiID(),is2ddisplay,bkcol)
+    : uiWellDispPropDlg(p,const_cast<Well::Data*>(wds[0]),is2ddisplay,bkcol)
     , wds_(wds)
     , wellselfld_(nullptr)
 {
@@ -575,6 +599,7 @@ void uiMultiWellDispPropDlg::wellSelChg( CallBacker* )
     if ( wd_ )
 	wd_->ref();
 
+    setCaption( tr("Display properties of: %1").arg(wd_->name()) );
     uiWellDispPropDlg::setWDNotifiers( true );
     resetProps( selidx, 0 );
 }

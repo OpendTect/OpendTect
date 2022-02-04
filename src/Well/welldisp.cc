@@ -804,8 +804,16 @@ Well::DisplayProperties::LogCouple&
 
 bool Well::DisplayProperties::LogCouple::operator==( const LogCouple& oth) const
 {
-    return left_ == oth.left_ && right_ == oth.right_ &&
-	   center() == oth.center();
+    const char* nonestr = sKey::None();
+    const bool lefteq = (left_.name_==nonestr && oth.left_.name_==nonestr) ||
+							    left_==oth.left_;
+    const bool righteq = (right_.name_==nonestr && oth.right_.name_==nonestr) ||
+							    right_==oth.right_;
+    const bool centereq = ( center().name_==nonestr
+			    && oth.center().name_==nonestr)
+			    || center()==oth.center();
+
+    return lefteq && righteq && centereq;
 }
 
 
