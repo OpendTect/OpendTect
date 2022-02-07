@@ -197,8 +197,8 @@ void uiSeisWvltTaperDlg::typeChoice( CallBacker* )
     mutefld_->display( !isfreqtaper_ );
     freqtaper_->display( isfreqtaper_ );
 
-    timedrawer_->setup().drawliney_ = !isfreqtaper_;
-    freqdrawer_->setup().drawliney_ = isfreqtaper_;
+    timedrawer_->disp().setup().drawliney_ = !isfreqtaper_;
+    freqdrawer_->disp().setup().drawliney_ = isfreqtaper_;
 
     if ( isfreqtaper_ )
 	freqdrawer_->setFunction( *freqvals_, freqrange_ );
@@ -244,7 +244,7 @@ void uiSeisWvltTaperDlg::act( CallBacker* )
 
 void uiSeisWvltTaperDlg::setTimeData()
 {
-    timedrawer_->setY2Vals( timerange_, wvltvals_->getData(), wvltsz_ );
+    timedrawer_->disp().setY2Vals( timerange_, wvltvals_->getData(), wvltsz_ );
 }
 
 
@@ -256,7 +256,7 @@ void uiSeisWvltTaperDlg::setFreqData()
     for ( int idx=0; idx<mPadSz; idx++ )
 	freqvals_->set( idx, spectrum.get(idx) );
 
-    freqdrawer_->setY2Vals( freqrange_, freqvals_->getData(), mPadSz );
+    freqdrawer_->disp().setY2Vals( freqrange_, freqvals_->getData(), mPadSz );
 }
 
 

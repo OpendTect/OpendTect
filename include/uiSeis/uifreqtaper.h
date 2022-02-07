@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uiseismod.h"
 #include "uidialog.h"
-#include "uifunctiondisplay.h"
+#include "uifuncdispbase.h"
 #include "uiwindowfunctionsel.h"
 #include "uibutton.h"
 #include "survinfo.h"
@@ -65,11 +65,11 @@ mStruct(uiSeis) TaperData
 };
 
 
-mExpClass(uiSeis) uiFuncTaperDisp : public uiFunctionDisplay
+mExpClass(uiSeis) uiFuncTaperDisp : public uiGroup
 { mODTextTranslationClass(uiFuncTaperDisp);
 public:
 
-    struct Setup : public uiFunctionDisplay::Setup
+    struct Setup : public uiFuncDispBase::Setup
     {
 			Setup()
 			    : is2sided_(false)
@@ -123,11 +123,12 @@ public:
     TaperData&		rightTaperData()	{ return rightd_; }
 
     int			dataSize() const	{ return datasz_; }
+    uiFuncDispBase&	disp()			{ return *disp_; }
 
     Notifier<uiFuncTaperDisp> taperChanged;
 
 protected:
-
+    uiFuncDispBase*	disp_;
     TaperData		leftd_;
     TaperData		rightd_;
 

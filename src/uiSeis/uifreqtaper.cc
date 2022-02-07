@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uifunctiondisplay.h"
+#include "uifunctiondisplayserver.h"
 #include "uigraphicsscene.h"
 #include "uilabel.h"
 #include "uicombobox.h"
@@ -240,7 +241,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 	delete funcvals_;
 	funcvals_ = new Array1DImpl<float>( 0 );
 	spec.getSpectrumData( *funcvals_, true );
-	drawer_->setup().fillbelowy2_ = true;
+	drawer_->disp().setup().fillbelowy2_ = true;
 	const bool zistime = SI().zDomain().isTime();
 	Interval<float> posrange = spec.getPosRange();
 	posrange.scale(zistime ? 1.0f : 1000.0f);
@@ -517,13 +518,14 @@ Interval<float> uiFreqTaperGrp::getFreqRange() const
 
 
 uiFuncTaperDisp::uiFuncTaperDisp( uiParent* p, const Setup& s )
-    : uiFunctionDisplay( p, s )
+    : uiGroup(p)
     , is2sided_(s.is2sided_)
     , window_(0)
     , funcvals_(0)
     , orgfuncvals_(0)
     , taperChanged(this)
 {
+    disp_ = GetFunctionDisplayServer().createFunctionDisplay( this, s );
     datasz_ = s.datasz_;
     orgdatasz_ = s.datasz_;
     logscale_ = s.logscale_;
@@ -531,8 +533,8 @@ uiFuncTaperDisp::uiFuncTaperDisp( uiParent* p, const Setup& s )
     rightd_.rg_ = s.rightrg_;	rightd_.refrg_ = s.rightrg_;
     setWindows( 0, 0 );
 
-    xAxis()->setCaption( s.xaxcaption_ );
-    yAxis(false)->setCaption( s.yaxcaption_ );
+    disp_->xAxis()->setCaption( s.xaxcaption_ );
+    disp_->yAxis(false)->setCaption( s.yaxcaption_ );
 }
 
 
@@ -644,11 +646,11 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
 	    }
 	}
 
-	setVals( funcdisprg_, window_->getValues(), datasz_ );
-	setY2Vals( funcdisprg_, funcvals_->getData(), datasz_ );
+	disp().setVals( funcdisprg_, window_->getValues(), datasz_ );
+	disp().setY2Vals( funcdisprg_, funcvals_->getData(), datasz_ );
     }
     else if ( xvals.size() )
-	setVals( xvals.arr(), window_->getValues(), datasz_ );
+	disp().setVals( xvals.arr(), window_->getValues(), datasz_ );
 
     taperChanged.trigger();
 }
