@@ -370,12 +370,13 @@ Well::DisplayProperties::Markers&
 
 bool Well::DisplayProperties::Markers::operator ==( const Markers& oth ) const
 {
+    bool nmcoloreq = !samenmcol_ && !oth.samenmcol_ ? nmcol_==oth.nmcol_ : true;
     return BasicProps::operator==(oth) &&
 	   shapeint_ == oth.shapeint_ &&
 	   cylinderheight_ == oth.cylinderheight_ &&
 	   issinglecol_ == oth.issinglecol_ &&
 	   font_ == oth.font_ &&
-	   nmcol_ == oth.nmcol_ && samenmcol_ == oth.samenmcol_ &&
+	   nmcoloreq && samenmcol_ == oth.samenmcol_ &&
 	   nmsizedynamic_ == oth.nmsizedynamic_ &&
 	   selmarkernms_ == oth.selmarkernms_ &&
 	   unselmarkernms_ == oth.unselmarkernms_;
@@ -785,7 +786,15 @@ Well::DisplayProperties::LogCouple&
 
 bool Well::DisplayProperties::LogCouple::operator==( const LogCouple& oth) const
 {
-    return left_ == oth.left_ && center_ == oth.center_ && right_ == oth.right_;
+    const char* nonestr = sKey::None();
+    const bool lefteq = (left_.name_==nonestr && oth.left_.name_==nonestr) ||
+							    left_==oth.left_;
+    const bool righteq = (right_.name_==nonestr && oth.right_.name_==nonestr) ||
+							    right_==oth.right_;
+    const bool centereq = ( center_.name_==nonestr &&
+			oth.center_.name_==nonestr) || center_==oth.center_;
+
+    return lefteq && righteq && centereq;
 }
 
 

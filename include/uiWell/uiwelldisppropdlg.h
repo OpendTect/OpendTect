@@ -48,6 +48,9 @@ public:
     void			setNeedsSave(bool yn);
 
 protected:
+				uiWellDispPropDlg(uiParent*,Well::Data*,
+						  bool is2ddisplay,
+						  OD::Color bgcolor);
 
     RefMan<Well::Data>		wd_;
     uiTabStack*			ts_;
@@ -58,6 +61,7 @@ protected:
     virtual void		getFromScreen();
     virtual void		putToScreen();
 
+    void			initDlg(OD::Color);
     void			postFinaliseCB(CallBacker*);
     virtual void		setWDNotifiers(bool yn);
 
@@ -103,9 +107,12 @@ protected:
     bool			acceptOK(CallBacker*) override;
 
     void			resetProps(int,int);
-    void			wellSelChg(CallBacker*);
+    virtual void		wellSelChg(CallBacker*);
     void			saveWellDispProps(const Well::Data*);
     void			saveAllWellDispProps();
+    bool			dispPropsChanged(int) const;
+    bool			dispPropsChanged() const;
+
 
 };
 
