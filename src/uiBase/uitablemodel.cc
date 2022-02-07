@@ -360,7 +360,7 @@ void setModel( QAbstractItemModel* tblmodel ) override
 void init()
 {
     setStyleSheet( "selection-background-color: rgba(50, 50, 50, 50);"
-		   "selection-color: black;" );
+		   "selection-color: yellow;" );
     if ( horizontalHeader() )
 	horizontalHeader()->setDefaultAlignment(
 		Qt::AlignCenter | Qt::Alignment(Qt::TextWordWrap) );
