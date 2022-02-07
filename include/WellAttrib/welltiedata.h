@@ -172,7 +172,7 @@ private:
     SeisTrc*			getSynthTrc(int ioff=0);
 
     SeisTrcBuf&			seistrcs_;
-    ConstRefMan<SyntheticData> synthdp_;
+    ConstRefMan<SharedObject>	synthdp_;
     const PostStackSyntheticData* postsd_ = nullptr;
     const PreStackSyntheticData* presd_ = nullptr;
 

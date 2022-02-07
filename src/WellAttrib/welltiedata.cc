@@ -192,7 +192,7 @@ SeisTrc* Data::getSynthTrc( int ioff )
 
 const SyntheticData* Data::getSynthetics() const
 {
-    return synthdp_.ptr();
+    return static_cast<const SyntheticData*>( synthdp_.ptr() );
 }
 
 
