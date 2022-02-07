@@ -20,6 +20,10 @@ const char* PostStackSyntheticData::sDataPackCategory()
 { return "Post-stack synthetics"; }
 
 
+SynthFVSpecificDispPars::SynthFVSpecificDispPars()
+{}
+
+
 void SynthFVSpecificDispPars::fillPar( IOPar& par ) const
 {
     IOPar disppar, vdmapperpar, wvamapperpar;

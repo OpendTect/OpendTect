@@ -19,14 +19,15 @@ ________________________________________________________________________
 #include "synthseis.h"
 
 
-mStruct(WellAttrib) SynthFVSpecificDispPars
+mExpClass(WellAttrib) SynthFVSpecificDispPars
 {
-			SynthFVSpecificDispPars()
-			: overlap_(1)	{}
+public:
+			SynthFVSpecificDispPars();
+
     ColTab::MapperSetup	vdmapper_;
     ColTab::MapperSetup	wvamapper_;
     BufferString	ctab_;
-    float		overlap_;
+    float		overlap_ = 1.f;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 };
