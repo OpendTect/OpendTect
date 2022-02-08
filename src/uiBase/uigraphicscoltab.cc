@@ -107,8 +107,19 @@ void uiColTabItem::setColTabSequence( const ColTab::Sequence& ctseq )
 
 void uiColTabItem::setPixmap()
 {
+    setPixmap( false );
+}
+
+
+void uiColTabItem::setPixmap( bool flipseq )
+{
+    ColTab::Sequence seqcp;
+    seqcp = ctseq_;
+    if ( flipseq )
+	seqcp.flipColor();
+
     uiPixmap pm( setup_.sz_.hNrPics(), setup_.sz_.vNrPics() );
-    pm.fill( ctseq_, setup_.hor_ );
+    pm.fill( seqcp, setup_.hor_ );
     ctseqitm_->setPixmap( pm );
 }
 
@@ -124,6 +135,12 @@ void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 
 void uiColTabItem::setupChanged()
 {
-    setPixmap();
+    setupChanged( false );
+}
+
+
+void uiColTabItem::setupChanged( bool flipseq )
+{
+    setPixmap( flipseq );
     adjustLabel();
 }

@@ -52,10 +52,12 @@ public:
 
     void		setupChanged(); // Call this function whenever the setup
 					// is changed
+    void		setupChanged(bool flipseq);
 
 protected:
     void		adjustLabel();
     void		setPixmap();
+    void		setPixmap(bool flipseq);
 
     Setup		setup_;
     ColTab::Sequence	ctseq_;
