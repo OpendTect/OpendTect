@@ -161,6 +161,9 @@ void AxesDrawer::setTitleFont( const FontData& fd )
 void AxesDrawer::updateViewRect()
 {
     const uiRect rect = getViewRect();
+    if ( rect.right() < rect.left() || rect.bottom() < rect.top() )
+	return;
+
     setViewRect( rect );
     setBorder( getAnnotBorder() );
     const FlatView::Annotation& annot  = vwr_.appearance().annot_;
