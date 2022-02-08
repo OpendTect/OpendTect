@@ -98,6 +98,13 @@ void SyntheticData::setName( const char* nm )
 }
 
 
+bool SyntheticData::isOK() const
+{
+    const int nrpos = nrPositions();
+    return nrpos > 0 && getRefModels().nrModels() == nrpos;
+}
+
+
 void SyntheticData::removePack()
 {
     const DataPack::FullID dpid = datapackid_;
@@ -196,11 +203,19 @@ ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
     if ( !genres )
 	return nullptr;
 
+    const int nrrefmodels = genres->getModels().nrModels();
+
     ConstRefMan<SyntheticData> ret;
     if ( genres->isStack() )
     {
 	auto* dptrcbuf = new SeisTrcBuf( true );
 	synthgen.getStackedTraces( *dptrcbuf );
+	if ( dptrcbuf->size() != nrrefmodels )
+	{
+	    delete dptrcbuf;
+	    return nullptr;
+	}
+
 	auto* dp =
 	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
 				PostStackSyntheticData::sDataPackCategory() );
@@ -223,6 +238,12 @@ ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
 
 	    gather->setCorrected( iscorrected );
 	    gatherset += gather;
+	}
+
+	if ( gatherset.size() != nrrefmodels )
+	{
+	    deepErase( gatherset );
+	    return nullptr;
 	}
 
 	auto* dp = new PreStack::GatherSetDataPack( nullptr, gatherset );

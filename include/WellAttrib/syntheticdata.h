@@ -45,6 +45,7 @@ public:
 
     virtual void			setName(const char*) override;
 
+    bool				isOK() const;
     virtual const SeisTrc*		getTrace(int seqnr) const	= 0;
     virtual int				nrPositions() const		= 0;
 
