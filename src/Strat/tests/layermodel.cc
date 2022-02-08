@@ -9,6 +9,7 @@
 #include "moddepmgr.h"
 
 #include "nrbytes2string.h"
+#include "odmemory.h"
 #include "odsysmem.h"
 #include "paralleltask.h"
 #include "rockphysics.h"
@@ -19,6 +20,9 @@
 #include "stratreftree.h"
 #include "stratunitref.h"
 
+#include <memory>
+
+using namespace std;
 using namespace Strat;
 
 bool simpledraw_ = false;
@@ -34,37 +38,51 @@ Stats::RandGen uniformrg_ = Stats::randGen();
 Stats::NormalRandGen gaussianrg_;
 const Math::Formula* aiform_ = nullptr;
 const Math::Formula* castagnaform_ = nullptr;
+Threads::Atomic<od_uint64> layervalalloc_ = 0;
+Threads::Atomic<od_uint64> layervaldealloc_ = 0;
+Threads::Atomic<od_uint64> layeralloc_ = 0;
+Threads::Atomic<od_uint64> layerdealloc_ = 0;
 
 
 class TestLayerValue
 {
 public:
-		TestLayerValue();
-private:
-    double	val_;
-};
+    TestLayerValue( float v=0.f )
+	: val_(v)
+    {
+	layervalalloc_++;
+    }
+    ~TestLayerValue()
+    {
+	layervaldealloc_++;
+    }
 
+private:
+    float val_;
+};
 
 class TestLayer
 {
 public:
 
-TestLayer( const LeafUnitRef& ref )
-    : ref_(&ref)
-{
-}
-
-~TestLayer()
-{
-}
+			TestLayer( const LeafUnitRef& ref )
+			    : ref_(&ref)
+			    , vals_(make_unique<TestLayerValue[]>(8))
+			{
+			    layeralloc_++;
+			    // vals_ += new TestLayerValue( 0.f );
+			}
+			~TestLayer()
+			{
+			    layerdealloc_++;
+			    //deepErase( vals_ );
+			}
 
 private:
 
     const LeafUnitRef*	ref_;
-    float		ztop_;
-    ObjectSet<LayerValue> vals_;
-    const Content*	content_ = nullptr;
-    char		buf_[57];
+    unique_ptr<TestLayerValue [], default_delete<TestLayerValue []> > vals_;
+//    ObjectSet<TestLayerValue> vals_;
 };
 
 
@@ -90,6 +108,7 @@ static void printMem( const char* msg )
     if ( quiet_ )
 	return;
 
+    Threads::sleep( 0.1 );
     OD::getSystemMemory( totmem_, freemem_ );
     tstStream() << msg << ": " << fmtcreator_.getString(freemem_) << od_newline;
 }
@@ -182,8 +201,24 @@ static bool mUnusedVar testArrayLayers( const PropertyRefSelection& prs )
     }
 
     delete [] layers;
-    Threads::sleep( 2. );
     printMem( "Free memory after deleting isolated layers in C Array" );
+
+    return true;
+}
+
+
+static bool mUnusedVar testLargeAlloc()
+{
+    printMem( "Free memory before creating the large array" );
+
+    const od_uint64 sz = mDef1GB;
+    auto* largearr = new long double[sz];
+    OD::sysMemZero( largearr, sz * sizeof(long double) );
+
+    printMem( "Free memory after creating the large array" );
+
+    delete [] largearr;
+    printMem( "Free memory after deleting the large array" );
 
     return true;
 }
@@ -298,10 +333,16 @@ int mTestMainFnName( int argc, char** argv )
 //	 || !testArrayLayers(prs)
 //	 || !testObjectSetLayers(prs)
 	 || !createModel(prs)
+//	 || !testLargeAlloc()
 	 )
 	return 1;
 
     printMem( "Free memory before closing the Application" );
+    if ( !quiet_ && layeralloc_ > 0 )
+    {
+	tstStream() << layeralloc_ << " " << layerdealloc_ << od_newline;
+	tstStream() << layervalalloc_ << " " << layervaldealloc_ << od_newline;
+    }
 
     return 0;
 }
