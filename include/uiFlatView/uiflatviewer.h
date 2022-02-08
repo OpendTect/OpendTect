@@ -85,6 +85,8 @@ public:
     FlatView::AuxData*		removeAuxData(int idx);
     void			reGenerate(FlatView::AuxData&);
 
+    AxesDrawer&			getAxesDrawer()		{ return axesdrawer_; }
+
     Notifier<uiFlatViewer> 	viewChanged; //!< setView called
     Notifier<uiFlatViewer> 	dataChanged; //!< new DataPack set
     Notifier<uiFlatViewer> 	dispParsChanged;

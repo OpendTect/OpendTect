@@ -9,10 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uistratsynthdisp.h"
-#include "uisynthgendlg.h"
-#include "uistratsynthexport.h"
-#include "uiseiswvltsel.h"
-#include "uisynthtorealscale.h"
+
 #include "uicombobox.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
@@ -23,31 +20,35 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
 #include "uipsviewer2dmainwin.h"
+#include "uiseiswvltsel.h"
 #include "uispinbox.h"
 #include "uistratlayermodel.h"
+#include "uistratsynthexport.h"
+#include "uisynthgendlg.h"
+#include "uisynthtorealscale.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
 #include "envvars.h"
-#include "stratsynth.h"
-#include "stratsynthlevel.h"
-#include "stratlith.h"
-#include "syntheticdataimpl.h"
-#include "flatviewzoommgr.h"
 #include "flatposdata.h"
-#include "ptrman.h"
-#include "propertyref.h"
+#include "flatviewaxesdrawer.h"
+#include "flatviewzoommgr.h"
 #include "prestackgather.h"
-#include "survinfo.h"
+#include "propertyref.h"
+#include "ptrman.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
+#include "stratlith.h"
+#include "stratsynth.h"
+#include "stratsynthlevel.h"
+#include "survinfo.h"
+#include "syntheticdataimpl.h"
 #include "waveletio.h"
 
-#include <stdio.h>
 
 static const int cMarkerSize = 6;
 
@@ -141,6 +142,10 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vwr_ = new uiFlatViewer( this );
     vwr_->rgbCanvas().disableImageSave();
     vwr_->setInitialSize( uiSize(800,300) ); //TODO get hor sz from laymod disp
+
+    const int fontheight = vwr_->getAxesDrawer().getNeededHeight();
+    vwr_->setExtraBorders( uiSize(0,-fontheight), uiSize(0,-fontheight) );
+
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );
     mAttachCB( vwr_->dispPropChanged, uiStratSynthDisp::parsChangedCB );
@@ -525,21 +530,19 @@ void uiStratSynthDisp::displayFRText( bool yn, bool isbrine )
     if ( !frtxtitm_ )
     {
 	uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
-	const uiPoint pos( mNINT32( scene.width()/2 ),
-			   mNINT32( scene.height()-10 ) );
-    frtxtitm_ = scene.addItem(
-				new uiTextItem(pos,uiString::emptyString(),
-					       mAlignment(HCenter,VCenter)) );
-    frtxtitm_->setPenColor( OD::Color::Black() );
-    frtxtitm_->setZValue( 999999 );
-    frtxtitm_->setMovable( true );
+	frtxtitm_ = scene.addItem( new uiTextItem );
+	frtxtitm_->setAlignment( mAlignment(Left,VCenter) );
+	frtxtitm_->setPenColor( OD::Color::Black() );
+	frtxtitm_->setZValue( 999999 );
+	frtxtitm_->setMovable( true );
     }
 
     frtxtitm_->setVisible( yn );
     if ( yn )
     {
-        frtxtitm_->setText( isbrine ? tr("Brine filled")
-				   : tr("Hydrocarbon filled") );
+	frtxtitm_->setText( isbrine ? tr("Brine filled")
+				    : tr("Hydrocarbon filled") );
+	updateTextPosCB( nullptr );
     }
 }
 
@@ -549,10 +552,7 @@ void uiStratSynthDisp::updateTextPosCB( CallBacker* )
     if ( !frtxtitm_)
 	return;
 
-    const uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
-    const uiPoint pos( mNINT32( scene.width()/2 ),
-		       mNINT32( scene.height()-10 ) );
-    frtxtitm_->setPos( pos );
+    frtxtitm_->setPos( 20, 10 );
 }
 
 
