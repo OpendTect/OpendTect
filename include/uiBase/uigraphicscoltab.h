@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uigraphicsitem.h"
+#include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "draw.h"
 
@@ -48,8 +49,11 @@ public:
     void		setColTabSequence(const ColTab::Sequence&);
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
 
-    void		setupChanged(); // Call this function whenever the setup
-					// is changed
+    void		update(); // Call this function whenever the setup,
+				  // Sequence or MapperSetup is changed
+
+    mDeprecated("Use update()")
+    void		setupChanged()		{ update(); }
 
 protected:
     void		adjustLabel();
@@ -57,6 +61,7 @@ protected:
 
     Setup		setup_;
     ColTab::Sequence	ctseq_;
+    ColTab::MapperSetup	ctms_;
 
     uiPixmapItem*	ctseqitm_;
     uiAdvancedTextItem* minvalitm_;

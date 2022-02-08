@@ -100,28 +100,33 @@ void uiColTabItem::setColTab( const char* nm )
 void uiColTabItem::setColTabSequence( const ColTab::Sequence& ctseq )
 {
     ctseq_ = ctseq;
-    setPixmap();
 }
 
 
 void uiColTabItem::setPixmap()
 {
+    ColTab::Sequence seqcp;
+    seqcp = ctseq_;
+    if ( ctms_.flipseq_ )
+	seqcp.flipColor();
+
     uiPixmap pm( setup_.sz_.hNrPics(), setup_.sz_.vNrPics() );
-    pm.fill( ctseq_, setup_.hor_ );
+    pm.fill( seqcp, setup_.hor_ );
     ctseqitm_->setPixmap( pm );
 }
 
 
 void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
+    ctms_ = ms;
+
     BufferString precision;
     minvalitm_->setPlainText( toUiString(precision.set(ms.range_.start,2)) );
     maxvalitm_->setPlainText( toUiString(precision.set(ms.range_.stop,2)) );
-    adjustLabel();
 }
 
 
-void uiColTabItem::setupChanged()
+void uiColTabItem::update()
 {
     setPixmap();
     adjustLabel();
