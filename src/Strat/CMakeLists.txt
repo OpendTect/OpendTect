@@ -18,4 +18,9 @@ SET(OD_MODULE_SOURCES
 	   stratunititer.cc
 	   stratunitrepos.cc
 )
+
+list ( APPEND OD_TEST_PROGS
+        layermodel.cc
+)
+
 OD_INIT_MODULE()
