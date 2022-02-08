@@ -760,7 +760,7 @@ void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
 						  : y4mapper_.setup_;
     coltabitem->setColTabMapperSetup( mappersetup );
     coltabitem->setVisible( isy1 ? showy3_ : ( showy4_ && isY2Shown() ) );
-    coltabitem->setupChanged();
+    coltabitem->setupChanged( mappersetup.flipseq_ );
 }
 
 
