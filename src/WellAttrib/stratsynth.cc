@@ -807,93 +807,146 @@ bool StratSynth::createElasticModels()
 }
 
 
-class PSAngleDataCreator : public Executor
+class PSAngleDataCreator : public ParallelTask
 { mODTextTranslationClass(PSAngleDataCreator)
 public:
 
-PSAngleDataCreator( const PreStackSyntheticData& pssd,
+PSAngleDataCreator( PreStackSyntheticData& pssd,
 		    const ObjectSet<RayTracer1D>& rts )
-    : Executor("Creating Angle Gather" )
-    , gathers_(pssd.preStackPack().getGathers())
-    , rts_(rts)
-    , nrdone_(0)
+    : ParallelTask("Creating Angle Gather" )
     , pssd_(pssd)
-    , anglecomputer_(new PreStack::ModelBasedAngleComputer)
+    , seisgathers_(pssd.preStackPack().getGathers())
+    , rts_(rts)
 {
-    anglecomputer_->setFFTSmoother( 10.f, 15.f );
+    totalnr_ = rts_.size();
 }
 
 ~PSAngleDataCreator()
 {
-    delete anglecomputer_;
+    deepErase( anglecomputers_ );
+    deleteGatherSets();
 }
 
-od_int64 totalNr() const
-{ return rts_.size(); }
 
-od_int64 nrDone() const
-{ return nrdone_; }
-
-uiString uiMessage() const
+uiString uiMessage() const override
 {
-    return tr("Calculating Angle Gathers");
+    return msg_;
 }
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 {
     return tr( "Models done" );
 }
 
-ObjectSet<PreStack::Gather>& angleGathers()	{ return anglegathers_; }
+private:
 
-protected:
+od_int64 nrIterations() const override
+{ return rts_.size(); }
 
-void convertAngleDataToDegrees( PreStack::Gather* ag ) const
+
+void deleteGatherSets()
 {
-    Array2D<float>& agdata = ag->data();
-    const int dim0sz = agdata.info().getSize(0);
-    const int dim1sz = agdata.info().getSize(1);
-    for ( int idx=0; idx<dim0sz; idx++ )
+    for ( auto* gathersset : anglegathers_ )
+	deepErase( *gathersset );
+    deepErase( anglegathers_ );
+}
+
+
+bool doPrepare( int nrthreads ) override
+{
+    msg_ =  tr("Calculating Angle Gathers");
+    if ( rts_.size() != seisgathers_.size() )
+	return false;
+
+    deepErase( anglecomputers_ );
+    deleteGatherSets();
+    for ( int ithread=0; ithread<nrthreads; ithread++ )
     {
-	for ( int idy=0; idy<dim1sz; idy++ )
-	{
-	    const float radval = agdata.get( idx, idy );
-	    if ( mIsUdf(radval) ) continue;
-	    const float dval =	Math::toDegrees( radval );
-	    agdata.set( idx, idy, dval );
-	}
+	auto* anglecomputer = new PreStack::ModelBasedAngleComputer;
+	anglecomputer->setFFTSmoother( 10.f, 15.f );
+	anglecomputers_.add( anglecomputer );
+	anglegathers_.add( new ObjectSet<PreStack::Gather> );
     }
+
+    return true;
 }
 
 
-int nextStep()
+bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 {
-    if ( !gathers_.validIdx(nrdone_) )
-	return Finished();
-    const PreStack::Gather* gather = gathers_[(int)nrdone_];
-    anglecomputer_->setOutputSampling( gather->posData() );
-    anglecomputer_->setGatherIsNMOCorrected( gather->isCorrected() );
-    const TrcKey trckey( gather->getBinID() );
-    anglecomputer_->setRayTracer( rts_[(int)nrdone_], trckey );
-    PreStack::Gather* anglegather = anglecomputer_->computeAngles();
-    convertAngleDataToDegrees( anglegather );
-    TypeSet<float> azimuths;
-    gather->getAzimuths( azimuths );
-    anglegather->setAzimuths( azimuths );
-    const BufferString angledpnm( pssd_.name(), "(Angle Gather)" );
-    anglegather->setName( angledpnm );
-    anglegather->setBinID( gather->getBinID() );
-    anglegathers_ += anglegather;
-    nrdone_++;
-    return MoreToDo();
+    if ( !anglecomputers_.validIdx(threadid) ||
+	 !anglegathers_.validIdx(threadid) )
+	return false;
+
+    PreStack::ModelBasedAngleComputer& anglecomputer =
+					*anglecomputers_.get( threadid );
+    ObjectSet<PreStack::Gather>& anglegathers =
+					*anglegathers_.get( threadid );
+
+    for ( int idx=int(start); idx<=stop; idx++, addToNrDone(1) )
+    {
+	if ( !seisgathers_.validIdx(idx) || !rts_.validIdx(idx) )
+	    return false;
+
+	const PreStack::Gather& seisgather = *seisgathers_[idx];
+	anglecomputer.setOutputSampling( seisgather.posData() );
+	anglecomputer.setGatherIsNMOCorrected( seisgather.isCorrected() );
+	const TrcKey trckey( seisgather.getBinID() );
+	anglecomputer.setRayTracer( rts_[idx], trckey );
+	PreStack::Gather* anglegather = anglecomputer.computeAngles();
+	if ( !anglegather )
+	    return false;
+
+	convertAngleDataToDegrees( *anglegather );
+	TypeSet<float> azimuths;
+	seisgather.getAzimuths( azimuths );
+	anglegather->setAzimuths( azimuths );
+	const BufferString angledpnm( pssd_.name(), "(Angle Gather)" );
+	anglegather->setName( angledpnm );
+	anglegather->setBinID( seisgather.getBinID() );
+	anglegathers.add( anglegather );
+    }
+
+    return true;
 }
 
+
+bool doFinish( bool success ) override
+{
+    deepErase( anglecomputers_ );
+    if ( success )
+    {
+	ObjectSet<PreStack::Gather> anglegathers;
+	for ( auto* gathersset : anglegathers_ )
+	{
+	    anglegathers.append( *gathersset );
+	    gathersset->setEmpty();
+	}
+
+	deepErase( anglegathers_ );
+	pssd_.setAngleData( anglegathers );
+    }
+    else
+	deleteGatherSets();
+
+    return success;
+}
+
+
+void convertAngleDataToDegrees( PreStack::Gather& ag ) const
+{
+    const auto& agdata = const_cast<const Array2D<float>&>( ag.data() );
+    ArrayMath::getScaledArray<float>( agdata, nullptr, mRad2DegD, 0.,
+				      false, true );
+}
+
+    PreStackSyntheticData&		pssd_;
+    const ObjectSet<PreStack::Gather>&	seisgathers_;
     const ObjectSet<RayTracer1D>&	rts_;
-    const ObjectSet<PreStack::Gather>&	gathers_;
-    const PreStackSyntheticData&	pssd_;
-    ObjectSet<PreStack::Gather>		anglegathers_;
-    PreStack::ModelBasedAngleComputer*	anglecomputer_;
-    od_int64				nrdone_;
+    ObjectSet<ObjectSet<PreStack::Gather> >	anglegathers_;
+    ObjectSet<PreStack::ModelBasedAngleComputer> anglecomputers_;
+    uiString				msg_;
+    od_int64				totalnr_;
 
 };
 
@@ -903,7 +956,6 @@ void StratSynth::createAngleData( PreStackSyntheticData& pssd,
 {
     PSAngleDataCreator angledatacr( pssd, rts );
     TaskRunner::execute( taskr_, angledatacr );
-    pssd.setAngleData( angledatacr.angleGathers() );
 }
 
 
