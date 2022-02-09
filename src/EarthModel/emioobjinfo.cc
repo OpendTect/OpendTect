@@ -351,7 +351,7 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
 
 IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 {
-    ObjectType type;
+    ObjectType type = Unknown;
     parseEnum( grpname, type );
     return type;
 }
@@ -388,7 +388,7 @@ void IOObjInfo::getTiedToLevelID( int lvlid, TypeSet<MultiID>& ids, bool is2d )
 
     for ( int idx=0; idx<candidates.size(); idx++ )
     {
-	IOObjInfo ioobjinfo( candidates[idx] );
+	const IOObjInfo ioobjinfo( candidates[idx] );
 	if ( ioobjinfo.levelID() == lvlid )
 	    ids += candidates[idx];
     }
