@@ -44,7 +44,7 @@ static const char* attriboutputStr[] =
     0
 };
 
-mInitAttribUI(uiCEEMDAttrib,CEEMD,"CEEMD",sKeyBasicGrp())
+mInitAttribUI(uiCEEMDAttrib,CEEMD,"CEEMD",sKeyFreqGrp())
 
 uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mCEEMDAttribHelpID) )

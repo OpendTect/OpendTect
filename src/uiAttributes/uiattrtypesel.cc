@@ -221,7 +221,7 @@ bool uiAttrTypeSel::isPrefAttrib( int grpidx, const char* anm ) const
     else if ( grpnm == "Filters" )
 	return attrnm == "Frequency Filter";
     else if ( grpnm == "Frequency" )
-	return attrnm == "Spectral Decomp";
+	return attrnm == "Spectral Decomposition";
     else if ( grpnm == "Patterns" )
 	return attrnm == "FingerPrint";
     else if ( grpnm == "Positions" )
