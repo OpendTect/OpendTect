@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include <QTextDocument>
 #include <QTextEdit>
 #include <QToolTip>
+#include <QWheelEvent>
 #include <stdio.h> // for EOF
 
 mUseQtnamespace
@@ -81,7 +82,16 @@ void uiTextEditBase::allowTextSelection( bool yn )
 }
 
 void uiTextEditBase::hideFrame()
-{ qte().setFrameShape( QFrame::NoFrame ); }
+{
+    qte().setFrameShape( QFrame::NoFrame );
+}
+
+
+void uiTextEditBase::setLineWrapColumn( int nrcol )
+{
+    qte().setLineWrapMode( QTextEdit::FixedColumnWidth );
+    qte().setLineWrapColumnOrWidth( nrcol );
+}
 
 
 bool uiTextEditBase::verticalSliderIsDown() const
@@ -250,9 +260,14 @@ public:
 			~uiTextEditBody()	{ delete &messenger_; }
 
     void		append(const char*);
+    void		ignoreWheelEvents(bool);
 
 protected:
+
     i_TextEditMessenger& messenger_;
+    bool		ignorewheelevents_	= false;
+
+    void		wheelEvent(QWheelEvent*) override;
 
 };
 
@@ -274,6 +289,21 @@ void uiTextEditBody::append( const char* txt )
     repaint();
     if ( sliderwasdown )
 	handle_.scrollToBottom();
+}
+
+
+void uiTextEditBody::ignoreWheelEvents( bool yn )
+{
+    ignorewheelevents_ = yn;
+}
+
+
+void uiTextEditBody::wheelEvent( QWheelEvent* ev )
+{
+    if ( ignorewheelevents_ && ev )
+	ev->ignore();
+    else
+	QTextEdit::wheelEvent( ev );
 }
 
 //-------------------------------------------------------
@@ -330,10 +360,22 @@ void uiTextEdit::setText( const uiString& txt )
 }
 
 
-void uiTextEdit::append( const char* txt )	{ body_->append(txt); }
+void uiTextEdit::append( const char* txt )
+{
+    body_->append( txt );
+}
 
-QTextEdit& uiTextEdit::qte()			{ return *body_; }
 
+QTextEdit& uiTextEdit::qte()
+{
+    return *body_;
+}
+
+
+void uiTextEdit::ignoreWheelEvents( bool yn )
+{
+    body_->ignoreWheelEvents( yn );
+}
 
 
 //-------------------------------------------------------
@@ -349,6 +391,7 @@ public:
 
     void		recordScrollPos();
     void		restoreScrollPos();
+    void		ignoreWheelEvents(bool);
 
 protected:
 
@@ -359,6 +402,9 @@ private:
 
     double		horscrollpos_;
     double		vertscrollpos_;
+    bool		ignorewheelevents_	= false;
+
+    void		wheelEvent(QWheelEvent*) override;
 };
 
 
@@ -420,6 +466,21 @@ void uiTextBrowserBody::restoreScrollPos()
 {
     restoreScrollBarRelPos( horizontalScrollBar(), horscrollpos_ );
     restoreScrollBarRelPos( verticalScrollBar(), vertscrollpos_ );
+}
+
+
+void uiTextBrowserBody::ignoreWheelEvents( bool yn )
+{
+    ignorewheelevents_ = yn;
+}
+
+
+void uiTextBrowserBody::wheelEvent( QWheelEvent* ev )
+{
+    if ( ignorewheelevents_ && ev )
+	ev->ignore();
+    else
+	QTextEdit::wheelEvent( ev );
 }
 
 
@@ -625,22 +686,45 @@ void uiTextBrowser::setSource( const char* src )
 
 
 void uiTextBrowser::setMaxLines( int ml )
-{ maxlines_ = ml; }
+{
+    maxlines_ = ml;
+}
+
 
 void uiTextBrowser::backward()
-{ body_->backward(); }
+{
+    body_->backward();
+}
+
 
 void uiTextBrowser::forward()
-{ body_->forward(); }
+{
+    body_->forward();
+}
+
 
 void uiTextBrowser::home()
-{ body_->home(); }
+{
+    body_->home();
+}
+
 
 void uiTextBrowser::recordScrollPos()
-{ body_->recordScrollPos(); }
+{
+    body_->recordScrollPos();
+}
+
 
 void uiTextBrowser::restoreScrollPos()
-{ body_->restoreScrollPos(); }
+{
+    body_->restoreScrollPos();
+}
+
+
+void uiTextBrowser::ignoreWheelEvents( bool yn )
+{
+    body_->ignoreWheelEvents( yn );
+}
 
 
 void uiTextBrowser::reload()

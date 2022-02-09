@@ -38,6 +38,8 @@ public:
     int			defaultHeight()		  { return defaultheight_; }
     void		setDefaultHeight( int h ) { defaultheight_ = h; }
 
+    void		setLineWrapColumn(int nrcol);
+
     bool		isModified() const;
     void		allowTextSelection(bool);
 
@@ -86,6 +88,8 @@ public:
     void		setText(const char*,bool trigger_notif);
     void		append(const char*);
 
+    void		ignoreWheelEvents(bool);
+
 protected:
 
     virtual mQtclass(QTextEdit&)	qte();
@@ -126,6 +130,8 @@ public:
     void		showToolTip(const char*);
     void		recordScrollPos();
     void		restoreScrollPos();
+
+    void		ignoreWheelEvents(bool);
 
     bool		canGoForward()		{ return cangoforw_; }
     bool		canGoBackward()		{ return cangobackw_; }

@@ -394,7 +394,7 @@ int uiObjectBody::prefVNrPics() const
 	    { pErrMsg("Font has 0 height."); return 0; }
 
 	const_cast<uiObjectBody*>(this)->pref_height_ =
-					mNINT32( pref_char_height_ * fh );
+					mNINT32( pref_char_height_ * fh + 5 );
     }
     else
     {
@@ -437,7 +437,7 @@ int uiObjectBody::prefVNrPics() const
 	    if ( !fh )
 		{ pErrMsg("Font has 0 height."); return 0; }
 
-	    const int phc = mNINT32( lines * fh);
+	    const int phc = mNINT32( lines * fh + 5 );
 	    const int ph = var ? (mMAX(pref_height_hint_,phc)) : phc;
 	    const_cast<uiObjectBody*>(this)->pref_height_ = ph;
 	}
@@ -616,7 +616,7 @@ void uiObjectBody::gtFntWdtHgt() const
     QFont qft = QFont();
     const QFont& qfonttouse = font_ ? font_->qFont() : qft;
     QFontMetrics qfm( qfonttouse );
-    self.fnt_hgt_ = qfm.lineSpacing() + 2;
+    self.fnt_hgt_ = qfm.lineSpacing();
     self.fnt_wdt_ = mGetTextWidth(qfm,QChar('x'));
 
     self.fnt_maxwdt_ = qfm.maxWidth();

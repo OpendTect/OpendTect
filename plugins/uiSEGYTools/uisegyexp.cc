@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uiscrollarea.h"
 #include "uisegydef.h"
 #include "uisegymanip.h"
 #include "uiseisioobjinfo.h"
@@ -42,12 +43,43 @@ ________________________________________________________________________
 #include "segydirecttr.h"
 #include "segyhdr.h"
 #include "segytr.h"
+#include "seispacketinfo.h"
 #include "seisread.h"
 #include "seissingtrcproc.h"
 #include "seiswrite.h"
-#include "od_istream.h"
+#include "od_iostream.h"
 #include "survgeom.h"
 #include "zdomain.h"
+
+#define mTxtHdrWidth	80
+#define mLineHdrWidth	4
+#define mEditorWidth	76
+
+#define mNrTxtHdrLines	40
+#define mNrEditorLines	38
+#define mNrFooterLines	2
+
+static const char* getLineHdr( int idx )
+{
+    static BufferString ret;
+    ret = "C";
+    if ( idx < 9 )
+	ret.add( "0" );
+
+    ret.add( idx + 1 );
+    return ret.buf();
+}
+
+
+static void removeLineHdr( BufferString& linebuf )
+{
+    if ( (linebuf[0] == 'C' || linebuf[0] == 'c') &&
+	 (linebuf[1] == ' ' || isdigit(linebuf[1])) && isdigit(linebuf[2]) )
+    {
+	BufferString tmp( linebuf.getCStr() + 3 );
+	linebuf = tmp;
+    }
+}
 
 
 class uiSEGYExpTxtHeaderDlg : public uiDialog
@@ -55,45 +87,146 @@ class uiSEGYExpTxtHeaderDlg : public uiDialog
 public:
 
 uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
-    : uiDialog(p,Setup(tr("Define SEG-Y Text Header"),uiSEGYExp::sTxtHeadTxt(),
+    : uiDialog(p,Setup(tr("Edit SEG-Y Text Header"),mNoDlgTitle,
 			mODHelpKey(mSEGYExpTxtHeaderDlgHelpID) ))
     , hdr_(hdr)
     , autogen_(ag)
+    , resetPushed(this)
 {
-    const CallBack cb( mCB(this,uiSEGYExpTxtHeaderDlg,agSel) );
-    autogenfld_ = new uiGenInput( this, tr("Automatically generate"),
-				  BoolInpSpec(false) );
-    autogenfld_->valuechanged.notify( cb );
-    uiToolButton* wtb = new uiToolButton( this, "save", tr("Write to file"),
+    auto* wtb = new uiToolButton( this, "save", tr("Write to file"),
 			mCB(this,uiSEGYExpTxtHeaderDlg,writePush) );
     wtb->attach( rightBorder );
-    uiToolButton* rtb = new uiToolButton( this, "open", tr("Read file"),
+    auto* rtb = new uiToolButton( this, "open", tr("Read file"),
 			mCB(this,uiSEGYExpTxtHeaderDlg,readPush) );
     rtb->attach( leftOf, wtb );
+    auto* resetb = new uiPushButton( this, tr("Reset to Auto-generated"),
+			mCB(this,uiSEGYExpTxtHeaderDlg,resetPush), true );
+    resetb->attach( leftOf, rtb );
 
-    edfld_ = new uiTextEdit( this, "Hdr edit" );
-    edfld_->setStretch( 0, 1 );
-    edfld_->setPrefWidthInChar( 81 );
-    edfld_->setPrefHeightInChar( 24 );
-    if ( hdr_.isEmpty() )
-    {
-	SEGY::TxtHeader th; th.clear();
-	th.getText( hdr_ );
-    }
-    edfld_->setText( hdr_ );
-    edfld_->attach( ensureBelow, autogenfld_ );
-    postFinalise().notify( cb );
+
+    auto* sa = new uiScrollArea( this );
+    auto* grp = new uiGroup( nullptr, "Group" );
+
+    auto* linehdrfld1 = new uiTextEdit( grp, "Line Hdr1", true );
+    linehdrfld1->setStretch( 0, 0 );
+    linehdrfld1->setPrefWidthInChar( mLineHdrWidth );
+    linehdrfld1->setPrefHeightInChar( mNrEditorLines );
+    linehdrfld1->hideFrame();
+    linehdrfld1->hideScrollBar( true );
+    linehdrfld1->ignoreWheelEvents( true );
+    BufferString txt;
+    for ( int idx=0; idx<mNrEditorLines; idx++ )
+	txt.add( getLineHdr(idx) ).add( "\n" );
+
+    linehdrfld1->setText( txt );
+
+    auto* linehdrfld2 = new uiTextEdit( grp, "Line Hdr2", true );
+    linehdrfld2->setStretch( 0, 0 );
+    linehdrfld2->setPrefWidthInChar( mLineHdrWidth );
+    linehdrfld2->setPrefHeightInChar( mNrFooterLines );
+    linehdrfld2->hideFrame();
+    linehdrfld2->hideScrollBar( true );
+    linehdrfld2->ignoreWheelEvents( true );
+    txt.setEmpty();
+    for ( int idx=mNrEditorLines; idx<mNrTxtHdrLines; idx++ )
+	txt.add( getLineHdr(idx) ).add( "\n" );
+
+    linehdrfld2->setText( txt );
+    linehdrfld2->attach( alignedBelow, linehdrfld1, 0 );
+
+    edfld_ = new uiTextEdit( grp, "Hdr edit" );
+    edfld_->setStretch( 0, 0 );
+    edfld_->setPrefWidthInChar( mEditorWidth );
+    edfld_->setPrefHeightInChar( mNrEditorLines );
+    edfld_->setLineWrapColumn( mEditorWidth );
+    edfld_->hideFrame();
+    edfld_->hideScrollBar( true );
+    edfld_->ignoreWheelEvents( true );
+    edfld_->attach( rightOf, linehdrfld1 );
+
+    footerfld_ = new uiTextEdit( grp, "Footer" );
+    footerfld_->setStretch( 0, 0 );
+    footerfld_->setPrefWidthInChar( mEditorWidth );
+    footerfld_->setPrefHeightInChar( mNrFooterLines );
+    footerfld_->setLineWrapColumn( mEditorWidth );
+    footerfld_->hideFrame();
+    footerfld_->hideScrollBar( true );
+    footerfld_->ignoreWheelEvents( true );
+    footerfld_->attach( alignedBelow, edfld_, 0 );
+
+    grp->attachObj()->setMinimumHeight(
+	    edfld_->prefVNrPics() + footerfld_->prefVNrPics() + 2 );
+    const int minwidth = linehdrfld1->prefHNrPics() + edfld_->prefHNrPics();
+    grp->attachObj()->setMinimumWidth( minwidth );
+    sa->attach( ensureBelow, resetb );
+    sa->limitWidth( true );
+    sa->setObject( grp->attachObj() );
+    sa->setObjectResizable( true );
+    sa->setPrefHeight( 400 );
+
+    afterPopup.notify( mCB(this,uiSEGYExpTxtHeaderDlg,poppedUpCB) );
 }
 
-void agSel( CallBacker* )
+void poppedUpCB( CallBacker* )
 {
-    edfld_->display( !autogenfld_->getBoolValue() );
+    setText( hdr_ );
+}
+
+void setText( const char* txt )
+{
+    BufferString txtbuf( txt );
+    BufferString editorbuf, footerbuf;
+    int inpidx = 0;
+    for ( int idx=0; idx<mNrTxtHdrLines; idx++ )
+    {
+	BufferString linebuf;
+	char c;
+	while ( inpidx < txtbuf.size() )
+	{
+	    c = txtbuf[inpidx++];
+	    if ( !c || c == '\n' )
+		break;
+
+	    if ( linebuf.size()==mTxtHdrWidth )
+	    {
+		inpidx--;
+		break;
+	    }
+
+	    linebuf.add( c );
+	}
+
+	if ( !linebuf.isEmpty() )
+	{
+	    removeLineHdr( linebuf );
+	    removeTrailingBlanks( linebuf.getCStr() );
+	    if ( linebuf[0] == ' ' )
+	    {
+		BufferString tmp( linebuf.getCStr() + 1 );
+		linebuf = tmp;
+	    }
+
+	    if ( linebuf.size() > mEditorWidth )
+		linebuf[mEditorWidth] = '\0';
+	}
+
+	linebuf.add( "\n" );
+	if ( idx < mNrEditorLines )
+	    editorbuf.add( linebuf );
+	else
+	    footerbuf.add( linebuf );
+    }
+
+    edfld_->setText( editorbuf );
+    footerfld_->setText( footerbuf );
 }
 
 void readPush( CallBacker* )
 {
-    FilePath fp( GetDataDir(), "Seismics" );
-    uiFileDialog dlg( this, true, fp.fullPath(), uiSEGYFileSpec::fileFilter(),
+    FilePath fp( GetDataDir() );
+    const BufferString filefilter( "SEG-Y or Text files "
+				   "(*.sgy *.SGY *.segy *.txt *.dat)" );
+    uiFileDialog dlg( this, true, fp.fullPath(), filefilter,
 			tr("Read SEG-Y Textual Header from file") );
     if ( !dlg.go() ) return;
 
@@ -104,17 +237,28 @@ void readPush( CallBacker* )
 	return;
     }
 
-    SEGY::TxtHeader txthdr;
-    strm.getBin( txthdr.txt_, SegyTxtHeaderLength );
-    txthdr.setAscii();
-    BufferString txt; txthdr.getText( txt );
-    edfld_->setText( txt );
+    const int maxnrchars = SegyTxtHeaderLength + mNrTxtHdrLines;
+    BufferString txt( maxnrchars + 1, true );
+    strm.getC( txt.getCStr(), txt.bufSize(), maxnrchars );
+    if ( txt.size() >= SegyTxtHeaderLength && !txt.find('\n') && txt[0] != 'C' )
+    {
+	SEGY::TxtHeader ebcidichdr;
+	OD::memCopy( ebcidichdr.txt_, txt.getCStr(), SegyTxtHeaderLength );
+	if ( !ebcidichdr.isAscii() )
+	{
+	    ebcidichdr.setAscii();
+	    ebcidichdr.getText( txt );
+	}
+    }
+
+    setText( txt );
+    autogen_ = false;
 }
 
 void writePush( CallBacker* )
 {
-    FilePath fp( GetDataDir(), "Seismics" );
-    uiFileDialog dlg( this,false, fp.fullPath(), nullptr,
+    FilePath fp( GetDataDir(), "SEG-Y_Text_Header.dat" );
+    uiFileDialog dlg( this, false, fp.fullPath(), File::asciiFilesFilter(),
 	    tr("Write SEG-Y Textual Header to a file") );
     if ( !dlg.go() ) return;
 
@@ -125,25 +269,74 @@ void writePush( CallBacker* )
     if ( File::exists(fnm) && !File::isWritable(fnm) )
 	{ uiMSG().error(tr("Cannot write to this file")); return; }
 
-    if ( !edfld_->saveToFile(fnm,80,false) )
-	{ uiMSG().error(tr("Failed to write to this file")); return; }
+    od_ostream strm( fnm );
+    BufferString txt;
+    getText( txt );
+    strm.add( txt );
+    if ( !strm.isOK() )
+	uiMSG().error( tr("Failed to save text to %1").arg(fnm) );
+}
+
+void resetPush( CallBacker* )
+{
+    autogen_ = true;
+    resetPushed.trigger();
+    setText( hdr_ );
+}
+
+void getText( BufferString& txt )
+{
+    txt.setEmpty();
+    BufferString editorbuf = edfld_->text();
+    BufferString footerbuf = footerfld_->text();
+    int inpidx = 0;
+    for ( int idx=0; idx<mNrTxtHdrLines; idx++ )
+    {
+	BufferString linebuf;
+	BufferString& inpbuf = idx < mNrEditorLines ? editorbuf : footerbuf;
+	if ( idx == mNrEditorLines )
+	    inpidx = 0;
+
+	linebuf.add( getLineHdr(idx) ).add( ' ' );
+	char c;
+	while ( inpidx < inpbuf.size() )
+	{
+	    c = inpbuf[inpidx++];
+	    if ( !c || c == '\n' )
+		break;
+
+	    if ( linebuf.size()==mTxtHdrWidth )
+	    {
+		inpidx--;
+		break;
+	    }
+
+	    linebuf.add( c );
+	}
+
+	while ( linebuf.size() < mTxtHdrWidth )
+	    linebuf.add( ' ' );
+
+	linebuf.add( "\n" );
+	txt.add( linebuf );
+    }
 }
 
 bool acceptOK( CallBacker* )
 {
-    autogen_ = autogenfld_->getBoolValue();
-    if ( !autogen_ )
-	hdr_ = edfld_->text();
+    getText( hdr_ );
+    if ( edfld_->isModified() )
+	autogen_ = false;
+
     return true;
 }
 
     BufferString&	hdr_;
-    bool&		autogen_;
-    const uiString	fdobjtyp_;
-
-    uiGenInput*		autogenfld_;
+    bool		autogen_;
     uiTextEdit*		edfld_;
+    uiTextEdit*		footerfld_;
 
+    Notifier<uiSEGYExpTxtHeaderDlg>	resetPushed;
 };
 
 class uiSEGYExpTxtHeader : public uiCompoundParSel
@@ -151,7 +344,7 @@ class uiSEGYExpTxtHeader : public uiCompoundParSel
 public:
 
 uiSEGYExpTxtHeader( uiSEGYExp* se )
-    : uiCompoundParSel(se,tr("Text header"),OD::Define)
+    : uiCompoundParSel(se,tr("Text header"),OD::Edit)
     , se_(se)
 {
     butPush.notify( mCB(this,uiSEGYExpTxtHeader,butPushed) );
@@ -159,16 +352,32 @@ uiSEGYExpTxtHeader( uiSEGYExp* se )
 
 void butPushed( CallBacker* )
 {
-    uiSEGYExpTxtHeaderDlg dlg( this, se_->hdrtxt_, se_->autogentxthead_ );
-    dlg.go();
+    BufferString hdrtxt;
+    se_->getTextHeader( hdrtxt );
+    uiSEGYExpTxtHeaderDlg dlg( this, hdrtxt,  se_->autogentxthead_);
+    dlg.resetPushed.notify( mCB(this,uiSEGYExpTxtHeader,resetPushed) );
+    if ( !dlg.go() )
+	return;
+
+    se_->hdrtxt_ = hdrtxt;
+    se_->autogentxthead_ = dlg.autogen_;
+}
+
+void resetPushed( CallBacker* cb )
+{
+    mDynamicCastGet(uiSEGYExpTxtHeaderDlg*,dlg,cb)
+    if ( !dlg )
+	return;
+
+    se_->generateAutoTextHeader( dlg->hdr_ );
 }
 
 BufferString getSummary() const
 {
     if ( se_->autogentxthead_ )
-	return BufferString( "<generate>" );
+	return BufferString( "Auto-generated" );
     else
-	return BufferString( "<user-defined>" );
+	return BufferString( "User-defined" );
 }
 
     uiSEGYExp*	se_;
@@ -201,6 +410,9 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     uiSeisTransfer::Setup tsu( geom_ );
     tsu.withnullfill(true).fornewentry(false).onlyrange(false);
     transffld_ = new uiSeisTransfer( this, tsu );
+    if ( transffld_->selfld )
+	mAttachCB( transffld_->selfld->selChange, uiSEGYExp::updateTextHdrCB );
+
     transffld_->attach( alignedBelow, seissel_ );
 
     uiObject* attachobj = transffld_->attachObj();
@@ -212,6 +424,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	othercrsfld_->attach( alignedBelow, transffld_ );
 	mAttachCB( othercrsfld_->valuechanged, uiSEGYExp::crsCB );
 	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
+	mAttachCB( coordsysselfld_->changed, uiSEGYExp::updateTextHdrCB );
 	coordsysselfld_->attach( alignedBelow, othercrsfld_ );
 	attachobj = coordsysselfld_->attachObj();
     }
@@ -286,6 +499,32 @@ void uiSEGYExp::showSubselCB( CallBacker* )
 {
     const bool multilinesel = morebox_->isChecked();
     transffld_->showSubselFld( !multilinesel );
+    if ( multilinesel && !autogentxthead_ )
+    {
+	const bool resp = uiMSG().askGoOn(
+		tr("User-defined text headers are not supported for multi-line "
+		    "export. Do you want to switch to auto-generated headers?"),
+		tr("Yes, use auto-generated header"),
+		tr("No, go back to single-line export") );
+	if ( !resp )
+	{
+	    morebox_->setChecked( false );
+	    return;
+	}
+    }
+
+
+    if ( multilinesel )
+	updateTextHdrCB( nullptr );
+
+    txtheadfld_->setSensitive( !multilinesel );
+}
+
+
+void uiSEGYExp::updateTextHdrCB( CallBacker* )
+{
+    autogentxthead_ = true;
+    txtheadfld_->updateSummary();
 }
 
 
@@ -437,6 +676,54 @@ bool doExp( const FilePath& fp )
 };
 
 
+void uiSEGYExp::getTextHeader( BufferString& hdrtxt )
+{
+    if ( autogentxthead_ || hdrtxt_.isEmpty() )
+	generateAutoTextHeader( hdrtxt_ );
+
+    hdrtxt = hdrtxt_;
+}
+
+
+void uiSEGYExp::generateAutoTextHeader( BufferString& hdrtxt ) const
+{
+    const IOObj* inioobj = seissel_->ioobj(true);
+    if ( !inioobj )
+    {
+	uiMSG().error( uiStrings::phrSelect(tr("the data to export")) );
+	return;
+    }
+
+    StringPair datanm( inioobj->name() );
+    SeisIOObjInfo inpinfo( inioobj );
+    BufferStringSet compnames;
+    inpinfo.getComponentNames( compnames );
+    const int selcomp = seissel_->compNr();
+    if ( compnames.validIdx(selcomp) )
+	datanm.second() = compnames.get( selcomp );
+
+    ConstRefMan<Coords::CoordSystem> crs = nullptr;
+    if ( othercrsfld_ && othercrsfld_->getBoolValue() )
+	crs = coordsysselfld_->getCoordSystem();
+
+    SEGY::TrcHeaderDef thdef;
+    SEGY::TrcHeader::fillRev1Def( thdef );
+
+    PtrMan<Seis::SelData> seldata = transffld_->getSelData();
+    if ( seldata )
+    {
+	thdef.pinfo = new SeisPacketInfo;
+	thdef.pinfo->inlrg = seldata->inlRange();
+	thdef.pinfo->crlrg = seldata->crlRange();
+	thdef.pinfo->zrg = seldata->zRange();
+    }
+
+    SEGY::TxtHeader txthdr( 1 );
+    txthdr.setInfo( datanm.getCompString(), crs, thdef );
+    txthdr.getText( hdrtxt );
+}
+
+
 #define mErrRet(s) \
 	{ uiMSG().error(s); return false; }
 
@@ -493,8 +780,8 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     PtrMan<IOObj> outioobj = sfs.getIOObj( true );
     fpfld_->fillPar( outioobj->pars() );
 
-    bool needmsgallok = false;
     const bool multilinesel = morebox_ && morebox_->isChecked();
+    bool needmsgallok = false;
     if ( multilinesel )
     {
 	uiSEGYExpMore dlg( this, *inioobj, *outioobj );

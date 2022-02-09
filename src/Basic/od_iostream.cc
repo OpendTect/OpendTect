@@ -626,29 +626,18 @@ od_ostream& od_ostream::add( const uiString& ods )
 
 od_istream& od_istream::getC( char* str, int sz, int maxnrch )
 {
-    if ( str )
+    if ( maxnrch < 1 )
+	maxnrch = sz - 1;
+    else if ( sz < (maxnrch+1) )
     {
-	*str = '\0';
-	if ( isOK() )
-	{
-	    BufferString bs; get( bs );
-	    if ( isBad() )
-		*str = '\0';
-	    else if ( maxnrch > 0 )
-#ifdef __win__
-		strncpy_s( str, sz, bs.buf(), maxnrch );
-#else
-		strncpy( str, bs.buf(), maxnrch );
-#endif
-	    else
-#ifdef __win__
-		strcpy_s( str, sz, bs.buf() );
-		// still dangerous, but intentional
-#else
-		strcpy( str, bs.buf() ); // still dangerous, but intentional
-#endif
-	}
+	pErrMsg("Buffer size should be at least one more than maxnrch");
+	return *this;
     }
+
+    stdStream().get( str, maxnrch, '\0' );
+    if ( isBad() )
+	*str = '\0';
+
     return *this;
 }
 
