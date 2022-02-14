@@ -33,7 +33,7 @@ mUseQtnamespace
 
 static int beginCmdRecEvent( const char* windowtitle )
 {
-    uiMainWin* carrier = uiMain::theMain().topLevel();
+    uiMainWin* carrier = uiMain::instance().topLevel();
     if ( !carrier )
 	return -1;
 
@@ -56,7 +56,7 @@ static void endCmdRecEvent( int refnr, bool ok, const OD::Color& col,
 	    msg += (int) col.t();
     }
 
-    uiMainWin* carrier = uiMain::theMain().topLevel();
+    uiMainWin* carrier = uiMain::instance().topLevel();
     if ( carrier )
 	carrier->endCmdRecEvent( mGlobalQColorDlgCmdRecId, refnr, msg );
 }

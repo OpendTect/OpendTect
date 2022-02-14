@@ -678,7 +678,7 @@ double uiMain::getDevicePixelRatio( int screennr ) const
 }
 
 
-uiMain& uiMain::theMain()
+uiMain& uiMain::instance()
 {
     if ( themain_ )
 	return *themain_;
@@ -837,7 +837,7 @@ bool uiMain::directRendering()
 
 bool isMainThread(Threads::ThreadID thread)
 {
-    return uiMain::theMain().thread() == thread;
+    return uiMain::instance().thread() == thread;
 }
 
 

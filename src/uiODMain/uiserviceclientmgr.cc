@@ -47,7 +47,7 @@ uiServiceClientMgr::~uiServiceClientMgr()
 
 void uiServiceClientMgr::setFor( uiMainWin& win )
 {
-    if ( &win == uiMain::theMain().topLevel() )
+    if ( &win == uiMain::instance().topLevel() )
 	getMgr();
 }
 
@@ -210,5 +210,5 @@ void uiServiceClientMgr::closeApp()
 	return;
     }
 
-    uiMain::theMain().exit(0);
+    uiMain::instance().exit(0);
 }

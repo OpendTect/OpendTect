@@ -410,7 +410,7 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
 
 void uiSettingsMgr::doPythonSettingsCB( CallBacker* )
 {
-    uiDialog* dlg = uiSettings::getPythonDlg( uiMain::theMain().topLevel(),
+    uiDialog* dlg = uiSettings::getPythonDlg( uiMain::instance().topLevel(),
 					      "Set Python Settings" );
     dlg->go();
 }

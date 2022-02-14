@@ -39,7 +39,7 @@ static const char* autoexecfnm = "autoexec.odcmd";
 
 
 uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
-    : applwin_(*uiMain::theMain().topLevel())
+    : applwin_(*uiMain::instance().topLevel())
     , settingsautoexec_(fullodmode)
     , surveyautoexec_(fullodmode)
     , scriptidx_(-3)

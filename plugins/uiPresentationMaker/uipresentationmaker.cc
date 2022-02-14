@@ -322,7 +322,7 @@ void uiPresentationMakerDlg::updateSceneList()
 void uiPresentationMakerDlg::updateScreenList()
 {
     screenfld_->setEmpty();
-    const int nrscreens = uiMain::theMain().nrScreens();
+    const int nrscreens = uiMain::instance().nrScreens();
     for ( int idx=0; idx<nrscreens; idx++ )
     {
 	uiString screennm = tr( "Screen %1" );

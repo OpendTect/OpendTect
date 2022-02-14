@@ -93,7 +93,7 @@ static const int cScreenSubRes = 920;
 
 static void checkScreenRes()
 {
-    uiMain& uimain = uiMain::theMain();
+    uiMain& uimain = uiMain::instance();
     const int nrscreens = uimain.nrScreens();
 
     bool anyacceptable = false, anysubstd = false, anyok = false,

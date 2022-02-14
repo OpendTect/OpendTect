@@ -215,7 +215,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 			     uiStrings::sExitOD() ) )
 	    return false;
 
-	uiMain::theMain().exit();
+	uiMain::instance().exit();
     }
 
     if ( status == 1 )
@@ -231,7 +231,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 					  tr("Select another survey"),
 					  uiStrings::sExitOD() );
 	if ( res < 0 )
-	    uiMain::theMain().exit();
+	    uiMain::instance().exit();
 
 	if ( !res )
 	{
@@ -280,7 +280,7 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 					   tr("Do it later"),
 					   uiStrings::sExitOD() );
     if ( res < 0 )
-	uiMain::theMain().exit();
+	uiMain::instance().exit();
 
     if ( !res )
     {

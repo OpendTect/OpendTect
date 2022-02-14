@@ -70,7 +70,7 @@ int uiWellLogToolWinMgr::checkMaxLogsToDisplay()
     const bool limitbyscreensz = GetEnvVarYN( "OD_MAX_LOGS_SCREEN", false );
     if ( limitbyscreensz )
     {
-	uiMain& uimain = uiMain::theMain();
+	uiMain& uimain = uiMain::instance();
 	const uiSize sz( uimain.getScreenSize(0,true) );
 	return sz.width()/cPrefWidth;
     }

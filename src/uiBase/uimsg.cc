@@ -104,7 +104,7 @@ uiStatusBar* uiMsg::statusBar()
 	mw = uiMainWin::activeWindow();
 
     if ( !mw || !mw->statusBar() )
-	mw = uiMain::theMain().topLevel();
+	mw = uiMain::instance().topLevel();
 
     return mw ? mw->statusBar() : 0;
 }
@@ -114,7 +114,7 @@ QWidget* uiMsg::popParnt()
 {
     uiMainWin* mw = uimainwin_; //Always respect user's setting first.
     if ( !mw ) mw = uiMainWin::activeWindow();
-    if ( !mw ) mw = uiMain::theMain().topLevel();
+    if ( !mw ) mw = uiMain::instance().topLevel();
 
     if ( !mw  )		return 0;
     return mw->body()->qwidget();
@@ -167,7 +167,7 @@ uiString getCaptn( const uiString& s )
 
 int uiMsg::beginCmdRecEvent( const char* wintitle )
 {
-    uiMainWin* carrier = uiMain::theMain().topLevel();
+    uiMainWin* carrier = uiMain::instance().topLevel();
     if ( !carrier )
 	return -1;
 
@@ -190,7 +190,7 @@ void uiMsg::endCmdRecEvent( int refnr, int buttonnr, const char* buttxt0,
 
     msg += buttonnr==0 ? buttxt0 : ( buttonnr==1 ? buttxt1 : buttxt2 );
 
-    uiMainWin* carrier = uiMain::theMain().topLevel();
+    uiMainWin* carrier = uiMain::instance().topLevel();
     if ( carrier )
 #ifdef __lux32__
 	carrier->endCmdRecEvent( (od_uint32) this, refnr, msg );
@@ -669,7 +669,7 @@ uiUserShowWait::uiUserShowWait( uiParent* p, const uiString& msg, int fldidx )
     if ( !mw || !mw->statusBar() )
 	mw = uiMainWin::activeWindow();
     if ( !mw || !mw->statusBar() )
-	mw = uiMain::theMain().topLevel();
+	mw = uiMain::instance().topLevel();
     sb_ = mw ? mw->statusBar() : 0;
     if ( sb_ )
 	sb_->getMessages( prevmessages_ );

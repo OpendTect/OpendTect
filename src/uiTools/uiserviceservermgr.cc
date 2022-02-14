@@ -59,7 +59,7 @@ uiRetVal uiServiceServerMgr::doHandleAction( const char* action )
 {
     if ( FixedString(action) == sKeyRaiseEv() )
     {
-	uiMain::theMain().topLevel()->showAndActivate();
+	uiMain::instance().topLevel()->showAndActivate();
 	return uiRetVal::OK();
     }
     else if ( FixedString(action) == sKeyClientAppCloseEv() )
@@ -80,7 +80,7 @@ uiRetVal uiServiceServerMgr::doHandleRequest( const OD::JSON::Object& request )
 
 bool uiServiceServerMgr::reportingAppIsAlive() const
 {
-    uiUserShowWait uisv( uiMain::theMain().topLevel(),
+    uiUserShowWait uisv( uiMain::instance().topLevel(),
 			 tr("Checking status of Main application") );
     return ServiceServerMgr::reportingAppIsAlive();
 }
@@ -101,5 +101,5 @@ void uiServiceServerMgr::doAppClosing( CallBacker* cb )
 
 void uiServiceServerMgr::closeApp()
 {
-    uiMain::theMain().exit(0);
+    uiMain::instance().exit(0);
 }

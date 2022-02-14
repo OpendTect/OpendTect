@@ -456,7 +456,7 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 
 int uiFileDialog::beginCmdRecEvent( const char* wintitle )
 {
-    uiMainWin* carrier = uiMain::theMain().topLevel();
+    uiMainWin* carrier = uiMain::instance().topLevel();
     if ( !carrier )
 	return -1;
 
@@ -482,7 +482,7 @@ void uiFileDialog::endCmdRecEvent( int refnr, bool ok )
 	msg += " "; msg += fms;
     }
 
-    uiMainWin* carrier = uiMain::theMain().topLevel();
+    uiMainWin* carrier = uiMain::instance().topLevel();
     if ( carrier )
 #ifdef __lux32__
 	carrier->endCmdRecEvent( (od_uint32) this, refnr, msg );

@@ -107,7 +107,7 @@ void uiHandleDLSiteFail::proxyButCB( CallBacker* )
 bool uiHandleDLSiteFail::rejectOK( CallBacker* )
 {
     if ( isfatal_ )
-	uiMain::theMain().exit( 1 );
+	uiMain::instance().exit( 1 );
     return true;
 }
 

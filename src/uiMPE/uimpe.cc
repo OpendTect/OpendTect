@@ -88,7 +88,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
     SeisIOObjInfo info( key );
     DataCharacteristics dc; info.getDataChar( dc );
 
-    uiMain& uimain = uiMain::theMain();
+    uiMain& uimain = uiMain::instance();
     uiDialog dlg( uimain.topLevel(),
 	uiDialog::Setup(tr("Pre-load Data"),mNoDlgTitle,mTODOHelpKey) );
     uiLabel* lbl1 = new uiLabel( &dlg,

@@ -136,7 +136,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
     str[nrchars] = '\0';
 
     int deswidth = fnt.width( mToUiStringTodo(str) );
-    const int desktopwidth = uiMain::theMain().desktopSize().hNrPics();
+    const int desktopwidth = uiMain::instance().desktopSize().hNrPics();
     if ( !mIsUdf(desktopwidth) && deswidth>desktopwidth )
 	deswidth = desktopwidth;
 
@@ -334,7 +334,7 @@ void uiProgressViewer::killFn( CallBacker* cb )
 void uiProgressViewer::quitFn( CallBacker* )
 {
     if ( closeOK() )
-	uiMain::theMain().exit(0);
+	uiMain::instance().exit(0);
 }
 
 

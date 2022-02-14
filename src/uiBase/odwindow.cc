@@ -354,7 +354,7 @@ QScreen* uiMainWinBody::screen( bool usetoplevel ) const
     QWidget* parentwidget = getParentWidget( parentWidget() );
     if ( !parentwidget && usetoplevel )
     {
-	uiMainWin* toplevel = uiMain::theMain().topLevel();
+	uiMainWin* toplevel = uiMain::instance().topLevel();
 	if ( toplevel )
 	    parentwidget = toplevel->qWidget();
     }

@@ -253,7 +253,7 @@ OD::Color uiObject::roBackgroundColor() const
 OD::Color uiParent::backgroundColor() const
 {
     return mainObject() ? mainObject()->backgroundColor()
-			: uiMain::theMain().windowColor();
+			: uiMain::instance().windowColor();
 }
 
 

@@ -64,7 +64,9 @@ public:
 			//!<\returns mUdf(int) if unknown
     double		getDevicePixelRatio(int screennr) const;
 
-    static uiMain&	theMain();
+    static uiMain&	instance();
+    mDeprecated("Use instance()")
+    static uiMain&	theMain()		{ return instance(); }
     static void		setXpmIconData( const char** xpmdata );
     static const char**	XpmIconData;
     static void		cleanQtOSEnv();

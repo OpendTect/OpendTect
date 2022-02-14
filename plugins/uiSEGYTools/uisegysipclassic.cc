@@ -71,7 +71,7 @@ uiDialog* uiSEGYClassicSurvInfoProvider::dialog( uiParent* p )
 }
 
 #define mShowErr(s) \
-    uiMainWin* mw = uiMSG().setMainWin( uiMain::theMain().topLevel() ); \
+    uiMainWin* mw = uiMSG().setMainWin( uiMain::instance().topLevel() ); \
     uiMSG().error(s); \
     uiMSG().setMainWin(mw);
 

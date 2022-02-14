@@ -180,7 +180,7 @@ void uiStatusBar::message( const uiString& msg, int fldidx, int msecs )
     messages_[fldidx] = msg;
     body_->message( msg, fldidx, msecs );
     body_->repaint();
-    uiMain::theMain().repaint();
+    uiMain::instance().repaint();
 }
 
 
@@ -190,7 +190,7 @@ void uiStatusBar::message( const uiStringSet& msgs, int msecs )
     for ( int idx=0; idx<msgs.size(); idx++ )
 	body_->message( msgs[idx], idx, msecs );
     body_->repaint();
-    uiMain::theMain().repaint();
+    uiMain::instance().repaint();
 }
 
 

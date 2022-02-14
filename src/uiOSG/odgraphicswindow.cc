@@ -1112,7 +1112,7 @@ void setOSGTimerCallbacks( const NotifierAccess& start,
 HeartBeat::HeartBeat()
     : _timerId( 0 )
 {
-    uiMainWin* uimw = uiMain::theMain().topLevel();
+    uiMainWin* uimw = uiMain::instance().topLevel();
     if ( uimw )
 	mAttachCB( uimw->windowClosed, HeartBeat::stopTimerCB );
 }

@@ -408,7 +408,7 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 static OD::Color getColor( bool sel )
 {
     mDefineStaticLocalObject(
-			OD::Color, bgcol, = uiMain::theMain().windowColor() );
+			OD::Color, bgcol, = uiMain::instance().windowColor() );
     mDefineStaticLocalObject( OD::Color, selcol, = bgcol.darker(0.3f) );
     return sel ? selcol : bgcol;
 }
