@@ -78,7 +78,9 @@ public:
 			{ insertItem(pm,toUiString(str),index,id); }
 
     const char*		textOfItem(int) const;
+    uiString		itemText(int) const;
     void		getItems(BufferStringSet&) const;
+    void		getItems(uiStringSet&) const;
 
     void		setItemText(int,const uiString&);
     void		setPixmap(int index,const uiPixmap&);
