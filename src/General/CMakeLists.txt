@@ -16,6 +16,7 @@ list ( APPEND OD_TEST_PROGS
 	posidxpairvalset.cc
 	raytracerrunner.cc
 	reflectivitysampler.cc
+	unitofmeasure.cc
 )
 set( OD_NIGHTLY_TEST_PROGS zip.cc )
 
