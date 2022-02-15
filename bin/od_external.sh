@@ -9,7 +9,12 @@ if [ "$#" -lt 1 ]; then
 fi
 
 if [[ -z "${DTECT_APPL}" ]]; then
-    execpath=`realpath "${0}"`
+    plfname=`uname -s`
+    if [[ ${plfname} == "Darwin" ]]; then
+        execpath="realpath "${0}""
+    else
+        execpath=`realpath "${0}"`
+    fi
     execappl=$(dirname "${execpath}")
     export DTECT_APPL="$(dirname "${execappl}")"
 fi

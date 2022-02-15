@@ -446,7 +446,7 @@ mExternC(Basic) const char* GetScriptDir()
     mDeclStaticString( res );
     if ( res.isEmpty() )
 #ifdef __mac__
-    res = FilePath( GetFullExecutablePath() ).pathOnly();
+    res = FilePath(GetSoftwareDir(0), "Resources", "bin").fullPath();
 #else
     res = FilePath( GetSoftwareDir(0),"bin" ).fullPath();
 #endif
