@@ -57,6 +57,9 @@ public:
     int			width() const;
     int			height() const;
     bool		isEmpty() const;
+    void		scale(int w,int h);
+    void		scaleToHeight(int h);
+    void		scaleToWidth(int w);
 
     const char*		source() const		{ return srcname_.buf(); }
 

@@ -107,6 +107,45 @@ bool uiPixmap::isEmpty() const
 { return !qpixmap_ || qpixmap_->isNull(); }
 
 
+void uiPixmap::scale( int w, int h )
+{
+    if ( !qpixmap_ )
+	return;
+
+    QPixmap newpm = qpixmap_->scaled( w, h, Qt::KeepAspectRatio );
+    if ( newpm.isNull() )
+	return;
+
+    *qpixmap_ = newpm;
+}
+
+
+void uiPixmap::scaleToHeight( int h )
+{
+    if ( !qpixmap_ )
+	return;
+
+    const QPixmap newpm = qpixmap_->scaledToHeight( h );
+    if ( newpm.isNull() )
+	return;
+
+    *qpixmap_ = newpm;
+}
+
+
+void uiPixmap::scaleToWidth( int w )
+{
+    if ( !qpixmap_ )
+	return;
+
+    const QPixmap newpm = qpixmap_->scaledToWidth( w );
+    if ( newpm.isNull() )
+	return;
+
+    *qpixmap_ = newpm;
+}
+
+
 void uiPixmap::fill( const OD::Color& col )
 {
     qpixmap_->fill( QColor(col.r(),col.g(),col.b()) );
