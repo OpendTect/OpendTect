@@ -18,8 +18,9 @@ ________________________________________________________________________
 class Wavelet;
 
 
-mStruct(WellAttrib) SynthGenParams
+mExpClass(WellAttrib) SynthGenParams
 {
+public:
     enum SynthType	{ ZeroOffset, PreStack, StratProp, AngleStack,
 			  AVOGradient, InstAttrib };
 			mDeclareEnumUtils(SynthType);
