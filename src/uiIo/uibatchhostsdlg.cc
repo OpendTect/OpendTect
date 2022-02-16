@@ -132,9 +132,9 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 
 		FilePath fp( GetLibPlfDir() );
 		fp.add( "od_BatchHosts.exe" );
-		BufferString fpbuf = fp.fullPath();
-		details = tr("You can launch the process %1")
-						.arg(fp.fullPath());
+		const BufferString longpath =
+				FilePath::getLongPath( fp.fullPath() );
+		details = tr("You can launch the process %1").arg( longpath );
 	    }
 	    else if ( fileexists && !fileiswritable )
 	    {
