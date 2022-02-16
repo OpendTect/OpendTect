@@ -20,12 +20,14 @@ class Wavelet;
 
 mStruct(WellAttrib) SynthGenParams
 {
-    enum SynthType	{ PreStack, ZeroOffset, StratProp, AngleStack,
+    enum SynthType	{ ZeroOffset, PreStack, StratProp, AngleStack,
 			  AVOGradient, InstAttrib };
 			mDeclareEnumUtils(SynthType);
 
 			SynthGenParams( SynthType tp=ZeroOffset );
+			SynthGenParams(const SynthGenParams&);
 
+    SynthGenParams&	operator= (const SynthGenParams&);
     bool		operator== (const SynthGenParams&) const;
     bool		operator!= (const SynthGenParams&) const;
 
@@ -65,6 +67,12 @@ mStruct(WellAttrib) SynthGenParams
 
     void		usePar(const IOPar&);
 
+    static const char*	sKeySynthType()		{ return "Synthetic Type"; }
+    static const char*	sKeyWaveLetName()	{ return "Wavelet Name"; }
+    static const char*	sKeyRayPar();
+    static const char*	sKeySynthPar();
+    static const char*	sKeyInput()		{ return "Input Synthetic"; }
+    static const char*	sKeyAngleRange()	{ return "Angle Range"; }
     static const char*	sKeyInvalidInputPS()	{ return "Invalid Input"; }
 
 private:

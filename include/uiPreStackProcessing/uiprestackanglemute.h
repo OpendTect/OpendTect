@@ -36,6 +36,7 @@ public:
 					       PreStack::AngleCompParams&,
 					       bool dooffset=false,
 					       bool isformute=true);
+				~uiAngleCompGrp();
 
     void			updateFromParams();
 
@@ -48,9 +49,9 @@ protected:
 
     uiVelSel*			velfuncsel_;
     uiGenInput*			anglefld_;
-    uiLabel*			anglelbl_;
+    uiLabel*			anglelbl_ = nullptr;
     uiPushButton*		advpushbut_;
-    uiAngleCompAdvParsDlg*	advpardlg_;
+    uiAngleCompAdvParsDlg*	advpardlg_ = nullptr;
 
     bool			isformute_;
     bool			dooffset_;
@@ -64,6 +65,7 @@ public:
 					      PreStack::AngleCompParams&,
 					      bool dooffset=false,
 					      bool isformute=true);
+			~uiAngleCompAdvParsDlg();
 
     void		updateFromParams();
 
@@ -80,16 +82,16 @@ protected :
     void		finaliseCB(CallBacker*);
 
     uiRayTracerSel*	raytracerfld_;
-    uiGenInput*		smoothtypefld_;
-    uiGenInput*		smoothwindowfld_;
-    uiGenInput*		smoothwinparamfld_;
-    uiGenInput*		smoothwinlengthfld_;
-    uiGenInput*		freqf3fld_;
-    uiGenInput*		freqf4fld_;
-    uiLabel*		smoothwinparamlbl_;
-    uiLabel*		smoothwinlengthlbl_;
-    uiLabel*		freqf3lbl_;
-    uiLabel*		freqf4lbl_;
+    uiGenInput*		smoothtypefld_ = nullptr;
+    uiGenInput*		smoothwindowfld_ = nullptr;
+    uiGenInput*		smoothwinparamfld_ = nullptr;
+    uiGenInput*		smoothwinlengthfld_ = nullptr;
+    uiLabel*		smoothwinparamlbl_ = nullptr;
+    uiLabel*		smoothwinlengthlbl_ = nullptr;
+    uiGenInput*		freqf3fld_ = nullptr;
+    uiGenInput*		freqf4fld_ = nullptr;
+    uiLabel*		freqf3lbl_ = nullptr;
+    uiLabel*		freqf4lbl_ = nullptr;
 
     bool		isformute_;
     PreStack::AngleCompParams&	params_;

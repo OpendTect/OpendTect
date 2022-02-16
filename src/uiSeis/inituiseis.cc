@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiseismmjobdispatch.h"
 #include "uiseiswriteopts.h"
 #include "uiseisposprovgroup.h"
+#include "uisynthgrp.h"
 #include "uiveldesc.h"
 
 #include "procdescdata.h"
@@ -22,6 +23,7 @@ mDefModInitFn(uiSeis)
 
     uiTime2Depth::initClass();
     uiDepth2Time::initClass();
+    uiBaseSynthSeis::initClass();
 
     Batch::MMJobDispatcher::addDef( new Batch::SeisMMProgDef );
 

@@ -41,8 +41,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
-#include "uiseiswvltsel.h"
 #include "uiseparator.h"
+#include "uisynthseis.h"
 #include "uiwaveletextraction.h"
 #include "uiwellpropertyrefsel.h"
 #include "uiwelltietoseismicdlg.h"
@@ -161,7 +161,10 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     sep = new uiSeparator( this, "Logs2Wavelt Sep" );
     sep->attach( stretchedBelow, logsgrp );
 
-    wvltfld_ = new uiSeisWaveletSel( this, "Reference wavelet" );
+    uiMultiSynthSeisSel::Setup sssu( "Reference wavelet" );
+    sssu.withps_ = false;
+
+    wvltfld_ = new uiMultiSynthSeisSel( this, sssu );
     wvltfld_->attach( alignedBelow, wellfld_ );
     wvltfld_->attach( ensureBelow, sep );
 
@@ -173,7 +176,6 @@ uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
     detachAllNotifiers();
     delWins();
-    delete extractwvltdlg_;
     unRefPtr( wd_ );
     delete &wtsetup_;
     delete &elpropsel_;
@@ -310,7 +312,7 @@ void uiTieWinMGRDlg::getSetup( const char* nm )
     getDenLogInSetup();
 
     if ( !wtsetup_.wvltid_.isEmpty() )
-	wvltfld_->setInput( wtsetup_.wvltid_ );
+	wvltfld_->setWavelet( wtsetup_.wvltid_ );
 
     if ( !wtsetup_.useexistingd2tm_ )
     {
@@ -320,7 +322,7 @@ void uiTieWinMGRDlg::getSetup( const char* nm )
 	cscorrfld_->box()->setCurrentItem( wtsetup_.corrtype_ );
     }
 
-    d2TSelChg(0);
+    d2TSelChg( nullptr );
 }
 
 
@@ -560,10 +562,11 @@ bool uiTieWinMGRDlg::initSetup()
 	WellTie::Setup::CorrTypeDef().parse( cscorrfld_->box()->text(),
 				       wtsetup_.corrtype_ );
 
-    if ( !wvltfld_->getWavelet() )
-	mErrRet(uiStrings::phrSelect(tr("a valid wavelet")))
+    const uiRetVal uirv = wvltfld_->isOK();
+    if ( !uirv.isOK() )
+	mErrRet(uirv)
 
-    wtsetup_.wvltid_ = wvltfld_->getID();
+    wtsetup_.wvltid_ = wvltfld_->getWaveletID();
 
     wtsetup_.commitDefaults();
     if ( saveButtonChecked() )

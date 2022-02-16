@@ -11,69 +11,139 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
-#include "uiraytrace1d.h"
+
 #include "uigroup.h"
+#include "uiraytrace1d.h"
+#include "uiseiswvltsel.h"
 #include "uistring.h"
 
-class uiCheckBox;
+class EnumDef;
+class SynthGenParams;
 class uiGenInput;
-class uiLabeledSpinBox;
-class uiPushButton;
-class uiRayTracerSel;
-class uiSeisWaveletSel;
-class uiSynthCorrectionsGrp;
+class uiLabeledComboBox;
+class uiLabeledListBox;
+class uiSynthSeisSel;
 
-mExpClass(uiWellAttrib) uiSynthSeisGrp : public uiGroup
-{ mODTextTranslationClass(uiSynthSeisGrp);
+
+/*!
+\brief Interface for selecting all parameters to run a Seis::RaySynthGenerator
+	for multiple synthetic types (Zero-offset, prestack, ...)
+*/
+
+mExpClass(uiWellAttrib) uiMultiSynthSeisSel : public uiGroup
+{ mODTextTranslationClass(uiMultiSynthSeisSel);
 public:
-				uiSynthSeisGrp(uiParent*,
-					       const uiRayTracer1D::Setup&);
-				~uiSynthSeisGrp();
 
-    void			usePar(const IOPar&);
-    void			fillPar(IOPar&) const;
-    void			setWavelet(const char* wvltnm);
+    mExpClass(uiWellAttrib) Setup : public uiSeisWaveletSel::Setup
+    {
+	public:
+			Setup(const char* wvltseltxt="Wavelet")
+			    : uiSeisWaveletSel::Setup(wvltseltxt)
+			    , withzeroff_(true)
+			    , withelasticstack_(false)
+			    , withps_(true)
+			{}
+
+	mDefSetupMemb(bool,withzeroff)
+	mDefSetupMemb(bool,withelasticstack)
+	mDefSetupMemb(bool,withps)
+	const uiRayTracer1D::Setup* rtsu_ = nullptr;
+    };
+
+				uiMultiSynthSeisSel(uiParent*,
+						    const Setup& =Setup());
+    virtual			~uiMultiSynthSeisSel();
+
+    virtual uiRetVal		isOK() const;
+
+    void			setType(const char*);
+    void			setWavelet(const MultiID&);
+    void			setWavelet(const char*);
+    virtual bool		usePar(const IOPar&);
+
+    const char*			getType() const;
+    MultiID			getWaveletID() const;
     const char*			getWaveletName() const;
-    void			setRayTracerType(const char*);
+    virtual void		fillPar(IOPar&) const;
 
-    Notifier<uiSynthSeisGrp>	parsChanged;
+    Notifier<uiMultiSynthSeisSel> selectionChanged;
+    Notifier<uiMultiSynthSeisSel> parsChanged;
+
+protected:
+				uiMultiSynthSeisSel(uiParent*,const Setup&,
+						    bool withderived);
+
+    void			initGrpCB(CallBacker*);
+    void			selChgCB(CallBacker*);
+    void			parsChangedCB(CallBacker*);
+
+    virtual void		selChg(const char*);
+    virtual void		initGrp();
+    virtual void		doParsChanged(IOPar* prev=nullptr);
+    uiGroup*			topGrp() const		{ return topgrp_; }
+    uiLabeledComboBox*		typeCBFld() const	{ return typelblcbx_; }
 
 private:
 
-    uiSeisWaveletSel*		wvltfld_;
-    uiRayTracerSel*		rtsel_;
-    uiSynthCorrectionsGrp*	uisynthcorrgrp_;
-    uiCheckBox*			internalmultiplebox_ = nullptr;
-    uiLabeledSpinBox*		surfreflcoeffld_ = nullptr;
+    const uiSynthSeisSel*	current() const;
+    uiSynthSeisSel*		current();
 
-    void			parsChangedCB(CallBacker*);
-    void			updateFieldDisplay();
+    bool			useSynthSeisPar(const IOPar&);
+    bool			useReflPars(const IOPar&);
+    void			fillSynthSeisPar(IOPar&) const;
+    void			fillReflPars(IOPar&) const;
+
+    EnumDef&			typedef_;
+
+    uiGroup*			topgrp_;
+    uiLabeledComboBox*		typelblcbx_ = nullptr;
+    uiSynthSeisSel*		zerooffsynthgrp_ = nullptr;
+    uiSynthSeisSel*		elasticsynthgrp_ = nullptr;
+    uiSynthSeisSel*		prestacksynthgrp_ = nullptr;
+    uiSynthSeisSel*		previoussynthgrp_ = nullptr;
+    ObjectSet<uiSynthSeisSel>	synthgrps_;
+
 };
 
 
-class uiSynthCorrAdvancedDlg;
+/*!
+\brief Interface for selecting all parameters to run a Seis::RaySynthGenerator
+	for multiple synthetic types (Zero-offset, prestack, ...), and
+	interface for selecting synthetic datasets derived from raw types
+*/
 
-mExpClass(uiWellAttrib) uiSynthCorrectionsGrp : public uiGroup
-{ mODTextTranslationClass(uiSynthCorrectionsGrp);
+mExpClass(uiWellAttrib) uiFullSynthSeisSel : public uiMultiSynthSeisSel
+{ mODTextTranslationClass(uiFullSynthSeisSel);
 public:
-				uiSynthCorrectionsGrp(uiParent*);
-				~uiSynthCorrectionsGrp();
+				uiFullSynthSeisSel(uiParent*,
+						    const Setup& =Setup());
+				~uiFullSynthSeisSel();
 
-    bool			wantNMOCorr() const;
-    float			getStrechtMutePerc() const;
-    float			getMuteLength() const;
-    void			setValues(bool,float mutelen,float stretchlim);
+    uiRetVal			isOK() const override;
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
-    Notifier<uiSynthCorrectionsGrp> nmoparsChanged;
+    void			manPSSynth(const char*,bool isnew);
+    void			manInpSynth(const char*,bool isnew);
+    void			getChosenInstantAttribs(BufferStringSet&) const;
 
-protected:
-    uiGenInput*			nmofld_;
-    uiPushButton*		advbut_;
-    uiSynthCorrAdvancedDlg*	uiscadvdlg_;
+    CNotifier<uiMultiSynthSeisSel,BufferString> nameChanged;
 
-    void			initGrp(CallBacker*);
-    void			getAdvancedPush(CallBacker*);
-    void			nmoSelCB(CallBacker*);
-    void			parsChanged(CallBacker*);
+private:
+
+    void			inputChangedCB(CallBacker*);
+    void			nameChangedCB(CallBacker*);
+
+    void			selChg(const char*) override;
+    void			doParsChanged(IOPar* prev=nullptr) override;
+    void			setOutputName(const char*);
+    const char*			getOutputName() const;
+    static void			doMan(uiComboBox*,const char*,bool isnew);
+
+    uiLabeledComboBox*		psselfld_;
+    uiLabeledComboBox*		inpselfld_;
+    uiGenInput*			angleinpfld_;
+    uiLabeledListBox*		instattribfld_;
+    uiGenInput*			namefld_;
+
 };
-

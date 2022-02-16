@@ -17,31 +17,30 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class StratSynth;
+class SynthGenParams;
 
 class uiComboBox;
+class uiFullSynthSeisSel;
 class uiGenInput;
 class uiListBox;
 class uiLabeledComboBox;
 class uiLabeledListBox;
 class uiPushButton;
-class uiSynthSeisGrp;
 
 mExpClass(uiWellAttrib) uiSynthParsGrp : public uiGroup
 { mODTextTranslationClass(uiSynthParsGrp);
 public:
-				uiSynthParsGrp(uiParent*,StratSynth&);
-				~uiSynthParsGrp();
+			uiSynthParsGrp(uiParent*,StratSynth&);
+			~uiSynthParsGrp();
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-
-    void		updateWaveletName();
 
     CNotifier<uiSynthParsGrp,BufferString> synthAdded;
     CNotifier<uiSynthParsGrp,BufferString> synthChanged;
     CNotifier<uiSynthParsGrp,BufferString> synthRemoved;
     CNotifier<uiSynthParsGrp,BufferString> synthDisabled;
-    Notifier<uiSynthParsGrp>	elPropSel;
+    Notifier<uiSynthParsGrp> elPropSel;
 
 protected:
 
@@ -55,34 +54,30 @@ protected:
     void			openCB(CallBacker*);
     void			saveCB(CallBacker*);
     void			saveAsCB(CallBacker*);
-    void			typeChg(CallBacker*);
-    void			parsChanged(CallBacker*);
-    void			nameChanged(CallBacker*);
+    void			typeChgCB(CallBacker*);
+    void			parsChangedCB(CallBacker*);
+    void			nameChangedCB(CallBacker*);
 
-    bool			getFromScreen();
+    bool			getFromScreen(SynthGenParams&);
     void			putToScreen();
 
     bool			confirmSave();
     bool			doSave(const char* fnm);
-    void			updateFieldDisplay();
     void			getPSNames(BufferStringSet&);
     void			getInpNames(BufferStringSet&);
+    void			forwardInputNames();
     bool			prepareSyntheticToBeChanged(bool toberemoved);
-    bool			doAddSynthetic(bool isupdate=false);
-    bool			checkSyntheticName(bool isupdate=false);
+    bool			doAddSynthetic(const SynthGenParams&,
+					       bool isupdate=false);
+    bool			checkSyntheticName(const char* nm,
+						   bool isupdate=false);
 
     StratSynth&			stratsynth_;
     uiListBox*			synthnmlb_;
     uiPushButton*		updatefld_;
     uiPushButton*		removefld_;
 
-    uiComboBox*			typefld_;
-    uiLabeledComboBox*		psselfld_;
-    uiLabeledListBox*		instattribfld_;
-    uiLabeledComboBox*		inpselfld_;
-    uiGenInput*			angleinpfld_;
-    uiSynthSeisGrp*		synthseis_;
-    uiGenInput*			namefld_;
+    uiFullSynthSeisSel*		synthselgrp_;
     uiPushButton*		addnewfld_;
 
     BufferString		lastsavedfnm_;

@@ -24,8 +24,26 @@ class uiWaveletExtraction;
 mExpClass(uiSeis) uiSeisWaveletSel : public uiGroup
 { mODTextTranslationClass(uiSeisWaveletSel)
 public:
+
+    mExpClass(uiSeis) Setup
+    {
+	public:
+			Setup(const char* seltxt="Wavelet")
+			    : seltxt_(seltxt)
+			    , withextract_(true)
+			    , withman_(true)
+			    , compact_(false)
+			{}
+
+	mDefSetupMemb(BufferString,seltxt);
+	mDefSetupMemb(bool,withextract);
+	mDefSetupMemb(bool,withman);
+	mDefSetupMemb(bool,compact);
+    };
+
+			uiSeisWaveletSel(uiParent*,const Setup& =Setup());
 			uiSeisWaveletSel(uiParent*,
-					 const char* seltxt="Wavelet",
+					 const char* seltxt,
 					 bool withextract=true,
 					 bool withman=true,
 					 bool compact=false);
@@ -47,7 +65,7 @@ protected:
     BufferStringSet	nms_;
     ObjectSet<MultiID>	ids_;
 
-    uiWaveletExtraction* wvltextrdlg_;
+    uiWaveletExtraction* wvltextrdlg_ = nullptr;
 
     void		initFlds(CallBacker*);
     void		extractCB(CallBacker*);

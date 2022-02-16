@@ -278,7 +278,6 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     , automksynth_(true)
     , moddisp_(nullptr)
     , newModels(this)
-    , waveletChanged(this)
     , saveRequired(this)
     , retrieveRequired(this)
 {
@@ -372,7 +371,6 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     gentools_->genReq.notify( mCB(this,uiStratLayerModel,genModels) );
     gentools_->nrModelsChanged.notify(
 	    mCB(this,uiStratLayerModel,nrModelsChangedCB) );
-    synthdisp_->wvltChanged.notify( mCB(this,uiStratLayerModel,wvltChg) );
     synthdisp_->viewChanged.notify( mCB(this,uiStratLayerModel,viewChgedCB) );
     synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
     synthdisp_->dispParsChanged.notify(
@@ -476,12 +474,6 @@ const ObjectSet<const TimeDepthModel>& uiStratLayerModel::d2TModels() const
 }
 
 
-const Wavelet* uiStratLayerModel::wavelet() const
-{
-    return synthdisp_->getWavelet();
-}
-
-
 void uiStratLayerModel::initWin( CallBacker* )
 {
     if ( !moddisp_ )
@@ -569,30 +561,55 @@ void uiStratLayerModel::viewChgedCB( CallBacker* )
 
 bool uiStratLayerModel::checkUnscaledWavelet()
 {
-    const Wavelet* wvlt = synthdisp_->getWavelet();
-    if ( !wvlt )
-	return false;
-    if ( Wavelet::isScaled(synthdisp_->waveletID()) )
-	return true;
-
-    BufferStringSet opts;
-    opts.add( "[Start tool]: Start the wavelet scaling dialog" );
-    opts.add( "[Mark scaled]: The wavelet amplitude is already compatible "
-	      "with the seismic data" );
-    opts.add( "[Ignore]: I will not use scaling-sensitive operations" );
-    uiGetChoice dlg( this, opts,
-	    tr("The wavelet seems to be unscaled.\n"
-	    "For most purposes, you will need a scaled wavelet.\n"), true );
-    dlg.setHelpKey( mODHelpKey(mStratLayerModelcheckUnscaledWaveletHelpID) );
-    dlg.go(); const int choice = dlg.choice();
-    if ( choice < 0 )
-	return false;
-    else if ( choice == 2 )
-	return true;
-    else if ( choice == 1 )
+    BufferStringSet wvltnms;
+    for ( int idx=0; idx<currentStratSynth().nrSynthetics(); idx++ )
     {
-	Wavelet::markScaled( synthdisp_->waveletID() );
-	return true;
+	const SyntheticData* sd = currentStratSynth().getSyntheticByIdx( idx );
+	if ( !sd )
+	    continue;
+
+	const SynthGenParams& sgp = sd->getGenParams();
+	if ( !sgp.isRawOutput() )
+	    continue;
+
+	wvltnms.addIfNew( sgp.getWaveletNm() );
+    }
+
+    TypeSet<MultiID> wvltids;
+    for ( int idx=wvltnms.size()-1; idx>=0; idx-- )
+    {
+	PtrMan<IOObj> ioobj = Wavelet::getIOObj( wvltnms.get(idx).buf() );
+	if ( !ioobj )
+	    return false;
+
+	PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
+	if ( !wvlt )
+	    return false;
+
+	const MultiID wvltid = ioobj->key();
+	if ( Wavelet::isScaled(wvltid) )
+	    wvltids += wvltid;
+    }
+
+    for ( const auto& wvltid : wvltids )
+    {
+	BufferStringSet opts;
+	opts.add( "[Start tool]: Start the wavelet scaling dialog" );
+	opts.add( "[Mark scaled]: The wavelet amplitude is already compatible "
+		  "with the seismic data" );
+	opts.add( "[Ignore]: I will not use scaling-sensitive operations" );
+	uiGetChoice dlg( this, opts,
+		tr("The wavelet seems to be unscaled.\n"
+		"For most purposes, you will need a scaled wavelet.\n"), true );
+	dlg.setHelpKey( mODHelpKey(mStratLayerModelcheckUnscaledWaveletHelpID));
+	dlg.go();
+	const int choice = dlg.choice();
+	if ( choice < 0 )
+	    return false;
+	else if ( choice == 1 )
+	    Wavelet::markScaled( wvltid );
+	else if ( choice == 2 )
+	    continue;
     }
 
     return synthdisp_->haveUserScaleWavelet();
@@ -617,13 +634,6 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
 	xplotdlg.setRefLevel( lvlnm );
 
     xplotdlg.show();
-}
-
-
-void uiStratLayerModel::wvltChg( CallBacker* cb )
-{
-    viewChgedCB( cb );
-    waveletChanged.trigger();
 }
 
 

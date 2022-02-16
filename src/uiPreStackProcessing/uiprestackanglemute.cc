@@ -32,9 +32,7 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
     : uiGroup(p,"Angle Mute Group")
     , params_(pars)
     , isformute_(isformute)
-    , anglelbl_(0)
     , dooffset_(dooffset)
-    , advpardlg_(0)
 {
     velfuncsel_ = new uiVelSel( this, uiVelSel::ioContext(),
 				uiSeisSel::Setup(Seis::Vol), false);
@@ -58,11 +56,18 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 	anglelbl_->attach( rightOf, anglefld_ );
     }
 
-    advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"), false );
-    advpushbut_->activated.notify( mCB(this,uiAngleCompGrp,advPushButCB) );
+    CallBack cbadv = mCB(this,uiAngleCompGrp,advPushButCB);
+    advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"),
+				    cbadv, false );
     advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
 
     setHAlignObj( velfuncsel_ );
+}
+
+
+uiAngleCompGrp::~uiAngleCompGrp()
+{
+    detachAllNotifiers();
 }
 
 
@@ -137,32 +142,28 @@ void uiAngleCompGrp::advPushButCB( CallBacker* )
 
 uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					      PreStack::AngleCompParams& pars,
-					      bool offset, bool isformute )
+					      bool dooffsets, bool isformute )
     : uiDialog(p, uiDialog::Setup(tr("Advanced Parameter"),
 				  tr("Advanced angle parameters"),
                                   mODHelpKey(mAngleCompAdvParsDlgHelpID) ))
     , params_(pars)
     , isformute_(isformute)
-    , smoothtypefld_(0)
-    , smoothwindowfld_(0)
-    , smoothwinparamfld_(0)
-    , smoothwinparamlbl_(0)
-    , smoothwinlengthfld_(0)
-    , smoothwinlengthlbl_(0)
-    , freqf3fld_(0)
-    , freqf3lbl_(0)
-    , freqf4fld_(0)
-    , freqf4lbl_(0)
 {
-    uiRayTracer1D::Setup rsu;
-    rsu.dooffsets_ = offset;
-    rsu.doreflectivity_ = false;
-    raytracerfld_ = new uiRayTracerSel( this, rsu );
+    uiRayTracer1D::Setup rtsu;
+    rtsu.dooffsets(dooffsets).doreflectivity(false)
+	.convertedwaves(false).withadvanced(false);
+    raytracerfld_ = new uiRayTracerSel( this, rtsu );
 
     if ( !isformute_ )
 	createAngleCompFields();
 
-    postFinalise().notify( mCB(this,uiAngleCompAdvParsDlg,finaliseCB) );
+    mAttachCB( postFinalise(), uiAngleCompAdvParsDlg::finaliseCB );
+}
+
+
+uiAngleCompAdvParsDlg::~uiAngleCompAdvParsDlg()
+{
+    detachAllNotifiers();
 }
 
 
@@ -172,15 +173,15 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
     StringListInpSpec(PreStack::AngleComputer::smoothingTypeNames()) );
     smoothtypefld_->attach( alignedBelow, raytracerfld_ );
     smoothtypefld_->setValue( PreStack::AngleComputer::FFTFilter );
-    smoothtypefld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
-					     smoothTypeSel) );
+    mAttachCB( smoothtypefld_->valuechanged,
+	       uiAngleCompAdvParsDlg::smoothTypeSel );
 
     const BufferStringSet& windowfunctions = WINFUNCS().getNames();
     smoothwindowfld_ = new uiGenInput( this, tr("Window/Taper"),
 				       StringListInpSpec(windowfunctions) );
     smoothwindowfld_->attach( alignedBelow, smoothtypefld_ );
-    smoothwindowfld_->valuechanged.notify( mCB(this,uiAngleCompAdvParsDlg,
-					       smoothWindowSel) );
+    mAttachCB( smoothwindowfld_->valuechanged,
+	       uiAngleCompAdvParsDlg::smoothWindowSel );
 
     smoothwinparamfld_ = new uiGenInput( this, tr("Taper length"),
 					 FloatInpSpec() );
@@ -208,28 +209,13 @@ void uiAngleCompAdvParsDlg::createAngleCompFields()
 
 void uiAngleCompAdvParsDlg::getRayTracerPars()
 {
-    IOPar& par = params_.raypar_;
-    raytracerfld_->fillPar( par );
-    //Clean-up hard-coded parameters:
-    par.removeWithKey( RayTracer1D::sKeyPWave() );
-    par.removeWithKey( RayTracer1D::sKeyReflectivity() );
-    if ( !isformute_ )
-	par.removeWithKey( RayTracer1D::sKeyOffset() );
-    bool doblock;
-    if ( par.getYN(RayTracer1D::sKeyBlock(),doblock) && !doblock )
-	par.removeWithKey( RayTracer1D::sKeyBlockRatio() );
+    raytracerfld_->fillPar( params_.raypar_ );
 }
 
 
 void uiAngleCompAdvParsDlg::setRayTracerPars()
 {
-    IOPar par( params_.raypar_ );
-    //Add few hard-coded parameters:
-    par.setYN( RayTracer1D::sKeyReflectivity(), false );
-    if ( !isformute_ )
-	RayTracer1D::setIOParsToZeroOffset( par );
-
-    raytracerfld_->usePar( par );
+    raytracerfld_->usePar( params_.raypar_ );
 }
 
 
@@ -371,7 +357,8 @@ void uiAngleMute::initClass()
 uiDialog* uiAngleMute::create( uiParent* p, Processor* sgp )
 {
     mDynamicCastGet( AngleMute*, sgmute, sgp );
-    if ( !sgmute ) return 0;
+    if ( !sgmute )
+	return nullptr;
 
     return new uiAngleMute( p, sgmute );
 }

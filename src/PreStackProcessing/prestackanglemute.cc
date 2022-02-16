@@ -34,17 +34,21 @@ AngleCompParams::AngleCompParams()
 		       100.0f/SI().zDomain().userFactor() );
     smoothingpar_.set( AngleComputer::sKeyWinParam(), 0.95f );
 
-    RayTracer1D::Setup setup;
-    setup.doreflectivity( false );
-    setup.fillPar( raypar_ );
-    raypar_.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
-
+    raypar_.set( sKey::Type(), RayTracer1D::factory().getDefaultName() );
     const StepInterval<float>& offsrange = RayTracer1D::sDefOffsetRange();
     TypeSet<float> offsetvals;
     for ( int idx=0; idx<=offsrange.nrSteps(); idx++ )
 	offsetvals += offsrange.atIndex( idx );
-
     raypar_.set( RayTracer1D::sKeyOffset(), offsetvals );
+    raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(), SI().xyInFeet() );
+    raypar_.setYN( RayTracer1D::sKeyReflectivity(), false );
+
+    uiString msg;
+    PtrMan<RayTracer1D> rt1d = RayTracer1D::createInstance( raypar_, msg );
+    if ( !rt1d )
+	return;
+
+    rt1d->fillPar( raypar_ );
 }
 
 
@@ -143,13 +147,7 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
 			vels[il], mUdf(float), mUdf(float) );
     model += ElasticLayer(depths[il-1]-depths[il-2],
 			vels[il-1], mUdf(float), mUdf(float) );
-
-    bool doblock = false; float blockratiothreshold;
-    params_->raypar_.getYN( RayTracer1D::sKeyBlock(), doblock );
-    params_->raypar_.get( RayTracer1D::sKeyBlockRatio(), blockratiothreshold );
-
-    if ( doblock && !model.isEmpty() )
-	model.block( blockratiothreshold, true );
+    block( model );
 
     sd = zrg;
     return !model.isEmpty();
@@ -235,6 +233,12 @@ AngleMute::~AngleMute()
 }
 
 
+Muter* AngleMute::getMuter( int idx )
+{
+    return muters_.validIdx( idx ) ? muters_.get(idx) : nullptr;
+}
+
+
 bool AngleMute::doPrepare( int nrthreads )
 {
     deepErase( rtrunners_ );
@@ -257,7 +261,7 @@ bool AngleMute::doPrepare( int nrthreads )
 
 bool AngleMute::usePar( const IOPar& par )
 {
-    if ( !AngleMuteBase::usePar( par ) )
+    if ( !AngleMuteBase::usePar(par) )
 	return false;
 
     par.get( Mute::sTaperLength(), params().taperlen_ );

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "seispscubetr.h"
 #include "segydirecttr.h"
 #include "segydirect2d.h"
+#include "synthseis.h"
 #include "waveletio.h"
 #include "seismulticubeps.h"
 #include "seispacketinfo.h"
@@ -64,6 +65,7 @@ mDefModInitFn(Seis)
     SeisPS2DTranslatorGroup::initClass();
     WaveletTranslatorGroup::initClass();
     dgbWaveletTranslator::initClass();
+    Seis::SynthGeneratorBasic::initClass();
     SyntheticDataParsTranslatorGroup::initClass();
     dgbSyntheticDataParsTranslator::initClass();
 
@@ -92,6 +94,15 @@ mDefModInitFn(Seis)
     Depth2TimeStretcher::initClass();
     Seis::ODSeqInp::initClass();
     Seis::ODSeqOut::initClass();
+
+    FactoryBase& synthgenfact = Seis::SynthGenerator::factory();
+    if ( FixedString(synthgenfact.getDefaultName()).isEmpty() )
+    {
+	const int defidx = synthgenfact.getNames().indexOf(
+		Seis::SynthGeneratorBasic::sFactoryKeyword() );
+	synthgenfact.setDefaultName( defidx );
+    }
+
     Survey::GMAdmin().updateGeometries( 0 ); //Those using a transl from Seis.
 
     Seis2DTo3DInterPolImpl::initClass();

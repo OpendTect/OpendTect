@@ -46,7 +46,6 @@ mExpClass(PreStackProcessing) AngleMuteBase
 {
 public:
 
-    static const char*	sKeyRayTracer()		{ return "Raytracer"; }
     static const char*	sKeyVelVolumeID()	{ return "Velocity vol-mid"; }
     static const char*  sKeyMuteCutoff()	{ return "Mute cutoff"; }
 
@@ -55,9 +54,10 @@ public:
 
 protected:
 			AngleMuteBase();
-			~AngleMuteBase();
+    virtual		~AngleMuteBase();
 
     bool		setVelocityFunction();
+    virtual void	block(ElasticModel&) const		{}
     bool		getLayers(const BinID&,ElasticModel&,
 				  SamplingData<float>&,int resamplesz=-1);
     float		getOffsetMuteLayer(const ReflectivityModelBase&,
@@ -86,34 +86,34 @@ public:
 
     mStruct(PreStackProcessing) AngleMutePars : public AngleCompParams
     {
-			AngleMutePars()
-			    : tail_(false)
-			    , taperlen_(10)
-			    {}
+			AngleMutePars()     {}
 
-	bool		tail_;
-	float		taperlen_;
+	bool		tail_ = false;
+	float		taperlen_ = 10.f;
     };
-
-    bool		doPrepare(int nrthreads);
 
     uiString		errMsg() const		{ return errmsg_; }
 
-    AngleMutePars&	 params();
+    AngleMutePars&	params();
     const AngleMutePars& params() const;
-
-    static const char*  sKeyTaperLength()	{ return "Taper lenght"; }
-    static const char*  sKeyIsTail()		{ return "Mute tail"; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
 
-    od_int64		nrIterations() const	{ return outputs_.size(); }
-    virtual bool	doWork(od_int64,od_int64,int);
-
+    bool		doRayTraceParallel() const { return raytraceparallel_; }
+    Muter*		getMuter(int);
     uiString		errmsg_;
+
+private:
+
+    od_int64		nrIterations() const override
+			{ return outputs_.size(); }
+
+    bool		doPrepare(int nrthreads) override;
+    bool		doWork(od_int64,od_int64,int) override;
+
     bool		raytraceparallel_;
     ObjectSet<Muter>	muters_;
 };

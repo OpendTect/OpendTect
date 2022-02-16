@@ -11,6 +11,7 @@
 #include "ailayer.h"
 #include "arrayndalgo.h"
 #include "arrayndstacker.h"
+#include "envvars.h"
 #include "fourier.h"
 #include "ioman.h"
 #include "muter.h"
@@ -127,7 +128,8 @@ int SynthGenDataPack::getOffsetIdx( float offset ) const
 mImplFactory( SynthGenerator, SynthGenerator::factory );
 
 SynthGenBase::SynthGenBase()
-    : stretchlimit_( cStdStretchLimit() ) //20%
+    : dofreq_( cDefIsFrequency() )
+    , stretchlimit_( cStdStretchLimit() ) //20%
     , mutelength_( cStdMuteLength() )  //20ms
     , outputsampling_(mUdf(float),-mUdf(float),mUdf(float))
 {}
@@ -137,6 +139,13 @@ SynthGenBase::~SynthGenBase()
 {
     if ( waveletismine_ )
 	delete wavelet_;
+}
+
+
+bool SynthGenBase::cDefIsFrequency()
+{
+    static bool isfreq = !GetEnvVarYN( "DTECT_CONVOLVE_USETIME" );
+    return isfreq;
 }
 
 
@@ -165,7 +174,7 @@ void SynthGenBase::fillPar( IOPar& par ) const
 	    par.set( sKey::WaveletID(), wvlobj->key() );
     }
 
-    par.setYN( sKeyFourier(), isfourier_ );
+    par.setYN( sKeyConvDomain(), dofreq_ );
     par.setYN( sKeyTimeRefs(), dosampledtimereflectivities_ );
     par.setYN( sKeyNMO(), applynmo_ );
     if ( applynmo_ )
@@ -186,9 +195,9 @@ bool SynthGenBase::usePar( const IOPar& par )
 	wavelet_ = Wavelet::get( ioobj );
     }
 
+    par.getYN( sKeyConvDomain(), dofreq_ );
     par.getYN( sKeyTimeRefs(), dosampledtimereflectivities_ );
     par.getYN( sKeyNMO(), applynmo_ );
-    par.getYN( sKeyFourier(), isfourier_ );
     if ( applynmo_ )
     {
 	par.get( sKeyStretchLimit(), stretchlimit_ );
@@ -243,27 +252,39 @@ SynthGenerator::~SynthGenerator()
 
 bool SynthGenerator::areEquivalent( const IOPar& iop, const IOPar& othiop )
 {
-    PtrMan<SynthGenerator> synthgen1 = create( true );
-    PtrMan<SynthGenerator> synthgen2 = create( true );
+    PtrMan<SynthGenerator> synthgen1 = createInstance( &iop );
+    PtrMan<SynthGenerator> synthgen2 = createInstance( &othiop );
     if ( !synthgen1 || !synthgen2 )
 	return false;
 
-    synthgen1->usePar( iop );
-    synthgen2->usePar( othiop );
     return synthgen1->isEquivalent( *synthgen2.ptr() );
 }
 
 
-SynthGenerator* SynthGenerator::create( bool advanced )
+SynthGenerator* SynthGenerator::createInstance( const IOPar* iop )
 {
-    SynthGenerator* sg = nullptr;
-    const BufferStringSet& fnms = SynthGenerator::factory().getNames();
+    BufferString typekey;
+    if ( iop )
+	iop->get( sKey::Type(), typekey );
 
-    if ( !fnms.isEmpty() && advanced )
-	sg = factory().create( fnms.get( fnms.size()-1 ) );
+    const Factory<SynthGenerator>& synthgenfact = factory();
+    if ( !synthgenfact.hasName(typekey) && !synthgenfact.isEmpty() )
+    {
+	const FixedString defnm = synthgenfact.getDefaultName();
+	typekey.set( defnm.isEmpty() ? synthgenfact.getNames().last()->buf()
+				     : defnm.buf() );
+    }
 
+    SynthGenerator* sg = synthgenfact.create( typekey );
     if ( !sg )
-	sg = new SynthGenerator();
+    {
+	pFreeFnErrMsg("SynthGenerator not found. "
+		    "Perhaps all plugins are not loaded");
+	sg = new SynthGeneratorBasic;
+    }
+
+    if ( sg && iop )
+	sg->usePar( *iop );
 
     return sg;
 }
@@ -271,7 +292,7 @@ SynthGenerator* SynthGenerator::create( bool advanced )
 
 bool SynthGenerator::isEquivalent( const SynthGenerator& oth ) const
 {
-    if ( isfourier_ != oth.isfourier_ || applynmo_ != oth.applynmo_ )
+    if ( dofreq_ != oth.dofreq_ || applynmo_ != oth.applynmo_ )
 	return false;
 
     if ( applynmo_ &&
@@ -305,7 +326,7 @@ bool SynthGenerator::needSampledReflectivities() const
 
 bool SynthGenerator::outputSampledFreqReflectivities() const
 {
-    return isfourier_;
+    return dofreq_;
 }
 
 
@@ -423,7 +444,7 @@ int SynthGenerator::nextStep()
     if ( convolvesize_ == 0 && dosampledrefs )
 	return setConvolveSize();
 
-    if ( isfourier_ && !freqwavelet_ )
+    if ( dofreq_ && !freqwavelet_ )
 	return genFreqWavelet() ? mMoreToDoRet : mErrOccRet;
 
     if ( dosampledrefs && !reflectivitiesdone_ )
@@ -603,7 +624,7 @@ bool SynthGenerator::computeTrace()
     SeisTrcValueSeries trcvs( res, 0 );
     ValueSeries<float>& vs = tmpvs ? *tmpvs : trcvs;
 
-    if ( isfourier_ )
+    if ( dofreq_ )
     {
 	if ( !doFFTConvolve(vs,tmpvs ? convolvesize_ : res.size()) )
 	    return false;
@@ -858,14 +879,14 @@ bool MultiTraceSynthGenerator::doPrepare( int nrthreads )
 {
     deepErase( synthgens_ );
     IOPar iop;
+    iop.set( sKey::Type(), defsynthgen_.factoryKeyword() );
     defsynthgen_.fillPar( iop );
     for ( int idx=0; idx<nrthreads; idx++ )
     {
-	auto* synthgen = SynthGenerator::create( true );
+	auto* synthgen = SynthGenerator::createInstance( &iop );
 	if ( !synthgen )
 	    return false;
 
-	synthgen->usePar( iop );
 	if ( defsynthgen_.wavelet_ )
 	    synthgen->setWavelet( defsynthgen_.wavelet_, OD::UsePtr );
 	if ( defsynthgen_.freqwavelet_.ptr() )
@@ -943,7 +964,7 @@ RaySynthGenerator::getRefModels( const TypeSet<ElasticModel>& emodels,
 
 RaySynthGenerator::RaySynthGenerator( const ReflectivityModelSet& refmodels )
     : ParallelTask("Synthetics generation")
-    , synthgen_(SynthGenerator::create(true))
+    , synthgen_(SynthGenerator::createInstance())
     , refmodels_(&refmodels)
 {
     msg_ = tr("Generating synthetics");
@@ -953,7 +974,7 @@ RaySynthGenerator::RaySynthGenerator( const ReflectivityModelSet& refmodels )
 
 RaySynthGenerator::RaySynthGenerator( const SynthGenDataPack& synthresdp )
     : ParallelTask("Synthetics generation")
-    , synthgen_(SynthGenerator::create(true))
+    , synthgen_(SynthGenerator::createInstance())
     , synthresdp_(&synthresdp)
     , refmodels_(&synthresdp.getModels())
 {
@@ -978,6 +999,19 @@ bool RaySynthGenerator::usePar( const IOPar& par )
 {
     if ( !synthgen_ )
 	return false;
+
+    BufferString typestr;
+    if ( par.get(sKey::Type(),typestr) && !typestr.isEmpty() &&
+	 Seis::SynthGenerator::factory().hasName(typestr.buf()) &&
+	 typestr != synthgen_->factoryKeyword() )
+    {
+	IOPar curiop;
+	synthgen_->fillPar( curiop );
+	curiop.set( sKey::Type(), typestr );
+	delete synthgen_;
+	synthgen_ = SynthGenerator::createInstance( &curiop );
+	return synthgen_;
+    }
 
     synthgen_->usePar( par );
 
@@ -1093,7 +1127,7 @@ bool RaySynthGenerator::doPrepare( int /* nrthreads */ )
 	synthgen_->setUnCorrSampling( uncorrsampling.ptr() );
     }
 
-    if ( synthgen_->isfourier_ && !synthgen_->genFreqWavelet() )
+    if ( synthgen_->dofreq_ && !synthgen_->genFreqWavelet() )
     {
 	msg_ = synthgen_->errMsg();
 	mErrRet(msg_, mErrOccRet);
@@ -1368,6 +1402,7 @@ const SynthGenDataPack* RaySynthGenerator::getAllResults()
 
     auto* ret = new SynthGenDataPack( *refmodels_.ptr(), rettype_, offsets_,
 				      synthgen_->outputsampling_ );
+    ret->synthgenpars_.set( sKey::Type(), synthgen_->factoryKeyword() );
     synthgen_->fillPar( ret->synthgenpars_ );
     if ( !synthgen_->needSampledReflectivities() )
 	return ret;

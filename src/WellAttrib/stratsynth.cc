@@ -66,17 +66,6 @@ const Strat::LayerModel& StratSynth::layMod() const
 }
 
 
-void StratSynth::setWavelet( const Wavelet* wvlt )
-{
-    if ( !wvlt )
-	return;
-
-    delete wvlt_;
-    wvlt_ = wvlt;
-    genparams_.setWavelet( *wvlt_ );
-}
-
-
 void StratSynth::clearSynthetics( bool excludeprops )
 {
     if ( excludeprops )
@@ -172,9 +161,7 @@ const PreStack::GatherSetDataPack* StratSynth::getRelevantAngleData(
 
 const SyntheticData* StratSynth::addDefaultSynthetic()
 {
-    genparams_ = SynthGenParams();
-    const SyntheticData* sd = addSynthetic( genparams_ );
-    return sd;
+    return addSynthetic( SynthGenParams() );
 }
 
 
@@ -238,7 +225,7 @@ bool StratSynth::disableSynthetic( const char* nm )
 	    continue;
 
 	SynthGenParams sgp( sd->getGenParams() );
-	if ( sgp.isPSBased() )
+	if ( sgp.needsInput() )
 	{
 	    sgp.inpsynthnm_.set( SynthGenParams::sKeyInvalidInputPS() );
 	    const_cast<SyntheticData*>( sd )->useGenParams( sgp );
@@ -1098,26 +1085,16 @@ bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
     synthgen.setName( capt.buf() );
 
     const BufferString wvltnm( sgp.getWaveletNm() );
-    bool needsetwvlt = wvltnm.isEmpty();
-    if ( !needsetwvlt )
+    if ( !wvltnm.isEmpty() )
     {
 	PtrMan<IOObj> ioobj = Wavelet::getIOObj( wvltnm );
 	PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
-	if ( !wvlt || (wvlt_ && wvlt_->name()==wvlt->name()) )
-	    needsetwvlt = true;
-	else
+	if ( wvlt  )
 	    synthgen.setWavelet( wvlt, OD::CopyPtr );
     }
 
-    if ( wvlt_ && needsetwvlt )
-	synthgen.setWavelet( wvlt_, OD::UsePtr );
-
-    IOPar synthpars = sgp.synthpars_;
-    if ( !synthpars.isPresent(Seis::SynthGenBase::sKeyFourier()) )
-	synthpars.setYN( Seis::SynthGenBase::sKeyFourier(),
-			 !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
-    if ( !synthpars.isEmpty() )
-	synthgen.usePar( synthpars );
+    if ( !sgp.synthpars_.isEmpty() )
+	synthgen.usePar( sgp.synthpars_ );
 
     return TaskRunner::execute( taskr_, synthgen );
 }
@@ -1945,16 +1922,11 @@ bool StratSynth::usePar( const IOPar& par )
     int nrvalidpars = 0, nradded = 0;
     for ( const auto* genpars : genparsset )
     {
-	if ( !genpars )
+	if ( !genpars || genpars->isStratProp() )
 	    continue;
 
 	nrvalidpars++;
-	const SyntheticData* sd = addSynthetic( *genpars );
-	if ( sd )
-	{
-	    if ( ++nradded == 0 )
-		genparams_ = *genpars;
-	}
+	addSynthetic( *genpars );
 	if ( !errmsg_.isOK() )
 	    uirv.add( errmsg_ );
 	if ( !infomsg_.isOK() )

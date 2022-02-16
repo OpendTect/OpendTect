@@ -74,11 +74,9 @@ public:
     bool				isEditUsed() const;
     const PropertyRefSelection& modelProperties() const;
     const ObjectSet<const TimeDepthModel>& d2TModels() const;
-    const Wavelet*			wavelet() const;
     MultiID				genDescID() const;
 
     Notifier<uiStratLayerModel>	newModels;
-    Notifier<uiStratLayerModel>	waveletChanged;
     Notifier<uiStratLayerModel> saveRequired;   // CallBacker: CBCapsule<IOPar>
     Notifier<uiStratLayerModel> retrieveRequired;// CallBacker: CBCapsule<IOPar>
 

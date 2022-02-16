@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "stratsynthgenparams.h"
 
 #include "ioman.h"
+#include "prestackanglemute.h"
 #include "raytrace1d.h"
 #include "synthseis.h"
 #include "survinfo.h"
@@ -18,21 +19,16 @@ ________________________________________________________________________
 #include "waveletio.h"
 
 static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
-static const char* sKeySynthType()		{ return "Synthetic Type"; }
-static const char* sKeyWaveLetName()		{ return "Wavelet Name"; }
-static const char* sKeyRayPar()			{ return "Ray Parameter"; }
-static const char* sKeySynthPar()		{ return "Synth Parameter"; }
-static const char* sKeyInput()			{ return "Input Synthetic"; }
-static const char* sKeyAngleRange()		{ return "Angle Range"; }
-
-#define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
-#define sDefaultOffsetRange StepInterval<float>( 0.f, 6000.f, 100.f )
+const char* SynthGenParams::sKeyRayPar()
+{ return RayTracer1D::sKeyRayPar(); }
+const char* SynthGenParams::sKeySynthPar()
+{ return Seis::RaySynthGenerator::sKeySynthPar(); }
 
 
 mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
 {
-    "Pre Stack",
     "Zero Offset Stack",
+    "Pre Stack",
     "Strat Property",
     "Angle Stack",
     "AVO Gradient",
@@ -45,6 +41,30 @@ SynthGenParams::SynthGenParams( SynthType tp )
     : synthtype_(tp)
 {
     setDefaultValues();
+}
+
+
+SynthGenParams::SynthGenParams( const SynthGenParams& oth )
+{
+    *this = oth;
+}
+
+
+SynthGenParams& SynthGenParams::operator=( const SynthGenParams& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    synthtype_ = oth.synthtype_;
+    name_ = oth.name_;
+    inpsynthnm_ = oth.inpsynthnm_;
+    raypars_ = oth.raypars_;
+    synthpars_ = oth.synthpars_;
+    anglerg_ = oth.anglerg_;
+    attribtype_ = oth.attribtype_;
+    wvltnm_ = oth.wvltnm_;
+
+    return *this;
 }
 
 
@@ -93,24 +113,26 @@ void SynthGenParams::setDefaultValues()
 {
     if ( isRawOutput() )
     {
-	const BufferStringSet& facnms = RayTracer1D::factory().getNames();
-	if ( !facnms.isEmpty() )
-	{
-	    const BufferString defnm( RayTracer1D::factory().getDefaultName() );
-	    raypars_.set( sKey::Type(), defnm.isEmpty()
-			   ? VrmsRayTracer1D::sFactoryKeyword() : defnm.str() );
-	}
+	const BufferString defrtnm( RayTracer1D::factory().getDefaultName() );
+	raypars_.set( sKey::Type(), defrtnm.isEmpty()
+		       ? VrmsRayTracer1D::sFactoryKeyword() : defrtnm.str() );
+	const BufferString defsyntgennm =
+			Seis::SynthGenerator::factory().getDefaultName();
+	synthpars_.set( sKey::Type(), defsyntgennm.isEmpty()
+			? Seis::SynthGeneratorBasic::sFactoryKeyword()
+			: defsyntgennm.str() );
     }
 
     if ( isZeroOffset() )
 	RayTracer1D::setIOParsToZeroOffset( raypars_ );
-    else if ( synthtype_ == PreStack )
+    else if ( isPreStack() )
     {
-	const StepInterval<float> offsetrg = sDefaultOffsetRange;
+	const StepInterval<float> offsetrg = RayTracer1D::sDefOffsetRange();
 	TypeSet<float> offsets;
 	for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
 	    offsets += offsetrg.atIndex( idx );
 	raypars_.set( RayTracer1D::sKeyOffset(), offsets );
+	raypars_.set( RayTracer1D::sKeyOffsetInFeet(), SI().xyInFeet() );
     }
 
     if ( isRawOutput() )
@@ -122,13 +144,18 @@ void SynthGenParams::setDefaultValues()
 			      ? IOM().get( wvltkey )
 			      : IOM().getFirst( wvlttrgrp.ioCtxt() );
 	if ( wvltobj )
-	    wvltnm_ = wvltobj->name();
+	    setWavelet( wvltobj->name() );
     }
 
-    synthpars_.setEmpty();
+    if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
+    {
+	const PreStack::AngleCompParams anglepars;
+	anglerg_.start = anglepars.anglerange_.start;
+	anglerg_.stop = anglepars.anglerange_.stop;
+    }
+    else
+	anglerg_ = Interval<float>::udf();
 
-    anglerg_ = synthtype_ == AngleStack || synthtype_ == AVOGradient
-	     ? sDefaultAngleRange : Interval<float>::udf();
     createName( name_ );
 }
 
@@ -174,17 +201,20 @@ void SynthGenParams::fillPar( IOPar& par ) const
 
 void SynthGenParams::usePar( const IOPar& par )
 {
-    par.get( sKey::Name(), name_ );
+    BufferString nm;
+    if ( par.get(sKey::Name(),nm) && !nm.isEmpty() )
+	name_ = nm;
+
     if ( par.hasKey(sKeyIsPreStack()) ) //Legacy
     {
 	bool isps = false;
 	par.getYN( sKeyIsPreStack(), isps );
 	if ( !isps && hasOffsets() )
 	    synthtype_ = AngleStack;
-	else if ( !isps )
-	    synthtype_ = ZeroOffset;
-	else
+	else if ( isps )
 	    synthtype_ = PreStack;
+	else
+	    synthtype_ = ZeroOffset;
     }
     else
     {
@@ -192,8 +222,6 @@ void SynthGenParams::usePar( const IOPar& par )
 	parseEnum( par, sKeySynthType(), synthtype_ );
     }
 
-    raypars_.setEmpty();
-    synthpars_.setEmpty();
     if ( isRawOutput() )
     {
 	par.get( sKeyWaveLetName(), wvltnm_ );
@@ -221,16 +249,21 @@ void SynthGenParams::usePar( const IOPar& par )
 	inpsynthnm_.setEmpty();
 	anglerg_ = Interval<float>::udf();
     }
-    else if ( needsInput() )
+    else
     {
-	par.get( sKeyInput(), inpsynthnm_ );
-	if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
-	    par.get( sKeyAngleRange(), anglerg_ );
-	else if ( synthtype_ == InstAttrib )
+	raypars_.setEmpty();
+	synthpars_.setEmpty();
+	if ( needsInput() )
 	{
-	    BufferString attribstr;
-	    par.get( sKey::Attribute(), attribstr );
-	    Attrib::Instantaneous::parseEnum( attribstr, attribtype_ );
+	    par.get( sKeyInput(), inpsynthnm_ );
+	    if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
+		par.get( sKeyAngleRange(), anglerg_ );
+	    else if ( synthtype_ == InstAttrib )
+	    {
+		BufferString attribstr;
+		par.get( sKey::Attribute(), attribstr );
+		Attrib::Instantaneous::parseEnum( attribstr, attribtype_ );
+	    }
 	}
     }
 }
@@ -256,7 +289,9 @@ void SynthGenParams::createName( BufferString& nm ) const
 
     nm = wvltnm_;
     TypeSet<float> offset;
-    raypars_.get( RayTracer1D::sKeyOffset(), offset );
+    if ( !raypars_.get(RayTracer1D::sKeyOffset(),offset) && isZeroOffset() )
+	offset += 0.f;
+
     const int offsz = offset.size();
     if ( offsz )
     {
@@ -294,7 +329,7 @@ void SynthGenParams::setWavelet( const Wavelet& wvlt )
     if ( !isRawOutput() || wvltnm_ == wvlt.name() )
 	return;
 
-    wvltnm_ = wvlt.name();
+    wvltnm_.set( wvlt.name() );
     PtrMan<IOObj> wvltobj = Wavelet::getIOObj( wvltnm_.buf() );
     if ( !wvltobj )
 	return;
@@ -310,7 +345,7 @@ static BufferStringSet fillSynthSeisKeys()
 {
     BufferStringSet rmkeys;
     rmkeys.add( sKey::WaveletID() )
-	  .add( Seis::SynthGenBase::sKeyFourier() )
+	  .add( Seis::SynthGenBase::sKeyConvDomain() )
 	  .add( Seis::SynthGenBase::sKeyTimeRefs() )
 	  .add( Seis::SynthGenBase::sKeyNMO() )
 	  .add( Seis::SynthGenBase::sKeyMuteLength() )

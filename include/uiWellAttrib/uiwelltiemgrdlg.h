@@ -26,8 +26,7 @@ class uiGenInput;
 class uiSeisSel;
 class uiWellPropSel;
 class uiSeis2DLineNameSel;
-class uiSeisWaveletSel;
-class uiWaveletExtraction;
+class uiMultiSynthSeisSel;
 
 
 namespace WellTie
@@ -57,7 +56,6 @@ protected:
     Well::Data*		wd_ = nullptr;
 
     uiIOObjSel*         wellfld_;
-    uiSeisWaveletSel*	wvltfld_;
     uiGenInput*		typefld_ = nullptr;
     uiGenInput*		seisextractfld_ = nullptr;
     uiSeisSel*		seis2dfld_ = nullptr;
@@ -65,7 +63,7 @@ protected:
     uiSeis2DLineNameSel* seislinefld_ = nullptr;
     uiCheckBox*		used2tmbox_;
     uiLabeledComboBox*	cscorrfld_;
-    uiWaveletExtraction* extractwvltdlg_ = nullptr;
+    uiMultiSynthSeisSel* wvltfld_;
 
     void		getSetup( const char* wllnm );
     bool		getSeismicInSetup();

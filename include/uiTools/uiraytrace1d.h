@@ -17,10 +17,16 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uistring.h"
 
-class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
+class uiPushButton;
+class uiRayTracerAdvancedDlg;
+class uiRayTracerAdvancedGrp;
 
+
+/*!
+\brief Interface for selecting all parameters to run a RayTracer1D
+*/
 
 mExpClass(uiTools) uiRayTracer1D : public uiGroup
 { mODTextTranslationClass(uiRayTracer1D);
@@ -30,72 +36,82 @@ public:
     {
 	public:
 			Setup()
-			    : convertedwaves_(false)
+			    : dooffsets_(true)
 			    , doreflectivity_(true)
-			    , dooffsets_(false)
-			    , showzerooffsetfld_(true)
-			    , offsetrg_(RayTracer1D::sDefOffsetRange())
-			    {}
+			    , convertedwaves_(true)
+			{ withadvanced_ = dooffsets_ && convertedwaves_; }
 
-	mDefSetupMemb(bool,convertedwaves);
 	mDefSetupMemb(bool,dooffsets);
 	mDefSetupMemb(bool,doreflectivity);
-	mDefSetupMemb(bool,showzerooffsetfld);
-	mDefSetupMemb(StepInterval<float>,offsetrg);
+	mDefSetupMemb(bool,convertedwaves);
+	mDefSetupMemb(bool,withadvanced);
     };
 
     mDefineFactory2ParamInClass(uiRayTracer1D,uiParent*,const Setup&,factory);
 
 			~uiRayTracer1D();
 
+    virtual uiRetVal	isOK() const;
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
-
-    void		displayOffsetFlds(bool yn);
-    bool		isOffsetFldsDisplayed() const;
-    void		setOffsetRange(StepInterval<float>);
-    bool		doOffsets() const	{ return offsetfld_; }
-    bool		hasZeroOffsetFld() const{ return iszerooffsetfld_; }
-    bool		isZeroOffset() const;
 
     Notifier<uiRayTracer1D>	parsChanged;
 
 protected:
 			uiRayTracer1D(uiParent*,const Setup&);
 
+    bool		doConvertedWaves() const { return convertedwaves_; }
+    bool		doReflectivity() const	{ return doreflectivity_; }
+    uiGenInput*		lastFld() const		{ return offsetfld_; }
+
+    virtual void	initGrp();
+    void		ensureHasAdvancedButton();
+    void		setAdvancedGroup(uiRayTracerAdvancedGrp*);
     void		parsChangedCB(CallBacker*);
-    virtual void	doOffsetChanged()		{}
-
-    bool		doreflectivity_;
-
-    uiGenInput*		downwavefld_ = nullptr;
-    uiGenInput*		upwavefld_ = nullptr;
-
-    uiGenInput*		offsetfld_ = nullptr;
-    uiGenInput*		offsetstepfld_ = nullptr;
-    uiCheckBox*		iszerooffsetfld_ = nullptr;
-    uiGenInput*		lastfld_ = nullptr;
 
 private:
 
-    void		initGrp(CallBacker*);
-    void		zeroOffsetChecked(CallBacker*);
-    void		offsetChangedCB(CallBacker*);
+    void		initGrpCB(CallBacker*);
+    void		getAdvancedPush(CallBacker*);
+
+    bool		doreflectivity_;
+    bool		convertedwaves_;
+    IOPar*		lastiop_ = nullptr;
+    uiGenInput*		offsetfld_ = nullptr;
+    uiGenInput*		offsetstepfld_ = nullptr;
+    uiPushButton*	advbut_ = nullptr;
+    uiRayTracerAdvancedGrp* advgrp_ = nullptr;
+    uiRayTracerAdvancedDlg* advdlg_ = nullptr;
+
+public:
+
+    virtual uiRayTracerAdvancedGrp* getAvancedGrp(uiParent*);
+
 };
 
+
+/*!
+\brief Basic interface for a uiRayTracer1D
+*/
 
 mExpClass(uiTools) uiVrmsRayTracer1D : public uiRayTracer1D
 { mODTextTranslationClass(uiVrmsRayTracer1D);
 public:
+    mDefaultFactoryInstanciationBase(VrmsRayTracer1D::sFactoryKeyword(),
+				     VrmsRayTracer1D::sFactoryDisplayName());
+
 			uiVrmsRayTracer1D(uiParent*,
 					const uiRayTracer1D::Setup&);
 
-    static uiRayTracer1D* create(uiParent* p,const uiRayTracer1D::Setup& s)
-			    { return new uiVrmsRayTracer1D(p,s); }
+    static uiRayTracer1D* create( uiParent* p, const uiRayTracer1D::Setup& su )
+			    { return new uiVrmsRayTracer1D( p, su ); }
 
-    static void		initClass();
 };
 
+
+/*!
+\brief Selector for one or more uiRayTracer1D
+*/
 
 mExpClass(uiTools) uiRayTracerSel : public uiGroup
 { mODTextTranslationClass(uiRayTracerSel);
@@ -103,26 +119,58 @@ public:
 			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
 			~uiRayTracerSel();
 
+    uiRetVal		isOK() const;
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
 
-    const uiRayTracer1D* current() const;
-    uiRayTracer1D*	current();
-
-    bool		setCurrentType(const char*);
-
     Notifier<uiRayTracerSel> parsChanged;
 
-protected:
+private:
 
     uiComboBox*		raytracerselfld_ = nullptr;
     ObjectSet<uiRayTracer1D> grps_;
 
-    bool		setCurrent(int);
+    void		setDefault();
+    bool		setCurrentType(const char*);
 
-    void		initGrp(CallBacker*);
+    const uiRayTracer1D* current() const;
+
+    void		initGrpCB(CallBacker*);
     void		selRayTraceCB(CallBacker*);
     void		parsChangedCB(CallBacker*);
 };
 
 
+/*!
+\brief Group for the advanced uiRayTracer1D parameters interface
+*/
+
+mExpClass(uiTools) uiRayTracerAdvancedGrp : public uiGroup
+{ mODTextTranslationClass(uiRayTracerAdvancedGrp);
+public:
+			uiRayTracerAdvancedGrp(uiParent*,bool convertedwaves,
+					       bool doreflectivity);
+			~uiRayTracerAdvancedGrp();
+
+    virtual uiRetVal	isOK() const;
+    virtual bool	usePar(const IOPar&);
+			//<! return false if not changed
+    virtual void	fillPar(IOPar&) const;
+
+    Notifier<uiRayTracerAdvancedGrp> parsChanged;
+
+protected:
+
+    void		parsChangedCB(CallBacker*);
+    virtual void	initGrp();
+
+    uiGenInput*		lastFld() const		{ return upwavefld_; }
+
+private:
+
+    void		initGrpCB(CallBacker*);
+
+    uiGenInput*		downwavefld_ = nullptr;
+    uiGenInput*		upwavefld_ = nullptr;
+
+};

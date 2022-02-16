@@ -66,7 +66,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , lmp_(lmp)
     , stratsynth_(new StratSynth(lmp,false))
     , edstratsynth_(new StratSynth(lmp,true))
-    , wvltChanged(this)
     , viewChanged(this)
     , modSelChanged(this)
     , synthsChanged(this)
@@ -111,14 +110,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     datagrp_->setFrame( true );
     datagrp_->setStretch( 2, 0 );
 
-    wvltfld_ = new uiSeisWaveletSel( datagrp_, "", true, true, true );
-    mAttachCB( wvltfld_->newSelection, uiStratSynthDisp::wvltChg );
-    wvltfld_->setFrame( false );
-    curSS().setWavelet( wvltfld_->getWavelet() );
-
     scalebut_ = new uiPushButton( datagrp_, tr("Scale"),
 				  mCB(this,uiStratSynthDisp,scalePush), false );
-    scalebut_->attach( rightOf, wvltfld_ );
 
     auto* lvlsnapcbx = new uiLabeledComboBox( datagrp_, VSEvent::TypeNames(),
 					      tr("Snap level") );
@@ -604,65 +597,11 @@ void uiStratSynthDisp::drawLevel()
 }
 
 
-void uiStratSynthDisp::setCurrentWavelet()
-{
-    setCurSynthetic( nullptr, true );
-    curSS().setWavelet( wvltfld_->getWavelet() );
-    ConstRefMan<SyntheticData> wvasd =
-			       curSS().getSynthetic( wvadatalist_->text() );
-    ConstRefMan<SyntheticData> vdsd =
-			       curSS().getSynthetic( vddatalist_->text() );
-    if ( !vdsd && !wvasd )
-	return;
-
-    const BufferString wvasynthnm( wvasd ? wvasd->name().buf() : "" );
-    const BufferString vdsynthnm( vdsd ? vdsd->name().buf() : "" );
-
-    if ( wvasd )
-    {
-	setCurSynthetic( wvasd, true );
-	if ( synthgendlg_ )
-	    synthgendlg_->grp()->updateWaveletName();
-	curSS().genParams() = wvasd->getGenParams();
-	curSS().genParams().setWavelet( wvltfld_->getWaveletName() );
-	wvltChanged.trigger();
-	updateSynthetic( wvasynthnm, true );
-    }
-
-    if ( vdsynthnm == wvasynthnm )
-    {
-	setCurrentSynthetic( false );
-	return;
-    }
-
-    if ( vdsd && !vdsd->isStratProp() )
-    {
-	setCurSynthetic( vdsd, false );
-	if ( vdsynthnm != wvasynthnm )
-	{
-	    curSS().genParams() = vdsd->getGenParams();
-	    curSS().genParams().setWavelet( wvltfld_->getWaveletName() );
-	    updateSynthetic( vdsynthnm, false );
-	}
-    }
-}
-
-
 void uiStratSynthDisp::setCurSynthetic( const SyntheticData* sd, bool wva )
 {
     WeakPtr<SyntheticData>& cursynth = wva ? currentwvasynthetic_
 					   : currentvdsynthetic_;
     cursynth = const_cast<SyntheticData*>( sd );
-}
-
-
-void uiStratSynthDisp::wvltChg( CallBacker* )
-{
-    setCurrentWavelet();
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    displaySynthetic( currentwvasynthetic );
-    displayPostStackSynthetic( currentvdsynthetic, false );
 }
 
 
@@ -722,7 +661,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     const int dispeach = 1;
     curSS().getLevelTimes( currentwvasynthetic->synthGenDP().getModels(),
 			   dispeach, *scaletbuf );
-    uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->getID(),levelname);
+/*    uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->getID(),levelname);
     if ( dlg.go() )
     {
 	MultiID mid( dlg.selWvltID() );
@@ -734,7 +673,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	    wvltfld_->setInput( mid );
 	}
 	vwr_->handleChange( sCast(unsigned int,FlatView::Viewer::All) );
-    }
+    } */ //TODO :reenable
 
     return rv;
 }
@@ -1235,15 +1174,6 @@ void uiStratSynthDisp::setCurrentSynthetic( bool wva )
 			curSS().getSynthetic( wva ? wvadatalist_->text()
 						  : vddatalist_->text() );
     setCurSynthetic( sd, wva );
-    if ( !sd )
-	return;
-
-    NotifyStopper notstop( wvltfld_->newSelection );
-    if ( wva )
-    {
-	wvltfld_->setInput( sd->waveletName() );
-	curSS().setWavelet( wvltfld_->getWavelet() );
-    }
 }
 
 
@@ -1367,22 +1297,27 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
     if ( !datalist->isPresent(syntheticnm) || syntheticnm == sKeyNone() )
 	return;
 
+    deleteAndZeroPtr( d2tmodels_ );
      if ( wva && curwvasdnm==synthnm )
 	 setCurSynthetic( nullptr, true );
      if ( !wva && curvdsdnm==synthnm )
 	 setCurSynthetic( nullptr, false );
-    deleteAndZeroPtr( d2tmodels_ );
-    showInfoMsg( false );
 
+    showInfoMsg( false );
     if ( altSS().hasElasticModels() )
     {
-	altSS().removeSynthetic( syntheticnm );
-	altSS().genParams() = curSS().genParams();
-	const SyntheticData* altsd = altSS().addSynthetic( altSS().genParams());
-	if ( !altsd )
-	    mErrRet(altSS().errMsg(), return );
+	ConstRefMan<SyntheticData> synthetic =
+				   curSS().getSynthetic( syntheticnm.buf() );
+	if ( synthetic )
+	{
+	    altSS().removeSynthetic( syntheticnm );
+	    const SyntheticData* altsd =
+			     altSS().addSynthetic( synthetic->getGenParams() );
+	    if ( !altsd )
+		mErrRet(altSS().errMsg(), return );
 
-	showInfoMsg( true );
+	    showInfoMsg( true );
+	}
     }
 
     updateSyntheticList( wva );
@@ -1392,21 +1327,27 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 }
 
 
-void uiStratSynthDisp::syntheticAdded( CallBacker* )
+void uiStratSynthDisp::syntheticAdded( CallBacker* cb )
 {
-    if ( !synthgendlg_ )
+    if ( !synthgendlg_ || !cb )
 	return;
 
     MouseCursorChanger mcchger( MouseCursor::Wait );
     showInfoMsg( false );
     if ( altSS().hasElasticModels() )
     {
-	altSS().genParams() = curSS().genParams();
-	const SyntheticData* altsd = altSS().addSynthetic( altSS().genParams());
-	if ( !altsd )
-	    mErrRet(altSS().errMsg(), return )
+	mCBCapsuleUnpack(BufferString,syntheticnm,cb);
+	ConstRefMan<SyntheticData> synthetic =
+				   curSS().getSynthetic( syntheticnm.buf() );
+	if ( synthetic )
+	{
+	    const SyntheticData* altsd =
+			     altSS().addSynthetic( synthetic->getGenParams() );
+	    if ( !altsd )
+		mErrRet(altSS().errMsg(), return )
 
-	showInfoMsg( true );
+	    showInfoMsg( true );
+	}
     }
 
     updateSyntheticList( true );
@@ -1480,6 +1421,9 @@ void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 
 void uiStratSynthDisp::syntheticDisabled( CallBacker* cb )
 {
+    if ( !cb )
+	return;
+
     mCBCapsuleUnpack(BufferString,synthname,cb);
     curSS().disableSynthetic( synthname );
     altSS().disableSynthetic( synthname );
@@ -1545,18 +1489,6 @@ void uiStratSynthDisp::wvDataSetSel( CallBacker* )
 const ObjectSet<const SyntheticData>& uiStratSynthDisp::getSynthetics() const
 {
     return curSS().synthetics();
-}
-
-
-const Wavelet* uiStratSynthDisp::getWavelet() const
-{
-    return curSS().wavelet();
-}
-
-
-const MultiID& uiStratSynthDisp::waveletID() const
-{
-    return wvltfld_->getID();
 }
 
 
@@ -1691,7 +1623,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     setCurSynthetic( nullptr, false );
     curSS().clearSynthetics();
     deleteAndZeroPtr( d2tmodels_ );
-    par.get( sKeyDecimation(), dispeach_);
+    par.get( sKeyDecimation(), dispeach_ );
     if ( stratsynthpar )
     {
 	const bool res = synthgendlg_
@@ -1700,17 +1632,6 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	if ( res )
 	{
 	    const int nrsynths = curSS().nrSynthetics();
-	    for ( int idx=0; idx<nrsynths; idx++ )
-	    {
-		ConstRefMan<SyntheticData> sd = curSS().getSyntheticByIdx(idx);
-		const BufferString wvltnm( sd->waveletName() );
-		if ( wvltnm.isEmpty() )
-		{
-		    wvltfld_->setInput( wvltnm );
-		    break;
-		}
-	    }
-
 	    if ( &curSS() == &editSS() )
 	    {
 		for ( int idx=0; idx<nrsynths; idx++ )
@@ -1766,9 +1687,6 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	displayPostStackSynthetic( nullptr, false );
 	return false;
     }
-
-    const SyntheticData* firstsd = curSS().synthetics().first();
-    wvltfld_->setInput( firstsd->waveletName() );
 
     if ( GetEnvVarYN("DTECT_STRAT_MAKE_PROPERTYTRACES",true) )
 	curSS().generateOtherQuantities();

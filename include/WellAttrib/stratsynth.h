@@ -22,7 +22,6 @@ ________________________________________________________________________
 namespace PreStack {  class GatherSetDataPack; }
 class SeisTrcBuf;
 class TaskRunner;
-class Wavelet;
 class TrcKeyZSampling;
 class RayTracer1D;
 class StratSynthLevel;
@@ -91,12 +90,6 @@ public:
     const ObjectSet<const SyntheticData>& synthetics() const
 					{ return synthetics_; }
 
-    void		setWavelet(const Wavelet*);
-    const Wavelet*	wavelet() const { return wvlt_; }
-    SynthGenParams&	genParams()	{ return genparams_; }
-    const SynthGenParams& genParams() const
-			{ return genparams_; }
-
     void		setLevel(const StratSynthLevel*);
     const StratSynthLevel* getLevel() const { return level_; }
 
@@ -140,13 +133,11 @@ protected:
     const Strat::LayerModelProvider& lmp_;
     const bool			useed_;
     const StratSynthLevel*	level_ = nullptr;
-    SynthGenParams		genparams_;
     PropertyRefSelection	props_;
     RefObjectSet<const SyntheticData>	synthetics_;
     TypeSet<ElasticModel>	aimodels_;
     SynthID			lastsyntheticid_ = 0;
     bool			swaveinfomsgshown_ = false;
-    const Wavelet*		wvlt_ = nullptr;
 
     uiRetVal			errmsg_;
     uiRetVal			infomsg_;

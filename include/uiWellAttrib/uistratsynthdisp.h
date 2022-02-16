@@ -52,8 +52,6 @@ public:
 
     const Strat::LayerModel& layerModel() const;
     const char*		levelName() const;
-    const MultiID&	waveletID() const;
-    const Wavelet*	getWavelet() const;
     inline const StratSynth& curSS() const
 			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
     inline StratSynth&	curSS()
@@ -88,7 +86,6 @@ public:
 
     uiFlatViewer*	viewer()		{ return vwr_; }
 
-    Notifier<uiStratSynthDisp>	wvltChanged;
     Notifier<uiStratSynthDisp>	viewChanged;
     Notifier<uiStratSynthDisp>	layerPropSelNeeded;
     Notifier<uiStratSynthDisp>	modSelChanged;
@@ -159,7 +156,6 @@ protected:
     uiGroup*		topgrp_;
     uiGroup*		datagrp_;
     uiGroup*		prestackgrp_;
-    uiSeisWaveletSel*	wvltfld_;
     uiFlatViewer*	vwr_;
     uiPushButton*	scalebut_;
     uiButton*		lasttool_ = nullptr;
@@ -175,7 +171,6 @@ protected:
 
     void		showInfoMsg(bool foralt);
     void		handleFlattenChange();
-    void		setCurrentWavelet();
     void		fillPar(IOPar&,const StratSynth*) const;
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
@@ -213,7 +208,6 @@ protected:
     void		offsetChged(CallBacker*);
     void		scalePush(CallBacker*);
     void		viewPreStackPush(CallBacker*);
-    void		wvltChg(CallBacker*);
     void		viewChg(CallBacker*);
     void		parsChangedCB(CallBacker*);
     void		syntheticAdded(CallBacker*);

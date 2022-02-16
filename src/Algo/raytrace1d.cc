@@ -21,12 +21,6 @@ ________________________________________________________________________
 mImplFactory(RayTracer1D,RayTracer1D::factory)
 
 
-float RayTracer1D::cDefaultBlockRatio()
-{
-    return 0.01;
-}
-
-
 StepInterval<float> RayTracer1D::sDefOffsetRange()
 {
     return SI().xyInFeet() ? StepInterval<float>( 0.f, 18000.f, 300.f )
@@ -36,7 +30,7 @@ StepInterval<float> RayTracer1D::sDefOffsetRange()
 
 bool RayTracer1D::Setup::usePar( const IOPar& par )
 {
-    par.getYN( sKeyPWave(), pdown_, pup_);
+    par.getYN( sKeyWavetypes(), pdown_, pup_ );
     par.getYN( sKeyReflectivity(), doreflectivity_);
     return true;
 }
@@ -44,7 +38,7 @@ bool RayTracer1D::Setup::usePar( const IOPar& par )
 
 void RayTracer1D::Setup::fillPar( IOPar& par ) const
 {
-    par.setYN( sKeyPWave(), pdown_, pup_ );
+    par.setYN( sKeyWavetypes(), pdown_, pup_ );
     par.setYN( sKeyReflectivity(), doreflectivity_);
 }
 

@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
-#include "envvars.h"
 #include "raytrace1d.h"
 #include "stratsynthgenparams.h"
 #include "synthseis.h"
@@ -156,7 +155,7 @@ bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
 
     Seis::RaySynthGenerator synthgen( synthgendp );
     synthgen.setWavelet( &wvlt, OD::UsePtr );
-    synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
+    synthgen.enableFourierDomain( Seis::SynthGenBase::cDefIsFrequency() );
     synthgen.setOutSampling( data_.getTraceRange() );
 
     if ( !TaskRunner::execute(data_.trunner_,synthgen) )
@@ -560,7 +559,7 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     Seis::RaySynthGenerator synthgen( *refmodels.ptr() );
     synthgen.setWavelet( &wvlt, OD::UsePtr );
     synthgen.setOutSampling( data_.getTraceRange() );
-    synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
+    synthgen.enableFourierDomain( Seis::SynthGenBase::cDefIsFrequency() );
     if ( !TaskRunner::execute(taskrunner,synthgen) )
 	mErrRet( uiStrings::phrCannotCreate(
 		tr("synthetic: %1").arg(synthgen.uiMessage())) )

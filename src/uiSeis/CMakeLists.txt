@@ -52,6 +52,7 @@ set(OD_MODULE_SOURCES
 	uiseiswvltman.cc
 	uiseiswvltsel.cc
 	uistaticsdesc.cc
+	uisynthgrp.cc
 	uitrcpositiondlg.cc
 	uiveldesc.cc
 	uivelocityvolumeconversion.cc

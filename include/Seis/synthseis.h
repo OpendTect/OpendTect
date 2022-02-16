@@ -104,8 +104,8 @@ public:
     void		setStretchLimit( float n )	{ stretchlimit_ = n; }
     float		getStretchLimit() const;
 
-    virtual void	enableFourierDomain( bool fourier )
-			{ isfourier_ = fourier; }
+    virtual void	enableFourierDomain( bool dofreq )
+			{ dofreq_ = dofreq; }
     virtual void	doSampledTimeReflectivity( bool yn )
 			{ dosampledtimereflectivities_ = yn; }
 
@@ -114,10 +114,11 @@ public:
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
+    static bool		cDefIsFrequency();
     static float	cStdMuteLength() { return 0.02f; }
     static float	cStdStretchLimit() { return 0.2f; }
 
-    static const char*	sKeyFourier()	{ return "Convolution Domain"; }
+    static const char*	sKeyConvDomain() { return "Convolution Domain"; }
     static const char*	sKeyTimeRefs()	{ return "Time Reflectivities"; }
     static const char*	sKeyNMO()	{ return "Use NMO"; }
     static const char*	sKeyMuteLength(){ return "Mute length"; }
@@ -129,7 +130,7 @@ protected:
 
     bool			isInputOK();
 
-    bool			isfourier_ = true;
+    bool			dofreq_;
     bool			dosampledtimereflectivities_ = false;
     bool			applynmo_ = false;
     float			stretchlimit_;
@@ -192,7 +193,7 @@ protected:
 
 private:
 
-    static SynthGenerator*	create(bool advanced);
+    static SynthGenerator* createInstance(const IOPar* =nullptr);
 
     void		setModel(const ReflectivityModelTrace&,
 				 const float* spikestwt_,
@@ -244,6 +245,17 @@ private:
 
     friend class MultiTraceSynthGenerator;
     friend class RaySynthGenerator;
+
+};
+
+
+mExpClass(Seis) SynthGeneratorBasic : public SynthGenerator
+{ mODTextTranslationClass(SynthGeneratorBasic);
+public:
+
+    mDefaultFactoryInstantiation( SynthGenerator, SynthGeneratorBasic,
+				  "BasicSynthGenerator",
+				  tr("Basic Synthetic Generator") );
 
 };
 
@@ -326,7 +338,9 @@ public:
     bool		getTraces(ObjectSet<SeisTrcBuf>&,bool steal=true) const;
 			//<! Each SeisTrcBuf represents a gather
 
-    const SynthGenDataPack*	getAllResults();
+    const SynthGenDataPack* getAllResults();
+
+    static const char*	sKeySynthPar()		{ return "Synth Parameter"; }
 
 private:
 

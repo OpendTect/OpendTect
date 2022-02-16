@@ -40,8 +40,9 @@ public:
 			Setup()
 			    : pdown_( true )
 			    , pup_( true )
-			    , doreflectivity_(true) {}
-	virtual ~Setup()	{}
+			    , doreflectivity_(true)
+			{}
+	virtual		~Setup()	{}
 
 	mDefSetupMemb(bool,pdown);
 	mDefSetupMemb(bool,pup);
@@ -73,13 +74,11 @@ public:
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
-    static const char*	sKeyPWave()	   { return "Wavetypes"; }
+    static const char*	sKeyRayPar()	   { return "Ray Parameter"; }
     static const char*	sKeyOffset()	   { return "Offset Range"; }
-    static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
-    static const char*  sKeyBlock()	   { return "Block model"; }
-    static const char*  sKeyBlockRatio()   { return "Blocking ratio threshold";}
     static const char*	sKeyOffsetInFeet() { return "Offset in Feet"; }
-    static float	cDefaultBlockRatio();
+    static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
+    static const char*	sKeyWavetypes()    { return "Wavetypes"; }
 
     static StepInterval<float>	sDefOffsetRange();
 

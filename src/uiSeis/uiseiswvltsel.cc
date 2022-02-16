@@ -25,11 +25,17 @@ ________________________________________________________________________
 #include "waveletio.h"
 
 
+uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const Setup& su )
+    : uiSeisWaveletSel(p,su.seltxt_.buf(),su.withextract_,
+		       su.withman_,su.compact_)
+{
+}
+
+
 uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
 				bool withextract, bool withman, bool compact )
     : uiGroup(p,"Wavelet selector")
     , newSelection(this)
-    , wvltextrdlg_(nullptr)
 {
     auto* lcb = new uiLabeledComboBox( this,
 		seltxt ? mToUiStringTodo(seltxt) : uiStrings::sWavelet() );

@@ -10,301 +10,646 @@ ________________________________________________________________________
 
 #include "uisynthseis.h"
 
-#include "uibutton.h"
-#include "uidialog.h"
+#include "stratsynthgenparams.h"
+#include "uicombobox.h"
 #include "uigeninput.h"
-#include "uimsg.h"
-#include "uiseiswvltsel.h"
-#include "uispinbox.h"
-#include "uisplitter.h"
-
-#include "od_helpids.h"
-#include "synthseis.h"
-#include "zdomain.h"
+#include "uilistbox.h"
+#include "uisynthgrp.h"
 
 
-#define mErrRet(s,act) \
-{ uiMsgMainWinSetter mws(mainwin()); if (!s.isEmpty()) uiMSG().error(s); act; }
+uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su )
+    : uiMultiSynthSeisSel(p,su,false)
+{
+}
 
-uiSynthSeisGrp::uiSynthSeisGrp( uiParent* p, const uiRayTracer1D::Setup& su )
+
+uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su,
+					  bool withderived )
     : uiGroup(p)
+    , typedef_(*new EnumDef(SynthGenParams::SynthTypeDef()))
+    , selectionChanged(this)
     , parsChanged(this)
 {
-    wvltfld_ = new uiSeisWaveletSel( this, "Wavelet", true, true, true );
-    mAttachCB( wvltfld_->newSelection, uiSynthSeisGrp::parsChangedCB );
-    wvltfld_->setFrame( false );
-
-    rtsel_ = new uiRayTracerSel( this, su );
-    mAttachCB( rtsel_->parsChanged, uiSynthSeisGrp::parsChangedCB );
-    rtsel_->attach( alignedBelow, wvltfld_ );
-
-    if ( su.doreflectivity_ )
+    topgrp_ = new uiGroup( this, "Top group" );
+    if ( su.withzeroff_ )
     {
-	internalmultiplebox_ = new uiCheckBox( this,
-				tr("Compute internal multiples") );
-	/* internalmultiplebox_->attach( alignedBelow, uisynthcorrgrp_ );
-	   At the moment this option is only available for Zero Offset,
-	   thus compressing the layout	 */
-	internalmultiplebox_->attach( alignedBelow, wvltfld_ );
-	mAttachCB( internalmultiplebox_->activated,
-		   uiSynthSeisGrp::parsChangedCB );
-	surfreflcoeffld_ = new uiLabeledSpinBox( this,
-				tr("Surface reflection coefficient"), 1 );
-	surfreflcoeffld_->box()->setInterval( -1., 1., 0.1 );
-	surfreflcoeffld_->box()->setValue( 1. );
-	surfreflcoeffld_->attach( alignedBelow, internalmultiplebox_ );
-	mAttachCB( surfreflcoeffld_->box()->valueChanged,
-		   uiSynthSeisGrp::parsChangedCB );
+	const uiSynthSeis::Setup sssu( false, su );
+	zerooffsynthgrp_ = new uiSynthSeisSel( topgrp_, sssu );
+	mAttachCB( zerooffsynthgrp_->parsChanged,
+		   uiMultiSynthSeisSel::parsChangedCB );
+	synthgrps_.add( zerooffsynthgrp_ );
+	topgrp_->setHAlignObj( zerooffsynthgrp_ );
+    }
+    else
+	typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::ZeroOffset) );
+
+    if ( su.withelasticstack_ )
+    {
+	//TODO
+//	topgrp_->setHAlignObj( elasticsynthgrp_ );
+    }
+/*    else
+		*/
+
+    if ( su.withps_ )
+    {
+	uiSynthSeis::Setup sssu( true, su );
+	uiRayTracer1D::Setup rtsu;
+	if ( su.rtsu_ )
+	    rtsu = *su.rtsu_;
+
+	prestacksynthgrp_ = new uiSynthSeisSel( topgrp_, sssu, rtsu );
+	mAttachCB( prestacksynthgrp_->parsChanged,
+		   uiMultiSynthSeisSel::parsChangedCB );
+	synthgrps_.add( prestacksynthgrp_ );
+	topgrp_->setHAlignObj( prestacksynthgrp_ );
+    }
+    else
+	typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::PreStack) );
+
+    if ( !withderived )
+    {
+	typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::AngleStack) );
+	typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::AVOGradient) );
+	typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::InstAttrib) );
     }
 
-    uisynthcorrgrp_ = new uiSynthCorrectionsGrp( this );
-    uisynthcorrgrp_->attach( alignedBelow, rtsel_ );
+    typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::StratProp) );
 
-    mAttachCB( uisynthcorrgrp_->nmoparsChanged, uiSynthSeisGrp::parsChangedCB);
-    setHAlignObj( wvltfld_ );
+    if ( typedef_.keys().size() > 1 )
+    {
+	typelblcbx_ = new uiLabeledComboBox( topgrp_, typedef_,
+					     tr("Synthetic type") );
+	typelblcbx_->box()->setHSzPol( uiObject::Wide );
+	mAttachCB( typelblcbx_->box()->selectionChanged,
+		   uiMultiSynthSeisSel::selChgCB );
+	if ( zerooffsynthgrp_ )
+	    zerooffsynthgrp_->attach( alignedBelow, typelblcbx_ );
+	if ( elasticsynthgrp_ )
+	    elasticsynthgrp_->attach( alignedBelow, typelblcbx_ );
+	if ( prestacksynthgrp_ )
+	    prestacksynthgrp_->attach( alignedBelow, typelblcbx_ );
+    }
+
+    setHAlignObj( topgrp_ );
+
+    mAttachCB( postFinalise(), uiMultiSynthSeisSel::initGrpCB );
 }
 
 
-uiSynthSeisGrp::~uiSynthSeisGrp()
+uiMultiSynthSeisSel::~uiMultiSynthSeisSel()
 {
     detachAllNotifiers();
+    delete &typedef_;
 }
 
 
-void uiSynthSeisGrp::parsChangedCB( CallBacker* )
+void uiMultiSynthSeisSel::initGrpCB( CallBacker* )
 {
+    NotifyStopper ns( parsChanged );
+    initGrp();
+}
+
+
+void uiMultiSynthSeisSel::initGrp()
+{
+    selChgCB( nullptr );
+    previoussynthgrp_ = current();
+}
+
+
+void uiMultiSynthSeisSel::selChgCB( CallBacker* )
+{
+    selChg( getType() );
+    selectionChanged.trigger();
+}
+
+
+void uiMultiSynthSeisSel::selChg( const char* typ )
+{
+    const SynthGenParams::SynthType synthtype =
+			      SynthGenParams::parseEnumSynthType( typ );
+    if ( zerooffsynthgrp_ )
+    {
+	const bool dodisp = synthtype == SynthGenParams::ZeroOffset;
+	if ( zerooffsynthgrp_->isDisplayed() && !dodisp )
+	    previoussynthgrp_ = zerooffsynthgrp_;
+	zerooffsynthgrp_->display( dodisp );
+    }
+//    if ( elasticsynthgrp_ )
+    if ( prestacksynthgrp_ )
+    {
+	const bool dodisp = synthtype == SynthGenParams::PreStack;
+	if ( prestacksynthgrp_->isDisplayed() && !dodisp )
+	    previoussynthgrp_ = prestacksynthgrp_;
+	prestacksynthgrp_->display( dodisp );
+    }
+
+    if ( !previoussynthgrp_ )
+	return;
+
+    IOPar par;
+    previoussynthgrp_->fillPar( par );
+    doParsChanged( &par );
+}
+
+
+void uiMultiSynthSeisSel::parsChangedCB( CallBacker* )
+{
+    if ( !parsChanged.isEnabled() )
+	return;
+
+    doParsChanged();
     parsChanged.trigger();
 }
 
 
-void uiSynthSeisGrp::updateFieldDisplay()
+void uiMultiSynthSeisSel::doParsChanged( IOPar* par )
 {
-    const bool iszerooofset = rtsel_->current()->isZeroOffset();
-    if ( !rtsel_->current()->hasZeroOffsetFld() )
-    { // cannot set zerooffset from outside e.g uiSynthGenDlg
-	rtsel_->display( !iszerooofset );
-    }
-
-    uisynthcorrgrp_->display( !iszerooofset );
-    if ( internalmultiplebox_ )
-    {
-	internalmultiplebox_->display( iszerooofset );
-	surfreflcoeffld_->display( iszerooofset );
-    }
+    if ( par )
+	uiMultiSynthSeisSel::usePar( *par );
 }
 
 
-void uiSynthSeisGrp::setRayTracerType( const char* type )
+const uiSynthSeisSel* uiMultiSynthSeisSel::current() const
 {
-    rtsel_->setCurrentType( type );
+    return mSelf().current();
 }
 
 
-const char* uiSynthSeisGrp::getWaveletName() const
+uiSynthSeisSel* uiMultiSynthSeisSel::current()
 {
-    return wvltfld_->getWaveletName();
+    const SynthGenParams::SynthType synthtype =
+			      SynthGenParams::parseEnumSynthType( getType() );
+    if ( synthtype == SynthGenParams::ZeroOffset )
+	return zerooffsynthgrp_;
+//    if ( synthtype == SynthGenParams::
+    if ( synthtype == SynthGenParams::PreStack )
+	return prestacksynthgrp_;
+    return nullptr;
 }
 
 
-void uiSynthSeisGrp::setWavelet( const char* wvltnm )
+uiRetVal uiMultiSynthSeisSel::isOK() const
 {
-    wvltfld_->setInput( wvltnm );
+    if ( current() )
+	return current()->isOK();
+
+    return tr("Empty synthetic generation interface");
 }
 
-#define mIsZeroOffset( offsets ) \
-    (offsets.isEmpty() || (offsets.size()==1 && mIsZero(offsets[0],mDefEps)))
 
-void uiSynthSeisGrp::usePar( const IOPar& iopar )
+const char* uiMultiSynthSeisSel::getType() const
 {
-    TypeSet<float> offsets;
-    iopar.get( RayTracer1D::sKeyOffset(), offsets );
-    const bool iszerooofset = mIsZeroOffset(offsets);
-    MultiID waveletid;
-    if ( iopar.get(sKey::WaveletID(),waveletid) )
-	wvltfld_->setInput( waveletid );
+    if ( typelblcbx_ )
+	return typelblcbx_->box()->text();
 
-    if ( iszerooofset )
-    {
-	bool dointernalmultiples = false; float surfreflcoeff = 1.f;
-/*	iopar.getYN( Seis::SynthGenBase::sKeyInternal(), dointernalmultiples );
-	iopar.get( Seis::SynthGenBase::sKeySurfRefl(), surfreflcoeff );*/
-	internalmultiplebox_->setChecked( dointernalmultiples );
-	surfreflcoeffld_->box()->setValue( surfreflcoeff );
-    }
+    SynthGenParams::SynthType typ;
+    if ( zerooffsynthgrp_ )
+	typ = SynthGenParams::ZeroOffset;
+//    else if ( elasticsynthgrp_ )
+    else if ( prestacksynthgrp_ )
+	typ = SynthGenParams::PreStack;
     else
-    {
-	bool donmo = true;
-	iopar.getYN( Seis::SynthGenBase::sKeyNMO(), donmo );
+	return nullptr;
 
-	float mutelen = Seis::SynthGenBase::cStdMuteLength();
-	iopar.get( Seis::SynthGenBase::sKeyMuteLength(), mutelen );
-	if ( !mIsUdf(mutelen) )
-	   mutelen = mutelen *ZDomain::Time().userFactor();
-
-	float stretchlimit = Seis::SynthGenBase::cStdStretchLimit();
-	iopar.get( Seis::SynthGenBase::sKeyStretchLimit(), stretchlimit );
-	uisynthcorrgrp_->setValues( donmo, mutelen, mToPercent( stretchlimit ));
-    }
-
-    rtsel_->usePar( iopar );
-    updateFieldDisplay();
+    return SynthGenParams::toString( typ );
 }
 
 
-void uiSynthSeisGrp::fillPar( IOPar& iopar ) const
+void uiMultiSynthSeisSel::setType( const char* typestr )
 {
-    iopar.setEmpty();
-
-    rtsel_->fillPar( iopar );
-    iopar.set( sKey::WaveletID(), wvltfld_->getID() );
-
-    const bool iszeroffset = rtsel_->current()->isZeroOffset();
-    if ( iszeroffset )
+    if ( typelblcbx_ )
     {
-	RayTracer1D::setIOParsToZeroOffset( iopar );
-/*	const bool dointernal = internalmultiplebox_->isChecked();
-	const float coeff = surfreflcoeffld_->box()->getFValue();
-	iopar.setYN( Seis::SynthGenBase::sKeyInternal(), dointernal );
-	iopar.set( Seis::SynthGenBase::sKeySurfRefl(), coeff );*/
-    }
-    else
-    {
-	const bool donmo = iszeroffset ? false
-				       : uisynthcorrgrp_->wantNMOCorr();
-	iopar.setYN( Seis::SynthGenBase::sKeyNMO(), donmo );
-	iopar.set( Seis::SynthGenBase::sKeyMuteLength(),
-	     uisynthcorrgrp_->getMuteLength() / ZDomain::Time().userFactor() );
-	iopar.set( Seis::SynthGenBase::sKeyStretchLimit(),
-		   mFromPercent( uisynthcorrgrp_->getStrechtMutePerc()) );
+	const BufferString curtype( getType() );
+	if ( curtype == typestr )
+	    return;
+
+	typelblcbx_->box()->setCurrentItem( typestr );
+	selChgCB( nullptr );
     }
 }
 
 
-class uiSynthCorrAdvancedDlg : public uiDialog
-{ mODTextTranslationClass(uiSynthCorrAdvancedDlg);
-    public:
-				uiSynthCorrAdvancedDlg(uiParent*);
-
-    uiGenInput*			stretchmutelimitfld_;
-    uiGenInput*			mutelenfld_;
-
-    protected:
-
-    bool			acceptOK(CallBacker*) override;
-};
-
-
-uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
-    : uiGroup( p, "Synth corrections parameters" )
-    , nmoparsChanged(this)
+void uiMultiSynthSeisSel::setWavelet( const MultiID& dbky )
 {
-    nmofld_ = new uiGenInput( this, tr("Apply NMO corrections"),
-			      BoolInpSpec(true) );
-    nmofld_->setValue( true );
-    mAttachCB( nmofld_->valuechanged, uiSynthCorrectionsGrp::nmoSelCB );
-
-    CallBack cbadv = mCB(this,uiSynthCorrectionsGrp,getAdvancedPush);
-    advbut_ = new uiPushButton( this, uiStrings::sAdvanced(), cbadv, false );
-    advbut_->attach( rightTo, nmofld_ );
-
-    uiscadvdlg_ = new uiSynthCorrAdvancedDlg( this );
-    setHAlignObj( nmofld_ );
-
-    mAttachCB( postFinalise(), uiSynthCorrectionsGrp::initGrp );
+    for ( auto* synthsel : synthgrps_ )
+	synthsel->setWavelet( dbky );
 }
 
 
-uiSynthCorrectionsGrp::~uiSynthCorrectionsGrp()
+void uiMultiSynthSeisSel::setWavelet( const char* wvltnm )
+{
+    for ( auto* synthsel : synthgrps_ )
+	synthsel->setWavelet( wvltnm );
+}
+
+
+bool uiMultiSynthSeisSel::usePar( const IOPar& iop )
+{
+    IOPar par( iop );
+    par.removeSubSelection( RayTracer1D::sKeyRayPar() );
+    // Everything else applies to all types
+
+    SynthGenParams::SynthType synthtype;
+    const bool hastype = SynthGenParams::parseEnum( iop,
+			 SynthGenParams::sKeySynthType(), synthtype );
+
+    if ( zerooffsynthgrp_ )
+	zerooffsynthgrp_->usePar(
+	    hastype && synthtype == SynthGenParams::ZeroOffset ? iop : par );
+//    if ( elasticsynthgrp_ )
+    if ( prestacksynthgrp_ )
+	prestacksynthgrp_->usePar(
+	    hastype && synthtype == SynthGenParams::PreStack ? iop : par );
+
+    return true;
+}
+
+
+bool uiMultiSynthSeisSel::useSynthSeisPar( const IOPar& iop )
+{
+    for ( auto* synthsel : synthgrps_ )
+	synthsel->useSynthSeisPar( iop );
+
+    return true;
+}
+
+
+bool uiMultiSynthSeisSel::useReflPars( const IOPar& iop )
+{
+    for ( auto* synthsel : synthgrps_ )
+	synthsel->useReflPars( iop );
+
+    return true;
+}
+
+
+MultiID uiMultiSynthSeisSel::getWaveletID() const
+{
+    MultiID dbky;
+    if ( current() )
+	dbky = current()->getWaveletID();
+
+    return dbky;
+}
+
+
+const char* uiMultiSynthSeisSel::getWaveletName() const
+{
+    return current() ? current()->getWaveletName() : nullptr;
+}
+
+
+void uiMultiSynthSeisSel::fillPar( IOPar& iop ) const
+{
+    if ( current() )
+	current()->fillPar( iop );
+}
+
+
+void uiMultiSynthSeisSel::fillSynthSeisPar( IOPar& iop ) const
+{
+    if ( current() )
+	current()->fillSynthSeisPar( iop );
+}
+
+
+void uiMultiSynthSeisSel::fillReflPars( IOPar& iop ) const
+{
+    if ( current() )
+	current()->fillReflPars( iop );
+}
+
+
+
+uiFullSynthSeisSel::uiFullSynthSeisSel( uiParent* p, const Setup& su )
+    : uiMultiSynthSeisSel(p,su,true)
+    , nameChanged(this)
+{
+    uiGroup* topgrp = topGrp();
+    psselfld_ = new uiLabeledComboBox( topgrp, tr("Input Prestack") );
+    psselfld_->box()->setHSzPol( uiObject::Wide );
+    psselfld_->attach( alignedBelow, typeCBFld() );
+    mAttachCB( psselfld_->box()->selectionChanged,
+	       uiFullSynthSeisSel::inputChangedCB );
+
+    inpselfld_ = new uiLabeledComboBox( topgrp, uiStrings::sInput() );
+    inpselfld_->box()->setHSzPol( uiObject::Wide );
+    inpselfld_->attach( alignedBelow, typeCBFld() );
+    mAttachCB( inpselfld_->box()->selectionChanged,
+	       uiFullSynthSeisSel::inputChangedCB );
+
+    const SynthGenParams angsgp( SynthGenParams::AngleStack );
+    FloatInpIntervalSpec finpspec(false);
+    finpspec.setLimits( Interval<float>(0,89) );
+    finpspec.setDefaultValue( angsgp.anglerg_ );
+    angleinpfld_ = new uiGenInput( topgrp, tr("Angle range"), finpspec );
+    angleinpfld_->setValue( angsgp.anglerg_ );
+    angleinpfld_->attach( alignedBelow, psselfld_ );
+    mAttachCB( angleinpfld_->valuechanged, uiFullSynthSeisSel::parsChangedCB );
+
+    EnumDef attribs = Attrib::Instantaneous::OutTypeDef();
+    attribs.remove( attribs.getKeyForIndex(Attrib::Instantaneous::RotatePhase));
+    instattribfld_ = new uiLabeledListBox( topgrp, uiStrings::sAttribute(),
+					   OD::ChooseAtLeastOne );
+
+    instattribfld_->box()->addItems( attribs.strings() );
+    instattribfld_->attach( alignedBelow, inpselfld_ );
+    mAttachCB( instattribfld_->box()->selectionChanged,
+	       uiFullSynthSeisSel::parsChangedCB );
+
+    namefld_ = new uiGenInput( this, uiStrings::sName() );
+    namefld_->setElemSzPol( uiObject::Wide );
+    namefld_->attach( ensureBelow, topgrp );
+    namefld_->attach( alignedBelow, topgrp->attachObj() );
+    mAttachCB( namefld_->valuechanging, uiFullSynthSeisSel::nameChangedCB );
+    mAttachCB( namefld_->valuechanged, uiFullSynthSeisSel::nameChangedCB );
+}
+
+
+uiFullSynthSeisSel::~uiFullSynthSeisSel()
 {
     detachAllNotifiers();
 }
 
 
-void uiSynthCorrectionsGrp::initGrp( CallBacker* )
+void uiFullSynthSeisSel::selChg( const char* typ )
 {
-    advbut_->display( wantNMOCorr() );
+    uiMultiSynthSeisSel::selChg( typ );
+    const SynthGenParams::SynthType synthtype =
+			      SynthGenParams::parseEnumSynthType( typ );
+    const bool psbased = synthtype == SynthGenParams::AngleStack ||
+			 synthtype == SynthGenParams::AVOGradient;
+    const bool attrib = synthtype == SynthGenParams::InstAttrib;
+    psselfld_->display( psbased );
+    angleinpfld_->display( psbased );
+    inpselfld_->display( attrib );
+    instattribfld_->display( attrib );
 }
 
 
-void uiSynthCorrectionsGrp::nmoSelCB( CallBacker* )
+void uiFullSynthSeisSel::doParsChanged( IOPar* par )
 {
-    advbut_->display( wantNMOCorr() );
-    parsChanged( nullptr );
-}
-
-
-void uiSynthCorrectionsGrp::parsChanged( CallBacker* )
-{
-    nmoparsChanged.trigger();
-}
-
-
-bool uiSynthCorrectionsGrp::wantNMOCorr() const
-{
-    return nmofld_->getBoolValue();
-}
-
-
-float uiSynthCorrectionsGrp::getStrechtMutePerc() const
-{
-    return uiscadvdlg_->stretchmutelimitfld_->getFValue();
-}
-
-
-float uiSynthCorrectionsGrp::getMuteLength() const
-{
-    return uiscadvdlg_->mutelenfld_->getFValue();
-}
-
-
-void uiSynthCorrectionsGrp::getAdvancedPush( CallBacker* )
-{
-    const float strechmuteperc = getStrechtMutePerc();
-    const float mutelength = getMuteLength();
-    if ( uiscadvdlg_->go() != uiDialog::Accepted )
+    uiMultiSynthSeisSel::doParsChanged( par );
+    IOPar iop;
+    fillPar( iop );
+    const SynthGenParams::SynthType synthtype =
+			      SynthGenParams::parseEnumSynthType( getType() );
+    BufferString nm;
+    SynthGenParams genparams( synthtype );
+    genparams.usePar( iop );
+    genparams.createName( nm );
+    if ( nm == getOutputName() )
 	return;
 
-    if ( mIsEqual(strechmuteperc,getStrechtMutePerc(),1e-3f) &&
-	 mIsEqual(mutelength,getMuteLength(),1e-3f) )
+    setOutputName( nm );
+    nameChangedCB( nullptr );
+}
+
+
+void uiFullSynthSeisSel::inputChangedCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiComboBox*,uicbfld,cb);
+    if ( uicbfld && uicbfld->size() > 1 &&
+	 uicbfld->isPresent(SynthGenParams::sKeyInvalidInputPS()) )
+	doMan( uicbfld, SynthGenParams::sKeyInvalidInputPS(), false );
+
+    parsChangedCB( cb );
+}
+
+
+void uiFullSynthSeisSel::nameChangedCB( CallBacker* )
+{
+    const BufferString newnm( getOutputName() );
+    nameChanged.trigger( newnm );
+}
+
+
+void uiFullSynthSeisSel::setOutputName( const char* nm )
+{
+    namefld_->setText( nm );
+}
+
+
+const char* uiFullSynthSeisSel::getOutputName() const
+{
+    return namefld_->text();
+}
+
+
+void uiFullSynthSeisSel::manPSSynth( const char* nm, bool isnew )
+{
+    doMan( psselfld_->box(), nm, isnew );
+}
+
+
+void uiFullSynthSeisSel::manInpSynth( const char* nm, bool isnew )
+{
+    doMan( inpselfld_->box(), nm, isnew );
+}
+
+
+void uiFullSynthSeisSel::doMan( uiComboBox* cbfld, const char* nm, bool isnew )
+{
+    NotifyStopper ns( cbfld->selectionChanged );
+    const FileMultiString newnames( nm );
+    if ( newnames.isEmpty() )
 	return;
 
-    parsChanged( nullptr );
+    BufferStringSet nms;
+    const BufferString curnm( cbfld->text() );
+
+    cbfld->getItems( nms );
+    if ( isnew )
+    {
+	bool added = false;
+	for ( int idx=0; idx<newnames.size(); idx++ )
+	    added = nms.addIfNew( newnames[idx] ) || added;
+	if ( !added )
+	    return;
+    }
+    else if ( !isnew )
+    {
+	for ( int idx=0; idx<newnames.size(); idx++ )
+	    nms.remove( newnames[idx] );
+    }
+
+    cbfld->setEmpty();
+    cbfld->addItems( nms );
+    if ( isnew )
+    {
+	if ( curnm != newnames[0] )
+	    cbfld->setCurrentItem( curnm );
+
+	if ( !cbfld->sensitive() )
+	{
+	    for ( const auto* dsnm : nms )
+	    {
+		if ( *dsnm != SynthGenParams::sKeyInvalidInputPS() )
+		{
+		    cbfld->setSensitive( true );
+		    break;
+		}
+	    }
+	}
+    }
 }
 
 
-void uiSynthCorrectionsGrp::setValues( bool donmo, float mutelen,
-				       float stretchlim )
+bool uiFullSynthSeisSel::usePar( const IOPar& par )
 {
-    nmofld_->setValue( donmo );
-    uiscadvdlg_->mutelenfld_->setValue( mutelen );
-    uiscadvdlg_->stretchmutelimitfld_->setValue( stretchlim );
-}
+    NotifyStopper nssel( selectionChanged );
+    NotifyStopper nspars( parsChanged );
 
+    SynthGenParams::SynthType synthtype;
+    if ( !SynthGenParams::parseEnum(par,SynthGenParams::sKeySynthType(),
+				   synthtype) )
+	return false;
 
-uiSynthCorrAdvancedDlg::uiSynthCorrAdvancedDlg( uiParent* p )
-    : uiDialog( p, Setup(tr("Synthetic Corrections advanced options"),
-			 tr("Specify advanced options"),
-			 mODHelpKey(mSynthCorrAdvancedDlgHelpID)) )
-{
-    FloatInpSpec inpspec;
-    inpspec.setLimits( Interval<float>(1,500) );
-    stretchmutelimitfld_ = new uiGenInput(this, tr("Stretch mute (%)"),
-					  inpspec );
+    setType( SynthGenParams::toString(synthtype) );
+    nssel.enableNotification();
 
-    mutelenfld_ = new uiGenInput( this, tr("Mute taper-length (ms)"),
-				  FloatInpSpec() );
-    mutelenfld_->attach( alignedBelow, stretchmutelimitfld_ );
-}
+    SynthGenParams genparams( synthtype );
 
+    genparams.usePar( par );
+    setOutputName( genparams.name_ );
+    if ( genparams.isRawOutput() )
+	return uiMultiSynthSeisSel::usePar( par );
 
-bool uiSynthCorrAdvancedDlg::acceptOK( CallBacker* )
-{
-    if ( mIsUdf(mutelenfld_->getFValue() ) || mutelenfld_->getFValue()<0 )
-	mErrRet( tr("The mutelength must be more than zero."), return false );
+    if ( genparams.isPSBased() )
+    {
+	uiComboBox* psbox = psselfld_->box();
+	if ( psbox->isPresent(genparams.inpsynthnm_) )
+	{
+	    psbox->setCurrentItem( genparams.inpsynthnm_ );
+	    psbox->setSensitive( genparams.inpsynthnm_ !=
+				 SynthGenParams::sKeyInvalidInputPS() ||
+				 psbox->size() > 1 );
+	}
+	else if ( genparams.inpsynthnm_.isEmpty() )
+	    psbox->setSensitive( true );
+	else
+	{
+	    psbox->addItem( genparams.inpsynthnm_ );
+	    psbox->setSensitive( false );
+	}
 
-    if ( mIsUdf(stretchmutelimitfld_->getFValue()) ||
-	 stretchmutelimitfld_->getFValue()<0 )
-	mErrRet( tr("The stretch mute must be more than 0%"), return false );
+	NotifyStopper angparschgstopper( angleinpfld_->valuechanged );
+	angleinpfld_->setValue( genparams.anglerg_ );
+    }
+    else if ( genparams.isAttribute() )
+    {
+	NotifyStopper ns_inpsel( inpselfld_->box()->selectionChanged );
+	NotifyStopper ns_instattrib( instattribfld_->box()->selectionChanged );
+	uiComboBox* inpbox = inpselfld_->box();
+	if ( inpbox->isPresent(genparams.inpsynthnm_) )
+	{
+	    inpbox->setCurrentItem( genparams.inpsynthnm_ );
+	    inpbox->setSensitive( genparams.inpsynthnm_ !=
+				  SynthGenParams::sKeyInvalidInputPS() ||
+				  inpbox->size() > 1 );
+	}
+	else if ( genparams.inpsynthnm_.isEmpty() )
+	    inpbox->setSensitive( true );
+	else
+	{
+	    inpbox->addItem( genparams.inpsynthnm_ );
+	    inpbox->setSensitive( false );
+	}
+
+	instattribfld_->box()->chooseAll( false );
+	instattribfld_->box()->setChosen( genparams.attribtype_ );
+    }
+    else
+	return false;
 
     return true;
+}
+
+
+void uiFullSynthSeisSel::getChosenInstantAttribs( BufferStringSet& nms ) const
+{
+    instattribfld_->box()->getChosen( nms );
+}
+
+
+#define mErrRet(msg)	{ uirv = msg; return uirv; }
+
+uiRetVal uiFullSynthSeisSel::isOK() const
+{
+    uiRetVal uirv;
+    const BufferString nm( getOutputName() );
+    if ( nm.isEmpty() )
+	mErrRet(tr("Please specify a valid name"));
+
+    const SynthGenParams::SynthType synthtype =
+			SynthGenParams::parseEnumSynthType( getType() );
+    const SynthGenParams sgp = SynthGenParams( synthtype );
+    if ( sgp.isRawOutput() )
+	return uiMultiSynthSeisSel::isOK();
+
+    if ( sgp.isPSBased() )
+    {
+	if ( psselfld_->box()->isEmpty() )
+	    mErrRet( tr("Cannot generate an angle stack synthetics without "
+			"any NMO corrected Prestack.") );
+
+	if ( !psselfld_->box()->sensitive() )
+	    mErrRet( tr("Cannot change synthetic data as the dependent "
+			"prestack synthetic data has already been removed"));
+
+    }
+    else if ( sgp.isAttribute() )
+    {
+	if ( inpselfld_->box()->isEmpty() )
+	    mErrRet( tr("Cannot generate attributes without "
+			"any post stack synthetics.") );
+
+	if ( !inpselfld_->box()->sensitive() )
+	     mErrRet( tr("Cannot change synthetic data as the dependent "
+			 "poststack synthetic data has already been removed") );
+    }
+    else
+	mErrRet(tr("Unknown internal error"))
+
+    return uirv;
+}
+
+
+void uiFullSynthSeisSel::fillPar( IOPar& iop ) const
+{
+    const SynthGenParams::SynthType synthtype =
+			      SynthGenParams::parseEnumSynthType( getType() );
+
+    iop.set( SynthGenParams::sKeySynthType(),
+	     SynthGenParams::toString(synthtype) );
+
+    SynthGenParams sgp = SynthGenParams( synthtype );
+    const BufferString outnm( getOutputName() );
+    if ( !outnm.isEmpty() )
+    {
+	sgp.name_ = outnm;
+	iop.set( sKey::Name(), outnm );
+    }
+
+    if ( sgp.isRawOutput() )
+    {
+	uiMultiSynthSeisSel::fillPar( iop );
+	iop.set( SynthGenParams::sKeyWaveLetName(), getWaveletName() );
+    }
+    else if ( sgp.isPSBased() )
+    {
+	iop.set( SynthGenParams::sKeyInput(), psselfld_->box()->text() );
+	iop.set( SynthGenParams::sKeyAngleRange(),angleinpfld_->getFInterval());
+    }
+    else if ( sgp.isAttribute() )
+    {
+	const Attrib::Instantaneous::OutType attribtype =
+	  (Attrib::Instantaneous::OutType) instattribfld_->box()->firstChosen();
+	iop.set( SynthGenParams::sKeyInput(), inpselfld_->box()->text() );
+	iop.set( sKey::Attribute(),Attrib::Instantaneous::toString(attribtype));
+    }
+    else
+	iop.setEmpty();
 }
