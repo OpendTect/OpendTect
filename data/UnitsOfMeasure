@@ -9,9 +9,14 @@ Microseconds: Time`us`1e-6
 -Milliseconds: Time`ms`-0.001
 -Microseconds: Time`us`-1e-6
 Meter: Distance/Depth`m`1
+Micrometer: Distance/Depth`um`1e-6
+Millimeter: Distance/Depth`mm`0.001
+Centimeter: Distance/Depth`cm`0.01
+Kilometer: Distance/Depth`km`1000
+Inch: Distance/Depth`in`0.0254
 Feet: Distance/Depth`ft`0.3048
-Inches: Distance/Depth`in`0.0254
-Millimeters: Distance/Depth`mm`0.001
+Yard: Distance/Depth`yd`0.9144
+Mile: Distance/Depth`mi`1609.344
 -Meter: Distance/Depth`-m`-1
 -Feet: Distance/Depth`-ft`-0.3048
 Kg/m3: Density`kg/m3`1
@@ -33,6 +38,7 @@ Gram/ft2s: Impedance`g/ft2s`0.0107639
 Fraction: Volumetrics``1
 Ratio: Elastic Ratio|Anisotropy``1
 Percent: Volumetrics|Elastic Ratio|Anisotropy`%`0.01
+Parts-per-million: Fluid`ppm`1e-6
 Darcy: Permeability`D`9.8692327e-13
 mDarcy: Permeability`mD`9.8692327e-16
 API: Gamma Ray`API`1
@@ -59,21 +65,22 @@ Atmosphere: Pressure`atm`101325.01
 Bar: Pressure`bar`1e5
 Psi: Pressure`psi`6894.7573
 Square meter: Area`m2`1
-Square kilometer: Area`km2`1e-6
-Square mile: Area`mi2`3.86102158542e-7
-Acre: Area`ac`2.4710538147e-4
-Liter: Volume`L`1000
+Square kilometer: Area`km2`1e6
+Square foot: Area`ft2`0.09290304
+Square mile: Area`mi2`2589988.1103
+Acre: Area`ac`4046.8564224
 Cubic meters: Volume`m3`1
-Cubic centimeters: Volume`cm3`1e6
-Cubic mile: Volume`mi3`2.3991275858e-10
-Cubic feet: Volume`ft3`35.314666721
-Cubic inch: Volume`in3`61023.744095
-Gallon [UK]: Volume`gal`219.9692483
-Gallon [US]: Volume`usgal`264.1720524
-Barrels: Volume`barrels`6.2898107704
-Thousand Barrels: Volume`Mbbl`6.2898107704e-3
-Million Barrels: Volume`MMbbl`6.2898107704e-6
-Billion Cubic Feet: Volume`bcf`35.314666721e-9
+Liter: Volume`L`1e-3
+Cubic centimeters: Volume`cm3`1e-6
+Cubic mile: Volume`mi3`4168181825.4
+Cubic foot: Volume`ft3`0.0283168466
+Cubic inch: Volume`in3`1.6387064e-5
+Gallon [UK]: Volume`gal`0.00454609
+Gallon [US]: Volume`usgal`3.785411784e-3
+Barrels: Volume`bbl`0.1589872949
+Thousand Barrels: Volume`Mbbl`158.98729493
+Million Barrels: Volume`MMbbl`158987.29493
+Billion Cubic Feet: Volume`bcf`28316846.592
 Radians: Angle`rad`1
 Degrees: Angle`deg`0.01745329251994
 !
