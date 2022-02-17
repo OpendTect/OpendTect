@@ -83,12 +83,11 @@ uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su,
 	typelblcbx_->box()->setHSzPol( uiObject::Wide );
 	mAttachCB( typelblcbx_->box()->selectionChanged,
 		   uiMultiSynthSeisSel::selChgCB );
-	if ( zerooffsynthgrp_ )
-	    zerooffsynthgrp_->attach( alignedBelow, typelblcbx_ );
-	if ( elasticsynthgrp_ )
-	    elasticsynthgrp_->attach( alignedBelow, typelblcbx_ );
-	if ( prestacksynthgrp_ )
-	    prestacksynthgrp_->attach( alignedBelow, typelblcbx_ );
+	for ( auto* synthgrp_ : synthgrps_ )
+	{
+	    synthgrp_->display( false );
+	    synthgrp_->attach( alignedBelow, typelblcbx_ );
+	}
     }
 
     setHAlignObj( topgrp_ );
@@ -149,6 +148,12 @@ void uiMultiSynthSeisSel::selChg( const char* typ )
 	return;
 
     IOPar par;
+    const SynthGenParams::SynthType prevtype =
+		previoussynthgrp_ == zerooffsynthgrp_
+		? SynthGenParams::ZeroOffset
+		: SynthGenParams::PreStack;
+    par.set( SynthGenParams::sKeySynthType(),
+	     SynthGenParams::toString(prevtype) );
     previoussynthgrp_->fillPar( par );
     doParsChanged( &par );
 }

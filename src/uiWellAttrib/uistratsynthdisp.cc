@@ -1615,7 +1615,6 @@ void uiStratSynthDisp::uiTaskRunDeletedCB( CallBacker* cb )
 
 bool uiStratSynthDisp::usePar( const IOPar& par )
 {
-    PtrMan<IOPar> stratsynthpar = par.subselect( StratSynth::sKeySynthetics());
     if ( !curSS().hasElasticModels() )
 	return false;
 
@@ -1624,69 +1623,77 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     curSS().clearSynthetics();
     deleteAndZeroPtr( d2tmodels_ );
     par.get( sKeyDecimation(), dispeach_ );
-    if ( stratsynthpar )
+
+    PtrMan<IOPar> stratsynthpar = par.subselect( StratSynth::sKeySynthetics() );
+    const bool hasiop = stratsynthpar;
+    if ( !stratsynthpar )
     {
-	const bool res = synthgendlg_
-		       ? synthgendlg_->grp()->usePar( *stratsynthpar.ptr() )
-		       : curSS().usePar( *stratsynthpar.ptr() );
-	if ( res )
+	stratsynthpar = new IOPar;
+	stratsynthpar->set( StratSynth::sKeyNrSynthetics(), 1 );
+	IOPar defiop;
+	const SynthGenParams sgp;
+	sgp.fillPar( defiop );
+	stratsynthpar->mergeComp( defiop,
+			   IOPar::compKey(StratSynth::sKeySyntheticNr(),0) );
+    }
+
+    const bool res = synthgendlg_
+		   ? synthgendlg_->grp()->usePar( *stratsynthpar.ptr() )
+		   : curSS().usePar( *stratsynthpar.ptr() );
+    if ( res )
+    {
+	const int nrsynths = curSS().nrSynthetics();
+	if ( &curSS() == &editSS() )
 	{
-	    const int nrsynths = curSS().nrSynthetics();
-	    if ( &curSS() == &editSS() )
+	    for ( int idx=0; idx<nrsynths; idx++ )
 	    {
-		for ( int idx=0; idx<nrsynths; idx++ )
-		{
-		    const BufferString synthnm( curSS().getSyntheticName(idx) );
-		    const SynthFVSpecificDispPars* curdisp =
-						normalSS().dispPars( synthnm );
-		    SynthFVSpecificDispPars* sddisp =
-						curSS().dispPars( synthnm );
-		    if ( !curdisp || !sddisp )
-			continue;
+		const BufferString synthnm( curSS().getSyntheticName(idx) );
+		const SynthFVSpecificDispPars* curdisp =
+					    normalSS().dispPars( synthnm );
+		SynthFVSpecificDispPars* sddisp =
+					    curSS().dispPars( synthnm );
+		if ( !curdisp || !sddisp )
+		    continue;
 
-		    IOPar synthdisppar;
-		    curdisp->fillPar( synthdisppar );
-		    sddisp->usePar( synthdisppar );
-		}
-	    }
-	    else
-	    {
-		PtrMan<IOPar> synthpar =
-		    stratsynthpar->subselect( StratSynth::sKeySyntheticNr() );
-		if ( synthpar )
-		{
-		    for ( int idx=0; idx<nrsynths; idx++ )
-		    {
-			ConstPtrMan<IOPar> iop = synthpar->subselect( idx );
-			if ( !iop )
-			    continue;
-
-			const BufferString synthnm(
-						curSS().getSyntheticName(idx) );
-			SynthFVSpecificDispPars* sddisp =
-						curSS().dispPars( synthnm );
-			if ( sddisp )
-			    sddisp->usePar( *iop.ptr() );
-		    }
-		}
+		IOPar synthdisppar;
+		curdisp->fillPar( synthdisppar );
+		sddisp->usePar( synthdisppar );
 	    }
 	}
 	else
-	    showInfoMsg( false );
-    }
+	{
+	    PtrMan<IOPar> synthpar =
+		stratsynthpar->subselect( StratSynth::sKeySyntheticNr() );
+	    if ( synthpar )
+	    {
+		for ( int idx=0; idx<nrsynths; idx++ )
+		{
+		    ConstPtrMan<IOPar> iop = synthpar->subselect( idx );
+		    if ( !iop )
+			continue;
 
-    if ( !curSS().nrSynthetics() )
-    {
-	if ( curSS().addDefaultSynthetic() ) //par file not ok, add default
-	    synthsChanged.trigger(); //update synthetic WorkBenchPar
+		    const BufferString synthnm(
+					    curSS().getSyntheticName(idx) );
+		    SynthFVSpecificDispPars* sddisp =
+					    curSS().dispPars( synthnm );
+		    if ( sddisp )
+			sddisp->usePar( *iop.ptr() );
+		}
+	    }
+	}
     }
+    else
+	showInfoMsg( false );
 
-    if ( !curSS().nrSynthetics() )
+    if ( curSS().nrSynthetics() < 1 )
     {
 	displaySynthetic( nullptr );
 	displayPostStackSynthetic( nullptr, false );
 	return false;
     }
+
+    if ( !hasiop )
+	synthsChanged.trigger(); //update synthetic WorkBenchPar
 
     if ( GetEnvVarYN("DTECT_STRAT_MAKE_PROPERTYTRACES",true) )
 	curSS().generateOtherQuantities();
@@ -1694,7 +1701,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     if ( useed_ && GetEnvVarYN("USE_FR_DIFF",false) )
 	setDiffData();
 
-    if ( stratsynthpar )
+    if ( hasiop )
     {
 	int snaplvl = 0;
 	stratsynthpar->get( sKeySnapLevel(), snaplvl );

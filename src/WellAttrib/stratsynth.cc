@@ -1926,7 +1926,9 @@ bool StratSynth::usePar( const IOPar& par )
 	    continue;
 
 	nrvalidpars++;
-	addSynthetic( *genpars );
+	if ( addSynthetic(*genpars) )
+	    nradded++;
+
 	if ( !errmsg_.isOK() )
 	    uirv.add( errmsg_ );
 	if ( !infomsg_.isOK() )
