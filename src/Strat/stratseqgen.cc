@@ -495,7 +495,7 @@ bool Strat::SingleLayerGenerator::usePar( const IOPar& iop, const RefTree& rt )
 void Strat::SingleLayerGenerator::fillPar( IOPar& iop ) const
 {
     LayerGenerator::fillPar( iop );
-    iop.set( sKey::Unit(), unit().fullCode() );
+    iop.set( sKey::Unit(), unit().fullCode().buf() );
 
     if ( content().isUnspecified() )
 	iop.removeWithKey( sKey::Content() );

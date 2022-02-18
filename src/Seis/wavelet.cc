@@ -510,7 +510,7 @@ void Wavelet::markScaled( const MultiID& id, const MultiID& orgid,
 			  const MultiID& horid, const MultiID& seisid,
 			  const char* lvlnm )
 {
-    FileMultiString fms( orgid.buf() );
+    FileMultiString fms( orgid.toString() );
     fms += horid; fms += seisid; fms += lvlnm;
     markWaveletScaled( id, fms );
 }
@@ -537,13 +537,21 @@ bool Wavelet::isScaled( const MultiID& id, MultiID& orgid, MultiID& horid,
 			MultiID& seisid, BufferString& lvlnm )
 {
     BufferString val( waveletScaleStr(id) );
-    if ( val.isEmpty() ) return false;
+    if ( val.isEmpty() )
+	return false;
+
     FileMultiString fms( val );
     const int fmssz = fms.size();
     if ( fmssz < 3 )
-	{ orgid = "0"; return true; }
+    {
+	orgid.setUdf();
+	return true;
+    }
 
-    orgid = fms[0]; horid = fms[1]; seisid = fms[2]; lvlnm = fms[3];
+    orgid.fromString( fms[0] );
+    horid.fromString( fms[1] );
+    seisid.fromString( fms[2] );
+    lvlnm = fms[3];
     return true;
 }
 

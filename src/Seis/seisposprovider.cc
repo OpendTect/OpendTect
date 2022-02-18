@@ -168,7 +168,7 @@ void Pos::SeisProvider3D::fillPar( IOPar& iop ) const
 
 void Pos::SeisProvider3D::getSummary( BufferString& txt ) const
 {
-    if ( id_.isEmpty() || id_.isUdf() )
+    if ( id_.isUdf() || id_.isUdf() )
 	txt.set( "<No selection>" );
     else
 	txt.set( "=> " ).add( IOM().nameOf(id_) );

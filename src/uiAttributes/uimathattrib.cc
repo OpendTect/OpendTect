@@ -324,8 +324,10 @@ bool uiMathAttrib::getInput( Desc& desc )
 		DataPack::FullID inpdpfid = getInputDPID( attrinpidx );
 		if ( inpdpfid.isUdf() )
 		    return false;
+
+    pErrMsg("MultiID with a #");
 		BufferString dpidstr( "#" );
-		dpidstr.add( inpdpfid.buf() );
+		dpidstr.add( inpdpfid.toString() );
 		inpdesc = Attrib::PF().createDescCopy(
 				    StorageProvider::attribName() );
 		Attrib::ValParam* param =

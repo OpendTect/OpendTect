@@ -59,8 +59,8 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     if ( tmp )
     {
 	MultiID idstr( seisdirky );
-	idstr.add( IOObj::tmpID() );
-	iostrm = new IOStream( usrStr(), idstr );
+	idstr.setObjectID( IOObj::tmpID() );
+	iostrm = new IOStream( usrStr(), idstr.toString() );
     }
     else
     {

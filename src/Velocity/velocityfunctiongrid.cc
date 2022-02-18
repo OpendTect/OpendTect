@@ -606,7 +606,7 @@ void GriddedSource::getSources( TypeSet<MultiID>& mids ) const
     for ( int idx=0; idx<datasources_.size(); idx++ )
     {
 	const MultiID& mid = datasources_[idx]->multiID();
-	if ( mid.isEmpty() )
+	if ( mid.isUdf() )
 	    continue;
 
 	mids += mid;

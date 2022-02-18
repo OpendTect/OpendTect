@@ -272,7 +272,7 @@ bool SeisTrcStorOutput::wantsOutput( const BinID& bid ) const
 
 bool SeisTrcStorOutput::setStorageID( const MultiID& storid )
 {
-    if ( !storid.isEmpty() )
+    if ( !storid.isUdf() )
     {
 	PtrMan<IOObj> ioseisout = IOM().get( storid );
 	if ( !ioseisout )
@@ -353,7 +353,7 @@ bool SeisTrcStorOutput::doInit()
 {
     ensureSelType( Seis::Range );
 
-    if ( *storid_.buf() )
+    if ( !storid_.isUdf() )
     {
 	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
 	if ( !ioseisout )
@@ -980,7 +980,7 @@ void Trc2DVarZStorOutput::setTrcsBounds( Interval<float> intv )
 bool Trc2DVarZStorOutput::doInit()
 {
     ensureSelType( Seis::Range );
-    if ( *storid_.buf() )
+    if ( !storid_.isUdf() )
     {
 	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
 	if ( !ioseisout )

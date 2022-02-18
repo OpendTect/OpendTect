@@ -84,7 +84,7 @@ Attrib::DescSet* uiAttrEMOut::getTargetDescSet(
 {
     if ( nlamodel_ && attrfld_->outputNr()>=0 )
     {
-	if ( !nlaid_ || !(*nlaid_) )
+	if ( nlaid_.isUdf() )
 	{
 	    uiMSG().message(tr("NN needs to be stored before creating volume"));
 	    return nullptr;
@@ -203,7 +203,7 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 
 
 void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
-			      const char* idlbl, const char* outid )
+			      const char* idlbl, const MultiID& outid )
 {
     iopar.set( IOPar::compKey( sKey::Output(), sKey::Type()), outtyp );
     BufferString key;

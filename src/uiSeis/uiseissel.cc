@@ -399,7 +399,7 @@ void uiSeisSel::updateInput()
     }
 
     if ( !ioobjkey.isUdf() )
-	uiIOSelect::setInput( ioobjkey );
+	uiIOSelect::setInput( ioobjkey.toString() );
 
     if ( seissetup_.selectcomp_ && !mIsUdf(compnr_) )
     {
@@ -409,7 +409,7 @@ void uiSeisSel::updateInput()
 	if ( !compnms.validIdx(compnr_) || compnms.size()<2 )
 	    return;
 
-	BufferString text = userNameFromKey( ioobjkey.buf() );
+	BufferString text = userNameFromKey( ioobjkey.toString() );
 	text += "|";
 	text += compnms.get( compnr_ );
 	uiIOSelect::setInputText( text.buf() );

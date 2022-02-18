@@ -260,7 +260,7 @@ MultiID uiSeisPartServer::getDefault2DDataID() const
 					       "Do you want to set it now?") );
     const bool tomanage = uiMSG().askGoOn( msg );
     if ( !tomanage )
-	return false;
+	return MultiID::udf();
 
     uiIOObjSelDlg::Setup su( tr("Set default 2D seismic data") );
     su.allowsetsurvdefault( false );
@@ -315,7 +315,7 @@ MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
     uiIOObjSelDlg dlg( parent(), su, *ctio );
     if ( !dlg.go() )
-	return false;
+	return MultiID::udf();
 
     PtrMan<IOObj> seisobj = dlg.ioObj()->clone();
     seisobj->setSurveyDefault();
@@ -526,7 +526,7 @@ void uiSeisPartServer::processVelConv() const
 
 void uiSeisPartServer::createMultiCubeDataStore() const
 {
-    uiSeisMultiCubePS dlg( parent() );
+    uiSeisMultiCubePS dlg( parent(), MultiID::udf() );
     dlg.go();
 }
 

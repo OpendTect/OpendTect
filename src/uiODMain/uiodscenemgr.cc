@@ -1285,7 +1285,7 @@ int uiODSceneMgr::addPickSetItem( const MultiID& mid, int sceneid )
 {
     Pick::Set* ps = applMgr().pickServer()->loadSet( mid );
     if ( !ps )
-	ps = new Pick::Set(mid);
+	ps = new Pick::Set( mid.toString() );
 
     return addPickSetItem( *ps, sceneid );
 }

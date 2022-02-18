@@ -1075,7 +1075,7 @@ void IOPar::set( const char* keyw, const TypeSet<MultiID>& keys )
 {
     BufferStringSet strs;
     for ( int idx=0; idx<keys.size(); idx++ )
-	strs.add( keys[idx].buf() );
+	strs.add( keys[idx].toString() );
     set( keyw, strs );
 }
 
@@ -1097,7 +1097,7 @@ void IOPar::set( const char* keyw, const DBKeySet& keys )
 {
     BufferStringSet strs;
     for ( int idx=0; idx<keys.size(); idx++ )
-	strs.add( keys[idx].buf() );
+	strs.add( keys[idx].toString(false) );
     set( keyw, strs );
 }
 
@@ -1158,14 +1158,14 @@ void IOPar::set( const char* keyw, const BufferStringSet& bss )
 bool IOPar::get( const char* keyw, MultiID& mid ) const
 {
     mGetStartNotEmpty(pval);
-    mid = pval;
+    mid.fromString( pval );
     return true;
 }
 
 
 void IOPar::set( const char* keyw, const MultiID& mid )
 {
-    set( keyw, mid.buf() );
+    set( keyw, mid.toString() );
 }
 
 

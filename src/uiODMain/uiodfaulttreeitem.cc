@@ -361,7 +361,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	bool saveas = mnuid==saveasmnuitem_.id ||
-		      applMgr()->EMServer()->getStorageID(emid_).isEmpty();
+		      applMgr()->EMServer()->getStorageID(emid_).isUdf();
 	if ( !saveas )
 	{
 	    PtrMan<IOObj> ioobj =
@@ -664,7 +664,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	bool saveas = mnuid==saveasmnuitem_.id ||
-		      applMgr()->EMServer()->getStorageID(emid_).isEmpty();
+		      applMgr()->EMServer()->getStorageID(emid_).isUdf();
 	if ( !saveas )
 	{
 	    PtrMan<IOObj> ioobj =

@@ -420,12 +420,13 @@ MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
     IOM().to( ctio.ctxt_.getSelKey() );
     IOM().getEntry( ctio );
     if ( !ctio.ioobj_ )
-	return MultiID(-1);
+	return MultiID::udf();
 
     fp.add( "i.*");
     MultiID ret = ctio.ioobj_->key();
     mDynamicCastGet(IOStream*,iostrm,ctio.ioobj_)
-    if ( !iostrm ) return MultiID(-1);
+    if ( !iostrm )
+	return MultiID::udf();
 
     StepInterval<int> fnrs;
     jobprov_->getRange( fnrs );

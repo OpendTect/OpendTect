@@ -142,6 +142,12 @@ bool ascostream::put( const char* keyword, const OD::String& value )
 }
 
 
+bool ascostream::put( const char* kw, const MultiID& key )
+{
+    return put( kw, key.toString() );
+}
+
+
 #define mDeclPut1IFn(typ) \
 bool ascostream::put( const char* keyword, typ value ) \
 { \

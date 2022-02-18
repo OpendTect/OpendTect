@@ -23,13 +23,13 @@ ________________________________________________________________________
 namespace EM {
 
 mImplementEMObjFuncs(FaultStickSet,EMFaultStickSetTranslatorGroup::sGroupName())
-    
+
 FaultStickSet::FaultStickSet( EMManager& em )
     : Fault(em)
     , geometry_( *this )
 {
     geometry_.addSection( "", false );
-    setPosAttrMarkerStyle( 0, 
+    setPosAttrMarkerStyle( 0,
 	MarkerStyle3D(MarkerStyle3D::Cube,3,OD::Color::Yellow()) );
 }
 
@@ -91,7 +91,6 @@ const IOObjContext& FaultStickSet::getIOObjContext() const
 
 FaultStickSetGeometry::StickInfo::StickInfo()
     : pickedgeomid(Survey::GeometryManager::cUndefGeomID())
-    , pickedmid(-1)
 {}
 
 
@@ -169,7 +168,7 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
 {
     Geometry::FaultStickSet* fss = sectionGeometry( sid );
 
-    if ( !fss ) 
+    if ( !fss )
 	return false;
 
     const bool firstrowchange = sticknr < fss->rowRange().start;
@@ -186,7 +185,7 @@ bool FaultStickSetGeometry::insertStick( const SectionID& sid, int sticknr,
     stickinfo_.insertAt( new StickInfo, 0 );
     stickinfo_[0]->sid = sid;
     stickinfo_[0]->sticknr = sticknr;
-    stickinfo_[0]->pickedmid = pickedmid ? *pickedmid : MultiID(-1);
+    stickinfo_[0]->pickedmid = pickedmid ? *pickedmid : MultiID::udf();
     stickinfo_[0]->pickednm = pickednm;
     if ( addtohistory )
     {
@@ -365,10 +364,10 @@ const MultiID* FaultStickSetGeometry::pickedMultiID( const SectionID& sid,
     if ( idx >= 0 )
     {
 	const MultiID& pickedmid = stickinfo_[idx]->pickedmid;
-	return pickedmid==MultiID(-1) ? 0 : &pickedmid;
+	return pickedmid.isUdf() ? nullptr : &pickedmid;
     }
-    
-    return 0;
+
+    return nullptr;
 }
 
 
@@ -379,10 +378,10 @@ const char* FaultStickSetGeometry::pickedName( const SectionID& sid,
     if ( idx >= 0 )
     {
         const char* pickednm = stickinfo_[idx]->pickednm.buf();
-        return *pickednm ? pickednm : 0;
+	return *pickednm ? pickednm : nullptr;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -392,7 +391,7 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID( const SectionID& sid,
     int idx = indexOf(sid,sticknr);
     if ( idx >= 0 )
 	return stickinfo_[idx]->pickedgeomid;
-	
+
     return Survey::GeometryManager::cUndefGeomID();
 }
 
@@ -524,7 +523,7 @@ int FaultStickSetGeometry::indexOf( const SectionID& sid, int sticknr ) const
 	if ( stickinfo_[idx]->sid==sid && stickinfo_[idx]->sticknr==sticknr )
 	    return idx;
     }
-	
+
     return -1;
 }
 

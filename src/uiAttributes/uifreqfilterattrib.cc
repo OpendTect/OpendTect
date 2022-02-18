@@ -75,7 +75,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	    const Attrib::DescSet& attrset = inpfld_->getAttrSet();
 	    const Attrib::Desc* inpdesc = attrset.getDesc(inpfld_->attribID());
 	    if ( inpdesc )
-		freqsu.multiid_ = inpdesc->getStoredID( true );
+		freqsu.multiid_.fromString( inpdesc->getStoredID(true) );
 	    winflds_ += new uiFreqTaperSel( this, su, freqsu );
 	}
 	else

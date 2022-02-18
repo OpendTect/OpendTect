@@ -68,7 +68,7 @@ ________________________________________________________________________
     mDynamicCastGet(Attrib::BinIDParam*,param,desc.getValParam(str)) \
     const BinID oldval = param->getValue(); \
     if ( chtr_.set(oldval,newval) ) \
-    { param->setValue( newval.inl(), 0 ); param->setValue( newval.crl(), 1 ); } \
+    { param->setValue( newval.inl(), 0 ); param->setValue( newval.crl(), 1 ); }\
 }
 
 
@@ -80,6 +80,14 @@ ________________________________________________________________________
         param->setValue( newval ); \
 }
 
+
+#define mSetMultiID( str, newval ) \
+{ \
+    Attrib::ValParam* param = desc.getValParam( str ); \
+    BufferString oldval = param->getStringValue(); \
+    if ( chtr_.set(oldval,newval.toString()) ) \
+	param->setValue( newval.toString() ); \
+}
 
 // Get macros
 
@@ -145,6 +153,15 @@ if ( desc.getValParam(str) ) \
     if ( var.isEmpty() ) \
 	var = desc.getValParam(str)->getDefaultStringValue(0); \
     setfunc;\
+}
+
+
+#define mIfGetMultiID( str, var, setfunc ) \
+if ( desc.getValParam(str) ) \
+{ \
+    MultiID var; \
+    mGetMultiIDFromDesc( desc, var, str ); \
+    setfunc; \
 }
 
 #define mIfGetBinID( str, var, setfunc ) \

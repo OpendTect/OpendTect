@@ -194,7 +194,7 @@ ObjectID EMManager::getObjectID( const MultiID& mid ) const
 MultiID EMManager::getMultiID( const ObjectID& oid ) const
 {
     const EMObject* emobj = getObject(oid);
-    return emobj ? emobj->multiID() : MultiID(-1);
+    return emobj ? emobj->multiID() : MultiID::udf();
 }
 
 

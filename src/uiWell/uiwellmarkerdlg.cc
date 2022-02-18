@@ -43,7 +43,6 @@ ________________________________________________________________________
 #include "wellman.h"
 #include "wellimpasc.h"
 #include "welltrack.h"
-#include "welltransl.h"
 #include "wellreader.h"
 #include "od_helpids.h"
 
@@ -768,8 +767,8 @@ void uiMarkerDlg::exportCB( CallBacker* )
 
 bool uiMarkerDlg::getKey( MultiID& mid ) const
 {
-    IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
-    IOObj* obj = IOM().getLocal( track_.name(), "Well" );
+    IOM().to( IOObjContext::WllInf );
+    ConstPtrMan<IOObj> obj = IOM().getLocal( track_.name(), "Well" );
     if ( !obj )
 	return false;
 

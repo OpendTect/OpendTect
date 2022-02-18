@@ -21,7 +21,7 @@ mExpClass(Basic) DBKey : public MultiID
 {
 public:
 			DBKey()
-			{ setUdf(); }
+			{}
 			DBKey( const MultiID& mid )
 			    : MultiID(mid)
 			{}

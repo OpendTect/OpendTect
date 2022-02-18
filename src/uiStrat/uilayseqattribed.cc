@@ -199,7 +199,7 @@ void uiLaySeqAttribEd::putToScreen()
 	Strat::UnitRefIter it( reftree_ );
 	while ( it.next() )
 	    unfld_->setChosen( *it.unit(),
-			    attr_.units_.isPresent( it.unit()->fullCode() ) );
+			attr_.units_.isPresent( it.unit()->fullCode().buf() ) );
 
 	for ( int idx=0; idx<lithofld_->size(); idx++ )
 	    lithofld_->setChosen( idx, attr_.liths_.isPresent(
@@ -227,7 +227,7 @@ bool uiLaySeqAttribEd::getFromScreen()
 	while ( it.next() )
 	{
 	    if ( unfld_->isChosen(*it.unit()) )
-		uns.add( it.unit()->fullCode() );
+		uns.add( it.unit()->fullCode().buf() );
 	}
 	lithofld_->getChosen( liths );
 

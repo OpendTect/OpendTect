@@ -56,6 +56,6 @@ bool uiVolProcAttrib::getParameters( Attrib::Desc& desc )
     if ( desc.attribName() != VolProcAttrib::attribName() )
 	return false;
 
-    mSetString( VolProcAttrib::sKeySetup(), setupfld_->key() );
+    mSetMultiID( VolProcAttrib::sKeySetup(), setupfld_->key() );
     return true;
 }

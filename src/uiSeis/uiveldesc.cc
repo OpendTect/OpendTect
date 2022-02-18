@@ -77,7 +77,7 @@ NotifierAccess& uiVelocityDesc::typeChangeNotifier()
 void uiVelocityDesc::set( const VelocityDesc& desc )
 {
     typefld_->setValue( desc.type_ );
-    hasstaticsfld_->setValue( !desc.statics_.horizon_.isEmpty() );
+    hasstaticsfld_->setValue( !desc.statics_.horizon_.isUdf() );
     staticsfld_->set( desc.statics_ );
     updateFlds( 0 );
 }
@@ -88,7 +88,7 @@ bool uiVelocityDesc::get( VelocityDesc& res, bool disperr ) const
     res.type_ = (VelocityDesc::Type) typefld_->getIntValue();
     if ( res.type_!=VelocityDesc::RMS || !hasstaticsfld_->getBoolValue() )
     {
-	res.statics_.horizon_.setEmpty();
+	res.statics_.horizon_.setUdf();
 	res.statics_.vel_ = mUdf(float);
 	res.statics_.velattrib_.setEmpty();
     }

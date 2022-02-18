@@ -86,7 +86,6 @@ private:
     mutable od_int64	lastmodtime_	= 0;
 
 			IODir();
-    static bool		create(const char* dirnm,const MultiID&,IOObj* mainobj);
     static IOObj*	doRead(const char*,IODir*,int id=-1);
     static void		setDirName(IOObj&,const char*);
     static IOObj*	readOmf(od_istream&,const char*,IODir*,int);

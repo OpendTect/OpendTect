@@ -187,7 +187,7 @@ int Well::InfoCollector::nextStep()
     if ( !res )
 	return ++curidx_ >= totalnr_ ? Finished() : MoreToDo();
 
-    ids_ += new MultiID( wmid );
+    ids_ += wmid;
     infos_ += new Info( wd->info() );
     if ( dotracks_ )
     {
@@ -525,7 +525,7 @@ void Well::ExtractParams::fillPar( IOPar& pars ) const
 
 
 
-Well::TrackSampler::TrackSampler( const BufferStringSet& i,
+Well::TrackSampler::TrackSampler( const TypeSet<MultiID>& i,
 				  ObjectSet<DataPointSet>& d,
 				  bool ztm )
 	: Executor("Well data extraction")
@@ -585,7 +585,7 @@ int Well::TrackSampler::nextStep()
 	dahcolnr_ = dps->nrCols() - 1;
     }
 
-    RefMan<Data> wd = MGR().get( MultiID(ids_.get(curid_)) );
+    RefMan<Data> wd = MGR().get( ids_.get(curid_) );
     if ( !wd )
     {
 	errmsg_ = mToUiStringTodo(MGR().errMsg());
@@ -725,7 +725,7 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
 }
 
 
-Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
+Well::LogDataExtracter::LogDataExtracter( const TypeSet<MultiID>& i,
 					  ObjectSet<DataPointSet>& d,
 					  bool ztm )
 	: Executor("Well log data extraction")
@@ -765,7 +765,7 @@ int Well::LogDataExtracter::nextStep()
     DataPointSet& dps = *dpss_[curid_];
     if ( dps.isEmpty() ) mRetNext()
 
-    RefMan<Data> wd = MGR().get( MultiID(ids_.get(curid_)) );
+    RefMan<Data> wd = MGR().get( ids_.get(curid_) );
     Track* track = nullptr;
     if ( !wd )
     {

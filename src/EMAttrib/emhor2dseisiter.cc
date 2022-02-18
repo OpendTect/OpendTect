@@ -41,7 +41,9 @@ EM::Hor2DSeisLineIterator::Hor2DSeisLineIterator( const MultiID& mid )
 
 void EM::Hor2DSeisLineIterator::init( const Horizon2D* h2d )
 {
-    dataset_ = 0; curlsid_ = "0"; lineidx_ = -1;
+    dataset_ = 0;
+    curlsid_.setUdf();
+    lineidx_ = -1;
 
     h2d_ = h2d;
     if ( h2d_ )
@@ -88,7 +90,7 @@ void EM::Hor2DSeisLineIterator::getLineSet()
     if ( !dataset_ )
     {
 	delete dataset_; dataset_ = 0;
-	IOM().to( MultiID("100010") );
+	IOM().to( IOObjContext::Seis );
 	IOObj* ioobj = IOM().getLocal( lsnm, 0 );
 	if ( ioobj )
 	{

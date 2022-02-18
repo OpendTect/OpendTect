@@ -17,7 +17,7 @@
 
 const char* ODMad::FileSpec::sKeyMaskFile()	{ return "Mask File Name"; }
 const char* ODMad::sKeyMadagascar()		{ return "Madagascar"; }
-const char* ODMad::sKeyMadSelKey()		{ return "909090"; }
+int ODMad::sKeyMadSelKey()			{ return 909090; }
 
 
 ODMad::FileSpec::FileSpec( bool fr )

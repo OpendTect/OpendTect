@@ -270,6 +270,12 @@ void ZDomain::Info::setID( const char* id )
 }
 
 
+void ZDomain::Info::setID( const MultiID& key )
+{
+    pars_.set( sKey::ID(), key );
+}
+
+
 bool ZDomain::Info::isCompatibleWith( const IOPar& iop ) const
 {
     ZDomain::Info inf( iop );

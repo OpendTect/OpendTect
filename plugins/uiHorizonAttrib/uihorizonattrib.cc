@@ -88,9 +88,7 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
     if ( FixedString(desc.attribName())!=Horizon::attribName() )
 	return false;
 
-    mIfGetString( Horizon::sKeyHorID(), horidstr,
-	    	  if ( horidstr && *horidstr )
-		      horfld_->setInput( MultiID(horidstr) ); );
+    mIfGetMultiID(Horizon::sKeyHorID(),horid,horfld_->setInput(horid))
 
     if ( horfld_->ioobj(true) )
 	horSel(0);
@@ -121,8 +119,10 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
     if ( FixedString(desc.attribName())!=Horizon::attribName() )
 	return false;
 
-    mSetString( Horizon::sKeyHorID(),
-	        horfld_->ioobj(true) ? horfld_->ioobj()->key().buf() : "" );
+    if ( !horfld_->ioobj(true) )
+	return false;
+
+    mSetMultiID( Horizon::sKeyHorID(), horfld_->ioobj()->key() );
     const int typ = typefld_->getIntValue();
     mSetEnum( Horizon::sKeyType(), typ );
     if ( typ==0 )

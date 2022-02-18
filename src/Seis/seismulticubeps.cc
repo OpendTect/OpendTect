@@ -95,7 +95,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
-	    mErrCont(uiStrings::phrCannotFindDBEntry( toUiString(mid)) )
+	    mErrCont(uiStrings::phrCannotFindDBEntry(mid) )
 
 	FileMultiString fms( astrm.value() );
 	const int fmssz = fms.size();
@@ -170,7 +170,7 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<MultiID>& keys,
     {
 	const MultiID ky( astrm.keyWord() );
 	const FileMultiString fms( astrm.value() );
-	if ( ky.isEmpty() || fms.size() < 1 )
+	if ( ky.isUdf() || fms.size() < 1 )
 	    continue;
 	PtrMan<IOObj> ioobj = IOM().get( ky );
 	if ( !ioobj || ioobj->isBad() )
@@ -210,7 +210,7 @@ bool MultiCubeSeisPSReader::writeData( const char* fnm,
     {
 	FileMultiString fms;
 	fms += offs[idx]; fms += comps[idx];
-	astrm.put( *keys[idx], fms );
+	astrm.put( keys[idx]->toString(), fms );
     }
 
     if ( !strm.isOK() )

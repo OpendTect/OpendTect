@@ -58,7 +58,7 @@ class IOStreamProducer : public IOObjProducer
     bool	canMake( const char* typ ) const
 		{ return FixedString(typ)==StreamConn::sType(); }
     IOObj*	make( const char* nm, const MultiID& ky, bool fd ) const
-		{ return new IOStream(nm,ky,fd); }
+		{ return new IOStream(nm,ky.toString(),fd); }
 
     static int	factoryid_;
 };

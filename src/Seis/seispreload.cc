@@ -41,7 +41,7 @@ IOObj* PreLoader::getIOObj() const
 {
     IOObj* ret = IOM().get( mid_ );
     if ( !ret )
-	errmsg_ = uiStrings::phrCannotFindDBEntry( toUiString(mid_) );
+	errmsg_ = uiStrings::phrCannotFindDBEntry( mid_ );
     return ret;
 }
 
@@ -50,7 +50,7 @@ Interval<int> PreLoader::inlRange() const
 {
     Interval<int> ret( mUdf(int), -mUdf(int) );
     BufferStringSet fnms;
-    StreamProvider::getPreLoadedFileNames( mid_.buf(), fnms );
+    StreamProvider::getPreLoadedFileNames( mid_.toString(), fnms );
     for ( int idx=0; idx<fnms.size(); idx++ )
 	ret.include( SeisCBVSPSIO::getInlNr( fnms.get(idx) ), false );
 
@@ -65,7 +65,7 @@ void PreLoader::getLineNames( BufferStringSet& lks ) const
     if ( !ioobj ) return;
 
     BufferStringSet fnms;
-    StreamProvider::getPreLoadedFileNames( mid_.buf(), fnms );
+    StreamProvider::getPreLoadedFileNames( mid_.toString(), fnms );
     if ( fnms.isEmpty() ) return;
 
     BufferStringSet nms;
@@ -180,7 +180,7 @@ bool PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 	{ errmsg_ = psio.errMsg(); return false; }
 
     return fnms.isEmpty() ? true
-	 : StreamProvider::preLoad( fnms, trunnr, mid_.buf() );
+	 : StreamProvider::preLoad( fnms, trunnr, mid_.toString() );
 }
 
 
@@ -210,7 +210,7 @@ bool PreLoader::loadPS2D( const BufferStringSet& lnms ) const
 	fnms.add( psio.get2DFileName(lnms.get(idx)) );
 
     return fnms.isEmpty() ? true
-	: StreamProvider::preLoad( fnms, trunnr, mid_.buf() );
+	: StreamProvider::preLoad( fnms, trunnr, mid_.toString() );
 }
 
 
@@ -325,7 +325,7 @@ void PreLoader::fillPar( IOPar& iop ) const
 	} break;
 	case LinePS: {
 	    BufferStringSet fnms;
-	    StreamProvider::getPreLoadedFileNames( mid_.buf(), fnms );
+	    StreamProvider::getPreLoadedFileNames( mid_.toString(), fnms );
 	    if ( fnms.isEmpty() ) break;
 	    BufferStringSet lnms;
 	    for ( int idx=0; idx<fnms.size(); idx++ )

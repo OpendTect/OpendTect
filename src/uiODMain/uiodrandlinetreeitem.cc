@@ -255,12 +255,10 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
 
 void uiODRandomLineParentTreeItem::genRandLine( int opt )
 {
-    const char* multiid = applMgr()->EMServer()->genRandLine( opt );
-    if ( multiid && applMgr()->EMServer()->dispLineOnCreation() )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( multiid );
+    const MultiID multiid = applMgr()->EMServer()->genRandLine( opt );
+    PtrMan<IOObj> ioobj = IOM().get( multiid );
+    if ( ioobj && applMgr()->EMServer()->dispLineOnCreation() )
 	load( *ioobj, (int)uiODRandomLineTreeItem::Empty );
-    }
 }
 
 
@@ -367,12 +365,10 @@ void uiODRandomLineParentTreeItem::rdlPolyLineDlgCloseCB( CallBacker* )
 
 void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 {
-    const char* multiid =  applMgr()->wellServer()->getRandLineMultiID();
-    if ( multiid && applMgr()->wellServer()->dispLineOnCreation() )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( multiid );
+    const MultiID multiid =  applMgr()->wellServer()->getRandLineMultiID();
+    PtrMan<IOObj> ioobj = IOM().get( multiid );
+    if ( ioobj && applMgr()->wellServer()->dispLineOnCreation() )
 	load( *ioobj, (int)uiODRandomLineTreeItem::Empty );
-    }
 
     applMgr()->wellServer()->randLineDlgClosed.remove(
 	    mCB(this,uiODRandomLineParentTreeItem,loadRandLineFromWell) );

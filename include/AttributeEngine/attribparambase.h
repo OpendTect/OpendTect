@@ -94,7 +94,7 @@ mExpClass(AttributeEngine) ValParam : public Param
 public:
 				ValParam(const char* key,DataInpSpec*);
 				ValParam(const ValParam&);
-				~ValParam();
+    virtual			~ValParam();
 
     virtual ValParam*		clone() const;
 
@@ -109,9 +109,10 @@ public:
 
     void			setValue(int,int idx=0);
     void			setValue(float,int idx=0);
+    void			setValue(double,int idx=0);
     void			setValue(bool,int idx=0);
     void			setValue(const char*,int idx=0);
-    void			setValue(double,int idx=0);
+    void			setValue(const MultiID&,int idx=0);
 
     virtual int			getDefaultIntValue(int idx=0) const;
     virtual float		getDefaultfValue(int idx=0) const;
@@ -131,7 +132,7 @@ public:
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
     virtual BufferString	getDefaultValue() const	{ return ""; }
-    virtual void	        fillDefStr(BufferString&) const;
+    virtual void		fillDefStr(BufferString&) const;
 
 protected:
     DataInpSpec*		spec_;
@@ -149,5 +150,3 @@ public:
 };
 
 } // namespace Attrib
-
-

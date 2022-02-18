@@ -469,7 +469,7 @@ bool DataPlayer::isOKSeismic() const
 
 bool DataPlayer::hasSeisId() const
 {
-    return !seisid_.isEmpty();
+    return !seisid_.isUdf();
 }
 
 

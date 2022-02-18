@@ -490,14 +490,11 @@ bool uiStratTreeWin::save( bool saveas )
 
     const Strat::LevelSet& levelset = Strat::LVLS();
     bool saveok = false;
-    if ( IOObj::isKey(key) )
-    {
-	uitree_->setName( IOM().nameOf(key) );
-	saveok = LevelSet::write( levelset, key )
-	    && repos_.write( *uitree_->tree(), key );
-	if ( saveok )
-	    treekey_ = key;
-    }
+    uitree_->setName( IOM().nameOf(key) );
+    saveok = LevelSet::write(levelset,key) &&
+	     repos_.write(*uitree_->tree(),key);
+    if ( saveok )
+	treekey_ = key;
 
     if ( saveok )
     {

@@ -41,6 +41,7 @@ public:
     bool	putHeader(const char* filetype);
     bool	put(const char*,const char* val=0);
     bool	put(const char*,const OD::String&);
+    bool	put(const char*,const MultiID&);
 
 #define mAscStreamDefFns(fn,typ) \
     bool	fn(const char*,typ); \

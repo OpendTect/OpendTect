@@ -842,7 +842,7 @@ template <class T>
 inline bool StepInterval<T>::isCompatible( const StepInterval<T>& b,
 					   float ) const
 {
-    if ( step>b.step || b.step%step )
+    if ( !step || step>b.step || b.step%step )
 	return false;
 
     // const T diff = static_cast<const Interval<T>*>(this)->start - b.start;

@@ -384,12 +384,9 @@ void uiODViewer2DPosGrp::rdmLineDlgClosed( CallBacker* )
 {
     if ( !applmgr_ ) return;
 
-    const char* multiid = applmgr_->wellServer()->getRandLineMultiID();
-    if ( multiid && rdmlinefld_ )
-    {
-	MultiID mid( multiid );
+    const MultiID mid = applmgr_->wellServer()->getRandLineMultiID();
+    if ( !mid.isUdf() && rdmlinefld_ )
 	rdmlinefld_->setInput( mid );
-    }
 
     inpSelected.trigger();
 }

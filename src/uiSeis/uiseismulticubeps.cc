@@ -45,9 +45,9 @@ public:
 };
 
 
-uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
+uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
 	: uiDialog(p,uiDialog::Setup(
-		   ky && *ky ? tr("Edit/Create MultiCube Prestack data store")
+		   !ky.isUdf() ? tr("Edit/Create MultiCube Prestack data store")
 			     : tr("Create MultiCube Prestack data store"),
 		   mNoDlgTitle, mODHelpKey(mSeisMultiCubePSHelpID) ))
 	, ctio_(*mMkCtxtIOObj(SeisPS3D))
@@ -59,10 +59,10 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
 {
     ctio_.ctxt_.forread_ = false;
     ctio_.ctxt_.fixTranslator( "MultiCube" );
-    if ( ky && *ky )
-	ctio_.setObj( MultiID(ky) );
+    if ( !ky.isUdf() )
+	ctio_.setObj( ky );
     else
-	ctio_.setObj( 0 );
+	ctio_.setObj( nullptr );
 
     fillEntries();
     if ( entries_.isEmpty() )

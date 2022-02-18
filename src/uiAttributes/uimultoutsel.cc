@@ -152,15 +152,14 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 	userrefstr[ userrefstr.size()-4 ] = '\0';
 
     if ( is2d )
-    {
-	mid = attrinf.ioobjids_.get(0);
-    }
+	mid = attrinf.ioobjids_.get( 0 );
     else
     {
 	const int inpidx = attrinf.ioobjnms_.indexOf( userrefstr.buf() );
-	if ( inpidx<0 ) return false;
+	if ( inpidx<0 )
+	    return false;
 
-	mid = attrinf.ioobjids_.get(inpidx);
+	mid = attrinf.ioobjids_.get( inpidx );
     }
 
     TypeSet<int> selectedcomps;

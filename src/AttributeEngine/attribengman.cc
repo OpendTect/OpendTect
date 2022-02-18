@@ -1405,7 +1405,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    {
 		FileMultiString fms( attrrefs.get(refidx) );
 		descid = const_cast<DescSet&>(descset).
-				    getStoredID( fms[1], 0, true );
+				getStoredID( fms[1].buf(), 0, true );
 	    }
 	    if ( descid == DescID::undef() )
 		mErrRet( tr("Cannot find specified '%1'",

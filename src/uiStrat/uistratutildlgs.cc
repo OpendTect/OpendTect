@@ -804,7 +804,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 	    Strat::UnitRefIter it( Strat::RT() );
 	    while ( it.next() )
 	    {
-		if ( fullcode == it.unit()->fullCode()
+		if ( fullcode == it.unit()->fullCode().buf()
 			&& it.unit() != &rootunit_ )
 		    errmsg = tr("Unit name already used. ");
 	    }

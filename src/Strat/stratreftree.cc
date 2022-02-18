@@ -243,7 +243,7 @@ bool Strat::RefTree::write( od_ostream& strm ) const
     {
 	const UnitRef& un = *it.unit();
 	BufferString bstr; un.fill( bstr );
-	astrm.put( un.fullCode(), bstr );
+	astrm.put( un.fullCode().buf(), bstr );
 	unitrefs += &un;
     }
     astrm.newParagraph();

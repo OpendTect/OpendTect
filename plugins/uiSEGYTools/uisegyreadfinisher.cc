@@ -819,7 +819,7 @@ bool uiSEGYReadFinisher::handleWarnings( bool withstop,
 
 void uiSEGYReadFinisher::setAsDefaultObj()
 {
-    if ( fs_.isVSP() || outputid_.isEmpty() )
+    if ( fs_.isVSP() || outputid_.isUdf() )
 	return;
 
     PtrMan<IOObj> ioobj = IOM().get( outputid_ );
@@ -830,7 +830,7 @@ void uiSEGYReadFinisher::setAsDefaultObj()
 
 bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 {
-    outputid_.setEmpty();
+    outputid_.setUdf();
     if ( fs_.isVSP() )
 	return doVSP();
 

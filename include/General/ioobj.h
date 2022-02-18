@@ -109,7 +109,8 @@ public:
 				//!< This will give the IOObj a new (free) ID
 
     static int			tmpID()		{ return  999999; }
-    inline bool			isTmp() const	{return key_.leafID()>=tmpID();}
+    inline bool			isTmp() const
+				{ return key_.objectID() >= tmpID(); }
     bool			isProcTmp() const;
     bool			isUserSelectable(bool forread=true) const;
     bool			isInCurrentSurvey() const;
@@ -128,6 +129,7 @@ protected:
     BufferString	group_;
 
 			IOObj(const char* nm=0,const char* ky=0);
+			IOObj(const char* nm,const MultiID&);
 			IOObj(const IOObj&);
     static IOObj*	get(ascistream&,const char*,const char*);
     bool		put(ascostream&) const;
@@ -147,7 +149,10 @@ private:
 
 public:
 
-    void		setKey( const char* nm )	{ key_ = nm; }
+    mDeprecated("Use setKey(const MultiID&)")
+    void		setKey( const char* nm )
+			{ key_.fromString(nm); }
+    void		setKey( const MultiID& key )	{ key_ = key; }
     virtual void	setDirName( const char* s )	{ dirnm_ = s; }
     virtual bool	isSubdir() const		{ return false; }
     static int		addProducer(IOObjProducer*);

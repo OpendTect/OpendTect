@@ -153,9 +153,6 @@ bool Seis::ObjectSummary::hasSameFormatAs( const BinDataDesc& desc ) const
 }
 
 
-#define mGoToSeisDir() \
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_) )
-
 #define mGetDataSet(nm,rv) \
     if ( !isOK() || !is2D() || isPS() ) return rv; \
  \
@@ -198,7 +195,7 @@ SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
 	: geomtype_(geomtype)
 	, ioobj_(nullptr)
 {
-    mGoToSeisDir();
+    IOM().to( IOObjContext::Seis );
     switch ( geomtype_ )
     {
 	case Seis::Vol:
@@ -225,7 +222,7 @@ SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm, Seis::GeomType geomtype )
 SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
     : ioobj_(nullptr)
 {
-    mGoToSeisDir();
+    IOM().to( IOObjContext::Seis );
     ioobj_ = IOM().getLocal( ioobjnm, nullptr );
     setType();
 }

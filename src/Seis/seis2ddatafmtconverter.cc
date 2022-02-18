@@ -345,7 +345,9 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 							IOPar& iop ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SeisTrc2D);
-    if ( !IOM().to(iocontext.getSelKey()) ) return BufferString::empty();
+    if ( !IOM().to(iocontext.getSelKey()) )
+	return BufferString::empty();
+
     CtxtIOObj ctio( iocontext );
     ctio.ctxt_.deftransl_ = CBVSSeisTrc2DTranslator::translKey();
     if ( iop.find(sKey::DataType()) )

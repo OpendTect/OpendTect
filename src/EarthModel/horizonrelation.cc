@@ -60,9 +60,9 @@ bool RelationTree::Node::hasChild( const RelationTree::Node* descendant ) const
 
 void RelationTree::Node::fillPar( IOPar& par ) const
 {
-    BufferStringSet childids;
+    TypeSet<MultiID> childids;
     for ( int idx=0; idx<children_.size(); idx++ )
-	childids.addIfNew( children_[idx]->id_.buf() );
+	childids.addIfNew( children_[idx]->id_ );
 
     par.set( sKey::ID(), id_ );
     par.set( sKeyChildIDs(), childids );
@@ -76,7 +76,7 @@ void RelationTree::Node::fillChildren( const FileMultiString& fms,
     children_.erase();
     for ( int idx=0; idx<fms.size(); idx++ )
     {
-	MultiID id( fms[idx] );
+	MultiID id( fms[idx].buf() );
 	const RelationTree::Node* node = tree.getNode( id );
 	if ( !node )
 	    continue;

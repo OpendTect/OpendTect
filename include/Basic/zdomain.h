@@ -60,7 +60,7 @@ public:
     bool		isSI() const;
     bool		isTime() const;
     bool		isDepth() const;
-    
+
     const char*		entityStr() const { return isTime() ? "t" : "d"; }
 
     bool		operator ==( const Def& def ) const
@@ -102,6 +102,7 @@ public:
     bool		hasID() const;
     const char*		getID() const;
     void		setID(const char*);
+    void		setID(const MultiID&);
 
     bool		isCompatibleWith(const IOPar&) const;
 
@@ -111,8 +112,8 @@ public:
     const char*		unitStr(bool wp=false) const
 						{ return def_.unitStr(wp); }
     uiString		uiUnitStr(bool wp=false) const
-						{ return def_.uiUnitStr(wp); }	
-    uiString		getLabel() const	{ return def_.getLabel(); }    
+						{ return def_.uiUnitStr(wp); }
+    uiString		getLabel() const	{ return def_.getLabel(); }
     int			userFactor() const	{ return def_.userFactor(); }
 
 };

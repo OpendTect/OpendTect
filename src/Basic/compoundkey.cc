@@ -6,7 +6,7 @@
 -*/
 
 
-#include "multiid.h"
+#include "compoundkey.h"
 #include "perthreadrepos.h"
 
 
@@ -109,24 +109,4 @@ CompoundKey CompoundKey::upLevel() const
 bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 {
     return nrKeys() < ky.nrKeys() && impl_.isStartOf( ky.impl_ );
-}
-
-
-int MultiID::leafID() const
-{
-    const char* ptr = lastOcc( impl_, '.' );
-    return toInt( ptr ? ptr+1 : (const char*)impl_ );
-}
-
-
-MultiID MultiID::parent() const
-{
-    return MultiID( upLevel().buf() );
-}
-
-
-const MultiID& MultiID::udf()
-{
-   mDefineStaticLocalObject( MultiID, _udf, (-1) );
-   return _udf;
 }

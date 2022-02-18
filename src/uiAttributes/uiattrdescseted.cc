@@ -483,8 +483,8 @@ void uiAttribDescSetEd::autoSet( CallBacker* )
 	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
 	Settings::common().write();
 	IOPar& par = SI().getPars();
-	is2d ? par.set(uiAttribDescSetEd::sKeyAuto2DAttrSetID, (const char*)id)
-	     : par.set(uiAttribDescSetEd::sKeyAuto3DAttrSetID, (const char*)id);
+	is2d ? par.set( uiAttribDescSetEd::sKeyAuto2DAttrSetID, id )
+	     : par.set( uiAttribDescSetEd::sKeyAuto3DAttrSetID, id );
 	SI().savePars();
 	if ( dlg.loadAuto() )
 	{
@@ -959,7 +959,8 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 {
     if ( !setctio_.ioobj_ )
     {
-	if ( setid_.isEmpty() ) return false;
+	if ( setid_.isUdf() )
+	    return false;
 
 	setctio_.ioobj_ = IOM().get( setid_ );
 	if ( !setctio_.ioobj_ )
@@ -1005,7 +1006,7 @@ void uiAttribDescSetEd::newSet( CallBacker* )
 
     attrset_->removeAll( true );
     setctio_.ioobj_ = 0;
-    setid_ = -1;
+    setid_.setUdf();
     updateUserRefs();
     newList( -1 );
     attrsetfld_->setText( sKeyNotSaved );

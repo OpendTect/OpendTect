@@ -55,7 +55,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     rlsctio_.ctxt_.forread_ = false;
     polyctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
 
-    infld_ = new uiIOObjSel( this, horctio_, 
+    infld_ = new uiIOObjSel( this, horctio_,
 			     uiStrings::phrInput(uiStrings::sHorizon(1)));
     uiIOObjSel::Setup osu( tr("Within polygon") ); osu.optional( true );
     polyfld_ = new uiIOObjSel( this, polyctio_, osu );
@@ -123,10 +123,9 @@ bool uiGenRanLinesByContour::dispOnCreation()
 }
 
 
-const char* uiGenRanLinesByContour::getNewSetID() const
+MultiID uiGenRanLinesByContour::getNewSetID() const
 {
-    BufferString* multid = new BufferString( rlsctio_.ioobj_->key().buf() );
-    return rlsctio_.ioobj_ ? multid->buf() : 0;
+    return rlsctio_.ioobj_ ? rlsctio_.ioobj_->key() : MultiID::udf();
 }
 
 
@@ -217,7 +216,7 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
 {
     outctio_.ctxt_.forread_ = false;
 
-    infld_ = new uiIOObjSel( this, inctio_, 
+    infld_ = new uiIOObjSel( this, inctio_,
 			     uiStrings::phrInput(uiStrings::sRandomLine()));
 
     const BinID bid1( 1, 1 );
@@ -229,12 +228,12 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     distfld_->attach( alignedBelow, infld_ );
 
     const char* strs[] = { "Left", "Right", "Both", 0 };
-    sidefld_ = new uiGenInput(this, tr("Direction"), 
+    sidefld_ = new uiGenInput(this, tr("Direction"),
 			     StringListInpSpec(strs));
     sidefld_->setValue( 2 );
     sidefld_->attach( alignedBelow, distfld_ );
 
-    outfld_ = new uiIOObjSel( this, outctio_, 
+    outfld_ = new uiIOObjSel( this, outctio_,
 			      uiStrings::phrOutput(uiStrings::sRandomLine()));
     outfld_->attach( alignedBelow, sidefld_ );
 
@@ -257,10 +256,9 @@ bool uiGenRanLinesByShift::dispOnCreation()
 }
 
 
-const char* uiGenRanLinesByShift::getNewSetID() const
+MultiID uiGenRanLinesByShift::getNewSetID() const
 {
-    BufferString* multid = new BufferString( outctio_.ioobj_->key().buf() );
-    return outctio_.ioobj_ ? multid->buf() : 0;
+    return outctio_.ioobj_ ? outctio_.ioobj_->key() : MultiID::udf();
 }
 
 
@@ -316,9 +314,9 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     outctio_.ctxt_.forread_ = false;
     inctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
 
-    infld_ = new uiIOObjSel( this, inctio_, 
+    infld_ = new uiIOObjSel( this, inctio_,
 			     uiStrings::phrInput(uiStrings::sPolygon()) );
-    
+
     zrgfld_ = new uiSelZRange( this, true );
     zrgfld_->attach( alignedBelow, infld_ );
     outfld_ = new uiIOObjSel( this, outctio_,
@@ -337,10 +335,9 @@ uiGenRanLineFromPolygon::~uiGenRanLineFromPolygon()
 }
 
 
-const char* uiGenRanLineFromPolygon::getNewSetID() const
+MultiID uiGenRanLineFromPolygon::getNewSetID() const
 {
-    BufferString* multid = new BufferString( outctio_.ioobj_->key().buf() );
-    return outctio_.ioobj_ ? multid->buf() : 0;
+    return outctio_.ioobj_ ? outctio_.ioobj_->key() : MultiID::udf();
 }
 
 

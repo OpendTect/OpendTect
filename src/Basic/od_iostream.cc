@@ -779,12 +779,15 @@ od_istream& od_istream::get( SeparString& ss )
     BufferString bs; get( bs ); ss = bs.buf();
     return *this;
 }
+
 mImplStrmAddFn(const CompoundKey&,t.buf())
 od_istream& od_istream::get( CompoundKey& ck )
 {
     BufferString bs; get( bs ); ck = bs.buf();
     return *this;
 }
+
+mImplStrmAddFn(const MultiID&,t.toString())
 
 
 od_istrstream::od_istrstream( const char* str )

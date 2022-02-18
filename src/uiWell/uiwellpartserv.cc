@@ -79,7 +79,6 @@ int uiWellPartServer::evDisplayWell()		    { return 2; }
 uiWellPartServer::uiWellPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , disponcreation_(false)
-    , multiid_(0)
     , randLineDlgClosed(this)
     , uiwellpropDlgClosed(this)
 {
@@ -244,7 +243,7 @@ void uiWellPartServer::importReadyCB( CallBacker* cb )
     if ( uiwellimpdlg_ && cb==uiwellimpdlg_ )
     {
 	crwellids_.erase();
-	crwellids_.add( uiwellimpdlg_->getWellID().buf() );
+	crwellids_.add( uiwellimpdlg_->getWellID() );
 	sendEvent( evDisplayWell() );
     }
 }
@@ -608,7 +607,7 @@ void uiWellPartServer::simpleImpDlgClosed( CallBacker* )
     if ( !manwelldlg_ )
 	return;
 
-    manwelldlg_->selGroup()->fullUpdate( MultiID(crwellids_.get(0)) );
+    manwelldlg_->selGroup()->fullUpdate( crwellids_.get(0) );
 }
 
 

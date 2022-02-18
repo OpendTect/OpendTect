@@ -121,7 +121,7 @@ void WellServerTool::getWellInfo()
     getWD( sInfoCmd, LoadReqs(Inf) );
     if ( !wd_ )	return;
 
-    set( sKey::ID(), wd_->multiID().buf() );
+    set( sKey::ID(), wd_->multiID() );
     set( sKey::Name(), wd_->name() );
 
     const Info& inf = wd_->info();

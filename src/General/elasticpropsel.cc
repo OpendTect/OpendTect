@@ -924,7 +924,7 @@ float ElasticPropGen::getValue( const CalcData& cd, const float* vals, int sz )
 
 ElasticPropSelection* ElasticPropSelection::getByDBKey( const MultiID& mid )
 {
-    const IOObj* obj = mid.isEmpty() ? nullptr : IOM().get( mid );
+    const IOObj* obj = mid.isUdf() ? nullptr : IOM().get( mid );
     return obj ? getByIOObj( obj ) : nullptr;
 }
 

@@ -55,7 +55,6 @@ EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
     , em_( EM::EMM() )
     , emobject_( 0 )
-    , parmid_( -1 )
     , editor_( 0 )
     , eventcatcher_( 0 )
     , transformation_( 0 )
@@ -268,7 +267,7 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
     if ( nontexturecolisset_ )
 	emobject_->setPreferredColor( nontexturecol_ );
 
-    restoresessupdate_ = !editor_ && parmid_!=MultiID(-1);
+    restoresessupdate_ = !editor_ && !parmid_.isUdf();
     bool res = updateFromEM( tr );
     restoresessupdate_ = false;
 

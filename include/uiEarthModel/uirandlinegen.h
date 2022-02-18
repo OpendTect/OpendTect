@@ -31,7 +31,7 @@ public:
 			uiGenRanLinesByContour(uiParent*);
 			~uiGenRanLinesByContour();
 
-    const char*		getNewSetID() const;
+    MultiID		getNewSetID() const;
     bool		dispOnCreation();
 
 protected:
@@ -72,7 +72,7 @@ public:
 			uiGenRanLinesByShift(uiParent*);
 			~uiGenRanLinesByShift();
 
-    const char*		getNewSetID() const;
+    MultiID		getNewSetID() const;
     bool		dispOnCreation();
 
 protected:
@@ -99,7 +99,7 @@ public:
 			uiGenRanLineFromPolygon(uiParent*);
 			~uiGenRanLineFromPolygon();
 
-    const char*		getNewSetID() const;
+    MultiID		getNewSetID() const;
     bool		dispOnCreation();
 
 protected:

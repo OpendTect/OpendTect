@@ -35,7 +35,6 @@ uiHorizonAuxDataDlg( uiParent* p,
 					    , mNoDlgTitle
 					    , mNoHelpKey ))
     , auxidx_( 0 )
-    , selmid_( 0 )
     , auxinfo_( new uiHorizonAuxDataSel::HorizonAuxDataInfo(info) )
 {
     uiGroup* grp = new uiGroup( this, "Group" );
@@ -78,7 +77,7 @@ void setSelection( const MultiID& mid, int auxidx )
     if ( auxidx_>=0 )
 	datalistfld_->setCurrentItem( auxidx_ );
 
-    const bool hchanged = !selmid_.isEmpty() && selmid_==mid;
+    const bool hchanged = !selmid_.isUdf() && selmid_==mid;
     selmid_ = mid;
     for ( int idx=0; idx<auxinfo_->mids_.size(); idx++ )
     {
@@ -174,7 +173,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
 
     StringListInpSpec str;
     PtrMan<IOObj> obj = IOM().get(mid);
-    const bool hasobj = !mid.isEmpty() && obj;
+    const bool hasobj = !mid.isUdf() && obj;
     if ( hasobj )
     {
 	EM::IOObjInfo eminfo( mid );

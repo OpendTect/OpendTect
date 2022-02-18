@@ -291,7 +291,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 
 	uiIOObjSel* os = new uiIOObjSel( this, ctxt, fldtxt );
 	res = pars_.find( mGetSeisBayesAPProbIDKey(idx) );
-	os->setInput( MultiID(res) );
+	os->setInput( MultiID(res.buf()) );
 	os->attach( alignedBelow, alobj );
 	apflds_ += os;
 	if ( !res.isEmpty() )

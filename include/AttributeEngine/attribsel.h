@@ -23,7 +23,7 @@ class BinDataDesc;
 namespace ZDomain { class Info; }
 
 
-namespace Attrib 
+namespace Attrib
 {
 
 class Desc;
@@ -73,10 +73,10 @@ public:
 			    { zdomainkey_ = key; }
     void		setZDomainKey(const Desc&);
 
-    void		set( const char* r, DescID i, bool isnla, 
-	    		     const char* objr )
+    void		set( const char* r, DescID i, bool isnla,
+			     const char* objr )
 			{ ref_ = r; id_ = i; isnla_ = isnla; objref_ = objr;
-		          defstring_ = ""; zdomainkey_ = ""; }
+			  defstring_ = ""; zdomainkey_ = ""; }
 
     void		setIDFromRef(const NLAModel&);
     void		setIDFromRef(const DescSet&);
@@ -158,9 +158,9 @@ public:
     SelInfo&		operator=(const SelInfo&);
 
     BufferStringSet	ioobjnms_;
-    BufferStringSet	ioobjids_;
+    TypeSet<MultiID>	ioobjids_;
     BufferStringSet	steernms_;
-    BufferStringSet	steerids_;
+    TypeSet<MultiID>	steerids_;
     BufferStringSet	attrnms_;
     TypeSet<DescID>	attrids_;
     BufferStringSet	nlaoutnms_;
@@ -172,9 +172,12 @@ public:
     static void		getZDomainItems(const ZDomain::Info&,bool is2d,
 					BufferStringSet& objnms);
 
-    			//!< 2D only
-    static void		getAttrNames(const char* defstr_or_ioobjid,
-	    			     BufferStringSet&,bool issteer=false,
+			//!< 2D only
+    static void		getAttrNames(const char* defstr,
+				     BufferStringSet&,bool issteer=false,
+				     bool onlymulticomp=false);
+    static void		getAttrNames(const MultiID&,
+				     BufferStringSet&,bool issteer=false,
 				     bool onlymulticomp=false);
 
 protected:
@@ -187,4 +190,3 @@ protected:
 };
 
 } // namespace Attrib
-

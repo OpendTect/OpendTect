@@ -22,7 +22,7 @@ public:
 			uiSimpleMultiWellCreate(uiParent*);
 
     bool		wantDisplay() const;
-    const BufferStringSet& createdWellIDs() const	{ return crwellids_; }
+    const TypeSet<MultiID>& createdWellIDs() const	{ return crwellids_; }
 
 protected:
 
@@ -32,7 +32,7 @@ protected:
     int			overwritepol_;
     float		vel_;
     Interval<float>	defzrg_;
-    BufferStringSet	crwellids_;
+    TypeSet<MultiID>	crwellids_;
     const UnitOfMeasure* zun_;
 
     bool		acceptOK(CallBacker*);
@@ -45,6 +45,4 @@ protected:
 
     friend class	uiSimpleMultiWellCreateReadData;
     friend class	SimpleMultiWellImporter;
-
 };
-

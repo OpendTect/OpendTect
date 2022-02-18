@@ -120,8 +120,7 @@ bool uiHor2DFrom3DDlg::checkOutNames( BufferStringSet& outnms ) const
     for ( const auto& mid : horids )
     {
 	BufferString hornm( hor2dnmfld_->text(), EM::EMM().objectName(mid) );
-	IOM().to( MultiID(IOObjContext::getStdDirData(
-						    IOObjContext::Surf)->id_) );
+	IOM().to( IOObjContext::Surf );
 	if ( IOM().getLocal(hornm,0) )
 	    existinghornms.add( hornm );
 

@@ -90,8 +90,9 @@ bool Mute::setMuteDefID( const MultiID& mid )
     if ( id_==mid )
 	return true;
 
-    if ( mid.isEmpty() )
+    if ( mid.isUdf() )
 	mErrRet( tr("No MuteDef ID provided.") )
+
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
 	mErrRet(tr("Cannot find MuteDef ID '%1' in Object Manager.").arg(mid) );

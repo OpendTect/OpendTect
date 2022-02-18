@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 const char* StaticsDesc::sKeyHorizon()	{ return "Statics Horizon"; }
 const char* StaticsDesc::sKeyVelocity()	{ return "Statics Velocity"; }
-const char* StaticsDesc::sKeyVelocityAttrib()	
+const char* StaticsDesc::sKeyVelocityAttrib()
 { return "Statics Velocity Attrib"; }
 
 
@@ -30,7 +30,7 @@ void StaticsDesc::fillPar( IOPar& par ) const
 {
     par.set( sKeyHorizon(), horizon_ );
 
-    if ( !horizon_.isEmpty() )
+    if ( !horizon_.isUdf() )
     {
 	par.set( sKeyVelocity(), vel_ );
 	par.set( sKeyVelocityAttrib(), velattrib_ );
@@ -67,11 +67,11 @@ void StaticsDesc::removePars( IOPar& par )
 
 bool StaticsDesc::usePar( const IOPar& par )
 {
-    horizon_.setEmpty();
+    horizon_.setUdf();
     vel_ = mUdf(float);
     par.get( sKeyHorizon(), horizon_ );
 
-    if ( horizon_.isEmpty() )
+    if ( horizon_.isUdf() )
 	return true;
 
     par.get( sKeyVelocityAttrib(), velattrib_ );

@@ -85,7 +85,7 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
     shapefld_->attach( alignedBelow, szfld_ );
 
     outpfld_ = new uiGenInput( this, uiStrings::sOutput(),
-		               StringListInpSpec( is2d_ ? outpstrs2d 
+			       StringListInpSpec( is2d_ ? outpstrs2d
                                                         : outpstrs3d) );
     outpfld_->attach( alignedBelow, kernelfld_ );
 
@@ -115,10 +115,12 @@ void uiConvolveAttrib::kernelSel( CallBacker* cb )
 }
 
 
-static void setFldInp( uiIOObjSel* fld, const char* str )
+static void setFldInp( uiIOObjSel* fld, const MultiID& mid )
 {
-    IOObj* ioobj = IOM().get( MultiID(str) );
-    if ( !ioobj ) return;
+    IOObj* ioobj = IOM().get( mid );
+    if ( !ioobj )
+	return;
+
     fld->ctxtIOObj( true ).setObj( ioobj );
     fld->updateInput();
 }
@@ -132,8 +134,7 @@ bool uiConvolveAttrib::setParameters( const Desc& desc )
     mIfGetEnum( Convolve::kernelStr(), kernel, kernelfld_->setValue(kernel) )
     mIfGetEnum( Convolve::shapeStr(), shape, shapefld_->setValue(shape) )
     mIfGetInt( Convolve::sizeStr(), size, szfld_->box()->setValue(size) )
-    mIfGetString( Convolve::waveletStr(), wavidstr,
-	    	  setFldInp(waveletfld_,wavidstr) )
+    mIfGetMultiID( Convolve::waveletStr(), wavid, setFldInp(waveletfld_,wavid) )
 
     kernelSel(0);
     return true;
@@ -172,8 +173,10 @@ bool uiConvolveAttrib::getParameters( Desc& desc )
 	mSetInt( Convolve::sizeStr(), szfld_->box()->getIntValue() );
     }
     else if ( typeval == 3 )
+    {
 	if ( waveletfld_->ioobj(true) )
-	    mSetString( Convolve::waveletStr(), waveletfld_->key().buf() );
+	    mSetMultiID( Convolve::waveletStr(), waveletfld_->key() );
+    }
 
     return true;
 }

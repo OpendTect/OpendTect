@@ -148,15 +148,18 @@ public:
 
     void		getSelLogNames(BufferStringSet&) const;
     void		getSelWellNames(BufferStringSet&) const;
-    void		getSelWellIDs(BufferStringSet&) const;
     void		getSelWellIDs(TypeSet<MultiID>&) const;
 
     void		setSelLogNames(const BufferStringSet&);
     void		setSelWellNames(const BufferStringSet&);
-    void		setSelWellIDs(const BufferStringSet&);
     void		setSelWellIDs(const TypeSet<MultiID>&);
 
     void		update(); //call this when data changed
+
+    mDeprecated("Use setSelWellIDs(const TypeSet<MultiID>&)")
+    void		setSelWellIDs(const BufferStringSet&);
+    mDeprecated("Use getSelWellIDs(TypeSet<MultiID>&)")
+    void		getSelWellIDs(BufferStringSet&) const;
 
 protected:
 

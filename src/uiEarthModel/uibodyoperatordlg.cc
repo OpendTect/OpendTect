@@ -396,7 +396,7 @@ void uiBodyOperatorDlg::setOperator( uiTreeViewItem* lv, EM::BodyOperator& opt )
 uiBodyOperatorDlg::BodyOperand::BodyOperand()
 {
     defined_ = false;
-    mid_ = 0;
+    mid_.setUdf();
     act_ = sKeyUdf();
 }
 
@@ -409,8 +409,8 @@ bool uiBodyOperatorDlg::BodyOperand::isOK() const
 {
     if ( !defined_ ) return false;
 
-    return (!mid_.isEmpty() && act_==sKeyUdf()) ||
-           (mid_.isEmpty() && act_!=sKeyUdf());
+    return (!mid_.isUdf() && act_==sKeyUdf()) ||
+	   (mid_.isUdf() && act_!=sKeyUdf());
 }
 
 

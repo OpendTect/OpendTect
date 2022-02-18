@@ -4,24 +4,27 @@
  * DATE     : 2-8-1994
 -*/
 
+#include "ioobj.h"
 
-#include "iox.h"
-#include "iosubdir.h"
+#include "ascstream.h"
+#include "compoundkey.h"
+#include "conn.h"
+#include "file.h"
+#include "filepath.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "iodir.h"
-#include "ascstream.h"
-#include "filepath.h"
-#include "file.h"
-#include "conn.h"
 #include "iopar.h"
+#include "iosubdir.h"
+#include "iox.h"
+#include "keystrs.h"
+#include "perthreadrepos.h"
 #include "ptrman.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "transl.h"
-#include "keystrs.h"
-#include "perthreadrepos.h"
 #include "uistrings.h"
+
 
 class OwnedProducerList : public ObjectSet<const IOObjProducer>
 {
@@ -43,7 +46,7 @@ class IOXProducer : public IOObjProducer
     bool	canMake( const char* typ ) const
 		{ return FixedString(typ)==XConn::sType(); }
     IOObj*	make( const char* nm, const MultiID& ky, bool fd ) const
-		{ return new IOX(nm,ky,fd); }
+		{ return new IOX(nm,ky.toString(),fd); }
 };
 
 int IOX::prodid = IOObj::addProducer( new IOXProducer );
@@ -64,6 +67,15 @@ IOObj::IOObj( const char* nm, const char* ky )
 	, key_(ky)
 	, dirnm_("")
 	, pars_(*new IOPar)
+{
+}
+
+
+IOObj::IOObj( const char* nm, const MultiID& ky )
+    : NamedObject(nm)
+    , key_(ky)
+    , dirnm_("")
+    , pars_(*new IOPar)
 {
 }
 
@@ -112,7 +124,9 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 
     BufferString nm( astream.keyWord() );
     fms = astream.value();
-    MultiID objkey( dirky ); objkey += fms[0];
+    MultiID objkey( dirky );
+    objkey.setObjectID( fms.getIValue(0) );
+
     astream.next();
     BufferString groupnm( astream.keyWord() );
     fms = astream.value();
@@ -131,7 +145,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 	delete tr;
     }
 
-    IOObj* objptr = produce( objtyp, nm, objkey, false );
+    IOObj* objptr = produce( objtyp, nm, objkey.toString(), false );
     if ( !objptr ) return 0;
 
     objptr->setGroup( groupnm );
@@ -139,11 +153,11 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 
     astream.next();
     if ( *astream.keyWord() != '$' )
-	{ delete objptr; objptr = 0; }
+	deleteAndZeroPtr( objptr );
     else
     {
 	if ( !objptr->getFrom(astream) || objptr->isBad() )
-	    { delete objptr; objptr = 0; }
+	    deleteAndZeroPtr( objptr );
 	else
 	{
 	    while ( *astream.keyWord() == '#' )
@@ -154,7 +168,9 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 	}
     }
 
-    while ( !atEndOfSection(astream) ) astream.next();
+    while ( !atEndOfSection(astream) )
+	astream.next();
+
     return objptr;
 }
 
@@ -162,12 +178,14 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 			bool gendef )
 {
-    if ( !nm || !*nm ) nm = "?";
+    if ( !nm || !*nm )
+	nm = "?";
+
     MultiID ky( keyin );
-    if ( ky.isEmpty() )
+    if ( ky.isUdf() )
     {
 	pFreeFnErrMsg( "IOObj : Empty key given");
-	return 0;
+	return nullptr;
     }
 
     const ObjectSet<const IOObjProducer>& prods = getProducers();
@@ -203,10 +221,10 @@ IOObj* IOObj::clone() const
     if ( isSubdir() )
 	return new IOSubDir( *((IOSubDir*)this) );
 
-    if ( key().isEmpty() )
+    if ( key().isUdf() )
 	return 0;
 
-    IOObj* ret = produce( connType(), name(), key(), false );
+    IOObj* ret = produce( connType(), name(), key().toString(), false );
     if ( !ret )
 	{ pErrMsg("Cannot 'produce' IOObj of my own type"); return 0; }
     ret->copyFrom( this );
@@ -258,7 +276,7 @@ bool IOObj::put( ascostream& astream ) const
 
 int IOObj::myKey() const
 {
-    return toInt( key_.key( key_.nrKeys()-1 ) );
+    return key_.objectID();
 }
 
 
@@ -298,7 +316,7 @@ bool IOObj::isSurveyDefault( const MultiID& ky )
     IOPar* dpar = SI().pars().subselect( sKey::Default() );
     bool ret = false;
     if ( dpar && !dpar->isEmpty() )
-	ret = dpar->findKeyFor( ky );
+	ret = dpar->findKeyFor( ky.toString() );
     delete dpar;
     return ret;
 }
@@ -346,25 +364,19 @@ bool IOObj::isInCurrentSurvey() const
 
 bool areEqual( const IOObj* o1, const IOObj* o2 )
 {
-    if ( !o1 && !o2 ) return true;
-    if ( !o1 || !o2 ) return false;
+    if ( !o1 && !o2 )
+	return true;
 
-    return equalIOObj(o1->key(),o2->key());
-}
+    if ( !o1 || !o2 )
+	return false;
 
-
-static void mkStd( MultiID& ky )
-{
-    if ( ky.ID(ky.nrKeys()-1) == 1 ) ky = ky.upLevel();
-    if ( ky.isEmpty() ) ky = "0";
+    return o1->key() == o2->key();
 }
 
 
 bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 {
-    MultiID k1( ky1 ); MultiID k2( ky2 );
-    mkStd( k1 ); mkStd( k2 );
-    return k1 == k2;
+    return ky1 == ky2;
 }
 
 
@@ -384,8 +396,10 @@ IOSubDir::IOSubDir( const IOSubDir& oth )
 
 IOSubDir* IOSubDir::get( ascistream& strm, const char* dirnm )
 {
-    IOSubDir* ret = new IOSubDir( strm.value() );
-    ret->key_ = strm.keyWord() + 1;
+    auto* ret = new IOSubDir( strm.value() );
+    const MultiID mid( strm.keyWord() + 1 );
+    ret->key_.setGroupID( 0 );
+    ret->key_.setObjectID( mid.groupID() );
     ret->dirnm_ = dirnm;
     ret->isbad_ = !File::isDirectory( ret->dirName() );
     strm.next(); return ret;
@@ -435,7 +449,7 @@ const char* IOX::connType() const
 
 bool IOX::isBad() const
 {
-    return ownkey_ == "";
+    return ownkey_.isUdf();
 }
 
 
@@ -453,7 +467,9 @@ void IOX::copyFrom( const IOObj* obj )
 const char* IOX::fullUserExpr( bool i ) const
 {
     IOObj* ioobj = IOM().get( ownkey_ );
-    if ( !ioobj ) return "<invalid>";
+    if ( !ioobj )
+	return "<invalid>";
+
     const char* s = ioobj->fullUserExpr(i);
     delete ioobj;
     return s;
@@ -463,8 +479,10 @@ const char* IOX::fullUserExpr( bool i ) const
 bool IOX::implExists( bool i ) const
 {
     IOObj* ioobj = IOM().get( ownkey_ );
-    if ( !ioobj ) return false;
-    bool yn = ioobj->implExists(i);
+    if ( !ioobj )
+	return false;
+
+    const bool yn = ioobj->implExists(i);
     delete ioobj;
     return yn;
 }
@@ -489,13 +507,13 @@ Conn* IOX::getConn( bool forread ) const
 
 IOObj* IOX::getIOObj() const
 {
-    return ownkey_ == "" ? 0 : IOM().get( ownkey_ );
+    return ownkey_.isUdf() ? nullptr : IOM().get( ownkey_ );
 }
 
 
 bool IOX::getFrom( ascistream& stream )
 {
-    ownkey_ = stream.value();
+    ownkey_.fromString( stream.value() );
     stream.next();
     return true;
 }

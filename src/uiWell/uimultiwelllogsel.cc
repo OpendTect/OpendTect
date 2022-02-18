@@ -593,7 +593,7 @@ void uiMultiWellLogSel::getSelWellIDs( BufferStringSet& wids ) const
     TypeSet<MultiID> mids;
     getSelWellIDs( mids );
     for ( int idx=0; idx<mids.size(); idx++ )
-	wids.add( mids[idx] );
+	wids.add( mids[idx].toString() );
 }
 
 
@@ -651,10 +651,7 @@ void uiMultiWellLogSel::readWellChoiceDone( CallBacker* )
 {
     if ( !wellschoiceio_ ) return;
 
-    TypeSet<MultiID> mids;
-    for ( int idx=0; idx<wellschoiceio_->chosenKeys().size(); idx++ )
-	mids += MultiID( wellschoiceio_->chosenKeys().get(idx).buf() );
-    setSelWellIDs( mids );
+    setSelWellIDs( wellschoiceio_->chosenKeys() );
 }
 
 
@@ -664,5 +661,5 @@ void uiMultiWellLogSel::writeWellChoiceReq( CallBacker* )
 
     wellschoiceio_->keys().setEmpty();
     for ( int idx=0; idx<wellobjs_.size(); idx++ )
-	wellschoiceio_->keys().add( wellobjs_[idx]->key().buf() );
+	wellschoiceio_->keys().add( wellobjs_[idx]->key() );
 }

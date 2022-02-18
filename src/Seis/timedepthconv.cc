@@ -656,11 +656,10 @@ float Time2DepthStretcher::getGoodZStep() const
 }
 
 
-const char* Time2DepthStretcher::getZDomainID() const
+MultiID Time2DepthStretcher::getZDomainID() const
 {
     return velreader_ && velreader_->ioObj()
-	? velreader_->ioObj()->key().buf()
-	: 0;
+	? velreader_->ioObj()->key() : MultiID::udf();
 }
 
 
@@ -761,7 +760,7 @@ float Depth2TimeStretcher::getGoodZStep() const
 }
 
 
-const char* Depth2TimeStretcher::getZDomainID() const
+MultiID Depth2TimeStretcher::getZDomainID() const
 { return stretcher_->getZDomainID(); }
 
 

@@ -206,7 +206,7 @@ void ODSession::setStartupData( bool douse, const MultiID& id )
 
     if ( curid != id )
     {
-	SI().getPars().set( sKeyStartupID(), (const char*)id );
+	SI().getPars().set( sKeyStartupID(), id );
 	SI().savePars();
     }
 }

@@ -450,7 +450,7 @@ void uiODVw2DTreeItem::doSave()
 
     const EM::ObjectID emid = EM::ObjectID( objid_ );
     bool savewithname = false;
-    if ( !EM::EMM().getMultiID(emid).isEmpty() )
+    if ( !EM::EMM().getMultiID(emid).isUdf() )
 	savewithname = !IOM().get( EM::EMM().getMultiID(emid) );
     doStoreObject( savewithname );
 

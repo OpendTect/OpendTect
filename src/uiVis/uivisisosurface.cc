@@ -50,7 +50,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 
     seedselfld_ = new uiIOObjSel( this, *mMkCtxtIOObj(PickSet), tr("Seeds") );
     MultiID mid = vd->getSeedsID( isosurface );
-    if ( !mid.isEmpty() )
+    if ( !mid.isUdf() )
     	seedselfld_->setInput( mid );
 
     seedselfld_->display( !fullmode );
@@ -110,7 +110,7 @@ bool uiVisIsoSurfaceThresholdDlg::acceptOK()
     updatePressed( 0 );
 
     if ( !vd_->isFullMode(isosurfacedisplay_) &&
-	  vd_->getSeedsID(isosurfacedisplay_).isEmpty() )
+	  vd_->getSeedsID(isosurfacedisplay_).isUdf() )
 	return false;
 
     return true;
@@ -150,8 +150,8 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
 
     const bool fullmode = modefld_->getBoolValue();
     const bool aboveisoval = aboveisovaluefld_->getBoolValue();
-    MultiID mid( 0 );
-    mid.setEmpty();
+    MultiID mid;
+    mid.setUdf();
     if ( !fullmode && seedselfld_->commitInput() &&
 	  seedselfld_->ctxtIOObj().ioobj_ )
 	mid = seedselfld_->ctxtIOObj().ioobj_->key();
@@ -181,7 +181,7 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
     vd_->setFullMode( isosurfacedisplay_, fullmode );
     if ( !fullmode )
     {
-	if ( mid.isEmpty() )
+	if ( mid.isUdf() )
 	{
 	    uiMSG().error(tr("Cannot find input seeds"));
 	    return;

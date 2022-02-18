@@ -31,10 +31,7 @@ public:
 			mDeclareEnumUtils(CorrType)
 
 			Setup()
-			    : wellid_(-1)
-			    , seisid_()
-			    , wvltid_(-1)
-			    , linenm_(*new BufferString) //empty = data is 3D
+			    : linenm_(*new BufferString) //empty = data is 3D
 			    , issonic_(true)
 			    , useexistingd2tm_(true)
 			    , corrtype_(Automatic)

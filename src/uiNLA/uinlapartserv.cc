@@ -94,12 +94,15 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 {
     const NLACreationDesc& crdesc = creationDesc();
 
+    TypeSet<MultiID> mids;
+    for ( int idx=0; idx<crdesc.outids.size(); idx++ )
+	mids.add( MultiID(crdesc.outids.get(idx).buf()) );
+
     if ( !crdesc.isdirect )
 	PickSetTranslator::createDataPointSets( crdesc.outids, dpss, is2d_ );
     else
     {
-	Well::TrackSampler* ts = new Well::TrackSampler( crdesc.outids, dpss,
-							 SI().zIsTime() );
+	auto* ts = new Well::TrackSampler( mids, dpss, SI().zIsTime() );
 	ts->for2d_ = is2d_;
 	ts->usePar( crdesc.pars );
 	uiTaskRunner uiex( appserv().parent() );
@@ -262,7 +265,11 @@ bool uiNLAPartServer::extractDirectData( ObjectSet<DataPointSet>& dpss )
 	return false;
     }
 
-    Well::LogDataExtracter lde( crdesc.outids, dpss, SI().zIsTime() );
+    TypeSet<MultiID> mids;
+    for ( int idx=0; idx<crdesc.outids.size(); idx++ )
+	mids.add( MultiID(crdesc.outids.get(idx).buf()) );
+
+    Well::LogDataExtracter lde( mids, dpss, SI().zIsTime() );
     lde.usePar( crdesc.pars );
     uiTaskRunner uiex( appserv().parent() );
     return TaskRunner::execute( &uiex, lde );

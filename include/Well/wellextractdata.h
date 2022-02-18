@@ -159,7 +159,7 @@ public:
     od_int64		nrDone() const		{ return curidx_; }
     od_int64		totalNr() const		{ return totalnr_; }
 
-    const ObjectSet<MultiID>&	ids() const	{ return ids_; }
+    const TypeSet<MultiID>&	ids() const	{ return ids_; }
     const ObjectSet<Info>&	infos() const	{ return infos_; }
 				//!< Same size as ids()
     const ObjectSet<MarkerSet>&	markers() const	{ return markers_; }
@@ -177,7 +177,7 @@ public:
 protected:
 
     SurveyDiskLocation&		survloc_;
-    ObjectSet<MultiID>		ids_;
+    TypeSet<MultiID>		ids_;
     ObjectSet<Info>		infos_;
     ObjectSet<MarkerSet>	markers_;
     ObjectSet<BufferStringSet>	logs_;
@@ -203,7 +203,7 @@ mExpClass(Well) TrackSampler : public ::Executor
 { mODTextTranslationClass(TrackSampler);
 public:
 
-			TrackSampler(const BufferStringSet& ioobjids,
+			TrackSampler(const TypeSet<MultiID>& ioobjids,
 				     ObjectSet<DataPointSet>&,
 				     bool zvalsintime);
 
@@ -227,7 +227,7 @@ public:
 			{ return errmsg_.isEmpty() ? uiString::emptyString()
 						   : errmsg_; }
 
-    const BufferStringSet&	ioObjIds() const	{ return ids_; }
+    const TypeSet<MultiID>&	ioObjIds() const	{ return ids_; }
     ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss_; }
 
     static const char*	sKeySelRadius();
@@ -237,7 +237,7 @@ public:
 
 protected:
 
-    const BufferStringSet&	ids_;
+    const TypeSet<MultiID>&	ids_;
     ObjectSet<DataPointSet>&	dpss_;
     int				curid_;
     const bool			zistime_;
@@ -262,7 +262,7 @@ mExpClass(Well) LogDataExtracter : public ::Executor
 { mODTextTranslationClass(LogDataExtracter);
 public:
 
-			LogDataExtracter(const BufferStringSet& ioobjids,
+			LogDataExtracter(const TypeSet<MultiID>& ioobjids,
 					 ObjectSet<DataPointSet>&,
 					 bool zvalsintime);
 
@@ -278,7 +278,7 @@ public:
     od_int64		nrDone() const	   { return curid_; }
     od_int64		totalNr() const	   { return ids_.size(); }
 
-    const BufferStringSet&	ioObjIds() const	{ return ids_; }
+    const TypeSet<MultiID>&	ioObjIds() const	{ return ids_; }
 
     static float	calcVal(const Log&,float dah,float winsz,
 				Stats::UpscaleType samppol,
@@ -287,7 +287,7 @@ public:
 
 protected:
 
-    const BufferStringSet&	ids_;
+    const TypeSet<MultiID>&	ids_;
     ObjectSet<DataPointSet>&	dpss_;
     int				curid_;
     const bool			zistime_;
@@ -421,6 +421,4 @@ protected:
     Stats::UpscaleType		samppol_;
 };
 
-}; // namespace Well
-
-
+} // namespace Well

@@ -136,8 +136,8 @@ void uiStratTreeToDisp::readUnits()
 
 void uiStratTreeToDisp::addUnit( const Strat::NodeUnitRef& ur )
 {
-    StratDispData::Unit* un = new StratDispData::Unit( ur.code(), ur.fullCode(),
-							ur.color() );
+    auto* un =
+	new StratDispData::Unit( ur.code(), ur.fullCode().buf(), ur.color() );
     un->color_.setTransparency( 0 );
     un->zrg_ = ur.timeRange();
     data_.addUnit( ur.treeDepth()-1, un );
@@ -184,8 +184,7 @@ void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
 	    lvls.isPresent( id ) ? lvls.get( id )->color() : OD::Color::Black();
     lvlnm = lvls.isPresent( id ) ? lvls.get( id )->name().buf() : "";
 
-    StratDispData::Level* lvl = new StratDispData::Level( lvlnm.buf(),
-							  ur.fullCode() );
+    auto* lvl = new StratDispData::Level( lvlnm.buf(), ur.fullCode().buf() );
     lvl->zpos_ = ur.timeRange().start;
     lvl->color_ = lvlcol;
     data_.getCol( levelcolidx_ )->levels_ += lvl;

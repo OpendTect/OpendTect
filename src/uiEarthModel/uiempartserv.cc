@@ -1494,8 +1494,8 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
     if ( !exec )
     {
 	PtrMan<IOObj> ioobj = IOM().get(mid);
-	BufferString nm = ioobj ? (const char*) ioobj->name()
-				: (const char*) mid;
+	BufferString nm = ioobj ? ioobj->name().buf()
+				: mid.toString().buf();
 	uiString msg = tr( "Cannot load '%1'" ).arg( nm );
 	uiMSG().error( msg );
 	return false;
@@ -1516,15 +1516,15 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
 }
 
 
-const char* uiEMPartServer::genRandLine( int opt )
+MultiID uiEMPartServer::genRandLine( int opt )
 {
-    const char* res = 0;
+    MultiID key;
     if ( opt == 0 )
     {
 	uiGenRanLinesByShift dlg( parent() );
 	if ( dlg.go() )
 	{
-	    res = dlg.getNewSetID();
+	    key = dlg.getNewSetID();
 	    disponcreation_ = dlg.dispOnCreation();
 	}
     }
@@ -1533,7 +1533,7 @@ const char* uiEMPartServer::genRandLine( int opt )
 	uiGenRanLinesByContour dlg( parent() );
 	if ( dlg.go() )
 	{
-	    res = dlg.getNewSetID();
+	    key = dlg.getNewSetID();
 	    disponcreation_ = dlg.dispOnCreation();
 	}
     }
@@ -1542,12 +1542,12 @@ const char* uiEMPartServer::genRandLine( int opt )
 	uiGenRanLineFromPolygon dlg( parent() );
 	if ( dlg.go() )
 	{
-	    res = dlg.getNewSetID();
+	    key = dlg.getNewSetID();
 	    disponcreation_ = dlg.dispOnCreation();
 	}
     }
 
-    return res;
+    return key;
 }
 
 

@@ -702,17 +702,13 @@ void uiCreate2DGrid::fillSeisPar( IOPar& par )
 void uiCreate2DGrid::fillHorPar( IOPar& par )
 {
     const TypeSet<MultiID>& horids = horselfld_->getSelected();
-    BufferStringSet horidstrs;
-    for ( int idx=0; idx<horids.size(); idx++ )
-	horidstrs.add( horids[idx].buf() );
-
-    par.set( Horizon2DGridCreator::sKeyInputIDs(), horidstrs );
+    par.set( Horizon2DGridCreator::sKeyInputIDs(), horids );
     par.set( Horizon2DGridCreator::sKeySeisID(), outfld_->key() );
     par.set( Horizon2DGridCreator::sKeyPrefix(), hornmfld_->text() );
 }
 
 
-bool uiCreate2DGrid::checkInput( IOPar& par ) const
+bool uiCreate2DGrid::checkInput( IOPar& ) const
 {
     return checkLineNames() == 1;
 }

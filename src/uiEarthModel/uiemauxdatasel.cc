@@ -22,7 +22,7 @@ ________________________________________________________________________
 uiEMAuxDataSel::uiEMAuxDataSel( uiParent* p, const uiString& lbl,
 				const MultiID* hormid, const char* auxdatanm )
     : uiCompoundParSel( p, lbl )
-    , hormid_(hormid ? *hormid : -1)
+    , hormid_(hormid ? *hormid : MultiID::udf())
     , auxdatanm_(auxdatanm)
 {
     butPush.notify( mCB(this,uiEMAuxDataSel,butPushCB) );
@@ -32,7 +32,7 @@ uiEMAuxDataSel::uiEMAuxDataSel( uiParent* p, const uiString& lbl,
 void uiEMAuxDataSel::butPushCB( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup(tr("Horizon/Attributes Selection"),
-                                        uiStrings::sEmptyString(),mNoHelpKey) );
+					uiStrings::sEmptyString(),mNoHelpKey) );
     PtrMan<uiSurfaceRead> surfacefld = new uiSurfaceRead( &dlg,
 		  uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::sGroupName())
 				 .withsectionfld(false)

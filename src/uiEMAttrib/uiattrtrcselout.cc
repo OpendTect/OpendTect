@@ -399,10 +399,8 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	}
     }
 
-    BufferString outseisid;
-    outseisid += outioobj->key();
     fillOutPar( iopar, Output::tskey(), SeisTrcStorOutput::seisidkey(),
-		outseisid );
+		outioobj->key() );
 
     BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 0);
     BufferString key = IOPar::compKey( sKey::Geometry(), tmpkey );

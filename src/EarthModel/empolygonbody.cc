@@ -316,9 +316,13 @@ PolygonBodyGeometry::~PolygonBodyGeometry()
 Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
 				      const MultiID* key )
 {
-    const MultiID& mid = key && !(*key=="") ? *key : surface_.multiID();
+    const MultiID& mid = key && !key->isUdf() ? *key : surface_.multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) { surface_.setErrMsg(uiStrings::sCantFindSurf() ); return 0; }
+    if ( !ioobj )
+    {
+	surface_.setErrMsg(uiStrings::sCantFindSurf() );
+	return nullptr;
+    }
 
     return surface_.saver( ioobj );
 }

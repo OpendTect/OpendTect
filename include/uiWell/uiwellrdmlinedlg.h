@@ -85,7 +85,7 @@ public:
 			~uiWell2RandomLineDlg();
 
     void		getCoordinates(TypeSet<Coord>&);
-    const char*		getRandLineID() const;
+    MultiID		getRandLineID() const;
     bool		dispOnCreation();
 
 protected:

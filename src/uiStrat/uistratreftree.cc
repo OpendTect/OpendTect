@@ -305,7 +305,7 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 void uiStratRefTree::addLithologies( LeavedUnitRef& un,
 					const TypeSet<int>& ids )
 {
-    uiTreeViewItem* lvit = getLVItFromFullCode( un.fullCode() );
+    uiTreeViewItem* lvit = getLVItFromFullCode( un.fullCode().buf() );
     if ( !lvit ) return;
     for ( int idx=0; idx<ids.size(); idx++ )
     {

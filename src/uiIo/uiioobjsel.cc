@@ -378,7 +378,7 @@ void uiIOObjSel::fillEntries()
 	const IOObj* obj = del[idx]->ioobj_;
 	if ( !obj ) continue;
 
-	keys.add( obj->key().buf() );
+	keys.add( obj->key().toString() );
 	names.add( obj->name().buf() );
     }
 
@@ -442,7 +442,7 @@ void uiIOObjSel::setInput( const MultiID& mid )
 {
     IOObj* inpobj = IOM().get( mid );
     workctio_.setObj( inpobj );
-    uiIOSelect::setInput( inpobj ? mid.buf() : nullptr );
+    uiIOSelect::setInput( inpobj ? mid.toString() : nullptr );
     if ( inpobj && wrtrselfld_ )
 	wrtrselfld_->use( *inpobj );
 }
@@ -669,7 +669,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 void uiIOObjSel::objInserted( CallBacker* cb )
 {
     mCBCapsuleUnpack( MultiID, ky, cb );
-    if ( !ky.isEmpty() )
+    if ( !ky.isUdf() )
 	setInput( ky );
 }
 

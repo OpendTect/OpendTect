@@ -221,7 +221,7 @@ bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
     eDSHolder().replaceAttribSet( ads );
 
     DescSetMan* adsman = eDSHolder().getDescSetMan( is2d );
-    adsman->attrsetid_ = "";
+    adsman->attrsetid_.setUdf();
     if ( attrsetdlg_ && attrsetdlg_->is2D()==is2d )
 	attrsetdlg_->setDescSetMan( adsman );
     set2DEvent( is2d );
@@ -406,15 +406,14 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 	{
 	    SeisIOObjInfo info( dlg.getStoredAttrName(), Seis::Line );
 	    attrdata.attribid_ = adsman->descSet()->getStoredID(
-					info.ioObj() ? info.ioObj()->key() : 0,
-					dlg.getComponent(), true );
+			info.ioObj() ? info.ioObj()->key() : MultiID::udf(),
+			dlg.getComponent(), true );
 	}
 	else
 	{
 	    attrdata.attribid_.asInt() = dlg.getSelDescID().asInt();
 	    attrdata.outputnr_ = dlg.getOutputNr();
 	}
-
     }
     else
     {
@@ -550,7 +549,8 @@ void uiAttribPartServer::getPossibleOutputs( bool is2d,
     nms.erase();
     SelInfo attrinf( curDescSet( is2d ), 0, is2d );
     nms.append( attrinf.attrnms_ );
-    nms.append( attrinf.ioobjids_ );
+    for ( auto& id : attrinf.ioobjids_ )
+	nms.add( id.toString() );
 }
 
 
@@ -1533,7 +1533,7 @@ bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod,
 
 
 static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
-	const BufferStringSet* ids, const char* cursel,
+	const TypeSet<MultiID>* ids, const char* cursel,
 	int start, int stop, bool correcttype )
 {
     const LineKey lk( cursel );
@@ -1547,7 +1547,7 @@ static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
 	const BufferString& nm = nms.get( idx );
 	MenuItem* itm = new MenuItem( toUiString(nm) );
 	itm->checkable = true;
-	if ( ids && Seis::PLDM().isPresent(MultiID(ids->get(idx))) )
+	if ( ids && Seis::PLDM().isPresent(ids->get(idx)) )
 	    itm->iconfnm = "preloaded";
 	const bool docheck = correcttype && nm == selnm;
 	if ( docheck ) checkparent = true;
@@ -1587,7 +1587,7 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
 			   issteer, issteer, multcomp );
 
     const bool isstored = desc ? desc->isStored() : false;
-    const BufferStringSet bfset =
+    const TypeSet<MultiID>& bfset =
 		issteer ? attrinf.steerids_ : attrinf.ioobjids_;
 
     MenuItem* mnu = menu;
@@ -1598,7 +1598,7 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
 	mnu = submnu;
     }
 
-    int nritems = bfset.size();
+    const int nritems = bfset.size();
     if ( nritems <= cMaxMenuSize )
     {
 	const bool correcttype = desc ? isstored : true;
@@ -1832,7 +1832,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     {
 	const MenuItem* item = stored3dmnuitem_.findItem(mnuid);
 	const int idx = attrinf.ioobjnms_.indexOf(item->text.getFullString());
-	multiid = attrinf.ioobjids_.get(idx);
+	multiid = attrinf.ioobjids_.get( idx );
 	attribid =
 	    eDSHolder().getDescSet(false,true)->getStoredID( multiid, -1, true);
 	isstored = true;
@@ -1879,13 +1879,14 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	if ( is2d )
 	    return false;
 	const MenuItem* item = zdomainmnuitem->findItem( mnuid );
-	IOM().to(MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
-	PtrMan<IOObj> ioobj = IOM().getLocal( item->text.getFullString(), 0 );
+	IOM().to( IOObjContext::Seis );
+	ConstPtrMan<IOObj> ioobj =
+			IOM().getLocal( item->text.getFullString(), nullptr );
 	if ( ioobj )
 	{
 	    multiid = ioobj->key();
-	    attribid = eDSHolder().getDescSet(false,true)->getStoredID( multiid,
-								       -1,true);
+	    auto* ds = eDSHolder().getDescSet(false,true);
+	    attribid = ds->getStoredID( multiid, -1, true );
 	    isstored = true;
 	}
     }
@@ -1896,7 +1897,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     if ( isstored && !nocompsel )
     {
 	BufferStringSet complist;
-	SeisIOObjInfo::getCompNames( multiid.buf(), complist );
+	SeisIOObjInfo::getCompNames( multiid, complist );
 	if ( complist.size()>1 )
 	{
 	    TypeSet<int> selcomps;
@@ -2135,7 +2136,7 @@ void uiAttribPartServer::showCrossEvalDlg( CallBacker* )
 { processEvalDlg( true ); }
 
 
-void uiAttribPartServer::showEvalDlg( CallBacker* cb )
+void uiAttribPartServer::showEvalDlg( CallBacker* )
 { processEvalDlg( false ); }
 
 

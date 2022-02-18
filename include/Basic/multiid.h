@@ -11,61 +11,78 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "compoundkey.h"
-#include "string2.h"
-#include "fixedstring.h"
+#include "typeset.h"
 
 
 /*!
 \brief Compound key consisting of ints.
 */
 
-mExpClass(Basic) MultiID : public CompoundKey
+mExpClass(Basic) MultiID
 {
 public:
-			MultiID(const FixedString& s)
-			: CompoundKey(s)	{}
-			MultiID( const char* s=0 )
-			: CompoundKey(s)	{}
-			MultiID( const MultiID& mid )
-			: CompoundKey(mid)	{}
-			MultiID( int i )
-			{ add(i); }
-			MultiID( int i1, int i2 )
-			{ add(i1); add(i2); }
-			MultiID( int i1, int i2, int i3 )
-			{ add(i1); add(i2); add(i3); }
+			MultiID();
+			MultiID(int grpid,int objid);
+			MultiID(const MultiID&);
+			MultiID(const char* idstr);
+			MultiID(int grpid,int objid,int subgrpid,int subobjid);
+    virtual		~MultiID();
 
-    inline MultiID&	operator =( const MultiID& mi )
-			{ impl_ = mi.impl_; return *this; }
-    inline MultiID&	operator =( const CompoundKey& ck )
-			{ impl_ = ck.buf(); return *this; }
-    inline MultiID&	operator =( const FixedString& fs )
-			{ impl_ = fs.str(); return *this; }
-    inline MultiID&	operator =( const char* s )
-			{ impl_ = s; return *this; }
+    inline int		nrIDs() const			{ return ids_.size(); }
+    int			ID(int idx) const;
+    inline int		groupID() const			{ return ID(0); }
+    inline int		objectID() const		{ return ID(1); }
+    inline int		subGroupID() const		{ return ID(2); }
+    inline int		subObjectID() const		{ return ID(3); }
+    MultiID		mainID() const;
+    bool		isDatabaseID() const;
 
-    inline bool		operator ==( const MultiID& m ) const
-			{ return impl_ == m.impl_; }
-    inline bool		operator ==( const char* s ) const
-			{ return impl_ == s; }
-    inline bool		operator !=( const MultiID& m ) const
-			{ return impl_ != m.impl_; }
-    inline bool		operator !=( const char* s ) const
-			{ return impl_ != s; }
+    MultiID&		setID(int idx,int id);
+    inline MultiID&	setGroupID( int id )		{ return setID(0,id); }
+    inline MultiID&	setObjectID( int id )		{ return setID(1,id); }
+    inline MultiID&	setSubGroupID( int id )		{ return setID(2,id); }
+    inline MultiID&	setSubObjectID( int id )	{ return setID(3,id); }
 
-    inline int		ID( int idx ) const
-			{ return key(idx).toInt(); }
-    inline void		setID( int idx, int i )
-			{ setKey( idx, toString(i) ); }
-    int			leafID() const;
-    MultiID		parent() const;
+    bool		fromString(const char*);
+    BufferString	toString() const;
+    bool		isEqualTo(const char*) const;
 
-    inline MultiID&	add( int i )
-			{ *this += toString(i); return *this; }
+    MultiID&		operator =(const MultiID&);
+    bool		operator ==(const MultiID&) const;
+    bool		operator !=(const MultiID&) const;
 
     static const MultiID& udf();
+    bool		isUdf() const;
     inline void		setUdf()		{ *this = udf(); }
-    inline bool		isUdf() const		{ return *this == udf(); }
+
+private:
+    MultiID&		add(int id);
+    TypeSet<int>	ids_;
+
+public:
+// Obsolete stuff
+			MultiID(int id)				= delete;
+			MultiID(const FixedString&)		= delete;
+
+    void		setEmpty()				= delete;
+    bool		isEmpty() const				= delete;
+
+    inline bool		operator ==(const char*) const		= delete;
+    inline bool		operator !=(const char*) const		= delete;
+    inline MultiID&	operator =(const CompoundKey&)		= delete;
+    inline MultiID&	operator =(const FixedString&)		= delete;
+    inline MultiID&	operator =(const char*)			= delete;
+    MultiID&		operator +=(const char*)		= delete;
+
+    mDeprecated("Use objectID() or subObjectID")
+    int			leafID() const;
+    mDeprecated("Use mainID()")
+    MultiID		parent() const;
+
+// From CompoundKey
+    mDeprecated("Use nrIDs()")
+    int			nrKeys() const		{ return nrIDs(); }
+    mDeprecated("Use toString()")
+    const char*		buf() const;
 };
 

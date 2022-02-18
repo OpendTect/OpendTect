@@ -186,7 +186,7 @@ public:
     bool		geom2Attr(const EM::ObjectID&);
     ZAxisTransform*	getHorizonZAxisTransform(bool is2d);
 
-    const char*		genRandLine(int opt);
+    MultiID		genRandLine(int opt);
     bool		dispLineOnCreation()	{ return disponcreation_; }
 
     void		removeUndo();

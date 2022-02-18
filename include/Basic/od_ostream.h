@@ -13,9 +13,10 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "od_stream.h"
 
-class SeparString;
 class CompoundKey;
 class FixedString;
+class MultiID;
+class SeparString;
 class uiString;
 
 
@@ -73,6 +74,7 @@ public:
     od_ostream&		add(const IOPar&);
     od_ostream&		add(const SeparString&);
     od_ostream&		add(const CompoundKey&);
+    od_ostream&		add(const MultiID&);
     od_ostream&		addTab()		{ return add( "\t" ); }
     od_ostream&		addNewLine()		{ return add( "\n" ); }
 

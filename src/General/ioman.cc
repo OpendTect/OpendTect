@@ -10,6 +10,7 @@
 #include "applicationdata.h"
 #include "ascstream.h"
 #include "commandlineparser.h"
+#include "compoundkey.h"
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
@@ -97,7 +98,7 @@ void applicationClosing()
 }
 
 
-static const MultiID emptykey( "" );
+static const MultiID emptykey( "-1.-1" );
 
 
 IOMan& IOM()
@@ -178,18 +179,17 @@ void IOMan::init()
     state_ = Good;
     curlvl_ = 0;
 
-    if ( dirptr_->key().isUdf() ) return;
-
-    int nrstddirdds = IOObjContext::totalNrStdDirs();
+    const int nrstddirdds = IOObjContext::totalNrStdDirs();
     const IOObjContext::StdDirData* prevdd = nullptr;
     bool needwrite = false;
     FilePath rootfp( rootdir_, "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )
     {
-	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
-	const IOObjContext::StdDirData* dd
-			    = IOObjContext::getStdDirData( stdseltyp );
-	const IOObj* dirioobj = dirptr_->get( MultiID(dd->id_) );
+	auto stdseltyp = sCast(IOObjContext::StdSelType,idx);
+	const IOObjContext::StdDirData* dd =
+			IOObjContext::getStdDirData( stdseltyp );
+	const MultiID mid( 0, toInt(dd->id_) );
+	const IOObj* dirioobj = dirptr_->get( mid );
 	if ( dirioobj )
 	{
 	    prevdd = dd;
@@ -232,7 +232,7 @@ void IOMan::init()
 	// So, we have copied the directory.
 	// Now create an entry in the root omf
 	IOSubDir* iosd = new IOSubDir( dd->dirnm_ );
-	iosd->key_ = dd->id_;
+	iosd->key_.fromString( dd->id_ );
 	iosd->dirnm_ = rootdir_;
 	const IOObj* previoobj = prevdd ? dirptr_->get( MultiID(prevdd->id_) )
 					: dirptr_->main();
@@ -475,13 +475,26 @@ MultiID IOMan::createNewKey( const MultiID& dirkey )
 }
 
 
+bool IOMan::to( IOObjContext::StdSelType type, bool force_reread )
+{
+    MultiID dirid;
+    const int id = IOObjContext::getStdDirData(type)->idAsInt();
+    dirid.setObjectID( id );
+    return to( dirid, force_reread );
+}
+
+
 bool IOMan::to( const MultiID& ky, bool forcereread )
 {
     Threads::Locker lock( lock_ );
     if ( rootdir_.isEmpty() )
 	return false;
 
-    const bool issamedir = dirptr_ && ky == dirptr_->key();
+    MultiID key = ky;
+    if ( key.groupID()>100000 && key.objectID()<0 )
+	key.setGroupID(-1).setObjectID(ky.groupID());
+
+    const bool issamedir = dirptr_ && key.groupID() == dirptr_->key().groupID();
     if ( !forcereread && issamedir )
     {
 	dirptr_->update();
@@ -489,19 +502,19 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
     }
 
     MultiID dirkey;
-    IOObj* refioobj = IODir::getObj( ky );
+    IOObj* refioobj = IODir::getObj( key );
     if ( refioobj )
-	dirkey = refioobj->isSubdir() ? ky : MultiID(ky.upLevel());
+	dirkey = refioobj->isSubdir() ? key : key.mainID();
     else
     {
-	dirkey = ky.upLevel();
+	dirkey = key.mainID();
 	refioobj = IODir::getObj( dirkey );
 	if ( !refioobj )
-	    dirkey = "";
+	    dirkey.setUdf();
     }
     delete refioobj;
 
-    IODir* newdir = dirkey.isEmpty() ? new IODir(rootdir_) : new IODir(dirkey);
+    IODir* newdir = dirkey.isUdf() ? new IODir(rootdir_) : new IODir(dirkey);
     if ( !newdir || newdir->isBad() )
 	return false;
 
@@ -523,7 +536,7 @@ bool IOMan::to( const MultiID& ky, bool forcereread )
 IOObj* IOMan::get( const DBKey& ky ) const
 {
     Threads::Locker lock( lock_ );
-    if ( !IOObj::isKey(ky) )
+    if ( !IOObj::isKey(ky.MultiID::toString()) )
 	return nullptr;
 
     return IODir::getObj( ky );
@@ -533,15 +546,10 @@ IOObj* IOMan::get( const DBKey& ky ) const
 IOObj* IOMan::get( const MultiID& k ) const
 {
     Threads::Locker lock( lock_ );
-    if ( !IOObj::isKey(k) )
+    if ( !IOObj::isKey(k.toString()) )
 	return nullptr;
 
-    MultiID ky( k );
-    char* ptr = firstOcc( ky.getCStr(), '|' );
-    if ( ptr ) *ptr = '\0';
-    ptr = firstOcc( ky.getCStr(), ' ' );
-    if ( ptr ) *ptr = '\0';
-
+    MultiID ky = k.mainID();
     if ( dirptr_ )
     {
 	const IOObj* ioobj = dirptr_->get( ky );
@@ -701,6 +709,13 @@ bool IOMan::isKey( const char* ky ) const
 }
 
 
+const char* IOMan::nameOf(const MultiID& key ) const
+{
+    const DBKey dbkey( key );
+    return objectName( dbkey );
+}
+
+
 const char* IOMan::nameOf( const char* id ) const
 {
     mDeclStaticString( ret );
@@ -807,7 +822,7 @@ void IOMan::getObjEntry( CtxtIOObj& ctio, bool isnew, bool mktmp,
     {
 	MultiID newkey( mktmp ? ctio.ctxt_.getSelKey() : dirptr_->newKey() );
 	if ( mktmp )
-	    newkey.add( IOObj::tmpID() );
+	    newkey.setObjectID( IOObj::tmpID() );
 
 	ioobj = crWriteIOObj( ctio, newkey, translidx );
 	if ( ioobj )
@@ -881,9 +896,9 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 
 bool IOMan::ensureUniqueName( IOObj& ioobj )
 {
-    if ( !dirptr_ || ioobj.key().parent() != dirptr_->key() )
+    if ( !dirptr_ || ioobj.key().groupID() != dirptr_->key().groupID() )
     {
-	if ( !to(ioobj.key().parent()) || !dirptr_ )
+	if ( !to(ioobj.key().mainID()) || !dirptr_ )
 	    return false;
     }
 
@@ -1240,7 +1255,7 @@ bool SurveyDataTreePreparer::prepDirData()
     if ( nr <= 200000 )
 	mErrRet("Invalid selection key passed for '",dd->desc_,"'")
 
-    dd->selkey_ = "";
+    dd->selkey_.setUdf();
     dd->selkey_.setID( 0, nr );
 
     return true;
@@ -1508,7 +1523,7 @@ IODir* IOMan::getDir( const MultiID& mid ) const
 	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
 	const IOObjContext::StdDirData* dd =
 			IOObjContext::getStdDirData( stdseltyp );
-	if ( mid.key(0) == dd->id_ )
+	if ( mid.groupID() == dd->idAsInt() )
 	{
 	    const FilePath fp( rootDir(), dd->dirnm_ );
 	    return fp.exists() ? new IODir( fp.fullPath() ) : nullptr;

@@ -387,8 +387,9 @@ Desc* uiAttrDescEd::getInputDescFromDP( uiAttrSel* inpfld ) const
     if ( !getInputDPID(inpfld,inpdpfid) )
 	return 0;
 
+    pErrMsg("MultiID with a #");
     BufferString dpidstr( "#" );
-    dpidstr.add( inpdpfid.buf() );
+    dpidstr.add( inpdpfid.toString() );
     Desc* inpdesc = Attrib::PF().createDescCopy( StorageProvider::attribName());
     Attrib::ValParam* param =
 	inpdesc->getValParam( Attrib::StorageProvider::keyStr() );

@@ -665,7 +665,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     if ( dlg.go() )
     {
 	MultiID mid( dlg.selWvltID() );
-	if ( mid.isEmpty() )
+	if ( mid.isUdf() )
 	    pErrMsg( "Huh" );
 	else
 	{

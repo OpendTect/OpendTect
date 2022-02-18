@@ -330,7 +330,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
     MultiID tempid;
     if ( pars.get("Output.0.Seismic.ID",tempid) )
     {
-	IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );
+	IOM().to( IOObjContext::Seis );
 	IOM().permRemove( tempid );
     }
 

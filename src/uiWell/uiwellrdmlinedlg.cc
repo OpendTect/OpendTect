@@ -504,10 +504,7 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 }
 
 
-const char* uiWell2RandomLineDlg::getRandLineID() const
+MultiID uiWell2RandomLineDlg::getRandLineID() const
 {
-    if ( !outctio_.ioobj_ )
-	return 0;
-    BufferString* multid = new BufferString( outctio_.ioobj_->key().buf() );
-    return multid->buf();
+    return outctio_.ioobj_ ? outctio_.ioobj_->key() : MultiID::udf();
 }

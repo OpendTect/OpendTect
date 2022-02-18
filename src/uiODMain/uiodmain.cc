@@ -489,7 +489,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
 	  BoolInpSpec(douse,uiStrings::sEnabled(),uiStrings::sDisabled() ));
     usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_ = new uiGenInput( this, tr("Use one for this survey"),
-				BoolInpSpec(!id.isEmpty()) );
+				BoolInpSpec(!id.isUdf()) );
     doselfld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
     doselfld_->attach( alignedBelow, usefld_ );
 
@@ -647,7 +647,7 @@ void uiODMain::handleStartupSession()
     bool douse = false;
     MultiID id;
     ODSession::getStartupData( douse, id );
-    if ( !douse || id.isEmpty() )
+    if ( !douse || id.isUdf() )
 	return;
 
     PtrMan<IOObj> ioobj = IOM().get( id );

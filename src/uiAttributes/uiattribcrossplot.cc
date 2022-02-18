@@ -165,7 +165,7 @@ MultiID uiAttribCrossPlot::getSelectedID() const
     {
 	const int ioobjidx = curitem - attrsz;
 	if ( attrinfo_->ioobjids_.validIdx(ioobjidx) )
-	    return MultiID( attrinfo_->ioobjids_[ioobjidx]->buf() );
+	    return attrinfo_->ioobjids_[ioobjidx];
 
 	return MultiID();
     }
@@ -181,7 +181,7 @@ MultiID uiAttribCrossPlot::getSelectedID() const
 	if ( desc->isPS() )
 	{
 	    MultiID psid;
-	    mGetStringFromDesc( (*desc), psid, "id" );
+	    mGetMultiIDFromDesc( (*desc), psid, "id" );
 	    return psid;
 	}
 

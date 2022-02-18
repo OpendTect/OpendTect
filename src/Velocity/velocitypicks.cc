@@ -74,8 +74,7 @@ const char* Picks::sKeyPickType()	{ return "Pick Type"; }
 const char* Picks::sKeyIsTime()	{ return "Z is time"; }
 
 Picks::Picks()
-    : storageid_(-1)
-    , change(this)
+    : change(this)
     , changelate(this)
     , picks_( 2, 1 )
     , snapper_( SI().zRange(true) )
@@ -95,8 +94,7 @@ Picks::Picks()
 
 
 Picks::Picks( bool zit )
-    : storageid_(-1)
-    , change(this)
+    : change(this)
     , changelate(this)
     , picks_( 2, 1 )
     , snapper_( SI().zRange(true) )
@@ -225,7 +223,7 @@ void Picks::removeAll( bool addtoundo, bool interactionend )
 	undo().setUserInteractionEnd( lastevent, interactionend );
 
     changed_ = false;
-    storageid_ = -1;
+    storageid_.setUdf();
     change.trigger(BinID(-1,-1));
     changelate.trigger(BinID(-1,-1));
 }

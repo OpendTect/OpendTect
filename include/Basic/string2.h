@@ -25,9 +25,11 @@ ________________________________________________________________________
 #include "commondefs.h"
 #include <ctype.h>
 #include <wctype.h>
+
 namespace OD { class String; }
-class CompoundKey;
 class BufferStringSet;
+class CompoundKey;
+class MultiID;
 
 mGlobal(Basic) const char* toString(od_int32);
 mGlobal(Basic) const char* toString(od_uint32);
@@ -51,6 +53,7 @@ mGlobal(Basic) const char* toString(unsigned short);
 mGlobal(Basic) const char* toString(const char*);
 mGlobal(Basic) const char* toString(const OD::String&);
 mGlobal(Basic) const char* toString(const CompoundKey&);
+mGlobal(Basic) const char* toString(const MultiID&);
 
 mGlobal(Basic) bool getFromString(int&,const char*,int udfval);
 mGlobal(Basic) bool getFromString(od_int64&,const char*,od_int64 udfval);

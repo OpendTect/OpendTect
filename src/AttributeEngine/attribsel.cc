@@ -315,10 +315,10 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 void SelInfo::fillStored( bool steerdata, const char* filter )
 {
     BufferStringSet& nms = steerdata ? steernms_ : ioobjnms_;
-    BufferStringSet& ids = steerdata ? steerids_ : ioobjids_;
+    TypeSet<MultiID>& ids = steerdata ? steerids_ : ioobjids_;
     nms.erase(); ids.erase();
     BufferStringSet ioobjnmscopy;
-    BufferStringSet ioobjidscopy;
+    TypeSet<MultiID> ioobjidscopy;
 
     const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
     const IODir iodir( mid );
@@ -370,7 +370,7 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	}
 
 	ioobjnmscopy.add( ioobjnm );
-	ioobjidscopy.add( (const char*)ioobj.key() );
+	ioobjidscopy.add( ioobj.key() );
     }
 
     if ( ioobjnmscopy.size() > 1 )
@@ -429,8 +429,17 @@ bool SelInfo::is2D( const char* defstr )
 void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 			    bool issteer, bool onlymulticomp )
 {
+    const MultiID key( LineKey(defstr).lineName().buf() );
+    getAttrNames( key, nms, issteer, onlymulticomp );
+}
+
+
+void SelInfo::getAttrNames( const MultiID& key, BufferStringSet& nms,
+			    bool issteer, bool onlymulticomp )
+
+{
     nms.erase();
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(LineKey(defstr).lineName().buf()));
+    PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj || !SeisTrcTranslator::is2D(*ioobj,true) )
 	return;
 

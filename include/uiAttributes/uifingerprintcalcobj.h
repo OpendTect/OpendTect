@@ -35,28 +35,29 @@ public:
     void                setWeights( TypeSet<int> wgs )  { weights_ = wgs; }
     void		setRanges(TypeSet<Interval<float> > rg) {ranges_ = rg;}
     void		setValues( TypeSet<float> vals ){ values_ = vals; }
-    void		setRgRefPick(const char* pickid){ rgpickset_ = pickid; }
+    void		setRgRefPick( const MultiID& pickid )
+			{ rgpickset_ = pickid; }
     void		setRgRefType( int type )	{ rgreftype_ = type; }
     void		setValStatsType( int typ )	{ statstype_ = typ; }
-    
+
     TypeSet<int>	getWeights() const		{ return weights_; }
     TypeSet<float>	getValues() const		{ return values_; }
     TypeSet< Interval<float> >	getRanges() const	{ return ranges_; }
-    BufferString	getRgRefPick() const		{ return rgpickset_; }
+    MultiID		getRgRefPick() const		{ return rgpickset_; }
     int			getRgRefType() const		{ return rgreftype_; }
 
     void		clearValues()			{ values_.erase(); }
     void		clearRanges()			{ ranges_.erase(); }
     void		clearWeights()			{ weights_.erase(); }
-    
+
     BinIDValueSet*	createRangesBinIDSet() const;
     void		setValRgSet(BinIDValueSet*,bool);
     bool		computeValsAndRanges();
     static uiString	emTxt()	    { return tr("Cannot create 2D random "
 					    "pickset to compute the ranges:"); }
-    
+
 protected:
-    
+
     void		findDataSetID(MultiID&) const;
     EngineMan*          createEngineMan();
     void                extractAndSaveValsAndRanges();
@@ -74,9 +75,9 @@ protected:
     TypeSet< Interval<float> > ranges_;
     ObjectSet<BinIDValueSet> posset_;
     uiParent*		parent_;
-    BufferString	rgpickset_;
+    MultiID		rgpickset_;
     int			rgreftype_;
-    static void		create2DRandPicks(const MultiID& dsetid, 
+    static void		create2DRandPicks(const MultiID& dsetid,
 						      BinIDValueSet* rangesset);
 
 };

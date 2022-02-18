@@ -459,7 +459,8 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	    uiMSG().error(tr("Internal error: "
 			     "Cannot retrieve %1 details from data store")
 			.arg(mObjTypeName));
-	    IOM().to( MultiID(0) );
+	    // TODO: Check if setting to root is OK
+	    IOM().toRoot();
 	    fullUpdate( -1 );
 	    return false;
 	}
@@ -857,7 +858,7 @@ void uiIOObjSelGrp::filtChg( CallBacker* )
 void uiIOObjSelGrp::objInserted( CallBacker* cb )
 {
     mCBCapsuleUnpack( MultiID, ky, cb );
-    if ( !ky.isEmpty() )
+    if ( !ky.isUdf() )
 	fullUpdate( ky );
 }
 
@@ -904,11 +905,7 @@ void uiIOObjSelGrp::readChoiceDone( CallBacker* )
 {
     if ( !lbchoiceio_ ) return;
 
-    TypeSet<MultiID> mids;
-    for ( int idx=0; idx<lbchoiceio_->chosenKeys().size(); idx++ )
-	mids += MultiID( lbchoiceio_->chosenKeys().get(idx).buf() );
-
-    setChosen( mids );
+    setChosen( lbchoiceio_->chosenKeys() );
 }
 
 
@@ -918,7 +915,7 @@ void uiIOObjSelGrp::writeChoiceReq( CallBacker* )
 
     lbchoiceio_->keys().setEmpty();
     for ( int idx=0; idx<ioobjids_.size(); idx++ )
-	lbchoiceio_->keys().add( ioobjids_[idx]->buf() );
+	lbchoiceio_->keys().add( *ioobjids_[idx] );
 }
 
 

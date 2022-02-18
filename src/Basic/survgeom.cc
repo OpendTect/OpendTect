@@ -246,7 +246,7 @@ Geometry2D& GeometryManager::get2D( Pos::GeomID geomid )
 
 const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
 {
-    if ( mid.nrKeys() == 2 )
+    if ( mid.nrIDs() == 2 )
 	return getGeometry( mid.ID(1) );
 
     return nullptr;

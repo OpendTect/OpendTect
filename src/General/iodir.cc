@@ -32,8 +32,14 @@ IODir::IODir()
 
 IODir::IODir( const MultiID& ky )
 {
-    IOObj* ioobj = getObj( ky );
-    if ( !ioobj ) return;
+    MultiID dirid = ky;
+    if ( dirid.groupID()>100000 && dirid.objectID()<0 )
+	dirid.setGroupID(-1).setObjectID(ky.groupID());
+
+    IOObj* ioobj = getObj( dirid );
+    if ( !ioobj )
+	return;
+
     dirname_ = ioobj->dirName();
     FilePath fp( dirname_ );
     if ( !fp.isAbsolute() )
@@ -125,8 +131,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     ascistream astream( strm );
     astream.next();
     FileMultiString fms( astream.value() );
-    MultiID dirky( fms[0] );
-    if ( dirky == "0" ) dirky = "";
+    const MultiID dirky( fms[0].buf() );
     if ( dirptr )
     {
 	dirptr->key_ = dirky;
@@ -140,11 +145,11 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     IOObj* retobj = nullptr;
     while ( astream.type() != ascistream::EndOfFile )
     {
-	IOObj* obj = IOObj::get(astream,dirnm,dirky);
+	IOObj* obj = IOObj::get(astream,dirnm,dirky.toString());
 	if ( !obj || obj->isBad() ) { delete obj; continue; }
 
 	MultiID ky( obj->key() );
-	int id = ky.ID( ky.nrKeys()-1 );
+	const int id = ky.objectID();
 
 	if ( dirptr )
 	{
@@ -175,15 +180,21 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 IOObj* IODir::getIOObj( const char* _dirnm, const MultiID& ky )
 {
     BufferString dirnm( _dirnm );
-    if ( dirnm.isEmpty() || !File::isDirectory(dirnm) )
+    if ( ky.isUdf() || dirnm.isEmpty() || !File::isDirectory(dirnm) )
 	return nullptr;
 
-    int nrkeys = ky.nrKeys();
+    if ( ky.groupID()<0 && ky.objectID()>100000 )
+    {
+	IOObj* ioobj = doRead( dirnm, nullptr, ky.objectID() );
+	return ioobj;
+    }
+
+    const int nrkeys = ky.nrIDs();
     for ( int idx=0; idx<nrkeys; idx++ )
     {
-	int id = ky.ID( idx );
+	const int id = ky.ID( idx );
 	IOObj* ioobj = doRead( dirnm, 0, id );
-	if ( !ioobj || idx == nrkeys-1 || !ioobj->isSubdir() )
+	if ( !ioobj || !ioobj->isSubdir() )
 	    return ioobj;
 
 	dirnm = ioobj->dirName();
@@ -230,7 +241,7 @@ int IODir::indexOf( const MultiID& ky ) const
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
-	if ( ioobj->key() == ky )
+	if ( ioobj->key().objectID() == ky.objectID() )
 	    return idx;
     }
 
@@ -255,24 +266,6 @@ const IOObj* IODir::get( const MultiID& ky ) const
 {
     const int idxof = indexOf( ky );
     return idxof < 0 ? 0 : objs_[idxof];
-}
-
-
-bool IODir::create( const char* dirnm, const MultiID& ky, IOObj* mainobj )
-{
-    if ( !dirnm || !*dirnm || !mainobj ) return false;
-    mainobj->key_ = ky;
-    mainobj->key_ += "1";
-    IODir dir;
-    dir.dirname_ = dirnm;
-    dir.key_ = ky;
-
-    dir.objs_ += mainobj;
-    dir.isok_ = true;
-    bool ret = dir.doWrite();
-    dir.objs_ -= mainobj;
-    dir.isok_ = false;
-    return ret;
 }
 
 
@@ -369,7 +362,7 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
 	if ( isBad() ) return false;
     }
 
-    if ( ioobj->key().isEmpty() || objs_[ioobj] || isPresent(ioobj->key()) )
+    if ( ioobj->key().isUdf() || objs_[ioobj] || isPresent(ioobj->key()) )
 	ioobj->setKey( newKey() );
 
     ensureUniqueName( *ioobj );
@@ -416,11 +409,11 @@ bool IODir::wrOmf( od_ostream& strm ) const
     ascostream astream( strm );
     if ( !astream.putHeader( "Object Management file" ) )
 	mErrRet()
-    FileMultiString fms( key_.isEmpty() ? "0" : (const char*)key_ );
+    FileMultiString fms( key_.isUdf() ? "0" : key_.toString() );
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const MultiID currentkey = objs_[idx]->key();
-	int curleafid = currentkey.leafID();
+	int curleafid = currentkey.objectID();
 	if ( curleafid != IOObj::tmpID() && curleafid < 99999
 	  && curleafid > curid_ )
 	    curid_ = curleafid;
@@ -497,7 +490,7 @@ MultiID IODir::newKey() const
 {
     MultiID id = key_;
     const_cast<IODir*>(this)->curid_++;
-    id += toString( curid_ );
+    id.setObjectID( curid_ );
     return id;
 }
 

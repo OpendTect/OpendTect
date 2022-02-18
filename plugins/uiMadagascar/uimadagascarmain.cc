@@ -331,7 +331,8 @@ void uiMadagascarMain::updateCaption()
 
 void uiMadagascarMain::exportFlow( CallBacker* )
 {
-    IOM().to( ODMad::sKeyMadSelKey() );
+    const MultiID dirid( -1, ODMad::sKeyMadSelKey() );
+    IOM().to( dirid );
     uiFileDialog dlg( this, false );
     dlg.setDirectory( IOM().curDirName() );
     if ( !dlg.go() ) return;

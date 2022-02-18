@@ -66,8 +66,12 @@ const char* uiSrchProcFiles::fileName() const
 void uiSrchProcFiles::srchDir( CallBacker* )
 {
     objfld->commitInput();
-    const BufferString key( ctio_.ioobj_ ? ctio_.ioobj_->key().buf() : "" );
-    if ( key.isEmpty() ) return;
+    BufferString key;
+    if ( ctio_.ioobj_ )
+	key = ctio_.ioobj_->key().toString();
+
+    if ( key.isEmpty() )
+	return;
 
     uiMsgMainWinSetter msgwinsetter( this );
 	// Otherwise the error box pulls up OD main win. No idea why.
@@ -85,6 +89,7 @@ void uiSrchProcFiles::srchDir( CallBacker* )
 	IOPar iop; const BufferString fnm( dl.fullPath(idx) );
 	if ( !iop.read(fnm,sKey::Pars(),true) )
 	    continue;
+
 	const char* res = iop.find( iopkey_ );
 	if ( res && key == res )
 	    fnms.add( fnm );

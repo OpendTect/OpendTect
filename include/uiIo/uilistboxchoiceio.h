@@ -13,7 +13,9 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "bufstringset.h"
 #include "callback.h"
+#include "multiid.h"
 #include "uistring.h"
+
 class uiListBox;
 class CtxtIOObj;
 
@@ -39,11 +41,11 @@ public:
 			~uiListBoxChoiceIO();
 
 			// When store requested, fill with a key for each item:
-    BufferStringSet&	keys()			{ return keys_; }
+    TypeSet<MultiID>&	keys()			{ return keys_; }
 
 			// When read done:
     const BufferStringSet& chosenNames() const	{ return chosennames_; }
-    const BufferStringSet& chosenKeys() const	{ return keys_; }
+    const TypeSet<MultiID>& chosenKeys() const	{ return keys_; }
     void		setChosen(const BufferStringSet& names);
 
     Notifier<uiListBoxChoiceIO> storeRequested; //!< opportunity to set the keys
@@ -53,13 +55,9 @@ protected:
 
     uiListBox&		lb_;
     CtxtIOObj&		ctio_;
-    BufferStringSet	keys_;
+    TypeSet<MultiID>	keys_;
     BufferStringSet	chosennames_;
 
     void		readReqCB(CallBacker*);
     void		storeReqCB(CallBacker*);
-
 };
-
-
-

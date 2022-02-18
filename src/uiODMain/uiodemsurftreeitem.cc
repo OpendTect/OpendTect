@@ -411,7 +411,7 @@ void uiODEarthModelSurfaceTreeItem::askSaveCB( CallBacker* )
     if ( !ems->isChanged( emid_ ) )
 	return;
 
-    bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+    bool savewithname = EM::EMM().getMultiID( emid_ ).isUdf();
     if ( !savewithname )
     {
 	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
@@ -457,7 +457,7 @@ bool uiODEarthModelSurfaceTreeItem::doSave()
 	    return false;
     }
 
-    bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+    bool savewithname = EM::EMM().getMultiID( emid_ ).isUdf();
     if ( !savewithname )
     {
 	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );

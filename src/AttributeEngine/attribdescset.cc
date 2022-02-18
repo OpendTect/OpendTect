@@ -13,6 +13,7 @@
 #include "attribsel.h"
 #include "attribstorprovider.h"
 #include "bufstringset.h"
+#include "compoundkey.h"
 #include "datacoldef.h"
 #include "datapack.h"
 #include "datapointset.h"
@@ -961,7 +962,7 @@ DescID DescSet::getStoredID( const MultiID& multiid, int selout ) const
 	    continue;
 
 	const ValParam& keypar = *dsc.getValParam( StorageProvider::keyStr() );
-	if ( multiid == keypar.getStringValue() )
+	if ( multiid.isEqualTo(keypar.getStringValue()) )
 	{
 	    if ( selout < 0 || selout == dsc.selectedOutput() )
 		return dsc.id();
@@ -985,7 +986,7 @@ DescID DescSet::getStoredID( const MultiID& multiid, int selout, bool create,
 	    continue;
 
 	const ValParam& keypar = *dsc.getValParam( StorageProvider::keyStr() );
-	if ( multiid == keypar.getStringValue() )
+	if ( multiid.isEqualTo(keypar.getStringValue()) )
 	{
 	    if ( selout>=0 ) return dsc.id();
 	    outsreadyforthislk += dsc.selectedOutput();
@@ -1001,7 +1002,7 @@ DescID DescSet::getStoredID( const MultiID& multiid, int selout, bool create,
 					    blindcompnm ? blindcompnm :"") );
 
     const int out0idx = outsreadyforthislk.indexOf( 0 );
-    BufferStringSet bss; SeisIOObjInfo::getCompNames( multiid.buf(), bss );
+    BufferStringSet bss; SeisIOObjInfo::getCompNames( multiid, bss );
     const int nrcomps = bss.size();
     if ( nrcomps < 2 )
 	return out0idx != -1 ? outsreadyids[out0idx]
@@ -1025,11 +1026,10 @@ DescID DescSet::getStoredID( const MultiID& multiid, int selout, bool create,
 DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
 				  const BufferString& compnm )
 {
-    const char* linenm = multiid.buf();
     BufferString objnm;
-    if ( linenm && *linenm == '#' )
+    if ( !multiid.isDatabaseID() )
     {
-	DataPack::FullID fid( linenm+1 );
+	DataPack::FullID fid = multiid;
 	if ( !DPM(fid).haveID( fid ) )
 	    return DescID::undef();
 
@@ -1044,7 +1044,9 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
     }
 
     Desc* newdesc = PF().createDescCopy( StorageProvider::attribName() );
-    if ( !newdesc ) return DescID::undef(); // "Cannot create desc"
+    if ( !newdesc )
+	return DescID::undef(); // "Cannot create desc"
+
     if ( compnm.isEmpty() && selout>0 )
 	return DescID::undef();	// "Missing component name"
 
@@ -1265,9 +1267,10 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 	FileMultiString fms( defstr ); fms += attrinf.attrids_[idx].asInt();
 	attrdefs.add( fms );
     }
+
     for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
     {
-	const char* defkey = attrinf.ioobjids_.get(idx).buf();
+	const MultiID& defkey = attrinf.ioobjids_.get(idx);
 	const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
 	FileMultiString fms( BufferString("[",ioobjnm,"]") );
 	fms += defkey;

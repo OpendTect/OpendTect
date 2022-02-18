@@ -293,7 +293,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     if ( !menu )
 	return false;
 
-    IOM().to( "100010" );
+    IOM().to( IOObjContext::Seis );
     PtrMan<IOObj> ioobj = IOM().getLocal(
 	    selectpsdatamenuitem_.getItem(mnuidx)->text.getFullString(), 0 );
     if ( !ioobj )

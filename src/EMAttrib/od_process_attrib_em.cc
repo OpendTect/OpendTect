@@ -131,7 +131,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
     }
     else
     {
-	outpid = objidstr.buf();
+	outpid.fromString( objidstr.buf() );
 	PtrMan<IOObj> ioobj = IOM().get( outpid ); //check already done
 	if ( !ioobj ) return false;
 
@@ -361,13 +361,13 @@ bool BatchProgram::doWork( od_ostream& strm )
     for ( int idx=0; idx<midset.size(); idx++ )
     {
 	MultiID* mid = midset[idx];
-	strm << "Loading: " << mid->buf() << "\n\n";
+	strm << "Loading: " << mid->toString() << "\n\n";
 
 	SurfaceIOData sd;
 	uiString uierr;
 	if ( !EM::EMM().getSurfaceData(*mid,sd,uierr) )
 	{
-	    BufferString errstr( "Cannot load horizon ", mid->buf(), ": " );
+	    BufferString errstr( "Cannot load horizon ", mid->toString(), ": ");
 	    errstr += uierr.getFullString();
 	    mErrRetNoProc( errstr.buf() );
 	}
@@ -381,8 +381,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 		EMM().objectLoader( *mid, iscubeoutp ? &sels : nullptr );
 	if ( !loader || !loader->go(strm) )
 	{
-	    BufferString errstr = "Cannot load horizon:";
-	    errstr += mid->buf();
+	    BufferString errstr = "Cannot load horizon: ";
+	    errstr += mid->toString();
 	    mErrRetNoProc( errstr.buf() );
 	}
 

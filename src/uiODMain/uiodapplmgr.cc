@@ -1131,9 +1131,9 @@ bool uiODApplMgr::handleWellServEv( int evid )
 	const int sceneid = sceneMgr().askSelectScene();
 	if ( sceneid<0 ) return false;
 
-	const BufferStringSet& wellids = wellserv_->createdWellIDs();
+	const TypeSet<MultiID>& wellids = wellserv_->createdWellIDs();
 	for ( int idx=0; idx<wellids.size(); idx++ )
-	    sceneMgr().addWellItem( MultiID(wellids.get(idx)), sceneid );
+	    sceneMgr().addWellItem( wellids.get(idx), sceneid );
     }
 
     return true;
@@ -1904,7 +1904,7 @@ void uiODApplMgr::storeEMObject()
     const EM::ObjectID emid = surface->getObjectID();
     MultiID mid = emserv_->getStorageID( emid );
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    const bool saveas = mid.isEmpty() || !ioobj;
+    const bool saveas = mid.isUdf() || !ioobj;
     emserv_->storeObject( emid, saveas );
 
     TypeSet<int> ids;

@@ -77,7 +77,7 @@ bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
 
     eventname = dlg.ioObj()->name();
     key = dlg.chosenID();
-    if ( key.isEmpty() || eventname.isEmpty() )
+    if ( key.isUdf() || eventname.isEmpty() )
     {
 	uiString errmsg = tr("Failed to load prestack event");
 	uiMSG().error( errmsg );

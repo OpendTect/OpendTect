@@ -406,11 +406,11 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     Attrib::DescID nlamodel_id(-1, false);
     if ( nlamodel_ && todofld_ && todofld_->outputNr() >= 0 )
     {
-	if ( !nlaid_ || !(*nlaid_) )
+	if ( nlaid_.isUdf() )
 	{
 	    needSaveNLA.trigger();
 	    //check if we have retrieved the newly saved DBKey
-	    if ( !nlaid_ || !(*nlaid_) )
+	    if ( nlaid_.isUdf() )
 		uiMSG().message(
 			tr("NN needs to be stored before creating volume"));
 	    return 0;

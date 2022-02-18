@@ -244,7 +244,7 @@ static bool doScan( od_ostream& strm, const IOPar& iop, bool isps,
     else
 	outpar->get( sKey::ID(), mid );
 
-    if ( mid.isEmpty() )
+    if ( mid.isUdf() )
     {
 	strm << "Parameter file lacks key 'Output[.ID]'" << od_endl;
 	return false;

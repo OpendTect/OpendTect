@@ -37,7 +37,7 @@ uiStratSelUnitsListItem( uiTreeViewItem* p, const Strat::UnitRef* ur, bool wchk)
 static uiTreeViewItem::Setup getSetup( const Strat::UnitRef* ur, bool wchk )
 {
     const char* nm = ur == &ur->refTree() ? sUsrNameRT : ur->code().buf();
-    return uiTreeViewItem::Setup( toUiString(nm), 
+    return uiTreeViewItem::Setup( toUiString(nm),
 					    wchk ? CheckBox : Standard, false );
 }
 
@@ -88,7 +88,7 @@ void uiStratSelUnits::mkBoxFld()
     if ( topisok )
 	nms.add( topisrt ? sUsrNameRT : it.unit()->fullCode().buf() );
     while ( it.next() )
-	nms.add( it.unit()->fullCode() );
+	nms.add( it.unit()->fullCode().buf() );
 
     if ( setup_.fldtxt_.isEmpty() )
     {
@@ -196,7 +196,7 @@ bool uiStratSelUnits::isChosen( const Strat::UnitRef& ur ) const
 	if ( &ur == &topnode_ )
 	    return txt == sUsrNameRT;
 	else
-	    return txt == ur.fullCode();
+	    return txt == ur.fullCode().buf();
     }
     else
     {
@@ -212,7 +212,7 @@ bool uiStratSelUnits::isChosen( const Strat::UnitRef& ur ) const
 bool uiStratSelUnits::isPresent( const Strat::UnitRef& ur ) const
 {
     if ( combo_ )
-	return combo_->isPresent( ur.fullCode() );
+	return combo_->isPresent( ur.fullCode().buf() );
     return find( &ur );
 }
 
@@ -295,7 +295,7 @@ void uiStratSelUnits::setCurrent( const Strat::UnitRef& ur )
     }
 
     if ( combo_ )
-	combo_->setCurrentItem( tosel->fullCode() );
+	combo_->setCurrentItem( tosel->fullCode().buf() );
     else if ( !isMulti() )
 	setChosen( *tosel );
     else

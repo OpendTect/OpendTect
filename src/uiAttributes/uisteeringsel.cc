@@ -306,7 +306,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
     if ( !workctio_.ioobj_ )
 	return DescID::undef();
 
-    LineKey linekey( workctio_.ioobj_->key() );
+    const MultiID key = workctio_.ioobj_->key();
     for ( int idx=0; idx<ads.size(); idx++ )
     {
 	const DescID descid = ads.getID( idx );
@@ -314,9 +314,8 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
 	if ( !desc->isStored() || desc->selectedOutput()!=dipnr )
 	    continue;
 
-	const Param* keypar = desc->getParam( StorageProvider::keyStr() );
-	BufferString res; keypar->getCompositeValue( res );
-	if ( res == linekey )
+	const BufferString keystr = desc->getStoredID( false );
+	if ( keystr == key.toString() )
 	    return descid;
     }
 
@@ -324,7 +323,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
     desc->setHidden( true );
     desc->selectOutput( dipnr );
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
-    keypar->setValue( linekey );
+    keypar->setValue( key );
 
     BufferString userref = workctio_.ioobj_->name();
     userref += dipnr==0 ? "_inline_dip" : "_crline_dip";
@@ -343,15 +342,18 @@ void uiSteerAttrSel::setDescSet( const DescSet* ads )
 
 void uiSteerAttrSel::setDesc( const Desc* desc )
 {
-    if ( !desc || desc->selectedOutput() ) return;
+    if ( !desc || desc->selectedOutput() )
+	return;
 
-    if ( !desc->isStored() || desc->dataType() != Seis::Dip ) return;
+    if ( !desc->isStored() || desc->dataType() != Seis::Dip )
+	return;
 
     setDescSet( desc->descSet() );
 
     const ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
-    const LineKey lk( keypar->getStringValue() );
-    const MultiID mid( lk.lineName() );
+    const StringPair keystr( keypar->getStringValue() );
+    MultiID mid;
+    mid.fromString( keystr.first() );
     PtrMan<IOObj> ioob = IOM().get( mid );
     workctio_.setObj( ioob ? ioob->clone() : 0 );
     updateInput();

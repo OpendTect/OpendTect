@@ -49,7 +49,7 @@ void NLACreationDesc::clear()
 {
     design.clear();
     outids.setEmpty();
-    vdsid = "";
+    vdsid.setUdf();
     doextraction = true;
     isdirect = false;
 }

@@ -174,7 +174,7 @@ static void addDCDs( uiListBox* lb, ObjectSet<DataColDef>& dcds,
 
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
-bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
+bool uiWellLogExtractGrp::extractWellData( const TypeSet<MultiID>& ioobjids,
 					     const BufferStringSet& lognms,
 					     ObjectSet<DataPointSet>& dpss )
 {
@@ -277,8 +277,10 @@ bool uiWellLogExtractGrp::extractDPS()
 {
     ObjectSet<DataColDef> dcds;
 
-    BufferStringSet ioobjids, wellnms;
+    BufferStringSet wellnms;
     getWellNames( wellnms );
+
+    TypeSet<MultiID> ioobjids;
     welllogselfld_->getSelWellIDs( ioobjids );
     if ( ioobjids.isEmpty() )
 	mErrRet(uiStrings::phrSelect(tr("at least one well")))
@@ -293,7 +295,7 @@ bool uiWellLogExtractGrp::extractDPS()
 
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	ConstRefMan<Well::Data> wd = Well::MGR().get( MultiID(ioobjids.get(0)),
+	ConstRefMan<Well::Data> wd = Well::MGR().get( ioobjids.get(0),
 						      Well::LogInfos );
 	const char* lognm = lognms.get( idx ).buf();
 	const Well::Log* log = wd ? wd->getLog( lognm ) : nullptr;

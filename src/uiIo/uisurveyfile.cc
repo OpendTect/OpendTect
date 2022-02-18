@@ -130,7 +130,8 @@ bool uiSurveyFile::newFile()
 		IOM().to( mid );
 	    }
 	    else
-		IOM().to( "100010" );
+		IOM().to( IOObjContext::Seis );
+
 	    impsip->startImport( parent_, *impiop );
 	}
     }

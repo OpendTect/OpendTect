@@ -325,6 +325,8 @@ mGlobal(Basic) uiString toUiString(float,char format,int precision);
 mGlobal(Basic) uiString toUiString(double,char format,int precision);
 mGlobal(Basic) uiString toUiString(const Coord&); //!< no decimals
 mGlobal(Basic) uiString toUiString(const BufferStringSet&);
+mGlobal(Basic) uiString toUiString(const MultiID&);
+
 
 mGlobal(Basic) const char* toString(const uiString&);
 

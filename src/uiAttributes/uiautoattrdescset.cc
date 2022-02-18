@@ -46,17 +46,20 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
         , ctio_(*mMkCtxtIOObj(AttribDescSet))
 	, is2d_(is2d)
 {
-    bool douse = false; MultiID id;
+    bool douse = false;
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
-    id = is2d_ ? SI().pars().find( uiAttribDescSetEd::sKeyAuto2DAttrSetID )
-	       : SI().pars().find( uiAttribDescSetEd::sKeyAuto3DAttrSetID );
+
+    const char* id =
+	is2d_ ? SI().pars().find( uiAttribDescSetEd::sKeyAuto2DAttrSetID )
+	      : SI().pars().find( uiAttribDescSetEd::sKeyAuto3DAttrSetID );
 
     usefld_ = new uiGenInput( this, tr("Enable auto-load Attribute Set"),
-                                  BoolInpSpec(true) );
+			      BoolInpSpec(true) );
     usefld_->setValue( douse );
     usefld_->valuechanged.notify( mCB(this,uiAutoAttrSelDlg,useChg) );
 
-    ctio_.setObj( id ); ctio_.ctxt_.forread_ = true;
+    ctio_.setObj( id );
+    ctio_.ctxt_.forread_ = true;
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, usefld_ );
     lbl_ = new uiLabel( this, tr("Attribute Set to use") );
@@ -141,8 +144,8 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 	, attribfiles_(afl)
 	, attribnames_(anm)
 {
-    defselfld_ = new uiGenInput( this, uiStrings::phrSelect(tr("from")), 
-		     BoolInpSpec(true,tr("Survey-defined sets"), 
+    defselfld_ = new uiGenInput( this, uiStrings::phrSelect(tr("from")),
+		     BoolInpSpec(true,tr("Survey-defined sets"),
 		     mJoinUiStrs(sDefault(),sSet(mPlural).toLower())) );
     defselfld_->valuechanged.notify( mCB(this,uiAutoAttrSetOpen, setChg) );
 

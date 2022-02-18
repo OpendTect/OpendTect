@@ -15,7 +15,7 @@
 defineTranslatorGroup(ODGMTProcFlow,"GMT process flow");
 defineTranslator(dgb,ODGMTProcFlow,mDGBKey);
 mDefSimpleTranslatorioContextWithExtra(ODGMTProcFlow,None,
-					ctxt->selkey_ = ODGMT::sKeyGMTSelKey())
+			ctxt->selkey_.setObjectID(ODGMT::sKeyGMTSelKey()))
 
 uiString ODGMTProcFlowTranslatorGroup::sTypeName(int num)
 { return tr("GMT process flow",0,num); }

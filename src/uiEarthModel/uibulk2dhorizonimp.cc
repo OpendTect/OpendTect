@@ -360,8 +360,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
     BufferStringSet existinghornms;
     for ( int idx=0; idx<hornmset.size(); idx++ )
     {
-	IOM().to( MultiID(IOObjContext::getStdDirData(
-						IOObjContext::Surf)->id_) );
+	IOM().to( IOObjContext::Surf );
 	if ( IOM().getLocal(hornm,0) )
 	    existinghornms.add(hornmset.get(idx));
     }

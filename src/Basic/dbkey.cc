@@ -109,7 +109,7 @@ bool DBKey::isInCurrentSurvey() const
 
 BufferString DBKey::toString( bool withsurvloc ) const
 {
-    BufferString ret = buf();
+    BufferString ret = MultiID::toString();
     if ( withsurvloc && survloc_ )
 	ret.add( "`" ).add( surveyDiskLocation().fullPath() );
 
@@ -137,7 +137,7 @@ bool DBKey::fromString( const char* str )
     }
 
     // check if keystr is of type MultiID.
-    impl_ = keystr;
+    fromString( keystr );
     return true;
 }
 

@@ -37,7 +37,7 @@ IOObj* SurvGeom2DTranslator::getIOObj( Pos::GeomID geomid )
 {
     IOObjContext ioctxt( mIOObjContext(SurvGeom2D) );
     MultiID mid = ioctxt.getSelKey();
-    mid.add( geomid );
+    mid.setObjectID( geomid );
     return IOM().get( mid );
 }
 

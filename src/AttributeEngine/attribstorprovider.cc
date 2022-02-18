@@ -42,7 +42,7 @@ void StorageProvider::initClass()
 {
     mAttrStartInitClassWithUpdate
 
-    desc->addParam( new SeisStorageRefParam(keyStr()) );
+    desc->addParam( new SeisStorageRefParam() );
     desc->addOutputDataType( Seis::UnknowData );
 
     mAttrEndInitClass
@@ -737,7 +737,7 @@ DataPack::FullID StorageProvider::getDPID() const
     BufferString bstring = lk.lineName();
     const char* linenm = bstring.buf();
     if ( !linenm || *linenm != '#' )
-	return 0;
+	return DataPack::FullID::udf();
 
     DataPack::FullID fid( linenm+1 );
     return fid;

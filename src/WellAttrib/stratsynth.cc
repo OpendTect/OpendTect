@@ -498,9 +498,10 @@ private:
 
 void createInstAttributeSet()
 {
+    pErrMsg("MultiID with a #");
     delete descset_;
     descset_ = new Attrib::DescSet( false );
-    BufferString dpidstr( "#", sd_.datapackid_.buf() );
+    BufferString dpidstr( "#", sd_.datapackid_.toString() );
     Attrib::DescID did = descset_->getStoredID( dpidstr.buf(), 0, true );
 
     Attrib::Desc* imagdesc = Attrib::PF().createDescCopy(

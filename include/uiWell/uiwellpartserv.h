@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uiapplserv.h"
 #include "bufstringset.h"
+#include "multiid.h"
 #include "uistring.h"
 
 namespace Well { class Data; class LogDisplayParSet; class DBDisplayProperties;}
@@ -71,7 +72,7 @@ public:
     void			displayIn2DViewer(const MultiID&);
 
     bool			dispLineOnCreation(){ return disponcreation_; }
-    const char*			getRandLineMultiID()   { return multiid_; }
+    MultiID			getRandLineMultiID()   { return multiid_; }
     void			selectWellCoordsForRdmLine();
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
@@ -83,7 +84,7 @@ public:
     TypeSet<int>&		getPreviewIds()	{ return previewids_; }
 
     void			createSimpleWells()	{ simpImp(0); }
-    const BufferStringSet&	createdWellIDs()	{ return crwellids_; }
+    const TypeSet<MultiID>&	createdWellIDs()	{ return crwellids_; }
 
     void			doLogTools();
 
@@ -116,10 +117,10 @@ protected:
     uiWellMgrInfoDlg*		wellmgrinfodlg_		= nullptr;
     TypeSet<int>		previewids_;
 
-    BufferStringSet		crwellids_; // for uiSimpleMultiWellCreate
+    TypeSet<MultiID>		crwellids_; // for uiSimpleMultiWellCreate
 
     bool			disponcreation_;
-    const char*			multiid_;
+    MultiID			multiid_;
     bool			allapplied_;
 
     void			cleanup();

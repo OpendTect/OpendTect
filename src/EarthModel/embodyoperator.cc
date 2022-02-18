@@ -467,8 +467,6 @@ bool Expl2ImplBodyExtracter::doP2P( od_int64 start, od_int64 stop )
 BodyOperator::BodyOperator()
     : inputbodyop0_( 0 )
     , inputbodyop1_( 0 )
-    , inputbody0_( 0 )
-    , inputbody1_( 0 )
     , id_( getFreeID() )
     , action_( Union )
 {}
@@ -537,15 +535,15 @@ void BodyOperator::setInput( bool body0, BodyOperator* bo )
 {
     if ( body0 )
     {
-	if ( inputbodyop0_ ) delete inputbodyop0_;
+	delete inputbodyop0_;
 	inputbodyop0_ = bo;
-	inputbody0_ = MultiID(0);
+	inputbody0_.setUdf();
     }
     else
     {
-	if ( inputbodyop1_ ) delete inputbodyop1_;
+	delete inputbodyop1_;
 	inputbodyop1_ = bo;
-	inputbody1_ = MultiID(0);
+	inputbody1_.setUdf();
     }
 }
 

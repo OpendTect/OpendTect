@@ -88,6 +88,7 @@ set( OD_MODULE_SOURCES
 	math2.cc
 	moddepmgr.cc
 	monitor.cc
+	multiid.cc
 	namedmonitoredobject.cc
 	namedobj.cc
 	odcommonenums.cc

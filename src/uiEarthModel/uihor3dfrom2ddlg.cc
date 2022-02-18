@@ -137,7 +137,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     if ( rv )
     {
 	selid_ = ioobj->key();
-	BufferString source = hor2d_.multiID().buf();
+	BufferString source = hor2d_.multiID().toString();
 	source.add( " (" ).add( hor2d_.name() ).add( ")" );
 	ioobj->pars().update( sKey::CrFrom(), source );
 	ioobj->updateCreationPars();

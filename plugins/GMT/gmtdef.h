@@ -30,7 +30,7 @@ namespace ODGMT
 
     mGlobal(GMT) inline const char**	sShapeKeys() { return shapekeysbuf; }
     mGlobal(GMT) inline const char**	sResolKeys() { return resolkeysbuf; }
-			
+
     mGlobal(GMT) inline const char*	sKeyAttribName() { return "Attribute name"; }
     mGlobal(GMT) inline const char*	sKeyClipOutside() { return "Clip outside"; }
     mGlobal(GMT) inline const char*	sKeyClosePS() { return "Close PostScript"; }
@@ -46,7 +46,7 @@ namespace ODGMT
     mGlobal(GMT) inline const char*	sKeyFlipColTab() { return "Flip color table"; }
     mGlobal(GMT) inline const char*	sKeyFontSize() { return "Font size"; }
     mGlobal(GMT) inline const char*	sKeyGMT() { return "GMT"; }
-    mGlobal(GMT) inline const char*	sKeyGMTSelKey() { return "808080"; }
+    mGlobal(GMT) inline int		sKeyGMTSelKey() { return 808080; }
     mGlobal(GMT) inline const char*	sKeyGroupName() { return "Group Name"; }
     mGlobal(GMT) inline const char*	sKeyLabelAlignment() { return "Label alignment"; }
     mGlobal(GMT) inline const char*	sKeyLabelIntv() { return "Label Interval"; }
@@ -59,7 +59,7 @@ namespace ODGMT
     mGlobal(GMT) inline const char*	sKeyPostLabel() { return "Post label"; }
     mGlobal(GMT) inline const char*	sKeyPostColorBar() { return "Post Color bar"; }
     mGlobal(GMT) inline const char*	sKeyPostStart() { return "Post start"; }
-    mGlobal(GMT) inline const char*  sKeyPostStop() { return "Post stop"; }
+    mGlobal(GMT) inline const char*	sKeyPostStop() { return "Post stop"; }
     mGlobal(GMT) inline const char*	sKeyPostTitleBox() { return "Post title box"; }
     mGlobal(GMT) inline const char*	sKeyPostTraceNrs() { return "Post Trace Nrs"; }
     mGlobal(GMT) inline const char*	sKeyRemarks() { return "Remarks"; }
@@ -120,7 +120,7 @@ mGlobal(GMT) const GMTWellSymbolRepository& GMTWSR();
 
 #define mGetDefault( key, fn, var ) \
     Settings::fetch("GMT").fn(key,var); \
-    
+
 
 #define mSetDefault( key, fn, var ) \
     Settings::fetch("GMT").fn(key,var); \

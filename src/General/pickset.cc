@@ -882,7 +882,7 @@ void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
 	return;
 
     const MultiID mid = mgr.get(*this);
-    if ( !mid.isEmpty() )
+    if ( !mid.isUdf() )
     {
 	PickSetKnotUndoEvent::UnDoType undotype =
 	    (PickSetKnotUndoEvent::UnDoType) type;
@@ -937,7 +937,7 @@ void Set::addBulkUndoEvent( EventType type, const TypeSet<int>& indexes,
 	return;
 
     const MultiID mid = mgr.get(*this);
-    if ( !mid.isEmpty() )
+    if ( !mid.isUdf() )
     {
 	PickSetBulkUndoEvent::UnDoType undotype =
 	    type == Insert ? PickSetBulkUndoEvent::Insert

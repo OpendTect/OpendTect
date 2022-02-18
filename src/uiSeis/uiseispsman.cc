@@ -200,13 +200,14 @@ void uiSeisPreStackMan::mergePush( CallBacker* )
 
 void uiSeisPreStackMan::mkMultiPush( CallBacker* )
 {
-    MultiID key; const char* toedit = 0;
+    MultiID key, toedit;
     if ( curioobj_ )
     {
 	key = curioobj_->key();
 	if ( curioobj_->translator() == "MultiCube" )
-	    toedit = key.buf();
+	    toedit = key;
     }
+
     uiSeisMultiCubePS dlg( this, toedit );
     dlg.go();
     selgrp_->fullUpdate( key );

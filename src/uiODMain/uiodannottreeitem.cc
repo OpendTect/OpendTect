@@ -448,9 +448,8 @@ void uiODAnnotSubItem::store() const
 
 bool uiODAnnotSubItem::doesNameExist( const char* nm )
 {
-    IOM().to( PickSetTranslatorGroup::ioContext().getSelKey() );
-    PtrMan<IOObj> local =
-	IOM().getLocal( nm, 0 );
+    IOM().to( IOObjContext::Loc );
+    PtrMan<IOObj> local = IOM().getLocal( nm, 0 );
     return local;
 }
 

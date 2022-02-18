@@ -9,15 +9,15 @@
 
 #include "bendpointfinder.h"
 #include "ctxtioobj.h"
+#include "executor.h"
 #include "iodir.h"
 #include "ioman.h"
-#include "survgeom2d.h"
-#include "posinfo2d.h"
-#include "survgeometrytransl.h"
-#include "survinfo.h"
-#include "executor.h"
 #include "keystrs.h"
 #include "od_iostream.h"
+#include "posinfo2d.h"
+#include "survgeom2d.h"
+#include "survgeometrytransl.h"
+#include "survinfo.h"
 
 namespace Survey
 {
@@ -142,7 +142,7 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
 	return false;
 
     PtrMan< IOObj > ioobj = createEntry( geom2d->data().lineName().buf() );
-    if ( !ioobj || ioobj->key().nrKeys() != 2)
+    if ( !ioobj || ioobj->key().nrIDs() != 2)
 	return false;
 
     PtrMan<Translator> transl = ioobj->createTranslator();

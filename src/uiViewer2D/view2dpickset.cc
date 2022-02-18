@@ -413,5 +413,5 @@ bool VW2DPickSet::usePar( const IOPar& iop )
 
 const MultiID VW2DPickSet::pickSetID() const
 {
-    return pickset_ ? Pick::Mgr().get( *pickset_ ) : -1;
+    return pickset_ ? Pick::Mgr().get( *pickset_ ) : MultiID::udf();
 }

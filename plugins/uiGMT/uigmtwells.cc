@@ -49,7 +49,7 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     wic.execute();
     for ( int idx=0; idx<wic.ids().size(); idx++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( *wic.ids()[idx] );
+	PtrMan<IOObj> ioobj = IOM().get( wic.ids()[idx] );
 	if ( ioobj )
 	    welllistfld_->addItem( ioobj->name() );
     }

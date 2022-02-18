@@ -379,11 +379,11 @@ void uiSetPickDirs::createSteeringDesc( int dipnr, const DescID& did )
     Desc* desc = PF().createDescCopy( StorageProvider::attribName() );
     desc->setHidden( true );
     desc->selectOutput( dipnr );
-    LineKey linekey( steerfld_->ioobj(true)->key() );
+    StringPair key2d( steerfld_->ioobj(true)->key().toString() );
     if ( createdset_->is2D() )
-	linekey.setAttrName( "Steering" );
+	key2d.second().set( "Steering" );
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
-    keypar->setValue( linekey );
+    keypar->setValue( key2d.getCompString() );
 
     BufferString userref = steerfld_->ioobj(true)->name();
     userref += dipnr==0 ? "_inline_dip" : "_crline_dip";

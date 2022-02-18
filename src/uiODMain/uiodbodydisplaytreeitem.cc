@@ -484,7 +484,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==saveasmnuitem_.id || mnuid==savemnuitem_.id )
     {
 	bool saveas = mnuid==saveasmnuitem_.id ||
-	    applMgr()->EMServer()->getStorageID(emid_).isEmpty();
+	    applMgr()->EMServer()->getStorageID(emid_).isUdf();
 	if ( !saveas )
 	{
 	    PtrMan<IOObj> ioobj =

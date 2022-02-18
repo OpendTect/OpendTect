@@ -94,10 +94,12 @@ public:
     bool		isKey(const char* keystr) const;
     const char*		nameOf(const char* keystr) const;
 			//!< if keystr is not an IOObj key, will return keystr
+    const char*		nameOf(const MultiID&) const;
     const char*		objectName(const DBKey&) const;
 
     MultiID		createNewKey(const MultiID& dirkey);
 
+    bool		to(IOObjContext::StdSelType,bool force_reread=false);
     bool		to(const MultiID&,bool force_reread=false);
     bool		toRoot(bool force_reread=false)
 			{ return to(0,force_reread); }
@@ -117,9 +119,9 @@ public:
     mExpClass(General) CustomDirData
     {
     public:
-			CustomDirData( const char* selkey, const char* dirnm,
+			CustomDirData( int dirkey, const char* dirnm,
 					const char* desc="Custom data" )
-			    : selkey_(selkey)
+			    : selkey_(-1,dirkey)
 			    , dirname_(dirnm)
 			    , desc_(desc)		{}
 
@@ -131,7 +133,7 @@ public:
 			       //!< Example: "Geostatistical data"
 
 	bool		operator ==( const CustomDirData& cdd ) const
-			{ return selkey_ == cdd.selkey_; }
+			{ return selkey_.objectID() == cdd.selkey_.objectID(); }
     };
 
     static const MultiID& addCustomDataDir(const CustomDirData&);

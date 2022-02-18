@@ -1004,6 +1004,12 @@ uiString toUiString( const BufferStringSet& bss )
 }
 
 
+uiString toUiString( const MultiID& key )
+{
+    return toUiString( key.toString() );
+}
+
+
 uiString od_static_tr( const char* func, const char* text,
 		       const char* disambiguation, int pluralnr )
 {

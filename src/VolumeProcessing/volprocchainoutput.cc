@@ -68,7 +68,7 @@ void VolProc::ChainOutput::usePar( const IOPar& iop )
 {
     iop.get( VolProcessingTranslatorGroup::sKeyChainID(), chainid_ );
     unRefAndZeroPtr( chain_ );
-    if ( chainid_.isEmpty() || chainid_.isUdf() )
+    if ( chainid_.isUdf() || chainid_.isUdf() )
     {
 	if ( chainpar_ )
 	    deleteAndZeroPtr( chainpar_ );
@@ -248,7 +248,7 @@ int VolProc::ChainOutput::getChain()
 					    : retError( chain_->errMsg() );
     }
 
-    if ( chainid_.isEmpty() )
+    if ( chainid_.isUdf() )
 	return retError( tr("No Volume Processing ID specified") );
 
     PtrMan<IOObj> ioobj = IOM().get( chainid_ );

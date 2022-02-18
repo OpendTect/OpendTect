@@ -50,7 +50,7 @@ void PSAttrib::initClass()
 {
     mAttrStartInitClassWithUpdate
 
-    desc->addParam( new SeisStorageRefParam("id") );
+    desc->addParam( new SeisStorageRefParam() );
 
 #define mDefEnumPar(var,typ,defval) \
     epar = new EnumParam( var##Str() ); \
@@ -109,7 +109,7 @@ void PSAttrib::initClass()
 void PSAttrib::updateDesc( Desc& desc )
 {
     const MultiID procid = desc.getValParam(preProcessStr())->getStringValue();
-    const bool dopreproc = !procid.isEmpty() && !procid.isUdf();
+    const bool dopreproc = !procid.isUdf();
     desc.setParamEnabled( preProcessStr(), dopreproc );
 
     const int calctype = desc.getValParam( calctypeStr() )->getIntValue();
@@ -155,11 +155,11 @@ PSAttrib::PSAttrib( Desc& ds )
 
     const char* res;
     mGetString(res,"id")
-    psid_ = res;
+    psid_.fromString( res );
 
     BufferString preprocessstr;
     mGetString( preprocessstr, preProcessStr() );
-    preprocid_ = preprocessstr;
+    preprocid_.fromString( preprocessstr );
     PtrMan<IOObj> preprociopar = IOM().get( preprocid_ );
     if ( preprociopar )
     {
@@ -174,7 +174,7 @@ PSAttrib::PSAttrib( Desc& ds )
 	}
     }
     else
-	preprocid_.setEmpty();
+	preprocid_.setUdf();
 
     mGetInt( component_, componentStr() );
     mGetInt( setup_.aperture_, apertureStr() );
@@ -210,8 +210,8 @@ PSAttrib::PSAttrib( Desc& ds )
 	if ( anglegsdpid_>=0 )
 	    return;
 
-	mGetString( velocityid_, velocityIDStr() );
-	if ( !velocityid_.isEmpty() && !velocityid_.isUdf() )
+	mGetMultiID( velocityid_, velocityIDStr() );
+	if ( !velocityid_.isUdf() )
 	{
 	    PreStack::VelocityBasedAngleComputer* velangcomp =
 				    new PreStack::VelocityBasedAngleComputer;
@@ -221,7 +221,7 @@ PSAttrib::PSAttrib( Desc& ds )
 	    anglecomp_->ref();
 	}
 	else
-	    velocityid_.setEmpty();
+	    velocityid_.setUdf();
 
 	if ( anglecomp_ )
 	{
@@ -535,11 +535,10 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 
 PreStack::GatherSetDataPack* PSAttrib::getMemoryGatherSetDP() const
 {
-    const char* fullidstr = psid_.buf();
-    if ( !fullidstr || *fullidstr != '#' )
-	return 0;
+    if ( psid_.isDatabaseID() )
+	return nullptr;
 
-    const DataPack::FullID fid( fullidstr+1 );
+    const DataPack::FullID fid = psid_;
     DataPack* dtp = DPM( fid ).observe( DataPack::getID(fid) );
     mDynamicCastGet(PreStack::GatherSetDataPack*,psgdtp, dtp)
     return psgdtp;
@@ -554,7 +553,8 @@ void PSAttrib::prepPriorToBoundsCalc()
 
     PreStack::GatherSetDataPack* psgdtp = getMemoryGatherSetDP();
     bool isondisc = true;
-    const char* fullidstr = psid_.buf();
+    pErrMsg("MultiID with a #");
+    const char* fullidstr = psid_.toString();
     if ( fullidstr && *fullidstr == '#' )
     {
 	isondisc = !psgdtp;

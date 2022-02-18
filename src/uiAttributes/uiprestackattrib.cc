@@ -165,8 +165,8 @@ const char* uiPreStackAttrib::getStringfromStatEnum( Stats::Type enm )
 
 bool uiPreStackAttrib::setAngleParameters( const Attrib::Desc& desc )
 {
-    mIfGetString( Attrib::PSAttrib::velocityIDStr(), mid,
-		  params_.velvolmid_=mid )
+    mIfGetMultiID( Attrib::PSAttrib::velocityIDStr(), mid,
+		   params_.velvolmid_=mid )
 
     Interval<int> anglerange, normalanglevalrange( 0, 90 );
     mIfGetInt( Attrib::PSAttrib::angleStartStr(), start, anglerange.start=start)
@@ -233,7 +233,7 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     prestackinpfld_->setInput( aps->psID() );
 
     const MultiID ppid = aps->preProcID();
-    const bool dopreproc = !ppid.isEmpty() && !ppid.isUdf();
+    const bool dopreproc = !ppid.isUdf();
     dopreprocessfld_->setValue( dopreproc );
     if ( dopreproc )
 	preprocsel_->setSel( ppid );
@@ -278,7 +278,7 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
     if ( !anglecompgrp_->acceptOK() )
 	return false;
 
-    mSetString(Attrib::PSAttrib::velocityIDStr(), params_.velvolmid_ );
+    mSetMultiID( Attrib::PSAttrib::velocityIDStr(), params_.velvolmid_ );
     Interval<int>& anglerg = params_.anglerange_;
     if ( mIsUdf(anglerg.start) ) anglerg.start = 0;
     mSetInt(Attrib::PSAttrib::angleStartStr(),anglerg.start)
@@ -337,7 +337,7 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 	uiMSG().error( errmsg_ );
 	return false;
     }
-    mSetString(Attrib::StorageProvider::keyStr(),prestackinpfld_->getMultiID())
+    mSetMultiID(Attrib::StorageProvider::keyStr(),prestackinpfld_->getMultiID())
 
     const bool dopreproc = dopreprocessfld_->getBoolValue();
     MultiID preprocmid = MultiID::udf();
@@ -347,7 +347,7 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 	return false;
     }
 
-    mSetString(Attrib::PSAttrib::preProcessStr(), preprocmid );
+    mSetMultiID( Attrib::PSAttrib::preProcessStr(), preprocmid );
 
     const int calctyp = calctypefld_->getIntValue();
     mSetEnum(Attrib::PSAttrib::calctypeStr(),calctyp)

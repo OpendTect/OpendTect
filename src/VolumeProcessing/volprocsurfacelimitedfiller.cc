@@ -46,9 +46,6 @@ SurfaceLimitedFiller::SurfaceLimitedFiller()
     , gradhorizon_( 0 )
     , refhorizon_( 0 )
     , starthorizon_( 0 )
-    , gradhormid_( 0 )
-    , starthormid_( 0 )
-    , refhormid_( 0 )
     , usebottomval_( false  )
     , usegradient_( true )
     , usestartval_( true )
@@ -57,7 +54,6 @@ SurfaceLimitedFiller::SurfaceLimitedFiller()
     , startauxdataselidx_( -1 )
     , gradauxdataselidx_( -1 )
     , gradauxidx_( -1 )
-    , startauxidx_( -1 )
 {
     hors_.allowNull( true );
     faults_.allowNull( true );
@@ -99,20 +95,20 @@ const MultiID* SurfaceLimitedFiller::getSurfaceID( int idx ) const
 
 
 const MultiID* SurfaceLimitedFiller::getStartValueHorizonID() const
-{ return starthormid_ && !starthormid_.isEmpty() ? &starthormid_ : 0; }
+{ return !starthormid_.isUdf() ? &starthormid_ : 0; }
 
 
 const MultiID* SurfaceLimitedFiller::getGradientHorizonID() const
-{ return gradhormid_ && !gradhormid_.isEmpty() ? &gradhormid_ : 0; }
+{ return !gradhormid_.isUdf() ? &gradhormid_ : 0; }
 
 
 const MultiID* SurfaceLimitedFiller::getRefHorizonID() const
-{ return refhormid_ && !refhormid_.isEmpty() ? &refhormid_ : 0; }
+{ return !refhormid_.isUdf() ? &refhormid_ : 0; }
 
 
 static bool setTargetMultiID( const MultiID* mid, MultiID& targetmid )
 {
-    if ( !mid || mid->isEmpty() )
+    if ( !mid || mid->isUdf() )
 	return false;
 
     targetmid = *mid;
@@ -164,8 +160,9 @@ bool SurfaceLimitedFiller::setSurfaces( const TypeSet<MultiID>& hids,
 EM::Horizon* SurfaceLimitedFiller::loadHorizon( const MultiID& mid ) const
 {
     RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid );
-    mDynamicCastGet( EM::Horizon*, newhor, emobj.ptr() );
-    if ( !newhor ) return 0;
+    mDynamicCastGet(EM::Horizon*,newhor,emobj.ptr())
+    if ( !newhor )
+	return nullptr;
 
     newhor->ref();
     return newhor;
@@ -175,7 +172,8 @@ EM::Horizon* SurfaceLimitedFiller::loadHorizon( const MultiID& mid ) const
 int SurfaceLimitedFiller::setDataHorizon( const MultiID& mid,
 				  EM::Horizon3D*& hor3d, int auxdataidx ) const
 {
-    if ( mid.isEmpty() ) return -1;
+    if ( mid.isUdf() )
+	return -1;
 
     EM::SurfaceIOData surfiod;
     uiString emsg;
@@ -229,11 +227,12 @@ bool SurfaceLimitedFiller::prepareComp( int )
 
     if ( !userefz_ )
     {
-	if ( refhormid_.isEmpty() )
+	if ( refhormid_.isUdf() )
 	    return false;
 
 	EM::Horizon* hor = loadHorizon( refhormid_ );
-	if ( !hor ) return false;
+	if ( !hor )
+	    return false;
 
 	refhorizon_ = hor;
     }

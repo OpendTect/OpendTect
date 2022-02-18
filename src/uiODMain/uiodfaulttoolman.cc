@@ -865,7 +865,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 	    if ( !isOutputNameUsed(auxfaultwrite_) )
 		mid = auxfsswrite_->getObjSel()->validKey();
 
-	    if ( !mid.isEmpty() )
+	    if ( !mid.isUdf() )
 	    {
 		const EM::ObjectID emid  = EM::EMM().getObjectID( mid );
 		const EM::EMObject* emobj = EM::EMM().getObject( emid );
@@ -998,7 +998,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     }
 
     const MultiID destmid = getObjSel()->key();
-    if ( destmid.isEmpty() )
+    if ( destmid.isUdf() )
 	return;
 
     EM::EMM().loadIfNotFullyLoaded( destmid );
@@ -1129,7 +1129,7 @@ void uiODFaultToolMan::afterTransferUpdate()
 void uiODFaultToolMan::displayUpdate()
 {
     mGetDisplayVars( getObjSel(), destmid, curid, sceneid );
-    if ( destmid.isEmpty() || isOutputDisplayed() )
+    if ( destmid.isUdf() || isOutputDisplayed() )
 	return;
 
     if ( displayAfterwards() )
@@ -1148,7 +1148,7 @@ bool uiODFaultToolMan::isOutputDisplayed( uiSurfaceWrite* uisw ) const
 
     mGetDisplayVars( objsel, destmid, curid, sceneid );
 
-    if ( destmid.isEmpty() || curid<0 || sceneid<0 )
+    if ( destmid.isUdf() || curid<0 || sceneid<0 )
 	return false;
 
     for ( int idx=0; idx<displaycache_.size(); idx++ )

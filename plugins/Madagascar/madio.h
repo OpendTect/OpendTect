@@ -15,7 +15,7 @@ namespace ODMad
 {
 
 mExtern(Madagascar) const char* sKeyMadagascar();
-mExtern(Madagascar) const char* sKeyMadSelKey();
+mExtern(Madagascar) int sKeyMadSelKey();
 
 /*!\brief Specifies file name and optional mask filename */
 

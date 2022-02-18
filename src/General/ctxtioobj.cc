@@ -304,9 +304,13 @@ BufferString IOObjContext::getDataDirName( StdSelType sst, bool dirnmonly )
 
 MultiID IOObjContext::getSelKey() const
 {
-    return selkey_.isEmpty()
-	? MultiID( stdseltype_ == None ? "" : getStdDirData(stdseltype_)->id_ )
-	: selkey_;
+    if ( !selkey_.isUdf() )
+	return selkey_;
+
+    MultiID key;
+    if ( stdseltype_ != None )
+	key.setObjectID( getStdDirData(stdseltype_)->idAsInt() );
+    return key;
 }
 
 
@@ -378,7 +382,7 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 {
     fillTrGroup();
 
-    IOStream* iostrm = new IOStream( name(), ky, false );
+    IOStream* iostrm = new IOStream( name(), ky.toString(), false );
     iostrm->setGroup( trgroup_->groupName() );
     iostrm->setTranslator( transl.userName() );
 
@@ -466,13 +470,18 @@ void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
 
 void CtxtIOObj::setObj( IOObj* obj )
 {
-    if ( obj == ioobj_ ) return;
+    if ( obj == ioobj_ )
+	return;
 
-    delete ioobj_; ioobj_ = obj;
-    if ( ioobj_ )
-	ctxt_.selkey_ = ctxt_.hasStdSelKey()
-	    ? ""
-	    : ioobj_->key().upLevel().buf();
+    delete ioobj_;
+    ioobj_ = obj;
+    if ( !ioobj_ )
+	return;
+
+    if ( ctxt_.hasStdSelKey() )
+	ctxt_.selkey_.setUdf();
+    else
+	ctxt_.selkey_ = ioobj_->key().mainID();
 }
 
 

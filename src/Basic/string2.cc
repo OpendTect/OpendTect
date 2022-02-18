@@ -922,6 +922,13 @@ const char* toString( const OD::String& ods )
 const char* toString( const CompoundKey& key )
 { return key.buf(); }
 
+const char* toString( const MultiID& key )
+{
+    mDeclStaticString( retstr );
+    retstr = key.toString();
+    return retstr.buf();
+}
+
 const char* toStringPrecise( float f )
 { return getPreciseStringFromFPNumber( f, false ); }
 

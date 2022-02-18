@@ -825,7 +825,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 	const char* askq = impsip_->importAskQuestion();
 	if ( askq && *askq && uiMSG().askGoOn(mToUiStringTodo(askq)) )
 	{
-	    IOM().to( "100010" );
+	    IOM().to( IOObjContext::Seis );
 	    impsip_->startImport( this, *impiop_ );
 	}
     }

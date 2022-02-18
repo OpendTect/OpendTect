@@ -924,7 +924,7 @@ MultiWellReader::MultiWellReader( const TypeSet<MultiID>& keys,
     , reqs_(reqs)
 {
     if ( !keys_.isEmpty() )
-	IOM().to( keys_.first().parent() );
+	IOM().to( keys_.first() );
 }
 
 

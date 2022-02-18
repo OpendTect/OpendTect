@@ -278,8 +278,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	linefld_->setSelLine( lnm );
     }
 
-    mIfGetString( FingerPrint::valpicksetStr(), pickidstr,
-		  IOObj* ioobj = IOM().get( MultiID(pickidstr) );
+    mIfGetMultiID( FingerPrint::valpicksetStr(), pickid,
+		  ConstPtrMan<IOObj> ioobj = IOM().get( pickid );
 		  if ( ioobj ) picksetfld_->setInput( *ioobj ) );
 
     mIfGetInt( FingerPrint::valreftypeStr(), type, refgrp_->selectButton(type) )
@@ -346,7 +346,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	calcobj_->setWeights( weights );
     }
 
-    mIfGetString( FingerPrint::rgpicksetStr(), rgp, calcobj_->setRgRefPick(rgp))
+    mIfGetMultiID( FingerPrint::rgpicksetStr(),
+		   rgp, calcobj_->setRgRefPick(rgp))
 
     mIfGetInt(FingerPrint::rgreftypeStr(), rgtyp, calcobj_->setRgRefType(rgtyp))
 
@@ -386,8 +387,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     {
 	mSetInt( FingerPrint::statstypeStr(), statsfld_->getIntValue() );
 	if ( picksetfld_->ioobj(true) )
-	    mSetString( FingerPrint::valpicksetStr(),
-			picksetfld_->key() )
+	    mSetMultiID( FingerPrint::valpicksetStr(), picksetfld_->key() )
     }
 
     TypeSet<float> values = calcobj_->getValues();
@@ -422,7 +422,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 
     mSetInt( FingerPrint::rgreftypeStr(), calcobj_->getRgRefType() );
     if ( calcobj_->getRgRefType() == 1 )
-	mSetString( FingerPrint::rgpicksetStr(), calcobj_->getRgRefPick() )
+	mSetMultiID( FingerPrint::rgpicksetStr(), calcobj_->getRgRefPick() )
 
     return true;
 }
@@ -522,7 +522,7 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 {
     uiString errmsg;
     BinIDValueSet* valuesset = createValuesBinIDSet( errmsg );
-    if ( calcobj_->getRgRefType()==1 && calcobj_->getRgRefPick().isEmpty() )
+    if ( calcobj_->getRgRefType()==1 && calcobj_->getRgRefPick().isUdf() )
     {
 	uiMSG().error( tr("Please choose the pickset from which\n"
 			  "the ranges will be computed"));
@@ -594,7 +594,7 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	}
 
 	BufferStringSet ioobjids;
-	ioobjids.add( ioobj->key() );
+	ioobjids.add( ioobj->key().toString() );
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );
 	if ( values.isEmpty() )
 	{
@@ -668,7 +668,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
     picksetfld_ = new uiIOObjSel( this, ctio_, mJoinUiStrs(sPointSet(),
 							   sFile().toLower()) );
     picksetfld_->attach( alignedBelow, (uiParent*)rangesgrp_ );
-    picksetfld_->setInput( MultiID(calcobj_.getRgRefPick().buf()) );
+    picksetfld_->setInput( calcobj_.getRgRefPick() );
     picksetfld_->display( true );
 
     uiGroup* attrvalsgrp = new uiGroup( this, "Attrib inputs" );
@@ -771,7 +771,7 @@ void uiFPAdvancedDlg::calcPush( CallBacker* )
 			 "the ranges will be computed");
 	    mRetIfErr;
 	}
-	calcobj_.setRgRefPick( ioobj->key().buf() );
+	calcobj_.setRgRefPick( ioobj->key() );
     }
 
     BinIDValueSet* rangesset = calcobj_.createRangesBinIDSet();

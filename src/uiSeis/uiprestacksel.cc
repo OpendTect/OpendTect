@@ -132,7 +132,7 @@ void uiPreStackSel::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
 	if ( *mid.buf() == '#' )
 	{
 	    const char* newmid = mid.buf() + 1;
-	    dpfids_[idx] = newmid;
+	    dpfids_[idx].fromString( newmid );
 	}
     }
 

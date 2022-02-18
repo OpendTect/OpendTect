@@ -77,7 +77,7 @@ calcFingParsObject::~calcFingParsObject()
 }
 
 
-void calcFingParsObject::create2DRandPicks( const MultiID& dsetid, 
+void calcFingParsObject::create2DRandPicks( const MultiID& dsetid,
 						      BinIDValueSet* rangesset )
 {
     PtrMan<IOObj> ioobj = IOM().get( dsetid );
@@ -120,7 +120,7 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
     {
 	ObjectSet<BinIDValueSet> values;
 	BufferStringSet ioobjids;
-	ioobjids.add( getRgRefPick() );
+	ioobjids.add( getRgRefPick().toString() );
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );
 	BinIDValueSet* rgset = new BinIDValueSet( *(values[0]) );
 	deepErase( values );
@@ -159,7 +159,7 @@ void calcFingParsObject::findDataSetID( MultiID& linesetid ) const
 	    else
 	    {
 		bool foundstored = false;
-		
+
 		while ( !foundstored )
 		{
 		    Desc* inpdsc = dsc->getInput(0);
@@ -205,7 +205,7 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
     BinIDValueSet* valueset = posset_[0];
     BinIDValueSet* rangeset = posset_[1];
     TypeSet<float> vals( nrattribs, mUdf(float) );
-    TypeSet< Interval<float> > rgs( nrattribs, 
+    TypeSet< Interval<float> > rgs( nrattribs,
 	    			    Interval<float>(mUdf(float),mUdf(float)) );
 
     if ( valueset->totalSize() == 1 )
@@ -220,7 +220,7 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
 
 	Stats::Type styp = (Stats::Type)statstype_;
 	fillInStats( valueset, statsset, styp );
-	
+
 	for ( int idx=0; idx<nrattribs; idx++ )
 	    vals[idx] = (float) statsset[idx]->getValue(styp);
 
@@ -231,13 +231,13 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
     {
 	ObjectSet< Stats::RunCalc<float> > stats;
 	fillInStats( rangeset, stats, Stats::Min );
-	
+
 	for ( int idx=0; idx<nrattribs; idx++ )
 	    rgs[idx] = Interval<float>( stats[idx]->min(), stats[idx]->max());
 
 	deepErase( stats );
     }
-   
+
     saveValsAndRanges( vals, rgs );
 }
 
@@ -245,7 +245,7 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
 EngineMan* calcFingParsObject::createEngineMan()
 {
     EngineMan* aem = new EngineMan;
-    
+
     TypeSet<SelSpec> attribspecs;
     for ( int idx=0; idx<reflist_->size(); idx++ )
     {

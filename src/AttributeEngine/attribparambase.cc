@@ -8,6 +8,7 @@
 #include "attribparambase.h"
 
 #include "datainpspec.h"
+#include "multiid.h"
 
 namespace Attrib
 {
@@ -105,7 +106,7 @@ mSetGet(int,getIntValue)
 mSetGet(float,getFValue)
 mSetGet(bool,getBoolValue)
 mSetGet(double,getDValue)
-    
+
 #define mSetGetDefault(type,getfunc,dataspecgetfunc) \
 type ValParam::getfunc( int idx ) const \
 { return spec_->dataspecgetfunc(idx); } \
@@ -119,12 +120,15 @@ mSetGetDefault(double,getDefaultdValue,getDefaultValue)
 mSetGetDefault(bool,getDefaultBoolValue,getDefaultBoolValue)
 mSetGetDefault(const char*,getDefaultStringValue,getDefaultStringValue)
 
-    
+
 const char* ValParam::getStringValue( int idx ) const
 { return spec_->text(idx); }
 
 void ValParam::setValue( const char* str, int idx )
 { spec_->setText( str, idx ); }
+
+void ValParam::setValue( const MultiID& key, int idx )
+{ spec_->setText( key.toString(), idx ); }
 
 
 bool ValParam::setCompositeValue( const char* nv )
@@ -133,7 +137,7 @@ bool ValParam::setCompositeValue( const char* nv )
 	return false;
 
     return isOK();
-};
+}
 
 
 bool ValParam::getCompositeValue( BufferString& res ) const

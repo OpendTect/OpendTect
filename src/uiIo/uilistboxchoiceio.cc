@@ -123,7 +123,7 @@ void uiListBoxChoiceIO::storeReqCB( CallBacker* )
 	    if ( nrkeys < 1 )
 		astrm.put( itmnm );
 	    else
-		astrm.put( itmnm, idx < nrkeys ? keys_.get(idx).buf() : "-" );
+		astrm.put( itmnm, idx < nrkeys ? keys_.get(idx) : "-" );
 	}
     }
 
@@ -134,7 +134,7 @@ void uiListBoxChoiceIO::storeReqCB( CallBacker* )
 	    break;
 
 	if ( lb_.isMarked(idx) )
-	    astrm.put( sDefault(), keys_.get(idx).buf() );
+	    astrm.put( sDefault(), keys_.get(idx) );
     }
 
     astrm.newParagraph();

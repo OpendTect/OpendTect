@@ -95,6 +95,8 @@ public:
 	const char*			dirnm_;
 	const char*			desc_;
 					//!< Can be converted to StdSelType
+	int				idAsInt() const
+					{ return toInt(id_); }
 
 	mDeprecated("Use id_")		const char*&	id;
 	mDeprecated("Use dirnm_")	const char*&	dirnm;

@@ -43,7 +43,7 @@ public:
 				uiWellLogExtractGrp(uiParent*,
 					const uiWellLogExtractGrp::Setup&,
 					const Attrib::DescSet* ads=0);
-						
+
 				~uiWellLogExtractGrp();
 
     void			setDescSet(const Attrib::DescSet*);
@@ -71,7 +71,7 @@ protected:
     DataPointSet*	curdps_;
 
     void		adsChg();
-    bool		extractWellData(const BufferStringSet&,
+    bool		extractWellData(const TypeSet<MultiID>&,
 	    				const BufferStringSet&,
 					ObjectSet<DataPointSet>&);
     bool		extractAttribData(DataPointSet&,int);

@@ -152,6 +152,6 @@ void uiPickSetMan::mergeSets( CallBacker* )
     selgrp_->getChosen( chsnnms );
     mgr.mergeSets( curkey, &chsnnms );
 
-    if ( !curkey.isEmpty() )
+    if ( !curkey.isUdf() )
 	selgrp_->fullUpdate( curkey );
 }

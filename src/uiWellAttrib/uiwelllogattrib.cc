@@ -106,7 +106,7 @@ bool uiWellLogAttrib::getParameters( Desc& desc )
     if ( desc.attribName() != WellLog::attribName() )
 	return false;
 
-    mSetString( WellLog::keyStr(), wellfld_->key().buf() );
+    mSetMultiID( WellLog::keyStr(), wellfld_->key() );
     mSetString( WellLog::logName(), logsfld_->getText() );
     mSetEnum( WellLog::upscaleType(), sampfld_->getIntValue() );
 

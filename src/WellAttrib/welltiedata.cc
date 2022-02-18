@@ -620,7 +620,7 @@ bool Server::hasSynthetic() const
     if ( !dataplayer_ )
 	return false;
 
-    return dataplayer_->isOKSynthetic() && !wellid_.isEmpty();
+    return dataplayer_->isOKSynthetic() && !wellid_.isUdf();
 }
 
 

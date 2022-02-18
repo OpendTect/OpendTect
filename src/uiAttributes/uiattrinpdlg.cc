@@ -208,16 +208,14 @@ const char* uiAttrInpDlg::getSteerRefFromIndex( int idx ) const
 const char* uiAttrInpDlg::getSeisKeyFromIndex( int idx ) const
 {
     if ( seisinpflds_.size()<=idx || !seisinpflds_[idx] )
-	return 0;
+	return nullptr;
 
-    LineKey lk;
     const IOObj* ioobj = seisinpflds_[idx]->ioobj( true );
     if ( !ioobj )
-	return 0;
+	return nullptr;
 
-    lk.setLineName( ioobj->key() );
     mDeclStaticString( buf );
-    buf = is2D() ? lk : lk.lineName();
+    buf = ioobj->key().toString();
     return buf;
 }
 
@@ -225,15 +223,13 @@ const char* uiAttrInpDlg::getSeisKeyFromIndex( int idx ) const
 const char* uiAttrInpDlg::getSteerKeyFromIndex( int idx ) const
 {
     if ( steerinpflds_.size()<=idx || !steerinpflds_[idx] )
-	return 0;
+	return nullptr;
 
-    static LineKey lk;
     const IOObj* ioobj = steerinpflds_[idx]->ioobj( true );
     if ( !ioobj )
-	return 0;
+	return nullptr;
 
-    lk.setLineName( ioobj->key() );
     mDeclStaticString( buf );
-    buf = is2D() ? lk : lk.lineName();
+    buf = ioobj->key().toString();
     return buf;
 }

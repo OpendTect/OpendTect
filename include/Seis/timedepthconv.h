@@ -71,7 +71,7 @@ public:
     float		getGoodZStep() const;
     const char*		getToZDomainString() const;
     const char*		getFromZDomainString() const;
-    const char*		getZDomainID() const;
+    MultiID		getZDomainID() const;
 
     const Interval<float>& getVavgRg(bool start) const;
     static Interval<float> getDefaultVAvg();
@@ -131,7 +131,7 @@ public:
     float		getGoodZStep() const;
     const char*		getToZDomainString() const;
     const char*		getFromZDomainString() const;
-    const char*		getZDomainID() const;
+    MultiID		getZDomainID() const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

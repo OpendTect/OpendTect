@@ -446,7 +446,7 @@ bool GMTWells::doExecute( od_ostream& strm, const char* fnm )
     if ( !procstrm.isOK() ) mErrStrmRet("Failed")
 
     TypeSet<Coord> surfcoords;
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::WllInf)->id_) );
+    IOM().to( IOObjContext::WllInf );
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
 	const IOObj* ioobj = IOM().getLocal( wellnms.get(idx), "Well" );

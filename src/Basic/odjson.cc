@@ -955,7 +955,7 @@ OD::JSON::Array& OD::JSON::Array::add( const DBKey& dbky )
 
 OD::JSON::Array& OD::JSON::Array::add( const MultiID& mid )
 {
-    return add( mid.buf() );
+    return add( mid.toString() );
 }
 
 OD::JSON::Array& OD::JSON::Array::add( const uiString& val )
@@ -1364,7 +1364,7 @@ void OD::JSON::Object::set( const char* ky, const DBKey& id )
 
 void OD::JSON::Object::set( const char* ky, const MultiID& id )
 {
-    setVal( ky, id.buf() );
+    setVal( ky, id.toString() );
 }
 
 

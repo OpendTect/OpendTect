@@ -400,7 +400,7 @@ PtrMan<IOObj> SeisStoreAccess::getFromPar( const IOPar& iop )
 	BufferString dsnm;
 	if ( iop.get(sKey::Name(),dsnm) && !dsnm.isEmpty() )
 	{
-	    IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );
+	    IOM().to( IOObjContext::Seis );
 	    ret = IOM().getLocal( dsnm.str(), nullptr );
 	    if ( ret )
 		dbkey = ret->key();

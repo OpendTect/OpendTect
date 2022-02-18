@@ -206,8 +206,7 @@ int EventSet::indexOf( int horid ) const
 
 
 EventManager::EventManager()
-    : storageid_(-1)
-    , events_(2,1)
+    : events_(2,1)
     , changebid_(-1,-1)
     , forceReload( this )
     , change(this)
@@ -651,7 +650,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
     if ( ds.type_==DipSource::Horizon )
     {
 	const int horidx = horids_.indexOf( horid );
-	if ( horidx==-1 || horrefs_[horidx].isEmpty() )
+	if ( horidx==-1 || horrefs_[horidx].isUdf() )
 	    return false;
 
 	if ( !emhorizons_[horidx] ||
@@ -711,7 +710,7 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 
     if ( ds.type_==DipSource::SteeringVolume )
     {
-	if ( ds.mid_.isEmpty() )
+	if ( ds.mid_.isUdf() )
 	    return false;
 
 	SeisTrcReader*& reader =
@@ -796,11 +795,10 @@ bool EventManager::DipSource::use( const char* str )
 
     if ( typeenum==SteeringVolume )
     {
-	const char* midstr = fms[1];
-	if ( !midstr )
+	if ( fms[1].isEmpty() )
 	    return false;
 
-	mid_ = midstr;
+	mid_.fromString( fms[1].buf() );
     }
 
     type_ = typeenum;

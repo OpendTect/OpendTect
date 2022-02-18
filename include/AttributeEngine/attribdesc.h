@@ -309,6 +309,14 @@ protected:
 	var = __desc.getValParam(varstring)->getDefaultStringValue(0); \
 }
 
+#define mGetMultiIDFromDesc( __desc, var, varstring ) \
+{ \
+    var.fromString( __desc.getValParam(varstring)->getStringValue(0) ); \
+    if ( var.isUdf() ) \
+	var.fromString( \
+		__desc.getValParam(varstring)->getDefaultStringValue(0) ); \
+}
+
 #define mGetBinIDFromDesc( __desc, var, varstring ) \
 {\
     var.inl() = __desc.getValParam(varstring)->getIntValue(0); \
@@ -349,6 +357,8 @@ protected:
     mGetEnumFromDesc( desc_, var, varstring )
 #define mGetString( var, varstring ) \
     mGetStringFromDesc( desc_, var, varstring )
+#define mGetMultiID( var, varstring ) \
+    mGetMultiIDFromDesc( desc_, var, varstring )
 #define mGetBinID( var, varstring ) \
     mGetBinIDFromDesc( desc_, var, varstring )
 #define mGetFloatInterval( var, varstring ) \

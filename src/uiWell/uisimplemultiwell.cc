@@ -401,7 +401,7 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
     if ( vel_ < 1e-5 || mIsUdf(vel_) )
 	{ uiMSG().error(tr("Please enter a valid velocity")); return false; }
 
-    IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
+    IOM().to( IOObjContext::WllInf );
 
     SimpleMultiWellImporter impexec( *this );
     uiTaskRunner uitr( this );

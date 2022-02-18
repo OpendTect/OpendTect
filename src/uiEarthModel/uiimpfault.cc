@@ -340,8 +340,7 @@ bool uiImportFault::checkInpFlds()
 
 MultiID uiImportFault::getSelID() const
 {
-    MultiID mid = ctio_.ioobj_ ? ctio_.ioobj_->key() : -1;
-    return mid;
+    return ctio_.ioobj_ ? ctio_.ioobj_->key() : MultiID::udf();
 }
 
 

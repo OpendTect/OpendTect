@@ -445,8 +445,7 @@ void uiImportHorizon::fillUdfSel( CallBacker* )
 
 MultiID uiImportHorizon::getSelID() const
 {
-    MultiID mid = ctio_.ioobj_ ? ctio_.ioobj_->key() : -1;
-    return mid;
+    return ctio_.ioobj_ ? ctio_.ioobj_->key() : MultiID::udf();
 }
 
 

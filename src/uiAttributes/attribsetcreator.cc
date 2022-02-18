@@ -241,12 +241,12 @@ bool AttributeSetCreator::create()
 	   continue;
 	if ( desc.isStored() )
 	{
-	    if ( desc.getStoredID() == storhint_ )
+	    if ( desc.getStoredID() == storhint_.toString() )
 	       stored = &desc;
 	}
     }
 
-    if ( !stored && !storhint_.isEmpty() )
+    if ( !stored && !storhint_.isUdf() )
     {
 	DescID did = attrset->createStoredDesc( storhint_, 0,
 						BufferString("") );

@@ -26,8 +26,8 @@ mExpClass(uiSeis) uiSeisMultiCubePS : public uiDialog
 { mODTextTranslationClass(uiSeisMultiCubePS);
 
 public:
-                        uiSeisMultiCubePS(uiParent*,const char* ky=0);
-                        ~uiSeisMultiCubePS();
+			uiSeisMultiCubePS(uiParent*,const MultiID&);
+			~uiSeisMultiCubePS();
 
     const IOObj*	createdIOObj() const;
 

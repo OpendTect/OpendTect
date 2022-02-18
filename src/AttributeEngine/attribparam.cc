@@ -6,7 +6,10 @@
 
 
 #include "attribparam.h"
+
 #include "attribparamgroup.h"
+#include "attribstorprovider.h"
+
 #include "uistrings.h"
 #include "datapack.h"
 #include "ioman.h"
@@ -288,8 +291,12 @@ bool StringParam::getCompositeValue( BufferString& res ) const
 }
 
 
-SeisStorageRefParam::SeisStorageRefParam( const char* key )
-    : StringParam( key )
+SeisStorageRefParam::SeisStorageRefParam()
+    : StringParam(StorageProvider::keyStr())
+{}
+
+
+SeisStorageRefParam::~SeisStorageRefParam()
 {}
 
 
@@ -314,4 +321,4 @@ bool SeisStorageRefParam::isOK() const
     return ioobj;
 }
 
-}; // namespace Attrib
+} // namespace Attrib

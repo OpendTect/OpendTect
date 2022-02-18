@@ -81,7 +81,8 @@ int uiWellLogToolWinMgr::checkMaxLogsToDisplay()
 
 bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 {
-    BufferStringSet wellids, wellnms, lognms;
+    TypeSet<MultiID> wellids;
+    BufferStringSet  wellnms, lognms;
     welllogselfld_->getSelWellIDs( wellids );
     welllogselfld_->getSelWellNames( wellnms );
     welllogselfld_->getSelLogNames( lognms );
@@ -96,7 +97,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     bool displogs = false;
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
-	const MultiID& wmid = wellids[idx]->buf();
+	const MultiID& wmid = wellids[idx];
 	const Well::LoadReqs req( Well::Logs );
 	Well::Data& wd = *Well::MGR().get( wmid, req );
 	auto* ldata = new uiWellLogToolWin::LogData( wd );

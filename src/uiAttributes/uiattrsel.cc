@@ -308,7 +308,8 @@ void uiAttrSelDlg::createSelectionButtons()
 }
 
 
-static void setPreloadIcon( uiListBox* lb, const BufferStringSet& ids )
+template <class T>
+static void setPreloadIcon( uiListBox* lb, const T& ids )
 {
     for ( int idx=0; idx<ids.size(); idx++ )
     {
@@ -472,10 +473,10 @@ void uiAttrSelDlg::cubeSel( CallBacker* )
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
 	if ( nms.validIdx(selidx) )
 	{
-	    IOM().to(
-		 MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
-	    PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
-	    if ( ioobj ) ioobjkey = ioobj->key();
+	    IOM().to( IOObjContext::Seis );
+	    ConstPtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
+	    if ( ioobj )
+		ioobjkey = ioobj->key();
 	}
     }
 
@@ -548,9 +549,10 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, is2D(), nms );
-	IOM().to(MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id_));
-	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
-	if ( !ioobj ) return false;
+	IOM().to( IOObjContext::Seis );
+	ConstPtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
+	if ( !ioobj )
+	    return false;
 
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
@@ -567,8 +569,8 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	attrdata_.compnr_ = canuseallcomps ? -1 : curselitmidx-1;
 	if ( attrdata_.compnr_< 0 && !canuseallcomps )
 	    attrdata_.compnr_ = 0;
-	const char* ioobjkey = seltyp==0 ? attrinf_->ioobjids_.get( selidx )
-					 : attrinf_->steerids_.get( selidx );
+	const MultiID& ioobjkey = seltyp==0 ? attrinf_->ioobjids_.get( selidx )
+					: attrinf_->steerids_.get( selidx );
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
 		: eDSHolder().getDescSet( is2D(), true );
@@ -609,12 +611,11 @@ void uiAttrSelDlg::replaceStoredByInMem()
     attrinf_->ioobjids_.erase();
 
     BufferStringSet ioobjnmscopy;
-    BufferStringSet ioobjidscopy;
+    TypeSet<MultiID> ioobjidscopy;
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {
-	ioobjnmscopy.add( DataPackMgr::nameOf( dpfids_[idx] ) );
-	BufferString tmpstr = "#"; tmpstr += dpfids_[idx];
-	ioobjidscopy.add( tmpstr );
+	ioobjnmscopy.add( DataPackMgr::nameOf(dpfids_[idx]) );
+	ioobjidscopy.add( dpfids_[idx] );
     }
 
     int* sortindexes = ioobjnmscopy.getSortIndexes();
@@ -631,7 +632,7 @@ void uiAttrSelDlg::replaceStoredByInMem()
 void uiAttrSelDlg::objInserted( CallBacker* cb )
 {
     mCBCapsuleUnpack( MultiID, ky, cb );
-    if ( !ky.isEmpty() )
+    if ( !ky.isUdf() )
     {
 	insertedobjmid_ = ky;
 	accept( 0 );

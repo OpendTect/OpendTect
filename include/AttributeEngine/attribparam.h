@@ -404,12 +404,11 @@ typedef NumGateParam<float>		ZGateParam;
 mExpClass(AttributeEngine) SeisStorageRefParam : public StringParam
 { mODTextTranslationClass(SeisStorageRefParam);
 public:
-				SeisStorageRefParam(const char* key);
+				SeisStorageRefParam();
+				~SeisStorageRefParam();
+
     SeisStorageRefParam*	clone() const;
     bool			isOK() const;
 };
 
-
-}; // namespace Attrib
-
-
+} // namespace Attrib

@@ -428,7 +428,7 @@ void uiVisPartServer::findObject( const std::type_info& ti, TypeSet<int>& res )
 void uiVisPartServer::findObject( const MultiID& mid, TypeSet<int>& res )
 {
     res.erase();
-    if ( mid == MultiID(-1) )
+    if ( mid.isUdf() )
 	return;
 
     for ( int idx=visBase::DM().nrObjects()-1; idx>=0; idx-- )
