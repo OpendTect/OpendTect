@@ -11,6 +11,7 @@
 #include "ranges.h"
 #include "posinfo2d.h"
 
+const float delf = 1e-7f;
 
 bool test_niceInterval()
 {
@@ -18,25 +19,28 @@ bool test_niceInterval()
     mRunStandardTest(si.niceInterval(1)==StepInterval<float>(),
 							"si().niceInterval(1)");
     si.set(2.f, 2.f, 1.f);
-    mRunStandardTest(si.niceInterval(10)==StepInterval<float>(1.6f, 2.4f, 0.1f),
+    mRunStandardTest(si.niceInterval(10).
+			    isEqual(StepInterval<float>(1.6f, 2.4f, 0.1f),delf),
 					    "si(2, 2, 1).niceInterval(10)");
     si.set(2.f, 98.f, 1.f);
-    mRunStandardTest(si.niceInterval(10)==StepInterval<float>(0.f, 100.f, 10.f),
+    mRunStandardTest(si.niceInterval(10).
+			isEqual(StepInterval<float>(0.f, 100.f, 10.f), delf),
 					    "si(2, 98, 1).niceInterval(10)");
     si.set(98.f, 2.f, 1.f);
-    mRunStandardTest(si.niceInterval(10)==StepInterval<float>(100.f, 0.f, 10.f),
+    mRunStandardTest(si.niceInterval(10).
+			isEqual(StepInterval<float>(100.f, 0.f, 10.f), delf),
 					    "si(98, 2, 1).niceInterval(10)");
-    mRunStandardTest(
-		si.niceInterval(10, false)==StepInterval<float>(0.f,100.f,10.f),
+    mRunStandardTest(si.niceInterval(10, false).
+			    isEqual(StepInterval<float>(0.f,100.f,10.f), delf),
 					"si(98, 2, 1).niceInterval(10, false)");
     si.set(-2.f, 98.f, 1.f);
-    mRunStandardTest(
-		si.niceInterval(10)==StepInterval<float>(-10.f, 100.f, 10.f),
+    mRunStandardTest(si.niceInterval(10).
+			isEqual(StepInterval<float>(-10.f, 100.f, 10.f),delf),
 					    "si(-2, 98, 1).niceInterval(10)");
     si.set(-0.0600000024f, 0.0600000024f, 1.f);
-    mRunStandardTest(
-		si.niceInterval(5)==StepInterval<float>(-0.06f, 0.06f, 0.02f),
-					    "si(-0.06, 0.06, 1).niceInterval(5)");
+    mRunStandardTest(si.niceInterval(5).
+			isEqual(StepInterval<float>(-0.06f, 0.06f, 0.02f),delf),
+				    "si(-0.06, 0.06, 1).niceInterval(5)");
     return true;
 }
 
