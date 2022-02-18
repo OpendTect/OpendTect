@@ -935,10 +935,10 @@ StepInterval<T> StepInterval<T>::niceInterval( int maxsteps, bool canrev ) const
 	range += range;
     }
 
-    range = Math::NiceNumber( range, false );
     const T nice_step = Math::NiceNumber( range/(maxsteps), true );
-    const T nice_min = Math::Floor( min/nice_step ) * nice_step;
-    const T nice_max = Math::Ceil( max/nice_step ) * nice_step;
+    const T del = 0.001*Math::Abs(nice_step);
+    const T nice_min = Math::Floor( (min+del)/nice_step ) * nice_step;
+    const T nice_max = Math::Ceil( (max-del)/nice_step ) * nice_step;
     return isrev && canrev ? StepInterval<T>( nice_max, nice_min, nice_step ) :
 			     StepInterval<T>( nice_min, nice_max, nice_step );
 }

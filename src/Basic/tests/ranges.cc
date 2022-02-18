@@ -33,6 +33,10 @@ bool test_niceInterval()
     mRunStandardTest(
 		si.niceInterval(10)==StepInterval<float>(-10.f, 100.f, 10.f),
 					    "si(-2, 98, 1).niceInterval(10)");
+    si.set(-0.0600000024f, 0.0600000024f, 1.f);
+    mRunStandardTest(
+		si.niceInterval(5)==StepInterval<float>(-0.06f, 0.06f, 0.02f),
+					    "si(-0.06, 0.06, 1).niceInterval(5)");
     return true;
 }
 

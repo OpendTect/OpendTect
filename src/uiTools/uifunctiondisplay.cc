@@ -212,7 +212,7 @@ void uiFunctionDisplay::setUpAxis( bool havey2 )
 void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 {
     const uiAxisHandler* xaxis = xAxis();
-    const uiAxisHandler* yaxis = yAxis( y2 );
+    const uiAxisHandler* yaxis = yAxis( y2 && !setup_.useyscalefory2_ );
     if ( !xaxis ||!yaxis )
 	return;
 
