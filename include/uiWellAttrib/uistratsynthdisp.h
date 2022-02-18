@@ -180,7 +180,10 @@ protected:
 				    int offsidx) const;
     void		reSampleTraces(const SyntheticData&,SeisTrcBuf&) const;
     void		updateFields();
-    void		updateSynthetic(const char* nm,bool wva);
+    void		updateAltSynthetic(const char* oldnm,const char* newnm,
+					   bool nameonly);
+    void		updateDispSynthetic(const char* oldnm,const char* newnm,
+					    bool nameonly);
     void		updateSyntheticList(bool wva);
     void		setCurSynthetic(const SyntheticData*,bool wva);
     void		copySyntheticDispPars();
@@ -211,6 +214,7 @@ protected:
     void		viewChg(CallBacker*);
     void		parsChangedCB(CallBacker*);
     void		syntheticAdded(CallBacker*);
+    void		syntheticRenamed(CallBacker*);
     void		syntheticChanged(CallBacker*);
     void		syntheticRemoved(CallBacker*);
     void		syntheticDisabled(CallBacker*);

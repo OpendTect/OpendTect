@@ -37,7 +37,8 @@ public:
     bool		usePar(const IOPar&);
 
     CNotifier<uiSynthParsGrp,BufferString> synthAdded;
-    CNotifier<uiSynthParsGrp,BufferString> synthChanged;
+    CNotifier<uiSynthParsGrp,BufferStringSet> synthChanged;
+    CNotifier<uiSynthParsGrp,BufferStringSet> synthRenamed;
     CNotifier<uiSynthParsGrp,BufferString> synthRemoved;
     CNotifier<uiSynthParsGrp,BufferString> synthDisabled;
     Notifier<uiSynthParsGrp> elPropSel;
@@ -81,6 +82,8 @@ protected:
     uiPushButton*		addnewfld_;
 
     BufferString		lastsavedfnm_;
+    bool			parschanged_ = false;
+    bool			namechanged_ = false;
 
 };
 

@@ -109,15 +109,15 @@ protected:
     uiStratSynthDisp*		synthdisp_;
     uiStratGenDescTools*	gentools_;
     uiStratLayModEditTools*	modtools_;
-    uiToolBar*			analtb_;
+    uiToolBar*			analtb_ = nullptr;
 
     Strat::LayerSequenceGenDesc& desc_;
     Strat::LayerModelProviderImpl& lmp_;
     CtxtIOObj&			descctio_;
-    ElasticPropSelection*	elpropsel_;
+    ElasticPropSelection*	elpropsel_ = nullptr;
     /*mDeprecated*/ bool	mostlyfilledwithbrine_;
-    bool			needtoretrievefrpars_;
-    bool			automksynth_;
+    bool			needtoretrievefrpars_ = false;
+    bool			automksynth_ = true;
 
     bool			canShowFlattened() const;
     void			setWinTitle();

@@ -77,10 +77,15 @@ class uiStratLayerModelManager : public CallBacker
 public:
 
 uiStratLayerModelManager()
-    : dlg_(nullptr)
 {
-    IOM().surveyToBeChanged.notify(mCB(this,uiStratLayerModelManager,survChg));
-    IOM().applicationClosing.notify(mCB(this,uiStratLayerModelManager,survChg));
+    mAttachCB( IOM().surveyToBeChanged, uiStratLayerModelManager::survChg );
+    mAttachCB( IOM().applicationClosing, uiStratLayerModelManager::survChg );
+}
+
+
+~uiStratLayerModelManager()
+{
+    detachAllNotifiers();
 }
 
 
@@ -200,20 +205,20 @@ void doLayerModel( uiParent* p, const char* modnm, int opt )
     else
     {
 	uiStratTreeWin::makeEditable( false );
-	dlg_->windowClosed.notify(mCB(this,uiStratLayerModelManager,winClose));
+	mAttachCB( dlg_->windowClosed, uiStratLayerModelManager::winClose );
 	dlg_->go();
     }
 }
 
 void addToTreeWin()
 {
-    uiToolButtonSetup* su = new uiToolButtonSetup( "stratlayermodeling",
+    auto* su = new uiToolButtonSetup( "stratlayermodeling",
 			    tr("Start layer/synthetics modeling"),
 			    mCB(this,uiStratLayerModelManager,startCB) );
     uiStratTreeWin::addTool( su );
 }
 
-    uiStratLayerModel*	dlg_;
+    uiStratLayerModel*	dlg_ = nullptr;
 
 };
 
@@ -270,13 +275,8 @@ uiStratLayerModel* uiStratLayerModel::getUILayerModel()
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     : uiMainWin(p,uiString::emptyString(),1,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
-    , elpropsel_(nullptr)
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
-    , analtb_(nullptr)
     , lmp_(*new Strat::LayerModelProviderImpl)
-    , needtoretrievefrpars_(false)
-    , automksynth_(true)
-    , moddisp_(nullptr)
     , newModels(this)
     , saveRequired(this)
     , retrieveRequired(this)
@@ -285,6 +285,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 
     if ( !edtyp || !*edtyp )
 	edtyp = uiBasicLayerSequenceGenDesc::typeStr();
+
     descctio_.ctxt_.toselect_.require_.set( sKey::Type(), edtyp );
 
     auto* gengrp = new uiGroup( this, "Gen group" );
@@ -292,7 +293,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     if ( !seqdisp_ )
 	seqdisp_ = new uiBasicLayerSequenceGenDesc( gengrp, desc_ );
 
-    uiGroup* topgrp; uiGroup* botgrp; uiGroup* rightgrp=0;
+    uiGroup* topgrp; uiGroup* botgrp; uiGroup* rightgrp = nullptr;
     if ( seqdisp_->separateDisplay() )
     {
 	rightgrp = new uiGroup( this, "Right group" );
@@ -306,7 +307,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     }
 
     modtools_ = new uiStratLayModEditTools( botgrp );
-    modtools_->selPropChg.notify( mCB(this,uiStratLayerModel,selPropChgCB) );
+    mAttachCB( modtools_->selPropChg, uiStratLayerModel::selPropChgCB );
     gentools_ = new uiStratGenDescTools( gengrp );
 
     synthdisp_ = new uiStratSynthDisp( topgrp, lmp_ );
@@ -323,25 +324,24 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     uiToolButtonSetup tbsu( "xplot", tr("Attributes vs model properties"),
 			    mCB(this,uiStratLayerModel,xPlotReq) );
     synthdisp_->control()->getToolBar(0)->addButton(
-	    "snapshot", uiStrings::sTakeSnapshot(),
-	    mCB(this,uiStratLayerModel,snapshotCB));
-    synthdisp_->synthsChanged.notify(
-		mCB(this,uiStratLayerModel,syntheticsChangedCB) );
+				"snapshot", uiStrings::sTakeSnapshot(),
+				mCB(this,uiStratLayerModel,snapshotCB) );
+    mAttachCB( synthdisp_->synthsChanged,
+	       uiStratLayerModel::syntheticsChangedCB );
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
     if ( vwr )
     {
 	synthdisp_->addViewerToControl( *vwr );
-	vwr->viewChanged.notify( mCB(this,uiStratLayerModel,lmViewChangedCB) );
+	mAttachCB( vwr->viewChanged, uiStratLayerModel::lmViewChangedCB );
 	synthdisp_->control()->setParsButToolTip( *vwr,
-		    tr("Layermodel display properties") );
+				    tr("Layermodel display properties") );
     }
 
     modtools_->attach( ensureBelow, moddisp_ );
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
 
-    uiToolBar* helptb =
-	new uiToolBar( this, tr("Help toolbar"), uiToolBar::Right );
+    auto* helptb = new uiToolBar( this, tr("Help toolbar"), uiToolBar::Right );
     uiToolButtonSetup htbsu( "contexthelp", uiStrings::sHelp(),
 			     mCB(this,uiStratLayerModel,helpCB) );
     helptb->addButton( htbsu );
@@ -355,39 +355,38 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     else
     {
 	modtools_->attach( rightBorder );
-	uiSplitter* vspl = new uiSplitter( this, "Vert splitter", true );
+	auto* vspl = new uiSplitter( this, "Vert splitter", true );
 	vspl->addGroup( gengrp ); vspl->addGroup( rightgrp );
 	hspl = new uiSplitter( rightgrp, "Hor splitter", false );
     }
-    hspl->addGroup( topgrp ); hspl->addGroup( botgrp );
 
-    modtools_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
-    modtools_->selLevelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
-    modtools_->flattenChg.notify( mCB(this,uiStratLayerModel,flattenChg) );
-    modtools_->mkSynthChg.notify( mCB(this,uiStratLayerModel,mkSynthChg) );
-    gentools_->openReq.notify( mCB(this,uiStratLayerModel,openGenDescCB) );
-    gentools_->saveReq.notify( mCB(this,uiStratLayerModel,saveGenDescCB) );
-    gentools_->propEdReq.notify( mCB(this,uiStratLayerModel,manPropsCB) );
-    gentools_->genReq.notify( mCB(this,uiStratLayerModel,genModels) );
-    gentools_->nrModelsChanged.notify(
-	    mCB(this,uiStratLayerModel,nrModelsChangedCB) );
-    synthdisp_->viewChanged.notify( mCB(this,uiStratLayerModel,viewChgedCB) );
-    synthdisp_->modSelChanged.notify( mCB(this,uiStratLayerModel,modSelChg) );
-    synthdisp_->dispParsChanged.notify(
-	    mCB(this,uiStratLayerModel,synthDispParsChangedCB) );
-    synthdisp_->layerPropSelNeeded.notify(
-			    mCB(this,uiStratLayerModel,selElasticPropsCB) );
-    synthdisp_->control()->infoChanged.notify(
-	    mCB(this,uiStratLayerModel,infoChanged) );
-    moddisp_->genNewModelNeeded.notify( mCB(this,uiStratLayerModel,genModels) );
-    moddisp_->rangeChanged.notify(
-			    mCB(this,uiStratLayerModel,modDispRangeChanged));
-    moddisp_->infoChanged.notify(
-			    mCB(this,uiStratLayerModel,infoChanged));
-    moddisp_->sequenceSelected.notify( mCB(this,uiStratLayerModel,seqSel) );
-    moddisp_->modelEdited.notify( mCB(this,uiStratLayerModel,modEd) );
-    moddisp_->dispPropChanged.notify(
-	    mCB(this,uiStratLayerModel,lmDispParsChangedCB) );
+    hspl->addGroup( topgrp );
+    hspl->addGroup( botgrp );
+
+    mAttachCB( modtools_->dispEachChg, uiStratLayerModel::dispEachChg );
+    mAttachCB( modtools_->selLevelChg, uiStratLayerModel::levelChg );
+    mAttachCB( modtools_->flattenChg, uiStratLayerModel::flattenChg );
+    mAttachCB( modtools_->mkSynthChg, uiStratLayerModel::mkSynthChg );
+    mAttachCB( gentools_->openReq, uiStratLayerModel::openGenDescCB );
+    mAttachCB( gentools_->saveReq, uiStratLayerModel::saveGenDescCB );
+    mAttachCB( gentools_->propEdReq, uiStratLayerModel::manPropsCB );
+    mAttachCB( gentools_->genReq, uiStratLayerModel::genModels );
+    mAttachCB( gentools_->nrModelsChanged,uiStratLayerModel::nrModelsChangedCB);
+    mAttachCB( synthdisp_->viewChanged, uiStratLayerModel::viewChgedCB );
+    mAttachCB( synthdisp_->modSelChanged, uiStratLayerModel::modSelChg );
+    mAttachCB( synthdisp_->dispParsChanged,
+	       uiStratLayerModel::synthDispParsChangedCB );
+    mAttachCB( synthdisp_->layerPropSelNeeded,
+	       uiStratLayerModel::selElasticPropsCB );
+    mAttachCB( synthdisp_->control()->infoChanged,
+	       uiStratLayerModel::infoChanged );
+    mAttachCB( moddisp_->genNewModelNeeded, uiStratLayerModel::genModels );
+    mAttachCB(  moddisp_->rangeChanged, uiStratLayerModel::modDispRangeChanged);
+    mAttachCB( moddisp_->infoChanged, uiStratLayerModel::infoChanged );
+    mAttachCB( moddisp_->sequenceSelected, uiStratLayerModel::seqSel );
+    mAttachCB( moddisp_->modelEdited, uiStratLayerModel::modEd );
+    mAttachCB( moddisp_->dispPropChanged,
+	       uiStratLayerModel::lmDispParsChangedCB );
 
     setWinTitle();
     StratTreeWin().changeLayerModelNumber( true );

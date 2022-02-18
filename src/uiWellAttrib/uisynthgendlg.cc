@@ -44,6 +44,7 @@ uiSynthParsGrp::uiSynthParsGrp( uiParent* p, StratSynth& gp )
     , stratsynth_(gp)
     , synthAdded(this)
     , synthChanged(this)
+    , synthRenamed(this)
     , synthRemoved(this)
     , synthDisabled(this)
     , elPropSel(this)
@@ -134,6 +135,7 @@ void uiSynthParsGrp::initGrp( CallBacker* )
 
     ns.enableNotification();
     newSynthSelCB( nullptr );
+    namechanged_ = parschanged_ = false;
     //Keep last, as we do not want earlier notifications:
     mAttachCB( synthselgrp_->parsChanged, uiSynthParsGrp::parsChangedCB );
 }
@@ -269,7 +271,8 @@ void uiSynthParsGrp::updateSyntheticsCB( CallBacker* )
     if ( selidx<0 )
 	return;
 
-    if ( !prepareSyntheticToBeChanged(false) )
+    const bool onlynmchanged = namechanged_ && !parschanged_;
+    if ( !onlynmchanged && !prepareSyntheticToBeChanged(false) )
 	return;
 
     const BufferString synthtochgnm( synthnmlb_->getText() );
@@ -285,41 +288,48 @@ void uiSynthParsGrp::updateSyntheticsCB( CallBacker* )
     {
 	updatefld_->setSensitive( false );
 	addnewfld_->setSensitive( false );
+	namechanged_ = parschanged_ = false;
 	return;
     }
 
     const BufferString synthname( sdtochg->name() );
+    const BufferString& newsynthnm = cursgp.name_;
+    if ( sdtochgsgp.canBeAttributeInput() )
+	synthselgrp_->manInpSynth( synthtochgnm, false );
+    else if ( sdtochgsgp.isPreStack() )
+	synthselgrp_->manPSSynth( synthtochgnm, false );
     sdtochg = nullptr;
-    if ( !stratsynth_.removeSynthetic(synthname) )
-	mErrRet( stratsynth_.errMsg(), return )
 
-    if ( !doAddSynthetic(cursgp,true) )
+    if ( onlynmchanged && !stratsynth_.updateSyntheticName(synthname,
+							   newsynthnm) )
     {
-	synthnmlb_->removeItem( synthname );
 	mErrRet( stratsynth_.errMsg(), return )
     }
-
-    const BufferString& newsynthnm = cursgp.name_;
-    for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
+    else if ( !onlynmchanged )
     {
-	const SyntheticData* sd = stratsynth_.getSyntheticByIdx( idx );
-	if ( ! sd )
-	    continue;
+	if ( !stratsynth_.removeSynthetic(synthname) )
+	    mErrRet( stratsynth_.errMsg(), return )
 
-	const SynthGenParams& sgp = sd->getGenParams();
-	if ( !sgp.needsInput() || sgp.inpsynthnm_ != synthname )
-	    continue;
+	if ( !doAddSynthetic(cursgp,true) )
+	{
+	    synthnmlb_->removeItem( synthname );
+	    mErrRet( stratsynth_.errMsg(), return )
+	}
 
-	SynthGenParams newsgp( sgp );
-	newsgp.inpsynthnm_.set( newsynthnm );
-	const_cast<SyntheticData*>( sd )->useGenParams( newsgp );
+	if ( synthname != newsynthnm )
+	    stratsynth_.updateSyntheticName( synthname, newsynthnm );
     }
 
     forwardInputNames();
     synthnmlb_->setItemText( selidx, newsynthnm );
     updatefld_->setSensitive( false );
     addnewfld_->setSensitive( false );
-    synthChanged.trigger( newsynthnm );
+    namechanged_ = parschanged_ = false;
+    const BufferStringSet nms( synthname, newsynthnm );
+    if ( onlynmchanged )
+	synthRenamed.trigger( nms );
+    else
+	synthChanged.trigger( nms );
 }
 
 
@@ -347,6 +357,8 @@ void uiSynthParsGrp::removeSyntheticsCB( CallBacker* )
 	synthselgrp_->manInpSynth( synthtoremnm, false );
     else if ( sgp.isPreStack() )
 	synthselgrp_->manPSSynth( synthtoremnm, false );
+
+    namechanged_ = parschanged_ = false;
 }
 
 
@@ -411,6 +423,7 @@ void uiSynthParsGrp::addSyntheticsCB( CallBacker* )
     updatefld_->setSensitive( false );
     removefld_->setSensitive( synthnmlb_->size() > 1 );
     addnewfld_->setSensitive( false );
+    namechanged_ = parschanged_ = false;
 }
 
 
@@ -479,7 +492,8 @@ void uiSynthParsGrp::newCB( CallBacker* )
 	{
 	    if ( defsd && synthnm == defsd->name() )
 	    {
-		synthChanged.trigger( synthnm );
+		const BufferStringSet synthnms( synthnm, synthnm );
+		synthChanged.trigger( synthnms );
 		newtriggered = true;
 	    }
 	    else
@@ -568,12 +582,15 @@ void uiSynthParsGrp::parsChangedCB( CallBacker* )
 {
     updatefld_->setSensitive( !synthnmlb_->isEmpty() );
     addnewfld_->setSensitive( true );
+    parschanged_ = true;
 }
 
 
 void uiSynthParsGrp::nameChangedCB( CallBacker* cb )
 {
-    parsChangedCB( cb );
+    updatefld_->setSensitive( !synthnmlb_->isEmpty() );
+    addnewfld_->setSensitive( true );
+    namechanged_ = true;
 }
 
 

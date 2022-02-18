@@ -31,6 +31,8 @@ public:
     SynthGenParams&	operator= (const SynthGenParams&);
     bool		operator== (const SynthGenParams&) const;
     bool		operator!= (const SynthGenParams&) const;
+    bool		hasSamePars(const SynthGenParams&) const;
+			//<! Everything but the name
 
     bool		isOK() const;
 

@@ -185,22 +185,26 @@ const SyntheticData* StratSynth::addSynthetic( const SynthGenParams& synthgen )
 }
 
 
-const SyntheticData* StratSynth::replaceSynthetic( SynthID id )
+bool StratSynth::updateSyntheticName( const char* oldnm, const char* newnm )
 {
-    const int idx = syntheticIdx( id );
-    if ( !synthetics_.validIdx(idx) )
-	return nullptr;
+    const SyntheticData* sd = getSynthetic( oldnm );
+    if ( sd )
+	const_cast<SyntheticData*>( sd )->setName( newnm );
 
-    const SyntheticData* sd = synthetics_[idx];
-    const SynthGenParams synthgen( sd->getGenParams() );
-    ConstRefMan<SyntheticData> newsd = generateSD( synthgen );
-    if ( newsd )
+    bool found = false;
+    for ( auto* attribsd : synthetics_ )
     {
-	synthetics_.replace( idx, newsd );
-	return newsd;
+	const SynthGenParams& sgp = attribsd->getGenParams();
+	if ( !sgp.needsInput() || sgp.inpsynthnm_ != oldnm )
+	    continue;
+
+	found = true;
+	SynthGenParams newsgp( sgp );
+	newsgp.inpsynthnm_.set( newnm );
+	const_cast<SyntheticData*>( attribsd )->useGenParams( newsgp );
     }
 
-    return nullptr;
+    return sd || found;
 }
 
 

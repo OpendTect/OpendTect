@@ -49,7 +49,8 @@ public:
 
     const SyntheticData* addDefaultSynthetic();
     const SyntheticData* addSynthetic(const SynthGenParams&);
-    const SyntheticData* replaceSynthetic(SynthID);
+    bool		updateSyntheticName(const char* oldnm,
+					    const char* newnm);
     bool		removeSynthetic(const char*);
     bool		disableSynthetic(const char*);
     bool		addInstAttribSynthetics(const BufferStringSet&,

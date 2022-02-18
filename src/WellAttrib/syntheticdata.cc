@@ -95,6 +95,7 @@ void SyntheticData::setName( const char* nm )
 {
     SharedObject::setName( nm );
     datapack_.setName( nm );
+    sgp_.name_.set( nm );
 }
 
 

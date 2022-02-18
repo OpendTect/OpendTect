@@ -70,6 +70,15 @@ SynthGenParams& SynthGenParams::operator=( const SynthGenParams& oth )
 
 bool SynthGenParams::operator== ( const SynthGenParams& oth ) const
 {
+    if ( this == &oth )
+	return true;
+
+    return name_ == oth.name_ && hasSamePars( oth );
+}
+
+
+bool SynthGenParams::hasSamePars( const SynthGenParams& oth ) const
+{
     bool hassameanglerg = true;
     bool hassameinput = true;
     bool hassameattrib = true;

@@ -939,7 +939,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     ColTab::MapperSetup& mapper =
 	wva ? vwr_->appearance().ddpars_.wva_.mappersetup_
 	    : vwr_->appearance().ddpars_.vd_.mappersetup_;
-    const bool ispropsd = sd->isStratProp();
+    const bool ispropsd = sd->isStratProp() || sd->isAttribute();
     auto* dispsd = const_cast<SyntheticData*>( sd );
     ColTab::MapperSetup& dispparsmapper =
 	!wva ? dispsd->dispPars().vdmapper_ : dispsd->dispPars().wvamapper_;
@@ -1270,6 +1270,8 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 	synthgendlg_ = new uiSynthGenDlg( this, curSS() );
 	uiSynthParsGrp* uiparsgrp = synthgendlg_->grp();
 	mAttachCB( uiparsgrp->synthAdded, uiStratSynthDisp::syntheticAdded );
+	mAttachCB( uiparsgrp->synthRenamed,
+		   uiStratSynthDisp::syntheticRenamed );
 	mAttachCB( uiparsgrp->synthChanged,
 		   uiStratSynthDisp::syntheticChanged );
 	mAttachCB( uiparsgrp->synthRemoved,
@@ -1284,7 +1286,42 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 }
 
 
-void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
+void uiStratSynthDisp::updateAltSynthetic( const char* oldnm, const char* newnm,
+					   bool nameonly )
+{
+    if ( FixedString(oldnm) == sKeyNone() )
+	return;
+
+    if ( !nameonly )
+	deleteAndZeroPtr( d2tmodels_ );
+
+    if ( !altSS().hasElasticModels() )
+	return;
+
+    ConstRefMan<SyntheticData> synthetic = curSS().getSynthetic( newnm );
+    if ( !synthetic )
+	return;
+
+    if ( nameonly )
+    {
+	if ( !altSS().updateSyntheticName(oldnm,newnm) )
+	    mErrRet(altSS().errMsg(), return );
+    }
+    else
+    {
+	altSS().removeSynthetic( oldnm );
+	const SyntheticData* altsd =
+			     altSS().addSynthetic( synthetic->getGenParams() );
+	if ( !altsd )
+	    mErrRet(altSS().errMsg(), return );
+    }
+
+    showInfoMsg( true );
+}
+
+
+void uiStratSynthDisp::updateDispSynthetic( const char* oldnm,
+					    const char* newnm, bool nameonly )
 {
     ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
     ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
@@ -1292,38 +1329,43 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 			currentwvasynthetic->name().buf() : "" );
     const BufferString curvdsdnm( currentvdsynthetic ?
 			currentvdsynthetic->name().buf() : "" );
-    const FixedString syntheticnm( synthnm );
-    uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
-    if ( !datalist->isPresent(syntheticnm) || syntheticnm == sKeyNone() )
+
+    const FixedString oldsyntheticnm( oldnm );
+    if ( (!wvadatalist_->isPresent(oldsyntheticnm) &&
+	  !vddatalist_->isPresent(oldsyntheticnm) ) ||
+	 oldsyntheticnm == sKeyNone() )
 	return;
 
-    deleteAndZeroPtr( d2tmodels_ );
-     if ( wva && curwvasdnm==synthnm )
-	 setCurSynthetic( nullptr, true );
-     if ( !wva && curvdsdnm==synthnm )
-	 setCurSynthetic( nullptr, false );
-
-    showInfoMsg( false );
-    if ( altSS().hasElasticModels() )
+    if ( FixedString(newnm) != oldsyntheticnm )
     {
-	ConstRefMan<SyntheticData> synthetic =
-				   curSS().getSynthetic( syntheticnm.buf() );
-	if ( synthetic )
+	if ( wvadatalist_->isPresent(oldsyntheticnm) )
 	{
-	    altSS().removeSynthetic( syntheticnm );
-	    const SyntheticData* altsd =
-			     altSS().addSynthetic( synthetic->getGenParams() );
-	    if ( !altsd )
-		mErrRet(altSS().errMsg(), return );
-
-	    showInfoMsg( true );
+	    updateSyntheticList( true );
+	    wvadatalist_->setCurrentItem( newnm );
+	    if ( !nameonly )
+		setCurrentSynthetic( true );
 	}
+
+	if ( vddatalist_->isPresent(oldsyntheticnm) )
+	{
+	    updateSyntheticList( false );
+	    vddatalist_->setCurrentItem( newnm );
+	    if ( !nameonly )
+		setCurrentSynthetic( false );
+	}
+
+	synthsChanged.trigger();
     }
 
-    updateSyntheticList( wva );
-    synthsChanged.trigger();
-    datalist->setCurrentItem( syntheticnm );
-    setCurrentSynthetic( wva );
+    showInfoMsg( false );
+    if ( nameonly )
+	return;
+
+    updateFields();
+    currentwvasynthetic = currentwvasynthetic_.get();
+    currentvdsynthetic = currentvdsynthetic_.get();
+    displaySynthetic( currentwvasynthetic );
+    displayPostStackSynthetic( currentvdsynthetic, false );
 }
 
 
@@ -1356,36 +1398,35 @@ void uiStratSynthDisp::syntheticAdded( CallBacker* cb )
 }
 
 
+void uiStratSynthDisp::syntheticRenamed( CallBacker* cb )
+{
+    if ( !cb )
+	return;
+
+    mCBCapsuleUnpack(BufferStringSet,syntheticnms,cb);
+    if ( syntheticnms.size() != 2 )
+	return;
+
+    const BufferString& oldnm = *syntheticnms.first();
+    const BufferString& newnm = *syntheticnms.last();
+    updateAltSynthetic( oldnm, newnm, true );
+    updateDispSynthetic( oldnm, newnm, true );
+}
+
+
 void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 {
     if ( !cb )
 	return;
 
-    mCBCapsuleUnpack(BufferString,syntheticnm,cb);
-    const SyntheticData* cursd = curSS().getSynthetic( syntheticnm );
-    if ( !cursd )
+    mCBCapsuleUnpack(BufferStringSet,syntheticnms,cb);
+    if ( syntheticnms.size() != 2 )
 	return;
 
-    const BufferString curwvasynthnm( wvadatalist_->text() );
-    const BufferString curvdsynthnm( vddatalist_->text() );
-
-    BufferStringSet synthnms, wvasynthnms, vdsynthnms;
-    curSS().getSyntheticNames( synthnms );
-    wvadatalist_->getItems( wvasynthnms );
-    vddatalist_->getItems( vdsynthnms );
-    if ( synthnms != wvasynthnms )
-	updateSyntheticList( true );
-    if ( synthnms != vdsynthnms )
-	updateSyntheticList( false );
-
-    updateSynthetic( syntheticnm, true );
-    updateSynthetic( syntheticnm, false );
-
-    updateFields();
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    displaySynthetic( currentwvasynthetic );
-    displayPostStackSynthetic( currentvdsynthetic, false );
+    const BufferString& oldnm = *syntheticnms.first();
+    const BufferString& newnm = *syntheticnms.last();
+    updateAltSynthetic( oldnm, newnm, false );
+    updateDispSynthetic( oldnm, newnm, false );
 }
 
 
