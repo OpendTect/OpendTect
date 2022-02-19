@@ -11,7 +11,7 @@
 #include "ranges.h"
 #include "posinfo2d.h"
 
-const float delf = 1e-7f;
+const float delf = 1e-5f;
 
 bool test_niceInterval()
 {
