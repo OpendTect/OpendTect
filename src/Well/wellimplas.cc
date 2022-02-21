@@ -512,6 +512,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
     const int addstartidx = wd_->logs().size();
     BoolTypeSet issel( inplfi.size(), false );
 
+    BufferStringSet storedlognms = wd_->storedLogNames();
     const BufferStringSet& lognms =
 		usecurvenms ? inplfi.logcurves : inplfi.lognms;
     for ( int idx=0; idx<lognms.size(); idx++ )
@@ -521,16 +522,19 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
 	const bool ispresent = lfi.lognms.isPresent( lognm );
 	if ( !ispresent )
 	    continue;
-	if ( wd_->logs().getLog(lognm) )
+
+	int nr = 1;
+	BufferString newlognm = lognm;
+	while ( storedlognms.isPresent(newlognm) )
 	{
-	    BufferString msg( lognm );
-	    msg += " already exists, will be ignored.";
-	    pErrMsg( msg );
-	    continue;
+	    nr++;
+	    newlognm.set( lognm ).add( " (" ).add( nr ).add( ")" );
 	}
 
 	issel[idx] = true;
-	Well::Log* newlog = new Well::Log( lognm );
+	auto* newlog = new Well::Log( newlognm );
+	storedlognms.add( newlognm.buf() );
+
 	BufferString unlbl;
 	if ( convs_[colnr] )
 	{
@@ -538,6 +542,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
 		unlbl = "Converted to SI from ";
 	    unlbl += unitmeasstrs_.get( colnr );
 	}
+
 	newlog->setUnitMeasLabel( unlbl );
 	wd_->logs().add( newlog );
     }

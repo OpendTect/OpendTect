@@ -37,6 +37,7 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 
     filtfld_ = new uiListBoxFilter( *selfld_ );
     filtfld_->setItems( setup_.items_ );
+    selfld_->resizeWidthToContents();
 
     if ( setup_.current_ < 1 )
 	selfld_->setCurrentItem( 0 );
@@ -129,7 +130,7 @@ uiGetChoice::uiGetChoice( uiParent* p, const uiString& qn, bool wcncl,
 
 
 uiGetChoice::uiGetChoice( uiParent* p, const BufferStringSet& opts,
-			  const uiString& qn, bool wcncl, 
+			  const uiString& qn, bool wcncl,
 			  const HelpKey& helpkey )
     : uiDialog(p,uiDialog::Setup(uiStrings::sSpecify(),qn,
 	       helpkey))

@@ -9,18 +9,22 @@ ________________________________________________________________________
 -*/
 
 #include "uifileinput.h"
-#include "uifiledlg.h"
-#include "uilabel.h"
-#include "uibutton.h"
-#include "uilineedit.h"
-#include "uigeninput.h"
-#include "uimsg.h"
+
 #include "filepath.h"
 #include "oddirs.h"
 #include "oscommand.h"
 #include "perthreadrepos.h"
 #include "settings.h"
+
+#include "uibutton.h"
+#include "uifiledlg.h"
+#include "uigeninput.h"
+#include "uilabel.h"
+#include "uilineedit.h"
+#include "uimsg.h"
+#include "uiselsimple.h"
 #include "uistrings.h"
+
 #include <string.h>
 
 
@@ -130,11 +134,11 @@ uiFileInput::~uiFileInput()
 
 void uiFileInput::isFinalised( CallBacker* )
 {
-    if ( examinebut_ )
-    {
-	examinebut_->attach( rightOf, selbut_ );
-	enableExamine( File::exists(fileName()) );
-    }
+    if ( !examinebut_ )
+	return;
+
+    examinebut_->attach( rightOf, selbut_ );
+    inputChg( nullptr );
 }
 
 
@@ -180,7 +184,17 @@ void uiFileInput::setDefaultExtension( const char* ext )
 
 void uiFileInput::inputChg( CallBacker* )
 {
-    enableExamine( File::exists(fileName()) );
+    bool enable = false;
+    BufferStringSet fnms;
+    getFileNames( fnms );
+    for ( int idx=0; idx<fnms.size(); idx++ )
+    {
+	enable = File::exists( fnms.get(idx) );
+	if ( enable )
+	   break;
+    }
+
+    enableExamine( enable );
 }
 
 
@@ -344,22 +358,38 @@ const char* uiFileInput::baseName() const
 
 void uiFileInput::getFileNames( BufferStringSet& list ) const
 {
-    BufferString string = text();
-    uiFileDialog::string2List( string, list );
+    BufferString allfnms = text();
+    uiFileDialog::string2List( allfnms, list );
 }
 
 
 void uiFileInput::examineFile( CallBacker* )
 {
     if ( excb_.willCall() )
-	excb_.doCall( this );
-    else
     {
-	File::ViewPars vp( examstyle_ );
-	vp.editable_ = exameditable_;
-	if ( !File::launchViewer(fileName(),vp) )
-	    uiMSG().error( tr("Cannot launch file browser") );
+	excb_.doCall( this );
+	return;
     }
+
+    BufferStringSet fnms;
+    getFileNames( fnms );
+    int selidx = 0;
+    if ( fnms.size() > 1 )
+    {
+	uiSelectFromList::Setup listsetup( tr("Select file to examine"), fnms );
+	uiSelectFromList listdlg( this, listsetup );
+	if ( !listdlg.go() )
+	    return;
+
+	selidx = listdlg.selection();
+	if ( selidx < 0 )
+	    return;
+    }
+
+    File::ViewPars vp( examstyle_ );
+    vp.editable_ = exameditable_;
+    if ( !File::launchViewer(fnms.get(selidx),vp) )
+	uiMSG().error( tr("Cannot launch file browser") );
 }
 
 
