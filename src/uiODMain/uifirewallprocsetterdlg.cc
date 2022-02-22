@@ -13,16 +13,13 @@
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
+#include "iopar.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "oscommand.h"
 #include "od_ostream.h"
 #include "pythonaccess.h"
 #include "settings.h"
-
-#include "iopar.h"
-
-
 
 
 uiString getWindowTitle()
@@ -51,9 +48,6 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
 			const BufferString* path, const BufferString* pypath )
     : uiDialog(p, Setup(getWindowTitle(),mNoDlgTitle,
 			mODHelpKey(mBatchHostsDlgHelpID)).nrstatusflds(-1))
-    , addremfld_(nullptr)
-    , pythonproclistbox_(nullptr)
-    , odproclistbox_(nullptr)
 {
     acttypstr_ = BufferString( PDE::ActionTypeDef().getKey(acttyp) );
     setTitleText( getDialogTitle(acttyp) );
@@ -61,8 +55,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
 	exepath_ = GetExecPlfDir();
     else
     {
-	const FilePath fp( path->buf(), "bin", GetPlfSubDir(),
-							    GetBinSubDir() );
+	const FilePath fp( path->buf(), "bin", GetPlfSubDir(), GetBinSubDir() );
 	exepath_ = fp.fullPath();
     }
 
@@ -102,6 +95,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
     {
 	if ( attachobj )
 	    odproclistbox_->attach( alignedBelow, attachobj );
+
 	odproclistbox_->addItems(odprocdescs_);
 	odproclistbox_->setHSzPol(uiObject::SzPolicy::WideMax);
 	mAttachCB(odproclistbox_->leftButtonClicked,
@@ -123,6 +117,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
     {
 	if ( attachobj )
 	    pythonproclistbox_->attach( alignedBelow, attachobj );
+
 	mAttachCB(pythonproclistbox_->leftButtonClicked,
 			    uiFirewallProcSetter::statusUpdatePyProcCB);
 	mAttachCB(pythonproclistbox_->selectionChanged,
@@ -147,6 +142,12 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
 }
 
 
+uiFirewallProcSetter::~uiFirewallProcSetter()
+{
+    detachAllNotifiers();
+}
+
+
 void uiFirewallProcSetter::updateCB( CallBacker* )
 {
     if ( odproclistbox_->isDisplayed() )
@@ -164,7 +165,7 @@ void uiFirewallProcSetter::updateCB( CallBacker* )
     mGetAddBool \
     setEmpty(); \
     PDE::ActionType acttyp = toadd_ ? PDE::Add : PDE::Remove; \
-    ePDD().getProcData( odv6procnms_, odprocdescs_, PDE::ODv6, acttyp ); \
+    ePDD().getProcData( odprocnms_, odprocdescs_, PDE::ODv6, acttyp ); \
     pyprocdescs_ = getPythonExecList(); \
 
 
@@ -172,14 +173,8 @@ void uiFirewallProcSetter::setEmpty()
 {
     pyprocnms_.setEmpty();
     pyprocdescs_.setEmpty();
-    odv6procnms_.setEmpty();
+    odprocnms_.setEmpty();
     odprocdescs_.setEmpty();
-}
-
-
-uiFirewallProcSetter::~uiFirewallProcSetter()
-{
-    detachAllNotifiers();
 }
 
 
@@ -220,25 +215,23 @@ void uiFirewallProcSetter::selectionChgCB( CallBacker* )
 }
 
 
-void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
+void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* )
 {
     int selidx = odproclistbox_->currentItem();
     if ( selidx < 0 )
 	return;
 
-    BufferString procfp;
     FilePath exefp( exepath_ );
-    const BufferString str = exefp.fullPath();
     BufferString procnm;
-    procnm = *odv6procnms_[selidx];
+    procnm = *odprocnms_[selidx];
     procnm.add( ".exe" );
     exefp.add( procnm );
-    procfp = exefp.fullPath();
-    statusBar()->message( sStatusBarMsg().arg(procfp), 0 );
+    const BufferString procfnm = FilePath::getLongPath( exefp.fullPath() );
+    statusBar()->message( tr("Path: %1").arg(procfnm), 0 );
 }
 
 
-void uiFirewallProcSetter::statusUpdatePyProcCB(CallBacker* cb)
+void uiFirewallProcSetter::statusUpdatePyProcCB( CallBacker* )
 {
     const int selidx = pythonproclistbox_->currentItem();
     if ( selidx < 0 )
@@ -246,8 +239,8 @@ void uiFirewallProcSetter::statusUpdatePyProcCB(CallBacker* cb)
 
     FilePath exefp( pypath_ );
     exefp.add( *pyprocnms_[selidx] );
-    const BufferString procfp = exefp.fullPath();
-    statusBar()->message( sStatusBarMsg().arg(procfp), 0 );
+    const BufferString procfnm = FilePath::getLongPath( exefp.fullPath() );
+    statusBar()->message( tr("Path: %1").arg(procfnm), 0 );
 }
 
 
@@ -263,18 +256,16 @@ uiStringSet uiFirewallProcSetter::getPythonExecList()
     FilePath fp( pypath_ );
     fp.add( "envs" );
 
+    const char* pyexe = "python.exe";
     for ( int idx=pyprocnms_.size()-1; idx>=0; idx-- )
     {
-	const FilePath pyexefp( fp.fullPath(), pyprocnms_.get(idx),
-								"python.exe" );
-
-	if ( !File::exists(pyexefp.fullPath()) )
+	const FilePath pyexefp( fp.fullPath(), pyprocnms_.get(idx), pyexe );
+	if ( !pyexefp.exists() )
 	{
 	    pyprocnms_.removeSingle( idx );
 	    pyprocdescs_.removeSingle( idx );
 	    continue;
 	}
-	const BufferString procnm = pyprocnms_.get( idx );
     }
 
     return pyprocdescs_;
@@ -283,14 +274,13 @@ uiStringSet uiFirewallProcSetter::getPythonExecList()
 
 BufferString uiFirewallProcSetter::getPythonInstDir()
 {
-    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
-    const IOPar& pythonsetts = Settings::fetch( pythonstr );
+    const IOPar& pythonsetts = Settings::fetch( "python" );
     OD::PythonSource source;
     BufferString pythonloc;
     const bool pythonsource = OD::PythonSourceDef().parse( pythonsetts,
 	OD::PythonAccess::sKeyPythonSrc(), source );
     if ( !pythonsource )
-	pythonloc = "";
+	pythonloc.setEmpty();
     else if ( source == OD::PythonSource::Custom )
 	pythonsetts.get( OD::PythonAccess::sKeyEnviron(), pythonloc );
     else
@@ -304,14 +294,13 @@ BufferString uiFirewallProcSetter::getPythonInstDir()
 }
 
 
-BufferStringSet uiFirewallProcSetter::getProcList(
-					    PDE::Type type )
+BufferStringSet uiFirewallProcSetter::getProcList( PDE::Type type )
 {
     BufferStringSet proclist;
     TypeSet<int> selidxs;
 
     const bool isodproc = type == PDE::ODv6;
-    const BufferStringSet& procnms = isodproc ? odv6procnms_ : pyprocnms_;
+    const BufferStringSet& procnms = isodproc ? odprocnms_ : pyprocnms_;
     if ( isodproc )
     {
 	odproclistbox_->getChosen( selidxs );
@@ -321,7 +310,7 @@ BufferStringSet uiFirewallProcSetter::getProcList(
 
     for ( int idx=0; idx<selidxs.size(); idx++ )
     {
-	int selidx = selidxs[idx];
+	const int selidx = selidxs[idx];
 	proclist.add( procnms.get(selidx) );
     }
 
@@ -390,7 +379,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	uiString firstmsg = tr("Some modifications could not be made.\n"
 		"Please make sure you run OpendTect as Administrator.");
 
-	uiString errmsg = tr("\nThe following apps could not be %1: %2");
+	uiString errmsg = tr("\nThe following apps could not be %1:\n%2");
 	errmsg.arg( toadd_ ? tr("added") : tr("removed") )
 	      .arg( failedprocnms.getDispString() );
 

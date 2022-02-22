@@ -12,11 +12,9 @@
 #include "enums.h"
 #include "procdescdata.h"
 
-
-class uiListBox;
 class uiButton;
 class uiGenInput;
-
+class uiListBox;
 
 
 mExpClass(uiODMain) uiFirewallProcSetter : public uiDialog
@@ -27,12 +25,14 @@ public:
 					const BufferString* path=nullptr,
 					const BufferString* pypath=nullptr);
 				~uiFirewallProcSetter();
+
     bool			hasWorkToDo() const;
+
 protected:
 
     uiListBox*			odproclistbox_;
     uiListBox*			pythonproclistbox_;
-    uiGenInput*			addremfld_;
+    uiGenInput*			addremfld_		= nullptr;
 
     BufferString		getPythonInstDir();
     uiStringSet			getPythonExecList();
@@ -48,14 +48,10 @@ protected:
 
     bool			toadd_;
     BufferString		exepath_;
-    BufferStringSet		odv6procnms_;
+    BufferStringSet		odprocnms_;
     uiStringSet			odprocdescs_;
     BufferStringSet		pyprocnms_;
     uiStringSet			pyprocdescs_;
     BufferString		pypath_;
     BufferString		acttypstr_;
-
-    uiString			sStatusBarMsg()
-				{ return tr("Path : %1"); }
 };
-
