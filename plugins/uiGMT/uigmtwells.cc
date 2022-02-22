@@ -41,7 +41,7 @@ uiGMTOverlayGrp* uiGMTWellsGrp::createInstance( uiParent* p )
 
 
 uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
-    : uiGMTOverlayGrp(p,uiStrings::sWell(mPlural))
+    : uiGMTOverlayGrp(p,toUiString("Wells"))
 {
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Well(s)") );
     welllistfld_ = new uiListBox( this, su );
