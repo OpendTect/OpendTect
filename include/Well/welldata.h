@@ -119,8 +119,7 @@ public:
 */
 
 mExpClass(Well) Data : public NamedCallBacker
-{ mRefCountImplWithDestructor(Data, virtual ~Data(),
-{prepareForDelete(); delete this; } );
+{ mRefCountImplWithDestructor(Data, virtual ~Data(), {prepareForDelete();});
 public:
 
 				Data(const char* nm=0);

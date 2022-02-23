@@ -276,7 +276,17 @@ Well::Data::~Data()
 
 void Well::Data::prepareForDelete() const
 {
-    Well::MGR().removeObject( this );
+    const int idx = Well::MGR().wells().indexOf( this );
+    if ( idx < 0 ) return;
+
+    Well::Data* wd = Well::MGR().wells().removeSingle( idx );
+    if ( wd )
+    {
+	delete wd;
+	wd = nullptr;
+    }
+    else
+	pErrMsg("wd is null");
 }
 
 
