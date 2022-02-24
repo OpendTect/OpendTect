@@ -263,16 +263,19 @@ uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     welllistselgrp->displayManipGroup( false, true );
     welllist_ = welllistselgrp->getListField();
     welllist_->chooseAll();
+    welllist_->addLabel( uiStrings::sSelection(), uiListBox::BelowMid );
 
     loglist_ = new uiListBox( this, "logs", OD::ChooseZeroOrMore );
     logfilter_ = new uiListBoxFilter( *loglist_ );
     loglist_->setHSzPol( uiObject::Wide );
     loglist_->attach( hor ? rightOf : alignedBelow, welllistselgrp );
+    loglist_->addLabel( uiStrings::sSelection(), uiListBox::BelowMid );
 
     markerlist_ = new uiListBox( this, "markers", OD::ChooseZeroOrMore );
     markerfilter_ = new uiListBoxFilter( *markerlist_ );
     markerlist_->attach( hor ? rightOf : alignedBelow, loglist_);
     markerlist_->setHSzPol( uiObject::Wide );
+    markerlist_->addLabel( uiStrings::sSelection(), uiListBox::BelowMid );
 
     CallBack cb = mCB(this,uiWellFilterGrp,selButPush);
     fromwellbut_ = new uiToolButton( this,
@@ -388,16 +391,18 @@ void uiWellFilterGrp::selChgCB( CallBacker* )
 {
     const int selwells = welllist_->nrChosen();
     const int totalwells = welllist_->size();
-    toStatusBar( tr("Selected Wells %1/%2").arg(selwells).arg(totalwells), 0 );
+    welllist_->setLabelText( tr("Selected Wells %1/%2").arg(selwells).
+							arg(totalwells), 0 );
 
     const int sellogs = loglist_->nrChosen();
     const int totallogs = loglist_->size();
-    toStatusBar( tr("Selected Logs %1/%2").arg(sellogs).arg(totallogs), 1 );
+    loglist_->setLabelText( tr("Selected Logs %1/%2").arg(sellogs).
+							arg(totallogs), 0 );
 
     const int selmarkers = markerlist_->nrChosen();
     const int totalmarkers = markerlist_->size();
-    toStatusBar( tr("Selected Markers %1/%2").arg(selmarkers)
-					     .arg(totalmarkers), 2 );
+    markerlist_->setLabelText( tr("Selected Markers %1/%2").arg(selmarkers)
+						     .arg(totalmarkers), 0 );
 }
 
 
