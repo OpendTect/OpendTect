@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 
-#include "oduicommon.h"
+#include "odcommonenums.h"
 #include "welldata.h"
 #include "uidialog.h"
 #include "uigroup.h"
