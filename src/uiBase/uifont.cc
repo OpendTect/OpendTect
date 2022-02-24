@@ -383,20 +383,26 @@ mQtclass(QFont)* uiFont::createQFont( const FontData& fd )
 // selectFont functions
 static bool getFont( mQtclass(QFont)& qfontout,
 		     const mQtclass(QFont)& qfontin,
-		     uiParent* par, const uiString& nm )
+		     uiParent* par, const uiString& nm, bool scalableonly )
 {
     bool ok = false;
-    qfontout = mQtclass(QFontDialog)::getFont( &ok, qfontin,
+    if ( scalableonly )
+	qfontout = mQtclass(QFontDialog)::getFont( &ok, qfontin,
 			par ? par->getWidget() : 0,
-			toQString(nm) );
+			toQString(nm), QFontDialog::ScalableFonts );
+    else
+	qfontout = mQtclass(QFontDialog)::getFont( &ok, qfontin,
+			par ? par->getWidget() : 0, toQString(nm) );
+
     return ok;
 }
 
 
-bool selectFont( uiFont& fnt, uiParent* par, const uiString& nm )
+bool selectFont( uiFont& fnt, uiParent* par, const uiString& nm,
+		 bool scalableonly )
 {
     mQtclass(QFont) qfont;
-    if ( !getFont(qfont,fnt.qFont(),par,nm) )
+    if ( !getFont(qfont,fnt.qFont(),par,nm,scalableonly) )
 	return false;
 
     FontData fd;
@@ -406,11 +412,12 @@ bool selectFont( uiFont& fnt, uiParent* par, const uiString& nm )
 }
 
 
-bool selectFont( FontData& fd, uiParent* par, const uiString& nm )
+bool selectFont( FontData& fd, uiParent* par, const uiString& nm,
+		 bool scalableonly )
 {
     mQtclass(QFont) qfont;
     uiFont::setFontData( qfont, fd );
-    if ( !getFont(qfont,qfont,par,nm) )
+    if ( !getFont(qfont,qfont,par,nm,scalableonly) )
 	return false;
 
     uiFont::getFontData( fd, qfont );

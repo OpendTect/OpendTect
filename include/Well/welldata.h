@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "sharedobject.h"
 
 #include "callback.h"
-#include "enums.h"
+#include "odcommonenums.h"
 #include "multiid.h"
 #include "namedobj.h"
 #include "position.h"
@@ -48,13 +48,13 @@ public:
 			    : NamedCallBacker(nm)
 			    , replvel_(Well::getDefaultVelocity())
 			    , groundelev_(mUdf(float))
-			    , welltype_(None)
+			    , welltype_(OD::UnknownWellType)
 			{}
 
-    enum WellType	{ None, Oil, Gas, OilGas, Dry, PluggedOil,
-			  PluggedGas, PluggedOilGas, PermLoc, CancLoc,
-			  InjectDispose };
-			mDeclareEnumUtils(WellType);
+    enum InfoType	{ None, Name, UWID, WellType, TD, KB, GroundElev,
+			  SurfCoord, SurfBinID, Operator, Field, County, State,
+			  Province, Country };
+			mDeclareEnumUtils(InfoType)
 
     enum DepthType	{ MD, TVD, TVDSS, TVDSD, TWT };
 			mDeclareEnumUtils(DepthType)
@@ -74,7 +74,7 @@ public:
     BufferString	province_;
     BufferString	country_;
     BufferString	source_; //!< filename for OD storage
-    WellType		welltype_;
+    OD::WellType	welltype_;
 
     Coord		surfacecoord_;
     float		replvel_;
@@ -154,6 +154,7 @@ public:
 				    { return for2d ? disp2d_ : disp3d_; }
     const DisplayProperties&	displayProperties( bool for2d=false ) const
 				    { return for2d ? disp2d_ : disp3d_; }
+    uiString			getInfoString(Info::InfoType) const;
 
     void			setEmpty(); //!< removes everything
 

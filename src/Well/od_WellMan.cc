@@ -128,9 +128,9 @@ void WellServerTool::getWellInfo()
     const BufferString uwi = inf.uwid_;
     if ( !uwi.isEmpty() )
 	set( Info::sKeyUwid(), uwi );
-    const Info::WellType wt = inf.welltype_;
-    if ( wt != Info::None )
-	set( sKey::Type(), Info::toString(wt) );
+    const OD::WellType wt = inf.welltype_;
+    if ( wt != OD::UnknownWellType )
+	set( sKey::Type(), OD::toString(wt) );
 
     set( sKey::X(), inf.surfacecoord_.x );
     set( sKey::Y(), inf.surfacecoord_.y );

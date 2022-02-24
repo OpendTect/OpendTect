@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "namedobj.h"
 #include "bufstringset.h"
-#include "oduicommon.h"
+#include "odcommonenums.h"
 
 
 /*!\brief Constructs file names for OD icons.

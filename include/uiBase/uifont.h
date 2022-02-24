@@ -22,13 +22,15 @@ mFDQtclass(QFontMetrics)
 
 
 mGlobal(uiBase) bool selectFont(uiFont&,uiParent* =0,
-			const uiString& title=uiString::emptyString());
+			const uiString& title=uiString::emptyString(),
+			bool scalableonly=false);
 /*!< \brief pops a selector box to select a new font
      \return true if new font selected
 */
 
 mGlobal(uiBase) bool selectFont(FontData&,uiParent* =0,
-			const uiString& title = uiString::emptyString());
+			const uiString& title = uiString::emptyString(),
+			bool scalableonly=false);
 /*!< \brief pops a selector box to select a new font
      \return true if new font selected
 */

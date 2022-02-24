@@ -11,7 +11,7 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
-#include "oduicommon.h"
+#include "odcommonenums.h"
 #include "geometry.h"
 #include "enums.h"
 
@@ -252,7 +252,7 @@ inline void uiRect::setVNrPics( int np )
 
 inline uiRect::Side uiRect::across( uiRect::Side s )
 { return uiRect::isHor(s) ? (s == uiRect::Top ? uiRect::Bottom :uiRect::Top)
-			  : (s == uiRect::Left ? uiRect::Right : uiRect::Left); }
+			  : (s == uiRect::Left ? uiRect::Right : uiRect::Left);}
 inline uiRect::Side uiRect::clockWise( uiRect::Side s )
 { return uiRect::isHor(s) ? (s == uiRect::Top ? uiRect::Left :uiRect::Right)
 			  : (s == uiRect::Left ? uiRect::Bottom : uiRect::Top);}

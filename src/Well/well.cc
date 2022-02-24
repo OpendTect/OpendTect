@@ -60,12 +60,6 @@ uiString Well::Info::sTD()
 uiString Well::Info::sTVDSS()
 	{ return tr("Z [TVDSS]"); }
 
-
-mDefineEnumUtils( Well::Info, WellType, "Well Type" )
-{ "none", "oilwell", "gaswell", "oilgaswell", "dryhole", "pluggedoilwell",
-  "pluggedgaswell", "pluggedoilgaswell", "permittedlocation",
-  "canceledlocation", "injectiondisposalwell", 0 };
-
 mDefineEnumUtils(Well::Info, DepthType, "Depth type")
 { Well::Info::sKeyMD(), Well::Info::sKeyTVD(), Well::Info::sKeyTVDSS(), "TVDSD",
   sKey::TWT(), nullptr };
@@ -78,6 +72,18 @@ mDefineEnumUtils(Well::Info, DepthType, "Depth type")
      uistrings_ += ::toUiString( "TVDSD");
      uistrings_ += uiStrings::sTWT();
  }
+
+
+mDefineEnumUtils(Well::Info, InfoType, "Info type")
+{
+    sKey::None(), sKey::Name(), Well::Info::sKeyUwid(),
+    Well::Info::sKeyWellType(), Well::Info::sKeyTD(), Well::Info::sKeyKBElev(),
+    Well::Info::sKeyGroundElev(), Well::Info::sKeyCoord(), "Surface Inl/Crl",
+    Well::Info::sKeyOper(), Well::Info::sKeyField(),
+    Well::Info::sKeyCounty(), Well::Info::sKeyState(),
+    Well::Info::sKeyProvince(), Well::Info::sKeyCountry(), 0
+};
+
 
 int Well::Info::legacyLogWidthFactor()
 {
@@ -319,6 +325,89 @@ void Well::Data::setEmpty()
 }
 
 
+uiString Well::Data::getInfoString( Well::Info::InfoType it ) const
+{
+    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+    uiString ret = uiString::empty();
+    BinID surfbid;
+    switch ( it )
+    {
+	case Well::Info::None:
+	    break;
+
+	case Well::Info::Name:
+	    ret = toUiString( name() ); break;
+
+	case Well::Info::UWID:
+	    ret = toUiString( info().uwid_ ); break;
+
+	case Well::Info::WellType:
+	    ret = toUiString( info().welltype_ ); break;
+
+	case Well::Info::TD:
+	    if ( !track().isEmpty() )
+	    {
+		const float td = track().dahRange().stop;
+		if ( !mIsUdf(td) )
+		    ret = toUiString( zun->userValue(td), 2 );
+	    }
+	    break;
+
+	case Well::Info::KB:
+	    if ( !mIsUdf(track().getKbElev()) )
+	    {
+		ret = toUiString( zun->userValue(track().getKbElev()), 2 );
+	    }
+	    break;
+
+	case Well::Info::GroundElev:
+	    if ( !mIsUdf(info().groundelev_) )
+	    {
+		ret = toUiString( zun->userValue(info().groundelev_), 2 );
+	    }
+	    break;
+
+	case Well::Info::SurfCoord:
+	    ret = toUiString(
+		    info().surfacecoord_.toPrettyString( SI().nrXYDecimals()) );
+	    break;
+
+	case Well::Info::SurfBinID:
+	    surfbid = SI().transform( info().surfacecoord_ );
+	    ret = toUiString( surfbid.toString(false));
+	    break;
+
+	case Well::Info::Operator:
+	    ret = toUiString( info().oper_ );
+	    break;
+
+	case Well::Info::Field:
+	    ret = toUiString( info().field_ );
+	    break;
+
+	case Well::Info::County:
+	    ret = toUiString( info().county_ );
+	    break;
+
+	case Well::Info::State:
+	    ret = toUiString( info().state_ );
+	    break;
+
+	case Well::Info::Province:
+	    ret = toUiString( info().province_ );
+	    break;
+
+	case Well::Info::Country:
+	    ret = toUiString( info().country_ );
+	    break;
+
+	default: break;
+    }
+
+    return ret;
+}
+
+
 void Well::Data::levelToBeRemoved( CallBacker* cb )
 {
     mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
@@ -430,7 +519,7 @@ bool Well::Info::isLoaded() const
 	   !uwid_.isEmpty() || !oper_.isEmpty() || !field_.isEmpty() ||
 	   !county_.isEmpty() || !state_.isEmpty() || !province_.isEmpty() ||
 	   !country_.isEmpty() || !source_.isEmpty() ||
-	   welltype_ != None || !mIsUdf(groundelev_) ||
+	   welltype_ != OD::UnknownWellType || !mIsUdf(groundelev_) ||
 	   !mIsEqual(replvel_,getDefaultVelocity(),1e-1f);
 }
 
@@ -466,7 +555,7 @@ void Well::Info::usePar( const IOPar& par )
     par.get( sKeyCountry(), country_ );
 
     int welltype = 0;
-    par.get( sKeyWellType(), welltype ); welltype_ = (WellType)welltype;
+    par.get( sKeyWellType(), welltype ); welltype_ = (OD::WellType)welltype;
 
     surfacecoord_.fromString( par.find(sKeyCoord()) );
     par.get( sKeyReplVel(), replvel_ );

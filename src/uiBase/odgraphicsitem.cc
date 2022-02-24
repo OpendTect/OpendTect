@@ -51,6 +51,22 @@ static void snapToSceneRect( QGraphicsItem* itm )
 		     itm->scene()->height()-itm->boundingRect().height() );
 }
 
+
+// A Point is 1/72 of an inch
+
+static float getNrPixelsFromPoints( const QPainter& painter, int nrpts )
+{
+    const QPaintDevice* qpd = painter.device();
+    if ( !qpd )
+	return float( nrpts );
+
+    const int dpi = mMIN(qpd->logicalDpiX(),qpd->logicalDpiY());
+    return float( nrpts * dpi / 72.f );
+}
+
+
+#define mPenScaleFactor 8.f
+
 // ODGraphicsPointItem
 ODGraphicsPointItem::ODGraphicsPointItem()
     : QAbstractGraphicsShapeItem()
@@ -100,7 +116,7 @@ void ODGraphicsPointItem::drawPoint( QPainter* painter )
 	mSetPt( 0, 2 ); mSetPt( 0, -2 );
     }
 
-    for ( int idx=0; idx<13; idx++ )
+    for ( int idx=0; idx<ptnr; idx++ )
 	painter->drawPoint( pts[idx] );
 }
 
@@ -151,11 +167,14 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
     if ( !mIsZero(angle_,1e-3) )
     pErrMsg( "TODO: implement tilted markers" );*/
 
-    painter->setPen( pen() );
+    const float szinpix = getNrPixelsFromPoints( *painter, mstyle_->size_ );
+    QPen qpen = pen();
+    qpen.setWidthF( szinpix/mPenScaleFactor );
+    painter->setPen( qpen );
     if ( fill_ )
 	painter->setBrush( QColor(QRgb(fillcolor_.rgb())) );
 
-    drawMarker( *painter, mstyle_->type_, mstyle_->size_, mstyle_->size_ );
+    drawMarker( *painter, mstyle_->type_, szinpix, szinpix );
 
     if ( option->state & QStyle::State_Selected )
     {
@@ -1174,4 +1193,274 @@ void ODGraphicsDynamicImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
     QGraphicsItem::mouseMoveEvent( event );
 
     snapToSceneRect ( this );
+}
+
+
+// ODGraphicsWellSymbolItem
+ODGraphicsWellSymbolItem::ODGraphicsWellSymbolItem()
+    : QAbstractGraphicsShapeItem()
+{
+    setFlag( QGraphicsItem::ItemIgnoresTransformations, true );
+}
+
+
+ODGraphicsWellSymbolItem::~ODGraphicsWellSymbolItem()
+{}
+
+
+void ODGraphicsWellSymbolItem::setWellSymbol( const WellSymbol& wellsym )
+{
+    wellsymbol_ = wellsym;
+    update();
+}
+
+
+const WellSymbol& ODGraphicsWellSymbolItem::getWellSymbol() const
+{
+    return wellsymbol_;
+}
+
+
+void ODGraphicsWellSymbolItem::setFontData( const FontData& fd,
+					    OD::Edge labelpos )
+{
+    LabelData& ld = getLabelData( labelpos );
+    uiFont::setFontData( ld.font_, fd );
+}
+
+
+void ODGraphicsWellSymbolItem::setFontColor( const OD::Color& col,
+					     OD::Edge labelpos)
+{
+    LabelData& ld = getLabelData( labelpos );
+    ld.col_.setRgb( QRgb(col.rgb()) );
+}
+
+
+void ODGraphicsWellSymbolItem::setLabelText( const uiString& txt,
+					     OD::Edge labelpos )
+{
+    LabelData& ld = getLabelData( labelpos );
+    txt.fillQString( ld.txt_ );
+}
+
+
+QRectF ODGraphicsWellSymbolItem::boundingRect() const
+{
+    const float symsz = float( wellsymbol_.size_ );
+    QRectF brect( -symsz, -symsz, 2*symsz, 2*symsz );
+    return brect.united( getLabelRect(OD::Top,symsz) )
+		.united( getLabelRect(OD::Left,symsz) )
+		.united( getLabelRect(OD::Right,symsz) )
+		.united( getLabelRect(OD::Bottom,symsz) );
+}
+
+
+void ODGraphicsWellSymbolItem::paint( QPainter* painter,
+			       const QStyleOptionGraphicsItem* option,
+			       QWidget* widget )
+{
+    drawWellSymbol( *painter );
+    drawLabels( *painter );
+
+    if ( option->state & QStyle::State_Selected )
+    {
+	painter->setPen( QPen(option->palette.text(),1.0,
+					Qt::DashLine) );
+	painter->setBrush( Qt::NoBrush );
+	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
+    }
+}
+
+
+void ODGraphicsWellSymbolItem::drawWellSymbol( QPainter& painter )
+{
+    const float sz = getNrPixelsFromPoints( painter, wellsymbol_.size_ );
+
+    QPen qpen = pen();
+    qpen.setColor( QColor(QRgb(wellsymbol_.color_.rgb())) );
+    qpen.setWidthF( sz/mPenScaleFactor );
+    painter.setPen( qpen );
+    switch ( wellsymbol_.type_ )
+    {
+	case OD::UnknownWellType:
+	    painter.drawEllipse( QRectF( -sz/2, -sz/2, sz, sz ) );
+	    painter.drawLine( QLineF( 0, -sz, 0, -sz/2 ) );
+	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
+	    break;
+
+	case OD::OilWell:
+	    painter.setBrush( QColor(QRgb(wellsymbol_.color_.rgb())) );
+	    painter.drawEllipse( QRectF( -sz, -sz, 2*sz, 2*sz ) );
+	    break;
+
+	case OD::GasWell:
+	    painter.drawEllipse( QRectF( -sz/2, -sz/2, sz, sz ) );
+	    painter.drawLine( QLineF( 0, -sz, 0, -sz/2 ) );
+	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
+	    painter.drawLine( QLineF( -sz, 0, -sz/2, 0 ) );
+	    painter.drawLine( QLineF( sz/2, 0, sz, 0 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
+				      -M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, M_SQRT1_2f*sz,
+				      -M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2f*sz, M_SQRT1_2f*sz,
+				      M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
+				      M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
+	    break;
+
+	case OD::OilGasWell:
+	    painter.setBrush( QColor(QRgb(wellsymbol_.color_.rgb())) );
+	    painter.drawEllipse( QRectF( -sz/2, -sz/2, sz, sz ) );
+	    painter.drawLine( QLineF( 0, -sz, 0, -sz/2 ) );
+	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
+	    painter.drawLine( QLineF( -sz, 0, -sz/2, 0 ) );
+	    painter.drawLine( QLineF( sz/2, 0, sz, 0 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
+				      -M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, M_SQRT1_2f*sz,
+				      -M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2f*sz, M_SQRT1_2f*sz,
+				      M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
+				      M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
+	    break;
+
+	case OD::DryHole:
+	    painter.drawEllipse( QRectF( -sz/2, -sz/2, sz, sz ) );
+	    painter.drawLine( QLineF( 0, -sz, 0, -sz/2 ) );
+	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
+	    painter.drawLine( QLineF( -sz, 0, -sz/2, 0 ) );
+	    painter.drawLine( QLineF( sz/2, 0, sz, 0 ) );
+	    break;
+
+	case OD::PluggedOilWell:
+	    painter.setBrush( QColor(QRgb(wellsymbol_.color_.rgb())) );
+	    painter.drawEllipse( QRectF( -sz, -sz, 2*sz, 2*sz ) );
+	    painter.drawLine( QLineF( -sz, -sz, sz, sz ) );
+	    break;
+
+	case OD::PluggedGasWell:
+	    painter.drawEllipse( QRectF( -sz/2, -sz/2, sz, sz ) );
+	    painter.drawLine( QLineF( 0, -sz, 0, -sz/2 ) );
+	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
+	    painter.drawLine( QLineF( -sz, 0, -sz/2, 0 ) );
+	    painter.drawLine( QLineF( sz/2, 0, sz, 0 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, M_SQRT1_2f*sz,
+				      -M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
+				      M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( -sz, -sz, sz, sz ) );
+	    break;
+
+	case OD::PluggedOilGasWell:
+	    painter.setBrush( QColor(QRgb(wellsymbol_.color_.rgb())) );
+	    painter.drawEllipse( QRectF( -sz/2, -sz/2, sz, sz ) );
+	    painter.drawLine( QLineF( 0, -sz, 0, -sz/2 ) );
+	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
+	    painter.drawLine( QLineF( -sz, 0, -sz/2, 0 ) );
+	    painter.drawLine( QLineF( sz/2, 0, sz, 0 ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, M_SQRT1_2f*sz,
+				      -M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
+				      M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( -sz, -sz, sz, sz ) );
+	    break;
+
+	case OD::PermittedLocation:
+	    painter.drawEllipse( QRectF( -sz, -sz, 2*sz, 2*sz ) );
+	    break;
+
+	case OD::CanceledLocation:
+	    painter.drawEllipse( QRectF( -sz, -sz, 2*sz, 2*sz ) );
+	    painter.drawLine( QLineF( -sz, -sz, sz, sz ) );
+	    break;
+
+	case OD::InjectionDisposalWell:
+	    painter.drawEllipse( QRectF( -sz, -sz, 2*sz, 2*sz ) );
+	    painter.drawLine( QLineF( -sz, -sz, sz, sz ) );
+	    painter.drawLine( QLineF( 3*sz/4, sz, sz, sz ) );
+	    painter.drawLine( QLineF( sz, 3*sz/4, sz, sz ) );
+	    break;
+
+	default: break;
+    }
+}
+
+
+QRectF ODGraphicsWellSymbolItem::getLabelRect( OD::Edge labelpos,
+					       float symsz ) const
+{
+    const LabelData& ld = getLabelData( labelpos );
+    if ( ld.txt_.isEmpty() )
+	return QRectF();
+
+    const float penwidth = symsz / mPenScaleFactor;
+
+    QFontMetrics qfm( ld.font_ );
+    const QRect fontrect = qfm.boundingRect( ld.txt_ );
+    const float textwidth = fontrect.width() + penwidth;
+    const float textheight = fontrect.height();
+    QRectF ret( 0, 0, fontrect.width(), fontrect.height() );
+
+    switch ( labelpos )
+    {
+	case OD::Top:
+	    ret.moveTo( -textwidth/2, -symsz-textheight-penwidth );
+	    break;
+	case OD::Left:
+	    ret.moveTo( -symsz-textwidth-penwidth, -textheight/2 );
+	    break;
+	case OD::Right:
+	    ret.moveTo( symsz+penwidth, -textheight/2 );
+	    break;
+	case OD::Bottom:
+	    ret.moveTo( -textwidth/2, symsz+penwidth );
+	    break;
+	default: break;
+    }
+
+    return ret;
+}
+
+
+void ODGraphicsWellSymbolItem::drawLabels( QPainter& painter )
+{
+    drawLabel( painter, OD::Top, Qt::AlignBottom | Qt::AlignHCenter );
+    drawLabel( painter, OD::Left, Qt::AlignRight | Qt::AlignVCenter );
+    drawLabel( painter, OD::Right, Qt::AlignLeft | Qt::AlignVCenter );
+    drawLabel( painter, OD::Bottom, Qt::AlignTop | Qt::AlignHCenter );
+}
+
+
+void ODGraphicsWellSymbolItem::drawLabel( QPainter& painter, OD::Edge labelpos,
+					  int alignflags )
+{
+    const LabelData& ld = getLabelData( labelpos );
+    if ( ld.txt_.isEmpty() )
+	return;
+
+    painter.setFont( ld.font_ );
+    painter.setPen( ld.col_ );
+    const float symsz = getNrPixelsFromPoints( painter, wellsymbol_.size_ );
+    const QRectF textrect = painter.boundingRect( getLabelRect(labelpos,symsz),
+						  alignflags, ld.txt_ );
+    painter.drawText( textrect, Qt::AlignCenter, ld.txt_ );
+}
+
+
+const ODGraphicsWellSymbolItem::LabelData&
+	ODGraphicsWellSymbolItem::getLabelData( OD::Edge labelpos ) const
+{
+    return cCast(ODGraphicsWellSymbolItem*,this)->getLabelData( labelpos );
+}
+
+
+ODGraphicsWellSymbolItem::LabelData&
+	ODGraphicsWellSymbolItem::getLabelData( OD::Edge labelpos )
+{
+    return labelpos == OD::Top ? tlabeldata_ :
+		( labelpos == OD::Left ? llabeldata_ :
+			( labelpos == OD::Right ? rlabeldata_ : blabeldata_ ) );
 }

@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include <QFont>
 
 #include "draw.h"
+#include "fontdata.h"
 
 class uiPixmap;
 
@@ -348,5 +349,52 @@ protected:
     QRectF			dynamicpixmapbbox_; //Only access in paint
 
 };
+
+
+class ODGraphicsWellSymbolItem : public QAbstractGraphicsShapeItem
+{
+public:
+				ODGraphicsWellSymbolItem();
+    virtual			~ODGraphicsWellSymbolItem();
+
+    QRectF			boundingRect() const;
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
+
+    void			setWellSymbol(const WellSymbol&);
+    const WellSymbol&		getWellSymbol() const;
+
+    void			setFontData(const FontData&,OD::Edge);
+    void			setFontColor(const OD::Color&,OD::Edge);
+    void			setLabelText(const uiString&,OD::Edge);
+
+    virtual int			type() const	{ return ODGraphicsType+10; }
+
+protected:
+
+    void			drawWellSymbol(QPainter&);
+    void			drawLabels(QPainter&);
+    void			drawLabel(QPainter&,OD::Edge,int);
+    QRectF			getLabelRect(OD::Edge,float) const;
+
+    WellSymbol			wellsymbol_;
+
+    struct LabelData
+    {
+	QFont	font_;
+	QColor	col_;
+	QString txt_;
+    };
+
+    LabelData			tlabeldata_;
+    LabelData			llabeldata_;
+    LabelData			rlabeldata_;
+    LabelData			blabeldata_;
+
+    LabelData&			getLabelData(OD::Edge);
+    const LabelData&		getLabelData(OD::Edge) const;
+
+};
+
 
 #endif

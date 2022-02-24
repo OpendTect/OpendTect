@@ -15,23 +15,22 @@ ________________________________________________________________________
 #include "draw.h"
 #include "fontdata.h"
 
-class uiGenInput;
-class uiPushButton;
+class uiColorInput;
+class uiToolButton;
 
 
 mExpClass(uiTools) uiFontSelGrp : public uiGroup
 { mODTextTranslationClass(uiFontSelGrp);
 public:
 			uiFontSelGrp(uiParent*,const uiString& lbl,
-				     bool withPosition=false);
+				     bool withcolor=false,
+				     OD::Color col=OD::Color(100,100,100));
 			~uiFontSelGrp();
 
     void		setFont(const FontData&);
     FontData		getFont() const;
-    void		setAlignment(const Alignment&);
-    Alignment		getAlignment() const;
-    Coord		getTextOffset() const;
-    void		setTextOffset(Coord);
+    void		setColor(const OD::Color&);
+    OD::Color		getColor() const;
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -40,13 +39,10 @@ public:
 
 protected:
 
-    uiPushButton*	fontbut_;
-    uiGenInput*		halignfld_ = nullptr;
-    uiGenInput*		valignfld_ = nullptr;
-    uiGenInput*		offsetfld_ = nullptr ;
-    bool		withpos_;
+    uiToolButton*	fontbut_;
+    uiColorInput*	colorfld_ = nullptr;
     FontData		fontdata_;
 
     void		fontChgCB(CallBacker*);
-    void		propertyChgCB(CallBacker*);
+    void		colChgCB(CallBacker*);
 };

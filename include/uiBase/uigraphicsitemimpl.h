@@ -44,6 +44,7 @@ class ODGraphicsPolyLineItem;
 class ODGraphicsMultiColorPolyLineItem;
 class ODGraphicsDynamicImageItem;
 class ODGraphicsTextItem;
+class ODGraphicsWellSymbolItem;
 template <class T> class ODPolygon;
 
 
@@ -478,3 +479,25 @@ protected:
 };
 
 
+mExpClass(uiBase) uiWellSymbolItem : public uiGraphicsItem
+{
+public:
+			uiWellSymbolItem(const uiPoint& startpt,
+					 const WellSymbol&);
+			uiWellSymbolItem(const WellSymbol&);
+			~uiWellSymbolItem();
+
+    ODGraphicsWellSymbolItem*	qWellSymbolItem()	{ return wellsymitem_; }
+    void			setWellSymbol(const WellSymbol&);
+    const WellSymbol&		getWellSymbol();
+
+    void			setFontData(const FontData&,OD::Edge);
+    void			setFontColor(const OD::Color&,OD::Edge);
+    void			setLabelText(const uiString&,OD::Edge);
+
+protected:
+
+    QGraphicsItem*		mkQtObj();
+    ODGraphicsWellSymbolItem*	wellsymitem_;
+
+};

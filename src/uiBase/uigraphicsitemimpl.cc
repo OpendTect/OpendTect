@@ -1168,3 +1168,61 @@ QGraphicsItem* uiCurvedItem::mkQtObj()
     qpathitem_ = new QGraphicsPathItem();
     return qpathitem_;
 }
+
+
+// uiWellSymbolItem
+uiWellSymbolItem::uiWellSymbolItem( const uiPoint& pos,
+				    const WellSymbol& wellsym )
+    : uiGraphicsItem( mkQtObj() )
+{
+    setPos( pos );
+    setWellSymbol( wellsym );
+}
+
+
+uiWellSymbolItem::uiWellSymbolItem( const WellSymbol& wellsym )
+    : uiGraphicsItem( mkQtObj() )
+{
+    setWellSymbol( wellsym );
+}
+
+
+QGraphicsItem* uiWellSymbolItem::mkQtObj()
+{
+    wellsymitem_ = new ODGraphicsWellSymbolItem();
+    return wellsymitem_;
+}
+
+
+uiWellSymbolItem::~uiWellSymbolItem()
+{
+}
+
+
+void uiWellSymbolItem::setWellSymbol( const WellSymbol& wellsym )
+{
+    wellsymitem_->setWellSymbol( wellsym );
+}
+
+
+const WellSymbol& uiWellSymbolItem::getWellSymbol()
+{
+    return wellsymitem_->getWellSymbol();
+}
+
+void uiWellSymbolItem::setFontData( const FontData& fd, OD::Edge pos )
+{
+    wellsymitem_->setFontData( fd, pos );
+}
+
+
+void uiWellSymbolItem::setFontColor( const OD::Color& col, OD::Edge pos )
+{
+    wellsymitem_->setFontColor( col, pos );
+}
+
+
+void uiWellSymbolItem::setLabelText( const uiString& txt, OD::Edge pos )
+{
+    wellsymitem_->setLabelText( txt, pos );
+}

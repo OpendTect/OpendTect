@@ -17,8 +17,6 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "survinfo.h"
 
-using namespace OD;
-
 namespace FlatView
 {
 

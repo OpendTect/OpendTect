@@ -11,12 +11,13 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "enums.h"
 
 
 namespace OD
 {
 
-/*!\brief Fundamental orientation in 2D UIs */
+/*!\brief Fundamental orientation */
 
 enum Orientation
 {
@@ -102,6 +103,24 @@ enum WindowActivationBehavior
     DefaultActivateWindow,
     AlwaysActivateWindow
 };
+
+
+enum WellType
+{
+    UnknownWellType=0,
+    OilWell=1,
+    GasWell=2,
+    OilGasWell=3,
+    DryHole=4,
+    PluggedOilWell=5,
+    PluggedGasWell=6,
+    PluggedOilGasWell=7,
+    PermittedLocation=8,
+    CanceledLocation=9,
+    InjectionDisposalWell=10
+};
+
+mDeclareNameSpaceEnumUtils(Basic,WellType);
 
 } // namespace OD
 

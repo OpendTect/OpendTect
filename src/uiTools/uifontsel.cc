@@ -72,7 +72,9 @@ void uiFontSettingsGroup::butPushed( CallBacker* obj )
     if ( idx < 0 ) { pErrMsg("idx < 0. Why?"); return; }
 
     uiFont& selfont = FontList().get( types_[idx] );
-    if ( !selectFont(selfont,sender->parent()) )
+    const bool scalableonly = types_[idx] == FontData::Graphics2D ||
+			      types_[idx] == FontData::Graphics3D;
+    if ( !selectFont(selfont,sender->parent(),uiString::empty(),scalableonly) )
 	return;
 
     FontData fd = selfont.fontData();

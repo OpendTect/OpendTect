@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
-#include "oduicommon.h"
+#include "odcommonenums.h"
 #include "datapack.h"
 #include "flatview.h"
 

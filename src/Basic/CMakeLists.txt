@@ -90,6 +90,7 @@ set( OD_MODULE_SOURCES
 	monitor.cc
 	namedmonitoredobject.cc
 	namedobj.cc
+	odcommonenums.cc
 	objdisposer.cc
 	od_iostream.cc
 	oddirs.cc

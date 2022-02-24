@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "vistexturerect.h"
 
 #include "mousecursor.h"
-#include "oduicommon.h"
+#include "odcommonenums.h"
 #include "undo.h"
 
 template <class T> class Array2D;

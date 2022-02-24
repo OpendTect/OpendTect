@@ -10,55 +10,38 @@ ________________________________________________________________________
 
 #include "uifontselgrp.h"
 
-#include "draw.h"
-#include "uibutton.h"
+#include "uicolor.h"
 #include "uifont.h"
-#include "uigeninput.h"
 #include "uilabel.h"
+#include "uitoolbutton.h"
 
 
-uiFontSelGrp::uiFontSelGrp( uiParent* p, const uiString& lbl, bool withpos )
+uiFontSelGrp::uiFontSelGrp( uiParent* p, const uiString& lbl, bool withcol,
+			    OD::Color defcol )
     : uiGroup(p,"Font selection")
-    , withpos_(withpos)
     , changed(this)
 {
     auto* lblfld = new uiLabel( this, lbl );
 
-    fontbut_ = new uiPushButton( this, tr("Font"), false );
-    fontbut_->setIcon( "font" );
+    fontbut_ = new uiToolButton( this, "font", tr("Font"),
+				 mCB(this,uiFontSelGrp,fontChgCB) );
     fontbut_->attach( rightTo, lblfld );
-    mAttachCB( fontbut_->activated, uiFontSelGrp::fontChgCB );
 
-    if ( withpos_ )
+    if ( withcol )
     {
-	halignfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
-			     uiStrings::sHorizontal(),uiStrings::sAlignment()),
-				     StringListInpSpec(Alignment::HPosDef()) );
-	halignfld_->attach( rightTo, fontbut_ );
-	mAttachCB( halignfld_->valuechanged, uiFontSelGrp::propertyChgCB );
-
-	valignfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
-			     uiStrings::sVertical(),uiStrings::sAlignment()),
-				     StringListInpSpec(Alignment::VPosDef()) );
-	valignfld_->attach( alignedBelow, halignfld_ );
-	mAttachCB( valignfld_->valuechanged, uiFontSelGrp::propertyChgCB );
-
-	PositionInpSpec offspec( PositionInpSpec::Setup(true,false,false) );
-	offsetfld_ = new uiGenInput( this, uiStrings::phrJoinStrings(
-						tr("Text"),
-						uiStrings::sOffset(),
-						tr("(X/Y)")),
-				     offspec.setName("X",0).setName("Y",0) );
-	offsetfld_->attach( alignedBelow, valignfld_ );
-	mAttachCB( offsetfld_->valuechanged, uiFontSelGrp::propertyChgCB );
+	uiColorInput::Setup su( defcol );
+	su.withdesc( false );
+	colorfld_ = new uiColorInput( this, su );
+	colorfld_->colorChanged.notify( mCB(this,uiFontSelGrp,colChgCB) );
+	colorfld_->attach( rightTo, fontbut_ );
     }
+
     setHAlignObj( fontbut_ );
 }
 
 
 uiFontSelGrp::~uiFontSelGrp()
 {
-    detachAllNotifiers();
 }
 
 
@@ -74,52 +57,29 @@ FontData uiFontSelGrp::getFont() const
 }
 
 
-void uiFontSelGrp::setAlignment( const Alignment& all )
+void uiFontSelGrp::setColor( const OD::Color& col )
 {
-    if ( withpos_ )
-    {
-	halignfld_->setValue( all.hPos() );
-	valignfld_->setValue( all.vPos() );
-    }
+    if ( colorfld_ )
+	colorfld_->setColor( col );
 }
 
 
-Alignment uiFontSelGrp::getAlignment() const
+OD::Color uiFontSelGrp::getColor() const
 {
-    const auto& hdef = Alignment::HPosDef();
-    const auto& vdef = Alignment::VPosDef();
-    return withpos_ ?
-	    Alignment(hdef.getEnumForIndex(halignfld_->getIntValue()),
-		      vdef.getEnumForIndex(valignfld_->getIntValue())) :
-	    Alignment();
-}
-
-
-Coord uiFontSelGrp::getTextOffset() const
-{
-    return offsetfld_ ? offsetfld_->getCoord() : Coord(0.,0.);
-}
-
-
-void uiFontSelGrp::setTextOffset( Coord off )
-{
-    if ( offsetfld_ )
-    {
-	offsetfld_->setValue( off );
-    }
+    return colorfld_ ? colorfld_->color() : OD::Color::Black();
 }
 
 
 void uiFontSelGrp::fontChgCB( CallBacker* )
 {
-    if ( !selectFont(fontdata_, this) )
+    if ( !selectFont(fontdata_,this) )
 	return;
 
     changed.trigger();
 }
 
 
-void uiFontSelGrp::propertyChgCB( CallBacker* )
+void uiFontSelGrp::colChgCB( CallBacker* )
 {
     changed.trigger();
 }
@@ -129,11 +89,9 @@ bool uiFontSelGrp::fillPar( IOPar& par ) const
 {
     BufferString fontstr;
     fontdata_.putTo( fontstr );
-    par.set(sKey::Font(), fontstr );
-
-    par.set(sKey::Alignment(), getAlignment().uiValue() );
-    BufferString offsetstr( getTextOffset().toString() );
-    par.set(sKey::Offset(), offsetstr );
+    par.set( sKey::Font(), fontstr );
+    if ( colorfld_ )
+	par.set( sKey::Color(), colorfld_->color() );
 
     return true;
 }
@@ -148,18 +106,12 @@ bool uiFontSelGrp::usePar( const IOPar& par )
     if ( fontdata_.pointSize()==0 )
 	fontdata_.setPointSize( FontData::defaultPointSize() );
 
-    int align = Alignment().uiValue();
-    par.get( sKey::Alignment(), align );
-    Alignment all;
-    all.setUiValue( align );
-    setAlignment( all );
-
-    const FixedString offsetstr = par.find( sKey::Offset() );
-    Coord offset( 0., 0. );
-    if ( offsetstr )
-	offset.fromString( offsetstr );
-
-    setTextOffset( offset );
+    if ( colorfld_ )
+    {
+	OD::Color col;
+	if ( par.get(sKey::Color(),col) )
+	    colorfld_->setColor( col );
+    }
 
     return true;
 }

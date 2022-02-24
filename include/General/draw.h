@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "color.h"
 #include "geometry.h"
+#include "odcommonenums.h"
 #include "uistring.h"
 
 
@@ -234,3 +235,16 @@ public:
 
 };
 
+
+mExpClass(General) WellSymbol
+{
+public:
+				WellSymbol(OD::WellType tp=OD::UnknownWellType,
+					   int sz=8,
+					   OD::Color pcol=OD::Color::Black())
+				: type_(tp),size_(sz),color_(pcol)	{}
+
+    OD::WellType		type_;
+    int				size_;
+    OD::Color			color_;
+};
