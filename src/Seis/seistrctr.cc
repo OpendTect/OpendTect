@@ -556,15 +556,23 @@ bool SeisTrcTranslator::copyDataToTrace( SeisTrc& trc )
     if ( curtrcscalebase_ )
 	trc.convertToFPs();
 
-    const bool matchingdc = *trc.data().getInterpreter(0) ==
-			    *storbuf_->getInterpreter(0);
+    const int nrcomps = nrSelComps();
+    if ( nrcomps == 0 )
+	return false;
+
+    TraceDataInterpreter* trcdatainterp = trc.data().getInterpreter( 0 );
+    TraceDataInterpreter* storinterp = storbuf_->getInterpreter( 0 );
+    if ( !trcdatainterp || !storinterp )
+	return false;
+
+    const bool matchingdc = *trcdatainterp == *storinterp;
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
 	if ( matchingdc && outnrsamples_ > 1 && !curtrcscalebase_ )
 	{
+	    const int nrbytes = outnrsamples_ * storbuf_->bytesPerSample(iselc);
 	    OD::memCopy( trc.data().getComponent(iselc)->data(),
-		    storbuf_->getComponent(iselc)->data(),
-		    outnrsamples_ * storbuf_->bytesPerSample( iselc ) );
+			 storbuf_->getComponent(iselc)->data(), nrbytes );
 	}
 	else
 	{
