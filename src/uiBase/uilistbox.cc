@@ -43,7 +43,7 @@ ListBoxPixmapDelegate( QObject* qobj )
 
 
 void paint( QPainter* painter, const QStyleOptionViewItem& option,
-	    const QModelIndex& index) const
+	    const QModelIndex& index ) const
 {
     QStyleOptionViewItem myOpt(option);
     myOpt.decorationPosition = QStyleOptionViewItem::Right;
@@ -114,10 +114,9 @@ public:
 
     void		setNrLines( int prefNrLines )
 			{
-			    if ( prefNrLines >= 0 )
-				prefnrlines_ = prefNrLines;
-
-			    const int hs = stretch(true,true);
+			    if( prefNrLines >= 0 )
+				prefnrlines_=prefNrLines;
+			    int hs = stretch(true,true);
 			    setStretch( hs, (nrTxtLines()== 1) ? 0 : 2 );
 			}
 
@@ -176,6 +175,9 @@ uiListBoxBody::uiListBoxBody( uiListBoxObj& hndle, uiParent* p,
     setHSzPol( uiObject::Medium );
 
     setMouseTracking( true );
+
+    setStyleSheet( "selection-background-color: lightblue;"
+		   "selection-color: black" );
 }
 
 
