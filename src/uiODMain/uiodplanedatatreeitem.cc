@@ -240,7 +240,13 @@ bool uiODPlaneDataTreeItem::displayDefaultData()
     if ( !applMgr()->getDefaultDescID(descid) )
 	return false;
 
-    return displayDataFromDesc( descid, true );
+    const Attrib::SelSpec* prevas = visserv_->getSelSpec( displayid_, 0 );
+    const bool notsel = !prevas || prevas->id().isUnselInvalid();
+    const bool res = displayDataFromDesc( descid, true );
+    if ( res && notsel )
+	applMgr()->useDefColTab( displayid_, 0 );
+
+    return res;
 }
 
 
@@ -253,35 +259,38 @@ bool uiODPlaneDataTreeItem::displayGuidance()
 					visserv_->getSelSpec( displayid_, 0 ));
     if ( !as ) return false;
 
+    const bool notsel = as->id().isUnselInvalid();
+
     const Pos::GeomID geomid = visserv_->getGeomID( displayid_ );
     const ZDomain::Info* zdinf =
 		    visserv_->zDomainInfo( visserv_->getSceneID(displayid_) );
     const bool issi = !zdinf || zdinf->def_.isSI();
     const bool selok = applMgr()->attrServer()->selectAttrib(
 			*as, issi ? 0 : zdinf, geomid, tr("first layer" ) );
-    if ( selok )
-    {
-	if ( as->isNLA()
-	     || as->id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
-	{
-	    if ( as->isNLA() )
-		visserv_->setSelSpec( displayid_, 0, *as );
-	    else
-		visserv_->setSelSpecs( displayid_, 0,
-				 applMgr()->attrServer()->getTargetSelSpecs() );
-
-	    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-			    visserv_->getObject(displayid_))
-	    if ( !pdd ) return false;
-
-	    return displayDataFromOther( pdd->id() );
-
-	}
-	else
-	    return displayDataFromDesc( as->id(), as->isStored() );
-    }
-    else
+    if ( !selok )
 	return false;
+
+    if ( as->isNLA()
+	 || as->id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
+    {
+	if ( as->isNLA() )
+	    visserv_->setSelSpec( displayid_, 0, *as );
+	else
+	    visserv_->setSelSpecs( displayid_, 0,
+			     applMgr()->attrServer()->getTargetSelSpecs() );
+
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+			visserv_->getObject(displayid_))
+	if ( !pdd ) return false;
+
+	return displayDataFromOther( pdd->id() );
+    }
+
+    const bool res = displayDataFromDesc( as->id(), as->isStored() );
+    if ( res && notsel )
+	applMgr()->useDefColTab( displayid_, 0 );
+
+    return res;
 }
 
 
@@ -290,7 +299,7 @@ bool uiODPlaneDataTreeItem::displayDataFromDesc( const Attrib::DescID& descid,
 {
     const Attrib::DescSet* ads =
 	Attrib::DSHolder().getDescSet( false, isstored );
-    Attrib::SelSpec as( 0, descid, false, "" );
+    Attrib::SelSpec as( nullptr, descid, false, "" );
     as.setRefFromID( *ads );
     visserv_->setSelSpec( displayid_, 0, as );
     const bool res = visserv_->calculateAttrib( displayid_, 0, false );
