@@ -7,27 +7,28 @@
 
 
 #include "seistrctr.h"
+
+#include "bufstringset.h"
+#include "envvars.h"
+#include "file.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "iostrm.h"
 #include "keystrs.h"
-#include "seistrc.h"
+#include "od_stream.h"
+#include "ptrman.h"
+#include "scaler.h"
+#include "seisbuf.h"
 #include "seisinfo.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
-#include "seisbuf.h"
-#include "iopar.h"
-#include "ioobj.h"
-#include "iostrm.h"
-#include "ioman.h"
-#include "sorting.h"
+#include "seistrc.h"
 #include "separstr.h"
-#include "scaler.h"
-#include "ptrman.h"
+#include "sorting.h"
 #include "survinfo.h"
-#include "bufstringset.h"
 #include "tracedata.h"
 #include "trckeyzsampling.h"
-#include "envvars.h"
-#include "file.h"
-#include "od_stream.h"
 #include <math.h>
 
 
@@ -132,7 +133,7 @@ void SeisTrcTranslator::cleanUp()
     deleteAndZeroArrPtr( inpcds_ );
     deleteAndZeroArrPtr( outcds_ );
     deleteAndZeroPtr( trcscalebase_ );
-    curtrcscalebase_ = 0;
+    curtrcscalebase_ = nullptr;
     nrout_ = 0;
     errmsg_.setEmpty();
 }
@@ -154,7 +155,7 @@ bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
     read_mode = rm;
     if ( !initConn(c) || !initRead_() )
     {
-	delete conn_; conn_ = 0;
+	deleteAndZeroPtr( conn_ );
 	return false;
     }
 
@@ -342,7 +343,7 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 bool SeisTrcTranslator::writeBlock()
 {
     int sz = trcblock_.size();
-    SeisTrc* firsttrc = sz ? trcblock_.get(0) : 0;
+    SeisTrc* firsttrc = sz ? trcblock_.get(0) : nullptr;
     if ( firsttrc )
 	lastinlwritten_ = firsttrc->info().binid.inl();
 
@@ -564,15 +565,23 @@ bool SeisTrcTranslator::copyDataToTrace( SeisTrc& trc )
     if ( curtrcscalebase_ )
 	trc.convertToFPs();
 
-    const bool matchingdc = *trc.data().getInterpreter(0) ==
-			    *storbuf_->getInterpreter(0);
+    const int nrcomps = nrSelComps();
+    if ( nrcomps == 0 )
+	return false;
+
+    TraceDataInterpreter* trcdatainterp = trc.data().getInterpreter( 0 );
+    TraceDataInterpreter* storinterp = storbuf_->getInterpreter( 0 );
+    if ( !trcdatainterp || !storinterp )
+	return false;
+
+    const bool matchingdc = *trcdatainterp == *storinterp;
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
 	if ( matchingdc && outnrsamples_ > 1 && !curtrcscalebase_ )
 	{
+	    const int nrbytes = outnrsamples_ * storbuf_->bytesPerSample(iselc);
 	    OD::memCopy( trc.data().getComponent(iselc)->data(),
-		    storbuf_->getComponent(iselc)->data(),
-		    outnrsamples_ * storbuf_->bytesPerSample( iselc ) );
+			 storbuf_->getComponent(iselc)->data(), nrbytes );
 	}
 	else
 	{
@@ -595,7 +604,7 @@ bool SeisTrcTranslator::copyDataToTrace( SeisTrc& trc )
 SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 {
     if ( !outcds_ )
-	return 0;
+	return nullptr;
 
     SeisTrc* newtrc = new SeisTrc;
     newtrc->info().binid = binid;
