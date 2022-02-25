@@ -196,6 +196,9 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
     ColTab::SM().getSequenceNames( allctnms );
     allctnms.sort();
     coltablistfld_->clear();
+
+    BufferString defaultct;
+    Settings::common().get( "dTect.Color table.Name", defaultct );
     for ( int idx=0; idx<allctnms.size(); idx++ )
     {
 	const int seqidx = ColTab::SM().indexOf( allctnms.get(idx) );
@@ -210,9 +213,11 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 	else
 	    status = sKeyOwn();
 
-	uiTreeViewItem* itm mUnusedVar = new uiTreeViewItem( coltablistfld_,
+	auto* itm = new uiTreeViewItem( coltablistfld_,
 		uiTreeViewItem::Setup().label(mToUiStringTodo(seq->name()))
 		.label(status) );
+	if ( defaultct == seq->name() )
+	    itm->setBold( -1, true );
     }
 
     uiTreeViewItem* itm = coltablistfld_->findItem( selctnm, 0, true );
