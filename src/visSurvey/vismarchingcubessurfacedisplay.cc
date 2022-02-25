@@ -17,18 +17,19 @@
 #include "impbodyplaneintersect.h"
 #include "keystrs.h"
 #include "marchingcubes.h"
+#include "positionlist.h"
 #include "posvecdataset.h"
 #include "randcolor.h"
 #include "selector.h"
 #include "settings.h"
 #include "survinfo.h"
+
 #include "visgeomindexedshape.h"
 #include "vismarchingcubessurface.h"
 #include "visplanedatadisplay.h"
 #include "vismaterial.h"
 #include "vistransform.h"
 #include "vispolygonoffset.h"
-#include "positionlist.h"
 
 
 namespace visSurvey
@@ -48,7 +49,7 @@ MarchingCubesDisplay::MarchingCubesDisplay()
 	, selspecs_(1, Attrib::SelSpec())
 {
     cache_.allowNull( true );
-    setColor( getRandomColor( false ) );
+    setColor( getRandomColor(false) );
     getMaterial()->setAmbience( 0.4 );
     getMaterial()->change.notify(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
@@ -303,8 +304,11 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 {
     mSetDataPointSet("Isopach");
 
-    if ( !impbody_ ) impbody_ = emsurface_->createImplicitBody(0,false);
-    if ( !impbody_ || !impbody_->arr_ ) return;
+    if ( !impbody_ && emsurface_ )
+	impbody_ = emsurface_->createImplicitBody( 0, false );
+
+    if ( !impbody_ || !impbody_->arr_ )
+	return;
 
     const int inlsz = impbody_->tkzs_.nrInl();
     const int crlsz = impbody_->tkzs_.nrCrl();
@@ -395,24 +399,23 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
 					 TaskRunner* runner ) const
 {
-    if ( displaysurface_ )
-    {
-	SamplingData<float> inlinesampling = emsurface_->inlSampling();
-	SamplingData<float> crlinesampling = emsurface_->crlSampling();
-	SamplingData<float> zsampling = emsurface_->zSampling();
+    if ( !displaysurface_ || !emsurface_ )
+	return;
 
-	visBase::Transformation* toincrltransf
-	    = visBase::Transformation::create();
-	toincrltransf->ref();
-	toincrltransf->setScale(
-	    Coord3(inlinesampling.step, crlinesampling.step, zsampling.step));
-	toincrltransf->setTranslation(
-	    Coord3(inlinesampling.start,crlinesampling.start, zsampling.start));
+    SamplingData<float> inlinesampling = emsurface_->inlSampling();
+    SamplingData<float> crlinesampling = emsurface_->crlSampling();
+    SamplingData<float> zsampling = emsurface_->zSampling();
 
-	displaysurface_->getShape()->getAttribPositions(dps, toincrltransf,
-							runner);
-	toincrltransf->unRef();
-    }
+    visBase::Transformation* toincrltransf = visBase::Transformation::create();
+    toincrltransf->ref();
+    toincrltransf->setScale(
+	Coord3(inlinesampling.step, crlinesampling.step, zsampling.step));
+    toincrltransf->setTranslation(
+	Coord3(inlinesampling.start,crlinesampling.start, zsampling.start));
+
+    displaysurface_->getShape()->getAttribPositions( dps, toincrltransf,
+						     runner);
+    toincrltransf->unRef();
 }
 
 
@@ -525,20 +528,21 @@ bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid,
     mDynamicCastGet( EM::MarchingCubesSurface*, emmcsurf, emobject.ptr() );
     if ( !emmcsurf )
     {
-	if ( displaysurface_ ) displaysurface_->turnOn( false );
+	if ( displaysurface_ )
+	    displaysurface_->turnOn( false );
 	return false;
     }
 
     emsurface_ = emmcsurf;
     emsurface_->ref();
 
-   return updateVisFromEM( false, runner );
+    return updateVisFromEM( false, runner );
 }
 
 
 bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* runner )
 {
-    if ( !onlyshape || !displaysurface_ )
+    if ( emsurface_ && (!onlyshape || !displaysurface_) )
     {
 	getMaterial()->setColor( emsurface_->preferredColor() );
 	if ( !emsurface_->name().isEmpty() )
@@ -561,7 +565,7 @@ bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* runner )
 	    SamplingData<float>(emsurface_->crlSampling()),
 	    emsurface_->zSampling() );
 
-	if ( !displaysurface_->setSurface( emsurface_->surface(), runner ) )
+	if ( !displaysurface_->setSurface(emsurface_->surface(),runner) )
 	{
 	    removeChild( displaysurface_->osgNode() );
 	    displaysurface_->unRef();
@@ -569,7 +573,7 @@ bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* runner )
 	    return false;
 	}
 	else
-	displaysurface_->turnOn( true );
+	    displaysurface_->turnOn( true );
     }
 
     return displaysurface_->touch( !onlyshape, runner );
@@ -584,7 +588,9 @@ MultiID MarchingCubesDisplay::getMultiID() const
 
 void MarchingCubesDisplay::setColor( Color nc )
 {
-    if ( emsurface_ ) emsurface_->setPreferredColor(nc);
+    if ( emsurface_ )
+	emsurface_->setPreferredColor(nc);
+
     getMaterial()->setColor( nc );
 }
 
@@ -594,7 +600,9 @@ NotifierAccess* MarchingCubesDisplay::materialChange()
 
 
 Color MarchingCubesDisplay::getColor() const
-{ return getMaterial()->getColor(); }
+{
+    return getMaterial()->getColor();
+}
 
 
 void MarchingCubesDisplay::fillPar( IOPar& par ) const
@@ -894,9 +902,11 @@ void MarchingCubesDisplay::updateIntersectionDisplay()
 {
     if ( displayintersections_ )
     {
+	if ( !impbody_ && emsurface_ )
+	    impbody_ = emsurface_->createImplicitBody( 0, false );
+
 	if ( !impbody_ )
-	    impbody_ = emsurface_->createImplicitBody(0,false);
-	if ( !impbody_ ) return;
+	    return;
 
 	for ( int idx=0; idx<intsinfo_.size(); idx++ )
 	{
