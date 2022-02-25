@@ -115,6 +115,9 @@ uiTreeViewBody::uiTreeViewBody( uiTreeView& hndle, uiParent* p,
 	header()->setSectionsMovable( false );
 #endif
     }
+
+    setStyleSheet( "selection-background-color: lightblue;"
+		   "selection-color: black; show-decoration-selected: 1" );
 }
 
 
@@ -963,16 +966,28 @@ void uiTreeViewItem::setPixmap( int column, const ColTab::Sequence& seq,
 
 void uiTreeViewItem::setBold( int column, bool yn )
 {
-    QFont qfont = qItem()->font( column );
-    qfont.setBold( yn );
-    qItem()->setFont( column, qfont );
+    for ( int idx=0; idx<treeView()->nrColumns(); idx++ )
+    {
+	if ( column>=0 && column!=idx )
+	    continue;
+
+	QFont qfont = qItem()->font( idx );
+	qfont.setBold( yn );
+	qItem()->setFont( idx, qfont );
+    }
 }
 
+
 int uiTreeViewItem::nrChildren() const
-{ return qItem()->childCount(); }
+{
+    return qItem()->childCount();
+}
+
 
 bool uiTreeViewItem::isOpen() const
-{ return qItem()->isExpanded(); }
+{
+    return qItem()->isExpanded();
+}
 
 
 void uiTreeViewItem::setOpen( bool yn )

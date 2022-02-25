@@ -178,6 +178,9 @@ uiListBoxBody::uiListBoxBody( uiListBoxObj& hndle, uiParent* p,
     setHSzPol( uiObject::Medium );
 
     setMouseTracking( true );
+
+    setStyleSheet( "selection-background-color: lightblue;"
+		   "selection-color: black" );
 }
 
 
