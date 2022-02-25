@@ -285,66 +285,53 @@ void uiFirewallProcSetter::selectionChgCB( CallBacker* )
 }
 
 
-void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* cb )
+void uiFirewallProcSetter::statusUpdateODProcCB( CallBacker* )
 {
-    int selidx = odproclistbox_->currentItem();
-    if ( selidx < 0 )
+    const int selidx = odproclistbox_->currentItem();
+    if ( !odv6procnms_.validIdx(selidx) )
 	return;
 
-    const int v6procsz = odv6procnms_.size();
-    BufferString procfp;
     FilePath exefp( exepath_ );
-    const BufferString str = exefp.fullPath();
-    BufferString procnm;
-    if ( selidx < v6procsz && !odv6procnms_.isEmpty() )
-    {
-	procnm = *odv6procnms_[selidx];
-	procnm.add( ".exe" );
-	exefp.add( procnm );
-	procfp = exefp.fullPath();
-    }
-
-    statusBar()->message( sStatusBarMsg().arg(procfp), 0 );
+    exefp.add( odv6procnms_.get(selidx) );
+    exefp.setExtension( "exe" );
+    const BufferString procfnm = FilePath::getFullLongPath( exefp );
+    statusBar()->message( tr("Path: %1").arg(procfnm), 0 );
 }
 
 
-void uiFirewallProcSetter::statusUpdatePyProcCB(CallBacker* cb)
+void uiFirewallProcSetter::statusUpdatePyProcCB( CallBacker* )
 {
     const int selidx = pythonproclistbox_->currentItem();
-    if ( selidx < 0 || pyprocnms_.isEmpty() )
+    if ( !pyprocnms_.validIdx(selidx) )
 	return;
 
     FilePath exefp( pypath_ );
     exefp.add( *pyprocnms_[selidx] );
-    const BufferString procfp = exefp.fullPath();
-    statusBar()->message( sStatusBarMsg().arg(procfp), 0 );
+    const BufferString procfnm = FilePath::getFullLongPath( exefp );
+    statusBar()->message( tr("Path: %1").arg(procfnm), 0 );
 }
 
 
 uiStringSet uiFirewallProcSetter::getPythonExecList()
 {
     PDE::ActionType acttyp = toadd_ ? PDE::Add : PDE::Remove;
-
     ePDD().getProcData( pyprocnms_, pyprocdescs_, PDE::Python, acttyp );
-
     if ( pyprocnms_.isEmpty() )
 	return pyprocdescs_;
 
     FilePath fp( pypath_ );
     fp.add( "envs" );
 
+    const char* pyexe = "python.exe";
     for ( int idx=pyprocnms_.size()-1; idx>=0; idx-- )
     {
-	const FilePath pyexefp( fp.fullPath(), pyprocnms_.get(idx),
-								"python.exe" );
-
-	if ( !File::exists(pyexefp.fullPath()) )
+	const FilePath pyexefp( fp.fullPath(), pyprocnms_.get(idx), pyexe );
+	if ( !pyexefp.exists() )
 	{
 	    pyprocnms_.removeSingle( idx );
 	    pyprocdescs_.removeSingle( idx );
 	    continue;
 	}
-	const BufferString procnm = pyprocnms_.get( idx );
     }
 
     return pyprocdescs_;
@@ -353,14 +340,13 @@ uiStringSet uiFirewallProcSetter::getPythonExecList()
 
 BufferString uiFirewallProcSetter::getPythonInstDir()
 {
-    BufferString pythonstr( sKey::Python() ); pythonstr.toLower();
-    const IOPar& pythonsetts = Settings::fetch( pythonstr );
+    const IOPar& pythonsetts = Settings::fetch( "python" );
     OD::PythonSource source;
     BufferString pythonloc;
     const bool pythonsource = OD::PythonSourceDef().parse( pythonsetts,
 	OD::PythonAccess::sKeyPythonSrc(), source );
     if ( !pythonsource )
-	pythonloc = "";
+	pythonloc.setEmpty();
     else if ( source == OD::PythonSource::Custom )
 	pythonsetts.get( OD::PythonAccess::sKeyEnviron(), pythonloc );
     else
@@ -374,8 +360,7 @@ BufferString uiFirewallProcSetter::getPythonInstDir()
 }
 
 
-BufferStringSet uiFirewallProcSetter::getProcList(
-					    PDE::Type type )
+BufferStringSet uiFirewallProcSetter::getProcList( PDE::Type type )
 {
     BufferStringSet proclist;
     if ( type == PDE::ODv7 )
@@ -435,11 +420,8 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	    continue;
 
 	FilePath exefp( exepath_ );
-
 	OS::MachineCommand mc( exepath.fullPath() );
-
 	mc.addFlag( toadd_ ? "add" : "remove" );
-
 	if ( idx != PDE::Python )
 	    mc.addKeyedArg( "od", exefp.fullPath() );
 	else
@@ -476,7 +458,7 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	uiString firstmsg = tr("Some modifications could not be made.\n"
 		"Please make sure you run OpendTect as Administrator.");
 
-	uiString errmsg = tr("\nThe following apps could not be %1: %2");
+	uiString errmsg = tr("\nThe following apps could not be %1:\n%2");
 	errmsg.arg( toadd_ ? tr("added") : tr("removed") )
 	      .arg( failedprocnms.getDispString() );
 
