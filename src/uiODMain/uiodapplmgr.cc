@@ -745,9 +745,6 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	}
     }
 
-    if ( cacheid == DataPack::cNoID() )
-	useDefColTab( visid, attrib );
-    updateColorTable( visid, attrib );
     return res;
 }
 
