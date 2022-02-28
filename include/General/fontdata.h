@@ -32,6 +32,7 @@ public:
 
     bool		operator ==(const FontData&) const;
     bool		operator !=(const FontData&) const;
+    FontData&		operator =(const FontData&);
 
 			//! Store/retrieve (in FileMultiString format).
     bool		getFrom(const char* fms);
@@ -46,6 +47,9 @@ public:
     void		setPointSize( int ps )	{ pointsize_ = ps; }
     void		setWeight( Weight w )	{ weight_= w; }
     void		setItalic( bool yn )	{ italic_ = yn; }
+
+    void		setStyleName(const char*);
+    const char*		styleName() const;
 
     static const char*	defaultFamily();
     static int		defaultPointSize();
@@ -70,9 +74,9 @@ public:
 
 protected:
 
-    BufferString	family_ = defaultFamily();
-    int			pointsize_ = defaultPointSize();
-    Weight		weight_ = defaultWeight();
-    bool		italic_ = defaultItalic();
+    BufferString	family_		= defaultFamily();
+    int			pointsize_	= defaultPointSize();
+    Weight		weight_		= defaultWeight();
+    bool		italic_		= defaultItalic();
+    BufferString	stylename_	= "Regular";
 };
-

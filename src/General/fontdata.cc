@@ -48,13 +48,25 @@ bool FontData::operator ==( const FontData& oth ) const
 	return true;
 
     return family_ == oth.family_ && pointsize_ == oth.pointsize_ &&
-	   weight_ == oth.weight_ && italic_ == oth.italic_;
+	   weight_ == oth.weight_ && italic_ == oth.italic_ &&
+	   styleName() == oth.styleName();
 }
 
 
 bool FontData::operator !=( const FontData& oth ) const
 {
     return !(*this == oth);
+}
+
+
+FontData& FontData::operator =( const FontData& fd )
+{
+    family_ = fd.family_;
+    pointsize_ = fd.pointsize_;
+    weight_ = fd.weight_;
+    italic_ = fd.italic_;
+    setStyleName( fd.styleName() );
+    return *this;
 }
 
 
@@ -69,6 +81,7 @@ FontData::Weight FontData::enumWeight( int w )
     if ( !numwghts[idx] ) idx--;
     return (FontData::Weight)idx;
 }
+
 
 const char* const* FontData::universalFamilies() { return universalfamilies; }
 const char* const* FontData::defaultKeys()	 { return defaultkeys; }
@@ -89,8 +102,19 @@ bool FontData::defaultItalic()			{ return defaultitalic; }
 void FontData::setDefaultFamily( const char* f)	{ defaultfamily = f; }
 void FontData::setDefaultPointSize( int ps )	{ defaultpointsize = ps; }
 void FontData::setDefaultWeight( Weight w )	{ defaultweight = w; }
-void FontData::setDefaultItalic( bool yn )      { defaultitalic = yn; }
+void FontData::setDefaultItalic( bool yn )	{ defaultitalic = yn; }
 
+
+void FontData::setStyleName( const char* stylenm )
+{
+    stylename_ = stylenm;
+}
+
+
+const char* FontData::styleName() const
+{
+    return stylename_.buf();
+}
 
 
 bool FontData::getFrom( const char* s )
@@ -103,6 +127,7 @@ bool FontData::getFrom( const char* s )
     if ( nr > 1 ) pointsize_ = fms.getIValue( 1 );
     if ( nr > 2 ) parseEnumWeight( fms[2], weight_ );
     if ( nr > 3 ) italic_ = toBool(fms[3],false);
+    if ( nr > 4 ) setStyleName( fms[4] );
 
     return true;
 }
@@ -115,5 +140,6 @@ void FontData::putTo( BufferString& s ) const
     fms += pointsize_;
     fms += FontData::getWeightString(weight_);
     fms += getYesNoString( italic_ );
+    fms += styleName();
     s = fms;
 }

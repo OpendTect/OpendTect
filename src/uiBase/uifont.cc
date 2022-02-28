@@ -92,10 +92,11 @@ void uiFont::setFontData( const FontData& fd )
 
 void uiFont::setFontData( mQtclass(QFont)& qfont, const FontData& fd )
 {
-    const FixedString family = fd.family();
-    qfont = QFont( fd.family() && *fd.family() ? fd.family() : "helvetica",
-		   fd.pointSize(), FontData::numWeight(fd.weight()),
+    qfont = QFont( fd.family(),
+		   fd.pointSize(),
+		   FontData::numWeight(fd.weight()),
 		   fd.isItalic() );
+    qfont.setStyleName( fd.styleName() );
 }
 
 
@@ -105,6 +106,7 @@ void uiFont::getFontData( FontData& fd, const mQtclass(QFont)& qfont )
     fd = FontData( qfont.pointSize(), fontfamily,
 		   FontData::enumWeight(qfont.weight()),
 		   qfont.italic() );
+    fd.setStyleName( BufferString(qfont.styleName()) );
 }
 
 
