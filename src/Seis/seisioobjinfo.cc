@@ -585,34 +585,35 @@ RefMan<FloatDistrib> SeisIOObjInfo::getDataDistribution() const
 	return nullptr;
 
     PosInfo::CubeData cd;
-    trl->getGeometryInfo( cd );
-
     Seis::StatsCollector ssc;
-    Stats::RandGen randgen;
-    PosInfo::CubeDataPos cdp;
-    while ( true )
+    if ( trl->getGeometryInfo(cd) && (cd.size() > 0) )
     {
-	cdp.lidx_ = randgen.getIndex( cd.size() );
-	const auto& segs = cd.get( cdp.lidx_ )->segments_;
-	cdp.segnr_ = randgen.getIndex( segs.size() );
-	cdp.sidx_ = randgen.getIndex( segs.get(cdp.segnr_).nrSteps()+1 );
+	Stats::RandGen randgen;
+	PosInfo::CubeDataPos cdp;
+	while ( true )
+	{
+	    cdp.lidx_ = randgen.getIndex( cd.size() );
+	    const auto& segs = cd.get( cdp.lidx_ )->segments_;
+	    cdp.segnr_ = randgen.getIndex( segs.size() );
+	    cdp.sidx_ = randgen.getIndex( segs.get(cdp.segnr_).nrSteps()+1 );
 
-	const BinID bid = cd.binID( cdp );
-	bool res = true;
-	if ( trl->supportsGoTo() )
-	    res = trl->goTo( bid );
+	    const BinID bid = cd.binID( cdp );
+	    bool res = true;
+	    if ( trl->supportsGoTo() )
+		res = trl->goTo( bid );
 
-	if ( !res )
-	    continue;
+	    if ( !res )
+		continue;
 
-	SeisTrc trc;
-	res = rdr.get( trc );
-	if ( !res || trc.isNull() )
-	    continue;
+	    SeisTrc trc;
+	    res = rdr.get( trc );
+	    if ( !res || trc.isNull() )
+		continue;
 
-	ssc.useTrace( trc );
-	if ( ssc.nrSamplesUsed() > 100000 )
-	    break;
+	    ssc.useTrace( trc );
+	    if ( ssc.nrSamplesUsed() > 100000 )
+		break;
+	}
     }
 
     ret = &ssc.distribution();

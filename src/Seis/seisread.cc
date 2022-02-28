@@ -1087,6 +1087,7 @@ bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd ) const
 	if ( !isPrepared() &&
 		!const_cast<SeisTrcReader*>(this)->prepareWork(Seis::Prod) )
 	    return false;
+
 	return strl() ? strl()->getGeometryInfo( cd ) : false;
     }
     else if ( !ioobj_ )

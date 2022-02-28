@@ -213,7 +213,10 @@ public:
 				  const char* linekey=nullptr);
 
     virtual bool	getGeometryInfo(PosInfo::CubeData&) const
-							{ return false; }
+			{
+			    pErrMsg("Warning: Need Implementation");
+			    return false;
+			}
 
     static bool		is2D(const IOObj&,bool only_internal=false);
     static bool		isPS(const IOObj&,bool only_internal=false);
