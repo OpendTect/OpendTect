@@ -1344,8 +1344,8 @@ void ODGraphicsWellSymbolItem::drawWellSymbol( QPainter& painter )
 
 	case OD::PluggedOilWell:
 	    painter.setBrush( QColor(QRgb(wellsymbol_.color_.rgb())) );
-	    painter.drawEllipse( QRectF( -sz, -sz, 2*sz, 2*sz ) );
-	    painter.drawLine( QLineF( -sz, -sz, sz, sz ) );
+	    painter.drawEllipse( QRectF( -sz/2, -sz/2, sz, sz ) );
+	    painter.drawLine( QLineF( sz, -sz, -sz, sz ) );
 	    break;
 
 	case OD::PluggedGasWell:
@@ -1354,11 +1354,11 @@ void ODGraphicsWellSymbolItem::drawWellSymbol( QPainter& painter )
 	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
 	    painter.drawLine( QLineF( -sz, 0, -sz/2, 0 ) );
 	    painter.drawLine( QLineF( sz/2, 0, sz, 0 ) );
-	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, M_SQRT1_2f*sz,
-				      -M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
-				      M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( -sz, -sz, sz, sz ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
+				      -M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2f*sz, M_SQRT1_2f*sz,
+				      M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( sz, -sz, -sz, sz ) );
 	    break;
 
 	case OD::PluggedOilGasWell:
@@ -1368,11 +1368,11 @@ void ODGraphicsWellSymbolItem::drawWellSymbol( QPainter& painter )
 	    painter.drawLine( QLineF( 0, sz/2, 0, sz ) );
 	    painter.drawLine( QLineF( -sz, 0, -sz/2, 0 ) );
 	    painter.drawLine( QLineF( sz/2, 0, sz, 0 ) );
-	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, M_SQRT1_2f*sz,
-				      -M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
-				      M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
-	    painter.drawLine( QLineF( -sz, -sz, sz, sz ) );
+	    painter.drawLine( QLineF( -M_SQRT1_2f*sz, -M_SQRT1_2f*sz,
+				      -M_SQRT1_2f*sz/2, -M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( M_SQRT1_2f*sz, M_SQRT1_2f*sz,
+				      M_SQRT1_2f*sz/2, M_SQRT1_2f*sz/2 ) );
+	    painter.drawLine( QLineF( sz, -sz, -sz, sz ) );
 	    break;
 
 	case OD::PermittedLocation:
@@ -1380,12 +1380,12 @@ void ODGraphicsWellSymbolItem::drawWellSymbol( QPainter& painter )
 	    break;
 
 	case OD::CanceledLocation:
-	    painter.drawEllipse( QRectF( -sz, -sz, 2*sz, 2*sz ) );
-	    painter.drawLine( QLineF( -sz, -sz, sz, sz ) );
+	    painter.drawEllipse( QRectF( -sz/2, -sz/2, sz, sz ) );
+	    painter.drawLine( QLineF( sz, -sz, -sz, sz ) );
 	    break;
 
 	case OD::InjectionDisposalWell:
-	    painter.drawEllipse( QRectF( -sz, -sz, 2*sz, 2*sz ) );
+	    painter.drawEllipse( QRectF( -sz/2, -sz/2, sz, sz ) );
 	    painter.drawLine( QLineF( -sz, -sz, sz, sz ) );
 	    painter.drawLine( QLineF( 3*sz/4, sz, sz, sz ) );
 	    painter.drawLine( QLineF( sz, 3*sz/4, sz, sz ) );
