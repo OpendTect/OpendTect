@@ -158,6 +158,8 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     if ( hasodLicInstall() )
 	mAttachCB( applyPushed, uiPluginSel::startLicInstallCB );
+
+    mAttachCB( postFinalise(), uiPluginSel::finalizeCB );
 }
 
 
@@ -167,6 +169,14 @@ uiPluginSel::~uiPluginSel()
     deepErase( products_ );
     deepErase( vendors_ );
     uipluginseluiswmgr_.removeAndDeleteParam( this );
+}
+
+
+void uiPluginSel::finalizeCB(CallBacker *)
+{
+    uiButton* applybut = button(uiDialog::APPLY);
+    if ( applybut )
+	applybut->setPixmap( "lic-settings" );
 }
 
 
@@ -371,7 +381,7 @@ void uiPluginSel::startLicInstallCB( CallBacker* )
     setButtonSensitive( APPLY, false );
     uipluginseluiswmgr_.deleteAndZeroPtrParam( this );
     uipluginseluiswmgr_.setParam( this,
-	    new uiUserShowWait(this, tr("Launching license edition dialog") ) );
+	new uiUserShowWait(this, tr("Launching license settings dialog") ) );
 
     const CallBack startliccb( mCB(this,uiPluginSel,showLicInstallCB) );
     CallBack finishedcb( mCB(this,uiPluginSel,licInstallDlgClosed) );
