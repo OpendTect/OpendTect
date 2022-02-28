@@ -184,7 +184,7 @@ static bool mUnusedVar testArrayLayers( const PropertyRefSelection& prs )
 
     const od_uint64 totnrlayers = od_uint64(nrseq_) * nrlayers_;
 
-    auto* layers = new TestLayer*[totnrlayers];
+    auto** layers = new TestLayer*[totnrlayers];
 //    auto* layers = new Layer*[totnrlayers];
     for ( od_uint64 ilay=0; ilay<totnrlayers; ilay++ )
     {
