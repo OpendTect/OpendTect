@@ -96,7 +96,7 @@ void uiFont::setFontData( mQtclass(QFont)& qfont, const FontData& fd )
 		   fd.pointSize(),
 		   FontData::numWeight(fd.weight()),
 		   fd.isItalic() );
-    qfont.setStyleName( fd.styleName() );
+    qfont.setStyleName( fd.isItalic() ? "Italic" : "Regular" ); // best guess
 }
 
 
@@ -106,9 +106,7 @@ void uiFont::getFontData( FontData& fd, const mQtclass(QFont)& qfont )
     fd = FontData( qfont.pointSize(), fontfamily,
 		   FontData::enumWeight(qfont.weight()),
 		   qfont.italic() );
-    fd.setStyleName( BufferString(qfont.styleName()) );
 }
-
 
 
 void uiFont::updateMetrics()
