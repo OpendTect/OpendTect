@@ -544,6 +544,18 @@ void uiObject::setMaximumWidth( int w )
 void uiObject::setMaximumHeight( int h )
     { mBody()->setMaximumHeight(h); }
 
+void uiObject::setMinimumWidthInChar( int w )
+    { mBody()->setMinimumWidth(w*mBody()->fontWidth()); }
+
+void uiObject::setMinimumHeightInChar( int h )
+    { mBody()->setMinimumHeight(h*mBody()->fontHeight()); }
+
+void uiObject::setMaximumWidthInChar( int w )
+    { mBody()->setMaximumWidth(w*mBody()->fontWidth()); }
+
+void uiObject::setMaximumHeightInChar( int h )
+    { mBody()->setMaximumHeight(h*mBody()->fontHeight()); }
+
 int uiObject::prefVNrPics() const
     { return mConstBody()->prefVNrPics(); }
 
