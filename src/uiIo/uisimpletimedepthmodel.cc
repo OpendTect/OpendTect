@@ -379,15 +379,15 @@ void uiSimpleTimeDepthTransform::editCB( CallBacker* )
 
 
     const MultiID mid = ioobj->key();
-    if ( !mid.isUdf() && !mid.isEmpty() )
-    {
-	uiSimpleTimeDepthTable dlg( this, mid );
-	if ( !dlg.go() )
-	    return;
+    if ( mid.isUdf() )
+	return;
 
-	selfld_->setInput( mid );
-	setZRangeCB( nullptr );
-    }
+    uiSimpleTimeDepthTable dlg( this, mid );
+    if ( !dlg.go() )
+	return;
+
+    selfld_->setInput( mid );
+    setZRangeCB( nullptr );
 }
 
 
