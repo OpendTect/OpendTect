@@ -21,11 +21,13 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
+#include "uimenu.h"
 #include "uimsg.h"
 #include "uitable.h"
 #include "uitoolbutton.h"
 #include "uitblimpexpdatasel.h"
 #include "uizrangeinput.h"
+#include "unitofmeasure.h"
 
 
 #define mTimeCol 0
@@ -68,31 +70,67 @@ bool acceptOK( CallBacker* )
 
 #define mDefNrRows 10
 
+
 class uiSimpleTimeDepthTable : public uiDialog
 { mODTextTranslationClass(uiSimpleTimeDepthTable);
 public:
-uiSimpleTimeDepthTable( uiParent* p )
+uiSimpleTimeDepthTable( uiParent* p, const MultiID& mid )
     : uiDialog(p,uiDialog::Setup(tr("Simple Time-Depth Model"),mNoDlgTitle,
 				mTODOHelpKey))
+    , mid_(mid)
 {
     uiTable::Setup tblsu( mDefNrRows, 2 );
     tblsu.rowgrow( true ).insertrowallowed( true ).removerowallowed( true )
 						  .selmode( uiTable::Multi );
     tbl_ = new uiTable( this,tblsu, "Time-Depth Table" );
-    tbl_->setColumnLabel( mTimeCol, ZDomain::Time().getLabel() );
+    const uiString timelbl = toUiString("%1 %2").arg(uiStrings::sTWT()).
+			arg(UnitOfMeasure::surveyDefTimeUnitAnnot(true,true));
+    tbl_->setColumnLabel( mTimeCol, timelbl );
     tbl_->setColumnLabel( mDepthCol, ZDomain::Depth().getLabel() );
 
-    uiButton* openbut = new uiToolButton( this, "open", uiStrings::sOpen(),
-	    			mCB(this,uiSimpleTimeDepthTable,openCB) );
-    uiButton* readbut = new uiPushButton( this, tr("Read file"),
-	    			mCB(this,uiSimpleTimeDepthTable,readCB), false);
-    openbut->attach( alignedBelow, tbl_ );
-    readbut->attach( rightOf, openbut );
+    addbut_ = new uiToolButton( this, "plus", tr("Add Row"),
+				    mCB(this,uiSimpleTimeDepthTable,addCB) );
+    addbut_->attach( rightOf, tbl_ );
+    rembut_ = new uiToolButton( this, "minus", tr("Add Row"),
+				    mCB(this,uiSimpleTimeDepthTable,removeCB) );
+    rembut_->attach( alignedBelow, addbut_ );
+    if ( mid.isUdf() )
+    {
+	IOObjContext ctxt = mIOObjContext(SimpleTimeDepthModel);
+	ctxt.forread_ = false;
+	savefld_ = new uiIOObjSel( this, ctxt, uiStrings::sSaveAs() );
+    }
+    else
+    {
+	SimpleTimeDepthModel mdl( mid_ );
+	fillTable( mdl );
+    }
 
-    IOObjContext ctxt = mIOObjContext(SimpleTimeDepthModel);
-    ctxt.forread_ = false;
-    savefld_ = new uiIOObjSel( this, ctxt, uiStrings::sSaveAs() );
-    savefld_->attach( alignedBelow, openbut );
+    auto* butgrp = new uiGroup( this, "ButtonGroup" );
+    if ( savefld_ )
+	butgrp->attach( stretchedAbove, savefld_ );
+
+    butgrp->attach( alignedBelow, tbl_ );
+    auto* impbut = new uiPushButton( butgrp, tr("Read file"),
+	    			mCB(this,uiSimpleTimeDepthTable,readCB), false);
+
+    twtfld_ = new uiCheckBox( butgrp, tr("Time is TWT") );
+    mAttachCB( twtfld_->activated, uiSimpleTimeDepthTable::timeTypeChngCB );
+    twtfld_->attach( rightBorder );
+    twtfld_->setChecked( true );
+    zinfeet_ = new uiCheckBox( butgrp, tr("Z in feet") );
+    mAttachCB( zinfeet_->activated, uiSimpleTimeDepthTable::zUnitChngCB );
+    zinfeet_->attach( leftOf, twtfld_ );
+    zinfeet_->attach( rightTo, impbut );
+    zinfeet_->setChecked( SI().zInFeet() );
+
+    mAttachCB( postFinalise(), uiSimpleTimeDepthTable::timeTypeChngCB );
+}
+
+
+~uiSimpleTimeDepthTable()
+{
+    detachAllNotifiers();
 }
 
 MultiID getKey() const
@@ -103,31 +141,39 @@ protected:
 void fillTable( const SimpleTimeDepthModel& mdl )
 {
     tbl_->clearTable();
-    const float timefac = ZDomain::Time().userFactor();
-    const float depthfac = SI().depthsInFeet() ? mToFeetFactorF : 1.f;
     const TypeSet<float>& times = mdl.getRawTimes();
     const TypeSet<float>& depths = mdl.getRawDepths();
     const int nrpts = times.size();
-    if ( nrpts > mDefNrRows )
-	tbl_->setNrRows( nrpts );
-
+    tbl_->setNrRows( nrpts );
     for ( int idx=0; idx<nrpts; idx++ )
     {
-	tbl_->setValue( RowCol(idx,mTimeCol), timefac*times[idx] );
-	tbl_->setValue( RowCol(idx,mDepthCol), depthfac*depths[idx] );
+	tbl_->setValue( RowCol(idx,mTimeCol), times[idx] );
+	tbl_->setValue( RowCol(idx,mDepthCol), depths[idx] );
     }
 }
 
-void openCB( CallBacker* )
+
+void removeCB( CallBacker* cb )
 {
-    CtxtIOObj ctxt( mIOObjContext(SimpleTimeDepthModel) );
-    uiIOObjSelDlg dlg( this, ctxt );
-    if ( !dlg.go() )
+    if ( tbl_->nrRows() < 2 )
 	return;
 
-    SimpleTimeDepthModel mdl( dlg.chosenID() );
-    fillTable( mdl ); 
+    tbl_->removeRow( tbl_->nrRows() - 1 );
+    rembut_->setSensitive( tbl_->nrRows() > 1 );
 }
+
+void addCB( CallBacker* cb )
+{
+    tbl_->setNrRows( tbl_->nrRows() + 1 );
+    rembut_->setSensitive( tbl_->nrRows() > 1 );
+}
+
+
+int getNrDataPoints() const
+{
+    return tbl_->nrRows();
+}
+
 
 void readCB( CallBacker* )
 {
@@ -135,6 +181,62 @@ void readCB( CallBacker* )
     uiImpTimeDepthTable dlg( this, mdl );
     if ( dlg.go() )
 	fillTable( mdl );
+}
+
+
+static const UnitOfMeasure* getDisplayUnit( bool zinfeet )
+{
+    return zinfeet ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );
+}
+
+
+void zUnitChngCB( CallBacker* )
+{
+    const bool zinfeet = zinfeet_->isChecked();
+    const uiString depthunit =
+			    uiStrings::sDistUnitString( zinfeet, true, true );
+    const uiString dispstr = tr("Depth %1").arg( depthunit );
+    tbl_->setColumnLabel( mDepthCol, dispstr );
+    if ( tbl_->isEmpty() )
+	return;
+
+    const UnitOfMeasure* newuomr = getDisplayUnit( zinfeet );
+    const UnitOfMeasure* olduomr = getDisplayUnit( !zinfeet );
+
+    for ( int idx=0; idx<getNrDataPoints(); idx++ )
+    {
+	const RowCol rc( idx, mDepthCol );
+	const float oldval = tbl_->getFValue( rc );
+	if ( mIsUdf(oldval) )
+	    continue;
+
+	const float val = getConvertedValue( oldval, olduomr, newuomr );
+	tbl_->setValue( rc, val );
+    }
+}
+
+
+void timeTypeChngCB( CallBacker* )
+{
+    const bool istymtwt = twtfld_->isChecked();
+    uiString timestr = istymtwt ? uiStrings::sTWT() : uiStrings::sOWT();
+    const uiString& timelbl = timestr.append(
+			    UnitOfMeasure::surveyDefTimeUnitAnnot(true,true) );
+    tbl_->setColumnLabel( mTimeCol, timelbl );
+    if ( tbl_->isEmpty() )
+	return;
+
+    const float convfac = istymtwt ? 2 : 0.5;
+    for ( int idx=0; idx<getNrDataPoints(); idx++ )
+    {
+	const RowCol rc( idx, mTimeCol );
+	const float oldval = tbl_->getFValue( rc );
+	if ( mIsUdf(oldval) )
+	    continue;
+
+	tbl_->setValue( rc, oldval*convfac );
+    }
+
 }
 
 bool acceptOK( CallBacker* )
@@ -157,32 +259,46 @@ bool acceptOK( CallBacker* )
     SimpleTimeDepthModel mdl;
     mdl.setRawData( times, depths );
 
-    const IOObj* outobj = savefld_->ioobj();
-    if ( !outobj )
-	return false;
+    if ( mid_.isUdf() )
+    {
+	const IOObj* outobj = savefld_->ioobj();
+	if ( !outobj )
+	    return false;
+	mid_ = outobj->key();
+    }
 
-    mdl.save( outobj->key() );
+    mdl.save( mid_ );
     return true;
 }
 
     uiTable*		tbl_;
-    uiIOObjSel*		savefld_;
+    uiIOObjSel*		savefld_    = nullptr;
+    uiCheckBox*		zinfeet_    = nullptr;
+    uiCheckBox*		twtfld_     = nullptr;
+    uiToolButton*	addbut_     = nullptr;
+    uiToolButton*	rembut_     = nullptr;
 
+    MultiID		mid_;
 };
 
 uiSimpleTimeDepthTransform::uiSimpleTimeDepthTransform( uiParent* p, bool t2d )
     : uiTime2DepthZTransformBase(p,t2d)
     , transform_(nullptr)
 {
-    selfld_ = new uiIOObjSel( this, mIOObjContext(SimpleTimeDepthModel), 
-			   uiString::emptyString() );
-    selfld_->selectionDone.notify( mCB(this,uiSimpleTimeDepthTransform,
-					setZRangeCB) );
+    selfld_ = new uiIOObjSel( this, mIOObjContext(SimpleTimeDepthModel),
+			      uiString::emptyString() );
+    mAttachCB( selfld_->selectionDone,
+	       uiSimpleTimeDepthTransform::setZRangeCB );
 
-    uiPushButton* createbut = new uiPushButton( this, uiStrings::sCreate(),
-	    					false );
-    createbut->attach( rightOf, selfld_ );
-    createbut->activated.notify( mCB(this,uiSimpleTimeDepthTransform,createCB));
+    auto* editcreatebut = new uiPushButton( this,
+			tr("Create/Edit"), false );
+    editcreatebut->attach( rightOf, selfld_ );
+    auto* mnu = new uiMenu;
+    mnu->insertAction( new uiAction(uiStrings::sCreate(),
+		mCB(this,uiSimpleTimeDepthTransform,createCB),"create") );
+    mnu->insertAction( new uiAction(uiStrings::sEdit(),
+		mCB(this,uiSimpleTimeDepthTransform,editCB),"edit") );
+    editcreatebut->setMenu( mnu );
 
     setHAlignObj( selfld_ );
 }
@@ -190,6 +306,7 @@ uiSimpleTimeDepthTransform::uiSimpleTimeDepthTransform( uiParent* p, bool t2d )
 
 uiSimpleTimeDepthTransform::~uiSimpleTimeDepthTransform()
 {
+    detachAllNotifiers();
     unRefAndZeroPtr( transform_ );
 }
 
@@ -199,7 +316,8 @@ ZAxisTransform* uiSimpleTimeDepthTransform::getSelection()
     unRefAndZeroPtr( transform_ );
 
     const IOObj* ioobj = selfld_->ioobj( true );
-    if ( !ioobj ) return 0;
+    if ( !ioobj )
+	return nullptr;
 
     if ( t2d_ )
 	transform_ = new SimpleT2DTransform( ioobj->key() );
@@ -210,7 +328,7 @@ ZAxisTransform* uiSimpleTimeDepthTransform::getSelection()
     if ( !transform_ || !transform_->isOK() )
     {
 	unRefAndZeroPtr( transform_ );
-	return 0;
+	return nullptr;
     }
 
     return transform_;
@@ -219,12 +337,12 @@ ZAxisTransform* uiSimpleTimeDepthTransform::getSelection()
 
 void uiSimpleTimeDepthTransform::createCB( CallBacker* )
 {
-    uiSimpleTimeDepthTable dlg( this );
+    uiSimpleTimeDepthTable dlg( this, MultiID::udf() );
     if ( !dlg.go() )
 	return;
     
     selfld_->setInput( dlg.getKey() );
-    setZRangeCB( 0 );
+    setZRangeCB( nullptr );
 }
 
 
@@ -241,10 +359,34 @@ void uiSimpleTimeDepthTransform::setZRangeCB( CallBacker* )
 	{
 	    range = trans->getZInterval( false );
 	    range.step = trans->getGoodZStep();
-	    if ( range.isUdf() ) range.setUdf();
+	    if ( range.isUdf() )
+		range.setUdf();
 	}
 
 	rangefld_->setZRange( range );
+    }
+}
+
+
+void uiSimpleTimeDepthTransform::editCB( CallBacker* )
+{
+    const IOObj* ioobj = selfld_->ioobj( true );
+    if ( !ioobj )
+    {
+	uiMSG().error( tr("Cannot read object from store") );
+	return;
+    }
+
+
+    const MultiID mid = ioobj->key();
+    if ( !mid.isUdf() && !mid.isEmpty() )
+    {
+	uiSimpleTimeDepthTable dlg( this, mid );
+	if ( !dlg.go() )
+	    return;
+
+	selfld_->setInput( mid );
+	setZRangeCB( nullptr );
     }
 }
 

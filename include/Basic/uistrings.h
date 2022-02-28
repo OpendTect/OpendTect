@@ -493,6 +493,8 @@ public:
     static uiString sOutputSelection()	{ return tr("Output selection"); }
     static uiString sOutputStatistic()	{ return phrOutput( tr("statistic") ); }
     static uiString sOverwrite()	{ return tr("Overwrite"); }
+    static uiString sOWT(bool abbr=true)
+    { return abbr ? tr("OWT") : tr("One Way Travel Time"); }
     static uiString sPackage(int n=1)	{ return tr("Package",0,n); }
     static uiString sParFile()		{ return tr("Par File"); }
     static uiString sParsMissing()	{ return tr("Parameters missing"); }

@@ -169,6 +169,12 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefTimeUnit()
 }
 
 
+const UnitOfMeasure* UnitOfMeasure::surveyDefTimeStorageUnit()
+{
+    return UoMR().get( secondsKey );
+}
+
+
 const UnitOfMeasure* UnitOfMeasure::surveyDefDepthUnit()
 {
     return UoMR().get( SI().depthsInFeet() ? feetKey : meterKey );

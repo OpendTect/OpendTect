@@ -58,7 +58,6 @@ namespace sKey
     inline FixedString DateTime()	{ return "Date/Time"; }
     inline FixedString Default()	{ return "Default"; }
     inline FixedString Depth()		{ return "Depth"; }
-    inline FixedString DepthUnit()	{ return "Depth-Unit"; }
     inline FixedString Desc()		{ return "Description"; }
     inline FixedString Distribution()	{ return "Distribution"; }
     inline FixedString EmptyString()	{ return ""; }
@@ -232,6 +231,11 @@ namespace sKey
     inline FixedString ZUnit()		{ return "Z-Unit"; }
     inline FixedString ZValue()		{ return "Z value"; }
 
+    inline FixedString DepthUnit()	{ return "Depth-Unit"; }
+    //<!To be used only when two different Z unit are stored
+    inline FixedString TimeUnit()	{ return "Time-Unit"; }
+    //<!To be used only when two different Z unit are stored
+
     // History of objects
     inline FixedString CrBy()		{ return "Created.By"; }
     inline FixedString CrAt()		{ return "Created.At"; }
@@ -243,5 +247,4 @@ namespace sKey
     // Not used?
     inline FixedString CrFtPolygonDir() { return "FaultPolygonPath"; }
     inline FixedString StrFtPolygon()   { return "FaultPolygons"; }
-
 };

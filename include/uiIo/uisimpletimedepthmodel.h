@@ -37,6 +37,7 @@ protected:
 					       const char*);
     void			createCB(CallBacker*);
     void			setZRangeCB(CallBacker*);
+    void			editCB(CallBacker*);
 
     uiIOObjSel* 		selfld_;
     SimpleTimeDepthTransform*	transform_;

@@ -72,6 +72,8 @@ public:
 				//!<Default unit in storage (s,m,ft)
     static const UnitOfMeasure* surveyDefTimeUnit();
 				//!<Default time unit in displays (ms)
+    static const UnitOfMeasure* surveyDefTimeStorageUnit();
+				//!<Survey storage time unit (s)
     static const UnitOfMeasure* surveyDefDepthUnit();
 				//!<Default depth unit in displays (m,ft)
     static const UnitOfMeasure* surveyDefDepthStorageUnit();

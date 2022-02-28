@@ -27,28 +27,27 @@ ________________________________________________________________________
 mExpClass(General) SimpleTimeDepthModel : public TimeDepthModel
 { mODTextTranslationClass(SimpleTimeDepthModel)
 public:
-			SimpleTimeDepthModel();
-			SimpleTimeDepthModel(const MultiID&);
-    virtual		~SimpleTimeDepthModel()	{}
+				SimpleTimeDepthModel();
+				SimpleTimeDepthModel(const MultiID&);
+    virtual			~SimpleTimeDepthModel() {}
 
-    void		setRawData(const TypeSet<float>& times,
+    void			setRawData(const TypeSet<float>& times,
 				   const TypeSet<float>& depths);
 
-    bool		save(const MultiID&) const;
+    bool			save(const MultiID&) const;
 
     const TypeSet<float>&	getRawTimes() const	{ return rawtimes_; }
     const TypeSet<float>&	getRawDepths() const	{ return rawdepths_; }
 
-    virtual bool	isOK() const;
+    virtual bool		isOK() const;
 
 protected:
 
-    bool		readFromFile(const char*);
-    bool		writeToFile(const char*) const;
+    bool			readFromFile(const char*);
+    bool			writeToFile(const char*) const;
 
-    TypeSet<float>	rawtimes_;
-    TypeSet<float>	rawdepths_;
-
+    TypeSet<float>		rawtimes_;
+    TypeSet<float>		rawdepths_;
 };
 
 mDeclEmptyTranslatorBundle(General,SimpleTimeDepthModel,od,"tdm")

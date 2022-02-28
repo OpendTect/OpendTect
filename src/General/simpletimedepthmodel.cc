@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "mnemonics.h"
 #include "od_stream.h"
 #include "unitofmeasure.h"
 
@@ -59,6 +60,18 @@ bool SimpleTimeDepthModel::readFromFile( const char* fnm )
     if ( !pars.get(sKey::NrValues(),sz) || sz < 2 )
 	return false;
 
+    const UnitOfMeasure* zuom = UnitOfMeasure::surveyDefZStorageUnit();
+    BufferString zunit;
+    const UnitOfMeasure* outzuom = nullptr;
+    if ( pars.get(sKey::DepthUnit(),zunit) && !zunit.isEmpty() )
+	outzuom =  UoMR().get( zunit );
+
+    const UnitOfMeasure* tmuom = UnitOfMeasure::surveyDefTimeStorageUnit();
+    BufferString tmunit;
+    const UnitOfMeasure* outtmuom = nullptr;
+    if ( pars.get(sKey::DepthUnit(),tmunit) && !tmunit.isEmpty() )
+	outtmuom =  UoMR().get( tmunit );
+
     float tval, dval;
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -66,8 +79,8 @@ bool SimpleTimeDepthModel::readFromFile( const char* fnm )
 	if( !strm.isOK() )
 	    break;
 
-	rawtimes_ += tval;
-	rawdepths_ += dval;
+	rawtimes_ += getConvertedValue( tval, tmuom, outtmuom );
+	rawdepths_ += getConvertedValue( dval, zuom, outzuom );
     }
 
     setModel( rawdepths_.arr(), rawtimes_.arr(), rawtimes_.size() );
@@ -89,6 +102,11 @@ bool SimpleTimeDepthModel::writeToFile( const char* fnm ) const
 
     od_ostream strm( fnm );
     IOPar pars;
+    pars.set( sKey::TimeUnit(),
+	    UoMR().getInternalFor(
+			UnitOfMeasureRepository::PropType::Time)->getLabel() );
+    pars.set( sKey::DepthUnit(),
+			    UnitOfMeasure::surveyDefDepthUnit()->getLabel() );
     pars.set( sKey::NrValues(), rawtimes_.size() );
     pars.write( strm, "Simple Time-Depth Model" );
     for ( int idx=0; idx<rawtimes_.size(); idx++ )
@@ -392,7 +410,11 @@ bool SimpleTimeDepthAscIO::get( od_istream& strm,
 	if ( ret == 0 ) break;
 
 	float tval = getFValue( 0 );
-	float dval = getFValue( 1 );
+	// time values are in internal standard i.e. (s) at this point
+	const UnitOfMeasure* inpuom = UnitOfMeasure::surveyDefTimeStorageUnit();
+	const UnitOfMeasure* outuom = UnitOfMeasure::surveyDefTimeUnit();
+	convValue( tval, inpuom, outuom );
+	const float dval = getFValue( 1 );
 	if ( mIsUdf(tval) || mIsUdf(dval) )
 	    continue;
 
