@@ -32,7 +32,7 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
 		    Notifier<uiColorTable>& nf )
     : uiDialog(p,uiDialog::Setup(tr("Ranges/Clipping"),mNoDlgTitle,
 				 mODHelpKey(mAutoRangeClipDlgHelpID) )
-                                 .modal(false))
+				.modal(false))
     , ms_(ms)
     , scaleChanged(nf)
 {
@@ -80,9 +80,9 @@ void updateFields()
     symfld->setValue( !mIsUdf(ms_.symmidval_) );
     midvalfld->setValue( mIsUdf(ms_.symmidval_) ? 0 : ms_.symmidval_ );
 
-    clipPush(0);
-    autoSymPush(0);
-    symPush(0);
+    clipPush(nullptr);
+    autoSymPush(nullptr);
+    symPush(nullptr);
 }
 
 
@@ -91,7 +91,7 @@ void clipPush( CallBacker* )
     const bool doclip = doclipfld->getBoolValue();
     clipfld->display( doclip );
     autosymfld->display( doclip );
-    autoSymPush( 0 );
+    autoSymPush( nullptr );
 }
 
 void symPush( CallBacker* )
@@ -212,25 +212,23 @@ const char* uiColorTableSel::getCurrent() const
 
 // uiColorTable
 
-#define mStdInitList \
-	  seqChanged(this) \
-	, scaleChanged(this) \
-	, scalingdlg_(0) \
-	, minfld_(0) \
-	, maxfld_(0) \
-	, enabmanage_(true)\
-	, enabclipdlg_(true)
 
 
 uiColorTable::uiColorTable( const ColTab::Sequence& colseq )
-    : mStdInitList
-    , coltabseq_( *new ColTab::Sequence(colseq) )
+    : seqChanged(this)
+    , scaleChanged(this)
+    , enabmanage_(true)
+    , enabclipdlg_(true)
     , mapsetup_( *new ColTab::MapperSetup(ColTab::MapperSetup()
-	    .type(ColTab::MapperSetup::Auto)
-	    .symmidval(mUdf(float))
-	    .cliprate(ColTab::defClipRate())) )
+		.type(ColTab::MapperSetup::Auto)
+		.symmidval(mUdf(float))
+		.cliprate(ColTab::defClipRate())) )
+    , coltabseq_(*new ColTab::Sequence(colseq))
+    , parent_(nullptr)
+    , minfld_(nullptr)
+    , maxfld_(nullptr)
+    , scalingdlg_(nullptr)
     , enabletrans_(true)
-    , parent_(0)
 {
 }
 
@@ -244,8 +242,7 @@ void uiColorTable::createFields( uiParent* parnt, OD::Orientation orient,
     {
 	minfld_ = new uiLineEdit( parnt, "Min" );
 	minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
-	minfld_->setHSzPol( uiObject::Small );
-	minfld_->setStretch( 0, 0 );
+	minfld_->setMinimumWidthInChar( 12 );
     }
 
     canvas_ = new uiColorTableCanvas( parnt, coltabseq_, true, orient );
@@ -260,9 +257,8 @@ void uiColorTable::createFields( uiParent* parnt, OD::Orientation orient,
     if ( withminmax )
     {
 	maxfld_ = new uiLineEdit( parnt, "Max" );
-	maxfld_->setHSzPol( uiObject::Small );
+	maxfld_->setMinimumWidthInChar( 12 );
 	maxfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
-	maxfld_->setStretch( 0, 0 );
     }
 
     selfld_ = new uiColorTableSel( parnt, "Table selection" );
@@ -301,18 +297,45 @@ void uiColorTable::setInterval( const Interval<float>& range )
 }
 
 
+static void getValueFormat( char& format, int& precision )
+{
+    static bool readfromsettings = true;
+    static BufferString fmt = "g";
+    static int prec = 5;
+    if ( readfromsettings )
+    {
+	BufferString str1, str2;
+	Settings::common().get( "dTect.Color table.Number format", str1, str2 );
+	fmt = str1;
+	prec = toInt( str2.buf() );
+	readfromsettings = false;
+    }
+
+    format = fmt.getCStr()[0];
+    precision = prec;
+}
+
+
+static void setValue( uiLineEdit* fld, float val )
+{
+    if ( mIsUdf(val) )
+	fld->setText( "" );
+    else
+    {
+	char format;
+	int precision;
+	getValueFormat( format, precision );
+	fld->setValue( toString(val,format,precision) );
+    }
+}
+
+
 void uiColorTable::updateRgFld()
 {
     if ( !minfld_ ) return;
 
-#define mSetLE(fld,v) \
-    if ( mIsUdf(v) ) \
-	fld->setText( "" ); \
-    else \
-	fld->setValue( v ); \
-
-    mSetLE( minfld_, mapsetup_.range_.start );
-    mSetLE( maxfld_, mapsetup_.range_.stop );
+    setValue( minfld_, mapsetup_.range_.start );
+    setValue( maxfld_, mapsetup_.range_.stop );
 }
 
 
@@ -605,7 +628,7 @@ OD::Orientation uiColorTableGroup::getOrientation() const
 
 // uiColorTableToolBar
 uiColorTableToolBar::uiColorTableToolBar( uiParent* p, bool newline )
-    : uiToolBar(p,uiStrings::phrJoinStrings(uiStrings::sColorTable(), 
+    : uiToolBar(p,uiStrings::phrJoinStrings(uiStrings::sColorTable(),
 		uiStrings::sToolbar()),uiToolBar::Top,newline)
 		, uiColorTable(ColTab::Sequence(""))
 {
@@ -616,7 +639,7 @@ uiColorTableToolBar::uiColorTableToolBar( uiParent* p, bool newline )
 uiColorTableToolBar::uiColorTableToolBar( uiParent* p,
 					  const ColTab::Sequence& seq,
 					  bool newline )
-    : uiToolBar(p,uiStrings::phrJoinStrings(uiStrings::sColorTable(), 
+    : uiToolBar(p,uiStrings::phrJoinStrings(uiStrings::sColorTable(),
 		uiStrings::sToolbar()),uiToolBar::Top,newline)
     , uiColorTable(seq)
 {
