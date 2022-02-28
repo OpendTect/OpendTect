@@ -54,13 +54,20 @@ static void snapToSceneRect( QGraphicsItem* itm )
 
 // A Point is 1/72 of an inch
 
-static float getNrPixelsFromPoints( const QPainter& painter, int nrpts )
+static float getNrPixelsFromPoints( int nrpts, const QPainter* painter )
 {
-    const QPaintDevice* qpd = painter.device();
-    if ( !qpd )
-	return float( nrpts );
+    int dpi = 72;
+    if ( !painter )
+	dpi = uiMain::getMinDPI();
+    else
+    {
+	const QPaintDevice* qpd = painter->device();
+	if ( !qpd )
+	    return float( nrpts );
 
-    const int dpi = mMIN(qpd->logicalDpiX(),qpd->logicalDpiY());
+	dpi = mMIN(qpd->logicalDpiX(),qpd->logicalDpiY());
+    }
+
     return float( nrpts * dpi / 72.f );
 }
 
@@ -153,8 +160,8 @@ void ODGraphicsMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
 
 QRectF ODGraphicsMarkerItem::boundingRect() const
 {
-    return QRectF( -mstyle_->size_, -mstyle_->size_,
-			     2*mstyle_->size_, 2*mstyle_->size_ );
+    const float szinpix = getNrPixelsFromPoints( mstyle_->size_, nullptr );
+    return QRectF( -szinpix, -szinpix, 2*szinpix, 2*szinpix );
 }
 
 
@@ -167,7 +174,7 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
     if ( !mIsZero(angle_,1e-3) )
     pErrMsg( "TODO: implement tilted markers" );*/
 
-    const float szinpix = getNrPixelsFromPoints( *painter, mstyle_->size_ );
+    const float szinpix = getNrPixelsFromPoints( mstyle_->size_, painter );
     QPen qpen = pen();
     qpen.setWidthF( szinpix/mPenScaleFactor );
     painter->setPen( qpen );
@@ -1247,7 +1254,7 @@ void ODGraphicsWellSymbolItem::setLabelText( const uiString& txt,
 
 QRectF ODGraphicsWellSymbolItem::boundingRect() const
 {
-    const float symsz = float( wellsymbol_.size_ );
+    const float symsz = getNrPixelsFromPoints( wellsymbol_.size_, nullptr );
     QRectF brect( -symsz, -symsz, 2*symsz, 2*symsz );
     return brect.united( getLabelRect(OD::Top,symsz) )
 		.united( getLabelRect(OD::Left,symsz) )
@@ -1275,7 +1282,7 @@ void ODGraphicsWellSymbolItem::paint( QPainter* painter,
 
 void ODGraphicsWellSymbolItem::drawWellSymbol( QPainter& painter )
 {
-    const float sz = getNrPixelsFromPoints( painter, wellsymbol_.size_ );
+    const float sz = getNrPixelsFromPoints( wellsymbol_.size_, &painter );
 
     QPen qpen = pen();
     qpen.setColor( QColor(QRgb(wellsymbol_.color_.rgb())) );
@@ -1443,7 +1450,7 @@ void ODGraphicsWellSymbolItem::drawLabel( QPainter& painter, OD::Edge labelpos,
 
     painter.setFont( ld.font_ );
     painter.setPen( ld.col_ );
-    const float symsz = getNrPixelsFromPoints( painter, wellsymbol_.size_ );
+    const float symsz = getNrPixelsFromPoints( wellsymbol_.size_, &painter );
     const QRectF textrect = painter.boundingRect( getLabelRect(labelpos,symsz),
 						  alignflags, ld.txt_ );
     painter.drawText( textrect, Qt::AlignCenter, ld.txt_ );
