@@ -4,13 +4,14 @@
 #	Jan 2012	K. Tingdahl
 #_______________________________________________________________________________
 
-if ( TARGET Qt5::lrelease )
-    get_target_property( QT_RELEASE_EXECUTABLE Qt5::lupdate
+find_package( QT NAMES Qt6 Qt5 QUIET COMPONENTS Core )
+if ( TARGET Qt${QT_VERSION_MAJOR}::lrelease )
+    get_target_property( QT_RELEASE_EXECUTABLE Qt${QT_VERSION_MAJOR}::lupdate
 				IMPORTED_LOCATION )
 endif()
 
-if ( UNIX AND TARGET Qt5::lupdate )
-    get_target_property( QT_LUPDATE_EXECUTABLE Qt5::lupdate
+if ( UNIX AND TARGET Qt${QT_VERSION_MAJOR}::lupdate )
+    get_target_property( QT_LUPDATE_EXECUTABLE Qt${QT_VERSION_MAJOR}::lupdate
 				IMPORTED_LOCATION )
 
     if ( QT_LUPDATE_EXECUTABLE AND EXISTS "${QT_LUPDATE_EXECUTABLE}" )

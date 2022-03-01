@@ -13,7 +13,7 @@ if ( NOT DEFINED CMAKE_BUILD_TYPE )
     set( CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@" )
 endif()
 
-set( Qt5_DIR @Qt5_DIR@ )
+set( QT_DIR @QT_DIR@ )
 set( QT_VERSION_MAJOR @QT_VERSION_MAJOR@ )
 set( USE_QtWebEngine @USE_QtWebEngine@ )
 set( OD_NO_OSG @OD_NO_OSG@ )

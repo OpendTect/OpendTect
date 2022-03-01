@@ -79,6 +79,14 @@ list( APPEND SETUPNMS
        USEHDF5
 )
 
+
+macro( OD_SET_UNICODE MODNM )
+    if ( WIN32 AND QT_VERSION_MAJOR GREATER_EQUAL 6 )
+	qt6_disable_unicode_defines( ${MODNM} )
+    endif()
+endmacro( OD_SET_UNICODE )
+
+
 macro( OD_INIT_MODULE )
 
 get_filename_component( OD_MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
@@ -350,6 +358,7 @@ if ( OD_MODULE_HAS_LIBRARY )
 	    ${OD_LIB_DEP_LIBS}
 	    ${OD_MODULE_EXTERNAL_LIBS}
 	    ${OD_MODULE_EXTERNAL_SYSLIBS} )
+    OD_SET_UNICODE( ${OD_MODULE_NAME} )
     if( "${OD_BUILD_LOCAL}" STREQUAL "ON" AND
 	NOT EXISTS "{OpendTect_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}" )
 	if ( EXISTS "${OpendTect_DIR}/${OD_LIB_RELPATH_DEBUG}" )
@@ -447,6 +456,7 @@ if( OD_MODULE_TESTPROGS OR OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED
 
 	add_executable( ${TARGET_NAME} ${OD_EXEC_GUI_SYSTEM} ${EXEC} 
 			${OD_${TARGET_NAME}_RESOURCE} )
+	OD_SET_UNICODE( ${TARGET_NAME} )
 	if ( OD_EXECUTABLE_COMPILE_FLAGS )
 	    set_source_files_properties( ${EXEC} PROPERTIES COMPILE_FLAGS
 				     ${OD_EXECUTABLE_COMPILE_FLAGS} )
@@ -540,6 +550,7 @@ if( OD_MODULE_BATCHPROGS )
 	get_filename_component( TARGET_NAME ${EXEC} NAME_WE )
 	list ( APPEND OD_${OD_MODULE_NAME}_PROGS ${TARGET_NAME} )
 	add_executable( ${TARGET_NAME} ${EXEC} )
+	OD_SET_UNICODE( ${TARGET_NAME} )
 	if ( OD_EXECUTABLE_COMPILE_FLAGS )
 	    set_source_files_properties( ${EXEC} PROPERTIES COMPILE_FLAGS
 				     ${OD_EXECUTABLE_COMPILE_FLAGS} )
@@ -629,6 +640,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_BATCH_TEST_PROGS} ${OD_NIGHTLY_TEST_PR
     set ( PARAMETER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/tests/${TEST_NAME}.par )
     set ( TEST_NAME test_${TEST_NAME} )
     add_executable( ${TEST_NAME} ${OD_EXEC_GUI_SYSTEM} tests/${TEST_FILE} )
+    OD_SET_UNICODE( ${TEST_NAME} )
     if ( OD_EXECUTABLE_COMPILE_FLAGS )
 	set_source_files_properties( tests/${TEST_FILE} PROPERTIES COMPILE_FLAGS
 				 ${OD_EXECUTABLE_COMPILE_FLAGS} )
@@ -688,7 +700,7 @@ include_directories( ${OD_MODULE_INCLUDEPATH} )
 
 if ( WIN32 AND OD_IS_PLUGIN AND OD_${OD_MODULE_NAME}_EXTERNAL_LIBS )
     foreach( LIBNM ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS} )
-	if ( "${LIBNM}" MATCHES ".*Qt5.*" )
+	if ( "${LIBNM}" MATCHES ".*Qt${QT_VERSION_MAJOR}.*" )
 	    continue()
 	endif()
 	if ( TARGET ${LIBNM} )
