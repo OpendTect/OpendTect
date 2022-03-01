@@ -137,8 +137,7 @@ bool DBKey::fromString( const char* str )
     }
 
     // check if keystr is of type MultiID.
-    fromString( keystr );
-    return true;
+    return MultiID::fromString( keystr );
 }
 
 
