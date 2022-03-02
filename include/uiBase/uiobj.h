@@ -97,12 +97,17 @@ public:
     void		setPrefWidthInChar(float);
     void		setMinimumWidth(int);
     void		setMaximumWidth(int);
+    void		setMinimumWidthInChar(int);
+    void		setMaximumWidthInChar(int);
+
     int			prefVNrPics() const;
     virtual void	setPrefHeight(int);
     void		setPrefHeightInChar(int);
     void		setPrefHeightInChar(float);
     void		setMinimumHeight(int);
     void		setMaximumHeight(int);
+    void		setMinimumHeightInChar(int);
+    void		setMaximumHeightInChar(int);
 
 /*! \brief Sets stretch factors for object
     If stretch factor is > 1, then object will already grow at pop-up.

@@ -67,6 +67,9 @@ public:
     void		setDispPars(const FlatView::DataDispPars::VD&);
     void		getDispPars(FlatView::DataDispPars::VD&) const;
 
+    void		setNumberFormat(char format,int precision);
+    void		getNumberFormat(char& format,int precision) const;
+
     virtual OD::Orientation getOrientation() const		= 0;
     void		orientationChgd(CallBacker*);
 
@@ -107,6 +110,7 @@ protected:
     void		makeSymmetrical(CallBacker*);
     void		colTabChgdCB(CallBacker*);
     void		colTabManChgd(CallBacker*);
+    void		numberFormatChgdCB(CallBacker*);
 
     bool		isEditable() const	{ return maxfld_; }
 };
