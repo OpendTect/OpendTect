@@ -972,6 +972,7 @@ void uiTreeViewItem::setBold( int column, bool yn )
 	    continue;
 
 	QFont qfont = qItem()->font( idx );
+	qfont.setStyleName("");
 	qfont.setBold( yn );
 	qItem()->setFont( idx, qfont );
     }
