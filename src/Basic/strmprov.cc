@@ -615,7 +615,10 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     mGetRetSD( retsd );
 
     if ( fname_ == sStdIO() || fname_ == sStdErr() )
-	{ retsd.setIStrm( &std::cin ); return retsd; }
+    {
+	retsd.setIStrm( &std::cin );
+	return retsd;
+    }
 
     if ( !mc_ && allowpl )
     {
@@ -684,9 +687,15 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
     mGetRetSD( retsd );
 
     if ( fname_ == sStdIO() )
-	{ retsd.setOStrm( &std::cout ); return retsd; }
+    {
+	retsd.setOStrm( &std::cout );
+	return retsd;
+    }
     else if ( fname_ == sStdErr() )
-	{ retsd.setOStrm( &std::cerr ); return retsd; }
+    {
+	retsd.setOStrm( &std::cerr );
+	return retsd;
+    }
 
     if ( !mc_ )
     {
@@ -744,6 +753,12 @@ StreamData StreamProvider::createIStream( const char* fnm, bool binary )
 	return StreamData();
 
     StreamData res;
+    if ( fnm == sStdIO() || fnm == sStdErr() )
+    {
+	res.setIStrm( &std::cin );
+	return res;
+    }
+
     auto* impl = new StreamData::StreamDataImpl;
     impl->fname_ = fnm;
 
@@ -785,6 +800,17 @@ StreamData StreamProvider::createOStream( const char* fnm,
 	return StreamData();
 
     StreamData res;
+    if ( fnm == sStdIO() )
+    {
+	res.setOStrm( &std::cout );
+	return res;
+    }
+    else if ( fnm == sStdErr() )
+    {
+	res.setOStrm( &std::cerr );
+	return res;
+    }
+
     auto* impl = new StreamData::StreamDataImpl;
     impl->fname_ = fnm;
     std::ios_base::openmode openmode = std::ios_base::out;
