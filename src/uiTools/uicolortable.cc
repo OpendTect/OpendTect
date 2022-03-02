@@ -18,10 +18,17 @@ ________________________________________________________________________
 #include "uicoltabman.h"
 #include "uicoltabtools.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uilineedit.h"
 #include "uimenu.h"
 #include "uipixmap.h"
+#include "uiseparator.h"
+
 #include "od_helpids.h"
+
+
+static const char* sdTectNumberFormat()
+	{ return "dTect.Color table.Number format"; }
 
 
 class uiAutoRangeClipDlg : public uiDialog
@@ -29,89 +36,175 @@ class uiAutoRangeClipDlg : public uiDialog
 public:
 
 uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
-		    Notifier<uiColorTable>& nf )
+		    Notifier<uiColorTable>& nf, bool enabsave )
     : uiDialog(p,uiDialog::Setup(tr("Ranges/Clipping"),mNoDlgTitle,
 				 mODHelpKey(mAutoRangeClipDlgHelpID) )
-				.modal(false))
+				.modal(false).savebutton(enabsave))
+    , formatChanged(this)
     , ms_(ms)
     , scaleChanged(nf)
 {
     showAlwaysOnTop();
     setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
 
-    doclipfld = new uiGenInput( this, tr("Auto-set scale ranges"),
+    doclipfld_ = new uiGenInput( this, tr("Auto-set scale ranges"),
 				BoolInpSpec(true) );
-    doclipfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,clipPush) );
+    mAttachCB( doclipfld_->valuechanged, uiAutoRangeClipDlg::clipPush );
 
-    clipfld = new uiGenInput( this, tr("Percentage clipped"),
+    cliptypefld_ = new uiGenInput( this, tr("Clip type"),
+			BoolInpSpec(true,tr("Symmetrical"),tr("Asymmetrical")));
+    cliptypefld_->attach( alignedBelow, doclipfld_ );
+    mAttachCB( cliptypefld_->valuechanged, uiAutoRangeClipDlg::cliptypePush );
+
+    clipfld_ = new uiGenInput( this, tr("Percentage clipped (low/high)"),
 			      FloatInpIntervalSpec() );
-    clipfld->setElemSzPol( uiObject::Small );
-    clipfld->attach( alignedBelow, doclipfld );
+    clipfld_->setElemSzPol( uiObject::Small );
+    clipfld_->attach( alignedBelow, cliptypefld_ );
 
-    autosymfld = new uiGenInput( this, tr("Auto detect symmetry"),
+    autosymfld_ = new uiGenInput( this, tr("Auto detect symmetry"),
 				 BoolInpSpec(true) );
-    autosymfld->attach( alignedBelow, clipfld );
-    autosymfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,autoSymPush));
+    autosymfld_->attach( alignedBelow, clipfld_ );
+    mAttachCB( autosymfld_->valuechanged, uiAutoRangeClipDlg::autoSymPush );
 
-    symfld = new uiGenInput( this, tr("Set symmetrical"), BoolInpSpec(true) );
-    symfld->attach( alignedBelow, autosymfld );
-    symfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,symPush) );
+    symfld_ = new uiGenInput( this, tr("Set symmetrical"), BoolInpSpec(true) );
+    symfld_->attach( alignedBelow, autosymfld_ );
+    mAttachCB( symfld_->valuechanged, uiAutoRangeClipDlg::symPush );
 
-    midvalfld = new uiGenInput( this, tr("Symmetrical Mid Value"),
+    midvalfld_ = new uiGenInput( this, tr("Symmetrical Mid Value"),
 				FloatInpSpec() );
-    midvalfld->setElemSzPol( uiObject::Small );
-    midvalfld->attach( alignedBelow, symfld );
+    midvalfld_->setElemSzPol( uiObject::Small );
+    midvalfld_->attach( alignedBelow, symfld_ );
 
-    storfld = new uiCheckBox( this, uiStrings::sSaveAsDefault() );
-    storfld->attach( alignedBelow, midvalfld );
+    auto* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, midvalfld_ );
+
+    BufferStringSet formats;
+    formats.add( "e - format as [-]9.9e[+|-]999" );
+    formats.add( "f - format as [-]9.9");
+    formats.add( "g - use e or f format, whichever is the most concise");
+    formatfld_ = new uiGenInput( this, tr("Number format"),
+				StringListInpSpec(formats) );
+    formatfld_->attach( alignedBelow, midvalfld_ );
+    formatfld_->attach( ensureBelow, sep );
+    mAttachCB( formatfld_->valuechanged, uiAutoRangeClipDlg::formatChangedCB );
+
+    precisionfld_ = new uiGenInput( this, tr("Precision"),
+				    IntInpSpec(5,0,8) );
+    precisionfld_->attach( alignedBelow, formatfld_ );
+    mAttachCB(precisionfld_->valuechanging,uiAutoRangeClipDlg::formatChangedCB);
+
+    precisioninfolbl_ = new uiLabel( this, getPrecicionInfo(2) );
+    precisioninfolbl_->attach( rightTo, precisionfld_ );
 
     updateFields();
 }
 
 
+~uiAutoRangeClipDlg()
+{
+    detachAllNotifiers();
+}
+
+
+uiString getPrecicionInfo( int sel )
+{
+    return sel==2 ? tr("(number of significant digits)")
+		  : tr("(number of decimals)");
+}
+
+
 void updateFields()
 {
-    doclipfld->setValue( ms_.type_!=ColTab::MapperSetup::Fixed );
+    doclipfld_->setValue( ms_.type_!=ColTab::MapperSetup::Fixed );
 
     Interval<float> cliprate( ms_.cliprate_.start*100,
 			      ms_.cliprate_.stop*100 );
-    clipfld->setValue( cliprate );
-    autosymfld->setValue( ms_.autosym0_ );
-    symfld->setValue( !mIsUdf(ms_.symmidval_) );
-    midvalfld->setValue( mIsUdf(ms_.symmidval_) ? 0 : ms_.symmidval_ );
+    clipfld_->setValue( cliprate );
+    autosymfld_->setValue( ms_.autosym0_ );
+    symfld_->setValue( !mIsUdf(ms_.symmidval_) );
+    midvalfld_->setValue( mIsUdf(ms_.symmidval_) ? 0 : ms_.symmidval_ );
 
-    clipPush(nullptr);
-    autoSymPush(nullptr);
-    symPush(nullptr);
+    const bool issym = mIsEqual(cliprate.start,cliprate.stop,1e-4);
+    cliptypefld_->setValue( issym );
+
+    clipPush( nullptr );
+    cliptypePush( nullptr );
+    autoSymPush( nullptr );
+    symPush( nullptr );
 }
 
 
 void clipPush( CallBacker* )
 {
-    const bool doclip = doclipfld->getBoolValue();
-    clipfld->display( doclip );
-    autosymfld->display( doclip );
+    const bool doclip = doclipfld_->getBoolValue();
+    cliptypefld_->display( doclip );
+    cliptypePush( nullptr );
+}
+
+
+void cliptypePush( CallBacker* )
+{
+    const bool doclip = doclipfld_->getBoolValue();
+    const bool symclip = cliptypefld_->getBoolValue();
+    clipfld_->display( doclip );
+    if ( doclip )
+	clipfld_->displayField( !symclip, 1, 0 );
+
+    autosymfld_->display( doclip && symclip );
     autoSymPush( nullptr );
 }
 
-void symPush( CallBacker* )
-{
-    midvalfld->display( doclipfld->getBoolValue() &&
-			!autosymfld->getBoolValue() &&
-			symfld->getBoolValue() );
-}
 
 void autoSymPush( CallBacker* )
 {
-    symfld->display( doclipfld->getBoolValue() &&
-		     !autosymfld->getBoolValue() );
-    symPush( 0 );
+    const bool doclip = doclipfld_->getBoolValue();
+    const bool symclip = cliptypefld_->getBoolValue();
+    const bool autosym = autosymfld_->getBoolValue();
+    symfld_->display( doclip && symclip && !autosym );
+    symPush( nullptr );
 }
 
-void enabDefSetts( bool yn ) { storfld->display( yn ); }
+
+void symPush( CallBacker* )
+{
+    const bool doclip = doclipfld_->getBoolValue();
+    const bool symclip = cliptypefld_->getBoolValue();
+    const bool autosym = autosymfld_->getBoolValue();
+    const bool setsymval = symfld_->getBoolValue();
+    midvalfld_->display( doclip && symclip && !autosym && setsymval );
+}
+
 
 bool saveDef()
-{ return doclipfld->getBoolValue() && storfld->isChecked(); }
+{
+    return doclipfld_->getBoolValue() && saveButtonChecked();
+}
+
+
+void setNumberFormat( char fmt, int p )
+{
+    const int sel = fmt=='e' ? 0 : (fmt=='f' ? 1 : 2);
+    formatfld_->setValue( sel );
+    precisionfld_->setValue( p );
+    precisioninfolbl_->setText( getPrecicionInfo(sel) );
+}
+
+
+void getNumberFormat( char& fmt, int& p )
+{
+    const int sel = formatfld_->getIntValue();
+    fmt = sel==0 ? 'e' : (sel==1 ? 'f' : 'g');
+    p = precisionfld_->getIntValue();
+}
+
+
+void formatChangedCB( CallBacker* )
+{
+    const int sel = formatfld_->getIntValue();
+    precisioninfolbl_->setText( getPrecicionInfo(sel) );
+    formatChanged.trigger();
+}
+
 
 bool acceptOK( CallBacker* )
 {
@@ -121,33 +214,55 @@ bool acceptOK( CallBacker* )
     if ( saveDef() )
 	ColTab::setMapperDefaults( ms_.cliprate_, ms_.symmidval_,
 				   ms_.autosym0_ );
+
+    if ( saveButtonChecked() )
+    {
+	char fmt; int prec;
+	getNumberFormat( fmt, prec );
+	BufferString fmtstr; fmtstr.add( fmt );
+	FileMultiString fullstr;
+	fullstr.add( fmt ).add( prec );
+	Settings::common().set( sdTectNumberFormat(), fullstr );
+	Settings::common().write();
+    }
+
     return false;
 }
 
 
 void doApply()
 {
-    ms_.type_ = doclipfld->getBoolValue()
-	? ColTab::MapperSetup::Auto : ColTab::MapperSetup::Fixed;
+    const bool doclip = doclipfld_->getBoolValue();
+    const bool symclip = doclip && cliptypefld_->getBoolValue();
+    const bool autosym = symclip && autosymfld_->getBoolValue();
+    const bool setsymval = symclip && !autosym && symfld_->getBoolValue();
 
-    Interval<float> cliprate = clipfld->getFInterval();
-    cliprate.start = fabs( cliprate.start * 0.01f );
-    cliprate.stop = fabs( cliprate.stop * 0.01f );
+    ms_.type_ = doclip ? ColTab::MapperSetup::Auto : ColTab::MapperSetup::Fixed;
+
+    Interval<float> cliprate = clipfld_->getFInterval();
+    if ( symclip )
+	cliprate.stop = cliprate.start;
+
+    cliprate.start = Math::Abs( cliprate.start * 0.01f );
+    cliprate.stop = Math::Abs( cliprate.stop * 0.01f );
     ms_.cliprate_ = cliprate;
-    const bool autosym = autosymfld->getBoolValue();
-    const bool symmetry = !autosym && symfld->getBoolValue();
     ms_.autosym0_ = autosym;
-    ms_.symmidval_ = symmetry && !autosym ? midvalfld->getFValue()
-						: mUdf(float);
+    ms_.symmidval_ = setsymval ? midvalfld_->getFValue() : mUdf(float);
 }
 
+    Notifier<uiAutoRangeClipDlg>	formatChanged;
+
 protected:
-    uiGenInput*		doclipfld;
-    uiGenInput*		clipfld;
-    uiGenInput*		autosymfld;
-    uiGenInput*		symfld;
-    uiGenInput*		midvalfld;
-    uiCheckBox*		storfld;
+    uiGenInput*		doclipfld_;
+    uiGenInput*		cliptypefld_;
+    uiGenInput*		clipfld_;
+    uiGenInput*		autosymfld_;
+    uiGenInput*		symfld_;
+    uiGenInput*		midvalfld_;
+
+    uiGenInput*		formatfld_;
+    uiGenInput*		precisionfld_;
+    uiLabel*		precisioninfolbl_;
 
     Notifier<uiColorTable>&	scaleChanged;
     ColTab::MapperSetup&	ms_;
@@ -212,7 +327,8 @@ const char* uiColorTableSel::getCurrent() const
 
 // uiColorTable
 
-
+static char sNumberFormat = 'g';
+static int sNumberPrecision = 5;
 
 uiColorTable::uiColorTable( const ColTab::Sequence& colseq )
     : seqChanged(this)
@@ -265,11 +381,30 @@ void uiColorTable::createFields( uiParent* parnt, OD::Orientation orient,
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
     selfld_->setStretch( 0, 0 );
     selfld_->setCurrent( coltabseq_ );
+
+
+    if ( withminmax )
+    {
+	BufferString str1, str2;
+	const bool res = Settings::common().get( sdTectNumberFormat(),
+						 str1, str2 );
+	if ( res )
+	{
+	    const char fmt = str1.isEmpty() ? 'g' : str1.getCStr()[0];
+	    if ( fmt=='e' || fmt=='f' || fmt=='g' )
+		sNumberFormat = fmt;
+
+	    const int prec = toInt( str2.buf() );
+	    if ( prec>=0 && prec<8 )
+		sNumberPrecision = prec;
+	}
+    }
 }
 
 
 uiColorTable::~uiColorTable()
 {
+    detachAllNotifiers();
     delete &coltabseq_;
     delete &mapsetup_;
     delete scalingdlg_;
@@ -297,22 +432,18 @@ void uiColorTable::setInterval( const Interval<float>& range )
 }
 
 
-static void getValueFormat( char& format, int& precision )
+void uiColorTable::setNumberFormat( char format, int precision )
 {
-    static bool readfromsettings = true;
-    static BufferString fmt = "g";
-    static int prec = 5;
-    if ( readfromsettings )
-    {
-	BufferString str1, str2;
-	Settings::common().get( "dTect.Color table.Number format", str1, str2 );
-	fmt = str1;
-	prec = toInt( str2.buf() );
-	readfromsettings = false;
-    }
+    sNumberFormat = format;
+    sNumberPrecision = precision;
+    updateRgFld();
+}
 
-    format = fmt.getCStr()[0];
-    precision = prec;
+
+void uiColorTable::getNumberFormat( char &format, int& precision ) const
+{
+    format = sNumberFormat;
+    precision = sNumberPrecision;
 }
 
 
@@ -321,12 +452,7 @@ static void setValue( uiLineEdit* fld, float val )
     if ( mIsUdf(val) )
 	fld->setText( "" );
     else
-    {
-	char format;
-	int precision;
-	getValueFormat( format, precision );
-	fld->setValue( toString(val,format,precision) );
-    }
+	fld->setValue( toString(val,sNumberFormat,sNumberPrecision) );
 }
 
 
@@ -474,10 +600,14 @@ void uiColorTable::rangeEntered( CallBacker* )
 void uiColorTable::editScaling( CallBacker* )
 {
     if ( !scalingdlg_ )
+    {
 	scalingdlg_ = new uiAutoRangeClipDlg( parent_, mapsetup_,
-					      scaleChanged );
+					      scaleChanged, enabmanage_ );
+	mAttachCB( scalingdlg_->formatChanged,
+		   uiColorTable::numberFormatChgdCB );
+    }
 
-    scalingdlg_->enabDefSetts( enabmanage_ );
+    scalingdlg_->setNumberFormat( sNumberFormat, sNumberPrecision );
     scalingdlg_->show();
     scalingdlg_->raise();
 }
@@ -552,6 +682,17 @@ void uiColorTable::orientationChgd( CallBacker* )
 {
     OD::Orientation neworient = getOrientation();
     canvas_->setOrientation( neworient );
+}
+
+
+void uiColorTable::numberFormatChgdCB( CallBacker* )
+{
+    if ( !scalingdlg_ )
+	return;
+
+    char fmt; int prec;
+    scalingdlg_->getNumberFormat( fmt, prec );
+    setNumberFormat( fmt, prec );
 }
 
 
