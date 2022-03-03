@@ -34,7 +34,10 @@ ________________________________________________________________________
 #include <QPrinter>
 #include <QScreen>
 #ifdef __win__
+# if QT_VERSION >= QT_VERSION_CHECK(5,7,0) && \
+     QT_VERSION < QT_VERSION_CHECK(6,0,0)
 # include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
 #endif
 
 mUseQtnamespace
@@ -343,7 +346,8 @@ void uiMainWin::setActivateBehaviour(
 {
 #ifdef __win__
     activateAct = activateact;
-# if QT_VERSION >= QT_VERSION_CHECK(5,7,0)
+# if QT_VERSION >= QT_VERSION_CHECK(5,7,0) && \
+     QT_VERSION < QT_VERSION_CHECK(6,0,0)
     const bool alwayshow = activateAct == OD::AlwaysActivateWindow;
     QWindowsWindowFunctions::setWindowActivationBehavior(
 	  alwayshow ? QWindowsWindowFunctions::AlwaysActivateWindow
