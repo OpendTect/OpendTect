@@ -158,34 +158,38 @@ const char* getCleanWinPath( const char* path )
 const char* getCygDir()
 {
     mDeclStaticString( answer );
-    if ( !answer.isEmpty() ) return answer;
+    if ( !answer.isEmpty() )
+	return answer;
 
     HKEY hKeyRoot = HKEY_CURRENT_USER;
-    LPTSTR subkey="Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/";
-    LPTSTR Value="native";
+    const BufferString subkey(
+		    "Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/" );
+    const BufferString Value( "native" );
 
     BYTE Value_data[256];
     DWORD Value_size = sizeof(Value_data);
 
-    HKEY hKeyNew = 0;
+    HKEY hKeyNew = nullptr;
     DWORD retcode = 0;
     DWORD Value_type = 0;
 
-    retcode = RegOpenKeyEx ( hKeyRoot, subkey, 0, KEY_QUERY_VALUE, &hKeyNew );
+    retcode = RegOpenKeyEx ( hKeyRoot, subkey.str(), 0, KEY_QUERY_VALUE,
+			     &hKeyNew );
 
-    if (retcode != ERROR_SUCCESS)
+    if ( retcode != ERROR_SUCCESS )
     {
 	hKeyRoot = HKEY_LOCAL_MACHINE;
-	subkey="Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/";
-
-	retcode = RegOpenKeyEx( hKeyRoot, subkey, 0, KEY_QUERY_VALUE, &hKeyNew);
-	if (retcode != ERROR_SUCCESS) return 0;
+	retcode = RegOpenKeyEx( hKeyRoot, subkey.buf(), 0, KEY_QUERY_VALUE,
+				&hKeyNew );
+	if (retcode != ERROR_SUCCESS)
+	    return nullptr;
     }
 
-    retcode = RegQueryValueEx( hKeyNew, Value, NULL, &Value_type, Value_data,
-                               &Value_size);
+    retcode = RegQueryValueEx( hKeyNew, Value.buf(), NULL, &Value_type,
+			       Value_data, &Value_size );
 
-    if (retcode != ERROR_SUCCESS) return 0;
+    if ( retcode != ERROR_SUCCESS )
+	return nullptr;
 
     answer = (const char*) Value_data;
     return answer;
