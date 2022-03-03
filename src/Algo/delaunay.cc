@@ -6,6 +6,7 @@
 
 
 #include "delaunay.h"
+
 #include "od_ostream.h"
 #include "sorting.h"
 #include "trigonometry.h"
@@ -40,23 +41,18 @@ od_int64 DelaunayTriangulator::nrIterations() const
 bool DelaunayTriangulator::doPrepare( int nrthreads )
 {
     const od_int64 nrcoords = nrIterations();
-    delete [] permutation_;
-    permutation_ = 0;
+    deleteAndZeroArrPtr( permutation_ );
 
     if ( !israndom_ )
     {
 	mTryAlloc( permutation_, od_int64[nrcoords] );
 	if ( !permutation_ ) //If failed to allocate memory, we ignore random
-	{
-	    delete [] permutation_;
-	    permutation_ = 0;
 	    return true;
-	}
 
 	for ( od_int64 idx=0; idx<nrcoords; idx++ )
 	    permutation_[idx] = idx;
 
-	std::random_shuffle( permutation_, permutation_+nrcoords );
+	OD::shuffle( permutation_, permutation_+nrcoords );
     }
 
     return true;

@@ -10,11 +10,12 @@
 #include "vishorizonsectiontile.h"
 #include "vishorizonsectiondef.h"
 
-#include "simpnumer.h"
-#include "zaxistransform.h"
 #include "binidsurface.h"
 #include "position.h"
+#include "simpnumer.h"
+#include "sorting.h"
 #include "thread.h"
+#include "zaxistransform.h"
 
 
 
@@ -39,14 +40,15 @@ bool HorizonTileRenderPreparer:: doPrepare( int nrthreads )
     barrier_.setNrThreads( nrthreads );
     nrthreadsfinishedwithres_ = 0;
 
-    delete [] permutation_;
-    permutation_ = 0;
+    deleteAndZeroArrPtr( permutation_ );
     mTryAlloc( permutation_, od_int64[nrtiles_] );
+    if ( !permutation_ )
+	return false;
 
     for ( int idx=0; idx<nrtiles_; idx++ )
 	permutation_[idx] = idx;
 
-    std::random_shuffle( permutation_, permutation_+nrtiles_ );
+    OD::shuffle( permutation_, permutation_+nrtiles_ );
 
     return true;
 }

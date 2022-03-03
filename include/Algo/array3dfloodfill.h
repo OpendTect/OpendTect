@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "multidimstorage.h"
 #include "paralleltask.h"
+#include "sorting.h"
 #include "thread.h"
 #include "varlenarray.h"
 
@@ -160,7 +161,7 @@ Array3DFloodfill<T>::Array3DFloodfill( const Array3D<T>& input, T threshold,
 	arr[idx] = idx;
     }
 
-    std::random_shuffle( mVarLenArr(arr), arr+nrcompartments );
+    OD::shuffle( mVarLenArr(arr), arr+nrcompartments );
     for ( int idx=0; idx<nrcompartments; idx++ )
 	permutation_ += arr[idx];
 }

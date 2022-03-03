@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "thread.h"
 #include "paralleltask.h"
 
+#include <random>
+
 
 #define mDoSort(extra_var,extra_action,sztype) \
 { \
@@ -629,3 +631,15 @@ bool ParallelSorter<T>::mergeLists( const T* valptr, T* result,
 }
 
 
+namespace OD
+{
+
+template <class T>
+void shuffle( T* from, T* to )
+{
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle( from, to, g );
+}
+
+} // namespace OD
