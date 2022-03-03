@@ -68,7 +68,7 @@ public:
     void		getDispPars(FlatView::DataDispPars::VD&) const;
 
     void		setNumberFormat(char format,int precision);
-    void		getNumberFormat(char& format,int precision) const;
+    void		getNumberFormat(char& format,int& precision) const;
 
     virtual OD::Orientation getOrientation() const		= 0;
     void		orientationChgd(CallBacker*);

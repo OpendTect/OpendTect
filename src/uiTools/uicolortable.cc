@@ -440,7 +440,7 @@ void uiColorTable::setNumberFormat( char format, int precision )
 }
 
 
-void uiColorTable::getNumberFormat( char &format, int precision ) const
+void uiColorTable::getNumberFormat( char &format, int& precision ) const
 {
     format = sNumberFormat;
     precision = sNumberPrecision;
