@@ -109,6 +109,7 @@ namespace sKey
     inline FixedString Maximum()	{ return "Maximum"; }
     inline FixedString Median()		{ return "Median"; }
     inline FixedString Minimum()	{ return "Minimum"; }
+    inline FixedString Mnemonics()	{ return "Mnemonics"; }
     inline FixedString Mode()		{ return "Mode"; }
     inline FixedString Model()		{ return "Model"; }
     inline FixedString Models()		{ return "Models"; }

@@ -56,6 +56,30 @@ void WellDataFilter::getWellsFromLogs( const BufferStringSet& lognms,
 }
 
 
+void WellDataFilter::getWellsFromMnems( const MnemonicSelection& mns,
+				       BufferStringSet& wellnms ) const
+{
+    for ( const auto* wd : allwds_ )
+    {
+	const Well::LogSet& lis = wd->logs();
+	MnemonicSelection wdmns; lis.getAllAvailMnems( wdmns );
+	bool addwell = true;
+	for ( const auto* mn : mns )
+	{
+	    const bool wdhasmn = wdmns.isPresent( mn );
+	    if ( wdhasmn )
+		continue;
+
+	    addwell = false;
+	    break;
+	}
+
+	if ( addwell )
+	    wellnms.add( wd->name() );
+    }
+}
+
+
 void WellDataFilter::getWellsWithNoLogs( BufferStringSet& wellnms ) const
 {
     for ( const auto* wd : allwds_ )
@@ -95,9 +119,11 @@ void WellDataFilter::getWellsFromMarkers( const BufferStringSet& markernms,
 }
 
 
-void WellDataFilter::getMarkersLogsFromWells( const BufferStringSet& wellnms,
-					      BufferStringSet& lognms,
-					      BufferStringSet& markernms ) const
+void WellDataFilter::getMarkersLogsMnemsFromWells(
+					const BufferStringSet& wellnms,
+					BufferStringSet& lognms,
+					MnemonicSelection& mns,
+					BufferStringSet& markernms ) const
 {
     bool first = true;
     for ( int widx=0; widx<allwds_.size(); widx++ )
@@ -110,13 +136,16 @@ void WellDataFilter::getMarkersLogsFromWells( const BufferStringSet& wellnms,
 	if ( first )
 	{
 	    wd->logs().getNames( lognms );
+	    wd->logs().getAllAvailMnems( mns );
 	    wd->markers().getNames( markernms );
 	    first = false;
 	}
 	else
 	{
 	    BufferStringSet wdlognms, wdmarkernms, lognms2rm, markernms2rm;
+	    MnemonicSelection wdmns, wdmns2rm;
 	    wd->logs().getNames( wdlognms );
+	    wd->logs().getAllAvailMnems( wdmns );
 	    wd->markers().getNames( wdmarkernms );
 	    for ( int lidx=0; lidx<lognms.size(); lidx++ )
 	    {
@@ -126,6 +155,15 @@ void WellDataFilter::getMarkersLogsFromWells( const BufferStringSet& wellnms,
 
 		lognms.removeSingle( lidx );
 		lidx--;
+	    }
+
+	    for ( int mnidx=mns.size()-1; mnidx>=0; mnidx-- )
+	    {
+		const Mnemonic* mn = mns.get( mnidx );
+		if ( wdmns.isPresent(mn) )
+		    continue;
+
+		mns.removeSingle( mnidx );
 	    }
 
 	    for ( int midx=0; midx<markernms.size(); midx++ )

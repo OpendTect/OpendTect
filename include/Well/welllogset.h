@@ -77,6 +77,7 @@ public:
 			//-> to be used only in Well::Reader/Writer class. 
 			//-> Use access functions above instead.
 
+    void		getAllAvailMnems(MnemonicSelection&) const;
     TypeSet<int>	getSuitable(const Mnemonic&) const;
     TypeSet<int>	getSuitable(Mnemonic::StdType,
 				    const PropertyRef* altpr=nullptr,

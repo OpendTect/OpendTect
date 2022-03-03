@@ -34,22 +34,39 @@ public:
 					const BufferStringSet& lognms,
 					const BufferStringSet& markernms,
 					OD::Orientation orient=OD::Horizontal);
+				uiWellFilterGrp(uiParent*,
+					const ObjectSet<Well::Data>&,
+					const MnemonicSelection& mns,
+					const BufferStringSet& markernms,
+					OD::Orientation orient=OD::Horizontal);
+
 				~uiWellFilterGrp();
 
     void			setFilterItems(const ObjectSet<Well::Data>&,
 					       const BufferStringSet& lognms,
 					       const BufferStringSet& mrkrnms);
+    void			setFilterItems(const ObjectSet<Well::Data>&,
+					       const MnemonicSelection& mns,
+					       const BufferStringSet& mrkrnms);
+
     void			setSelected(const DBKeySet& wellids,
 					    const BufferStringSet& logs,
 					    const BufferStringSet& mrkrs);
     void			setSelected(const BufferStringSet& wells,
 					    const BufferStringSet& logs,
 					    const BufferStringSet& mrkrs);
+    void			setSelected(const BufferStringSet& wells,
+					    const MnemonicSelection& mns,
+					    const BufferStringSet& mrkrs);
+
     void			getSelected(DBKeySet& wellids,
 					    BufferStringSet& logs,
 					    BufferStringSet& mrkrs) const;
     void			getSelected(BufferStringSet& wells,
 					    BufferStringSet& logs,
+					    BufferStringSet& mrkrs) const;
+    void			getSelected(BufferStringSet& wells,
+					    MnemonicSelection& mns,
 					    BufferStringSet& mrkrs) const;
 
     void			noLogFilterCB(CallBacker*);
@@ -61,16 +78,20 @@ protected:
     void			selButPush(CallBacker*);
     void			selChgCB(CallBacker*);
 
+    void			setMaxLinesForLists();
+
     uiListBox*			welllist_;
-    uiListBox*			loglist_;
-    uiListBoxFilter*		logfilter_;
+    uiListBox*			logormnslist_;
+    uiListBoxFilter*		logormnsfilter_;
     uiListBox*			markerlist_;
     uiListBoxFilter*		markerfilter_;
 
     uiToolButton*		fromwellbut_;
-    uiToolButton*		fromlogbut_;
+    uiToolButton*		fromlogormnsbut_;
     uiToolButton*		frommarkerbut_;
     OD::Orientation		orient_;
 
-    const ObjectSet<Well::Data>* wds_ = nullptr;
+    bool				logmode_ = true;
+    const MnemonicSelection*		mns_ = nullptr;
+    const ObjectSet<Well::Data>* 	wds_ = nullptr;
 };

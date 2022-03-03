@@ -30,14 +30,18 @@ public:
     void			getWellsFromLogs(
 					const BufferStringSet& lognms,
 					BufferStringSet& wellnms) const;
+    void			getWellsFromMnems(
+					const MnemonicSelection& mns,
+					BufferStringSet& wellnms) const;
     void			getWellsWithNoLogs(
 					BufferStringSet& wellnms) const;
     void			getWellsFromMarkers(
 					const BufferStringSet& markernms,
 					BufferStringSet& wellnms) const;
-    void			getMarkersLogsFromWells(
+    void			getMarkersLogsMnemsFromWells(
 					const BufferStringSet& wellnms,
 					BufferStringSet& lognms,
+					MnemonicSelection& mns,
 					BufferStringSet& markernms) const;
     void			getLogPresence(
 					const BufferStringSet& wellnms,

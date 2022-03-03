@@ -171,6 +171,14 @@ void Well::LogSet::removeTopBottomUdfs()
 }
 
 
+void Well::LogSet::getAllAvailMnems( MnemonicSelection& mns ) const
+{
+    for ( const auto* log : logs_ )
+	if ( log->mnemonic() )
+	    mns.addIfNew( log->mnemonic() );
+}
+
+
 TypeSet<int> Well::LogSet::getSuitable( const Mnemonic& mn ) const
 {
     TypeSet<int> ret;
