@@ -281,6 +281,7 @@ BufferString DBManServerTool::getSpecificUsage() const
 int mProgMainFnName( int argc, char** argv )
 {
     ApplicationData app;
+    Threads::sleep( 30 );
     DBManServerTool st( argc, argv );
     CommandLineParser& clp = st.clp();
 
