@@ -891,6 +891,19 @@ bool uiTable::isCellReadOnly( const RowCol& rc ) const
 }
 
 
+bool uiTable::isCellVisible( const RowCol& rc ) const
+{
+    const int h = body_->viewport()->height();
+    const int w = body_->viewport()->width();
+    const int top = body_->rowAt( 0 );
+    const int bottom = body_->rowAt( h-1 );
+    const int left = body_->columnAt( 0 );
+    const int right = body_->columnAt( w-1 );
+    return	rc.row()>=top && rc.row()<=bottom &&
+		rc.col()>=left && rc.col()<=right;
+}
+
+
 void uiTable::setRowReadOnly( int row, bool yn )
 {
     mBlockCmdRec;

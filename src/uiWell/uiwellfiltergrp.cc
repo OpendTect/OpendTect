@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "welldatafilter.h"
 
+#include "ioman.h"
 #include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uilistboxfilter.h"
@@ -19,14 +20,16 @@ ________________________________________________________________________
 #include "uimnemonicsel.h"
 #include "uistatusbar.h"
 #include "uitoolbutton.h"
+#include "wellman.h"
 #include "welltransl.h"
 
 
 
 uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     : uiGroup(p)
+    , orient_(orient)
 {
-    const bool hor = orient == OD::Horizontal;
+    const bool hor = orient_ == OD::Horizontal;
     const IOObjContext ctxt = mIOObjContext( Well );
     uiIOObjSelGrp::Setup suw( OD::ChooseZeroOrMore );
     uiIOObjSelGrp* welllistselgrp = new uiIOObjSelGrp( this, ctxt, suw );
@@ -97,16 +100,34 @@ void uiWellFilterGrp::setFilterItems( const ObjectSet<Well::Data>& wds,
     markerfilter_->setItems( markernms );
     markerlist_->chooseAll();
 
-    int maxsz = mMAX( welllist_->size(),
-		      mMAX(loglist_->size(),markerlist_->size()) );
-    if ( maxsz > 25 )
-	maxsz = 25;
+    const bool hor = orient_ == OD::Horizontal;
+    if ( hor )
+    {
+	int maxsz = mMAX( welllist_->size(),
+			  mMAX(loglist_->size(),markerlist_->size()) );
+	if ( maxsz > 25 )
+	    maxsz = 25;
 
-    welllist_->setNrLines( maxsz );
-    loglist_->setNrLines( maxsz );
-    markerlist_->setNrLines( maxsz );
+	welllist_->setNrLines( maxsz );
+	loglist_->setNrLines( maxsz );
+	markerlist_->setNrLines( maxsz );
+    }
 }
 
+
+void uiWellFilterGrp::setSelected( const DBKeySet& wellids,
+				   const BufferStringSet& lognms,
+				   const BufferStringSet& mrkrnms )
+{
+    BufferStringSet wellnms;
+    for ( const auto* wellid : wellids )
+	wellnms.add( IOM().objectName(*wellid) );
+
+    welllist_->setChosen( wellnms );
+    loglist_->setChosen( lognms );
+    markerlist_->setChosen( mrkrnms );
+    selChgCB( nullptr );
+}
 
 void uiWellFilterGrp::setSelected( const BufferStringSet& wellnms,
 				   const BufferStringSet& lognms,
@@ -116,6 +137,25 @@ void uiWellFilterGrp::setSelected( const BufferStringSet& wellnms,
     loglist_->setChosen( lognms );
     markerlist_->setChosen( mrkrnms );
     selChgCB( nullptr );
+}
+
+
+void uiWellFilterGrp::getSelected( DBKeySet& wellids,
+				   BufferStringSet& lognms,
+				   BufferStringSet& mrkrnms ) const
+{
+    BufferStringSet wellnms;
+    welllist_->getChosen( wellnms );
+    loglist_->getChosen( lognms );
+    markerlist_->getChosen( mrkrnms );
+    wellids.setEmpty();
+    for ( const auto* wellnm : wellnms )
+    {
+	const IOObj* ioobj = Well::findIOObj( *wellnm, nullptr );
+	if ( !ioobj )
+	    continue;
+	wellids += ioobj->key();
+    }
 }
 
 

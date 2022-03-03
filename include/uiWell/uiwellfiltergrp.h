@@ -39,9 +39,15 @@ public:
     void			setFilterItems(const ObjectSet<Well::Data>&,
 					       const BufferStringSet& lognms,
 					       const BufferStringSet& mrkrnms);
+    void			setSelected(const DBKeySet& wellids,
+					    const BufferStringSet& logs,
+					    const BufferStringSet& mrkrs);
     void			setSelected(const BufferStringSet& wells,
 					    const BufferStringSet& logs,
 					    const BufferStringSet& mrkrs);
+    void			getSelected(DBKeySet& wellids,
+					    BufferStringSet& logs,
+					    BufferStringSet& mrkrs) const;
     void			getSelected(BufferStringSet& wells,
 					    BufferStringSet& logs,
 					    BufferStringSet& mrkrs) const;
@@ -64,6 +70,7 @@ protected:
     uiToolButton*		fromwellbut_;
     uiToolButton*		fromlogbut_;
     uiToolButton*		frommarkerbut_;
+    OD::Orientation		orient_;
 
     const ObjectSet<Well::Data>* wds_ = nullptr;
 };

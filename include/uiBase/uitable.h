@@ -191,6 +191,7 @@ public:
 
     void		setCellReadOnly(const RowCol&,bool);
     bool		isCellReadOnly(const RowCol&) const;
+    bool		isCellVisible(const RowCol&) const;
 
     void		hideColumn(int,bool);
     void		hideRow(int,bool);
