@@ -141,7 +141,7 @@ BufferString uiPathSel::getSummary() const
     for ( int idx=0; idx<paths_.size(); idx++ )
     {
 	summ += paths_.get(idx);
-	summ += idx == paths_.size()-1 ? BufferString::empty() : ":";
+	summ += idx == paths_.size()-1 ? "" : ":";
     }
     return summ.isEmpty() ? BufferString(" - ") : summ;
 }

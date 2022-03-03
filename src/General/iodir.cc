@@ -409,7 +409,7 @@ bool IODir::wrOmf( od_ostream& strm ) const
     ascostream astream( strm );
     if ( !astream.putHeader( "Object Management file" ) )
 	mErrRet()
-    FileMultiString fms( key_.isUdf() ? "0" : key_.toString() );
+    FileMultiString fms( key_.isUdf() ? "0" : key_.toString().buf() );
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const MultiID currentkey = objs_[idx]->key();

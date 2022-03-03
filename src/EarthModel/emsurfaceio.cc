@@ -496,11 +496,17 @@ int dgbSurfaceReader::nrLines() const
 
 
 BufferString dgbSurfaceReader::lineName( int idx ) const
-{ return linenames_.validIdx(idx) ? linenames_.get( idx ) : ""; }
+{
+    return linenames_.validIdx(idx) ? linenames_.get( idx )
+				    : BufferString::empty();
+}
 
 
 BufferString dgbSurfaceReader::lineSet( int idx ) const
-{ return linesets_.validIdx( idx ) ? linesets_.get( idx ) : BufferString(""); }
+{
+    return linesets_.validIdx( idx ) ? linesets_.get( idx )
+				     : BufferString::empty();
+}
 
 
 Pos::GeomID dgbSurfaceReader::lineGeomID( int idx ) const

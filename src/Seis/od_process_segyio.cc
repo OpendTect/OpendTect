@@ -325,7 +325,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	else if ( ispsindex || isvolindex )
 	    doScan( strm, *curpars, ispsindex, gt );
 	else
-	    strm << "Unknown task: " << (task.isEmpty() ? "<empty>" : task)
+	    strm << "Unknown task: " << (task.isEmpty() ? "<empty>"
+							: task.buf() )
 		 << od_newline;
     }
 

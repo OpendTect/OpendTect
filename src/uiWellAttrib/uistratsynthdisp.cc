@@ -220,14 +220,14 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	else
 	    { if ( vdstr.isEmpty() ) vdstr = "VD Val"; }
 	float val = !vdvalstr.isEmpty() ? vdvalstr.toFloat() : mUdf(float);
-	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr;
+	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr.buf();
 	mesg += " ("; mesg += vdstr; mesg += ")";
     }
     if ( wvavalstr && !issame )
     {
 	mAddSep();
 	float val = !wvavalstr.isEmpty() ? wvavalstr.toFloat() : mUdf(float);
-	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr;
+	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr.buf();
 	if ( wvastr.isEmpty() ) wvastr = "WVA Val";
 	mesg += " ("; mesg += wvastr; mesg += ")";
     }

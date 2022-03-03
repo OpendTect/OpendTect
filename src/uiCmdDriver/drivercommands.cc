@@ -393,7 +393,8 @@ bool TryCmd::act( const char* parstr )
     if ( !ok && tryoutres==1 )
 	return false;
 
-    mTimeStrm << "TRY: " << parnext << " -->> " << (isdummy ? "" : identname)
+    mTimeStrm << "TRY: " << parnext << " -->> "
+	      << (isdummy ? "" : identname.buf())
 	      << (isdummy ? "" : " = ") << tryoutres << od_endl;
 
     return true;

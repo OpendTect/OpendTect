@@ -80,7 +80,7 @@ uiIOSurface::~uiIOSurface()
 void uiIOSurface::mkAttribFld( bool labelabove )
 {
     const BufferString trnm =
-	ctio_->ctxt_.trgroup_ ? ctio_->ctxt_.trgroup_->groupName() : "";
+	ctio_->ctxt_.trgroup_ ? ctio_->ctxt_.trgroup_->groupName().buf() : "";
     uiString lbl = trnm == EMHorizon3DTranslatorGroup::sGroupName()
 	? tr("Horizon Data") : tr("Calculated attributes");
     uiListBox::Setup su( OD::ChooseZeroOrMore, lbl,

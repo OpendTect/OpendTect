@@ -192,9 +192,12 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 
 	const Desc* desc = nlamodel_ ? descset.getFirstStored()
 				     : clonedset->getFirstStored();
-	BufferString storedid = desc ? desc->getStoredID() : "";
-	if ( !storedid.isEmpty() )
-	    iopar.set( "Input Line Set", storedid.buf() );
+	if (  desc )
+	{
+	    const BufferString storedid( desc->getStoredID() );
+	    if ( !storedid.isEmpty() )
+		iopar.set( "Input Line Set", storedid.buf() );
+	}
     }
 
     ads_->removeDesc( nladescid_ );

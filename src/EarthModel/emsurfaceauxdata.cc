@@ -413,7 +413,8 @@ bool SurfaceAuxData::removeFile( const IOObj& ioobj, const char* attrnm )
 BufferString SurfaceAuxData::getFileName( const char* attrnm ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
-    return ioobj ? SurfaceAuxData::getFileName( *ioobj, attrnm ) : "";
+    return ioobj ? SurfaceAuxData::getFileName( *ioobj, attrnm ) 
+		 : BufferString::empty();
 }
 
 

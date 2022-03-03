@@ -81,7 +81,7 @@ bool ODGoogle::KMLWriter::close()
     const bool haveiconnm = !properties_.iconnm_.isEmpty() && \
 				     !properties_.iconnm_.isEqual("NONE"); \
     const BufferString icnnm( "s_od_icon_", \
-			haveiconnm ? properties_.iconnm_ : "noicon" ) \
+			haveiconnm ? properties_.iconnm_.buf() : "noicon" ) \
 
 bool ODGoogle::KMLWriter::writePolygon( const pickset& picks )
 {

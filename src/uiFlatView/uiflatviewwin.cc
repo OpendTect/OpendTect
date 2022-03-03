@@ -116,14 +116,14 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	else
 	    { if ( !vdstr || !*vdstr ) vdstr = FlatView::Viewer::sKeyVDVal(); }
 	float val = *vdvalstr ? vdvalstr.toFloat() : mUdf(float);
-	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr;
+	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr.buf();
 	mesg += " ("; mesg += vdstr; mesg += ")";
     }
     if ( wvavalstr && !issame )
     {
 	mAddSep();
 	float val = *wvavalstr ? wvavalstr.toFloat() : mUdf(float);
-	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr;
+	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr.buf();
 	if ( !wvastr || !*wvastr ) wvastr = FlatView::Viewer::sKeyWVAVal();
 	mesg += " ("; mesg += wvastr; mesg += ")";
     }
