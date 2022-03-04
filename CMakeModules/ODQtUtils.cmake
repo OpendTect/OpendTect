@@ -222,6 +222,7 @@ macro( OD_ADD_QT )
 	     cmake_policy( SET CMP0020 NEW )
 	endif()
 	QT_SETUP_CORE_INTERNALS()
+	OD_ADD_TRANSLATIONS()
 
 	unset( QTDIR CACHE )
 
