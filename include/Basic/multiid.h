@@ -36,6 +36,9 @@ public:
     inline int		subObjectID() const		{ return ID(3); }
     MultiID		mainID() const;
     bool		isDatabaseID() const;
+    bool		isInMemoryID() const;
+    bool		isTmpObjectID() const;
+    bool		isSyntheticID() const;
 
     MultiID&		setID(int idx,int id);
     inline MultiID&	setGroupID( int id )		{ return setID(0,id); }
@@ -54,6 +57,11 @@ public:
     static const MultiID& udf();
     bool		isUdf() const;
     inline MultiID&	setUdf()		{ *this = udf(); return *this; }
+
+    static int		cLastInMemoryGrpID()	{ return 99; }
+    static int		cFirstDatabaseGrpID()	{ return 100000; }
+    static int		cSyntheticObjID()	{ return 999998; }
+    static int		cTmpObjID()		{ return 999999; }
 
 private:
     MultiID&		add(int id);

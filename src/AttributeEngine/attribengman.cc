@@ -43,15 +43,9 @@ namespace Attrib
 {
 
 EngineMan::EngineMan()
-    : inpattrset_(0)
-    , procattrset_(0)
-    , nlamodel_(0)
-    , tkzs_(*new TrcKeyZSampling)
+    : tkzs_(*new TrcKeyZSampling)
     , geomid_(Survey::GM().cUndefGeomID())
     , dpm_(DPM(DataPackMgr::SeisID()))
-    , cache_(0)
-    , udfval_(mUdf(float))
-    , curattridx_(0)
 {
 }
 

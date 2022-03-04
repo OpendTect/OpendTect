@@ -33,14 +33,14 @@ mDefineEnumUtils(PSAttrib,GatherType,"Gather type")
 {
     "Offset",
     "Angle",
-    0
+    nullptr
 };
 
 mDefineEnumUtils(PSAttrib,XaxisUnit,"X-Axis unit")
 {
     "in Degrees",
     "in Radians",
-    0
+    nullptr
 };
 
 
@@ -67,7 +67,7 @@ void PSAttrib::initClass()
     mDefEnumPar(gathertype,PSAttrib::GatherType,0);
     mDefEnumPar(xaxisunit,PSAttrib::XaxisUnit,0);
 
-    IntParam* ipar = new IntParam( componentStr(), 0 , false );
+    auto* ipar = new IntParam( componentStr(), 0 , false );
     ipar->setLimits( Interval<int>(0,mUdf(int)) );
     desc->addParam( ipar );
     ipar = ipar->clone(); ipar->setKey( apertureStr() );
@@ -84,7 +84,7 @@ void PSAttrib::initClass()
     desc->addParam( new IntParam( angleStopStr(), mUdf(int), false ) );
     desc->addParam( new IntParam(angleDPIDStr(),-1,true) );
 
-    EnumParam* smoothtype = new EnumParam( angleSmoothType() );
+    auto* smoothtype = new EnumParam( angleSmoothType() );
     smoothtype->addEnums( PreStack::AngleComputer::smoothingTypeNames() );
     smoothtype->setDefaultValue( PreStack::AngleComputer::FFTFilter );
     desc->addParam( smoothtype );
@@ -143,15 +143,9 @@ void PSAttrib::updateDesc( Desc& desc )
 
 PSAttrib::PSAttrib( Desc& ds )
     : Provider(ds)
-    , psioobj_(0)
-    , psrdr_(0)
-    , component_(0)
-    , preprocessor_(0)
-    , propcalc_(0)
-    , anglecomp_(0)
-    , anglegsdpid_(-1)
 {
-    if ( !isOK() ) return;
+    if ( !isOK() )
+	return;
 
     const char* res;
     mGetString(res,"id")
@@ -165,12 +159,11 @@ PSAttrib::PSAttrib( Desc& ds )
     {
 	preprocessor_ = new PreStack::ProcessManager;
 	uiString errmsg;
-	if ( !PreStackProcTranslator::retrieve( *preprocessor_,preprociopar,
-					       errmsg ) )
+	if ( !PreStackProcTranslator::retrieve(*preprocessor_,preprociopar,
+					       errmsg) )
 	{
 	    errmsg_ = errmsg;
-	    delete preprocessor_;
-	    preprocessor_ = 0;
+	    deleteAndZeroPtr( preprocessor_ );
 	}
     }
     else
@@ -213,8 +206,7 @@ PSAttrib::PSAttrib( Desc& ds )
 	mGetMultiID( velocityid_, velocityIDStr() );
 	if ( !velocityid_.isUdf() )
 	{
-	    PreStack::VelocityBasedAngleComputer* velangcomp =
-				    new PreStack::VelocityBasedAngleComputer;
+	    auto* velangcomp = new PreStack::VelocityBasedAngleComputer;
 	    velangcomp->setMultiID( velocityid_ );
 	    unRefAndZeroPtr( anglecomp_ );
 	    anglecomp_ = velangcomp;
@@ -535,11 +527,10 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 
 PreStack::GatherSetDataPack* PSAttrib::getMemoryGatherSetDP() const
 {
-    if ( psid_.isDatabaseID() )
+    if ( !psid_.isInMemoryID() )
 	return nullptr;
 
-    const DataPack::FullID fid = psid_;
-    DataPack* dtp = DPM( fid ).observe( DataPack::getID(fid) );
+    DataPack* dtp = DPM( psid_ ).observe( DataPack::getID(psid_) );
     mDynamicCastGet(PreStack::GatherSetDataPack*,psgdtp, dtp)
     return psgdtp;
 }
@@ -553,9 +544,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 
     PreStack::GatherSetDataPack* psgdtp = getMemoryGatherSetDP();
     bool isondisc = true;
-    pErrMsg("MultiID with a #");
-    const char* fullidstr = psid_.toString();
-    if ( fullidstr && *fullidstr == '#' )
+    if ( psid_.isInMemoryID() )
     {
 	isondisc = !psgdtp;
 	if ( isondisc )

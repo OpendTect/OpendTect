@@ -742,13 +742,16 @@ void uiAttrSel::updateInput()
 
 const char* uiAttrSel::userNameFromKey( const char* txt ) const
 {
-    if ( !txt || !*txt ) return "";
+    const MultiID dbky( txt );
+    if ( dbky.isUdf() )
+	return "";
 
-    if ( *txt == '#' )
-	return DataPackMgr::nameOf( DataPack::FullID(txt+1) );
+    if ( dbky.isInMemoryID() )
+	return DataPackMgr::nameOf( dbky );
 
     SeparString bs( txt, ':' );
-    if ( bs.size() < 3 ) return "";
+    if ( bs.size() < 3 )
+	return "";
 
     const int id = toInt( bs[0] );
     const bool isstored = toBool( bs[1], true );
@@ -905,21 +908,22 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
     dpfids_ = ids;
 
     //make sure the default stored data is not used
-    BufferString str( toString(attribID().asInt()) );
-    if ( *str == '#') return; //TODO what on earth is this???
+    const BufferString str( toString(attribID().asInt()) );
+    const MultiID dbky( str.buf() );
+    if ( dbky.isInMemoryID() )
+	return;
 
     const Attrib::Desc* inpdesc = getAttrSet().getDesc( attribID() );
     if ( !inpdesc || inpdesc->isStored() )
     {
-	Attrib::SelSpec* tmpss = new Attrib::SelSpec(0,Attrib::DescID::undef());
+	auto* tmpss = new Attrib::SelSpec( 0, Attrib::DescID::undef() );
 	setSelSpec( tmpss );	//only to reset attrdata_.attribid_=-1
 	delete tmpss;
     }
 
     //use the first fid as default data
-    BufferString fidstr = "#"; fidstr += ids[0];
     attrdata_.attribid_ = const_cast<Attrib::DescSet*>(&getAttrSet())
-					->getStoredID( fidstr.buf(), 0, true );
+					    ->getStoredID( ids[0], 0, true );
     updateInput();
 }
 

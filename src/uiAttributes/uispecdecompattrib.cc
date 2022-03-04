@@ -272,7 +272,7 @@ void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
 	delete positiondlg_;
     }
 
-    if ( !dpfids_.size() )
+    if ( dpfids_.isEmpty() )
     {
 	MultiID mid;
 	getInputMID( mid );

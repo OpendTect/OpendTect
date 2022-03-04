@@ -359,7 +359,7 @@ bool uiAttrDescEd::getOutput( Attrib::Desc& desc )
 bool uiAttrDescEd::getInputDPID( uiAttrSel* inpfld,
 				 DataPack::FullID& inpdpfid ) const
 {
-    LineKey lk( inpfld->getInput() );
+    const LineKey lk( inpfld->getInput() );
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {
 	DataPack::FullID dpfid = dpfids_[idx];
@@ -380,19 +380,16 @@ Desc* uiAttrDescEd::getInputDescFromDP( uiAttrSel* inpfld ) const
     if ( !dpfids_.size() )
     {
 	pErrMsg( "No datapacks present to form Desc" );
-	return 0;
+	return nullptr;
     }
 
     DataPack::FullID inpdpfid;
     if ( !getInputDPID(inpfld,inpdpfid) )
-	return 0;
+	return nullptr;
 
-    pErrMsg("MultiID with a #");
-    BufferString dpidstr( "#" );
-    dpidstr.add( inpdpfid.toString() );
     Desc* inpdesc = Attrib::PF().createDescCopy( StorageProvider::attribName());
     Attrib::ValParam* param =
 	inpdesc->getValParam( Attrib::StorageProvider::keyStr() );
-    param->setValue( dpidstr.buf() );
+    param->setValue( inpdpfid.toString() );
     return inpdesc;
 }

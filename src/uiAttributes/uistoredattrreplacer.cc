@@ -343,19 +343,18 @@ bool acceptOK( CallBacker* )
 
 	uiComboBox* inpfld = inpflds_[inpfldidx]->box();
 	const int seldpidx = inpfld->currentItem();
-	BufferString dpidstr( "#" );
-	dpidstr += dpfids_[seldpidx];
-	FixedString dpnm( DataPackMgr::nameOf(dpfids_[seldpidx]) );
+	const MultiID& dbky = dpfids_[seldpidx];
+	const FixedString dpnm( DataPackMgr::nameOf(dbky) );
 	if ( attrset_ )
 	{
 	    Desc* ad = attrset_->getDesc( storedid.firstid_ );
-	    ad->changeStoredID( dpidstr );
+	    ad->changeStoredID( dbky.toString() );
 	    ad->setUserRef( dpnm );
 	}
 	else
 	{
 	    IOPar* descpar = attrdspar_->subselect( storedid.firstid_.asInt() );
-	    setDefinitionKey( *descpar, dpidstr );
+	    setDefinitionKey( *descpar, dbky.toString() );
 	    descpar->set( "UserRef", dpnm );
 	    BufferString idstr;
 	    idstr+= storedid.firstid_.asInt();

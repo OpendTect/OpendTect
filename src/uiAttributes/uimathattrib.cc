@@ -224,10 +224,10 @@ bool uiMathAttrib::setInput( const Desc& desc )
 				: BufferString( inpdsc->userRef() );
 	    if ( inpdsc->isStoredInMem() )
 	    {
-		BufferString dpidstr = inpdsc->getValParam(
+		const BufferString dpidstr = inpdsc->getValParam(
 			Attrib::StorageProvider::keyStr() )->getStringValue(0);
-		dpidstr.remove( '#' );
-		DataPack::FullID dpfid( dpidstr.buf() );
+		const MultiID dbky( dpidstr.buf() );
+		const DataPack::FullID dpfid( dbky.toString() );
 		refstr = DataPackMgr::nameOf( dpfid );
 	    }
 
@@ -318,27 +318,28 @@ bool uiMathAttrib::getInput( Desc& desc )
 	    attrinpidx++;
 	    if ( attrinpidx >= desc.nrInputs() )
 		return false;
-	    Attrib::Desc* inpdesc = 0;
-	    if ( !dpfids_.isEmpty() )
+
+	    Attrib::Desc* inpdesc = nullptr;
+	    if ( dpfids_.isEmpty() )
 	    {
-		DataPack::FullID inpdpfid = getInputDPID( attrinpidx );
+		inpdesc = desc.descSet()->getDescFromUIListEntry(
+					formfld_->inpFld(idx)->getInput() );
+	    }
+	    else
+	    {
+		const DataPack::FullID inpdpfid = getInputDPID( attrinpidx );
 		if ( inpdpfid.isUdf() )
 		    return false;
 
-    pErrMsg("MultiID with a #");
-		BufferString dpidstr( "#" );
-		dpidstr.add( inpdpfid.toString() );
 		inpdesc = Attrib::PF().createDescCopy(
-				    StorageProvider::attribName() );
+					    StorageProvider::attribName() );
 		Attrib::ValParam* param =
 		    inpdesc->getValParam( Attrib::StorageProvider::keyStr() );
-		param->setValue( dpidstr.buf() );
+		param->setValue( inpdpfid.toString() );
 		if ( desc.descSet() )
 		    desc.descSet()->addDesc( inpdesc );
 	    }
-	    else
-		inpdesc = desc.descSet()->getDescFromUIListEntry(
-					formfld_->inpFld(idx)->getInput() );
+
 	    desc.setInput( attrinpidx, inpdesc );
 	}
     }

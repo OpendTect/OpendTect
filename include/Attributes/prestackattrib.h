@@ -116,14 +116,14 @@ protected:
 				      DataPack::ID& angglegid);
 
     MultiID			psid_;
-    IOObj*			psioobj_;
-    SeisPSReader*		psrdr_;
-    int				component_;
-    PreStack::ProcessManager*	preprocessor_;
-    PreStack::PropCalc*		propcalc_;
+    IOObj*			psioobj_ = nullptr;
+    SeisPSReader*		psrdr_ = nullptr;
+    int				component_ = 0;
+    PreStack::ProcessManager*	preprocessor_ = nullptr;
+    PreStack::PropCalc*		propcalc_ = nullptr;
     PreStack::PropCalc::Setup	setup_;
-    PreStack::AngleComputer*    anglecomp_;
-    int				anglegsdpid_;
+    PreStack::AngleComputer*	anglecomp_ = nullptr;
+    int				anglegsdpid_ = -1;
 
     MultiID			preprocid_;
     int				dataidx_;

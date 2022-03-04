@@ -810,13 +810,13 @@ DescID Desc::getMultiOutputInputID() const
 
 bool Desc::isStoredInMem() const
 {
-    if ( !isStored() ) return false;
+    if ( !isStored() )
+	return false;
 
-    const LineKey lk( getValParam(
-			Attrib::StorageProvider::keyStr())->getStringValue(0) );
-    BufferString bstring = lk.lineName();
-    const char* linenm = bstring.buf();
-    return linenm && *linenm == '#';
+    const BufferString idstr( getValParam(
+			      StorageProvider::keyStr())->getStringValue(0) );
+    const MultiID dbky( idstr.buf() );
+    return dbky.isInMemoryID();
 }
 
 

@@ -122,17 +122,17 @@ public:
 
 protected:
 
-    const DescSet*	inpattrset_;
-    const NLAModel*	nlamodel_;
+    const DescSet*	inpattrset_ = nullptr;
+    const NLAModel*	nlamodel_ = nullptr;
     TrcKeyZSampling&	tkzs_;
-    float		udfval_;
+    float		udfval_ = mUdf(float);
     Pos::GeomID		geomid_;
     DataPackMgr&	dpm_;
 
-    const RegularSeisDataPack*	cache_;
+    const RegularSeisDataPack*	cache_ = nullptr;
 
-    DescSet*		procattrset_;
-    int			curattridx_;
+    DescSet*		procattrset_ = nullptr;
+    int			curattridx_ = 0;
     TypeSet<SelSpec>	attrspecs_;
 
     Processor*		getProcessor(uiString& err);
@@ -140,8 +140,8 @@ protected:
 
 private:
 
-    friend class		AEMFeatureExtracter;//TODO will soon be removed
-    friend class		AEMTableExtractor;
+    friend class	AEMFeatureExtracter;//TODO will soon be removed
+    friend class	AEMTableExtractor;
 
 public:
     bool		hasCache() const		{ return cache_; }

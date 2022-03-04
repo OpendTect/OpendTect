@@ -305,20 +305,15 @@ mParamClone( SeisStorageRefParam );
 
 bool SeisStorageRefParam::isOK() const
 {
-    const char* val = spec_->text(0);
-    const LineKey lk( val );
+    const BufferString valstr( spec_->text(0) );
+    const MultiID dbky( valstr.buf() );
+    if ( dbky.isInMemoryID() )
+	return DPM(dbky).haveID( dbky );
+    else if ( !dbky.isDatabaseID() )
+	return false;
 
-    BufferString bstring = lk.lineName();
-    const char* linenm = bstring.buf();
-    if ( linenm && *linenm == '#' )
-    {
-	DataPack::FullID fid( linenm+1 );
-	return DPM(fid).haveID( fid );
-    }
-
-    const MultiID mid( bstring );
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    return ioobj;
+    PtrMan<IOObj> ioobj = IOM().get( dbky );
+    return ioobj.ptr();
 }
 
 } // namespace Attrib

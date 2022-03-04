@@ -87,7 +87,25 @@ MultiID MultiID::mainID() const
 
 bool MultiID::isDatabaseID() const
 {
-    return groupID() > 100000;
+    return groupID() > cFirstDatabaseGrpID();
+}
+
+
+bool MultiID::isInMemoryID() const
+{
+    return groupID() > 0 && groupID() <= cLastInMemoryGrpID();
+}
+
+
+bool MultiID::isTmpObjectID() const
+{
+    return isDatabaseID() && objectID() == cTmpObjID();
+}
+
+
+bool MultiID::isSyntheticID() const
+{
+    return isDatabaseID() && objectID() == cSyntheticObjID();
 }
 
 
@@ -106,7 +124,14 @@ bool MultiID::isUdf() const
 
 bool MultiID::fromString( const char* str )
 {
-    SeparString ss( str, '.' );
+    const BufferString inpstr( str );
+    const bool isoldmem = !inpstr.isEmpty() && inpstr.firstChar() == '#';
+#ifdef __debug__
+    if ( isoldmem )
+	{ pErrMsg("Old format in-memory MultiID, adapt your code"); }
+#endif
+
+    const SeparString ss( isoldmem ? str+1 : str, '.' );
     if ( ss.isEmpty() )
     {
 	setUdf();

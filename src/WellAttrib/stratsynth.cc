@@ -401,16 +401,14 @@ int StratSynth::nrSynthetics() const
 
 
 #define mCreateDesc() \
-if ( !sd.isPS() ) return 0; \
+if ( !sd.isPS() ) \
+    return nullptr; \
 mDynamicCastGet(const PreStackSyntheticData&,presd,sd); \
-BufferString dpidstring( "#" ); \
-SeparString fullidstr( toString(DataPackMgr::SeisID()), '.' ); \
 const PreStack::GatherSetDataPack& gdp = presd.preStackPack(); \
-fullidstr.add( toString(gdp.id()) ); \
-dpidstring.add( fullidstr.buf() ); \
+const MultiID dpid( DataPackMgr::SeisID(), gdp.id() ); \
 Attrib::Desc* psdesc = \
     Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName()); \
-mSetString(Attrib::StorageProvider::keyStr(),dpidstring.buf());
+mSetString(Attrib::StorageProvider::keyStr(),dpid.toString());
 
 
 #define mSetProc() \
@@ -444,7 +442,7 @@ uiString errmsg; \
 PtrMan<Attrib::Processor> proc = \
     aem->createTrcSelOutput( errmsg, bidvals, *dptrcbufs, 0, &zrg); \
 if ( !proc || !proc->getProvider() ) \
-    mErrRet( errmsg, return 0 ) ; \
+    mErrRet( errmsg, return nullptr ) ; \
 proc->getProvider()->setDesiredVolume( tkzs ); \
 proc->getProvider()->setPossibleVolume( tkzs ); \
 mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider()); \
@@ -496,30 +494,38 @@ uiString uiNrDoneText() const override
 
 private:
 
-void createInstAttributeSet()
+bool createInstAttributeSet()
 {
-    pErrMsg("MultiID with a #");
     delete descset_;
     descset_ = new Attrib::DescSet( false );
-    BufferString dpidstr( "#", sd_.datapackid_.toString() );
-    Attrib::DescID did = descset_->getStoredID( dpidstr.buf(), 0, true );
+    const MultiID dbky( sd_.datapackid_.groupID(), sd_.datapackid_.objectID() );
+    const Attrib::DescID did = descset_->getStoredID( dbky, 0, true );
+    const Attrib::Desc* inpdesc = descset_->getDesc( did );
+    if ( !inpdesc )
+	return false;
 
     Attrib::Desc* imagdesc = Attrib::PF().createDescCopy(
 						Attrib::Hilbert::attribName() );
     imagdesc->selectOutput( 0 );
-    imagdesc->setInput(0, descset_->getDesc(did) );
+    imagdesc->setInput(0, inpdesc );
     imagdesc->setHidden( true );
-    BufferString usrref( dpidstr.buf(), "_imag" );
+    const BufferString usrref( dbky.toString(), "_imag" );
     imagdesc->setUserRef( usrref );
-    descset_->addDesc( imagdesc );
+    const Attrib::DescID hilbid = descset_->addDesc( imagdesc );
+    if ( !descset_->getDesc(hilbid) )
+	return false;
 
     Attrib::Desc* psdesc = Attrib::PF().createDescCopy(
 					 Attrib::Instantaneous::attribName());
-    psdesc->setInput( 0, descset_->getDesc(did) );
+    psdesc->setInput( 0, inpdesc );
     psdesc->setInput( 1, imagdesc );
     psdesc->setUserRef( "synthetic attributes" );
-    descset_->addDesc( psdesc );
+    const Attrib::DescID psid = descset_->addDesc( psdesc );
+    if ( !descset_->getDesc(psid) )
+	return false;
+
     descset_->updateInputs();
+    return true;
 }
 
 
@@ -531,7 +537,14 @@ bool doPrepare( int /* nrthreads */ ) override
 {
     msg_ = tr("Preparing Attributes");
 
-    createInstAttributeSet();
+    if ( !createInstAttributeSet() )
+    {
+	if ( descset_ )
+	    msg_ = descset_->errMsg();
+
+	return false;
+    }
+
     sd_.postStackPack().getTrcKeyZSampling( tkzs_ );
 
     seistrcbufs_.setEmpty();

@@ -530,7 +530,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     aem->setAttribSpecs( attribspecs );
 
     TrcKeyZSampling cs( false );
-    const bool isinpindp = dpfids_.size();
+    const bool isinpindp = !dpfids_.isEmpty();
     TypeSet<TrcKey> trckeys;
     int nrtrcs = 0;
     if ( !isinpindp )
@@ -569,11 +569,12 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	uiSelectPositionDlg subseldlg( this, dpfid );
 	if ( !subseldlg.go() )
 	    return;
-	if ( dpfid.ID(0)==DataPackMgr::SeisID() )
+
+	if ( dpfid.groupID()==DataPackMgr::SeisID() )
 	    cs = subseldlg.subVol();
 	else
 	{
-	    DataPack* dp = DPM(dpfid.ID(0)).obtain( dpfid.ID(1) );
+	    DataPack* dp = DPM(dpfid.groupID()).obtain( dpfid.objectID() );
 	    mDynamicCastGet(FlatDataPack*,fdp,dp);
 	    if ( !fdp )
 	    {
@@ -592,7 +593,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 				     mCast(float,dzrg.stop),
 				     mCast(float,dzrg.step) );
 	    cs.zsamp_ = zrg;
-	    DPM(dpfid.ID(0)).release( dpfid.ID(1) );
+	    DPM(dpfid.groupID()).release( dpfid.objectID() );
 	}
 	nrtrcs = subseldlg.nrTrcs();
     }

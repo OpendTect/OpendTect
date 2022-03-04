@@ -343,12 +343,15 @@ void DescSet::fillPar( IOPar& par ) const
 	const Desc& dsc = *descs_[idx];
 	IOPar apar;
 	BufferString defstr;
-	if ( !dsc.getDefStr(defstr) ) continue;
+	if ( !dsc.getDefStr(defstr) )
+	    continue;
 
-	const BufferString storeid = dsc.getStoredID( true );
-	const bool isvalidmultiid = !storeid.isEmpty() && storeid[0] != '#';
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(storeid.buf()) );
-	if ( isvalidmultiid && !ioobj )
+	const MultiID storeid( dsc.getStoredID( true ) );
+	if ( storeid.isInMemoryID() )
+	    continue;
+
+	PtrMan<IOObj> ioobj = IOM().get( storeid );
+	if ( !ioobj )
 	    continue;
 
 	apar.set( definitionStr(), defstr );
@@ -1027,21 +1030,23 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
 				  const BufferString& compnm )
 {
     BufferString objnm;
-    if ( !multiid.isDatabaseID() )
-    {
-	DataPack::FullID fid = multiid;
-	if ( !DPM(fid).haveID( fid ) )
-	    return DescID::undef();
-
-	objnm = DataPackMgr::nameOf( fid );
-    }
-    else
+    if ( multiid.isDatabaseID() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( multiid );
-	if ( !ioobj ) return DescID::undef();
+	if ( !ioobj )
+	    return DescID::undef();
 
 	objnm = ioobj->name();
     }
+    else if ( multiid.isInMemoryID() )
+    {
+	if ( !DPM(multiid).haveID(multiid) )
+	    return DescID::undef();
+
+	objnm = DataPackMgr::nameOf( multiid );
+    }
+    else
+	return DescID::undef();
 
     Desc* newdesc = PF().createDescCopy( StorageProvider::attribName() );
     if ( !newdesc )

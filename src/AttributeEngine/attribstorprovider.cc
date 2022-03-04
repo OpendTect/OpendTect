@@ -58,19 +58,21 @@ void StorageProvider::updateDesc( Desc& desc )
 void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 					       BufferStringSet* compnms )
 {
-    const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
-
-    BufferString linenm = lk.lineName();
-    if (  linenm.firstChar() == '#' )
+    const BufferString valstr( desc.getValParam(keyStr())->getStringValue(0) );
+    const MultiID dbky( valstr.buf() );
+    if ( dbky.isInMemoryID() )
     {
-	DataPack::FullID fid( linenm.buf()+1 );
-	if ( !DPM(fid).haveID( fid ) )
+	if ( !DPM(dbky).haveID(dbky) )
 	    desc.setErrMsg( "Cannot find data in memory" );
 	return;
     }
+    else if ( !dbky.isDatabaseID() )
+    {
+	desc.setErrMsg( BufferString("Invalid MultiID: ",dbky.toString()) );
+	return;
+    }
 
-    const MultiID key( linenm );
-    PtrMan<IOObj> ioobj = IOM().get( key );
+    PtrMan<IOObj> ioobj = IOM().get( dbky );
     if ( !ioobj )
 	return;
 
@@ -111,7 +113,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	else if ( transl->componentInfo().isEmpty() )
 	{
 	    BufferStringSet complist;
-	    SeisIOObjInfo::getCompNames(key, complist);
+	    SeisIOObjInfo::getCompNames( dbky, complist );
 	    if ( complist.isEmpty() )
 	    {
 		if ( issteering )
@@ -167,45 +169,37 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 
 StorageProvider::StorageProvider( Desc& desc )
     : Provider( desc )
-    , mscprov_(0)
-    , status_( Nada )
     , stepoutstep_(-1,0)
-    , isondisc_(true)
-    , useintertrcdist_(false)
-    , ls2ddata_(0)
 {
-    const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
-    BufferString bstring = lk.lineName();
-    const char* linenm = bstring.buf();
-    if ( linenm && *linenm == '#' )
-    {
-	DataPack::FullID fid( linenm+1 );
-	isondisc_ =  !DPM(fid).haveID( fid );
-    }
+    const MultiID dbky = getDBKey( &desc );
+    isondisc_ = dbky.isInMemoryID() ? !DPM(dbky).haveID(dbky) : true;
 }
 
 
 StorageProvider::~StorageProvider()
 {
-    if ( mscprov_ ) delete mscprov_;
-    if ( ls2ddata_ ) delete ls2ddata_;
+    delete mscprov_;
+    delete ls2ddata_;
 }
 
 
 #undef mErrRet
-#define mErrRet(s) { errmsg_ = s; delete mscprov_; mscprov_= 0; return false; }
+#define mErrRet(s) { errmsg_ = s; deleteAndZeroPtr( mscprov_ ); return false; }
 
 bool StorageProvider::checkInpAndParsAtStart()
 {
-    if ( status_!=Nada ) return false;
+    if ( status_!=Nada )
+	return false;
 
     if ( !isondisc_ )
     {
 	storedvolume_.zsamp_.start = 0;	//cover up for synthetics
-	DataPack::FullID fid( getDPID() );
+	const DataPack::FullID fid = getDPID();
 	DataPackRef<SeisTrcBufDataPack> stbdtp =
 				DPM(fid).obtain( DataPack::getID(fid) );
-	if ( !stbdtp ) return false;
+	if ( !stbdtp )
+	    return false;
+
 	SeisPacketInfo si;
 	stbdtp->trcBuf().fill( si );
 	storedvolume_.hsamp_.setInlRange( si.inlrg );
@@ -214,11 +208,12 @@ bool StorageProvider::checkInpAndParsAtStart()
 	return true;
     }
 
-    const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-    const MultiID mid( lk.lineName() );
-    if ( !isOK() ) return false;
+    const MultiID mid = getDBKey();
+    if ( !mid.isDatabaseID() || !isOK() )
+	return false;
 
     const SeisIOObjInfo seisinfo( mid );
+    delete mscprov_;
     mscprov_ = new SeisMSCProvider( mid, seisinfo.geomType() );
 
     if ( !initMSCProvider() )
@@ -227,7 +222,7 @@ bool StorageProvider::checkInpAndParsAtStart()
     const bool is2d = mscprov_->is2D();
     desc_.set2D( is2d );
     if ( !is2d )
-	SeisTrcTranslator::getRanges( mid, storedvolume_, lk );
+	SeisTrcTranslator::getRanges( mid, storedvolume_, nullptr );
     else
     {
 	Seis2DDataSet* dset = mscprov_->reader().dataSet();
@@ -731,31 +726,34 @@ bool StorageProvider::computeData( const DataHolder& output,
 }
 
 
-DataPack::FullID StorageProvider::getDPID() const
+MultiID StorageProvider::getDBKey( const Desc* desc ) const
 {
-    const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-    BufferString bstring = lk.lineName();
-    const char* linenm = bstring.buf();
-    if ( !linenm || *linenm != '#' )
-	return DataPack::FullID::udf();
+    const Desc* usedesc = desc ? desc : &desc_;
+    const BufferString valstr(
+			    usedesc->getValParam(keyStr())->getStringValue(0) );
+    return MultiID( valstr.buf() );
+}
 
-    DataPack::FullID fid( linenm+1 );
-    return fid;
+
+DataPack::FullID StorageProvider::getDPID( const Desc* desc ) const
+{
+    const Desc* usedesc = desc ? desc : &desc_;
+    const MultiID dbky = getDBKey( usedesc );
+    return dbky.isInMemoryID() ? dbky : DataPack::FullID::udf();
 }
 
 
 SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
 {
-    DataPack::FullID fid( getDPID() );
+    const DataPack::FullID fid = getDPID();
     DataPackRef<SeisTrcBufDataPack> stbdtp =
 				    DPM( fid ).obtain( DataPack::getID(fid) );
-
     if ( !stbdtp )
-	return 0;
+	return nullptr;
 
     int trcidx = stbdtp->trcBuf().find(currentbid_+relpos, desc_.is2D());
     if ( trcidx+relidx >= stbdtp->trcBuf().size() || trcidx+relidx<0 )
-	return 0;
+	return nullptr;
 
     return stbdtp->trcBuf().get( trcidx + relidx );
 }

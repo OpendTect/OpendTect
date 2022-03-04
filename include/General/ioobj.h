@@ -108,9 +108,8 @@ public:
     void			acquireNewKeyIn(const MultiID&);
 				//!< This will give the IOObj a new (free) ID
 
-    static int			tmpID()		{ return  999999; }
-    inline bool			isTmp() const
-				{ return key_.objectID() >= tmpID(); }
+    static int			tmpID()		{ return MultiID::cTmpObjID(); }
+    inline bool			isTmp() const	{ return key_.isTmpObjectID(); }
     bool			isProcTmp() const;
     bool			isUserSelectable(bool forread=true) const;
     bool			isInCurrentSurvey() const;
