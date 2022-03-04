@@ -93,6 +93,7 @@ endif()
 
 set( OD_SPECPROGS ODSeis ODvisBase )
 
+OD_SETUP_EXTERNALS()
 OD_ADD_EXTERNALS() # Once, in main scope
 OD_ADD_MODULES( src ${OD_MODULES} )
 include( plugins/CMakeLists.txt )

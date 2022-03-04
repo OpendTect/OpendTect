@@ -62,73 +62,37 @@ elseif( OD_FROM_GIT )
     endif()
 endif()
 
-if ( EXISTS "${CMAKE_SOURCE_DIR}/external/Externals.cmake" )
-    execute_process(
-	COMMAND ${CMAKE_COMMAND}
-	    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-	    -DOpendTect_DIR=${OpendTect_DIR}
-	    -DOD_NO_OSG=${OD_NO_OSG}
-	    -DUPDATE=No
-	    -P "${CMAKE_SOURCE_DIR}/external/Externals.cmake"
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	ERROR_VARIABLE ERROUTPUT
-	RESULT_VARIABLE STATUS )
-    if ( NOT ${STATUS} EQUAL 0 )
-	message( FATAL_ERROR "${ERROUTPUT}" )
-    endif()
+macro( OD_SETUP_EXTERNALS )
 
-    set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
+    if ( EXISTS "${CMAKE_SOURCE_DIR}/external/Externals.cmake" )
+	execute_process(
+	    COMMAND ${CMAKE_COMMAND}
+		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 		-DOpendTect_DIR=${OpendTect_DIR}
 		-DOD_NO_OSG=${OD_NO_OSG}
-		-DUPDATE=Yes
-		-P external/Externals.cmake )
-endif()
-
-if ( EXISTS ${PLUGIN_DIR} )
-    if ( EXISTS ${PLUGIN_DIR}/../external/Externals.cmake )
-	execute_process( COMMAND ${CMAKE_COMMAND}
-		    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-		    -DOpendTect_DIR=${OpendTect_DIR}
-		    -DPLUGIN_DIR=${PLUGIN_DIR}
-		    -DUPDATE=No
-		    -P ${PLUGIN_DIR}/../external/Externals.cmake
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		ERROR_VARIABLE ERROUTPUT
-		RESULT_VARIABLE STATUS )
+		-DUPDATE=No
+		-P "${CMAKE_SOURCE_DIR}/external/Externals.cmake"
+	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	    ERROR_VARIABLE ERROUTPUT
+	    RESULT_VARIABLE STATUS )
 	if ( NOT ${STATUS} EQUAL 0 )
 	    message( FATAL_ERROR "${ERROUTPUT}" )
 	endif()
 
-	set ( EXTERNALPLUGINSCMD COMMAND ${CMAKE_COMMAND}
+	set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
 		    -DOpendTect_DIR=${OpendTect_DIR}
-		    -DPLUGIN_DIR=${PLUGIN_DIR}
+		    -DOD_NO_OSG=${OD_NO_OSG}
 		    -DUPDATE=Yes
-		    -P ${PLUGIN_DIR}/../external/Externals.cmake )
-    endif()
-endif()
-
-if ( NOT "${UPDATE_CMD}" STREQUAL "" )
-
-    add_custom_target( update
-       		  ${UPDATE_CMD} ${EXTERNALCMD}
-		  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
-		  COMMENT "Updating from repositories" )
-
-    if ( EXISTS ${PLUGIN_DIR} )
-        add_custom_target( update_dgb
-       		  ${UPDATE_CMD}
-		  WORKING_DIRECTORY ${PLUGIN_DIR}/../	
-		  COMMENT "Updating dgb from repositories" )
-
-	if ( UNIX )
-	    # cmake bug: settings dependencies make its 
-	    # added to ALL build target, thus disabled on Windows
-            add_custom_target( update_all
-		  ${EXTERNALPLUGINSCMD}
-		  DEPENDS update update_dgb
-		  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
-		  COMMENT "Updating dgb externals from repositories" )
-	endif()
+		    -P external/Externals.cmake )
     endif()
 
-endif()
+    if ( NOT "${UPDATE_CMD}" STREQUAL "" )
+
+	add_custom_target( update
+		      ${UPDATE_CMD} ${EXTERNALCMD}
+		      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
+		      COMMENT "Updating from repositories" )
+
+    endif()
+
+endmacro( OD_SETUP_EXTERNALS )
