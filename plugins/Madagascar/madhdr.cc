@@ -63,7 +63,7 @@ DefineEnumNames( RSFHeader, Format, 0, "data_format" )
 
 bool RSFHeader::read( const char* fnm )
 {
-    StreamData sd( StreamProvider(fnm).makeIStream() );
+    StreamData sd( StreamProvider::createIStream(fnm) );
     if ( !sd.usable() )	return false;
     return read( *(sd.istrm) );
 }
@@ -108,7 +108,7 @@ bool RSFHeader::read( od_istream& istrm )
 
 bool RSFHeader::write( const char* fnm ) const
 {
-    StreamData sd( StreamProvider(fnm).makeOStream() );
+    StreamData sd( StreamProvider::createOStream(fnm) );
     if ( !sd.usable() ) return false;
     return write( *(sd.ostrm) );
 }

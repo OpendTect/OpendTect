@@ -16,8 +16,9 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "uistrings.h"
 
+#include <iostream>
+
 #ifdef __win__
-# include <iostream>
 # include "winutils.h"
 # ifdef __msvc__
 #  define popen _popen
@@ -498,6 +499,17 @@ StreamData LocalFileSystemAccess::createOStream( const char* uri,
 	return StreamData();
 
     StreamData res;
+    if ( fnm == od_stream::sStdIO() )
+    {
+	res.setOStrm( &std::cout );
+	return res;
+    }
+    else if ( fnm == od_stream::sStdErr() )
+    {
+	res.setOStrm( &std::cerr );
+	return res;
+    }
+
     auto* impl = new StreamData::StreamDataImpl;
     impl->fname_ = uri;
     std::ios_base::openmode openmode = std::ios_base::out;
@@ -533,6 +545,12 @@ StreamData LocalFileSystemAccess::createIStream( const char* uri,
 	return StreamData();
 
     StreamData res;
+    if ( fnm == od_stream::sStdIO() || fnm == od_stream::sStdErr() )
+    {
+	res.setIStrm( &std::cin );
+	return res;
+    }
+
     auto* impl = new StreamData::StreamDataImpl;
     impl->fname_ = uri;
 

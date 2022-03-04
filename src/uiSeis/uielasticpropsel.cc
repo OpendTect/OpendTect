@@ -477,7 +477,7 @@ bool uiElasticPropSelDlg::savePropSel()
 bool uiElasticPropSelDlg::doStore( const IOObj& ioobj )
 {
     const BufferString fnm( ioobj.fullUserExpr(false) );
-    StreamData sd( StreamProvider(fnm).makeOStream() );
+    StreamData sd = StreamProvider::createOStream( fnm );
     bool rv = false;
     if ( !sd.usable() )
 	uiMSG().error( uiStrings::sCantOpenOutpFile() );
@@ -502,7 +502,7 @@ bool uiElasticPropSelDlg::openPropSel()
 
     ctio_.setObj( dlg.ioObj()->clone() );
     const BufferString fnm( ctio_.ioobj_->fullUserExpr(true) );
-    StreamData sd( StreamProvider(fnm).makeIStream() );
+    StreamData sd = StreamProvider::createIStream( fnm );
     if ( !sd.usable() )
 	mErrRet( uiStrings::sCantOpenInpFile(), return false; )
     sd.close();

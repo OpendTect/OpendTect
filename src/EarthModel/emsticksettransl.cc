@@ -149,7 +149,7 @@ lmkEMStickSetReader::lmkEMStickSetReader( EM::StickSet& stickset_, Conn* conn_,
 	return;
     }
 
-    StreamData formatsd = StreamProvider( formatfilename ).makeIStream();
+    StreamData formatsd = StreamProvider::createIStream( formatfilename );
     while ( formatsd.istrm && *formatsd.istrm )
     {
 	BufferString fieldname; Interval<int> rg;
@@ -378,7 +378,7 @@ lmkEMStickSetWriter::lmkEMStickSetWriter(const EM::StickSet& stickset_,
     , distanceunitinterval( 46, 50 )
     , pointtypeinterval( 51, 51 )
 {
-    StreamData formatsd = StreamProvider( formatfilename ).makeOStream();
+    StreamData formatsd = StreamProvider.createOStream( formatfilename );
     if ( !formatsd.usable() )
 	return;
 

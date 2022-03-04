@@ -111,7 +111,7 @@ int mProgMainFnName( int argc, char** argv )
     if ( horizons.isEmpty() ) return prError( "No valid horizons found" );
 
     BufferString fnm( argv[2] );
-    StreamData sdo = StreamProvider(fnm).makeOStream();
+    StreamData sdo = StreamProvider::createOStream( fnm );
     if ( !sdo.usable() )
 	return prError( "Cannot open output file" );
 

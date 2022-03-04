@@ -144,9 +144,7 @@ bool GMTArray2DInterpol::doFinish( bool success )
     OS::MachineCommand xyzmc( "grd2xyz" );
     xyzmc.addArg( path_ );
     OS::MachineCommand mc = GMTPar::getWrappedComm( xyzmc );
-    StreamProvider sprov;
-    sprov.setCommand( mc, workingdir_ );
-    StreamData sd = sprov.makeIStream( true, false );
+    StreamData sd = StreamProvider::createCmdIStream( mc, workingdir_ );
     if ( !sd.usable() )
 	return false;
 

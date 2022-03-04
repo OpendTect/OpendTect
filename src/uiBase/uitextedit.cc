@@ -123,7 +123,7 @@ void uiTextEditBase::hideScrollBar( bool vertical )
 
 void uiTextEditBase::readFromFile( const char* src, int wraplen )
 {
-    StreamData sd = StreamProvider( src ).makeIStream();
+    StreamData sd = StreamProvider::createIStream( src );
     if ( !sd.usable() )
 	{ sd.close(); return; }
 
@@ -193,7 +193,7 @@ void uiTextEditBase::readFromFile( const char* src, int wraplen )
 
 bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 {
-    StreamData sd = StreamProvider( src ).makeOStream();
+    StreamData sd = StreamProvider::createOStream( src );
     if ( !sd.usable() )
 	{ sd.close(); return false; }
 
@@ -577,7 +577,7 @@ void uiTextBrowser::enableTailRead( bool yn )
 
 void uiTextBrowser::readTailCB( CallBacker* )
 {
-    StreamData sd = StreamProvider( textsrc_ ).makeIStream();
+    StreamData sd = StreamProvider::createIStream( textsrc_ );
     if ( !sd.usable() )
 	return;
 
@@ -607,7 +607,7 @@ void uiTextBrowser::readTailCB( CallBacker* )
 	    sd.close();
 	    lastlinestartpos_ = -1;
 	    setText( 0 );
-	    sd = StreamProvider( textsrc_ ).makeIStream();
+	    sd = StreamProvider::createIStream( textsrc_ );
 	    if ( !sd.usable() )
 		return;
 	}

@@ -58,7 +58,7 @@ int mProgMainFnName( int argc, char** argv )
     if ( !fp.isAbsolute() ) { fp.insert( File::getCurrentPath() ); }
     fname = fp.fullPath();
 
-    StreamData outsd = StreamProvider( fname ).makeOStream();
+    StreamData outsd = StreamProvider::createOStream( fname );
     if ( !outsd.usable() )
         { od_cout() << "Cannot open output file" << od_endl; return 1; }
 

@@ -105,8 +105,7 @@ bool getPos( const PosInfo::Line2DData& line, int trcnr, Coord& xypos )
 bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 		   const char* linesetnm, const int nrhors )
 {
-    StreamProvider sp( filename );
-    StreamData sd = sp.makeIStream();
+    StreamData sd = StreamProvider::createIStream( filename );
     std::cerr << "Input File= " << filename << "\n";
     if ( !sd.usable() ) return prError( "input file is not OK" );
 

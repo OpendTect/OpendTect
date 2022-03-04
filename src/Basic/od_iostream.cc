@@ -242,15 +242,10 @@ void od_stream::addErrMsgTo( uiRetVal& uirv ) const
 bool od_stream::setFromCommand( const OS::MachineCommand& mc,
 				const char* workdir, bool editmode )
 {
-    StreamProvider strmprov;
-    strmprov.setCommand( mc, workdir );
-    if ( strmprov.isBad() )
-	return false;
-
     if ( editmode )
-	sd_ = strmprov.makeOStream();
+	sd_ = StreamProvider::createCmdOStream( mc, workdir );
     else
-	sd_ = strmprov.makeIStream();
+	sd_ = StreamProvider::createCmdIStream( mc, workdir );
 
     return editmode ? (bool)sd_.oStrm() : (bool)sd_.iStrm();
 }

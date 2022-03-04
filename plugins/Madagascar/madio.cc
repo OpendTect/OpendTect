@@ -145,8 +145,8 @@ StreamData ODMad::FileSpec::doOpen( const char* fnm ) const
 	    mErrRet(tr("Directory '%1' is not writable").arg( dirnm ) )
     }
 
-    StreamData ret = forread_ ? StreamProvider(fnm).makeIStream()
-			      : StreamProvider(fnm).makeOStream();
+    StreamData ret = forread_ ? StreamProvider::createIStream( fnm )
+			      : StreamProvider::createOStream( fnm );
     if ( !ret.usable() )
 	    mErrRet(tr("File '%1' cannot be opened").arg( fnm ) )
 

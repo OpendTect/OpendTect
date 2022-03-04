@@ -56,13 +56,18 @@ public:
 		    //!< renames if file. if successful, does a set()
 		    //!< The callback will be called with a const char* capsule
 
-    StreamData	makeOStream(bool binary=true,bool editmode=false) const;
-		    /*!< On win32, binary mode differs from text mode.
-			Use binary=false when explicitly reading txt files.
-			Use editmode=true when want to edit/modify existing data
-			in a file.*/
-    StreamData	makeIStream(bool binary=true,bool allowpreloaded=true) const;
-		    //!< see makeOStream remark
+    static StreamData	createIStream(const char*,bool binary=true);
+			/*!< keep binary==true also for text files unless you
+			     know what you are doing. win32 thing only. */
+    static StreamData	createOStream(const char*,bool binary=true,
+				    bool inplaceedit=false);
+			/*!< keep binary==true also for text files unless you
+			     know what you are doing. win32 thing only. */
+    static StreamData	createCmdIStream(const OS::MachineCommand&,
+					 const char* workdir,
+					 bool fromstderr=false);
+    static StreamData	createCmdOStream(const OS::MachineCommand&,
+					 const char* workdir);
 
     void	addPathIfNecessary(const char*);
 		//!< adds given path if stored filename is relative
@@ -73,21 +78,13 @@ public:
     static const char*	sStdIO();
     static const char*	sStdErr();
 
-    // Pre-load interface
-    static bool		isPreLoaded(const char*,bool isid);
-			    //!< If isid, a single hit will return true
-    static bool		preLoad(const char*,TaskRunner&,const char* id);
-			    //!< id can be anything, usually MultiID though
-    static bool		preLoad(const BufferStringSet&,TaskRunner&,
-				const char* id);
-			    //!< id can be anything, usually MultiID though
-    static void		getPreLoadedIDs(BufferStringSet&);
-    static void		getPreLoadedFileNames(const char* id,BufferStringSet&);
-			    //!< pass null id for all files
-    static int		getPreLoadedDataPackID(const char*);
-    static void		unLoad(const char*,bool isid=false);
-			    //!< If isid, unload all with this id
-    static void		unLoadAll();
+    mDeprecatedDef void set(const char* inp);
+
+    mDeprecated ("Use StreamProvider::createIStream or createCmdIStream")
+    StreamData	makeIStream(bool binary=true,bool dummyarg=true) const;
+
+    mDeprecated ("Use StreamProvider::createOStream or createCmdOStream")
+    StreamData	makeOStream(bool binary=true,bool inplaceedit=false) const;
 
 protected:
 
@@ -95,25 +92,12 @@ protected:
     OS::MachineCommand* mc_ = nullptr;
     BufferString	workingdir_;
 
-    static StreamData	makePLIStream(int);
-
     static void		sendCBMsg(const CallBack*,const char*);
 
 private:
 			StreamProvider(const StreamProvider&)	= delete;
     StreamProvider&	operator=(const StreamProvider&)	= delete;
 
-public:
-
-    mDeprecatedDef void set(const char* inp);
-
-    static StreamData createIStream(const char*,bool binary=true);
-			/*!< keep binary==true also for text files unless you
-			     know what you are doing. win32 thing only. */
-    static StreamData createOStream(const char*,bool binary=true,
-				    bool inplaceedit=false);
-			/*!< keep binary==true also for text files unless you
-			     know what you are doing. win32 thing only. */
 
 };
 

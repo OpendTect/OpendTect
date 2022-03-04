@@ -49,7 +49,7 @@ int mProgMainFnName( int argc, char** argv )
     mDynamicCastGet(EM::Horizon*,horizon,emobj)
     if ( !horizon ) return prUsage( "ID is not horizon" );
 
-    StreamData sd = StreamProvider(argv[2]).makeIStream();
+    StreamData sd = StreamProvider::createIStream( argv[2] );
     if ( !sd.usable() ) return prUsage( "input_XY_file not OK" );
 
     Coord c0;
@@ -66,7 +66,7 @@ int mProgMainFnName( int argc, char** argv )
     sd.close();
     if ( coords.size() < 1 ) return prUsage( "No valid coordinates found" );
 
-    sd = StreamProvider(argv[3]).makeOStream();
+    sd = StreamProvider::createOStream( argv[3] );
     if ( !sd.usable() ) return prUsage( "output_XYZ_file not OK" );
 
     for ( int idx=0; idx<coords.size(); idx++ )

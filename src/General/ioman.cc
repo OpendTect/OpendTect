@@ -260,7 +260,6 @@ void IOMan::reInit( bool dotrigger )
 	return;
     }
 
-    StreamProvider::unLoadAll();
     TranslatorGroup::clearSelHists();
 
     deleteAndZeroPtr( dirptr_ );

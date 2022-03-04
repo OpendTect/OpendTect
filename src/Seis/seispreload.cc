@@ -48,42 +48,14 @@ IOObj* PreLoader::getIOObj() const
 
 Interval<int> PreLoader::inlRange() const
 {
-    Interval<int> ret( mUdf(int), -mUdf(int) );
-    BufferStringSet fnms;
-    StreamProvider::getPreLoadedFileNames( mid_.toString(), fnms );
-    for ( int idx=0; idx<fnms.size(); idx++ )
-	ret.include( SeisCBVSPSIO::getInlNr( fnms.get(idx) ), false );
-
-    if ( mIsUdf(ret.start) ) ret.stop = ret.start;
-    return ret;
+    //TODO: Implement for PS3D
+    return Interval<int>::udf();
 }
 
 
 void PreLoader::getLineNames( BufferStringSet& lks ) const
 {
-    lks.erase(); PtrMan<IOObj> ioobj = getIOObj();
-    if ( !ioobj ) return;
-
-    BufferStringSet fnms;
-    StreamProvider::getPreLoadedFileNames( mid_.toString(), fnms );
-    if ( fnms.isEmpty() ) return;
-
-    BufferStringSet nms;
-    for ( int idx=0; idx<fnms.size(); idx++ )
-    {
-	FilePath fp( fnms.get(idx) );
-	nms.add( fp.fileName() );
-    }
-
-    Seis2DDataSet ds( *ioobj );
-    const int nrlns = ds.nrLines();
-    for ( int iln=0; iln<nrlns; iln++ )
-    {
-	const char* fnm =
-		SeisCBVS2DLineIOProvider::getFileName( *ioobj, ds.geomID(iln) );
-	if ( nms.isPresent(fnm) )
-	    lks.add( ds.lineName(iln) );
-    }
+    //TODO:: Implement for PS2D
 }
 
 
@@ -172,45 +144,22 @@ bool PreLoader::load( const TypeSet<TrcKeyZSampling>& tkzss,
 
 bool PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 {
-    mPrepIOObj();
-
-    SeisCBVSPSIO psio( ioobj->fullUserExpr(true) );
-    BufferStringSet fnms;
-    if ( !psio.get3DFileNames(fnms,inlrg) )
-	{ errmsg_ = psio.errMsg(); return false; }
-
-    return fnms.isEmpty() ? true
-	 : StreamProvider::preLoad( fnms, trunnr, mid_.toString() );
+    //TODO: Implement
+    return false;
 }
 
 
 bool PreLoader::loadPS2D( const char* lnm ) const
 {
-    mPrepIOObj();
-    BufferStringSet lnms;
-    if ( lnm && *lnm )
-	lnms.add( lnm );
-    else
-	SPSIOPF().getLineNames( *ioobj, lnms );
-
-    return loadPS2D( lnms );
+    //TODO: Implement (use GeomID instead)
+    return false;
 }
 
 
 bool PreLoader::loadPS2D( const BufferStringSet& lnms ) const
 {
-    if ( lnms.isEmpty() )
-	return true;
-
-    mPrepIOObj();
-
-    BufferStringSet fnms;
-    SeisCBVSPSIO psio( ioobj->fullUserExpr(true) );
-    for ( int idx=0; idx<lnms.size(); idx++ )
-	fnms.add( psio.get2DFileName(lnms.get(idx)) );
-
-    return fnms.isEmpty() ? true
-	: StreamProvider::preLoad( fnms, trunnr, mid_.toString() );
+    //TODO: Implement (Use GeomID instead)
+    return false;
 }
 
 
@@ -324,16 +273,8 @@ void PreLoader::fillPar( IOPar& iop ) const
 	    iop.set( sKey::Range(), inlRange() );
 	} break;
 	case LinePS: {
-	    BufferStringSet fnms;
-	    StreamProvider::getPreLoadedFileNames( mid_.toString(), fnms );
-	    if ( fnms.isEmpty() ) break;
 	    BufferStringSet lnms;
-	    for ( int idx=0; idx<fnms.size(); idx++ )
-	    {
-		FilePath fp( fnms.get(idx) );
-		fp.setExtension( 0, true );
-		lnms.add( fp.fileName() );
-	    }
+	    getLineNames( lnms );
 	    iop.set( sKeyLines(), lnms );
 	} break;
     }

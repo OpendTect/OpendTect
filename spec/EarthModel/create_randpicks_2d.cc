@@ -40,7 +40,7 @@ int mProgMainFnName( int argc, char** argv )
 
     const int nrpicks = toInt( argv[3] );
     BufferString fname( argv[4] );
-    StreamData outsd = StreamProvider( fname ).makeOStream();
+    StreamData outsd = StreamProvider::createOStream( fname );
     if ( !outsd.usable() )
 	mErrRet( "Cannot open output file" );
 

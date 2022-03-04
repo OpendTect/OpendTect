@@ -65,7 +65,7 @@ int mProgMainFnName( int argc, char** argv )
     EM::Horizon3D* horizon = loadHorizon( argv[1], errmsg );
     if ( errmsg != "" ) return prError( errmsg );
 
-    StreamData sd = StreamProvider(argv[2]).makeIStream();
+    StreamData sd = StreamProvider::createIStream( argv[2] );
     if ( !sd.usable() ) return prError( "input_XYV_file not OK" );
 
     BufferString attribname = argv[3];
