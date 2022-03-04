@@ -118,9 +118,6 @@ IOMan& IOM()
 
 IOMan::IOMan( const char* rd )
     : NamedCallBacker("IO Manager")
-    , dirptr_(nullptr)
-    , survchgblocked_(false)
-    , state_(IOMan::NeedInit)
     , lock_(Threads::Lock(false))
     , newIODir(this)
     , entryRemoved(this)
@@ -550,10 +547,11 @@ IOObj* IOMan::get( const MultiID& k ) const
 	return nullptr;
 
     MultiID ky = k.mainID();
-    if ( dirptr_ )
+    if ( dirptr_ && dirptr_->key().groupID() == ky.groupID() )
     {
 	const IOObj* ioobj = dirptr_->get( ky );
-	if ( ioobj ) return ioobj->clone();
+	if ( ioobj )
+	    return ioobj->clone();
     }
 
     return IODir::getObj( ky );
@@ -1251,12 +1249,11 @@ bool SurveyDataTreePreparer::prepDirData()
     dd->desc_.replace( ':', ';' );
     dd->dirname_.clean();
 
-    int nr = dd->selkey_.ID( 0 );
+    const int nr = dd->selkey_.objectID();
     if ( nr <= 200000 )
 	mErrRet("Invalid selection key passed for '",dd->desc_,"'")
 
-    dd->selkey_.setUdf();
-    dd->selkey_.setID( 0, nr );
+    dd->selkey_.setUdf().setObjectID( nr );
 
     return true;
 }

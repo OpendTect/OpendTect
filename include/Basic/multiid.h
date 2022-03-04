@@ -53,7 +53,7 @@ public:
 
     static const MultiID& udf();
     bool		isUdf() const;
-    inline void		setUdf()		{ *this = udf(); }
+    inline MultiID&	setUdf()		{ *this = udf(); return *this; }
 
 private:
     MultiID&		add(int id);

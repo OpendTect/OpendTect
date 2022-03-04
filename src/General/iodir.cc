@@ -238,6 +238,9 @@ const IOObj* IODir::get( const char* ky, const char* trgrpnm ) const
 
 int IODir::indexOf( const MultiID& ky ) const
 {
+    if ( key().groupID() != ky.groupID() )
+	return -1;
+
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];

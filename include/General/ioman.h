@@ -161,11 +161,11 @@ private:
     enum State		{ Bad, NeedInit, Good };
 
     BufferString	rootdir_;
-    State		state_;
-    IODir*		dirptr_;
+    State		state_ = NeedInit;
+    IODir*		dirptr_ = nullptr;
     int			curlvl_;
     BufferString	msg_;
-    bool		survchgblocked_;
+    bool		survchgblocked_ = false;
     mutable Threads::Lock lock_;
 
     void		init();
