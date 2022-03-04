@@ -115,14 +115,12 @@ bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, const Track&, float,
 
 
 Well::Reader::Reader( const IOObj& ioobj, Data& wd )
-    : ra_(nullptr)
 {
     init( ioobj, wd );
 }
 
 
 Well::Reader::Reader( const MultiID& ky, Data& wd )
-    : ra_(nullptr)
 {
     IOObj* ioobj = IOM().get( ky );
     if ( !ioobj )

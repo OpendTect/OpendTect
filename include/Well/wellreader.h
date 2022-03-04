@@ -65,7 +65,7 @@ public:
 
 protected:
 
-    ReadAccess*		ra_;
+    ReadAccess*		ra_ = nullptr;
     mutable uiString	errmsg_;
 
 private:
