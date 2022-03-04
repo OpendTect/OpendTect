@@ -113,7 +113,7 @@ void IOObj::copyFrom( const IOObj* obj )
 
 static FileMultiString fms;
 
-IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
+IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
 {
     if ( atEndOfSection(astream) )
 	astream.next();
@@ -124,8 +124,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 
     BufferString nm( astream.keyWord() );
     fms = astream.value();
-    MultiID objkey( dirky );
-    objkey.setObjectID( fms.getIValue(0) );
+    const MultiID objkey( groupid, fms.getIValue(0) );
 
     astream.next();
     BufferString groupnm( astream.keyWord() );
@@ -145,7 +144,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 	delete tr;
     }
 
-    IOObj* objptr = produce( objtyp, nm, objkey.toString(), false );
+    IOObj* objptr = produce( objtyp, nm, objkey, false );
     if ( !objptr ) return 0;
 
     objptr->setGroup( groupnm );
@@ -175,14 +174,13 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 }
 
 
-IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
+IOObj* IOObj::produce( const char* typ, const char* nm, const MultiID& keyin,
 			bool gendef )
 {
     if ( !nm || !*nm )
 	nm = "?";
 
-    MultiID ky( keyin );
-    if ( ky.isUdf() )
+    if ( keyin.isUdf() )
     {
 	pFreeFnErrMsg( "IOObj : Empty key given");
 	return nullptr;
@@ -193,7 +191,7 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
     {
 	const IOObjProducer& prod = *prods[idx];
 	if ( prod.canMake(typ) )
-	    return prod.make( nm, ky, gendef );
+	    return prod.make( nm, keyin, gendef );
     }
 
     return 0;
@@ -224,7 +222,7 @@ IOObj* IOObj::clone() const
     if ( key().isUdf() )
 	return 0;
 
-    IOObj* ret = produce( connType(), name(), key().toString(), false );
+    IOObj* ret = produce( connType(), name(), key(), false );
     if ( !ret )
 	{ pErrMsg("Cannot 'produce' IOObj of my own type"); return 0; }
     ret->copyFrom( this );
@@ -397,9 +395,8 @@ IOSubDir::IOSubDir( const IOSubDir& oth )
 IOSubDir* IOSubDir::get( ascistream& strm, const char* dirnm )
 {
     auto* ret = new IOSubDir( strm.value() );
-    const MultiID mid( strm.keyWord() + 1 );
-    ret->key_.setGroupID( 0 );
-    ret->key_.setObjectID( mid.groupID() );
+    ret->key_.setGroupID( toInt(strm.keyWord()+1) );
+    ret->key_.setObjectID( 0 );
     ret->dirnm_ = dirnm;
     ret->isbad_ = !File::isDirectory( ret->dirName() );
     strm.next(); return ret;

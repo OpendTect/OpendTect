@@ -161,7 +161,7 @@ mDefODInitPlugin(uiGMT)
     IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey(), ODGMT::sKeyGMT(),
 			      "GMT data" );
     MultiID id = IOMan::addCustomDataDir( cdd );
-    if ( id.objectID() != ODGMT::sKeyGMTSelKey() )
+    if ( id.groupID() != ODGMT::sKeyGMTSelKey() )
 	return "Cannot create 'GMT' directory in survey";
 
     uiGMTContourGrp::initClass();

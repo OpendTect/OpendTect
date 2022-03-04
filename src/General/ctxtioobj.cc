@@ -308,8 +308,11 @@ MultiID IOObjContext::getSelKey() const
 	return selkey_;
 
     MultiID key;
-    if ( stdseltype_ != None )
-	key.setObjectID( getStdDirData(stdseltype_)->idAsInt() );
+    if ( stdseltype_ == None )
+	return key;
+
+    key.setGroupID( getStdDirData(stdseltype_)->idAsInt() );
+    key.setObjectID( 0 );
     return key;
 }
 

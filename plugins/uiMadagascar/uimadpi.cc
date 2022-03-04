@@ -132,7 +132,7 @@ mDefODInitPlugin(uiMadagascar)
     IOMan::CustomDirData cdd( ODMad::sKeyMadSelKey(), ODMad::sKeyMadagascar(),
 			      "Madagascar data" );
     MultiID id = IOMan::addCustomDataDir( cdd );
-    if ( id.objectID() != ODMad::sKeyMadSelKey() )
+    if ( id.groupID() != ODMad::sKeyMadSelKey() )
 	return "Cannot create 'Madagascar' directory in survey";
 
 #ifdef MAD_UIMSG_IF_FAIL

@@ -121,11 +121,11 @@ public:
     public:
 			CustomDirData( int dirkey, const char* dirnm,
 					const char* desc="Custom data" )
-			    : selkey_(-1,dirkey)
+			    : selkey_(dirkey,0)
 			    , dirname_(dirnm)
 			    , desc_(desc)		{}
 
-	MultiID		selkey_; //!< Make sure your selkey > 200000
+	MultiID		selkey_; //!< Make sure your selkey.groupID() > 200000
 				 //!< Lower than that will be refused!
 				 //!< Example: "218745"
 	BufferString	dirname_; //!< The subdirectory name in the tree
@@ -133,7 +133,7 @@ public:
 			       //!< Example: "Geostatistical data"
 
 	bool		operator ==( const CustomDirData& cdd ) const
-			{ return selkey_.objectID() == cdd.selkey_.objectID(); }
+			{ return selkey_.groupID() == cdd.selkey_.groupID(); }
     };
 
     static const MultiID& addCustomDataDir(const CustomDirData&);

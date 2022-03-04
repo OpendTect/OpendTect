@@ -185,7 +185,7 @@ void IOMan::init()
 	auto stdseltyp = sCast(IOObjContext::StdSelType,idx);
 	const IOObjContext::StdDirData* dd =
 			IOObjContext::getStdDirData( stdseltyp );
-	const MultiID mid( 0, toInt(dd->id_) );
+	const MultiID mid( toInt(dd->id_), 0 );
 	const IOObj* dirioobj = dirptr_->get( mid );
 	if ( dirioobj )
 	{
@@ -1249,12 +1249,11 @@ bool SurveyDataTreePreparer::prepDirData()
     dd->desc_.replace( ':', ';' );
     dd->dirname_.clean();
 
-    const int nr = dd->selkey_.objectID();
+    const int nr = dd->selkey_.groupID();
     if ( nr <= 200000 )
 	mErrRet("Invalid selection key passed for '",dd->desc_,"'")
 
-    dd->selkey_.setUdf().setObjectID( nr );
-
+    dd->selkey_.setObjectID( 0 );
     return true;
 }
 
@@ -1319,7 +1318,7 @@ bool SurveyDataTreePreparer::createDataTree()
     strm << GetProjectVersionName();
     strm << "\nObject Management file\n";
     strm << Time::getISODateTimeString();
-    strm << "\n!\nID: " << dirdata_.selkey_ << "\n!\n"
+    strm << "\n!\nID: " << dirdata_.selkey_.groupID() << "\n!\n"
 	      << dirdata_.desc_ << ": 1\n"
 	      << dirdata_.desc_ << " directory: Gen`Stream\n"
 		"$Name: Main\n!"

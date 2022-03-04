@@ -32,11 +32,7 @@ IODir::IODir()
 
 IODir::IODir( const MultiID& ky )
 {
-    MultiID dirid = ky;
-    if ( dirid.groupID()>100000 && dirid.objectID()<0 )
-	dirid.setGroupID(-1).setObjectID(ky.groupID());
-
-    IOObj* ioobj = getObj( dirid );
+    IOObj* ioobj = getObj( ky );
     if ( !ioobj )
 	return;
 
@@ -131,7 +127,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
     ascistream astream( strm );
     astream.next();
     FileMultiString fms( astream.value() );
-    const MultiID dirky( fms[0].buf() );
+    const MultiID dirky( fms.getIValue(0), 0 );
     if ( dirptr )
     {
 	dirptr->key_ = dirky;
@@ -140,17 +136,16 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 	if ( dirptr->curid_ == IOObj::tmpID() )
 	    dirptr->curid_ = 1;
     }
+
     astream.next();
 
     IOObj* retobj = nullptr;
     while ( astream.type() != ascistream::EndOfFile )
     {
-	IOObj* obj = IOObj::get(astream,dirnm,dirky.toString());
+	IOObj* obj = IOObj::get(astream,dirnm,dirky.groupID());
 	if ( !obj || obj->isBad() ) { delete obj; continue; }
 
-	MultiID ky( obj->key() );
-	const int id = ky.objectID();
-
+	const int id = obj->myKey();
 	if ( dirptr )
 	{
 	    retobj = obj;
@@ -183,25 +178,8 @@ IOObj* IODir::getIOObj( const char* _dirnm, const MultiID& ky )
     if ( ky.isUdf() || dirnm.isEmpty() || !File::isDirectory(dirnm) )
 	return nullptr;
 
-    if ( ky.groupID()<0 && ky.objectID()>100000 )
-    {
-	IOObj* ioobj = doRead( dirnm, nullptr, ky.objectID() );
-	return ioobj;
-    }
-
-    const int nrkeys = ky.nrIDs();
-    for ( int idx=0; idx<nrkeys; idx++ )
-    {
-	const int id = ky.ID( idx );
-	IOObj* ioobj = doRead( dirnm, 0, id );
-	if ( !ioobj || !ioobj->isSubdir() )
-	    return ioobj;
-
-	dirnm = ioobj->dirName();
-	delete ioobj;
-    }
-
-    return nullptr;
+    const int id = ky.objectID()==0 ? ky.groupID() : ky.objectID();
+    return doRead( dirnm, 0, id );
 }
 
 
@@ -244,7 +222,7 @@ int IODir::indexOf( const MultiID& ky ) const
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
-	if ( ioobj->key().objectID() == ky.objectID() )
+	if ( ioobj->key().mainID() == ky.mainID() )
 	    return idx;
     }
 
@@ -412,7 +390,7 @@ bool IODir::wrOmf( od_ostream& strm ) const
     ascostream astream( strm );
     if ( !astream.putHeader( "Object Management file" ) )
 	mErrRet()
-    FileMultiString fms( key_.isUdf() ? "0" : key_.toString().buf() );
+    FileMultiString fms( key_.isUdf() ? "0" : toString(key_.groupID()) );
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const MultiID currentkey = objs_[idx]->key();

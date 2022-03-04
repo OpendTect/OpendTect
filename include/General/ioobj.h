@@ -131,17 +131,17 @@ protected:
 			IOObj(const char* nm=0,const char* ky=0);
 			IOObj(const char* nm,const MultiID&);
 			IOObj(const IOObj&);
-    static IOObj*	get(ascistream&,const char*,const char*);
+    static IOObj*	get(ascistream&,const char*,int);
     bool		put(ascostream&) const;
     virtual bool	getFrom(ascistream&)		= 0;
     virtual bool	putTo(ascostream&) const	= 0;
-    int			myKey() const;
+    virtual int		myKey() const;
 
 private:
 
     friend class	IODir;
 
-    static IOObj*	produce(const char*,const char* nm=0,const char* ky=0,
+    static IOObj*	produce(const char*,const char* nm,const MultiID&,
 				bool initdefaults=true);
     void		copyStuffFrom(const IOObj&);
 

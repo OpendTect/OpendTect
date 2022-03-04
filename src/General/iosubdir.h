@@ -37,6 +37,7 @@ public:
     Conn*	getConn( bool forread ) const { return 0; }
 
     const char*	dirName() const		{ return fullUserExpr(true); }
+    int		myKey() const		{ return key_.groupID(); }
 
 protected:
 
