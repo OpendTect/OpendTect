@@ -290,7 +290,7 @@ StreamData StreamProvider::createCmdIStream( const OS::MachineCommand& mc,
     if ( process->waitForStarted() )
     {
 	qstreambuf* stdiosb = new qstreambuf( *process, fromstderr, true );
-	retsd.setIStrm( new iqstream( stdiosb ) );
+	retsd.setIStrm( new iqstream(stdiosb) );
     }
     else
 	delete process;
@@ -323,7 +323,7 @@ StreamData StreamProvider::createCmdOStream( const OS::MachineCommand& mc,
     if ( process->waitForStarted() )
     {
 	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
-	retsd.setIStrm( new iqstream( stdiosb ) );
+	retsd.setOStrm( new oqstream(stdiosb) );
     }
     else
 	delete process;
