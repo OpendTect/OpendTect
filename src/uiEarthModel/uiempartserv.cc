@@ -1598,8 +1598,7 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d )
 {
-    const IODir iodir(
-	MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id_) );
+    const IODir iodir( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
     FixedString groupstr = is2d
 	? EMHorizon2DTranslatorGroup::sGroupName()
 	: EMHorizon3DTranslatorGroup::sGroupName();

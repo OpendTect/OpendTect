@@ -905,8 +905,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 {
     const char* linenm = Survey::GM().getName( geomid );
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
@@ -1000,8 +999,7 @@ void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
     Survey::GM().getList( lnms, gids, true );
     BoolTypeSet hasdata( gids.size(), false );
 
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::getStdDirData(IOObjContext::Seis)->id_ );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {

@@ -185,8 +185,7 @@ void IOMan::init()
 	auto stdseltyp = sCast(IOObjContext::StdSelType,idx);
 	const IOObjContext::StdDirData* dd =
 			IOObjContext::getStdDirData( stdseltyp );
-	const MultiID mid( toInt(dd->id_), 0 );
-	const IOObj* dirioobj = dirptr_->get( mid );
+	const IOObj* dirioobj = dirptr_->get( dd->id_ );
 	if ( dirioobj )
 	{
 	    prevdd = dd;
@@ -229,7 +228,7 @@ void IOMan::init()
 	// So, we have copied the directory.
 	// Now create an entry in the root omf
 	IOSubDir* iosd = new IOSubDir( dd->dirnm_ );
-	iosd->key_.fromString( dd->id_ );
+	iosd->key_ = dd->id_;
 	iosd->dirnm_ = rootdir_;
 	const IOObj* previoobj = prevdd ? dirptr_->get( MultiID(prevdd->id_) )
 					: dirptr_->main();
@@ -474,10 +473,7 @@ MultiID IOMan::createNewKey( const MultiID& dirkey )
 
 bool IOMan::to( IOObjContext::StdSelType type, bool force_reread )
 {
-    MultiID dirid;
-    const int id = IOObjContext::getStdDirData(type)->idAsInt();
-    dirid.setObjectID( id );
-    return to( dirid, force_reread );
+    return to( IOObjContext::getStdDirData(type)->id_, force_reread );
 }
 
 
@@ -1519,7 +1515,7 @@ IODir* IOMan::getDir( const MultiID& mid ) const
 	IOObjContext::StdSelType stdseltyp = (IOObjContext::StdSelType)idx;
 	const IOObjContext::StdDirData* dd =
 			IOObjContext::getStdDirData( stdseltyp );
-	if ( mid.groupID() == dd->idAsInt() )
+	if ( mid.groupID() == dd->groupID() )
 	{
 	    const FilePath fp( rootDir(), dd->dirnm_ );
 	    return fp.exists() ? new IODir( fp.fullPath() ) : nullptr;

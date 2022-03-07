@@ -688,8 +688,7 @@ const UnitOfMeasure* Well::Man::surveyDepthDisplayUnit()
 
 IOObj* Well::findIOObj( const char* nm, const char* uwi )
 {
-    const MultiID mid( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
-    const IODir iodir( mid );
+    const IODir iodir( IOObjContext::getStdDirData(IOObjContext::WllInf)->id_ );
     if ( nm && *nm )
     {
 	const IOObj* ioobj = iodir.get( nm, "Well" );

@@ -178,8 +178,13 @@ IOObj* IODir::getIOObj( const char* _dirnm, const MultiID& ky )
     if ( ky.isUdf() || dirnm.isEmpty() || !File::isDirectory(dirnm) )
 	return nullptr;
 
-    const int id = ky.objectID()==0 ? ky.groupID() : ky.objectID();
-    return doRead( dirnm, 0, id );
+    IOObj* subdirobj = doRead( dirnm, 0, ky.groupID() );
+    if ( !subdirobj || ky.objectID()==0 )
+	return subdirobj;
+
+    dirnm = subdirobj->dirName();
+    delete subdirobj;
+    return doRead( dirnm, nullptr, ky.objectID() );
 }
 
 
@@ -216,9 +221,6 @@ const IOObj* IODir::get( const char* ky, const char* trgrpnm ) const
 
 int IODir::indexOf( const MultiID& ky ) const
 {
-    if ( key().groupID() != ky.groupID() )
-	return -1;
-
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];

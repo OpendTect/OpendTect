@@ -38,33 +38,28 @@ mDefineEnumUtils(IOObjContext,StdSelType,"Std sel type") {
 #define mStdDirD IOObjContext::StdDirData
 
 static const IOObjContext::StdDirData stddirdata[] = {
-    mStdDirD( "100010", "Seismics", IOObjContext::StdSelTypeNames()[0] ),
-    mStdDirD( "100020", "Surfaces", IOObjContext::StdSelTypeNames()[1] ),
-    mStdDirD( "100030", "Locations", IOObjContext::StdSelTypeNames()[2] ),
-    mStdDirD( "100040", "Features", IOObjContext::StdSelTypeNames()[3] ),
-    mStdDirD( "100050", "WellInfo", IOObjContext::StdSelTypeNames()[4] ),
-    mStdDirD( "100060", "NLAs", IOObjContext::StdSelTypeNames()[5] ),
-    mStdDirD( "100070", "Misc", IOObjContext::StdSelTypeNames()[6] ),
-    mStdDirD( "100080", "Attribs", IOObjContext::StdSelTypeNames()[7] ),
-    mStdDirD( "100090", "Models", IOObjContext::StdSelTypeNames()[8] ),
-    mStdDirD( "100100", "Geometry", IOObjContext::StdSelTypeNames()[9] ),
-    mStdDirD( "", "None", IOObjContext::StdSelTypeNames()[10] ),
+    mStdDirD( 100010, "Seismics", IOObjContext::StdSelTypeNames()[0] ),
+    mStdDirD( 100020, "Surfaces", IOObjContext::StdSelTypeNames()[1] ),
+    mStdDirD( 100030, "Locations", IOObjContext::StdSelTypeNames()[2] ),
+    mStdDirD( 100040, "Features", IOObjContext::StdSelTypeNames()[3] ),
+    mStdDirD( 100050, "WellInfo", IOObjContext::StdSelTypeNames()[4] ),
+    mStdDirD( 100060, "NLAs", IOObjContext::StdSelTypeNames()[5] ),
+    mStdDirD( 100070, "Misc", IOObjContext::StdSelTypeNames()[6] ),
+    mStdDirD( 100080, "Attribs", IOObjContext::StdSelTypeNames()[7] ),
+    mStdDirD( 100090, "Models", IOObjContext::StdSelTypeNames()[8] ),
+    mStdDirD( 100100, "Geometry", IOObjContext::StdSelTypeNames()[9] ),
+    mStdDirD( 0, "None", IOObjContext::StdSelTypeNames()[10] ),
     mStdDirD( 0, 0, 0 )
 };
 
 
-mStartAllowDeprecatedSection
-IOObjContext::StdDirData::StdDirData( const char* theid, const char* thedirnm,
+IOObjContext::StdDirData::StdDirData( int theid, const char* thedirnm,
 				      const char* thedesc )
-    : id_( theid )
+    : id_( theid, 0 )
     , dirnm_( thedirnm )
     , desc_( thedesc )
-    , id( id_ )
-    , dirnm( dirnm_ )
-    , desc( desc_ )
 {
 }
-mStopAllowDeprecatedSection
 
 
 int IOObjContext::totalNrStdDirs() { return 10; }
@@ -307,13 +302,10 @@ MultiID IOObjContext::getSelKey() const
     if ( !selkey_.isUdf() )
 	return selkey_;
 
-    MultiID key;
     if ( stdseltype_ == None )
-	return key;
+	return MultiID::udf();
 
-    key.setGroupID( getStdDirData(stdseltype_)->idAsInt() );
-    key.setObjectID( 0 );
-    return key;
+    return getStdDirData(stdseltype_)->id_;
 }
 
 

@@ -88,19 +88,15 @@ public:
 
     struct StdDirData
     {
-					StdDirData(const char*,const char*,
+					StdDirData(int,const char*,
 						   const char*);
 
-	const char*			id_;
+	MultiID				id_;
 	const char*			dirnm_;
 	const char*			desc_;
 					//!< Can be converted to StdSelType
-	int				idAsInt() const
-					{ return toInt(id_); }
-
-	mDeprecated("Use id_")		const char*&	id;
-	mDeprecated("Use dirnm_")	const char*&	dirnm;
-	mDeprecated("Use desc_")	const char*&	desc;
+	int				groupID() const
+					{ return id_.groupID(); }
     };
 
     static int			totalNrStdDirs();

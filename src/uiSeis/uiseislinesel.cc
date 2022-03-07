@@ -208,7 +208,6 @@ void uiSeis2DLineChoose::readChoiceDone( CallBacker* )
 void uiSeis2DLineChoose::writeChoiceReq( CallBacker* )
 {
     MultiID mid = IOObjContext::getStdDirData(IOObjContext::Geom)->id_;
-    mid.setObjectID( 0 );
 
     lbchoiceio_->keys().setEmpty();
     for ( int idx=0; idx<listfld_->size(); idx++ )
@@ -217,7 +216,7 @@ void uiSeis2DLineChoose::writeChoiceReq( CallBacker* )
 	if ( idxof < 0 )
 	    { pErrMsg("Huh"); continue; }
 
-	mid.setID( 1, geomids_[idxof] );
+	mid.setObjectID( geomids_[idxof] );
 	lbchoiceio_->keys().add( mid );
     }
 }
