@@ -160,6 +160,9 @@ inline T& getNonConst( const T& t )
 
 #define mDefSetupMemb(typ,memb) mDefSetupClssMemb(Setup,typ,memb)
 
+#define mOD_DisableCopy(clss) \
+    clss( const clss& ) = delete; \
+    clss& operator=( const clss& ) = delete;
 
 
 //--- Covering Windows problems, mainly DLL export/import stuff
