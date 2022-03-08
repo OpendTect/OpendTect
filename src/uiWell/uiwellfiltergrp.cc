@@ -265,6 +265,15 @@ void uiWellFilterGrp::mnemFilterCB( CallBacker* )
 }
 
 
+void uiWellFilterGrp::wellTypeFilter( OD::WellType wt )
+{
+    BufferStringSet wellnms;
+    Well::WellDataFilter wdf( *wds_ );
+    wdf.getWellsOfType( wt, wellnms );
+    welllist_->setChosen( wellnms );
+}
+
+
 void uiWellFilterGrp::selChgCB( CallBacker* )
 {
     const int selwells = welllist_->nrChosen();

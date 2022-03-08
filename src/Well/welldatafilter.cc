@@ -270,8 +270,8 @@ void WellDataFilter::getLogPresence( const BufferStringSet& wellnms,
 }
 
 
-void WellDataFilter::getLogsForMnems(const MnemonicSelection& mns,
-				     BufferStringSet& lognms) const
+void WellDataFilter::getLogsForMnems( const MnemonicSelection& mns,
+				      BufferStringSet& lognms ) const
 {
     for ( const auto* wd : allwds_ )
     {
@@ -281,5 +281,16 @@ void WellDataFilter::getLogsForMnems(const MnemonicSelection& mns,
 	    for ( const auto& idx : idxs )
 		lognms.addIfNew( wd->logs().getLog(idx).name() );
 	}
+    }
+}
+
+
+void WellDataFilter::getWellsOfType( const OD::WellType wt,
+				     BufferStringSet& wellnms ) const
+{
+    for ( const auto* wd : allwds_ )
+    {
+	if ( wd->info().welltype_ == wt )
+	    wellnms.add( wd->name() );
     }
 }

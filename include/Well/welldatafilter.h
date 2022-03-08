@@ -52,6 +52,8 @@ public:
 					Well::Info::DepthType depthtype) const;
     void			getLogsForMnems(const MnemonicSelection& mns,
 					BufferStringSet& lognms) const;
+    void			getWellsOfType(const OD::WellType,
+					BufferStringSet& wellnms) const;
 
 private:
     const ObjectSet<Well::Data>&	allwds_;

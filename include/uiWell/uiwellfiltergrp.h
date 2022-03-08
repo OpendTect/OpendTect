@@ -71,6 +71,7 @@ public:
 
     void			noLogFilterCB(CallBacker*);
     void			mnemFilterCB(CallBacker*);
+    void			wellTypeFilter(OD::WellType);
 
 protected:
 
