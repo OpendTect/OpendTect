@@ -154,6 +154,8 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     if ( hasodLicInstall() )
 	mAttachCB( applyPushed, uiPluginSel::startLicInstallCB );
+
+    mAttachCB( postFinalise(), uiPluginSel::finalizeCB );
 }
 
 
@@ -163,6 +165,14 @@ uiPluginSel::~uiPluginSel()
     deepErase( products_ );
     deepErase( vendors_ );
     delete uisw_;
+}
+
+
+void uiPluginSel::finalizeCB(CallBacker *)
+{
+    uiButton* applybut = button(uiDialog::APPLY);
+    if ( applybut )
+	applybut->setPixmap( "lic-settings" );
 }
 
 
@@ -277,19 +287,19 @@ void uiPluginSel::createUI()
     treefld_->setStretch( 2, 2 );
     treefld_->showHeader( false );
     treefld_->attach( alignedBelow, banner );
-    float height = 0.0f;
+    int nritems = 0;
     for ( int idv=0; idv<vendors_.size(); idv++ )
     {
 	if ( !vendors_[idv]->nrprods_ )
 	    continue;
 
 	const BufferString& vendorname = vendors_[idv]->vendorname_;
-	uiVendorTreeItem* venditem =
+	auto* venditem =
 	    new uiVendorTreeItem( treefld_, vendorname, isVendorSelected(idv) );
 	const BufferString iconfnm( vendors_[idv]->vendorkey_, ".png" );
 	venditem->setIcon( 0, iconfnm );
-	height++;
-	for ( int idx=0; idx< products_.size(); idx++ )
+	nritems++;
+	for ( int idx=0; idx<products_.size(); idx++ )
 	{
 	    PluginProduct& pprod = *products_[idx];
 	    if ( getVendorIndex(pprod.creator_) != idv )
@@ -297,12 +307,12 @@ void uiPluginSel::createUI()
 
 	    auto* item = new uiProductTreeItem( venditem, pprod );
 	    item->setPixmap( 0, uiPixmap(pprod.pckgnm_) );
-	    height++;
+	    nritems++;
 	}
     }
 
     treefld_->expandAll();
-    treefld_->setPrefHeightInChar( height ? height+2 : height );
+    treefld_->setPrefHeightInChar( nritems==0 ? 0 : nritems+2 );
 }
 
 
@@ -366,7 +376,7 @@ void uiPluginSel::startLicInstallCB( CallBacker* )
 
     setButtonSensitive( APPLY, false );
     delete uisw_;
-    uisw_ = new uiUserShowWait(this, tr("Launching license edition dialog") );
+    uisw_ = new uiUserShowWait(this, tr("Launching license settings dialog") );
 
     const CallBack startliccb( mCB(this,uiPluginSel,showLicInstallCB) );
     CallBack finishedcb( mCB(this,uiPluginSel,licInstallDlgClosed) );
