@@ -635,6 +635,8 @@ public:
 						"TVD relative to SRD");}
     static uiString sTVDSS()		{ return tr("TVDSS",
 						"True Vertical Depth Sub Sea");}
+    static uiString sTVDSD()		{ return tr("TVDSD",
+						"True Vertical Depth SRD");}
     static uiString sTWT(bool abbr=true)
     { return abbr ? tr("TWT") : tr("Two Way Travel Time"); }
     static uiString sType()		{ return tr("Type"); }
