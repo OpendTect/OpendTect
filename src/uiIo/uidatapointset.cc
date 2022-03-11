@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "uidpsaddcolumndlg.h"
 #include "uidpsselectednessdlg.h"
 #include "uifileinput.h"
+#include "uifont.h"
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uiioobjseldlg.h"
@@ -203,6 +204,8 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     tbl_->selectionChanged.notify( mCB(this,uiDataPointSet,selChg) );
     tbl_->setTableReadOnly( setup_.isconst_ );
     tbl_->setLabelAlignment( Alignment::Left, true );
+    tbl_->setFont( FontList().get(FontData::Fixed) );
+    tbl_->setColumnResizeMode( uiTable::Interactive );
     dps_.dataSet().pars().get( sKeyGroups, grpnames_ );
 
     selPtsToBeShown.notify( mCB(this,uiDataPointSet,showSelPts) );
@@ -1030,7 +1033,8 @@ void uiDataPointSet::reDoTable()
 	fillData( tid );
     }
 
-    tbl_->resizeRowsToContents();
+    tbl_->resizeColumnsToContents();
+    tbl_->setColumnStretchable( tbl_->nrCols()-1, true );
 }
 
 
