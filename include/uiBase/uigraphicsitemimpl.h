@@ -290,6 +290,8 @@ public:
     void		setText(const uiString&);
     void		setTextColor(const Color&);
 
+    void		setTextRotation(float angle);
+
 protected:
 			uiTextItem(QGraphicsItem*);
     void		translateText();

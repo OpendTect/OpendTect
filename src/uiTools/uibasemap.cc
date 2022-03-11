@@ -295,6 +295,7 @@ void uiBaseMapObject::update()
 	    mDynamicCastGet(uiTextItem*,itm,labelitem_.getChild(labelitemnr));
 	    if ( !itm ) return;
 
+	    itm->setItemIgnoresTransformations( true );
 	    itm->setText( toUiString(shapenm) );
 	    Coord txtpos = bmobject_->getTextPos( idx );
 	    if ( txtpos.isUdf() )
@@ -309,12 +310,12 @@ void uiBaseMapObject::update()
 		}
 	    }
 
-	    itm->setPos( txtpos );
 	    const Alignment al = bmobject_->getAlignment( idx );
 	    itm->setAlignment( al );
 
 	    const float angle = Math::toDegrees( bmobject_->getTextRotation() );
-	    itm->setRotation( angle );
+	    itm->setTextRotation( -angle );
+	    itm->setPos( txtpos );
 
 	    labelitemnr++;
 	}

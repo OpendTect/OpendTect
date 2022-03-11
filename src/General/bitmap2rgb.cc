@@ -63,6 +63,78 @@ void BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
 }
 
 
+class VDImageFiller : public ParallelTask
+{
+public:
+VDImageFiller( const A2DBitMap& bmp, const Geom::Point2D<int>& offs,
+	     const ColTab::Sequence& ctab, const ColTab::MapperSetup& su,
+	     OD::RGBImage& image )
+    : ParallelTask()
+    , msu_(su)
+    , ctindex_(ctab,maxfill_-minfill_+1)
+    , bmp_(bmp)
+    , offs_(offs)
+    , image_(image)
+    , imageinfo_(image.getSize(true),image.getSize(false))
+{
+    bmpsz_ = Geom::Size2D<int>(bmp.info().getSize(0),bmp.info().getSize(1));
+    imagesz_ = imageinfo_.getTotalSz();
+    maxcolidx_ = ctindex_.nrCols()-1;
+}
+
+
+~VDImageFiller()
+{}
+
+
+protected:
+od_int64 nrIterations() const override
+{
+    return imagesz_;
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    int xy[2];
+    for ( auto curpos=start; curpos<=stop; curpos++ )
+    {
+	const bool res = imageinfo_.getArrayPos( curpos, xy );
+	if ( !res || xy[0] >= bmpsz_.width() || xy[1] >= bmpsz_.height() )
+	    continue;
+
+	const char bmpval = bmp_.get( xy[0]+offs_.x, xy[1]+offs_.y );
+	if ( bmpval == A2DBitMapGenPars::cNoFill() )
+	    continue;
+
+	const int idx = sCast(int,bmpval) - minfill_;
+	const int colidx = msu_.flipseq_ ? maxcolidx_-idx : idx;
+	const Color col = ctindex_.colorForIndex( colidx );
+	if ( col.isVisible() )
+	    image_.set( xy[0], xy[1], col );
+    }
+
+    return true;
+}
+
+
+    const int minfill_ = sCast(int,VDA2DBitMapGenPars::cMinFill());
+    const int maxfill_ = sCast(int,VDA2DBitMapGenPars::cMaxFill());
+
+    ColTab::MapperSetup		msu_;
+    ColTab::IndexedLookUpTable	ctindex_;
+
+    const A2DBitMap&		bmp_;
+    Geom::Size2D<int>		bmpsz_;
+    const Geom::Point2D<int>&	offs_;
+    OD::RGBImage&		image_;
+    Array2DInfoImpl		imageinfo_;
+
+    od_int64			imagesz_;
+    int				maxcolidx_;
+};
+
+
 void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
 {
     const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
@@ -70,43 +142,76 @@ void BitMap2RGB::drawVD( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
     const FlatView::DataDispPars::VD& pars = app_.ddpars_.vd_;
     ColTab::Sequence ctab( pars.ctab_.buf() );
 
-    const int minfill = (int)VDA2DBitMapGenPars::cMinFill();
-    const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill();
-    ColTab::IndexedLookUpTable ctindex( ctab, maxfill-minfill+1 );
-
-    if ( (pars.mappersetup_.type_==ColTab::MapperSetup::HistEq) &&
-	 !clipperdata_.isEmpty() )
-    {
-	TypeSet<float> datapts;
-	datapts.setCapacity( mCast(int,bmp.info().getTotalSz()), false );
-	for ( int idx=0; idx<bmp.info().getSize(0); idx++ )
-	    for ( int idy=0; idy<bmp.info().getSize(1); idy++ )
-		datapts += (float)bmp.get( idx, idy );
-
-	delete histequalizer_;
-	histequalizer_ = new HistEqualizer( maxfill-minfill+1 );
-	histequalizer_->setRawData( datapts );
-    }
-
-    const int maxcolidx = ctindex.nrCols()-1;
-    for ( int ix=0; ix<arrsz.width(); ix++ )
-    {
-	if ( ix >= bmpsz.width() ) break;
-	for ( int iy=0; iy<arrsz.height(); iy++ )
-	{
-	    if ( iy >= bmpsz.height() ) break;
-	    const char bmpval = bmp.get( ix + offs.x, iy + offs.y );
-	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
-		continue;
-
-	    const int idx = (int)bmpval-minfill;
-	    const int colidx = pars.mappersetup_.flipseq_ ? maxcolidx-idx : idx;
-	    const Color col = ctindex.colorForIndex( colidx );
-	    if ( col.isVisible() )
-		array_.set( ix, iy, col );
-	}
-    }
+    VDImageFiller filler( bmp, offs, ctab, pars.mappersetup_, array_ );
+    filler.execute();
 }
+
+
+class WVAImageFiller : public ParallelTask
+{
+public:
+WVAImageFiller( const A2DBitMap& bmp, const Geom::Point2D<int>& offs,
+		const FlatView::DataDispPars::WVA& pars, OD::RGBImage& image )
+    : ParallelTask()
+    , bmp_(bmp)
+    , offs_(offs)
+    , image_(image)
+    , imageinfo_(image.getSize(true),image.getSize(false))
+    , pars_(pars)
+{
+    bmpsz_ = Geom::Size2D<int>(bmp.info().getSize(0),bmp.info().getSize(1));
+    imagesz_ = imageinfo_.getTotalSz();
+}
+
+
+~WVAImageFiller()
+{}
+
+
+protected:
+od_int64 nrIterations() const override
+{
+    return imagesz_;
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int ) override
+{
+    int xy[2];
+    for ( auto curpos=start; curpos<=stop; curpos++ )
+    {
+	const bool res = imageinfo_.getArrayPos( curpos, xy );
+	if ( !res || xy[0] >= bmpsz_.width() || xy[1] >= bmpsz_.height() )
+	    continue;
+
+	const char bmpval = bmp_.get( xy[0]+offs_.x, xy[1]+offs_.y );
+	if ( bmpval == A2DBitMapGenPars::cNoFill() )
+	    continue;
+
+	Color col( pars_.wigg_ );
+	if ( bmpval == WVAA2DBitMapGenPars::cLowFill() )
+	    col = pars_.lowfill_;
+	else if ( bmpval == WVAA2DBitMapGenPars::cHighFill() )
+	    col = pars_.highfill_;
+	else if ( bmpval == WVAA2DBitMapGenPars::cRefLineFill() )
+	    col = pars_.refline_;
+
+	if ( col.isVisible() )
+	    image_.set( xy[0], xy[1], col );
+    }
+
+    return true;
+}
+
+    const A2DBitMap&		bmp_;
+    Geom::Size2D<int>		bmpsz_;
+    const Geom::Point2D<int>&	offs_;
+    OD::RGBImage&		image_;
+    Array2DInfoImpl		imageinfo_;
+    const FlatView::DataDispPars::WVA& pars_;
+
+    od_int64			imagesz_;
+};
 
 
 void BitMap2RGB::drawWVA( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
@@ -115,26 +220,6 @@ void BitMap2RGB::drawWVA( const A2DBitMap& bmp, const Geom::Point2D<int>& offs )
     const Geom::Size2D<int> arrsz(array_.getSize(true),array_.getSize(false));
     const FlatView::DataDispPars::WVA& pars = app_.ddpars_.wva_;
 
-    for ( int ix=0; ix<arrsz.width(); ix++ )
-    {
-	if ( ix >= bmpsz.width() ) break;
-	for ( int iy=0; iy<arrsz.height(); iy++ )
-	{
-	    if ( iy >= bmpsz.height() ) break;
-	    const char bmpval = bmp.get( ix+offs.x, iy+offs.y );
-	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
-		continue;
-
-	    Color col( pars.wigg_ );
-	    if ( bmpval == WVAA2DBitMapGenPars::cLowFill() )
-		col = pars.lowfill_;
-	    else if ( bmpval == WVAA2DBitMapGenPars::cHighFill() )
-		col = pars.highfill_;
-	    else if ( bmpval == WVAA2DBitMapGenPars::cRefLineFill() )
-		col = pars.refline_;
-
-	    if ( col.isVisible() )
-		array_.set( ix, iy, col );
-	}
-    }
+    WVAImageFiller filler( bmp, offs, pars, array_ );
+    filler.execute();
 }

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uigraphicsscene.h"
 
 #include "draw.h"
+#include "envvars.h"
 #include "threadwork.h"
 #include "uimain.h"
 #include "uigraphicsitemimpl.h"
@@ -30,10 +31,10 @@ ________________________________________________________________________
 #include <QKeyEvent>
 #include <QList>
 #include <QPainter>
+#include <QPdfWriter>
 #include <QPoint>
 #include <QPrinter>
 #include <QString>
-#include <math.h>
 
 mUseQtnamespace
 
@@ -483,8 +484,11 @@ void uiGraphicsScene::copyToClipBoard()
     imagepainter->begin( image );
 
     QGraphicsView* view = qGraphicsScene()->views()[0];
-    QRectF sourcerect( view->mapToScene(0,0),
-		       view->mapToScene(view->width(),view->height()) );
+    const int viewwidth = view->viewport()->width();
+    const int viewheight = view->viewport()->height();
+    const QRectF sourcerect( view->mapToScene(0,0),
+			     view->mapToScene(viewwidth,viewheight) );
+
     qGraphicsScene()->render( imagepainter, QRectF(0,0,width(),height()),
 			      sourcerect );
     imagepainter->end();
@@ -499,8 +503,8 @@ void uiGraphicsScene::copyToClipBoard()
 void uiGraphicsScene::saveAsImage( const char* fnm, int w, int h, int res )
 {
     QString fname( fnm );
-    QPainter* imagepainter = new QPainter();
-    QImage* image = new QImage( QSize(w,h), QImage::Format_ARGB32 );
+    PtrMan<QPainter> imagepainter = new QPainter();
+    PtrMan<QImage> image = new QImage( QSize(w,h), QImage::Format_ARGB32 );
     QColor qcol( 255, 255, 255 );
     image->fill( qcol.rgb() );
     image->setDotsPerMeterX( sCast(int,(res/0.0254)) );
@@ -510,52 +514,49 @@ void uiGraphicsScene::saveAsImage( const char* fnm, int w, int h, int res )
     QGraphicsView* view = qGraphicsScene()->views()[0];
     const int viewwidth = view->viewport()->width();
     const int viewheight = view->viewport()->height();
-    QRectF sourcerect( view->mapToScene(0,0),
-		       view->mapToScene(viewwidth-1,viewheight-1) );
-    qGraphicsScene()->render( imagepainter, QRectF(0,0,w,h), sourcerect );
+    const QRectF sourcerect( view->mapToScene(0,0),
+			     view->mapToScene(viewwidth-1,viewheight-1) );
+    const QRectF destrect( 0, 0, w, h );
+    qGraphicsScene()->render( imagepainter, destrect, sourcerect );
     imagepainter->end();
     image->save( fname );
-    delete imagepainter;
-    delete image;
 }
 
 
 void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
 				    int w, int h, int res )
 {
-    QString fileName( filename );
-    auto* pdfprinter = new QPrinter();
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-    pdfprinter->setOutputFormat( QPrinter::PdfFormat );
-#else
-    pdfprinter->setOutputFormat( aspdf ? QPrinter::PdfFormat
-				       : QPrinter::PostScriptFormat );
-#endif
-    const QPageSize pgsz( QSizeF(w,h), QPageSize::Point );
-    pdfprinter->setPageSize( pgsz );
-    pdfprinter->setFullPage( false );
-    pdfprinter->setOutputFileName( filename );
-    pdfprinter->setResolution( res );
+    PtrMan<QPdfWriter> qpdfwriter = new QPdfWriter( filename );
+    qpdfwriter->setResolution( res );
+    const float resf( res );
+    const QPageSize pgsz( QSizeF(w/resf,h/resf), QPageSize::Inch );
+    qpdfwriter->setPageSize( pgsz );
+    qpdfwriter->setCreator( QStringLiteral("OpendTect") );
 
-    auto* pdfpainter = new QPainter();
-    pdfpainter->begin( pdfprinter );
+    PtrMan<QPainter> qpainter = new QPainter();
+    qpainter->begin( qpdfwriter );
+
     QGraphicsView* view = qGraphicsScene()->views()[0];
-    QRectF sourcerect( view->mapToScene(0,0),
-		       view->mapToScene(view->width(),view->height()) );
-    qGraphicsScene()->render( pdfpainter,
-	    QRectF(0,0,pdfprinter->width(),pdfprinter->height()) ,sourcerect );
-    pdfpainter->end();
-    delete pdfpainter;
-    delete pdfprinter;
+    const int viewwidth = view->viewport()->width();
+    const int viewheight = view->viewport()->height();
+    const QRectF sourcerect( view->mapToScene(0,0),
+			     view->mapToScene(viewwidth,viewheight) );
+    const QRectF destrect( 0, 0, w, h );
+    qGraphicsScene()->render( qpainter, destrect, sourcerect );
+    qpainter->end();
 }
 
 
 void uiGraphicsScene::saveAsPDF( const char* filename, int w, int h, int res )
-{ saveAsPDF_PS( filename, true, w, h, res ); }
+{
+    saveAsPDF_PS( filename, true, w, h, res );
+}
 
 
 void uiGraphicsScene::saveAsPS( const char* filename, int w, int h, int res )
-{ saveAsPDF_PS( filename, false, w, h, res ); }
+{
+    saveAsPDF_PS( filename, false, w, h, res );
+}
 
 
 int uiGraphicsScene::indexOf( int id ) const
