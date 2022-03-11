@@ -799,22 +799,24 @@ void uiSEGYReadStartInfo::clearInfo()
 }
 
 
-void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfoSet& sis )
+void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfoSet& sis,
+				       int nrfiles )
 {
-    const int nrfiles = sis.size();
+    const int nrscans = sis.size();
+    const bool only1st = nrscans == 1 && nrfiles > 1;
     uiString scanlabel = sis.isFull() ? tr("Full scan result")
-				      : tr("Quick scan result");
-    tbl_->setColumnLabel( mQSResCol,
-	    nrfiles <=1 ? scanlabel : tr("%1 (from 1st file)").arg(scanlabel) );
+			: ( only1st ? tr("Quick scan result (from 1st file)")
+				    : tr("Quick scan result") );
+    tbl_->setColumnLabel( mQSResCol, scanlabel );
 
-    tbl_->setColumnLabel( mUseCol, nrfiles <= 1 ? tr("Actually use")
+    tbl_->setColumnLabel( mUseCol, !only1st ? tr("Actually use")
 					: tr("Actually use (for all files)") );
 
     uiString txt = nrfiles <= 1 ? uiString::empty()
 				: tr( "%1 files selected" ).arg( nrfiles );
     tbl_->setColumnLabel( mItemCol, txt );
 
-    if ( nrfiles < 1 )
+    if ( nrscans < 1 )
     {
 	clearInfo();
 	return;

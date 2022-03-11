@@ -33,17 +33,26 @@ uiSEGYMultiLineSel::uiSEGYMultiLineSel( uiParent* p, const SEGY::FileSpec& fs,
     nrwc_ = userfilenm.count( '*' );
     const bool needwcsel = nrwc_ > 1;
 
-    const int nrrows = filespec_.nrFiles() + 1;
+    int nrrows = filespec_.nrFiles();
+    if ( needwcsel )
+	nrrows++;
+
     const int nrcols = needwcsel ? nrwc_ + 3 : 3;
-    tbl_ = new uiTable( this, uiTable::Setup(nrrows,nrcols), "File Table" );
+    tbl_ = new uiTable( this, uiTable::Setup(nrrows,nrcols).defrowlbl(true)
+				.rowdesc(uiStrings::sFile())
+				.defrowstartidx(needwcsel? 0 : 1),
+				"File Table" );
     tbl_->setStretch( 2, 2 );
-    tbl_->setPrefWidthInChar( 20*nrcols );
-    tbl_->setPrefHeightInRows( nrrows );
-    tbl_->setColumnResizeMode( uiTable::ResizeToContents );
-    tbl_->setRowLabel( 0, uiString::empty() );
+    tbl_->setPrefWidthInChar( 120 );
+    tbl_->setPrefHeightInRows( mMIN(nrrows,15) );
+    tbl_->setColumnResizeMode( uiTable::Interactive );
+    tbl_->setColumnStretchable( nrcols-2, true );
     tbl_->setColumnLabel( 0, uiStrings::sFileName() );
-    tbl_->setColumnLabel( nrcols-1, tr("Line exists") );
-    tbl_->setColumnLabel( nrcols-2, tr("Final Line name") );
+    tbl_->setColumnLabel( nrcols-1, tr("Line Status") );
+    tbl_->setColumnToolTip( nrcols-1,
+	    tr("Tells if line geometry already exists in the survey") );
+    tbl_->setColumnLabel( nrcols-2, needwcsel ? tr("Final Line name")
+					      : uiStrings::sLineName() );
 
     if ( needwcsel )
     {
@@ -56,9 +65,11 @@ uiSEGYMultiLineSel::uiSEGYMultiLineSel( uiParent* p, const SEGY::FileSpec& fs,
 	    checkboxes_ += uicb;
 	    tbl_->setColumnReadOnly( idx+1, true );
 	}
+
+	tbl_->setRowReadOnly( 0, true );
+	tbl_->setRowLabel( 0, uiString::empty() );
     }
 
-    tbl_->setRowReadOnly( 0, true );
     tbl_->setColumnReadOnly( 0, true );
     tbl_->setColumnReadOnly( nrcols-1, true );
     tbl_->valueChanged.notify( mCB(this,uiSEGYMultiLineSel,lineEditCB) );
@@ -105,8 +116,7 @@ void uiSEGYMultiLineSel::initTable()
     const int linecol = tbl_->nrCols() - 2;
     for ( int idx=0; idx<filespec_.nrFiles(); idx++ )
     {
-	const int rowidx = idx + 1;
-	tbl_->setRowLabel( rowidx, toUiString(rowidx) );
+	const int rowidx = needwcsel ? idx + 1 : idx;
 	BufferString filenm( FilePath(filespec_.fileName(idx)).fileName() );
 	tbl_->setText( RowCol(rowidx,0), filenm );
 	lastdot = filenm.findLast( '.' );
@@ -166,7 +176,7 @@ void uiSEGYMultiLineSel::initTable()
 	}
     }
 
-    tbl_->setColumnStretchable( linecol, true );
+    tbl_->resizeColumnsToContents();
 }
 
 
@@ -211,7 +221,10 @@ void uiSEGYMultiLineSel::checkCB( CallBacker* cb )
 void uiSEGYMultiLineSel::lineEditCB( CallBacker* )
 {
     const RowCol& rc = tbl_->notifiedCell();
-    if ( rc.col() == tbl_->nrCols()-2 )
+    const int linenmcol = tbl_->nrCols() - 2;
+    tbl_->resizeColumnsToContents();
+    tbl_->setColumnStretchable( linenmcol, true );
+    if ( rc.col() == linenmcol )
 	updateLineAvailability( rc.row() );
 }
 
@@ -247,15 +260,22 @@ void uiSEGYMultiLineSel::updateLineAvailability( int rowidx )
 {
     const int linecol = tbl_->nrCols() - 2;
     const int statuscol = tbl_->nrCols() - 1;
-    if ( rowidx > 0 )
+    RowCol rc( rowidx, linecol );
+    const BufferString linenm = tbl_->text( rc );
+    const Survey::Geometry* geom = Survey::GM().getGeometry( linenm.buf() );
+    rc.col() = statuscol;
+    if ( geom && geom->is2D() )
     {
-	const BufferString linenm = tbl_->text( RowCol(rowidx,linecol) );
-	const Survey::Geometry* geom = Survey::GM().getGeometry( linenm.buf() );
-	if ( geom && geom->is2D() )
-	    tbl_->setPixmap( RowCol(rowidx,statuscol), uiPixmap("checkgreen") );
-	else
-	    tbl_->clearCell( RowCol(rowidx,statuscol) );
+	tbl_->setText( rc, tr("Exists") );
+	tbl_->setColor( rc, Color(180,255,180) );
     }
+    else
+    {
+	tbl_->setText( rc, uiStrings::sNew() );
+	tbl_->setColor( rc, Color(180,240,255) );
+    }
+
+    tbl_->setCellReadOnly( rc, true );
 }
 
 
@@ -263,8 +283,12 @@ bool uiSEGYMultiLineSel::acceptOK( CallBacker* )
 {
     linenames_.setEmpty();
     const int linecol = tbl_->nrCols() - 2;
-    for ( int idx=1; idx<tbl_->nrRows(); idx++ )
-	linenames_.add( tbl_->text(RowCol(idx,linecol)) );
+    const bool haswcselrow = nrwc_ > 1;
+    for ( int idx=0; idx<filespec_.nrFiles(); idx++ )
+    {
+	const int rowidx = haswcselrow ? idx+1 : idx;
+	linenames_.add( tbl_->text(RowCol(rowidx,linecol)) );
+    }
 
     selwcidx_ = curwcidx_;
     return true;

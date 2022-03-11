@@ -48,18 +48,14 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
 
     uiGroup* tblgrp = new uiGroup( this );
     tblgrp->attach( alignedBelow, inpfld_ );
-    vartable_ = new uiTable( tblgrp,uiTable::Setup().rowdesc(uiStrings::sX())
+    vartable_ = new uiTable( tblgrp,uiTable::Setup(2,1).rowdesc(uiStrings::sX())
 					.minrowhgt(1.5) .maxrowhgt(2)
 					.mincolwdt(3.0f*uiObject::baseFldSize())
 					.maxcolwdt(3.5f*uiObject::baseFldSize())
 					.defrowlbl("") .fillcol(true)
 					.fillrow(true) .defrowstartidx(0),
 					"Variable X attribute table" );
-    vartable_->setColumnLabels( uiStrings::sInput() );
-    vartable_->setNrRows( 2 );
-    vartable_->setStretch( 2, 0 );
-    vartable_->setRowResizeMode( uiTable::Fixed );
-    vartable_->setColumnResizeMode( uiTable::Fixed );
+    vartable_->setColumnLabel( 0, uiStrings::sInput() );
     vartable_->display( false );
     if ( !mathexprstring_.isEmpty() )
     {
@@ -107,6 +103,7 @@ void uiDPSRefineSelDlg::updateDisplay()
 
     const DataPointSet& dps = plotter_.dps();
     uiDataPointSet::DColID dcid = -dps.nrFixedCols()+1;
+    colnms_.setEmpty();
     for ( ; dcid<dps.nrCols(); dcid++ )
 	colnms_.add( plotter_.uidps().userName(dcid) );
 

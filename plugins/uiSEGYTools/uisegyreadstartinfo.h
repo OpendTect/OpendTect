@@ -39,7 +39,7 @@ public:
 			~uiSEGYReadStartInfo();
 
     void		setImpTypIdx(int,bool updnow=true);
-    void		setScanInfo(const SEGY::ScanInfoSet&);
+    void		setScanInfo(const SEGY::ScanInfoSet&,int nrfiles=1);
     void		showNrSamplesSetting(bool);
     void		showZSamplingSetting(bool);
     void		setRev1Values();
