@@ -875,6 +875,9 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 
 	    PtrMan<DescSet> targetdescset =
 		targetdesc->descSet()->optimizeClone( targetdesc->id() );
+	    if ( !targetdescset )
+		return nullptr;
+
 	    const bool haspossvol = aem->getPossibleVolume( *targetdescset,
 					posstkzs, nullptr, targetdesc->id() );
 	    if ( !haspossvol )
