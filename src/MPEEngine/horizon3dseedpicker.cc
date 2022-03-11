@@ -607,9 +607,10 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	return true;
 
     TrcKeyPath nodes;
-    if ( rdlpath && rdlid )
+    RefMan<Geometry::RandomLine> rlgeom = nullptr;
+    if ( rdlpath && rdlid>=0 )
     {
-	RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
+	rlgeom = Geometry::RLM().get( rdlid );
 	if ( rlgeom )
 	    rlgeom->allNodePositions( nodes );
     }
@@ -662,15 +663,11 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	    TrcKey tk;
 	    Coord3 interpos;
 	    const double frac = (double) idx / diff;
-	    if ( rdlpath && rdlid>=0 )
+	    if ( rdlpath && rlgeom && !nodes.isEmpty() )
 	    {
-		RefMan<Geometry::RandomLine> rlgeom =
-		    Geometry::RLM().get( rdlid );
-		TrcKeyPath nodes;
-		rlgeom->allNodePositions( nodes );
 		const int startidx =
 		    Geometry::RandomLine::getNearestPathPosIdx(
-				    nodes, *rdlpath, seedlist_[sortidx[vtx]] );
+			nodes, *rdlpath, seedlist_[sortidx[vtx]] );
 		if ( startidx<0 )
 		    continue;
 
