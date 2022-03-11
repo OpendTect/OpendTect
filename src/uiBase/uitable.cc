@@ -154,10 +154,10 @@ static void setResizeMode( QHeaderView* hdr, QHeaderView::ResizeMode mode,
     else
 	hdr->setResizeMode( idx, mode );
 #else
-    if ( idx<0 )
-	hdr->setSectionResizeMode( mode );
-    else
+    if ( idx>=0 )
 	hdr->setSectionResizeMode( idx, mode );
+    else
+	hdr->setSectionResizeMode( mode );
 #endif
 }
 
@@ -574,24 +574,25 @@ bool uiTable::gridShown() const
 void uiTable::setDefaultRowLabels()
 {
     const int nrrows = nrRows();
+    uiStringSet labelset;
     for ( int idx=0; idx<nrrows; idx++ )
-    {
-	uiString lbl( setup_.rowdesc_ );
-	lbl = toUiString("%1 %2").arg(lbl).arg(idx + setup_.defrowstartidx_);
-	setRowLabel( idx, lbl );
-    }
+	labelset.add( toUiString("%1 %2").arg(setup_.rowdesc_)
+					 .arg(idx + setup_.defrowstartidx_) );
+
+    if ( !labelset.isEmpty() )
+	setRowLabels( labelset );
 }
 
 
 void uiTable::setDefaultColLabels()
 {
     const int nrcols = nrCols();
+    uiStringSet labelset;
     for ( int idx=0; idx<nrcols; idx++ )
-    {
-	uiString lbl = toUiString("%1 %2").arg(mToUiStringTodo(setup_.coldesc_))
-					  .arg(idx+1);
-	setColumnLabel( idx, lbl );
-    }
+	labelset.add( toUiString("%1 %2").arg(setup_.coldesc_).arg(idx+1) );
+
+    if ( !labelset.isEmpty() )
+	setColumnLabels( labelset );
 }
 
 #define updateRow(r) update( true, r )
@@ -1151,9 +1152,12 @@ void uiTable::setRowLabels( const BufferStringSet& labels )
 
 void uiTable::setRowLabels( const uiStringSet& lblset )
 {
-    body_->setNrLines( lblset.size() );
-    for ( int i=0; i<lblset.size(); i++ )
-	setRowLabel( i, lblset.get(i) );
+    if ( lblset.size() > nrRows() )
+	setNrRows( lblset.size() );
+
+    QStringList qstrlist;
+    lblset.fill( qstrlist );
+    body_->setVerticalHeaderLabels( qstrlist );
 }
 
 
@@ -1187,10 +1191,12 @@ void uiTable::setColumnToolTip( int col, const uiString& tt )
 
 void uiTable::setColumnLabels( const uiStringSet& lblset )
 {
-    body_->setColumnCount( lblset.size() );
+    if ( lblset.size() > nrCols() )
+	setNrCols( lblset.size() );
 
-    for ( int i=0; i<lblset.size(); i++ )
-	setColumnLabel( i, lblset.get(i) );
+    QStringList qstrlist;
+    lblset.fill( qstrlist );
+    body_->setHorizontalHeaderLabels( qstrlist );
 }
 
 

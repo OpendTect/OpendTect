@@ -42,7 +42,10 @@ protected:
     bool		getWellCreateData(int,const char*,uiSMWCData&);
     bool		createWell(const uiSMWCData&,const IOObj&);
     IOObj*		getIOObj(const char*);
-    void		addRow(const uiSMWCData&,int&);
+    void		fillTable(const ObjectSet<uiSMWCData>&);
+    void		fillRow(int,const uiSMWCData&);
+
+    mDeprecatedDef void addRow(const uiSMWCData&,int&);
 
     friend class	uiSimpleMultiWellCreateReadData;
     friend class	SimpleMultiWellImporter;

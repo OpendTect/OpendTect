@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uifiledlg.h"
+#include "uifont.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -29,7 +30,9 @@ ________________________________________________________________________
 
 void uiTextFile::init( uiParent* p )
 {
-    txted_ = 0; txtbr_ = 0; tbl_ = 0;
+    txted_ = nullptr;
+    txtbr_ = nullptr;
+    tbl_ = nullptr;
     const CallBack modifcb( mCB(this,uiTextFile,valChg) );
 
     if ( setup_.style_ == File::Table )
@@ -39,10 +42,10 @@ void uiTextFile::init( uiParent* p )
 	    .defcollbl(true).defrowlbl(true);
 	tbl_ = new uiTable( p, tsu, filename_ );
 	tbl_->setTableReadOnly( !setup_.editable_ );
+	tbl_->setFont( FontList().get(FontData::Fixed) );
+	tbl_->setPrefWidthInChar( 100 );
+	tbl_->setColumnResizeMode( uiTable::Interactive );
 	tbl_->valueChanged.notify( modifcb );
-	tbl_->setStretch( 2, 2 );
-	tbl_->setPrefHeight( 200 );
-	tbl_->setColumnResizeMode( uiTable::ResizeToContents );
     }
     else if ( !setup_.editable_ || setup_.style_ == File::Bin )
 	txtbr_ = new uiTextBrowser( p, filename_, setup_.maxnrlines_,
@@ -71,7 +74,6 @@ public:
 uiTableExpHandler( uiTable* t, int ml )
     : Table::ExportHandler(od_ostream::nullStream())
     , tbl_(t)
-    , nrlines_(0)
     , maxlines_(ml)
 {
 }
@@ -81,58 +83,51 @@ bool init()
     tbl_->clearTable();
     tbl_->setNrRows(0);
     tbl_->setNrCols(0);
-    maxcharincols_.erase();
     return true;
 }
 
 void finish()
 {
-    tbl_->setCurrentCell( RowCol(0,0) );
-    const int maxlineswithoutscrolling = 20;
-    tbl_->setPrefHeightInRows( mMIN(nrlines_,maxlineswithoutscrolling) );
+    if ( rows_.isEmpty() )
+	return;
 
-    int charsum = 0;
-    for ( int col=0; col<maxcharincols_.size(); col++ )
-	charsum += maxcharincols_[col] + 1;
-    tbl_->setPrefWidthInChars( charsum );
+    tbl_->setNrRows( rows_.size() );
+    tbl_->setNrCols( nrcols_ );
+    for ( int rowidx=0; rowidx<rows_.size(); rowidx++ )
+    {
+	const BufferStringSet& bss = *rows_.get( rowidx );
+	RowCol rc( rowidx, 0 );
+	for ( ; rc.col()<bss.size(); rc.col()++ )
+	    tbl_->setText( rc, bss.get(rc.col()) );
+    }
+
+    tbl_->setCurrentCell( RowCol(0,0) );
+    const int maxlineswithoutscrolling = 15;
+    tbl_->setPrefHeightInRows( mMIN(rows_.size(),maxlineswithoutscrolling) );
+    tbl_->resizeColumnsToContents();
+    tbl_->setColumnStretchable( nrcols_-1, true );
 }
 
 bool putRow( const BufferStringSet& bss, uiString& msg )
 {
-    RowCol rc( tbl_->nrRows(), 0 );
-    tbl_->insertRows( rc.row(), 1 );
-    if ( bss.size() >= tbl_->nrCols() )
-	tbl_->insertColumns( tbl_->nrCols(), bss.size() - tbl_->nrCols() );
-
-    for ( ; rc.col()<bss.size(); rc.col()++ )
+    if ( rows_.size() >= maxlines_ )
     {
-	const BufferString txt = bss.get( rc.col() );
-	tbl_->setText( rc, txt );
-	const int txtlen = strlen( txt.buf() );
-
-	if ( maxcharincols_.validIdx(rc.col()) )
-	    maxcharincols_[rc.col()] = mMAX(txtlen,maxcharincols_[rc.col()]);
-	else
-	    maxcharincols_ += txtlen;
-    }
-
-    nrlines_++;
-    if ( nrlines_ >= maxlines_ )
-    {
-	rc.row()++; rc.col() = 0;
-	tbl_->insertRows( rc.row(), 1 );
-	tbl_->setText( rc, "[...]" );
+	rows_.add( new BufferStringSet("[...]") );
 	return false;
     }
 
+    if ( bss.size() > nrcols_ )
+	nrcols_ = bss.size();
+
+    rows_.add( bss.clone() );
     return true;
 }
 
+    ManagedObjectSet<BufferStringSet>	rows_;
+
     uiTable*	tbl_;
     int		maxlines_;
-    int		nrlines_;
-
-    TypeSet<int> maxcharincols_;
+    int		nrcols_		= 0;
 };
 
 
@@ -153,8 +148,6 @@ bool uiTextFile::open( const char* fnm )
 	uiTableExpHandler exphndlr( tbl_, setup_.maxnrlines_ );
 	Table::Converter cnvrtr( imphndlr, exphndlr );
 	cnvrtr.execute();
-
-	tbl_->resizeColumnsToContents();
     }
 
 

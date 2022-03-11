@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uiconstvel.h"
 #include "uifileinput.h"
+#include "uifont.h"
 #include "uimsg.h"
 #include "uitable.h"
 #include "uid2tmodelgrp.h"
@@ -54,6 +55,7 @@ public:
 };
 
 
+#define mDefNrRows 10
 
 uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     : uiDialog(p,Setup(tr("Import Well Locations"),mNoDlgTitle,
@@ -67,16 +69,17 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    tbl_ = new uiTable( this, uiTable::Setup(10,7).rowgrow(true)
+    tbl_ = new uiTable( this, uiTable::Setup(mDefNrRows,7).rowgrow(true)
 						  .manualresize(true)
 						  .selmode(uiTable::Multi),
 			"Data Table" );
+    tbl_->setFont( FontList().get(FontData::Fixed) );
     tbl_->setColumnLabel( 0, mJoinUiStrs(sWell(),sName().toLower()) );
     const uiString xunstr = SI().getUiXYUnitString();
     tbl_->setColumnLabel( 1,
-		toUiString("%1 %2").arg(uiStrings::sX()).arg(xunstr) );
+	toUiString("%1 %2").arg(uiStrings::sXcoordinate()).arg(xunstr) );
     tbl_->setColumnLabel( 2,
-		toUiString("%1 %2").arg(uiStrings::sY()).arg(xunstr) );
+	toUiString("%1 %2").arg(uiStrings::sYcoordinate()).arg(xunstr) );
     const uiString zun = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
     tbl_->setColumnLabel( 3, tr("[KB %1]").arg(zun) );
     tbl_->setColumnToolTip( 3, Well::Info::sKBElev() );
@@ -86,7 +89,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     tbl_->setColumnToolTip( 5, Well::Info::sGroundElev() );
     tbl_->setColumnLabel( 6, tr("[UWI]") );
     tbl_->setColumnToolTip( 6, Well::Info::sUwid() );
-    tbl_->setColumnResizeMode( uiTable::ResizeToContents );
+    tbl_->setColumnResizeMode( uiTable::Interactive );
     tbl_->setSelectionBehavior( uiTable::SelectRows );
     tbl_->setColumnStretchable( 6, true );
 
@@ -104,6 +107,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     }
 
     tbl_->setPrefWidth( 600 );
+    tbl_->resizeColumnsToContents();
 }
 
 
@@ -123,42 +127,45 @@ bool isXY()
     return formOf( false, 1 ) == 0;
 }
 
-bool getLine()
+uiSMWCData* getLine()
 {
-    if ( atend_ ) return false;
+    if ( atend_ ) return nullptr;
 
     atend_ = true;
     const int ret = getNextBodyVals( strm_ );
-    if ( ret <= 0 ) return false;
+    if ( ret <= 0 ) return nullptr;
     atend_ = false;
 
-    wcd_.nm_ = getText( 0 );
+    auto* wcd = new uiSMWCData;
+    wcd->nm_ = getText( 0 );
     if ( isXY() )
-	wcd_.coord_ = getPos( 1, 2 );
+	wcd->coord_ = getPos( 1, 2 );
     else
     {
 	LatLong ll;
 	ll.setFromString( getText(1), true );
 	ll.setFromString( getText(2), false );
-	wcd_.coord_ = LatLong::transform( ll );
+	wcd->coord_ = LatLong::transform( ll );
     }
 
-    if ( wcd_.nm_.isEmpty()
-      || mIsUdf(wcd_.coord_.x) || mIsUdf(wcd_.coord_.y)
-      || (wcd_.coord_.x == 0 && wcd_.coord_.y == 0) )
-	return false;
+    if ( wcd->nm_.isEmpty()
+      || mIsUdf(wcd->coord_.x) || mIsUdf(wcd->coord_.y)
+      || (wcd->coord_.x == 0 && wcd->coord_.y == 0) )
+    {
+	delete wcd;
+	return nullptr;
+    }
 
-    wcd_.elev_ = getFValue( 3 );
-    wcd_.td_ = getFValue( 4 );
-    wcd_.gl_ = getFValue( 5 );
-    wcd_.uwi_ = getText( 6 );
-    return true;
+    wcd->elev_ = getFValue( 3 );
+    wcd->td_ = getFValue( 4 );
+    wcd->gl_ = getFValue( 5 );
+    wcd->uwi_ = getText( 6 );
+    return wcd;
 }
 
     od_istream&		strm_;
 
     bool		atend_;
-    uiSMWCData		wcd_;
 
 };
 
@@ -171,7 +178,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     : uiDialog(&p,uiDialog::Setup(tr("Multi-well creation"),
 				  uiStrings::phrCreate(tr("multiple wells")),
 			    mODHelpKey(mSimpleMultiWellCreateReadDataHelpID)))
-    , par_(p)
+    , dlg_(p)
     , fd_("Simple multi-welldata")
 {
     inpfld_ = new uiASCIIFileInput( this, true );
@@ -212,14 +219,16 @@ bool acceptOK( CallBacker* )
 	return false;
 
     uiSimpleMultiWellCreateReadDataAscio aio( fd_, strm );
-    int prevrow = -1;
-    while ( aio.getLine() )
-	par_.addRow( aio.wcd_, prevrow );
+    ManagedObjectSet<uiSMWCData> wcds;
+    uiSMWCData* wcd = nullptr;
+    while ( (wcd = aio.getLine()) )
+	wcds += wcd;
 
+    dlg_.fillTable( wcds );
     return true;
 }
 
-    uiSimpleMultiWellCreate&	par_;
+    uiSimpleMultiWellCreate&	dlg_;
     Table::FormatDesc		fd_;
 
     uiFileInput*		inpfld_;
@@ -422,22 +431,24 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 
 void uiSimpleMultiWellCreate::addRow( const uiSMWCData& wcd, int& prevrow )
 {
-    if ( prevrow < 0 )
-    {
-	for ( int irow=0; irow<tbl_->nrRows(); irow++ )
-	{
-	    const BufferString wnm( tbl_->text(RowCol(irow,0)) );
-	    if ( wnm.isEmpty() )
-		break;
-	    prevrow = irow;
-	}
-    }
+}
 
-    prevrow++;
-    RowCol rc( prevrow, 0 );
-    if ( rc.row() >= tbl_->nrRows() )
-	tbl_->setNrRows( tbl_->nrRows()+10 );
 
+void uiSimpleMultiWellCreate::fillTable( const ObjectSet<uiSMWCData>& wcds )
+{
+    if ( wcds.size() > mDefNrRows )
+	tbl_->setNrRows( wcds.size() );
+
+    for ( int idx=0; idx<wcds.size(); idx++ )
+	fillRow( idx, *wcds.get(idx) );
+
+    tbl_->resizeColumnsToContents();
+}
+
+
+void uiSimpleMultiWellCreate::fillRow( int row, const uiSMWCData& wcd )
+{
+    RowCol rc( row, 0 );
     tbl_->setText( rc, wcd.nm_ ); rc.col()++;
     tbl_->setValue( rc, wcd.coord_.x ); rc.col()++;
     tbl_->setValue( rc, wcd.coord_.y ); rc.col()++;

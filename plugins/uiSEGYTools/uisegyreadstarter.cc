@@ -365,11 +365,14 @@ void uiSEGYReadStarter::execNewScan( LoadDefChgType ct, bool full )
 	    return;
     }
 
-    const int nrfiles = filespec_.nrFiles();
-    for ( int idx=1; idx<nrfiles; idx++ )
+    if ( full || forsurvsetup_ )
     {
-	if ( !scanFile(filespec_.fileName(idx),KeepAll,trunner) )
-	    break;
+	const int nrfiles = filespec_.nrFiles();
+	for ( int idx=1; idx<nrfiles; idx++ )
+	{
+	    if ( !scanFile(filespec_.fileName(idx),KeepAll,trunner) )
+		break;
+	}
     }
 
     scaninfos_->finish();
@@ -1120,7 +1123,7 @@ void uiSEGYReadStarter::displayScanResults()
     if ( ampldisp_ )
 	updateAmplDisplay( 0 );
 
-    infofld_->setScanInfo( *scaninfos_ );
+    infofld_->setScanInfo( *scaninfos_, filespec_.nrFiles() );
     if ( forsurvsetup_ )
 	updateSurvMap();
 }
