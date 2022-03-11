@@ -62,6 +62,7 @@ private:
 
     void			reGenerateCB(CallBacker*);
     void			dynamicTaskFinishCB(CallBacker*);
+    void			snapshotFinishedCB(CallBacker*);
 
     Task*			createDynamicTask(bool issnapshot);
 
