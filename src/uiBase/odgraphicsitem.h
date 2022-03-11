@@ -146,32 +146,20 @@ protected:
 };
 
 
-class ODGraphicsTextItem : public QAbstractGraphicsShapeItem
+class ODGraphicsTextItem  : public QGraphicsTextItem
 {
 public:
-				ODGraphicsTextItem();
+			ODGraphicsTextItem();
 
-    QRectF			boundingRect() const;
-    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-				      QWidget*);
-
-    void			setText(const QString&);
-    void			setFont(const QFont&);
-    QFont			getFont() const;
-
-    void			setVAlignment(const Qt::Alignment&);
-    void			setHAlignment(const Qt::Alignment&);
-
-    virtual int			type() const	{ return ODGraphicsType+5; }
+    void		setCentered();
+    void		setAlignment( const Alignment& al )	{ al_ = al; }
+    Alignment		getAlignment() const			{ return al_; }
 
 protected:
-    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
-    QPointF			getAlignment() const;
+    virtual void	mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    virtual void	contextMenuEvent(QGraphicsSceneContextMenuEvent*);
 
-    QFont			font_;
-    QString			text_;
-    Qt::Alignment		hal_;
-    Qt::Alignment		val_;
+    Alignment		al_;
 };
 
 

@@ -39,8 +39,6 @@ uiBitMapDisplayTask( FlatView::Appearance& app,
     , bitmap2image_(new BitMap2RGB(app,*image_))
     , display_(display)
     , isdynamic_(isdynamic)
-    , wvabmpmgr_(0), vdbmpmgr_(0)
-    , wvapack_(0), vdpack_(0)
     , setupdone_(false)
 {}
 
@@ -55,12 +53,17 @@ uiBitMapDisplayTask( FlatView::Appearance& app,
 
 
 void setScope( const uiWorldRect& wr, const uiSize& sz )
-{ wr_ = wr; sz_ = sz; }
+{
+    wr_ = wr;
+    sz_ = sz;
+}
 
 
 void setDataPack( const FlatDataPack* fdp, bool wva )
 {
-    if ( fdp ) const_cast<FlatDataPack*>(fdp)->obtain();
+    if ( fdp )
+	const_cast<FlatDataPack*>(fdp)->obtain();
+
     (wva ? wvapack_ : vdpack_) = fdp;
     setupdone_ = false;
 }
@@ -122,8 +125,8 @@ bool execute()
 	tasks += Threads::Work( *vdtask, true );
     }
 
-    if ( !Threads::WorkManager::twm().addWork( tasks,
-	       Threads::WorkManager::cDefaultQueueID() ) )
+    const int queueid = Threads::WorkManager::cDefaultQueueID();
+    if ( !Threads::WorkManager::twm().addWork(tasks,queueid) )
     {
 	return false;
     }
@@ -176,10 +179,10 @@ Interval<float> getBitmapDataRange( bool iswva )
     bool			setupdone_;
 
     FlatView::Appearance&	appearance_;
-    ConstDataPackRef<FlatDataPack> wvapack_;
-    ConstDataPackRef<FlatDataPack> vdpack_;
-    BitMapMgr*			wvabmpmgr_;
-    BitMapMgr*			vdbmpmgr_;
+    ConstDataPackRef<FlatDataPack> wvapack_		= nullptr;
+    ConstDataPackRef<FlatDataPack> vdpack_		= nullptr;
+    BitMapMgr*			wvabmpmgr_		= nullptr;
+    BitMapMgr*			vdbmpmgr_		= nullptr;
     uiRGBArray*			image_;
     BitMap2RGB*			bitmap2image_;
     uiSize			sz_;
@@ -329,35 +332,40 @@ Interval<float> uiBitMapDisplay::getDataRange( bool iswva ) const
 }
 
 
-void uiBitMapDisplay::reGenerateCB(CallBacker*)
+void uiBitMapDisplay::reGenerateCB( CallBacker* )
 {
     const bool issnapshot = display_->isSnapshot();
-
     Task* dynamictask = createDynamicTask( issnapshot );
     if ( !dynamictask )
+	return;
+
+    Threads::WorkManager& twm = Threads::WorkManager::twm();
+    const int snapshotqueueid = Threads::WorkManager::cDefaultQueueID();
+    const int queuesz = twm.queueSize( snapshotqueueid );
+    if ( queuesz > 0 )
 	return;
 
     const int queueid = issnapshot ? Threads::WorkManager::cDefaultQueueID()
 				   : workqueueid_;
     if ( !issnapshot )
-    {
-	Threads::WorkManager::twm().emptyQueue( queueid, false );
-    }
+	twm.emptyQueue( queueid, false );
 
-    Threads::WorkManager::twm().addWork(
-	    Threads::Work(*dynamictask,true), &finishedcb_, queueid, true );
+    CallBack cb = issnapshot ? mCB(this,uiBitMapDisplay,snapshotFinishedCB)
+			     : finishedcb_;
+    twm.addWork( Threads::Work(*dynamictask,true), &cb,
+		 queueid, true );
 }
 
 
 Task* uiBitMapDisplay::createDynamicTask( bool issnapshot  )
 {
     if ( !display_ )
-	return 0;
+	return nullptr;
 
     const uiWorldRect wr = display_->wantedWorldRect();
     const uiSize sz = display_->wantedScreenSize();
     if ( sz.width()<=0 || sz.height()<=0 )
-	return 0;
+	return nullptr;
 
     uiBitMapDisplayTask* dynamictask =
 	new uiBitMapDisplayTask( appearance_, *display_, true, withalpha_ );
@@ -386,11 +394,17 @@ Task* uiBitMapDisplay::createDynamicTask( bool issnapshot  )
     }
 
     dynamictask->setScope( computewr, computesz );
-
     return dynamictask;
 }
 
 
 void uiBitMapDisplay::dynamicTaskFinishCB( CallBacker* )
 {
+// Not (yet) used
+}
+
+
+void uiBitMapDisplay::snapshotFinishedCB( CallBacker* )
+{
+// Not (yet) used
 }

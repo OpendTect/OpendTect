@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include <QGraphicsScene>
 #include <QMetaObject>
 #include <QPainter>
+#include <QPdfWriter>
 #include <QPen>
 #include <QPoint>
 #include <QPrinter>
@@ -27,6 +28,7 @@ ________________________________________________________________________
 #include <QRgb>
 #include <QStyleOption>
 #include <QTextDocument>
+
 
 mUseQtnamespace
 
@@ -402,151 +404,37 @@ void ODGraphicsArrowItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 }
 
 
+
 // ODGraphicsTextItem
 ODGraphicsTextItem::ODGraphicsTextItem()
-    : hal_( Qt::AlignLeft )
-    , val_( Qt::AlignTop )
+    : QGraphicsTextItem()
 {
-    setFont( FontList().get(FontData::Graphics2D).qFont() );
 }
 
 
-void ODGraphicsTextItem::setText( const QString& t )
+void ODGraphicsTextItem::setCentered()
 {
-    prepareGeometryChange();
-    text_ = t;
+    document()->setDefaultTextOption( QTextOption(Qt::AlignCenter) );
 }
 
 
-void ODGraphicsTextItem::setFont( const QFont& ft )
-{ font_ = ft; }
-
-QFont ODGraphicsTextItem::getFont() const
-{ return font_; }
-
-void ODGraphicsTextItem::setVAlignment( const Qt::Alignment& al )
-{ val_ = al; }
-
-void ODGraphicsTextItem::setHAlignment( const Qt::Alignment& al )
-{ hal_ = al; }
-
-
-QPointF ODGraphicsTextItem::getAlignment() const
+void ODGraphicsTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* ev )
 {
-    float movex = 0, movey = 0;
+    QGraphicsTextItem::mouseMoveEvent( ev );
 
-    switch ( hal_ )
-    {
-	case Qt::AlignRight:
-	    movex = -1.0f;
-	    break;
-	case Qt::AlignHCenter:
-	    movex = -0.5f;
-	    break;
-    }
-
-    switch ( val_ )
-    {
-	case Qt::AlignBottom:
-	    movey = -1.1;
-	    break;
-	case Qt::AlignVCenter:
-	    movey = -0.55f;
-	    break;
-    }
-
-    return QPointF( movex, movey );
+    snapToSceneRect( this );
 }
 
 
-static double getPaintAngle( const QTransform& transform )
+void ODGraphicsTextItem::contextMenuEvent(
+				QGraphicsSceneContextMenuEvent* ev )
 {
-    const QPointF v00 = transform.map( QPointF(0,0) );
-    const QPointF v10 = transform.map( QPointF(1,0) );
-    return Math::Atan2( v10.y()-v00.y(), v10.x()-v00.x() );
+    if ( textInteractionFlags().testFlag(Qt::TextEditorInteraction) )
+	return;
+
+    QGraphicsTextItem::contextMenuEvent( ev );
 }
 
-
-static int border = 5;
-
-QRectF ODGraphicsTextItem::boundingRect() const
-{
-    QFontMetrics qfm( getFont() );
-    const float txtwidth = mGetTextWidth(qfm,QString(text_));
-    const float txtheight = qfm.height();
-
-    const double paintangle = getPaintAngle( transform() );
-    const float boundingwidth = txtwidth * cos(paintangle) +
-				txtheight * fabs(sin(paintangle));
-    const float boundingheight = txtheight + txtwidth * fabs(sin(paintangle));
-
-    const QPointF alignment = getAlignment();
-    const float movex = alignment.x() * boundingwidth;
-    const float movey = alignment.y() * boundingheight;
-
-    const QPointF paintpos = mapToScene( QPointF(0,0) );
-    const QRectF scenerect( paintpos.x()+movex-border,paintpos.y()+movey-border,
-			    boundingwidth+2*border,boundingheight+2*border );
-    // Extra space is added to avoid clipping on some platforms and the value
-    // of border is arbitrarily chosen.
-    return mapRectFromScene( scenerect );
-}
-
-
-void ODGraphicsTextItem::paint( QPainter* painter,
-				const QStyleOptionGraphicsItem *option,
-				QWidget* )
-{
-    if ( option )
-	painter->setClipRect( option->exposedRect );
-
-    QPointF paintpos( 0, 0 );
-    paintpos = painter->worldTransform().map( paintpos );
-
-    const double paintangle = getPaintAngle( painter->worldTransform() );
-    //<-- NOTE: Angle should be obtained before resetting the transform.
-
-    painter->save();
-    painter->resetTransform();
-
-    bool onlynum = false;
-    text_.toInt( &onlynum );
-    QFontMetrics qfm( getFont() );
-    const float txtwidth = mGetTextWidth(qfm,text_);
-    const float txtheight = onlynum ? qfm.ascent() : qfm.height();
-
-    const float width = txtwidth * cos(paintangle) +
-			txtheight * sin(paintangle);
-    const float height = txtheight + txtwidth * sin(paintangle);
-
-    const QPointF alignment = getAlignment();
-    const float movex = alignment.x() * width;
-    const float movey = alignment.y() * height;
-
-    painter->setPen( pen() );
-    painter->setFont( font_ );
-
-    //Nice for debugging
-    //painter->drawPoint( paintpos.x(), paintpos.y() );
-
-    painter->translate( QPointF(paintpos.x()+movex,
-				paintpos.y()+movey+txtheight) );
-    painter->rotate( Math::toDegrees(paintangle) );
-    painter->drawText( QPointF(0,0), text_ );
-
-    painter->restore();
-
-    //Nice for debugging
-    //painter->drawRect( boundingRect() );
-}
-
-
-void ODGraphicsTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
-{
-    QGraphicsItem::mouseMoveEvent( event );
-
-    snapToSceneRect ( this );
-}
 
 
 // ODGraphicsAdvancedTextItem
@@ -1039,25 +927,21 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 {
     if ( updateResolution( painter ) )
     {
-	QPaintDevice* qdevice = painter->device();
+	auto* qdevice = painter->device();
 	mDynamicCastGet(QImage*,qimage,qdevice)
+	mDynamicCastGet(QPdfWriter*,qpdfwriter,qdevice)
 	mDynamicCastGet(QPrinter*,qprinter,qdevice)
 
 	imagelock_.lock();
 
-	issnapshot_ = qimage || qprinter;
+	issnapshot_ = qimage || qpdfwriter || qprinter;
 	wantsData.trigger();
 
 	if ( issnapshot_ )
 	{
 	    const QSize wantedscreensz = wantedscreensz_;
-
-	    int nrretries = 3;
-	    while ( nrretries && wantedscreensz!=dynamicimage_.size() )
-	    {
+	    while ( wantedscreensz!=dynamicimage_.size() )
 		imagecond_.wait( &imagelock_, 2000 );
-		nrretries--;
-	    }
 	}
 
 	imagelock_.unlock();

@@ -699,16 +699,16 @@ void uiAxisHandler::updateName()
     if ( setup_.noaxisannot_ || setup_.caption_.isEmpty() )
 	{ mRemoveFromScene( nameitm_ ); return; }
 
-    // Add some spaces to avoid text truncations
-    const uiString caption = toUiString( "   %1   " ).arg( setup_.caption_ );
     if ( !nameitm_ )
     {
-	nameitm_ = scene_->addItem( new uiTextItem(caption) );
+	nameitm_ = scene_->addItem( new uiTextItem(setup_.caption_) );
 	ynmtxtvertical_ = false;
     }
     else
-	nameitm_->setText( caption );
+	nameitm_->setText( setup_.caption_ );
 
+
+// TODO: Text positioning is trial and error. Needs to be reworked!
     Alignment al( Alignment::HCenter, Alignment::VCenter );
     uiPoint pt;
     const int namepos = pixToEdge() - ticSz() - pxsizeinotherdir_;
@@ -716,22 +716,27 @@ void uiAxisHandler::updateName()
     {
 	const bool istop = setup_.side_ == uiRect::Top;
 	pt.x = pixBefore() + axsz_/2;
-	pt.y = istop ? namepos : height_-namepos;
+	pt.y = istop ? namepos : height_ - namepos + ticSz();
 	al.set( istop ? Alignment::Top : Alignment::Bottom );
     }
     else
     {
+	const int fontheight = annots_.font().height();
 	const bool isleft = setup_.side_ == uiRect::Left;
-	pt.x = isleft ? namepos : width_-namepos;
-	pt.y = pixAfter() + axsz_/2;
+	const int vnamepos = namepos - fontheight;
+	pt.x = isleft ? vnamepos : width_-vnamepos;
+	pt.y = pixAfter() + axsz_/2 + fontheight;
 
+	al.set( Alignment::Bottom );
+	al.set( Alignment::Left );
 	if ( !ynmtxtvertical_ )
 	    nameitm_->setRotation( isleft ? -90.f : 90.f );
+
 	ynmtxtvertical_ = true;
     }
 
-    nameitm_->setPos( pt );
     nameitm_->setAlignment( al );
+    nameitm_->setPos( pt );
     nameitm_->setZValue( mAxisZValue );
     const OD::Color col = setup_.nmcolor_ == OD::Color::NoColor()
 		    ? setup_.style_.color_ : setup_.nmcolor_;

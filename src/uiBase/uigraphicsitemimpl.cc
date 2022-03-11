@@ -650,7 +650,7 @@ void uiRectItem::setRect( const Geom::RectF& rect )
 
 // uiTextItem
 uiTextItem::uiTextItem()
-    : uiGraphicsItem( mkODObj() )
+    : uiGraphicsItem(mkODObj())
 {
     setAlignment( Alignment(Alignment::Left,Alignment::Top) );
 }
@@ -669,8 +669,8 @@ uiTextItem::uiTextItem( const uiPoint& pos, const uiString& txt,
     : uiGraphicsItem(mkODObj())
 {
     setText( txt );
-    setPos( pos );
     setAlignment( al );
+    setPos( pos );
 }
 
 
@@ -694,7 +694,7 @@ const uiString uiTextItem::getText() const
 
 uiSize uiTextItem::getTextSize() const
 {
-    QFontMetrics qfm( qtextitem_->getFont() );
+    QFontMetrics qfm( qtextitem_->font() );
     // Extra space is added to avoid clipping on some platforms and the value is
     // arbitrarily chosen.
     return uiSize( mGetTextWidth(qfm,text_.getOriginalString())+mExtraSpace,
@@ -705,14 +705,14 @@ uiSize uiTextItem::getTextSize() const
 void uiTextItem::setText( const uiString& txt )
 {
     text_ = txt;
-    qtextitem_->setText( toQString(text_) );
+    qtextitem_->setPlainText( toQString(text_) );
 }
 
 
 void uiTextItem::translateText()
 {
     uiGraphicsItem::translateText();
-    qtextitem_->setText( toQString(text_) );
+    qtextitem_->setPlainText( toQString(text_) );
 }
 
 
@@ -724,7 +724,7 @@ void uiTextItem::setFont( const uiFont& font )
 
 void uiTextItem::setFontData( const FontData& fd )
 {
-    QFont font = qtextitem_->getFont();
+    QFont font = qtextitem_->font();
     uiFont::setFontData( font, fd );
     qtextitem_->setFont( font );
 }
@@ -732,65 +732,88 @@ void uiTextItem::setFontData( const FontData& fd )
 
 void uiTextItem::setAlignment( const Alignment& al )
 {
-
-    switch ( al.hPos() )
-    {
-	case Alignment::Right:
-	    qtextitem_->setHAlignment( Qt::AlignRight );
-	    break;
-	case Alignment::HCenter:
-	    qtextitem_->setHAlignment( Qt::AlignHCenter );
-	    break;
-	case Alignment::Left:
-	    qtextitem_->setHAlignment( Qt::AlignLeft );
-	    break;
-    }
-
-    switch ( al.vPos() )
-    {
-	case Alignment::Bottom:
-	    qtextitem_->setVAlignment( Qt::AlignBottom );
-	    break;
-	case Alignment::VCenter:
-	    qtextitem_->setVAlignment( Qt::AlignVCenter );
-	    break;
-	case Alignment::Top:
-	    qtextitem_->setVAlignment( Qt::AlignTop );
-	    break;
-    }
+    qtextitem_->setAlignment( al );
 }
 
 
 void uiTextItem::stPos( float x, float y )
 {
-    qtextitem_->setPos( x, y );
+    const Alignment al = qtextitem_->getAlignment();
+    if ( !isItemIgnoresTransformationsEnabled() )
+    {
+	QRectF boundrec = qtextitem_->boundingRect();
+	switch( al.hPos() )
+	{
+	case Alignment::Left:
+	    boundrec.translate( 0., 0. );
+	    break;
+	case Alignment::HCenter:
+	    boundrec.translate( -boundrec.width()/2., 0. );
+	    break;
+	case Alignment::Right:
+	    boundrec.translate( -boundrec.width(), 0. );
+	    break;
+	}
+
+	switch( al.vPos() )
+	{
+	case Alignment::Top:
+	    boundrec.translate( 0., 0. );
+	    break;
+	case Alignment::VCenter:
+	    boundrec.translate( 0., -boundrec.height()/2. );
+	    break;
+	case Alignment::Bottom:
+	    boundrec.translate( 0., -boundrec.height() );
+	    break;
+	}
+
+	const QPointF p00 = qtextitem_->mapToParent( QPointF(0,0) );
+	const QPointF d01 = qtextitem_->mapToParent( QPointF(0,1) )-p00;
+	const QPointF d10 = qtextitem_->mapToParent( QPointF(1,0) )-p00;
+
+	const float xdist = Math::Sqrt(d10.x()*d10.x()+d10.y()*d10.y() );
+	const float ydist = Math::Sqrt(d01.x()*d01.x()+d01.y()*d01.y() );
+
+	const float xlin = x+mCast(float,boundrec.left())*xdist;
+	const float ylin = y+mCast(float,boundrec.top())*ydist;
+	qtextitem_->setTransformOriginPoint( boundrec.center() );
+	uiGraphicsItem::stPos( xlin, ylin );
+    }
+    else
+	uiGraphicsItem::stPos( x, y );
 }
 
 
 void uiTextItem::setTextColor( const OD::Color& col )
 {
-    qtextitem_->setPen( QPen(QColor(col.r(),col.g(), col.b())) );
+    QColor qcol( col.r(), col.g(), col.b(), 255-col.t() );
+    qtextitem_->setDefaultTextColor( qcol );
+}
+
+
+void uiTextItem::setTextRotation( float angle )
+{
+    qtextitem_->setRotation( angle );
 }
 
 
 // uiAdvancedTextItem
 uiAdvancedTextItem::uiAdvancedTextItem( bool centered )
-    : uiGraphicsItem(0)
+    : uiGraphicsItem(mkQtObj())
     , al_(Alignment::Left,Alignment::Top)
     , textiscentered_(centered)
 {
-    qgraphicsitem_ = mkQtObj();
 }
 
 
 uiAdvancedTextItem::uiAdvancedTextItem( const uiString& txt,
 					const Alignment& al,
 					bool centered )
-    : uiGraphicsItem(0)
+    : uiGraphicsItem(mkQtObj())
     , al_(al)
     , textiscentered_(centered)
 {
-    qgraphicsitem_ = mkQtObj();
     setPlainText( txt );
 }
 

@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uispinbox.h"
 
-#include "iopar.h"
 #include "filepath.h"
+#include "iopar.h"
 #include "settings.h"
 
 
@@ -29,16 +29,16 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
     : uiSaveImageDlg(p)
     , scene_(scene)
 {
-    screendpi_ = mCast( float, uiMain::getMinDPI() );
+    screendpi_ = sCast( float, uiMain::getMinDPI() );
     createGeomInpFlds( cliboardselfld_ );
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
-    setFldVals( 0 );
+    setFldVals( nullptr );
     updateSizes();
 
     postFinalise().notify( mCB(this,uiGraphicsSaveImageDlg,setAspectRatio) );
     updateFilter();
-    unitChg(0);
+    unitChg( nullptr );
 
     NotifyStopper ns( lockfld_->activated );
     lockfld_->setChecked( true );
@@ -69,7 +69,9 @@ void uiGraphicsSaveImageDlg::getSupportedFormats( const char** imagefrmt,
 
 
 void uiGraphicsSaveImageDlg::setAspectRatio( CallBacker* )
-{ aspectratio_ = (float) ( scene_->width() / scene_->height() ); }
+{
+    aspectratio_ = float( scene_->width()/scene_->height() );
+}
 
 
 bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
@@ -80,13 +82,16 @@ bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
 	return true;
     }
 
-    if ( !filenameOK() ) return false;
+    if ( !filenameOK() )
+	return false;
+
+    MouseCursorChanger mcc( MouseCursor::Wait );
 
     const char* fnm = fileinputfld_->fileName();
-    const int pixw = mCast(int,sizepix_.width());
-    const int pixh = mCast(int,sizepix_.height());
+    const int pixw = sCast(int,sizepix_.width());
+    const int pixh = sCast(int,sizepix_.height());
     const int dpi = dpifld_->box()->getIntValue();
-    BufferString ext( getExtension() );
+    const BufferString ext( getExtension() );
     if ( ext == "pdf" )
 	scene_->saveAsPDF( fnm, pixw, pixh, dpi );
     else
@@ -94,6 +99,7 @@ bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
 
     if ( saveButtonChecked() )
 	writeToSettings();
+
     return true;
 }
 
@@ -124,8 +130,8 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* )
     }
     else
     {
-	aspectratio_ = (float) ( scene_->width() / scene_->height() );
+	aspectratio_ = float( scene_->width()/scene_->height() );
 	dpifld_->box()->setValue( screendpi_ );
-	setSizeInPix( (int)scene_->width(), (int)scene_->height() );
+	setSizeInPix( int(scene_->width()), int(scene_->height()) );
     }
 }
