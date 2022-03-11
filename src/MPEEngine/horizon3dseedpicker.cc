@@ -606,17 +606,22 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
     if ( nrseeds<2 )
 	return true;
 
+    TrcKeyPath nodes;
+    if ( rdlpath && rdlid )
+    {
+	RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
+	if ( rlgeom )
+	    rlgeom->allNodePositions( nodes );
+    }
+
     mAllocVarLenArr( int, sortval, nrseeds );
     mAllocVarLenArr( int, sortidx, nrseeds );
 
     for ( int idx=0; idx<nrseeds; idx++ )
     {
 	const TrcKey& seed = seedlist_[idx];
-	if ( rdlpath && rdlid>=0 )
+	if ( !nodes.isEmpty() )
 	{
-	    RefMan<Geometry::RandomLine> rlgeom = Geometry::RLM().get( rdlid );
-	    TrcKeyPath nodes;
-	    rlgeom->allNodePositions( nodes );
 	    const int sortvalidx = Geometry::RandomLine::getNearestPathPosIdx(
 						    nodes, *rdlpath, seed );
 	    if ( sortvalidx<0 )
@@ -626,6 +631,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	}
 	else
 	    sortval[idx] = dir.inl() ? seed.lineNr() : seed.trcNr();
+
 	sortidx[idx] = idx;
     }
 
@@ -643,9 +649,9 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	    const BinID seed1bid = seedlist_[sortidx[vtx+1]].pos();
 	    const BinID seed2bid = seedlist_[sortidx[vtx]].pos();
 	    if ( seed1bid!=seed2bid && (
-		 fltdataprov_->isOnFault(seed1bid,z1,1.0f) ||
-		 fltdataprov_->isOnFault(seed2bid,z2,1.0f) ||
-		 fltdataprov_->isCrossingFault(seed1bid,z1,seed2bid,z2) ) )
+		    fltdataprov_->isOnFault(seed1bid,z1,1.0f) ||
+		    fltdataprov_->isOnFault(seed2bid,z2,1.0f) ||
+		    fltdataprov_->isCrossingFault(seed1bid,z1,seed2bid,z2) ) )
 		continue;
 	}
 
