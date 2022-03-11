@@ -745,6 +745,7 @@ DataPack::ID uiODViewer2D::createMapDataPack( const RegularFlatDataPack& rsdp )
 
     MapDataPack* mdp =
 	new MapDataPack( "ZSlice", new Array2DImpl<float>( slice2d ) );
+    mdp->setName( rsdp.name() );
     mdp->setProps( inlrg, crlrg, true, &dimnames );
     DPM(DataPackMgr::FlatID()).addAndObtain( mdp );
     DPM(DataPackMgr::FlatID()).add( mdp );
