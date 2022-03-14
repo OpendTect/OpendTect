@@ -37,6 +37,7 @@ public:
 			     const BufferStringSet* args=nullptr,
 			     const char* workingdir=nullptr);
     uiToolBar*	getToolBar()		{ return usercmdtb_; }
+    const BufferStringSet* programArgs(int) const;
 
     Notifier<uiSettingsMgr> terminalRequested;
     Notifier<uiSettingsMgr> toolbarUpdated;
@@ -49,6 +50,8 @@ private:
     void	doPythonSettingsCB(CallBacker*);
 
     BufferStringSet	commands_;
+    ObjectSet<const BufferStringSet>	progargs_;
+    BufferStringSet	prognms_;
     TypeSet<int>	toolbarids_;
     int			termcmdidx_ = -1;
 

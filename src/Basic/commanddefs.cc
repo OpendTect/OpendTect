@@ -8,7 +8,9 @@ ________________________________________________________________________
 
 -*/
 #include "commanddefs.h"
+#include "oddirs.h"
 #include "file.h"
+#include "filepath.h"
 #include "plfdefs.h"
 #include "ptrman.h"
 
@@ -31,8 +33,8 @@ public:
 	{
 	    addCmd( "konsole", tr("KDE Konsole"), "terminal-kde.png",
 		    tr("KDE Konsole"), paths );
-	    addCmd( "gnome-terminal", tr("Gnome Terminal"), "terminal-gnome.png",
-		    tr("Gnome Terminal"), paths );
+	    addCmd( "gnome-terminal", tr("Gnome Terminal"),
+		    "terminal-gnome.png", tr("Gnome Terminal"), paths );
 	    addCmd( "terminator", tr("Terminator"), "terminal-terminator.png",
 		    tr("Terminator"), paths );
 	    addCmd( "quake", tr("Quake"), "terminal-quake.png",
@@ -85,6 +87,8 @@ const CommandDefs& CommandDefs::getTerminalCommands(
 CommandDefs& CommandDefs::operator=( const CommandDefs& oth )
 {
     BufferStringSet::operator=( oth );
+    prognames_ = oth.prognames_;
+    deepCopy( progargs_, oth.progargs_ );
     uinames_ = oth.uinames_;
     iconnms_ = oth.iconnms_;
     tooltips_ = oth.tooltips_;
@@ -98,21 +102,76 @@ void CommandDefs::erase()
     uinames_.setEmpty();
     iconnms_.setEmpty();
     tooltips_.setEmpty();
+    prognames_.setEmpty();
+    deepErase( progargs_ );
+
 }
 
 
-bool CommandDefs::addCmd( const char* command, const uiString& uinm,
+bool CommandDefs::addCmd( const char* appnm, const uiString& uinm,
 			  const char* iconnm, const uiString& tooltip,
 			  const BufferStringSet& paths )
 {
-    if ( !checkCommandExists(command, paths) )
+    BufferStringSet usedpaths( paths );
+    addHints( usedpaths, appnm );
+    if ( !checkCommandExists(appnm,usedpaths) )
 	return false;
 
-    add( command );
+    addApplication( appnm );
     uinames_.add( uinm );
     iconnms_.add( iconnm );
     tooltips_.add( tooltip );
     return true;
+}
+
+
+void CommandDefs::addApplication( const char* appnm )
+{
+    add( appnm );
+    if ( __ismac__ )
+    {
+	prognames_.add( "open" );
+	auto* args = new BufferStringSet;
+	args->add( "-a" ).add( appnm ).add( GetPersonalDir() );
+	progargs_.add( args );
+    }
+    else
+    {
+	prognames_.add( appnm );
+	progargs_.add( nullptr );
+    }
+}
+
+
+const char* CommandDefs::program( int progidx ) const
+{
+    if ( !prognames_.validIdx(progidx) )
+	return nullptr;
+
+    return prognames_.get( progidx ).buf();
+}
+
+
+const BufferStringSet* CommandDefs::args( int argidx ) const
+{
+    if ( !progargs_.validIdx(argidx) )
+	return nullptr;
+
+    return progargs_.get( argidx );
+}
+
+
+void CommandDefs::addHints( BufferStringSet& usedpaths, const char* appnm )
+{
+    if ( __ismac__ )
+    {
+	BufferString macappnm( appnm );
+	macappnm.add( ".app" );
+	FilePath fp( "/Applications", "Utilities", macappnm, "Contents",
+		     "MacOS" );
+	usedpaths.add( fp.fullPath() );
+	usedpaths.add( FilePath("/System", fp.fullPath()).fullPath() );
+    }
 }
 
 

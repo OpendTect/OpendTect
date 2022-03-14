@@ -141,17 +141,32 @@ void uiSettingsMgr::keyPressedCB( CallBacker* )
 }
 
 
+const BufferStringSet* uiSettingsMgr::programArgs( int argidx ) const
+{
+     if ( !progargs_.validIdx(argidx) )
+	return nullptr;
+
+     return progargs_.get( argidx );
+}
+
+
 uiRetVal uiSettingsMgr::openTerminal( bool withfallback, const char* cmdstr,
 				      const BufferStringSet* args,
 				      const char* workingdir )
 {
     uiRetVal uirv;
     BufferString cmd( cmdstr );
+    BufferStringSet progargs;
+    if ( args )
+	progargs.add( *args, false );
+
     if ( cmd.isEmpty() )
     {
-	if ( commands_.validIdx(termcmdidx_) )
+	if ( prognms_.validIdx(termcmdidx_) )
 	{
-	    cmd = commands_.get( termcmdidx_ );
+	    cmd = prognms_.get( termcmdidx_ );
+	    if ( programArgs(termcmdidx_) )
+		progargs = *progargs_.get( termcmdidx_ );
 	}
 	else
 	{
@@ -163,20 +178,21 @@ uiRetVal uiSettingsMgr::openTerminal( bool withfallback, const char* cmdstr,
 		return uirv;
 	    }
 
-	    cmd.set( cmddefs.first()->buf() );
+	    cmd.set( cmddefs.program(0) );
+	    progargs = *cmddefs.args( 0 );
 	}
     }
 
     terminalRequested.trigger();
     BufferString errmsg;
     uiString launchermsg;
-    bool res = OD::PythA().openTerminal( cmd, args, workingdir );
+    bool res = OD::PythA().openTerminal( cmd, &progargs, workingdir );
     if ( !res )
     {
 	uiString firstmsg = tr( "Cannot launch terminal" );
 	if ( withfallback )
 	{
-	    res = OS::CommandLauncher::openTerminal( cmd, args,
+	    res = OS::CommandLauncher::openTerminal( cmd, &progargs,
 					&errmsg, &launchermsg, workingdir );
 	    if ( !res && !errmsg.isEmpty() )
 		firstmsg.appendPhraseSameLine( tr(": %1").arg(errmsg) );
@@ -307,6 +323,8 @@ void uiSettingsMgr::updateUserCmdToolBar()
 
     cmd.setEmpty(); exenm.setEmpty(); iconnm.setEmpty();
     tooltip.setEmpty(); uiname.setEmpty();
+    prognms_.setEmpty();
+    deepErase( progargs_ );
 
 // Python Terminal command
     const PtrMan<IOPar> termpar = pythonsetts.subselect( sKey::PythonTerm() );
@@ -318,6 +336,8 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	if ( idx != -1 )
 	{
 	    cmd = commands.get( idx );
+	    prognms_.add( commands.program(idx) );
+	    progargs_ += commands.args(idx );
 	    uiname = commands.getUiName( idx );
 	    iconnm = commands.getIconName( idx );
 	    tooltip = commands.getToolTip( idx );
@@ -325,6 +345,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
     }
     else if ( termpar && termpar->get(sKey::Command(),cmd) && !cmd.isEmpty() )
     {
+	prognms_.add( cmd );
 	termpar->get( sKey::IconFile(), iconnm );
 	termpar->get( sKey::ToolTip(), tooltip );
 	uiname = tooltip;
@@ -336,7 +357,8 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	if ( !commands.isEmpty() )
 	{
 	    const int idx = 0;
-	    cmd = commands.get( idx );
+	    progargs_ += commands.args( idx );
+	    prognms_.add( cmd );
 	    uiname = commands.getUiName( idx );
 	    iconnm = commands.getIconName( idx );
 	    tooltip = commands.getToolTip( idx );
@@ -351,7 +373,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
 				mCB(this,uiSettingsMgr,doTerminalCmdCB) );
 	toolbarids_ += id;
 	commands_.add( cmd );
-	termcmdidx_ = commands_.size()-1;
+	termcmdidx_ = prognms_.size()-1;
 	if ( usercmdmnu_ )
 	{
 	    auto* newitm = new uiAction(tr("Start %1").arg(uiname),
@@ -375,7 +397,11 @@ void uiSettingsMgr::doTerminalCmdCB( CallBacker* cb )
     if ( !toolbarids_.validIdx(idx) )
 	return;
 
-    const uiRetVal uirv = openTerminal( true, commands_.get(idx) );
+    BufferString prognm;
+    if ( prognms_.validIdx(idx) )
+	 prognm.set( prognms_.get(idx) );
+
+    const uiRetVal uirv = openTerminal( true, prognm, programArgs(idx) );
     if ( !uirv.isOK() )
 	uiMSG().error( uirv );
 }
