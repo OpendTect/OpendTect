@@ -82,6 +82,7 @@ SyntheticData::SyntheticData( const SynthGenParams& sgp,
     , datapack_(dp)
     , synthgendp_(&synthgendp)
 {
+    datapack_.setName( sgp.name_ );
 }
 
 
@@ -95,7 +96,8 @@ void SyntheticData::setName( const char* nm )
 {
     SharedObject::setName( nm );
     datapack_.setName( nm );
-    sgp_.name_.set( nm );
+    if ( sgp_.name_ != nm )
+	sgp_.name_.set( nm );
 }
 
 

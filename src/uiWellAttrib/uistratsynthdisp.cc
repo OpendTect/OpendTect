@@ -822,8 +822,10 @@ void uiStratSynthDisp::reDisplayPostStackSynthetic( bool wva )
 
 void uiStratSynthDisp::displaySynthetic( const SyntheticData* sd )
 {
-    displayPostStackSynthetic( sd );
-    displayPreStackSynthetic( sd );
+    if ( sd->isPS() )
+	displayPreStackSynthetic( sd );
+    else
+	displayPostStackSynthetic( sd );
 }
 
 
@@ -888,14 +890,13 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 
     deleteAndZeroPtr( d2tmodels_ );
 
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
-    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
-
     const Seis::SynthGenDataPack& synthgendp = sd->synthGenDP();
     const float offset = prestackgrp_->sensitive()
 		       ? mCast( float, offsetposfld_->getValue() )
 		       : 0.f;
     const int offsidx = getOffsetIdx( *sd );
+    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
     const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, 0 )
 				   : &postsd->postStackPack().trcBuf();
     if ( !tbuf )
@@ -1302,18 +1303,10 @@ void uiStratSynthDisp::updateAltSynthetic( const char* oldnm, const char* newnm,
     if ( !synthetic )
 	return;
 
-    if ( nameonly )
+    if ( (nameonly && !altSS().updateSyntheticName(oldnm,newnm)) ||
+       (!nameonly && !altSS().updateSynthetic(oldnm,synthetic->getGenParams())))
     {
-	if ( !altSS().updateSyntheticName(oldnm,newnm) )
-	    mErrRet(altSS().errMsg(), return );
-    }
-    else
-    {
-	altSS().removeSynthetic( oldnm );
-	const SyntheticData* altsd =
-			     altSS().addSynthetic( synthetic->getGenParams() );
-	if ( !altsd )
-	    mErrRet(altSS().errMsg(), return );
+	mErrRet(altSS().errMsg(), return );
     }
 
     showInfoMsg( true );
@@ -1336,36 +1329,61 @@ void uiStratSynthDisp::updateDispSynthetic( const char* oldnm,
 	 oldsyntheticnm == sKeyNone() )
 	return;
 
-    if ( FixedString(newnm) != oldsyntheticnm )
+    bool wvawasactive = false;
+    if ( wvadatalist_->isPresent(oldsyntheticnm) )
     {
-	if ( wvadatalist_->isPresent(oldsyntheticnm) )
+	wvawasactive = FixedString( wvadatalist_->text() ) == oldsyntheticnm;
+	if ( oldsyntheticnm != newnm )
 	{
+	    const int curidx = wvadatalist_->currentItem();
 	    updateSyntheticList( true );
-	    wvadatalist_->setCurrentItem( newnm );
-	    if ( !nameonly )
-		setCurrentSynthetic( true );
+	    if ( wvawasactive )
+		wvadatalist_->setCurrentItem( newnm );
+	    else if ( curidx >=0 && curidx < wvadatalist_->size() )
+		wvadatalist_->setCurrentItem( curidx );
 	}
 
-	if ( vddatalist_->isPresent(oldsyntheticnm) )
+	if ( !nameonly )
+	    setCurrentSynthetic( true );
+    }
+
+    bool vdwasactive = false;
+    if ( vddatalist_->isPresent(oldsyntheticnm) )
+    {
+	vdwasactive = FixedString( vddatalist_->text() ) == oldsyntheticnm;
+	if ( oldsyntheticnm != newnm )
 	{
+	    const int curidx = vddatalist_->currentItem();
 	    updateSyntheticList( false );
-	    vddatalist_->setCurrentItem( newnm );
-	    if ( !nameonly )
-		setCurrentSynthetic( false );
+	    if ( vdwasactive )
+		vddatalist_->setCurrentItem( newnm );
+	    else if ( curidx >=0 && curidx < vddatalist_->size() )
+		vddatalist_->setCurrentItem( curidx );
 	}
 
-	synthsChanged.trigger();
+	if ( !nameonly )
+	    setCurrentSynthetic( false );
     }
 
     showInfoMsg( false );
     if ( nameonly )
+    {
+	synthsChanged.trigger();
 	return;
+    }
 
     updateFields();
-    currentwvasynthetic = currentwvasynthetic_.get();
-    currentvdsynthetic = currentvdsynthetic_.get();
-    displaySynthetic( currentwvasynthetic );
-    displayPostStackSynthetic( currentvdsynthetic, false );
+    ConstRefMan<SyntheticData> wvasynthetic =
+			       curSS().getSynthetic( wvadatalist_->text() );
+    if ( wvasynthetic )
+	displaySynthetic( wvasynthetic.ptr() );
+
+    ConstRefMan<SyntheticData> vdsynthetic =
+			       curSS().getSynthetic( vddatalist_->text() );
+    if ( vdsynthetic )
+	displayPostStackSynthetic( vdsynthetic.ptr(), false );
+
+    synthsChanged.trigger();
 }
 
 

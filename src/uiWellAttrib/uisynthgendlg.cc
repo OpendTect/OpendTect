@@ -177,9 +177,9 @@ void uiSynthParsGrp::getInpNames( BufferStringSet& synthnms )
 }
 
 
-bool uiSynthParsGrp::prepareSyntheticToBeChanged( bool toberemoved )
+bool uiSynthParsGrp::prepareSyntheticToBeRemoved()
 {
-    if ( synthnmlb_->size()==1 && toberemoved )
+    if ( synthnmlb_->size()==1 )
 	mErrRet( tr("Cannot remove all synthetics"), return false );
 
     const int selidx = synthnmlb_->currentItem();
@@ -208,11 +208,10 @@ bool uiSynthParsGrp::prepareSyntheticToBeChanged( bool toberemoved )
 
     if ( !synthstobedisabled.isEmpty() )
     {
-	uiString chgstr = toberemoved ? tr( "remove" ) : tr( "change" );
 	uiString msg = tr("%1 will become uneditable as it is dependent on "
-			  "'%2'.\n\nDo you want to %3 the synthetics?")
+			  "'%2'.\n\nDo you want to remove the synthetics?")
 			  .arg(synthstobedisabled.getDispString())
-			  .arg(sgptorem.name_.buf()).arg(chgstr);
+			  .arg(sgptorem.name_.buf());
 	if ( !uiMSG().askGoOn(msg) )
 	    return false;
 
@@ -272,9 +271,6 @@ void uiSynthParsGrp::updateSyntheticsCB( CallBacker* )
 	return;
 
     const bool onlynmchanged = namechanged_ && !parschanged_;
-    if ( !onlynmchanged && !prepareSyntheticToBeChanged(false) )
-	return;
-
     const BufferString synthtochgnm( synthnmlb_->getText() );
     ConstRefMan<SyntheticData> sdtochg =
 			       stratsynth_.getSynthetic( synthtochgnm );
@@ -298,30 +294,26 @@ void uiSynthParsGrp::updateSyntheticsCB( CallBacker* )
 	synthselgrp_->manInpSynth( synthtochgnm, false );
     else if ( sdtochgsgp.isPreStack() )
 	synthselgrp_->manPSSynth( synthtochgnm, false );
+
     sdtochg = nullptr;
 
-    if ( onlynmchanged && !stratsynth_.updateSyntheticName(synthname,
-							   newsynthnm) )
+    if ( (onlynmchanged && !stratsynth_.updateSyntheticName(synthname,
+							   newsynthnm)) ||
+	 (!onlynmchanged && !stratsynth_.updateSynthetic(synthname,cursgp)) )
     {
 	mErrRet( stratsynth_.errMsg(), return )
     }
-    else if ( !onlynmchanged )
-    {
-	if ( !stratsynth_.removeSynthetic(synthname) )
-	    mErrRet( stratsynth_.errMsg(), return )
-
-	if ( !doAddSynthetic(cursgp,true) )
-	{
-	    synthnmlb_->removeItem( synthname );
-	    mErrRet( stratsynth_.errMsg(), return )
-	}
-
-	if ( synthname != newsynthnm )
-	    stratsynth_.updateSyntheticName( synthname, newsynthnm );
-    }
 
     forwardInputNames();
-    synthnmlb_->setItemText( selidx, newsynthnm );
+    for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
+    {
+	const SyntheticData* sd = stratsynth_.getSyntheticByIdx( idx );
+	if ( !sd || sd->isStratProp() )
+	    continue;
+
+	synthnmlb_->setItemText( idx, sd->name() );
+    }
+
     updatefld_->setSensitive( false );
     addnewfld_->setSensitive( false );
     namechanged_ = parschanged_ = false;
@@ -335,7 +327,7 @@ void uiSynthParsGrp::updateSyntheticsCB( CallBacker* )
 
 void uiSynthParsGrp::removeSyntheticsCB( CallBacker* )
 {
-    if ( !prepareSyntheticToBeChanged(true) )
+    if ( !prepareSyntheticToBeRemoved() )
 	return;
 
     const BufferString synthtoremnm( synthnmlb_->getText() );

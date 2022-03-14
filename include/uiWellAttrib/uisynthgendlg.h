@@ -67,7 +67,7 @@ protected:
     void			getPSNames(BufferStringSet&);
     void			getInpNames(BufferStringSet&);
     void			forwardInputNames();
-    bool			prepareSyntheticToBeChanged(bool toberemoved);
+    bool			prepareSyntheticToBeRemoved();
     bool			doAddSynthetic(const SynthGenParams&,
 					       bool isupdate=false);
     bool			checkSyntheticName(const char* nm,

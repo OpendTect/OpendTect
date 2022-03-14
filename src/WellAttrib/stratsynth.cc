@@ -185,12 +185,58 @@ const SyntheticData* StratSynth::addSynthetic( const SynthGenParams& synthgen )
 }
 
 
+bool StratSynth::updateSynthetic( const char* oldnm, const SynthGenParams& sgp )
+{
+    ObjectSet<const SyntheticData> dependentsds;
+    for ( auto* attribsd : synthetics_ )
+    {
+	const SynthGenParams& sdsgp = attribsd->getGenParams();
+	if ( !sdsgp.needsInput() || sdsgp.inpsynthnm_ != oldnm )
+	    continue;
+
+	dependentsds.add( attribsd );
+    }
+
+    ConstRefMan<SyntheticData> newsd = generateSD( sgp );
+    if ( !newsd )
+	return false;
+
+    const int idx = syntheticIdx( oldnm );
+    if ( synthetics_.validIdx(idx) )
+	synthetics_.replace( idx, newsd );
+    else
+	synthetics_.add( newsd );
+
+    if ( dependentsds.isEmpty() )
+	return true;
+
+    const BufferString inpnmlbl( "[", oldnm, "]" );
+    const BufferString newinpnmlbl( "[", sgp.name_, "]" );
+    bool haserror = false;
+    for ( const auto* attribsd : dependentsds )
+    {
+	SynthGenParams sdsgp = attribsd->getGenParams();
+	const BufferString olddepnm( sdsgp.name_ );
+	sdsgp.inpsynthnm_.set( sgp.name_ );
+	if ( sdsgp.name_.contains(inpnmlbl) )
+	    sdsgp.name_.replace( inpnmlbl, newinpnmlbl );
+
+	if ( !updateSynthetic(olddepnm,sdsgp) )
+	    haserror = true;
+    }
+
+    return !haserror;
+}
+
+
 bool StratSynth::updateSyntheticName( const char* oldnm, const char* newnm )
 {
     const SyntheticData* sd = getSynthetic( oldnm );
     if ( sd )
 	const_cast<SyntheticData*>( sd )->setName( newnm );
 
+    const BufferString inpnmlbl( "[", oldnm, "]" );
+    const BufferString newinpnmlbl( "[", newnm, "]" );
     bool found = false;
     for ( auto* attribsd : synthetics_ )
     {
@@ -201,6 +247,9 @@ bool StratSynth::updateSyntheticName( const char* oldnm, const char* newnm )
 	found = true;
 	SynthGenParams newsgp( sgp );
 	newsgp.inpsynthnm_.set( newnm );
+	if ( newsgp.name_.contains(inpnmlbl) )
+	    newsgp.name_.replace( inpnmlbl, newinpnmlbl );
+
 	const_cast<SyntheticData*>( attribsd )->useGenParams( newsgp );
     }
 
@@ -1521,7 +1570,6 @@ bool doFinish( bool success ) override
 	    propnm += StratSynth::sKeyFRNameSuffix();
 	BufferString nm( "[", propnm, "]" );
 	sgp.name_.set( nm );
-	dp->setName( nm );
 	ConstRefMan<SyntheticData> prsd =
 		new StratPropSyntheticData( sgp, sd_.synthGenDP(), *dp, *pr );
 	const_cast<SyntheticData*>( prsd.ptr() )->id_ = ++lastsyntheticid_;
