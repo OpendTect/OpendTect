@@ -19,12 +19,53 @@ static Coords::AuthorityCode cED50ID()
 { return Coords::AuthorityCode(sKeyRepoNm,23031); }
 static Coords::AuthorityCode cWGS72ID()
 { return Coords::AuthorityCode(sKeyRepoNm,32231); }
+static Coords::AuthorityCode cWGS84N20ID()
+{ return Coords::AuthorityCode(sKeyRepoNm,32620); }
+static Coords::AuthorityCode cNAD27N20ID()
+{ return Coords::AuthorityCode(sKeyRepoNm,26720); }
 
 static double mDefEpsCoord = 1e-4;
 
 /* Input points tested through:
 http://epsg.io/transform
 https://mygeodata.cloud/cs2cs
+
+Can also best be checked using the proj applications on the command line:
+Examples of X/Y to Lat/Long transformation within a CRS (EPSG:26720 -> EPSG:4267):
+echo 732510.57 4891795.58 | proj -I +proj=utm +zone=20 +datum=NAD27 -s -f "%.7f"
+echo 732510.57 4891795.58 | invproj +proj=utm +zone=20 +datum=NAD27 -s -f "%.7f"
+echo 732510.57 4891795.58 | cs2cs +proj=utm +zone=20 +datum=NAD27 +to +proj=longlat +datum=NAD27 -s -f "%.7f"
+echo 732510.57 4891795.58 | cs2cs EPSG:26720 EPSG:4267 -f "%.7f"
+> 44.1443175	-60.0929968    ( cs2cs returns z as third output )
+
+Examples of Lat/Long transformation within a CRS (EPSG:4267 -> EPSG:26720):
+echo 44.1443175 -60.0929968 | proj -r +proj=utm +zone=20 +datum=NAD27 -f "%.7f"
+> 732510.5674074  4891795.5809538
+echo 44.1443175 -60.0929968 | cs2cs -r +proj=lonlat +datum=NAD27 +to +proj=utm +zone=20 +datum=NAD27
+echo 44.1443175 -60.0929968 | cs2cs EPSG:4267 EPSG:26720
+> 732510.57       4891795.58 0.00
+
+Examples of transformations accross CRS:
+X/Y NAD27 Zone 20N to Lat/Long WGS84:
+echo 732510.57 4891795.58 | cs2cs +proj=utm +zone=20 +datum=NAD27 +to +proj=lonlat +datum=WGS84 -f "%.7f" -s
+echo 732510.57 4891795.58 | cs2cs EPSG:26720 EPSG:4326 -f "%.7f"
+> 44.1443426      -60.0922381 0.0000000
+
+Lat/Long NAD27 to X/Y WGS84 Zone 20N:
+echo 44.1443175 -60.0929968 | cs2cs -r +proj=lonlat +datum=NAD27 +to +proj=utm +zone=20 +datum=WGS84
+echo 44.1443175 -60.0929968 | cs2cs EPSG:4267 EPSG:32620
+> 732564.42  4892016.75 0.00
+
+Lat/Long NAD27 to Lat/Long WGS84:
+echo 44.1443175 -60.0929968 | cs2cs -r -s +proj=lonlat +datum=NAD27 +to +proj=lonlat +datum=WGS84 -f "%.7f"
+echo 44.1443175 -60.0929968 | cs2cs EPSG:4267 EPSG:4326 -f "%.7f"
+> 44.1443426      -60.0922381 0.0000000
+
+X/Y NAD27 Zone 20N to X/Y WGS84 Zone 20N:
+echo 732510.57 4891795.58 | cs2cs +proj=utm +zone=20 +datum=NAD27 +to +proj=utm +zone=20 +datum=WGS84
+echo 732510.57 4891795.58 | cs2cs EPSG:26720 EPSG:32620
+> 732564.42       4892016.75 0.00
+
    */
 
 // First set to be matched upon:
@@ -61,6 +102,12 @@ static const Coord wgs72xy[] =	{ Coord(468160.7972588778,5698137.987990135),
 				  Coord(725762.8921176088,6179905.486340908),
 				  Coord(468161.8054061992,6179906.107376129) };
 
+static const Coord wgs84n20xy[] = { Coord(732564.42,4892016.76) };
+static const LatLong wgs84n20ll[] = { LatLong(44.1443426,-60.0922381) };
+
+static const Coord nad27n20xy[] = { Coord(732510.57,4891795.58) };
+static const LatLong nad27n20ll[] = { LatLong(44.1443175,-60.0929968) };
+
 #define mRunTest( func ) \
     if ( !(func) ) \
     { \
@@ -96,15 +143,39 @@ static bool testLatLongToCoord( const LatLong& ll, const Coord& pos,
 }
 
 
-static bool testReversibility( bool wgs84 )
+static bool testReversibility( Coords::AuthorityCode crsid )
 {
-    const Coords::ProjectionBasedSystem pbs( wgs84 ? cWGS84ID() : cED50ID() );
+    const Coords::ProjectionBasedSystem pbs( crsid );
     if ( !pbs.isOK() )
 	return false;
 
-    const Coord* xy = wgs84 ? wgs84xy : ed50xy;
-    const LatLong* ll = wgs84 ? wgs84ll : ed50ll;
-    const int sz = sizeof(wgs84xy) / sizeof(Coord);
+    const Coord* xy = nullptr;
+    const LatLong* ll = nullptr;
+    if ( crsid == cWGS84ID() )
+    {
+	xy = wgs84xy;
+	ll = wgs84ll;
+    }
+    else if ( crsid == cED50ID() )
+    {
+	xy = ed50xy;
+	ll = ed50ll;
+
+    }
+    else if ( crsid == cWGS84N20ID() )
+    {
+	xy = wgs84n20xy;
+	ll = wgs84n20ll;
+    }
+    else if ( crsid == cNAD27N20ID() )
+    {
+	xy = nad27n20xy;
+	ll = nad27n20ll;
+    }
+    else
+	return false;
+
+    const int sz = sizeof(xy) / sizeof(Coord);
     for ( int idx=0; idx<sz; idx++ )
     {
 	if ( !testCoordToLatLong(xy[idx],ll[idx],pbs) ||
@@ -123,6 +194,18 @@ static bool testTransfer()
     const Coords::ProjectionBasedSystem wgs72pbs( cWGS72ID() );
     if ( !wgs84pbs.isOK() || !ed50pbs.isOK() || !wgs72pbs.isOK() )
 	return false;
+
+/*
+   cross-conversions between NAD27 and WGS84 have severe errors >50m
+   in the current version we build against, thus disabled this test
+    const Coords::ProjectionBasedSystem wgs84n20pbs( cWGS84N20ID() );
+    const Coords::ProjectionBasedSystem nad27n20pbs( cNAD27N20ID() );
+    if ( !wgs84n20pbs.isOK() || !nad27n20pbs.isOK() )
+	return false;
+
+   mRunTest( coordIsEqual(wgs84n20xy[0],
+	    Coords::CoordSystem::convert(nad27n20xy[0],
+					nad27n20pbs,wgs84n20pbs)));*/
 
     const int sz = sizeof(wgs84xy) / sizeof(Coord);
     for ( int idx=0; idx<sz; idx++ )
@@ -172,7 +255,10 @@ int mTestMainFnName( int argc, char** argv )
     mInitTestProg();
 
     if ( !initPlugin() ||
-	 !testReversibility(true) || !testReversibility(false) ||
+	 !testReversibility(cWGS84ID()) ||
+	 !testReversibility(cED50ID()) ||
+	 !testReversibility(cWGS84N20ID()) ||
+	 !testReversibility(cNAD27N20ID()) ||
 	 !testTransfer() )
 	return 1;
 
