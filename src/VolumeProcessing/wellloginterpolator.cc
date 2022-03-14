@@ -39,9 +39,6 @@ WellLogInfo( const MultiID& mid, const char* lognm, Well::ExtractParams params )
     : mid_(mid)
     , logname_(lognm)
     , params_(params)
-    , track_(0)
-    , log_(0)
-    , logisvelocity_(false)
 {}
 
 ~WellLogInfo()
@@ -52,36 +49,39 @@ WellLogInfo( const MultiID& mid, const char* lognm, Well::ExtractParams params )
 
 bool init( InterpolationLayerModel& layermodel )
 {
-    const bool isloaded = Well::MGR().isLoaded( mid_ );
     const bool zistime = SI().zIsTime();
-    RefMan<Well::Data> wd = new Well::Data;
-    if ( isloaded )
+    Well::LoadReqs lreqs( Well::Trck, Well::LogInfos );
+    if ( zistime )
+	lreqs.add( Well::D2T );
+
+    if ( params_.zselection_ == Well::ZRangeSelector::Markers )
     {
-	if ( !wd )
-	    return false;
-
-	const Well::Data* wddb = Well::MGR().get( mid_ );
-	if ( !wddb || wddb->track().size() < 2 ||
-	     ( zistime && (!wddb->d2TModel() || wddb->d2TModel()->size() < 2)) )
-	    return false;
-
-	wd = const_cast<Well::Data*>( wddb );
-	const bool haslog = wd->logs().getLog( logname_ );
-	const bool hasmarkers = !wd->markers().isEmpty();
-	if ( !haslog || !hasmarkers )
-	{
-	    Well::Reader wrdr( mid_, *wd );
-	    if ( !haslog && !wrdr.getLog(logname_) )
-		return false;
-	    if ( !hasmarkers && !wrdr.getMarkers() )
-		return false;
-	}
+	if ( FixedString(params_.topMarker()) !=
+				Well::ZRangeSelector::sKeyDataStart() ||
+	     FixedString(params_.botMarker()) !=
+				Well::ZRangeSelector::sKeyDataEnd() )
+	    lreqs.add( Well::Mrkrs );
     }
-    else
+
+    RefMan<Well::Data> wd = Well::MGR().get( mid_, lreqs );
+    if ( !wd || !wd->logs().getLog(logname_) )
+	return false;
+
+    if ( !wd->logs().getLog(logname_)->isLoaded() )
     {
 	Well::Reader wrdr( mid_, *wd );
-	if ( !wrdr.getTrack() || ( zistime && !wrdr.getD2T() ) ||
-	     !wrdr.getLog(logname_) || !wrdr.getMarkers() )
+	if ( !wrdr.getLog(logname_) )
+	    return false;
+    }
+
+    if ( lreqs.includes(Well::Mrkrs) )
+    {
+	if ( (FixedString(params_.topMarker()) !=
+		Well::ZRangeSelector::sKeyDataStart() &&
+		!wd->markers().getByName(params_.topMarker())) ||
+	     (FixedString(params_.sKeyBotMrk()) !=
+	        Well::ZRangeSelector::sKeyDataEnd() &&
+		!wd->markers().getByName(params_.botMarker())) )
 	    return false;
     }
 
@@ -228,12 +228,12 @@ bool createInterpolationFunctions( const InterpolationLayerModel& layermodel )
 }
 
 
-Well::Track*		track_;
+Well::Track*		track_ = nullptr;
 TrcKeyZSampling		bbox_;
 MultiID			mid_;
 BufferString		logname_;
-const Well::Log*	log_;
-bool			logisvelocity_;
+const Well::Log*	log_ = nullptr;
+bool			logisvelocity_ = false;
 Well::ExtractParams	params_;
 PointBasedMathFunction	logfunc_;
 PointBasedMathFunction	mdfunc_;
