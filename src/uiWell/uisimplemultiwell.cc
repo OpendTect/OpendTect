@@ -220,12 +220,12 @@ bool acceptOK( CallBacker* )
 
     uiSimpleMultiWellCreateReadDataAscio aio( fd_, strm );
     ManagedObjectSet<uiSMWCData> wcds;
-    uiSMWCData* wcd = nullptr;
-    do
+    uiSMWCData* wcd = aio.getLine();
+    while ( wcd )
     {
-	wcd = aio.getLine();
 	wcds += wcd;
-    } while( wcd );
+	wcd = aio.getLine();
+    }
 
     dlg_.fillTable( wcds );
     return true;
