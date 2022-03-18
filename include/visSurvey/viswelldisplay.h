@@ -13,13 +13,16 @@ ________________________________________________________________________
 
 
 #include "vissurveymod.h"
+
+#include "factory.h"
+#include "multiid.h"
+#include "ranges.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "viswell.h"
-#include "multiid.h"
-#include "ranges.h"
+#include "welldata.h"
 #include "welllogdisp.h"
-#include "factory.h"
+
 
 namespace visBase
 {
@@ -31,7 +34,6 @@ namespace visBase
 
 namespace Well
 {
-    class Data;
     class DisplayProperties;
     class LoadReqs;
     class Log;

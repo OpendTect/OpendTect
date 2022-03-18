@@ -24,7 +24,6 @@
 #include "wellman.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "welldata.h"
 #include "wellextractdata.h"
 #include "welltransl.h"
 #include "welltrack.h"
