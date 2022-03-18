@@ -31,6 +31,7 @@
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "viswelldisplay.h"
+#include "welldata.h"
 #include "wellman.h"
 
 #include "coordsystem.h"

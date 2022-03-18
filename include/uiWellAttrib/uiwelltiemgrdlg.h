@@ -53,7 +53,7 @@ protected:
     ObjectSet<uiTieWin> welltiedlgset_;
     uiWellPropSel*	logsfld_;
 
-    Well::Data*		wd_ = nullptr;
+    RefMan<Well::Data>	wd_;
 
     uiIOObjSel*         wellfld_;
     uiGenInput*		typefld_ = nullptr;

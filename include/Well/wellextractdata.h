@@ -103,7 +103,8 @@ protected:
     bool		snapzrgtosurvey_;
 
     void		setMarker(bool top,BufferString nm,float offset);
-    void		getMarkerRange(const Data&,Interval<float>&) const;
+    void		getMarkerRange(const Data&,
+				       Interval<float>&) const;
     void		getLimitPos(const MarkerSet&,bool,float&,
 				    const Interval<float>&) const;
     void		snapZRangeToSurvey(Interval<float>&,bool,
@@ -310,10 +311,9 @@ protected:
 mExpClass(Well) SimpleTrackSampler : public Executor
 { mODTextTranslationClass(SimpleTrackSampler);
 public:
-			SimpleTrackSampler(const Well::Track&,
-					  const Well::D2TModel*,
-					  bool extrapolate_ = false,
-					  bool stayinsidesurvey = false);
+			SimpleTrackSampler(const Track&, const D2TModel*,
+					   bool extrapolate_ = false,
+					   bool stayinsidesurvey = false);
 
     void		setSampling(const StepInterval<float>& intv)
 			{ extrintv_ = intv; } //In time if d2TModel is provided
@@ -337,8 +337,8 @@ protected:
     bool		extrapolate_;
 
     Interval<float>	tracklimits_;
-    const Well::Track&	track_;
-    const Well::D2TModel* d2t_;
+    const Track&	track_;
+    const D2TModel*	d2t_;
     int			nrdone_;
 };
 
@@ -351,27 +351,23 @@ or dah axis.
 mExpClass(Well) LogSampler : public ParallelTask
 { mODTextTranslationClass(LogSampler);
 public:
-			LogSampler(const Well::Data& wd,
-				const Well::ExtractParams&,
-				const BufferStringSet& lognms);
+			LogSampler(const Data&,const Well::ExtractParams&,
+				   const BufferStringSet& lognms);
 
-			LogSampler(const Well::Data& wd,
-				const Interval<float>& zrg, bool zrgintime,
-				float zstep, bool extractintime,
-				Stats::UpscaleType samppol,
-				const BufferStringSet& lognms);
+			LogSampler(const Data&, const Interval<float>& zrg,
+				   bool zrgintime,float zstep,
+				   bool extractintime,
+				   Stats::UpscaleType samppol,
+				   const BufferStringSet& lognms);
 
-			LogSampler(const Well::D2TModel* d2t,
-				const Well::Track* track,
+			LogSampler(const D2TModel* d2t, const Track* track,
 				const Interval<float>& zrg, bool zrgintime,
 				float zstep, bool extractintime,
 				Stats::UpscaleType samppol,
 				const ObjectSet<const Well::Log>& logs);
 
-			LogSampler(const Well::Data& wd,
-				   const Well::ExtractParams&,
-				   const Well::LogSet&,
-				   const BufferStringSet&);
+			LogSampler(const Data&, const ExtractParams&,
+				   const LogSet&, const BufferStringSet&);
 
 			~LogSampler();
 
@@ -398,7 +394,7 @@ public:
     uiString		uiNrDoneText() const;
 
 protected:
-    void		init (const Well::D2TModel*,const Interval<float>&,
+    void		init (const D2TModel*,const Interval<float>&,
 			    bool zrgintime,float zstep, bool extractintime,
 			    Stats::UpscaleType samppol);
 
@@ -408,14 +404,15 @@ protected:
     bool		doPrepare(int) override;
     bool		doWork(od_int64,od_int64,int) override;
 
-    const Well::D2TModel*	d2t_;
-    const Well::Track&		track_;
+    ConstRefMan<Data>		wd_;
+    const D2TModel*		d2t_;
+    const Track&		track_;
     Interval<float>		zrg_;
     float			zstep_;
     bool			extrintime_;
     bool			zrgisintime_;
     float			maxholesz_ = mUdf(float);
-    ObjectSet<const Well::Log>	logset_;
+    ObjectSet<const Log>	logset_;
     Array2DImpl<float>*		data_;
     uiString			errmsg_;
     Stats::UpscaleType		samppol_;

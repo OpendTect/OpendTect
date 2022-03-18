@@ -37,7 +37,7 @@ uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd,
 				 "mNoHelpID"))
     , attrset_(as)
     , nlamodel_(mdl)
-    , wd_(wd)
+    , wd_(&wd)
     , sellogidx_(-1)
 {
     attribfld = new uiAttrSel( this, &attrset_ );
@@ -65,13 +65,13 @@ void uiWellAttribSel::selDone( CallBacker* )
 void uiWellAttribSel::setDefaultRange()
 {
     StepInterval<float> dahintv;
-    for ( int idx=0; idx<wd_.logs().size(); idx++ )
+    for ( int idx=0; idx<wd_->logs().size(); idx++ )
     {
-	const Well::Log& log = wd_.logs().getLog(idx);
+	const Well::Log& log = wd_->logs().getLog(idx);
 	const int logsz = log.size();
 	if ( !logsz ) continue;
 
-	dahintv.setFrom( wd_.logs().dahInterval() );
+	dahintv.setFrom( wd_->logs().dahInterval() );
 	const float width = log.dah(logsz-1) - log.dah(0);
 	dahintv.step = width / (logsz-1);
 	break;
@@ -79,7 +79,7 @@ void uiWellAttribSel::setDefaultRange()
 
     if ( !dahintv.width() )
     {
-	const Well::Track& track = wd_.track();
+	const Well::Track& track = wd_->track();
 	const int sz = track.size();
 	dahintv.start = track.dah(0); dahintv.stop = track.dah(sz-1);
 	dahintv.step = dahintv.width() / (sz-1);
@@ -125,7 +125,7 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
 
 bool uiWellAttribSel::inputsOK()
 {
-    if ( SI().zIsTime() && !wd_.d2TModel() )
+    if ( SI().zIsTime() && !wd_->d2TModel() )
 	mErrRet( "No depth to time model defined" );
 
     attribfld->processInput();
@@ -138,7 +138,7 @@ bool uiWellAttribSel::inputsOK()
     if ( lognm.isEmpty() )
 	mErrRet( "Please provide logname" );
 
-    sellogidx_ = wd_.logs().indexOf( lognm );
+    sellogidx_ = wd_->logs().indexOf( lognm );
     if ( sellogidx_ >= 0 )
     {
 	BufferString msg( "Log: '" ); msg += lognm;
@@ -161,12 +161,12 @@ void uiWellAttribSel::getPositions( BinIDValueSet& bidset,
     {
 	float md = intv.atIndex( idx );
 	if ( zinft ) md *= mFromFeetFactor;
-	Coord3 pos = wd_.track().getPos( md );
+	Coord3 pos = wd_->track().getPos( md );
 	const BinID bid = SI().transform( pos );
 	if ( !bid.inl && !bid.crl ) continue;
 
 	if ( SI().zIsTime() )
-	    pos.z = wd_.d2TModel()->getTime( md );
+	    pos.z = wd_->d2TModel()->getTime( md );
 	bidset.add( bid, pos.z, (float)idx );
 	mdepths += md;
 	positions += BinIDValueSet::SPos(0,0);
@@ -226,12 +226,12 @@ bool uiWellAttribSel::createLog( const BinIDValueSet& bidset,
 
     if ( sellogidx_ < 0 )
     {
-	wd_.logs().add( newlog );
-	sellogidx_ = wd_.logs().size() - 1;
+	wd_->logs().add( newlog );
+	sellogidx_ = wd_->logs().size() - 1;
     }
     else
     {
-	Well::Log& log = wd_.logs().getLog( sellogidx_ );
+	Well::Log& log = wd_->logs().getLog( sellogidx_ );
 	log.erase();
 	for ( int idx=0; idx<newlog->size(); idx++ )
 	    log.addValue( newlog->dah(idx), newlog->value(idx) );

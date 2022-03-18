@@ -142,7 +142,20 @@ Well::Man::~Man()
 
 void Well::Man::cleanup()
 {
-    deepUnRef( wells_ );
+#ifdef __debug__
+    for ( int idx=0; idx<wells_.size(); idx++ )
+    {
+	RefMan<Data> wd = wells_[idx];
+	if ( wd )
+	{
+	    BufferString tmp("Well ", wd->name(), " has ");
+	    tmp.add( wd->nrRefs() ).add(" undeleted references" );
+	    pErrMsg( tmp );
+	}
+
+    }
+#endif
+    wells_.erase();
     depthstorageunit_ = nullptr;
     depthdisplayunit_ = nullptr;
 }
@@ -150,7 +163,8 @@ void Well::Man::cleanup()
 
 void Well::Man::removeObject( const Well::Data* wd )
 {
-    const int idx = wells_.indexOf( wd );
+    auto* wdtmp = const_cast<Well::Data*>( wd );
+    const int idx = wells_.indexOf( wdtmp );
     if ( idx < 0 ) return;
 
     wells_.removeSingle( idx );
@@ -163,61 +177,29 @@ void Well::Man::removeObject( const MultiID& key )
     if ( !wells_.validIdx(idx) )
 	return;
 
-    wells_.removeSingle( idx )->unRef();
+    wells_.removeSingle( idx );
 }
 
 
-void Well::Man::add( const MultiID& key, Well::Data* wll )
-{
-    if ( !wll ) return;
-
-    wll->ref();
-    wll->setMultiID( key );
-    wells_ += wll;
-    LoadReqs reqs( Well::Inf );
-    if ( !wll->track().isEmpty() )
-	reqs.add( Well::Trck );
-    if ( wll->d2TModel() && !wll->d2TModel()->isEmpty() )
-	reqs.add( Well::D2T );
-    if ( wll->checkShotModel() && !wll->checkShotModel()->isEmpty() )
-	reqs.add( Well::CSMdl );
-    if ( !wll->markers().isEmpty() )
-	reqs.add( Well::Mrkrs );
-    if ( !wll->logs().isEmpty() )
-	reqs.add( Well::Logs );
-}
-
-
-Well::Data* Well::Man::release( const MultiID& key )
-{
-    const int idx = gtByKey( key );
-    if ( idx < 0 ) return 0;
-
-    Data* ret = wells_.removeSingle( idx );
-    ret->unRef();
-    return ret;
-}
-
-
-Well::Data* Well::Man::get( const MultiID& key )
+RefMan<Well::Data> Well::Man::get( const MultiID& key )
 {
     return get( key, LoadReqs() );
 }
 
 
-Well::Data* Well::Man::get( const MultiID& key, LoadReqs reqs )
+RefMan<Well::Data> Well::Man::get( const MultiID& key, LoadReqs reqs )
 {
     msg_.setEmpty();
 
     const int wdidx = gtByKey( key );
-    Data* wd = wdidx < 0 ? nullptr : wells_[wdidx];
+    RefMan<Data> wd = wdidx < 0 ? nullptr : wells_[wdidx];
     if ( wd && wd->loadState().includes(reqs) )
         return wd;
 
     if ( wdidx >=0 && wd )
     {
 	reqs.exclude( wd->loadState() );
-	if ( !readReqData(key,wd,reqs) )
+	if ( !readReqData(key,*wd,reqs) )
 	    return nullptr;
 
 	return wd;
@@ -227,7 +209,7 @@ Well::Data* Well::Man::get( const MultiID& key, LoadReqs reqs )
 }
 
 
-Well::Data* Well::Man::get( const DBKey& key, LoadReqs reqs )
+RefMan<Well::Data> Well::Man::get( const DBKey& key, LoadReqs reqs )
 {
     SurveyDiskLocation sdl;
     if ( key.hasSurveyLocation() )
@@ -237,18 +219,18 @@ Well::Data* Well::Man::get( const DBKey& key, LoadReqs reqs )
 }
 
 
-Well::Data* Well::Man::addNew( const MultiID& key, LoadReqs reqs )
-{
-    Data* wd = new Data;
-    wd->ref();
-    if ( !readReqData(key, wd, reqs) )
-    {
-	wd->unRef();
-	return nullptr;
-    }
 
-    wd->setMultiID( key );
-    wells_ += wd;
+RefMan<Well::Data> Well::Man::addNew( const MultiID& key, LoadReqs reqs )
+{
+    RefMan<Data> wd = new Data;
+    if ( readReqData(key, *wd, reqs) )
+    {
+	wd->setMultiID( key );
+	wells_ += wd;
+    }
+    else
+	wd.erase();
+
     return wd;
 }
 
@@ -265,18 +247,15 @@ Coord Well::Man::getMapLocation( const MultiID& id ) const
 }
 
 
-bool Well::Man::readReqData( const MultiID& key, Data* wd, LoadReqs reqs )
+bool Well::Man::readReqData( const MultiID& key, Data& wd,
+			     LoadReqs reqs )
 {
-    if ( !wd )
-	return false;
-
-    wd->ref();
-    Reader rdr( key, *wd );
+    Reader rdr( key, wd );
     if ( reqs.includes(Inf) && !rdr.getInfo() )
-    { msg_ = rdr.errMsg(); wd->unRef(); return false; }
+    { msg_ = rdr.errMsg(); return false; }
 
     if ( reqs.includes(Trck) && !rdr.getTrack() )
-    { msg_ = rdr.errMsg(); wd->unRef(); return false; }
+    { msg_ = rdr.errMsg(); return false; }
 
     if ( reqs.includes(D2T) )
 	rdr.getD2T();
@@ -290,8 +269,6 @@ bool Well::Man::readReqData( const MultiID& key, Data* wd, LoadReqs reqs )
 	rdr.getCSMdl();
     if ( reqs.includes(DispProps2D) || reqs.includes(DispProps3D) )
 	rdr.getDispProps();
-
-    wd->unRef();
 
     return true;
 }
@@ -313,14 +290,14 @@ bool Well::Man::reload( const MultiID& key, LoadReqs lreqs )
 	lreqs = wd->loadState();
     LoadReqs usereqs( lreqs );
     usereqs.exclude( LoadReqs( Logs, LogInfos ) );
-    if ( !readReqData(key,wd,usereqs) )
+    if ( !readReqData(key,*wd,usereqs) )
 	return false;
 
     if ( lreqs.includes(Logs) )
 	reloadLogs( key );
     else if ( lreqs.includes(LogInfos) )
     {
-	readReqData( key, wd, LoadReqs(LogInfos) );
+	readReqData( key, *wd, LoadReqs(LogInfos) );
 	wd->logschanged.trigger( -1 );
     }
 
@@ -337,7 +314,7 @@ bool Well::Man::reloadDispPars( const MultiID& key, bool for2d )
 
     const LoadReqs lreqs(for2d ? DispProps2D : DispProps3D);
     RefMan<Data> wd = wells_[wdidx];
-    if ( !readReqData(key,wd,lreqs) )
+    if ( !readReqData(key,*wd,lreqs) )
 	return false;
 
     for2d ? wd->disp2dparschanged.trigger() : wd->disp3dparschanged.trigger();
@@ -353,7 +330,7 @@ bool Well::Man::reloadLogs( const MultiID& key )
     BufferStringSet loadedlogs;
     RefMan<Data> wd = wells_[wdidx];
     wd->logs().getNames( loadedlogs, true );
-    if ( !readReqData(key,wd,LoadReqs(LogInfos)) )
+    if ( !readReqData(key,*wd,LoadReqs(LogInfos)) )
 	return false;
 
     bool res = true;
@@ -400,7 +377,7 @@ bool Well::Man::getWellKeys( TypeSet<MultiID>& ids, bool onlyloaded )
     }
     else
     {
-	ObjectSet<Data>& wells = MGR().wells();
+	const auto& wells = MGR().wells();
 	for ( int idx=0; idx<wells.size(); idx++ )
 	{
 	    if ( wells[idx] )

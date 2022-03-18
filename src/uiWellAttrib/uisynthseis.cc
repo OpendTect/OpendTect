@@ -30,6 +30,7 @@ uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su,
     , selectionChanged(this)
     , parsChanged(this)
 {
+    const EnumDef synthdef = SynthGenParams::SynthTypeDef();
     topgrp_ = new uiGroup( this, "Top group" );
     if ( su.withzeroff_ )
     {
@@ -41,7 +42,7 @@ uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su,
 	topgrp_->setHAlignObj( zerooffsynthgrp_ );
     }
     else
-	typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::ZeroOffset) );
+	typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::ZeroOffset) );
 
     if ( su.withelasticstack_ )
     {
@@ -65,16 +66,16 @@ uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su,
 	topgrp_->setHAlignObj( prestacksynthgrp_ );
     }
     else
-	typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::PreStack) );
+	typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::PreStack) );
 
     if ( !withderived )
     {
-	typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::AngleStack) );
-	typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::AVOGradient) );
-	typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::InstAttrib) );
+	typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::AngleStack) );
+	typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::AVOGradient) );
+	typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::InstAttrib) );
     }
 
-    typedef_.remove( typedef_.getKeyForIndex(SynthGenParams::StratProp) );
+    typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::StratProp) );
 
     if ( typedef_.keys().size() > 1 )
     {

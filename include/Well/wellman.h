@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "color.h"
 #include <bitset>
+#include "refcount.h"
 
 class DBKey;
 class IOObj;
@@ -81,10 +82,9 @@ public:
     void		cleanup();
     void		removeObject(const Data*);
     void		removeObject(const MultiID&);
-    Data*		get(const MultiID&);
-    Data*		get(const MultiID&,LoadReqs);
-    Data*		get(const DBKey&,LoadReqs);
-    bool		readReqData(const MultiID&,Data*,LoadReqs);
+    RefMan<Data>	get(const MultiID&);
+    RefMan<Data>	get(const MultiID&,LoadReqs);
+    RefMan<Data>	get(const DBKey&,LoadReqs);
     bool		isLoaded(const MultiID&) const;
     bool		reload(const MultiID&,LoadReqs lreq=LoadReqs(false));
     bool		reloadDispPars(const MultiID&, bool for2d=false);
@@ -92,7 +92,7 @@ public:
     bool		validID(const MultiID&) const;
 
     const char*		errMsg() const		{ return msg_; }
-    ObjectSet<Data>&	wells()			{ return wells_; }
+    WeakPtrSet<Data>&	wells()			{ return wells_; }
 
     bool		deleteLogs(const MultiID&,const BufferStringSet&);
     static bool		renameLog(const TypeSet<MultiID>&,const char* oldnm,
@@ -133,11 +133,12 @@ protected:
     static Man*		mgr_;
     mGlobal(Well) friend Man&	MGR();
 
-    ObjectSet<Data>	wells_;
+    WeakPtrSet<Data>	wells_;
     BufferString	msg_;
 
     int			gtByKey(const MultiID&) const;
-    Well::Data*		addNew(const MultiID&, LoadReqs lreq=LoadReqs(false));
+    RefMan<Data>	addNew(const MultiID&, LoadReqs lreq=LoadReqs(false));
+    bool		readReqData(const MultiID&,Data&,LoadReqs);
 
     static const UnitOfMeasure*	depthstorageunit_;
     static const UnitOfMeasure*	depthdisplayunit_;
@@ -148,12 +149,6 @@ public:
 				    bool forceLoad=false);
     mDeprecated("Use getAllMarkerNames instead")
     static bool		getMarkerNames(BufferStringSet&);
-
-    mDeprecated("Use get instead")
-    void		add(const MultiID&,Data*); //!< Data becomes mine
-
-    mDeprecated("Use removeObject instead")
-    Data*		release(const MultiID&); //!< Data becomes yours
 
 };
 

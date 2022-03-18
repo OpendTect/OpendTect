@@ -110,7 +110,7 @@ public:
 mExpClass(WellAttrib) Data
 { mODTextTranslationClass(Data);
 public :
-				Data(const Setup&,Well::Data& wd);
+				Data(const Setup&,Well::Data&);
 				~Data();
 
     RefMan<Well::Data>		wd_;
@@ -190,12 +190,12 @@ public:
 				WellDataMgr(const MultiID&);
 				~WellDataMgr();
 
-    Well::Data*			wd();
+    RefMan<Well::Data>		wd();
     Notifier<WellDataMgr>	datadeleted_;
 
 protected:
 
-    const Well::Data*		wellData() const;
+    ConstRefMan<Well::Data>	wellData() const;
 
     RefMan<Well::Data>		wd_;
     const MultiID		wellid_;
@@ -214,8 +214,8 @@ public:
 					  bool todisk) const;
     bool			removeLogs(const Well::LogSet&) const;
 
-    void			setWD(Well::Data* wd)
-				{ wd_ = wd; setWellWriter(); }
+    void			setWD(Well::Data& wd)
+				{ wd_ = &wd; setWellWriter(); }
 
 protected:
 
@@ -243,8 +243,8 @@ public:
 							bool bynames) const;
     void			setUpHorizons(const TypeSet<MultiID>&,
 						  uiString&,TaskRunner&);
-    void			setWD( const Well::Data* wd )
-				{ wd_ = wd; }
+    void			setWD( const Well::Data& wd )
+				{ wd_ = &wd; }
 
 protected:
 
@@ -259,8 +259,8 @@ public :
 				Server(const WellTie::Setup&);
 				~Server();
 
-    const Well::Data*		wd() const	{ return data_->wd_; }
-    Well::Data*			wd()		{ return data_->wd_; }
+    ConstRefMan<Well::Data>	wd() const	{ return data_->wd_; }
+    RefMan<Well::Data>		wd()		{ return data_->wd_; }
 
     const MultiID&		wellID() const	{ return wellid_; }
 

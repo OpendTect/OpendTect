@@ -98,11 +98,11 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
 	const MultiID& wmid = wellids[idx];
-	const Well::LoadReqs req( Well::Logs );
-	Well::Data& wd = *Well::MGR().get( wmid, req );
-	auto* ldata = new uiWellLogToolWin::LogData( wd );
+	const Well::LoadReqs req( Well::LogInfos );
+	RefMan<Well::Data> wd = Well::MGR().get( wmid, req );
+	auto* ldata = new uiWellLogToolWin::LogData( *wd );
 	const Well::ExtractParams& params = welllogselfld_->params();
-	ldata->dahrg_ = params.calcFrom( wd, lognms, true );
+	ldata->dahrg_ = params.calcFrom( *wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
 	const int nrinplogs = ldata->setSelectedLogs( lognms );
 	if ( !nrinplogs )
@@ -175,7 +175,7 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 
 uiWellLogToolWin::LogData::LogData( Well::Data& wd )
     : logs_(*new Well::LogSet)
-    , wd_(wd)
+    , wd_(&wd)
 {}
 
 
@@ -188,47 +188,46 @@ uiWellLogToolWin::LogData::~LogData()
 
 const Well::D2TModel* uiWellLogToolWin::LogData::d2t()
 {
-    if ( !wd_.d2TModel() )
+    if ( !wd_->d2TModel() )
     {
-	Well::Reader rdr( wd_.multiID(), wd_ );
+	Well::Reader rdr( wd_->multiID(), *wd_ );
 	rdr.getD2T();
     }
 
-    return wd_.d2TModel();
+    return wd_->d2TModel();
 }
 
 
 const Well::Track* uiWellLogToolWin::LogData::track()
 {
-    if ( wd_.track().isEmpty() )
+    if ( wd_->track().isEmpty() )
     {
-	Well::Reader rdr( wd_.multiID(), wd_ );
+	Well::Reader rdr( wd_->multiID(), *wd_ );
         rdr.getTrack();
     }
 
-    return &wd_.track();
+    return &wd_->track();
 }
 
 
 int uiWellLogToolWin::LogData::setSelectedLogs( BufferStringSet& lognms )
 {
     int nrsel = 0;
-    Well::MGR().reloadLogs( wd_.multiID() );
-    Well::LogSet& wls = wd_.logs();
-    for ( int idx=0; idx<wls.size(); idx++ )
+    Well::MGR().reloadLogs( wd_->multiID() );
+    for ( const auto* lognm : lognms )
     {
-	Well::Log& wl = wls.getLog( idx );
-	if ( !lognms.isPresent(wl.name()) )
+	Well::Log* wl = wd_->getLogForEdit( lognm->buf() );
+	if ( !wl )
 	    continue;
 
-	for ( int dahidx=wl.size()-1; dahidx>=0; dahidx -- )
+	for ( int dahidx=wl->size()-1; dahidx>=0; dahidx -- )
         {
-            if ( !dahrg_.includes( wl.dah( dahidx ), true ) )
-                wl.remove( dahidx );
+	    if ( !dahrg_.includes( wl->dah( dahidx ), true ) )
+		wl->remove( dahidx );
         }
 
-	logs_.add( new Well::Log(wl) );
-	inplogs_ += &wl;
+	logs_.add( new Well::Log(*wl) );
+	inplogs_ += wl;
         nrsel++;
     }
 

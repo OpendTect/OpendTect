@@ -26,14 +26,12 @@ ________________________________________________________________________
 
 WellT2DTransform::WellT2DTransform()
     : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
-    , data_(0)
 {
 }
 
 
 WellT2DTransform::WellT2DTransform( const MultiID& wllid )
     : ZAxisTransform(ZDomain::Time(),ZDomain::Depth())
-    , data_(0)
 {
     setWellID( wllid );
 }
@@ -41,8 +39,6 @@ WellT2DTransform::WellT2DTransform( const MultiID& wllid )
 
 WellT2DTransform::~WellT2DTransform()
 {
-    if ( data_ )
-	data_->unRef();
 }
 
 
@@ -162,7 +158,8 @@ bool WellT2DTransform::setWellID( const MultiID& mid )
 {
     tozdomaininfo_.pars_.set( sKey::ID(), mid );
 
-    data_ = Well::MGR().get( mid );
+    Well::LoadReqs lreqs( Well::D2T );
+    data_ = Well::MGR().get( mid, lreqs );
     if ( !data_ )
     {
 	errmsg_ = tr("Z Transform: Cannot find Well with ID %1")
@@ -171,7 +168,6 @@ bool WellT2DTransform::setWellID( const MultiID& mid )
 	return false;
     }
 
-    data_->ref();
     return calcDepths();
 }
 

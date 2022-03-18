@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 
 
-#define mIsUnvalidD2TM(wd) ( !wd.haveD2TModel() || wd.d2TModel()->size()<2 )
+#define mIsUnvalidD2TM(wd) ( !wd->haveD2TModel() || wd->d2TModel()->size()<2 )
 
 namespace WellTie
 {

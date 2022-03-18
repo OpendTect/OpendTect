@@ -34,7 +34,7 @@ public:
 
 protected:
 
-    Well::Data&			wd_;
+    RefMan<Well::Data>		wd_;
     const Attrib::DescSet&	attrset_;
     const NLAModel*		nlamodel_;
 

@@ -320,28 +320,29 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
 
 #define mDah2TVD(dah,tvd)\
 {\
-    if ( !wd.track().dahRange().includes(dah,true) )\
-	tvd = dah < wd.track().dahRange().start \
-	    ? wd.track().zRange().start \
-	    : wd.track().zRange().stop ; \
+    if ( !wd->track().dahRange().includes(dah,true) )\
+	tvd = dah < wd->track().dahRange().start \
+	    ? wd->track().zRange().start \
+	    : wd->track().zRange().stop ; \
     else \
 	tvd = mCast( float, track.getPos( dah ).z ); \
 }
 
 
-Interval<float> Well::ZRangeSelector::calcFrom( const Data& wd,
+Interval<float> Well::ZRangeSelector::calcFrom( const Data& wdin,
 			    const BufferStringSet& lognms, bool todah ) const
 {
+    ConstRefMan<Data> wd( &wdin );
     if ( zselection_ == Times )
     {
 	Interval<float> rg( fixedzrg_ );
-	snapZRangeToSurvey( rg, true, wd.d2TModel(), wd.track() );
+	snapZRangeToSurvey( rg, true, wd->d2TModel(), wd->track() );
 	return rg;
     }
 
     Interval<float> dahrg( mUdf(float), mUdf(float) );
 
-    const Track& track = wd.track();
+    const Track& track = wd->track();
     if ( track.isEmpty() )
 	return dahrg;
 
@@ -356,56 +357,57 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Data& wd,
 	else
 	    dahrg = fixedzrg_;
 
-	snapZRangeToSurvey( dahrg, false, 0, wd.track() );
+	snapZRangeToSurvey( dahrg, false, 0, wd->track() );
 	return dahrg;
     }
 
     int ilog = 0;
 
     if ( lognms.isEmpty() )
-	{ dahrg = wd.track().dahRange(); }
+	{ dahrg = wd->track().dahRange(); }
 
     for ( ; mIsUdf(dahrg.start) && ilog<lognms.size(); ilog++ )
     {
-	const Log* log = wd.logs().getLog( lognms.get( ilog ) );
+	const Log* log = wd->logs().getLog( lognms.get( ilog ) );
 	if ( !log || log->isEmpty() )  continue;
 
-	dahrg.set( log->dah(0), log->dah(log->size()-1) );
+	dahrg = log->dahRange();
     }
     for ( ; ilog<lognms.size(); ilog++ )
     {
-	const Log* log = wd.logs().getLog( lognms.get( ilog ) );
+	const Log* log = wd->logs().getLog( lognms.get( ilog ) );
 	if ( !log || log->isEmpty() )  continue;
 
-	Interval<float> newdahrg(log->dah(0),log->dah(log->size()-1));
+	Interval<float> newdahrg = log->dahRange();
 	if ( mIsUdf(newdahrg.start) ) continue;
 	dahrg.include( newdahrg );
     }
 
-    getMarkerRange( wd, dahrg );
+    getMarkerRange( *wd, dahrg );
     if ( !todah )
     {
 	mDah2TVD( dahrg.start, dahrg.start );
 	mDah2TVD( dahrg.stop, dahrg.stop );
     }
-    snapZRangeToSurvey( dahrg, false, 0, wd.track() );
+    snapZRangeToSurvey( dahrg, false, 0, wd->track() );
     return dahrg;
 }
 
 
-Interval<float> Well::ZRangeSelector::calcFrom( const Data& wd,
+Interval<float> Well::ZRangeSelector::calcFrom( const Data& wdin,
 			    const LogSet& logset, bool todah ) const
 {
+    ConstRefMan<Data> wd( &wdin );
     if ( zselection_ == Times )
     {
 	Interval<float> rg( fixedzrg_ );
-	snapZRangeToSurvey( rg, true, wd.d2TModel(), wd.track() );
+	snapZRangeToSurvey( rg, true, wd->d2TModel(), wd->track() );
 	return rg;
     }
 
     Interval<float> dahrg( mUdf(float), mUdf(float) );
 
-    const Track& track = wd.track();
+    const Track& track = wd->track();
     if ( track.isEmpty() )
 	return dahrg;
 
@@ -420,30 +422,31 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Data& wd,
 	else
 	    dahrg = fixedzrg_;
 
-	snapZRangeToSurvey( dahrg, false, 0, wd.track() );
+	snapZRangeToSurvey( dahrg, false, 0, wd->track() );
 	return dahrg;
     }
 
     dahrg.include( logset.dahInterval() );
 
-    getMarkerRange( wd, dahrg );
+    getMarkerRange( *wd, dahrg );
     if ( !todah )
     {
 	mDah2TVD( dahrg.start, dahrg.start );
 	mDah2TVD( dahrg.stop, dahrg.stop );
     }
-    snapZRangeToSurvey( dahrg, false, 0, wd.track() );
+    snapZRangeToSurvey( dahrg, false, 0, wd->track() );
     return dahrg;
 }
 
 
-void Well::ZRangeSelector::getMarkerRange( const Data& wd,
+void Well::ZRangeSelector::getMarkerRange( const Data& wdin,
 					Interval<float>& zrg ) const
 {
+    ConstRefMan<Data> wd( &wdin );
     Interval<float> newzrg = zrg;
 
-    getLimitPos(wd.markers(),true,newzrg.start,zrg);
-    getLimitPos(wd.markers(),false,newzrg.stop,zrg);
+    getLimitPos(wd->markers(),true,newzrg.start,zrg);
+    getLimitPos(wd->markers(),false,newzrg.stop,zrg);
 
     zrg = newzrg;
     if ( zrg.start > zrg.stop ) Swap( zrg.start, zrg.stop );
@@ -584,8 +587,9 @@ int Well::TrackSampler::nextStep()
 			       UnitOfMeasure::surveyDefDepthStorageUnit()) );
 	dahcolnr_ = dps->nrCols() - 1;
     }
-
-    RefMan<Data> wd = MGR().get( ids_.get(curid_) );
+    LoadReqs lreqs( Trck, D2T, Mrkrs );
+    lreqs.add( LogInfos );
+    RefMan<Data> wd = MGR().get( ids_.get(curid_), lreqs );
     if ( !wd )
     {
 	errmsg_ = mToUiStringTodo(MGR().errMsg());
@@ -601,10 +605,11 @@ int Well::TrackSampler::nextStep()
 }
 
 
-void Well::TrackSampler::getData( const Data& wd, DataPointSet& dps )
+void Well::TrackSampler::getData( const Data& wdin, DataPointSet& dps )
 {
-    const D2TModel* d2t = wd.d2TModel();
-    const Track& track = wd.track();
+    ConstRefMan<Data> wd( &wdin );
+    const D2TModel* d2t = wd->d2TModel();
+    const Track& track = wd->track();
     const bool zrgistime = params_.zselection_ == ZRangeSelector::Times && d2t;
     const bool extractintime = params_.extractzintime_ && d2t && SI().zIsTime();
 
@@ -641,7 +646,7 @@ void Well::TrackSampler::getData( const Data& wd, DataPointSet& dps )
 	const float dah = extractintime ? d2t->getDah( zpos, track ) :zpos;
 	if ( mIsUdf(dah) || !dahrg.includes(dah,true) )
 	    return;
-	else if ( !getPos(wd,dah,biv,trackidx,precisepos) )
+	else if ( !getPos(*wd,dah,biv,trackidx,precisepos) )
 	    continue;
 
 	if ( biv != prevbiv )
@@ -653,22 +658,23 @@ void Well::TrackSampler::getData( const Data& wd, DataPointSet& dps )
 }
 
 
-bool Well::TrackSampler::getPos( const Data& wd, float dah,
+bool Well::TrackSampler::getPos( const Data& wdin, float dah,
 				 BinIDValue& biv, int& trackidx,
 				 Coord3& pos ) const
 {
-    const int tracksz = wd.track().size();
-    while ( trackidx < tracksz && dah > wd.track().dah(trackidx) )
+    ConstRefMan<Data> wd( &wdin );
+    const int tracksz = wd->track().size();
+    while ( trackidx < tracksz && dah > wd->track().dah(trackidx) )
 	trackidx++;
     if ( trackidx < 1 || trackidx >= tracksz )
 	return false;
 
     // Position is between trackidx and trackidx-1
-    pos = wd.track().coordAfterIdx( dah, trackidx-1 );
+    pos = wd->track().coordAfterIdx( dah, trackidx-1 );
     biv.set( SI().transform(pos) );
-    if ( SI().zIsTime() && wd.d2TModel() )
+    if ( SI().zIsTime() && wd->d2TModel() )
     {
-	pos.z = mCast( double, wd.d2TModel()->getTime( dah, wd.track() ) );
+	pos.z = mCast( double, wd->d2TModel()->getTime( dah, wd->track() ) );
 	if ( mIsUdf(pos.z) )
 	    return false;
     }
@@ -765,7 +771,7 @@ int Well::LogDataExtracter::nextStep()
     DataPointSet& dps = *dpss_[curid_];
     if ( dps.isEmpty() ) mRetNext()
 
-    RefMan<Data> wd = MGR().get( ids_.get(curid_) );
+    RefMan<Data> wd = MGR().get( ids_.get(curid_), LoadReqs(Trck, LogInfos) );
     Track* track = nullptr;
     if ( !wd )
     {
@@ -792,14 +798,14 @@ int Well::LogDataExtracter::nextStep()
 
 
 void Well::LogDataExtracter::getData( DataPointSet& dps,
-				      const Data& wd,
+				      const Data& wdin,
 				      const Track& track )
 {
-    int wlidx = wd.logs().indexOf( lognm_ );
-    if ( wlidx < 0 )
+    ConstRefMan<Data> wd( &wdin );
+    const Log* wlog = wd->getLog( lognm_ );
+    if ( !wlog )
 	return;
-    const Log& wl = wd.logs().getLog( wlidx );
-
+    const Log& wl = *wlog;
     DataPointSet::ColID dpscolidx = dps.indexOf( lognm_ );
     if ( dpscolidx < 0 )
     {
@@ -1100,45 +1106,44 @@ int Well::SimpleTrackSampler::nextStep()
 
 
 
-Well::LogSampler::LogSampler( const Data& wd,
-			    const ExtractParams& pars,
-			    const BufferStringSet& lognms )
+Well::LogSampler::LogSampler( const Data& wd,const ExtractParams& pars,
+			      const BufferStringSet& lognms )
     : ParallelTask("Resampling logs")
-    , track_( wd.track() )
+    , wd_(&wd)
+    , track_( wd_->track() )
 {
-    init( wd.d2TModel(), pars.calcFrom(wd,lognms,false), pars.isInTime(),
-	    pars.zstep_, pars.extractzintime_, pars.samppol_ );
+    init( wd_->d2TModel(), pars.calcFrom(*wd_,lognms,false), pars.isInTime(),
+			  pars.zstep_, pars.extractzintime_, pars.samppol_ );
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const Log* log = wd.logs().getLog( lognms.get( idx ) );
+	const Log* log = wd_->getLog( lognms.get( idx ) );
 	if ( log ) logset_ += log;
     }
 }
 
 
-Well::LogSampler::LogSampler( const Data& wd,
-			    const Interval<float>& zrg, bool zrgisintime,
-			    float zstep, bool extrintime,
-			    Stats::UpscaleType samppol,
-			    const BufferStringSet& lognms )
+Well::LogSampler::LogSampler( const Data& wd, const Interval<float>& zrg,
+			      bool zrgisintime,float zstep, bool extrintime,
+			      Stats::UpscaleType samppol,
+			      const BufferStringSet& lognms )
     : ParallelTask("Resampling logs")
-    , track_( wd.track() )
+    , wd_(&wd)
+    , track_( wd_->track() )
 {
-    init( wd.d2TModel(), zrg, zrgisintime, zstep, extrintime, samppol);
+    init( wd_->d2TModel(), zrg, zrgisintime, zstep, extrintime, samppol);
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	const Log* log = wd.logs().getLog( lognms.get( idx ) );
+	const Log* log = wd_->getLog( lognms.get( idx ) );
 	if ( log ) logset_ += log;
     }
 }
 
 
-Well::LogSampler::LogSampler( const D2TModel* d2t,
-			    const Track* track,
-			    const Interval<float>& zrg, bool zrgisintime,
-			    float zstep, bool extrintime,
-			    Stats::UpscaleType samppol,
-			    const ObjectSet<const Log>& logs )
+Well::LogSampler::LogSampler( const D2TModel* d2t, const Track* track,
+			      const Interval<float>& zrg, bool zrgisintime,
+			      float zstep,
+			      bool extrintime,Stats::UpscaleType samppol,
+			      const ObjectSet<const Log>& logs )
     : ParallelTask("Resampling logs")
     , track_( *track )
 {
@@ -1152,9 +1157,10 @@ Well::LogSampler::LogSampler( const Data& wd,
 			      const LogSet& logset,
 			      const BufferStringSet& lognms )
     : ParallelTask("Resampling logs")
-    , track_( wd.track() )
+    , wd_(&wd)
+    , track_( wd_->track() )
 {
-    init( wd.d2TModel(), pars.calcFrom(wd,logset,false), pars.isInTime(),
+    init( wd_->d2TModel(), pars.calcFrom(*wd_,logset,false), pars.isInTime(),
 	    pars.zstep_, pars.extractzintime_, pars.samppol_ );
     for ( auto* lognm : lognms )
     {

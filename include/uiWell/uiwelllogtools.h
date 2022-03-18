@@ -58,7 +58,7 @@ public:
 
     protected:
 
-	Well::Data&			wd_;
+	RefMan<Well::Data>		wd_;
 	Well::LogSet&			logs_;
 	ObjectSet<const Well::Log>	inplogs_;
     };

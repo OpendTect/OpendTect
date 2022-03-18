@@ -64,15 +64,8 @@ bool init( InterpolationLayerModel& layermodel )
     }
 
     RefMan<Well::Data> wd = Well::MGR().get( mid_, lreqs );
-    if ( !wd || !wd->logs().getLog(logname_) )
+    if ( !wd || !wd->getLog(logname_) )
 	return false;
-
-    if ( !wd->logs().getLog(logname_)->isLoaded() )
-    {
-	Well::Reader wrdr( mid_, *wd );
-	if ( !wrdr.getLog(logname_) )
-	    return false;
-    }
 
     if ( lreqs.includes(Well::Mrkrs) )
     {
@@ -94,7 +87,7 @@ bool init( InterpolationLayerModel& layermodel )
     if ( zistime )
 	track_->toTime( *wd );
 
-    const Well::Log* log = wd->logs().getLog( logname_ );
+    const Well::Log* log = wd->getLog( logname_ );
     if ( !log )
 	return false;
 
@@ -128,15 +121,16 @@ bool getTrackSampling( const Well::D2TModel* d2tmodel )
 
 #define cLogStepFact 10
 
-Well::Log* applyFilter( const Well::Data& wd, const Well::Log& log ) const
+Well::Log* applyFilter( const Well::Data& wdin, const Well::Log& log ) const
 {
-    const Well::Track& track = wd.track();
-    const Well::D2TModel* d2t = wd.d2TModel();
+    ConstRefMan<Well::Data> wd( &wdin );
+    const Well::Track& track = wd->track();
+    const Well::D2TModel* d2t = wd->d2TModel();
     Interval<float> mdrg;
-    if ( wd.logs().getLog(log.name()) )
+    if ( wd->logs().getLog(log.name()) )
     {
 	BufferStringSet lognms; lognms.add( log.name() );
-	mdrg = params_.calcFrom( wd, lognms );
+	mdrg = params_.calcFrom( *wd, lognms );
     }
     else
 	mdrg = log.dahRange();
@@ -350,7 +344,8 @@ void WellLogInterpolator::getWellNames( BufferStringSet& res ) const
 {
     for ( int idx=0; idx<wellmids_.size(); idx++ )
     {
-	Well::Data* data = Well::MGR().get( wellmids_[idx] );
+	ConstRefMan<Well::Data> data = Well::MGR().get( wellmids_[idx],
+						    Well::LoadReqs(Well::Inf) );
 	if ( data )
 	    res.add( data->name() );
     }
@@ -389,7 +384,8 @@ bool WellLogInterpolator::prepareComp( int )
 								    params_ );
 	if ( !info->init(*layermodel_) )
 	{
-	    RefMan<Well::Data> wd = Well::MGR().get( wellmids_[idx] );
+	    RefMan<Well::Data> wd = Well::MGR().get( wellmids_[idx],
+						 Well::LoadReqs(Well::Inf) );
 	    if ( wd )
 	    {
 		errmsgs.add( tr("Cannot load log '%1' for well '%2'")

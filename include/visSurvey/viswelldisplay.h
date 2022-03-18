@@ -134,7 +134,7 @@ public:
     void			setupPicking(bool);
     void			showKnownPositions();
     void			restoreDispProp();
-    Well::Data*			getWD(const Well::LoadReqs&) const;
+    RefMan<Well::Data>		getWD(const Well::LoadReqs&) const;
     bool			needsConversionToTime() const;
 
     bool			allowsPicks() const	{ return true; }
@@ -158,7 +158,6 @@ protected:
     void			displayLog(Well::LogDisplayPars*,int);
     void			setLogProperties(visBase::Well::LogParams&);
     void			pickCB(CallBacker* cb=0);
-    void			welldataDelNotify(CallBacker* cb=0);
     void			saveDispProp( const Well::Data* wd );
     void			setLogInfo(BufferString&,BufferString&,
 					   float,bool) const;
@@ -175,7 +174,7 @@ protected:
     visBase::Well*		well_			= nullptr;
     Well::Track*		pseudotrack_		= nullptr;
     Well::Track*		timetrack_		= nullptr;
-    Well::Data*			wd_			= nullptr;
+    RefMan<Well::Data>		wd_;
 
     ZAxisTransform*		datatransform_		= nullptr;
     void			dataTransformCB(CallBacker*);

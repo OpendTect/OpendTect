@@ -34,18 +34,6 @@ _______________________________________________________________________
 #include "od_helpids.h"
 
 
-static int getWellIndex( const char* nm )
-{
-    const FixedString wellnm = nm;
-    for ( int idx=0; idx<Well::MGR().wells().size(); idx++ )
-    {
-	if ( wellnm == Well::MGR().wells()[idx]->name() )
-	    return idx;
-    }
-    return -1;
-}
-
-
 uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    const BufferStringSet& wellnames,
 					    const Attrib::DescSet* attrib ,
@@ -113,13 +101,13 @@ uiCreateAttribLogDlg::~uiCreateAttribLogDlg()
 void uiCreateAttribLogDlg::init( CallBacker* )
 {
     Well::MarkerSet mrkrs;
+    Well::LoadReqs lreqs( Well::Mrkrs );
     for ( int idx=0; idx<wellnames_.size(); idx++ )
     {
-	const int wdidx = getWellIndex( wellnames_.get(idx) );
-	if ( !Well::MGR().wells().validIdx(wdidx) )
-	    continue;
-
-	Well::Data* wdtmp = Well::MGR().wells()[wdidx];
+	const IOObj* ioobj = Well::findIOObj( wellnames_.get(idx), nullptr );
+	if ( !ioobj )
+	    return;
+	ConstRefMan<Well::Data> wdtmp = Well::MGR().get( ioobj->key(), lreqs );
 	if ( wdtmp )
 	    mrkrs.append( wdtmp->markers() );
     }
@@ -160,25 +148,25 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
     datasetup_.selspec_ = &selspec;
     attribfld_->fillSelSpec( *datasetup_.selspec_ );
 
+    Well::LoadReqs lreq( Well::Trck, Well::D2T, Well::LogInfos );
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
-	const int wellidx = getWellIndex( selwells.get(idx) );
-	if ( wellidx<0 ) continue;
+	PtrMan<IOObj> ioobj = Well::findIOObj( selwells.get(idx), nullptr );
+	if ( !ioobj )
+	    mErrRet(tr("Cannot find well in object manager"))
 
-	if ( !inputsOK(wellidx) )
+	RefMan<Well::Data> wd = Well::MGR().get( ioobj->key(), lreq );
+	if ( !wd )
+	    continue;
+
+	if ( !inputsOK(*wd) )
 	    return false;
 
 	PtrMan<uiTaskRunner> taskrunner = new uiTaskRunner( this );
 	datasetup_.tr_ = taskrunner;
 	AttribLogCreator attriblog( datasetup_, sellogidx_ );
-	Well::Data* wd = Well::MGR().wells()[ wellidx ];
-	if ( !wd )
-	    continue;
 	if ( !attriblog.doWork( *wd, errmsg ) )
 	    mErrRet( errmsg )
-
-	PtrMan<IOObj> ioobj = IOM().get( wd->multiID() );
-	if ( !ioobj ) mErrRet(tr("Cannot find well in object manager"))
 
 	Well::Writer wtr( *ioobj, *wd );
 
@@ -196,9 +184,9 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 }
 
 
-bool uiCreateAttribLogDlg::inputsOK( int wellno )
+bool uiCreateAttribLogDlg::inputsOK( Well::Data& wdin )
 {
-    Well::Data* wd = Well::MGR().wells()[ wellno ];
+    RefMan<Well::Data> wd( &wdin );
     if ( SI().zIsTime() && !wd->d2TModel() )
 	mErrRet( tr("No depth to time model defined") );
 

@@ -2289,7 +2289,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
     : uiDialog(p,uiDialog::Setup(tr("Set/Edit default Logs for a mnemonic"),
 				 mNoDlgTitle,mTODOHelpKey))
 {
-    ObjectSet<Well::Data> wds;
+    RefObjectSet<Well::Data> wds;
     Well::LoadReqs loadreqs( Well::LogInfos );
     MultiWellReader wtrdr( keys, wds, loadreqs );
     TaskRunner::execute( nullptr, wtrdr );

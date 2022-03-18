@@ -21,20 +21,21 @@ ________________________________________________________________________
 namespace WellTie
 {
 
-D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& wts )
+D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr,
+			  const Setup& wts )
 	: orgd2t_(0)
 	, prvd2t_(0)
 	, datawriter_(dwr)
 	, wd_(&wd)
 	, emptyoninit_(false)
 {
-    if ( mIsUnvalidD2TM( wd ) )
-	{ emptyoninit_ = true; wd.setD2TModel( new Well::D2TModel ); }
+    if ( mIsUnvalidD2TM( wd_ ) )
+	{ emptyoninit_ = true; wd_->setD2TModel( new Well::D2TModel ); }
 
     WellTie::GeoCalculator gc;
     Well::D2TModel* d2t = wts.useexistingd2tm_
-			? wd.d2TModel()
-			: gc.getModelFromVelLog( wd, wts.vellognm_ );
+			? wd_->d2TModel()
+			: gc.getModelFromVelLog( *wd_, wts.vellognm_ );
     if ( !d2t )
     {
 	errmsg_ = tr("Cannot generate depth/time model. Check your "
@@ -43,12 +44,12 @@ D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& wts )
     }
 
     if ( wts.corrtype_ == Setup::Automatic && wd_->haveCheckShotModel() )
-	CheckShotCorr::calibrate( *wd.checkShotModel(), *d2t );
+	CheckShotCorr::calibrate( *wd_->checkShotModel(), *d2t );
 
     if ( !wts.useexistingd2tm_ )
 	setAsCurrent( d2t );
 
-    orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd.d2TModel() );
+    orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd_->d2TModel() );
 }
 
 
@@ -124,7 +125,7 @@ bool D2TModelMgr::cancel()
 
 bool D2TModelMgr::updateFromWD()
 {
-    if ( !wd_ || mIsUnvalidD2TM( (*wd_) ) || !d2T() )
+    if ( !wd_ || mIsUnvalidD2TM( (wd_) ) || !d2T() )
        return false;
     setAsCurrent( d2T() );
     return true;

@@ -99,7 +99,6 @@ LogCubeCreator::WellData::WellData( const MultiID& wid )
     if ( !wd_ )
 	mErrRet( tr( "Cannot open well" ), true, return )
 
-    wd_->ref();
     Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true, true);
     wtextr.setSampling( SI().zRange(true) );
     if ( !wtextr.execute() )
@@ -114,9 +113,6 @@ LogCubeCreator::WellData::WellData( const MultiID& wid )
 
 LogCubeCreator::WellData::~WellData()
 {
-    if ( wd_ )
-	wd_->unRef();
-
     deepErase( trcs_ );
 }
 

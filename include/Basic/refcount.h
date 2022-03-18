@@ -329,6 +329,10 @@ public:
     bool		operator+=(RefMan<T>&);
 			//Returns if added (i.e. not duplicate)
     size_type		size() const;
+    bool		validIdx(idx_type) const;
+    void		erase();
+    void		removeRange(idx_type from,idx_type to);
+    void		removeSingle(idx_type,bool keep_order=true);
     RefMan<T>		operator[](idx_type);
     ConstRefMan<T>	operator[](idx_type) const;
 
@@ -677,10 +681,50 @@ int WeakPtrSet<T>::size() const
 
 
 template <class T> inline
+bool WeakPtrSet<T>::validIdx( int idx ) const
+{
+    lock_.lock();
+    const bool res = ptrs_.validIdx( idx );
+    lock_.unLock();
+    return res;
+}
+
+
+template <class T> inline
+void WeakPtrSet<T>::erase()
+{
+    lock_.lock();
+    ptrs_.erase();
+    lock_.unLock();
+}
+
+
+template <class T> inline
+void WeakPtrSet<T>::removeRange( int from, int to )
+{
+    lock_.lock();
+    ptrs_.removeRange( from, to );
+    lock_.unLock();
+}
+
+
+template <class T> inline
+void WeakPtrSet<T>::removeSingle( int idx, bool keep_order )
+{
+    lock_.lock();
+    if ( ptrs_.validIdx(idx) )
+	ptrs_.removeSingle( idx, keep_order );
+
+    lock_.unLock();
+}
+
+
+template <class T> inline
 RefMan<T> WeakPtrSet<T>::operator[]( int idx )
 {
     lock_.lock();
-    RefMan<T> res = ptrs_.validIdx(idx) ? ptrs_[idx].get() : RefMan<T>( 0 );
+    RefMan<T> res = ptrs_.validIdx(idx) ? ptrs_[idx].get() :
+							RefMan<T>( nullptr );
     lock_.unLock();
     return res;
 }
@@ -691,7 +735,25 @@ ConstRefMan<T> WeakPtrSet<T>::operator[]( int idx ) const
 {
     lock_.lock();
     ConstRefMan<T> res = ptrs_.validIdx(idx) ? ptrs_[idx].get() :
-					       ConstRefMan<T>( 0 );
+					       ConstRefMan<T>( nullptr );
+    lock_.unLock();
+    return res;
+}
+
+
+template <class T> inline
+int WeakPtrSet<T>::indexOf( T* p ) const
+{
+    lock_.lock();
+    int res = -1;
+    for ( int idx=0; idx<ptrs_.size(); idx++ )
+    {
+	if ( ptrs_[idx].get().ptr()==p )
+	{
+	    res = idx;
+	    break;
+	}
+    }
     lock_.unLock();
     return res;
 }

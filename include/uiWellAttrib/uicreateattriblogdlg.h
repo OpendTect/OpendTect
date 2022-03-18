@@ -14,6 +14,7 @@
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "createattriblog.h"
+#include "welldata.h"
 
 namespace Attrib { class DescSet; }
 class NLAModel;
@@ -38,11 +39,11 @@ protected:
     uiGenInput*			lognmfld_;
     uiWellExtractParams*	zrangeselfld_;
     const BufferStringSet&	wellnames_;
-    int			sellogidx_;
+    int				sellogidx_;
     bool			singlewell_;
     AttribLogCreator::Setup	datasetup_;
 
-    bool                        inputsOK(int);
+    bool			inputsOK(Well::Data&);
     bool			acceptOK(CallBacker*);
     void			init(CallBacker*);
     void			selDone(CallBacker*);

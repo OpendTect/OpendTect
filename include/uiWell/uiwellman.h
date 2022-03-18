@@ -43,7 +43,7 @@ protected:
     uiGroup*			logsgrp_;
 
     bool			iswritable_;
-    ObjectSet<Well::Data>	curwds_;
+    RefObjectSet<Well::Data>	curwds_;
     ObjectSet<Well::Reader>	currdrs_;
     TypeSet<MultiID>		curmultiids_;
     BufferStringSet		curfnms_;

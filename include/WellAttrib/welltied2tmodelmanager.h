@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 #include "namedobj.h"
 #include "uistring.h"
+#include "ptrman.h"
 
 namespace Well
 {
@@ -35,7 +36,8 @@ class Setup;
 mExpClass(WellAttrib) D2TModelMgr
 { mODTextTranslationClass(D2TModelMgr);
 public:
-			D2TModelMgr(Well::Data&,DataWriter&,const Setup&);
+			D2TModelMgr(Well::Data&,DataWriter&,
+				    const Setup&);
 			~D2TModelMgr();
 
     bool		undo();
@@ -44,7 +46,7 @@ public:
     bool		updateFromWD();
     bool		commitToWD();
 
-    void		setWD( Well::Data* wd ) { wd_ = wd; }
+    void		setWD( Well::Data& wd ) { wd_ = &wd; }
     void		shiftModel(float);
     void		setAsCurrent(Well::D2TModel*);
     void		setFromData(float* dah,float* time,int sz);
@@ -53,7 +55,7 @@ public:
 
 protected:
 
-    Well::Data*		wd_;
+    RefMan<Well::Data>	wd_;
 
     Well::D2TModel*	d2T();
     Well::D2TModel*	prvd2t_;

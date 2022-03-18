@@ -74,7 +74,6 @@ WellDisplay::~WellDisplay()
     unRefPtr( well_ );
     setSceneEventCatcher( nullptr );
     unRefPtr( transformation_ );
-    unRefPtr( wd_ );
 
     delete dispprop_;
     unRefPtr( markerset_ );
@@ -83,13 +82,7 @@ WellDisplay::~WellDisplay()
 }
 
 
-void WellDisplay::welldataDelNotify( CallBacker* )
-{
-    wd_ = nullptr;
-}
-
-
-Well::Data* WellDisplay::getWD( const Well::LoadReqs& reqs ) const
+RefMan<Well::Data> WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 {
     Well::LoadReqs lreqs( reqs );
     Well::Man& wllmgr = Well::MGR();
@@ -102,28 +95,22 @@ Well::Data* WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 	    wllmgr.reload( wellid_, lreqs );
 
 	self->wd_ = wllmgr.get( wellid_, lreqs );
-	if ( !wd_ )
-	    return nullptr;
-
-	const Well::DisplayProperties& dispprop3d = wd_->displayProperties();
-	if ( !isloaded && !dispprop3d.isValid() )
-	{ //Only for wells without pre-existing display properties
-	    if ( dispprop3d.getTrack().getColor() == OD::Color::NoColor() )
-	    {
-		self->wd_->displayProperties()
-			   .ensureColorContrastWith( getBackgroundColor() );
-	    }
-	}
-
 	if ( wd_ )
 	{
+	    const auto& dispprop3d = wd_->displayProperties();
+	    if ( !isloaded && !dispprop3d.isValid() )
+	    { //Only for wells without pre-existing display properties
+		if ( dispprop3d.getTrack().getColor() == OD::Color::NoColor() )
+		{
+		    self->wd_->displayProperties()
+			   .ensureColorContrastWith( getBackgroundColor() );
+		}
+	    }
 	    attachCB( wd_->trackchanged, mCB(self,WellDisplay,fullRedraw) );
 	    attachCB( wd_->markerschanged,mCB(self,WellDisplay,updateMarkers));
 	    attachCB( wd_->disp3dparschanged,mCB(self,WellDisplay,fullRedraw));
 	    if ( zistime_ )
 		attachCB( wd_->d2tchanged, mCB(self,WellDisplay,fullRedraw) );
-
-	    wd_->ref();
 	}
     }
     else
@@ -264,7 +251,7 @@ void WellDisplay::fullRedraw( CallBacker* )
 #define mErrRet(s) { errmsg_ = s; return false; }
 bool WellDisplay::setMultiID( const MultiID& multiid )
 {
-    unRefAndZeroPtr( wd_ );
+    wd_ = nullptr;
     wellid_ = multiid;
     mGetWD(return false);
     const Well::D2TModel* d2t = wd->d2TModel();

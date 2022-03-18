@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ranges.h"
 #include "bufstring.h"
+#include "manobjectset.h"
 #include "uistring.h"
 #include "wellman.h"
 class IOObj;
@@ -82,7 +83,7 @@ mExpClass(Well) MultiWellReader : public Executor
 public:
 
 				MultiWellReader(const TypeSet<MultiID>&,
-				    ObjectSet<Well::Data>&,
+						RefObjectSet<Well::Data>&,
 				    const Well::LoadReqs reqs=Well::LoadReqs());
 
     int				nextStep();
@@ -95,7 +96,7 @@ public:
     const uiString&		errMsg() const		{ return errmsg_; }
 
 protected:
-    ObjectSet<Well::Data>&	wds_;
+    RefObjectSet<Well::Data>&	wds_;
     TypeSet<MultiID>		keys_;
     od_int64			nrwells_;
     od_int64			nrdone_;

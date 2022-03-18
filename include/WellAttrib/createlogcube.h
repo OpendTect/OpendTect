@@ -81,7 +81,7 @@ protected:
 	bool			isOK() const { return errmsg_.isEmpty(); }
 	const uiString&		errMsg() const { return errmsg_; }
 
-	Well::Data*		wd_;
+	RefMan<Well::Data>	wd_;
 	TypeSet<BinID>		binidsalongtrack_;
 	ObjectSet<SeisTrcBuf>	trcs_;
 	uiString		errmsg_;

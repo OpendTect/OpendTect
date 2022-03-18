@@ -744,8 +744,9 @@ void Well::D2TModel::convertDepthsToMD( const Well::Track& track,
 #define mNewLn(s) { s.addNewLine(); }
 
 bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
-			    TypeSet<double>& zvals, TypeSet<double>& tvals,
-			    uiString& errmsg, uiString& warnmsg )
+				     TypeSet<double>& zvals,
+				     TypeSet<double>& tvals,
+				     uiString& errmsg, uiString& warnmsg )
 {
     int inputsz = zvals.size();
     if ( inputsz < 2 || inputsz != tvals.size() )

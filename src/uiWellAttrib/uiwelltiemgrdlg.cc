@@ -176,7 +176,6 @@ uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
     detachAllNotifiers();
     delWins();
-    unRefPtr( wd_ );
     delete &wtsetup_;
     delete &elpropsel_;
 }
@@ -214,14 +213,12 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
     if ( !wellobj ) return;
     const char* wllfilenm = Well::odIO::getMainFileName( *wellobj );
     const MultiID& wellid = wellobj->key();
-    if ( wd_ )
-	wd_->unRef();
 
-    wd_ = Well::MGR().get( wellid );
+    Well::LoadReqs lreqs(Well::Trck, Well::Mrkrs, Well::LogInfos);
+    wd_ = Well::MGR().get( wellid, lreqs );
     if ( !wd_ ) mErrRet( uiStrings::phrCannotRead(mJoinUiStrs(sWell().toLower(),
 							    sData().toLower())))
 
-    wd_->ref();
     logsfld_->setWellID( wellid );
     BufferStringSet notokpropnms;
     if ( !logsfld_->setAvailableLogs(wd_->logs(),notokpropnms) )
@@ -240,7 +237,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 	return;
     }
 
-    const bool canuseexistingd2t = wd_->d2TModel() && !mIsUnvalidD2TM((*wd_));
+    const bool canuseexistingd2t = wd_->d2TModel() && !mIsUnvalidD2TM((wd_));
     used2tmbox_->display( canuseexistingd2t );
     used2tmbox_->setChecked( canuseexistingd2t );
 
@@ -397,7 +394,7 @@ bool uiTieWinMGRDlg::getVelLogInSetup() const
 		mJoinUiStrs(sWell().toLower(),sData().toLower())))
     }
 
-    const Well::Log* vp = wd_->logs().getLog( wtsetup_.vellognm_ );
+    const Well::Log* vp = wd_->getLog( wtsetup_.vellognm_ );
     if ( !vp )
     {
 	uiString errmsg = tr("Cannot retrieve the velocity log %1"
@@ -428,7 +425,7 @@ bool uiTieWinMGRDlg::getDenLogInSetup() const
 		mJoinUiStrs(sWell().toLower(),sData().toLower())))
     }
 
-    const Well::Log* den = wd_->logs().getLog( wtsetup_.denlognm_ );
+    const Well::Log* den = wd_->getLog( wtsetup_.denlognm_ );
     if ( !den )
     {
 	uiString errmsg = tr("Cannot retrieve the density log %1"
@@ -466,15 +463,13 @@ bool uiTieWinMGRDlg::initSetup()
 	mErrRet(uiStrings::phrSelect(tr("a valid well")))
 
     const MultiID& wellid = wellfld_->ctxtIOObj().ioobj_->key();
-    if ( wd_ )
-	wd_->unRef();
 
-    wd_ = Well::MGR().get( wellid );
+    Well::LoadReqs lreqs(Well::Trck, Well::Mrkrs, Well::LogInfos);
+    wd_ = Well::MGR().get( wellid, lreqs );
     if ( !wd_ )
 	mErrRet(uiStrings::phrCannotRead(mJoinUiStrs(
 					 sWell().toLower(),sData().toLower())))
 
-    wd_->ref();
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
 	uiTieWin* win = welltiedlgset_[idx];
@@ -521,7 +516,7 @@ bool uiTieWinMGRDlg::initSetup()
 	mErrRet( uiStrings::phrCannotFind(
 				tr("the density in the log selection list")) )
 
-    const Well::Log* den = wd_->logs().getLog( lognm );
+    const Well::Log* den = wd_->getLog( lognm );
     if ( !den )
 	mErrRet( uiStrings::phrCannotExtract(tr("this density log")) )
 
@@ -540,7 +535,7 @@ bool uiTieWinMGRDlg::initSetup()
 	mErrRet( uiStrings::phrCannotFind(
 				    tr("the Pwave in the log selection list")) )
 
-    const Well::Log* vp = wd_->logs().getLog( lognm );
+    const Well::Log* vp = wd_->getLog( lognm );
     if ( !vp )
 	mErrRet( uiStrings::phrCannotExtract(tr("this velocity log")) )
 

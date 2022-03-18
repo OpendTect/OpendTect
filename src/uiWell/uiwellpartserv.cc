@@ -331,10 +331,10 @@ void uiWellPartServer::saveWellDispProps( CallBacker* cb )
 
 void uiWellPartServer::saveAllWellDispProps()
 {
-    const ObjectSet<Well::Data>& wds = Well::MGR().wells();
-    for ( const auto* wd : wds )
+    const auto& wds = Well::MGR().wells();
+    for ( int idx=0; idx<wds.size(); idx++ )
     {
-	ConstRefMan<Well::Data> curwd( wd );
+	ConstRefMan<Well::Data> curwd = wds[idx];
 	saveWellDispProps( *curwd.ptr() );
     }
 
@@ -372,7 +372,7 @@ void uiWellPartServer::applyTabProps( CallBacker* cb )
     ConstRefMan<Well::Data> edwd = dlg->wellData();
     const Well::DisplayProperties& edprops = edwd->displayProperties();
 
-    ObjectSet<Well::Data>& wells = Well::MGR().wells();
+    auto& wells = Well::MGR().wells();
     for ( int ikey=0; ikey<wells.size(); ikey++ )
     {
 	RefMan<Well::Data> wd = wells[ikey];
@@ -428,7 +428,7 @@ void uiWellPartServer::resetAllProps( CallBacker* cb )
     if ( !dlg ) { pErrMsg("Huh"); return; }
     const bool is2d = dlg->is2D();
 
-    ObjectSet<Well::Data>& wells = Well::MGR().wells();
+    auto& wells = Well::MGR().wells();
     for ( int ikey=0; ikey<wells.size(); ikey++ )
     {
 	RefMan<Well::Data> wd = wells[ikey];

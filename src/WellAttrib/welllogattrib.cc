@@ -83,7 +83,9 @@ void WellLog::prepareForComputeData()
     RefMan<Well::Data> wd = new Well::Data;
     if ( Well::MGR().isLoaded(wellid_) )
     {
-	wd = Well::MGR().get( wellid_ );
+	Well::LoadReqs lreqs( Well::Trck, Well::D2T, Well::LogInfos );
+	lreqs.add( Well::Mrkrs );
+	wd = Well::MGR().get( wellid_, lreqs );
 	if ( !wd )
 	{
 	    errmsg_ = mToUiStringTodo( Well::MGR().errMsg() );

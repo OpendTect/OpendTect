@@ -210,7 +210,7 @@ void uiWellAttribPartServer::doXPlot()
 
 bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid )
 {
-    Well::Data* wd = Well::MGR().get( wellid );
+    RefMan<Well::Data> wd = Well::MGR().get(wellid, Well::LoadReqs(Well::Inf));
     if ( !wd )
     {
 	uiMSG().error( uiStrings::phrCannotRead( uiStrings::sWell() ));
@@ -271,7 +271,7 @@ bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
 bool uiWellAttribPartServer::showAmplSpectrum( const MultiID& mid,
 					       const char* lognm )
 {
-    const RefMan<Well::Data> wd = Well::MGR().get( mid,
+    ConstRefMan<Well::Data> wd = Well::MGR().get( mid,
 					       Well::LoadReqs(Well::LogInfos) );
     if ( !wd || wd->logs().isEmpty()  )
 	return false;

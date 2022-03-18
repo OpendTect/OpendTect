@@ -479,17 +479,11 @@ void uiWellMan::edWellTrack( CallBacker* )
 	return;
 
     const MultiID curmid( curioobj_->key() );
-    RefMan<Well::Data> wd = new Well::Data;
-    if ( Well::MGR().isLoaded(curmid) )
-	wd = Well::MGR().get( curmid );
-    else
-    {
-	PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
-	const bool found = wrdr->getInfo() && wrdr->getTrack();
-	if ( !found &&
-	     !uiMSG().askGoOn(tr("No track found. Continue editing?")) )
-	    return;
-    }
+    Well::LoadReqs lreqs( Well::Trck );
+    RefMan<Well::Data> wd = Well::MGR().get( curmid, lreqs );
+    const bool notfound = !wd->info().isLoaded() && wd->track().isEmpty();
+    if ( notfound && !uiMSG().askGoOn(tr("No track found. Continue editing?")) )
+	return;
 
     const Well::Track origtrck = wd->track();
     const Coord origpos = wd->info().surfacecoord_;
@@ -530,17 +524,8 @@ void uiWellMan::defD2T( bool chkshot )
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
     const MultiID curmid = curioobj_->key();
-    RefMan<Well::Data> wd = new Well::Data;
-    if ( Well::MGR().isLoaded(curmid) )
-	wd = Well::MGR().get( curmid );
-    else
-    {
-	PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
-	if ( chkshot )
-	    wrdr->getCSMdl();
-	else
-	    wrdr->getD2T();
-    }
+    Well::LoadReqs lreqs( chkshot? Well::CSMdl : Well::D2T );
+    RefMan<Well::Data> wd =  Well::MGR().get( curmid, lreqs );
 
     if ( !chkshot && !wd->d2TModel() )
 	wd->setD2TModel( new Well::D2TModel );
@@ -873,7 +858,7 @@ void uiWellMan::wellLogsChgd( const BufferStringSet& lognms )
     for ( int idwell=0; idwell<curwds_.size(); idwell++ )
     {
 	fillLogsFld();
-	Well::Data* wd = Well::MGR().get( curmultiids_[idwell],
+	RefMan<Well::Data> wd = Well::MGR().get( curmultiids_[idwell],
 					  Well::LoadReqs(Well::Logs) );
 	for ( const auto* lognm : lognms )
 	{

@@ -528,22 +528,11 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
     for ( int midx=0; midx<mids.size(); midx++ )
     {
 	const MultiID wmid = mids[midx];
-	RefMan<Well::Data> wd = new Well::Data;
+	Well::LoadReqs lreq( Well::Mrkrs, Well::LogInfos );
+	RefMan<Well::Data> wd = Well::MGR().get( wmid, lreq );
+	if ( !wd ) continue;
 	BufferStringSet lognms;
-	if ( Well::MGR().isLoaded(wmid) )
-	{
-	    Well::LoadReqs req( Well::Logs );
-	    wd = Well::MGR().get( wmid, req );
-	    if ( !wd ) continue;
-	    wd->logs().getNames( lognms );
-	}
-	else
-	{
-	    Well::Reader* wrdr = new Well::Reader( wmid, *wd );
-	    wrdr->getLogInfo( lognms );
-	    if ( !wrdr->getMarkers() )
-		continue;
-	}
+	wd->logs().getNames( lognms );
 
 	BufferStringSet mrkrnms;
 	wd->markers().getNames( mrkrnms );

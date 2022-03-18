@@ -56,7 +56,7 @@ protected:
 
 				~WellT2DTransform();
 
-    Well::Data*			data_;
+    RefMan<Well::Data>		data_;
     TimeDepthModel		tdmodel_;
 
     Interval<float>		getZRange(bool time) const;

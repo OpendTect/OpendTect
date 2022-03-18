@@ -589,7 +589,8 @@ bool uiMultiWellDispPropDlg::dispPropsChanged( int wellidx ) const
     if ( !wds_.validIdx( wellidx ) ) return false;
 
     Well::LoadReqs lreqs( is2D() ? Well::DispProps2D : Well::DispProps3D );
-    const auto* rwd = Well::MGR().get( wds_[wellidx]->multiID(), lreqs );
+    ConstRefMan<Well::Data> rwd = Well::MGR().get( wds_[wellidx]->multiID(),
+						   lreqs );
     return rwd->displayProperties(is2D())!=
 				    wds_[wellidx]->displayProperties(is2D());
 }

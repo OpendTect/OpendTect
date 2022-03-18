@@ -106,8 +106,8 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     , estimatedwvlt_(*new Wavelet("Deterministic wavelet"))
     , seistrcs_(*new SeisTrcBuf(true))
 {
-    const Well::Track& track = wdata.track();
-    const Well::D2TModel* d2t = wdata.d2TModel();
+    const Well::Track& track = wd_->track();
+    const Well::D2TModel* d2t = wd_->d2TModel();
     float stoptime = SI().zRange(true).stop;
     const float td = track.td();
     float tdtime = d2t->getTime( td, track );
@@ -126,13 +126,13 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     tracerg_.set( 0.f, stoptime, cDefSeisSr() );
     computeExtractionRange();
     BufferStringSet emptynms;
-    for ( int idx=0; idx<wdata.markers().size(); idx++ )
-	dispparams_.allmarkernms_.add( wdata.markers()[idx]->name() );
+    for ( int idx=0; idx<wd_->markers().size(); idx++ )
+	dispparams_.allmarkernms_.add( wd_->markers()[idx]->name() );
 
     dispparams_.mrkdisp_.setMarkerNms( dispparams_.allmarkernms_, true );
     dispparams_.mrkdisp_.setMarkerNms( emptynms, false );
     initwvlt_.reSample( cDefSeisSr() );
-    BufferString wvltnm( estimatedwvlt_.name(), " from well ", wdata.name() );
+    BufferString wvltnm( estimatedwvlt_.name(), " from well ", wd_->name() );
     estimatedwvlt_.setName( wvltnm );
 }
 
@@ -371,16 +371,19 @@ WellDataMgr::~WellDataMgr()
 
 
 void WellDataMgr::wellDataDelNotify( CallBacker* )
-{ wd_ = nullptr; datadeleted_.trigger(); }
+{
+    wd_ = nullptr;
+    datadeleted_.trigger();
+}
 
 
-const Well::Data* WellDataMgr::wellData() const
+ConstRefMan<Well::Data> WellDataMgr::wellData() const
 {
     return mSelf().wd();
 }
 
 
-Well::Data* WellDataMgr::wd()
+RefMan<Well::Data> WellDataMgr::wd()
 {
     if ( !wd_ )
 	wd_ = Well::MGR().get( wellid_ );
@@ -466,7 +469,7 @@ Server::Server( const WellTie::Setup& wts )
     wdmgr_ = new WellDataMgr( wts.wellid_  );
     mAttachCB( wdmgr_->datadeleted_, Server::wellDataDel );
 
-    Well::Data* wdata = wdmgr_->wd();
+    RefMan<Well::Data> wdata = wdmgr_->wd();
     if ( !wdata ) return; //TODO close + errmsg
 
     // Order below matters
@@ -477,8 +480,8 @@ Server::Server( const WellTie::Setup& wts )
     pickmgr_ = new PickSetMgr( data_->pickdata_ );
     hormgr_ = new HorizonMgr( data_->horizons_ );
 
-    hormgr_->setWD( wdata );
-    d2tmgr_->setWD( wdata );
+    hormgr_->setWD( *wdata );
+    d2tmgr_->setWD( *wdata );
 }
 
 
@@ -489,6 +492,7 @@ Server::~Server()
     delete d2tmgr_;
     delete dataplayer_;
     delete pickmgr_;
+    delete hormgr_;
     delete data_;
     delete wdmgr_;
 }
@@ -497,9 +501,9 @@ Server::~Server()
 void Server::wellDataDel( CallBacker* )
 {
     data_->wd_ = wdmgr_->wd();
-    d2tmgr_->setWD( data_->wd_ );
-    hormgr_->setWD( data_->wd_ );
-    datawriter_->setWD( data_->wd_ );
+    d2tmgr_->setWD( *data_->wd_ );
+    hormgr_->setWD( *data_->wd_ );
+    datawriter_->setWD( *data_->wd_ );
 }
 
 

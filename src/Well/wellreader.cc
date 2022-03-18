@@ -912,7 +912,7 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
 
 // MultiWellReader
 MultiWellReader::MultiWellReader( const TypeSet<MultiID>& keys,
-				  ObjectSet<Well::Data>& wds,
+				  RefObjectSet<Well::Data>& wds,
 				  const Well::LoadReqs reqs )
     : Executor("Reading well info")
     , wds_(wds)
@@ -956,7 +956,7 @@ int MultiWellReader::nextStep()
 
     const MultiID wmid = keys_[sCast(int,nrdone_)];
     nrdone_++;
-    Well::Data* wd = Well::MGR().get( wmid, reqs_ );;
+    RefMan<Well::Data> wd = Well::MGR().get( wmid, reqs_ );;
     if ( !wd )
 	errmsg_.append( Well::MGR().errMsg() ).addNewLine();
 

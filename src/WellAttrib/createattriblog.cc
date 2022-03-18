@@ -26,8 +26,9 @@ _______________________________________________________________________
 #define mErrRet(m) errmsg.append(m); return false;
 
 
-bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )
+bool AttribLogCreator::doWork( Well::Data& wdin, uiString& errmsg )
 {
+    RefMan<Well::Data> wd( &wdin );
     uiString msg = tr("%1 from well %2");
     Attrib::EngineMan aem;
     aem.setAttribSet( setup_.attrib_ );
@@ -35,26 +36,26 @@ bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )
     aem.setAttribSpec( *setup_.selspec_ );
 
     BufferStringSet dummy;
-    StepInterval<float> dahrg = setup_.extractparams_->calcFrom( wd, dummy );
+    StepInterval<float> dahrg = setup_.extractparams_->calcFrom( *wd, dummy );
     if ( !mIsUdf( setup_.extractparams_->zstep_ ) )
 	dahrg.step = setup_.extractparams_->zstep_;
 
-    AttribLogExtractor ale( wd );
+    AttribLogExtractor ale( *wd );
     if ( !ale.fillPositions(dahrg) )
-    { 
-	msg.arg(tr("No positions extracted")).arg(wd.name());
+    {
+	msg.arg(tr("No positions extracted")).arg(wd->name());
 	mErrRet(msg)
     }
 
     if ( !ale.extractData( aem, setup_.tr_ ) )
-    { 
-	msg.arg(tr("No data extracted")).arg(wd.name());
-	mErrRet(msg) 
+    {
+	msg.arg(tr("No data extracted")).arg(wd->name());
+	mErrRet(msg)
     }
 
-    if ( !createLog( wd, ale ) )
+    if ( !createLog( *wd, ale ) )
     {
-	msg.arg(tr("Unable to create Log")).arg(wd.name());
+	msg.arg(tr("Unable to create Log")).arg(wd->name());
 	mErrRet(msg)
     }
 
@@ -62,8 +63,10 @@ bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )
 }
 
 
-bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
+bool AttribLogCreator::createLog( Well::Data& wdin,
+				  const AttribLogExtractor& ale)
 {
+    RefMan<Well::Data> wd( &wdin );
     Well::Log* newlog = new Well::Log( setup_.lognm_ );
     float v[2]; BinID bid;
     for ( int idx=0; idx<ale.depths().size(); idx++ )
@@ -81,12 +84,12 @@ bool AttribLogCreator::createLog( Well::Data& wd, const AttribLogExtractor& ale)
 
     if ( sellogidx_ < 0 )
     {
-	wd.logs().add( newlog );
-	sellogidx_ = wd.logs().size() - 1;
+	wd->logs().add( newlog );
+	sellogidx_ = wd->logs().size() - 1;
     }
     else
     {
-	Well::Log& log = wd.logs().getLog( sellogidx_ );
+	Well::Log& log = wd->logs().getLog( sellogidx_ );
 	log.setEmpty();
 	for ( int idx=0; idx<newlog->size(); idx++ )
 	    log.addValue( newlog->dah(idx), newlog->value(idx) );
@@ -115,7 +118,7 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 	depths_ += md;
 	positions_ += BinIDValueSet::SPos(0,0);
     }
-    
+
     BinIDValueSet::SPos pos;
     while ( bidset_.next(pos) )
     {
@@ -128,7 +131,7 @@ bool AttribLogExtractor::fillPositions(const StepInterval<float>& dahintv )
 }
 
 
-bool AttribLogExtractor::extractData( Attrib::EngineMan& aem, 
+bool AttribLogExtractor::extractData( Attrib::EngineMan& aem,
 				      TaskRunner* taskr )
 {
     uiString errmsg;
@@ -136,7 +139,7 @@ bool AttribLogExtractor::extractData( Attrib::EngineMan& aem,
     bivsset += &bidset_;
     PtrMan<Attrib::Processor> process =
 	    aem.createLocationOutput( errmsg, bivsset );
-    if ( !process ) 
+    if ( !process )
 	return false;
     return TaskRunner::execute( taskr, *process );
 }

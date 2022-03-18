@@ -38,7 +38,7 @@ public:
 
 protected:
 
-    const Well::Data*		wd_;
+    ConstRefMan<Well::Data>	wd_;
     TypeSet<BinIDValueSet::SPos> positions_;
     BinIDValueSet		bidset_;
     TypeSet<float>		depths_;
@@ -86,7 +86,7 @@ protected:
     int&			sellogidx_;
 
     bool                        extractData(BinIDValueSet&);
-    bool                        createLog(Well::Data&,
+    bool			createLog(Well::Data&,
 					  const AttribLogExtractor&);
 
 };
