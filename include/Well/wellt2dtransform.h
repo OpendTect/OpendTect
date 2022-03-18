@@ -14,9 +14,9 @@ ________________________________________________________________________
 
 #include "zaxistransform.h"
 #include "timedepthmodel.h"
+#include "welldata.h"
+#include "ptrman.h"
 
-
-namespace Well { class Data; }
 
 /*!
 \brief Time to depth transform for wells.
