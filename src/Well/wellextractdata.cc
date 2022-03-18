@@ -28,7 +28,6 @@
 #include "surveydisklocation.h"
 #include "survinfo.h"
 #include "welld2tmodel.h"
-#include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"

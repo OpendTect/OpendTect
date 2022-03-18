@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "position.h"
 #include "survinfo.h"
-#include "welldata.h"
 #include "wellman.h"
 #include "welld2tmodel.h"
 #include "welltrack.h"

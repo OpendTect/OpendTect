@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "stattype.h"
 #include "survinfo.h"
 #include "uistrings.h"
+#include "welldata.h"
 
 class DataPointSet;
 class IODirEntryList;
@@ -33,7 +34,6 @@ namespace Well
 class Log;
 class Info;
 class D2TModel;
-class Data;
 class Track;
 class Marker;
 class MarkerSet;

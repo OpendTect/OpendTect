@@ -12,10 +12,9 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 
-#include "zaxistransform.h"
 #include "timedepthmodel.h"
 #include "welldata.h"
-#include "ptrman.h"
+#include "zaxistransform.h"
 
 
 /*!
