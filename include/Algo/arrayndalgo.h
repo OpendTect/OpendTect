@@ -1864,6 +1864,39 @@ inline T getRMS( const ArrayND<T>& in, bool noudf, bool parallel )
 }
 
 
+/*!\brief return the Variance of the array */
+
+template <class RT,class AT>
+inline RT getVariance( const ArrayND<AT>& in, bool noudf, bool parallel )
+{
+    const od_int64 sz = in.totalSize();
+    if ( sz < 2 )
+	return 0;
+
+    ArrayOperExecSetup sumsetup, stdsetup;
+    stdsetup.dosqinp_ = true;
+    CumArrOperExec<RT,AT> sumexec( in, noudf, sumsetup );
+    CumArrOperExec<RT,AT> stdexec( in, noudf, stdsetup );
+    if ( !sumexec.executeParallel(parallel) ||
+	 !stdexec.executeParallel(parallel) )
+	return mUdf(AT);
+
+    const long double sumx = sumexec.getSum();
+    const long double sumxx = stdexec.getSum();
+    const RT retval = (sumxx - (sumx*sumx/sz) ) / ( (long double)(sz-1) );
+    return retval;
+}
+
+
+/*!\brief return the Standard deviation of the array */
+
+template <class RT,class AT>
+inline RT getStdDev( const ArrayND<AT>& in, bool noudf, bool parallel )
+{
+    return Math::Sqrt( getVariance<RT,AT>(in,noudf,parallel) );
+}
+
+
 /*!\brief returns the residual differences of two arrays */
 
 template <class T>
