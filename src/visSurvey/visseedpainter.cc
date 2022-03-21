@@ -344,8 +344,7 @@ void SeedPainter::paintSeedsOnInlCrl( const visBase::EventInfo& curev,
 
     const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
     const int dia = radius_ * 2 + 1;
-    const Stats::RandGen rgx = Stats::randGen();
-    const Stats::RandGen rgy = Stats::randGen();
+    const Stats::RandGen rgx, rgy;
     TypeSet<Pick::Location> mylocs;
     TypeSet<int> indexes;
     int locidx = set_->size();
@@ -428,8 +427,7 @@ void SeedPainter::paintSeedsOnZSlice( const visBase::EventInfo& curev,
 
     const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
     const int dia = radius_ * 2 + 1;
-    const Stats::RandGen rgx = Stats::randGen();
-    const Stats::RandGen rgy = Stats::randGen();
+    const Stats::RandGen rgx, rgy;
     TypeSet<Pick::Location> mylocs;
     TypeSet<int> indexes;
     int locidx = set_->size();
@@ -520,8 +518,7 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
 
     const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
     const int dia = radius_ * 2 + 1;
-    const Stats::RandGen rgx = Stats::randGen();
-    const Stats::RandGen rgy = Stats::randGen();
+    const Stats::RandGen rgx, rgy;
     TypeSet<Pick::Location> mylocs;
     TypeSet<int> indexes;
     int locidx = set_->size();
@@ -619,8 +616,7 @@ void SeedPainter::paintSeedsOn2DLine( const Seis2DDisplay* s2d,
 
     const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
     const int dia = radius_ * 2 + 1;
-    const Stats::RandGen rgx = Stats::randGen();
-    const Stats::RandGen rgy = Stats::randGen();
+    const Stats::RandGen rgx, rgy;
     TypeSet<Pick::Location> mylocs;
     TypeSet<int> indexes;
     int locidx = set_->size();
