@@ -20,6 +20,7 @@ mExpClass(Basic) CommandDefs : public BufferStringSet
 public:
 			CommandDefs();
 			CommandDefs(const CommandDefs& oth);
+			~CommandDefs();
 
     CommandDefs&	operator=(const CommandDefs&);
 
@@ -32,11 +33,18 @@ public:
     BufferString	getIconName(int) const;
     uiString		getToolTip(int) const;
     const uiStringSet&	getUiNames() const;
+    const char*		program(int) const;
+    const BufferStringSet*	args(int argidx) const;
 
     static bool		checkCommandExists(const char*, const BufferStringSet&);
     static const CommandDefs&	getTerminalCommands(const BufferStringSet&);
 
 protected:
+    void		addApplication(const char* appnm);
+    void		addHints(BufferStringSet&, const char*);
+    BufferStringSet&	getProgNames() const;
+    ObjectSet<BufferStringSet>& getProgArgs() const;
+
     uiStringSet		uinames_;
     BufferStringSet	iconnms_;
     uiStringSet		tooltips_;

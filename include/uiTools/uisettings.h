@@ -39,11 +39,15 @@ public:
 			     const char* workingdir=nullptr);
 
     uiToolBar*	getToolBar()		{ return usercmdtb_; }
+    const BufferStringSet*	programArgs(int) const;
 
     Notifier<uiSettingsMgr> terminalRequested;
     NotifierAccess*	toolbarUpdated();
 
 private:
+
+    BufferStringSet&	getProgNames() const;
+    ObjectSet<const BufferStringSet>& getProgArgs() const;
 
     void	keyPressedCB(CallBacker*);
     void	doTerminalCmdCB(CallBacker*);

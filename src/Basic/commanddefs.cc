@@ -9,9 +9,15 @@ ________________________________________________________________________
 -*/
 #include "commanddefs.h"
 #include "file.h"
+#include "filepath.h"
+#include "hiddenparam.h"
+#include "oddirs.h"
 #include "plfdefs.h"
 #include "ptrman.h"
 
+static HiddenParam<CommandDefs,BufferStringSet*> hp_prognames_(nullptr);
+static HiddenParam<CommandDefs,
+		   ObjectSet<BufferStringSet>* > hp_progargs_(nullptr);
 
 class TerminalCommands : public CommandDefs
 { mODTextTranslationClass(TerminalCommands);
@@ -53,13 +59,25 @@ public:
 
 
 CommandDefs::CommandDefs()
-{}
+{
+    hp_prognames_.setParam( this, new BufferStringSet );
+    hp_progargs_.setParam( this, new ObjectSet<BufferStringSet> );
+}
 
 
 CommandDefs::CommandDefs( const CommandDefs& oth )
     : BufferStringSet(oth)
 {
+    hp_prognames_.setParam( this, new BufferStringSet );
+    hp_progargs_.setParam( this, new ObjectSet<BufferStringSet> );
     *this = oth;
+}
+
+
+CommandDefs::~CommandDefs()
+{
+    hp_prognames_.removeAndDeleteParam( this );
+    hp_progargs_.removeAndDeleteParam( this );
 }
 
 
@@ -88,7 +106,20 @@ CommandDefs& CommandDefs::operator=( const CommandDefs& oth )
     uinames_ = oth.uinames_;
     iconnms_ = oth.iconnms_;
     tooltips_ = oth.tooltips_;
+    getProgNames() = oth.getProgNames();
+    deepCopy( getProgArgs(), oth.getProgArgs() );
     return *this;
+}
+
+BufferStringSet& CommandDefs::getProgNames() const
+{
+    return *hp_prognames_.getParam( this );
+}
+
+
+ObjectSet<BufferStringSet>& CommandDefs::getProgArgs() const
+{
+    return *hp_progargs_.getParam( this );
 }
 
 
@@ -98,21 +129,77 @@ void CommandDefs::erase()
     uinames_.setEmpty();
     iconnms_.setEmpty();
     tooltips_.setEmpty();
+    BufferStringSet* prognames = hp_prognames_.getParam( this );
+    prognames->setEmpty();
+    deepErase( getProgArgs() );
 }
 
 
-bool CommandDefs::addCmd( const char* command, const uiString& uinm,
+bool CommandDefs::addCmd( const char* appnm, const uiString& uinm,
 			  const char* iconnm, const uiString& tooltip,
 			  const BufferStringSet& paths )
 {
-    if ( !checkCommandExists(command, paths) )
+    BufferStringSet usedpaths( paths );
+    addHints( usedpaths, appnm );
+    if ( !checkCommandExists(appnm, paths) )
 	return false;
 
-    add( command );
+    addApplication( appnm );
     uinames_.add( uinm );
     iconnms_.add( iconnm );
     tooltips_.add( tooltip );
     return true;
+}
+
+
+void CommandDefs::addApplication( const char* appnm )
+{
+    add( appnm );
+    BufferStringSet* prognames = hp_prognames_.getParam( this );
+    if ( __ismac__ )
+    {
+	getProgNames().add( "open" );
+	auto* args = new BufferStringSet;
+	args->add( "-a" ).add( appnm ).add( GetPersonalDir() );
+	getProgArgs().add( args );
+    }
+    else
+    {
+	prognames->add( appnm );
+	getProgArgs().add( nullptr );
+    }
+}
+
+
+void CommandDefs::addHints( BufferStringSet& usedpaths, const char* appnm )
+{
+    if ( __ismac__ )
+    {
+	BufferString macappnm( appnm );
+	macappnm.add( ".app" );
+	FilePath fp( "/Applications", "Utilities", macappnm, "Contents",
+		     "MacOS" );
+	usedpaths.add( fp.fullPath() );
+	usedpaths.add( FilePath("/System", fp.fullPath()).fullPath() );
+    }
+}
+
+
+const char* CommandDefs::program( int progidx ) const
+{
+    if ( !getProgNames().validIdx(progidx) )
+	return nullptr;
+
+    return getProgNames().get( progidx ).buf();
+}
+
+
+const BufferStringSet* CommandDefs::args( int argidx ) const
+{
+    if ( !getProgArgs().validIdx(argidx) )
+	return nullptr;
+
+    return getProgArgs().get( argidx );
 }
 
 
