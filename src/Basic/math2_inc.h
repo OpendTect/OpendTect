@@ -17,14 +17,14 @@ bool Math::IsNormalNumber( mTYPE x )
 
 mTYPE Math::ACos( mTYPE c )
 {
-    return (mTYPE) c >= 1 ? 0 : (c <= -1 ? mTYPE(M_PI) : acos( c ));
+    return (mTYPE) c >= 1 ? 0 : (c <= -1 ? (mTYPE)(M_PI) : acos( c ));
 }
 
 
 mTYPE Math::ASin( mTYPE s )
 {
-    return (mTYPE) s >= 1 ? mTYPE(M_PI_2)
-			  : (s <= -1 ? -mTYPE(M_PI_2) : asin( s ));
+    return (mTYPE) s >= 1 ? (mTYPE)(M_PI_2)
+			  : (s <= -1 ? -(mTYPE)(M_PI_2) : asin( s ));
 }
 
 
