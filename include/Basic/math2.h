@@ -81,6 +81,7 @@ mGlobal(Basic) unsigned int Abs(int i);
 mGlobal(Basic) od_uint64 Abs(od_int64 i);
 mGlobal(Basic) float Abs(float);
 mGlobal(Basic) double Abs(double);
+mGlobal(Basic) long double Abs(long double);
 mGlobal(Basic) float Abs(float_complex);
 
 mGlobal(Basic) float Floor(float);
@@ -116,6 +117,16 @@ mGlobal(Basic) double Sqrt(double);
 mGlobal(Basic) double toDB(double);
 mGlobal(Basic) double BesselI0(double);
 
+mGlobal(Basic) bool IsNormalNumber(long double);
+mGlobal(Basic) long double PowerOf(long double,long double);
+mGlobal(Basic) long double ASin(long double);
+mGlobal(Basic) long double ACos(long double);
+mGlobal(Basic) long double Log(long double);
+mGlobal(Basic) long double Log10(long double);
+mGlobal(Basic) long double Sqrt(long double);
+mGlobal(Basic) long double toDB(long double);
+mGlobal(Basic) long double BesselI0(long double);
+
 template <class iT,class iPOW> inline
 iT IntPowerOf( iT i, iPOW p )
 {
@@ -130,6 +141,7 @@ iT IntPowerOf( iT i, iPOW p )
     return ret;
 }
 
+mGlobal(Basic) long double IntPowerOf(long double,int);
 mGlobal(Basic) double IntPowerOf(double,int);
 mGlobal(Basic) float IntPowerOf(float,int);
 mGlobal(Basic) int NrSignificantDecimals(double);

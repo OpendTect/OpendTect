@@ -14,9 +14,11 @@ ________________________________________________________________________
 #include "plftypes.h"
 
 //! Undefined value. IEEE gives NaN but that's not exactly what we want
+#define __mUndefLDValue           1e30L
 #define __mUndefDValue            1e30
 #define __mUndefFValue            1e30f
 //! Check on undefined. Also works when double converted to float and vv
+#define __mIsUndefinedLD(x)        (((x)>9.99999e29L)&&((x)<1.00001e30L))
 #define __mIsUndefinedD(x)         (((x)>9.99999e29)&&((x)<1.00001e30))
 #define __mIsUndefinedF(x)         (((x)>9.99999e29f)&&((x)<1.00001e30f))
 #define __mIsUndefinedI(x,udfval)  (((x)>=udfval)||((x)<=-udfval))
@@ -191,6 +193,21 @@ public:
     static bool		hasUdf()		{ return true; }
     static bool		isUdf( double d )	{ return __mIsUndefinedD(d); }
     static void		setUdf( double& d )	{ d = __mUndefDValue; }
+};
+
+
+/*!
+\brief Undefined long double.
+*/
+
+template<>
+mClass(Basic) Undef<long double>
+{
+public:
+    static long double	val()			{ return __mUndefLDValue; }
+    static bool		hasUdf()		{ return true; }
+    static bool		isUdf( long double d )	{ return __mIsUndefinedLD(d); }
+    static void		setUdf( long double& d ) { d = __mUndefLDValue; }
 };
 
 
