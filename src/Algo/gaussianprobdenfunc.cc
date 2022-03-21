@@ -49,7 +49,7 @@ Gaussian1DProbDenFunc& Gaussian1DProbDenFunc::operator =(
 	ProbDenFunc1D::copyFrom( oth );
 	exp_ = oth.exp_; std_ = oth.std_;
 	delete rgen_;
-	rgen_ = oth.rgen_ ? new Stats::NormalRandGen( *oth.rgen_ ) : nullptr;
+	rgen_ = oth.rgen_ ? new Stats::NormalRandGen() : nullptr;
     }
     return *this;
 }
@@ -127,8 +127,8 @@ Gaussian2DProbDenFunc& Gaussian2DProbDenFunc::operator =(
 	exp0_ = oth.exp0_; exp1_ = oth.exp1_;
 	std0_ = oth.std0_; std1_ = oth.std1_;
 	cc_ = oth.cc_;
-	rgen0_ = oth.rgen0_ ? new Stats::NormalRandGen( *oth.rgen0_ ) : nullptr;
-	rgen1_ = oth.rgen1_ ? new Stats::NormalRandGen( *oth.rgen1_ ) : nullptr;
+	rgen0_ = oth.rgen0_ ? new Stats::NormalRandGen() : nullptr;
+	rgen1_ = oth.rgen1_ ? new Stats::NormalRandGen() : nullptr;
     }
     return *this;
 }
@@ -171,7 +171,8 @@ bool Gaussian2DProbDenFunc::usePar( const IOPar& par )
     par.get( "Correlation", cc_ );
     par.get( IOPar::compKey(sKey::Name(),0), dim0nm_ );
     par.get( IOPar::compKey(sKey::Name(),1), dim1nm_ );
-    deleteAndZeroPtr( rgen0_ ); deleteAndZeroPtr( rgen1_ );
+    deleteAndZeroPtr( rgen0_ );
+    deleteAndZeroPtr( rgen1_ );
     readUOMFromPar( par );
 
     return true;
@@ -236,8 +237,14 @@ GaussianNDProbDenFunc& GaussianNDProbDenFunc::operator =(
 	delete cholesky_;
 	cholesky_ = oth.cholesky_ ? new Array2DMatrix<float>( *oth.cholesky_ )
 				  : nullptr;
-	deepCopy( rgens_, oth.rgens_ );
+	if ( rgens_.size() != oth.rgens_.size() )
+	{
+	    deepErase( rgens_ );
+	    for ( int idx=0; idx<oth.rgens_.size(); idx++ )
+		rgens_.add( new Stats::NormalRandGen() );
+	}
     }
+
     return *this;
 }
 
@@ -519,7 +526,7 @@ const char* GaussianNDProbDenFunc::firstUncorrelated() const
 	if ( !havecorr[idim] )
 	    return vars_[idim].name_.buf();
 
-    return 0;
+    return nullptr;
 }
 
 

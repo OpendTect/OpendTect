@@ -611,12 +611,11 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     const int nr2add = (int)mMIN(totalsz,nrtrcsfld_->getIntValue());
 
     TypeSet<od_int64> gidxs( nr2add, -1 );
-    od_int64 randint = Stats::randGen().getIndex( mUdf(int) );
+    Stats::RandGen gen = Stats::randGen();
     for ( int idx=0; idx<nr2add; idx++ )
     {
-	od_int64 vidx = Stats::randGen().getIndexFast( totalsz, randint );
+	const od_int64 vidx = gen.getIndex( totalsz );
 	gidxs[idx] = vidx;
-	randint *= mCast( int, vidx );
     }
 
     sort( gidxs );
@@ -635,7 +634,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 
 	if ( !res ) continue;
 
-	SeisTrc* trc = new SeisTrc;
+	auto* trc = new SeisTrc;
 	res = rdr.get( *trc );
 	if ( !res ) continue;
 

@@ -17,7 +17,6 @@
 
 
 Threads::Atomic<int> partsortglobalseed( 0 );
-Threads::Atomic<int> globalseed( 0 );
 
 
 mDefineNameSpaceEnumUtils(Stats,Type,"Statistic type")
@@ -42,28 +41,39 @@ mDefineNameSpaceEnumUtils(Stats,UpscaleType,"Upscale type")
 #include <math.h>
 #include <stdlib.h>
 
+namespace Stats
+{
 
 void initSeed( int seed )
 {
     // rand_s function on Windows does not use a seed.
-#ifndef __win__
+#ifdef __unix__
+    static int seed_ = 0;
     if ( seed == 0 )
     {
-	if ( globalseed != 0 )
+	if ( seed_ != 0 )
 	    return;
 
-	globalseed = int( Time::getMilliSeconds() );
+	seed = Time::getMilliSeconds();
     }
 
-    globalseed = seed;
+    seed_ = seed;
 
-    srand48( globalseed );
+    srand48( od_int32(seed_) );
 #endif
+}
+
 }
 
 
 void Stats::RandomGenerator::init( int seed )
 {
+    if ( seed == 0 )
+    {
+	pErrMsgOnce("Seed should only be set to non-zero values.");
+	return;
+    }
+
     initSeed( seed );
 }
 
@@ -148,9 +158,10 @@ int Stats::RandGen::getInt() const
 #ifdef __win__
     unsigned int rand = 0;
     rand_s( &rand );
-    return *((int*)(&rand));
+    const od_int64 randll = od_int64(rand) - od_int64(INT_MAX);
+    return int(randll);
 #else
-    return (int) lrand48();
+    return (int) mrand48();
 #endif
 }
 

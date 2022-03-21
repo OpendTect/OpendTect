@@ -48,10 +48,12 @@ public:
 			//!< random int in the range [min,max]>
     int			getIndex(int sz) const;
 			//!< random index in the range [0,sz>
+    mDeprecated("Use getIndex")
     int			getIndexFast(int sz,int seed) const;
 			//!< getIndex using a very simple random generator
     od_int64		getIndex(od_int64 sz) const;
 			//!< random index in the range [0,sz>
+    mDeprecated("Use getIndex")
     od_int64		getIndexFast(od_int64 sz,od_int64 seed) const;
 			//!< getIndex using a very simple random generator
 

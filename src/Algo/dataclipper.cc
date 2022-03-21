@@ -367,12 +367,11 @@ void DataClipSampler::add( const float* v, od_int64 sz )
     const int nr2add = (int)(relwt * sz - .5);
     if ( nr2add < 1 ) return;
 
-    od_int64 randint = Stats::randGen().getIndex( mUdf(int) );
+    Stats::RandGen gen = Stats::randGen();
     for ( int idx=0; idx<nr2add; idx++ )
     {
-	od_int64 vidx = Stats::randGen().getIndexFast( sz, randint );
+	const od_int64 vidx = gen.getIndex( sz );
 	doAdd( v[vidx] );
-	randint *= mCast( int, vidx );
     }
 }
 
