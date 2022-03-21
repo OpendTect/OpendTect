@@ -32,6 +32,9 @@
 #define mTYPE double
 #include "math2_inc.h"
 #undef mTYPE
+#define mTYPE long double
+#include "math2_inc.h"
+#undef mTYPE
 
 #ifndef OD_NO_QT
 # include <QString>
@@ -115,6 +118,7 @@ int Math::HCFOf( int num1, int num2 )
 
 unsigned int Math::Abs( int val )	{ return abs(val); }
 od_uint64 Math::Abs( od_int64 val )	{ return llabs(val); }
+long double Math::Abs( long double val ) { return fabs(val); }
 double Math::Abs( double val )		{ return fabs(val); }
 float Math::Abs( float val )		{ return fabsf(val); }
 float Math::Abs( float_complex val )	{ return abs(val); }
