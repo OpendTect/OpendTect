@@ -7,11 +7,64 @@
 
 #include "sorting.h"
 
-#include "testprog.h"
-#include "statrand.h"
-#include "varlenarray.h"
+#include "arrayndalgo.h"
 #include "sorting.h"
+#include "statrand.h"
+#include "statparallelcalc.h"
+#include "testprog.h"
+#include "timefun.h"
 #include "threadwork.h"
+#include "varlenarray.h"
+
+#include <limits>
+
+#define mTic() \
+{ \
+    if ( dotime ) \
+	counter.start(); \
+}
+# define mTac() \
+{\
+    if ( dotime ) \
+    { \
+	elapsed = counter.elapsed(); \
+	tstStream() << "Drawn in: " << elapsed << "ms\n"; \
+    } \
+}
+
+#define mTestValD( expval, res, useeps, msg ) \
+{ \
+    if ( dodiff ) \
+    { \
+	tstStream() << msg << "; Absolute difference: " ; \
+	tstStream() << toStringPrecise(Math::Abs(expval-res)) << od_newline;\
+	if ( !mIsZero(expval,1e-6f) ) \
+	{ \
+	    tstStream() << msg << "; Relative difference: " ; \
+	    tstStream() << toStringPrecise(Math::Abs((expval-res)/expval)); \
+	    tstStream() << od_newline; \
+	} \
+    } \
+    else \
+    {  \
+	mRunStandardTestWithError( mIsEqual(res,expval,useeps), msg, \
+	    BufferString( "Expected: ", toStringPrecise(expval), \
+		" - got: " ).add( toStringPrecise(res))  ); \
+    } \
+}
+#define mTestValI( expval, res, useeps, msg ) \
+{ \
+    if ( dodiff ) \
+    { \
+	tstStream() << msg << "; Absolute difference: " ; \
+	tstStream() << toStringPrecise(Math::Abs(expval-res)) << od_newline;\
+    } \
+    else \
+    {  \
+	mRunStandardTestWithError( mIsEqual(res,expval,useeps), msg, \
+	    BufferString( "Expected: ", expval, " - got: " ).add( res ) ); \
+    } \
+}
 
 //Check that all values are ascending
 template <class T>
@@ -44,6 +97,7 @@ static bool test_quicksort()
     return checkSorting( mVarLenArr(vals), sz );
 }
 
+
 #define mNrTesters 100
 
 //Since quicksort uses static seeds, it can be sensitive to
@@ -61,9 +115,220 @@ static bool testParallelQuickSort()
     return true;
 }
 
+
+static bool testRandom( bool dodiff, bool dotime )
+{
+    static double epsavg = 1e-4;
+    static double epsstd = 1e-3;
+    static int sz = 1024*1024*20; //1sec runtime with eps precision
+    Array1DImpl<double> dvalsarr( sz );
+    Array1DImpl<float> fvalsarr( sz );
+    Array1DImpl<od_int64> llvalsarr( sz );
+    Array1DImpl<int> ivalsarr( sz );
+    double* dvals = dvalsarr.getData();
+    float* fvals = fvalsarr.getData();
+    od_int64* llvals = llvalsarr.getData();
+    int* ivals = ivalsarr.getData();
+    if ( !dvals || !fvals || !llvals || !ivals )
+	return false;
+
+    static double oneoversqrt12 = Math::Sqrt(1./12.);
+    Stats::RandGen& urg = Stats::randGen();
+    Time::Counter counter; int elapsed = 0;
+
+    Stats::CalcSetup avgstdsu, minmaxsu;
+    avgstdsu.require( Stats::Average ).require( Stats::StdDev );
+    minmaxsu.require( Stats::Min ).require( Stats::Max );
+    Stats::CalcSetup allsu( avgstdsu );
+    allsu.require( Stats::Min ).require( Stats::Max );
+
+    Stats::RunCalc<long double> rcld( allsu );
+    mTic(); for ( int idx=0; idx<sz; idx++ )
+	dvals[idx] = urg.get();
+    mTac();
+
+    rcld.clear();
+    for ( int idx=0; idx<sz; idx++ )
+	rcld.addValue( dvals[idx] );
+
+    double expavg = 0.5;
+    double expstddev = oneoversqrt12;
+    mTestValD( expavg, double(rcld.average()), epsavg, "Uniform average" );
+    mTestValD( expstddev, double(rcld.stdDev()), epsstd, "Uniform stddev" );
+    mRunStandardTest( rcld.min()>=0., "Uniform minimum above 0" );
+    mRunStandardTest( rcld.max()<=1., "Uniform maximum below 1" );
+
+    Stats::RunCalc<double> rcd( avgstdsu );
+    Stats::RunCalc<int> rci( minmaxsu );
+    Interval<int> valrg( std::numeric_limits<int>::min(),
+			 std::numeric_limits<int>::max() );
+    mTic(); for ( int idx=0; idx<sz; idx++ )
+	ivals[idx] = urg.getInt();
+    mTac();
+
+    rcd.clear(); rci.clear();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	rcd.addValue( ivals[idx] );
+	rci.addValue( ivals[idx] );
+    }
+
+    expstddev = ( double(valrg.stop) - double(valrg.start) ) * oneoversqrt12;
+    mRunStandardTest( rci.min() >= valrg.start && rci.max() <= valrg.stop,
+		      "Limits of get int" );
+    mTestValI( 0, rcd.average(), expstddev, "Uniform average of int" );
+    mTestValI( expstddev, rcd.stdDev(), expstddev*1e-2,
+	      "Uniform stddev of int" );
+
+    valrg.set( 20, 300 );
+    mTic(); for ( int idx=0; idx<sz; idx++ )
+	ivals[idx] = urg.getInt( valrg.start, valrg.stop );
+    mTac();
+
+    rcd.clear(); rci.clear();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	rcd.addValue( ivals[idx] );
+	rci.addValue( ivals[idx] );
+    }
+    mRunStandardTest( rci.min() >= valrg.start && rci.max() <= valrg.stop,
+		      "Limits of get int range" );
+    expavg = valrg.center();
+    expstddev = valrg.width() * oneoversqrt12;
+    mTestValI( valrg.center(), rcd.average(), expstddev*1e-2,
+	      "Uniform avg of int range" );
+    mTestValI( expstddev, rcd.stdDev(), expstddev*1e-2,
+	      "Uniform stddev of int range" );
+
+    valrg.start = 0;
+    mTic(); for ( int idx=0; idx<sz; idx++ )
+	ivals[idx] = urg.getIndex( valrg.stop );
+    mTac();
+
+    rcd.clear(); rci.clear();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	rcd.addValue( ivals[idx] );
+	rci.addValue( ivals[idx] );
+    }
+    mRunStandardTest( rci.min() >= valrg.start && rci.max() <= valrg.stop,
+		      "Limits of get int index" );
+    expavg = valrg.center();
+    expstddev = valrg.width() * oneoversqrt12;
+    mTestValI( valrg.center(), rcd.average(), expstddev*1e-2,
+	      "Uniform avg of int index" );
+    mTestValI( expstddev, rcd.stdDev(), expstddev*1e-2,
+	      "Uniform stddev of int index" );
+
+    Stats::RunCalc<od_int64> rcll( minmaxsu );
+    const Interval<od_int64> lvalrg( 0, mDef32GB );
+    expavg = lvalrg.center();
+    expstddev = lvalrg.width() * oneoversqrt12;
+    mTic(); for ( int idx=0; idx<sz; idx++ )
+	llvals[idx] = urg.getIndex( lvalrg.stop );
+    mTac();
+
+    rcd.clear(); rcll.clear();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	rcd.addValue( llvals[idx] );
+	rcll.addValue( llvals[idx] );
+    }
+    mRunStandardTest( rcll.min() >= lvalrg.start && rcll.max() <= lvalrg.stop,
+		      "Limits of get od_int64 index" );
+    mTestValI( lvalrg.center(), rcd.average(), expstddev*1e-2,
+	      "Uniform average of od_int64 index" );
+    mTestValI( expstddev, rcd.stdDev(), expstddev*1e-2,
+	      "Uniform stddev of od_int64 index" );
+
+    Stats::NormalRandGen rg;
+    expavg = 0.;
+    expstddev = 1.;
+    rcld = Stats::RunCalc<long double>( avgstdsu );
+    mTic(); for ( int idx=0; idx<sz; idx++ )
+	dvals[idx] = rg.get();
+    mTac();
+
+    rcld.clear();
+    for ( int idx=0; idx<sz; idx++ )
+	rcld.addValue( dvals[idx] );
+    mTestValD( 0., double(rcld.average()), epsstd, "Gaussian average - get" );
+    mTestValD( expstddev, double(rcld.stdDev()), epsstd,
+	       "Gaussian stddev - get" );
+
+    expavg = 0.135;
+    expstddev = 0.0356;
+    mTic(); for ( int idx=0; idx<sz; idx++ )
+	dvals[idx] = rg.get(expavg,expstddev);
+    mTac();
+
+    rcld.clear();
+    for ( int idx=0; idx<sz; idx++ )
+	rcld.addValue( dvals[idx] );
+    Stats::ParallelCalc<double> rcpcd( allsu, dvals, sz );
+    rcpcd.execute();
+
+    ArrayMath::ArrayOperExecSetup avgsetup;
+    avgsetup.donormalizesum_ = true;
+    ArrayMath::CumArrOperExec<long double,double> avgexec( dvalsarr, true,
+							   avgsetup );
+    avgexec.execute();
+    const long double stddevd =
+	    ArrayMath::getStdDev<long double,double>( dvalsarr, true, true );
+
+    mTestValD( expavg, double(rcld.average()), epsavg,
+	       "Gaussian average - RunCalc - double" );
+    mTestValD( expavg, rcpcd.average(), epsavg,
+	       "Gaussian average - ParallelCalc - double" );
+    mTestValD( expavg, double(avgexec.getSum()), epsavg,
+	       "Gaussian average - ArrayMath - double" );
+    mTestValD( expstddev, double(rcld.stdDev()),epsstd,
+	       "Gaussian stddev - RunCalc - double" );
+    mTestValD( expstddev, rcpcd.stdDev(), epsstd,
+	       "Gaussian stddev - ParallelCalc - double" );
+    mTestValD( expstddev, double(stddevd), epsstd,
+	       "Gaussian stddev - ArrayMath - double" );
+
+    const float expavgf = float(expavg);
+    const float expstddevf = float(expstddev);
+    mTic(); for ( int idx=0; idx<sz; idx++ )
+	fvals[idx] = rg.get(expavgf,expstddevf);
+    mTac();
+
+    rcd.clear();
+    for ( int idx=0; idx<sz; idx++ )
+	rcd.addValue( fvals[idx] );
+    Stats::ParallelCalc<float> rcpcf( allsu, fvals, sz );
+    rcpcf.execute();
+
+    ArrayMath::CumArrOperExec<double,float> avgexecf( fvalsarr, true, avgsetup);
+    avgexecf.execute();
+    const double stddevf = ArrayMath::getStdDev<double,float>( fvalsarr, true,
+							       true );
+
+    mTestValD( expavgf, float(rcd.average()), epsavg,
+	       "Gaussian average - RunCalc - float" );
+    mTestValD( expavgf, rcpcf.average(), epsavg,
+	       "Gaussian average - ParallelCalc - float" );
+    mTestValD( expavgf, float(avgexecf.getSum()), epsavg,
+	       "Gaussian average - ArrayMath - float" );
+    mTestValD( expstddevf, float(rcd.stdDev()), epsstd,
+	       "Gaussian stddev - RunCalc - float");
+    mTestValD( expstddevf, rcpcf.stdDev(), epsstd,
+	       "Gaussian stddev - ParallelCalc - float" );
+    mTestValD( expstddevf, float(stddevf), epsstd,
+	       "Gaussian stddev - ArrayMath - float" );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    return testParallelQuickSort() ? 0 : 1;
+    const bool printdiff = clParser().hasKey( "dodiff" );
+    const bool printtime = clParser().hasKey( "dotime" );
+
+    return testRandom(printdiff,printtime) && testParallelQuickSort() ? 0 : 1;
 }

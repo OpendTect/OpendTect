@@ -5,19 +5,15 @@
 -*/
 
 
-
-#define _CRT_RAND_S
-
 #include "atomic.h"
+#include "envvars.h"
 #include "statruncalc.h"
 #include "statrand.h"
-#include "timefun.h"
-#include "envvars.h"
 #include "settings.h"
+#include "timefun.h"
 
 
 Threads::Atomic<int> partsortglobalseed( 0 );
-Threads::Atomic<int> globalseed( 0 );
 
 
 mDefineNameSpaceEnumUtils(Stats,Type,"Statistic type")
@@ -28,44 +24,15 @@ mDefineNameSpaceEnumUtils(Stats,Type,"Statistic type")
 	"Min", "Max", "Extreme",
 	"Sum", "SquareSum",
 	"MostFrequent",
-	0
+	nullptr
 };
 
 mDefineNameSpaceEnumUtils(Stats,UpscaleType,"Upscale type")
 {
 	"Take Nearest Sample",
 	"Use Average", "Use Median", "Use RMS", "Use Most Frequent",
-	0
+	nullptr
 };
-
-
-#include <math.h>
-#include <stdlib.h>
-
-
-void initSeed( int seed )
-{
-    // rand_s function on Windows does not use a seed.
-#ifndef __win__
-    if ( seed == 0 )
-    {
-	if ( globalseed != 0 )
-	    return;
-
-	globalseed = int( Time::getMilliSeconds() );
-    }
-
-    globalseed = seed;
-
-    srand48( globalseed );
-#endif
-}
-
-
-void Stats::RandomGenerator::init( int seed )
-{
-    initSeed( seed );
-}
 
 
 Stats::CalcSetup& Stats::CalcSetup::require( Stats::Type t )
@@ -115,138 +82,130 @@ int Stats::CalcSetup::medianEvenHandling()
 }
 
 
-Stats::RandGen::RandGen()
+namespace Stats
 {
-    initSeed( 0 );
+
+bool initSeed( int seed, Threads::Atomic<int>& seedval )
+{
+    if ( seed == 0 )
+    {
+	if ( seedval != 0 && !mIsUdf(seedval.load()) )
+	    return false;
+
+	seed = Time::getMilliSeconds();
+    }
+
+    seedval = seed;
+    return true;
 }
 
+} // namespace Stats
 
-Stats::RandGen Stats::randGen()
+
+Stats::RandGen::RandGen()
 {
-    mDefineStaticLocalObject( PtrMan<Stats::RandGen>, rgptr,
-			      = new Stats::RandGen() );
-    return *rgptr;
+    std::seed_seq seed{rd_(), rd_(), rd_(), rd_(), rd_(), rd_(), rd_(), rd_()};
+    gen_ = std::mt19937( seed );
+    gen64_ = std::mt19937_64( seed );
 }
 
 
 double Stats::RandGen::get() const
 {
-#ifdef __win__
-    unsigned int rand = 0;
-    rand_s( &rand );
-    double ret = rand;
-    ret /= UINT_MAX;
-    return ret;
-#else
-    return drand48();
-#endif
+    static std::uniform_real_distribution<double> dis( 0., 1. );
+    return dis( gen64_ );
 }
 
 
 int Stats::RandGen::getInt() const
 {
-#ifdef __win__
-    unsigned int rand = 0;
-    rand_s( &rand );
-    return *((int*)(&rand));
-#else
-    return (int) lrand48();
-#endif
+    return gen_();
 }
+
 
 int Stats::RandGen::getInt( int min, int max ) const
 {
-    return getIndex( max-min+1 ) + min;
+    std::uniform_int_distribution<int> dis( min, max );
+    return dis( gen_ );
 }
+
 
 int Stats::RandGen::getIndex( int sz ) const
 {
-    if ( sz < 2 ) return 0;
+    if ( sz < 2 )
+	return 0;
 
-    int idx = (int)(sz * get());
-    if ( idx < 0 ) idx = 0;
-    if ( idx >= sz ) idx = sz-1;
-
-    return idx;
-}
-
-
-int Stats::RandGen::getIndexFast( int sz, int seed ) const
-{
-    if ( sz < 2 ) return 0;
-
-    int randidx = 1664525u * seed + 1013904223u;
-    if ( randidx < 0 ) randidx = -randidx;
-    return randidx % sz;
+    std::uniform_int_distribution<int> dis( 0, sz );
+    return dis( gen_ );
 }
 
 
 od_int64 Stats::RandGen::getIndex( od_int64 sz ) const
 {
-    if ( sz < 2 ) return 0;
+    if ( sz < 2 )
+	return 0;
 
-    od_int64 idx = (od_int64)(sz * get());
-    if ( idx < 0 ) idx = 0;
-    if ( idx >= sz ) idx = sz-1;
-
-    return idx;
+    std::uniform_int_distribution<od_int64> dis( 0, sz );
+    return dis( gen64_ );
 }
 
 
-od_int64 Stats::RandGen::getIndexFast( od_int64 sz, od_int64 seed ) const
+bool Stats::RandGen::init( int seed )
 {
-    if ( sz < 2 ) return 0;
+    if ( seed != 0 && seedval_ != 0 && !mIsUdf(seedval_.load()) )
+    {
+	pErrMsg("The seed should only be set once per generator");
+	return false;
+    }
+    else if ( !initSeed(seed,seedval_) )
+	return false;
 
-    const int randidx1 = mCast( int, 1664525u * seed + 1013904223u );
-    const int randidx2 = mCast(int, 1664525u * (seed+0x12341234) + 1013904223u);
-    od_int64 randidx = (((od_int64)randidx1)<<32)|((od_int64)randidx2);
-    if ( randidx < 0 ) randidx = -randidx;
-    return randidx % sz;
+    gen_ = std::mt19937( seedval_.load() );
+    gen64_ = std::mt19937_64( seedval_.load() );
+    return true;
 }
+
+
+Stats::RandGen& Stats::randGen()
+{
+    mDefineStaticLocalObject( PtrMan<Stats::RandGen>, rgptr,
+			      = new Stats::RandGen() );
+    return *rgptr.ptr();
+}
+
 
 
 Stats::NormalRandGen::NormalRandGen()
-    : useothdrawn_(false)
-    , othdrawn_(0)
 {
-    initSeed( 0 );
+    std::seed_seq seed{rd_(), rd_(), rd_(), rd_(), rd_(), rd_(), rd_(), rd_()};
+    gen64_ = std::mt19937_64( seed );
 }
 
 
 double Stats::NormalRandGen::get() const
 {
-    double fac, r, v1, v2;
-    double arg;
-
-    double retval = othdrawn_;
-
-    if ( !useothdrawn_ )
-    {
-	do
-	{
-	    v1 = 2.0 * randGen().get() - 1.0;
-	    v2 = 2.0 * randGen().get() - 1.0;
-	    r= v1*v1 + v2*v2;
-	} while (r >= 1.0 || r <= 0.0);
-
-	arg = (double)(-2.0*log(r) / r);
-	fac = Math::Sqrt( arg );
-	othdrawn_ = v1 * fac;
-	retval = v2 * fac;
-    }
-
-    useothdrawn_ = !useothdrawn_;
-    return retval;
+    static std::normal_distribution<double> dis( 0., 1. );
+    return dis( gen64_ );
 }
 
 
-float Stats::NormalRandGen::get( float e, float s ) const
+float Stats::NormalRandGen::get( float exp, float s ) const
 {
-    return (float)(e + get() * s);
+    return (float)(exp + get() * s);
 }
 
 
-double Stats::NormalRandGen::get( double e, double s ) const
+double Stats::NormalRandGen::get( double exp, double s ) const
 {
-    return e + get() * s;
+    return exp + get() * s;
+}
+
+
+bool Stats::NormalRandGen::init( int seed )
+{
+    if ( !initSeed(seed,seedval_) )
+	return false;
+
+    gen64_ = std::mt19937_64( seedval_.load() );
+    return true;
 }

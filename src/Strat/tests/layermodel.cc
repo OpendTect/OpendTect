@@ -34,7 +34,7 @@ int nrlayers_ = 50;	/* Too low to detect mem/speed issues: try --nrlay 400
 od_int64 freemem_;
 od_int64 totmem_;
 NrBytesToStringCreator fmtcreator_;
-Stats::RandGen uniformrg_ = Stats::randGen();
+Stats::RandGen uniformrg_;
 Stats::NormalRandGen gaussianrg_;
 const Math::Formula* aiform_ = nullptr;
 const Math::Formula* castagnaform_ = nullptr;

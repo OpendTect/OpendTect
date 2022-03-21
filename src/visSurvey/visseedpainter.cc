@@ -341,8 +341,7 @@ void SeedPainter::paintSeedsOnInlCrl( const visBase::EventInfo& curev,
 
     const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
     const int dia = radius_ * 2 + 1;
-    const Stats::RandGen rgx = Stats::randGen();
-    const Stats::RandGen rgy = Stats::randGen();
+    const Stats::RandGen rgx, rgy;
     TypeSet<Pick::Location> mylocs;
     TypeSet<int> indexes;
     int locidx = set_->size();
@@ -372,9 +371,9 @@ void SeedPainter::paintSeedsOnInlCrl( const visBase::EventInfo& curev,
 	const bool pt2incircle =
 	    (radius_*radius_) >= (ptidx2*ptidx2 + ptidy2*ptidy2);
 	const int nr1 = mNINT32(fac*ptidx1) +
-	    		(isinl ? prevbid.crl() : prevbid.inl());
+			(isinl ? prevbid.crl() : prevbid.inl());
 	const int nr2 = mNINT32(fac*ptidx2) +
-	    		(isinl ? curbid.crl() : curbid.inl());
+			(isinl ? curbid.crl() : curbid.inl());
 	const int sampidx1 = ptidy1 + prevsampidx;
 	const int sampidx2 = ptidy2 + cursampidx;
 	if ( fillprev && pt1incircle )
@@ -396,7 +395,7 @@ void SeedPainter::paintSeedsOnInlCrl( const visBase::EventInfo& curev,
 
     set_->bulkAppendWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
-	    			     set_, indexes );
+				     set_, indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
@@ -425,8 +424,7 @@ void SeedPainter::paintSeedsOnZSlice( const visBase::EventInfo& curev,
 
     const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
     const int dia = radius_ * 2 + 1;
-    const Stats::RandGen rgx = Stats::randGen();
-    const Stats::RandGen rgy = Stats::randGen();
+    const Stats::RandGen rgx, rgy;
     TypeSet<Pick::Location> mylocs;
     TypeSet<int> indexes;
     int locidx = set_->size();
@@ -477,7 +475,7 @@ void SeedPainter::paintSeedsOnZSlice( const visBase::EventInfo& curev,
 
     set_->bulkAppendWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
-	    			     set_, indexes );
+				     set_, indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
@@ -500,7 +498,7 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
     const Coord posm = SI().transform( path->get(bididx-1) );
     const Coord posp = SI().transform( path->get(bididx+1) );
     const float trcdist = 0.5 * ( curpos.coord().distTo(posm) +
-	    			  curpos.coord().distTo(posp) );
+				  curpos.coord().distTo(posp) );
     const float fac = getTrcNrStretchPerZSample( *scene, trcdist );
 
     const Coord3 prevpos = prevev.worldpickedpos;
@@ -517,8 +515,7 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
 
     const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
     const int dia = radius_ * 2 + 1;
-    const Stats::RandGen rgx = Stats::randGen();
-    const Stats::RandGen rgy = Stats::randGen();
+    const Stats::RandGen rgx, rgy;
     TypeSet<Pick::Location> mylocs;
     TypeSet<int> indexes;
     int locidx = set_->size();
@@ -570,7 +567,7 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
 
     set_->bulkAppendWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
-	    			     set_, indexes );
+				     set_, indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 
 }
@@ -616,8 +613,7 @@ void SeedPainter::paintSeedsOn2DLine( const Seis2DDisplay* s2d,
 
     const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
     const int dia = radius_ * 2 + 1;
-    const Stats::RandGen rgx = Stats::randGen();
-    const Stats::RandGen rgy = Stats::randGen();
+    const Stats::RandGen rgx, rgy;
     TypeSet<Pick::Location> mylocs;
     TypeSet<int> indexes;
     int locidx = set_->size();
@@ -670,7 +666,7 @@ void SeedPainter::paintSeedsOn2DLine( const Seis2DDisplay* s2d,
 
     set_->bulkAppendWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::Added,
-	    			     set_, indexes );
+				     set_, indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 
 }
@@ -733,7 +729,7 @@ void SeedPainter::eraseSeeds( const visBase::EventInfo& curev )
 
     set_->bulkRemoveWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::ToBeRemoved,
-	    			     set_, indexes );
+				     set_, indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
@@ -754,7 +750,7 @@ void SeedPainter::eraseSeedsOnRandLine( const RandomTrackDisplay* rtd,
     const Coord posm = SI().transform( path->get(bididx-1) );
     const Coord posp = SI().transform( path->get(bididx+1) );
     const float trcdist = 0.5 * ( curpos.coord().distTo(posm) +
-	    			  curpos.coord().distTo(posp) );
+				  curpos.coord().distTo(posp) );
     const float fac = getTrcNrStretchPerZSample( *scene, trcdist );
 
     TypeSet<Pick::Location> mylocs;
@@ -783,7 +779,7 @@ void SeedPainter::eraseSeedsOnRandLine( const RandomTrackDisplay* rtd,
 
     set_->bulkRemoveWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::ToBeRemoved,
-	    			     set_, indexes );
+				     set_, indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
@@ -837,7 +833,7 @@ void SeedPainter::eraseSeedsOn2DLine( const Seis2DDisplay* s2d,
 
     set_->bulkRemoveWithUndo( mylocs, indexes );
     Pick::SetMgr::BulkChangeData cd( Pick::SetMgr::BulkChangeData::ToBeRemoved,
-	    			     set_, indexes );
+				     set_, indexes );
     picksetmgr_->reportBulkChange( 0, cd );
 }
 
@@ -885,7 +881,7 @@ void SeedPainter::drawLine( const visBase::EventInfo& eventinfo )
 			 (isz? circlecoords_[idx].y : circlecoords_[idx].x)) );
 	const Coord pt = SI().transform( bid );
 	circle_->addPoint( Coord3(pt,isz ? pickedpos.z
-		    	: (pickedpos.z+circlecoords_[idx].y*SI().zStep())) );
+			: (pickedpos.z+circlecoords_[idx].y*SI().zStep())) );
     }
 
     circle_->dirtyCoordinates();
@@ -909,7 +905,7 @@ void SeedPainter::drawLineOnRandLine( const RandomTrackDisplay* rtd,
     const Coord posm = SI().transform( path->get(bididx-1) );
     const Coord posp = SI().transform( path->get(bididx+1) );
     const float trcdist = 0.5 * ( pickedpos.coord().distTo(posm) +
-	    			  pickedpos.coord().distTo(posp) );
+				  pickedpos.coord().distTo(posp) );
     const float fac = getTrcNrStretchPerZSample( *scene, trcdist );
     for ( int idx=0; idx<circlecoords_.size(); idx++ )
     {
@@ -920,7 +916,7 @@ void SeedPainter::drawLineOnRandLine( const RandomTrackDisplay* rtd,
 	const BinID bid = path->get( posidx );
 	const Coord pt = SI().transform( bid );
 	circle_->addPoint( Coord3(pt,
-		    	pickedpos.z+circlecoords_[idx].y*SI().zStep()) );
+			pickedpos.z+circlecoords_[idx].y*SI().zStep()) );
     }
 
     circle_->dirtyCoordinates();
@@ -964,7 +960,7 @@ void SeedPainter::drawLineOn2DLine( const Seis2DDisplay* s2d,
 	    continue;
 
 	circle_->addPoint( Coord3(l2dpos.coord_,
-		    	pickedpos.z+circlecoords_[idx].y*SI().zStep()) );
+			pickedpos.z+circlecoords_[idx].y*SI().zStep()) );
     }
 
     circle_->dirtyCoordinates();
