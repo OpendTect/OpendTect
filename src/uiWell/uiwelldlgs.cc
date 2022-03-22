@@ -2143,12 +2143,20 @@ static const char* sNone()  { return "None"; }
 
 // ------ uiWellDefMnemLogDlg::Tables ------
 
-uiWellDefMnemLogDlg::Tables::Tables( Well::Data& wd, uiGroup* tablegrp )
+uiWellDefMnemLogDlg::Tables::Tables( Well::Data& wd, uiGroup* tablegrp,
+				     const MnemonicSelection* mns )
     : wd_(&wd)
 {
     wd_->logs().defaultLogFillPar( saveddefaults_ );
     table_ = createLogTable( tablegrp );
-    createMnemRows();
+    if ( mns )
+    {
+	for ( const auto* mn : *mns )
+	    availmnems_.addIfNew( mn );
+    }
+    else
+	createMnemRows();
+
     createLogRows();
     fillMnemRows();
     fillLogRows();
@@ -2179,6 +2187,7 @@ uiTable* uiWellDefMnemLogDlg::Tables::createLogTable( uiGroup* tablegrp )
     ret->setRowResizeMode( uiTable::ResizeToContents );
     ret->setVSzPol( uiObject::MedVar );
     ret->display( false );
+    ret->setColumnStretchable( cLogCol, true );
 
     return ret;
 }
@@ -2285,7 +2294,8 @@ void uiWellDefMnemLogDlg::Tables::getSuitableLogNamesForMnems(
 
 
 uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
-					  const TypeSet<MultiID>& keys )
+					  const TypeSet<MultiID>& keys,	
+					  const MnemonicSelection* mns )
     : uiDialog(p,uiDialog::Setup(tr("Set/Edit default Logs for a mnemonic"),
 				 mNoDlgTitle,mTODOHelpKey))
 {
@@ -2310,7 +2320,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
     tablegrp_ = new uiGroup( this, "Table Group" );
     tablegrp_->attach( centeredRightOf, welllist_ );
     for ( auto* wd : wds )
-	tables_ += new Tables( *wd, tablegrp_ );
+	tables_ += new Tables( *wd, tablegrp_, mns );
 
     mAttachCB( welllist_->selectionChanged,
 	       uiWellDefMnemLogDlg::wellChangedCB );

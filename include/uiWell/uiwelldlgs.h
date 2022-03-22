@@ -249,7 +249,8 @@ mExpClass(uiWell) uiWellDefMnemLogDlg : public uiDialog
 { mODTextTranslationClass(uiWellDefMnemLogDlg);
 public:
 	    uiWellDefMnemLogDlg(uiParent*,
-				const TypeSet<MultiID>& keys);
+				const TypeSet<MultiID>& keys,
+				const MnemonicSelection* mns=nullptr);
 	    ~uiWellDefMnemLogDlg();
 
 protected:
@@ -264,7 +265,8 @@ protected:
     mExpStruct(uiWell) Tables
     {
 
-			Tables(Well::Data&,uiGroup*);
+			Tables(Well::Data&,uiGroup*,
+			       const MnemonicSelection* mns=nullptr);
 			~Tables();
 
 	uiTable&			getTable();
