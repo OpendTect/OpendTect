@@ -274,6 +274,68 @@ void uiWellFilterGrp::wellTypeFilter( OD::WellType wt )
 }
 
 
+void uiWellFilterGrp::markerZoneFilter( const BufferString& topnm,
+					const BufferString& botnm )
+{
+    BufferStringSet wellnms, lognms, markernms;
+    MnemonicSelection mns;
+    markernms.add( topnm ).add( botnm );
+    Well::WellDataFilter wdf( *wds_ );
+    wdf.getWellsFromMarkers( markernms, wellnms );
+    if ( logmode_ )
+    {
+	wdf.getLogsInMarkerZone( wellnms, topnm, botnm, lognms );
+	welllist_->setChosen( wellnms );
+	logormnslist_->setChosen( lognms );
+    }
+    else
+    {
+	BufferStringSet mnnms;
+	wdf.getMnemsInMarkerZone( wellnms, topnm, botnm, mns );
+	welllist_->setChosen( wellnms );
+	for ( const auto* mn : mns )
+	    mnnms.add( mn->name() );
+
+	logormnslist_->setChosen( mnnms );
+    }
+}
+
+
+void uiWellFilterGrp::depthRangeFilter( const Interval<float> depthrg )
+{
+    BufferStringSet wellnms, lognms;
+    MnemonicSelection mns;
+    Well::WellDataFilter wdf( *wds_ );
+    if ( logmode_ )
+    {
+	wdf.getLogsInDepthInterval( depthrg, wellnms, lognms );
+	welllist_->setChosen( wellnms );
+	logormnslist_->setChosen( lognms );
+    }
+    else
+    {
+	BufferStringSet mnnms;
+	wdf.getMnemsInDepthInterval( depthrg, wellnms, mns );
+	welllist_->setChosen( wellnms );
+	for ( const auto* mn : mns )
+	    mnnms.add( mn->name() );
+
+	logormnslist_->setChosen( mnnms );
+    }
+}
+
+
+void uiWellFilterGrp::logValRangeFilter( const MnemonicSelection& mns,
+				 const TypeSet<Interval<float>>& logvalrg )
+{
+    BufferStringSet wellnms, lognms;
+    Well::WellDataFilter wdf( *wds_ );
+    wdf.getLogsInValRange( mns, logvalrg, wellnms, lognms );
+    welllist_->setChosen( wellnms );
+    logormnslist_->setChosen( lognms );
+}
+
+
 void uiWellFilterGrp::selChgCB( CallBacker* )
 {
     const int selwells = welllist_->nrChosen();

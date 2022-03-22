@@ -130,7 +130,7 @@ private:
 };
 
 
-mExpClass(uiBase) uiCheckBox: public uiButton
+mExpClass(uiBase) uiCheckBox : public uiButton
 {
 public:
 

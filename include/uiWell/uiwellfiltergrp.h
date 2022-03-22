@@ -72,6 +72,11 @@ public:
     void			noLogFilterCB(CallBacker*);
     void			mnemFilterCB(CallBacker*);
     void			wellTypeFilter(OD::WellType);
+    void			markerZoneFilter(const BufferString& topmrkrnm,
+						 const BufferString& botmrkrnm);
+    void			depthRangeFilter(const Interval<float> depthrg);
+    void			logValRangeFilter(const MnemonicSelection& mns,
+				    const TypeSet<Interval<float>>& logvalrg);
 
 protected:
 

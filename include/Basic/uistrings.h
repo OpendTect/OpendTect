@@ -447,6 +447,7 @@ public:
     static uiString sMenu()		{ return tr("Menu"); }
     static uiString sMerge()		{ return tr("Merge"); }
     static uiString sMeter()		{ return tr("Meter"); }
+    static uiString sMnemonic()		{ return tr("Mnemonic"); }
     static uiString sMode()		{ return tr("Mode"); }
     static uiString sModel(int num=1)	{ return tr("Model",0,num); }
     static uiString sModify()		{ return tr("Modify"); }

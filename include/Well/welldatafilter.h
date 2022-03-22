@@ -50,12 +50,50 @@ public:
 					Array2D<int>& presence,
 					BufferStringSet& lognms,
 					Well::Info::DepthType depthtype) const;
-    void			getLogsForMnems(const MnemonicSelection& mns,
+    void			getLogPresenceFromValFilter(
+					const BufferStringSet& wellnms,
+					const BufferStringSet& lognms,
+					const BufferStringSet& alllognms,
+					const MnemonicSelection& mns,
+					const TypeSet<Interval<float>> valrg,
+					Array2D<int>& presence) const;
+    void			getLogsInMarkerZone(
+					BufferStringSet& wellnms,
+					const char* topnm,const char* botnm,
 					BufferStringSet& lognms) const;
-    void			getWellsOfType(const OD::WellType,
+    void			getMnemsInMarkerZone(
+					BufferStringSet& wellnms,
+					const char* topnm,const char* botnm,
+					MnemonicSelection& mns) const;
+    void			getLogsInDepthInterval(
+					const Interval<float> depthrg,
+					BufferStringSet& wellnms,
+					BufferStringSet& lognms) const;
+    void			getMnemsInDepthInterval(
+					const Interval<float> depthrg,
+					BufferStringSet& wellnms,
+					MnemonicSelection& mns) const;
+    void			getLogsInValRange(
+					const MnemonicSelection& mns,
+					const TypeSet<Interval<float>> valrg,
+					BufferStringSet& wellnms,
+					BufferStringSet& lognms) const;
+    void			getLogsForMnems(
+					const MnemonicSelection& mns,
+					BufferStringSet& lognms) const;
+    void			getWellsOfType(
+					const OD::WellType,
 					BufferStringSet& wellnms) const;
 
 private:
+
+    const Interval<float>	getDepthRangeFromMarkers(
+					const Well::Data* wd,
+					const char* topnm,const char* botnm,
+					Well::Info::DepthType depthtype=
+							Well::Info::MD) const;
+
+
     const ObjectSet<Well::Data>&	allwds_;
 };
 
