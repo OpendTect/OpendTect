@@ -125,6 +125,7 @@ void uiSurveySelectDlg::fillSurveyList()
     BufferStringSet surveylist;
     uiSurvey::getSurveyList( surveylist, getDataRoot() );
     surveylistfld_->addItems( surveylist );
+    surveylistfld_->resizeWidthToContents();
 }
 
 
