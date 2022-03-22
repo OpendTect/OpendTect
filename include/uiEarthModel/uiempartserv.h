@@ -78,6 +78,7 @@ public:
     bool		exportFaultStickSet(bool single=false);
     bool		exportFaultSet();
     void		createHorWithConstZ(bool is2d);
+    void		computeIsochron();
 
     MultiID		getStorageID(const EM::ObjectID&) const;
     EM::ObjectID	getObjectID(const MultiID&) const;
@@ -145,7 +146,7 @@ public:
     bool		loadSurface(const MultiID&,
 				    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
-    static void         getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
+    static void		getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
     void		getSurfaceDef3D(const TypeSet<EM::ObjectID>&,
 				        BinIDValueSet&,
 				        const TrcKeySampling&) const;

@@ -24,6 +24,7 @@ set(OD_MODULE_SOURCES
 	uiodapplmgraux.cc
 	uiodapplmgrattrvis.cc
 	uiodattribtreeitem.cc
+	uiodcontourtreeitem.cc
 	uioddatatreeitem.cc
 	uioddisplaytreeitem.cc
 	uiodfaulttoolman.cc

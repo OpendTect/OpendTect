@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uiodemsurftreeitem.h"
 
+class uiEMDataPointSetPickDlg;
+
 mExpClass(uiODMain) uiODHorizonParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODHorizonParentTreeItem)
 public:
@@ -64,6 +66,7 @@ protected:
     void		initNotify();
     uiString		createDisplayName() const;
     void		dispChangeCB(CallBacker*);
+    void		dataReadyCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODHorizonParentTreeItem).name(); }
 
@@ -81,6 +84,10 @@ protected:
     MenuItem		positionmnuitem_;
     MenuItem		snapeventmnuitem_;
     MenuItem		shiftmnuitem_;
+    MenuItem		flatcubemnuitem_;
+    MenuItem		isochronmnuitem_;
+    MenuItem		calcvolmnuitem_;
+    MenuItem		pickdatamnuitem_;
 
     MenuItem		parentsmnuitem_;
     MenuItem		parentsrdlmnuitem_;
@@ -90,9 +97,13 @@ protected:
     MenuItem		unlockmnuitem_;
     MenuItem		addinlitm_;
     MenuItem		addcrlitm_;
+    MenuItem		addzitm_;
+    MenuItem		addcontouritm_;
 
     bool		rgba_;
     bool		atsections_;
+
+    uiEMDataPointSetPickDlg*	dpspickdlg_		= nullptr;
 };
 
 

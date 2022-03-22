@@ -16,7 +16,6 @@ set( OD_PLUGINS
         GMT
         ODHDF5
         Hello
-        HorizonAttrib
         Madagascar
         MadagascarAttribs
         MATLABLink
@@ -37,7 +36,6 @@ if ( NOT OD_NO_OSG )
         uiGMT
         uiGoogleIO
         uiHello
-        uiHorizonAttrib
         uiImpGPR
         uiMadagascar
         uiMATLABLink

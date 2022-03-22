@@ -22,19 +22,20 @@ class DataPointSet;
 namespace Pick { class SetMgr; }
 namespace visSurvey { class PickSetDisplay; }
 
-mClass(uiHorizonAttrib) uiDataPointSetPickDlg : public uiDialog
+mClass(uiVis) uiDataPointSetPickDlg : public uiDialog
 { mODTextTranslationClass(uiDataPointSetPickDlg);
 public:
-			uiDataPointSetPickDlg(uiParent*,int sceneid);
     virtual		~uiDataPointSetPickDlg();
 
 protected:
+			uiDataPointSetPickDlg(uiParent*,int sceneid);
+
     void		initPickSet();
     void		updateDPS();
     void		updateTable();
     void		updateButtons();
     virtual void	cleanUp();
-    
+
     void		valChgCB(CallBacker*);
     void		rowClickCB(CallBacker*);
     void		pickModeCB(CallBacker*);
@@ -61,7 +62,7 @@ protected:
 };
 
 
-mClass(uiHorizonAttrib) uiEMDataPointSetPickDlg : public uiDataPointSetPickDlg
+mClass(uiVis) uiEMDataPointSetPickDlg : public uiDataPointSetPickDlg
 { mODTextTranslationClass(uiEMDataPointSetPickDlg);
 public:
 			uiEMDataPointSetPickDlg(uiParent*,int sceneid,

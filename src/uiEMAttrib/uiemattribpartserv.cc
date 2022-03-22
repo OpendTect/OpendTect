@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uihorsavefieldgrp.h"
 #include "uiimphorizon2d.h"
 #include "uiseiseventsnapper.h"
+#include "uistratamp.h"
 #include "uitaskrunner.h"
 
 #include "attribdescset.h"
@@ -50,7 +51,8 @@ uiEMAttribPartServer::~uiEMAttribPartServer()
     delete betweenhor3ddlg_;
     delete surfattr2ddlg_;
     delete surfattr3ddlg_;
-	delete crgriddlg_;
+    delete crgriddlg_;
+    delete stratampdlg_;
 }
 
 
@@ -129,6 +131,20 @@ void uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid, bool is2d )
 }
 
 
+void uiEMAttribPartServer::computeStratAmp()
+{
+    if ( !stratampdlg_ )
+    {
+	stratampdlg_ = new uiStratAmpCalc( parent() );
+	stratampdlg_->setModal( false );
+    }
+    else
+	stratampdlg_->init();
+
+    stratampdlg_->show();
+}
+
+
 void uiEMAttribPartServer::import2DHorizon()
 {
     if ( uiimphor2ddlg_ )
@@ -147,10 +163,10 @@ void uiEMAttribPartServer::import2DHorizon()
 
 void uiEMAttribPartServer::create2DGrid( const Geometry::RandomLine* rdl )
 {
-	delete crgriddlg_;
-	crgriddlg_ = new uiCreate2DGrid( parent(), rdl );
-	crgriddlg_->setModal( false );
-	crgriddlg_->show();
+    delete crgriddlg_;
+    crgriddlg_ = new uiCreate2DGrid( parent(), rdl );
+    crgriddlg_->setModal( false );
+    crgriddlg_->show();
 }
 
 
@@ -246,7 +262,9 @@ void uiEMAttribPartServer::calcDPS( CallBacker* )
 
 
 const char* uiEMAttribPartServer::getAttribBaseNm() const
-{ return horshiftdlg_ ? horshiftdlg_->getAttribBaseName() : 0; }
+{
+    return horshiftdlg_ ? horshiftdlg_->getAttribBaseName() : nullptr;
+}
 
 mDefParallelCalc3Pars(HorShiftDPSFiller,
 		     od_static_tr("HorShiftDPSFiller","Make datapointset"),

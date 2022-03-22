@@ -6,6 +6,7 @@
  * DATE     : Mar 2008
 -*/
 
+#include "uiemattribmod.h"
 #include "uidialog.h"
 
 class CtxtIOObj;
@@ -18,8 +19,8 @@ class uiLabeledComboBox;
 class uiPosSubSel;
 
 
-mClass(uiHorizonAttrib) uiStratAmpCalc : public uiDialog
-{ mODTextTranslationClass(uiStratAmpCalc);
+mClass(uiEMAttrib) uiStratAmpCalc : public uiDialog
+{ mODTextTranslationClass(uiStratAmpCalc)
 public:
 			uiStratAmpCalc(uiParent*);
 			~uiStratAmpCalc();
@@ -48,7 +49,7 @@ protected:
     uiGenInput*		selfld_;
     uiGenInput*		foldfld_;
     uiGenInput*		attribnamefld_;
-    uiGenInput*     classfld_;
+    uiGenInput*		classfld_;
     uiAttrSel*		inpfld_;
     uiIOObjSel*		horfld1_;
     uiIOObjSel*		horfld2_;
@@ -58,5 +59,3 @@ protected:
     bool		isoverwrite_;
     uiBatchJobDispatcherSel*	batchfld_;
 };
-
-

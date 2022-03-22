@@ -240,5 +240,4 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
     return true;
 }
 
-
 } // namespace Attrib

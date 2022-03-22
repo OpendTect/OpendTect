@@ -22,15 +22,20 @@ ___________________________________________________________________
 #include "survinfo.h"
 
 #include "uiattribpartserv.h"
+#include "uicalcpoly2horvol.h"
+#include "uidatapointsetpickdlg.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
+#include "uiflattenedcube.h"
 #include "uihor2dfrom3ddlg.h"
 #include "uihorizonrelations.h"
+#include "uiisopachmaker.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
+#include "uiodcontourtreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiposprovider.h"
 #include "uitaskrunner.h"
@@ -60,6 +65,8 @@ ___________________________________________________________________
 
 #define mTrackIdx	100
 #define mConstIdx	10
+
+static const char* sKeyContours = "Contours";
 
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
@@ -296,7 +303,9 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid, bool rgba,
     : uiODEarthModelSurfaceTreeItem(emid)
     , rgba_(rgba)
     , atsections_(atsect)
-{ initMenuItems(); }
+{
+    initMenuItems();
+}
 
 
 uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool atsect,
@@ -312,6 +321,7 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool atsect,
 
 uiODHorizonTreeItem::~uiODHorizonTreeItem()
 {
+    closeAndZeroPtr( dpspickdlg_ );
 }
 
 
@@ -326,6 +336,10 @@ void uiODHorizonTreeItem::initMenuItems()
     filterhormnuitem_.text = m3Dots(uiStrings::sFiltering());
     snapeventmnuitem_.text = m3Dots(tr("Snapping"));
     geom2attrmnuitem_.text = m3Dots(tr("Store Z as Attribute"));
+    flatcubemnuitem_.text = m3Dots(tr("Write Flattened Cube"));
+    isochronmnuitem_.text = m3Dots(tr("Calculate Isochron"));
+    calcvolmnuitem_.text = m3Dots(tr("Calculate Volume"));
+    pickdatamnuitem_.text = m3Dots(tr("Pick Horizon Data"));
 
     parentsrdlmnuitem_.text = tr("Show Parents Path");
     parentsmnuitem_.text = tr("Select Parents");
@@ -335,9 +349,13 @@ void uiODHorizonTreeItem::initMenuItems()
     unlockmnuitem_.text = uiStrings::sUnlock();
 
     addinlitm_.text = tr("Add In-line");
-    addinlitm_.placement = 10003;
+    addinlitm_.placement = 10004;
     addcrlitm_.text = tr("Add Cross-line");
-    addcrlitm_.placement = 10002;
+    addcrlitm_.placement = 10003;
+    addzitm_.text = tr("Add Z-slice");
+    addzitm_.placement = 10002;
+
+    addcontouritm_.text = tr("Add Contour Display");
 }
 
 
@@ -470,9 +488,10 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	return;
 
     const bool islocked = visserv_->isLocked( displayID() );
-    const bool canadd = visserv_->canAddAttrib( displayID() );
+    const bool canadd = !islocked && visserv_->canAddAttrib( displayID() );
 
-    mAddMenuItem( &addmnuitem_, &hordatamnuitem_, !islocked && canadd, false );
+    mAddMenuItem( &addmnuitem_, &addcontouritm_, canadd, false );
+    mAddMenuItem( &addmnuitem_, &hordatamnuitem_, canadd, false );
 
     if ( hastransform )
     {
@@ -483,6 +502,10 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	mResetMenuItem( &snapeventmnuitem_ );
 	mResetMenuItem( &geom2attrmnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );
+	mResetMenuItem( &flatcubemnuitem_ );
+	mResetMenuItem( &isochronmnuitem_ );
+	mResetMenuItem( &calcvolmnuitem_ );
+	mResetMenuItem( &pickdatamnuitem_ );
 	return;
     }
 
@@ -496,7 +519,11 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &algomnuitem_, &geom2attrmnuitem_, !islocked, false );
 
     mAddMenuItem( menu, &workflowsmnuitem_, true, false );
-    mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_,true, false);
+    mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_, true, false );
+    mAddMenuItem( &workflowsmnuitem_, &flatcubemnuitem_, true, false );
+    mAddMenuItem( &workflowsmnuitem_, &isochronmnuitem_, true, false );
+    mAddMenuItem( &workflowsmnuitem_, &calcvolmnuitem_, true, false );
+    mAddMenuItem( &workflowsmnuitem_, &pickdatamnuitem_, true, false );
 
     const bool hastracker = MPE::engine().getTrackerByObject(emid_) >= 0;
     MenuItem* trackmnu = menu->findItem(
@@ -536,6 +563,7 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
     {
 	mResetMenuItem( &addinlitm_ );
 	mResetMenuItem( &addcrlitm_ );
+	mResetMenuItem( &addzitm_ );
     }
     else
     {
@@ -544,8 +572,15 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	addinlitm_.text = tr("Add In-line %1").arg( tk.lineNr() );
 	addcrlitm_.text = tr("Add Cross-line %1").arg( tk.trcNr() );
 
+	float zpos( pickedpos.z );
+	SI().snapZ( zpos );
+	BufferString zposstr;
+	zposstr.set( zpos, SI().nrZDecimals() );
+	addzitm_.text = tr("Add Z-slice %1").arg( zposstr.buf() );
+
 	mAddMenuItem( menu, &addinlitm_, true, false );
 	mAddMenuItem( menu, &addcrlitm_, true, false );
+	mAddMenuItem( menu, &addzitm_, true, false );
     }
 }
 
@@ -597,6 +632,36 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==snapeventmnuitem_.id )
 	emattrserv->snapHorizon( emid_, false );
+    else if ( mnuid==flatcubemnuitem_.id )
+    {
+	uiWriteFlattenedCube dlg( getUiParent(), emid_ );
+	dlg.go();
+    }
+    else if ( mnuid==isochronmnuitem_.id )
+    {
+	uiIsochronMakerDlg dlg( getUiParent(), emid_ );
+	if ( !dlg.go() )
+	    return;
+
+	uiODDataTreeItem* itm = addAttribItem();
+	mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm)
+	if ( emitm )
+	    emitm->setDataPointSet( dlg.getDPS() );
+    }
+    else if ( mnuid==calcvolmnuitem_.id )
+    {
+	uiCalcHorPolyVol dlg( getUiParent(), *hor3d );
+	dlg.go();
+    }
+    else if ( mnuid==pickdatamnuitem_.id )
+    {
+	deleteAndZeroPtr( dpspickdlg_ );
+	dpspickdlg_ = new uiEMDataPointSetPickDlg( getUiParent(),
+						   hd->getSceneID(), emid_ );
+	mAttachCB( dpspickdlg_->readyForDisplay,
+		   uiODHorizonTreeItem::dataReadyCB );
+	dpspickdlg_->show();
+    }
     else if ( mnuid==geom2attrmnuitem_.id )
     {
 	if ( applMgr()->EMServer()->geom2Attr(emid_) )
@@ -711,15 +776,58 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	hor3d->lockAll();
     else if ( mnuid==unlockmnuitem_.id )
 	hor3d->unlockAll();
-    else if ( mnuid== addinlitm_.id ||
-	      mnuid== addcrlitm_.id )
+    else if ( mnuid==addinlitm_.id ||
+	      mnuid==addcrlitm_.id ||
+	      mnuid==addzitm_.id )
     {
 	const Coord3 pickedpos = uimenu->getPickedPos();
-	const TrcKey tk( SI().transform(pickedpos) );
-	const bool isinl = mnuid == addinlitm_.id;
-	ODMainWin()->sceneMgr().addInlCrlItem(
-		isinl ? OD::InlineSlice : OD::CrosslineSlice,
-		isinl ? tk.inl() : tk.crl(), sceneID() );
+	if ( mnuid==addzitm_.id )
+	{
+	    float zpos( pickedpos.z );
+	    SI().snapZ( zpos );
+	    TrcKeyZSampling tkzs = SI().sampling( true );
+	    tkzs.zsamp_.set( zpos, zpos, SI().zStep() );
+	    ODMainWin()->sceneMgr().addZSliceItem( tkzs, sceneID() );
+	}
+	else
+	{
+	    const TrcKey tk( SI().transform(pickedpos) );
+	    const bool isinl = mnuid == addinlitm_.id;
+	    ODMainWin()->sceneMgr().addInlCrlItem(
+		    isinl ? OD::InlineSlice : OD::CrosslineSlice,
+		    isinl ? tk.inl() : tk.crl(), sceneID() );
+	}
+    }
+    else if ( mnuid==addcontouritm_.id )
+    {
+	const MultiID mid = EM::EMM().getMultiID( emid_ );
+	const EM::IOObjInfo eminfo( mid );
+	if ( !eminfo.isOK() )
+	{
+	    uiMSG().error(
+		    tr("Cannot find this horizon in project's database.\n"
+		    "If this is a newly tracked horizon, please save first\n"
+		    "before contouring.") );
+	    return;
+	}
+
+	const BufferString attrnm =
+		uiContourTreeItem::selectAttribute( getUiParent(), mid );
+	if ( attrnm.isEmpty() )
+	    return;
+
+	const int attrib = visserv_->addAttrib( visid );
+	Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSel(),
+			      false, 0 );
+	spec.setZDomainKey( attrnm );
+	spec.setDefString( uiContourTreeItem::sKeyContourDefString() );
+	visserv_->setSelSpec( visid, attrib, spec );
+
+	uiContourTreeItem* newitem =
+	    new uiContourTreeItem( typeid(*this).name() );
+	newitem->setAttribName( attrnm );
+	addChild( newitem, false );
+	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
     else
 	handled = false;
@@ -763,6 +871,17 @@ int uiODHorizonTreeItem::reloadEMObject()
 }
 
 
+void uiODHorizonTreeItem::dataReadyCB( CallBacker* )
+{
+    uiODDataTreeItem* itm = addAttribItem();
+    mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
+    if ( emitm && dpspickdlg_ )
+	emitm->setDataPointSet( dpspickdlg_->getData() );
+}
+
+
+
+// uiODHorizon2DParentTreeItem
 uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
     : uiODParentTreeItem(tr("2D Horizon"))
 {}

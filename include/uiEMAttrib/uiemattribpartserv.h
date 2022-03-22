@@ -31,6 +31,7 @@ class uiCreate2DGrid;
 class uiHorizonShiftDialog;
 class uiImportHorizon2D;
 class uiSeisEventSnapper;
+class uiStratAmpCalc;
 
 /*!
 \ingroup uiEMAttrib
@@ -57,6 +58,7 @@ public:
     void			createHorizonOutput(HorOutType);
 
     void			snapHorizon(const EM::ObjectID&,bool is2d);
+    void			computeStratAmp();
 
     void			setNLA( const NLAModel* mdl, const MultiID& id )
 				{ nlamodel_ = mdl; nlaid_ = id; }
@@ -95,12 +97,12 @@ public:
 
 protected:
 
-    const NLAModel*		nlamodel_ = nullptr;
-    const Attrib::DescSet*	descset_ = nullptr;
+    const NLAModel*		nlamodel_		= nullptr;
+    const Attrib::DescSet*	descset_		= nullptr;
     MultiID			nlaid_;
-    uiHorizonShiftDialog*	horshiftdlg_ = nullptr;
-    uiSeisEventSnapper*		uiseisevsnapdlg_ = nullptr;
-    uiImportHorizon2D*		uiimphor2ddlg_ = nullptr;
+    uiHorizonShiftDialog*	horshiftdlg_		= nullptr;
+    uiSeisEventSnapper*		uiseisevsnapdlg_	= nullptr;
+    uiImportHorizon2D*		uiimphor2ddlg_		= nullptr;
     TypeSet<EM::ObjectID>	emobjids_;
 
     float			initialshift_;
@@ -110,13 +112,14 @@ protected:
     Attrib::DescID		attribid_;
     int				attribidx_ = 0;
 
-    uiAttrTrcSelOut*		aroundhor2ddlg_ = nullptr;
-    uiAttrTrcSelOut*		aroundhor3ddlg_ = nullptr;
-    uiAttrTrcSelOut*		betweenhor2ddlg_ = nullptr;
-    uiAttrTrcSelOut*		betweenhor3ddlg_ = nullptr;
-    uiAttrSurfaceOut*		surfattr2ddlg_ = nullptr;
-    uiAttrSurfaceOut*		surfattr3ddlg_ = nullptr;
-    uiCreate2DGrid*         crgriddlg_ = nullptr;
+    uiAttrTrcSelOut*		aroundhor2ddlg_		= nullptr;
+    uiAttrTrcSelOut*		aroundhor3ddlg_		= nullptr;
+    uiAttrTrcSelOut*		betweenhor2ddlg_	= nullptr;
+    uiAttrTrcSelOut*		betweenhor3ddlg_	= nullptr;
+    uiAttrSurfaceOut*		surfattr2ddlg_		= nullptr;
+    uiAttrSurfaceOut*		surfattr3ddlg_		= nullptr;
+    uiCreate2DGrid*		crgriddlg_		= nullptr;
+    uiStratAmpCalc*		stratampdlg_		= nullptr;
 
     void			calcDPS(CallBacker*);
     void			horShifted(CallBacker*);

@@ -709,6 +709,13 @@ void uiODMenuMgr::fillProcMenu()
     uiMenu* grditm = new uiMenu( &appl_, tr("Create Horizon Output") );
     add2D3DMenuItem( *grditm, "", uiStrings::sAttribute(mPlural),
 		     mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
+    if ( SI().has3D() )
+    {
+	grditm->insertAction( new uiAction(m3Dots(tr("Stratal Amplitude")),
+			   mCB(&applMgr(),uiODApplMgr,doStratAmp)) );
+    }
+    grditm->insertAction( new uiAction(m3Dots(tr("Isochron")),
+			  mCB(&applMgr(),uiODApplMgr,doIsochron)) );
     procmnu_->addMenu( grditm );
 
     procwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );

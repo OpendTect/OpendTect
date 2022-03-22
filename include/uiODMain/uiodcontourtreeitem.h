@@ -10,14 +10,16 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiodmainmod.h"
 #include "uioddatatreeitem.h"
 
-#include "trckeyzsampling.h"
 #include "color.h"
+#include "emobject.h"
 #include "externalattrib.h"
-#include "polygon.h"
-#include "visdata.h"
 #include "indexedshape.h"
+#include "polygon.h"
+#include "trckeyzsampling.h"
+#include "visdata.h"
 
 class visContourLabels;
 
@@ -42,8 +44,8 @@ class uiContourTreeItemContourData;
 
 /*!\brief Tree item for Contour display on 3D horizons */
 
-mClass(uiHorizonAttrib) uiContourTreeItem : public uiODDataTreeItem
-{ mODTextTranslationClass(uiContourTreeItem);
+mClass(uiODMain) uiContourTreeItem : public uiODDataTreeItem
+{ mODTextTranslationClass(uiContourTreeItem)
 public:
 
     static void			initClass();
@@ -57,6 +59,8 @@ public:
     static const char*		sKeyContourDefString();
     static const char*		sKeyZValue();
     int				getNrContours() const;
+
+    static BufferString		selectAttribute(uiParent*,const MultiID&);
 
 private:
 
@@ -113,6 +117,4 @@ private:
     uiContourParsDlg*		propdlg_;
 
     friend class	uiContourTreeItemContourGenerator;
-
 };
-

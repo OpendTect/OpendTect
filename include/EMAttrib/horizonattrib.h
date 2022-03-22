@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "horizonattribmod.h"
+#include "emattribmod.h"
 #include "attribprovider.h"
 #include "bufstring.h"
 #include "multiid.h"
@@ -22,7 +22,7 @@ namespace Attrib
 
 class DataHolder;
 
-mClass(HorizonAttrib) Horizon : public Provider
+mClass(EMAttrib) Horizon : public Provider
 { mODTextTranslationClass(Horizon);
 public:
     static void		initClass();
@@ -64,5 +64,3 @@ protected:
 };
 
 } // namespace Attrib
-
-

@@ -73,6 +73,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
 #include "uiiosurfacedlg.h"
+#include "uiisopachmaker.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uimultisurfaceread.h"
@@ -463,6 +464,14 @@ void uiEMPartServer::createHorWithConstZ( bool is2d )
     }
 
     crhordlg_->show();
+}
+
+
+void uiEMPartServer::computeIsochron()
+{
+    uiIsochronMakerBatch dlg( parent() );
+    if ( !dlg.go() )
+	return;
 }
 
 

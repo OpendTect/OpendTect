@@ -10,18 +10,21 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiemattribmod.h"
 #include "uidialog.h"
+
 #include "emposid.h"
 #include "multiid.h"
+
 class IOObj;
 namespace Pos { class EMSurfaceProvider3D; }
-class uiSeisSel;
 class uiGenInput;
+class uiSeisSel;
 
 
 /*! \brief Create flattened cube from horizon */
 
-mClass(uiHorizonAttrib) uiWriteFlattenedCube : public uiDialog
+mClass(uiEMAttrib) uiWriteFlattenedCube : public uiDialog
 { mODTextTranslationClass(uiWriteFlattenedCube);
 public:
 
@@ -46,5 +49,3 @@ protected:
 
     friend class	uiWriteFlattenedCubeWriter;
 };
-
-

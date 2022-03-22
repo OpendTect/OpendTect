@@ -10,15 +10,16 @@ ________________________________________________________________________
 
 -*/
 
-#include "horizonattribmod.h"
+#include "earthmodelmod.h"
+
 #include "executor.h"
 #include "emposid.h"
 
 class od_ostream;
 class DataPointSet;
-namespace EM{ class Horizon3D; class EMObjectIterator; }
+namespace EM { class Horizon3D; class EMObjectIterator; }
 
-mExpClass(HorizonAttrib) IsochronMaker : public Executor
+mExpClass(EarthModel) IsochronMaker : public Executor
 { mODTextTranslationClass(IsochronMaker)
 public:
 			IsochronMaker(const EM::Horizon3D&,const EM::Horizon3D&,
@@ -58,4 +59,3 @@ protected:
     const EM::SectionID		sectid2_;
     bool			inmsec_;
 };
-

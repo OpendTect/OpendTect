@@ -9,12 +9,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "horizonattribmod.h"
-#include "executor.h"
+#include "emattribmod.h"
 
+#include "executor.h"
 #include "emposid.h"
-#include "trckeysampling.h"
 #include "stattype.h"
+#include "trckeysampling.h"
 
 class od_ostream;
 class SeisTrcReader;
@@ -22,15 +22,15 @@ class SeisTrcReader;
 namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; class Processor; }
 
-mExpClass(HorizonAttrib) StratAmpCalc  : public Executor
-{ mODTextTranslationClass(StratAmpCalc);
+mExpClass(EMAttrib) StratAmpCalc  : public Executor
+{ mODTextTranslationClass(StratAmpCalc)
 public:
 
 			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*,
 				     Stats::Type,const TrcKeySampling&,bool);
 			~StratAmpCalc();
 
-    int                 nextStep();
+    int			nextStep();
     od_int64		totalNr() const		{ return totnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
 

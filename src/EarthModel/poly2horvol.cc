@@ -58,7 +58,7 @@ bool Poly2HorVol::setHorizon( const MultiID& mid, TaskRunner* tr )
 
 float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 {
-    if ( !hor_ || !ps_ )
+    if ( !hor_ || !ps_ || ps_->isEmpty() )
 	return mUdf(float);
 
     ODPolygon<float> poly;
@@ -85,7 +85,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	avgz += zvals[idx];
 
     if ( !zvals.isEmpty() )
-	avgz /= mCast(float,zvals.size());
+	avgz /= sCast(float,zvals.size());
 
     const int nrsect = hor_->nrSections();
     TrcKeySamplingIterator iter( tks );

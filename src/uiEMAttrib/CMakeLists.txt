@@ -11,10 +11,14 @@ set(OD_MODULE_SOURCES
 	uiattrtrcselout.cc
 	uicreate2dgrid.cc
 	uiemattribpartserv.cc
+	uiflattenedcube.cc
 	uihor2dfrom3ddlg.cc
+	uihorizonattrib.cc
 	uihorizonshiftdlg.cc
-	horizon2dscanner.cc
 	uiimphorizon2d.cc
 	uiseiseventsnapper.cc
+	uistratamp.cc
+	horizon2dscanner.cc
+	inituiemattrib.cc
 )
 OD_INIT_MODULE()

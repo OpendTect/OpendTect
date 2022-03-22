@@ -10,7 +10,9 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
+
 #include "uigroup.h"
 #include "emposid.h"
 
@@ -24,8 +26,9 @@ namespace EM { class EMObject; }
 
 /*! \brief Create isochron as attribute of horizon */
 
-mClass(uiHorizonAttrib) uiIsochronMakerGrp : public uiGroup
-{ mODTextTranslationClass(uiIsochronMakerGrp);
+mClass(uiEarthModel) uiIsochronMakerGrp : public uiGroup
+{
+mODTextTranslationClass(uiIsochronMakerGrp)
 public:
 			uiIsochronMakerGrp(uiParent*,EM::ObjectID);
 			~uiIsochronMakerGrp();
@@ -44,13 +47,14 @@ protected:
     CtxtIOObj&		ctio_;
     EM::ObjectID	horid_;
     EM::EMObject*	baseemobj_;
-    
+
     void		toHorSel(CallBacker*);
 };
 
 
-mClass(uiHorizonAttrib) uiIsochronMakerBatch : public uiDialog
-{ mODTextTranslationClass(uiIsochronMakerBatch);
+mClass(uiEarthModel) uiIsochronMakerBatch : public uiDialog
+{
+mODTextTranslationClass(uiIsochronMakerBatch)
 public:
 
 			uiIsochronMakerBatch(uiParent*);
@@ -65,8 +69,9 @@ protected:
 };
 
 
-mClass(uiHorizonAttrib) uiIsochronMakerDlg : public uiDialog
-{ mODTextTranslationClass(uiIsochronMakerDlg);
+mClass(uiEarthModel) uiIsochronMakerDlg : public uiDialog
+{
+mODTextTranslationClass(uiIsochronMakerDlg)
 public:
 			uiIsochronMakerDlg(uiParent*,EM::ObjectID);
 			~uiIsochronMakerDlg();
@@ -74,11 +79,10 @@ public:
     const char*		attrName() const	{ return grp_->attrName(); }
     const DataPointSet&	getDPS()		{ return *dps_; }
 
-protected:    
+protected:
     bool		acceptOK(CallBacker*);
     bool		doWork();
 
     uiIsochronMakerGrp* grp_;
     DataPointSet*	dps_;
 };
-

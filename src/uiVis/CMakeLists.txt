@@ -9,6 +9,7 @@ set(OD_MODULE_SOURCES
 	inituivis.cc
 	uiarrowdlg.cc
 	uiattribtransdlg.cc
+	uidatapointsetpickdlg.cc
 	uifltdispoptgrp.cc
 	uigridlinesdlg.cc
 	uimarkerstyledlg.cc

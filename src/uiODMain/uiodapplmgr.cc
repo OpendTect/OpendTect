@@ -1954,6 +1954,12 @@ void uiODApplMgr::createHorOutput( int tp, bool is2d )
 void uiODApplMgr::createVol( bool is2d, bool multiattrib )
 { attrvishandler_.createVol( is2d, multiattrib ); }
 
+void uiODApplMgr::doStratAmp(CallBacker*)
+{ emattrserv_->computeStratAmp(); }
+
+void uiODApplMgr::doIsochron(CallBacker*)
+{ emserv_->computeIsochron(); }
+
 void uiODApplMgr::seisOut2DCB(CallBacker*)
 { createVol(true,false); }
 void uiODApplMgr::seisOut3DCB(CallBacker*)

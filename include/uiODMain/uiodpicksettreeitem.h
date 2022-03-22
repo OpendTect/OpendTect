@@ -142,6 +142,7 @@ protected:
     MenuItem		closepolyitem_;
     MenuItem		changezmnuitem_;
     MenuItem		workareaitem_;
+    MenuItem		calcvolmnuitem_;
 
     void		selChangedCB(CallBacker*);
 };

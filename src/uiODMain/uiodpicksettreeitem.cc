@@ -21,6 +21,7 @@ ___________________________________________________________________
 #include "selector.h"
 #include "survinfo.h"
 
+#include "uicalcpoly2horvol.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -121,7 +122,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     newmnu->insertAction( new uiAction(m3Dots(tr("Generate 3D"))), mGen3DIdx );
     if ( SI().has2D() )
 	newmnu->insertAction( new uiAction(m3Dots(tr("Generate 2D"))),
-                            mRandom2DIdx);
+			      mRandom2DIdx);
     mnu.addMenu( newmnu );
 
     if ( children_.size() > 0 )
@@ -656,6 +657,7 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
     , closepolyitem_(tr("Close Polygon"))
     , changezmnuitem_(m3Dots(tr("Change Z values")))
     , workareaitem_(m3Dots(tr("Set as Work Area")))
+    , calcvolmnuitem_(m3Dots(tr("Calculate Volume")))
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPolygonTreeItem,setChg) );
@@ -774,6 +776,7 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     const bool islocked = visserv_->isLocked( displayID() );
     mAddMenuItem( menu, &changezmnuitem_, !islocked, false );
+    mAddMenuItem( menu, &calcvolmnuitem_, true, false );
 }
 
 
@@ -791,38 +794,33 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
+    bool handled = true;
     if ( set_.disp_.connect_==Pick::Set::Disp::Open
 	 && mnuid==closepolyitem_.id )
     {
-	menu->setIsHandled( true );
 	set_.disp_.connect_ = Pick::Set::Disp::Close;
 	Pick::Mgr().reportDispChange( this, set_ );
     }
     else if ( mnuid==storemnuitem_.id )
     {
-	menu->setIsHandled( true );
 	applMgr()->storePickSet( set_ );
     }
     else if ( mnuid==storeasmnuitem_.id )
     {
-	menu->setIsHandled( true );
 	applMgr()->storePickSetAs( set_ );
     }
     else if ( mnuid==onlyatsectmnuitem_.id )
     {
-	menu->setIsHandled( true );
 	if ( psd )
 	    setOnlyAtSectionsDisplay( !displayedOnlyAtSections() );
     }
     else if ( mnuid==propertymnuitem_.id )
     {
-	menu->setIsHandled( true );
 	uiPickPropDlg dlg( getUiParent(), set_ , psd );
 	dlg.go();
     }
     else if ( mnuid == changezmnuitem_.id )
     {
-	menu->setIsHandled( true );
 	if ( set_.isEmpty() )
 	{
 	    uiMSG().message( uiStrings::sPolygon()
@@ -843,7 +841,15 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
 	    tkzs.zsamp_ = SI().zRange( false );
 	visserv_->setWorkingArea( tkzs );
     }
+    else if ( mnuid == calcvolmnuitem_.id )
+    {
+	uiCalcPolyHorVol dlg( getUiParent(), set_ );
+	dlg.go();
+    }
+    else
+	handled = false;
 
+    menu->setIsHandled( handled );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }

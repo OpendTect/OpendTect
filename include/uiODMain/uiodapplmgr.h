@@ -112,6 +112,8 @@ public:
     void			openCrossPlot(CallBacker* =0);
 				//!< Create crossplot from file
     void			createHorOutput(int,bool);
+    void			doStratAmp(CallBacker*);
+    void			doIsochron(CallBacker*);
     void			startBatchJob();
     void			processTime2Depth(CallBacker* =0);
     void			processTime2Depth(bool is2d);

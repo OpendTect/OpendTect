@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 
-#include "uicontourtreeitem.h"
+#include "uiodcontourtreeitem.h"
 
 #include "arrayndimpl.h"
 #include "attribsel.h"
 #include "axislayout.h"
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "executor.h"
@@ -27,7 +28,6 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "zaxistransform.h"
 
-#include "uiodapplmgr.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uidialog.h"
@@ -36,7 +36,9 @@ ________________________________________________________________________
 #include "uifont.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uilistbox.h"
 #include "uimsg.h"
+#include "uiodapplmgr.h"
 #include "uioddisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiprogressbar.h"
@@ -1506,4 +1508,24 @@ void uiContourTreeItem::updateZShift()
     }
 
     zshift_ = (float) trans.z;
+}
+
+
+BufferString uiContourTreeItem::selectAttribute( uiParent* p,
+						 const MultiID& mid)
+{
+    const EM::IOObjInfo eminfo( mid );
+    BufferStringSet attrnms;
+    attrnms.add( sKeyZValue() );
+    eminfo.getAttribNames( attrnms );
+    if ( attrnms.size() == 1 )
+	return sKeyZValue();
+
+    uiDialog dlg( p, uiDialog::Setup(tr("Select Attribute to contour"),
+				     mNoDlgTitle,mNoHelpKey) );
+    uiListBox::Setup su( OD::ChooseOnlyOne, toUiString(eminfo.name()),
+			 uiListBox::AboveMid );
+    auto* attrlb = new uiListBox( &dlg, su );
+    attrlb->addItems( attrnms );
+    return dlg.go() ? attrlb->getText() : nullptr;
 }
