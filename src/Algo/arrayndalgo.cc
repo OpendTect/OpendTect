@@ -16,7 +16,7 @@ static HiddenParam<ArrayNDWindow,TypeSet<float>*> hp_paramval_(nullptr);
 
 mDefineEnumUtils( ArrayNDWindow, WindowType, "Windowing type")
 { "Box", "Hamming", "Hanning", "Blackman", "Bartlett",
-  "CosTaper5", "CosTaper10", "CosTaper20", 0 };
+  "CosTaper5", "CosTaper10", "CosTaper20", nullptr };
 
 
 
@@ -24,9 +24,15 @@ ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz, bool rectangular,
 			      ArrayNDWindow::WindowType type )
     : size_(sz)
     , rectangular_(rectangular)
-    , window_(0)
+    , window_(nullptr)
+    , paramval_(mUdf(float))
 {
-    hp_paramval_.setParam( this, new TypeSet<float>(sz.nrDims()) );
+    if ( sz.nrDims() > 1 )
+    {
+	hp_paramval_.setParam( this, new TypeSet<float>(sz.nrDims()) );
+	paramvals_().setAll( paramval_ );
+    }
+
     setType( type );
 }
 
@@ -36,10 +42,16 @@ ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz, bool rectangular,
     : size_(sz)
     , rectangular_(rectangular)
     , windowtypename_(wintypenm)
-    , window_(0)
+    , window_(nullptr)
+    , paramval_(paramval)
 {
-    hp_paramval_.setParam( this, new TypeSet<float>(sz.nrDims()) );
-    buildWindow( wintypenm, paramval );
+    if ( sz.nrDims() > 1 )
+    {
+	hp_paramval_.setParam( this, new TypeSet<float>(sz.nrDims()) );
+	paramvals_().setAll( paramval_ );
+    }
+
+    buildWindow( wintypenm, paramval_ );
 }
 
 
@@ -49,17 +61,26 @@ ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz, bool rectangular,
     : size_(sz)
     , rectangular_(rectangular)
     , windowtypename_(wintypenm)
-    , window_(0)
+    , window_(nullptr)
 {
-    hp_paramval_.setParam( this, new TypeSet<float>(sz.nrDims()) );
-    paramvals_() = paramval;
+    if ( sz.nrDims() > 1 )
+    {
+	hp_paramval_.setParam( this, new TypeSet<float>(sz.nrDims()) );
+	paramvals_() = paramval;
+    }
+
+    if ( !paramval.isEmpty() )
+	paramval_ = paramval[0];
+
     buildWindow( wintypenm );
 }
 
 
 ArrayNDWindow::~ArrayNDWindow()
 {
-    hp_paramval_.removeAndDeleteParam( this );
+    if ( hp_paramval_.hasParam(this) )
+	hp_paramval_.removeAndDeleteParam( this );
+
     delete [] window_;
 }
 
@@ -69,12 +90,41 @@ TypeSet<float>& ArrayNDWindow::paramvals_()
     return *hp_paramval_.getParam( this );
 }
 
+
+TypeSet<float>* ArrayNDWindow::getParamvals_()
+{
+    return hp_paramval_.hasParam( this ) ? hp_paramval_.getParam( this )
+					 : nullptr;
+}
+
+
 bool ArrayNDWindow::resize( const ArrayNDInfo& info )
 {
     size_ = info;
-    paramvals_().setEmpty();
-    paramvals_().setSize( size_.nrDims(), paramvals_()[0] );
-    return buildWindow( windowtypename_ );
+
+    TypeSet<float> paramvals;
+    if ( hp_paramval_.hasParam(this) )
+    {
+	paramvals = paramvals_();
+	hp_paramval_.removeAndDeleteParam( this );
+    }
+
+    if ( size_.nrDims() > 1 )
+    {
+	hp_paramval_.setParam( this, new TypeSet<float>(size_.nrDims()) );
+	TypeSet<float>& newparamvals = paramvals_();
+	newparamvals.setAll( paramval_ );
+	for ( int idx=0; idx<paramvals.size(); idx++ )
+	{
+	    if ( !newparamvals.validIdx(idx) )
+		break;
+	    newparamvals[idx] = paramvals[idx];
+	}
+
+	return buildWindow( windowtypename_ );
+    }
+
+    return buildWindow( windowtypename_, paramval_ );
 }
 
 
@@ -99,7 +149,6 @@ bool ArrayNDWindow::setType( ArrayNDWindow::WindowType wintype )
             break;
         default:
             break;
-
     }
 
     return setType( winnm, paramval );
@@ -108,23 +157,37 @@ bool ArrayNDWindow::setType( ArrayNDWindow::WindowType wintype )
 
 float ArrayNDWindow::getParamVal( int dim ) const
 {
-    const TypeSet<float>& paramvals = *hp_paramval_.getParam( this );
-    return paramvals.validIdx(dim) ? paramvals[dim] : mUdf(float);
+    if ( hp_paramval_.hasParam(this) )
+    {
+	const TypeSet<float>& paramvals = *hp_paramval_.getParam( this );
+	return paramvals.validIdx(dim) ? paramvals[dim] : paramval_;
+    }
+
+    return paramval_;
 }
 
 
 void ArrayNDWindow::setParamVal( int dim, float paramval )
 {
-    if ( !paramvals_().validIdx(dim) )
-	return;
+    if ( hp_paramval_.hasParam(this) )
+    {
+	if ( !paramvals_().validIdx(dim) )
+	    return;
 
-    paramvals_()[dim] = paramval;
-    buildWindow( windowtypename_ );
+	paramvals_()[dim] = paramval;
+	buildWindow( windowtypename_ );
+	return;
+    }
+
+    buildWindow( windowtypename_, paramval_ );
 }
 
 
 void ArrayNDWindow::setParamVals( const TypeSet<float>& paramvals )
 {
+    if ( !hp_paramval_.hasParam(this) )
+	return;
+
     if ( size_.nrDims()==paramvals.size() )
     {
 	paramvals_() = paramvals;
@@ -156,8 +219,7 @@ bool ArrayNDWindow::setType( const char* winnm, const TypeSet<float>& paramvals)
 
 bool ArrayNDWindow::buildWindow( const char* winnm, float val )
 {
-    paramvals_().setEmpty();
-    paramvals_().setSize( size_.nrDims(), val );
+    paramval_ = val;
     return buildWindow( winnm );
 }
 
@@ -165,18 +227,28 @@ bool ArrayNDWindow::buildWindow( const char* winnm, float val )
 bool ArrayNDWindow::buildWindow( const char* winnm )
 {
     const od_int64 totalsz = size_.getTotalSz();
-    if ( totalsz <= 0 ) return false;
+    if ( totalsz <= 0 )
+	return false;
+
+    delete [] window_;
     window_ = new float[totalsz];
     const int ndim = size_.getNDim();
     ArrayNDIter position( size_ );
 
-    WindowFunction* windowfunc = WINFUNCS().create( winnm );
-    if ( !windowfunc ) { delete [] window_; window_ = 0; return false; }
+    PtrMan<WindowFunction> windowfunc = WINFUNCS().create( winnm );
+    if ( !windowfunc )
+    {
+	deleteAndZeroArrPtr( window_ );
+	return false;
+    }
 
     const bool hasvar = windowfunc->hasVariable();
-    TypeSet<float>& paramvals = paramvals_();
-    if ( hasvar && !windowfunc->setVariable(paramvals[0]) )
-    { delete [] window_; window_ = 0; delete windowfunc; return false; }
+    const TypeSet<float>* paramvals = getParamvals_();
+    if ( hasvar && !windowfunc->setVariable(getParamVal()) )
+    {
+	deleteAndZeroArrPtr( window_ );
+	return false;
+    }
 
     if ( !rectangular_ )
     {
@@ -187,9 +259,10 @@ bool ArrayNDWindow::buildWindow( const char* winnm )
 	    for ( int idx=0; idx<ndim; idx++ )
 	    {
 		if ( hasvar )
-		    windowfunc->setVariable( paramvals.validIdx(idx) ?
-					     paramvals[idx] :
-					     paramvals.last() );
+		    windowfunc->setVariable( paramvals ?
+					     (paramvals->validIdx(idx) ?
+					     paramvals->get(idx) :
+					     paramvals->last()) : paramval_ );
 
 		const float halfsz = float(size_.getSize(idx)-1) / 2.f;
 		const float distval = mIsZero(halfsz, mDefEpsF) ? 0.f :
@@ -212,8 +285,10 @@ bool ArrayNDWindow::buildWindow( const char* winnm )
 	    for ( int idx=0; idx<ndim; idx++ )
 	    {
 		if ( hasvar )
-		    windowfunc->setVariable( paramvals.validIdx(idx) ?
-				    paramvals[idx] : paramvals.last() );
+		    windowfunc->setVariable( paramvals ?
+					     (paramvals->validIdx(idx) ?
+					     paramvals->get(idx) :
+					     paramvals->last()) : paramval_ );
 
 		const float halfsz = float(size_.getSize(idx)-1) / 2.f;
 		const float distval = mIsZero(halfsz, mDefEpsF) ? 0.f :
@@ -226,8 +301,6 @@ bool ArrayNDWindow::buildWindow( const char* winnm )
 	}
     }
 
-
-    delete windowfunc;
     return true;
 }
 
