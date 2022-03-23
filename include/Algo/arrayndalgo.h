@@ -439,6 +439,7 @@ protected:
     BufferString		windowtypename_;
     float			paramval_;
     TypeSet<float>&		paramvals_();
+    TypeSet<float>*		getParamvals_();
 
     bool			buildWindow(const char* winnm,float pval);
     bool			buildWindow(const char* winnm);

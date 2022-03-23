@@ -1312,7 +1312,7 @@ uiString uiNrDoneText() const override
 
 private:
 
-bool doPrepare( int /* nrthreads */ ) override
+bool doPrepare( int nrthreads ) override
 {
     const PropertyRefSelection& props = lm_.propertyRefs();
     for ( int iprop=1; iprop<props.size(); iprop++ )
@@ -1322,6 +1322,19 @@ bool doPrepare( int /* nrthreads */ ) override
 	    new SeisTrcBufDataPack( trcbuf, Seis::Line, SeisTrcInfo::TrcNr,
 				  PostStackSyntheticData::sDataPackCategory() );
 	seisbufdps_ += seisbuf;
+    }
+
+    filters_.setEmpty();
+    const StepInterval<double>& zrg =
+				sd_.postStackPack().posData().range( false );
+    const float step = mCast( float, zrg.step );
+    const float f4 = 1.f / (2.f * step );
+    const int sz = layermodels_.size();
+    for ( int idx=0; idx<nrthreads; idx++ )
+    {
+	auto* filter = new ::FFTFilter( sz, step );
+	filter->setLowPass( f4 );
+	filters_.add( filter );
     }
 
     proplistfilter_.setEmpty();
@@ -1338,10 +1351,15 @@ bool doPrepare( int /* nrthreads */ ) override
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
+bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 {
+    if ( !filters_.validIdx(threadid) )
+	return false;
+
+    ::FFTFilter* filter = filters_.get( threadid );
+
     const StepInterval<double>& zrg =
-	sd_.postStackPack().posData().range( false );
+				sd_.postStackPack().posData().range( false );
     const int sz = layermodels_.size();
     const PropertyRefSelection& props = lm_.propertyRefs();
     for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++,
@@ -1421,11 +1439,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 		proptr.set( idz, propvals.getValue( time ) );
 	    }
 
-	    const float step = mCast( float, zrg.step );
-	    ::FFTFilter filter( sz, step );
-	    const float f4 = 1.f / (2.f * step );
-	    filter.setLowPass( f4 );
-	    if ( !filter.apply(proptr) )
+	    if ( !filter || !filter->apply(proptr) )
 		continue;
 
 	    for ( int idz=0; idz<sz; idz++ )
@@ -1439,6 +1453,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 
 bool doFinish( bool success ) override
 {
+    filters_.setEmpty();
     if ( !success )
 	return false;
 
@@ -1474,6 +1489,8 @@ bool doFinish( bool success ) override
     int&				lastsyntheticid_;
     bool				useed_;
     const od_int64			totalnr_;
+
+    ManagedObjectSet<::FFTFilter>	filters_;
 
 };
 
