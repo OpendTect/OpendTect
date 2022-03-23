@@ -552,17 +552,13 @@ const visSurvey::EMObjectDisplay* uiVisEMObject::getDisplay() const
 
 static const char* sKeyHorizonRes = "dTect.Horizon.Resolution";
 static const char* sKeyHorizonColTab = "dTect.Horizon.Color table";
-static BufferStringSet sResolutionNames;
+static uiStringSet sResolutionNames;
 
-static void fillResolutionNames( BufferStringSet& nms )
+static void fillResolutionNames( uiStringSet& nms )
 {
-    visSurvey::HorizonDisplay* hd = new visSurvey::HorizonDisplay;
-    hd->ref();
-    const int nrres = cMaximumResolution+1; //hd->nrResolutions();
+    const int nrres = cMaximumResolution+1; // from vishorizonsectiondef.h
     for ( int idx=0; idx<nrres; idx++ )
-	nms.add( hd->getResolutionName(idx) );
-
-    hd->unRef();
+	nms.add( uiStrings::sResolutionValue(idx) );
 }
 
 
