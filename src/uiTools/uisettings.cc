@@ -42,6 +42,7 @@ ________________________________________________________________________
 #include "uipixmap.h"
 #include "uiseparator.h"
 #include "uishortcutsmgr.h"
+#include "uislider.h"
 #include "uistrings.h"
 #include "uitable.h"
 #include "uitextedit.h"
@@ -824,6 +825,61 @@ bool uiGeneralSettingsGroup::acceptOK()
 }
 
 
+class MaterialGroup : public uiGroup
+{ mODTextTranslationClass(MaterialGroup)
+public:
+MaterialGroup( uiParent* p, Settings& setts )
+    : uiGroup(p,"Material group")
+    , setts_(setts)
+{
+    uiSlider::Setup ss(tr("Default Ambient reflectivity")); ss.withedit(true);
+    ambslider_ = new uiSlider( this, ss, "Ambient slider" );
+
+    ss.lbl_ = tr("Default Diffuse reflectivity");
+    diffslider_ = new uiSlider( this, ss, "Diffuse slider" );
+    diffslider_->attach( alignedBelow, ambslider_ );
+
+    setts.get( SettingsAccess::sKeyDefaultAmbientReflectivity(), ambval_ );
+    ambslider_->setValue( ambval_*100 );
+
+    setts.get( SettingsAccess::sKeyDefaultDiffuseReflectivity(), diffval_ );
+    diffslider_->setValue( diffval_*100 );
+
+    setHAlignObj( ambslider_ );
+}
+
+
+void updateSettings( float oldval, float newval, const char* key,
+		     bool& changed )
+{
+    if ( !mIsEqual(oldval,newval,1e-3) )
+    {
+	changed = true;
+	setts_.set( key, newval );
+    }
+}
+
+
+void updateSettings( bool& changed )
+{
+    updateSettings( ambval_, ambslider_->getFValue()/100.f,
+		SettingsAccess::sKeyDefaultAmbientReflectivity(), changed );
+    updateSettings( diffval_, diffslider_->getFValue()/100.f,
+		SettingsAccess::sKeyDefaultDiffuseReflectivity(), changed );
+}
+
+
+uiSlider*	ambslider_;
+uiSlider*	diffslider_;
+float		ambval_		= 0.8f;
+float		diffval_	= 0.8f;
+
+Settings&	setts_;
+
+};
+
+static HiddenParam<uiVisSettingsGroup,MaterialGroup*> hp_materialgrp( nullptr );
+
 // uiVisSettingsGroup
 uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     : uiSettingsGroup(p,tr("Visualization"),setts)
@@ -838,12 +894,12 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     setts_.getYN( SettingsAccess::sKeyUseSurfShaders(), usesurfshaders_ );
     usesurfshadersfld_ = new uiGenInput( this, tr("for surface rendering"),
 					 BoolInpSpec(usesurfshaders_) );
-    usesurfshadersfld_->attach( leftAlignedBelow, shadinglbl );
+    usesurfshadersfld_->attach( ensureBelow, shadinglbl );
 
     setts_.getYN( SettingsAccess::sKeyUseVolShaders(), usevolshaders_ );
     usevolshadersfld_ = new uiGenInput( this, tr("for volume rendering"),
 					BoolInpSpec(usevolshaders_) );
-    usevolshadersfld_->attach( leftAlignedBelow, usesurfshadersfld_, 0 );
+    usevolshadersfld_->attach( alignedBelow, usesurfshadersfld_, 0 );
 
     uiLabeledComboBox* lcb =
 	new uiLabeledComboBox( this, tr("Default texture resolution") );
@@ -885,7 +941,17 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
 
     anisotropicpowerfld_->box()->setCurrentItem( anisotropicpower_+1 );
 
-    mipmappingToggled( 0 );
+    auto* matgrp = new MaterialGroup( this, setts_ );
+    matgrp->attach( alignedBelow, anisotropicpowerfld_ );
+    hp_materialgrp.setParam( this, matgrp );
+
+    mipmappingToggled( nullptr );
+}
+
+
+uiVisSettingsGroup::~uiVisSettingsGroup()
+{
+    hp_materialgrp.removeParam( this );
 }
 
 
@@ -917,6 +983,9 @@ bool uiVisSettingsGroup::acceptOK()
     const int anisotropicpower = anisotropicpowerfld_->box()->currentItem()-1;
     updateSettings( anisotropicpower_, anisotropicpower,
 		    SettingsAccess::sKeyAnisotropicPower() );
+
+    auto* matgrp = hp_materialgrp.getParam( this );
+    matgrp->updateSettings( changed_ );
 
     if ( changed_ )
 	needsrenewal_ = true;

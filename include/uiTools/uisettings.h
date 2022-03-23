@@ -194,6 +194,8 @@ public:
 				toUiString(sFactoryKeyword()))
 
 			uiVisSettingsGroup(uiParent*,Settings&);
+			~uiVisSettingsGroup();
+
     bool		acceptOK();
 
 protected:

@@ -101,8 +101,6 @@ PlaneDataDisplay::PlaneDataDisplay()
 	dragger_->setDim( (int) orientation_ );
 
     material_->setColor( Color::White() );
-    material_->setAmbience( 0.8 );
-    material_->setDiffIntensity( 0.2 );
 
     gridlines_->ref();
     addChild( gridlines_->osgNode() );

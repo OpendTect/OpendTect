@@ -54,6 +54,8 @@ public:
     static const char*	sKeyMouseWheelReversal();
     static const char*	sKeyMouseWheelZoomFactor();
     static const char*	sKeyHostNameOverrule();
+    static const char*	sKeyDefaultAmbientReflectivity();
+    static const char*	sKeyDefaultDiffuseReflectivity();
 
 protected:
     Settings&			settings_;

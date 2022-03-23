@@ -14,38 +14,39 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "bidvsetarrayadapter.h"
 #include "binidvalue.h"
+#include "callback.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
-#include "datapointset.h"
 #include "datacoldef.h"
+#include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emobjectposselector.h"
 #include "emsurfaceauxdata.h"
 #include "isocontourtracer.h"
-#include "settings.h"
-#include "survinfo.h"
 #include "mpeengine.h"
 #include "posvecdataset.h"
-#include "callback.h"
+#include "settings.h"
+#include "survinfo.h"
+#include "thread.h"
+#include "uistrings.h"
+#include "zaxistransform.h"
 
 #include "visevent.h"
+#include "vishorizonsection.h"
+#include "vishorizonsectiondef.h"
+#include "vishorizontexturehandler.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vismpe.h"
-#include "vishorizontexturehandler.h"
-#include "vishorizonsection.h"
-#include "vishorizonsectiondef.h"
+#include "vismultiattribsurvobj.h"
 #include "visplanedatadisplay.h"
 #include "vispointset.h"
 #include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
+#include "visseis2ddisplay.h"
 #include "vistexturechannel2rgba.h"
 #include "vistexturechannels.h"
-#include "vismultiattribsurvobj.h"
-#include "visseis2ddisplay.h"
 #include "vistransform.h"
-#include "zaxistransform.h"
-#include "thread.h"
 
 
 namespace visSurvey
@@ -323,7 +324,7 @@ HorizonDisplay::HorizonDisplay()
     enabled_ += true;
     dispdatapackids_ += new TypeSet<DataPack::ID>;
 
-    material_->setAmbience( 0.7 );
+    material_->setAmbience( 0.8 );
 
     RefMan<visBase::Material> linemat = new visBase::Material;
     linemat->setFrom( *material_ );
@@ -1519,21 +1520,7 @@ int HorizonDisplay::nrResolutions() const
 
 BufferString HorizonDisplay::getResolutionName( int res ) const
 {
-    BufferString str;
-    if ( !res ) str = "Automatic";
-    else
-    {
-	res--;
-	int val = 1;
-	for ( int idx=0; idx<res; idx++ )
-	    val *= 2;
-
-	if ( val==2 )		str = "Half";
-	else if ( val==1 )	str = "Full";
-	else			{ str = "1 / "; str += val; }
-    }
-
-    return str;
+    return uiStrings::sResolutionValue( res ).getFullString();
 }
 
 

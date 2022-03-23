@@ -52,6 +52,12 @@ const char* SettingsAccess::sKeyMouseWheelZoomFactor()
 const char* SettingsAccess::sKeyHostNameOverrule()
 { return "dTect.HostName Overrule"; }
 
+const char* SettingsAccess::sKeyDefaultAmbientReflectivity()
+{ return "dTect.Default Ambient Reflectivity"; }
+
+const char* SettingsAccess::sKeyDefaultDiffuseReflectivity()
+{ return "dTect.Default Diffuse Reflectivity"; }
+
 
 SettingsAccess::SettingsAccess()
     : settings_( Settings::common() )
