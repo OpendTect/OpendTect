@@ -5,11 +5,10 @@
  * DATE     : Dec 2012
 -*/
 
-#include "gendefs.h"
 #include "attribprovider.h"
-#include "arraynd.h"
 #include "mathfunc.h"
-#include "commondefs.h"
+
+namespace Stats { class RandomGenerator; }
 
 /*!%CEEMD Attributes
 
@@ -50,14 +49,16 @@ public:
     bool		prepPriorToOutputSetup();
 
 protected:
-			~CEEMD() {}
+			~CEEMD();
+
     static Provider*	createInstance(Desc&);
     static void		updateDefaults(Desc&)	{};
     static void		updateDesc(Desc&);
 
-    bool		allowParallelComputation() const;
+    bool		allowParallelComputation() const override
+			{ return false; }
     bool		areAllOutputsEnabled() const;
-    void		getFirstAndLastOutEnabled(int& first, int& last) const;
+    void		getFirstAndLastOutEnabled(int& first,int& last) const;
     int			maxnrimf_; // Maximum number of intrinsic Mode Functions
     int			maxsift_; // Maximum number of sifting iterations
     float		outputfreq_; // Output frequency
@@ -86,7 +87,8 @@ protected:
     int			method_;
     int			attriboutput_;
     int			maxnoiseloop_;
-    const DataHolder*	inputdata_;
+    const DataHolder*	inputdata_ = nullptr;
+    Stats::RandomGenerator* gen_ = nullptr;
 };
 
 }; // namespace Attrib

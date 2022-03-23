@@ -6,20 +6,17 @@
 
 
 #include "ceemdattrib.h"
+
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
-#include "statruncalc.h"
+#include "ceemdalgo.h"
 #include "statrand.h"
 #include "survinfo.h"
-#include <math.h>
-#include "strmprov.h"
-#include "ceemdalgo.h"
 
-using namespace std;
 
 namespace Attrib
 {
@@ -166,7 +163,9 @@ void CEEMD::updateDesc( Desc& desc )
 CEEMD::CEEMD( Desc& desc )
     : Provider( desc )
 {
-    if ( !isOK() ) return;
+    if ( !isOK() )
+	return;
+
     mGetEnum( method_, emdmethodStr() );
     mGetEnum( attriboutput_, attriboutputStr() );
     mGetFloat( stopimf_, stopimfStr() );
@@ -177,7 +176,7 @@ CEEMD::CEEMD( Desc& desc )
     mGetFloat( outputfreq_, outputfreqStr() );
     mGetFloat( stepoutfreq_, stepoutfreqStr() );
     if ( usetfpanel_ )
-	    stepoutfreq_ = 1;
+	stepoutfreq_ = 1;
 
     mGetInt( outputcomp_, outputcompStr() );
     mGetBool( symmetricboundary_, symmetricboundaryStr() );
@@ -187,10 +186,18 @@ CEEMD::CEEMD( Desc& desc )
     dessampgate_ =  Interval<int>( -(1024-1), 1024-1 );
 }
 
+
+CEEMD::~CEEMD()
+{
+    delete gen_;
+}
+
+
 bool CEEMD::getInputOutput( int input, TypeSet<int>& res ) const
 {
     return Provider::getInputOutput( input, res );
 }
+
 
 bool CEEMD::getInputData( const BinID& relpos, int zintv )
 {
@@ -199,16 +206,18 @@ bool CEEMD::getInputData( const BinID& relpos, int zintv )
     return inputdata_;
 }
 
-bool CEEMD::allowParallelComputation () const
-{
-    return false;
-}
 
-bool CEEMD::computeData( const DataHolder& output, const BinID& relpos,
-	int z0, int nrsamples, int threadid ) const
+bool CEEMD::computeData( const DataHolder& output, const BinID& /* relpos */,
+			 int z0, int nrsamples, int /* threadid */ ) const
 {
     if ( !inputdata_ || inputdata_->isEmpty() || output.isEmpty() )
-    return false;
+	return false;
+
+    if ( method_ != mDecompModeEMD && !gen_ )
+    {
+	auto* gen = new Stats::NormalRandGen();
+	mSelf().gen_ = gen;
+    }
 
     const int inpsz = inputdata_->nrsamples_;
     DecompInput input( Setup().method(method_)
@@ -220,7 +229,7 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& relpos,
 				.outputcomp(outputcomp_)
 				.stopsift(stopsift_)
 				.stopimf(stopimf_)
-				, inpsz );
+				    , inpsz, gen_ );
 
     int nyquist = mCast( int, 1.f/(2.f*SI().zStep()));
     int first = 0;
@@ -230,18 +239,20 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& relpos,
     float endfreq = usetfpanel_ ? nyquist : (last+1)*stepoutfreq_;
     int startcomp = first;
     int endcomp = last;
-    float stepoutfreq = usetfpanel_ ? 1 : stepoutfreq_;
-    Array2DImpl<float>* decompoutput =
-		new Array2DImpl<float>( inpsz, outputinterest_.size() );
+    const float stepoutfreq = usetfpanel_ ? 1.f : stepoutfreq_;
 
     for ( int idx=0; idx<nrsamples; idx++ )
-	input.values_[idx] = getInputValue( *inputdata_, dataidx_, idx,z0 );
+	input.values_[idx] = getInputValue( *inputdata_, dataidx_, idx, z0 );
 
-    const bool success = input.doDecompMethod( inpsz, refstep_,
-	decompoutput, attriboutput_, startfreq, endfreq, stepoutfreq,
-	startcomp, endcomp );
-    if ( !success ) return false;
+    Array2DImpl<float> decompoutput( inpsz, outputinterest_.size() );
+    if ( !decompoutput.isOK() )
+	return false;
 
+    const bool success = input.doDecompMethod( inpsz, refstep_, decompoutput,
+				attriboutput_, startfreq, endfreq, stepoutfreq,
+				startcomp, endcomp );
+    if ( !success )
+	return false;
 
     for ( int comp=0; comp<outputinterest_.size(); comp++ )
     {
@@ -249,12 +260,11 @@ bool CEEMD::computeData( const DataHolder& output, const BinID& relpos,
 
 	for ( int idx=0; idx<nrsamples; idx++ )
 	{
-	    const float val = decompoutput->get(idx, comp);
+	    const float val = decompoutput.get(idx, comp );
 	    setOutputValue( output, comp, idx, z0, val );
 	}
     }
 
-    delete decompoutput;
     return true;
 }
 
