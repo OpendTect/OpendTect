@@ -6,12 +6,11 @@
 -*/
 
 #include "ceemdattribmod.h"
-#include "commondefs.h"
-#include "gendefs.h"
-#include "arrayndimpl.h"
+
 #include "mathfunc.h"
-#include "manobjectset.h"
-#include "interpol1d.h"
+
+template <class T> class Array2D;
+namespace Stats { class RandomGenerator; }
 
 #define mDecompModeEMD		0
 #define mDecompModeEEMD		1
@@ -23,25 +22,15 @@
 #define mDecompOutputIMF	3
 
 
-mExpClass(CEEMDAttrib) IMFComponent
+mClass(CEEMDAttrib) IMFComponent
 {
 public:
-			IMFComponent( int nrsamples )
-				: values_( new float[nrsamples] )
-				, size_( nrsamples )
-			{ OD::memValueSet(values_,0.f,nrsamples); }
+			IMFComponent(int nrsamples);
+			IMFComponent(const IMFComponent&);
+			~IMFComponent();
 
-			IMFComponent( const IMFComponent& comp )
-				: values_( new float[comp.size_] )
-				, size_( comp.size_ )
-				, name_( comp.name_ )
-				, nrzeros_( comp.nrzeros_ )
-			{
-			    for ( int idx=0; idx<size_; idx++ )
-				values_[idx] = comp.values_[idx];
-			}
+    IMFComponent&	operator= (const IMFComponent&);
 
-			~IMFComponent() { delete [] values_; }
     BufferString	name_;
     int			nrzeros_;
     int			size_;
@@ -49,7 +38,8 @@ public:
 
 };
 
-mExpClass(CEEMDAttrib) MyPointBasedMathFunction : public PointBasedMathFunction
+
+mClass(CEEMDAttrib) MyPointBasedMathFunction : public PointBasedMathFunction
 {
 public:
 
@@ -59,18 +49,20 @@ public:
 			    e = PointBasedMathFunction::ExtraPolGradient )
 		    :PointBasedMathFunction( t, e ){};
 
-    void	replace(int idx, float x, float y)
+    void	replace( int idx, float x, float y )
 		{
 		    x_[idx]=x;
 		    y_[idx]=y;
 		}
+
     float	myGetValue(float x) const
 		{ return itype_ == Snap ? snapVal(x) : myInterpVal(x); }
 
     float	myInterpVal( float x ) const
 		{
 		    const int sz = x_.size();
-		    if ( sz < 1 ) return mUdf(float);
+		    if ( sz < 1 )
+			return mUdf(float);
 
 		    if ( x < x_[0] || x > x_[sz-1] )
 			return myOutsideVal(x);
@@ -87,7 +79,8 @@ public:
 		    const float x1 = x_[i1];
 		    const float v1 = y_[i1];
 		    const float dx = x1 - x0;
-		    if ( dx == 0 ) return v0;
+		    if ( dx == 0 )
+			return v0;
 
 		    const float relx = (x - x0) / dx;
 		    if ( mIsUdf(v0) || mIsUdf(v1) )
@@ -108,8 +101,8 @@ public:
 		    const float x2 = i2 == i1 ? x1 + dx : x_[i2];
 		    const float v2 = mIsUdf(y_[i2]) ? v1 : y_[i2];
 
-		    if ( mIsEqual(xm1,x0,1e-6) || mIsEqual(x0,x1,1e-6)
-			    || mIsEqual(x1,x2,1e-6) )
+		    if ( mIsEqual(xm1,x0,1e-6) || mIsEqual(x0,x1,1e-6) ||
+			 mIsEqual(x1,x2,1e-6) )
 			return mUdf(float);
 
 		    return Interpolate::poly1D( xm1, vm1, x0, v0, x1, v1,
@@ -118,14 +111,13 @@ public:
 
     float	myOutsideVal( float x ) const
 		{
-		    if ( extrapol_==None ) return mUdf(float);
+		    if ( extrapol_==None )
+			return mUdf(float);
 
 		    const int sz = x_.size();
 
 		    if ( extrapol_==EndVal || sz<2 )
-		    {
 			return x-x_[0] < x_[sz-1]-x ? y_[0] : y_[sz-1];
-		    }
 
 		    if ( x<x_[0] )
 		    {
@@ -142,14 +134,16 @@ public:
 		}
 };
 
-mExpClass(CEEMDAttrib) OrgTraceMinusAverage
+
+mClass(CEEMDAttrib) OrgTraceMinusAverage
 {
 public:
-		    OrgTraceMinusAverage( int nrsamples )
-			    : values_( new float[nrsamples] )
-			    , size_( nrsamples )
-		    { OD::memValueSet(values_,0.f,nrsamples); }
-		    ~OrgTraceMinusAverage() { delete [] values_; }
+		    OrgTraceMinusAverage(int nrsamples);
+		    OrgTraceMinusAverage(const OrgTraceMinusAverage&);
+		    ~OrgTraceMinusAverage();
+
+    OrgTraceMinusAverage& operator =( const OrgTraceMinusAverage&);
+
     BufferString    name_;
     float	    averageinput_;
     float	    stdev_;
@@ -157,140 +151,149 @@ public:
     float*	    values_;
 };
 
+
 mExpClass(CEEMDAttrib) Setup
-    {
-	public:
-			Setup();
-
-			mDefSetupMemb(int, method); // 0=EMD, 1=EEMD, 2=CEEMD
-			// 0=Freq, 1=Peak Freq, 2= Peak Amp, 3=IMF
-			mDefSetupMemb(int, attriboutput);
-			// Number of realizations for EEMD and CEEMD
-			mDefSetupMemb(int, maxnoiseloop);
-			// Maximum number of intrinsic Mode Functions
-			mDefSetupMemb(int, maxnrimf);
-			// Maximum number of sifting iterations
-			mDefSetupMemb(int, maxsift);
-			// stop sifting if st.dev res.-imf < value
-			mDefSetupMemb(float, stopsift);
-			// stop decomp. when st.dev imf < value
-			mDefSetupMemb(float, stopimf);
-			// noise percentage for EEMD and CEEMD
-			mDefSetupMemb(float, noisepercentage);
-			// boundary extension symmetric or periodic
-			mDefSetupMemb(bool, symmetricboundary);
-			// use synthetic trace in ceemdtestprogram.h
-			mDefSetupMemb(bool, usetestdata);
-			// output frequency.
-			mDefSetupMemb(bool, outputfreq);
-			// step output frequency.
-			mDefSetupMemb(bool, stepoutfreq);
-			// output IMF component.
-			mDefSetupMemb(bool, outputcomp);
-    };
-
-mExpClass(CEEMDAttrib) DecompInput
 {
 public:
-			DecompInput( const Setup& setup, int nrsamples )
-				: values_( new float[nrsamples] )
-				, size_( nrsamples )
-				, setup_(setup)
-				, halflen_(30) // Hilbert Halflength
-			{ OD::memValueSet(values_,0.f,nrsamples); }
-			~DecompInput() { delete [] values_; }
+			Setup()
+			  : method_(2)
+			  , attriboutput_(4)
+			  , maxnoiseloop_(50)
+			  , maxnrimf_(16)
+			  , maxsift_(10)
+			  , stopsift_(0.2f)
+			  , stopimf_(0.005f)
+			  , noisepercentage_(10.f)
+			  , symmetricboundary_(true)
+			  , usetestdata_(false)
+			  , outputfreq_(5)
+			  , stepoutfreq_(5)
+//			  , outputcomp_()
+			{}
 
-    bool		doDecompMethod(int nrsamples , float refstep,
-			   Array2DImpl<float>* output, int outputattrib,
-			   float startfreq, float endfreq, float stepoutfreq,
-			   int startcomp, int endcomp);
+	mDefSetupMemb(int,method); // 0=EMD, 1=EEMD, 2=CEEMD
+	// 0=Freq, 1=Peak Freq, 2= Peak Amp, 3=IMF
+	mDefSetupMemb(int,attriboutput);
+	// Number of realizations for EEMD and CEEMD
+	mDefSetupMemb(int,maxnoiseloop);
+	// Maximum number of intrinsic Mode Functions
+	mDefSetupMemb(int,maxnrimf);
+	// Maximum number of sifting iterations
+	mDefSetupMemb(int,maxsift);
+	// stop sifting if st.dev res.-imf < value
+	mDefSetupMemb(float,stopsift);
+	// stop decomp. when st.dev imf < value
+	mDefSetupMemb(float,stopimf);
+	// noise percentage for EEMD and CEEMD
+	mDefSetupMemb(float,noisepercentage);
+	// boundary extension symmetric or periodic
+	mDefSetupMemb(bool,symmetricboundary);
+	// use synthetic trace in ceemdtestprogram.h
+	mDefSetupMemb(bool,usetestdata);
+	// output frequency.
+	mDefSetupMemb(bool,outputfreq);
+	// step output frequency.
+	mDefSetupMemb(bool,stepoutfreq);
+	// output IMF component.
+	mDefSetupMemb(bool,outputcomp);
+};
+
+
+mClass(CEEMDAttrib) DecompInput
+{
+public:
+			DecompInput(const Setup&,int nrsamples,
+				    Stats::RandomGenerator* =nullptr);
+			DecompInput(const DecompInput&);
+			~DecompInput();
+
+    DecompInput&	operator =(const DecompInput&);
+
+    bool		doDecompMethod(int nrsamples,float refstep,
+			       Array2D<float>& output,int outputattrib,
+			       float startfreq,float endfreq,float stepoutfreq,
+			       int startcomp,int endcomp);
 
     Setup		setup_;
     int			size_;
-    int			halflen_;
+    int			halflen_ = 30; // Hilbert Halflength
     float*		values_;
     static const char*	transMethodNamesStr(int);
 
-protected:
-    void		computeStats(float&, float&) const;
-    void		createNoise(float stdev) const;
-    void		addDecompInputs(const DecompInput* arraytoadd) const;
-    void		rescaleDecompInput(float scaler) const;
-    void		subtractDecompInputs(const DecompInput*) const;
-    void		replaceDecompInputs(const DecompInput*) const;
-    void		retrieveFromComponent(
-			const ManagedObjectSet<IMFComponent>& components,
-			int comp) const;
-    void		addToComponent(ManagedObjectSet<IMFComponent>&,
-			int comp, int nrzeros) const;
-    void		addZeroComponents(
-			ManagedObjectSet<IMFComponent>& components,
-			int comp ) const;
-    void		findExtrema(int& nrmax, int& nrmin, int& nrzeros ,
-			bool symmetricboundary ,
-			MyPointBasedMathFunction& maxima ,
-			MyPointBasedMathFunction& minima) const;
-    void		testFunction(int& nrmax, int& nrmin, int& nrzeros ,
-			MyPointBasedMathFunction& maxima ,
-			MyPointBasedMathFunction& minima) const;
-    void		resetInput(const OrgTraceMinusAverage*) const;
-    bool		decompositionLoop(ManagedObjectSet<IMFComponent>&,
-			int maxnrimf , float stdevinput) const;
+private:
+
+    bool		decompositionLoop(ObjectSet<IMFComponent>&,
+					int maxnrimf,float stdevinput) const;
     void		stackEemdComponents(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
-			& realizations,
-			ManagedObjectSet<IMFComponent>& stackedcomponents)
-									const;
+				    const ObjectSet<ObjectSet<IMFComponent> >&,
+				    ObjectSet<IMFComponent>&) const;
     void		stackCeemdComponents(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
-							& currentrealizations,
-			ManagedObjectSet<IMFComponent>&
-						    currentstackedcomponents,
-			int nrimf ) const;
-    bool		dumpComponents(OrgTraceMinusAverage* orgminusaverage,
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
-							& realizations) const;
-    void		readComponents(
-			ManagedObjectSet<ManagedObjectSet<IMFComponent> >&
-							realizations ) const;
-    bool		doHilbert(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
-							& realcomponents,
-			ManagedObjectSet<IMFComponent>& imagcomponents) const;
+				    const ObjectSet<ObjectSet<IMFComponent> >&,
+				    ObjectSet<IMFComponent>&,int nrimf) const;
+
+    void		resetInput(const OrgTraceMinusAverage&);
+    void		addDecompInputs(const DecompInput&);
+    void		rescaleDecompInput(float scaler);
+    void		subtractDecompInputs(const DecompInput&);
+    void		replaceDecompInputs(const DecompInput&);
+    void		createNoise(float stdev);
+
+    void		computeStats(float&,float&) const;
+    void		findExtrema(int& nrmax,int& nrmin,int& nrzeros,
+				    bool symmetricboundary,
+				    MyPointBasedMathFunction& maxima,
+				    MyPointBasedMathFunction& minima) const;
+
+    void		addZeroComponents(ObjectSet<IMFComponent>&,
+					  int comp) const;
+    void		addToComponent(ObjectSet<IMFComponent>&,
+				       int comp, int nrzeros) const;
+    void		retrieveFromComponent(const ObjectSet<IMFComponent>&,
+					      int comp);
+
+    bool		doHilbert(const ObjectSet<ObjectSet<IMFComponent> >&,
+				  ObjectSet<IMFComponent>& imagcomp) const;
     bool		calcFrequencies(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
-							& realcomponents,
-			const ManagedObjectSet<IMFComponent>& imagcomponents,
-			ManagedObjectSet<IMFComponent>& frequencycomponents,
-			const float refstep) const;
+				  const ObjectSet<ObjectSet<IMFComponent> >&,
+				  const ObjectSet<IMFComponent>& imagcomps,
+				  ObjectSet<IMFComponent>& frequencycomponents,
+				  const float refstep) const;
     bool		calcAmplitudes(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
-							& realcomponents,
-			const ManagedObjectSet<IMFComponent>& imagcomponents,
-			const ManagedObjectSet<IMFComponent>&
-							frequencycomponents,
-			ManagedObjectSet<IMFComponent>&
-						    amplitudecomponents) const;
+				  const ObjectSet<ObjectSet<IMFComponent> >&,
+				  const ObjectSet<IMFComponent>& imagcomps,
+				  ObjectSet<IMFComponent>& ampcomps) const;
     bool		outputAttribute(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
-							& realizations,
-			Array2DImpl<float>* output, int outputattrib,
-			float startfreq, float endfreq, float stepoutfreq,
-			int startcomp, int outputcomp, float average) const;
+				const ObjectSet<ObjectSet<IMFComponent> >&,
+				Array2D<float>& output,int outputattrib,
+				float startfreq,float endfreq,float stepoutfreq,
+				int startcomp,int outputcomp,
+				float average) const;
+
     bool		useGridding(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
-								& realizations,
-			Array2DImpl<float>* output, float startfreq,
-			float endfreq, float stepoutfreq) const;
+				const ObjectSet<ObjectSet<IMFComponent> >&,
+				Array2D<float>& output,float startfreq,
+				float endfreq,float stepoutfreq) const;
     bool		usePolynomial(
-			const ManagedObjectSet<ManagedObjectSet<IMFComponent> >
-								& realizations,
-			Array2DImpl<float>* output, float startfreq,
-			float endfreq, float stepoutfreq) const;
-    bool		sortSpectrum(
-			float* unsortedfrequencies,float* unsortedamplitudes,
-			MyPointBasedMathFunction& sortedampspectrum,
-							    int size ) const;
+				const ObjectSet<ObjectSet<IMFComponent> >&,
+				Array2D<float>& output,float startfreq,
+				float endfreq,float stepoutfreq) const;
+    bool		sortSpectrum(const float* unsortedamplitudes,int size,
+				     float* unsortedfrequencies,
+			    MyPointBasedMathFunction& sortedampspectrum) const;
+
+    Stats::RandomGenerator* gen_;
+
+private:
+    //For debugging only:
+    void		testFunction(int& nrmax,int& nrmin,int& nrzeros,
+				     MyPointBasedMathFunction& maxima,
+				     MyPointBasedMathFunction& minima) const;
+
+    bool		dumpComponents(
+				    const ObjectSet<ObjectSet<IMFComponent> >&,
+				    const OrgTraceMinusAverage*) const;
+    void		readComponents(
+				    ObjectSet<ObjectSet<IMFComponent> >&) const;
 
 };
 
