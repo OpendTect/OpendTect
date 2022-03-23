@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "nrbytes2string.h"
 #include "odsysmem.h"
+#include "math2.h"
 
 static const char* joinstring = "%1 %2";
 
@@ -465,6 +466,21 @@ uiString uiStrings::phrSelOutpFile()
 
 uiString uiStrings::phrSpecifyOutput()
 { return uiStrings::phrSpecify( uiStrings::sOutput() ); }
+
+
+uiString uiStrings::sResolutionValue( int res )
+{
+    if ( res==0 )
+	return tr("Auto");
+
+    const int val = mNINT32( Math::PowerOf( 2, float(res-1) ) );
+    if ( val==1 )
+	return tr("Full");
+    if ( val==2 )
+	return tr("Half");
+
+    return toUiString("1 / %1").arg( val );
+}
 
 
 uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
