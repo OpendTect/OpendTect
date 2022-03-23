@@ -91,7 +91,7 @@ if ( NOT OD_NO_OSG )
     )
 endif()
 
-set( OD_SPECPROGS ODSeis ODvisBase )
+set( OD_SPECPROGS ODSeis ODvisBase uiBase )
 
 OD_SETUP_EXTERNALS()
 OD_ADD_EXTERNALS() # Once, in main scope
