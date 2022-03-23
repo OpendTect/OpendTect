@@ -2294,8 +2294,8 @@ void uiWellDefMnemLogDlg::Tables::getSuitableLogNamesForMnems(
 
 
 uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
-					  const TypeSet<MultiID>& keys,	
-					  const MnemonicSelection* mns )
+					  const TypeSet<MultiID>& keys, 
+    					  const MnemonicSelection* mns )
     : uiDialog(p,uiDialog::Setup(tr("Set/Edit default Logs for a mnemonic"),
 				 mNoDlgTitle,mTODOHelpKey))
 {
@@ -2304,7 +2304,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
     MultiWellReader wtrdr( keys, wds, loadreqs );
     TaskRunner::execute( nullptr, wtrdr );
     if ( !wtrdr.allWellsRead() )
-	    uiMSG().errorWithDetails( wtrdr.errMsg(),
+	uiMSG().errorWithDetails( wtrdr.errMsg(),
 			    tr("Some wells could not be read") );
 
     BufferStringSet wellnms;
