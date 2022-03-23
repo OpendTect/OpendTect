@@ -50,7 +50,7 @@ WellLogInfo( const MultiID& mid, const char* lognm, Well::ExtractParams params )
 bool init( InterpolationLayerModel& layermodel )
 {
     const bool zistime = SI().zIsTime();
-    Well::LoadReqs lreqs( Well::Trck, Well::LogInfos );
+    Well::LoadReqs lreqs( Well::Inf, Well::Trck, Well::LogInfos );
     if ( zistime )
 	lreqs.add( Well::D2T );
 

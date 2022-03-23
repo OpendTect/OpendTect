@@ -69,6 +69,18 @@ Well::LoadReqs Well::LoadReqs::All()
 }
 
 
+Well::LoadReqs Well::LoadReqs::AllNoLogs()
+{
+    LoadReqs ret( false );
+    ret.reqs_.set();
+    if ( !SI().zIsTime() )
+	ret.reqs_[D2T] = 0;
+
+    ret.reqs_[Logs] = 0;
+    return ret;
+}
+
+
 void Well::LoadReqs::include( const LoadReqs& oth )
 {
     for ( int idx=0; idx<mWellNrSubObjTypes; idx++ )
@@ -149,7 +161,7 @@ void Well::Man::cleanup()
 	if ( wd )
 	{
 	    BufferString tmp("Well ", wd->name(), " has ");
-	    tmp.add( wd->nrRefs() ).add(" undeleted references" );
+	    tmp.add( wd->nrRefs()-1 ).add(" undeleted references" );
 	    pErrMsg( tmp );
 	}
 

@@ -26,7 +26,6 @@ class UnitOfMeasure;
 
 namespace Well
 {
-
 class Data;
 class Log;
 
@@ -47,6 +46,7 @@ public:
 			LoadReqs(SubObjType,SubObjType);
 			LoadReqs(SubObjType,SubObjType,SubObjType);
     static LoadReqs	All();
+    static LoadReqs	AllNoLogs();
     bool		operator ==( const LoadReqs& oth ) const
 						{ return reqs_ == oth.reqs_; }
 
