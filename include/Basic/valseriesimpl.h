@@ -26,15 +26,15 @@ public:
 					   od_int64 sz );
     inline		OffsetValueSeries( const ValueSeries<T>& src,
 					   od_int64 off, od_int64 sz );
-    inline ValueSeries<T>* clone() const;
+    inline ValueSeries<T>* clone() const override;
 
-    inline T		value( od_int64 idx ) const;
-    inline void		setValue( od_int64 idx, T v );
-    inline T*		arr();
-    inline const T*	arr() const;
+    inline T		value( od_int64 idx ) const override;
+    inline void		setValue( od_int64 idx, T v ) override;
+    inline T*		arr() override;
+    inline const T*	arr() const override;
     inline bool		writable() const;
-    inline bool		canSetAll() const;
-    inline void		setAll(T);
+    inline bool		canSetAll() const override;
+    inline void		setAll(T) override;
     od_int64		size() const override	{ return cursize_; }
 
     inline od_int64	getOffset() const;
@@ -69,26 +69,27 @@ public:
 
 		ArrayValueSeries( AT* ptr, bool memmine, od_int64 sz=-1 );
 		ArrayValueSeries( od_int64 sz );
-		~ArrayValueSeries()		{ if ( mine_ ) delete [] ptr_; }
+		~ArrayValueSeries() override
+		{ if ( mine_ ) delete [] ptr_; }
 
-    ValueSeries<RT>*	clone() const;
+    ValueSeries<RT>*	clone() const override;
 
-    bool	isOK() const			{ return ptr_; }
+    bool	isOK() const override			{ return ptr_; }
 
-    RT		value( od_int64 idx ) const;
-    bool	writable() const		{ return true; }
-    void	setValue( od_int64 idx, RT v );
+    RT		value( od_int64 idx ) const override;
+    bool	writable() const override		{ return true; }
+    void	setValue( od_int64 idx, RT v ) override;
 
-    bool	canSetAll() const		{ return writable(); }
-    void	setAll(RT);
+    bool	canSetAll() const override		{ return writable(); }
+    void	setAll(RT) override;
 
-    const RT*	arr() const			mImplArr;
-    RT*		arr()				mImplArr;
+    const RT*	arr() const override			mImplArr;
+    RT*		arr() override				mImplArr;
 
-    bool	reSizeable() const		{ return mine_; }
-    inline bool	setSize(od_int64);
-    od_int64	size() const override		{ return cursize_; }
-    char	bytesPerItem() const		{ return sizeof(AT); }
+    bool	reSizeable() const override		{ return mine_; }
+    inline bool	setSize(od_int64) override;
+    od_int64	size() const override			{ return cursize_; }
+    char	bytesPerItem() const override		{ return sizeof(AT); }
 
 protected:
 
@@ -115,27 +116,27 @@ mClass(Basic) MultiArrayValueSeries : public ValueSeries<RT>
 public:
 		MultiArrayValueSeries(od_int64);
 		MultiArrayValueSeries(const MultiArrayValueSeries<RT, AT>&);
-		~MultiArrayValueSeries();
+		~MultiArrayValueSeries() override;
 
-    ValueSeries<RT>*	clone() const;
+    ValueSeries<RT>*	clone() const override;
 
-    bool	isOK() const			{ return cursize_>=0; }
+    bool	isOK() const override			{ return cursize_>=0; }
 
-    RT		value( od_int64 idx ) const;
-    bool	writable() const		{ return true; }
-    void	setValue(od_int64 idx, RT v);
+    RT		value( od_int64 idx ) const override;
+    bool	writable() const override		{ return true; }
+    void	setValue(od_int64 idx, RT v) override;
 
-    bool	canSetAll() const		{ return writable(); }
-    void	setAll(RT);
+    bool	canSetAll() const override		{ return writable(); }
+    void	setAll(RT) override;
 
-    const RT*	arr() const;
-    RT*		arr();
+    const RT*	arr() const override;
+    RT*		arr() override;
 
-    bool	selfSufficient() const		{ return true; }
-    bool	reSizeable() const		{ return true; }
-    inline bool	setSize(od_int64);
-    od_int64	size() const override		{ return cursize_; }
-    char	bytesPerItem() const		{ return sizeof(AT); }
+    bool	selfSufficient() const override		{ return true; }
+    bool	reSizeable() const override		{ return true; }
+    inline bool	setSize(od_int64) override;
+    od_int64	size() const override			{ return cursize_; }
+    char	bytesPerItem() const override		{ return sizeof(AT); }
 
 protected:
     ObjectSet<AT>	ptrs_;
