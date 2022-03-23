@@ -1471,6 +1471,10 @@ bool doPrepare( int /* nrthreads */ ) override
 bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 {
     const int sz = layermodels_.size();
+    const float step = mCast( float, zrg_.step );
+    ::FFTFilter filter( sz, step );
+    const float f4 = 1.f / (2.f * step );
+    filter.setLowPass( f4 );
     const PropertyRefSelection& props = lm_.propertyRefs();
     for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++,
 							    addToNrDone(1) )
@@ -1539,10 +1543,6 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 		proptr.set( idz, propvals.getValue( time ) );
 	    }
 
-	    const float step = mCast( float, zrg_.step );
-	    ::FFTFilter filter( sz, step );
-	    const float f4 = 1.f / (2.f * step );
-	    filter.setLowPass( f4 );
 	    if ( !filter.apply(proptr) )
 		continue;
 
