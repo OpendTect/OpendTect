@@ -533,6 +533,7 @@ public:
     static uiString sReservoir()	{ return tr("Reservoir"); }
     static uiString sReset()		{ return tr("Reset"); }
     static uiString sResolution()	{ return tr("Resolution"); }
+    static uiString sResolutionValue(int resval);
     static uiString sRestart()		{ return tr("Restart"); }
     static uiString sResume()		{ return tr("Resume"); }
     static uiString sRight()		{ return tr("Right"); }

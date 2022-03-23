@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "nrbytes2string.h"
 #include "odsysmem.h"
+#include "math2.h"
 
 static const char* joinstring = "%1 %2";
 
@@ -695,10 +696,10 @@ uiString uiStrings::phrCannotFindObjInDB()
 { return phrCannotFind( tr("object in data base") ); }
 
 uiString uiStrings::phrCannotOpenInpFile( int num )
-{ return phrCannotOpen( tr("input file",0,num) ); }
+{ return phrCannotOpen( tr("input file",nullptr,num) ); }
 
 uiString uiStrings::phrCannotOpenOutpFile( int num )
-{ return phrCannotOpen(tr("output file",0,num) ); }
+{ return phrCannotOpen(tr("output file",nullptr,num) ); }
 
 uiString uiStrings::phrCannotReadHor()
 { return phrCannotRead( sHorizon().toLower() ); }
@@ -730,6 +731,20 @@ uiString uiStrings::phrSelOutpFile()
 uiString uiStrings::phrSpecifyOutput()
 { return uiStrings::phrSpecify( uiStrings::sOutput() ); }
 
+
+uiString uiStrings::sResolutionValue( int res )
+{
+    if ( res==0 )
+	return tr("Auto");
+
+    const int val = mNINT32( Math::PowerOf( 2, float(res-1) ) );
+    if ( val==1 )
+	return tr("Full");
+    if ( val==2 )
+	return tr("Half");
+
+    return toUiString("1 / %1").arg( val );
+}
 
 
 uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,

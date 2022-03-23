@@ -210,7 +210,7 @@ void uiTextureInterpolateGrp::chgIntpCB( CallBacker* cb )
 
 // uiMaterialGrp
 
-#define mFinalise( sldr, fn ) \
+#define mFinalize( sldr, fn ) \
 if ( sldr ) \
 { \
     sldr->setInterval( StepInterval<float>( 0, 100, 10 ) ); \
@@ -248,12 +248,12 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
     createSlider( shininess, shineslider_, tr("Shininess") );
     createSlider( transparency, transslider_, uiStrings::sTransparency() );
 
-    mFinalise( ambslider_, getAmbience );
-    mFinalise( diffslider_, getDiffIntensity );
-    mFinalise( specslider_, getSpecIntensity );
-    mFinalise( emisslider_, getEmmIntensity );
-    mFinalise( shineslider_, getShininess );
-    mFinalise( transslider_, getTransparency );
+    mFinalize( ambslider_, getAmbience );
+    mFinalize( diffslider_, getDiffIntensity );
+    mFinalize( specslider_, getSpecIntensity );
+    mFinalize( emisslider_, getEmmIntensity );
+    mFinalize( shineslider_, getShininess );
+    mFinalize( transslider_, getTransparency );
 }
 
 
