@@ -26,7 +26,7 @@ namespace EM { class EMObject; }
 
 /*! \brief Create isochron as attribute of horizon */
 
-mClass(uiEarthModel) uiIsochronMakerGrp : public uiGroup
+mExpClass(uiEarthModel) uiIsochronMakerGrp : public uiGroup
 {
 mODTextTranslationClass(uiIsochronMakerGrp)
 public:
@@ -52,7 +52,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiIsochronMakerBatch : public uiDialog
+mExpClass(uiEarthModel) uiIsochronMakerBatch : public uiDialog
 {
 mODTextTranslationClass(uiIsochronMakerBatch)
 public:
@@ -69,7 +69,7 @@ protected:
 };
 
 
-mClass(uiEarthModel) uiIsochronMakerDlg : public uiDialog
+mExpClass(uiEarthModel) uiIsochronMakerDlg : public uiDialog
 {
 mODTextTranslationClass(uiIsochronMakerDlg)
 public:

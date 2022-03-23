@@ -24,8 +24,9 @@ class uiSeisSel;
 
 /*! \brief Create flattened cube from horizon */
 
-mClass(uiEMAttrib) uiWriteFlattenedCube : public uiDialog
-{ mODTextTranslationClass(uiWriteFlattenedCube);
+mExpClass(uiEMAttrib) uiWriteFlattenedCube : public uiDialog
+{
+mODTextTranslationClass(uiWriteFlattenedCube)
 public:
 
 			uiWriteFlattenedCube(uiParent*,EM::ObjectID);
