@@ -834,7 +834,7 @@ bool TrcKeySampling::getInterSection( const TrcKeySampling& tks,
     Pos::steprg_type linergout, trcrgout;
 
     const bool success = Pos::intersect( linerg1, linerg2, linergout ) &&
-			 Pos::intersect( linerg2, trcrg2, trcrgout );
+			 Pos::intersect( trcrg1, trcrg2, trcrgout );
     if ( success )
     {
 	out.setLineRange( linergout );
