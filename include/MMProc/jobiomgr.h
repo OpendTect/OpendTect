@@ -66,6 +66,8 @@ public:
 			JobIOMgr(PortNr_Type firstport=19345,int niceval=19);
     virtual		~JobIOMgr();
 
+    Network::Authority	authority() const;
+
     const char*		peekMsg()  { if ( msg_.size() ) return msg_; return 0; }
     void		fetchMsg( BufferString& bs )	{ bs = msg_; msg_ = "";}
 

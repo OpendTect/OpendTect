@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "od_strstream.h"
 #include "oscommand.h"
+#include "perthreadrepos.h"
 #include "safefileio.h"
 #include "separstr.h"
 #include "strmoper.h"
@@ -108,6 +109,7 @@ void HostData::setHostName( const char* nm )
     hp_staticip_.setParam( this, false );
 }
 
+
 const char* HostData::getHostName() const
 {
     if ( staticip_() )
@@ -116,6 +118,16 @@ const char* HostData::getHostName() const
 	return hostname_;
 }
 
+
+const char* HostData::getShortHostName() const
+{
+    mDeclStaticString( str );
+    str.set( getHostName() );
+    str.replace( '.', '\0' );
+    return str.buf();
+}
+
+
 void HostData::setIPAddress( const char* ip )
 {
     ipaddress_ = ip;
@@ -123,12 +135,19 @@ void HostData::setIPAddress( const char* ip )
     hp_staticip_.setParam( this, true );
 }
 
+
 const char* HostData::getIPAddress() const
 {
     if ( staticip_() )
 	return ipaddress_;
     else
 	return System::hostAddress( hostname_ );
+}
+
+
+BufferString HostData::connAddress() const
+{
+    return isStaticIP() ? getIPAddress() : getHostName();
 }
 
 
@@ -141,26 +160,59 @@ void HostData::setAlias( const char* nm )
 
 bool HostData::isKnownAs( const char* nm ) const
 {
-    if ( !nm || !*nm ) return false;
-    if ( BufferString(getHostName()) == nm ) return true;
+    BufferString machnm( nm );
+    if ( machnm.isEmpty() )
+	return false;
+
+    if ( System::isValidIPAddress(machnm) )
+    {
+	if ( machnm == getIPAddress() )
+	    return true;
+    }
+    else
+    {
+	const BufferString hostnm( getShortHostName() );
+	machnm.replace( '.', '\0' ); //Remove any domain name
+	if ( hostnm == machnm )
+	    return true;
+    }
+
     for ( int idx=0; idx<aliases_.size(); idx++ )
-	if ( *aliases_[idx] == nm ) return true;
+    {
+	if ( *aliases_[idx] == nm )
+	    return true;
+    }
+
     return false;
 }
 
 
 void HostData::addAlias( const char* nm )
 {
-    if ( !nm || !*nm || BufferString(getHostName()) == nm ) return;
-    for ( int idx=0; idx<aliases_.size(); idx++ )
-	if ( *aliases_[idx] == nm ) return;
+    if ( !nm || !*nm || BufferString(getHostName()) == nm )
+	return;
+
+    for ( const auto* alias : aliases_ )
+    {
+	if ( *alias == nm )
+	    return;
+    }
+
     aliases_.add( nm );
 }
 
 
 BufferString HostData::getFullDispString() const
 {
-    BufferString ret( getHostName() );
+    const BufferString ipaddr( getIPAddress() );
+    const BufferString hostnm( getShortHostName() );
+    BufferString ret;
+    if ( isStaticIP() )
+	ret.set( ipaddr ).add( " (" ).add( hostnm );
+    else
+	ret.set( hostnm ).add( " (" ).add( ipaddr );
+    ret.add( ")" );
+
     for ( int idx=0; idx<nrAliases(); idx++ )
 	ret.add( " / " ).add( alias(idx) );
     return ret;
@@ -193,7 +245,8 @@ void HostData::init( const char* nm )
 {
     hp_staticip_.setParam( this, false );
     BufferString name = nm;
-    if ( name.isEmpty() ) return;
+    if ( name.isEmpty() )
+	return;
 
     const char* ptr = name.buf();
     bool is_ip_adrr = true;
@@ -287,18 +340,7 @@ bool HostData::isOK( uiString& errmsg ) const
 
 bool HostData::isValidIPAddress( const char* ipaddr )
 {
-    BufferStringSet octets;
-    octets.unCat( ipaddr, "." );
-    if ( octets.size()<4 )
-	return false;
-    for ( const auto* str : octets )
-    {
-	if ( !str->isNumber(true) )
-	    return false;
-	if ( str->toInt()<0 || str->toInt()>255 )
-	    return false;
-    }
-    return true;
+    return System::isValidIPAddress( ipaddr );
 }
 
 
@@ -405,12 +447,12 @@ bool HostDataList::refresh( bool foredit )
 
 void HostDataList::fillFromNetwork()
 {
-#ifndef __win__
+#ifdef __unix__
     sethostent(0);
     struct hostent* he;
     while ( (he = gethostent()) )
     {
-	HostData* newhd = new HostData( he->h_name );
+	auto* newhd = new HostData( he->h_name );
 	char** al = he->h_aliases;
 	while ( *al )
 	{
@@ -673,22 +715,40 @@ void HostDataList::dump( od_ostream& strm ) const
 }
 
 
+bool HostDataList::isMostlyStaticIP() const
+{
+    int nrstatic = 0, nrdns = 0;
+    for ( const auto* hd : *this )
+    {
+	if ( hd->isStaticIP() )
+	    nrstatic++;
+	else
+	    nrdns++;
+    }
+
+    return nrstatic > nrdns;
+}
+
+
 void HostDataList::handleLocal()
 {
     const int sz = size();
     const char* localhoststd = Network::Socket::sKeyLocalHost();
-    HostData* localhd = 0;
+    HostData* localhd = nullptr;
     const BufferString hnm( GetLocalHostName() );
     for ( int idx=0; idx<sz; idx++ )
     {
-	HostData* hd = (*this)[idx];
+	HostData* hd = get( idx );
 
-	if ( hd->isKnownAs(localhoststd)
-	  || hd->isKnownAs("localhost.localdomain") )
+	if ( hd->isKnownAs(localhoststd) ||
+	     hd->isKnownAs("localhost.localdomain") )
 	{
 	    // Ensure this is the first entry
 	    if ( idx != 0 )
-		swap( idx, 0 );
+	    {
+		hd = removeAndTake( idx );
+		insertAt( hd, 0 );
+	    }
 
 	    localhd = hd;
 	    break;
@@ -696,25 +756,31 @@ void HostDataList::handleLocal()
 	else if ( hd->isKnownAs(hnm) )
 	{
 	    hd->addAlias( localhoststd );
-
 	    // Ensure this is the first entry
 	    if ( idx != 0 )
-		swap( idx, 0 );
+	    {
+		hd = removeAndTake( idx );
+		insertAt( hd, 0 );
+	    }
 
 	    localhd = hd;
 	    break;
 	}
     }
 
-    if ( hnm.isEmpty() ) return;
+    if ( hnm.isEmpty() )
+	return;
+
     if ( !localhd )
     {
-	localhd = new HostData( hnm );
+	const bool useipaddr = isMostlyStaticIP();
+	localhd = useipaddr ? new HostData( System::hostAddress(hnm) )
+			    : new HostData( hnm );
 	localhd->addAlias( localhoststd );
 	insertAt( localhd, 0 );
     }
 
-    HostData& lochd = *(*this)[0];
+    HostData& lochd = *first();
     if ( hnm != lochd.getHostName() )
     {
 	BufferString oldnm = lochd.getHostName();
@@ -729,7 +795,7 @@ void HostDataList::handleLocal()
 
     for ( int idx=1; idx<size(); idx++ )
     {
-	HostData* hd = (*this)[idx];
+	HostData* hd = get( idx );
 	hd->setLocalHost( *localhd );
 
 	if ( hd->isKnownAs(hnm) )
@@ -744,23 +810,30 @@ void HostDataList::handleLocal()
 }
 
 
-HostData* HostDataList::findHost( const char* nm ) const
+HostData* HostDataList::findHost( const char* nm )
 {
-    const HostData* ret = 0;
-    for ( int idx=0; idx<size(); idx++ )
+    if ( !nm || !*nm )
+	return nullptr;
+
+    for ( const auto* hd : *this )
     {
-	if ( (*this)[idx]->isKnownAs(nm) )
-	    { ret = (*this)[idx]; break; }
+	if ( hd->isKnownAs(nm) )
+	    return const_cast<HostData*>( hd );
     }
-    if ( !ret )
+
+    for ( const auto* hd : *this )
     {
-	for ( int idx=0; idx<size(); idx++ )
-	{
-	    if ( (*this)[idx]->getFullDispString() == nm )
-		{ ret = (*this)[idx]; break; }
-	}
+	if ( hd->getFullDispString() == nm )
+	    return const_cast<HostData*>( hd );
     }
-    return const_cast<HostData*>( ret );
+
+    return nullptr;
+}
+
+
+const HostData* HostDataList::findHost( const char* nm ) const
+{
+    return mSelf().findHost( nm );
 }
 
 

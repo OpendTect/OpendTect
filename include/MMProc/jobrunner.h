@@ -12,8 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "mmprocmod.h"
+
 #include "executor.h"
 #include "jobinfo.h"
+#include "networkcommon.h"
 
 class BufferStringSet;
 class FilePath;
@@ -60,6 +62,7 @@ public:
 
     const JobDescProv*		descProv() const	{ return descprov_; }
 
+    Network::Authority		authority() const;
     const ObjectSet<HostNFailInfo>& hostInfo() const	{ return hostinfo_; }
     bool			addHost(const HostData&);
     void			removeHost(int);
