@@ -11,8 +11,10 @@ ________________________________________________________________________
 -*/
 
 #include "mmprocmod.h"
+
 #include "executor.h"
 #include "jobinfo.h"
+#include "networkcommon.h"
 
 class BufferStringSet;
 class FilePath;
@@ -28,7 +30,7 @@ class StatusInfo;
 mExpClass(MMProc) HostNFailInfo
 { mODTextTranslationClass(HostNFailInfo);
 public:
-    			HostNFailInfo( const HostData& hd )
+			HostNFailInfo( const HostData& hd )
 			    : hostdata_(hd)
 			    , nrfailures_(0)
 			    , nrsucces_(0)
@@ -53,12 +55,13 @@ mExpClass(MMProc) JobRunner : public Executor
 { mODTextTranslationClass(JobRunner);
 public:
 
-    				JobRunner(JobDescProv*,const char* cmd);
+				JobRunner(JobDescProv*,const char* cmd);
 				//!< JobDescProv becomes mine. Never pass null.
 				~JobRunner();
 
     const JobDescProv*		descProv() const	{ return descprov_; }
 
+    Network::Authority		authority() const;
     const ObjectSet<HostNFailInfo>& hostInfo() const	{ return hostinfo_; }
     bool			addHost(const HostData&);
     void			removeHost(int);
@@ -66,14 +69,14 @@ public:
     bool			stopAll();
     bool			hostFailed(int) const;
     bool			isPaused(int) const;
-    bool			isAssigned( const JobInfo& ji ) const;
+    bool			isAssigned(const JobInfo&) const;
 
     int				nrJobs( bool failed=false ) const
-    				{ return (failed ? failedjobs_ : jobinfos_)
-				    	 .size(); }
+				{ return (failed ? failedjobs_ : jobinfos_)
+					 .size(); }
     const JobInfo&		jobInfo( int idx, bool failed=false ) const
-    				{ return *(failed ? failedjobs_ : jobinfos_)
-				    	 [idx]; }
+				{ return *(failed ? failedjobs_ : jobinfos_)
+					 [idx]; }
 
     int				jobsDone() const;
     int				jobsInProgress() const;
@@ -83,21 +86,21 @@ public:
 				{ return jobinfos_.size()+failedjobs_.size(); }
     JobInfo*			currentJob(const HostNFailInfo*) const;
 
-    int				nextStep()	{ return doCycle(); }
-    od_int64			nrDone() const	{ return jobsDone(); }
-    od_int64			totalNr() const	{ return totalJobs(); }
-    uiString			uiMessage() const;
+    int				nextStep() override	{ return doCycle(); }
+    od_int64			nrDone() const override { return jobsDone(); }
+    od_int64			totalNr() const override { return totalJobs(); }
+    uiString			uiMessage() const override;
     uiString			nrDoneMessage() const;
 
-    				// Set these before first step
-    void			setFirstPort( int n )	    { firstport_ = n; }
+				// Set these before first step
+    void			setFirstPort( PortNr_Type n ) { firstport_ = n;}
     void			setRshComm( const char* s ) { rshcomm_ = s; }
     void			setProg( const char* s )    { prog_ = s; }
-    				// Set this anytime
-    void			setNiceNess( int n );
+				// Set this anytime
+    void			setNiceNess(int n);
 
-    void			showMachStatus( BufferStringSet& ) const;
-    const FilePath&		getBaseFilePath(JobInfo&, const HostData&);
+    void			showMachStatus(BufferStringSet&) const;
+    const FilePath&		getBaseFilePath(JobInfo&,const HostData&);
 
     Notifier<JobRunner>		preJobStart;
     Notifier<JobRunner>		postJobStart;
@@ -123,13 +126,13 @@ protected:
     BufferString		procdir_;
     FilePath&			curjobfp_;
     IOPar&			curjobiop_;
-    JobInfo*			curjobinfo_;
+    JobInfo*			curjobinfo_ = nullptr;
 
     JobIOMgr&			iomgr();
-    JobIOMgr*			iomgr_;
+    JobIOMgr*			iomgr_ = nullptr;
 
-    int				niceval_;
-    int				firstport_;
+    int				niceval_ = 19;
+    PortNr_Type			firstport_;
     BufferString		rshcomm_;
     int				maxhostfailures_; //!< host failrs B4 host bad
     int				maxjobfailures_;  //!< job related job failrs
@@ -145,13 +148,13 @@ protected:
     HostNFailInfo*		hostNFailInfoFor(const HostData*) const;
 
     void			updateJobInfo();
-    void 			handleStatusInfo( StatusInfo& );
-    JobInfo* 			gtJob( int descnr );
+    void			handleStatusInfo( StatusInfo& );
+    JobInfo*			gtJob( int descnr );
 
-    void 			failedJob( JobInfo&, JobInfo::State );
+    void			failedJob( JobInfo&, JobInfo::State );
 
     enum StartRes		{ Started, NotStarted, JobBad, HostBad };
-    StartRes			startJob( JobInfo& ji, HostNFailInfo& jhi );
+    StartRes			startJob(JobInfo&,HostNFailInfo&);
     bool			runJob(JobInfo&,const HostData&);
 
 

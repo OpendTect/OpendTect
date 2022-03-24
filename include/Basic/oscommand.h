@@ -137,11 +137,13 @@ public:
 			{ return addKeyedArg(ky,::toString(t),ks);}
 
     bool		hostIsWindows() const		{ return hostiswin_; }
-    void		setHostIsWindows( bool yn )	{ hostiswin_ = yn; }
+    MachineCommand&	setHostIsWindows(bool yn);
     const char*		hostName() const		{ return hname_; }
-    void		setHostName( const char* hnm )	{ hname_ = hnm; }
+    MachineCommand&	setHostName(const char*);
+			/*<! Host name for remote execution only,
+			     should be a valid host name or IP address */
     const char*		remExec() const			{ return remexec_; }
-    void		setRemExec( const char* sh )	{ remexec_ = sh; }
+    MachineCommand&	setRemExec(const char* sh);
 
     bool		isBad() const		{ return prognm_.isEmpty(); }
     bool		hasHostName() const	{ return !hname_.isEmpty(); }

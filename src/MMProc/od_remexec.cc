@@ -8,6 +8,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "applicationdata.h"
 #include "commandlineparser.h"
 #include "hostdata.h"
 #include "iopar.h"
@@ -18,6 +19,7 @@ ________________________________________________________________________
 #include "remjobexec.h"
 #include "singlebatchjobdispatch.h"
 #include "systeminfo.h"
+#include "timer.h"
 
 #include "prog.h"
 
@@ -42,54 +44,93 @@ static void printBatchUsage()
 }
 
 
+#define mExitRet() \
+{ \
+    ApplicationData::exit(1); \
+    return; \
+}
+
 #define mErrRet() \
 { \
     printBatchUsage(); \
-    return 1; \
+    mExitRet() \
 }
 
-int mProgMainFnName( int argc, char** argv )
+
+class RemExecHandler : public CallBacker
 {
-    mInitProg( OD::BatchProgCtxt )
-    SetProgramArgs( argc, argv );
-    CommandLineParser clp;
-    if ( clp.nrArgs() < 5 )
-	mErrRet()
+public:
 
-    clp.setKeyHasValue( OS::MachineCommand::sKeyRemoteHost() );
-    clp.setKeyHasValue( OS::MachineCommand::sKeyRemoteCmd() );
-    clp.setKeyHasValue( OS::MachineCommand::sKeyPrimaryHost() );
-    clp.setKeyHasValue( OS::MachineCommand::sKeyPrimaryPort() );
-    clp.setKeyHasValue( OS::MachineCommand::sKeyJobID() );
+RemExecHandler( const CommandLineParser& clp, od_ostream& strm )
+    : clp_(clp)
+    , strm_(strm)
+{
+    if ( clp_.nrArgs() < 5 )
+    {
+	printBatchUsage();
+	return;
+    }
 
-    BufferString machine, remotecmd;
-    if ( !clp.getVal(OS::MachineCommand::sKeyRemoteHost(),machine) ||
-	 !clp.getVal(OS::MachineCommand::sKeyRemoteCmd(),remotecmd) )
-	mErrRet()
+    clp_.setKeyHasValue( OS::MachineCommand::sKeyRemoteHost() );
+    clp_.setKeyHasValue( OS::MachineCommand::sKeyRemoteCmd() );
+    clp_.setKeyHasValue( OS::MachineCommand::sKeyPrimaryHost() );
+    clp_.setKeyHasValue( OS::MachineCommand::sKeyPrimaryPort() );
+    clp_.setKeyHasValue( OS::MachineCommand::sKeyJobID() );
+    clp_.setKeyHasValue( OS::CommandExecPars::sKeyPriority() );
+
+    if ( !clp_.getVal(OS::MachineCommand::sKeyRemoteHost(),machine_) ||
+	 !clp_.getVal(OS::MachineCommand::sKeyRemoteCmd(),remotecmd_) )
+    {
+	printBatchUsage();
+	return;
+    }
+
+    isok_ = true;
+    mAttachCB( timer_.tick, RemExecHandler::doWork );
+    timer_.start( 100, true );
+}
+
+~RemExecHandler()
+{
+    detachAllNotifiers();
+}
+
+bool isOK() const
+{
+    return isok_;
+}
+
+private:
+
+void doWork( CallBacker* )
+{
+    mDetachCB( timer_.tick, RemExecHandler::doWork );
+    if ( !isOK() )
+	mExitRet()
 
     const HostDataList hdl( false );
-    const HostData* hd = hdl.find( machine.str() );
+    const HostData* hd = hdl.find( machine_.str() );
     if ( !hd )
-	mErrRet()
+    {
+	strm_ << "[Error] The requested remote machine " << machine_;
+	strm_ << " is not registered in the BatchHosts configuration file\n";
+	mExitRet()
+    }
 
-    BufferString remhostaddress( hd->getIPAddress() );
+    BufferString remhostaddress( hd->connAddress() );
     if ( remhostaddress.isEmpty() )
-	remhostaddress = System::hostAddress( machine.str() );
-    if ( remhostaddress.isEmpty() )
-	remhostaddress = hd->getHostName();
-    if ( remhostaddress.isEmpty() )
-	remhostaddress = machine.str();
+	remhostaddress = machine_.str();
 
     IOPar par;
-    par.set( "Proc Name", remotecmd.str() );
+    par.set( "Proc Name", remotecmd_.str() );
 
     BufferString primaryhost;
     int primaryport = -1, jobid = 0;
     const bool hasprimaryhost =
-	       clp.getVal( OS::MachineCommand::sKeyPrimaryHost(), primaryhost );
+	  clp_.getVal( OS::MachineCommand::sKeyPrimaryHost(), primaryhost );
     const bool hasprimaryport =
-	       clp.getVal( OS::MachineCommand::sKeyPrimaryPort(), primaryport );
-    const bool hasjobid = clp.getVal( OS::MachineCommand::sKeyJobID(), jobid );
+	  clp_.getVal( OS::MachineCommand::sKeyPrimaryPort(), primaryport );
+    const bool hasjobid = clp_.getVal( OS::MachineCommand::sKeyJobID(), jobid );
     if ( hasprimaryhost && hasprimaryport && hasjobid )
     {
 	par.set( "Host Name", primaryhost );
@@ -98,16 +139,15 @@ int mProgMainFnName( int argc, char** argv )
     }
     else if ( hasprimaryhost || hasprimaryport || hasjobid )
     {
-	od_ostream& strm = od_ostream::logStream();
-	strm << "Error: --" << OS::MachineCommand::sKeyPrimaryHost() << ", --";
-	strm << OS::MachineCommand::sKeyPrimaryPort() << ", --";
-	strm << OS::MachineCommand::sKeyJobID();
-	strm << " arguments must be set together\n\n";
+	strm_ << "Error: --" << OS::MachineCommand::sKeyPrimaryHost() << ", --";
+	strm_ << OS::MachineCommand::sKeyPrimaryPort() << ", --";
+	strm_ << OS::MachineCommand::sKeyJobID();
+	strm_ << " arguments must be set together\n\n";
 	mErrRet()
     }
 
     BufferStringSet normalarguments;
-    clp.getNormalArguments( normalarguments );
+    clp_.getNormalArguments( normalarguments );
     if ( normalarguments.isEmpty() )
 	mErrRet()
 
@@ -116,5 +156,27 @@ int mProgMainFnName( int argc, char** argv )
     const Network::Authority auth( remhostaddress, mCast(PortNr_Type,5050) );
     PtrMan<RemoteJobExec> rje = new RemoteJobExec( auth );
     rje->addPar( par );
-    return rje->launchProc() ? 0 : 1;
+    ApplicationData::exit( rje->launchProc() ? 0 : 1 );
+}
+
+    const CommandLineParser&	clp_;
+    bool		isok_ = false;
+    Timer		timer_;
+    BufferString	machine_;
+    BufferString	remotecmd_;
+    od_ostream&		strm_;
+};
+
+
+int mProgMainFnName( int argc, char** argv )
+{
+    mInitProg( OD::BatchProgCtxt )
+    SetProgramArgs( argc, argv );
+    ApplicationData app;
+    CommandLineParser clp;
+    od_ostream& strm = od_ostream::logStream();
+    PtrMan<RemExecHandler> handler = new RemExecHandler( clp, strm );
+    const bool ret = handler && handler->isOK() ? app.exec() : 1;
+    handler = nullptr;
+    return ret;
 }

@@ -34,7 +34,9 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "genc.h"
 #include "ioman.h"
+#include "netsocket.h"
 #include "survinfo.h"
+#include "systeminfo.h"
 #include "plugins.h"
 
 
@@ -90,15 +92,6 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 		.fixedsize(true))
     , jobpars_(*new IOPar(iop))
     , hdl_(*new const HostDataList(false))
-    , avmachfld_(nullptr), usedmachfld_(nullptr)
-    , nicefld_(nullptr)
-    , logvwer_(nullptr)
-    , progrfld_(nullptr)
-    , progbar_(nullptr)
-    , jrpstartfld_(nullptr), jrpstopfld_(nullptr)
-    , jobrunner_(nullptr)
-    , timer_(nullptr)
-    , nrcyclesdone_(0)
     , basecaption_(tr("Distributed Computing"))
 {
     setCaption( basecaption_ );
@@ -116,31 +109,25 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     statusBar()->addMsgFld( toUiString("Activity"), Alignment::Left, 1 );
 
     specparsgroup_ = new uiGroup( this, "Specific parameters group" );
-    uiSeparator* sep = new uiSeparator( this, "Hor sep 1" );
+    auto* sep = new uiSeparator( this, "Hor sep 1" );
     sep->attach( stretchedBelow, specparsgroup_ );
 
-    uiGroup* machgrp = new uiGroup( this, "Machine handling" );
+    auto* machgrp = new uiGroup( this, "Machine handling" );
     if ( multihost )
     {
 	uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available hosts"),
 			     uiListBox::AboveMid );
 	avmachfld_ = new uiListBox( machgrp, su );
 	machgrp->setHAlignObj( avmachfld_ );
-	for ( int idx=0; idx<hdl_.size(); idx++ )
-	{
-	    const HostData& hd = *hdl_[idx];
-	    BufferString nm( hd.getHostName() );
-	    const int nraliases = hd.nrAliases();
-	    for ( int aliasidx=0; aliasidx<nraliases; aliasidx++ )
-		{ nm += " / "; nm += hd.alias(aliasidx); }
-	    avmachfld_->addItem( toUiString(nm) );
-	}
+	for ( const auto* hd : hdl_ )
+	    avmachfld_->addItem( hd->getFullDispString() );
 
+	avmachfld_->setCurrentItem( 0 );
 	avmachfld_->setPrefWidthInChar( hostnmwdth );
 	avmachfld_->setPrefHeightInChar( maxhostdisp );
     }
 
-    uiGroup* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );
+    auto* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );
     uiListBox::Setup su( OD::ChooseOnlyOne,
 		multihost ? tr("Used hosts") : uiString::emptyString(),
 		uiListBox::AboveMid );
@@ -148,23 +135,19 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     usedmachfld_ = new uiListBox( usedmachgrp, su );
     usedmachfld_->setPrefWidthInChar( hostnmwdth );
 
-    uiButton* stopbut = new uiPushButton( usedmachgrp,
-					  uiStrings::sStop(), true );
-    stopbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,stopPush) );
-    uiButton* vwlogbut = new uiPushButton( usedmachgrp,
-					   tr("View Log"), false );
-    vwlogbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,vwLogPush) );
+    auto* stopbut = new uiPushButton( usedmachgrp, uiStrings::sStop(), true );
+    mAttachCB( stopbut->activated, uiMMBatchJobDispatcher::stopPush );
+    auto* vwlogbut = new uiPushButton( usedmachgrp, tr("View Log"), false );
+    mAttachCB( vwlogbut->activated, uiMMBatchJobDispatcher::vwLogPush );
     vwlogbut->attach( rightAlignedBelow, usedmachfld_ );
 
     if ( multihost )
     {
 	stopbut->attach( alignedBelow, usedmachfld_ );
 
-	uiPushButton* stopallbut =
-		new uiPushButton( usedmachgrp, tr("Stop all"), true );
+	auto* stopallbut = new uiPushButton( usedmachgrp, tr("Stop all"), true);
 	stopallbut->attach( rightTo, stopbut );
-	stopallbut->activated.notify(
-		mCB(this,uiMMBatchJobDispatcher,stopAllPush) );
+	mAttachCB( stopallbut->activated, uiMMBatchJobDispatcher::stopAllPush );
 
 	addbut_ = new uiPushButton( machgrp, tr( ">> Add >>" ), true );
 	if ( avmachfld_ )
@@ -178,12 +161,13 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 	stopbut->attach( centeredBelow, usedmachfld_ );
 	machgrp->setHAlignObj( stopbut );
     }
-    addbut_->activated.notify( mCB(this,uiMMBatchJobDispatcher,addPush) );
+
+    mAttachCB( addbut_->activated, uiMMBatchJobDispatcher::addPush );
 
     if ( sep )
 	machgrp->attach( ensureBelow, sep );
 
-    uiGroup* jrppolgrp = new uiGroup( this, "Job run policy group" );
+    auto* jrppolgrp = new uiGroup( this, "Job run policy group" );
 
     nicefld_ = new uiSlider( jrppolgrp,
 		uiSlider::Setup(tr("'Nice' level (0-19)")), "Nice level" );
@@ -197,8 +181,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     jrppolselfld_->addItem( uiStrings::sPause() );
     jrppolselfld_->addItem( tr("Schedule") );
     jrppolselfld_->setCurrentItem( ((int)0) );
-    jrppolselfld_->selectionChanged.notify(
-				mCB(this,uiMMBatchJobDispatcher,jrpSel) );
+    mAttachCB( jrppolselfld_->selectionChanged, uiMMBatchJobDispatcher::jrpSel);
     jrppolselfld_->attach( alignedBelow, nicefld_ );
     if ( avmachfld_ ) jrppolselfld_->setPrefWidthInChar( hostnmwdth );
     jrpworklbl_ = new uiLabel( jrppolgrp, tr("Processes") );
@@ -231,12 +214,13 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     progbar_->attach( widthSameAs, progrfld_ );
     progbar_->attach( alignedBelow, progrfld_ );
 
-    postFinalise().notify( mCB(this,uiMMBatchJobDispatcher,initWin) );
+    mAttachCB( postFinalise(), uiMMBatchJobDispatcher::initWin );
 }
 
 
 uiMMBatchJobDispatcher::~uiMMBatchJobDispatcher()
 {
+    detachAllNotifiers();
     delete logvwer_;
     delete timer_;
 
@@ -267,16 +251,42 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
     jobrunner_->setRshComm( hdl_.loginCmd() );
     jobrunner_->setNiceNess( hdl_.niceLevel() );
 
-    jobrunner_->preJobStart.notify( mCB(this,uiMMBatchJobDispatcher,jobPrep) );
-    jobrunner_->postJobStart.notify( mCB(this,uiMMBatchJobDispatcher,jobStart));
-    jobrunner_->jobFailed.notify( mCB(this,uiMMBatchJobDispatcher,jobFail) );
-    jobrunner_->msgAvail.notify( mCB(this,uiMMBatchJobDispatcher,infoMsgAvail));
+    const Network::Authority auth = jobrunner_->authority();
+    const BufferString clienthost = auth.getHost();
+    if ( DBG::isOn(DBG_MM) )
+    {
+	BufferString msg( "Started listening server on machine ",
+		GetLocalHostName(), " with IP address: " );
+	msg.add( System::localAddress() ).addNewLine()
+	   .add( "Server is listening to host " ).add( clienthost )
+	   .add( " on port " ).add( auth.getPort() );
+	DBG::message( msg );
+    }
+
+    const char* localhoststr = Network::Socket::sKeyLocalHost();
+    if ( !auth.addressIsValid() ||
+	 clienthost == localhoststr ||
+	 clienthost == System::hostAddress(localhoststr,true) ||
+	 clienthost == System::hostAddress(localhoststr,false) )
+    {
+	uiMSG().error( tr("Invalid IP address on the client machine: %1")
+					.arg(clienthost) );
+	setCancelText( uiStrings::sClose() );
+	button(OK)->display( false );
+	deleteAndZeroPtr( jobrunner_ );
+	return;
+    }
+
+    mAttachCB( jobrunner_->preJobStart, uiMMBatchJobDispatcher::jobPrep );
+    mAttachCB( jobrunner_->postJobStart, uiMMBatchJobDispatcher::jobStart );
+    mAttachCB( jobrunner_->jobFailed, uiMMBatchJobDispatcher::jobFail );
+    mAttachCB( jobrunner_->msgAvail, uiMMBatchJobDispatcher::infoMsgAvail );
 
     setOkText( tr("Finish") );
     setCancelText( uiStrings::sAbort() );
 
     timer_ = new Timer("uiMMBatchJobDispatcher timer");
-    timer_->tick.notify( mCB(this,uiMMBatchJobDispatcher,doCycle) );
+    mAttachCB( timer_->tick, uiMMBatchJobDispatcher::doCycle );
     timer_->start( 100, true );
 }
 
@@ -429,7 +439,12 @@ void uiMMBatchJobDispatcher::jobStart( CallBacker* )
     BufferString msg( "Started processing " );
     addObjNm( msg, jobrunner_, ji.descnr_ );
     if ( ji.hostdata_ )
-	{ msg += " on "; msg += ji.hostdata_->getHostName(); }
+    {
+	msg.add( " on " )
+	   .add( ji.hostdata_->isStaticIP() ? ji.hostdata_->getIPAddress()
+					    : ji.hostdata_->getHostName(false));
+    }
+
     progrfld_->append( msg );
 }
 
@@ -572,7 +587,7 @@ bool uiMMBatchJobDispatcher::wrapUp()
     clearAliveDisp();
 
     removeTempResults();
-    delete jobrunner_; jobrunner_ = 0;
+    deleteAndZeroPtr( jobrunner_ );
     return true;
 }
 
@@ -646,9 +661,9 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
 		    BufferString& errmsg )
 {
     OS::MachineCommand remotecmd;
-    remotecmd.setHostName( hd.getHostName() );
-    remotecmd.setRemExec( rshcomm );
-    remotecmd.setHostIsWindows( hd.isWindows() );
+    remotecmd.setRemExec( rshcomm )
+	     .setHostName( hd.connAddress() )
+	     .setHostIsWindows( hd.isWindows() );
     BufferString stdoutstr;
 
     OS::MachineCommand checkcmd = OS::MachineCommand( remotecmd );
@@ -821,7 +836,9 @@ bool uiMMBatchJobDispatcher::acceptOK(CallBacker*)
 	    return false;
     }
 
-    if ( jobrunner_ )
-	jobrunner_->stopAll();
+    if ( !jobrunner_ )
+	return true; //Already wrapped up
+
+    jobrunner_->stopAll();
     return wrapUp();
 }

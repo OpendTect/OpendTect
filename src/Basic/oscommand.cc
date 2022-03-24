@@ -222,6 +222,31 @@ OS::MachineCommand& OS::MachineCommand::addArg( const char* str )
 }
 
 
+OS::MachineCommand& OS::MachineCommand::setRemExec( const char* sh )
+{
+    remexec_.set( sh );
+    return *this;
+}
+
+
+OS::MachineCommand& OS::MachineCommand::setHostName( const char* hnm )
+{
+    const BufferString hostnm( hnm );
+    const BufferString localhostnm( GetLocalHostName() );
+    if ( !hostnm.isEmpty() && hostnm != localhostnm && hostnm != "localhost" )
+	hname_.set( hnm );
+
+    return *this;
+}
+
+
+OS::MachineCommand& OS::MachineCommand::setHostIsWindows( bool yn )
+{
+    hostiswin_ = yn;
+    return *this;
+}
+
+
 OS::MachineCommand& OS::MachineCommand::addFileRedirect( const char* fnm,
 						int stdcode, bool append )
 {
@@ -454,8 +479,7 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 
     BufferStringSet mcargs;
     const BufferString prognm = getUsableCmd( prognm_, mcargs );
-    const BufferString localhostnm( GetLocalHostName() );
-    if ( remexec_.isEmpty() || hname_.isEmpty() || hname_ == localhostnm )
+    if ( remexec_.isEmpty() || hname_.isEmpty() )
     {
 	if ( ret.isBad() )
 	    ret.setProgram( prognm );
@@ -1148,7 +1172,7 @@ bool OS::CommandLauncher::openTerminal( const char* cmdstr,
 			"prompt $COpendTect$F $P$G && title Command Prompt" );
 	mc.addArg( cmdstring );
     }
-   
+
     if ( args )
 	mc.addArgs( *args );
 

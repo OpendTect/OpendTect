@@ -27,7 +27,8 @@ namespace System
     mGlobal(Network) const char*	hostAddress(const char* hostname,
 						    bool ipv4only=true);
     mGlobal(Network) bool		lookupHost(const char* host_ip,
-						   BufferString* msg=0);
+						   BufferString* msg=nullptr);
+    mGlobal(Network) bool		isValidIPAddress(const char* host_ip);
 
     mGlobal(Network) void		macAddresses(BufferStringSet& names,
 						    BufferStringSet& addresses,

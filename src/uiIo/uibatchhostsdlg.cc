@@ -30,6 +30,8 @@ ________________________________________________________________________
 #include "systeminfo.h"
 #include "survinfo.h"
 
+#include <limits>
+
 
 static const int sMode		= 0;
 static const int sIPCol		= 1;
@@ -169,17 +171,19 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     uiDialog dlg( this,
 	uiDialog::Setup(tr("Advanced Settings"),mNoDlgTitle,mNoHelpKey) );
 
-    uiLabel* albl = new uiLabel( &dlg, tr("Settings for all platforms:") );
+    auto* albl = new uiLabel( &dlg, tr("Settings for all platforms:") );
     albl->attach( leftBorder );
-    const int portnr = hostdatalist_.firstPort();
-    uiGenInput* portnrfld = new uiGenInput( &dlg, tr("First Port"),
-					    IntInpSpec(portnr) );
+    const PortNr_Type portnr = hostdatalist_.firstPort();
+    const StepInterval<int> portrg( 1025,
+			std::numeric_limits<PortNr_Type>::max(), 1 );
+    auto* portnrfld = new uiGenInput( &dlg, tr("First Port"),
+				      IntInpSpec(portnr,portrg) );
     portnrfld->attach( ensureBelow, albl );
 
-    uiSeparator* sep = new uiSeparator( &dlg );
+    auto* sep = new uiSeparator( &dlg );
     sep->attach( stretchedBelow, portnrfld );
 
-    uiLabel* ulbl = new uiLabel( &dlg, tr("Settings for UNIX only:") );
+    auto* ulbl = new uiLabel( &dlg, tr("Settings for UNIX only:") );
     ulbl->attach( leftBorder );
     ulbl->attach( ensureBelow, sep );
 
@@ -187,7 +191,7 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     cmds += ::toUiString("ssh");
     cmds += ::toUiString("rsh");
     cmds += uiStrings::sEmptyString();
-    uiGenInput* remoteshellfld = new uiGenInput( &dlg,
+    auto* remoteshellfld = new uiGenInput( &dlg,
 				tr("Remote shell command"),
 				BoolInpSpec(true,cmds[0],cmds[1]) );
     remoteshellfld->setText( hostdatalist_.loginCmd() );
@@ -196,24 +200,24 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
 
     const StepInterval<int> nicelvlrg( -19, 19, 1 );
     const int nicelvl = hostdatalist_.niceLevel();
-    uiGenInput* nicelvlfld = new uiGenInput( &dlg, tr("Nice level"),
+    auto* nicelvlfld = new uiGenInput( &dlg, tr("Nice level"),
 				  IntInpSpec(nicelvl,nicelvlrg) );
     nicelvlfld->attach( alignedBelow, remoteshellfld );
 
-    uiSeparator* sep2 = new uiSeparator( &dlg );
+    auto* sep2 = new uiSeparator( &dlg );
     sep2->attach( stretchedBelow, nicelvlfld );
 
-    uiLabel* drlbl = new uiLabel( &dlg, tr("Default Survey Data Root:") );
+    auto* drlbl = new uiLabel( &dlg, tr("Default Survey Data Root:") );
     drlbl->attach( leftBorder );
     drlbl->attach( ensureBelow, sep2 );
 
-    uiGenInput* unixdrfld = new uiGenInput( &dlg, tr("Unix hosts") );
+    auto* unixdrfld = new uiGenInput( &dlg, tr("Unix hosts") );
     unixdrfld->setText( hostdatalist_.unixDataRoot() );
     unixdrfld->setElemSzPol( uiObject::Wide );
     unixdrfld->attach( ensureBelow, drlbl );
     unixdrfld->attach( alignedBelow, nicelvlfld );
 
-    uiGenInput* windrfld = new uiGenInput( &dlg, tr("Windows hosts") );
+    auto* windrfld = new uiGenInput( &dlg, tr("Windows hosts") );
     windrfld->setText( hostdatalist_.winDataRoot() );
     windrfld->setElemSzPol( uiObject::Wide );
     windrfld->attach( alignedBelow, unixdrfld );
@@ -225,7 +229,7 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     const int cmdres = remoteshell ? 0 : 1;
     hostdatalist_.setLoginCmd( cmds[cmdres].getString() );
     hostdatalist_.setNiceLevel( nicelvlfld->getIntValue() );
-    hostdatalist_.setFirstPort( portnrfld->getIntValue() );
+    hostdatalist_.setFirstPort( PortNr_Type(portnrfld->getIntValue()) );
     hostdatalist_.setUnixDataRoot( unixdrfld->text() );
     hostdatalist_.setWinDataRoot( windrfld->text() );
 }
@@ -480,7 +484,7 @@ void uiBatchHostsDlg::ipAddressChanged( int row )
     HostData& hd = *hostdatalist_[row];
     const RowCol curcell = RowCol(row,sIPCol);
     const BufferString ipaddress = table_->text( curcell );
-    if ( !HostData::isValidIPAddress(ipaddress) )
+    if ( !System::isValidIPAddress(ipaddress) )
     {
 	uiMSG().error( tr("Invalid IP address") );
 	return;

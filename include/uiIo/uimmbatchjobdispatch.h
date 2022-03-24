@@ -50,10 +50,10 @@ protected:
 
     IOPar&		jobpars_;
     const HostDataList& hdl_;
-    Timer*		timer_;
-    int			nrcyclesdone_;
+    Timer*		timer_ = nullptr;
+    int			nrcyclesdone_ = 0;
     uiString		basecaption_;
-    JobRunner*		jobrunner_;
+    JobRunner*		jobrunner_ = nullptr;
     mutable uiString	errmsg_;
 
     inline bool		isMultiHost() const		{ return avmachfld_; }
@@ -63,15 +63,15 @@ protected:
 
 private:
 
-    uiListBox*		avmachfld_;
-    uiListBox*		usedmachfld_;
-    uiTextEdit*		progrfld_;
-    uiTextFileDlg*	logvwer_;
-    uiSlider*		nicefld_;
-    uiProgressBar*	progbar_;
+    uiListBox*		avmachfld_ = nullptr;
+    uiListBox*		usedmachfld_ = nullptr;
+    uiTextEdit*		progrfld_ = nullptr;
+    uiTextFileDlg*	logvwer_ = nullptr;
+    uiSlider*		nicefld_ = nullptr;
+    uiProgressBar*	progbar_ = nullptr;
     uiComboBox*		jrppolselfld_;
-    uiGenInput*		jrpstartfld_;
-    uiGenInput*		jrpstopfld_;
+    uiGenInput*		jrpstartfld_ = nullptr;
+    uiGenInput*		jrpstopfld_ = nullptr;
     uiLabel*		jrpworklbl_;
     uiButton*		addbut_;
 

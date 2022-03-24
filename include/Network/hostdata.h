@@ -44,9 +44,11 @@ public:
 
     bool		isStaticIP() const;
     void		setHostName(const char*);
-    const char*		getHostName() const;
+    const char*		getHostName(bool full=true) const;
     void		setIPAddress(const char*);
     const char*		getIPAddress() const;
+    BufferString	connAddress() const;
+			//! Host name or IP address to be used for a connection
 
     int			nrAliases() const
 			{ return aliases_.size(); }
@@ -84,7 +86,6 @@ public:
 			{ return localhd_ ? *localhd_ : *this; }
 
     bool		isOK(uiString& errmsg) const;
-    static bool		isValidIPAddress(const char*);
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -99,11 +100,11 @@ protected:
     OD::Platform	platform_;
     FilePath		appl_pr_;
     FilePath		data_pr_;
-    const HostData*	localhd_;
+    const HostData*	localhd_ = nullptr;
 
     friend class	HostDataList;
 
-    void		init( const char* nm );
+    void		init(const char* nm);
 };
 
 
@@ -120,8 +121,8 @@ public:
 
     void		setNiceLevel(int);
     int			niceLevel() const;
-    void		setFirstPort(int);
-    int			firstPort() const;
+    void		setFirstPort(PortNr_Type);
+    PortNr_Type		firstPort() const;
     void		setLoginCmd(const char*);
     const char*		loginCmd() const;
     void		setUnixDataRoot(const char*);
@@ -130,6 +131,9 @@ public:
     const char*		winDataRoot() const;
 
     bool		refresh(bool foredit=false);
+
+
+    bool		isMostlyStaticIP() const;
 
     HostData*		find( const char* nm )	{ return findHost(nm); }
     const HostData*	find( const char* nm ) const { return findHost(nm); }
@@ -146,7 +150,7 @@ protected:
 
     BufferString	logincmd_;
     int			nicelvl_;
-    int			firstport_;
+    PortNr_Type		firstport_;
     BufferString	win_appl_pr_;
     BufferString	unx_appl_pr_;
     BufferString	win_data_pr_;
@@ -156,7 +160,8 @@ protected:
     void		initDataRoot();
     bool		readHostFile(const char*);
     bool		readOldHostFile(const char*);
-    HostData*		findHost(const char*) const;
+    HostData*		findHost(const char*);
+    const HostData*	findHost(const char*) const;
     BufferString	batchhostsfnm_;
 };
 
