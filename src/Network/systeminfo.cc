@@ -164,9 +164,42 @@ const char* hostAddress( const char* hostname, bool ipv4only )
 
 bool lookupHost( const char* host_ip, BufferString* msg )
 {
+    const bool isip = isValidIPAddress( host_ip );
     if ( msg )
-	msg->set( host_ip ).add( ": " );
-    const QHostInfo qhi = QHostInfo::fromName( QString(host_ip) );
+    {
+	msg->set( "For " )
+	    .add( isip ? "IP address " : "host " ).add( host_ip ).add( ": " );
+    }
+
+    BufferString hostname, ipaddr;
+    if ( isip )
+    {
+	hostname.set( hostName(host_ip) );
+	if ( hostname.isEmpty() )
+	{
+	    if ( msg )
+		msg->add( "Corresponding host name not found" );
+	    return false;
+	}
+	if ( msg )
+	    msg->add( "Found hostname: " ).add( hostname );
+	ipaddr.set( host_ip );
+    }
+    else
+    {
+	ipaddr.set( hostAddress(host_ip) );
+	if ( ipaddr.isEmpty() )
+	{
+	    if ( msg )
+		msg->add( "Corresponding IP address not found" );
+	    return false;
+	}
+	if ( msg )
+	     msg->add( "Found IP address " ).add( ipaddr );
+	hostname.set( host_ip );
+    }
+
+    const QHostInfo qhi = QHostInfo::fromName( QString(hostname) );
     if ( qhi.error() != QHostInfo::NoError )
     {
 	if ( msg )
@@ -174,24 +207,15 @@ bool lookupHost( const char* host_ip, BufferString* msg )
 	return false;
     }
 
-    QHostAddress qha;
-    const bool isip = qha.setAddress( host_ip );
-    if ( isip )
-    {
-	const BufferString hostname = hostName( host_ip );
-	if ( hostname.isEmpty() || hostname==host_ip )
-	{
-	    if ( msg )
-		msg->add( "Not found" );
-	    return false;
-	}
-	if ( msg )
-	    msg->add( "Found with hostname " ).add( hostName(host_ip) );
-    }
-    else if ( msg )
-	msg->add( "Found with IP address " ).add( hostAddress(host_ip) );
-
     return true;
+}
+
+
+bool isValidIPAddress( const char* host_ip )
+{
+    QHostAddress addr;
+    const QString qipaddr( host_ip );
+    return addr.setAddress( qipaddr );
 }
 
 

@@ -114,10 +114,12 @@ bool Batch::SingleJobDispatcher::launch( Batch::ID* batchid )
     OS::MachineCommand mc( jobspec_.prognm_ );
     if ( !execlocal )
     {
-	mc.setHostName( exechost->getHostName() );
+	mc.setRemExec( remoteexec_ );
+	mc.setHostName( exechost->connAddress() );
 	mc.setHostIsWindows( exechost->isWindows() );
 	pathstyle = exechost->pathStyle();
     }
+
     mc.addArg( ioparfp.fullPath(pathstyle) );
     mc.addArgs( jobspec_.clargs_ );
     if ( batchid )
@@ -126,14 +128,10 @@ bool Batch::SingleJobDispatcher::launch( Batch::ID* batchid )
     if ( execlocal || !exechost->isWindows() )
 	jobspec_.execpars_.monitorfnm( logfile );
 
-    mc.setRemExec( remoteexec_ );
-    if ( !execlocal )
-	mc.setHostName( exechost->getHostName() );
-
     if ( DBG::isOn(DBG_MM) )
     {
 	BufferString msg( "Executing: ", mc.toString(&jobspec_.execpars_) );
-	msg.add( " on host " ).add( exechost->getHostName() );
+	msg.add( " on host " ).add( exechost->connAddress() );
 
 	if ( !execlocal )
 	    msg.add( " using " ).add( remoteexec_.str() ).addNewLine();
@@ -142,7 +140,7 @@ bool Batch::SingleJobDispatcher::launch( Batch::ID* batchid )
     }
 
 /*    if ( jobspec_.execpars_.launchtype_ >= OS::Batch )
-      Not (yet) registering all bathc programs */
+      Not (yet) registering all batch programs */
     if ( jobspec_.execpars_.launchtype_ > OS::Batch )
 	ServiceClientMgr::addApplicationAuthority( mc );
 

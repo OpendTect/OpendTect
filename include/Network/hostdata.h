@@ -47,6 +47,8 @@ public:
     const char*		getHostName() const;
     void		setIPAddress(const char*);
     const char*		getIPAddress() const;
+    BufferString	connAddress() const;
+			//! Host name or IP address to be used for a connection
 
     int			nrAliases() const
 			{ return aliases_.size(); }
@@ -84,6 +86,7 @@ public:
 			{ return localhd_ ? *localhd_ : *this; }
 
     bool		isOK(uiString& errmsg) const;
+    mDeprecated("Use System::isValidIPAddress")
     static bool		isValidIPAddress(const char*);
 
     void		fillPar(IOPar&) const;
@@ -104,6 +107,10 @@ protected:
     friend class	HostDataList;
 
     void		init( const char* nm );
+
+public:
+    const char*		getShortHostName() const;
+			//!< Do not use, will become getHostName(false)
 };
 
 
@@ -131,6 +138,9 @@ public:
 
     bool		refresh(bool foredit=false);
 
+
+    bool		isMostlyStaticIP() const;
+
     HostData*		find( const char* nm )	{ return findHost(nm); }
     const HostData*	find( const char* nm ) const { return findHost(nm); }
 
@@ -156,7 +166,8 @@ protected:
     void		initDataRoot();
     bool		readHostFile(const char*);
     bool		readOldHostFile(const char*);
-    HostData*		findHost(const char*) const;
+    HostData*		findHost(const char*);
+    const HostData*	findHost(const char*) const;
     BufferString	batchhostsfnm_;
 };
 

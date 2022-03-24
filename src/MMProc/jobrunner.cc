@@ -74,7 +74,7 @@ int& MMJob_getTempFileNr()
 
 JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	: Executor("Running jobs")
-	, iomgr_(0)
+	, iomgr_(nullptr)
 	, descprov_(p)
 	, rshcomm_("rsh")
 	, niceval_(19)
@@ -94,7 +94,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	, msgAvail(this)
 	, curjobiop_(*new IOPar)
 	, curjobfp_(*new FilePath)
-	, curjobinfo_(0)
+	, curjobinfo_(nullptr)
 {
     procdir_ = GetProcFileName( getTempBaseNm() );
     procdir_ += "_"; procdir_ += MMJob_getTempFileNr();
@@ -122,6 +122,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 
 JobRunner::~JobRunner()
 {
+    detachAllNotifiers();
     deepErase( jobinfos_ );
     deepErase( hostinfo_ );
     deepErase( failedjobs_ );
@@ -143,6 +144,15 @@ HostNFailInfo* JobRunner::hostNFailInfoFor( const HostData* hd ) const
 	    { hfi = const_cast<HostNFailInfo*>(hostinfo_[idx]); break; }
 
     return hfi;
+}
+
+
+Network::Authority JobRunner::authority() const
+{
+    if ( !mSelf().iomgr().isReady() )
+	return Network::Authority();
+
+    return iomgr_->authority();
 }
 
 
@@ -256,7 +266,7 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 	{
 	    BufferString msg("----\nJobRunner::startJob: could not start job ");
 	    msg += ji.descnr_; msg += " on host ";
-	    msg += ji.hostdata_->getHostName();
+	    msg += ji.hostdata_->connAddress();
 	    mAddDebugMsg( ji )
 	    DBG::message(msg);
 	}
@@ -268,7 +278,7 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
     {
 	BufferString msg("----\nJobRunner::startJob : started job ");
 	msg += ji.descnr_; msg += " on host ";
-	msg += ji.hostdata_->getHostName();
+	msg += ji.hostdata_->connAddress();
 	mAddDebugMsg( ji )
 	DBG::message(msg);
     }
@@ -280,7 +290,9 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 
 JobIOMgr& JobRunner::iomgr()
 {
-    if ( !iomgr_ ) iomgr_ = new JobIOMgr(firstport_, niceval_);
+    if ( !iomgr_ )
+	iomgr_ = new JobIOMgr( firstport_, niceval_ );
+
     return *iomgr_;
 }
 
@@ -371,9 +383,11 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
     ji.osprocid_ = -1;
     preJobStart.trigger();
 
-    if ( !iomgr().startProg( prog_, curjobiop_, curjobfp_, ji, rshcomm_ ) )
+    if ( !iomgr().startProg(prog_,curjobiop_,curjobfp_,ji,rshcomm_) )
     {
-	if ( iomgr().peekMsg() ) iomgr().fetchMsg(ji.infomsg_);
+	if ( iomgr().peekMsg() )
+	    iomgr().fetchMsg(ji.infomsg_);
+
 	failedJob( ji, JobInfo::HostFailed );
 	return false;
     }
@@ -661,10 +675,11 @@ void JobRunner::showMachStatus( BufferStringSet& res ) const
 	const bool active = isAssigned(ji);
 	if ( active && ji.hostdata_ )
 	{
-	    BufferString* mch = new BufferString( ji.hostdata_->getHostName() );
-	    *mch += " -:- ";
-	    *mch += ji.statusmsg_;
-	    res += mch;
+	    auto* mch = new BufferString( ji.hostdata_->isStaticIP()
+		    ? ji.hostdata_->getIPAddress()
+		    : ji.hostdata_->getShortHostName() );
+	    mch->add( " -:- " ).add( ji.statusmsg_ );
+	    res.add( mch );
 	}
     }
 }

@@ -126,10 +126,7 @@ class JobIOHandler : public CallBacker
 {
 public:
 JobIOHandler( PortNr_Type firstport )
-    : exitreq_(0)
-    , firstport_(firstport)
-    , usedport_(0)
-    , ready_(false)
+    : firstport_(firstport)
     , server_(false)
 {
     mAttachCB( server_.readyRead, JobIOHandler::socketCB );
@@ -142,13 +139,15 @@ virtual	~JobIOHandler()
     server_.close();
 }
 
-    bool			ready() const	{ return ready_ && port() > 0; }
-    PortNr_Type			port() const	{ return usedport_; }
+    bool		ready() const	{ return ready_ && port() > 0; }
+    Network::Authority	authority() const
+			{ return server_.authority(); }
+    PortNr_Type		port() const	{ return usedport_; }
 
     void		listen(PortNr_Type firstport,int maxtries=3000);
-    void		reqModeForJob(const JobInfo&, JobIOMgr::Mode);
+    void		reqModeForJob(const JobInfo&,JobIOMgr::Mode);
     void		addJobDesc(const HostData&,int descnr);
-    void		removeJobDesc(const char* hostnm, int descnr);
+    void		removeJobDesc(const char* hostnm,int descnr);
     ObjQueue<StatusInfo>& statusQueue() { return statusqueue_; }
 
 protected:
@@ -159,13 +158,13 @@ protected:
     void			socketCB(CallBacker*);
     char			getRespFor(int desc,const char* hostnm);
 
-    bool*			exitreq_;
+    bool*			exitreq_ = nullptr;
     Network::Server		server_;
     PortNr_Type			firstport_;
-    PortNr_Type			usedport_;
+    PortNr_Type			usedport_ = 0;
     ObjQueue<StatusInfo>	statusqueue_;
     ObjectSet<JobHostRespInfo>	jobhostresps_;
-    bool			ready_;
+    bool			ready_ = false;
 };
 
 
@@ -202,19 +201,23 @@ void JobIOHandler::removeJobDesc( const char* hostnm, int descnr )
 
 JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 {
-    JobHostRespInfo* jhri = 0;
+    JobHostRespInfo* jhri = nullptr;
     const int sz = jobhostresps_.size();
     for ( int idx=0; idx<sz; idx++ )
     {
 	JobHostRespInfo* jhri_ = jobhostresps_[idx];
 	if ( descnr < 0 || jhri_->descnr_==descnr )
 	{
-	    if ( !hostnm || !*hostnm )  { jhri = jhri_; break; }
+	    if ( !hostnm || !*hostnm )
+	    {
+		jhri = jhri_;
+		break;
+	    }
 
 	    BufferString shrthostnm = hostnm;
 	    char* ptr = shrthostnm.find( '.' );
 	    if ( ptr ) *ptr = '\0';
-#ifndef __win__
+#ifdef __unix__
 	    if ( jhri_->hostdata_.isKnownAs(hostnm) ||
 		 jhri_->hostdata_.isKnownAs(shrthostnm) )
 #endif
@@ -230,7 +233,9 @@ char JobIOHandler::getRespFor( int descnr, const char* hostnm )
 {
     char resp = mRSP_UNDEF;
     JobHostRespInfo* jhri = getJHRFor( descnr, hostnm );
-    if ( jhri ) resp = jhri->response_;
+    if ( jhri )
+	resp = jhri->response_;
+
     return resp;
 }
 
@@ -248,10 +253,12 @@ void JobIOHandler::reqModeForJob( const JobInfo& ji, JobIOMgr::Mode mode )
 
     const int descnr = ji.descnr_;
     BufferString hostnm;
-    if ( ji.hostdata_ ) hostnm = ji.hostdata_->getHostName();
+    if ( ji.hostdata_ )
+	hostnm = ji.hostdata_->getHostName();
 
     JobHostRespInfo* jhri = getJHRFor( descnr, hostnm );
-    if ( jhri ) jhri->response_ = resp;
+    if ( jhri )
+	jhri->response_ = resp;
 }
 
 
@@ -373,9 +380,15 @@ bool JobIOMgr::isReady() const
 { return iohdlr_.ready(); }
 
 
-bool JobIOMgr::startProg( const char* progname,
-	IOPar& iop, const FilePath& basefp, const JobInfo& ji,
-	const char* rshcomm )
+Network::Authority JobIOMgr::authority() const
+{
+    return iohdlr_.authority();
+}
+
+
+bool JobIOMgr::startProg( const char* progname, IOPar& iop,
+			  const FilePath& basefp, const JobInfo& ji,
+			  const char* rshcomm )
 {
     DBG::message(DBG_MM,"JobIOMgr::startProg");
     if ( !ji.hostdata_ )
@@ -660,11 +673,8 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
 			  const FilePath& iopfp, const JobInfo& ji,
 			  const char* rshcomm )
 {
-    const BufferString remhostaddress =
-		       System::hostAddress( machine.getHostName() );
     const HostData& localhost = machine.localHost();
-    const bool remote = !machine.isKnownAs( BufferString(GetLocalHostName())) ||
-			remhostaddress != System::localAddress();
+    const bool remote = &machine != &localhost;
     const bool unixtounix = remote && !localhost.isWindows() &&
 			    !machine.isWindows();
 
@@ -673,7 +683,8 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
     {
 	mc.setRemExec( unixtounix ? rshcomm
 				  : OS::MachineCommand::odRemExecCmd() );
-	mc.setHostName( machine.getHostName() );
+	mc.setHostName( machine.connAddress() );
+	mc.setHostIsWindows( machine.isWindows() );
     }
 
     if ( remote && unixtounix )
@@ -681,9 +692,10 @@ void JobIOMgr::mkCommand( OS::MachineCommand& mc, const HostData& machine,
     else
 	mc.setProgram( progname );
 
+    const Network::Authority servauth = authority();
     mc.addKeyedArg( OS::MachineCommand::sKeyPrimaryHost(),
-		    System::localAddress() );
-    mc.addKeyedArg( OS::MachineCommand::sKeyPrimaryPort(), iohdlr_.port() );
+		    servauth.getHost() );
+    mc.addKeyedArg( OS::MachineCommand::sKeyPrimaryPort(), servauth.getPort() );
     mc.addKeyedArg( OS::MachineCommand::sKeyJobID(), ji.descnr_ );
     mc.addArg( iopfp.fullPath(machine.pathStyle()) );
 }

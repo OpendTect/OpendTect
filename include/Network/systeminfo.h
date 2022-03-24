@@ -29,6 +29,7 @@ namespace System
 						    bool ipv4only=true);
     mGlobal(Network) bool		lookupHost(const char* host_ip,
 						   BufferString* msg=0);
+    mGlobal(Network) bool		isValidIPAddress(const char* host_ip);
 
     mGlobal(Network) void		macAddresses(BufferStringSet& names,
 						    BufferStringSet& addresses,

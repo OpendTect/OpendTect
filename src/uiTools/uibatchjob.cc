@@ -414,7 +414,6 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
     , sjd_(sjd)
     , execpars_(js.execpars_)
     , hdl_(hdl)
-    , remhostfld_(0)
 {
     Batch::SingleJobDispatcher::getDefParFilename( js.prognm_, defparfnm_ );
 
@@ -425,12 +424,13 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
 	remhostfld_ = new uiGenInput( this, tr("Execute remote"),
 				      StringListInpSpec(hnms) );
 	remhostfld_->setWithCheck( true );
-	const HostData* curhost = hdl_.find( sjd_.remotehost_.str() );
+	const HostData* curhost = sjd_.remotehost_.isEmpty() ? nullptr
+				: hdl_.find( sjd_.remotehost_.str() );
 	remhostfld_->setChecked( curhost );
-	remhostfld_->valuechanged.notify(
-		     mCB(this,uiSingleBatchJobDispatcherPars,hostChgCB) );
-	remhostfld_->checked.notify(
-		     mCB(this,uiSingleBatchJobDispatcherPars,hostChgCB) );
+	mAttachCB( remhostfld_->valuechanged,
+		   uiSingleBatchJobDispatcherPars::hostChgCB );
+	mAttachCB( remhostfld_->checked,
+		   uiSingleBatchJobDispatcherPars::hostChgCB );
 	if ( curhost )
 	{
 	    const BufferString fullhostnm( curhost->getFullDispString() );
@@ -462,7 +462,12 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
     sliderlbl_ = new uiLabel( this, tr("Left:Low, Right: Normal") );
     sliderlbl_->attach( rightOf, unixpriofld_ );
 
-    hostChgCB(0);
+    hostChgCB(nullptr);
+}
+
+~uiSingleBatchJobDispatcherPars()
+{
+    detachAllNotifiers();
 }
 
 void hostChgCB( CallBacker* )
@@ -496,12 +501,11 @@ bool acceptOK( CallBacker* )
 	if ( !machine )
 	    return false;
 
-	if ( machine->getHostName() )
-	    sjd_.remotehost_.set( machine->getHostName() );
-	else if ( machine->getIPAddress() )
-	    sjd_.remotehost_.set( machine->getIPAddress() );
-	else
+	uiString msg;
+	if ( !machine->isOK(msg) )
 	    return false;
+
+	sjd_.remotehost_.set( machine->connAddress() );
     }
     else
 	sjd_.remotehost_.setEmpty();
@@ -519,7 +523,7 @@ bool acceptOK( CallBacker* )
     OS::CommandExecPars&	execpars_;
     BufferString		defparfnm_;
 
-    uiGenInput*			remhostfld_;
+    uiGenInput*			remhostfld_ = nullptr;
     uiSlider*			unixpriofld_;
     uiSlider*			windowspriofld_;
 				/* Flipped priority: Low <---> Normal */
