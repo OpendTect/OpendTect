@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "od_iosfwd.h"
 #include "uistring.h"
+#include "welldata.h"
 
 namespace Table { class FormatDesc; }
 class UnitOfMeasure;
@@ -26,7 +27,6 @@ class UnitOfMeasure;
 
 namespace Well
 {
-class Data;
 class Track;
 class D2TModel;
 class MarkerSet;
@@ -74,7 +74,7 @@ public:
 	double		glelev_ = mUdf(double);
     };
 
-    void		setData( Data* wd )	    { wd_ = wd; }
+    void		setData( Data& wd )	    { wd_ = &wd; }
     void		copyInfo(const FileInfo&,bool& changed);
     void		adjustTrack(const Interval<float>& zrg,bool istvdss,
 				    bool& changed);
@@ -94,7 +94,7 @@ public:
 
 protected:
 
-    Data*		wd_;
+    RefMan<Data>	wd_;
 
     mutable BufferStringSet	unitmeasstrs_;
     mutable ObjectSet<const UnitOfMeasure>	convs_;
@@ -237,7 +237,7 @@ protected:
 
     od_istream&			strm_;
     BufferStringSet		wells_;
-    ObjectSet<Data>		wellsdata_;
+    RefObjectSet<Data>		wellsdata_;
 };
 
 

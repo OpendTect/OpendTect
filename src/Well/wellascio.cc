@@ -253,8 +253,9 @@ bool TrackAscIO::adjustSurfaceLocation( TypeSet<Coord3>& pos,
 }
 
 
-bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
+bool TrackAscIO::getData( Data& wdin, float kbelev, float td ) const
 {
+    RefMan<Data> wd( &wdin );
     TypeSet<Coord3> pos;
     TypeSet<double> mdvals;
     double kbelevinfile = mUdf(double);
@@ -271,17 +272,17 @@ bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
     adjustKBIfNecessary( pos, kbelevinfile, mCast(double,kbelev) );
     addOriginIfNecessary( pos, mdvals );
     adjustToTDIfNecessary( pos, mdvals, mCast(double,td) );
-    if ( !adjustSurfaceLocation(pos,wd.info().surfacecoord_) )
+    if ( !adjustSurfaceLocation(pos,wd->info().surfacecoord_) )
 	return false;
 
     if ( pos.size() < 2 || mdvals.size() < 2 )
 	mErrRet( tr("Insufficent data for importing the track") )
 
-    wd.track().setEmpty();
+    wd->track().setEmpty();
     for ( int idz=0; idz<pos.size(); idz++ )
-	wd.track().addPoint( pos[idz], mCast(float,mdvals[idz]) );
+	wd->track().addPoint( pos[idz], mCast(float,mdvals[idz]) );
 
-    return !wd.track().isEmpty();
+    return !wd->track().isEmpty();
 }
 
 
@@ -558,7 +559,7 @@ BulkD2TModelAscIO::BulkD2TModelAscIO( const Table::FormatDesc& fd,
 
 
 BulkD2TModelAscIO::~BulkD2TModelAscIO()
-{ deepUnRef( wellsdata_ ); }
+{ }
 
 
 Table::FormatDesc* BulkD2TModelAscIO::getDesc()
@@ -599,10 +600,9 @@ bool BulkD2TModelAscIO::get( BufferString& wellnm, float& zval, float& twt )
 	const PtrMan<IOObj> ioobj = findIOObj( wellnm, wellnm );
 	if ( !ioobj ) return false;
 
-	Data* wd = MGR().get( ioobj->key() );
+	RefMan<Data> wd = MGR().get( ioobj->key(), LoadReqs(Inf, Trck, D2T) );
 	if ( !wd || wd->track().isEmpty() ) return false;
 
-	wd->ref();
 	wellsdata_ += wd;
 
 	wells_.add( wellnm );
@@ -686,8 +686,9 @@ bool DirectionalAscIO::readFile( TypeSet<double>& mdvals,
 }
 
 
-bool DirectionalAscIO::getData( Data& wd, float kb ) const
+bool DirectionalAscIO::getData( Data& wdin, float kb ) const
 {
+    RefMan<Data> wd( &wdin );
     TypeSet<double> mdvals;
     TypeSet<double> incls;
     TypeSet<double> azis;
@@ -701,14 +702,14 @@ bool DirectionalAscIO::getData( Data& wd, float kb ) const
 	kb = 0;
 
     TypeSet<Coord3> track;
-    Well::DirectionalSurvey dirsurvey( wd.info().surfacecoord_, kb );
+    Well::DirectionalSurvey dirsurvey( wd->info().surfacecoord_, kb );
     dirsurvey.calcTrack( mdvals, incls, azis, track );
 
-    wd.track().setEmpty();
+    wd->track().setEmpty();
     for ( int idz=0; idz<mdvals.size(); idz++ )
-	wd.track().addPoint( track[idz], mCast(float,mdvals[idz]) );
+	wd->track().addPoint( track[idz], mCast(float,mdvals[idz]) );
 
-    return !wd.track().isEmpty();
+    return !wd->track().isEmpty();
 }
 
 

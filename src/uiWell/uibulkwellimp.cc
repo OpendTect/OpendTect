@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "tabledef.h"
 #include "veldesc.h"
 #include "welld2tmodel.h"
-#include "welldata.h"
 #include "wellimpasc.h"
 #include "wellman.h"
 #include "wellmarker.h"
@@ -82,12 +81,11 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
 uiBulkTrackImport::~uiBulkTrackImport()
 {
     delete fd_;
-    deepUnRef( wells_ );
     deepErase( origtracks_ );
 }
 
 
-static int getWellIdx( ObjectSet<Well::Data>& wells, const char* nm )
+static int getWellIdx( RefObjectSet<Data>& wells, const char* nm )
 {
     for ( int idx=0; idx<wells.size(); idx++ )
     {
@@ -122,7 +120,7 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	if ( wellnm.isEmpty() )
 	    continue;
 
-	Well::Data* wd = nullptr;
+	RefMan<Data> wd;
 	const int widx = getWellIdx( wells_, wellnm );
 	if ( wells_.validIdx(widx) )
 	    wd = wells_[widx];
@@ -131,21 +129,20 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	    PtrMan<IOObj> ioobj = findIOObj( wellnm, uwi );
 	    if ( ioobj )
 	    {
-		Well::LoadReqs reqs( Well::Inf, Well::Trck );
+		LoadReqs reqs( Inf, Trck );
 		if ( SI().zIsTime() )
-		    reqs.add( Well::D2T );
-		wd = Well::MGR().get( ioobj->key(), reqs );
+		    reqs.add( D2T );
+		wd = MGR().get( ioobj->key(), reqs );
 		if ( wd )
 		{
-		    wd->ref();
-		    Well::Track& track = wd->track();
+		    Track& track = wd->track();
 		    kb = track.getKbElev();
 		    double sum = 0.;
 		    for ( int idx=0; idx<track.size(); idx++ )
 			sum += track.pos(idx).coord().abs();
 		    if ( mIsZero(sum,1e-1) )
 		    {
-			origtracks_ += new Well::Track( track );
+			origtracks_ += new Track( track );
 			mdrgs_ += track.dahRange();
 			track.setEmpty();
 		    }
@@ -161,9 +158,8 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 
 	    if ( !wd )
 	    {
-		wd = new Well::Data( wellnm );
+		wd = new Data( wellnm );
 		kb = 0.f;
-		wd->ref();
 		if ( !uwi.isEmpty() )
 		    wd->info().uwid_ = uwi;
 		origtracks_ += nullptr;
@@ -179,7 +175,7 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	if ( !crd.isDefined() )
 	    continue;
 
-	Well::Track& track = wd->track();
+	Track& track = wd->track();
 	if ( mIsUdf(md) )
 	    track.insertPoint( crd );
 	else
@@ -201,8 +197,8 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 
     for ( int widx=0; widx<wells_.size(); widx++ )
     {
-	Well::Data* wd = wells_[widx];
-	Well::Track& track = wd->track();
+	RefMan<Data> wd = wells_[widx];
+	Track& track = wd->track();
 	if ( track.isEmpty() )
 	{
 	    if ( origtracks_[widx] )
@@ -210,8 +206,8 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	    continue;
 	}
 
-	Well::LASImporter lasimp;
-	lasimp.setData( wd );
+	LASImporter lasimp;
+	lasimp.setData( *wd );
 	bool adjusted = false;
 	const Interval<float>& origmdrg = mdrgs_[widx];
 	Interval<float> mdrg( 0, track.td() );
@@ -231,7 +227,7 @@ void uiBulkTrackImport::write( uiStringSet& errors )
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
-	Well::Data* wd = wells_[idx];
+	RefMan<Data> wd = wells_[idx];
 	PtrMan<IOObj> ioobj = IOM().get( wd->name(),
 					 ctio->ctxt_.trgroup_->groupName() );
 	const bool newwell = !ioobj;
@@ -247,14 +243,14 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 	bool writed2t = false;
 	if ( zistime )
 	{
-	    const Well::Track& track = wd->track();
-	    const Well::D2TModel* d2torig = wd->d2TModel();
+	    const Track& track = wd->track();
+	    const D2TModel* d2torig = wd->d2TModel();
 	    if ( newwell || !d2torig || d2torig->size() < 2 ||
 		 (d2torig->size()==2 &&
 		  mIsEqual(d2torig->getVelocityForDah(track.td(),track),
 		  (double)uiD2TModelGroup::getDefaultTemporaryVelocity(),1) ))
 	    {
-		auto* d2t = new Well::D2TModel;
+		auto* d2t = new D2TModel;
 		d2t->makeFromTrack(  wd->track(), vel, wd->info().replvel_ );
 		wd->setD2TModel( d2t );
 		writed2t = true;
@@ -266,7 +262,7 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 	    }
 	}
 
-	Well::Writer ww( *ioobj, *wd );
+	Writer ww( *ioobj, *wd );
 	if ( !ww.putInfoAndTrack() )
 	{
 	    uiString msg = uiStrings::phrCannotCreate(
@@ -284,7 +280,7 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 	const bool isloaded = MGR().isLoaded( ioobj->key() );
 	if ( isloaded && MGR().reload(ioobj->key()) )
 	{
-	    Data* loadedwd = MGR().get( ioobj->key() );
+	    RefMan<Data> loadedwd = MGR().get( ioobj->key(), LoadReqs(Trck) );
 	    if ( loadedwd )
 		loadedwd->trackchanged.trigger();
 	}
@@ -317,7 +313,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
     if ( !dataselfld_->commit() )
 	return false;
 
-    deepUnRef( wells_ );
+    wells_.erase();
     deepErase( origtracks_ );
     mdrgs_.setEmpty();
 
@@ -326,7 +322,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
     uiStringSet errors;
     write( errors );
 
-    deepUnRef( wells_ );
+    wells_.erase();
     deepErase( origtracks_ );
     mdrgs_.setEmpty();
 
@@ -414,7 +410,7 @@ static void getWellNames( BufferStringSet& wellnms, bool withuwi )
     for ( int idx=0; idx<list.size(); idx++ )
     {
 	const IOObj* ioobj = list[idx]->ioobj_;
-	RefMan<Well::Data> wd = Well::MGR().get( ioobj->key(), Well::Inf );
+	RefMan<Data> wd = Well::MGR().get( ioobj->key(), Well::Inf );
 	if ( wd )
 	{
 	    const StringPair sp( wd->name(), wd->info().uwid_ );
@@ -437,8 +433,8 @@ void uiBulkLogImport::lasSel( CallBacker* )
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
 	const BufferString& fnm = filenms.get( idx );
-	Well::LASImporter lasimp;
-	Well::LASImporter::FileInfo info;
+	LASImporter lasimp;
+	LASImporter::FileInfo info;
 	info.undefval_ = udffld_->getFValue();
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 
@@ -489,8 +485,8 @@ void uiBulkLogImport::nameSelChg( CallBacker* )
 static bool createNewWell( const Well::LASImporter::FileInfo& info,
 			   const char* wellnm, uiStringSet& errors )
 {
-    RefMan<Well::Data> wd = new Well::Data( wellnm );
-    Well::Track& track = wd->track();
+    RefMan<Data> wd = new Data( wellnm );
+    Track& track = wd->track();
     Coord3 wellhead( 0., 0., 0. );
     if ( info.loc_.isDefined() )
 	wellhead.coord() = info.loc_;
@@ -512,7 +508,7 @@ static bool createNewWell( const Well::LASImporter::FileInfo& info,
 	return false;
     }
 
-    Well::Writer ww( *ioobj.ptr(), *wd );
+    Writer ww( *ioobj.ptr(), *wd );
     if ( !ww.putInfoAndTrack() )
     {
 	uiString msg = uiStrings::phrCannotCreate(
@@ -523,7 +519,7 @@ static bool createNewWell( const Well::LASImporter::FileInfo& info,
 
     if ( SI().zIsTime() )
     {
-	auto* d2tmodel = new Well::D2TModel;
+	auto* d2tmodel = new D2TModel;
 	d2tmodel->makeFromTrack( track,
 				 uiD2TModelGroup::getDefaultTemporaryVelocity(),
 				 wd->info().replvel_ );
@@ -558,8 +554,8 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
 	const BufferString& fnm = filenms.get( idx );
-	Well::LASImporter lasimp;
-	Well::LASImporter::FileInfo info;
+	LASImporter lasimp;
+	LASImporter::FileInfo info;
 	info.undefval_ = udffld_->getFValue();
 	BufferString errmsg = lasimp.getLogInfo( fnm, info );
 	if ( !errmsg.isEmpty() )
@@ -590,7 +586,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	    }
 	}
 
-	RefMan<Well::Data> wd = Well::MGR().get( ioobj->key() );
+	RefMan<Data> wd = Well::MGR().get( ioobj->key() );
 	if ( !wd )
 	{
 	    errors.add(tr("%1: Cannot find well information in database")
@@ -598,7 +594,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	lasimp.setData( wd );
+	lasimp.setData( *wd );
 	bool newwellinfo = false, adjustedwelltrack = false;
 	lasimp.copyInfo( info, newwellinfo );
 	lasimp.adjustTrack( info.zrg_, zistvdss, adjustedwelltrack );
@@ -609,7 +605,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	    errors.add( toUiString("%1: %2").arg(toUiString(fnm))
 					    .arg(toUiString(errmsg)) );
 
-	Well::Writer wtr( *ioobj, *wd );
+	Writer wtr( *ioobj, *wd );
 	if ( newwellinfo || adjustedwelltrack )
 	    wtr.putInfoAndTrack();
 	wtr.putLogs();
@@ -687,7 +683,7 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	RefMan<Well::Data> wd = MGR().get( ioobj->key() );
+	RefMan<Data> wd = MGR().get( ioobj->key(), LoadReqs(Inf, Trck, Mrkrs) );
 	if ( !wd )
 	{
 	    errors.add(tr("%1: Cannot load well").arg(wellnm));
@@ -706,7 +702,7 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 	}
 
 	wd->markers() = *markersets[idx];
-	Well::Writer ww( *ioobj, *wd );
+	Writer ww( *ioobj, *wd );
 	if ( !ww.putMarkers() )
 	{
 	    errors.add( toUiString("%1: %2").arg(toUiString(wellnm))
@@ -823,7 +819,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	RefMan<Well::Data> wd = MGR().get( ioobj->key() );
+	RefMan<Data> wd = MGR().get( ioobj->key(), LoadReqs(Inf, Trck, D2T) );
 	if ( !wd )
 	{
 	    delete d2tdata.removeSingle(idx,true);
@@ -1019,7 +1015,7 @@ bool uiBulkDirectionalImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	RefMan<Well::Data> wd = MGR().get( ioobj->key(), Well::Trck );
+	RefMan<Data> wd = MGR().get( ioobj->key(), LoadReqs(Inf, Trck) );
 	if ( !wd )
 	{
 	    errors.add(tr("%1: Cannot load well").arg(wellnm));
@@ -1028,14 +1024,14 @@ bool uiBulkDirectionalImport::acceptOK( CallBacker* )
 
 	TypeSet<Coord3> track;
 	const float kb = wd->track().getKbElev();
-	Well::DirectionalSurvey dirsurvey( wd->info().surfacecoord_, kb );
+	DirectionalSurvey dirsurvey( wd->info().surfacecoord_, kb );
 	dirsurvey.calcTrack( dd->mds_, dd->incls_, dd->azis_, track );
 
 	wd->track().setEmpty();
 	for ( int idz=0; idz<dd->mds_.size(); idz++ )
 	    wd->track().addPoint( track[idz], mCast(float,dd->mds_[idz]) );
 
-	Well::Writer ww( *ioobj, *wd );
+	Writer ww( *ioobj, *wd );
 	if ( !ww.putInfoAndTrack() )
 	    errors.add( ww.errMsg() );
     }

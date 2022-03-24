@@ -8,6 +8,7 @@
 #include "uiwellmod.h"
 #include "uidialog.h"
 #include "uistring.h"
+#include "welldata.h"
 
 class uiFileInput;
 class uiGenInput;
@@ -17,7 +18,7 @@ class uiTableImpDataSel;
 class BufferStringSet;
 
 namespace Table { class FormatDesc; }
-namespace Well  { class Data; class D2TModel; class MarkerSet; class Track; }
+namespace Well	{ class D2TModel; class MarkerSet; class Track; }
 class D2TModelData;
 class DirData;
 
@@ -38,7 +39,7 @@ protected:
     uiTableImpDataSel*	dataselfld_;
     uiGenInput*		velocityfld_ = nullptr;
 
-    ObjectSet<Well::Data> wells_;
+    RefObjectSet<Well::Data> wells_;
     ObjectSet<Well::Track> origtracks_;
     TypeSet<Interval<float> > mdrgs_;
     Table::FormatDesc*	fd_;

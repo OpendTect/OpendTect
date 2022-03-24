@@ -12,7 +12,6 @@
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "varlenarray.h"
-#include "welldata.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
