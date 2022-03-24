@@ -834,7 +834,7 @@ void PickSetDisplay::polygonFinishedCB(CallBacker*)
     if ( !scene_ || ! scene_->getPolySelection() )
 	return;
 
-    color_ = set_->disp_.linestyle_.color_;
+    color_ = set_->disp_.color_;
     const int diff = markerset_->size()-pickselstatus_.size();
     if ( diff !=0 ) // added new pos or removed pos. reset
     {
@@ -871,7 +871,7 @@ void PickSetDisplay::unSelectAll()
 void PickSetDisplay::setPickSelect( int idx, bool yn )
 {
     Color clr = yn ? color_.complementaryColor() : color_;
-    markerset_->getMaterial()->setColor( clr, idx );
+    markerset_->getMaterial()->setColor( clr, idx, false );
     pickselstatus_[idx] = yn;
 }
 
@@ -908,11 +908,13 @@ void PickSetDisplay::updateSelections(
 	}
     }
 
+    markerset_->getMaterial()->change.trigger();
 }
 
 
 bool PickSetDisplay::removeSelections( TaskRunner* )
 {
+    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
     bool changed = false;
     for ( int idx=pickselstatus_.size()-1; idx>=0; idx-- )
     {
