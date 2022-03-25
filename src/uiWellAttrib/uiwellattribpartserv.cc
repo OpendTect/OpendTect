@@ -259,10 +259,21 @@ bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
     }
 
     if ( !welltiedlg_ )
+    {
 	welltiedlg_ = new WellTie::uiTieWinMGRDlg( parent(), *wtsetup );
+	welltiedlg_->setDeleteOnClose( true );
+	mAttachCB(welltiedlg_->windowClosed,
+		  uiWellAttribPartServer::welltieDlgClosedCB);
+    }
     welltiedlg_->raise();
     welltiedlg_->show();
     return true;
+}
+
+
+void uiWellAttribPartServer::welltieDlgClosedCB( CallBacker* )
+{
+    welltiedlg_ = nullptr;
 }
 
 

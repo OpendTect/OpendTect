@@ -386,7 +386,7 @@ ConstRefMan<Well::Data> WellDataMgr::wellData() const
 RefMan<Well::Data> WellDataMgr::wd()
 {
     if ( !wd_ )
-	wd_ = Well::MGR().get( wellid_ );
+	wd_ = Well::MGR().get( wellid_, Well::LoadReqs::AllNoLogs() );
 
     return wd_;
 }

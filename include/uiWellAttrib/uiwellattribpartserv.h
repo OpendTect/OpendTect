@@ -81,6 +81,7 @@ protected:
     void			xplotCB(CallBacker*);
     void			previewWellto2DLine(CallBacker*);
     void			wellTo2DDlgClosed(CallBacker*);
+    void			welltieDlgClosedCB(CallBacker*);
 
 private:
 

@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 
 Well::ElasticModelComputer::ElasticModelComputer( const Well::Data& wd )
-    : wd_(wd)
+    : wd_(&wd)
 {
     init();
 }
@@ -30,7 +30,7 @@ Well::ElasticModelComputer::ElasticModelComputer( const Well::Data& wd,
 						  const Well::Log& vel,
 						  const Well::Log* den,
 						  const Well::Log* svel )
-    : wd_(wd)
+    : wd_(&wd)
 {
     init();
     setLogs( vel, den, svel );
@@ -191,7 +191,7 @@ bool Well::ElasticModelComputer::computeFromLogs()
     if ( zrgistime_ )
     {
 	const float startdah = ls_->getDah(0);
-	startdepth = mCast(float,wd_.track().getPos( startdah ).z) -
+	startdepth = mCast(float,wd_->track().getPos( startdah ).z) -
 		     ls_->getThickness(0) / 2.f;
     }
 
@@ -223,7 +223,7 @@ bool Well::ElasticModelComputer::getLogUnits()
 
 bool Well::ElasticModelComputer::extractLogs()
 {
-    if ( !wd_.d2TModel() )
+    if ( !wd_->d2TModel() )
 	mErrRet( tr("Well has no valid time-depth model") )
 
     const float srddepth = -1.f * (float)SI().seismicReferenceDatum();
@@ -233,11 +233,11 @@ bool Well::ElasticModelComputer::extractLogs()
 
     const Interval<float> zrange = zrange_;
 
-    ls_ = new Well::LogSampler( wd_.d2TModel(), &wd_.track(), zrange,
+    ls_ = new Well::LogSampler( wd_->d2TModel(), &wd_->track(), zrange,
 				zrgistime_, zstep_, extractintime_,
 				Stats::UseAvg, inplogs_ );
 
-    lsnearest_ = new Well::LogSampler( wd_.d2TModel(), &wd_.track(), zrange,
+    lsnearest_ = new Well::LogSampler( wd_->d2TModel(), &wd_->track(), zrange,
 				       zrgistime_, zstep_, extractintime_,
 				       Stats::TakeNearest, inplogs_ );
 

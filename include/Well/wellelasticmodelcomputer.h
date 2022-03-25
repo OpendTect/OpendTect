@@ -16,10 +16,10 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "uistring.h"
 #include "unitofmeasure.h"
+#include "welldata.h"
 
 namespace Well
 {
-class Data;
 class Log;
 class LogSampler;
 
@@ -31,21 +31,21 @@ model or from at least a velocity Log.
 mExpClass(Well) ElasticModelComputer
 { mODTextTranslationClass(ElasticModelComputer);
 public :
-			ElasticModelComputer(const Well::Data&);
-			ElasticModelComputer(const Well::Data&,
-					     const Well::Log& vel,
-					     const Well::Log* den=0,
-					     const Well::Log* svel=0);
+			ElasticModelComputer(const Data&);
+			ElasticModelComputer(const Data&,
+					     const Log& vel,
+					     const Log* den=nullptr,
+					     const Log* svel=nullptr);
 			~ElasticModelComputer();
 
     const uiString&	errMsg() const		{ return errmsg_; }
     const uiString&	warnMsg() const		{ return warnmsg_; }
 
-    bool		setVelLog(const Well::Log&);
-    bool		setDenLog(const Well::Log&);
-    bool		setSVelLog(const Well::Log&);
-    void		setLogs(const Well::Log& vel, const Well::Log* den=0,
-				const Well::Log* svel=0);
+    bool		setVelLog(const Log&);
+    bool		setDenLog(const Log&);
+    bool		setSVelLog(const Log&);
+    void		setLogs(const Log& vel, const Log* den=nullptr,
+				const Log* svel=nullptr);
     void		setZrange(const Interval<float>&, bool istime);
     void		setExtractionPars(float step, bool intime);
 
@@ -71,13 +71,13 @@ protected:
     bool		zrgistime_;
     float		zstep_;
     bool		extractintime_;
-    const Well::Data&	wd_;
+    ConstRefMan<Data>	wd_;
 
-    ObjectSet<const Well::Log> inplogs_;
+    ObjectSet<const Log> inplogs_;
     ObjectSet<const UnitOfMeasure> uomset_;
     bool		velpissonic_;
-    Well::LogSampler*	ls_;
-    Well::LogSampler*	lsnearest_;
+    LogSampler*		ls_;
+    LogSampler*		lsnearest_;
 
     uiString		errmsg_;
     uiString		warnmsg_;
