@@ -29,12 +29,11 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
 			      tr("Specify parameters for smoothing"),
 			      HelpKey("tut","well") ) )
 	, wellid_(wellid)
-	, wd_(Well::MGR().get(wellid))
+	, wd_(Well::MGR().get(wellid, Well::LoadReqs(Well::LogInfos)))
 {
     if ( !wd_ )
 	return;
 
-    wd_->ref();
     const Well::LogSet& logs = wd_->logs();
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select Input Log") );
     inplogfld_ = new uiListBox( this, su );
@@ -57,8 +56,6 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
 
 uiTutWellTools::~uiTutWellTools()
 {
-    if ( wd_ )
-	wd_->unRef();
 }
 
 
@@ -90,8 +87,8 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	mErrRet( tr("Please enter a valid name for Output log") )
 
     const int gate = gatefld_->box()->getIntValue();
-    Well::Log* outputlog = new Well::Log( lognm );
-    Tut::LogTools logtool( logset.getLog(inpidx), *outputlog );
+    auto* outputlog = new Well::Log( lognm );
+    Tut::LogTools logtool( *wd_->getLog(inplognm), *outputlog );
     if ( logtool.runSmooth(gate) )
     {
 	logset.add( outputlog );

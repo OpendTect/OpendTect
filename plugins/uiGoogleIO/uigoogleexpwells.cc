@@ -13,6 +13,7 @@
 #include "survinfo.h"
 #include "wellman.h"
 #include "latlong.h"
+#include "manobjectset.h"
 #include "od_ostream.h"
 #include "od_helpids.h"
 #include "uicolor.h"
@@ -64,7 +65,8 @@ uiGISExportWells::uiGISExportWells( uiParent* p, const MultiID& mid )
 			    tr("Base name will be prefixed to the well name") );
     else
     {
-	lnmfld_->setText( Well::MGR().get(mid)->name() );
+	lnmfld_->setText( Well::MGR().get(mid,
+					  Well::LoadReqs(Well::Inf))->name() );
 	lnmfld_->setToolTip( tr("If the field is left empty, "
 				"well name will be used as annotation text") );
     }
@@ -112,17 +114,18 @@ bool uiGISExportWells::acceptOK( CallBacker* )
     prop.xpixoffs_ = 20;
     prop.color_ = colinput_->color();
     prop.iconnm_ = "wellpin";
-    ObjectSet<const Pick::Set> picks;
+    ManagedObjectSet<const Pick::Set> picks;
 
     const BufferString prefix = lnmfld_->text();
     for ( auto wellid : wellids )
     {
-	const Coord coord = Well::MGR().getMapLocation( wellid );
-	if ( coord.isUdf() )
+	ConstRefMan<Well::Data> data = Well::MGR().get( wellid,
+						    Well::LoadReqs(Well::Inf) );
+	if ( !data )
 	    continue;
 
-	const Well::Data* data = Well::MGR().get( wellid );
-	if ( !data )
+	const Coord coord = data->info().surfacecoord_;
+	if ( coord.isUdf() )
 	    continue;
 
 	const BufferString nm = data->name();

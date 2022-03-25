@@ -8,6 +8,7 @@
 #include "uitutmod.h"
 #include "uidialog.h"
 #include "multiid.h"
+#include "welldata.h"
 
 class uiGenInput;
 class uiListBox;
@@ -30,7 +31,7 @@ protected:
 
     BufferString	inlognm_;
     BufferString        outlognm_;
-    Well::Data*		wd_;
+    RefMan<Well::Data>	wd_;
     MultiID		wellid_;
 
     void		inpchg(CallBacker*);

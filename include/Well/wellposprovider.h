@@ -16,8 +16,7 @@ ________________________________________________________________________
 #include "posprovider.h"
 #include "callback.h"
 #include "trckeysampling.h"
-
-namespace Well { class Data; }
+#include "welldata.h"
 
 
 namespace Pos
@@ -57,7 +56,7 @@ public:
     virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const	{ return zrg_.nrSteps()+1; }
 
-    const Well::Data*	wellData(int idx) const;
+    ConstRefMan<Well::Data>	wellData(int idx) const;
     StepInterval<float>& zRange()		{ return zrg_; }
     const StepInterval<float>& zRange() const	{ return zrg_; }
     TrcKeySampling&	horSampling()		{ return hs_; }
@@ -76,7 +75,7 @@ protected:
 
     void		setHS();
     TypeSet<MultiID>	wellids_;
-    ObjectSet<Well::Data> welldata_;
+    RefObjectSet<Well::Data> welldata_;
 
     bool		onlysurfacecoords_;
     int			inlext_;
