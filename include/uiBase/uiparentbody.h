@@ -46,9 +46,9 @@ public:
 
     const ObjectSet<uiBaseObject>* childList() const	{ return &children_; }
 
-    bool		finalised() const	{ return finalised_; }
-    virtual void	finalise()		{ finaliseChildren(); }
-    void		finaliseChildren();	// body: uiobj.cc
+    bool		finalized() const	{ return finalized_; }
+    virtual void	finalize()		{ finalizeChildren(); }
+    void		finalizeChildren();	// body: uiobj.cc
     void		clearChildren();	// body: uiobj.cc
 
 			//! widget to be used as parent for QWidgets
@@ -60,7 +60,7 @@ public:
 protected:
 			uiParentBody( const char* nm )
 			    : NamedCallBacker( nm )
-			    , finalised_( false )
+			    , finalized_( false )
 			{}
 
     void	deleteAllChildren()
@@ -85,7 +85,7 @@ protected:
 
 private:
 
-    bool			finalised_;
+    bool			finalized_;
 };
 
 

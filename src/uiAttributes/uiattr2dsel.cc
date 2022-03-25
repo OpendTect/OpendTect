@@ -76,7 +76,7 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     selgrp_->selectButton( seltype_ );
     if ( ds )
 	initFields( *ds );
-    preFinalise().notify( mCB( this,uiAttr2DSelDlg,doFinalise) );
+    preFinalize().notify( mCB( this,uiAttr2DSelDlg,doFinalize) );
 }
 
 
@@ -113,7 +113,7 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     selgrp_->selectButton( seltype_ );
     if ( ds )
 	initFields( *ds );
-    preFinalise().notify( mCB( this,uiAttr2DSelDlg,doFinalise) );
+    preFinalize().notify( mCB( this,uiAttr2DSelDlg,doFinalize) );
 }
 
 
@@ -124,7 +124,7 @@ uiAttr2DSelDlg::~uiAttr2DSelDlg()
 }
 
 
-void uiAttr2DSelDlg::doFinalise( CallBacker* )
+void uiAttr2DSelDlg::doFinalize( CallBacker* )
 {
     selDone( nullptr );
 }

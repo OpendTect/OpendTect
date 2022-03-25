@@ -92,7 +92,7 @@ protected:
     void			variableSel(CallBacker*);
     void			calcPush(CallBacker*);
     void			sliderMove(CallBacker*);
-    void			doFinalise(CallBacker*);
+    void			doFinalize(CallBacker*);
 
     bool			acceptOK(CallBacker*);
 

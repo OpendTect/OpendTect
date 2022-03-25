@@ -93,7 +93,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 
     if ( attobj ) setHAlignObj( attobj );
 
-    mAttachCB( postFinalise(), uiRangePosProvGroup::initGrp );
+    mAttachCB( postFinalize(), uiRangePosProvGroup::initGrp );
 }
 
 
@@ -195,9 +195,9 @@ static void getExtrDefTrcKeyZSampling( TrcKeyZSampling& cs )
     else if ( nrsamps > 10 ) cs.zsamp_.step *= 5;
     nrsamps = cs.zsamp_.nrSteps() + 1;
 
-    const int nrextr = mCast( int, cs.hsamp_.totalNr() * nrsamps );
+    const int nrextr = sCast( int, cs.hsamp_.totalNr() * nrsamps );
     int blocks = nrextr / 50000;
-    float fstepfac = (float) ( Math::Sqrt( (double)blocks ) );
+    float fstepfac = float( Math::Sqrt( double(blocks) ) );
     int stepfac = mNINT32(fstepfac);
     cs.hsamp_.step_.inl() *= stepfac;
     cs.hsamp_.step_.crl() *= stepfac;
@@ -379,7 +379,8 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 
 void uiPolyPosProvGroup::getSummary( BufferString& txt ) const
 {
-    txt.set(inoutfld_->getBoolValue() ? "Inside " : "Outside " ).add( "polygon" );
+    txt.set( inoutfld_->getBoolValue() ? "Inside " : "Outside " )
+	.add( "polygon" );
     const IOObj* ioobj = polyfld_->ioobj( true );
     if ( ioobj )
 	txt.add( " '" ).add( ioobj->name() ).add( "." );
@@ -439,7 +440,7 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
     tffld_->display( !onlypointset );
 
     setHAlignObj( selfld_ );
-    postFinalise().notify( selcb );
+    postFinalize().notify( selcb );
 }
 
 

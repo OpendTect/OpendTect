@@ -108,7 +108,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	grps_[idx]->attach( alignedBelow, attobj );
 
     setHAlignObj( grps_[0] );
-    postFinalise().notify( selcb );
+    postFinalize().notify( selcb );
 }
 
 

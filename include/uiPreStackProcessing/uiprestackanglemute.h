@@ -79,7 +79,7 @@ protected :
     void		smoothWindowSel(CallBacker*);
     void		getRayTracerPars();
     void		setRayTracerPars();
-    void		finaliseCB(CallBacker*);
+    void		finalizeCB(CallBacker*);
 
     uiRayTracerSel*	raytracerfld_;
     uiGenInput*		smoothtypefld_ = nullptr;

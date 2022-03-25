@@ -61,7 +61,7 @@ protected:
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
 
-    void		finaliseCB(CallBacker*);
+    void		finalizeCB(CallBacker*);
     void                examPush(CallBacker*);
     void                qCPush(CallBacker*);
     void                mixSel(CallBacker*);

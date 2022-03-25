@@ -50,15 +50,15 @@ protected:
 
 
 mExpClass(uiBase) uiGroup : public uiParent
-{ 	
+{
 friend class		uiGroupObjBody;
 friend class		uiGroupParentBody;
 friend class		uiGroupObj;
 friend class		uiMainWin;
 friend class		uiTabStack;
 public:
-			uiGroup( uiParent* , const char* nm="uiGroup", 
-				 bool manage=true );
+			uiGroup(uiParent*,const char* nm="uiGroup",
+				bool manage=true);
     virtual		~uiGroup();
 
     inline operator	const uiGroupObj*() const { return grpobj_; }
@@ -70,37 +70,44 @@ public:
     inline uiParent*	parent()		{ return grpobj_->parent(); }
     inline const uiParent* parent() const	{ return grpobj_->parent(); }
 
-    void		setHSpacing( int ); 
-    void		setVSpacing( int ); 
-    void		setSpacing( int s=0 )	
+    void		setHSpacing(int);
+    void		setVSpacing(int);
+    void		setSpacing( int s=0 )
 			{ setHSpacing(s); setVSpacing(s); }
-    void		setBorder( int ); 
+    void		setBorder(int);
 
-    void		setFrame( bool yn=true );
+    void		setFrame(bool yn=true);
     void		setNoBackGround();
 
     uiObject*		hAlignObj();
-    void		setHAlignObj( uiObject* o );
+    void		setHAlignObj(uiObject*);
     void		setHAlignObj( uiGroup* o )
-			    { setHAlignObj(o->mainObject()); }
+			{ setHAlignObj(o->mainObject()); }
     uiObject*		hCenterObj();
-    void		setHCenterObj( uiObject* o );
+    void		setHCenterObj(uiObject*);
     void		setHCenterObj( uiGroup* o )
-			    { setHCenterObj(o->mainObject()); }
+			{ setHCenterObj(o->mainObject()); }
 
     //! internal use only. Tells the layout manager it's a toplevel mngr.
-    void		setIsMain( bool ); 
+    void		setIsMain(bool);
     virtual uiMainWin*	mainwin()
-			    { return mainObject() ? mainObject()->mainwin() :0;}
+			{ return mainObject() ? mainObject()->mainwin() :0;}
 
-    static uiGroup*	gtDynamicCastToGrp( mQtclass(QWidget*) );
+    static uiGroup*	gtDynamicCastToGrp(mQtclass(QWidget*));
 
     void		setChildrenSensitive(bool);
 
+    virtual Notifier<uiBaseObject>& preFinalize()
+				{ return mainObject()->preFinalize(); }
+    virtual Notifier<uiBaseObject>& postFinalize()
+				{ return mainObject()->postFinalize(); }
+
+    mDeprecated("Use preFinalize()")
     virtual Notifier<uiBaseObject>& preFinalise()
-				{ return mainObject()->preFinalise(); }
+			{ return preFinalize(); }
+    mDeprecated("Use postFinalize()")
     virtual Notifier<uiBaseObject>& postFinalise()
-				{ return mainObject()->postFinalise(); }
+			{ return postFinalize(); }
 
 protected:
 

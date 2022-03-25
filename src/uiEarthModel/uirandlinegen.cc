@@ -105,7 +105,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     dispfld_->attach( alignedBelow, outfld_ );
     dispfld_->setChecked( true );
 
-    postFinalise().notify( cb );
+    postFinalize().notify( cb );
 }
 
 

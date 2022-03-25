@@ -640,7 +640,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir, bool isfile )
 	}
     }
 
-    si->tkzs_.normalise();
+    si->tkzs_.normalize();
     si->wcs_ = si->tkzs_;
 
     BufferString line;

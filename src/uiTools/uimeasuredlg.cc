@@ -128,7 +128,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 
     botgrp->attach( centeredBelow, topgrp );
 
-    mAttachCB( postFinalise(), uiMeasureDlg::finalizeCB );
+    mAttachCB( postFinalize(), uiMeasureDlg::finalizeCB );
 }
 
 

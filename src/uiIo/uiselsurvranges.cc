@@ -254,7 +254,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	, defstep_(1)
 	, checked(this)
 	, rangeChanged(this)
-	, finalised_(false)
+	, finalized_(false)
 	, checked_(false)
 	, cbox_(nullptr),
 	  withchk_(false)
@@ -275,7 +275,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
     lbltxt_ = nm;
     makeInpFields( rg, wstep, typ==Gen );
     setRange( wrg );
-    preFinalise().notify( mCB(this,uiSelNrRange,doFinalise) );
+    preFinalize().notify( mCB(this,uiSelNrRange,doFinalize) );
 }
 
 
@@ -288,7 +288,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 	, nrstopfld_(nullptr)
 	, checked(this)
 	, rangeChanged(this)
-	, finalised_(false)
+	, finalized_(false)
 	, withchk_(false)
 	, checked_(false)
 	, cbox_(nullptr)
@@ -296,7 +296,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 {
     makeInpFields( limitrg, wstep, false );
     setRange( limitrg );
-    preFinalise().notify( mCB(this,uiSelNrRange,doFinalise) );
+    preFinalize().notify( mCB(this,uiSelNrRange,doFinalize) );
 }
 
 
@@ -389,9 +389,9 @@ void uiSelNrRange::valChg( CallBacker* cb )
 }
 
 
-void uiSelNrRange::doFinalise( CallBacker* )
+void uiSelNrRange::doFinalize( CallBacker* )
 {
-    if ( finalised_ ) return;
+    if ( finalized_ ) return;
 
     if ( withchk_ )
     {
@@ -406,7 +406,7 @@ void uiSelNrRange::doFinalise( CallBacker* )
 	new uiLabel( this, toUiString("%1 %2").arg(lbltxt_)
 				.arg(uiStrings::sRange().toLower()), startfld_);
 
-    finalised_ = true;
+    finalized_ = true;
 }
 
 

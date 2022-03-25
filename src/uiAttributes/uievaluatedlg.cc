@@ -337,11 +337,11 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     displaylbl->attach( widthSameAs, sliderfld );
     displaylbl->attach( alignedBelow, storefld );
 
-    postFinalise().notify( mCB(this,uiEvaluateDlg,doFinalise) );
+    postFinalize().notify( mCB(this,uiEvaluateDlg,doFinalize) );
 }
 
 
-void uiEvaluateDlg::doFinalise( CallBacker* )
+void uiEvaluateDlg::doFinalize( CallBacker* )
 {
     variableSel(0);
 }

@@ -24,7 +24,7 @@ protected:
     uiMarkerStyle3D*	stylefld_;
 
     bool		acceptOK(CallBacker*);
-    virtual void	doFinalise(CallBacker*)		=0;
+    virtual void	doFinalize(CallBacker*)		=0;
 
     virtual void	sliderMove(CallBacker*)		=0;
     virtual void	typeSel(CallBacker*)		=0;

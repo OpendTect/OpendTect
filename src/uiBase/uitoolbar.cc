@@ -269,22 +269,22 @@ void uiToolBar::setToolBarMenuAction( uiAction* action )
 }
 
 
-void uiToolBar::handleFinalise( bool pre )
+void uiToolBar::handleFinalize( bool pre )
 {
     if ( pre )
-	preFinalise().trigger();
+	preFinalize().trigger();
 
     for ( int idx=0; idx<addedobjects_.size(); idx++ )
     {
 	uiObject& uiobj = *addedobjects_[idx];
 	if ( pre )
-	    uiobj.preFinalise().trigger();
+	    uiobj.preFinalize().trigger();
 	else
-	    uiobj.finalise();
+	    uiobj.finalize();
     }
 
     if ( !pre )
-	postFinalise().trigger();
+	postFinalize().trigger();
 }
 
 

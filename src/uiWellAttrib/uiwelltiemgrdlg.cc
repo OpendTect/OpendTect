@@ -168,7 +168,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     wvltfld_->attach( alignedBelow, wellfld_ );
     wvltfld_->attach( ensureBelow, sep );
 
-    mAttachCB( postFinalise(), uiTieWinMGRDlg::initDlg );
+    mAttachCB( postFinalize(), uiTieWinMGRDlg::initDlg );
 }
 
 

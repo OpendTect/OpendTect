@@ -31,6 +31,6 @@ protected:
 
     bool		acceptOK(CallBacker*);
     void		sliderMove(CallBacker*);
-    void		doFinalise(CallBacker*);
+    void		doFinalize(CallBacker*);
 };
 

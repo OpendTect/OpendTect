@@ -63,7 +63,7 @@ protected:
 
     uiString		finalizeTask();
     void		updateFields();
-    void		onFinalise(CallBacker*);
+    void		onFinalize(CallBacker*);
     void		timerTick(CallBacker*);
     virtual bool        acceptOK(CallBacker*);
 

@@ -124,7 +124,7 @@ uiSimpleTimeDepthTable( uiParent* p, const MultiID& mid )
     zinfeet_->attach( rightTo, impbut );
     zinfeet_->setChecked( SI().zInFeet() );
 
-    mAttachCB( postFinalise(), uiSimpleTimeDepthTable::timeTypeChngCB );
+    mAttachCB( postFinalize(), uiSimpleTimeDepthTable::timeTypeChngCB );
 }
 
 

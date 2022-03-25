@@ -293,13 +293,13 @@ void uiAmplSpectrum::putDispData( CallBacker* cb )
 }
 
 
-void uiAmplSpectrum::getSpectrumData(Array1DImpl<float>& data, bool normalised)
+void uiAmplSpectrum::getSpectrumData(Array1DImpl<float>& data, bool normalized)
 {
     if ( !specvals_ ) return;
     const int datasz = specvals_->info().getSize(0);
     data.setSize( datasz );
     for ( int idx=0; idx<datasz; idx++ )
-	data.set(idx, specvals_->get(idx) / (normalised ? maxspecval_ : 1.0f));
+	data.set(idx, specvals_->get(idx) / (normalized ? maxspecval_ : 1.0f));
 }
 
 

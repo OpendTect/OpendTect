@@ -105,7 +105,7 @@ uiGenInputDlg::uiGenInputDlg( uiParent* p, const uiString&  dlgtitle,
 	: uiDialog(p,Setup(uiStrings::sInputData(),dlgtitle,mNoHelpKey))
 {
     group = new uiGenInputGrp( this, dlgtitle.getFullString(), fldtxt, spec );
-    postFinalise().notify( mCB( this, uiGenInputDlg, setEnterClose ) );
+    postFinalize().notify( mCB( this, uiGenInputDlg, setEnterClose ) );
 }
 
 
@@ -114,7 +114,7 @@ uiGenInputDlg::uiGenInputDlg( uiParent* p, const uiString&  dlgtitle,
 	: uiDialog(p,Setup(uiStrings::sInputData(),dlgtitle,mNoHelpKey))
 {
     group = new uiGenInputGrp( this, dlgtitle.getFullString(), e );
-    postFinalise().notify( mCB( this, uiGenInputDlg, setEnterClose ) );
+    postFinalize().notify( mCB( this, uiGenInputDlg, setEnterClose ) );
 }
 
 

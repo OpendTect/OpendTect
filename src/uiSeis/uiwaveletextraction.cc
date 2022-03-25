@@ -77,7 +77,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     }
 
     createCommonUIFlds();
-    mAttachCB( postFinalise(), uiWaveletExtraction::choiceSelCB );
+    mAttachCB( postFinalize(), uiWaveletExtraction::choiceSelCB );
 }
 
 
@@ -113,7 +113,7 @@ void uiWaveletExtraction::createCommonUIFlds()
     outputwvltfld_ = new uiWaveletSel( this, false );
     outputwvltfld_->attach( alignedBelow, wvltphasefld_ );
 
-    mAttachCB( postFinalise(), uiWaveletExtraction::inputSelCB );
+    mAttachCB( postFinalize(), uiWaveletExtraction::inputSelCB );
 }
 
 

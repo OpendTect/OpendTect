@@ -86,7 +86,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
     if ( scenefld_ )
 	sliderfld_->attach( alignedBelow, scenefld_ );
 
-    mAttachCB( preFinalise(), uiZStretchDlg::doFinalise );
+    mAttachCB( preFinalize(), uiZStretchDlg::doFinalize );
     initzstretches_ = zstretches_;
 }
 
@@ -97,7 +97,7 @@ uiZStretchDlg::~uiZStretchDlg()
 }
 
 
-void uiZStretchDlg::doFinalise( CallBacker* )
+void uiZStretchDlg::doFinalize( CallBacker* )
 {
     sceneSel( 0 );
 

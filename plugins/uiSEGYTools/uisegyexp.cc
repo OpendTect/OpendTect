@@ -462,7 +462,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 			   manipbox_ ?	manipbox_ : fsfld_->attachObj() );
     }
 
-    mAttachCB( postFinalise(), uiSEGYExp::inpSel );
+    mAttachCB( postFinalize(), uiSEGYExp::inpSel );
 }
 
 

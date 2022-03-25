@@ -665,7 +665,7 @@ void EngineMan::setAttribSpec( const SelSpec& spec )
 void EngineMan::setTrcKeyZSampling( const TrcKeyZSampling& newcs )
 {
     tkzs_ = newcs;
-    tkzs_.normalise();
+    tkzs_.normalize();
 }
 
 

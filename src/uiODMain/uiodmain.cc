@@ -281,7 +281,7 @@ uiODMain::uiODMain( uiMain& a )
     if ( !useallcpus )
 	cputxt_ = tr( "[cpu] %1/%2" ).arg( odnrcpus ).arg( systemnrcpus );
 
-    mAttachCB( postFinalise(), uiODMain::afterStartupCB );
+    mAttachCB( postFinalize(), uiODMain::afterStartupCB );
 }
 
 
@@ -503,7 +503,7 @@ uiODMainAutoSessionDlg( uiODMain* p )
 				  BoolInpSpec(true) );
     loadnowfld_->attach( alignedBelow, sessionfld_ );
 
-    postFinalise().notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
+    postFinalize().notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
 }
 
 void useChg( CallBacker* )

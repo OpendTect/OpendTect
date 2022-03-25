@@ -193,8 +193,8 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     outistvdfld_ = new uiCheckBox( this, tr("TVDSS") );
     outistvdfld_->attach( rightOf, outinftfld_ );
 
-    postFinalise().notify( mCB(this,uiWellImportSEGYVSP,wllSel) );
-    postFinalise().notify( mCB(this,uiWellImportSEGYVSP,isTimeChg) );
+    postFinalize().notify( mCB(this,uiWellImportSEGYVSP,wllSel) );
+    postFinalize().notify( mCB(this,uiWellImportSEGYVSP,isTimeChg) );
 }
 
 

@@ -333,7 +333,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     sep->attach( heightSameAs, selfld_ );
     rightgrp->attach( rightTo, sep );
 
-    postFinalise().notify( selchgcb );
+    postFinalize().notify( selchgcb );
 }
 
 

@@ -21,7 +21,7 @@ SeisResampler::SeisResampler( const TrcKeyZSampling& c, bool is2d,
 	, dozsubsel(false)
 	, replval(0)
 {
-    cs.normalise();
+    cs.normalize();
     if ( valrg )
     {
 	valrg->sort();

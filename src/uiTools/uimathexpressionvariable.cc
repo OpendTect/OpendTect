@@ -76,7 +76,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
     }
 
     setHAlignObj( inpfld_ );
-    mAttachCB( preFinalise(), uiMathExpressionVariable::initFlds );
+    mAttachCB( preFinalize(), uiMathExpressionVariable::initFlds );
 }
 
 

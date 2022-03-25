@@ -86,7 +86,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 			      asd );
     thetafld_->attach( alignedBelow, phifld_ );
 
-    postFinalise().notify( mCB(this,uiSetPickDirs,dirinpSel) );
+    postFinalize().notify( mCB(this,uiSetPickDirs,dirinpSel) );
 }
 
 

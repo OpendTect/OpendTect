@@ -93,7 +93,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     fileparsfld_->readParsReq.notify( mCB(this,uiSEGYDefDlg,readParsCB) );
     fileparsfld_->writeParsReq.notify( mCB(this,uiSEGYDefDlg,writeParsCB) );
 
-    postFinalise().notify( mCB(this,uiSEGYDefDlg,initFlds) );
+    postFinalize().notify( mCB(this,uiSEGYDefDlg,initFlds) );
 	// Need this to get zero padding right
 }
 

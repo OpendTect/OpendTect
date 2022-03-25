@@ -92,12 +92,12 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     winflds_[1]->attach( alignedBelow, freqwinselfld_ );
     winflds_[1]->setSensitive( false );
 
-    postFinalise().notify( mCB(this,uiFreqFilterAttrib,finaliseCB));
+    postFinalize().notify( mCB(this,uiFreqFilterAttrib,finalizeCB));
     setHAlignObj( inpfld_ );
 }
 
 
-void uiFreqFilterAttrib::finaliseCB( CallBacker* )
+void uiFreqFilterAttrib::finalizeCB( CallBacker* )
 {
     typeSel(0);
     isfftSel(0);
@@ -215,7 +215,7 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
     mIfGetBool( FreqFilter::isfreqtaperStr(), isfreqtaper,
 		freqwinselfld_->setChecked(isfreqtaper) );
 
-    finaliseCB(0);
+    finalizeCB(0);
     return true;
 }
 

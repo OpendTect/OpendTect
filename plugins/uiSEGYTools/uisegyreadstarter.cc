@@ -157,7 +157,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     botgrp_->setStretch( 2, 1 );
 
     setToolStates();
-    mAttachCB( postFinalise(), uiSEGYReadStarter::initWin );
+    mAttachCB( postFinalize(), uiSEGYReadStarter::initWin );
 }
 
 

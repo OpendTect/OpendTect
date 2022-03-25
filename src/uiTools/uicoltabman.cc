@@ -160,7 +160,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 			mCB(this,uiColorTableMan,markerChange) );
     ctab_.colorChanged.notify( mCB(this,uiColorTableMan,sequenceChange) );
     ctab_.transparencyChanged.notify( mCB(this,uiColorTableMan,sequenceChange));
-    postFinalise().notify( mCB(this,uiColorTableMan,doFinalise) );
+    postFinalize().notify( mCB(this,uiColorTableMan,doFinalize) );
 }
 
 
@@ -182,7 +182,7 @@ uiString uiColorTableMan::sKeyOwn()
 { return tr("Own"); }
 
 
-void uiColorTableMan::doFinalise( CallBacker* )
+void uiColorTableMan::doFinalize( CallBacker* )
 {
     refreshColTabList( ctab_.name() );
     sequenceChange( 0 );

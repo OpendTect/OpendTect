@@ -20,7 +20,7 @@ uiTime2DepthZTransformBase::uiTime2DepthZTransformBase( uiParent* p, bool t2d )
     , rangefld_( 0 )
     , rangechanged_( false )
 {
-    mAttachCB( finaliseDone, uiTime2DepthZTransformBase::finalizeDoneCB );
+    mAttachCB( postFinalize(), uiTime2DepthZTransformBase::finalizeDoneCB );
 }
 
 
@@ -47,7 +47,7 @@ void uiTime2DepthZTransformBase::enableTargetSampling()
     if ( rangefld_ )
 	return;
 
-    if ( !finalised() )
+    if ( !finalized() )
     {
 	rangefld_ = new uiZRangeInput(this,t2d_,true);
 	rangefld_->attach( alignedBelow, hAlignObj() );

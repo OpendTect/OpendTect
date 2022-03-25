@@ -605,7 +605,7 @@ protected:
     const TypeSet<StepInterval<int> >&		maxtrcrgs_;
     const TypeSet<StepInterval<float> >&	maxzrgs_;
 
-    void		finalised(CallBacker*);
+    void		finalized(CallBacker*);
     void		lineSel(CallBacker*);
     void		trcRgChanged(CallBacker*);
     void		zRgChanged(CallBacker*);
@@ -654,11 +654,11 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 	allbut->attach( rightOf, zrgfld_ );
     }
 
-    postFinalise().notify( mCB(this,uiSeis2DMultiLineSelDlg,finalised) );
+    postFinalize().notify( mCB(this,uiSeis2DMultiLineSelDlg,finalized) );
 }
 
 
-void uiSeis2DMultiLineSelDlg::finalised( CallBacker* )
+void uiSeis2DMultiLineSelDlg::finalized( CallBacker* )
 {
     lineSel(0);
 }

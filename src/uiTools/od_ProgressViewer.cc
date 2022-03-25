@@ -143,7 +143,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, const BufferString& fnm,
     if ( deswidth > txtfld_->defaultWidth() )
 	txtfld_->setPrefWidth( deswidth );
 
-    mAttachCB( postFinalise(), uiProgressViewer::initWin );
+    mAttachCB( postFinalize(), uiProgressViewer::initWin );
     mAttachCB( timer_.tick, uiProgressViewer::doWork );
     mAttachCB( txtfld_->fileReOpened, uiProgressViewer::getNewPID );
 }

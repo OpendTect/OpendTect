@@ -135,7 +135,7 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
     lblgrp->attach( leftTo, inpgrp );
     inpgrp->attach( alignedBelow, bgrp );
     setHAlignObj( inpgrp );
-    postFinalise().notify( tscb );
+    postFinalize().notify( tscb );
 }
 
 

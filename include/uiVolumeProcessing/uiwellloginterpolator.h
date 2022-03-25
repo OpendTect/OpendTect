@@ -38,7 +38,7 @@ protected:
 
     static VolProc::uiStepDialog* createInstance(uiParent*,VolProc::Step*,bool);
 
-    void			finaliseCB(CallBacker*);
+    void			finalizeCB(CallBacker*);
     bool			acceptOK(CallBacker*);
     void			algoChg(CallBacker*);
     void			initWellLogSel();

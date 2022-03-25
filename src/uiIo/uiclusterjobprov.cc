@@ -275,7 +275,7 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 	instdirfld_->setText( dirstr );
     }
 
-    postFinalise().notify( mCB(this,uiClusterJobProv,nrJobsCB) );
+    postFinalize().notify( mCB(this,uiClusterJobProv,nrJobsCB) );
 }
 
 

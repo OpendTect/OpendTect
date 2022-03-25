@@ -50,7 +50,7 @@ ________________________________________________________________________
     pfx mImplSimpleMonitoredSet(fnnmset,const typ&,memb,chgtyp)
 
 
-// Generalised; also available for friend classes
+// Generalized; also available for friend classes
 #define mLockMonitorable4Read(obj) \
 	MonitoredObject::AccessLocker accesslocker_( obj )
 #define mLockMonitorable4Write(obj) \
@@ -128,19 +128,20 @@ void clssnm::copyClassData( const clssnm& oth ) \
 }
 
 #define mImplAlwaysDifferentMonitorableCompareClassData( clssnm ) \
-MonitoredObject::ChangeType clssnm::compareClassData( const clssnm& oth ) const \
+MonitoredObject::ChangeType clssnm::compareClassData( const clssnm& oth ) const\
 { \
     return cEntireObjectChange(); \
 }
 
 #define mImplEmptyMonitorableCompare( clssnm ) \
-MonitoredObject::ChangeType clssnm::compareClassData( const clssnm& oth ) const \
+MonitoredObject::ChangeType clssnm::compareClassData( const clssnm& oth ) const\
 { \
     return cNoChange(); \
 }
 
 
-/*!\brief Implementation of assignment and comparison methods for MonitoredObject's.
+/*!\brief Implementation of assignment and comparison methods for
+	  MonitoredObject's.
 
   you have to implement the copyClassData and compareClassData functions
   yourself. These functions are calles in a locked state, so do not use
@@ -194,7 +195,8 @@ pfx void clss::copyAll( const clss& oth ) \
     copyClassData( oth ); \
 } \
 \
-pfx MonitoredObject::ChangeType clss::compareWith( const MonitoredObject& mon ) const \
+pfx MonitoredObject::ChangeType clss::compareWith(\
+					const MonitoredObject& mon ) const \
 { \
     if ( this == &mon ) \
 	return cNoChange(); \
@@ -230,7 +232,7 @@ pfx MonitoredObject::ChangeType clss::compareWith( const MonitoredObject& mon ) 
 
   Example:
 
-MonitoredObject::ChangeType Well::Info::compareClassData( const Info& oth ) const
+MonitoredObject::ChangeType Well::Info::compareClassData(const Info& oth) const
 {
     mStartMonitorableCompare();
     mHandleMonitorableCompare( uwid_, cUWIDChange() );

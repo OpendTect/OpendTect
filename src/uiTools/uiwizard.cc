@@ -20,11 +20,11 @@ uiWizard::uiWizard( uiParent* p, uiDialog::Setup& s_ )
     , pageidx(0)
     , rotatemode(false)
 {
-    postFinalise().notify( mCB(this,uiWizard,doFinalise) );
+    postFinalize().notify( mCB(this,uiWizard,doFinalize) );
 }
 
 
-void uiWizard::doFinalise( CallBacker* )
+void uiWizard::doFinalize( CallBacker* )
 {
     isStarting();
     setCurrentPage( firstPage() );
@@ -78,7 +78,7 @@ bool uiWizard::acceptOK( CallBacker* )
 
 bool uiWizard::rejectOK( CallBacker* cb )
 {
-    if ( cb!=button(uiDialog::CANCEL) ) 
+    if ( cb!=button(uiDialog::CANCEL) )
     {
 	leavePage(pageidx,false);
 	isClosing(true);

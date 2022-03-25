@@ -505,7 +505,7 @@ uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
 					     Batch::JobSpec::Grid2D );
     batchfld_->attach( alignedBelow, horgrp );
 
-    postFinalise().notify( mCB(this,uiCreate2DGrid,finaliseCB) );
+    postFinalize().notify( mCB(this,uiCreate2DGrid,finalizeCB) );
 }
 
 
@@ -605,7 +605,7 @@ void uiCreate2DGrid::horCheckCB( CallBacker* )
 }
 
 
-void uiCreate2DGrid::finaliseCB( CallBacker* )
+void uiCreate2DGrid::finalizeCB( CallBacker* )
 {
     horCheckCB( 0 );
     srcSelCB( 0 );

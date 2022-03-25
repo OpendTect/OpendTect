@@ -114,7 +114,7 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     else
 	crSeisFields();
 
-    postFinalise().notify( mCB(this,uiSEGYReadFinisher,initWin) );
+    postFinalize().notify( mCB(this,uiSEGYReadFinisher,initWin) );
 }
 
 

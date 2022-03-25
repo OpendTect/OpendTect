@@ -103,7 +103,7 @@ protected:
     bool		inctiomine_;
     ObjectSet<uiIOObjInserter> inserters_;
 
-    void		preFinaliseCB(CallBacker*);
+    void		preFinalizeCB(CallBacker*);
     void		doObjSel(CallBacker*);
     void		objInserted(CallBacker*);
     void		survChangedCB(CallBacker*);

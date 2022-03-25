@@ -215,7 +215,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     outputgrp->setHAlignObj( wvltfld_ );
     outputgrp->attach( centeredBelow, statsgrp );
 
-    postFinalise().notify( mCB(this,uiSynthToRealScale,initWin) );
+    postFinalize().notify( mCB(this,uiSynthToRealScale,initWin) );
 }
 
 

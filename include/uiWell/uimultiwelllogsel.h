@@ -78,7 +78,7 @@ protected:
     virtual void	putToScreen();
     virtual void	getFromScreen(CallBacker*);
     virtual void	updateDisplayFlds();
-    virtual void	onFinalise(CallBacker*);
+    virtual void	onFinalize(CallBacker*);
 };
 
 
@@ -129,7 +129,7 @@ protected:
     virtual void	updateDisplayFlds();
     virtual void	putToScreen();
     virtual void	getFromScreen(CallBacker*);
-    virtual void	onFinalise(CallBacker*);
+    virtual void	onFinalize(CallBacker*);
 };
 
 
@@ -172,7 +172,7 @@ protected:
     uiListBoxChoiceIO*	wellschoiceio_;
 
     void		init();
-    void		onFinalise(CallBacker*);
+    void		onFinalize(CallBacker*);
 
     void		readWellChoiceDone(CallBacker*);
     void		writeWellChoiceReq(CallBacker*);

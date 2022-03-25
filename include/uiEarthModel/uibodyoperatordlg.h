@@ -37,7 +37,7 @@ public:
 
 protected:
 
-    void		finaliseCB(CallBacker*);
+    void		finalizeCB(CallBacker*);
     bool		acceptOK(CallBacker*);
     void		itemClick(CallBacker*);
     void		bodySel(CallBacker*);

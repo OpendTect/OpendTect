@@ -105,7 +105,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& freqtapsu )
 
     sep->attach( stretchedBelow, tapergrp_  );
 
-    postFinalise().notify( mCB(tapergrp_, uiFreqTaperGrp, taperChged ) );
+    postFinalize().notify( mCB(tapergrp_, uiFreqTaperGrp, taperChged ) );
 }
 
 
@@ -325,7 +325,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     }
 
     setPercentsFromFreq();
-    postFinalise().notify( mCB(this,uiFreqTaperGrp,putToScreen) );
+    postFinalize().notify( mCB(this,uiFreqTaperGrp,putToScreen) );
 }
 
 

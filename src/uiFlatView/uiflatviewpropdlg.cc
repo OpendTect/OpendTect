@@ -928,7 +928,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     applybut->attach( centeredBelow, tabObject() );
     enableSaveButton();
 
-    mAttachCB( postFinalise(), uiFlatViewPropDlg::finalizeCB );
+    mAttachCB( postFinalize(), uiFlatViewPropDlg::finalizeCB );
 }
 
 

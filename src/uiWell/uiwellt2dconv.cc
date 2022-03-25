@@ -29,7 +29,7 @@ uiWellT2DTransform::uiWellT2DTransform( uiParent* p )
     fld_->selectionDone.notify( mCB(this,uiWellT2DTransform,setZRangeCB) );
 
     setHAlignObj( fld_ );
-    postFinalise().notify( mCB(this,uiWellT2DTransform,setZRangeCB) );
+    postFinalize().notify( mCB(this,uiWellT2DTransform,setZRangeCB) );
 }
 
 

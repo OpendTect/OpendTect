@@ -322,7 +322,7 @@ uiCopyFaultSet::uiCopyFaultSet( uiParent* p, const IOObj& ioobj )
 			      uiStrings::phrOutput(uiStrings::sFaultSet()) );
     outfld_->attach( alignedBelow, surflist_ );
 
-    postFinalise().notify( mCB(this,uiCopyFaultSet,inpSelCB) );
+    postFinalize().notify( mCB(this,uiCopyFaultSet,inpSelCB) );
 }
 
 

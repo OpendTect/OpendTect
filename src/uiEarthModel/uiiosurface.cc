@@ -67,7 +67,7 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
     else
 	ctio_ = new CtxtIOObj( EMBodyTranslatorGroup::ioContext() );
 
-    postFinalise().notify( mCB(this,uiIOSurface,objSel) );
+    postFinalize().notify( mCB(this,uiIOSurface,objSel) );
 }
 
 
@@ -904,7 +904,7 @@ uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
 
     txtfld_->setElemSzPol( uiObject::Wide );
     setHAlignObj( txtfld_ );
-    mAttachCB( postFinalise(), uiFaultParSel::updateOnSelChgCB );
+    mAttachCB( postFinalize(), uiFaultParSel::updateOnSelChgCB );
 }
 
 
@@ -1136,7 +1136,7 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel,
 	auxdatafld_->attach( alignedBelow, objfld_ );
     setHAlignObj( auxdatafld_ );
 
-    mAttachCB( postFinalise(), uiAuxDataSel::finalizeCB );
+    mAttachCB( postFinalize(), uiAuxDataSel::finalizeCB );
 }
 
 

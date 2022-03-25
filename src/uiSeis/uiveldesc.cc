@@ -149,7 +149,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
     veldescfld_ = new uiVelocityDesc( this, vsu );
     veldescfld_->attach( alignedBelow, volselfld_ );
 
-    mAttachCB( postFinalise(), uiVelocityDescDlg::volSelChange );
+    mAttachCB( postFinalize(), uiVelocityDescDlg::volSelChange );
 }
 
 
@@ -261,7 +261,7 @@ uiVelSel::uiVelSel( uiParent* p, const IOObjContext& ctxt,
 	selectionDone.notify( mCB(this,uiVelSel,selectionDoneCB) );
     }
 
-    postFinalise().notify( mCB(this,uiVelSel,selectionDoneCB) );
+    postFinalize().notify( mCB(this,uiVelSel,selectionDoneCB) );
     //sets the ranges
 }
 
@@ -380,8 +380,8 @@ uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
 	    mCB(this,uiVelModelZAxisTransform,setZRangeCB) );
 
     setHAlignObj( velsel_ );
-    preFinalise().notify( mCB(this,uiVelModelZAxisTransform,finalizeCB) );
-    postFinalise().notify( mCB(this,uiVelModelZAxisTransform,setZRangeCB) );
+    preFinalize().notify( mCB(this,uiVelModelZAxisTransform,finalizeCB) );
+    postFinalize().notify( mCB(this,uiVelModelZAxisTransform,setZRangeCB) );
 }
 
 

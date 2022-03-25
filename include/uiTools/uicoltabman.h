@@ -65,7 +65,7 @@ protected:
 
     bool			enabletrans_;
 
-    void			doFinalise(CallBacker*);
+    void			doFinalize(CallBacker*);
     void			reDrawCB(CallBacker*);
     void			markerChgd(CallBacker*);
     void			selChg(CallBacker*);

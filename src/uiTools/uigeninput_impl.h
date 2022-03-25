@@ -18,7 +18,7 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiRadioButton;
 
-/*! \brief Generalised data input field.
+/*! \brief Generalized data input field.
 
   Provides a generalized interface towards data inputs from the user interface.
 

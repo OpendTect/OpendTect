@@ -61,7 +61,7 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     applybut_->attach( rightTo, applybox_ );
     applybut_->activated.notify( mCB(this,uiViewer3DPositionDlg,applyCB) );
 
-    postFinalise().notify( mCB(this,uiViewer3DPositionDlg,atStart) );
+    postFinalize().notify( mCB(this,uiViewer3DPositionDlg,atStart) );
     if ( viewer_.getSectionDisplay() )
     {
 	mAttachCB( viewer_.getSectionDisplay()->getMovementNotifier(),

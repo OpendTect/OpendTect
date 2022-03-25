@@ -20,8 +20,8 @@ mExpClass(uiBase) uiBody
 public:
     virtual			~uiBody()				{}
 
-    virtual void		finalise()				{}
-    virtual bool		finalised() const	{ return false; }
+    virtual void		finalize()				{}
+    virtual bool		finalized() const	{ return false; }
     virtual void		clear()					{}
     virtual void		fontchanged()				{}
 

@@ -810,7 +810,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 
 #define mInitStdMembs \
     : uiGroup(p,mFromUiStringTodo(disptxt)) \
-    , finalised_(false) \
+    , finalized_(false) \
     , idxes_(*new TypeSet<uiGenInputFieldIdx>) \
     , selText_(uiStrings::sEmptyString()), withchk_(false) \
     , labl_(nullptr), titletext_(disptxt), cbox_(nullptr), selbut_(nullptr) \
@@ -828,7 +828,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
     inputs_ += new StringInpSpec( inputStr );
     if ( !disptxt.isEmpty() )
 	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+    preFinalize().notify( mCB(this,uiGenInput,doFinalize) );
 }
 
 
@@ -840,7 +840,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
     const bool inputhasnm = inputs_[0]->name() && *inputs_[0]->name();
     if ( !disptxt.isEmpty() && !inputhasnm )
 	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+    preFinalize().notify( mCB(this,uiGenInput,doFinalize) );
 }
 
 
@@ -850,7 +850,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 {
     inputs_ += inp1.clone();
     inputs_ += inp2.clone();
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+    preFinalize().notify( mCB(this,uiGenInput,doFinalize) );
 }
 
 
@@ -862,7 +862,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
     inputs_ += inp1.clone();
     inputs_ += inp2.clone();
     inputs_ += inp3.clone();
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+    preFinalize().notify( mCB(this,uiGenInput,doFinalize) );
 }
 
 
@@ -878,13 +878,13 @@ uiGenInput::~uiGenInput()
 void uiGenInput::addInput( const DataInpSpec& inp )
 {
     inputs_ += inp.clone();
-    preFinalise().notify( mCB(this,uiGenInput,doFinalise) );
+    preFinalize().notify( mCB(this,uiGenInput,doFinalize) );
 }
 
 
 const DataInpSpec* uiGenInput::dataInpSpec( int nr ) const
 {
-    if ( finalised_ )
+    if ( finalized_ )
     {
 	return ( nr >= 0 && nr<flds_.size() && flds_[nr] )
 	    ? &flds_[nr]->spec()
@@ -904,17 +904,17 @@ bool uiGenInput::newSpec(const DataInpSpec& nw, int nr)
 
 void uiGenInput::updateSpecs()
 {
-    if ( !finalised_ )
-	{ pErrMsg("Nothing to update. Not finalised yet."); return; }
+    if ( !finalized_ )
+	{ pErrMsg("Nothing to update. Not finalized yet."); return; }
 
     for( int idx=0; idx < flds_.size(); idx++ )
 	flds_[idx]->updateSpec();
 }
 
 
-void uiGenInput::doFinalise( CallBacker* )
+void uiGenInput::doFinalize( CallBacker* )
 {
-    if ( finalised_ )		return;
+    if ( finalized_ )		return;
     if ( inputs_.isEmpty() )
 	{ pErrMsg("Knurft: No inputs"); return; }
 
@@ -948,7 +948,7 @@ void uiGenInput::doFinalise( CallBacker* )
     }
 
     deepErase( inputs_ ); // have been copied to fields.
-    finalised_ = true;
+    finalized_ = true;
 
     if ( rdonlyset_) setReadOnly( rdonly_ );
 
@@ -981,7 +981,7 @@ void uiGenInput::displayField( bool yn, int elemnr, int fldnr )
 
 void uiGenInput::setReadOnly( bool yn, int elemnr, int fldnr )
 {
-    if ( !finalised_ ) { rdonly_ = yn; rdonlyset_=true; return; }
+    if ( !finalized_ ) { rdonly_ = yn; rdonlyset_=true; return; }
 
     if ( fldnr >= 0  )
     {
@@ -1017,8 +1017,8 @@ void uiGenInput::setSensitive( bool yn, int elemnr, int fldnr )
 
 void uiGenInput::setEmpty( int nr )
 {
-    if ( !finalised_ )
-	{ pErrMsg("Nothing to set empty. Not finalised yet."); return; }
+    if ( !finalized_ )
+	{ pErrMsg("Nothing to set empty. Not finalized yet."); return; }
 
     for( int idx=0; idx<flds_.size(); idx++ )
     {
@@ -1031,7 +1031,7 @@ void uiGenInput::setEmpty( int nr )
 int uiGenInput::nrElements() const
 {
     int ret = 0;
-    if ( finalised_ )
+    if ( finalized_ )
     {
 	for( int idx=0; idx<flds_.size(); idx++ )
 	    if ( flds_[idx] )
@@ -1088,7 +1088,7 @@ void uiGenInput::setValue( const BinIDValue& b )
 
 UserInputObj* uiGenInput::element( int nr )
 {
-    if ( !finalised_ ) return 0;
+    if ( !finalized_ ) return 0;
     return nr<idxes_.size() && flds_[idxes_[nr].fldidx_]
 	    ? flds_[idxes_[nr].fldidx_]->element(idxes_[nr].subidx_) : 0;
 }
@@ -1132,7 +1132,7 @@ uiGenInputInputFld* uiGenInput::getInputFldAndIndex( const int nr,
 bool uiGenInput::isUndef( int nr ) const
 {
     int elemidx=0;
-    if ( !finalised_ )
+    if ( !finalized_ )
     {
 	DataInpSpec* dis = getInputSpecAndIndex(nr, elemidx);
 
@@ -1200,7 +1200,7 @@ fntyp uiGenInput::getfn( int nr, fntyp undefVal ) const \
     if ( isUndef(nr) ) return undefVal; \
     int elemidx=0; \
 \
-    if ( !finalised_ ) \
+    if ( !finalized_ ) \
     { \
 	DataInpSpec* dis = getInputSpecAndIndex(nr,elemidx); \
 	return dis ? dis->getfn(elemidx) : undefVal; \
@@ -1213,7 +1213,7 @@ fntyp uiGenInput::getfn( int nr, fntyp undefVal ) const \
 void uiGenInput::setfn( fntyp var, int nr ) \
 { \
     int elemidx =0; \
-    if ( !finalised_ ) \
+    if ( !finalized_ ) \
     {\
 	DataInpSpec* dis = getInputSpecAndIndex(nr,elemidx); \
 	if ( dis ) dis->setfn( var, elemidx ); \

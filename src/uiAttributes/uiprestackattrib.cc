@@ -432,7 +432,7 @@ void uiPreStackAttrib::gatherTypSel( CallBacker* cb )
 
     if ( cb )  //helps to populate non-default values
     {
-	if ( finalised() )
+	if ( finalized() )
 	    xrgfld_->setEmpty();
 
 	if ( !isoffset  )
@@ -462,7 +462,7 @@ void uiPreStackAttrib::angleTypSel( CallBacker* cb)
 
     if ( cb )  //helps to populate non-default values
     {
-	if ( finalised() )
+	if ( finalized() )
 	    xrgfld_->setEmpty();
 
 	if ( iscomputeangle )

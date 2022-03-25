@@ -41,7 +41,7 @@ protected:
     ObjectSet<uiWindowFunctionSel> winflds_;
     uiWindowFunctionSel::Setup* viewsetup_;
 
-    void		finaliseCB(CallBacker*);
+    void		finalizeCB(CallBacker*);
     void		selectionDoneCB(CallBacker*);
     void		freqChanged(CallBacker*);
     void		freqWinSel(CallBacker*);

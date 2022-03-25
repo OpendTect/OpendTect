@@ -156,7 +156,7 @@ void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
 bool uiMainWin::touch()				{ return body_->touch(); }
-bool uiMainWin::finalised() const		{ return body_->finalised(); }
+bool uiMainWin::finalized() const		{ return body_->finalized(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 void uiMainWin::showMaximized()			{ body_->showMaximized(); }
 void uiMainWin::showMinimized()			{ body_->showMinimized(); }
@@ -165,7 +165,7 @@ bool uiMainWin::isMaximized() const		{ return body_->isMaximized(); }
 bool uiMainWin::isMinimized() const		{ return body_->isMinimized(); }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
-void uiMainWin::setForceFinalise( bool yn )	{ body_->force_finalise_ = yn; }
+void uiMainWin::setForceFinalize( bool yn )	{ body_->force_finalize_ = yn; }
 
 void uiMainWin::forceClose()
 {
@@ -309,9 +309,9 @@ bool uiMainWin::doSetWindowFlags( od_uint32 todoflagi, bool setyn )
 	pErrMsg( "Setting window flags on a displayed widget "
 		 "hides it (see Qt doc)" );
 
-    const bool isfinalised = finalised();
+    const bool isfinalized = finalized();
     body_->doSetWindowFlags( todoflag, setyn );
-    if ( isfinalised )
+    if ( isfinalized )
 	Threads::sleep( 0.3 );
     return true;
 }
@@ -365,7 +365,7 @@ OD::WindowActivationBehavior uiMainWin::getActivateBehaviour()
 
 void uiMainWin::activate()
 {
-    if ( !finalised() )
+    if ( !finalized() )
 	return;
 
     setActivateOnFirstShow();

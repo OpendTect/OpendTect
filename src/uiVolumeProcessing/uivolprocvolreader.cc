@@ -35,7 +35,7 @@ uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr, bool is2d )
     seissel_->selectionDone.notify( mCB(this,uiVolumeReader,volSel) );
 
     addNameFld( seissel_ );
-    postFinalise().notify( mCB(this,uiVolumeReader,volSel) );
+    postFinalize().notify( mCB(this,uiVolumeReader,volSel) );
 }
 
 

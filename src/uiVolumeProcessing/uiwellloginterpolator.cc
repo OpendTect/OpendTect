@@ -75,7 +75,7 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
     algosel_->valuechanged.notify( mCB(this,uiWellLogInterpolator,algoChg) );
     addNameFld( radiusfld_ );
 
-    postFinalise().notify( mCB(this,uiWellLogInterpolator,finaliseCB) );
+    postFinalize().notify( mCB(this,uiWellLogInterpolator,finalizeCB) );
 }
 
 
@@ -84,7 +84,7 @@ uiWellLogInterpolator::~uiWellLogInterpolator()
 }
 
 
-void uiWellLogInterpolator::finaliseCB( CallBacker* )
+void uiWellLogInterpolator::finalizeCB( CallBacker* )
 {
     layermodelfld_->setModel( hwinterpolator_.getLayerModel() );
     initWellLogSel();

@@ -251,7 +251,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
     }
 
 
-    postFinalise().notify( mCB(this,uiBatchProgLaunch,progSel) );
+    postFinalize().notify( mCB(this,uiBatchProgLaunch,progSel) );
 }
 
 

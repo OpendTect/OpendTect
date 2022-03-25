@@ -401,8 +401,8 @@ void TrcKeySampling::limitTo( const TrcKeySampling& tks, bool ignoresteps )
 
 void TrcKeySampling::limitToWithUdf( const TrcKeySampling& h )
 {
-    TrcKeySampling tks( h ); tks.normalise();
-    normalise();
+    TrcKeySampling tks( h ); tks.normalize();
+    normalize();
 
     mAdjustIf(start_.lineNr(),<,tks.start_.lineNr());
     mAdjustIf(start_.trcNr(),<,tks.start_.trcNr());
@@ -422,9 +422,9 @@ void TrcKeySampling::limitToWithUdf( const TrcKeySampling& h )
 
 void TrcKeySampling::shrinkTo( const TrcKeySampling& innertks )
 {
-    normalise();
+    normalize();
     TrcKeySampling tks( innertks );
-    tks.normalise();
+    tks.normalize();
 
     mSnapStop( start_.inl(), stop_.inl(), step_.inl(), 0 );
     mSnapStop( start_.crl(), stop_.crl(), step_.crl(), 0 );
@@ -438,9 +438,9 @@ void TrcKeySampling::shrinkTo( const TrcKeySampling& innertks )
 
 void TrcKeySampling::growTo( const TrcKeySampling& outertks )
 {
-    normalise();
+    normalize();
     TrcKeySampling tks( outertks );
-    tks.normalise();
+    tks.normalize();
 
     mSnapStop( start_.inl(), stop_.inl(), step_.inl(), 0 );
     mSnapStop( start_.crl(), stop_.crl(), step_.crl(), 0 );
@@ -824,14 +824,14 @@ bool TrcKeySampling::overlaps( const TrcKeySampling& oth,
 bool TrcKeySampling::getInterSection( const TrcKeySampling& tks,
 				   TrcKeySampling& out ) const
 {
-    TrcKeySampling tks1( tks ); tks1.normalise();
-    TrcKeySampling tks2( *this ); tks2.normalise();
+    TrcKeySampling tks1( tks ); tks1.normalize();
+    TrcKeySampling tks2( *this ); tks2.normalize();
 
-    const Pos::steprg_type linerg1( tks1.lineRange() );
-    const Pos::steprg_type linerg2( tks2.lineRange() );
-    const Pos::steprg_type trcrg1( tks1.trcRange() );
-    const Pos::steprg_type trcrg2( tks2.trcRange() );
-    Pos::steprg_type linergout, trcrgout;
+    const StepInterval<int> linerg1( tks1.lineRange() );
+    const StepInterval<int> linerg2( tks2.lineRange() );
+    const StepInterval<int> trcrg1( tks1.trcRange() );
+    const StepInterval<int> trcrg2( tks2.trcRange() );
+    StepInterval<int> linergout, trcrgout;
 
     const bool success = Pos::intersect( linerg1, linerg2, linergout ) &&
 			 Pos::intersect( trcrg1, trcrg2, trcrgout );
@@ -1079,7 +1079,7 @@ void TrcKeyZSampling::init( bool tosi )
 }
 
 
-static void normaliseZ( StepInterval<float>& zsamp )
+static void normalizeZ( StepInterval<float>& zsamp )
 {
     if ( zsamp.start > zsamp.stop )	Swap(zsamp.start,zsamp.stop);
     if ( zsamp.step < 0 )		zsamp.step = -zsamp.step;
@@ -1093,8 +1093,8 @@ bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& tkzs,
     if ( !hsamp_.getInterSection(tkzs.hsamp_,out.hsamp_) )
 	return false;
 
-    StepInterval<float> zsamp1( tkzs.zsamp_ );	normaliseZ( zsamp1 );
-    StepInterval<float> zsamp2( zsamp_ );	normaliseZ( zsamp2 );
+    StepInterval<float> zsamp1( tkzs.zsamp_ );	normalizeZ( zsamp1 );
+    StepInterval<float> zsamp2( zsamp_ );	normalizeZ( zsamp2 );
     return intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
 		       zsamp2.start, zsamp2.stop, zsamp2.step,
 		       out.zsamp_.start, out.zsamp_.stop, out.zsamp_.step );
@@ -1230,8 +1230,8 @@ void TrcKeyZSampling::include( const BinID& bid, float z )
 
 void TrcKeyZSampling::include( const TrcKeyZSampling& c )
 {
-    TrcKeyZSampling tkzs( c ); tkzs.normalise();
-    normalise();
+    TrcKeyZSampling tkzs( c ); tkzs.normalize();
+    normalize();
 
     hsamp_.include( tkzs.hsamp_ );
     if ( tkzs.zsamp_.start < zsamp_.start ) zsamp_.start = tkzs.zsamp_.start;
@@ -1266,8 +1266,8 @@ void TrcKeyZSampling::limitTo( const TrcKeyZSampling& tkzs, bool ignoresteps )
 
 void TrcKeyZSampling::limitToWithUdf( const TrcKeyZSampling& c )
 {
-    TrcKeyZSampling tkzs( c ); tkzs.normalise();
-    normalise();
+    TrcKeyZSampling tkzs( c ); tkzs.normalize();
+    normalize();
     hsamp_.limitToWithUdf( tkzs.hsamp_ );
     mAdjustIf(zsamp_.start,<,tkzs.zsamp_.start);
     mAdjustIf(zsamp_.stop,>,tkzs.zsamp_.stop);
@@ -1276,9 +1276,9 @@ void TrcKeyZSampling::limitToWithUdf( const TrcKeyZSampling& c )
 
 void TrcKeyZSampling::shrinkTo( const TrcKeyZSampling& innertkzs, float releps )
 {
-    normalise();
+    normalize();
     TrcKeyZSampling tkzs( innertkzs );
-    tkzs.normalise();
+    tkzs.normalize();
 
     hsamp_.shrinkTo( tkzs.hsamp_ );
 
@@ -1292,9 +1292,9 @@ void TrcKeyZSampling::shrinkTo( const TrcKeyZSampling& innertkzs, float releps )
 
 void TrcKeyZSampling::growTo( const TrcKeyZSampling& outertkzs, float releps )
 {
-    normalise();
+    normalize();
     TrcKeyZSampling tkzs( outertkzs );
-    tkzs.normalise();
+    tkzs.normalize();
 
     hsamp_.growTo( tkzs.hsamp_ );
 
@@ -1440,7 +1440,7 @@ void TrcKeyZSampling::normalise()
 void TrcKeyZSampling::normalize()
 {
     hsamp_.normalize();
-    normaliseZ( zsamp_ );
+    normalizeZ( zsamp_ );
 }
 
 

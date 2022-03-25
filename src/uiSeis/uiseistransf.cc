@@ -60,7 +60,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     }
 
     setHAlignObj( remnullfld );
-    mAttachCB( postFinalise(), uiSeisTransfer::updSteer );
+    mAttachCB( postFinalize(), uiSeisTransfer::updSteer );
 }
 
 

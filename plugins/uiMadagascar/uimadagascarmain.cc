@@ -71,7 +71,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     batchfld_->setJobName( "Mad_Proc" );
 
     updateCaption();
-    postFinalise().notify( mCB(this,uiMadagascarMain,setButStates) );
+    postFinalize().notify( mCB(this,uiMadagascarMain,setButStates) );
 }
 
 

@@ -1843,7 +1843,7 @@ uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p,
     , keys_( keys )
 {
     fillTable( wellnms );
-    mAttachCB( postFinalise(), uiWellLogUOMDlg::initDlg );
+    mAttachCB( postFinalize(), uiWellLogUOMDlg::initDlg );
 }
 
 
@@ -1996,7 +1996,7 @@ uiWellLogMnemDlg::uiWellLogMnemDlg( uiParent* p,
     , keys_( keys )
 {
     fillTable( wellnms );
-    mAttachCB( postFinalise(), uiWellLogMnemDlg::initDlg );
+    mAttachCB( postFinalize(), uiWellLogMnemDlg::initDlg );
 }
 
 
@@ -2325,7 +2325,7 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
 
     mAttachCB( welllist_->selectionChanged,
 	       uiWellDefMnemLogDlg::wellChangedCB );
-    mAttachCB( postFinalise(), uiWellDefMnemLogDlg::initDlg );
+    mAttachCB( postFinalize(), uiWellDefMnemLogDlg::initDlg );
 }
 
 
@@ -2428,7 +2428,7 @@ uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
     uiLabel* lbl = new uiLabel( this, tr("Apply to") );
     lbl->attach( centeredLeftOf, wellfld_ );
 
-    mAttachCB( postFinalise(), uiSetD2TFromOtherWell::inpSelCB );
+    mAttachCB( postFinalize(), uiSetD2TFromOtherWell::inpSelCB );
 }
 
 

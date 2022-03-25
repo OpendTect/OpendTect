@@ -86,7 +86,7 @@ uiInterpolationLayerModel::uiInterpolationLayerModel( uiParent* p )
     }
 
     setHAlignObj( layermodelfld_ );
-    postFinalise().notify( mCB(this,uiInterpolationLayerModel,selCB) );
+    postFinalize().notify( mCB(this,uiInterpolationLayerModel,selCB) );
 }
 
 

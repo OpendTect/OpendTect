@@ -216,7 +216,7 @@ const char* uiFontList::key( int idx )
 
 void uiFontList::listKeys( BufferStringSet& ids )
 {
-    initialise();
+    initialize();
 
     for ( int idx=0; idx<fonts_.size(); idx++ )
 	ids.add( (const char*)fonts_[idx]->key() );
@@ -225,7 +225,7 @@ void uiFontList::listKeys( BufferStringSet& ids )
 
 uiFont& uiFontList::gtFont( const char* ky, const FontData* fd, const QFont* qf)
 {
-    initialise();
+    initialize();
     if ( (!ky || !*ky) && !qf ) return *fonts_[0];
 
     for ( int idx=0; idx<fonts_.size(); idx++ )
@@ -254,7 +254,7 @@ uiFont& uiFontList::gtFont( const char* ky, const FontData* fd, const QFont* qf)
 }
 
 
-void uiFontList::initialise()
+void uiFontList::initialize()
 {
     if ( inited_ ) return;
     inited_ = true;
@@ -325,7 +325,7 @@ void uiFontList::use( const Settings& settings )
 
 void uiFontList::update( Settings& settings )
 {
-    initialise();
+    initialize();
     BufferString fdbuf;
     for ( int idx=0; idx<fonts_.size(); idx++ )
     {

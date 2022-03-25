@@ -87,8 +87,8 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 
     setHAlignObj( inp_ );
     setHCenterObj( inp_ );
-    preFinalise().notify( mCB(this,uiIOSelect,doFinalise) );
-    postFinalise().notify( mCB(this,uiIOSelect,optCheck) );
+    preFinalize().notify( mCB(this,uiIOSelect,doFinalize) );
+    postFinalize().notify( mCB(this,uiIOSelect,optCheck) );
 }
 
 
@@ -124,7 +124,7 @@ void uiIOSelect::addExtSelBut( uiButton* but )
 }
 
 
-void uiIOSelect::doFinalise( CallBacker* cb )
+void uiIOSelect::doFinalize( CallBacker* cb )
 {
     if ( selbut_ )
 	selbut_->attach( rightOf, inp_ );

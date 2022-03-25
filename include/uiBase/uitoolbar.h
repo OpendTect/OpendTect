@@ -118,7 +118,11 @@ protected:
     void			doInsertSeparator(mQtclass(QAction)* before);
     void			doRemoveAction(mQtclass(QAction)*);
     void			doClear();
-    void			handleFinalise(bool pre);
+
+    mDeprecated("Use handleFinalize")
+    void			handleFinalise( bool pre )
+				{ handleFinalize( pre ); }
+    void			handleFinalize(bool pre);
 
     uiAction*			toolbarmenuaction_;
 

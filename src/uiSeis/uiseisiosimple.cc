@@ -278,7 +278,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	fnmfld_->attach( alignedBelow, isascfld_ );
     }
 
-    mAttachCB( postFinalise(), uiSeisIOSimple::initFlds );
+    mAttachCB( postFinalize(), uiSeisIOSimple::initFlds );
 }
 
 

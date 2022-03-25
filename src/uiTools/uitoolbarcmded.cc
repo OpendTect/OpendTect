@@ -103,7 +103,7 @@ void uiToolBarCommandEditor::initui( const uiString& seltxt,
 		   : checkbox_->attach( leftTo, commandfld_ );
     }
 
-    mAttachCB(postFinalise(), uiToolBarCommandEditor::initGrp);
+    mAttachCB(postFinalize(), uiToolBarCommandEditor::initGrp);
 }
 
 

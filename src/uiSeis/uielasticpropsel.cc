@@ -50,7 +50,7 @@ uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
     ctefld_->setElemSzPol( uiObject::Small );
 
     setHAlignObj( lbl );
-    mAttachCB( postFinalise(), uiElasticPropSelGrp::uiSelInpGrp::initGrp );
+    mAttachCB( postFinalize(), uiElasticPropSelGrp::uiSelInpGrp::initGrp );
 }
 
 

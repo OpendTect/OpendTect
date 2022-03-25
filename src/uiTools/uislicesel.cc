@@ -202,7 +202,7 @@ uiSliceScroll( uiSliceSel* ss )
 			     FloatInpSpec(2));
     dtfld_->attach( alignedBelow, ctrlbut );
 
-    postFinalise().notify( mCB(this,uiSliceScroll,typSel) );
+    postFinalize().notify( mCB(this,uiSliceScroll,typSel) );
 }
 
 

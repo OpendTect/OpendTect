@@ -81,8 +81,8 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     outfld_ = new uiSeisSel( this, outctxt, sssu );
     outfld_->attach( alignedBelow, transffld_ );
 
-    postFinalise().notify( mCB(this,uiSeisImportCBVS,typeChg) );
-    postFinalise().notify( mCB(this,uiSeisImportCBVS,modeSel) );
+    postFinalize().notify( mCB(this,uiSeisImportCBVS,typeChg) );
+    postFinalize().notify( mCB(this,uiSeisImportCBVS,modeSel) );
 }
 
 

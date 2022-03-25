@@ -51,9 +51,9 @@ private:
 
     int			pageidx;
     bool		rotatemode;
-    
+
     bool		displayCurrentPage();
     void		updateButtonText();
-    void		doFinalise(CallBacker*);
+    void		doFinalize(CallBacker*);
 };
 

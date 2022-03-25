@@ -51,7 +51,7 @@ uiSEGYReadDlg::uiSEGYReadDlg( uiParent* p,
 	optsfld_->preScanReq.notify( mCB(this,uiSEGYReadDlg,preScanCB) );
     }
 
-    postFinalise().notify( mCB(this,uiSEGYReadDlg,initWin) );
+    postFinalize().notify( mCB(this,uiSEGYReadDlg,initWin) );
 }
 
 

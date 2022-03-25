@@ -241,7 +241,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     udftreatfld_->attach( alignedBelow, scanbut_ );
     udftreatfld_->attach( ensureBelow, sep );
 
-    mAttachCB(postFinalise(),uiImportHorizon2D::formatSel);
+    mAttachCB(postFinalize(),uiImportHorizon2D::formatSel);
 }
 
 

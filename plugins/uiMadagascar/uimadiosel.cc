@@ -112,7 +112,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 				mCB(this,uiMadIOSelDlg,sconsCB) );
     sconsfld_->attach( rightTo, madfld_ );
 
-    postFinalise().notify( mCB(this,uiMadIOSelDlg,initWin) );
+    postFinalize().notify( mCB(this,uiMadIOSelDlg,initWin) );
 }
 
 

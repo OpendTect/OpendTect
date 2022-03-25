@@ -81,7 +81,7 @@ protected:
 
     virtual i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mgr );
 
-    virtual void		finalise_();
+    virtual void		finalize_();
     virtual uiObject&		uiObjHandle()		{ return handle_; }
 
     uiGroupObj&			handle_;
@@ -139,8 +139,8 @@ protected:
     uiObject*		hcenterobj_;
     uiObject*		halignobj_;
 
-    virtual void	finalise()		{ finalise( false ); }
-    virtual void	finalise(bool trigger_finalise_start_stop);
+    virtual void	finalize()		{ finalize( false ); }
+    virtual void	finalize(bool trigger_finalize_start_stop);
 
     virtual void	manageChld_( uiBaseObject& o, uiObjectBody& b )
 			    { lomngr_->addItem( b.mkLayoutItem( *lomngr_ ) ); }
@@ -288,15 +288,15 @@ void uiGroupParentBody::setHAlignObj( uiObject* obj )
 }
 
 
-void uiGroupParentBody::finalise( bool trigger_finalise_start_stop )
+void uiGroupParentBody::finalize( bool trigger_finalize_start_stop )
 {
-    if ( trigger_finalise_start_stop )
-	handle_.preFinalise().trigger( handle_ );
+    if ( trigger_finalize_start_stop )
+	handle_.preFinalize().trigger( handle_ );
 
-    finaliseChildren();
+    finalizeChildren();
 
-    if ( trigger_finalise_start_stop )
-	handle_.postFinalise().trigger( handle_ );
+    if ( trigger_finalize_start_stop )
+	handle_.postFinalize().trigger( handle_ );
 }
 
 
@@ -354,7 +354,7 @@ i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mgr )
     return loitm ;
 }
 
-void uiGroupObjBody::finalise_()	{ prntbody_->finalise(); }
+void uiGroupObjBody::finalize_()	{ prntbody_->finalize(); }
 
 
 void uiGroupObjBody::setFont( const QFont& )

@@ -199,7 +199,7 @@ void uiRockPhysForm::createFlds( uiObject* attobj )
     }
 
     setHAlignObj( lcb );
-    mAttachCB( postFinalise(), uiRockPhysForm::initGrp );
+    mAttachCB( postFinalize(), uiRockPhysForm::initGrp );
 }
 
 

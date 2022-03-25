@@ -93,7 +93,7 @@ uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su,
 
     setHAlignObj( topgrp_ );
 
-    mAttachCB( postFinalise(), uiMultiSynthSeisSel::initGrpCB );
+    mAttachCB( postFinalize(), uiMultiSynthSeisSel::initGrpCB );
 }
 
 

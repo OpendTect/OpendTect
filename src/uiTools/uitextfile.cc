@@ -312,7 +312,7 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
 			 mCB(this,uiTextFileDlg,dismiss)));
     menuBar()->addMenu( filemnu );
 
-    postFinalise().notify( mCB(this,uiTextFileDlg,finalizeCB) );
+    postFinalize().notify( mCB(this,uiTextFileDlg,finalizeCB) );
 }
 
 

@@ -33,7 +33,7 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const uiString& title,
     mAttachCB( stylefld_->sliderMove(), uiMarkerStyleDlg::sliderMove );
     mAttachCB( stylefld_->colSel(), uiMarkerStyleDlg::colSel );
 
-    preFinalise().notify( mCB(this,uiMarkerStyleDlg,doFinalise) );
+    preFinalize().notify( mCB(this,uiMarkerStyleDlg,doFinalize) );
 }
 
 

@@ -97,7 +97,7 @@ uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const Setup& su )
     disableScrollZoom();
     setStretch( 2, 2 );
     reSize.notify( mCB(this,uiWellDahDisplay,reSized) );
-    postFinalise().notify( mCB(this,uiWellDahDisplay,init) );
+    postFinalize().notify( mCB(this,uiWellDahDisplay,init) );
 }
 
 

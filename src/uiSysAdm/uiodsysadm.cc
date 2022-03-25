@@ -118,7 +118,7 @@ uiODSysAdm::uiODSysAdm( uiParent* p )
     mAddTask(3,"Attribute sets",doAttribSets,
      "Add/Remove attribute sets to/from the standard default attribute sets" );
 
-    preFinalise().notify( mCB(this,uiODSysAdm,setInitial) );
+    preFinalize().notify( mCB(this,uiODSysAdm,setInitial) );
 }
 
 

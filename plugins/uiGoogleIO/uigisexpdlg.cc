@@ -40,7 +40,7 @@ uiGISExpStdFld::uiGISExpStdFld( uiParent* p, BufferString typnm )
     else
 	fnmfld_->attach( alignedBelow, exptyp_ );
 
-    mAttachCB(postFinalise(),uiGISExpStdFld::expTypChng);
+    mAttachCB(postFinalize(),uiGISExpStdFld::expTypChng);
 }
 
 

@@ -113,7 +113,7 @@ public:
     void		setCellObject(const RowCol&,uiObject*);
     RowCol		getCell(uiObject*);
 
-    virtual void	finalise();
+    virtual void	finalize();
 
     int			maxNrOfSelections() const;
     uiTable::SelectionBehavior getSelBehavior() const;
@@ -372,7 +372,7 @@ void uiTableBody::setNrLines( int prefnrlines )
 
 void uiTableBody::setPrefHeightInRows( int nrrows, int maxheight )
 {
-    if ( finalised() || nrrows<=0 )
+    if ( finalized() || nrrows<=0 )
 	return;
 
     QHeaderView* vhdr = verticalHeader();
@@ -385,7 +385,7 @@ void uiTableBody::setPrefHeightInRows( int nrrows, int maxheight )
 
 void uiTableBody::setPrefWidthInChars( int nrchars, int maxwidth )
 {
-    if ( finalised() || nrchars<=0 )
+    if ( finalized() || nrchars<=0 )
 	return;
 
     QHeaderView* hhdr = horizontalHeader();
@@ -485,11 +485,11 @@ void uiTableBody::clearCellObject( const RowCol& rc )
 }
 
 
-void uiTableBody::finalise()
+void uiTableBody::finalize()
 {
-    uiObjectBody::finalise();
+    uiObjectBody::finalize();
     for ( int idx=0; idx<cellobjects_.size(); idx++ )
-	cellobjects_[idx]->object_->finalise();
+	cellobjects_[idx]->object_->finalize();
 }
 
 

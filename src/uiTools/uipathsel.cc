@@ -87,7 +87,7 @@ uiPathSel::uiPathSel( uiParent* p, const uiString& caption )
     setSelIcon( "edit" );
     setChecked( false );
     setHAlignObj( txtfld_ );
-    mAttachCB(postFinalise(), uiPathSel::initGrp);
+    mAttachCB(postFinalize(), uiPathSel::initGrp);
 }
 
 

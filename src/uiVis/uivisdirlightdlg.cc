@@ -40,7 +40,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
 		    tr("Set azimuth and dip"), mNoHelpKey).modal(false)))
 {
     pddlg_->setCtrlStyle( CloseOnly );
-    pddlg_->postFinalise().notify( mCB(this,uiDirLightDlg,pdDlgDoneCB) );
+    pddlg_->postFinalize().notify( mCB(this,uiDirLightDlg,pdDlgDoneCB) );
 
     scenefld_ = new uiLabeledComboBox( this, tr("Apply light to") );
     scenefld_->attach( hCentered );

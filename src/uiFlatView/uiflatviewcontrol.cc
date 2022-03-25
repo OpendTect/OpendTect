@@ -28,8 +28,8 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
 {
     addViewer( vwr );
     if ( vwr.attachObj()->parent() )
-	mAttachCB( vwr.attachObj()->parent()->postFinalise(),
-			uiFlatViewControl::onFinalise );
+	mAttachCB( vwr.attachObj()->parent()->postFinalize(),
+			uiFlatViewControl::onFinalize );
     mAttachCB( viewerAdded, uiFlatViewControl::vwrAdded );
 
     // Hack to set correct zoom level at start-up.
@@ -104,7 +104,7 @@ void uiFlatViewControl::initZoom( CallBacker* )
 }
 
 
-void uiFlatViewControl::onFinalise( CallBacker* )
+void uiFlatViewControl::onFinalize( CallBacker* )
 {
     const bool canreuse = !zoommgr_.atStart()
 			 && canReUseZoomSettings( vwrs_[0]->curView().centre(),

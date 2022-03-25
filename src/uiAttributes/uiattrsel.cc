@@ -245,7 +245,7 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     else if ( nlafld_ )
 	nlafld_->setChecked(true);
 
-    preFinalise().notify( mCB( this,uiAttrSelDlg,doFinalise) );
+    preFinalize().notify( mCB( this,uiAttrSelDlg,doFinalize) );
 }
 
 
@@ -258,7 +258,7 @@ uiAttrSelDlg::~uiAttrSelDlg()
 }
 
 
-void uiAttrSelDlg::doFinalise( CallBacker* )
+void uiAttrSelDlg::doFinalize( CallBacker* )
 {
     selDone(0);
     in_action_ = true;

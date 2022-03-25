@@ -205,15 +205,17 @@ public:
 typedef StepInterval<float> ZSampling;
 namespace Pos
 {
-    typedef Interval<Index_Type>	rg_type;
-    typedef StepInterval<Index_Type>	steprg_type;
-
-    mGlobal(Basic) void normalise(steprg_type&,Index_Type defstep);
-    mGlobal(Basic) bool intersect(const steprg_type&,const steprg_type&,
-				  steprg_type&);
-    mGlobal(Basic) void normaliseZ(ZSampling&);
-    mGlobal(Basic) bool intersectF(const ZSampling&,const ZSampling&,
-				   ZSampling&);
+    mGlobal(Basic)	void normalize(StepInterval<int>&,int defstep);
+    mGlobal(Basic)	bool intersect(const StepInterval<int>&,
+					const StepInterval<int>&,
+					StepInterval<int>&);
+    mGlobal(Basic)	void normalizeZ(ZSampling&);
+    mGlobal(Basic)	bool intersectF(const ZSampling&,const ZSampling&,
+					ZSampling&);
+    mDeprecated("Use normalize")
+    mGlobal(Basic)	void normalise(StepInterval<int>&,int defstep);
+    mDeprecated("Use normalizeZ")
+    mGlobal(Basic)	void normaliseZ(ZSampling&);
 };
 
 

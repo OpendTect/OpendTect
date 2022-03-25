@@ -69,7 +69,7 @@ uiBuildPROPS::uiBuildPROPS( uiParent* p, PropertyRefSet& prs )
     for ( const auto* prnm : pnms )
 	addItem( prnm->buf() );
 
-    mAttachCB( postFinalise(), uiBuildPROPS::initGrp );
+    mAttachCB( postFinalize(), uiBuildPROPS::initGrp );
 }
 
 
@@ -241,7 +241,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
 			    mCB(this,uiEditPropRef,setDefinitionForm), false );
     definitionformbut_->attach( rightOf, definitionfld_ );
 
-    mAttachCB( postFinalise(), uiEditPropRef::initDlg );
+    mAttachCB( postFinalize(), uiEditPropRef::initDlg );
 }
 
 

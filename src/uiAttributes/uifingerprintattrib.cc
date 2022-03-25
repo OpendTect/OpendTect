@@ -679,7 +679,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 	new uiPushButton( this, tr("Calculate parameters"), cbcalc, true);
     calcbut->attach( alignedBelow, (uiParent*)attrvalsgrp );
 
-    postFinalise().notify( mCB(this,uiFPAdvancedDlg,rangeSel) );
+    postFinalize().notify( mCB(this,uiFPAdvancedDlg,rangeSel) );
 }
 
 

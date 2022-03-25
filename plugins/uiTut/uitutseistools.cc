@@ -77,7 +77,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     outfld_->attach( alignedBelow, scalegrp_ );
 
     // Make sure only relevant stuff is displayed on startup
-    postFinalise().notify( choicecb );
+    postFinalize().notify( choicecb );
 }
 
 

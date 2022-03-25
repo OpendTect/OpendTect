@@ -157,7 +157,7 @@ uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p,
     if ( defidx_ >= mnsels_.size() && !mnsels_.isEmpty() )
 	mnsels_.first()->box()->setCurrentItem( defidx );
 
-    mAttachCB( postFinalise(), uiProbDenFuncGen::initDlg );
+    mAttachCB( postFinalize(), uiProbDenFuncGen::initDlg );
 }
 
 
@@ -334,7 +334,7 @@ uiProbDenFuncGenSampled::uiProbDenFuncGenSampled( uiParent* p, int nrdim,
     outfld_->attach( alignedBelow, alfld );
     outfld_->attach( ensureBelow, sep );
 
-    mAttachCB( postFinalise(), uiProbDenFuncGenSampled::initDlg );
+    mAttachCB( postFinalize(), uiProbDenFuncGenSampled::initDlg );
 }
 
 

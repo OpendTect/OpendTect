@@ -113,7 +113,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     typefld_->display( false );
     turnOffAll();
 
-    postFinalise().notify( mCB(this,uiBodyOperatorDlg,finaliseCB) );
+    postFinalize().notify( mCB(this,uiBodyOperatorDlg,finalizeCB) );
 }
 
 
@@ -129,7 +129,7 @@ MultiID uiBodyOperatorDlg::getBodyMid() const
 }
 
 
-void uiBodyOperatorDlg::finaliseCB( CallBacker* )
+void uiBodyOperatorDlg::finalizeCB( CallBacker* )
 {
     tree_->setSelected( tree_->firstItem(), true );
     tree_->setCurrentItem( tree_->firstItem(), 0 );

@@ -139,7 +139,7 @@ void uiUnitSel::init()
 	setHAlignObj( leftcb );
     }
 
-    mAttachCB( postFinalise(), uiUnitSel::initGrp );
+    mAttachCB( postFinalize(), uiUnitSel::initGrp );
 }
 
 

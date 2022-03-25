@@ -62,7 +62,7 @@ protected:
     virtual void		putToScreen();
 
     void			initDlg(OD::Color);
-    void			postFinaliseCB(CallBacker*);
+    void			postFinalizeCB(CallBacker*);
     virtual void		setWDNotifiers(bool yn);
 
     virtual void		applyTabPush(CallBacker*);

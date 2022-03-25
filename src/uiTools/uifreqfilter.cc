@@ -41,7 +41,7 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     set( nyq*0.1, nyq*0.4, FFTFilter::LowPass );
 
 
-    postFinalise().notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
+    postFinalize().notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
 }
 
 

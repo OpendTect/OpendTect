@@ -61,7 +61,7 @@ uiImp2DGeom::uiImp2DGeom( uiParent* p, const char* lnm )
 		    BoolInpSpec(false,tr("Single line"),tr("Multiple lines")) );
 	singlemultifld_->attach( alignedBelow, fnmfld_ );
 	mAttachCB( singlemultifld_->valuechanged, uiImp2DGeom::singmultCB );
-	mAttachCB( postFinalise(), uiImp2DGeom::singmultCB );
+	mAttachCB( postFinalize(), uiImp2DGeom::singmultCB );
 	attachobj = singlemultifld_->attachObj();
 
 	mAttachCB( fnmfld_->valuechanged, uiImp2DGeom::fileSelCB );
@@ -234,7 +234,7 @@ uiExp2DGeom::uiExp2DGeom( uiParent* p, const TypeSet<Pos::GeomID>* geomidset,
     if ( geomidset )
     {
 	geomidset_ = *geomidset;
-	mAttachCB( postFinalise(),uiExp2DGeom::setList );
+	mAttachCB( postFinalize(),uiExp2DGeom::setList );
     }
 }
 

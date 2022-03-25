@@ -78,7 +78,7 @@ uiWellLogDisplay::uiWellLogDisplay( uiParent* p, const Setup& su )
     delete ld1_; delete ld2_;
     ld1_ = new LogData( scene(), true, su );
     ld2_ = new LogData( scene(), false, su );
-    postFinalise().notify( mCB(this,uiWellLogDisplay,init) );
+    postFinalize().notify( mCB(this,uiWellLogDisplay,init) );
 }
 
 
@@ -336,7 +336,7 @@ uiWellLogDispDlg::uiWellLogDispDlg( uiParent* p,
 
     dispfld_->setPrefWidth( 300 );
     dispfld_->setPrefHeight( 500 );
-    postFinalise().notify( cb );
+    postFinalize().notify( cb );
     setDeleteOnClose( true );
 }
 

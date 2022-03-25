@@ -122,7 +122,7 @@ protected:
     virtual void	doSelect(CallBacker*);
     void		inputChg(CallBacker*);
     void		examineFile(CallBacker*);
-    void		isFinalised(CallBacker*);
+    void		isFinalized(CallBacker*);
     void		fnmEntered(CallBacker*);
 };
 

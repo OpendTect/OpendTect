@@ -87,7 +87,7 @@ protected:
     bool			withconstdir_;
 
     void			createFields();
-    void			doFinalise(CallBacker*);
+    void			doFinalize(CallBacker*);
     virtual void		typeSel(CallBacker*);
 };
 

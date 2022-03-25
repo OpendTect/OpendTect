@@ -91,7 +91,7 @@ public:
     bool		showMinMaxButtons(bool yn=true);
     bool		showAlwaysOnTop(bool yn=true);
 			/* Return if changed. Will hide the dialog
-			   if finalised and already shown */
+			   if finalized and already shown */
     void		showAndActivate();
 			/* Only for windows already shown before */
     void		setActivateOnFirstShow(bool yn=true);
@@ -157,7 +157,7 @@ public:
 
     bool		poppedUp() const;
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
-    bool		finalised() const;
+    bool		finalized() const;
     virtual uiMainWin*	mainwin()			{ return this; }
     mQtclass(QWidget*)		qWidget() const;
     uiParent*		parent()			{ return parent_; }
@@ -209,6 +209,9 @@ public:
     void		runScript(const char* filename);
     const char*		getScriptToRun() const;
 
+    mDeprecated("Use finalized()")
+    bool		finalised() const	{ return finalized(); }
+
 protected:
 
     virtual bool	closeOK()	{return true;}//!< confirm window close
@@ -224,7 +227,10 @@ protected:
     void		copyToClipBoardCB(CallBacker*);
     void		aftPopupCB(CallBacker*);
     void		languageChangeCB(CallBacker*);
-    void		setForceFinalise(bool);
+    void		setForceFinalize(bool);
+    mDeprecated("Use setForceFinalize()")
+    void		setForceFinalise( bool yn )
+			{ setForceFinalize( yn ); }
 
     uiMainWinBody*	body_;
     uiParent*		parent_;

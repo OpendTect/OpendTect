@@ -50,7 +50,7 @@ uiGISExportPolygon::uiGISExportPolygon( uiParent* p, const MultiID& mid )
 	sep->attach( stretchedBelow, selfld_ );
 	expfld_->attach( stretchedBelow, sep );
 	expfld_->attach( leftAlignedBelow, selfld_ );
-	mAttachCB(postFinalise(),uiGISExportPolygon::inputTypChngCB);
+	mAttachCB(postFinalize(),uiGISExportPolygon::inputTypChngCB);
     }
 }
 

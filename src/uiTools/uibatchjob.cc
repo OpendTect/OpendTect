@@ -115,7 +115,7 @@ void uiBatchJobDispatcherSel::init( bool optional )
     else
 	setHAlignObj( optsbut_ );
 
-    postFinalise().notify( mCB(this,uiBatchJobDispatcherSel,initFlds) );
+    postFinalize().notify( mCB(this,uiBatchJobDispatcherSel,initFlds) );
 }
 
 

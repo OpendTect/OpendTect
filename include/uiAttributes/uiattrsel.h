@@ -155,7 +155,7 @@ protected:
 
     bool		getAttrData(bool);
     void		replaceStoredByInMem();
-    void		doFinalise( CallBacker* );
+    void		doFinalize( CallBacker* );
     void		selDone(CallBacker*);
     void		filtChg(CallBacker*);
     void		cubeSel(CallBacker*);

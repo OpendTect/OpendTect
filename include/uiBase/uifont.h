@@ -117,7 +117,7 @@ public:
 protected:
 
     ObjectSet<uiFont>	fonts_;
-    void		initialise();
+    void		initialize();
     uiFont&		gtFont(const char*,const FontData* =0,
 			       const mQtclass(QFont*) =0 );
 

@@ -105,11 +105,11 @@ void uiSteeringSel::createFields()
     dipfld_->attach( alignedBelow, dirfld_ );
 
     setHAlignObj( inpfld_ );
-    preFinalise().notify( mCB(this,uiSteeringSel,doFinalise) );
+    preFinalize().notify( mCB(this,uiSteeringSel,doFinalize) );
 }
 
 
-void uiSteeringSel::doFinalise(CallBacker*)
+void uiSteeringSel::doFinalize(CallBacker*)
 {
     typeSel(0);
 }

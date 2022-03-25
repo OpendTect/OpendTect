@@ -61,7 +61,7 @@ uiImportMute::uiImportMute( uiParent* p )
     outfld_ = new uiIOObjSel( this, ctio_, tr("Mute Definition") );
     outfld_->attach( alignedBelow, dataselfld_ );
 
-    postFinalise().notify( mCB(this,uiImportMute,formatSel) );
+    postFinalize().notify( mCB(this,uiImportMute,formatSel) );
 }
 
 

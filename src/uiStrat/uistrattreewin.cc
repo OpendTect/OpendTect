@@ -89,7 +89,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     updateButtonSensitivity();
 
     mAttachCB( IOM().surveyToBeChanged, uiStratTreeWin::survChgCB );
-    mAttachCB( postFinalise(), uiStratTreeWin::finalizeCB );
+    mAttachCB( postFinalize(), uiStratTreeWin::finalizeCB );
 }
 
 

@@ -785,7 +785,7 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	    tabstack_->addTab( ccgrp, uiStrings::sCorrelation(mPlural) );
 	    mAttachCB( tabstack_->selChange(),
 		       uiEditGaussianProbDenFunc::tabChg );
-	    mAttachCB( postFinalise(), uiEditGaussianProbDenFunc::initGrp );
+	    mAttachCB( postFinalize(), uiEditGaussianProbDenFunc::initGrp );
 	}
     }
 }

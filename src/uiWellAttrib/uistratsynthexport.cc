@@ -184,7 +184,7 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     postfxfld_ = new uiGenInput( this, tr("Postfix") );
     postfxfld_->attach( rightOf, prefxfld_ );
 
-    postFinalise().notify( mCB(this,uiStratSynthExport,crNewChg) );
+    postFinalize().notify( mCB(this,uiStratSynthExport,crNewChg) );
 }
 
 

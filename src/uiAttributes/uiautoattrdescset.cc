@@ -68,7 +68,7 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
     loadbutton_ = new uiCheckBox( this, tr("Load Now") );
     loadbutton_->attach( alignedBelow, selgrp_ );
 
-    postFinalise().notify( mCB(this,uiAutoAttrSelDlg,useChg) );
+    postFinalize().notify( mCB(this,uiAutoAttrSelDlg,useChg) );
 }
 
 
@@ -167,7 +167,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
     lbl_ = new uiLabel( this, tr("Survey-defined sets") );
     lbl_->attach( leftTo, selgrp_ );
 
-    postFinalise().notify( mCB(this,uiAutoAttrSetOpen,setChg) );
+    postFinalize().notify( mCB(this,uiAutoAttrSetOpen,setChg) );
 }
 
 

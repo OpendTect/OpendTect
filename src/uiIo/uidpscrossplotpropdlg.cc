@@ -76,7 +76,7 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
     }
 
     plotter_.dataChgd.notify( mCB(this,uiDPSCPScalingTab,updateFlds) );
-    p->postFinalise().notify( axselcb );
+    p->postFinalize().notify( axselcb );
 }
 
 
@@ -215,7 +215,7 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p, bool y1 )
     d1fld_->setReadOnly( true );
     ccfld_->setReadOnly( true );
 
-    mAttachCB( p->postFinalise(), uiDPSCPStatsTab::finalizeCB );
+    mAttachCB( p->postFinalize(), uiDPSCPStatsTab::finalizeCB );
     mAttachCB( plotter_.dataChgd, uiDPSCPStatsTab::dataChangedCB );
 }
 
@@ -368,7 +368,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     pickCB( 0 );
     plotter_.lineDrawn.notify( mCB(this,uiDPSUserDefTab,setFlds) );
     plotter_.mouseReleased.notify( mCB(this,uiDPSUserDefTab,getRmsErrorCB) );
-    p->postFinalise().notify( mCB(this,uiDPSUserDefTab,initFlds) );
+    p->postFinalize().notify( mCB(this,uiDPSUserDefTab,initFlds) );
     p->windowClosed.notify( mCB(this,uiDPSUserDefTab,setPolyLines) );
 }
 

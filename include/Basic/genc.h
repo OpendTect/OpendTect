@@ -122,7 +122,7 @@ mGlobal(Basic) bool SetBindings(const char* odbindir,int argc,char** argv,
    --dataroot "C:\\surveys" --survey F3_Demo
 */
 mGlobal(Basic) bool InitBindings(const char** moddeps,bool forgui=false);
-/*!< Initialised the basic modules, and auto-loads plugins if needed,
+/*!< Initialized the basic modules, and auto-loads plugins if needed,
 *    providing that ALO files exists.
 */
 mGlobal(Basic) void CloseBindings();

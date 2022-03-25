@@ -72,7 +72,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     }
 
     setHAlignObj( filefld_ );
-    postFinalise().notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
+    postFinalize().notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 }
 
 

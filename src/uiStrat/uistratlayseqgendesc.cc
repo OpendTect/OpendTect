@@ -609,7 +609,7 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     setFrom( prop );
     setHAlignObj( valfld_ );
 
-    mAttachCB( postFinalise(), uiSimpPropertyEd::updDisp );
+    mAttachCB( postFinalize(), uiSimpPropertyEd::updDisp );
 }
 
 ~uiSimpPropertyEd()

@@ -189,7 +189,7 @@ protected:
 				~uiODSceneMgr();
     void			initMenuMgrDepObjs();
 
-    void			afterFinalise(CallBacker*);
+    void			afterFinalize(CallBacker*);
 
     uiODMain&			appl_;
     uiMdiArea*			mdiarea_;

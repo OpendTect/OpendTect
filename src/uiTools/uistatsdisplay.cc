@@ -85,7 +85,7 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     if ( putcountinplot )
 	putN();
 
-    postFinalise().notify( mCB(this,uiStatsDisplay,finalizeCB) );
+    postFinalize().notify( mCB(this,uiStatsDisplay,finalizeCB) );
 }
 
 

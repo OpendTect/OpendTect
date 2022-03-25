@@ -37,7 +37,7 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 {
     const CallBack cb( mCB(this,uiSeisDump2DGeom,seisSel) );
     if ( ioobj )
-	preFinalise().notify( cb );
+	preFinalize().notify( cb );
 
     uiSeisSel::Setup ss( Seis::Line );
     seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,true), ss );

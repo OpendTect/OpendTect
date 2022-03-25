@@ -61,7 +61,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 			BoolInpSpec(true, tr("Low"), tr("High")) );
     strengthfld_->attach( alignedBelow, outfld_ );
 
-    postFinalise().notify( mCB(this,uiTutHorTools,choiceSel) );
+    postFinalize().notify( mCB(this,uiTutHorTools,choiceSel) );
 }
 
 

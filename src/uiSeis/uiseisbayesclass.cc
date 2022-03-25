@@ -145,7 +145,7 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	flds_ += fld;
     }
 
-    postFinalise().notify( mCB(this,uiSeisBayesPDFInp,handleDisp) );
+    postFinalize().notify( mCB(this,uiSeisBayesPDFInp,handleDisp) );
 }
 
 void butPush( CallBacker* cb )
@@ -311,7 +311,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 
 
     useglobfld_->valuechanged.notify( dispcb );
-    postFinalise().notify( dispcb );
+    postFinalize().notify( dispcb );
 }
 
 

@@ -93,7 +93,7 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
     saveglobalfld_->attach( alignedBelow, isvertical ? x2fld_ : x1fld_ );
 
     mAttachCB( applyPushed, uiFlatViewZoomLevelDlg::applyCB );
-    mAttachCB( postFinalise(), uiFlatViewZoomLevelDlg::finalizeDoneCB );
+    mAttachCB( postFinalize(), uiFlatViewZoomLevelDlg::finalizeDoneCB );
 }
 
 

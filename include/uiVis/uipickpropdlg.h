@@ -27,13 +27,13 @@ mExpClass(uiVis) uiPickPropDlg : public uiMarkerStyleDlg
 { mODTextTranslationClass(uiPickPropDlg);
 public:
 				uiPickPropDlg(uiParent* p,
-					      Pick::Set& set, 
+					      Pick::Set& set,
 					      visSurvey::PickSetDisplay* psd);
 				~uiPickPropDlg();
 
 protected:
 
-    void			doFinalise(CallBacker*);
+    void			doFinalize(CallBacker*);
     void			sliderMove(CallBacker*);
     void			typeSel(CallBacker*);
     void			colSel(CallBacker*);
@@ -43,7 +43,7 @@ protected:
     void			useThresholdCB(CallBacker*);
     void			thresholdChangeCB(CallBacker*);
     void			initDlg(CallBacker*);
-    
+
     uiCheckBox*			usethresholdfld_;
     uiGenInput*			thresholdfld_;
     uiSelLineStyle*		lsfld_		= nullptr;

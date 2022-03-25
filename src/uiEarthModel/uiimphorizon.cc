@@ -191,7 +191,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	fillUdfSel(0);
     }
 
-    postFinalise().notify( mCB(this,uiImportHorizon,inputChgd) );
+    postFinalize().notify( mCB(this,uiImportHorizon,inputChgd) );
 }
 
 

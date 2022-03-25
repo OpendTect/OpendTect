@@ -758,7 +758,7 @@ void uiToolButton::setMenu( uiMenu* mnu, PopupMode mode )
     mDynamicCastGet(uiToolBar*,tb,parent())
     if ( !tb )
     {
-	if ( finalised() )
+	if ( finalized() )
 	{
 	    QSize size = tbbody_->size();
 	    const int wdth =

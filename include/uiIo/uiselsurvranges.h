@@ -90,13 +90,13 @@ protected:
     uiLineEdit*		nrstopfld_;
     uiLabeledSpinBox*	stepfld_;
     BufferString	lbltxt_;
-    bool		finalised_;
+    bool		finalized_;
     bool		withchk_;
     int			defstep_;
 
     void		valChg(CallBacker*);
     void		checkBoxSel(CallBacker*);
-    void		doFinalise(CallBacker*);
+    void		doFinalize(CallBacker*);
 
     int			getStopVal() const;
     void		setStopVal(int);

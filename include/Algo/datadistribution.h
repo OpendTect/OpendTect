@@ -26,7 +26,7 @@ template <class VT> class DataDistributionIter;
 
   The data in this object can be either true 'frequencies' or 'histogram'
   values. More generally, if you want to obtain a 'true' distribution in the
-  mathematical sense of the word, then you should use 'normalise', which
+  mathematical sense of the word, then you should use 'normalize', which
   assures that the sum of the values is 1.
 
   The SamplingData describes the positions of the bin *centers*. Thus, if
@@ -73,7 +73,9 @@ public:
     inline void			set(const VT*);	    //!< fast, no checks
     inline void			add(const VT*);	    //!< fast, no checks
 
-    inline bool			isNormalised() const
+    mDeprecated("Use isNormalized")
+    inline bool			isNormalised() const { return isNormalized(); }
+    inline bool			isNormalized() const
 				{ return sumOfValues() == VT(1); }
     inline VT			sumOfValues() const;
     inline VT			maxValue() const;

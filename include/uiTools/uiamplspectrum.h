@@ -57,7 +57,7 @@ public:
     void			setData(const Array3D<float>&);
 
     void			getSpectrumData(Array1DImpl<float>&,
-						bool normalised=false);
+						bool normalized=false);
     Interval<float>		getPosRange() const { return posrange_; }
 
 protected:

@@ -80,8 +80,8 @@ void uiObjectBody::display( bool yn, bool shrink, bool maximized )
 
 void uiObjectBody::doDisplay( CallBacker* )
 {
-    if ( !finalised_ )
-	finalise();
+    if ( !finalized_ )
+	finalize();
 
     if ( display_ )
     {
@@ -148,15 +148,15 @@ i_LayoutItem* uiObjectBody::mkLayoutItem( i_LayoutMngr& mngr )
 }
 
 
-void uiObjectBody::finalise()
+void uiObjectBody::finalize()
 {
-    if ( finalised_ )
+    if ( finalized_ )
 	return;
 
-    uiObjHandle().preFinalise().trigger( uiObjHandle() );
-    finalise_();
-    finalised_ = true;
-    uiObjHandle().postFinalise().trigger( uiObjHandle() );
+    uiObjHandle().preFinalize().trigger( uiObjHandle() );
+    finalize_();
+    finalized_ = true;
+    uiObjHandle().postFinalize().trigger( uiObjHandle() );
     if ( !display_ )
 	display( display_ );
 }

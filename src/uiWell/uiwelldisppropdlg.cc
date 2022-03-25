@@ -161,7 +161,7 @@ void uiWellDispPropDlg::initDlg( OD::Color bkCol )
 
     setWDNotifiers( true );
     mAttachCB( applyPushed, uiWellDispPropDlg::resetCB );
-    mAttachCB( postFinalise(), uiWellDispPropDlg::postFinaliseCB );
+    mAttachCB( postFinalize(), uiWellDispPropDlg::postFinalizeCB );
 }
 
 
@@ -172,7 +172,7 @@ uiWellDispPropDlg::~uiWellDispPropDlg()
 }
 
 
-void uiWellDispPropDlg::postFinaliseCB( CallBacker* )
+void uiWellDispPropDlg::postFinalizeCB( CallBacker* )
 {
     mAttachCB( button(SAVE)->activated, uiWellDispPropDlg::saveAsDefaultCB );
 

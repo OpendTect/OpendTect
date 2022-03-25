@@ -97,7 +97,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     }
 
     valuechanging.notify( mCB(this,uiFileInput,inputChg) );
-    postFinalise().notify( mCB(this,uiFileInput,isFinalised) );
+    postFinalize().notify( mCB(this,uiFileInput,isFinalized) );
     valuechanged.notify( mCB(this,uiFileInput,fnmEntered) );
 }
 
@@ -128,7 +128,7 @@ uiFileInput::~uiFileInput()
 }
 
 
-void uiFileInput::isFinalised( CallBacker* )
+void uiFileInput::isFinalized( CallBacker* )
 {
     if ( !examinebut_ )
 	return;

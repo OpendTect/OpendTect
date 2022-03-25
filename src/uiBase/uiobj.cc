@@ -75,8 +75,8 @@ mDefineEnumUtils( uiRect, Side, "Side" )
 // uiBaseObject
 uiBaseObject::uiBaseObject( const char* nm, uiBody* b )
     : NamedCallBacker(nm)
-    , finaliseStart(this)
-    , finaliseDone(this)
+    , finalizeStart(this)
+    , finalizeDone(this)
     , cmdrecrefnr_(0)
     , body_(b)
 {}
@@ -88,10 +88,10 @@ uiBaseObject::~uiBaseObject()
 }
 
 
-void uiBaseObject::finalise()
+void uiBaseObject::finalize()
 {
     if ( body() )
-	body()->finalise();
+	body()->finalize();
 }
 
 
@@ -102,9 +102,9 @@ void uiBaseObject::clear()
 }
 
 
-bool uiBaseObject::finalised() const
+bool uiBaseObject::finalized() const
 {
-    return body() ? body()->finalised() : false;
+    return body() ? body()->finalized() : false;
 }
 
 
@@ -285,13 +285,13 @@ uiParentBody* uiParent::pbody()
 }
 
 
-void uiParentBody::finaliseChildren()
+void uiParentBody::finalizeChildren()
 {
-    if ( !finalised_ )
+    if ( !finalized_ )
     {
-	finalised_ = true;
+	finalized_ = true;
 	for ( int idx=0; idx<children_.size(); idx++ )
-	    children_[idx]->finalise();
+	    children_[idx]->finalize();
     }
 }
 
@@ -514,7 +514,7 @@ void uiObject::translateText()
 
 void uiObject::display( bool yn, bool shrink, bool maximize )
 {
-    finalise();
+    finalize();
     objBody()->display( yn, shrink, maximize );
 }
 

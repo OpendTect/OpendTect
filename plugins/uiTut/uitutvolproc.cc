@@ -35,7 +35,7 @@ uiTutOpCalculator::uiTutOpCalculator( uiParent* p, TutOpCalculator* opcalc )
 
     addNameFld( shiftfld_ );
 
-    mAttachCB( postFinalise(), uiTutOpCalculator::typeSel );
+    mAttachCB( postFinalize(), uiTutOpCalculator::typeSel );
 }
 
 

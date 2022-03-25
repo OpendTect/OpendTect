@@ -96,7 +96,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     }
 
     setHAlignObj( surf1fld_ );
-    postFinalise().notify( selcb );
+    postFinalize().notify( selcb );
 }
 
 

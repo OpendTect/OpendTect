@@ -88,7 +88,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     posfiltfld_->attach( alignedBelow, posprovfld_ );
 
     setDescSet( d );
-    postFinalise().notify( mCB(this,uiAttribCrossPlot,initWin) );
+    postFinalize().notify( mCB(this,uiAttribCrossPlot,initWin) );
 }
 
 

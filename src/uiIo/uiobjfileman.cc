@@ -41,8 +41,8 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
 {
     ctxt_.toselect_.allownonuserselectable_ = true;
     setCtrlStyle( CloseOnly );
-    mAttachCB( preFinalise(), uiObjFileMan::finaliseStartCB );
-    mAttachCB( postFinalise(), uiObjFileMan::finaliseDoneCB );
+    mAttachCB( preFinalize(), uiObjFileMan::finalizeStartCB );
+    mAttachCB( postFinalize(), uiObjFileMan::finalizeDoneCB );
 }
 
 
@@ -119,7 +119,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
 }
 
 
-void uiObjFileMan::finaliseStartCB( CallBacker* )
+void uiObjFileMan::finalizeStartCB( CallBacker* )
 {
     const bool hasbuttons = extrabutgrp_->nrButtons() > 0;
     extrabutgrp_->display( hasbuttons, !hasbuttons );
@@ -127,7 +127,7 @@ void uiObjFileMan::finaliseStartCB( CallBacker* )
 }
 
 
-void uiObjFileMan::finaliseDoneCB( CallBacker* )
+void uiObjFileMan::finalizeDoneCB( CallBacker* )
 {
     initDlg();
 }

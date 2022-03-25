@@ -631,7 +631,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 					    uiContourParsDlg::elevationChg );
     mAttachCB( elevationfld_->box()->valueChanged,
 					    uiContourParsDlg::uiDisplayCB );
-    mAttachCB( postFinalise(), uiContourParsDlg::finaliseCB );
+    mAttachCB( postFinalize(), uiContourParsDlg::finalizeCB );
 }
 
 
@@ -793,7 +793,7 @@ void setInitialDecNr()
 }
 
 
-void finaliseCB( CallBacker* cb )
+void finalizeCB( CallBacker* cb )
 {
     setInitialDecNr();
     int nrdec=0;

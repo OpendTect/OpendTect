@@ -124,7 +124,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     belowfld_->attach( rightOf, abovefld_ );
     belowfld_->valuechanged.notify( cb );
 
-    postFinalise().notify( mCB(this,uiWellZRangeSelector,onFinalise) );
+    postFinalize().notify( mCB(this,uiWellZRangeSelector,onFinalize) );
 }
 
 
@@ -134,7 +134,7 @@ uiWellZRangeSelector::~uiWellZRangeSelector()
 }
 
 
-void uiWellZRangeSelector::onFinalise( CallBacker* )
+void uiWellZRangeSelector::onFinalize( CallBacker* )
 {
     putToScreen();
     abovefld_->setToolTip( tr("Positive uphole") );
@@ -306,9 +306,9 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 }
 
 
-void uiWellExtractParams::onFinalise( CallBacker* cb )
+void uiWellExtractParams::onFinalize( CallBacker* cb )
 {
-    uiWellZRangeSelector::onFinalise( cb );
+    uiWellZRangeSelector::onFinalize( cb );
 }
 
 
@@ -463,9 +463,9 @@ void uiMultiWellLogSel::selectOnlyWritableWells()
 }
 
 
-void uiMultiWellLogSel::onFinalise( CallBacker* cb )
+void uiMultiWellLogSel::onFinalize( CallBacker* cb )
 {
-    uiWellZRangeSelector::onFinalise( cb );
+    uiWellZRangeSelector::onFinalize( cb );
 }
 
 

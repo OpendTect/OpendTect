@@ -110,7 +110,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
     xparsdlg_ = new uiDialog( pargrp_, uiDialog::Setup(
 				tr("Set Extra Options"),mNoDlgTitle,
 				mODHelpKey(mAttrTrcSelOutBetweenHelpID)) );
-    xparsdlg_->postFinalise().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
+    xparsdlg_->postFinalize().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
 
     uiIOObjSel::Setup su( tr("Calculate between top Horizon") );
     su.filldef(false);

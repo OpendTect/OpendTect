@@ -49,7 +49,7 @@ DataInpSpec sub-class, and fill in it's details, like allowed range, etc.
 
 When passed to the constructor of a uiGenInput, the DataInpSpec objects
 are copied. You can use uiGenInput::getInpSpec to get a hold of them, but
-only if the uiGenInput has not been finalised yet.
+only if the uiGenInput has not been finalized yet.
 
 
 */
@@ -76,7 +76,7 @@ public:
 
 /*! \brief gives access to the actual spec of an input field.
 
-When the uiGenInput is being finalised, the actual input fields are
+When the uiGenInput is being finalized, the actual input fields are
 constructed. The fields make a clone of their input spec,
 which are used for range checking, etc.
 
@@ -197,7 +197,7 @@ Returns true, if changes are accepted.
     void		setSensitive(bool yn=true,int elemnr=-1,int fldnr=-1);
     void		setEmpty(int nr=-1);
 
-			//! returns 0 if not finalised.
+			//! returns 0 if not finalized.
     UserInputObj*	element(int idx);
     uiObject*		rightObj();			//!< for attaching
     int			nrElements() const;
@@ -231,7 +231,7 @@ protected:
     ObjectSet<uiGenInputInputFld>	flds_;
     TypeSet<uiGenInputFieldIdx>&	idxes_;
 
-    bool		finalised_;
+    bool		finalized_;
 
     uiString		selText_;
     bool		withchk_;
@@ -253,7 +253,7 @@ protected:
 
 			//! DataInpField factory
     uiGenInputInputFld&	createInpFld(const DataInpSpec&);
-    void		doFinalise(CallBacker*);
+    void		doFinalize(CallBacker*);
     inline DataInpSpec*	spec( int nr )
 			{
 			    return const_cast<DataInpSpec*>

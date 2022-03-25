@@ -65,7 +65,7 @@ i_LayoutMngr::~i_LayoutMngr()
 bool i_LayoutMngr::isMainWinFinalized() const
 {
     return managedbody_.uiObjHandle().mainwin() ?
-	managedbody_.uiObjHandle().mainwin()->finalised() : true;
+	managedbody_.uiObjHandle().mainwin()->finalized() : true;
 }
 
 

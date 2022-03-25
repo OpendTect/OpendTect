@@ -94,7 +94,7 @@ uiPluginMan::uiPluginMan( uiParent* p )
     uiLabel* liclbl = new uiLabel( rightgrp, tr("License") );
     liclbl->attach( leftOf, licensefld_ );
 
-    postFinalise().notify( mCB(this,uiPluginMan,selChg) );
+    postFinalize().notify( mCB(this,uiPluginMan,selChg) );
 }
 
 

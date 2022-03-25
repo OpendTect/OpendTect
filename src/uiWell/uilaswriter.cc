@@ -68,7 +68,7 @@ uiLASWriter::uiLASWriter( uiParent* p )
     lasfld_->setDefaultExtension( "las" );
     lasfld_->attach( alignedBelow, nullfld_ );
 
-    mAttachCB( postFinalise(), uiLASWriter::finalizeCB );
+    mAttachCB( postFinalize(), uiLASWriter::finalizeCB );
 }
 
 

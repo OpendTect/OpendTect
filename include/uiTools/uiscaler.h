@@ -41,7 +41,7 @@ protected:
     uiGenInput*		linearfld;
     uiGenInput*		basefld;
 
-    void		doFinalise(CallBacker*);
+    void		doFinalize(CallBacker*);
     void		typeSel(CallBacker*);
 };
 

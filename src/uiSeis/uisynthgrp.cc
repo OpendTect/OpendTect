@@ -78,7 +78,7 @@ uiSynthSeisSel::uiSynthSeisSel( uiParent* p, const uiSynthSeis::Setup& su )
     if ( !grps_.isEmpty() )
 	setHAlignObj( grps_.first() );
 
-    mAttachCB( postFinalise(), uiSynthSeisSel::initGrpCB );
+    mAttachCB( postFinalize(), uiSynthSeisSel::initGrpCB );
 }
 
 
@@ -394,7 +394,7 @@ uiSynthSeis::uiSynthSeis( uiParent* p, const Setup& su )
 
     setHAlignObj( wvltfld_ );
 
-    mAttachCB( postFinalise(), uiSynthSeis::initGrpCB );
+    mAttachCB( postFinalize(), uiSynthSeis::initGrpCB );
 }
 
 
@@ -620,7 +620,7 @@ uiSynthSeisAdvancedGrp::uiSynthSeisAdvancedGrp( uiParent* p, bool withnmo )
 
     setHAlignObj( convdomainfld_ );
 
-    mAttachCB( postFinalise(), uiSynthSeisAdvancedGrp::initGrpCB );
+    mAttachCB( postFinalize(), uiSynthSeisAdvancedGrp::initGrpCB );
 }
 
 

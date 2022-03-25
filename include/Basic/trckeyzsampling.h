@@ -54,6 +54,7 @@ public:
 			//!< Sets to survey zrange and
     void		normalize();
 			//!< Makes sure start<stop and steps are non-zero
+    mDeprecated("Use normalize()")
     void		normalise();
 
     TrcKeySampling	hsamp_;

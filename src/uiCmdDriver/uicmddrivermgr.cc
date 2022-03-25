@@ -61,9 +61,9 @@ uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
 	       uiCmdDriverMgr::keyPressedCB );
     mAttachCB( drv_->executeFinished, uiCmdDriverMgr::executeFinishedCB );
 
-    if ( !applwin_.finalised() )
+    if ( !applwin_.finalized() )
     {
-	mAttachCB( applwin_.postFinalise(), uiCmdDriverMgr::delayedStartCB );
+	mAttachCB( applwin_.postFinalize(), uiCmdDriverMgr::delayedStartCB );
 	mAttachCB( tim_->tick, uiCmdDriverMgr::timerCB );
     }
 }
@@ -299,7 +299,7 @@ void uiCmdDriverMgr::handleSettingsAutoExec()
 
 void uiCmdDriverMgr::beforeSurveyChg( CallBacker* cb )
 {
-    if ( !applwin_.finalised() )
+    if ( !applwin_.finalized() )
 	return;
     if ( cmddlg_ )
 	cmddlg_->beforeSurveyChg();
@@ -308,7 +308,7 @@ void uiCmdDriverMgr::beforeSurveyChg( CallBacker* cb )
 
 void uiCmdDriverMgr::afterSurveyChg( CallBacker* cb )
 {
-    if ( !applwin_.finalised() )
+    if ( !applwin_.finalized() )
 	return;
 
     if ( cmddlg_ )

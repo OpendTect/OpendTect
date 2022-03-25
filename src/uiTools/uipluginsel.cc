@@ -155,7 +155,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
     if ( hasodLicInstall() )
 	mAttachCB( applyPushed, uiPluginSel::startLicInstallCB );
 
-    mAttachCB( postFinalise(), uiPluginSel::finalizeCB );
+    mAttachCB( postFinalize(), uiPluginSel::finalizeCB );
 }
 
 

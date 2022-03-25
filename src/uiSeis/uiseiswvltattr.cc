@@ -179,7 +179,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     typeChoice(0);
 
     sliderfld_->attach( ensureBelow, freqdrawer_ );
-    postFinalise().notify( mCB( this, uiSeisWvltTaperDlg, act ) );
+    postFinalize().notify( mCB( this, uiSeisWvltTaperDlg, act ) );
 }
 
 

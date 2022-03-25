@@ -214,7 +214,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     progbar_->attach( widthSameAs, progrfld_ );
     progbar_->attach( alignedBelow, progrfld_ );
 
-    mAttachCB( postFinalise(), uiMMBatchJobDispatcher::initWin );
+    mAttachCB( postFinalize(), uiMMBatchJobDispatcher::initWin );
 }
 
 

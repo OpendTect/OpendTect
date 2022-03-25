@@ -79,7 +79,7 @@ public:
 
     void		activateInGUIThread(const CallBack&,bool busywait);
 
-    bool		force_finalise_;
+    bool		force_finalize_;
 
     static QScreen*	primaryScreen();
     QScreen*		screen(bool usetoplevel=false) const;
@@ -87,8 +87,8 @@ public:
 protected:
 
     virtual const QWidget*	qwidget_() const { return this; }
-    virtual void	finalise()	{ finalise(false); }
-    virtual void	finalise(bool trigger_finalise_start_stop);
+    virtual void	finalize()	{ finalize(false); }
+    virtual void	finalize(bool trigger_finalize_start_stop);
     void		closeEvent(QCloseEvent*);
     bool		event(QEvent*);
 
@@ -238,8 +238,8 @@ protected:
 
     void		_done(int);
 
-    virtual void	finalise()	{ finalise(false); }
-    virtual void	finalise(bool);
+    virtual void	finalize()	{ finalize(false); }
+    virtual void	finalize(bool);
     void		closeEvent(QCloseEvent*);
     void		applyCB(CallBacker*);
 

@@ -177,7 +177,7 @@ uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
     uiGroup* lowgrp = createLowGroup();
     lowgrp->attach( ensureBelow, proggrp );
 
-    postFinalise().notify( mCB(this,uiMadagascarBldCmd,onPopup) );
+    postFinalize().notify( mCB(this,uiMadagascarBldCmd,onPopup) );
 }
 
 

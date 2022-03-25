@@ -130,7 +130,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	grps_[idx]->attach( alignedBelow, attachobj );
 
     setHAlignObj( grps_[0] );
-    postFinalise().notify( selcb );
+    postFinalize().notify( selcb );
 }
 
 

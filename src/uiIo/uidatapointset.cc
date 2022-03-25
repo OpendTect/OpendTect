@@ -217,7 +217,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     xplotbut->attach( centeredBelow, getDlgGroup() );
     xplotbut->attach( bottomBorder );
 
-    postFinalise().notify( mCB(this,uiDataPointSet,initWin) );
+    postFinalize().notify( mCB(this,uiDataPointSet,initWin) );
     mTriggerInstanceCreatedNotifier();
 }
 
@@ -1444,7 +1444,7 @@ uiDataPointSetSave( uiParent* p, const char* typ )
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, tabfld_ );
 
-    postFinalise().notify( tccb );
+    postFinalize().notify( tccb );
 }
 
 ~uiDataPointSetSave()

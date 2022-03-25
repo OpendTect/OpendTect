@@ -124,7 +124,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	    crsfld_->attach( alignedBelow, rightmostfld_ );
     }
 
-    postFinalise().notify( boxcb );
+    postFinalize().notify( boxcb );
 }
 
 
@@ -463,7 +463,7 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
     if ( hdrinpgrp_ && bodyinpgrp_ )
 	bodyinpgrp_->attach( alignedBelow, hdrinpgrp_ );
 
-    postFinalise().notify( mCB(this,uiTableFormatDescFldsEd,initSaveButton) );
+    postFinalize().notify( mCB(this,uiTableFormatDescFldsEd,initSaveButton) );
 }
 
 
@@ -672,7 +672,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     fmtdeffld_->descCommitted.notify( mCB(this,uiTableImpDataSel,descChg) );
 
     setHAlignObj( hdrtypefld_ );
-    postFinalise().notify( typchgcb );
+    postFinalize().notify( typchgcb );
 }
 
 

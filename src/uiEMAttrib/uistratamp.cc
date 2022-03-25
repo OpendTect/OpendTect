@@ -103,7 +103,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     batchfld_->jobSpec().prognm_ = "od_stratamp";
     setParFileName();
 
-    mAttachCB( postFinalise(), uiStratAmpCalc::choiceSel );
+    mAttachCB( postFinalize(), uiStratAmpCalc::choiceSel );
 }
 
 

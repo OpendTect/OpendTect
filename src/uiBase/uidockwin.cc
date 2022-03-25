@@ -33,7 +33,7 @@ public:
 
 protected:
     virtual const QWidget*	qwidget_() const { return this; }
-    virtual void		finalise();
+    virtual void		finalize();
 
     uiDockWin&			handle_;
 };
@@ -71,12 +71,12 @@ uiDockWinBody::~uiDockWinBody( )
 }
 
 
-void uiDockWinBody::finalise()
+void uiDockWinBody::finalize()
 {
-    handle_.preFinalise().trigger( handle_ );
-    centralwidget_->finalise();
-    finaliseChildren();
-    handle_.postFinalise().trigger( handle_ );
+    handle_.preFinalize().trigger( handle_ );
+    centralwidget_->finalize();
+    finalizeChildren();
+    handle_.postFinalize().trigger( handle_ );
 }
 
 
@@ -114,7 +114,7 @@ void uiDockWin::setGroup( uiGroup* grp )
 
 void uiDockWin::setVisible( bool yn )
 {
-    if ( !finalised() )
+    if ( !finalized() )
 	display( yn );
 
     body_->setVisible( yn );

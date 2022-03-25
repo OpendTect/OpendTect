@@ -99,7 +99,7 @@ uiSynthParsGrp::uiSynthParsGrp( uiParent* p, StratSynth& gp )
     splitter->addGroup( rightgrp );
     butgrp->attach( leftAlignedAbove, syntlistgrp );
 
-    mAttachCB( postFinalise(), uiSynthParsGrp::initGrp );
+    mAttachCB( postFinalize(), uiSynthParsGrp::initGrp );
 }
 
 
@@ -653,7 +653,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp )
 				 mODHelpKey(mRayTrcParamsDlgHelpID) )
 				.modal(false))
 {
-    setForceFinalise( true );
+    setForceFinalize( true );
     setCtrlStyle( CloseOnly );
 
     uisynthparsgrp_ = new uiSynthParsGrp( this, gp );

@@ -390,7 +390,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 
     setWinTitle();
     StratTreeWin().changeLayerModelNumber( true );
-    mAttachCB( postFinalise(), uiStratLayerModel::initWin );
+    mAttachCB( postFinalize(), uiStratLayerModel::initWin );
 }
 
 

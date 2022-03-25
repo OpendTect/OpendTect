@@ -52,7 +52,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 	geomfld_ = new uiGenInput( this, uiStrings::sType(),
                                    StringListInpSpec(geomnms) );
 	geomfld_->valuechanged.notify( geomcb );
-	postFinalise().notify( geomcb );
+	postFinalize().notify( geomcb );
     }
 
 

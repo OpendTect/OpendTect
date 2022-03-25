@@ -23,8 +23,8 @@ public:
     virtual			~uiBaseObject();
 
 				// implementation: uiobj.cc
-    void			finalise();
-    bool			finalised() const;
+    void			finalize();
+    bool			finalized() const;
     void			clear();
 
     virtual void		translateText()		{}
@@ -45,22 +45,34 @@ public:
     void			endCmdRecEvent(od_uint64 id,int refnr,
 					       const char* msg=0);
 
-    virtual Notifier<uiBaseObject>& preFinalise()
-				{ return finaliseStart; }
-    virtual Notifier<uiBaseObject>& postFinalise()
-				{ return finaliseDone; }
+    virtual Notifier<uiBaseObject>& preFinalize()
+				{ return finalizeStart; }
+    virtual Notifier<uiBaseObject>& postFinalize()
+				{ return finalizeDone; }
 
     virtual mQtclass(QWidget*)	getWidget() { return 0; }
     const mQtclass(QWidget*)	getWidget() const;
 
+
+    mDeprecated("Use preFinalize()")
+    virtual Notifier<uiBaseObject>& preFinalise()
+				{ return preFinalize(); }
+    mDeprecated("Use postFinalize()")
+    virtual Notifier<uiBaseObject>& postFinalise()
+				{ return postFinalize(); }
+    mDeprecated("Use finalize()")
+    void			finalise()		{ finalize(); }
+    mDeprecated("Use finalized()")
+    bool			finalised() const	{ return finalized(); }
 protected:
 
     void			setBody( uiBody* b )	{ body_ = b; }
 
-    Notifier<uiBaseObject>	finaliseStart;
-				//!< triggered when about to start finalising
-    Notifier<uiBaseObject>	finaliseDone;
-				//!< triggered when finalising finished
+private:
+    Notifier<uiBaseObject>	finalizeStart;
+				//!< triggered when about to start finalizing
+    Notifier<uiBaseObject>	finalizeDone;
+				//!< triggered when finalizing finished
 
 private:
     int				cmdrecrefnr_;

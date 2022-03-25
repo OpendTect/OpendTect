@@ -60,14 +60,14 @@ uiTaskRunner::uiTaskRunner( uiParent* prnt, bool dispmsgonerr )
     progbar_->setPrefWidthInChar( 50 );
 
     tim_.tick.notify( mCB(this,uiTaskRunner,timerTick) );
-    postFinalise().notify( mCB(this,uiTaskRunner,onFinalise) );
+    postFinalize().notify( mCB(this,uiTaskRunner,onFinalize) );
 
     statusBar()->addMsgFld( tr("Current activity"), Alignment::Left, 1 );
     statusBar()->addMsgFld( tr("Counted items"), Alignment::Right, 1 );
     statusBar()->addMsgFld( tr("Number done"), Alignment::Left, 1 );
     statusBar()->addMsgFld( tr("ETA"), Alignment::Right, 1 );
 
-    setForceFinalise( true );
+    setForceFinalize( true );
 }
 
 
@@ -100,7 +100,7 @@ bool uiTaskRunner::execute( Task& t )
 }
 
 
-void uiTaskRunner::onFinalise( CallBacker* )
+void uiTaskRunner::onFinalize( CallBacker* )
 {
     if ( uiButton::haveCommonPBIcons() )
     {

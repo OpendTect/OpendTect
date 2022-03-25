@@ -88,7 +88,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     lognmfld_->attach( ensureBelow, sep2 );
     lognmfld_->attach( alignedBelow, zrangeselfld_);
 
-    mAttachCB( postFinalise(), uiCreateAttribLogDlg::init  );
+    mAttachCB( postFinalize(), uiCreateAttribLogDlg::init  );
 }
 
 

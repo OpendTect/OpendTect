@@ -684,7 +684,7 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
     else if ( coordgrp_ )
 	mDefObjs( coordgrp_ )
 
-    preFinalise().notify( mCB(this,uiSEGYFileOpts,initFlds) );
+    preFinalize().notify( mCB(this,uiSEGYFileOpts,initFlds) );
 }
 
 

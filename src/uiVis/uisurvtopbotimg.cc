@@ -83,7 +83,7 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     transpfld_->setMaxValue( 100 );
     transpfld_->setStep( 1 );
     mAttachCB( transpfld_->valueChanged, uiSurvTopBotImageGrp::transpChg );
-    mAttachCB( postFinalise(), uiSurvTopBotImageGrp::finalisedCB );
+    mAttachCB( postFinalize(), uiSurvTopBotImageGrp::finalizedCB );
 }
 
 ~uiSurvTopBotImageGrp()
@@ -92,7 +92,7 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
 }
 
 
-void finalisedCB( CallBacker* )
+void finalizedCB( CallBacker* )
 {
     fillCurrent();
     const int nrdec = SI().nrXYDecimals();

@@ -56,12 +56,12 @@ uiScaler::uiScaler( uiParent* p, const uiString& txt, bool linonly )
 	basefld->attach( alignedBelow, typefld );
     }
 
-    preFinalise().notify( mCB(this,uiScaler,doFinalise) );
+    preFinalize().notify( mCB(this,uiScaler,doFinalize) );
     setHAlignObj( linearfld );
 }
 
 
-void uiScaler::doFinalise( CallBacker* )
+void uiScaler::doFinalize( CallBacker* )
 {
     typeSel(0);
 }

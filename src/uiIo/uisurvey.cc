@@ -515,7 +515,7 @@ uiSurvey::uiSurvey( uiParent* p )
     putToScreen();
     updateDataRootLabel();
     setOkText( uiStrings::sSelect() );
-    postFinalise().notify( selchgcb );
+    postFinalize().notify( selchgcb );
 }
 
 

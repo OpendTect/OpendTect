@@ -87,7 +87,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     usecolorbut_ = new uiCheckBox( this, tr("Use fault color"),
 				   mCB(this,uiGMTFaultsGrp,useColorCB) );
     usecolorbut_->attach( rightOf, colorfld_ );
-    postFinalise().notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
+    postFinalize().notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
 }
 
 

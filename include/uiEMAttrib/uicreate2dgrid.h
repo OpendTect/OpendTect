@@ -159,7 +159,7 @@ protected:
     void			srcSelCB(CallBacker*);
     void			subSelCB(CallBacker*);
     void			gridChgCB(CallBacker*);
-    void			finaliseCB(CallBacker*);
+    void			finalizeCB(CallBacker*);
 
     void			fillSeisPar(IOPar&);
     void			fillHorPar(IOPar&);

@@ -291,7 +291,7 @@ void uiIOObjSel::init()
 					    setup_.trsnotallwed_, false );
 	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
     }
-    preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
+    preFinalize().notify( mCB(this,uiIOObjSel,preFinalizeCB) );
     mAttachCB( IOM().afterSurveyChange, uiIOObjSel::survChangedCB );
     mAttachCB( optionalChecked, uiIOObjSel::optCheckCB );
 }
@@ -314,7 +314,7 @@ void uiIOObjSel::optCheckCB( CallBacker* )
 }
 
 
-void uiIOObjSel::preFinaliseCB( CallBacker* )
+void uiIOObjSel::preFinalizeCB( CallBacker* )
 {
     initRead();
 }

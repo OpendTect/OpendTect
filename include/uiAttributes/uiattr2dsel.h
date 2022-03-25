@@ -72,7 +72,7 @@ protected:
     uiGenInput*		storsteerfilter_;
     uiListBoxFilter*	attrfilter_		= nullptr;
 
-    void		doFinalise( CallBacker* );
+    void		doFinalize( CallBacker* );
     void		initFields(const Attrib::DescSet&);
     void		selDone(CallBacker*);
     void		filtChg(CallBacker*);

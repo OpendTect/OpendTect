@@ -122,7 +122,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
 
     setHAlignObj( gatefld_ );
 
-    postFinalise().notify( mCB(this,uiGapDeconAttrib,finaliseCB) );
+    postFinalize().notify( mCB(this,uiGapDeconAttrib,finalizeCB) );
 }
 
 
@@ -132,7 +132,7 @@ uiGapDeconAttrib::~uiGapDeconAttrib()
 }
 
 
-void uiGapDeconAttrib::finaliseCB( CallBacker* )
+void uiGapDeconAttrib::finalizeCB( CallBacker* )
 {
     uiString lagtt = tr("Lag size:\nWindow length within the auto-correlation "
 			"function that is unaffected by the filter.\n"

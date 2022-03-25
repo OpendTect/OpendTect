@@ -58,7 +58,7 @@ protected:
     void			parameterSel(CallBacker*);
     void			calcPush(CallBacker*);
     void			sliderMove(CallBacker*);
-    void			doFinalise(CallBacker*);
+    void			doFinalize(CallBacker*);
     void			getSelDescIDs(
 					TypeSet<TypeSet<Attrib::DescID> >&,
 					TypeSet<TypeSet<int> >&);

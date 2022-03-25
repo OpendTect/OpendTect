@@ -107,7 +107,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     spl->addGroup( topgrp );
     spl->addGroup( infogrp );
 
-    postFinalise().notify( mCB(this,uiSeisPreLoadMgr,fullUpd) );
+    postFinalize().notify( mCB(this,uiSeisPreLoadMgr,fullUpd) );
 }
 
 
@@ -513,7 +513,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     histfld_->rangeChanged.notify( mCB(this,uiSeisPreLoadSel,histChangeCB) );
     histfld_->attach( leftAlignedBelow, nrtrcsfld_ );
 
-    postFinalise().notify( mCB(this,uiSeisPreLoadSel,finalizeDoneCB) );
+    postFinalize().notify( mCB(this,uiSeisPreLoadSel,finalizeDoneCB) );
 }
 
 

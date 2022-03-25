@@ -113,6 +113,7 @@ public:
 			    //!< Sets ranges to 0-maxint
     void		normalize();
 			    //!< Makes sure start_<stop_ and steps are non-zero
+    mDeprecated("Use normalize()")
     void		normalise();
     void		getRandomSet(int nr,TypeSet<TrcKey>&) const;
 

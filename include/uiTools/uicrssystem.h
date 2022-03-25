@@ -89,7 +89,7 @@ private:
     uiFileInput*	inpfilefld_;
     uiFileInput*	outfilefld_;
 
-    void		finaliseCB(CallBacker*);
+    void		finalizeCB(CallBacker*);
     void		selChg(CallBacker*);
     void		applyCB(CallBacker*);
     void		convPos();

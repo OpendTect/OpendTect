@@ -118,7 +118,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	bgrp->attach( rightBorder );
     }
 
-    mAttachCB( postFinalise(), uiMathFormula::initFlds );
+    mAttachCB( postFinalize(), uiMathFormula::initFlds );
 }
 
 

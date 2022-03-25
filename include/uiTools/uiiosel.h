@@ -49,7 +49,7 @@ public:
 			uiIOSelect(uiParent*,const Setup&,const CallBack&);
 			~uiIOSelect();
 
-			// before finalise:
+			// before finalize:
     void		addExtSelBut(uiButton*);
 
     bool		isEmpty() const;
@@ -127,7 +127,7 @@ protected:
     virtual void	objSel()		{}
 			//!< notification when user selects from combo
 
-    void		doFinalise(CallBacker*);
+    void		doFinalize(CallBacker*);
 };
 
 

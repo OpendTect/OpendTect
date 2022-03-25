@@ -319,11 +319,11 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
     convbut->attach( centeredBelow, mangrp_ );
 
     setCtrlStyle( CloseOnly );
-    postFinalise().notify( mCB(this,uiConvertGeographicPos,finaliseCB) );
+    postFinalize().notify( mCB(this,uiConvertGeographicPos,finalizeCB) );
 }
 
 
-void uiConvertGeographicPos::finaliseCB( CallBacker* )
+void uiConvertGeographicPos::finalizeCB( CallBacker* )
 {
     selChg(0);
     applyCB(0);

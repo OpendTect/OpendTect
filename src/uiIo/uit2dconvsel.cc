@@ -53,7 +53,7 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
     {
 	const CallBack cb( mCB(this,uiT2DConvSel,inpSel) );
 	setup_.tiedto_->selectionDone.notify( cb );
-	postFinalise().notify( cb );
+	postFinalize().notify( cb );
     }
 }
 

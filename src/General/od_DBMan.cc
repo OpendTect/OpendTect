@@ -305,7 +305,7 @@ int mProgMainFnName( int argc, char** argv )
     if ( isbad || clp.hasKey(sStatusCmd) )
     {
 	if ( isbad )
-	    st.respondError( "Data Store cannot be initialised" );
+	    st.respondError( "Data Store cannot be initialized" );
 	else
 	{
 	    st.set( sKey::Survey(), IOM().surveyName() );

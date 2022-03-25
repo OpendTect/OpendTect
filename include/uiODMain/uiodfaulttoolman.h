@@ -94,7 +94,7 @@ public:
     uiToolBar*			getToolBar();
 
 protected:
-    void			finaliseDoneCB( CallBacker* );
+    void			finalizeDoneCB( CallBacker* );
 
     void			displayModeChg(CallBacker*);
     void			treeItemSelCB(CallBacker*);

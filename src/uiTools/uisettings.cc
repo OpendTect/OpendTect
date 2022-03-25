@@ -508,7 +508,7 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
     if ( grpfld_ )
 	tbl_->attach( ensureBelow, grpfld_ );
 
-    mAttachCB( postFinalise(), uiSettings::dispNewGrp );
+    mAttachCB( postFinalize(), uiSettings::dispNewGrp );
 }
 
 
@@ -1016,7 +1016,7 @@ uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
     safetychkbut->setIcon( "safety" );
     safetychkbut->attach( rightOf, cmdwinbut );
 
-    mAttachCB( postFinalise(), uiPythonSettings::initDlg );
+    mAttachCB( postFinalize(), uiPythonSettings::initDlg );
 }
 
 

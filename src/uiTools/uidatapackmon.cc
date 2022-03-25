@@ -52,7 +52,7 @@ uiDataPackMonitor::uiDataPackMonitor( uiParent* p, int repeatinsec )
 	mAttachCB( dpm.packToBeRemoved, uiDataPackMonitor::refreshCB );
     }
 
-    mAttachCB( postFinalise(), uiDataPackMonitor::initDlg );
+    mAttachCB( postFinalize(), uiDataPackMonitor::initDlg );
     mAttachCB( windowShown, uiDataPackMonitor::refreshCB );
     mAttachCB( updatetimer_.tick, uiDataPackMonitor::refreshCB );
     mAttachCB( applyPushed, uiDataPackMonitor::refreshCB );

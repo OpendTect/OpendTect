@@ -230,7 +230,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     fnmfld_->attach( ensureBelow, sep );
     fnmfld_->attach( hCentered );
 
-    postFinalise().notify( mCB(this,uiSEGYFileManip,initWin) );
+    postFinalize().notify( mCB(this,uiSEGYFileManip,initWin) );
 }
 
 

@@ -27,7 +27,7 @@ protected:
     MarkerStyle3D	markerstyle_;
     int			posattr_;
 
-    void		doFinalise(CallBacker*);
+    void		doFinalize(CallBacker*);
 
     void		sliderMove(CallBacker*);
     void		typeSel(CallBacker*);

@@ -117,7 +117,7 @@ bool uiAngleCompGrp::acceptOK()
     {
 	advpardlg_ = new uiAngleCompAdvParsDlg( this, params_, dooffset_,
 						isformute_ );
-	advpardlg_->finalise();
+	advpardlg_->finalize();
     }
     advpardlg_->acceptOK(0);
 
@@ -157,7 +157,7 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
     if ( !isformute_ )
 	createAngleCompFields();
 
-    mAttachCB( postFinalise(), uiAngleCompAdvParsDlg::finaliseCB );
+    mAttachCB( postFinalize(), uiAngleCompAdvParsDlg::finalizeCB );
 }
 
 
@@ -334,7 +334,7 @@ void uiAngleCompAdvParsDlg::smoothWindowSel( CallBacker* )
 }
 
 
-void uiAngleCompAdvParsDlg::finaliseCB( CallBacker* )
+void uiAngleCompAdvParsDlg::finalizeCB( CallBacker* )
 {
     updateFromParams();
     if ( isformute_ )

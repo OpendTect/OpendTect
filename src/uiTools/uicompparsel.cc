@@ -63,7 +63,7 @@ void uiCompoundParSel::finishCreation( const uiString& seltxt,
     setHAlignObj( txtfld_ );
     setHCenterObj( txtfld_ );
 
-    postFinalise().notify( mCB(this,uiCompoundParSel,updSummary) );
+    postFinalize().notify( mCB(this,uiCompoundParSel,updSummary) );
 }
 
 

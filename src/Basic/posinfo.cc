@@ -300,7 +300,7 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 {
     TrcKeySampling hs( hsin );
     const bool is2d = hs.is2D();
-    hs.normalise();
+    hs.normalize();
     for ( int iidx=size()-1; iidx>=0; iidx-- )
     {
 	PosInfo::LineData* ld = (*this)[iidx];

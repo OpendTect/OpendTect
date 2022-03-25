@@ -103,8 +103,8 @@ public:
     const i_LayoutItem* layoutItem() const	{ return layoutitem_; }
     i_LayoutItem*	mkLayoutItem(i_LayoutMngr&);
 
-    virtual void	finalise();
-    virtual bool	finalised() const	{ return finalised_; }
+    virtual void	finalize();
+    virtual bool	finalized() const	{ return finalized_; }
 
     virtual void	fontchanged();
 
@@ -136,7 +136,7 @@ protected:
 
     virtual i_LayoutItem* mkLayoutItem_(i_LayoutMngr& mngr);
 
-    virtual void	finalise_()		{}
+    virtual void	finalize_()		{}
 
     void		doDisplay(CallBacker*);
 
@@ -151,7 +151,7 @@ private:
     bool		allowshrnk_		= false;
 
     bool		is_hidden_		= false;
-    bool		finalised_		= false;
+    bool		finalized_		= false;
     bool		display_		= true;
     bool		display_maximized_	= false;
 

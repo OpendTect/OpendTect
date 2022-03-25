@@ -96,7 +96,7 @@ protected:
 			//!< ofscene is true else returns that of uiGraphicsView
 
     virtual void	finalPrepare()			{}
-    virtual void	onFinalise(CallBacker*);
+    virtual void	onFinalize(CallBacker*);
     virtual bool	canReUseZoomSettings( Geom::Point2D<double>,
 					      Geom::Size2D<double> ) const;
     virtual void	setViewToCustomZoomLevel(uiFlatViewer&) {}

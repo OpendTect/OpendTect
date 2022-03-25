@@ -54,7 +54,7 @@ protected:
     float		getSelectedSceneZStretch() const;
     float		getSelectedSceneUiFactor() const;
 
-    void		doFinalise(CallBacker*);
+    void		doFinalize(CallBacker*);
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);
     void		sliderMove(CallBacker*);

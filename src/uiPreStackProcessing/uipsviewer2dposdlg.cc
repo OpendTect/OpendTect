@@ -194,7 +194,7 @@ void uiGatherPosSliceSel::reDoTable()
                                        gatherChecked));
 	    inpfld->valuechanging.notify(
 		    mCB(this,uiGatherPosSliceSel,gatherPosChanged));
-	    inpfld->preFinalise().trigger();
+	    inpfld->preFinalize().trigger();
 	    posseltbl_->setCellGroup( rc, inpfld );
 	    disptblposs_[idx] = rc;
 

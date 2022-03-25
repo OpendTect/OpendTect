@@ -779,7 +779,7 @@ bool uiSurveyInfoEditor::setRanges()
 
     if ( mIsZero(cs.zsamp_.step,1e-8) )
 	cs.zsamp_.step = si_.zDomain().isTime() ? 0.004f : 1;
-    cs.normalise();
+    cs.normalize();
     if ( !hs.totalNr() )
 	mErrRet(tr("Please specify in-line/cross-line ranges"))
     if ( cs.zsamp_.nrSteps() == 0 )

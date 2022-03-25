@@ -52,8 +52,8 @@ protected:
     bool			curimplexists_ = false;
     BufferString		ctxtfilter_;
 
-    void			finaliseStartCB(CallBacker*);
-    void			finaliseDoneCB(CallBacker*);
+    void			finalizeStartCB(CallBacker*);
+    void			finalizeDoneCB(CallBacker*);
     void			saveNotes(CallBacker*);
     void			readNotes();
     void			setInfo(const char* txt);

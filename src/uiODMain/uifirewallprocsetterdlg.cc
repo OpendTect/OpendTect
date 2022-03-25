@@ -138,7 +138,7 @@ uiFirewallProcSetter::uiFirewallProcSetter( uiParent* p,
        selectionChgCB( nullptr );
     }
 
-    mAttachCB( postFinalise(), uiFirewallProcSetter::updateCB );
+    mAttachCB( postFinalize(), uiFirewallProcSetter::updateCB );
 }
 
 

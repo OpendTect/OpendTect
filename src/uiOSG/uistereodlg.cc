@@ -29,11 +29,11 @@ uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<ui3DViewer>& vwrs )
     sliderfld_->valueChanged.notify( mCB(this,uiStereoDlg,sliderMove) );
     sliderfld_->setScale( 0.1f, 0.0f );
     sliderfld_->setInterval( StepInterval<float>(0.0f,10.f,0.1f) );
-    preFinalise().notify( mCB(this,uiStereoDlg,doFinalise) );
+    preFinalize().notify( mCB(this,uiStereoDlg,doFinalize) );
 }
 
 
-void uiStereoDlg::doFinalise( CallBacker* )
+void uiStereoDlg::doFinalize( CallBacker* )
 {
     const float offset = vwrs_[0]->getStereoOffset();
     sliderfld_->setValue( offset );

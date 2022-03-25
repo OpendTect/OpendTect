@@ -55,7 +55,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& su )
     if ( !grps_.isEmpty() )
 	setHAlignObj( grps_.first() );
 
-    mAttachCB( postFinalise(), uiRayTracerSel::initGrpCB );
+    mAttachCB( postFinalize(), uiRayTracerSel::initGrpCB );
 }
 
 
@@ -285,7 +285,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& su )
     if ( offsetfld_ )
 	setHAlignObj( offsetfld_ );
 
-    mAttachCB( postFinalise(), uiRayTracer1D::initGrpCB );
+    mAttachCB( postFinalize(), uiRayTracer1D::initGrpCB );
 }
 
 
@@ -493,7 +493,7 @@ uiRayTracerAdvancedGrp::uiRayTracerAdvancedGrp( uiParent* p,
 
     setHAlignObj( downwavefld_ );
 
-    mAttachCB( postFinalise(), uiRayTracerAdvancedGrp::initGrpCB );
+    mAttachCB( postFinalize(), uiRayTracerAdvancedGrp::initGrpCB );
 }
 
 

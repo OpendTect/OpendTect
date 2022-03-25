@@ -394,7 +394,7 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
     outgrp_ = new uiPreStackOutputGroup( this );
     outgrp_->attach( alignedBelow, inpfld_ );
 
-    postFinalise().notify( selcb );
+    postFinalize().notify( selcb );
 }
 
 

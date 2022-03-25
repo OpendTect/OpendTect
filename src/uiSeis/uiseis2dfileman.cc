@@ -89,7 +89,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     fillLineBox();
 
     mTriggerInstanceCreatedNotifier();
-    mAttachCB( postFinalise(), uiSeis2DFileMan::lineSel );
+    mAttachCB( postFinalize(), uiSeis2DFileMan::lineSel );
 }
 
 
@@ -310,7 +310,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     data2mergefld_ = new uiListBox( datagrp, su );
     data2mergefld_->attach( alignedBelow, stckfld_ );
 
-    mAttachCB( postFinalise(), uiSeis2DFileManMergeDlg::initWin );
+    mAttachCB( postFinalize(), uiSeis2DFileManMergeDlg::initWin );
 }
 
 

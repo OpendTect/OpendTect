@@ -36,7 +36,7 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
     setFldVals( nullptr );
     updateSizes();
 
-    postFinalise().notify( mCB(this,uiGraphicsSaveImageDlg,setAspectRatio) );
+    postFinalize().notify( mCB(this,uiGraphicsSaveImageDlg,setAspectRatio) );
     updateFilter();
     unitChg( nullptr );
 

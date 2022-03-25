@@ -83,7 +83,7 @@ uiPickPropDlg::~uiPickPropDlg()
 
 void uiPickPropDlg::linePropertyChanged( CallBacker* )
 {
-    if ( !finalised() || !lsfld_ )
+    if ( !finalized() || !lsfld_ )
 	return;
 
     set_.disp_.linestyle_ = lsfld_->getStyle();
@@ -103,7 +103,7 @@ void uiPickPropDlg::fillColorChangeCB( CallBacker* )
 }
 
 
-void uiPickPropDlg::doFinalise( CallBacker* )
+void uiPickPropDlg::doFinalize( CallBacker* )
 {
     MarkerStyle3D style( (MarkerStyle3D::Type) set_.disp_.markertype_,
 	    set_.disp_.pixsize_, set_.disp_.color_ );
@@ -126,7 +126,7 @@ void uiPickPropDlg::sliderMove( CallBacker* )
 
 void uiPickPropDlg::typeSel( CallBacker* )
 {
-    if ( !finalised() )
+    if ( !finalized() )
 	return;
 
     MarkerStyle3D style;

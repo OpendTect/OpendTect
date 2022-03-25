@@ -20,7 +20,7 @@ uiTabStackDlg::uiTabStackDlg( uiParent* p, const uiDialog::Setup& dlgsetup )
     tabstack_ = new uiTabStack( this, "TabStack" );
     tabstack_->selChange().notify( mCB(this,uiTabStackDlg,selChange));
 
-    postFinalise().notify( mCB( this,uiTabStackDlg,selChange));
+    postFinalize().notify( mCB( this,uiTabStackDlg,selChange));
 }
 
 

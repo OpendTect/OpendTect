@@ -103,11 +103,11 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     displaylbl->attach( widthSameAs, sliderfld );
     displaylbl->attach( alignedBelow, storefld );
 
-    postFinalise().notify( mCB(this,uiCrossAttrEvaluateDlg,doFinalise) );
+    postFinalize().notify( mCB(this,uiCrossAttrEvaluateDlg,doFinalize) );
 }
 
 
-void uiCrossAttrEvaluateDlg::doFinalise( CallBacker* )
+void uiCrossAttrEvaluateDlg::doFinalize( CallBacker* )
 {
     parameterSel(0);
 }

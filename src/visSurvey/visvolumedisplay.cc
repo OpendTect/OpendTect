@@ -770,7 +770,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* taskr )
     ff.useInputValue( true );
 
     TrcKeyZSampling cs = getTrcKeyZSampling(true,true,0);
-    cs.normalise();
+    cs.normalize();
     for ( int seedidx=0; seedidx<seeds.size(); seedidx++ )
     {
 	const Coord3 pos =  seeds[seedidx].pos_;

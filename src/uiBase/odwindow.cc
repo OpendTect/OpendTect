@@ -97,7 +97,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, moved_(false)
 	, createtbmenu_(false)
 	, hasguisettings_(false)
-	, force_finalise_(false)
+	, force_finalize_(false)
 {
     if ( nm && *nm )
 	setObjectName( nm );
@@ -188,9 +188,9 @@ void uiMainWinBody::setModal( bool yn )
 void uiMainWinBody::doShow( bool minimized )
 {
     bool domove = false;
-    if ( !finalised() || force_finalise_ )
+    if ( !finalized() || force_finalize_ )
     {
-	finalise( true );
+	finalize( true );
 	domove = true;
     }
 
@@ -460,7 +460,7 @@ void uiMainWinBody::go( bool showminimized )
 
 bool uiMainWinBody::touch()
 {
-    if ( poppedup_ || !finalised() )
+    if ( poppedup_ || !finalized() )
 	return false;
 
     if ( poptimer_.isActive() )
@@ -491,21 +491,21 @@ void uiMainWinBody::popTimTick( CallBacker* )
 }
 
 
-void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
+void uiMainWinBody::finalize( bool trigger_finalize_start_stop )
 {
-    if ( trigger_finalise_start_stop )
+    if ( trigger_finalize_start_stop )
     {
-	handle_.preFinalise().trigger( handle_ );
+	handle_.preFinalize().trigger( handle_ );
 
 	for ( int idx=0; idx<toolbars_.size(); idx++ )
-	    toolbars_[idx]->handleFinalise( true );
+	    toolbars_[idx]->handleFinalize( true );
     }
 
-    centralwidget_->finalise();
-    finaliseChildren();
+    centralwidget_->finalize();
+    finalizeChildren();
 
-    if ( trigger_finalise_start_stop )
-	handle_.postFinalise().trigger( handle_ );
+    if ( trigger_finalize_start_stop )
+	handle_.postFinalize().trigger( handle_ );
 }
 
 
@@ -1053,20 +1053,20 @@ void uiDialogBody::attachChild( constraintType tp, uiObject* child,
     This gives chance not to construct them in case OKtext and CancelText have
     been set to ""
 */
-void uiDialogBody::finalise( bool )
+void uiDialogBody::finalize( bool )
 {
-    uiMainWinBody::finalise( false );
+    uiMainWinBody::finalize( false );
 
-    handle_.preFinalise().trigger( handle_ );
+    handle_.preFinalize().trigger( handle_ );
 
-    dlggrp_->finalise();
+    dlggrp_->finalize();
 
     if ( !initchildrendone_ )
 	initChildren();
 
-    finaliseChildren();
+    finalizeChildren();
 
-    handle_.postFinalise().trigger( handle_ );
+    handle_.postFinalize().trigger( handle_ );
 }
 
 

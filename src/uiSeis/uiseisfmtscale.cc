@@ -173,7 +173,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp,
 	scalefld_ = new uiScaler( this, uiStrings::sEmptyString(), true );
 
     setHAlignObj( compfld_ ? (uiGroup*)compfld_ : (uiGroup*)scalefld_ );
-    postFinalise().notify( mCB(this,uiSeisFmtScale,updSteer) );
+    postFinalize().notify( mCB(this,uiSeisFmtScale,updSteer) );
 }
 
 

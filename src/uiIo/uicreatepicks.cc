@@ -298,7 +298,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     else zfld_->attach( alignedBelow, linenmfld_ );
 
     addStdFields( zfld_->attachObj() );
-    preFinalise().notify( mCB(this,uiGenRandPicks2D,geomSel) );
+    preFinalize().notify( mCB(this,uiGenRandPicks2D,geomSel) );
 }
 
 

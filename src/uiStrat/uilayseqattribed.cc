@@ -137,7 +137,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     namefld_->attach( alignedBelow, ltransffld );
 
     putToScreen();
-    postFinalise().notify( mCB(this,uiLaySeqAttribEd,initWin) );
+    postFinalize().notify( mCB(this,uiLaySeqAttribEd,initWin) );
 }
 
 

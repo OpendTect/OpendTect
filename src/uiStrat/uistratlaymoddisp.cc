@@ -286,7 +286,7 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm,
 	presmathfld_->attach( alignedBelow, laymodfld_ );
     }
 
-    mAttachCB( postFinalise(), uiStratLayerModelDispIO::finalizeCB );
+    mAttachCB( postFinalize(), uiStratLayerModelDispIO::finalizeCB );
 }
 
 

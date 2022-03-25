@@ -941,7 +941,7 @@ uiBulkDirectionalImport::uiBulkDirectionalImport( uiParent* p )
     wellstable_->setColumnReadOnly( 0, true );
     wellstable_->attach( ensureBelow, applybut );
 
-    mAttachCB( postFinalise(), uiBulkDirectionalImport::finalizeCB );
+    mAttachCB( postFinalize(), uiBulkDirectionalImport::finalizeCB );
 }
 
 

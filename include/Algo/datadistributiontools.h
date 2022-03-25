@@ -87,7 +87,10 @@ public:
     inline		DataDistributionChanger( DistribType& d )
 			    : distrib_(d)		{}
 
-    inline void		normalise(bool in_the_math_sense=true);
+    mDeprecated("Use normalize")
+    inline void		normalise( bool in_the_math_sense=true )
+			{ normalize( in_the_math_sense ); }
+    inline void		normalize(bool in_the_math_sense=true);
 				//!< if !math, sets max to 1
     inline bool		deSpike(VT ratioaboverg=VT(0.4));
 				//!< Returns whether any change made
@@ -105,7 +108,7 @@ protected:
 
 
 template <class VT> inline
-void DataDistributionChanger<VT>::normalise( bool in_the_math_sense )
+void DataDistributionChanger<VT>::normalize( bool in_the_math_sense )
 {
     mLockMonitorable4Write( distrib_ );
     const int sz = distrib_.data_.size();
@@ -194,8 +197,9 @@ bool DataDistributionInfoExtracter<VT>::isRoughlySymmetrical(
 
 
 template <class VT> inline
-void DataDistributionInfoExtracter<VT>::getCurve( TypeSet<int>& xvals, TypeSet<int>& yvals,
-				     bool limitspikes ) const
+void DataDistributionInfoExtracter<VT>::getCurve( TypeSet<int>& xvals,
+				TypeSet<int>& yvals,
+				bool limitspikes ) const
 {
     xvals.setEmpty(); yvals.setEmpty();
 

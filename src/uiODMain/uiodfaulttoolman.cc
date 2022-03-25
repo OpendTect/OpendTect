@@ -367,8 +367,8 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 	       uiODFaultToolMan::addRemoveVisObjCB );
     mAttachCB( appl_.applMgr().visServer()->objectRemoved,
 	       uiODFaultToolMan::addRemoveVisObjCB );
-    mAttachCB( appl_.postFinalise(),
-	       uiODFaultToolMan::finaliseDoneCB );
+    mAttachCB( appl_.postFinalize(),
+	       uiODFaultToolMan::finalizeDoneCB );
     mAttachCB( deseltimer_.tick,
 	       uiODFaultToolMan::deselTimerCB );
     mAttachCB( editreadytimer_.tick,
@@ -391,7 +391,7 @@ uiODFaultToolMan::~uiODFaultToolMan()
 }
 
 
-void uiODFaultToolMan::finaliseDoneCB( CallBacker* )
+void uiODFaultToolMan::finalizeDoneCB( CallBacker* )
 {
     // Hide auxiliary uiSurfaceWrites, because they seem to need a parent
     // to have their surface list dialog popped up modal.

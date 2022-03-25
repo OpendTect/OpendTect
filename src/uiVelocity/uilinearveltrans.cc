@@ -58,7 +58,7 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
     mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform::velChangedCB);
 
     setHAlignObj( velfld_ );
-    postFinalise().notify( mCB(this,uiLinearVelTransform,velChangedCB) );
+    postFinalize().notify( mCB(this,uiLinearVelTransform,velChangedCB) );
 }
 
 

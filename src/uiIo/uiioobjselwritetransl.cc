@@ -119,7 +119,7 @@ void uiIOObjSelWriteTranslator::mkSelFld( const CtxtIOObj& ctio, bool withopts )
     selfld_->setCurrentItem( cur );
 
     mAttachCB( selfld_->selectionChanged, uiIOObjSelWriteTranslator::selChg );
-    mAttachCB( postFinalise(), uiIOObjSelWriteTranslator::selChg );
+    mAttachCB( postFinalize(), uiIOObjSelWriteTranslator::selChg );
 }
 
 

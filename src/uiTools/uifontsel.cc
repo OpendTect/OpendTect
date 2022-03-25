@@ -24,7 +24,7 @@ ________________________________________________________________________
 uiFontSettingsGroup::uiFontSettingsGroup( uiParent* p, Settings& setts )
     : uiSettingsGroup(p,tr("Fonts"),setts)
 {
-    FontList().initialise();
+    FontList().initialize();
     butgrp_ = new uiButtonGroup( this, "", OD::Vertical );
     butgrp_->attach( hCentered );
 

@@ -170,7 +170,7 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 	mkManipulators();
 
     setHAlignObj( topgrp_ );
-    postFinalise().notify( mCB(this,uiIOObjSelGrp,setInitial) );
+    postFinalize().notify( mCB(this,uiIOObjSelGrp,setInitial) );
 }
 
 

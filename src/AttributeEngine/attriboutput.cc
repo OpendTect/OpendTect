@@ -375,7 +375,7 @@ bool SeisTrcStorOutput::doInit()
 	}
     }
 
-    desiredvolume_.normalise();
+    desiredvolume_.normalize();
     if ( !is2d_ )
     {
 	TrcKeyZSampling& cs = ((Seis::RangeSelData*)seldata_)->cubeSampling();
@@ -1004,7 +1004,7 @@ bool Trc2DVarZStorOutput::doInit()
 	}
     }
 
-    desiredvolume_.normalise();
+    desiredvolume_.normalize();
     return true;
 }
 
