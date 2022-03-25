@@ -63,7 +63,8 @@ public:
     Authority&		operator=(const Authority&);
     bool		operator==(const Authority&) const;
 
-    bool        isOK() const;
+    bool		isOK() const;
+    bool		isAddressBased() const { return hostisaddress_; }
 
     bool		isLocal() const { return !servernm_.isEmpty();	}
     BufferString	getServerName() const;
