@@ -123,7 +123,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	objfld_->attach( ensureBelow, sep );
 
 	colorfld_ = new uiColorInput( this,
-				   uiColorInput::Setup(getRandStdDrawColor()).
+				 uiColorInput::Setup(OD::getRandStdDrawColor()).
 				   lbltxt(uiStrings::sColor()) );
 	colorfld_->attach( alignedBelow, objfld_ );
 

@@ -41,47 +41,38 @@ const char* EMSurfaceProvider::extraZKey()	{ return "Extra Z"; }
 
 
 EMSurfaceProvider::EMSurfaceProvider()
-    : surf1_(0)
-    , surf2_(0)
-    , hs_(SI().sampling(false).hsamp_)
+    : hs_(SI().sampling(false).hsamp_)
     , zstep_(SI().zRange(true).step)
     , extraz_(0,0)
     , zrg1_(0,0)
     , zrg2_(0,0)
-    , iterator_(0)
     , curz_(mUdf(float))
     , curzrg_(0,0)
-    , estnrpos_(-1)
     , nrsamples_(mUdf(int))
-    , dorandom_(false)
-    , enoughsamples_(true)
-    , maxidx_(0)
+    , gen_(*new Stats::RandGen())
 {}
 
 
 EMSurfaceProvider::EMSurfaceProvider( const EMSurfaceProvider& pp )
-    : surf1_(0)
-    , surf2_(0)
+    : gen_(*new Stats::RandGen())
 {
-    *this = pp;
+    copyFrom( pp );
 }
 
 
 EMSurfaceProvider::~EMSurfaceProvider()
 {
-    if ( surf1_ ) surf1_->unRef();
-    if ( surf2_ ) surf2_->unRef();
+    delete &gen_;
 }
 
 
 void EMSurfaceProvider::copyFrom( const EMSurfaceProvider& pp )
 {
-    if ( &pp == this ) return;
+    if ( &pp == this )
+	return;
 
-    if ( surf1_ ) surf1_->unRef();
-    if ( surf2_ ) surf2_->unRef();
-    surf1_ = pp.surf1_; if ( surf1_ ) surf1_->ref();
-    surf2_ = pp.surf2_; if ( surf2_ ) surf2_->ref();
+    surf1_ = pp.surf1_;
+    surf2_ = pp.surf2_;
     zstep_ = pp.zstep_;
     extraz_ = pp.extraz_;
     id1_ = pp.id1_;
@@ -141,7 +132,7 @@ bool EMSurfaceProvider::initialize( TaskRunner* taskr )
 	emobj = EM::EMM().loadIfNotFullyLoaded( id1_, taskr );
     mDynamicCastGet(EM::Surface*,surf1,emobj)
     if ( !surf1 ) return false;
-    surf1_ = surf1; surf1_->ref();
+    surf1_ = surf1;
 
     getSurfRanges( *surf1_, hs_, zrg1_, estnrpos_ );
 
@@ -152,7 +143,7 @@ bool EMSurfaceProvider::initialize( TaskRunner* taskr )
 	    emobj = EM::EMM().loadIfNotFullyLoaded( id2_, taskr );
 	mDynamicCastGet(EM::Surface*,surf2,emobj)
 	if ( !surf2 ) return false;
-	surf2_ = surf2; surf2_->ref();
+	surf2_ = surf2;
 	TrcKeySampling hs( hs_ );
 	od_int64 estnrpos2 = -1;
 	getSurfRanges( *surf2_, hs, zrg2_, estnrpos2 );
@@ -192,10 +183,9 @@ bool EMSurfaceProvider::toNextPos()
     {
 	postuple pos;
 	od_int64 idx;
-	const Stats::RandGen& randGen = Stats::randGen();
 	do
 	{
-	    idx = randGen.getIndex( maxidx_ );
+	    idx = gen_.getIndex( maxidx_ );
 	    curpos_ = iterator_->fromIndex( idx );
 	    curz_ = mUdf(float);
 
@@ -226,8 +216,8 @@ bool EMSurfaceProvider::toNextPos()
 	    const TrcKeyZSampling& tkzs = SI().sampling( false );
 	    if ( !mIsUdf(curzrg_.start) && !mIsUdf(curzrg_.stop) )
 	    {
-		int zsamp = randGen.getInt( tkzs.zIdx( curzrg_.start ),
-						 tkzs.zIdx( curzrg_.stop ) );
+		const int zsamp = gen_.getInt( tkzs.zIdx( curzrg_.start ),
+					       tkzs.zIdx( curzrg_.stop ) );
 		curz_ = tkzs.zAtIndex( zsamp );
 		pos = postuple( idx, zsamp );
 	    }
@@ -372,7 +362,7 @@ bool EMSurfaceProvider::getZRange( const TrcKey& tk,
 				   Interval<float>& zrg ) const
 {
     zrg.setUdf();
-    mDynamicCastGet(EM::Horizon*,hor1,surf1_)
+    mDynamicCastGet(const EM::Horizon*,hor1,surf1_.ptr())
     if ( !hor1 )
 	return false;
 
@@ -380,7 +370,7 @@ bool EMSurfaceProvider::getZRange( const TrcKey& tk,
     if ( mIsUdf(z1) )
 	return false;
 
-    mDynamicCastGet(EM::Horizon*,hor2,surf2_)
+    mDynamicCastGet(const EM::Horizon*,hor2,surf2_.ptr())
     if ( hor2 )
     {
 	const float z2 = hor2->getZ( tk );
@@ -470,14 +460,14 @@ const char* EMSurfaceProvider2D::curLine() const
     BinID bid = BinID::fromInt64( curpos_.subID() );
     if ( surf1_ )
     {
-	mDynamicCastGet(EM::Horizon2D*,hor2d,surf1_);
+	mDynamicCastGet(const EM::Horizon2D*,hor2d,surf1_.ptr());
 	if ( !hor2d )
-	    return 0;
+	    return nullptr;
 
 	return hor2d->geometry().lineName( bid.inl() );
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -491,7 +481,7 @@ Coord EMSurfaceProvider2D::curCoord() const
 
 TrcKey EMSurfaceProvider2D::curTrcKey() const
 {
-    mDynamicCastGet(EM::Horizon2D*,hor2d,surf1_);
+    mDynamicCastGet(const EM::Horizon2D*,hor2d,surf1_.ptr());
     if ( !hor2d )
 	return TrcKey::udf();
 

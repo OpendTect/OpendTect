@@ -178,15 +178,15 @@ bool getLine()
     }
     else
     {
-	double finl = inlgen_.start + Stats::randGen().get() * inlgen_.step;
-	double fcrl = inlgen_.start + Stats::randGen().get() * inlgen_.step;
+	double finl = double(inlgen_.start) + gen_.get() * inlgen_.step;
+	double fcrl = double(inlgen_.start) + gen_.get() * inlgen_.step;
 	coord_ = SI().binID2Coord().transform( Coord(finl,fcrl) );
     }
 
     if ( fd_.bodyinfos_[1]->selection_.isInFile() )
 	z_ = getFValue( 2 );
     else
-	z_ = (float) ( zgen_.start + Stats::randGen().get() * zgen_.step );
+	z_ = (float) ( zgen_.start + gen_.get() * zgen_.step );
 
     if ( is2d_ && fd_.bodyinfos_[2]->selection_.isInFile() )
 	trcnr_ = getIntValue( 3 );
@@ -218,6 +218,7 @@ bool getLine()
     SamplingData<double> inlgen_;
     SamplingData<double> crlgen_;
     SamplingData<float>	zgen_;
+    Stats::RandGen	gen_;
 
     TypeSet<int>	datacols_;
     BufferStringSet	datacolnms_;

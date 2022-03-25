@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include <tuple>
 
 namespace PosInfo { class Line2DData; }
+namespace Stats { class RandGen; }
 
 mDeclEmptyTranslatorBundle(General,PosProviders,dgb,"subsel")
 
@@ -72,11 +73,12 @@ protected:
     TrcKeyZSampling&	tkzs_;
     BinID		curbid_;
     int			curzidx_;
-    int			zsampsz_;
+    int			zsampsz_ = 0;
     int			nrsamples_;
-    bool		dorandom_;
-    bool		enoughsamples_;
+    bool		dorandom_ = false;
+    bool		enoughsamples_ = true;
     SortedList<postuple> posindexlst_;
+    Stats::RandGen&	gen_;
 
 public:
 
@@ -125,11 +127,11 @@ public:
 
     void			setTrcRange(const StepInterval<int>&,int idx=0);
     const StepInterval<int>&	trcRange(int lidx) const
-    				{return trcrgs_[lidx];}
+				{return trcrgs_[lidx];}
 
     void			setZRange(const StepInterval<float>&,int idx=0);
     const StepInterval<float>&	zRange(int lidx=0) const
-    				{return zrgs_[lidx];}
+				{return zrgs_[lidx];}
 
 protected:
 

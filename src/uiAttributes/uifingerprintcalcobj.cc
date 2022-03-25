@@ -44,41 +44,8 @@ static const int cNrRandPicks = 100;
 }\
 
 
-static void create3DRandPicks( BinIDValueSet* rangesset )
-{
-    BinID bid;
-    for ( int ipt=0; ipt<cNrRandPicks; ipt++ )
-    {
-	StepInterval<int> irg = SI().inlRange( true );
-	StepInterval<int> crg = SI().crlRange( true );
-	bid.inl() = mNINT32(irg.start + Stats::randGen().get() * irg.nrSteps());
-	bid.crl() = mNINT32(crg.start + Stats::randGen().get() * crg.nrSteps());
-	SI().snap( bid );
-	const float z = (float) (SI().zRange(true).start
-	    	      + Stats::randGen().get() * SI().zRange(true).width());
-	rangesset->add( bid, z );
-    }
-}
-
-
-calcFingParsObject::calcFingParsObject( uiParent* p )
-    : parent_( p )
-{
-    posset_.allowNull(true);
-    while ( posset_.size() < 2 )
-	posset_ += 0;
-}
-
-
-calcFingParsObject::~calcFingParsObject()
-{
-    deepErase(posset_);
-    reflist_->erase();
-}
-
-
 void calcFingParsObject::create2DRandPicks( const MultiID& dsetid,
-						      BinIDValueSet* rangesset )
+					    BinIDValueSet& rangesset ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( dsetid );
     if ( !ioobj ) mErrRet( tr("2D Dataset ID is not OK") );
@@ -87,9 +54,9 @@ void calcFingParsObject::create2DRandPicks( const MultiID& dsetid,
     if ( !nrlines )
 	mErrRet( uiStrings::phrInput(tr("Dataset is empty")) );
 
-    while ( rangesset->totalSize() < cNrRandPicks )
+    while ( rangesset.totalSize() < cNrRandPicks )
     {
-	const int lineidx = Stats::randGen().getIndex( nrlines );
+	const int lineidx = gen_.getIndex( nrlines );
 	const Pos::GeomID geomid = dset->geomID( lineidx );
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 			 Survey::GM().getGeometry(geomid) );
@@ -97,14 +64,48 @@ void calcFingParsObject::create2DRandPicks( const MultiID& dsetid,
 
 	const PosInfo::Line2DData& geometry = geom2d->data();
 	const int nrcoords = geometry.positions().size();
-	const int crdidx = Stats::randGen().getIndex( nrcoords );
+	const int crdidx = gen_.getIndex( nrcoords );
 	const Coord& pos = geometry.positions()[crdidx].coord_;
 
 	const BinID bid = SI().transform( pos );
 	const float zpos = (float) (geometry.zRange().start +
-			    Stats::randGen().get()*geometry.zRange().width());
-	rangesset->add( bid, zpos );
+			    gen_.get()*geometry.zRange().width());
+	rangesset.add( bid, zpos );
     }
+}
+
+static void create3DRandPicks( Stats::RandGen& gen, BinIDValueSet& rangesset )
+{
+    BinID bid;
+    for ( int ipt=0; ipt<cNrRandPicks; ipt++ )
+    {
+	StepInterval<int> irg = SI().inlRange( true );
+	StepInterval<int> crg = SI().crlRange( true );
+	bid.inl() = gen.getInt( irg.start, irg.stop );
+	bid.crl() = gen.getInt( crg.start, crg.stop );
+	SI().snap( bid );
+	const float z = (float) (SI().zRange(true).start
+		      + gen.get() * SI().zRange(true).width());
+	rangesset.add( bid, z );
+    }
+}
+
+
+calcFingParsObject::calcFingParsObject( uiParent* p )
+    : parent_( p )
+    , gen_(*new Stats::RandGen())
+{
+    posset_.allowNull(true);
+    while ( posset_.size() < 2 )
+	posset_ += nullptr;
+}
+
+
+calcFingParsObject::~calcFingParsObject()
+{
+    deepErase( posset_ );
+    reflist_->erase();
+    delete &gen_;
 }
 
 
@@ -128,15 +129,15 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
     }
     else if ( rgreftype_ == 2 )
     {
-	BinIDValueSet* rangesset = new BinIDValueSet( 2, true );
+	auto* rangesset = new BinIDValueSet( 2, true );
 	if ( attrset_->is2D() )
 	{
 	    MultiID datasetid;
 	    findDataSetID( datasetid );
-	    create2DRandPicks( datasetid, rangesset );
+	    create2DRandPicks( datasetid, *rangesset );
 	}
 	else
-	    create3DRandPicks( rangesset );
+	    create3DRandPicks( gen_, *rangesset );
 
 	return rangesset;
     }
@@ -206,7 +207,7 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
     BinIDValueSet* rangeset = posset_[1];
     TypeSet<float> vals( nrattribs, mUdf(float) );
     TypeSet< Interval<float> > rgs( nrattribs,
-	    			    Interval<float>(mUdf(float),mUdf(float)) );
+				    Interval<float>(mUdf(float),mUdf(float)) );
 
     if ( valueset->totalSize() == 1 )
     {
@@ -268,7 +269,7 @@ EngineMan* calcFingParsObject::createEngineMan()
 
 void calcFingParsObject::fillInStats( BinIDValueSet* bidvalset,
 			ObjectSet< Stats::RunCalc<float> >& statsset,
-       			Stats::Type styp ) const
+			Stats::Type styp ) const
 {
     const int nrattribs = reflist_->size();
     for ( int idx=0; idx<nrattribs; idx++ )

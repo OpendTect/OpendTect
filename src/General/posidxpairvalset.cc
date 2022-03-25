@@ -152,7 +152,8 @@ void Pos::IdxPairValueSet::randomSubselect( od_int64 maxsz )
 	{ setEmpty(); return; }
 
     const bool buildnew = ((od_int64)maxsz) < (orgsz / ((od_int64)2));
-    Stats::randGen().subselect( idxs, orgsz, maxsz );
+    static Stats::RandGen gen;
+    gen.subselect( idxs, orgsz, maxsz );
     TypeSet<SPos> poss;
     if ( buildnew )
     {

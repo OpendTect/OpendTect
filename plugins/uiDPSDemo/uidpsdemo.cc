@@ -141,13 +141,13 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
     const int maxnrunsuccessful = actualnrpts * 1000;
     int nrunsuccessful = 0;
 #   define mNextTry() { if ( needrandsel ) ipt--; nrunsuccessful++; continue; }
+    Stats::RandGen gen;
     for ( int ipt=0; ipt<actualnrpts; ipt++ )
     {
 	if ( nrunsuccessful > maxnrunsuccessful )
 	    break;
 
-	int selnodenr = needrandsel ? Stats::randGen().getIndex( totnrnodes )
-				    : ipt;
+	int selnodenr = needrandsel ? gen.getIndex( totnrnodes ) : ipt;
 	BinID bid; EM::SectionID selsect = 0;
 	for ( EM::SectionID isect=0; isect<nrsectnodes.size(); isect++ )
 	{

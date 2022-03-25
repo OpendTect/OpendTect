@@ -12,9 +12,10 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "gendefs.h"
 
-template <class T> class Array2D;
 class BufferStringSet;
 class DataPointSet;
+namespace Stats { class RandGen; }
+template <class T> class Array2D;
 
 mExpClass(General) HorVariogramComputer
 {
@@ -32,10 +33,11 @@ public:
 
     bool                    isOK() const            { return dataisok_; }
 
-protected:
+private:
     Array2D<float>*         variogramvals_;
     Array2D<float>*         axes_;
     BufferStringSet*        variogramnms_;
+    Stats::RandGen&	    gen_;
 
     bool                    dataisok_;
 
@@ -74,7 +76,7 @@ protected:
 
     bool                    dataisok_;
 
-    bool                    compVarFromRange(DataPointSet& dpset,int colid, 
+    bool		    compVarFromRange(DataPointSet& dpset,int colid,
 					    int step,int range,int fold,
 					    int nrgroups,
 					    BufferString& errmsg,

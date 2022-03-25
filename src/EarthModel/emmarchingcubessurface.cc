@@ -261,7 +261,7 @@ MarchingCubesSurface::MarchingCubesSurface( EMManager& emm )
     , operator_( 0 )
 {
     mcsurface_->ref();
-    setPreferredColor( getRandomColor( false ) );
+    setPreferredColor( OD::getRandomColor( false ) );
 }
 
 

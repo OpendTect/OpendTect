@@ -27,15 +27,17 @@ static void parsePassedExpr( const char* inp )
 	const int nrvars = me->nrVariables();
 	od_cout() << od_endl;
 
+	Stats::RandGen gen;
 	for ( int idx=0; idx<nrvars; idx++ )
 	{
-	    const float val = (float)(Stats::randGen().getIndex(20) - 5);
+	    const float val = (float)gen.getInt(-5,15);
 	    od_cout() << "Var " << idx << " val=" << val << od_endl;
 	    me->setVariableValue( idx, val );
 	}
 
 	od_cout() << "\nResult: " << me->getValue() << od_endl;
     }
+
     if ( mep.foundOldAbs() )
 	od_cout() << "\n[Old abs value used]" << od_endl;
 }

@@ -389,7 +389,7 @@ bool uiImportHorizon2D::doImport()
 	    if ( ioobj )
 		hor->setMultiID( ioobj->key() );
 
-	    hor->setPreferredColor( getRandomColor() );
+	    hor->setPreferredColor( OD::getRandomColor() );
 
 	    hor->ref();
 	    hor->setBurstAlert( true );
@@ -425,7 +425,7 @@ bool uiImportHorizon2D::doImport()
 		mDeburstRet( false, unRef );
 	}
 
-	hor->setPreferredColor(getRandomColor());
+	hor->setPreferredColor(OD::getRandomColor());
 	hor->ref();
 	horizons += hor;
 

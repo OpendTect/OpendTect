@@ -12,7 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+
 #include "posfilter.h"
+
+namespace Stats { class RandomGenerator; }
 
 
 namespace Pos
@@ -26,12 +29,13 @@ mExpClass(Algo) RandomFilter : public virtual Filter
 {
 public:
 
-			RandomFilter()
-			    : passratio_(0.01)	{}
-			RandomFilter( const RandomFilter& rf )
-			    : passratio_(rf.passratio_)	{}
+			RandomFilter();
+			RandomFilter(const RandomFilter&);
+			~RandomFilter();
 
-    bool		initialize( TaskRunner* tr=0 )	{ reset(); return true; }
+    RandomFilter&	operator =(const RandomFilter&);
+
+    bool		initialize(TaskRunner* =nullptr);
     void		reset()				{ initStats(); }
 
     virtual void	usePar(const IOPar&);
@@ -39,7 +43,7 @@ public:
     virtual void	getSummary(BufferString&) const;
     virtual float	estRatio(const Provider&) const	{ return passratio_; }
 
-    float		passratio_;
+    float		passratio_ = 0.01f;
 
     static const char*	typeStr();
     static const char*	ratioStr();
@@ -48,6 +52,10 @@ protected:
 
     void		initStats();
     bool		drawRes() const;
+
+private:
+
+    Stats::RandomGenerator& gen_;
 };
 
 

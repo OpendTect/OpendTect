@@ -109,7 +109,7 @@ void uiDPSSelGrpDlg::addSelGrp( CallBacker* cb )
     tbl_->insertRows( tbl_->nrRows(), 1 );
     tbl_->setColumnReadOnly( 1, true );
     RowCol newcell = RowCol( tbl_->nrRows()-1, 1 );
-    tbl_->setColor( RowCol(newcell.row(),1), getRandomColor() );
+    tbl_->setColor( RowCol(newcell.row(),1), OD::getRandomColor() );
     BufferString selgrpnm( "No " );
     mDefineStaticLocalObject( int, selgrpnr, = 2 );
     selgrpnm += selgrpnr;

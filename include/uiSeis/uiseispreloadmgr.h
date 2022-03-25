@@ -30,6 +30,7 @@ class uiScaler;
 class uiSeisSel;
 class uiSeisSubSel;
 class uiTextEdit;
+namespace Stats { class RandGen; }
 
 
 /*!\brief Manager for pre-loading Seismic Data */
@@ -83,6 +84,7 @@ protected:
     bool		acceptOK(CallBacker*);
 
     Scaler*		scaler_;
+    Stats::RandGen&	gen_;
 
     uiSeisSel*			seissel_;
     uiSeisSubSel*		subselfld_;

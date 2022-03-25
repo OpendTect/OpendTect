@@ -46,10 +46,11 @@ const char* uiClusterJobProv::sKeyOutputID()
 
 static BufferString getDefTempStorDir()
 {
+    static Stats::RandGen gen;
     BufferString stordir = "Proc_";
     stordir += BufferString( GetLocalHostName() );
     stordir += "_";
-    stordir += Stats::randGen().getIndex(100000);
+    stordir += gen.getIndex( 100000 );
     const FilePath fp( GetDataDir(), "Seismics", stordir );
     if ( !File::createDir(fp.fullPath()) )
 	return BufferString(File::getTempPath());

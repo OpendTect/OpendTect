@@ -28,7 +28,7 @@ RandomPosBodyDisplay::RandomPosBodyDisplay()
     , transform_( 0 )
 {
     getMaterial()->setAmbience( 0.5 );
-    setColor( getRandomColor(false) );
+    setColor( OD::getRandomColor(false) );
 }
 
 

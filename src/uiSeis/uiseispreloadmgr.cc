@@ -450,6 +450,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 				 mODHelpKey(mSeisPreLoad2D3DDataHelpID))
 	      .nrstatusflds(1))
     , scaler_(new LinScaler(0,1))
+    , gen_(*new Stats::RandGen())
 {
     setCaption( geom==Vol ? tr("Pre-load 3D Data") : tr("Pre-load 2D Data") );
 
@@ -519,6 +520,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 uiSeisPreLoadSel::~uiSeisPreLoadSel()
 {
     delete scaler_;
+    delete &gen_;
 }
 
 
@@ -611,10 +613,9 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     const int nr2add = (int)mMIN(totalsz,nrtrcsfld_->getIntValue());
 
     TypeSet<od_int64> gidxs( nr2add, -1 );
-    Stats::RandGen& gen = Stats::randGen();
     for ( int idx=0; idx<nr2add; idx++ )
     {
-	const od_int64 vidx = gen.getIndex( totalsz );
+	const od_int64 vidx = gen_.getIndex( totalsz );
 	gidxs[idx] = vidx;
     }
 

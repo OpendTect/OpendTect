@@ -10,6 +10,20 @@
 #include "statrand.h"
 
 
+NLADataPreparer::NLADataPreparer( BinIDValueSet& bvs, int tc )
+    : bvs_(bvs)
+    , targetcol_(tc)
+    , gen_(*new Stats::RandGen())
+{
+}
+
+
+NLADataPreparer::~NLADataPreparer()
+{
+    delete &gen_;
+}
+
+
 void NLADataPreparer::limitRange( const Interval<float>& r )
 {
     Interval<float> rg( r ); rg.sort(true);
@@ -114,7 +128,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
     const bool nonoise = noiselvl < 1e-6 || noiselvl > 1 + 1e-6;
     for ( int idx=0; idx<nr; idx++ )
     {
-	const int dupidx = Stats::randGen().getIndex( orgsz );
+	const int dupidx = gen_.getIndex( orgsz );
 	BinIDValueSet::SPos pos = bvs.getPos( dupidx );
 	const float* vals = bvs.getVals( pos );
 	bvs.get( pos, bid );
@@ -128,7 +142,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 		float wdth = rgs[validx].stop - rgs[validx].start;
 		wdth *= noiselvl;
 		newvals[validx] = (float) (vals[validx] +
-				  ((Stats::randGen().get()-0.5) * wdth));
+				  ((gen_.get()-0.5) * wdth));
 	    }
 	    bvsnew.add( bid, newvals );
 	}

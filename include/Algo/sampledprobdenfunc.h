@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "bufstringset.h"
 
+namespace Stats { class RandomGenerator; }
+
 
 /*!
 \brief PDF based on ArrayND implementation.
@@ -59,8 +61,7 @@ public:
 
 protected:
 			ArrayNDProbDenFunc(int nrdims);
-			ArrayNDProbDenFunc( const ArrayNDProbDenFunc& oth )
-							{ *this = oth; }
+			ArrayNDProbDenFunc(const ArrayNDProbDenFunc&);
 
     virtual const ArrayND<float>& getArrND() const	= 0;
     virtual float	getNormFac() const;
@@ -68,6 +69,7 @@ protected:
     virtual bool	gtIsEq(const ProbDenFunc&) const;
 
     mutable float*	cumbins_ = nullptr;
+    Stats::RandomGenerator& gen_;
 
     void		prepRndDrw() const;
     void		fillCumBins() const;

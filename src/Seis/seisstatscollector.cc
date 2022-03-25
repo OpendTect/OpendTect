@@ -23,6 +23,7 @@ Seis::StatsCollector::StatsCollector( int icomp )
     : vals_(0)
     , selcomp_(icomp)
     , offsrg_(mUdf(float),0.f)
+    , gen_(*new Stats::RandGen())
 {
     setEmpty();
 }
@@ -31,6 +32,7 @@ Seis::StatsCollector::StatsCollector( int icomp )
 Seis::StatsCollector::~StatsCollector()
 {
     delete [] vals_;
+    delete &gen_;
 }
 
 
@@ -118,8 +120,7 @@ void Seis::StatsCollector::useTrace( const SeisTrc& trc )
 	    }
 	    else
 	    {
-		const od_int64 replidx
-			= Stats::randGen().getIndex( nrvalshandled_ );
+		const od_int64 replidx = gen_.getIndex( nrvalshandled_ );
 		if ( replidx < cSampleBufferSize )
 		    vals_[replidx] = val;
 	    }

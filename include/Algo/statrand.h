@@ -95,7 +95,7 @@ public:
 
 };
 
-
+mDeprecated("Use a local or class member generator")
 mGlobal(Algo) RandGen& randGen();
 
 

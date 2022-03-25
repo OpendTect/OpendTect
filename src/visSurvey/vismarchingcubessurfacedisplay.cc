@@ -50,7 +50,7 @@ MarchingCubesDisplay::MarchingCubesDisplay()
 	, selspecs_(1, Attrib::SelSpec())
 {
     cache_.allowNull( true );
-    setColor( getRandomColor(false) );
+    setColor( OD::getRandomColor(false) );
     getMaterial()->setAmbience( 0.4 );
     getMaterial()->change.notify(
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));

@@ -390,7 +390,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
 	if ( ioobj )
 	    hor->setMultiID( ioobj->key() );
-	hor->setPreferredColor( getRandomColor() );
+	hor->setPreferredColor( OD::getRandomColor() );
 	hor->ref();
 	hor->setBurstAlert( true );
 	hor2ds += hor;

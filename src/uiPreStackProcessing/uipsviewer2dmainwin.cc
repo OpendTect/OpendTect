@@ -334,7 +334,7 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 	    { uiMSG().error( errmsg ); continue; }
 
 	mutes_ += mutedef;
-	mutecolors_ += getRandStdDrawColor();
+	mutecolors_ += OD::getRandStdDrawColor();
     }
 
     displayMutes();

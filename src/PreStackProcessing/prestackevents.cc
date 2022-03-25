@@ -217,7 +217,7 @@ EventManager::EventManager()
     , auxdatachanged_(false)
     , primarydipreader_(nullptr)
     , secondarydipreader_(nullptr)
-    , color_(getRandomColor())
+    , color_(OD::getRandomColor())
 {
     events_.allowDuplicates( true );
     emhorizons_.allowNull( true );

@@ -250,7 +250,7 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 
     Interval<float> trg; getAvailableTime( *parun, trg );
     tmpun.setTimeRange( trg );
-    tmpun.setColor( getRandStdDrawColor() );
+    tmpun.setColor( OD::getRandStdDrawColor() );
 
     if ( parun->isLeaved() )
     {

@@ -49,7 +49,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     unitdescfld_->attach( alignedBelow, unitnmfld_ );
 
     colfld_ = new uiColorInput( this,
-		uiColorInput::Setup(getRandStdDrawColor())
+		uiColorInput::Setup(OD::getRandStdDrawColor())
 				   .lbltxt(uiStrings::sColor()) );
     colfld_->attach( alignedBelow, unitdescfld_ );
 
@@ -345,7 +345,7 @@ void uiStratLithoDlg::newLith( CallBacker* )
     const int lithid = lithos.getFreeID();
     const bool isporous = false;
     Strat::Lithology* newlith = new Strat::Lithology(lithid,nm.buf(),isporous);
-    newlith->color() = getRandStdDrawColor();
+    newlith->color() = OD::getRandStdDrawColor();
 
     const char* lithfailedmsg = lithos.add( newlith );
     if ( lithfailedmsg )
@@ -611,7 +611,7 @@ uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
 {
     lvlnmfld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     lvlcolfld_ = new uiColorInput( this,
-				uiColorInput::Setup(getRandStdDrawColor() ).
+				uiColorInput::Setup(OD::getRandStdDrawColor() ).
 				lbltxt(uiStrings::sColor()) );
     lvlcolfld_->attach( alignedBelow, lvlnmfld_ );
 }

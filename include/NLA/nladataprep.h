@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class PosVecDataSet;
+namespace Stats { class RandGen; }
 
 /*!
 \brief Prepare data for usage in NLA training.
@@ -23,8 +24,8 @@ class PosVecDataSet;
 mExpClass(NLA) NLADataPreparer
 {
 public:
-    			NLADataPreparer( BinIDValueSet& bvs, int tc )
-			    : bvs_(bvs), targetcol_(tc)		{}
+			NLADataPreparer(BinIDValueSet&,int tc);
+			~NLADataPreparer();
 
     void		removeUndefs(bool targetonly=false);
     void		limitRange(const Interval<float>&);
@@ -37,15 +38,16 @@ public:
 	float		noiselvl;
     };
     void		balance(const BalanceSetup&);
-    			//!< noiselvl not yet supported
+			//!< noiselvl not yet supported
 
 protected:
 
     BinIDValueSet&	bvs_;
     int			targetcol_;
+    Stats::RandGen&	gen_;
 
     void		addVecs(BinIDValueSet&,int,float,
-	    			const Interval<float>*);
+				const Interval<float>*);
 
 };
 

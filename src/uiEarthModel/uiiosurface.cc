@@ -327,7 +327,8 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     if ( setup.withcolorfld_ )
     {
 	colbut_ = new uiColorInput( this,
-	   uiColorInput::Setup(getRandStdDrawColor()).lbltxt(tr("Base color")));
+	   uiColorInput::Setup(OD::getRandStdDrawColor())
+					.lbltxt(tr("Base color")));
 	colbut_->attach( alignedBelow, objfld_ );
 	if ( stratlvlfld_ ) colbut_->attach( ensureBelow, stratlvlfld_ );
     }
@@ -441,7 +442,7 @@ void uiSurfaceWrite::setColor( const OD::Color& col )
 
 OD::Color uiSurfaceWrite::getColor() const
 {
-    return colbut_ ? colbut_->color() : getRandStdDrawColor();
+    return colbut_ ? colbut_->color() : OD::getRandStdDrawColor();
 }
 
 
@@ -931,7 +932,7 @@ void uiFaultParSel::updateOnSelChgCB( CallBacker* cb )
 {
     setSelText( isfltset_ ? uiStrings::sFaultSet( mPlural )
 			: (is2d_ ? uiStrings::sFaultStickSet(mPlural)
-			    	 : uiStrings::sFault(mPlural) ) );
+				 : uiStrings::sFault(mPlural) ) );
 }
 
 void uiFaultParSel::hideClearButton( bool yn )

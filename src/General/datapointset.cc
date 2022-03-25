@@ -812,7 +812,10 @@ DataPointSet* DataPointSet::getSubselected( int maxsz,
     }
 
     if ( activesz > maxsz )
-	Stats::randGen().subselect( idxs, activesz, maxsz );
+    {
+	static Stats::RandGen gen;
+	gen.subselect( idxs, activesz, maxsz );
+    }
     else
 	maxsz = activesz;
 

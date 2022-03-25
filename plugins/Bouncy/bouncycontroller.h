@@ -9,6 +9,8 @@
 #include "position.h"
 #include "timer.h"
 
+namespace Stats { class RandGen; }
+
 namespace Bouncy
 {
 
@@ -20,11 +22,11 @@ public:
 
 			        BouncyController();
     virtual			~BouncyController();
-    
-    void			init(const Coord3& pos, const Coord& minpos, 
-	    			     const Coord& maxpos, 
-	    			     float zStart, float zStop, 
-	    			     bool simulategame=false);
+
+    void			init(const Coord3& pos, const Coord& minpos,
+				     const Coord& maxpos,
+				     float zStart, float zStop,
+				     bool simulategame=false);
     void			stop();
     void			pause(bool);
 
@@ -36,10 +38,10 @@ public:
 protected:
 
     void			simulateCB(CallBacker*);
-    void 			runCB(CallBacker*);
+    void			runCB(CallBacker*);
 
     Coord3			currpos_;
-    Coord3			newposdelta_;  
+    Coord3			newposdelta_;
     Coord3			targetpos_;
     Coord			minpos_;
     Coord			maxpos_;
@@ -49,6 +51,7 @@ protected:
     Timer			updatetimer_;
     bool			simulate_;
     int				nummovesrem_;
+    Stats::RandGen&		gen_;
 
 };
 

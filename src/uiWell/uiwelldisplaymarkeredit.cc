@@ -220,7 +220,7 @@ void uiDispEditMarkerDlg::buttonPushedCB( CallBacker* cb )
 void uiDispEditMarkerDlg::addNewMrkrList()
 {
     Well::Marker* mrk = new Well::Marker( "Name", 0 );
-    mrk->setColor( getRandStdDrawColor() );
+    mrk->setColor( OD::getRandStdDrawColor() );
     uiAddEditMrkrDlg dlg( this, *mrk, false );
     if ( dlg.go() )
     {
@@ -391,7 +391,7 @@ if ( mrknms.addIfNew( mrk.name() ) )\
     if ( mrklist_->isEmpty() )
     {
 	Well::Marker* mrk = new Well::Marker( "Name", 0 );
-	mrk->setColor( getRandStdDrawColor() );
+	mrk->setColor( OD::getRandStdDrawColor() );
 	tmplist_ += mrk;
     }
 

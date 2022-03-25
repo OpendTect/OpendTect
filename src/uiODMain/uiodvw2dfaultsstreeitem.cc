@@ -69,7 +69,7 @@ bool uiODVw2DFaultSSParentTreeItem::handleSubMenu( int mnuid )
 	if ( !emo )
 	    return false;
 
-	emo->setPreferredColor( getRandomColor(false) );
+	emo->setPreferredColor( OD::getRandomColor(false) );
 	emo->setNewName();
 	emo->setFullyLoaded( true );
 	addNewTempFaultSS( emo->id() );

@@ -19,6 +19,7 @@ class uiParent;
 class BinIDValueSet;
 class BufferStringSet;
 namespace Attrib { class EngineMan; class DescSet; }
+namespace Stats { class RandGen; }
 
 using namespace Attrib;
 
@@ -27,10 +28,10 @@ using namespace Attrib;
 mExpClass(uiAttributes) calcFingParsObject
 { mODTextTranslationClass(calcFingParsObject);
 public:
-    			calcFingParsObject(uiParent*);
+			calcFingParsObject(uiParent*);
 			~calcFingParsObject();
     void		setUserRefList( BufferStringSet* refset )
-    							{ reflist_ = refset; }
+							{ reflist_ = refset; }
     void		setDescSet( DescSet* ds )	{ attrset_ = ds; }
     void                setWeights( TypeSet<int> wgs )  { weights_ = wgs; }
     void		setRanges(TypeSet<Interval<float> > rg) {ranges_ = rg;}
@@ -62,10 +63,11 @@ protected:
     EngineMan*          createEngineMan();
     void                extractAndSaveValsAndRanges();
     void                saveValsAndRanges(const TypeSet<float>&,
-	    				  const TypeSet< Interval<float> >&);
+					  const TypeSet< Interval<float> >&);
     void		fillInStats(BinIDValueSet*,
 				ObjectSet< Stats::RunCalc<float> >&,
 				Stats::Type) const;
+    void		create2DRandPicks(const MultiID&,BinIDValueSet&) const;
 
     BufferStringSet*	reflist_;
     DescSet*		attrset_;
@@ -77,8 +79,7 @@ protected:
     uiParent*		parent_;
     MultiID		rgpickset_;
     int			rgreftype_;
-    static void		create2DRandPicks(const MultiID& dsetid,
-						      BinIDValueSet* rangesset);
+    Stats::RandGen&	gen_;
 
 };
 

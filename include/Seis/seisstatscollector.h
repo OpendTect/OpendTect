@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "datadistribution.h"
 
 class SeisTrc;
+namespace Stats { class RandGen; }
 
 namespace Seis
 {
@@ -58,6 +59,7 @@ protected:
     int			nrvalscollected_;
     TrcKeyZSampling	tkzs_;
     RefMan<DistribType>	distrib_;
+    Stats::RandGen&	gen_;
 
     bool		finish() const;
     void		addPosition(const TrcKey&,const Interval<float>&);

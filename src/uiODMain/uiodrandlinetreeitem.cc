@@ -68,7 +68,8 @@ uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
 	tr("Pick Nodes on Z-Slices, Horizons, or Survey Inner Top/Bottom.\n"
 	   "(Shift-Click for Outer Top/Bottom)") );
 
-    colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
+    colsel_ = new uiColorInput( this,
+				uiColorInput::Setup(OD::getRandStdDrawColor())
 				      .lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, label_ );
     colsel_->colorChanged.notify(

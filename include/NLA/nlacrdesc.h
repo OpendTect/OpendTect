@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class DataPointSet;
+namespace Stats { class RandomGenerator; }
 
 /*!
 \brief Description of how a NLA analysis Feature set is to be created.
@@ -27,10 +28,9 @@ class DataPointSet;
 mExpClass(NLA) NLACreationDesc
 { mODTextTranslationClass(NLACreationDesc);
 public:
-			NLACreationDesc()	{ clear(); }
-			~NLACreationDesc()	{ clear(); }
-			NLACreationDesc( const NLACreationDesc& sd )
-						{ *this = sd; }
+			NLACreationDesc();
+			~NLACreationDesc();
+			NLACreationDesc(const NLACreationDesc&);
     NLACreationDesc& operator =(const NLACreationDesc&);
     void		clear();
 
@@ -60,6 +60,10 @@ public:
 			{ return dt == Train || dt == MCTrain; }
     inline static bool	isMC( DataType dt )
 			{ return dt > Test; }
+
+private:
+
+    Stats::RandomGenerator& gen_;
 
 };
 

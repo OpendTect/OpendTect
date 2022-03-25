@@ -259,7 +259,7 @@ bool uiODAnnotTreeItem::showSubMenu()
 		return false;
 
 	    Pick::Set* set = new Pick::Set(txt);
-	    set->disp_.color_ = getRandStdDrawColor();
+	    set->disp_.color_ = OD::getRandStdDrawColor();
 	    if ( defScale()!=-1 ) set->disp_.pixsize_ = defScale();
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.set( mid, set );

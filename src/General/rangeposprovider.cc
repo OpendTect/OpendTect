@@ -13,6 +13,56 @@
 #include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "statrand.h"
+#include "randcolor.h"
+
+namespace OD
+{
+
+Stats::RandGen& ColorRandGen()
+{
+    mDefineStaticLocalObject( PtrMan<Stats::RandGen>, rgptr,
+			      = new Stats::RandGen() );
+    return *rgptr.ptr();
+}
+
+
+OD::Color getRandomColor( bool withtransp )
+{
+    Stats::RandGen& gen = ColorRandGen();
+    return OD::Color(
+	     (unsigned char) gen.getIndex(255),
+	     (unsigned char) gen.getIndex(255),
+	     (unsigned char) gen.getIndex(255),
+	     (unsigned char) (withtransp ? gen.getIndex(255) : 0) );
+}
+
+
+OD::Color getRandStdDrawColor()
+{
+    static int curidx = -1;
+    if ( curidx == -1 )
+	ColorRandGen().getIndex( OD::Color::nrStdDrawColors() );
+    else
+    {
+	curidx++;
+	if ( curidx == OD::Color::nrStdDrawColors() )
+	    curidx = 0;
+    }
+
+    return OD::Color::stdDrawColor( curidx );
+}
+
+
+OD::Color getRandomFillColor()
+{
+    Stats::RandGen& gen = ColorRandGen();
+    return OD::Color(
+	    (unsigned char) gen.getInt(155,255),
+	    (unsigned char) gen.getInt(155,255),
+	    (unsigned char) gen.getInt(155,255) );
+}
+
+} // namespace OD
 
 
 #define mGet2DGeometry(gid) \
@@ -22,25 +72,25 @@
 
 Pos::RangeProvider3D::RangeProvider3D()
     : tkzs_(*new TrcKeyZSampling(true))
-    , zsampsz_(0)
     , nrsamples_(mUdf(int))
-    , dorandom_(false)
-    , enoughsamples_(true)
+    , gen_(*new Stats::RandGen())
 {
     reset();
 }
 
 
-Pos::RangeProvider3D::RangeProvider3D( const Pos::RangeProvider3D& p )
+Pos::RangeProvider3D::RangeProvider3D( const Pos::RangeProvider3D& oth )
     : tkzs_(*new TrcKeyZSampling(false))
+    , gen_(*new Stats::RandGen())
 {
-    *this = p;
+    *this = oth;
 }
 
 
 Pos::RangeProvider3D::~RangeProvider3D()
 {
     delete &tkzs_;
+    delete &gen_;
 }
 
 
@@ -114,13 +164,12 @@ bool Pos::RangeProvider3D::toNextPos()
     {
 	postuple pos;
 	od_int64 idx;
-	const Stats::RandGen& randGen = Stats::randGen();
 	const TrcKeySampling& hsamp = tkzs_.hsamp_;
 	const od_int64 totalNrTraces = hsamp.totalNr();
 	do
 	{
-	    idx = randGen.getIndex( totalNrTraces );
-	    curzidx_ = randGen.getInt( 0, zsampsz_-1 );
+	    idx = gen_.getIndex( totalNrTraces );
+	    curzidx_ = gen_.getIndex( zsampsz_-1 );
 	    pos = postuple( idx, curzidx_ );
 	} while ( posindexlst_.isPresent(pos) );
 	curbid_ = hsamp.atIndex( idx );

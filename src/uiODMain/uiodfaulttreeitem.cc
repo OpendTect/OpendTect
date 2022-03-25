@@ -145,7 +145,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	if ( !emo )
 	    return false;
 
-	emo->setPreferredColor( getRandomColor(false) );
+	emo->setPreferredColor( OD::getRandomColor(false) );
 	emo->setNewName();
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
@@ -483,7 +483,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	if ( !emo )
 	    return false;
 
-	emo->setPreferredColor( getRandomColor(false) );
+	emo->setPreferredColor( OD::getRandomColor(false) );
 	emo->setNewName();
 	emo->setFullyLoaded( true );
 	addChild( new uiODFaultStickSetTreeItem( emo->id() ), false );

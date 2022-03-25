@@ -25,6 +25,7 @@ ________________________________________________________________________
 class DataPointSet;
 
 namespace EM { class RowColIterator; class Region3D; class Surface; }
+namespace Stats { class RandGen; }
 
 namespace Pos
 {
@@ -87,23 +88,24 @@ protected:
 
     MultiID		id1_;
     MultiID		id2_;
-    EM::Surface*	surf1_;
-    EM::Surface*	surf2_;
+    RefMan<EM::Surface> surf1_;
+    RefMan<EM::Surface> surf2_;
     float		zstep_;
     Interval<float>	extraz_;
     TrcKeySampling	hs_;
     Interval<float>	zrg1_;
     Interval<float>	zrg2_;
-    od_int64		estnrpos_;
+    od_int64		estnrpos_ = -1;
+    Stats::RandGen&	gen_;
 
-    EM::RowColIterator*	iterator_;
+    EM::RowColIterator* iterator_ = nullptr;
     EM::PosID		curpos_;
     Interval<float>	curzrg_;
     float		curz_;
     int			nrsamples_;
-    bool		dorandom_;
-    bool		enoughsamples_;
-    od_int64		maxidx_;
+    bool		dorandom_ = false;
+    bool		enoughsamples_ = true;
+    od_int64		maxidx_ = 0;
     SortedList<postuple> posindexlst_;
 };
 

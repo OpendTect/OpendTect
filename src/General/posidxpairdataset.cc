@@ -875,7 +875,8 @@ void Pos::IdxPairDataSet::randomSubselect( GlobIdxType maxsz )
 	{ setEmpty(); return; }
 
     const bool buildnew = ((GlobIdxType)maxsz) < (orgsz / ((GlobIdxType)2));
-    Stats::randGen().subselect( idxs, orgsz, maxsz );
+    static Stats::RandGen gen;
+    gen.subselect( idxs, orgsz, maxsz );
     TypeSet<SPos> sposs;
     if ( buildnew )
     {
@@ -887,6 +888,7 @@ void Pos::IdxPairDataSet::randomSubselect( GlobIdxType maxsz )
 	for ( GlobIdxType idx=maxsz; idx<orgsz; idx++ )
 	    sposs += getPos( idxs[idx] );
     }
+
     delete [] idxs;
 
     if ( !buildnew )

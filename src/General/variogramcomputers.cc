@@ -27,6 +27,7 @@ HorVariogramComputer::HorVariogramComputer( DataPointSet& dpset, int size,
     : variogramvals_( new Array2DImpl<float>(3,size) )
     , axes_( new Array2DImpl<float>(3,size) )
     , variogramnms_( new BufferStringSet )
+    , gen_(*new Stats::RandGen())
 {
     dataisok_ = compVarFromRange( dpset, size, cid, range, fold,
 				  errmsg, msgiserror );
@@ -38,6 +39,7 @@ HorVariogramComputer::~HorVariogramComputer()
     delete variogramvals_;
     delete axes_;
     delete variogramnms_;
+    delete &gen_;
 }
 
 
@@ -108,14 +110,15 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 	    {
 		itested++;
     //              computer.add(itested);
-		if ( itested > fold*100 ) break;
-		int posinl1 = mininl +
-			    mNINT32((maxinl-mininl)*Stats::randGen().get());
-		int poscrl1 = mincrl +
-			    mNINT32((maxcrl-mincrl)*Stats::randGen().get());
-		BinID pos1 = BinID( posinl1, poscrl1 );
-		DataPointSet::RowID posval1 = dpset.findFirst(pos1);
-		if ( posval1<0 ) continue;
+		if ( itested > fold*100 )
+		    break;
+
+		const int posinl1 = gen_.getInt( mininl, maxinl );
+		const int poscrl1 = gen_.getInt( mincrl, maxcrl );
+		const BinID pos1 = BinID( posinl1, poscrl1 );
+		const DataPointSet::RowID posval1 = dpset.findFirst(pos1);
+		if ( posval1<0 )
+		    continue;
 
 		int posinl2 = posinl1;
 		int poscrl2 = poscrl1;
@@ -124,9 +127,10 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 		if ( icomp != 0 )
 		    posinl2 += ilag;
 
-		BinID pos2 = BinID( posinl2, poscrl2 );
-		DataPointSet::RowID posval2 = dpset.findFirst(pos2);
-		if ( posval2<0 ) continue;
+		const BinID pos2 = BinID( posinl2, poscrl2 );
+		const DataPointSet::RowID posval2 = dpset.findFirst(pos2);
+		if ( posval2<0 )
+		    continue;
 
 		double val1 = (double)dpset.getValues( posval1 )[cid-1];
 		double val2 = (double)dpset.getValues( posval2 )[cid-1];

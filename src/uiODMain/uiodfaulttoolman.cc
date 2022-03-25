@@ -257,7 +257,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , settingsdlg_(nullptr)
     , colorbutcolor_(OD::Color(0,0,0))
     , usercolor_(OD::Color(0,0,255))
-    , randomcolor_(getRandStdDrawColor())
+    , randomcolor_(OD::getRandStdDrawColor())
     , flashcolor_(OD::Color(0,0,0))
     , curemid_(-1)
 {
@@ -901,7 +901,7 @@ void uiODFaultToolMan::colorModeChg( CallBacker* cb )
     usercolorlink_ = userdef ? getObjSel()->inpBox()->text() : "";
 
     if ( randomColor() )
-	randomcolor_ = getRandStdDrawColor();
+	randomcolor_ = OD::getRandStdDrawColor();
 
     processOutputName();
 }
@@ -1108,7 +1108,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 
 void uiODFaultToolMan::afterTransferUpdate()
 {
-    randomcolor_ = getRandStdDrawColor();
+    randomcolor_ = OD::getRandStdDrawColor();
     usercolorlink_.setEmpty();
     const bool clearname = mCurItem( outputactcombo_, sKeyCreateSingleNew );
     updateOutputItems( clearname );

@@ -252,6 +252,43 @@ bool Pos::FilterSet2D::includes( int nr, float z, int lidx ) const
 }
 
 
+Pos::RandomFilter::RandomFilter()
+    : gen_(*new Stats::RandGen())
+{
+}
+
+
+Pos::RandomFilter::RandomFilter( const RandomFilter& oth )
+    : gen_(*new Stats::RandGen())
+{
+    *this = oth;
+}
+
+
+Pos::RandomFilter::~RandomFilter()
+{
+    delete &gen_;
+}
+
+
+Pos::RandomFilter& Pos::RandomFilter::operator=( const RandomFilter& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    passratio_ = oth.passratio_;
+
+    return *this;
+}
+
+
+bool Pos::RandomFilter::initialize( TaskRunner* /* taskrun */ )
+{
+    reset();
+    return true;
+}
+
+
 void Pos::RandomFilter::initStats()
 {
     if ( passratio_ > 1 ) passratio_ /= 100;
@@ -260,7 +297,7 @@ void Pos::RandomFilter::initStats()
 
 bool Pos::RandomFilter::drawRes() const
 {
-    return Stats::randGen().get() < passratio_;
+    return gen_.get() < passratio_;
 }
 
 

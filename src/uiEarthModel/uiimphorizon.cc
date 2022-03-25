@@ -184,7 +184,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	stratlvlfld_->selChange.notify( mCB(this,uiImportHorizon,stratLvlChg) );
 
 	colbut_ = new uiColorInput( this,
-				    uiColorInput::Setup(getRandStdDrawColor())
+				  uiColorInput::Setup(OD::getRandStdDrawColor())
 				    .lbltxt(tr("Base color")) );
 	colbut_->attach( alignedBelow, stratlvlfld_ );
 

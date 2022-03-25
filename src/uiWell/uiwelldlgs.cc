@@ -1775,7 +1775,8 @@ uiNewWellDlg::uiNewWellDlg( uiParent* p )
 	lbl->attach( leftOf, listfld_ );
     }
 
-    colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
+    colsel_ = new uiColorInput( this,
+				uiColorInput::Setup(OD::getRandStdDrawColor())
 				      .lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, inpFld() );
 }
@@ -2294,8 +2295,8 @@ void uiWellDefMnemLogDlg::Tables::getSuitableLogNamesForMnems(
 
 
 uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
-					  const TypeSet<MultiID>& keys, 
-    					  const MnemonicSelection* mns )
+					  const TypeSet<MultiID>& keys,
+					  const MnemonicSelection* mns )
     : uiDialog(p,uiDialog::Setup(tr("Set/Edit default Logs for a mnemonic"),
 				 mNoDlgTitle,mTODOHelpKey))
 {
@@ -2415,7 +2416,7 @@ uiSetD2TFromOtherWell::uiSetD2TFromOtherWell( uiParent* p )
     mAttachCB( inpwellfld_->selectionDone, uiSetD2TFromOtherWell::inpSelCB );
 
     replvelfld_ = new uiConstantVel( this, Vel::getGUIDefaultVelocity(),
-	    			     tr("New replacement velocity") );
+				     tr("New replacement velocity") );
     replvelfld_->setWithCheck( true );
     replvelfld_->attach( alignedBelow, inpwellfld_ );
 
@@ -2490,7 +2491,7 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
 
     const bool chgreplvel = replvelfld_->isChecked();
     const float newreplvel = UnitOfMeasure::surveyDefVelUnit()->internalValue(
-	    				replvelfld_->getFValue() );
+					replvelfld_->getFValue() );
 
     const int mdlsz = dtmodel.size();
     TypeSet<double> inputdepths( mdlsz, 0. );

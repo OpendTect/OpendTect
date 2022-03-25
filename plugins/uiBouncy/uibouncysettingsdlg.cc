@@ -18,8 +18,8 @@
 
 namespace uiBouncy
 {
-uiBouncySettingsDlg::uiBouncySettingsDlg( uiParent* p, 
-	visBeachBall::BallProperties* bp ) 
+uiBouncySettingsDlg::uiBouncySettingsDlg( uiParent* p,
+	visBeachBall::BallProperties* bp )
     : uiGroup( p, "Bouncy setup")
     , propertyChanged( this )
 {
@@ -27,29 +27,31 @@ uiBouncySettingsDlg::uiBouncySettingsDlg( uiParent* p,
 
     radiusfld_ = new uiGenInput( this, "Ball's radius", FloatInpSpec( 1000 ) );
     radiusfld_->valuechanged.notify( chgCB );
-    color1sel_ = new uiColorInput( this, 
-	    uiColorInput::Setup( getRandStdDrawColor() ).lbltxt( "Color 1" ) );
+    color1sel_ = new uiColorInput( this,
+			    uiColorInput::Setup( OD::getRandStdDrawColor() )
+					.lbltxt( "Color 1" ) );
     color1sel_->attach( alignedBelow, radiusfld_ );
     color1sel_->colorChanged.notify( chgCB );
-    color2sel_ = new uiColorInput( this, 
-	    uiColorInput::Setup( getRandStdDrawColor() ).lbltxt( "Color 2" ) );
+    color2sel_ = new uiColorInput( this,
+			    uiColorInput::Setup( OD::getRandStdDrawColor() )
+					.lbltxt( "Color 2" ) );
     color2sel_->attach( alignedBelow, color1sel_ );
     color2sel_->colorChanged.notify( chgCB );
 
     uiGroup* inlcrlgrp = new uiGroup( this, "InlCrl group" );
     inlcrlgrp->attach( leftAlignedBelow, color2sel_ );
-    inlfld_ = new uiGenInput( inlcrlgrp, "In-line", 
+    inlfld_ = new uiGenInput( inlcrlgrp, "In-line",
 	    IntInpSpec().setName("Inl-field") );
     inlfld_->setElemSzPol( uiObject::Small );
     inlfld_->setValue( 500 );
-    inlfld_->valuechanged.notify( 
+    inlfld_->valuechanged.notify(
 	    mCB(this, uiBouncySettingsDlg, inl_crlChangedCB) );
     crlfld_ = new uiGenInput( inlcrlgrp, "Cross-line",
 	    IntInpSpec().setName("Crl-field") );
     crlfld_->setElemSzPol( uiObject::Small );
     crlfld_->setValue( 500 );
     crlfld_->attach( alignedBelow, inlfld_ );
-    crlfld_->valuechanged.notify( 
+    crlfld_->valuechanged.notify(
 	    mCB(this, uiBouncySettingsDlg, inl_crlChangedCB) );
 
     uiSeparator* sep = new uiSeparator( this, "VSep", false );
@@ -58,11 +60,11 @@ uiBouncySettingsDlg::uiBouncySettingsDlg( uiParent* p,
 
     uiGroup* xygrp = new uiGroup( this, "XY group" );
     xygrp->attach( rightOf, sep );
-    xfld_ = new uiGenInput( xygrp, "X-coordinate", 
+    xfld_ = new uiGenInput( xygrp, "X-coordinate",
 	    DoubleInpSpec().setName("X-field") );
     xfld_->setElemSzPol( uiObject::Small );
     xfld_->valuechanged.notify( mCB(this, uiBouncySettingsDlg, x_yChangedCB) );
-    yfld_ = new uiGenInput( xygrp, "Y-coordinate", 
+    yfld_ = new uiGenInput( xygrp, "Y-coordinate",
 	    DoubleInpSpec().setName("Y-field") );
     yfld_->setElemSzPol( uiObject::Small );
     yfld_->attach( alignedBelow, xfld_ );
@@ -88,7 +90,7 @@ void uiBouncySettingsDlg::changeCB( CallBacker* )
 
 void uiBouncySettingsDlg::inl_crlChangedCB( CallBacker* )
 {
-    if ( ( strcmp( inlfld_->text(), "" ) == 0 ) || 
+    if ( ( strcmp( inlfld_->text(), "" ) == 0 ) ||
 	 ( strcmp( crlfld_->text(), "" ) == 0 ) )
     {
 	xfld_->setText( "" ); yfld_->setText( "" );
@@ -138,7 +140,7 @@ bool uiBouncySettingsDlg::isOK()
     {
 	mErrRet( "Error in input. Try again!" );
     }
-    else 
+    else
 	return true;
 }
 
@@ -155,12 +157,12 @@ bool uiBouncySettingsDlg::binIDOK()
 visBeachBall::BallProperties uiBouncySettingsDlg::getBallProperties() const
 {
     return visBeachBall::BallProperties( "", radiusfld_->getIntValue(),
-	   color1sel_->color(), color2sel_->color(), 
+	   color1sel_->color(), color2sel_->color(),
 	   Coord3( xfld_->getDValue(), yfld_->getDValue(), 0.5 ), 0.5 );
 }
 
 
-void uiBouncySettingsDlg::setBallProperties( 
+void uiBouncySettingsDlg::setBallProperties(
 	const visBeachBall::BallProperties& bp )
 {
     radiusfld_->setValue( bp.radius() );

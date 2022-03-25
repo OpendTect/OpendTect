@@ -26,7 +26,14 @@ DataClipper::DataClipper()
     , subselect_( false )
     , approxstatsize_( 2000 )
     , absoluterg_( mUdf(float), -mUdf(float) )
+    , gen_(*new Stats::RandGen())
 {
+}
+
+
+DataClipper::~DataClipper()
+{
+    delete &gen_;
 }
 
 
@@ -51,9 +58,7 @@ void DataClipper::putData( float val )
 {
     if ( subselect_ )
     {
-	double rand = Stats::randGen().get();
-
-	if ( rand>sampleprob_ )
+	if ( gen_.get() > sampleprob_ )
 	    return;
     }
 
@@ -85,7 +90,8 @@ public:
     {
 	TypeSet<float> localsamples;
 	Interval<float> localrg( mUdf(float), -mUdf(float) );
-
+	Stats::RandGen gen;
+	const od_int64 sz = nrvals_ -1;
 	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
 	    float val;
@@ -95,9 +101,7 @@ public:
 	    }
 	    else
 	    {
-		double rand = Stats::randGen().get();
-		rand *= (nrvals_-1);
-		const od_int64 sampidx = mNINT64(rand);
+		const od_int64 sampidx = gen.getIndex( sz );
 		val = input_[sampidx];
 	    }
 
@@ -347,10 +351,16 @@ void DataClipper::reset()
 DataClipSampler::DataClipSampler( int ns )
     : maxnrvals_(ns)
     , vals_(new float [ns])
-    , count_(0)
-    , finished_(false)
     , rg_(mUdf(float),0)
+    , gen_(*new Stats::RandGen())
 {
+}
+
+
+DataClipSampler::~DataClipSampler()
+{
+    delete [] vals_;
+    delete &gen_;
 }
 
 
@@ -367,10 +377,9 @@ void DataClipSampler::add( const float* v, od_int64 sz )
     const int nr2add = (int)(relwt * sz - .5);
     if ( nr2add < 1 ) return;
 
-    Stats::RandGen& gen = Stats::randGen();
     for ( int idx=0; idx<nr2add; idx++ )
     {
-	const od_int64 vidx = gen.getIndex( sz );
+	const od_int64 vidx = gen_.getIndex( sz );
 	doAdd( v[vidx] );
     }
 }
@@ -378,7 +387,7 @@ void DataClipSampler::add( const float* v, od_int64 sz )
 
 void DataClipSampler::add( float val )
 {
-    if ( Stats::randGen().getIndex(count_) < maxnrvals_ )
+    if ( gen_.getIndex(count_) < maxnrvals_ )
 	doAdd( val );
 }
 
@@ -401,7 +410,7 @@ void DataClipSampler::doAdd( float val )
     if ( count_ < maxnrvals_ )
 	vals_[count_] = val;
     else
-	vals_[ Stats::randGen().getIndex(maxnrvals_) ] = val;
+	vals_[ gen_.getIndex(maxnrvals_) ] = val;
 
     count_++;
 }

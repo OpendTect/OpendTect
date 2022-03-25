@@ -32,7 +32,7 @@ Fault3D::Fault3D( EMManager& em )
     , auxdata_( 0 )
 {
     geometry_.addSection( "", false );
-    setPreferredColor( getRandomColor() );
+    setPreferredColor( OD::getRandomColor() );
     setPosAttrMarkerStyle( 0,
 	MarkerStyle3D(MarkerStyle3D::Cube,3,OD::Color::Yellow()) );
 

@@ -88,7 +88,7 @@ Strat::Lithology::Lithology( const char* fstr )
     if ( sz > 3 )
 	color_.setStdStr( fms[3] );
     else
-	color_ = getRandStdDrawColor();
+	color_ = OD::getRandStdDrawColor();
 }
 
 

@@ -181,7 +181,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    {
 		OD::Color& col = idy==0 ? coly1 : coly2;
 		do
-		{ col = getRandomColor(); }
+		{ col = OD::getRandomColor(); }
 		while ( !ctseqs.addIfNew(col) );
 	    }
 

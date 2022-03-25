@@ -133,7 +133,7 @@ static bool testRandom( bool dodiff, bool dotime )
 	return false;
 
     static double oneoversqrt12 = Math::Sqrt(1./12.);
-    Stats::RandGen& urg = Stats::randGen();
+    Stats::RandGen urg;
     Time::Counter counter; int elapsed = 0;
 
     Stats::CalcSetup avgstdsu, minmaxsu;

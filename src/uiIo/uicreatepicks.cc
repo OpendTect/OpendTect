@@ -76,7 +76,7 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
     mUseDefaultTextValidatorOnField(nmfld_);
 
     colsel_ = new uiColorInput( this,
-			      uiColorInput::Setup(getRandStdDrawColor()).
+			      uiColorInput::Setup(OD::getRandStdDrawColor()).
 			      lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, nmfld_ );
     if ( lastobject )

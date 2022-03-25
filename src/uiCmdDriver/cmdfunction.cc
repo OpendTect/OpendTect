@@ -197,13 +197,13 @@ mDefMathFunc( Floor, false, "", res=Math::Floor(num) );
 mDefMathFunc( Ln,    num<=0, "positive argument", res=log(num) );
 mDefMathFunc( Log,   num<=0, "positive argument", res=log10(num) );
 mDefMathFunc( Round, false, "", res=(num<0 ? Math::Ceil(num-0.5)
-	    				   : Math::Floor(num+0.5)) );
+					   : Math::Floor(num+0.5)) );
 mDefMathFunc( Sgn,   false, "", res=(!num ? 0 : (num<0 ? -1 : 1)) );
 mDefMathFunc( Sin,   false, "", res=sin(num) );
 mDefMathFunc( Sqrt,  num<0, "non-negative argument", res=Math::Sqrt(num) );
 mDefMathFunc( Tan,   false, "", res=tan(num) );
 mDefMathFunc( Trunc, false, "", res=(num<0 ? Math::Ceil(num)
-	    				   : Math::Floor(num)) );
+					   : Math::Floor(num)) );
 
 
 bool RandFunc::eval( const BufferStringSet& args, BufferString& res ) const
@@ -213,7 +213,8 @@ bool RandFunc::eval( const BufferStringSet& args, BufferString& res ) const
     if ( !args.size() )
 	num = 1.0;
 
-    res = mIsUdf(num) ? num : num*Stats::randGen().get();
+    static Stats::RandGen gen;
+    res = mIsUdf(num) ? num : num * gen.get();
     return true;
 }
 

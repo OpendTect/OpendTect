@@ -458,7 +458,7 @@ OD::Color EMObjectDisplay::getColor() const
 
     if ( !nontexturecolisset_ )
     {
-	nontexturecol_ = getRandStdDrawColor();
+	nontexturecol_ = OD::getRandStdDrawColor();
 	nontexturecolisset_ = true;
     }
 

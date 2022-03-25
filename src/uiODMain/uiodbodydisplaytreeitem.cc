@@ -115,7 +115,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	if ( !plg )
 	    return false;
 
-	plg->setPreferredColor( getRandomColor(false) );
+	plg->setPreferredColor( OD::getRandomColor(false) );
 	plg->setNewName();
 	plg->setFullyLoaded( true );
 	addChild( new uiODBodyDisplayTreeItem( plg->id() ), false );

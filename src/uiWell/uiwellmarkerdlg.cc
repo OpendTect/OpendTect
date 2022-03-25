@@ -573,7 +573,7 @@ void uiMarkerDlg::assignRandomColors( Well::MarkerSet& mrkrs )
 	if ( !mrkrs[midx] || mrkrs[midx]->levelID()!=-1 )
 	    continue;
 
-	mrkrs[midx]->setColor( getRandomColor() );
+	mrkrs[midx]->setColor( OD::getRandomColor() );
     }
 }
 

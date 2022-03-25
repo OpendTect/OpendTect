@@ -310,12 +310,12 @@ bool uiPickPartServer::mkRandLocs2DBetweenHors( Pick::Set& ps,
     if ( !nrpos ) return false;
 
     ps.setCapacity( rp.nr_, false );
+    Stats::RandGen gen;
     for ( int ipt=0; ipt<rp.nr_; ipt++ )
     {
-	const int posidx = Stats::randGen().getIndex( nrpos );
+	const int posidx = gen.getIndex( nrpos );
 	const Interval<float>& zrg = hor2dzrgs_[posidx];
-	float val =
-	    float( zrg.start + Stats::randGen().get() * zrg.width(false) );
+	float val = float( zrg.start + gen.get() * zrg.width(false) );
 	Pick::Location loc( coords2d_[posidx], val );
 	const BinID& trcpos = trcpos2d_[posidx];
 	const Pos::GeomID gid = trcpos.lineNr();
@@ -377,16 +377,16 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     const float zwidth = rp.zrg_.width( false );
     Pos::GeomID geomid = mUdfGeomID;
     ps.setCapacity( rp.nr_, false );
+    Stats::RandGen gen;
     for ( int ipt=0; ipt<rp.nr_; ipt++ )
     {
-	const int posidx = Stats::randGen().getIndex( nrpos );
+	const int posidx = gen.getIndex( nrpos );
 	const PosInfo::Line2DPos* l2dpos =
 			getLine2DPosForIndex( posidx, nrtrcs, geom2ds, geomid );
 	if ( !l2dpos )
 	    continue;
 
-	const float val =
-		float( rp.zrg_.start + Stats::randGen().get() * zwidth );
+	const float val = float( rp.zrg_.start + gen.get() * zwidth );
 	Pick::Location loc( l2dpos->coord_, val );
 	loc.setTrcKey( TrcKey(geomid,l2dpos->nr_) );
 	ps += loc;

@@ -84,7 +84,7 @@ Picks::Picks()
     , smoother_( 0 )
     , undo_( 0 )
     , refoffset_(0)
-    , color_( getRandomColor(false) )
+    , color_( OD::getRandomColor(false) )
 {
     getDefaultColor( color_ );
     picks_.allowDuplicates( true );
@@ -103,7 +103,7 @@ Picks::Picks( bool zit )
     , picktype_( zit ? RMS : RMO )
     , smoother_( 0 )
     , undo_( 0 )
-    , color_( getRandomColor(false) )
+    , color_( OD::getRandomColor(false) )
 {
     getDefaultColor( color_ );
 
@@ -150,7 +150,7 @@ void Picks::setPickType( Picks::PickType t, bool resetcolor )
 	return;
 
     if ( !getDefaultColor( color_ ) )
-	color_ = getRandomColor(false);
+	color_ = OD::getRandomColor(false);
 }
 
 

@@ -194,7 +194,7 @@ FlatView::DataDispPars::WVA::~WVA()
 
 FlatView::Annotation::AxisData::AxisData()
     : sampling_(mUdf(float),mUdf(float))
-    , auxhllinestyle_( OD::LineStyle::Dot,2,getRandStdDrawColor() )
+    , auxhllinestyle_( OD::LineStyle::Dot,2,OD::getRandStdDrawColor() )
 {}
 
 

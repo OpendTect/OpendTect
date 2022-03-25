@@ -427,11 +427,12 @@ double ExpressionAND::getValue() const
 mMathExpressionClass( Random, 1 )
 double ExpressionRandom::getValue() const
 {
-    double maxval = inputs_[0]->getValue();
+    const double maxval = inputs_[0]->getValue();
     if ( Values::isUdf(maxval) )
 	return mUdf(double);
 
-    return ( double )( maxval * Stats::randGen().get() );
+    static Stats::RandGen gen;
+    return maxval * gen.get();
 }
 
 
@@ -442,8 +443,8 @@ double ExpressionGaussRandom::getValue() const
     if ( Values::isUdf(stdev) )
 	return mUdf(double);
 
-    mDefineStaticLocalObject( Stats::NormalRandGen, rg, );
-    return rg.get(0,stdev);
+    static Stats::NormalRandGen rg;
+    return stdev * rg.get();
 }
 
 

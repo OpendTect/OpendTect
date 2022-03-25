@@ -29,6 +29,27 @@ const char** NLACreationDesc::DataTypeNames()
 }
 
 
+NLACreationDesc::NLACreationDesc()
+    : gen_(*new Stats::RandGen())
+{
+    clear();
+}
+
+
+NLACreationDesc::NLACreationDesc( const NLACreationDesc& sd )
+    : gen_(*new Stats::RandGen())
+{
+    *this = sd;
+}
+
+
+NLACreationDesc::~NLACreationDesc()
+{
+    clear();
+    delete &gen_;
+}
+
+
 NLACreationDesc& NLACreationDesc::operator =(
 	const NLACreationDesc& sd )
 {
@@ -196,8 +217,8 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 		    outdr.data_ += mCast( float, iout == idps ? 1 : 0 );
 	    }
 
-	    const bool istest = extractrand ? Stats::randGen().get() < tstratio
-					     : itotal > lasttrain;
+	    const bool istest = extractrand ? gen_.get() < tstratio
+					    : itotal > lasttrain;
 	    outdr.setGroup( istest ? 2 : 1 );
 	    dps.addRow( outdr );
 	    itotal++;

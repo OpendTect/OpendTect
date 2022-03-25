@@ -130,6 +130,7 @@ Frequency::~Frequency()
 {
     if ( dumptofile_ )
     {
+	Stats::RandGen gen;
 	for ( int idx=0; idx<dumpset_.size(); idx++ )
 	{
 	    const char* data = (dumpset_.get(idx)).buf();
@@ -137,7 +138,7 @@ Frequency::~Frequency()
 	    {
 		FilePath fp( GetDataDir() );
 		BufferString filename( "frequency." );
-		filename += Stats::randGen().getIndex(mUdf(int));
+		filename += gen.getIndex(mUdf(int));
 		filename = fp.add( filename ).fullPath();
 		od_ostream strm( filename );
 		if ( strm.isOK() )

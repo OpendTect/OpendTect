@@ -210,7 +210,7 @@ uiGroup* Wizard::createTrackModePage()
     uiGroup* grp = new uiGroup( this, "Page 2" );
 
     colorfld = new uiColorInput( grp,
-			         uiColorInput::Setup(getRandStdDrawColor() ).
+				 uiColorInput::Setup(OD::getRandStdDrawColor()).
 				 lbltxt("Object color") );
     colorfld->colorChanged.notify( mCB(this,Wizard,colorChangeCB) );
 
@@ -528,7 +528,7 @@ bool Wizard::finalizeCycle()
 void Wizard::isStarting()
 {
     seedbox.setEmpty();
-    colorfld->setColor( getRandStdDrawColor() );
+    colorfld->setColor( OD::getRandStdDrawColor() );
 }
 
 
