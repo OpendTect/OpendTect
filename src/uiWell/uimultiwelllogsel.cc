@@ -50,9 +50,8 @@ ________________________________________________________________________
 
 uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     : uiGroup( p, "Select Z Range" )
-    , zchoicefld_(0)
-    , params_(new Well::ZRangeSelector())
     , ztimefac_(SI().showZ2UserFactor())
+    , params_(new Well::ZRangeSelector())
 {
     const bool withzintime = s.withzintime_ && SI().zIsTime();
     const char** zchoice = Well::ExtractParams::ZSelectionNames();
@@ -253,7 +252,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     delete params_;
     params_ = new Well::ExtractParams();
 
-    CallBack cb(mCB(this,uiWellExtractParams,getFromScreen));
+    CallBack cb( mCB(this,uiWellExtractParams,getFromScreen) );
 
     if ( SI().zIsTime() && s.withextractintime_ )
     {
@@ -375,13 +374,13 @@ void uiWellExtractParams::getFromScreen( CallBacker* cb )
 
 
 
-uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
-				      const BufferStringSet* wellnms,
-				      const BufferStringSet* lognms )
-    : uiWellExtractParams(p,s)
-    , singlewid_(nullptr)
-    , wellsfld_(nullptr)
-    , logsfld_(nullptr)
+// uiMultiWellLogSel
+uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p,
+				const uiWellExtractParams::Setup& s,
+				const BufferStringSet* wellnms,
+				const BufferStringSet* lognms )
+    : uiGroup(p,"Multi WellLog Selection")
+    , setup_(s)
 {
     init();
     update();
@@ -393,12 +392,12 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
 }
 
 
-uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
-				      const MultiID& singlewid )
-    : uiWellExtractParams(p,s)
+uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p,
+				const uiWellExtractParams::Setup& s,
+				const MultiID& singlewid )
+    : uiGroup(p,"Multi WellLog Selection")
+    , setup_(s)
     , singlewid_(&singlewid)
-    , wellsfld_(nullptr)
-    , logsfld_(nullptr)
 {
     init();
     update();
@@ -410,16 +409,13 @@ void uiMultiWellLogSel::init()
     const uiObject::SzPolicy hpol = uiObject::MedMax;
     const uiObject::SzPolicy vpol = uiObject::WideMax;
     const OD::ChoiceMode chmode =
-	singlelog_ ? OD::ChooseOnlyOne : OD::ChooseAtLeastOne;
-    uiListBox::Setup su( chmode, singlelog_ ? uiStrings::sLog() :
-							    uiStrings::sLogs(),
-			 singlewid_ ? uiListBox::LeftTop : uiListBox::AboveMid);
+	setup_.singlelog_ ? OD::ChooseOnlyOne : OD::ChooseAtLeastOne;
+    uiListBox::Setup su( chmode,
+	setup_.singlelog_ ? uiStrings::sLog() : uiStrings::sLogs(),
+	singlewid_ ? uiListBox::LeftTop : uiListBox::AboveMid);
     logsfld_ = new uiListBox( this, su );
     logsfld_->setHSzPol( hpol );
     logsfld_->setVSzPol( vpol );
-
-    wellsfld_ = 0; wellschoiceio_ = 0;
-    zchoicefld_->attach( ensureBelow, logsfld_ );
 
     if ( !singlewid_ )
     {
@@ -440,7 +436,11 @@ void uiMultiWellLogSel::init()
 		   uiMultiWellLogSel::writeWellChoiceReq );
     }
 
-    zchoicefld_->attach( alignedBelow, wellsfld_ ? wellsfld_ : logsfld_ );
+    setHAlignObj( singlewid_ ? logsfld_->attachObj() : wellsfld_->attachObj() );
+
+    wellparsfld_ = new uiWellExtractParams( this, setup_ );
+    wellparsfld_->attach( alignedBelow, wellsfld_ ? wellsfld_ : logsfld_ );
+    wellparsfld_->attach( ensureBelow, logsfld_ );
 }
 
 
@@ -558,7 +558,7 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
     }
 
     logsfld_->addItems( availablelognms );
-    setMarkers( availablemrkrs );
+    wellparsfld_->setMarkers( availablemrkrs );
 }
 
 
@@ -651,4 +651,22 @@ void uiMultiWellLogSel::writeWellChoiceReq( CallBacker* )
     wellschoiceio_->keys().setEmpty();
     for ( int idx=0; idx<wellobjs_.size(); idx++ )
 	wellschoiceio_->keys().add( wellobjs_[idx]->key() );
+}
+
+
+void uiMultiWellLogSel::setExtractParams( const Well::ExtractParams& pars )
+{
+    wellparsfld_->setWellExtractParams( pars );
+}
+
+
+Well::ExtractParams& uiMultiWellLogSel::params()
+{
+    return wellparsfld_->params();
+}
+
+
+const Well::ExtractParams& uiMultiWellLogSel::params() const
+{
+    return wellparsfld_->params();
 }

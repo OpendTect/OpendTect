@@ -69,7 +69,7 @@ protected:
 
     ObjectSet<uiGroup>	zselectionflds_;
     ObjectSet<uiLabel>	zlabelflds_;
-    uiGenInput*         zchoicefld_;
+    uiGenInput*		zchoicefld_		= nullptr;
 
     int			selidx_;
     float		ztimefac_;
@@ -134,13 +134,15 @@ protected:
 
 
 
-mExpClass(uiWell) uiMultiWellLogSel : public uiWellExtractParams
+mExpClass(uiWell) uiMultiWellLogSel : public uiGroup
 { mODTextTranslationClass(uiMultiWellLogSel);
 public:
-			uiMultiWellLogSel(uiParent*,const Setup&,
-					  const BufferStringSet* wellnms=0,
-					  const BufferStringSet* lognms=0);
-			uiMultiWellLogSel(uiParent*,const Setup&,
+			uiMultiWellLogSel(uiParent*,
+					const uiWellExtractParams::Setup&,
+					const BufferStringSet* wellnms=0,
+					const BufferStringSet* lognms=0);
+			uiMultiWellLogSel(uiParent*,
+					const uiWellExtractParams::Setup&,
 					const MultiID& singlewid);
 			~uiMultiWellLogSel();
 
@@ -161,15 +163,21 @@ public:
     mDeprecated("Use getSelWellIDs(TypeSet<MultiID>&)")
     void		getSelWellIDs(BufferStringSet&) const;
 
+    void		setExtractParams(const Well::ExtractParams&);
+    Well::ExtractParams&	params();
+    const Well::ExtractParams&	params() const;
+
 protected:
 
+    const uiWellExtractParams::Setup& setup_;
     ObjectSet<IOObj>	wellobjs_;
 
-    const MultiID*	singlewid_;
+    const MultiID*	singlewid_	= nullptr;
 
-    uiListBox*		wellsfld_;
-    uiListBox*		logsfld_;
-    uiListBoxChoiceIO*	wellschoiceio_;
+    uiListBox*		wellsfld_	= nullptr;
+    uiListBox*		logsfld_	= nullptr;
+    uiListBoxChoiceIO*	wellschoiceio_	= nullptr;
+    uiWellExtractParams*	wellparsfld_;
 
     void		init();
     void		onFinalize(CallBacker*);

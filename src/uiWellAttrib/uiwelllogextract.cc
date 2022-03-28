@@ -74,11 +74,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 						.arg(SI().getUiXYUnitString());
     radiusfld_ = new uiGenInput( this, radiusbuf,
 				 FloatInpSpec((float)((int)(inldist+.5))) );
-    if ( attrsfld_ )
-	radiusfld_->attach( alignedBelow, attrsfld_ );
-    else
-	radiusfld_->attach( alignedBelow, welllogselfld_ );
-    radiusfld_->attach( ensureBelow, welllogselfld_ );
+    radiusfld_->attach( alignedBelow, welllogselfld_ );
 
     if ( ads_ && !ads_->is2D() )
     {
