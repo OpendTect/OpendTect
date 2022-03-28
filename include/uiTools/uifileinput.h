@@ -136,4 +136,6 @@ public:
 			~uiASCIIFileInput();
 
 protected:
+
+    void		fileSelCB(CallBacker*);
 };
