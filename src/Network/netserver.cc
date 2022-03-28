@@ -376,39 +376,17 @@ void Network::Authority::setHostAddress( const char* host, bool resolveipv6 )
 
     qhost_ = hostnm;
     if ( hostnm.isEmpty() )
-	qhostaddr_.setAddress( QHostAddress::Any );
+	qhostaddr_.setAddress( QHostAddress::Null );
     else
 	qhostaddr_.setAddress( qhost_ );
 
-    const QAbstractSocket::NetworkLayerProtocol prtocolval =
-							qhostaddr_.protocol();
-    hostisaddress_ = prtocolval >
+    hostisaddress_ = qhostaddr_.protocol() !=
 		     QAbstractSocket::UnknownNetworkLayerProtocol;
 
-    if ( hostisaddress_ )
-    {
-#ifdef  __win__
-	if ( prtocolval == QAbstractSocket::IPv4Protocol &&
-			    qhostaddr_ == QHostAddress(QHostAddress::AnyIPv4) )
-	{
-	    const BufferString localaddr(
-			System::hostAddress(Socket::sKeyLocalHost()) );
-	    qhostaddr_.setAddress( QString(localaddr) );
-	}
-	else if ( prtocolval == QAbstractSocket::IPv6Protocol &&
-			    qhostaddr_ == QHostAddress(QHostAddress::AnyIPv6) )
-	{
-	    const BufferString localaddr(
-		   System::hostAddress(Socket::sKeyLocalHost(),false));
-	    qhostaddr_.setAddress( QString(localaddr) );
-	}
-#endif
-    }
-    else
+    if ( !hostisaddress_ )
     {
 	qhostaddr_.setAddress(
 			QString(System::hostAddress(hostnm,!resolveipv6)) );
-
     }
 
     if ( qhostaddr_.isNull() )
@@ -595,7 +573,7 @@ Network::Authority Network::Server::authority() const
 
     const QHostAddress qaddr = qtcpserver_->serverAddress();
     BufferString addr;
-    if ( qaddr.protocol() > QAbstractSocket::UnknownNetworkLayerProtocol )
+    if ( qaddr.protocol() != QAbstractSocket::UnknownNetworkLayerProtocol )
 	addr.set( qaddr.toString() );
 
     return ret.setHost( addr ).setPort( port() );
