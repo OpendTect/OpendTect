@@ -8,6 +8,8 @@
 #include "sorting.h"
 
 #include "arrayndalgo.h"
+#include "file.h"
+#include "filepath.h"
 #include "sorting.h"
 #include "statrand.h"
 #include "statparallelcalc.h"
@@ -17,6 +19,9 @@
 #include "varlenarray.h"
 
 #include <limits>
+
+static bool secondpass_ = false;
+static BufferString logfilenm_;
 
 #define mTic() \
 { \
@@ -28,7 +33,7 @@
     if ( dotime ) \
     { \
 	elapsed = counter.elapsed(); \
-	tstStream() << "Drawn in: " << elapsed << "ms\n"; \
+	ostrm << "Drawn in: " << elapsed << "ms\n"; \
     } \
 }
 
@@ -36,33 +41,48 @@
 { \
     if ( dodiff ) \
     { \
-	tstStream() << msg << "; Absolute difference: " ; \
-	tstStream() << toStringPrecise(Math::Abs(expval-res)) << od_newline;\
+	ostrm << msg << "; Absolute difference: " ; \
+	ostrm << toStringPrecise(Math::Abs(expval-res)) << od_newline;\
 	if ( !mIsZero(expval,1e-6f) ) \
 	{ \
-	    tstStream() << msg << "; Relative difference: " ; \
-	    tstStream() << toStringPrecise(Math::Abs((expval-res)/expval)); \
-	    tstStream() << od_newline; \
+	    ostrm << msg << "; Relative difference: " ; \
+	    ostrm << toStringPrecise(Math::Abs((expval-res)/expval)); \
+	    ostrm << od_newline; \
 	} \
     } \
     else \
     {  \
-	mRunStandardTestWithError( mIsEqual(res,expval,useeps), msg, \
-	    BufferString( "Expected: ", toStringPrecise(expval), \
-		" - got: " ).add( toStringPrecise(res))  ); \
+	const bool isok = mIsEqual(res,expval,useeps); \
+	if ( isok ) \
+	    ostrm << "[OK] " << msg << od_newline; \
+	else \
+	{ \
+	    ostrm << msg << ": Expected: " << toStringPrecise(expval); \
+	    ostrm << " - got: " << toStringPrecise(res) << od_newline; \
+	    if ( !secondpass_ ) \
+		return false; \
+	} \
     } \
 }
 #define mTestValI( expval, res, useeps, msg ) \
 { \
     if ( dodiff ) \
     { \
-	tstStream() << msg << "; Absolute difference: " ; \
-	tstStream() << toStringPrecise(Math::Abs(expval-res)) << od_newline;\
+	ostrm << msg << "; Absolute difference: " ; \
+	ostrm << toStringPrecise(Math::Abs(expval-res)) << od_newline;\
     } \
     else \
     {  \
-	mRunStandardTestWithError( mIsEqual(res,expval,useeps), msg, \
-	    BufferString( "Expected: ", expval, " - got: " ).add( res ) ); \
+	const bool isok = mIsEqual(res,expval,useeps); \
+	if ( isok ) \
+	    ostrm << "[OK] " << msg << od_newline; \
+	else \
+	{ \
+	    ostrm << msg << ": Expected: " << expval; \
+	    ostrm << " - got: " << res << od_newline; \
+	    if ( !secondpass_ ) \
+		return false; \
+	} \
     } \
 }
 
@@ -118,6 +138,19 @@ static bool testParallelQuickSort()
 
 static bool testRandom( bool dodiff, bool dotime )
 {
+    PtrMan<od_ostream> strm;
+    if ( quiet_ )
+    {
+	const bool doappend = !logfilenm_.isEmpty();
+	if ( !doappend )
+	    logfilenm_ = FilePath::getTempFullPath( "test_sorting_log", "txt" );
+	strm = new od_ostream( logfilenm_, doappend );
+	if ( doappend )
+	    strm->setWritePosition( 0, od_stream::End );
+    }
+
+    od_ostream& ostrm = strm && strm->isOK() ? *strm.ptr() : tstStream();
+
     static double epsavg = 1e-4;
     static double epsstd = 1e-3;
     static int sz = 1024*1024*20; //1sec runtime with eps precision
@@ -319,6 +352,14 @@ static bool testRandom( bool dodiff, bool dotime )
     mTestValD( expstddevf, float(stddevf), epsstd,
 	       "Gaussian stddev - ArrayMath - float" );
 
+    if ( strm )
+    {
+	strm->close();
+	strm = nullptr;
+	if ( !secondpass_ )
+	    File::remove( logfilenm_ );
+    }
+
     return true;
 }
 
@@ -327,8 +368,17 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
+    if ( !testParallelQuickSort() )
+	return 1;
+
     const bool printdiff = clParser().hasKey( "dodiff" );
     const bool printtime = clParser().hasKey( "dotime" );
+    const bool firstres = testRandom( printdiff, printtime );
+    if ( !firstres )
+    {
+	secondpass_ = true;
+	testRandom( true, false );
+    }
 
-    return testRandom(printdiff,printtime) && testParallelQuickSort() ? 0 : 1;
+    return firstres ? 0 : 1;
 }
