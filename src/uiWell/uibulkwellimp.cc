@@ -609,6 +609,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	if ( newwellinfo || adjustedwelltrack )
 	    wtr.putInfoAndTrack();
 	wtr.putLogs();
+	wd->logschanged.trigger( -1 );
     }
 
     if ( errors.isEmpty() )

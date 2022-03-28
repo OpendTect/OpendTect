@@ -527,6 +527,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
     const int addstartidx = wd_->logs().size();
     BoolTypeSet issel( inplfi.size(), false );
 
+    BufferStringSet storedlognms = wd_->storedLogNames();
     const BufferStringSet& lognms =
 		usecurvenms ? inplfi.logcurves_ : inplfi.lognms_;
     for ( int idx=0; idx<lognms.size(); idx++ )
@@ -536,16 +537,19 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
 	const bool ispresent = lfi.lognms_.isPresent( lognm );
 	if ( !ispresent )
 	    continue;
-	if ( wd_->logs().getLog(lognm) )
+
+	int nr = 1;
+	BufferString newlognm = lognm;
+	while ( storedlognms.isPresent(newlognm) )
 	{
-	    BufferString msg( lognm );
-	    msg += " already exists, will be ignored.";
-	    pErrMsg( msg );
-	    continue;
+	    nr++;
+	    newlognm.set( lognm ).add( " (" ).add( nr ).add( ")" );
 	}
 
 	issel[idx] = true;
-	auto* newlog = new Well::Log( lognm );
+	auto* newlog = new Well::Log( newlognm );
+	storedlognms.add( newlognm.buf() );
+
 	BufferString unlbl;
 	if ( convs_[colnr] )
 	{
