@@ -300,7 +300,7 @@ const BufferStringSet PropertyRef::aliases() const
 }
 
 
-PropertyRef* PropertyRef::get( const IOPar& iop )
+PropertyRef* PropertyRef::get( const IOPar& iop, Repos::Source src )
 {
     Mnemonic::StdType st = Mnemonic::undef().stdType();
     BufferString propnm;
@@ -329,11 +329,15 @@ PropertyRef* PropertyRef::get( const IOPar& iop )
 
     const Mnemonic* mnptr = mn.isEmpty() ? &MNC().getGuessed( st, &hintnms )
 					 : MNC().getByName( mn );
+    if ( src == Repos::Data || src == Repos::Survey || src == Repos::User )
+	mnptr = getFromLegacy( mnptr, propnm );
+
     if ( !mnptr || mnptr->isUdf() )
 	return nullptr;
 
     auto* ret = new PropertyRef( *mnptr, propnm );
     ret->usePar( iop );
+    ret->source_ = src;
 
     return ret;
 }
@@ -430,6 +434,55 @@ void PropertyRef::fillPar( IOPar& iop ) const
 }
 
 
+const Mnemonic* PropertyRef::getFromLegacy( const Mnemonic* mn,
+					    const char* propstr )
+{
+    const BufferString propnm( propstr );
+    if ( propnm == standardDenStr() )
+	return &Mnemonic::defDEN();
+    if ( propnm == standardPVelStr() )
+	return &Mnemonic::defPVEL();
+    if ( propnm == standardSVelStr() )
+	return &Mnemonic::defSVEL();
+    if ( propnm == "Shear Sonic" )
+	return &Mnemonic::defDTS();
+    if ( propnm == "Acoustic Impedance" )
+	return &Mnemonic::defAI();
+    if ( propnm.startsWith( "Elastic Impedance") )
+	return MNC().getByName( "EI", false );
+    if ( propnm == "Shear Impedance" )
+	return &Mnemonic::defSI();
+    if ( propnm == "Water Saturation" )
+	return &Mnemonic::defSW();
+    if ( propnm == "Poissons Ratio" )
+	return MNC().getByName( "PR", false );
+    if ( propnm == "Vp/Vs" )
+	return MNC().getByName( "VPVS", false );
+    if ( propnm == "LambdaRho" )
+	return MNC().getByName( "LR", false );
+    if ( propnm == "MuRho" )
+	return MNC().getByName( "MR", false );
+    if ( propnm == "Vshale" )
+	return MNC().getByName( "VCL", false );
+    if ( propnm == "Delta" )
+	return MNC().getByName( "DEL", false );
+    if ( propnm == "Epsilon" )
+	return MNC().getByName( "EPS", false );
+    if ( propnm == "Eta" )
+	return MNC().getByName( "ETA", false );
+    if ( propnm == "NetPay" )
+	return MNC().getByName( "NETP", false );
+    if ( propnm == "Reservoir" )
+	return MNC().getByName( "RSV", false );
+    if ( propnm == "Pressure" )
+	return MNC().getByName( "PP", false );
+    if ( propnm == "Compressibility" )
+	return MNC().getByName( "CB", false );
+
+    return mn;
+}
+
+
 const PropertyRef& PropertyRef::thickness()
 {
     return *getPropRef_ThickRef_Man()->ref_;
@@ -471,7 +524,7 @@ void createSet()
 	ascistream astrm( sfio.istrm(), true );
 	PropertyRefSet* oldprs = prs_;
 	prs_ = new PropertyRefSet;
-	prs_->readFrom( astrm );
+	prs_->readFrom( astrm, rfp.source() );
 	sfio.closeSuccess();
 	if ( prs_->isEmpty() )
 	{
@@ -650,7 +703,7 @@ PropertyRefSet& PropertyRefSet::doAdd( PropertyRef* pr )
 }
 
 
-void PropertyRefSet::readFrom( ascistream& astrm )
+void PropertyRefSet::readFrom( ascistream& astrm, Repos::Source src )
 {
     deepErase( *this );
 
@@ -661,7 +714,7 @@ void PropertyRefSet::readFrom( ascistream& astrm )
 	if ( getByName(propnm,false) )
 	    continue;
 
-	PropertyRef* pr = PropertyRef::get( iop );
+	PropertyRef* pr = PropertyRef::get( iop, src );
 	add( pr );
     }
 }

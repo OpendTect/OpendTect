@@ -53,7 +53,8 @@ Pascal.g/cm3: Pressure-Weight`Pa.g/cm3`1e3
 GigaPascal.Kg/m3: Pressure-Weight`GPa.Kg/m3`1e9
 GigaPascal.g/cm3: Pressure-Weight`GPa.g/cm3`1e12
 1/Pascal: Compressibility`1/Pa`1
-GN/m2: Compressibility`GN/m2`1e9
+1/GigaPascal: Compressibility`1/GPa`1e-9
+1/Psi: Compressibility`1/Psi`1.45038e-4
 Degrees Celcius: Temperature`deg.C`1`273.15
 Degrees Fahrenheit: Temperature`deg.F`0.5555555`255.3722222222222222
 Kelvin: Temperature`K`1

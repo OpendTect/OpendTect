@@ -40,7 +40,7 @@ public:
 
     virtual PropertyRef* clone() const	{ return new PropertyRef(*this); }
 
-    static PropertyRef* get(const IOPar&);
+    static PropertyRef* get(const IOPar&,Repos::Source);
 
     PropertyRef&	operator =(const PropertyRef&);
     bool		operator ==(const PropertyRef&) const;
@@ -115,11 +115,13 @@ protected:
     BufferStringSet	propaliases_;
     MathProperty*	mathdef_ = nullptr;
     const UnitOfMeasure* uom_ = nullptr;
+    Repos::Source	source_ = Repos::Temp;
 
     friend class PropertyRefSet;
     friend class uiEditPropRef;
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
+    static const Mnemonic* getFromLegacy(const Mnemonic*,const char* propnm);
 
 };
 
@@ -153,7 +155,7 @@ private:
 
     PropertyRefSet&	doAdd(PropertyRef*) override;
 
-    void		readFrom(ascistream&);
+    void		readFrom(ascistream&,Repos::Source);
     bool		writeTo(ascostream&) const;
     bool		save(Repos::Source) const;
 
