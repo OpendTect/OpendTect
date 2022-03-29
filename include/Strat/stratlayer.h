@@ -103,6 +103,9 @@ public:
     BufferString	dumpStr() const;
     virtual void	setXPos(float)			{}
 
+protected:
+			LayerValue()			{}
+
 };
 
 
@@ -110,15 +113,16 @@ mExpClass(Strat) SimpleLayerValue : public LayerValue
 { mODTextTranslationClass(SimpleLayerValue);
 public:
 			SimpleLayerValue( float val )
-			    : val_ (val)		{}
-    SimpleLayerValue*	clone(const Layer* =nullptr) const
+			    : LayerValue()
+			    , val_ (val)		{}
+    SimpleLayerValue*	clone(const Layer* =nullptr) const override
 			{ return new SimpleLayerValue(val_); }
 
-    virtual bool	isSimple() const		{ return true; }
-    virtual float	value() const			{ return val_; }
+    bool		isSimple() const override	{ return true; }
+    float		value() const override		{ return val_; }
     void		setValue( float val )		{ val_ = val; }
 
-protected:
+private:
 
     float		val_;
 
@@ -140,14 +144,14 @@ public:
 					  const PropertyRefSelection&,
 					  int outpridx);
 			~FormulaLayerValue();
-    FormulaLayerValue*	clone(const Layer*) const;
+    FormulaLayerValue*	clone(const Layer*) const override;
 
     bool		isBad() const		{ return !errmsg_.isEmpty(); }
     uiString		errMsg() const		{ return errmsg_; }
     void		fillPar(IOPar&) const;
-    virtual void	setXPos(float);
+    void		setXPos(float) override;
 
-    virtual float	value() const;
+    float		value() const override;
 
 protected:
 

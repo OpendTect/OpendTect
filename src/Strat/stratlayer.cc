@@ -35,7 +35,8 @@ BufferString Strat::LayerValue::dumpStr() const
 Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 	const Layer& lay, const PropertyRefSelection& prs, int outpridx,
 	float xpos )
-    : form_(form)
+    : LayerValue()
+    , form_(form)
     , lay_(lay)
     , myform_(false)
 {
@@ -47,7 +48,8 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
 		const Layer& lay, const PropertyRefSelection& prs,
 		int outpridx )
-    : form_(*new Math::Formula(false,MathProperty::getSpecVars()))
+    : LayerValue()
+    , form_(*new Math::Formula(false,MathProperty::getSpecVars()))
     , lay_(lay)
     , myform_(true)
     , xpos_(0.f)
@@ -64,7 +66,8 @@ Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
 
 Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 			    const Layer& lay, float xpos, bool cpform )
-    : form_(cpform ? *new Math::Formula(form) : form)
+    : LayerValue()
+    , form_(cpform ? *new Math::Formula(form) : form)
     , myform_(cpform)
     , lay_(lay)
 {
@@ -281,7 +284,10 @@ void Strat::Layer::setValue( int ival, float val )
     if ( lv && lv->isSimple() )
 	static_cast<SimpleLayerValue*>(lv)->setValue( val );
     else
-	setLV( ival, new SimpleLayerValue(val) );
+    {
+	lv = new SimpleLayerValue( val );
+	setLV( ival, lv );
+    }
 }
 
 
