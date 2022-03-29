@@ -127,6 +127,8 @@ public:
     bool	doWork(od_int64,od_int64,int);
     uiString	uiMessage() const
 		{ return tr("Implicit body to MarchingCubes: Contouring"); }
+    uiString	uiNrDoneText() const
+		{ return tr("Nr done"); }
 
 
 protected:

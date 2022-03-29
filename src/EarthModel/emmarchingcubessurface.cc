@@ -304,19 +304,20 @@ Executor* MarchingCubesSurface::saver()
 { return saver(0); }
 
 
-Executor* MarchingCubesSurface::saver( IOObj* inpioobj )
+Executor* MarchingCubesSurface::saver( const IOObj* inpioobj )
 {
-    PtrMan<IOObj> myioobj = 0;
-    IOObj* ioobj = 0;
+    PtrMan<IOObj> ioobj = nullptr;
     if ( inpioobj )
-	ioobj = inpioobj;
+	ioobj = inpioobj->clone();
     else
-    {
-	myioobj = IOM().get( multiID() );
-	ioobj = myioobj;
-    }
+	ioobj = IOM().get( multiID() );
 
-    Conn* conn = ioobj ? ioobj->getConn( Conn::Write ) : 0;
+    if ( !ioobj )
+	return nullptr;
+
+    ioobj->pars().set( sKey::Type(), getTypeStr() );
+    IOM().commitChanges( *ioobj );
+    Conn* conn = ioobj->getConn( Conn::Write );
     return conn ? new MarchingCubesSurfaceWriter( *this, conn, true ) : 0;
 }
 

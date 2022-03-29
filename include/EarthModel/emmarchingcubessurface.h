@@ -41,7 +41,7 @@ public:
 								  { return 0; }
     virtual Executor*		loader();
     virtual Executor*		saver();
-    virtual Executor*		saver(IOObj*);
+    virtual Executor*		saver(const IOObj*);
     virtual bool		isEmpty() const;
 
     const IOObjContext&		getIOObjContext() const;
@@ -56,6 +56,7 @@ public:
     void			setInlSampling(const SamplingData<int>&);
     void			setCrlSampling(const SamplingData<int>&);
     void			setZSampling(const SamplingData<float>&);
+    void			setSampling(const TrcKeyZSampling&);
 
     ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
     bool			getBodyRange(TrcKeyZSampling& cs);
