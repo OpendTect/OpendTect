@@ -143,18 +143,18 @@ private:
 // For impl of Property subclasses. gtVal and the last three must be provided.
 #define mDefPropertyFns(clss,typstr) \
 protected: \
-    virtual float	gtVal(EvalOpts) const; \
+    float		gtVal(EvalOpts) const override; \
 public: \
     static const char*	typeStr()		{ return typstr; } \
-    virtual const char* type() const		{ return typeStr(); } \
-    virtual const char* factoryKeyword() const	{ return type(); } \
+    const char*		type() const override	{ return typeStr(); } \
+    const char*		factoryKeyword() const override	{ return type(); } \
     static Property*	create( const PropertyRef& pr ) \
 						{ return new clss(pr); } \
-    virtual clss*	clone() const		{ return new clss( *this ); }\
+    clss*		clone() const override	{ return new clss( *this ); }\
     static void		initClass() { factory().addCreator(create,typeStr());} \
-    virtual const char*	def() const; \
-    virtual void	setDef(const char*); \
-    virtual bool	isUdf() const;
+    const char*		def() const override; \
+    void		setDef(const char*) override; \
+    bool		isUdf() const override;
 
 
 
@@ -191,7 +191,7 @@ public:
 				      const Interval<float>&);
 			~RangeProperty();
 
-    bool		isRange() const			{ return true; }
+    bool		isRange() const override	{ return true; }
 
     Interval<float>	rg_;
 

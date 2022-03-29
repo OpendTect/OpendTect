@@ -35,7 +35,7 @@ public:
 			MathProperty(const MathProperty&);
 			~MathProperty();
 
-    bool		isFormula() const		{ return true; }
+    bool		isFormula() const override	{ return true; }
 
     Math::Formula&	getForm()		{ return form_; }
     const Math::Formula& getForm() const	{ return form_; }

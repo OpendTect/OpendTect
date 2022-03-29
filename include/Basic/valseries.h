@@ -46,8 +46,8 @@ public:
     virtual bool	reSizeable() const		{ return false; }
     virtual bool	setSize(od_int64)		{ return false; }
 
-    virtual T*		arr()				{ return 0; }
-    virtual const T*	arr() const			{ return 0; }
+    virtual T*		arr()				{ return nullptr; }
+    virtual const T*	arr() const			{ return nullptr; }
 
     virtual od_int64	size() const			= 0;
     virtual char	bytesPerItem() const		{ return sizeof(T); }
@@ -67,7 +67,7 @@ ValueSeriesGetAll(const ValueSeries<T>& from,
 		  ValueSeries<T>& to, od_int64 nrelements )
     : from_( from )
     , to_( &to )
-    , toptr_( 0 )
+    , toptr_( nullptr )
     , nrelements_( nrelements )
 {
 }
@@ -76,7 +76,7 @@ ValueSeriesGetAll(const ValueSeries<T>& from, T* to,
 		  od_int64 nrelements	)
     : from_( from )
     , toptr_( to )
-    , to_( 0 )
+    , to_( nullptr )
     , nrelements_( nrelements )
 {
 }

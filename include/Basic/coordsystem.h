@@ -116,7 +116,7 @@ public:
     BufferString summary() const override { return sFactoryKeyword(); }
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
-    bool		geographicTransformOK() const	{ return false; }
+    bool		geographicTransformOK() const override	{ return false; }
 
     bool		isOK() const override		{ return true; }
     bool		isOrthogonal() const override	{ return true; }
@@ -152,7 +152,7 @@ public:
     BufferString	summary() const override;
 
     void		setIsFeet( bool isfeet ) { isfeet_ = isfeet; }
-    bool		geographicTransformOK() const;
+    bool		geographicTransformOK() const override;
     void		setLatLongEstimate(const LatLong&,const Coord&);
 
     bool		isOK() const override		{ return true; }
@@ -178,8 +178,8 @@ private:
 
     double		lngdist_	= mUdf(double);
 
-    virtual bool	doUsePar(const IOPar&);
-    virtual void	doFillPar(IOPar&) const;
+    virtual bool	doUsePar(const IOPar&) override;
+    virtual void	doFillPar(IOPar&) const override;
 
 };
 

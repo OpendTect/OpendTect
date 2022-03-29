@@ -37,9 +37,9 @@ protected:
     bool		setStorageInternal(ValueSeries<T>*);
     bool		getDataFrom(const ArrayND<T>& templ);
 
-    ValueSeries<T>*	stor_;
-    T*			ptr_;	//not owned, only a shortcut
-				//for the 99% percent case
+    ValueSeries<T>*	stor_ = nullptr;
+    T*			ptr_ = nullptr;	//not owned, only a shortcut
+					//for the 99% percent case
 };
 
 
@@ -60,33 +60,34 @@ public:
     Array1DImpl<T>&	operator =( const Array1DImpl<T>& ai )
 			    { copyFrom(ai); return *this; }
 
-    ValueSeries<T>*	clone() const
+    ValueSeries<T>*	clone() const override
 			    { return new Array1DImpl<T>(*this); }
 
-    bool		isOK() const { return base::storageOK(); }
+    bool		isOK() const override	{ return base::storageOK(); }
     void		copyFrom(const Array1D<T>&);
-    bool		setStorage(ValueSeries<T>* vs)
+    bool		setStorage( ValueSeries<T>* vs ) override
 			    { return base::setStorageInternal(vs); }
-    bool		canSetStorage() const	{ return true; }
+    bool		canSetStorage() const override	{ return true; }
 
-    void		set(int pos,T);
-    T			get(int pos) const;
+    void		set(int pos,T) override;
+    T			get(int pos) const override;
 
-    const Array1DInfo&	info() const		{ return in_; }
-    bool		canSetInfo() const	{ return true; }
-    bool		setInfo(const ArrayNDInfo&);
+    const Array1DInfo&	info() const override		{ return in_; }
+    bool		canSetInfo() const override	{ return true; }
+    bool		setInfo(const ArrayNDInfo&) override;
     bool		setSize(int);
-    bool		setSize( od_int64 sz )
+    bool		setSize( od_int64 sz ) override
 			    { return setSize( ((int)sz) ); }
 
 			// ValueSeries interface
-    T*			arr()			{ return base::ptr_; }
-    const T*		arr() const		{ return base::ptr_; }
+    T*			arr() override		{ return base::ptr_; }
+    const T*		arr() const override	{ return base::ptr_; }
 
 protected:
-    const T*		getData_() const	{ return base::ptr_; }
-    const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return in_.getTotalSz(); }
+    const T*		getData_() const override	{ return base::ptr_; }
+    const ValueSeries<T>* getStorage_() const override	{ return base::stor_; }
+    od_int64		getStorageSize() const override
+			{ return in_.getTotalSz(); }
 
     Array1DInfoImpl	in_;
 
@@ -112,33 +113,34 @@ public:
     Array2DImpl<T>&	operator =( const Array2DImpl<T>& ai )
 			    { copyFrom(ai); return *this; }
 
-    bool		isOK() const { return base::storageOK(); }
-    bool		canSetStorage() const		{ return true; }
-    bool		setStorage(ValueSeries<T>* vs);
+    bool		isOK() const override	{ return base::storageOK(); }
+    bool		canSetStorage() const override		{ return true; }
+    bool		setStorage(ValueSeries<T>*) override;
 
-    void		set(int,int,T);
-    T			get(int,int) const;
+    void		set(int,int,T) override;
+    T			get(int,int) const override;
     void		copyFrom(const Array2D<T>&);
 
-    const Array2DInfo&	info() const		{ return in_; }
-    bool		canSetInfo() const	{ return true; }
+    const Array2DInfo&	info() const override		{ return in_; }
+    bool		canSetInfo() const override	{ return true; }
 
-    bool		setInfo(const ArrayNDInfo&);
+    bool		setInfo(const ArrayNDInfo&) override;
     bool		setSize(int,int);
 
-    T**			get2DData()		{ return ptr2d_; }
-    const T**		get2DData() const	{ return (const T**) ptr2d_; }
+    T**			get2DData() override		{ return ptr2d_; }
+    const T**		get2DData() const override { return (const T**) ptr2d_;}
 
 protected:
     void		updateStorage();
-    const T*		getData_() const	{ return base::ptr_; }
-    const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return in_.getTotalSz(); }
+    const T*		getData_() const override	{ return base::ptr_; }
+    const ValueSeries<T>* getStorage_() const override	{ return base::stor_; }
+    od_int64		getStorageSize() const override
+			{ return in_.getTotalSz(); }
 
     void		updateCachePointers();
 
     Array2DInfoImpl	in_;
-    T**			ptr2d_;
+    T**			ptr2d_ = nullptr;
 };
 
 
@@ -160,33 +162,35 @@ public:
     Array3DImpl<T>&	operator =( const Array3DImpl<T>& ai )
 			    { copyFrom(ai); return *this; }
 
-    bool		isOK() const { return base::storageOK(); }
-    bool		canSetStorage() const	{ return true; }
-    bool		setStorage(ValueSeries<T>* vs);
+    bool		isOK() const override { return base::storageOK(); }
+    bool		canSetStorage() const override	{ return true; }
+    bool		setStorage(ValueSeries<T>*) override;
 
-    void		set(int,int,int,T);
-    T			get(int,int,int) const;
+    void		set(int,int,int,T) override;
+    T			get(int,int,int) const override;
     void		copyFrom(const Array3D<T>&);
 
-    const Array3DInfo&	info() const			{ return in_; }
-    bool		canSetInfo() const		{ return true; }
-    bool		setInfo(const ArrayNDInfo&);
+    const Array3DInfo&	info() const override		{ return in_; }
+    bool		canSetInfo() const override	{ return true; }
+    bool		setInfo(const ArrayNDInfo&) override;
     bool		setSize(int,int,int);
 
-    T***		get3DData()		{ return ptr3d_; }
-    const T***		get3DData() const	{ return (const T***) ptr3d_; }
+    T***		get3DData() override		{ return ptr3d_; }
+    const T***		get3DData() const override
+			{ return (const T***) ptr3d_; }
 
 protected:
     void		updateStorage();
-    const T*		getData_() const	{ return base::ptr_; }
-    const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return in_.getTotalSz(); }
+    const T*		getData_() const override	{ return base::ptr_; }
+    const ValueSeries<T>* getStorage_() const override	{ return base::stor_; }
+    od_int64		getStorageSize() const override
+			{ return in_.getTotalSz(); }
 
     void		updateCachePointers();
     void		eraseCache();
 
     TypeSet<T**>	cachestor_;
-    T***		ptr3d_;
+    T***		ptr3d_ = nullptr;
     Array3DInfoImpl	in_;
 };
 
@@ -207,34 +211,36 @@ public:
     Array4DImpl<T>&	operator =( const Array4DImpl<T>& ai )
 			    { copyFrom(ai); return *this; }
 
-    bool		isOK() const { return base::storageOK(); }
-    bool		canSetStorage() const	{ return true; }
-    bool		setStorage(ValueSeries<T>* vs);
+    bool		isOK() const override { return base::storageOK(); }
+    bool		canSetStorage() const override	{ return true; }
+    bool		setStorage(ValueSeries<T>*) override;
 
-    void		set(int,int,int,int,T);
-    T			get(int,int,int,int) const;
+    void		set(int,int,int,int,T) override;
+    T			get(int,int,int,int) const override;
     void		copyFrom(const Array4D<T>&);
 
-    const Array4DInfo&	info() const			{ return inf_; }
-    bool		canSetInfo() const		{ return true; }
-    bool		setInfo(const ArrayNDInfo&);
+    const Array4DInfo&	info() const override		{ return inf_; }
+    bool		canSetInfo() const override	{ return true; }
+    bool		setInfo(const ArrayNDInfo&) override;
     bool		setSize(int,int,int,int);
 
-    T****		get4DData()		{ return arr4d_; }
-    const T****		get4DData() const	{ return (const T****)arr4d_; }
+    T****		get4DData() override	{ return arr4d_; }
+    const T****		get4DData() const override
+			{ return (const T****)arr4d_; }
 
 protected:
 
     void		updateStorage();
-    const T*		getData_() const	{ return base::ptr_; }
-    const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return inf_.totalSize(); }
+    const T*		getData_() const override	{ return base::ptr_; }
+    const ValueSeries<T>* getStorage_() const override	{ return base::stor_; }
+    od_int64		getStorageSize() const override
+			{ return inf_.totalSize(); }
 
     void		updateCachePointers();
     void		eraseCache();
 
     TypeSet<T***>	cachestor_;
-    T****		arr4d_;
+    T****		arr4d_ = nullptr;
     Array4DInfoImpl	inf_;
 };
 
@@ -263,27 +269,28 @@ public:
 			    { copyFrom(ai); return *this; }
 			~ArrayNDImpl();
 
-    bool		isOK() const { return base::storageOK(); }
-    bool		canSetStorage() const	{ return true; }
-    bool		setStorage(ValueSeries<T>* vs)
+    bool		isOK() const override	{ return base::storageOK(); }
+    bool		canSetStorage() const override	{ return true; }
+    bool		setStorage( ValueSeries<T>* vs ) override
 			    { return base::setStorageInternal(vs); }
 
-    void		setND(const int*,T);
-    T			getND(const int*) const;
+    void		setND(const int*,T) override;
+    T			getND(const int*) const override;
 
-    const ArrayNDInfo&	info() const		{ return *in_; }
-    bool		canSetInfo() const	{ return true; }
-    bool		canChangeNrDims() const	{ return true; }
-    bool		setInfo(const ArrayNDInfo&);
+    const ArrayNDInfo&	info() const override		{ return *in_; }
+    bool		canSetInfo() const override	{ return true; }
+    bool		canChangeNrDims() const override { return true; }
+    bool		setInfo(const ArrayNDInfo&) override;
 
     bool		setSize(const int*);
     void		copyFrom(const ArrayND<T>&);
 
 protected:
 
-    const T*		getData_() const	{ return base::ptr_; }
-    const ValueSeries<T>* getStorage_() const	{ return base::stor_; }
-    od_int64		getStorageSize() const  { return in_->getTotalSz(); }
+    const T*		getData_() const override	{ return base::ptr_; }
+    const ValueSeries<T>* getStorage_() const override	{ return base::stor_; }
+    od_int64		getStorageSize() const override
+			{ return in_->getTotalSz(); }
 
     ArrayNDInfo*	in_;
 };
@@ -291,15 +298,13 @@ protected:
 
 template <class T> inline
 ArrayImplBase<T>::ArrayImplBase()
-    : stor_(0)
-    , ptr_(0)
-{ }
+{}
 
 
 template <class T> inline
 bool ArrayImplBase<T>::setStorageNoResize( ValueSeries<T>* s )
 {
-    ptr_ = 0;
+    ptr_ = nullptr;
     delete stor_;
 
     stor_ = s;
@@ -313,7 +318,7 @@ bool ArrayImplBase<T>::setStorageNoResize( ValueSeries<T>* s )
 template <class T> inline
 bool ArrayImplBase<T>::setStorageInternal( ValueSeries<T>* s )
 {
-    ptr_ = 0;
+    ptr_ = nullptr;
     if ( !s->setSize(getStorageSize()) )
     {
 	delete s;
@@ -335,9 +340,9 @@ bool ArrayImplBase<T>::updateStorageSize()
 
     if ( !stor_ || !stor_->setSize( getStorageSize() ) )
     {
-	ptr_ = 0;
+	ptr_ = nullptr;
 	delete stor_;
-	stor_ = 0;
+	stor_ = nullptr;
 	return false;
     }
 
@@ -458,7 +463,6 @@ bool Array1DImpl<T>::setSize( int s )
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( int sz0, int sz1 )
     : in_(sz0,sz1)
-    , ptr2d_(0)
 {
     updateStorage();
 }
@@ -467,7 +471,6 @@ Array2DImpl<T>::Array2DImpl( int sz0, int sz1 )
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2DInfo& nsz )
     : in_( nsz )
-    , ptr2d_(0)
 {
     updateStorage();
 }
@@ -476,7 +479,6 @@ Array2DImpl<T>::Array2DImpl( const Array2DInfo& nsz )
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2D<T>& templ )
     : in_(templ.info())
-    , ptr2d_(0)
 {
     updateStorage();
     copyFrom( templ );
@@ -486,7 +488,6 @@ Array2DImpl<T>::Array2DImpl( const Array2D<T>& templ )
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2DImpl<T>& templ )
     : in_(templ.info())
-    , ptr2d_(0)
 {
     updateStorage();
     copyFrom( templ );
@@ -601,7 +602,6 @@ void Array2DImpl<T>::updateCachePointers()
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( int sz0, int sz1, int sz2 )
     : in_(sz0,sz1,sz2)
-    , ptr3d_(0)
 {
     updateStorage();
 }
@@ -610,7 +610,6 @@ Array3DImpl<T>::Array3DImpl( int sz0, int sz1, int sz2 )
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3DInfo& nsz )
     : in_(nsz)
-    , ptr3d_(0)
 {
     updateStorage();
 }
@@ -619,7 +618,6 @@ Array3DImpl<T>::Array3DImpl( const Array3DInfo& nsz )
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3D<T>& templ )
     : in_(templ.info())
-    , ptr3d_(0)
 {
     updateStorage();
     copyFrom( templ );
@@ -629,7 +627,6 @@ Array3DImpl<T>::Array3DImpl( const Array3D<T>& templ )
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3DImpl<T>& templ )
     : in_(templ.info())
-    , ptr3d_(0)
 {
     updateStorage();
     copyFrom( templ );
@@ -722,7 +719,7 @@ void Array3DImpl<T>::eraseCache()
     }
 
     cachestor_.erase();
-    ptr3d_ = 0;
+    ptr3d_ = nullptr;
 }
 
 
@@ -757,10 +754,8 @@ void Array3DImpl<T>::updateCachePointers()
 //Array4DImpl---
 
 template <class T> inline
-Array4DImpl<T>::Array4DImpl( int sz0, int sz1, int sz2,
-			     int sz3 )
+Array4DImpl<T>::Array4DImpl( int sz0, int sz1, int sz2, int sz3 )
     : inf_(sz0,sz1,sz2,sz3)
-    , arr4d_(0)
 {
     updateStorage();
 }
@@ -769,7 +764,6 @@ Array4DImpl<T>::Array4DImpl( int sz0, int sz1, int sz2,
 template <class T> inline
 Array4DImpl<T>::Array4DImpl( const Array4DInfo& nsz )
     : inf_(nsz)
-    , arr4d_(0)
 {
     updateStorage();
 }
@@ -778,7 +772,6 @@ Array4DImpl<T>::Array4DImpl( const Array4DInfo& nsz )
 template <class T> inline
 Array4DImpl<T>::Array4DImpl( const Array4D<T>& templ )
     : inf_(templ.info())
-    , arr4d_(0)
 {
     updateStorage();
     copyFrom( templ );
@@ -788,7 +781,6 @@ Array4DImpl<T>::Array4DImpl( const Array4D<T>& templ )
 template <class T> inline
 Array4DImpl<T>::Array4DImpl( const Array4DImpl<T>& templ )
     : inf_(templ.info())
-    , arr4d_(0)
 {
     updateStorage();
     copyFrom( templ );
@@ -796,8 +788,7 @@ Array4DImpl<T>::Array4DImpl( const Array4DImpl<T>& templ )
 
 
 template <class T> inline
-void Array4DImpl<T>::set( int p0, int p1, int p2, int p3,
-			  T v )
+void Array4DImpl<T>::set( int p0, int p1, int p2, int p3, T v )
 {
 #ifdef __debug__
     if ( !inf_.validPos( p0, p1, p2, p3 ) )
@@ -814,8 +805,7 @@ void Array4DImpl<T>::set( int p0, int p1, int p2, int p3,
 
 
 template <class T> inline
-T Array4DImpl<T>::get( int p0, int p1, int p2,
-			int p3 ) const
+T Array4DImpl<T>::get( int p0, int p1, int p2, int p3 ) const
 {
 #ifdef __debug__
     if ( !inf_.validPos( p0, p1, p2, p3 ) )
@@ -888,7 +878,7 @@ void Array4DImpl<T>::eraseCache()
     }
 
     cachestor_.erase();
-    arr4d_ = 0;
+    arr4d_ = nullptr;
 }
 
 
@@ -1047,14 +1037,14 @@ ArrayND<T>* ArrayNDImpl<T>::clone( const ArrayND<T>& oth )
 {
     ArrayND<T>* out = create( oth.info() );
     if ( !out )
-	return 0;
+	return nullptr;
 
     if ( !out->isOK() )
-	{ delete out; return 0; }
+	{ delete out; return nullptr; }
 
     const bool success = clone( oth, *out );
     if ( !success )
-	{ delete out; return 0; }
+	{ delete out; return nullptr; }
 
     return out;
 }

@@ -28,14 +28,14 @@ inline const char* sGaussianCCRangeErrMsg()
 #define mDefGaussianProbDenFuncFns(nm) \
 				~nm##ProbDenFunc(); \
     nm##ProbDenFunc&		operator =(const nm##ProbDenFunc&); \
-    virtual nm##ProbDenFunc*	clone() const \
+    nm##ProbDenFunc*		clone() const override \
 				{ return new nm##ProbDenFunc(*this); } \
-    virtual void		copyFrom(const ProbDenFunc&); \
+    void			copyFrom(const ProbDenFunc&) override; \
     static const char*		typeStr()		{ return #nm; } \
-    virtual const char*		getTypeStr() const	{ return typeStr(); } \
-    virtual void		fillPar(IOPar&) const; \
-    virtual bool		usePar(const IOPar&); \
-    virtual bool		isEq(const ProbDenFunc&) const;
+    const char*			getTypeStr() const override { return typeStr();} \
+    void			fillPar(IOPar&) const override; \
+    bool			usePar(const IOPar&) override; \
+    bool			isEq(const ProbDenFunc&) const override;
 
 
 
@@ -127,8 +127,8 @@ public:
     float		stddevPos(int) const override;
 
     void		prepareRandDrawing() const;
-    virtual void	drawRandomPos(TypeSet<float>&) const;
-    virtual float	value(const TypeSet<float>&) const;
+    void		drawRandomPos(TypeSet<float>&) const override;
+    float		value(const TypeSet<float>&) const override;
 			//!< Not properly implemented because it can't be done
 
     mExpClass(Algo) VarDef

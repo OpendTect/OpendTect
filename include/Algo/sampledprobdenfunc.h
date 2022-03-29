@@ -89,15 +89,16 @@ private:
 
 
 #define mDefArrayNDProbDenFuncFns(nm) \
-    virtual nm##ProbDenFunc*	clone() const \
+    nm##ProbDenFunc*		clone() const override \
 				{ return new nm##ProbDenFunc(*this); } \
     static const char*		typeStr()		{ return #nm; } \
-    virtual const char*		getTypeStr() const	{ return typeStr(); } \
-    virtual float		normFac() const		{ return getNormFac();}\
-    virtual bool		canScale() const	{ return true; } \
-    virtual void		scale( float f )	{ doScale(f); } \
-    virtual void		prepareRandDrawing() const { prepRndDrw(); } \
-    virtual bool		isEq( const ProbDenFunc& oth ) const \
+    const char*			getTypeStr() const override { return typeStr();} \
+    float			normFac() const override { return getNormFac();}\
+    bool			canScale() const override { return true; } \
+    void			scale( float f ) override	{ doScale(f); } \
+    void			prepareRandDrawing() const override \
+				{ prepRndDrw(); } \
+    bool			isEq( const ProbDenFunc& oth ) const override \
 							{ return gtIsEq(oth); }
 
 

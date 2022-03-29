@@ -89,13 +89,13 @@ public:
 					{ return info().validPos(pos); }
 protected:
 
-    virtual const ValueSeries<T>*	getStorage_() const { return 0; }
+    virtual const ValueSeries<T>*	getStorage_() const { return nullptr; }
 
     virtual const T*			getData_() const
 					{
 					    if ( getStorage_() )
 						return getStorage()->arr();
-					    return 0;
+					    return nullptr;
 					}
 };
 
@@ -112,15 +112,18 @@ public:
 
     virtual void		set(int,T)				= 0;
     virtual T			get(int) const				= 0;
-    void			setND(const int* pos,T v) { set( pos[0], v ); }
-    T				getND(const int* pos) const
+    void			setND( const int* pos , T v ) override
+				{ set( pos[0], v ); }
+    T				getND(const int* pos) const override
 				{ return get(pos[0]); }
 
 				// implement ValueSeries interface
-    T				value(od_int64 i) const	{ return get( (int) i);}
-    bool			writable() const	{ return true; }
-    void			setValue(od_int64 i,T t){ set( (int) i,t); }
-    virtual void		setAll( T t )         { ArrayND<T>::setAll(t); }
+    T				value(od_int64 i) const override
+				{ return get( (int) i); }
+    bool			writable() const override	{ return true; }
+    void			setValue( od_int64 i , T t ) override
+				{ set( (int) i,t); }
+    void			setAll( T t ) override  { ArrayND<T>::setAll(t); }
 
     virtual const Array1DInfo&	info() const = 0;
 
@@ -144,13 +147,13 @@ mClass(Basic) Array2D : public ArrayND<T>
 public:
     virtual void		set( int, int, T )			= 0;
     virtual T			get( int p0, int p1 ) const		= 0;
-    void			setND(  const int* pos, T v )
+    void			setND(  const int* pos, T v ) override
 				    { set( pos[0], pos[1], v);}
-    T				getND( const int* pos ) const
+    T				getND( const int* pos ) const override
 				    { return get( pos[0], pos[1] ); }
 
-    virtual T**			get2DData()		{ return 0; }
-    virtual const T**		get2DData() const	{ return 0; }
+    virtual T**			get2DData()		{ return nullptr; }
+    virtual const T**		get2DData() const	{ return nullptr; }
 
     virtual const Array2DInfo&	info() const = 0;
 };
@@ -167,13 +170,13 @@ public:
 
     virtual void		set( int, int, int, T )			= 0;
     virtual T			get( int p0, int p1, int p2 ) const	= 0;
-    void			setND( const int* pos, T v )
+    void			setND( const int* pos, T v ) override
 				    { set( pos[0], pos[1], pos[2], v);}
-    T				getND( const int* pos ) const
+    T				getND( const int* pos ) const override
 				    { return get( pos[0], pos[1], pos[2] ); }
 
-    virtual T***		get3DData()		{ return 0; }
-    virtual const T***		get3DData() const	{ return 0; }
+    virtual T***		get3DData()		{ return nullptr; }
+    virtual const T***		get3DData() const	{ return nullptr; }
 
     virtual const Array3DInfo&	info() const = 0;
 };
@@ -189,13 +192,13 @@ public:
 
     virtual void		set(int,int,int,int,T)= 0;
     virtual T			get(int,int,int,int) const = 0;
-    void			setND( const int* pos, T v )
+    void			setND( const int* pos, T v ) override
 				{ set( pos[0], pos[1], pos[2], pos[3], v ); }
-    T				getND( const int* pos ) const
+    T				getND( const int* pos ) const override
 				{ return get( pos[0], pos[1], pos[2], pos[3] );}
 
-    virtual T****		get4DData()		{ return 0; }
-    virtual const T****		get4DData() const	{ return 0; }
+    virtual T****		get4DData()		{ return nullptr; }
+    virtual const T****		get4DData() const	{ return nullptr; }
 
     virtual const Array4DInfo&	info() const = 0;
 };
@@ -277,7 +280,7 @@ public:
 			}
 
     const T*		arr() const { return array_.getData(); }
-    T*			arr() { return 0; }
+    T*			arr() { return nullptr; }
 
     od_int64		size() const override	{ return array_.totalSize(); }
 
@@ -386,7 +389,7 @@ template <class T> inline
 const T* ArrayND<T>::get1D( const int* i ) const
 {
     const T* ptr = getData();
-    if ( !ptr ) return 0;
+    if ( !ptr ) return nullptr;
 
     int ndim = info().getNDim();
 
@@ -407,7 +410,7 @@ int ArrayND<T>::get1DDim() const
 template <class T> inline
 T* ArrayND<T>::getData()
 {
-    return !isSettable() ? 0
+    return !isSettable() ? nullptr
 			 : const_cast<T*>(((const ArrayND*)this)->getData_());
 }
 
@@ -415,7 +418,7 @@ T* ArrayND<T>::getData()
 template <class T> inline
 ValueSeries<T>* ArrayND<T>::getStorage()
 {
-    return !isSettable() ? 0 :
+    return !isSettable() ? nullptr :
 	const_cast<ValueSeries<T>* >(((const ArrayND*)this)->getStorage_());
 }
 
@@ -423,7 +426,8 @@ ValueSeries<T>* ArrayND<T>::getStorage()
 template <class T> inline
 T* ArrayND<T>::get1D( const int* i )
 {
-    return !isSettable() ? 0 : const_cast<T*>(((const ArrayND*)this)->get1D(i));
+    return !isSettable() ? nullptr :
+	const_cast<T*>(((const ArrayND*)this)->get1D(i));
 }
 
 
@@ -466,14 +470,14 @@ public:
 		    : ptr_( ptr )
 		    , arr_( arr )
 		    , totalnr_( arr.info().getTotalSz() )
-		    , vs_( 0 )
+		    , vs_( nullptr )
 		{}
 
 		ArrayNDDataExtracter( ValueSeries<T>& vs, const ArrayND<T>& arr)
 		    : ptr_( vs.arr() )
 		    , arr_( arr )
 		    , totalnr_( arr.info().getTotalSz() )
-		    , vs_( vs.arr() ? 0 : &vs )
+		    , vs_( vs.arr() ? nullptr : &vs )
 		{}
 
     bool	doWork( od_int64 start, od_int64 stop, int )
