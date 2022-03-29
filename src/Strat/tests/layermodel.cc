@@ -253,31 +253,49 @@ static bool mUnusedVar testObjectSetLayers( const PropertyRefSelection& prs )
 }
 
 
-mDefParallelCalc1Par( LayerModelFiller,
-	od_static_tr("test_layermodel","Filling layer model values"),
-	LayerModel&,lm)
-mDefParallelCalcBody(
+class LayerModelFiller : public ParallelTask
+{ mODTextTranslationClass(LayerModelFiller)
+public:
+LayerModelFiller( LayerModel& lm )
+    : ParallelTask("Layer Model Filler")
+    , lm_(lm)
+{}
+
+od_int64 nrIterations() const
+{
+    return lm_.size();
+}
+
+bool doWork( od_int64 start, od_int64 stop, int ) \
+{
     const PropertyRefSelection& prs = lm_.propertyRefs();
     const LeafUnitRef& udfleaf = RT().undefLeaf();
     Stats::RandGen uniformrg;
     Stats::NormalRandGen gaussianrg;
     const int nrseqs = lm_.size();
-    ,
-    const int iseq = int(idx);
-    const float xpos = float(iseq) / float(nrseqs-1);
-    LayerSequence& seq = lm_.sequence( iseq );
-    seq.setStartDepth( 0.f );
-    ObjectSet<Layer>& layers = seq.layers();
-    for ( int ilay=0; ilay<nrlayers_; ilay++ )
+    for ( od_int64 idx=start; idx<=stop; idx++ )
     {
-	auto* lay = new Layer( udfleaf );
-	setValues( prs, xpos, uniformrg, gaussianrg, *lay );
-	layers.add( lay );
+	const int iseq = int(idx);
+	const float xpos = float(iseq) / float(nrseqs-1);
+	LayerSequence& seq = lm_.sequence( iseq );
+	seq.setStartDepth( 0.f );
+	ObjectSet<Layer>& layers = seq.layers();
+	for ( int ilay=0; ilay<nrlayers_; ilay++ )
+	{
+	    auto* lay = new Layer( udfleaf );
+	    setValues( prs, xpos, uniformrg, gaussianrg, *lay );
+	    layers.add( lay );
+	}
+
+	seq.prepareUse();
     }
-    seq.prepareUse();
-    ,
-    // lm_.prepareUse(); Not efficient, but same (not parallel)
-)
+
+    return true;
+}
+
+    LayerModel&		lm_;
+};
+
 
 static bool mUnusedVar createModel( const PropertyRefSelection& prs )
 {
@@ -288,7 +306,7 @@ static bool mUnusedVar createModel( const PropertyRefSelection& prs )
     for ( int iseq=0; iseq<nrseq_; iseq++ )
 	lm->addSequence();
 
-    auto* filler = new LayerModelFiller( lm->size(), *lm );
+    auto* filler = new LayerModelFiller( *lm );
     filler->execute();
     delete filler;
 

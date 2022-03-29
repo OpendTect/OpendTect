@@ -44,6 +44,41 @@ void afterSurveyChangeCB( CallBacker* )
     Strat::loadDefaultTree();
 }
 
+RefTree& curTree()
+{
+    Threads::Locker lkr( lock_ );
+    if ( rts_.isEmpty() )
+	createTree();
+
+    return *rts_[rts_.size()-1];
+}
+
+void addTree( RefTree* rt )
+{
+    Threads::Locker lkr( lock_ );
+    rts_ += rt;
+}
+
+void popTree()
+{
+    Threads::Locker lkr( lock_ );
+    delete rts_.removeSingle( rts_.size()-1 );
+}
+
+void setTree( RefTree* rt )
+{
+    if ( !rt )
+	return;
+
+    Threads::Locker lkr( lock_ );
+    if ( rts_.isEmpty() )
+	rts_ += rt;
+    else
+	delete rts_.replace( rts_.size()-1, rt );
+}
+
+private:
+
 void createTree()
 {
     RepositoryAccess ra;
@@ -53,23 +88,22 @@ void createTree()
 	rt = new RefTree;
 	rt->src_ = Repos::Survey;
     }
+
     rts_ += rt;
 }
 
-RefTree& curTree()
-{
-    if ( rts_.isEmpty() )
-	createTree();
-    return *rts_[rts_.size()-1];
-}
-
-    ManagedObjectSet<RefTree> rts_;
+    ManagedObjectSet<RefTree>	rts_;
+    Threads::Lock		lock_;
 
 };
 
 
 static RefTreeMgr& refTreeMgr()
-{ mDefineStaticLocalObject( RefTreeMgr, mgr, ); return mgr; }
+{
+    mDefineStaticLocalObject( RefTreeMgr, mgr, );
+    return mgr;
+}
+
 
 void init()
 {
@@ -77,25 +111,28 @@ void init()
     loadDefaultTree();
 }
 
+
 const RefTree& RT()
-{ return refTreeMgr().curTree(); }
+{
+    return refTreeMgr().curTree();
+}
+
+
 void pushRefTree( RefTree* rt )
-{ refTreeMgr().rts_ += rt; }
+{
+    refTreeMgr().addTree( rt );
+}
+
+
 void popRefTree()
-{ delete refTreeMgr().rts_.removeSingle( refTreeMgr().rts_.size()-1 ); }
+{
+    refTreeMgr().popTree();
+}
 
 
 void setRT( RefTree* rt )
 {
-    if ( !rt ) return;
-
-    if ( refTreeMgr().rts_.isEmpty() )
-	refTreeMgr().rts_ += rt;
-    else
-    {
-	const int currentidx = refTreeMgr().rts_.indexOf( &RT() );
-	delete refTreeMgr().rts_.replace( currentidx < 0 ? 0 : currentidx, rt );
-    }
+    refTreeMgr().setTree( rt );
 }
 
 
@@ -148,7 +185,7 @@ RefTree* RepositoryAccess::readFromFile( const char* fnm )
 	return nullptr;
     }
 
-    RefTree* rt = new RefTree;
+    auto* rt = new RefTree;
     if ( !rt->read(sfio.istrm()) )
     {
 	delete rt;
