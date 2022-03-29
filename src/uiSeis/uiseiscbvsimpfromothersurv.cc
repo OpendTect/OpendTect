@@ -32,7 +32,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 		       tr("Specify import parameters"),
 		       mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID))
 		 .modal(false))
-    , import_(0)
+    , import_(nullptr)
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
@@ -57,6 +57,8 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 		mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,interpSelDone) );
     interpfld_->attach( ensureBelow, sep1 );
     interpfld_->attach( alignedBelow, subselfld_ );
+    interpfld_->setValue ( false );
+    interpfld_->setSensitive( false );
 
     cellsizefld_ = new uiLabeledSpinBox(this, tr("Lateral stepout (Inl/Crl)"));
     cellsizefld_->attach( alignedBelow, interpfld_ );
@@ -71,7 +73,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     outfld_->attach( alignedBelow, cellsizefld_ );
     outfld_->attach( ensureBelow, sep2 );
 
-    interpSelDone(0);
+    interpSelDone(nullptr);
 }
 
 
@@ -93,16 +95,22 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 	if ( import_ ) delete import_;
 	import_ = new SeisImpCBVSFromOtherSurvey( *inctio.ioobj_ );
 	BufferString fusrexp; objdlg.getIOObjFullUserExpression( fusrexp );
+	bool needinterpol = false;
 	if ( import_->prepareRead(fusrexp) )
 	{
 	    finpfld_->setText( fusrexp );
 	    subselfld_->setInput( import_->cubeSampling() );
+	    needinterpol = !import_->hasSameGridAsThisSurvey();
 	}
 	else
 	{
 	    uiMSG().error( import_->errMsg() );
 	    delete import_; import_ = 0;
 	}
+
+	interpfld_->setValue ( needinterpol );
+	interpfld_->setSensitive( needinterpol );
+	interpSelDone(nullptr);
     }
 }
 

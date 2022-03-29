@@ -67,10 +67,17 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     olddata_.tkzs_.zsamp_ = info.sd_.interval( info.nrsamples_ );
     data_.tkzs_.zsamp_ = olddata_.tkzs_.zsamp_;
     data_.tkzs_.zsamp_.step = SI().zStep();
-
-    BinID bid;
-    while ( data_.hsit_->next( bid ) )
-	data_.tkzs_.hsamp_.include( SI().transform( b2c.transform( bid ) ) );
+    if ( hasSameGridAsThisSurvey() )
+    {
+	data_.tkzs_.hsamp_ = olddata_.tkzs_.hsamp_;
+	data_.tkzs_.hsamp_.limitTo( SI().sampling(false).hsamp_ );
+    }
+    else
+    {
+	BinID bid;
+	while ( data_.hsit_->next( bid ) )
+	    data_.tkzs_.hsamp_.include( SI().transform(b2c.transform(bid)) );
+    }
 
     if ( !SI().isInside(data_.tkzs_.hsamp_.start_,true)
 	&& !SI().isInside(data_.tkzs_.hsamp_.stop_,true) )
@@ -84,6 +91,12 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     padfac_ = mMAX( padx, pady );
 
     return true;
+}
+
+
+bool SeisImpCBVSFromOtherSurvey::hasSameGridAsThisSurvey() const
+{
+    return tr && (tr_->getTransform() == SI().binID2Coord());
 }
 
 

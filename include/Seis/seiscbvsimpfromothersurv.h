@@ -51,6 +51,7 @@ public:
     inline void		setOutput( IOObj& obj )	{ outioobj_ = &obj; }
 
     const TrcKeyZSampling& cubeSampling() const { return data_.tkzs_; }
+    bool		hasSameGridAsThisSurvey() const;
 
 protected:
 
