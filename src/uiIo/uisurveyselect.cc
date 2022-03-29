@@ -11,6 +11,8 @@ ________________________________________________________________________
 
 #include "uisurveyselect.h"
 
+#include "ctxtioobj.h"
+#include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
@@ -24,10 +26,19 @@ ________________________________________________________________________
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 
-static bool checkIfDataDir( const char* path )
+static bool checkIfDataDir( const char* path, bool forread )
 {
-    FilePath fpo( path, ".omf" ), fps( path, SurveyInfo::sKeySetupFileName() );
-    return File::exists( fpo.fullPath() ) && !File::exists( fps.fullPath() );
+    if ( SurveyInfo::isValidDataRoot(path).isOK() )
+	return true;
+
+    DirList surveydirlist( path, File::DirsInDir );
+    for ( int idx=0; idx<surveydirlist.size(); idx++ )
+    {
+	if ( SurveyInfo::isValidSurveyDir(surveydirlist.fullPath(idx)).isOK() )
+	    return forread || File::isWritable( path );
+    }
+
+    return false;
 }
 
 
@@ -119,11 +130,27 @@ bool uiSurveySelectDlg::continueAfterErrMsg()
 void uiSurveySelectDlg::fillSurveyList()
 {
     surveylistfld_->setEmpty();
-    if ( !checkIfDataDir(getDataRoot()) && !continueAfterErrMsg()  )
+    BufferString dataroot = getDataRoot();
+    bool datarootisvalid = false;
+    bool useparent = false;
+    while ( !datarootisvalid && !dataroot.isEmpty() )
+    {
+	datarootisvalid = checkIfDataDir( dataroot, forread_ );
+	if ( !datarootisvalid )
+	{
+	    dataroot = FilePath(dataroot).pathOnly();
+	    useparent = true;
+	}
+    }
+
+    if ( !datarootisvalid && !continueAfterErrMsg() )
 	return;
 
+    if ( useparent )
+	setDataRoot( dataroot );
+
     BufferStringSet surveylist;
-    uiSurvey::getSurveyList( surveylist, getDataRoot() );
+    uiSurvey::getSurveyList( surveylist, dataroot );
     surveylistfld_->addItems( surveylist );
     surveylistfld_->resizeWidthToContents();
 }
@@ -215,7 +242,7 @@ bool uiSurveySelect::getFullSurveyPath( BufferString& fullpath ) const
     }
 
     BufferString path( fp.pathOnly() ), survnm( fp.fileName() );
-    const bool isdatadir = checkIfDataDir( path );
+    const bool isdatadir = checkIfDataDir( path, forread_ );
     fullpath = makeFullSurveyPath( survnm, path );
     return isdatadir && !fullpath.isEmpty() ? true : false;
 }
