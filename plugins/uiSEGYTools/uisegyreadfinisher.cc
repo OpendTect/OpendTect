@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "segyhdr.h"
 #include "segyscanner.h"
 #include "segytr.h"
+#include "seiscbvs.h"
 #include "seisimporter.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
@@ -163,8 +164,10 @@ void uiSEGYReadFinisher::crSeisFields()
     if ( is2d )
 	cr2DCoordSrcFields( attgrp, ismulti );
 
-    uiSeisSel::Setup copysu( gt ); copysu.enabotherdomain( true );
+    uiSeisSel::Setup copysu( gt );
+    copysu.enabotherdomain( true ).withinserters( false );
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
+    ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     outimpfld_ = new uiSeisSel( this, ctxt, copysu );
     outimpfld_->attach( alignedBelow, attgrp );
     if ( !is2d )
