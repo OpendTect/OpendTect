@@ -147,7 +147,8 @@ static bool getMathForms()
 
 
 static void setValues( const PropertyRefSelection& prs, float xpos,
-		       Stats::NormalRandGen& gen, Layer& lay )
+		       Stats::RandGen& ugen, Stats::NormalRandGen& normgen,
+		       Layer& lay )
 {
     if ( simpledraw_ )
     {
@@ -158,8 +159,8 @@ static void setValues( const PropertyRefSelection& prs, float xpos,
     }
 
     lay.setThickness( 1.f );
-    lay.setValue( 1, gaussianrg_.get( 2700.f, 200.f ) ); // Rho
-    lay.setValue( 2, gaussianrg_.get( 2300.f, 150.f ) ); // Vp
+    lay.setValue( 1, normgen.get( 2700.f, 200.f ) ); // Rho
+    lay.setValue( 2, normgen.get( 2300.f, 150.f ) ); // Vp
     if ( usemath_ )
     {
 	lay.setValue( 3, *castagnaform_, prs, xpos );	 // Vs
@@ -167,13 +168,13 @@ static void setValues( const PropertyRefSelection& prs, float xpos,
     }
     else
     {
-	lay.setValue( 3, gaussianrg_.get( 1600.f, 130.f ) ); // Vs
-	lay.setValue( 4, gaussianrg_.get( 11000.f, 1500.f ) ); // AI
+	lay.setValue( 3, normgen.get( 1600.f, 130.f ) ); // Vs
+	lay.setValue( 4, normgen.get( 11000.f, 1500.f ) ); // AI
     }
 
-    lay.setValue( 5, gaussianrg_.get( 10.f, 2.f ) );	 // Phi (%)
-    lay.setValue( 6, 100.f * uniformrg_.get() );	 // Vsh (%)
-    lay.setValue( 7, 100.f * uniformrg_.get() ); // Sw (%)
+    lay.setValue( 5, normgen.get( 10.f, 2.f ) );	 // Phi (%)
+    lay.setValue( 6, 100.f * ugen.get() );	 // Vsh (%)
+    lay.setValue( 7, 100.f * ugen.get() ); // Sw (%)
 }
 
 
@@ -191,7 +192,7 @@ static bool mUnusedVar testArrayLayers( const PropertyRefSelection& prs )
     {
 	layers[ilay] = new TestLayer( udfleaf );
 //	layers[ilay] = new Layer( udfleaf );
-//	setValues( prs, 0.f, gaussianrg_, *layers[ilay] );
+//	setValues( prs, 0.f, uniformrg_, gaussianrg_, *layers[ilay] );
     }
 
     printMem( "Free memory after creating isolated layers in C Array" );
@@ -236,7 +237,7 @@ static bool mUnusedVar testObjectSetLayers( const PropertyRefSelection& prs )
     for ( od_uint64 ilay=0; ilay<totnrlayers; ilay++ )
     {
 	auto* lay = new Layer( udfleaf );
-	setValues( prs, 0.f, gaussianrg_, *lay );
+	setValues( prs, 0.f, uniformrg_, gaussianrg_, *lay );
 	layers += lay;
     }
 
@@ -258,6 +259,7 @@ mDefParallelCalc1Par( LayerModelFiller,
 mDefParallelCalcBody(
     const PropertyRefSelection& prs = lm_.propertyRefs();
     const LeafUnitRef& udfleaf = RT().undefLeaf();
+    Stats::RandGen uniformrg;
     Stats::NormalRandGen gaussianrg;
     const int nrseqs = lm_.size();
     ,
@@ -269,7 +271,7 @@ mDefParallelCalcBody(
     for ( int ilay=0; ilay<nrlayers_; ilay++ )
     {
 	auto* lay = new Layer( udfleaf );
-	setValues( prs, xpos, gaussianrg, *lay );
+	setValues( prs, xpos, uniformrg, gaussianrg, *lay );
 	layers.add( lay );
     }
     seq.prepareUse();
