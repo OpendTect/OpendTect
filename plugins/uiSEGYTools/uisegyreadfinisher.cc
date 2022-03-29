@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "segyhdr.h"
 #include "segyscanner.h"
 #include "segytr.h"
+#include "seiscbvs.h"
 #include "seisimporter.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
@@ -125,7 +126,7 @@ void uiSEGYReadFinisher::crSeisFields()
     const bool ismulti = fs_.spec_.nrFiles() > 1;
 
     docopyfld_ = new uiGenInput( this, tr("Copy data"),
-	    BoolInpSpec(true,tr("Yes (import)"),tr("No (scan&&link)")) );
+	    BoolInpSpec(false,tr("Yes (import)"),tr("No (scan&&link)")) );
     docopyfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,doScanChg) );
 
     uiSeisTransfer::Setup trsu( gt );
@@ -163,8 +164,10 @@ void uiSEGYReadFinisher::crSeisFields()
     if ( is2d )
 	cr2DCoordSrcFields( attgrp, ismulti );
 
-    uiSeisSel::Setup copysu( gt ); copysu.enabotherdomain( true );
+    uiSeisSel::Setup copysu( gt );
+    copysu.enabotherdomain( true ).withinserters( false );
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
+    ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     outimpfld_ = new uiSeisSel( this, ctxt, copysu );
     outimpfld_->attach( alignedBelow, attgrp );
     if ( !is2d )
