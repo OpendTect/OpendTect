@@ -73,7 +73,7 @@ public:
     static const unsigned char	cAxisSpacing;
 
     unsigned char	model_;		//Don't change the order of these
-    unsigned char	submodel_;	//since they are written to 
+    unsigned char	submodel_;	//since they are written to
     unsigned char	axispos_[3];	//the stream in this order
 };
 
@@ -90,7 +90,7 @@ public:
 			/*!<Replaces the surface within the array3d's volume
 			    with an isosurface from the array and its
 			    threshold. Make sure inside body value is less than
-			    the threshold, outside value is bigger than the 
+			    the threshold, outside value is bigger than the
 			    threshold */
 
     void		removeAll();
@@ -126,6 +126,8 @@ public:
     bool	doWork(od_int64,od_int64,int);
     uiString	uiMessage() const
 		{ return tr("Implicit body to MarchingCubes: Contouring"); }
+    uiString	uiNrDoneText() const
+		{ return tr("Nr done"); }
 
 
 protected:
@@ -153,7 +155,7 @@ public:
 					Array3D<int>&,
 					int originx,int originy,int originz,
 					bool nodistance);
-		/*!<originx .. originz gives the surface location of the 
+		/*!<originx .. originz gives the surface location of the
 		    array's origin.
 		    \param originx,originy,originz
 		    \param nodistance enables faster processing, but the
@@ -173,8 +175,8 @@ protected:
     bool	doWork(od_int64,od_int64,int);
     bool	processSeeds( const od_int64*, int nr );
 
-    friend	class MarchingCubes2ImplicitDistGen; 
-    
+    friend	class MarchingCubes2ImplicitDistGen;
+
     bool	shouldSetValue(od_int64 offset, int newval );
     void	setValue(od_int64 offset,int newval,bool checkval);
 
