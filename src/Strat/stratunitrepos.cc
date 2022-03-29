@@ -29,10 +29,66 @@ RefTreeMgr()
     mAttachCB( IOM().afterSurveyChange, RefTreeMgr::afterSurveyChangeCB );
 }
 
+
 ~RefTreeMgr()
 {
     detachAllNotifiers();
 }
+
+
+RefTree& curTree()
+{
+    Threads::Locker lkr( lock_ );
+    if ( rts_.isEmpty() )
+	createTree();
+
+    return *rts_.last();
+}
+
+
+void add( RefTree* rt )
+{
+    Threads::Locker lkr( lock_ );
+    if ( rt )
+	rts_.add( rt );
+}
+
+
+void pop()
+{
+    Threads::Locker lkr( lock_ );
+    delete rts_.pop();
+}
+
+
+void ensurePresent( RefTree& rt )
+{
+    Threads::Locker lkr( lock_ );
+    if ( rts_.isEmpty() )
+	rts_.add( &rt );
+    else
+    {
+	const int lastidx = rts_.size()-1;
+	rts_.replace( lastidx, &rt );
+    }
+}
+
+
+private:
+
+void createTree()
+{
+    RepositoryAccess ra;
+    RefTree* rt = ra.readTree();
+    if ( !rt )
+    {
+	rt = new RefTree;
+	rt->src_ = Repos::Survey;
+    }
+
+    rts_.add( rt );
+}
+
 
 void surveyChangedCB( CallBacker* )
 {
@@ -44,32 +100,18 @@ void afterSurveyChangeCB( CallBacker* )
     Strat::loadDefaultTree();
 }
 
-void createTree()
-{
-    RepositoryAccess ra;
-    RefTree* rt = ra.readTree();
-    if ( !rt )
-    {
-	rt = new RefTree;
-	rt->src_ = Repos::Survey;
-    }
-    rts_ += rt;
-}
-
-RefTree& curTree()
-{
-    if ( rts_.isEmpty() )
-	createTree();
-    return *rts_[rts_.size()-1];
-}
-
-    ManagedObjectSet<RefTree> rts_;
+    ManagedObjectSet<RefTree>	rts_;
+    Threads::Lock		lock_;
 
 };
 
 
 static RefTreeMgr& refTreeMgr()
-{ mDefineStaticLocalObject( RefTreeMgr, mgr, ); return mgr; }
+{
+    static PtrMan<RefTreeMgr> rtmgr_ = new RefTreeMgr();
+    return *rtmgr_.ptr();
+}
+
 
 void init()
 {
@@ -77,25 +119,29 @@ void init()
     loadDefaultTree();
 }
 
+
 const RefTree& RT()
-{ return refTreeMgr().curTree(); }
+{
+    return refTreeMgr().curTree();
+}
+
+
 void pushRefTree( RefTree* rt )
-{ refTreeMgr().rts_ += rt; }
+{
+    refTreeMgr().add( rt );
+}
+
+
 void popRefTree()
-{ delete refTreeMgr().rts_.removeSingle( refTreeMgr().rts_.size()-1 ); }
+{
+    refTreeMgr().pop();
+}
 
 
 void setRT( RefTree* rt )
 {
-    if ( !rt ) return;
-
-    if ( refTreeMgr().rts_.isEmpty() )
-	refTreeMgr().rts_ += rt;
-    else
-    {
-	const int currentidx = refTreeMgr().rts_.indexOf( &RT() );
-	delete refTreeMgr().rts_.replace( currentidx < 0 ? 0 : currentidx, rt );
-    }
+    if ( rt )
+	refTreeMgr().ensurePresent( *rt );
 }
 
 
@@ -148,7 +194,7 @@ RefTree* RepositoryAccess::readFromFile( const char* fnm )
 	return nullptr;
     }
 
-    RefTree* rt = new RefTree;
+    auto* rt = new RefTree;
     if ( !rt->read(sfio.istrm()) )
     {
 	delete rt;
