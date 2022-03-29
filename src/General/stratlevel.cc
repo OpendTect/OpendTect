@@ -67,7 +67,7 @@ void createSet()
     while ( rfp.next() )
     {
 	const BufferString fnm( rfp.fileName() );
-	LevelSet* tmp = new LevelSet;
+	auto* tmp = new LevelSet;
 	if ( !tmp->readFrom(rfp.fileName()) || tmp->isEmpty() )
 	    delete tmp;
 	else
@@ -81,43 +81,94 @@ void createSet()
 	if ( rsrc != Repos::Temp )
 	    ls->store( rsrc );
     }
-    lss_ += ls;
+
+    lss_.add( ls );
+}
+
+
+bool isEmpty() const
+{
+    Threads::Locker locker( lock_ );
+    return lss_.isEmpty();
+}
+
+
+void add( LevelSet* lss )
+{
+    Threads::Locker locker( lock_ );
+    if ( lss )
+	lss_.add( lss );
+}
+
+
+LevelSet* replace( int idx, LevelSet* lss )
+{
+    Threads::Locker locker( lock_ );
+    return lss_.replace( idx, lss );
+}
+
+
+void ensurePresent( LevelSet& lss )
+{
+    Threads::Locker locker( lock_ );
+    if ( lss_.isEmpty() )
+	lss_.add( &lss );
+    else
+    {
+	const int lastidx = lss_.size()-1;
+	lss_.replace( lastidx, &lss );
+    }
+}
+
+
+LevelSet* pop()
+{
+    Threads::Locker locker( lock_ );
+    return lss_.pop();
+}
+
+const LevelSet* first() const
+{
+    Threads::Locker locker( lock_ );
+    return lss_.first();
 }
 
 LevelSet& curSet()
 {
+    Threads::Locker locker( lock_ );
     if ( lss_.isEmpty() )
 	createSet();
-    return *lss_[lss_.size()-1];
+
+    return *lss_.last();
 }
 
+private:
+
     ManagedObjectSet<LevelSet>	lss_;
+    mutable Threads::Lock lock_;
 };
 
 
 static LevelSetMgr& lvlSetMgr()
-{ mDefineStaticLocalObject( LevelSetMgr, mgr, ); return mgr; }
+{
+    static PtrMan<LevelSetMgr> lssmgr_ = new LevelSetMgr();
+    return *lssmgr_.ptr();
+}
+
 const LevelSet& LVLS()
 { return lvlSetMgr().curSet(); }
 void pushLevelSet( LevelSet* ls )
-{ lvlSetMgr().lss_ += ls; }
+{ lvlSetMgr().add( ls ); }
 void popLevelSet()
-{ delete lvlSetMgr().lss_.removeSingle( lvlSetMgr().lss_.size()-1 ); }
+{ lvlSetMgr().pop(); }
 const LevelSet& unpushedLVLS()
-{ return *lvlSetMgr().lss_[0]; }
+{ return *lvlSetMgr().first(); }
 
 
 void setLVLS( LevelSet* ls )
 {
-    if ( !ls ) return;
-
-    if ( lvlSetMgr().lss_.isEmpty() )
-	lvlSetMgr().lss_ += ls;
-    else
-    {
-	const int currentidx =  lvlSetMgr().lss_.indexOf( &LVLS() );
-	delete lvlSetMgr().lss_.replace( currentidx < 0 ? 0 : currentidx, ls );
-    }
+    if ( ls )
+	lvlSetMgr().ensurePresent( *ls );
 }
 
 
