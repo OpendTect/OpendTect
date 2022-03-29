@@ -146,7 +146,8 @@ static bool getMathForms()
 }
 
 
-static void setValues( const PropertyRefSelection& prs, float xpos, Layer& lay )
+static void setValues( const PropertyRefSelection& prs, float xpos,
+		       Stats::NormalRandGen& gen, Layer& lay )
 {
     if ( simpledraw_ )
     {
@@ -190,7 +191,7 @@ static bool mUnusedVar testArrayLayers( const PropertyRefSelection& prs )
     {
 	layers[ilay] = new TestLayer( udfleaf );
 //	layers[ilay] = new Layer( udfleaf );
-//	setValues( prs, 0.f, *layers[ilay] );
+//	setValues( prs, 0.f, gaussianrg_, *layers[ilay] );
     }
 
     printMem( "Free memory after creating isolated layers in C Array" );
@@ -235,7 +236,7 @@ static bool mUnusedVar testObjectSetLayers( const PropertyRefSelection& prs )
     for ( od_uint64 ilay=0; ilay<totnrlayers; ilay++ )
     {
 	auto* lay = new Layer( udfleaf );
-	setValues( prs, 0.f, *lay );
+	setValues( prs, 0.f, gaussianrg_, *lay );
 	layers += lay;
     }
 
@@ -257,6 +258,7 @@ mDefParallelCalc1Par( LayerModelFiller,
 mDefParallelCalcBody(
     const PropertyRefSelection& prs = lm_.propertyRefs();
     const LeafUnitRef& udfleaf = RT().undefLeaf();
+    Stats::NormalRandGen gaussianrg;
     const int nrseqs = lm_.size();
     ,
     const int iseq = int(idx);
@@ -267,7 +269,7 @@ mDefParallelCalcBody(
     for ( int ilay=0; ilay<nrlayers_; ilay++ )
     {
 	auto* lay = new Layer( udfleaf );
-	setValues( prs, xpos, *lay );
+	setValues( prs, xpos, gaussianrg, *lay );
 	layers.add( lay );
     }
     seq.prepareUse();
