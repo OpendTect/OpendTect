@@ -157,7 +157,6 @@ inline T& getNonConst( const T& t )
 //In template classes:
 #define mUseTemplType(scope,typ)        typedef typename scope::typ typ
 
-#define mGetDynamicCast(typ,in) dynamic_cast< typ >( in );
 # define mDynamicCast(typ,out,in)	out = dynamic_cast< typ >( in );
 # define mDynamicCastGet(typ,out,in)	typ mDynamicCast(typ,out,in)
 
@@ -167,6 +166,9 @@ inline T& getNonConst( const T& t )
 
 #define mDefSetupMemb(typ,memb) mDefSetupClssMemb(Setup,typ,memb)
 
+#define mOD_DisableCopy(clss) \
+    clss( const clss& ) = delete; \
+    clss& operator=( const clss& ) = delete;
 
 
 //--- Covering Windows problems, mainly DLL export/import stuff
