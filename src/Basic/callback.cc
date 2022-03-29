@@ -358,14 +358,14 @@ void CallBacker::detachCB( const NotifierAccess& notif,
     {
 	while ( attachednotifiers_.isPresent( &notif ) )
 	{
-            if ( notif.removeShutdownSubscription( this, false ) )
-                self->attachednotifiers_ -= &enotif;
-            else
-            {
-                lckr.unlockNow();
-                Threads::sleep( mOneMilliSecond );
-                lckr.reLock();
-            }
+	    if ( notif.removeShutdownSubscription( this, false ) )
+		self->attachednotifiers_ -= &enotif;
+	    else
+	    {
+		lckr.unlockNow();
+		Threads::sleep( mOneMilliSecond );
+		lckr.reLock();
+	    }
 	}
     }
 }
@@ -378,16 +378,13 @@ bool CallBacker::isNotifierAttached( const NotifierAccess* na ) const
 }
 
 
-
-#define mGetLocker( thelock, wait ) \
-    Locker lckr( thelock, wait ? Locker::WaitIfLocked \
-					: Locker::DontWaitForLock ); \
-    if ( !lckr.isLocked() ) return false
-
-
 bool CallBacker::notifyShutdown( const NotifierAccess* na, bool wait ) const
 {
-    mGetLocker( attachednotifierslock_, wait );
+    Locker lckr( attachednotifierslock_,
+		wait ? Locker::WaitIfLocked : Locker::DontWaitForLock );
+    if ( !lckr.isLocked() )
+	return false;
+
     const_cast<CallBacker*>(this)->attachednotifiers_
 		    -= const_cast<NotifierAccess*>(na);
     return true;
@@ -691,7 +688,11 @@ bool NotifierAccess::isShutdownSubscribed( const CallBacker* cber ) const
 bool NotifierAccess::removeShutdownSubscription( const CallBacker* cber,
 						 bool wait ) const
 {
-    mGetLocker( shutdownsubscriberlock_, wait );
+    Locker lckr( shutdownsubscriberlock_,
+		wait ? Locker::WaitIfLocked : Locker::DontWaitForLock );
+    if ( !lckr.isLocked() )
+	return false;
+
     shutdownsubscribers_ -= cber;
     return true;
 }
@@ -725,7 +726,11 @@ void NotifierAccess::remove( const CallBack& cb ) const
 
 bool NotifierAccess::removeWith( const CallBacker* cber, bool wait ) const
 {
-    mGetLocker( cbs_.lock_, wait );
+    Locker lckr( cbs_.lock_,
+		wait ? Locker::WaitIfLocked : Locker::DontWaitForLock );
+    if ( !lckr.isLocked() )
+	return false;
+
     if ( cber_ == cber )
     {
 	cbs_.erase();
