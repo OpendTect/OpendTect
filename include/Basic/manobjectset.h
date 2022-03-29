@@ -22,16 +22,18 @@ public:
     typedef typename ObjectSet<T>::size_type	size_type;
     typedef typename ObjectSet<T>::idx_type	idx_type;
 
-    virtual bool		isManaged() const	{ return true; }
+    bool		isManaged() const override	{ return true; }
 
-    inline virtual T*		removeSingle(idx_type,bool kporder=true);
-				/*!<Removes entry and returns 0 */
-    inline virtual void		removeRange(idx_type,idx_type);
-    inline virtual T*		replace(idx_type, T*);
-				/*!<Deletes entry and returns 0 */
-    inline virtual T*		removeAndTake(idx_type,bool kporder=true);
-				/*!<Does not delete the entry. */
-    inline virtual void		erase();
+    inline void		erase() override;
+    inline T*		pop() override;
+			/*!<Deletes entry and returns nullptr */
+    inline T*		removeSingle(idx_type,bool kporder=true) override;
+			/*!<Removes entry and returns nullptr */
+    inline void		removeRange(idx_type,idx_type) override;
+    inline T*		replace(idx_type, T*) override;
+			/*!<Deletes entry and returns nullptr */
+    inline virtual T*	removeAndTake(idx_type,bool kporder=true);
+			/*!<Does not delete the entry. */
 
     inline virtual ManagedObjectSetBase<T>& operator-=(T*);
 
@@ -45,7 +47,7 @@ protected:
 				~ManagedObjectSetBase();
 private:
 
-    PtrFunc			delfunc_;
+    PtrFunc		delfunc_;
 };
 
 
@@ -60,7 +62,7 @@ public:
     typedef typename ObjectSet<T>::idx_type	idx_type;
 
     inline			ManagedObjectSet();
-    virtual ManagedObjectSet*	clone() const
+    ManagedObjectSet*		clone() const override
 				{ return new ManagedObjectSet(*this); }
 
     inline			ManagedObjectSet(const ManagedObjectSet<T>&);
@@ -73,7 +75,7 @@ public:
 
     ManagedObjectSet<T>&	operator=(const ObjectSet<T>&);
 
-    inline virtual void		append(const ObjectSet<T>&);
+    inline void			append(const ObjectSet<T>&) override;
 
 private:
 
@@ -97,16 +99,16 @@ public:
 				RefObjectSet();
 				RefObjectSet(const RefObjectSet<T>&);
 				RefObjectSet(const ObjectSet<T>&);
-    virtual RefObjectSet*	clone() const
+    RefObjectSet*		clone() const override
 				{ return new RefObjectSet(*this); }
 
     RefObjectSet<T>&		operator=(const ObjectSet<T>&);
-    inline virtual T*		replace(idx_type,T*);
-    inline virtual void		insertAt(T*,idx_type);
+    inline T*			replace(idx_type,T*) override;
+    inline void			insertAt(T*,idx_type) override;
 
 protected:
 
-    virtual ObjectSet<T>&	doAdd(T*);
+    ObjectSet<T>&		doAdd(T*) override;
     static void			unRef( T* ptr ) { unRefPtr(ptr); }
 
 };
@@ -134,7 +136,7 @@ template <class T> inline
 T* ManagedObjectSetBase<T>::removeSingle( idx_type vidx, bool kporder )
 {
     delfunc_( ObjectSet<T>::removeSingle( vidx, kporder ) );
-    return 0; //Don't give anyone a chance to play with the deleted object
+    return nullptr; //Don't give anyone a chance to play with the deleted object
 }
 
 
@@ -142,7 +144,7 @@ template <class T> inline
 T* ManagedObjectSetBase<T>::replace( idx_type vidx , T* ptr )
 {
     delfunc_( ObjectSet<T>::replace( vidx, ptr ) );
-    return 0; //Don't give anyone a chance to play with the deleted object
+    return nullptr; //Don't give anyone a chance to play with the deleted object
 }
 
 
@@ -153,6 +155,14 @@ void ManagedObjectSetBase<T>::removeRange( idx_type i1, idx_type i2 )
 	delfunc_( this->get(vidx) );
 
     ObjectSet<T>::removeRange( i1, i2 );
+}
+
+
+template <class T> inline
+T* ManagedObjectSetBase<T>::pop()
+{
+    delfunc_( ObjectSet<T>::pop() );
+    return nullptr; //Don't give anyone a chance to play with the deleted object
 }
 
 
@@ -210,7 +220,7 @@ void ManagedObjectSet<T>::append( const ObjectSet<T>& os )
 	for ( idx_type vidx=0; vidx<sz; vidx++ )
 	{
 	    auto obj = os.get( vidx );
-	    ObjectSet<T>::add( obj ? new T(*obj) : 0 );
+	    ObjectSet<T>::add( obj ? new T(*obj) : nullptr );
 	}
 }
 
