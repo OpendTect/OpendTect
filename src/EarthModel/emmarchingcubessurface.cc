@@ -306,17 +306,18 @@ Executor* MarchingCubesSurface::saver()
 
 Executor* MarchingCubesSurface::saver( IOObj* inpioobj )
 {
-    PtrMan<IOObj> myioobj = 0;
-    IOObj* ioobj = 0;
+    PtrMan<IOObj> ioobj = 0;
     if ( inpioobj )
-	ioobj = inpioobj;
+	ioobj = inpioobj->clone();
     else
-    {
-	myioobj = IOM().get( multiID() );
-	ioobj = myioobj;
-    }
+	ioobj = IOM().get( multiID() );
 
-    Conn* conn = ioobj ? ioobj->getConn( Conn::Write ) : 0;
+    if ( !ioobj )
+	return nullptr;
+
+    ioobj->pars().set( sKey::Type(), getTypeStr() );
+    IOM().commitChanges( *ioobj );
+    Conn* conn = ioobj->getConn( Conn::Write );
     return conn ? new MarchingCubesSurfaceWriter( *this, conn, true ) : 0;
 }
 
@@ -489,5 +490,15 @@ void MarchingCubesSurface::setCrlSampling( const SamplingData<int>& s )
 
 void MarchingCubesSurface::setZSampling( const SamplingData<float>& s )
 { zsampling_ = s; }
+
+
+void MarchingCubesSurface::setSampling( const TrcKeyZSampling& tkzs )
+{
+    setInlSampling( SamplingData<int>(tkzs.hsamp_.start_.inl(),
+				      tkzs.hsamp_.step_.inl()) );
+    setCrlSampling( SamplingData<int>(tkzs.hsamp_.start_.crl(),
+				      tkzs.hsamp_.step_.crl()) );
+    setZSampling( SamplingData<float>(tkzs.zsamp_.start,tkzs.zsamp_.step) );
+}
 
 } // namespace EM
