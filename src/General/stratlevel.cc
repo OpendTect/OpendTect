@@ -48,6 +48,7 @@ public:
 LevelSetMgr()
 {
     mAttachCB( IOM().surveyChanged, LevelSetMgr::surveyChangedCB );
+    mAttachCB( IOM().applicationClosing, LevelSetMgr::surveyChangedCB );
 }
 
 ~LevelSetMgr()
@@ -55,10 +56,53 @@ LevelSetMgr()
     detachAllNotifiers();
 }
 
-void surveyChangedCB( CallBacker* )
+
+LevelSet& curSet()
 {
-    lss_.erase();
+    Threads::Locker locker( lock_ );
+    if ( lss_.isEmpty() )
+	createSet();
+
+    return *lss_.last();
 }
+
+
+void add( LevelSet* lss )
+{
+    Threads::Locker locker( lock_ );
+    if ( lss )
+	lss_.add( lss );
+}
+
+
+void pop()
+{
+    Threads::Locker locker( lock_ );
+    lss_.pop();
+}
+
+
+const LevelSet* first() const
+{
+    Threads::Locker locker( lock_ );
+    return lss_.first();
+}
+
+
+void ensurePresent( LevelSet& lss )
+{
+    Threads::Locker locker( lock_ );
+    if ( lss_.isEmpty() )
+	lss_.add( &lss );
+    else
+    {
+	const int lastidx = lss_.size()-1;
+	lss_.replace( lastidx, &lss );
+    }
+}
+
+
+private:
 
 void createSet()
 {
@@ -93,14 +137,6 @@ bool isEmpty() const
 }
 
 
-void add( LevelSet* lss )
-{
-    Threads::Locker locker( lock_ );
-    if ( lss )
-	lss_.add( lss );
-}
-
-
 LevelSet* replace( int idx, LevelSet* lss )
 {
     Threads::Locker locker( lock_ );
@@ -108,41 +144,10 @@ LevelSet* replace( int idx, LevelSet* lss )
 }
 
 
-void ensurePresent( LevelSet& lss )
+void surveyChangedCB( CallBacker* )
 {
-    Threads::Locker locker( lock_ );
-    if ( lss_.isEmpty() )
-	lss_.add( &lss );
-    else
-    {
-	const int lastidx = lss_.size()-1;
-	lss_.replace( lastidx, &lss );
-    }
+    lss_.erase();
 }
-
-
-LevelSet* pop()
-{
-    Threads::Locker locker( lock_ );
-    return lss_.pop();
-}
-
-const LevelSet* first() const
-{
-    Threads::Locker locker( lock_ );
-    return lss_.first();
-}
-
-LevelSet& curSet()
-{
-    Threads::Locker locker( lock_ );
-    if ( lss_.isEmpty() )
-	createSet();
-
-    return *lss_.last();
-}
-
-private:
 
     ManagedObjectSet<LevelSet>	lss_;
     mutable Threads::Lock lock_;

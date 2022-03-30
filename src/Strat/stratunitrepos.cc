@@ -16,7 +16,7 @@
 namespace Strat
 {
 
-const char* RepositoryAccess::fileNameBase() 	{ return "StratUnits"; }
+const char* RepositoryAccess::fileNameBase()	{ return "StratUnits"; }
 
 class RefTreeMgr : public CallBacker
 {
@@ -29,20 +29,12 @@ RefTreeMgr()
     mAttachCB( IOM().afterSurveyChange, RefTreeMgr::afterSurveyChangeCB );
 }
 
+
 ~RefTreeMgr()
 {
     detachAllNotifiers();
 }
 
-void surveyChangedCB( CallBacker* )
-{
-    rts_.erase();
-}
-
-void afterSurveyChangeCB( CallBacker* )
-{
-    Strat::loadDefaultTree();
-}
 
 RefTree& curTree()
 {
@@ -50,32 +42,37 @@ RefTree& curTree()
     if ( rts_.isEmpty() )
 	createTree();
 
-    return *rts_[rts_.size()-1];
+    return *rts_.last();
 }
 
-void addTree( RefTree* rt )
+
+void add( RefTree* rt )
 {
     Threads::Locker lkr( lock_ );
-    rts_ += rt;
+    if ( rt )
+	rts_.add( rt );
 }
 
-void popTree()
+
+void pop()
 {
     Threads::Locker lkr( lock_ );
-    delete rts_.removeSingle( rts_.size()-1 );
+    rts_.pop();
 }
 
-void setTree( RefTree* rt )
-{
-    if ( !rt )
-	return;
 
+void ensurePresent( RefTree& rt )
+{
     Threads::Locker lkr( lock_ );
     if ( rts_.isEmpty() )
-	rts_ += rt;
+	rts_.add( &rt );
     else
-	delete rts_.replace( rts_.size()-1, rt );
+    {
+	const int lastidx = rts_.size()-1;
+	rts_.replace( lastidx, &rt );
+    }
 }
+
 
 private:
 
@@ -89,7 +86,18 @@ void createTree()
 	rt->src_ = Repos::Survey;
     }
 
-    rts_ += rt;
+    rts_.add( rt );
+}
+
+
+void surveyChangedCB( CallBacker* )
+{
+    rts_.erase();
+}
+
+void afterSurveyChangeCB( CallBacker* )
+{
+    Strat::loadDefaultTree();
 }
 
     ManagedObjectSet<RefTree>	rts_;
@@ -100,8 +108,8 @@ void createTree()
 
 static RefTreeMgr& refTreeMgr()
 {
-    mDefineStaticLocalObject( RefTreeMgr, mgr, );
-    return mgr;
+    static PtrMan<RefTreeMgr> rtmgr_ = new RefTreeMgr();
+    return *rtmgr_.ptr();
 }
 
 
@@ -120,19 +128,20 @@ const RefTree& RT()
 
 void pushRefTree( RefTree* rt )
 {
-    refTreeMgr().addTree( rt );
+    refTreeMgr().add( rt );
 }
 
 
 void popRefTree()
 {
-    refTreeMgr().popTree();
+    refTreeMgr().pop();
 }
 
 
 void setRT( RefTree* rt )
 {
-    refTreeMgr().setTree( rt );
+    if ( rt )
+	refTreeMgr().ensurePresent( *rt );
 }
 
 
