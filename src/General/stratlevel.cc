@@ -130,20 +130,6 @@ void createSet()
 }
 
 
-bool isEmpty() const
-{
-    Threads::Locker locker( lock_ );
-    return lss_.isEmpty();
-}
-
-
-LevelSet* replace( int idx, LevelSet* lss )
-{
-    Threads::Locker locker( lock_ );
-    return lss_.replace( idx, lss );
-}
-
-
 void surveyChangedCB( CallBacker* )
 {
     lss_.erase();
