@@ -135,7 +135,7 @@ public:
 protected:
     bool			doWork(od_int64,od_int64,int) override;
 
-    bool			compute(int,int,float);
+    bool			compute(int,int,float) override;
 
     RayTracer1D::Setup		setup_;
 };

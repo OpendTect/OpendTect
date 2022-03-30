@@ -30,6 +30,8 @@ mExpClass(Algo) GenericTransformND : public SequentialTask
 {
 public:
 			GenericTransformND();
+    virtual		~GenericTransformND();
+
     bool		setInputInfo(const ArrayNDInfo&);
     const ArrayNDInfo&	getInputInfo() const;
 
@@ -54,9 +56,8 @@ public:
     bool		run(bool parallel);
 			//SequentialTask::execute can be used as well
 
-			~GenericTransformND();
 protected:
-    virtual bool		setup();			
+    virtual bool		setup();
     int				nextStep();
 
     class			Transform1D;
@@ -107,7 +108,7 @@ protected:
 	virtual bool	run(bool parallel)				= 0;
 
     protected:
-				
+
 				Transform1D();
 
 	int			sz_;

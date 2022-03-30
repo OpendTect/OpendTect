@@ -38,8 +38,8 @@ public:
 			~GeoJSONWriter();
 
 
-    uiString	    errMsg() const		{ return errmsg_; }
-    void	    setStream(const BufferString&);
+    uiString	    errMsg() const override	{ return errmsg_; }
+    void	    setStream(const BufferString&) override;
 
     void	    setElemName(const char* nm) //!< before open()
 						{ elemnm_ = nm; }
@@ -57,7 +57,7 @@ public:
     bool	    writePolygon(const coord2dset&,const char*nm=0) override;
     bool	    writePolygon(const coord3dset&,const char*nm=0) override;
     bool	    writePolygon(const pickset&) override;
-    BufferString    getExtension() { return BufferString("geojson"); }
+    BufferString    getExtension() override { return BufferString("geojson"); }
 
 
 protected:

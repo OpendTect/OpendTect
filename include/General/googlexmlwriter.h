@@ -28,13 +28,13 @@ public:
 			KMLWriter();
 			~KMLWriter();
 
-    uiString	errMsg() const			{ return errmsg_; }
+    uiString	errMsg() const override			{ return errmsg_; }
 
     void	setElemName( const char* nm ) //!< before open()
 						{ elemnm_ = nm; }
     void	setSurveyName( const char* nm ) //!< before open()
 						{ survnm_ = nm; }
-    void	setStream(const BufferString& fnm);
+    void	setStream(const BufferString& fnm) override;
     void	setDesc(const BufferString& desc) { desc_ = desc; }
 
     bool	close() override;
@@ -48,7 +48,7 @@ public:
     bool	writeLine(const pickset&) override;
     bool	writePoint(const pickset&) override;
     bool	writePolygon(const pickset&) override;
-    BufferString	getExtension() { return BufferString("kml"); }
+    BufferString getExtension() override	{ return BufferString("kml"); }
 protected:
 
     BufferString	elemnm_;

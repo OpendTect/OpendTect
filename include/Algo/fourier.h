@@ -28,11 +28,14 @@ class FFTCC1D;
 mExpClass(Algo) CC : public GenericTransformND
 { mODTextTranslationClass(CC);
 public:
-    mDefaultFactoryCreatorImpl( CC, CC );
-    mDefaultFactoryInstanciationBase( "PFAFFT", tr("FFT") );
     static ::Factory<CC>& factory();
+    virtual uiString factoryDisplayName() const;
+    virtual const char* factoryKeyword() const;
+    mDefaultFactoryCreatorImpl(CC,CC);
+    mDefaultStaticFactoryStringDeclaration;
 
     static CC*		createDefault();
+    static void         initClass();
 
 			CC();
     void		setNormalization(bool yn);
@@ -43,7 +46,6 @@ public:
     bool		isFast(int sz) const;
     virtual int		getFastSize(int sz) const;
 			/*!<Returns a size that is equal or larger than sz */
-
 
     static void pfarc(int isign,int n,const float* rz,float_complex* cz);
     static void pfacr(int isign,int n,const float_complex*,float* rz);
@@ -67,7 +69,7 @@ protected:
     static void pfacc(char dir,int sz,float_complex*);
 
     bool		setup();
-    bool		normalize_;
+    bool		normalize_ = false;
 
     Transform1D*	createTransform() const;
     mClass(Algo) CC1D : public GenericTransformND::Transform1D,

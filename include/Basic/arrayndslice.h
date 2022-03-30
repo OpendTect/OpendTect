@@ -63,19 +63,19 @@ public:
 				Array1DSlice(const ArrayND<T>&);
 				~Array1DSlice();
 
-    ValueSeries<T>*		clone() const;
+    ValueSeries<T>*		clone() const override;
 
-    T				get( int ) const;
-    void			set( int, T );
-    const Array1DInfo&		info() const;
-    bool			isSettable() const;
+    T				get(int) const override;
+    void			set(int,T) override;
+    const Array1DInfo&		info() const override;
+    bool			isSettable() const override;
 
 protected:
-    const ValueSeries<T>*	getStorage_() const;
+    const ValueSeries<T>*	getStorage_() const override;
 
     bool				writable_;
     ArrayND<T>&				source_;
-    mutable OffsetValueSeries<T>*	storage_;
+    mutable OffsetValueSeries<T>*	storage_ = nullptr;
 };
 
 
@@ -91,17 +91,17 @@ public:
 				Array2DSlice(const ArrayND<T>&);
 				~Array2DSlice();
 
-    T				get(int,int) const;
-    void			set(int,int, T );
-    const Array2DInfo&		info() const;
-    bool			isSettable() const;
+    T				get(int,int) const override;
+    void			set(int,int,T) override;
+    const Array2DInfo&		info() const override;
+    bool			isSettable() const override;
 
 protected:
-    const ValueSeries<T>*	getStorage_() const;
+    const ValueSeries<T>*	getStorage_() const override;
     bool			writable_;
 
     ArrayND<T>&				source_;
-    mutable OffsetValueSeries<T>*	storage_;
+    mutable OffsetValueSeries<T>*	storage_ = nullptr;
 };
 
 
@@ -119,18 +119,18 @@ public:
 				Array3DSlice(const ArrayND<T>&);
 				~Array3DSlice();
 
-    T				get(idx_type,idx_type,idx_type) const;
-    void			set(idx_type,idx_type,idx_type,T);
-    const Array3DInfo&		info() const;
-    bool			isSettable() const;
+    T				get(idx_type,idx_type,idx_type) const override;
+    void			set(idx_type,idx_type,idx_type,T) override;
+    const Array3DInfo&		info() const override;
+    bool			isSettable() const override;
 
 protected:
 
-    const ValueSeries<T>*	getStorage_() const;
+    const ValueSeries<T>*	getStorage_() const override;
     bool			writable_;
 
     ArrayND<T>&			source_;
-    mutable OffsetValueSeries<T>* storage_;
+    mutable OffsetValueSeries<T>* storage_ = nullptr;
 
 };
 
@@ -141,7 +141,6 @@ template <class T> inline
 Array1DSlice<T>::Array1DSlice( ArrayND<T>& source )
     : ArrayNDSliceBase( new Array1DInfoImpl, source.info() )
     , source_( source )
-    , storage_( 0 )
     , writable_( true )
 {}
 
@@ -150,7 +149,6 @@ template <class T> inline
 Array1DSlice<T>::Array1DSlice( const ArrayND<T>& source )
     : ArrayNDSliceBase( new Array1DInfoImpl, source.info() )
     , source_( const_cast<ArrayND<T>& >(source) )
-    , storage_( 0 )
     , writable_( false )
 {}
 
@@ -213,7 +211,7 @@ const ValueSeries<T>* Array1DSlice<T>::getStorage_() const
     if ( offset_==0 )
     {
 	delete storage_;
-	storage_ = 0;
+	storage_ = nullptr;
 	return source_.getStorage();
     }
 
@@ -235,7 +233,6 @@ template <class T> inline
 Array2DSlice<T>::Array2DSlice( ArrayND<T>& source )
     : ArrayNDSliceBase( new Array2DInfoImpl, source.info() )
     , source_( source )
-    , storage_( 0 )
     , writable_( true )
 {}
 
@@ -244,7 +241,6 @@ template <class T> inline
 Array2DSlice<T>::Array2DSlice( const ArrayND<T>& source )
     : ArrayNDSliceBase( new Array2DInfoImpl, source.info() )
     , source_( const_cast<ArrayND<T>&>(source) )
-    , storage_( 0 )
     , writable_( false )
 {}
 
@@ -298,7 +294,7 @@ const ValueSeries<T>* Array2DSlice<T>::getStorage_() const
     if ( offset_==0 )
     {
 	delete storage_;
-	storage_ = 0;
+	storage_ = nullptr;
 	return source_.getStorage();
     }
 
@@ -321,7 +317,6 @@ template <class T> inline
 Array3DSlice<T>::Array3DSlice( ArrayND<T>& source )
     : ArrayNDSliceBase( new Array3DInfoImpl, source.info() )
     , source_( source )
-    , storage_( 0 )
     , writable_( true )
 {
 }
@@ -331,7 +326,6 @@ template <class T> inline
 Array3DSlice<T>::Array3DSlice( const ArrayND<T>& source )
     : ArrayNDSliceBase( new Array3DInfoImpl, source.info() )
     , source_( const_cast<ArrayND<T>&>(source) )
-    , storage_( 0 )
     , writable_( false )
 {
 }
@@ -388,7 +382,7 @@ const ValueSeries<T>* Array3DSlice<T>::getStorage_() const
     if ( offset_==0 )
     {
 	delete storage_;
-	storage_ = 0;
+	storage_ = nullptr;
 	return source_.getStorage();
     }
 

@@ -125,7 +125,7 @@ public:
 				{ set( (int) i,t); }
     void			setAll( T t ) override  { ArrayND<T>::setAll(t); }
 
-    virtual const Array1DInfo&	info() const = 0;
+    const Array1DInfo&		info() const override = 0;
 
     // Compatibility with other classes:
 
@@ -155,7 +155,7 @@ public:
     virtual T**			get2DData()		{ return nullptr; }
     virtual const T**		get2DData() const	{ return nullptr; }
 
-    virtual const Array2DInfo&	info() const = 0;
+    const Array2DInfo&		info() const override = 0;
 };
 
 
@@ -178,7 +178,7 @@ public:
     virtual T***		get3DData()		{ return nullptr; }
     virtual const T***		get3DData() const	{ return nullptr; }
 
-    virtual const Array3DInfo&	info() const = 0;
+    const Array3DInfo&		info() const override = 0;
 };
 
 
@@ -200,7 +200,7 @@ public:
     virtual T****		get4DData()		{ return nullptr; }
     virtual const T****		get4DData() const	{ return nullptr; }
 
-    virtual const Array4DInfo&	info() const = 0;
+    const Array4DInfo&		info() const override = 0;
 };
 
 /*!
@@ -258,7 +258,7 @@ public:
 			    }
 			}
 
-    bool		isOK() const
+    bool		isOK() const override
 			{
 			    if ( array_.info().getNDim()>mArrayNDVSAdapterNrDim)
 			    {
@@ -269,18 +269,18 @@ public:
 			    return true;
 			}
 
-    ValueSeries<T>*	clone() const
+    ValueSeries<T>*	clone() const override
 			{ return new ArrayNDValseriesAdapter<T>( *this ); }
 
-    T			value(od_int64 idx) const
+    T			value(od_int64 idx) const override
 			{
 			    int pos[mArrayNDVSAdapterNrDim];
 			    array_.info().getArrayPos( idx, pos );
 			    return array_.getND( pos );
 			}
 
-    const T*		arr() const { return array_.getData(); }
-    T*			arr() { return nullptr; }
+    const T*		arr() const override { return array_.getData(); }
+    T*			arr() override { return nullptr; }
 
     od_int64		size() const override	{ return array_.totalSize(); }
 
@@ -328,9 +328,9 @@ template <class T, class TT>
 class Array1DConv : public Array1D<T>
 { mDefArrayNDStdMembers(1D);
 public:
-    T			get( int p0 ) const
+    T			get( int p0 ) const override
 					{ return (T)arr_->get( p0 ); }
-    void		set( int p0, T v )
+    void		set( int p0, T v ) override
 					{ arr_->set( p0, (TT)v ); }
 
 };
@@ -339,9 +339,9 @@ public:
 template <class T, class TT>
 class Array2DConv : public Array2D<T>
 { mDefArrayNDStdMembers(2D);
-    T			get( int p0, int p1 ) const
+    T			get( int p0, int p1 ) const override
 					{ return (T)arr_->get( p0, p1 ); }
-    void		set( int p0, int p1, T v )
+    void		set( int p0, int p1, T v ) override
 					{ arr_->set( p0, p1, (TT)v ); }
 
 };
@@ -350,9 +350,9 @@ template <class T, class TT>
 class Array3DConv : public Array3D<T>
 { mDefArrayNDStdMembers(3D);
 
-    T			get( int p0, int p1, int p2 ) const
+    T			get( int p0, int p1, int p2 ) const override
 					{ return (T)arr_->get( p0, p1, p2 ); }
-    void		set( int p0, int p1, int p2, T v )
+    void		set( int p0, int p1, int p2, T v ) override
 					{ arr_->set( p0, p1, p2, (TT)v ); }
 
 };
@@ -362,9 +362,9 @@ template <class T, class TT>
 class Array4DConv : public Array4D<T>
 { mDefArrayNDStdMembers(4D);
 
-    T		get( int p0, int p1, int p2, int p3 ) const
+    T		get( int p0, int p1, int p2, int p3 ) const override
 				{ return (T)arr_->get( p0, p1, p2, p3 ); }
-    void	set( int p0, int p1, int p2, int p3, T v )
+    void	set( int p0, int p1, int p2, int p3, T v ) override
 				{ arr_->set( p0, p1, p2, p3, (TT)v ); }
 
 };
@@ -480,7 +480,7 @@ public:
 		    , vs_( vs.arr() ? nullptr : &vs )
 		{}
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
+    bool	doWork( od_int64 start, od_int64 stop, int ) override
 		{
 		    mAllocVarLenArr( int, pos, arr_.info().getNDim() );
 		    if ( !arr_.info().getArrayPos( start, pos ) )
@@ -519,7 +519,7 @@ public:
 		    return true;
 		}
 
-    od_int64	nrIterations() const { return totalnr_; }
+    od_int64	nrIterations() const override { return totalnr_; }
 
 protected:
 
@@ -577,5 +577,4 @@ void ArrayND<T>::getAll( T* ptr ) const
 	}
     }
 }
-
 

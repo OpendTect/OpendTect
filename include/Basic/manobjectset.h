@@ -35,7 +35,7 @@ public:
     inline virtual T*	removeAndTake(idx_type,bool kporder=true);
 			/*!<Does not delete the entry. */
 
-    inline virtual ManagedObjectSetBase<T>& operator-=(T*);
+    inline ManagedObjectSetBase<T>& operator-=(T*) override;
 
 protected:
 
@@ -219,7 +219,7 @@ void ManagedObjectSet<T>::append( const ObjectSet<T>& os )
     else
 	for ( idx_type vidx=0; vidx<sz; vidx++ )
 	{
-	    auto obj = os.get( vidx );
+	    auto* obj = os.get( vidx );
 	    ObjectSet<T>::add( obj ? new T(*obj) : nullptr );
 	}
 }

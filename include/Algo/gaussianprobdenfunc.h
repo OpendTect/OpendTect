@@ -126,7 +126,7 @@ public:
     float		averagePos(int) const override;
     float		stddevPos(int) const override;
 
-    void		prepareRandDrawing() const;
+    void		prepareRandDrawing() const override;
     void		drawRandomPos(TypeSet<float>&) const override;
     float		value(const TypeSet<float>&) const override;
 			//!< Not properly implemented because it can't be done

@@ -262,8 +262,9 @@ protected:
 
 
 #define mDefaultFactoryStringImpl \
-    const char*		factoryKeyword() const { return sFactoryKeyword(); } \
-    uiString		factoryDisplayName() const \
+    const char*		factoryKeyword() const override \
+					{ return sFactoryKeyword(); } \
+    uiString		factoryDisplayName() const override \
 					{ return sFactoryDisplayName(); }
 
 #define mDefaultStaticFactoryStringDeclaration \

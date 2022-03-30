@@ -81,13 +81,13 @@ ValueSeriesGetAll(const ValueSeries<T>& from, T* to,
 {
 }
 
-od_int64 nrIterations() const
+od_int64 nrIterations() const override
 {
     return nrelements_;
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     od_int64 nrleft = stop-start+1;
     const T* fromarr = from_.arr();

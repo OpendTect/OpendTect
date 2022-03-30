@@ -30,10 +30,33 @@ CC* CC::createDefault()
 }
 
 
+const char* CC::sFactoryKeyword()
+{
+    return "PFAFFT";
+}
+
+
+uiString CC::sFactoryDisplayName()
+{
+    return tr("FFT");
+}
+
+
 
 CC::CC()
-   : normalize_( false )
 {}
+
+
+uiString CC::factoryDisplayName() const
+{
+    return sFactoryDisplayName();
+}
+
+
+const char* CC::factoryKeyword() const
+{
+    return sFactoryKeyword();
+}
 
 
 bool CC::setup()
