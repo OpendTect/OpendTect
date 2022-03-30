@@ -128,7 +128,10 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
     menu->removeItems();
     mAddMenuItem( menu, &propmenuitem_, true, false );
     propmenuitem_.iconfnm = "disppars";
-    mAddMenuItem( menu, &createbodymnuitem_, true, false );
+
+    /*TODO: Make a MarchingCube based implementation before enabling.
+    mAddMenuItem( menu, &createbodymnuitem_, true, false ); */
+
     mAddMenuItem( menu, &storepsmnuitem_, true, false );
     mAddMenuItem( menu, &removemnuitem_, true, false );
 }
