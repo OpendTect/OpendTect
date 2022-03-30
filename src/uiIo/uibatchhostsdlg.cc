@@ -399,11 +399,12 @@ void uiBatchHostsDlg::moveDownCB( CallBacker* )
 void uiBatchHostsDlg::testHostsCB( CallBacker* )
 {
     BufferStringSet msgs;
-    for ( int idx=0; idx<hostdatalist_.size(); idx++ )
+    for ( const auto* hd : hostdatalist_ )
     {
-	const char* hostname = hostdatalist_[idx]->getHostName();
+	const BufferString ipaddr( hd->isStaticIP() ? hd->getIPAddress()
+						    : hd->getHostName() );
 	BufferString msg;
-	System::lookupHost( hostname, &msg );
+	System::lookupHost( ipaddr, &msg );
 	msgs.add( msg );
     }
 
