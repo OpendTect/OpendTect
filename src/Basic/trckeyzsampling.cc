@@ -104,14 +104,37 @@ void TrcKeySampling::init( bool tosi )
 }
 
 
-BinID TrcKeySampling::atIndex(  od_int64 globalidx ) const
+int TrcKeySampling::lineIdxFromGlobal( od_int64 globalidx ) const
+{
+    const int nrtrcs = nrTrcs();
+    if ( !nrtrcs || globalidx>=totalNr() )
+	return -1;
+
+    return int(globalidx/nrtrcs);
+}
+
+
+int TrcKeySampling::trcIdxFromGlobal( od_int64 globalidx ) const
+{
+    const int nrtrcs = nrTrcs();
+    if ( !nrtrcs || globalidx>=totalNr() )
+	return -1;
+
+    return int(globalidx%nrtrcs);
+}
+
+
+BinID TrcKeySampling::atIndex( od_int64 globalidx ) const
 {
     const int nrtrcs = nrTrcs();
     if ( !nrtrcs )
 	return BinID::udf();
 
-    const int lineidx = (int)(globalidx/nrtrcs);
-    const int trcidx = (int)(globalidx%nrtrcs);
+    const int lineidx = lineIdxFromGlobal( globalidx );
+    const int trcidx = trcIdxFromGlobal( globalidx );
+    if ( lineidx<0 || trcidx<0 )
+	return BinID::udf();
+
     return atIndex( lineidx, trcidx );
 }
 

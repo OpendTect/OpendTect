@@ -83,6 +83,8 @@ public:
     void		growTo(const TrcKeySampling& outertks);
     void		expand(int nrlines,int nrtrcs);
 
+    int			lineIdxFromGlobal(od_int64) const;
+    int			trcIdxFromGlobal(od_int64) const;
     int			lineIdx(Pos::LineID) const;
     int			trcIdx(Pos::TraceID) const;
     inline Pos::LineID	lineID(int) const;
