@@ -200,12 +200,17 @@ mExpClass(General) RangeProperty : public Property
 public:
 
 			RangeProperty( const PropertyRef& pr )
-			: Property(pr)
-			, rg_(mnem()->disp_.range_)		{}
+			  : Property(pr)
+			{
+			    if ( mnem() )
+				rg_ = mnem()->disp_.range_;
+			    else if ( pr.name() == "Thickness" )
+				rg_ = Interval<float>(1.f,99.f);
+			}
 			RangeProperty( const PropertyRef& pr,
 				       Interval<float> rg )
-			: Property(pr)
-			, rg_(rg)			{}
+			  : Property(pr)
+			  , rg_(rg)			{}
 
     Interval<float>	rg_;
 
