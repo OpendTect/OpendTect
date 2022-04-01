@@ -1898,11 +1898,12 @@ HorizonDisplay::IntersectionData*
 HorizonDisplay::getOrCreateIntersectionData(
 		ObjectSet<IntersectionData>& pool )
 {
-    IntersectionData* data = 0;
+    IntersectionData* data = nullptr;
     if ( pool.size() )
     {
 	data = pool.pop();
-	data->clear();
+	if ( data )
+	    data->clear();
     }
     else
     {
