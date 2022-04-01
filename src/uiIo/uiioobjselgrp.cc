@@ -1025,12 +1025,10 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
 
 void uiIOObjSelGrp::newOutputNameCB( CallBacker* )
 {
-    const int deftransidx = ctio_.ctxt_.trgroup_->defTranslIdx();
-    const Translator* deftrans = ctio_.ctxt_.trgroup_->templates()[deftransidx];
     PtrMan<IOObj> curioobj = IOM().get( currentID() );
     const Translator* selectedtrans =
 				wrtrselfld_ ? wrtrselfld_->selectedTranslator()
-					    : 0;
+					    : nullptr;
     const bool translatorchanged = curioobj && selectedtrans
 			 ? curioobj->translator() != selectedtrans->userName()
 			 : false;
@@ -1046,6 +1044,11 @@ void uiIOObjSelGrp::newOutputNameCB( CallBacker* )
 		wrtrselfld_->resetPars();
 	}
 
+	const int deftransidx = ctio_.ctxt_.trgroup_->defTranslIdx();
+	const ObjectSet<const Translator>& tpls =
+		ctio_.ctxt_.trgroup_->templates();
+	const Translator* deftrans =
+		tpls.validIdx(deftransidx) ? tpls[deftransidx] : nullptr;
 	wrtrselfld_->setTranslator( deftrans );
 	updateCtxtIOObj();
     }
