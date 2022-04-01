@@ -58,7 +58,6 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     processorlist_->setHSzPol( uiObject::Wide );
     processorlist_->attach( rightTo, factorylist_ );
     processorlist_->attach( ensureRightOf, addprocessorbutton_ );
-    processorlist_->attach( heightSameAs, factorylist_ );
     processorlist_->selectionChanged.notify(
 	    mCB(this,uiProcessorManager,processorClickCB) );
     processorlist_->doubleClicked.notify(
@@ -84,9 +83,9 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 			     uiStrings::phrRemove(uiStrings::sStep().toLower()),
 			     mCB(this,uiProcessorManager,removeCB) );
 
-    uiButtonGroup* iogrp =
-	new uiButtonGroup( this, "IO Buttons", OD::Horizontal );
+    auto* iogrp = new uiButtonGroup( this, "IO Buttons", OD::Horizontal );
     iogrp->attach( alignedBelow, factorylist_ );
+    iogrp->attach( ensureBelow, processorlist_ );
     loadbutton_ = new uiToolButton( iogrp, "open", tr("Open stored setup"),
 		mCB(this, uiProcessorManager,loadCB) );
     savebutton_ = new uiToolButton( iogrp, "save", tr("Save setup"),
