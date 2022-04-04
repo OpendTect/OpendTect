@@ -39,15 +39,16 @@ else if ( !zdata_.zistime_ && track() )\
 
 #define mDefZPosInLoop(val) \
     float zpos = val;\
-    float fac = 1.f; \
-    if( !zdata_.zistime_ && SI().depthsInFeet() ) \
-	fac = mToFeetFactorF; \
     if ( zdata_.zistime_ && zdata_.d2T() && track() )\
     zpos = d2T()->getTime( zpos, *track() )*SI().zDomain().userFactor();\
-    else if ( !zdata_.zistime_ && track() )\
-    zpos = track() ? (float) zdata_.track()->getPos( zpos ).z : 0; \
-    if ( !mIsUdf(zpos) ) \
-	zpos *= fac; \
+    else if ( !zdata_.zistime_ )\
+    {\
+	if ( track() )\
+	    zpos = (float) zdata_.track()->getPos( zpos ).z; \
+	const UnitOfMeasure* zdum = UnitOfMeasure::surveyDefDepthUnit();\
+	const UnitOfMeasure* zsum = UnitOfMeasure::surveyDefDepthStorageUnit();\
+	zpos = getConvertedValue( zpos, zsum, zdum );\
+    }\
     if ( !ld1_->yax_.range().includes( zpos, true ) )\
 	continue;
 
