@@ -60,9 +60,9 @@ mClass(Algo) MathFunction : public MathFunctionND<RT,PT>
 {
 public:
 
-    virtual RT		getNDValue( const PT* pos ) const
+    RT			getNDValue( const PT* pos ) const override
 						{ return getValue(*pos); }
-    virtual int		getNrDim() const	{ return 1; }
+    int			getNrDim() const override	{ return 1; }
 
     virtual RT		getValue( PT ) const	= 0;
 
@@ -106,9 +106,9 @@ public:
 
     virtual RT	getValue(PT,PT) const		= 0;
 
-    RT		getNDValue( const PT* pos ) const
+    RT		getNDValue( const PT* pos ) const override
 		        { return getValue(pos[0],pos[1]);}
-    int		getNrDim() const { return 2; }
+    int		getNrDim() const override	{ return 2; }
 
 };
 
@@ -123,9 +123,9 @@ public:
 
     virtual RT	getValue(PT,PT,PT) const	= 0;
 
-    RT		getNDValue( const PT* pos ) const
+    RT		getNDValue( const PT* pos ) const override
 		        { return getValue(pos[0],pos[1],pos[2]);}
-    int		getNrDim() const { return 3; }
+    int		getNrDim() const override	{ return 3; }
 
 };
 
@@ -163,7 +163,7 @@ public:
     bool		isEmpty() const		{ return x_.isEmpty(); }
     void		add(xT x,yT y);
     void		remove(int idx);
-    yT			getValue( xT x ) const
+    yT			getValue( xT x ) const override
 			{ return itype_ == Snap ? snapVal(x) : interpVal(x); }
 
     const TypeSet<xT>& xVals() const		{ return x_; }
@@ -174,7 +174,8 @@ public:
     bool		extrapolate() const	{ return extrapol_ != None; }
     void		setInterpolType( InterpolType t ) { itype_ = t; }
     void		setExtrapolateType( ExtrapolType t ) { extrapol_ = t; }
-    virtual yT		getNDValue( const xT* p ) const	{ return getValue(*p); }
+    yT			getNDValue( const xT* p ) const	override
+			{ return getValue(*p); }
 
 protected:
 
@@ -220,7 +221,7 @@ public:
 			    , func( func_ )
 			{}
 
-    RT			getValue( PT lambda ) const
+    RT			getValue( PT lambda ) const override
 			{
 			    const int nrdim = func.getNrDim();
 			    mAllocVarLenArr( PT, pos, nrdim );
@@ -260,7 +261,7 @@ public:
 			    b = ( y2-y0 ) / 2;
 			}
 
-    float		getValue( float pos ) const
+    float		getValue( float pos ) const override
 			{
 			    if ( Values::isUdf(pos) ) return mUdf(float);
 			    return pos*pos * a + pos * b + c;
@@ -330,7 +331,7 @@ public:
 			    d = y1;
 			}
 
-    float		getValue( float pos ) const
+    float		getValue( float pos ) const override
 			{
 			    if ( Values::isUdf(pos) ) return mUdf(float);
 			    const float possq = pos * pos;
@@ -365,7 +366,7 @@ mExpClass(Algo) ValSeriesMathFunc : public FloatMathFunction
 public:
 			ValSeriesMathFunc(const ValueSeries<float>&,int sz);
 
-    float		getValue(float) const;
+    float		getValue(float) const override;
 
 protected:
     const ValueSeries<float>&	vs_;

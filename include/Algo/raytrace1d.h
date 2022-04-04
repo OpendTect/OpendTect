@@ -87,7 +87,7 @@ public:
 protected:
 			RayTracer1D();
 
-    od_int64		nrIterations() const;
+    od_int64		nrIterations() const override;
     bool		doPrepare(int) override;
     bool		doFinish(bool) override;
     virtual bool	compute(int layer,int offidx,float rayparam);

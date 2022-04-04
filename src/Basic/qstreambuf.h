@@ -47,11 +47,11 @@ public:
 					   before.
 				*/
 
-    virtual std::streambuf::int_type	underflow();
-    virtual std::streamsize		xsputn(const char_type*,
-					       std::streamsize);
+    std::streambuf::int_type	underflow() override;
+    std::streamsize		xsputn(const char_type*,
+				       std::streamsize) override;
 
-    virtual int				sync();
+    int				sync() override;
 
 private:
     void			readAll();

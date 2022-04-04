@@ -66,7 +66,7 @@ public:
     int			nrIter() const;
 			/*!<\returns The number of iterations */
 
-    int			nextStep();
+    int			nextStep() override;
 			/*!<Will move the current extremePos one step towards
 			    the solution.
 			    \retval 0	Finished
@@ -140,7 +140,7 @@ public:
     int			nrIter() const;
 			/*!<\returns The number of iterations */
 
-    int			nextStep();
+    int			nextStep() override;
 			/*!<Will move the current extremePos one step towards
 			    the solution.
 			    \retval 0	Finished
@@ -167,7 +167,7 @@ protected:
 
 
 /*!
-\brief Finds the nearest local extreme position in ND's.  
+\brief Finds the nearest local extreme position in ND's.
 Implementation of Powell's Quadratically Convergent Method
 \note The implementation is not tested (yet) 030512.
 */
@@ -186,14 +186,14 @@ public:
 			*/
     virtual		~ExtremeFinderND();
 
-    template<class IDXABL>	
+    template<class IDXABL>
     void		setStartPos( const IDXABL& sp )
 			{
 			    for ( int idx=0; idx<n_; idx++ )
 				p_[idx] = sp[idx];
 			}
 
-    int			nextStep();
+    int			nextStep() override;
 			/*<!\return 0	Finished
 			    \return 1	More to do
 			    \return -1	Error (no extreme found or
@@ -208,7 +208,7 @@ public:
     const float*	extremePos() const	{ return p_; }
 			/*!<\return	A pointer to the extreme positions */
 
-    template<class IDXABL>	
+    template<class IDXABL>
     void		extremePos( IDXABL& sp ) const
 			{
 			    for ( int idx=0; idx<n_; idx++ )
@@ -229,7 +229,7 @@ private:
 
     float*		pt_;
 
-    const bool 			max_;
+    const bool			max_;
     const int			itermax_;
     const FloatMathFunctionND&	func_;
 };

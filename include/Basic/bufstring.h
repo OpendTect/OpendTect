@@ -151,8 +151,8 @@ protected:
 
     BufferString&	assignTo(const char*);
 
-    const char*		gtBuf() const;
-    inline const char*	gtStr() const;
+    const char*		gtBuf() const override;
+    inline const char*	gtStr() const override;
 
 private:
 

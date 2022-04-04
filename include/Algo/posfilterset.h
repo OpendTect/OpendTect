@@ -35,15 +35,15 @@ public:
 
     static const char*	typeStr();		//!< "Set"
 
-    virtual bool	initialize(TaskRunner*);
-    virtual void	reset();
-    virtual bool	includes(const Coord&,float) const;
-    virtual float	adjustedZ(const Coord&,float) const;
-    virtual bool	hasZAdjustment() const;
-    virtual void	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
-    virtual void	getSummary(BufferString&) const;
-    virtual float	estRatio(const Provider&) const;
+    bool		initialize(TaskRunner*) override;
+    void		reset() override;
+    bool		includes(const Coord&,float) const override;
+    float		adjustedZ(const Coord&,float) const override;
+    bool		hasZAdjustment() const override;
+    void		fillPar(IOPar&) const override;
+    void		usePar(const IOPar&) override;
+    void		getSummary(BufferString&) const override;
+    float		estRatio(const Provider&) const override;
 
     bool		isEmpty() const	{ return filts_.isEmpty(); }
     int			size() const	{ return filts_.size(); }
@@ -66,10 +66,10 @@ protected:
 					{ *this = fs; } \
     FilterSet##dim&	operator =( const FilterSet##dim& fs ) \
 					{ copyFrom(fs); return *this; } \
-    virtual Filter*	clone() const	{ return new FilterSet##dim(*this); } \
-    virtual const char* type() const	{ return typeStr(); } \
-    virtual const char* factoryKeyword() const	{ return type(); } \
-    virtual bool	includes( const Coord& c, float z=1e30 ) const \
+    Filter*	clone() const override	{ return new FilterSet##dim(*this); } \
+    const char* type() const override	{ return typeStr(); } \
+    const char* factoryKeyword() const override	{ return type(); } \
+    bool	includes( const Coord& c, float z=1e30 ) const override \
 			{ return FilterSet::includes(c,z); } \
 
 
@@ -82,8 +82,8 @@ mExpClass(Algo) FilterSet3D : public FilterSet
 {
 public:
 
-    virtual bool	is2D() const	{ return false; }
-    virtual bool	includes(const BinID&,float z=mUdf(float)) const;
+    bool	is2D() const override	{ return false; }
+    bool	includes(const BinID&,float z=mUdf(float)) const override;
 
     mSimpPosFilterSetDefFns(3D)
 
@@ -99,8 +99,8 @@ mExpClass(Algo) FilterSet2D : public FilterSet
 {
 public:
 
-    virtual bool	is2D() const	{ return true; }
-    virtual bool	includes(int,float z=mUdf(float),int lidx=0) const;
+    bool	is2D() const override	{ return true; }
+    bool	includes(int,float z=mUdf(float),int lidx=0) const override;
 
     mSimpPosFilterSetDefFns(2D)
 

@@ -50,7 +50,7 @@ public:
     mDeprecatedObs bool	operator ==( const NamedObject& oth ) const
 			{ return name_ == oth.getName(); }
 
-    virtual const name_type& name() const		{ return name_; }
+    const name_type&	name() const override		{ return name_; }
     virtual BufferString getName() const		{ return name_; }
     virtual void	setName( const char* nm )	{ name_ = nm; }
 

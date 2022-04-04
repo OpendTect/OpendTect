@@ -26,8 +26,8 @@ mClass(Algo) LineParameters : public MathFunction<T,T>
 public:
 		LineParameters( T i0=0, T i1=0 )
 		: a0(i0), ax(i1)		{}
- 
-    inline T	getValue( T x ) const
+
+    inline T	getValue( T x ) const override
 			{ return a0 + ax * x; }
     inline T	getXValue( T y ) const
 			{ return ax ? (y - a0) / ax : 0; }
@@ -35,7 +35,7 @@ public:
 			{ return (x + ax * (y - a0)) / (1 + ax * ax); }
     inline T	getValue( const T* x ) const
 			{ return getValue(*x); }
- 
+
     T		a0, ax;
 };
 
@@ -53,7 +53,7 @@ public:
 		PlaneParameters( T i0=0, T i1=0, T i2=0 )
 		: a0(i0), ax(i1), ay(i2)	{}
 
-    inline T	getValue( T x, T y ) const
+    inline T	getValue( T x, T y ) const override
 		{ return a0 + ax * x + ay * y; }
     inline T	getValue( const T* x ) const
 			{ return getValue(x[0],x[1]); }

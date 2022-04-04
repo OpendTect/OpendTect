@@ -115,7 +115,7 @@ public:
 protected:
 
     const BufferString	basenm_;
-    virtual IOParSet&	doAdd(IOPar*);
+    IOParSet&		doAdd(IOPar*) override;
 
 };
 

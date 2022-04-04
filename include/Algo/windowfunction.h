@@ -30,7 +30,7 @@ public:
     virtual float	getVariable() const		{ return mUdf(float); }
     virtual bool	setVariable(float)		{ return true; }
     virtual const char*	variableName() const		{ return 0; }
-    virtual bool	isAcceptableVariable(float) const	{ return true; }
+    virtual bool	isAcceptableVariable(float) const { return true; }
 
     static const char*	sKeyVariable()			{ return "Variable"; }
     static const char*	sKeyTaperVal()			{ return "taperval"; }
@@ -43,8 +43,8 @@ public:
     static void			initClass(); \
     static const char*		sName()		{ return #nm; }\
     static WindowFunction*	create()	{ return new nm##Window; } \
-    const char*			name() const	{ return #nm; } \
-    float	getValue(float) const; \
+    const char*			name() const override	{ return #nm; } \
+    float	getValue(float) const override; \
     float	getValue( const float* x ) const { return getValue(*x); }
 
     static void		addAllStdClasses(); // done by Algo/initalgo.cc
@@ -69,9 +69,9 @@ mDeclWFSimpleClass(FlatTop)
 
 #define mDeclWFClassWithVariable(clss) \
 				clss##Window(); \
-    bool			hasVariable() const	{ return true; } \
-    bool			setVariable(float); \
-    bool			isAcceptableVariable(float) const; \
+    bool			hasVariable() const override { return true; } \
+    bool			setVariable(float) override; \
+    bool			isAcceptableVariable(float) const override; \
 
 /*!
 \brief Tapered Cosine Window Function.
@@ -84,8 +84,9 @@ public:
     mDeclWFStdFns(CosTaper)
     mDeclWFClassWithVariable(CosTaper)
 
-    float			getVariable() const	{ return threshold_; }
-    const char*			variableName() const
+    float			getVariable() const override
+				{ return threshold_; }
+    const char*			variableName() const override
 				{ return "Taper length";}
 
     static bool			isLegacyTaper(const BufferString&);
@@ -113,8 +114,9 @@ public:
     bool			set(double width,int nrsamples);
 				//Alternate way of setting alpha
 
-    float			getVariable() const	{ return (float)alpha_;}
-    const char*			variableName() const	{ return "alpha"; }
+    float			getVariable() const override
+				{ return (float)alpha_;}
+    const char*			variableName() const override { return "alpha";}
 
 				// Variable must be set first
     double			getWidth() const	{ return width_; }

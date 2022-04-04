@@ -58,7 +58,7 @@ public:
 
 protected:
     virtual bool		setup();
-    int				nextStep();
+    int				nextStep() override;
 
     class			Transform1D;
     virtual Transform1D*	createTransform() const		= 0;

@@ -66,7 +66,7 @@ mExpClass(Algo) EventTracker : public ValSeriesTracker
 public:
 				EventTracker();
 
-    const char*			type()		{ return sType(); }
+    const char*			type() override	{ return sType(); }
     static const char*		sType()		{ return "EventTracker"; }
 
     enum CompareMethod		{ None, SeedTrace, AdjacentParent };
@@ -79,7 +79,7 @@ public:
     static const VSEvent::Type*	cEventTypes();
     static int			getEventTypeIdx(VSEvent::Type);
 
-    virtual bool		isOK() const;
+    bool			isOK() const override;
 
     void			setSeed(const ValueSeries<float>*,int sz,
 					float depth);
@@ -157,11 +157,11 @@ public:
     void			setSnapToEvent(bool);
     bool			snapToEvent() const;
 
-    bool			track();
-    float			quality() const		{ return quality_; }
+    bool			track() override;
+    float			quality() const	override { return quality_; }
 
-    void			fillPar(IOPar& par) const;
-    bool			usePar(const IOPar& par);
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
 
 protected:
 

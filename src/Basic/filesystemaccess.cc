@@ -59,33 +59,33 @@ public:
 
     static const char*	sFactoryKeyword() { return "file"; }
     static uiString	sFactoryUserName() { return tr("Local"); }
-    virtual const char* protocol() const { return sFactoryKeyword(); }
-    virtual uiString	userName() const { return sFactoryUserName(); }
+    const char*		protocol() const override { return sFactoryKeyword(); }
+    uiString		userName() const override { return sFactoryUserName(); }
 
-    virtual bool	exists(const char*) const;
-    virtual bool	isReadable(const char*) const;
-    virtual bool	isFile(const char*) const;
-    virtual bool	isDirectory(const char*) const;
-    virtual bool	isWritable(const char*) const;
-    virtual BufferString timeCreated(const char*) const;
-    virtual BufferString timeLastModified(const char*) const;
+    bool		exists(const char*) const override;
+    bool		isReadable(const char*) const override;
+    bool		isFile(const char*) const override;
+    bool		isDirectory(const char*) const override;
+    bool		isWritable(const char*) const override;
+    BufferString	timeCreated(const char*) const override;
+    BufferString	timeLastModified(const char*) const override;
 
-    virtual bool	remove(const char*,bool recursive=true) const;
-    virtual bool	setWritable(const char*,bool yn,bool recursive) const;
-    virtual bool	rename(const char* from,const char* to,
-				uiString* errmsg=nullptr) const;
-    virtual bool	copy(const char* from,const char* to,
-			     uiString* errmsg=nullptr) const;
-    virtual od_int64	getFileSize(const char*, bool followlink) const;
-    virtual bool	createDirectory(const char*) const;
-    virtual bool	listDirectory(const char*,File::DirListType,
+    bool	remove(const char*,bool recursive=true) const override;
+    bool	setWritable(const char*,bool yn,bool recursive) const override;
+    bool	rename(const char* from,const char* to,
+		       uiString* errmsg=nullptr) const override;
+    bool	copy(const char* from,const char* to,
+		     uiString* errmsg=nullptr) const override;
+    od_int64	getFileSize(const char*, bool followlink) const override;
+    bool	createDirectory(const char*) const override;
+    bool	listDirectory(const char*,File::DirListType,
 				      BufferStringSet&,
-				      const char* mask) const;
+				      const char* mask) const override;
 
-    virtual StreamData	createOStream(const char*,
-				      bool binary,bool editmode) const;
+    StreamData	createOStream(const char*,bool binary,
+			      bool editmode) const override;
 
-    virtual StreamData	createIStream(const char*,bool binary) const;
+    StreamData	createIStream(const char*,bool binary) const override;
 
     static void		initClass();
 

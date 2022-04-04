@@ -35,13 +35,14 @@ public:
 
     RandomFilter&	operator =(const RandomFilter&);
 
-    bool		initialize(TaskRunner* =nullptr);
-    void		reset()				{ initStats(); }
+    bool		initialize(TaskRunner* =nullptr) override;
+    void		reset() override		{ initStats(); }
 
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
-    virtual float	estRatio(const Provider&) const	{ return passratio_; }
+    void		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
+    float		estRatio(const Provider&) const	override
+			{ return passratio_; }
 
     float		passratio_ = 0.01f;
 
@@ -60,22 +61,22 @@ private:
 
 
 #define mSimpPosFilterDefFnsBase \
-const char* factoryKeyword() const { return type(); } \
-virtual const char* type() const { return typeStr(); } \
-virtual bool includes(const Coord&,float z=1e30) const { return drawRes(); } \
+const char* factoryKeyword() const override { return type(); } \
+const char* type() const override { return typeStr(); } \
+bool includes(const Coord&,float z=1e30) const override { return drawRes(); } \
 static void initClass()
 
 #define mSimpPosFilterDefFns3D(clssnm) \
-virtual bool includes(const BinID&,float z=1e30) const { return drawRes(); } \
-virtual bool is2D() const	{ return false; } \
-virtual Filter*	clone() const	{ return new clssnm##Filter3D(*this); } \
+bool includes(const BinID&,float z=1e30) const override { return drawRes(); } \
+bool is2D() const override	{ return false; } \
+Filter*	clone() const override	{ return new clssnm##Filter3D(*this); } \
 static Filter3D* create()	{ return new clssnm##Filter3D; } \
 mSimpPosFilterDefFnsBase
 
 #define mSimpPosFilterDefFns2D(clssnm) \
-virtual bool includes(int,float z=1e30,int nr=0) const { return drawRes(); } \
-virtual bool is2D() const	{ return false; } \
-virtual Filter*	clone() const	{ return new clssnm##Filter2D(*this); } \
+bool includes(int,float z=1e30,int nr=0) const override { return drawRes(); } \
+bool is2D() const override	{ return false; } \
+Filter*	clone() const override	{ return new clssnm##Filter2D(*this); } \
 static Filter2D* create()	{ return new clssnm##Filter2D; } \
 mSimpPosFilterDefFnsBase
 
@@ -121,12 +122,13 @@ public:
 			SubsampFilter( const SubsampFilter& sf )
 			    : each_(sf.each_), seqnr_(sf.seqnr_)	{}
 
-    void		reset()		{ seqnr_ = 0; }
+    void		reset() override	{ seqnr_ = 0; }
 
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
-    virtual float	estRatio(const Provider&) const	{ return 1.f/each_; }
+    void		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+    void		getSummary(BufferString&) const override;
+    float		estRatio(const Provider&) const	override
+			{ return 1.f/each_; }
 
     int			each_;
 

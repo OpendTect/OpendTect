@@ -46,12 +46,12 @@ public:
     void			setCorrelate( bool yn )	{ correlate_ = yn; }
 				/*!<If true, the convolution will be replaced
 				    by a correllation. */
-    od_int64	nrIterations() const;
+    od_int64			nrIterations() const override;
 
 protected:
-    bool		doWork(od_int64,od_int64,int);
+    bool		doWork(od_int64,od_int64,int) override;
     bool		doNonFFTWork(od_int64,od_int64,int);
-    bool		doPrepare(int);
+    bool		doPrepare(int) override;
     bool		shouldFFT() const;
 
     const Array2D<T>*	x_;

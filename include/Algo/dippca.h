@@ -27,7 +27,7 @@ class TaskRunner;
 
 /*!
 \brief Base class to calculate Dip/Azimuth using the method of PCA.
-  
+
   Example of use:
 
   Dip3D d3d( your data )
@@ -37,7 +37,7 @@ class TaskRunner;
 
 mExpClass(Algo) DipPCA
 {
-public:    
+public:
 
     virtual			~DipPCA()			{}
 
@@ -52,10 +52,10 @@ public:
 	int			boxheight_;
 	StepInterval<int>	thetarg_; //dip angle in positive degree
 	StepInterval<int>	alpharg_; //azimuth angle in positive degree
-    };	
+    };
 
     void			setSetup(Setup nsetup)	{ setup_ = nsetup; }
-    virtual bool		compute(TaskRunner* tr=0) { return true; } 
+    virtual bool		compute(TaskRunner* tr=0) { return true; }
 
 protected:
 
@@ -70,12 +70,12 @@ protected:
 mExpClass(Algo) Dip2D : public DipPCA
 {
 public:
-    				Dip2D(const Array2D<float>& input,
+				Dip2D(const Array2D<float>& input,
 					   float xdist,float ydist);
 				~Dip2D();
 
-    bool			compute(TaskRunner* tr=0); 
-    
+    bool			compute(TaskRunner* =nullptr) override;
+
     enum Output			{ Dip=0, Dilation=1, Thinning=2 };
     const Array2D<float>*	get(Output) const;
 
@@ -88,10 +88,10 @@ protected:
     const Array2D<float>&	input_;
 
     Array2D<float>*		dip_; //The fault dip
-    Array2D<float>*		dilation_;	
-    				//The fault dip after perform dilation to dip
+    Array2D<float>*		dilation_;
+				//The fault dip after perform dilation to dip
     Array2D<float>*		dthinner_;
-    				//The fault dip after thining to dilation
+				//The fault dip after thining to dilation
 
     const int			xsz_;
     const int			ysz_;
@@ -107,12 +107,12 @@ protected:
 mExpClass(Algo) Dip3D : public DipPCA
 {
 public:
-    				Dip3D(const Array3D<float>& input,
+				Dip3D(const Array3D<float>& input,
 					float xdist,float ydist,float zdist);
 				~Dip3D();
 
-    bool			compute(TaskRunner* tr=0); 
-    
+    bool			compute(TaskRunner* =nullptr) override;
+
     enum Output			{ AbsDip=0, InlDip=1, CrlDip=2, Azimuth=3 };
     const Array3D<float>*	get(Output) const;
 
@@ -121,10 +121,10 @@ protected:
     friend class		Dip3DCalculator;
     const Array3D<float>&	input_;
 
-    Array3D<float>*		absdip_; 
-    Array3D<float>*		inldip_; 
-    Array3D<float>*		crldip_; 
-    Array3D<float>*		azimuth_;	
+    Array3D<float>*		absdip_;
+    Array3D<float>*		inldip_;
+    Array3D<float>*		crldip_;
+    Array3D<float>*		azimuth_;
 
     const int			xsz_;
     const int			ysz_;

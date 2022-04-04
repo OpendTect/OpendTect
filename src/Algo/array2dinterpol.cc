@@ -65,11 +65,12 @@ public:
 		Extension2DInterpolExecutor(ExtensionArray2DInterpol&);
 		~Extension2DInterpolExecutor()  { deleteStateArr(); }
 
-    int		nextStep();
-    uiString	uiMessage() const	{ return curmsg_; }
-    od_int64	nrDone() const		{ return curlvl_ + 1; }
-    uiString	uiNrDoneText() const	{ return tr("Interpolation level"); }
-    od_int64	totalNr() const		{ return aie_.getNrSteps(); }
+    int		nextStep() override;
+    uiString	uiMessage() const override	{ return curmsg_; }
+    od_int64	nrDone() const override		{ return curlvl_ + 1; }
+    uiString	uiNrDoneText() const override
+		{ return tr("Interpolation level"); }
+    od_int64	totalNr() const override	{ return aie_.getNrSteps(); }
 
 protected:
 
@@ -1123,9 +1124,9 @@ public:
 	}
     }
 
-    od_int64 nrIterations() const { return nrcells_; }
+    od_int64 nrIterations() const override { return nrcells_; }
 
-    bool doWork( od_int64 start, od_int64 stop, int )
+    bool doWork( od_int64 start, od_int64 stop, int /* threadidx */ ) override
     {
 	int maxnrsources = 0;
 	TypeSet<od_int64> localres;
@@ -1211,7 +1212,7 @@ public:
 	return true;
     }
 
-    bool doFinish( bool success )
+    bool doFinish( bool success ) override
     {
 	if ( !success )
 	    return false;

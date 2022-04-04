@@ -56,18 +56,18 @@ public:
 
 protected:
 
-    int				nextStep();
-    uiString			uiMessage() const
+    int				nextStep() override;
+    uiString			uiMessage() const override
 				{
 				    return errmsg_.isEmpty()
 					? tr("Generating linear model")
 					: errmsg_;
 				}
-    uiString			uiNrDoneText() const
+    uiString			uiNrDoneText() const override
 				{ return tr("Nr points processed"); }
 
-    od_int64			nrDone() const		{ return curidx_; }
-    od_int64			totalNr() const		{ return totalnr_; }
+    od_int64			nrDone() const override	{ return curidx_; }
+    od_int64			totalNr() const override { return totalnr_; }
 
     int				curidx_;
     int				totalnr_;

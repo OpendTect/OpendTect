@@ -29,7 +29,7 @@ public:
     typedef size_type		idx_type;
     typedef T			object_type;
 
-    ValVec*			clone() const		= 0;
+    ValVec*			clone() const override		= 0;
     inline virtual		~ValVec();
     inline ValVec&		operator =( const ValVec& oth )
 				{ return copy( oth ); }
@@ -38,7 +38,7 @@ public:
 				{ return !(*this == oth); }
 
     inline size_type		size() const;
-    inline virtual od_int64	nrItems() const		{ return size(); }
+    inline od_int64		nrItems() const override { return size(); }
     inline virtual bool		setSize(size_type sz,T val=T());
 				/*!<\param sz number of new items
 				  \param val value assigned to new items */
@@ -54,7 +54,7 @@ public:
     inline const T&		first() const;
     inline T&			last();
     inline const T&		last() const;
-    inline virtual bool		validIdx(od_int64) const;
+    inline bool			validIdx(od_int64) const override;
     inline virtual idx_type	indexOf(T,bool forward=true,
 					  idx_type start=-1) const;
     inline bool			isPresent(const T&) const;
@@ -78,14 +78,14 @@ public:
 					 bool must_preserve_order=false);
 				//!< Removes all items present in other set.
 
-    inline virtual void		swapItems( od_int64 i1, od_int64 i2 )
+    inline void			swapItems( od_int64 i1, od_int64 i2 ) override
 				{ swap( (IT)i1, (IT)i2 ); }
     inline virtual void		move(idx_type from,idx_type to);
     inline virtual void		useIndexes(const idx_type*);
 
-    inline virtual void		reverse();
+    inline void			reverse() override;
 
-    inline virtual void		erase();
+    inline void			erase() override;
     inline virtual void		removeSingle(idx_type,
 					     bool preserver_order=true);
     inline virtual void		removeRange(idx_type from,idx_type to);
@@ -161,7 +161,7 @@ public: \
 		    : OD::ValVec<T,size_type>( t, nr )		{} \
 		clss( const clss& oth ) \
 		    : OD::ValVec<T,size_type>( oth )		{} \
-    virtual clss* clone() const		{ return new clss(*this); } \
+    clss*	clone() const override		{ return new clss(*this); } \
 }; \
  \
 template <class T> \

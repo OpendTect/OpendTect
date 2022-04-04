@@ -23,7 +23,7 @@ ________________________________________________________________________
 
   \par
   Specify wavelet at creation, and use in the same way as any TransformND.
-  The algorithm is based on the one from NumericalRecipies, and additional 
+  The algorithm is based on the one from NumericalRecipies, and additional
   kernel support comes from the Matlab library "WaveLab" (Stanford University).
 */
 
@@ -44,17 +44,17 @@ public:
 
     static void		getInfo(WaveletType tp,int& len,TypeSet<float>&);
 
-    static const float 	haar[3];
+    static const float	haar[3];
 
-    static const float 	daub4[5];
-    static const float 	daub6[7];
-    static const float 	daub8[9];
-    static const float 	daub10[11];
-    static const float 	daub12[13];
-    static const float 	daub14[15];
-    static const float 	daub16[17];
-    static const float 	daub18[19];
-    static const float 	daub20[21];
+    static const float	daub4[5];
+    static const float	daub6[7];
+    static const float	daub8[9];
+    static const float	daub10[11];
+    static const float	daub12[13];
+    static const float	daub14[15];
+    static const float	daub16[17];
+    static const float	daub18[19];
+    static const float	daub20[21];
 
     static const float	beylkin[19];
 
@@ -86,21 +86,21 @@ mExpClass(Algo) DWT : public GenericTransformND
 {
 public:
 			DWT( WaveletTransform::WaveletType );
-    bool		setup();
+    bool		setup() override;
 
 protected:
 
     mExpClass(Algo) FilterWT1D : public GenericTransformND::Transform1D
     {
     public:
-	
-	bool		init();
-	bool		run(bool);
+
+	bool		init() override;
+	bool		run(bool) override;
 			FilterWT1D()
 			    : cc_( 0 )
 			    , cr_( 0 )
 			    , wt_( WaveletTransform::Haar )
-			{}	
+			{}
 
 			~FilterWT1D() { delete [] cr_; delete [] cc_; }
 
@@ -118,7 +118,7 @@ protected:
 	int			ioff_;
     };
 
-    Transform1D*		createTransform() const
+    Transform1D*		createTransform() const override
 				{ return new FilterWT1D; }
 
     WaveletTransform::WaveletType	wt_;
@@ -129,7 +129,7 @@ protected:
 \brief Continuous Wavelet Transform
 */
 
-mExpClass(Algo) CWT 
+mExpClass(Algo) CWT
 {
 public:
 			CWT();
@@ -139,14 +139,14 @@ public:
 
 
     enum		WaveletType { Morlet, Gaussian, MexicanHat };
-    			mDeclareEnumUtils(WaveletType);
+			mDeclareEnumUtils(WaveletType);
 
     void		setWavelet(CWT::WaveletType);
 
     void		setTransformRange( const StepInterval<float>& rg )
 			{ freqrg_ = rg; }
     void		setDeltaT( float dt )		{ dt_ = dt; }
-			
+
     bool		setInputInfo(const ArrayNDInfo&);
     const ArrayNDInfo&	getInputInfo() const		{ return *info_; }
 
@@ -167,7 +167,7 @@ public:
 				   ArrayND<float_complex>& ) const
 			{ return false; }
     bool		transform(const ArrayND<float_complex>& input,
-	    				ArrayND<float>& output);
+					ArrayND<float>& output);
 
     float		getScale(int ns,float dt,float freq) const;
 
@@ -199,14 +199,14 @@ protected:
     bool		isFast( int ) const { return true; }
 
     void		transform(int,float,int,
-	    			  const Array1DImpl<float_complex>&,
+				  const Array1DImpl<float_complex>&,
 				  Array2DImpl<float>&);
 
     Fourier::CC*	fft_;
     Fourier::CC*	ifft_;
 
     ArrayNDInfo*	info_;
-	    			     
+
     bool		inited_;
     float		dt_;
     WaveletType		wt_;

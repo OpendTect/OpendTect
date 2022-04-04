@@ -158,15 +158,16 @@ public:
 protected:
 
 #ifdef mDAGTriangleForceSingleThread
-    int			maxNrThreads() const { return 1; }
+    int			maxNrThreads() const override { return 1; }
 #endif
-    od_int64		nrIterations() const;
-    bool		doWork(od_int64,od_int64, int );
-    bool		doPrepare(int);
+    od_int64		nrIterations() const override;
+    bool		doWork(od_int64,od_int64,int) override;
+    bool		doPrepare(int) override;
 
-    uiString		uiNrDoneText() const
+    uiString		uiNrDoneText() const override
 			{ return tr("Points triangulated"); }
-    uiString		uiMessage() const { return tr("Triangulating"); }
+    uiString		uiMessage() const override
+			{ return tr("Triangulating"); }
 
     od_int64*		permutation_;
     bool		israndom_;

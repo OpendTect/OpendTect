@@ -56,16 +56,17 @@ public:
     inline		operator bool() const	{ return !isNull(); }
     inline bool		operator !() const	{ return isNull(); }
     inline bool		isNull() const		{ return !str_; }
-    inline char		firstChar() const	{ return str_ ? *str_ : '\0'; }
+    inline char		firstChar() const override
+						{ return str_ ? *str_ : '\0'; }
 
     static const FixedString& empty();
 
 
 protected:
 
-    inline const char*	gtBuf() const
+    inline const char*	gtBuf() const override
 			{ return str_ ? str_ : ""; }
-    inline const char*	gtStr() const
+    inline const char*	gtStr() const override
 			{ return !str_ || !*str_ ? nullptr : str_; }
 
     const char*	str_;

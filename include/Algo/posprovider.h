@@ -32,7 +32,7 @@ mExpClass(Algo) Provider : public virtual Filter
 {
 public:
 
-    virtual bool	isProvider() const;
+    bool		isProvider() const override;
 
     virtual bool	toNextPos()				= 0;
     virtual bool	toNextZ()				= 0;
@@ -44,7 +44,7 @@ public:
     virtual od_int64	estNrPos() const			= 0;
     virtual int		estNrZPerPos() const			{ return 1; }
 
-    virtual float	estRatio(const Provider&) const;
+    float		estRatio(const Provider&) const override;
     virtual void	getTrcKeyZSampling(TrcKeyZSampling&) const;
 
     static Provider*	make(const IOPar&,bool is2d);
@@ -60,20 +60,26 @@ mExpClass(Algo) Provider3D : public Filter3D
 {
 public:
 
-    virtual bool	is2D() const		{ return false; }
+    bool		is2D() const override		{ return false; }
 
     virtual BinID	curBinID() const				= 0;
-    virtual TrcKey	curTrcKey() const { return TrcKey(curBinID()); }
-    virtual Coord	curCoord() const;
+    TrcKey		curTrcKey() const override { return TrcKey(curBinID());}
+    Coord		curCoord() const override;
 
-    virtual bool	includes(const BinID&,float z=mUdf(float)) const = 0;
-    virtual bool	includes(const Coord&,float z=mUdf(float)) const;
+    bool		includes(const BinID&,
+				 float z=mUdf(float)) const override = 0;
+    bool		includes(const Coord&,
+				 float z=mUdf(float)) const override;
 
     virtual void	getExtent(BinID& start,BinID& stop) const	= 0;
     virtual void	getZRange(Interval<float>&) const	= 0;
-    virtual OD::GeomSystem survID() const		{ return gs_; }
+    OD::GeomSystem	survID() const override	{ return gs_; }
 
-    mDefineFactoryInClass(Provider3D,factory);
+    static ::Factory<Provider3D>& factory();
+    uiString		factoryDisplayName() const override
+			{ return uiString::empty(); }
+    const char*		factoryKeyword() const override { return nullptr; }
+
     static Provider3D*	make(const IOPar&);
 
 protected:
@@ -99,18 +105,23 @@ mExpClass(Algo) Provider2D : public Filter2D
 {
 public:
 
-    virtual bool	is2D() const				{ return true; }
+    bool		is2D() const override			{ return true; }
 
     virtual int		curNr() const				= 0;
-    virtual bool	includes(int,float z=mUdf(float), int nr=0) const= 0;
-    virtual bool	includes(const Coord&,float z=mUdf(float)) const = 0;
+    bool		includes(int,float z=mUdf(float),
+				 int nr=0) const override = 0;
+    bool		includes(const Coord&,
+				 float z=mUdf(float)) const override = 0;
 
     virtual void	getExtent(Interval<int>&,int lidx) const = 0;
     virtual void	getZRange(Interval<float>&,int lidx) const = 0;
 
-    virtual OD::GeomSystem survID() const;
+    OD::GeomSystem	survID() const override;
 
-    mDefineFactoryInClass(Provider2D,factory);
+    static ::Factory<Provider2D>& factory();
+    uiString		factoryDisplayName() const override
+			{ return uiString::empty(); }
+    const char*		factoryKeyword() const override { return nullptr; }
     static Provider2D*	make(const IOPar&);
 
 };

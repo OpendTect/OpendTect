@@ -38,7 +38,7 @@ public:
 			totalnr_ = inp[0]->info().getTotalSz();
 		}
 
-    bool	doPrepare( int nrthreads )
+    bool	doPrepare( int nrthreads ) override
 		{
 		    if ( totalnr_ < 1 )
 			return false;
@@ -63,7 +63,7 @@ public:
 		    return true;
 		}
 
-    bool	doWork( od_int64 start, od_int64 stop, int threadidx )
+    bool	doWork( od_int64 start, od_int64 stop, int threadidx ) override
 		{
 		    fT* outarr = out_.getData();
 		    int count = 0;
@@ -93,7 +93,7 @@ public:
 		    return true;
 		}
 
-    od_int64	nrIterations() const { return totalnr_; }
+    od_int64	nrIterations() const override { return totalnr_; }
     void	doNormalize( bool normalize )	{ normalize_ = normalize; }
     const char*	errMsg() const { return msg_.str(); }
 

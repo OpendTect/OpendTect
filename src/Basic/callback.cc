@@ -38,7 +38,7 @@ QCallBackEventReceiver( ThreadID threadid )
     cbers_.setNullAllowed();
 }
 
-bool event( QEvent* ev )
+bool event( QEvent* ev ) override
 {
     if ( ev->type() != the_qevent_type )
 	return false;

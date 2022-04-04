@@ -51,8 +51,8 @@ public:
 mExpClass(Algo) RMOComputer : public MoveoutComputer
 { mODTextTranslationClass(RMOComputer)
 public:
-    int nrVariables() const	{ return 3; }
-    const char* variableName(int idx) const
+    int nrVariables() const override		{ return 3; }
+    const char* variableName(int idx) const override
 		{
 		    switch ( idx )
 		    {
@@ -61,9 +61,10 @@ public:
 			case 2: return "Reference offset";
 		    };
 
-		    return 0;
+		    return nullptr;
 		}
-    bool	computeMoveout(const float*,int,const float*,float*) const;
+    bool	computeMoveout(const float*,int,
+			       const float*,float*) const override;
     static bool computeMoveout(float d0, float rmo, float refoffset,
 			       int,const float*,float*);
 };
@@ -77,8 +78,8 @@ by Alkhalifah and Tsvankin 1995.
 mExpClass(Algo) NormalMoveout : public MoveoutComputer
 { mODTextTranslationClass(NormalMoveout)
 public:
-    int nrVariables() const	{ return 3; }
-    const char* variableName( int idx ) const
+    int nrVariables() const override		{ return 3; }
+    const char* variableName( int idx ) const override
 		{
 		    switch ( idx )
 		    {
@@ -87,9 +88,10 @@ public:
 			case 2: return "Effective anisotrophy";
 		    };
 
-		    return 0;
+		    return nullptr;
 		}
-    bool	computeMoveout(const float*,int,const float*,float*) const;
+    bool	computeMoveout(const float*,int,
+			       const float*,float*) const override;
     static bool computeMoveout(float t0, float Vrms, float effectiveanisotropy,
 			       int,const float*,float*);
 };
@@ -137,7 +139,7 @@ public:
 
 mStartAllowDeprecatedSection
     bool	compute(const float* Vrms, float t0, float v0,
-			const float* t, int nrlayers, float* Vint)
+			const float* t, int nrlayers, float* Vint) override
 		{ return computeDix( Vrms, t0, v0, t, nrlayers, Vint ); }
 mStopAllowDeprecatedSection
 };

@@ -68,22 +68,22 @@ protected:
 		      float_complex* signal);
     static void pfacc(char dir,int sz,float_complex*);
 
-    bool		setup();
+    bool		setup() override;
     bool		normalize_ = false;
 
-    Transform1D*	createTransform() const;
+    Transform1D*	createTransform() const override;
     mClass(Algo) CC1D : public GenericTransformND::Transform1D,
 			public ParallelTask
     {
 	public:
 			CC1D();
 			~CC1D();
-	bool            init();
-	bool            run(bool parallel)
+	bool            init() override;
+	bool            run( bool parallel ) override
 			{ return executeParallel( parallel ); }
-	od_int64        nrIterations() const	{ return nr_; }
-	bool            doPrepare(int);
-	bool            doWork(od_int64 start, od_int64 stop, int );
+	od_int64        nrIterations() const override	{ return nr_; }
+	bool            doPrepare(int) override;
+	bool            doWork(od_int64 start, od_int64 stop, int ) override;
 	void		setNormalization(bool yn)	{ normalize_ = yn; }
 
 	static int	getFastSize(int sz);

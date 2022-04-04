@@ -94,7 +94,7 @@ GridInitializer( ContinuousCurvatureArray2DInterpol* p, int gridsize,
 {}
 
 protected:
-    bool doPrepare( int )
+    bool doPrepare( int ) override
     {
 	if ( gridsize_<1 || interpol_->radius_<=0 )
 	    return false;
@@ -107,7 +107,7 @@ protected:
 	return true;
     }
 
-    bool doWork( od_int64 start, od_int64 stop, int )
+    bool doWork( od_int64 start, od_int64 stop, int ) override
     {
 	for ( int row = 0; row<(int)stop; row++ )
 	{
@@ -175,7 +175,7 @@ protected:
 	return true;
     }
 
-    od_int64	nrIterations() const { return nriterations_; }
+    od_int64	nrIterations() const override { return nriterations_; }
 
 private:
     ContinuousCurvatureArray2DInterpol* interpol_;

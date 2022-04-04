@@ -32,7 +32,7 @@ public:
     inline void		setValue( od_int64 idx, T v ) override;
     inline T*		arr() override;
     inline const T*	arr() const override;
-    inline bool		writable() const;
+    inline bool		writable() const override;
     inline bool		canSetAll() const override;
     inline void		setAll(T) override;
     od_int64		size() const override	{ return cursize_; }

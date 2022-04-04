@@ -34,10 +34,11 @@ const TypeSet<TypeSet<TypeSet<int> > >&	getCubeComps()	{ return slicecomps_; }
 
 protected:
 
-od_int64 nrIterations() const	{ return input_.info().getSize(2); }
-uiString uiMessage() const { return tr("Computing 2D connected	components"); }
+od_int64 nrIterations() const override	{ return input_.info().getSize(2); }
+uiString uiMessage() const override
+{ return tr("Computing 2D connected	components"); }
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )
+bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 {
     for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {

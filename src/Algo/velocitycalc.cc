@@ -36,7 +36,7 @@ public:
 
     float		getValue( const float* pos ) const
 			{ return getValue(*pos); }
-    float		getValue(float val) const
+    float		getValue(float val) const override
     {
 	variables_[variable_] = val;
 	if ( !calc_.computeMoveout( variables_, nroffsets_, offsets_,

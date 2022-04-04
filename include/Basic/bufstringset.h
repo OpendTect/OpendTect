@@ -34,7 +34,7 @@ public:
     explicit		BufferStringSet(const char*);
 			BufferStringSet(const char*,const char*);
 			BufferStringSet(const char*,const char*,const char*);
-    BufferStringSet*	clone() const
+    BufferStringSet*	clone() const override
 			{ return new BufferStringSet(*this); }
     virtual		~BufferStringSet()	{}
     bool		operator ==(const BufferStringSet&) const;
@@ -42,7 +42,7 @@ public:
 
     inline size_type	size() const		{ return strs_.size(); }
     inline bool		isEmpty() const		{ return strs_.isEmpty(); }
-    virtual bool	validIdx( od_int64 i ) const
+    bool		validIdx( od_int64 i ) const override
 						{ return strs_.validIdx(i); }
     idx_type		indexOf(const char*,CaseSensitivity s=CaseSensitive
 						) const; //!< first match
@@ -62,7 +62,7 @@ public:
     const BufferString*	last() const		{ return strs_.last(); }
 
     inline void		setEmpty()		{ strs_.setEmpty(); }
-    virtual void	erase()			{ setEmpty(); }
+    void		erase() override	{ setEmpty(); }
     bool		remove(const char*);
     void		removeSingle( idx_type i ) { strs_.removeSingle(i); }
     void		removeRange( idx_type i1, idx_type i2 )
@@ -137,10 +137,10 @@ public:
 
     // remainder of OD::Set interface
 
-    virtual od_int64	nrItems() const		{ return size(); }
-    virtual void	swapItems( od_int64 i1, od_int64 i2 )
+    od_int64		nrItems() const override	{ return size(); }
+    void		swapItems( od_int64 i1, od_int64 i2 ) override
 			{ swap( idx_type(i1), idx_type(i2) ); }
-    virtual void	reverse()		{ strs_.reverse(); }
+    void		reverse() override		{ strs_.reverse(); }
 
 public:
 

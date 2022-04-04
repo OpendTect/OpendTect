@@ -29,8 +29,8 @@ public:
 				Geometry2D(PosInfo::Line2DData*);
 				//!<Line2DData becomes mine
 
-    virtual bool		is2D() const		{ return true; }
-    virtual const char*		getName() const;
+    bool			is2D() const override	{ return true; }
+    const char*			getName() const override;
 
     void			add(const Coord&,int trcnr,float spnr);
     void			add(double x,double y,int trcnr,float spnr);
@@ -44,11 +44,12 @@ public:
     bool			getPosByCoord(const Coord&,
 					      int& trc,float& sp) const;
 
-    virtual Coord		toCoord(int linenr,int tracenr) const;
+    Coord			toCoord(int linenr,int tracenr) const override;
     Coord			toCoord(int tracenr) const;
-    virtual TrcKey		nearestTrace(const Coord&,float* dist) const;
+    TrcKey			nearestTrace(const Coord&,
+					     float* dist) const override;
 
-    virtual bool		includes(int linenr,int tracenr) const;
+    bool			includes(int linenr,int tracenr) const override;
 
     PosInfo::Line2DData&	dataAdmin()		{ return data_; }
 				//!<If data is changed, call touch afterwards
@@ -61,13 +62,14 @@ public:
 
     static BufferString		makeUniqueLineName(const char* lsnm,
 						   const char* lnm);
-    float			averageTrcDist() const;
+    float			averageTrcDist() const override;
     void			setAverageTrcDist(float);
     float			lineLength() const;
     void			setLineLength(float);
-    RelationType		compare(const Geometry&,bool usezrg) const;
+    RelationType		compare(const Geometry&,
+					bool usezrg) const override;
 
-    Geometry2D*			as2D()			{ return this; }
+    Geometry2D*			as2D() override		{ return this; }
 
 protected:
 				~Geometry2D();

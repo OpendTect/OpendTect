@@ -62,35 +62,37 @@ public:
     bool		isAboveIsovalue() const { return aboveisovalue_; }
 			/*<Only when use input value. */
 
-    int			maxNrThreads() const	{ return compartments_.size(); }
-    od_int64		nrIterations() const{return input_.info().getTotalSz();}
+    int			maxNrThreads() const override
+			{ return compartments_.size(); }
+    od_int64		nrIterations() const override
+			{ return input_.info().getTotalSz(); }
 
 protected:
 
-    void			setOutput(int,int,int,bool addseed);
-    bool			doWork(od_int64 start,od_int64 stop,int);
-    int				getNextWorkCompartment();
-    void			returnCompartment(int);
+    void		setOutput(int,int,int,bool addseed);
+    bool		doWork(od_int64 start,od_int64 stop,int) override;
+    int			getNextWorkCompartment();
+    void		returnCompartment(int);
 
-    int				getWorkCompartment(int,int,int) const;
+    int			getWorkCompartment(int,int,int) const;
 
-    T				threshold_;
-    bool			aboveisovalue_;
-    int				use6neighbors_;
-    bool			useinputval_;
-    T				insideval_;
-    T				outsideval_;
+    T			threshold_;
+    bool		aboveisovalue_;
+    int			use6neighbors_;
+    bool		useinputval_;
+    T			insideval_;
+    T			outsideval_;
 
-    int				nrcomp0_;
-    int				compsz0_;
-    int				nrcomp1_;
-    int				compsz1_;
-    int				nrcomp2_;
-    int				compsz2_;
+    int			nrcomp0_;
+    int			compsz0_;
+    int			nrcomp1_;
+    int			compsz1_;
+    int			nrcomp2_;
+    int			compsz2_;
 
-    int				sz0_;
-    int				sz1_;
-    int				sz2_;
+    int			sz0_;
+    int			sz1_;
+    int			sz2_;
 
     struct Compartment
     {

@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 /*!
 \brief Specification to enable chunkwise execution of a process.
-  
+
   Interface enabling separation of the control of execution of any process from
   what actually is going on. The work is done by calling the doStep() method
   until either ErrorOccurred or Finished is returned. To enable logging and/or
@@ -27,11 +27,11 @@ ________________________________________________________________________
   Secondly, info on the progress.
   It is common that Executors are combined to a new Executor object. This is
   the most common reason why totalNr() can change.
-  
+
   If doStep returns -1 (Failure) the error message should be in uiMessage().
-  
+
   The execute() utility executes the process while logging uiMessage() etc. to
-  a stream. Useful in batch situations.  
+  a stream. Useful in batch situations.
 */
 
 mExpClass(Basic) Executor : public SequentialTask
@@ -42,7 +42,7 @@ public:
 			    , prestep(this), poststep(this)	{}
     virtual		~Executor()			{}
 
-    virtual int		doStep();
+    int			doStep() override;
 
     inline bool		go( od_ostream* s=0, bool isfirst=true,
 			    bool islast=true, int delaybtwnstepsinms=0 )
@@ -54,8 +54,8 @@ public:
     Notifier<Executor>	prestep;
     Notifier<Executor>	poststep; //!< Only when MoreToDo will be returned.
 
-    			// Being a Task requires:
-    virtual bool	execute()	{ return go(); }
+			// Being a Task requires:
+    bool		execute() override	{ return go(); }
 
 protected:
 
@@ -66,7 +66,7 @@ protected:
 
 /*!
 \brief Executor consisting of other executors.
-  
+
   Executors may be added on the fly while processing. Depending on the
   parallel flag, the executors are executed in the order in which they were
   added or in parallel (but still single-threaded).
@@ -75,27 +75,27 @@ protected:
 mExpClass(Basic) ExecutorGroup : public Executor
 {
 public:
-    			ExecutorGroup( const char* nm, bool parallel=false,
+			ExecutorGroup( const char* nm, bool parallel=false,
 				       bool ownsexecs=true );
     virtual		~ExecutorGroup();
     virtual void	add( Executor* );
-    			/*!< You will become mine if ownsexecs_ is true!! */
+			/*!< You will become mine if ownsexecs_ is true!! */
 
-    uiString		uiMessage() const;
-    virtual od_int64	totalNr() const;
-    virtual od_int64	nrDone() const;
-    uiString		uiNrDoneText() const;
-    
+    uiString		uiMessage() const override;
+    od_int64		totalNr() const override;
+    od_int64		nrDone() const override;
+    uiString		uiNrDoneText() const override;
+
     int			nrExecutors() { return executors_.size(); }
     Executor*		getExecutor(int idx) { return executors_[idx]; }
 
     void		setNrDoneText(const uiString& txt)
 			{ nrdonetext_ = txt; }
-    			//!< If set, will use this and the counted nrdone
+			//!< If set, will use this and the counted nrdone
 
 protected:
 
-    virtual int		nextStep();
+    int			nextStep() override;
     virtual bool	goToNextExecutor();
     void		findNextSumStop();
 
@@ -122,7 +122,7 @@ public:
 			    : TaskRunner()
 			    , strm_(strm)	{}
 
-    bool		execute(Task&);
+    bool		execute(Task&) override;
 
 protected:
 

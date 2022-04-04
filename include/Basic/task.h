@@ -92,7 +92,7 @@ public:
 protected:
 			ReportingTask(const char* nm=nullptr);
 
-    virtual void	setProgressMeter(ProgressMeter*);
+    void		setProgressMeter(ProgressMeter*) override;
     ProgressMeter*	progressMeter() const	{ return progressmeter_; }
 
     void		reportProgressStarted();
@@ -127,17 +127,17 @@ public:
     void		setEmpty();
     void		getTasks(TaskGroup&);
 
-    od_int64		nrDone() const;
-    od_int64		totalNr() const;
+    od_int64		nrDone() const override;
+    od_int64		totalNr() const override;
 
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
 
-    virtual bool	execute();
+    bool		execute() override;
 
-    void		enableWorkControl(bool=true);
-    virtual void	controlWork(Control);
-    virtual Control	getState() const;
+    void		enableWorkControl(bool=true) override;
+    void		controlWork(Control) override;
+    Control		getState() const override;
 
 protected:
 
@@ -175,7 +175,7 @@ public:
     static int	MoreToDo()				{ return 1; }
     static int	WarningAvailable()			{ return 2; }
 
-    bool	execute();
+    bool	execute() override;
 
 protected:
 

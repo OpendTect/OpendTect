@@ -157,10 +157,10 @@ public:
 
 protected:
 
-    int			maxNrThreads() const	{ return 1; }
-    od_int64		nrIterations() const;
-    bool		doWork(od_int64,od_int64,int);
-    bool		doPrepare(int);
+    int			maxNrThreads() const override	{ return 1; }
+    od_int64		nrIterations() const override;
+    bool		doWork(od_int64,od_int64,int) override;
+    bool		doPrepare(int) override;
 
     TypeSet<int>	permutation_;
     bool		israndom_;

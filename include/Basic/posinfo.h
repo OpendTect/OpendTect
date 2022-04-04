@@ -139,7 +139,7 @@ public:
     bool		read(od_istream&,bool asc);
     bool		write(od_ostream&,bool asc) const;
 
-    virtual int		indexOf( const LineData* l ) const
+    int			indexOf( const LineData* l ) const override
 			{ return ObjectSet<LineData>::indexOf( l ); }
 
 protected:
@@ -170,17 +170,17 @@ public:
     SortedCubeData&	operator =( const CubeData& cd )
 			{ copyContents(cd); return *this; }
 
-    virtual int		indexOf(int inl,int* newidx=0) const;
+    int			indexOf(int inl,int* newidx=0) const override;
 			//!< newidx only filled if not null and -1 is returned
 
     SortedCubeData&	add(LineData*);
 
-    virtual int		indexOf( const LineData* l ) const
+    int			indexOf( const LineData* l ) const override
 			{ return CubeData::indexOf( l ); }
 
 protected:
 
-    virtual CubeData&	doAdd(LineData*);
+    CubeData&		doAdd(LineData*) override;
 
 };
 

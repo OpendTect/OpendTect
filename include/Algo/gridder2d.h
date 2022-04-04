@@ -120,24 +120,24 @@ public:
 		InverseDistanceGridder2D();
 		InverseDistanceGridder2D(const InverseDistanceGridder2D&);
 
-    Gridder2D*		clone() const;
+    Gridder2D*		clone() const override;
 
     static uiString	searchRadiusErrMsg();
     static const char*	sKeySearchRadius()	{ return "SearchRadius"; }
 
-    bool		operator==(const Gridder2D&) const;
+    bool		operator==(const Gridder2D&) const override;
 
     void		setSearchRadius(float);
     float		getSearchRadius() const { return radius_; }
 
-    bool		wantsAllPoints() const { return false; }
-    bool		allPointsAreRelevant() const;
-    bool		isPointUsable(const Coord&,const Coord&) const;
+    bool		wantsAllPoints() const override { return false; }
+    bool		allPointsAreRelevant() const override;
+    bool		isPointUsable(const Coord&,const Coord&) const override;
     bool		getWeights(const Coord&,TypeSet<double>& weights,
-				   TypeSet<int>& relevantpoints) const;
+				   TypeSet<int>& relevantpoints) const override;
 
-    bool		usePar(const IOPar&);
-    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
 
 protected:
 
@@ -161,15 +161,15 @@ public:
 			TriangulatedGridder2D(
 				const TriangulatedGridder2D&);
 			~TriangulatedGridder2D();
-    Gridder2D*		clone() const;
+    Gridder2D*		clone() const override;
 
 
     void		setGridArea(const Interval<float>&,
-				    const Interval<float>&);
+				    const Interval<float>&) override;
 
-    bool		allPointsAreRelevant() const;
+    bool		allPointsAreRelevant() const override;
     bool		getWeights(const Coord&,TypeSet<double>& weights,
-				   TypeSet<int>& relevantpoints) const;
+				   TypeSet<int>& relevantpoints) const override;
 
 protected:
 
@@ -180,7 +180,7 @@ protected:
 
     Coord			center_;
 
-    bool		pointsChangedCB(CallBacker*);
+    bool		pointsChangedCB(CallBacker*) override;
 };
 
 
@@ -201,20 +201,23 @@ public:
 			RadialBasisFunctionGridder2D(
 				const RadialBasisFunctionGridder2D&);
 			~RadialBasisFunctionGridder2D();
-    Gridder2D*		clone() const;
+    Gridder2D*		clone() const override;
 
     static const char*	sKeyIsMetric()		{ return "IsMetric"; }
 
-    bool		operator==(const Gridder2D&) const;
+    bool		operator==(const Gridder2D&) const override;
 
     void		setMetricTensor(double m11,double m12,double m22);
 
-    bool		allPointsAreRelevant() const;
+    bool		allPointsAreRelevant() const override;
     bool		getWeights(const Coord&,TypeSet<double>& weights,
-				   TypeSet<int>& relevantpoints) const;
-    bool		areWeightsValuesDependent() const      { return true; }
-    float		getValue(const Coord&,const TypeSet<double>* weights=0,
-				 const TypeSet<int>* relevantpoints=0) const;
+				   TypeSet<int>& relevantpoints) const override;
+    bool		areWeightsValuesDependent() const override
+			{ return true; }
+    float		getValue(const Coord&,
+				 const TypeSet<double>* weights=nullptr,
+				 const TypeSet<int>* relevantpoints=nullptr)
+								const override;
 
 protected:
 
@@ -234,8 +237,8 @@ protected:
     double		getRadius(const Coord& pos1,const Coord& pos2) const;
     static double	evaluateRBF(double radius,double scale=1.);
 
-    bool		pointsChangedCB(CallBacker*);
-    void		valuesChangedCB(CallBacker*);
+    bool		pointsChangedCB(CallBacker*) override;
+    void		valuesChangedCB(CallBacker*) override;
     bool		setWeights(const Coord&,TypeSet<double>& weights,
 				   TypeSet<int>* usedpoints=0) const;
 };

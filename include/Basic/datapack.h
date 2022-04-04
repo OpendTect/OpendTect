@@ -102,7 +102,7 @@ public:
     void		setBuf( char* b, od_int64 s )
 			{ delete [] buf_; sz_ = s; buf_ = b; }
 
-    virtual float	nrKBytes() const	{ return sz_*sKb2MbFac(); }
+    float		nrKBytes() const override { return sz_*sKb2MbFac(); }
 
 protected:
 

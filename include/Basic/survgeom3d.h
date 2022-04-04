@@ -30,11 +30,11 @@ public:
 
     static Geometry3D&	current();
 
-    virtual bool	is2D() const		{ return false; }
-    virtual const char*	getName() const		{ return name_; }
-    virtual void	setName( const char* nm ) { name_ = nm; }
+    bool		is2D() const override		{ return false; }
+    const char*		getName() const override	{ return name_; }
+    void		setName( const char* nm )	{ name_ = nm; }
 
-    float		zScale() const		{ return zscale_; }
+    float		zScale() const			{ return zscale_; }
 
     StepInterval<int>	inlRange() const;
     StepInterval<int>	crlRange() const;
@@ -44,9 +44,10 @@ public:
 
     float		zStep() const;
 
-    virtual Coord	toCoord(int line,int tracenr) const;
-    virtual TrcKey	nearestTrace(const Coord&,float* distance) const;
-    virtual bool	includes(int line,int tracenr) const;
+    Coord		toCoord(int line,int tracenr) const override;
+    TrcKey		nearestTrace(const Coord&,
+				     float* distance) const override;
+    bool		includes(int line,int tracenr) const override;
 
     Coord		transform(const BinID&) const;
     BinID		transform(const Coord&) const;
@@ -68,10 +69,10 @@ public:
     Coord3		oneStepTranslation(const Coord3& planenormal) const;
     void		setGeomData(const Pos::IdxPair2Coord&,
 					const TrcKeyZSampling&,float zscl);
-    float		averageTrcDist() const;
-    RelationType	compare(const Geometry&,bool usezrg) const;
+    float		averageTrcDist() const override;
+    RelationType	compare(const Geometry&,bool usezrg) const override;
 
-    Geometry3D*		as3D()			{ return this; }
+    Geometry3D*		as3D() override		{ return this; }
 
     void		snap(BinID&,const BinID& dir=BinID(0,0)) const;
 			//!< dir = 0 : auto; -1 round downward, 1 round upward);

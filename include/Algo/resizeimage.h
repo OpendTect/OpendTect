@@ -29,10 +29,10 @@ public:
 
 protected:
 
-    od_int64			nrIterations() const;
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
-    bool			doFinish(bool);
+    od_int64			nrIterations() const override;
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64,od_int64,int) override;
+    bool			doFinish(bool) override;
 
     int				lanczossize_;
 

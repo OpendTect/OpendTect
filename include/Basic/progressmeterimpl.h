@@ -32,18 +32,18 @@ public:
     void		setFrom(const Task&);
 
     void		setForwardTo(ProgressMeter*);
-    virtual void	setStarted();
-    virtual void	setFinished();
-    virtual void	setName(const char*);
-    virtual void	setTotalNr(od_int64);
-    virtual void	setNrDone(od_int64);
-    virtual void	setMessage(const uiString&);
+    void		setStarted() override;
+    void		setFinished() override;
+    void		setName(const char*) override;
+    void		setTotalNr(od_int64) override;
+    void		setNrDone(od_int64) override;
+    void		setMessage(const uiString&) override;
     void		setMessage(const uiString&,bool printtolog);
-    virtual void	setNrDoneText(const uiString&);
-    virtual void	operator++();
+    void		setNrDoneText(const uiString&) override;
+    void		operator++() override;
 
     const char*		name() const;
-    virtual od_int64	nrDone() const;
+    od_int64		nrDone() const override;
     od_int64		totalNr() const;
     uiString		message() const;
     uiString		nrDoneText() const;
@@ -51,7 +51,7 @@ public:
     bool		isFinished() const;
     ProgressMeter*	forwardTo() const;
 
-    virtual void	skipProgress(bool);
+    void		skipProgress(bool) override;
 
 protected:
 
@@ -82,24 +82,24 @@ public:
     static int		cDefaultRowLen() { return 50; }
     static int		cNrCharsPerRow() { return 80; }
 
-    void		setName(const char*);
-    void		setStarted();
-    void		setFinished();
-    void		setNrDone(od_int64);
-    void		setTotalNr(od_int64 t)
+    void		setName(const char*) override;
+    void		setStarted() override;
+    void		setFinished() override;
+    void		setNrDone(od_int64) override;
+    void		setTotalNr(od_int64 t) override
 			{
 			    Threads::Locker lock( lock_ );
 			    totalnr_ = t;
 			}
 
-    void		setMessage(const uiString&);
+    void		setMessage(const uiString&) override;
     void		printMessage(const uiString&);
 
 			/*!<This setting will not reset unless you call it.*/
-    void		skipProgress( bool yn )		{ skipprog_ = yn; }
+    void		skipProgress( bool yn ) override { skipprog_ = yn; }
 
-    void		operator++();
-    od_int64		nrDone() const			{ return nrdone_; }
+    void		operator++() override;
+    od_int64		nrDone() const override		{ return nrdone_; }
 
     void		reset();
 

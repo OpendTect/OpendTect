@@ -81,12 +81,11 @@ public:
 	nrsamples_ = doall_ ? nrvals_ : mNINT64(sz * prob);
     }
 
-    od_int64 nrIterations() const
-    { return nrsamples_; }
+    od_int64 nrIterations() const override	{ return nrsamples_; }
 
-    int minThreadSize() const { return 100000; }
+    int minThreadSize() const override		{ return 100000; }
 
-    bool doWork( od_int64 start, od_int64 stop, int )
+    bool doWork( od_int64 start, od_int64 stop, int ) override
     {
 	TypeSet<float> localsamples;
 	Interval<float> localrg( mUdf(float), -mUdf(float) );

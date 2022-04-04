@@ -117,14 +117,15 @@ public:
 				totalnr_ += getFileSize( filelist_.get(idx) );
 			}
 
-    od_int64		nrDone() const		{ return nrdone_ / mMBFactor; }
-    od_int64		totalNr() const		{ return totalnr_ / mMBFactor; }
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("MBytes copied"); }
+    od_int64		nrDone() const override	{ return nrdone_ / mMBFactor; }
+    od_int64		totalNr() const override { return totalnr_ / mMBFactor;}
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("MBytes copied"); }
 
 protected:
 
-    int			nextStep();
+    int			nextStep() override;
 
     int			fileidx_	= 0;
     od_int64		totalnr_	= 0;
@@ -197,13 +198,13 @@ public:
 			    totalnr_ = filelist_.size();
 			}
 
-    od_int64		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const		{ return totalnr_; }
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override	{ return totalnr_; }
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
 			{ return mToUiStringTodo( "Files removed" ); }
 
-    int			nextStep();
+    int			nextStep() override;
 
 protected:
 

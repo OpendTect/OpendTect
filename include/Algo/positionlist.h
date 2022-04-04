@@ -97,14 +97,14 @@ mExpClass(Algo) Coord2ListImpl : public Coord2List
 public:
 			Coord2ListImpl();
 
-    virtual int		nextID(int previd) const;
-    virtual Coord	get(int id) const;
-    virtual void	set(int id,const Coord&);
-    virtual int		add(const Coord&);
-    virtual void	remove(int id);
-    virtual void	remove(const TypeSet<int>&);
-    virtual void	addValue(int id,const Coord&);
-    virtual int		size() const
+    int			nextID(int previd) const override;
+    Coord		get(int id) const override;
+    void		set(int id,const Coord&) override;
+    int			add(const Coord&) override;
+    void		remove(int id) override;
+    void		remove(const TypeSet<int>&) override;
+    void		addValue(int id,const Coord&) override;
+    int			size() const override
 			{ return points_.size() - removedids_.size(); }
 
 protected:
@@ -123,15 +123,15 @@ mExpClass(Algo) Coord3ListImpl : public Coord3List
 public:
 			Coord3ListImpl();
 
-    virtual int		nextID(int previd) const;
-    virtual Coord3	get(int id) const;
-    virtual void	set(int id,const Coord3&);
-    virtual int		add(const Coord3&);
-    virtual bool	isDefined(int) const;
-    virtual void	remove(int id);
-    virtual void	addValue(int id,const Coord3&);
-    virtual void	remove(const TypeSet<int>&);
-    virtual int		size() const
+    int			nextID(int previd) const override;
+    Coord3		get(int id) const override;
+    void		set(int id,const Coord3&) override;
+    int			add(const Coord3&) override;
+    bool		isDefined(int) const override;
+    void		remove(int id) override;
+    void		addValue(int id,const Coord3&) override;
+    void		remove(const TypeSet<int>&) override;
+    int			size() const override
 			{ return coords_.size() - removedids_.size(); }
 
 protected:

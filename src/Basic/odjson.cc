@@ -155,14 +155,14 @@ bool isValSet() const
 
 
 //class KeyedValue
-class KeyedValue :public Value
+class KeyedValue : public Value
 {
 public:
 
     BufferString	key_;
 
-    virtual bool isKeyed() const { return true; }
-    virtual Value* getEmptyClone() const { return new KeyedValue(key_); }
+    bool	isKeyed() const override	{ return true; }
+    Value*	getEmptyClone() const override  { return new KeyedValue(key_); }
 
 KeyedValue( const char* ky ) : key_(ky)	{}
 

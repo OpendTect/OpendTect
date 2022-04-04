@@ -46,7 +46,7 @@ fixedstreambuf( char_type* b, off_type sz, bool manbuf=false )
 	delete [] buf_;
 }
 
-virtual fixedstreambuf* setbuf( char_type* b, streamsize n )
+fixedstreambuf* setbuf( char_type* b, streamsize n ) override
 {
     buf_ = b; sz_ = n;
     setg( buf_, buf_, buf_ + sz_ );
@@ -55,8 +55,8 @@ virtual fixedstreambuf* setbuf( char_type* b, streamsize n )
     return this;
 }
 
-virtual pos_type seekoff( off_type offs, ios_base::seekdir sd,
-			  ios_base::openmode which )
+pos_type seekoff( off_type offs, ios_base::seekdir sd,
+		  ios_base::openmode which ) override
 {
     newpos_ = offs;
     if ( sd == ios_base::cur )
@@ -67,7 +67,7 @@ virtual pos_type seekoff( off_type offs, ios_base::seekdir sd,
     return seekpos( newpos_, which );
 }
 
-virtual pos_type seekpos( pos_type newpos, ios_base::openmode which )
+pos_type seekpos( pos_type newpos, ios_base::openmode which ) override
 {
     if ( newpos_ < 0 || newpos_ >= sz_ )
 	newpos_ = -1;
@@ -79,7 +79,7 @@ virtual pos_type seekpos( pos_type newpos, ios_base::openmode which )
     return newpos_;
 }
 
-virtual streamsize xsgetn( char_type* s, streamsize n )
+streamsize xsgetn( char_type* s, streamsize n ) override
 {
     streamsize toget = n;
     const od_int64 memsz = epptr() - pptr();
@@ -92,7 +92,7 @@ virtual streamsize xsgetn( char_type* s, streamsize n )
     return toget;
 }
 
-virtual streamsize xsputn( const char_type* s, streamsize n )
+streamsize xsputn( const char_type* s, streamsize n ) override
 {
     streamsize toput = n;
     const od_int64 memsz = epptr() - pptr();

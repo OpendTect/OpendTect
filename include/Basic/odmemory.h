@@ -52,14 +52,14 @@ public:
     void	setTarget( ValueSeries<T>& vs )	{ ptr_ = vs.arr(); vs_ = &vs; }
     void	setSize( od_int64 sz )		{ sz_ = sz; }
 
-    uiString	uiMessage() const	{ return tr("Value setter"); }
-    uiString	uiNrDoneText() const	{ return sPosFinished(); }
+    uiString	uiMessage() const override	{ return tr("Value setter"); }
+    uiString	uiNrDoneText() const override	{ return sPosFinished(); }
 
 
 protected:
 
-    od_int64	nrIterations() const		{ return sz_; }
-    int		minThreadSize() const		{ return mODMemMinThreadSize; }
+    od_int64	nrIterations() const override	{ return sz_; }
+    int		minThreadSize() const override	{ return mODMemMinThreadSize; }
     bool	setPtr(od_int64 start,od_int64 size);
 
     ValueSeries<T>*	vs_;
@@ -70,8 +70,8 @@ protected:
 
 private:
 
-    bool	doPrepare(int);
-    bool	doWork(od_int64,od_int64,int);
+    bool	doPrepare(int) override;
+    bool	doWork(od_int64,od_int64,int) override;
 
 };
 
@@ -102,14 +102,14 @@ public:
 						  outvs_ = &vs; }
     void	setSize(od_int64 sz)		{ sz_ = sz; }
 
-    uiString	uiMessage() const	{ return tr("Value copier"); }
-    uiString	uiNrDoneText() const	{ return sPosFinished(); }
+    uiString	uiMessage() const override	{ return tr("Value copier"); }
+    uiString	uiNrDoneText() const override	{ return sPosFinished(); }
 
 
 protected:
 
-    od_int64	nrIterations() const		{ return sz_; }
-    int		minThreadSize() const		{ return mODMemMinThreadSize; }
+    od_int64	nrIterations() const override	{ return sz_; }
+    int		minThreadSize() const override	{ return mODMemMinThreadSize; }
     inline bool setPtr(od_int64 start,od_int64 size);
 
     const T*		inptr_;
@@ -120,8 +120,8 @@ protected:
 
 private:
 
-    bool	doPrepare(int);
-    bool	doWork(od_int64,od_int64,int);
+    bool	doPrepare(int) override;
+    bool	doWork(od_int64,od_int64,int) override;
 
 };
 
@@ -145,15 +145,15 @@ public:
     void        setPtr(ValueSeries<T>& vs)	{ ptr_ = vs.arr(); vs_ = &vs; }
     void        setSize(od_int64 sz)		{ sz_ = sz; }
 
-    uiString	uiMessage() const	{ return tr("Value replacer"); }
-    uiString	uiNrDoneText() const	{ return sPosFinished(); }
+    uiString	uiMessage() const override	{ return tr("Value replacer"); }
+    uiString	uiNrDoneText() const override	{ return sPosFinished(); }
 
 
 protected:
 
-    od_int64		nrIterations() const	{ return sz_; }
-    int			minThreadSize() const	{ return mODMemMinThreadSize; }
-    bool                setPtr(od_int64 start,od_int64 size);
+    od_int64	nrIterations() const override	{ return sz_; }
+    int		minThreadSize() const override	{ return mODMemMinThreadSize; }
+    bool	setPtr(od_int64 start,od_int64 size);
 
     ValueSeries<T>*     vs_;
     T*                  ptr_;
@@ -163,8 +163,8 @@ protected:
 
 private:
 
-    bool	doPrepare(int);
-    bool	doWork(od_int64,od_int64,int);
+    bool	doPrepare(int) override;
+    bool	doWork(od_int64,od_int64,int) override;
 
 };
 

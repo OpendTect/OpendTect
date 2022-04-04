@@ -68,7 +68,8 @@ public:
 
     void		doParallel(bool yn)	{ parallel_ = yn; }
 
-    bool		execute() { return executeParallel(parallel_); }
+    bool		execute() override
+			{ return executeParallel(parallel_); }
 			/*!<Runs the process the desired number of times. \note
 			    that the function has static threads (normally the
 			    same number as there are processors on the machine),
@@ -81,10 +82,10 @@ public:
 			    and these static threads will be shared by all
 			    instances of ParallelTask::execute. */
 
-    od_int64		nrDone() const;
+    od_int64		nrDone() const override;
 			//!<May be -1, i.e. class does not report nrdone.
 
-    od_int64		totalNr() const	{ return nrIterations(); }
+    od_int64		totalNr() const override { return nrIterations(); }
     static uiString	sPosFinished()	{ return tr("Positions finished"); }
     static uiString	sTrcFinished()	{ return tr("Traces finished"); }
 
@@ -183,9 +184,9 @@ interp.execute();
     od_int64	sz_; \
     bool	reportprogress_; \
     void	setReport(bool yn)		{ reportprogress_ = yn; } \
-    od_int64	nrIterations() const		{ return sz_; } \
-    uiString	uiMessage() const		{ return uimsg; } \
-    uiString	uiNrDoneText() const		{ return sPosFinished(); } \
+    od_int64	nrIterations() const override	{ return sz_; } \
+    uiString	uiMessage() const override	{ return uimsg; } \
+    uiString	uiNrDoneText() const override	{ return sPosFinished(); } \
 
 #define mDefParallelCalcNoPars(clss,uimsg) \
 	class clss : public ParallelTask \
@@ -278,7 +279,7 @@ interp.execute();
 		, v5##_(_##v5##_), v6##_(_##v6##_), v7##_(_##v7##_)    {} \
 
 #define mDefParallelCalcBody(preop,impl,postop) \
-	    bool doWork( od_int64 start, od_int64 stop, int ) \
+	    bool doWork( od_int64 start, od_int64 stop, int ) override \
 	    { \
 		preop; \
 		for ( od_int64 idx=start; idx<=stop; idx++ ) \

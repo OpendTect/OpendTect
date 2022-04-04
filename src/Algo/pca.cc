@@ -23,10 +23,10 @@ ___________________________________________________________________
 class PCACovarianceCalculator : public SequentialTask
 {
 public:
-    		PCACovarianceCalculator( Array2D<float>& covariancematrix,
+		PCACovarianceCalculator( Array2D<float>& covariancematrix,
 					 int row, int col,
 					 ObjectSet<TypeSet<float> >& samples,
-		       			 const TypeSet<float>& samplesums )
+					 const TypeSet<float>& samplesums )
 		    : row_( row )
 		    , col_( col )
 		    , covariancematrix_( covariancematrix )
@@ -35,9 +35,9 @@ public:
 		{}
 
 protected:
-    int					nextStep();
+    int					nextStep() override;
     int					row_;
-    int 				col_;
+    int				col_;
     Array2D<float>&			covariancematrix_;
     const ObjectSet<TypeSet<float> >&	samples_;
     const TypeSet<float>&		samplesums_;
@@ -276,7 +276,7 @@ void PCA::tred2( ObjectSet<float>& a, int n, float d[], float e[])
 bool PCA::calculate()
 {
     Threads::WorkManager::twm().addWork( workload_,
-	    	Threads::WorkManager::cDefaultQueueID() );
+		Threads::WorkManager::cDefaultQueueID() );
 
     // Now, get the eigenvalues
     mAllocLargeVarLenArr( float, d, nrvars_+1 );
@@ -295,7 +295,7 @@ bool PCA::calculate()
     for ( int idx=0; idx<nrvars_; idx++ )
     {
 	//Store the negative number to get the sorting right
-	eigenvalues_[idx] = -d[idx+1];		
+	eigenvalues_[idx] = -d[idx+1];
 	eigenvecindexes_[idx] = idx;
     }
 

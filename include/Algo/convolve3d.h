@@ -39,17 +39,20 @@ public:
     void		setHasUdfs(bool yn)		{ hasudfs_ = yn; }
 			//!<Default is false
 
-    virtual bool	executeParallel(bool);
+    bool		executeParallel(bool) override;
 
-    uiString		uiMessage() const { return tr("Convolving 3D volume"); }
-    uiString		uiNrDoneText() const { return tr("Positions done"); }
+    uiString		uiMessage() const override
+			{ return tr("Convolving 3D volume"); }
+    uiString		uiNrDoneText() const override
+			 { return tr("Positions done"); }
 
 protected:
     inline bool		shouldFFT() const;
 
     bool		doFFT();
-    inline bool		doWork( od_int64, od_int64, int );
-    od_int64		nrIterations() const { return z_->info().getTotalSz(); }
+    inline bool		doWork(od_int64,od_int64,int) override;
+    od_int64		nrIterations() const override
+			{ return z_->info().getTotalSz(); }
     const Array3D<T>*	x_;
     int			xshift0_;
     int			xshift1_;

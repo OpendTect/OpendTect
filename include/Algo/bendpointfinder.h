@@ -29,20 +29,21 @@ mExpClass(Algo) BendPointFinderBase : public ParallelTask
 public:
 
     const TypeSet<int>&	bendPoints() const	{ return bendpts_; }
-    uiString		uiNrDoneText() const	{ return tr("Positions done"); }
+    uiString		uiNrDoneText() const override
+			{ return tr("Positions done"); }
 
 protected:
 			BendPointFinderBase( int sz, float eps );
-    od_int64		nrIterations() const { return sz_; }
-    bool		doWork( od_int64, od_int64, int );
-    virtual float	getMaxSqDistToLine(int& idx, int start,
-					   int stop ) const		= 0;
+    od_int64		nrIterations() const override { return sz_; }
+    bool		doWork(od_int64,od_int64,int) override;
+    virtual float	getMaxSqDistToLine(int& idx,int start,
+					   int stop) const		= 0;
 			/*!<Give the index of the point that is furthest from
 			    the line from start to stop.
 			    \returns the squre of the largest distance */
     void		findInSegment( int, int );
-    bool		doPrepare(int);
-    bool		doFinish(bool);
+    bool		doPrepare(int) override;
+    bool		doFinish(bool) override;
 
     TypeSet<int>		bendpts_;
     TypeSet<Interval<int> >	queue_;
@@ -72,7 +73,7 @@ protected:
 
     virtual const Coord&	coord(int idx) const		= 0;
 
-    float	getMaxSqDistToLine(int& idx,int start,int stop) const;
+    float	getMaxSqDistToLine(int& idx,int start,int stop) const override;
 };
 
 
@@ -88,7 +89,7 @@ public:
 
 protected:
 
-    const Coord&		coord(int idx) const;
+    const Coord&		coord(int idx) const override;
     const Coord*		coords_;
 };
 
@@ -104,7 +105,7 @@ public:
 
 protected:
 
-    const Coord&		coord(int idx) const;
+    const Coord&		coord(int idx) const override;
     const TypeSet<TrcKey>&	tks_;
     TypeSet<Coord>		coords_;
 };
@@ -121,7 +122,7 @@ public:
 				      float eps);
 protected:
 
-    const Coord&			coord(int idx) const;
+    const Coord&			coord(int idx) const override;
     const TypeSet<PosInfo::Line2DPos>&	positions_;
 };
 
@@ -136,7 +137,7 @@ public:
 		BendPointFinder3D(const TypeSet<Coord3>&,
 				  const Coord3& scale,float eps);
 protected:
-    float	getMaxSqDistToLine(int& idx,int start,int stop) const;
+    float	getMaxSqDistToLine(int& idx,int start,int stop) const override;
 
     const Coord3*	coords_;
     const Coord3	scale_;

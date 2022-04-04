@@ -40,7 +40,7 @@ public:
 	{ }
 
 protected:
-    int					nextStep();
+    int					nextStep() override;
 
     TypeSet<unsigned int>&		calcpositions_;
     Array3DInfo&			datainfo_;

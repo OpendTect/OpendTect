@@ -43,9 +43,9 @@ public:
     void		removeVoiOnDelete( bool yn )	{ rmvoi_ = yn; }
 
 protected:
-    bool		doPrepare(int);
-    od_int64		nrIterations() const;
-    bool		doWork( od_int64, od_int64, int );
+    bool		doPrepare(int) override;
+    od_int64		nrIterations() const override;
+    bool		doWork(od_int64,od_int64,int) override;
 
     ZAxisTransform&		transform_;
     int				voiid_;
@@ -60,8 +60,9 @@ protected:
     TrcKeyZSampling		outputcs_;
 
 public:
-    uiString		uiMessage() const   { return tr("Z-axis transform");  }
-    uiString		uiNrDoneText() const
+    uiString		uiMessage() const override
+			{ return tr("Z-axis transform");  }
+    uiString		uiNrDoneText() const override
 			{ return ParallelTask::sTrcFinished(); }
 };
 

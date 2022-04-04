@@ -99,16 +99,16 @@ mExpClass(Basic) Array1DInfo : public ArrayNDInfo
 {
 public:
 
-    virtual int		getNDim() const			{ return 1; }
+    int			getNDim() const override	{ return 1; }
 
     virtual od_uint64	getOffset( int pos ) const
 			{ return pos; }
     virtual bool	validPos( int pos ) const
 			{ return ArrayNDInfo::validPos( &pos ); }
 
-    virtual od_uint64	getOffset( const int* iarr ) const
+    od_uint64		getOffset( const int* iarr ) const override
 			{ return getOffset( *iarr ); }
-    virtual bool	validPos( const int* iarr ) const
+    bool		validPos( const int* iarr ) const override
 			{ return ArrayNDInfo::validPos( iarr ); }
 
 };
@@ -123,15 +123,15 @@ mExpClass(Basic) Array2DInfo : public ArrayNDInfo
 {
 public:
 
-    virtual int		getNDim() const			{ return 2; }
+    int			getNDim() const override	{ return 2; }
 
     virtual od_uint64	getOffset(int,int) const;
 			/*!<Returns offset in a 'flat' array.*/
     virtual bool	validPos(int,int) const;
 
-    virtual od_uint64	getOffset( const int* iarr ) const
+    od_uint64		getOffset( const int* iarr ) const override
 			{ return ArrayNDInfo::getOffset( iarr ); }
-    virtual bool	validPos( const int* iarr ) const
+    bool		validPos( const int* iarr ) const override
 			{ return ArrayNDInfo::validPos( iarr ); }
 
 };
@@ -145,15 +145,15 @@ in what order the data is stored (if accessable via a pointer).
 mExpClass(Basic) Array3DInfo : public ArrayNDInfo
 {
 public:
-    virtual int		getNDim() const			{ return 3; }
+    int			getNDim() const override	{ return 3; }
 
     virtual od_uint64	getOffset(int, int, int) const;
 			/*!<Returns offset in a 'flat' array.*/
     virtual bool	validPos(int,int,int) const;
 
-    virtual od_uint64	getOffset( const int* iarr ) const
+    od_uint64		getOffset( const int* iarr ) const override
 			{ return ArrayNDInfo::getOffset( iarr ); }
-    virtual bool	validPos( const int* iarr ) const
+    bool		validPos( const int* iarr ) const override
 			{ return ArrayNDInfo::validPos( iarr ); }
 };
 
@@ -164,15 +164,15 @@ in what order the data is stored (if accessable via a pointer). */
 mExpClass(Basic) Array4DInfo : public ArrayNDInfo
 {
 public:
-    virtual int		getNDim() const			{ return 4; }
+    int			getNDim() const override	{ return 4; }
 
     virtual od_uint64	getOffset(int,int,int,int) const;
 			/*!<Returns offset in a 'flat' array.*/
     virtual bool	validPos(int,int,int,int) const;
 
-    virtual od_uint64	getOffset( const int* pos ) const
+    od_uint64		getOffset( const int* pos ) const override
 			{ return ArrayNDInfo::getOffset( pos ); }
-    virtual bool	validPos( const int* pos ) const
+    bool		validPos( const int* pos ) const override
 			{ return ArrayNDInfo::validPos( pos ); }
 };
 
@@ -185,16 +185,16 @@ mExpClass(Basic) Array1DInfoImpl : public Array1DInfo
 {
 public:
 
-    virtual Array1DInfo* clone() const
+    Array1DInfo*	clone() const override
 			{ return new Array1DInfoImpl(*this); }
 
 			Array1DInfoImpl(int nsz=0);
 			Array1DInfoImpl(const Array1DInfo&);
 
-    virtual int		getSize(int dim) const;
-    virtual bool	setSize(int dim,int nsz);
-    virtual bool	isOK() const			{ return dimsz_>=0; }
-    virtual od_uint64	getTotalSz() const		{ return dimsz_; }
+    int			getSize(int dim) const override;
+    bool		setSize(int dim,int nsz) override;
+    bool		isOK() const override		{ return dimsz_>=0; }
+    od_uint64		getTotalSz() const override	{ return dimsz_; }
 
 protected:
 
@@ -211,16 +211,17 @@ mExpClass(Basic) Array2DInfoImpl : public Array2DInfo
 {
 public:
 
-    virtual Array2DInfo* clone() const { return new Array2DInfoImpl(*this); }
+    Array2DInfo*	clone() const override
+			{ return new Array2DInfoImpl(*this); }
 
-			Array2DInfoImpl(int sz0=0, int sz1=0);
+			Array2DInfoImpl(int sz0=0,int sz1=0);
 			Array2DInfoImpl(const Array2DInfo&);
 
-    virtual int		getSize(int dim) const;
-    virtual bool	setSize(int dim,int nsz);
-    virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
+    int			getSize(int dim) const override;
+    bool		setSize(int dim,int nsz) override;
+    bool		isOK() const override	{ return cachedtotalsz_ > 0; }
 
-    virtual od_uint64	getTotalSz() const	{ return cachedtotalsz_; }
+    od_uint64		getTotalSz() const override { return cachedtotalsz_; }
 
 protected:
 
@@ -238,15 +239,16 @@ mExpClass(Basic) Array3DInfoImpl : public Array3DInfo
 {
 public:
 
-    virtual Array3DInfo* clone() const { return new Array3DInfoImpl(*this); }
+    Array3DInfo*	clone() const override
+			{ return new Array3DInfoImpl(*this); }
 
-			Array3DInfoImpl(int sz0=0, int sz1=0, int sz2=0);
+			Array3DInfoImpl(int sz0=0,int sz1=0,int sz2=0);
 			Array3DInfoImpl(const Array3DInfo&);
 
-    virtual int		getSize(int dim) const;
-    virtual bool	setSize(int dim,int nsz);
-    virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
-    virtual od_uint64	getTotalSz() const	{ return cachedtotalsz_; }
+    int			getSize(int dim) const override;
+    bool		setSize(int dim,int nsz) override;
+    bool		isOK() const override	{ return cachedtotalsz_ > 0; }
+    od_uint64		getTotalSz() const override { return cachedtotalsz_; }
 
 protected:
 
@@ -261,16 +263,17 @@ protected:
 mExpClass(Basic) Array4DInfoImpl : public Array4DInfo
 {
 public:
-    virtual Array4DInfo* clone() const { return new Array4DInfoImpl(*this); }
+    Array4DInfo*	clone() const override
+			{ return new Array4DInfoImpl(*this); }
 
 			Array4DInfoImpl(int sz0=0,int sz1=0,
 					int sz2=0,int sz3=0);
 			Array4DInfoImpl(const Array4DInfo&);
 
-    virtual int		getSize(int dim) const;
-    virtual bool	setSize(int dim,int nsz);
-    virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
-    virtual od_uint64	 totalSize() const	{ return cachedtotalsz_; }
+    int			getSize(int dim) const override;
+    bool		setSize(int dim,int nsz) override;
+    bool		isOK() const override	{ return cachedtotalsz_ > 0; }
+    virtual od_uint64	totalSize() const	{ return cachedtotalsz_; }
 
 protected:
 
@@ -287,7 +290,7 @@ mExpClass(Basic) ArrayNDInfoImpl : public ArrayNDInfo
 {
 public:
 
-    virtual ArrayNDInfo* clone() const;
+    ArrayNDInfo*	clone() const override;
     static ArrayNDInfo*	create(int ndim);
     template <class T> static ArrayNDInfo*	create(const T*,int sz);
 
@@ -295,12 +298,12 @@ public:
 			ArrayNDInfoImpl(const ArrayNDInfo&);
 			ArrayNDInfoImpl(const ArrayNDInfoImpl&);
 			~ArrayNDInfoImpl();
-    virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
+    bool		isOK() const override	{ return cachedtotalsz_ > 0; }
 
-    virtual od_uint64	getTotalSz() const	{ return cachedtotalsz_; }
-    virtual int		getNDim() const;
-    virtual int		getSize(int dim) const;
-    virtual bool	setSize(int dim,int nsz);
+    od_uint64		getTotalSz() const override { return cachedtotalsz_; }
+    int			getNDim() const override;
+    int			getSize(int dim) const override;
+    bool		setSize(int dim,int nsz) override;
 
 protected:
 

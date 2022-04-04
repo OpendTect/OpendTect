@@ -46,15 +46,15 @@ public:
     inline virtual		~ObjectSet()		{}
     inline ObjectSet&		operator=(const ObjectSet&);
     virtual bool		isManaged() const	{ return false; }
-    virtual ObjectSet*		clone() const
+    ObjectSet*			clone() const override
 				{ return new ObjectSet(*this); }
 
     inline bool			nullAllowed() const	{ return allow0_; }
     inline void			setNullAllowed(bool yn=true);
     inline size_type		size() const		{ return vec_.size(); }
-    inline virtual od_int64	nrItems() const		{ return size(); }
+    inline od_int64		nrItems() const override { return size(); }
 
-    inline virtual bool		validIdx(od_int64) const;
+    inline bool			validIdx(od_int64) const override;
     inline virtual bool		isPresent(const T*) const;
     inline virtual idx_type	indexOf(const T*) const;
     inline virtual T*		get(idx_type);
@@ -76,12 +76,12 @@ public:
 
     inline virtual void		copy(const ObjectSet&);
     inline virtual void		append(const ObjectSet&);
-    inline virtual void		swapItems( od_int64 i1, od_int64 i2 )
+    inline void			swapItems( od_int64 i1, od_int64 i2 ) override
 				{ swap( (idx_type)i1, (idx_type)i2 ); }
-    inline virtual void		reverse();
+    inline void			reverse() override;
 
 
-    inline virtual void		erase()			{ plainErase(); }
+    inline void			erase() override	{ plainErase(); }
     inline virtual T*		pop();
     virtual inline T*		removeSingle(idx_type,bool keep_order=true);
 				/*!<\returns the removed pointer. */

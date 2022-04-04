@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "array2dinterpol.h"
 
-mExpClass(Algo) ContinuousCurvatureArray2DInterpol : public Array2DInterpol 
+mExpClass(Algo) ContinuousCurvatureArray2DInterpol : public Array2DInterpol
 { mODTextTranslationClass(ContinuousCurvatureArray2DInterpol);
 public:
 		    mDefaultFactoryInstantiation(Array2DInterpol,
@@ -24,20 +24,20 @@ public:
 			 ContinuousCurvatureArray2DInterpol();
 			~ContinuousCurvatureArray2DInterpol();
 
-    bool		setArray(Array2D<float>&,TaskRunner*);
-    bool		setArray(ArrayAccess&,TaskRunner*);
+    bool		setArray(Array2D<float>&,TaskRunner*) override;
+    bool		setArray(ArrayAccess&,TaskRunner*) override;
 
-    bool		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    bool		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
 
 protected:
     virtual bool	initFromArray(TaskRunner*);
-    bool		doPrepare(int);
-    bool		doWork(od_int64,od_int64,int);
-    int			maxNrThreads() const	{ return 1; }
-    od_int64		nrIterations() const	{ return 1; }
-    od_int64		totalNr() const		{ return totalnr_; }
-    uiString		uiNrDoneText() const	
+    bool		doPrepare(int) override;
+    bool		doWork(od_int64,od_int64,int) override;
+    int			maxNrThreads() const override	{ return 1; }
+    od_int64		nrIterations() const override	{ return 1; }
+    od_int64		totalNr() const override	{ return totalnr_; }
+    uiString		uiNrDoneText() const override
 		       { return tr("Convergence iterations "); }
 
 private:
@@ -94,7 +94,7 @@ private:
 	double	    b5_;
     };
 
-    // below function will be used after get correct intersection line between 
+    // below function will be used after get correct intersection line between
     //fault and horizon
     void		InterpolatingFault(const TypeSet<HorizonData>&,int);
 
@@ -113,7 +113,7 @@ private:
     int			    nrdata_;
 
     int			    offset_[25][12];
-    double		    coeff_[2][12];	
+    double		    coeff_[2][12];
     TypeSet<int>	    factors_;
     ArrPtrMan<HorizonData>  hordata_;
     ArrPtrMan<float>	    griddata_;

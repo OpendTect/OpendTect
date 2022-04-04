@@ -28,17 +28,17 @@ namespace Interpolate
   The interpolation is supposed to take place in the 0-1-3-2 'base square'.
   This looks crazy but the idea is that 0-3 are always needed, and the rest is
   provided bottom-left to top-right.
-  
+
   In some cases, you don't have or don't want to provide data outside the base
   square.  If you want to be 100% sure that any applier is able to use the data,
   make sure that the size is at least 5, that 0-3 are filled (possibly with
   undefineds) and set the v[4] to -mUdf(T) (that is a minus there).
-  
+
   The 'apply' method needs the relative distance in x and y direction from
   the origin (where v[0] is located), and should therefore generally be between
   0 and 1, although you can also use the classes for near extrapolation.
 */
-    
+
 template <class T>
 mClass(Algo) Applier2D
 {
@@ -62,9 +62,9 @@ public:
     inline		LinearReg2D(const T*);
     inline		LinearReg2D(T v00,T v10,T v01,T v11);
 
-    inline void		set(const T*);
+    inline void		set(const T*) override;
     inline void		set(T v00,T v01,T v10,T v11);
-    inline T		apply(float x,float y) const;
+    inline T		apply(float x,float y) const override;
 
 protected:
 
@@ -90,9 +90,9 @@ public:
     inline		LinearReg2DWithUdf(const T*);
     inline		LinearReg2DWithUdf(T v00,T v10,T v01,T v11);
 
-    inline void		set(const T*);
+    inline void		set(const T*) override;
     inline void		set(T v00,T v01,T v10,T v11);
-    inline T		apply(float x,float y) const;
+    inline T		apply(float x,float y) const override;
 
 protected:
 
@@ -114,7 +114,7 @@ inline T linearReg2DWithUdf( T v00, T v01, T v10, T v11, float x, float y )
 
 /*!
 \brief Interpolate 2D regularly sampled, using a 2nd order surface.
-  
+
   Contrary to teh linear approach it does matter whether deltaX is different
   from deltaY. That is why you can supply an xstretch. If xstretch > 1 then
   the deltaX < deltaY, moreover: xstretch = deltaY / deltaX;
@@ -127,18 +127,18 @@ public:
 
     inline		PolyReg2D(float xstretch=1);
     inline		PolyReg2D(const T*,float xstretch=1);
-    inline 		PolyReg2D(T vm10,T vm11,
+    inline		PolyReg2D(T vm10,T vm11,
 			   T v0m1,T v00, T v01,T v02,
 			   T v1m1,T v10, T v11,T v12,
 				  T v20, T v21,		float xstretch=1);
 
-    inline void		set(const T*);
+    inline void		set(const T*) override;
     inline void		set(	T vm10,T vm11,
 			 T v0m1,T v00, T v01, T v02,
 			 T v1m1,T v10, T v11, T v12,
 				T v20, T v21);
 
-    inline T		apply(float x,float y) const;
+    inline T		apply(float x,float y) const override;
 
 protected:
 
@@ -179,13 +179,13 @@ public:
 				         T v1m1,T v10,T v11,T v12,T v20,T v21,
 					 float xstretch=1);
 
-    inline void		set(const T*);
+    inline void		set(const T*) override;
     inline void		set(	T vm10,T vm11,
 			 T v0m1,T v00, T v01, T v02,
 			 T v1m1,T v10, T v11, T v12,
 				T v20, T v21);
 
-    inline T		apply(float x,float y) const;
+    inline T		apply(float x,float y) const override;
 
 protected:
 
@@ -216,7 +216,7 @@ inline T polyReg2DWithUdf( T vm10, T vm11, T v0m1, T v00, T v01, T v02,
 	   T v1m1, T v10, T v11, T v12, T v20, T v21, float x, float y )
 {
     return PolyReg2DWithUdf<T>(vm10,vm11,v0m1,v00,v01,v02,v1m1,v10,v11,v12,v20,
-	    			v21).apply( x, y );
+				v21).apply( x, y );
 }
 
 //--- LinearReg2D Implementation

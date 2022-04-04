@@ -74,14 +74,14 @@ protected:
 
 private:
 
-    InterpolationLayerModel*	clone() const;
+    InterpolationLayerModel*	clone() const override;
 
-    bool		isOK(const TrcKey* tk=0) const;
+    bool		isOK(const TrcKey* =nullptr) const override;
 
-    int			nrLayers() const;
-    float		getLayerIndex(const TrcKey&,float z) const;
-    float		getZ(const TrcKey&,int layer) const;
-    od_int64		getMemoryUsage(const TrcKeySampling&) const
+    int			nrLayers() const override;
+    float		getLayerIndex(const TrcKey&,float z) const override;
+    float		getZ(const TrcKey&,int layer) const override;
+    od_int64		getMemoryUsage(const TrcKeySampling&) const override
 			{ return 0; }
 
 };

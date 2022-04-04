@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 /*!
 \brief Scaling of floating point numbers.
-  
+
   Scaler is an interface for scaling and scaling back numbers. Also, string I/O
   is defined, as well as a factory (Scaler::get).
 */
@@ -57,23 +57,23 @@ public:
 			: constant(c), factor(f)	{}
 			LinScaler( double x0, double y0, double x1, double y1 );
     void		set( double x0, double y0, double x1, double y1 );
-    virtual LinScaler*	clone() const
+    LinScaler*		clone() const override
 			{ return new LinScaler(constant,factor); }
-    inline bool		isEmpty() const;
+    inline bool		isEmpty() const override;
 
-    const char*		type() const			{ return sLinScaler; }
+    const char*		type() const override		{ return sLinScaler; }
 
-    double		scale(double) const;
-    double		unScale(double) const;
-    const char*		toString() const;
-    void		fromString(const char*);
+    double		scale(double) const override;
+    double		unScale(double) const override;
+    const char*		toString() const override;
+    void		fromString(const char*) override;
 
     bool		operator==( const LinScaler& b ) const
 			{
 			    return mIsEqual(constant,b.constant,mDefEps) &&
 				   mIsEqual(factor,b.factor,mDefEps);
 			}
-    
+
     double		constant;
     double		factor;
 };
@@ -93,17 +93,17 @@ mExpClass(Algo) LogScaler : public Scaler
 public:
 			LogScaler( bool powerof10=true )
 			: ten_(powerof10)		{}
-    const char*		type() const			{ return sLogScaler; }
-    virtual LogScaler*	clone() const
+    const char*		type() const override		{ return sLogScaler; }
+    LogScaler*		clone() const override
 			{ return new LogScaler(ten_); }
 
-    double		scale(double) const;
-    double		unScale(double) const;
-    const char*		toString() const;
-    void		fromString(const char*);
+    double		scale(double) const override;
+    double		unScale(double) const override;
+    const char*		toString() const override;
+    void		fromString(const char*) override;
     bool		operator==( const LogScaler& b ) const
 			{ return ten_==b.ten_; }
-    
+
     bool		ten_;
 };
 
@@ -117,25 +117,25 @@ mExpClass(Algo) ExpScaler : public Scaler
 public:
 			ExpScaler( bool powerof10=true )
 			: ten_(powerof10)		{}
-    const char*		type() const			{ return sExpScaler; }
-    virtual ExpScaler*	clone() const
+    const char*		type() const override	{ return sExpScaler; }
+    ExpScaler*		clone() const override
 			{ return new ExpScaler(ten_); }
 
-    double		scale(double) const;
-    double		unScale(double) const;
-    const char*		toString() const;
-    void		fromString(const char*);
+    double		scale(double) const override;
+    double		unScale(double) const override;
+    const char*		toString() const override;
+    void		fromString(const char*) override;
 
     bool		operator==( const ExpScaler& b ) const
 			{ return ten_==b.ten_; }
-    
+
     bool		ten_;
 };
 
 
 /*!
 \brief Asymptotic or 'Squeeze' scaling, with a linear (main) part.
-  
+
   This scaler scales between -1 and 1. Between center()-width()
   and center()+width() this will happen linearly. The value at width() will be
   linedge(). Therefore, linedge should be set to a value near 1, like the
@@ -151,14 +151,14 @@ public:
 			AsymptScaler( double c=0, double w=1, double l=0.95 )
 			: center_(c), width_(w), linedge_(l), factor(1)
 						{ set(c,w,l); }
-    const char*		type() const		{ return sAsymptScaler; }
-    virtual AsymptScaler*	clone() const
+    const char*		type() const override	{ return sAsymptScaler; }
+    AsymptScaler*	clone() const override
 			{ return new AsymptScaler(center_,width_,linedge_); }
 
-    double		scale(double) const;
-    double		unScale(double) const;
-    const char*		toString() const;
-    void		fromString(const char*);
+    double		scale(double) const override;
+    double		unScale(double) const override;
+    const char*		toString() const override;
+    void		fromString(const char*) override;
 
     inline bool		operator==( const AsymptScaler& b ) const
 			{ return mIsEqual(center_,b.center_,mDefEps)

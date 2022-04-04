@@ -95,7 +95,7 @@ public:
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    uiString			uiMessage() const
+    uiString			uiMessage() const override
 				{ return uiStrings::sGridding(); }
 
     static const char*		sKeyFillType();
@@ -113,7 +113,7 @@ public:
 protected:
 		Array2DInterpol();
 
-    bool	doPrepare(int);
+    bool	doPrepare(int) override;
     void	getNodesToFill(const bool* isdef, bool* shouldinterpol,
 			       TaskRunner*) const;
 		/*!<Fills shouldinterpol with true or false depending on if a

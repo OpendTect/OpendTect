@@ -34,8 +34,8 @@ public:
 
     virtual int			size() const				= 0;
 
-    virtual float		period() const { return mUdf(float); } 
-    void			setPeriodic( bool np ) { periodic = np; } 
+    virtual float		period() const { return mUdf(float); }
+    void			setPeriodic( bool np ) { periodic = np; }
 
     float			getIndex(float x) const
 				    { return (x-getX0()) / getDx(); }
@@ -43,8 +43,8 @@ public:
     int				getNearestIndex(float x) const
 				    { return mNINT32(getIndex( x )); }
 
-    RT				getValue( RT x ) const
-				{ 
+    RT				getValue( RT x ) const override
+				{
 				    if ( !doInterpolate() )
 				    {
 					const int smpl = mNINT32( getIndex(x) );
@@ -55,14 +55,14 @@ public:
 
 				    if ( periodic )
 				    {
-					return 
+					return
 					    IdxAble::interpolateYPeriodicReg(
 						    *this, size(),
 						    getIndex(x), period(),
 						    extrapolate());
 				    }
 
-				    return hasUdfs() 
+				    return hasUdfs()
 					? IdxAble::interpolateRegWithUdf( *this,
 						size(), getIndex(x),
 						extrapolate())
@@ -103,21 +103,22 @@ public:
 			    , interpolate_( true )
 			{}
 
-    RT			operator[](od_int64 idx) const	{ return idxabl_[idx];}
+    RT			operator[](od_int64 idx) const override
+			{ return idxabl_[idx];}
 
-    float		getDx() const			{ return dx_; }
-    float		getX0() const			{ return x0_; }
+    float		getDx() const override		{ return dx_; }
+    float		getX0() const override		{ return x0_; }
 
-    int			size() const			{ return sz_; }
+    int			size() const override		{ return sz_; }
 
-    float		period() const			{ return period_; }
+    float		period() const override		{ return period_; }
     void		setPeriod(float np)		{ period_ = np; }
 
-    bool		hasUdfs() const			{ return hasudfs_; }
+    bool		hasUdfs() const override	{ return hasudfs_; }
     void		setHasUdfs(bool yn)		{ hasudfs_=yn; }
 
-    bool		doInterpolate() const		{ return interpolate_; }
-    void		setInterpolate( bool yn ) 	{ interpolate_=yn; }
+    bool		doInterpolate() const override	{ return interpolate_; }
+    void		setInterpolate( bool yn )	{ interpolate_=yn; }
 
 protected:
 

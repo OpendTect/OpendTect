@@ -843,17 +843,18 @@ public:
 		    tksin.getInterSection( tksout, commontks_ );
 		}
 
-    uiString	uiNrDoneText() const
+    uiString	uiNrDoneText() const override
 		{
 		    return uiStrings::phrJoinStrings(
 						uiStrings::sInline(mPlural),
 						uiStrings::sDone().toLower() );
 		}
-    uiString	uiMessage() const	{ return tr("Transferring grid data");}
+    uiString	uiMessage() const override
+		{ return tr("Transferring grid data");}
 
 protected:
 
-    od_int64	nrIterations() const
+    od_int64	nrIterations() const override
 		{
 		    return canCopyAll() ? 0 : commontks_.nrLines();
 		}
@@ -866,7 +867,7 @@ private:
 			   ( out_.getData() || out_.getStorage() );
 		}
 
-    bool	doPrepare( int )
+    bool	doPrepare( int ) override
 		{
 		    if ( in_.info().getSize(0) != tksin_.nrLines() ||
 			 in_.info().getSize(1) != tksin_.nrTrcs() )
@@ -898,7 +899,7 @@ private:
 		    return true;
 		}
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
+    bool	doWork( od_int64 start, od_int64 stop, int ) override
 		{
 		    const TrcKeySampling tksin( tksin_ );
 		    const TrcKeySampling tksout( tksout_ );
@@ -976,13 +977,15 @@ public:
 		    , out_(out)
 		{}
 
-    uiString	uiMessage() const	{ return tr("Resizing 3D Array"); }
+    uiString	uiMessage() const override
+		{ return tr("Resizing 3D Array"); }
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	uiNrDoneText() const override
+		{ return ParallelTask::sTrcFinished(); }
 
 protected:
 
-    od_int64	nrIterations() const	{ return totalnr_; }
+    od_int64	nrIterations() const override	{ return totalnr_; }
 
 private:
 
@@ -992,7 +995,7 @@ private:
     const Array3DInfoImpl infoout( tkzsout_.hsamp_.nrLines(), \
 				   tkzsout_.hsamp_.nrTrcs(), tkzsout_.nrZ() );
 
-    bool	doPrepare( int )
+    bool	doPrepare( int ) override
 		{
 		    mGetInfo()
 		    if ( in_.info() != infoin )
@@ -1013,7 +1016,7 @@ private:
 		}
 
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
+    bool	doWork( od_int64 start, od_int64 stop, int ) override
 		{
 		    mGetInfo()
 		    const TrcKeySampling tksin( tkzsin_.hsamp_ );
@@ -1267,8 +1270,10 @@ public:
 		    , setup_(setup)
 		{}
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sPosFinished(); }
-    uiString	uiMessage() const	{ return tr("Cumulative sum executor");}
+    uiString	uiNrDoneText() const override
+		{ return ParallelTask::sPosFinished(); }
+    uiString	uiMessage() const override
+		{ return tr("Cumulative sum executor");}
 
     void	setYVals( const ArrayND<AT>& yvals )	{ yarr_ = &yvals; }
     void	setScaler( double scaler, bool forx )
@@ -1283,11 +1288,11 @@ public:
 
 protected:
 
-    od_int64	nrIterations() const	{ return sz_; }
+    od_int64	nrIterations() const override	{ return sz_; }
 
 private:
 
-    bool	doPrepare( int nrthreads )
+    bool	doPrepare( int nrthreads ) override
 		{
 		    if ( yarr_ && yarr_->info().getTotalSz() != sz_ )
 			return false;
@@ -1295,9 +1300,9 @@ private:
 		    return sumvals_.setSize( nrthreads );
 		}
 
-    bool	doWork(od_int64,od_int64,int);
+    bool	doWork(od_int64,od_int64,int) override;
 
-    bool	doFinish( bool success )
+    bool	doFinish( bool success ) override
 		{
 		    if ( !success )
 			return false;
@@ -1456,8 +1461,10 @@ public:
 		    , setup_(setup)
 		{}
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sPosFinished(); }
-    uiString	uiMessage() const	{ return tr("Cumulative sum executor");}
+    uiString	uiNrDoneText() const override
+		{ return ParallelTask::sPosFinished(); }
+    uiString	uiMessage() const override
+		{ return tr("Cumulative sum executor");}
 
     void	setYVals( const ArrayND<ArrType>& yvals ) { yarr_ = &yvals; }
     void	setScaler( double scaler, bool forx=true )
@@ -1471,11 +1478,11 @@ public:
 
 protected:
 
-    od_int64	nrIterations() const	{ return sz_; }
+    od_int64	nrIterations() const override	{ return sz_; }
 
 private:
 
-    bool	doPrepare( int )
+    bool	doPrepare( int ) override
 		{
 		    if ( outarr_.info().getTotalSz() != sz_ )
 			return false;
@@ -1486,7 +1493,7 @@ private:
 		    return true;
 		}
 
-    bool	doWork(od_int64,od_int64,int);
+    bool	doWork(od_int64,od_int64,int) override;
 
 private:
 
@@ -1572,23 +1579,25 @@ public:
 		    , cumsum_(mUdf(T))
 		{}
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sPosFinished(); }
-    uiString	uiMessage() const	{ return tr("Cumulative sum executor");}
+    uiString	uiNrDoneText() const override
+		{ return ParallelTask::sPosFinished(); }
+    uiString	uiMessage() const override
+		{ return tr("Cumulative sum executor");}
 
     T		getSum() const		{ return cumsum_; }
 
 protected:
 
-    od_int64	nrIterations() const	{ return sz_; }
+    od_int64	nrIterations() const override	{ return sz_; }
 
 private:
 
-    bool	doPrepare( int nrthreads )
+    bool	doPrepare( int nrthreads ) override
 		{
 		    return sumvals_.setSize( nrthreads );
 		}
 
-    bool	doWork( od_int64 start, od_int64 stop, int threadidx )
+    bool	doWork( od_int64 start, od_int64 stop, int threadidx ) override
 		{
 		    T sumval = 0;
 		    od_int64 count = 0;
@@ -1607,7 +1616,7 @@ private:
 		    return true;
 		}
 
-    bool	doFinish( bool success )
+    bool	doFinish( bool success ) override
 		{
 		    if ( !success )
 			return false;
@@ -2072,12 +2081,13 @@ public:
 		    , totalnr_(inp.info().getTotalSz()/inp.info().getSize(2))
 		{}
 
-    uiString	uiMessage() const
+    uiString	uiMessage() const override
 		{
 		    return tr("Replacing undefined values");
 		}
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	uiNrDoneText() const override
+		{ return ParallelTask::sTrcFinished(); }
 
     void	setReplacementValue( T val )	{ replval_ = val; }
 
@@ -2090,11 +2100,11 @@ public:
 
 protected:
 
-    od_int64	nrIterations() const	{ return totalnr_; }
+    od_int64	nrIterations() const override	{ return totalnr_; }
 
 private:
 
-    bool	doPrepare( int )
+    bool	doPrepare( int ) override
 		{
 		    if ( undefidxs_ )
 			undefidxs_->setEmpty();
@@ -2102,7 +2112,7 @@ private:
 		    return true;
 		}
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
+    bool	doWork( od_int64 start, od_int64 stop, int ) override
 		{
 		    const bool isrect = tks_ && trcssampling_
 				       ? trcssampling_->isFullyRectAndReg()
@@ -2223,17 +2233,19 @@ public:
 		    , totalnr_(undefidxs.size())
 		{}
 
-    uiString	uiMessage() const { return tr("Replacing undefined values"); }
+    uiString	uiMessage() const override
+		{ return tr("Replacing undefined values"); }
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sPosFinished(); }
+    uiString	uiNrDoneText() const override
+		{ return ParallelTask::sPosFinished(); }
 
 protected:
 
-    od_int64	nrIterations() const	{ return totalnr_; }
+    od_int64	nrIterations() const override { return totalnr_; }
 
 private:
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
+    bool	doWork( od_int64 start, od_int64 stop, int ) override
 		{
 		    T* outpptr = outp_.getData();
 		    ValueSeries<T>* outpstor = outp_.getStorage();
@@ -2287,17 +2299,19 @@ public:
 			       outp.info().getTotalSz()/outp.info().getSize(2))
 		{}
 
-    uiString	uiMessage() const { return tr("Restoring undefined values"); }
+    uiString	uiMessage() const override
+		{ return tr("Restoring undefined values"); }
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	uiNrDoneText() const override
+		{ return ParallelTask::sTrcFinished(); }
 
 protected:
 
-    od_int64	nrIterations() const	{ return totalnr_; }
+    od_int64	nrIterations() const override	{ return totalnr_; }
 
 private:
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
+    bool	doWork( od_int64 start, od_int64 stop, int ) override
 		{
 		    const Array3DInfo& info = outp_.info();
 		    const int nrtrcsp = info.getSize( outp_.get1DDim() );
@@ -2380,12 +2394,13 @@ public:
 			       data.info().getSize(data.get1DDim()))
 		{}
 
-    uiString	uiMessage() const
+    uiString	uiMessage() const override
 		{
 		    return tr("Extracting mute positions");
 		}
 
-    uiString	uiNrDoneText() const	{ return ParallelTask::sTrcFinished(); }
+    uiString	uiNrDoneText() const override
+		{ return ParallelTask::sTrcFinished(); }
 
     void	setSampling( const TrcKeySampling& tks,
 			     const PosInfo::CubeData* trcssampling )
@@ -2396,11 +2411,11 @@ public:
 
 protected:
 
-    od_int64	nrIterations() const	{ return totalnr_; }
+    od_int64	nrIterations() const override	{ return totalnr_; }
 
 private:
 
-    bool	doPrepare( int )
+    bool	doPrepare( int ) override
 		{
 		    const int data1ddim = data_.get1DDim();
 		    if ( ( data1ddim != 1 && data1ddim != 2 ) ||
@@ -2416,7 +2431,7 @@ private:
 		    return true;
 		}
 
-    bool	doWork( od_int64 start, od_int64 stop, int )
+    bool	doWork( od_int64 start, od_int64 stop, int ) override
 		{
 		    const bool isrect = tks_ && trcssampling_
 				       ? trcssampling_->isFullyRectAndReg()

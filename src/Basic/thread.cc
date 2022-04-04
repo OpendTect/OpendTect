@@ -843,7 +843,7 @@ public:
 			{ QThread::msleep( mNINT32(1000*tm) ); }
 
 protected:
-    void		run()
+    void		run() override
 			{
                             Threads::setCurrentThreadProcessorAffinity(-1);
 			    if ( !cb_.willCall() )

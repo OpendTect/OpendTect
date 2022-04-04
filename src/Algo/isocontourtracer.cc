@@ -39,8 +39,9 @@ public:
 					     const StepInterval<int>&);
 				~SameZFinder(){};
 protected:
-    bool			doWork(od_int64 start, od_int64 stop, int);
-    od_int64			nrIterations() const { return totalnr_; }
+    bool			doWork(od_int64,od_int64,int) override;
+    od_int64			nrIterations() const override
+				{ return totalnr_; }
 
 private:
     void			findDataWithTheZ(int idx,float z);
@@ -177,8 +178,8 @@ public:
 			    ~ContourTracer(){};
 
 protected:
-    bool		    doWork(od_int64 start, od_int64 stop, int);
-    od_int64		    nrIterations() const { return totalnr_; }
+    bool		    doWork(od_int64 start,od_int64 stop,int) override;
+    od_int64		    nrIterations() const override { return totalnr_; }
 
 private:
 

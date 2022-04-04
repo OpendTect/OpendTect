@@ -23,10 +23,12 @@ Dip3DCalculator( Dip3D& fd )
 {}
 
 protected:
-od_int64 nrIterations() const	{ return fd_.input_.info().getTotalSz(); }
-uiString uiMessage() const	{ return tr("Dip/Azimuth calculating.."); }
+od_int64 nrIterations() const override
+{ return fd_.input_.info().getTotalSz(); }
+uiString uiMessage() const override
+{ return tr("Dip/Azimuth calculating.."); }
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )
+bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 {
     const float threshold = fd_.setup_.threshold_;
     const bool isabove = fd_.setup_.isabove_;
@@ -175,10 +177,12 @@ Dip2DCalculator( Dip2D& fd )
 {}
 
 protected:
-od_int64 nrIterations() const	{ return fd_.input_.info().getTotalSz(); }
-uiString uiMessage() const	{ return tr("Dip calculating.."); }
+od_int64 nrIterations() const override
+{ return fd_.input_.info().getTotalSz(); }
+uiString uiMessage() const override
+{ return tr("Dip calculating.."); }
 
-bool doWork( od_int64 start, od_int64 stop, int threadid )
+bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 {
     const float threshold = fd_.setup_.threshold_;
     const bool isabove = fd_.setup_.isabove_;

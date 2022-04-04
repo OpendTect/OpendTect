@@ -37,7 +37,7 @@ class Provider;
 
   Filter2D and Filter3D have factories. Providers too. Standard providers
   are not added to the Filter factory. Non-standard should in general be added
-  to both. 
+  to both.
 */
 
 mExpClass(Algo) Filter
@@ -51,12 +51,12 @@ public:
     virtual bool	is2D() const				= 0;
     virtual bool	isProvider() const			{ return false;}
 
-    virtual bool	initialize( TaskRunner* tr=0 )
-    			{ reset(); return true; }
+    virtual bool	initialize( TaskRunner* =nullptr )
+			{ reset(); return true; }
     virtual void	reset()					= 0;
 
     virtual bool	includes(const Coord&,
-	    			 float z=mUdf(float)) const	= 0;
+				 float z=mUdf(float)) const	= 0;
     virtual bool	hasZAdjustment() const			{ return false;}
     virtual float	adjustedZ(const Coord&, float z ) const	{ return z; }
 
@@ -78,10 +78,10 @@ mExpClass(Algo) Filter3D : public virtual Filter
 {
 public:
 
-    virtual bool	is2D() const		{ return false; }
+    bool	is2D() const override	{ return false; }
 
-    virtual bool	includes(const BinID&,float z=mUdf(float)) const = 0;
-    virtual bool	includes(const Coord&,float z=mUdf(float)) const;
+    virtual bool includes(const BinID&,float z=mUdf(float)) const = 0;
+    bool	includes(const Coord&,float z=mUdf(float)) const override;
 
     mDefineFactoryInClass(Filter3D,factory);
     static Filter3D*	make(const IOPar&);
@@ -96,13 +96,12 @@ public:
 mExpClass(Algo) Filter2D : public virtual Filter
 {
 public:
-    			Filter2D()				{}
+			Filter2D()				{}
 			~Filter2D();
 
-    virtual bool	is2D() const				{ return true; }
-    virtual bool	includes(int,float z=mUdf(float),int lidx=0) const = 0;
-    virtual bool	includes(const Coord&,
-	    			 float z=mUdf(float)) const	= 0;
+    bool	is2D() const override			{ return true; }
+    virtual bool includes(int,float z=mUdf(float),int lidx=0) const = 0;
+    bool	includes(const Coord&,float z=mUdf(float)) const override  = 0;
 
     void		addGeomID(const Pos::GeomID);
     void		removeGeomID(int lidx);

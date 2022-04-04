@@ -63,14 +63,15 @@ public:
 				~FourierInterpol1D();
 
     const Array1DImpl<float_complex>* getOutput() const
-				{ return arrs_.isEmpty() ? 0 : arrs_[0]; }
+				{ return arrs_.isEmpty() ? nullptr : arrs_[0]; }
 
 protected:
-    od_int64			nrIterations() const	{ return pts_.size(); }
+    od_int64			nrIterations() const override
+				{ return pts_.size(); }
 
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
-    bool			doFinish(bool);
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64,od_int64,int) override;
+    bool			doFinish(bool) override;
 
     const TypeSet<Point>&	pts_;
 
@@ -109,14 +110,15 @@ public:
 				~FourierInterpol2D();
 
     const Array2DImpl<float_complex>* getOutput() const
-				{ return arrs_.isEmpty() ? 0 : arrs_[0]; }
+				{ return arrs_.isEmpty() ? nullptr : arrs_[0]; }
 
 protected:
-    od_int64			nrIterations() const	{ return pts_.size(); }
+    od_int64			nrIterations() const override
+				{ return pts_.size(); }
 
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
-    bool			doFinish(bool);
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64,od_int64,int) override;
+    bool			doFinish(bool) override;
 
     const TypeSet<Point>&	pts_;
 
@@ -160,14 +162,15 @@ public:
 				~FourierInterpol3D();
 
     const Array3DImpl<float_complex>* getOutput() const
-				{ return arrs_.isEmpty() ? 0 : arrs_[0]; }
+				{ return arrs_.isEmpty() ? nullptr : arrs_[0]; }
 
 protected:
-    od_int64			nrIterations() const	{ return pts_.size(); }
+    od_int64			nrIterations() const override
+				{ return pts_.size(); }
 
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
-    bool			doFinish(bool);
+    bool			doPrepare(int) override;
+    bool			doWork(od_int64,od_int64,int) override;
+    bool			doFinish(bool) override;
 
     const TypeSet<Point>&	pts_;
 
