@@ -285,6 +285,15 @@ void uiMainWinBody::doShow( bool minimized )
 }
 
 
+void uiMainWinBody::doDisplay( bool yn )
+{
+    if ( !intray_ )
+	doShow( yn );
+
+    QMainWindow::setVisible( yn );
+}
+
+
 void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 {
     centralwidget_ = new uiGroup( &handle_, "OpendTect Main Window" );
@@ -517,6 +526,13 @@ void uiMainWinBody::closeEvent( QCloseEvent* ce )
 	return;
     }
 
+    if ( intray_ )
+    {
+	hide();
+	ce->ignore();
+	return;
+    }
+
     const int refnr = handle_.beginCmdRecEvent( "Close" );
 
     if ( handle_.closeOK() )
@@ -555,7 +571,7 @@ void uiMainWinBody::close()
     handle_.windowHidden.trigger( handle_ );
     QMainWindow::hide();
 
-    if ( exitapponclose_ )
+    if ( exitapponclose_ && !intray_ )
 	qApp->quit();
 }
 

@@ -61,3 +61,8 @@ void uiSystemTrayIcon::show()
 
 void uiSystemTrayIcon::hide()
 { qsystemtrayicon_->hide(); }
+
+bool uiSystemTrayIcon::isSystemTrayAvailable()
+{
+    return QSystemTrayIcon::isSystemTrayAvailable();
+}

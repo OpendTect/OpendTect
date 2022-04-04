@@ -78,6 +78,6 @@ if( WIN32 )
     set( OD_od_BatchHosts_RESOURCE resources/network.ico )
 endif()
 
-set( OD_MODULE_GUI_PROGS od_BatchHosts.cc )
+set( OD_MODULE_GUI_PROGS od_BatchHosts.cc od_RemoteServiceMgr.cc )
 
 OD_INIT_MODULE()

@@ -52,6 +52,8 @@ public:
     void		reDraw(bool deep);
     void		go(bool showminimized=false);
     virtual void	show()				{ doShow(); }
+    virtual void	display(bool yn)		{ doDisplay(yn); }
+    void		setInTray(bool yn)		{ intray_ = yn; }
     void		doSetWindowFlags(Qt::WindowFlags,bool yn);
 
     void		move(uiMainWin::PopupArea);
@@ -96,6 +98,7 @@ protected:
     void		resizeEvent(QResizeEvent*);
 
     void		doShow(bool minimized=false);
+    void		doDisplay(bool yn);
     void		managePopupPos();
 
 
@@ -138,6 +141,7 @@ private:
     uiPoint		prefpos_;
     bool		moved_;
     bool		createtbmenu_;
+    bool		intray_ = false;
 
     bool		deletefrombody_;
     bool		deletefromod_;

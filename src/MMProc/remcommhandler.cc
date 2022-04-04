@@ -20,9 +20,6 @@ ________________________________________________________________________
 #include "timefun.h"
 
 
-#define mErrRet( s ) \
-{ BufferString msg(Time::getDateTimeString(),": ",s); writeLog( msg ); return; }
-
 RemCommHandler::RemCommHandler( PortNr_Type port )
     : port_(port)
     , server_(*new Network::Server(false))
@@ -52,7 +49,7 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
     IOPar par;
     server_.read( socketid, par );
     if ( par.isEmpty() )
-	mErrRet( "Could not read any parameters from server" );
+	writeLog( "Could not read any parameters from server" );
 
     BufferString procnm, parfile;
     par.get( "Proc Name", procnm );
@@ -98,7 +95,9 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
     }
 
     if ( !uirv.isOK() )
-	mErrRet( uirv.getText() )
+	writeLog( uirv.getText() );
+    else
+	writeLog( BufferString("Launched: ", machcomm.toString(&pars)) );
 }
 
 
@@ -116,5 +115,6 @@ od_ostream& RemCommHandler::createLogFile()
 
 void RemCommHandler::writeLog( const char* msg )
 {
-    logstrm_ << msg << od_endl;
+    logstrm_ << Time::getDateTimeString() << od_endl;
+    logstrm_ << msg <<od_endl;
 }

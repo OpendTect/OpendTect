@@ -30,6 +30,9 @@ public:
 
     bool		launchProc() const;
     void		addPar(const IOPar&);
+    static PortNr_Type	remoteHandlerPort()
+					    { return mCast(PortNr_Type,5050); }
+    static const char*	remoteHandlerName()	{ return "od_remoteservice"; }
 
 protected:
 

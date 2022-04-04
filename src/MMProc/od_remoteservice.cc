@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "remcommhandler.h"
 #include "applicationdata.h"
 
+#include "genc.h"
 #include "prog.h"
 
 
@@ -20,7 +21,9 @@ int mProgMainFnName( int argc, char** argv )
     SetProgramArgs( argc, argv );
     ApplicationData app;
 
-    PtrMan<RemCommHandler> handler = new RemCommHandler( mCast(PortNr_Type,5050) );
+    PtrMan<RemCommHandler> handler = new RemCommHandler( mCast(PortNr_Type,
+							       5050) );
+    handler->writeLog( BufferString("Starting: ", GetFullExecutablePath()) );
     handler->listen();
     return app.exec();
 }

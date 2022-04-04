@@ -89,6 +89,7 @@ set(OD_MODULE_SOURCES
 	uitabstack.cc
 	uitextedit.cc
 	uitoolbar.cc
+	uitraydialog.cc
 	uitreeview.cc
 	uivirtualkeyboard.cc
 )

@@ -39,6 +39,8 @@ public:
     Notifier<uiSystemTrayIcon>	middleClicked;
     Notifier<uiSystemTrayIcon>	doubleClicked;
 
+    static bool		isSystemTrayAvailable();
+
 protected:
 
     mQtclass(QSystemTrayIcon*)		qsystemtrayicon_;

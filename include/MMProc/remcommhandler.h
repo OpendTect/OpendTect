@@ -28,12 +28,12 @@ public:
 			~RemCommHandler();
 
     void		listen() const; //!< Has to be called
+    void		writeLog(const char* msg);
 
 protected:
 
     void		dataReceivedCB(CallBacker*);
     od_ostream&		createLogFile();
-    void		writeLog(const char* msg);
     od_ostream&		logstrm_;
 
     Network::Server&	server_;
