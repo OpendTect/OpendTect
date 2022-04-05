@@ -96,7 +96,7 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 
 bool SeisImpCBVSFromOtherSurvey::hasSameGridAsThisSurvey() const
 {
-    return tr && (tr_->getTransform() == SI().binID2Coord());
+    return tr_ && (tr_->getTransform() == SI().binID2Coord());
 }
 
 
