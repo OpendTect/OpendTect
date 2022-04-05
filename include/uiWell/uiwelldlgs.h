@@ -253,6 +253,7 @@ public:
 				const MnemonicSelection* mns=nullptr);
 	    ~uiWellDefMnemLogDlg();
 
+
 protected:
 
     void	displayTable(int currwellidx);
@@ -261,10 +262,13 @@ protected:
     bool	rejectOK(CallBacker*);
     void	initDlg(CallBacker*);
     void	wellChangedCB(CallBacker*);
+    void	changeModeCB(CallBacker*);
+    void	logChangedCB(CallBacker*);
 
-    mExpStruct(uiWell) Tables
+
+    mClass(uiWell) Tables : public CallBacker
     {
-
+    public:
 			Tables(Well::Data&,uiGroup*,
 			       const MnemonicSelection* mns=nullptr);
 			~Tables();
@@ -274,7 +278,14 @@ protected:
 					{ return wd_; }
 	const MnemonicSelection&	availMnems() const
 					{ return availmnems_; }
+	const Well::Log*		changedLog() const
+					{ return changedlog_; }
+	const Mnemonic*			changedMnem() const
+					{ return changedmn_; }
 	void				restoreDefsBackup();
+	void				setDefLog(const int idx,
+						  const Well::Log*);
+	bool				hasMnem(const Mnemonic*) const;
 
     protected:
 
@@ -284,12 +295,15 @@ protected:
 	void			    fillMnemRows();
 	void			    fillLogRows();
 	void			    fillTable();
+	void			    defLogChangedCB(CallBacker*);
 
 	uiTable*		    table_;
 	RefMan<Well::Data>	    wd_;
 	IOPar			    saveddefaults_;
 	ObjectSet<uiComboBox>	    deflogsflds_;
 	MnemonicSelection	    availmnems_;
+	Well::Log*		    changedlog_ = nullptr;
+	Mnemonic*		    changedmn_ = nullptr;
 
     private:
 
@@ -300,7 +314,9 @@ protected:
 
     };
 
+
     uiListBox*			welllist_;
+    uiGenInput*			bulkmode_;
     uiGroup*			tablegrp_;
     ObjectSet<Tables>		tables_;
 

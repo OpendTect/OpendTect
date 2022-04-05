@@ -2152,8 +2152,13 @@ uiWellDefMnemLogDlg::Tables::Tables( Well::Data& wd, uiGroup* tablegrp,
     table_ = createLogTable( tablegrp );
     if ( mns )
     {
+	MnemonicSelection swmns;
+	wd_->logs().getAllAvailMnems( swmns );
 	for ( const auto* mn : *mns )
-	    availmnems_.addIfNew( mn );
+	{
+	    if ( swmns.isPresent(mn) )
+		availmnems_.addIfNew( mn );
+	}
     }
     else
 	createMnemRows();
@@ -2214,6 +2219,8 @@ void uiWellDefMnemLogDlg::Tables::createLogRows()
     {
 	auto* deflogfld =
 	    new uiComboBox( nullptr, *suitablelogs, "Suitable Logs" );
+	mAttachCB( deflogfld->selectionChanged,
+		   uiWellDefMnemLogDlg::Tables::defLogChangedCB );
 	if ( deflogfld )
 	    deflogsflds_.addIfNew( deflogfld );
     }
@@ -2246,6 +2253,16 @@ void uiWellDefMnemLogDlg::Tables::fillLogRows()
 }
 
 
+void uiWellDefMnemLogDlg::Tables::defLogChangedCB( CallBacker* cb )
+{
+    const int currow = table_->currentRow();
+    changedmn_ = const_cast<Mnemonic*>( availmnems_.get(currow) );
+    const int curritem = deflogsflds_.get(currow)->currentItem();
+    const BufferString lognm( deflogsflds_.get(currow)->textOfItem(curritem) );
+    changedlog_ = wd_->logs().getLog( lognm );
+}
+
+
 void uiWellDefMnemLogDlg::Tables::setSavedDefaults()
 {
     int row = 0;
@@ -2261,6 +2278,23 @@ void uiWellDefMnemLogDlg::Tables::setSavedDefaults()
 	deflogsflds_.get(row)->setCurrentItem( deflognm );
 	row++;
     }
+}
+
+
+void uiWellDefMnemLogDlg::Tables::setDefLog( const int idx,
+					      const Well::Log* log )
+{
+    const int cbidx = deflogsflds_.get(idx)->indexOf( log->name() );
+    deflogsflds_.get(idx)->setCurrentItem( cbidx );
+}
+
+
+bool uiWellDefMnemLogDlg::Tables::hasMnem( const Mnemonic* mn ) const
+{
+    if ( availmnems_.isPresent(mn) )
+	return true;
+
+    return false;
 }
 
 
@@ -2312,17 +2346,30 @@ uiWellDefMnemLogDlg::uiWellDefMnemLogDlg( uiParent* p,
     for ( const auto* wd : wds )
 	wellnms.addIfNew( wd->name() );
 
+    bulkmode_ = new uiGenInput( this, tr("Edit in"),
+				      BoolInpSpec(false,tr("Bulk mode"),
+						  tr("Single Well mode")) );
+    auto* sep = new uiSeparator( this );
+    sep->attach( stretchedBelow, bulkmode_ );
     welllist_ = new uiListBox( this, "Wells" );
     welllist_->addLabel( tr("Select Well"),
 			 uiListBox::AboveMid );
     welllist_->setFieldWidth( 4 );
     welllist_->addItems( wellnms );
+    welllist_->attach( ensureBelow, sep );
 
     tablegrp_ = new uiGroup( this, "Table Group" );
+    tablegrp_->attach( ensureBelow, sep );
     tablegrp_->attach( centeredRightOf, welllist_ );
     for ( auto* wd : wds )
-	tables_ += new Tables( *wd, tablegrp_, mns );
+    {
+	auto* table = new Tables( *wd, tablegrp_, mns );
+	mAttachCB( table->getTable().valueChanged,
+		   uiWellDefMnemLogDlg::logChangedCB );
+	tables_ += table;
+    }
 
+    mAttachCB( bulkmode_->valuechanged, uiWellDefMnemLogDlg::changeModeCB );
     mAttachCB( welllist_->selectionChanged,
 	       uiWellDefMnemLogDlg::wellChangedCB );
     mAttachCB( postFinalize(), uiWellDefMnemLogDlg::initDlg );
@@ -2339,6 +2386,35 @@ uiWellDefMnemLogDlg::~uiWellDefMnemLogDlg()
 void uiWellDefMnemLogDlg::initDlg( CallBacker* )
 {
     displayTable( 0 );
+}
+
+
+void uiWellDefMnemLogDlg::changeModeCB( CallBacker* )
+{
+    if ( bulkmode_->getBoolValue() );
+	uiMSG().warning( tr("When editing in bulk mode, changes to a mnemonic"),
+			 tr("will be applied to all the wells, which contain"),
+			 tr("the specified mnemonic"), true );
+}
+
+
+void uiWellDefMnemLogDlg::logChangedCB( CallBacker* )
+{
+    if ( !bulkmode_->getBoolValue() )
+	return;
+
+    const int curwell = welllist_->currentItem();
+    const Mnemonic* mn = tables_.get(curwell)->changedMnem();
+    const Well::Log* preflog = tables_.get(curwell)->changedLog();
+    for ( auto* table : tables_ )
+    {
+	if ( !table->hasMnem(mn) &&
+	     table->wellData()->logs().isPresent(preflog->name()))
+	    continue;
+
+	const int idx = table->availMnems().indexOf( mn );
+	table->setDefLog( idx, preflog );
+    }
 }
 
 
