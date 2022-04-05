@@ -2219,7 +2219,7 @@ void uiWellDefMnemLogDlg::Tables::createLogRows()
     {
 	auto* deflogfld =
 	    new uiComboBox( nullptr, *suitablelogs, "Suitable Logs" );
-	mAttachCB( deflogfld->selectionChanged,
+	mAttachCB( deflogfld->selectionChanged,	
 		   uiWellDefMnemLogDlg::Tables::defLogChangedCB );
 	if ( deflogfld )
 	    deflogsflds_.addIfNew( deflogfld );
@@ -2391,10 +2391,12 @@ void uiWellDefMnemLogDlg::initDlg( CallBacker* )
 
 void uiWellDefMnemLogDlg::changeModeCB( CallBacker* )
 {
-    if ( bulkmode_->getBoolValue() );
+    if ( bulkmode_->getBoolValue() )
+    {
 	uiMSG().warning( tr("When editing in bulk mode, changes to a mnemonic"),
 			 tr("will be applied to all the wells, which contain"),
 			 tr("the specified mnemonic"), true );
+    }
 }
 
 
