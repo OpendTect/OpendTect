@@ -256,6 +256,7 @@ public:
     void		setColumnLabel( const RowCol& rc, const uiString& lbl )
 			    { setColumnLabel( rc.col(), lbl ); }
     void		setColumnToolTip(int,const uiString&);
+    void		setColumnSortIndicator(int,bool asc);
 
     void		setCellToolTip(const RowCol&,const uiString&);
 

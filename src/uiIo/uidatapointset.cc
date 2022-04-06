@@ -200,6 +200,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 			  .manualresize( true ), "Data Table" );
     tbl_->valueChanged.notify( mCB(this,uiDataPointSet,valChg) );
     tbl_->rowClicked.notify( mCB(this,uiDataPointSet,rowClicked) );
+    tbl_->columnClicked.notify( mCB(this,uiDataPointSet,colClicked) );
     tbl_->rowInserted.notify( mCB(this,uiDataPointSet,rowAddedCB) );
     tbl_->selectionChanged.notify( mCB(this,uiDataPointSet,selChg) );
     tbl_->setTableReadOnly( setup_.isconst_ );
@@ -396,8 +397,7 @@ void uiDataPointSet::updColNames()
 	if ( tid == y2col_ )
 	    axnm = toUiString("[%1]").arg(uiStrings::sY2());
 
-	uiString colnm =
-		tid == sortcol_ ? toUiString("*") : uiStrings::sEmptyString();
+	uiString colnm = uiStrings::sEmptyString();
 	if ( !axnm.isEmpty() )
 	    colnm = axnm;
 
@@ -411,6 +411,14 @@ void uiDataPointSet::updColNames()
 
 	tbl_->setColumnLabel( tid, colnm );
     }
+
+    tbl_->setColumnSortIndicator( sortcol_, true );
+}
+
+
+void uiDataPointSet::colClicked( CallBacker* )
+{
+    tbl_->setColumnSortIndicator( sortcol_, true );
 }
 
 
