@@ -61,7 +61,9 @@ public:
 CommandDefs::CommandDefs()
 {
     hp_prognames_.setParam( this, new BufferStringSet );
-    hp_progargs_.setParam( this, new ObjectSet<BufferStringSet> );
+    auto* progargs = new ObjectSet<BufferStringSet>;
+    hp_progargs_.setParam( this, progargs );
+    progargs->setNullAllowed();
 }
 
 
@@ -126,12 +128,11 @@ ObjectSet<BufferStringSet>& CommandDefs::getProgArgs() const
 void CommandDefs::erase()
 {
     BufferStringSet::erase();
+    getProgNames().setEmpty();
+    deepErase( getProgArgs() );
     uinames_.setEmpty();
     iconnms_.setEmpty();
     tooltips_.setEmpty();
-    BufferStringSet* prognames = hp_prognames_.getParam( this );
-    prognames->setEmpty();
-    deepErase( getProgArgs() );
 }
 
 
@@ -139,12 +140,21 @@ bool CommandDefs::addCmd( const char* appnm, const uiString& uinm,
 			  const char* iconnm, const uiString& tooltip,
 			  const BufferStringSet& paths )
 {
+    return addCmd( appnm, uinm, iconnm, tooltip, paths, nullptr );
+}
+
+
+bool CommandDefs::addCmd( const char* appnm, const uiString& uinm,
+			  const char* iconnm, const uiString& tooltip,
+			  const BufferStringSet& paths,
+			  const BufferStringSet* cmdargs )
+{
     BufferStringSet usedpaths( paths );
     addHints( usedpaths, appnm );
     if ( !checkCommandExists(appnm, paths) )
 	return false;
 
-    addApplication( appnm );
+    addApplication( appnm, cmdargs );
     uinames_.add( uinm );
     iconnms_.add( iconnm );
     tooltips_.add( tooltip );
@@ -154,20 +164,42 @@ bool CommandDefs::addCmd( const char* appnm, const uiString& uinm,
 
 void CommandDefs::addApplication( const char* appnm )
 {
+    return addApplication( appnm, nullptr );
+}
+
+
+void CommandDefs::addApplication( const char* appnm,
+				  const BufferStringSet* cmdargs )
+{
+    BufferStringSet& prognames = getProgNames();
+
     add( appnm );
-    BufferStringSet* prognames = hp_prognames_.getParam( this );
-    if ( __ismac__ )
+    BufferStringSet* args = cmdargs
+			  ? new BufferStringSet( *cmdargs ) : nullptr;
+    if ( __iswin__ )
     {
-	getProgNames().add( "open" );
-	auto* args = new BufferStringSet;
+	prognames.add( appnm );
+	if ( FixedString(appnm).startsWith("cmd",CaseInsensitive) )
+	{
+	    if ( !args )
+		args = new BufferStringSet();
+	    args->add( "/D" ).add( "/K" );
+	    const BufferString cmdstring(
+		    "prompt $COpendTect$F $P$G && title Command Prompt" );
+	    args->add( cmdstring );
+	}
+    }
+    else if ( __ismac__ )
+    {
+	prognames.add( "open" );
+	if ( !args )
+	    args = new BufferStringSet();
 	args->add( "-a" ).add( appnm ).add( GetPersonalDir() );
-	getProgArgs().add( args );
     }
     else
-    {
-	prognames->add( appnm );
-	getProgArgs().add( nullptr );
-    }
+	prognames.add( appnm );
+
+    getProgArgs().add( args );
 }
 
 
