@@ -122,7 +122,9 @@ uiSettingsMgr::uiSettingsMgr()
     : terminalRequested(this)
 {
     hp_prognms_.setParam( this, new BufferStringSet );
-    hp_progargs_.setParam( this, new ObjectSet<const BufferStringSet> );
+    auto* progargs = new ObjectSet<const BufferStringSet>;
+    hp_progargs_.setParam( this, progargs );
+    progargs->setNullAllowed();
 
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 		uiSettingsMgr::keyPressedCB );
@@ -136,6 +138,7 @@ uiSettingsMgr::~uiSettingsMgr()
     detachAllNotifiers();
     hp_tbupdated.removeAndDeleteParam( this );
     hp_prognms_.removeAndDeleteParam( this );
+    deepErase( getProgArgs() );
     hp_progargs_.removeAndDeleteParam( this );
 }
 
@@ -178,12 +181,16 @@ const BufferStringSet* uiSettingsMgr::programArgs( int argidx ) const
 
 
 static int termcmdidx_ = -1;
+static int idecmdidx_ = -1;
 //Can be static, as we only use a global per application object
 
 uiRetVal uiSettingsMgr::openTerminal( bool withfallback, const char* cmdstr,
 				      const BufferStringSet* args,
 				      const char* workingdir )
 {
+    BufferStringSet& prognms_ = getProgNames();
+    ObjectSet<const BufferStringSet>& progargs_ = getProgArgs();
+
     uiRetVal uirv;
     BufferString cmd( cmdstr );
     BufferStringSet progargs;
@@ -192,11 +199,11 @@ uiRetVal uiSettingsMgr::openTerminal( bool withfallback, const char* cmdstr,
 
     if ( cmd.isEmpty() )
     {
-	if ( getProgNames().validIdx(termcmdidx_) )
+	if ( prognms_.validIdx(termcmdidx_) )
 	{
-	    cmd = getProgNames().get( termcmdidx_ );
+	    cmd.set( prognms_.get(termcmdidx_) );
 	    if ( programArgs(termcmdidx_) )
-		progargs = *getProgArgs().get ( termcmdidx_ );
+		progargs = *progargs_.get ( termcmdidx_ );
 	}
 	else
 	{
@@ -209,7 +216,8 @@ uiRetVal uiSettingsMgr::openTerminal( bool withfallback, const char* cmdstr,
 	    }
 
 	    cmd.set( cmddefs.program(0) );
-	    progargs = *cmddefs.args( 0 );
+	    if ( cmddefs.args(0) )
+		progargs = *cmddefs.args( 0 );
 	}
     }
 
@@ -281,13 +289,19 @@ void uiSettingsMgr::updateUserCmdToolBar()
     if ( !usercmdtb_ && !usercmdmnu_ )
 	return;
 
+    BufferStringSet& prognms_ = getProgNames();
+    ObjectSet<const BufferStringSet>& progargs_ = getProgArgs();
+
     if ( usercmdtb_ )
 	usercmdtb_->clear();
     if ( usercmdmnu_ )
 	usercmdmnu_->clear();
     commands_.erase();
+    prognms_.setEmpty();
+    deepErase( progargs_ );
     toolbarids_.erase();
     termcmdidx_ = -1;
+    idecmdidx_ = -1;
 
     if ( usercmdtb_ )
     {
@@ -305,11 +319,15 @@ void uiSettingsMgr::updateUserCmdToolBar()
     BufferString exenm;
     if ( idepar && idepar->get(sKey::ExeName(),exenm) && !exenm.isEmpty() )
     {
-	const auto commands = uiPythonSettings::getPythonIDECommands();
+	const CommandDefs commands = uiPythonSettings::getPythonIDECommands();
 	const int idx = commands.indexOf( exenm );
 	if ( idx != -1 )
 	{
 	    cmd = commands.get( idx );
+	    prognms_.add( commands.program(idx) );
+	    progargs_.add( commands.args(idx)
+				? new BufferStringSet( *commands.args(idx) )
+				: nullptr );
 	    uiname = commands.getUiName( idx );
 	    iconnm = commands.getIconName( idx );
 	    tooltip = commands.getToolTip( idx );
@@ -318,17 +336,23 @@ void uiSettingsMgr::updateUserCmdToolBar()
     else if ( idepar && idepar->get(sKey::Command(),cmd) && !cmd.isEmpty() &&
 	      File::isExecutable(cmd) )
     {
+	prognms_.add( cmd );
+	progargs_.add( nullptr );
 	idepar->get( sKey::IconFile(), iconnm );
 	idepar->get( sKey::ToolTip(), tooltip );
 	uiname = tooltip;
     }
     else
     {
-	const auto commands = uiPythonSettings::getPythonIDECommands();
+	const CommandDefs commands = uiPythonSettings::getPythonIDECommands();
 	if ( !commands.isEmpty() )
 	{
 	    const int idx = 0;
 	    cmd = commands.get( idx );
+	    prognms_.add( commands.program(idx) );
+	    progargs_.add( commands.args(idx)
+				? new BufferStringSet( *commands.args(idx) )
+				: nullptr );
 	    uiname = commands.getUiName( idx );
 	    iconnm = commands.getIconName( idx );
 	    tooltip = commands.getToolTip( idx );
@@ -343,6 +367,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
 	commands_.add( cmd );
+	idecmdidx_ = commands_.size()-1;
 	if ( usercmdmnu_ )
 	{
 	    auto* newitm = new uiAction(tr("Start %1").arg(uiname),
@@ -353,8 +378,6 @@ void uiSettingsMgr::updateUserCmdToolBar()
 
     cmd.setEmpty(); exenm.setEmpty(); iconnm.setEmpty();
     tooltip.setEmpty(); uiname.setEmpty();
-    getProgNames().setEmpty();
-    deepErase( getProgArgs() );
 
 // Python Terminal command
     const PtrMan<IOPar> termpar = pythonsetts.subselect( sKey::PythonTerm() );
@@ -366,8 +389,10 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	if ( idx != -1 )
 	{
 	    cmd = commands.get( idx );
-	    getProgNames().add( commands.program(idx) );
-	    getProgArgs().add( commands.args(idx) );
+	    prognms_.add( commands.program(idx) );
+	    progargs_.add( commands.args(idx)
+				? new BufferStringSet( *commands.args(idx) )
+				: nullptr );
 	    uiname = commands.getUiName( idx );
 	    iconnm = commands.getIconName( idx );
 	    tooltip = commands.getToolTip( idx );
@@ -375,7 +400,8 @@ void uiSettingsMgr::updateUserCmdToolBar()
     }
     else if ( termpar && termpar->get(sKey::Command(),cmd) && !cmd.isEmpty() )
     {
-	getProgNames().add( cmd );
+	prognms_.add( cmd );
+	progargs_.add( nullptr );
 	termpar->get( sKey::IconFile(), iconnm );
 	termpar->get( sKey::ToolTip(), tooltip );
 	uiname = tooltip;
@@ -387,9 +413,11 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	if ( !commands.isEmpty() )
 	{
 	    const int idx = 0;
-	    getProgArgs().add( commands.args(idx) );
-	    getProgNames().add( cmd );
 	    cmd = commands.get( idx );
+	    prognms_.add( commands.program(idx) );
+	    progargs_.add( commands.args(idx)
+				? new BufferStringSet( *commands.args(idx) )
+				: nullptr );
 	    uiname = commands.getUiName( idx );
 	    iconnm = commands.getIconName( idx );
 	    tooltip = commands.getToolTip( idx );
@@ -404,7 +432,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
 				mCB(this,uiSettingsMgr,doTerminalCmdCB) );
 	toolbarids_ += id;
 	commands_.add( cmd );
-	termcmdidx_ = getProgNames().size()-1;
+	termcmdidx_ = prognms_.size()-1;
 	if ( usercmdmnu_ )
 	{
 	    auto* newitm = new uiAction(tr("Start %1").arg(uiname),
@@ -436,9 +464,10 @@ void uiSettingsMgr::doTerminalCmdCB( CallBacker* cb )
     if ( !toolbarids_.validIdx(idx) )
 	return;
 
+    const BufferStringSet& prognms_ = getProgNames();
     BufferString prognm;
-    if ( getProgNames().validIdx(idx) )
-	prognm.set( getProgNames().get(idx) );
+    if ( prognms_.validIdx(idx) )
+	prognm.set( prognms_.get(idx) );
 
     const uiRetVal uirv = openTerminal( true, prognm, programArgs(idx) );
     if ( !uirv.isOK() )
@@ -458,6 +487,9 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
 	return;
 
     OS::MachineCommand mc( commands_.get(idx) );
+    if ( programArgs(idx) )
+	mc.addArgs( *programArgs(idx) );
+
     if ( !OD::PythA().execute(mc,false) )
     {
 	uiString launchermsg;
@@ -1627,12 +1659,15 @@ CommandDefs uiPythonSettings::getPythonIDECommands()
     OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
     paths.add( pybinpath.fullPath() );
 
+    const BufferStringSet spyderargs( "--new-instance" );
+
     CommandDefs comms;
     comms.addCmd( "jupyter-lab", tr("Jupyter-Lab"), "jupyter-lab.png",
 		  tr("Jupyter Lab"), paths );
     comms.addCmd( "jupyter-notebook", tr("Jupyter-Notebook"),
 		  "jupyter-notebook.png", tr("Jupyter Notebook"), paths );
-    comms.addCmd( "spyder", tr("Spyder"), "spyder.png", tr("Spyder"), paths );
+    comms.addCmd( "spyder", tr("Spyder"), "spyder.png", tr("Spyder"), paths,
+		  &spyderargs );
     const BufferString idlecmd( __iswin__ ? "idle" : "idle3" );
     comms.addCmd( idlecmd, tr("Idle"), "idle.png", tr("Idle"), paths );
 

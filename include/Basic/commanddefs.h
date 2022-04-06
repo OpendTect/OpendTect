@@ -26,8 +26,11 @@ public:
 
     void		erase() override;
 
-    bool		addCmd(const char*, const uiString&, const char*,
-			       const uiString&, const BufferStringSet&);
+    bool		addCmd(const char*,const uiString&,const char*,
+			       const uiString&,const BufferStringSet&);
+    bool		addCmd(const char*,const uiString&,const char*,
+			       const uiString&,const BufferStringSet&,
+			       const BufferStringSet*);
 
     uiString		getUiName(int) const;
     BufferString	getIconName(int) const;
@@ -36,11 +39,13 @@ public:
     const char*		program(int) const;
     const BufferStringSet*	args(int argidx) const;
 
-    static bool		checkCommandExists(const char*, const BufferStringSet&);
+    static bool		checkCommandExists(const char*,const BufferStringSet&);
     static const CommandDefs&	getTerminalCommands(const BufferStringSet&);
 
 protected:
     void		addApplication(const char* appnm);
+    void		addApplication(const char* appnm,
+				       const BufferStringSet* args);
     void		addHints(BufferStringSet&, const char*);
     BufferStringSet&	getProgNames() const;
     ObjectSet<BufferStringSet>& getProgArgs() const;
