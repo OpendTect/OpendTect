@@ -142,7 +142,8 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
     info += "  MD:";
     const uiWellDahDisplay::Data& zdata = seldisp_->zData();
-    const FixedString depthunitstr = SI().getZUnitString( false );
+    const BufferString depthunitstr = UnitOfMeasure::surveyDefDepthUnitAnnot(
+						true, false ).getString();
     info += toString( getConvertedValue(dah_, zsuom, zduom), 2 );
     info += depthunitstr;
 
