@@ -212,6 +212,7 @@ protected:
     void			colStepL(CallBacker*);
     void			colStepR(CallBacker*);
     void			rowClicked(CallBacker*);
+    void			colClicked(CallBacker*);
     void			selChg(CallBacker*);
     void			valChg(CallBacker*);
     void			eachChg(CallBacker*);
