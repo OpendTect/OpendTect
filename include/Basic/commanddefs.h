@@ -25,9 +25,10 @@ public:
 
     void		erase() override;
 
-    bool		addCmd(const char* appnm, const uiString& uinm,
-			       const char* iconnm, const uiString& tooltip,
-			       const BufferStringSet& paths);
+    bool		addCmd(const char* appnm,const uiString& uinm,
+			       const char* iconnm,const uiString& tooltip,
+			       const BufferStringSet& paths,
+			       const BufferStringSet* cmdargs =nullptr);
 
     const char*		program(int) const;
     const BufferStringSet* args(int) const;
@@ -39,8 +40,9 @@ public:
     static const CommandDefs&	getTerminalCommands(const BufferStringSet&);
 
 protected:
-    static bool		checkCommandExists(const char*, const BufferStringSet&);
-    void		addApplication(const char* appnm);
+    static bool		checkCommandExists(const char*,const BufferStringSet&);
+    void		addApplication(const char* appnm,
+				       const BufferStringSet* args);
     void		addHints(BufferStringSet&, const char*);
 
     BufferStringSet	prognames_;

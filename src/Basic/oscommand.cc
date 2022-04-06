@@ -1165,14 +1165,6 @@ bool OS::CommandLauncher::openTerminal( const char* cmdstr,
     }
 
     MachineCommand mc( cmdstr );
-    if ( __iswin__ && FixedString(cmdstr).contains("cmd") )
-    {
-	mc.addArg( "/D" ).addArg( "/K" );
-	const BufferString cmdstring(
-			"prompt $COpendTect$F $P$G && title Command Prompt" );
-	mc.addArg( cmdstring );
-    }
-
     if ( args )
 	mc.addArgs( *args );
 

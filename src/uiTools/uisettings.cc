@@ -114,6 +114,7 @@ uiSettingsMgr::uiSettingsMgr()
     : terminalRequested(this)
     , toolbarUpdated(this)
 {
+    progargs_.setNullAllowed();
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 		uiSettingsMgr::keyPressedCB );
 }
@@ -121,6 +122,7 @@ uiSettingsMgr::uiSettingsMgr()
 
 uiSettingsMgr::~uiSettingsMgr()
 {
+    deepErase( progargs_ );
     detachAllNotifiers();
 }
 
@@ -164,7 +166,7 @@ uiRetVal uiSettingsMgr::openTerminal( bool withfallback, const char* cmdstr,
     {
 	if ( prognms_.validIdx(termcmdidx_) )
 	{
-	    cmd = prognms_.get( termcmdidx_ );
+	    cmd.set( prognms_.get(termcmdidx_) );
 	    if ( programArgs(termcmdidx_) )
 		progargs = *progargs_.get( termcmdidx_ );
 	}
@@ -179,7 +181,8 @@ uiRetVal uiSettingsMgr::openTerminal( bool withfallback, const char* cmdstr,
 	    }
 
 	    cmd.set( cmddefs.program(0) );
-	    progargs = *cmddefs.args( 0 );
+	    if ( cmddefs.args(0) )
+		progargs = *cmddefs.args( 0 );
 	}
     }
 
@@ -256,8 +259,11 @@ void uiSettingsMgr::updateUserCmdToolBar()
     if ( usercmdmnu_ )
 	usercmdmnu_->clear();
     commands_.erase();
+    prognms_.setEmpty();
+    deepErase( progargs_ );
     toolbarids_.erase();
     termcmdidx_ = -1;
+    idecmdidx_ = -1;
 
     if ( usercmdtb_ )
     {
@@ -275,11 +281,15 @@ void uiSettingsMgr::updateUserCmdToolBar()
     BufferString exenm;
     if ( idepar && idepar->get(sKey::ExeName(),exenm) && !exenm.isEmpty() )
     {
-	const auto commands = uiPythonSettings::getPythonIDECommands();
+	const CommandDefs commands = uiPythonSettings::getPythonIDECommands();
 	const int idx = commands.indexOf( exenm );
 	if ( idx != -1 )
 	{
 	    cmd = commands.get( idx );
+	    prognms_.add( commands.program(idx) );
+	    progargs_.add( commands.args(idx)
+			    ? new BufferStringSet( *commands.args(idx) )
+			    : nullptr);
 	    uiname = commands.getUiName( idx );
 	    iconnm = commands.getIconName( idx );
 	    tooltip = commands.getToolTip( idx );
@@ -288,17 +298,23 @@ void uiSettingsMgr::updateUserCmdToolBar()
     else if ( idepar && idepar->get(sKey::Command(),cmd) && !cmd.isEmpty() &&
 	      File::isExecutable(cmd) )
     {
+	prognms_.add( cmd );
+	progargs_.add( nullptr );
 	idepar->get( sKey::IconFile(), iconnm );
 	idepar->get( sKey::ToolTip(), tooltip );
 	uiname = tooltip;
     }
     else
     {
-	const auto commands = uiPythonSettings::getPythonIDECommands();
+	const CommandDefs commands = uiPythonSettings::getPythonIDECommands();
 	if ( !commands.isEmpty() )
 	{
 	    const int idx = 0;
 	    cmd = commands.get( idx );
+	    prognms_.add( commands.program(idx) );
+	    progargs_.add( commands.args(idx)
+			    ? new BufferStringSet( *commands.args(idx) )
+			    : nullptr);
 	    uiname = commands.getUiName( idx );
 	    iconnm = commands.getIconName( idx );
 	    tooltip = commands.getToolTip( idx );
@@ -313,6 +329,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
 				mCB(this,uiSettingsMgr,doToolBarCmdCB) );
 	toolbarids_ += id;
 	commands_.add( cmd );
+	idecmdidx_ = commands_.size()-1;
 	if ( usercmdmnu_ )
 	{
 	    auto* newitm = new uiAction(tr("Start %1").arg(uiname),
@@ -323,8 +340,6 @@ void uiSettingsMgr::updateUserCmdToolBar()
 
     cmd.setEmpty(); exenm.setEmpty(); iconnm.setEmpty();
     tooltip.setEmpty(); uiname.setEmpty();
-    prognms_.setEmpty();
-    deepErase( progargs_ );
 
 // Python Terminal command
     const PtrMan<IOPar> termpar = pythonsetts.subselect( sKey::PythonTerm() );
@@ -337,7 +352,9 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	{
 	    cmd = commands.get( idx );
 	    prognms_.add( commands.program(idx) );
-	    progargs_ += commands.args(idx );
+	    progargs_.add( commands.args(idx )
+			   ? new BufferStringSet( *commands.args(idx) )
+			   : nullptr );
 	    uiname = commands.getUiName( idx );
 	    iconnm = commands.getIconName( idx );
 	    tooltip = commands.getToolTip( idx );
@@ -346,6 +363,7 @@ void uiSettingsMgr::updateUserCmdToolBar()
     else if ( termpar && termpar->get(sKey::Command(),cmd) && !cmd.isEmpty() )
     {
 	prognms_.add( cmd );
+	progargs_.add( nullptr );
 	termpar->get( sKey::IconFile(), iconnm );
 	termpar->get( sKey::ToolTip(), tooltip );
 	uiname = tooltip;
@@ -357,8 +375,11 @@ void uiSettingsMgr::updateUserCmdToolBar()
 	if ( !commands.isEmpty() )
 	{
 	    const int idx = 0;
-	    progargs_ += commands.args( idx );
-	    prognms_.add( cmd );
+	    cmd = commands.get( idx );
+	    prognms_.add( commands.program(idx) );
+	    progargs_.add( commands.args(idx)
+			    ? new BufferStringSet( *commands.args(idx) ) 
+			    : nullptr );
 	    uiname = commands.getUiName( idx );
 	    iconnm = commands.getIconName( idx );
 	    tooltip = commands.getToolTip( idx );
@@ -419,6 +440,9 @@ void uiSettingsMgr::doToolBarCmdCB( CallBacker* cb )
 	return;
 
     OS::MachineCommand mc( commands_.get(idx) );
+    if ( programArgs(idx) )
+	mc.addArgs( *programArgs(idx) );
+
     if ( !OD::PythA().execute(mc,false) )
     {
 	uiString launchermsg;
@@ -1520,12 +1544,15 @@ CommandDefs uiPythonSettings::getPythonIDECommands()
     OD::PythonAccess::GetPythonEnvBinPath( pybinpath );
     paths.add( pybinpath.fullPath() );
 
+    const BufferStringSet spyderargs( "--new-instance" );
+
     CommandDefs comms;
     comms.addCmd( "jupyter-lab", tr("Jupyter-Lab"), "jupyter-lab.png",
 		  tr("Jupyter Lab"), paths );
     comms.addCmd( "jupyter-notebook", tr("Jupyter-Notebook"),
 		  "jupyter-notebook.png", tr("Jupyter Notebook"), paths );
-    comms.addCmd( "spyder", tr("Spyder"), "spyder.png", tr("Spyder"), paths );
+    comms.addCmd( "spyder", tr("Spyder"), "spyder.png", tr("Spyder"), paths,
+		  &spyderargs );
     const BufferString idlecmd( __iswin__ ? "idle" : "idle3" );
     comms.addCmd( idlecmd, tr("Idle"), "idle.png", tr("Idle"), paths );
 

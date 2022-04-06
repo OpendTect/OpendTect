@@ -54,9 +54,13 @@ private:
     BufferStringSet	prognms_;
     TypeSet<int>	toolbarids_;
     int			termcmdidx_ = -1;
+    int			idecmdidx_ = -1;
 
     uiMenu*		usercmdmnu_ = nullptr;
     uiToolBar*		usercmdtb_ = nullptr;
+
+			uiSettingsMgr(const uiSettingsMgr&) = delete;
+    void		operator =(const uiSettingsMgr&)    = delete;
 };
 
 

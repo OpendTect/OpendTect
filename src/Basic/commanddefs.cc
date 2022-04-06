@@ -55,7 +55,9 @@ public:
 
 
 CommandDefs::CommandDefs()
-{}
+{
+    progargs_.setNullAllowed();
+}
 
 
 CommandDefs::CommandDefs( const CommandDefs& oth )
@@ -110,14 +112,15 @@ void CommandDefs::erase()
 
 bool CommandDefs::addCmd( const char* appnm, const uiString& uinm,
 			  const char* iconnm, const uiString& tooltip,
-			  const BufferStringSet& paths )
+			  const BufferStringSet& paths,
+			  const BufferStringSet* cmdargs )
 {
     BufferStringSet usedpaths( paths );
     addHints( usedpaths, appnm );
     if ( !checkCommandExists(appnm,usedpaths) )
 	return false;
 
-    addApplication( appnm );
+    addApplication( appnm, cmdargs );
     uinames_.add( uinm );
     iconnms_.add( iconnm );
     tooltips_.add( tooltip );
@@ -125,21 +128,36 @@ bool CommandDefs::addCmd( const char* appnm, const uiString& uinm,
 }
 
 
-void CommandDefs::addApplication( const char* appnm )
+void CommandDefs::addApplication( const char* appnm,
+				  const BufferStringSet* cmdargs )
 {
     add( appnm );
-    if ( __ismac__ )
-    {
-	prognames_.add( "open" );
-	auto* args = new BufferStringSet;
-	args->add( "-a" ).add( appnm ).add( GetPersonalDir() );
-	progargs_.add( args );
-    }
-    else
+    BufferStringSet* args = cmdargs
+			  ? new BufferStringSet( *cmdargs ) : nullptr;
+    if ( __iswin__ )
     {
 	prognames_.add( appnm );
-	progargs_.add( nullptr );
+	if ( FixedString(appnm).startsWith("cmd",CaseInsensitive) )
+	{
+	    if ( !args )
+		args = new BufferStringSet();
+	    args->add( "/D" ).add( "/K" );
+	    const BufferString cmdstring(
+		"prompt $COpendTect$F $P$G && title Command Prompt");
+	    args->add( cmdstring );
+	}
     }
+    else if ( __ismac__ )
+    {
+	prognames_.add( "open" );
+	if ( !args )
+	    args = new BufferStringSet();
+	args->add( "-a" ).add( appnm ).add( GetPersonalDir() );
+    }
+    else
+	prognames_.add( appnm );
+
+    progargs_.add( args );
 }
 
 
