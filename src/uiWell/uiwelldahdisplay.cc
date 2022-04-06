@@ -246,12 +246,10 @@ void uiWellDahDisplay::setAxisRanges( bool first )
 
     if ( !zdata_.zistime_ )
     {
-	const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
-	if ( uom )
-	{
-	    dispzrg.start = uom->userValue( dispzrg.start );
-	    dispzrg.stop = uom->userValue( dispzrg.stop );
-	}
+	const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+	const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+	dispzrg.start = getConvertedValue( dispzrg.start, zsuom, zduom );
+	dispzrg.stop = getConvertedValue( dispzrg.stop, zsuom, zduom );
     }
 
     ld.yax_.setBounds( dispzrg );

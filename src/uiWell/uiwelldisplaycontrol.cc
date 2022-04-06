@@ -98,10 +98,6 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
     if ( seldisp_ )
     {
 	const uiWellDahDisplay::Data& zdata = seldisp_->zData();
-	float zfac = 1.f;
-	if ( !zdata.zistime_ && SI().depthsInFeet() )
-	    zfac = mToFeetFactorF;
-
 	xpos_ = seldisp_->dahObjData(true).xax_.getVal(mevh->event().pos().x);
 	ypos_ = seldisp_->dahObjData(true).yax_.getVal(mevh->event().pos().y);
 	const Well::Track* track = zdata.track();
@@ -114,7 +110,11 @@ void uiWellDisplayControl::mouseMovedCB( CallBacker* cb )
 	}
 	else
 	{
-	    dah_ = track ? track->getDahForTVD( ypos_/zfac ) : mUdf(float);
+	    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+	    const UnitOfMeasure* zsuom =
+				    UnitOfMeasure::surveyDefDepthStorageUnit();
+	    float tvd = getConvertedValue( ypos_, zduom, zsuom );
+	    dah_ = track ? track->getDahForTVD( tvd ) : mUdf(float);
 	    time_ = ypos_;
 	}
     }
@@ -138,11 +138,13 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     if ( data2.hasData() ) { info += "  "; data2.getInfoForDah(dah_,info); }
     if ( selmarker_ ) { info += "  Marker:"; info += selmarker_->name(); }
 
+    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
     info += "  MD:";
     const uiWellDahDisplay::Data& zdata = seldisp_->zData();
-    const bool zinft = SI().depthsInFeet();
-    const FixedString depthunitstr = getDistUnitString(zinft,false);
-    info += toString( zinft ? mToFeetFactorF*dah_ : dah_, 2 );
+    const BufferString depthunitstr = UnitOfMeasure::surveyDefDepthUnitAnnot(
+						true, false ).getString();
+    info += toString( getConvertedValue(dah_, zsuom, zduom), 2 );
     info += depthunitstr;
 
     const Well::Track* track = zdata.track();
@@ -151,10 +153,10 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
 	info += "  TVD:";
 	const float tvdss = mCast(float,track->getPos(dah_).z);
 	const float tvd = track->getKbElev() + tvdss;
-	info += toString( zinft ? mToFeetFactorF*tvd : tvd, 2 );
+	info += toString( getConvertedValue(tvd, zsuom, zduom), 2 );
 	info += depthunitstr;
 	info += "  TVDSS:";
-	info += toString( zinft ? mToFeetFactorF*tvdss : tvdss, 2 );
+	info += toString( getConvertedValue(tvdss, zsuom, zduom), 2 );
 	info += depthunitstr;
     }
 
