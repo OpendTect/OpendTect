@@ -1207,6 +1207,14 @@ void uiTable::setColumnLabels( const char** lbls )
 }
 
 
+void uiTable::setColumnSortIndicator( int col, bool asc )
+{
+    body_->horizontalHeader()->setSortIndicatorShown( col >= 0 );
+    body_->horizontalHeader()->setSortIndicator( col,
+			asc ? Qt::AscendingOrder : Qt::DescendingOrder );
+}
+
+
 void uiTable::setLabelAlignment( Alignment::HPos hal, bool col )
 {
     QHeaderView* hdr = col ? body_->horizontalHeader()
