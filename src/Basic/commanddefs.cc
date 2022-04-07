@@ -141,7 +141,7 @@ bool CommandDefs::addCmd( const char* appnm, const uiString& uinm,
 {
     BufferStringSet usedpaths( paths );
     addHints( usedpaths, appnm );
-    if ( !checkCommandExists(appnm, paths) )
+    if ( !checkCommandExists(appnm, usedpaths) )
 	return false;
 
     addApplication( appnm );
