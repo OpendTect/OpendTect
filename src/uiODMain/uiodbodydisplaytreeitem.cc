@@ -423,7 +423,7 @@ void uiODBodyDisplayTreeItem::askSaveCB( CallBacker* )
     if ( !ems->isChanged(emid_) )
 	return;
 
-    bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+    bool savewithname = EM::EMM().getMultiID( emid_ ).isUdf();
     if ( !savewithname )
 	savewithname = !IOM().implExists( EM::EMM().getMultiID(emid_) );
 
