@@ -317,6 +317,8 @@ void MnemonicSet::getNames( BufferStringSet& names ) const
 {
     for ( int idx=0; idx<size(); idx++ )
 	names.add( (*this)[idx]->name() );
+
+    names.sort();
 }
 
 
