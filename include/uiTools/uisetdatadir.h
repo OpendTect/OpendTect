@@ -9,13 +9,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiiomod.h"
+#include "uitoolsmod.h"
 #include "uidialog.h"
 
 class uiFileInput;
 class uiListBox;
 
-mExpClass(uiIo) uiSetDataDir : public uiDialog
+mExpClass(uiTools) uiSetDataDir : public uiDialog
 { mODTextTranslationClass(uiSetDataDir);
 public:
 			uiSetDataDir(uiParent*);

@@ -19,6 +19,7 @@ class BufferStringSet;
 class SurveyInfo;
 class uiButton;
 class uiCheckList;
+class uiDataRootSel;
 class uiGenInput;
 class uiLabel;
 class uiLineEdit;
@@ -82,7 +83,7 @@ protected:
     BufferStringSet	surveynames_;
     BufferStringSet	surveydirs_;
 
-    uiLineEdit*		datarootlbl_;
+    uiDataRootSel*	datarootsel_;
     uiListBox*		dirfld_;
     uiButton*		editbut_;
     uiButton*		rmbut_;
@@ -104,8 +105,7 @@ protected:
     void		copyButPushed(CallBacker*);
     void		importButPushed(CallBacker*);
     void		exportButPushed(CallBacker*);
-    void		dataRootPushed(CallBacker*);
-    void		dataRootInfoCB(CallBacker*);
+    void		dataRootChgCB(CallBacker*);
     void		odSettsButPush(CallBacker*);
     void		utilButPush(CallBacker*);
     void		selChange(CallBacker*);
@@ -114,7 +114,6 @@ protected:
     void		updateSurveyNames();
     void		readSurvInfoFromFile();
     void		setCurrentSurvInfo(SurveyInfo*,bool updscreen=true);
-    void		updateDataRootLabel();
     void		updateSurvList();
     void		putToScreen();
     bool		writeSettingsSurveyFile();

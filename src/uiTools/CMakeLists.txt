@@ -31,6 +31,7 @@ set( OD_MODULE_SOURCES
 	uicoordsystem.cc
 	uicrssystem.cc
 	uidatapackmon.cc
+	uidatarootsel.cc
 	uidirectionalplot.cc
 	uidlggroup.cc
 	uifileinput.cc
@@ -88,6 +89,7 @@ set( OD_MODULE_SOURCES
 	uisellinest.cc
 	uiselsimple.cc
 	uiserviceservermgr.cc
+	uisetdatadir.cc
 	uisettings.cc
 	uishortcuts.cc
 	uisizesel.cc
@@ -96,6 +98,7 @@ set( OD_MODULE_SOURCES
 	uistatsdisplay.cc
 	uistepoutsel.cc
 	uistratlvlsel.cc
+	uisurveyzip.cc
 	uitaskrunner.cc
 	uitblimpexpdatasel.cc
 	uitextfile.cc

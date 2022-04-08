@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiclipboard.h"
 #include "uicombobox.h"
 #include "uiconvpos.h"
+#include "uidatarootsel.h"
 #include "uidesktopservices.h"
 #include "uifileinput.h"
 #include "uifont.h"
@@ -55,7 +56,6 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "latlong.h"
 #include "mousecursor.h"
-#include "nrbytes2string.h"
 #include "oddirs.h"
 #include "odver.h"
 #include "od_ostream.h"
@@ -439,7 +439,6 @@ uiSurvey::uiSurvey( uiParent* p )
     , freshsurveyselected_(false)
 {
     setVideoKey( mODVideoKey(mSurveyHelpID) );
-    const CallBack selchgcb( mCB(this,uiSurvey,selChange) );
 
     if ( dataroot_.isEmpty() )
     {
@@ -452,30 +451,18 @@ uiSurvey::uiSurvey( uiParent* p )
 
     setCurrentSurvInfo( new SurveyInfo(SI()) );
 
-    uiGroup* topgrp = new uiGroup( this, "TopGroup" );
-    uiPushButton* datarootbut =
-		new uiPushButton( topgrp, tr("Survey Data Root"), false );
+    auto* topgrp = new uiGroup( this, "Top Group" );
 
-    datarootbut->setIcon( "database" );
-    datarootbut->activated.notify( mCB(this,uiSurvey,dataRootPushed) );
-    datarootbut->attach( leftBorder );
+    datarootsel_ = new uiDataRootSel( topgrp );
+    mAttachCB(datarootsel_->selectionChanged,uiSurvey::dataRootChgCB);
 
-    datarootlbl_ = new uiLineEdit( topgrp, "Data Root Label" );
-    datarootlbl_->setHSzPol( uiObject::WideMax );
-    datarootlbl_->setReadOnly();
-    datarootlbl_->setBackgroundColor( backgroundColor() );
-    datarootlbl_->attach( rightOf, datarootbut );
-
-    uiToolButton* infobut = new uiToolButton( topgrp, "info",
-	tr("Data Root Information"), mCB(this,uiSurvey,dataRootInfoCB) );
-    infobut->attach( rightTo, datarootlbl_ );
-
-    uiToolButton* settbut = new uiToolButton( topgrp, "settings",
-	tr("General Settings"), mCB(this,uiSurvey,odSettsButPush) );
-    settbut->attach( rightOf, infobut );
+    auto* settbut = new uiToolButton( topgrp, "settings",
+				      tr("General Settings"),
+				      mCB(this,uiSurvey,odSettsButPush) );
+    settbut->attach( rightOf, datarootsel_ );
 
     uiSeparator* sep1 = new uiSeparator( topgrp, "Separator 1" );
-    sep1->attach( stretchedBelow, datarootbut );
+    sep1->attach( stretchedBelow, datarootsel_ );
 
     uiGroup* leftgrp = new uiGroup( topgrp, "Survey selection left" );
     uiGroup* rightgrp = new uiGroup( topgrp, "Survey selection right" );
@@ -513,14 +500,14 @@ uiSurvey::uiSurvey( uiParent* p )
     splitter->addGroup( tabs );
 
     putToScreen();
-    updateDataRootLabel();
     setOkText( uiStrings::sSelect() );
-    postFinalize().notify( selchgcb );
+    mAttachCB(postFinalize(),uiSurvey::selChange);
 }
 
 
 uiSurvey::~uiSurvey()
 {
+    detachAllNotifiers();
     ObjectSet<uiSurvInfoProvider>& survprovs =
 					uiSurveyInfoEditor::survInfoProvs();
     for ( int idx=0; idx<survprovs.size(); idx++ )
@@ -1064,17 +1051,10 @@ void uiSurvey::exportButPushed( CallBacker* )
 }
 
 
-void uiSurvey::dataRootPushed( CallBacker* )
+void uiSurvey::dataRootChgCB( CallBacker* cb )
 {
-    uiSetDataDir dlg( this );
-    if ( !dlg.go() || dataroot_ == dlg.selectedDir() )
-	return;
-
-    dataroot_ = dlg.selectedDir();
-    SetCurBaseDataDirOverrule( dataroot_ );
-
+    dataroot_ = datarootsel_->getDataRoot();
     updateSurvList();
-    updateDataRootLabel();
     if ( dirfld_->isEmpty() )
     {
 	setCurrentSurvInfo( nullptr , true );
@@ -1086,30 +1066,6 @@ void uiSurvey::dataRootPushed( CallBacker* )
 	dirfld_->setCurrentItem( GetSurveyName() );
 
     selChange( nullptr );
-}
-
-
-static BufferString getSizeStr( od_int64 nrb )
-{
-    NrBytesToStringCreator conv( nrb );
-    return conv.getString( nrb, 3 );
-}
-
-
-void uiSurvey::dataRootInfoCB( CallBacker* )
-{
-    const BufferString fsnm = System::fileSystemName( dataroot_ );
-    const BufferString fstp = System::fileSystemType( dataroot_ );
-    const BufferString totalmem = getSizeStr( System::bytesTotal(dataroot_) );
-    const BufferString freemem = getSizeStr( System::bytesFree(dataroot_) );
-    const BufferString availmem = getSizeStr(System::bytesAvailable(dataroot_));
-    uiString msg = tr("%1: %2\n%3: %4\n\n%5:\t%6\n%7:\t%8\n%9:\t%10")
-	.arg(sKey::Name()).arg(fsnm)
-	.arg(tr("File system")).arg(fstp)
-	.arg(tr("Total disk space")).arg(totalmem)
-	.arg(tr("Free disk space")).arg(freemem)
-	.arg(tr("Available disk space")).arg(availmem);
-    uiMSG().message( msg );
 }
 
 
@@ -1184,12 +1140,6 @@ void uiSurvey::copyInfoToClipboard()
 
     uiClipboard::setText( txt.buf() );
     uiMSG().message( tr("Survey Information copied to clipboard") );
-}
-
-
-void uiSurvey::updateDataRootLabel()
-{
-    datarootlbl_->setText( dataroot_ );
 }
 
 

@@ -59,7 +59,6 @@ set( OD_MODULE_SOURCES
 	uiprobdenfuncman.cc
 	uiprobdenfunvarsel.cc
 	uirandomlineman.cc
-	uisetdatadir.cc
 	uiselobjothersurv.cc
 	uiselsurvranges.cc
 	uisimpletimedepthmodel.cc
@@ -67,7 +66,6 @@ set( OD_MODULE_SOURCES
 	uisurvey.cc
 	uisurveyfile.cc
 	uisurveyselect.cc
-	uisurveyzip.cc
 	uisurvinfoed.cc
 	uisurvmap.cc
 	uit2dconvsel.cc
