@@ -705,7 +705,7 @@ bool uiWellPartServer::setupNewWell( BufferString& wellname, Color& wellcolor )
 {
     uiNewWellDlg dlg( parent() );
     dlg.go();
-    wellname = dlg.getName();
+    wellname = dlg.getWellName();
     wellcolor = dlg.getWellColor();
     return ( dlg.uiResult() == 1 );
 }
