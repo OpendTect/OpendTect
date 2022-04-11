@@ -161,7 +161,8 @@ protected:
 			uiPluginInitMgr();
     virtual void	init();
 
-    virtual void	beforeSurveyChange() { cleanup(); }
+    virtual void	applicationClosing()		{ cleanup(); }
+    virtual void	beforeSurveyChange()		{ cleanup(); }
     virtual void	afterSurveyChange()		{}
     virtual void	dTectMenuChanged()		{}
     virtual void	dTectToolbarChanged()		{}
