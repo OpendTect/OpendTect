@@ -128,6 +128,7 @@ public:
 
     void		setToolTip( const uiString& tt )
 			{ uiObject::setToolTip(tt); }
+    void		setToolTips(const uiStringSet&);
 
     virtual bool	update_( const DataInpSpec& spec );
     void		getItemSize(int,int& h,int& w) const;

@@ -63,6 +63,8 @@ public:
     inline const BufferStringSet&	aliases() const { return aliases_; }
     inline PropertyRef::StdType		stdType() const { return stdtype_; }
     const MathProperty&			fixedDef() const{ return *mathdef_; }
+    const BufferString&			logTypeName() const
+					{ return logtypename_; }
 
     inline void		setStdType( PropertyRef::StdType t )
 			{ stdtype_ = t; }

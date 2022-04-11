@@ -239,7 +239,18 @@ void PropertyRef::usePar( const IOPar& iop )
     iop.get( sKeyMnemonic, mn_ );
     if ( mn_.isEmpty() )
     {
-	const Mnemonic* mn = MNC().getGuessed( stdtype_ );
+	const Mnemonic* mn = MNC().find( name() );
+	if ( !mn )
+	{
+	    BufferStringSet oldaliases;
+	    iop.get( "Aliases", oldaliases );
+	    for ( int idx=0; idx<oldaliases.size(); idx++ )
+		mn = MNC().find( oldaliases.get(idx) );
+	}
+
+	if ( !mn )
+	    mn = MNC().getGuessed( stdtype_ ); // Makes sure mn is non-null.
+
 	mn_ = mn->name();
     }
     if ( !mn_.isEmpty() )

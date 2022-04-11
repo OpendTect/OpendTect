@@ -89,8 +89,19 @@ void uiUnitSel::init()
 	mAttachCB( mnfld_->selectionChanged, uiUnitSel::mnSelChg );
 	const MnemonicSet& mns = MNC();
 	BufferStringSet mnsnames;
-	mns.getNames( mnsnames );
+	uiStringSet tooltips;
+	for ( int idx=0; idx<mns.size(); idx++ )
+	{
+	    const Mnemonic& mn = *mns[idx];
+	    mnsnames.add( mn.name() );
+	    tooltips.add( toUiString(mn.logTypeName()) );
+	}
+
+	ArrPtrMan<int> sortindexes = mnsnames.getSortIndexes();
+	mnsnames.useIndexes( sortindexes );
+	tooltips.useIndexes( sortindexes );
 	mnfld_->addItems( mnsnames );
+	mnfld_->setToolTips( tooltips );
 	if ( setup_.mn_ )
 	{
 	    mnfld_->setCurrentItem( setup_.mn_->name() );

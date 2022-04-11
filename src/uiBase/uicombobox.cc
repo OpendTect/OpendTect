@@ -244,6 +244,14 @@ void uiComboBox::setIcon( int index, const char* iconnm )
 }
 
 
+void uiComboBox::setToolTips( const uiStringSet& tooltips )
+{
+    for ( int idx=0; idx<body_->count(); idx++ )
+	body_->setItemData( idx, toQString(tooltips.get(idx)),
+			    Qt::ToolTipRole );
+}
+
+
 void uiComboBox::setEmpty()
 {
     mBlockCmdRec;
