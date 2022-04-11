@@ -8,34 +8,33 @@
 #include "genc.h"
 
 #include "applicationdata.h"
-#include "bufstring.h"
-#include "buildinfo.h"
-#include "commondefs.h"
 #include "commandlineparser.h"
-#include "convert.h"
-#include "debug.h"
 #include "envvars.h"
+#include "debug.h"
+#include "oddirs.h"
+#include "oscommand.h"
+#include "commondefs.h"
+#include "buildinfo.h"
+#include "bufstring.h"
+#include "ptrman.h"
 #include "file.h"
 #include "filepath.h"
-#include "iopar.h"
 #include "moddepmgr.h"
-#include "oddirs.h"
+#include "perthreadrepos.h"
+#include "threadlock.h"
+#include "od_iostream.h"
 #include "odmemory.h"
 #include "odruncontext.h"
-#include "oscommand.h"
-#include "od_iostream.h"
-#include "perthreadrepos.h"
 #include "plugins.h"
-#include "ptrman.h"
 #include "separstr.h"
+#include "convert.h"
+#include "iopar.h"
 #include "survinfo.h"
-#include "threadlock.h"
-
 #include <iostream>
-#include <math.h>
-#include <stdlib.h>
 #include <string.h>
 
+#include <math.h>
+#include <stdlib.h>
 #ifdef __win__
 # include <float.h>
 # include <time.h>
@@ -304,7 +303,10 @@ mExternC(Basic) void SetLocalHostNameOverrule(const char* hostnm)
 const char* GetLocalHostName()
 {
     mDefineStaticLocalObject( PtrMan<BufferString>, ret, = new BufferString() )
-    if (!localhostnameoverrule.isEmpty())
+    if ( !ret->isEmpty() )
+	return ret->str();
+
+    if ( !localhostnameoverrule.isEmpty() )
 	ret->set( localhostnameoverrule );
 
 #ifndef OD_NO_QT

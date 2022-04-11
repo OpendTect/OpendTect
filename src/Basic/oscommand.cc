@@ -233,7 +233,8 @@ OS::MachineCommand& OS::MachineCommand::setHostName( const char* hnm )
 {
     const BufferString hostnm( hnm );
     const BufferString localhostnm( GetLocalHostName() );
-    if ( !hostnm.isEmpty() && hostnm != localhostnm && hostnm != "localhost" )
+    if ( !hostnm.isEmpty() && !hostnm.startsWith(localhostnm) &&
+	  hostnm != "localhost" )
 	hname_.set( hnm );
 
     return *this;

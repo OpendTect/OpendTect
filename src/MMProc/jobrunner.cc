@@ -20,15 +20,17 @@ ________________________________________________________________________
 #include "jobdescprov.h"
 #include "jobinfo.h"
 #include "jobiomgr.h"
+#include "mmcommunicdefs.h"
 #include "msgh.h"
 #include "networkcommon.h"
 #include "oddirs.h"
-#include "queue.h"
-#include "timefun.h"
 #include "perthreadrepos.h"
-#include "mmcommunicdefs.h"
+#include "queue.h"
+#include "systeminfo.h"
+#include "timefun.h"
 #include "uistrings.h"
 #include "winutils.h"
+
 #include <iostream>
 
 #define mDebugOn        (DBG::isOn(DBG_MM))
@@ -40,7 +42,7 @@ ________________________________________________________________________
     msg += " times due to host related problems."; \
     if ( ji.hostdata_ ) \
 	{ msg += "\n Execut[ed/ing] on host: "; \
-	  msg += ji.hostdata_->getHostName(); } \
+	  msg += ji.hostdata_->getHostName(false); } \
     msg += "\n Status: "; msg += ji.statusmsg_; \
     msg += "\n Info: "; msg += ji.infomsg_; \
     msg += "\n Last received update: "; \
@@ -52,9 +54,8 @@ const OD::String& getTempBaseNm()
     mDeclStaticString( tmpfnm_base );
     if ( tmpfnm_base.isEmpty() )
     {
-	tmpfnm_base = GetLocalHostName();
-	tmpfnm_base += "_";
-	tmpfnm_base += GetPID();
+	tmpfnm_base.set( System::localHostNameWoDomain() )
+		   .add( "_" ).add( GetPID() );
     }
     return tmpfnm_base;
 }
@@ -157,10 +158,14 @@ bool JobRunner::addHost( const HostData& hd )
 {
     if ( !iomgr().isReady() )
     {
-	delete iomgr_;
-	iomgr_ = 0;
-	errmsg_ = tr("Failed to listen to Port %1 on %2 on ")
-	        .arg(firstport_).arg(BufferString(GetLocalHostName()));
+	const Network::Authority auth = iomgr().authority();
+	const int port = auth.isOK() ? auth.getPort() : firstport_;
+	const BufferString servnm( auth.isOK()
+			    ? auth.getConnHost(Network::Authority::IPv4).buf()
+			    : System::localAddress() );
+	deleteAndZeroPtr( iomgr_ );
+	errmsg_ = tr("Failed to listen to port %1 on %2 on ")
+		.arg( port ).arg( servnm );
 	return false;
     }
 
@@ -298,12 +303,8 @@ const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 {
     mDefineStaticLocalObject( FilePath, basefp, );
 
-    BufferString basenm( hd.getHostName() );
-#ifdef __win__
-    basenm.replace( '.',  '_' );
-#endif
-    basenm += "_"; basenm += ji.descnr_;
-
+    BufferString basenm( hd.getHostName(false) );
+    basenm.add( "_" ).add( ji.descnr_ );
     basefp = procdir_;
     basefp.add( basenm );
     return basefp;
@@ -479,7 +480,7 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 	    BufferString msg( "Start time (" );
 	    msg += hfi->starttime_; msg += ") <= 0 for ";
 
-	    msg += hfi->hostdata_.getHostName();
+	    msg += hfi->hostdata_.getHostName(false);
 	    msg += "\n nrfail: "; msg += hfi->nrfailures_;
 	    msg += "\n nrsucc: "; msg += hfi->nrsucces_;
 	    msg += "\n last succes time: "; msg += hfi->lastsuccess_;
@@ -503,7 +504,7 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 	BufferString msg( "Time since start (" );
 	msg += totltim; msg += ") <= 0 for ";
 
-	msg += hfi->hostdata_.getHostName();
+	msg += hfi->hostdata_.getHostName(false);
 	msg += "\n nrfail: "; msg += hfi->nrfailures_;
 	msg += "\n nrsucc: "; msg += hfi->nrsucces_;
 	msg += "\n startime: "; msg += hfi->starttime_;

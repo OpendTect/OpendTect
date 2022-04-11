@@ -257,7 +257,7 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
     {
 	BufferString msg( "Started listening server on machine ",
 		GetLocalHostName(), " with IP address: " );
-	msg.add( System::localAddress() ).addNewLine()
+	msg.add( auth.getConnHost(Network::Authority::IPv4) ).addNewLine()
 	   .add( "Server is listening to host " ).add( clienthost )
 	   .add( " on port " ).add( auth.getPort() );
 	DBG::message( msg );

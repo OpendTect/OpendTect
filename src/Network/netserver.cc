@@ -323,7 +323,7 @@ BufferString Network::Authority::getHost() const
     if ( hostisaddress_ )
     {
 	if ( isAnyQAddr(qhostaddr_) )
-	    return GetLocalHostName();
+	    return System::localFullHostName();
 
 	const QAbstractSocket::NetworkLayerProtocol protocol =
 							qhostaddr_.protocol();
@@ -340,6 +340,25 @@ BufferString Network::Authority::getHost() const
 	const BufferString hostnm( System::hostAddress(qhoststr) );
 	if ( !hostnm.isEmpty() )
 	    ret.set( qhost_ );
+    }
+
+    return ret;
+}
+
+
+BufferString Network::Authority::getConnHost( ConnType typ ) const
+{
+    if ( isLocal() || !addressIsValid() || qhostaddr_.isLoopback() ||
+	 ((hostisaddress_ && !isAnyQAddr(qhostaddr_)) || !hostisaddress_) )
+	return BufferString::empty();
+
+    BufferString ret;
+    switch ( typ )
+    {
+	case FQDN:	ret.set( System::localFullHostName() ); break;
+	case HostName:	ret.set( System::localHostName() ); break;
+	case IPv4:	ret.set( System::localAddress() ); break;
+	default: break;
     }
 
     return ret;

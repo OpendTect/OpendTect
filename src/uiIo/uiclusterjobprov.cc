@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "settings.h"
 #include "statrand.h"
+#include "systeminfo.h"
 #include "transl.h"
 #include "od_helpids.h"
 
@@ -47,10 +48,9 @@ const char* uiClusterJobProv::sKeyOutputID()
 static BufferString getDefTempStorDir()
 {
     static Stats::RandGen gen;
-    BufferString stordir = "Proc_";
-    stordir += BufferString( GetLocalHostName() );
-    stordir += "_";
-    stordir += gen.getIndex( 100000 );
+    BufferString stordir( "Proc_" );
+    stordir.add( System::localHostNameWoDomain() )
+	   .add( "_" ).add( gen.getIndex(100000) );
     const FilePath fp( GetDataDir(), "Seismics", stordir );
     if ( !File::createDir(fp.fullPath()) )
 	return BufferString(File::getTempPath());

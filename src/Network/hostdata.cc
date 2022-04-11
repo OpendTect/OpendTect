@@ -79,7 +79,7 @@ HostData::~HostData()
 
 const char* HostData::localHostName()
 {
-    return GetLocalHostName();
+    return System::localFullHostName();
 }
 
 
@@ -110,6 +110,7 @@ const char* HostData::getHostName( bool full ) const
 
     return hostname_.buf();
 }
+
 
 void HostData::setIPAddress( const char* ip )
 {
@@ -711,7 +712,8 @@ void HostDataList::handleLocal()
     const int sz = size();
     const char* localhoststd = Network::Socket::sKeyLocalHost();
     HostData* localhd = nullptr;
-    const BufferString hnm( GetLocalHostName() );
+    const BufferString hnm( System::localHostName() );
+    const BufferString fqhnm( System::localFullHostName() );
     for ( int idx=0; idx<sz; idx++ )
     {
 	HostData* hd = get( idx );
@@ -729,7 +731,7 @@ void HostDataList::handleLocal()
 	    localhd = hd;
 	    break;
 	}
-	else if ( hd->isKnownAs(hnm) )
+	else if ( hd->isKnownAs(hnm) || hd->isKnownAs(fqhnm) )
 	{
 	    hd->addAlias( localhoststd );
 	    // Ensure this is the first entry
@@ -750,22 +752,23 @@ void HostDataList::handleLocal()
     if ( !localhd )
     {
 	const bool useipaddr = isMostlyStaticIP();
-	localhd = useipaddr ? new HostData( System::hostAddress(hnm) )
-			    : new HostData( hnm );
+	localhd = useipaddr ? new HostData( System::hostAddress(fqhnm) )
+			    : new HostData( fqhnm );
 	localhd->addAlias( localhoststd );
 	insertAt( localhd, 0 );
     }
 
     HostData& lochd = *first();
-    if ( hnm != lochd.getHostName() )
+    if ( fqhnm != lochd.getHostName() )
     {
 	BufferString oldnm = lochd.getHostName();
-	lochd.setHostName( hnm );
+	lochd.setHostName( fqhnm );
 	lochd.addAlias( oldnm );
-	for ( int idx=0; idx<lochd.aliases_.size(); idx++ )
+	for ( int idx=lochd.aliases_.size()-1; idx>=0; idx-- )
 	{
-	    if ( lochd.aliases_.get(idx) == hnm )
-		{ lochd.aliases_.removeSingle( idx ); idx--; }
+	    if ( lochd.aliases_.get(idx) == hnm ||
+		 lochd.aliases_.get(idx) == fqhnm )
+		lochd.aliases_.removeSingle( idx );
 	}
     }
 
@@ -774,7 +777,7 @@ void HostDataList::handleLocal()
 	HostData* hd = get( idx );
 	hd->setLocalHost( *localhd );
 
-	if ( hd->isKnownAs(hnm) )
+	if ( hd->isKnownAs(hnm) || hd->isKnownAs(fqhnm) )
 	{
 	    lochd.addAlias( hd->getHostName() );
 	    for ( int idy=0; idy<hd->aliases_.size(); idy++ )

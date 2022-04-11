@@ -21,6 +21,18 @@ namespace System
 {
     mGlobal(Network) const char*	localHostName();
 					//!< shortcut to GetLocalHostName()
+    mGlobal(Network) const char*	localFullHostName();
+					/*!< Unlike localHostName,
+					     always returns a fully qualified
+					     domain name */
+    mGlobal(Network) const char*	localDomainName();
+					/*!< The domain name of the local host
+					      May be empty */
+    mGlobal(Network) const char*	localHostNameWoDomain();
+					/*!< Short version of the host name,
+					     always without domain name.
+					     Should not be used to make a
+					     connection */
     mGlobal(Network) const char*	localAddress(bool ipv4only=true);
 
     mGlobal(Network) const char*	hostName(const char* ip);
