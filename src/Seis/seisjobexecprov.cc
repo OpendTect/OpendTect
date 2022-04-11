@@ -6,33 +6,35 @@
 
 
 #include "seisjobexecprov.h"
-#include "seiscbvs.h"
-#include "seis2ddata.h"
-#include "seissingtrcproc.h"
-#include "posinfo2d.h"
-#include "jobdescprov.h"
-#include "jobrunner.h"
-#include "ctxtioobj.h"
+
+#include "batchjobdispatch.h"
 #include "cbvsreader.h"
+#include "ctxtioobj.h"
+#include "genc.h"
+#include "iodir.h"
+#include "iodirentry.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "iopar.h"
-#include "iodir.h"
-#include "iodirentry.h"
-#include "oddirs.h"
+#include "jobdescprov.h"
+#include "jobrunner.h"
 #include "hostdata.h"
 #include "file.h"
 #include "filepath.h"
 #include "keystrs.h"
-#include "ptrman.h"
 #include "od_iostream.h"
-#include "strmdata.h"
-#include "survinfo.h"
+#include "oddirs.h"
+#include "posinfo2d.h"
 #include "posinfo2dsurv.h"
-#include "trckeyzsampling.h"
+#include "ptrman.h"
+#include "seiscbvs.h"
+#include "seis2ddata.h"
+#include "seissingtrcproc.h"
+#include "strmdata.h"
 #include "separstr.h"
-#include "batchjobdispatch.h"
-#include "genc.h"
+#include "survinfo.h"
+#include "systeminfo.h"
+#include "trckeyzsampling.h"
 
 const char* SeisJobExecProv::sKeySeisOutIDKey()	{ return "Output Seismics Key";}
 const char* SeisJobExecProv::sKeyOutputLS()	{ return "Output Line Set"; }
@@ -202,10 +204,9 @@ BufferString SeisJobExecProv::getDefTempStorDir( const char* pth )
     if ( !havepth )
 	fp.add( "Seismics" );
 
-    BufferString stordir = "Proc_";
-    stordir += GetLocalHostName();
-    stordir += "_";
-    stordir += GetPID();
+    BufferString stordir( "Proc_" );
+    stordir.add( System::localHostNameWoDomain() )
+	   .add( "_" ).add( GetPID() );
 
     fp.add( stordir );
     return fp.fullPath();

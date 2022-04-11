@@ -306,7 +306,10 @@ mExternC(Basic) void SetLocalHostNameOverrule(const char* hostnm)
 const char* GetLocalHostName()
 {
     mDefineStaticLocalObject( PtrMan<BufferString>, ret, = new BufferString() )
-    if (!localhostnameoverrule.isEmpty())
+    if ( !ret->isEmpty() )
+	return ret->str();
+
+    if ( !localhostnameoverrule.isEmpty() )
 	ret->set( localhostnameoverrule );
 
 #ifndef OD_NO_QT

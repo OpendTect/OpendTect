@@ -38,13 +38,22 @@ uiLocalHostGrp::uiLocalHostGrp( uiParent* p, const uiString& txt,
 	mAttachCB(hostnmoverrulefld_->valuechanged,
 					      uiLocalHostGrp::hostnmoverruleCB);
     }
+
     hostaddrfld_ = new uiGenInput( this,
 			   uiStrings::phrJoinStrings( txt, tr("Address") ) );
     hostaddrfld_->setReadOnly();
     hostaddrfld_->attach( alignedBelow, withoverride ? hostnmoverrulefld_
 								: hostnmfld_ );
-    setHAlignObj( hostnmfld_ );
+    const FixedString domainnm = System::localDomainName();
+    if ( !domainnm.isEmpty() )
+    {
+	auto* domainfld = new uiGenInput( this, tr("Domain name") );
+	domainfld->setText( domainnm );
+	domainfld->setReadOnly();
+	domainfld->attach( alignedBelow, hostaddrfld_ );
+    }
 
+    setHAlignObj( hostnmfld_ );
 
     hostnmfld_->setText( System::localHostName() );
     hostnmoverrulefld_->setText( SettingsAccess().getHostNameOverrule() );

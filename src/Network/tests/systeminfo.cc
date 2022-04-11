@@ -35,6 +35,8 @@ public:
         CallBack::removeFromThreadCalls( this );
     }
 
+private:
+
     void timerTick( CallBacker* )
     {
 	retval_ = testNetAuthority() && testSystemInfo() ? 0 : 1;
@@ -44,6 +46,14 @@ public:
     void closeTesterCB( CallBacker* )
     {
 	ApplicationData::exit( retval_ );
+    }
+
+    const char* getDomainName() const
+    {
+	static BufferString domainnm( System::localDomainName() );
+	if ( domainnm.isEmpty() )
+	    domainnm.set( "enschede.dgbes.com" );
+	return domainnm.buf();
     }
 
     bool testSystemInfo()
@@ -66,8 +76,7 @@ public:
 	hostaddress = System::hostAddress( "dgb29", false );
 	mRunStandardTest( !hostaddress.isEmpty(), "dgb29 ipv6" );
 
-	const BufferString dgb29hostname =
-		__iswin__ ? "dgb29.DGBES.local" : "dgb29.enschede.dgbes.com";
+	const BufferString dgb29hostname( "dgb29.", getDomainName() );
 	hostaddress = System::hostAddress( dgb29hostname );
 	mRunStandardTest( hostaddress=="192.168.0.29", "dgb29.domain ipv4" );
 
@@ -96,13 +105,14 @@ public:
 	    auths += Network::Authority( addr, port );
 	}
 
-	const BufferString localhostnm( GetLocalHostName() );
-	const BufferString localipaddr( System::hostAddress( localhostnm ) );
+	const BufferString localhostnm( System::localHostName() );
+	const BufferString localfqhn( System::localFullHostName() );
+	const BufferString localipaddr( System::localAddress() );
 	BufferStringSet exphostaddrs;
 	exphostaddrs
 	    .add( "" ).add( "255.255.255.255" )
 	    .add( localhoststr ).add( localhoststr )
-	    .add( localhostnm ).add( localhostnm ).add( localhostnm );
+	    .add( localfqhn ).add( localfqhn ).add( localfqhn );
 	BoolTypeSet isoks( exphostaddrs.size(), true );
 	BoolTypeSet isaddrs( exphostaddrs.size(), true );
 	isoks[0] = false; isaddrs[0] = false;
@@ -142,10 +152,36 @@ public:
 		BufferString( "Authority for host ", exphostnm ) );
 	}
 
+	auths.setEmpty(); isoks.setEmpty(); isaddrs.setEmpty();
+	exphostaddrs.setEmpty();
+	exphostaddrs.add( localfqhn ).add( localhostnm ).add( localipaddr );
+	TypeSet<Network::Authority::ConnType> conntypes;
+	conntypes += Network::Authority::FQDN;
+	conntypes += Network::Authority::HostName;
+	conntypes += Network::Authority::IPv4;
+	for ( int idx=0; idx<exphostaddrs.size(); idx++ )
+	{
+	    const QHostAddress qaddr = QHostAddress( QHostAddress::Any );
+	    auths += Network::Authority( BufferString(qaddr.toString()), port );
+	    isoks += true;
+	    isaddrs += true;
+	}
+
+	for ( int idx=0; idx<auths.size(); idx++ )
+	{
+	    const Network::Authority& auth = auths[idx];
+	    const bool isok = auth.isOK();
+	    const bool isaddr = auth.isAddressBased();
+	    const BufferString& exphostnm = exphostaddrs.get( idx );
+	    const BufferString hostnm = auth.getConnHost( conntypes[idx] );
+	    mRunStandardTest( hostnm == exphostnm && auth.getPort() == port &&
+			      isok == isoks[idx] && isaddr == isaddrs[idx],
+		BufferString( "Authority for host ", exphostnm ) );
+	}
+
 	// Now hostname based authorities
 
-	const BufferString dgb29hostname =
-	    __iswin__ ? "dgb29.DGBES.local" : "dgb29.enschede.dgbes.com";
+	const BufferString dgb29hostname( "dgb29.", getDomainName() );
 	exphostaddrs.setEmpty();
 	exphostaddrs
 	    .add( localhoststr )

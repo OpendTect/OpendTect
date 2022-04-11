@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odplatform.h"
 #include "perthreadrepos.h"
+#include "settingsaccess.h"
 #include "winutils.h"
 
 #include <QHostAddress>
@@ -97,7 +98,60 @@ od_uint64 uniqueSystemID()
 const char* localHostName()
 {
     mDeclStaticString( str );
-    str = GetLocalHostName();
+    if ( str.isEmpty() )
+	str = GetLocalHostName();
+    return str.buf();
+}
+
+extern "C" { mGlobal(Basic) void SetLocalHostNameOverrule(const char*); }
+
+const char* localFullHostName()
+{
+    mDeclStaticString( str );
+    if ( str.isEmpty() )
+    {
+	str = localHostName();
+	const BufferString hostnmoverrule =
+				SettingsAccess().getHostNameOverrule();
+	if ( !hostnmoverrule.isEmpty() )
+	{
+	    const BufferString ipaddr( hostAddress( hostnmoverrule ) );
+	    if ( isValidIPAddress(ipaddr) && ipaddr == localAddress() )
+	    {
+		str = hostnmoverrule;
+		SetLocalHostNameOverrule( str.buf() );
+		return str.buf();
+	    }
+	}
+
+	const char* domainnm = localDomainName();
+	if ( domainnm && *domainnm && !str.endsWith(domainnm) )
+	    str.add( "." ).add( domainnm );
+    }
+
+    return str.buf();
+}
+
+
+const char* localDomainName()
+{
+    mDeclStaticString( str );
+    if ( str.isEmpty() )
+	str.set( QHostInfo::localDomainName() );
+    return str.buf();
+}
+
+
+const char* localHostNameWoDomain()
+{
+    mDeclStaticString( str );
+    if ( str.isEmpty() )
+    {
+	str.set( localHostName() );
+	const char* domainnm = localDomainName();
+	if ( domainnm && *domainnm && str.endsWith(domainnm) )
+	    str.replace( '.', '\0' );
+    }
     return str.buf();
 }
 
@@ -141,11 +195,7 @@ const char* hostAddress( const char* hostname, bool ipv4only )
     str.setEmpty();
     BufferString fqdn( hostname );
     if ( fqdn == localHostName() )
-    {
-	const BufferString domainnm( QHostInfo::localDomainName() );
-	if ( !fqdn.endsWith(domainnm.buf()) )
-	    fqdn.add( "." ).add( domainnm );
-    }
+	fqdn.set( localFullHostName() );
 
     const QHostInfo qhi = QHostInfo::fromName( QString(fqdn) );
     const QList<QHostAddress> addresses = qhi.addresses();
