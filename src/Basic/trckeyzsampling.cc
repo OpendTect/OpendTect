@@ -1083,6 +1083,16 @@ bool TrcKeySampling::includes( const TrcKey& tk, bool ignoresteps ) const
 }
 
 
+BinID TrcKeySampling::corner( int idx ) const
+{
+    if ( idx==1 )
+	return BinID( stop_.inl(), start_.crl() );
+    if ( idx==2 )
+	return BinID( start_.inl(), stop_.crl() );
+
+    return idx==3 ? stop_ : start_;
+}
+
 
 // TrcKeyZSampling
 void TrcKeyZSampling::set2DDef()

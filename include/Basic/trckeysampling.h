@@ -149,6 +149,13 @@ public:
     BinID		stop_;
     BinID		step_;
 
+    BinID		corner(int idx) const;
+			/* idx==0: start_.inl,start_.crl
+			   idx==1: stop_.inl,start_.crl
+			   idx==2: start_.inl,stop_.crl
+			   idx==4: stop_.inl,stop_.crl
+			*/
+
     //Legacy. Will be removed
 			TrcKeySampling(bool settoSI);
     StepInterval<int>	inlRange() const	{ return lineRange(); }
