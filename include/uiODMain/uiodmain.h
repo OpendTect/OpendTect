@@ -64,6 +64,7 @@ public:
     Notifier<uiODMain>	sessionSave;	//!< Put data in pars
     Notifier<uiODMain>	sessionRestoreEarly; //!< Get data from pars, before vis
     Notifier<uiODMain>	sessionRestore;	//!< Get data from pars
+    Notifier<uiODMain>	beforeExit;
     IOPar&		sessionPars();	//!< On session save or restore
 					//!< notification, to get/put data
 
