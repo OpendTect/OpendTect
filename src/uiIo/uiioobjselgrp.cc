@@ -327,6 +327,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 	    valstrs.insertAt( firstline, 0 );
 	    auto* lbl = new uiLabel( listfld_, uiStrings::sType() );
 	    ctxtfiltfld_ = new uiComboBox( listfld_, "ctxtfilter" );
+	    ctxtfiltfld_->setHSzPol( uiObject::MedVar );
 	    ctxtfiltfld_->addItems( valstrs );
 	    ctxtfiltfld_->attach( alignedBelow, filtfld_ );
 	    lbl->attach( leftOf, ctxtfiltfld_ );
