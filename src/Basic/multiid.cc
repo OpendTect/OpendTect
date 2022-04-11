@@ -14,6 +14,8 @@ ________________________________________________________________________
 
 #include "perthreadrepos.h"
 #include "separstr.h"
+#include "survinfo.h"
+#include "surveydisklocation.h"
 
 
 static int sUdfID()	{ return -1; }
@@ -204,4 +206,16 @@ const char* MultiID::buf() const
     mDeclStaticString( res );
     res = toString();
     return res.buf();
+}
+
+
+const SurveyDiskLocation& MultiID::surveyDiskLocation() const
+{
+    return SI().diskLocation();
+}
+
+
+void MultiID::setSurveyDiskLocation( const SurveyDiskLocation& sdl )
+{
+    pErrMsg("MultiID doesn't support this, please use DBKey instead");
 }

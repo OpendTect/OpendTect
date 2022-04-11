@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "typeset.h"
 
+class SurveyDiskLocation;
 
 /*!
 \brief Compound key consisting of ints.
@@ -62,6 +63,11 @@ public:
     static int		cFirstDatabaseGrpID()	{ return 100000; }
     static int		cSyntheticObjID()	{ return 999998; }
     static int		cTmpObjID()		{ return 999999; }
+
+    virtual const SurveyDiskLocation& surveyDiskLocation() const;
+    virtual void	setSurveyDiskLocation(const SurveyDiskLocation&);
+    virtual bool	hasSurveyLocation() const	{ return false; }
+    virtual bool	isInCurrentSurvey() const	{ return true; }
 
 private:
     MultiID&		add(int id);

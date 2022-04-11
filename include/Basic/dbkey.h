@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "objectset.h"
 
-class SurveyDiskLocation;
 class SurveyInfo;
 
 mExpClass(Basic) DBKey : public MultiID
@@ -36,11 +35,12 @@ public:
 
     bool		isValid() const		{ return !isUdf(); }
 
-    void		setSurveyDiskLocation(const SurveyDiskLocation&);
-    bool		hasSurveyLocation() const { return survloc_; }
-    const SurveyDiskLocation& surveyDiskLocation() const;
+    void		setSurveyDiskLocation(
+					const SurveyDiskLocation&) override;
+    bool		hasSurveyLocation() const override { return survloc_; }
+    const SurveyDiskLocation& surveyDiskLocation() const override;
+    bool		isInCurrentSurvey() const override;
     void		clearSurveyDiskLocation();
-    bool		isInCurrentSurvey() const;
     const SurveyInfo&	surveyInfo() const;
 
     DBKey		getLocal() const;
