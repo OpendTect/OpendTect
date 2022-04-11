@@ -249,6 +249,7 @@ uiODMain::uiODMain( uiMain& a )
     , sessionRestoreEarly(this)
     , sessionRestore(this)
     , justBeforeGo(this)
+    , beforeExit(this)
     , uiapp_(a)
     , lastsession_(*new ODSession)
     , programname_( "OpendTect" )
@@ -866,6 +867,8 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 	 }
     }
 
+    beforeExit.trigger();
+
     if ( failed_ )
 	return true;
 
@@ -944,6 +947,7 @@ uiServiceClientMgr& uiODMain::serviceMgr()
 uiPluginInitMgr::uiPluginInitMgr()
     : appl_(*ODMainWin())
 {
+    mAttachCB( appl_.beforeExit, uiPluginInitMgr::applCloseCB );
     mAttachCB( IOM().surveyToBeChanged, uiPluginInitMgr::beforeSurvChgCB );
     mAttachCB( IOM().afterSurveyChange, uiPluginInitMgr::afterSurvChgCB );
     mAttachCB( appl_.menuMgr().dTectMnuChanged, uiPluginInitMgr::menuChgCB );
@@ -970,6 +974,9 @@ void uiPluginInitMgr::beforeSurvChgCB( CallBacker* )
 
 void uiPluginInitMgr::afterSurvChgCB( CallBacker* )
 { afterSurveyChange(); }
+
+void uiPluginInitMgr::applCloseCB( CallBacker* )
+{ applicationClosing(); }
 
 void uiPluginInitMgr::menuChgCB( CallBacker* )
 { dTectMenuChanged(); }
