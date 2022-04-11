@@ -536,6 +536,7 @@ bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
     while ( data().next(pos) )
     {
 	data().get( pos, bid, vals );
+	strm << bid.inl() << '\t' << bid.crl();
 	if ( tabstyle )
 	{
 	    Coord crd = SI().transform( bid );
@@ -544,14 +545,9 @@ bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
 		crd.x += vals[xoffsetidx];
 		crd.y += vals[yoffsetidx];
 	    }
-	    const char* format = "%8d%8d%16.2lf%16.2lf";
-	    BufferString line( 80, false );
-	    od_sprintf( line.getCStr(), line.bufSize(),
-			format, bid.inl(), bid.crl(), crd.x, crd.y );
-	    strm << line;
+
+	    strm << '\t' << toString(crd.x,2) << '\t' << toString(crd.y,2);
 	}
-	else
-	    strm << bid.inl() << '\t' << bid.crl();
 
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
