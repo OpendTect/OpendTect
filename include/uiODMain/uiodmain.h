@@ -172,6 +172,7 @@ protected:
     uiODMain&		appl_;
 
 private:
+    void		applCloseCB(CallBacker*);
     void		beforeSurvChgCB(CallBacker*);
     void		afterSurvChgCB(CallBacker*);
     void		menuChgCB(CallBacker*);
