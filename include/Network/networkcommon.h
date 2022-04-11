@@ -74,10 +74,15 @@ public:
     BufferString	toString() const;
     BufferString	getUserInfo() const		{ return userinfo_; }
     BufferString	getHost() const;
+    enum ConnType	{ FQDN, HostName, IPv4 };
+    BufferString	getConnHost(ConnType) const;
+			/*<! Exclusively for network authorities from listening
+			  TCP servers, returns the connection name to be used
+			  for connecting to the server from other machines */
     PortNr_Type		getPort() const			{ return port_; }
     bool		addressIsValid() const;
     bool		isUsable() const;
-                //<! Also checks if already in use
+			//<! Also checks if already in use
     bool		portIsFree(uiString* errmsg =nullptr) const;
 
     void		fromString(const char*,bool resolveipv6=false);

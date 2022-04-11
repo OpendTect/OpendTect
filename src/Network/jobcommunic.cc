@@ -202,7 +202,7 @@ BufferString JobCommunic::buildString( char tag , int status, const char* msg )
     FileMultiString statstr;
     statstr += jobid_;
     statstr += status;
-    statstr += BufferString( GetLocalHostName() );
+    statstr += BufferString( System::localFullHostName() );
     statstr += GetPID();
 
     if ( msg && *msg )

@@ -266,7 +266,7 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
     {
 	BufferString msg( "Started listening server on machine ",
 		GetLocalHostName(), " with IP address: " );
-	msg.add( System::localAddress() ).addNewLine()
+	msg.add( auth.getConnHost(Network::Authority::IPv4) ).addNewLine()
 	   .add( "Server is listening to host " ).add( clienthost )
 	   .add( " on port " ).add( auth.getPort() );
 	DBG::message( msg );
@@ -464,7 +464,7 @@ void uiMMBatchJobDispatcher::jobFail( CallBacker* )
     BufferString msg( "Failure for " );
     addObjNm( msg, jobrunner_, ji.descnr_ );
     if ( ji.hostdata_ )
-	{ msg += " on "; msg += ji.hostdata_->getHostName(); }
+	{ msg += " on "; msg += ji.hostdata_->getShortHostName(); }
     if ( !ji.infomsg_.isEmpty() )
 	{ msg += ": "; msg += ji.infomsg_; }
     progrfld_->append( msg );
@@ -479,7 +479,7 @@ void uiMMBatchJobDispatcher::infoMsgAvail( CallBacker* )
     BufferString msg( "Info for " );
     addObjNm( msg, jobrunner_, ji.descnr_ );
     if ( ji.hostdata_ )
-	{ msg += " on "; msg += ji.hostdata_->getHostName(); }
+	{ msg += " on "; msg += ji.hostdata_->getShortHostName(); }
 
     msg += ": "; msg += ji.infomsg_;
     progrfld_->append( msg );
@@ -681,7 +681,7 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
     {
 	errmsg = "Cannot establish a ";
 	errmsg += rshcomm; errmsg += " connection with ";
-	errmsg += hd.getHostName();
+	errmsg += hd.getShortHostName();
 	return false;
     }
 
@@ -692,7 +692,7 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
     if ( !checkcmd.execute(stdoutstr) || stdoutstr.isEmpty() )
     {
 	errmsg = "Cannot find application directory ";
-	errmsg += hd.getHostName(); errmsg += ":";
+	errmsg += hd.getShortHostName(); errmsg += ":";
 	errmsg += hd.convPath(HostData::Appl, GetSoftwareDir(0)).fullPath();
 	errmsg += "\nMake sure the filesystem is mounted on remote host ";
 	return false;
@@ -705,7 +705,7 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
     if ( !checkcmd.execute(stdoutstr) || stdoutstr.isEmpty() )
     {
 	errmsg = "Cannot find data directory ";
-	errmsg += hd.getHostName(); errmsg += ":";
+	errmsg += hd.getShortHostName(); errmsg += ":";
 	errmsg += hd.convPath(HostData::Data, GetBaseDataDir()).fullPath();
 	errmsg += "\nMake sure the filesystem is mounted on remote host";
 	return false;
@@ -742,7 +742,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 	if ( avmachfld_ && !avmachfld_->isChosen(idx) ) continue;
 
 	BufferString hnm = avmachfld_ ? avmachfld_->textOfItem( idx )
-				      : hdl_[0]->getHostName();
+				      : hdl_[0]->getShortHostName();
 	char* ptr = hnm.find( ' ' );
 	if ( ptr )
 	    *ptr = '\0';
