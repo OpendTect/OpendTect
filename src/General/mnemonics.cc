@@ -79,6 +79,10 @@ bool Mnemonic::isKnownAs( const char* nm ) const
 	if ( ge.matches(nm) )
 	    return true;
     }
+
+    if ( caseInsensitiveEqual(nm,logtypename_) )
+	return true;
+
     return false;
 }
 
