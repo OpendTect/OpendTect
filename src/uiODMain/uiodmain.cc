@@ -252,7 +252,8 @@ int ODMain( uiMain& app )
 #define mMemStatusFld 4
 static uiString cputxt_;
 
-HiddenParam<uiODMain,BufferString*> odmainproginfomgr_(nullptr);
+HiddenParam<uiODMain,BufferString*> odmainproginfomgr_( nullptr );
+HiddenParam<uiODMain,Notifier<uiODMain>*> hp_odmainexitmgr_( nullptr );
 
 uiODMain::uiODMain( uiMain& a )
     : uiMainWin(0,toUiString("OpendTect Main Window"),5,true)
@@ -275,10 +276,10 @@ uiODMain::uiODMain( uiMain& a )
     , sessionRestoreEarly(this)
     , sessionRestore(this)
     , justBeforeGo(this)
-    , beforeExit(this)
     , programname_( "OpendTect" )
 {
     odmainproginfomgr_.setParam( this, new BufferString );
+    hp_odmainexitmgr_.setParam( this, new Notifier<uiODMain>(this) );
     setIconText( getProgramString() );
     uiapp_.setTopLevel( this );
 
@@ -316,6 +317,7 @@ uiODMain::~uiODMain()
 	manODMainWin( nullptr );
 
     odmainproginfomgr_.removeAndDeleteParam( this );
+    hp_odmainexitmgr_.removeAndDeleteParam( this );
 
     delete &lastsession_;
     delete &sesstimer_;
@@ -864,6 +866,12 @@ void uiODMain::updateCaption()
 }
 
 
+Notifier<uiODMain>& uiODMain::beforeExit()
+{
+    return *hp_odmainexitmgr_.getParam( this );
+}
+
+
 bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 {
     saveSettings();
@@ -892,7 +900,7 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 	 }
     }
 
-    beforeExit.trigger();
+    beforeExit().trigger();
 
     if ( failed_ )
 	return true;
@@ -983,7 +991,7 @@ uiServiceClientMgr& uiODMain::serviceMgr()
 uiPluginInitMgr::uiPluginInitMgr()
     : appl_(*ODMainWin())
 {
-    mAttachCB( appl_.beforeExit, uiPluginInitMgr::applCloseCB );
+    mAttachCB( appl_.beforeExit(), uiPluginInitMgr::applCloseCB );
     mAttachCB( IOM().surveyToBeChanged, uiPluginInitMgr::beforeSurvChgCB );
     mAttachCB( IOM().afterSurveyChange, uiPluginInitMgr::afterSurvChgCB );
     mAttachCB( appl_.menuMgr().dTectMnuChanged, uiPluginInitMgr::menuChgCB );
