@@ -140,15 +140,14 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     changematerialmnuitem_.iconfnm = "disppars";
 
     menu_.ref();
-    menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
-    menu_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
+    mAttachCB(menu_.createnotifier,uiVisPartServer::createMenuCB);
+    mAttachCB(menu_.handlenotifier,uiVisPartServer::handleMenuCB);
 
-    visBase::DM().selMan().selnotifier.notify(
-	mCB(this,uiVisPartServer,selectObjCB) );
-    visBase::DM().selMan().deselnotifier.notify(
-	mCB(this,uiVisPartServer,deselectObjCB) );
-    visBase::DM().selMan().updateselnotifier.notify(
-	mCB(this,uiVisPartServer,updateSelObjCB) );
+    mAttachCB(visBase::DM().selMan().selnotifier,uiVisPartServer::selectObjCB);
+    mAttachCB(visBase::DM().selMan().deselnotifier,
+	      uiVisPartServer::deselectObjCB);
+    mAttachCB(visBase::DM().selMan().updateselnotifier,
+	      uiVisPartServer::updateSelObjCB);
 
     vismgr_ = new uiVisModeMgr(this);
     pickretriever_->ref();
@@ -169,12 +168,7 @@ bool uiVisPartServer::sendVisEvent( int evid )
 
 uiVisPartServer::~uiVisPartServer()
 {
-    visBase::DM().selMan().selnotifier.remove(
-	    mCB(this,uiVisPartServer,selectObjCB) );
-    visBase::DM().selMan().deselnotifier.remove(
-	    mCB(this,uiVisPartServer,deselectObjCB) );
-    visBase::DM().selMan().updateselnotifier.remove(
-	    mCB(this,uiVisPartServer,updateSelObjCB) );
+    detachAllNotifiers();
 
     deleteAllObjects();
     delete vismgr_;
@@ -182,18 +176,10 @@ uiVisPartServer::~uiVisPartServer()
     delete &eventmutex_;
     delete mpetools_;
 
-    menu_.createnotifier.remove( mCB(this,uiVisPartServer,createMenuCB) );
-    menu_.handlenotifier.remove( mCB(this,uiVisPartServer,handleMenuCB) );
     menu_.unRef();
 
     if ( toolbar_ )
-    {
-	toolbar_->createnotifier.remove(
-		mCB(this,uiVisPartServer,addToToolBarCB) );
-	toolbar_->handlenotifier.remove(
-		mCB(this,uiVisPartServer,handleMenuCB) );
 	toolbar_->unRef();
-    }
 
     pickretriever_->unRef();
     delete multirgeditwin_;
@@ -211,14 +197,14 @@ const char* uiVisPartServer::name() const  { return "Visualization"; }
 void uiVisPartServer::setMouseCursorExchange( MouseCursorExchange* mce )
 {
     if ( mousecursorexchange_ )
-	mousecursorexchange_->notifier.remove(
-		mCB(this,uiVisPartServer, mouseCursorCB ) );
+	mDetachCB(mousecursorexchange_->notifier,
+		  uiVisPartServer::mouseCursorCB);
 
     mousecursorexchange_ = mce;
 
     if ( mousecursorexchange_ )
-	mousecursorexchange_->notifier.notify(
-		mCB(this,uiVisPartServer, mouseCursorCB ) );
+	mAttachCB(mousecursorexchange_->notifier,
+		  uiVisPartServer::mouseCursorCB);
 }
 
 
@@ -267,9 +253,9 @@ Pos::GeomID uiVisPartServer::getGeomID( int id ) const
 int uiVisPartServer::addScene( visSurvey::Scene* newscene )
 {
     if ( !newscene ) newscene = visSurvey::Scene::create();
-    newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
-    newscene->keypressed.notify( mCB(this,uiVisPartServer,keyEventCB) );
-    newscene->mouseclicked.notify( mCB(this,uiVisPartServer,mouseEventCB) );
+    mAttachCB(newscene->mouseposchange,uiVisPartServer::mouseMoveCB);
+    mAttachCB(newscene->keypressed,uiVisPartServer::keyEventCB);
+    mAttachCB(newscene->mouseclicked,uiVisPartServer::mouseEventCB);
     newscene->ref();
     scenes_ += newscene;
     pickretriever_->addScene( newscene );
@@ -293,9 +279,9 @@ void uiVisPartServer::removeScene( int sceneid )
 	if ( displayids_.validIdx(typesetidx) )
 	    displayids_.removeSingle( typesetidx );
 
-	scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB) );
-	scene->keypressed.remove( mCB(this,uiVisPartServer,keyEventCB) );
-	scene->mouseclicked.remove( mCB(this,uiVisPartServer,mouseEventCB) );
+	mDetachCB(scene->mouseposchange,uiVisPartServer::mouseMoveCB);
+	mDetachCB(scene->keypressed,uiVisPartServer::keyEventCB);
+	mDetachCB(scene->mouseclicked,uiVisPartServer::mouseEventCB);
 	pickretriever_->removeScene( scene );
 	scene->unRef();
 	scenes_ -= scene;
@@ -347,8 +333,8 @@ void uiVisPartServer::createToolBars()
 
     toolbar_ = new uiTreeItemTBHandler( appserv().parent() );
     toolbar_->ref();
-    toolbar_->createnotifier.notify( mCB(this,uiVisPartServer,addToToolBarCB) );
-    toolbar_->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
+    mAttachCB(toolbar_->createnotifier,uiVisPartServer::addToToolBarCB);
+    mAttachCB(toolbar_->handlenotifier,uiVisPartServer::handleMenuCB);
 
     slicepostools_ = new uiSlicePos3DDisp( appserv().parent(), this );
 }
@@ -1927,13 +1913,13 @@ void uiVisPartServer::setUpConnections( int id )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
-    if ( na ) na->notify( mCB(this,uiVisPartServer,interactionCB) );
+    if ( na ) mAttachCB(na,uiVisPartServer::interactionCB);
     na = so ? so->getLockNotifier() : 0;
-    if ( na ) na->notify( mCB(mpetools_,uiMPEMan,visObjectLockedCB) );
+    if ( na ) mAttachCB(na,uiMPEMan::visObjectLockedCB);
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( vo && vo->rightClicked() )
-	vo->rightClicked()->notify(mCB(this,uiVisPartServer,rightClickCB));
+	mAttachCB(vo->rightClicked(),uiVisPartServer::rightClickCB);
 
     if ( so )
     {
@@ -1955,13 +1941,13 @@ void uiVisPartServer::removeConnections( int id )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
-    if ( na ) na->remove( mCB(this,uiVisPartServer,interactionCB) );
+    if ( na ) mDetachCB(na,uiVisPartServer::interactionCB);
     na = so ? so->getLockNotifier() : 0;
-    if ( na ) na->remove( mCB(mpetools_,uiMPEMan,visObjectLockedCB) );
+    if ( na ) mDetachCB(na,uiMPEMan::visObjectLockedCB);
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));
     if ( vo && vo->rightClicked() )
-	vo->rightClicked()->remove( mCB(this,uiVisPartServer,rightClickCB) );
+	mDetachCB(vo->rightClicked(),uiVisPartServer::rightClickCB);
     if ( !so ) return;
 
 	/*
@@ -2291,10 +2277,10 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
     if ( attribid != -1 )
 	multirgeditwin_->setActiveAttribID( attribid );
     multirgeditwin_->setDeleteOnClose( false );
-    multirgeditwin_->rangeChange.notify(
-	    mCB(this,uiVisPartServer,mapperRangeEditChanged) );
-    multirgeditwin_->sequenceChange.notify(
-	    mCB(this,uiVisPartServer,sequenceEditChanged) );
+    mAttachCB(multirgeditwin_->rangeChange,
+	      uiVisPartServer::mapperRangeEditChanged);
+    mAttachCB(multirgeditwin_->sequenceChange,
+	      uiVisPartServer::sequenceEditChanged);
 
     for ( int idx=0; idx<nrattribs; idx++ )
     {

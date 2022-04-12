@@ -138,7 +138,7 @@ uiODApplMgr::~uiODApplMgr()
     delete attrserv_;
     delete volprocserv_;
     delete seisserv_;
-    delete visserv_;
+    deleteAndZeroPtr( visserv_ );
 
     delete emserv_;
     delete emattrserv_;
