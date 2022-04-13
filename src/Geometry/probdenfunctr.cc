@@ -66,6 +66,44 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
 }
 
 
+ProbDenFunc* ProbDenFuncTranslator::readInfo( const IOObj& ioobj,
+					      uiString* emsg )
+{
+    mDynamicCast(odProbDenFuncTranslator*,
+	PtrMan<odProbDenFuncTranslator> pdftr, ioobj.createTranslator());
+    if ( !pdftr )
+    {
+	if ( emsg )
+	    *emsg = uiStrings::phrCannotCreate(tr("Translator"));
+
+	return nullptr;
+    }
+
+    const BufferString fnm( ioobj.fullUserExpr(true) );
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+    {
+	if ( emsg )
+	{
+	    *emsg = uiStrings::phrCannotOpen(toUiString(fnm));
+	    strm.addErrMsgTo(*emsg);
+	}
+
+	return nullptr;
+    }
+
+    ProbDenFunc* ret = pdftr->readInfo( strm );
+    if ( !ret )
+	return nullptr;
+
+    ret->setName( ioobj.name() );
+    if ( !ret && emsg )
+	*emsg = tr("Cannot read PDF from '%1'").arg(fnm);
+
+    return ret;
+}
+
+
 bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 				   uiString* emsg )
 {
@@ -99,13 +137,26 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 
 ProbDenFunc* odProbDenFuncTranslator::read( od_istream& strm )
 {
+    ProbDenFunc* pdf = readInfo( strm );
+    if ( !pdf )
+	return nullptr;
+
+    if ( !pdf->readBulk(strm,binary_) )
+	deleteAndZeroPtr( pdf );
+
+    return pdf;
+}
+
+
+ProbDenFunc* odProbDenFuncTranslator::readInfo( od_istream& strm )
+{
     ascistream astrm( strm );
     IOPar par( astrm );
     FixedString type = par.find( sKey::Type() );
     if ( type.isEmpty() )
-	return 0;
+	return nullptr;
 
-    ProbDenFunc* pdf = 0;
+    ProbDenFunc* pdf = nullptr;
     if ( type == Sampled1DProbDenFunc::typeStr() )
 	pdf = new Sampled1DProbDenFunc();
     else if ( type == Sampled2DProbDenFunc::typeStr() )
@@ -119,15 +170,14 @@ ProbDenFunc* odProbDenFuncTranslator::read( od_istream& strm )
     else if ( type == GaussianNDProbDenFunc::typeStr() )
 	pdf = new GaussianNDProbDenFunc();
 
-    if ( !pdf ) return 0;
+    if ( !pdf )
+	return nullptr;
+
     if ( !pdf->usePar(par) )
-	{ delete pdf; return 0; }
+	deleteAndZeroPtr( pdf );
 
     binary_ = false;
     par.getYN( sKey::Binary(), binary_ );
-    if ( !pdf->readBulk(strm,binary_) )
-	{ delete pdf; pdf = 0; }
-
     return pdf;
 }
 
