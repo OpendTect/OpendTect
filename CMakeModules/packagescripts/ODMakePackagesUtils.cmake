@@ -1,7 +1,7 @@
 #(C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 # Description:	CMake script to build a release
 # Author:	Nageswara
-# Date:		August 2012		
+# Date:		August 2012
 
 macro ( CREATE_PACKAGE PACKAGE_NAME )
     if( ${PACKAGE_NAME} STREQUAL "base" )
@@ -16,7 +16,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 		     DESTINATION "${COPYTOLIBDIR}/../" )
 	    endif()
 	endif()
-	
+
 	file(COPY ${COPYFROMDATADIR}/bin/${OD_PLFSUBDIR}/lm.dgb
 	     DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR}
 	     FILES_MATCHING PATTERN lmutil* )
@@ -89,7 +89,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
     unset( PYTHONDIR )
 
     if( ${PACKAGE_NAME} STREQUAL "dgbbase" )
-#Install lm 
+#Install lm
 	foreach( SPECFILE ${SPECFILES} )
 	     file( COPY ${COPYFROMDATADIR}/${SPECFILE}
 		   DESTINATION ${COPYTODATADIR} )
@@ -162,8 +162,6 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	endforeach()
 
 	if( WIN32 )
-	    file( COPY ${COPYFROMDATADIR}/rsm
-		  DESTINATION ${COPYTODATADIR}/bin/${OD_PLFSUBDIR} )
 	    file( COPY ${COPYFROMLIBDIR}/od_main_debug.bat
 		  DESTINATION ${COPYTOLIBDIR} )
 	endif()
@@ -212,7 +210,7 @@ macro( COPY_THIRDPARTYLIBS )
 			if( NOT EXISTS ${COPYTOLIBDIR}/systemlibs )
 			    file( MAKE_DIRECTORY ${COPYTOLIBDIR}/systemlibs )
 			endif()
-			
+
 			file( COPY ${COPYFROMLIBDIR}/${LIB}
 			      DESTINATION ${COPYTOLIBDIR}/systemlibs )
 			continue()
@@ -572,14 +570,14 @@ macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
 				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS
-				 OUTPUT_VARIABLE OUTVAR 
+				 OUTPUT_VARIABLE OUTVAR
 				 ERROR_VARIABLE ERRVAR )
     else()
 	execute_process( COMMAND zip -r -q -u -y
 				 "${PACKAGE_FILENAME}" ${REL_DIR}
 				 WORKING_DIRECTORY ${PACKAGE_DIR}
 				 RESULT_VARIABLE STATUS
-				 OUTPUT_VARIABLE OUTVAR 
+				 OUTPUT_VARIABLE OUTVAR
 				 ERROR_VARIABLE ERRVAR )
     endif()
 

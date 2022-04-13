@@ -148,11 +148,6 @@ endif()
 
 install( FILES CMakeLists.txt DESTINATION ${MISC_INSTALL_PREFIX} )
 
-if( WIN32 )
-    install( DIRECTORY bin/win32/rsm
-	     DESTINATION ${MISC_INSTALL_PREFIX} )
-endif()
-
 file( GLOB TEXTFILES ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/*.txt )
 if( UNIX OR APPLE )
     file( GLOB PROGRAMS ${CMAKE_SOURCE_DIR}/data/install_files/unixscripts/* )
