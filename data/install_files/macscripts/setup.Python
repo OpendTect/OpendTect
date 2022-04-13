@@ -4,7 +4,7 @@
 # (C) dGB Beheer B.V.
 # $Id$
 #
-# Sets up the python environments (version 1.2.7)
+# Sets up the python environments (version 1.4.0)
 #_______________________________________________________________________________
 
 if ( "$1" == "--help" ) then
@@ -15,12 +15,8 @@ if ( "$1" == "--help" ) then
 endif
 
 # this fetches the original dir
-set origcondapos=`cat bin/conda | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/miniconda3/")}' | bc`
-set origcondalen=`echo $origcondapos+10`
-if ( $origcondapos == 0 ) then
-        set origcondapos=`cat bin/conda | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/Python/")}' | bc`
-        set origcondalen=`echo $origcondapos+6`
-endif
+set origcondapos=`cat bin/conda | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/Python/")}' | bc`
+set origcondalen=`echo $origcondapos+6`
 set origdir=`cat bin/conda | head -n 1 | awk '{print substr($0, 3, '$origcondalen')}'`
 
 # at this point current directory is installation directory.
@@ -49,17 +45,8 @@ if ( ! -w "${condainstdir}" ) then
     exit 1
 endif
 
-if ( ! -w "${condainstdir}"/envs ) then
-    echo "Warning: cannot properly setup Python environments."
-    echo "Reason: ${condainstdir}/envs is not writable."
-    echo "Will exit the setup now..."
-    exit 1
-endif
-
 # gets environment dirs and sets which dirs to walk through
-set envdirs=`ls $condainstdir/envs/`
-set envrepldirs='../odmlpython-cpu-mkl bin conda-meta etc/dbus-1 include include/libxslt lib lib/gettext lib/icu lib/itcl4.2.0 lib/openjpeg-2.3 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-darwin lib/python3.7/site-packages lib/tdbc1.1.1 mkspecs share/dbus-1 ssl/misc'
-set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d lib lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.2.0 lib/openjpeg-2.3 lib/pkgconfig lib/python3.7 lib/python3.7/config-3.7m-darwin lib/python3.7/site-packages/numexpr lib/python3.7/site-packages/numpy lib/python3.7/site-packages/numpy/distutils lib/python3.7/site-packages/xontrib lib/tdbc1.1.1 shell/condabin ssl/misc'
+set instrepldirs='bin condabin conda-meta etc/fish/conf.d etc/profile.d include/libxslt lib lib/icu lib/icu/58.2 lib/icu/current lib/itcl4.2.1 lib/pkgconfig lib/python3.8 lib/python3.8/config-3.8-darwin lib/python3.8/site-packages/numpy lib/python3.8/site-packages/numpy/distutils lib/python3.8/site-packages/xontrib lib/tdbc1.1.2 python.app/Contents/lib python.app/Contents/lib/icu python.app/Contents/lib/icu/58.2 python.app/Contents/lib/icu/current python.app/Contents/lib/itcl4.2.1 python.app/Contents/lib/pkgconfig python.app/Contents/lib/python3.8 python.app/Contents/lib/python3.8/config-3.8-darwin python.app/Contents/lib/python3.8/site-packages/numpy python.app/Contents/lib/python3.8/site-packages/numpy/distutils python.app/Contents/lib/python3.8/site-packages/xontrib python.app/Contents/lib/tdbc1.1.2 shell/condabin ssl/misc'
 set filtypes='text JSON'
 
 #set origdir="forced orig dir"
@@ -77,7 +64,7 @@ foreach instrepldir ( $instrepldirs )
                                 set findfiltype=`file $condainstdir/$instrepldir/$fil | awk '{sub($1 FS, "")}1' | grep $filtype`
                                 if ("$findfiltype" != "") then
 					set filrepl=$condainstdir/$instrepldir/$fil
-                                        sed -i -- s,$origdir,$condainstdir,g $filrepl
+                                        sed -i '' s,$origdir,$condainstdir,g $filrepl
                                 endif
                         end
                         end
@@ -88,40 +75,4 @@ foreach instrepldir ( $instrepldirs )
                 echo "Warning: ${condainstdir}/${instrepldir} is not writable or does not exist, therefore skipping ${condainstdir}/${instrepldir}."
         endif
 end
-
-# replace paths in environment dirs
-if ("$envdirs" != "") then
-        foreach envdir ( $envdirs )
-                echo "Setting up environment $envdir..."
-                set origcondapos=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/miniconda3/")}' | bc`
-                set origcondalen=`echo $origcondapos+10`
-                if ( $origcondapos == 0 ) then
-                        set origcondapos=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3)}' | awk '{print index($0,"/Python/")}' | bc`
-                        set origcondalen=`echo $origcondapos+6`
-                endif
-                set origdir=`cat $condainstdir/envs/$envdir/bin/pip | head -n 1 | awk '{print substr($0, 3, '$origcondalen')}'`
-                foreach envrepldir ( $envrepldirs )
-                        if ( -d "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
-                        if ( ! -w "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
-                                chmod +rwx "${condainstdir}/envs/${envdir}/${envrepldir}"
-                        endif
-                        	if ( -w "${condainstdir}/envs/${envdir}/${envrepldir}" ) then
-                                	foreach fil (`ls $condainstdir/envs/$envdir/$envrepldir`)
-                                	foreach filtype ( $filtypes )
-                                        	set findfiltype=`file $condainstdir/envs/$envdir/$envrepldir/$fil | awk '{sub($1 FS, "")}1' | grep $filtype`
-                                        	if ("$findfiltype" != "") then
-                                                	set filrepl=$condainstdir/envs/$envdir/$envrepldir/$fil
-                                                	sed -i -- s,$origdir,$condainstdir,g $filrepl
-                                        	endif
-                                	end
-                                	end
-                        	else
-                                	echo "Warning: $envrepldir is not writable or does not exist, therefore skipping $envrepldir."
-                        	endif
-                        else
-                                echo "Warning: $envrepldir does not exist, therefore skipping $envrepldir."
-                        endif
-                end
-        end
-endif
 
