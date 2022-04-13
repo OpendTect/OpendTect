@@ -980,7 +980,7 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 	return nullptr;
 
     auto* b2d = new Seis::Bounds2D;
-    for ( int iiter=0; iiter<2; iiter++ ) // iiter == 0 is initialisation
+    for ( int iiter=0; iiter<2; iiter++ ) // iiter == 0 is initialization
     {
 	for ( int iln=0; iln<dataset_->nrLines(); iln++ )
 	{

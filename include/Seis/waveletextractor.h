@@ -1,13 +1,13 @@
 #pragma once
 /*+
 ________________________________________________________________________
-           
+
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          July 2009
  ________________________________________________________________________
-                 
--*/   
+
+-*/
 
 #include "seismod.h"
 #include "executor.h"
@@ -39,11 +39,14 @@ protected:
     void			init2D();
     void			init3D();
     bool			getSignalInfo(const SeisTrc&,
-	    				      int& start,int& signalsz) const;
+					      int& start,int& signalsz) const;
     bool			getNextLine(); //2D
     bool			processTrace(const SeisTrc&,
-	    				     int start, int signalsz);
-    void			normalisation(Array1DImpl<float>&);
+					     int start, int signalsz);
+    mDeprecated("Use normalization")
+    void			normalisation( Array1DImpl<float>& arr )
+				{ normalization( arr ); }
+    void			normalization(Array1DImpl<float>&);
     bool			finish(int nrusedtrcs);
     bool			doWaveletIFFT();
     bool			rotateWavelet();

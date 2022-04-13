@@ -574,7 +574,7 @@ static void getHomeDir( BufferString& homedir )
     if ( !dir ) dir = GetEnvVar( "APPDATA" );     // set by OS -- but is hidden
     if ( !dir ) dir = GetEnvVar( "DTECT_USERPROFILE_DIR" );// set by init script
     if ( !dir ) // Last resort. Is known to cause problems when used
-		// during initialisation of statics. (0xc0000005)
+		// during initialization of statics. (0xc0000005)
 	dir = GetSpecialFolderLocation( CSIDL_PROFILE ); // "User profile"
 
 #endif

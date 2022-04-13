@@ -20,7 +20,7 @@ namespace OD
 
 enum RunCtxt
 {
-    UnknownCtxt,	// Before initialisation in main()
+    UnknownCtxt,	// Before initialization in main()
     NormalCtxt,		// in od_main
     TestProgCtxt,	// test programs
     SysAdmCtxt,		// system administrator tool

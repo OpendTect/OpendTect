@@ -11,7 +11,7 @@ ________________________________________________________________________
  Single include getting many of the tools you need for test programs.
 
  The macro mInitTestProg() will take care of:
- 1) Initialisation of program args
+ 1) Initialization of program args
  2) A file-scope variable 'bool quiet_': whether progress info is required
  3) A command line parser 'CommandLineParser& clParser()'
 

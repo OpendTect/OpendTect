@@ -205,7 +205,7 @@ public:
     virtual bool	goTo(const BinID&)		{ return false; }
 
     virtual void	cleanUp();
-			//!< Prepare for new initialisation.
+			//!< Prepare for new initialization.
 
     static bool		getRanges(const MultiID&,TrcKeyZSampling&,
 				  const char* linekey=nullptr);

@@ -28,7 +28,7 @@ ________________________________________________________________________
 #define __mUndefIntVal64          9223344556677889900LL
 
 
-/*!  \brief Templatized undefined and initialisation (i.e. null) values.
+/*!  \brief Templatized undefined and initialization (i.e. null) values.
 
     Since these are all templates, they can be used much more generic
     than previous solutions with macros.

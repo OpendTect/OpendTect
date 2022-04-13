@@ -64,7 +64,7 @@ inline T udfto( const F& fr, const T& und = Values::Undef<T>::val() )
 }
 
 
-//----- specialisations 1: simple types -> const char*
+//----- specializations 1: simple types -> const char*
 
 template <>
 inline void set( const char*& _to, const short& i )
@@ -103,7 +103,7 @@ inline void set( const char*& _to, const double& d )
     { _to = toString(d); }
 
 
-//----- specialisations 2: floating point types -> integer types
+//----- specializations 2: floating point types -> integer types
 
 template <>
 inline void set( short& _to, const float& f )
@@ -154,7 +154,7 @@ inline void set( od_uint64& _to, const double& f )
     { _to = mRounded(od_uint64,f); }
 
 
-//----- specialisations 3: strings and simple types -> bool
+//----- specializations 3: strings and simple types -> bool
 
 template <>
 inline void set( bool& _to, const char* const& s )
@@ -181,7 +181,7 @@ inline void set( bool& _to, const double& d )
     { _to = !mIsZero(d,mDefEpsD); }
 
 
-//----- specialisations 4: strings -> simple types
+//----- specializations 4: strings -> simple types
 
 
 #define mConvDeclFromStrToSimpleType(type) \

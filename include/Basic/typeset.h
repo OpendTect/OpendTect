@@ -187,7 +187,7 @@ mDefTypeSetClass( TypeSet, od_int32 )
 mDefTypeSetClass( LargeValVec, od_int64 )
 
 
-/*!\brief Needed because the std lib has a crazy specialisation vector<bool>. */
+/*!\brief Needed because the std lib has a crazy specialization vector<bool>. */
 
 mClass(Basic) BoolTypeSetType
 {
@@ -251,7 +251,7 @@ inline bool append( OD::ValVec<T,IT>& to, const OD::ValVec<S,J>& from )
 
 
 //! copy from different possibly different type into set
-//! Note that there is no optimisation for equal size, as in member function.
+//! Note that there is no optimization for equal size, as in member function.
 template <class T, class IT,class S>
 inline void copy( OD::ValVec<T,IT>& to, const OD::ValVec<S,IT>& from )
 {

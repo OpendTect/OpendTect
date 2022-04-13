@@ -279,7 +279,7 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
 	temp.set( idx, acarr.get( startidx+idx ) );
 
     removeBias<float,float>( temp );
-    normalisation( temp );
+    normalization( temp );
 
     Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
     Array1DImpl<float_complex> timedomsignal( wvltsize_ );
@@ -300,7 +300,7 @@ bool WaveletExtractor::processTrace( const SeisTrc& trc, int startsample,
 }
 
 
-void WaveletExtractor::normalisation( Array1DImpl<float>& normal )
+void WaveletExtractor::normalization( Array1DImpl<float>& normal )
 {
     float maxval = fabs( normal.arr()[0] );
     for ( int idx=1; idx<wvltsize_; idx++ )

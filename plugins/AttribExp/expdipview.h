@@ -11,7 +11,7 @@ ________________________________________________________________________
 DipView [aspect=dip,azi]
 
 DipView makes a relief shading from the dip and azimuth, useful for
-visualisation of dips in grids. The aspect parameter determines the position
+visualization of dips in grids. The aspect parameter determines the position
 of the "light" in the resulting image.
 
 Input:

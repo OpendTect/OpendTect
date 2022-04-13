@@ -101,7 +101,7 @@ protected:
     static KeyboardEventHandler*	keyhandler_;
     static KeyboardEventFilter*		keyfilter_;
 
-			//! necessary for uiMain coin initialisation
+			//! necessary for uiMain coin initialization
     virtual void	init( mQtclass(QWidget*) mainwidget )	{}
 };
 

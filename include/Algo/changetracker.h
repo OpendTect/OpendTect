@@ -41,7 +41,7 @@ public:
     template <class T,class U>
     inline bool		update(T& val,const U& newval);
 
-			//! specialisation for C-strings
+			//! specialization for C-strings
     inline bool		set(const char*&,const char*&);
 
     bool		isChanged() const
