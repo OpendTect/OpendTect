@@ -60,6 +60,7 @@ protected:
     bool		addToLogSet(Log*, bool needjustinfo=false) const;
     bool		updateDTModel(D2TModel*,bool ischeckshot,
 					uiString& errmsg) const;
+    void		adjustTrackIfNecessary_(bool frommarkers=false) const;
 
     mDeprecated		("use UiString")
     bool		updateDTModel(D2TModel*,bool ischeckshot,
