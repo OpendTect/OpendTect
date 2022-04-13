@@ -70,6 +70,33 @@ bool Well::ReadAccess::addToLogSet( Log* newlog, bool needjustinfo ) const
 }
 
 
+void Well::ReadAccess::adjustTrackIfNecessary_( bool frommarkers ) const
+{
+    Interval<float> newmdrg;
+    if ( frommarkers )
+    {
+	const MarkerSet& markers = wd_.markers();
+	if ( markers.isEmpty() )
+	    return;
+
+	newmdrg.set( mUdf(float), -mUdf(float) );
+	for ( const auto* marker : markers )
+	    newmdrg.include( marker->dah() );
+    }
+    else
+    {
+	const LogSet& logs = wd_.logs();
+	if ( logs.isEmpty() )
+	    return;
+
+	newmdrg = logs.dahInterval();
+    }
+
+    if ( const_cast<Track&>(wd_.track()).extendIfNecessary(newmdrg) )
+	wd_.trackchanged.trigger();
+}
+
+
 bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel, bool ischeckshot,
 				      uiString& errmsg ) const
 {
@@ -533,30 +560,8 @@ bool Well::odReader::getTrack() const
 
 void Well::odReader::adjustTrackIfNecessary( bool frommarkers ) const
 {
-    Interval<float> newmdrg;
-    if ( frommarkers )
-    {
-	const MarkerSet& markers = wd_.markers();
-	if ( markers.isEmpty() )
-	    return;
-
-	newmdrg.set( mUdf(float), -mUdf(float) );
-	for ( const auto* marker : markers )
-	    newmdrg.include( marker->dah() );
-    }
-    else
-    {
-	const LogSet& logs = wd_.logs();
-	if ( logs.isEmpty() )
-	    return;
-
-	newmdrg = logs.dahInterval();
-    }
-
-    if ( const_cast<Track&>(wd_.track()).extendIfNecessary(newmdrg) )
-	wd_.trackchanged.trigger();
+    return adjustTrackIfNecessary_( frommarkers );
 }
-
 
 void Well::odReader::getLogInfo( BufferStringSet& nms ) const
 {
@@ -625,7 +630,7 @@ bool Well::odReader::getLogs( bool needjustinfo ) const
     }
 
     if ( rv )
-	adjustTrackIfNecessary();
+	adjustTrackIfNecessary_();
 
     return rv;
 }
@@ -711,7 +716,7 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
     }
 
     if ( addedok )
-	adjustTrackIfNecessary();
+	adjustTrackIfNecessary_();
 
     return addedok;
 }
@@ -802,7 +807,7 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 	    wd_.markers().insertNew( wm );
     }
 
-    adjustTrackIfNecessary( true );
+    adjustTrackIfNecessary_( true );
 
     return true;
 }

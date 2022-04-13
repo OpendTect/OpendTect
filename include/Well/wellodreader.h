@@ -64,6 +64,7 @@ protected:
     void		getLogInfo(BufferStringSet&,TypeSet<int>&) const;
     void		readLogData(Log&,od_istream&,int) const;
     bool		getTrack(od_istream&) const;
+    mDeprecated("Use Method from Well::ReadAccess Class")
     void		adjustTrackIfNecessary(bool frommarkers=false) const;
     bool		doGetD2T(od_istream&,bool csmdl) const;
     bool		doGetD2T(bool) const;
