@@ -35,6 +35,7 @@ ___________________________________________________________________
 #include "uinotsaveddlg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uishortcutsmgr.h"
 #include "uistrings.h"
 #include "uiviscoltabed.h"
 #include "uivisemobj.h"
@@ -175,6 +176,24 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::checkCB(cb);
     updateTrackingState();
+}
+
+
+void uiODEarthModelSurfaceTreeItem::keyPressCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(uiKeyDesc,kd,cb);
+
+    if ( kd.key()==OD::KB_H && kd.state()==OD::NoButton )
+    {
+	uiMPEPartServer* mps = applMgr()->mpeServer();
+	const bool hastracker = mps->getTrackerID(emid_)>=0;
+	if ( !uivisemobj_ || !hastracker )
+	    return;
+
+	mps->showSetupDlg( emid_, uivisemobj_->getSectionID(0) );
+	if ( cbcaps )
+	    cbcaps->data.setKey( 0 );
+    }
 }
 
 
