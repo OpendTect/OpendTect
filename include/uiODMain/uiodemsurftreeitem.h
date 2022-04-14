@@ -65,6 +65,7 @@ protected:
 
     virtual void	checkCB(CallBacker*);
     void		selChg(CallBacker*);
+    void		keyPressCB(CallBacker*);
 
     void		updateTrackingState();
     bool		istrackingallowed_;
