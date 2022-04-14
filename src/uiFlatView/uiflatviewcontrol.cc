@@ -20,7 +20,6 @@ ________________________________________________________________________
 uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
     , haverubber_(rub)
-    , propdlg_(0)
     , infoChanged(this)
     , viewerAdded(this)
     , zoomChanged(this)
@@ -40,7 +39,7 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
 uiFlatViewControl::~uiFlatViewControl()
 {
     detachAllNotifiers();
-    deleteAndZeroPtr( propdlg_ );
+    delete propdlg_;
 }
 
 

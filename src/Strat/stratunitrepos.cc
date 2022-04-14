@@ -160,7 +160,7 @@ bool loadDefaultTree()
     Strat::setRT( tree );
 
     Strat::LevelSet* levels = LevelSet::read( key );
-    Strat::setLVLS( levels );
+    Strat::lvlSetMgr().setLVLS( levels );
     return tree && levels;
 }
 

@@ -218,13 +218,16 @@ void uiWavelet::drawWavelet()
     FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
     DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( wvlt_->name() );
+
+    const bool canupdate = viewer_->enableChange( false );
     viewer_->clearAllPacks();
-    viewer_->setPack( true, dp->id(), false );
+    viewer_->setPack( FlatView::Viewer::WVA, dp->id(), false );
     StepInterval<double> posns; posns.setFrom( wvlt_->samplePositions() );
     if ( SI().zIsTime() ) posns.scale( SI().zDomain().userFactor() );
     dp->posData().setRange( false, posns );
     viewer_->setViewToBoundingBox();
-    viewer_->handleChange( mCast(unsigned int,uiFlatViewer::All) );
+    viewer_->enableChange( canupdate );
+    viewer_->handleChange( sCast(od_uint32,uiFlatViewer::All) );
 }
 
 } // namespace WellTie

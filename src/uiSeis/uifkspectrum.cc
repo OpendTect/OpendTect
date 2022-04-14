@@ -159,7 +159,7 @@ void uiFKSpectrum::mouseMoveCB( CallBacker* )
     const double vel = mIsZero(wp.x,mDefEpsD)? 0 : Math::Abs(wp.y/wp.x);
     velfld_->setText( toString(vel,nrdec) );
 
-    viewer().handleChange( FlatView::Viewer::Auxdata );
+    viewer().handleChange( sCast(od_uint32,FlatView::Viewer::Auxdata) );
 }
 
 
@@ -182,7 +182,7 @@ void uiFKSpectrum::mousePressCB( CallBacker* )
 	maxsetbut_->setOn( false );
     }
 
-    viewer().handleChange( FlatView::Viewer::Auxdata );
+    viewer().handleChange( sCast(od_uint32,FlatView::Viewer::Auxdata) );
 }
 
 
@@ -200,7 +200,7 @@ void uiFKSpectrum::setDataPackID(
 
 	mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack.ptr());
 	const TrcKeyZSampling::Dir dir = regsdp ?
-	    	regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
+		regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
 	const int dim0 = dir==TrcKeyZSampling::Inl ? 1 : 0;
 
 	Array2DSlice<float> slice2d( seisdp->data(version) );
@@ -288,7 +288,7 @@ bool uiFKSpectrum::compute( const Array2D<float>& array )
 
 bool uiFKSpectrum::view( Array2D<float>& array )
 {
-    FlatDataPack* datapack = new FlatDataPack( sKey::Attribute(), &array );
+    auto* datapack = new FlatDataPack( sKey::Attribute(), &array );
     datapack->setName( "Power" );
     const int nrk = array.info().getSize( 0 );
     const int nrtrcs = input_->info().getSize( 0 );
@@ -304,7 +304,7 @@ bool uiFKSpectrum::view( Array2D<float>& array )
     datapack->posData().setRange( false, frg );
     DataPackMgr& dpman = DPM(DataPackMgr::FlatID());
     dpman.add( datapack );
-    viewer().setPack( false, datapack->id(), false );
+    viewer().setPack( FlatView::Viewer::VD, datapack->id(), false );
 
     return true;
 }

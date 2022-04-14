@@ -89,10 +89,10 @@ public:
 protected:
 
     float		dpos_;
-    float*		samps_;
-    int			sz_;
+    float*		samps_ = nullptr;
+    int			sz_ = 0;
     int			cidx_;		//!< The index of the center sample
-    ValueSeriesInterpolator<float>*	intpol_;
+    ValueSeriesInterpolator<float>*	intpol_ = nullptr;
 
 };
 

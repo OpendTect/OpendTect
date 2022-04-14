@@ -12,6 +12,7 @@ SET(OD_MODULE_SOURCES
 		stratseisevent.cc
 		stratsynth.cc
 		stratsynthexp.cc
+		stratsynthlevel.cc
 		stratsynthgenparams.cc
 		syntheticdata.cc
 		wellhorpos.cc
@@ -26,4 +27,9 @@ SET(OD_MODULE_SOURCES
 		welltietoseismic.cc
 		welltieunitfactors.cc
 )
+
+list ( APPEND OD_TEST_PROGS
+	stratsynthdatamgr.cc
+)
+
 OD_INIT_MODULE()

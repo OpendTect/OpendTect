@@ -55,6 +55,7 @@ public:
 
     void		setWavelet(const MultiID&);
     void		setWavelet(const char*);
+    void		ensureHasWavelet(const MultiID&);
     virtual bool	usePar(const IOPar&);
 
     virtual uiRetVal	isOK() const;
@@ -123,6 +124,7 @@ public:
 
     void		setWavelet(const MultiID&);
     void		setWavelet(const char*);
+    void		ensureHasWavelet(const MultiID&);
     void		usePar(const IOPar&);
     void		useSynthSeisPar(const IOPar&);
     void		useReflPars(const IOPar&);

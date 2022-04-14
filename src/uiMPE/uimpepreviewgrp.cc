@@ -149,8 +149,8 @@ void uiPreviewGroup::updateViewer()
     const DataPack::ID dpid =
 	MPE::engine().getSeedPosDataPack( tk, z, nrtrcs_, zintv );
 
-    vwr_->setPack( true, dpid );
-    vwr_->setPack( false, dpid );
+    const bool canupdate = vwr_->enableChange( false );
+    vwr_->setPack( FlatView::Viewer::Both, dpid );
     vwr_->appearance().ddpars_.show( wvafld_->isChecked(0),
 				     wvafld_->isChecked(1) );
     vwr_->setViewToBoundingBox();
@@ -161,7 +161,8 @@ void uiPreviewGroup::updateViewer()
     seedline_->poly_[0] = FlatView::Point( tk.trcNr()-so, z );
     seedline_->poly_[1] = FlatView::Point( tk.trcNr()+so, z );
 
-    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+    vwr_->enableChange( canupdate );
+    vwr_->handleChange( sCast(od_uint32,FlatView::Viewer::All) );
 }
 
 

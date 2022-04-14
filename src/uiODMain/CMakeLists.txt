@@ -24,6 +24,7 @@ set(OD_MODULE_SOURCES
 	uiodapplmgraux.cc
 	uiodapplmgrattrvis.cc
 	uiodattribtreeitem.cc
+	uiodbodydisplaytreeitem.cc
 	uiodcontourtreeitem.cc
 	uioddatatreeitem.cc
 	uioddisplaytreeitem.cc
@@ -41,7 +42,6 @@ set(OD_MODULE_SOURCES
 	uiodplanedatatreeitem.cc
 	uiodpseventstreeitem.cc
 	uiodrandlinetreeitem.cc
-	uiodbodydisplaytreeitem.cc
 	uiodseis2dtreeitem.cc
 	uiodviewer2d.cc
 	uiodviewer2dmgr.cc

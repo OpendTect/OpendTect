@@ -19,17 +19,17 @@ class uiParent;
 class uiObject;
 class uiStratLayerModelDisp;
 class uiStratLayModEditTools;
-namespace Strat { class LayerSequenceGenDesc; class LayerModelProvider; }
+namespace Strat { class LayerSequenceGenDesc; class LayerModelSuite; }
 
 
 /*!\brief Base class for LayerSequenceGenDesc editors - with factory.
 
   A uiLayerSequenceGenDesc immediately has to produce a layer model displayer,
   which may be itself.
- 
+
   The subclasses have to keep track whether anything has changed. If so,
   needSave() will return true. You can force the flag with setNeedSave().
- 
+
  */
 
 mExpClass(uiStrat) uiLayerSequenceGenDesc
@@ -37,22 +37,25 @@ mExpClass(uiStrat) uiLayerSequenceGenDesc
 public:
 
 			uiLayerSequenceGenDesc(Strat::LayerSequenceGenDesc&);
+    virtual		~uiLayerSequenceGenDesc()	{}
     mDefineFactory2ParamInClass(uiLayerSequenceGenDesc,uiParent*,
 			Strat::LayerSequenceGenDesc&,factory);
-    virtual		~uiLayerSequenceGenDesc()	{}
+
     virtual bool	separateDisplay()		{ return true; }
 
     virtual void	descHasChanged()		= 0;
     virtual uiObject*	outerObj()			= 0;
     virtual uiStratLayerModelDisp* getLayModDisp(uiStratLayModEditTools&,
-			    Strat::LayerModelProvider&,int opt=0) = 0;
+					Strat::LayerModelSuite&,int opt=0) = 0;
 
     virtual void	prepareDesc()			{}
     virtual void	setEditDesc()			{}
     virtual void	setFromEditDesc()		{}
     Strat::LayerSequenceGenDesc& desc()			{ return desc_; }
+    const Strat::LayerSequenceGenDesc& currentDesc() const;
     bool		needSave() const		{ return needsave_; }
     void		setNeedSave( bool yn )		{ needsave_ = yn; }
+    virtual void	setDescID(const MultiID&)	{}
     virtual bool	selProps();
     virtual void	setDispProp(int propidx)	{}
 
@@ -61,9 +64,11 @@ protected:
     Strat::LayerSequenceGenDesc& desc_;
     bool		needsave_;
     bool		isValidSelection(const PropertyRefSelection&) const;
+    virtual const uiParent* getUiParent() const		= 0;
 
-public:
-	const Strat::LayerSequenceGenDesc& currentDesc() const;
+private:
+    virtual const Strat::LayerSequenceGenDesc* editedDesc() const
+			{ return nullptr; }
 
 };
 
@@ -73,6 +78,7 @@ public:
 public: \
     static const char*	typeStr()			{ return typstr; } \
     virtual const char* factoryKeyword() const		{ return typeStr(); } \
+    const uiParent*	getUiParent() const override	{ return parent(); } \
     static uiLayerSequenceGenDesc* create( uiParent* p, \
 					   Strat::LayerSequenceGenDesc& gd ) \
 						    { return new clss(p,gd); } \

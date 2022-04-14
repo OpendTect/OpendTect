@@ -22,9 +22,6 @@ ________________________________________________________________________
 #include "stratlith.h"
 
 
-#define mAskStratNotif(obj,nm,act)\
-    (obj)->nm.act(mCB(this,uiStratTreeToDisp,triggerDataChange));
-
 uiStratTreeToDisp::uiStratTreeToDisp( StratDispData& ad,
 					bool witauxs, bool withlvls  )
     : data_(ad)
@@ -38,14 +35,7 @@ uiStratTreeToDisp::uiStratTreeToDisp( StratDispData& ad,
 
 uiStratTreeToDisp::~uiStratTreeToDisp()
 {
-    mAskStratNotif(&Strat::eLVLS(),levelChanged,remove)
-    if ( tree_ )
-    {
-	tree_->deleteNotif.remove(mCB(this,uiStratTreeToDisp,treeDel));
-	mAskStratNotif(tree_,unitAdded,remove)
-	mAskStratNotif(tree_,unitChanged,remove)
-	mAskStratNotif(tree_,unitToBeDeleted,remove)
-    }
+    detachAllNotifiers();
 }
 
 
@@ -55,11 +45,15 @@ void uiStratTreeToDisp::setTree()
     if ( !tree_ )
 	return;
 
-    tree_->deleteNotif.notify(mCB(this,uiStratTreeToDisp,treeDel));
-    mAskStratNotif(tree_,unitAdded,notify)
-    mAskStratNotif(tree_,unitChanged,notify)
-    mAskStratNotif(tree_,unitToBeDeleted,notify)
-    mAskStratNotif(&Strat::eLVLS(),levelChanged,notify)
+    mAttachCB( tree_->objectToBeDeleted, uiStratTreeToDisp::treeDel );
+    mAttachCB( tree_->unitAdded, uiStratTreeToDisp::triggerDataChange );
+    mAttachCB( tree_->unitChanged, uiStratTreeToDisp::triggerDataChange );
+    mAttachCB( tree_->unitToBeDeleted, uiStratTreeToDisp::triggerDataChange );
+    mAttachCB( Strat::eLVLS().changed, uiStratTreeToDisp::triggerDataChange );
+    mAttachCB( Strat::eLVLS().levelAdded,
+	       uiStratTreeToDisp::triggerDataChange );
+    mAttachCB( Strat::eLVLS().levelToBeRemoved,
+	       uiStratTreeToDisp::triggerDataChange );
 
     readFromTree();
 }
@@ -67,7 +61,7 @@ void uiStratTreeToDisp::setTree()
 
 void uiStratTreeToDisp::treeDel( CallBacker* )
 {
-    tree_ = 0;
+    tree_ = nullptr;
 }
 
 
@@ -85,8 +79,7 @@ void uiStratTreeToDisp::readFromTree()
 
     for ( int idcol=0; colnms[idcol]; idcol++ )
     {
-	StratDispData::Column* col =
-			    new StratDispData::Column( colnms[idcol] );
+	auto* col = new StratDispData::Column( colnms[idcol] );
 	data_.addCol( col );
     }
     if ( withauxs_ )
@@ -154,7 +147,8 @@ void uiStratTreeToDisp::addDescs( const Strat::LeavedUnitRef& ur )
 
 void uiStratTreeToDisp::addLithologies( const Strat::LeavedUnitRef& ur )
 {
-    if ( !tree_ ) return;
+    if ( !tree_ )
+	return;
 
     const Strat::LithologySet& lithos = tree_->lithologies();
     BufferString lithnm;
@@ -168,7 +162,8 @@ void uiStratTreeToDisp::addLithologies( const Strat::LeavedUnitRef& ur )
 	const Strat::Lithology* lith = lithidx >= 0 ? lithos.get( lithidx ) : 0;
 	if ( lith ) { if ( idx ) lithnm += ", "; lithnm += lith->name(); }
     }
-    StratDispData::Unit* un = new StratDispData::Unit( lithnm.buf() );
+
+    auto* un = new StratDispData::Unit( lithnm.buf() );
     un->zrg_ = ur.timeRange();
     data_.addUnit( lithocolidx_, un );
 }
@@ -178,11 +173,10 @@ void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
 {
     BufferString lvlnm;
     OD::Color lvlcol;
-    const int id = ur.levelID();
+    const Strat::Level::ID id = ur.levelID();
     const Strat::LevelSet& lvls = Strat::LVLS();
-    lvlcol =
-	    lvls.isPresent( id ) ? lvls.get( id )->color() : OD::Color::Black();
-    lvlnm = lvls.isPresent( id ) ? lvls.get( id )->name().buf() : "";
+    lvlcol = lvls.isPresent( id ) ? lvls.colorOf( id ) : OD::Color::Black();
+    lvlnm = lvls.isPresent( id ) ? lvls.nameOf( id ) : BufferString::empty();
 
     auto* lvl = new StratDispData::Level( lvlnm.buf(), ur.fullCode().buf() );
     lvl->zpos_ = ur.timeRange().start;

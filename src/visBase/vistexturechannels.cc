@@ -212,8 +212,6 @@ const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup(int channel) const
 
 void ChannelInfo::clipData( int version, TaskRunner* tr )
 {
-    const od_int64 nrelements = nrElements( false );
-
     for ( int idx=0; idx<nrVersions(); idx++ )
     {
 	if ( version!=-1 && idx!=version )
@@ -222,7 +220,7 @@ void ChannelInfo::clipData( int version, TaskRunner* tr )
 	if ( !unmappeddata_[idx] )
 	    continue;
 
-	mappers_[idx]->setData( unmappeddata_[idx], nrelements, tr );
+	mappers_[idx]->setData( *unmappeddata_[idx], tr );
 	mappers_[idx]->setup_.triggerRangeChange();
     }
 }

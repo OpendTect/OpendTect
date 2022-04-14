@@ -22,18 +22,37 @@
 
 
 DataClipper::DataClipper()
-    : sampleprob_( 1 )
-    , subselect_( false )
-    , approxstatsize_( 2000 )
+    : gen_(*new Stats::RandGen())
     , absoluterg_( mUdf(float), -mUdf(float) )
-    , gen_(*new Stats::RandGen())
 {
+}
+
+
+DataClipper::DataClipper( const DataClipper& oth )
+    : gen_(*new Stats::RandGen())
+{
+    *this = oth;
 }
 
 
 DataClipper::~DataClipper()
 {
     delete &gen_;
+}
+
+
+DataClipper& DataClipper::operator =( const DataClipper& oth )
+{
+    if ( &oth != this )
+    {
+	approxstatsize_ = oth.approxstatsize_;
+	sampleprob_ = oth.sampleprob_;
+	subselect_ = oth.subselect_;
+	samples_ = oth.samples_;
+	absoluterg_ = oth.absoluterg_;
+    }
+
+    return *this;
 }
 
 

@@ -15,14 +15,18 @@
 #include "survinfo.h"
 #include "polygon.h"
 #include "position.h"
+#include "prestackgather.h"
 #include "seistrc.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
-#include "seisbuf.h"
+#include "seisbufadapters.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "stratlevel.h"
+#include "stratsynth.h"
+#include "stratsynthlevel.h"
 #include "statparallelcalc.h"
+#include "syntheticdataimpl.h"
 #include "picksettr.h"
 #include "wavelet.h"
 #include "waveletio.h"
@@ -132,63 +136,64 @@ void drawMarkerLine( float val )
 
 
 uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
-					const SeisTrcBuf& tb,
-					const MultiID& wid, const char* lvlnm )
+					const StratSynth::DataMgr& synthmgr,
+					const MultiID& wid )
     : uiDialog(p,Setup(tr("Create Synthetic Data Scaling Wavelet"),
 			mNoDlgTitle,mODHelpKey(mSynthToRealScaleHelpID) ))
-    , seisev_(*new Strat::SeisEvent)
     , is2d_(is2d)
-    , synth_(tb)
+    , stratsynth_(synthmgr)
+    , seisev_(*new Strat::SeisEvent)
     , inpwvltid_(wid)
-    , seisfld_(0)
-    , horizon_(0)
-    , horiter_(0)
-    , polygon_(0)
 {
 #define mNoDealRet(cond,msg) \
     if ( cond ) \
 	{ new uiLabel( this, msg ); return; }
     mNoDealRet( Strat::LVLS().isEmpty(), tr("No Stratigraphic Levels defined") )
-    mNoDealRet( tb.isEmpty(), tr("Generate models first") )
     mNoDealRet( inpwvltid_.isUdf(), tr("Create a Wavelet first") )
-    mNoDealRet( !lvlnm || !*lvlnm || (*lvlnm == '-' && *(lvlnm+1) == '-'),
-				   uiStrings::phrSelect(tr("Stratigraphic Level"
-				   "\nbefore starting this tool")) )
 
-    uiString wintitle = tr("Determine scaling for synthetic data using '%1'")
-				    .arg(toUiString(IOM().nameOf(inpwvltid_)));
+    const BufferString wvltnm = IOM().nameOf( inpwvltid_ );
+    const uiString wintitle =
+			tr("Determine scaling for synthetic data using '%1'")
+				    .arg(wvltnm);
     setTitleText( wintitle );
+
+    BufferStringSet synthnms;
+    stratsynth_.getNames( wid, synthnms, false, -2 );
+    mNoDealRet( synthnms.isEmpty(), tr("No synthetics with the wavelet '%1'")
+					.arg(wvltnm) );
+    synthselfld_ = new uiGenInput( this, tr("Synthetic Dataset"),
+				    StringListInpSpec(synthnms) );
 
     uiSeisSel::Setup sssu( is2d_, false );
     seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(sssu.geom_,true),
 			      sssu );
-
-    const IOObjContext horctxt( is2d_ ? mIOObjContext(EMHorizon2D)
-				      : mIOObjContext(EMHorizon3D) );
-    uiIOObjSel::Setup horsu( tr("Horizon for '%1'").arg(lvlnm));
-    horfld_ = new uiIOObjSel( this, horctxt, horsu );
-    horfld_->attach( alignedBelow, seisfld_ );
+    seisfld_->attach( alignedBelow, synthselfld_ );
 
     IOObjContext polyctxt( mIOObjContext(PickSet) );
     polyctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
     uiIOObjSel::Setup polysu( tr("Within Polygon") ); polysu.optional( true );
     polyfld_ = new uiIOObjSel( this, polyctxt, polysu );
-    polyfld_->attach( alignedBelow, horfld_ );
+    polyfld_->attach( alignedBelow, seisfld_ );
 
     uiStratSeisEvent::Setup ssesu( true );
-    ssesu.fixedlevel( Strat::LVLS().get(lvlnm) );
     evfld_ = new uiStratSeisEvent( this, ssesu );
     evfld_->attach( alignedBelow, polyfld_ );
+
+    const IOObjContext horctxt( is2d_ ? mIOObjContext(EMHorizon2D)
+				      : mIOObjContext(EMHorizon3D) );
+    uiIOObjSel::Setup horsu( tr("Horizon for '%1'").arg( evfld_->levelName() ));
+    horfld_ = new uiIOObjSel( this, horctxt, horsu );
+    horfld_->attach( alignedBelow, evfld_ );
 
     auto* gobut = new uiPushButton( this, tr("Extract amplitudes"),
 				mCB(this,uiSynthToRealScale,goPush), true );
     gobut->setIcon( "downarrow" );
-    gobut->attach( alignedBelow, evfld_ );
+    gobut->attach( alignedBelow, horfld_ );
 
     auto* sep = new uiSeparator( this, "separator" );
     sep->attach( stretchedBelow, gobut );
 
-    valislbl_ = new uiLabel( this, tr("   Amplitude Histograms   ") );
+    valislbl_ = new uiLabel( this, tr("   Amplitude Histograms	 ") );
     valislbl_->setAlignment( Alignment::HCenter );
     valislbl_->attach( centeredBelow, sep );
 
@@ -199,10 +204,9 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     realstatsfld_ =
 	new uiSynthToRealScaleStatsDisp( statsgrp, "Real Data", false );
     realstatsfld_->attach( rightOf, synthstatsfld_ );
-    const CallBack setsclcb( mCB(this,uiSynthToRealScale,setScaleFld) );
-    synthstatsfld_->usrValChanged.notify( setsclcb );
+    mAttachCB( synthstatsfld_->usrValChanged, uiSynthToRealScale::setScaleFld );
     statsgrp->attach( centeredBelow, valislbl_ );
-    realstatsfld_->usrValChanged.notify( setsclcb );
+    mAttachCB( realstatsfld_->usrValChanged, uiSynthToRealScale::setScaleFld );
     statsgrp->setHAlignObj( realstatsfld_ );
 
     auto* outputgrp = new uiGroup( this, "Output" );
@@ -215,24 +219,24 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     wvltfld_->attach( alignedBelow, finalscalefld_ );
     outputgrp->setHAlignObj( wvltfld_ );
     outputgrp->attach( centeredBelow, statsgrp );
-
-    postFinalize().notify( mCB(this,uiSynthToRealScale,initWin) );
 }
 
 
 uiSynthToRealScale::~uiSynthToRealScale()
 {
+    detachAllNotifiers();
     delete horiter_;
-    if ( horizon_ )
-	horizon_->unRef();
     delete polygon_;
     delete &seisev_;
 }
 
 
-void uiSynthToRealScale::initWin( CallBacker* )
+void uiSynthToRealScale::goPush( CallBacker* )
 {
+    updSynthStats();
+    updRealStats();
 }
+
 
 #define mUpdateSlider( type, val ) \
      if ( !mIsUdf(val) ) \
@@ -267,10 +271,8 @@ bool uiSynthToRealScale::getEvent()
 
 bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
 {
-    delete polygon_; polygon_ = 0;
-    if ( horizon_ )
-	{ horizon_->unRef(); horizon_ = 0; }
-
+    deleteAndZeroPtr( polygon_ );
+    horizon_ = nullptr;
     if ( polyfld_->isChecked() )
     {
 	const IOObj* ioobj = polyfld_->ioobj();
@@ -288,7 +290,6 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
     mDynamicCastGet(EM::Horizon*,hor,emobj);
     if ( !hor ) return false;
     horizon_ = hor;
-    horizon_->ref();
     horiter_ = horizon_->createIterator( horizon_->sectionID(0) );
     return true;
 }
@@ -324,13 +325,52 @@ void uiSynthToRealScale::updSynthStats()
     if ( !getEvent() )
 	return;
 
-    TypeSet<float> vals;
-    for ( int idx=0; idx<synth_.size(); idx++ )
+    uiTaskRunner trprov( this );
+    const BufferString synthnm = synthselfld_->text();
+    int lmsidx = -1;
+    const SyntheticData::SynthID sid = stratsynth_.find( synthnm, &lmsidx );
+    const StratSynth::DataMgr* datamgr = stratsynth_.getProdMgr();
+    if ( sid < 0 || !datamgr->ensureGenerated(sid,&trprov,lmsidx) )
+	return;
+
+    ConstRefMan<SyntheticData> sd = datamgr->getDataSet( sid, lmsidx );
+    if ( !sd )
+	return;
+
+    mDynamicCastGet(const PreStackSyntheticData*,presd,sd.ptr());
+    const ReflectivityModelSet& refmodels = sd->getRefModels();
+    const int sz = sd->nrPositions();
+    int nrtrcs = sz;
+    TypeSet<float> offsets;
+    if ( sd->isPS() )
     {
-	const SeisTrc& trc = *synth_.get( idx );
-	const float reftm = seisev_.snappedTime( trc );
-	if ( !mIsUdf(reftm) )
-	    vals += getTrcValue( trc, reftm );
+	refmodels.getOffsets( offsets );
+	nrtrcs *= offsets.size();
+    }
+
+    TypeSet<float> vals;
+    vals.setCapacity( nrtrcs, false ); //Only a hint, but a good one
+    const StratSynth::Level& lvl =
+			     datamgr->levels().get( evfld_->levelID() );
+    for ( int itrc=0; itrc<sz; itrc++ )
+    {
+	const float zref = lvl.zvals_.get( itrc );
+	if ( mIsUdf(zref) )
+	    continue;
+
+	if ( presd )
+	{
+	    for ( int ioff=0; ioff<offsets.size(); ioff++ )
+	    {
+		const float tref = sd->getTDModel( itrc, ioff )->getTime(zref);
+		vals += getTrcValue( *presd->getTrace(itrc,&ioff), tref );
+	    }
+	}
+	else
+	{
+	    const float tref = sd->getTDModel( itrc )->getTime( zref );
+	    vals += getTrcValue( *sd->getTrace(itrc), tref );
+	}
     }
 
     uiHistogramDisplay& histfld = *synthstatsfld_->dispfld_;
@@ -419,12 +459,13 @@ int getTrc2D()
     if ( !setBinID(trc_.info().coord) )
 	return MoreToDo();
 
-    mDynamicCastGet(const EM::Horizon2D*,hor2d,dlg_.horizon_)
+    mDynamicCastGet(const EM::Horizon2D*,hor2d,dlg_.horizon_.ptr())
     if ( !hor2d )
 	return ErrorOccurred();
+
     TrcKey tk( rdr_.geomID(), trc_.info().trcNr() );
     EM::PosID pid = hor2d->geometry().getPosID( tk );
-    const Coord3 crd = dlg_.horizon_->getPos( pid );
+    const Coord3 crd = hor2d->getPos( pid );
     if ( mIsUdf(crd.z) )
 	return MoreToDo();
 

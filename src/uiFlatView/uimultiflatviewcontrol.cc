@@ -24,14 +24,12 @@ ________________________________________________________________________
 
 MFVCViewManager::~MFVCViewManager()
 {
-    deepErase( d2tmodels_ );
 }
 
 
 void MFVCViewManager::setD2TModels(const ObjectSet<const TimeDepthModel>& d2tms)
 {
-    deepErase( d2tmodels_ );
-    deepCopy( d2tmodels_, d2tms );
+    d2tmodels_ = d2tms;
 }
 
 
@@ -155,6 +153,7 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
     , drawzoomboxes_(false)
     , activevwr_(&vwr)
 {
+    zoomboxes_.setNullAllowed();
     setViewerType( &vwr, true );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
@@ -166,11 +165,6 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 uiMultiFlatViewControl::~uiMultiFlatViewControl()
 {
     detachAllNotifiers();
-
-    for ( int idx=0; idx<zoomboxes_.size(); idx++ )
-	vwrs_[idx]->removeAuxData( zoomboxes_[idx] );
-
-    deepErase( zoomboxes_ );
 }
 
 
@@ -197,7 +191,6 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     uiFlatViewer& vwr = *vwrs_.last();
     MouseEventHandler& mevh = vwr.rgbCanvas().getNavigationMouseEventHandler();
     mAttachCB( mevh.wheelMove, uiMultiFlatViewControl::wheelMoveCB );
-
 
     auto* toolbar = new uiToolBar(mainwin(),tr("Flat Viewer Tools"),
 			       tb_->prefArea());
@@ -367,9 +360,13 @@ void uiMultiFlatViewControl::parsCB( CallBacker* cb )
 void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 {
     for ( int idx=0; idx<zoomboxes_.size(); idx++ )
+    {
+	mDetachCB( vwrs_[idx]->objectToBeDeleted(),
+		   uiMultiFlatViewControl::removeAnnotationsCB );
 	delete vwrs_[idx]->removeAuxData( zoomboxes_[idx] );
+    }
 
-    zoomboxes_.erase();
+    zoomboxes_.setEmpty();
 
     if ( iszoomcoupled_ || !drawzoomboxes_ )
 	return;
@@ -379,20 +376,22 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
     if ( wr == mainbbox )
 	return;
 
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    for ( auto* vwr : vwrs_ )
     {
-	FlatView::AuxData* ad = vwrs_[idx]->createAuxData( "Zoom box" );
-	vwrs_[idx]->addAuxData( ad );
+	FlatView::AuxData* ad = vwr->createAuxData( "Zoom box" );
+	vwr->addAuxData( ad );
 	zoomboxes_ += ad;
+	mAttachCB( vwr->objectToBeDeleted(),
+		   uiMultiFlatViewControl::removeAnnotationsCB );
 	ad->linestyle_ = OD::LineStyle( OD::LineStyle::Dash, 3,
 							OD::Color::Black() );
 	ad->zvalue_ = uiFlatViewer::auxDataZVal();
 
-	if ( vwrs_[idx] == activeVwr() )
+	if ( vwr == activeVwr() )
 	    continue;
 
 	uiWorldRect newwr;
-	if ( !viewmgr_.getViewRect(activeVwr(),vwrs_[idx],newwr) )
+	if ( !viewmgr_.getViewRect(activeVwr(),vwr,newwr) )
 	    continue;
 
 	ad->poly_ += newwr.topLeft();
@@ -400,8 +399,19 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	ad->poly_ += newwr.bottomRight();
 	ad->poly_ += newwr.bottomLeft();
 	ad->poly_ += newwr.topLeft();
-	vwrs_[idx]->handleChange( FlatView::Viewer::Auxdata );
+	vwr->handleChange( FlatView::Viewer::Auxdata );
     }
+}
+
+
+void uiMultiFlatViewControl::removeAnnotationsCB( CallBacker* cb )
+{
+    const int idx = vwrs_.indexOf( (uiFlatViewer*)cb );
+    if ( !zoomboxes_.validIdx(idx) )
+	return;
+
+    // Object was already deleted together with the flatviewer
+    zoomboxes_.replace( idx, nullptr );
 }
 
 

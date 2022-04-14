@@ -102,11 +102,35 @@ void Strat::FormulaLayerValue::useForm( const PropertyRefSelection& prs,
 		form.setInputValUnit( iinp, pr->unit() );
 	    else
 	    {
-		errmsg_ = tr( "%1 - Formula cannot be resolved:\n'%2'"
-			      "\nCannot find '%3'")
-			.arg(lay_.name()).arg( form_.text() ).arg( pnm );
+		const Mnemonic* mn = form.inputMnemonic( iinp );
+		if ( mn )
+		{
+		    PropertyRefSelection inpprs( false );
+		    for ( int iprop=0; iprop<prs.size(); iprop++ )
+		    {
+			const PropertyRef* inppr = prs.get(iprop);
+			if ( iprop != outidx && inppr->isCompatibleWith(*mn) )
+			    inpprs.add( inppr );
+		    }
+		    if ( !inpprs.isEmpty() )
+		    {
+			pr = inpprs.first();
+			form.setInputValUnit( iinp, pr->unit() );
+			if ( inpprs.size() > 1 )
+			{
+			    pErrMsgOnce("Found duplicated variable for form");
+			}
+		    }
+		}
 
-		return;
+		if ( !pr )
+		{
+		    errmsg_ = tr( "%1 - Formula cannot be resolved:\n'%2'"
+				  "\nCannot find '%3'")
+			    .arg(lay_.name()).arg( form_.text() ).arg( pnm );
+
+		    return;
+		}
 	    }
 	}
 
@@ -249,6 +273,16 @@ void Strat::Layer::getValues( TypeSet<float>& out ) const
 {
     const int nrvals = nrValues();
     out.setSize( nrvals );
+    getValues( out.arr(), nrvals );
+}
+
+
+void Strat::Layer::getValues( float* out, int sz ) const
+{
+    const int nrvals = nrValues();
+    if ( sz > nrvals )
+	return;
+
     for ( int ival=0; ival<nrvals; ival++ )
 	out[ival] = value( ival );
 }

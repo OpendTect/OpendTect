@@ -164,14 +164,16 @@ public:
 
 
 /*!
-\brief A DataPack containing an objectset of gathers.
+\brief A DataPack containing a set of gathers.
 */
 
 mExpClass(PreStackProcessing) GatherSetDataPack : public DataPack
 {
 public:
+				GatherSetDataPack(const char* ctgery);
 				GatherSetDataPack(const char* ctgery,
 						  const ObjectSet<Gather>&);
+				//!< Gathers becomes mine
 				~GatherSetDataPack();
 
     void			fill(Array2D<float>&,int offsetidx) const;
@@ -180,20 +182,34 @@ public:
     SeisTrc*			getTrace(int gatheridx,int offsetidx);
     const SeisTrc*		getTrace(int gatheridx,int offsetidx) const;
 
-    float			nrKBytes() const override	{ return 0; }
+    float			nrKBytes() const override	{ return 0.f; }
 
     const Gather*		getGather(const BinID&) const;
+    const Array3D<float>&	data() const		{ return arr3d_; }
     const ObjectSet<Gather>&	getGathers() const	{ return gathers_; }
-    ObjectSet<Gather>&		getGathers()		{ return gathers_; }
+
+    void			addGather(PreStack::Gather&);
+				//!< Gather becomes mine
+    void			finalize();
+				//!< Once when all gathers have been added
 
     StepInterval<float>		zRange() const;
 
     static const char*		sDataPackCategory();
 
-protected:
+private:
     SeisTrc*			gtTrace(int gatheridx,int offsetidx) const;
 
     ObjectSet<Gather>		gathers_;
+    Array3D<float>&		arr3d_;
+
+				mOD_DisableCopy( GatherSetDataPack );
+
+public:
+
+    void			obtainGathers();
+				/*!< Make all gathers available in the
+				  FlatDataPack Mgr */
 };
 
 } // namespace PreStack

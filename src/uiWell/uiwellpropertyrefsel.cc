@@ -160,7 +160,7 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
     uiComboBox* altlognmfld = altlognmfld_->box();
     altlognmfld->setEmpty();
     altlognmfld->addItems( altnms );
-    if ( !setDefaultLog(wls, *altMn()) )
+    if ( !setDefaultLog(wls,*altMn()) )
     {
 	if ( altnms.size() > 1 )
 	    altlognmfld->setCurrentItem( 1 );

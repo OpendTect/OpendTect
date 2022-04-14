@@ -58,8 +58,6 @@ public:
     const GeomType&		getType() const		{ return gt_; }
     bool			isStack() const;
     bool			isPS() const;
-    bool			isCorrected() const;
-				//<! Only for PS gathers
     int				getOffsetIdx(float offset) const;
 
 private:
@@ -326,6 +324,7 @@ public:
     void		setStretchLimit(float);
     void		enableFourierDomain(bool yn);
     void		doSampledTimeReflectivity(bool yn);
+    void		setTrcStep(int);
 
     uiString		uiMessage() const override;
     uiString		uiNrDoneText() const override;
@@ -348,6 +347,7 @@ private:
     ConstRefMan<ReflectivityModelSet> refmodels_;
     TypeSet<float>		offsets_;
     GeomType			rettype_;
+    int				trcstep_ = 1;
     mutable uiString		msg_;
 
     od_int64			nrIterations() const override;
@@ -358,6 +358,7 @@ private:
 
     bool			getOutSamplingFromModel(ZSampling& nmozrg,
 						    ZSampling* uncorrzrg) const;
+    bool			checkPars(bool* skipnmo =nullptr);
 
     mStruct(Seis) SynthRes
     {

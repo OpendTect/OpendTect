@@ -385,14 +385,15 @@ void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, TypeSet<MultiID>& ids )
 }
 
 
-int IOObjInfo::levelID() const
+Strat::Level::ID IOObjInfo::levelID() const
 {
     mGetReader
-    return reader_ ? reader_->stratLevelID() : -1;
+    return reader_ ? reader_->stratLevelID() : Strat::Level::cUndefID();
 }
 
 
-void IOObjInfo::getTiedToLevelID( int lvlid, TypeSet<MultiID>& ids, bool is2d )
+void IOObjInfo::getTiedToLevelID( Strat::Level::ID lvlid, TypeSet<MultiID>& ids,
+				  bool is2d )
 {
     ids.erase();
     TypeSet<MultiID> candidates;

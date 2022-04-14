@@ -140,6 +140,95 @@ bool SeisTrc::hasUndef( int icomp ) const
 }
 
 
+static bool findFirst( const SeisTrc& trc, int& sampnr, bool wantudf )
+{
+    const int nrsamps = trc.size();
+    for ( int isamp=sampnr; isamp<nrsamps; isamp++ )
+    {
+	const float val = trc.get( isamp, 0 );
+	const bool isudf = mIsUdf( val );
+	if ( wantudf == isudf )
+	    { sampnr = isamp; return true; }
+    }
+    return false;
+}
+
+
+inline static bool findFirstDefined( const SeisTrc& trc, int& sampnr )
+{ return findFirst( trc, sampnr, false ); }
+inline static bool findFirstUdf( const SeisTrc& trc, int& sampnr )
+{ return findFirst( trc, sampnr, true ); }
+
+
+void SeisTrc::ensureNoUndefs( float replval )
+{
+    const Interval<int> comps( 0, nrComponents()-1 );
+    const int sz = size();
+    const bool interpolate = mIsUdf(replval);
+
+    for ( int icomp=comps.start; icomp<=comps.stop; icomp++ )
+    {
+	int cursamp = 0;
+	if ( !findFirstUdf(*this,cursamp) )
+	    continue; // no udfs, next component
+
+	if ( cursamp == 0 ) // we start with one or more udf's
+	{
+	    if ( !findFirstDefined(*this,cursamp) )
+	    {
+		setAll( interpolate ? 0.f : replval, icomp );
+		continue; // only udfs, next component
+	    }
+
+	    // extrapolate up to trace start
+	    const float val2set = interpolate ? get(icomp,cursamp) : replval;
+	    for ( int isamp=0; isamp<cursamp; isamp++ )
+		set( isamp, val2set, icomp );
+
+	    if ( !findFirstUdf(*this,cursamp) )
+		continue; // no more udfs, next component
+	}
+
+	// interpolate
+	bool componentfinished = false;
+	while ( !componentfinished )
+	{
+	    Interval<int> udfsamps( cursamp, 0 );
+	    if ( !findFirstDefined(*this,cursamp) )
+		break; // only udfs until end
+	    udfsamps.stop = cursamp - 1;
+
+	    if ( !interpolate )
+		for ( int isamp=udfsamps.start; isamp<=udfsamps.stop; isamp++ )
+		    set( isamp, replval, icomp );
+	    else
+	    {
+		const float v0 = get( udfsamps.start-1, icomp );
+		const float v1 = get( udfsamps.stop+1, icomp );
+		const int nrudfs = udfsamps.width() + 1;
+		for ( int iudf=0; iudf<nrudfs; iudf++ )
+		{
+		    const float frac = (iudf+1.0f) / (nrudfs+1.0f);
+		    const float newval = v0*(1.0f-frac) + v1*frac;
+		    set( udfsamps.start+iudf, newval, icomp );
+		}
+	    }
+
+	    if ( !findFirstUdf(*this,cursamp) )
+		componentfinished = true; // no more udfs, next component
+	}
+
+	if ( !componentfinished )
+	{
+	    // extrapolate to trace end
+	    const float val2set = interpolate ? get(icomp,cursamp-1) :replval;
+	    for ( auto isamp=cursamp; isamp<sz; isamp++ )
+		set( isamp, val2set, icomp );
+	}
+    }
+}
+
+
 float SeisTrc::getValue( float t, int icomp ) const
 {
     const int sz = size();

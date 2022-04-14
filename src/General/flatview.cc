@@ -669,36 +669,92 @@ void FlatView::Viewer::clearAllPacks()
 void FlatView::Viewer::removePack( DataPack::ID id )
 {
     const int idx = ids_.indexOf( id );
-    if ( idx < 0 ) return;
+    if ( idx < 0 )
+	return;
 
-    if ( hasPack(true) && packID(true)==id )
-	usePack( true, DataPack::cNoID(), false );
-
-    if ( hasPack(false) && packID(false)==id )
-	usePack( false, DataPack::cNoID(), false );
+    const bool wva = hasPack(true) && packID(true)==id;
+    const bool vd = hasPack(false) && packID(false)==id;
+    const VwrDest dest = getDest( wva, vd );
+    usePack( dest, DataPack::cNoID(), false );
 
     ids_.removeSingle( idx );
     dpm_.release( id );
 }
 
 
-void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
+bool FlatView::Viewer::enableChange( bool yn )
 {
-    DataPack::ID curid = packID( wva );
-    if ( id == curid ) return;
+    const bool ret = canhandlechange_;
+    canhandlechange_ = yn;
+    return ret;
+}
 
+
+void FlatView::Viewer::setPack( VwrDest dest, ::DataPack::ID id, bool usedefs )
+{
+    if ( dest == None )
+	return;
+
+    addPack( id );
+    usePack( dest, id, usedefs );
+}
+
+
+void FlatView::Viewer::usePack( VwrDest dest, DataPack::ID id, bool usedefs )
+{
+    if ( dest == None )
+	return;
+
+    const bool wva = dest == WVA || dest == Both;
+    const bool vd = dest == VD || dest == Both;
+    DataPack::ID curwvaid, curvdid;
+    if ( wva )
+	curwvaid = packID( true );
+    if ( vd )
+	curvdid = packID( false );
+
+    if ( (dest == WVA && id == curwvaid) ||
+	 (dest == VD && id == curvdid) ||
+	 (dest == Both && id == curwvaid && id == curvdid) )
+	return;
+
+    BufferString category;
     if ( id == DataPack::cNoID() )
-	(wva ? wvapack_ : vdpack_) = 0;
+    {
+	if ( wva )
+	{
+	    if ( wvapack_ )
+		category.set( wvapack_->category() );
+	    wvapack_ = nullptr;
+	}
+	if ( vd )
+	{
+	    if ( vdpack_ && category.isEmpty() )
+		category.set( vdpack_->category() );
+	    vdpack_ = nullptr;
+	}
+    }
     else if ( !ids_.isPresent(id) )
     {
 	pErrMsg("Requested usePack, but ID not added");
 	return;
     }
     else
-	(wva ? wvapack_ : vdpack_) = (FlatDataPack*)dpm_.observe( id );
+    {
+	if ( wva )
+	    wvapack_ = (FlatDataPack*)dpm_.observe( id );
+	if ( vd )
+	    vdpack_ = (FlatDataPack*)dpm_.observe( id );
+    }
 
     ConstDataPackRef<FlatDataPack> fdp = obtainPack( wva );
-    if ( !fdp ) return;
+    if ( !fdp )
+    {
+	if ( ids_.size() == 1 && ids_[0] == id && id == DataPack::cNoID() &&
+	     dest == Both && !category.isEmpty() )
+	    useStoredDefaults( category );
+	return;
+    }
 
     if ( usedefs )
 	useStoredDefaults( fdp->category() );
@@ -728,16 +784,54 @@ bool FlatView::Viewer::isVisible( bool wva ) const
 }
 
 
-void FlatView::Viewer::setVisible( bool wva, bool visibility )
+bool FlatView::Viewer::isVisible( VwrDest dest ) const
 {
-    FlatView::DataDispPars& ddp = appearance().ddpars_;
-    bool& show = ( wva ? ddp.wva_.show_ : ddp.vd_.show_ );
+    const FlatView::DataDispPars& ddp = appearance().ddpars_;
+    if ( dest == WVA )
+	return ddp.wva_.show_;
+    if ( dest == VD )
+	return ddp.vd_.show_;
+    if ( dest == Both )
+	return ddp.wva_.show_ && ddp.vd_.show_;
 
-    if ( show!=visibility )
+    return false;
+}
+
+
+bool FlatView::Viewer::setVisible( VwrDest dest, bool visibility,
+				   od_uint32* ctyp )
+{
+    if ( dest == None )
+	return false;
+
+    FlatView::DataDispPars& ddp = appearance().ddpars_;
+    ObjectSet<DataDispPars::Common> allddpars;
+    if ( dest == WVA || dest == Both )
+	allddpars.add( &(DataDispPars::Common&)ddp.wva_ );
+    if ( dest == VD || dest == Both )
+	allddpars.add( &(DataDispPars::Common&)ddp.vd_ );
+
+    bool donotif = false;
+    for ( auto* vwrddpars : allddpars )
     {
-	show = visibility;
-	handleChange( BitmapData );
+	bool& show = vwrddpars->show_;
+	if ( show != visibility )
+	{
+	    show = visibility;
+	    donotif = true;
+	}
     }
+
+    if ( donotif )
+    {
+	const od_uint32 ctype = sCast(od_uint32,BitmapData);
+	if ( ctyp )
+	    *ctyp = Math::SetBits( *ctyp, ctype, true );
+	else
+	    handleChange( ctype );
+    }
+
+    return donotif;
 }
 
 
@@ -790,4 +884,13 @@ void FlatView::Viewer::setSeisGeomidsToViewer( TypeSet<Pos::GeomID>& geomids )
 const TypeSet<Pos::GeomID>& FlatView::Viewer::getAllSeisGeomids() const
 {
     return geom2dids_;
+}
+
+
+FlatView::Viewer::VwrDest FlatView::Viewer::getDest( bool dowva, bool dovd )
+{
+    if ( !dowva && !dovd )
+	return None;
+
+    return dowva && dovd ? Both : (dowva ? WVA : VD);
 }

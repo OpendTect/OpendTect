@@ -11,57 +11,57 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
+
 #include "valseriesevent.h"
 #include "ranges.h"
+#include "stratlevel.h"
 class SeisTrc;
 
 
 namespace Strat
 {
-class Level;
 
 /*!\brief Event tied to a stratigraphic level. */
 
 mExpClass(WellAttrib) SeisEvent
 {
 public:
-			SeisEvent(const Level* lvl=0,
-				   VSEvent::Type evtyp=VSEvent::None)
-			    : level_(lvl)
+			SeisEvent( Strat::Level::ID
+					lvlid =Strat::Level::cUndefID(),
+					VSEvent::Type evtyp=VSEvent::None )
+			    : levelid_(lvlid)
 			    , evtype_(evtyp)
-			    , offs_(0)
-			    , extrwin_(0,0)
-			    , extrstep_(mUdf(float))
-			    , downtolevel_(0)		{}
+			    , extrwin_(0.f,0.f)
+			    , downtolevel_(Strat::Level::cUndefID())	{}
 
     float		snappedTime(const SeisTrc&) const;
     bool		snapPick(SeisTrc&) const;
 
-    void		setLevel( const Strat::Level* lvl ) { level_ = lvl; }
+    void		setLevelID( Strat::Level::ID id ) { levelid_ = id; }
     void		setEvType( const VSEvent::Type evtyp )
 						{ evtype_ = evtyp; }
     void		setOffset( float off )	{ offs_ = off; }
     void		setExtrWin( const Interval<float>& win )
 						{ extrwin_ = win; }
     void		setExtrStep(float step ) { extrstep_ = step; }
-    void		setDownToLevel(  const Strat::Level* downtolevel )
-						{ downtolevel_ = downtolevel; }
+    void		setDownToLevelID( Strat::Level::ID id )
+						{ downtolevel_ = id; }
 
-    const Strat::Level* level() const		{ return level_; }
-    const VSEvent::Type& evType() const 	{ return evtype_; }
+    Strat::Level::ID	levelID() const		{ return levelid_; }
+    VSEvent::Type	evType() const		{ return evtype_; }
     float		offset() const		{ return offs_; }
     const Interval<float>& extrWin() const	{ return extrwin_; }
     float		extrStep() const	{ return extrstep_; }
-    const Strat::Level* downToLevel() const	{ return downtolevel_; }
+    Strat::Level::ID	downToLevelID() const	{ return downtolevel_; }
 
 protected:
 
-    const Strat::Level*	level_;
+    Strat::Level::ID	levelid_;
     VSEvent::Type	evtype_;
-    float		offs_;
+    float		offs_ = 0.f;
     Interval<float>	extrwin_;
-    float		extrstep_;
-    const Strat::Level*	downtolevel_;
+    float		extrstep_ = mUdf(float);
+    Strat::Level::ID	downtolevel_;
 
 };
 

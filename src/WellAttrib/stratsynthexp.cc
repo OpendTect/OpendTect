@@ -27,14 +27,16 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "transl.h"
 
-StratSynthExporter::StratSynthExporter(
+StratSynth::Exporter::Exporter(
 			const ObjectSet<const SyntheticData>& sds,
-			Pos::GeomID geomid, const SeparString& prepostfix )
+			Pos::GeomID geomid, const SeparString& prepostfix,
+			bool replaceudf )
     : Executor( "Exporting syntheic data" )
     , sds_(sds)
     , geomid_(geomid)
     , prefixstr_(prepostfix[0].str())
     , postfixstr_(prepostfix[1].str())
+    , replaceudf_(replaceudf)
 {
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
     const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
@@ -43,32 +45,25 @@ StratSynthExporter::StratSynthExporter(
     else
 	return;
 
-    int synthmodelsz = 0;
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sds_[0]);
-    mDynamicCastGet(const PostStackSyntheticData*,postsd,sds_[0]);
-    if ( presd )
-	synthmodelsz = presd->preStackPack().getGathers().size();
-    else
-	synthmodelsz = postsd->postStackPack().trcBuf().size();
-
+    const int synthmodelsz = sds_.first()->nrPositions();
     postobedone_ = linepos_->size() < synthmodelsz
 		 ? linepos_->size() : synthmodelsz;
 }
 
 
-StratSynthExporter::~StratSynthExporter()
+StratSynth::Exporter::~Exporter()
 {
     delete writer_;
 }
 
 
-od_int64 StratSynthExporter::nrDone() const
+od_int64 StratSynth::Exporter::nrDone() const
 {
     return (cursdidx_*postobedone_) + posdone_;
 }
 
 
-od_int64 StratSynthExporter::totalNr() const
+od_int64 StratSynth::Exporter::totalNr() const
 {
     return sds_.size()*postobedone_;
 }
@@ -81,9 +76,10 @@ mSkipBlanks( strptr ); \
 str = strptr; \
 }
 
-bool StratSynthExporter::prepareWriter()
+bool StratSynth::Exporter::prepareWriter()
 {
-    const bool isps = sds_[cursdidx_]->isPS();
+    const SyntheticData& sd = *sds_[cursdidx_];
+    const bool isps = sd.isPS();
     BufferString synthnm;
     mSkipInitialBlanks( prefixstr_ )
     if ( !prefixstr_.isEmpty() )
@@ -92,7 +88,7 @@ bool StratSynthExporter::prepareWriter()
 	synthnm += "_";
     }
 
-    synthnm += sds_[cursdidx_]->name();
+    synthnm += sd.name();
 
     mSkipInitialBlanks( postfixstr_ );
     if ( !postfixstr_.isEmpty() )
@@ -119,15 +115,21 @@ bool StratSynthExporter::prepareWriter()
     if ( !ctxt->ioobj_ )
 	return false;
 
-    const Seis::GeomType gt = Seis::Line;
+    const Seis::GeomType gt = Seis::geomTypeOf( true, isps );
+    const SeisStoreAccess::Setup su( *ctxt->ioobj_, geomid_, &gt );
     delete writer_;
-    writer_ = new SeisTrcWriter( *ctxt->ioobj_, geomid_, &gt );
-    writer_->setAttrib( synthnm );
+    writer_ = new SeisTrcWriter( su );
+    TrcKeyZSampling tkzs( false );
+    tkzs.hsamp_.init( geomid_ );
+    tkzs.hsamp_.setTrcRange( Interval<int>( 1, sd.nrPositions()) );
+    tkzs.zsamp_ = sd.zRange();
+    writer_->setSelData( new Seis::RangeSelData(tkzs) );
+//    writer_->setAttrib( synthnm );
     return true;
 }
 
 
-int StratSynthExporter::nextStep()
+int StratSynth::Exporter::nextStep()
 {
     if ( !sds_.validIdx(cursdidx_) )
 	return Finished();
@@ -140,7 +142,7 @@ int StratSynthExporter::nextStep()
 }
 
 
-uiString StratSynthExporter::uiMessage() const
+uiString StratSynth::Exporter::uiMessage() const
 {
     return errmsg_.isEmpty() ? tr("Exporting synthetic data") : errmsg_;
 }
@@ -148,7 +150,7 @@ uiString StratSynthExporter::uiMessage() const
 #define mErrRetPErr( msg ) \
 { pErrMsg( msg ); return ErrorOccurred(); }
 
-int StratSynthExporter::writePostStackTrace()
+int StratSynth::Exporter::writePostStackTrace()
 {
     const SyntheticData* sd = sds_[cursdidx_];
     mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
@@ -169,6 +171,9 @@ int StratSynthExporter::writePostStackTrace()
 
     const PosInfo::Line2DPos& linepos = (*linepos_)[posdone_];
     SeisTrc trc( *synthrc );
+    if ( replaceudf_ )
+	trc.ensureNoUndefs();
+
     SeisTrcInfo& trcinfo = trc.info();
     trcinfo.setGeomID( geomid_ ).setTrcNr( linepos.nr_ ).calcCoord();
     trcinfo.seqnr_ = ++posdone_;
@@ -182,7 +187,7 @@ int StratSynthExporter::writePostStackTrace()
 }
 
 
-int StratSynthExporter::writePreStackTraces()
+int StratSynth::Exporter::writePreStackTraces()
 {
     const SyntheticData* sd = sds_[cursdidx_];
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);

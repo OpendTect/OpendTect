@@ -6,11 +6,13 @@
 
 
 #include "coltabmapper.h"
+
+#include "arraynd.h"
 #include "dataclipper.h"
 #include "histequalizer.h"
 #include "keystrs.h"
-#include "settings.h"
 #include "math2.h"
+#include "settings.h"
 #include "task.h"
 #include "uistrings.h"
 
@@ -254,14 +256,55 @@ void ColTab::MapperSetup::triggerAutoscaleChange()
 
 
 ColTab::Mapper::Mapper()
-    : vs_(0)
-    , clipper_(*new DataClipper)
-{ }
+    : clipper_(new DataClipper)
+    , clipperismine_(true)
+{
+}
+
+
+ColTab::Mapper::Mapper( const Mapper& oth )
+    : Mapper()
+{
+    *this = oth;
+}
+
+
+ColTab::Mapper::Mapper( const Mapper& oth, bool shareclipper )
+    : Mapper()
+{
+    *this = oth;
+    if ( shareclipper && clipperismine_ )
+    {
+	delete clipper_;
+	clipper_ = oth.clipper_;
+	clipperismine_ = false;
+    }
+}
 
 
 ColTab::Mapper::~Mapper()
 {
-    delete &clipper_;
+    if ( clipperismine_ )
+	delete clipper_;
+}
+
+
+ColTab::Mapper& ColTab::Mapper::operator =( const Mapper& oth )
+{
+    if ( &oth != this )
+    {
+	setup_ = oth.setup_;
+	if ( clipperismine_ ) delete clipper_;
+	clipper_ = oth.clipperismine_ ? new DataClipper( *oth.clipper_ )
+				      : oth.clipper_;
+	clipperismine_ = oth.clipperismine_;
+	arrnd_ = oth.arrnd_;
+	vs_ = oth.vs_;
+	dataptr_ = oth.dataptr_;
+	datasz_ = oth.datasz_;
+    }
+
+    return *this;
 }
 
 
@@ -284,7 +327,7 @@ float ColTab::Mapper::position( float val ) const
     const float width = setup_.range_.width( false );
 
     if ( mIsZero(width,mDefEps) )
-	return 0;
+	return 0.f;
 
     float ret = (val-setup_.range_.start) / width;
     if ( setup_.nrsegs_ > 0 )
@@ -293,23 +336,23 @@ float ColTab::Mapper::position( float val ) const
 	ret = (0.5f + ((int)ret)) / setup_.nrsegs_;
     }
 
-    if ( ret > 1 ) ret = 1;
-    else if ( ret < 0 ) ret = 0;
+    if ( ret > 1 ) ret = 1.f;
+    else if ( ret < 0 ) ret = 0.f;
 
-    if ( setup_.flipseq_ ) return 1.0f - ret;
-    return ret;
+    return setup_.flipseq_ ? 1.0f - ret : ret;
 }
 
 
 int ColTab::Mapper::snappedPosition( const ColTab::Mapper* mapper,
-	float v, int nrsteps, int udfval )
+				     float v, int nrsteps, int udfval )
 {
-    if ( mIsUdf(v) ) return udfval;
+    if ( mIsUdf(v) )
+	return udfval;
 
     float ret = mapper ? mapper->position( v ) : v;
     ret *= nrsteps;
     if ( ret > nrsteps - 0.9f ) ret = nrsteps - 0.9f;
-    else if ( ret < 0 ) ret = 0;
+    else if ( ret < 0 ) ret = 0.f;
     return (int)ret;
 }
 
@@ -326,104 +369,213 @@ void ColTab::Mapper::setRange( const Interval<float>& rg )
 }
 
 
-void ColTab::Mapper::setData( const ValueSeries<float>* vs, od_int64 sz,
-			      TaskRunner* tr )
+void ColTab::Mapper::setData( const float* dataptr, od_int64 sz,
+			      TaskRunner* taskrun )
 {
-    vs_ = vs; vssz_ = sz;
-    update( true, tr );
+    arrnd_ = nullptr;
+    vs_ = nullptr;
+    dataptr_ = dataptr;
+    datasz_ = sz;
+    update( true, taskrun );
 }
 
 
-struct SymmetryCalc : public ParallelTask
+void ColTab::Mapper::setData( const ValueSeries<float>& vs, TaskRunner* taskrun)
 {
-SymmetryCalc( const ValueSeries<float>& vs, od_int64 sz )
-    : sz_(sz)
-    , vs_(vs)
-    , above0_(0)
-    , below0_(0)
-    , lock_(true)
-{}
-
-od_int64 nrIterations() const override	{ return sz_; }
-
-bool doWork( od_int64 start, od_int64 stop, int ) override
-{
-    od_int64 above0 = 0;
-    od_int64 below0 = 0;
-
-    for ( od_int64 idx=start; idx<=stop; idx++ )
+    if ( vs.arr() )
     {
-	if ( mIsUdf(vs_[idx]) ) continue;
-	if ( vs_[idx] < 0 ) below0++;
-	else if ( vs_[idx] > 0 ) above0++;
+	setData( vs.arr(), vs.size(), taskrun );
+	return;
     }
 
-    Threads::Locker lock( lock_ );
-    above0_ += above0;
-    below0_ += below0;
+    arrnd_ = nullptr;
+    dataptr_ = nullptr;
 
-    return true;
+    vs_ = &vs;
+    datasz_ = vs.size();
+    update( true, taskrun );
 }
 
+
+void ColTab::Mapper::setData( const ArrayND<float>& arrnd, TaskRunner* taskrun )
+{
+    if ( arrnd.getData() )
+    {
+	setData( arrnd.getData(), arrnd.totalSize(), taskrun );
+	return;
+    }
+    else if ( arrnd.getStorage() )
+    {
+	setData( *arrnd.getStorage(), taskrun );
+	return;
+    }
+
+    vs_ = nullptr;
+    dataptr_ = nullptr;
+
+    arrnd_ = &arrnd;
+    datasz_ = arrnd.totalSize();
+    update( true, taskrun );
+}
+
+
+class SymmetryCalc : public ParallelTask
+{
+public:
+
+SymmetryCalc( const float* dataptr, const ValueSeries<float>* vs,
+	      const ArrayND<float>* arrnd, od_int64 sz )
+    : sz_(sz)
+    , dataptr_(dataptr)
+    , vs_(vs)
+    , arrnd_(arrnd)
+{}
 
 bool isSymmAroundZero() const
 {
-    od_int64 max = mMAX( above0_, below0_ );
-    od_int64 min = mMIN( above0_, below0_ );
-    if ( max==0 || min==0 ) return false;
+    const od_int64 max = mMAX( above0_, below0_ );
+    const od_int64 min = mMIN( above0_, below0_ );
 
-    return max/min - 1 < 0.05;
+    return max==0 || min==0 ? false : max/min - 1 < 0.05;
 }
 
+private:
 
 uiString uiNrDoneText() const override
 {
     return uiStrings::sDone();
 }
 
-    od_int64			sz_;
-    od_int64			above0_;
-    od_int64			below0_;
-    Threads::Lock		lock_;
-    const ValueSeries<float>&	vs_;
+od_int64 nrIterations() const override	{ return sz_; }
+
+
+bool doPrepare( int nrthreads ) override
+{
+    if ( !dataptr_ && !vs_ && !arrnd_ )
+	return false;
+
+    above0vals_.setSize( nrthreads, 0 );
+    below0vals_.setSize( nrthreads, 0 );
+    above0_ = 0;
+    below0_ = 0;
+    return true;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
+{
+    od_int64 above0 = 0;
+    od_int64 below0 = 0;
+
+    PtrMan<ArrayNDIter> iter;
+    if ( arrnd_ )
+    {
+	iter = new ArrayNDIter( arrnd_->info() );
+	iter->setGlobalPos( start );
+    }
+
+    float val;
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	if ( dataptr_ )
+	    val = dataptr_[idx];
+	else if ( vs_ )
+	    val = vs_->value( idx );
+	else if ( arrnd_ )
+	{
+	    val = arrnd_->getND( iter->getPos() );
+	    iter->next();
+	}
+
+	if ( mIsUdf(val) ) continue;
+	if ( val < 0 ) below0++;
+	else if ( val > 0 ) above0++;
+    }
+
+    above0vals_[threadidx] = above0;
+    below0vals_[threadidx] = below0;
+
+    return true;
+}
+
+
+bool doFinish( bool success ) override
+{
+    if ( !success )
+	return false;
+
+    while( !above0vals_.isEmpty() )
+	above0_ += above0vals_.pop();
+    while( !below0vals_.isEmpty() )
+	below0_ += below0vals_.pop();
+
+    return true;
+}
+
+    const od_int64		sz_;
+    const float*		dataptr_;
+    const ValueSeries<float>*	vs_;
+    const ArrayND<float>*	arrnd_;
+
+    TypeSet<od_int64>		above0vals_;
+    TypeSet<od_int64>		below0vals_;
+
+    od_int64			above0_ = 0;
+    od_int64			below0_ = 0;
+
 };
 
 
-void ColTab::Mapper::update( bool full, TaskRunner* tr )
+void ColTab::Mapper::update( bool full, TaskRunner* taskrun )
 {
-    if ( setup_.type_ == MapperSetup::Fixed || !vs_ || vssz_ < 1 )
+    if ( setup_.type_ == MapperSetup::Fixed ||
+	 (full && (datasz_ < 1 || (!dataptr_ && !vs_ && !arrnd_))) )
 	return;
-    if ( vssz_ == 1 )
+
+    if ( datasz_ == 1 )
     {
-	setup_.range_.start = mIsUdf(vs_->value(0)) ? -1 : vs_->value(0)-1;
-	setup_.range_.stop = setup_.range_.start + 2;
+	const TypeSet<int> arrpos( arrnd_ ? arrnd_->nrDims() : 0, 0 );
+	const float firstval = dataptr_
+			     ? dataptr_[0]
+			     : (vs_ ? vs_->value(0)
+				    : (arrnd_ ? arrnd_->getND(arrpos.arr())
+					      : mUdf(float)));
+	setup_.range_.start = mIsUdf(firstval) ? -1.f : firstval-1.f;
+	setup_.range_.stop = setup_.range_.start + 2.f;
 	return;
     }
 
     mWarnHistEqNotImpl
 
-    if ( full || clipper_.isEmpty() )
+    DataClipper& clipper = *clipper_;
+    if ( full || clipper.isEmpty() )
     {
-	clipper_.reset();
-	clipper_.setApproxNrValues( vssz_, setup_.maxpts_ ) ;
-	clipper_.putData( *vs_, vssz_ );
-	clipper_.fullSort();
+	clipper.reset();
+	clipper.setApproxNrValues( datasz_, setup_.maxpts_ ) ;
+	if ( dataptr_ )
+	    clipper.putData( dataptr_, datasz_ );
+	else if ( vs_ )
+	    clipper.putData( *vs_, datasz_ );
+	else if ( arrnd_ )
+	    clipper.putData( *arrnd_ );
+
+	clipper.fullSort();
 
 	if ( setup_.autosym0_ )
 	{
-	    SymmetryCalc symmcalc( *vs_, vssz_ );
-	    TaskRunner::execute( tr, symmcalc );
-	    setup_.symmidval_ = symmcalc.isSymmAroundZero() ? 0 : mUdf(float);
+	    SymmetryCalc symmcalc( dataptr_, vs_, arrnd_, datasz_ );
+	    TaskRunner::execute( taskrun, symmcalc );
+	    setup_.symmidval_ = symmcalc.isSymmAroundZero() ? 0.f : mUdf(float);
 	}
     }
 
-    Interval<float> intv( -1, 1 );
-    mIsUdf(setup_.symmidval_) ?
-	       clipper_.getRange( setup_.cliprate_.start, setup_.cliprate_.stop,
-				  intv )
-	     : clipper_.getSymmetricRange( setup_.cliprate_.start,
-					   setup_.symmidval_, intv );
+    Interval<float> intv( -1.f, 1.f );
+    mIsUdf(setup_.symmidval_)
+	    ? clipper.getRange( setup_.cliprate_.start, setup_.cliprate_.stop,
+				intv )
+	    : clipper.getSymmetricRange( setup_.cliprate_.start,
+					 setup_.symmidval_, intv );
     if ( mIsZero(intv.width(),mDefEps) )
-	intv += Interval<float>(-1,1);
+	intv += Interval<float>(-1.f,1.f);
+
     setRange( intv );
 }

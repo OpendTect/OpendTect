@@ -131,8 +131,9 @@ void uiODVW2DVariableDensityTreeItem::deSelectCB( CallBacker* )
 
 void uiODVW2DVariableDensityTreeItem::checkCB( CallBacker* )
 {
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::VD;
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-	viewer2D()->viewwin()->viewer(ivwr).setVisible( false, isChecked() );
+	viewer2D()->viewwin()->viewer(ivwr).setVisible( dest, isChecked() );
 }
 
 

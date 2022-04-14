@@ -108,9 +108,13 @@ public:
 			~ElasticPropertyRef();
     ElasticPropertyRef& operator =(const ElasticPropertyRef&);
 
+    bool		operator ==(const ElasticPropertyRef&) const;
+    bool		operator !=(const ElasticPropertyRef&) const;
+
     ElasticPropertyRef* clone() const override;
 
-    bool		isOK() const;
+    bool		isOK(const PropertyRefSelection*) const;
+			//<! Try to provide a selection whenever possible
     bool		isElasticForm() const override	{ return true; }
 
 			//<! Direct: not formula based
@@ -127,6 +131,8 @@ public:
     ElasticFormula::Type elasticType() const;
 
 private:
+
+    static void		setFormNameFromRepos(ElasticFormula&);
 
     const PropertyRef*	pr_ = nullptr;
     ElasticFormula*	formula_ = nullptr;

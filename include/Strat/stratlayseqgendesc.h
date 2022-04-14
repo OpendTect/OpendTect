@@ -63,7 +63,6 @@ public:
     int			indexFromUserIdentification(const char*) const;
     LayerSequenceGenDesc& operator=(const LayerSequenceGenDesc&);
 
-    void		erase() override		{ deepErase(*this); }
 
 protected:
 
@@ -73,6 +72,8 @@ protected:
     PropertyRefSelection propsel_;
     MultiID		elasticpropselmid_;
     float		startdepth_ = 0.f;
+
+    void		erase() override;
 
     static const char*	sKeyWorkBenchParams();
     mutable uiString	errmsg_;

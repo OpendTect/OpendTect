@@ -41,20 +41,14 @@ static const char* sKeyScaled = "Scaled";
 
 Wavelet::Wavelet( const char* nm )
     : NamedCallBacker(nm)
-    , cidx_(0)
     , dpos_(SeisTrcInfo::defaultSampleInterval(true))
-    , sz_(0)
-    , samps_(0)
-    , intpol_(0)
+    , cidx_(0)
 {
 }
 
 
 Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
     : dpos_(sr)
-    , sz_(0)
-    , samps_(0)
-    , intpol_(0)
 {
     if ( mIsUdf(dpos_) )
 	dpos_ = SeisTrcInfo::defaultSampleInterval(true);
@@ -90,25 +84,26 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
 
 
 Wavelet::Wavelet( const Wavelet& wv )
-    : sz_(0)
-    , samps_(0)
-    , intpol_(0)
 {
     *this = wv;
 }
 
 
-Wavelet& Wavelet::operator =( const Wavelet& wv )
+Wavelet& Wavelet::operator =( const Wavelet& oth )
 {
-    if ( &wv == this ) return *this;
+    if ( &oth == this )
+	return *this;
 
-    cidx_ = wv.cidx_;
-    dpos_ = wv.dpos_;
-    reSize( wv.size() );
-    if ( sz_ ) OD::memCopy( samps_, wv.samps_, sz_*sizeof(float) );
-    delete intpol_; intpol_ = 0;
-    if ( wv.intpol_ )
-	intpol_ = new ValueSeriesInterpolator<float>( *wv.intpol_ );
+    setName( oth.name() );
+    cidx_ = oth.cidx_;
+    dpos_ = oth.dpos_;
+    reSize( oth.size() );
+    if ( sz_ )
+	OD::memCopy( samps_, oth.samps_, sz_*sizeof(float) );
+
+    delete intpol_;
+    intpol_ = oth.intpol_
+	    ? new ValueSeriesInterpolator<float>( *oth.intpol_ ) : nullptr;
 
     return *this;
 }

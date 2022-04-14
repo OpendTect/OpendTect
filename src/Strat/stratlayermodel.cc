@@ -20,6 +20,13 @@ mDefSimpleTranslators(StratLayerModels,"Pseudo Wells",od,Mdl)
 
 Strat::LayerModel::LayerModel()
 {
+    if ( !proprefs_.isPresent(&Layer::thicknessRef()) )
+    {
+	pErrMsg("No thickness in property ref selection");
+	proprefs_.add( &Layer::thicknessRef() );
+    }
+
+    elasticpropsel_.setEmpty();
 }
 
 
@@ -31,15 +38,15 @@ Strat::LayerModel::~LayerModel()
 
 Strat::LayerModel& Strat::LayerModel::operator =( const LayerModel& oth )
 {
-    if ( this == &oth )
+    if ( &oth == this )
 	return *this;
 
     setEmpty();
     proprefs_ = oth.proprefs_;
     elasticpropsel_ = oth.elasticpropsel_;
-    for ( int iseq=0; iseq<oth.seqs_.size(); iseq++ )
+    for ( const auto* seq : oth.seqs_ )
     {
-	auto* newseq = new LayerSequence( *oth.seqs_[iseq] );
+	auto* newseq = new LayerSequence( *seq );
 	newseq->propertyRefs() = proprefs_;
 	seqs_ += newseq;
     }
@@ -50,13 +57,34 @@ Strat::LayerModel& Strat::LayerModel::operator =( const LayerModel& oth )
 
 bool Strat::LayerModel::isValid() const
 {
-    for ( int iseq=0; iseq<seqs_.size(); iseq++ )
+    for ( const auto* seq : seqs_ )
     {
-	if ( !seqs_[iseq]->isEmpty() )
+	if ( !seq->isEmpty() )
 	    return true;
     }
 
     return false;
+}
+
+
+bool Strat::LayerModel::isEmpty() const
+{
+    for ( const auto* seq : seqs_ )
+    {
+	if ( !seq->isEmpty() )
+	    return false;
+    }
+
+    return true;
+}
+
+
+int Strat::LayerModel::nrLayers() const
+{
+    int ret = 0;
+    for ( const auto* seq : seqs_ )
+	ret += seq->size();
+    return ret;
 }
 
 
@@ -108,6 +136,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 	newls->layers() += newlay;
     }
 
+    newls->prepareUse();
     seqs_ += newls;
     return *newls;
 }
@@ -168,7 +197,7 @@ bool Strat::LayerModel::readHeader( od_istream& strm,
 		return false;
 	    }
 
-	    props += pr;
+	    props.addIfNew( pr );
 	}
     }
 
@@ -319,69 +348,140 @@ void Strat::LayerModel::setElasticPropSel( const ElasticPropSelection& elp )
 }
 
 
-//uiStratLayerModelLMProvider
-Strat::LayerModelProviderImpl::LayerModelProviderImpl()
-    : modl_(new LayerModel)
+//Strat::LayerModelSuite
+Strat::LayerModelSuite::LayerModelSuite()
+    : curChanged(this)
+    , baseChanged(this)
+    , editingChanged(this)
+    , modelChanged(this)
 {
-    setEmpty();
+    addModel( "", uiString::empty() );
 }
 
 
-Strat::LayerModelProviderImpl::~LayerModelProviderImpl()
+void Strat::LayerModelSuite::setEmpty()
 {
-    delete modl_;
-    delete modled_;
+    baseModel().setEmpty();
+    clearEditedData();
 }
 
 
-Strat::LayerModel& Strat::LayerModelProviderImpl::getCurrent()
+void Strat::LayerModelSuite::setBaseModel( LayerModel* newmod,
+					   bool setascurrent )
 {
-    return *curmodl_;
+    const bool hasbasedata = !baseModel().isEmpty();
+    if ( newmod )
+    {
+	if ( size() > 0 && !baseModel().elasticPropSel().isEmpty() )
+	    newmod->setElasticPropSel( baseModel().elasticPropSel() );
+
+	mdls_.replace( 0, newmod );
+    }
+    else
+	baseModel().setEmpty();
+
+    clearEditedData();
+    if ( setascurrent )
+    {
+	setCurIdx( 0 );
+	baseChanged.trigger( hasbasedata );
+    }
 }
 
 
-Strat::LayerModel& Strat::LayerModelProviderImpl::getEdited( bool yn )
+void Strat::LayerModelSuite::setCurIdx( int idx )
 {
-    return yn ? *modled_ : *modl_;
+    if ( mdls_.validIdx(idx) && idx != curidx_ )
+    {
+	curidx_ = idx;
+	curChanged.trigger();
+    }
 }
 
 
-void Strat::LayerModelProviderImpl::setUseEdited( bool yn )
+void Strat::LayerModelSuite::setDesc( int imdl, const char* dsc,
+				      const uiString& uidsc )
 {
-    curmodl_ = yn ? modled_ : modl_;
+    if ( mdls_.validIdx(imdl) )
+    {
+	descs_.get( imdl ) = dsc;
+	uidescs_.get( imdl ) = uidsc;
+    }
 }
 
 
-void Strat::LayerModelProviderImpl::setEmpty()
+void Strat::LayerModelSuite::addModel( const char* dsc, const uiString& uidsc )
 {
-    modl_->setEmpty();
-    if ( modled_ )
-	modled_->setEmpty();
-
-    curmodl_ = modl_;
+    auto* newmod = new LayerModel;
+    mdls_.add( newmod );
+    descs_.add( dsc );
+    uidescs_.add( uidsc );
+    if ( size() > 1 )
+    {
+	newmod->setElasticPropSel( baseModel().elasticPropSel() );
+	newmod->propertyRefs() == baseModel().propertyRefs();
+    }
 }
 
 
-void Strat::LayerModelProviderImpl::setBaseModel( LayerModel* newmdl )
+void Strat::LayerModelSuite::removeModel( int idx )
 {
-    delete modl_;
-    modl_ = newmdl;
+    if ( idx < 1 )
+	{ pErrMsg("attempt to remove base model"); return; }
+
+    const bool haded = hasEditedData();
+
+    mdls_.removeSingle( idx );
+    descs_.removeSingle( idx );
+    uidescs_.removeSingle( idx );
+
+    const bool removediscur = idx == curidx_;
+    if ( removediscur )
+	curidx_--;
+
+    if ( hasEditedData() != haded )
+	editingChanged.trigger( haded );
+
+    if ( removediscur )
+	curChanged.trigger();
 }
 
 
-void Strat::LayerModelProviderImpl::resetEditing()
+void Strat::LayerModelSuite::setElasticPropSel(
+				const ElasticPropSelection& elpropsel )
 {
-    delete modled_;
-    modled_ = new LayerModel;
-    curmodl_ = modl_;
+    for ( auto* mdl : mdls_ )
+	mdl->setElasticPropSel( elpropsel );
 }
 
 
-void Strat::LayerModelProviderImpl::initEditing()
+bool Strat::LayerModelSuite::hasEditedData() const
 {
-    if ( !modled_ )
-	modled_ = new LayerModel;
+    return size() > 1 && !mdls_.get(1)->isEmpty();
+}
 
-    *modled_ = *modl_;
-    curmodl_ = modled_;
+
+void Strat::LayerModelSuite::clearEditedData()
+{
+    if ( !hasEditedData() )
+	return;
+
+    for ( int imdl=1; imdl<size(); imdl++ )
+	mdls_.get( imdl )->setEmpty();
+
+    editingChanged.trigger( true );
+}
+
+
+void Strat::LayerModelSuite::prepareEditing()
+{
+    if ( size() < 2 )
+	return;
+
+    const bool haded = hasEditedData();
+
+    for ( int imdl=1; imdl<size(); imdl++ )
+	*mdls_.get( imdl ) = baseModel();
+
+    editingChanged.trigger( haded );
 }

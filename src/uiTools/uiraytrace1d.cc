@@ -438,7 +438,7 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 	offsets += offsetrg.atIndex( idx );
 
     par.set( RayTracer1D::sKeyOffset(), offsets );
-    par.set( RayTracer1D::sKeyOffsetInFeet(), SI().xyInFeet() );
+    par.setYN( RayTracer1D::sKeyOffsetInFeet(), SI().xyInFeet() );
     par.setYN( RayTracer1D::sKeyReflectivity(), doreflectivity_ );
     if ( advdlg_ )
 	advdlg_->fillPar( par );

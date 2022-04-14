@@ -146,11 +146,7 @@ bool uiLayerSequenceGenDesc::isValidSelection(
 
 const Strat::LayerSequenceGenDesc& uiLayerSequenceGenDesc::currentDesc() const
 {
-    if ( !needSave() )
-	return desc_;
-
-    mDynamicCastGet(const uiExtLayerSequenceGenDesc*, extseqdesc, this)
-    return extseqdesc ? extseqdesc->editedDesc() : desc_;
+    return !needSave() || !editedDesc() ? desc_ : *editedDesc();
 }
 
 
@@ -206,9 +202,16 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
 
 
 uiStratLayerModelDisp* uiExtLayerSequenceGenDesc::getLayModDisp(
-	    uiStratLayModEditTools& lmt, Strat::LayerModelProvider& lmp, int )
+	    uiStratLayModEditTools& lmt, Strat::LayerModelSuite& lms, int )
 {
-    return new uiStratSimpleLayerModelDisp( lmt, lmp );
+    return new uiStratSimpleLayerModelDisp( lmt, lms );
+}
+
+
+void uiExtLayerSequenceGenDesc::setDescID( const MultiID& dbky )
+{
+    descid_ = dbky;
+    putTopDepthToScreen();
 }
 
 
@@ -447,11 +450,17 @@ void uiBasicLayerSequenceGenDesc::insertDispUnit(
 
 void uiBasicLayerSequenceGenDesc::doDraw()
 {
-    if ( disps_.isEmpty() ) return;
-    float totth = 0;
+    if ( disps_.isEmpty() )
+	return;
+
+    float totth = 0.f;
     for ( int idx=0; idx<disps_.size(); idx++ )
-	totth += disps_[idx]->gen_->dispThickness();
-    if ( mIsZero(totth,mDefEps) ) return;
+    {
+	if ( disps_[idx]->gen_ )
+	    totth += disps_[idx]->gen_->dispThickness();
+    }
+    if ( mIsZero(totth,mDefEps) )
+	return;
 
     float curz = 0;
     for ( int idx=0; idx<disps_.size(); idx++ )
@@ -555,7 +564,7 @@ void uiBasicLayerSequenceGenDesc::descHasChanged()
 {
     putTopDepthToScreen();
     rebuildDispUnits();
-    reDraw(0);
+    reDraw(nullptr);
 }
 
 

@@ -11,34 +11,33 @@ _______________________________________________________________________
 #include "uistratsynthexport.h"
 
 #include "ui2dgeomman.h"
-#include "uiseissel.h"
-#include "uiseislinesel.h"
-#include "uiselsimple.h"
+#include "uibutton.h"
 #include "uigeninput.h"
-#include "uilistbox.h"
 #include "uilabel.h"
-#include "uiseparator.h"
+#include "uilistbox.h"
 #include "uimsg.h"
+#include "uiseislinesel.h"
+#include "uiseissel.h"
+#include "uiselsimple.h"
+#include "uiseparator.h"
 #include "uitaskrunner.h"
 
 #include "ctxtioobj.h"
-#include "emmanager.h"
 #include "emhorizon2d.h"
+#include "emmanager.h"
 #include "ioman.h"
-#include "prestackgather.h"
-#include "picksettr.h"
 #include "pickset.h"
-#include "randomlinetr.h"
+#include "picksettr.h"
+#include "prestackgather.h"
 #include "randomlinegeom.h"
+#include "randomlinetr.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
-#include "stratsynth.h"
-#include "stratsynthexp.h"
-#include "stratsynthlevel.h"
 #include "stratlevel.h"
+#include "stratsynthexp.h"
 #include "syntheticdataimpl.h"
 #include "velocitycalc.h"
 #include "zdomain.h"
@@ -62,7 +61,12 @@ uiStratSynthOutSel( uiParent* p, const uiString& seltxt,
     , nms_(nms)
     , nm_(seltxt)
 {
-    butPush.notify( mCB(this,uiStratSynthOutSel,selItems) );
+    mAttachCB( butPush, uiStratSynthOutSel::selItems );
+}
+
+~uiStratSynthOutSel()
+{
+    detachAllNotifiers();
 }
 
 void selItems( CallBacker* )
@@ -70,17 +74,35 @@ void selItems( CallBacker* )
     uiDialog::Setup su( uiStrings::phrSelect(nm_), mNoDlgTitle,
 			mODHelpKey(mStartSynthOutSelHelpID) );
     uiDialog dlg( parent(), su );
-    uiListBox* lb = new uiListBox( &dlg, nm_.getFullString(),
-				   OD::ChooseAtLeastOne );
+    auto* lb = new uiListBox( &dlg, nm_.getFullString(), OD::ChooseAtLeastOne );
     lb->addItems( nms_ );
-    for ( int idx=0; idx<selidxs_.size(); idx++ )
-	lb->setChosen( selidxs_[idx], true );
+
+    if ( itmsarelevels_ )
+    {
+	const Strat::LevelSet& lvls = Strat::LVLS();
+	for ( int idx=0; idx<nms_.size(); idx++ )
+	{
+	    const Strat::Level::ID id = lvls.getIDByName( nms_.get(idx).buf() );
+	    lb->setColor( idx, lvls.colorOf(id) );
+	}
+    }
+
+
+    for ( const auto& idx : selidxs_ )
+	lb->setChosen( idx, true );
 
     if ( dlg.go() )
     {
-	selidxs_.erase();
+	selidxs_.setEmpty();
+	selnms_.setEmpty();
 	for ( int idx=0; idx<lb->size(); idx++ )
-	    if ( lb->isChosen(idx) ) selidxs_ += idx;
+	{
+	    if ( lb->isChosen(idx) )
+	    {
+		selidxs_ += idx;
+		selnms_.add( lb->textOfItem(idx) );
+	    }
+	}
     }
 }
 
@@ -103,7 +125,7 @@ virtual BufferString getSummary() const
 		ret.add( " (all)" );
 	    ret.add( ">: " );
 	}
-	ret.add( nms_.get( selidxs_[0] ) );
+	ret.add( nms_.get( selidxs_.first() ) );
 	if ( selsz > 1 )
 	    ret.add( ", ..." );
 	else if ( sz == selsz )
@@ -113,28 +135,29 @@ virtual BufferString getSummary() const
     return ret;
 }
 
-    const uiString	    nm_;
-    const BufferStringSet   nms_;
-    TypeSet<int>	    selidxs_;
+    const uiString		nm_;
+    const BufferStringSet	nms_;
+    BufferStringSet		selnms_;
+    TypeSet<int>		selidxs_;
+    bool			itmsarelevels_ = false;
 
-    uiListBox*		    listfld_;
+    uiListBox*			listfld_;
 
 };
 
 
 
-uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
+uiStratSynthExport::uiStratSynthExport( uiParent* p,
+					const StratSynth::DataMgr& dm )
     : uiDialog(p,uiDialog::Setup(tr("Save synthetic seismics and horizons"),
 				 mNoDlgTitle,
 				 mODHelpKey(mStratSynthExportHelpID) ) )
-    , ss_(ss)
-    , randlinesel_(0)
+    , datamgr_(dm.getProdMgr())
 {
     crnewfld_ = new uiGenInput( this, tr("2D Line"),
 			     BoolInpSpec(true,uiStrings::phrCreate(
 			     uiStrings::sNew()), tr("Use existing")) );
-    crnewfld_->valuechanged.notify( mCB(this,uiStratSynthExport,crNewChg) );
-
+    mAttachCB( crnewfld_->valuechanged, uiStratSynthExport::crNewChg );
 
     newlinenmfld_ = new uiGenInput( this, mJoinUiStrs(sNew(),sLineName()),
 				    StringInpSpec() );
@@ -143,7 +166,7 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     existlinenmsel_->fillWithAll();
     existlinenmsel_->attach( alignedBelow, crnewfld_ );
 
-    uiSeparator* sep = new uiSeparator( this, "Hsep 1" );
+    auto* sep = new uiSeparator( this, "Hsep 1" );
     sep->attach( stretchedBelow, existlinenmsel_ );
 
     geomgrp_ = new uiGroup( this, "Geometry group" );
@@ -154,49 +177,64 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     sep = new uiSeparator( this, "Hsep 2" );
     sep->attach( stretchedBelow, geomgrp_ );
 
-    uiGroup* selgrp = new uiGroup( this, "Export sel group" );
+    auto* selgrp = new uiGroup( this, "Export sel group" );
     selgrp->attach( ensureBelow, sep );
-    getExpObjs();
 
-    BufferStringSet nms; addNames( postsds_, nms );
-    poststcksel_ = new uiStratSynthOutSel( selgrp, tr("Post-stack line data")
-									,nms );
-    nms.erase(); addNames( sslvls_, nms );
+    BufferStringSet postnms, prenms;
+    datamgr_->getNames( postnms, StratSynth::DataMgr::NoPS );
+    datamgr_->getNames( prenms, StratSynth::DataMgr::OnlyPS );
+
+    if ( !postnms.isEmpty() )
+    {
+	poststcksel_ = new uiStratSynthOutSel( selgrp,
+					tr("Post-stack line data"), postnms );
+	repludfsfld_ = new uiCheckBox( selgrp, tr("Fill undefs") );
+	repludfsfld_->setChecked( true );
+	repludfsfld_->attach( rightOf, poststcksel_ );
+    }
+
+    BufferStringSet nms;
+    Strat::LVLS().getNames( nms );
     horsel_ = new uiStratSynthOutSel( selgrp, mJoinUiStrs(s2D(),
 					    sHorizon(mPlural).toLower()), nms );
-    horsel_->attach( alignedBelow, poststcksel_ );
-    nms.erase(); addNames( presds_, nms );
-    prestcksel_ = new uiStratSynthOutSel( selgrp, mJoinUiStrs(sPreStack(),
-						      sData().toLower()), nms );
-    prestcksel_->attach( alignedBelow, horsel_ );
-    selgrp->setHAlignObj( poststcksel_ );
+    if ( poststcksel_ )
+	horsel_->attach( alignedBelow, poststcksel_ );
+    horsel_->itmsarelevels_ = true;
+
+    if ( !prenms.isEmpty() )
+    {
+	prestcksel_ = new uiStratSynthOutSel( selgrp, mJoinUiStrs(sPreStack(),
+						  sData().toLower()), prenms );
+	prestcksel_->attach( alignedBelow, horsel_ );
+    }
+
+    selgrp->setHAlignObj( poststcksel_ ? poststcksel_ : horsel_ );
     selgrp->attach( alignedBelow, geomgrp_ );
 
-    uiLabel* lbl = new uiLabel( this, tr("Output object names will "
-					 "be generated.\nYou can specify "
-					 "an optional prefix and postfix "
-					 "for each:") );
-    lbl->attach( ensureBelow, selgrp );
-    lbl->setAlignment( Alignment::Left );
-    prefxfld_ = new uiGenInput( this, tr("Prefix") );
-    prefxfld_->attach( alignedBelow, selgrp );
-    prefxfld_->attach( ensureBelow, lbl );
-    postfxfld_ = new uiGenInput( this, tr("Postfix") );
-    postfxfld_->attach( rightOf, prefxfld_ );
+    auto* fixgrp = new uiGroup( this, "Pre/Postfix group" );
 
-    postFinalize().notify( mCB(this,uiStratSynthExport,crNewChg) );
+    auto* lbl1 = new uiLabel( fixgrp,
+		tr("Output object names will be generated.") );
+    auto* lbl2 = new uiLabel( fixgrp,
+	    tr("You can specify an optional prefix and postfix for each:"));
+    lbl2->attach( centeredBelow, lbl1 );
+    auto* fixfldgrp = new uiGroup( fixgrp, "Pre/Postfix fields group" );
+    prefxfld_ = new uiGenInput( fixfldgrp, tr("Prefix") );
+    prefxfld_->setElemSzPol( uiObject::Small );
+    postfxfld_ = new uiGenInput( fixfldgrp, tr("Postfix") );
+    postfxfld_->setElemSzPol( uiObject::Small );
+    postfxfld_->attach( rightOf, prefxfld_ );
+    fixfldgrp->attach( centeredBelow, lbl2 );
+    fixgrp->attach( centeredBelow, selgrp );
+    fixgrp->attach( ensureBelow, sep );
+
+    mAttachCB( postFinalize(), uiStratSynthExport::crNewChg );
 }
 
 
 uiStratSynthExport::~uiStratSynthExport()
 {
-}
-
-
-BufferString uiStratSynthExport::getWinTitle( const StratSynth& ss ) const
-{
-    BufferString ret( "" );
-    return ret;
+    detachAllNotifiers();
 }
 
 
@@ -209,7 +247,7 @@ void uiStratSynthExport::fillGeomGroup()
     if ( haverl )
 	inpspec.addString( uiStrings::sRandomLine() );
     geomsel_ = new uiGenInput( geomgrp_, tr("Geometry for line"), inpspec );
-    geomsel_->valuechanged.notify( mCB(this,uiStratSynthExport,geomSel) );
+    mAttachCB( geomsel_->valuechanged, uiStratSynthExport::geomSel );
     geomgrp_->setHAlignObj( geomsel_ );
 
     Coord startcoord, stopcoord;
@@ -237,28 +275,50 @@ void uiStratSynthExport::fillGeomGroup()
 }
 
 
-void uiStratSynthExport::getExpObjs()
+void uiStratSynthExport::getSelections()
 {
-    if ( !ss_.nrSynthetics() )
-	return;
-
-    postsds_.erase(); presds_.erase(); sslvls_.erase();
-    for ( int idx=0; idx<ss_.nrSynthetics(); idx++ )
+    selids_.setEmpty();
+    if ( poststcksel_ && poststcksel_->isChecked() )
     {
-	const SyntheticData* sd = ss_.getSyntheticByIdx( idx );
-	(sd->isPS() ? presds_ : postsds_) += sd;
+	TypeSet<StratSynth::DataMgr::SynthID> dsids;
+	datamgr_->getIDs( dsids, StratSynth::DataMgr::NoPS );
+	for ( const auto& idx : poststcksel_->selidxs_ )
+	    selids_.add( dsids[idx] );
     }
 
-    if ( postsds_.isEmpty() )
+    if ( prestcksel_ && prestcksel_->isChecked() )
+    {
+	TypeSet<StratSynth::DataMgr::SynthID> dsids;
+	datamgr_->getIDs( dsids, StratSynth::DataMgr::OnlyPS );
+	for ( const auto& idx : prestcksel_->selidxs_ )
+	    selids_.add( dsids[idx] );
+    }
+
+    sellvls_.setEmpty();
+    if ( horsel_->isChecked() )
+	sellvls_ = horsel_->selnms_;
+}
+
+
+void uiStratSynthExport::getLevels( ObjectSet<StratSynth::Level>& sslvls ) const
+{
+    TypeSet<StratSynth::DataMgr::SynthID> selids;
+    datamgr_->getIDs( selids, StratSynth::DataMgr::NoSubSel, true );
+    if ( selids.isEmpty() )
 	return;
 
-    const SyntheticData* sd = postsds_.first();
-    const Strat::LevelSet& lvls = Strat::LVLS();
-    for ( int idx=0; idx<lvls.size(); idx++ )
+    ConstRefMan<SyntheticData> sd = datamgr_->getDataSet( selids.first() );
+    if ( !sd )
+	return;
+
+    for ( const auto* lvlnm : sellvls_ )
     {
-	const Strat::Level& lvl = lvls.getLevel( idx );
-	auto* ssl = new StratSynthLevel( lvl.name(), lvl.color() );
-	ss_.getLevelDepths( lvl, 1, ssl->zvals_ );
+	if ( !datamgr_->levels().isPresent(lvlnm->buf()) )
+	    continue;
+
+	const StratSynth::Level& depthlvl =
+			  datamgr_->levels().getByName( lvlnm->buf() );
+	auto* ssl = new StratSynth::Level( depthlvl );
 	for ( int trcidx=0; trcidx<ssl->zvals_.size(); trcidx++ )
 	{
 	    const TimeDepthModel* tdmodel = sd->getTDModel( trcidx );
@@ -266,7 +326,7 @@ void uiStratSynthExport::getExpObjs()
 			? tdmodel->getTime( ssl->zvals_[trcidx] )
 			: mUdf(float);
 	}
-	sslvls_ += ssl;
+	sslvls.add( ssl );
     }
 }
 
@@ -278,7 +338,7 @@ void uiStratSynthExport::crNewChg( CallBacker* )
     existlinenmsel_->display( !iscreate );
     geomgrp_->display( iscreate );
     if ( iscreate )
-	geomSel( 0 );
+	geomSel( nullptr );
 }
 
 
@@ -293,38 +353,12 @@ void uiStratSynthExport::geomSel( CallBacker* )
 }
 
 
-void uiStratSynthExport::getCornerPoints( Coord& start,Coord& stop )
+void uiStratSynthExport::getCornerPoints( Coord& start, Coord& stop )
 {
-    for ( int idx=0; idx<ss_.nrSynthetics(); idx++ )
-    {
-	const SyntheticData* sd = ss_.getSyntheticByIdx( idx );
-	if ( !idx )
-	    continue;
-
-	mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
-	if ( postsd )
-	{
-	    const SeisTrcBuf& trcbuf = postsd->postStackPack().trcBuf();
-	    if ( trcbuf.size() > 1 )
-	    {
-		start = trcbuf.get(0)->info().coord;
-		stop = trcbuf.get( trcbuf.size()-1 )->info().coord;
-		return;
-	    }
-	}
-
-	mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
-	if ( !presd )
-	    continue;
-
-	const int nrgathers = presd->preStackPack().getGathers().size();
-	if ( nrgathers < 1 )
-	    continue;
-
-	start = presd->getTrace( 0 )->info().coord;
-	stop = presd->getTrace( nrgathers-1 )->info().coord;
-	return;
-    }
+    const TrcKey tkstart = TrcKey::getSynth( 1 );
+    const TrcKey tkstop = TrcKey::getSynth( datamgr_->nrSequences() );
+    start = tkstart.getCoord();
+    stop = tkstop.getCoord();
 }
 
 
@@ -337,20 +371,7 @@ bool uiStratSynthExport::createAndWrite2DGeometry( const TypeSet<Coord>& ptlist,
 	return false;
 
     RefMan<Survey::Geometry2D> newgeom = geom2d;
-    int synthmodelsz = mUdf(int);
-    if ( postsds_.isEmpty() )
-    {
-	if ( !presds_.isEmpty() )
-	{
-	    mDynamicCastGet(const PreStackSyntheticData*,presd,presds_[0]);
-	    synthmodelsz = presd->preStackPack().getGathers().size();
-	}
-    }
-    else
-    {
-	mDynamicCastGet(const PostStackSyntheticData*,postsd,postsds_[0]);
-	synthmodelsz = postsd->postStackPack().trcBuf().size();
-    }
+    const int nrtrcs = datamgr_->nrTraces();
 
     int trcnr = 0;
     for ( int idx=0; idx<ptlist.size()-1; idx++ )
@@ -369,20 +390,27 @@ bool uiStratSynthExport::createAndWrite2DGeometry( const TypeSet<Coord>& ptlist,
 				startpos.y + nidx * unity );
 	    trcnr++;
 	    newgeom->add( curpos, trcnr, -1.f );
-	    if ( synthmodelsz <= trcnr )
+	    if ( trcnr >= nrtrcs )
 		break;
 	}
 
 	trcnr++;
 	newgeom->add( stoppos, trcnr, -1.f );
-	if ( synthmodelsz <= trcnr )
+	if ( trcnr >= nrtrcs )
 	    break;
     }
 
-    const ZSampling zrg = postsds_.isEmpty()
-	      ? (presds_.isEmpty() ? SI().zRange()
-				   : presds_.first()->getTrace(0)->zRange())
-	      : postsds_.first()->getTrace(0)->zRange();
+    ZSampling zrg = SI().zRange();
+    TypeSet<StratSynth::DataMgr::SynthID> selids;
+    datamgr_->getIDs( selids, StratSynth::DataMgr::NoSubSel, true );
+    if ( !selids.isEmpty() )
+    {
+	ConstRefMan<SyntheticData> sd = datamgr_->getDataSet( selids.first() );
+	const SeisTrc* trc = sd ? sd->getTrace(0) : nullptr;
+	if ( trc )
+	    zrg = trc->zRange();
+    }
+
     newgeom->dataAdmin().setZRange( zrg );
     newgeom->touch();
 
@@ -503,10 +531,6 @@ bool uiStratSynthExport::createHor2Ds()
 {
     EM::EMManager& em = EM::EMM();
     const bool createnew = crnewfld_->getBoolValue();
-    if ( createnew && (presds_.isEmpty() && postsds_.isEmpty()) )
-	mErrRet(tr("Cannot create horizon without a geometry. Select any "
-		   "synthetic data to create a new geometry or use existing "
-		   "2D line"), false);
     const BufferString linenm( createnew ? newlinenmfld_->text()
 					 : existlinenmsel_->getInput() );
     const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
@@ -518,16 +542,24 @@ bool uiStratSynthExport::createHor2Ds()
     if ( !geom2d || geom2d->isEmpty() )
 	return false;
 
+    ManagedObjectSet<StratSynth::Level> sslvls;
+    getLevels( sslvls );
+    if ( sslvls.size() != sellvls_.size() )
+	return false;
+
     const StepInterval<Pos::TraceID> trcnrrg = geom2d->data().trcNrRange();
-    for ( int horidx=0; horidx<sslvls_.size(); horidx++ )
+    for ( const auto* stratlvl : sslvls )
     {
-	const StratSynthLevel* stratlvl = sslvls_[horidx];
 	BufferString hornm( stratlvl->name() );
 	addPrePostFix( hornm );
 	EM::ObjectID emid = em.createObject( EM::Horizon2D::typeStr(),hornm );
 	mDynamicCastGet(EM::Horizon2D*,horizon2d,em.getObject(emid));
-	if ( !horizon2d ) continue;
+	if ( !horizon2d )
+	    continue;
+
 	horizon2d->geometry().addLine( geomid );
+	horizon2d->setPreferredColor( stratlvl->color() );
+	horizon2d->setStratLevelID( stratlvl->id() );
 	for ( int trcidx=0; trcidx<stratlvl->zvals_.size(); trcidx++ )
 	{
 	    const int trcnr = trcnrrg.atIndex( trcidx );
@@ -544,117 +576,83 @@ bool uiStratSynthExport::createHor2Ds()
     return false;
 }
 
-void uiStratSynthExport::removeNonSelected()
-{
-    TypeSet<int> selids;
-
-    if ( poststcksel_->isChecked() )
-    {
-	selids = poststcksel_->selidxs_;
-	for ( int idx=postsds_.size()-1; idx>=0; idx-- )
-	{
-	    if ( !selids.isPresent(idx) )
-		postsds_.removeSingle( idx );
-	}
-    }
-    else
-	postsds_.erase();
-
-    if ( prestcksel_->isChecked() )
-    {
-	selids = prestcksel_->selidxs_;
-	for ( int idx=presds_.size()-1; idx>=0; idx-- )
-	{
-	    if ( !selids.isPresent(idx) )
-		presds_.removeSingle( idx );
-	}
-    }
-    else
-	presds_.erase();
-
-    if ( horsel_->isChecked() )
-    {
-	selids = horsel_->selidxs_;
-	for ( int idx=sslvls_.size()-1; idx>=0; idx-- )
-	{
-	    if ( !selids.isPresent(idx) )
-		sslvls_.removeSingle( idx );
-	}
-    }
-    else
-	sslvls_.erase();
-}
-
 
 bool uiStratSynthExport::acceptOK( CallBacker* )
 {
-    removeNonSelected();
+    getSelections();
 
-    if ( presds_.isEmpty() && postsds_.isEmpty() && sslvls_.isEmpty() )
-    {
-	getExpObjs();
+    if ( selids_.isEmpty() && sellvls_.isEmpty() )
 	mErrRet( tr("Nothing selected for export"), false );
-    }
 
+    uiTaskRunner trprov( this );
     const bool useexisting = selType()==uiStratSynthExport::Existing;
-    if ( !useexisting && postsds_.isEmpty() )
+    if ( selids_.isEmpty() )
     {
-	getExpObjs();
-	mErrRet(tr("No post stack selected. Since a new geometry will be "
-		   "created you need to select at least one post stack data to "
-		   "create a 2D line geometry."), false);
+	if ( !useexisting || !sellvls_.isEmpty() )
+	{ //Create at least one to get valid time-depth models
+	    TypeSet<StratSynth::DataMgr::SynthID> ids;
+	    datamgr_->getIDs( ids, StratSynth::DataMgr::NoPS );
+	    if ( ids.isEmpty() )
+		datamgr_->getIDs( ids, StratSynth::DataMgr::OnlyPS );
+
+	    if ( ids.isEmpty() )
+		mErrRet( tr("Nothing available for export"), false );
+
+	    for ( const auto& selid : ids )
+	    {
+		if ( datamgr_->ensureGenerated(selid,&trprov) )
+		    break;
+	    }
+	}
+    }
+    else
+    {
+	for ( const auto& selid : selids_ )
+	    datamgr_->ensureGenerated( selid, &trprov );
     }
 
     const BufferString linenm =
 		    crnewfld_->getBoolValue() ? newlinenmfld_->text()
 					      : existlinenmsel_->getInput();
     if ( linenm.isEmpty() )
-    {
-	getExpObjs();
 	mErrRet( tr("No line name specified"), false );
-    }
 
     if ( !getGeometry(linenm) )
-    {
-	getExpObjs();
 	return false;
-    }
 
     const Pos::GeomID gid = Survey::GM().getGeomID( linenm );
     const Survey::Geometry2D& geom2d = Survey::GM().get2D( gid );
     const int nrgeompos = geom2d.data().positions().size();
 
-    int synthmodelsz = nrgeompos;
-    if ( !postsds_.isEmpty() )
+    if ( nrgeompos < datamgr_->nrTraces() )
     {
-	mDynamicCastGet(const PostStackSyntheticData*,postsd,postsds_[0]);
-	synthmodelsz = postsd->postStackPack().trcBuf().size();
-    }
-    else if ( !presds_.isEmpty() )
-    {
-	mDynamicCastGet(const PreStackSyntheticData*,presd,presds_[0]);
-	synthmodelsz = presd->preStackPack().getGathers().size();
-    }
-
-    if ( nrgeompos < synthmodelsz )
 	uiMSG().warning(tr("The geometry of the line could not accommodate \n"
 			   "all the traces from the synthetics. Some of the \n"
 			   "end traces will be clipped"));
+    }
+
     SeparString prepostfix;
     prepostfix.add( prefxfld_->text() );
     prepostfix.add( postfxfld_->text() );
-    ObjectSet<const SyntheticData> sds( postsds_ );
-    sds.append( presds_ );
+    RefObjectSet<const SyntheticData> sds;
+    for ( const auto& id : selids_ )
+    {
+	ConstRefMan<SyntheticData> sd = datamgr_->getDataSet( id );
+	sds.add( sd.ptr() );
+    }
+
     if ( !sds.isEmpty() )
     {
-	StratSynthExporter synthexp( sds, gid, prepostfix );
-	uiTaskRunner taskrunner( this );
-	const bool res = TaskRunner::execute( &taskrunner, synthexp );
+	StratSynth::Exporter synthexp( sds, gid, prepostfix,
+				    repludfsfld_ && repludfsfld_->isChecked() );
+	const bool res = TaskRunner::execute( &trprov, synthexp );
 	if ( !res )
 	    return false;
     }
 
-    createHor2Ds();
+    if ( !sellvls_.isEmpty() )
+	createHor2Ds();
+
     if ( !SI().has2D() )
 	uiMSG().warning(tr("You need to change survey type to 'Both 2D and 3D'"
 			   " in survey setup to display the 2D line"));

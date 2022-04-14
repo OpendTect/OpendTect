@@ -762,13 +762,13 @@ void uiDataPointSetCrossPlotter::updateOverlayMapper( bool isy1 )
     if ( mIsUdf(isy1 ? y3colid_ : y4colid_) )
 	return;
 
-    TypeSet<float> ydata;
+    Array1DImpl<float> ydata( dps_.size() );
+    float* yvals = ydata.getData();
     for ( int idx=0; idx<dps_.size(); idx++ )
-	ydata += uidps_.getVal( isy1 ? y3colid_ : y4colid_ , idx, true );
+	yvals[idx] = uidps_.getVal( isy1 ? y3colid_ : y4colid_ , idx, true );
 
-    ArrayValueSeries<float,float> valseries( ydata.arr(), false );
     ColTab::Mapper& mapper = isy1 ? y3mapper_ : y4mapper_;
-    mapper.setData( &valseries, ydata.size() );
+    mapper.setData( yvals, ydata.totalSize() );
 }
 
 

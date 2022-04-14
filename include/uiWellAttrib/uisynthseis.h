@@ -59,6 +59,7 @@ public:
     void			setType(const char*);
     void			setWavelet(const MultiID&);
     void			setWavelet(const char*);
+    void			ensureHasWavelet(const MultiID&);
     virtual bool		usePar(const IOPar&);
 
     const char*			getType() const;
@@ -123,8 +124,8 @@ public:
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
 
-    void			manPSSynth(const char*,bool isnew);
-    void			manInpSynth(const char*,bool isnew);
+    void			manPSSynth(const BufferStringSet&);
+    void			manInpSynth(const BufferStringSet&);
     void			getChosenInstantAttribs(BufferStringSet&) const;
 
     CNotifier<uiMultiSynthSeisSel,BufferString> nameChanged;
@@ -138,7 +139,7 @@ private:
     void			doParsChanged(IOPar* prev=nullptr) override;
     void			setOutputName(const char*);
     const char*			getOutputName() const;
-    static void			doMan(uiComboBox*,const char*,bool isnew);
+    static void			doMan(uiComboBox*,const BufferStringSet&);
 
     uiLabeledComboBox*		psselfld_;
     uiLabeledComboBox*		inpselfld_;

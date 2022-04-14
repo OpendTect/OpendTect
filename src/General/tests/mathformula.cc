@@ -314,25 +314,32 @@ static bool testElasticForms()
     const ElasticPropSelection aiselfromDenSonShear( false, DenSonShearSel );
     const ElasticPropSelection elselfromDenSonShear( true, DenSonShearSel );
     const ElasticPropSelection elselfromAIVp( true, AIVpSel );
-    mRunStandardTest( aiselfromDenVp.isOK() && aiselfromDenVp.size() == 2,
+    mRunStandardTest( aiselfromDenVp.isOK(&DenVpSel) &&
+		      aiselfromDenVp.size() == 2,
 		      "Acoustic Sel from Den-Vp" );
-    mRunStandardTest( elselfromDenVp.isOK() && elselfromDenVp.size() == 3,
+    mRunStandardTest( elselfromDenVp.isOK(&DenVpSel) &&
+		      elselfromDenVp.size() == 3,
 		      "Elastic Sel from Den-Vp" );
-    mRunStandardTest( aiselfromDenSon.isOK() && aiselfromDenSon.size() == 2,
+    mRunStandardTest( aiselfromDenSon.isOK(&DenSonSel) &&
+		      aiselfromDenSon.size() == 2,
 		      "Acoustic Sel from Den-Son" );
-    mRunStandardTest( elselfromDenSon.isOK() && elselfromDenSon.size() == 3,
+    mRunStandardTest( elselfromDenSon.isOK(&DenSonSel) &&
+		      elselfromDenSon.size() == 3,
 		      "Elastic Sel fron Den-Son" );
-    mRunStandardTest( aiselfromDenVpVs.isOK() && aiselfromDenVpVs.size() == 2,
+    mRunStandardTest( aiselfromDenVpVs.isOK(&DenVpVsSel) &&
+		      aiselfromDenVpVs.size() == 2,
 		      "Acoustic Sel from Den-Vp-Vs" );
-    mRunStandardTest( elselfromDenVpVs.isOK() && elselfromDenVpVs.size() == 3,
+    mRunStandardTest( elselfromDenVpVs.isOK(&DenVpVsSel) &&
+		      elselfromDenVpVs.size() == 3,
 		      "Elastic Sel from Den-Vp-Vs" );
-    mRunStandardTest( aiselfromDenSonShear.isOK() &&
+    mRunStandardTest( aiselfromDenSonShear.isOK(&DenSonShearSel) &&
 		      aiselfromDenSonShear.size() == 2,
 		      "Acoustic Sel from Den-Son-Shear" );
-    mRunStandardTest( elselfromDenSonShear.isOK() &&
+    mRunStandardTest( elselfromDenSonShear.isOK(&DenSonShearSel) &&
 		      elselfromDenSonShear.size() == 3,
 		      "Elastic Sel from Den-Son-Shear" );
-    mRunStandardTest( elselfromAIVp.isOK() && elselfromAIVp.size() == 3,
+    mRunStandardTest( elselfromAIVp.isOK(&AIVpSel) &&
+		      elselfromAIVp.size() == 3,
 		      "Elastic Sel from AI-Vp" );
 
     IOPar par, repar;

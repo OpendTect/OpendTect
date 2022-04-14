@@ -651,6 +651,7 @@ public:
     static uiString sUnlock()		{ return tr("Unlock"); }
     static uiString sUnload()		{ return tr("Unload"); }
     static uiString sUp()		{ return tr("Up"); }
+    static uiString sUpdatingDisplay()	{ return tr("Updating display"); }
     static uiString sUse()		{ return tr("Use"); }
     static uiString sUseSingleColor()	{ return tr("Use single color"); }
     static uiString sUtilities()	{ return tr("Utilities"); }

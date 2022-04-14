@@ -19,15 +19,44 @@
 const char* Well::Marker::sKeyDah()	{ return "Depth along hole"; }
 
 
-
-Well::Marker& Well::Marker::operator =( const Well::Marker& mrk )
+Well::Marker::Marker( const char* nm, float dh, OD::Color c )
+    : ::NamedObject(nm)
+    , dah_(dh)
+    , color_(c)
+    , levelid_(Strat::Level::cUndefID())
 {
-    if ( this != &mrk )
+}
+
+
+Well::Marker::Marker( Strat::Level::ID lvlid, float dh )
+    : ::NamedObject("")
+    , dah_(dh)
+    , color_(OD::Color::Black())
+    , levelid_(lvlid)
+{
+}
+
+
+Well::Marker::Marker( const Marker& oth )
+    : ::NamedObject("")
+{
+    *this = oth;
+}
+
+
+Well::Marker::~Marker()
+{
+}
+
+
+Well::Marker& Well::Marker::operator =( const Well::Marker& oth )
+{
+    if ( this != &oth )
     {
-	setName( mrk.name() );
-	dah_ = mrk.dah();
-	levelid_ = mrk.levelID();
-	color_ = mrk.color();
+	NamedObject::operator=( oth );
+	dah_ = oth.dah_;
+	color_ = oth.color_;
+	levelid_ = oth.levelid_;
     }
     return *this;
 }
@@ -35,14 +64,24 @@ Well::Marker& Well::Marker::operator =( const Well::Marker& mrk )
 
 OD::Color Well::Marker::color() const
 {
-    if ( levelid_ >= 0 )
-    {
-	const Strat::Level* lvl = Strat::LVLS().get( levelid_ );
-	if ( lvl )
-	    return lvl->color();
-    }
+    if ( levelid_ != Strat::Level::cUndefID() )
+	return Strat::LVLS().colorOf( levelid_ );
+
     return color_;
 }
+
+
+Strat::Level Well::Marker::getLevel() const
+{
+    return Strat::LVLS().get( levelid_ );
+}
+
+
+void Well::Marker::setNoLevelID()
+{
+    setLevelID( Strat::Level::cUndefID() );
+}
+
 
 
 void Well::MarkerSet::fillWithAll( TaskRunner* tr )

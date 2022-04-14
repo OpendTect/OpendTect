@@ -35,7 +35,6 @@ ________________________________________________________________________
 #include "wavelet.h"
 
 #include "uichecklist.h"
-#include "uielasticpropsel.h"
 #include "uifileinput.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
@@ -59,6 +58,7 @@ ________________________________________________________________________
 #include "uistratsynthdisp.h"
 #include "uistrattreewin.h"
 #include "uistrings.h"
+#include "uisynthgendlg.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -72,214 +72,14 @@ const char* uiStratLayerModel::sKeyModeler2Use()
 }
 
 
-class uiStratLayerModelManager : public CallBacker
-{ mODTextTranslationClass(uiStratLayerModelManager)
-public:
 
-uiStratLayerModelManager()
-{
-    mAttachCB( IOM().surveyToBeChanged, uiStratLayerModelManager::survChg );
-    mAttachCB( IOM().applicationClosing, uiStratLayerModelManager::survChg );
-}
-
-
-~uiStratLayerModelManager()
-{
-    detachAllNotifiers();
-}
-
-
-void survChg( CallBacker* )
-{
-    if ( dlg_ )
-	dlg_->saveGenDescIfNecessary( false );
-    deleteAndZeroPtr( dlg_ );
-}
-
-void winClose( CallBacker* )
-{
-    uiStratTreeWin::makeEditable( true );
-    dlg_ = nullptr;
-}
-
-void startCB( CallBacker* cb )
-{
-    if ( haveExistingDlg() )
-	return;
-    const uiStringSet& usrnms =
-			uiLayerSequenceGenDesc::factory().getUserNames();
-    const BufferStringSet& nms = uiLayerSequenceGenDesc::factory().getNames();
-    mDynamicCastGet(uiToolButton*,tb,cb)
-    if ( Strat::RT().isEmpty() || nms.isEmpty() )
-	{ pErrMsg("Pre-condition not met"); return; }
-
-    uiParent* par = tb ? tb->parent() : &StratTreeWin();
-    const char* settres = Settings::common().find(
-				uiStratLayerModel::sKeyModeler2Use());
-    BufferString modnm( settres );
-    int defmodnr = -1;
-    bool givechoice = nms.size() > 1;
-    if ( modnm.isEmpty() )
-	modnm = *nms.last();
-    else
-    {
-	FileMultiString fms( modnm );
-	modnm = fms[0];
-	defmodnr = nms.indexOf( modnm.buf() );
-	if ( defmodnr < 0 )
-	    modnm.setEmpty();
-	else
-	{
-	    const bool alwayswant = fms.size() > 1 && *fms[1] == 'A';
-	    givechoice = givechoice && !alwayswant;
-	}
-    }
-
-    if ( givechoice )
-    {
-	uiSelectFromList::Setup sflsu( tr("Select modeling type"), usrnms );
-	sflsu.current( defmodnr < 0 ? nms.size()-1 : defmodnr );
-	uiSelectFromList dlg( par, sflsu );
-	uiCheckList* defpol = new uiCheckList( &dlg, uiCheckList::Chain1st,
-						OD::Horizontal );
-	defpol->addItem( tr("Set as default") )
-	       .addItem( tr("Always use this type") );
-	defpol->setChecked( 0, defmodnr >= 0 );
-	defpol->attach( centeredBelow, dlg.selFld() );
-	if ( !dlg.go() ) return;
-
-	const int sel = dlg.selection();
-	if ( sel < 0 ) return;
-	const BufferString newmodnm = nms.get( sel );
-	int indic = defpol->isChecked(0) ? (defpol->isChecked(1) ? 2 : 1) : 0;
-	bool needwrite = true;
-	if ( indic == 0 )
-	{
-	    if ( defmodnr < 0 )
-		needwrite = false;
-	    else
-		Settings::common().removeWithKey(
-				    uiStratLayerModel::sKeyModeler2Use() );
-	}
-	else
-	{
-	    if ( indic == 2 || defmodnr < 0 || modnm != newmodnm )
-	    {
-		Settings::common().set( uiStratLayerModel::sKeyModeler2Use(),
-			BufferString(newmodnm, indic == 2 ? "`Always" : "") );
-	    }
-	    else if ( defmodnr >= 0 )
-		needwrite = false;
-	}
-
-	if ( needwrite )
-	    Settings::common().write( false );
-	modnm = newmodnm;
-    }
-    doLayerModel( par, modnm, 0 );
-}
-
-uiStratLayerModel* getDlg()
-{ return dlg_; }
-
-
-bool haveExistingDlg()
-{
-    if ( dlg_ )
-    {
-	uiMSG().error(tr("Please exit your other layer modeling window first"));
-	dlg_->raise();
-	return true;
-    }
-    return false;
-}
-
-void doLayerModel( uiParent* p, const char* modnm, int opt )
-{
-    if ( haveExistingDlg() || Strat::RT().isEmpty() )
-	return;
-
-    dlg_ = new uiStratLayerModel( p, modnm, opt );
-    if ( !dlg_->moddisp_ )
-	deleteAndZeroPtr( dlg_ );
-    else
-    {
-	uiStratTreeWin::makeEditable( false );
-	mAttachCB( dlg_->windowClosed, uiStratLayerModelManager::winClose );
-	dlg_->go();
-    }
-}
-
-void addToTreeWin()
-{
-    auto* su = new uiToolButtonSetup( "stratlayermodeling",
-			    tr("Start layer/synthetics modeling"),
-			    mCB(this,uiStratLayerModelManager,startCB) );
-    uiStratTreeWin::addTool( su );
-}
-
-    uiStratLayerModel*	dlg_ = nullptr;
-
-};
-
-static uiStratLayerModelManager& uislm_manager()
-{
-    mDefineStaticLocalObject( uiStratLayerModelManager, theinst, );
-    return theinst;
-}
-
-void uiStratLayerModel::initClass()
-{
-    uislm_manager().addToTreeWin();
-}
-
-
-void uiStratLayerModel::doBasicLayerModel()
-{
-    doBasicLayerModel( &StratTreeWin() );
-}
-
-
-void uiStratLayerModel::doBasicLayerModel( uiParent* p )
-{
-    doLayerModel( p, uiBasicLayerSequenceGenDesc::typeStr() );
-}
-
-
-void uiStratLayerModel::doLayerModel( const char* modnm, int opt )
-{
-    doLayerModel( &StratTreeWin(), modnm, opt );
-}
-
-
-void uiStratLayerModel::doLayerModel( uiParent* p, const char* modnm, int opt )
-{
-    if ( Strat::RT().isEmpty() )
-	Strat::loadDefaultTree();
-
-    if ( Strat::RT().isEmpty() )
-	StratTreeWin().popUp();
-    else
-	uislm_manager().doLayerModel( p, modnm, opt );
-}
-
-
-
-uiStratLayerModel* uiStratLayerModel::getUILayerModel()
-{
-    return uislm_manager().getDlg();
-}
-
-
-//uiStratLayerModel
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
-    : uiMainWin(p,uiString::emptyString(),1,true)
+    : uiMainWin(p,uiString::empty(),1,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
-    , lmp_(*new Strat::LayerModelProviderImpl)
-    , newModels(this)
-    , saveRequired(this)
-    , retrieveRequired(this)
+    , lms_(*new Strat::LayerModelSuite)
+    , beforeSave(this)
+    , afterRetrieve(this)
 {
     setDeleteOnClose( true );
 
@@ -289,12 +89,12 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     descctio_.ctxt_.toselect_.require_.set( sKey::Type(), edtyp );
 
     auto* gengrp = new uiGroup( this, "Gen group" );
-    seqdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_ );
-    if ( !seqdisp_ )
-	seqdisp_ = new uiBasicLayerSequenceGenDesc( gengrp, desc_ );
+    descdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_);
+    if ( !descdisp_ )
+	descdisp_ = new uiBasicLayerSequenceGenDesc( gengrp, desc_ );
 
     uiGroup* topgrp; uiGroup* botgrp; uiGroup* rightgrp = nullptr;
-    if ( seqdisp_->separateDisplay() )
+    if ( descdisp_->separateDisplay() )
     {
 	rightgrp = new uiGroup( this, "Right group" );
 	topgrp = new uiGroup( rightgrp, "Top group" );
@@ -307,12 +107,11 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     }
 
     modtools_ = new uiStratLayModEditTools( botgrp );
-    mAttachCB( modtools_->selPropChg, uiStratLayerModel::selPropChgCB );
     gentools_ = new uiStratGenDescTools( gengrp );
 
-    synthdisp_ = new uiStratSynthDisp( topgrp, lmp_ );
-    synthdisp_->set( *this );
-    moddisp_ = seqdisp_->getLayModDisp( *modtools_, lmp_, opt );
+    synthdatamgr_ = new StratSynth::DataMgr( lms_ );
+    synthdatamgrdc_ = synthdatamgr_->dirtyCount();
+    moddisp_ = descdisp_->getLayModDisp( *modtools_, lms_, opt );
     if ( !moddisp_ )
     {
 	new uiLabel( this, tr("Start cancelled") );
@@ -320,77 +119,63 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 	return;
     }
 
+    if ( moddisp_->isPerModelDisplay() )
+    {
+	modtools_->addEachFld();
+	modtools_->setMaxDispEach( gentools_->nrModels() );
+	modtools_->addLithFld();
+    }
+
+    synthdisp_ = new uiStratSynthDisp( topgrp, *synthdatamgr_.ptr(),
+				       *modtools_, moddisp_->initialSize() );
+
     analtb_ = new uiToolBar( this, tr("Analysis toolbar"), uiToolBar::Right );
     uiToolButtonSetup tbsu( "xplot", tr("Attributes vs model properties"),
 			    mCB(this,uiStratLayerModel,xPlotReq) );
     synthdisp_->control()->getToolBar(0)->addButton(
 				"snapshot", uiStrings::sTakeSnapshot(),
 				mCB(this,uiStratLayerModel,snapshotCB) );
-    mAttachCB( synthdisp_->synthsChanged,
-	       uiStratLayerModel::syntheticsChangedCB );
     analtb_->addButton( tbsu );
-    mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
-    if ( vwr )
+    mDynamicCastGet( uiFlatViewer*, moddispvwr, moddisp_->getViewer() );
+    if ( moddispvwr )
     {
-	synthdisp_->addViewerToControl( *vwr );
-	mAttachCB( vwr->viewChanged, uiStratLayerModel::lmViewChangedCB );
-	synthdisp_->control()->setParsButToolTip( *vwr,
-				    tr("Layermodel display properties") );
+	synthdisp_->addViewerToControl( *moddispvwr );
+	synthdisp_->control()->setParsButToolTip( *moddispvwr,
+				tr("Layermodel display properties") );
     }
 
     modtools_->attach( ensureBelow, moddisp_ );
-    gentools_->attach( ensureBelow, seqdisp_->outerObj() );
+    gentools_->attach( ensureBelow, descdisp_->outerObj() );
 
     auto* helptb = new uiToolBar( this, tr("Help toolbar"), uiToolBar::Right );
     uiToolButtonSetup htbsu( "contexthelp", uiStrings::sHelp(),
 			     mCB(this,uiStratLayerModel,helpCB) );
     helptb->addButton( htbsu );
 
-    uiSplitter* hspl;
-    if ( !seqdisp_->separateDisplay() )
+    uiParent* hsplitparent;
+    if ( descdisp_->separateDisplay() )
     {
-	modtools_->attach( rightOf, gentools_ );
-	hspl = new uiSplitter( this, "Hor splitter", false );
+	modtools_->attach( rightBorder );
+	auto* vspl = new uiSplitter( this, "Desc-LayModDisp Split", true );
+	vspl->addGroup( gengrp ); vspl->addGroup( rightgrp );
+	hsplitparent = rightgrp;
     }
     else
     {
-	modtools_->attach( rightBorder );
-	auto* vspl = new uiSplitter( this, "Vert splitter", true );
-	vspl->addGroup( gengrp ); vspl->addGroup( rightgrp );
-	hspl = new uiSplitter( rightgrp, "Hor splitter", false );
+	modtools_->attach( rightOf, gentools_ );
+	hsplitparent = this;
     }
 
-    hspl->addGroup( topgrp );
-    hspl->addGroup( botgrp );
-
-    mAttachCB( modtools_->dispEachChg, uiStratLayerModel::dispEachChg );
-    mAttachCB( modtools_->selLevelChg, uiStratLayerModel::levelChg );
-    mAttachCB( modtools_->flattenChg, uiStratLayerModel::flattenChg );
-    mAttachCB( modtools_->mkSynthChg, uiStratLayerModel::mkSynthChg );
-    mAttachCB( gentools_->openReq, uiStratLayerModel::openGenDescCB );
-    mAttachCB( gentools_->saveReq, uiStratLayerModel::saveGenDescCB );
-    mAttachCB( gentools_->propEdReq, uiStratLayerModel::manPropsCB );
-    mAttachCB( gentools_->genReq, uiStratLayerModel::genModels );
-    mAttachCB( gentools_->nrModelsChanged,uiStratLayerModel::nrModelsChangedCB);
-    mAttachCB( synthdisp_->viewChanged, uiStratLayerModel::viewChgedCB );
-    mAttachCB( synthdisp_->modSelChanged, uiStratLayerModel::modSelChg );
-    mAttachCB( synthdisp_->dispParsChanged,
-	       uiStratLayerModel::synthDispParsChangedCB );
-    mAttachCB( synthdisp_->layerPropSelNeeded,
-	       uiStratLayerModel::selElasticPropsCB );
-    mAttachCB( synthdisp_->control()->infoChanged,
-	       uiStratLayerModel::infoChanged );
-    mAttachCB( moddisp_->genNewModelNeeded, uiStratLayerModel::genModels );
-    mAttachCB(  moddisp_->rangeChanged, uiStratLayerModel::modDispRangeChanged);
-    mAttachCB( moddisp_->infoChanged, uiStratLayerModel::infoChanged );
-    mAttachCB( moddisp_->sequenceSelected, uiStratLayerModel::seqSel );
-    mAttachCB( moddisp_->modelEdited, uiStratLayerModel::modEd );
-    mAttachCB( moddisp_->dispPropChanged,
-	       uiStratLayerModel::lmDispParsChangedCB );
+    auto* horspl = new uiSplitter( hsplitparent, "Synth-LayModDisp Splitter",
+				   OD::Horizontal );
+    horspl->addGroup( topgrp );
+    horspl->addGroup( botgrp );
 
     setWinTitle();
     StratTreeWin().changeLayerModelNumber( true );
+
     mAttachCB( postFinalize(), uiStratLayerModel::initWin );
+    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -398,18 +183,39 @@ uiStratLayerModel::~uiStratLayerModel()
 {
     detachAllNotifiers();
     delete &desc_;
-    delete &lmp_;
+    delete &lms_;
     delete descctio_.ioobj_; delete &descctio_;
-    delete elpropsel_;
     StratTreeWin().changeLayerModelNumber( false );
     UnitOfMeasure::saveCurrentDefaults();
 }
 
 
-void uiStratLayerModel::snapshotCB( CallBacker* )
+void uiStratLayerModel::initWin( CallBacker* )
 {
-    uiSaveWinImageDlg snapshotdlg( this );
-    snapshotdlg.go();
+    if ( !moddisp_ )
+    {
+	modtools_->display( false );
+	gentools_->display( false );
+	OBJDISP()->go( this );
+	return;
+    }
+
+    mAttachCB( gentools_->openReq, uiStratLayerModel::openGenDescCB );
+    mAttachCB( gentools_->saveReq, uiStratLayerModel::saveGenDescCB );
+    mAttachCB( gentools_->propEdReq, uiStratLayerModel::manPropsCB );
+    mAttachCB( gentools_->genReq, uiStratLayerModel::genModelsCB );
+
+    mAttachCB( lms_.modelChanged, uiStratLayerModel::modChgCB );
+
+    mAttachCB( synthdatamgr_->elPropSelChanged,
+	       uiStratLayerModel::elasticPropsCB );
+    mAttachCB( synthdisp_->control()->infoChanged,
+	       uiStratLayerModel::synthInfoChangedCB );
+
+    mAttachCB( moddisp_->genNewModelNeeded, uiStratLayerModel::genModelsCB );
+    mAttachCB( moddisp_->infoChanged, uiStratLayerModel::modInfoChangedCB );
+    mAttachCB( moddisp_->sequenceSelected, uiStratLayerModel::seqSelCB );
+    mAttachCB( moddisp_->sequencesAdded, uiStratLayerModel::seqsAddedCB );
 }
 
 
@@ -422,269 +228,120 @@ void uiStratLayerModel::setWinTitle()
 }
 
 
-const char* uiStratLayerModel::levelName() const
+Strat::LayerModel& uiStratLayerModel::layerModel()
 {
-    const char* nm = modtools_->selLevel();
-    return !nm || !*nm || (*nm == '-' && *(nm+1) == '-') ? nullptr : nm;
+    return lms_.getCurrent();
 }
 
 
-StratSynth& uiStratLayerModel::currentStratSynth()
+const Strat::LayerModel& uiStratLayerModel::layerModel() const
 {
-    return synthdisp_->curSS();
+    return lms_.getCurrent();
 }
 
 
-const StratSynth& uiStratLayerModel::currentStratSynth() const
+void uiStratLayerModel::snapshotCB( CallBacker* )
 {
-    return const_cast<const uiStratSynthDisp*>(synthdisp_)->curSS();
+    uiSaveWinImageDlg snapshotdlg( this );
+    snapshotdlg.go();
 }
 
 
-const StratSynth& uiStratLayerModel::normalStratSynth() const
+void uiStratLayerModel::helpCB( CallBacker* )
 {
-    return synthdisp_->normalSS();
+   HelpProvider::provideHelp(
+		 HelpKey(mODHelpKey(mSingleLayerGeneratorEdHelpID) ) );
 }
 
 
-const StratSynth& uiStratLayerModel::editStratSynth() const
+void uiStratLayerModel::synthInfoChangedCB( CallBacker* cb )
 {
-    return synthdisp_->editSS();
+    if ( !cb )
+	return;
+
+    mCBCapsuleUnpack( IOPar, iop, cb );
+    BufferString todisp;
+    synthdisp_->makeInfoMsg( todisp, iop );
+    statusBar()->message( mToUiStringTodo(todisp.buf()) );
 }
 
 
-bool uiStratLayerModel::isEditUsed() const
+void uiStratLayerModel::modInfoChangedCB( CallBacker* cb )
 {
-    return synthdisp_->isEditUsed();
-}
-
-
-const PropertyRefSelection& uiStratLayerModel::modelProperties() const
-{
-    return synthdisp_->modelPropertyRefs();
-}
-
-
-const ObjectSet<const TimeDepthModel>& uiStratLayerModel::d2TModels() const
-{
-    mDefineStaticLocalObject( ObjectSet<const TimeDepthModel>, empty, );
-    const ObjectSet<const TimeDepthModel>* ret = synthdisp_->d2TModels();
-    return ret ? *ret : empty;
-}
-
-
-void uiStratLayerModel::initWin( CallBacker* )
-{
-    if ( !moddisp_ )
-    {
-	modtools_->display( false );
-	gentools_->display( false );
-	OBJDISP()->go( this );
-    }
-    mTriggerInstanceCreatedNotifier();
-}
-
-
-void uiStratLayerModel::dispEachChg( CallBacker* )
-{
-    synthdisp_->setDispEach( modtools_->dispEach() );
-}
-
-
-bool uiStratLayerModel::canShowFlattened() const
-{
-    TypeSet<float> zlvls = moddisp_->levelDepths();
-    for ( int idx=0; idx<zlvls.size(); idx++ )
-	if ( !mIsUdf(zlvls[idx]) ) return true;
-    return false;
-}
-
-
-void uiStratLayerModel::mkSynthChg( CallBacker* )
-{
-    automksynth_ = modtools_->mkSynthetics();
-    synthdisp_->setAutoUpdate( automksynth_ );
-    if ( automksynth_ )
-	handleNewModel();
-}
-
-
-void uiStratLayerModel::lmViewChangedCB( CallBacker* )
-{
-    synthdisp_->updateRelativeViewRect();
-}
-
-
-void uiStratLayerModel::flattenChg( CallBacker* )
-{
-    moddisp_->setFlattened( modtools_->showFlattened() );
-    synthdisp_->setFlattened( modtools_->showFlattened() );
-}
-
-
-void uiStratLayerModel::levelChg( CallBacker* )
-{
-    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-		    modtools_->selLevelColor() );
-    modtools_->setFlatTBSensitive( canShowFlattened() );
-    if ( !canShowFlattened() && moddisp_->isFlattened() )
-    {
-	modtools_->setShowFlattened( false );
-	moddisp_->setFlattened( false );
-	synthdisp_->setFlattened( false, true );
-    }
-    else if ( modtools_->showFlattened() )
-    {
-	moddisp_->setFlattened( modtools_->showFlattened() );
-	synthdisp_->setFlattened( modtools_->showFlattened(), true );
-    }
-}
-
-
-void uiStratLayerModel::modSelChg( CallBacker* cb )
-{
-    mCBCapsuleUnpack(int,modidx,cb);
-    moddisp_->selectSequence( modidx -1 );
-}
-
-
-void uiStratLayerModel::viewChgedCB( CallBacker* )
-{
-    uiWorldRect wr( mUdf(double), 0, 0, 0 );
-    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
-    if ( synthdisp_->getSynthetics().size() )
-	wr = synthdisp_->curView( true );
-    moddisp_->setZoomBox( wr );
-}
-
-
-bool uiStratLayerModel::checkUnscaledWavelet()
-{
-    BufferStringSet wvltnms;
-    for ( int idx=0; idx<currentStratSynth().nrSynthetics(); idx++ )
-    {
-	const SyntheticData* sd = currentStratSynth().getSyntheticByIdx( idx );
-	if ( !sd )
-	    continue;
-
-	const SynthGenParams& sgp = sd->getGenParams();
-	if ( !sgp.isRawOutput() )
-	    continue;
-
-	wvltnms.addIfNew( sgp.getWaveletNm() );
-    }
-
-    TypeSet<MultiID> wvltids;
-    for ( int idx=wvltnms.size()-1; idx>=0; idx-- )
-    {
-	PtrMan<IOObj> ioobj = Wavelet::getIOObj( wvltnms.get(idx).buf() );
-	if ( !ioobj )
-	    return false;
-
-	PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
-	if ( !wvlt )
-	    return false;
-
-	const MultiID wvltid = ioobj->key();
-	if ( Wavelet::isScaled(wvltid) )
-	    wvltids += wvltid;
-    }
-
-    for ( const auto& wvltid : wvltids )
-    {
-	BufferStringSet opts;
-	opts.add( "[Start tool]: Start the wavelet scaling dialog" );
-	opts.add( "[Mark scaled]: The wavelet amplitude is already compatible "
-		  "with the seismic data" );
-	opts.add( "[Ignore]: I will not use scaling-sensitive operations" );
-	uiGetChoice dlg( this, opts,
-		tr("The wavelet seems to be unscaled.\n"
-		"For most purposes, you will need a scaled wavelet.\n"), true );
-	dlg.setHelpKey( mODHelpKey(mStratLayerModelcheckUnscaledWaveletHelpID));
-	dlg.go();
-	const int choice = dlg.choice();
-	if ( choice < 0 )
-	    return false;
-	else if ( choice == 1 )
-	    Wavelet::markScaled( wvltid );
-	else if ( choice == 2 )
-	    continue;
-    }
-
-    return synthdisp_->haveUserScaleWavelet();
+    mCBCapsuleUnpack( const uiString*, dispmsg, cb );
+    if ( !dispmsg )
+	{ pErrMsg("Huh"); }
+    else
+	statusBar()->message( *dispmsg );
 }
 
 
 void uiStratLayerModel::xPlotReq( CallBacker* )
 {
-    if ( !checkUnscaledWavelet() )
+    if ( !checkUnscaledWavelets() )
 	return;
 
-    if ( !synthdisp_->getSynthetics().size() )
-	return;
-
-    uiStratSynthCrossplot xplotdlg( this, layerModel(),
-				    synthdisp_->getSynthetics() );
-    if ( !xplotdlg.errMsg().isEmpty() )
-	{ uiMSG().error( xplotdlg.errMsg() ); return; }
-
-    const char* lvlnm = modtools_->selLevel();
-    if ( lvlnm && *lvlnm )
-	xplotdlg.setRefLevel( lvlnm );
-
-    xplotdlg.show();
-}
-
-
-void uiStratLayerModel::modDispRangeChanged( CallBacker* )
-{
-    synthdisp_->setZDataRange( moddisp_->getViewer()->getSelDataRange(false) ,
-			       true );
+    uiStratSynthCrossplot dlg( this, *synthdatamgr_.ptr() );
+    dlg.setRefLevel( curLevelID() );
+    dlg.go();
 }
 
 
 void uiStratLayerModel::manPropsCB( CallBacker* )
 {
-    seqdisp_->selProps();
+    descdisp_->selProps();
 }
 
 
-void uiStratLayerModel::selElasticPropsCB( CallBacker* )
+void uiStratLayerModel::elasticPropsCB( CallBacker* )
 {
-    if ( !elpropsel_ )
-	elpropsel_ = new ElasticPropSelection;
-    if ( selElasticProps( *elpropsel_ ) )
-	doGenModels( false, false );
+    const ElasticPropSelection& elpropsel = lms_.getCurrent().elasticPropSel();
+    const MultiID& elpropkey = elpropsel.getStoredID();
+    if ( !elpropkey.isUdf() )
+	desc_.setElasticPropSel( elpropkey );
+
+    IOPar& wbpars = desc_.getWorkBenchParams();
+    synthdisp_->fillPar( wbpars );
+    wbpars.removeWithKey( ElasticPropSelection::sKeyElasticPropSel() );
+
+    descdisp_->setNeedSave( true );
+    descdisp_->setEditDesc();
 }
 
 
-bool uiStratLayerModel::selElasticProps( ElasticPropSelection& elsel )
+void uiStratLayerModel::setNrToGen( int nrmodels )
 {
-    uiElasticPropSelDlg dlg( this, desc_.propSelection(), elsel );
-    if ( dlg.go() )
-    {
-	if ( dlg.propSaved() )
-	{
-	    desc_.setElasticPropSel( dlg.storedKey() );
-	    seqdisp_->setNeedSave( true );
-	    seqdisp_->setEditDesc();
-	}
+    gentools_->setNrModels( nrmodels );
+    gentools_->fillPar( desc_.getWorkBenchParams() );
+}
 
-	elsel.fillPar( desc_.getWorkBenchParams() );
-	return true;
-    }
-    return false;
+
+int uiStratLayerModel::nrToGen() const
+{
+    int nrmodels = gentools_->getNrModelsFromPar( desc_.getWorkBenchParams() );
+    if ( nrmodels<0 )
+	nrmodels = gentools_->nrModels();
+    return nrmodels;
+}
+
+
+bool uiStratLayerModel::checkUnscaledWavelets()
+{
+    const uiSynthParsGrp::ScaleRes res =
+	uiSynthParsGrp::checkUnscaledWavelets( this, *synthdatamgr_.ptr() );
+    return uiSynthParsGrp::isOK( res );
 }
 
 
 bool uiStratLayerModel::saveGenDescIfNecessary( bool allowcncl ) const
 {
-    if ( !seqdisp_->needSave() )
+    const bool datamgrchgd = synthdatamgr_->dirtyCount() != synthdatamgrdc_;
+    if ( !descdisp_->needSave() && !datamgrchgd )
 	return true;
 
     while ( true )
     {
-	const int res = uiMSG().askSave(tr("Generation description not saved.\n"
+	const int res = uiMSG().askSave(tr("Unsaved generation parameters.\n"
 					 "Save now?") );
 	if ( !allowcncl && res < 0 )
 	{
@@ -713,7 +370,7 @@ bool uiStratLayerModel::saveGenDesc() const
     bool rv = false;
 
     MouseCursorChanger mcch( MouseCursor::Wait );
-    const Strat::LayerSequenceGenDesc& desc = seqdisp_->currentDesc();
+    const Strat::LayerSequenceGenDesc& desc = descdisp_->currentDesc();
     IOPar& wbpars =
 	const_cast<Strat::LayerSequenceGenDesc&>(desc).getWorkBenchParams();
     fillWorkBenchPars( wbpars );
@@ -726,11 +383,20 @@ bool uiStratLayerModel::saveGenDesc() const
     else
     {
 	rv = true;
-	seqdisp_->setNeedSave( false );
+	descdisp_->setNeedSave( false );
+	descdisp_->setDescID( genDescID() );
+	synthdatamgrdc_ = synthdatamgr_->dirtyCount();
 	const_cast<uiStratLayerModel*>(this)->setWinTitle();
     }
 
     return rv;
+}
+
+
+bool uiStratLayerModel::loadGenDesc( const MultiID& dbky )
+{
+    descctio_.setObj( dbky );
+    return descctio_.ioobj_ ? doLoadGenDesc() : false;
 }
 
 
@@ -740,17 +406,23 @@ bool uiStratLayerModel::openGenDesc()
 	return false;
 
     descctio_.ctxt_.forread_ = true;
-    uiIOObjSelDlg dlg( this, descctio_ );
-    if ( !dlg.go() || !dlg.ioObj() )
+    uiIOObjSelDlg seldlg( this, descctio_ );
+    if ( !seldlg.go() || !seldlg.ioObj() )
 	return false;
-    descctio_.setObj( dlg.ioObj()->clone() );
 
-    const BufferString fnm( descctio_.ioobj_->fullUserExpr(true) );
+    descctio_.setObj( seldlg.ioObj()->clone() );
+
+    return doLoadGenDesc();
+}
+
+
+bool uiStratLayerModel::doLoadGenDesc()
+{
+    const BufferString fnm( descctio_.ioobj_->mainFileName() );
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	{ uiMSG().error( uiStrings::sCantOpenInpFile() ); return false; }
 
-    deleteAndZeroPtr( elpropsel_ );
     deepErase( desc_ );
     MouseCursorChanger mcch( MouseCursor::Wait );
     const bool rv = desc_.getFrom( strm );
@@ -759,275 +431,192 @@ bool uiStratLayerModel::openGenDesc()
     strm.close();
 
     //Before calculation
-    if ( !gentools_->usePar( desc_.getWorkBenchParams() ) )
+    const IOPar& wbpars = desc_.getWorkBenchParams();
+    if ( !gentools_->usePar(wbpars) )
 	return false;
 
-    if ( !rv )
-	return false;
+    afterRetrieve.trigger( &wbpars );
+    descdisp_->setNeedSave( false );
+    descdisp_->setDescID( genDescID() );
+    descdisp_->setEditDesc();
+    descdisp_->descHasChanged();
 
-    moddisp_->clearDispPars();
-    moddisp_->retrievePars();
-    seqdisp_->setNeedSave( false );
-    lmp_.setEmpty();
+    doGenModels( true );
 
-    seqdisp_->setEditDesc();
-    seqdisp_->descHasChanged();
-
-    synthdisp_->resetRelativeViewRect();
-    synthdisp_->setForceUpdate( true );
-    BufferString edtyp;
-    descctio_.ctxt_.toselect_.require_.get( sKey::Type(), edtyp );
-    if ( seqdisp_->separateDisplay() )
-    {
-	needtoretrievefrpars_ = true;
-	doGenModels( true, false );
-	//Set when everything is in place.
-    }
-    else
-    {
-	CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(),
-				const_cast<uiStratLayerModel*>(this) );
-	const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
-    }
-
-
-    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
-    if ( mfvc ) mfvc->reInitZooms();
-    synthdisp_->setSavedViewRect();
     setWinTitle();
     raise();
     return true;
 }
 
 
+Strat::Level::ID uiStratLayerModel::curLevelID() const
+{
+    return modtools_->selLevelID();
+}
+
+
 MultiID uiStratLayerModel::genDescID() const
 {
-    MultiID ret;
-    if ( descctio_.ioobj_ )
-	ret = descctio_.ioobj_->key();
-    return ret;
+    return descctio_.ioobj_? descctio_.ioobj_->key() : MultiID();
 }
 
 
-void uiStratLayerModel::seqSel( CallBacker* )
+void uiStratLayerModel::seqSelCB( CallBacker* )
 {
-    synthdisp_->setSelectedTrace( moddisp_->selectedSequence() );
+    synthdisp_->setSelectedSequence( moddisp_->selectedSequence() );
 }
 
 
-void uiStratLayerModel::lmDispParsChangedCB( CallBacker* )
+void uiStratLayerModel::modChgCB( CallBacker* )
 {
-    LMPropSpecificDispPars lmpropdp;
-    if ( !moddisp_->getCurPropDispPars(lmpropdp) )
-	return;
-    BufferString lmpropsdnm( lmpropdp.propnm_.buf() );
-    if ( isEditUsed() )
-	lmpropsdnm += StratSynth::sKeyFRNameSuffix();
-
-    const BufferString propnm( "[", lmpropsdnm.buf(), "]" );
-    SynthFVSpecificDispPars* sddisp = synthdisp_->dispPars( propnm );
-    if ( !sddisp )
-	return;
-
-    sddisp->vdmapper_ = lmpropdp.mapper_;
-    sddisp->ctab_ = lmpropdp.ctab_;
-    sddisp->overlap_ = lmpropdp.overlap_;
-    ConstRefMan<SyntheticData> vdsd =
-			synthdisp_->getCurrentSyntheticData( false );
-    ConstRefMan<SyntheticData> wvasd =
-			synthdisp_->getCurrentSyntheticData( true );
-    if ( (vdsd && propnm == vdsd->name()) ||
-	 (wvasd && propnm == wvasd->name()) )
-	synthdisp_->reDisplayPostStackSynthetic( false );
+    handleNewModel();
 }
 
 
-static bool getCleanSyntheticName( BufferString& sdnm )
+void uiStratLayerModel::seqsAddedCB( CallBacker* )
 {
-    if ( sdnm.isEmpty() ) return false;
-    char* cleansdnm = sdnm.getCStr();
-    if ( cleansdnm[0] != '[' ) return false; //Is not StratPropSyntheticData
-    cleansdnm++;
-    unsigned int idx = 0;
-    while ( cleansdnm[idx] != ']' && idx<sdnm.size() )
-	idx++;
+    gentools_->setGenWarning(
+	    tr("You have added models from file.\nThis will overwrite all") );
+    // NOT handleNewModel(), modelChanged will be triggered next
+}
 
-    cleansdnm[idx] = '\0';
-    sdnm = cleansdnm;
+
+bool uiStratLayerModel::updateDispEach( const Strat::LayerModel& mdl )
+{
+    if ( !modtools_->canSetDispEach() )
+	return false;
+
+    const int oldnrseq = lms_.getCurrent().size();
+    if ( oldnrseq == 0 )
+	return false;
+
+    const int newnrseq = mdl.size();
+    if ( newnrseq == oldnrseq || (newnrseq > oldnrseq && newnrseq < 5*oldnrseq))
+	return false;
+
+    const float updratio = float(newnrseq) / float(oldnrseq);
+    int newnreach = int( mNINT32( modtools_->dispEach() * updratio ) );
+    if ( newnreach < 1 || newnrseq <= 20 )
+	newnreach = 1;
+
+    modtools_->setDispEach( newnreach, false );
     return true;
 }
 
 
-void uiStratLayerModel::synthDispParsChangedCB( CallBacker* )
+void uiStratLayerModel::genModelsCB( CallBacker* )
 {
-    ConstRefMan<SyntheticData> vdsd =
-				synthdisp_->getCurrentSyntheticData( false );
-    if ( !vdsd )
-	return;
+    const bool wasempty = synthdatamgr_->isEmpty();
+    if ( wasempty )
+    {
+	if ( modtools_->canSetDispEach() )
+	    synthdatamgr_->setCalcEach( modtools_->dispEach() );
 
-    BufferString sdnm( vdsd->name() );
-    if ( !getCleanSyntheticName(sdnm) )
-	return;
+	synthdatamgr_->addSynthetic( SynthGenParams() );
+    }
 
-    if ( isEditUsed() )
-	sdnm.remove( StratSynth::sKeyFRNameSuffix() );
-
-    LMPropSpecificDispPars vddisppars( sdnm );
-    vddisppars.mapper_ = vdsd->dispPars().vdmapper_;
-    vddisppars.ctab_ = vdsd->dispPars().ctab_;
-    vddisppars.overlap_ = vdsd->dispPars().overlap_;
-    if ( !moddisp_->setPropDispPars(vddisppars) )
-	return;
-
-    BufferString selpropnm = modtools_->selProp();
-    if ( !selpropnm.isEmpty() && selpropnm == sdnm )
-	moddisp_->modelChanged();
+    doGenModels();
 }
 
 
-void uiStratLayerModel::modEd( CallBacker* )
+bool uiStratLayerModel::doGenModels( bool full )
 {
-    synthdisp_->setForceUpdate( nrModels()!=lmp_.getCurrent().size() );
-    handleNewModel();
-}
-
-
-void uiStratLayerModel::calcAndSetDisplayEach( bool overridedispeach )
-{
-    int decimation = modtools_->dispEach();
-    if ( !overridedispeach )
-	return;
-
-    const int nrmods = nrModels();
-    decimation = sCast(int,Math::Ceil(nrmods/100.f));
-    modtools_->setDispEach( decimation );
-}
-
-
-void uiStratLayerModel::setNrModels( int nrmodels )
-{
-    gentools_->setNrModels( nrmodels );
-    gentools_->fillPar( desc_.getWorkBenchParams() );
-}
-
-
-int uiStratLayerModel::nrModels() const
-{
-    int nrmodels = gentools_->getNrModelsFromPar( desc_.getWorkBenchParams() );
-    if ( nrmodels<0 )
-	nrmodels = gentools_->nrModels();
-    return nrmodels;
-}
-
-
-void uiStratLayerModel::nrModelsChangedCB( CallBacker* )
-{
-    gentools_->fillPar( desc_.getWorkBenchParams() );
-}
-
-
-void uiStratLayerModel::genModels( CallBacker* cb )
-{
-    const bool isgo = cb==gentools_;
-    BufferString edtyp;
-    descctio_.ctxt_.toselect_.require_.get( sKey::Type(), edtyp );
-    doGenModels( isgo, isgo && seqdisp_->separateDisplay() );
-}
-
-
-void uiStratLayerModel::doGenModels( bool forceupdsynth, bool overridedispeach )
-{
-    const int nrmods = nrModels();
+    const int nrmods = gentools_->nrModels();
     if ( nrmods < 1 )
-	{ uiMSG().error(tr("Enter a valid number of models")); return; }
+	{ uiMSG().error(tr("Enter a valid number of models")); return false; }
 
-    MouseCursorChanger mcs( MouseCursor::Wait );
-
-    seqdisp_->prepareDesc();
-    seqdisp_->setFromEditDesc();
-    Strat::LayerModel* newmodl = new Strat::LayerModel;
-    newmodl->propertyRefs() = desc_.propSelection();
-    newmodl->setElasticPropSel( lmp_.getCurrent().elasticPropSel() );
-    mcs.restore();
+    uiUserShowWait uisw( this, tr("Setting-up new models") );
+    descdisp_->prepareDesc();
+    descdisp_->setFromEditDesc();
+    auto* newmodl = new Strat::LayerModel;
+    uisw.readyNow();
 
     Strat::LayerModelGenerator ex( desc_, *newmodl, nrmods );
     uiTaskRunner taskrunner( this );
     if ( !taskrunner.execute(ex) || !newmodl->isValid() )
-	{ delete newmodl; return; }
+	{ delete newmodl; return false; }
 
     // transaction succeeded, we move to the new model - period.
-
-    calcAndSetDisplayEach( overridedispeach );
-    if ( forceupdsynth  ) // i.e. 'Go' is used
-	synthdisp_->setForceUpdate( true );
-
-    lmp_.setBaseModel( newmodl );
-    uiWorldRect prevrelzoomwr = synthdisp_->getRelativeViewRect();
-    Interval<float> reldepthrg = moddisp_->relDepthZoneOfInterest();
-    if ( !reldepthrg.isUdf() )
-    {
-	prevrelzoomwr.setTop( reldepthrg.start );
-	prevrelzoomwr.setBottom( reldepthrg.stop );
-	moddisp_->reSetRelDepthZoneOfInterest();
-    }
-
-    handleNewModel();
-    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
-    if ( mfvc ) mfvc->reInitZooms();
-    synthdisp_->setZoomView( prevrelzoomwr );
+    handleNewModel( newmodl, full );
+    return true;
 }
 
 
-
-void uiStratLayerModel::handleNewModel()
+void uiStratLayerModel::handleNewModel( Strat::LayerModel* newmodl, bool full )
 {
-    lmp_.resetEditing();
-    synthdisp_->setUseEdited( false );
+    synthdisp_->enableDispUpdate( false ); //Not until its handleNewModel
+    setModelProps( newmodl ? *newmodl : lms_.getCurrent() );
+    if ( newmodl )
+    {
+	newmodl->prepareUse();
+	modtools_->setMaxDispEach( newmodl->size() );
+	if ( !full && updateDispEach(*newmodl) )
+	    synthdatamgr_->setCalcEach( modtools_->dispEach() );
+
+	NotifyStopper nsmoddisp( lms_.curChanged, moddisp_ );
+	lms_.setBaseModel( newmodl, full );
+    }
 
     //First the parameters
-    setModelProps();
-    setElasticProps();
-    useSyntheticsPars( desc_.getWorkBenchParams() );
-    useDisplayPars( desc_.getWorkBenchParams() );
-    if ( needtoretrievefrpars_ )
+    const int decimation = synthdatamgr_->calcEach();
+    const bool canchange = synthdisp_->viewer()->enableChange( false );
+    const IOPar& wbpars = desc_.getWorkBenchParams();
+    if ( full )
     {
-	CBCapsule<IOPar*> caps( &desc_.getWorkBenchParams(),
-				const_cast<uiStratLayerModel*>(this) );
-	const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
-	needtoretrievefrpars_ = false;
+	NotifyStopper nselprop( synthdatamgr_->elPropSelChanged );
+	NotifyStopper nsadd( synthdatamgr_->entryAdded );
+	modtools_->usePar( wbpars, false );
+	if ( modtools_->dispEach() != decimation )
+	    synthdatamgr_->setCalcEach( modtools_->dispEach() );
+	else
+	    synthdatamgr_->setEmpty();
+
+	synthdisp_->usePar( getSynthPars() );
     }
 
-    //Then the model display (uiStrat)
-    moddisp_->setFlattened( modtools_->showFlattened(), false );
-    moddisp_->modelUpdate();
+    synthdatamgr_->addPropertySynthetics(); //May only add the missing ones
+    synthdatamgrdc_ = synthdatamgr_->dirtyCount();
 
-    //Finally the synthetics
-    synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), false );
-    synthdisp_->setFlattened( modtools_->showFlattened(), false );
-    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-					modtools_->selLevelColor() );
-    const bool canshowflattened = canShowFlattened();
-    synthdisp_->setSnapLevelSensitive( canshowflattened );
-    modtools_->setFlatTBSensitive( canshowflattened );
+    if ( newmodl )
+    {
+	NotifyStopper nslmchg( lms_.modelChanged, this );
+	lms_.touch();
+    }
 
-    newModels.trigger();
+    synthdisp_->handleModelChange( full );
 
-    synthdisp_->setForceUpdate( false );
+    uiMultiFlatViewControl* mfvc = synthdisp_->control();
+    PtrMan<NotifyStopper> zoomns;
+    if ( mfvc )
+    {
+	zoomns = new NotifyStopper( mfvc->zoomChanged, synthdisp_ );
+	mfvc->reInitZooms();
+    }
+
+    od_uint32 ctyp = sCast(od_uint32,FlatView::Viewer::All);
+    if ( full )
+    {
+	synthdisp_->useDispPars( wbpars, &ctyp );
+	synthdisp_->setSavedViewRect();
+    }
+    else
+	synthdisp_->viewer()->setViewToBoundingBox();
+
+    synthdisp_->viewer()->enableChange( canchange );
+    synthdisp_->viewer()->handleChange( ctyp );
 }
 
 
-void uiStratLayerModel::setModelProps()
+void uiStratLayerModel::setModelProps( const Strat::LayerModel& lm )
 {
     BufferStringSet nms;
-    const Strat::LayerModel& lm = lmp_.getCurrent();
-    for ( int idx=1; idx<lm.propertyRefs().size(); idx++ )
-	nms.add( lm.propertyRefs()[idx]->name() );
+    for ( const auto* pr : lm.propertyRefs() )
+	if ( !pr->isThickness() )
+	    nms.add( pr->name() );
+
     modtools_->setProps( nms );
-    nms.erase(); const Strat::LevelSet& lvls = Strat::LVLS();
-    for ( int idx=0; idx<lvls.size(); idx++ )
-	nms.add( lvls.levels()[idx]->name() );
-    modtools_->setLevelNames( nms );
     nms.erase();
+
     const Strat::ContentSet& conts = lm.refTree().contents();
     for ( int idx=0; idx<conts.size(); idx++ )
 	nms.add( conts[idx]->name() );
@@ -1035,211 +624,42 @@ void uiStratLayerModel::setModelProps()
 }
 
 
-void uiStratLayerModel::setElasticProps()
+IOPar uiStratLayerModel::getSynthPars() const
 {
-    if ( !elpropsel_ )
-    {
-	const MultiID descky = desc_.elasticPropSel();
-	if ( IOM().isUsable(descky ) && IOM().implExists(descky) )
-	    elpropsel_ = ElasticPropSelection::getByDBKey( descky );
+    const IOPar& wbpars = desc_.getWorkBenchParams();
+    IOPar ret;
 
-	bool haserrors = !elpropsel_;
-	if ( !elpropsel_ )
-	{
-	    elpropsel_ = new ElasticPropSelection( true, desc_.propSelection());
-	    haserrors = !elpropsel_->usePar( desc_.getWorkBenchParams() );
-	}
+    const MultiID descky = desc_.elasticPropSel();
+    if ( !descky.isUdf() )
+	ret.set( ElasticPropSelection::sKeyElasticPropSel(), descky );
 
-	haserrors = haserrors || (elpropsel_ && !elpropsel_->isOK());
-	if ( haserrors )
-	{
-	    if ( elpropsel_ )
-		uiMSG().warning( elpropsel_->errMsg() );
-	    deleteAndZeroPtr( elpropsel_ );
-	    return;
-	}
-    }
+    PtrMan<IOPar> elpropiop =
+	wbpars.subselect( ElasticPropSelection::sKeyElasticProp() );
+    if ( elpropiop && !elpropiop->isEmpty() )
+	ret.mergeComp( *elpropiop.ptr(),
+		       ElasticPropSelection::sKeyElasticProp() );
 
-    uiString errmsg;
-    if ( !elpropsel_->isValidInput(&errmsg) )
-    {
-	if ( !errmsg.isEmpty() )
-	{
-	    errmsg = tr("%1\nPlease define a new value.").arg(errmsg);
-	    uiMSG().message(errmsg);
-	}
-	if ( !selElasticProps(*elpropsel_) )
-	    return;
-    }
+    PtrMan<IOPar> synthiop =
+		  wbpars.subselect( StratSynth::DataMgr::sKeySynthetics() );
+    if ( synthiop && !synthiop->isEmpty() )
+	ret.mergeComp( *synthiop.ptr(), StratSynth::DataMgr::sKeySynthetics() );
 
-    lmp_.getEdited(true).setElasticPropSel( *elpropsel_ );
-    lmp_.getEdited(false).setElasticPropSel( *elpropsel_ );
+    return ret;
+}
+
+
+void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
+{
+    par.setEmpty();
+    const_cast<uiStratLayerModel*>(this)->beforeSave.trigger( &par );
+    gentools_->fillPar( par );
+    modtools_->fillPar( par );
+    synthdisp_->fillPar( par );
+    par.removeWithKey( ElasticPropSelection::sKeyElasticPropSel() );
 }
 
 
 bool uiStratLayerModel::closeOK()
 {
     return saveGenDescIfNecessary();
-}
-
-
-void uiStratLayerModel::displayFRText( bool yn, bool isbrine )
-{
-    synthdisp_->displayFRText( yn, isbrine );
-    moddisp_->displayFRText( yn, isbrine );
-}
-
-
-void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
-					 bool isbrine )
-{
-    lmp_.setUseEdited( usefr );
-    synthdisp_->setUseEdited( usefr );
-    if ( parschanged )
-    {
-	synthdisp_->setForceUpdate( true );
-	useSyntheticsPars( desc_.getWorkBenchParams() );
-    }
-    synthdisp_->showFRResults();
-    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-			      modtools_->selLevelColor() );
-    moddisp_->modelChanged();
-    displayFRText( true, isbrine );
-    synthdisp_->setForceUpdate( false );
-}
-
-
-void uiStratLayerModel::resetFluidRepl()
-{
-    lmp_.setUseEdited( false );
-    synthdisp_->setUseEdited( false );
-    displayFRText( false );
-}
-
-
-void uiStratLayerModel::prepareFluidRepl()
-{
-    lmp_.initEditing();
-    Strat::LayerModel& edlm = lmp_.getEdited( true );
-    ePROPS().ensureHasElasticProps( true );
-    if ( !edlm.propertyRefs().getByMnemonic(Mnemonic::defSVEL()) )
-	edlm.propertyRefs().add( PROPS().getByMnemonic( Mnemonic::defSVEL() ) );
-}
-
-
-const Strat::LayerModel& uiStratLayerModel::layerModelOriginal() const
-{
-    return lmp_.getEdited( false );
-}
-
-
-Strat::LayerModel& uiStratLayerModel::layerModelOriginal()
-{
-    return lmp_.getEdited( false );
-}
-
-
-const Strat::LayerModel& uiStratLayerModel::layerModelEdited() const
-{
-    return lmp_.getEdited( true );
-}
-
-
-Strat::LayerModel& uiStratLayerModel::layerModelEdited()
-{
-    return lmp_.getEdited( true );
-}
-
-
-const Strat::LayerModel& uiStratLayerModel::layerModel() const
-{
-    return lmp_.getCurrent();
-}
-
-
-Strat::LayerModel& uiStratLayerModel::layerModel()
-{
-    return lmp_.getCurrent();
-}
-
-
-bool uiStratLayerModel::useDisplayPars( const IOPar& par )
-{
-    return modtools_->usePar( par );
-}
-
-
-
-void uiStratLayerModel::fillWorkBenchPars( IOPar& par ) const
-{
-    par.setEmpty();
-    CBCapsule<IOPar*> caps( &par, const_cast<uiStratLayerModel*>(this) );
-    const_cast<uiStratLayerModel*>(this)->saveRequired.trigger( &caps );
-    gentools_->fillPar( par );
-    if ( elpropsel_ )
-	elpropsel_->fillPar( par );
-    moddisp_->savePars();
-    fillDisplayPars( par );
-    fillSyntheticsPars( par );
-}
-
-
-bool uiStratLayerModel::useSyntheticsPars( const IOPar& par )
-{
-    if ( !synthdisp_->prepareElasticModel() )
-	return false;
-    return synthdisp_->usePar( par );
-}
-
-
-void uiStratLayerModel::fillSyntheticsPars( IOPar& par ) const
-{
-    synthdisp_->fillPar( par, false );
-}
-
-
-void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
-{
-    modtools_->fillPar( par );
-}
-
-
-void uiStratLayerModel::helpCB( CallBacker* )
-{ HelpProvider::provideHelp(
-    HelpKey(mODHelpKey(mSingleLayerGeneratorEdHelpID) ) ); }
-
-
-void uiStratLayerModel::syntheticsChangedCB( CallBacker* )
-{
-    synthdisp_->fillPar( desc_.getWorkBenchParams() );
-    seqdisp_->setNeedSave( true );
-}
-
-
-void uiStratLayerModel::infoChanged( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller(IOPar,pars,caller,cb);
-    mDynamicCastGet(uiStratLayerModelDisp*,moddisp,caller);
-    if ( !moddisp )
-    {
-	BufferString msg;
-	synthdisp_->makeInfoMsg( msg, pars );
-	statusBar()->message( mToUiStringTodo(msg.buf()) );
-    }
-    else
-    {
-	uiString msg;
-	for ( int idx=0; idx<pars.size(); idx++ )
-	{
-	    msg.append( toUiString("%1 : %2 ;").arg(pars.getKey(idx))
-					     .arg(pars.getValue(idx)) );
-	}
-	statusBar()->message( msg );
-    }
-}
-
-
-void uiStratLayerModel::selPropChgCB( CallBacker* )
-{
-    seqdisp_->setDispProp( modtools_->selPropIdx() );
 }

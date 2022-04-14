@@ -11,10 +11,11 @@
 
 
 #include "uiwellattribmod.h"
+
 #include "uidialog.h"
-class StratSynth;
-class SyntheticData;
-class StratSynthLevel;
+#include "stratsynth.h"
+
+class uiCheckBox;
 class uiGroup;
 class uiGenInput;
 class uiSeisSel;
@@ -24,13 +25,15 @@ class uiStratSynthOutSel;
 
 namespace Geometry { class RandomLine; }
 namespace PosInfo { class Line2DData; }
+namespace StratSynth { class Level; }
 
 mExpClass(uiWellAttrib) uiStratSynthExport : public uiDialog
 { mODTextTranslationClass(uiStratSynthExport)
 public:
     enum GeomSel	{ StraightLine, Polygon, RandomLine, Existing };
 
-			uiStratSynthExport(uiParent*,const StratSynth&);
+			uiStratSynthExport(uiParent*,
+					   const StratSynth::DataMgr&);
 			~uiStratSynthExport();
 
 
@@ -38,30 +41,30 @@ protected:
 
     uiGenInput*		crnewfld_;
     uiSeisSel*		linesetsel_;
-    uiGenInput* newlinenmfld_;
+    uiGenInput*		newlinenmfld_;
     uiSeis2DLineNameSel* existlinenmsel_;
     uiGroup*		geomgrp_;
     uiGenInput*		geomsel_;
     uiGenInput*		coord0fld_;
     uiGenInput*		coord1fld_;
     uiIOObjSel*		picksetsel_;
-    uiIOObjSel*		randlinesel_;
-    uiStratSynthOutSel*	poststcksel_;
+    uiIOObjSel*		randlinesel_	= nullptr;
+    uiStratSynthOutSel* poststcksel_	= nullptr;
     uiStratSynthOutSel*	horsel_;
-    uiStratSynthOutSel*	prestcksel_;
+    uiStratSynthOutSel* prestcksel_	= nullptr;
     uiGenInput*		prefxfld_;
     uiGenInput*		postfxfld_;
+    uiCheckBox*		repludfsfld_	= nullptr;
 
-    const StratSynth&	ss_;
-    ObjectSet<const SyntheticData> postsds_;
-    ObjectSet<const SyntheticData> presds_;
-    ObjectSet<StratSynthLevel> sslvls_;
+    const StratSynth::DataMgr*	datamgr_;
+    TypeSet<StratSynth::DataMgr::SynthID> selids_;
+    BufferStringSet	sellvls_;
 
-    BufferString	getWinTitle(const StratSynth&) const;
     GeomSel		selType() const;
     void		addPrePostFix(BufferString&) const;
     void		fillGeomGroup();
-    void		getExpObjs();
+    void		getSelections();
+    void		getLevels(ObjectSet<StratSynth::Level>&) const;
     void		removeNonSelected();
     bool		createHor2Ds();
     bool		getGeometry(const char* linenm);
@@ -72,7 +75,7 @@ protected:
     void		crNewChg(CallBacker*);
     void		geomSel(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };
 

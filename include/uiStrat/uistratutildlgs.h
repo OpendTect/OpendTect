@@ -47,7 +47,7 @@ mExpClass(uiStrat) uiStratUnitEditDlg : public uiDialog
 public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
 
-    const TypeSet<int>& getLithologies() const 	{ return lithids_; }
+    const TypeSet<int>& getLithologies() const	{ return lithids_; }
     static bool		checkWrongChar(char*);
 
 protected:
@@ -148,8 +148,8 @@ public:
 
 			uiStratLevelDlg(uiParent*);
 
-    void		setLvlInfo(const char*,const OD::Color& col);
-    void		getLvlInfo(BufferString&,OD::Color& col) const;
+    void		setLvlInfo(const char*,const OD::Color&);
+    void		getLvlInfo(BufferString&,OD::Color&) const;
 
 protected:
 
@@ -164,7 +164,7 @@ public:
 
 			uiStratLinkLvlUnitDlg(uiParent*,Strat::LeavedUnitRef&);
 
-    int 		lvlid_;
+    int		lvlid_;
 
 protected:
 

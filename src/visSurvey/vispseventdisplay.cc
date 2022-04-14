@@ -434,8 +434,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	}
 	else
 	{
-	    const ArrayValueSeries<float,float> vs(vals.arr(),0,vals.size());
-	    ctabmapper_.setData( &vs, vals.size() );
+	    ctabmapper_.setData( vals.arr(), vals.size() );
 	    for (int idx=0;idx<eventmarkerset_->getCoordinates()->size();idx++)
 	    {
 		const OD::Color col = ctabsequence_.color(
@@ -617,17 +616,13 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     if ( markercolor_ != Single )
     {
-	if ( ctabmapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
-	{
-	    const ArrayValueSeries<float,float>
-		vs(values.arr(),0,values.size());
-	    ctabmapper_.setData( &vs, values.size() );
-	}
+	if ( ctabmapper_.setup_.type_ != ColTab::MapperSetup::Fixed )
+	    ctabmapper_.setData( values.arr(), values.size() );
 
 	for ( int idx=0; idx<lastmarker; idx++ )
 	{
 	    OD::Color color = ctabsequence_.color(
-		ctabmapper_.position(values[idx]) );
+			      ctabmapper_.position(values[idx]) );
 	    pao->markerset_->getMaterial()->setColor(color, idx );
 	}
 

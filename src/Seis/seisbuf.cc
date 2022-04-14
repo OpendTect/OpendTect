@@ -95,6 +95,99 @@ void SeisTrcBuf::add( SeisTrcBuf& tb )
 }
 
 
+Interval<float> SeisTrcBuf::zRange() const
+{
+    Interval<float> zrg( mUdf(float), mUdf(float) );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( idx > 0 )
+	    zrg.include( get(idx)->zRange() );
+	else
+	    zrg = get(idx)->zRange();
+    }
+    return zrg;
+}
+
+
+Interval<float> SeisTrcBuf::getZRange4Shifts( const TypeSet<float>& zvals,
+					       bool upw ) const
+{
+    const Interval<float> myzrg = zRange();
+    if ( mIsUdf(myzrg.start) )
+	return myzrg;
+
+    Interval<float> zrg( mUdf(float), mUdf(float) );
+    for ( const auto& zval : zvals )
+    {
+	if ( mIsUdf(zval) )
+	    continue;
+
+	const float dz = upw ? -zval : zval;
+
+	const Interval<float> curzrg( myzrg.start + dz, myzrg.stop + dz );
+	if ( mIsUdf(zrg.start) )
+	    zrg = curzrg;
+	else
+	{
+	    zrg.include( curzrg.start, false );
+	    zrg.include( curzrg.stop, false );
+	}
+    }
+
+    return zrg;
+}
+
+
+void SeisTrcBuf::getShifted( const Interval<float>& zrg,
+			     const TypeSet<float>& zvals,
+			     bool upward, float udfval, SeisTrcBuf& out ) const
+{
+    const int nrtrcs = size();
+    if ( nrtrcs < 1 || mIsUdf(zrg.start) || mIsUdf(zrg.stop) )
+	return;
+
+    ZSampling newzrg( zrg );
+    newzrg.step = first()->info().sampling.step;
+    const int newnrsamps = newzrg.nrSteps() + 1;
+    const float zrest = newnrsamps*newzrg.step - zrg.width();
+    newzrg.start -= zrest * 0.5f;
+
+    for ( int itrc=0; itrc<nrtrcs; itrc++ )
+    {
+	const SeisTrc& inptrc = *get( itrc );
+	const int nrcomps = inptrc.nrComponents();
+	auto* newtrc = new SeisTrc( newnrsamps );
+	newtrc->setNrComponents( nrcomps );
+
+	newtrc->info() = inptrc.info();
+	newtrc->info().sampling.set( newzrg );
+	newtrc->setAll( udfval );
+
+	out.add( newtrc );
+	if ( itrc >= zvals.size() )
+	    continue;
+
+	const float zshift = zvals.get( itrc );
+	const int inptrcsz = inptrc.size();
+	for ( int icomp=0; icomp<nrcomps; icomp++ )
+	{
+	    for ( int isamp=0; isamp<newnrsamps; isamp++ )
+	    {
+		const float trcz = newtrc->samplePos( isamp );
+		const float orgz = upward ? trcz + zshift : trcz - zshift;
+		const int inpisamp = inptrc.nearestSample( orgz );
+		if ( inpisamp < 0 )
+		    newtrc->set( isamp, inptrc.getFirst(icomp), icomp );
+		else if ( inpisamp >= inptrcsz )
+		    newtrc->set( isamp, inptrc.getLast(icomp), icomp );
+		else
+		    newtrc->set( isamp, inptrc.getValue(orgz,icomp), icomp );
+	    }
+	}
+    }
+}
+
+
 void SeisTrcBuf::stealTracesFrom( SeisTrcBuf& tb )
 {
     for ( int idx=0; idx<tb.size(); idx++ )

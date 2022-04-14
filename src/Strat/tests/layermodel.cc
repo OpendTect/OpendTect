@@ -130,7 +130,7 @@ static bool fillPRS( PropertyRefSelection& prs )
 }
 
 
-static bool getMathForms()
+static bool getMathForms( const PropertyRefSelection& prs )
 {
     if ( !usemath_ )
 	return true;
@@ -141,6 +141,24 @@ static bool getMathForms()
 				"Castagna's equation" );
     mRunStandardTest( aiform_, "Retrieved formula for Acoustic Impedance" );
     mRunStandardTest( castagnaform_, "Retrieved formula for SVel" );
+
+    ObjectSet<Math::Formula> forms;
+    forms.add( const_cast<Math::Formula*>( castagnaform_ ) );
+    forms.add( const_cast<Math::Formula*>( aiform_ ) );
+    for ( auto* form : forms )
+    {
+	for ( int iinp=0; iinp<form->nrInputs(); iinp++ )
+	{
+	    if ( form->isConst(iinp) || form->isSpec(iinp) )
+		continue;
+
+	    form->setInputDef( iinp,
+		    prs.getByMnemonic(*form->inputMnemonic(iinp) )->name() );
+	}
+
+	if ( !form->isOK() )
+	    return false;
+    }
 
     return true;
 }
@@ -159,8 +177,8 @@ static void setValues( const PropertyRefSelection& prs, float xpos,
     }
 
     lay.setThickness( 1.f );
-    lay.setValue( 1, normgen.get( 2700.f, 200.f ) ); // Rho
-    lay.setValue( 2, normgen.get( 2300.f, 150.f ) ); // Vp
+    lay.setValue( 1, normgen.get( 2.700f, 0.200f ) );	// Rho (g/cc)
+    lay.setValue( 2, normgen.get( 2300.f, 150.f ) );	// Vp
     if ( usemath_ )
     {
 	lay.setValue( 3, *castagnaform_, prs, xpos );	 // Vs
@@ -173,8 +191,8 @@ static void setValues( const PropertyRefSelection& prs, float xpos,
     }
 
     lay.setValue( 5, normgen.get( 10.f, 2.f ) );	 // Phi (%)
-    lay.setValue( 6, 100.f * ugen.get() );	 // Vsh (%)
-    lay.setValue( 7, 100.f * ugen.get() ); // Sw (%)
+    lay.setValue( 6, 100.f * ugen.get() );		 // Vsh (%)
+    lay.setValue( 7, 100.f * ugen.get() );		 // Sw (%)
 }
 
 
@@ -351,7 +369,7 @@ int mTestMainFnName( int argc, char** argv )
 
     PropertyRefSelection prs;
     if ( !fillPRS(prs)
-	 || !getMathForms()
+	 || !getMathForms(prs)
 //	 || !testArrayLayers(prs)
 //	 || !testObjectSetLayers(prs)
 	 || !createModel(prs)

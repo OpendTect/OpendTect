@@ -66,10 +66,13 @@ public:
     bool		isNull(int icomp=-1) const;
     bool		isUdf(int icomp=-1) const;
     bool		hasUndef(int icomp=-1) const;
+    void		setAll(float,int icomp=-1);
     inline void		zero( int icomp=-1 )
 			{ data_.zero( icomp ); }
+    void		ensureNoUndefs(float withval=mUdf(float));
+			//!< default is inter- and extrapolate
     void		reverse( int icomp=-1 );
-    void		setAll(float,int icomp=-1);
+
     void		setNrComponents(int,DataCharacteristics::UserType dt
 					=DataCharacteristics::Auto);
     bool		reSize(int,bool copydata);

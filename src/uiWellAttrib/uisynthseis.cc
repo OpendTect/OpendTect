@@ -251,6 +251,13 @@ void uiMultiSynthSeisSel::setWavelet( const char* wvltnm )
 }
 
 
+void uiMultiSynthSeisSel::ensureHasWavelet( const MultiID& wvltid )
+{
+    for ( auto* synthsel : synthgrps_ )
+	synthsel->ensureHasWavelet( wvltid );
+}
+
+
 bool uiMultiSynthSeisSel::usePar( const IOPar& iop )
 {
     IOPar par( iop );
@@ -416,11 +423,6 @@ void uiFullSynthSeisSel::doParsChanged( IOPar* par )
 
 void uiFullSynthSeisSel::inputChangedCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiComboBox*,uicbfld,cb);
-    if ( uicbfld && uicbfld->size() > 1 &&
-	 uicbfld->isPresent(SynthGenParams::sKeyInvalidInputPS()) )
-	doMan( uicbfld, SynthGenParams::sKeyInvalidInputPS(), false );
-
     parsChangedCB( cb );
 }
 
@@ -444,62 +446,40 @@ const char* uiFullSynthSeisSel::getOutputName() const
 }
 
 
-void uiFullSynthSeisSel::manPSSynth( const char* nm, bool isnew )
+void uiFullSynthSeisSel::manPSSynth( const BufferStringSet& nms )
 {
-    doMan( psselfld_->box(), nm, isnew );
+    doMan( psselfld_->box(), nms );
 }
 
 
-void uiFullSynthSeisSel::manInpSynth( const char* nm, bool isnew )
+void uiFullSynthSeisSel::manInpSynth( const BufferStringSet& nms )
 {
-    doMan( inpselfld_->box(), nm, isnew );
+    doMan( inpselfld_->box(), nms );
 }
 
 
-void uiFullSynthSeisSel::doMan( uiComboBox* cbfld, const char* nm, bool isnew )
+void uiFullSynthSeisSel::doMan( uiComboBox* cbfld, const BufferStringSet& nms )
 {
-    NotifyStopper ns( cbfld->selectionChanged );
-    const FileMultiString newnames( nm );
-    if ( newnames.isEmpty() )
+    if ( nms.isEmpty() )
 	return;
 
-    BufferStringSet nms;
+    BufferStringSet oldnms;
+    cbfld->getItems( oldnms );
+    if ( nms == oldnms )
+	return;
+
+    NotifyStopper ns( cbfld->selectionChanged );
     const BufferString curnm( cbfld->text() );
-
-    cbfld->getItems( nms );
-    if ( isnew )
-    {
-	bool added = false;
-	for ( int idx=0; idx<newnames.size(); idx++ )
-	    added = nms.addIfNew( newnames[idx] ) || added;
-	if ( !added )
-	    return;
-    }
-    else if ( !isnew )
-    {
-	for ( int idx=0; idx<newnames.size(); idx++ )
-	    nms.remove( newnames[idx] );
-    }
-
     cbfld->setEmpty();
-    cbfld->addItems( nms );
-    if ( isnew )
-    {
-	if ( curnm != newnames[0] )
-	    cbfld->setCurrentItem( curnm );
+    if ( nms.isEmpty() )
+	return;
 
-	if ( !cbfld->sensitive() )
-	{
-	    for ( const auto* dsnm : nms )
-	    {
-		if ( *dsnm != SynthGenParams::sKeyInvalidInputPS() )
-		{
-		    cbfld->setSensitive( true );
-		    break;
-		}
-	    }
-	}
-    }
+    cbfld->addItems( nms );
+    if ( nms.isPresent(curnm) )
+	cbfld->setCurrentItem( curnm );
+
+    cbfld->setSensitive( nms.get(0) != SynthGenParams::sKeyInvalidInputPS() ||
+			 nms.size() > 1 );
 }
 
 
@@ -538,7 +518,10 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 	else
 	{
 	    psbox->addItem( genparams.inpsynthnm_ );
-	    psbox->setSensitive( false );
+	    psbox->setCurrentItem( genparams.inpsynthnm_ );
+	    psbox->setSensitive( genparams.inpsynthnm_ !=
+				 SynthGenParams::sKeyInvalidInputPS() ||
+				 psbox->size() > 1 );
 	}
 
 	NotifyStopper angparschgstopper( angleinpfld_->valuechanged );
@@ -561,7 +544,10 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 	else
 	{
 	    inpbox->addItem( genparams.inpsynthnm_ );
-	    inpbox->setSensitive( false );
+	    inpbox->setCurrentItem( genparams.inpsynthnm_ );
+	    inpbox->setSensitive( genparams.inpsynthnm_ !=
+				  SynthGenParams::sKeyInvalidInputPS() ||
+				  inpbox->size() > 1 );
 	}
 
 	instattribfld_->box()->chooseAll( false );

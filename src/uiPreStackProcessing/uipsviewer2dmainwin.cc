@@ -75,14 +75,12 @@ static void setAnnotationPars( FlatView::Annotation& annot )
 }
 
 
-uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
+uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title,
+				      bool hasangledata )
     : uiObjectItemViewWin(p,uiObjectItemViewWin::Setup(title).startwidth(800))
-    , posdlg_(nullptr)
-    , control_(nullptr)
     , seldatacalled_(this)
-    , axispainter_(nullptr)
     , tkzs_(false)
-    , preprocmgr_(nullptr)
+    , hasangledata_(hasangledata)
 {
     setDeleteOnClose( true );
 }
@@ -194,9 +192,9 @@ void uiViewer2DMainWin::setUpView()
 	return uiMSG().error( tr("Can not preprocess data") );
 
     int nrvwr = 0;
-    for ( int gidx=0; gidx<gatherinfos_.size(); gidx++ )
+    for ( const auto& ginfo : gatherinfos_ )
     {
-	setGather( gatherinfos_[gidx] );
+	setGather( ginfo );
 	pb.setProgress( nrvwr );
 	nrvwr++;
     }
@@ -265,15 +263,16 @@ void uiViewer2DMainWin::displayMutes()
     {
 	uiObjectItem* item = mainViewer()->getItem( gidx );
 	mDynamicCastGet(uiGatherDisplay*,gd,item->getGroup());
-	if ( !gd ) continue;
+	if ( !gd )
+	    continue;
 
-	gd->getUiFlatViewer()->handleChange( FlatView::Viewer::Auxdata );
+	uiFlatViewer* uivwr = gd->getUiFlatViewer();
 	for ( int muteidx=0; muteidx<mutes_.size(); muteidx++ )
 	{
 	    const PreStack::MuteDef* mutedef = mutes_[muteidx];
 	    const BinID& bid = gd->getBinID();
 	    FlatView::AuxData* muteaux =
-		gd->getUiFlatViewer()->createAuxData( mutedef->name() );
+			       uivwr->createAuxData( mutedef->name() );
 	    muteaux->linestyle_.color_ = mutecolors_[muteidx];
 	    muteaux->linestyle_.type_ = OD::LineStyle::Solid;
 	    muteaux->linestyle_.width_ = 3;
@@ -285,13 +284,15 @@ void uiViewer2DMainWin::displayMutes()
 	    for ( int offsidx=0; offsidx<sz; offsidx++ )
 	    {
 		const float offset = offsetrg.atIndex( offsidx );
-		const float val = mutedef->value( offset, bid );
-		muteaux->poly_ +=  FlatView::Point( offset, val );
+		const float zval = mutedef->value( offset, bid );
+		muteaux->poly_ += FlatView::Point( offset, zval );
 	    }
 
-	    muteaux->namepos_ = sz/2;
-	    gd->getUiFlatViewer()->addAuxData( muteaux );
+	    muteaux->namepos_ = FlatView::AuxData::Last;
+	    muteaux->namealignment_ = mAlignment(Right,Bottom);
+	    uivwr->addAuxData( muteaux );
 	}
+	uivwr->handleChange( sCast(od_uint32,FlatView::Viewer::Auxdata) );
     }
 }
 
@@ -604,7 +605,8 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
     fv->appearance().annot_.x1_.showannot_ = true;
     fv->appearance().annot_.x2_.showannot_ = vwrs_.size()==1;
     setAnnotationPars( fv->appearance().annot_ );
-    fv->handleChange( FlatView::Viewer::DisplayPars | FlatView::Viewer::Annot );
+    fv->handleChange( sCast(od_uint32,FlatView::Viewer::DisplayPars) |
+		      sCast(od_uint32,FlatView::Viewer::Annot) );
     control_->addViewer( *fv );
 }
 
@@ -701,8 +703,8 @@ void uiViewer2DMainWin::setAppearance( const FlatView::Appearance& app,
 	viewapp.annot_.x2_.showannot_ = gidx==0;
 	setAnnotationPars( viewapp.annot_ );
 	vwr->appearance() = viewapp;
-	vwr->handleChange( FlatView::Viewer::DisplayPars |
-			   FlatView::Viewer::Annot );
+	vwr->handleChange( sCast(od_uint32,FlatView::Viewer::DisplayPars) |
+			   sCast(od_uint32,FlatView::Viewer::Annot) );
     }
 }
 
@@ -849,14 +851,9 @@ bool uiViewer2DMainWin::getStoredAppearance( PSViewAppearance& psapp ) const
 
 uiStoredViewer2DMainWin::uiStoredViewer2DMainWin( uiParent* p,
 						  const char* title, bool is2d )
-    : uiViewer2DMainWin(p,title)
-    , linename_(0)
-    , angleparams_(0)
-    , doanglegather_(false)
+    : uiViewer2DMainWin(p,title,false)
     , is2d_(is2d)
-    , slicepos_(0)
 {
-    hasangledata_ = false;
     if ( !is2d_ )
     {
 	slicepos_ = new uiSlicePos2DView( this, ZDomain::Info(SI().zDomain()) );
@@ -1242,7 +1239,7 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
     else
 	gd->setVDGather( -1 );
 
-    uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
+    auto* gdi = new uiGatherDisplayInfoHeader( nullptr );
     setGatherInfo( gdi, gatherinfo );
     gdi->setOffsetRange( gd->getOffsetRange() );
     setGatherView( gd, gdi );
@@ -1254,9 +1251,8 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 
 uiSyntheticViewer2DMainWin::uiSyntheticViewer2DMainWin( uiParent* p,
 							const char* title )
-    : uiViewer2DMainWin(p,title)
+    : uiViewer2DMainWin(p,title,true)
 {
-    hasangledata_ = true;
 }
 
 
@@ -1306,13 +1302,6 @@ void uiSyntheticViewer2DMainWin::getGatherNames( BufferStringSet& nms) const
 
 uiSyntheticViewer2DMainWin::~uiSyntheticViewer2DMainWin()
 {
-    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
-    {
-	DPM( DataPackMgr::FlatID() ).release( gatherinfos_[idx].vddpid_ );
-	DPM( DataPackMgr::FlatID() ).release( gatherinfos_[idx].wvadpid_ );
-    }
-
-    removeGathers();
 }
 
 
@@ -1344,51 +1333,35 @@ void uiSyntheticViewer2DMainWin::posDlgChgCB( CallBacker* )
 
 void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps )
 {
-    setGathers( dps, true );
-}
-
-
-void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
-					     bool getstartups )
-{
     TypeSet<PSViewAppearance> oldapps = appearances_;
-    appearances_.erase();
+    appearances_.setEmpty();
     BufferStringSet oldgathernms;
-    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
-	oldgathernms.addIfNew( gatherinfos_[idx].gathernm_ );
+    for ( const auto& ginfo : gatherinfos_ )
+	oldgathernms.addIfNew( ginfo.gathernm_ );
+
     gatherinfos_ = dps;
     StepInterval<int> trcrg( mUdf(int), -mUdf(int), 1 );
     tkzs_.hsamp_.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl(),
 					   gatherinfos_[0].bid_.inl(),1) );
     BufferStringSet newgathernms;
-    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
+    for ( const auto& ginfo : gatherinfos_ )
     {
-	PreStackView::GatherInfo ginfo = gatherinfos_[idx];
-	trcrg.include( ginfo.bid_.crl(), false );
+	PreStackView::GatherInfo newginfo( ginfo );
+	trcrg.include( newginfo.bid_.crl(), false );
 	PSViewAppearance dummypsapp;
-	dummypsapp.datanm_ = ginfo.gathernm_;
-	newgathernms.addIfNew( ginfo.gathernm_ );
+	dummypsapp.datanm_ = newginfo.gathernm_;
+	newgathernms.addIfNew( newginfo.gathernm_ );
 	if ( oldapps.isPresent(dummypsapp) &&
 	     !appearances_.isPresent(dummypsapp) )
-	    oldgathernms.addIfNew( ginfo.gathernm_ );
+	    oldgathernms.addIfNew( newginfo.gathernm_ );
     }
 
     prepareNewAppearances( oldgathernms, newgathernms );
     trcrg.step = SI().crlStep();
-    TypeSet<BinID> selbids;
-    if ( getstartups )
-    {
-	getStartupPositions( gatherinfos_[0].bid_, trcrg, true, selbids );
-	for ( int idx=0; idx<gatherinfos_.size(); idx++ )
-	{
-	    gatherinfos_[idx].isselected_ =
-		selbids.isPresent( gatherinfos_[idx].bid_ );
-	}
-    }
-
     tkzs_.hsamp_.setCrlRange( trcrg );
     if ( !posdlg_ )
 	tkzs_.zsamp_.set( mUdf(float), -mUdf(float), SI().zStep() );
+
     setUpView();
     reSizeSld(0);
 }
@@ -1399,22 +1372,22 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
     if ( !ginfo.isselected_ )
 	return;
 
-    uiGatherDisplay* gd = new uiGatherDisplay( 0 );
+    auto* gd = new uiGatherDisplay( nullptr );
     DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
     ConstDataPackRef<PreStack::Gather> vdgather = dpm.obtain( ginfo.vddpid_ );
     ConstDataPackRef<PreStack::Gather> wvagather = dpm.obtain( ginfo.wvadpid_ );
 
     if ( !vdgather && !wvagather  )
     {
-	gd->setVDGather( -1 );
-	gd->setWVAGather( -1 );
+	gd->setVDGather( DataPack::cUdfID() );
+	gd->setWVAGather( DataPack::cUdfID() );
 	return;
     }
 
     if ( !posdlg_ )
 	tkzs_.zsamp_.include( wvagather ? wvagather->zRange()
 				        : vdgather->zRange(), false );
-    DataPack::ID ppgatherid = -1;
+    DataPack::ID ppgatherid = DataPack::cUdfID();
     if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	ppgatherid = getPreProcessedID( ginfo );
 
@@ -1424,7 +1397,7 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
     gd->setWVAGather( ginfo.vddpid_>=0 ? ppgatherid>=0 ? ppgatherid
 						       : ginfo.wvadpid_
 				       : -1 );
-    uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
+    auto* gdi = new uiGatherDisplayInfoHeader( nullptr );
     setGatherInfo( gdi, ginfo );
     gdi->setOffsetRange( gd->getOffsetRange() );
     setGatherView( gd, gdi );
@@ -1436,9 +1409,8 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 
 void uiSyntheticViewer2DMainWin::removeGathers()
 {
-    gatherinfos_.erase();
+    gatherinfos_.setEmpty();
 }
-
 
 
 void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
@@ -1521,7 +1493,7 @@ void uiViewer2DControl::coltabChg( CallBacker* )
 	if ( !vwrs_[ivwr] ) continue;
 	uiFlatViewer& vwr = *vwrs_[ivwr];
 	vwr.appearance().ddpars_ = app_.ddpars_;
-	vwr.handleChange( FlatView::Viewer::DisplayPars );
+	vwr.handleChange( sCast(od_uint32,FlatView::Viewer::DisplayPars) );
     }
 }
 
@@ -1538,7 +1510,8 @@ PSViewAppearance uiViewer2DControl::curViewerApp()
 
 void uiViewer2DControl::applyProperties( CallBacker* )
 {
-    if ( !pspropdlg_ ) return;
+    if ( !pspropdlg_ )
+	return;
 
     TypeSet<int> vwridxs = pspropdlg_->activeViewerIdx();
     const int actvwridx = vwridxs[0];
@@ -1576,20 +1549,33 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 	    flip( false );
 	}
 
+	bool bitmapchanged = false;
+	const bool doupdate = vwr.enableChange( false );
+	const DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
 	for ( int idx=0; idx<vwr.availablePacks().size(); idx++ )
 	{
 	    const DataPack::ID& id = vwr.availablePacks()[idx];
-	    FixedString datanm( DPM(DataPackMgr::FlatID()).nameOf(id) );
-	    if ( vddatapack && vddatapack->name() == datanm &&
-		 app_.ddpars_.vd_.show_ )
-		vwr.usePack( false, id, false );
-	    if ( wvadatapack && wvadatapack->name() == datanm &&
-		 app_.ddpars_.wva_.show_ )
-		vwr.usePack( true, id, false );
+	    const FixedString datanm( dpm.nameOf(id) );
+	    const bool wva = wvadatapack && wvadatapack->name() == datanm &&
+			     app_.ddpars_.wva_.show_ ;
+	    const bool vd = vddatapack && vddatapack->name() == datanm &&
+			    app_.ddpars_.vd_.show_;
+	    const FlatView::Viewer::VwrDest dest =
+				FlatView::Viewer::getDest( wva, vd );
+	    if ( dest == FlatView::Viewer::None )
+		continue;
+
+	    bitmapchanged = true;
+	    vwr.usePack( dest, id, false );
 	}
 
-	vwr.handleChange( FlatView::Viewer::DisplayPars |
-			  FlatView::Viewer::Annot );
+	vwr.enableChange( doupdate );
+	od_uint32 ctyp = sCast(od_uint32,FlatView::Viewer::DisplayPars) |
+			 sCast(od_uint32,FlatView::Viewer::Annot);
+	if ( bitmapchanged )
+	    ctyp |= sCast(od_uint32,FlatView::Viewer::BitmapData);
+
+	vwr.handleChange( ctyp );
     }
 }
 

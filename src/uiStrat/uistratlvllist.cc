@@ -25,14 +25,12 @@ ________________________________________________________________________
 uiStratLvlList::uiStratLvlList( uiParent* p )
     : uiListBox(p,Setup(OD::ChooseOnlyOne,tr("Regional markers"),
 			uiListBox::AboveMid))
-    , islocked_(false)
-    , anychange_(false)
 {
     setStretch( 2, 2 );
     setFieldWidth( 15 );
-    doubleClicked.notify( mCB(this,uiStratLvlList,editCB) );
+    mAttachCB( doubleClicked, uiStratLvlList::editCB );
 
-    uiButtonGroup* grp = new uiButtonGroup( this, "Tools", OD::Vertical );
+    auto* grp = new uiButtonGroup( this, "Tools", OD::Vertical );
     grp->attach( rightTo, box() );
     new uiToolButton( grp, "addnew", uiStrings::phrCreate(uiStrings::sNew()),
 		      mCB(this,uiStratLvlList,addCB) );
@@ -49,24 +47,19 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
 }
 
 
-void uiStratLvlList::setLevels()
+uiStratLvlList::~uiStratLvlList()
 {
-    Strat::LevelSet& levelset = Strat::eLVLS();
-    levelset.levelChanged.notifyIfNotNotified( mCB(this,uiStratLvlList,fill) );
-    levelset.levelAdded.notifyIfNotNotified( mCB(this,uiStratLvlList,fill) );
-    levelset.levelToBeRemoved.notifyIfNotNotified(
-	    mCB(this,uiStratLvlList,removeLvl) );
-
-    fill(0);
+    detachAllNotifiers();
 }
 
 
-uiStratLvlList::~uiStratLvlList()
+void uiStratLvlList::setLevels()
 {
     Strat::LevelSet& levelset = Strat::eLVLS();
-    levelset.levelChanged.remove( mCB(this,uiStratLvlList,fill) );
-    levelset.levelAdded.remove( mCB(this,uiStratLvlList,fill) );
-    levelset.levelToBeRemoved.remove( mCB(this,uiStratLvlList,removeLvl) );
+    mAttachCB( levelset.changed, uiStratLvlList::lvlSetChgCB );
+    mAttachCB( levelset.levelAdded, uiStratLvlList::lvlSetChgCB );
+    mAttachCB( levelset.levelToBeRemoved, uiStratLvlList::lvlSetChgCB );
+    fill();
 }
 
 
@@ -99,14 +92,16 @@ void uiStratLvlList::addCB( CallBacker* )
 void uiStratLvlList::removeCB( CallBacker* )
 {
     mCheckLocked; mCheckEmptyList;
-    uiString msg = tr("This will remove the selected marker.");
-    if ( !uiMSG().askRemove(msg) ) return;
+    uiString msg = tr("This will remove the selected Level.");
+    if ( !uiMSG().askRemove(msg) )
+	return;
 
     Strat::LevelSet& levelset = Strat::eLVLS();
     const char* lvlnm = getText();
-    if ( !levelset.isPresent(lvlnm) ) return;
+    if ( !levelset.isPresent(lvlnm) )
+	return;
 
-    const Strat::Level& lvl = *levelset.get( lvlnm );
+    const Strat::Level lvl = levelset.getByName( lvlnm );
     levelset.remove( lvl.id() ) ;
     anychange_ = true;
 }
@@ -115,53 +110,37 @@ void uiStratLvlList::removeCB( CallBacker* )
 void uiStratLvlList::removeAllCB( CallBacker* )
 {
     mCheckLocked; mCheckEmptyList;
-    uiString msg = tr("This will remove all the markers present in the list,"
+    uiString msg = tr("This will remove all the levels present in the list,"
 		      " do you want to continue ?");
-    if ( !uiMSG().askRemove(msg) ) return;
+    if ( !uiMSG().askRemove(msg) )
+	return;
 
-    Strat::LevelSet& levelset = Strat::eLVLS();
-    for ( int idx=levelset.size()-1; idx>=0; idx-- )
-    {
-	const Strat::Level* lvl = levelset.levels()[idx];
-	if ( lvl->id() >= 0 )
-	{
-	    levelset.remove( lvl->id() );
-	    anychange_ = true;
-	}
-    }
+    Strat::eLVLS().setEmpty();
+    anychange_ = true;
 }
 
 
-void uiStratLvlList::removeLvl( CallBacker* cb )
+void uiStratLvlList::lvlSetChgCB( CallBacker* )
 {
-    mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
-    if ( !lvlset )
-	{ pErrMsg( "cb null or not a LevelSet" ); return; }
-    const int lvlidx = lvlset->notifLvlIdx();
-    if ( lvlset->levels().validIdx( lvlidx ) )
-    {
-	const Strat::Level* lvl = lvlset->levels()[lvlidx];
-	if ( isPresent( lvl->name() ) )
-	    removeItem( indexOf( lvl->name() ) );
-    }
-    if ( isEmpty() )
-	addItem( toUiString("--- %1 ---").arg(uiStrings::sNone()) );
+    //TODO merge edits with new situation
+    fill();
 }
 
 
-void uiStratLvlList::fill( CallBacker* )
+void uiStratLvlList::fill()
 {
     setEmpty();
-    BufferStringSet lvlnms;
-    TypeSet<OD::Color> lvlcolors;
 
     const Strat::LevelSet& lvls = Strat::LVLS();
+    BufferStringSet lvlnms;
+    TypeSet<OD::Color> lvlcolors;
     for ( int idx=0; idx<lvls.size(); idx++ )
     {
-	const Strat::Level& lvl = *lvls.levels()[idx];
+	const Strat::Level lvl = lvls.getByIdx( idx );
 	lvlnms.add( lvl.name() );
 	lvlcolors += lvl.color();
     }
+
     for ( int idx=0; idx<lvlnms.size(); idx++ )
 	addItem( toUiString(lvlnms[idx]->buf()), lvlcolors[idx] );
 
@@ -173,27 +152,32 @@ void uiStratLvlList::fill( CallBacker* )
 void uiStratLvlList::editLevel( bool create )
 {
     Strat::LevelSet& lvls = Strat::eLVLS();
-    BufferString oldnm = create ? "" : getText();
-    uiStratLevelDlg newlvldlg( this );
-    newlvldlg.setCaption( create ? tr("Create level") : tr("Edit level") );
-    Strat::Level* lvl = create ? 0 : lvls.get( oldnm );
-    if ( lvl ) newlvldlg.setLvlInfo( oldnm, lvl->color() );
-    if ( newlvldlg.go() )
+    BufferString oldnm;
+
+    uiStratLevelDlg lvldlg( this );
+    lvldlg.setCaption( create ? tr("Create level") : tr("Edit level") );
+    Strat::Level lvl = Strat::Level::undef();
+    if ( !create )
+    {
+	oldnm.set( getText() );
+	lvl = lvls.getByName( oldnm );
+	lvldlg.setLvlInfo( oldnm, lvl.color() );
+    }
+
+    if ( lvldlg.go() )
     {
 	BufferString nm;
 	OD::Color col;
-	newlvldlg.getLvlInfo( nm, col );
-	if ( !nm.isEmpty() && oldnm!=nm && lvls.isPresent( nm ) )
-	    { uiMSG().error(tr("Level name is empty or already exists"));
-              return; }
-	if ( create )
-	    lvl = lvls.add( nm.buf(), col );
-	else if ( lvl )
+	lvldlg.getLvlInfo( nm, col );
+	if ( !nm.isEmpty() && oldnm != nm && lvls.isPresent(nm) )
 	{
-	    lvl->setName( nm.buf() );
-	    lvl->setColor( col );
+	    uiMSG().error( tr("Level name is empty or already exists") );
+	    return;
 	}
 
+	lvl.setName( nm.buf() );
+	lvl.setColor( col );
+	lvls.set( lvl );
 	anychange_ = true;
     }
 }

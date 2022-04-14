@@ -14,64 +14,9 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "prestackgather.h"
 #include "seisbufadapters.h"
+#include "seistrc.h"
 
-static const char* sKeyDispPar()		{ return "Display Parameter"; }
-const char* PostStackSyntheticData::sDataPackCategory()
-{ return "Post-stack synthetics"; }
-
-
-SynthFVSpecificDispPars::SynthFVSpecificDispPars()
-{}
-
-
-void SynthFVSpecificDispPars::fillPar( IOPar& par ) const
-{
-    IOPar disppar, vdmapperpar, wvamapperpar;
-    vdmapperpar.set( FlatView::DataDispPars::sKeyColTab(), ctab_ );
-    wvamapperpar.set( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
-    vdmapper_.fillPar( vdmapperpar );
-    disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyVD() );
-    wvamapper_.fillPar( wvamapperpar );
-    disppar.mergeComp( wvamapperpar, FlatView::DataDispPars::sKeyWVA() );
-    par.mergeComp( disppar, sKeyDispPar() );
-}
-
-
-void SynthFVSpecificDispPars::usePar( const IOPar& par )
-{
-    PtrMan<IOPar> disppar = par.subselect( sKeyDispPar() );
-    if ( !disppar )
-	return;
-
-    overlap_ = 1.0f;
-    disppar->get( FlatView::DataDispPars::sKeyColTab(), ctab_ );
-    disppar->get( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
-    PtrMan<IOPar> vdmapperpar =
-	disppar->subselect( FlatView::DataDispPars::sKeyVD() );
-    if ( !vdmapperpar ) // Older par file
-    {
-	vdmapper_.type_ = ColTab::MapperSetup::Fixed;
-	wvamapper_.type_ = ColTab::MapperSetup::Fixed;
-	disppar->get( sKey::Range(), vdmapper_.range_ );
-	disppar->get( sKey::Range(), wvamapper_.range_ );
-    }
-    else
-    {
-	 if ( vdmapperpar )
-	 {
-	     vdmapper_.usePar( *vdmapperpar );
-	     vdmapperpar->get( FlatView::DataDispPars::sKeyColTab(), ctab_ );
-	 }
-	 PtrMan<IOPar> wvamapperpar =
-	     disppar->subselect( FlatView::DataDispPars::sKeyWVA() );
-	 if ( wvamapperpar )
-	 {
-	     wvamapper_.usePar( *wvamapperpar );
-	     wvamapperpar->get(FlatView::DataDispPars::sKeyOverlap(),overlap_);
-	 }
-    }
-}
-
+static Threads::Atomic<int> curdatasetid_( 0 );
 
 
 SyntheticData::SyntheticData( const SynthGenParams& sgp,
@@ -88,7 +33,12 @@ SyntheticData::SyntheticData( const SynthGenParams& sgp,
 
 SyntheticData::~SyntheticData()
 {
-    removePack();
+}
+
+
+SyntheticData::SynthID SyntheticData::getNewID()
+{
+    return SynthID( ++curdatasetid_ );
 }
 
 
@@ -108,14 +58,6 @@ bool SyntheticData::isOK() const
 }
 
 
-void SyntheticData::removePack()
-{
-    const DataPack::FullID dpid = datapackid_;
-    DataPackMgr::ID packmgrid = DataPackMgr::getID( dpid );
-    DPM(packmgrid).release( dpid.ID(1) );
-}
-
-
 void SyntheticData::useGenParams( const SynthGenParams& sgp )
 {
     if ( sgp.synthtype_ != sgp_.synthtype_ )
@@ -131,34 +73,22 @@ void SyntheticData::useGenParams( const SynthGenParams& sgp )
 }
 
 
-void SyntheticData::fillDispPar( IOPar& par ) const
-{
-    disppars_.fillPar( par );
-}
-
-
-void SyntheticData::useDispPar( const IOPar& par )
-{
-    disppars_.usePar( par );
-}
-
-
 const char* SyntheticData::waveletName() const
 {
     return sgp_.getWaveletNm();
 }
 
 
-float SyntheticData::getTime( float dpt, int seqnr ) const
+float SyntheticData::getTime( float dpt, int trcnr ) const
 {
-    const TimeDepthModel* tdmodel = getTDModel( seqnr );
+    const TimeDepthModel* tdmodel = getTDModel( trcnr );
     return tdmodel ? tdmodel->getTime( dpt ) : mUdf( float );
 }
 
 
-float SyntheticData::getDepth( float time, int seqnr ) const
+float SyntheticData::getDepth( float time, int trcnr ) const
 {
-    const TimeDepthModel* tdmodel = getTDModel( seqnr );
+    const TimeDepthModel* tdmodel = getTDModel( trcnr );
     return tdmodel ? tdmodel->getDepth( time ) : mUdf( float );
 }
 
@@ -175,23 +105,23 @@ const ReflectivityModelSet& SyntheticData::getRefModels() const
 }
 
 
-const ReflectivityModelBase* SyntheticData::getRefModel( int imdl ) const
+const ReflectivityModelBase* SyntheticData::getRefModel( int itrc ) const
 {
     const ReflectivityModelSet& refmodels = getRefModels();
-    return refmodels.validIdx(imdl) ? refmodels.get( imdl ) : nullptr;
+    return refmodels.validIdx(itrc) ? refmodels.get( itrc ) : nullptr;
 }
 
 
-const TimeDepthModel* SyntheticData::getTDModel( int imdl ) const
+const TimeDepthModel* SyntheticData::getTDModel( int itrc ) const
 {
-    const ReflectivityModelBase* refmodel = getRefModel( imdl );
+    const ReflectivityModelBase* refmodel = getRefModel( itrc );
     return refmodel ? &refmodel->getDefaultModel() : nullptr;
 }
 
 
-const TimeDepthModel* SyntheticData::getTDModel( int imdl, int ioff ) const
+const TimeDepthModel* SyntheticData::getTDModel( int itrc, int ioff ) const
 {
-    const ReflectivityModelBase* refmodel = getRefModel( imdl );
+    const ReflectivityModelBase* refmodel = getRefModel( itrc );
     return refmodel ? refmodel->get( ioff ) : nullptr;
 }
 
@@ -230,7 +160,7 @@ ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
 	if ( !synthgen.getTraces(tbufs) )
 	    return nullptr;
 
-	const bool iscorrected = genres->isCorrected();
+	const bool iscorrected = sgp.isCorrected();
 	ObjectSet<PreStack::Gather> gatherset;
 	while ( tbufs.size() )
 	{
@@ -239,6 +169,7 @@ ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
 	    if ( !gather->setFromTrcBuf(*tbuf,0) )
 		{ delete gather; continue; }
 
+	    gather->setName( sgp.name_ );
 	    gather->setCorrected( iscorrected );
 	    gatherset += gather;
 	}
@@ -263,24 +194,50 @@ PostStackSyntheticData::PostStackSyntheticData( const SynthGenParams& sgp,
 				    SeisTrcBufDataPack& dp)
     : SyntheticData(sgp,synthdp,dp)
 {
-    DataPackMgr::ID pmid = DataPackMgr::FlatID();
-    DPM( pmid ).addAndObtain( &dp );
-    datapackid_ = DataPack::FullID( pmid, dp.id());
+    DPM( groupID() ).addAndObtain( &datapack_ );
 }
 
 
 PostStackSyntheticData::~PostStackSyntheticData()
 {
+    DPM( groupID() ).release( datapack_.id() );
 }
 
 
-const SeisTrc* PostStackSyntheticData::getTrace( int seqnr ) const
-{ return postStackPack().trcBuf().get( seqnr ); }
+DataPack::ID PostStackSyntheticData::groupID()
+{
+    return DataPackMgr::FlatID();
+}
+
+
+DataPack::FullID PostStackSyntheticData::fullID() const
+{
+    DataPack::FullID fid;
+    fid.setGroupID( groupID() ).setObjectID( datapack_.id() );
+    return fid;
+}
+
+
+const char* PostStackSyntheticData::sDataPackCategory()
+{
+    return "Post-stack synthetics";
+}
+
+
+const SeisTrc* PostStackSyntheticData::getTrace( int trcnr ) const
+{ return postStackPack().trcBuf().get( trcnr ); }
 
 
 int PostStackSyntheticData::nrPositions() const
 {
     return postStackPack().trcBuf().size();
+}
+
+
+ZSampling PostStackSyntheticData::zRange() const
+{
+    const SeisTrcBuf& tbuf = postStackPack().trcBuf();
+    return tbuf.isEmpty() ? tbuf.zRange() : tbuf.first()->zRange();
 }
 
 
@@ -296,25 +253,96 @@ const SeisTrcBufDataPack& PostStackSyntheticData::postStackPack() const
 }
 
 
+const FlatDataPack* PostStackSyntheticData::getTrcDP() const
+{
+    return &postStackPack();
+}
+
+
+const FlatDataPack* PostStackSyntheticData::getFlattenedTrcDP(
+			    const TypeSet<float>& zvals, bool istime ) const
+{
+    if ( zvals.isEmpty() )
+	return getTrcDP();
+    if ( zvals.size() != nrPositions() )
+	{ pErrMsg("wrong size"); return getTrcDP(); }
+
+    const TypeSet<float>* tvals = &zvals;
+    PtrMan<TypeSet<float> > tconvsdeleter;
+    if ( !istime )
+    {
+	const int nrtrcs = zvals.size();
+	auto* tconvs = new TypeSet<float>( nrtrcs, 0.f );
+	for ( int itrc=0; itrc<nrtrcs; itrc++ )
+	    tconvs->get(itrc) = getTime( zvals[itrc], itrc );
+	tvals = tconvs;
+	tconvsdeleter = tconvs;
+    }
+
+    const SeisTrcBufDataPack& tbdp = postStackPack();
+    const SeisTrcBuf& tbuf = tbdp.trcBuf();
+    const Interval<float> zrg = tbuf.getZRange4Shifts( *tvals, true );
+    if ( mIsUdf(zrg.start) )
+	return getTrcDP();
+
+    auto* dptrcbuf = new SeisTrcBuf( true );
+    tbuf.getShifted( zrg, *tvals, true, mUdf(float), *dptrcbuf );
+    auto* dp = new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
+				PostStackSyntheticData::sDataPackCategory() );
+    dp->setName( name() );
+
+    return dp;
+}
+
+
 PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
 					const Seis::SynthGenDataPack& synthdp,
 					PreStack::GatherSetDataPack& dp )
     : SyntheticData(sgp,synthdp,dp)
 {
-    DataPackMgr::ID pmid = DataPackMgr::SeisID();
-    DPM( pmid ).addAndObtain( &dp );
-    datapackid_ = DataPack::FullID( pmid, dp.id());
-    ObjectSet<PreStack::Gather>& gathers = dp.getGathers();
-    for ( int idx=0; idx<gathers.size(); idx++ )
-	gathers[idx]->setName( name() );
+    DPM( groupID() ).addAndObtain( &datapack_ );
+    auto& gathers = const_cast<ObjectSet<PreStack::Gather>&>( dp.getGathers() );
+    for ( auto* gather : gathers )
+	gather->setName( name() );
 }
 
 
 PreStackSyntheticData::~PreStackSyntheticData()
 {
-    DPM( DataPackMgr::SeisID() ).release( datapack_.id() );
+    DPM( groupID() ).release( datapack_.id() );
     if ( angledp_ )
-	DPM( DataPackMgr::SeisID() ).release( angledp_->id() );
+	DPM( groupID() ).release( angledp_->id() );
+}
+
+
+DataPack::ID PreStackSyntheticData::groupID()
+{
+    return DataPackMgr::SeisID();
+}
+
+
+DataPack::FullID PreStackSyntheticData::fullID() const
+{
+    DataPack::FullID fid;
+    fid.setGroupID( groupID() ).setObjectID( datapack_.id() );
+    return fid;
+}
+
+
+void PreStackSyntheticData::setName( const char* nm )
+{
+    SyntheticData::setName( nm );
+    auto& gathers =
+	const_cast<ObjectSet<PreStack::Gather>&>( preStackPack().getGathers() );
+    for ( auto* gather : gathers )
+	gather->setName( nm );
+
+    const BufferString anglenm( nm, " (Angle Gather)" );
+    angledp_->setName( anglenm );
+    auto& anglegathers =
+	const_cast<ObjectSet<PreStack::Gather>&>( angledp_->getGathers() );
+    for ( auto* anglegather : anglegathers )
+	anglegather->setName( anglenm );
 }
 
 
@@ -330,9 +358,23 @@ const PreStack::GatherSetDataPack& PreStackSyntheticData::preStackPack() const
 }
 
 
+void PreStackSyntheticData::obtainGathers()
+{
+    preStackPack().obtainGathers();
+    if ( angledp_ )
+	angledp_->obtainGathers();
+}
+
+
 int PreStackSyntheticData::nrPositions() const
 {
     return preStackPack().getGathers().size();
+}
+
+
+ZSampling PreStackSyntheticData::zRange() const
+{
+    return preStackPack().zRange();
 }
 
 
@@ -349,12 +391,14 @@ void PreStackSyntheticData::setAngleData(
 					const ObjectSet<PreStack::Gather>& ags )
 {
     if ( angledp_ )
-	DPM( DataPackMgr::SeisID() ).release( angledp_->id() );
+	DPM( groupID() ).release( angledp_->id() );
 
     angledp_ = new PreStack::GatherSetDataPack( nullptr, ags );
     const BufferString angledpnm( name().buf(), " (Angle Gather)" );
     angledp_->setName( angledpnm );
-    DPM( DataPackMgr::SeisID() ).addAndObtain( angledp_ );
+    for ( auto* gather : const_cast<ObjectSet<PreStack::Gather>&>(ags) )
+	gather->setName( angledpnm );
+    DPM( groupID() ).addAndObtain( angledp_ );
 }
 
 
@@ -391,22 +435,91 @@ bool PreStackSyntheticData::hasOffset() const
 
 bool PreStackSyntheticData::isNMOCorrected() const
 {
-    return synthgendp_->isCorrected();
+    return getGenParams().isCorrected();
 }
 
 
-const SeisTrc* PreStackSyntheticData::getTrace( int seqnr, int* offset ) const
-{ return preStackPack().getTrace( seqnr, offset ? *offset : 0 ); }
+const SeisTrc* PreStackSyntheticData::getTrace( int trcnr, int* offset ) const
+{ return preStackPack().getTrace( trcnr, offset ? *offset : 0 ); }
 
 
 SeisTrcBuf* PreStackSyntheticData::getTrcBuf( float offset,
 					const Interval<float>* stackrg ) const
 {
-    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
+    auto* tbuf = new SeisTrcBuf( true );
     Interval<float> offrg = stackrg ? *stackrg : Interval<float>(offset,offset);
     preStackPack().fill( *tbuf, offrg );
     return tbuf;
 }
+
+
+const FlatDataPack* PreStackSyntheticData::getTrcDPAtOffset( int offsidx ) const
+{
+    auto* dptrcbuf = new SeisTrcBuf( true );
+    const int nrtrcsc = nrPositions();
+
+    for ( int itrc=0; itrc<nrtrcsc; itrc++ )
+    {
+	const SeisTrc* trc = getTrace( itrc, &offsidx );
+	if ( trc )
+	    dptrcbuf->add( new SeisTrc(*trc) );
+	else
+	{
+	    pErrMsg("null trc");
+	    dptrcbuf->add( new SeisTrc(preStackPack().zRange().nrSteps()+1) );
+	}
+    }
+
+    auto* dp = new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
+				PostStackSyntheticData::sDataPackCategory() );
+    dp->setName( name() );
+    return dp;
+}
+
+
+const FlatDataPack* PreStackSyntheticData::getFlattenedTrcDP(
+						const TypeSet<float>& zvals,
+						bool istime, int offsidx ) const
+{
+    if ( zvals.isEmpty() )
+	return getTrcDPAtOffset( offsidx );
+    if ( zvals.size() != nrPositions() )
+	{ pErrMsg("wrong size"); return getTrcDPAtOffset( offsidx ); }
+
+    const TypeSet<float>* tvals = &zvals;
+    PtrMan<TypeSet<float> > tconvsdeleter;
+    const bool iscorrected = isNMOCorrected();
+    if ( !istime )
+    {
+	const int nrtrcs = zvals.size();
+	auto* tconvs = new TypeSet<float>( nrtrcs, 0.f );
+	for ( int itrc=0; itrc<nrtrcs; itrc++ )
+	{
+	    tconvs->get(itrc) = iscorrected
+		? getTDModel( itrc )->getTime( zvals[itrc] )
+		: getTDModel( itrc, offsidx )->getTime( zvals[itrc] );
+	}
+	tvals = tconvs;
+	tconvsdeleter = tconvs;
+    }
+
+    const PreStack::GatherSetDataPack& tbdp = preStackPack();
+    PtrMan<SeisTrcBuf> tbuf = new SeisTrcBuf( true );
+    tbdp.fill( *tbuf.ptr(), offsidx );
+    const Interval<float> zrg = tbuf->getZRange4Shifts( *tvals, true );
+    if ( mIsUdf(zrg.start) )
+	return getTrcDPAtOffset( offsidx );
+
+    auto* dptrcbuf = new SeisTrcBuf( true );
+    tbuf->getShifted( zrg, *tvals, true, mUdf(float), *dptrcbuf );
+    tbuf = nullptr;
+    auto* dp = new SeisTrcBufDataPack( dptrcbuf, Seis::Line, SeisTrcInfo::TrcNr,
+				PostStackSyntheticData::sDataPackCategory() );
+    dp->setName( name() );
+
+    return dp;
+}
+
 
 
 PostStackSyntheticDataWithInput::PostStackSyntheticDataWithInput(

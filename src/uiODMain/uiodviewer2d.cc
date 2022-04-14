@@ -318,7 +318,7 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
 	const TypeSet<DataPack::ID> ids = vwr.availablePacks();
 	if ( ids.isPresent(packid) )
-	{ vwr.usePack( wva, packid, isnew ); continue; }
+	    { vwr.usePack( FlatView::Viewer::WVA, packid, isnew ); continue; }
 
 	const FixedString newpackname = dpm.nameOf(packid);
 	bool setforotherdisp = false;
@@ -334,9 +334,10 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 	    }
 	}
 
-	vwr.setPack( wva, packid, isnew );
-	if ( setforotherdisp || (isnew && wvaselspec_==vdselspec_) )
-	    vwr.usePack( !wva, packid, isnew );
+	const FlatView::Viewer::VwrDest dest =
+	    FlatView::Viewer::getDest( wva, setforotherdisp ||
+					    (isnew && wvaselspec_==vdselspec_));
+	vwr.setPack( dest, packid, isnew );
     }
 
     dataChanged.trigger( this );

@@ -214,23 +214,27 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 	item->setCursor( cursor_ );
     }
 
-    if ( !name_.isEmpty() && !mIsUdf(namepos_) )
+    if ( !name_.isEmpty() && namepos_ != NoDraw && !poly_.isEmpty() )
     {
-	int listpos = namepos_;
-	if ( listpos < 0 ) listpos=0;
-	if ( listpos > poly_.size() ) listpos = poly_.size()-1;
-
 	if ( !nameitem_ )
 	{
 	    nameitem_ = new uiTextItem;
 	    display_->add( nameitem_ );
 	}
+
 	nameitem_->setText( mToUiStringTodo(name_) );
 	nameitem_->setAlignment( namealignment_ );
 
 	nameitem_->setTextColor( linestyle_.color_ );
-	if ( poly_.size() > listpos )
-	    nameitem_->setPos( poly_[listpos] );
+	int listpos = 0;
+	if ( namepos_ == First || poly_.size() == 1 )
+	    listpos = 0;
+	else if ( namepos_ == Last )
+	    listpos = poly_.size()-1;
+	else if ( namepos_ == Center )
+	    listpos = poly_.size()/2;
+
+	nameitem_->setPos( poly_[listpos] );
     }
     else if ( nameitem_ )
     {
@@ -243,18 +247,23 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
 {
     //The aux-data is sitting in the viewer's world space.
-    //If we have own axises, we need to set the transform
+    //If we have own axes, we need to set the transform
     //so the local space transforms to the worlds.
 
     double xpos = 0, ypos = 0, xscale = 1, yscale = 1;
     const uiWorldRect& curview = viewer_->curView();
 
-    if ( fitnameinview_ && nameitem_ && !poly_.isEmpty() )
+    if ( fitnameinview_ && nameitem_ && namepos_ != NoDraw && !poly_.isEmpty() )
     {
-	int listpos = namepos_;
-	if ( listpos < 0 ) listpos=0;
-	if ( listpos > poly_.size() ) listpos = poly_.size()-1;
-	FlatView::Point modnamepos = poly_[listpos];
+	int listpos = 0;
+	if ( namepos_ == First || poly_.size() == 1 )
+	    listpos = 0;
+	else if ( namepos_ == Last )
+	    listpos = poly_.size()-1;
+	else if ( namepos_ == Center )
+	    listpos = poly_.size()-2;
+
+	FlatView::Point modnamepos = mCast(FlatView::Point,poly_[listpos]);
 
 	Interval<float> vwrxrg;
 	vwrxrg.start = sCast(float,curview.topLeft().x);
@@ -264,13 +273,13 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
 	vwryrg.stop = sCast(float,curview.bottomRight().y);
 
 	Geom::Point2D<double> pt(display_->getUiItem(listpos)->getPos().x,
-				    display_->getUiItem(listpos)->getPos().y);
+				 display_->getUiItem(listpos)->getPos().y);
 
-	bool isitminxview = vwrxrg.includes(pt.x,true);
-	bool isitminyview = vwryrg.includes(pt.y,true);
-
+	const bool isitminxview = vwrxrg.includes(pt.x,true);
+	const bool isitminyview = vwryrg.includes(pt.y,true);
 	if ( isitminxview || isitminyview  )
 	    modnamepos = curview.moveInside( modnamepos );
+
 	nameitem_->setPos( modnamepos );
     }
 

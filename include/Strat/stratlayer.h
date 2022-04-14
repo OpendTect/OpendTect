@@ -62,6 +62,7 @@ public:
     bool		isMath(int) const;
     const LayerValue*	getLayerValue(int) const;
     void		getValues(TypeSet<float>&) const;
+    void		getValues(float*,int sz) const;
     inline float	zBot() const	{ return ztop_ + thickness(); }
     inline float	depth() const	{ return ztop_ + 0.5f * thickness(); }
 

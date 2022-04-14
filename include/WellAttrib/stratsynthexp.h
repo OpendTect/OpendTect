@@ -22,25 +22,30 @@ class SeisTrcWriter;
 namespace PosInfo { class Line2DPos; }
 
 
-mExpClass(WellAttrib) StratSynthExporter : public Executor
-{ mODTextTranslationClass(StratSynthExporter);
+namespace StratSynth
+{
+
+
+mExpClass(WellAttrib) Exporter : public Executor
+{ mODTextTranslationClass(Exporter);
 public:
-				StratSynthExporter(
-				    const ObjectSet<const SyntheticData>&,
-				    Pos::GeomID,const SeparString&);
-				~StratSynthExporter();
+				Exporter(const ObjectSet<const SyntheticData>&,
+					 Pos::GeomID,const SeparString&,
+					 bool replaceudf=false);
+				~Exporter();
 
-    od_int64				nrDone() const override;
-    od_int64				totalNr() const override;
-    uiString				uiNrDoneText() const override
-					{ return tr("Data Sets Created"); }
-    uiString				uiMessage() const override;
-protected:
+    od_int64			nrDone() const override;
+    od_int64			totalNr() const override;
+    uiString			uiNrDoneText() const override
+				{ return tr("Data Sets Created"); }
+    uiString			uiMessage() const override;
 
-    int					nextStep() override;
-    int					writePostStackTrace();
-    int					writePreStackTraces();
-    bool				prepareWriter();
+private:
+
+    int				nextStep() override;
+    int				writePostStackTrace();
+    int				writePreStackTraces();
+    bool			prepareWriter();
 
     const ObjectSet<const SyntheticData>& sds_;
     const Pos::GeomID			geomid_;
@@ -48,6 +53,7 @@ protected:
     SeisTrcWriter*			writer_ = nullptr;
     BufferString			prefixstr_;
     BufferString			postfixstr_;
+    const bool				replaceudf_;
     uiString				errmsg_;
     int					cursdidx_ = 0;
     int					posdone_ = 0;
@@ -55,3 +61,4 @@ protected:
 
 };
 
+} // namespace StratSynth

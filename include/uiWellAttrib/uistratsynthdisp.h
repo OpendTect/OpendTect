@@ -11,248 +11,126 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uigroup.h"
-#include "uiflatviewslicepos.h"
-#include "uistring.h"
+#include "stratlevel.h"
+#include "stratsynth.h"
 
-class PropertyRef;
-class PropertyRefSelection;
-class SeisTrcBuf;
-class StratSynth;
-class SyntheticData;
-class SynthFVSpecificDispPars;
-class TaskRunner;
-class TimeDepthModel;
-class Wavelet;
-
-class uiButton;
-class uiComboBox;
 class uiFlatViewer;
+class uiLineEdit;
 class uiMultiFlatViewControl;
-class uiPushButton;
+class uiSlider;
+class uiStratLayModEditTools;
+class uiStratSynthDispDSSel;
 class uiSynthGenDlg;
-class uiSeisWaveletSel;
-class uiStratLayerModel;
-class uiSynthSlicePos;
 class uiTextItem;
-class uiToolButton;
-class uiToolButtonSetup;
-namespace Strat { class LayerModel; class LayerModelProvider; }
+
 namespace FlatView { class AuxData; class Appearance; }
 namespace PreStackView { class uiSyntheticViewer2DMainWin; }
+namespace StratSynth { class SynthSpecificParsSet; }
 
 
 mExpClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
 { mODTextTranslationClass(uiStratSynthDisp);
 public:
 
-			uiStratSynthDisp(uiParent*,
-					 const Strat::LayerModelProvider&);
+			uiStratSynthDisp(uiParent*,StratSynth::DataMgr&,
+					 uiStratLayModEditTools&,uiSize);
 			~uiStratSynthDisp();
 
-    const Strat::LayerModel& layerModel() const;
-    const char*		levelName() const;
-    inline const StratSynth& curSS() const
-			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
-    inline StratSynth&	curSS()
-			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
-    inline const StratSynth& altSS() const
-			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
-    const StratSynth&	normalSS() const	{ return *stratsynth_; }
-    const StratSynth&	editSS() const		{ return *edstratsynth_; }
+    StratSynth::DataMgr& dataMgr()		{ return datamgr_; }
+    const StratSynth::DataMgr& dataMgr() const	{ return datamgr_; }
 
-    const ObjectSet<const SyntheticData>& getSynthetics() const;
-
-    RefMan<SyntheticData> getSyntheticData(const char* nm);
-    ConstRefMan<SyntheticData> getSyntheticData(const char* nm) const;
-    ConstRefMan<SyntheticData> getCurrentSyntheticData(bool wva=true) const;
-    const PropertyRefSelection& modelPropertyRefs() const;
-
-    const SynthFVSpecificDispPars* dispPars(const char* synthnm) const;
-    SynthFVSpecificDispPars* dispPars(const char* synthnm);
-    const ObjectSet<const TimeDepthModel>* d2TModels() const;
-
-    void		setFlattened(bool flattened,bool trigger=true);
-    void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
-				     OD::Color);
-    void		setSelectedTrace(int);
-    void		setDispEach(int);
-    void		setZDataRange(const Interval<double>&,bool indpt);
-    void		setDisplayZSkip(float zskip,bool withmodchg);
-    void		displayFRText(bool yn,bool isbrine);
-
-    const uiWorldRect&	curView(bool indepth) const;
-    void		setZoomView(const uiWorldRect&);
-
-    uiFlatViewer*	viewer()		{ return vwr_; }
-
-    Notifier<uiStratSynthDisp>	viewChanged;
-    Notifier<uiStratSynthDisp>	layerPropSelNeeded;
-    Notifier<uiStratSynthDisp>	modSelChanged;
-    Notifier<uiStratSynthDisp>	synthsChanged;
-    Notifier<uiStratSynthDisp>	dispParsChanged;
-
-    void		addTool(const uiToolButtonSetup&);
-    void		addViewerToControl(uiFlatViewer&);
-
-    mDeprecatedDef void modelChanged();
-    bool		haveUserScaleWavelet();
-    void		displaySynthetic(const SyntheticData*);
-    void		reDisplayPostStackSynthetic(bool wva=true);
-    void		cleanSynthetics();
-    float		centralTrcShift() const;
-    void		setCurrentSynthetic(bool wva);
-    void		setSnapLevelSensitive(bool);
-    bool		prepareElasticModel();
-
-    uiMultiFlatViewControl* control()	{ return control_; }
-
-    void		fillPar(IOPar&) const;
-    void		fillPar(IOPar&,bool) const;
-    bool		usePar(const IOPar&);
-    void		makeInfoMsg(BufferString& msg,IOPar&);
-
-    void		showFRResults();
-    mDeprecatedDef void setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
-    void		setAutoUpdate( bool yn )  { autoupdate_ = yn; }
-    void		setForceUpdate( bool yn ) { forceupdate_ = yn; }
-    bool		doForceUpdate() const	  { return forceupdate_; }
-    void		setUseEdited( bool yn )	  { useed_ = yn; }
-    bool		isEditUsed() const	  { return useed_; }
-    void		setDiffData();
-    void		resetRelativeViewRect();
-    void		updateRelativeViewRect();
-    void		setRelativeViewRect(const uiWorldRect& relwr);
-    const uiWorldRect&	getRelativeViewRect() const	{ return relzoomwr_; }
+    void		handleModelChange(bool full);
+    void		setSelectedSequence(int);
+    void		useDispPars(const IOPar&,od_uint32* =nullptr);
     void		setSavedViewRect();
 
-    uiGroup*		getDisplayClone(uiParent*) const;
+    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+
+    uiFlatViewer*	viewer()		{ return vwr_; }
+    uiMultiFlatViewControl* control()		{ return control_; }
+
+    Notifier<uiStratSynthDisp> viewChanged;
+
+    uiFlatViewer*	getViewerClone(uiParent*) const;
+    void		addViewerToControl(uiFlatViewer&);
+
+    void		makeInfoMsg(BufferString&,IOPar&);
 
 protected:
 
-    int			longestaimdl_ = 0;
-    StratSynth*		stratsynth_;
-    StratSynth*		edstratsynth_;
-    const Strat::LayerModelProvider& lmp_;
-    uiWorldRect		relzoomwr_;
-    mutable uiWorldRect	savedzoomwr_;
-    int			selectedtrace_ = -1;
-    int			dispeach_ = 1;
-    float		dispskipz_ = 0.f;
-    bool		dispflattened_ = false;
-    /*mDeprecated*/ bool	isbrinefilled_;
-    bool		autoupdate_ = true;
-    bool		forceupdate_ = false;
-    bool		useed_ = false;
-
-    const ObjectSet<const TimeDepthModel>* d2tmodels_ = nullptr;
-    WeakPtr<SyntheticData> currentwvasynthetic_;
-    WeakPtr<SyntheticData> currentvdsynthetic_;
+    StratSynth::DataMgr& datamgr_;
+    uiStratLayModEditTools& edtools_;
+    uiSize		initialsz_;
+    int			selseq_;
+    uiWorldRect		initialboundingbox_;
+    float		curoffs_	= 0.f;
+    bool		canupdatedisp_ = true;
 
     uiMultiFlatViewControl* control_;
-    FlatView::AuxData*	selectedtraceaux_ = nullptr;
-    FlatView::AuxData*	levelaux_ = nullptr;
+    ObjectSet<FlatView::AuxData> levelaux_;
 
-    uiGroup*		topgrp_;
-    uiGroup*		datagrp_;
-    uiGroup*		prestackgrp_;
     uiFlatViewer*	vwr_;
-    uiPushButton*	scalebut_;
-    uiButton*		lasttool_ = nullptr;
-    uiToolButton*	prestackbut_;
-    uiComboBox*		wvadatalist_;
-    uiComboBox*		vddatalist_;
-    uiComboBox*		levelsnapselfld_;
-    uiSynthGenDlg*	synthgendlg_ = nullptr;
-    uiSynthSlicePos*	offsetposfld_;
-    uiTextItem*     frtxtitm_ = nullptr;
-    PtrMan<TaskRunner>	taskrunner_;
-    PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_ = nullptr;
+    uiLineEdit*		wvltfld_;
+    uiTextItem*		modtypetxtitm_	= nullptr;
+    uiStratSynthDispDSSel* wvaselfld_;
+    uiStratSynthDispDSSel* vdselfld_;
+    StratSynth::SynthSpecificParsSet& entries_;
+    uiSynthGenDlg*	uidatamgr_	= nullptr;
+    uiGroup*		psgrp_;
+    uiSlider*		offsslider_;
+    PreStackView::uiSyntheticViewer2DMainWin* psvwrwin_ = nullptr;
 
-    void		showInfoMsg(bool foralt);
-    void		handleFlattenChange();
-    void		fillPar(IOPar&,const StratSynth*) const;
-    void		doModelChange();
-    const SeisTrcBuf&	curTrcBuf() const;
-    int			getOffsetIdx(const SyntheticData&) const;
-    void		getCurD2TModel(const SyntheticData&,
-				    ObjectSet<const TimeDepthModel>&,
-				    int offsidx) const;
-    void		reSampleTraces(const SyntheticData&,SeisTrcBuf&) const;
-    void		updateFields();
-    void		updateAltSynthetic(const char* oldnm,const char* newnm,
-					   bool nameonly);
-    void		updateDispSynthetic(const char* oldnm,const char* newnm,
-					    bool nameonly);
-    void		updateSyntheticList(bool wva);
-    void		setCurSynthetic(const SyntheticData*,bool wva);
-    void		copySyntheticDispPars();
+    void		createViewer(uiGroup*);
     void		setDefaultAppearance(FlatView::Appearance&);
-    inline StratSynth&	altSS()
-			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
+    void		updFlds(bool full);
+    void		updateEntries(bool full);
+    void		updateDispPars(FlatView::Viewer::VwrDest,
+				       od_uint32* =nullptr);
+    void		updWvltFld();
+    void		reDisp(bool preserveview=true);
+    void		setViewerData(FlatView::Viewer::VwrDest,od_uint32& ctyp,
+				      bool preserveview=true);
+    void		drawLevels(od_uint32& ctyp);
+    bool		curIsPS(FlatView::Viewer::VwrDest) const;
+    void		handlePSViewDisp(FlatView::Viewer::VwrDest);
+    void		handleChange(od_uint32);
+    void		updateOffSliderTxt();
+    void		setPSVwrData();
 
-    void		drawLevel();
-    mDeprecatedDef void displayFRText();
-    void		displayPreStackSynthetic(const SyntheticData*);
-    void		displayPostStackSynthetic(const SyntheticData*,
-						  bool wva=true);
-    void		updateTextPosCB(CallBacker*);
+    int			dispEach() const;
+    bool		dispFlattened() const;
 
-    void		setPreStackMapper();
-    void		setAbsoluteViewRect(const uiWorldRect& abswr);
-    void		getAbsoluteViewRect(uiWorldRect& abswr) const;
+    void		initGrp(CallBacker*);
+    void		dataMgrCB(CallBacker*);
+    void		newAddedCB(CallBacker*);
+    void		newSelCB(CallBacker*);
+    void		packSelCB(CallBacker*);
+    void		wvaSelCB(CallBacker*);
+    void		vdSelCB(CallBacker*);
+    void		zoomChangedCB(CallBacker*);
+    void		offsSliderChgCB(CallBacker*);
+    void		viewPSCB(CallBacker*);
+    void		setPSVwrDataCB(CallBacker*);
 
-    void		addEditSynth(CallBacker*);
-    void		exportSynth(CallBacker*);
-    void		wvDataSetSel(CallBacker*);
-    void		vdDataSetSel(CallBacker*);
-    void		levelSnapChanged(CallBacker*);
-    void		layerPropsPush(CallBacker*);
-    void		offsetChged(CallBacker*);
-    void		scalePush(CallBacker*);
-    void		viewPreStackPush(CallBacker*);
-    void		viewChg(CallBacker*);
-    void		parsChangedCB(CallBacker*);
-    void		syntheticAdded(CallBacker*);
-    void		syntheticRenamed(CallBacker*);
-    void		syntheticChanged(CallBacker*);
-    void		syntheticRemoved(CallBacker*);
-    void		syntheticDisabled(CallBacker*);
-    void		selPreStackDataCB(CallBacker*);
-    void		preStackWinClosedCB(CallBacker*);
-    void		newModelsCB(CallBacker*);
-    void		uiTaskRunDeletedCB(CallBacker*);
+    void		viewChgCB(CallBacker*);
+    void		lvlChgCB(CallBacker*);
+    void		flatChgCB(CallBacker*);
+    void		dispEachChgCB(CallBacker*);
+    void		curModEdChgCB(CallBacker*);
+    void		canvasResizeCB(CallBacker*);
+    void		dispPropChgCB(CallBacker*);
+    void		synthAddedCB(CallBacker*);
+    void		synthRenamedCB(CallBacker*);
+    void		synthRemovedCB(CallBacker*);
+
+    friend class	uiStratSynthDispDSSel;
 
 public:
 
-			//6.2 only: for attaching a notifier
-    void		set(uiStratLayerModel&);
+    void		enableDispUpdate(bool yn);
 
-};
-
-
-mExpClass(uiWellAttrib) uiSynthSlicePos : public uiGroup
-{ mODTextTranslationClass(uiSynthSlicePos);
-public:
-			uiSynthSlicePos(uiParent*,const uiString& lbltxt);
-			~uiSynthSlicePos();
-
-    Notifier<uiSynthSlicePos>	positionChg;
-    void		setLimitSampling(StepInterval<float>);
-    int			getValue() const;
-    void		setValue(int) const;
-
-protected:
-    uiLabel*		label_;
-    uiSpinBox*		sliceposbox_;
-    uiSpinBox*		slicestepbox_;
-    uiToolButton*	prevbut_;
-    uiToolButton*	nextbut_;
-
-    void		slicePosChg( CallBacker* );
-    void		prevCB(CallBacker*);
-    void		nextCB(CallBacker*);
-
-    StepInterval<float>	limitsampling_;
 };
 

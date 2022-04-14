@@ -175,7 +175,7 @@ void Strat::UnitRef::notifChange( bool isrem )
 
     RefTree& rt = refTree();
     if ( &rt != this )
-	rt.reportChange( this, isrem );
+	rt.reportChange( *this, isrem );
 }
 
 
@@ -340,7 +340,7 @@ bool Strat::NodeUnitRef::add( UnitRef* un, bool rev )
     else
 	refs_ += un;
 
-    refTree().reportAdd( un );
+    refTree().reportAdd( *un );
     return true;
 }
 
@@ -353,7 +353,7 @@ bool Strat::NodeUnitRef::insert( UnitRef* un, int posidx )
     if ( refs_.validIdx( posidx ) )
 	refs_.insertAt( un, posidx );
 
-    refTree().reportAdd( un );
+    refTree().reportAdd( *un );
     return true;
 }
 
@@ -361,10 +361,10 @@ bool Strat::NodeUnitRef::insert( UnitRef* un, int posidx )
 Strat::UnitRef* Strat::NodeUnitRef::replace( int unidx, Strat::UnitRef* un )
 {
     if ( !un || hasLeaves() != un->isLeaf() )
-	return 0;
+	return nullptr;
 
     UnitRef* oldun = refs_.replace( unidx, un );
-    refTree().reportAdd( un );
+    refTree().reportAdd( *un );
     return oldun;
 }
 

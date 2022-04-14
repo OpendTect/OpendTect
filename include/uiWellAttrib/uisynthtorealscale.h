@@ -11,10 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uidialog.h"
 #include "uistring.h"
-#include "trckeysampling.h"
 #include "multiid.h"
+#include "trckeysampling.h"
 
 class SeisTrc;
 class SeisTrcBuf;
@@ -28,10 +29,11 @@ class uiSynthToRealScaleStatsDisp;
 template <class T> class ODPolygon;
 namespace EM { class Horizon; class EMObjectIterator; }
 namespace Strat { class SeisEvent; }
+namespace StratSynth { class DataMgr; }
 
 
 /*!\brief To determine scaling of synthetics using real data.
- 
+
   Note: the input trc buf *must* have ref times in the trc.info().pick's.
 
  */
@@ -41,9 +43,8 @@ mExpClass(uiWellAttrib) uiSynthToRealScale : public uiDialog
 public:
 
 			uiSynthToRealScale(uiParent*,bool is2d,
-					   const SeisTrcBuf&,
-					   const MultiID& wvltid,
-					   const char* reflvlnm);
+					   const StratSynth::DataMgr&,
+					   const MultiID& wvltid);
 			~uiSynthToRealScale();
 
     const MultiID&	inpWvltID() const	{ return inpwvltid_; }
@@ -51,31 +52,30 @@ public:
 
 protected:
 
-    bool		is2d_;
-    const SeisTrcBuf&	synth_;
+    const bool		is2d_;
+    const StratSynth::DataMgr&	stratsynth_;
     MultiID		inpwvltid_;
     MultiID		outwvltid_;
 
-    ODPolygon<float>*	polygon_;
-    TrcKeySampling		polyhs_;
-    EM::Horizon*	horizon_;
-    EM::EMObjectIterator* horiter_;
+    ODPolygon<float>*	polygon_ = nullptr;
+    TrcKeySampling	polyhs_;
+    RefMan<EM::Horizon> horizon_;
+    EM::EMObjectIterator* horiter_ = nullptr;
     Strat::SeisEvent&	seisev_;
 
-    uiSeisSel*		seisfld_;
-    uiIOObjSel*		horfld_;
-    uiIOObjSel*		polyfld_;
-    uiIOObjSel*		wvltfld_;
-    uiStratSeisEvent*	evfld_;
-    uiGenInput*		finalscalefld_;
-    uiLabel*		valislbl_;
-    uiSynthToRealScaleStatsDisp*	synthstatsfld_;
-    uiSynthToRealScaleStatsDisp*	realstatsfld_;
+    uiGenInput*		synthselfld_ = nullptr;
+    uiSeisSel*		seisfld_ = nullptr;
+    uiIOObjSel*		polyfld_ = nullptr;
+    uiStratSeisEvent*	evfld_ = nullptr;
+    uiIOObjSel*		horfld_ = nullptr;
+    uiLabel*		valislbl_ = nullptr;
+    uiSynthToRealScaleStatsDisp*	synthstatsfld_ = nullptr;
+    uiSynthToRealScaleStatsDisp*	realstatsfld_ = nullptr;
+    uiGenInput*		finalscalefld_ = nullptr;
+    uiIOObjSel*		wvltfld_ = nullptr;
 
-    void		initWin(CallBacker*);
     void		setScaleFld(CallBacker*);
-    void		goPush( CallBacker* )
-    			{ updSynthStats(); updRealStats(); }
+    void		goPush(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     bool		getEvent();

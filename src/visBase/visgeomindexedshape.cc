@@ -378,7 +378,7 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,
 
 	mVisTrans::transform( toinlcrltrans, pos );
 
-	DataPointSet::Pos dpsetpos( BinID(mNINT32(pos.x),mNINT32(pos.y)), 
+	DataPointSet::Pos dpsetpos( BinID(mNINT32(pos.x),mNINT32(pos.y)),
 	    (float) pos.z );
 	DataPointSet::DataRow datarow( dpsetpos, 1 );
 	datarow.data_.setSize( set.nrCols(), mUdf(float) );
@@ -459,8 +459,7 @@ void GeomIndexedShape::mapAttributeToColorTableMaterial()
 
 void GeomIndexedShape::reClip()
 {
-    colorhandler_->mapper_.setData( &colorhandler_->attributecache_,
-				    colorhandler_->attributecache_.size() );
+    colorhandler_->mapper_.setData( colorhandler_->attributecache_ );
 }
 
 
@@ -472,7 +471,7 @@ void GeomIndexedShape::setLineStyle( const OD::LineStyle& lnstyle )
     linestyle_ = lnstyle;
 
     if ( vtexshape_ )
-    	    vtexshape_->setLineStyle( lnstyle );
+	    vtexshape_->setLineStyle( lnstyle );
     else
 	touch( true );
 }

@@ -56,6 +56,7 @@ public:
     float		startDepth() const	{ return z0_; }
     void		setStartDepth( float z ) { z0_ = z; prepareUse(); }
     Interval<float>	zRange() const;
+    Interval<float>	propRange(int) const;
     void		setXPos(float);
 
     PropertyRefSelection& propertyRefs()	{ return props_; }
@@ -78,7 +79,7 @@ public:
 			// Following will need to actually find the level
     int			indexOf(const Level&,int startsearchat=0) const;
 			//!< may return -1 for not found
-    float		depthOf(const Level&) const;
+    float		depthOf(const Level&,float notfoundval=0.f) const;
 			//!< will return 0 if lvl not found
 
 			// Following will give the position of the level
@@ -86,7 +87,8 @@ public:
     int			positionOf(const Level&) const;
 			//!< may return size() (below last layer)
 			//!< only returns -1 if sequence is empty
-    float		depthPositionOf(const Level&) const;
+    float		depthPositionOf(const Level&,
+					float notfoundval=0.f) const;
 
 protected:
 

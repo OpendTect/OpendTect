@@ -11,22 +11,24 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uidialog.h"
 #include "datapack.h"
+#include "stratlevel.h"
 #include "uistring.h"
 
-class SeisTrcInfo;
-class SeisTrcBuf;
-class TimeDepthModel;
 class DataPointSet;
-class SyntheticData;
-class uiStratSeisEvent;
+class SeisTrcBuf;
 class SeisTrcBufDataPack;
+class SeisTrcInfo;
+class SyntheticData;
+class TimeDepthModel;
+class uiStratSeisEvent;
 class uiAttribDescSetBuild;
 class uiStratLaySeqAttribSetBuild;
-namespace Strat { class Level; class LayerModel; class LaySeqAttribSet; }
 namespace Attrib { class DescSet; class EngineMan; }
-namespace PreStack { class GatherSetDataPack; }
+namespace Strat { class LayerModel; class LaySeqAttribSet; }
+namespace StratSynth { class DataMgr; }
 
 
 /*!\brief Dialog specifying what to crossplot */
@@ -35,31 +37,25 @@ mExpClass(uiWellAttrib) uiStratSynthCrossplot : public uiDialog
 { mODTextTranslationClass(uiStratSynthCrossplot);
 public:
 				uiStratSynthCrossplot(uiParent*,
-				    const Strat::LayerModel&,
-				    const ObjectSet<const SyntheticData>&);
+						    const StratSynth::DataMgr&);
 				~uiStratSynthCrossplot();
 
-    void			setRefLevel(const char*);
-    uiString			errMsg() const
-				{ return errmsg_; }
+    void			setRefLevel(const Strat::Level::ID&);
 
 protected:
 
+    const StratSynth::DataMgr* synthmgr_;
     const Strat::LayerModel&	lm_;
-
-    const ObjectSet<const SyntheticData>& synthdatas_;
     ObjectSet<TypeSet<Interval<float> > > extrgates_;
 
-    uiAttribDescSetBuild*	seisattrfld_;
-    uiStratLaySeqAttribSetBuild* layseqattrfld_;
-    uiStratSeisEvent*		evfld_;
-
-    uiString			errmsg_;
+    uiAttribDescSetBuild*	seisattrfld_	= nullptr;
+    uiStratLaySeqAttribSetBuild* layseqattrfld_ = nullptr;
+    uiStratSeisEvent*		evfld_		= nullptr;
 
     DataPointSet*		getData(const Attrib::DescSet&,
 					const Strat::LaySeqAttribSet&,
 					const Strat::Level&,
-					const Interval<float>&, float zstep,
+					const ZGate&,float zstep,
 					const Strat::Level*);
     bool			extractSeisAttribs(DataPointSet&,
 						   const Attrib::DescSet&);
@@ -71,23 +67,21 @@ protected:
 						     const TimeDepthModel&,
 						     const SeisTrcInfo&,
 						     float zstep,float maxtwt,
-						     const Interval<float>&);
+						     const ZGate&);
     void			fillPosFromLayerSampling(DataPointSet&,
 						     const TimeDepthModel&,
 						     const SeisTrcInfo&,
-						     const Interval<float>&,
-						     int iseq);
+						     const ZGate&,int iseq);
     void			launchCrossPlot(const DataPointSet&,
 						const Strat::Level&,
 						const Strat::Level*,
-						const Interval<float>&,
-						float zstep);
+						const ZGate&,float zstep);
     Attrib::EngineMan*		createEngineMan(const Attrib::DescSet&) const;
     void			preparePreStackDescs();
 
     bool			handleUnsaved();
-    bool			rejectOK(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			rejectOK(CallBacker*) override;
+    bool			acceptOK(CallBacker*) override;
 
 };
 

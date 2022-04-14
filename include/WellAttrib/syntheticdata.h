@@ -18,19 +18,7 @@ ________________________________________________________________________
 #include "stratsynthgenparams.h"
 #include "synthseis.h"
 
-
-mExpClass(WellAttrib) SynthFVSpecificDispPars
-{
-public:
-			SynthFVSpecificDispPars();
-
-    ColTab::MapperSetup	vdmapper_;
-    ColTab::MapperSetup	wvamapper_;
-    BufferString	ctab_;
-    float		overlap_ = 1.f;
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
-};
+class FlatDataPack;
 
 
 /*! brief the basic synthetic dataset. contains the data cubes*/
@@ -43,27 +31,28 @@ public:
     static ConstRefMan<SyntheticData>	get(const SynthGenParams&,
 					    Seis::RaySynthGenerator&);
 
-    virtual void			setName(const char*) override;
+    void				setName(const char*) override;
 
     bool				isOK() const;
-    virtual const SeisTrc*		getTrace(int seqnr) const	= 0;
+    virtual const SeisTrc*		getTrace(int trcnr) const	= 0;
     virtual int				nrPositions() const		= 0;
+    virtual ZSampling			zRange() const			= 0;
 
-    float				getTime(float dpt,int seqnr) const;
-    float				getDepth(float time,int seqnr) const;
+    float				getTime(float dpt,int trcnr) const;
+    float				getDepth(float time,int trcnr) const;
 
-    const DataPack&			getPack() const {return datapack_;}
-    DataPack&				getPack()	{return datapack_;}
+    const DataPack&			getPack() const { return datapack_; }
+    DataPack&				getPack()	{ return datapack_; }
+    virtual DataPack::FullID		fullID() const			= 0;
 
     const Seis::SynthGenDataPack&	synthGenDP() const;
     const ReflectivityModelSet&		getRefModels() const;
-    const ReflectivityModelBase*	getRefModel(int imdl) const;
-    const TimeDepthModel*		getTDModel(int imdl) const;
-    const TimeDepthModel*		getTDModel(int imdl,int ioff) const;
+    const ReflectivityModelBase*	getRefModel(int itrc) const;
+    const TimeDepthModel*		getTDModel(int itrc) const;
+    const TimeDepthModel*		getTDModel(int itrc,int ioff) const;
 
-    DataPack::FullID			datapackid_;
+    SynthID				id() const		{ return id_; }
 
-    SynthID				id_ = -1;
     virtual bool			isPS() const		= 0;
     virtual bool			hasOffset() const	= 0;
     virtual bool			isAngleStack() const  { return false; }
@@ -74,26 +63,33 @@ public:
 
     const SynthGenParams&		getGenParams() const	{ return sgp_; }
     void				useGenParams(const SynthGenParams&);
-    void				useDispPar(const IOPar&);
-    void				fillDispPar(IOPar&) const;
     const char*				waveletName() const;
-    SynthFVSpecificDispPars&		dispPars()	{ return disppars_; }
-    const SynthFVSpecificDispPars&	dispPars() const
-							{ return disppars_; }
+
+    virtual const FlatDataPack* getTrcDP() const		= 0;
+				//<! display datapack for a FlatViewer only
+    virtual const FlatDataPack* getFlattenedTrcDP(const TypeSet<float>& zvals,
+						  bool istime) const = 0;
+				//<! display datapack for a FlatViewer only
 
 protected:
-					SyntheticData(const SynthGenParams&,
-						  const Seis::SynthGenDataPack&,
-						  DataPack&);
-					~SyntheticData();
+				SyntheticData(const SynthGenParams&,
+					      const Seis::SynthGenDataPack&,
+					      DataPack&);
+				~SyntheticData();
 
-    SynthFVSpecificDispPars		disppars_;
-
-    void				removePack();
-
-    SynthGenParams			sgp_;
-    DataPack&				datapack_;
+    SynthID			id_ = -1;
+    SynthGenParams		sgp_;
+    DataPack&			datapack_;
     ConstRefMan<Seis::SynthGenDataPack> synthgendp_;
+
+public:
+				// Used for obtaining an ID by a managing object
+    static SynthID		getNewID();
+
+				// Used by managing object
+    void			setID( SynthID newid )	{ id_ = newid; }
+
+
 };
 
 

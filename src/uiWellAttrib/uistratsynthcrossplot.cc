@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uistratsynthcrossplot.h"
+
 #include "uistratsynthdisp.h"
 #include "uistratlayseqattrsetbuild.h"
 #include "uistratseisevent.h"
@@ -21,9 +22,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "syntheticdata.h"
 #include "syntheticdataimpl.h"
-#include "stratlevel.h"
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
@@ -80,7 +79,7 @@ static const char* unwantedattribnms[] =
     "Fracture Attributes",
     "Texture",
     "Texture - Directional",
-    0
+    nullptr
 };
 
 
@@ -104,44 +103,56 @@ uiStratSynthAttribSetBuild( uiParent* p, uiAttribDescSetBuild::Setup& setup )
 
 
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
-			const Strat::LayerModel& lm,
-			const ObjectSet<const SyntheticData>& synths )
+					      const StratSynth::DataMgr& dm )
     : uiDialog(p,Setup(tr("Layer model/synthetics cross-plotting"),
 			mNoDlgTitle, mODHelpKey(mStratSynthCrossplotHelpID) ))
-    , lm_(lm)
-    , synthdatas_(synths)
+    , synthmgr_(dm.getProdMgr())
+    , lm_(dm.layerModel())
 {
-    if ( lm.isEmpty() )
+    const bool emptymodel = synthmgr_->layerModel().isEmpty();
+    TypeSet<SyntheticData::SynthID> ids;
+    if ( !emptymodel )
+	synthmgr_->getIDs( ids );
+    if ( emptymodel || ids.isEmpty() )
     {
-	errmsg_ = tr("Input model is empty.\n"
-		     "You need to generate layer models.");
+	new uiLabel( this, tr("No input.\n"
+			"Please generate geology/geophysics first") );
 	return;
     }
 
-    TypeSet<DataPack::FullID> fids, psfids;
-    for ( int idx=0; idx<synths.size(); idx++ )
+	// It's a pity we cannot do work without generating all datasets because
+	// we need the generated DataPack IDs for the Attribute Set editor ...
+
+    TypeSet<DataPack::FullID> dpids, psdpids;
+    uiTaskRunner trprov( this );
+    for ( const auto& id : ids )
     {
-	const SyntheticData& sd = *synths[idx];
-	if ( sd.isPS() )
-	    psfids += sd.datapackid_;
-	else
-	    fids += sd.datapackid_;
+	if ( !synthmgr_->ensureGenerated(id,&trprov) )
+	    continue;
+
+	ConstRefMan<SyntheticData> sd = synthmgr_->getDataSet( id );
+	if ( sd && sd->nrPositions() > 1 )
+	    (sd->isPS() ? psdpids : dpids).add( sd->fullID() );
     }
-    if ( fids.isEmpty() && psfids.isEmpty() )
+
+    if ( dpids.isEmpty() && psdpids.isEmpty() )
     {
-	errmsg_ = tr("Missing or invalid 'datapacks'."
-		     "\nMost likely, no synthetics are available.");
+	new uiLabel( this, tr("Missing or invalid 'datapacks'."
+		    "\nMost likely, no synthetics are available.") );
 	return;
     }
 
     uiAttribDescSetBuild::Setup bsu( true );
-    bsu.showdepthonlyattrs(false).showusingtrcpos(true).showps( psfids.size() )
-       .showhidden(false).showsteering(false);
+    bsu.showdepthonlyattrs(false)
+       .showusingtrcpos(true)
+       .showps( !psdpids.isEmpty() )
+       .showhidden(false)
+       .showsteering(false);
     seisattrfld_ = new uiStratSynthAttribSetBuild( this, bsu );
-    seisattrfld_->setDataPackInp( fids, false );
-    seisattrfld_->setDataPackInp( psfids, true );
+    seisattrfld_->setDataPackInp( dpids, false );
+    seisattrfld_->setDataPackInp( psdpids, true );
 
-    uiSeparator* sep = new uiSeparator( this, "sep1" );
+    auto* sep = new uiSeparator( this, "sep1" );
     sep->attach( stretchedBelow, seisattrfld_ );
 
     layseqattrfld_ = new uiStratLaySeqAttribSetBuild( this, lm_ );
@@ -165,14 +176,13 @@ uiStratSynthCrossplot::~uiStratSynthCrossplot()
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); delete dps; dps = 0; return dps; }
-#define mpErrRet(s) { pErrMsg(s); delete dps; dps = 0; return dps; }
+#define mErrRet(s) { uiMSG().error(s); deleteAndZeroPtr( dps ); return dps; }
+#define mpErrRet(s) { pErrMsg(s); deleteAndZeroPtr( dps ); return dps; }
 
 DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 					const Strat::LaySeqAttribSet& seqattrs,
 					const Strat::Level& lvl,
-					const Interval<float>& extrwin,
-					float zstep,
+					const ZGate& extrwin, float zstep,
 					const Strat::Level* stoplvl )
 {
     //If default Desc(s) present remove them
@@ -209,73 +219,58 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
 	pvds.add( new DataColDef(seqattr->name(),toString(iattr++),uom) );
     }
 
-    bool first = true;
-    for ( const auto* sd : synthdatas_ )
+    TypeSet<SyntheticData::SynthID> ids;
+    synthmgr_->getIDs( ids, StratSynth::DataMgr::NoSubSel, true );
+    if ( ids.isEmpty() )
+	mpErrRet("No valid synthetic data found");
+
+    ConstRefMan<SyntheticData> sd = synthmgr_->getDataSet( ids.first() );
+    const int nrmdls = sd->nrPositions();
+    const Strat::SeisEvent& ssev = evfld_->event();
+    for ( int imod=0; imod<nrmdls; imod++ )
     {
-	if ( sd->isPS() )
-	    continue;
+	const TimeDepthModel* tdmodel = sd->getTDModel( imod );
+	if ( !tdmodel )
+	    mpErrRet( "DataPack does not have a TD model" )
 
-	mDynamicCastGet(const PostStackSyntheticData*,postsd,sd)
-	if ( !postsd )
-	    continue;
+	SeisTrc& trc = const_cast<SeisTrc&>( *sd->getTrace(imod) );
+	float dpth = lm_.sequence(imod).depthPositionOf( lvl );
+	trc.info().pick = tdmodel->getTime( dpth );
+	const float twt = ssev.snappedTime( trc );
+	dpth = tdmodel->getDepth( twt );
 
-	const SeisTrcBufDataPack& tbpack = postsd->postStackPack();
-	const SeisTrcBuf& tbuf = tbpack.trcBuf();
-	const int nrmdls = sd->nrPositions();
-	if ( tbuf.size() != nrmdls )
-	    mpErrRet( "DataPack nr of traces != nr of d2t models" )
-
-	if ( first )
-	    first = false;
-	else
-	    continue;
-
-	const Strat::SeisEvent& ssev = evfld_->event();
-	for ( int imod=0; imod<nrmdls; imod++ )
+	Interval<float> timerg;
+	if ( !extrwin.isUdf() )
 	{
-	    const TimeDepthModel* tdmodel = sd->getTDModel( imod );
-	    if ( !tdmodel )
-		mpErrRet( "DataPack does not have a TD model" )
+	    timerg.setFrom( extrwin );
+	    timerg.shift( twt );
+	}
+	else
+	    timerg.start = twt;
 
-	    SeisTrc& trc = const_cast<SeisTrc&>( *tbuf.get( imod ) );
-	    float dpth = lm_.sequence(imod).depthPositionOf( lvl );
-	    trc.info().pick = tdmodel->getTime( dpth );
-	    const float twt = ssev.snappedTime( trc );
-	    dpth = tdmodel->getDepth( twt );
+	float maxdepth = mUdf(float); float maxtwt = mUdf(float);
+	if ( stoplvl )
+	{
+	    maxdepth = lm_.sequence(imod).depthPositionOf( *stoplvl );
+	    maxtwt = tdmodel->getTime( maxdepth );
+	}
 
-	    Interval<float> timerg;
-	    if ( !extrwin.isUdf() )
-	    {
-		timerg.setFrom( extrwin );
-		timerg.shift( twt );
-	    }
-	    else
-		timerg.start = twt;
+	if ( evfld_->layerBased() )
+	{
+	    ZGate depthrg( dpth, mUdf(float) );
+	    depthrg.stop = extrwin.isUdf() ? maxdepth
+			 : tdmodel->getDepth( timerg.stop );
+	    fillPosFromLayerSampling( *dps, *tdmodel,
+				      trc.info(), depthrg, imod );
+	}
+	else
+	{
+	    if ( stoplvl && extrwin.isUdf() )
+		timerg.stop = twt + zstep *
+			mCast(float, mNINT32((maxtwt-twt)/zstep) );
 
-	    float maxdepth = mUdf(float); float maxtwt = mUdf(float);
-	    if ( stoplvl )
-	    {
-		maxdepth = lm_.sequence(imod).depthPositionOf( *stoplvl );
-		maxtwt = tdmodel->getTime( maxdepth );
-	    }
-
-	    if ( evfld_->doAllLayers() )
-	    {
-		Interval<float> depthrg( dpth, mUdf(float) );
-		depthrg.stop = extrwin.isUdf() ? maxdepth
-			     : tdmodel->getDepth( timerg.stop );
-		fillPosFromLayerSampling( *dps, *tdmodel,
-					  trc.info(), depthrg, imod );
-	    }
-	    else
-	    {
-		if ( stoplvl && extrwin.isUdf() )
-		    timerg.stop = twt + zstep *
-			    mCast(float, mNINT32((maxtwt-twt)/zstep) );
-
-		fillPosFromZSampling( *dps, *tdmodel, trc.info(),
-				      zstep, maxtwt, timerg );
-	    }
+	    fillPosFromZSampling( *dps, *tdmodel, trc.info(),
+				  zstep, maxtwt, timerg );
 	}
     }
 
@@ -301,7 +296,7 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
 					       const TimeDepthModel& d2tmodel,
 					       const SeisTrcInfo& trcinfo,
 					       float step, float maxtwt,
-					       const Interval<float>& extrwin )
+					       const ZGate& extrwin )
 {
     if ( mIsUdf(step) )
 	uiMSG().error( tr("No valid step provided for data extraction"));
@@ -311,9 +306,9 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
     const Coord trcpos = trcinfo.coord;
     const int depthidx = dps.indexOf( sKey::Depth() );
     const int nrcols = dps.nrCols();
-    const StepInterval<float> win( extrwin.start, extrwin.stop, step );
+    const ZSampling win( extrwin.start, extrwin.stop, step );
 
-    TypeSet<Interval<float> >* extrgate =  new TypeSet<Interval<float> >;
+    auto* extrgate = new TypeSet<ZGate>;
     for ( int iextr=0; iextr<win.nrSteps()+1; iextr++ )
     {
 	const float twt = win.atIndex( iextr );
@@ -341,6 +336,7 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
 	depthrg.stop = d2tmodel.getDepth( timerg.stop );
 	*extrgate += depthrg;
     }
+
     extrgates_ += extrgate;
 }
 
@@ -348,12 +344,10 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
 void uiStratSynthCrossplot::fillPosFromLayerSampling( DataPointSet& dps,
 						const TimeDepthModel& d2tmodel,
 						const SeisTrcInfo& trcinfo,
-						const Interval<float>& extrwin,
-						int iseq )
+						const ZGate& extrwin, int iseq )
 {
     Strat::LayerSequence subseq;
     lm_.sequence( iseq ).getSequencePart( extrwin, true, subseq );
-
     if ( subseq.isEmpty() )
 	return;
 
@@ -399,21 +393,20 @@ bool uiStratSynthCrossplot::extractModelNr( DataPointSet& dps ) const
 
 void uiStratSynthCrossplot::preparePreStackDescs()
 {
-    TypeSet<DataPack::FullID> sddpfids;
-    for ( int idx=0; idx<synthdatas_.size(); idx++ )
-    {
-	const SyntheticData* sd = synthdatas_[idx];
-	sddpfids += sd->datapackid_;
-    }
+    TypeSet<SyntheticData::SynthID> ids;
+    synthmgr_->getIDs( ids );
+    TypeSet<DataPack::FullID> dpids;
+    for ( const auto& id : ids )
+	dpids += synthmgr_->getDataSet(id)->fullID();
 
-    Attrib::DescSet* ds =
-	const_cast<Attrib::DescSet*>( &seisattrfld_->descSet() );
+    auto* ds = const_cast<Attrib::DescSet*>( &seisattrfld_->descSet() );
     for ( int dscidx=0; dscidx<ds->size(); dscidx++ )
     {
 	Attrib::Desc& desc = (*ds)[dscidx];
 	if ( !desc.isPS() )
 	    continue;
 
+	//TODO: obtain prestack gathers.
 	mDynamicCastGet(Attrib::EnumParam*,gathertypeparam,
 			desc.getValParam(Attrib::PSAttrib::gathertypeStr()))
 	if ( gathertypeparam->getIntValue()==(int)(Attrib::PSAttrib::Ang) )
@@ -432,16 +425,14 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 	    dpbuf++;
 	    inputpsidstr = dpbuf;
 	    DataPack::FullID inputdpid( inputpsidstr );
-
-	    int inpsdidx = sddpfids.indexOf( inputdpid );
-	    if ( inpsdidx<0 || !synthdatas_.validIdx(inpsdidx) )
-		continue;
-
-	    mDynamicCastGet(const PreStackSyntheticData*,pssd,
-			    synthdatas_[inpsdidx])
+	    const int inpdsidx = dpids.indexOf( inputdpid );
+	    ConstRefMan<SyntheticData> sd =
+				       synthmgr_->getDataSetByIdx( inpdsidx );
+	    mDynamicCastGet(const PreStackSyntheticData*,pssd,sd.ptr());
 	    if ( !pssd )
 		continue;
 
+	    //TODO: obtain angle gathers
 	    mDynamicCastGet(Attrib::IntParam*,angledpparam,
 			    desc.getValParam(Attrib::PSAttrib::angleDPIDStr()))
 	    angledpparam->setValue( pssd->angleData().id() );
@@ -485,10 +476,9 @@ bool uiStratSynthCrossplot::extractLayerAttribs( DataPointSet& dps,
 void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 					     const Strat::Level& lvl,
 					     const Strat::Level* stoplvl,
-					     const Interval<float>& extrwin,
-					     float zstep )
+					     const ZGate& extrwin, float zstep )
 {
-    StepInterval<float> winms( extrwin.start, extrwin.stop, zstep );
+    ZSampling winms( extrwin.start, extrwin.stop, zstep );
     winms.scale( 1000.f );
     const bool layerbased = mIsUdf( zstep );
     const bool multiz = ( !extrwin.isUdf() && winms.nrSteps() > 1 )
@@ -546,10 +536,9 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 	wintitl = tr("%1 - layer-based extraction").arg(wintitl);
 
     uiDataPointSet::Setup su( wintitl, false );
-    uiDataPointSet* uidps = new uiDataPointSet( this, dps, su, 0 );
+    auto* uidps = new uiDataPointSet( this, dps, su, 0 );
     uidps->showXY( false );
-    Attrib::DescSet* ds =
-	const_cast<Attrib::DescSet*>( &seisattrfld_->descSet() );
+    auto* ds = const_cast<Attrib::DescSet*>( &seisattrfld_->descSet() );
     ds->removeUnused( false, true );
 
 
@@ -561,7 +550,7 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
 					    const Attrib::DescSet& attrs ) const
 {
-    Attrib::EngineMan* aem = new Attrib::EngineMan;
+    auto* aem = new Attrib::EngineMan;
 
     TypeSet<Attrib::SelSpec> attribspecs;
     attrs.fillInSelSpecs( Attrib::DescSetup().hidden(false), attribspecs );
@@ -572,15 +561,17 @@ Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
 }
 
 
-void uiStratSynthCrossplot::setRefLevel( const char* lvlnm )
+void uiStratSynthCrossplot::setRefLevel( const Strat::Level::ID& lvlid )
 {
-    evfld_->setLevel( lvlnm );
+    if ( evfld_ )
+	evfld_->setLevel( lvlid );
 }
 
 
 bool uiStratSynthCrossplot::handleUnsaved()
 {
-    return seisattrfld_->handleUnsaved() && layseqattrfld_->handleUnsaved();
+    return !seisattrfld_
+	|| (seisattrfld_->handleUnsaved() && layseqattrfld_->handleUnsaved());
 }
 
 
@@ -594,13 +585,13 @@ bool uiStratSynthCrossplot::rejectOK( CallBacker* )
 
 bool uiStratSynthCrossplot::acceptOK( CallBacker* )
 {
-    if ( !errmsg_.isEmpty() )
+    if ( !seisattrfld_ )
 	return true;
 
     const Attrib::DescSet& seisattrs = seisattrfld_->descSet();
     const Strat::LaySeqAttribSet& seqattrs = layseqattrfld_->attribSet();
     if ( !evfld_->getFromScreen() )
-	mErrRet(uiStrings::sEmptyString())
+	mErrRet(uiString::empty())
 
     deepErase( extrgates_ );
     const Interval<float>& extrwin = evfld_->hasExtrWin()
@@ -608,8 +599,11 @@ bool uiStratSynthCrossplot::acceptOK( CallBacker* )
 				   : Interval<float>::udf();
     const float zstep = evfld_->hasStep() ? evfld_->event().extrStep()
 					  : mUdf(float);
-    const Strat::Level& lvl = *evfld_->event().level();
-    const Strat::Level* stoplvl = evfld_->event().downToLevel();
+    const Strat::Level lvl = Strat::LVLS().get( evfld_->event().levelID() );
+    const Strat::Level downtolevel = Strat::LVLS().get(
+					evfld_->event().downToLevelID() );
+    const Strat::Level* stoplvl = downtolevel.id() == Strat::Level::cUndefID()
+				? nullptr : &downtolevel;
     DataPointSet* dps = getData( seisattrs, seqattrs, lvl, extrwin, zstep,
 				 stoplvl );
     if ( !dps )

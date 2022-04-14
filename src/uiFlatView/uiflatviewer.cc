@@ -233,6 +233,20 @@ uiWorldRect uiFlatViewer::boundingBox() const
 }
 
 
+void uiFlatViewer::removePack( ::DataPack::ID dpid )
+{
+    if ( dpid == packID(true) )
+	bitmapdisp_->setDataPack( nullptr, true );
+
+    if ( dpid == packID(false) )
+	bitmapdisp_->setDataPack( nullptr, false );
+
+    FlatView::Viewer::removePack( dpid );
+    if ( ids_.isEmpty() )
+	wr_ = uiWorldRect( 0., 0., 1., 1. );
+}
+
+
 StepInterval<double> uiFlatViewer::posRange( bool forx1 ) const
 {
     ConstDataPackRef<FlatDataPack> dp = obtainPack( false, true );
@@ -267,6 +281,9 @@ void uiFlatViewer::setViewToBoundingBox()
 
 void uiFlatViewer::handleChange( unsigned int dct )
 {
+    if ( !shouldHandleChange() )
+	return;
+
     if ( Math::AreBitsSet( dct, Auxdata ) )
 	updateauxdata_ = true;
 

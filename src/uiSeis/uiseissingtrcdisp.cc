@@ -55,8 +55,8 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 	const int wvltsz = wvlt->size();
 	const float zfac = mCast( float, SI().zDomain().userFactor() );
 
-	Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
-	FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
+	auto* fva2d = new Array2DImpl<float>( 1, wvltsz );
+	auto* dp = new FlatDataPack( "Wavelet", fva2d );
 	OD::memCopy( fva2d->getData(), wvlt->samples(), wvltsz*sizeof(float) );
 	dp->setName( wvlt->name() );
 	DPM( DataPackMgr::FlatID() ).add( dp );
@@ -66,10 +66,10 @@ void uiSeisSingleTraceDisplay::setData( const Wavelet* wvlt )
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( true, curid_, false );
+    setPack( FlatView::Viewer::WVA, curid_, false );
     addRefZ( 0 );
 
-    handleChange( mCast(unsigned int,All) );
+    handleChange( sCast(od_uint32,FlatView::Viewer::All) );
     setViewToBoundingBox();
 }
 
@@ -83,8 +83,8 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 	const int trcsz = trc->size();
 	const float zfac = mCast( float, SI().zDomain().userFactor() );
 
-	Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, trcsz );
-	FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
+	auto* fva2d = new Array2DImpl<float>( 1, trcsz );
+	auto* dp = new FlatDataPack( "Wavelet", fva2d );
 	float* ptr = fva2d->getData();
 	for ( int idx=0; idx<trcsz; idx++ )
 	    *ptr++ = trc->get( idx, compnr_ );
@@ -97,7 +97,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 	dp->posData().setRange( false, posns );
     }
 
-    setPack( true, curid_, false );
+    setPack( FlatView::Viewer::WVA, curid_, false );
 
     if ( trc )
     {
@@ -108,7 +108,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 	    addRefZ( refz );
     }
 
-    handleChange( mCast(unsigned int,All) );
+    handleChange( sCast(od_uint32,FlatView::Viewer::All) );
     setViewToBoundingBox();
 }
 
@@ -128,5 +128,5 @@ void uiSeisSingleTraceDisplay::addRefZ( float zref )
     ad->zvalue_ = 100;
     addAuxData( ad );
 
-    handleChange( Annot );
+    handleChange( sCast(od_uint32,FlatView::Viewer::Annot) );
 }

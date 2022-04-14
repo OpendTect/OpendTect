@@ -30,7 +30,6 @@ public:
 					    LayerModel&,int nrseqs=100);
 
     void		setNrSeq( int nr )	{ nrseqs_ = nr; }
-    void		reset();
 
     od_int64		nrDone() const override		{ return seqnr_; }
     od_int64		totalNr() const override	{ return nrseqs_; }
@@ -38,16 +37,18 @@ public:
 			    { return tr("Sequences generated"); }
 
     uiString		uiMessage() const override	{ return msg_; }
-    int			nextStep() override;
 
-protected:
+private:
+
+    bool		goImpl(od_ostream*,bool,bool,int) override;
+    int			nextStep() override;
 
     const LayerSequenceGenDesc& desc_;
     LayerModel&			lm_;
 
     uiString			msg_;
     od_int64			nrseqs_;
-    od_int64			seqnr_;
+    od_int64			seqnr_ = 0;
 
 };
 

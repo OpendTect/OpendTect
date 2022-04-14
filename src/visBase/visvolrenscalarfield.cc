@@ -627,9 +627,7 @@ void VolumeRenderScalarField::clipData( int attr, TaskRunner* tr )
     if ( !attribs_[attr]->resizecache_ )
 	return;
 
-    const od_int64 totalsz = getMultiAttribTrcKeyZSampling().totalNr();
-    attribs_[attr]->mapper_.setData( attribs_[attr]->resizecache_,
-				     totalsz, tr);
+    attribs_[attr]->mapper_.setData( *attribs_[attr]->resizecache_, tr );
     attribs_[attr]->mapper_.setup_.triggerRangeChange();
 }
 

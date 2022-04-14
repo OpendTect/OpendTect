@@ -168,6 +168,13 @@ void uiSynthSeisSel::setWavelet( const char* wvltnm )
 }
 
 
+void uiSynthSeisSel::ensureHasWavelet( const MultiID& wvltid )
+{
+    for ( auto* grp : grps_ )
+	grp->ensureHasWavelet( wvltid );
+}
+
+
 void uiSynthSeisSel::usePar( const IOPar& par )
 {
     if ( withRefl() )
@@ -519,6 +526,15 @@ void uiSynthSeis::setWavelet( const char* wvltnm )
 }
 
 
+void uiSynthSeis::ensureHasWavelet( const MultiID& /* dbky */ )
+{
+    const MultiID curwvltid = wvltfld_->getID();
+    NotifyStopper ns( wvltfld_->newSelection );
+    wvltfld_->rebuildList();
+    wvltfld_->setInput( curwvltid );
+}
+
+
 bool uiSynthSeis::usePar( const IOPar& par )
 {
     NotifyStopper ns( parsChanged );
@@ -801,9 +817,12 @@ void uiSynthSeisAdvancedGrp::fillPar( IOPar& iop ) const
 {
     const ConvDomain domain = parseEnumConvDomain( convdomainfld_->text() );
     iop.setYN( Seis::SynthGenBase::sKeyConvDomain(), domain == Freq );
+    if ( !withNMO() )
+	return;
 
-    iop.setYN( Seis::SynthGenBase::sKeyNMO(), wantNMOCorr() );
-    if ( withNMO() )
+    const bool wantsnmo = wantNMOCorr();
+    iop.setYN( Seis::SynthGenBase::sKeyNMO(), wantsnmo );
+    if ( wantsnmo )
     {
 	iop.set( Seis::SynthGenBase::sKeyStretchLimit(),
 		 mFromPercent( getStrechtMutePerc() ) );

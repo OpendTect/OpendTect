@@ -834,10 +834,10 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 
 
 uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
-						Strat::LeavedUnitRef& ur )
+					      Strat::LeavedUnitRef& ur )
     : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
 		mNoDlgTitle, mODHelpKey(mStratLinkLvlUnitDlgHelpID) ))
-    , lvlid_(-1)
+    , lvlid_(Strat::Level::cUndefID())
     , unit_(ur)
 {
     uiString msg = tr("Link Marker to %1").arg(ur.code());
@@ -850,14 +850,15 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
     const Strat::LevelSet& lvls = Strat::LVLS();
     for ( int idx=0; idx<lvls.size(); idx++ )
     {
-	const Strat::Level& lvl = *lvls.levels()[idx];
+	const Strat::Level lvl = lvls.getByIdx( idx );
 	lvlnms.add( lvl.name() );
 	colors += lvl.color();
 	ids_ += lvl.id();
     }
+
     uiString bs = tr("Select marker");
     lvllistfld_ = new uiGenInput( this, bs, StringListInpSpec( lvlnms ) );
-    if ( lvlid_ >=0 )
+    if ( lvlid_ != Strat::Level::cUndefID() )
 	lvllistfld_->setValue( ids_.indexOf( lvlid_ ) +1 );
 }
 
@@ -865,27 +866,25 @@ uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
 bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
 {
     const int lvlidx = lvllistfld_->getIntValue()-1;
-    lvlid_ = lvlidx >=0 ? ids_[lvlidx] : -1;
+    lvlid_ = lvlidx >=0 ? ids_[lvlidx] : Strat::Level::cUndefID();
 
     Strat::RefTree& rt = Strat::eRT();
     Strat::LeavedUnitRef* lur = rt.getByLevel( lvlid_ );
 
-    if ( lur && lvlid_>=0 )
+    if ( lur )
     {
 	uiString msg = tr( "This marker is already linked to %1" )
 		     .arg(lur->code());
-	uiString movemsg = tr( "Assign to %1 only" )
-			 .arg(unit_.code());
+	uiString movemsg = tr( "Assign to %1 only" ).arg(unit_.code());
 	const int res =
 	    uiMSG().question(msg,tr("Assign to both"), movemsg ,
 			     uiStrings::sCancel());
 	if ( res == -1 )
 	    return false;
 	if ( res == 0 )
-	    lur->setLevelID( -1 );
+	    lur->setLevelID( Strat::Level::cUndefID() );
     }
 
     unit_.setLevelID( lvlid_ );
-    Strat::eLVLS().levelChanged.trigger();
     return true;
 }

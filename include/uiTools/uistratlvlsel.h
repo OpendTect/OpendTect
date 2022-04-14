@@ -11,10 +11,11 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uigroup.h"
+#include "stratlevel.h"
 
 class uiComboBox;
-namespace Strat { class Level; }
 
 
 /*!\brief Selector for stratigraphic levels */
@@ -28,25 +29,31 @@ public:
 					//!< pass null for no label
 			~uiStratLevelSel();
 
-    const Strat::Level*	selected() const;
+    Strat::Level	selected() const;
     BufferString	getLevelName() const;
     OD::Color		getColor() const;
-    int			getID() const;
+    Strat::Level::ID	getID() const;
 
-    void		setSelected(const Strat::Level*);
     void		setName(const char*);
-    void		setID(int);
+    void		setID(Strat::Level::ID);
+    void		setToolTip(const uiString&);
 
     Notifier<uiStratLevelSel> selChange;
 
-    static const uiString	sTiedToTxt();
+    static uiString	sTiedToTxt();
+
+    uiComboBox*		box()			{ return fld_; }
 
 protected:
 
     uiComboBox*		fld_;
     bool		haveudf_;
 
+    void		addItem(const char*,const OD::Color&);
+    void		fill();
+
     void		selCB(CallBacker*);
+    void		curSetChgCB(CallBacker*);
     void		extChgCB(CallBacker*);
 };
 

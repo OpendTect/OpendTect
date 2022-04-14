@@ -37,18 +37,30 @@ public:
 				~ElasticPropSelection();
 
     ElasticPropSelection&	operator =(const ElasticPropSelection&);
+    bool			operator ==(const ElasticPropSelection&) const;
+    bool			operator !=(const ElasticPropSelection&) const;
 
     bool			isElasticSel() const override	{ return true; }
 
+    bool			isOK(
+				  const TypeSet<ElasticFormula::Type>& reqtypes,
+				  const PropertyRefSelection&,
+				  uiString* msg =nullptr) const;
+    bool			isOK(const PropertyRefSelection*) const;
+				//<! Try to provide a selection when possible
+    bool			isValidInput(uiString* errmsg =nullptr) const;
+				//<! Checks for inter/self dependencies only
+    uiString			errMsg() const		{ return errmsg_; }
+
     ElasticPropertyRef*		getByType(ElasticFormula::Type);
     const ElasticPropertyRef*	getByType(ElasticFormula::Type) const;
+    MultiID			getStoredID() const	{ return storedid_; }
 
     static ElasticPropSelection* getByDBKey(const MultiID&);
     static ElasticPropSelection* getByIOObj(const IOObj*);
     bool			put(const IOObj*) const;
 
     bool			ensureHasType(ElasticFormula::Type);
-    bool			isValidInput(uiString* errmsg = nullptr) const;
 
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
@@ -58,12 +70,10 @@ public:
 
     void			erase() override	{ deepErase(*this); }
 
-    bool			isOK() const;
-    uiString			errMsg() { return errmsg_; }
-
     static const Mnemonic*	getByType(ElasticFormula::Type,const char* nm);
 
     static const char*		sKeyElasticProp();
+    static const char*		sKeyElasticPropSel();
 
 private:
 
@@ -75,6 +85,7 @@ private:
 					BufferStringSet& faultynms,
 					BufferStringSet& corrnms);
 
+    MultiID			storedid_;
     uiString			errmsg_;
 };
 
@@ -112,7 +123,7 @@ private:
 
     ObjectSet<CalcData> propcalcs_;
 
-    void		init(const PropertyRefSelection&,
+    bool		init(const PropertyRefSelection&,
 			     const ElasticPropertyRef*);
     static float	getValue(const CalcData&,const float* proprefvals,
 				 int proprefsz);

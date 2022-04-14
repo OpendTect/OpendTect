@@ -104,8 +104,6 @@ public:
 				~uiElasticPropSelDlg();
 
     const ElasticPropSelection&	elasticSel() const	{ return elpropsel_; }
-    const MultiID&		storedKey() const	{ return storedmid_; }
-    bool			propSaved() const	{ return propsaved_; }
 
 protected:
 
@@ -116,10 +114,9 @@ protected:
     uiTabStack*			ts_;
     CtxtIOObj&			ctio_;
 
+    const PropertyRefSelection& prs_;
     ElasticPropSelection&	elpropsel_;
     ElasticPropSelection	orgelpropsel_;
-    MultiID			storedmid_;
-    bool			propsaved_;
 
     bool			doRead(const MultiID&);
     bool			doStore(const IOObj&);

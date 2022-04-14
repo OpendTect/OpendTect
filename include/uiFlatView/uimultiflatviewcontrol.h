@@ -22,30 +22,31 @@ class TimeDepthModel;
 mExpClass(uiFlatView) MFVCViewManager
 {
 public:
-    			MFVCViewManager()
-			    : isflattened_(false)	{};
-    			~MFVCViewManager();
+			MFVCViewManager()
+			{}
+			~MFVCViewManager();
+
     void		setD2TModels(const ObjectSet<const TimeDepthModel>&);
     void		setViewerType(const uiFlatViewer* vwr,bool isintime);
     bool		getViewRect(const uiFlatViewer* activevwr,
-	    			    const uiFlatViewer* curvwr,
+				    const uiFlatViewer* curvwr,
 				    uiWorldRect&) const;
-    void		setFlattened( bool flattened )	
+    void		setFlattened( bool flattened )
 			{ isflattened_ = flattened; }
     bool		isFlattened() const	{ return isflattened_; }
 protected:
     BoolTypeSet					zintimeflags_;
     ObjectSet<const TimeDepthModel>		d2tmodels_;
     ObjectSet<const uiFlatViewer>		vwrs_;
-    bool					isflattened_;
+    bool					isflattened_ = false;
 };
 
 
 mExpClass(uiFlatView) uiMultiFlatViewControl : public uiFlatViewStdControl
 { mODTextTranslationClass(uiMultiFlatViewControl)
 public:
-    			uiMultiFlatViewControl(uiFlatViewer&,const Setup&);
-    			~uiMultiFlatViewControl();
+			uiMultiFlatViewControl(uiFlatViewer&,const Setup&);
+			~uiMultiFlatViewControl();
 
     void                setNewView(Geom::Point2D<double> mousepos,
 				   Geom::Size2D<double> size,
@@ -80,12 +81,13 @@ protected:
 
     uiFlatViewer*	activevwr_;
     void		updateZoomManager();
-    			//!< Should be called after the viewer is zoomed in/out.
+			//!< Should be called after the viewer is zoomed in/out.
 
     void		rubBandCB(CallBacker*);
     void		parsCB(CallBacker*);
     void		setZoomAreasCB(CallBacker*);
     void		setZoomBoxesCB(CallBacker*);
+    void		removeAnnotationsCB(CallBacker*);
     void		vwrAdded(CallBacker*);
     void		zoomCB(CallBacker*) override;
     void		wheelMoveCB(CallBacker*);

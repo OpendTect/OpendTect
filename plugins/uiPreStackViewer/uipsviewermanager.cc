@@ -439,7 +439,7 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
     ConstDataPackRef<FlatDataPack>fdp = DPM(DataPackMgr::FlatID()).obtain(dpid);
     if ( !fdp ) return 0;
 
-    vwr.setPack( false, dpid, true );
+    vwr.setPack( FlatView::Viewer::VD, dpid, true );
     int pw = 400 + 5 * fdp->data().info().getSize( 0 );
     if ( pw > 800 ) pw = 800;
 

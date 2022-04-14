@@ -271,16 +271,27 @@ void uiFlatViewDataDispPropTab::doSetData( bool wva )
     if ( !showdisplayfield_ )
 	return;
 
+    const FlatView::Viewer::VwrDest dest = wva ? FlatView::Viewer::WVA
+					       : FlatView::Viewer::VD;
     if ( dispfld_->currentItem() == 0 )
-    { vwr_.setVisible( wva, false ); return; }
+	{ vwr_.setVisible( dest, false ); return; }
 
     const BufferString datanm( dispfld_->text() );
+    bool updated = false;
+    const bool canchanged = vwr_.enableChange( false );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {
 	ConstDataPackRef<DataPack> dp = dpm_.obtain(vwr_.availablePacks()[idx]);
 	if ( dp && dp->name() == datanm )
-	    vwr_.usePack( wva, dp->id(), false );
+	{
+	    vwr_.usePack( dest, dp->id(), false );
+	    updated = true;
+	}
     }
+
+    vwr_.enableChange( canchanged );
+    if ( updated )
+	vwr_.handleChange( sCast(od_uint32,FlatView::Viewer::BitmapData) );
 }
 
 

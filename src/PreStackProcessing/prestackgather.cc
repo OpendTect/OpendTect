@@ -415,29 +415,150 @@ void Gather::detectOuterMutes( int* res, int taperlen ) const
 }
 
 
+class GatherSetArray3D : public Array3D<float>
+{
+public:
+		GatherSetArray3D(ObjectSet<Gather>&);
+		~GatherSetArray3D();
 
-GatherSetDataPack::GatherSetDataPack( const char*,
+    bool	isOK() const override;
+
+    const Array3DInfo&	info() const override	{ return *info_; }
+
+    void	set(int,int,int,float) override;
+    float	get(int,int,int) const override;
+
+    void	setCache();
+
+private:
+
+    const float* getData_() const override	{ return nullptr; }
+
+    ObjectSet<Gather>& gathers_;
+    Array3DInfo*	info_ = nullptr;
+};
+
+
+GatherSetArray3D::GatherSetArray3D( ObjectSet<Gather>& gathers )
+    : gathers_(gathers)
+    , info_(nullptr)
+{
+    setCache();
+}
+
+
+GatherSetArray3D::~GatherSetArray3D()
+{
+    delete info_;
+}
+
+
+void GatherSetArray3D::setCache()
+{
+    int nroffs = 0;
+    int nrsamples = 0;
+    for ( const auto* gather : gathers_ )
+    {
+	const Array2DInfo& gathinfo = gather->data().info();
+	const int nroff = gathinfo.getSize( Gather::offsetDim() );
+	const int nrz = gathinfo.getSize( Gather::zDim() );
+	if ( nroff > nroffs )
+	    nroffs = nroff;
+	if ( nrz > nrsamples )
+	    nrsamples = nrz;
+    }
+
+    if ( nroffs < 1 || nrsamples < 1 )
+	return;
+
+    delete info_;
+    info_ = new Array3DInfoImpl( gathers_.size(), nroffs, nrsamples );
+}
+
+
+bool GatherSetArray3D::isOK() const
+{
+    return info_ && info_->getSize(0) == gathers_.size();
+}
+
+
+void GatherSetArray3D::set( int idx, int idy, int idz, float val )
+{
+#ifdef __debug__
+    if ( !gathers_.validIdx(idx) || !isOK() )
+	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
+#endif
+
+    gathers_.get( idx )->data().set( idy, idz, val );
+}
+
+
+float GatherSetArray3D::get( int idx, int idy, int idz ) const
+{
+#ifdef __debug__
+    if ( !gathers_.validIdx(idx) || !isOK() )
+	{ pErrMsg("Invalid access"); DBG::forceCrash(true); }
+#endif
+
+    return gathers_.get( idx )->data().get( idy, idz );
+}
+
+
+
+GatherSetDataPack::GatherSetDataPack( const char* /* ctgery */ )
+    : DataPack( sDataPackCategory() )
+    , arr3d_(*new GatherSetArray3D(gathers_))
+{
+}
+
+
+GatherSetDataPack::GatherSetDataPack( const char* /* ctgery */,
 				      const ObjectSet<Gather>& gathers )
     : DataPack( sDataPackCategory() )
     , gathers_( gathers )
+    , arr3d_(*new GatherSetArray3D(gathers_))
 {
+    for ( auto* gather : gathers_ )
+	gather->setName( name() );
 }
 
 
 GatherSetDataPack::~GatherSetDataPack()
 {
+    delete &arr3d_;
+    DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
+    while ( !gathers_.isEmpty() )
+    {
+	auto* gather = gathers_.pop();
+	const DataPack::ID id = gather->id();
+	if ( dpm.haveID(id) )
+	    dpm.release( id );
+	else
+	    delete gather;
+    }
 }
 
 
 const Gather* GatherSetDataPack::getGather( const BinID& bid ) const
 {
-    for ( int idx=0; idx<gathers_.size(); idx++ )
+    for ( const auto* gather : gathers_ )
     {
-	if ( gathers_[idx]->getBinID() == bid )
-	    return gathers_[idx];
+	if ( gather->getBinID() == bid )
+	    return gather;
     }
 
-    return 0;
+    return nullptr;
+}
+
+
+void GatherSetDataPack::obtainGathers()
+{
+    DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
+    for ( auto* gather : gathers_ )
+    {
+	if ( !dpm.haveID(gather->id()) )
+	    dpm.addAndObtain( gather );
+    }
 }
 
 
@@ -526,8 +647,9 @@ SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
     const int nrsamples = data.info().getSize( 1 );
 
     rettrc.reSize( nrsamples, false );
-    const TrcKey tk( gather.getBinID(), !gather.is3D() );
-    rettrc.info().setTrcKey( tk ).calcCoord();
+    rettrc.info().setTrcKey( gather.getTrcKey() ).calcCoord();
+    rettrc.info().offset = gather.getOffset( offsetidx );
+    //TODO: set azimuth ?
     const SamplingData<double>& sd = gather.posData().range( false );
     rettrc.info().sampling.set( (float)sd.start, (float)sd.step );
     for ( int isamp=0; isamp<nrsamples; isamp++ )
@@ -547,6 +669,19 @@ StepInterval<float> GatherSetDataPack::zRange() const
 	zrg.include( gathers_[idx]->zRange(), false );
 
     return zrg;
+}
+
+
+void GatherSetDataPack::addGather( Gather& gather )
+{
+    gather.setName( name() );
+    gathers_.add( &gather );
+}
+
+
+void GatherSetDataPack::finalize()
+{
+    static_cast<GatherSetArray3D&>( arr3d_ ).setCache();
 }
 
 } // namespace PreStack

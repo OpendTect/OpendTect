@@ -55,20 +55,19 @@ uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
 
 bool uiAddEditMrkrDlg::acceptOK( CallBacker* )
 {
-    BufferString nm = namefld_->text();
+    const BufferString nm( namefld_->text() );
     if ( nm.isEmpty() )
 	mErrRet( tr("Please specify a marker name"), return false );
 
     marker_.setName( nm );
     marker_.setColor( colorfld_->color() );
-
     if ( stratmrkfld_->isChecked() )
     {
-	Strat::LevelSet& lvls = Strat::eLVLS();
-	const bool ispresent = Strat::LVLS().isPresent( nm.buf() );
-	const Strat::Level* lvl = ispresent ?
-	    lvls.get( nm.buf() ) : lvls.add( nm.buf(), colorfld_->color() );
-	marker_.setLevelID( lvl ? lvl->id() : -1 );
+	Strat::Level::ID lvlid = Strat::LVLS().getIDByName( nm.buf() );
+	if ( lvlid == Strat::Level::cUndefID() )
+	    lvlid = Strat::eLVLS().add( nm.buf(), colorfld_->color() );
+
+	marker_.setLevelID( lvlid );
     }
 
     return true;

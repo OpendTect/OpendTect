@@ -16,10 +16,10 @@ ________________________________________________________________________
 #include "uiseistrcbufviewer.h"
 
 
-uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p, 
+uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p,
 					const uiFlatViewMainWin::Setup& setup )
-    : uiFlatViewMainWin( p, setup )      
-    , dp_(0)
+    : uiFlatViewMainWin( p, setup )
+    , dp_(nullptr)
 {
     viewer().setInitialSize( uiSize(420,600) );
     FlatView::Appearance& app = viewer().appearance();
@@ -68,10 +68,10 @@ void uiSeisTrcBufViewer::setBuf( const SeisTrcBuf& tbuf,
     DPM( DataPackMgr::FlatID() ).addAndObtain( dp_ );
     const FlatView::DataDispPars& ddpars = viewer().appearance().ddpars_;
     viewer().addPack( dp_->id() );
-    if ( ddpars.wva_.show_ )
-	viewer().usePack( true, dp_->id() );
-    if ( ddpars.vd_.show_ )
-	viewer().usePack( false, dp_->id() );
+    const FlatView::Viewer::VwrDest dest =
+	  FlatView::Viewer::getDest( ddpars.wva_.show_, ddpars.vd_.show_ );
+    if ( dest != FlatView::Viewer::None )
+	viewer().usePack( dest, dp_->id() );
 
     int w = 200 + 2*sz; if ( w > 600 ) w = 600;
     int h = 150 + 5*tbuf.first()->size(); if ( h > 500 ) h = 500;
@@ -104,5 +104,5 @@ void uiSeisTrcBufViewer::selectDispTypes( bool wva, bool vd )
 
 void uiSeisTrcBufViewer::handleBufChange()
 {
-    viewer().handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+    viewer().handleChange( sCast(od_uint32,FlatView::Viewer::All) );
 }

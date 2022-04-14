@@ -12,10 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "color.h"
-#include "ranges.h"
-#include "namedobj.h"
+
 #include "manobjectset.h"
+#include "ranges.h"
+#include "stratlevel.h"
 
 class TaskRunner;
 
@@ -34,16 +34,12 @@ mExpClass(Well) Marker : public ::NamedObject
 {
 public:
 
-			Marker( const char* nm=0, float dh=0,
-						    OD::Color c=OD::Color() )
-			: ::NamedObject(nm)
-			, dah_(dh)
-			, color_(c)
-			, levelid_(-1)		{}
-			Marker( int lvlid, float dh )
-			    : dah_(dh)
-			    , color_(OD::Color::Black())
-			    , levelid_(lvlid)	{}
+			Marker(const char* nm=nullptr,float dh=0.f,
+			       OD::Color c=OD::Color());
+			Marker(Strat::Level::ID,float dh);
+			Marker(const Marker&);
+			~Marker();
+
     Marker&		operator =(const Marker&);
     inline bool		operator ==( const Marker& m )
 			{ return m.name() == name(); }
@@ -52,20 +48,22 @@ public:
 
     inline float	dah() const		{ return dah_; }
     inline void		setDah( float v )	{ dah_ = v; }
-    inline int		levelID() const		{ return levelid_; }
-    inline void		setLevelID( int id )	{ levelid_ = id; }
     OD::Color		color() const;
+    inline Strat::Level::ID levelID() const	{ return levelid_; }
+    Strat::Level	getLevel() const;
 
     static const char*	sKeyDah();
 
     // setName() and setColor() only used as fallback, if not attached to level
-    void		setColor( OD::Color col )	{ color_ = col; }
+    inline void		setColor( OD::Color col )	  { color_ = col; }
+    inline void		setLevelID( Strat::Level::ID id ) { levelid_ = id; }
+    void		setNoLevelID();
 
 protected:
 
     float		dah_;
     OD::Color		color_;
-    int			levelid_;
+    Strat::Level::ID	levelid_;
 
 };
 

@@ -13,26 +13,25 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
-#include "uiflatviewslicepos.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uilabel.h"
+#include "uilineedit.h"
 #include "uimsg.h"
 #include "uimultiflatviewcontrol.h"
 #include "uipsviewer2dmainwin.h"
-#include "uiseiswvltsel.h"
+#include "uislider.h"
 #include "uispinbox.h"
-#include "uistratlayermodel.h"
-#include "uistratsynthexport.h"
+#include "uistratlaymodtools.h"
 #include "uisynthgendlg.h"
-#include "uisynthtorealscale.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
-#include "envvars.h"
+#include "coltabsequence.h"
+#include "dataclipper.h"
+#include "ioobj.h"
 #include "flatposdata.h"
-#include "flatviewaxesdrawer.h"
 #include "flatviewzoommgr.h"
 #include "prestackgather.h"
 #include "propertyref.h"
@@ -43,164 +42,1933 @@ ________________________________________________________________________
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlith.h"
-#include "stratsynth.h"
-#include "stratsynthlevel.h"
-#include "survinfo.h"
 #include "syntheticdataimpl.h"
-#include "waveletio.h"
+#include "wavelet.h"
 
-
+using namespace StratSynth;
 static const int cMarkerSize = 6;
 
-static const char* sKeySnapLevel()	{ return "Snap Level"; }
-static const char* sKeyViewArea()	{ return "Start View Area"; }
-static const char* sKeyNone()		{ return "None"; }
-static const char* sKeyRainbow()	{ return "Rainbow"; }
-static const char* sKeySeismics()	{ return "Seismics"; }
-static const char* sKeyDecimation()	{ return "Decimation"; }
 
-
-uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
-				    const Strat::LayerModelProvider& lmp )
-    : uiGroup(p,"LayerModel synthetics display")
-    , lmp_(lmp)
-    , stratsynth_(new StratSynth(lmp,false))
-    , edstratsynth_(new StratSynth(lmp,true))
-    , viewChanged(this)
-    , modSelChanged(this)
-    , synthsChanged(this)
-    , dispParsChanged(this)
-    , layerPropSelNeeded(this)
-    , relzoomwr_(0,0,1,1)
-    , savedzoomwr_(mUdf(double),0,0,0)
+namespace StratSynth
 {
-    topgrp_ = new uiGroup( this, "Top group" );
-    topgrp_->setStretch( 2, 0 );
 
-    auto* datalblcbx = new uiLabeledComboBox( topgrp_, tr("Wiggle View"), "" );
-    wvadatalist_ = datalblcbx->box();
-    mAttachCB( wvadatalist_->selectionChanged, uiStratSynthDisp::wvDataSetSel);
-    wvadatalist_->setHSzPol( uiObject::Wide );
+static const char* sKeyDispPar()	{ return "Display Parameter"; }
+static const char* sKeyDefSeismicCtab() { return "Seismics"; }
+static const char* sKeyDefAttribCtab()	{ return "Pastel"; }
+static const char* sKeyDefStratPropCtab()
+{ return ColTab::Sequence::sKeyRainbow(); }
+static float cDefOverlap()		{ return 1.f; }
+static float cDefSeisOverlap()		{ return 2.f; }
+static Interval<float> cDefClipRate()	{ return Interval<float>(0.f,0.f); }
+static Interval<float> cDefSeisClipRate()
+{ return Interval<float>(0.025f,0.025f); }
+static const char* sKeyViewArea()	{ return "Start View Area"; }
 
-    auto* edbut = new uiToolButton( topgrp_, "edit",
-				tr("Add/Edit Synthetic DataSet"),
-				mCB(this,uiStratSynthDisp,addEditSynth) );
+class SynthSpecificPars
+{
+public:
 
-    edbut->attach( leftOf, datalblcbx );
+    class VwrDataPack
+    {
+    public:
+			VwrDataPack( DataPack::ID dpid, int lmsidx,
+				     const Strat::Level::ID flatlvlid,
+				     int offsidx )
+			    : dpid_(dpid)
+			    , lmsidx_(lmsidx)
+			    , flatlvlid_(flatlvlid)
+			    , offsidx_(offsidx)
+			{}
 
-    auto* dataselgrp = new uiGroup( this, "Data Selection" );
-    dataselgrp->attach( rightBorder );
-    dataselgrp->attach( ensureRightOf, topgrp_ );
+	bool		operator ==( const VwrDataPack& oth ) const
+			{
+			    return dpid_ == oth.dpid_ &&
+				 lmsidx_ == oth.lmsidx_ &&
+				 flatlvlid_ == oth.flatlvlid_ &&
+				 offsidx_ == oth.offsidx_;
+			}
 
-    auto* prdatalblcbx =
-	new uiLabeledComboBox( dataselgrp, tr("Variable Density View"), "" );
-    vddatalist_ = prdatalblcbx->box();
-    mAttachCB( vddatalist_->selectionChanged, uiStratSynthDisp::vdDataSetSel );
-    vddatalist_->setHSzPol( uiObject::Wide );
-    prdatalblcbx->attach( leftBorder );
+	DataPack::ID	id() const		{ return dpid_; }
+	int		curLayerModelIdx() const { return lmsidx_; }
+	Strat::Level::ID levelID() const	{ return flatlvlid_; }
+	int		getOffsIdx() const	{ return offsidx_; }
 
-    auto* expbut = new uiToolButton( prdatalblcbx, "export",
-			uiStrings::phrExport( tr("Synthetic DataSet(s)")),
-			mCB(this,uiStratSynthDisp,exportSynth) );
-    expbut->attach( rightOf, vddatalist_ );
+    private:
 
-    datagrp_ = new uiGroup( this, "DataSet group" );
-    datagrp_->attach( ensureBelow, topgrp_ );
-    datagrp_->attach( ensureBelow, dataselgrp );
-    datagrp_->setFrame( true );
-    datagrp_->setStretch( 2, 0 );
+	const DataPack::ID dpid_;
+	const int	lmsidx_;
+	const Strat::Level::ID flatlvlid_;
+	const int	offsidx_;
 
-    scalebut_ = new uiPushButton( datagrp_, tr("Scale"),
-				  mCB(this,uiStratSynthDisp,scalePush), false );
+    };
 
-    auto* lvlsnapcbx = new uiLabeledComboBox( datagrp_, VSEvent::TypeNames(),
-					      tr("Snap level") );
-    levelsnapselfld_ = lvlsnapcbx->box();
-    lvlsnapcbx->attach( rightOf, scalebut_ );
-    lvlsnapcbx->setStretch( 2, 0 );
-    mAttachCB( levelsnapselfld_->selectionChanged,
-	       uiStratSynthDisp::levelSnapChanged );
+SynthSpecificPars( SyntheticData::SynthID sid, uiFlatViewer* vwr )
+    : vwr_(vwr)
+    , id_(sid)
+{
+}
 
-    prestackgrp_ = new uiGroup( datagrp_, "Prestack View Group" );
-    prestackgrp_->attach( rightOf, lvlsnapcbx, 20 );
 
-    offsetposfld_ = new uiSynthSlicePos( prestackgrp_, uiStrings::sOffset() );
-    mAttachCB( offsetposfld_->positionChg, uiStratSynthDisp::offsetChged );
+SynthSpecificPars( const SynthSpecificPars& oth )
+{
+    *this = oth;
+}
 
-    prestackbut_ = new uiToolButton( prestackgrp_, "nonmocorr64",
-				tr("View Offset Direction"),
-				mCB(this,uiStratSynthDisp,viewPreStackPush) );
-    prestackbut_->attach( rightOf, offsetposfld_);
 
-    vwr_ = new uiFlatViewer( this );
+~SynthSpecificPars()
+{
+    delete prevtype_;
+    if ( vwr_ )
+    {
+	for ( const auto* dpobj : dpobjs_ )
+	    vwr_->removePack( dpobj->id() );
+    }
+}
+
+
+SynthSpecificPars& operator =( const SynthSpecificPars& oth )
+{
+    if ( &oth != this )
+    {
+	vwr_ = oth.vwr_;
+	id_ = oth.id_;
+	inited_ = oth.inited_;
+	delete prevtype_;
+	prevtype_ = oth.prevtype_
+		  ? new SynthGenParams::SynthType( *oth.prevtype_ ) : nullptr;
+	offsetrg_ = oth.offsetrg_;
+	dpobjs_ = oth.dpobjs_;
+	wvamapper_.set( oth.wvamapper_ ? new ColTab::Mapper( *oth.wvamapper_ )
+				       : nullptr );
+	vdmapper_.set( oth.vdmapper_ ? new ColTab::Mapper( *oth.vdmapper_ )
+				     : nullptr );
+	overlap_ = oth.overlap_;
+	ctab_ = oth.ctab_;
+	prevwvasu_ = oth.prevwvasu_;
+	prevoverlap_ = oth.prevoverlap_;
+	prevvdsu_ = oth.prevvdsu_;
+	prevctab_ = oth.prevctab_;
+    }
+
+    return *this;
+}
+
+
+const FlatDataPack* find( int lmsidx, const Strat::Level::ID flatlvlid,
+			  int offsidx ) const
+{
+    DataPack::ID dpid = DataPack::cUdfID();
+    for ( const auto* dpobj : dpobjs_ )
+    {
+	if ( lmsidx == dpobj->curLayerModelIdx() &&
+	     flatlvlid == dpobj->levelID() && offsidx == dpobj->getOffsIdx() )
+	{
+	    dpid = dpobj->id();
+	    break;
+	}
+    }
+
+    if ( dpid == DataPack::cUdfID() )
+	return nullptr;
+
+    const DataPack* dp = DPM( DataPackMgr::FlatID() ).observe( dpid );
+    return dynamic_cast<const FlatDataPack*>( dp );
+}
+
+
+void addIfNew( DataPack::ID dpid, int lmsidx, const Strat::Level::ID flatlvlid,
+	       int offsidx )
+{
+    PtrMan<VwrDataPack> newobj = new VwrDataPack( dpid, lmsidx,
+						  flatlvlid, offsidx );
+    for ( const auto* dpobj : dpobjs_ )
+	if ( *newobj.ptr() == *dpobj )
+	    return;
+
+    dpobjs_.add( newobj.release() );
+}
+
+
+void initFrom( const SyntheticData& sd )
+{
+    if ( inited_ || sd.id() != id_ )
+	return;
+
+    setMappers( sd );
+    if ( sd.isPS() )
+	setOffsets( static_cast<const PreStackSyntheticData&>( sd ) );
+
+    delete prevtype_;
+    prevtype_ = new SynthGenParams::SynthType( sd.synthType() );
+
+    inited_ = true;
+}
+
+
+void update()
+{
+    if ( vwr_ )
+    {
+	for ( const auto* dpobj : dpobjs_ )
+	    vwr_->removePack( dpobj->id() );
+    }
+    dpobjs_.setEmpty();
+
+    prevoverlap_ = overlap_;
+    prevctab_ = ctab_;
+    if ( wvamapper_ )
+	prevwvasu_ = wvamapper_->setup_;
+    if ( vdmapper_ )
+	prevvdsu_ = vdmapper_->setup_;
+
+    inited_ = false;
+}
+
+
+void setMappers( const SyntheticData& sd )
+{
+    const SynthGenParams& sgp = sd.getGenParams();
+    bool sametype = prevtype_;
+    if ( prevtype_ )
+    {
+	const SynthGenParams prevsgp( *prevtype_ );
+	sametype = sgp.isRawOutput() && prevsgp.isRawOutput()
+		 ? true : sgp.synthtype_ == prevsgp.synthtype_;
+    }
+
+    wvamapper_ = new ColTab::Mapper();
+    if ( sametype )
+    {
+	wvamapper_->setup_ = prevwvasu_;
+	overlap_ = prevoverlap_;
+    }
+    else
+    {
+	wvamapper_->setup_.type( ColTab::MapperSetup::Auto )
+			  .cliprate( cDefClipRate() )
+			  .autosym0( !sgp.isRawOutput() )
+			  .symmidval( sgp.isRawOutput() ? 0.f : mUdf(float) );
+	if ( !sgp.isStratProp() && !sgp.isAttribute() )
+	    overlap_ = cDefSeisOverlap();
+    }
+
+    if ( sd.isPS() )
+    {
+	const auto& presd = static_cast<const PreStackSyntheticData&>( sd );
+	wvamapper_->setData( presd.preStackPack().data() );
+    }
+    else
+    {
+	const auto& postsd = static_cast<const PostStackSyntheticData&>( sd );
+	wvamapper_->setData( postsd.postStackPack().data() );
+    }
+
+    vdmapper_ = new ColTab::Mapper( *wvamapper_.ptr(), true );
+    if ( sametype )
+    {
+	vdmapper_->setup_ = prevvdsu_;
+	ctab_ = prevctab_;
+    }
+    else
+    {
+	if ( !sgp.isStratProp() && !sgp.isAttribute() )
+	{
+	    vdmapper_->setup_.cliprate( cDefSeisClipRate() );
+	    if ( ColTab::SM().indexOf(sKeyDefSeismicCtab()) >= 0 )
+		ctab_ = sKeyDefSeismicCtab();
+	}
+	else
+	{
+	    const char* coltabnm = sgp.isAttribute() ? sKeyDefAttribCtab()
+						     : sKeyDefStratPropCtab();
+	    if ( ColTab::SM().indexOf(coltabnm) >= 0 )
+		ctab_ = coltabnm;
+	}
+    }
+
+    vdmapper_->update( false );
+}
+
+
+void setOffsets( const PreStackSyntheticData& pssd )
+{
+    offsetrg_ = pssd.offsetRange();
+    offsetrg_.step = pssd.offsetRangeStep();
+}
+
+
+const StepInterval<float>& getOffsetRg() const
+{
+    return offsetrg_;
+}
+
+
+void useWVADispPars( const FlatView::DataDispPars::WVA& wvapars )
+{
+    if ( id_ == DataPack::cNoID() )
+	return;
+
+    wvamapper_->setup_ = wvapars.mappersetup_;
+    overlap_ = wvapars.overlap_;
+}
+
+
+void useVDDispPars( const FlatView::DataDispPars::VD& vdpars )
+{
+    if ( id_ == DataPack::cNoID() )
+	return;
+
+    vdmapper_->setup_ = vdpars.mappersetup_;
+    ctab_ = vdpars.ctab_;
+}
+
+
+void useDispPars( const IOPar& iop, bool forseis )
+{
+    PtrMan<IOPar> disppar = iop.subselect( sKeyDispPar() );
+    if ( !disppar )
+	return;
+
+    if ( wvamapper_ )
+    {
+	PtrMan<IOPar> wvamapperpar =
+			disppar->subselect( FlatView::DataDispPars::sKeyWVA() );
+	const Interval<float> disprg( wvamapper_->setup_.range_ );
+	if ( wvamapperpar )
+	{
+	    wvamapper_->setup_.usePar( *wvamapperpar.ptr() );
+	    wvamapperpar->get( FlatView::DataDispPars::sKeyOverlap(), overlap_);
+	}
+	else
+	{ // Older par file
+	    wvamapper_->setup_.type_ = ColTab::MapperSetup::Fixed;
+	    disppar->get( sKey::Range(), wvamapper_->setup_.range_ );
+	    disppar->get( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
+	}
+
+	if ( forseis && wvamapper_->setup_.type_ != ColTab::MapperSetup::Fixed )
+	{
+	    wvamapper_->setup_.symmidval( 0.f ).autosym0( false );
+	    overlap_ = cDefSeisOverlap();
+	}
+
+	wvamapper_->update( false );
+    }
+
+    if ( vdmapper_ )
+    {
+	PtrMan<IOPar> vdmapperpar =
+		      disppar->subselect( FlatView::DataDispPars::sKeyVD() );
+	const Interval<float> disprg( vdmapper_->setup_.range_ );
+	if ( vdmapperpar )
+	{
+	    vdmapper_->setup_.usePar( *vdmapperpar.ptr() );
+	    vdmapperpar->get( FlatView::DataDispPars::sKeyColTab(), ctab_ );
+	}
+	else
+	{ // Older par file
+	    vdmapper_->setup_.type_ = ColTab::MapperSetup::Fixed;
+	    disppar->get( sKey::Range(), vdmapper_->setup_.range_ );
+	    disppar->get( FlatView::DataDispPars::sKeyColTab(), ctab_ );
+	}
+
+	if ( forseis && vdmapper_->setup_.type_ != ColTab::MapperSetup::Fixed )
+	    vdmapper_->setup_.symmidval( 0.f ).autosym0( false );
+
+	vdmapper_->update( false );
+    }
+}
+
+
+void fillDispPars( IOPar& iop ) const
+{
+    IOPar disppar;
+    if ( vdmapper_ )
+    {
+	IOPar vdmapperpar;
+	vdmapperpar.set( FlatView::DataDispPars::sKeyColTab(), ctab_ );
+	ColTab::MapperSetup vdmappersu( vdmapper_->setup_ );
+	if ( vdmappersu.type_ != ColTab::MapperSetup::Fixed )
+	    vdmappersu.range_.setUdf();
+	vdmappersu.fillPar( vdmapperpar );
+	disppar.mergeComp( vdmapperpar, FlatView::DataDispPars::sKeyVD() );
+    }
+
+    if ( wvamapper_ )
+    {
+	IOPar wvamapperpar;
+	wvamapperpar.set( FlatView::DataDispPars::sKeyOverlap(), overlap_ );
+	ColTab::MapperSetup wvamappersu( wvamapper_->setup_ );
+	if ( wvamappersu.type_ != ColTab::MapperSetup::Fixed )
+	    wvamappersu.range_.setUdf();
+	wvamappersu.fillPar( wvamapperpar );
+	disppar.mergeComp( wvamapperpar, FlatView::DataDispPars::sKeyWVA() );
+    }
+
+    if ( !disppar.isEmpty() )
+	iop.mergeComp( disppar, sKeyDispPar() );
+}
+
+    SyntheticData::SynthID	id_;
+    ManagedObjectSet<VwrDataPack> dpobjs_;
+    PtrMan<ColTab::Mapper>	wvamapper_;
+    PtrMan<ColTab::Mapper>	vdmapper_;
+    BufferString		ctab_;
+    float			overlap_ = cDefOverlap();
+
+private:
+
+    uiFlatViewer*		vwr_;
+    bool			inited_ = false;
+    StepInterval<float>		offsetrg_;
+    SynthGenParams::SynthType*	prevtype_ = nullptr;
+    ColTab::MapperSetup		prevwvasu_;
+    ColTab::MapperSetup		prevvdsu_;
+    float			prevoverlap_ = mUdf(float);
+    BufferString		prevctab_;
+
+};
+
+
+class SynthSpecificParsSet : public ManagedObjectSet<SynthSpecificPars>
+{
+public:
+
+SynthSpecificPars* add( SyntheticData::SynthID sid, uiFlatViewer* vwr )
+{
+    auto* ret = new SynthSpecificPars( sid, vwr );
+    *this += ret;
+    return ret;
+}
+
+int find( SyntheticData::SynthID sid ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	if ( get(idx)->id_ == sid )
+	    return idx;
+    return -1;
+}
+
+SynthSpecificPars* getByID( SyntheticData::SynthID sid )
+{
+    const int idx = find( sid );
+    return validIdx(idx) ? get( idx ) : nullptr;
+}
+
+const SynthSpecificPars* getByID( SyntheticData::SynthID sid ) const
+{
+    return mSelf().getByID( sid );
+}
+
+const FlatDataPack* find( SyntheticData::SynthID sid, int lmsidx,
+			  const Strat::Level::ID flatlvlid, int offsidx ) const
+{
+    const SynthSpecificPars* ent = getByID( sid );
+    if ( !ent )
+	return nullptr;
+
+    return ent->find( lmsidx, flatlvlid, offsidx );
+}
+
+void addIfNew( SyntheticData::SynthID sid, DataPack::ID dpid, int lmsidx,
+	       const Strat::Level::ID flatlvlid, int offsidx )
+{
+    SynthSpecificPars* ent = getByID( sid );
+    if ( ent )
+	ent->addIfNew( dpid, lmsidx, flatlvlid, offsidx );
+}
+
+};
+
+
+static bool isEmpty( uiWorldRect wr )
+{
+    wr.sortCorners();
+    return (mIsZero(wr.width(),1e-6f) && mIsZero(wr.height(),1e-6f)) ||
+	   (mIsZero(wr.top(),1e-6f) && mIsEqual(wr.bottom(),1.f,1e-6f) &&
+	    mIsZero(wr.left(),1e-6f) && mIsEqual(wr.right(),1.f,1e-6f));
+}
+
+
+static bool isEqual( uiWorldRect a, uiWorldRect b )
+{
+    a.sortCorners();
+    b.sortCorners();
+    return mIsEqual(a.left(),b.left(),1e-6f) &&
+	   mIsEqual(a.right(),b.right(),1e-6f) &&
+	   mIsEqual(a.top(),b.top(),1e-6f) &&
+	   mIsEqual(a.bottom(),b.bottom(),1e-6f);
+}
+
+} // namespace StratSynth
+
+
+class uiStratSynthDispDSSel : public uiGroup
+{
+public:
+
+uiStratSynthDispDSSel( uiParent* p, uiStratSynthDisp& synthdisp,
+		       const DataMgr& mgr, bool wva )
+    : uiGroup( p, wva ? "wva ds sel" : "vd ds sel" )
+    , datamgr_(mgr)
+    , wva_(wva)
+    , synthdisp_(synthdisp)
+    , selChange(this)
+{
+    sel_ = new uiComboBox( this, wva_ ? "wva ds sel" : "vd ds sel" );
+    sel_->setHSzPol( uiObject::Medium );
+    auto* lbl = new uiLabel( this, toUiString("---"), sel_ );
+    lbl->setIcon( wva_ ? "wva" : "vd" );
+    mAttachCB( sel_->selectionChanged, uiStratSynthDispDSSel::selChgCB );
+}
+
+~uiStratSynthDispDSSel()
+{
+    detachAllNotifiers();
+}
+
+
+void setCurrentItem( const SyntheticData::SynthID id )
+{
+    sel_->setCurrentItem( sel_->getItemIndex(id) );
+}
+
+bool update()
+{
+    const BufferString curnm( sel_->text() );
+    const SyntheticData::SynthID previd = datamgr_.find( curnm );
+    bool havesamesel = previd < 0 && isNoneSelected();
+    const SynthSpecificParsSet& entries = synthdisp_.entries_;
+    if ( !havesamesel )
+    {
+	for ( const auto* entry : entries )
+	{
+	    if ( entry->id_ == previd )
+	    {
+		havesamesel = true;
+		break;
+	    }
+	}
+    }
+
+    NotifyStopper ns( sel_->selectionChanged );
+    sel_->setEmpty();
+    sel_->addItem( toUiString("---"), 0 );
+    for ( const auto* entry : entries )
+    {
+	if ( entry->id_ <=0 )
+	    continue;
+
+	if ( entry->id_ <=0 ||
+	     (wva_ && (datamgr_.isAttribute(entry->id_) ||
+		       datamgr_.isStratProp(entry->id_))) )
+	    continue;
+
+	const BufferString dsnm( datamgr_.nameOf(entry->id_) );
+	if ( !dsnm.isEmpty() )
+	    sel_->addItem( toUiString(dsnm.str()), entry->id_ );
+    }
+
+    if ( havesamesel )
+    {
+	if ( previd > 0 )
+	    setCurrentItem( previd );
+	else
+	    setCurrentItem( 0 );
+    }
+    else
+	setCurrentItem( entries.size() > 1 ? entries.get(1)->id_ : 0 );
+
+    return !havesamesel;
+}
+
+
+void updateName( SyntheticData::SynthID id, const char* nm )
+{
+    const int idx = sel_->getItemIndex( id );
+    if ( idx < 0 || idx >= sel_->size() )
+	return;
+
+    sel_->setItemText( idx, toUiString(nm) );
+}
+
+
+BufferString currentName() const
+{
+    BufferString ret( sel_->text() );
+    return ret;
+}
+
+
+bool isNoneSelected() const
+{
+    return sel_->currentItem() == 0;
+}
+
+
+SyntheticData::SynthID curID() const
+{
+    return sel_->currentItemID();
+}
+
+
+const ColTab::Mapper* curMapper() const
+{
+    if ( isNoneSelected() )
+	return nullptr;
+
+    const SynthSpecificPars* disppars = synthdisp_.entries_.getByID( curID() );
+    if ( !disppars )
+	return nullptr;
+
+    return wva_ ? disppars->wvamapper_.ptr() : disppars->vdmapper_.ptr();
+}
+
+
+float overlap() const
+{
+    if ( isNoneSelected() )
+	return cDefOverlap();
+
+    const SynthSpecificPars* disppars = synthdisp_.entries_.getByID( curID() );
+    return disppars ? disppars->overlap_ : cDefOverlap();
+}
+
+
+const char* seqName() const
+{
+    if ( isNoneSelected() )
+	return nullptr;
+
+    const SynthSpecificPars* disppars = synthdisp_.entries_.getByID( curID() );
+    return disppars ? disppars->ctab_.buf() : nullptr;
+}
+
+
+DataPack::ID packID() const
+{
+    return datapackid_;
+}
+
+
+bool canDoWiggle() const
+{
+    if ( wva_ )
+	return true;
+
+    const SynthGenParams* sgp = datamgr_.getGenParams( curID() );
+    if ( !sgp )
+	return false;
+
+    return !sgp->isStratProp() && !sgp->isAttribute();
+}
+
+    Notifier<uiStratSynthDispDSSel> selChange;
+    DataPack::ID datapackid_ = DataPack::cUdfID();
+
+private:
+
+void selChgCB( CallBacker* )
+{
+    selChange.trigger();
+}
+
+    const DataMgr&	datamgr_;
+    uiComboBox*		sel_;
+    const bool		wva_;
+    uiStratSynthDisp&	synthdisp_;
+
+};
+
+
+uiStratSynthDisp::uiStratSynthDisp( uiParent* p, StratSynth::DataMgr& datamgr,
+				    uiStratLayModEditTools& et, uiSize uisz )
+    : uiGroup(p,"LayerModel synthetics display")
+    , datamgr_(datamgr)
+    , edtools_(et)
+    , initialsz_(uisz)
+    , entries_(*new StratSynth::SynthSpecificParsSet())
+    , viewChanged(this)
+{
+    auto* topgrp = new uiGroup( this, "Top group" );
+    topgrp->setStretch( 2, 0 );
+
+    auto* edbut = new uiToolButton( topgrp, "edit",
+			tr("Define Synthetic DataSets"),
+			mCB(this,uiStratSynthDisp,dataMgrCB) );
+
+    wvltfld_ = new uiLineEdit( topgrp, "Wavelet Name" );
+    wvltfld_->setHSzPol( uiObject::Medium );
+    wvltfld_->attach( rightOf, edbut );
+    wvltfld_->setReadOnly();
+//    wvltfld_->setIcon( "wavelet" ); TODO: add support
+
+    wvaselfld_ = new uiStratSynthDispDSSel( topgrp, *this, datamgr_, true );
+    wvaselfld_->attach(  rightTo, wvltfld_ );
+    vdselfld_ = new uiStratSynthDispDSSel( topgrp, *this, datamgr_, false );
+    vdselfld_->attach( rightBorder );
+    wvaselfld_->attach( leftOf, vdselfld_ );
+
+    auto* vwrgrp = new uiGroup( this, "Viewer area group" );
+    createViewer( vwrgrp );
+    vwrgrp->attach( stretchedBelow, topgrp );
+
+    mAttachCB( postFinalize(), uiStratSynthDisp::initGrp );
+}
+
+
+void uiStratSynthDisp::createViewer( uiGroup* vwrgrp )
+{
+    vwr_ = new uiFlatViewer( vwrgrp );
     vwr_->rgbCanvas().disableImageSave();
-    vwr_->setInitialSize( uiSize(800,300) ); //TODO get hor sz from laymod disp
-
-    const int fontheight = vwr_->getAxesDrawer().getNeededHeight();
-    vwr_->setExtraBorders( uiSize(0,-fontheight), uiSize(0,-fontheight) );
-
+    vwr_->setInitialSize( initialsz_ );
     vwr_->setStretch( 2, 2 );
-    vwr_->attach( ensureBelow, datagrp_ );
-    mAttachCB( vwr_->dispPropChanged, uiStratSynthDisp::parsChangedCB );
-    mAttachCB( vwr_->viewChanged, uiStratSynthDisp::viewChg );
-    mAttachCB( vwr_->rgbCanvas().reSize, uiStratSynthDisp::updateTextPosCB );
     setDefaultAppearance( vwr_->appearance() );
 
     uiFlatViewStdControl::Setup fvsu( this );
-    fvsu.withcoltabed(false).tba((int)uiToolBar::Right)
-	.withflip(false).withsnapshot(false);
+    fvsu.withcoltabed( false ).tba( (int)uiToolBar::Right )
+	.withflip( false ).withsnapshot( false );
+
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->setViewerType( vwr_, true );
+
+    psgrp_ = new uiGroup( vwrgrp, "Pre-Stack controls group" );
+    auto* psvwbut = new uiToolButton( psgrp_, "nonmocorr64",
+				tr("View PreStack Offset Display Panel"),
+				mCB(this,uiStratSynthDisp,viewPSCB) );
+    const int slsz = initialsz_.height() - uiObject::iconSize();
+    uiSlider::Setup slsu;
+    slsu.isvertical( true ).sldrsize( slsz );
+    offsslider_ = new uiSlider( psgrp_, slsu, "Offset Slider" );
+    offsslider_->setStretch( 0, 2 );
+    offsslider_->attach( ensureBelow, psvwbut );
+    offsslider_->slider()->setVSzPol( uiObject::WideVar );
+    offsslider_->slider()->setPrefWidth( uiObject::iconSize() );
+    psgrp_->attach( rightBorder );
+    psgrp_->setStretch( 0, 2 );
 }
 
 
 uiStratSynthDisp::~uiStratSynthDisp()
 {
     detachAllNotifiers();
-    delete stratsynth_;
-    delete edstratsynth_;
-    taskrunner_.release();
-    delete d2tmodels_;
+    delete psvwrwin_;
+    delete uidatamgr_;
+    delete &entries_;
 }
 
 
-void uiStratSynthDisp::set( uiStratLayerModel& uislm )
+void uiStratSynthDisp::initGrp( CallBacker* )
 {
-    mAttachCB( uislm.newModels, uiStratSynthDisp::newModelsCB );
+    mAttachCB( datamgr_.entryAdded, uiStratSynthDisp::synthAddedCB );
+    mAttachCB( datamgr_.entryRenamed, uiStratSynthDisp::synthRenamedCB );
+    mAttachCB( datamgr_.entryChanged, uiStratSynthDisp::synthRemovedCB );
+    mAttachCB( datamgr_.entryRemoved, uiStratSynthDisp::synthRemovedCB );
+    mAttachCB( wvaselfld_->selChange, uiStratSynthDisp::wvaSelCB );
+    mAttachCB( vdselfld_->selChange, uiStratSynthDisp::vdSelCB );
+    mAttachCB( offsslider_->valueChanged, uiStratSynthDisp::offsSliderChgCB );
+    mAttachCB( vwr_->viewChanged, uiStratSynthDisp::viewChgCB );
+    mAttachCB( vwr_->rgbCanvas().reSize, uiStratSynthDisp::canvasResizeCB );
+    mAttachCB( vwr_->dispPropChanged, uiStratSynthDisp::dispPropChgCB );
+    if ( control() )
+	mAttachCB( control()->zoomChanged, uiStratSynthDisp::zoomChangedCB );
+    mAttachCB( edtools_.selLevelChg, uiStratSynthDisp::lvlChgCB );
+    mAttachCB( edtools_.showFlatChg, uiStratSynthDisp::flatChgCB );
+    mAttachCB( edtools_.dispEachChg, uiStratSynthDisp::dispEachChgCB );
+    mAttachCB( datamgr_.layerModelSuite().curChanged,
+	       uiStratSynthDisp::curModEdChgCB );
+
+    psgrp_->display( false );
 }
 
 
-void uiStratSynthDisp::newModelsCB( CallBacker* )
+bool uiStratSynthDisp::curIsPS( FlatView::Viewer::VwrDest dest ) const
 {
-    doModelChange();
+    if ( dest != FlatView::Viewer::VD && !wvaselfld_->isNoneSelected() )
+	return datamgr_.isPS( wvaselfld_->curID() );
+    if ( dest != FlatView::Viewer::WVA && !vdselfld_->isNoneSelected() )
+	return datamgr_.isPS( vdselfld_->curID() );
+    return false;
+}
+
+
+void uiStratSynthDisp::addViewerToControl( uiFlatViewer& vwr )
+{
+    if ( !control_ )
+	return;
+
+    control_->addViewer( vwr );
+    control_->setViewerType( &vwr, false );
+}
+
+
+void uiStratSynthDisp::enableDispUpdate( bool yn )
+{
+    canupdatedisp_ = yn;
+}
+
+
+void uiStratSynthDisp::handleModelChange( bool full )
+{
+    enableDispUpdate( false );
+    datamgr_.modelChange();
+    selseq_ = -1;
+    updFlds( full );
+    reDisp();
+    curModEdChgCB( nullptr );
+    if ( full )
+	initialboundingbox_ = vwr_->boundingBox();
+
+    enableDispUpdate( true );
+}
+
+
+void uiStratSynthDisp::updFlds( bool full )
+{
+    updateEntries( full );
+    wvaselfld_->update();
+    vdselfld_->update();
+    if ( wvaselfld_->isNoneSelected() && vdselfld_->isNoneSelected() &&
+	 entries_.validIdx(1) )
+    {
+	NotifyStopper wvans( wvaselfld_->selChange );
+	NotifyStopper vdns( vdselfld_->selChange );
+	const SyntheticData::SynthID id = entries_.get(1)->id_;
+	wvaselfld_->setCurrentItem( id );
+	vdselfld_->setCurrentItem( id );
+    }
+}
+
+
+void uiStratSynthDisp::updateEntries( bool full )
+{
+    StratSynth::SynthSpecificParsSet preventries;
+    if ( full )
+	entries_.setEmpty();
+    else
+    {
+	while ( !entries_.isEmpty() )
+	    preventries += entries_.removeAndTake( 0 );
+    }
+
+    TypeSet<SyntheticData::SynthID> ids;
+    static SyntheticData::SynthID emptyid = 0;
+    ids += emptyid;
+    datamgr_.getIDs( ids, StratSynth::DataMgr::NoProps );
+    datamgr_.getIDs( ids, StratSynth::DataMgr::OnlyProps );
+    for ( const auto& id : ids )
+    {
+	const int previdx = preventries.find( id );
+	if ( previdx < 0 )
+	    entries_.add( id, vwr_ );
+	else
+	    entries_ += preventries.removeAndTake( previdx, false );
+    }
+
+    preventries.setEmpty();
+}
+
+
+void uiStratSynthDisp::updWvltFld()
+{
+    BufferString wvltnm;
+    const SynthGenParams* sgp = datamgr_.getGenParams( wvaselfld_->curID() );
+    if ( sgp && sgp->isRawOutput() )
+    {
+	wvltnm.set( sgp->getWaveletNm() );
+	PtrMan<IOObj> ioobj = Wavelet::getIOObj( sgp->getWaveletNm() );
+	if ( !ioobj )
+	    wvltnm.setEmpty();
+    }
+
+    wvltfld_->setText( wvltnm );
+}
+
+
+void uiStratSynthDisp::handleChange( od_uint32 ctyp )
+{
+    if ( ctyp > 0 )
+	vwr_->handleChange( ctyp );
+}
+
+
+void uiStratSynthDisp::reDisp( bool preserveview )
+{
+    NotifyStopper ns( control_->zoomChanged, this );
+    if ( preserveview && (initialboundingbox_.height() > 0 ||
+			  initialboundingbox_.width() > 0) )
+	vwr_->setView( initialboundingbox_ );
+
+    od_uint32 ctyp = 0;
+    if ( wvaselfld_->curID() == vdselfld_->curID() )
+	setViewerData( FlatView::Viewer::Both, ctyp, preserveview );
+    else
+    {
+	setViewerData( FlatView::Viewer::WVA, ctyp, preserveview );
+	setViewerData( FlatView::Viewer::VD, ctyp, preserveview );
+    }
+
+    updWvltFld();
+    psgrp_->display( curIsPS(FlatView::Viewer::Both) );
+    drawLevels( ctyp );
+    handleChange( ctyp );
+}
+
+
+void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
+				      od_uint32& ctyp, bool preserveview )
+{
+    if ( dest == FlatView::Viewer::None )
+	return;
+
+    const uiWorldRect curview = vwr_->curView();
+
+    uiStratSynthDispDSSel& selfld = dest == FlatView::Viewer::VD
+				  ? *vdselfld_ : *wvaselfld_;
+    const SyntheticData::SynthID curid = selfld.curID();
+    if ( curid <= 0 )
+    {
+	selfld.datapackid_ = DataPack::cNoID();
+	if ( dest == FlatView::Viewer::Both )
+	    vdselfld_->datapackid_ = DataPack::cNoID();
+
+	vwr_->setVisible( dest, false, &ctyp );
+	return;
+    }
+
+    ConstRefMan<SyntheticData> sd;
+    if ( curid > 0 )
+    {
+	enableDispUpdate( false );
+	uiTaskRunner trprov( this );
+	if ( datamgr_.ensureGenerated(curid,&trprov) )
+	    sd = datamgr_.getDataSet( curid );
+	enableDispUpdate( true );
+
+	if ( sd )
+	{
+	    SynthSpecificPars* disppars = entries_.getByID( curid );
+	    if ( disppars )
+		disppars->initFrom( *sd.ptr() );
+
+	    if ( sd->isPS() )
+	    {
+		const StepInterval<float>& offsetrg = disppars->getOffsetRg();
+		const float prevoff = offsslider_->getFValue();
+		offsslider_->setInterval( offsetrg );
+		const int idx = offsetrg.nearestIndex( prevoff );
+		curoffs_ = offsetrg.atIndex( idx );
+		offsslider_->setValue( curoffs_ );
+	    }
+	    else
+		curoffs_ = 0.f;
+	}
+    }
+
+    ConstPtrMan<FlatDataPack> pack2use;
+    DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
+    const int lmsidx = datamgr_.layerModelSuite().curIdx();
+    int curoffsidx = -1;
+    Strat::Level::ID flatlvlid = Strat::Level::cUndefID();
+    if ( sd )
+    {
+	const bool hascuroffset = sd->hasOffset();
+	if ( hascuroffset )
+	    curoffsidx = sd->synthGenDP().getOffsetIdx( curoffs_ );
+
+	const Strat::Level::ID sellvlid = edtools_.selLevelID();
+	const bool showflattened = sellvlid != Strat::Level::cUndefID() &&
+				   edtools_.showFlattened();
+	if ( showflattened )
+	    flatlvlid = sellvlid;
+
+	pack2use = entries_.find( curid, lmsidx, flatlvlid, curoffsidx );
+	if ( !pack2use )
+	{
+	    mDynamicCastGet(const PreStackSyntheticData*,presd,sd.ptr());
+	    if ( showflattened )
+	    {
+		TypeSet<float> zvals;
+		datamgr_.getLevelDepths( sellvlid, zvals );
+		pack2use = presd
+			 ? presd->getFlattenedTrcDP( zvals, false, curoffsidx )
+			 : sd->getFlattenedTrcDP( zvals, false );
+	    }
+	    else
+	    {
+		pack2use = presd ? presd->getTrcDPAtOffset( curoffsidx )
+				 : sd->getTrcDP();
+	    }
+	}
+    }
+
+    const DataPack::ID newpackid = pack2use ? pack2use->id()
+					    : DataPack::cNoID();
+    if ( selfld.packID() == newpackid )
+    {
+	pack2use.set( nullptr, !dpm.haveID(newpackid) );
+	if ( dest == FlatView::Viewer::Both )
+	    vdselfld_->datapackid_ = newpackid;
+
+	updateDispPars( dest, &ctyp );
+	return;
+    }
+
+    const bool hadpack = selfld.packID() > 0;
+    selfld.datapackid_ = newpackid;
+    if ( dest == FlatView::Viewer::Both )
+	vdselfld_->datapackid_ = newpackid;
+
+    if ( newpackid != DataPack::cNoID() )
+    {
+	if ( !dpm.haveID(newpackid) )
+	    dpm.add( const_cast<FlatDataPack*>( pack2use.ptr() ) );
+	if ( !vwr_->isAvailable(newpackid) )
+	    vwr_->addPack( newpackid );
+
+	entries_.addIfNew( curid, newpackid, lmsidx, flatlvlid, curoffsidx );
+    }
+
+    const bool updateview = vwr_->enableChange( false );
+    vwr_->usePack( dest, newpackid, !hadpack );
+    ctyp = Math::SetBits( ctyp, FlatView::Viewer::BitmapData, true );
+
+    pack2use.release();
+
+    if ( control_ && sd )
+    {
+	const bool uncorrected =
+		   sd->isPS() && !sd->getGenParams().isCorrected();
+	ObjectSet<const TimeDepthModel> d2tmodels;
+	for ( int itrc=0; itrc<sd->nrPositions(); itrc++ )
+	    d2tmodels.add( uncorrected ? sd->getTDModel( itrc, curoffsidx )
+				       : sd->getTDModel( itrc ) );
+	control_->setD2TModels( d2tmodels );
+    }
+
+    vwr_->enableChange( updateview );
+    if ( preserveview )
+	vwr_->setView( curview );
+    else
+	vwr_->setViewToBoundingBox();
+
+    updateDispPars( dest, &ctyp );
+}
+
+
+void uiStratSynthDisp::updateDispPars( FlatView::Viewer::VwrDest dest,
+				       od_uint32* ctyp )
+{
+    if ( dest == FlatView::Viewer::None )
+	return;
+
+    const SyntheticData::SynthID wvacurid = wvaselfld_->curID();
+    const SyntheticData::SynthID vdcurid = vdselfld_->curID();
+    if ( (dest == FlatView::Viewer::WVA && wvacurid == DataPack::cNoID()) ||
+	 (dest == FlatView::Viewer::VD && vdcurid == DataPack::cNoID()) ||
+	 (wvacurid == DataPack::cNoID() && vdcurid == DataPack::cNoID()) )
+	return;
+
+    FlatView::DataDispPars& ddpars = vwr_->appearance().ddpars_;
+    bool notif = false;
+    if ( dest != FlatView::Viewer::VD )
+    {
+	const ColTab::Mapper* mapper = wvaselfld_->curMapper();
+	if ( mapper && (mapper->setup_ != ddpars.wva_.mappersetup_ ||
+	     mapper->setup_.range_ != ddpars.wva_.mappersetup_.range_) )
+	{
+	    ddpars.wva_.mappersetup_ = mapper->setup_;
+	    notif = true;
+	}
+
+	const float overlap = wvaselfld_->overlap();
+	if ( !mIsEqual(overlap,ddpars.wva_.overlap_,1e-2f) )
+	{
+	    ddpars.wva_.overlap_ = overlap;
+	    notif = true;
+	}
+    }
+
+    if ( dest != FlatView::Viewer::WVA )
+    {
+	const ColTab::Mapper* mapper = vdselfld_->curMapper();
+	if ( mapper && (mapper->setup_ != ddpars.vd_.mappersetup_ ||
+	     mapper->setup_.range_ != ddpars.vd_.mappersetup_.range_) )
+	{
+	    ddpars.vd_.mappersetup_ = mapper->setup_;
+	    notif = true;
+	}
+
+	const BufferString ctabnm( vdselfld_->seqName() );
+	if ( ctabnm != ddpars.vd_.ctab_ )
+	{
+	    ddpars.vd_.ctab_ = ctabnm;
+	    notif = true;
+	}
+    }
+
+    vwr_->setVisible( dest, true, ctyp );
+    if ( !notif )
+	return;
+
+    const od_uint32 ctype = sCast(od_uint32,FlatView::Viewer::DisplayPars);
+    if ( ctyp )
+	*ctyp = Math::SetBits( *ctyp, FlatView::Viewer::DisplayPars, true );
+    else
+	handleChange( ctype );
+}
+
+
+void uiStratSynthDisp::setSelectedSequence( int seqnr )
+{
+    selseq_ = seqnr;
+    // TODO take action
+}
+
+
+void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
+{
+    vwr_->removeAuxDatas( levelaux_ );
+    levelaux_.setEmpty();
+
+    TypeSet<SyntheticData::SynthID> validids;
+    datamgr_.getIDs( validids, DataMgr::NoSubSel, true );
+    ConstRefMan<SyntheticData> sd;
+    if ( !validids.isEmpty() )
+	sd = datamgr_.getDataSet( validids.first() );
+
+    if ( sd )
+    {
+	const Strat::Level::ID sellvlid = edtools_.selLevelID();
+	const bool showflattened = sellvlid != Strat::Level::cUndefID() &&
+				   edtools_.showFlattened();
+	const int dispeach = dispEach();
+	const StratSynth::LevelSet& lvls = datamgr_.levels();
+	TypeSet<float> sellvldepths;
+	if ( showflattened )
+	    datamgr_.getLevelDepths( sellvlid, sellvldepths );
+
+	const bool dodecim = edtools_.canSetDispEach();
+	for( int lvlidx=0; lvlidx<lvls.size(); lvlidx++ )
+	{
+	    const StratSynth::Level& lvl = lvls.getByIdx( lvlidx );
+	    const Strat::Level stratlvl = Strat::LVLS().getByName( lvl.name() );
+	    if ( stratlvl.isUndef() )
+		continue;
+
+	    TypeSet<float> depths;
+	    datamgr_.getLevelDepths( stratlvl.id(), depths );
+	    if ( depths.isEmpty() )
+		continue;
+	    else if ( showflattened )
+		for ( int idpth=0; idpth<depths.size(); idpth++ )
+		    depths[idpth] -= sellvldepths[idpth];
+
+	    const bool issellvl = stratlvl.id() == sellvlid;
+	    FlatView::AuxData* auxd = vwr_->createAuxData( stratlvl.name() );
+	    auxd->linestyle_.type_ = dodecim ? OD::LineStyle::None
+					     : OD::LineStyle::Solid;
+	    if ( !dodecim )
+	    {
+		auxd->linestyle_.color_ = stratlvl.color();
+		auxd->linestyle_.width_ = issellvl ? 3 : 2;
+	    }
+
+	    auxd->zvalue_ = issellvl ? 5 : 3;
+	    for ( int itrc=0; itrc<depths.size(); itrc++ )
+	    {
+		const TimeDepthModel* d2tmdl = sd->getTDModel( itrc );
+		const float depth = depths[itrc];
+		if ( mIsUdf(depth) || !d2tmdl )
+		    continue;
+
+		const float time = d2tmdl->getTime( depth );
+		if ( mIsUdf(time) )
+		    continue;
+
+		if ( dodecim )
+		{
+		    int mrkrsz = cMarkerSize;
+		    if ( issellvl && datamgr_.nrTraces() <= 25 )
+			mrkrsz *= 2;
+
+		    auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
+							  mrkrsz,
+							  stratlvl.color() );
+		}
+
+		auxd->poly_ += FlatView::Point( itrc * dispeach+1, time );
+	    }
+
+	    if ( auxd->poly_.isEmpty() )
+		delete auxd;
+	    else
+	    {
+		vwr_->addAuxData( auxd );
+		levelaux_.add( auxd );
+	    }
+	}
+    }
+
+    ctyp = Math::SetBits( ctyp, FlatView::Viewer::Auxdata, true );
+}
+
+
+void uiStratSynthDisp::setPSVwrData()
+{
+    if ( !psvwrwin_ )
+	return;
+
+    const SyntheticData::SynthID curid = wvaselfld_->isNoneSelected()
+				    ? vdselfld_->curID() : wvaselfld_->curID();
+    ConstRefMan<SyntheticData> sd = datamgr_.getDataSet( curid );
+    if ( !sd || !sd->isPS() )
+	return;
+
+    mDynamicCastGet(const PreStackSyntheticData*,presd,sd.ptr());
+    if ( !presd )
+	return;
+
+    psvwrwin_->removeGathers();
+    const_cast<PreStackSyntheticData*>( presd )->obtainGathers();
+
+    const ObjectSet<PreStack::Gather>& gathers =
+				       presd->preStackPack().getGathers();
+    const ObjectSet<PreStack::Gather>& anglegathers =
+				       presd->angleData().getGathers();
+    TypeSet<PreStackView::GatherInfo> gatherinfos;
+
+    const int dispeachgather = gathers.size()/8 + 1;
+    for ( int idx=0; idx<gathers.size(); idx++ )
+    {
+	const auto& gather = *gathers[idx];
+	const auto& anglegather = *anglegathers[idx];
+	gatherinfos += PreStackView::GatherInfo();
+	PreStackView::GatherInfo& newgi = gatherinfos.last();
+
+	newgi.isstored_ = false;
+	newgi.gathernm_ = sd->name();
+	newgi.bid_ = gather.getBinID();
+	newgi.wvadpid_ = gather.id();
+	newgi.vddpid_ = anglegather.id();
+
+	newgi.isselected_ = idx%dispeachgather==0 || idx == gathers.size()-1;
+    }
+
+    psvwrwin_->setGathers( gatherinfos );
+}
+
+
+void uiStratSynthDisp::handlePSViewDisp( FlatView::Viewer::VwrDest dest )
+{
+    const bool isanyps = curIsPS( FlatView::Viewer::Both );
+    psgrp_->display( isanyps );
+    if ( psvwrwin_ )
+	psvwrwin_->display( isanyps );
+    if ( !curIsPS(dest) )
+	return;
+
+    const SyntheticData::SynthID synthid =
+	dest == FlatView::Viewer::WVA
+	     ? wvaselfld_->curID()
+	     : (dest == FlatView::Viewer::VD
+		   ? vdselfld_->curID()
+		   : (wvaselfld_->isNoneSelected()
+				? vdselfld_->curID() : wvaselfld_->curID()));
+
+    ConstRefMan<SyntheticData> sds = datamgr_.getDataSet( synthid );
+    if ( !sds || !sds->isPS() )
+	{ pErrMsg("Huh"); return; }
+
+    mDynamicCastGet(const PreStackSyntheticData*,psds,sds.ptr());
+    StepInterval<float> offsdef( psds->offsetRange() );
+    offsdef.step = psds->offsetRangeStep();
+
+    offsslider_->setInterval( offsdef );
+    const int idx = offsdef.nearestIndex( curoffs_ );
+    curoffs_ = offsdef.atIndex( idx );
+    offsslider_->setValue( curoffs_ );
+    updateOffSliderTxt();
+
+    setPSVwrData();
+}
+
+
+void uiStratSynthDisp::curModEdChgCB( CallBacker* )
+{
+    const Strat::LayerModelSuite& lms = datamgr_.layerModelSuite();
+    if ( !modtypetxtitm_ )
+    {
+	uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
+	modtypetxtitm_ = scene.addItem( new uiTextItem );
+	modtypetxtitm_->setAlignment( mAlignment(Left,VCenter) );
+	modtypetxtitm_->setPenColor( OD::Color::Black() );
+	modtypetxtitm_->setZValue( 999999 );
+	modtypetxtitm_->setMovable( true );
+    }
+
+    const uiString moddesc = lms.uiDesc( lms.curIdx() );
+    const bool dodisp = !moddesc.isEmpty();
+    modtypetxtitm_->setVisible( dodisp );
+    if ( dodisp )
+    {
+	modtypetxtitm_->setText( moddesc );
+	canvasResizeCB( nullptr );
+    }
+
+    if ( !canupdatedisp_ )
+	return;
+
+    reDisp();
+    if ( wvaselfld_->isNoneSelected() && vdselfld_->isNoneSelected() )
+	return;
+
+    const SyntheticData::SynthID synthid = wvaselfld_->isNoneSelected()
+					 ? vdselfld_->curID()
+					 : wvaselfld_->curID();
+    ConstRefMan<SyntheticData> sd = datamgr_.getDataSet( synthid );
+    if ( !sd )
+	return;
+
+    const uiWorldRect& curvw = vwr_->curView();
+    Interval<double> dispzrg( curvw.top(), curvw.bottom() );
+    dispzrg.sort();
+    const ZSampling synthzrg = sd->zRange();
+    if ( synthzrg.start < dispzrg.start || synthzrg.stop > dispzrg.stop )
+	vwr_->setViewToBoundingBox();
+}
+
+
+void uiStratSynthDisp::canvasResizeCB( CallBacker* )
+{
+    if ( modtypetxtitm_ )
+	modtypetxtitm_->setPos( 20, 10 );
+}
+
+
+void uiStratSynthDisp::dispPropChgCB( CallBacker* )
+{
+    const FlatView::DataDispPars& ddpars = vwr_->appearance().ddpars_;
+    const SyntheticData::SynthID wvaid = wvaselfld_->curID();
+    const SyntheticData::SynthID vdid = vdselfld_->curID();
+
+    StratSynth::SynthSpecificPars* wvaent = entries_.getByID( wvaid );
+    if ( wvaent )
+	wvaent->useWVADispPars( ddpars.wva_ );
+
+    StratSynth::SynthSpecificPars* vdent = entries_.getByID( vdid );
+    if ( vdent )
+	vdent->useVDDispPars( ddpars.vd_ );
+}
+
+
+void uiStratSynthDisp::zoomChangedCB( CallBacker* cb )
+{
+    const uiWorldRect bbwr = vwr_->boundingBox();
+    if ( StratSynth::isEmpty(bbwr) )
+	return;
+
+    const uiWorldRect& curvw = vwr_->curView();
+    if ( StratSynth::isEmpty(curvw) )
+	return;
+
+    if ( control_->zoomMgr().atStart() && StratSynth::isEqual(bbwr,curvw) )
+	initialboundingbox_ = uiWorldRect();
+}
+
+
+int uiStratSynthDisp::dispEach() const
+{
+    return edtools_.dispEach();
+}
+
+
+bool uiStratSynthDisp::dispFlattened() const
+{
+    return edtools_.showFlattened();
+}
+
+
+void uiStratSynthDisp::viewChgCB( CallBacker* )
+{
+    viewChanged.trigger();
+}
+
+
+void uiStratSynthDisp::lvlChgCB( CallBacker* )
+{
+    if ( edtools_.showFlattened() )
+	reDisp( false );
+    else
+    {
+	od_uint32 ctyp = 0;
+	drawLevels( ctyp );
+	handleChange( ctyp );
+    }
+}
+
+
+void uiStratSynthDisp::flatChgCB( CallBacker* )
+{
+    const mUnusedVar uiWorldRect curview = vwr_->curView();
+    const mUnusedVar bool haszoom = control_ ? !control_->zoomMgr().atStart()
+					     : false;
+    reDisp( false );
+    if ( !control_ )
+	return;
+
+    control_->reInitZooms();
+/* TODO: make it work, and handle smart Z positioning
+    if ( !haszoom )
+    {
+	control_->reInitZooms();
+	return;
+    }
+
+    uiWorldRect newview = vwr_->curView();
+    newview.setLeft( curview.left() );
+    newview.setRight( curview.right() );
+    control_->setNewView( newview.centre(), newview.size(), vwr_ );
+    vwr_->handleChange( sCast(od_uint32,FlatView::Viewer::Auxdata) );*/
+}
+
+
+void uiStratSynthDisp::dispEachChgCB( CallBacker* )
+{
+    enableDispUpdate( false );
+    datamgr_.setCalcEach( edtools_.dispEach() );
+    reDisp( false );
+    enableDispUpdate( true );
+}
+
+
+void uiStratSynthDisp::setSavedViewRect()
+{
+    if ( !control_ || mIsUdf(initialboundingbox_.left()) )
+	return;
+
+    control_->setNewView( initialboundingbox_.centre(),
+			  initialboundingbox_.size(), vwr_ );
+}
+
+
+void uiStratSynthDisp::useDispPars( const IOPar& iop, od_uint32* ctyp )
+{
+    PtrMan<IOPar> par = iop.subselect( StratSynth::DataMgr::sKeySynthetics() );
+    if ( !par )
+	return;
+
+    TypeSet<double> startviewareapts;
+    if ( control_ && par->get(sKeyViewArea(),startviewareapts) &&
+	 startviewareapts.size() == 4 )
+    {
+	initialboundingbox_.setLeft( startviewareapts[0] );
+	initialboundingbox_.setTop( startviewareapts[1] );
+	initialboundingbox_.setRight( startviewareapts[2] );
+	initialboundingbox_.setBottom( startviewareapts[3] );
+    }
+
+    ManagedObjectSet<SynthGenParams> sgpset;
+    if ( !datamgr_.getAllGenPars(*par.ptr(),sgpset) )
+	return;
+
+    bool updatewvadisp = false, updatevddisp = false;
+    for ( int idx=0; idx<sgpset.size(); idx++ )
+    {
+	const SynthGenParams* sgp = sgpset.get( idx );
+	const SyntheticData::SynthID sid = datamgr_.find( sgp->name_ );
+	if ( sid < 0 )
+	    continue;
+
+	StratSynth::SynthSpecificPars* ent = entries_.getByID( sid );
+	if ( !ent )
+	    continue;
+
+	PtrMan<IOPar> subiop = par->subselect(
+		IOPar::compKey(StratSynth::DataMgr::sKeySyntheticNr(),idx) );
+	if ( subiop )
+	    ent->useDispPars( *subiop.ptr(),
+			      !sgp->isAttribute() && !sgp->isStratProp() );
+
+	if ( !updatewvadisp && sid == wvaselfld_->curID() )
+	    updatewvadisp = true;
+
+	if ( !updatevddisp && sid == vdselfld_->curID() )
+	    updatevddisp = true;
+    }
+
+    PtrMan<NotifyStopper> ns;
+    if ( updatewvadisp || updatevddisp )
+	ns = new NotifyStopper( control_->zoomChanged, this );
+
+    const FlatView::Viewer::VwrDest dest =
+	FlatView::Viewer::getDest( updatewvadisp, updatevddisp );
+    if ( dest == FlatView::Viewer::None )
+	return;
+
+    updateDispPars( dest, ctyp );
+}
+
+
+bool uiStratSynthDisp::usePar( const IOPar& iop )
+{
+    const bool ret = datamgr_.usePar( iop );
+    if ( !ret )
+    {
+	TypeSet<SyntheticData::SynthID> ids;
+	datamgr_.getIDs( ids, StratSynth::DataMgr::NoProps );
+	if ( ids.isEmpty() )
+	{
+	    const SynthGenParams sgp;
+	    datamgr_.addSynthetic( sgp );
+	}
+    }
+
+    return ret;
+}
+
+
+void uiStratSynthDisp::fillPar( IOPar& iop ) const
+{
+    TypeSet<SyntheticData::SynthID> ids;
+    datamgr_.getIDs( ids, StratSynth::DataMgr::NoProps );
+    ManagedObjectSet<IOPar> dispiops;
+    dispiops.setNullAllowed();
+    for ( const auto& id : ids )
+    {
+	const SynthSpecificPars* disppars = entries_.getByID( id );
+	const SynthGenParams* sgp = datamgr_.getGenParams( id );
+	if ( !sgp || sgp->isStratProp() || !disppars )
+	{
+	    dispiops.add( nullptr );
+	    continue;
+	}
+
+	auto* dispiop = new IOPar;
+	disppars->fillDispPars( *dispiop );
+	if ( dispiop->isEmpty() )
+	{
+	    delete dispiop;
+	    dispiops.add( nullptr );
+	    continue;
+	}
+
+	dispiops.add( dispiop );
+    }
+
+    datamgr_.fillPar( iop, &dispiops );
+    if ( control_ && !control_->zoomMgr().atStart() &&
+	 !StratSynth::isEmpty(initialboundingbox_) )
+    {
+	TypeSet<double> startviewareapts;
+	startviewareapts.setSize( 4 );
+	startviewareapts[0] = initialboundingbox_.left();
+	startviewareapts[1] = initialboundingbox_.top();
+	startviewareapts[2] = initialboundingbox_.right();
+	startviewareapts[3] = initialboundingbox_.bottom();
+	iop.set( IOPar::compKey(StratSynth::DataMgr::sKeySynthetics(),
+		    sKeyViewArea()), startviewareapts );
+    }
+}
+
+
+void uiStratSynthDisp::synthAddedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack(SyntheticData::SynthID,id,cb);
+    updFlds( false );
+    if ( wvaselfld_->curID() == id || vdselfld_->curID() == id )
+	packSelCB( cb );
+    else if ( wvaselfld_->curID() == id )
+	wvaSelCB( cb );
+    else if ( vdselfld_->curID() == id )
+	vdSelCB( cb );
+}
+
+
+void uiStratSynthDisp::synthRenamedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack(const TypeSet<SyntheticData::SynthID>&,ids,cb);
+    for ( const auto& id : ids )
+    {
+	const BufferString newnm = datamgr_.nameOf( id );
+	wvaselfld_->updateName( id, newnm );
+	vdselfld_->updateName( id, newnm );
+
+	const SynthSpecificPars* disppars = entries_.getByID( id );
+	if ( !disppars )
+	    continue;
+
+	ConstRefMan<SyntheticData> sd = datamgr_.getDataSet( id );
+	if ( !sd )
+	    continue;
+
+	DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
+	for ( const auto* dpobj : disppars->dpobjs_ )
+	{
+	    const DataPack::ID dpid = dpobj->id();
+	    if ( !dpm.haveID(dpid) )
+		continue;
+
+	    DataPack* dp = dpm.obtain( dpid );
+	    if ( !dp )
+		continue;
+
+	    if ( dp != &sd->getPack() )
+		dp->setName( newnm );
+
+	    dpm.release( dpid );
+	}
+    }
+}
+
+
+void uiStratSynthDisp::synthRemovedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack(const TypeSet<SyntheticData::SynthID>&,ids,cb);
+    const SyntheticData::SynthID prevwvaid = wvaselfld_->curID();
+    const SyntheticData::SynthID prevdid = vdselfld_->curID();
+
+    if ( canupdatedisp_ )
+	updFlds( false );
+
+    bool wvachanged = false;
+    bool vdchanged = false;
+    for ( const auto& id : ids )
+    {
+	if ( id <= 0 )
+	    continue;
+
+	wvachanged = wvachanged || id == prevwvaid;
+	vdchanged = vdchanged || id == prevdid;
+	if ( (id == prevwvaid || id == prevdid) && control_ )
+	{
+	    ObjectSet<const TimeDepthModel> d2tmodels;
+	    control_->setD2TModels( d2tmodels );
+	}
+
+	SynthSpecificPars* disppars = entries_.getByID( id );
+	if ( disppars )
+	    disppars->update();
+    }
+
+    if ( !canupdatedisp_ )
+	return;
+
+    if ( wvachanged && vdchanged && wvaselfld_->curID() == vdselfld_->curID() )
+	packSelCB( cb );
+    else
+    {
+	if ( wvachanged )
+	    wvaSelCB( cb );
+	if ( vdchanged )
+	    vdSelCB( cb );
+    }
+}
+
+
+void uiStratSynthDisp::dataMgrCB( CallBacker* )
+{
+    if ( !uidatamgr_ )
+    {
+	uidatamgr_ = new uiSynthGenDlg( this, datamgr_ );
+	uiSynthParsGrp* uidatamgrgrp = uidatamgr_->grp();
+	mAttachCB( uidatamgrgrp->synthAdded, uiStratSynthDisp::newAddedCB );
+	mAttachCB( uidatamgrgrp->synthSelected, uiStratSynthDisp::newSelCB );
+    }
+
+    uidatamgr_->go();
+}
+
+
+void uiStratSynthDisp::newAddedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    // Not changing the current selection unless it is invalid
+    const bool validwva = datamgr_.hasValidDataSet( wvaselfld_->curID() );
+    const bool validvd = datamgr_.hasValidDataSet( vdselfld_->curID() );
+    if ( validwva && validvd )
+	return;
+    else if ( !validwva && !validvd )
+    {
+	newSelCB( cb );
+	return;
+    }
+
+    uiStratSynthDispDSSel* selfld = validwva ? vdselfld_ : wvaselfld_;
+    mCBCapsuleUnpack(SyntheticData::SynthID,id,cb);
+    selfld->setCurrentItem( id );
+    selfld->selChange.trigger();
+}
+
+
+void uiStratSynthDisp::newSelCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack(SyntheticData::SynthID,id,cb);
+
+    updFlds( true );
+    NotifyStopper wvans( wvaselfld_->selChange );
+    NotifyStopper vdns( vdselfld_->selChange );
+    wvaselfld_->setCurrentItem( id );
+    vdselfld_->setCurrentItem( id );
+    packSelCB( cb );
+}
+
+
+void uiStratSynthDisp::offsSliderChgCB( CallBacker* )
+{
+    curoffs_ = offsslider_->getFValue();
+    const FlatView::Viewer::VwrDest dest =
+	  FlatView::Viewer::getDest( curIsPS(FlatView::Viewer::WVA),
+				     curIsPS(FlatView::Viewer::VD) );
+    od_uint32 ctyp = 0;
+    setViewerData( dest, ctyp, true );
+    updateOffSliderTxt();
+    handleChange( ctyp );
+}
+
+
+void uiStratSynthDisp::updateOffSliderTxt()
+{
+    offsslider_->setToolTip( toUiString("%1: %2")
+			     .arg( uiStrings::sOffset() ).arg( curoffs_ ) );
+}
+
+
+void uiStratSynthDisp::viewPSCB( CallBacker* )
+{
+    if ( psvwrwin_ )
+	{ psvwrwin_->show(); return; }
+
+    psvwrwin_ =
+	new PreStackView::uiSyntheticViewer2DMainWin( this,
+						      "PreStack Synthetics" );
+    psvwrwin_->setDeleteOnClose( false );
+    mAttachCB( psvwrwin_->seldatacalled_, uiStratSynthDisp::setPSVwrDataCB );
+    setPSVwrData();
+    psvwrwin_->show();
+}
+
+
+void uiStratSynthDisp::setPSVwrDataCB( CallBacker* )
+{
+    BufferStringSet allgnms, selgnms;
+    datamgr_.getNames( allgnms, DataMgr::OnlyPS );
+
+    const TypeSet<PreStackView::GatherInfo> ginfos = psvwrwin_->gatherInfos();
+    psvwrwin_->getGatherNames( selgnms );
+    for ( const auto* selnm : selgnms )
+    {
+	const int gidx = allgnms.indexOf( selnm->buf() );
+	if ( !allgnms.validIdx(gidx) )
+	    allgnms.removeSingle( gidx );
+    }
+
+    PreStackView::uiViewer2DSelDataDlg seldlg( psvwrwin_, allgnms, selgnms );
+    if ( !seldlg.go() )
+	return;
+
+    psvwrwin_->removeGathers();
+    TypeSet<PreStackView::GatherInfo> newginfos;
+    for ( const auto* selnm : selgnms )
+    {
+	const SyntheticData::SynthID sid = datamgr_.find( selnm->buf() );
+	ConstRefMan<SyntheticData> sd;
+	if ( datamgr_.isPS(sid) )
+	{
+	    enableDispUpdate( false );
+	    uiTaskRunner trprov( this );
+	    if ( datamgr_.ensureGenerated(sid,&trprov) )
+		sd = datamgr_.getDataSet( sid );
+	    enableDispUpdate( true );
+	}
+
+	if ( !sd || !sd->isPS() )
+	    continue;
+
+	mDynamicCastGet(const PreStackSyntheticData*,presd,sd.ptr());
+	if ( !presd )
+	    continue;
+
+	const_cast<PreStackSyntheticData*>( presd )->obtainGathers();
+	const PreStack::GatherSetDataPack& seisgdp = presd->preStackPack();
+	const PreStack::GatherSetDataPack& anglegdp = presd->angleData();
+	for ( const auto& ginfo : ginfos )
+	{
+	    PreStackView::GatherInfo newginfo = ginfo;
+	    newginfo.gathernm_ = sd->name();
+	    const PreStack::Gather* gather = seisgdp.getGather( newginfo.bid_ );
+	    const PreStack::Gather* anglegather =
+					anglegdp.getGather( newginfo.bid_ );
+	    if ( !gather || !anglegather )
+		continue;
+
+	    newginfo.wvadpid_ = gather->id();
+	    newginfo.vddpid_ = anglegather->id();
+	    newginfos.addIfNew( newginfo );
+	}
+    }
+
+    psvwrwin_->setGathers( newginfos );
+}
+
+
+void uiStratSynthDisp::packSelCB( CallBacker* cb )
+{
+    od_uint32 ctyp = 0;
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::Both;
+    setViewerData( dest, ctyp, true );
+    updWvltFld();
+    handlePSViewDisp( dest );
+    handleChange( ctyp );
+}
+
+
+void uiStratSynthDisp::wvaSelCB( CallBacker* cb )
+{
+    const BufferString wvanm = wvaselfld_->currentName();
+    const BufferString vdnm = vdselfld_->currentName();
+    if ( !wvaselfld_->isNoneSelected() && !vdselfld_->isNoneSelected() )
+    {
+	const SynthGenParams* sgp = datamgr_.getGenParams( vdselfld_->curID() );
+	if ( sgp && !sgp->isStratProp() && !sgp->isAttribute() )
+	{
+	    NotifyStopper ns( vdselfld_->selChange );
+	    vdselfld_->setCurrentItem( wvaselfld_->curID() );
+	    ns.enableNotification();
+	    packSelCB( cb );
+	    return;
+	}
+    }
+
+    od_uint32 ctyp = 0;
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::WVA;
+    setViewerData( dest, ctyp, true );
+    updWvltFld();
+    handlePSViewDisp( dest );
+    handleChange( ctyp );
+}
+
+
+void uiStratSynthDisp::vdSelCB( CallBacker* cb )
+{
+    const BufferString vdnm = vdselfld_->currentName();
+    const BufferString wvanm = wvaselfld_->currentName();
+    const SynthGenParams* vdsgp = datamgr_.getGenParams( vdselfld_->curID() );
+    if ( !vdselfld_->isNoneSelected() && !wvaselfld_->isNoneSelected() &&
+	 wvanm != vdnm &&
+	 vdsgp && !vdsgp->isStratProp() && !vdsgp->isAttribute() )
+    {
+	NotifyStopper ns( wvaselfld_->selChange );
+	wvaselfld_->setCurrentItem( vdselfld_->curID() );
+	ns.enableNotification();
+	packSelCB( cb );
+	return;
+    }
+
+    od_uint32 ctyp = 0;
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::VD;
+    setViewerData( dest, ctyp, true );
+    updWvltFld();
+    handlePSViewDisp( dest );
+    handleChange( ctyp );
+}
+
+
+uiFlatViewer* uiStratSynthDisp::getViewerClone( uiParent* p ) const
+{
+    auto* vwr = new uiFlatViewer( p );
+    vwr->rgbCanvas().disableImageSave();
+    vwr->setInitialSize( initialsz_ );
+    vwr->setStretch( 2, 2 );
+    vwr->appearance() = vwr_->appearance();
+    const DataPack::ID wvaid = vwr_->packID(true);
+    const DataPack::ID vdid = vwr_->packID(false);
+    if ( wvaid == vdid )
+	vwr->setPack( FlatView::Viewer::Both, vwr_->packID(true), false );
+    else
+    {
+	const bool canupdate = vwr_->enableChange( false );
+	vwr->setPack( FlatView::Viewer::WVA, wvaid, false );
+	vwr_->enableChange( canupdate );
+	vwr->setPack( FlatView::Viewer::VD, vdid, false );
+    }
+
+    return vwr;
+}
+
+
+void uiStratSynthDisp::setDefaultAppearance( FlatView::Appearance& app )
+{
+    app.setGeoDefaults( true );
+    app.setDarkBG( false );
+    app.annot_.allowuserchangereversedaxis_ = false;
+    app.annot_.title_.setEmpty();
+    app.annot_.x1_.showAll( true );
+    app.annot_.x2_.showAll( true );
+    app.annot_.x1_.name_ = uiStrings::sTraceNumber();
+    app.annot_.x1_.annotinint_ = true;
+    app.annot_.x2_.name_ = uiStrings::sTWT();
+    app.ddpars_.show( true, true );
+    app.ddpars_.wva_.allowuserchangedata_ = false;
+    app.ddpars_.vd_.allowuserchangedata_ = false;
 }
 
 
 void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 {
     FixedString valstr = pars.find( sKey::TraceNr() );
-    int modelidx = 0;
     if ( valstr.isEmpty() )
 	return;
-    modelidx = toInt(valstr)-1;
+
+    const int modelidx = toInt( valstr );
+    const int seqidx = modelidx-1;
+    if ( seqidx<0 || seqidx>=datamgr_.layerModel().size() )
+	return;
+
     BufferString modelnrstr( 24, true );
     od_sprintf( modelnrstr.getCStr(), modelnrstr.bufSize(),
-		"Model Number:%5d", modelidx+1 );
+		"Model Number:%5d", modelidx );
     mesg.add( modelnrstr );
-    valstr = pars.find( "Z" );
-    if ( !valstr ) valstr = pars.find( "Z-Coord" );
+    valstr = pars.find( sKey::Z() );
+    if ( valstr.isEmpty() )
+	valstr = pars.find( "Z-Coord" );
+
     float zval = mUdf(float);
-    if ( valstr )
+    if ( !valstr.isEmpty() )
     {
 	BufferString depthstr( 16, true );
 	zval = toFloat( valstr );
 	od_sprintf( depthstr.getCStr(), depthstr.bufSize(),
-		   "Depth : %6.0f", zval );
+		    "Depth : %6.0f", zval );
 	depthstr.add( SI().getZUnitString() );
 	mesg.addSpace().add( depthstr );
+
+	if ( psgrp_->isDisplayed() )
+	{
+	    BufferString offsetstr( 16, true );
+	    zval = offsslider_->getFValue();
+	    od_sprintf( offsetstr.getCStr(), offsetstr.bufSize(),
+			"Offset : %6.0f", zval );
+	    offsetstr.add( SI().getXYUnitString() );
+	    mesg.addSpace().add( offsetstr );
+	}
     }
 
-    if ( modelidx<0 || layerModel().size()<=modelidx || mIsUdf(zval) )
+    if ( mIsUdf(zval) )
 	return;
 
     mesg.addSpace();
@@ -223,6 +1991,7 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr.buf();
 	mesg += " ("; mesg += vdstr; mesg += ")";
     }
+
     if ( wvavalstr && !issame )
     {
 	mAddSep();
@@ -233,1710 +2002,36 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     }
 
     float val;
-    if ( pars.get(sKey::Offset(),val) )
+    if ( pars.get(sKey::Offset(),val) && !mIsUdf(val) )
     {
 	mAddSep(); mesg += "Offs="; mesg += val;
 	mesg += " "; mesg += SI().getXYUnitString();
     }
 
-    if ( d2tmodels_ && d2tmodels_->validIdx(modelidx) )
+    TypeSet<SyntheticData::SynthID> validids;
+    datamgr_.getIDs( validids, DataMgr::NoSubSel, true );
+    ConstRefMan<SyntheticData> sd;
+    if ( !validids.isEmpty() )
+	sd = datamgr_.getDataSet( validids.first() );
+
+    const TimeDepthModel* d2tmdl = sd ? sd->getTDModel( seqidx ) : nullptr;
+    const Strat::LayerModel& laymod = datamgr_.layerModel();
+    if ( d2tmdl )
     {
-	zval /= SI().showZ2UserFactor();
-	const float depth = (*d2tmodels_)[modelidx]->getDepth( zval );
-	const Strat::LayerSequence& curseq = layerModel().sequence( modelidx );
+	const float realzval = zval / SI().showZ2UserFactor();
+	const float depth = d2tmdl->getDepth( realzval );
+	const Strat::LayerSequence& curseq = laymod.sequence( seqidx );
 	for ( int lidx=0; lidx<curseq.size(); lidx++ )
 	{
-	    const Strat::Layer* layer = curseq.layers()[lidx];
-	    if ( layer->zTop()<=depth && layer->zBot()>depth )
+	    const Strat::Layer& layer = *curseq.layers().get( lidx );
+	    if ( layer.zTop()<=depth && layer.zBot()>depth )
 	    {
-		mesg.addTab().add( "Layer:" ).add( layer->name() );
-		mesg.add( "; Lithology:").add( layer->lithology().name() );
-		if ( !layer->content().isUnspecified() )
-		    mesg.add( "; Content:").add( layer->content().name() );
+		mesg.addTab().add( "Layer:" ).add( layer.name() );
+		mesg.add( "; Lithology:" ).add( layer.lithology().name() );
+		if ( !layer.content().isUnspecified() )
+		    mesg.add( "; Content:" ).add( layer.content().name() );
 		break;
 	    }
 	}
     }
-}
-
-
-void uiStratSynthDisp::addViewerToControl( uiFlatViewer& vwr )
-{
-    if ( control_ )
-    {
-	control_->addViewer( vwr );
-	control_->setViewerType( &vwr, false );
-    }
-}
-
-
-const Strat::LayerModel& uiStratSynthDisp::layerModel() const
-{
-    return lmp_.getCurrent();
-}
-
-
-void uiStratSynthDisp::layerPropsPush( CallBacker* )
-{
-    layerPropSelNeeded.trigger();
-}
-
-
-void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
-{
-    uiButton* tb = bsu.getButton( datagrp_ );
-    if ( lasttool_ )
-	tb->attach( leftOf, lasttool_ );
-    else
-	tb->attach( rightBorder );
-
-    tb->attach( ensureRightOf, prestackbut_ );
-
-    lasttool_ = tb;
-}
-
-
-void uiStratSynthDisp::cleanSynthetics()
-{
-    setCurSynthetic( nullptr, true );
-    setCurSynthetic( nullptr, false );
-    curSS().clearSynthetics();
-    altSS().clearSynthetics();
-    deleteAndZeroPtr( d2tmodels_ );
-    wvadatalist_->setEmpty();
-    vddatalist_->setEmpty();
-}
-
-
-void uiStratSynthDisp::updateSyntheticList( bool wva )
-{
-    uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
-    BufferString curitem = datalist->text();
-    datalist->setEmpty();
-    datalist->addItem( uiStrings::sNone() );
-    for ( const auto* sd : curSS().synthetics() )
-    {
-	if ( wva && sd->isStratProp() )
-	    continue;
-
-	datalist->addItem( sd->name() );
-    }
-
-    datalist->setCurrentItem( curitem );
-}
-
-
-void uiStratSynthDisp::setDisplayZSkip( float zskip, bool withmodchg )
-{
-    dispskipz_ = zskip;
-    if ( withmodchg )
-	doModelChange();
-}
-
-
-void uiStratSynthDisp::setDispEach( int de )
-{
-    dispeach_ = de;
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    displayPostStackSynthetic( currentwvasynthetic, true );
-    displayPostStackSynthetic( currentvdsynthetic, false );
-}
-
-
-void uiStratSynthDisp::setSelectedTrace( int st )
-{
-    selectedtrace_ = st;
-
-    delete vwr_->removeAuxData( selectedtraceaux_ );
-    selectedtraceaux_ = nullptr;
-
-    const StepInterval<double> xrg = vwr_->getDataPackRange(true);
-    const StepInterval<double> zrg = vwr_->getDataPackRange(false);
-
-    const float offset = mCast( float, xrg.start );
-    if ( !xrg.includes( selectedtrace_ + offset, true ) )
-	return;
-
-    selectedtraceaux_ = vwr_->createAuxData( "Selected trace" );
-    selectedtraceaux_->zvalue_ = 2;
-    vwr_->addAuxData( selectedtraceaux_ );
-
-    const double ptx = selectedtrace_ + offset;
-    const double ptz1 = zrg.start;
-    const double ptz2 = zrg.stop;
-
-    Geom::Point2D<double> pt1 = Geom::Point2D<double>( ptx, ptz1 );
-    Geom::Point2D<double> pt2 = Geom::Point2D<double>( ptx, ptz2 );
-
-    selectedtraceaux_->poly_ += pt1;
-    selectedtraceaux_->poly_ += pt2;
-    selectedtraceaux_->linestyle_ =
-	OD::LineStyle( OD::LineStyle::Dot, 2, OD::Color::DgbColor() );
-
-    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
-}
-
-
-
-void uiStratSynthDisp::handleFlattenChange()
-{
-    resetRelativeViewRect();
-    doModelChange();
-    control_->zoomMgr().toStart();
-}
-
-
-void uiStratSynthDisp::setFlattened( bool flattened, bool trigger )
-{
-    dispflattened_ = flattened;
-    control_->setFlattened( flattened );
-    if ( trigger )
-	handleFlattenChange();
-}
-
-
-void uiStratSynthDisp::setDispMrkrs( const char* lnm,
-				    const TypeSet<float>& zvals, OD::Color col )
-{
-    StratSynthLevel* lvl = new StratSynthLevel( lnm, col, &zvals );
-    curSS().setLevel( lvl );
-    levelSnapChanged(0);
-}
-
-
-void uiStratSynthDisp::setRelativeViewRect( const uiWorldRect& relwr )
-{
-    relzoomwr_ = relwr;
-    uiWorldRect abswr;
-    getAbsoluteViewRect( abswr );
-    vwr_->setView( abswr );
-}
-
-
-void uiStratSynthDisp::setAbsoluteViewRect( const uiWorldRect& wr )
-{
-    uiWorldRect abswr = wr;
-    uiWorldRect bbwr = vwr_->boundingBox();
-    bbwr.sortCorners();
-    abswr.sortCorners();
-    if ( mIsZero(bbwr.width(),1e-3) || mIsZero(bbwr.height(),1e-3) ||
-	 !bbwr.contains(abswr,1e-3) )
-	return;
-
-    const double left = (abswr.left() - bbwr.left())/bbwr.width();
-    const double right = (abswr.right() - bbwr.left())/bbwr.width();
-    const double top = (abswr.top() - bbwr.top())/bbwr.height();
-    const double bottom = (abswr.bottom() - bbwr.top())/bbwr.height();
-    relzoomwr_ = uiWorldRect( left, top, right, bottom );
-}
-
-
-void uiStratSynthDisp::getAbsoluteViewRect( uiWorldRect& abswr ) const
-{
-    uiWorldRect bbwr = vwr_->boundingBox();
-    bbwr.sortCorners();
-    if ( mIsZero(bbwr.width(),1e-3) || mIsZero(bbwr.height(),1e-3) )
-	return;
-    const double left = bbwr.left() + relzoomwr_.left()*bbwr.width();
-    const double right = bbwr.left() + relzoomwr_.right()*bbwr.width();
-    const double top = bbwr.top() + relzoomwr_.top()*bbwr.height();
-    const double bottom = bbwr.top() + relzoomwr_.bottom()*bbwr.height();
-    abswr = uiWorldRect( left, top, right, bottom );
-}
-
-
-void uiStratSynthDisp::resetRelativeViewRect()
-{
-    relzoomwr_ = uiWorldRect( 0, 0, 1, 1 );
-}
-
-
-void uiStratSynthDisp::updateRelativeViewRect()
-{
-    setAbsoluteViewRect( curView(false) );
-}
-
-
-void uiStratSynthDisp::setZoomView( const uiWorldRect& relwr )
-{
-    relzoomwr_ = relwr;
-    uiWorldRect abswr;
-    getAbsoluteViewRect( abswr );
-    Geom::Point2D<double> centre = abswr.centre();
-    Geom::Size2D<double> newsz = abswr.size();
-    control_->setActiveVwr( 0 );
-    control_->setNewView( centre, newsz, control_->activeVwr() );
-}
-
-
-void uiStratSynthDisp::setZDataRange( const Interval<double>& zrg, bool indpth )
-{
-    Interval<double> newzrg; newzrg.set( zrg.start, zrg.stop );
-    if ( indpth && d2tmodels_ && !d2tmodels_->isEmpty() )
-    {
-	int mdlidx = longestaimdl_;
-	if ( !d2tmodels_->validIdx(mdlidx) )
-	    mdlidx = d2tmodels_->size()-1;
-
-	const TimeDepthModel& d2t = *(*d2tmodels_)[mdlidx];
-	newzrg.start = d2t.getTime( (float)zrg.start );
-	newzrg.stop = d2t.getTime( (float)zrg.stop );
-    }
-    const Interval<double> xrg = vwr_->getDataPackRange( true );
-    vwr_->setSelDataRanges( xrg, newzrg );
-    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
-}
-
-
-void uiStratSynthDisp::levelSnapChanged( CallBacker* )
-{
-    const StratSynthLevel* lvl = curSS().getLevel();
-    if ( !lvl )
-	return;
-
-    auto* edlvl = const_cast<StratSynthLevel*>( lvl );
-    VSEvent::Type tp;
-    VSEvent::parseEnumType( levelsnapselfld_->text(), tp );
-    edlvl->snapev_ = tp;
-
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    if ( currentwvasynthetic || currentvdsynthetic )
-	drawLevel();
-}
-
-
-const char* uiStratSynthDisp::levelName()  const
-{
-    const StratSynthLevel* lvl = curSS().getLevel();
-    return lvl ? lvl->name().buf() : 0;
-}
-
-
-void uiStratSynthDisp::displayFRText()
-{ displayFRText( true, isbrinefilled_ ); }
-
-
-void uiStratSynthDisp::displayFRText( bool yn, bool isbrine )
-{
-    if ( !frtxtitm_ )
-    {
-	uiGraphicsScene& scene = vwr_->rgbCanvas().scene();
-	frtxtitm_ = scene.addItem( new uiTextItem );
-	frtxtitm_->setAlignment( mAlignment(Left,VCenter) );
-	frtxtitm_->setPenColor( OD::Color::Black() );
-	frtxtitm_->setZValue( 999999 );
-	frtxtitm_->setMovable( true );
-    }
-
-    frtxtitm_->setVisible( yn );
-    if ( yn )
-    {
-	frtxtitm_->setText( isbrine ? tr("Brine filled")
-				    : tr("Hydrocarbon filled") );
-	updateTextPosCB( nullptr );
-    }
-}
-
-
-void uiStratSynthDisp::updateTextPosCB( CallBacker* )
-{
-    if ( !frtxtitm_)
-	return;
-
-    frtxtitm_->setPos( 20, 10 );
-}
-
-
-void uiStratSynthDisp::drawLevel()
-{
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    const SyntheticData* synthseis = currentwvasynthetic ? currentwvasynthetic
-							 : currentvdsynthetic;
-    if ( !synthseis )
-	return;
-
-    delete vwr_->removeAuxData( levelaux_ ); levelaux_ = nullptr;
-
-    const Seis::SynthGenDataPack& synthgendp = synthseis->synthGenDP();
-    const int offsidx = prestackgrp_->sensitive()
-		      ? synthgendp.getOffsetIdx( offsetposfld_->getValue() )
-		      : -1;
-    const StratSynthLevel* lvl = curSS().getLevel();
-    if ( lvl )
-    {
-	SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
-	FlatView::AuxData* auxd = vwr_->createAuxData("Level markers");
-	curSS().getLevelTimes( synthgendp.getModels(), dispeach_, tbuf,offsidx);
-
-	auxd->linestyle_.type_ = OD::LineStyle::None;
-	for ( int imdl=0; imdl<tbuf.size(); imdl ++ )
-	{
-	    if ( tbuf.get(imdl)->isNull() )
-		continue;
-	    const float tval =
-		dispflattened_ ? 0.f :	tbuf.get(imdl)->info().pick;
-
-	    auxd->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Target,
-						  cMarkerSize, lvl->col_ );
-	    auxd->poly_ += FlatView::Point( (imdl*dispeach_)+1, tval );
-	}
-	if ( auxd->isEmpty() )
-	    delete auxd;
-	else
-	{
-	    auxd->zvalue_ = uiFlatViewer::auxDataZVal();
-	    vwr_->addAuxData( auxd );
-	    levelaux_ = auxd;
-	}
-    }
-
-    vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
-}
-
-
-void uiStratSynthDisp::setCurSynthetic( const SyntheticData* sd, bool wva )
-{
-    WeakPtr<SyntheticData>& cursynth = wva ? currentwvasynthetic_
-					   : currentvdsynthetic_;
-    cursynth = const_cast<SyntheticData*>( sd );
-}
-
-
-void uiStratSynthDisp::scalePush( CallBacker* )
-{
-    haveUserScaleWavelet();
-}
-
-
-bool uiStratSynthDisp::haveUserScaleWavelet()
-{
-    uiMsgMainWinSetter mws( mainwin() );
-
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    if ( !currentwvasynthetic || currentwvasynthetic->isPS() )
-    {
-	uiMSG().error(tr("Please select a post-stack synthetic in wiggle view. "
-			 "The scaling tool compares the amplitudes of the "
-			 "synthetic data at the selected Stratigraphic Level "
-			 "to real amplitudes along a horizon"));
-	return false;
-    }
-
-    mDynamicCastGet(const PostStackSyntheticData*,pssd,
-		    currentwvasynthetic.ptr());
-    const SeisTrcBuf& tbuf = pssd->postStackPack().trcBuf();
-    if ( tbuf.isEmpty() )
-    {
-	uiMSG().error(tr("Synthetic seismic has no trace. "
-			 "Please regenerate the synthetic."));
-	return false;
-    }
-
-    BufferString levelname;
-    if ( curSS().getLevel() )
-	levelname = curSS().getLevel()->name();
-    if ( levelname.isEmpty() || levelname.startsWith( "--" ) )
-    {
-	uiMSG().error(tr("Please select a Stratigraphic Level.\n"
-			 "The scaling tool compares the amplitudes there\n"
-			 "to real amplitudes along a horizon"));
-	return false;
-    }
-
-    bool is2d = SI().has2D();
-    if ( is2d && SI().has3D() )
-    {
-	const int res = uiMSG().ask2D3D( tr("Use 2D or 3D data?"), true );
-	if ( res < 0 )
-	    return false;
-
-	is2d = res == 1;
-    }
-
-    bool rv = false;
-    PtrMan<SeisTrcBuf> scaletbuf = tbuf.clone();
-    const int dispeach = 1;
-    curSS().getLevelTimes( currentwvasynthetic->synthGenDP().getModels(),
-			   dispeach, *scaletbuf );
-/*    uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->getID(),levelname);
-    if ( dlg.go() )
-    {
-	MultiID mid( dlg.selWvltID() );
-	if ( mid.isUdf() )
-	    pErrMsg( "Huh" );
-	else
-	{
-	    rv = true;
-	    wvltfld_->setInput( mid );
-	}
-	vwr_->handleChange( sCast(unsigned int,FlatView::Viewer::All) );
-    } */ //TODO :reenable
-
-    return rv;
-}
-
-
-void uiStratSynthDisp::parsChangedCB( CallBacker* )
-{
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    if ( currentvdsynthetic )
-    {
-	auto& disppars = const_cast<SynthFVSpecificDispPars&>(
-					currentvdsynthetic->dispPars() );
-	disppars.ctab_ = vwr_->appearance().ddpars_.vd_.ctab_;
-	disppars.vdmapper_ = vwr_->appearance().ddpars_.vd_.mappersetup_;
-    }
-
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    if ( currentwvasynthetic )
-    {
-	auto& disppars = const_cast<SynthFVSpecificDispPars&>(
-					currentwvasynthetic->dispPars() );
-	disppars.wvamapper_ = vwr_->appearance().ddpars_.wva_.mappersetup_;
-	disppars.overlap_ = vwr_->appearance().ddpars_.wva_.overlap_;
-    }
-
-    dispParsChanged.trigger();
-}
-
-
-void uiStratSynthDisp::viewChg( CallBacker* )
-{
-    updateRelativeViewRect();
-    viewChanged.trigger();
-}
-
-
-void uiStratSynthDisp::setSnapLevelSensitive( bool yn )
-{
-    levelsnapselfld_->setSensitive( yn );
-}
-
-
-float uiStratSynthDisp::centralTrcShift() const
-{
-    if ( !dispflattened_ ) return 0.0;
-    bool forward = false;
-    int forwardidx = mNINT32( vwr_->curView().centre().x );
-    int backwardidx = forwardidx-1;
-    const SeisTrcBuf& trcbuf = curTrcBuf();
-    if ( !trcbuf.size() ) return 0.0f;
-    while ( true )
-    {
-	if ( backwardidx<0 || forwardidx>=trcbuf.size() )
-	    return 0.0f;
-	const int centrcidx = forward ? forwardidx : backwardidx;
-	const SeisTrc* centtrc = trcbuf.size() ? trcbuf.get( centrcidx ) :  0;
-	if ( centtrc && !mIsUdf(centtrc->info().pick) )
-	    return centtrc->info().pick;
-	forward ? forwardidx++ : backwardidx--;
-	forward = !forward;
-    }
-
-    return 0.0f;
-}
-
-
-const uiWorldRect& uiStratSynthDisp::curView( bool indpth ) const
-{
-    mDefineStaticLocalObject( Threads::Lock, lock, (true) );
-    Threads::Locker locker( lock );
-
-    mDefineStaticLocalObject( uiWorldRect, timewr, );
-    timewr = vwr_->curView();
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    if ( !indpth || !currentwvasynthetic )
-	return timewr;
-
-    mDefineStaticLocalObject( uiWorldRect, depthwr, );
-    depthwr.setLeft( timewr.left() );
-    depthwr.setRight( timewr.right() );
-    ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( *currentwvasynthetic.ptr(), curd2tmodels, -1 );
-    if ( !curd2tmodels.isEmpty() )
-    {
-	Interval<float> twtrg( mCast(float,timewr.top()),
-			       mCast(float,timewr.bottom()) );
-	Interval<double> depthrg( curd2tmodels[0]->getDepth(twtrg.start),
-				  curd2tmodels[0]->getDepth(twtrg.stop) );
-	for ( int idx=1; idx<curd2tmodels.size(); idx++ )
-	{
-	    const TimeDepthModel& d2t = *curd2tmodels[idx];
-	    Interval<double> curdepthrg( d2t.getDepth(twtrg.start),
-					 d2t.getDepth(twtrg.stop) );
-	    if ( !curdepthrg.isUdf() )
-		depthrg.include( curdepthrg );
-	}
-
-	if ( dispflattened_ )
-	    depthrg.shift( SI().seismicReferenceDatum() );
-	depthwr.setTop( depthrg.start );
-	depthwr.setBottom( depthrg.stop );
-    }
-
-    return depthwr;
-}
-
-
-const SeisTrcBuf& uiStratSynthDisp::curTrcBuf() const
-{
-    ConstDataPackRef<SeisTrcBufDataPack> tbdp = vwr_->obtainPack( true, true );
-    if ( !tbdp )
-    {
-	mDefineStaticLocalObject( SeisTrcBuf, emptybuf, (false) );
-	return emptybuf;
-    }
-
-    if ( tbdp->trcBuf().isEmpty() )
-	tbdp = vwr_->obtainPack( false, true );
-
-    if ( !tbdp )
-    {
-	mDefineStaticLocalObject( SeisTrcBuf, emptybuf, (false) );
-	return emptybuf;
-    }
-    return tbdp->trcBuf();
-}
-
-
-#define mErrRet(s,act) \
-{ uiMsgMainWinSetter mws( mainwin() ); if (!s.isEmpty()) uiMSG().error(s); act;}
-
-void uiStratSynthDisp::modelChanged()
-{
-    doModelChange();
-}
-
-
-void uiStratSynthDisp::reDisplayPostStackSynthetic( bool wva )
-{
-    WeakPtr<SyntheticData>& synthview = wva ? currentwvasynthetic_
-					    : currentvdsynthetic_;
-    ConstRefMan<SyntheticData> currentsynthetic = synthview.get();
-    displayPostStackSynthetic( currentsynthetic.ptr() );
-}
-
-
-void uiStratSynthDisp::displaySynthetic( const SyntheticData* sd )
-{
-    if ( sd->isPS() )
-	displayPreStackSynthetic( sd );
-    else
-	displayPostStackSynthetic( sd );
-}
-
-
-int uiStratSynthDisp::getOffsetIdx( const SyntheticData& sd ) const
-{
-    const Seis::SynthGenDataPack& synthgendp = sd.synthGenDP();
-    const float offset = prestackgrp_->sensitive()
-		       ? mCast( float, offsetposfld_->getValue() )
-		       : 0.f;
-    return prestackgrp_->sensitive() ? synthgendp.getOffsetIdx( offset ) : -1;
-}
-
-
-void uiStratSynthDisp::getCurD2TModel( const SyntheticData& sd,
-		ObjectSet<const TimeDepthModel>& d2tmodels, int offsidx ) const
-{
-    d2tmodels.erase();
-    const ReflectivityModelSet& refmodels = sd.getRefModels();
-    const int nrmodels = refmodels.nrModels();
-    const PreStackSyntheticData* presd = nullptr;
-    if ( sd.isPS() )
-	mDynamicCast(const PreStackSyntheticData*,presd,&sd);
-
-    if ( !sd.isPS() || (presd && presd->isNMOCorrected()) || offsidx < 0 )
-    {
-	for ( int imdl=0; imdl<nrmodels; imdl++ )
-	{
-	    const ReflectivityModelBase* refmodel = refmodels.get( imdl );
-	    d2tmodels.add( &refmodel->getDefaultModel() );
-	}
-
-	return;
-    }
-
-    for ( int imdl=0; imdl<nrmodels; imdl++ )
-    {
-	const ReflectivityModelBase* refmodel = refmodels.get( imdl );
-	const TimeDepthModel* tdmodel = refmodel->get( offsidx );
-	if ( !tdmodel )
-	{
-	    pErrMsg("Cannot find D2T Model for corresponding offset" );
-	    return;
-	}
-
-	d2tmodels.add( tdmodel );
-    }
-}
-
-
-void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
-						  bool wva )
-{
-    const bool hadpack = vwr_->hasPack( wva );
-    if ( hadpack )
-	vwr_->removePack( vwr_->packID(wva) );
-
-    if ( !sd )
-    {
-	vwr_->handleChange( sCast(unsigned int,FlatView::Viewer::All) );
-	return;
-    }
-
-    deleteAndZeroPtr( d2tmodels_ );
-
-    const Seis::SynthGenDataPack& synthgendp = sd->synthGenDP();
-    const float offset = prestackgrp_->sensitive()
-		       ? mCast( float, offsetposfld_->getValue() )
-		       : 0.f;
-    const int offsidx = getOffsetIdx( *sd );
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
-    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
-    const SeisTrcBuf* tbuf = presd ? presd->getTrcBuf( offset, 0 )
-				   : &postsd->postStackPack().trcBuf();
-    if ( !tbuf )
-	return;
-
-    auto* disptbuf = new SeisTrcBuf( true );
-    tbuf->copyInto( *disptbuf );
-    ObjectSet<const TimeDepthModel> curd2tmodels;
-    getCurD2TModel( *sd, curd2tmodels, offsidx );
-    auto* zerooffsd2tmodels = new ObjectSet<const TimeDepthModel>;
-    getCurD2TModel( *sd, *zerooffsd2tmodels, -1 );
-    d2tmodels_ = zerooffsd2tmodels;
-    float lasttime =  -mUdf(float);
-    for ( int idx=0; idx<curd2tmodels.size(); idx++ )
-    {
-	if ( curd2tmodels[idx]->getLastTime() > lasttime )
-	    longestaimdl_ = idx;
-    }
-
-    curSS().decimateTraces( *disptbuf, dispeach_ );
-    reSampleTraces( *sd, *disptbuf );
-    if ( dispflattened_ )
-    {
-	curSS().getLevelTimes( synthgendp.getModels(), dispeach_, *disptbuf,
-			       offsidx );
-	curSS().flattenTraces( *disptbuf );
-    }
-    else
-	curSS().trimTraces( *disptbuf, curd2tmodels, dispskipz_);
-
-
-    auto* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line,
-				    SeisTrcInfo::TrcNr, "Forward Modeling" );
-    DPM( DataPackMgr::FlatID() ).add( dp );
-    dp->setName( sd->name() );
-    if ( !wva )
-	vwr_->appearance().ddpars_.vd_.ctab_ = sd->dispPars().ctab_;
-    else
-	vwr_->appearance().ddpars_.wva_.overlap_ = sd->dispPars().overlap_;
-
-    ColTab::MapperSetup& mapper =
-	wva ? vwr_->appearance().ddpars_.wva_.mappersetup_
-	    : vwr_->appearance().ddpars_.vd_.mappersetup_;
-    const bool ispropsd = sd->isStratProp() || sd->isAttribute();
-    auto* dispsd = const_cast<SyntheticData*>( sd );
-    ColTab::MapperSetup& dispparsmapper =
-	!wva ? dispsd->dispPars().vdmapper_ : dispsd->dispPars().wvamapper_;
-    const bool rgnotsaved = (mIsZero(dispparsmapper.range_.start,mDefEps) &&
-			     mIsZero(dispparsmapper.range_.stop,mDefEps)) ||
-			     dispparsmapper.range_.isUdf();
-    if ( !rgnotsaved )
-	mapper = dispparsmapper;
-    else
-    {
-	mapper.range_ = Interval<float>::udf();
-	const float cliprate = wva ? 0.0f : 0.025f;
-	mapper.cliprate_ = Interval<float>(cliprate,cliprate);
-	mapper.autosym0_ = true;
-	mapper.type_ = ColTab::MapperSetup::Auto;
-	mapper.symmidval_ = ispropsd ? mUdf(float) : 0.0f;
-	if ( sd->dispPars().ctab_.isEmpty() )
-	{
-	    dispsd->dispPars().ctab_ =
-		vwr_->appearance().ddpars_.vd_.ctab_ =
-			ispropsd ? sKeyRainbow() : sKeySeismics();
-	}
-    }
-
-    vwr_->setPack( wva, dp->id(), !hadpack );
-    vwr_->setVisible( wva, true );
-    control_->setD2TModels( *d2tmodels_ );
-    NotifyStopper notstop( vwr_->viewChanged );
-    if ( mIsZero(relzoomwr_.left(),1e-3) &&
-	 mIsEqual(relzoomwr_.width(),1.0,1e-3) &&
-	 mIsEqual(relzoomwr_.height(),1.0,1e-3) )
-	vwr_->setViewToBoundingBox();
-    else
-	setRelativeViewRect( relzoomwr_ );
-
-    levelSnapChanged( nullptr );
-}
-
-
-void uiStratSynthDisp::setSavedViewRect()
-{
-    if ( mIsUdf(savedzoomwr_.left()) )
-	return;
-    setAbsoluteViewRect( savedzoomwr_ );
-    setZoomView( relzoomwr_ );
-}
-
-
-void uiStratSynthDisp::reSampleTraces( const SyntheticData& sd,
-				       SeisTrcBuf& tbuf ) const
-{
-    if ( longestaimdl_>=layerModel().size() || longestaimdl_<0 )
-	return;
-
-    Interval<float> depthrg = layerModel().sequence(longestaimdl_).zRange();
-
-    const int offsidx = getOffsetIdx( sd );
-    ObjectSet<const TimeDepthModel> curd2tmodels;
-    const bool isstratprop = sd.isStratProp();
-    getCurD2TModel( sd, curd2tmodels, offsidx );
-    if ( !curd2tmodels.validIdx(longestaimdl_) )
-	return;
-
-    const TimeDepthModel& d2t = *curd2tmodels[longestaimdl_];
-    const float reqlastzval =
-	d2t.getTime( layerModel().sequence(longestaimdl_).zRange().stop );
-    for ( int idx=0; idx<tbuf.size(); idx++ )
-    {
-	SeisTrc& trc = *tbuf.get( idx );
-
-	const float lastzval = trc.info().sampling.atIndex( trc.size()-1 );
-	const int lastsz = trc.size();
-	if ( lastzval > reqlastzval )
-	    continue;
-	const int newsz = trc.info().sampling.nearestIndex( reqlastzval );
-	trc.reSize( newsz, true );
-	if ( isstratprop )
-	{
-	    const float lastval = trc.get( lastsz-1, 0 );
-	    for ( int xtrasampidx=lastsz; xtrasampidx<newsz; xtrasampidx++ )
-		trc.set( xtrasampidx, lastval, 0 );
-	}
-    }
-}
-
-
-void uiStratSynthDisp::displayPreStackSynthetic( const SyntheticData* sd )
-{
-    if ( !prestackwin_ ) return;
-
-    if ( !sd ) return;
-    mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,&sd->getPack())
-    mDynamicCastGet(const PreStackSyntheticData*,presd,sd)
-    if ( !gsetdp || !presd ) return;
-
-    const PreStack::GatherSetDataPack& angledp = presd->angleData();
-
-    prestackwin_->removeGathers();
-
-    TypeSet<PreStackView::GatherInfo> gatherinfos;
-    const ObjectSet<PreStack::Gather>& gathers = gsetdp->getGathers();
-    const ObjectSet<PreStack::Gather>& anglegathers = angledp.getGathers();
-    for ( int idx=0; idx<gathers.size(); idx++ )
-    {
-
-	auto* gather = new PreStack::Gather( *gathers[idx] );
-	auto* anglegather= new PreStack::Gather( *anglegathers[idx] );
-	PreStackView::GatherInfo gatherinfo;
-	gatherinfo.isstored_ = false;
-	gatherinfo.gathernm_ = sd->name();
-	gatherinfo.bid_ = gather->getBinID();
-	gatherinfo.wvadpid_ = DPM( DataPackMgr::FlatID() )
-						.addAndObtain( gather )->id();
-	gatherinfo.vddpid_ = DPM( DataPackMgr::FlatID() ).addAndObtain(
-							    anglegather )->id();
-	gatherinfo.isselected_ = true;
-	gatherinfos += gatherinfo;
-    }
-
-    prestackwin_->setGathers( gatherinfos );
-}
-
-
-void uiStratSynthDisp::setPreStackMapper()
-{
-    for ( int idx=0; idx<prestackwin_->nrViewers(); idx++ )
-    {
-	uiFlatViewer& vwr = prestackwin_->viewer( idx );
-	ColTab::MapperSetup& vdmapper =
-	    vwr.appearance().ddpars_.vd_.mappersetup_;
-	vdmapper.cliprate_ = Interval<float>(0.0,0.0);
-	vdmapper.autosym0_ = false;
-	vdmapper.symmidval_ = mUdf(float);
-	vdmapper.type_ = ColTab::MapperSetup::Fixed;
-	vdmapper.range_ = Interval<float>(0,60);
-	vwr.appearance().ddpars_.vd_.ctab_ = sKeyRainbow();
-	ColTab::MapperSetup& wvamapper =
-	    vwr.appearance().ddpars_.wva_.mappersetup_;
-	wvamapper.cliprate_ = Interval<float>(0.0,0.0);
-	wvamapper.autosym0_ = true;
-	wvamapper.symmidval_ = 0.0f;
-	vwr.handleChange( mCast(unsigned int,FlatView::Viewer::DisplayPars) );
-    }
-}
-
-
-void uiStratSynthDisp::selPreStackDataCB( CallBacker* )
-{
-    BufferStringSet allgnms, selgnms;
-    for ( int idx=0; idx<curSS().nrSynthetics(); idx++ )
-    {
-	const SyntheticData* sd = curSS().getSyntheticByIdx( idx );
-	mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
-	if ( !presd ) continue;
-	allgnms.addIfNew( sd->name() );
-    }
-
-    TypeSet<PreStackView::GatherInfo> ginfos = prestackwin_->gatherInfos();
-
-    prestackwin_->getGatherNames( selgnms );
-    for ( int idx=0; idx<selgnms.size(); idx++ )
-    {
-	const int gidx = allgnms.indexOf( selgnms[idx]->buf() );
-	if ( gidx<0 )
-	    continue;
-	allgnms.removeSingle( gidx );
-    }
-
-    PreStackView::uiViewer2DSelDataDlg seldlg( prestackwin_, allgnms, selgnms);
-    if ( !seldlg.go() )
-	return;
-
-    prestackwin_->removeGathers();
-    TypeSet<PreStackView::GatherInfo> newginfos;
-    for ( int synthidx=0; synthidx<selgnms.size(); synthidx++ )
-    {
-	const SyntheticData* sd =
-	    curSS().getSynthetic( selgnms[synthidx]->buf() );
-	if ( !sd ) continue;
-	mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
-	mDynamicCastGet(const PreStack::GatherSetDataPack*,gsetdp,
-			&sd->getPack())
-	if ( !gsetdp || !presd ) continue;
-	const PreStack::GatherSetDataPack& angledp = presd->angleData();
-	for ( int idx=0; idx<ginfos.size(); idx++ )
-	{
-	    PreStackView::GatherInfo ginfo = ginfos[idx];
-	    ginfo.gathernm_ = sd->name();
-	    const PreStack::Gather* gather = gsetdp->getGather( ginfo.bid_);
-	    const PreStack::Gather* anglegather =
-		angledp.getGather( ginfo.bid_);
-	    ginfo.vddpid_ = anglegather->id();
-	    ginfo.wvadpid_ = gather->id();
-	    newginfos.addIfNew( ginfo );
-	}
-    }
-
-    prestackwin_->setGathers( newginfos, false );
-}
-
-
-void uiStratSynthDisp::preStackWinClosedCB( CallBacker* )
-{
-    prestackwin_ = nullptr;
-}
-
-
-void uiStratSynthDisp::viewPreStackPush( CallBacker* cb )
-{
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    if ( !currentwvasynthetic || !currentwvasynthetic->isPS() )
-	return;
-
-    if ( !prestackwin_ )
-    {
-	prestackwin_ =
-	    new PreStackView::uiSyntheticViewer2DMainWin(this,"Prestack view");
-	mAttachCB( prestackwin_->seldatacalled_,
-		   uiStratSynthDisp::selPreStackDataCB );
-	mAttachCB( prestackwin_->windowClosed,
-		   uiStratSynthDisp::preStackWinClosedCB );
-    }
-
-    displayPreStackSynthetic( currentwvasynthetic.ptr() );
-    prestackwin_->show();
-}
-
-
-void uiStratSynthDisp::setCurrentSynthetic( bool wva )
-{
-    ConstRefMan<SyntheticData> sd =
-			curSS().getSynthetic( wva ? wvadatalist_->text()
-						  : vddatalist_->text() );
-    setCurSynthetic( sd, wva );
-}
-
-
-void uiStratSynthDisp::updateFields()
-{
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    mDynamicCastGet(const PreStackSyntheticData*,pssd,
-		    currentwvasynthetic.ptr());
-    if ( pssd )
-    {
-	StepInterval<float> limits( pssd->offsetRange() );
-	const float offsetstep = pssd->offsetRangeStep();
-	limits.step = mIsUdf(offsetstep) ? 100 : offsetstep;
-	offsetposfld_->setLimitSampling( limits );
-    }
-
-    prestackgrp_->setSensitive( pssd && pssd->hasOffset() );
-    datagrp_->setSensitive( currentwvasynthetic );
-    scalebut_->setSensitive( !pssd );
-}
-
-
-void uiStratSynthDisp::copySyntheticDispPars()
-{
-    for ( int sidx=0; sidx<curSS().nrSynthetics(); sidx++ )
-    {
-	const SyntheticData* cursd = curSS().getSyntheticByIdx( sidx );
-	BufferString sdnm( cursd->name() );
-	if ( useed_ )
-	    sdnm.remove( StratSynth::sKeyFRNameSuffix() );
-	else
-	    sdnm += StratSynth::sKeyFRNameSuffix();
-
-	SynthFVSpecificDispPars* sddisp = curSS().dispPars( cursd->name() );
-	const SynthFVSpecificDispPars* altdisp = altSS().dispPars( sdnm );
-	if ( !sddisp || !altdisp )
-	    continue;
-
-	*sddisp = *altdisp;
-    }
-}
-
-
-void uiStratSynthDisp::showFRResults()
-{
-    const int wvacuritm = wvadatalist_->currentItem();
-    const int vdcuritm = vddatalist_->currentItem();
-    updateSyntheticList( true );
-    updateSyntheticList( false );
-    if ( wvadatalist_->size() <= 1 )
-	return;
-    copySyntheticDispPars();
-    wvadatalist_->setCurrentItem( wvacuritm );
-    vddatalist_->setCurrentItem( vdcuritm );
-    setCurrentSynthetic( true );
-    setCurrentSynthetic( false );
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    displaySynthetic( currentwvasynthetic );
-    displayPostStackSynthetic( currentvdsynthetic, false );
-}
-
-
-void uiStratSynthDisp::doModelChange()
-{
-    if ( !autoupdate_ && !forceupdate_ )
-	return;
-    if ( !curSS().errMsg().isOK() )
-	mErrRet( curSS().errMsg(), return )
-
-    MouseCursorChanger mcs( MouseCursor::Busy );
-    showInfoMsg( false );
-    updateSyntheticList( true );
-    updateSyntheticList( false );
-    if ( wvadatalist_->size() <= 1 )
-	return;
-    wvadatalist_->setCurrentItem( 1 );
-    vddatalist_->setCurrentItem( 1 );
-    setCurrentSynthetic( true );
-    setCurrentSynthetic( false );
-
-    updateFields();
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    displaySynthetic( currentwvasynthetic );
-    displayPostStackSynthetic( currentvdsynthetic, false );
-}
-
-
-void uiStratSynthDisp::addEditSynth( CallBacker* )
-{
-    if ( !synthgendlg_ )
-    {
-	synthgendlg_ = new uiSynthGenDlg( this, curSS() );
-	uiSynthParsGrp* uiparsgrp = synthgendlg_->grp();
-	mAttachCB( uiparsgrp->synthAdded, uiStratSynthDisp::syntheticAdded );
-	mAttachCB( uiparsgrp->synthRenamed,
-		   uiStratSynthDisp::syntheticRenamed );
-	mAttachCB( uiparsgrp->synthChanged,
-		   uiStratSynthDisp::syntheticChanged );
-	mAttachCB( uiparsgrp->synthRemoved,
-		   uiStratSynthDisp::syntheticRemoved );
-	mAttachCB( uiparsgrp->synthDisabled,
-		   uiStratSynthDisp::syntheticDisabled );
-	mAttachCB( uiparsgrp->elPropSel,
-		   uiStratSynthDisp::layerPropsPush );
-    }
-
-    synthgendlg_->go();
-}
-
-
-void uiStratSynthDisp::updateAltSynthetic( const char* oldnm, const char* newnm,
-					   bool nameonly )
-{
-    if ( FixedString(oldnm) == sKeyNone() )
-	return;
-
-    if ( !nameonly )
-	deleteAndZeroPtr( d2tmodels_ );
-
-    if ( !altSS().hasElasticModels() )
-	return;
-
-    ConstRefMan<SyntheticData> synthetic = curSS().getSynthetic( newnm );
-    if ( !synthetic )
-	return;
-
-    if ( (nameonly && !altSS().updateSyntheticName(oldnm,newnm)) ||
-       (!nameonly && !altSS().updateSynthetic(oldnm,synthetic->getGenParams())))
-    {
-	mErrRet(altSS().errMsg(), return );
-    }
-
-    showInfoMsg( true );
-}
-
-
-void uiStratSynthDisp::updateDispSynthetic( const char* oldnm,
-					    const char* newnm, bool nameonly )
-{
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    const BufferString curwvasdnm( currentwvasynthetic ?
-			currentwvasynthetic->name().buf() : "" );
-    const BufferString curvdsdnm( currentvdsynthetic ?
-			currentvdsynthetic->name().buf() : "" );
-
-    const FixedString oldsyntheticnm( oldnm );
-    if ( (!wvadatalist_->isPresent(oldsyntheticnm) &&
-	  !vddatalist_->isPresent(oldsyntheticnm) ) ||
-	 oldsyntheticnm == sKeyNone() )
-	return;
-
-    bool wvawasactive = false;
-    if ( wvadatalist_->isPresent(oldsyntheticnm) )
-    {
-	wvawasactive = FixedString( wvadatalist_->text() ) == oldsyntheticnm;
-	if ( oldsyntheticnm != newnm )
-	{
-	    const int curidx = wvadatalist_->currentItem();
-	    updateSyntheticList( true );
-	    if ( wvawasactive )
-		wvadatalist_->setCurrentItem( newnm );
-	    else if ( curidx >=0 && curidx < wvadatalist_->size() )
-		wvadatalist_->setCurrentItem( curidx );
-	}
-
-	if ( !nameonly )
-	    setCurrentSynthetic( true );
-    }
-
-    bool vdwasactive = false;
-    if ( vddatalist_->isPresent(oldsyntheticnm) )
-    {
-	vdwasactive = FixedString( vddatalist_->text() ) == oldsyntheticnm;
-	if ( oldsyntheticnm != newnm )
-	{
-	    const int curidx = vddatalist_->currentItem();
-	    updateSyntheticList( false );
-	    if ( vdwasactive )
-		vddatalist_->setCurrentItem( newnm );
-	    else if ( curidx >=0 && curidx < vddatalist_->size() )
-		vddatalist_->setCurrentItem( curidx );
-	}
-
-	if ( !nameonly )
-	    setCurrentSynthetic( false );
-    }
-
-    showInfoMsg( false );
-    if ( nameonly )
-    {
-	synthsChanged.trigger();
-	return;
-    }
-
-    updateFields();
-    ConstRefMan<SyntheticData> wvasynthetic =
-			       curSS().getSynthetic( wvadatalist_->text() );
-    if ( wvasynthetic )
-	displaySynthetic( wvasynthetic.ptr() );
-
-    ConstRefMan<SyntheticData> vdsynthetic =
-			       curSS().getSynthetic( vddatalist_->text() );
-    if ( vdsynthetic )
-	displayPostStackSynthetic( vdsynthetic.ptr(), false );
-
-    synthsChanged.trigger();
-}
-
-
-void uiStratSynthDisp::syntheticAdded( CallBacker* cb )
-{
-    if ( !synthgendlg_ || !cb )
-	return;
-
-    MouseCursorChanger mcchger( MouseCursor::Wait );
-    showInfoMsg( false );
-    if ( altSS().hasElasticModels() )
-    {
-	mCBCapsuleUnpack(BufferString,syntheticnm,cb);
-	ConstRefMan<SyntheticData> synthetic =
-				   curSS().getSynthetic( syntheticnm.buf() );
-	if ( synthetic )
-	{
-	    const SyntheticData* altsd =
-			     altSS().addSynthetic( synthetic->getGenParams() );
-	    if ( !altsd )
-		mErrRet(altSS().errMsg(), return )
-
-	    showInfoMsg( true );
-	}
-    }
-
-    updateSyntheticList( true );
-    updateSyntheticList( false );
-    synthsChanged.trigger();
-}
-
-
-void uiStratSynthDisp::syntheticRenamed( CallBacker* cb )
-{
-    if ( !cb )
-	return;
-
-    mCBCapsuleUnpack(BufferStringSet,syntheticnms,cb);
-    if ( syntheticnms.size() != 2 )
-	return;
-
-    const BufferString& oldnm = *syntheticnms.first();
-    const BufferString& newnm = *syntheticnms.last();
-    updateAltSynthetic( oldnm, newnm, true );
-    updateDispSynthetic( oldnm, newnm, true );
-}
-
-
-void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
-{
-    if ( !cb )
-	return;
-
-    mCBCapsuleUnpack(BufferStringSet,syntheticnms,cb);
-    if ( syntheticnms.size() != 2 )
-	return;
-
-    const BufferString& oldnm = *syntheticnms.first();
-    const BufferString& newnm = *syntheticnms.last();
-    updateAltSynthetic( oldnm, newnm, false );
-    updateDispSynthetic( oldnm, newnm, false );
-}
-
-
-void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
-{
-    const BufferString curwvasdnm( wvadatalist_->text() );
-    const BufferString curvdsdnm( vddatalist_->text() );
-
-    mCBCapsuleUnpack(BufferString,synthname,cb);
-
-    if ( curwvasdnm==synthname )
-	setCurSynthetic( nullptr, true );
-    if ( curvdsdnm==synthname )
-	setCurSynthetic( nullptr, false );
-    deleteAndZeroPtr( d2tmodels_ );
-    altSS().removeSynthetic( synthname );
-    synthsChanged.trigger();
-    updateSyntheticList( true );
-    updateSyntheticList( false );
-    if ( wvadatalist_->size() <= 1 )
-	return;
-
-    wvadatalist_->setCurrentItem( 1 );
-    vddatalist_->setCurrentItem( 1 );
-    setCurrentSynthetic( true );
-    setCurrentSynthetic( false );
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    displayPostStackSynthetic( currentwvasynthetic, true );
-    displayPostStackSynthetic( currentvdsynthetic, false );
-}
-
-
-void uiStratSynthDisp::syntheticDisabled( CallBacker* cb )
-{
-    if ( !cb )
-	return;
-
-    mCBCapsuleUnpack(BufferString,synthname,cb);
-    curSS().disableSynthetic( synthname );
-    altSS().disableSynthetic( synthname );
-}
-
-
-void uiStratSynthDisp::exportSynth( CallBacker* )
-{
-    if ( layerModel().isEmpty() )
-	mErrRet( tr("No valid layer model present"), return )
-    uiStratSynthExport dlg( this, curSS() );
-    dlg.go();
-}
-
-
-void uiStratSynthDisp::offsetChged( CallBacker* )
-{
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    displayPostStackSynthetic( currentwvasynthetic, true );
-    if ( FixedString(wvadatalist_->text())==vddatalist_->text() &&
-	 currentwvasynthetic && currentwvasynthetic->isPS() )
-	displayPostStackSynthetic( currentvdsynthetic, false );
-}
-
-
-const PropertyRefSelection& uiStratSynthDisp::modelPropertyRefs() const
-{
-    return layerModel().propertyRefs();
-}
-
-
-SynthFVSpecificDispPars* uiStratSynthDisp::dispPars( const char* synthnm )
-{
-    RefMan<SyntheticData> sd = getSyntheticData( synthnm );
-    return sd ? &sd->dispPars() : nullptr;
-}
-
-
-const ObjectSet<const TimeDepthModel>* uiStratSynthDisp::d2TModels() const
-{
-    return d2tmodels_;
-}
-
-
-void uiStratSynthDisp::vdDataSetSel( CallBacker* )
-{
-    setCurrentSynthetic( false );
-    ConstRefMan<SyntheticData> currentvdsynthetic = currentvdsynthetic_.get();
-    displayPostStackSynthetic( currentvdsynthetic, false );
-}
-
-
-void uiStratSynthDisp::wvDataSetSel( CallBacker* )
-{
-    setCurrentSynthetic( true );
-    updateFields();
-    ConstRefMan<SyntheticData> currentwvasynthetic = currentwvasynthetic_.get();
-    displayPostStackSynthetic( currentwvasynthetic, true );
-}
-
-
-const ObjectSet<const SyntheticData>& uiStratSynthDisp::getSynthetics() const
-{
-    return curSS().synthetics();
-}
-
-
-void uiStratSynthDisp::showInfoMsg( bool foralt )
-{
-    StratSynth& ss = foralt ? altSS() : curSS();
-    if ( !ss.infoMsg().isOK() )
-    {
-	uiMsgMainWinSetter mws( mainwin() );
-	uiMSG().warning( ss.infoMsg() );
-	ss.clearInfoMsg();
-    }
-}
-
-
-RefMan<SyntheticData> uiStratSynthDisp::getSyntheticData( const char* nm )
-{
-    const SyntheticData* sd = curSS().getSynthetic( nm );
-    RefMan<SyntheticData> ret = const_cast<SyntheticData*>( sd );
-    return ret;
-}
-
-
-ConstRefMan<SyntheticData> uiStratSynthDisp::getSyntheticData(
-							const char* nm ) const
-{
-    ConstRefMan<SyntheticData> ret = curSS().getSynthetic( nm );
-    return ret;
-}
-
-
-ConstRefMan<SyntheticData> uiStratSynthDisp::getCurrentSyntheticData(
-							bool wva ) const
-{
-    const WeakPtr<SyntheticData>& synthview = wva ? currentwvasynthetic_
-						  : currentvdsynthetic_;
-    ConstRefMan<SyntheticData> ret = synthview.get();
-    return ret;
-}
-
-
-void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
-{
-    IOPar stratsynthpar;
-    stratsynthpar.set( sKeySnapLevel(), levelsnapselfld_->currentItem());
-    int nr_nonproprefsynths = 0;
-    for ( const auto* sd : stratsynth->synthetics() )
-    {
-	if ( sd->isStratProp() )
-	    continue;
-
-	nr_nonproprefsynths++;
-	const SynthGenParams& sgd = sd->getGenParams();
-	IOPar synthpar;
-	sgd.fillPar( synthpar );
-	sd->fillDispPar( synthpar );
-	stratsynthpar.mergeComp( synthpar,
-		IOPar::compKey(StratSynth::sKeySyntheticNr(),
-				nr_nonproprefsynths-1) );
-    }
-
-    savedzoomwr_ = curView( false );
-    TypeSet<double> startviewareapts;
-    startviewareapts.setSize( 4 );
-    startviewareapts[0] = savedzoomwr_.left();
-    startviewareapts[1] = savedzoomwr_.top();
-    startviewareapts[2] = savedzoomwr_.right();
-    startviewareapts[3] = savedzoomwr_.bottom();
-    stratsynthpar.set( sKeyViewArea(), startviewareapts );
-    stratsynthpar.set( StratSynth::sKeyNrSynthetics(), nr_nonproprefsynths );
-    par.removeWithKey( StratSynth::sKeySynthetics() );
-    par.mergeComp( stratsynthpar, StratSynth::sKeySynthetics() );
-}
-
-
-void uiStratSynthDisp::fillPar( IOPar& par, bool useed ) const
-{
-    fillPar( par, useed ? edstratsynth_ : stratsynth_ );
-}
-
-
-void uiStratSynthDisp::fillPar( IOPar& par ) const
-{
-    fillPar( par, &curSS() );
-}
-
-
-bool uiStratSynthDisp::prepareElasticModel()
-{
-    if ( !forceupdate_ && !autoupdate_ )
-	return false;
-
-    if ( !curSS().hasTaskRunner() )
-    {
-	if ( !taskrunner_ )
-	{
-	    auto* uitaskrunner = new uiTaskRunner( this );
-	    taskrunner_ = uitaskrunner;
-	    mAttachCB( uitaskrunner->objectToBeDeleted(),
-		       uiStratSynthDisp::uiTaskRunDeletedCB );
-	}
-
-	curSS().setTaskRunner( taskrunner_.ptr() );
-    }
-
-    return curSS().createElasticModels();
-}
-
-
-void uiStratSynthDisp::uiTaskRunDeletedCB( CallBacker* cb )
-{
-    if( !cb || !taskrunner_ )
-	return;
-
-    mDynamicCastGet(uiBaseObject*,uitaskrunnerdlg,cb);
-    if ( !uitaskrunnerdlg )
-	return;
-
-    const_cast<StratSynth&>( normalSS() ).setTaskRunner( nullptr );
-    const_cast<StratSynth&>( editSS() ).setTaskRunner( nullptr );
-    taskrunner_.release();
-}
-
-
-bool uiStratSynthDisp::usePar( const IOPar& par )
-{
-    if ( !curSS().hasElasticModels() )
-	return false;
-
-    setCurSynthetic( nullptr, true );
-    setCurSynthetic( nullptr, false );
-    curSS().clearSynthetics();
-    deleteAndZeroPtr( d2tmodels_ );
-    par.get( sKeyDecimation(), dispeach_ );
-
-    PtrMan<IOPar> stratsynthpar = par.subselect( StratSynth::sKeySynthetics() );
-    const bool hasiop = stratsynthpar;
-    if ( !stratsynthpar )
-    {
-	stratsynthpar = new IOPar;
-	stratsynthpar->set( StratSynth::sKeyNrSynthetics(), 1 );
-	IOPar defiop;
-	const SynthGenParams sgp;
-	sgp.fillPar( defiop );
-	stratsynthpar->mergeComp( defiop,
-			   IOPar::compKey(StratSynth::sKeySyntheticNr(),0) );
-    }
-
-    const bool res = synthgendlg_
-		   ? synthgendlg_->grp()->usePar( *stratsynthpar.ptr() )
-		   : curSS().usePar( *stratsynthpar.ptr() );
-    if ( res )
-    {
-	const int nrsynths = curSS().nrSynthetics();
-	if ( &curSS() == &editSS() )
-	{
-	    for ( int idx=0; idx<nrsynths; idx++ )
-	    {
-		const BufferString synthnm( curSS().getSyntheticName(idx) );
-		const SynthFVSpecificDispPars* curdisp =
-					    normalSS().dispPars( synthnm );
-		SynthFVSpecificDispPars* sddisp =
-					    curSS().dispPars( synthnm );
-		if ( !curdisp || !sddisp )
-		    continue;
-
-		IOPar synthdisppar;
-		curdisp->fillPar( synthdisppar );
-		sddisp->usePar( synthdisppar );
-	    }
-	}
-	else
-	{
-	    PtrMan<IOPar> synthpar =
-		stratsynthpar->subselect( StratSynth::sKeySyntheticNr() );
-	    if ( synthpar )
-	    {
-		for ( int idx=0; idx<nrsynths; idx++ )
-		{
-		    ConstPtrMan<IOPar> iop = synthpar->subselect( idx );
-		    if ( !iop )
-			continue;
-
-		    const BufferString synthnm(
-					    curSS().getSyntheticName(idx) );
-		    SynthFVSpecificDispPars* sddisp =
-					    curSS().dispPars( synthnm );
-		    if ( sddisp )
-			sddisp->usePar( *iop.ptr() );
-		}
-	    }
-	}
-    }
-    else
-	showInfoMsg( false );
-
-    if ( curSS().nrSynthetics() < 1 )
-    {
-	displaySynthetic( nullptr );
-	displayPostStackSynthetic( nullptr, false );
-	return false;
-    }
-
-    if ( !hasiop )
-	synthsChanged.trigger(); //update synthetic WorkBenchPar
-
-    if ( GetEnvVarYN("DTECT_STRAT_MAKE_PROPERTYTRACES",true) )
-	curSS().generateOtherQuantities();
-
-    if ( useed_ && GetEnvVarYN("USE_FR_DIFF",false) )
-	setDiffData();
-
-    if ( hasiop )
-    {
-	int snaplvl = 0;
-	stratsynthpar->get( sKeySnapLevel(), snaplvl );
-	levelsnapselfld_->setCurrentItem( snaplvl );
-	TypeSet<double> startviewareapts;
-	if ( stratsynthpar->get(sKeyViewArea(),startviewareapts) &&
-	     startviewareapts.size() == 4 )
-	{
-	    savedzoomwr_.setLeft( startviewareapts[0] );
-	    savedzoomwr_.setTop( startviewareapts[1] );
-	    savedzoomwr_.setRight( startviewareapts[2] );
-	    savedzoomwr_.setBottom( startviewareapts[3] );
-	}
-    }
-
-    return true;
-}
-
-
-void uiStratSynthDisp::setDiffData()
-{
-    for ( int idx=0; idx<curSS().nrSynthetics(); idx++ )
-    {
-	ConstRefMan<SyntheticData> frsdc = curSS().getSyntheticByIdx( idx );
-	ConstRefMan<SyntheticData> sd = altSS().getSyntheticByIdx( idx );
-	if ( !frsdc || !sd )
-	    continue;
-
-	auto* frsd = const_cast<SyntheticData*>( frsdc.ptr() );
-	if ( !sd->isPS() )
-	{
-	    mDynamicCastGet(PostStackSyntheticData*,frpostsd,frsd)
-	    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd.ptr())
-	    SeisTrcBuf& frsdbuf = frpostsd->postStackPack().trcBuf();
-	    const SeisTrcBuf& sdbuf = postsd->postStackPack().trcBuf();
-	    for ( int itrc=0; itrc<frsdbuf.size(); itrc++ )
-	    {
-		SeisTrc* frtrc = frsdbuf.get( itrc );
-		const SeisTrc* trc = sdbuf.get( itrc );
-		for ( int isamp=0; isamp<frtrc->size(); isamp++ )
-		{
-		    const float z = trc->samplePos( isamp );
-		    const float trcval = trc->getValue( z, 0 );
-		    const float frtrcval = frtrc->getValue( z, 0 );
-		    frtrc->set( isamp, frtrcval - trcval , 0 );
-		}
-	    }
-	}
-	else
-	{
-	    mDynamicCastGet(PreStackSyntheticData*,frpresd,frsd)
-	    mDynamicCastGet(const PreStackSyntheticData*,presd,sd.ptr())
-	    PreStack::GatherSetDataPack& frgdp =frpresd->preStackPack();
-	    ObjectSet<PreStack::Gather>& frgathers = frgdp.getGathers();
-	    StepInterval<float> offrg( frpresd->offsetRange() );
-	    offrg.step = frpresd->offsetRangeStep();
-	    const PreStack::GatherSetDataPack& gdp = presd->preStackPack();
-	    for ( int igather=0; igather<frgathers.size(); igather++ )
-	    {
-		for ( int offsidx=0; offsidx<offrg.nrSteps(); offsidx++ )
-		{
-		    SeisTrc* frtrc = frgdp.getTrace( igather, offsidx );
-		    const SeisTrc* trc = gdp.getTrace( igather, offsidx );
-		    for ( int isamp=0; isamp<frtrc->size(); isamp++ )
-		    {
-			const float trcval = trc->get( isamp, 0 );
-			const float frtrcval = frtrc->get( isamp, 0 );
-			frtrc->set( isamp, frtrcval-trcval, 0 );
-		    }
-		}
-	    }
-	}
-    }
-}
-
-
-uiGroup* uiStratSynthDisp::getDisplayClone( uiParent* p ) const
-{
-    auto* vwr = new uiFlatViewer( p );
-    vwr->rgbCanvas().disableImageSave();
-    vwr->setInitialSize( uiSize(800,300) );
-    vwr->setStretch( 2, 2 );
-    vwr->appearance() = vwr_->appearance();
-    vwr->setPack( true, vwr_->packID(true), false );
-    vwr->setPack( false, vwr_->packID(false), false );
-    return vwr;
-}
-
-
-void uiStratSynthDisp::setDefaultAppearance( FlatView::Appearance& app )
-{
-    app.setGeoDefaults( true );
-    app.setDarkBG( false );
-    app.annot_.allowuserchangereversedaxis_ = false;
-    app.annot_.title_.setEmpty();
-    app.annot_.x1_.showAll( true );
-    app.annot_.x2_.showAll( true );
-    app.annot_.x1_.annotinint_ = true;
-    app.annot_.x2_.name_ = "TWT";
-    app.ddpars_.show( true, true );
-    app.ddpars_.wva_.allowuserchangedata_ = false;
-    app.ddpars_.vd_.allowuserchangedata_ = false;
-}
-
-
-uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const uiString& lbltxt )
-    : uiGroup( p, "Slice Pos" )
-    , positionChg(this)
-{
-    label_ = new uiLabel( this, lbltxt );
-    sliceposbox_ = new uiSpinBox( this, 0, "Slice position" );
-    mAttachCB( sliceposbox_->valueChanging, uiSynthSlicePos::slicePosChg );
-    mAttachCB( sliceposbox_->valueChanged, uiSynthSlicePos::slicePosChg );
-    sliceposbox_->attach( rightOf, label_ );
-
-    auto* steplabel = new uiLabel( this, uiStrings::sStep() );
-    steplabel->attach( rightOf, sliceposbox_ );
-
-    slicestepbox_ = new uiSpinBox( this, 0, "Slice step" );
-    slicestepbox_->attach( rightOf, steplabel );
-
-    prevbut_ = new uiToolButton( this, "prevpos", tr("Previous position"),
-				mCB(this,uiSynthSlicePos,prevCB) );
-    prevbut_->attach( rightOf, slicestepbox_ );
-    nextbut_ = new uiToolButton( this, "nextpos", tr("Next position"),
-				 mCB(this,uiSynthSlicePos,nextCB) );
-    nextbut_->attach( rightOf, prevbut_ );
-}
-
-
-uiSynthSlicePos::~uiSynthSlicePos()
-{
-    detachAllNotifiers();
-}
-
-
-void uiSynthSlicePos::slicePosChg( CallBacker* )
-{
-    positionChg.trigger();
-}
-
-
-void uiSynthSlicePos::prevCB( CallBacker* )
-{
-    uiSpinBox* posbox = sliceposbox_;
-    uiSpinBox* stepbox = slicestepbox_;
-    posbox->setValue( posbox->getIntValue()-stepbox->getIntValue() );
-}
-
-
-void uiSynthSlicePos::nextCB( CallBacker* )
-{
-    uiSpinBox* posbox = sliceposbox_;
-    uiSpinBox* stepbox = slicestepbox_;
-    posbox->setValue( posbox->getIntValue()+stepbox->getIntValue() );
-}
-
-
-void uiSynthSlicePos::setLimitSampling( StepInterval<float> lms )
-{
-    limitsampling_ = lms;
-    sliceposbox_->setInterval( lms.start, lms.stop );
-    sliceposbox_->setStep( lms.step );
-    slicestepbox_->setValue( lms.step );
-    slicestepbox_->setStep( lms.step );
-    slicestepbox_->setMinValue( lms.step );
-}
-
-
-void uiSynthSlicePos::setValue( int val ) const
-{
-    sliceposbox_->setValue( val );
-}
-
-
-int uiSynthSlicePos::getValue() const
-{
-    return sliceposbox_->getIntValue();
 }

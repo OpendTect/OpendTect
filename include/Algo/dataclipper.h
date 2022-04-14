@@ -80,7 +80,10 @@ public:
 				     cliprate1 is the top cliprate, when
 				     cliprate1 is -1, it will get the value of
 				     cliprate0 */
+				DataClipper(const DataClipper&);
 				~DataClipper();
+
+    DataClipper&		operator =(const DataClipper&);
 
     inline bool			isEmpty() const	{ return samples_.isEmpty(); }
 
@@ -122,9 +125,9 @@ public:
 
 protected:
 
-    int				approxstatsize_;
-    float			sampleprob_;
-    bool			subselect_;
+    int				approxstatsize_ = 2000;
+    float			sampleprob_	= 1.f;
+    bool			subselect_	= false;
     LargeValVec<float>		samples_;
     Interval<float>		absoluterg_;
     Stats::RandomGenerator&	gen_;

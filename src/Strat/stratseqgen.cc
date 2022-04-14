@@ -25,7 +25,6 @@
 static const char* sKeyFileType = mFileType;
 static const char* sKeyIDNew = "[New]";
 static const char* sKeyTopdepth = "Top depth";
-static const char* sKeyElasticPropSelID = "Elastic Property Selection";
 
 mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
 mDefSimpleTranslators(StratLayerSequenceGenDesc,mFileType,od,Mdl);
@@ -40,13 +39,12 @@ Strat::LayerModelGenerator::LayerModelGenerator(
     , desc_(desc)
     , lm_(lm)
     , nrseqs_(nrseqs)
-    , seqnr_(0)
 {
-    reset();
 }
 
 
-void Strat::LayerModelGenerator::reset()
+bool Strat::LayerModelGenerator::goImpl( od_ostream* strm, bool first,
+					 bool last, int delay )
 {
     lm_.setEmpty();
     seqnr_ = 0;
@@ -57,6 +55,9 @@ void Strat::LayerModelGenerator::reset()
 	msg_ = desc_.errMsg();
 	seqnr_ = -1;
     }
+
+    lm_.propertyRefs() = desc_.propSelection();
+    return Executor::goImpl( strm, first, last, delay );
 }
 
 
@@ -152,6 +153,16 @@ Strat::LayerSequenceGenDesc& Strat::LayerSequenceGenDesc::operator=(
 }
 
 
+void Strat::LayerSequenceGenDesc::erase()
+{
+    deepErase( *this );
+    startdepth_ = 0.f;
+    propsel_.setEmpty();
+    elasticpropselmid_.setUdf();
+    errmsg_.setEmpty();
+}
+
+
 bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
 {
     ascistream astrm( strm, true );
@@ -162,7 +173,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
 
     IOPar iop; iop.getFrom(astrm);
     iop.get( sKeyTopdepth, startdepth_ );
-    iop.get( sKeyElasticPropSelID, elasticpropselmid_ );
+    iop.get( ElasticPropSelection::sKeyElasticPropSel(), elasticpropselmid_ );
     PtrMan<IOPar> workbenchpars = iop.subselect( sKeyWorkBenchParams() );
     if ( !workbenchpars || workbenchpars->isEmpty() )
 	workbenchpars = iop.subselect( "Workbench parameters" );
@@ -188,7 +199,6 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
 	return false;
     }
 
-    propsel_.erase();
     for ( const auto* lgen : *this )
 	lgen->updateUsedProps( propsel_ );
 
@@ -204,7 +214,9 @@ bool Strat::LayerSequenceGenDesc::putTo( od_ostream& strm ) const
 
     IOPar iop;
     iop.set( sKeyTopdepth, startdepth_ );
-    iop.set( sKeyElasticPropSelID, elasticpropselmid_ );
+    if ( !elasticpropselmid_.isUdf() )
+	iop.set( ElasticPropSelection::sKeyElasticPropSel(),elasticpropselmid_);
+
     iop.mergeComp( workbenchparams_, sKeyWorkBenchParams() );
     iop.putTo( astrm );
 
@@ -349,12 +361,15 @@ int Strat::LayerSequenceGenDesc::indexFromUserIdentification(
 }
 
 
+mDefineInstanceCreatedNotifierAccess(Strat::SingleLayerGenerator)
+
 Strat::SingleLayerGenerator::SingleLayerGenerator(
 	const SingleLayerGenerator& laygen )
     : unit_(laygen.unit_ )
     , content_( laygen.content_ )
     , props_( laygen.props_ )
 {
+    mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -363,6 +378,7 @@ Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
     , content_(&Strat::Content::unspecified())
 {
     props_.add( new ValueProperty(PropertyRef::thickness()) );
+    mTriggerInstanceCreatedNotifier();
 }
 
 

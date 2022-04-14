@@ -87,9 +87,9 @@ protected:
     FlatView::ZoomMgr	zoommgr_;
     bool		haverubber_;
     IOPar		infopars_;
-    bool        initdone_ = false;
+    bool	       initdone_ = false;
 
-    uiFlatViewPropDlg*  propdlg_;
+    uiFlatViewPropDlg*	propdlg_ = nullptr;
 
     MouseEventHandler&	mouseEventHandler(int vwridx,bool ofscene);
 			//!< Returns MouseEventHandler of uiGraphicsScene if

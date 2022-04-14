@@ -22,22 +22,22 @@ class LayerSequence;
 class LayerSequenceGenDesc;
 
 /*!\brief Description that can generate layers and add these to a sequence.
- 
+
   To be able to display this to users, youneed to be able to return a
   non-varying thickness. This dispThickness() can be the maximum possible
   (or if that is impossible, like 2 std devs), or an average/typical/center
   value.
- 
+
  */
 
-mExpClass(Strat) LayerGenerator
+mExpClass(Strat) LayerGenerator : public CallBacker
 {
-public:	
+public:
 
     virtual		~LayerGenerator()			{}
 
     virtual LayerGenerator* clone() const
-			{ return canBeCloned() ? createClone() : 0; }
+			{ return canBeCloned() ? createClone() : nullptr; }
     virtual bool	canBeCloned() const			= 0;
     virtual const char* name() const				= 0;
     virtual float	dispThickness(bool max=false) const	= 0;
@@ -60,7 +60,7 @@ public:
 
 protected:
 
-    virtual LayerGenerator*	createClone() const		{ return 0; }
+    virtual LayerGenerator*	createClone() const	{ return nullptr; }
     virtual bool	genMaterial(LayerSequence&,Property::EvalOpts) const
 							= 0;
     virtual bool	postProcess(LayerSequence&,float pos) const
@@ -73,6 +73,7 @@ protected:
 
 
 #define mDefLayerGeneratorFns(clss,typstr) \
+    mDeclInstanceCreatedNotifierAccess(clss); \
 protected: \
     bool		genMaterial(Strat::LayerSequence&, \
 			    Property::EvalOpts eo=Property::EvalOpts() \

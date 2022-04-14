@@ -11,15 +11,17 @@ ________________________________________________________________________
 -*/
 
 #include "uistratmod.h"
+
 #include "uidialog.h"
 #include "uigroup.h"
+#include "stratlevel.h"
 #include "uistring.h"
 
 class uiComboBox;
 class uiLabel;
 class uiSpinBox;
+class uiStratLevelSel;
 class uiToolButton;
-namespace Strat { class Level; }
 
 
 mExpClass(uiStrat) uiStratGenDescTools : public uiGroup
@@ -27,10 +29,13 @@ mExpClass(uiStrat) uiStratGenDescTools : public uiGroup
 public:
 
 		uiStratGenDescTools(uiParent*);
+		~uiStratGenDescTools();
 
     int		nrModels() const;
     void	setNrModels(int);
     void	enableSave(bool);
+    void	setGenWarning( const uiString& msg )
+		   { genaskcontinuemsg_ = msg; } // cleared if user continues
 
     Notifier<uiStratGenDescTools>	openReq;
     Notifier<uiStratGenDescTools>	saveReq;
@@ -45,6 +50,7 @@ public:
 protected:
 
     static const char*		sKeyNrModels();
+    uiString	genaskcontinuemsg_;
 
     uiSpinBox*	nrmodlsfld_;
     uiToolButton* savetb_;
@@ -52,7 +58,7 @@ protected:
     void	openCB(CallBacker*)	{ openReq.trigger(); }
     void	saveCB(CallBacker*)	{ saveReq.trigger(); }
     void	propEdCB(CallBacker*)	{ propEdReq.trigger(); }
-    void	genCB(CallBacker*)	{ genReq.trigger(); }
+    void	genCB(CallBacker*);
     void	nrModelsChangedCB(CallBacker*);
 
 };
@@ -63,31 +69,43 @@ mExpClass(uiStrat) uiStratLayModEditTools : public uiGroup
 public:
 
 		uiStratLayModEditTools(uiParent*);
+		~uiStratLayModEditTools();
 
     void	setProps(const BufferStringSet&);
-    void	setLevelNames(const BufferStringSet&);
     void	setContentNames(const BufferStringSet&);
 
+    Strat::Level selLevel() const;
+    Strat::Level::ID selLevelID() const;
+    int		selLevelIdx() const;
+    BufferString selLevelName() const;
+    OD::Color	selLevelColor() const;
+
+    bool	canSetDispEach() const	{ return eachfld_; }
     const char*	selProp() const;		//!< May return null
-    const char*	selLevel() const;		//!< May return null
     const char*	selContent() const;		//!< May return null
     int		dispEach() const;
     bool	dispZoomed() const;
     bool	dispLith() const;
     bool	showFlattened() const;
-    bool	mkSynthetics() const;
 
-    void	setSelProp(const char*);
-    void	setSelLevel(const char*);
-    void	setSelContent(const char*);
-    void	setDispEach(int);
-    void	setDispZoomed(bool);
-    void	setDispLith(bool);
-    void	setShowFlattened(bool);
-    void	setMkSynthetics(bool);
+    void	setSelProp(const char*,bool notif=true);
+    void	setSelLevel(const char*,bool notif=true);
+    void	setSelContent(const char*,bool notif=true);
+    void	setDispEach(int,bool notif=true);
+    void	setMaxDispEach(int,bool notif=false);
+    void	setDispZoomed(bool,bool notif=true);
+    void	setDispLith(bool,bool notif=true);
+    void	setShowFlattened(bool,bool notif=true);
     void	setFlatTBSensitive(bool);
 
-    void	setNoDispEachFld();
+    void	addEachFld();
+    void	addLithFld();
+
+    uiToolButton* lithButton()		{ return lithtb_; }
+    uiToolButton* zoomButton()		{ return zoomtb_; }
+
+    void	fillPar(IOPar&) const;
+    bool	usePar(const IOPar&,bool notif=true);
 
     Notifier<uiStratLayModEditTools>	selPropChg;
     Notifier<uiStratLayModEditTools>	selLevelChg;
@@ -95,50 +113,44 @@ public:
     Notifier<uiStratLayModEditTools>	dispEachChg;
     Notifier<uiStratLayModEditTools>	dispZoomedChg;
     Notifier<uiStratLayModEditTools>	dispLithChg;
-    Notifier<uiStratLayModEditTools>	flattenChg;
-    Notifier<uiStratLayModEditTools>	mkSynthChg;
-
-    int		selPropIdx() const;		//!< May return -1
-    int		selLevelIdx() const;		//!< May return -1
-    const Strat::Level*	selStratLevel() const;	//!< May return null
-    OD::Color	selLevelColor() const;		//!< May return NoColor
-
-    uiToolButton* lithButton()		{ return lithtb_; }
-    uiToolButton* zoomButton()		{ return zoomtb_; }
-
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
-
-    bool	allownoprop_;
+    Notifier<uiStratLayModEditTools>	showFlatChg;
 
 protected:
 
-    static const char*		sKeyDisplayedProp();
-    static const char*		sKeyDecimation();
-    static const char*		sKeySelectedLevel();
-    static const char*		sKeySelectedContent();
-    static const char*		sKeyZoomToggle();
-    static const char*		sKeyDispLith();
-    static const char*		sKeyShowFlattened();
+    uiGroup*		leftgrp_;
+    uiComboBox*		propfld_;
+    uiStratLevelSel*	lvlfld_;
+    uiComboBox*		contfld_;
+    uiLabel*		eachlbl_	= nullptr;
+    uiSpinBox*		eachfld_	= nullptr;
 
-    uiComboBox*	propfld_;
-    uiComboBox*	lvlfld_;
-    uiComboBox*	contfld_;
-    uiSpinBox*	eachfld_;
-    uiLabel*	eachlbl_;
-    uiToolButton* zoomtb_;
-    uiToolButton* lithtb_;
-    uiToolButton* flattenedtb_;
-    uiToolButton* mksynthtb_;
+    uiGroup*		rightgrp_;
+    uiToolButton*	lithtb_		= nullptr;
+    uiToolButton*	zoomtb_;
+    uiToolButton*	flattenedtb_;
 
-    void	selPropCB( CallBacker* )	{ selPropChg.trigger(); }
-    void	selLevelCB( CallBacker* )	{ selLevelChg.trigger(); }
-    void	selContentCB( CallBacker* )	{ selContentChg.trigger(); }
-    void	dispEachCB( CallBacker* )	{ dispEachChg.trigger(); }
-    void	dispZoomedCB( CallBacker* )	{ dispZoomedChg.trigger(); }
-    void	dispLithCB( CallBacker* )	{ dispLithChg.trigger(); }
-    void	showFlatCB( CallBacker* )	{ flattenChg.trigger(); }
-    void	mkSynthCB( CallBacker* )	{ mkSynthChg.trigger(); }
+    int			prevdispeach_	= -1;
+
+    static const char*	sKeyDisplayedProp();
+    static const char*	sKeyDecimation();
+    static const char*	sKeySelectedLevel();
+    static const char*	sKeySelectedContent();
+    static const char*	sKeyZoomToggle();
+    static const char*	sKeyDispLith();
+    static const char*	sKeyShowFlattened();
+
+    int		selPropIdx() const;
+
+    void	initGrp(CallBacker*);
+    void	selPropChgCB( CallBacker* )	{ selPropChg.trigger(); }
+    void	selLevelChgCB( CallBacker* )	{ selLevelChg.trigger(); }
+    void	selContentChgCB( CallBacker* )	{ selContentChg.trigger(); }
+    void	dispZoomedChgCB( CallBacker* )	{ dispZoomedChg.trigger(); }
+    void	dispLithChgCB( CallBacker* )	{ dispLithChg.trigger(); }
+    void	showFlatChgCB( CallBacker* )	{ showFlatChg.trigger(); }
+    void	dispEachChgCB(CallBacker*);
+
+    friend class uiStratLayerModelDisp;
 
 };
 

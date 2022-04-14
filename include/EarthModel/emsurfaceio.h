@@ -12,17 +12,16 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
 #include "bufstringset.h"
 #include "emposid.h"
 #include "executor.h"
 #include "posinfo2dsurv.h"
-#include "ranges.h"
-#include "rowcol.h"
-#include "od_iosfwd.h"
-#include "unitofmeasure.h"
+#include "stratlevel.h"
 
-class StreamConn;
 class IOObj;
+class StreamConn;
+class UnitOfMeasure;
 template <class T> class DataInterpreter;
 template <class T> class Array3D;
 template <class T> class Array2D;
@@ -97,7 +96,7 @@ public:
     BufferString	lineSet(int) const;
     Pos::GeomID		lineGeomID(int) const;
     StepInterval<int>	lineTrcRanges( int idx ) const;
-    int			stratLevelID() const;
+    Strat::Level::ID	stratLevelID() const;
     const IOPar*	pars() const;
     int			getParsOffset() const;
 

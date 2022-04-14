@@ -56,6 +56,13 @@ public:
     inline void		add( SeisTrc* t )	{ trcs_ += t; }
     void		add(SeisTrcBuf&);	//!< shallow copy if not owner
 
+    Interval<float>	zRange() const;
+    Interval<float>	getZRange4Shifts(const TypeSet<float>& twtvals,
+					bool upward) const;
+    void		getShifted(const Interval<float>&,
+				   const TypeSet<float>& twtvals,bool upward,
+				   float udfval,SeisTrcBuf&) const;
+
     int			find(const BinID&,bool is2d=false) const;
     int			find(const SeisTrc*,bool is2d=false) const;
     inline SeisTrc*	get( int idx )

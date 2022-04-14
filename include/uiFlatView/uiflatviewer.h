@@ -32,7 +32,7 @@ mExpClass(uiFlatView) uiFlatViewer : public uiGroup
 				   , public FlatView::Viewer
 {
 public:
-    			uiFlatViewer(uiParent*);
+			uiFlatViewer(uiParent*);
 			~uiFlatViewer();
 
     void		setInitialSize(const uiSize&);
@@ -46,24 +46,26 @@ public:
     void		setView(const uiWorldRect&);
     void		setViewToBoundingBox();
     const uiWorldRect&	curView() const			{ return wr_; }
-    			/*!<May be reversed if display is reversed. */
+			/*!<May be reversed if display is reversed. */
     StepInterval<double> posRange(bool forx1) const;
     uiWorldRect		boundingBox() const;
 
+    void		removePack(::DataPack::ID) override;
+
     const uiWorld2Ui&	getWorld2Ui() const		{ return w2ui_; }
     uiRect		getViewRect(bool withextraborders=true) const;
-    			/*!<The rectangle onto which wr_ is projected */
+			/*!<The rectangle onto which wr_ is projected */
 
     uiBorder		getAnnotBorder() const;
     void		setBoundingRect(const uiRect&);
-    			/*!< Sets extra borders on the right and at the bottom
+			/*!< Sets extra borders on the right and at the bottom
 			 if boundingrect is smaller than getViewRect(false).
 			 Extraborders set will be same as their differences in
 			 width and height. */
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
     void		setExtraFactor( float f )	{ extfac_ = f; }
-    			//!< when reporting boundingBox(), extends this
-    			//!< amount of positions outward. Default 0.5.
+			//!< when reporting boundingBox(), extends this
+			//!< amount of positions outward. Default 0.5.
     void		updateBitmapsOnResize( bool yn )
 			{ updatebitmapsonresize_ = yn; }
 			//!< If true, will resize bitmaps as per the size of
@@ -87,13 +89,13 @@ public:
 
     AxesDrawer&			getAxesDrawer()		{ return axesdrawer_; }
 
-    Notifier<uiFlatViewer> 	viewChanged; //!< setView called
-    Notifier<uiFlatViewer> 	dataChanged; //!< new DataPack set
-    Notifier<uiFlatViewer> 	dispParsChanged;
-    					//!< Triggered with each bitmap update
+    Notifier<uiFlatViewer>	viewChanged; //!< setView called
+    Notifier<uiFlatViewer>	dataChanged; //!< new DataPack set
+    Notifier<uiFlatViewer>	dispParsChanged;
+					//!< Triggered with each bitmap update
     Notifier<uiFlatViewer>	annotChanged; //!< Annotation changed
     Notifier<uiFlatViewer>	dispPropChanged;
-    					//!< Triggered with property dlg change
+					//!< Triggered with property dlg change
 
     uiFlatViewControl*		control() { return control_; }
 

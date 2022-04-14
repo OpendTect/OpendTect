@@ -48,7 +48,6 @@ mExpClass(uiPreStackProcessing) uiViewer2DMainWin : public uiObjectItemViewWin
 						  , public uiFlatViewWin
 { mODTextTranslationClass(uiViewer2DMainWin);
 public:
-			uiViewer2DMainWin(uiParent*,const char* title);
 			~uiViewer2DMainWin();
 
     virtual void	start()		{ show(); }
@@ -58,7 +57,7 @@ public:
     virtual uiMainWin*	dockParent()	{ return this; }
     virtual uiParent*	viewerParent()	{ return this; }
     uiViewer2DControl*	control()	{ return control_; }
-    virtual void	getGatherNames(BufferStringSet& nms) const	= 0;
+    virtual void	getGatherNames(BufferStringSet&) const		= 0;
     virtual bool	is2D() const	{ return false; }
     bool		isStored() const;
     void		getStartupPositions(const BinID& bid,
@@ -73,26 +72,29 @@ public:
 
 protected:
 
+			uiViewer2DMainWin(uiParent*,const char* title,
+					  bool hasangledata);
+
     TypeSet<GatherInfo> gatherinfos_;
     TypeSet<int>	dpids_;
     ObjectSet<PreStack::MuteDef> mutes_;
     TypeSet<OD::Color>	mutecolors_;
     TrcKeyZSampling	tkzs_;
-    uiViewer2DPosDlg*	posdlg_;
-    uiViewer2DControl*	control_;
-    uiObjectItemViewAxisPainter* axispainter_;
+    uiViewer2DPosDlg*	posdlg_ = nullptr;
+    uiViewer2DControl*	control_ = nullptr;
+    uiObjectItemViewAxisPainter* axispainter_ = nullptr;
     Interval<float>	zrg_;
     ObjectSet<uiGatherDisplay>	gd_;
     ObjectSet<uiGatherDisplayInfoHeader> gdi_;
-    PreStack::ProcessManager*	preprocmgr_;
+    PreStack::ProcessManager*	preprocmgr_ = nullptr;
     TypeSet<PSViewAppearance>	appearances_;
     bool		hasangledata_;
 
     void		removeAllGathers();
     void		reSizeItems();
-    virtual void	setGatherInfo(uiGatherDisplayInfoHeader* info,
+    virtual void	setGatherInfo(uiGatherDisplayInfoHeader*,
 				      const GatherInfo&)	{}
-    virtual void	setGather(const GatherInfo& pos)	{}
+    virtual void	setGather(const GatherInfo&)	{}
     void		setGatherView(uiGatherDisplay*,
 				      uiGatherDisplayInfoHeader*);
     PreStack::Gather*	getAngleGather(const PreStack::Gather& gather,
@@ -136,8 +138,8 @@ public:
     void		setIDs(const TypeSet<MultiID>&);
     void		getIDs(TypeSet<MultiID>& mids) const
 			{ mids.copy( mids_ ); }
-    void		getGatherNames(BufferStringSet& nms) const;
-    virtual bool	is2D() const	{ return is2d_; }
+    void		getGatherNames(BufferStringSet&) const override;
+    bool		is2D() const override	{ return is2d_; }
     const char*		lineName() const	{ return linename_; }
     void		angleGatherCB(CallBacker*);
     void		angleDataCB(CallBacker*);
@@ -147,22 +149,22 @@ protected:
 
     bool		is2d_;
     BufferString	linename_;
-    PreStack::AngleCompParams* angleparams_;
-    bool		doanglegather_;
-    uiSlicePos2DView*	slicepos_;
+    PreStack::AngleCompParams* angleparams_ = nullptr;
+    bool		doanglegather_ = false;
+    uiSlicePos2DView*	slicepos_ = nullptr;
 
     void		displayAngle();
     bool		getAngleParams();
-    void		setGatherInfo(uiGatherDisplayInfoHeader* info,
-				      const GatherInfo&);
-    void		setGather(const GatherInfo&);
+    void		setGatherInfo(uiGatherDisplayInfoHeader*,
+				      const GatherInfo&) override;
+    void		setGather(const GatherInfo&) override;
     void		setUpNewPositions(bool isinl,const BinID& posbid,
 				       const StepInterval<int>& trcrg);
     void		setUpNewSlicePositions();
     void		setUpNewIDs();
     void		convAngleDataToDegrees(PreStack::Gather&) const;
     DataPack::ID	getAngleData(DataPack::ID gatherid);
-    void		posDlgChgCB(CallBacker*);
+    void		posDlgChgCB(CallBacker*) override;
     void		posSlcChgCB(CallBacker*);
 };
 
@@ -174,17 +176,16 @@ public:
 			uiSyntheticViewer2DMainWin(uiParent*,const char* title);
 			~uiSyntheticViewer2DMainWin();
     void		setGathers(const TypeSet<PreStackView::GatherInfo>&);
-    void		setGathers(const TypeSet<PreStackView::GatherInfo>&,
-				   bool getstaruppositions);
     void		removeGathers();
-    void		getGatherNames(BufferStringSet& nms) const;
-    void		setGatherNames(const BufferStringSet& nms);
-protected:
-    void		posDlgChgCB(CallBacker*);
+    void		getGatherNames(BufferStringSet&) const override;
+    void		setGatherNames(const BufferStringSet&);
 
-    void		setGatherInfo(uiGatherDisplayInfoHeader* info,
-				      const GatherInfo&);
-    void		setGather(const GatherInfo&);
+protected:
+    void		posDlgChgCB(CallBacker*) override;
+
+    void		setGatherInfo(uiGatherDisplayInfoHeader*,
+				      const GatherInfo&) override;
+    void		setGather(const GatherInfo&) override;
 };
 
 

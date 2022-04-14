@@ -104,18 +104,9 @@ bool SynthGenDataPack::isPS() const
 }
 
 
-bool SynthGenDataPack::isCorrected() const
-{
-    bool corrected = true;
-    synthgenpars_.getYN( SynthGenBase::sKeyNMO(), corrected );
-
-    return corrected;
-}
-
-
 int SynthGenDataPack::getOffsetIdx( float offset ) const
 {
-    if ( offset <= 0.f )
+    if ( offsets_.isEmpty() || offset < -1e-2f )
 	return -1;
 
     return offsets_.indexOf( offset );
@@ -155,10 +146,10 @@ bool SynthGenBase::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 	{ deleteAndZeroPtr( wavelet_ ); }
     if ( !wvlt )
 	mErrRet(tr("No valid wavelet given"), false);
-    if ( pol != OD::CopyPtr )
-	wavelet_ = wvlt;
-    else
+    if ( pol == OD::CopyPtr )
 	wavelet_ = new Wavelet( *wvlt );
+    else
+	wavelet_ = wvlt;
 
     waveletismine_ = pol != OD::UsePtr;
     return true;
@@ -549,7 +540,8 @@ bool SynthGenerator::genFreqWavelet()
 	if ( arrpos < 0 )
 	    arrpos += convolvesize_;
 
-	freqwavarr[arrpos] = wavelet_->samples()[idx];
+	if ( arrpos >=0 && arrpos < convolvesize_ )
+	    freqwavarr[arrpos] = wavelet_->samples()[idx];
     }
 
     mPrepFFT( fft, freqwavarr, true, convolvesize_ );
@@ -969,6 +961,7 @@ RaySynthGenerator::RaySynthGenerator( const ReflectivityModelSet& refmodels )
 {
     msg_ = tr("Generating synthetics");
     refmodels_->getOffsets( offsets_ );
+    checkPars();
 }
 
 
@@ -982,6 +975,7 @@ RaySynthGenerator::RaySynthGenerator( const SynthGenDataPack& synthresdp )
     synthresdp_->getModels().getOffsets( offsets_ );
     if ( synthgen_ )
     {
+	checkPars();
 	synthgen_->setOutSampling( synthresdp.outputsampling_ );
 	synthgen_->usePar( synthresdp.synthgenpars_ );
     }
@@ -1005,11 +999,18 @@ bool RaySynthGenerator::usePar( const IOPar& par )
 	 Seis::SynthGenerator::factory().hasName(typestr.buf()) &&
 	 typestr != synthgen_->factoryKeyword() )
     {
-	IOPar curiop;
+	IOPar curiop( par );
+	curiop.removeWithKey( sKey::Type() );
+	synthgen_->usePar( par );
 	synthgen_->fillPar( curiop );
 	curiop.set( sKey::Type(), typestr );
+	PtrMan<Wavelet> wvlt;
+	if ( synthgen_->wavelet_ )
+	    wvlt = new Wavelet( *synthgen_->wavelet_ );
 	delete synthgen_;
 	synthgen_ = SynthGenerator::createInstance( &curiop );
+	if ( synthgen_ && !synthgen_->wavelet_ && wvlt.ptr() )
+	    synthgen_->setWavelet( wvlt.release(), OD::TakeOverPtr );
 	return synthgen_;
     }
 
@@ -1059,6 +1060,12 @@ void RaySynthGenerator::doSampledTimeReflectivity( bool yn )
 }
 
 
+void RaySynthGenerator::setTrcStep( int trcstep )
+{
+    trcstep_ = trcstep;
+}
+
+
 od_int64 RaySynthGenerator::nrIterations() const
 {
     return refmodels_ ? refmodels_->nrModels() : -1;
@@ -1077,13 +1084,8 @@ uiString RaySynthGenerator::uiNrDoneText() const
 }
 
 
-bool RaySynthGenerator::doPrepare( int /* nrthreads */ )
+bool RaySynthGenerator::checkPars( bool* skipnmo )
 {
-    msg_ = tr("Generating synthetics");
-    const int nrmodels = refmodels_ ? refmodels_->nrModels() : 0;
-    if ( nrmodels < 1 )
-	mErrRet( tr("No models given to make synthetics"), false );
-
     const int nrtrcsperpos = refmodels_->get(0)->nrRefModels();
     if ( nrtrcsperpos < 1 )
 	mErrRet( tr("No reflectivity models given to make synthetics"), false );
@@ -1098,13 +1100,31 @@ bool RaySynthGenerator::doPrepare( int /* nrthreads */ )
     const bool isoffsetdomain = refmodels_->get(0)->isOffsetDomain();
     rettype_ = isoffsetdomain &&
 		(!singletrcperpos || (singletrcperpos && !zerooffset))
-	     ? LinePS : Line;
+		? LinePS : Line;
+    const bool doskipnmo = !Seis::isPS(rettype_) ||
+		(Seis::isPS(rettype_) && singletrcperpos && zerooffset);
+    if ( skipnmo ) // From doPrepare only
+	*skipnmo = doskipnmo;
+    else if ( synthgen_ ) // From constructors only
+	synthgen_->applynmo_ = !doskipnmo;
+
+    return true;
+}
+
+
+bool RaySynthGenerator::doPrepare( int /* nrthreads */ )
+{
+    msg_ = tr("Generating synthetics");
+    const int nrmodels = refmodels_ ? refmodels_->nrModels() : 0;
+    if ( nrmodels < 1 )
+	mErrRet( tr("No models given to make synthetics"), false );
+
+    bool skipnmo;
+    if ( !checkPars(&skipnmo) )
+	return false;
 
     if ( !synthgen_ || !synthgen_->isInputOK() )
 	mErrRet( tr("Incorrect parameters for synthetic generation"), false );
-
-    const bool skipnmo = !Seis::isPS(rettype_) ||
-			(Seis::isPS(rettype_) && singletrcperpos && zerooffset);
 
     ZSampling outputzrg = synthgen_->outputsampling_;
     PtrMan<ZSampling> uncorrsampling;
@@ -1142,8 +1162,10 @@ bool RaySynthGenerator::doPrepare( int /* nrthreads */ )
 				synthgen_->needSampledTimeReflectivities();
     for ( int imdl=0; imdl<nrmodels; imdl++ )
     {
+	const int trcidx = imdl * trcstep_;
 	auto* newres = new SynthRes( outputzrg, uncorrzrg, offsets_,
-				     imdl, dosampledfreqrefs,dosampledtimerefs);
+				     trcidx, dosampledfreqrefs,
+				     dosampledtimerefs );
 	if ( !newres || !newres->isOK() )
 	{
 	    delete newres;

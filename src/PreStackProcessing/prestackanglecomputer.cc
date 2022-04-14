@@ -626,7 +626,7 @@ void ModelBasedAngleComputer::setRefModel(
 					const TrcKey& tk )
 {
     auto* tool = curModelTool();
-    if ( !tool )
+    if ( !tool || tool->trcKey() != tk )
 	tool = new ModelTool( refmodel, tk );
 
     const int toolidx = tools_.indexOf( tool );

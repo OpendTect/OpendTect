@@ -410,17 +410,13 @@ uiString Well::Data::getInfoString( Well::Info::InfoType it ) const
 
 void Well::Data::levelToBeRemoved( CallBacker* cb )
 {
-    mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
-    if ( !lvlset )
-	{ pErrMsg( "cb null or not LevelSet" ); return; }
-    const int lvlidx = lvlset->notifLvlIdx();
-    if ( lvlset->levels().validIdx( lvlidx ) )
-    {
-	const Strat::Level& lvl = *lvlset->levels()[lvlidx];
-	Marker* mrk = markers().getByLvlID( lvl.id() );
-	if ( mrk )
-	    mrk->setLevelID( -1 );
-    }
+    if ( !cb )
+	return;
+
+    mCBCapsuleUnpack(Strat::Level::ID,lvlid,cb);
+    Marker* marker = markers().getByLvlID( lvlid );
+    if ( marker )
+	marker->setNoLevelID();
 }
 
 

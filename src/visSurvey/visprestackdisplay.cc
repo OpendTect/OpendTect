@@ -340,18 +340,22 @@ bool PreStackDisplay::updateData()
 	{
 	    if ( haddata )
 	    {
-		flatviewer_->setVisible( false, false );
-		flatviewer_->setPack( false, DataPack::cNoID() );
+		const bool canupdate = flatviewer_->enableChange( false );
+		flatviewer_->setVisible( FlatView::Viewer::VD, false );
+		flatviewer_->enableChange( canupdate );
+		flatviewer_->setPack( FlatView::Viewer::VD, DataPack::cNoID() );
 	    }
 	    else
-		dataChangedCB( 0 );
+		dataChangedCB( nullptr );
 
 	    return false;
 	}
 	else
 	{
-	    flatviewer_->setVisible( false, true );
-	    flatviewer_->setPack( false, displayid, !haddata );
+	    const bool canupdate = flatviewer_->enableChange( false );
+	    flatviewer_->setVisible( FlatView::Viewer::VD, true );
+	    flatviewer_->enableChange( canupdate );
+	    flatviewer_->setPack( FlatView::Viewer::VD, displayid, !haddata );
 	}
 
     turnOn( true );

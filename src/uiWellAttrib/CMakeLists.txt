@@ -8,6 +8,7 @@ set( OD_MODULE_DEPS uiWell uiAttributes WellAttrib )
 set( OD_MODULE_SOURCES
 	uicreateattriblogdlg.cc
 	uicreatelogcubedlg.cc
+	uiodstratlayermodelmgr.cc
 	uiwellattribpartserv.cc
 	uiwellattribxplot.cc
 	uiwelllogattrib.cc

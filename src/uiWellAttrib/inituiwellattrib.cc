@@ -9,13 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "moddepmgr.h"
-#include "uistratlayermodel.h"
+
+#include "uiodstratlayermodelmgr.h"
 #include "uiwelllogattrib.h"
 
 mDefModInitFn(uiWellAttrib)
 {
     mIfNotFirstTime( return );
 
-    uiStratLayerModel::initClass();
+    uiStratLayerModelManager::initClass();
     uiWellLogAttrib::initClass();
 }

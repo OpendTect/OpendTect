@@ -12,11 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
-#include "keystrs.h"
-#include "iopar.h"
-#include "trckey.h"
+#include "stratlevel.h"
 
 
 namespace EM
@@ -62,9 +61,11 @@ public:
     virtual void	setAttrib(const TrcKey&,int attr,int yn,bool undo) = 0;
     virtual bool	isAttrib(const TrcKey&,int attr) const = 0;
 
-    void		setStratLevelID( int lvlid )
+    void		setStratLevelID( Strat::Level::ID lvlid )
 			{ stratlevelid_ = lvlid; }
-    int			stratLevelID() const
+    void		setNoLevelID()
+			{ setStratLevelID( Strat::Level::cUndefID() ); }
+    Strat::Level::ID	stratLevelID() const
 			{ return stratlevelid_; }
 
     void		fillPar( IOPar& par ) const override
@@ -83,11 +84,13 @@ public:
 
 protected:
 			Horizon( EMManager& emm )
-			    : Surface(emm), stratlevelid_(-1)	{}
+			    : Surface(emm)
+			    , stratlevelid_(Strat::Level::cUndefID())
+			{}
 
     const IOObjContext& getIOObjContext() const override		= 0;
 
-    int			stratlevelid_;
+    Strat::Level::ID	stratlevelid_;
 };
 
 } // namespace EM

@@ -9,101 +9,99 @@ ________________________________________________________________________
 -*/
 
 #include "uistratlvlsel.h"
-#include "stratlevel.h"
+
 #include "uicombobox.h"
 
 static const char* sNoLevelTxt			= "---";
-const uiString uiStratLevelSel::sTiedToTxt()	{ return tr("Tied to Level"); }
-
-
-static void getLvlNms( BufferStringSet& bss, bool withudf )
-{
-    if ( withudf )
-	bss.add( sNoLevelTxt );
-    for ( int idx=0; idx<Strat::LVLS().levels().size(); idx++ )
-	bss.add( Strat::LVLS().levels()[idx]->name() );
-}
+uiString uiStratLevelSel::sTiedToTxt()	{ return tr("Tied to Level"); }
 
 
 uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf,
-							   const uiString& lbl )
+				  const uiString& lbl )
     : uiGroup(p)
-    , fld_(0)
     , haveudf_(withudf)
     , selChange(this)
 {
-    BufferStringSet bss; getLvlNms( bss, haveudf_ );
-
-    if ( !lbl.isEmpty() )
-	fld_ = (new uiLabeledComboBox(this, bss, lbl))->box();
-    else
+    if ( lbl.isEmpty() )
     {
-	fld_ = new uiComboBox( this, bss, mFromUiStringTodo(sTiedToTxt()) );
-	fld_->setStretch( 2, 2 );
+	fld_ = new uiComboBox( this, toString(sTiedToTxt()) );
+	fld_->setStretch( 1, 1 );
     }
-    fld_->selectionChanged.notify( mCB(this,uiStratLevelSel,selCB) );
+    else
+	fld_ = (new uiLabeledComboBox(this, lbl))->box();
 
-    Strat::eLVLS().levelChanged.notify( mCB(this,uiStratLevelSel,extChgCB) );
+    fill();
+    fld_->setHSzPol( uiObject::MedVar );
+
+    mAttachCB( fld_->selectionChanged, uiStratLevelSel::selCB );
+    mAttachCB( Strat::lvlSetMgr().curChanged, uiStratLevelSel::curSetChgCB );
+    mAttachCB( Strat::eLVLS().changed, uiStratLevelSel::extChgCB );
+    mAttachCB( Strat::eLVLS().levelAdded, uiStratLevelSel::extChgCB );
+    mAttachCB( Strat::eLVLS().levelToBeRemoved, uiStratLevelSel::extChgCB );
+    setStretch( 1, 0 );
     setHAlignObj( fld_ );
 }
 
 
 uiStratLevelSel::~uiStratLevelSel()
 {
-    Strat::eLVLS().levelChanged.remove( mCB(this,uiStratLevelSel,extChgCB) );
+    detachAllNotifiers();
 }
 
 
-const Strat::Level* uiStratLevelSel::selected() const
+Strat::Level uiStratLevelSel::selected() const
 {
-    const BufferString seltxt( fld_->text() );
-    if ( seltxt.isEmpty() || (haveudf_ && seltxt == sNoLevelTxt) )
-	return 0;
+    if ( haveudf_ && fld_->currentItem() == 0 )
+	return Strat::Level::undef();
 
-    return Strat::LVLS().get( seltxt );
+    const BufferString lvltxt = fld_->text();
+    if ( Strat::LVLS().isPresent(lvltxt) )
+	return Strat::LVLS().getByName( lvltxt );
+
+    return Strat::lvlSetMgr().unpushedLVLS().getByName( lvltxt );
 }
 
 
 BufferString uiStratLevelSel::getLevelName() const
 {
-    const Strat::Level* lvl = selected();
-    return lvl && lvl->id() >= 0 ? lvl->name() : BufferString::empty();
+    const Strat::Level lvl( selected() );
+    return lvl.id() == Strat::Level::cUndefID() ? BufferString::empty()
+						: lvl.name();
 }
 
 
 OD::Color uiStratLevelSel::getColor() const
 {
-    const Strat::Level* lvl = selected();
-    return lvl && lvl->id() >= 0 ? lvl->color() : OD::Color::NoColor();
+    const Strat::Level lvl = selected();
+    return lvl.id() == Strat::Level::cUndefID() ? OD::Color::NoColor()
+						: lvl.color();
 }
 
 
-int uiStratLevelSel::getID() const
+Strat::Level::ID uiStratLevelSel::getID() const
 {
-    const Strat::Level* lvl = selected();
-    return lvl ? lvl->id() : -1;
+    return selected().id();
 }
 
 
-void uiStratLevelSel::setSelected( const Strat::Level* lvl )
+void uiStratLevelSel::setID( Strat::Level::ID lvlid )
 {
-    if ( !lvl )
+    if ( lvlid != Strat::Level::cUndefID() )
+	fld_->setCurrentItem( Strat::LVLS().get(lvlid).name() );
+    else if ( haveudf_ )
 	fld_->setCurrentItem( ((int)0) );
-    else
-	fld_->setCurrentItem( lvl->name() );
 }
 
 
 void uiStratLevelSel::setName( const char* nm )
 {
-    setSelected( Strat::LVLS().get(nm) );
+    fld_->setCurrentItem( nm );
 }
 
 
-void uiStratLevelSel::setID( int id )
+void uiStratLevelSel::setToolTip( const uiString& tt )
 {
-    const Strat::Level* lvl = id < 0 ? 0 : Strat::LVLS().get( id );
-    setSelected( lvl );
+    fld_->setToolTip( tt );
 }
 
 
@@ -113,16 +111,45 @@ void uiStratLevelSel::selCB( CallBacker* )
 }
 
 
+void uiStratLevelSel::addItem( const char* nm, const OD::Color& col )
+{
+    fld_->addItem( toUiString(nm) );
+    fld_->setColorIcon( fld_->size()-1, col );
+}
+
+
+void uiStratLevelSel::fill()
+{
+    const Strat::LevelSet& lvls = Strat::LVLS();
+    if ( haveudf_ )
+	addItem( sNoLevelTxt, OD::Color::NoColor() );
+
+    for ( int ilvl=0; ilvl<lvls.size(); ilvl++ )
+    {
+	const Strat::Level lvl = lvls.getByIdx( ilvl );
+	addItem( lvl.name(), lvl.color() );
+    }
+}
+
+
+void uiStratLevelSel::curSetChgCB( CallBacker* cb )
+{
+    mAttachCBIfNotAttached( Strat::eLVLS().changed, uiStratLevelSel::extChgCB );
+    mAttachCBIfNotAttached( Strat::eLVLS().levelAdded,
+			    uiStratLevelSel::extChgCB );
+    mAttachCBIfNotAttached( Strat::eLVLS().levelToBeRemoved,
+			    uiStratLevelSel::extChgCB );
+    extChgCB( cb );
+}
+
+
 void uiStratLevelSel::extChgCB( CallBacker* )
 {
-    const Strat::Level* cursel = selected();
+    const Strat::Level cursel = selected();
     fld_->setEmpty();
-
-    BufferStringSet bss; getLvlNms( bss, haveudf_ );
-    fld_->addItems( bss );
-
-    if ( cursel )
-	fld_->setCurrentItem( cursel->name().buf() );
+    fill();
+    if ( cursel.id() != Strat::Level::cUndefID() )
+	fld_->setCurrentItem( cursel.name() );
     else if ( haveudf_ )
 	fld_->setCurrentItem( ((int)0) );
 }

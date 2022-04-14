@@ -173,13 +173,13 @@ bool GapDeconACorrView::setUpViewWin( bool isqc )
 
     uiFlatViewMainWin*& fvwin = isqc ? qcwin_ : examwin_;
     if ( fvwin )
-	fvwin->viewer().setPack( false, dp->id(), false );
+	fvwin->viewer().setPack( FlatView::Viewer::VD, dp->id(), false );
     else
     {
 	fvwin = new uiFlatViewMainWin( 0,
 		uiFlatViewMainWin::Setup(isqc?qctitle_:examtitle_,false) );
 	uiFlatViewer& vwr = fvwin->viewer();
-	vwr.setPack( false, dp->id(), true );
+	vwr.setPack( FlatView::Viewer::VD, dp->id(), true );
 	FlatView::Appearance& app = vwr.appearance();
 	app.annot_.setAxesAnnot( true );
 	app.setDarkBG( false );

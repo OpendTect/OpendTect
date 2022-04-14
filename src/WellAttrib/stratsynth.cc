@@ -46,62 +46,2355 @@ ________________________________________________________________________
 #include "wavelet.h"
 
 
-StratSynth::StratSynth( const Strat::LayerModelProvider& lmp, bool useed )
-    : lmp_(lmp)
-    , useed_(useed)
+int StratSynth::DataMgr::gtActualLMIdx( int lmsidx ) const
 {
+    if ( lmsidx < 0 || lmsidx >= lms_.size() )
+	return lms_.curIdx();
+    if ( lmsidx >= lms_.size() )
+	{ pErrMsg( "Bad idx" ); return lms_.curIdx(); }
+
+    return lmsidx;
 }
 
 
-StratSynth::~StratSynth()
+StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
+    : lms_(lms)
+    , entryAdded(this)
+    , entryRenamed(this)
+    , entryChanged(this)
+    , entryDisabled(this)
+    , entryRemoved(this)
+    , elPropSelChanged(this)
+    , newWvltUsed(this)
+    , wvltScalingDone(this)
 {
-    clearSynthetics();
-    setLevel( nullptr );
+    for ( int idx=0; idx<nrLayerModels(); idx++ )
+	addLayModelSets();
+
+    mAttachCB( lms_.editingChanged, DataMgr::lmsEdChgCB );
 }
 
 
-const Strat::LayerModel& StratSynth::layMod() const
+StratSynth::DataMgr::DataMgr( const DataMgr& oth, int calceach )
+    : lms_(oth.lms_)
+    , calceach_(calceach)
+    , entryAdded(this)
+    , entryRenamed(this)
+    , entryChanged(this)
+    , entryDisabled(this)
+    , entryRemoved(this)
+    , elPropSelChanged(this)
+    , newWvltUsed(this)
+    , wvltScalingDone(this)
 {
-    return lmp_.getEdited( useed_ );
+    ids_ = oth.ids_;
+    genparams_ = oth.genparams_;
+    for ( int idx=0; idx<nrLayerModels(); idx++ )
+	addLayModelSets();
+
+    mAttachCB( lms_.editingChanged, DataMgr::lmsEdChgCB );
 }
 
 
-void StratSynth::clearSynthetics( bool excludeprops )
+StratSynth::DataMgr::~DataMgr()
 {
-    if ( excludeprops )
+    detachAllNotifiers();
+    setEmpty();
+    deepErase( lmdatasets_ );
+}
+
+
+StratSynth::DataMgr* StratSynth::DataMgr::getProdMgr()
+{
+    if ( calceach_ < 2 )
+	return this;
+
+    prodmgr_ = new DataMgr( *this, 1 );
+    return prodmgr_.ptr();
+}
+
+
+const StratSynth::DataMgr* StratSynth::DataMgr::getProdMgr() const
+{
+    return mSelf().getProdMgr();
+}
+
+
+bool StratSynth::DataMgr::isEmpty() const
+{
+    return ids_.isEmpty();
+}
+
+
+void StratSynth::DataMgr::clearData( bool lmdata, bool synthdata )
+{
+    if ( lmdata )
     {
-	for ( int idx=synthetics_.size()-1; idx>=0; idx-- )
+	deepErase( elasticmodelsets_ );
+	deepErase( levelsets_ );
+    }
+
+    const TypeSet<SynthID> idstonotif = ids_;
+    if ( synthdata )
+    {
+	if ( lmdata )
 	{
-	    if ( !synthetics_.get(idx)->isStratProp() )
-		synthetics_.removeSingle( idx );
+	    ids_.setEmpty();
+	    genparams_.setEmpty();
+	}
+	else
+	{
+	    for ( int idx=ids_.size()-1; idx>=0; idx-- )
+	    {
+		if ( genparams_[idx].isStratProp() )
+		    continue;
+
+		ids_.removeSingle( idx );
+		genparams_.removeSingle( idx );
+	    }
 	}
     }
     else
-	synthetics_.setEmpty();
+    {
+	const PropertyRefSelection allprs( false, nullptr );
+	const PropertyRefSelection& prs = layerModel().propertyRefs();
+	for ( int idx=ids_.size()-1; idx>=0; idx-- )
+	{
+	    if ( !genparams_[idx].isStratProp() )
+		continue;
+
+	    const PropertyRef* pr = genparams_[idx].getRef( allprs );
+	    if ( !pr || !prs.isPresent(pr) )
+	    {
+		ids_.removeSingle( idx );
+		genparams_.removeSingle( idx );
+	    }
+	}
+    }
+
+    prodmgr_ = nullptr;
+    deepErase( lmdatasets_ );
+    for ( int idx=0; idx<nrLayerModels(); idx++ )
+	addLayModelSets( lmdata );
+
+    dirtycount_++;
+    if ( !idstonotif.isEmpty() )
+	entryRemoved.trigger( idstonotif );
+}
+
+
+void StratSynth::DataMgr::addLayModelSets( bool withmod )
+{
+    if ( withmod )
+    {
+	elasticmodelsets_.add( new TypeSet<ElasticModel>() );
+	levelsets_.add( new LevelSet() );
+    }
+
+    auto* dss = new RefObjectSet<const SyntheticData>();
+    dss->setNullAllowed( true );
+    lmdatasets_.add( dss );
+    while ( dss->size() < ids_.size() )
+	dss->add( nullptr );
+}
+
+
+void StratSynth::DataMgr::lmsEdChgCB( CallBacker* cb )
+{
+    const int nrnow = lmdatasets_.size();
+    for ( int idx=nrnow-1; idx>=1; idx-- )
+    {
+	delete elasticmodelsets_.removeSingle( idx );
+	delete levelsets_.removeSingle( idx );
+	delete lmdatasets_.removeSingle( idx );
+    }
+
+    const int nrneeded = lms_.size();
+    if ( nrneeded < 2 )
+	return;
+
+    for ( int idx=1; idx<nrneeded; idx++ )
+	addLayModelSets();
+}
+
+
+const Strat::LayerModel& StratSynth::DataMgr::layerModel( int lmsidx ) const
+{
+    return lms_.get( gtActualLMIdx(lmsidx) );
+}
+
+
+const TypeSet<ElasticModel>& StratSynth::DataMgr::elasticModels(
+							int lmsidx ) const
+{
+    return *elasticmodelsets_.get( gtActualLMIdx(lmsidx) );
+}
+
+
+const StratSynth::LevelSet& StratSynth::DataMgr::levels( int lmsidx ) const
+{
+    return *levelsets_.get( gtActualLMIdx(lmsidx) );
+}
+
+
+int StratSynth::DataMgr::nrLayerModels() const
+{
+    return lms_.size();
+}
+
+
+int StratSynth::DataMgr::curLayerModelIdx() const
+{
+    return lms_.curIdx();
+}
+
+
+ObjectSet<const SyntheticData>& StratSynth::DataMgr::gtDSS( int lmsidx )
+{
+    return *lmdatasets_.get( gtActualLMIdx(lmsidx) );
+}
+
+
+const ObjectSet<const SyntheticData>& StratSynth::DataMgr::gtDSS(
+							     int lmsidx ) const
+{
+    return *lmdatasets_.get( gtActualLMIdx(lmsidx) );
+}
+
+
+void StratSynth::DataMgr::setCalcEach( int newce )
+{
+    if ( newce < 1 )
+	newce = 1;
+    if ( newce == calceach_ )
+	return;
+
+    calceach_ = newce;
+    modelChange();
+}
+
+
+int StratSynth::DataMgr::iSeq( int itrc ) const
+{
+    return itrc * calceach_;
+}
+
+
+int StratSynth::DataMgr::iTrc( int iseq ) const
+{
+    return iseq / calceach_;
+}
+
+
+int StratSynth::DataMgr::nrSequences( int lmsidx ) const
+{
+    return layerModel( lmsidx ).size();
+}
+
+
+namespace StratSynth
+{
+
+static int getNrTraces( int nrseq, int calceach )
+{
+    if ( nrseq < 1 )
+	return 0;
+    if ( calceach == 1 )
+	return nrseq;
+
+    int ret = 0;
+    for ( int idx=0; idx<nrseq; idx+=calceach, ret++ )
+    {}
+
+    return ret;
+}
+
+} // namespace StratSynth
+
+
+int StratSynth::DataMgr::nrTraces( int lmsidx ) const
+{
+    return getNrTraces( nrSequences(lmsidx), calceach_ );
+}
+
+
+BufferString StratSynth::DataMgr::getFinalDataSetName( const char* gpnm,
+						bool isprop, int lmsidx ) const
+{
+    BufferString ret( gpnm );
+    if ( isprop )
+	ret.embed( '[', ']' );
+    if ( lmsidx < 0 )
+	lmsidx = lms_.curIdx();
+
+    const BufferString lmdesc( lms_.desc(lms_.curIdx()) );
+    if ( !lmdesc.isEmpty() )
+	ret.add( " (" ).add( lmdesc ).add( ")" );
+    return ret;
+}
+
+
+void StratSynth::DataMgr::fillPar( IOPar& iop,
+				   const ObjectSet<IOPar>* disppars ) const
+{
+    const ElasticPropSelection& elpropsel = layerModel().elasticPropSel();
+    if ( !elpropsel.isEmpty() && elpropsel.isOK(&layerModel().propertyRefs()) )
+    {
+	if ( needSWave() || !elpropsel.getByType(ElasticFormula::SVel) )
+	    elpropsel.fillPar( iop );
+	else
+	{
+	    iop.removeSubSelection( ElasticPropSelection::sKeyElasticProp() );
+	    ElasticPropSelection aipropsel( elpropsel );
+	    aipropsel -= aipropsel.getByType( ElasticFormula::SVel );
+	    aipropsel.fillPar( iop );
+	}
+    }
+
+    PtrMan<IOPar> par = iop.subselect( sKeySynthetics() );
+    if ( !par )
+	par = new IOPar;
+
+    int nr_nonproprefsynths = 0;
+    for ( int idx=0; idx<genparams_.size(); idx++ )
+    {
+	if ( genparams_[idx].isStratProp() )
+	    continue;
+
+	IOPar sdpar;
+	genparams_[idx].fillPar( sdpar );
+	if ( disppars && disppars->validIdx(nr_nonproprefsynths) )
+	{
+	    const IOPar* disppar = disppars->get( nr_nonproprefsynths );
+	    if ( disppar && !disppar->isEmpty() )
+		sdpar.addFrom( *disppar );
+	}
+
+	par->mergeComp( sdpar,
+		      IOPar::compKey(sKeySyntheticNr(),nr_nonproprefsynths++) );
+    }
+
+    par->set( sKeyNrSynthetics(), nr_nonproprefsynths );
+    iop.mergeComp( *par.ptr(), sKeySynthetics() );
+}
+
+
+bool StratSynth::DataMgr::usePar( const IOPar& iop )
+{
+    PtrMan<IOPar> synthpar = iop.subselect( sKeySynthetics() );
+    if ( synthpar )
+	setElasticProperties( iop );
+
+    const IOPar& par = synthpar ? *synthpar.ptr() : iop;
+
+    ManagedObjectSet<SynthGenParams> genparsset;
+    genparsset.setNullAllowed();
+    if ( !getAllGenPars(par,genparsset) || genparsset.isEmpty() )
+	return false;
+
+    uiRetVal uirv, infos;
+    int nrvalidpars = 0, nradded = 0;
+    for ( const auto* genpars : genparsset )
+    {
+	if ( !genpars || genpars->isStratProp() )
+	    continue;
+
+	nrvalidpars++;
+	if ( addSynthetic(*genpars) )
+	    nradded++;
+
+	if ( !errmsg_.isOK() )
+	    uirv.add( errmsg_ );
+	if ( !infomsg_.isOK() )
+	    infos.add( infomsg_ );
+    }
+
+    if ( !uirv.isOK() )
+	errmsg_ = uirv;
+    if ( !infos.isOK() )
+	infomsg_ = infos;
+
+    return nradded == nrvalidpars;
+}
+
+
+bool StratSynth::DataMgr::needSWave() const
+{
+    TypeSet<SynthID> needsids;
+    getIDs( needsids, OnlyPS );
+    getIDs( needsids, OnlyEI );
+    return !needsids.isEmpty();
+}
+
+
+bool StratSynth::DataMgr::setElasticProperties( const IOPar& iop, uiString* msg)
+{
+    const bool checkswave = needSWave();
+    ElasticPropSelection elpropsel( false );
+    if ( elpropsel.usePar(iop) &&
+	 checkElasticPropSel(elpropsel,&checkswave,msg) )
+    {
+	setElasticPropSel( elpropsel );
+	return true;
+    }
+
+    if ( !iop.isPresent(ElasticPropSelection::sKeyElasticPropSel()) )
+	return false;
+
+    IOPar par( iop );
+    par.removeWithKey( ElasticPropSelection::sKeyElasticPropSel() );
+    elpropsel = ElasticPropSelection( false );
+    if ( !elpropsel.usePar(iop) ||
+	 !checkElasticPropSel(elpropsel,&checkswave,msg) )
+	return false;
+
+    setElasticPropSel( elpropsel );
+    return true;
+}
+
+
+void StratSynth::DataMgr::setElasticPropSel(
+					const ElasticPropSelection& elpropsel )
+{
+    const_cast<Strat::LayerModelSuite&>( lms_ ).setElasticPropSel(elpropsel);
+    elPropSelChanged.trigger();
+    if ( elPropSelChanged.isEnabled() )
+	modelChange();
+}
+
+
+bool StratSynth::DataMgr::checkElasticPropSel(
+				const ElasticPropSelection& elpropsel,
+				const bool* checkswave, uiString* errmsg ) const
+{
+    const bool docheckswave = checkswave ? *checkswave : needSWave();
+    const PropertyRefSelection& prs = layerModel().propertyRefs();
+    TypeSet<ElasticFormula::Type> reqtypes;
+    reqtypes += ElasticFormula::Den;
+    reqtypes += ElasticFormula::PVel;
+    if ( docheckswave )
+	reqtypes += ElasticFormula::SVel;
+
+    return elpropsel.isOK( reqtypes, prs, errmsg );
+}
+
+
+int StratSynth::DataMgr::gtIdx( SynthID id ) const
+{
+    return ids_.indexOf( id );
+}
+
+
+const SyntheticData* StratSynth::DataMgr::gtDS( SynthID id, int lmsidx ) const
+{
+    return gtDSByIdx( gtIdx(id), lmsidx );
+}
+
+
+const SyntheticData* StratSynth::DataMgr::gtDSByIdx( int idx, int lmsidx ) const
+{
+    const ObjectSet<const SyntheticData>& dss = gtDSS( lmsidx );
+    return dss.validIdx(idx) ? dss[idx] : nullptr;
+}
+
+
+const SyntheticData* StratSynth::DataMgr::gtDSByName( const char* nm,
+						      int lmsidx ) const
+{
+    const SynthID id = find( nm );
+    return id > 0 ? gtDS( id, lmsidx ) : nullptr;
+}
+
+
+bool StratSynth::DataMgr::checkNeedsInput( const SynthGenParams& sgp ) const
+{
+    if ( !sgp.needsInput() )
+	return true;
+
+    const SynthID inpid = find( sgp.inpsynthnm_ );
+    const SynthGenParams* inpsgp = getGenParams( inpid );
+    if ( !inpsgp )
+	return false;
+
+    if ( (sgp.isPSBased() && !inpsgp->isPreStack()) ||
+	 (sgp.isAttribute() && !inpsgp->canBeAttributeInput()) )
+	return false;
+
+    return true;
+}
+
+
+StratSynth::DataMgr::SynthID StratSynth::DataMgr::addSynthetic(
+						const SynthGenParams& sgp )
+{
+    if ( !checkNeedsInput(sgp) )
+	return -1;
+
+    return addEntry( SyntheticData::getNewID(), sgp );
+}
+
+
+bool StratSynth::DataMgr::addPropertySynthetics( TypeSet<SynthID>* retids,
+					       const BufferStringSet* proplist )
+{
+    if ( !GetEnvVarYN("DTECT_STRAT_MAKE_PROPERTYTRACES",true) )
+	return true;
+
+    const BufferString propliststr(
+				GetEnvVar("DTECT_SYNTHROCK_TIMEPROPS") );
+    if ( !propliststr.isEmpty() && propliststr == sKey::None() )
+	return true;
+
+    BufferStringSet proplistfilter;
+    if ( !propliststr.isEmpty() )
+	proplistfilter.unCat( propliststr.buf(), "|" );
+    else if ( proplist )
+	proplistfilter = *proplist;
+
+    const bool filterprops = !proplistfilter.isEmpty();
+
+    SynthGenParams sgp( SynthGenParams::StratProp );
+    TypeSet<SynthID> synthids;
+    const PropertyRefSelection& prs = layerModel().propertyRefs();
+    for ( const auto* pr : prs )
+    {
+	if ( pr->isThickness() ||
+	    (filterprops && !proplistfilter.isPresent(pr->name())) )
+	    continue;
+
+	sgp.name_ = pr->name();
+	sgp.name_.embed( '[', ']' );
+	const int idx = genparams_.indexOf( sgp );
+	synthids += ids_.validIdx(idx) ? ids_[idx]
+		  : addEntry( SyntheticData::getNewID(), sgp );
+    }
+
+    if ( retids )
+	*retids = synthids;
+
+    return !synthids.isEmpty();
+}
+
+
+bool StratSynth::DataMgr::addInstAttribSynthetics(
+			const StratSynth::DataMgr::SynthID& inpid,
+			const TypeSet<Attrib::Instantaneous::OutType>& attrdefs,
+			TypeSet<SynthID>& retids )
+{
+    const SynthGenParams* inpsgp = getGenParams( inpid );
+    if ( !inpsgp || !checkNeedsInput(*inpsgp) )
+	return false;
+
+    SynthGenParams sgp( SynthGenParams::InstAttrib );
+    sgp.inpsynthnm_.set( nameOf(inpid) );
+    for ( const auto& attrdef : attrdefs )
+    {
+	sgp.attribtype_ = attrdef;
+	sgp.createName( sgp.name_ );
+	retids += addEntry( SyntheticData::getNewID(), sgp );
+    }
+
+    return !attrdefs.isEmpty();
+}
+
+
+StratSynth::DataMgr::SynthID StratSynth::DataMgr::addEntry( SynthID id,
+						     const SynthGenParams& sgp )
+{
+    if ( genparams_.isPresent(sgp) )
+	return id;
+
+    ids_ += id;
+    genparams_ += sgp;
+    for ( int ilm=0; ilm<lms_.size(); ilm++ )
+	*lmdatasets_.get(ilm) += nullptr;
+
+    if ( sgp.isRawOutput() )
+	ensureAdequatePropSelection( -1, sgp.needsSWave() );
+
+    dirtycount_++;
+    entryAdded.trigger( id );
+    return id;
+}
+
+
+void StratSynth::DataMgr::setDataSet( const SynthGenParams& sgp,
+				      const SyntheticData* sd, int lmsidx )
+{
+    SynthID oldid = find( sgp.name_ );
+    lmsidx = gtActualLMIdx( lmsidx );
+    bool ischgd = true;
+    if ( oldid > 0 )
+    {
+	const_cast<SyntheticData*>( sd )->setID( oldid );
+	const int idx = ids_.indexOf( oldid );
+	ischgd = genparams_[idx] != sgp;
+	genparams_[idx] = sgp;
+	lmdatasets_.get(lmsidx)->replace( idx, sd );
+    }
+    else
+    {
+	const_cast<SyntheticData*>( sd )->setID( SyntheticData::getNewID() );
+	ids_ += sd->id();
+	genparams_ += sgp;
+	for ( int ilm=0; ilm<lms_.size(); ilm++ )
+	    lmdatasets_.get(ilm)->add( ilm == lmsidx ? sd : nullptr );
+    }
+
+    if ( ischgd )
+    {
+	dirtycount_++;
+	if ( oldid > 0 )
+	{
+	    const TypeSet<SynthID> ids( sd->id() );
+	    entryChanged.trigger( ids );
+	}
+	else
+	    entryAdded.trigger( sd->id() );
+    }
+}
+
+
+bool StratSynth::DataMgr::updateSynthetic( SynthID id,
+					   const SynthGenParams& sgp )
+{
+    TypeSet<SynthID> handledids;
+    if ( id > 0 )
+    {
+	const int idx = gtIdx( id );
+	if ( genparams_.validIdx(idx) )
+	{
+	    const BufferString oldnm( genparams_[idx].name_ );
+	    genparams_[idx] = sgp;
+	    handledids += id;
+	    for ( int ilm=0; ilm<nrLayerModels(); ilm++ )
+		lmdatasets_[ilm]->replace( idx, nullptr );
+
+	    const char* newnm = sgp.name_.buf();
+	    const BufferString inpnmlbl = getFinalDataSetName( oldnm, true, 0 );
+	    const BufferString newinpnmlbl =
+					  getFinalDataSetName( newnm, true, 0 );
+	    TypeSet<SynthID> inpids;
+	    getIDs( inpids, OnlyWithInput );
+	    NotifyStopper ns( entryChanged );
+	    for ( const auto& inpid : inpids )
+	    {
+		const SynthGenParams& inpsgp = *getGenParams( inpid );
+		if ( !inpsgp.name_.contains(inpnmlbl) &&
+		      inpsgp.inpsynthnm_ != oldnm )
+		    continue;
+
+		SynthGenParams newsgp = inpsgp;
+		newsgp.name_.replace( inpnmlbl, newinpnmlbl );
+		if ( newsgp.inpsynthnm_ == oldnm ||
+		     newsgp.inpsynthnm_ == SynthGenParams::sKeyInvalidInputPS())
+		    newsgp.inpsynthnm_ = newnm;
+
+		updateSynthetic( inpid, newsgp );
+		handledids += inpid;
+	    }
+	}
+	else
+	{
+	    pErrMsg( "updateSynthetic should be called for new synthetics" );
+	    addEntry( id, sgp );
+	}
+    }
+    else
+    {
+	pErrMsg( "updateSynthetic should be called for new synthetics" );
+	id = addSynthetic( sgp );
+    }
+
+    dirtycount_++;
+    entryChanged.trigger( handledids );
+    return true;
+}
+
+
+bool StratSynth::DataMgr::updateWavelet( const MultiID& oldwvltid,
+					 const MultiID& newwvltid )
+{
+    TypeSet<int> idxs;
+    gtIdxs( oldwvltid, idxs, false, lms_.curIdx() );
+    if ( idxs.isEmpty() )
+	return false;
+
+    PtrMan<IOObj> ioobj = IOM().get( newwvltid );
+    if ( !ioobj )
+	return false;
+
+    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
+    if ( !wvlt )
+	return false;
+
+    newWvltUsed.trigger( newwvltid );
+
+    const BufferString wvltnm( wvlt->name() );
+    for ( const auto& idx : idxs )
+    {
+	SynthGenParams sgp( genparams_[idx] );
+	BufferStringSet synthnms( sgp.name_ );
+	sgp.setWavelet( wvltnm );
+	sgp.createName( sgp.name_ );
+	synthnms.add( sgp.name_ );
+	updateSynthetic( ids_[idx], sgp );
+	wvltScalingDone.trigger( synthnms );
+    }
+
+    return true;
+}
+
+
+bool StratSynth::DataMgr::updateSyntheticName( SynthID id, const char* newnm )
+{
+    const int idx = gtIdx( id );
+    if ( !genparams_.validIdx(idx) )
+	return false;
+
+    TypeSet<SynthID> handledids;
+    const BufferString oldnm( genparams_[idx].name_ );
+    genparams_[idx].name_.set( newnm );
+    handledids += id;
+    for ( int ilm=0; ilm<nrLayerModels(); ilm++ )
+    {
+	const SyntheticData* sd = gtDSByIdx( idx, ilm );
+	if ( sd )
+	{
+	    const BufferString dsnm = getFinalDataSetName( newnm,
+					genparams_[idx].isStratProp(), ilm );
+	    const_cast<SyntheticData*>( sd )->setName( dsnm );
+	}
+    }
+
+    const BufferString inpnmlbl = getFinalDataSetName( oldnm, true, 0 );
+    const BufferString newinpnmlbl = getFinalDataSetName( newnm, true, 0 );
+    TypeSet<SynthID> inpids;
+    getIDs( inpids, OnlyWithInput );
+    for ( const auto& inpid : inpids )
+    {
+	const SynthGenParams& sgp = *getGenParams( inpid );
+	if ( !sgp.name_.contains(inpnmlbl) && sgp.inpsynthnm_ != oldnm )
+	    continue;
+
+	auto& newsgp = const_cast<SynthGenParams&>( sgp );
+	newsgp.name_.replace( inpnmlbl, newinpnmlbl );
+	if ( sgp.inpsynthnm_ == oldnm ||
+	     sgp.inpsynthnm_ == SynthGenParams::sKeyInvalidInputPS() )
+	    newsgp.inpsynthnm_ = newnm;
+
+	handledids += inpid;
+	const int inpidx = gtIdx( inpid );
+	for ( int ilm=0; ilm<nrLayerModels(); ilm++ )
+	{
+	    const SyntheticData* attribsd = gtDSByIdx( inpidx, ilm );
+	    if ( attribsd )
+		const_cast<SyntheticData*>( attribsd )->useGenParams( sgp );
+	}
+    }
+
+    dirtycount_++;
+    entryRenamed.trigger( handledids );
+    return true;
+}
+
+
+bool StratSynth::DataMgr::removeSynthetic( SynthID id )
+{
+    const int idx = gtIdx( id );
+    if ( !ids_.validIdx(idx) )
+	return false;
+
+    ids_.removeSingle( idx );
+    genparams_.removeSingle( idx );
+    for ( int ilm=0; ilm<nrLayerModels(); ilm++ )
+	lmdatasets_[ilm]->removeSingle( idx );
+
+    dirtycount_++;
+    const TypeSet<SynthID> ids( id );
+    entryRemoved.trigger( ids );
+    return true;
+}
+
+
+bool StratSynth::DataMgr::disableSynthetic( const TypeSet<SynthID>& ids )
+{
+    TypeSet<SynthID> handledids;
+    for ( const auto& id : ids )
+    {
+	const int idx = gtIdx( id );
+	if ( !genparams_.validIdx(idx) )
+	    continue;
+
+	SynthGenParams& sgp = genparams_[idx];
+	if ( !sgp.needsInput() )
+	    continue;
+
+	sgp.inpsynthnm_.set( SynthGenParams::sKeyInvalidInputPS() );
+	for ( int ilm=0; ilm<nrLayerModels(); ilm++ )
+	{
+	    const SyntheticData* sd = gtDS( id, ilm );
+	    if ( sd )
+		const_cast<SyntheticData*>( sd )->useGenParams( sgp );
+	}
+
+	handledids += id;
+    }
+
+    const bool res = !handledids.isEmpty();
+    if ( res )
+	entryDisabled.trigger( handledids );
+
+    return res;
+}
+
+
+StratSynth::DataMgr::SynthID StratSynth::DataMgr::getIDByIdx( int idx ) const
+{
+    return ids_.validIdx(idx) ? ids_[idx] : -1;
+}
+
+
+bool StratSynth::DataMgr::haveDS( int idx, int lmsidx ) const
+{
+    const ObjectSet<const SyntheticData>& dss = gtDSS( lmsidx );
+    return dss.validIdx(idx) ? (bool)dss.get( idx ) : false;
+}
+
+
+bool StratSynth::DataMgr::hasValidDataSet( SynthID id, int lmsidx ) const
+{
+    return haveDS( gtIdx(id), lmsidx );
+}
+
+
+StratSynth::DataMgr::SynthID StratSynth::DataMgr::find( const char* dsnm,
+							int* lmsidx ) const
+{
+    for ( int idx=0; idx<genparams_.size(); idx++ )
+    {
+	if ( genparams_[idx].name_ == dsnm )
+	{
+	    if ( lmsidx )
+		*lmsidx = 0;
+	    return ids_[idx];
+	}
+    }
+
+    if ( !lmsidx || lms_.size() < 2 )
+	return -1;
+
+    for ( int ilm=1; ilm<lms_.size(); ilm++ )
+    {
+	for ( int idx=0; idx<genparams_.size(); idx++ )
+	{
+	    const SynthGenParams& sgp = genparams_[idx];
+	    const BufferString finaldsnm =
+		    getFinalDataSetName( sgp.name_, sgp.isStratProp(), ilm );
+	    if ( finaldsnm == dsnm )
+	    {
+		*lmsidx = ilm;
+		return ids_[idx];
+	    }
+	}
+    }
+
+    return -1;
+}
+
+
+StratSynth::DataMgr::SynthID StratSynth::DataMgr::find( const PropertyRef& pr,
+				    bool require_generated, int lmsidx ) const
+{
+    const ObjectSet<const SyntheticData>& dss = gtDSS( lmsidx );
+    const PropertyRefSelection& prs = layerModel( lmsidx ).propertyRefs();
+    for ( int idx=0; idx<genparams_.size(); idx++ )
+    {
+	if ( !genparams_[idx].isStratProp() )
+	    continue;
+
+	if ( require_generated )
+	{
+	    const SyntheticData* sd = dss.get( idx );
+	    if ( !sd )
+		{ pErrMsg("prop dataset not generated yet"); continue; }
+	    else if ( !sd->isStratProp() )
+		{ pErrMsg("wrong type for prop dataset"); continue; }
+
+	    mDynamicCastGet(const StratPropSyntheticData*,pssd,sd);
+	    if ( !pssd )
+		continue;
+
+	    if ( &pr == &pssd->propRef() )
+		return ids_[idx];
+	}
+	else
+	{
+	    if ( &pr == genparams_[idx].getRef(prs) )
+		return ids_[idx];
+	}
+    }
+
+    return -1;
+}
+
+
+StratSynth::DataMgr::SynthID StratSynth::DataMgr::first( bool isps, bool genreq,
+							 int lmsidx ) const
+{
+    const ObjectSet<const SyntheticData>& dss = gtDSS( lmsidx );
+    for ( int idx=0; idx<genparams_.size(); idx++ )
+    {
+	if ( genparams_[idx].isPreStack() == isps && (!genreq || dss.get(idx)) )
+	    return ids_[idx];
+    }
+
+    return -1;
+}
+
+
+bool StratSynth::DataMgr::isPS( SynthID id ) const
+{
+    const SynthGenParams* sgp = getGenParams( id );
+    return sgp ? sgp->isPreStack() : false;
+}
+
+
+bool StratSynth::DataMgr::isAttribute( SynthID id ) const
+{
+    const SynthGenParams* sgp = getGenParams( id );
+    return sgp ? sgp->isAttribute() : false;
+}
+
+
+bool StratSynth::DataMgr::isStratProp( SynthID id ) const
+{
+    const SynthGenParams* sgp = getGenParams( id );
+    return sgp ? sgp->isStratProp() : false;
+}
+
+
+void StratSynth::DataMgr::getAllNames( const SynthGenParams& sgp, int lmsidx,
+				       BufferStringSet& nms ) const
+{
+    nms.add( sgp.name_ );
+    if ( lmsidx > -2 || lms_.size() < 2 )
+	return;
+
+    for ( int ilm=1; ilm<lms_.size(); ilm++ )
+	nms.add( getFinalDataSetName( sgp.name_, sgp.isStratProp(), ilm ) );
+}
+
+
+void StratSynth::DataMgr::getNames( BufferStringSet& nms, SubSelType ss,
+				    bool noempty, int lmsidx ) const
+{
+    TypeSet<int> idxs;
+    gtIdxs( idxs, ss, noempty, lmsidx );
+    for ( const auto& idx : idxs )
+	getAllNames( genparams_[idx], lmsidx, nms );
+}
+
+
+void StratSynth::DataMgr::getNames( const MultiID& wvltid, BufferStringSet& nms,
+				    bool noempty, int lmsidx ) const
+{
+    TypeSet<int> idxs;
+    gtIdxs( wvltid, idxs, noempty, lmsidx );
+    for ( const auto& idx : idxs )
+	getAllNames( genparams_[idx], lmsidx, nms );
+}
+
+
+void StratSynth::DataMgr::getIDs( TypeSet<int>& ids, SubSelType ss,
+				  bool noempty, int lmsidx ) const
+{
+    TypeSet<int> idxs;
+    gtIdxs( idxs, ss, noempty, lmsidx );
+    for ( const auto& idx : idxs )
+	ids.addIfNew( ids_[idx] );
+}
+
+
+void StratSynth::DataMgr::getIDs( const MultiID& wvltid, TypeSet<int>& ids,
+				  bool noempty, int lmsidx ) const
+{
+    TypeSet<int> idxs;
+    gtIdxs( idxs, OnlyRaw, noempty, lmsidx );
+    for ( const auto& idx : idxs )
+	ids.addIfNew( ids_[idx] );
+}
+
+
+void StratSynth::DataMgr::gtIdxs( TypeSet<int>& idxs, SubSelType ss,
+				  bool noempty, int lmsidx ) const
+{
+    for ( int idx=0; idx<ids_.size(); idx++ )
+    {
+	if ( noempty && !haveDS(idx,lmsidx) )
+	    continue;
+
+	const SynthGenParams& sgp = genparams_[idx];
+	bool doadd = true;
+#	define mHandleCase(typ,val) case typ: doadd = val; break
+	switch ( ss )
+	{
+	    mHandleCase( OnlyZO,	sgp.isZeroOffset() );
+	    mHandleCase( NoZO,		!sgp.isZeroOffset() );
+	    mHandleCase( OnlyPS,	sgp.isPreStack() );
+	    mHandleCase( NoPS,		!sgp.isPreStack() );
+	    mHandleCase( OnlyEI,	false );
+	    mHandleCase( NoEI,		false );
+/*	    mHandleCase( OnlyEI,	sgp.isElastic() );
+	    mHandleCase( NoEI,		!sgp.isElastic() );*/
+	    mHandleCase( OnlyPSBased,	sgp.isPSBased() );
+	    mHandleCase( NoPSBased,	!sgp.isPSBased() );
+	    mHandleCase( OnlyAttrib,	sgp.isAttribute() );
+	    mHandleCase( NoAttrib,	!sgp.isAttribute() );
+	    mHandleCase( OnlyRaw,	sgp.isRawOutput() );
+	    mHandleCase( NoRaw,		!sgp.isRawOutput() );
+	    mHandleCase( OnlyInput,	sgp.canBeAttributeInput() );
+	    mHandleCase( OnlyWithInput, sgp.needsInput() );
+	    mHandleCase( NoWithInput,	!sgp.needsInput() );
+	    mHandleCase( OnlyProps,	sgp.isStratProp() );
+	    mHandleCase( NoProps,	!sgp.isStratProp() );
+	    default: break;
+	}
+	if ( doadd )
+	    idxs.addIfNew( idx );
+    }
+}
+
+
+void StratSynth::DataMgr::gtIdxs( const MultiID& wvltid, TypeSet<int>& idxs,
+				  bool noempty, int lmsidx ) const
+{
+    TypeSet<int> rawidxs;
+    gtIdxs( rawidxs, OnlyRaw, noempty, lmsidx );
+    for ( const auto& idx : rawidxs )
+    {
+	const SynthGenParams& sgp = genparams_[idx];
+	PtrMan<IOObj> ioobj = Wavelet::getIOObj( sgp.getWaveletNm() );
+	if ( !ioobj )
+	    continue;
+
+	const MultiID wvltky = ioobj->key();
+	if ( wvltky == wvltid )
+	    idxs.addIfNew( idx );
+    }
+}
+
+
+bool StratSynth::DataMgr::haveOfType(
+				const SynthGenParams::SynthType typ ) const
+{
+    for ( const auto& sgp : genparams_ )
+	if ( sgp.synthtype_ == typ )
+	    return true;
+
+    return false;
+}
+
+
+BufferString StratSynth::DataMgr::nameOf( SynthID id ) const
+{
+    BufferString ret;
+    const SynthGenParams* sgp = getGenParams( id );
+    if ( sgp )
+	ret.set( sgp->name_.buf() );
+
+    return ret;
+}
+
+
+int StratSynth::DataMgr::lmsIndexOf( const SyntheticData* reqsd ) const
+{
+    if ( reqsd )
+    {
+	for ( int ilm=0; ilm<lms_.size(); ilm++ )
+	    if ( indexOf(reqsd,ilm) >= 0 )
+		return ilm;
+    }
+
+    return -1;
+}
+
+
+int StratSynth::DataMgr::indexOf( const SyntheticData* reqsd, int lmsidx ) const
+{
+    if ( reqsd )
+    {
+	const ObjectSet<const SyntheticData>& dss = gtDSS( lmsidx );
+	for ( int idss=0; idss<dss.size(); idss++ )
+	    if ( dss.get(idss) == reqsd )
+		return idss;
+    }
+
+    return -1;
+}
+
+
+const SynthGenParams* StratSynth::DataMgr::getGenParams( SynthID id ) const
+{
+    const int idx = gtIdx( id );
+    return genparams_.validIdx( idx ) ? &genparams_[idx] : nullptr;
+}
+
+
+ConstRefMan<SyntheticData> StratSynth::DataMgr::getDataSet( SynthID id,
+							    int lmsidx ) const
+{
+    return gtDS( id, lmsidx );
+}
+
+
+ConstRefMan<SyntheticData> StratSynth::DataMgr::getDataSetByIdx( int idx,
+							    int lmsidx ) const
+{
+    return gtDSByIdx( idx, lmsidx );
+}
+
+
+int StratSynth::DataMgr::gtGenIdx( SynthID id, TaskRunner* /* taskrun */ ) const
+{
+    const int idx = gtIdx( id );
+    if ( idx < 0 )
+    {
+	static const char* msg = "Generate for non-existing synthetics ID";
+	pErrMsg( msg );
+    }
+
+    return idx;
+}
+
+
+#define mGetGenIdx(idx) \
+    const int idx = gtGenIdx( id, taskrun ); \
+    if ( idx < 0 ) \
+	return false
+
+bool StratSynth::DataMgr::ensureGenerated( SynthID id, TaskRunner* taskrun,
+					   int lmsidx ) const
+{
+    if ( nrTraces(lmsidx) < 1 )
+	return true;
+
+    mGetGenIdx(idx);
+    return haveDS(idx,lmsidx) ? true : generate( id, lmsidx, taskrun );
+}
+
+
+bool StratSynth::DataMgr::generate( SynthID id, int lmsidx,
+				    TaskRunner* taskrun ) const
+{
+    mGetGenIdx(idx);
+
+    const SynthGenParams& sgp = genparams_[idx];
+    const bool checkswave = !swaveinfomsgshown_ &&
+			    ( sgp.isPreStack() /* TODO || sgp.isEI() */ );
+    mSelf().gtDSS( lmsidx ).replace( idx, nullptr );
+    if ( !ensureElasticModels(lmsidx,checkswave,taskrun) )
+	return false;
+
+    ConstRefMan<SyntheticData> newds = generateDataSet( sgp, lmsidx, taskrun );
+    mSelf().gtDSS( lmsidx ).replace( idx, newds.ptr() );
+    if ( newds )
+    {
+	const_cast<SyntheticData&>( *newds.ptr() ).setID( id );
+	ensureLevels( lmsidx );
+    }
+
+    return newds.ptr();
+}
+
+
+void StratSynth::DataMgr::ensureLevels( int lmsidx ) const
+{
+    lmsidx = gtActualLMIdx( lmsidx );
+    LevelSet& lvlset = *const_cast<LevelSet*>( levelsets_.get(lmsidx) );
+    if ( !lvlset.isEmpty() )
+	return;
+
+    const Strat::LevelSet& lvls = Strat::LVLS();
+    const Strat::LayerModel& laymod = layerModel( lmsidx );
+    const int nrtrcs = nrTraces( lmsidx );
+    //TODO: parallel
+    for ( int ilvl=0; ilvl<lvls.size(); ilvl++ )
+    {
+	const Strat::Level::ID id = lvls.getIDByIdx( ilvl );
+	StratSynth::Level& lvl = lvlset.add( id );
+	const Strat::Level stratlvl = lvls.get( id );
+	for ( int itrc=0; itrc<nrtrcs; itrc++ )
+	{
+	    const Strat::LayerSequence& seq = laymod.sequence( iSeq(itrc) );
+	    lvl.zvals_ += seq.depthPositionOf( stratlvl, mUdf(float) );
+	}
+    }
+}
+
+
+void StratSynth::DataMgr::getLevelDepths( Strat::Level::ID id,
+					  TypeSet<float>& depths,
+					  int lmsidx ) const
+{
+    const LevelSet& lvlset = *levelsets_.get( gtActualLMIdx(lmsidx) );
+    for ( const auto* lvl : lvlset.levels() )
+    {
+	if ( lvl->id_ == id )
+	{
+	    depths = lvl->zvals_;
+	    return;
+	}
+    }
+
+    depths.setSize( nrTraces(lmsidx), mUdf(float) );
+}
+
+
+void StratSynth::DataMgr::setPackLevelTimes( SynthID id,
+					     Strat::Level::ID lvlid ) const
+{
+    for ( int ilm=0; ilm<lms_.size(); ilm++ )
+    {
+	ConstRefMan<SyntheticData> sd = gtDS( id, ilm );
+	if ( !sd )
+	    continue;
+
+	const LevelSet& lvlset = *levelsets_.get( ilm );
+	const TypeSet<float>* zvals = nullptr;
+	for ( const auto* lvl : lvlset.levels() )
+	    if ( lvl->id_ == lvlid )
+		{ zvals = &lvl->zvals_; break; }
+
+	if ( !zvals )
+	    continue;
+
+	if ( sd->isPS() )
+	{
+	    { pErrMsg("TODO: set picks in PS gathers"); }
+	    //Probably add cache in StratSynth::Level
+	}
+	else
+	{
+	    /*TODO Probably add and use cache in StratSynth::Level
+	      instead of writing to the traces */
+	    const SeisTrcBuf& ctbuf =
+		   static_cast<const PostStackSyntheticData&>( *sd.ptr() )
+						   .postStackPack().trcBuf();
+	    auto& tbuf = const_cast<SeisTrcBuf&>( ctbuf );
+	    int nr2set = tbuf.size();
+	    if ( zvals->size() != nr2set )
+	    {
+		pErrMsg("Sizes should be equal");
+		nr2set = std::max( nr2set, zvals->size() );
+	    }
+
+	    for ( int itrc=0; itrc<nr2set; itrc++ )
+	    {
+		const TimeDepthModel* d2tmodel = sd->getTDModel( itrc );
+		if ( !d2tmodel )
+		    { pErrMsgOnce("Should not be empty"); continue; }
+
+		SeisTrc& trc = *tbuf.get( itrc );
+		const float zval = zvals->get( itrc );
+		const float tval = d2tmodel->getTime( zval );
+		trc.info().zref = trc.info().pick = tval;
+	    }
+	}
+    }
+}
+
+
+namespace StratSynth
+{
+
+class ElasticModelCreator : public ::ParallelTask
+{ mODTextTranslationClass(StratSynth::ElasticModelCreator);
+public:
+ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems,
+		     int calceach )
+    : ::ParallelTask( "Elastic Model Generator" )
+    , lm_(lm)
+    , elasticmodels_(ems)
+    , calceach_(calceach)
+{
+    nrmodels_ = getNrTraces( lm_.size(), calceach_ );
+    msg_ = tr( "Generating elastic model" );
+}
+
+
+uiString uiMessage() const override	{ return msg_; }
+uiString uiNrDoneText() const override	{ return tr("Models done"); }
+
+private:
+
+od_int64 nrIterations() const override	{ return nrmodels_; }
+
+bool doPrepare( int nrthreads ) override
+{
+    if ( lm_.size() < calceach_ )
+	return false;
+
+    if ( !elasticmodels_.setSize(nrmodels_) )
+	return false;
+
+    const ElasticPropSelection& eps = lm_.elasticPropSel();
+    withswave_ = eps.getByType( ElasticFormula::SVel );
+    deepErase( elpgens_ );
+    const PropertyRefSelection& props = lm_.propertyRefs();
+    for ( int idx=0; idx<nrthreads; idx++ )
+    {
+	auto* elpgen = new ElasticPropGen( eps, props );
+	if ( !elpgen || !elpgen->isOK() )
+	{
+	    delete elpgen;
+	    msg_ = tr( "Cannot determine elastic property definitions" );
+	    break;
+	}
+
+	elpgens_.add( elpgen );
+    }
+
+    return elpgens_.size() == nrthreads;
+
+}
+
+bool doWork( od_int64 start, od_int64 stop, int threadid ) override
+{
+    if ( !elpgens_.validIdx(threadid) )
+	return false;
+
+    ElasticPropGen& elpgen = *elpgens_.get( threadid );
+    const PropertyRefSelection& prs = lm_.propertyRefs();
+    const int nrvals = prs.size();
+    TypeSet<float> layvals( nrvals, mUdf(float) );
+    float* valsptr = layvals.arr();
+    for ( int imdl=int(start); imdl<=stop; imdl++, addToNrDone(1) )
+    {
+	const int iseq = imdl * calceach_;
+	const Strat::LayerSequence& seq = lm_.sequence( iseq );
+	if ( seq.isEmpty() )
+	    continue;
+
+	ElasticModel& curem = elasticmodels_[imdl];
+	if ( !fillElasticModel(seq,withswave_,elpgen,valsptr,nrvals,curem) )
+	    return false;
+    }
+
+    return true;
+}
+
+bool fillElasticModel( const Strat::LayerSequence& seq, bool withswave,
+		       ElasticPropGen& elpgen,
+		       float* valsptr, int prssz, ElasticModel& elmod )
+{
+    elmod.setEmpty();
+
+    const float srddepth = -1.f*mCast(float,SI().seismicReferenceDatum() );
+    int firstidx = 0;
+    if ( seq.startDepth() < srddepth )
+	firstidx = seq.nearestLayerIdxAtZ( srddepth );
+
+    if ( seq.isEmpty() )
+    {
+	mutex_.lock();
+	msg_ = tr("Elastic model is not proper to generate synthetics as a "
+		  "layer sequence has no layers");
+	mutex_.unLock();
+	return false;
+    }
+
+    const ObjectSet<Strat::Layer>& layers = seq.layers();
+    for ( int idx=firstidx; idx<layers.size(); idx++ )
+    {
+	const Strat::Layer& lay = *layers.get( idx );
+	float thickness = lay.thickness();
+	if ( idx == firstidx )
+	    thickness -= srddepth - lay.zTop();
+	if ( thickness < 1e-4f )
+	    continue;
+
+	float dval = mUdf(float), pval = mUdf(float), sval = mUdf(float);
+	const int valssz = lay.nrValues(); // May be smaller than prssz
+	lay.getValues( valsptr, valssz );
+	elpgen.getVals( dval, pval, sval, valsptr, valssz );
+
+	// Detect water - reset Vs
+	/* TODO disabled for now
+	if ( pval < cMaximumVpWaterVel() )
+	    sval = 0;*/
+
+	if ( withswave )
+	    elmod += ElasticLayer( thickness, pval, sval, dval );
+	else
+	    elmod += AILayer( thickness, pval, dval );
+    }
+
+    if ( elmod.isEmpty() )
+    {
+	mutex_.lock();
+	msg_ = tr("After discarding layers with no thickness "
+		     "no layers remained");
+	mutex_.unLock();
+	return false;
+    }
+
+    return true;
+}
+
+bool doFinish( bool /* success */ ) override
+{
+    deepErase( elpgens_ );
+    return true;
+}
+
+static float cMaximumVpWaterVel()
+{ return 1510.f; }
+
+    const Strat::LayerModel&	lm_;
+    od_int64			nrmodels_;
+    const int			calceach_;
+    bool			withswave_;
+    TypeSet<ElasticModel>&	elasticmodels_;
+    Threads::Mutex		mutex_;
+    uiString			msg_;
+
+    ObjectSet<ElasticPropGen>	elpgens_;
+
+};
+
+
+class ElasticModelAdjuster : public ::ParallelTask
+{ mODTextTranslationClass(StratSynth::ElasticModelAdjuster)
+public:
+
+ElasticModelAdjuster( const Strat::LayerModel& lm,
+		      TypeSet<ElasticModel>& ems, bool checksvel, int calceach )
+    : ::ParallelTask("Checking & adjusting elastic models")
+    , lm_(lm)
+    , elasticmodels_(ems)
+    , checksvel_(checksvel)
+    , nrmodels_(ems.size())
+    , calceach_(calceach)
+{
+}
+
+
+uiString uiMessage() const override
+{
+    return !errmsg_.isEmpty() ? errmsg_ : tr( "Checking Models" );
+}
+
+uiString uiNrDoneText() const override
+{
+    return tr( "Models done" );
+}
+
+uiString infoMsg() const	{ return infomsg_; }
+uiString errMsg() const		{ return errmsg_; }
+
+private:
+
+od_int64 nrIterations() const override
+{
+    return nrmodels_;
+}
+
+
+bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
+{
+    for ( int imdl=mCast(int,start); imdl<=stop; imdl++, addToNrDone(1) )
+    {
+	const int iseq = imdl * calceach_;
+	const Strat::LayerSequence& seq = lm_.sequence( iseq );
+	ElasticModel& curem = elasticmodels_[imdl];
+	if ( curem.isEmpty() )
+	    continue;
+
+	ElasticModel tmpmodel( curem );
+	int erroridx = -1;
+	tmpmodel.checkAndClean( erroridx, !checksvel_, checksvel_, false );
+	if ( tmpmodel.isEmpty() )
+	{
+	    uiString startstr(
+		checksvel_ ? tr("Could not generate prestack synthetics as all")
+			   : tr("All") );
+	    uiString propstr( checksvel_ ? tr("Swave velocity")
+					 : tr("Pwave velocity/Density") );
+	    errmsg_ = tr( "%1 the values of %2 in elastic model are invalid. "
+			  "Probably units are not set correctly." )
+				.arg(startstr).arg(propstr);
+	    return false;
+	}
+	else if ( erroridx != -1 )
+	{
+	    bool needinterpolatedvel = false;
+	    bool needinterpoltedden = false;
+	    bool needinterpolatedsvel = false;
+	    uiString msg;
+	    for ( int idx=erroridx; idx<curem.size(); idx++ )
+	    {
+		const ElasticLayer& layer = curem[idx];
+		const bool needinfo = msg.isEmpty();
+		const bool incorrectpvel = !layer.isValidVel();
+		const bool incorrectden = !layer.isValidDen();
+		const bool incorrectsvel = !layer.isValidVs();
+		if ( !incorrectpvel && !incorrectden && !incorrectsvel )
+		    continue;
+
+		if ( incorrectpvel )
+		{
+		    needinterpolatedvel = true;
+		    if ( needinfo && !infomsg_.isSet() )
+		    {
+			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
+			msg.append( tr("'Pwave' ( sample value: %1 %2 )")
+				.arg(toString(layer.vel_))
+				.arg(uom ? uom->symbol() : "") );
+		    }
+		}
+
+		if ( incorrectden )
+		{
+		    needinterpoltedden = true;
+		    if ( needinfo && !infomsg_.isSet() )
+		    {
+			const UnitOfMeasure* uom = UoMR().get( "Kg/m3" );
+			msg.append( tr("'Density' ( sample value: %1 %2 )")
+				.arg(toString(layer.vel_))
+				.arg(uom ? uom->symbol() : "") );
+		    }
+		}
+
+		if ( incorrectsvel )
+		{
+		    needinterpolatedsvel = true;
+		    if ( needinfo && !infomsg_.isSet() )
+		    {
+			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
+			msg.append( tr("'Swave' ( sample value: %1 %2 )")
+				.arg(toString(layer.vel_))
+				.arg(uom ? uom->symbol() : "") );
+		    }
+		}
+	    }
+
+	    if ( infomsg_.isEmpty() )
+	    {
+		infomsg_ = tr( "Layer model contains invalid values of the "
+			       "following properties: %1. First occurence "
+			       "found in layer '%2' of pseudo well number '%3'."
+			       "Invalid values will be interpolated. "
+			       "The resulting synthetics may be incorrect" )
+		    .arg( msg ).arg(seq.layers()[erroridx]->name()).arg(iseq+1);
+	    }
+
+	    curem.interpolate( needinterpolatedvel, needinterpoltedden,
+			       needinterpolatedsvel );
+	}
+
+	curem.mergeSameLayers();
+	curem.upscale( 5.0f );
+    }
+
+    return true;
+}
+
+    const Strat::LayerModel&	lm_;
+    TypeSet<ElasticModel>&	elasticmodels_;
+    const od_int64		nrmodels_;
+    const int			calceach_;
+    uiString			infomsg_;
+    uiString			errmsg_;
+    bool			checksvel_;
+};
+
+} // namespace StratSynth
+
+
+bool StratSynth::DataMgr::ensureAdequatePropSelection( int lmsidx,
+						       bool checkswave ) const
+{
+    const Strat::LayerModel& lm = layerModel( lmsidx );
+    const PropertyRefSelection& prs = lm.propertyRefs();
+    if ( prs.size() < 2 )
+    {
+	errmsg_ = tr("No properties set in layer model");
+	return false;
+    }
+
+    const ElasticPropSelection& lmelpropsel = lm.elasticPropSel();
+    if ( checkElasticPropSel(lmelpropsel,&checkswave) )
+	return true;
+
+    ElasticPropSelection elpropsel = lmelpropsel;
+    if ( !elpropsel.ensureHasType(ElasticFormula::Den) ||
+	 !elpropsel.ensureHasType(ElasticFormula::PVel) ||
+	 (checkswave && !elpropsel.ensureHasType(ElasticFormula::SVel)) )
+	return false;
+
+    PropertyRefSelection inpprs( false );
+    for ( const auto* pr : prs )
+    {
+	if ( !pr->isThickness() && !pr->hasFixedDef() )
+	    inpprs.add( pr );
+    }
+
+    if ( !elpropsel.setFor(inpprs) ||
+	 !checkElasticPropSel(elpropsel,&checkswave) )
+	return false;
+
+    mSelf().setElasticPropSel( elpropsel );
+
+    return true;
+}
+
+
+bool StratSynth::DataMgr::ensureElasticModels( int lmsidx, bool checkswave,
+					       TaskRunner* taskrun ) const
+{
+    if ( !ensureAdequatePropSelection(lmsidx,checkswave) )
+    {
+	errmsg_ =
+	    tr("No suitable elastic properties found with the layer model");
+	return false;
+    }
+
+    TypeSet<ElasticModel>& elmdls = *const_cast<TypeSet<ElasticModel>*>(
+			    elasticmodelsets_.get( gtActualLMIdx(lmsidx) ) );
+    if ( !elmdls.isEmpty() )
+	return true;
+
+    const Strat::LayerModel& lm = layerModel( lmsidx );
+    if ( lm.isEmpty() )
+    {
+	errmsg_ = tr("Empty layer model");
+	return false;
+    }
+
+    ElasticModelCreator emc( lm, elmdls, calceach_ );
+    if ( !TaskRunner::execute(taskrun,emc) )
+    {
+	errmsg_ = emc.uiMessage();
+	return false;
+    }
+
+    bool modelsvalid = false;
+    for ( const auto& emodel : elmdls )
+    {
+	if ( !emodel.isEmpty() )
+	{
+	    modelsvalid = true;
+	    break;
+	}
+    }
+
+    if ( !modelsvalid )
+    {
+	errmsg_ = tr("Some pseudowells have no layers");
+	return false;
+    }
+
+    return adjustElasticModel( lm, elmdls, checkswave, taskrun );
+}
+
+
+bool StratSynth::DataMgr::adjustElasticModel( const Strat::LayerModel& lm,
+				  TypeSet<ElasticModel>& elmdls,
+				  bool checksvel, TaskRunner* taskrun ) const
+{
+    ElasticModelAdjuster emadjuster( lm, elmdls, checksvel, calceach_ );
+    const bool res = TaskRunner::execute( taskrun, emadjuster );
+    infomsg_ = emadjuster.infoMsg();
+    swaveinfomsgshown_ = swaveinfomsgshown_ || checksvel;
+    return res;
 }
 
 
 #define mErrRet( msg, act )\
-{\
+{ \
     errmsg_ = toUiString("Can not generate synthetics %1 : %2\n") \
-		    .arg( sgp.name_ ).arg( msg ); \
+			.arg( sgp.name_ ).arg( msg ); \
     act;\
 }
 
 
-const ReflectivityModelSet* StratSynth::getRefModels( const SynthGenParams& sgp)
+ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
+					const SynthGenParams& sgp, int lmsidx,
+					TaskRunner* taskrun ) const
 {
-    BufferStringSet synthnms;
+    if ( layerModel(lmsidx).isEmpty() )
+    {
+	errmsg_ = tr("Empty layer model.");
+	return nullptr;
+    }
+
+    ConstRefMan<SyntheticData> sd;
+    if ( sgp.isRawOutput() )
+    {
+	PtrMan<Seis::RaySynthGenerator> synthgen;
+	ConstRefMan<Seis::SynthGenDataPack> syngendp =
+						getSynthGenRes( sgp, lmsidx );
+	if ( syngendp )
+	    synthgen = new Seis::RaySynthGenerator( *syngendp.ptr() );
+	else
+	{
+	    uiString msg;
+	    ConstRefMan<ReflectivityModelSet> refmodels =
+						getRefModels( sgp, lmsidx );
+	    if ( !refmodels )
+	    {
+		const TypeSet<ElasticModel>& elmdls =
+				    *elasticmodelsets_[ curLayerModelIdx() ];
+		refmodels = Seis::RaySynthGenerator::getRefModels( elmdls,
+						sgp.raypars_, msg, taskrun );
+	    }
+	    if ( !refmodels )
+		return nullptr;
+
+	    synthgen = new Seis::RaySynthGenerator( *refmodels.ptr() );
+	}
+
+	if ( !runSynthGen(*synthgen.ptr(),sgp,taskrun) )
+	    return nullptr;
+
+	sd = SyntheticData::get( sgp, *synthgen.ptr() );
+	if ( sd && sd->isPS() )
+	{
+	    const PreStack::GatherSetDataPack* anglegather =
+			getRelevantAngleData( sd->synthGenDP(), lmsidx );
+	    mDynamicCastGet(const PreStackSyntheticData*,presdc,sd.ptr());
+	    auto* presd = const_cast<PreStackSyntheticData*>( presdc );
+	    if ( anglegather )
+		presd->setAngleData( anglegather->getGathers() );
+	    else
+		createAngleData( *presd, taskrun );
+	}
+    }
+    else if ( sgp.needsInput() )
+    {
+	const BufferString inpdsnm( getFinalDataSetName(sgp.inpsynthnm_,
+						    sgp.isStratProp(),lmsidx) );
+	const SynthID inpid = find( inpdsnm );
+	if ( inpid < 1 )
+	{
+	    errmsg_ = tr("input synthetic data '%1' not present").arg(inpdsnm);
+	    return nullptr;
+	}
+
+	if ( !ensureGenerated(inpid,taskrun,lmsidx) )
+	{
+	    errmsg_ = tr("Cannot generate '%1'").arg(inpdsnm);
+	    return nullptr;
+	}
+
+	const SyntheticData* inpsd = gtDS( inpid, lmsidx );
+	if ( !inpsd )
+	    { pErrMsg("Huh"); }
+
+	if ( sgp.isPSBased() )
+	{
+	    if ( !inpsd->isPS() )
+		mErrRet( tr(" input synthetic data is not prestack"),
+			 return nullptr )
+
+	    const auto& presgdp =
+			static_cast<const PreStackSyntheticData&>( *inpsd );
+	    sd = genPSPostProcDataSet( presgdp, sgp, taskrun );
+	}
+	else if ( sgp.isAttribute() )
+	{
+	    if ( !inpsd->getGenParams().canBeAttributeInput() )
+		mErrRet( tr(" input synthetic data is not poststack"),
+			 return nullptr )
+
+	    const auto& postdp =
+			static_cast<const PostStackSyntheticData&>( *inpsd );
+	    sd = createAttribute( postdp, sgp, taskrun );
+	}
+    }
+    else if ( sgp.isStratProp() )
+    {
+	if ( ensurePropertyDataSets(taskrun,lmsidx) )
+	{
+	    const SynthID sid = find( sgp.name_ );
+	    if ( sid > 0 )
+		sd = gtDS( sid, lmsidx );
+	}
+    }
+
+    return sd;
+}
+
+
+bool StratSynth::DataMgr::runSynthGen( Seis::RaySynthGenerator& synthgen,
+				       const SynthGenParams& sgp,
+				       TaskRunner* taskrunner ) const
+{
+    BufferString capt( "Generating ", sgp.name_ );
+    synthgen.setName( capt.buf() );
+
+    const BufferString wvltnm( sgp.getWaveletNm() );
+    if ( !wvltnm.isEmpty() )
+    {
+	if ( wvlt_ && wvlt_->name() == wvltnm )
+	    synthgen.setWavelet( wvlt_, OD::CopyPtr );
+	else
+	{
+	    PtrMan<IOObj> ioobj = Wavelet::getIOObj( wvltnm );
+	    PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
+	    if ( wvlt  )
+		synthgen.setWavelet( wvlt, OD::CopyPtr );
+	}
+    }
+
+    if ( !sgp.synthpars_.isEmpty() )
+	synthgen.usePar( sgp.synthpars_ );
+
+    synthgen.setTrcStep( calceach_ );
+
+    return TaskRunner::execute( taskrunner, synthgen );
+}
+
+
+ConstRefMan<SyntheticData> StratSynth::DataMgr::genPSPostProcDataSet(
+				const PreStackSyntheticData& presd,
+				const SynthGenParams& sgp,
+				TaskRunner* taskrunner ) const
+{
+    const bool isanglestack = sgp.synthtype_ == SynthGenParams::AngleStack;
+    const PreStack::GatherSetDataPack& gatherdp = presd.preStackPack();
+    const ObjectSet<PreStack::Gather>& gatherset = gatherdp.getGathers();
+    if ( gatherset.isEmpty() )
+	return nullptr;
+
+    const PreStack::GatherSetDataPack& angledp = presd.angleData();
+    const ObjectSet<PreStack::Gather>& anglesset = angledp.getGathers();
+    if ( anglesset.size() != gatherset.size() )
+	return nullptr;
+
+    PreStack::PropCalc::Setup calcsetup;
+    calcsetup.anglerg_.set( mCast(float,sgp.anglerg_.start),
+			    mCast(float,sgp.anglerg_.stop) );
+    if ( isanglestack )
+    {
+	calcsetup.calctype_ = PreStack::PropCalc::Stats;
+	calcsetup.stattype_ = Stats::Average;
+    }
+    else
+    {
+	calcsetup.calctype_ = PreStack::PropCalc::LLSQ;
+	calcsetup.lsqtype_ = PreStack::PropCalc::Coeff;
+	// calcsetup.offsaxis_ = PreStack::PropCalc::Sinsq; TODO: enable ?
+    }
+
+    //TODO: parallel
+    PreStack::PropCalc pspropcalc( calcsetup );
+    auto* tbuf = new SeisTrcBuf( true );
+    const ZSampling zrg = gatherdp.zRange();
+    const int nrsamples = zrg.nrSteps() + 1;
+    const SamplingData<float> tsampling( zrg );
+    for ( int igath=0; igath<gatherset.size(); igath++ )
+    {
+	const PreStack::Gather& amplgather = *gatherset.get( igath );
+	pspropcalc.setGather( amplgather );
+	pspropcalc.setAngleData( *anglesset.get(igath) );
+
+	auto* trc = new SeisTrc( nrsamples );
+	SeisTrcInfo& ti = trc->info();
+	ti.sampling = tsampling;
+	ti.setTrcKey( amplgather.getTrcKey() );
+	for ( int isamp=0; isamp<nrsamples; isamp++ )
+	    trc->set( isamp, pspropcalc.getVal(isamp), 0 );
+	tbuf->add( trc );
+    }
+
+    /*TODO: add wavelet reshaping: on stack for isanglestack,
+		on a copy of prestack input for AVO Gradient */
+
+    auto* retdp = new SeisTrcBufDataPack( tbuf, Seis::Line, SeisTrcInfo::TrcNr,
+				PostStackSyntheticData::sDataPackCategory() );
+
+    ConstRefMan<SyntheticData> ret;
+    if ( isanglestack )
+	ret = new AngleStackSyntheticData( sgp, presd.synthGenDP(), *retdp );
+    else
+	ret = new AVOGradSyntheticData( sgp, presd.synthGenDP(), *retdp );
+
+    return ret;
+}
+
+
+namespace StratSynth
+{
+
+mClass(WellAttrib) StratSeqSplitter : public ::ParallelTask
+{ mODTextTranslationClass(StratSeqSplitter);
+
+public:
+StratSeqSplitter( const DataMgr& dm, int lmsidx, const SyntheticData& sd,
+		  double zstep, ObjectSet<Strat::LayerModel>& layermodels )
+    : ::ParallelTask("Splitting layermodel")
+    , datamgr_(dm)
+    , lm_(dm.layerModel(lmsidx))
+    , sd_(sd)
+    , layermodels_(layermodels)
+    , totalnr_(dm.nrTraces(lmsidx))
+{
+    const ZSampling zrg = sd.zRange();
+    zrg_.start = zrg.start;
+    zrg_.stop = zrg.stop;
+    zrg_.step = zstep;
+    msg_ = tr("Preparing Models");
+}
+
+
+uiString uiMessage() const override
+{
+    return msg_;
+}
+
+
+uiString uiNrDoneText() const
+{
+    return tr("Models done");
+}
+
+private:
+
+od_int64 nrIterations() const override
+{ return totalnr_; }
+
+bool doPrepare( int /* nrthreads */ ) override
+{
+    const int nrlm = zrg_.nrSteps() + 1;
+    const int nrmodels = int(nrIterations());
+
+    layermodels_.setEmpty();
+    for ( int idz=0; idz<nrlm; idz++ )
+    {
+	auto* layermodel = new Strat::LayerModel;
+	for ( int iseq=0; iseq<nrmodels; iseq++ )
+	    layermodel->addSequence();
+
+	layermodels_.add( layermodel );
+    }
+
+    return true;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int /* threadidx */ ) override
+{
+    const int nrlm = zrg_.nrSteps()+1;
+
+    for ( int itrc=mCast(int,start); itrc<=mCast(int,stop); itrc++,
+							    addToNrDone(1) )
+    {
+	const int iseq = datamgr_.iSeq( itrc );
+	const Strat::LayerSequence& seq = lm_.sequence( iseq );
+	const TimeDepthModel* t2d = sd_.getTDModel( itrc );
+	if ( !t2d )
+	    return false;
+
+	const Interval<float> seqdepthrg = seq.zRange();
+	const float seqstarttime = t2d->getTime( seqdepthrg.start );
+	const float seqstoptime = t2d->getTime( seqdepthrg.stop );
+	const Interval<float> seqtimerg( seqstarttime, seqstoptime );
+	for ( int idz=0; idz<nrlm; idz++ )
+	{
+	    Strat::LayerSequence& curseq =
+				  layermodels_.get( idz )->sequence( itrc );
+	    const float time = mCast( float, zrg_.atIndex(idz) );
+	    if ( !seqtimerg.includes(time,false) )
+		continue;
+
+	    const float dptstart = t2d->getDepth( time - (float)zrg_.step );
+	    const float dptstop = t2d->getDepth( time + (float)zrg_.step );
+	    const Interval<float> depthrg( dptstart, dptstop );
+	    seq.getSequencePart( depthrg, true, curseq );
+	}
+    }
+
+    return true;
+}
+
+    const DataMgr&		datamgr_;
+    const Strat::LayerModel&	lm_;
+    const SyntheticData& sd_;
+    ObjectSet<Strat::LayerModel>& layermodels_;
+    StepInterval<double>	zrg_;
+    const od_int64		totalnr_;
+    uiString			msg_;
+
+};
+
+
+mClass(WellAttrib) PropertyDataSetsCreator : public ParallelTask
+{ mODTextTranslationClass(PropertyDataSetsCreator);
+
+public:
+PropertyDataSetsCreator( DataMgr& dm, int lmsidx,
+		    const SyntheticData& sd,
+		    const ObjectSet<Strat::LayerModel>& layermodels,
+		    double zstep, const TypeSet<SynthGenParams>& propsgps )
+    : ParallelTask( "Creating Synthetics for Properties" )
+    , datamgr_(dm)
+    , propsgps_(propsgps)
+    , lmsidx_(lmsidx)
+    , sd_(sd)
+    , prs_(false)
+    , layermodels_(layermodels)
+    , totalnr_(sd.nrPositions())
+{
+    const ZSampling zrg = sd.zRange();
+    zrg_.start = zrg.start;
+    zrg_.stop = zrg.stop;
+    zrg_.step = zstep;
+    const PropertyRefSelection& prs =
+			datamgr_.layerModel( lmsidx_ ).propertyRefs();
+    for ( const auto& sgp : propsgps )
+	prs_.addIfNew( sgp.getRef( prs ) );
+
+    msg_ = tr("Converting depth layer model to time traces");
+}
+
+
+uiString uiMessage() const override
+{
+    return msg_;
+}
+
+
+uiString uiNrDoneText() const override
+{
+    return tr("Models done");
+}
+
+
+private:
+
+od_int64 nrIterations() const override
+{ return totalnr_; }
+
+
+bool doPrepare( int /* nrthreads */ ) override
+{
+    const int sz = zrg_.nrSteps()+1;
+    const int nrprops = prs_.size();
+    ObjectSet<SeisTrcBuf> trcbufs;
+    for ( int iprop=0; iprop<nrprops; iprop++ )
+	trcbufs.add( new SeisTrcBuf( true ) );
+
+    for ( int itrc=0; itrc<sd_.nrPositions(); itrc++ )
+    {
+	const SeisTrc& inptrc = *sd_.getTrace( itrc );
+	SeisTrc trc( sz );
+	trc.info() = inptrc.info();
+	trc.info().sampling.step = zrg_.step;
+	trc.info().offset = 0.f;
+	trc.zero();
+	for ( int iprop=0; iprop<nrprops; iprop++ )
+	    trcbufs[iprop]->add( new SeisTrc(trc) );
+    }
+
+    for ( int iprop=0; iprop<nrprops; iprop++ )
+    {
+	SeisTrcBuf* trcbuf = trcbufs[iprop];
+	auto* seisbuf =
+	    new SeisTrcBufDataPack( trcbuf, Seis::Line, SeisTrcInfo::TrcNr,
+				  PostStackSyntheticData::sDataPackCategory() );
+	seisbufdps_.add( seisbuf );
+    }
+
+    return true;
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
+{
+    const Strat::LayerModel& lm = datamgr_.layerModel( lmsidx_ );
+    const int sz = layermodels_.size();
+    const float step = mCast( float, zrg_.step );
+    ::FFTFilter filter( sz, step );
+    const float f4 = 1.f / (2.f * step );
+    filter.setLowPass( f4 );
+    const PropertyRefSelection& props = lm.propertyRefs();
+    for ( int itrc=mCast(int,start); itrc<=mCast(int,stop); itrc++,
+							    addToNrDone(1) )
+    {
+	const int iseq = datamgr_.iSeq( itrc );
+	const Strat::LayerSequence& seq = lm.sequence( iseq );
+	const Interval<float> seqtimerg(  sd_.getTime(seq.zRange().start,itrc),
+					  sd_.getTime(seq.zRange().stop,itrc) );
+	if ( seqtimerg.isUdf() )
+	    return false;
+
+	for ( const auto* pr : prs_ )
+	{
+	    const int iprop = props.indexOf( pr );
+	    const bool propisvel = pr->hasType( Mnemonic::Vel );
+	    SeisTrcBufDataPack* dp = seisbufdps_[prs_.indexOf(pr)];
+	    SeisTrcBuf& trcbuf = dp->trcBuf();
+	    const int bufsz = trcbuf.size();
+	    SeisTrc* rawtrc = itrc < bufsz ? trcbuf.get( itrc ) : nullptr;
+	    if ( !rawtrc )
+		continue;
+
+	    PointBasedMathFunction propvals( PointBasedMathFunction::Linear,
+					     PointBasedMathFunction::EndVal );
+
+	    for ( int idz=0; idz<sz; idz++ )
+	    {
+		const float time = mCast( float, zrg_.atIndex(idz) );
+		if ( !seqtimerg.includes(time,false) )
+		    continue;
+
+		if ( !layermodels_.validIdx(idz) )
+		    continue;
+
+		const Strat::LayerSequence& curseq =
+					layermodels_[idz]->sequence( itrc );
+		if ( curseq.isEmpty() )
+		    continue;
+
+		Stats::CalcSetup laypropcalc( true );
+		laypropcalc.require( Stats::Average );
+		Stats::RunCalc<double> propval( laypropcalc );
+		for ( int ilay=0; ilay<curseq.size(); ilay++ )
+		{
+		    const Strat::Layer* lay = curseq.layers()[ilay];
+		    if ( !lay )
+			continue;
+
+		    const float val = lay->value(iprop);
+		    if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
+			continue;
+
+		    propval.addValue( propisvel ? 1.f / val : val,
+				      lay->thickness() );
+		}
+		const float val = mCast( float, propval.average() );
+		if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
+		    continue;
+
+		propvals.add( time, propisvel ? 1.f / val : val );
+	    }
+
+	    Array1DImpl<float> proptr( sz );
+	    for ( int idz=0; idz<sz; idz++ )
+	    {
+		const float time = mCast( float, zrg_.atIndex(idz) );
+		proptr.set( idz, propvals.getValue( time ) );
+	    }
+
+	    if ( !filter.apply(proptr) )
+		continue;
+
+	    for ( int idz=0; idz<sz; idz++ )
+		rawtrc->set( idz, proptr.get( idz ), 0 );
+	}
+    }
+
+    return true;
+}
+
+
+bool doFinish( bool success ) override
+{
+    if ( !success )
+	return false;
+
+    for ( int idx=0; idx<propsgps_.size(); idx++ )
+    {
+	const SynthGenParams& sgp = propsgps_[idx];
+	const PropertyRef* pr = sgp.getRef( prs_ );
+	SeisTrcBufDataPack* dp = seisbufdps_[idx];
+	ConstRefMan<SyntheticData> prsd =
+		new StratPropSyntheticData( sgp, sd_.synthGenDP(), *dp, *pr );
+	datamgr_.setDataSet( sgp, prsd.ptr(), lmsidx_ );
+    }
+
+    return true;
+}
+
+    DataMgr&				datamgr_;
+    const TypeSet<SynthGenParams>&	propsgps_;
+    const int				lmsidx_;
+    const SyntheticData&		sd_;
+    PropertyRefSelection		prs_;
+    StepInterval<double>		zrg_;
+    const ObjectSet<Strat::LayerModel>& layermodels_;
+    ObjectSet<SeisTrcBufDataPack>	seisbufdps_;
+    const od_int64			totalnr_;
+    uiString				msg_;
+
+};
+
+} // namespace StratSynth
+
+
+bool StratSynth::DataMgr::ensurePropertyDataSets( TaskRunner* taskrun,
+					int lmsidx, double zstep ) const
+{
+    TypeSet<SynthID> propids;
+    getIDs( propids, OnlyProps );
+    if ( propids.isEmpty() )
+	return false;
+
+    TypeSet<SynthID> rawids;
+    getIDs( rawids, OnlyZO ); // Fastest
+    getIDs( rawids, OnlyPS ); // to slowest
+    SynthID inpid = -1;
+    for ( const auto& rawid : rawids )
+    {
+	if ( hasValidDataSet(rawid,lmsidx) )
+	{
+	    inpid = rawid;
+	    break;
+	}
+    }
+
+    if ( inpid < 0 )
+    {
+	if ( rawids.isEmpty() )
+	    return false;
+
+	inpid = rawids.first();
+	if ( !ensureGenerated(inpid,taskrun,lmsidx) )
+	    return false;
+    }
+
+    ConstRefMan<SyntheticData> inpsd = getDataSet( inpid, lmsidx );
+    if ( !inpsd )
+    {
+	errmsg_ = tr("No synthetic data found to generate the properties");
+	return false;
+    }
+
+    ManagedObjectSet<Strat::LayerModel> layermodels;
+    StratSeqSplitter splitter( *this, lmsidx, *inpsd, zstep, layermodels );
+    if ( !TaskRunner::execute(taskrun,splitter) )
+    {
+	errmsg_ = splitter.uiMessage();
+	return false;
+    }
+
+    TypeSet<SynthGenParams> propsgps;
+    for ( const auto& id : propids )
+	propsgps += *getGenParams(id);
+
+    PropertyDataSetsCreator propcreator( *const_cast<DataMgr*>(this), lmsidx,
+					 *inpsd, layermodels, zstep, propsgps );
+    if ( !TaskRunner::execute(taskrun,propcreator) )
+    {
+	errmsg_ = propcreator.uiMessage();
+	return false;
+    }
+
+    return true;
+}
+
+
+void StratSynth::DataMgr::kick()
+{
+    dirtycount_++;
+    static SynthID emptysid = SynthID();
+    const TypeSet<SynthID> ids( emptysid );
+    entryChanged.trigger( ids );
+}
+
+
+bool StratSynth::DataMgr::getUnscaledSynthetics(
+					RefObjectSet<const SyntheticData>* res,
+					TypeSet<MultiID>* unscaledwvlts,
+					int lmsidx ) const
+{
+    bool needscale = false;
+    TypeSet<SynthID> ids;
+    getIDs( ids, OnlyRaw );
+    for ( const auto& id : ids )
+    {
+	const SynthGenParams& sgp = *getGenParams( id );
+
+	PtrMan<IOObj> ioobj = Wavelet::getIOObj( sgp.getWaveletNm() );
+	if ( !ioobj )
+	    continue;
+
+	const MultiID wvltky = ioobj->key();
+	if ( Wavelet::isScaled(wvltky) )
+	    continue;
+
+	needscale = true;
+	if ( unscaledwvlts )
+	    unscaledwvlts->addIfNew( wvltky );
+
+	if ( !res )
+	    continue;
+
+	TypeSet<int> idxs;
+	gtIdxs( idxs, OnlyRaw, true, lmsidx );
+	for ( const int& idx : idxs )
+	{
+	    ConstRefMan<SyntheticData> sd = gtDSByIdx( idx, lmsidx );
+	    if ( sd )
+		res->add( sd );
+	}
+    }
+
+    return needscale;
+}
+
+
+bool StratSynth::DataMgr::getAllGenPars( const IOPar& par,
+				ObjectSet<SynthGenParams>& genparsset )
+{
+    int nrsynthetics = -1;
+    if ( !par.get(sKeyNrSynthetics(),nrsynthetics) || nrsynthetics < 0 )
+	return false;
+
+    PtrMan<IOPar> synthpar = par.subselect( sKeySyntheticNr() );
+    if ( !synthpar )
+	return false;
+
+    for ( int idx=0; idx<nrsynthetics; idx++ )
+    {
+	PtrMan<IOPar> iop = synthpar->subselect( idx );
+	if ( !iop )
+	{
+	    genparsset.add( nullptr );
+	    continue;
+	}
+
+	auto* genpars = new SynthGenParams;
+	genpars->usePar( *iop.ptr() );
+	if ( !genpars->isOK() )
+	{
+	    delete genpars;
+	    genparsset.add( nullptr );
+	    continue;
+	}
+
+	genparsset.add( genpars );
+    }
+
+    return true;
+}
+
+
+const ReflectivityModelSet* StratSynth::DataMgr::getRefModels(
+				const SynthGenParams& sgp, int lmsidx ) const
+{
+    TypeSet<SynthID> ids;
     if ( sgp.isZeroOffset() )
-	getSyntheticNames( synthnms, SynthGenParams::ZeroOffset );
+	getIDs( ids, OnlyZO, true, lmsidx );
     else if ( sgp.isPreStack() )
-	getSyntheticNames( synthnms, SynthGenParams::PreStack );
+	getIDs( ids, OnlyPS, true, lmsidx );
 
     const IOPar& reflpars = sgp.raypars_;
-    for ( const auto* synthnm : synthnms )
+    for ( const auto& id : ids )
     {
-	const SyntheticData* sd = getSynthetic( synthnm->buf() );
-	if ( sd->getRefModels().hasSameParams(reflpars) )
+	const SyntheticData* sd = gtDS( id, lmsidx );
+	if ( sd && sd->getRefModels().hasSameParams(reflpars) )
 	    return &sd->getRefModels();
     }
 
@@ -109,29 +2402,22 @@ const ReflectivityModelSet* StratSynth::getRefModels( const SynthGenParams& sgp)
 }
 
 
-const Seis::SynthGenDataPack* StratSynth::getSynthGenRes(
-						const SynthGenParams& sgp )
+const Seis::SynthGenDataPack* StratSynth::DataMgr::getSynthGenRes(
+				const SynthGenParams& sgp, int lmsidx ) const
 {
     if ( sgp.needsInput() )
     {
-	const SyntheticData* sd = getSynthetic( sgp.inpsynthnm_ );
+	const SyntheticData* sd = gtDSByName( sgp.inpsynthnm_, lmsidx );
 	return sd ? &sd->synthGenDP() : nullptr;
     }
 
-    BufferStringSet synthnms;
-    if ( sgp.isZeroOffset() || !sgp.isRawOutput() )
-	getSyntheticNames( synthnms, SynthGenParams::ZeroOffset );
-
-    if ( sgp.isPreStack() || !sgp.isRawOutput() )
+    TypeSet<SynthID> ids;
+    getIDs( ids, OnlyZO, true, lmsidx );
+    getIDs( ids, OnlyPS, true, lmsidx );
+    getIDs( ids, NoRaw, true, lmsidx );
+    for ( const auto& id : ids )
     {
-	BufferStringSet pssynthnms;
-	getSyntheticNames( pssynthnms, SynthGenParams::PreStack );
-	synthnms.append( pssynthnms );
-    }
-
-    for ( const auto* synthnm : synthnms )
-    {
-	const SyntheticData* sd = getSynthetic( synthnm->buf() );
+	const SyntheticData* sd = gtDS( id, lmsidx );
 	const Seis::SynthGenDataPack& syngendp = sd->synthGenDP();
 	if ( syngendp.hasSameParams(sgp.raypars_,sgp.synthpars_) )
 	    return &syngendp;
@@ -141,12 +2427,13 @@ const Seis::SynthGenDataPack* StratSynth::getSynthGenRes(
 }
 
 
-const PreStack::GatherSetDataPack* StratSynth::getRelevantAngleData(
-			    const Seis::SynthGenDataPack& synthgendp ) const
+const PreStack::GatherSetDataPack* StratSynth::DataMgr::getRelevantAngleData(
+		    const Seis::SynthGenDataPack& synthgendp, int lmsidx ) const
 {
-    for ( const auto* sd : synthetics_ )
+    const ObjectSet<const SyntheticData>& dss = gtDSS( lmsidx );
+    for ( const auto* sd : dss )
     {
-	if ( !sd->isPS() ||
+	if ( !sd || !sd->isPS() ||
 	     !sd->synthGenDP().hasSameParams(synthgendp) )
 	    continue;
 
@@ -159,366 +2446,20 @@ const PreStack::GatherSetDataPack* StratSynth::getRelevantAngleData(
 }
 
 
-const SyntheticData* StratSynth::addDefaultSynthetic()
+namespace StratSynth
 {
-    return addSynthetic( SynthGenParams() );
-}
 
-
-const SyntheticData* StratSynth::addSynthetic( const SynthGenParams& synthgen )
-{
-    ConstRefMan<SyntheticData> sd = generateSD( synthgen );
-    if ( !sd )
-	return nullptr;
-
-    int propidx = 0;
-    while ( propidx<synthetics_.size() )
-    {
-	if ( synthetics_[propidx]->isStratProp() )
-	    break;
-	propidx++;
-    }
-
-    synthetics_.insertAt( sd.ptr(), propidx );
-
-    return sd.ptr();
-}
-
-
-bool StratSynth::updateSynthetic( const char* oldnm, const SynthGenParams& sgp )
-{
-    ObjectSet<const SyntheticData> dependentsds;
-    for ( auto* attribsd : synthetics_ )
-    {
-	const SynthGenParams& sdsgp = attribsd->getGenParams();
-	if ( !sdsgp.needsInput() || sdsgp.inpsynthnm_ != oldnm )
-	    continue;
-
-	dependentsds.add( attribsd );
-    }
-
-    ConstRefMan<SyntheticData> newsd = generateSD( sgp );
-    if ( !newsd )
-	return false;
-
-    const int idx = syntheticIdx( oldnm );
-    if ( synthetics_.validIdx(idx) )
-	synthetics_.replace( idx, newsd );
-    else
-	synthetics_.add( newsd );
-
-    if ( dependentsds.isEmpty() )
-	return true;
-
-    const BufferString inpnmlbl( "[", oldnm, "]" );
-    const BufferString newinpnmlbl( "[", sgp.name_, "]" );
-    bool haserror = false;
-    for ( const auto* attribsd : dependentsds )
-    {
-	SynthGenParams sdsgp = attribsd->getGenParams();
-	const BufferString olddepnm( sdsgp.name_ );
-	sdsgp.inpsynthnm_.set( sgp.name_ );
-	if ( sdsgp.name_.contains(inpnmlbl) )
-	    sdsgp.name_.replace( inpnmlbl, newinpnmlbl );
-
-	if ( !updateSynthetic(olddepnm,sdsgp) )
-	    haserror = true;
-    }
-
-    return !haserror;
-}
-
-
-bool StratSynth::updateSyntheticName( const char* oldnm, const char* newnm )
-{
-    const SyntheticData* sd = getSynthetic( oldnm );
-    if ( sd )
-	const_cast<SyntheticData*>( sd )->setName( newnm );
-
-    const BufferString inpnmlbl( "[", oldnm, "]" );
-    const BufferString newinpnmlbl( "[", newnm, "]" );
-    bool found = false;
-    for ( auto* attribsd : synthetics_ )
-    {
-	const SynthGenParams& sgp = attribsd->getGenParams();
-	if ( !sgp.needsInput() || sgp.inpsynthnm_ != oldnm )
-	    continue;
-
-	found = true;
-	SynthGenParams newsgp( sgp );
-	newsgp.inpsynthnm_.set( newnm );
-	if ( newsgp.name_.contains(inpnmlbl) )
-	    newsgp.name_.replace( inpnmlbl, newinpnmlbl );
-
-	const_cast<SyntheticData*>( attribsd )->useGenParams( newsgp );
-    }
-
-    return sd || found;
-}
-
-
-bool StratSynth::removeSynthetic( const char* nm )
-{
-    const int idx = syntheticIdx( nm );
-    if ( synthetics_.validIdx(idx) )
-    {
-	synthetics_.removeSingle( idx );
-	return true;
-    }
-
-    return false;
-}
-
-
-bool StratSynth::disableSynthetic( const char* nm )
-{
-    for ( const auto* sd : synthetics_ )
-    {
-	if ( sd->name() != nm )
-	    continue;
-
-	SynthGenParams sgp( sd->getGenParams() );
-	if ( sgp.needsInput() )
-	{
-	    sgp.inpsynthnm_.set( SynthGenParams::sKeyInvalidInputPS() );
-	    const_cast<SyntheticData*>( sd )->useGenParams( sgp );
-	    return true;
-	}
-    }
-
-    return false;
-}
-
-
-const SynthFVSpecificDispPars* StratSynth::dispPars( const char* synthnm ) const
-{
-    return mSelf().dispPars( synthnm );
-}
-
-
-SynthFVSpecificDispPars* StratSynth::dispPars( const char* synthnm )
-{
-    const int idx = syntheticIdx( synthnm );
-    if ( !synthetics_.validIdx(idx) )
-	return nullptr;
-
-    auto* sd = const_cast<SyntheticData*>( synthetics_[idx] );
-    return &sd->dispPars();
-}
-
-
-const SyntheticData* StratSynth::getSyntheticByIdx( int idx ) const
-{
-    return synthetics_.validIdx( idx ) ?  synthetics_[idx] : nullptr;
-}
-
-
-const SyntheticData* StratSynth::getSynthetic( const char* nm ) const
-{
-    const int idx = syntheticIdx( nm );
-    return synthetics_.validIdx(idx) ? synthetics_[idx] : nullptr;
-}
-
-
-const SyntheticData* StratSynth::getSynthetic( SynthID id ) const
-{
-    const int idx = syntheticIdx( id );
-    return synthetics_.validIdx(idx) ? synthetics_[idx] : nullptr;
-}
-
-
-const SyntheticData* StratSynth::getSynthetic( const PropertyRef& pr ) const
-{
-    const int idx = syntheticIdx( pr );
-    return synthetics_.validIdx(idx) ? synthetics_[idx] :  nullptr;
-}
-
-
-int StratSynth::syntheticIdx( const char* nm ) const
-{
-    for ( int idx=0; idx<synthetics().size(); idx++ )
-    {
-	if ( synthetics_[idx]->name() == nm )
-	    return idx;
-    }
-
-    return -1;
-}
-
-
-int StratSynth::syntheticIdx( SynthID id ) const
-{
-    for ( int idx=0; idx<synthetics().size(); idx++ )
-    {
-	if ( synthetics_[idx]->id_ == id )
-	    return idx;
-    }
-
-    return -1;
-}
-
-
-int StratSynth::syntheticIdx( const PropertyRef& pr ) const
-{
-    int idx = 0;
-    for ( const auto* sd : synthetics_ )
-    {
-	idx++;
-	if ( !sd->isStratProp() )
-	    continue;
-
-	mDynamicCastGet(const StratPropSyntheticData*,pssd,sd);
-	if ( !pssd )
-	    continue;
-
-	if ( pr == pssd->propRef() )
-	    return idx;
-    }
-
-    return -1;
-}
-
-
-const char* StratSynth::getSyntheticName( int idx ) const
-{
-    return synthetics_.validIdx(idx) ? synthetics_.get(idx)->name().buf()
-				     : nullptr;
-}
-
-
-void StratSynth::getSyntheticNames( BufferStringSet& nms ) const
-{
-    for ( const auto* synthetic : synthetics_ )
-	nms.add( synthetic->name() );
-}
-
-
-void StratSynth::getSyntheticNames( BufferStringSet& nms, bool wantprest ) const
-{
-    nms.erase();
-    for ( const auto* synthetic : synthetics_ )
-    {
-	if ( synthetic->isPS() == wantprest )
-	    nms.add( synthetic->name() );
-    }
-}
-
-
-void StratSynth::getSyntheticNames( BufferStringSet& nms,
-				    SynthGenParams::SynthType synthtype ) const
-{
-    nms.erase();
-    for ( const auto* synthetic : synthetics_ )
-    {
-	if ( synthetic->synthType() == synthtype )
-	    nms.add( synthetic->name() );
-    }
-}
-
-
-int StratSynth::nrSynthetics() const
-{
-    return synthetics_.size();
-}
-
-
-#define mSetBool( str, newval ) \
-{ \
-    mDynamicCastGet(Attrib::BoolParam*,param,psdesc->getValParam(str)) \
-    param->setValue( newval ); \
-}
-
-
-#define mSetEnum( str, newval ) \
-{ \
-    mDynamicCastGet(Attrib::EnumParam*,param,psdesc->getValParam(str)) \
-    param->setValue( newval ); \
-}
-
-#define mSetFloat( str, newval ) \
-{ \
-    Attrib::ValParam* param  = psdesc->getValParam( str ); \
-    param->setValue( newval ); \
-}
-
-
-#define mSetString( str, newval ) \
-{ \
-    Attrib::ValParam* param = psdesc->getValParam( str ); \
-    param->setValue( newval ); \
-}
-
-
-#define mCreateDesc() \
-if ( !sd.isPS() ) \
-    return nullptr; \
-mDynamicCastGet(const PreStackSyntheticData&,presd,sd); \
-const PreStack::GatherSetDataPack& gdp = presd.preStackPack(); \
-const MultiID dpid( DataPackMgr::SeisID(), gdp.id() ); \
-Attrib::Desc* psdesc = \
-    Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName()); \
-mSetString(Attrib::StorageProvider::keyStr(),dpid.toString());
-
-
-#define mSetProc() \
-mSetBool(Attrib::PSAttrib::useangleStr(), true ); \
-mSetFloat(Attrib::PSAttrib::angleStartStr(), sgp.anglerg_.start ); \
-mSetFloat(Attrib::PSAttrib::angleStopStr(), sgp.anglerg_.stop ); \
-mSetFloat(Attrib::PSAttrib::angleDPIDStr(),\
-	&presd.angleData() ? presd.angleData().id() : -1 ); \
-psdesc->setUserRef( sgp.name_ ); \
-psdesc->updateParams(); \
-PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false ); \
-if ( !descset ) return nullptr; \
-Attrib::DescID attribid = descset->addDesc( psdesc ); \
-PtrMan<Attrib::EngineMan> aem = new Attrib::EngineMan; \
-TypeSet<Attrib::SelSpec> attribspecs; \
-Attrib::SelSpec sp( 0, attribid ); \
-sp.set( *psdesc ); \
-attribspecs += sp; \
-aem->setAttribSet( descset ); \
-aem->setAttribSpecs( attribspecs ); \
-aem->setTrcKeyZSampling( tkzs ); \
-aem->setGeomID( tkzs.hsamp_.getGeomID() ); \
-BinIDValueSet bidvals( 0, false ); \
-bidvals.setIs2D( true ); \
-const ObjectSet<PreStack::Gather>& gathers = gdp.getGathers(); \
-for ( int idx=0; idx<gathers.size(); idx++ ) \
-    bidvals.add( gathers[idx]->getBinID() ); \
-auto* dptrcbufs = new SeisTrcBuf( true ); \
-Interval<float> zrg( tkzs.zsamp_ ); \
-uiString errmsg; \
-PtrMan<Attrib::Processor> proc = \
-    aem->createTrcSelOutput( errmsg, bidvals, *dptrcbufs, 0, &zrg); \
-if ( !proc || !proc->getProvider() ) \
-    mErrRet( errmsg, return nullptr ) ; \
-proc->getProvider()->setDesiredVolume( tkzs ); \
-proc->getProvider()->setPossibleVolume( tkzs ); \
-mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider()); \
-if ( !psattr ) \
-    mErrRet( proc->uiMessage(), return nullptr ) ;
-
-
-#define mCreateSeisBuf( dpname ) \
-if ( !TaskRunner::execute(taskr_,*proc) ) \
-    mErrRet( proc->uiMessage(), return nullptr ) ; \
-SeisTrcBufDataPack* dpname = \
-    new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
-			    SeisTrcInfo::TrcNr, \
-			    PostStackSyntheticData::sDataPackCategory() ); \
-
-
-mClass(WellAttrib) AttributeSyntheticCreator : public ParallelTask
+mClass(WellAttrib) AttributeSyntheticCreator : public ::ParallelTask
 { mODTextTranslationClass(AttributeSyntheticCreator);
 
 public:
 AttributeSyntheticCreator( const PostStackSyntheticData& sd,
-			   const BufferStringSet& attribs,
-			   ObjectSet<SeisTrcBuf>& seisbufs )
-    : ParallelTask( "Creating Attribute Synthetics" )
+		   const TypeSet<Attrib::Instantaneous::OutType>& attribdefs,
+		   ObjectSet<SeisTrcBuf>& seisbufs )
+    : ::ParallelTask( "Creating Attribute Synthetics" )
     , seistrcbufs_(seisbufs)
     , sd_(sd)
-    , attribs_(attribs)
+    , attribdefs_(attribdefs)
 {
 }
 
@@ -547,7 +2488,7 @@ bool createInstAttributeSet()
 {
     delete descset_;
     descset_ = new Attrib::DescSet( false );
-    const MultiID dbky( sd_.datapackid_.groupID(), sd_.datapackid_.objectID() );
+    const MultiID dbky = sd_.fullID();
     const Attrib::DescID did = descset_->getStoredID( dbky, 0, true );
     const Attrib::Desc* inpdesc = descset_->getDesc( did );
     if ( !inpdesc )
@@ -600,7 +2541,7 @@ bool doPrepare( int /* nrthreads */ ) override
     comps_.setEmpty();
     const SeisTrcBuf& trcs = sd_.postStackPack().trcBuf();
     int order = 1;
-    for ( const auto* attrib : attribs_ )
+    for ( const auto& attribdef : attribdefs_ )
     {
 	auto* stb = new SeisTrcBuf( true );
 	for ( int idx=0; idx<trcs.size(); idx++ )
@@ -611,8 +2552,7 @@ bool doPrepare( int /* nrthreads */ ) override
 	}
 
 	seistrcbufs_ += stb;
-	if ( Attrib::Instantaneous::parseEnumOutType(attrib->buf())==
-					    Attrib::Instantaneous::Amplitude )
+	if ( attribdef == Attrib::Instantaneous::Amplitude )
 	    comps_ += 0;
 	else
 	{
@@ -654,15 +2594,12 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 	return false;
 
     Attrib::Provider* prov = proc->getProvider();
-    for ( const auto* attrib : attribs_ )
-    {
-	int icomp = Attrib::Instantaneous::parseEnumOutType( attrib->buf() );
-	proc->addOutputInterest( icomp );
-    }
+    for ( const auto& attribdef : attribdefs_ )
+	proc->addOutputInterest( int(attribdef) );
+
     prov->setDesiredVolume( tkzs_ );
     prov->setPossibleVolume( tkzs_ );
     prov->doParallel( false );
-
     if ( !proc->execute() )
 	return false;
 
@@ -683,89 +2620,109 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
     return true;
 }
 
-
-bool doFinish( bool success ) override
-{
-    return true;
-}
-
     const PostStackSyntheticData&	sd_;
-    const BufferStringSet&		attribs_;
+    const TypeSet<Attrib::Instantaneous::OutType>& attribdefs_;
     ObjectSet<SeisTrcBuf>&		seistrcbufs_;
     TypeSet<int>			comps_;
     Attrib::DescSet*			descset_ = nullptr;
     TrcKeyZSampling			tkzs_;
-    TaskRunner*				taskr_ = nullptr;
     uiString				msg_;
 };
 
+} // namespace StratSynth
 
-ConstRefMan<SyntheticData> StratSynth::createAttribute( const SyntheticData& sd,
-					    const SynthGenParams& synthgenpar )
+
+ConstRefMan<SyntheticData> StratSynth::DataMgr::createAttribute(
+					    const PostStackSyntheticData& pssd,
+					    const SynthGenParams& synthgenpar,
+					    TaskRunner* taskrunner ) const
 {
+    TypeSet<Attrib::Instantaneous::OutType> attribdefs;
+    attribdefs += synthgenpar.attribtype_;
     ObjectSet<SeisTrcBuf> seistrcbufs;
-    BufferStringSet attribs( Attrib::Instantaneous::toString(
-						    synthgenpar.attribtype_) );
-    mDynamicCastGet(const PostStackSyntheticData&,pssd,sd);
-
-    AttributeSyntheticCreator asc( pssd, attribs, seistrcbufs );
-    if ( !TaskRunner::execute(taskr_,asc) )
+    AttributeSyntheticCreator asc( pssd, attribdefs, seistrcbufs );
+    if ( !TaskRunner::execute(taskrunner,asc) )
+    {
+	errmsg_ = asc.uiMessage();
 	return nullptr;
+    }
 
-    SeisTrcBufDataPack* dpname = new SeisTrcBufDataPack( seistrcbufs[0],
+    auto* dpname = new SeisTrcBufDataPack( seistrcbufs[0],
 				 Seis::Line, SeisTrcInfo::TrcNr,
 				 PostStackSyntheticData::sDataPackCategory() );
 
     ConstRefMan<SyntheticData> ret =
-	new InstAttributeSyntheticData( synthgenpar, sd.synthGenDP(), *dpname );
+	new InstAttributeSyntheticData( synthgenpar, pssd.synthGenDP(),
+					*dpname );
     return ret;
 }
 
 
-bool StratSynth::addInstAttribSynthetics( const BufferStringSet& attribs,
-					  const SynthGenParams& sgp )
+bool StratSynth::DataMgr::ensureInstantAttribsDataSet(
+			const TypeSet<SynthID>& synthids, TaskRunner* taskrun,
+			int lmsidx ) const
 {
-    if ( !sgp.isAttribute() )
-	mErrRet( tr(" not an attribute."), return false )
+    if ( synthids.isEmpty() || nrTraces(lmsidx) < 1 )
+	return true;
 
-    ObjectSet<SeisTrcBuf> seistrcbufs;
-    BufferString inputsdnm( sgp.inpsynthnm_ );
-    const SyntheticData* insd = getSynthetic( inputsdnm );
-    if ( !insd )
-	mErrRet( tr(" input synthetic data not found."), return false )
-
-    mDynamicCastGet(const PostStackSyntheticData*,pssd,insd);
-    if ( !pssd )
-	mErrRet( tr(" input synthetic data not found."), return false )
-
-    AttributeSyntheticCreator asc( *pssd, attribs, seistrcbufs );
-    if ( !TaskRunner::execute(taskr_,asc) )
+    const SynthID& firstid = synthids.first();
+    const SynthGenParams* firstsgp = getGenParams( firstid );
+    if ( !firstsgp )
 	return false;
 
-    SynthGenParams pars( sgp );
-    int propidx = 0;
-    while ( propidx<synthetics_.size() )
+    const SynthID inpid = find( firstsgp->inpsynthnm_ );
+    if ( !ensureGenerated(inpid,taskrun,lmsidx) )
+	return false;
+
+    TypeSet<SynthID> gensynthids;
+    TypeSet<Attrib::Instantaneous::OutType> attribtypes;
+    int alreadygenerated = 0;
+    for ( const auto& attrid : synthids )
     {
-	if ( synthetics_[propidx]->isStratProp() )
-	    break;
-	propidx++;
+	const int idx = gtGenIdx( attrid, taskrun );
+	if ( idx < 0 )
+	    continue;
+
+	if ( haveDS(idx,lmsidx) )
+	    { alreadygenerated++; continue; }
+
+	gensynthids += attrid;
+	attribtypes += getGenParams(attrid)->attribtype_;
+    }
+
+    if ( gensynthids.isEmpty() )
+	return true;
+
+    if ( gensynthids.size()+alreadygenerated != synthids.size() )
+	return false;
+
+    ObjectSet<SeisTrcBuf> seistrcbufs;
+    ConstRefMan<SyntheticData> insd = getDataSet( inpid, lmsidx );
+    if ( !insd || !insd->getGenParams().canBeAttributeInput() )
+	return false;
+
+    const auto& pssd = static_cast<const PostStackSyntheticData&>( *insd.ptr());
+    AttributeSyntheticCreator asc( pssd, attribtypes, seistrcbufs );
+    if ( !TaskRunner::execute(taskrun,asc) )
+    {
+	errmsg_ = asc.uiMessage();
+	return false;
     }
 
     for ( int idx=0; idx<seistrcbufs.size(); idx++ )
     {
+	const SynthGenParams* retsgp = getGenParams( gensynthids[idx] );
+	if ( !retsgp )
+	    return false;
+
+	const SynthGenParams& sgp = *retsgp;
 	auto* dpname = new SeisTrcBufDataPack( seistrcbufs[idx],
 				 Seis::Line, SeisTrcInfo::TrcNr,
 				 PostStackSyntheticData::sDataPackCategory() );
-	Attrib::Instantaneous::parseEnum(attribs[idx]->buf(), pars.attribtype_);
-	pars.createName( pars.name_ );
-
 	ConstRefMan<SyntheticData> sd =
-	    new InstAttributeSyntheticData( pars, insd->synthGenDP(), *dpname );
+	    new InstAttributeSyntheticData( sgp, insd->synthGenDP(), *dpname );
 	if ( sd )
-	{
-	    const_cast<SyntheticData*>( sd.ptr() )->id_ = ++lastsyntheticid_;
-	    synthetics_.insertAt( sd, propidx++ );
-	}
+	    mSelf().setDataSet( sgp, sd.ptr(), lmsidx );
 	else
 	    mErrRet( tr(" synthetic data not created."), return false )
     }
@@ -774,228 +2731,15 @@ bool StratSynth::addInstAttribSynthetics( const BufferStringSet& attribs,
 }
 
 
-ConstRefMan<SyntheticData> StratSynth::createAVOGradient(
-					      const SyntheticData& sd,
-					      const TrcKeyZSampling& tkzs,
-					      const SynthGenParams& sgp )
+namespace StratSynth
 {
-    mCreateDesc()
-    mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::LLSQ);
-    mSetEnum(Attrib::PSAttrib::offsaxisStr(),PreStack::PropCalc::Sinsq);
-    mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::Coeff );
 
-    mSetProc();
-    mCreateSeisBuf( angledp );
-    ConstRefMan<SyntheticData> ret =
-		new AVOGradSyntheticData( sgp, sd.synthGenDP(), *angledp );
-    return ret;
-}
-
-
-ConstRefMan<SyntheticData> StratSynth::createAngleStack(
-					     const SyntheticData& sd,
-					     const TrcKeyZSampling& tkzs,
-					     const SynthGenParams& sgp )
-{
-    mCreateDesc();
-    mSetEnum(Attrib::PSAttrib::calctypeStr(),PreStack::PropCalc::Stats);
-    mSetEnum(Attrib::PSAttrib::stattypeStr(), Stats::Average );
-
-    mSetProc();
-    mCreateSeisBuf( angledp );
-    ConstRefMan<SyntheticData> ret =
-		new AngleStackSyntheticData( sgp, sd.synthGenDP(), *angledp );
-    return ret;
-}
-
-
-class ElasticModelCreator : public ParallelTask
-{ mODTextTranslationClass(ElasticModelCreator);
-public:
-ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems )
-    : ParallelTask( "Elastic Model Generator" )
-    , lm_(lm)
-    , aimodels_(ems)
-    , nrmodels_(lm.size())
-{
-    aimodels_.setSize( lm_.size(), ElasticModel() );
-    msg_ = tr( "Generating elastic model" );
-}
-
-
-uiString uiMessage() const override	{ return msg_; }
-uiString uiNrDoneText() const override	{ return tr("Models done"); }
-
-private:
-
-static float cMaximumVpWaterVel()
-{ return 1510.f; }
-
-od_int64 nrIterations() const override	{ return nrmodels_; }
-
-bool doPrepare( int nrthreads ) override
-{
-    const ElasticPropSelection& eps = lm_.elasticPropSel();
-    uiString errmsg;
-    if ( !eps.isValidInput(&errmsg) )
-    {
-	msg_ = tr( "Cannot create elastic model as %1" ).arg( errmsg );
-	return false;
-    }
-
-    deepErase( elpgens_ );
-    const PropertyRefSelection& props = lm_.propertyRefs();
-    for ( int idx=0; idx<nrthreads; idx++ )
-    {
-	auto* elpgen = new ElasticPropGen( eps, props );
-	if ( !elpgen || !elpgen->isOK() )
-	{
-	    delete elpgen;
-	    msg_ = tr( "Cannot determine elastic property definitions" );
-	    break;
-	}
-
-	elpgens_.add( elpgen );
-    }
-
-    return elpgens_.size() == nrthreads;
-
-}
-
-bool doWork( od_int64 start, od_int64 stop, int threadid ) override
-{
-    if ( !elpgens_.validIdx(threadid) )
-	return false;
-
-    ElasticPropGen& elpgen = *elpgens_.get( threadid );
-    for ( int idm=int(start); idm<=stop; idm++, addToNrDone(1) )
-    {
-	const Strat::LayerSequence& seq = lm_.sequence( idm );
-	if ( seq.isEmpty() )
-	    continue;
-
-	ElasticModel& curem = aimodels_[idm];
-	if ( !fillElasticModel(seq,elpgen,curem) )
-	    return false;
-    }
-
-    return true;
-}
-
-bool fillElasticModel( const Strat::LayerSequence& seq, ElasticPropGen& elpgen,
-		       ElasticModel& aimodel )
-{
-    aimodel.setEmpty();
-
-    const float srddepth = -1.f*mCast(float,SI().seismicReferenceDatum() );
-    int firstidx = 0;
-    if ( seq.startDepth() < srddepth )
-	firstidx = seq.nearestLayerIdxAtZ( srddepth );
-
-    if ( seq.isEmpty() )
-    {
-	mutex_.lock();
-	msg_ = tr("Elastic model is not proper to generate synthetics as a "
-		  "layer sequence has no layers");
-	mutex_.unLock();
-	return false;
-    }
-
-    const ObjectSet<Strat::Layer>& layers = seq.layers();
-    for ( int idx=firstidx; idx<layers.size(); idx++ )
-    {
-	const Strat::Layer& lay = *layers.get( idx );
-	float thickness = lay.thickness();
-	if ( idx == firstidx )
-	    thickness -= srddepth - lay.zTop();
-	if ( thickness < 1e-4f )
-	    continue;
-
-	float dval = mUdf(float), pval = mUdf(float), sval = mUdf(float);
-	TypeSet<float> layervals; lay.getValues( layervals );
-	elpgen.getVals( dval, pval, sval, layervals.arr(), layervals.size() );
-
-	// Detect water - reset Vs
-	/* TODO disabled for now
-	if ( pval < cMaximumVpWaterVel() )
-	    sval = 0;*/
-
-	aimodel += ElasticLayer( thickness, pval, sval, dval );
-    }
-
-    if ( aimodel.isEmpty() )
-    {
-	mutex_.lock();
-	msg_ = tr("After discarding layers with no thickness "
-		     "no layers remained");
-	mutex_.unLock();
-	return false;
-    }
-
-    return true;
-}
-
-bool doFinish( bool /* success */ ) override
-{
-    deepErase( elpgens_ );
-    return true;
-}
-
-const Strat::LayerModel&	lm_;
-const od_int64			nrmodels_;
-TypeSet<ElasticModel>&		aimodels_;
-Threads::Mutex			mutex_;
-uiString			msg_;
-
-ObjectSet<ElasticPropGen>	elpgens_;
-
-};
-
-
-bool StratSynth::createElasticModels()
-{
-    errmsg_.setEmpty();
-    clearElasticModels();
-
-    if ( layMod().isEmpty() )
-    {
-	errmsg_ = tr("Empty layer model");
-	return false;
-    }
-
-    ElasticModelCreator emcr( layMod(), aimodels_ );
-    if ( !TaskRunner::execute(taskr_,emcr) )
-    {
-	errmsg_ = emcr.uiMessage();
-	return false;
-    }
-
-    bool modelsvalid = false;
-    for ( int idx=0; idx<aimodels_.size(); idx++ )
-    {
-	if ( !aimodels_[idx].isEmpty() )
-	{
-	    modelsvalid = true;
-	    break;
-	}
-    }
-
-    if ( !modelsvalid )
-    {
-	errmsg_ = tr("Some pseudowells have no layers");
-	return false;
-    }
-
-    return adjustElasticModel( layMod(), aimodels_, useed_ );
-}
-
-
-class PSAngleDataCreator : public ParallelTask
+class PSAngleDataCreator : public ::ParallelTask
 { mODTextTranslationClass(PSAngleDataCreator)
 public:
 
 PSAngleDataCreator( PreStackSyntheticData& pssd )
-    : ParallelTask("Creating Angle Gather" )
+    : ::ParallelTask("Creating Angle Gather" )
     , pssd_(pssd)
     , seisgathers_(const_cast<const ObjectSet<PreStack::Gather>&>(
 			pssd.preStackPack().getGathers()))
@@ -1064,10 +2808,12 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 	 !anglegathers_.validIdx(threadid) )
 	return false;
 
+    const int setidx = anglegathers_.size() - threadid - 1;
+
     PreStack::ModelBasedAngleComputer& anglecomputer =
-				       *anglecomputers_.get( threadid );
+				       *anglecomputers_.get( setidx );
     ObjectSet<PreStack::Gather>& anglegathers =
-				       *anglegathers_.get( threadid );
+				       *anglegathers_.get( setidx );
 
     for ( int idx=int(start); idx<=stop; idx++, addToNrDone(1) )
     {
@@ -1088,8 +2834,6 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 	TypeSet<float> azimuths;
 	seisgather.getAzimuths( azimuths );
 	anglegather->setAzimuths( azimuths );
-	const BufferString angledpnm( pssd_.name(), "(Angle Gather)" );
-	anglegather->setName( angledpnm );
 	anglegathers.add( anglegather );
     }
 
@@ -1136,985 +2880,11 @@ static void convertAngleDataToDegrees( PreStack::Gather& ag )
 
 };
 
+} // namespace StratSynth
 
-void StratSynth::createAngleData( PreStackSyntheticData& pssd )
+void StratSynth::DataMgr::createAngleData( PreStackSyntheticData& pssd,
+					   TaskRunner* taskrun ) const
 {
     PSAngleDataCreator angledatacr( pssd );
-    TaskRunner::execute( taskr_, angledatacr );
+    TaskRunner::execute( taskrun, angledatacr );
 }
-
-
-
-bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
-			      const SynthGenParams& sgp )
-{
-    BufferString capt( "Generating ", sgp.name_ );
-    synthgen.setName( capt.buf() );
-
-    const BufferString wvltnm( sgp.getWaveletNm() );
-    if ( !wvltnm.isEmpty() )
-    {
-	PtrMan<IOObj> ioobj = Wavelet::getIOObj( wvltnm );
-	PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
-	if ( wvlt  )
-	    synthgen.setWavelet( wvlt, OD::CopyPtr );
-    }
-
-    if ( !sgp.synthpars_.isEmpty() )
-	synthgen.usePar( sgp.synthpars_ );
-
-    return TaskRunner::execute( taskr_, synthgen );
-}
-
-
-ConstRefMan<SyntheticData> StratSynth::generateSD( const SynthGenParams& sgp )
-{
-    errmsg_.setEmpty();
-
-    if ( layMod().isEmpty() )
-    {
-	errmsg_ = tr("Empty layer model.");
-	return nullptr;
-    }
-
-    const bool ispsbased = sgp.isPSBased();
-    if ( sgp.isPreStack() && !swaveinfomsgshown_ )
-    {
-	if ( !adjustElasticModel(layMod(),aimodels_,true) )
-	    return nullptr;
-    }
-
-    ConstRefMan<SyntheticData> sd;
-    if ( sgp.isRawOutput() )
-    {
-	PtrMan<Seis::RaySynthGenerator> synthgen;
-	ConstRefMan<Seis::SynthGenDataPack> syngendp = getSynthGenRes( sgp );
-	if ( syngendp )
-	    synthgen = new Seis::RaySynthGenerator( *syngendp.ptr() );
-	else
-	{
-	    uiString msg;
-	    ConstRefMan<ReflectivityModelSet> refmodels = getRefModels( sgp );
-	    if ( !refmodels )
-		refmodels = Seis::RaySynthGenerator::getRefModels( aimodels_,
-						sgp.raypars_, msg, taskr_ );
-	    if ( !refmodels )
-		return nullptr;
-
-	    synthgen = new Seis::RaySynthGenerator( *refmodels.ptr() );
-	}
-
-	if ( !runSynthGen(*synthgen.ptr(),sgp) )
-	    return nullptr;
-
-	sd = SyntheticData::get( sgp, *synthgen.ptr() );
-	if ( sd && sd->isPS() )
-	{
-	    const PreStack::GatherSetDataPack* anglegather =
-				getRelevantAngleData( sd->synthGenDP() );
-	    mDynamicCastGet(const PreStackSyntheticData*,presdc,sd.ptr());
-	    auto* presd = const_cast<PreStackSyntheticData*>( presdc );
-	    if ( anglegather )
-		presd->setAngleData( anglegather->getGathers() );
-	    else
-		createAngleData( *presd );
-	}
-    }
-    else if ( ispsbased )
-    {
-	BufferString inputsdnm( sgp.inpsynthnm_ );
-	if ( useed_ )
-	    inputsdnm += sKeyFRNameSuffix();
-
-	const SyntheticData* presd = getSynthetic( inputsdnm );
-	if ( !presd || !presd->isPS() )
-	    mErrRet( tr(" input prestack synthetic data not found."),
-		     return nullptr )
-
-	mDynamicCastGet(const PreStack::GatherSetDataPack*,presgdp,
-			&presd->getPack())
-	if ( !presgdp )
-	    mErrRet( tr(" input prestack synthetic data not found."),
-		     return nullptr )
-	TrcKeyZSampling tkzs( false );
-	tkzs.zsamp_ = presgdp->zRange();
-
-	if ( sgp.synthtype_ == SynthGenParams::AngleStack )
-	    sd = createAngleStack( *presd, tkzs, sgp );
-	else if ( sgp.synthtype_ == SynthGenParams::AVOGradient )
-	    sd = createAVOGradient( *presd, tkzs, sgp );
-    }
-    else if ( sgp.isAttribute() )
-    {
-	const BufferString inputsdnm( sgp.inpsynthnm_ );
-	const SyntheticData* inpsd = getSynthetic( inputsdnm );
-	if ( !inpsd )
-	    mErrRet( tr(" input synthetic data not found."), return nullptr )
-
-	sd = createAttribute( *inpsd, sgp );
-    }
-
-    if ( !sd )
-	return nullptr;
-
-    if ( useed_ )
-    {
-	BufferString sdnm = sd->name();
-	sdnm += sKeyFRNameSuffix();
-	const_cast<SyntheticData*>( sd.ptr() )->setName( sdnm );
-    }
-
-    const_cast<SyntheticData*>( sd.ptr() )->id_ = ++lastsyntheticid_;
-    return sd;
-}
-
-
-void StratSynth::generateOtherQuantities( double zstep,
-					  const BufferStringSet* proplistfilter)
-{
-    for ( const auto* sd : synthetics_ )
-    {
-	if ( sd->isPS() || sd->isStratProp() )
-	    continue;
-
-	mDynamicCastGet(const PostStackSyntheticData*,pssd,sd);
-	if ( !pssd )
-	    continue;
-
-	return generateOtherQuantities( *pssd, layMod(), zstep, proplistfilter);
-    }
-}
-
-
-mClass(WellAttrib) StratSeqSplitter : public ParallelTask
-{ mODTextTranslationClass(StratSeqSplitter);
-
-public:
-StratSeqSplitter( const Strat::LayerModel& lm, const PostStackSyntheticData& sd,
-		  double zstep, ObjectSet<Strat::LayerModel>& layermodels )
-    : ParallelTask("Splitting layermodel")
-    , lm_(lm)
-    , sd_(sd)
-    , layermodels_(layermodels)
-    , zrg_(sd.postStackPack().posData().range(false))
-    , totalnr_(lm.size())
-{
-    zrg_.step = zstep;
-    msg_ = tr("Preparing Models");
-}
-
-
-uiString uiMessage() const override
-{
-    return msg_;
-}
-
-
-uiString uiNrDoneText() const override
-{
-    return tr("Models done");
-}
-
-private:
-
-od_int64 nrIterations() const override
-{ return totalnr_; }
-
-bool doPrepare( int /* nrthreads */ ) override
-{
-    const int nrlm = zrg_.nrSteps() + 1;
-    const int nrmodels = lm_.size();
-
-    layermodels_.setEmpty();
-    for ( int idz=0; idz<nrlm; idz++ )
-    {
-	auto* layermodel = new Strat::LayerModel;
-	for ( int iseq=0; iseq<nrmodels; iseq++ )
-	    layermodel->addSequence();
-
-	layermodels_.add( layermodel );
-    }
-
-    return true;
-}
-
-bool doWork( od_int64 start, od_int64 stop, int /* threadidx */ ) override
-{
-    const int nrlm = zrg_.nrSteps()+1;
-
-    for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++,
-							    addToNrDone(1) )
-    {
-	const Strat::LayerSequence& seq = lm_.sequence( iseq );
-	const TimeDepthModel* t2d = sd_.getTDModel( iseq );
-	if ( !t2d )
-	    return false;
-
-	const Interval<float> seqdepthrg = seq.zRange();
-	const float seqstarttime = t2d->getTime( seqdepthrg.start );
-	const float seqstoptime = t2d->getTime( seqdepthrg.stop );
-	const Interval<float> seqtimerg( seqstarttime, seqstoptime );
-	for ( int idz=0; idz<nrlm; idz++ )
-	{
-	    Strat::LayerSequence& curseq =
-				  layermodels_.get( idz )->sequence( iseq );
-	    const float time = mCast( float, zrg_.atIndex(idz) );
-	    if ( !seqtimerg.includes(time,false) )
-		continue;
-
-	    const float dptstart = t2d->getDepth( time - (float)zrg_.step );
-	    const float dptstop = t2d->getDepth( time + (float)zrg_.step );
-	    const Interval<float> depthrg( dptstart, dptstop );
-	    seq.getSequencePart( depthrg, true, curseq );
-	}
-    }
-
-    return true;
-}
-
-    const Strat::LayerModel&	lm_;
-    const PostStackSyntheticData& sd_;
-    ObjectSet<Strat::LayerModel>& layermodels_;
-    StepInterval<double>	zrg_;
-    const od_int64		totalnr_;
-    uiString			msg_;
-
-};
-
-
-mClass(WellAttrib) StratPropSyntheticDataCreator : public ParallelTask
-{ mODTextTranslationClass(StratPropSyntheticDataCreator);
-
-public:
-StratPropSyntheticDataCreator( RefObjectSet<const SyntheticData>& synths,
-		    const PostStackSyntheticData& sd,
-		    const Strat::LayerModel& lm,
-		    const ObjectSet<Strat::LayerModel>& layermodels,
-		    int& lastsynthid, bool useed, double zstep,
-		    const BufferStringSet* proplistfilter )
-    : ParallelTask( "Creating Synthetics for Properties" )
-    , synthetics_(synths)
-    , lm_(lm)
-    , sd_(sd)
-    , layermodels_(layermodels)
-    , lastsyntheticid_(lastsynthid)
-    , useed_(useed)
-    , zrg_(sd.postStackPack().posData().range(false))
-    , totalnr_(lm.size())
-{
-    zrg_.step = zstep;
-    prs_.setEmpty();
-    for ( const auto* pr : lm_.propertyRefs() )
-    {
-	if ( pr->isThickness() ||
-	     (proplistfilter && !proplistfilter->isPresent(pr->name())) )
-	    continue;
-
-	prs_.add( pr );
-    }
-
-    msg_ = tr("Converting depth layer model to time traces");
-}
-
-
-uiString uiMessage() const override
-{
-    return msg_;
-}
-
-
-uiString uiNrDoneText() const override
-{
-    return tr("Models done");
-}
-
-
-private:
-
-od_int64 nrIterations() const override
-{ return totalnr_; }
-
-
-bool doPrepare( int /* nrthreads */ ) override
-{
-    const int sz = zrg_.nrSteps()+1;
-    const int nrprops = prs_.size();
-    ObjectSet<SeisTrcBuf> trcbufs;
-    for ( int iprop=0; iprop<nrprops; iprop++ )
-	trcbufs.add( new SeisTrcBuf( true ) );
-
-    const SeisTrcBuf& sdbuf = sd_.postStackPack().trcBuf();
-    for ( int itrc=0; itrc<sdbuf.size(); itrc++ )
-    {
-	const SeisTrc& inptrc = *sdbuf.get( itrc );
-	SeisTrc trc( sz );
-	trc.info() = inptrc.info();
-	trc.info().sampling.step = zrg_.step;
-	trc.zero();
-	for ( int iprop=0; iprop<nrprops; iprop++ )
-	    trcbufs[iprop]->add( new SeisTrc(trc) );
-    }
-
-    for ( int iprop=0; iprop<nrprops; iprop++ )
-    {
-	SeisTrcBuf* trcbuf = trcbufs[iprop];
-	auto* seisbuf =
-	    new SeisTrcBufDataPack( trcbuf, Seis::Line, SeisTrcInfo::TrcNr,
-				  PostStackSyntheticData::sDataPackCategory() );
-	seisbufdps_.add( seisbuf );
-    }
-
-    return true;
-}
-
-
-bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
-{
-    const int sz = layermodels_.size();
-    const float step = mCast( float, zrg_.step );
-    ::FFTFilter filter( sz, step );
-    const float f4 = 1.f / (2.f * step );
-    filter.setLowPass( f4 );
-    const PropertyRefSelection& props = lm_.propertyRefs();
-    for ( int iseq=mCast(int,start); iseq<=mCast(int,stop); iseq++,
-							    addToNrDone(1) )
-    {
-	const Strat::LayerSequence& seq = lm_.sequence( iseq );
-	const Interval<float> seqtimerg(  sd_.getTime(seq.zRange().start,iseq),
-					  sd_.getTime(seq.zRange().stop,iseq) );
-	if ( seqtimerg.isUdf() )
-	    return false;
-
-	for ( const auto* pr : prs_ )
-	{
-	    const int iprop = props.indexOf( pr );
-	    const bool propisvel = pr->hasType( Mnemonic::Vel );
-	    SeisTrcBufDataPack* dp = seisbufdps_[prs_.indexOf(pr)];
-	    SeisTrcBuf& trcbuf = dp->trcBuf();
-	    const int bufsz = trcbuf.size();
-	    SeisTrc* rawtrc = iseq < bufsz ? trcbuf.get( iseq ) : nullptr;
-	    if ( !rawtrc )
-		continue;
-
-	    PointBasedMathFunction propvals( PointBasedMathFunction::Linear,
-					     PointBasedMathFunction::EndVal );
-
-	    for ( int idz=0; idz<sz; idz++ )
-	    {
-		const float time = mCast( float, zrg_.atIndex(idz) );
-		if ( !seqtimerg.includes(time,false) )
-		    continue;
-
-		if ( !layermodels_.validIdx(idz) )
-		    continue;
-
-		const Strat::LayerSequence& curseq =
-		    layermodels_[idz]->sequence(iseq);
-		if ( curseq.isEmpty() )
-		    continue;
-
-		Stats::CalcSetup laypropcalc( true );
-		laypropcalc.require( Stats::Average );
-		Stats::RunCalc<double> propval( laypropcalc );
-		for ( int ilay=0; ilay<curseq.size(); ilay++ )
-		{
-		    const Strat::Layer* lay = curseq.layers()[ilay];
-		    if ( !lay )
-			continue;
-
-		    const float val = lay->value(iprop);
-		    if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
-			continue;
-
-		    propval.addValue( propisvel ? 1.f / val : val,
-				      lay->thickness() );
-		}
-		const float val = mCast( float, propval.average() );
-		if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
-		    continue;
-
-		propvals.add( time, propisvel ? 1.f / val : val );
-	    }
-
-	    Array1DImpl<float> proptr( sz );
-	    for ( int idz=0; idz<sz; idz++ )
-	    {
-		const float time = mCast( float, zrg_.atIndex(idz) );
-		proptr.set( idz, propvals.getValue( time ) );
-	    }
-
-	    if ( !filter.apply(proptr) )
-		continue;
-
-	    for ( int idz=0; idz<sz; idz++ )
-		rawtrc->set( idz, proptr.get( idz ), 0 );
-	}
-    }
-
-    return true;
-}
-
-
-bool doFinish( bool success ) override
-{
-    if ( !success )
-	return false;
-
-    SynthGenParams sgp( SynthGenParams::StratProp );
-    for ( int idx=0; idx<seisbufdps_.size(); idx++ )
-    {
-	const PropertyRef* pr = prs_[idx];
-	SeisTrcBufDataPack* dp = seisbufdps_[idx];
-	BufferString propnm = pr->name();
-	if ( useed_ )
-	    propnm += StratSynth::sKeyFRNameSuffix();
-	BufferString nm( "[", propnm, "]" );
-	sgp.name_.set( nm );
-	ConstRefMan<SyntheticData> prsd =
-		new StratPropSyntheticData( sgp, sd_.synthGenDP(), *dp, *pr );
-	const_cast<SyntheticData*>( prsd.ptr() )->id_ = ++lastsyntheticid_;
-	synthetics_ += prsd.ptr();
-    }
-
-    return true;
-}
-
-    const Strat::LayerModel&		lm_;
-    const PostStackSyntheticData&	sd_;
-    PropertyRefSelection		prs_;
-    StepInterval<double>		zrg_;
-    const ObjectSet<Strat::LayerModel>& layermodels_;
-    RefObjectSet<const SyntheticData>&	synthetics_;
-    ObjectSet<SeisTrcBufDataPack>	seisbufdps_;
-    int&				lastsyntheticid_;
-    bool				useed_;
-    const od_int64			totalnr_;
-    uiString				msg_;
-
-};
-
-
-void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
-				      const Strat::LayerModel& lm,
-				      double zstep,
-				      const BufferStringSet* proplist )
-{
-    const BufferString propliststr(
-				GetEnvVar("DTECT_SYNTHROCK_TIMEPROPS") );
-    if ( !propliststr.isEmpty() && propliststr == sKey::None() )
-	return;
-
-    BufferStringSet proplistfilter;
-    if ( !propliststr.isEmpty() )
-	proplistfilter.unCat( propliststr.buf(), "|" );
-    else if ( proplist )
-	proplistfilter = *proplist;
-
-    const bool filterprops = !proplistfilter.isEmpty();
-
-    ManagedObjectSet<Strat::LayerModel> layermodels;
-    StratSeqSplitter splitter( lm, sd, zstep, layermodels );
-    if ( !TaskRunner::execute(taskr_,splitter) )
-	return;
-
-    StratPropSyntheticDataCreator propcreator( synthetics_, sd, lm,
-				layermodels, lastsyntheticid_, useed_, zstep,
-				filterprops ? &proplistfilter : nullptr );
-    TaskRunner::execute( taskr_, propcreator );
-}
-
-
-
-class ElasticModelAdjuster : public ParallelTask
-{ mODTextTranslationClass(ElasticModelAdjuster)
-public:
-
-ElasticModelAdjuster( const Strat::LayerModel& lm,
-		      TypeSet<ElasticModel>& aimodels, bool checksvel )
-    : ParallelTask("Checking & adjusting elastic models")
-    , lm_(lm)
-    , aimodels_(aimodels)
-    , checksvel_(checksvel)
-{
-}
-
-od_int64 nrIterations() const override
-{
-    return aimodels_.size();
-}
-
-uiString uiMessage() const override
-{
-    return !errmsg_.isEmpty() ? errmsg_ : tr( "Checking Models" );
-}
-
-uiString uiNrDoneText() const override
-{
-    return tr( "Models done" );
-}
-
-
-uiString infoMsg() const			{ return infomsg_; }
-uiString errMsg() const				{ return errmsg_; }
-
-protected:
-
-bool doWork( od_int64 start , od_int64 stop , int ) override
-{
-    for ( int midx=mCast(int,start); midx<=mCast(int,stop); midx++ )
-    {
-	addToNrDone( 1 );
-	const Strat::LayerSequence& seq = lm_.sequence( midx );
-	ElasticModel& aimodel = aimodels_[midx];
-	if ( aimodel.isEmpty() ) continue;
-
-	ElasticModel tmpmodel( aimodel );
-	int erroridx = -1;
-	tmpmodel.checkAndClean( erroridx, !checksvel_, checksvel_, false );
-	if ( tmpmodel.isEmpty() )
-	{
-	    uiString startstr(
-		checksvel_ ? tr("Could not generate prestack synthetics as all")
-			   : tr("All") );
-	    uiString propstr( checksvel_ ? tr("Swave velocity")
-					 : tr("Pwave velocity/Density") );
-	    errmsg_ = tr( "%1 the values of %2 in elastic model are invalid. "
-			  "Probably units are not set correctly." )
-				.arg(startstr).arg(propstr);
-	    return false;
-	}
-	else if ( erroridx != -1 )
-	{
-	    bool needinterpolatedvel = false;
-	    bool needinterpoltedden = false;
-	    bool needinterpolatedsvel = false;
-	    uiString msg;
-	    for ( int idx=erroridx; idx<aimodel.size(); idx++ )
-	    {
-		const ElasticLayer& layer = aimodel[idx];
-		const bool needinfo = msg.isEmpty();
-		const bool incorrectpvel = !layer.isValidVel();
-		const bool incorrectden = !layer.isValidDen();
-		const bool incorrectsvel = !layer.isValidVs();
-		if ( !incorrectpvel && !incorrectden && !incorrectsvel )
-		    continue;
-
-		if ( incorrectpvel )
-		{
-		    needinterpolatedvel = true;
-		    if ( needinfo && !infomsg_.isSet() )
-		    {
-			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
-			msg.append( tr("'Pwave' ( sample value: %1 %2 )")
-				.arg(toString(layer.vel_))
-				.arg(uom ? uom->symbol() : "") );
-		    }
-		}
-
-		if ( incorrectden )
-		{
-		    needinterpoltedden = true;
-		    if ( needinfo && !infomsg_.isSet() )
-		    {
-			const UnitOfMeasure* uom = UoMR().get( "Kg/m3" );
-			msg.append( tr("'Density' ( sample value: %1 %2 )")
-				.arg(toString(layer.vel_))
-				.arg(uom ? uom->symbol() : "") );
-		    }
-		}
-
-		if ( incorrectsvel )
-		{
-		    needinterpolatedsvel = true;
-		    if ( needinfo && !infomsg_.isSet() )
-		    {
-			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
-			msg.append( tr("'Swave' ( sample value: %1 %2 )")
-				.arg(toString(layer.vel_))
-				.arg(uom ? uom->symbol() : "") );
-		    }
-		}
-	    }
-
-	    if ( infomsg_.isEmpty() )
-	    {
-		infomsg_ = tr( "Layer model contains invalid values of the "
-			       "following properties: %1. First occurence "
-			       "found in layer '%2' of pseudo well number '%3'."
-			       "Invalid values will be interpolated. "
-			       "The resulting synthetics may be incorrect" )
-		    .arg( msg ).arg(seq.layers()[erroridx]->name()).arg(midx+1);
-	    }
-
-	    aimodel.interpolate( needinterpolatedvel, needinterpoltedden,
-				 needinterpolatedsvel );
-	}
-
-	aimodel.mergeSameLayers();
-	aimodel.upscale( 5.0f );
-    }
-
-    return true;
-}
-
-
-    const Strat::LayerModel&	lm_;
-    TypeSet<ElasticModel>&	aimodels_;
-    uiString			infomsg_;
-    uiString			errmsg_;
-    bool			checksvel_;
-};
-
-
-bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
-				     TypeSet<ElasticModel>& aimodels,
-				     bool checksvel )
-{
-    ElasticModelAdjuster emadjuster( lm, aimodels, checksvel );
-    const bool res = TaskRunner::execute( taskr_, emadjuster );
-    infomsg_ = emadjuster.infoMsg();
-    swaveinfomsgshown_ = checksvel;
-    return res;
-}
-
-
-void StratSynth::getLevelDepths( const Strat::Level& lvl, int dispeach,
-				 TypeSet<float>& zvals ) const
-{
-    zvals.setEmpty();
-    for ( int iseq=0; iseq<layMod().size(); iseq+=dispeach )
-	zvals += layMod().sequence(iseq).depthPositionOf( lvl );
-}
-
-
-namespace Strat
-{
-
-static void convD2T( const ReflectivityModelSet& refmodels, int dispeach,
-		     int offsidx, TypeSet<float>& zvals )
-{
-    const int nrmodels = refmodels.nrModels();
-    for ( int imdl=0, idx=0; imdl<nrmodels; imdl+=dispeach, idx++ )
-    {
-	const ReflectivityModelBase* refmodel = refmodels.get( imdl );
-	if ( !refmodel )
-	{
-	    zvals[idx] = mUdf(float);
-	    continue;
-	}
-
-	const TimeDepthModel* tdmodel = offsidx < 0
-				      ? &refmodel->getDefaultModel()
-				      : refmodel->get( offsidx );
-	zvals[idx] = tdmodel ? tdmodel->getTime( zvals[idx] ) : mUdf(float);
-    }
-}
-
-} // namespace Strat
-
-
-bool StratSynth::setLevelTimes( const char* sdnm, int dispeach, int offsetidx )
-{
-    const SyntheticData* sd = getSynthetic( sdnm );
-    if ( !sd || sd->isPS() )
-	return false;
-
-    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd);
-    if ( !postsd )
-	return false;
-
-    auto& trcs = const_cast<SeisTrcBuf&>( postsd->postStackPack().trcBuf() );
-    getLevelTimes( sd->synthGenDP().getModels(), dispeach, trcs, offsetidx );
-    return true;
-}
-
-
-void StratSynth::getLevelTimes( const Strat::Level& lvl, int dispeach,
-				const ReflectivityModelSet& refmodels,
-				TypeSet<float>& zvals, int offsetidx ) const
-{
-    getLevelDepths( lvl, dispeach, zvals );
-    Strat::convD2T( refmodels, dispeach, offsetidx, zvals );
-}
-
-
-void StratSynth::getLevelTimes( const ReflectivityModelSet& refmodels,
-				int dispeach, SeisTrcBuf& trcs,
-				int offsetidx ) const
-{
-    if ( !level_ )
-	return;
-
-    TypeSet<float> times = level_->zvals_;
-    Strat::convD2T( refmodels, dispeach, offsetidx, times );
-    const int trcstep = trcs.size() == refmodels.nrModels() ? 1 : dispeach;
-    for ( int idx=0; idx<trcs.size(); idx+=trcstep )
-    {
-	const SeisTrc& trc = *trcs.get( idx );
-	SeisTrcPropCalc stp( trc );
-	float z = times.validIdx( idx ) ? times[idx] : mUdf( float );
-	trcs.get( idx )->info().zref = z;
-	if ( !mIsUdf( z ) && level_->snapev_ != VSEvent::None )
-	{
-	    Interval<float> tg( z, trc.startPos() );
-	    mFlValSerEv ev1 = stp.find( level_->snapev_, tg, 1 );
-	    tg.start = z; tg.stop = trc.endPos();
-	    mFlValSerEv ev2 = stp.find( level_->snapev_, tg, 1 );
-	    float tmpz = ev2.pos;
-	    const bool ev1invalid = mIsUdf(ev1.pos) || ev1.pos < 0;
-	    const bool ev2invalid = mIsUdf(ev2.pos) || ev2.pos < 0;
-	    if ( ev1invalid && ev2invalid )
-		continue;
-	    else if ( ev2invalid )
-		tmpz = ev1.pos;
-	    else if ( fabs(z-ev1.pos) < fabs(z-ev2.pos) )
-		tmpz = ev1.pos;
-
-	    z = tmpz;
-	}
-
-	trcs.get( idx )->info().pick = z;
-    }
-}
-
-
-void StratSynth::setLevel( const StratSynthLevel* lvl )
-{ delete level_; level_ = lvl; }
-
-
-
-void StratSynth::trimTraces( SeisTrcBuf& tbuf,
-			     const ObjectSet<const TimeDepthModel>& d2ts,
-			     float zskip ) const
-{
-    if ( mIsZero(zskip,mDefEps) )
-	return;
-
-    float highetszkip = mUdf(float);
-    for ( int idx=0; idx<d2ts.size(); idx++ )
-    {
-	const TimeDepthModel& d2tmodel = *d2ts[idx];
-	if ( d2tmodel.getTime(zskip)<highetszkip )
-	    highetszkip = d2tmodel.getTime(zskip);
-    }
-
-    for ( int idx=0; idx<tbuf.size(); idx++ )
-    {
-	SeisTrc* trc = tbuf.get( idx );
-	SeisTrc* newtrc = new SeisTrc( *trc );
-	newtrc->info() = trc->info();
-	const int startidx = trc->nearestSample( highetszkip );
-	newtrc->reSize( trc->size()-startidx, false );
-	newtrc->setStartPos( trc->samplePos(startidx) );
-	for ( int sampidx=startidx; sampidx<trc->size(); sampidx++ )
-	{
-	    const float trcval =
-		sampidx<0 || sampidx>=trc->size()-1 ? mUdf(float)
-						    : trc->get(sampidx,0);
-	    newtrc->set( sampidx-startidx, trcval, 0 );
-	}
-	delete tbuf.replace( idx, newtrc );
-    }
-}
-
-
-void StratSynth::flattenTraces( SeisTrcBuf& tbuf ) const
-{
-    if ( tbuf.isEmpty() )
-	return;
-
-    float tmax = tbuf.get(0)->info().sampling.start;
-    float tmin = tbuf.get(0)->info().sampling.atIndex( tbuf.get(0)->size() );
-    for ( int idx=tbuf.size()-1; idx>=1; idx-- )
-    {
-	if ( mIsUdf(tbuf.get(idx)->info().pick) ) continue;
-	tmin = mMIN(tmin,tbuf.get(idx)->info().pick);
-	tmax = mMAX(tmax,tbuf.get(idx)->info().pick);
-    }
-
-    for ( int idx=tbuf.size()-1; idx>=0; idx-- )
-    {
-	const SeisTrc* trc = tbuf.get( idx );
-	const float start = trc->info().sampling.start - tmax;
-	const float stop  = trc->info().sampling.atIndex(trc->size()-1) -tmax;
-	SeisTrc* newtrc = trc->getRelTrc( ZGate(start,stop) );
-	if ( !newtrc )
-	{
-	    newtrc = new SeisTrc( *trc );
-	    newtrc->zero();
-	}
-
-	delete tbuf.replace( idx, newtrc );
-    }
-}
-
-
-void StratSynth::decimateTraces( SeisTrcBuf& tbuf, int fac ) const
-{
-    for ( int idx=tbuf.size()-1; idx>=0; idx-- )
-    {
-	if ( idx%fac )
-	    delete tbuf.remove( idx );
-    }
-}
-
-
-void StratSynth::fillPar( IOPar& par ) const
-{
-    const int nrsynthetics = nrSynthetics();
-    for ( int idx=0; idx<nrsynthetics; idx++ )
-    {
-	const SyntheticData* sd = getSyntheticByIdx( idx );
-	IOPar sdpar;
-	sd->getGenParams().fillPar( sdpar );
-	par.mergeComp( sdpar, IOPar::compKey(sKeySyntheticNr(),idx) );
-    }
-
-    par.set( sKeyNrSynthetics(), nrsynthetics );
-}
-
-
-bool StratSynth::usePar( const IOPar& par )
-{
-    ObjectSet<SynthGenParams> genparsset;
-    genparsset.setNullAllowed();
-    if ( !getAllGenPars(par,genparsset) || genparsset.isEmpty() )
-    {
-	deepErase( genparsset );
-	return false;
-    }
-
-    uiRetVal uirv, infos;
-    int nrvalidpars = 0, nradded = 0;
-    for ( const auto* genpars : genparsset )
-    {
-	if ( !genpars || genpars->isStratProp() )
-	    continue;
-
-	nrvalidpars++;
-	if ( addSynthetic(*genpars) )
-	    nradded++;
-
-	if ( !errmsg_.isOK() )
-	    uirv.add( errmsg_ );
-	if ( !infomsg_.isOK() )
-	    infos.add( infomsg_ );
-    }
-
-    deepErase( genparsset );
-    if ( !uirv.isOK() )
-	errmsg_ = uirv;
-    if ( !infos.isOK() )
-	infomsg_ = infos;
-
-    return nradded == nrvalidpars;
-}
-
-
-IOPar StratSynth::getSelection( const BufferStringSet& synthnms ) const
-{
-    IOPar ret;
-    fillPar( ret );
-
-    ObjectSet<SynthGenParams> genparsset;
-    genparsset.setNullAllowed();
-    if ( !getAllGenPars(ret,genparsset) || genparsset.isEmpty() )
-    {
-	deepErase( genparsset );
-	return ret;
-    }
-
-    BufferStringSet availablepsnms, requiredpsnms;
-    TypeSet<int> unusedsynthidxs;
-    for ( const auto* genpars : genparsset )
-    {
-	if ( !genpars )
-	    continue;
-
-	if ( genpars->isPreStack() )
-	    availablepsnms.add( genpars->name_ );
-	else
-	{
-	    if ( synthnms.isPresent(genpars->name_.buf()) )
-	    {
-		if ( genpars->isPSBased() )
-		    requiredpsnms.addIfNew( genpars->inpsynthnm_ );
-	    }
-	    else
-		unusedsynthidxs.addIfNew( genparsset.indexOf( genpars ) );
-	}
-    }
-
-    if ( !availablepsnms.isEmpty() )
-    {
-	BufferStringSet toremovepsnms( availablepsnms );
-	for ( const auto* requiredpsnm : requiredpsnms )
-	    toremovepsnms.remove( requiredpsnm->buf() );
-
-	for ( const auto* toremovepsnm : toremovepsnms )
-	{
-	    for ( const auto* genpars : genparsset )
-	    {
-		if ( !genpars || !genpars->isPreStack() )
-		    continue;
-
-		if ( genpars->name_ == toremovepsnm->buf() )
-		    unusedsynthidxs.addIfNew( genparsset.indexOf( genpars ) );
-	    }
-	}
-    }
-
-    if ( unusedsynthidxs.isEmpty() )
-	return ret;
-    else if ( unusedsynthidxs.size() == nrSynthetics() )
-	return IOPar();
-
-    PtrMan<IOPar> synthpar = ret.subselect( sKeySyntheticNr() );
-    if ( !synthpar )
-	return ret;
-
-    for ( const auto& idx : unusedsynthidxs )
-	synthpar->removeSubSelection( idx );
-
-    ret.removeSubSelection( sKeySyntheticNr() );
-    ret.mergeComp( *synthpar.ptr(), sKeySyntheticNr() );
-
-    return ret;
-}
-
-
-bool StratSynth::getAllGenPars( const IOPar& par,
-				ObjectSet<SynthGenParams>& genparsset )
-{
-    int nrsynthetics = -1;
-    if ( !par.get(sKeyNrSynthetics(),nrsynthetics) || nrsynthetics < 0 )
-	return false;
-
-    PtrMan<IOPar> synthpar = par.subselect( sKeySyntheticNr() );
-    if ( !synthpar )
-	return false;
-
-    for ( int idx=0; idx<nrsynthetics; idx++ )
-    {
-	PtrMan<IOPar> iop = synthpar->subselect( idx );
-	if ( !iop )
-	{
-	    genparsset.add( nullptr );
-	    continue;
-	}
-
-	auto* genpars = new SynthGenParams;
-	genpars->usePar( *iop.ptr() );
-	if ( !genpars->isOK() )
-	{
-	    delete genpars;
-	    genparsset.add( nullptr );
-	    continue;
-	}
-
-	genparsset.add( genpars );
-    }
-
-    return true;
-}
-

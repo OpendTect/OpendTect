@@ -28,18 +28,17 @@ mExpClass(uiStrat) uiExtLayerSequenceGenDesc : public uiGraphicsView
 { mODTextTranslationClass(uiExtLayerSequenceGenDesc)
 public:
 
-    				uiExtLayerSequenceGenDesc(uiParent*,
+				uiExtLayerSequenceGenDesc(uiParent*,
 					    Strat::LayerSequenceGenDesc&);
 
-    virtual uiObject*			outerObj()	{ return this; }
-    virtual uiStratLayerModelDisp*	getLayModDisp(uiStratLayModEditTools&,
-					    Strat::LayerModelProvider&,int);
-    virtual void	prepareDesc()	{ getTopDepthFromScreen(); }
-    virtual void	setEditDesc();
-    virtual void	setFromEditDesc();
-    virtual bool	selProps();
-
-    const Strat::LayerSequenceGenDesc& editedDesc() const { return editdesc_; }
+    uiStratLayerModelDisp* getLayModDisp(uiStratLayModEditTools&,
+				    Strat::LayerModelSuite&,int) override;
+    uiObject*		outerObj() override	{ return this; }
+    void		prepareDesc() override	{ getTopDepthFromScreen(); }
+    void		setDescID(const MultiID&) override;
+    void		setEditDesc() override;
+    void		setFromEditDesc() override;
+    bool		selProps() override;
 
 protected:
 
@@ -50,9 +49,11 @@ protected:
     uiBorder		border_;	//!< can be set
     const uiRect	workrect_;	//!< will be filled
     bool		zinft_;		//!< From SI()
+    MultiID		descid_;
 
     void		getTopDepthFromScreen();
     void		putTopDepthToScreen();
+
     void		reDraw(CallBacker*);
     void		wheelMoveCB(CallBacker*);
     void		singClckCB( CallBacker* cb )	{ hndlClick(cb,false); }
@@ -66,17 +67,18 @@ protected:
     virtual bool	laygenEditReq()			= 0;
     virtual bool	laygenRemoveReq()		= 0;
 
+private:
+    const Strat::LayerSequenceGenDesc* editedDesc() const { return &editdesc_;}
+
 };
 
 
 #define mDefuiExtLayerSequenceGenDescFns(clss,typstr) \
     mDefuiLayerSequenceGenDescFns(clss,typstr) \
 protected: \
-    virtual void	doDraw(); \
-    virtual bool	newLayGenReq(bool); \
-    virtual bool	laygenEditReq(); \
-    virtual bool	laygenRemoveReq(); \
+    void		doDraw() override; \
+    bool		newLayGenReq(bool) override; \
+    bool		laygenEditReq() override; \
+    bool		laygenRemoveReq() override; \
 public: \
-    virtual void	descHasChanged()
-    
-
+    void		descHasChanged() override

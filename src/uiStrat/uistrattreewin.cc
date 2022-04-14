@@ -318,7 +318,7 @@ void uiStratTreeWin::setNewRT()
 	    { pErrMsg( "Cannot read RefTree from Std!" ); return; }
     }
 
-    Strat::setLVLS( ls );
+    Strat::lvlSetMgr().setLVLS( ls );
     Strat::setRT( rt );
     needsave_ = true;
     updateDisplay();
@@ -397,7 +397,7 @@ void uiStratTreeWin::newTree()
     if ( !askSave() )
 	return;
 
-    Strat::setLVLS( new Strat::LevelSet );
+    Strat::lvlSetMgr().setLVLS( new Strat::LevelSet );
     Strat::setRT( new Strat::RefTree );
     needsave_ = true;
     treekey_.setUdf();
@@ -432,7 +432,7 @@ void uiStratTreeWin::readTree( const MultiID& key )
     Strat::setRT( tree );
 
     Strat::LevelSet* levels = LevelSet::read( key );
-    Strat::setLVLS( levels );
+    Strat::lvlSetMgr().setLVLS( levels );
 
     updateDisplay();
 }

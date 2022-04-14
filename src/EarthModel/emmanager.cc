@@ -56,7 +56,7 @@ EMManager::EMManager()
     , addRemove( this )
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
-    lvlset.levelToBeRemoved.notify( mCB(this, EMManager, levelToBeRemoved ) );
+    mAttachCB( lvlset.levelToBeRemoved, EMManager::levelToBeRemoved );
 }
 
 
@@ -469,17 +469,15 @@ bool EMManager::getSurfaceData( const MultiID& mid, SurfaceIOData& sd,
 
 void EMManager::levelToBeRemoved( CallBacker* cb )
 {
-    mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
-    if ( !lvlset )
-	{ pErrMsg( "Callacker null or not a LevelSet" ); return; }
-    const int lvlidx = lvlset->notifLvlIdx();
-    if ( !lvlset->levels().validIdx( lvlidx ) ) return;
-    const Strat::Level& lvl = *lvlset->levels()[lvlidx];
-    for ( int idx=0; idx<objects_.size(); idx++ )
+    if ( !cb )
+	return;
+
+    mCBCapsuleUnpack(Strat::Level::ID,lvlid,cb);
+    for ( auto* emobj : objects_ )
     {
-	mDynamicCastGet( EM::Horizon*, hor, objects_[idx] )
-	if ( hor && hor->stratLevelID() == lvl.id() )
-	    hor->setStratLevelID( -1 );
+	mDynamicCastGet(EM::Horizon*,hor,emobj)
+	if ( hor && hor->stratLevelID() == lvlid )
+	    hor->setNoLevelID();
     }
 }
 

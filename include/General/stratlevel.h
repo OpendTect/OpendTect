@@ -11,12 +11,12 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "undefval.h"
-#include "namedobj.h"
-#include "ranges.h"
+
 #include "color.h"
-#include "repos.h"
+#include "namedobj.h"
 #include "objectset.h"
+#include "repos.h"
+
 class ascistream;
 class BufferStringSet;
 
@@ -42,45 +42,51 @@ mExpClass(General) Level : public NamedCallBacker
 public:
 
     typedef int		ID;
+    typedef int		ChangeType;
 
+    static ID		cUndefID();
+
+			Level(const char* nm,const OD::Color&,ID =cUndefID());
+			Level(const Level&);
+    virtual		~Level();
+
+    Level&		operator =(const Level&);
     bool		operator ==(const Level&) const;
+    bool		operator !=(const Level&) const;
     bool		isDifferentFrom(const Level&) const;
+			//!< checks all but ID
 
     ID			id() const		{ return id_; }
     OD::Color		color() const		{ return color_; }
     const IOPar&	pars() const		{ return pars_; }
 
+    Level&		setID(ID);
     void		setName(const char*) override;
-    void		setColor(OD::Color);
-    void		setPars(const IOPar&);
+    Level&		setColor(OD::Color);
+    Level&		setPars(const IOPar&);
 
-    Notifier<Level>	changed;
-    Notifier<Level>	toBeRemoved;
+    CNotifier<Level,ChangeType> changed;
 
     static const Level&	undef();
+    bool		isUndef() const;
+    static Level&	dummy();
+
+    static ChangeType	cEntireChange() { return -1; }
+    static ChangeType	cNameChange()	{ return 1; }
+    static ChangeType	cColChange()	{ return 2; }
+    static ChangeType	cParsChange()	{ return 3; }
 
 protected:
+			Level(const Level&,int idasint);
 
-			Level(const char* nm,const LevelSet*);
-			Level(const Level&);
-
-    ID			id_;
+    const ID		id_;
     OD::Color		color_;
     IOPar&		pars_;
-    const LevelSet*	lvlset_;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
     friend class	LevelSet;
-
-public:
-
-    virtual		~Level();
-
-    const char*		checkName(const char*) const;
-			//!< returns null if object can be renamed to it,
-			//!< otherwise an error message
 
 };
 
@@ -94,113 +100,113 @@ public:
 */
 
 
-mExpClass(General) LevelSet : public CallBacker
+mExpClass(General) LevelSet : public NamedCallBacker //TODO: mk shared
 {
 public:
+    typedef int		ChangeType;
 
-			LevelSet();
-			LevelSet(Level::ID startat);
+			LevelSet(int idstartidsat=0);
 			LevelSet(const LevelSet&);
     virtual		~LevelSet();
     LevelSet&		operator =(const LevelSet&);
+    bool		operator ==(const LevelSet&) const;
 
-    bool		isEmpty() const		{ return lvls_.isEmpty(); }
-    int			size() const		{ return lvls_.size(); }
-    const ObjectSet<Level>& levels() const	{ return lvls_; }
-    void		setEmpty()		{ lvls_.erase(); }
+    bool		isEmpty() const		{ return size() < 1; }
+    int			size() const;
+    void		setEmpty();
 
-    inline bool	isPresent( const char* nm ) const
-			{ return gtIdxOf(nm,-1) >= 0; }
-    inline bool	isPresent( Level::ID id ) const
-			{ return gtIdxOf(0,id) >= 0; }
-    inline int		indexOf( const char* nm ) const
-			{ return gtIdxOf(nm,-1); }
-    inline int		indexOf( Level::ID id ) const
-			{ return gtIdxOf(0,id); }
+    bool		isPresent(Level::ID) const;
+    bool		isPresent(const char*) const;
+    Level::ID		getIDByName(const char*) const;
+    Level::ID		getIDByIdx(int) const;
+    int			indexOf(Level::ID) const;
+    int			indexOf(const char*) const;
+    void		getNames(BufferStringSet&) const;
+    BufferString	nameOf(Level::ID) const;
+    OD::Color		colorOf(Level::ID) const;
+    IOPar		parsOf(Level::ID) const;
 
-    Level*		get( const char* nm )		{ return gtLvl(nm,-1); }
-    const Level*	get( const char* nm ) const	{ return gtLvl(nm,-1); }
-    Level*		get( Level::ID id )		{ return gtLvl(0,id); }
-    const Level*	get( Level::ID id ) const	{ return gtLvl(0,id); }
+    Level		get(Level::ID) const;
+    Level		getByIdx(int) const;
+    Level		getByName(const char*) const;
+    Level		first() const;
 
-    Level*		add( const char* lvlnm, const OD::Color& c )
-						{ return set(lvlnm,c,-1); }
-    Level*		insert(
-			    const char* lvlnm, const OD::Color& c , int idx=-1 )
-						{ return set(lvlnm,c,idx); }
-    Level*		set( const char* lvlnm, const OD::Color& c )
-						{ return set(lvlnm,c,-1); }
+    Level::ID		add(const char*,const OD::Color&);
     void		remove(Level::ID);
 
-    Level*		add(const Level&); //!< copy stuff, but new ID/name
+    Level::ID		set(const Level&); //!< copy stuff, but new ID/name
+    Level::ID		add(  const Level& lvl )	{ return set( lvl ); }
     void		add(const BufferStringSet&,const TypeSet<OD::Color>&);
 
-    Notifier<LevelSet>	levelAdded;
-    Notifier<LevelSet>	levelChanged;
-    Notifier<LevelSet>	levelToBeRemoved;
-    int			notifLvlIdx() const	{ return notiflvlidx_; }
-			//!< if < 0 then more than one level have changed
+    CNotifier<LevelSet,ChangeType>	changed;
+    CNotifier<LevelSet,Level::ID>	levelAdded;
+    CNotifier<LevelSet,Level::ID>	levelToBeRemoved;
 
+    bool		store(Repos::Source) const;
+    bool		read(Repos::Source);
     bool		readFrom(const char*);
     bool		writeTo(const char*) const;
-    bool		needStore() const		{ return ischanged_; }
 
     static void		getStdNames(BufferStringSet&);
     static LevelSet*	createStd(const char*);
     static LevelSet*	read(const MultiID&);
     static bool		write(const LevelSet&,const MultiID&);
 
-    inline const Level&	getLevel( int idx ) const
-			{ return idx<size() ? *lvls_[idx] : Level::undef(); }
-    int			levelID( int idx ) const
-			{ return getLevel(idx).id(); }
-    OD::Color		color( int idx ) const
-			{ return getLevel(idx).color(); }
-    void		getNames(BufferStringSet&) const;
-
 protected:
 
     ObjectSet<Level>	lvls_;
+    mutable Threads::Atomic<Level::ID> curlevelid_;
 
-    mutable int         notiflvlidx_;
-    mutable Level::ID	lastlevelid_;
-    bool		ischanged_;
-
-    Level*		getNew(const Level* lvl=0) const;
-    Level*		set(const char*,const OD::Color&,int);
     int			gtIdxOf(const char*,Level::ID) const;
-    Level*		gtLvl(const char*,Level::ID) const;
-    void		addLvl(Level*);
-    void		getLevelsFrom(const LevelSet&);
-    void		makeMine(Level&);
-    void		readPars(ascistream&,bool);
+    Level		gtLvl(int) const;
+    void		doSetEmpty();
+    Level::ID		doSet(const Level&,bool* isnew=nullptr);
 
-    void		lvlChgCB( CallBacker* cb )	{ notif(cb,true); }
-    void		lvlRemCB( CallBacker* cb )	{ notif(cb,false); }
-    void		notif(CallBacker*,bool);
-
-    static bool		haveCurSet();
+    void		getFromStream(ascistream&,bool);
 
 public:
 
     Repos::Source	readOldRepos();
     friend class	LevelSetMgr;
 
-    bool		store(Repos::Source) const;
-    bool		read(Repos::Source);
 };
 
 mGlobal(General) const LevelSet& LVLS();
 inline LevelSet& eLVLS()	{ return const_cast<LevelSet&>(LVLS()); }
+inline BufferString levelNameOf( const Level::ID& id )
+				{ return LVLS().nameOf(id); }
 
+// From here: do not use, you will not need it.
 // Needless to say that if you push, make sure you pop (so afterwards the real
 // default levels are restored
-mGlobal(General) void pushLevelSet(LevelSet*);
-mGlobal(General) void popLevelSet();
-mGlobal(General) const LevelSet& unpushedLVLS();
 
-mGlobal(General) void setLVLS(LevelSet*);
+mExpClass(General) LevelSetMgr : public CallBacker
+{
+public:
+			LevelSetMgr();
+			~LevelSetMgr();
 
+    const LevelSet&	curSet() const;
+    const LevelSet&	unpushedLVLS() const;
+
+    void		pushLevelSet(LevelSet*);
+    void		popLevelSet();
+    void		setLVLS(LevelSet*);
+
+    Notifier<LevelSetMgr> curChanged;
+
+private:
+
+    LevelSet&		curSet();
+    void		ensurePresent(LevelSet&);
+    void		createSet();
+    void		surveyChangedCB(CallBacker*);
+
+    ManagedObjectSet<LevelSet>	lss_;
+    mutable Threads::Lock lock_;
+};
+
+mGlobal(General) LevelSetMgr& lvlSetMgr();
 mGlobal(General) BufferString getStdFileName(
 					const char* inpnm,const char* basenm);
 //!< example: getStdFileName("North Sea","Levels")

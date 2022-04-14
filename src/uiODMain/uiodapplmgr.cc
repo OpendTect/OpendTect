@@ -32,7 +32,7 @@ ________________________________________________________________________
 #include "uipickpartserv.h"
 #include "uiseispartserv.h"
 #include "uistereodlg.h"
-#include "uistratlayermodel.h"
+#include "uiodstratlayermodelmgr.h"
 #include "uistrings.h"
 #include "uisurvey.h"
 #include "uitaskrunner.h"
@@ -1934,7 +1934,7 @@ void uiODApplMgr::launchRockPhysics( CallBacker* )
 void uiODApplMgr::launch2DViewer( CallBacker* )
 { show2DViewer(); }
 void uiODApplMgr::doLayerModeling( CallBacker* )
-{ uiStratLayerModel::doBasicLayerModel(ODMainWin()); }
+{ uiStratLayerModelManager::doBasicLayerModel(); }
 
 void uiODApplMgr::doVolProcCB( CallBacker* )
 { volprocserv_->doVolProc( 0, 0, false ); }

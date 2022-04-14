@@ -32,13 +32,13 @@ Viewer2DGatherPainter::~Viewer2DGatherPainter()
 
 BinID Viewer2DGatherPainter::getBinID() const
 { return inputwvagather_ ? inputwvagather_->getBinID()
-    			 : inputvdgather_ ? inputvdgather_->getBinID()
-			     		  : BinID(-1,-1); }
+			 : inputvdgather_ ? inputvdgather_->getBinID()
+					  : BinID(-1,-1); }
 
 
 void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
 {
-    if ( inputvdgather_ && inputvdgather_->id()==vdid ) 
+    if ( inputvdgather_ && inputvdgather_->id()==vdid )
 	return;
 
     const bool hadpack = inputvdgather_;
@@ -46,7 +46,7 @@ void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
     {
 	viewer_.removePack( inputvdgather_->id() );
 	DPM( DataPackMgr::FlatID() ).release( inputvdgather_->id() );
-	inputvdgather_ = 0;
+	inputvdgather_ = nullptr;
     }
 
     DataPack* vddp = DPM( DataPackMgr::FlatID() ).obtain( vdid );
@@ -57,7 +57,7 @@ void Viewer2DGatherPainter::setVDGather( DataPack::ID vdid )
     if ( vdgather )
     {
 	inputvdgather_ = vdgather;
-	viewer_.setPack( false, vdid, !hadpack );
+	viewer_.setPack( FlatView::Viewer::VD, vdid, !hadpack );
     }
     else if ( vddp )
 	DPM( DataPackMgr::FlatID() ).release( vddp->id() );
@@ -75,7 +75,7 @@ void Viewer2DGatherPainter::setWVAGather( DataPack::ID wvaid )
     {
 	viewer_.removePack( inputwvagather_->id() );
 	DPM( DataPackMgr::FlatID() ).release( inputwvagather_->id() );
-	inputwvagather_ = 0;
+	inputwvagather_ = nullptr;
     }
 
     DataPack* wvadp = DPM( DataPackMgr::FlatID() ).obtain( wvaid );
@@ -84,7 +84,7 @@ void Viewer2DGatherPainter::setWVAGather( DataPack::ID wvaid )
     if ( wvagather )
     {
 	inputwvagather_ = wvagather;
-	viewer_.setPack( true, wvaid, !hadpack );
+	viewer_.setPack( FlatView::Viewer::WVA, wvaid, !hadpack );
     }
     else if ( wvadp )
 	DPM( DataPackMgr::FlatID() ).release( wvadp->id() );

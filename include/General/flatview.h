@@ -60,11 +60,13 @@ public:
     EditPermissions*		editpermissions_ = nullptr;
 				//!<If null no editing allowed
 
-    bool			enabled_ = true;	//!<Turns on/off everything
+    bool			enabled_ = true;
+				//!<Turns on/off everything
     BufferString		name_;
     Alignment			namealignment_ = mAlignment(Center,Center);
-    int				namepos_ = mUdf(int);	//!<nodraw=udf, before first=-1,
-					    //!< center=0, after last=1
+    enum NamePos		{ First=-1, Center=0, Last=1, NoDraw };
+    NamePos			namepos_ = NoDraw;
+
     bool			fitnameinview_ = true;
     Interval<double>*		x1rg_ = nullptr;
     Interval<double>*		x2rg_ = nullptr;
@@ -336,7 +338,7 @@ protected:
   can be attached to zero or one of those packs.
 
   addPack() -> add a DataPack to the list of available data packs
-  usePack() -> sets one of the available packs for wva of vd display
+  usePack() -> sets one of the available packs for wva or vd display or both
   setPack() -> Combination of addPack and usePack.
   removePack() -> removes this pack from the available packs, if necessary
 		  it also clears the wva or vd display to no display.
@@ -363,13 +365,18 @@ public:
 			/*!< Adds to list and obtains the DataPack, but does not
 			 use for WVA or VD. DataPack gets released in the
 			 destructor of this class. */
-    void		usePack(bool wva,::DataPack::ID,bool usedefs=true );
+    enum		VwrDest { WVA, VD, Both, None };
+    static VwrDest	getDest(bool dowva,bool dovd);
+
+    void		usePack(VwrDest,::DataPack::ID,bool usedefs=true);
 			//!< Does not add new packs, just selects from added
-    void		removePack(::DataPack::ID);
+    virtual void	removePack(::DataPack::ID);
 			//!< Releases DataPack after removing from the list.
-    void		setPack(bool wva,::DataPack::ID id,bool usedefs=true)
-			{ addPack( id ); usePack( wva, id, usedefs ); }
+    void		setPack(VwrDest,::DataPack::ID,bool usedefs=true);
+			//!< add + use the datapack on either wva or vd or both
     void		clearAllPacks();
+    bool		enableChange(bool yn);
+			//!< Returns previous state
 
     const FlatDataPack* obtainPack(bool wva,bool checkother=false) const;
 			/*!< Obtains DataPack before returning the pointer. Has
@@ -380,17 +387,22 @@ public:
 			 \param checkother if true, the datapack of other
 			 display (i.e. variable density or wiggles) is returned
 			 if the specified display has no datapack. */
-    bool		hasPack(bool wva) const
+    bool		hasPack( bool wva ) const
 			{ return packID(wva)!=DataPack::cNoID(); }
     DataPack::ID	packID(bool wva) const;
 
     const TypeSet< ::DataPack::ID>&	availablePacks() const	{ return ids_; }
+    bool		isAvailable( ::DataPack::ID id ) const
+			{ return ids_.isPresent(id); }
 
     virtual bool	isVertical() const		{ return true; }
     bool		isVisible(bool wva) const;
-    void		setVisible(bool wva, bool visibility);
-			/*!< Will also handleChange.
-			So, do not use unless you want both.*/
+    bool		isVisible(VwrDest) const;
+    bool		setVisible(VwrDest,bool visibility,
+				   od_uint32* ctype=nullptr);
+			/*!< Will also handleChange unless ctype is provided,
+			     So, do not use unless you want both.
+			     returns if handled */
 
     Coord3		getCoord(const Point&) const;
 
@@ -464,12 +476,26 @@ protected:
     ZDomain::Info*		zdinfo_;
 
     void			addAuxInfo(bool,const Point&,IOPar&) const;
+    bool			shouldHandleChange() const
+				{ return canhandlechange_; }
 
 private:
 
     const FlatDataPack*		wvapack_ = nullptr;
     const FlatDataPack*		vdpack_ = nullptr;
     TypeSet<Pos::GeomID>	geom2dids_;
+    bool			canhandlechange_ = true;
+
+public:
+    mDeprecated("Use VwrDest enum")
+    void		usePack( bool wva, ::DataPack::ID id, bool usedefs=true)
+			{ usePack( wva ? WVA : VD, id, usedefs ); }
+    mDeprecated("Use VwrDest enum")
+    void		setPack( bool wva, ::DataPack::ID id, bool usedefs=true)
+			{ setPack( wva ? WVA : VD, id, usedefs ); }
+    mDeprecated("Use VwrDest enum")
+    void		setVisible( bool wva, bool visibility )
+			{ setVisible( wva ? WVA : VD, visibility ); }
 
 };
 

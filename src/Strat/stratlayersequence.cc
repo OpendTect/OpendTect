@@ -111,6 +111,32 @@ Interval<float> Strat::LayerSequence::zRange() const
 }
 
 
+Interval<float> Strat::LayerSequence::propRange( int propnr ) const
+{
+    if ( propnr < 0 )
+	return zRange();
+
+    Interval<float> rg( mUdf(float), mUdf(float) );
+    const int nrlays = layers_.size();
+    if ( nrlays < 1 || propnr >= propertyRefs().size() )
+	return rg;
+
+    for ( const auto* lay : layers_ )
+    {
+	const float layval = lay->value( propnr );
+	if ( mIsUdf(layval) )
+	    continue;
+
+	if ( mIsUdf(rg.start) )
+	    rg.start = rg.stop = layval;
+	else
+	    rg.include( layval );
+    }
+
+    return rg;
+}
+
+
 int Strat::LayerSequence::indexOf( const Level& lvl, int startat ) const
 {
     const RefTree& rt = refTree();
@@ -134,11 +160,11 @@ int Strat::LayerSequence::indexOf( const Level& lvl, int startat ) const
 }
 
 
-float Strat::LayerSequence::depthOf( const Level& lvl ) const
+float Strat::LayerSequence::depthOf( const Level& lvl, float notfoundval ) const
 {
     const int sz = size();
     if ( sz < 1 )
-	return 0.f;
+	return notfoundval;
 
     const int idx = indexOf( lvl, 0 );
     return idx < 0 ? layers_[sz-1]->zBot() : layers_[idx]->zTop();
@@ -179,15 +205,16 @@ int Strat::LayerSequence::positionOf( const Level& lvl ) const
 }
 
 
-float Strat::LayerSequence::depthPositionOf( const Level& lvl ) const
+float Strat::LayerSequence::depthPositionOf( const Level& lvl,
+					     float notfoundval ) const
 {
     const int sz = size();
     if ( sz < 1 )
-	return 0.f;
+	return notfoundval;
 
     const int idx = positionOf( lvl );
     if ( idx < 0 )
-	return 0.f;
+	return notfoundval;
 
     return idx >= sz ? layers_[sz-1]->zBot() : layers_[idx]->zTop();
 }

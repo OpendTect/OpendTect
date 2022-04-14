@@ -11,10 +11,13 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
-#include "iopar.h"
+
 #include "enums.h"
 #include "instantattrib.h"
+#include "iopar.h"
 
+class PropertyRef;
+class PropertyRefSelection;
 class Wavelet;
 
 
@@ -45,10 +48,13 @@ public:
     Attrib::Instantaneous::OutType attribtype_;
 
     const char*		getWaveletNm() const;
+    const PropertyRef*	getRef(const PropertyRefSelection&) const;
 
     bool		hasOffsets() const;
     bool		isZeroOffset() const { return synthtype_==ZeroOffset; }
     bool		isPreStack() const	{ return synthtype_==PreStack; }
+    bool		isCorrected() const;
+			//<! Only for PS gathers
     bool		isPSBased() const
 			{ return synthtype_==AngleStack ||
 				 synthtype_==AVOGradient; }
@@ -62,6 +68,7 @@ public:
 			{ return !needsInput() && !isStratProp(); }
 			/*!<Any type that can be created using
 			    Seis::RaySynthGenerator */
+    bool		needsSWave() const;
     void		createName(BufferString&) const;
 			//!<Create name from wvlt and raypars
     void		setWavelet(const char*);

@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "threadlock.h"
 #include "varlenarray.h"
 
+template <class T> class ArrayND;
+
 #define mUndefColIdx    (nrsteps_)
 
 class DataClipper;
@@ -84,7 +86,11 @@ mExpClass(General) Mapper
 public:
 
 				Mapper(); //!< defaults maps from [0,1] to [0,1]
+				Mapper(const Mapper&);
+				Mapper(const Mapper&,bool shareclipper);
 				~Mapper();
+
+    Mapper&			operator =(const Mapper&);
 
     float			position(float val) const;
 				//!< returns position in ColorTable
@@ -92,26 +98,33 @@ public:
 						int nrsteps,int udfval);
     const Interval<float>&	range() const;
     bool			isFlipped() const    { return setup_.flipseq_; }
-    const ValueSeries<float>*	data() const		{ return vs_; }
-    od_int64			dataSize() const	{ return vssz_; }
+    const ValueSeries<float>*	data() const	     { return vs_; }
+    od_int64			dataSize() const     { return datasz_; }
 
-    void			setFlipped(bool yn) { setup_.flipseq_ = yn; }
+    void			setFlipped( bool yn ) { setup_.flipseq_ = yn; }
 
-    void			setRange( const Interval<float>& rg );
-    void			setData(const ValueSeries<float>*,od_int64 sz,
-					TaskRunner* = 0);
+    void			setRange(const Interval<float>&);
+    void			setData(const float*,od_int64 sz,
+					TaskRunner* =nullptr);
+    void			setData(const ValueSeries<float>&,
+					TaskRunner* =nullptr);
+    void			setData(const ArrayND<float>&,
+					TaskRunner* =nullptr);
 				//!< If data changes, call update()
 
-    void			update(bool full=true, TaskRunner* = 0);
+    void			update(bool full=true,TaskRunner* =nullptr);
 				//!< If !full, will assume data is unchanged
     MapperSetup			setup_;
 
 protected:
 
-    DataClipper&		clipper_;
+    DataClipper*		clipper_;
+    bool			clipperismine_;
 
-    const ValueSeries<float>*	vs_;
-    od_int64			vssz_;
+    const ArrayND<float>*	arrnd_		= nullptr;
+    const ValueSeries<float>*	vs_		= nullptr;
+    const float*		dataptr_	= nullptr;
+    od_int64			datasz_		= -1;
 
 };
 

@@ -13,9 +13,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 
 #include "emobject.h"
-#include "ranges.h"
-#include "typeset.h"
-#include "uistring.h"
+#include "stratlevel.h"
 
 class BufferStringSet;
 class TrcKeyZSampling;
@@ -74,8 +72,9 @@ public:
     // Horizon
     inline bool		isHorizon() const	{ return type_ < FaultStickSet;}
     inline bool		is2DHorizon() const	{ return type_ == Horizon2D; }
-    int			levelID() const;
-    static void		getTiedToLevelID(int lvlid,TypeSet<MultiID>&,bool is2d);
+    Strat::Level::ID	levelID() const;
+    static void		getTiedToLevelID(Strat::Level::ID,TypeSet<MultiID>&,
+					 bool is2d);
     static bool		sortHorizonsOnZValues(const TypeSet<MultiID>&,
 					      TypeSet<MultiID>&);
 
@@ -89,7 +88,7 @@ public:
     bool		getBodyRange(TrcKeyZSampling&) const;
 
     // FaultStickSet
-    int 		nrSticks() const;
+    int			nrSticks() const;
 
     // Helpful stuff
     static ObjectType	objectTypeOfIOObjGroup(const char*);

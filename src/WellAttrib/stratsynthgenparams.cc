@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "ioman.h"
 #include "prestackanglemute.h"
+#include "propertyref.h"
 #include "raytrace1d.h"
 #include "synthseis.h"
 #include "survinfo.h"
@@ -108,13 +109,23 @@ bool SynthGenParams::operator!= ( const SynthGenParams& oth ) const
 bool SynthGenParams::isOK() const
 {
     if ( isRawOutput() )
-	return !wvltnm_.isEmpty();
-    else if ( isPSBased() )
-	return !inpsynthnm_.isEmpty() && !anglerg_.isUdf();
-    else if ( isAttribute() )
-	return !inpsynthnm_.isEmpty();
+    {
+	if ( wvltnm_.isEmpty() )
+	    return false;
+    }
+    else if ( needsInput() )
+    {
+	if ( inpsynthnm_.isEmpty() || inpsynthnm_ == sKeyInvalidInputPS() )
+	    return false;
 
-    return true;
+	if ( isPSBased() && anglerg_.isUdf() )
+	    return false;
+	if ( isAttribute() &&
+	     attribtype_ == Attrib::Instantaneous::RotatePhase )
+	    return false;
+    }
+
+    return !name_.isEmpty();
 }
 
 
@@ -154,6 +165,15 @@ void SynthGenParams::setDefaultValues()
 			      : IOM().getFirst( wvlttrgrp.ioCtxt() );
 	if ( wvltobj )
 	    setWavelet( wvltobj->name() );
+
+/*	if ( isPreStack() )
+	{
+	    synthpars_.setYN( Seis::SynthGenBase::sKeyNMO(), true );
+	    synthpars_.set( Seis::SynthGenBase::sKeyMuteLength(),
+			    Seis::SynthGenBase::cStdMuteLength() );
+	    synthpars_.set( Seis::SynthGenBase::sKeyStretchLimit(),
+			    Seis::SynthGenBase::cStdStretchLimit() );
+	}*/
     }
 
     if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
@@ -175,11 +195,31 @@ const char* SynthGenParams::getWaveletNm() const
 }
 
 
+const PropertyRef* SynthGenParams::getRef(const PropertyRefSelection& prs) const
+{
+    if ( !isStratProp() )
+	return nullptr;
+
+    BufferString propnm( name_ );
+    propnm.unEmbed( '[', ']' );
+    return prs.getByName( propnm.buf(), false );
+}
+
+
 bool SynthGenParams::hasOffsets() const
 {
     TypeSet<float> offsets;
     raypars_.get( RayTracer1D::sKeyOffset(), offsets );
     return offsets.size()>1;
+}
+
+
+bool SynthGenParams::isCorrected() const
+{
+    bool corrected = true;
+    synthpars_.getYN( Seis::SynthGenBase::sKeyNMO(), corrected );
+
+    return corrected;
 }
 
 
@@ -275,6 +315,12 @@ void SynthGenParams::usePar( const IOPar& par )
 	    }
 	}
     }
+}
+
+
+bool SynthGenParams::needsSWave() const
+{
+    return isPreStack(); //TODO: update with EEI
 }
 
 

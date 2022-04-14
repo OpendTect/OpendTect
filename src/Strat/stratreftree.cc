@@ -25,11 +25,10 @@ namespace Strat
 
 RefTree::RefTree()
     : NodeOnlyUnitRef(0,"","Contains all units")
-    , deleteNotif(this)
+    , objectToBeDeleted(this)
     , unitAdded(this)
     , unitChanged(this)
     , unitToBeDeleted(this)
-    , notifun_(0)
     , udfleaf_(*new LeafUnitRef(this,-1,"Undef unit"))
 {
     udfleaf_.setColor( OD::Color::LightGrey() );
@@ -40,41 +39,30 @@ RefTree::RefTree()
 void RefTree::initTree()
 {
     src_ = Repos::Temp;
-    Strat::eLVLS().levelToBeRemoved.notifyIfNotNotified(
-	    mCB(this,Strat::RefTree,levelToBeRemoved) );
+    mAttachCB( eLVLS().levelToBeRemoved, RefTree::levelSetChgCB );
 }
 
 
 RefTree::~RefTree()
 {
+    detachAllNotifiers();
     beingdeleted_ = true;
+    objectToBeDeleted.trigger();
     delete &udfleaf_;
-    Strat::eLVLS().levelToBeRemoved.remove(
-	    mCB(this,Strat::RefTree,levelToBeRemoved) );
-    deleteNotif.trigger();
 }
 
 
-void RefTree::reportChange( const UnitRef* un, bool isrem )
+void RefTree::reportChange( UnitRef& un, bool isrem )
 {
-    const bool dotrigger = !beingdeleted_;
-    notifun_ = un;
-    if ( un && dotrigger )
-    {
-	(isrem ? unitToBeDeleted : unitChanged).trigger();
-	notifun_ = 0;
-    }
+    if ( !beingdeleted_ )
+	(isrem ? unitToBeDeleted : unitChanged).trigger( &un );
 }
 
 
-void RefTree::reportAdd( const UnitRef* un )
+void RefTree::reportAdd( UnitRef& un )
 {
-    notifun_ = un;
-    if ( un )
-    {
-	unitAdded.trigger();
-	notifun_ = 0;
-    }
+    if ( !beingdeleted_ )
+	unitAdded.trigger( &un );
 }
 
 
@@ -259,16 +247,15 @@ bool Strat::RefTree::write( od_ostream& strm ) const
 }
 
 
-void Strat::RefTree::levelToBeRemoved( CallBacker* cb )
+void Strat::RefTree::levelSetChgCB( CallBacker* cb )
 {
-    mDynamicCastGet(Strat::LevelSet*,lvlset,cb)
-    if ( !lvlset )
-	{ pErrMsg( "cb null or not a LevelSet" ); return; }
-    const int lvlidx = lvlset->notifLvlIdx();
-    if ( !lvlset->levels().validIdx( lvlidx ) ) return;
-    const Strat::Level& lvl = *lvlset->levels()[lvlidx];
-    Strat::LeavedUnitRef* lur = getByLevel( lvl.id() );
-    if ( lur ) lur->setLevelID( -1 );
+    if ( !cb )
+	return;
+
+    mCBCapsuleUnpack(Level::ID,lvlid,cb);
+    LeavedUnitRef* lur = getByLevel( lvlid );
+    if ( lur )
+	lur->setLevelID( Level::cUndefID() );
 }
 
 
@@ -280,7 +267,7 @@ void RefTree::getStdNames( BufferStringSet& nms )
 
 RefTree* RefTree::createStd( const char* nm )
 {
-    RefTree* ret = new RefTree;
+    auto* ret = new RefTree;
     if ( nm && *nm )
     {
 	const BufferString fnm( getStdFileName(nm,"Tree") );
@@ -289,6 +276,7 @@ RefTree* RefTree::createStd( const char* nm )
 	{
 	    ret->read( strm );
 	    ret->name_ = nm;
+	    ret->src_ = Repos::Rel;
 	}
     }
     return ret;
@@ -342,19 +330,19 @@ void Strat::RefTree::createFromLevelSet( const Strat::LevelSet& ls )
     if ( ls.isEmpty() )
 	return;
 
-    NodeOnlyUnitRef* ndun = new NodeOnlyUnitRef( this, "Above",
-						"Layers above all markers" );
-    const Level& lvl0 = ls.getLevel( 0 );
+    auto* ndun = new NodeOnlyUnitRef( this, "Above",
+				      "Layers above all markers" );
+    const Level lvl0 = ls.first();
     ndun->add( new LeavedUnitRef( ndun, lvl0.name(),
-				BufferString("Above ",lvl0.name()) ) );
+				  BufferString("Above ",lvl0.name()) ) );
     add( ndun );
 
     ndun = new NodeOnlyUnitRef( this, "Below", "Layers below a marker" );
     for ( int ilvl=0; ilvl<ls.size(); ilvl++ )
     {
-	const Level& lvl = ls.getLevel( ilvl );
-	LeavedUnitRef* lur = new LeavedUnitRef( ndun, lvl.name(),
-					BufferString("Below ",lvl.name()) );
+	const Level& lvl = ls.getByIdx( ilvl );
+	auto* lur = new LeavedUnitRef( ndun, lvl.name(),
+				       BufferString("Below ",lvl.name()) );
 	lur->setLevelID( lvl.id() );
 	ndun->add( lur );
     }
