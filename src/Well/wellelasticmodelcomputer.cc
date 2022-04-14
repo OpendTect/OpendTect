@@ -214,7 +214,7 @@ bool Well::ElasticModelComputer::getLogUnits()
 	uomset_ += inplogs_[idx] ? inplogs_[idx]->unitOfMeasure() : 0;
     }
 
-    velpissonic_ = uomset_[mPVelIdx] &&
+    velpissonic_ = uomset_.validIdx(mPVelIdx) && uomset_[mPVelIdx] &&
 		   uomset_[mPVelIdx]->propType() == PropertyRef::Son;
 
     return true;
