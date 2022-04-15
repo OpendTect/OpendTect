@@ -183,6 +183,7 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
     PtrMan<SeisTrcWriter> writer;
 
     TextStreamProgressMeter progressmeter(strm);
+    bool needswriterinit = !useoutwfunc && tbuf;
     while ( 1 )
     {
 	int res = proc->doStep();
@@ -192,8 +193,11 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 	    strm << "Estimated number of positions to be processed"
 		 <<"(regular survey): " << proc->totalNr() << od_newline;
 	    strm << "Loading cube data ..." << od_newline;
+	}
 
-	    if ( !useoutwfunc && tbuf )
+	if ( needswriterinit )
+	{
+	    if ( tbuf && !tbuf->isEmpty() )
 	    {
 		PtrMan<IOObj> ioseisout = IOM().get( outid );
 		if ( !ioseisout )
@@ -201,15 +205,18 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 
 		writer = new SeisTrcWriter( *ioseisout );
 		writer->setComponentNames( refs );
-		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
+		if ( !writer->prepareWork(*(tbuf->get(0))) )
 		{
 		    BufferString err = !writer->errMsg().isEmpty()
 			?  writer->errMsg().getFullString().buf()
-			: "ERROR: no trace computed";
+			: "ERROR: Cannot write traces";
 		    mErrRet( err );
 		}
+
+		needswriterinit = false;
 	    }
 	}
+
 
 	if ( res > 0 )
 	{
@@ -232,13 +239,12 @@ static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 	    break;
 	}
 
-	if ( !useoutwfunc && tbuf && tbuf->get(0) )
+	if ( writer && tbuf->get(0) )
 	{
 	    if ( !writer->put(*(tbuf->get(0))) )
 	    { mErrRet( writer->errMsg().getFullString() ); }
 
-	    SeisTrc* trc = tbuf->remove(0);
-	    delete trc;
+	    delete tbuf->remove(0);
 	}
 	else if ( useoutwfunc && res>= 0 )
 	    proc->outputs_[0]->writeTrc();
