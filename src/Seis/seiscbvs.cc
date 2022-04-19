@@ -442,6 +442,13 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( ti.lineNr() == 0 && ti.trcNr() == 0 )
 	ti.setPos( SI().transform(ti.coord) );
 
+    if ( is_2d )
+    {
+	ti.nr = ti.binid.crl();
+	if ( !mIsUdfGeomID(geomid_) )
+	    ti.binid.inl() = geomid_;
+    }
+
     return (headerdonenew_ = true);
 }
 
