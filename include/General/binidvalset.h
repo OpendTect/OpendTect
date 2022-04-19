@@ -31,8 +31,7 @@ public:
 			    { init(); setIs2D(bvs.is2D()); }
 			~BinIDValueSet();
 
-    BinIDValueSet&	operator =( const BinIDValueSet& oth )
-			{ Pos::IdxPairValueSet::operator=(oth); return *this; }
+    BinIDValueSet&	operator =(const BinIDValueSet&);
 
     inline void		allowDuplicateBinIDs( bool yn )
 					{ allowDuplicateIdxPairs(yn); }

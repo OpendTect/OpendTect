@@ -1473,6 +1473,14 @@ BinIDValueSet::~BinIDValueSet()
 }
 
 
+BinIDValueSet& BinIDValueSet::operator =( const BinIDValueSet& oth )
+{
+    Pos::IdxPairValueSet::operator=( oth );
+    setIs2D( oth.is2D() );
+    return *this;
+}
+
+
 void BinIDValueSet::setStepout( int trcstepout, int trcstep )
 {
     (void)trcstep;
