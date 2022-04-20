@@ -12,6 +12,7 @@
 class IOObj;
 class UnitOfMeasure;
 class uiGenInput;
+class uiProgressBar;
 class uiSMWCData;
 class uiTable;
 
@@ -28,6 +29,8 @@ protected:
 
     uiTable*		tbl_;
     uiGenInput*		velfld_;
+    uiProgressBar*	progbar_;
+
     const bool		zinft_;
     int			overwritepol_;
     float		vel_;
