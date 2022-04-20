@@ -25,7 +25,7 @@ uiTrayDialog::uiTrayDialog( uiParent* p, const uiDialog::Setup& s )
     if ( uiSystemTrayIcon::isSystemTrayAvailable() )
     {
 	setInTray( true );
-	trayicon_ = new uiSystemTrayIcon( uiIcon() );
+	trayicon_ = new uiSystemTrayIcon( uiIcon("base_icon") );
 	trayicon_->show();
 	mAttachCB(trayicon_->clicked,uiTrayDialog::showCB);
     }

@@ -20,28 +20,60 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uistatusbutton.h"
 #include "uitable.h"
 #include "uitoolbutton.h"
 
 #include "file.h"
+#include "genc.h"
 #include "hostdata.h"
+#include "netsocket.h"
 #include "oddirs.h"
 #include "od_helpids.h"
+#include "remjobexec.h"
 #include "systeminfo.h"
 #include "survinfo.h"
 
 #include <limits>
-
 
 static const int sMode		= 0;
 static const int sIPCol		= 1;
 static const int sHostNameCol	= 2;
 static const int sDispNameCol	= 3;
 static const int sPlfCol	= 4;
-static const int sDataRootCol	= 5;
+static const int sStatus	= 5;
+static const int sDataRootCol	= 6;
 
 mDefineEnumUtils(uiBatchHostsDlg,HostLookupMode,"Host resolution")
     { "Static IP", "Hostname DNS", nullptr };
+
+
+mDefineEnumUtils(uiBatchHostsDlg,Status,"Status")
+{
+    "Unknown",
+    "OK",
+    "Error",
+    nullptr
+};
+
+
+static const char* IconNames[] =
+{
+    "contexthelp",
+    "ok",
+    "cancel",
+    0
+};
+
+
+template<>
+void EnumDefImpl<uiBatchHostsDlg::Status>::init()
+{
+    uistrings_ += uiStrings::sUnknown();
+    uistrings_ += uiStrings::sOk();
+    uistrings_ += uiStrings::sErrors();
+}
+
 
 uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Setup Distributed Computing"),mNoDlgTitle,
@@ -51,6 +83,9 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     const FilePath bhfp = hostdatalist_.getBatchHostsFilename();
     const BufferString bhfnm = bhfp.fullPath();
     BufferString datadir = bhfp.pathOnly();
+
+    for ( int idx=0; idx<hostdatalist_.size(); idx++ )
+	hoststatus_ += Unknown;
 
     const bool direxists = File::exists( datadir );
     const bool diriswritable = File::isWritable( datadir );
@@ -82,7 +117,8 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     uiStringSet collbls;
     collbls.add( tr("Host Lookup Mode") ).add( tr("IP address") )
 	.add( uiStrings::sHostName() ).add( tr("Display Name") )
-	.add( uiStrings::sPlatform() ).add( tr("Survey Data Root") );
+	.add( uiStrings::sPlatform() ).add( uiStrings::sStatus() )
+	.add( tr("Survey Data Root") );
     table_->setColumnLabels( collbls );
     table_->setPrefWidth( 800 );
     table_->resizeHeaderToContents( true );
@@ -92,10 +128,15 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     mAttachCB( table_->rowClicked, uiBatchHostsDlg::hostSelCB );
     table_->attach( leftAlignedBelow, filefld );
 
-    autobox_ = new uiCheckBox( this,
+    autohostbox_ = new uiCheckBox( this,
 	tr("Automatically fill in IP address or Hostname") );
-    autobox_->setChecked( true );
-    autobox_->attach( alignedBelow, table_ );
+    autohostbox_->setChecked( true );
+    autohostbox_->attach( alignedBelow, table_ );
+
+    autoinfobox_ = new uiCheckBox( this,
+	tr("Automatically fill in Platform and Data Root") );
+    autoinfobox_->setChecked( false );
+    autoinfobox_->attach( rightOf, autohostbox_ );
 
     auto* buttons = new uiButtonGroup( this, "", OD::Vertical );
     auto* addbut = new uiToolButton( buttons, "addnew",
@@ -258,7 +299,7 @@ static void setDisplayName( uiTable& tbl, int row, const HostData& hd )
 
 static void setPlatform( uiTable& tbl, int row, const HostData& hd )
 {
-    uiObject* cellobj = tbl.getCellObject( RowCol(row,2) );
+    uiObject* cellobj = tbl.getCellObject( RowCol(row,sPlfCol) );
     mDynamicCastGet(uiComboBox*,cb,cellobj)
     if ( !cb )
     {
@@ -267,6 +308,21 @@ static void setPlatform( uiTable& tbl, int row, const HostData& hd )
     }
 
     cb->setValue( hd.getPlatform().type() );
+}
+
+
+static void setStatus( uiTable& tbl, int row, uiBatchHostsDlg::Status status )
+{
+    uiObject* cellobj = tbl.getCellObject( RowCol(row,sStatus) );
+    mDynamicCastGet(uiStatusButton*,sb,cellobj)
+    if ( !sb )
+    {
+	sb = new uiStatusButton( nullptr, uiBatchHostsDlg::StatusDef(),
+				 IconNames, 0 );
+	tbl.setCellObject( RowCol(row,sStatus), sb );
+    }
+
+    sb->setValue( status );
 }
 
 
@@ -322,6 +378,17 @@ void uiBatchHostsDlg::fillTable()
 	checkHostData( idx );
 	setDisplayName( *table_, idx, *hd );
 	setPlatform( *table_, idx, *hd );
+	if ( !table_->getCellObject(RowCol(idx, sStatus)) )
+	{
+	    auto* sb = new uiStatusButton( nullptr, StatusDef(), IconNames, 0 );
+	    table_->setCellObject( RowCol(idx, sStatus), sb );
+	}
+
+	mDynamicCastGet(uiStatusButton*, status,
+				table_->getCellObject( RowCol(idx, sStatus) ));
+	status->setValue( hoststatus_.validIdx(idx) ? hoststatus_[idx] :
+								    Unknown );
+	table_->setColumnWidth( sStatus, status->prefHNrPics() );
 	setDataRoot( *table_, idx, *hd );
     }
 
@@ -335,6 +402,7 @@ void uiBatchHostsDlg::addHostCB( CallBacker* )
 {
     auto* hd = new HostData( nullptr );
     hostdatalist_ += hd;
+    hoststatus_ += Unknown;
     fillTable();
     table_->selectRow( hostdatalist_.size()-1 );
     table_->setSelectionMode( uiTable::NoSelection );
@@ -348,7 +416,7 @@ void uiBatchHostsDlg::rmHostCB( CallBacker* )
 	return;
 
     const int row = table_->currentRow();
-    const BufferString hostname = table_->text( RowCol(row,1) );
+    const BufferString hostname = table_->text( RowCol(row,sHostNameCol) );
     uiString msgtxt;
     if ( !hostname.isEmpty() )
 	msgtxt = tr( "Host %1" ).arg( hostname );
@@ -362,6 +430,7 @@ void uiBatchHostsDlg::rmHostCB( CallBacker* )
 
     table_->removeRow( row );
     delete hostdatalist_.removeSingle( row );
+    hoststatus_.removeSingle( row );
 
     const int lastrow = hostdatalist_.size()-1;
     table_->selectRow( row>=lastrow ? row-1 : row );
@@ -375,6 +444,7 @@ void uiBatchHostsDlg::moveUpCB( CallBacker* )
 	return;
 
     hostdatalist_.swap( row, row-1 );
+    hoststatus_.swap( row, row-1 );
     fillTable();
     table_->selectRow( row-1 );
 }
@@ -387,6 +457,7 @@ void uiBatchHostsDlg::moveDownCB( CallBacker* )
 	return;
 
     hostdatalist_.swap( row, row+1 );
+    hoststatus_.swap( row, row+1 );
     fillTable();
     table_->selectRow( row+1 );
 }
@@ -394,19 +465,100 @@ void uiBatchHostsDlg::moveDownCB( CallBacker* )
 
 void uiBatchHostsDlg::testHostsCB( CallBacker* )
 {
-    BufferStringSet msgs;
-    for ( const auto* hd : hostdatalist_ )
+    uiRetVal uirv;
+    uiUserShowWait usw( this, tr("Testing remote hosts") );
+    for ( int idx=0; idx<hostdatalist_.size(); idx++ )
     {
-	const BufferString ipaddr( hd->isStaticIP() ? hd->getIPAddress()
-						    : hd->getHostName() );
+	const auto* hd = hostdatalist_[idx];
+	const BufferString remhostaddress( hd->connAddress() );
 	BufferString msg;
-	System::lookupHost( ipaddr, &msg );
-	msgs.add( msg );
+	if ( !System::lookupHost(remhostaddress, &msg) )
+	{
+	    uirv.add( ::toUiString(msg) );
+	    setStatus( *table_, idx, Unknown );
+	    continue;
+	}
+	const Network::Authority auth( remhostaddress,
+				       RemoteJobExec::remoteHandlerPort() );
+	PtrMan<Network::Socket> socket = new Network::Socket( false );
+	socket->setTimeout( 1000 );
+	if ( socket->connectToHost( auth, true ) )
+	{
+	    IOPar par;
+	    BufferString id( GetExecutableName()," on ",
+			     System::localFullHostName() );
+	    par.set( sKey::Status(), id );
+	    const BufferString drfpstr =
+				    hd->getDataRoot().fullPath(hd->pathStyle());
+	    if ( !drfpstr.isEmpty() )
+		par.set( sKey::DefaultDataRoot(), drfpstr );
+
+	    if ( !socket->write( par ) )
+	    {
+		uirv.add( tr("Error writing %1 : %2").arg(auth.toString()).
+							arg(socket->errMsg()) );
+		continue;
+	    }
+	    if ( !socket->read( par ) )
+	    {
+		uirv.add( tr("Error reading %1 : %2").arg(auth.toString()).
+							arg(socket->errMsg()) );
+		continue;
+	    }
+	    uiRetVal st_uirv = doStatusPacket( idx, auth.toString(), par );
+	    if ( !st_uirv.isOK() )
+	    {
+		setStatus( *table_, idx, Error );
+		uirv.add( st_uirv);
+		continue;
+	    }
+	    setStatus( *table_, idx, OK );
+	}
+	else
+	{
+	    uirv.add(tr("%1 : %2").arg(auth.toString()).arg(socket->errMsg()));
+	    setStatus( *table_, idx, Error );
+	}
     }
 
-    const BufferString endmsg = msgs.cat();
-    if ( !endmsg.isEmpty() )
-	uiMSG().message( mToUiStringTodo(endmsg) );
+    if ( !uirv.isOK() )
+	uiMSG().errorWithDetails( uirv,
+			      uiStrings::phrCheck(uiStrings::sSettings()) );
+}
+
+
+uiRetVal uiBatchHostsDlg::doStatusPacket( int row, const char* authstr,
+					  const IOPar& par )
+{
+    uiRetVal uirv;
+    auto* hd = hostdatalist_[row];
+    BufferString plfname;
+    par.get( OD::Platform::sPlatform(), plfname );
+    if ( !OD::Platform::isValidName(plfname, false) )
+	uirv.add( tr("%1 - invalid platform: %2").arg(authstr).arg(plfname) );
+    else if ( autoinfobox_->isChecked() )
+    {
+	hd->setPlatform( OD::Platform(plfname, false) );
+	setPlatform( *table_, row, *hd );
+    }
+    else if ( plfname!=hd->getPlatform().longName() )
+	uirv.add( tr("%1 - platform name conflict: %2 vs %3").arg(authstr).
+							      arg(plfname).
+					    arg(hd->getPlatform().longName()) );
+
+    BufferString drstr;
+    par.get( sKey::DataRoot(), drstr );
+    if ( drstr.isEmpty() )
+	uirv.add( tr("%1 - data root not set").arg(authstr) );
+    else if ( autoinfobox_->isChecked() )
+    {
+	hd->setDataRoot( FilePath(drstr) );
+	setDataRoot( *table_, row, *hd );
+    }
+    else if ( BufferString(par.find(sKey::DefaultDataRoot()))!=sKey::Ok() )
+	uirv.add( tr("%1 - default data root not present").arg(authstr) );
+
+    return uirv;
 }
 
 
@@ -493,7 +645,7 @@ void uiBatchHostsDlg::ipAddressChanged( int row )
 
     hd.setIPAddress( ipaddress );
 
-    if ( autobox_->isChecked() )
+    if ( autohostbox_->isChecked() )
     {
 	setHostName( *table_, row, hd );
 	updateDisplayName( *table_, row, hd );
@@ -509,7 +661,7 @@ void uiBatchHostsDlg::hostNameChanged( int row )
     const RowCol curcell = RowCol(row,sHostNameCol);
     const BufferString hostname = table_->text( curcell );
     hd.setHostName( hostname );
-    if ( autobox_->isChecked() )
+    if ( autohostbox_->isChecked() )
     {
 	setIPAddress( *table_, row, hd );
 	updateDisplayName( *table_, row, hd );

@@ -41,7 +41,6 @@ ________________________________________________________________________
 static const char* sKeyDispName()	{ return "Display Name"; }
 static const char* sKeyHostName()	{ return "Hostname"; }
 static const char* sKeyIPAddress()	{ return "IP Address"; }
-static const char* sKeyPlatform()	{ return "Platform"; }
 
 HostData::HostData( const char* nm )
 { init( nm ); }
@@ -334,7 +333,7 @@ void HostData::fillPar( IOPar& par ) const
 	par.removeWithKey( sKeyIPAddress() );
     }
     par.set( sKeyDispName(), nrAliases() ? alias(0) : "" );
-    par.set( sKeyPlatform(), platform_.shortName() );
+    par.set( OD::Platform::sPlatform(), platform_.shortName() );
     BufferString dataroot = data_pr_.fullPath();
     dataroot.replace( ":", ";" );
     par.set( sKey::DataRoot(), dataroot );
@@ -372,7 +371,7 @@ void HostData::usePar( const IOPar& par )
     if ( hostname != res ) addAlias( res );
 
     res.setEmpty();
-    par.get( sKeyPlatform(), res );
+    par.get( OD::Platform::sPlatform(), res );
     if ( !res.isEmpty() ) platform_.set( res, true );
 
     res.setEmpty();

@@ -33,6 +33,7 @@ public:
 protected:
 
     void		dataReceivedCB(CallBacker*);
+    void		doStatus(int,const IOPar&);
     od_ostream&		createLogFile();
     od_ostream&		logstrm_;
 

@@ -57,10 +57,12 @@ namespace sKey
     inline FixedString Date()		{ return "Date"; }
     inline FixedString DateTime()	{ return "Date/Time"; }
     inline FixedString Default()	{ return "Default"; }
+    inline FixedString DefaultDataRoot(){ return "Default Data Root"; }
     inline FixedString Depth()		{ return "Depth"; }
     inline FixedString Desc()		{ return "Description"; }
     inline FixedString Distribution()	{ return "Distribution"; }
     inline FixedString EmptyString()	{ return ""; }
+    inline FixedString Err()		{ return "Err"; }
     inline FixedString Factor()		{ return "Factor"; }
     inline FixedString Fault()		{ return "Fault"; }
     inline FixedString FaultStick()	{ return "FaultStick"; }
@@ -125,6 +127,7 @@ namespace sKey
     inline FixedString Object()		{ return "Object"; }
     inline FixedString Offset()		{ return "Offset"; }
     inline FixedString OffsetRange()	{ return "Offset Range"; }
+    inline FixedString Ok()		{ return "Ok"; }
     inline FixedString Order()		{ return "Order"; }
     inline FixedString Output()		{ return "Output"; }
     inline FixedString OutputID()	{ return "output_id"; }

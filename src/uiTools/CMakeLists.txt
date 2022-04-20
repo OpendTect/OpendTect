@@ -96,6 +96,7 @@ set( OD_MODULE_SOURCES
 	uislicepos.cc
 	uislicesel.cc
 	uistatsdisplay.cc
+	uistatusbutton.cc
 	uistepoutsel.cc
 	uistratlvlsel.cc
 	uisurveyzip.cc

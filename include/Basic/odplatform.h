@@ -65,6 +65,8 @@ public:
     inline Type& type()			{ return type_; }
     inline void	setType( Type t )	{ type_ = t; }
 
+    static const char* sPlatform()	{ return "Platform"; }
+
 protected:
 
     Type	type_;

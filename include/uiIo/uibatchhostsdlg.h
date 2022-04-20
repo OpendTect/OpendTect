@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
+#include "uistringset.h"
 
 class HostDataList;
 class RowCol;
@@ -23,8 +24,11 @@ class uiToolButton;
 mExpClass(uiIo) uiBatchHostsDlg : public uiDialog
 { mODTextTranslationClass(uiBatchHostsDlg)
 public:
-			enum HostLookupMode { StaticIP, NameDNS };
+			enum HostLookupMode {StaticIP,NameDNS};
 			mDeclareEnumUtils(HostLookupMode)
+
+			enum Status {Unknown,OK,Error};
+			mDeclareEnumUtils(Status)
 
 			uiBatchHostsDlg(uiParent*);
 			~uiBatchHostsDlg();
@@ -34,9 +38,11 @@ protected:
     uiToolButton*	removebut_;
     uiToolButton*	upbut_;
     uiToolButton*	downbut_;
-    uiCheckBox*		autobox_;
+    uiCheckBox*		autohostbox_;
+    uiCheckBox*		autoinfobox_;
 
     HostDataList&	hostdatalist_;
+    TypeSet<Status>	hoststatus_;
 
     void		fillTable();
     void		advbutCB(CallBacker*);
@@ -50,6 +56,7 @@ protected:
     void		testHostsCB(CallBacker*);
     void		hostSelCB(CallBacker*);
 
+    uiRetVal		doStatusPacket(int row,const char*,const IOPar&);
     void		checkHostData(int row);
     void		ipAddressChanged(int row);
     void		hostNameChanged(int row);

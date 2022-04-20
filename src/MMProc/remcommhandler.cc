@@ -11,8 +11,12 @@ ________________________________________________________________________
 #include "remcommhandler.h"
 
 #include "filepath.h"
+#include "genc.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "oddirs.h"
+#include "odplatform.h"
+#include "odver.h"
 #include "od_iostream.h"
 #include "oscommand.h"
 #include "systeminfo.h"
@@ -50,6 +54,14 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
     server_.read( socketid, par );
     if ( par.isEmpty() )
 	writeLog( "Could not read any parameters from server" );
+
+    if ( par.hasKey(sKey::Status()) )
+    {
+	writeLog( BufferString("Status request from: ",
+			       par.find(sKey::Status())) );
+	doStatus( socketid, par );
+	return;
+    }
 
     BufferString procnm, parfile;
     par.get( "Proc Name", procnm );
@@ -117,4 +129,27 @@ void RemCommHandler::writeLog( const char* msg )
 {
     logstrm_ << Time::getDateTimeString() << od_endl;
     logstrm_ << msg <<od_endl;
+}
+
+
+void RemCommHandler::doStatus( int socketid, const IOPar& inpar )
+{
+    IOPar par;
+    BufferString id( GetExecutableName()," on ",
+		     server_.authority().toString() );
+    par.set( sKey::Status(), id );
+    par.set( sKey::Version(), GetFullODVersion() );
+    par.set( OD::Platform::sPlatform(), OD::Platform::local().longName() );
+    par.set( sKey::DataRoot(), GetBaseDataDir() );
+    if ( inpar.hasKey(sKey::DefaultDataRoot()) )
+    {
+	if ( IOMan::isValidDataRoot(inpar.find(sKey::DefaultDataRoot())) )
+	    par.set( sKey::DefaultDataRoot(), sKey::Ok() );
+	else
+	    par.set( sKey::DefaultDataRoot(), sKey::Err() );
+    }
+
+    if ( !server_.write( socketid, par ) )
+	writeLog( BufferString("Status write error: ",
+			       inpar.find(sKey::Status())) );
 }
