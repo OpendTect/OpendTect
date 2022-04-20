@@ -1050,6 +1050,12 @@ bool uiTable::isRowStretchable( int row ) const
 {  pErrMsg( "Not impl yet" ); return false; }
 
 
+void uiTable::setSortable( bool yn )
+{
+    body_->setSortingEnabled( yn );
+}
+
+
 void uiTable::setPixmap( const RowCol& rc, const uiPixmap& pm )
 {
     mBlockCmdRec;

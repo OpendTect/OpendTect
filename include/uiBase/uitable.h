@@ -180,6 +180,7 @@ public:
     void		setRowStretchable(int,bool);
     bool		isColumnStretchable(int) const;
     bool		isRowStretchable(int) const;
+    void		setSortable(bool);
 
     void		setTableReadOnly(bool);
     bool		isTableReadOnly() const;

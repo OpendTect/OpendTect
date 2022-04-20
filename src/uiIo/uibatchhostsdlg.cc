@@ -124,6 +124,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     table_->resizeHeaderToContents( true );
     table_->setTableReadOnly( !writeallowed );
     table_->setSelectionMode( uiTable::NoSelection );
+    table_->setSortable( false );
     mAttachCB( table_->valueChanged, uiBatchHostsDlg::changedCB );
     mAttachCB( table_->rowClicked, uiBatchHostsDlg::hostSelCB );
     table_->attach( leftAlignedBelow, filefld );
