@@ -69,6 +69,7 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
     if ( !forread_ )
     {
 	surveyfld_ = new uiGenInput( this, uiStrings::sName() );
+	surveyfld_->setStretch( 2, 0 );
 	surveyfld_->attach( alignedBelow, surveylistfld_ );
     }
 
