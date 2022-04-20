@@ -176,9 +176,9 @@ bool GMTLocations::doExecute( od_ostream& strm, const char* fnm )
     if ( !setobj ) mErrStrmRet("Cannot find pickset")
 
     strm << "Posting Locations " << setobj->name() << " ...  ";
-    Pick::Set ps;
     BufferString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
+    RefMan<Pick::Set> ps = new Pick::Set;
+    if ( !PickSetTranslator::retrieve(*ps,setobj,true,errmsg) )
 	mErrStrmRet( errmsg )
 
     OD::Color outcol; get( sKey::Color(), outcol );
@@ -214,9 +214,9 @@ bool GMTLocations::doExecute( od_ostream& strm, const char* fnm )
     if ( !procstrm.isOK() )
 	mErrStrmRet("Failed to overlay locations")
 
-    for ( int idx=0; idx<ps.size(); idx++ )
+    for ( int idx=0; idx<ps->size(); idx++ )
     {
-	const Coord3 pos = ps[idx].pos();
+	const Coord3& pos = ps->getPos( idx );
 	procstrm << pos.x << " " << pos.y << "\n";
     }
 
@@ -275,9 +275,9 @@ bool GMTPolyline::doExecute( od_ostream& strm, const char* fnm )
     if ( !setobj ) mErrStrmRet("Cannot find pickset")
 
     strm << "Posting Polyline " << setobj->name() << " ...  ";
-    Pick::Set ps;
     BufferString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
+    RefMan<Pick::Set> ps = new Pick::Set;
+    if ( !PickSetTranslator::retrieve(*ps,setobj,true,errmsg) )
 	mErrStrmRet( errmsg )
 
     OD::LineStyle ls;
@@ -296,7 +296,7 @@ bool GMTPolyline::doExecute( od_ostream& strm, const char* fnm )
 
     OS::MachineCommand xymc( "psxy" );
     xymc.addArg( mapprojstr ).addArg( rgstr ).addArg( "-O" ).addArg( "-K" );
-    if ( ps.disp_.connect_ == Pick::Set::Disp::Close )
+    if ( ps->disp_.connect_ == Pick::Set::Disp::Close )
 	xymc.addArg( "-L" );
 
     if ( drawline )
@@ -317,9 +317,9 @@ bool GMTPolyline::doExecute( od_ostream& strm, const char* fnm )
     od_ostream procstrm = makeOStream( xymc, strm, fnm );
     if ( !procstrm.isOK() ) mErrStrmRet("Failed to overlay polylines")
 
-    for ( int idx=0; idx<ps.size(); idx++ )
+    for ( int idx=0; idx<ps->size(); idx++ )
     {
-	const Coord3 pos = ps[idx].pos();
+	const Coord3& pos = ps->getPos( idx );
 	procstrm << pos.x << " " << pos.y << "\n";
     }
 

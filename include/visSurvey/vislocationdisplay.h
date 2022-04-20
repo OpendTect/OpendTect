@@ -41,8 +41,8 @@ public:
     virtual void		setSet(Pick::Set*); // once!
     void			setSetMgr(Pick::SetMgr*);
     				/*!<Only used for notifications. */
-    Pick::Set*			getSet()		{ return set_; }
-    const Pick::Set*		getSet() const		{ return set_; }
+    RefMan<Pick::Set>		getSet();
+    ConstRefMan<Pick::Set>	getSet() const;
 
     MultiID			getMultiID() const	{ return storedmid_; }
 
@@ -138,23 +138,24 @@ protected:
     virtual void		dispChg(CallBacker* cb);
     void			bulkLocChg(CallBacker* cb);
 
-    Pick::Set*			set_;
-    Pick::SetMgr*		picksetmgr_;
+    RefMan<Pick::Set>		set_;
+    Pick::SetMgr*		picksetmgr_		= nullptr;
     Notifier<LocationDisplay>	manip_;
-    int				waitsfordirectionid_;
-    int				waitsforpositionid_;
+    int				waitsfordirectionid_	= -1;
+    int				waitsforpositionid_	= -1;
 
     TypeSet<int>		invalidpicks_;
 
-    bool			showall_;
-    int				mousepressid_;
-    int				pickedsobjid_; //!< Picked SurveyObject ID
-    int				voiidx_;
-    bool			ctrldown_;
+    bool			showall_		= true;
+    int				mousepressid_		= -1;
+    int				pickedsobjid_		= -1;
+				//!< Picked SurveyObject ID
+    int				voiidx_			= -1;
+    bool			ctrldown_		= false;
 
-    visBase::EventCatcher*	eventcatcher_;
-    const mVisTrans*		transformation_;
-    ZAxisTransform*		datatransform_;
+    visBase::EventCatcher*	eventcatcher_		= nullptr;
+    const mVisTrans*		transformation_		= nullptr;
+    ZAxisTransform*		datatransform_		= nullptr;
 
     MultiID			storedmid_;
 
@@ -166,10 +167,10 @@ protected:
 
     Sower*			sower_;
     SeedPainter*		painter_;
-    Coord3			undoloccoord_;
-    bool			undomove_;
-    bool			selectionmodel_;
-    bool			allowdoubleclicks_ = true;
+    Coord3			undoloccoord_		= Coord3::udf();
+    bool			undomove_		= false;
+    bool			selectionmodel_		= false;
+    bool			allowdoubleclicks_	= true;
 };
 
 } // namespace visSurvey

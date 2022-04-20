@@ -10,17 +10,15 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "odjson.h"
+
 #include "color.h"
-#include "pickset.h"
-#include "googlexmlwriter.h"
 #include "giswriter.h"
+#include "googlexmlwriter.h"
 #include "ptrman.h"
 #include "survinfo.h"
 
 namespace Coords { class CoordSystem; }
-typedef TypeSet<Coord3> coord3dset;
-typedef TypeSet<Coord> coord2dset;
-
+namespace Pick { class Set; }
 
 namespace OD
 {
@@ -56,15 +54,18 @@ public:
     void		doGeoJSonCheck(uiRetVal&);
 
     ValueSet*		createJSON(BufferString geomtyp,
-			   const coord2dset& crdset, const BufferStringSet& nms,
-			    ConstRefMan<Coords::CoordSystem>,
-			    GISWriter::Property&);
+				const TypeSet<Coord>& crdset,
+				const BufferStringSet& nms,
+				ConstRefMan<Coords::CoordSystem>,
+				GISWriter::Property&);
     ValueSet*		createJSON(BufferString geomtyp,
-			   const coord3dset& crdset, const BufferStringSet& nms,
-			    ConstRefMan<Coords::CoordSystem>,
-			    GISWriter::Property&);
+				const TypeSet<Coord3>& crdset,
+				const BufferStringSet& nms,
+				ConstRefMan<Coords::CoordSystem>,
+				GISWriter::Property&);
     ValueSet*		createJSON(BufferString geomtyp,
-			      const pickset&,ConstRefMan<Coords::CoordSystem>,
+			    const RefObjectSet<const Pick::Set>&,
+			    ConstRefMan<Coords::CoordSystem>,
 			    const BufferString& iconnm=BufferString::empty());
     void		setProperties(const GISWriter::Property&);
 
@@ -77,7 +78,7 @@ protected:
 
     void		addCoord(const Coord3& coords, Array& poly);
     void		addCoord(const Coord& coords, Array& poly);
-    bool		isAntiMeridianCrossed(const coord3dset&);
+    bool		isAntiMeridianCrossed(const TypeSet<Coord3>&);
     Array*		createFeatArray(BufferString);
     Array*		createFeatCoordArray(Array* featarr, BufferString typ,
 							GISWriter::Property);

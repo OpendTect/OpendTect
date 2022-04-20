@@ -336,7 +336,7 @@ public:
     RefMan<T>		operator[](idx_type);
     ConstRefMan<T>	operator[](idx_type) const;
 
-    idx_type		indexOf(T*) const;
+    idx_type		indexOf(const T*) const;
 
 
 private:
@@ -742,7 +742,7 @@ ConstRefMan<T> WeakPtrSet<T>::operator[]( int idx ) const
 
 
 template <class T> inline
-int WeakPtrSet<T>::indexOf( T* p ) const
+int WeakPtrSet<T>::indexOf( const T* p ) const
 {
     lock_.lock();
     int res = -1;

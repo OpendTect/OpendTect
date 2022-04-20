@@ -237,6 +237,7 @@ ________________________________________________________________________
 #define mInstMgrMnuItem		(mUtilMnu + 50)
 #define mInstAutoUpdPolMnuItm	(mUtilMnu + 51)
 #define mInstConnSettsMnuItm	(mUtilMnu + 52)
+#define mDisplayPickMgrMnuItm	(mUtilMnu + 96)
 #define mDisplayWellMgrMnuItm	(mUtilMnu + 97)
 #define mDisplayMemoryMnuItm	(mUtilMnu + 98)
 #define mDumpDataPacksMnuItm	(mUtilMnu + 99)

@@ -88,8 +88,10 @@ void uiODPickSetParentTreeItem::setRemovedCB( CallBacker* cb )
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
-	if ( !itm ) continue;
-	if ( &itm->getSet() == ps )
+	if ( !itm )
+	    continue;
+
+	if ( itm->getSet() == ps )
 	{
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    uiTreeItem::removeChild( itm );
@@ -157,30 +159,33 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<mids.size(); idx++ )
 	{
 	    setMoreObjectsToDoHint( idx<mids.size()-1 );
-	    Pick::Set& ps = psm.get( mids[idx] );
-	    addPickSet( &ps );
+	    RefMan<Pick::Set> ps = psm.get( mids[idx] );
+	    addPickSet( ps );
 	}
     }
     else if ( mnuid==mGen3DIdx )
     {
 	if ( !applMgr()->pickServer()->create3DGenSet() )
 	    return false;
-	Pick::Set& ps = psm.get( psm.size()-1 );
-	addPickSet( &ps );
+
+	RefMan<Pick::Set> ps = psm.get( psm.size()-1 );
+	addPickSet( ps );
     }
     else if ( mnuid==mRandom2DIdx )
     {
 	if ( !applMgr()->pickServer()->createRandom2DSet() )
 	    return false;
-	Pick::Set& ps = psm.get( psm.size()-1 );
-	addPickSet( &ps );
+
+	RefMan<Pick::Set> ps = psm.get( psm.size()-1 );
+	addPickSet( ps );
     }
     else if ( mnuid==mEmptyIdx )
     {
 	if ( !applMgr()->pickServer()->createEmptySet(false) )
 	    return false;
-	Pick::Set& ps = psm.get( psm.size()-1 );
-	addPickSet( &ps );
+
+	RefMan<Pick::Set> ps = psm.get( psm.size()-1 );
+	addPickSet( ps );
     }
     else if ( mnuid==mSaveIdx )
     {
@@ -223,7 +228,8 @@ uiTreeItem*
 
 
 uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
-    : set_(ps)
+    : uiODDisplayTreeItem()
+    , set_(&ps)
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
     , dirmnuitem_(m3Dots(tr("Set Directions")))
@@ -254,7 +260,9 @@ uiODPickSetTreeItem::~uiODPickSetTreeItem()
 
 
 bool uiODPickSetTreeItem::actModeWhenSelected() const
-{ return set_.isEmpty(); }
+{
+    return set_ && set_->isEmpty();
+}
 
 
 void uiODPickSetTreeItem::selChangedCB( CallBacker* )
@@ -274,7 +282,7 @@ bool uiODPickSetTreeItem::doubleClick( uiTreeViewItem* item )
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
-    uiPickPropDlg dlg( getUiParent(), set_ , psd );
+    uiPickPropDlg dlg( getUiParent(), *set_ , psd );
     return dlg.go();
 }
 
@@ -282,7 +290,7 @@ bool uiODPickSetTreeItem::doubleClick( uiTreeViewItem* item )
 void uiODPickSetTreeItem::setChg( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb)
-    if ( !ps || &set_!=ps ) return;
+    if ( !ps || set_!=ps ) return;
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
@@ -297,10 +305,10 @@ bool uiODPickSetTreeItem::init()
     {
 	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
-	if ( set_.disp_.pixsize_>100 )
-	    set_.disp_.pixsize_ = 3;
+	if ( set_->disp_.pixsize_>100 )
+	    set_->disp_.pixsize_ = 3;
 
-	psd->setSet( &set_ );
+	psd->setSet( set_ );
 	visserv_->addObject( psd, sceneID(), true );
 	psd->fullRedraw();
     }
@@ -328,9 +336,9 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
 
-    const int setidx = Pick::Mgr().indexOf( set_ );
+    const int setidx = Pick::Mgr().indexOf( *set_ );
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
-    const bool isreadonly = set_.isReadOnly();
+    const bool isreadonly = set_->isReadOnly();
     if ( istb )
     {
 	mAddMenuItem( menu, &propertymnuitem_, true, false );
@@ -370,17 +378,17 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==storemnuitem_.id )
     {
 	menu->setIsHandled( true );
-	applMgr()->storePickSet( set_ );
+	applMgr()->storePickSet( *set_ );
     }
     else if ( mnuid==storeasmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	applMgr()->storePickSetAs( set_ );
+	applMgr()->storePickSetAs( *set_ );
     }
     else if ( mnuid==dirmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	applMgr()->setPickSetDirs( set_ );
+	applMgr()->setPickSetDirs( *set_ );
     }
     else if ( mnuid==onlyatsectmnuitem_.id )
     {
@@ -391,7 +399,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==propertymnuitem_.id )
     {
 	menu->setIsHandled( true );
-	uiPickPropDlg dlg( getUiParent(), set_ , psd );
+	uiPickPropDlg dlg( getUiParent(), *set_ , psd );
 	dlg.go();
     }
     else if ( mnuid==paintingmnuitem_.id )
@@ -409,9 +417,9 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !emps )
 	    return;
 
-	emps->copyFrom( set_ );
-	emps->setPreferredColor( set_.disp_.color_ );
-	emps->setName( BufferString("Geobody from ",set_.name()) );
+	emps->copyFrom( *set_ );
+	emps->setPreferredColor( set_->disp_.color_ );
+	emps->setName( BufferString("Geobody from ",set_->name()) );
 	emps->setChangedFlag();
 
 	RefMan<visSurvey::RandomPosBodyDisplay> npsd =
@@ -482,8 +490,8 @@ void uiODPickSetTreeItem::prepareForShutdown()
 
 bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
-    const int setidx = Pick::Mgr().indexOf( set_ );
-    if ( set_.isReadOnly() || setidx<0 || !Pick::Mgr().isChanged(setidx) )
+    const int setidx = Pick::Mgr().indexOf( *set_ );
+    if ( set_->isReadOnly() || setidx<0 || !Pick::Mgr().isChanged(setidx) )
 	return true;
 
     uiString warnstr = tr("This pickset has changed since the last save.\n\n"
@@ -492,13 +500,13 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
     if (retval == 0 )
     {
 	Pick::SetMgr& psm = Pick::Mgr();
-	applMgr()->pickServer()->reLoadSet( psm.get(set_) );
+	applMgr()->pickServer()->reLoadSet( psm.get(*set_) );
 	return true;
     }
     else if ( retval == -1 )
 	return false;
     else
-	applMgr()->storePickSet( set_ );
+	applMgr()->storePickSet( *set_ );
 
     return true;
 }
@@ -540,8 +548,10 @@ void uiODPolygonParentTreeItem::setRemovedCB( CallBacker* cb )
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiODPolygonTreeItem*,itm,children_[idx])
-	if ( !itm ) continue;
-	const Pick::Set* pickset = &itm->getSet();
+	if ( !itm )
+	    continue;
+
+	ConstRefMan<Pick::Set> pickset = itm->getSet();
 	if ( pickset == ps )
 	{
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
@@ -597,8 +607,8 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 
 	for ( int idx=0; idx<mids.size(); idx++ )
 	{
-	    Pick::Set& ps = Pick::Mgr().get( mids[idx] );
-	    addPolygon( &ps );
+	    RefMan<Pick::Set> ps = Pick::Mgr().get( mids[idx] );
+	    addPolygon( ps );
 	}
     }
     else if ( mnuid==mNewPolyIdx )
@@ -606,8 +616,8 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	if ( !applMgr()->pickServer()->createEmptySet(true) )
 	    return false;
 
-	Pick::Set& ps = Pick::Mgr().get( Pick::Mgr().size()-1 );
-	addPolygon( &ps );
+	RefMan<Pick::Set> ps = Pick::Mgr().get( Pick::Mgr().size()-1 );
+	addPolygon( ps );
     }
     else if ( mnuid==mSavePolyIdx )
     {
@@ -649,7 +659,8 @@ uiTreeItem*
 
 // uiODPolygonTreeItem
 uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
-    : set_(ps)
+    : uiODDisplayTreeItem()
+    , set_(&ps)
     , storemnuitem_(uiStrings::sSave())
     , storeasmnuitem_(uiStrings::sSaveAs())
     , onlyatsectmnuitem_(tr("Only at Sections"))
@@ -676,13 +687,16 @@ uiODPolygonTreeItem::~uiODPolygonTreeItem()
 
 
 bool uiODPolygonTreeItem::actModeWhenSelected() const
-{ return set_.isEmpty(); }
+{
+    return set_ && set_->isEmpty();
+}
 
 
 void uiODPolygonTreeItem::setChg( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb)
-    if ( !ps || &set_!=ps ) return;
+    if ( !ps || set_!=ps )
+	return;
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
@@ -708,7 +722,7 @@ bool uiODPolygonTreeItem::doubleClick( uiTreeViewItem* item )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
     // TODO: Make polygon specific properties dialog
-    uiPickPropDlg dlg( getUiParent(), set_ , psd );
+    uiPickPropDlg dlg( getUiParent(), *set_ , psd );
     return dlg.go();
 }
 
@@ -719,9 +733,10 @@ bool uiODPolygonTreeItem::init()
     {
 	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
-	if ( set_.disp_.pixsize_>100 )
-	    set_.disp_.pixsize_ = 3;
-	psd->setSet( &set_ );
+	if ( set_->disp_.pixsize_>100 )
+	    set_->disp_.pixsize_ = 3;
+
+	psd->setSet( set_ );
 	visserv_->addObject( psd, sceneID(), true );
 	psd->fullRedraw();
     }
@@ -749,7 +764,7 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
     if ( istb )
     {
 	mAddMenuItem( menu, &propertymnuitem_, true, false );
-	const int setidx = Pick::Mgr().indexOf( set_ );
+	const int setidx = Pick::Mgr().indexOf( *set_ );
 	const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
 	mAddMenuItemCond( menu, &storemnuitem_, changed, false, changed );
 	return;
@@ -758,17 +773,17 @@ void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
 
-    if ( set_.disp_.connect_ == Pick::Set::Disp::Open )
+    if ( set_->disp_.connect_ == Pick::Set::Disp::Open )
 	mAddMenuItem( menu, &closepolyitem_, true, false )
     else
 	mResetMenuItem( &closepolyitem_ );
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_,
-					   !set_.isReadOnly(),!psd->allShown());
+					   !set_->isReadOnly(),!psd->allShown());
     mAddMenuItem( &displaymnuitem_, &propertymnuitem_, true, false );
 
-    const int setidx = Pick::Mgr().indexOf( set_ );
+    const int setidx = Pick::Mgr().indexOf( *set_ );
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
     mAddMenuItem( menu, &storemnuitem_, changed, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
@@ -795,19 +810,19 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     bool handled = true;
-    if ( set_.disp_.connect_==Pick::Set::Disp::Open
+    if ( set_->disp_.connect_==Pick::Set::Disp::Open
 	 && mnuid==closepolyitem_.id )
     {
-	set_.disp_.connect_ = Pick::Set::Disp::Close;
-	Pick::Mgr().reportDispChange( this, set_ );
+	set_->disp_.connect_ = Pick::Set::Disp::Close;
+	Pick::Mgr().reportDispChange( this, *set_ );
     }
     else if ( mnuid==storemnuitem_.id )
     {
-	applMgr()->storePickSet( set_ );
+	applMgr()->storePickSet( *set_ );
     }
     else if ( mnuid==storeasmnuitem_.id )
     {
-	applMgr()->storePickSetAs( set_ );
+	applMgr()->storePickSetAs( *set_ );
     }
     else if ( mnuid==onlyatsectmnuitem_.id )
     {
@@ -816,12 +831,12 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==propertymnuitem_.id )
     {
-	uiPickPropDlg dlg( getUiParent(), set_ , psd );
+	uiPickPropDlg dlg( getUiParent(), *set_ , psd );
 	dlg.go();
     }
     else if ( mnuid == changezmnuitem_.id )
     {
-	if ( set_.isEmpty() )
+	if ( set_->isEmpty() )
 	{
 	    uiMSG().message( uiStrings::sPolygon()
 		       .append( tr("%1 is empty. Pick some points in the %2") )
@@ -830,20 +845,20 @@ void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 	}
 
-	uiPolygonZChanger dlg( getUiParent(), set_ );
+	uiPolygonZChanger dlg( getUiParent(), *set_ );
 	dlg.go();
     }
     else if ( mnuid == workareaitem_.id )
     {
 	TrcKeyZSampling tkzs;
-	set_.getBoundingBox( tkzs );
+	set_->getBoundingBox( tkzs );
 	if ( tkzs.zsamp_.width() < 2*SI().zStep() )
 	    tkzs.zsamp_ = SI().zRange( false );
 	visserv_->setWorkingArea( tkzs );
     }
     else if ( mnuid == calcvolmnuitem_.id )
     {
-	uiCalcPolyHorVol dlg( getUiParent(), set_ );
+	uiCalcPolyHorVol dlg( getUiParent(), *set_ );
 	dlg.go();
     }
     else
@@ -871,7 +886,7 @@ void uiODPolygonTreeItem::prepareForShutdown()
 
 bool uiODPolygonTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
-    const int setidx = Pick::Mgr().indexOf( set_ );
+    const int setidx = Pick::Mgr().indexOf( *set_ );
     if ( setidx < 0 || !Pick::Mgr().isChanged(setidx) )
 	return true;
 
@@ -883,7 +898,7 @@ bool uiODPolygonTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
     else if ( retval == -1 )
 	return false;
     else
-	applMgr()->storePickSet( set_ );
+	applMgr()->storePickSet( *set_ );
 
     return true;
 }

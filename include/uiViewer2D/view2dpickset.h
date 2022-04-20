@@ -33,7 +33,7 @@ public:
     void		clearPicks();
     void		enablePainting(bool yn);
     void		selected();
-    const MultiID	pickSetID() const;
+    MultiID		pickSetID() const;
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -45,14 +45,10 @@ protected:
     void		dataChangedCB(CallBacker*);
     MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
     void		triggerDeSel();
-    mDeprecatedDef void updateSetIdx(const TrcKeyZSampling&);
-    mDeprecatedDef void updateSetIdx(const TrcKeyPath&);
 
-    Pick::Set*			pickset_;
+    RefMan<Pick::Set>		pickset_;
     bool			isselected_;
     Notifier<VW2DPickSet>	deselected_;
-    bool			isownremove_; //deprecated
-    TypeSet<int>		picksetidxs_; //deprecated
     TypeSet<int>		auxids_;
 
     ObjectSet<FlatView::AuxData>	picks_;

@@ -86,7 +86,7 @@ public:
 			    \retval 0 name exists and overwrite is not set.
 			    \retval 1 success.
 			*/
-    Pick::Set*		getSet() { return set_; }
+    RefMan<Pick::Set>	getSet() { return set_; }
 
 protected:
     			SubItem(Pick::Set&,int displayid=-1);
@@ -120,7 +120,7 @@ protected:
     MenuItem		scalemnuitem_;
     MenuItem		storemnuitem_;
     MenuItem		storeasmnuitem_;
-    Pick::Set*		set_;
+    RefMan<Pick::Set>	set_;
 };
 
 
@@ -148,10 +148,10 @@ protected:
     Color		boxcolor_;
 
     static const char*	sKeyBoxColor()		{ return "Box Color"; }
-    
+
     bool		hasScale() const		{ return true; }
     void		setScale(float);
-    
+
     MenuItem		changetextmnuitem_;
     MenuItem		changecolormnuitem_;
 };

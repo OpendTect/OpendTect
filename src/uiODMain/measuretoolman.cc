@@ -209,9 +209,7 @@ int MeasureToolMan::getActiveSceneID() const
 static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
 {
     TypeSet<Coord3> crds;
-    for ( int idx=0; idx<set.size(); idx++ )
-	crds += set[idx].pos_;
-
+    set.getLocations( crds );
     dlg.fill( crds );
 }
 
@@ -267,7 +265,7 @@ void MeasureToolMan::clearCB( CallBacker* )
 	Pick::Set* ps = displayobjs_[idx]->getSet();
 	if ( !ps ) continue;
 
-	ps->erase();
+	ps->setEmpty();
 	picksetmgr_.reportChange( this, *ps );
     }
 

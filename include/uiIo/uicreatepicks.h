@@ -34,14 +34,13 @@ namespace Pick { class Set; }
 mExpClass(uiIo) RandLocGenPars
 { mODTextTranslationClass(RandLocGenPars);
 public:
-
 			RandLocGenPars()
 			    : nr_(1), needhor_(false)
 			    , horidx_(-1), horidx2_(-1)	{}
 
     int			nr_;
     bool		needhor_;
-    TrcKeySampling		hs_;
+    TrcKeySampling	hs_;
     Interval<float>	zrg_;
     int			horidx_;
     int			horidx2_;
@@ -50,7 +49,8 @@ public:
 
 
 mExpClass(uiIo) uiCreatePicks : public uiDialog
-{ mODTextTranslationClass(uiCreatePicks);
+{
+mODTextTranslationClass(uiCreatePicks)
 public:
     enum DepthType	{ Feet=0, Meter };
 			mDeclareEnumUtils(DepthType);
@@ -58,14 +58,15 @@ public:
 			mDeclareEnumUtils(TimeType);
 			uiCreatePicks(uiParent*,bool aspolygon=false,
 				   bool addstdfields=true, bool zvalreq=false);
-			~uiCreatePicks() {}
+    virtual		~uiCreatePicks();
 
-    virtual Pick::Set*	getPickSet() const;	//!< Set is yours
+    virtual RefMan<Pick::Set>	getPickSet() const;
     const char*		pickSetName() const {return name_; }
     float		getZVal() { return zvalfld_->getFValue(); }
     float		getZValInSurvUnit() { return zval_; }
     DepthType		getDepthZValType() { return zdepthvaltyp_; }
     TimeType		getTimeZValType()  { return ztimevaltyp_; }
+
 protected:
 
     uiGenInput*		nmfld_;
@@ -84,17 +85,16 @@ protected:
     float		zval_;
     DepthType		zdepthvaltyp_;
     TimeType		ztimevaltyp_;
-
 };
 
 
 mExpClass(uiIo) uiGenPosPicks : public uiCreatePicks
 { mODTextTranslationClass(uiGenPosPicks);
 public:
-    			uiGenPosPicks(uiParent*);
+			uiGenPosPicks(uiParent*);
 			~uiGenPosPicks();
 
-    virtual Pick::Set*	getPickSet() const;
+    RefMan<Pick::Set>	getPickSet() const override;
 
 protected:
 
@@ -112,7 +112,7 @@ mExpClass(uiIo) uiGenRandPicks2D : public uiCreatePicks
 { mODTextTranslationClass(uiGenRandPicks2D);
 public:
 
-    			uiGenRandPicks2D(uiParent*,const BufferStringSet&,
+			uiGenRandPicks2D(uiParent*,const BufferStringSet&,
 					 const BufferStringSet&);
 
     const RandLocGenPars& randPars() const	{ return randpars_; }
@@ -138,7 +138,4 @@ protected:
     void		hor1Sel(CallBacker*);
     void		hor2Sel(CallBacker*);
     void		horSel(uiComboBox*,uiComboBox*);
-
 };
-
-

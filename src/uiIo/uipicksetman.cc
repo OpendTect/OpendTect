@@ -84,8 +84,8 @@ void uiPickSetMan::mkFileInfo()
     if ( !curioobj_ ) { setInfo( "" ); return; }
 
     BufferString txt;
-    Pick::Set ps;
-    if ( !PickSetTranslator::retrieve(ps,curioobj_,true, txt) )
+    RefMan<Pick::Set> ps = new Pick::Set;
+    if ( !PickSetTranslator::retrieve(*ps,curioobj_,true, txt) )
     {
 	BufferString msg( "Read error: '" ); msg += txt; msg += "'";
 	txt = msg;
@@ -101,7 +101,7 @@ void uiPickSetMan::mkFileInfo()
 	if ( havetype )
 	    txt.add( "Type: " ).add( typ );
 
-	const int sz = ps.size();
+	const int sz = ps->size();
 	if ( sz < 1 )
 	    txt.add( havetype ? " <empty>" : "Empty PointSet." );
 	else
@@ -114,12 +114,12 @@ void uiPickSetMan::mkFileInfo()
 		if ( sz > 1 )
 		    txt += "s";
 	    }
-	    if ( !ispoly && ps[0].hasDir() )
+	    if ( !ispoly && ps->get(0).hasDir() )
 		txt += " (with directions)";
 
 	    if ( ispoly && sz > 2 )
 	    {
-		const float area = ps.getXYArea();
+		const float area = ps->getXYArea();
 		if ( !mIsUdf(area) )
 		{
 		    txt.add( ", area: " )
@@ -131,12 +131,12 @@ void uiPickSetMan::mkFileInfo()
 		txt += ">";
 	}
 
-	OD::Color col( ps.disp_.color_ );
+	OD::Color col( ps->disp_.color_ );
 	col.setTransparency( 0 );
 	txt.add( "\nColor: " ).add( col.largeUserInfoString() );
-	txt.add( "\nMarker size (pixels): " ).add( ps.disp_.pixsize_ );
-	txt.add( "\nMarker type: " ) .add( MarkerStyle3D::getTypeString(
-				(MarkerStyle3D::Type)ps.disp_.markertype_) );
+	txt.add( "\nMarker size (pixels): " ).add( ps->disp_.pixsize_ );
+	txt.add( "\nMarker type: " ).add( MarkerStyle3D::getTypeString(
+			sCast(MarkerStyle3D::Type,ps->disp_.markertype_)) );
     }
 
     txt.add( "\n" ).add( getFileInfo() );

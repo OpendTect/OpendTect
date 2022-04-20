@@ -748,16 +748,11 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* taskr )
 	 isosurfsettings_[idx].seedsid_.isUdf() )
 	return false;
 
-    Pick::Set seeds;
-    if ( Pick::Mgr().indexOf(isosurfsettings_[idx].seedsid_)!=-1 )
-	seeds = Pick::Mgr().get( isosurfsettings_[idx].seedsid_ );
-    else
-    {
-	BufferString ermsg;
-	if ( !PickSetTranslator::retrieve( seeds,
-		    IOM().get(isosurfsettings_[idx].seedsid_), true, ermsg ) )
-	    return false;
-    }
+    BufferString errmsg;
+    RefMan<Pick::Set> seeds =
+	Pick::getSet( isosurfsettings_[idx].seedsid_, errmsg );
+    if ( !seeds )
+	return false;
 
     // TODO: adapt to multi-attrib
     const Array3D<float>& data = attribs_[0]->cache_->data();
@@ -771,13 +766,13 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* taskr )
 
     TrcKeyZSampling cs = getTrcKeyZSampling(true,true,0);
     cs.normalize();
-    for ( int seedidx=0; seedidx<seeds.size(); seedidx++ )
+    for ( int seedidx=0; seedidx<seeds->size(); seedidx++ )
     {
-	const Coord3 pos =  seeds[seedidx].pos_;
-	const BinID bid = SI().transform( pos );
+	const Pick::Location& loc = seeds->get( seedidx );
+	const BinID bid = SI().transform( loc.pos() );
 	const int i = cs.inlIdx( bid.inl() );
 	const int j = cs.crlIdx( bid.crl() );
-	const int k = cs.zIdx( (float) pos.z );
+	const int k = cs.zIdx( loc.z() );
 	ff.addSeed( i, j, k );
     }
 

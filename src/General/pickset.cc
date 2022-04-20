@@ -5,6 +5,7 @@
 -*/
 
 
+#include "pickset.h"
 #include "picksetmgr.h"
 
 #include "filepath.h"
@@ -19,6 +20,7 @@
 #include "unitofmeasure.h"
 #include "od_iostream.h"
 #include <ctype.h>
+#include <iostream>
 
 static const char* sKeyStartIdx()	{ return "Start index"; }
 
@@ -33,39 +35,45 @@ namespace Pick
 {
 
 // Pick::SetMgr
-SetMgr& SetMgr::getMgr( const char* nm )
+static ObjectSet<SetMgr>& setMgrs()
 {
     mDefineStaticLocalObject( PtrMan<ManagedObjectSet<SetMgr> >, mgrs, = 0 );
-    SetMgr* newmgr = 0;
     if ( !mgrs )
     {
 	mgrs = new ManagedObjectSet<SetMgr>;
-	newmgr = new SetMgr( 0 );
-	    // ensure the first mgr has the 'empty' name
+	mgrs->add( new SetMgr(nullptr) );
     }
-    else if ( (!nm || !*nm) )
-	return *((*mgrs)[0]);
-    else
+
+    return *mgrs;
+}
+
+
+SetMgr& SetMgr::getMgr( const char* nm )
+{
+    ObjectSet<SetMgr>& mgrs = setMgrs();
+    const FixedString nmstr = nm;
+    if ( nmstr.isEmpty() )
+	return *mgrs[0];
+
+    for ( int idx=1; idx<mgrs.size(); idx++ )
     {
-	for ( int idx=1; idx<mgrs->size(); idx++ )
-	{
-	    if ( (*mgrs)[idx]->name() == nm )
-		return *((*mgrs)[idx]);
-	}
+	if ( mgrs[idx]->name() == nm )
+	    return *mgrs[idx];
     }
 
-    if ( !newmgr )
-	newmgr = new SetMgr( nm );
 
-    *mgrs += newmgr;
+    SetMgr* newmgr =  new SetMgr( nm );
+    mgrs += newmgr;
     return *newmgr;
 }
 
 
 SetMgr::SetMgr( const char* nm )
     : NamedCallBacker(nm)
-    , locationChanged(this), setToBeRemoved(this)
-    , setAdded(this), setChanged(this)
+    , locationChanged(this)
+    , setToBeRemoved(this)
+    , setAdded(this)
+    , setChanged(this)
     , setDispChanged(this)
     , bulkLocationChanged(this)
     , undo_( *new Undo() )
@@ -86,14 +94,17 @@ SetMgr::~SetMgr()
 
 void SetMgr::add( const MultiID& ky, Set* st )
 {
-    pss_ += st; ids_ += ky; changed_ += false;
+// st is never null here
+    pss_ += st;
+    ids_ += ky;
+    changed_ += false;
     setAdded.trigger( st );
 }
 
 
 void SetMgr::set( const MultiID& ky, Set* newset )
 {
-    Set* oldset = find( ky );
+    RefMan<Set> oldset = find( ky );
     if ( !oldset )
     {
 	if ( newset )
@@ -106,7 +117,6 @@ void SetMgr::set( const MultiID& ky, Set* newset )
 	//other users may remove it in calls invoked by the cb.
 	pss_.removeSingle( idx );
 	setToBeRemoved.trigger( oldset );
-	delete oldset;
 	ids_.removeSingle( idx );
 	changed_.removeSingle( idx );
 	if ( newset )
@@ -115,13 +125,14 @@ void SetMgr::set( const MultiID& ky, Set* newset )
 }
 
 
-
 const Undo& SetMgr::undo() const	{ return undo_; }
 Undo& SetMgr::undo()			{ return undo_; }
 
 
 const MultiID& SetMgr::id( int idx ) const
-{ return ids_.validIdx(idx) ? ids_[idx] : MultiID::udf(); }
+{
+    return ids_.validIdx(idx) ? ids_[idx] : MultiID::udf();
+}
 
 
 void SetMgr::setID( int idx, const MultiID& mid )
@@ -158,10 +169,17 @@ int SetMgr::indexOf( const char* nm ) const
 }
 
 
-Set* SetMgr::find( const MultiID& ky ) const
+RefMan<Set> SetMgr::find( const MultiID& ky )
 {
     const int idx = indexOf( ky );
-    return idx < 0 ? 0 : const_cast<Set*>( pss_[idx] );
+    return pss_.validIdx(idx) ? pss_[idx] : nullptr;
+}
+
+
+ConstRefMan<Set> SetMgr::find( const MultiID& ky ) const
+{
+    const int idx = indexOf( ky );
+    return pss_.validIdx(idx) ? pss_[idx] : nullptr;
 }
 
 
@@ -172,10 +190,17 @@ MultiID* SetMgr::find( const Set& st ) const
 }
 
 
-Set* SetMgr::find( const char* nm ) const
+RefMan<Set> SetMgr::find( const char* nm )
 {
     const int idx = indexOf( nm );
-    return idx < 0 ? 0 : const_cast<Set*>( pss_[idx] );
+    return pss_.validIdx(idx) ? pss_[idx] : nullptr;
+}
+
+
+ConstRefMan<Set> SetMgr::find( const char* nm ) const
+{
+    const int idx = indexOf( nm );
+    return pss_.validIdx(idx) ? pss_[idx] : nullptr;
 }
 
 
@@ -255,7 +280,6 @@ void SetMgr::removeAll()
     {
 	Set* pset = pss_.removeSingle( idx );
 	setToBeRemoved.trigger( pset );
-	delete pset;
     }
 }
 
@@ -314,6 +338,34 @@ bool SetMgr::writeDisplayPars( const MultiID& mid, const IOPar& par ) const
 }
 
 
+void SetMgr::dumpMgrInfo( IOPar& res )
+{
+    const ObjectSet<SetMgr> mgrs = setMgrs();
+    res.set( "Nr of Managers", mgrs.size() );
+    for ( int idx=0; idx<mgrs.size(); idx++ )
+    {
+	IOPar par;
+	const SetMgr* setmgr = mgrs[idx];
+	par.set( "Manager Name", setmgr->name() );
+	const int nrsets = setmgr->size();
+	par.set( "Nr sets", nrsets );
+
+	for ( int ids=0; ids<nrsets; ids++ )
+	{
+	    IOPar setpar;
+	    ConstRefMan<Set> ps = setmgr->get( ids );
+	    setpar.set( "PointSet ID", setmgr->id(ids) );
+	    setpar.set( "PointSet Name", ps->name() );
+	    setpar.set( "PointSet Size", ps->size() );
+	    setpar.set( "PointSet References", ps->nrRefs()-1 );
+	    par.mergeComp( setpar, toString(ids+1) );
+	}
+
+	res.mergeComp( par, toString(idx+1) );
+    }
+}
+
+
 class PickSetKnotUndoEvent: public UndoEvent
 {
 public:
@@ -334,12 +386,12 @@ public:
 	Pick::SetMgr& mgr = Pick::Mgr();
 	const int mididx = mgr.indexOf( mid );
 	const bool haspickset = mididx >=0;
-	Pick::Set* set = haspickset ? &mgr.get(mididx) : nullptr;
+	RefMan<Pick::Set> set = haspickset ? mgr.get(mididx) : nullptr;
 
 	if ( type == Insert || type == PolygonClose )
 	{
 	    if ( set && set->size()>index_ )
-		pos_ = (*set)[index_];
+		pos_ = set->get( index_ );
 	}
 	else if ( type == Remove )
 	{
@@ -348,7 +400,7 @@ public:
 	else if ( type == Move )
 	{
 	    if ( set && set->size()>index_ )
-		pos_ = (*set)[index_];
+		pos_ = set->get( index_ );
 	    newpos_ = pos;
 	}
 
@@ -373,7 +425,7 @@ public:
 	Pick::SetMgr& mgr = Pick::Mgr();
 	const int mididx = mgr.indexOf( mid_ );
 	const bool haspickset = mididx >=0;
-	Pick::Set* set = haspickset ? &mgr.get(mididx) : nullptr;
+	RefMan<Pick::Set> set = haspickset ? mgr.get(mididx) : nullptr;
 	if ( !set ) return false;
 
 	if ( set->disp_.connect_==Pick::Set::Disp::Close &&
@@ -390,22 +442,22 @@ public:
 
 	if ( type_ == Move )
 	{
-	   if ( set && set->size()>index_  && pos_.pos_.isDefined() )
-	       (*set)[index_] = pos_;
+	    if ( set && set->size()>index_  && pos_.pos().isDefined() )
+		set->set( index_, pos_ );
 	}
 	else if ( type_ == Remove )
 	{
-	   if ( pos_.pos_.isDefined() )
-	     set->insert( index_, pos_ );
+	    if ( pos_.pos().isDefined() )
+		set->insert( index_, pos_ );
 	}
 	else if ( type_ == Insert  )
 	{
-	    set->removeSingle( index_ );
+	    set->remove( index_ );
 	}
 	else if ( type_ == PolygonClose )
 	{
 	    set->disp_.connect_ = Pick::Set::Disp::Open;
-	    set->removeSingle(index_);
+	    set->remove(index_);
 	}
 
 	mgr.reportChange( 0, cd );
@@ -419,7 +471,7 @@ public:
 	Pick::SetMgr& mgr = Pick::Mgr();
 	const int mididx = mgr.indexOf( mid_ );
 	const bool haspickset = mididx >=0;
-	Pick::Set* set = haspickset ? &mgr.get(mididx) : nullptr;
+	RefMan<Pick::Set> set = haspickset ? mgr.get(mididx) : nullptr;
 	if ( !set ) return false;
 
 	Pick::SetMgr::ChangeData::Ev ev = type_== Move ?
@@ -432,21 +484,21 @@ public:
 
 	if ( type_ == Move )
 	{
-	    if ( set && set->size()>index_ && newpos_.pos_.isDefined() )
-		(*set)[index_] = newpos_;
+	    if ( set && set->size()>index_ && newpos_.pos().isDefined() )
+		set->set( index_, newpos_ );
 	}
 	else if ( type_ == Remove )
 	{
-	    set->removeSingle( index_ );
+	    set->remove( index_ );
 	}
 	else if ( type_ == Insert )
 	{
-	    if ( pos_.pos_.isDefined() )
+	    if ( pos_.pos().isDefined() )
 		set->insert( index_,pos_ );
 	}
 	else if ( type_ == PolygonClose )
 	{
-	    if ( pos_.pos_.isDefined() )
+	    if ( pos_.pos().isDefined() )
 	    {
 		set->disp_.connect_=Pick::Set::Disp::Close;
 		set->insert( index_, pos_ );
@@ -500,7 +552,7 @@ public:
 	Pick::SetMgr& mgr = Pick::Mgr();
 	const int mididx = mgr.indexOf( mid_ );
 	const bool haspickset = mididx >=0;
-	Pick::Set* set = haspickset ? &mgr.get(mididx) : nullptr;
+	RefMan<Pick::Set> set = haspickset ? mgr.get(mididx) : nullptr;
 	if ( !set ) return false;
 
 	Pick::SetMgr::BulkChangeData::Ev ev = type_ == Remove
@@ -513,14 +565,14 @@ public:
 	{
 	    for ( int idx=0; idx<indexes_.size(); idx++ )
 	    {
-		if ( pos_.validIdx(idx) && pos_[idx].pos_.isDefined() )
+		if ( pos_.validIdx(idx) && pos_[idx].pos().isDefined() )
 		    set->insert( indexes_[idx], pos_[idx] );
 	    }
 	}
 	else
 	{
 	    for ( int idx=indexes_.size()-1; idx>=0; idx-- )
-		set->removeSingle( indexes_[idx] );
+		set->remove( indexes_[idx] );
 	}
 
 	mgr.reportBulkChange( 0, cd );
@@ -533,7 +585,7 @@ public:
 	Pick::SetMgr& mgr = Pick::Mgr();
 	const int mididx = mgr.indexOf( mid_ );
 	const bool haspickset = mididx >=0;
-	Pick::Set* set = haspickset ? &mgr.get(mididx) : nullptr;
+	RefMan<Pick::Set> set = haspickset ? mgr.get(mididx) : nullptr;
 	if ( !set ) return false;
 
 	Pick::SetMgr::BulkChangeData::Ev ev = type_ == Remove
@@ -545,13 +597,13 @@ public:
 	if ( type_ == Remove )
 	{
 	    for ( int idx=indexes_.size()-1; idx>=0; idx-- )
-		set->removeSingle( indexes_[idx] );
+		set->remove( indexes_[idx] );
 	}
 	else
 	{
 	    for ( int idx=0; idx<indexes_.size(); idx++ )
 	    {
-		if ( pos_.validIdx(idx) && pos_[idx].pos_.isDefined() )
+		if ( pos_.validIdx(idx) && pos_[idx].pos().isDefined() )
 		    set->insert( indexes_[idx], pos_[idx] );
 	    }
 	}
@@ -572,32 +624,32 @@ protected:
 // Both Pick set types
 
 template <class PicksType>
-static typename Pick::Set::LocID findIdx( const PicksType& picks,
+static int findIdx( const PicksType& picks,
 					  const TrcKey& tk )
 {
-    const typename PicksType::size_type sz = picks.size();
-    for ( typename Pick::Set::LocID idx=0; idx<sz; idx++ )
+    const int sz = picks.size();
+    for ( int idx=0; idx<sz; idx++ )
 	if ( picks.get(idx).trcKey() == tk )
 	    return idx;
     return -1;
 }
 
 template <class PicksType>
-static typename Pick::Set::LocID getNearestLocation( const PicksType& ps,
-					  const Coord3& pos, bool ignorez )
+static int getNearestLocation( const PicksType& ps,
+				const Coord3& pos, bool ignorez )
 {
-    const typename PicksType::size_type sz = ps.size();
+    const int sz = ps.size();
     if ( sz < 2 )
 	return sz - 1;
     if ( pos.isUdf() )
 	return 0;
 
-    typename Pick::Set::LocID ret = 0;
+    int ret = 0;
     const Coord3& p0 = ps.get( ret ).pos();
     double minsqdist = p0.isUdf() ? mUdf(double)
 		     : (ignorez ? pos.sqHorDistTo( p0 ) : pos.sqDistTo( p0 ));
 
-    for ( typename Pick::Set::LocID idx=1; idx<sz; idx++ )
+    for ( int idx=1; idx<sz; idx++ )
     {
 	const Coord3& curpos = ps.get( idx ).pos();
 	if ( pos.isUdf() )
@@ -619,7 +671,7 @@ static typename Pick::Set::LocID getNearestLocation( const PicksType& ps,
 { "None", "Open", "Close", 0 };
 
 Set::Set( const char* nm )
-    : NamedCallBacker(nm)
+    : SharedObject(nm)
     , pars_(*new IOPar)
     , readonly_(false)
 {
@@ -641,11 +693,135 @@ Set::~Set()
 
 Set& Set::operator=( const Set& s )
 {
-    if ( &s == this ) return *this;
-    copy( s ); setName( s.name() );
-    disp_ = s.disp_; pars_ = s.pars_;
+    if ( &s == this )
+	return *this;
+
+    locations_.copy( s.locations_ );
+    setName( s.name() );
+    disp_ = s.disp_;
+    pars_ = s.pars_;
     readonly_ = s.readonly_;
     return *this;
+}
+
+
+int Set::add( const Location& loc )
+{
+    locations_.add( loc );
+    return locations_.size()-1;
+}
+
+
+int Set::add( const Coord3& crd )
+{
+    return add( Location(crd) );
+}
+
+
+int Set::add( const Coord& crd,float z )
+{
+    return add( Location(crd,z) );
+}
+
+
+void Set::set( int idx, const Location& loc )
+{
+    if ( locations_.validIdx(idx) )
+	locations_[idx] = loc;
+}
+
+
+void Set::setPos( int idx, const Coord& crd )
+{
+    locations_[idx].setPos( crd );
+}
+
+
+void Set::setPos( int idx, const Coord3& crd )
+{
+    locations_[idx].setPos( crd );
+}
+
+
+void Set::setZ( int idx, float z )
+{
+    if ( idx==-1 )
+    {
+	for ( auto& loc : locations_ )
+	    loc.setZ( z );
+	return;
+    }
+
+    locations_[idx].setZ( z );
+}
+
+
+const Coord3& Set::getPos( int idx ) const
+{
+    return locations_[idx].pos();
+}
+
+
+float Set::getZ( int idx ) const
+{
+    return locations_[idx].z();
+}
+
+
+void Set::setDir( int idx, const Sphere& sphere )
+{
+    locations_[idx].setDir( sphere );
+}
+
+
+void Set::setDip( int idx, float inldip, float crldip )
+{
+    locations_[idx].setDip( inldip, crldip );
+}
+
+
+void Set::setKeyedText( int idx, const char *key, const char *txt)
+{
+    locations_[idx].setKeyedText( key, txt );
+}
+
+
+void Set::insert( int idx, const Location& loc )
+{
+    locations_.insert( idx, loc );
+}
+
+
+void Set::remove( int idx )
+{
+    locations_.removeSingle( idx );
+}
+
+
+bool Set::validIdx( int idx ) const
+{
+    return locations_.validIdx( idx );
+}
+
+
+bool Set::setCapacity( int sz )
+{
+    return locations_.setCapacity( sz, false );
+}
+
+
+bool Set::append( const Pick::Set& oth )
+{
+    return locations_.append( oth.locations_ );
+}
+
+
+void Set::getLocations( TypeSet<Coord3>& crds, int setidx ) const
+{
+    int start, stop;
+    getStartStopIdx( setidx, start, stop );
+    for ( int idx=start; idx<=stop; idx++ )
+	crds.add( get(idx).pos() );
 }
 
 
@@ -699,27 +875,9 @@ void Set::getPolygon( ODPolygon<double>& poly, int setidx ) const
     getStartStopIdx( setidx, start, stop );
     for ( int idx=start; idx<=stop; idx++ )
     {
-	const Coord c( (*this)[idx].pos_ );
+	const Coord c( locations_.get(idx).pos() );
 	poly.add( Geom::Point2D<double>( c.x, c.y ) );
     }
-}
-
-
-void Set::getLocations( ObjectSet<Location>& locs, int setidx )
-{
-    int start, stop;
-    getStartStopIdx( setidx, start, stop );
-    for ( int idx=start; idx<=stop; idx++ )
-	locs += &((*this)[idx]);
-}
-
-
-void Set::getLocations( ObjectSet<const Location>& locs, int setidx ) const
-{
-    int start, stop;
-    getStartStopIdx( setidx, start, stop );
-    for ( int idx=start; idx<=stop; idx++ )
-	locs += &((*this)[idx]);
 }
 
 
@@ -737,26 +895,26 @@ float Set::getXYArea( int setidx ) const
 }
 
 
-Pick::Set::LocID Pick::Set::find( const TrcKey& tk ) const
+int Set::find( const TrcKey& tk ) const
 {
     return findIdx( *this, tk );
 }
 
 
-Pick::Set::LocID Pick::Set::nearestLocation( const Coord& pos ) const
+int Set::nearestLocation( const Coord& pos ) const
 {
     return getNearestLocation( *this, Coord3(pos.x,pos.y,0.), true );
 }
 
 
-Pick::Set::LocID Pick::Set::nearestLocation( const Coord3& pos,
+int Set::nearestLocation( const Coord3& pos,
 						 bool ignorez ) const
 {
     return getNearestLocation( *this, pos, ignorez );
 }
 
 
-void Pick::Set::getBoundingBox( TrcKeyZSampling& tkzs ) const
+void Set::getBoundingBox( TrcKeyZSampling& tkzs ) const
 {
     if ( isEmpty() )
     {
@@ -884,9 +1042,7 @@ void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
     const MultiID mid = mgr.get(*this);
     if ( !mid.isUdf() )
     {
-	PickSetKnotUndoEvent::UnDoType undotype =
-	    (PickSetKnotUndoEvent::UnDoType) type;
-
+	auto undotype = sCast(PickSetKnotUndoEvent::UnDoType,type);
 	const Pick::Location pos = type == Insert
 				   ? Coord3::udf()
 				   : loc;
@@ -897,7 +1053,7 @@ void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
 }
 
 
-void Set::insertWithUndo( LocID idx, const Pick::Location& loc )
+void Set::insertWithUndo( int idx, const Pick::Location& loc )
 {
     insert( idx, loc );
     addUndoEvent( Insert, idx, loc );
@@ -906,26 +1062,28 @@ void Set::insertWithUndo( LocID idx, const Pick::Location& loc )
 
 void Set::appendWithUndo( const Pick::Location& loc )
 {
-    *this += loc;
+    add( loc );
     addUndoEvent( Insert, size()-1, loc );
  }
 
 
-void Set::removeSingleWithUndo( LocID idx )
+void Set::removeSingleWithUndo( int idx )
 {
-    const Pick::Location pos = (*this)[idx];
+    const Pick::Location pos = get( idx );
     addUndoEvent( Remove, idx, pos );
-    removeSingle( idx );
+    remove( idx );
 }
 
 
-void Set::moveWithUndo( LocID idx, const Pick::Location& undoloc,
+void Set::moveWithUndo( int idx, const Pick::Location& undoloc,
 			const Pick::Location& loc )
 {
-    if ( size()<idx ) return;
-    (*this)[idx] = undoloc;
+    if ( size() < idx )
+	return;
+
+    set( idx, undoloc );
     addUndoEvent( Move, idx, loc );
-    (*this)[idx] = loc;
+    set( idx, loc );
 }
 
 
@@ -953,7 +1111,7 @@ void Set::addBulkUndoEvent( EventType type, const TypeSet<int>& indexes,
 void Set::bulkAppendWithUndo( const TypeSet<Pick::Location>& locs,
 			      const TypeSet<int>& indexes )
 {
-    this->append( locs );
+    locations_.append( locs );
     addBulkUndoEvent( Insert, indexes, locs );
 }
 
@@ -962,7 +1120,7 @@ void Set::bulkRemoveWithUndo( const TypeSet<Pick::Location>& locs,
 			      const TypeSet<int>& indexes )
 {
     for ( int idx=indexes.size()-1; idx>=0; idx-- )
-	this->removeSingle( indexes[idx], true );
+	this->remove( indexes[idx] );
 
     addBulkUndoEvent( Remove, indexes, locs );
 }
@@ -976,12 +1134,20 @@ bool Set::isSizeLargerThanThreshold() const
 }
 
 
-Location& Set::get( LocID idx )
-{ return (*this)[idx]; }
+const Location& Set::get( int idx ) const
+{
+    return locations_[idx];
+}
 
-const Location& Set::get( LocID idx ) const
-{ return (*this)[idx]; }
 
+void Set::refNotify() const
+{
+}
+
+
+void Set::unRefNotify() const
+{
+}
 
 } // namespace Pick
 
@@ -1051,7 +1217,7 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	    mPIEPAdj(Z,zread,true);
 	}
 
-	ps += Pick::Location( pos, zread );
+	ps.add( Pick::Location(pos,zread) );
     }
 
     return true;

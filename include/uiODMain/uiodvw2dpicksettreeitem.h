@@ -85,6 +85,6 @@ protected:
     void		removePickSetCB(CallBacker*);
 
     Pick::SetMgr&	picksetmgr_;
-    Pick::Set&		pickset_;
-    VW2DPickSet*	vw2dpickset_;
+    RefMan<Pick::Set>	pickset_;
+    VW2DPickSet*	vw2dpickset_		= nullptr;
 };

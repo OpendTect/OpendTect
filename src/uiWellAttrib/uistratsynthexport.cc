@@ -428,18 +428,20 @@ bool uiStratSynthExport::getGeometry( const char* linenm )
 	    const IOObj* picksetobj = picksetsel_->ioobj();
 	    if ( !picksetobj )
 		mErrRet( tr("No pickset selected"), false )
-	    Pick::Set pickset;
+	    RefMan<Pick::Set> pickset;
 	    if ( Pick::Mgr().indexOf(picksetobj->key())>0 )
 		pickset = Pick::Mgr().get( picksetobj->key() );
 	    else
 	    {
 		BufferString errmsg;
 		if ( !PickSetTranslator::retrieve(
-			    pickset,IOM().get(picksetobj->key()),true,errmsg) )
+			    *pickset,IOM().get(picksetobj->key()),true,errmsg) )
 		    mErrRet( mToUiStringTodo(errmsg), false )
 	    }
-	    for ( int idx=0; idx<pickset.size(); idx++ )
-		ptlist += pickset[idx].pos_;
+
+	    for ( int idx=0; idx<pickset->size(); idx++ )
+		ptlist += pickset->get(idx).pos();
+
 	    break;
 	}
 	case RandomLine:

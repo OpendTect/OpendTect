@@ -112,7 +112,7 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
     if ( setidx==-1 )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid );
-	Pick::Set* ps = new Pick::Set;
+	RefMan<Pick::Set> ps = new Pick::Set;
 	BufferString bs;
 	PickSetTranslator::retrieve(*ps,ioobj,true,bs);
 	mgr.set( mid, ps );
@@ -258,9 +258,11 @@ bool uiODAnnotTreeItem::showSubMenu()
 	    if ( uiODAnnotSubItem::createIOEntry(txt,true,mid,managerName())!=1)
 		return false;
 
-	    Pick::Set* set = new Pick::Set(txt);
+	    RefMan<Pick::Set> set = new Pick::Set( txt );
 	    set->disp_.color_ = OD::getRandStdDrawColor();
-	    if ( defScale()!=-1 ) set->disp_.pixsize_ = defScale();
+	    if ( defScale()!=-1 )
+		set->disp_.pixsize_ = defScale();
+
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.set( mid, set );
 	    uiTreeItem* item = createSubItem( -1, *set );
@@ -270,34 +272,37 @@ bool uiODAnnotTreeItem::showSubMenu()
     }
     else if ( mnusel == 1 )
     {
-	Pick::Set* ps = new Pick::Set;
-	if ( !readPicks(*ps) ) { delete ps; return false; }
+	RefMan<Pick::Set> ps = new Pick::Set;
+	if ( !readPicks(*ps) )
+	    return false;
     }
+
     handleStandardItems( mnusel );
 
     return true;
 }
 
-#define mDelCtioRet { delete ctio->ioobj_; delete ctio; return false; }
-
 
 bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 {
-    CtxtIOObj* ctio = mMkCtxtIOObj(PickSet);
-    ctio->ctxt_.forread_ = true;
-    ctio->ctxt_.toselect_.require_.set(sKey::Type(),managerName(),oldSelKey());
-    uiIOObjSelDlg dlg( getUiParent(), *ctio );
+    IOObjContext ctxt = mIOObjContext( PickSet );
+    ctxt.forread_ = true;
+    ctxt.toselect_.require_.set(sKey::Type(),managerName(),oldSelKey());
+    uiIOObjSelDlg dlg( getUiParent(), ctxt );
     dlg.setCaption( uiStrings::phrLoad(typestr_) );
     dlg.setTitleText( uiStrings::phrSelect(typestr_) );
     if ( !dlg.go() || !dlg.ioObj() )
-	mDelCtioRet;
+	return false;
 
     if ( defScale()!=-1 )
 	ps.disp_.pixsize_= defScale();
 
     BufferString bs;
     if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),true,bs) )
-    { uiMSG().error( mToUiStringTodo(bs) ); mDelCtioRet; }
+    {
+	uiMSG().error( toUiString(bs) );
+	return false;
+    }
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     if ( mgr.indexOf(dlg.ioObj()->key() ) == -1 )
@@ -307,6 +312,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 	mgr.setUnChanged( setidx );
 	addPickSet( &ps );
     }
+
     return true;
 }
 

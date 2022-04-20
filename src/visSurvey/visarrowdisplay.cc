@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 mCreateFactoryEntry( visSurvey::ArrowDisplay );
 
-namespace visSurvey 
+namespace visSurvey
 {
 ArrowDisplay::ArrowDisplay()
     : arrowtype_(Double)
@@ -117,7 +117,7 @@ visBase::VisualObject* ArrowDisplay::createLocation() const
     lines->unRefNoDelete();
     return lines;
 }
-	
+
 
 void ArrowDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 {
@@ -128,19 +128,19 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 	lines = static_cast<visBase::Lines*>( createLocation() );
 	group_->addObject( lines );
     }
-    
-    lines->getCoordinates()->setPos( 0, loc.pos_ );
 
-    if ( mIsUdf(loc.dir_.radius) || mIsUdf(loc.dir_.theta) ||
-	    mIsUdf(loc.dir_.phi) )
+    lines->getCoordinates()->setPos( 0, loc.pos() );
+
+    if ( mIsUdf(loc.dir().radius) || mIsUdf(loc.dir().theta) ||
+	    mIsUdf(loc.dir().phi) )
 	return;
 
-    const Coord3 d0 = world2Display( loc.pos_ );
-    Coord3 vector = spherical2Cartesian( loc.dir_, true );
+    const Coord3 d0 = world2Display( loc.pos() );
+    Coord3 vector = spherical2Cartesian( loc.dir(), true );
 
     if ( scene_ )
 	vector.z /= -scene_->getZScale();
-    const Coord3 c1 = loc.pos_+vector;
+    const Coord3 c1 = loc.pos()+vector;
     Coord3 d1 = world2Display( c1 );
     Coord3 displayvector = d1-d0;
     const double len = displayvector.abs();
@@ -153,12 +153,12 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
     d1 = d0+displayvector;
     lines->getCoordinates()->setPos( 1, display2World(d1) );
 
-    const Coord3 planenormal( sin(loc.dir_.phi), -cos(loc.dir_.phi), 0 );
+    const Coord3 planenormal( sin(loc.dir().phi), -cos(loc.dir().phi), 0 );
     const Quaternion plus45rot(planenormal, M_PI/4);
     const Quaternion minus45rot(planenormal, -M_PI/4 );
     Coord3 arrowheadvec = minus45rot.rotate( displayvector*.3 );
     lines->getCoordinates()->setPos( 2, display2World(d0+arrowheadvec) );
-    
+
     arrowheadvec = plus45rot.rotate( displayvector*.3 );
     lines->getCoordinates()->setPos( 3, display2World(d0+arrowheadvec) );
 }
@@ -179,7 +179,7 @@ void ArrowDisplay::updateLineIndices( visBase::Lines* lines ) const
 
     indexarray += 0; //0
     indexarray += 1; //1
-   
+
     if ( arrowtype_==Bottom || arrowtype_==Double )
     {
 	 indexarray += 0; //2

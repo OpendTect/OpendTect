@@ -73,19 +73,19 @@ bool GeoJSONWriter::writePoint( const Coord& coord, const char* nm )
 }
 
 
-bool GeoJSONWriter::writePolygon( const pickset& picks )
+bool GeoJSONWriter::writePolygon( const RefObjectSet<const Pick::Set>& picks )
 {
     return writeGeometry( "Polygon", picks );
 }
 
 
-bool GeoJSONWriter::writePoint( const pickset& picks )
+bool GeoJSONWriter::writePoint( const RefObjectSet<const Pick::Set>& picks )
 {
     return writeGeometry( "MultiPoint", picks );
 }
 
 
-bool GeoJSONWriter::writeLine( const coord2dset& crdset, const char* nm )
+bool GeoJSONWriter::writeLine( const TypeSet<Coord>& crdset, const char* nm )
 {
     BufferStringSet nms;
     nms.add( nm );
@@ -93,13 +93,13 @@ bool GeoJSONWriter::writeLine( const coord2dset& crdset, const char* nm )
 }
 
 
-bool GeoJSONWriter::writeLine( const pickset& picks )
+bool GeoJSONWriter::writeLine( const RefObjectSet<const Pick::Set>& picks )
 {
     return writeGeometry( "LineString", picks );
 }
 
 
-bool GeoJSONWriter::writePolygon( const coord2dset& crdset, const char* nm )
+bool GeoJSONWriter::writePolygon( const TypeSet<Coord>& crdset, const char* nm )
 {
     BufferStringSet nms;
     nms.add( nm );
@@ -107,7 +107,7 @@ bool GeoJSONWriter::writePolygon( const coord2dset& crdset, const char* nm )
 }
 
 
-bool GeoJSONWriter::writePolygon( const coord3dset& crdset, const char* nm )
+bool GeoJSONWriter::writePolygon( const TypeSet<Coord3>& crdset, const char* nm)
 {
     BufferStringSet nms;
     nms.add( nm );
@@ -115,13 +115,13 @@ bool GeoJSONWriter::writePolygon( const coord3dset& crdset, const char* nm )
 }
 
 
-bool GeoJSONWriter::writePoints( const coord2dset& crds,
+bool GeoJSONWriter::writePoints( const TypeSet<Coord>& crds,
 						    const BufferStringSet& nms )
 {
     return writeGeometry( "Point", crds, nms );
 }
 
-//NEED TO SUPPORT MULTIPLE PROPERTIES 
+//NEED TO SUPPORT MULTIPLE PROPERTIES
 // EACH OBJECT WILL HAVE DIFFERENT PROPERTY
 // NEED TO WORK ON IT
 
@@ -130,7 +130,8 @@ bool GeoJSONWriter::writePoints( const coord2dset& crds,
 
 
 bool GeoJSONWriter::writeGeometry( BufferString geomtyp,
-			const coord2dset& crdset, const BufferStringSet& nms )
+				   const TypeSet<Coord>& crdset,
+				   const BufferStringSet& nms )
 {
     if ( !isOK() )
 	return false;
@@ -146,7 +147,8 @@ bool GeoJSONWriter::writeGeometry( BufferString geomtyp,
 
 
 bool GeoJSONWriter::writeGeometry( BufferString geomtyp,
-			const coord3dset& crdset, const BufferStringSet& nms )
+				   const TypeSet<Coord3>& crdset,
+				   const BufferStringSet& nms )
 {
     if ( !isOK() )
 	return false;
@@ -162,7 +164,7 @@ bool GeoJSONWriter::writeGeometry( BufferString geomtyp,
 
 
 bool GeoJSONWriter::writeGeometry( BufferString geomtyp,
-					const pickset& picks )
+				   const RefObjectSet<const Pick::Set>& picks )
 {
     if ( !isOK() )
 	return false;

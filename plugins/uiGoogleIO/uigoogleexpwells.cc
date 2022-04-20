@@ -114,7 +114,7 @@ bool uiGISExportWells::acceptOK( CallBacker* )
     prop.xpixoffs_ = 20;
     prop.color_ = colinput_->color();
     prop.iconnm_ = "wellpin";
-    ManagedObjectSet<const Pick::Set> picks;
+    RefObjectSet<const Pick::Set> picks;
 
     const BufferString prefix = lnmfld_->text();
     for ( auto wellid : wellids )
@@ -134,22 +134,22 @@ bool uiGISExportWells::acceptOK( CallBacker* )
 	else if ( ismultisel_ )
 	    prop.nmkeystr_ = BufferString( prefix, "_", nm );
 
-	auto* pick = new Pick::Set( nm );
+	RefMan<Pick::Set> pick = new Pick::Set( nm );
 	Pick::Location loc( coord );
 	pick->add( loc );
 	picks.add( pick );
     }
 
     wrr->setProperties( prop );
-    if ( !wrr->writePoint(picks) )
+    const bool res = wrr->writePoint( picks );
+    wrr->close();
+
+    if ( !res )
     {
 	uiMSG().error( wrr->errMsg() );
 	return false;
     }
 
-    wrr->close();
-
     const bool ret = uiMSG().askGoOn( wrr->successMsg() );
-
     return !ret;
 }

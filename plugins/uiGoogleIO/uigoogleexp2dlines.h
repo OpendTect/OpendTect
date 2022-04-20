@@ -17,7 +17,6 @@ namespace ODGoogle { class XMLWriter; }
 mExpClass(uiGoogleIO) uiGISExport2DSeis : public uiDialog
 { mODTextTranslationClass(uiGISExport2DSeis);
 public:
-
 			uiGISExport2DSeis(uiParent*,uiSeis2DFileMan* m=nullptr,
 			    const BufferString& linenm=BufferString::empty());
 			~uiGISExport2DSeis();
@@ -33,11 +32,10 @@ protected:
     uiSelLineStyle*	lsfld_;
     uiGISExpStdFld*	expfld_;
 
-    void		getCoordsForLine(pickset&,const BufferString& lnm);
+    void		getCoordsForLine(RefObjectSet<const Pick::Set>&,
+					 const BufferString& lnm);
     void		getInitialSelectedLineNames();
     void		getFinalSelectedLineNames();
 
     bool		acceptOK(CallBacker*);
-
-
 };

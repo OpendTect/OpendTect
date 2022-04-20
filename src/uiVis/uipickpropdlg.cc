@@ -30,7 +30,7 @@ ________________________________________________________________________
 uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 			      visSurvey::PickSetDisplay* psd )
     : uiMarkerStyleDlg( p, tr("PointSet Display Properties"), true )
-    , set_(set)
+    , set_(&set)
     , psd_(psd)
 {
     uiObject* attachobj = stylefld_->attachObj();
@@ -40,15 +40,15 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 	setCaption( tr("Polygon Display Properties") );
 
 	uiSelLineStyle::Setup stu;
-	lsfld_ = new uiSelLineStyle( this, set_.disp_.linestyle_, stu );
+	lsfld_ = new uiSelLineStyle( this, set_->disp_.linestyle_, stu );
 	mAttachCB( lsfld_->changed, uiPickPropDlg::linePropertyChanged );
 	stylefld_->attach( alignedBelow, lsfld_ );
 
-	uiColorInput::Setup colstu( set_.disp_.fillcolor_ );
+	uiColorInput::Setup colstu( set_->disp_.fillcolor_ );
 	colstu.lbltxt( tr("Fill with") ).withcheck( true )
 	      .transp(uiColorInput::Setup::Separate);
 	fillcolfld_ = new uiColorInput( this, colstu );
-	fillcolfld_->setDoDraw( set_.disp_.dofill_ );
+	fillcolfld_->setDoDraw( set_->disp_.dofill_ );
 	fillcolfld_->attach( alignedBelow, stylefld_ );
 	mAttachCB(fillcolfld_->colorChanged,uiPickPropDlg::fillColorChangeCB);
 	mAttachCB(fillcolfld_->doDrawChanged,uiPickPropDlg::fillColorChangeCB);
@@ -86,8 +86,8 @@ void uiPickPropDlg::linePropertyChanged( CallBacker* )
     if ( !finalized() || !lsfld_ )
 	return;
 
-    set_.disp_.linestyle_ = lsfld_->getStyle();
-    Pick::Mgr().reportDispChange( this, set_ );
+    set_->disp_.linestyle_ = lsfld_->getStyle();
+    Pick::Mgr().reportDispChange( this, *set_ );
 }
 
 
@@ -96,17 +96,17 @@ void uiPickPropDlg::fillColorChangeCB( CallBacker* )
     if ( !fillcolfld_ )
 	return;
 
-    set_.disp_.fillcolor_ = fillcolfld_->color() ;
-    set_.disp_.dofill_ = fillcolfld_->doDraw();
+    set_->disp_.fillcolor_ = fillcolfld_->color() ;
+    set_->disp_.dofill_ = fillcolfld_->doDraw();
 
-    Pick::Mgr().reportDispChange( this, set_ );
+    Pick::Mgr().reportDispChange( this, *set_ );
 }
 
 
 void uiPickPropDlg::doFinalize( CallBacker* )
 {
-    MarkerStyle3D style( (MarkerStyle3D::Type) set_.disp_.markertype_,
-	    set_.disp_.pixsize_, set_.disp_.color_ );
+    MarkerStyle3D style( (MarkerStyle3D::Type) set_->disp_.markertype_,
+	    set_->disp_.pixsize_, set_->disp_.color_ );
     stylefld_->setMarkerStyle( style );
 }
 
@@ -116,11 +116,11 @@ void uiPickPropDlg::sliderMove( CallBacker* )
     MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
 
-    if ( set_.disp_.pixsize_ == style.size_ )
+    if ( set_->disp_.pixsize_ == style.size_ )
 	return;
 
-    set_.disp_.pixsize_ = style.size_;
-    Pick::Mgr().reportDispChange( this, set_ );
+    set_->disp_.pixsize_ = style.size_;
+    Pick::Mgr().reportDispChange( this, *set_ );
 }
 
 
@@ -131,9 +131,9 @@ void uiPickPropDlg::typeSel( CallBacker* )
 
     MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
-    set_.disp_.markertype_ = style.type_;
+    set_->disp_.markertype_ = style.type_;
 
-    Pick::Mgr().reportDispChange( this, set_ );
+    Pick::Mgr().reportDispChange( this, *set_ );
 }
 
 
@@ -141,8 +141,8 @@ void uiPickPropDlg::colSel( CallBacker* )
 {
     MarkerStyle3D style;
     stylefld_->getMarkerStyle( style );
-    set_.disp_.color_ = style.color_;
-    Pick::Mgr().reportDispChange( this, set_ );
+    set_->disp_.color_ = style.color_;
+    Pick::Mgr().reportDispChange( this, *set_ );
 }
 
 
@@ -165,7 +165,7 @@ void uiPickPropDlg::thresholdChangeCB( CallBacker* )
 
 bool uiPickPropDlg::acceptOK( CallBacker* )
 {
-    return set_.writeDisplayPars();
+    return set_->writeDisplayPars();
 }
 
 

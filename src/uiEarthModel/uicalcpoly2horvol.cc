@@ -38,13 +38,15 @@ ________________________________________________________________________
 
 uiCalcHorVol::uiCalcHorVol( uiParent* p,const uiString& dlgtxt )
 	: uiDialog(p,Setup(tr("Calculate volume"),dlgtxt,
-                    mODHelpKey(mCalcPoly2HorVolHelpID) ))
+			   mODHelpKey(mCalcPoly2HorVolHelpID)))
 	, zinft_(SI().depthsInFeet())
-	, velfld_(0)
-	, valfld_(0)
 {
     setCtrlStyle( CloseOnly );
 }
+
+
+uiCalcHorVol::~uiCalcHorVol()
+{}
 
 
 uiGroup* uiCalcHorVol::mkStdGrp()
@@ -106,7 +108,8 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 
 void uiCalcHorVol::haveChg( CallBacker* )
 {
-    if ( valfld_ ) valfld_->clear();
+    if ( valfld_ )
+	valfld_->clear();
 }
 
 
@@ -139,10 +142,9 @@ void uiCalcHorVol::calcReq( CallBacker* )
 
 uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 	: uiCalcHorVol(p, tr("Volume estimation: polygon to horizon") )
-	, ps_(ps)
-	, hor_(0)
+	, ps_(&ps)
 {
-    if ( ps_.size() < 3 )
+    if ( ps_->size() < 3 )
     {
 	new uiLabel( this, uiStrings::phrInvalid(uiStrings::sPolygon()) );
 	return;
@@ -158,48 +160,32 @@ uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 
 uiCalcPolyHorVol::~uiCalcPolyHorVol()
 {
-    if ( hor_ )
-	hor_->unRef();
 }
 
 
 void uiCalcPolyHorVol::horSel( CallBacker* cb )
 {
-    if ( hor_ )
-	{ hor_->unRef(); hor_ = 0; }
-
     horsel_->commitInput();
     const IOObj* ioobj = horsel_->ioobj( true );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     uiTaskRunner taskrunner( this );
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
 							  &taskrunner );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    if ( hor )
-    {
-	hor->ref();
-	hor_ = hor;
-    }
-
+    hor_ = hor;
     haveChg( cb );
 }
 
 
-const EM::Horizon3D* uiCalcPolyHorVol::getHorizon()
-{
-    if ( !hor_ )
-	horSel( 0 );
-    return hor_;
-}
 
-
+// uiCalcHorPolyVol
 uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
-	: uiCalcHorVol(p,tr("Volume estimation from horizon part") )
-	, ps_(0)
-	, hor_(h)
+    : uiCalcHorVol(p,tr("Volume estimation from horizon part"))
+    , hor_(&h)
 {
-    if ( hor_.nrSections() < 1 )
+    if ( hor_->nrSections() < 1 )
     {
 	new uiLabel( this, uiStrings::phrInvalid(uiStrings::sHorizon(1)));
 	return;
@@ -217,32 +203,19 @@ uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
 
 uiCalcHorPolyVol::~uiCalcHorPolyVol()
 {
-    delete ps_;
 }
 
 
 void uiCalcHorPolyVol::psSel( CallBacker* cb )
 {
-    if ( ps_ ) delete ps_;
-    ps_ = 0;
-
     const IOObj* ioobj = pssel_->ioobj( true );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
-    ps_ = new Pick::Set; BufferString msg;
+    BufferString msg;
+    ps_ = new Pick::Set;
     if ( !PickSetTranslator::retrieve(*ps_,ioobj,false,msg) )
-    {
 	uiMSG().error( mToUiStringTodo(msg) );
-	delete ps_; ps_ = 0;
-    }
 
     haveChg( cb );
-}
-
-
-const Pick::Set* uiCalcHorPolyVol::getPickSet()
-{
-    if ( !ps_ )
-	psSel( 0 );
-    return ps_;
 }

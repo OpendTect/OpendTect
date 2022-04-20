@@ -220,15 +220,15 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 {
 
     if ( add )
-	markerset_->insertPos( idx, loc.pos_, true );
+	markerset_->insertPos( idx, loc.pos(), true );
     else
-	markerset_->setPos( idx, loc.pos_, true );
+	markerset_->setPos( idx, loc.pos(), true );
     if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow ||
 	 set_->disp_.markertype_ == MarkerStyle3D::Plane )
 	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
 
     if ( needLine() )
-	setPolylinePos( idx, loc.pos_ );
+	setPolylinePos( idx, loc.pos() );
 }
 
 
@@ -323,14 +323,14 @@ void PickSetDisplay::redrawMultiSets()
 
     for ( int idx=0; idx<set_->nrSets(); idx++ )
     {
-	ObjectSet<const Pick::Location > positions;
-	set_->getLocations( positions, idx );
+	int start=0, stop=0;
+	set_->getStartStopIdx( idx, start, stop );
 	TypeSet<int> ps;
 	bool first = true;
 	int firstidx = 0;
-	for ( int idy=0; idy<positions.size(); idy++ )
+	for ( int idy=start; idy<stop; idy++ )
 	{
-	    Coord3 pos = positions[idy]->pos();
+	    Coord3 pos = set_->getPos( idy );
 	    if ( datatransform_ )
 		pos.z = datatransform_->transform( pos );
 	    if ( mIsUdf(pos.z) )
@@ -373,7 +373,7 @@ void PickSetDisplay::redrawAll( int drageridx )
     markerset_->clearMarkers();
     for ( int idx=0; idx<set_->size(); idx++ )
     {
-	Coord3 pos = (*set_)[idx].pos_;
+	Coord3 pos = set_->getPos( idx );
 	if ( datatransform_ )
 	    pos.z = datatransform_->transform( pos );
 	if ( !mIsUdf(pos.z) )
@@ -429,7 +429,7 @@ void PickSetDisplay::redrawLine()
     int idx=0;
     for ( ; idx<set_->size(); idx++ )
     {
-	Coord3 pos = (*set_)[idx].pos_;
+	Coord3 pos = set_->getPos( idx );
 	if ( datatransform_ )
 	    pos.z = datatransform_->transform( pos );
 	if ( !mIsUdf(pos.z) )
@@ -491,10 +491,10 @@ static float getSurveyRotation()
     const float survngle = getSurveyRotation();
     if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow )
     {
-	const float phi = SI().isRightHandSystem() ? survngle + loc.dir_.phi
-					     : survngle - loc.dir_.phi;
+	const float phi = SI().isRightHandSystem() ? survngle + loc.dir().phi
+					     : survngle - loc.dir().phi;
 	const Quaternion azimuth( Coord3(0,0,1), phi );
-	const Quaternion dip( Coord3(0,1,0), loc.dir_.theta );
+	const Quaternion dip( Coord3(0,1,0), loc.dir().theta );
 	const Quaternion rot = azimuth * dip;
 	return rot;
     }
@@ -559,7 +559,7 @@ bool PickSetDisplay::setBodyDisplay()
     TypeSet<Coord3> picks;
     for ( int idx=0; idx<set_->size(); idx++ )
     {
-	picks += (*set_)[idx].pos_;
+	picks += set_->getPos( idx );
 	if ( datatransform_ )
 	    picks[idx].z = datatransform_->transformBack( picks[idx] );
     }
@@ -641,7 +641,7 @@ bool PickSetDisplay::updateMarkerAtSection( const SurveyObject* obj, int idx )
 {
     if ( !obj ) return false;
 
-    Coord3 pos = set_->validIdx(idx) ? (*set_)[idx].pos_ : Coord3::udf();
+    Coord3 pos = set_->validIdx(idx) ? set_->getPos(idx) : Coord3::udf();
     if ( !pos.isDefined()) return false;
 
     if ( datatransform_ )

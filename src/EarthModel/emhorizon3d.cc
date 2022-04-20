@@ -1571,7 +1571,7 @@ void Horizon3DGeometry::getDataPointSet( const SectionID& sid,
 bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
 					    Pick::Set& set ) const
 {
-    set.erase();
+    set.setEmpty();
     const Geometry::BinIDSurface* surf = sectionGeometry( sid );
     if ( !surf ) return false;
 
@@ -1602,7 +1602,7 @@ bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
     while ( true )
     {
 	Coord3 pos = surf->getKnot( posid.getRowCol(), false );
-	set += Pick::Location( pos );
+	set.add( Pick::Location(pos) );
 
 	nodefound = false;
 	const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();

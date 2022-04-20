@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiioobjseldlg.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uitextedit.h"
 
 #include "ctxtioobj.h"
 #include "filepath.h"
@@ -53,21 +54,23 @@ void uiPickSetMgr::surveyChangeCB( CallBacker* )
 }
 
 
-bool uiPickSetMgr::storeNewSet( Pick::Set*& ps ) const
-{ return storeNewSet( ps, false ); }
+bool uiPickSetMgr::storeNewSet( const Pick::Set& ps ) const
+{
+    return storeNewSet( ps, false );
+}
 
 
-bool uiPickSetMgr::storeNewSet( Pick::Set*& ps, bool noconf ) const
+bool uiPickSetMgr::storeNewSet( const Pick::Set& ps, bool noconf ) const
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
-    ctio->setName( ps->name() );
+    ctio->setName( ps.name() );
     if ( uiIOObj::fillCtio(*ctio,!noconf) )
     {
 	PtrMan<IOObj> ioobj = ctio->ioobj_;
-	if ( !doStore(*ps,*ioobj) )
-	    { delete ps; ps = 0; return false; }
+	if ( !doStore(ps,*ioobj) )
+	    return false;
 
-	setmgr_.set( ioobj->key(), ps );
+	setmgr_.set( ioobj->key(), cCast(Pick::Set*,&ps) );
 	return true;
     }
 
@@ -77,15 +80,15 @@ bool uiPickSetMgr::storeNewSet( Pick::Set*& ps, bool noconf ) const
 		      "Please check write permission of\n%1")
 		    .arg(fp.fullPath()) );
 
-    delete ps; ps = 0;
     return false;
 }
 
 
 IOObj* uiPickSetMgr::getSetIOObj( const Pick::Set& ps ) const
 {
-    int setidx = setmgr_.indexOf( ps );
-    if ( setidx < 0 ) return 0;
+    const int setidx = setmgr_.indexOf( ps );
+    if ( setidx < 0 )
+	return nullptr;
 
     IOObj* ioobj = IOM().get( setmgr_.id(setidx) );
     if ( !ioobj )
@@ -118,8 +121,9 @@ bool uiPickSetMgr::storeSets()
 	if ( !setmgr_.isChanged(idx) )
 	    continue;
 
-	storeSet( setmgr_.get(idx) );
+	storeSet( *setmgr_.get(idx) );
     }
+
     return true;
 }
 
@@ -166,7 +170,7 @@ bool uiPickSetMgr::doStore( const Pick::Set& ps, const IOObj& ioobj ) const
     IOM().commitChanges( ioobj );
     BufferString bs;
     Pick::Set& editedps = const_cast<Pick::Set&>( ps );
-    if ( ps.isPolygon() && ps.nrItems() &&
+    if ( ps.isPolygon() && ps.size() &&
 				(ps.disp_.connect_ == Pick::Set::Disp::Open) )
     {
 	const bool keepopen = uiMSG().question( tr( "Polygon is not closed, "
@@ -252,45 +256,35 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
     if ( nms )
 	dlg.setInputSets( *nms );
 
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
-    ObjectSet<const Pick::Set> pss;
-    ObjectSet<Pick::Set> pssread;
+    uiStringSet errmsgs;
+    RefMan<Pick::Set> mergedset = new Pick::Set( dlg.ctioout_.ioobj_->name() );
     for ( int idx=0; idx<dlg.nrsel; idx++ )
     {
 	const MultiID& ky = dlg.selfld->chosenID( idx );
-	int setidx = setmgr_.indexOf( ky );
+	const int setidx = setmgr_.indexOf( ky );
 	if ( setidx >= 0 )
-	    pss += &setmgr_.get( setidx );
+	    mergedset->append( *setmgr_.get(setidx) );
 	else
 	{
-	    Pick::Set* newset = new Pick::Set;
-	    IOObj* ioobj = IOM().get( ky );
+	    RefMan<Pick::Set> newset = new Pick::Set;
+	    ConstPtrMan<IOObj> ioobj = IOM().get( ky );
 	    BufferString msg;
 	    if ( PickSetTranslator::retrieve(*newset,ioobj,true, msg) )
-		{ pss += newset; pssread += newset; }
+		mergedset->append( *newset );
 	    else
-		uiMSG().warning( mToUiStringTodo(msg) );
-	    delete ioobj;
+		errmsgs.add( toUiString(msg) );
 	}
     }
 
-    if ( pss.size() < 2 )
-    {
-	uiMSG().error( tr("Not enough valid sets selected for merge") );
-	deepErase( pssread ); return;
-    }
-
-    Pick::Set resset( *pss[0] );
-    resset.setName( dlg.ctioout_.ioobj_->name() );
-    for ( int idx=1; idx<pss.size(); idx ++ )
-	resset.append( *pss[idx] );
+    if ( !errmsgs.isEmpty() )
+	uiMSG().errorWithDetails( errmsgs, tr("Error during merge.") );
 
     BufferString msg;
-    if ( !PickSetTranslator::store(resset,dlg.ctioout_.ioobj_,msg) )
-	uiMSG().error( mToUiStringTodo(msg) );
-
-    deepErase( pssread );
+    if ( !PickSetTranslator::store(*mergedset,dlg.ctioout_.ioobj_,msg) )
+	uiMSG().error( toUiString(msg) );
 }
 
 
@@ -309,4 +303,35 @@ void uiPickSetMgr::keyPressedCB( CallBacker* )
 	res = setmgr_.undo().reDo( 1, true );
 
     uiMain::keyboardEventHandler().setHandled( res );
+}
+
+
+
+// uiPickSetMgrInfoDlg
+uiPickSetMgrInfoDlg::uiPickSetMgrInfoDlg( uiParent* p )
+    : uiDialog(p,uiDialog::Setup(tr("Pick::SetMgr Information"),
+		mNoDlgTitle,mNoHelpKey).applybutton(true)
+				.applytext(uiStrings::sReload()).modal(false))
+{
+    setCtrlStyle( uiDialog::CloseOnly );
+
+    browser_ = new uiTextBrowser( this );
+    mAttachCB( applyPushed, uiPickSetMgrInfoDlg::refresh );
+    mAttachCB( windowShown, uiPickSetMgrInfoDlg::refresh );
+}
+
+
+uiPickSetMgrInfoDlg::~uiPickSetMgrInfoDlg()
+{
+    detachAllNotifiers();
+}
+
+
+void uiPickSetMgrInfoDlg::refresh( CallBacker* )
+{
+    IOPar iopar;
+    Pick::SetMgr::dumpMgrInfo( iopar );
+    BufferString text;
+    iopar.dumpPretty( text );
+    browser_->setText( text );
 }

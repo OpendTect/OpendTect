@@ -82,7 +82,7 @@ public:
 			    \retval 0 name exists and overwrite is not set.
 			    \retval 1 success.
 			*/
-    Pick::Set*		getSet() { return set_; }
+    RefMan<Pick::Set>	getSet() { return set_; }
 
 protected:
 			uiODAnnotSubItem(Pick::Set&,int displayid=-1);
@@ -116,7 +116,7 @@ protected:
     MenuItem		scalemnuitem_;
     MenuItem		storemnuitem_;
     MenuItem		storeasmnuitem_;
-    Pick::Set*		set_;
+    RefMan<Pick::Set>	set_;
 };
 
 

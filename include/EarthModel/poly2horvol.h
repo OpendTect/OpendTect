@@ -12,6 +12,8 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "gendefs.h"
+#include "ptrman.h"
+
 class TaskRunner;
 namespace Pick	{ class Set; }
 namespace EM	{ class Horizon3D; }
@@ -28,7 +30,7 @@ public:
 			    : ps_(ps), hor_(0)	{ setHorizon(h); }
 			~Poly2HorVol();
 
-    const Pick::Set*	pickSet() const		{ return ps_; }
+    ConstRefMan<Pick::Set>	pickSet() const		{ return ps_; }
     EM::Horizon3D*	horizon()		{ return hor_; }
     void		setPickSet( const Pick::Set* ps )	{ ps_ = ps; }
     void		setHorizon(EM::Horizon3D*);
@@ -40,9 +42,8 @@ public:
 
 protected:
 
-    const Pick::Set*	ps_;
-    EM::Horizon3D*	hor_;
-
+    ConstRefMan<Pick::Set>	ps_;
+    RefMan<EM::Horizon3D>	hor_;
 };
 
 

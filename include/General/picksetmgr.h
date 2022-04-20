@@ -10,13 +10,18 @@ ________________________________________________________________________
 
 -*/
 
-#include "pickset.h"
+#include "generalmod.h"
+#include "namedobj.h"
+
 #include "multiid.h"
+#include "ptrman.h"
 #include "undo.h"
 
 
 namespace Pick
 {
+
+class Set;
 
 /*!\brief Utility to manage pick set lifecycles.
           Also supports change notifications.
@@ -33,11 +38,11 @@ namespace Pick
 mExpClass(General) SetMgr : public NamedCallBacker
 {
 public:
+    static SetMgr&	getMgr(const char*);
 
-			~SetMgr();
     int			size() const		{ return pss_.size(); }
-    Set&		get( int idx )		{ return *pss_[idx]; }
-    const Set&		get( int idx ) const	{ return *pss_[idx]; }
+    RefMan<Set>		get( int idx )		{ return pss_[idx]; }
+    ConstRefMan<Set>	get( int idx ) const	{ return pss_[idx]; }
     const MultiID&	id( int idx ) const;
 
     int			indexOf(const char*) const;
@@ -45,11 +50,11 @@ public:
     int			indexOf(const MultiID&) const;
 
     // Convenience. Check indexOf() if presence is not sure
-    Set&		get( const MultiID& i )		{ return *find(i); }
-    const Set&		get( const MultiID& i ) const	{ return *find(i); }
     const MultiID&	get( const Set& s ) const	{ return *find(s); }
-    Set&		get( const char* s )		{ return *find(s); }
-    const Set&		get( const char* s ) const	{ return *find(s); }
+    RefMan<Set>		get( const MultiID& mid )	{ return find( mid ); }
+    ConstRefMan<Set>	get( const MultiID& mid ) const { return find( mid ); }
+    RefMan<Set>		get( const char* nm )		{ return find( nm ); }
+    ConstRefMan<Set>	get( const char* nm ) const	{ return find( nm ); }
 
     void		set(const MultiID&,Set*);
 			//!< add, replace or remove (pass null Set ptr).
@@ -113,23 +118,26 @@ public:
     bool		readDisplayPars(const MultiID&,IOPar&) const;
     bool		writeDisplayPars(const MultiID&,const IOPar&) const;
 
-    static SetMgr&	getMgr(const char*);
+    static void		dumpMgrInfo(IOPar&);
 
 			SetMgr( const char* nm );
 			//!< creates an unmanaged SetMgr
 			//!< Normally you don't want that, use getMgr() instead
+			~SetMgr();
 
 protected:
 
     Undo&		undo_;
-    ObjectSet<Set>	pss_;
+    RefObjectSet<Set>	pss_;
     TypeSet<MultiID>	ids_;
     BoolTypeSet		changed_;
 
     void		add(const MultiID&,Set*);
-    Set*		find(const MultiID&) const;
+    RefMan<Set>		find(const MultiID&);
+    RefMan<Set>		find(const char*);
+    ConstRefMan<Set>	find(const MultiID&) const;
+    ConstRefMan<Set>	find(const char*) const;
     MultiID*		find(const Set&) const;
-    Set*		find(const char*) const;
 
     void		survChg(CallBacker*);
     void		objRm(CallBacker*);
@@ -145,5 +153,3 @@ inline Pick::SetMgr& Pick::Mgr()
 {
     return SetMgr::getMgr(0);
 }
-
-

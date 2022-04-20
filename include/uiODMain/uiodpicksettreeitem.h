@@ -51,8 +51,8 @@ public:
 
     virtual bool	actModeWhenSelected() const;
     void		showAllPicks(bool yn);
-    Pick::Set&		getSet()			{ return set_; }
-    const Pick::Set&	getSet() const			{ return set_; }
+    RefMan<Pick::Set>		getSet()		{ return set_; }
+    ConstRefMan<Pick::Set>	getSet() const		{ return set_; }
 
 protected:
 
@@ -66,7 +66,7 @@ protected:
     virtual const char*	parentType() const
     			{ return typeid(uiODPickSetParentTreeItem).name(); }
 
-    Pick::Set&		set_;
+    RefMan<Pick::Set>	set_;
     MenuItem		storemnuitem_;
     MenuItem		storeasmnuitem_;
     MenuItem		dirmnuitem_;
@@ -118,8 +118,8 @@ public:
 
     virtual bool	actModeWhenSelected() const;
     void		showAllPicks(bool yn);
-    Pick::Set&		getSet()			{ return set_; }
-    const Pick::Set&	getSet() const			{ return set_; }
+    RefMan<Pick::Set>	getSet()			{ return set_; }
+    ConstRefMan<Pick::Set> getSet() const		{ return set_; }
 
 protected:
 
@@ -133,7 +133,7 @@ protected:
     virtual const char*	parentType() const
 			{ return typeid(uiODPolygonParentTreeItem).name(); }
 
-    Pick::Set&		set_;
+    RefMan<Pick::Set>	set_;
 
     MenuItem		storemnuitem_;
     MenuItem		storeasmnuitem_;

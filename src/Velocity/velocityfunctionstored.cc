@@ -127,7 +127,7 @@ bool StoredFunctionSource::store( const MultiID& velid )
 	//Trigger something?
     }
 
-    ::Pick::Set ps( ioobj->name() );
+    RefMan<Pick::Set> ps = new Pick::Set( ioobj->name() );
     BinIDValueSet::SPos arrpos;
 
     while ( veldata_.next(arrpos,false) )
@@ -139,13 +139,13 @@ bool StoredFunctionSource::store( const MultiID& velid )
 	const Coord3 dir( vals[1], mUdf(float), mUdf(float) );
 	::Pick::Location pickloc( pos, dir );
 
-	ps += pickloc;
+	ps->add( pickloc );
     }
 
-    ps.pars_.setYN( sKeyZIsTime(), zit_ );
-    desc_.fillPar( ps.pars_ );
+    ps->pars_.setYN( sKeyZIsTime(), zit_ );
+    desc_.fillPar( ps->pars_ );
 
-    if ( !PickSetTranslator::store( ps, ioobj, errmsg_ ) )
+    if ( !PickSetTranslator::store( *ps, ioobj, errmsg_ ) )
 	return false;
 
     fillIOObjPar( ioobj->pars() );
@@ -175,25 +175,25 @@ bool StoredFunctionSource::load( const MultiID& velid )
     if ( !ioobj )
 	return false;
 
-    ::Pick::Set pickset( ioobj->name() );
-    if ( !PickSetTranslator::retrieve( pickset, ioobj, false, errmsg_ ) )
+    RefMan<Pick::Set> ps = new Pick::Set( ioobj->name() );
+    if ( !PickSetTranslator::retrieve( *ps, ioobj, false, errmsg_ ) )
 	return false;
 
-    if ( !pickset.pars_.getYN( sKeyZIsTime(), zit_ ) ||
-	 !desc_.usePar( pickset.pars_ ) )
+    if ( !ps->pars_.getYN( sKeyZIsTime(), zit_ ) ||
+	 !desc_.usePar( ps->pars_ ) )
 	return false;
 
     veldata_.setEmpty();
     veldata_.setNrVals( 2, false );
     float vals[2];
 
-    for ( int idx=pickset.size()-1; idx>=0; idx-- )
+    for ( int idx=ps->size()-1; idx>=0; idx-- )
     {
-	const ::Pick::Location& pspick = pickset[idx];
-	const BinID bid = SI().transform( pspick.pos_ );
+	const ::Pick::Location& pspick = ps->get( idx );
+	const BinID bid = SI().transform( pspick.pos() );
 
-	vals[0] = (float) pspick.pos_.z;
-	vals[1] = pspick.dir_.radius;
+	vals[0] = pspick.z();
+	vals[1] = pspick.dir().radius;
 
 	veldata_.add( bid, vals );
     }

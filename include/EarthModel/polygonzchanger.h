@@ -19,9 +19,9 @@ namespace EM
 mExpClass(EarthModel) PolygonZChanger
 { mODTextTranslationClass(PolygonZChanger)
 public:
-    PolygonZChanger(Pick::Set&,const MultiID& horid);
-    PolygonZChanger(Pick::Set&,float zval);
-    ~PolygonZChanger();
+			PolygonZChanger(Pick::Set&,const MultiID& horid);
+			PolygonZChanger(Pick::Set&,float zval);
+			~PolygonZChanger();
 
     uiRetVal		doWork(TaskRunner&);
 
@@ -29,11 +29,12 @@ protected:
     void		changeZval();
     void		reportChange(Pick::SetMgr::ChangeData::Ev ev,int idy);
 
-    Pick::Set&		ps_;
+    RefMan<Pick::Set>	ps_;
     MultiID		horid_;
     float		zval_;
 
 private:
     enum EventType	{ Remove, Move };
 };
+
 } // namespace EM

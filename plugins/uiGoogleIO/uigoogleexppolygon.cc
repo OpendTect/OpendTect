@@ -89,33 +89,35 @@ bool uiGISExportPolygon::acceptOK( CallBacker* )
     else
 	objids.add( mid_ );
 
-    Pick::Set picks;
-    BufferString errmsg;
     PtrMan<GISWriter> wrr = expfld_->createWriter();
     if ( !wrr )
 	return false; // Put some error message here
 
-    ObjectSet<const Pick::Set> pickssets;
+    BufferString errmsg;
+    RefObjectSet<const Pick::Set> selsets;
     for ( auto objid : objids )
     {
-	picks.setEmpty();
-	if ( !PickSetTranslator::retrieve(
-					picks,IOM().get(objid),true,errmsg) )
+	RefMan<Pick::Set> ps = new Pick::Set;
+	if ( !PickSetTranslator::retrieve(*ps,IOM().get(objid),true,errmsg) )
 	    continue;
 
-	pickssets.add( new Pick::Set(picks) );
+	selsets.add( ps );
     }
 
-    if ( picks.isPolygon() )
+    if ( selsets.isEmpty() )
+	return false;
+
+    const Pick::Set* ps0 = selsets.first();
+    const bool ispoly = ps0->isPolygon();
+    if ( ispoly )
     {
-	if ( picks.disp_.connect_ == picks.disp_.Close )
-	    wrr->writePolygon( pickssets );
+	if ( ps0->disp_.connect_ == Pick::Set::Disp::Close )
+	    wrr->writePolygon( selsets );
 	else
-	    wrr->writeLine( pickssets );
+	    wrr->writeLine( selsets );
     }
     else
-	wrr->writePoint( pickssets );
-
+	wrr->writePoint( selsets );
 
     wrr->close();
     const bool ret = uiMSG().askGoOn( wrr->successMsg() );

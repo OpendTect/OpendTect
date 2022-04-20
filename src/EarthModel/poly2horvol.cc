@@ -25,26 +25,17 @@ ________________________________________________________________________
 
 Poly2HorVol::~Poly2HorVol()
 {
-    if ( hor_ )
-	hor_->unRef();
 }
 
 
 void Poly2HorVol::setHorizon( EM::Horizon3D* hor )
 {
-    if ( hor_ )
-	{ hor_->unRef(); hor_ = 0; }
     hor_ = hor;
-    if ( hor_ )
-	hor_->ref();
 }
 
 
 bool Poly2HorVol::setHorizon( const MultiID& mid, TaskRunner* tr )
 {
-    if ( hor_ )
-	{ hor_->unRef(); hor_ = 0; }
-
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid, tr );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
 
@@ -63,12 +54,14 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 
     ODPolygon<float> poly;
     TrcKeySampling polytks( false );
-    TypeSet<Coord> pts; TypeSet<float> zvals;
+    TypeSet<Coord> pts;
+    TypeSet<float> zvals;
     for ( int idx=0; idx<ps_->size(); idx++ )
     {
-	const Pick::Location& pl( (*ps_)[idx] );
-	pts += pl.pos_; zvals += (float) pl.pos_.z;
-	const BinID bid( SI().transform(pl.pos_) );
+	const Pick::Location& pl = ps_->get( idx );
+	pts += pl.pos();
+	zvals += pl.z();
+	const BinID bid( SI().transform(pl.pos()) );
 	poly.add( mPolyLoc(bid) );
 	polytks.include( bid );
     }

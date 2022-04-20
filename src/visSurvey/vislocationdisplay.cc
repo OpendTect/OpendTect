@@ -55,29 +55,16 @@ static float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
 
 LocationDisplay::LocationDisplay()
     : VisualObjectImpl( true )
-    , eventcatcher_( 0 )
-    , transformation_( 0 )
-    , showall_( true )
-    , set_( 0 )
     , manip_( this )
-    , picksetmgr_( 0 )
-    , waitsfordirectionid_( -1 )
-    , waitsforpositionid_( -1 )
-    , datatransform_( 0 )
-    , pickedsobjid_(-1)
-    , voiidx_(-1)
-    , undoloccoord_( Coord3::udf() )
-    , undomove_( false )
-    , storedmid_(MultiID::udf())
-    , selectionmodel_(false)
-    , ctrldown_(false)
 {
     sower_ = new Sower( this );
     sower_->ref();
     addChild( sower_->osgNode() );
+
     painter_ = new SeedPainter;
     painter_->ref();
     addChild( painter_->osgNode() );
+
     setSetMgr( &Pick::Mgr() );
 }
 
@@ -85,10 +72,9 @@ LocationDisplay::LocationDisplay()
 LocationDisplay::~LocationDisplay()
 {
     detachAllNotifiers();
-    setSceneEventCatcher( 0 );
-
-    if ( transformation_ ) transformation_->unRef();
-    setSetMgr( 0 );
+    setSceneEventCatcher( nullptr );
+    setSetMgr( nullptr );
+    unRefPtr( transformation_ );
 
     if ( datatransform_ )
     {
@@ -156,6 +142,18 @@ void LocationDisplay::setSetMgr( Pick::SetMgr* mgr )
 }
 
 
+RefMan<Pick::Set> LocationDisplay::getSet()
+{
+    return set_;
+}
+
+
+ConstRefMan<Pick::Set> LocationDisplay::getSet() const
+{
+    return set_;
+}
+
+
 void LocationDisplay::fullRedraw( CallBacker* )
 {
     if ( !set_ )
@@ -167,9 +165,9 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	TrcKeyZSampling cs( false );
 	for ( int pidx=0; pidx<set_->size(); pidx++ )
 	{
-	    Pick::Location loc = (*set_)[pidx];
-	    BinID bid = SI().transform( loc.pos_ );
-	    const float zval = mCast( float, loc.pos_.z );
+	    const Pick::Location& loc = set_->get( pidx );
+	    BinID bid = SI().transform( loc.pos() );
+	    const float zval = loc.z();
 	    cs.hsamp_.include( bid );
 	    cs.zsamp_.include( zval, false );
 	}
@@ -202,8 +200,8 @@ void LocationDisplay::fullRedraw( CallBacker* )
 
     for ( int idx=0; idx<set_->size(); idx++ )
     {
-	Pick::Location loc = (*set_)[idx];
-	if ( !transformPos( loc ) )
+	Pick::Location loc = set_->get( idx );
+	if ( !transformPos(loc) )
 	{
 	    invalidpicks_ += idx;
 	}
@@ -306,13 +304,14 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	Coord3 newpos, normal;
 	if ( getPickSurface(eventinfo,newpos,normal) )
 	{
-	    Coord3 dir = newpos - (*set_)[waitsfordirectionid_].pos_;
+	    const Pick::Location& loc = set_->get( waitsfordirectionid_ );
+	    Coord3 dir = newpos - loc.pos();
 	    const float zscale = scene_ ? scene_->getZScale(): SI().zScale();
 	    dir.z *= -zscale; //convert to right dir-domain
 	    if ( dir.sqAbs()>=0 )
 	    {
-		 (*set_)[waitsfordirectionid_].dir_ =
-		     cartesian2Spherical( dir, true );
+		set_->setDir( waitsfordirectionid_,
+			      cartesian2Spherical(dir,true) );
 		Pick::SetMgr::ChangeData cd(
 			Pick::SetMgr::ChangeData::Changed,
 			set_, waitsfordirectionid_ );
@@ -327,6 +326,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	// when dragging it will receive multi times coords from visevent:
 	// mouse move and mouse release. we need the last one and the begin
 	// one for undo issue
+	const Pick::Location& loc = set_->get( waitsforpositionid_ );
 	Coord3 newpos, normal;
 	if ( getPickSurface(eventinfo,newpos,normal) )
 	{
@@ -334,15 +334,14 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    {
 		if ( undoloccoord_.isDefined() )
 		{
-		    const ::Sphere dir = (*set_)[waitsforpositionid_].dir_;
+		    const ::Sphere dir = loc.dir();
 		    Pick::Location undoloc( undoloccoord_, dir );
 		    Pick::Location newloc( newpos, dir );
 		    mDynamicCastGet(const Seis2DDisplay*,s2d,
 				    getPickedSurveyObject())
 		    if ( s2d )
 		    {
-			undoloc.setTrcKey(
-					(*set_)[waitsforpositionid_].trcKey() );
+			undoloc.setTrcKey( loc.trcKey() );
 			newloc.setTrcKey( TrcKey(s2d->getGeomID(),
 					s2d->getNearestTraceNr(newpos)) );
 		    }
@@ -358,11 +357,13 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    {
 		if ( !undomove_ )
 		{
-		    undoloccoord_ = (*set_)[waitsforpositionid_].pos_;
+		    undoloccoord_ = loc.pos();
 		    undomove_ =  true;
 		}
-		(*set_)[waitsforpositionid_].pos_ = newpos;
+
+		set_->setPos( waitsforpositionid_, newpos );
 	    }
+
 	    Pick::SetMgr::ChangeData cd(
 		    Pick::SetMgr::ChangeData::Changed,
 		    set_, waitsforpositionid_ );
@@ -432,7 +433,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		 eventid==mousepressid_ )
 	    {
 		const int removeidx = clickedMarkerIndex( eventinfo );
-		if ( removeidx!=-1 ) removePick( removeidx );
+		if ( removeidx!=-1 )
+		    removePick( removeidx );
 	    }
 
 	    eventcatcher_->setHandled();
@@ -570,7 +572,7 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
 		    continue;
 
 		float dist;
-		const TrcKey tk = geom2d->nearestTrace( loc.pos_, &dist );
+		const TrcKey tk = geom2d->nearestTrace( loc.pos(), &dist );
 		if ( dist>ndist || dist>geom2d->averageTrcDist() )
 		    continue;
 
@@ -588,7 +590,7 @@ bool LocationDisplay::transformPos( Pick::Location& loc ) const
     if ( mIsUdf(newdepth) )
 	return false;
 
-    loc.pos_.z = newdepth;
+    loc.setZ( newdepth );
 
     if ( hasDirection() )
     {
@@ -619,8 +621,8 @@ void LocationDisplay::locChg( CallBacker* cb )
 	if ( !set_->validIdx(pickidx) )
 	    return;
 
-	Pick::Location loc = (*set_)[pickidx];
-	if ( !transformPos( loc ) )
+	Pick::Location loc = set_->get( pickidx );
+	if ( !transformPos(loc) )
 	{
 	    invalidpicks_ += cd->loc_;
 	}
@@ -634,8 +636,8 @@ void LocationDisplay::locChg( CallBacker* cb )
     }
     else if ( cd->ev_==Pick::SetMgr::ChangeData::Changed )
     {
-	Pick::Location loc = (*set_)[cd->loc_];
-	if ( !transformPos( loc ) )
+	Pick::Location loc = set_->get( cd->loc_ );
+	if ( !transformPos(loc) )
 	{
 	    if ( invalidpicks_.indexOf(cd->loc_)==-1 )
 		invalidpicks_ += cd->loc_;
@@ -673,7 +675,7 @@ void LocationDisplay::bulkLocChg( CallBacker* cb )
 	    if ( !set_->validIdx(pickidx) )
 		return;
 
-	    Pick::Location loc = (*set_)[pickidx];
+	    Pick::Location loc = set_->get( pickidx );
 	    if ( !transformPos(loc) )
 	    {
 		invalidpicks_ += pickidx;
@@ -768,17 +770,17 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	float mindist = mUdf(float);
 	for ( int idx=0; idx<set_->size(); idx++ )
 	{
-	    int pidx = idx>0 ? idx-1 : set_->size()-1;
-
-	    int nrmatches = sowinghistory.indexOf( (*set_)[idx].pos_ ) >= 0;
-	    nrmatches += sowinghistory.indexOf( (*set_)[pidx].pos_ ) >= 0;
+	    const int pidx = idx>0 ? idx-1 : set_->size()-1;
+	    int nrmatches = sowinghistory.indexOf( set_->getPos(idx) ) >= 0;
+	    nrmatches += sowinghistory.indexOf( set_->getPos(pidx) ) >= 0;
 	    if ( nrmatches != sowinghistory.size() )
 		continue;
 
-	    const float dist = findDistance( world2Display((*set_)[pidx].pos_),
-					     world2Display((*set_)[idx].pos_),
+	    const float dist = findDistance( world2Display(set_->getPos(pidx)),
+					     world2Display(set_->getPos(idx)),
 					     displaypos );
-	    if ( mIsUdf(dist) ) continue;
+	    if ( mIsUdf(dist) )
+		continue;
 
 	    if ( mIsUdf(mindist) || dist<mindist )
 	    {
@@ -824,9 +826,11 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	picksetmgr_->reportChange( 0, cd );
     }
 
-    if ( !hasText() ) return true;
+    if ( !hasText() )
+	return true;
 
-    if ( !(*set_)[locidx].text_ || !(*set_)[locidx].text_->size() )
+    const Pick::Location& loc = set_->get( locidx );
+    if ( !loc.hasText() || loc.text().isEmpty() )
     {
 	removePick( locidx );
 	return false;
@@ -884,19 +888,21 @@ void LocationDisplay::otherObjectsMoved(
 }
 
 
-void LocationDisplay::setPosition(int idx, const Pick::Location& nl, bool add )
+void LocationDisplay::setPosition( int idx, const Pick::Location& nl, bool add )
 {
-    if ( !set_ || idx<0 || idx>=(*set_).size() )
+    if ( !set_ || !set_->validIdx(idx) )
 	return;
 
-    (*set_)[idx] = nl;
+    set_->set( idx, nl );
 }
 
 
 void LocationDisplay::removePosition( int idx )
 {
-    if ( !set_ || idx<0 || idx>=(*set_).size() )
+    if ( !set_ || !set_->validIdx(idx) )
 	return;
+
+    set_->remove( idx );
 }
 
 
@@ -1038,8 +1044,8 @@ bool LocationDisplay::removeSelections( TaskRunner* taskr )
     {
 	for ( int idx=set_->size()-1; idx>=0; idx-- )
 	{
-	    const Pick::Location& loc = (*set_)[idx];
-	    if ( selector->includes(loc.pos_) )
+	    const Pick::Location& loc = set_->get( idx );
+	    if ( selector->includes(loc.pos()) )
 	    {
 		removePick( idx, false );
 		changed = true;
@@ -1100,8 +1106,7 @@ bool LocationDisplay::usePar( const IOPar& par )
     const int setidx = picksetmgr_ ? picksetmgr_->indexOf( storedmid_ ) : -1;
     if ( setidx==-1 )
     {
-	mDeclareAndTryAlloc( Pick::Set*, newps, Pick::Set );
-
+	RefMan<Pick::Set> newps = new Pick::Set;
 	BufferString bs;
 	PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
 	if ( ioobj )
@@ -1113,11 +1118,13 @@ bool LocationDisplay::usePar( const IOPar& par )
 	newps->disp_.markertype_ = markertype;
 	newps->disp_.pixsize_ = pixsize;
 
-	if ( picksetmgr_ ) picksetmgr_->set( storedmid_, newps );
+	if ( picksetmgr_ )
+	    picksetmgr_->set( storedmid_, newps );
+
 	setSet( newps );
     }
     else
-	setSet( &picksetmgr_->get( storedmid_ ) );
+	setSet( picksetmgr_->get(storedmid_) );
 
     return true;
 }

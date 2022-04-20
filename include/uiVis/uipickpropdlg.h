@@ -49,7 +49,7 @@ protected:
     uiSelLineStyle*		lsfld_		= nullptr;
     uiColorInput*		fillcolfld_	= nullptr;
 
-    Pick::Set&			set_;
+    RefMan<Pick::Set>		set_;
     visSurvey::PickSetDisplay*	psd_;
 };
 

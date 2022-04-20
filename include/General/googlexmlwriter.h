@@ -39,15 +39,18 @@ public:
 
     bool	close() override;
 
-    bool	writePoints(const coord2dset&,
+    bool	writePoints(const TypeSet<Coord>&,
 					const BufferStringSet& nms) override;
-    bool	writeLine(const coord2dset&, const char* nm=nullptr) override;
+    bool	writeLine(const TypeSet<Coord>&,
+			const char* nm=nullptr) override;
     bool	writePoint(const Coord&, const char* nm=nullptr) override;
-    bool	writePolygon(const coord2dset&,const char* nm=nullptr) override;
-    bool	writePolygon(const coord3dset&,const char* nm=nullptr) override;
-    bool	writeLine(const pickset&) override;
-    bool	writePoint(const pickset&) override;
-    bool	writePolygon(const pickset&) override;
+    bool	writePolygon(const TypeSet<Coord>&,
+			const char* nm=nullptr) override;
+    bool	writePolygon(const TypeSet<Coord3>&,
+			const char* nm=nullptr) override;
+    bool	writeLine(const RefObjectSet<const Pick::Set>&) override;
+    bool	writePoint(const RefObjectSet<const Pick::Set>&) override;
+    bool	writePolygon(const RefObjectSet<const Pick::Set>&) override;
     BufferString getExtension() override	{ return BufferString("kml"); }
 protected:
 
@@ -64,6 +67,5 @@ protected:
     bool		putPoly(const TypeSet<Coord3>&,const char* nm=nullptr);
     bool		putIconStyles();
 };
-
 
 } // namespace ODGoogle

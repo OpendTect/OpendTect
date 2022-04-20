@@ -281,7 +281,9 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	if ( !dlg.go() )
 	    return;
 
-	Pick::Set& pickset = *dlg.getPickSet();
+	RefMan<Pick::Set> pickset = dlg.getPickSet();
+	if ( !pickset )
+	    return;
 
 	const DataPointSet* data = display->getDataPack();
 	for ( int rid=0; rid<data->size(); rid++ )
@@ -294,18 +296,17 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 		      data->value(dispprop_->dpsColID(),rid),true);
 
 	    if ( useloc )
-		pickset +=
-		    Pick::Location( Coord3(data->coord(rid),data->z(rid)) );
+		pickset->add( data->coord(rid), data->z(rid) );
 	}
 
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
-	ctio->setName( pickset.name() );
+	ctio->setName( pickset->name() );
 
 	if ( uiIOObj::fillCtio(*ctio,true) )
 	{
 	    BufferString bs;
-	    if ( !PickSetTranslator::store( pickset, ctio->ioobj_, bs ) )
-	    uiMSG().error(mToUiStringTodo(bs));
+	    if ( !PickSetTranslator::store(*pickset,ctio->ioobj_,bs) )
+		uiMSG().error( toUiString(bs) );
 	}
     }
     else if ( mnuid == removemnuitem_.id )

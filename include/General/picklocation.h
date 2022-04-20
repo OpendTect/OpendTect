@@ -118,13 +118,12 @@ public:
     /* mDeprecated */ float	inlDip() const;
     /* mDeprecated */ float	crlDip() const;
 
-			// become protected in post-6.0
-    /* mDeprecated */ Coord3		pos_;
-    /* mDeprecated */ TrcKey		trckey_;
-    /* mDeprecated */ Sphere		dir_;
-    /* mDeprecated */ BufferString*	text_;
-
 protected:
+    Coord3		pos_;
+    TrcKey		trckey_;
+    Sphere		dir_;
+    BufferString*	text_;
+
 
     bool		fndKeyTxt(const char*,BufferString*) const;
 

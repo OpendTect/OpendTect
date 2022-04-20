@@ -33,11 +33,10 @@ mCreateVw2DFactoryEntry( VW2DPickSet );
 VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 			  const ObjectSet<uiFlatViewAuxDataEditor>& editors )
     : Vw2DDataObject()
-    , pickset_(0)
     , deselected_(this)
 {
     if ( picksetidx >= 0 && Pick::Mgr().size() > picksetidx )
-	pickset_ = &Pick::Mgr().get( picksetidx );
+	pickset_ = Pick::Mgr().get( picksetidx );
 
     for ( int idx=0; idx<editors.size(); idx++ )
     {
@@ -101,7 +100,7 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 	}
     }
 
-    (*pickset_) += newloc;
+    pickset_->add( newloc );
     const int locidx = pickset_->size()-1;
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Added,
 				 pickset_, locidx );
@@ -114,7 +113,8 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
     mCBCapsuleGet(bool,caps,cb);
     mDynamicCastGet(uiFlatViewAuxDataEditor*,editor,caps->caller);
     ConstDataPackRef<FlatDataPack> fdp = viewers_[0]->obtainPack( true, true );
-    if ( !fdp || !editor || !pickset_ ) return;
+    if ( !fdp || !editor || !pickset_ )
+	return;
 
     const int editoridx = editors_.indexOf( editor );
     if ( editoridx<0 ) return;
@@ -126,8 +126,8 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
     TypeSet<int> vw2dpsidxs;
     for ( int idx=0; idx<pickset_->size(); idx++ )
     {
-	const Pick::Location pl = pickset_->get( idx );
-	const BinID bid = SI().transform( pl.pos_ );
+	const Pick::Location& pl = pickset_->get( idx );
+	const BinID bid = SI().transform( pl.pos() );
 	if ( regfdp )
 	{
 	    const TrcKeyZSampling& vwr2dtkzs = regfdp->sampling();
@@ -142,7 +142,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 		    {
 			mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 					Survey::GM().getGeometry(geomid) );
-			if ( !geom2d || geom2d->data().nearestIdx(pl.pos_)<0 )
+			if ( !geom2d || geom2d->data().nearestIdx(pl.pos())<0 )
 			    continue;
 		    }
 		}
@@ -153,7 +153,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	    {
 		const float vwr2dzpos = vwr2dtkzs.zsamp_.start;
 		const float eps = vwr2dtkzs.zsamp_.step/2.f;
-		if ( !mIsEqual(vwr2dzpos,pl.pos_.z,eps) )
+		if ( !mIsEqual(vwr2dzpos,pl.z(),eps) )
 		    continue;
 	    }
 	}
@@ -179,7 +179,7 @@ void VW2DPickSet::pickRemoveCB( CallBacker* cb )
 	const int pickidx = vw2dpsidxs[locidx];
 	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
 				     pickset_, pickidx );
-	pickset_->removeSingle( pickidx );
+	pickset_->remove( pickidx );
 	Pick::Mgr().reportChange( 0, cd );
     }
 }
@@ -220,14 +220,6 @@ MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 }
 
 
-void VW2DPickSet::updateSetIdx( const TrcKeyZSampling& cs )
-{}
-
-
-void VW2DPickSet::updateSetIdx( const TrcKeyPath& trckeys )
-{}
-
-
 void VW2DPickSet::drawAll()
 {
     ConstDataPackRef<FlatDataPack> fdp = viewers_[0]->obtainPack( true, true );
@@ -256,8 +248,8 @@ void VW2DPickSet::drawAll()
 	ConstRefMan<ZAxisTransform> zat = vwr.getZAxisTransform();
 	for ( int idx=0; idx<nrpicks; idx++ )
 	{
-	    const Pick::Location pl = pickset_->get ( idx );
-	    const Coord3& pos = pl.pos_;
+	    const Pick::Location& pl = pickset_->get( idx );
+	    const Coord3& pos = pl.pos();
 	    const double z = zat ? zat->transform(pos) : pos.z;
 	    const Coord bidf = bid2crd.transformBackNoSnap( pos.coord() );
 	    if ( regfdp && regfdp->isVertical() )
@@ -347,8 +339,10 @@ void VW2DPickSet::drawAll()
 
 void VW2DPickSet::clearPicks()
 {
-    if ( !pickset_ ) return;
-    pickset_->erase();
+    if ( !pickset_ )
+	return;
+
+    pickset_->setEmpty();
     drawAll();
 }
 
@@ -399,19 +393,20 @@ bool VW2DPickSet::usePar( const IOPar& iop )
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( Pick::Mgr().indexOf(ioobj->key()) >= 0 )
 	return false;
-    Pick::Set* newps = new Pick::Set; BufferString bs;
+    BufferString bs;
+    RefMan<Pick::Set> newps = new Pick::Set;
     if ( PickSetTranslator::retrieve(*newps,ioobj,true, bs) )
     {
 	Pick::Mgr().set( ioobj->key(), newps );
 	pickset_ = newps;
 	return true;
     }
-    delete newps;
+
     return false;
 }
 
 
-const MultiID VW2DPickSet::pickSetID() const
+MultiID VW2DPickSet::pickSetID() const
 {
     return pickset_ ? Pick::Mgr().get( *pickset_ ) : MultiID::udf();
 }

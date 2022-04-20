@@ -82,8 +82,8 @@ public:
 
 namespace Pick
 {
-mGlobal(Geometry) Pick::Set*	getSet(const MultiID&,BufferString&);
-mGlobal(Geometry) Pick::Set*	getSet(const DBKey&,BufferString&);
+mGlobal(Geometry) RefMan<Pick::Set>	getSet(const MultiID&,BufferString&);
+mGlobal(Geometry) RefMan<Pick::Set>	getSet(const DBKey&,BufferString&);
 }
 
 

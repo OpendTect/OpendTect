@@ -129,7 +129,7 @@ void uiDataPointSetPickDlg::initPickSet()
     psd_ = new visSurvey::PickSetDisplay();
     psd_->ref();
 
-    Pick::Set* ps = new Pick::Set( "DPS picks" );
+    RefMan<Pick::Set> ps = new Pick::Set( "DPS picks" );
     ps->disp_.color_ = OD::Color( 255, 0, 0 );
     psd_->setSet( ps );
     psd_->setSetMgr( &picksetmgr_ );
@@ -173,17 +173,18 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     if ( pvds.data().isEmpty() )
     { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
 
-    Pick::Set* pickset = psd_ ? psd_->getSet() : 0;
-    if ( !pickset ) return;
+    RefMan<Pick::Set> pickset = psd_ ? psd_->getSet() : 0;
+    if ( !pickset )
+	return;
 
     values_.erase();
-    pickset->erase();
+    pickset->setEmpty();
     DataPointSet newdps( pvds, false );
     for ( int idx=0; idx<newdps.size(); idx++ )
     {
 	const DataPointSet::Pos pos( newdps.pos(idx) );
 	Pick::Location loc( pos.coord(), pos.z() );
-	(*pickset) += loc;
+	pickset->add( loc );
 	values_ += newdps.value(0,idx);
     }
 
@@ -248,8 +249,9 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
     int locidx = -1;
     for ( int idx=0; idx<set->size(); idx++ )
     {
-	const double dst = dpscrd.distTo( (*set)[idx].pos_ );
-	if ( dst > mindist ) continue;
+	const double dst = dpscrd.distTo( set->getPos(idx) );
+	if ( dst > mindist )
+	    continue;
 
 	mindist = dst;
 	locidx = idx;
@@ -322,8 +324,7 @@ void uiDataPointSetPickDlg::updateDPS()
     for ( int idx=0; idx<set->size(); idx++ )
     {
 	DataPointSet::Pos pos;
-	const Pick::Location loc = (*set)[idx];
-	pos.set( loc.pos_ );
+	pos.set( set->getPos(idx) );
 	DataPointSet::DataRow row( pos );
 	row.data_ += values_[idx];
 	dps_.addRow( row );

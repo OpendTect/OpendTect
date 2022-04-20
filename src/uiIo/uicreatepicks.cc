@@ -68,6 +68,10 @@ uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds,
 }
 
 
+uiCreatePicks::~uiCreatePicks()
+{}
+
+
 void uiCreatePicks::addStdFields( uiObject* lastobject )
 {
     nmfld_ = new uiGenInput( this,
@@ -92,12 +96,12 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
 }
 
 
-Pick::Set* uiCreatePicks::getPickSet() const
+RefMan<Pick::Set> uiCreatePicks::getPickSet() const
 {
-    Pick::Set* ret = new Pick::Set( name_ );
+    RefMan<Pick::Set> ret = new Pick::Set( name_ );
     ret->disp_.color_ = colsel_->color();
     ret->disp_.connect_ = aspolygon_ ? Pick::Set::Disp::Open
-				  : Pick::Set::Disp::None;
+				     : Pick::Set::Disp::None;
     return ret;
 }
 
@@ -228,18 +232,18 @@ bool uiGenPosPicks::acceptOK( CallBacker* cb )
 }
 
 
-Pick::Set* uiGenPosPicks::getPickSet() const
+RefMan<Pick::Set> uiGenPosPicks::getPickSet() const
 {
     if ( dps_->isEmpty() )
 	return nullptr;
 
-    Pick::Set* ps = uiCreatePicks::getPickSet();
+    RefMan<Pick::Set> ps = uiCreatePicks::getPickSet();
     const int dpssize = dps_->size();
 
     for ( DataPointSet::RowID idx=0; idx<dpssize; idx++ )
     {
 	const DataPointSet::Pos pos( dps_->pos(idx) );
-	*ps += Pick::Location( pos.coord(), pos.z() );
+	ps->add( Pick::Location(pos.coord(),pos.z()) );
     }
 
     return ps;

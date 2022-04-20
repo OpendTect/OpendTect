@@ -179,40 +179,40 @@ bool uiImpExpPickSet::doImport()
 	mErrRet( tr("Could not open input file") )
 
     const char* psnm = objfld_->getInput();
-    Pick::Set ps( psnm );
+    RefMan<Pick::Set> ps = new Pick::Set( psnm );
     const int zchoice = zfld_->box()->currentItem();
     float constz = zchoice==1 ? constzfld_->getFValue() : 0;
     if ( SI().zIsTime() ) constz /= 1000;
 
-    ps.disp_.color_ = colorfld_->color();
+    ps->disp_.color_ = colorfld_->color();
     PickSetAscIO aio( fd_ );
-    aio.get( strm, ps, zchoice==0, constz );
+    aio.get( strm, *ps, zchoice==0, constz );
 
     if ( zchoice == 2 )
-    {
-	serv_->fillZValsFrmHor( &ps, horinpfld_->box()->currentItem() );
-    }
+	serv_->fillZValsFromHor( *ps, horinpfld_->box()->currentItem() );
 
     const IOObj* objfldioobj = objfld_->ioobj();
-    if ( !objfldioobj ) return false;
+    if ( !objfldioobj )
+	return false;
+
     PtrMan<IOObj> ioobj = objfldioobj->clone();
     const int seloption = polyfld_->getIntValue();
     if ( seloption )
     {
-	ps.disp_.connect_ = seloption==1 ? Pick::Set::Disp::Open
+	ps->disp_.connect_ = seloption==1 ? Pick::Set::Disp::Open
 					 : Pick::Set::Disp::Close;
-	ps.disp_.linestyle_.color_ = colorfld_->color();
+	ps->disp_.linestyle_.color_ = colorfld_->color();
 	ioobj->pars().set( sKey::Type(), sKey::Polygon() );
     }
     else
     {
-	ps.disp_.connect_ = Pick::Set::Disp::None;
+	ps->disp_.connect_ = Pick::Set::Disp::None;
 	ioobj->pars().set(sKey::Type(), PickSetTranslatorGroup::sKeyPickSet());
     }
 
     IOM().commitChanges( *ioobj );
     BufferString errmsg;
-    if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
+    if ( !PickSetTranslator::store(*ps,ioobj,errmsg) )
 	mErrRet( toUiString(errmsg) )
 
     storedid_ = ioobj->key();
@@ -222,17 +222,17 @@ bool uiImpExpPickSet::doImport()
 	int setidx = psmgr.indexOf( storedid_ );
 	if ( setidx < 0 )
 	{
-	    Pick::Set* newps = new Pick::Set( ps );
+	    Pick::Set* newps = new Pick::Set( *ps );
 	    psmgr.set( storedid_, newps );
 	    setidx = psmgr.indexOf( storedid_ );
 	    importReady.trigger();
 	}
 	else
 	{
-	    Pick::Set& oldps = psmgr.get( setidx );
-	    oldps = ps;
-	    psmgr.reportChange( nullptr, oldps );
-	    psmgr.reportDispChange( nullptr, oldps );
+	    RefMan<Pick::Set> oldps = psmgr.get( setidx );
+	    *oldps = *ps;
+	    psmgr.reportChange( nullptr, *oldps );
+	    psmgr.reportDispChange( nullptr, *oldps );
 	}
 
 	psmgr.setUnChanged( setidx, true );
@@ -248,8 +248,9 @@ bool uiImpExpPickSet::doExport()
     if ( !objfldioobj ) return false;
 
     PtrMan<IOObj> ioobj = objfldioobj->clone();
-    BufferString errmsg; Pick::Set ps;
-    if ( !PickSetTranslator::retrieve(ps,ioobj,true, errmsg) )
+    BufferString errmsg;
+    RefMan<Pick::Set> ps = new Pick::Set;
+    if ( !PickSetTranslator::retrieve(*ps,ioobj,true, errmsg) )
 	mErrRet( toUiString(errmsg) )
 
     const char* fname = filefld_->fileName();
@@ -262,9 +263,9 @@ bool uiImpExpPickSet::doExport()
 
     strm.stdStream() << std::fixed;
     BufferString buf;
-    for ( int locidx=0; locidx<ps.size(); locidx++ )
+    for ( int locidx=0; locidx<ps->size(); locidx++ )
     {
-	ps[locidx].toString( buf, true,
+	ps->get(locidx).toString( buf, true,
 		coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr );
 	strm << buf.buf() << '\n';
     }

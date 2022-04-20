@@ -29,35 +29,43 @@ class XMLItem;
 */
 
 mExpClass(General) GeoJSONWriter : public GISWriter
-{ mODTextTranslationClass(GeoJSONWriter);
+{
+mODTextTranslationClass(GeoJSONWriter);
 public:
-    mDefaultFactoryInstantiation( GISWriter, GeoJSONWriter, "GeoJSON",
-						    toUiString("GeoJSON") );
+mDefaultFactoryInstantiation( GISWriter, GeoJSONWriter, "GeoJSON",
+			      toUiString("GeoJSON") );
 
 			GeoJSONWriter();
 			~GeoJSONWriter();
 
 
-    uiString	    errMsg() const override	{ return errmsg_; }
-    void	    setStream(const BufferString&) override;
+    uiString		errMsg() const override	{ return errmsg_; }
+    void		setStream(const BufferString&) override;
 
-    void	    setElemName(const char* nm) //!< before open()
-						{ elemnm_ = nm; }
-    void	    setSurveyName(const char* nm) //!< before open()
-						{ survnm_ = nm; }
+    void		setElemName(const char* nm) //!< before open()
+			{ elemnm_ = nm; }
+    void		setSurveyName(const char* nm) //!< before open()
+			{ survnm_ = nm; }
 
-    bool	    close() override;
+    bool		close() override;
 
-    bool	    writePoints(const coord2dset&,
-					const BufferStringSet& nms) override;
-    bool	    writePoint(const pickset&) override;
-    bool	    writePoint(const Coord&, const char* nm=0) override;
-    bool	    writeLine(const coord2dset&,const char* nm=0) override;
-    bool	    writeLine(const pickset&) override;
-    bool	    writePolygon(const coord2dset&,const char*nm=0) override;
-    bool	    writePolygon(const coord3dset&,const char*nm=0) override;
-    bool	    writePolygon(const pickset&) override;
-    BufferString    getExtension() override { return BufferString("geojson"); }
+    bool		writePoints(const TypeSet<Coord>&,
+			    const BufferStringSet& nms) override;
+    bool		writePoint(
+			    const RefObjectSet<const Pick::Set>&) override;
+    bool		writePoint(const Coord&, const char* nm=0) override;
+    bool		writeLine(const TypeSet<Coord>&,
+				  const char* nm=0) override;
+    bool		writeLine(
+			    const RefObjectSet<const Pick::Set>&) override;
+    bool		writePolygon(
+			    const TypeSet<Coord>&,const char*nm=0) override;
+    bool		writePolygon(
+			    const TypeSet<Coord3>&,const char*nm=0) override;
+    bool		writePolygon(
+			    const RefObjectSet<const Pick::Set>&) override;
+    BufferString	getExtension() override
+			{ return BufferString("geojson"); }
 
 
 protected:
@@ -67,9 +75,10 @@ protected:
     uiString		errmsg_;
     OD::GeoJsonTree*	geojsontree_;
     bool		open(const char* fnm);
-    bool		writeGeometry(BufferString,const coord2dset&,
-							const BufferStringSet&);
-    bool		writeGeometry(BufferString,const coord3dset&,
-							const BufferStringSet&);
-    bool		writeGeometry(BufferString,const pickset&);
+    bool		writeGeometry(BufferString,const TypeSet<Coord>&,
+					const BufferStringSet&);
+    bool		writeGeometry(BufferString,const TypeSet<Coord3>&,
+					const BufferStringSet&);
+    bool		writeGeometry(BufferString,
+					const RefObjectSet<const Pick::Set>&);
 };

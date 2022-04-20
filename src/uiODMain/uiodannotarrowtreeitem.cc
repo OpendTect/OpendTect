@@ -31,7 +31,8 @@ void type##ParentItem::setRemovedCB( CallBacker* cb ) \
 	    if ( !itm ) continue; \
 	    if ( itm->getSet() == ps ) \
 	    { \
-		applMgr()->visServer()->removeObject( itm->displayID(), sceneID() ); \
+		applMgr()->visServer()->removeObject( itm->displayID(),\
+							sceneID() ); \
 		uiTreeItem::removeChild( itm ); \
 		return; \
 	    } \
@@ -75,10 +76,12 @@ bool ArrowSubItem::init()
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
     PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     if ( !ioobj->pars().get(sKeyArrowType(),arrowtype_) )
 	set_->pars_.get( sKeyArrowType(), arrowtype_ );
+
     ad->setType( (visSurvey::ArrowDisplay::Type)arrowtype_ );
 
     int linewidth = 2;
@@ -89,10 +92,15 @@ bool ArrowSubItem::init()
     //Read Old format orientation
     for ( int idx=set_->size()-1; idx>=0; idx-- )
     {
+	const Pick::Location& loc = set_->get( idx );
+	if ( !loc.hasText() )
+	    continue;
+
+	Pick::Location newloc = loc;
 	BufferString orientation;
-	if ( (*set_)[idx].getText("O", orientation ) )
+	if ( loc.getKeyedText("O",orientation) )
 	{
-	    Sphere& dir = (*set_)[idx].dir_;
+	    Sphere dir = loc.dir();
 	    if ( orientation[0] == '2' )
 	    {
 		dir.phi = (float) (-M_PI_2-dir.phi);
@@ -103,10 +111,12 @@ bool ArrowSubItem::init()
 		dir.phi = (float) (M_PI_2-dir.phi);
 		dir.theta -= M_PI_2;
 	    }
+
+	    newloc.setDir( dir );
+	    newloc.removeTextKey( "0" );
 	}
 
-	delete (*set_)[idx].text_;
-	(*set_)[idx].text_ = 0;
+	set_->set( idx, newloc );
     }
 
     return uiODAnnotSubItem::init();

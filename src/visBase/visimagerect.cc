@@ -65,8 +65,8 @@ ImageRect::~ImageRect()
 
 void ImageRect::setPick( const Pick::Location& loc )
 {
-    setCenterPos( loc.pos_ );
-    const osg::Quat rot( loc.dir_.phi, osg::Vec3(0,0,1) );
+    setCenterPos( loc.pos() );
+    const osg::Quat rot( loc.dir().phi, osg::Vec3(0,0,1) );
     texplane_->setRotation( rot );
 }
 
@@ -103,9 +103,9 @@ void ImageRect::setRGBImage( const OD::RGBImage& rgbimg )
     const int totsz = rgbimg.getSize(true) * rgbimg.getSize(false) * 4;
     unsigned char* imgdata = new unsigned char[totsz];
     OD::memCopy( imgdata, rgbimg.getData(), totsz );
- 
+
     osg::ref_ptr<osg::Image> image = new osg::Image;
-    image->setImage( rgbimg.getSize(true), rgbimg.getSize(false), 1, 
+    image->setImage( rgbimg.getSize(true), rgbimg.getSize(false), 1,
 		     GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, imgdata,
 		     osg::Image::NO_DELETE );
     image->flipHorizontal();

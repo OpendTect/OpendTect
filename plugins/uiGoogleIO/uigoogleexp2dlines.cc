@@ -129,7 +129,7 @@ bool uiGISExport2DSeis::acceptOK( CallBacker* )
     props.width_ = lsfld_->getWidth() * .1;
     props.nmkeystr_ = "Line_No";
     wrr->setProperties( props );
-    ObjectSet<const Pick::Set> picks;
+    RefObjectSet<const Pick::Set> picks;
     TypeSet<Coord> coords;
 
     for ( int idx=0; idx<sellnms_.size(); idx++ )
@@ -147,7 +147,7 @@ bool uiGISExport2DSeis::acceptOK( CallBacker* )
 }
 
 
-void uiGISExport2DSeis::getCoordsForLine( pickset& picks,
+void uiGISExport2DSeis::getCoordsForLine( RefObjectSet<const Pick::Set>& picks,
 						    const BufferString& lnm )
 {
     if ( lnm.isEmpty() )
@@ -177,7 +177,7 @@ void uiGISExport2DSeis::getCoordsForLine( pickset& picks,
     BendPointFinder2D bpf( crds, 1 );
     bpf.execute();
 
-    auto* pick = new Pick::Set( lnm );
+    RefMan<Pick::Set> pick = new Pick::Set( lnm );
 
     for ( int idx=0; idx<bpf.bendPoints().size(); idx++ )
     {

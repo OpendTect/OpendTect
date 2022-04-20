@@ -1164,23 +1164,24 @@ void uiODSceneMgr::gtLoadedPickSetIDs( const uiTreeItem& topitm,
 {
     for ( int chidx=0; chidx<topitm.nrChildren(); chidx++ )
     {
+	ConstRefMan<Pick::Set> ps = nullptr;
 	const uiTreeItem* chlditm = topitm.getChild( chidx );
 	if ( poly )
 	{
 	    mDynamicCastGet(const uiODPolygonTreeItem*,polyitem,chlditm)
-	    if ( !polyitem )
-		continue;
-
-	    const MultiID& mid = Pick::Mgr().get( polyitem->getSet() );
-	    picks.addIfNew( mid );
+	    if ( polyitem )
+		ps = polyitem->getSet();
 	}
 	else
 	{
 	    mDynamicCastGet(const uiODPickSetTreeItem*,pickitem,chlditm)
-	    if ( !pickitem )
-		continue;
+	    if ( pickitem )
+		ps = pickitem->getSet();
+	}
 
-	    const MultiID& mid = Pick::Mgr().get( pickitem->getSet() );
+	if ( ps )
+	{
+	    const MultiID& mid = Pick::Mgr().get( *ps );
 	    picks.addIfNew( mid );
 	}
     }
@@ -1283,7 +1284,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 
 int uiODSceneMgr::addPickSetItem( const MultiID& mid, int sceneid )
 {
-    Pick::Set* ps = applMgr().pickServer()->loadSet( mid );
+    RefMan<Pick::Set> ps = applMgr().pickServer()->loadSet( mid );
     if ( !ps )
 	ps = new Pick::Set( mid.toString() );
 

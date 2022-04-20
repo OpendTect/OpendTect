@@ -393,8 +393,8 @@ bool Picks::store( const IOObj* ioobjarg )
 	    emids += horizons_[idx]->id();
     }
 
-    ::Pick::Set ps( ioobj->name() );
-    ps.disp_.color_ = color_;
+    RefMan<::Pick::Set> ps = new ::Pick::Set( ioobj->name() );
+    ps->disp_.color_ = color_;
     RowCol arrpos( 0, 0 );
     if ( picks_.isValidPos( arrpos ) )
     {
@@ -409,16 +409,16 @@ bool Picks::store( const IOObj* ioobjarg )
 
 	    const int idx = emids.indexOf(pick.emobjid_);
 	    if ( idx!=-1 )
-		pickloc.text_ = new BufferString("",idx);
+		pickloc.setText( BufferString("",idx).buf() );
 
-	    ps += pickloc;
+	    ps->add( pickloc );
 	} while ( picks_.next(arrpos,false) );
     }
 
-    fillPar( ps.pars_ );
-    ps.pars_.set( sKey::Version(), 2 );
+    fillPar( ps->pars_ );
+    ps->pars_.set( sKey::Version(), 2 );
 
-    if ( !PickSetTranslator::store( ps, ioobj, errmsg_ ) )
+    if ( !PickSetTranslator::store( *ps, ioobj, errmsg_ ) )
 	return false;
 
     fillIOObjPar( ioobj->pars() );
@@ -782,32 +782,32 @@ bool Picks::load( const IOObj* ioobj )
 
     storageid_ = ioobj->key();
 
-    ::Pick::Set pickset( ioobj->name() );
-    if ( !PickSetTranslator::retrieve( pickset, ioobj, true, errmsg_ ) )
+    RefMan<::Pick::Set> ps = new ::Pick::Set( ioobj->name() );
+    if ( !PickSetTranslator::retrieve( *ps, ioobj, true, errmsg_ ) )
 	return false;
 
-    if ( !usePar( pickset.pars_ ) )
+    if ( !usePar( ps->pars_ ) )
     {
 	if ( !usePar( ioobj->pars() ) ) //Old format
 	    return false;
     }
 
     int version = 1;
-    pickset.pars_.get( sKey::Version(), version );
+    ps->pars_.get( sKey::Version(), version );
 
-    for ( int idx=pickset.size()-1; idx>=0; idx-- )
+    for ( int idx=ps->size()-1; idx>=0; idx-- )
     {
-	const ::Pick::Location& pspick = pickset[idx];
-	const BinID bid = SI().transform( pspick.pos_ );
-	const float z = mCast(float,pspick.pos_.z);
+	const ::Pick::Location& pspick = ps->get( idx );
+	const BinID bid = SI().transform( pspick.pos() );
+	const float z = pspick.z();
 	Pick pick = version==1
-	    ? Pick( z, pspick.dir_.radius, refoffset_, -1 )
-	    : Pick( z, pspick.dir_.radius, pspick.dir_.theta-1 );
+	    ? Pick( z, pspick.dir().radius, refoffset_, -1 )
+	    : Pick( z, pspick.dir().radius, pspick.dir().theta-1 );
 
-	if ( pspick.text_ )
+	if ( pspick.hasText() )
 	{
 	    int horidx;
-	    if ( getFromString(horidx,pspick.text_->buf(),-1) &&
+	    if ( getFromString(horidx,pspick.text(),-1) &&
 		 horidx!=-1 && horizons_[horidx] )
 		pick.emobjid_ = horizons_[horidx]->id();
 	}
@@ -815,7 +815,7 @@ bool Picks::load( const IOObj* ioobj )
 	picks_.add( &pick, bid );
     }
 
-    color_ = pickset.disp_.color_;
+    color_ = ps->disp_.color_;
 
     changed_ = false;
     change.trigger( BinID(-1,-1) );

@@ -10,14 +10,10 @@
 mImplFactory(GISWriter,GISWriter::factory);
 
 GISWriter::GISWriter()
-    : inpcrs_(SI().getCoordSystem())
-    , coordsys_(SI().getCoordSystem())
+    : coordsys_(SI().getCoordSystem())
+    , inpcrs_(SI().getCoordSystem())
 {
 }
-
-
-#define isCoordSysSame \
-    *coordsys_ == *inpcrs_ \
 
 
 GISWriter::Property::Property()
@@ -65,7 +61,7 @@ bool GISWriter::close()
 
 void GISWriter::coordConverter( TypeSet<Coord3>& crdset )
 {
-    if ( isCoordSysSame )
+    if ( *coordsys_ == *inpcrs_ )
 	return;
 
     for ( int idx=0; idx<crdset.size(); idx++ )
@@ -75,7 +71,7 @@ void GISWriter::coordConverter( TypeSet<Coord3>& crdset )
 
 void GISWriter::coordConverter( TypeSet<Coord>& crdset )
 {
-    if ( isCoordSysSame )
+    if ( *coordsys_ == *inpcrs_ )
 	return;
 
     for ( int idx=0; idx<crdset.size(); idx++ )
@@ -89,10 +85,12 @@ uiString GISWriter::successMsg()
 						.arg( factoryDisplayName() );
 }
 
+
 uiString GISWriter::errMsg()
 {
     return tr("Failed to create %1").arg( factoryDisplayName() );
 }
+
 
 void GISWriter::setProperties( const GISWriter::Property& props )
 {

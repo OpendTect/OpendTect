@@ -82,9 +82,9 @@ bool GMTClip::doExecute( od_ostream& strm, const char* fnm )
     if ( !setobj ) mErrStrmRet("Cannot find polygon")
 
     strm << "Activating clipping with polygon " << setobj->name() << " ...  ";
-    Pick::Set ps;
     BufferString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,setobj,true,errmsg) )
+    RefMan<Pick::Set> ps = new Pick::Set;
+    if ( !PickSetTranslator::retrieve(*ps,setobj,true,errmsg) )
 	mErrStrmRet( errmsg )
 
     bool clipoutside = false;
@@ -100,9 +100,9 @@ bool GMTClip::doExecute( od_ostream& strm, const char* fnm )
     if ( !procstrm.isOK() )
 	mErrStrmRet("Failed")
 
-    for ( int idx=0; idx<ps.size(); idx++ )
+    for ( int idx=0; idx<ps->size(); idx++ )
     {
-	const Coord3 pos = ps[idx].pos();
+	const Coord3& pos = ps->getPos( idx );
 	procstrm << pos.x << " " << pos.y << "\n";
     }
 

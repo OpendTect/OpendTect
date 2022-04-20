@@ -85,13 +85,14 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	PtrMan<IOObj> ioobj = IOM().get( res );
 	if ( ioobj )
 	{
-	    BufferString msg; Pick::Set ps;
-	    if ( PickSetTranslator::retrieve(ps,ioobj,true,msg) )
+	    RefMan<Pick::Set> ps = new Pick::Set;
+	    BufferString msg;
+	    if ( PickSetTranslator::retrieve(*ps,ioobj,true,msg) )
 	    {
-		for ( int idx=0; idx<ps.size(); idx++ )
+		for ( int idx=0; idx<ps->size(); idx++ )
 		{
-		    const Pick::Location& pl = ps[idx];
-		    bvs.add( SI().transform(pl.pos_), mCast(float,pl.pos_.z) );
+		    const Pick::Location& pl = ps->get( idx );
+		    bvs.add( SI().transform(pl.pos()), pl.z() );
 		}
 	    }
 	}
@@ -157,8 +158,10 @@ void Pos::TableProvider3D::fillPar( IOPar& iop ) const
 
 void Pos::TableProvider3D::getSummary( BufferString& txt ) const
 {
-    const int sz = mCast( int, bvs_.totalSize() );
-    if ( sz < 1 ) return;
+    const int sz = sCast( int, bvs_.totalSize() );
+    if ( sz < 1 )
+	return;
+
     txt += sz; txt += " point"; if ( sz > 1 ) txt += "s";
     BinID start, stop;
     getExtent( start, stop );

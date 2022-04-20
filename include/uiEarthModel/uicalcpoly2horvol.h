@@ -12,34 +12,38 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
-class uiIOObjSel;
-class uiGenInput;
+
+// Because of RefMan
+#include "emhorizon3d.h"
+#include "pickset.h"
+
 class uiCheckList;
-namespace Pick	{ class Set; }
-namespace EM	{ class Horizon3D; }
+class uiGenInput;
+class uiIOObjSel;
 
 
 /*! \brief UI for calculation of volume at horizons */
 
 mExpClass(uiEarthModel) uiCalcHorVol : public uiDialog
-{ mODTextTranslationClass(uiCalcHorVol)
+{
+mODTextTranslationClass(uiCalcHorVol)
 protected:
-
 			uiCalcHorVol(uiParent*,const uiString&);
+    virtual		~uiCalcHorVol();
 
-    uiCheckList*	optsfld_;
-    uiGenInput*		velfld_;
-    uiGenInput*		valfld_;
+    uiCheckList*	optsfld_	= nullptr;
+    uiGenInput*		velfld_		= nullptr;
+    uiGenInput*		valfld_		= nullptr;
 
     uiGroup*		mkStdGrp();
 
     const bool		zinft_;
-    
+
     void		haveChg(CallBacker*);
     void		calcReq(CallBacker*);
 
-    virtual const Pick::Set*		getPickSet()		= 0;
-    virtual const EM::Horizon3D*	getHorizon()		= 0;
+    virtual const Pick::Set*		getPickSet() const		= 0;
+    virtual const EM::Horizon3D*	getHorizon() const		= 0;
 
 };
 
@@ -47,52 +51,46 @@ protected:
 /*! \brief using polygon to calculate to different horizons */
 
 mExpClass(uiEarthModel) uiCalcPolyHorVol : public uiCalcHorVol
-{ mODTextTranslationClass(uiCalcPolyHorVol)
+{
+mODTextTranslationClass(uiCalcPolyHorVol)
 public:
 
 			uiCalcPolyHorVol(uiParent*,const Pick::Set&);
 			~uiCalcPolyHorVol();
 
-    const Pick::Set&	pickSet()		{ return ps_; }
-
 protected:
 
-    uiIOObjSel*		horsel_;
+    uiIOObjSel*			horsel_		= nullptr;
 
-    const Pick::Set&	ps_;
-    EM::Horizon3D*	hor_;
-    
-    const Pick::Set*		getPickSet()	{ return &ps_; }
-    const EM::Horizon3D*	getHorizon();
+    ConstRefMan<Pick::Set>	ps_;
+    RefMan<EM::Horizon3D>	hor_		= nullptr;
 
-    void		horSel(CallBacker*);
+    const Pick::Set*		getPickSet() const override	{ return ps_; }
+    const EM::Horizon3D*	getHorizon() const override	{ return hor_; }
 
+    void			horSel(CallBacker*);
 };
 
 
 /*! \brief using horizon to calculate from different levels by polygon */
 
 mExpClass(uiEarthModel) uiCalcHorPolyVol : public uiCalcHorVol
-{ mODTextTranslationClass(uiCalcHorPolyVol)
+{
+mODTextTranslationClass(uiCalcHorPolyVol)
 public:
 
 			uiCalcHorPolyVol(uiParent*,const EM::Horizon3D&);
 			~uiCalcHorPolyVol();
 
-    const EM::Horizon3D& horizon()		{ return hor_; }
-
 protected:
 
-    uiIOObjSel*		pssel_;
+    uiIOObjSel*			pssel_		= nullptr;
 
-    Pick::Set*		ps_;
-    const EM::Horizon3D& hor_;
-    
-    const Pick::Set*		getPickSet();
-    const EM::Horizon3D*	getHorizon()	{ return &hor_; }
+    RefMan<Pick::Set>		ps_		= nullptr;
+    ConstRefMan<EM::Horizon3D>	hor_;
 
-    void		psSel(CallBacker*);
+    const Pick::Set*		getPickSet() const override	{ return ps_; }
+    const EM::Horizon3D*	getHorizon() const override	{ return hor_; }
 
+    void			psSel(CallBacker*);
 };
-
-

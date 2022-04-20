@@ -443,16 +443,17 @@ bool uiHor3DInterpolSel::readPolygon( ODPolygon<float>& poly ) const
     if ( !polyfld_ || !polyfld_->ioobj() )
 	return false;
 
-    Pick::Set ps; BufferString errmsg;
+    BufferString errmsg;
+    RefMan<Pick::Set> ps = new Pick::Set;
     const bool res = PickSetTranslator::retrieve(
-				ps, polyfld_->ioobj(), true, errmsg );
+				*ps, polyfld_->ioobj(), true, errmsg );
     if ( !res )
 	mErrRet( mToUiStringTodo(errmsg) );
 
-    for ( int idx=0; idx<ps.size(); idx++ )
+    for ( int idx=0; idx<ps->size(); idx++ )
     {
-	const Pick::Location& pl = ps[idx];
-	const Coord bid = SI().binID2Coord().transformBackNoSnap( pl.pos_ );
+	const Pick::Location& pl = ps->get( idx );
+	const Coord bid = SI().binID2Coord().transformBackNoSnap( pl.pos() );
 	Geom::Point2D<float> pt; pt.setXY( bid.x, bid.y );
 	poly.add( pt );
     }

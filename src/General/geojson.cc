@@ -180,7 +180,7 @@ OD::GeoJsonTree::Array* OD::GeoJsonTree::createFeatCoordArray( Array* featarr,
 
 
 OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
-    const coord2dset& crdset, const BufferStringSet& nms,
+    const TypeSet<Coord>& crdset, const BufferStringSet& nms,
     ConstRefMan<Coords::CoordSystem> crs, GISWriter::Property& property )
 {
     if ( topobj_->isEmpty() )
@@ -195,7 +195,7 @@ OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
 
 
 OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
-	    const coord3dset& crdset, const BufferStringSet& nms,
+	    const TypeSet<Coord3>& crdset, const BufferStringSet& nms,
 	    ConstRefMan<Coords::CoordSystem> crs,
 	    GISWriter::Property& property )
 {
@@ -212,8 +212,9 @@ OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
 
 
 OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
-    const pickset& pckset, ConstRefMan<Coords::CoordSystem> crs,
-    const BufferString& iconnm )
+		const RefObjectSet<const Pick::Set>& pckset,
+		ConstRefMan<Coords::CoordSystem> crs,
+		const BufferString& iconnm )
 {
     if ( topobj_->isEmpty() )
 	mCreateFeatArray( geomtyp )
@@ -235,26 +236,29 @@ OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
 	    property.iconnm_ = iconnm;
 
 	polyarr_ = createFeatCoordArray( featarr_, geomtyp, property );
-	ObjectSet<const Pick::Location> crdset;
-	pick->getLocations( crdset );
-	if ( pick->isPolygon() && pick->disp_.connect_ == pick->disp_.Close )
-	    crdset.add( crdset.get(0) );
+	const TypeSet<Pick::Location>& locations = pick->locations();
+	if ( pick->isPolygon() && pick->disp_.connect_ == pick->disp_.Close &&
+	     locations.first() != locations.last() )
+	{
+	    auto& nclocs = cCast(TypeSet<Pick::Location>&,locations);
+	    nclocs.add( nclocs.first() );
+	}
 
 	Array* poly(0);
 	if ( isfeatpoly_ )
 	    poly = polyarr_->add( new Array(false) );
 
-	for ( int cidx=0; cidx<crdset.size(); cidx++ )
+	for ( int cidx=0; cidx<locations.size(); cidx++ )
 	{
 	    if ( !isfeatpoint_ )
 	    {
 		if ( !isfeatpoly_ )
 		    poly = polyarr_->add( new Array(OD::JSON::Number) );
 
-		addCoord( crdset[cidx]->pos(), *poly );
+		addCoord( locations.get(cidx).pos(), *poly );
 	    }
 	    else
-		addCoord( crdset[cidx]->pos(), *polyarr_ );
+		addCoord( locations.get(cidx).pos(), *polyarr_ );
 	}
     }
 
@@ -262,7 +266,7 @@ OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
 }
 
 
-bool OD::GeoJsonTree::isAntiMeridianCrossed( const coord3dset& crdset )
+bool OD::GeoJsonTree::isAntiMeridianCrossed( const TypeSet<Coord3>& crdset )
 {
     for ( auto crd : crdset)
     {

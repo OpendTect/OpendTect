@@ -131,7 +131,7 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 		if ( !loc.fromString(astrm.keyWord()) )
 		    break;
 
-		ps += loc;
+		ps.add( loc );
 		astrm.next();
 	    }
 	    while ( !atEndOfSection(astrm) ) astrm.next();
@@ -150,7 +150,7 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	    Pick::Location loc;
 	    loc.setGeomSystem( gs );
 	    if ( loc.fromString(astrm.keyWord()) )
-		ps += loc;
+		ps.add( loc );
 
 	    astrm.next();
 	}
@@ -180,7 +180,7 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     od_ostream& strm = astrm.stream();
     for ( int iloc=0; iloc<ps.size(); iloc++ )
     {
-	ps[iloc].toString( str );
+	ps.get(iloc).toString( str );
 	strm << str << od_newline;
     }
 
@@ -249,8 +249,8 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
 {
     const MultiID key( id );
     const int setidx = Pick::Mgr().indexOf( key );
-    const Pick::Set* ps = setidx < 0 ? 0 : &Pick::Mgr().get( setidx );
-    Pick::Set* createdps = 0;
+    ConstRefMan<Pick::Set> ps = setidx < 0 ? 0 : Pick::Mgr().get( setidx );
+    RefMan<Pick::Set> createdps = nullptr;
     if ( !ps )
     {
 	PtrMan<IOObj>ioobj = IOM().get( key );
@@ -263,16 +263,16 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
 
 	ps = createdps = new Pick::Set;
 	if ( !retrieve(*createdps,ioobj,true,msg) )
-	    { ErrMsg( msg ); delete createdps; return false; }
+	    { ErrMsg( msg ); return false; }
     }
 
     for ( int ipck=0; ipck<ps->size(); ipck++ )
     {
-	crds += ((*ps)[ipck]).pos_;
-	tks += ((*ps)[ipck]).trcKey();
+	const Pick::Location& loc = ps->get( ipck );
+	crds += loc.pos();
+	tks += loc.trcKey();
     }
 
-    delete createdps;
     return true;
 }
 
@@ -289,14 +289,15 @@ void PickSetTranslator::fillConstraints( IOObjContext& ctxt, bool ispoly )
 ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
 						 BufferString& emsg )
 {
-    Pick::Set ps; BufferString msg;
-    if ( !PickSetTranslator::retrieve(ps,&ioobj,true,msg) )
+    RefMan<Pick::Set> ps = new Pick::Set;
+    BufferString msg;
+    if ( !PickSetTranslator::retrieve(*ps,&ioobj,true,msg) )
     {
 	emsg = "Cannot read polygon '"; emsg += ioobj.name();
 	emsg += "':\n"; emsg += msg;
 	return 0;
     }
-    if ( ps.size() < 2 )
+    if ( ps->size() < 2 )
     {
 	emsg = "Polygon '"; emsg += ioobj.name();
 	emsg += "' contains less than 2 points";
@@ -304,10 +305,10 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
     }
 
     ODPolygon<float>* ret = new ODPolygon<float>;
-    for ( int idx=0; idx<ps.size(); idx++ )
+    for ( int idx=0; idx<ps->size(); idx++ )
     {
-	const Pick::Location& pl = ps[idx];
-	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos_ );
+	const Pick::Location& pl = ps->get( idx );
+	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos() );
 	ret->add( Geom::Point2D<float>((float) fbid.x,(float) fbid.y) );
     }
 
@@ -352,8 +353,8 @@ bool PickSetTranslator::implRename( const IOObj* ioobj, const char* newnm,
     const int setidx = Pick::Mgr().indexOf( ioobj->key() );
     if ( setidx>= 0 )
     {
-	Pick::Set& ps = Pick::Mgr().get( setidx );
-	ps.setName( ioobj->name() );
+	RefMan<Pick::Set> ps = Pick::Mgr().get( setidx );
+	ps->setName( ioobj->name() );
     }
 
     return res;
@@ -382,29 +383,28 @@ void PickSetTranslator::tagLegacyPickSets()
 }
 
 
-Pick::Set* Pick::getSet( const MultiID& mid, BufferString& errmsg )
+RefMan<Pick::Set> Pick::getSet( const MultiID& mid, BufferString& errmsg )
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
     const int setidx = Pick::Mgr().indexOf( mid );
     if ( setidx<0 )
     {
-	Pick::Set* ps = new Pick::Set;
+	RefMan<Pick::Set> ps = new Pick::Set;
 	if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
 	{
 	    Pick::Mgr().set( mid, ps );
 	    return ps;
 	}
 
-	delete ps;
 	return nullptr;
     }
 
-    return &(Pick::Mgr().get(setidx));
+    return Pick::Mgr().get(setidx);
 }
 
 
 
-Pick::Set* Pick::getSet( const DBKey& key, BufferString& errmsg )
+RefMan<Pick::Set> Pick::getSet( const DBKey& key, BufferString& errmsg )
 {
     if ( !key.hasSurveyLocation() )
 	return getSet( sCast(const MultiID&,key), errmsg );
@@ -414,10 +414,9 @@ Pick::Set* Pick::getSet( const DBKey& key, BufferString& errmsg )
     if ( !ioobj )
 	return nullptr;
 
-    Pick::Set* ps = new Pick::Set;
+    RefMan<Pick::Set> ps = new Pick::Set;
     if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
 	return ps;
 
-    delete ps;
     return nullptr;
 }

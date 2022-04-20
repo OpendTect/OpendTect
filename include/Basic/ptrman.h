@@ -4,8 +4,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Kristofer Tingdahl
- Date:          10-12-1999
+ Author:	Kristofer Tingdahl
+ Date:		10-12-1999
 ________________________________________________________________________
 
 -*/
@@ -123,7 +123,7 @@ public:
     inline		PtrMan(PtrMan<T>&&);
     PtrMan<T>&		operator=( T* p );
 
-                        PtrMan(const PtrMan<T>&)		= delete;
+			PtrMan(const PtrMan<T>&)		= delete;
     PtrMan<T>&		operator=(const PtrMan<T>&)		= delete;
 
 
@@ -144,7 +144,7 @@ public:
     inline		ConstPtrMan(ConstPtrMan<T>&&);
     ConstPtrMan<T>&	operator=(const T* p);
 
-                        ConstPtrMan(const ConstPtrMan<T>&)	= delete;
+			ConstPtrMan(const ConstPtrMan<T>&)	= delete;
     ConstPtrMan<T>&	operator=(const ConstPtrMan<T>&)	= delete;
 
 private:
@@ -177,7 +177,7 @@ public:
 
 private:
 
-    static void		deleteFunc( T* p )    { delete [] p; }
+    static void		deleteFunc( T* p )		{ delete [] p; }
 
     od_int64		size_;
 };
@@ -192,7 +192,7 @@ public:
     ConstArrPtrMan<T>&	operator=(const T* p);
 
     ConstArrPtrMan<T>&	operator=(const ConstArrPtrMan<T>&)	 = delete;
-                        ConstArrPtrMan(const ConstArrPtrMan<T>&) = delete;
+			ConstArrPtrMan(const ConstArrPtrMan<T>&) = delete;
 private:
 
     static void		deleteFunc( T* p )    { delete p; }

@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "sharedobject.h"
 #include "picklocation.h"
 #include "enums.h"
 #include "namedobj.h"
@@ -29,14 +30,11 @@ namespace Pick
 
 /*!\brief Set of picks with something in common */
 
-mExpClass(General) Set : public NamedCallBacker, public TypeSet<Location>
+mExpClass(General) Set : public SharedObject
 {
 public:
-    typedef idx_type	LocID;
-
 			Set(const char* nm=0);
 			Set(const Set&);
-			~Set();
 
     Set&		operator =(const Set&);
 
@@ -61,6 +59,30 @@ public:
 	Connection	connect_;	//!< connect picks in set order
     };
 
+    int			add(const Location&);
+    int			add(const Coord3&);
+    int			add(const Coord&,float z);
+    void		set(int idx,const Location&);
+    void		setPos(int idx,const Coord&);
+    void		setPos(int idx,const Coord3&);
+    void		setZ(int idx,float z);
+    void		setDir(int idx,const Sphere&);
+    void		setDip(int idx,float inldip,float crldip);
+    void		setKeyedText(int idx,const char* key,const char* txt);
+    void		insert(int idx,const Location&);
+    void		remove(int idx);
+    const Location&	get(int idx) const;
+    const Coord3&	getPos(int idx) const;
+    float		getZ(int idx) const;
+    int			size() const		{ return locations_.size(); }
+    bool		isEmpty() const		{ return locations_.isEmpty(); }
+    void		setEmpty()		{ locations_.setEmpty(); }
+    bool		validIdx(int idx) const;
+    bool		setCapacity(int sz);
+    bool		append(const Pick::Set&);
+    const TypeSet<Location>& locations() const		{ return locations_; }
+    void		getLocations(TypeSet<Coord3>&,int setidx=0) const;
+
     Disp		disp_;
     IOPar&		pars_;
     bool		is2D() const;
@@ -70,13 +92,11 @@ public:
 
     bool		isPolygon() const;
     void		getPolygon(ODPolygon<double>&,int idx=0) const;
-    void		getLocations(ObjectSet<Location>&,int idx=0);
-    void		getLocations(ObjectSet<const Location>&,int idx=0)const;
     float		getXYArea(int idx=0) const;
 			//!<Only for closed polygons. Returns in m^2.
-    LocID		find(const TrcKey&) const;
-    LocID		nearestLocation(const Coord&) const;
-    LocID		nearestLocation(const Coord3&,bool ignorez=false) const;
+    int			find(const TrcKey&) const;
+    int			nearestLocation(const Coord&) const;
+    int			nearestLocation(const Coord3&,bool ignorez=false) const;
     void		getBoundingBox(TrcKeyZSampling&) const;
 
     static const char*	sKeyMarkerType()	{ return "Marker Type"; }
@@ -90,19 +110,16 @@ public:
     bool		useDisplayPars(const IOPar&);
     bool		writeDisplayPars() const;
 
-    void		removeSingleWithUndo(LocID);
-    void		insertWithUndo(LocID,const Pick::Location&);
+    void		removeSingleWithUndo(int);
+    void		insertWithUndo(int,const Pick::Location&);
     void		appendWithUndo(const Pick::Location&);
-    void		moveWithUndo(LocID,const Pick::Location&,
+    void		moveWithUndo(int,const Pick::Location&,
 					const Pick::Location&);
 
     void		bulkAppendWithUndo(const TypeSet<Pick::Location>&,
 					   const TypeSet<int>& indexes);
     void		bulkRemoveWithUndo(const TypeSet<Pick::Location>&,
 					   const TypeSet<int>& indexes);
-
-    Location&		get(LocID);
-    const Location&	get(LocID) const;
 
     void		setReadOnly( bool yn )		{ readonly_ = yn; }
     bool		isReadOnly() const		{ return readonly_; }
@@ -120,15 +137,23 @@ public:
 			{ return "Use PointSet Size Threshold";}
     static int		getSizeThreshold();
 
+protected:
+			~Set();
+
 private:
 
     enum EventType	{ Insert, PolygonClose, Remove, Move };
-    void		addUndoEvent(EventType,LocID,const Pick::Location&);
+    void		addUndoEvent(EventType,int,const Pick::Location&);
     void		addBulkUndoEvent(EventType,const TypeSet<int>&,
 					 const TypeSet<Pick::Location>&);
 
     TypeSet<int>	startidxs_;
     bool		readonly_;
+
+    TypeSet<Location>	locations_;
+
+    void		refNotify() const override;
+    void		unRefNotify() const override;
 
 public:
 

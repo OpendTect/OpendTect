@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uiodlangmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
+#include "uipickpartserv.h"
 #include "uiproxydlg.h"
 #include "uisettings.h"
 #include "uiseispartserv.h"
@@ -1046,6 +1047,8 @@ void uiODMenuMgr::fillUtilMenu()
 		     mDisplayMemoryMnuItm);
 	insertAction( toolsmnu_, m3Dots(tr("Display Well::MGR Info")),
 		      mDisplayWellMgrMnuItm);
+	insertAction( toolsmnu_, m3Dots(tr("Display Pick::SetMgr Info")),
+		      mDisplayPickMgrMnuItm);
     }
 }
 
@@ -1615,6 +1618,10 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	dlg.setCancelText( uiString::empty() );
 	dlg.go();
     } break;
+    case mDisplayPickMgrMnuItm: {
+	applMgr().pickServer()->showPickSetMgrInfo();
+    } break;
+
     case mDisplayWellMgrMnuItm: {
 	applMgr().wellServer()->showWellMgrInfo();
     } break;

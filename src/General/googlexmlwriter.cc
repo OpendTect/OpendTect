@@ -83,24 +83,25 @@ bool ODGoogle::KMLWriter::close()
     const BufferString icnnm( "s_od_icon_", \
 			haveiconnm ? properties_.iconnm_.buf() : "noicon" ) \
 
-bool ODGoogle::KMLWriter::writePolygon( const pickset& picks )
+bool ODGoogle::KMLWriter::writePolygon(
+				const RefObjectSet<const Pick::Set>& picks )
 {
-
-
-    TypeSet<Coord3> coords;
-    ObjectSet<const Pick::Location> locs;
     for ( int i=0; i<picks.size(); i++ )
     {
-	locs.setEmpty();
-	coords.setEmpty();
 	const Pick::Set* pick = picks.get( i );
 	if ( !pick )
 	    continue;
 
-	pick->getLocations( locs );
-	locs.add( locs.get(0) );
-	for ( auto loc : locs )
-	    coords += loc->pos();
+	const TypeSet<Pick::Location>& locations = pick->locations();
+	if ( locations.size() < 3 )
+	    continue;
+
+	TypeSet<Coord3> coords;
+	for ( const auto& loc : locations )
+	    coords += loc.pos();
+
+	if ( coords.first() != coords.last() )
+	    coords.add( coords.first() );
 
 	properties_.color_ = pick->disp_.color_;
 	putPolyStyle();
@@ -111,10 +112,10 @@ bool ODGoogle::KMLWriter::writePolygon( const pickset& picks )
 }
 
 
-bool ODGoogle::KMLWriter::writePolygon( const coord2dset& coords,
-								const char* nm )
+bool ODGoogle::KMLWriter::writePolygon( const TypeSet<Coord>& coords,
+					const char* nm )
 {
-    coord3dset crdset;
+    TypeSet<Coord3> crdset;
     for ( auto coord : coords )
     {
 	Coord3 crd( coord, 0 );
@@ -125,31 +126,28 @@ bool ODGoogle::KMLWriter::writePolygon( const coord2dset& coords,
 }
 
 
-bool ODGoogle::KMLWriter::writePolygon( const coord3dset& coords,
-								const char* nm )
+bool ODGoogle::KMLWriter::writePolygon( const TypeSet<Coord3>& coords,
+					const char* nm )
 {
     return putPolyStyle() && putPoly( coords, nm );
 }
 
 
-bool ODGoogle::KMLWriter::writeLine( const pickset& picks )
+bool ODGoogle::KMLWriter::writeLine( const RefObjectSet<const Pick::Set>& picks)
 {
     putPolyStyle();
 
-    ObjectSet<const Pick::Location> locs;
-    TypeSet<Coord> coords;
 
     for ( int i=0; i<picks.size(); i++ )
     {
-	locs.setEmpty();
-	coords.setEmpty();
 	const Pick::Set* pick = picks.get( i );
 	if ( !pick )
 	    continue;
 
-	pick->getLocations( locs );
-	for ( auto loc : locs )
-	    coords.add( loc->pos().coord() );
+	const TypeSet<Pick::Location>& locations = pick->locations();
+	TypeSet<Coord> coords;
+	for ( const auto& loc : locations )
+	    coords += loc.pos();
 
 	putLine( coords , pick->name() );
     }
@@ -158,28 +156,28 @@ bool ODGoogle::KMLWriter::writeLine( const pickset& picks )
 }
 
 
-bool ODGoogle::KMLWriter::writeLine( const coord2dset& crdset, const char*nm )
+bool ODGoogle::KMLWriter::writeLine( const TypeSet<Coord>& crdset,
+				     const char*nm )
 {
     return putPolyStyle() && putLine( crdset, nm );
 }
 
 
-bool ODGoogle::KMLWriter::writePoint( const pickset& picks )
+bool ODGoogle::KMLWriter::writePoint(
+				const RefObjectSet<const Pick::Set>& picks )
 {
     if ( !putIconStyles() )
 	return false;
 
-    ObjectSet<const Pick::Location> locs;
     for ( int i=0; i<picks.size(); i++ )
     {
-	locs.setEmpty();
 	const Pick::Set* pick = picks.get( i );
 	if ( !pick )
 	    continue;
 
-	pick->getLocations( locs );
-	for ( auto loc : locs )
-	    putPlaceMark( loc->pos() , pick->name() );
+	const TypeSet<Pick::Location>& locations = pick->locations();
+	for ( const auto& loc : locations )
+	    putPlaceMark( loc.pos() , pick->name() );
     }
 
     return true;
@@ -193,8 +191,8 @@ bool ODGoogle::KMLWriter::writePoint( const Coord& coord, const char* nm )
 }
 
 
-bool ODGoogle::KMLWriter::writePoints( const coord2dset& crds,
-						const BufferStringSet& nms )
+bool ODGoogle::KMLWriter::writePoints( const TypeSet<Coord>& crds,
+				       const BufferStringSet& nms )
 {
     if ( !putIconStyles() )
 	return false;
@@ -333,7 +331,7 @@ bool ODGoogle::KMLWriter::putPolyStyle()
 
 
 bool ODGoogle::KMLWriter::putPoly( const TypeSet<Coord3>& coords,
-								const char* nm )
+				   const char* nm )
 {
     if ( !isOK() )
 	return false;

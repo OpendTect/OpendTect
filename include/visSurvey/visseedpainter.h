@@ -97,7 +97,7 @@ protected:
 
     bool				active_ = false;
     bool				isleftbutpressed_ = false;
-    Pick::Set*				set_;
+    RefMan<Pick::Set>			set_;
     Pick::SetMgr*			picksetmgr_;
 
     static int				density_;
@@ -107,5 +107,4 @@ protected:
 
 };
 
-}; // namespace visSurvey
-
+} // namespace visSurvey

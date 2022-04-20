@@ -181,12 +181,14 @@ void AnnotTreeItem::removePickSet( Pick::Set* ps )
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[idx])
-	    if ( !itm ) continue;
+	if ( !itm )
+	    continue;
 
 	const int displayid = itm->displayID();
 	mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    visserv->getObject(displayid));
-	if ( !ld ) continue;
+			visserv->getObject(displayid));
+	if ( !ld )
+	    continue;
 
 	if ( ld->getSet() == ps )
 	{
