@@ -40,10 +40,14 @@ protected:
 
     void		rdFilePush(CallBacker*);
     bool		getWellCreateData(int,const char*,uiSMWCData&);
+    bool		getWellCreateData(int,const char*,uiSMWCData&,
+					  uiString&);
     bool		createWell(const uiSMWCData&,const IOObj&);
+    bool		createWell(const uiSMWCData&,const IOObj&,uiString&);
     IOObj*		getIOObj(const char*);
     void		fillTable(const ObjectSet<uiSMWCData>&);
     void		fillRow(int,const uiSMWCData&);
+    void		checkOverwritePolicy();
 
     mDeprecatedDef void addRow(const uiSMWCData&,int&);
 

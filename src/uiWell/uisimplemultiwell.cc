@@ -258,6 +258,20 @@ bool uiSimpleMultiWellCreate::wantDisplay() const
 bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 					  const IOObj& ioobj )
 {
+    uiString msg;
+    if ( !createWell(wcd,ioobj,msg) )
+    {
+	uiMSG().error( msg );
+	return false;
+    }
+
+    return true;
+}
+
+
+bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
+					  const IOObj& ioobj, uiString& msg )
+{
     RefMan<Well::Data> wd = new Well::Data( wcd.nm_ );
     wd->info().surfacecoord = wcd.coord_;
     wd->info().uwid = wcd.uwi_;
@@ -276,9 +290,8 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     Well::Writer wr( ioobj, *wd );
     if ( !wr.put() )
     {
-	uiString msg = tr( "Cannot write data for '%1':\n%2" )
-		     .arg( wcd.nm_ ).arg( wr.errMsg() );
-	uiMSG().error( msg );
+	msg = tr( "Cannot write data for '%1': %2" )
+		.arg( wcd.nm_ ).arg( wr.errMsg() );
 	return false;
     }
 
@@ -292,12 +305,12 @@ IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
     IOObj* ioobj = IOM().getLocal( wellnm, "Well" );
     if ( ioobj )
     {
-	if ( overwritepol_ == 0 )
-	    overwritepol_ = uiMSG().askGoOn(
-		    tr("Do you want to overwrite existing wells?"),
-		    true) ? 1 : -1;
 	if ( overwritepol_ == -1 )
-	    { delete ioobj; return 0; }
+	{
+	    delete ioobj;
+	    return nullptr;
+	}
+
 	ioobj->implRemove();
     }
 
@@ -308,6 +321,7 @@ IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 	ctio.fillObj();
 	ioobj = ctio.ioobj_;
     }
+
     return ioobj;
 }
 
@@ -315,12 +329,25 @@ IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
 bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
 						 uiSMWCData& wcd )
 {
+    uiString msg;
+    if ( !getWellCreateData(irow,wellnm,wcd,msg) )
+    {
+	uiMSG().error( msg );
+	return false;
+    }
+
+    return true;
+}
+
+
+bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
+						uiSMWCData& wcd, uiString& msg )
+{
     wcd.coord_.x = tbl_->getDValue( RowCol(irow,1) );
     wcd.coord_.y = tbl_->getDValue( RowCol(irow,2) );
     if ( mIsUdf(wcd.coord_.x) || mIsUdf(wcd.coord_.y) )
     {
-	uiMSG().message(tr("No full coordinate for %1"
-			   "\nWell not created").arg(wellnm));
+	msg = tr("No full coordinate for %1, Well not created").arg(wellnm);
 	return false;
     }
 
@@ -385,22 +412,47 @@ int nextStep()
 	return Finished();
 
     uiSMWCData wcd( wellnm );
-    if ( !mygui_.getWellCreateData(curidx_++,wellnm,wcd) )
+    uiString msg;
+    if ( !mygui_.getWellCreateData(curidx_++,wellnm,wcd,msg) )
+    {
+	msgs_.add( msg );
 	return MoreToDo();
+    }
 
     PtrMan<IOObj> ioobj = mygui_.getIOObj( wellnm );
     if ( !ioobj )
 	return MoreToDo();
 
-    if ( !mygui_.createWell(wcd,*ioobj) )
-	return ErrorOccurred();
+    if ( !mygui_.createWell(wcd,*ioobj,msg) )
+	msgs_.add( msg );
 
     return MoreToDo();
 }
 
 	int				curidx_ = 0;
 	uiSimpleMultiWellCreate&	mygui_;
+	uiStringSet			msgs_;
 };
+
+
+void uiSimpleMultiWellCreate::checkOverwritePolicy()
+{
+    for ( int idx=0; idx<tbl_->nrRows(); idx++ )
+    {
+	BufferString wellnm( tbl_->text(RowCol(idx,0)) );
+	if ( wellnm.trimBlanks().isEmpty() )
+	    return;
+
+	IOObj* ioobj = IOM().getLocal( wellnm, "Well" );
+	if ( ioobj )
+	{
+	    overwritepol_ = uiMSG().askGoOn(
+			tr("Do you want to overwrite existing wells?"),
+			true) ? 1 : -1;
+	    return;
+	}
+    }
+}
 
 
 bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
@@ -415,16 +467,21 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 
     IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
 
+    if ( overwritepol_ == 0 )
+	checkOverwritePolicy();
+
     SimpleMultiWellImporter impexec( *this );
     uiTaskRunner uitr( this );
     if ( !uitr.execute(impexec) )
 	return false;
 
-    if ( crwellids_.isEmpty() )
+    if ( !impexec.msgs_.isEmpty() )
     {
-	return !uiMSG().askGoOn( tr("No wells have been imported."
-			     "\n\nDo you want to make changes to the table?"),
-			     uiStrings::sYes(), tr("No, Quit") );
+	uiString errmsg = crwellids_.isEmpty() ?
+				tr("No wells have been imported.") :
+				tr("Some wells could not be imported.");
+	uiMSG().errorWithDetails( impexec.msgs_, errmsg );
+	return false;
     }
 
     tbl_->clearTable();
