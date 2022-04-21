@@ -77,21 +77,34 @@ uiBaseObject::uiBaseObject( const char* nm, uiBody* b )
 
 
 uiBaseObject::~uiBaseObject()
-{ sendDelNotif(); }
+{
+    sendDelNotif();
+}
 
 
 void uiBaseObject::finalise()
-{ if ( body() ) body()->finalise(); }
+{
+    if ( body() )
+	body()->finalise();
+}
+
 
 void uiBaseObject::clear()
-{ if ( body() ) body()->clear(); }
+{
+    if ( body() )
+	body()->clear();
+}
 
 bool uiBaseObject::finalised() const
-{ return body() ? body()->finalised() : false; }
+{
+    return body() ? body()->finalised() : false;
+}
 
 
 int uiBaseObject::beginCmdRecEvent( const char* msg )
-{ return beginCmdRecEvent( (od_uint64) 0, msg ); }
+{
+    return beginCmdRecEvent( (od_uint64) 0, msg );
+}
 
 
 int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
@@ -115,11 +128,15 @@ int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
 
 
 const QWidget* uiBaseObject::getWidget() const
-{ return const_cast<uiBaseObject*>(this)->getWidget(); }
+{
+    return const_cast<uiBaseObject*>(this)->getWidget();
+}
 
 
 void uiBaseObject::endCmdRecEvent( int refnr, const char* msg )
-{ endCmdRecEvent( (od_uint64) 0, refnr, msg ); }
+{
+    endCmdRecEvent( od_uint64(0), refnr, msg );
+}
 
 
 void uiBaseObject::endCmdRecEvent( od_uint64 id, int refnr, const char* msg )
@@ -153,6 +170,7 @@ void uiBaseObject::addCmdRecorder( const CallBack& cb )
 }
 
 
+// uiParent
 uiParent::uiParent( const char* nm, uiParentBody* b )
     : uiBaseObject( nm, b )
 {}

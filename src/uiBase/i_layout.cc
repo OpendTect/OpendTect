@@ -59,6 +59,7 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, const char* nm,
 
 i_LayoutMngr::~i_LayoutMngr()
 {
+    sendDelNotif();
     detachAllNotifiers();
     for ( auto* children : childrenlist_ )
 	children->mngr_ = nullptr;
@@ -68,7 +69,20 @@ i_LayoutMngr::~i_LayoutMngr()
 
 void i_LayoutMngr::addItem( i_LayoutItem* itm )
 {
-    if ( !itm ) return;
+    if ( !itm )
+	return;
+
+    if ( lyoutdbg )
+    {
+	BufferString msg = "i_LayoutMngr::addItem";
+	if ( itm->objLayouted() )
+	    msg.add( " - Object: ").add( itm->objLayouted()->name() );
+	else if ( itm->bodyLayouted() )
+	    msg.add( " - Body: ").add( itm->bodyLayouted()->name() );
+	else
+	    msg.add( " - LayoutItem: " ).add( itm->name() );
+	od_cout() << msg << od_endl;
+    }
 
     mAttachCB( itm->objectToBeDeleted(), i_LayoutMngr::itemDel );
     childrenlist_ += itm;
@@ -96,6 +110,18 @@ void i_LayoutMngr::itemDel( CallBacker* cb )
     i_LayoutItem* itm = static_cast<i_LayoutItem*>( cb );
     if ( !itm )
 	{ pErrMsg("huh?"); return; }
+
+    if ( lyoutdbg )
+    {
+	BufferString msg = "i_LayoutMngr::itemDel";
+	if ( itm->objLayouted() )
+	    msg.add( " - Object: ").add( itm->objLayouted()->name() );
+	else if ( itm->bodyLayouted() )
+	    msg.add( " - Body: ").add( itm->bodyLayouted()->name() );
+	else
+	    msg.add( " - LayoutItem: " ).add( itm->name() );
+	od_cout() << msg << od_endl;
+    }
 
     childrenlist_ -= itm;
 }
@@ -236,11 +262,11 @@ uiRect i_LayoutMngr::winpos( LayoutMode lom ) const
 
 
 //! \internal class used when resizing a window
-class resizeItem
+class ResizeItem
 {
 #define NR_RES_IT	3
 public:
-			resizeItem( i_LayoutItem* it, int hStre, int vStre )
+			ResizeItem( i_LayoutItem* it, int hStre, int vStre )
 			    : item( it ), hStr( hStre ), vStr( vStre )
 			    , hDelta( 0 ), vDelta( 0 )
 			    , nhiter( hStre ? NR_RES_IT : 0 )
@@ -262,7 +288,8 @@ void i_LayoutMngr::childrenClear( uiObject* cb )
     for ( int idx=0; idx<childrenlist_.size(); idx++ )
     {
 	uiObject* cl = childrenlist_[idx]->objLayouted();
-	if ( cl && cl != cb ) cl->clear();
+	if ( cl && cl != cb )
+	    cl->clear();
     }
 }
 
@@ -272,8 +299,10 @@ bool i_LayoutMngr::isChild( uiObject* obj )
     for ( int idx=0; idx<childrenlist_.size(); idx++ )
     {
 	uiObject* cl = childrenlist_[idx]->objLayouted();
-	if ( cl && cl == obj ) return true;
+	if ( cl && cl == obj )
+	    return true;
     }
+
     return false;
 }
 
@@ -313,7 +342,7 @@ void i_LayoutMngr::forceChildrenRedraw( uiObjectBody* cb, bool deep )
 }
 
 
-void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
+void i_LayoutMngr::fillResizeList( ObjectSet<ResizeItem>& resizelist,
 				   bool isPrefSz )
 {
     for ( int idx=0; idx<childrenlist_.size(); idx++ )
@@ -330,7 +359,7 @@ void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
 	    if ( (vs>1) || (vs==1 && !isPrefSz) )	add = true;
 	    else					vs=0;
 
-	    if ( add ) resizeList += new resizeItem( childrenlist_[idx], hs, vs);
+	    if ( add ) resizelist += new ResizeItem( childrenlist_[idx], hs, vs);
         }
     }
 }
@@ -347,7 +376,7 @@ void i_LayoutMngr::moveChildrenTo(int rTop, int rLeft, LayoutMode lom )
 }
 
 
-bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
+bool i_LayoutMngr::tryToGrowItem( ResizeItem& itm,
 				  const int maxhdelt, const int maxvdelt,
 				  int hdir, int vdir,
 				  const QRect& targetRect, int iternr )
@@ -448,7 +477,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 	    revert |= tmp;
 	}
 
-	if( hdir < 0 )
+	if ( hdir < 0 )
 	{
 	    bool tmp =  childrenBBox.right() <= oldcbbrgt ;
 /*
@@ -458,7 +487,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 	    revert = !tmp;
 	}
 
-	if( revert )
+	if ( revert )
 	{
 	    itm.nhiter--;
 	    itm.hDelta -= hdir;
@@ -529,17 +558,17 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
     }
 #endif
 
-    ObjectSet<resizeItem> resizeList;
-    fillResizeList( resizeList, isprefsz );
+    ObjectSet<ResizeItem> resizelist;
+    fillResizeList( resizelist, isprefsz );
 
     int iternr = MAX_ITER;
 
-    for( bool go_on = true; go_on && iternr; iternr--)
+    for ( bool go_on = true; go_on && iternr; iternr--)
     {
 	go_on = false;
-	for( int idx=0; idx<resizeList.size(); idx++ )
+	for ( int idx=0; idx<resizelist.size(); idx++ )
 	{
-	    resizeItem* cur = resizeList[idx];
+	    ResizeItem* cur = resizelist[idx];
 	    if ( cur && (cur->nhiter || cur->nviter))
 	    {
 		if ( tryToGrowItem( *cur, hgrow, vgrow,
@@ -549,7 +578,7 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 	}
     }
 
-    deepErase( resizeList );
+    deepErase( resizelist );
 
     static int printsleft=10;
     if ( !iternr && (printsleft--)>0 )
@@ -578,7 +607,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     layoutChildren( setGeom, true ); // move stuff that's attached to border
 
     bool store2prefpos = false;
-    if( !prefposstored_ || !poppedup_ )
+    if ( !prefposstored_ || !poppedup_ )
     {
 	uiRect mPos = curpos( preferred );
 
@@ -730,7 +759,8 @@ QLayoutItem* i_LayoutMngr::takeAt( int idx )
     i_LayoutItem* itm = childrenlist_[idx];
     childrenlist_ -= itm;
 
-    QLayoutItem* ret = itm->takeQlayoutItm(); delete itm;
+    QLayoutItem* ret = itm->takeQlayoutItm();
+    delete itm;
     return ret;
 }
 
