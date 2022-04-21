@@ -27,12 +27,16 @@ public:
 				       const char**, int defenum=0);
 			~uiStatusButton();
 
-    void		setValue(int);
+    void		setValue(int, const uiPhraseSet& msg=uiPhraseSet());
+    void		setMessage(const uiPhraseSet&);
     int			getValue() const;
 protected:
     int			status_;
+    uiPhraseSet		msg_;
 
     const EnumDef&	statusdef_;
     BufferStringSet	iconnames_;
+
+    void		showmsgCB(CallBacker*);
 
 };

@@ -124,7 +124,6 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     table_->resizeHeaderToContents( true );
     table_->setTableReadOnly( !writeallowed );
     table_->setSelectionMode( uiTable::NoSelection );
-    table_->setSortable( false );
     mAttachCB( table_->valueChanged, uiBatchHostsDlg::changedCB );
     mAttachCB( table_->rowClicked, uiBatchHostsDlg::hostSelCB );
     table_->attach( leftAlignedBelow, filefld );
@@ -196,8 +195,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 	    uiMSG().error( errmsg );
     }
 
-    fillTable();
-    hostSelCB( nullptr );
+    mAttachCB(afterPopup, uiBatchHostsDlg::initUI);
 }
 
 
@@ -205,6 +203,14 @@ uiBatchHostsDlg::~uiBatchHostsDlg()
 {
     detachAllNotifiers();
     delete &hostdatalist_;
+}
+
+
+void uiBatchHostsDlg::initUI( CallBacker* )
+{
+    uiUserShowWait usw( this, tr("Loading remote hosts") );
+    fillTable();
+    hostSelCB( nullptr );
 }
 
 
@@ -312,7 +318,8 @@ static void setPlatform( uiTable& tbl, int row, const HostData& hd )
 }
 
 
-static void setStatus( uiTable& tbl, int row, uiBatchHostsDlg::Status status )
+static void setStatus( uiTable& tbl, int row, uiBatchHostsDlg::Status status,
+		       const uiPhraseSet& msg=uiPhraseSet() )
 {
     uiObject* cellobj = tbl.getCellObject( RowCol(row,sStatus) );
     mDynamicCastGet(uiStatusButton*,sb,cellobj)
@@ -323,7 +330,7 @@ static void setStatus( uiTable& tbl, int row, uiBatchHostsDlg::Status status )
 	tbl.setCellObject( RowCol(row,sStatus), sb );
     }
 
-    sb->setValue( status );
+    sb->setValue( status, msg );
 }
 
 
@@ -471,14 +478,20 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
     for ( int idx=0; idx<hostdatalist_.size(); idx++ )
     {
 	const auto* hd = hostdatalist_[idx];
-	const BufferString remhostaddress( hd->connAddress() );
-	BufferString msg;
-	if ( !System::lookupHost(remhostaddress, &msg) )
+	uiString errmsg;
+	if ( !hd->isOK(errmsg) )
 	{
-	    uirv.add( ::toUiString(msg) );
-	    setStatus( *table_, idx, Unknown );
+	    uirv.add( errmsg );
+	    setStatus( *table_, idx, Unknown, uiPhraseSet(errmsg) );
 	    continue;
 	}
+	if ( autohostbox_->isChecked() )
+	{
+	    setHostName( *table_, idx, *hd );
+	    setIPAddress( *table_, idx, *hd );
+	}
+
+	const BufferString remhostaddress( hd->connAddress() );
 	const Network::Authority auth( remhostaddress,
 				       RemoteJobExec::remoteHandlerPort() );
 	PtrMan<Network::Socket> socket = new Network::Socket( false );
@@ -496,29 +509,37 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 
 	    if ( !socket->write( par ) )
 	    {
-		uirv.add( tr("Error writing %1 : %2").arg(auth.toString()).
-							arg(socket->errMsg()) );
+		uiRetVal st_uirv( tr("Error writing to %1 : %2").
+				arg(auth.toString()).arg(socket->errMsg()) );
+		uirv.add( st_uirv );
+		setStatus( *table_, idx, Unknown, st_uirv );
 		continue;
 	    }
 	    if ( !socket->read( par ) )
 	    {
-		uirv.add( tr("Error reading %1 : %2").arg(auth.toString()).
-							arg(socket->errMsg()) );
+		uiRetVal st_uirv( tr("Error reading from %1 : %2").
+				arg(auth.toString()).arg(socket->errMsg()) );
+		uirv.add( st_uirv );
+		setStatus( *table_, idx, Unknown, st_uirv );
 		continue;
 	    }
 	    uiRetVal st_uirv = doStatusPacket( idx, auth.toString(), par );
 	    if ( !st_uirv.isOK() )
 	    {
-		setStatus( *table_, idx, Error );
+		setStatus( *table_, idx, Error, st_uirv );
 		uirv.add( st_uirv);
 		continue;
 	    }
-	    setStatus( *table_, idx, OK );
+	    BufferString parstr;
+	    par.dumpPretty( parstr );
+	    setStatus( *table_, idx, OK, uiPhraseSet(::toUiString(parstr)) );
 	}
 	else
 	{
-	    uirv.add(tr("%1 : %2").arg(auth.toString()).arg(socket->errMsg()));
-	    setStatus( *table_, idx, Error );
+	    uiRetVal st_uirv( tr("%1 : %2").arg(auth.toString()).
+					    arg(socket->errMsg()) );
+	    uirv.add( st_uirv );
+	    setStatus( *table_, idx, Error, st_uirv );
 	}
     }
 
@@ -664,6 +685,7 @@ void uiBatchHostsDlg::hostNameChanged( int row )
     hd.setHostName( hostname );
     if ( autohostbox_->isChecked() )
     {
+	uiUserShowWait usw( this, tr("Lookup remote host") );
 	setIPAddress( *table_, row, hd );
 	updateDisplayName( *table_, row, hd );
     }

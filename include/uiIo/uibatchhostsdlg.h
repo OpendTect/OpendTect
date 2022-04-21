@@ -48,6 +48,7 @@ protected:
     void		advbutCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
+    void		initUI(CallBacker*);
     void		changedCB(CallBacker*);
     void		addHostCB(CallBacker*);
     void		rmHostCB(CallBacker*);

@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uistatusbutton.h"
+#include "uimsg.h"
 #include "uitoolbar.h"
 
 
@@ -19,15 +20,17 @@ uiStatusButton::uiStatusButton( uiParent* p, const EnumDef& enumdef,
     , iconnames_(iconnms)
 {
     setValue( defenum );
+    mAttachCB(activated, uiStatusButton::showmsgCB);
 }
 
 
 uiStatusButton::~uiStatusButton()
 {
+    detachAllNotifiers();
 }
 
 
-void uiStatusButton::setValue( int status )
+void uiStatusButton::setValue( int status, const uiPhraseSet& msg )
 {
     int idx = statusdef_.indexOf( status );
     if ( !iconnames_.validIdx(idx) )
@@ -36,10 +39,26 @@ void uiStatusButton::setValue( int status )
     setToolTip( statusdef_.getUiStringForIndex(idx) );
     setPrefWidth( prefVNrPics() );
     status_ = status;
+    msg_ = msg;
+}
+
+
+void uiStatusButton::setMessage( const uiPhraseSet& msg )
+{
+    msg_ = msg;
 }
 
 
 int uiStatusButton::getValue() const
 {
     return status_;
+}
+
+
+void uiStatusButton::showmsgCB( CallBacker* )
+{
+    if ( msg_.isEmpty() )
+	return;
+
+    uiMSG().message( msg_.cat() );
 }
