@@ -72,6 +72,7 @@ void i_LayoutMngr::addItem( i_LayoutItem* itm )
     if ( !itm )
 	return;
 
+#ifdef __debug__
     if ( lyoutdbg )
     {
 	BufferString msg = "i_LayoutMngr::addItem";
@@ -83,6 +84,7 @@ void i_LayoutMngr::addItem( i_LayoutItem* itm )
 	    msg.add( " - LayoutItem: " ).add( itm->name() );
 	od_cout() << msg << od_endl;
     }
+#endif
 
     mAttachCB( itm->objectToBeDeleted(), i_LayoutMngr::itemDel );
     childrenlist_ += itm;
@@ -111,6 +113,7 @@ void i_LayoutMngr::itemDel( CallBacker* cb )
     if ( !itm )
 	{ pErrMsg("huh?"); return; }
 
+#ifdef __debug__
     if ( lyoutdbg )
     {
 	BufferString msg = "i_LayoutMngr::itemDel";
@@ -122,6 +125,7 @@ void i_LayoutMngr::itemDel( CallBacker* cb )
 	    msg.add( " - LayoutItem: " ).add( itm->name() );
 	od_cout() << msg << od_endl;
     }
+#endif
 
     childrenlist_ -= itm;
 }
