@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uiseisioobjinfo.h"
 #include "uiseissel.h"
 #include "uiseistransf.h"
 #include "od_helpids.h"
@@ -61,7 +62,8 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 
 bool uiMergeSeis::acceptOK( CallBacker* )
 {
-    ObjectSet<IOPar> inpars; IOPar outpar;
+    ObjectSet<IOPar> inpars;
+    IOPar outpar;
     if ( !getInput(inpars,outpar) )
 	return false;
 
@@ -108,7 +110,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 	}
 	else
 	{
-	    if ( !SeisIOObjInfo::isCompatibleType( typestr, curtypestr ) )
+	    if ( !SeisIOObjInfo::isCompatibleType(typestr,curtypestr) )
 	    {
 		uiMSG().error( tr("Input cubes are of incompatible types") );
 		return false;
@@ -127,6 +129,11 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 	transffld_->fillPar( *iop );
 	inpars += iop;
     }
+
+    uiSeisIOObjInfo ioobjinfo( *outioobj, true );
+    SeisIOObjInfo::SpaceInfo spi( transffld_->spaceInfo() );
+    if ( !ioobjinfo.checkSpaceLeft(spi) )
+	return false;
 
     if ( typestr.isEmpty() && zdomstr.isEmpty() )
 	return true;
