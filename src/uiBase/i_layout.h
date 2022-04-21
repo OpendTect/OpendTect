@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include <QRect>
 
 
-class resizeItem;
+class ResizeItem;
 class Timer;
 
 //! internal enum used to determine in which direction a widget
@@ -118,7 +118,7 @@ public:
 
 private:
 
-    void		setGeometry( const mQtclass(QRect&) );
+    void		setGeometry(const mQtclass(QRect&));
 
     inline void		doLayout( LayoutMode m, const mQtclass(QRect&) r ) const
 			{ const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
@@ -126,11 +126,11 @@ private:
 
     void		itemDel( CallBacker* );
 
-    void		moveChildrenTo( int , int, LayoutMode );
-    void		fillResizeList( ObjectSet<resizeItem>&, bool );
-    bool		tryToGrowItem( resizeItem&, const int, const int,
-				       int, int, const mQtclass(QRect&), int);
-    void		resizeTo( const mQtclass(QRect&) );
+    void		moveChildrenTo(int,int,LayoutMode);
+    void		fillResizeList(ObjectSet<ResizeItem>&,bool);
+    bool		tryToGrowItem(ResizeItem&,const int, const int,
+				      int,int,const mQtclass(QRect&),int);
+    void		resizeTo(const mQtclass(QRect&));
     void		childrenCommitGeometrySet(bool);
 
     uiRect		childrenRect(LayoutMode);

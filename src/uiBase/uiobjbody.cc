@@ -71,6 +71,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
 
 uiObjectBody::~uiObjectBody()
 {
+    sendDelNotif();
 #ifdef USE_DISPLAY_TIMER
     delete &displaytimer;
 #endif
@@ -151,7 +152,7 @@ void uiObjectBody::reDraw( bool deep )
 
 i_LayoutItem* uiObjectBody::mkLayoutItem( i_LayoutMngr& mngr )
 {
-    if( layoutItem_ )
+    if ( layoutItem_ )
 	{ pErrMsg("Already have layout itm"); return layoutItem_ ; }
 
     layoutItem_ = mkLayoutItem_( mngr );
@@ -329,7 +330,7 @@ void uiObjectBody::setPrefWidth( int w )
 {
     if ( itemInited() )
     {
-	if( pref_width_set > 0 && pref_width_set != w )
+	if ( pref_width_set > 0 && pref_width_set != w )
 	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
@@ -343,9 +344,9 @@ void uiObjectBody::setPrefWidth( int w )
 
 void uiObjectBody::setPrefWidthInChar( float w )
 {
-    if( itemInited() )
+    if ( itemInited() )
     {
-	if( pref_char_width != w )
+	if ( pref_char_width != w )
 	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
@@ -442,9 +443,9 @@ int uiObjectBody::prefVNrPics() const
 
 void uiObjectBody::setPrefHeight( int h )
 {
-    if( itemInited() )
+    if ( itemInited() )
     {
-	if( pref_height_set != h )
+	if ( pref_height_set != h )
 	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
@@ -458,9 +459,9 @@ void uiObjectBody::setPrefHeight( int h )
 
 void uiObjectBody::setPrefHeightInChar( float h )
 {
-    if( itemInited() )
+    if ( itemInited() )
     {
-	if( pref_char_height != h )
+	if ( pref_char_height != h )
 	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
@@ -474,9 +475,9 @@ void uiObjectBody::setPrefHeightInChar( float h )
 
 void uiObjectBody::setStretch( int hor, int ver )
 {
-    if( itemInited() )
+    if ( itemInited() )
     {
-	if( hStretch != hor || vStretch != ver )
+	if ( hStretch != hor || vStretch != ver )
 	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }

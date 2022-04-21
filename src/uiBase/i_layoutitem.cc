@@ -29,8 +29,8 @@ mUseQtnamespace
 
 //------------------------------------------------------------------------------
 
-i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
-    : mngr_( &m ), qlayoutitm_( &itm )
+i_LayoutItem::i_LayoutItem( i_LayoutMngr& mgr, QLayoutItem& itm )
+    : mngr_( &mgr ), qlayoutitm_( &itm )
     , preferred_pos_inited_( false ), minimum_pos_inited_( false )
     , prefszdone_( false ), hsameas_( false ), vsameas_( false )
 {
@@ -39,12 +39,14 @@ i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
 			      = GetEnvVarYN("DTECT_DEBUG_LAYOUT") );
     lyoutdbg = lyoutdbg_loc;
 #endif
-    mAttachCB( m.objectToBeDeleted(), i_LayoutItem::managerDeletedCB );
+
+    mAttachCB( mgr.objectToBeDeleted(), i_LayoutItem::managerDeletedCB );
 }
 
 
 i_LayoutItem::~i_LayoutItem()
 {
+    sendDelNotif();
     detachAllNotifiers();
     delete qlayoutitm_;
 }
@@ -123,35 +125,36 @@ int i_LayoutItem::stretch( bool hor ) const
 
 void i_LayoutItem::commitGeometrySet( bool store2prefpos )
 {
-    uiRect mPos = curpos( setGeom );
-
+    uiRect itmgeom = curpos( setGeom );
     if ( store2prefpos )
-	curpos( preferred ) = mPos;
+	curpos( preferred ) = itmgeom;
 
-    if ( objLayouted() ) objLayouted()->triggerSetGeometry( this, mPos );
+    if ( objLayouted() )
+	objLayouted()->triggerSetGeometry( this, itmgeom );
+
 #ifdef __debug__
     if ( lyoutdbg )
     {
 	od_cout() << "Setting layout on: ";
-	if( objLayouted() )
+	if ( objLayouted() )
 	    od_cout() << objLayouted()->name() << od_endl;
 	else
 	    od_cout() << "Unknown" << od_endl;
 
-	od_cout() << "l: " << mPos.left() << " t: " << mPos.top();
-	od_cout() << " hor: " << mPos.hNrPics() << " ver: "
-			 << mPos.vNrPics() << od_endl;
+	od_cout() << "l: " << itmgeom.left() << " t: " << itmgeom.top();
+	od_cout() << " hor: " << itmgeom.hNrPics() << " ver: "
+			 << itmgeom.vNrPics() << od_endl;
     }
 #endif
 
-    qlayoutitm_->setGeometry ( QRect(mPos.left(),mPos.top(),
-				     mPos.hNrPics(),mPos.vNrPics()) );
+    qlayoutitm_->setGeometry ( QRect(itmgeom.left(),itmgeom.top(),
+				     itmgeom.hNrPics(),itmgeom.vNrPics()) );
 }
 
 
 void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 {
-    uiRect& mPos = curpos( lom );
+    uiRect& itmgeom = curpos( lom );
     int pref_h_nr_pics =0;
     int pref_v_nr_pics =0;
 
@@ -174,9 +177,7 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 #ifdef __debug__
     if ( lyoutdbg )
     {
-	BufferString blnm = bodyLayouted() ?  bodyLayouted()->name().buf()
-					   : "";
-
+	BufferString blnm = bodyLayouted() ?  bodyLayouted()->name().buf() : "";
 	od_cout() << "Init layout on: " << blnm;
 	od_cout() << ": prf hsz: " << pref_h_nr_pics;
 	od_cout() <<",  prf vsz: " << pref_v_nr_pics;
@@ -191,10 +192,10 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 	case minimum:
 	    if ( !minimum_pos_inited_)
 	    {
-		mPos.zero();
+		itmgeom.zero();
 		uiSize ms = minimumSize();
-		mPos.setHNrPics( ms.hNrPics() );
-		mPos.setVNrPics( ms.vNrPics() );
+		itmgeom.setHNrPics( ms.hNrPics() );
+		itmgeom.setVNrPics( ms.vNrPics() );
 		minimum_pos_inited_ = true;
 	    }
 	    break;
@@ -211,11 +212,11 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 		    pPos.setVNrPics( pref_v_nr_pics );
 		    preferred_pos_inited_ = true;
 		}
-		uiRect& mPos2 = curpos( lom );
-		mPos2 = curpos( preferred );
+		uiRect& itmgeom2 = curpos( lom );
+		itmgeom2 = curpos( preferred );
 
-		mPos2.leftTo( mMAX( pPos.left(), mngrLeft ));
-		mPos2.topTo( mMAX( pPos.top(), mngrTop ));
+		itmgeom2.leftTo( mMAX( pPos.left(), mngrLeft ));
+		itmgeom2.topTo( mMAX( pPos.top(), mngrTop ));
 
 		initChildLayout(lom);
 	    }
@@ -223,11 +224,11 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 
 	case preferred:
 	    {
-		mPos.setLeft( mngrLeft );
-		mPos.setTop( mngrTop );
+		itmgeom.setLeft( mngrLeft );
+		itmgeom.setTop( mngrTop );
 
-		mPos.setHNrPics( pref_h_nr_pics  );
-		mPos.setVNrPics( pref_v_nr_pics );
+		itmgeom.setHNrPics( pref_h_nr_pics  );
+		itmgeom.setVNrPics( pref_v_nr_pics );
 		preferred_pos_inited_ = true;
 	    }
 	    break;
@@ -235,9 +236,9 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 	    break;
     }
 
-    if ( mPos.left() < 0 )
+    if ( itmgeom.left() < 0 )
 	{ pErrMsg("left < 0"); }
-    if ( mPos.top() < 0 )
+    if ( itmgeom.top() < 0 )
 	{ pErrMsg("top < 0"); }
 
 }
@@ -326,7 +327,7 @@ int i_LayoutItem::isPosOk( uiConstraint* constraint, int iter, bool chknriters )
 bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 {
     bool updated = false;
-    uiRect& mPos = curpos(lom);
+    uiRect& itmgeom = curpos(lom);
 
     for ( int idx=0; idx<constraintlist_.size(); idx++ )
     {
@@ -339,61 +340,61 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	case rightOf:
 	case rightTo:
 	{
-	    if ( mPos.leftToAtLeast(mCP(otherPos.right() + mHorSpacing)))
+	    if ( itmgeom.leftToAtLeast(mCP(otherPos.right() + mHorSpacing)))
 		mUpdated();
 
-	    if ( mPos.topToAtLeast( mCP(otherPos.top()) ) )
+	    if ( itmgeom.topToAtLeast( mCP(otherPos.top()) ) )
 		 mUpdated();
 
 	    break;
 	}
 	case leftOf:
 	{
-	    if ( mPos.rightToAtLeast(mCP(otherPos.left() - mHorSpacing)))
+	    if ( itmgeom.rightToAtLeast(mCP(otherPos.left() - mHorSpacing)))
 		mUpdated();
 
-	    if ( mPos.topToAtLeast( mCP(otherPos.top())) )
+	    if ( itmgeom.topToAtLeast( mCP(otherPos.top())) )
 		 mUpdated();
 
 	    break;
 	}
 	case leftTo:
 	{
-	    if ( mPos.topToAtLeast( mCP(otherPos.top())) )
+	    if ( itmgeom.topToAtLeast( mCP(otherPos.top())) )
 		 mUpdated();
 
 	    break;
 	}
 	case leftAlignedBelow:
 	{
-	    if ( mPos.topToAtLeast(mCP(otherPos.bottom() + mVerSpacing)))
+	    if ( itmgeom.topToAtLeast(mCP(otherPos.bottom() + mVerSpacing)))
 		mUpdated();
 
-	    if ( mPos.leftToAtLeast( mCP(otherPos.left())) )
+	    if ( itmgeom.leftToAtLeast( mCP(otherPos.left())) )
 		mUpdated();
 
 	    break;
 	}
 	case leftAlignedAbove:
 	{
-	    if ( mPos.leftToAtLeast( mCP(otherPos.left())) )
+	    if ( itmgeom.leftToAtLeast( mCP(otherPos.left())) )
 		mUpdated();
 
 	    break;
 	}
 	case rightAlignedBelow:
 	{
-	    if ( mPos.topToAtLeast(mCP(otherPos.bottom() + mVerSpacing)))
+	    if ( itmgeom.topToAtLeast(mCP(otherPos.bottom() + mVerSpacing)))
 		mUpdated();
 
-	    if ( mPos.rightToAtLeast( mCP(otherPos.right())) )
+	    if ( itmgeom.rightToAtLeast( mCP(otherPos.right())) )
 		mUpdated();
 
 	    break;
 	}
 	case rightAlignedAbove:
 	{
-	    if ( mPos.rightToAtLeast( mCP(otherPos.right()) ) )
+	    if ( itmgeom.rightToAtLeast( mCP(otherPos.right()) ) )
 		mUpdated();
 
 	    break;
@@ -406,7 +407,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	    if ( malign < 0 || othalign < 0 ) break;
 
-	    if ( mPos.leftToAtLeast( mCP(mPos.left() + othalign - malign)) )
+	    if ( itmgeom.leftToAtLeast( mCP(itmgeom.left()+othalign-malign)) )
 		mUpdated();
 
 	    break;
@@ -414,7 +415,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	case alignedBelow:
 	{
-	    if ( mPos.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
+	    if ( itmgeom.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
 		mUpdated();
 
 	    int malign = horAlign( lom );
@@ -422,7 +423,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	    if ( malign < 0 || othalign < 0 ) break;
 
-	    if ( mPos.leftToAtLeast( mCP(mPos.left() + othalign - malign)) )
+	    if ( itmgeom.leftToAtLeast( mCP(itmgeom.left()+othalign-malign)) )
 		mUpdated();
 
 	    break;
@@ -435,7 +436,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	    if ( malign < 0 || othalign < 0 ) break;
 
-	    if ( mPos.leftToAtLeast( mCP(mPos.left() + othalign - malign)) )
+	    if ( itmgeom.leftToAtLeast( mCP(itmgeom.left()+othalign-malign)) )
 		mUpdated();
 
 	    break;
@@ -443,11 +444,11 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	case centeredBelow:
 	{
-	    if ( mPos.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
+	    if ( itmgeom.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
 		mUpdated();
 
 	    if ( center(lom) > 0 && constr->other_->center(lom) > 0 &&
-		mPos.leftToAtLeast( mCP(mPos.left()
+		itmgeom.leftToAtLeast( mCP(itmgeom.left()
 				    + constr->other_->center(lom)
 				    - center(lom))
 				  )
@@ -458,7 +459,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	case centeredAbove:
 	{
 	    if ( center(lom) > 0 && constr->other_->center(lom) > 0 &&
-		mPos.leftToAtLeast( mCP(mPos.left()
+		itmgeom.leftToAtLeast( mCP(itmgeom.left()
 				    + constr->other_->center(lom)
 				    - center(lom))
 				  )
@@ -469,12 +470,12 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	case centeredLeftOf:
 	{
-	    if ( mPos.rightToAtLeast(mCP(otherPos.left() - mHorSpacing)))
+	    if ( itmgeom.rightToAtLeast(mCP(otherPos.left() - mHorSpacing)))
 		mUpdated();
 
 	    if ( center(lom,false) > 0 &&
 		 constr->other_->center(lom,false) > 0 &&
-		 mPos.topToAtLeast( mCP(mPos.top()
+		 itmgeom.topToAtLeast( mCP(itmgeom.top()
 				    + constr->other_->center(lom,false)
 				    - center(lom,false))
 				  )
@@ -485,12 +486,12 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	case centeredRightOf:
 	{
-	    if ( mPos.leftToAtLeast(mCP(otherPos.right() + mHorSpacing)))
+	    if ( itmgeom.leftToAtLeast(mCP(otherPos.right() + mHorSpacing)))
 		mUpdated();
 
 	    if ( center(lom,false) > 0 &&
 		 constr->other_->center(lom,false) > 0 &&
-		 mPos.topToAtLeast( mCP(mPos.top()
+		 itmgeom.topToAtLeast( mCP(itmgeom.top()
 				    + constr->other_->center(lom,false)
 				    - center(lom,false))
 				  )
@@ -511,7 +512,7 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 		if ( shift > 0 )
 		{
-		    if ( mPos.leftToAtLeast( mCP(mPos.left() + shift) ) )
+		    if ( itmgeom.leftToAtLeast( mCP(itmgeom.left() + shift) ) )
 			mUpdated();
 		}
 	    }
@@ -521,14 +522,14 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 
 	case ensureRightOf:
 	{
-	    if ( mPos.leftToAtLeast( mCP(otherPos.right() + mHorSpacing )))
+	    if ( itmgeom.leftToAtLeast( mCP(otherPos.right() + mHorSpacing )))
 		mUpdated();
 
 	    break;
 	}
 	case ensureBelow:
 	{
-	    if ( mPos.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing )))
+	    if ( itmgeom.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing )))
 		mUpdated();
 
 	    break;
@@ -538,9 +539,9 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	    if ( finalloop )
 	    {
 		int nwLeft = mngr().curpos(lom).left() + mInsideBorder;
-		if ( mPos.left() != nwLeft )
+		if ( itmgeom.left() != nwLeft )
 		{
-		    mPos.leftTo( mCP(nwLeft));
+		    itmgeom.leftTo( mCP(nwLeft));
 		    mUpdated();
 		}
 	    }
@@ -551,9 +552,9 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	    if ( finalloop )
 	    {
 		int nwRight = mngr().curpos(lom).right() - mInsideBorder;
-		if ( mPos.right() != nwRight )
+		if ( itmgeom.right() != nwRight )
 		{
-		    mPos.rightTo( mCP(nwRight));
+		    itmgeom.rightTo( mCP(nwRight));
 		    mUpdated();
 		}
 	    }
@@ -564,9 +565,9 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	    if ( finalloop )
 	    {
 		int nwTop = mngr().curpos(lom).top() + mInsideBorder;
-		if ( mPos.top() != nwTop )
+		if ( itmgeom.top() != nwTop )
 		{
-		    mPos.topTo( mCP(nwTop ));
+		    itmgeom.topTo( mCP(nwTop ));
 		    mUpdated();
 		}
 	    }
@@ -577,9 +578,9 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	    if ( finalloop )
 	    {
 		int nwBottom = mngr().curpos(lom).bottom()- mInsideBorder;
-		if ( mPos.bottom() != nwBottom )
+		if ( itmgeom.bottom() != nwBottom )
 		{
-		    mPos.bottomTo( mCP(nwBottom ));
+		    itmgeom.bottomTo( mCP(nwBottom ));
 		    mUpdated();
 		}
 	    }
@@ -587,18 +588,18 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	}
 	case heightSameAs:
 	{
-	    if ( mPos.vNrPics() < ( otherPos.vNrPics() ) )
+	    if ( itmgeom.vNrPics() < ( otherPos.vNrPics() ) )
 	    {
-		mPos.setVNrPics( otherPos.vNrPics() );
+		itmgeom.setVNrPics( otherPos.vNrPics() );
 		mUpdated();
 	    }
 	    break;
 	}
 	case widthSameAs:
 	{
-	    if ( mPos.hNrPics() < ( otherPos.hNrPics() ) )
+	    if ( itmgeom.hNrPics() < ( otherPos.hNrPics() ) )
 	    {
-		mPos.setHNrPics( otherPos.hNrPics() );
+		itmgeom.setHNrPics( otherPos.hNrPics() );
 		mUpdated();
 	    }
 	    break;
@@ -608,21 +609,21 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	    int nwLeft = mFullStretch() ? mngr().winpos(lom).left()
 					: mngr().curpos(lom).left();
 
-	    if ( finalloop && mPos.left() != nwLeft )
+	    if ( finalloop && itmgeom.left() != nwLeft )
 	    {
-		mPos.leftTo( mCP(nwLeft));
+		itmgeom.leftTo( mCP(nwLeft));
 		mUpdated();
 	    }
 
 	    int nwWidth = mFullStretch() ? mngr().winpos(lom).hNrPics()
 					: mngr().curpos(lom).hNrPics();
 
-	    if ( finalloop &&  mPos.hNrPics() < nwWidth )
+	    if ( finalloop &&  itmgeom.hNrPics() < nwWidth )
 	    {
-		mPos.setHNrPics( nwWidth );
+		itmgeom.setHNrPics( nwWidth );
 		mUpdated();
 	    }
-	    if ( mPos.topToAtLeast(mCP(otherPos.bottom() + mVerSpacing)))
+	    if ( itmgeom.topToAtLeast(mCP(otherPos.bottom() + mVerSpacing)))
 		mUpdated();
 
 	    break;
@@ -631,18 +632,18 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    int nwLeft = mFullStretch() ? mngr().winpos(lom).left()
 					: mngr().curpos(lom).left();
-	    if ( finalloop && mPos.left() != nwLeft )
+	    if ( finalloop && itmgeom.left() != nwLeft )
 	    {
-		mPos.leftTo( mCP(nwLeft));
+		itmgeom.leftTo( mCP(nwLeft));
 		mUpdated();
 	    }
 
 	    int nwWidth = mFullStretch() ? mngr().winpos(lom).hNrPics()
 					: mngr().curpos(lom).hNrPics();
 
-	    if ( finalloop &&  mPos.hNrPics() < nwWidth )
+	    if ( finalloop &&  itmgeom.hNrPics() < nwWidth )
 	    {
-		mPos.setHNrPics( nwWidth );
+		itmgeom.setHNrPics( nwWidth );
 		mUpdated();
 	    }
 
@@ -652,17 +653,17 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    int nwTop = mFullStretch() ? mngr().winpos(lom).top()
 					: mngr().curpos(lom).top();
-	    if ( finalloop && mPos.top() != nwTop )
+	    if ( finalloop && itmgeom.top() != nwTop )
 	    {
-		mPos.topTo( mCP(nwTop));
+		itmgeom.topTo( mCP(nwTop));
 		mUpdated();
 	    }
 
 	    int nwHeight = mFullStretch() ? mngr().winpos(lom).vNrPics()
 					  : mngr().curpos(lom).vNrPics();
-	    if ( finalloop && mPos.vNrPics() < nwHeight )
+	    if ( finalloop && itmgeom.vNrPics() < nwHeight )
 	    {
-		mPos.setVNrPics( nwHeight );
+		itmgeom.setVNrPics( nwHeight );
 		mUpdated();
 	    }
 
@@ -672,20 +673,20 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	{
 	    int nwTop = mFullStretch() ? mngr().winpos(lom).top()
 					: mngr().curpos(lom).top();
-	    if ( finalloop && mPos.top() != nwTop )
+	    if ( finalloop && itmgeom.top() != nwTop )
 	    {
-		mPos.topTo( mCP(nwTop));
+		itmgeom.topTo( mCP(nwTop));
 		mUpdated();
 	    }
 
 	    int nwHeight = mFullStretch() ? mngr().winpos(lom).vNrPics()
 					  : mngr().curpos(lom).vNrPics();
-	    if ( finalloop && mPos.vNrPics() < nwHeight )
+	    if ( finalloop && itmgeom.vNrPics() < nwHeight )
 	    {
-		mPos.setVNrPics( nwHeight );
+		itmgeom.setVNrPics( nwHeight );
 		mUpdated();
 	    }
-	    if ( mPos.leftToAtLeast(mCP(otherPos.right() + mHorSpacing)))
+	    if ( itmgeom.leftToAtLeast(mCP(otherPos.right() + mHorSpacing)))
 		mUpdated();
 
 	    break;
@@ -696,9 +697,9 @@ bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 	}
 	case atSamePosition:
 	{
-	    if ( mPos.topLeft() != otherPos.topLeft() )
+	    if ( itmgeom.topLeft() != otherPos.topLeft() )
 	    {
-		mPos.setTopLeft( otherPos.topLeft() );
+		itmgeom.setTopLeft( otherPos.topLeft() );
 		mUpdated();
 	    }
 	    break;
