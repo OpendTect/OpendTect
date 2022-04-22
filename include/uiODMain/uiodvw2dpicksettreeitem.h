@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "uiodvw2dtreeitem.h"
 #include "emposid.h"
+#include "pickset.h"
 
 class VW2DPickSet;
 
