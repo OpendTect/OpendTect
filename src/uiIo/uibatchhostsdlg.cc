@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uistatusbutton.h"
 #include "uitable.h"
+#include "uitextedit.h"
 #include "uitoolbutton.h"
 
 #include "file.h"
@@ -36,12 +37,12 @@ ________________________________________________________________________
 
 #include <limits>
 
-static const int sMode		= 0;
+static const int sModeCol	= 0;
 static const int sIPCol		= 1;
 static const int sHostNameCol	= 2;
 static const int sDispNameCol	= 3;
 static const int sPlfCol	= 4;
-static const int sStatus	= 5;
+static const int sStatusCol	= 5;
 static const int sDataRootCol	= 6;
 
 mDefineEnumUtils(uiBatchHostsDlg,HostLookupMode,"Host resolution")
@@ -57,7 +58,7 @@ mDefineEnumUtils(uiBatchHostsDlg,Status,"Status")
 };
 
 
-static const char* IconNames[] =
+static const char* sIconNames[] =
 {
     "contexthelp",
     "ok",
@@ -80,29 +81,25 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 		       mODHelpKey(mBatchHostsDlgHelpID)))
     , hostdatalist_(*new HostDataList(true))
 {
-    const FilePath bhfp = hostdatalist_.getBatchHostsFilename();
-    const BufferString bhfnm = bhfp.fullPath();
-    BufferString datadir = bhfp.pathOnly();
-
-    for ( int idx=0; idx<hostdatalist_.size(); idx++ )
-	hoststatus_ += Unknown;
+    const char* bhfnm = hostdatalist_.getBatchHostsFilename();
+    const FilePath bhfp = bhfnm;
+    const BufferString datadir = bhfp.pathOnly();
+    hoststatus_.setSize( hostdatalist_.size(), Unknown );
 
     const bool direxists = File::exists( datadir );
     const bool diriswritable = File::isWritable( datadir );
     const bool fileexists = File::exists( bhfnm );
     const bool fileiswritable = File::isWritable( bhfnm );
-
-    const bool writeallowed = direxists && diriswritable &&
-				( !fileexists || fileiswritable );
-
-    if ( writeallowed )
-	setOkText( uiStrings::sSave() );
-    else
+    readonly_ =  !direxists || !diriswritable ||
+		(fileexists && !fileiswritable);
+    if ( readonly_ )
 	setCtrlStyle( CloseOnly );
+    else
+	setOkText( uiStrings::sSave() );
 
     auto* filefld = new uiGenInput( this, tr("BatchHosts file") );
     filefld->setElemSzPol( uiObject::WideMax );
-    filefld->setText( FilePath::getLongPath(bhfnm.buf()) );
+    filefld->setText( FilePath::getLongPath(bhfnm) );
     filefld->setReadOnly();
 
     auto* advbut = new uiPushButton( this, tr("Advanced Settings"), false );
@@ -111,8 +108,10 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     advbut->attach( rightTo, filefld );
     advbut->attach( rightBorder );
 
+    const uiTable::SelectionMode selmode =
+		readonly_ ? uiTable::NoSelection : uiTable::Multi;
     uiTable::Setup tsu( -1, 6 );
-    tsu.rowdesc(uiStrings::sHost()).defrowlbl(true).selmode(uiTable::SingleRow);
+    tsu.rowdesc(uiStrings::sHost()).defrowlbl(true).selmode(selmode);
     table_ = new uiTable( this, tsu, "Batch Hosts" );
     uiStringSet collbls;
     collbls.add( tr("Host Lookup Mode") ).add( tr("IP address") )
@@ -122,29 +121,32 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     table_->setColumnLabels( collbls );
     table_->setPrefWidth( 800 );
     table_->resizeHeaderToContents( true );
-    table_->setTableReadOnly( !writeallowed );
-    table_->setSelectionMode( uiTable::NoSelection );
+    table_->setTableReadOnly( readonly_ );
+    table_->setSelectionBehavior( uiTable::SelectRows );
     mAttachCB( table_->valueChanged, uiBatchHostsDlg::changedCB );
     mAttachCB( table_->rowClicked, uiBatchHostsDlg::hostSelCB );
+    mAttachCB( table_->selectionChanged, uiBatchHostsDlg::hostSelCB );
     table_->attach( leftAlignedBelow, filefld );
 
     autohostbox_ = new uiCheckBox( this,
 	tr("Automatically fill in IP address or Hostname") );
     autohostbox_->setChecked( true );
     autohostbox_->attach( alignedBelow, table_ );
+    autohostbox_->setSensitive( !readonly_ );
 
     autoinfobox_ = new uiCheckBox( this,
 	tr("Automatically fill in Platform and Data Root") );
     autoinfobox_->setChecked( false );
     autoinfobox_->attach( rightOf, autohostbox_ );
+    autoinfobox_->setSensitive( !readonly_ );
 
     auto* buttons = new uiButtonGroup( this, "", OD::Vertical );
-    auto* addbut = new uiToolButton( buttons, "addnew",
-			    uiStrings::phrAdd(tr("Host")),
-			    mCB(this,uiBatchHostsDlg,addHostCB) );
+    new uiToolButton( buttons, "addnew",
+			uiStrings::phrAdd(tr("Host")),
+			mCB(this,uiBatchHostsDlg,addHostCB) );
     removebut_ = new uiToolButton( buttons, "remove",
-			  uiStrings::phrRemove(tr("Host")),
-			  mCB(this,uiBatchHostsDlg,rmHostCB) );
+			uiStrings::phrRemove(tr("Host")),
+			mCB(this,uiBatchHostsDlg,rmHostCB) );
     upbut_ = new uiToolButton( buttons, uiToolButton::UpArrow,
 			uiStrings::sMoveUp(),
 			mCB(this,uiBatchHostsDlg,moveUpCB) );
@@ -155,44 +157,31 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 			tr("Test Hosts"),
 			mCB(this,uiBatchHostsDlg,testHostsCB) );
     buttons->attach( rightTo, table_ );
-    buttons->setChildrenSensitive( writeallowed );
+    buttons->setChildrenSensitive( !readonly_ );
     testbut->setSensitive( true );
+    autohostbox_->attach( ensureBelow, buttons );
 
-    if ( !writeallowed )
+    if ( readonly_ )
     {
-	addbut->setSensitive( false );
-	removebut_->setSensitive( false );
-	uiString errmsg = tr("Selected Batch Host %1 is not writable.")
-	    .arg(diriswritable ? uiStrings::sFile() : uiStrings::sFolder());
+	auto* sep = new uiSeparator( this );
+	sep->attach( stretchedBelow, autohostbox_ );
+	auto* infofld = new uiTextEdit( this, "ReadOnly Text", true );
+	infofld->attach( ensureBelow, sep );
 
+	uiString infotxt = tr("BatchHost file is read-only.\n"
+		"Contact your system administrator when changes are required.");
+	int prefh = 3;
 	if ( __iswin__ )
 	{
-	    uiString details;
-	    if ( !diriswritable )
-	    {
-		errmsg.append( tr("\nIt is advised to launch this process with "
-				  "administrator rights") );
-
-		FilePath fp( GetLibPlfDir() );
-		fp.add( "od_BatchHosts.exe" );
-		const BufferString longpath =
-				FilePath::getLongPath( fp.fullPath() );
-		details = tr("You can launch the process %1").arg( longpath );
-	    }
-	    else if ( fileexists && !fileiswritable )
-	    {
-		details = tr("Please change the read-write permissions of %1 "
-		    "or move batchhost entry file to new editable location")
-								.arg(bhfnm);
-	    }
-
-	    uiStringSet detailedmsg ( errmsg );
-	    detailedmsg.add( details );
-
-	    uiMSG().errorWithDetails( detailedmsg );
+	    infotxt.append(
+		"\n\nTo enable editing, start the program "
+		"'Setup Distributed Computing' from the Start Menu with "
+		"administrator rights." );
+	    prefh += 3;
 	}
-	else
-	    uiMSG().error( errmsg );
+
+	infofld->setPrefHeightInChar( prefh );
+	infofld->setText( infotxt );
     }
 
     mAttachCB(afterPopup, uiBatchHostsDlg::initUI);
@@ -218,6 +207,9 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
 {
     uiDialog dlg( this,
 	uiDialog::Setup(tr("Advanced Settings"),mNoDlgTitle,mNoHelpKey) );
+
+    if ( readonly_ )
+	dlg.setCtrlStyle( CloseOnly );
 
     auto* albl = new uiLabel( &dlg, tr("Settings for all platforms:") );
     albl->attach( leftBorder );
@@ -270,6 +262,7 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     windrfld->setElemSzPol( uiObject::Wide );
     windrfld->attach( alignedBelow, unixdrfld );
 
+    dlg.getDlgGroup()->setSensitive( !readonly_ );
     if ( !dlg.go() )
 	return;
 
@@ -280,6 +273,34 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     hostdatalist_.setFirstPort( PortNr_Type(portnrfld->getIntValue()) );
     hostdatalist_.setUnixDataRoot( unixdrfld->text() );
     hostdatalist_.setWinDataRoot( windrfld->text() );
+}
+
+
+static OD::Color getCellColor( bool isok, bool readonly )
+{
+    mDefineStaticLocalObject( OD::Color, okcol, = OD::Color::White() );
+    mDefineStaticLocalObject( OD::Color, rocol, = OD::Color(230,230,230) )
+    mDefineStaticLocalObject( OD::Color, errorcol, = OD::Color::Red() );
+    return isok ? (readonly ? rocol : okcol) : errorcol;
+}
+
+
+static void setLookupMode( uiTable& tbl, int row, const HostData& hd, bool ro )
+{
+    uiObject* cellobj = tbl.getCellObject( RowCol(row,sModeCol) );
+    mDynamicCastGet(uiComboBox*,cb,cellobj)
+    if ( !cb )
+    {
+	cb = new uiComboBox( nullptr,
+			uiBatchHostsDlg::HostLookupModeDef().strings(), "mode");
+	cb->setSensitive( !ro );
+	tbl.setCellObject( RowCol(row,sModeCol), cb );
+    }
+
+    if ( hd.isStaticIP() )
+	cb->setCurrentItem( uiBatchHostsDlg::StaticIP );
+    else
+	cb->setCurrentItem( uiBatchHostsDlg::NameDNS );
 }
 
 
@@ -297,20 +318,22 @@ static void setHostName( uiTable& tbl, int row, const HostData& hd )
 }
 
 
-static void setDisplayName( uiTable& tbl, int row, const HostData& hd )
+static void setDisplayName( uiTable& tbl, int row, const HostData& hd, bool ro )
 {
     const char* nm = hd.nrAliases()>0 ? hd.alias(0) : hd.getHostName();
     tbl.setText( RowCol(row,sDispNameCol), nm );
+    tbl.setColor( RowCol(row,sDispNameCol), getCellColor(true,ro) );
 }
 
 
-static void setPlatform( uiTable& tbl, int row, const HostData& hd )
+static void setPlatform( uiTable& tbl, int row, const HostData& hd, bool ro )
 {
     uiObject* cellobj = tbl.getCellObject( RowCol(row,sPlfCol) );
     mDynamicCastGet(uiComboBox*,cb,cellobj)
     if ( !cb )
     {
 	cb = new uiComboBox( nullptr, OD::Platform::TypeNames(), "Platforms" );
+	cb->setSensitive( !ro );
 	tbl.setCellObject( RowCol(row,sPlfCol), cb );
     }
 
@@ -321,27 +344,29 @@ static void setPlatform( uiTable& tbl, int row, const HostData& hd )
 static void setStatus( uiTable& tbl, int row, uiBatchHostsDlg::Status status,
 		       const uiPhraseSet& msg=uiPhraseSet() )
 {
-    uiObject* cellobj = tbl.getCellObject( RowCol(row,sStatus) );
+    uiObject* cellobj = tbl.getCellObject( RowCol(row,sStatusCol) );
     mDynamicCastGet(uiStatusButton*,sb,cellobj)
     if ( !sb )
     {
 	sb = new uiStatusButton( nullptr, uiBatchHostsDlg::StatusDef(),
-				 IconNames, 0 );
-	tbl.setCellObject( RowCol(row,sStatus), sb );
+				 sIconNames, 0 );
+	sb->setMaximumWidth( 70 );
+	tbl.setCellObject( RowCol(row,sStatusCol), sb );
     }
 
     sb->setValue( status, msg );
 }
 
 
-static void setDataRoot( uiTable& tbl, int row, const HostData& hd )
+static void setDataRoot( uiTable& tbl, int row, const HostData& hd, bool ro )
 {
     const BufferString dataroot = hd.getDataRoot().fullPath();
     tbl.setText( RowCol(row,sDataRootCol), dataroot );
+    tbl.setColor( RowCol(row,sDataRootCol), getCellColor(true,ro) );
 }
 
 
-static void updateDisplayName( uiTable& tbl, int row, HostData& hd )
+static void updateDisplayName( uiTable& tbl, int row, HostData& hd, bool ro )
 {
     BufferString dispnm = tbl.text( RowCol(row,sDispNameCol) );
     if ( dispnm.isEmpty() )
@@ -350,7 +375,7 @@ static void updateDisplayName( uiTable& tbl, int row, HostData& hd )
 	dispnm = tbl.rowLabel( row );
 
     hd.setAlias( dispnm );
-    setDisplayName( tbl, row, hd );
+    setDisplayName( tbl, row, hd, ro );
 }
 
 
@@ -366,38 +391,15 @@ void uiBatchHostsDlg::fillTable()
     for ( int idx=0; idx<nrhosts; idx++ )
     {
 	HostData* hd = hostdatalist_[idx];
-	BufferString ipaddr = hd->getIPAddress();
-	if ( !table_->getCellObject(RowCol(idx, sMode)) )
-	{
-	    auto* cb = new uiComboBox( nullptr,
-				       HostLookupModeDef().strings(), "mode");
-	    table_->setCellObject( RowCol(idx, sMode), cb );
-	}
-
-	mDynamicCastGet(uiComboBox*, lookupmode,
-				table_->getCellObject( RowCol(idx, sMode) ));
-	if ( hd->isStaticIP() )
-	    lookupmode->setCurrentItem( StaticIP );
-	else
-	    lookupmode->setCurrentItem( NameDNS );
-
+	setLookupMode( *table_, idx, *hd, readonly_ );
 	setHostName( *table_, idx, *hd );
 	setIPAddress( *table_, idx, *hd );
 	checkHostData( idx );
-	setDisplayName( *table_, idx, *hd );
-	setPlatform( *table_, idx, *hd );
-	if ( !table_->getCellObject(RowCol(idx, sStatus)) )
-	{
-	    auto* sb = new uiStatusButton( nullptr, StatusDef(), IconNames, 0 );
-	    table_->setCellObject( RowCol(idx, sStatus), sb );
-	}
-
-	mDynamicCastGet(uiStatusButton*, status,
-				table_->getCellObject( RowCol(idx, sStatus) ));
-	status->setValue( hoststatus_.validIdx(idx) ? hoststatus_[idx] :
-								    Unknown );
-	table_->setColumnWidth( sStatus, status->prefHNrPics() );
-	setDataRoot( *table_, idx, *hd );
+	setDisplayName( *table_, idx, *hd, readonly_ );
+	setPlatform( *table_, idx, *hd, readonly_ );
+	setStatus( *table_, idx,
+		   hoststatus_.validIdx(idx) ? hoststatus_[idx] : Unknown );
+	setDataRoot( *table_, idx, *hd, readonly_ );
     }
 
     table_->resizeColumnsToContents();
@@ -413,7 +415,6 @@ void uiBatchHostsDlg::addHostCB( CallBacker* )
     hoststatus_ += Unknown;
     fillTable();
     table_->selectRow( hostdatalist_.size()-1 );
-    table_->setSelectionMode( uiTable::NoSelection );
     hostSelCB( nullptr );
 }
 
@@ -423,25 +424,43 @@ void uiBatchHostsDlg::rmHostCB( CallBacker* )
     if ( hostdatalist_.isEmpty() )
 	return;
 
-    const int row = table_->currentRow();
-    const BufferString hostname = table_->text( RowCol(row,sHostNameCol) );
-    uiString msgtxt;
-    if ( !hostname.isEmpty() )
-	msgtxt = tr( "Host %1" ).arg( hostname );
-    else
-	msgtxt = ( ::toUiString(table_->rowLabel(row)) );
+    TypeSet<int> selrows;
+    table_->getSelectedRows( selrows );
+    if ( selrows.isEmpty() )
+	return;
 
-    const uiString msg(tr("%1 will be removed from this list").arg(msgtxt));
+    ObjectSet<HostData> hosts2rm;
+    uiString msg =
+		tr("The following hosts will be removed from this list:\n\n");
+    for ( const auto& row : selrows )
+    {
+	BufferString hostname = table_->text( RowCol(row,sHostNameCol) );
+	if ( hostname.isEmpty() ) // Shouldn't be empty, but just in case
+	    hostname = table_->text( RowCol(row,sIPCol) );
+	if ( hostname.isEmpty() )
+	    hostname = table_->rowLabel( row );
+
+	msg.append( ::toUiString(hostname.buf()) ).addNewLine();
+
+	hosts2rm.add( hostdatalist_[row] );
+    }
+
     const bool res = uiMSG().askContinue( msg );
     if ( !res )
 	return;
 
-    table_->removeRow( row );
-    delete hostdatalist_.removeSingle( row );
-    hoststatus_.removeSingle( row );
+    for ( auto* host : hosts2rm )
+    {
+	const int hostidx = hostdatalist_.indexOf( host );
+	hostdatalist_.removeSingle( hostidx );
+	hoststatus_.removeSingle( hostidx );
+    }
 
+    fillTable();
+
+    const int firstrow = selrows.first();
     const int lastrow = hostdatalist_.size()-1;
-    table_->selectRow( row>=lastrow ? row-1 : row );
+    table_->selectRow( firstrow>=lastrow ? firstrow-1 : firstrow );
 }
 
 
@@ -485,6 +504,7 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 	    setStatus( *table_, idx, Unknown, uiPhraseSet(errmsg) );
 	    continue;
 	}
+
 	if ( autohostbox_->isChecked() )
 	{
 	    setHostName( *table_, idx, *hd );
@@ -496,18 +516,18 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 				       RemoteJobExec::remoteHandlerPort() );
 	PtrMan<Network::Socket> socket = new Network::Socket( false );
 	socket->setTimeout( 1000 );
-	if ( socket->connectToHost( auth, true ) )
+	if ( socket->connectToHost(auth,true) )
 	{
 	    IOPar par;
 	    BufferString id( GetExecutableName()," on ",
 			     System::localFullHostName() );
 	    par.set( sKey::Status(), id );
 	    const BufferString drfpstr =
-				    hd->getDataRoot().fullPath(hd->pathStyle());
+				hd->getDataRoot().fullPath(hd->pathStyle());
 	    if ( !drfpstr.isEmpty() )
 		par.set( sKey::DefaultDataRoot(), drfpstr );
 
-	    if ( !socket->write( par ) )
+	    if ( !socket->write(par) )
 	    {
 		uiRetVal st_uirv( tr("Error writing to %1 : %2").
 				arg(auth.toString()).arg(socket->errMsg()) );
@@ -515,7 +535,8 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 		setStatus( *table_, idx, Unknown, st_uirv );
 		continue;
 	    }
-	    if ( !socket->read( par ) )
+
+	    if ( !socket->read(par) )
 	    {
 		uiRetVal st_uirv( tr("Error reading from %1 : %2").
 				arg(auth.toString()).arg(socket->errMsg()) );
@@ -523,6 +544,7 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 		setStatus( *table_, idx, Unknown, st_uirv );
 		continue;
 	    }
+
 	    uiRetVal st_uirv = doStatusPacket( idx, auth.toString(), par );
 	    if ( !st_uirv.isOK() )
 	    {
@@ -530,14 +552,15 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 		uirv.add( st_uirv);
 		continue;
 	    }
+
 	    BufferString parstr;
 	    par.dumpPretty( parstr );
 	    setStatus( *table_, idx, OK, uiPhraseSet(::toUiString(parstr)) );
 	}
 	else
 	{
-	    uiRetVal st_uirv( tr("%1 : %2").arg(auth.toString()).
-					    arg(socket->errMsg()) );
+	    uiRetVal st_uirv( tr("%1 : %2").arg(auth.toString())
+					   .arg(socket->errMsg()) );
 	    uirv.add( st_uirv );
 	    setStatus( *table_, idx, Error, st_uirv );
 	}
@@ -545,7 +568,7 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 
     if ( !uirv.isOK() )
 	uiMSG().errorWithDetails( uirv,
-			      uiStrings::phrCheck(uiStrings::sSettings()) );
+			uiStrings::phrCheck(uiStrings::sSettings()) );
 }
 
 
@@ -561,7 +584,7 @@ uiRetVal uiBatchHostsDlg::doStatusPacket( int row, const char* authstr,
     else if ( autoinfobox_->isChecked() )
     {
 	hd->setPlatform( OD::Platform(plfname, false) );
-	setPlatform( *table_, row, *hd );
+	setPlatform( *table_, row, *hd, readonly_ );
     }
     else if ( plfname!=hd->getPlatform().longName() )
 	uirv.add( tr("%1 - platform name conflict: %2 vs %3").arg(authstr).
@@ -575,7 +598,7 @@ uiRetVal uiBatchHostsDlg::doStatusPacket( int row, const char* authstr,
     else if ( autoinfobox_->isChecked() )
     {
 	hd->setDataRoot( FilePath(drstr) );
-	setDataRoot( *table_, row, *hd );
+	setDataRoot( *table_, row, *hd, readonly_ );
     }
     else if ( BufferString(par.find(sKey::DefaultDataRoot()))!=sKey::Ok() )
 	uirv.add( tr("%1 - default data root not present").arg(authstr) );
@@ -584,24 +607,15 @@ uiRetVal uiBatchHostsDlg::doStatusPacket( int row, const char* authstr,
 }
 
 
-static OD::Color getColor( bool sel )
-{
-    mDefineStaticLocalObject(
-			OD::Color, bgcol, = uiMain::instance().windowColor() );
-    mDefineStaticLocalObject( OD::Color, selcol, = bgcol.darker(0.3f) );
-    return sel ? selcol : bgcol;
-}
-
-
 void uiBatchHostsDlg::hostSelCB( CallBacker* )
 {
+    if ( readonly_ )
+	return;
+
     const int row = table_->currentRow();
     upbut_->setSensitive( row>0 );
     downbut_->setSensitive( row!=hostdatalist_.size()-1 );
     removebut_->setSensitive( hostdatalist_.validIdx(row) );
-
-    for ( int idx=0; idx<table_->nrRows(); idx++ )
-	table_->setHeaderBackground( idx, getColor(idx==row), true );
 }
 
 
@@ -615,7 +629,7 @@ void uiBatchHostsDlg::changedCB( CallBacker* )
 
     NotifyStopper ns( table_->valueChanged );
 
-    if ( col==sMode )
+    if ( col==sModeCol )
 	lookupModeChanged( row );
     else if ( col==sIPCol )
 	ipAddressChanged( row );
@@ -630,15 +644,6 @@ void uiBatchHostsDlg::changedCB( CallBacker* )
 }
 
 
-static OD::Color getCellColor( bool isok, bool readonly )
-{
-    mDefineStaticLocalObject( OD::Color, okcol, = OD::Color::White() );
-    mDefineStaticLocalObject( OD::Color, rocol, = OD::Color::LightGrey() );
-    mDefineStaticLocalObject( OD::Color, errorcol, = OD::Color::Red() );
-    return isok ? (readonly ? rocol : okcol) : errorcol;
-}
-
-
 void uiBatchHostsDlg::checkHostData( int row )
 {
     HostData& hd = *hostdatalist_[row];
@@ -648,9 +653,10 @@ void uiBatchHostsDlg::checkHostData( int row )
     table_->setCellReadOnly( RowCol(row,sIPCol), !isstaticip );
     table_->setCellReadOnly( RowCol(row,sHostNameCol), isstaticip );
 
-    table_->setColor( RowCol(row,sIPCol), getCellColor(isok,!isstaticip) );
+    table_->setColor( RowCol(row,sIPCol),
+		      getCellColor(isok,readonly_||!isstaticip) );
     table_->setColor( RowCol(row,sHostNameCol),
-			getCellColor(isok,isstaticip) );
+		      getCellColor(isok,readonly_||isstaticip) );
 }
 
 
@@ -670,7 +676,7 @@ void uiBatchHostsDlg::ipAddressChanged( int row )
     if ( autohostbox_->isChecked() )
     {
 	setHostName( *table_, row, hd );
-	updateDisplayName( *table_, row, hd );
+	updateDisplayName( *table_, row, hd, readonly_ );
     }
 
     checkHostData( row );
@@ -687,7 +693,7 @@ void uiBatchHostsDlg::hostNameChanged( int row )
     {
 	uiUserShowWait usw( this, tr("Lookup remote host") );
 	setIPAddress( *table_, row, hd );
-	updateDisplayName( *table_, row, hd );
+	updateDisplayName( *table_, row, hd, readonly_ );
     }
 
     checkHostData( row );
@@ -697,7 +703,7 @@ void uiBatchHostsDlg::hostNameChanged( int row )
 void uiBatchHostsDlg::displayNameChanged( int row )
 {
     HostData& hd = *hostdatalist_[row];
-    updateDisplayName( *table_, row, hd );
+    updateDisplayName( *table_, row, hd, readonly_ );
     const BufferString oldnm = hd.alias( 0 );
     BufferString dispnm = table_->text( RowCol(row,sDispNameCol) );
     if ( dispnm.isEmpty() )
@@ -707,15 +713,15 @@ void uiBatchHostsDlg::displayNameChanged( int row )
 
     hd.setAlias( dispnm );
     if ( oldnm != dispnm )
-	setDisplayName( *table_, row, hd );
+	setDisplayName( *table_, row, hd, readonly_ );
 }
 
 
 void uiBatchHostsDlg::platformChanged( int row )
 {
     HostData& hd = *hostdatalist_[row];
-    uiObject* cellobj = table_->getCellObject( RowCol(row,sPlfCol) );
-    mDynamicCastGet(uiComboBox*,cb,cellobj)
+    const uiObject* cellobj = table_->getCellObject( RowCol(row,sPlfCol) );
+    mDynamicCastGet(const uiComboBox*,cb,cellobj)
     if ( !cb )
 	return;
 
@@ -734,7 +740,8 @@ void uiBatchHostsDlg::dataRootChanged( int row )
 void uiBatchHostsDlg::lookupModeChanged( int row )
 {
     HostData& hd = *hostdatalist_[row];
-    mDynamicCastGet(uiComboBox*, cb, table_->getCellObject(RowCol(row, sMode)));
+    const uiObject* cellobj = table_->getCellObject( RowCol(row,sModeCol) );
+    mDynamicCastGet(const uiComboBox*,cb,cellobj)
     if ( cb && cb->currentItem()==StaticIP )
 	hd.setIPAddress( table_->text(RowCol(row,sIPCol)) );
     else

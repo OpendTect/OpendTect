@@ -184,7 +184,7 @@ uiTableBody::uiTableBody( uiTable& hndl, uiParent* parnt, const char* nm,
     setMouseTracking( true );
 
     setItemDelegate( new BackgroundDelegate(this) );
-    setStyleSheet( "selection-background-color: rgba(128, 128, 128, 40);"
+    setStyleSheet( "selection-background-color: lightblue;"
 		   "selection-color: black;" );
 }
 
@@ -1731,7 +1731,9 @@ uiGroup* uiTable::getCellGroup( const RowCol& rc ) const
 
 
 RowCol uiTable::getCell( uiGroup* grp )
-{ return grp ? getCell( grp->attachObj() ) : RowCol(-1,-1); }
+{
+    return grp ? getCell( grp->attachObj() ) : RowCol(-1,-1);
+}
 
 
 void uiTable::setCellObject( const RowCol& rc, uiObject* obj )
@@ -1747,11 +1749,16 @@ void uiTable::setCellObject( const RowCol& rc, uiObject* obj )
     mDynamicCastGet(uiButton*,but,obj)
     if ( but )
 	but->activated.notify( mCB(this,uiTable,cellObjChangedCB) );
+
+    if ( obj )
+	obj->disabFocus();
 }
 
 
 uiObject* uiTable::getCellObject( const RowCol& rc ) const
-{ return body_->getCellObject( rc ); }
+{
+    return body_->getCellObject( rc );
+}
 
 
 void uiTable::clearCellObject( const RowCol& rc )

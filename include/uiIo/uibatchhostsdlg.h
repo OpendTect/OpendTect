@@ -24,10 +24,10 @@ class uiToolButton;
 mExpClass(uiIo) uiBatchHostsDlg : public uiDialog
 { mODTextTranslationClass(uiBatchHostsDlg)
 public:
-			enum HostLookupMode {StaticIP,NameDNS};
+    enum		HostLookupMode { StaticIP, NameDNS };
 			mDeclareEnumUtils(HostLookupMode)
 
-			enum Status {Unknown,OK,Error};
+    enum		Status { Unknown, OK, Error };
 			mDeclareEnumUtils(Status)
 
 			uiBatchHostsDlg(uiParent*);
@@ -43,6 +43,7 @@ protected:
 
     HostDataList&	hostdatalist_;
     TypeSet<Status>	hoststatus_;
+    bool		readonly_		= false;
 
     void		fillTable();
     void		advbutCB(CallBacker*);
