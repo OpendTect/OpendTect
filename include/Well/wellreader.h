@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include "wellman.h"
 class IOObj;
 class BufferStringSet;
+class DBKeySet;
+class SurveyChanger;
 
 
 namespace Well
@@ -85,23 +87,29 @@ public:
 				MultiWellReader(const TypeSet<MultiID>&,
 						RefObjectSet<Well::Data>&,
 				    const Well::LoadReqs reqs=Well::LoadReqs());
+				MultiWellReader(const DBKeySet&,
+						RefObjectSet<Well::Data>&,
+				    const Well::LoadReqs reqs=Well::LoadReqs());
+				~MultiWellReader();
 
-    int				nextStep() override;
-    od_int64			totalNr() const override;
-    od_int64			nrDone() const override;
-    uiString			uiMessage() const override;
-    uiString			uiNrDoneText() const override;
+    int				nextStep();
+    od_int64			totalNr() const;
+    od_int64			nrDone() const;
+    uiString			uiMessage() const;
+    uiString			uiNrDoneText() const;
     bool			allWellsRead() const { return allwellsread_; }
 				//Can then be used to launch a warning locally
     const uiString&		errMsg() const		{ return errmsg_; }
 
 protected:
+
     RefObjectSet<Well::Data>&	wds_;
-    TypeSet<MultiID>		keys_;
+    DBKeySet&			keys_;
     od_int64			nrwells_;
-    od_int64			nrdone_;
+    od_int64			nrdone_ = 0;
     uiString			errmsg_;
     bool			allwellsread_ = true;
     const Well::LoadReqs	reqs_;
+    SurveyChanger*		chgr_ = nullptr;
 };
 

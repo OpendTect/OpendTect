@@ -25,7 +25,8 @@ public:
 			uiSurveySelectDlg(uiParent*,const char* survnm=0,
 					  const char* dataroot=0,
 					  bool forread=true,
-					  bool needvalidrootdir=true);
+					  bool needvalidrootdir=true,
+					  bool selmultiplesurveys=false);
 			~uiSurveySelectDlg();
 
     void		setDataRoot(const char*);
@@ -33,6 +34,9 @@ public:
     void		setSurveyName(const char*);
     const char*		getSurveyName() const;
     const BufferString	getSurveyPath() const;
+
+    void		getSurveyNames(BufferStringSet&) const;
+    void		getSurveyPaths(BufferStringSet&) const;
 
     bool		isNewSurvey() const;
 
@@ -45,7 +49,7 @@ protected:
 
     uiFileInput*	datarootfld_;
     uiListBox*		surveylistfld_;
-    uiGenInput*		surveyfld_;
+    uiGenInput*		surveyfld_ = nullptr;
 
     bool		forread_;
     bool		needvalidrootdir_;

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uisurvey.h"
+#include "uiseparator.h"
 #include "surveydisklocation.h"
 #include "survinfo.h"
 #include "uistrings.h"
@@ -33,14 +34,13 @@ static bool checkIfDataDir( const char* path )
 
 uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
 				      const char* survnm, const char* dataroot,
-				      bool forread, bool needvalidrootdir )
+				      bool forread, bool needvalidrootdir,
+				      bool selmultiplesurveys )
     : uiDialog(p,uiDialog::Setup(tr("Select Data Root and Survey"),
 				 mNoDlgTitle,
 				 mODHelpKey(mSurveySelectDlgHelpID)))
     , forread_(forread)
     , needvalidrootdir_(needvalidrootdir)
-    , surveyfld_(0)
-
 {
     datarootfld_ = new uiFileInput( this, tr("%1 Root").arg(uiStrings::sData()),
 		uiFileInput::Setup(uiFileDialog::Gen,dataroot)
@@ -49,13 +49,17 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
     datarootfld_->valuechanged.notify(
 		mCB(this,uiSurveySelectDlg,rootSelCB) );
 
-    surveylistfld_ = new uiListBox( this, "Survey list", OD::ChooseOnlyOne );
+    auto* sep = new uiSeparator( this, "Well2Log Sep" );
+    sep->attach( stretchedBelow, datarootfld_ );
+    surveylistfld_ = new uiListBox( this, "Survey list",
+				    selmultiplesurveys ? OD::ChooseOnlyOne
+						       : OD::ChooseAtLeastOne );
     surveylistfld_->setNrLines( 10 );
-    surveylistfld_->attach( alignedBelow, datarootfld_ );
+    surveylistfld_->attach( alignedBelow, sep );
     surveylistfld_->selectionChanged.notify(
 		mCB(this,uiSurveySelectDlg,surveySelCB) );
 
-    if ( !forread_ )
+    if ( !forread_ && !selmultiplesurveys)
     {
 	surveyfld_ = new uiGenInput( this, uiStrings::sName() );
 	surveyfld_->setStretch( 2, 0 );
@@ -76,12 +80,15 @@ void uiSurveySelectDlg::setDataRoot( const char* dataroot )
     BufferString basedatadir( dataroot );
     if ( basedatadir.isEmpty() )
 	basedatadir = GetBaseDataDir();
+
     datarootfld_->setText( dataroot );
 }
 
 
 const char* uiSurveySelectDlg::getDataRoot() const
-{ return datarootfld_->text(); }
+{
+    return datarootfld_->text();
+}
 
 
 void uiSurveySelectDlg::setSurveyName( const char* nm )
@@ -93,7 +100,23 @@ void uiSurveySelectDlg::setSurveyName( const char* nm )
 
 
 const char* uiSurveySelectDlg::getSurveyName() const
-{ return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText(); }
+{
+    return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText();	
+}
+
+
+void uiSurveySelectDlg::getSurveyNames( BufferStringSet& survnms ) const
+{
+    surveylistfld_->getChosen( survnms );
+}
+
+
+void uiSurveySelectDlg::getSurveyPaths( BufferStringSet& survpaths ) const
+{
+    FilePath fps(getDataRoot(),getSurveyName());
+    survpaths.addIfNew( fps.fullPath() );
+}
+
 
 const BufferString uiSurveySelectDlg::getSurveyPath() const
 {

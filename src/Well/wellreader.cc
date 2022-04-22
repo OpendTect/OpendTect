@@ -12,6 +12,7 @@
 
 #include "ascstream.h"
 #include "bufstringset.h"
+#include "dbkey.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
@@ -911,18 +912,46 @@ bool Well::odReader::getDispProps( od_istream& strm ) const
 
 
 // MultiWellReader
-MultiWellReader::MultiWellReader( const TypeSet<MultiID>& keys,
+MultiWellReader::MultiWellReader( const TypeSet<MultiID>& ids,
 				  RefObjectSet<Well::Data>& wds,
 				  const Well::LoadReqs reqs )
     : Executor("Reading well info")
     , wds_(wds)
-    , keys_(keys)
+    , nrwells_(0)
+    , reqs_(reqs)
+    , keys_( *new DBKeySet() )
+{
+    for ( const auto& id : ids )
+	keys_ += DBKey( id );
+
+    nrwells_ = keys_.size();
+    if ( !keys_.isEmpty() )
+	IOM().to( keys_.first() );
+}
+
+
+MultiWellReader::MultiWellReader( const DBKeySet& keys,
+				  RefObjectSet<Well::Data>& wds,
+				  const Well::LoadReqs reqs )
+    : Executor("Reading well info")
+    , wds_(wds)
+    , keys_(*new DBKeySet(keys))
     , nrwells_(keys.size())
-    , nrdone_(0)
     , reqs_(reqs)
 {
     if ( !keys_.isEmpty() )
 	IOM().to( keys_.first() );
+
+    const SurveyDiskLocation& sdl = keys.first().surveyDiskLocation();
+    if ( !sdl.isCurrentSurvey() )
+	chgr_ = new SurveyChanger( sdl );
+}
+
+
+MultiWellReader::~MultiWellReader()
+{
+    delete chgr_;
+    delete &keys_;
 }
 
 
@@ -937,6 +966,7 @@ uiString MultiWellReader::uiMessage() const
 
 uiString MultiWellReader::uiNrDoneText() const
 { return tr("Wells read"); }
+
 
 int MultiWellReader::nextStep()
 {
@@ -954,10 +984,42 @@ int MultiWellReader::nextStep()
 	    return Finished();
     }
 
-    const MultiID wmid = keys_[sCast(int,nrdone_)];
+    const DBKey& wkey = keys_[sCast(int,nrdone_)];
     nrdone_++;
-    RefMan<Well::Data> wd = Well::MGR().get( wmid, reqs_ );;
-    if ( !wd )
+    RefMan<Well::Data> wd;
+    if ( wkey.isInCurrentSurvey() )
+	wd = Well::MGR().get( wkey, reqs_ );
+    else
+    {
+	Well::Reader rdr( wkey, *wd );
+	if ( reqs_.includes(Well::Inf) && !rdr.getInfo() )
+	{
+	    errmsg_.append( rdr.errMsg() ).addNewLine(); 
+	    return MoreToDo();
+	}
+
+	if ( reqs_.includes(Well::Trck) && !rdr.getTrack() )
+	{
+	    errmsg_.append( rdr.errMsg() ).addNewLine(); 
+	    return MoreToDo();
+	}
+
+	if ( reqs_.includes(Well::D2T) )
+	    rdr.getD2T();
+	if ( reqs_.includes(Well::Mrkrs) )
+	    rdr.getMarkers();
+	if ( reqs_.includes(Well::Logs) )
+	    rdr.getLogs();
+	else if ( reqs_.includes(Well::LogInfos) )
+	    rdr.getLogs( true );
+	if ( reqs_.includes(Well::CSMdl) )
+	    rdr.getCSMdl();
+	if ( reqs_.includes(Well::DispProps2D) 
+	     || reqs_.includes(Well::DispProps3D) )
+	    rdr.getDispProps();
+    }
+
+    if ( !wd && wkey.isInCurrentSurvey() )
 	errmsg_.append( Well::MGR().errMsg() ).addNewLine();
 
     wds_ += wd;

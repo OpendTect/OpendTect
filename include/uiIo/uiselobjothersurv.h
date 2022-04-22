@@ -25,6 +25,7 @@ mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiDialog
 { mODTextTranslationClass(uiSelObjFromOtherSurvey);
 public:
     			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);
+			//IOobj constr.
     			~uiSelObjFromOtherSurvey();
 
     void		setDirToCurrentSurvey();

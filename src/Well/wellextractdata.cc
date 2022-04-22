@@ -136,9 +136,9 @@ int Well::InfoCollector::nextStep()
 
     if ( !iodir_ )
     {
-	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-	iodir_ = new IODir( ctio->ctxt_.getSelKey() );
-	direntries_ = new IODirEntryList( *iodir_, ctio->ctxt_ );
+	const IOObjContext ctxt = mIOObjContext( Well );
+	iodir_ = new IODir( ctxt.getSelKey() );
+	direntries_ = new IODirEntryList( *iodir_, ctxt );
 	totalnr_ = direntries_->size();
     }
 
