@@ -30,13 +30,11 @@ mUseQtnamespace
     #define mGetTextWidth(qfm,textstring) qfm.width( textstring )
 #endif
 
-#define mParntBody( p ) dynamic_cast<uiParentBody*>( p->body() )
-
 
 uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     : uiBody()
     , NamedCallBacker(nm)
-    , parent_( parnt ? mParntBody(parnt) : 0  )
+    , parent_(parnt ? dCast(uiParentBody*,parnt) : nullptr)
 {
 #ifdef USE_DISPLAY_TIMER
     displaytimer_ = new Timer( "Display timer" );
@@ -47,6 +45,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
 
 uiObjectBody::~uiObjectBody()
 {
+    sendDelNotif();
     detachAllNotifiers();
     delete layoutitem_;
 }
@@ -493,19 +492,19 @@ void uiObjectBody::setStretch( int hor, int ver )
 {
     if ( itemInited() )
     {
-	if ( hstretch != hor || vstretch != ver )
+	if ( hstretch_ != hor || vstretch_ != ver )
 	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
 
-    hstretch = hor;
-    vstretch = ver;
+    hstretch_ = hor;
+    vstretch_ = ver;
 }
 
 
 int uiObjectBody::stretch( bool hor, bool retundef ) const
 {
-    const int str = hor ? hstretch : vstretch;
+    const int str = hor ? hstretch_ : vstretch_;
     if ( retundef )
 	return str;
 

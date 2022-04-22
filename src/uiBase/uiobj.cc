@@ -190,11 +190,17 @@ void uiParent::addChild( uiBaseObject& child )
 	return;
 
     if ( !body() )
-	{ pErrMsg("uiParent has no body!"); return; }
+    {
+	pErrMsg("uiParent has no body!");
+	return;
+    }
 
-    uiParentBody* pb = dynamic_cast<uiParentBody*>( body() );
+    auto* pb = dCast(uiParentBody*,body());
     if ( !pb )
-	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; }
+    {
+	pErrMsg("uiParent has a body, but it's no uiParentBody");
+	return;
+    }
 
     pb->addChild( child );
 }
@@ -205,7 +211,7 @@ void uiParent::manageChld( uiBaseObject& child, uiObjectBody& bdy )
     if ( &child == static_cast<uiBaseObject*>(this) )
 	return;
 
-    uiParentBody* pb = dynamic_cast<uiParentBody*>( body() );
+    auto* pb = dCast(uiParentBody*,body());
     if ( !pb )
 	return;
 
@@ -225,22 +231,21 @@ void uiParent::attachChild ( constraintType tp, uiObject* child,
 	return;
     }
 
-    uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
-    if ( !b )
+    auto* pb = dCast(uiParentBody*,body());
+    if ( !pb )
     {
 	pErrMsg("uiParent has a body, but it's no uiParentBody");
 	return;
     }
 
-    b->attachChild ( tp, child, other, margin, reciprocal );
+    pb->attachChild ( tp, child, other, margin, reciprocal );
 }
 
 
 const ObjectSet<uiBaseObject>* uiParent::childList() const
 {
-    uiParentBody* uipb =
-	    dynamic_cast<uiParentBody*>( const_cast<uiParent*>(this)->body() );
-    return uipb ? uipb->childList(): nullptr;
+    auto* pb = dCast(const uiParentBody*,body());
+    return pb ? pb->childList(): nullptr;
 }
 
 
@@ -264,12 +269,10 @@ void uiParent::translateText()
     if ( !childList() )
 	return;
 
-    for ( int idx=0; idx<childList()->size(); idx++ )
+    for ( auto* child : *childList() )
     {
-	uiBaseObject* child = const_cast<uiBaseObject*>((*childList())[idx]);
-
 	//Workaround for missing function on uiGroupObj
-	mDynamicCastGet( uiGroupObj*, groupobj, child );
+	mDynamicCastGet(uiGroupObj*,groupobj,child)
 	if ( groupobj && groupobj->group() )
 	    groupobj->group()->translateText();
 
@@ -281,7 +284,7 @@ void uiParent::translateText()
 // uiParentBody
 uiParentBody* uiParent::pbody()
 {
-    return dynamic_cast<uiParentBody*>( body() );
+    return dCast(uiParentBody*,body());
 }
 
 
@@ -290,16 +293,16 @@ void uiParentBody::finalizeChildren()
     if ( !finalized_ )
     {
 	finalized_ = true;
-	for ( int idx=0; idx<children_.size(); idx++ )
-	    children_[idx]->finalize();
+	for ( auto* child : children_ )
+	    child->finalize();
     }
 }
 
 
 void uiParentBody::clearChildren()
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-	children_[idx]->clear();
+    for ( auto* child : children_ )
+	child->clear();
 }
 
 
@@ -440,13 +443,13 @@ uiObject::~uiObject()
 
 uiObjectBody* uiObject::objBody()
 {
-    return dynamic_cast<uiObjectBody*>(body());
+    return dCast(uiObjectBody*,body());
 }
 
 
 const uiObjectBody* uiObject::objBody() const
 {
-    return dynamic_cast<const uiObjectBody*>(body());
+    return dCast(const uiObjectBody*,body());
 }
 
 
@@ -889,7 +892,7 @@ void uiObject::reParent( uiParent* p )
 	return;
 
     qwidget()->setParent( p->pbody()->managewidg() );
-    uiParentBody* pb = dynamic_cast<uiParentBody*>( p->body() );
+    auto* pb = dCast(uiParentBody*,p->body());
     if ( !pb )
 	return;
 

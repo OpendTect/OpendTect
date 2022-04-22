@@ -129,8 +129,8 @@ public:
 
 protected:
 
-    int			hstretch		= mUdf(int);
-    int			vstretch		= mUdf(int);
+    int			hstretch_		= mUdf(int);
+    int			vstretch_		= mUdf(int);
 
     virtual const mQtclass(QWidget*) managewidg_() const { return qwidget_(); }
 
@@ -179,4 +179,3 @@ private:
     Timer*		displaytimer_		= nullptr;
 #endif
 };
-
