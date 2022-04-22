@@ -113,31 +113,35 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     if ( szmb < 0 ) // Unknown, but probably small
 	return true;
 
-    const int avszmb = System::getFreeMBOnDisk( *ioObj() );
-#ifdef __win__
-    const int szgb = szmb / 1024;
-    if ( szgb >= 4 )
+
+    if ( __iswin__ )
     {
-	BufferString fsysname = System::getFileSystemName( ioObj()->dirName() );
-	if ( fsysname == "FAT32" )
+	const BufferString fsysname =
+		System::getFileSystemName( ioObj()->dirName() );
+	const int szgb = szmb / 1024;
+	if ( fsysname == "FAT32" && szgb>=4 )
 	{
 	    uiMSG().error( tr("Target folder has a FAT32 File System.\n"
 			      "Files larger than 4GB are not supported") );
 	    return false;
 	}
     }
-#endif
 
+    const int avszmb = System::getFreeMBOnDisk( *ioObj() );
     if ( avszmb == 0 )
     {
-	if ( !doerrs ) return false;
+	if ( !doerrs )
+	    return false;
+
 	if ( !uiMSG().askContinue( tr("The output disk seems to be full.\n\n"
 				      "Do you want to continue?") ) )
 	    return false;
     }
     else if ( szmb > avszmb )
     {
-	if ( !doerrs ) return false;
+	if ( !doerrs )
+	    return false;
+
 	uiString msg = tr( "The new cube size may exceed the space "
 		       "available on disk:\n%1\n\nDo you want to continue?" );
 
@@ -146,9 +150,9 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
 						   "Available on disk: %2 MB")
 					      .arg(szmb).arg(avszmb);
 
-	msg.arg(explanationmsg);
+	msg.arg( explanationmsg );
 
-	if ( !uiMSG().askContinue( msg ) )
+	if ( !uiMSG().askContinue(msg) )
 	    return false;
     }
     return true;
