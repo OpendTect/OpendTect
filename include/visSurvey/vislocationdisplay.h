@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "visobject.h"
 #include "vissurvobj.h"
-#include "refcount.h"
+#include "pickset.h"
 
 class Sphere;
 namespace Pick { class Set; class Location; class SetMgr; }
