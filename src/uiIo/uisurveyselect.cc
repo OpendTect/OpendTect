@@ -101,7 +101,7 @@ void uiSurveySelectDlg::setSurveyName( const char* nm )
 
 const char* uiSurveySelectDlg::getSurveyName() const
 {
-    return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText();	
+    return surveyfld_ ? surveyfld_->text() : surveylistfld_->getText();
 }
 
 
@@ -143,7 +143,7 @@ bool uiSurveySelectDlg::continueAfterErrMsg()
 void uiSurveySelectDlg::fillSurveyList()
 {
     surveylistfld_->setEmpty();
-    if ( !checkIfDataDir(getDataRoot()) && !continueAfterErrMsg()  )
+    if ( !checkIfDataDir(getDataRoot()) && !continueAfterErrMsg() )
 	return;
 
     BufferStringSet surveylist;

@@ -994,13 +994,13 @@ int MultiWellReader::nextStep()
 	Well::Reader rdr( wkey, *wd );
 	if ( reqs_.includes(Well::Inf) && !rdr.getInfo() )
 	{
-	    errmsg_.append( rdr.errMsg() ).addNewLine(); 
+	    errmsg_.append( rdr.errMsg() ).addNewLine();
 	    return MoreToDo();
 	}
 
 	if ( reqs_.includes(Well::Trck) && !rdr.getTrack() )
 	{
-	    errmsg_.append( rdr.errMsg() ).addNewLine(); 
+	    errmsg_.append( rdr.errMsg() ).addNewLine();
 	    return MoreToDo();
 	}
 
@@ -1014,7 +1014,7 @@ int MultiWellReader::nextStep()
 	    rdr.getLogs( true );
 	if ( reqs_.includes(Well::CSMdl) )
 	    rdr.getCSMdl();
-	if ( reqs_.includes(Well::DispProps2D) 
+	if ( reqs_.includes(Well::DispProps2D)
 	     || reqs_.includes(Well::DispProps3D) )
 	    rdr.getDispProps();
     }
